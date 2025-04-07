@@ -1,93 +1,220 @@
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF3F12505AA
-	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 11:51:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=60.244.123.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6368924EA98
+	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 13:13:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744026683; cv=none; b=X375KtUo7aOgOE6hkKCSn5jkAo67oYlQvEVhL0PIM8wIamBl4ym/r2wbNdnM1jvr3GFrrpiuNaRu+9IuIGkkIE13PTZc2XRpZiEs6mHYyU0lCcZEyhoV5hA17+LEL4W36p9GCcrcQXUaedIy9PWTu3uZwXsDoeGZ8bFK3gkJvkM=
+	t=1744031583; cv=none; b=SjtagvTrd8Q6ASyAqqmZtDkdNe0o4SVtIb8L2J+uwMIYNlTcXhdZvXgFoyznwtF740xelulPCbAoeR94wfupqyrJ2CuPjTZcqbEk8HWDb0U3hnbETsB+5HnSgrGn6/CnMimuGTSLsAYN9lXbicu0nfmHWq7pr/DhjDeKCAHQ8lY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744026683; c=relaxed/simple;
-	bh=xgUKmB5vq2YP9FDOVVqsqudMWRIqV09YtHQN0uX6tfI=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Y2CEUlbvjr07kQX2Pu/sSD+3J8KSCuSEkyJH9e4P1YlRMtzO153F0qExvEPtkDWd9UCTbga5SX8qWXVH1yxNUu+9knTRWjb0v0Sdgg4w2goup6v8InQg5chWHpcTiIKmAFwrNBD87YicMQ3pUDyqE6Sn+n2aMYdgL3UdsClcYt8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com; spf=pass smtp.mailfrom=mediatek.com; dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b=dkDo2ljr; arc=none smtp.client-ip=60.244.123.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mediatek.com
+	s=arc-20240116; t=1744031583; c=relaxed/simple;
+	bh=dVLtvgPnJdXLzcoDxT0pZr8vj6vljEbapmWMe2KsjVY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JJGMEqN9bqUXHILVI6KApnTp4nIa5lrVc6ZZhocY5FAcMwXmpNTPuuv3vxjaCaxcz8ya12IOh98xS7IjU/fgfice61pC4CxthzM4UOq158oxbUeaVTE35EqkAoIR/Lm83HocFzaTr6CoL1k8HqL4KQXoDv/w49SLwtRv2QVOc5c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XVRhZI8B; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="dkDo2ljr"
-X-UUID: 9ba92ac613a611f0aae1fd9735fae912-20250407
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-	h=Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=tkF2DYghDX+VQfWwEAkZ56brYwDEfPo9ZbyXaVQNw8w=;
-	b=dkDo2ljr/sjlsjNlGfkK7xnllS11m7EAELVbxF48MOdpRgeY5+FB9Tr3LWl50hEl09m6Tpr1kBlybpkQskkhlue4E/XCDUnM6izu49IRQx4vahYZxZwz3ZYBm8eTN782/aTlXF8IRD5Msts73jgYOYZpiRWWWPrEz2rXGy7xFcc=;
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.2.1,REQID:ff118d3f-26b2-4ad9-b2dd-4d96e9e9d256,IP:0,UR
-	L:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:r
-	elease,TS:0
-X-CID-META: VersionHash:0ef645f,CLOUDID:fff2c6a5-c619-47e3-a41b-90eedbf5b947,B
-	ulkID:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0|50,EDM:-3,IP:ni
-	l,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES
-	:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 0
-X-CID-BAS: 0,_,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-UUID: 9ba92ac613a611f0aae1fd9735fae912-20250407
-Received: from mtkmbs14n1.mediatek.inc [(172.21.101.75)] by mailgw01.mediatek.com
-	(envelope-from <xiangsheng.hou@mediatek.com>)
-	(Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-	with ESMTP id 2082688227; Mon, 07 Apr 2025 19:51:14 +0800
-Received: from mtkmbs13n1.mediatek.inc (172.21.101.193) by
- MTKMBS14N1.mediatek.inc (172.21.101.75) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.39; Mon, 7 Apr 2025 19:51:13 +0800
-Received: from mhfsdcap04.gcn.mediatek.inc (10.17.3.154) by
- mtkmbs13n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.1258.39 via Frontend Transport; Mon, 7 Apr 2025 19:51:13 +0800
-From: Xiangsheng Hou <xiangsheng.hou@mediatek.com>
-To: Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
-	Miklos Szeredi <miklos@szeredi.hu>, <eperezma@redhat.com>, Matthias Brugger
-	<matthias.bgg@gmail.com>, AngeloGioacchino Del Regno
-	<angelogioacchino.delregno@collabora.com>
-CC: <virtualization@lists.linux.dev>, <linux-fsdevel@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-mediatek@lists.infradead.org>, <benliang.zhao@mediatek.com>,
-	<bin.zhang@mediatek.com>, Xiangsheng Hou <xiangsheng.hou@mediatek.com>
-Subject: [RESEND] virtiofs: add filesystem context source name check
-Date: Mon, 7 Apr 2025 19:50:49 +0800
-Message-ID: <20250407115111.25535-1-xiangsheng.hou@mediatek.com>
-X-Mailer: git-send-email 2.46.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XVRhZI8B"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537D8nCt008341;
+	Mon, 7 Apr 2025 13:12:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=kTVk9i
+	eL2vFL3nlCB+xMp/6WkRXc8psU3RULIlrezBo=; b=XVRhZI8B6F3rVREKTFXp1l
+	GLFUIZr7Bt4RlFNIJPtXOb6xEofgUgcP0S4JdTLWNac9/Zcp4WQzWdi3NqZv0iSq
+	9yubEBbVi+9/lFkPm1SaZ9h8pNnt9aL0qkvyPcRV/QW8TLdlM509WEnSVY8styX2
+	rJPxk3D10q1uz6w1Z1zyJ9BrEI5Zrc5UD/Ww7BwcXxMnYzXiGRrGkv1nV6gQHSQU
+	TDZSx6qlpXtXSAH4P1xfG6d0X+jRUngUwh10n9Rg3K6StCx9XnrwNZLKjJjLpDIR
+	OS7lZc4izypJqliIcA7k+Odb/Z9RLyfF1hQJEVlc3RGdf2EimNpL7YLsAwbhFtQQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45v739jg0e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 13:12:59 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 537B6sh2017457;
+	Mon, 7 Apr 2025 13:12:58 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45uh2kdqnm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 13:12:56 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 537DCqWN54657412
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 7 Apr 2025 13:12:52 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6D6BD2004E;
+	Mon,  7 Apr 2025 13:12:52 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DE55C20040;
+	Mon,  7 Apr 2025 13:12:51 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  7 Apr 2025 13:12:51 +0000 (GMT)
+Date: Mon, 7 Apr 2025 15:12:49 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
+        Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Thomas Huth
+ <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Wei Wang
+ <wei.w.wang@intel.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+Message-ID: <20250407151249.7fe1e418.pasic@linux.ibm.com>
+In-Reply-To: <20250407042058-mutt-send-email-mst@kernel.org>
+References: <20250404063619.0fa60a41.pasic@linux.ibm.com>
+	<4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+	<d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+	<20250404153620.04d2df05.pasic@linux.ibm.com>
+	<d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+	<20250404160025.3ab56f60.pasic@linux.ibm.com>
+	<6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
+	<20250404173910.6581706a.pasic@linux.ibm.com>
+	<20250407034901-mutt-send-email-mst@kernel.org>
+	<2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
+	<20250407042058-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-MTK: N
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: XlMUYpPLp9HmrbE7tJ6e6kIKNuwsg--1
+X-Proofpoint-ORIG-GUID: XlMUYpPLp9HmrbE7tJ6e6kIKNuwsg--1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-07_04,2025-04-03_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ mlxlogscore=999 phishscore=0 mlxscore=0 malwarescore=0 suspectscore=0
+ adultscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2502280000 definitions=main-2504070091
 
-In certain scenarios, for example, during fuzz testing, the source
-name may be NULL, which could lead to a kernel panic. Therefore, an
-extra check for the source name should be added.
+On Mon, 7 Apr 2025 04:34:29 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Xiangsheng Hou <xiangsheng.hou@mediatek.com>
----
- fs/fuse/virtio_fs.c | 3 +++
- 1 file changed, 3 insertions(+)
+> On Mon, Apr 07, 2025 at 10:17:10AM +0200, David Hildenbrand wrote:
+> > On 07.04.25 09:52, Michael S. Tsirkin wrote:  
+> > > On Fri, Apr 04, 2025 at 05:39:10PM +0200, Halil Pasic wrote:  
+> > > > > 
+> > > > > Not perfect, but AFAIKS, not horrible.  
+> > > > 
+> > > > It is like it is. QEMU does queue exist if the corresponding feature
+> > > > is offered by the device, and that is what we have to live with.  
+> > > 
+> > > I don't think we can live with this properly though.
+> > > It means a guest that does not know about some features
+> > > does not know where to find things.  
+> > 
+> > Please describe a real scenario, I'm missing the point.  
+> 
+> 
+> OK so.
+> 
+> Device has VIRTIO_BALLOON_F_FREE_PAGE_HINT and VIRTIO_BALLOON_F_REPORTING
+> Driver only knows about VIRTIO_BALLOON_F_REPORTING so
+> it does not know what does VIRTIO_BALLOON_F_FREE_PAGE_HINT do.
+> How does it know which vq to use for reporting?
+> It will try to use the free page hint one.
 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 2c7b24cb67ad..53c2626e90e7 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -1669,6 +1669,9 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
- 	unsigned int virtqueue_size;
- 	int err = -EIO;
- 
-+	if (!fsc->source)
-+		return invalf(fsc, "No source specified");
-+
- 	/* This gets a reference on virtio_fs object. This ptr gets installed
- 	 * in fc->iq->priv. Once fuse_conn is going away, it calls ->put()
- 	 * to drop the reference to this object.
--- 
-2.46.0
+First, sorry for not catching up again with the discussion earlier.
+
+I think David's point is based on the assumption that by the time feature
+with the feature bit N+1 is specified and allocates a queue Q, all
+queues with indexes smaller than Q are allocated and possibly associated
+with features that were previously specified (and probably have feature
+bits smaller than N+1). 
+
+I.e. that we can mandate, even if you don't want to care about other
+optional features, you have to, because we say so, for the matter of
+virtqueue existence. And anything in the future, you don't have to care
+about because the queue index associated with future features is larger
+than Q, so it does not affect our position.
+
+I think that argument can fall a part if:
+* future features reference optional queues defined in the past
+* somebody managed to introduce a limbo where a feature is reserved, and
+  they can not decide if they want a queue or not, or make the existence
+  of the queue depend on something else than a feature bit.
+
+Frankly I don't think the risks are huge, but it would undoubtedly make
+the spec more ugly.
+
+> 
+> 
+> 
+> > Whoever adds new feat_X *must be aware* about all previous features,
+> > otherwise we'd be reusing feature bits and everything falls to pieces.  
+> 
+> 
+> The knowledge is supposed be limited to which feature bit to use.
+> 
+
+I do agree! This is why I brought this question up. Creating exceptions
+from that rule would be very ugly IMHO. But I would not say it is
+impossible.
+
+> 
+> 
+> > > 
+> > > So now, I am inclined to add linux code to work with current qemu and
+> > > with spec compliant one, and add qemu code to work with current linux
+> > > and spec compliant one.
+> > > 
+> > > Document the bug in the spec, maybe, in a non conformance section.  
+> > 
+> > I'm afraid this results in a lot of churn without really making things
+> > better.  
+> 
+> > IMHO, documenting things how they actually behave, and maybe moving towards
+> > fixed queue indexes for new features is the low hanging fruit.  
+> 
+> I worry about how to we ensure that?
+> If old code is messed up people will just keep propagating that.
+> I would like to fix old code so that new code is correct.
+> 
+> > 
+> > As raised, it's not just qemu+linux, it's *at least* also cloud-hypervisor.
+> > 
+> > -- 
+> > Cheers,
+> > 
+> > David / dhildenb  
+> 
+> There's a slippery slope here in that people will come to us
+> with buggy devices and ask to change the spec.
+> 
+
+I agree! IMHO all we have are bad options. To decide for myself which is
+less ugly I would love to see both.
+
+I agree making the spec bend to the fact that implementations are buggy
+does not seem right from the spec perspective. But if making things work
+is not practical without sacrificing the sanctity of the spec, I am
+willing to swallow the bitter pill and bend the spec.
+
+If you don't mind try to keep me in the loop, even if I'm not able to
+be as responsive as I would like to be. I'm happy fixing the code is
+going to get another round of consideration.
+
+Regards,
+Halil
 
