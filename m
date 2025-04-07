@@ -1,198 +1,134 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2890B35970
-	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 01:06:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0959212B1F
+	for <virtualization@lists.linux.dev>; Mon,  7 Apr 2025 02:15:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743988022; cv=none; b=son2lX++QBIuM7htGHPiNeqH+dRkxzxmEOwZXRvFQhFgrQR0ucksy7qGOLX1t1W6cUceLTIksGRZR8bdwUl56ii64rFGp+lc2Oa+CzCFqHIBbXoiCfDZHONV2aTiV0gHk+3i0Kk+LIa//rmGEKks7VF28fcBWC91nNgz+dEiuX4=
+	t=1743992107; cv=none; b=LS+Knf+mjYrZa+gzuzoI4xv0iYE9KPsbYC0g409yGUVedyAm4apimdGlEUSh73XILdI9f1mj0tPjm4ubRtbuE/ImymH4T/dJ7h3TvHvriqF+C7R96ZzgOUhxNgFLP1yB5+asxYiaXNH+Yw6N0x27WpRxIX1M/ANoemMcGcQT7NA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743988022; c=relaxed/simple;
-	bh=ch6lvxNheDI1ivTt0ioTzc9Ny+4ood1tqZFhk88N0lc=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=Gz6eDqnVnFSKBTXH0Y7RZgiy1E0VDWMiNeIEvnV/fbhrzq8fQq4xZ59rIfK0glQkQxGOt+EhlmeNv1xHi53yYWUXFBSEFSmHo6O8/XQz/2N48/plE0URj1LftX2iA4rSrDAJtiLmCDx3OGmOnh1oYkts87eCMXp8yKY/DfiuIM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=gKU3beZn; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1743992107; c=relaxed/simple;
+	bh=5iGnaKTdh8qdUpTGBnIaXxXw7Npl7YWIGBbllmqoExE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ieZFo3EG30r2hF0YkxW0tXZIXDlJE/6Lb8Yq34Xfy6E6aWPuUjXwI9BZT06cEYKjdek1Kv0fu2re5JXb/KxD6+HO5jUjiwkjcrm0AcxSK9DswpRzbWGldx3LD8vyFf1fngQKK7qxrN0OUvAR39vDESoKvzeLobzwqUAofefNsVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KnSCPLdd; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="gKU3beZn"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1743988009; h=Message-ID:Subject:Date:From:To;
-	bh=RQsGAvlcouaF8GQ6e4VtQjlTST+z+xj3ljx+lelKUrw=;
-	b=gKU3beZnczj9WNOm+nAW+U1d5iOtOoTJHHx6hij0RZQgo55Gl4xuIwcVfBzVJV4k4+CEzHkvROx1y7r/xBHBnlvjfvRiT/QHsouXicx3tPfq8RnJRNJ5M89X7kFUGDbP8fA7LlwjMz6vArf+KCkrdKMa0/EQSQxC1ZPosH55eoU=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WVj13AP_1743988008 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 07 Apr 2025 09:06:48 +0800
-Message-ID: <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH] virtio-net: disable delayed refill when pausing rx
-Date: Mon, 7 Apr 2025 09:03:56 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S . Miller" <davem@davemloft.net>,
- netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- bpf@vger.kernel.org,
- Bui Quang Minh <minhquangbui99@gmail.com>,
- virtualization@lists.linux.dev
-References: <20250404093903.37416-1-minhquangbui99@gmail.com>
-In-Reply-To: <20250404093903.37416-1-minhquangbui99@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KnSCPLdd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743992104;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=5iGnaKTdh8qdUpTGBnIaXxXw7Npl7YWIGBbllmqoExE=;
+	b=KnSCPLddSynLTtvxfQGVHpXe3C3iA45Eph81H50bcLguZMiAv0kOy1tRwgySB6yFSxtk+S
+	tBnSYAcocbRMRW+0ogZsKTgibVPgIhbFtKMvYskoJXVlqY1ojmzL62E9/UQ+nSa40wIAQk
+	K9thyJGsiguuf14MLaO0lV696q01l0w=
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
+ [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-554-6oKTXR1FMIKUUxAags1omQ-1; Sun, 06 Apr 2025 22:15:03 -0400
+X-MC-Unique: 6oKTXR1FMIKUUxAags1omQ-1
+X-Mimecast-MFC-AGG-ID: 6oKTXR1FMIKUUxAags1omQ_1743992102
+Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-736c89461d1so5992226b3a.3
+        for <virtualization@lists.linux.dev>; Sun, 06 Apr 2025 19:15:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743992102; x=1744596902;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5iGnaKTdh8qdUpTGBnIaXxXw7Npl7YWIGBbllmqoExE=;
+        b=ww3W+xNLUVNZH1YobMWVlbzR2Vu19292HdpVWWKa0kfX9YJi9Agrj67LlRYIL7+eIK
+         SIb3Y7gn5NGneE+sI0JH8B3jtx3uwniSPrGvHMnTWkKVkPyFPs+bRpswBi3LRVI9lS7F
+         9LrtMT6/k5aV/+y6tgNxrLa0TyfKf6CMGTgeGizVu3HaTys+bKbSJqVEtjeLp4xlvrNo
+         cetAJNx35rrITwCNTHL50rHUZ7Jk1sRQEFGO20H2mQX/0dwX3wltJQTBV+IetjrTpl1g
+         +yWl3TfHtYKiU6G4t1wsQBvoyddkpSSsDqy544SgZrFJJFBDH21gJeCuvOfAd95rlIKJ
+         g0eQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWASnX/Q0JE50PFHjIiziG5UIjNF+jb4hJuqLBx/3zTYVuhe0GGVhQr/4D+wt/ofxFSrJWp1uglPp0rcOxwIA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzq5TbCIQli+xYBZOFC5lp2MkYI6pt+I1IfqOqi86aPbxvGuAG+
+	snqjlWX75itqcYpTZ4BJYyDLCPkFxyBUpn/yWS5x7nRtiK/vZ83d0o2HFNumLnZ5uCBg9uyC+p1
+	HgQQMHMA6a81NlsoZEq8px3yHsfMi0XBTaDGLNf2mfzHrpvJVrpv60m+5SWOylIdxqiou4HczsZ
+	NsaYPfUi8Fy/lu2034TE9QVeaWc+vMDxWaeQ1sEYU=
+X-Gm-Gg: ASbGnctZ6UO3wgysOG9xShgqlq/Xk/p5kGiHUuq6aNtYrj4hzgQslO2n3E924URjj3b
+	nrAobb6K8bYyFX1xP8Q3HCEQex2m3wtR9uO+A+zRL7mRpk0ylrsjbFWx0xUeAmhnw0mHbqw==
+X-Received: by 2002:a05:6a21:6f01:b0:1f5:8655:3287 with SMTP id adf61e73a8af0-201081894f9mr15997602637.40.1743992102454;
+        Sun, 06 Apr 2025 19:15:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG2xrRUCjmDh8gU4TsrPWubO4RaHlHA1/mZMFsc3k0pvCi4jb3ExJetOAjK+ODkU/PKVNydcIKM1LkzsCQTKWs=
+X-Received: by 2002:a05:6a21:6f01:b0:1f5:8655:3287 with SMTP id
+ adf61e73a8af0-201081894f9mr15997577637.40.1743992102154; Sun, 06 Apr 2025
+ 19:15:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20250404145241.1125078-1-jon@nutanix.com>
+In-Reply-To: <20250404145241.1125078-1-jon@nutanix.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 7 Apr 2025 10:14:51 +0800
+X-Gm-Features: ATxdqUHS0zfr8JGoyzsGJ5km2ABwTqNENhD1uX4yKsHGytOkPk4bkII2gJMMLUM
+Message-ID: <CACGkMEsFc-URhXBCGZ1=CTMZKcWPf57pYy1TcyKLL=N65u+F0Q@mail.gmail.com>
+Subject: Re: [PATCH] vhost/net: remove zerocopy support
+To: Jon Kohler <jon@nutanix.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: IBBsP8rQbjkick1kug5BYRhDkUlGNUKFh3YC8Zt8Sao_1743992102
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri,  4 Apr 2025 16:39:03 +0700, Bui Quang Minh <minhquangbui99@gmail.com> wrote:
-> When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
-> napi_disable() on the receive queue's napi. In delayed refill_work, it
-> also calls napi_disable() on the receive queue's napi. This can leads to
-> deadlock when napi_disable() is called on an already disabled napi. This
-> scenario can be reproducible by binding a XDP socket to virtio-net
-> interface without setting up the fill ring. As a result, try_fill_recv
-> will fail until the fill ring is set up and refill_work is scheduled.
+On Fri, Apr 4, 2025 at 10:24=E2=80=AFPM Jon Kohler <jon@nutanix.com> wrote:
+>
+> Commit 098eadce3c62 ("vhost_net: disable zerocopy by default") disabled
+> the module parameter for the handle_tx_zerocopy path back in 2019,
+> nothing that many downstream distributions (e.g., RHEL7 and later) had
+> already done the same.
+>
+> Both upstream and downstream disablement suggest this path is rarely
+> used.
+>
+> Testing the module parameter shows that while the path allows packet
+> forwarding, the zerocopy functionality itself is broken. On outbound
+> traffic (guest TX -> external), zerocopy SKBs are orphaned by either
+> skb_orphan_frags_rx() (used with the tun driver via tun_net_xmit())
 
+This is by design to avoid DOS.
 
-So, what is the problem? The refill_work is waiting? As I know, that thread
-will sleep some time, so the cpu can do other work.
+> or
+> skb_orphan_frags() elsewhere in the stack,
 
-Thanks.
+Basically zerocopy is expected to work for guest -> remote case, so
+could we still hit skb_orphan_frags() in this case?
 
+> as vhost_net does not set
+> SKBFL_DONT_ORPHAN.
 >
-> This commit adds virtnet_rx_(pause/resume)_all helpers and fixes up the
-> virtnet_rx_resume to disable future and cancel all inflights delayed
-> refill_work before calling napi_disable() to pause the rx.
+> Orphaning enforces a memcpy and triggers the completion callback, which
+> increments the failed TX counter, effectively disabling zerocopy again.
 >
-> Fixes: 6a4763e26803 ("virtio_net: support rx queue resize")
-> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
-> Fixes: 09d2b3182c8e ("virtio_net: xsk: bind/unbind xsk for rx")
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
->  drivers/net/virtio_net.c | 60 ++++++++++++++++++++++++++++++++++------
->  1 file changed, 51 insertions(+), 9 deletions(-)
+> Even after addressing these issues to prevent SKB orphaning and error
+> counter increments, performance remains poor. By default, only 64
+> messages can be zerocopied, which is immediately exhausted by workloads
+> like iperf, resulting in most messages being memcpy'd anyhow.
 >
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7e4617216a4b..4361b91ccc64 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3342,10 +3342,53 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  	return NETDEV_TX_OK;
->  }
+> Additionally, memcpy'd messages do not benefit from the XDP batching
+> optimizations present in the handle_tx_copy path.
 >
-> +static void virtnet_rx_pause_all(struct virtnet_info *vi)
-> +{
-> +	bool running = netif_running(vi->dev);
-> +
-> +	/*
-> +	 * Make sure refill_work does not run concurrently to
-> +	 * avoid napi_disable race which leads to deadlock.
-> +	 */
-> +	disable_delayed_refill(vi);
-> +	cancel_delayed_work_sync(&vi->refill);
-> +	if (running) {
-> +		int i;
-> +
-> +		for (i = 0; i < vi->max_queue_pairs; i++) {
-> +			virtnet_napi_disable(&vi->rq[i]);
-> +			virtnet_cancel_dim(vi, &vi->rq[i].dim);
-> +		}
-> +	}
-> +}
-> +
-> +static void virtnet_rx_resume_all(struct virtnet_info *vi)
-> +{
-> +	bool running = netif_running(vi->dev);
-> +	int i;
-> +
-> +	enable_delayed_refill(vi);
-> +	for (i = 0; i < vi->max_queue_pairs; i++) {
-> +		if (i < vi->curr_queue_pairs) {
-> +			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> +				schedule_delayed_work(&vi->refill, 0);
-> +		}
-> +
-> +		if (running)
-> +			virtnet_napi_enable(&vi->rq[i]);
-> +	}
-> +}
-> +
->  static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
->  {
->  	bool running = netif_running(vi->dev);
+> Given these limitations and the lack of any tangible benefits, remove
+> zerocopy entirely to simplify the code base.
 >
-> +	/*
-> +	 * Make sure refill_work does not run concurrently to
-> +	 * avoid napi_disable race which leads to deadlock.
-> +	 */
-> +	disable_delayed_refill(vi);
-> +	cancel_delayed_work_sync(&vi->refill);
->  	if (running) {
->  		virtnet_napi_disable(rq);
->  		virtnet_cancel_dim(vi, &rq->dim);
-> @@ -3356,6 +3399,7 @@ static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
->  {
->  	bool running = netif_running(vi->dev);
->
-> +	enable_delayed_refill(vi);
->  	if (!try_fill_recv(vi, rq, GFP_KERNEL))
->  		schedule_delayed_work(&vi->refill, 0);
->
-> @@ -5959,12 +6003,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  	if (prog)
->  		bpf_prog_add(prog, vi->max_queue_pairs - 1);
->
-> +	virtnet_rx_pause_all(vi);
-> +
->  	/* Make sure NAPI is not using any XDP TX queues for RX. */
->  	if (netif_running(dev)) {
-> -		for (i = 0; i < vi->max_queue_pairs; i++) {
-> -			virtnet_napi_disable(&vi->rq[i]);
-> +		for (i = 0; i < vi->max_queue_pairs; i++)
->  			virtnet_napi_tx_disable(&vi->sq[i]);
-> -		}
->  	}
->
->  	if (!prog) {
-> @@ -5996,13 +6040,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  		vi->xdp_enabled = false;
->  	}
->
-> +	virtnet_rx_resume_all(vi);
->  	for (i = 0; i < vi->max_queue_pairs; i++) {
->  		if (old_prog)
->  			bpf_prog_put(old_prog);
-> -		if (netif_running(dev)) {
-> -			virtnet_napi_enable(&vi->rq[i]);
-> +		if (netif_running(dev))
->  			virtnet_napi_tx_enable(&vi->sq[i]);
-> -		}
->  	}
->
->  	return 0;
-> @@ -6014,11 +6057,10 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  			rcu_assign_pointer(vi->rq[i].xdp_prog, old_prog);
->  	}
->
-> +	virtnet_rx_resume_all(vi);
->  	if (netif_running(dev)) {
-> -		for (i = 0; i < vi->max_queue_pairs; i++) {
-> -			virtnet_napi_enable(&vi->rq[i]);
-> +		for (i = 0; i < vi->max_queue_pairs; i++)
->  			virtnet_napi_tx_enable(&vi->sq[i]);
-> -		}
->  	}
->  	if (prog)
->  		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
-> --
-> 2.43.0
->
+> Signed-off-by: Jon Kohler <jon@nutanix.com>
+
+Any chance we can fix those issues? Actually, we had a plan to make
+use of vhost-net and its tx zerocopy (or even implement the rx
+zerocopy) in pasta.
+
+Eugenio may explain more here.
+
+Thanks
+
