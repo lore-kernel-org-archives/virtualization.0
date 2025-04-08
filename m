@@ -1,154 +1,175 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 457D6267F6E
-	for <virtualization@lists.linux.dev>; Tue,  8 Apr 2025 11:49:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DDEF26869D
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 11:56:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744112991; cv=none; b=b+8bVx4jrbR5MWXqFcSBySEMIKxzjDHKQGGtOSglnGEElZWxBBH68ck4M8lMTA10KmhPhg3CRai0+0eEYjayDMZ+VONhuR2611e5iW4pzwtgyB3Kj2xNapP8X1GIjA87YRBhuGNRMdAUR5H/mtM0da81cT+e+d3giVb6bh0OGrA=
+	t=1744113378; cv=none; b=Uj8Ayfo3k4J3LFH+QqmLyFwwuY0bT5ys4scjBed1EW8AoSqm190KZFqoWuvh8f2wlErQg0jfCXJOHRGxsOBHwydLCXqm3QGkybtaIVVyp2E7/idj6sVL281Lg8c442bhes/IgsPK6Scarq4VJesL0aPxiG50vBqKOuVkJKasgaQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744112991; c=relaxed/simple;
-	bh=juga/NFhbOp5HXMYDZ5mhk5mcegQzBe3II+n7ob2+yY=;
+	s=arc-20240116; t=1744113378; c=relaxed/simple;
+	bh=wYW1XvzQSniRNKIaNun7g4wBLkN0tc7NLsGQ8V1kHkc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=hmKvcjP5AE6JgWIAeMC5PiHbsQBd+KF4EliwhyhFGiViQduO1ptrtRcDNcNwTk7V7EPkdvSNRkXSSaeR6ISnG/ZGTngSCsbh1iVyczAU4EmEaorI4mDbqGFgAFmA2m6D7y4FsU+XLWvLLJ5NyoVCIx3cQoCG/3bU+b2xQm2xHeA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GTOHKcKj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=SOzIhkDIGYEm2P7MPBKXEd1c7Sf3WWxPiwWq6DAWp9cngTXw7/Ib5JisVEyasW8N/zYvPO0PLIx5/jUxYutv9LYCLONFgqF/Q73VXQoqghtv+QBsK6mzRKD6BiG5f1tXkYZ1MkVlk+dSHCocEfeHTrgbj7vEShJaegkL6+ckodw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cI0jjt7G; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GTOHKcKj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cI0jjt7G"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id B062760903
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 11:56:16 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id lYhciwcZMnes for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Apr 2025 11:56:16 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 06EF860862
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 06EF860862
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cI0jjt7G
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 06EF860862
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 11:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744112988;
+	s=mimecast20190719; t=1744113374;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Y007czW7nolro/BBbr+wWrRJwbjuQk2oO7pcjblsRYQ=;
-	b=GTOHKcKj/t99VBWj2MEP7/QU2nCRbzcz++xJtxZFOPK4pTap5DYRunj2dulfYDBFAy3rqT
-	MBaP1qJkASfgeS4iWaJ3dAIG8YcyKI5FI7yWZ3oV9DFi/NjUX68qDPFAAyWCuoDPfoKt+Z
-	xo1U5F28yafSdf/kas19oLHxhtBmILU=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=c8NmMOJUiBDf2Mnm/32fYSinOOAarf9NGUqN9KbURsM=;
+	b=cI0jjt7GnZo3QPB/VTHMSBmY35fOOh8PvlPuAFRlXJebQEP66LlHN4l1X8mUoYGxU2d2kf
+	DPPfOOO9D1ME9JO7eeBE4+7ZgoxZfrd9OevZIzD1/7k3qguqv298Jo9fJsGFl2LP1XXwlI
+	Lr3krpbAZ4g/Itsf889e9Y5MXnDLAq8=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-245-KA-q6cGeP5ioUxXb4A1BZw-1; Tue, 08 Apr 2025 07:49:44 -0400
-X-MC-Unique: KA-q6cGeP5ioUxXb4A1BZw-1
-X-Mimecast-MFC-AGG-ID: KA-q6cGeP5ioUxXb4A1BZw_1744112984
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4394c489babso27086905e9.1
-        for <virtualization@lists.linux.dev>; Tue, 08 Apr 2025 04:49:44 -0700 (PDT)
+ us-mta-390-lScXayfxOtK3tJC3gpQtQw-1; Tue, 08 Apr 2025 07:56:13 -0400
+X-MC-Unique: lScXayfxOtK3tJC3gpQtQw-1
+X-Mimecast-MFC-AGG-ID: lScXayfxOtK3tJC3gpQtQw_1744113372
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-39ac9b0cb6aso3555047f8f.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 08 Apr 2025 04:56:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744112983; x=1744717783;
+        d=1e100.net; s=20230601; t=1744113372; x=1744718172;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Y007czW7nolro/BBbr+wWrRJwbjuQk2oO7pcjblsRYQ=;
-        b=ZreLtDmIgbHXSQOYE8y8Jz7dFaySLlZ6iBAH0Qsi8z23m3iBGIMrxK1iCZWKA3K2K6
-         Sh/8ZCUXwHOVoqfPwEY8cxy6Qcd4PZlMBdRAmGC3kvnRRLe5W7cHsWxtRhQZ2OXrJaJf
-         852B3bajazl97vCoJNuSyZ79PmqwHTNqfQyibjSsmB6BNPiDg5oTpp69sFtv/cOUcyXg
-         sXN4uJq3rZFjH+wOyGRexhy74R24X3BO1hONSIUGaNIqaWIJ464pzOyZSd1lTHapFVZG
-         kLX6hTKPuKEVnfgPz9hl2QI3zQe/EoVzPqdnR3fK8UVfjsECACTnW1Bm5rRgFDG+zG6N
-         PfmQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUbUHglQKL3u9Hm3Kyi7/5lU+662Wtfc2UqU4iqIBhnQobeJgKMx4KSNaI4sisgGTXS15MAxojHlsJ4voztNQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/qPBSfVQ+ygQP90iQcoNc8aeDfW8ED5OGzMoeS9GYB3fZdPsc
-	NP/asE6MpD9gBi0OzN9738LhS9YCjpuMTqHbKSEIauvsBmnENT2FUrabNpSAIAGUV5iKY9pG1Tu
-	ChLxqF0k8cj6wIzkh9KBJtL/G7VRUod3h6dg7Yx9yx5YSVen4fm35WwqeSjdJjfRj
-X-Gm-Gg: ASbGnctVVY0YvlVdQckqsHGdnkII93iArDRWbCZHm3dPTsDJj7W7z8NTa5MGn8ToSyn
-	lUhxq55aywuSXbI9Xu4g4KQI5x7bvBPF/5fPNXCmR6frBeWZfHXc7k++F7xeIjxogJfdju3SL/v
-	YuNemunOdKgZtNsQAiUzLFbSTinVsgVgbK1qqymrh9XukManyMskYTDj4IX+mvIrwTsurNDfhI0
-	qpAfUZT8vEFX6qyxMd9TaD9VHU59GDB0H/V0CQEZHrbt9G3a4zFdAQYiwlqtjsJG7HsWFy4L6hE
-	SlTcCC+gUQ==
-X-Received: by 2002:a05:6000:1a8d:b0:397:8f09:5f6 with SMTP id ffacd0b85a97d-39cba93cd39mr15652802f8f.47.1744112983547;
-        Tue, 08 Apr 2025 04:49:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH+o1zR3VRcPlBcclW24I6ljtmxJ4Chpl0YFxpgvpmk6R76rTIbQ1hLofb7K+neh4PaWzsX0g==
-X-Received: by 2002:a05:6000:1a8d:b0:397:8f09:5f6 with SMTP id ffacd0b85a97d-39cba93cd39mr15652780f8f.47.1744112983180;
-        Tue, 08 Apr 2025 04:49:43 -0700 (PDT)
+        bh=c8NmMOJUiBDf2Mnm/32fYSinOOAarf9NGUqN9KbURsM=;
+        b=HI4YwR3beWRNkxM1BMEk4yWdBfA7RrEk6TD/bPert/Vz366D23qt0QYvr1oklHYyI6
+         7Kp8hm0POnsOc1aNINL4GfIUbiYueTJJvcyVzGUIXJHvYe/wufxbwpD7Vp3mn+YP1Pi5
+         kAE2KbQ9Y+jqS13IfJoqEwfAStdEDzmrj37ijTAJmk67nBlPZAYJtILltaYK+l66tm+o
+         3v4rIRYHpwRoVqlaVKcy4DrvWwMr7P/GNbeo8k3yL1OZeQ6sofYRCD7nSdF6T1qWb60L
+         bSZYhEhBqbXs7cai7OyXs7nfnjT9raThJOTBj8hrLA5a/IJZcd9GIS4mlAXdmSPPr9UP
+         1Mdw==
+X-Forwarded-Encrypted: i=1; AJvYcCVGDHX5kcE6EVfL98ak0yJt1Ts60KNTo9i14TxF55xl/tBpbNqBCjJkKLQSKg98ARwsXBAf8Iw1e+9j5XPbhA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzTAmQi34UPO6XO51hskt2vnhcoPTXCnIWId5nH6W8p+zkKdCvB
+	NubP/3ujGzLZJ1kjSck85DpRn7tsiYDEmhT//qhagrDk4whmmpLG46+J8rTceRG1Ma1tAng/OYQ
+	vTRcBqC0ZgnZ2o5cBJuquef+gYGSvOdkaep2rrzdPmdmiInHwt1uQojLb8bXj1qap9x6JimftyT
+	YSOng=
+X-Gm-Gg: ASbGncsMMX6vlLGYV5YUpuRdvD4zZRNXVYo5gffPXpNiPTcBAw4Y4MVRLWPmaOPvl86
+	FbyZxH1GiJbH7eUzZfri9FZzCNq0gQ2WZp7J9q231ogxV1Eei+u4PDbe93WmbKpwOvl5KjJY2hx
+	2HXP/YnD7/wSB888qKOqlOwDnuN1Ur4lvBIySNRYiUJlu6Tsh4EiVfbp5G21aZV9vpd+dOCv/Ej
+	vZrbiMJ0FeBhAQb0pc6EzkfQIenwY+ydz5Fk9BqUOy5rxm3xKgrtOfoz/PIaMPeD+x8SuXiZsBV
+	v2BDWS7fjA==
+X-Received: by 2002:a05:6000:2484:b0:391:31c8:ba59 with SMTP id ffacd0b85a97d-39d6fc0c110mr8562978f8f.4.1744113371951;
+        Tue, 08 Apr 2025 04:56:11 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHcMsSZ5Gam/fQOpaIuoaRMdI4T7XugacA1lPSXA8mE0sG1MgVGLtGvlHpdN41g6650CZaIhQ==
+X-Received: by 2002:a05:6000:2484:b0:391:31c8:ba59 with SMTP id ffacd0b85a97d-39d6fc0c110mr8562957f8f.4.1744113371519;
+        Tue, 08 Apr 2025 04:56:11 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c301b69c4sm14561074f8f.43.2025.04.08.04.49.41
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c301a9da1sm14440447f8f.22.2025.04.08.04.56.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Apr 2025 04:49:42 -0700 (PDT)
-Date: Tue, 8 Apr 2025 07:49:39 -0400
+        Tue, 08 Apr 2025 04:56:10 -0700 (PDT)
+Date: Tue, 8 Apr 2025 07:56:08 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Sean Christopherson <seanjc@google.com>
-Cc: Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
-	Alex Williamson <alex.williamson@redhat.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Oliver Upton <oliver.upton@linux.dev>,
-	David Matlack <dmatlack@google.com>,
-	Like Xu <like.xu.linux@gmail.com>, Yong He <alexyonghe@tencent.com>
-Subject: Re: [PATCH 0/7] irqbypass: Cleanups and a perf improvement
-Message-ID: <20250408074907-mutt-send-email-mst@kernel.org>
-References: <20250404211449.1443336-1-seanjc@google.com>
+To: Cindy Lu <lulu@redhat.com>
+Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: Re: [PATCH v8 8/8] vhost: Add a KConfig knob to enable IOCTL
+ VHOST_FORK_FROM_OWNER
+Message-ID: <20250408075426-mutt-send-email-mst@kernel.org>
+References: <20250328100359.1306072-1-lulu@redhat.com>
+ <20250328100359.1306072-9-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250404211449.1443336-1-seanjc@google.com>
+In-Reply-To: <20250328100359.1306072-9-lulu@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: e9ZpboW1K02SPu8M7vluAuqlY2Iyr_aIb1D_aPcndf0_1744112984
+X-Mimecast-MFC-PROC-ID: L5rUj8q2c-8skHLjEuvoysd2Fy4pXwHR0ZTe4z_38ns_1744113372
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Apr 04, 2025 at 02:14:42PM -0700, Sean Christopherson wrote:
-> The two primary goals of this series are to make the irqbypass concept
-> easier to understand, and to address the terrible performance that can
-> result from using a list to track connections.
+On Fri, Mar 28, 2025 at 06:02:52PM +0800, Cindy Lu wrote:
+> Introduce a new config knob `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL`,
+> to control the availability of the `VHOST_FORK_FROM_OWNER` ioctl.
+> When CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL is set to n, the ioctl
+> is disabled, and any attempt to use it will result in failure.
 > 
-> For the first goal, track the producer/consumer "tokens" as eventfd context
-> pointers instead of opaque "void *".  Supporting arbitrary token types was
-> dead infrastructure when it was added 10 years ago, and nothing has changed
-> since.  Taking an opaque token makes a *very* simple concept (device signals
-> eventfd; KVM listens to eventfd) unnecessarily difficult to understand.
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> ---
+>  drivers/vhost/Kconfig | 15 +++++++++++++++
+>  drivers/vhost/vhost.c |  3 +++
+>  2 files changed, 18 insertions(+)
 > 
-> Burying that simple behind a layer of obfuscation also makes the overall
-> code more brittle, as callers can pass in literally anything. I.e. passing
-> in a token that will never be paired would go unnoticed.
-> 
-> For the performance issue, use an xarray.  I'm definitely not wedded to an
-> xarray, but IMO it doesn't add meaningful complexity (even requires less
-> code), and pretty much Just Works.  Like tried this a while back[1], but
-> the implementation had undesirable behavior changes and stalled out.
-> 
-> To address the use case where huge numbers of VMs are being created without
-> _any_ possibility for irqbypass, KVM should probably add a
-> KVM_IRQFD_FLAG_NO_IRQBYPASS flag so that userspace can opt-out on a per-IRQ
-> basis.  I already proposed a KVM module param[2] to let userspace disable
-> IRQ bypass, but that obviously affects all IRQs in all VMs.  It might
-> suffice for most use cases, but I can imagine scenarios where the VMM wants
-> to be more selective, e.g. when it *knows* a KVM_IRQFD isn't eligible for
-> bypass.  And both of those require userspace changes.
-> 
-> Note, I want to do more aggressive cleanups of irqbypass at some point,
-> e.g. not reporting an error to userspace if connect() fails is *awful*
-> behavior for environments that want/need irqbypass to always work.  But
-> that's a future problem.
-> 
-> [1] https://lore.kernel.org/all/20230801115646.33990-1-likexu@tencent.com
-> [2] https://lore.kernel.org/all/20250401161804.842968-1-seanjc@google.com
+> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> index b455d9ab6f3d..e5b9dcbf31b6 100644
+> --- a/drivers/vhost/Kconfig
+> +++ b/drivers/vhost/Kconfig
+> @@ -95,3 +95,18 @@ config VHOST_CROSS_ENDIAN_LEGACY
+>  	  If unsure, say "N".
+>  
+>  endif
+> +
+> +config VHOST_ENABLE_FORK_OWNER_IOCTL
+> +	bool "Enable IOCTL VHOST_FORK_FROM_OWNER"
+> +	default n
+> +	help
+> +	  This option enables the IOCTL VHOST_FORK_FROM_OWNER, which allows
+> +	  userspace applications to modify the thread mode for vhost devices.
 
-vdpa changes seem minor, so
+ok
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> +          By default, `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL` is set to `n`,
+> +          meaning the ioctl is disabled and any operation using this ioctl
+> +          will fail.
+> +          When the configuration is enabled (y), the ioctl becomes
+> +          available, allowing users to set the mode if needed.
 
+no need to be so verbose - the disabled beavious belongs in commit log
+not here.
 
-> Sean Christopherson (7):
->   irqbypass: Drop pointless and misleading THIS_MODULE get/put
->   irqbypass: Drop superfluous might_sleep() annotations
->   irqbypass: Take ownership of producer/consumer token tracking
->   irqbypass: Explicitly track producer and consumer bindings
->   irqbypass: Use paired consumer/producer to disconnect during
->     unregister
->   irqbypass: Use guard(mutex) in lieu of manual lock+unlock
->   irqbypass: Use xarray to track producers and consumers
-> 
->  drivers/vfio/pci/vfio_pci_intrs.c |   5 +-
->  drivers/vhost/vdpa.c              |   4 +-
->  include/linux/irqbypass.h         |  38 +++---
->  virt/kvm/eventfd.c                |   3 +-
->  virt/lib/irqbypass.c              | 185 ++++++++++--------------------
->  5 files changed, 88 insertions(+), 147 deletions(-)
-> 
-> 
-> base-commit: 782f9feaa9517caf33186dcdd6b50a8f770ed29b
+Also either ioctl or IOCTL but not both.
+
+> +
+> +	  If unsure, say "N".
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index fb0c7fb43f78..568e43cb54a9 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2294,6 +2294,8 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
+>  		r = vhost_dev_set_owner(d);
+>  		goto done;
+>  	}
+> +
+> +#ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL
+>  	if (ioctl == VHOST_FORK_FROM_OWNER) {
+>  		u8 inherit_owner;
+>  		/*inherit_owner can only be modified before owner is set*/
+> @@ -2313,6 +2315,7 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
+>  		r = 0;
+>  		goto done;
+>  	}
+> +#endif
+>  	/* You must be the owner to do anything else */
+>  	r = vhost_dev_check_owner(d);
+>  	if (r)
 > -- 
-> 2.49.0.504.g3bcea36a83-goog
+> 2.45.0
 
