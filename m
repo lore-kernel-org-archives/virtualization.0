@@ -1,145 +1,132 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 069F2264F90
-	for <virtualization@lists.linux.dev>; Tue,  8 Apr 2025 09:29:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5436E265633
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 09:46:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744104542; cv=none; b=BUBzlpZnD2qkNl4lnwJGscC3MZqbYqwQHkzdYUOQJ4YhurDZ1GkFCg5GAEKM0odjtajMHQuBMxFG5/9l4YwUVn2Yxum/EHiz/6gFNIeAYDjVRs02mC/oNsVHyR82aB0EpUU6cTWuW1HddGj75VfWUcFpWq2gFDlfzHZNv8foInc=
+	t=1744105610; cv=none; b=erRtsy4G1p4hik70eKEkn7CEgc0jYmWRbhhVUwf4cXItoetzg4YLn3OBNbtRuTTkfYbS1l2Bu7koTfcwbMx/ubcbWUUEaEogEEaqVSXHLrv452VjvShN7Og3nls3jy+8xf6KdxrTByqVT/e4jl5VQIU9My3SkfMOn68CiIu5iaE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744104542; c=relaxed/simple;
-	bh=6GXjoR9+j3K5oqC5DbXewEtoWag0AaWHJyjmg134Js8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZU+K9HWGH1sujrdxpEeAyg/FajzIJJT/U2nhjkCrUy7/2d7LSc6Qlx0Fp7+3vbc2S9d0J3gF47mxzu0ElK29F9zKfBGuPNnGYYDYUOYXbzihkP14LboUMJU4LR0D5grFVy9l3P4EYVCOHk2wUHpGSuKUUELGkABdDXnQGtyp0Z4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AjFf/ewd; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1744105610; c=relaxed/simple;
+	bh=kFJHApLzkjjQTZd748UbOGNjaj3R6uugruxTfXbZkHU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IcS6vcJqpkegQvysJJ0DPnq7MRDbrdrT57rLvwfMnitRY59XymfS88cE4Lh98OmlEgh2b0a62aUGcZWiFcmqs5EvEtCAWIDoLghvp2fsNxobGV1GGt4J7G8QLH9vAYNpgX7yFxehDdf1uk24esCI1t6y7s0dAuTtxC7C2DWoTeE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PkA6KqER; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AjFf/ewd"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PkA6KqER"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id DD559610DA
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 09:46:48 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id zR9xOcLh-DPR for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Apr 2025 09:46:48 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 42241605A8
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 42241605A8
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PkA6KqER
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 42241605A8
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 09:46:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744104539;
+	s=mimecast20190719; t=1744105606;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5kFJkKUSX4bPqKPH1LRnxjH0+XkR8hOBduchqaJy8g8=;
-	b=AjFf/ewdlHHT0pmbgyMqtX2TkSZVxkm1qzBrWkeTmYiNcYF0gD0pvOp3tbR8L0mDkUbFn4
-	3R4HtoMxPzpNSkRWByoOgVivYK8rbSZNgf7CMPFFTbyywp59JScdM1fFBW6quxCjjg/YWc
-	H2HQqTs3Ctwhc38C4pdqBuYg8QTMNAk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=kFJHApLzkjjQTZd748UbOGNjaj3R6uugruxTfXbZkHU=;
+	b=PkA6KqER8YJkXNODKomHLkiuSyNXmuuEhloqMqqb9n18Hd6LQoXUEW0nqzn2m5RBzj6ZPl
+	frrhwOIZRTtQiML9ZngGhmPLoBWiehrSPIrb9n3QByp9pXQE6xtKGCI2S78R0NixYRXXCy
+	LZfT/eZQalOyzYNF8K/yOnGVPm50Rgg=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-282-6cA1WNaWOlusSIj0gGabjg-1; Tue, 08 Apr 2025 05:28:58 -0400
-X-MC-Unique: 6cA1WNaWOlusSIj0gGabjg-1
-X-Mimecast-MFC-AGG-ID: 6cA1WNaWOlusSIj0gGabjg_1744104537
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43ceeaf1524so30011765e9.1
-        for <virtualization@lists.linux.dev>; Tue, 08 Apr 2025 02:28:58 -0700 (PDT)
+ us-mta-355-xQ5Y2mSAO-Co8gtmQmzH3w-1; Tue, 08 Apr 2025 05:46:45 -0400
+X-MC-Unique: xQ5Y2mSAO-Co8gtmQmzH3w-1
+X-Mimecast-MFC-AGG-ID: xQ5Y2mSAO-Co8gtmQmzH3w_1744105604
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-4767348e239so105368591cf.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 08 Apr 2025 02:46:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744104537; x=1744709337;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5kFJkKUSX4bPqKPH1LRnxjH0+XkR8hOBduchqaJy8g8=;
-        b=U2NUYFjLT5VagkMOCUcQyhMjb1S4npFNIH8MwBsbGR+zzCtxOTYxQ7auwvmTuoIwYD
-         iiQAPTlhKhhrDwJeCDHIB5qRruVZiJ2BHP3cSuK69Z/FD26v9lYy+NNTx8lzkScVuse0
-         oe/TnFIAO7NUTXcyCrY5+jTZYHnt8R8k0t2zsXxkugpMZIM5PRfIhyb0k3DmGixEiRrU
-         EXOdyowmYCj+Psq76kkPei9/tEgFSLE25rsuO/j+0XsuKhJz2G9PXsdvxBxWAT9XUhBS
-         PgVWW26A5tOkwhWFEnJ4an8NT++HvPL/lm7UPnukSWe2rbTtKnRctTQB5qmsgIUgDBsW
-         5bXg==
-X-Forwarded-Encrypted: i=1; AJvYcCVp2GrhipExR6GIrZY+G06ULigvjO0biSHa0mYBssGE2i50KX5g9ZvC38AmY4YXmPsRvLsq2B5kUBSEG3Rhnw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyvu78bwfn4XsRsnlD6e1g41L1Mosr5hKsHOG4ihVTsa++/uSCI
-	1Y+37J795xfcfJTXyfWFZKbjpHa2n2oz5P+T+ORk+IZmC2UupRYETTyvlCWL3pNky07PtnaKvPh
-	XaaqIhp4xqf87vhy3rSD9+8tXO+IPcWvedaMQBXJYDsgYx6rNnFYzl6ZuTAyK1rr8
-X-Gm-Gg: ASbGncvNvf2/pk1QUzgqfDXOeOS/NgGuxF57AvR4z8Vl/6AG3/yIPffXsnjQZQ+wJ7n
-	vr+AvVPd4Gv60OEu1/iURAwf9fuzrM2CGst7IHvPQgNIsSsASpSifSwSqMAt7TU0bvWyqnaNZjs
-	pEzdHBr4qGYwhboi2IyRomehDYt+OVg0rgoOOWU6schEawtVNvgPOj/QpsSgRAD5zCa/oQXxgLd
-	gdWOTY4E4GNrF0E7FIwuC05De1AA+maV+ZZYCI5Ih3oa/iNDBepQf7YSHtsZfljx27BLzUfj3fU
-	mzSavHGkLxLk02EegXoOmgU4alWLj2La//rMKYRDM88=
-X-Received: by 2002:a05:600c:4fcf:b0:439:8878:5029 with SMTP id 5b1f17b1804b1-43f0e559b59mr17275495e9.2.1744104537136;
-        Tue, 08 Apr 2025 02:28:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGhpOS2RXvhgff3wksFzuaqSdXSfMzYI4OqpbYjwZCmgj2nkzJ65yFcKEppTsA1r/gQVzTICQ==
-X-Received: by 2002:a05:600c:4fcf:b0:439:8878:5029 with SMTP id 5b1f17b1804b1-43f0e559b59mr17275315e9.2.1744104536739;
-        Tue, 08 Apr 2025 02:28:56 -0700 (PDT)
-Received: from [192.168.88.253] (146-241-84-24.dyn.eolo.it. [146.241.84.24])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec1660eb3sm159792645e9.11.2025.04.08.02.28.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Apr 2025 02:28:56 -0700 (PDT)
-Message-ID: <1b78c63b-7c07-4d25-8785-bfb0e28c71ad@redhat.com>
-Date: Tue, 8 Apr 2025 11:28:54 +0200
+        d=1e100.net; s=20230601; t=1744105604; x=1744710404;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kFJHApLzkjjQTZd748UbOGNjaj3R6uugruxTfXbZkHU=;
+        b=Dqh7VrTKs2SKBQG30ZTAGrCCNpciQjeTns5CLPYMzNjxadl+RJxAqlbMoOEhoJiCSY
+         0pKcwtKnzXlFNt5Qef7Z1UIB9iRcRvufNanh6EW9mHk8QpiAZZvcA58xj6EZx99ZEhw7
+         0uqqg9fxm0GPUK6EeOaRFkH7FGGMwtCk6P3Fhvv2J7e4ZOD5EAswp9nHcx7z+8hZRcyY
+         k+7MRlyELqBsOOnKNKPBnK2tQ0ZIBIyFk9CblDuralPCxKFk3UA55Ljs1c7DbYtfTu/+
+         wqcFha6Cm3kJvjhizneE9GoIkyGrMx5uz1Kobia9vctRTLJGVRCP6SK6bCi8vm4nA+en
+         JanA==
+X-Forwarded-Encrypted: i=1; AJvYcCUSX5wi2GFhEGd79hdnCTM/7pLqmwFBV/zSzfrfsDhPGTS0FnETr+w6ShCvJ7wSOFhIOdFDatceDihf+/E51Q==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwXcBtwiAqaH6hMtXO75QMNFuOlf4HMDzuuj8Ib6UayrlKVh+JB
+	xjBgd3f1IR/7TGoOB7dJNDLfrsXYYjLUPxI02OO13aR+/s5HHJUZXJlYoUbSJgZqz0mngX3cJRT
+	fB9V62draxH2Az+p1UvMWEGKqMVhEGm9/+XG7hrqjEPy8tIpUB6PqH2odvJ0mr7nkQAJZ8pGp6t
+	FxOv9GQ0u8hCSLtgJGgljJk0LAPwhEC70xFchxcWmHLia/CHpGZDLZgQ==
+X-Gm-Gg: ASbGncusk0GNagK/3oG4sj1PYu9PGNaNlbLZD9Q+LVIByIfJbrPG9W+2oAiCh4AwtNL
+	Oii3Dydxwa4utFduxlLqIIvlYmQj+VtpLEnri3TFqyi7PLM6pEgebvOygYVQqX118p33yKcZ/RQ
+	==
+X-Received: by 2002:ac8:5987:0:b0:477:4224:9607 with SMTP id d75a77b69052e-47930f92246mr194565671cf.12.1744105604569;
+        Tue, 08 Apr 2025 02:46:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHUGe1WMgdw3266Ixamciimi7c04VwM13sorCvBAziX4GsTGnRMZpS8YF7Y0r3w9ErgRv4v1FDTdG6BwI33w3U=
+X-Received: by 2002:ac8:5987:0:b0:477:4224:9607 with SMTP id
+ d75a77b69052e-47930f92246mr194565531cf.12.1744105604319; Tue, 08 Apr 2025
+ 02:46:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio-net: disable delayed refill when pausing rx
-To: Jason Wang <jasowang@redhat.com>,
- Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20250404093903.37416-1-minhquangbui99@gmail.com>
- <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
- <30419bd6-13b1-4426-9f93-b38b66ef7c3a@gmail.com>
- <CACGkMEs7O7D5sztwJVn45c+1pap20Oi5f=02Sy_qxFjbeHuYiQ@mail.gmail.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <CACGkMEs7O7D5sztwJVn45c+1pap20Oi5f=02Sy_qxFjbeHuYiQ@mail.gmail.com>
+References: <20250328100359.1306072-1-lulu@redhat.com> <20250328100359.1306072-5-lulu@redhat.com>
+ <20250407041540-mutt-send-email-mst@kernel.org> <76a7e782-6a7c-4704-b7c1-2459254c1362@oracle.com>
+In-Reply-To: <76a7e782-6a7c-4704-b7c1-2459254c1362@oracle.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Tue, 8 Apr 2025 17:45:58 +0800
+X-Gm-Features: ATxdqUEdI-_9frRvmATT_TQ83vcEeyygOtNToq3q3kw5ZPITDti5dWdb32chlc4
+Message-ID: <CACLfguXfRvLLiCF7ysidPLcn7GftU1Jyuem2Q9xr_SMGnP_16A@mail.gmail.com>
+Subject: Re: [PATCH v8 4/8] vhost: Introduce vhost_worker_ops in vhost_worker
+To: Mike Christie <michael.christie@oracle.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, jasowang@redhat.com, sgarzare@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: bjkVwFr7Vb38_1Yhilb6NLUaFFly4o9eYOIqD7CFIIE_1744104537
+X-Mimecast-MFC-PROC-ID: IgrETJ6bVN9YCvPnOFsa6Wx5VTPc6ERYVNaw3aHFmow_1744105604
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/8/25 9:34 AM, Jason Wang wrote:
-> On Mon, Apr 7, 2025 at 10:27 AM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
->> On 4/7/25 08:03, Xuan Zhuo wrote:
->>> On Fri,  4 Apr 2025 16:39:03 +0700, Bui Quang Minh <minhquangbui99@gmail.com> wrote:
->>>> When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
->>>> napi_disable() on the receive queue's napi. In delayed refill_work, it
->>>> also calls napi_disable() on the receive queue's napi. This can leads to
->>>> deadlock when napi_disable() is called on an already disabled napi. This
->>>> scenario can be reproducible by binding a XDP socket to virtio-net
->>>> interface without setting up the fill ring. As a result, try_fill_recv
->>>> will fail until the fill ring is set up and refill_work is scheduled.
->>>
->>> So, what is the problem? The refill_work is waiting? As I know, that thread
->>> will sleep some time, so the cpu can do other work.
->>
->> When napi_disable is called on an already disabled napi, it will sleep
->> in napi_disable_locked while still holding the netdev_lock. As a result,
->> later napi_enable gets stuck too as it cannot acquire the netdev_lock.
->> This leads to refill_work and the pause-then-resume tx are stuck altogether.
-> 
-> This needs to be added to the chagelog. And it looks like this is a fix for
-> 
-> commit 413f0271f3966e0c73d4937963f19335af19e628
-> Author: Jakub Kicinski <kuba@kernel.org>
-> Date:   Tue Jan 14 19:53:14 2025 -0800
-> 
->     net: protect NAPI enablement with netdev_lock()
-> 
-> ?
-> 
-> I wonder if it's simpler to just hold the netdev lock in resize or xsk
-> binding instead of this.
-
-Setting:
-
-	dev->request_ops_lock = true;
-
-in virtnet_probe() before calling register_netdevice() should achieve
-the above. Could you please have a try?
-
-Thanks,
-
-Paolo
+On Tue, Apr 8, 2025 at 12:06=E2=80=AFAM Mike Christie
+<michael.christie@oracle.com> wrote:
+>
+> On 4/7/25 3:17 AM, Michael S. Tsirkin wrote:
+> > On Fri, Mar 28, 2025 at 06:02:48PM +0800, Cindy Lu wrote:
+> >> Abstract vhost worker operations (create/stop/wakeup) into an ops
+> >> structure to prepare for kthread mode support.
+> >>
+> >> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> >
+> > I worry about the overhead of indirect calls here.
+> >
+> > We have the wrappers, and only two options,
+> > why did you decide to add it like this,
+> > with ops?
+> >
+> That was from my review comment. Originally, I thought we
+> could share more code. For example I thought
+> vhost_run_work_kthread_list from patch 2 in this thread and
+> kernel/vhost_task.c:vhost_task_fn could be merged.
+>
+Hi Mike
+I guess you mean function vhost_run_work_list and vhost_run_work_kthread_li=
+st?
+sure, I will try to merge these two functions in next version
+Thanks
+Cindy
 
