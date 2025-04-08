@@ -1,189 +1,95 @@
-Received: from flow-a4-smtp.messagingengine.com (flow-a4-smtp.messagingengine.com [103.168.172.139])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A42326B94D
-	for <virtualization@lists.linux.dev>; Tue,  8 Apr 2025 12:37:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.139
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ECA71B6CE5;
+	Tue,  8 Apr 2025 14:37:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744115865; cv=none; b=c4Odvk5NUL5zViPSnduPzXGCn3CXN3oO1BDK4ndV5d5WMeF2JiUxh7MnVCLESEKwpx3XfzT0Ro56H4CP8wBNCbTMTYaIOJZV93fZrAJkg2pBda+059il4WjZA1qUSYy64HBdqbKjicfwRI5fGtGI4H5/wgOgcvl2XuKOqtWneI0=
+	t=1744123032; cv=none; b=ty9F/Ic0H0dRzpnLGf2e6aUWvfUDrIzBO859CjdcsFDgBeUX8JBpTsWUGEgUuZ6SbPsI29kte5NVNvGghqgH8bvgnzTJWJEPH1idlUqfAoVxjGcWF1vZC18YdplCoMOPvHYftxnAryHI8y278kHT4iHZJdEbPI1Ra+0/1hmcvVM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744115865; c=relaxed/simple;
-	bh=E2AZipTTbQZtglps7EODNhvVECKl6pYX9kBVNiP95fY=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=K8yLQx+zsBzTRf+QhsfWvBVctEuWXTssi0JpX1thB2UJJ54K4gQbf9gyI142uvo1j9KH7qN+EkvCD/hpRy2yoozkPErlYgW/dv0khog6LhDQ2+rzHgxV5zdMt0Xv/m0hOb9b0oqcaTMs7WZpVwNxoBn2WW2SIFrEDsO4yZuELSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=hA88t/vO; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=favHyVHy; arc=none smtp.client-ip=103.168.172.139
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1744123032; c=relaxed/simple;
+	bh=ge7Yi7sJL1C7pl6511bZFnXdwJzMPUqWBNRdwjkzS8c=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=o9jGt39TbYodSK1bGU8HKNBlNumda9WRJskdme7UimiXGwdOCIXjIn4lDpzYEfabfAJuWLIErhhpLEKrYa7vONu7KbjTtbo3oataJ9ohrvpWTWwUAxm7lrxG6B5wj71ozt8bZc4ZK/nyiRhfXx+MtjWaOoh9eoy6MKCJE0WSmFo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lixf5KHG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="hA88t/vO";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="favHyVHy"
-Received: from phl-compute-12.internal (phl-compute-12.phl.internal [10.202.2.52])
-	by mailflow.phl.internal (Postfix) with ESMTP id 17DEF20014C;
-	Tue,  8 Apr 2025 08:37:42 -0400 (EDT)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-12.internal (MEProxy); Tue, 08 Apr 2025 08:37:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1744115862;
-	 x=1744123062; bh=zFcPiZ2dymYdvLOyrug0agUR+Yq1LwHn6b82n9khMg4=; b=
-	hA88t/vObgZNfV8F5NhyBQDmfCG2RNVd3x2W8Zufg5dKOllZq0HmIBVOcD6R36zJ
-	dUCUywkMJxl7olxwesgdwzLHVYZfXbO7TxVrBr34ZEZpUkerU1xvSRbkkDSZQ/9n
-	ti95kDMNS1ircDu6txuTKq8Hh8VUCvlxep8/3cOOvCP7Q63L2FogRGZ33xdZokde
-	PdfcEjksnqVG17B652nC+IhEmQNrFc3YibLlR/x90pUo9x9m0Ts21QdVCVpX/j7U
-	636ZLGawOhOkDuGc7S8W9Zmc4MYzQXDQHycgj5wwS0FmTIfNN0KNwgm4ro6pUeZX
-	LsT22uPqc5Q1CNOHypTk1g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1744115862; x=
-	1744123062; bh=zFcPiZ2dymYdvLOyrug0agUR+Yq1LwHn6b82n9khMg4=; b=f
-	avHyVHyAljzCU9WCVJ7GlxybwygLxx2202W3vZyzfM1hE0yjRO840WBBo4hP3JK2
-	r1jKrH5EIHGvxEKWXY4Ig+qnPSSqpTtVGTfy9AGbDze5O8/y/6+v1I/xl+CLdYrK
-	aEQf8yAGMssi1yqPB8HPMx1ia4cNhlshdMv9ijgMlpEo2WgQBksdXe5hArDFuaIw
-	esnV/cUFAWWwKm4cSMr+F5MisAl5eaHMhTJGxYfxNiE4JMziwW8LaIobdf5PtJYo
-	muj3hPmZ1/VVn9ARm6FTGVJN9+VdUdIcK1pYNOfzSn2jD1pfDE2TgwwauKx7EWmd
-	RBPRlx9lcMiaCjPpvyLng==
-X-ME-Sender: <xms:lBj1Z37JAzdSNf8RJrNISVcmekNoGYtUdhdE1QR9UEGc2QW4tGNGOg>
-    <xme:lBj1Z84awh_MckpPiLeuycHQNakSdVuimpyB1mLs-zmVBFHbzFvyCubtMH4eHE4JS
-    akJYYWs_HT1xQkMCP4>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvtdefuddtucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
-    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
-    gvnhhtshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertder
-    tddtnecuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnug
-    gsrdguvgeqnecuggftrfgrthhtvghrnhephfdthfdvtdefhedukeetgefggffhjeeggeet
-    fefggfevudegudevledvkefhvdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrg
-    hmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohep
-    hedtpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegrlhgvgigrnhguvghrrdguvg
-    hutghhvghrsegrmhgurdgtohhmpdhrtghpthhtoheptghhrhhishhtihgrnhdrkhhovghn
-    ihhgsegrmhgurdgtohhmpdhrtghpthhtoheplhhijhhordhlrgiirghrsegrmhgurdgtoh
-    hmpdhrtghpthhtohepmhgrrhhiohdrlhhimhhonhgtihgvlhhlohesrghmugdrtghomhdp
-    rhgtphhtthhopegstghmqdhkvghrnhgvlhdqfhgvvggusggrtghkqdhlihhsthessghroh
-    gruggtohhmrdgtohhmpdhrtghpthhtohepiigrtghkrdhruhhsihhnsegsrhhorggutgho
-    mhdrtghomhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvghtpdhrtg
-    hpthhtohepshhimhhonhgrsehffhiflhhlrdgthhdprhgtphhtthhopehgvggvrhhtodhr
-    vghnvghsrghssehglhhiuggvrhdrsggv
-X-ME-Proxy: <xmx:lBj1Z-fVAjsZ2IIW4CR__HAOTrryAbYjqVMOrlOZgaW86YnkED3CFw>
-    <xmx:lBj1Z4IJOnTETXjr4ynY7WjdTH_esquf0Z5UMtrXw7IIvLP8bg1uYg>
-    <xmx:lBj1Z7KcXF2sCvdK7Ff6e9FiI3KbzMJNGznflf86a2Xe4P-8mJ791g>
-    <xmx:lBj1ZxxANUYN7ozS0kgUp28zlepO11cm_xgpJdfD8viEjBQpcHAVAQ>
-    <xmx:lhj1Z5h2PSWgYdsFLsX0gpRa4lpt3LVHr5UE24EGmNNdcmE4PFSdJj4t>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 5F2962220073; Tue,  8 Apr 2025 08:37:40 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lixf5KHG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF7F3C4CEEB;
+	Tue,  8 Apr 2025 14:37:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744123031;
+	bh=ge7Yi7sJL1C7pl6511bZFnXdwJzMPUqWBNRdwjkzS8c=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=lixf5KHGMLgrJHRF0vXObNxfQVuWjjQKvS6Run+Q0sxRNDh7nGg00pGvTON5bejy6
+	 /H7zP+PKgO3AHBvFDlScfylFFrPXBMO8ZPTzA7qhFrX/YngpDVbcmc43jbX+Ac720W
+	 2bRlb54Z7mRBel+jUzTAeNYDeY9IQmEWj1G99Y7vo/aChGUUuxqxKDzgHmGuU2A4ce
+	 yugvuVQLVYxKc3sEZ8mCz4Bbs419T+/fdcPZlSBWGG7xEQqI7q+U4xzhNnhOuCbHNK
+	 +L9TAM5bHfROj51JGapXbzojYT4Hdwbm3Wz1SU40PAi2EgIFZwWhgHUL08EN4A4x2v
+	 aYjeRT+sIt9Uw==
+Date: Tue, 8 Apr 2025 07:37:09 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Bui Quang Minh
+ <minhquangbui99@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>, Alexei
+ Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
+ <john.fastabend@gmail.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, "David S . Miller" <davem@davemloft.net>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+ virtualization@lists.linux.dev
+Subject: Re: [PATCH] virtio-net: disable delayed refill when pausing rx
+Message-ID: <20250408073709.4e054636@kernel.org>
+In-Reply-To: <1b78c63b-7c07-4d25-8785-bfb0e28c71ad@redhat.com>
+References: <20250404093903.37416-1-minhquangbui99@gmail.com>
+	<1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
+	<30419bd6-13b1-4426-9f93-b38b66ef7c3a@gmail.com>
+	<CACGkMEs7O7D5sztwJVn45c+1pap20Oi5f=02Sy_qxFjbeHuYiQ@mail.gmail.com>
+	<1b78c63b-7c07-4d25-8785-bfb0e28c71ad@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-ThreadId: T702257fbe5397c0b
-Date: Tue, 08 Apr 2025 14:37:07 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Geert Uytterhoeven" <geert@linux-m68k.org>,
- "Arnd Bergmann" <arnd@kernel.org>
-Cc: "Bjorn Helgaas" <bhelgaas@google.com>,
- "Jeff Hugo" <jeff.hugo@oss.qualcomm.com>,
- "Carl Vanderlip" <quic_carlv@quicinc.com>,
- "Oded Gabbay" <ogabbay@kernel.org>,
- "Takashi Sakamoto" <o-takashi@sakamocchi.jp>,
- "Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
- "Maxime Ripard" <mripard@kernel.org>,
- "Thomas Zimmermann" <tzimmermann@suse.de>,
- "Dave Airlie" <airlied@gmail.com>, "Simona Vetter" <simona@ffwll.ch>,
- "Alex Deucher" <alexander.deucher@amd.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- "Dave Airlie" <airlied@redhat.com>,
- "Jocelyn Falempe" <jfalempe@redhat.com>,
- "Patrik Jakobsson" <patrik.r.jakobsson@gmail.com>,
- "Xinliang Liu" <xinliang.liu@linaro.org>,
- "Tian Tao" <tiantao6@hisilicon.com>,
- "Xinwei Kong" <kong.kongxinwei@hisilicon.com>,
- "Sumit Semwal" <sumit.semwal@linaro.org>,
- "Yongqin Liu" <yongqin.liu@linaro.org>,
- "John Stultz" <jstultz@google.com>,
- "Sui Jingfeng" <suijingfeng@loongson.cn>,
- "Lyude Paul" <lyude@redhat.com>, "Danilo Krummrich" <dakr@kernel.org>,
- "Gerd Hoffmann" <kraxel@redhat.com>,
- "Zack Rusin" <zack.rusin@broadcom.com>,
- "Broadcom internal kernel review list"
- <bcm-kernel-feedback-list@broadcom.com>,
- "Lucas De Marchi" <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- "Rodrigo Vivi" <rodrigo.vivi@intel.com>,
- "Andrew Lunn" <andrew+netdev@lunn.ch>,
- "David S . Miller" <davem@davemloft.net>,
- "Eric Dumazet" <edumazet@google.com>, "Jakub Kicinski" <kuba@kernel.org>,
- "Paolo Abeni" <pabeni@redhat.com>,
- "Saurav Kashyap" <skashyap@marvell.com>,
- "Javed Hasan" <jhasan@marvell.com>,
- GR-QLogic-Storage-Upstream@marvell.com,
- "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- "Nilesh Javali" <njavali@marvell.com>,
- "Manish Rangankar" <mrangankar@marvell.com>,
- "Alex Williamson" <alex.williamson@redhat.com>,
- "Geert Uytterhoeven" <geert+renesas@glider.be>,
- "Javier Martinez Canillas" <javierm@redhat.com>,
- "Jani Nikula" <jani.nikula@intel.com>,
- "Mario Limonciello" <mario.limonciello@amd.com>,
- =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>,
- "Lijo Lazar" <lijo.lazar@amd.com>,
- "Niklas Schnelle" <schnelle@linux.ibm.com>,
- "Dmitry Baryshkov" <lumag@kernel.org>, linux-arm-msm@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- linux1394-devel@lists.sourceforge.net, amd-gfx@lists.freedesktop.org,
- "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
- virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, Netdev <netdev@vger.kernel.org>,
- linux-pci@vger.kernel.org, linux-scsi@vger.kernel.org,
- kvm@vger.kernel.org, "Greg Ungerer" <gerg@linux-m68k.org>
-Message-Id: <9abf582c-ea8e-42ca-a6d5-34c1e1932f95@app.fastmail.com>
-In-Reply-To: 
- <CAMuHMdWN=wurw7qz0t2ovMkUNu0BJRAMv_0U63Lqs2MGxkVnHw@mail.gmail.com>
-References: <20250407104025.3421624-1-arnd@kernel.org>
- <CAMuHMdWN=wurw7qz0t2ovMkUNu0BJRAMv_0U63Lqs2MGxkVnHw@mail.gmail.com>
-Subject: Re: [RFC] PCI: add CONFIG_MMU dependency
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 8, 2025, at 12:22, Geert Uytterhoeven wrote:
-> On Mon, 7 Apr 2025 at 12:40, Arnd Bergmann <arnd@kernel.org> wrote:
->
->> --- a/drivers/pci/Kconfig
->> +++ b/drivers/pci/Kconfig
->> @@ -21,6 +21,7 @@ config GENERIC_PCI_IOMAP
->>  menuconfig PCI
->>         bool "PCI support"
->>         depends on HAVE_PCI
->> +       depends on MMU
->>         help
->>           This option enables support for the PCI local bus, including
->>           support for PCI-X and the foundations for PCI Express support.
->
-> While having an MMU is a hardware feature, I consider disabling MMU
-> support software configuration.  So this change prevents people from
-> disabling MMU support on a system that has both a PCI bus and an MMU.
-> But other people may not agree, or care?
+On Tue, 8 Apr 2025 11:28:54 +0200 Paolo Abeni wrote:
+> >> When napi_disable is called on an already disabled napi, it will sleep
+> >> in napi_disable_locked while still holding the netdev_lock. As a result,
+> >> later napi_enable gets stuck too as it cannot acquire the netdev_lock.
+> >> This leads to refill_work and the pause-then-resume tx are stuck altogether.  
+> > 
+> > This needs to be added to the chagelog. And it looks like this is a fix for
+> > 
+> > commit 413f0271f3966e0c73d4937963f19335af19e628
+> > Author: Jakub Kicinski <kuba@kernel.org>
+> > Date:   Tue Jan 14 19:53:14 2025 -0800
+> > 
+> >     net: protect NAPI enablement with netdev_lock()
+> > 
+> > ?
+> > 
+> > I wonder if it's simpler to just hold the netdev lock in resize or xsk
+> > binding instead of this.  
+> 
+> Setting:
+> 
+> 	dev->request_ops_lock = true;
+> 
+> in virtnet_probe() before calling register_netdevice() should achieve
+> the above. Could you please have a try?
 
-I created this patch after Greg said that the coldfire-v4 chips
-that have an MMU are not really used without it any more, and
-I had accidentally only build tested a patch without CONFIG_MMU.
+Can we do that or do we need a more tailored fix? request_ops_lock only
+appeared in 6.15 and the bug AFAIU dates back to 6.14. We don't normally
+worry about given the stream of fixes - request_ops_lock is a bit risky.
+Jason's suggestion AFAIU is just to wrap the disable/enable pairs in
+the lock. We can try request_ops_lock in -next ?
 
-On ARM, CONFIG_MMU can no longer be disabled on CPUs that have
-one, this was a side-effect of the ARCH_MULTIPLATFORM conversion.
-
-I just tried building an SH7751 kernel with MMU disabled but PCI
-enable. This produces build errors in several files, clearly nobody
-has tried this in a long time.
-
-I'm not entirely sure about xtensa, but it seems that PCI is
-only supported on the "virt" platform, which in turn cannot
-turn off MMU, even if there are other platforms that can build
-with out without MMU enabled.
-
-     Arnd
+Bui Quang Minh, could you add a selftest for this problem?
+See tools/testing/selftests/drivers/net/virtio_net/
+You can re-use / extend the XSK helper from
+tools/testing/selftests/drivers/net/xdp_helper.c ?
+(move it to tools/testing/selftests/net/lib for easier access)
