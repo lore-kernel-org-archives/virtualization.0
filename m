@@ -1,175 +1,189 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from flow-a4-smtp.messagingengine.com (flow-a4-smtp.messagingengine.com [103.168.172.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DDEF26869D
-	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 11:56:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A42326B94D
+	for <virtualization@lists.linux.dev>; Tue,  8 Apr 2025 12:37:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744113378; cv=none; b=Uj8Ayfo3k4J3LFH+QqmLyFwwuY0bT5ys4scjBed1EW8AoSqm190KZFqoWuvh8f2wlErQg0jfCXJOHRGxsOBHwydLCXqm3QGkybtaIVVyp2E7/idj6sVL281Lg8c442bhes/IgsPK6Scarq4VJesL0aPxiG50vBqKOuVkJKasgaQ=
+	t=1744115865; cv=none; b=c4Odvk5NUL5zViPSnduPzXGCn3CXN3oO1BDK4ndV5d5WMeF2JiUxh7MnVCLESEKwpx3XfzT0Ro56H4CP8wBNCbTMTYaIOJZV93fZrAJkg2pBda+059il4WjZA1qUSYy64HBdqbKjicfwRI5fGtGI4H5/wgOgcvl2XuKOqtWneI0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744113378; c=relaxed/simple;
-	bh=wYW1XvzQSniRNKIaNun7g4wBLkN0tc7NLsGQ8V1kHkc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=SOzIhkDIGYEm2P7MPBKXEd1c7Sf3WWxPiwWq6DAWp9cngTXw7/Ib5JisVEyasW8N/zYvPO0PLIx5/jUxYutv9LYCLONFgqF/Q73VXQoqghtv+QBsK6mzRKD6BiG5f1tXkYZ1MkVlk+dSHCocEfeHTrgbj7vEShJaegkL6+ckodw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cI0jjt7G; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1744115865; c=relaxed/simple;
+	bh=E2AZipTTbQZtglps7EODNhvVECKl6pYX9kBVNiP95fY=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=K8yLQx+zsBzTRf+QhsfWvBVctEuWXTssi0JpX1thB2UJJ54K4gQbf9gyI142uvo1j9KH7qN+EkvCD/hpRy2yoozkPErlYgW/dv0khog6LhDQ2+rzHgxV5zdMt0Xv/m0hOb9b0oqcaTMs7WZpVwNxoBn2WW2SIFrEDsO4yZuELSY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=hA88t/vO; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=favHyVHy; arc=none smtp.client-ip=103.168.172.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cI0jjt7G"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B062760903
-	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 11:56:16 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id lYhciwcZMnes for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Apr 2025 11:56:16 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 06EF860862
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 06EF860862
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cI0jjt7G
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 06EF860862
-	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 11:56:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744113374;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=c8NmMOJUiBDf2Mnm/32fYSinOOAarf9NGUqN9KbURsM=;
-	b=cI0jjt7GnZo3QPB/VTHMSBmY35fOOh8PvlPuAFRlXJebQEP66LlHN4l1X8mUoYGxU2d2kf
-	DPPfOOO9D1ME9JO7eeBE4+7ZgoxZfrd9OevZIzD1/7k3qguqv298Jo9fJsGFl2LP1XXwlI
-	Lr3krpbAZ4g/Itsf889e9Y5MXnDLAq8=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-390-lScXayfxOtK3tJC3gpQtQw-1; Tue, 08 Apr 2025 07:56:13 -0400
-X-MC-Unique: lScXayfxOtK3tJC3gpQtQw-1
-X-Mimecast-MFC-AGG-ID: lScXayfxOtK3tJC3gpQtQw_1744113372
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-39ac9b0cb6aso3555047f8f.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 08 Apr 2025 04:56:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744113372; x=1744718172;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=c8NmMOJUiBDf2Mnm/32fYSinOOAarf9NGUqN9KbURsM=;
-        b=HI4YwR3beWRNkxM1BMEk4yWdBfA7RrEk6TD/bPert/Vz366D23qt0QYvr1oklHYyI6
-         7Kp8hm0POnsOc1aNINL4GfIUbiYueTJJvcyVzGUIXJHvYe/wufxbwpD7Vp3mn+YP1Pi5
-         kAE2KbQ9Y+jqS13IfJoqEwfAStdEDzmrj37ijTAJmk67nBlPZAYJtILltaYK+l66tm+o
-         3v4rIRYHpwRoVqlaVKcy4DrvWwMr7P/GNbeo8k3yL1OZeQ6sofYRCD7nSdF6T1qWb60L
-         bSZYhEhBqbXs7cai7OyXs7nfnjT9raThJOTBj8hrLA5a/IJZcd9GIS4mlAXdmSPPr9UP
-         1Mdw==
-X-Forwarded-Encrypted: i=1; AJvYcCVGDHX5kcE6EVfL98ak0yJt1Ts60KNTo9i14TxF55xl/tBpbNqBCjJkKLQSKg98ARwsXBAf8Iw1e+9j5XPbhA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzTAmQi34UPO6XO51hskt2vnhcoPTXCnIWId5nH6W8p+zkKdCvB
-	NubP/3ujGzLZJ1kjSck85DpRn7tsiYDEmhT//qhagrDk4whmmpLG46+J8rTceRG1Ma1tAng/OYQ
-	vTRcBqC0ZgnZ2o5cBJuquef+gYGSvOdkaep2rrzdPmdmiInHwt1uQojLb8bXj1qap9x6JimftyT
-	YSOng=
-X-Gm-Gg: ASbGncsMMX6vlLGYV5YUpuRdvD4zZRNXVYo5gffPXpNiPTcBAw4Y4MVRLWPmaOPvl86
-	FbyZxH1GiJbH7eUzZfri9FZzCNq0gQ2WZp7J9q231ogxV1Eei+u4PDbe93WmbKpwOvl5KjJY2hx
-	2HXP/YnD7/wSB888qKOqlOwDnuN1Ur4lvBIySNRYiUJlu6Tsh4EiVfbp5G21aZV9vpd+dOCv/Ej
-	vZrbiMJ0FeBhAQb0pc6EzkfQIenwY+ydz5Fk9BqUOy5rxm3xKgrtOfoz/PIaMPeD+x8SuXiZsBV
-	v2BDWS7fjA==
-X-Received: by 2002:a05:6000:2484:b0:391:31c8:ba59 with SMTP id ffacd0b85a97d-39d6fc0c110mr8562978f8f.4.1744113371951;
-        Tue, 08 Apr 2025 04:56:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHcMsSZ5Gam/fQOpaIuoaRMdI4T7XugacA1lPSXA8mE0sG1MgVGLtGvlHpdN41g6650CZaIhQ==
-X-Received: by 2002:a05:6000:2484:b0:391:31c8:ba59 with SMTP id ffacd0b85a97d-39d6fc0c110mr8562957f8f.4.1744113371519;
-        Tue, 08 Apr 2025 04:56:11 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c301a9da1sm14440447f8f.22.2025.04.08.04.56.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Apr 2025 04:56:10 -0700 (PDT)
-Date: Tue, 8 Apr 2025 07:56:08 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: Re: [PATCH v8 8/8] vhost: Add a KConfig knob to enable IOCTL
- VHOST_FORK_FROM_OWNER
-Message-ID: <20250408075426-mutt-send-email-mst@kernel.org>
-References: <20250328100359.1306072-1-lulu@redhat.com>
- <20250328100359.1306072-9-lulu@redhat.com>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="hA88t/vO";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="favHyVHy"
+Received: from phl-compute-12.internal (phl-compute-12.phl.internal [10.202.2.52])
+	by mailflow.phl.internal (Postfix) with ESMTP id 17DEF20014C;
+	Tue,  8 Apr 2025 08:37:42 -0400 (EDT)
+Received: from phl-imap-11 ([10.202.2.101])
+  by phl-compute-12.internal (MEProxy); Tue, 08 Apr 2025 08:37:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1744115862;
+	 x=1744123062; bh=zFcPiZ2dymYdvLOyrug0agUR+Yq1LwHn6b82n9khMg4=; b=
+	hA88t/vObgZNfV8F5NhyBQDmfCG2RNVd3x2W8Zufg5dKOllZq0HmIBVOcD6R36zJ
+	dUCUywkMJxl7olxwesgdwzLHVYZfXbO7TxVrBr34ZEZpUkerU1xvSRbkkDSZQ/9n
+	ti95kDMNS1ircDu6txuTKq8Hh8VUCvlxep8/3cOOvCP7Q63L2FogRGZ33xdZokde
+	PdfcEjksnqVG17B652nC+IhEmQNrFc3YibLlR/x90pUo9x9m0Ts21QdVCVpX/j7U
+	636ZLGawOhOkDuGc7S8W9Zmc4MYzQXDQHycgj5wwS0FmTIfNN0KNwgm4ro6pUeZX
+	LsT22uPqc5Q1CNOHypTk1g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1744115862; x=
+	1744123062; bh=zFcPiZ2dymYdvLOyrug0agUR+Yq1LwHn6b82n9khMg4=; b=f
+	avHyVHyAljzCU9WCVJ7GlxybwygLxx2202W3vZyzfM1hE0yjRO840WBBo4hP3JK2
+	r1jKrH5EIHGvxEKWXY4Ig+qnPSSqpTtVGTfy9AGbDze5O8/y/6+v1I/xl+CLdYrK
+	aEQf8yAGMssi1yqPB8HPMx1ia4cNhlshdMv9ijgMlpEo2WgQBksdXe5hArDFuaIw
+	esnV/cUFAWWwKm4cSMr+F5MisAl5eaHMhTJGxYfxNiE4JMziwW8LaIobdf5PtJYo
+	muj3hPmZ1/VVn9ARm6FTGVJN9+VdUdIcK1pYNOfzSn2jD1pfDE2TgwwauKx7EWmd
+	RBPRlx9lcMiaCjPpvyLng==
+X-ME-Sender: <xms:lBj1Z37JAzdSNf8RJrNISVcmekNoGYtUdhdE1QR9UEGc2QW4tGNGOg>
+    <xme:lBj1Z84awh_MckpPiLeuycHQNakSdVuimpyB1mLs-zmVBFHbzFvyCubtMH4eHE4JS
+    akJYYWs_HT1xQkMCP4>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvtdefuddtucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
+    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
+    gvnhhtshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertder
+    tddtnecuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnug
+    gsrdguvgeqnecuggftrfgrthhtvghrnhephfdthfdvtdefhedukeetgefggffhjeeggeet
+    fefggfevudegudevledvkefhvdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrg
+    hmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohep
+    hedtpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegrlhgvgigrnhguvghrrdguvg
+    hutghhvghrsegrmhgurdgtohhmpdhrtghpthhtoheptghhrhhishhtihgrnhdrkhhovghn
+    ihhgsegrmhgurdgtohhmpdhrtghpthhtoheplhhijhhordhlrgiirghrsegrmhgurdgtoh
+    hmpdhrtghpthhtohepmhgrrhhiohdrlhhimhhonhgtihgvlhhlohesrghmugdrtghomhdp
+    rhgtphhtthhopegstghmqdhkvghrnhgvlhdqfhgvvggusggrtghkqdhlihhsthessghroh
+    gruggtohhmrdgtohhmpdhrtghpthhtohepiigrtghkrdhruhhsihhnsegsrhhorggutgho
+    mhdrtghomhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvghtpdhrtg
+    hpthhtohepshhimhhonhgrsehffhiflhhlrdgthhdprhgtphhtthhopehgvggvrhhtodhr
+    vghnvghsrghssehglhhiuggvrhdrsggv
+X-ME-Proxy: <xmx:lBj1Z-fVAjsZ2IIW4CR__HAOTrryAbYjqVMOrlOZgaW86YnkED3CFw>
+    <xmx:lBj1Z4IJOnTETXjr4ynY7WjdTH_esquf0Z5UMtrXw7IIvLP8bg1uYg>
+    <xmx:lBj1Z7KcXF2sCvdK7Ff6e9FiI3KbzMJNGznflf86a2Xe4P-8mJ791g>
+    <xmx:lBj1ZxxANUYN7ozS0kgUp28zlepO11cm_xgpJdfD8viEjBQpcHAVAQ>
+    <xmx:lhj1Z5h2PSWgYdsFLsX0gpRa4lpt3LVHr5UE24EGmNNdcmE4PFSdJj4t>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 5F2962220073; Tue,  8 Apr 2025 08:37:40 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250328100359.1306072-9-lulu@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: L5rUj8q2c-8skHLjEuvoysd2Fy4pXwHR0ZTe4z_38ns_1744113372
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-ThreadId: T702257fbe5397c0b
+Date: Tue, 08 Apr 2025 14:37:07 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Geert Uytterhoeven" <geert@linux-m68k.org>,
+ "Arnd Bergmann" <arnd@kernel.org>
+Cc: "Bjorn Helgaas" <bhelgaas@google.com>,
+ "Jeff Hugo" <jeff.hugo@oss.qualcomm.com>,
+ "Carl Vanderlip" <quic_carlv@quicinc.com>,
+ "Oded Gabbay" <ogabbay@kernel.org>,
+ "Takashi Sakamoto" <o-takashi@sakamocchi.jp>,
+ "Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
+ "Maxime Ripard" <mripard@kernel.org>,
+ "Thomas Zimmermann" <tzimmermann@suse.de>,
+ "Dave Airlie" <airlied@gmail.com>, "Simona Vetter" <simona@ffwll.ch>,
+ "Alex Deucher" <alexander.deucher@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ "Dave Airlie" <airlied@redhat.com>,
+ "Jocelyn Falempe" <jfalempe@redhat.com>,
+ "Patrik Jakobsson" <patrik.r.jakobsson@gmail.com>,
+ "Xinliang Liu" <xinliang.liu@linaro.org>,
+ "Tian Tao" <tiantao6@hisilicon.com>,
+ "Xinwei Kong" <kong.kongxinwei@hisilicon.com>,
+ "Sumit Semwal" <sumit.semwal@linaro.org>,
+ "Yongqin Liu" <yongqin.liu@linaro.org>,
+ "John Stultz" <jstultz@google.com>,
+ "Sui Jingfeng" <suijingfeng@loongson.cn>,
+ "Lyude Paul" <lyude@redhat.com>, "Danilo Krummrich" <dakr@kernel.org>,
+ "Gerd Hoffmann" <kraxel@redhat.com>,
+ "Zack Rusin" <zack.rusin@broadcom.com>,
+ "Broadcom internal kernel review list"
+ <bcm-kernel-feedback-list@broadcom.com>,
+ "Lucas De Marchi" <lucas.demarchi@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ "Rodrigo Vivi" <rodrigo.vivi@intel.com>,
+ "Andrew Lunn" <andrew+netdev@lunn.ch>,
+ "David S . Miller" <davem@davemloft.net>,
+ "Eric Dumazet" <edumazet@google.com>, "Jakub Kicinski" <kuba@kernel.org>,
+ "Paolo Abeni" <pabeni@redhat.com>,
+ "Saurav Kashyap" <skashyap@marvell.com>,
+ "Javed Hasan" <jhasan@marvell.com>,
+ GR-QLogic-Storage-Upstream@marvell.com,
+ "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ "Nilesh Javali" <njavali@marvell.com>,
+ "Manish Rangankar" <mrangankar@marvell.com>,
+ "Alex Williamson" <alex.williamson@redhat.com>,
+ "Geert Uytterhoeven" <geert+renesas@glider.be>,
+ "Javier Martinez Canillas" <javierm@redhat.com>,
+ "Jani Nikula" <jani.nikula@intel.com>,
+ "Mario Limonciello" <mario.limonciello@amd.com>,
+ =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+ "Lijo Lazar" <lijo.lazar@amd.com>,
+ "Niklas Schnelle" <schnelle@linux.ibm.com>,
+ "Dmitry Baryshkov" <lumag@kernel.org>, linux-arm-msm@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ linux1394-devel@lists.sourceforge.net, amd-gfx@lists.freedesktop.org,
+ "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
+ virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+ intel-xe@lists.freedesktop.org, Netdev <netdev@vger.kernel.org>,
+ linux-pci@vger.kernel.org, linux-scsi@vger.kernel.org,
+ kvm@vger.kernel.org, "Greg Ungerer" <gerg@linux-m68k.org>
+Message-Id: <9abf582c-ea8e-42ca-a6d5-34c1e1932f95@app.fastmail.com>
+In-Reply-To: 
+ <CAMuHMdWN=wurw7qz0t2ovMkUNu0BJRAMv_0U63Lqs2MGxkVnHw@mail.gmail.com>
+References: <20250407104025.3421624-1-arnd@kernel.org>
+ <CAMuHMdWN=wurw7qz0t2ovMkUNu0BJRAMv_0U63Lqs2MGxkVnHw@mail.gmail.com>
+Subject: Re: [RFC] PCI: add CONFIG_MMU dependency
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 28, 2025 at 06:02:52PM +0800, Cindy Lu wrote:
-> Introduce a new config knob `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL`,
-> to control the availability of the `VHOST_FORK_FROM_OWNER` ioctl.
-> When CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL is set to n, the ioctl
-> is disabled, and any attempt to use it will result in failure.
-> 
-> Signed-off-by: Cindy Lu <lulu@redhat.com>
-> ---
->  drivers/vhost/Kconfig | 15 +++++++++++++++
->  drivers/vhost/vhost.c |  3 +++
->  2 files changed, 18 insertions(+)
-> 
-> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> index b455d9ab6f3d..e5b9dcbf31b6 100644
-> --- a/drivers/vhost/Kconfig
-> +++ b/drivers/vhost/Kconfig
-> @@ -95,3 +95,18 @@ config VHOST_CROSS_ENDIAN_LEGACY
->  	  If unsure, say "N".
->  
->  endif
-> +
-> +config VHOST_ENABLE_FORK_OWNER_IOCTL
-> +	bool "Enable IOCTL VHOST_FORK_FROM_OWNER"
-> +	default n
-> +	help
-> +	  This option enables the IOCTL VHOST_FORK_FROM_OWNER, which allows
-> +	  userspace applications to modify the thread mode for vhost devices.
+On Tue, Apr 8, 2025, at 12:22, Geert Uytterhoeven wrote:
+> On Mon, 7 Apr 2025 at 12:40, Arnd Bergmann <arnd@kernel.org> wrote:
+>
+>> --- a/drivers/pci/Kconfig
+>> +++ b/drivers/pci/Kconfig
+>> @@ -21,6 +21,7 @@ config GENERIC_PCI_IOMAP
+>>  menuconfig PCI
+>>         bool "PCI support"
+>>         depends on HAVE_PCI
+>> +       depends on MMU
+>>         help
+>>           This option enables support for the PCI local bus, including
+>>           support for PCI-X and the foundations for PCI Express support.
+>
+> While having an MMU is a hardware feature, I consider disabling MMU
+> support software configuration.  So this change prevents people from
+> disabling MMU support on a system that has both a PCI bus and an MMU.
+> But other people may not agree, or care?
 
-ok
+I created this patch after Greg said that the coldfire-v4 chips
+that have an MMU are not really used without it any more, and
+I had accidentally only build tested a patch without CONFIG_MMU.
 
-> +          By default, `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL` is set to `n`,
-> +          meaning the ioctl is disabled and any operation using this ioctl
-> +          will fail.
-> +          When the configuration is enabled (y), the ioctl becomes
-> +          available, allowing users to set the mode if needed.
+On ARM, CONFIG_MMU can no longer be disabled on CPUs that have
+one, this was a side-effect of the ARCH_MULTIPLATFORM conversion.
 
-no need to be so verbose - the disabled beavious belongs in commit log
-not here.
+I just tried building an SH7751 kernel with MMU disabled but PCI
+enable. This produces build errors in several files, clearly nobody
+has tried this in a long time.
 
-Also either ioctl or IOCTL but not both.
+I'm not entirely sure about xtensa, but it seems that PCI is
+only supported on the "virt" platform, which in turn cannot
+turn off MMU, even if there are other platforms that can build
+with out without MMU enabled.
 
-> +
-> +	  If unsure, say "N".
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index fb0c7fb43f78..568e43cb54a9 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2294,6 +2294,8 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
->  		r = vhost_dev_set_owner(d);
->  		goto done;
->  	}
-> +
-> +#ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL
->  	if (ioctl == VHOST_FORK_FROM_OWNER) {
->  		u8 inherit_owner;
->  		/*inherit_owner can only be modified before owner is set*/
-> @@ -2313,6 +2315,7 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
->  		r = 0;
->  		goto done;
->  	}
-> +#endif
->  	/* You must be the owner to do anything else */
->  	r = vhost_dev_check_owner(d);
->  	if (r)
-> -- 
-> 2.45.0
-
+     Arnd
