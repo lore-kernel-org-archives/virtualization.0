@@ -1,125 +1,150 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94A9D263F27
-	for <virtualization@lists.linux.dev>; Tue,  8 Apr 2025 07:35:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D90282638B2
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 07:55:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744097732; cv=none; b=Y17ZRuA5XGX/3yornPEgp3sOGaUF98Msu+2dISarD+ejVXqyS5CqaH/XZeIgl+Q8NAxyDI6egVJzkZ16MbyugvRveyoJoo7bn+kFcaJA0bOatOUhzSpdZm135YAbY3Ey4MBcV7jzEZyvh1+KKZ+BYThm55L1TWADS+bw18fTRWc=
+	t=1744098924; cv=none; b=LapN3RNhPKYQl75VjZ97cr7uQQIx8Sl/dC7hiFVy5sO0J3ozUP2udsPT5fTG4E+AnVlxLZqb1qJj2GV37euONYgOwSFPDsSKX8mAwFEj69jwHe/lW71pq2xDgSX7NR9f3CRXLZJbewZW+baYXEG8ZA+lu1QI7fhK9Nx2sI8Wc7s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744097732; c=relaxed/simple;
-	bh=lT5mKdSlq8oPEv2oBvQ90+eQd2L1YXxqPfN8R/eFRE4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AE4LVRUKxtcZ3eX1Nv5NLxdpiwlJpndjdyDZDb6H5wP4t+4uiNBakckBE3bQ1tEiAUwDiL9tJQ1wB4CP3zbdR7vsW+/SmbrGr+5Z2kF8fBX7lyrShdn6OPcT9jzHe1qvrImKE1DQ13iKc+lgaIuh0lesu68561PZdTSB0ItrN7Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=P7kwnapM; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1744098924; c=relaxed/simple;
+	bh=A8OsWXAueBE0PuEQC4ic4IQiibJGAlkVcpHSS3VZ8iE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IJuO37MA3DArNgId+4DQcj0J9mQVGe6J+R7wTCAz+M++e8Mc+wJkvEuIz2+ddJD+HdkiSvchTkOoeF8LBEDA/UojxMX01qisGLrkC2ByC9rSk6+Ac9tbag3rjBghWiF5nNVDBn9dywoyvV3pXHER4xh/AaLXu8+MdPtQOH9UoJc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z0rQnJuF; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="P7kwnapM"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-43cf257158fso36315825e9.2
-        for <virtualization@lists.linux.dev>; Tue, 08 Apr 2025 00:35:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1744097729; x=1744702529; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=bzDOAHoHmGJFY2C4m+oCbnEJZ1yOWSsgLDpINkYOwtw=;
-        b=P7kwnapMmHkabVCTB0ylg4n+eIedaJe2bGbCfDamzFxlpsoGfzqyuQTjykSQzhMcRT
-         gpgqNtuNKCAm21XWUKbYtYszmWT8Bf2f99h+PZ5Apd4nPXY3o4or5QNpRjq82iHWjcvd
-         Kio7wjen9qpThISB3qcih6YGLwwZ4JdYHgwRs4V84mIOzNq+f6fZSxvj1mjedteKKbEo
-         glB5dwKEuW76e4/wlhnQCdtvjLpUIS+mezNmAh99qKxx15liw5pVmlryF0xP33GOjWHU
-         L9gXkCgRm7elQnelbrzciyenlMXFTrYkwkqdN4QWzhTLkHBwu3HhdwNuZhpaN4jg6kyk
-         4CFQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z0rQnJuF"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6343E80FA0
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 07:55:22 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id aFIQUk88zgw5 for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Apr 2025 07:55:22 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org AA8A28107C
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AA8A28107C
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z0rQnJuF
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id AA8A28107C
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Apr 2025 07:55:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744098919;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=x79QHpIfsA+l7691cd5z+VO+/jgiyth1028qKXbzGKk=;
+	b=Z0rQnJuFphvtXmoGngJgvbsRcLH90ZkUew5biWjqFf5XXxpKLyba3UsM+ufRLgWotF7q6r
+	DgbMqCqwqeLOv7r3WBFfQTuAQ/Y5Gw6HhRfRskIaONWeqyRfMSvjU7/SUYuzLijj2ALg1q
+	7pY55fap6OlgXXftmY4gTsDV9ju0aC8=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-646-hcaYpUX5MViR50PMTKvgeQ-1; Tue, 08 Apr 2025 03:55:18 -0400
+X-MC-Unique: hcaYpUX5MViR50PMTKvgeQ-1
+X-Mimecast-MFC-AGG-ID: hcaYpUX5MViR50PMTKvgeQ_1744098917
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-ac25852291cso521242366b.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 08 Apr 2025 00:55:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744097729; x=1744702529;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bzDOAHoHmGJFY2C4m+oCbnEJZ1yOWSsgLDpINkYOwtw=;
-        b=rct7fbeeHP5Nouv3p767xBcZ+gGONBpd0OGZLRPeTwKMpTCBPxtfzLc3x5zcvay8PM
-         4gPTuQdyZZGyGhjm4MyN7CqQRacJ8+g16SIWH0YBdZ0fKHjn6Sp1iHwtE31nzXKvwECw
-         InthpK0wLPpNR1Bkv1Q3StHdbDwU4g0Zs0aF2xIvS6OLx+OkiQsu6wSMVMfbcMWCjXHT
-         FY6GmM308/J3jLVHVtVuCzNGlWgDqWXXcu9s7GHX4RHG9FqkSO+qAQpSe/MJ71v9dnx8
-         YqI9/8/cR/dNQ2qWX+r0HOFIMS2VttjlcBG5CwlzKJSJaa9SSaH9ZRN34tjThWUuID6c
-         I3CA==
-X-Forwarded-Encrypted: i=1; AJvYcCUQnl/v62UREr7oF8rM2yAdWrx2+0Z+lCI69jB/gMtPCZwWkaWBqbZB0WJy12PdbMW4vxE5pBTr8BygsYkOTQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz3p6/ua2xG9ngsbfV+JiZubl5HZtfC7wLspYvtirpM/3BHVvx/
-	yyhU7zqQYig+nJ8r3tUXcA1SlH1xmKYLTlVM+Wt6ZwaYIygoEEnavjZ3Ml/jGUg=
-X-Gm-Gg: ASbGncsY0IjSvO22xJhg5ajYW95pSvU2AGdCygAt0b4OcgN2w1vmjwNHkdYB0gAk14U
-	ken/XEnnGFXOKflDOKMF2YRdJy7YfAyeMRMtpUG3jTRD1A45Jkb/FJG5tn6vXxt6tpe8eQ7XdZI
-	joO4OBVui7tW9svaczYJkRuYhCHy4FQnxKz1nyIDLEFPGcV0URPWBckI14C0cI2cN9hWEUftrOS
-	4YNJrEmiHW0JZxlvreIlpJSj2w1aGcBv4sluUuvwA3/PWEgJ8nPHvQ2KYYSq7NzuL4e0ghrddz7
-	p0pII8CkiFVY2zh4a2ZOh8DIdFZ+X+QJfPjh9pgUxcg=
-X-Google-Smtp-Source: AGHT+IHJ4HfDuWG19jV3pAC/z0UwKWS4vohMre2m90wxX+hddBFsMJUEGHrkQ7C6iLrYU3yh7T2Htg==
-X-Received: by 2002:a05:600c:8719:b0:43c:f85d:1245 with SMTP id 5b1f17b1804b1-43ecf8e7321mr170671655e9.17.1744097728808;
-        Tue, 08 Apr 2025 00:35:28 -0700 (PDT)
-Received: from myrica ([2.221.137.100])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec34be2ffsm151346185e9.22.2025.04.08.00.35.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Apr 2025 00:35:28 -0700 (PDT)
-Date: Tue, 8 Apr 2025 08:35:27 +0100
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, virtualization@lists.linux.dev,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: virtio: pci-iommu: Add ref to
- pci-device.yaml
-Message-ID: <20250408073527.GA2279090@myrica>
-References: <20250407165341.2934499-1-robh@kernel.org>
+        d=1e100.net; s=20230601; t=1744098917; x=1744703717;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=x79QHpIfsA+l7691cd5z+VO+/jgiyth1028qKXbzGKk=;
+        b=nQJNjkcbdPAcbu68UqY72tDd2rcWhSCSxg5nJcjHaceOGf196eMa2oY58JmLzZOHEK
+         gwlhHY73t5ypWS7uTOFkpNWKHNe7MF5I6j1tF3WZ++23YTuCNENquFFuRCb/d4klqZ4u
+         QHrijfAakIYerFtnK2jFSWsv9VDArqojbGszmBIMKOIP/4gI0Xz5C0llDzAPeUXDTSnp
+         JNbXwdhc1eaujfrFFVSuUg1hUSq+xhNQS+kYPUkiUf9sX9L+hDhRx86Ppuyxu8SOaMIb
+         8bZF5n+He2ol8bUSPOxIN6rat15zfyB0tO4p+vEfccdu8XnVj/sqqhcwVw/YSHnYZR4/
+         p+qg==
+X-Forwarded-Encrypted: i=1; AJvYcCVbzmvw1nWB361zlmtnuPYBb+zUtv4WBVR4xxc3jUIplcLNufUCq/NFdw0CUZ98OYbAOWByCfSL0cYZYPk2LA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwGdTL+vSEoTMpweYGbkOCBrwqbJWdAIc7BSIb9TXKYc8y+IRNZ
+	7DvZzJQNFcJzaxuvqdpvkCAQFeBpyWgGbfY/AQzqMC6uMCbZtdtf959EzMIQn+kD8vPwL3+NAYh
+	UmNEW0GmQwreGfFS/Z6EtVqXqPEd5hjV0HF9JTi7g5VXXbE/icGHlmjlCnrlKglSaw9G1v0lJsp
+	uPh/Ki3vOrwDBxCjz7OTkIK49xXpfV9JQ8aUAqXWSsaPOJ7m5RvgRWiA==
+X-Gm-Gg: ASbGncv6MILkL21iFIMiNhNpUqmBYB8Ln/eqq85FEQct7e4I4t/j5zVClHoON8x0/47
+	AK59wCRhiLd6fIKLc50rZfWDHv0j9G7b+J5tqYSxRupD2J8K+BiL0FnjW4zVgJrTyQrsx4YVR8w
+	==
+X-Received: by 2002:a17:907:970b:b0:ac6:edd3:e466 with SMTP id a640c23a62f3a-ac7d6d03dc7mr1243224666b.19.1744098916911;
+        Tue, 08 Apr 2025 00:55:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHsrjWeGBerTieJ+ttyB1gK4msQNk0ahMdt0piWop09SNP4zpG8Otx87xRRHmyaRFy0Bq4LVDJzBGSQoM5E+Po=
+X-Received: by 2002:a17:907:970b:b0:ac6:edd3:e466 with SMTP id
+ a640c23a62f3a-ac7d6d03dc7mr1243221566b.19.1744098916535; Tue, 08 Apr 2025
+ 00:55:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250407165341.2934499-1-robh@kernel.org>
+References: <20250328100359.1306072-1-lulu@redhat.com> <20250328100359.1306072-6-lulu@redhat.com>
+ <8c87752e-bffe-4cc0-b838-cb6486b6261d@oracle.com>
+In-Reply-To: <8c87752e-bffe-4cc0-b838-cb6486b6261d@oracle.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Tue, 8 Apr 2025 15:54:39 +0800
+X-Gm-Features: ATxdqUFbbN4Q5UKXqEkcU4pBHlwr8BYd3yOQUAtnTFpNUfmJCvAF1MhDr_dM47Y
+Message-ID: <CACLfguWQD5yMBOQLhMh1rt5FoqdfJtmBiHaC3y9g7p1f5q9zRw@mail.gmail.com>
+Subject: Re: [PATCH v8 5/8] vhost: Reintroduce kthread mode support in vhost
+To: Mike Christie <michael.christie@oracle.com>
+Cc: jasowang@redhat.com, mst@redhat.com, sgarzare@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Wi3yS2-p6P-IAuDicuFLrK1X_HaNdnO-AEWM7BChuuo_1744098917
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 07, 2025 at 11:53:40AM -0500, Rob Herring (Arm) wrote:
-> The virtio pci-iommu is a PCI device, so it should have a reference to
-> the pci-device.yaml schema. The pci-device.yaml schema defines the 'reg'
-> format as a schema, so the text description for 'reg' can be dropped.
-> 
-> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
+On Tue, Apr 8, 2025 at 12:04=E2=80=AFAM Mike Christie
+<michael.christie@oracle.com> wrote:
+>
+> On 3/28/25 5:02 AM, Cindy Lu wrote:
+> > +static int vhost_kthread_worker_create(struct vhost_worker *worker,
+> > +                                    struct vhost_dev *dev, const char =
+*name)
+> > +{
+> > +     struct task_struct *task;
+> > +     u32 id;
+> > +     int ret;
+> > +
+> > +     task =3D kthread_create(vhost_run_work_kthread_list, worker, "%s"=
+, name);
+> > +     if (IS_ERR(task))
+> > +             return PTR_ERR(task);
+> > +
+> > +     worker->kthread_task =3D task;
+> > +     wake_up_process(task);
+> > +     ret =3D xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GFP_=
+KERNEL);
+> > +     if (ret < 0)
+> > +             goto stop_worker;
+> > +
+> > +     ret =3D vhost_attach_task_to_cgroups(worker);
+> > +     if (ret)
+>
+> If you go to stop_worker here, it will leave the worker in the xa above. =
+I
+> think you need another goto to unwind that.
+>
+sure, will fix this
+Thanks
+Cindy
+> > +             goto stop_worker;
+> > +
+> > +     worker->id =3D id;
+> > +     return 0;
+> > +
+> > +stop_worker:
+> > +     vhost_kthread_do_stop(worker);
+> > +     return ret;
+> > +}
+> > +
+>
 
-Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-
-> ---
->  .../devicetree/bindings/virtio/pci-iommu.yaml          | 10 ++++------
->  1 file changed, 4 insertions(+), 6 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/virtio/pci-iommu.yaml b/Documentation/devicetree/bindings/virtio/pci-iommu.yaml
-> index 972a785a42de..8bd6ad72ac7a 100644
-> --- a/Documentation/devicetree/bindings/virtio/pci-iommu.yaml
-> +++ b/Documentation/devicetree/bindings/virtio/pci-iommu.yaml
-> @@ -20,6 +20,9 @@ description: |
->    virtio-iommu node doesn't have an "iommus" property, and is omitted from
->    the iommu-map property of the root complex.
->  
-> +allOf:
-> +  - $ref: /schemas/pci/pci-device.yaml#
-> +
->  properties:
->    # If compatible is present, it should contain the vendor and device ID
->    # according to the PCI Bus Binding specification. Since PCI provides
-> @@ -33,12 +36,7 @@ properties:
->            - const: pci1af4,1057
->  
->    reg:
-> -    description: |
-> -      PCI address of the IOMMU. As defined in the PCI Bus Binding
-> -      reference, the reg property is a five-cell address encoded as (phys.hi
-> -      phys.mid phys.lo size.hi size.lo). phys.hi should contain the device's
-> -      BDF as 0b00000000 bbbbbbbb dddddfff 00000000. The other cells should be
-> -      zero. See Documentation/devicetree/bindings/pci/pci.txt
-> +    maxItems: 1
->  
->    '#iommu-cells':
->      const: 1
-> -- 
-> 2.47.2
-> 
