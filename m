@@ -1,283 +1,200 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C568C25EF8B
-	for <virtualization@lists.linux.dev>; Wed,  9 Apr 2025 12:07:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBDBB25E471;
+	Wed,  9 Apr 2025 12:07:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744200459; cv=none; b=MJ7d4cOTuwjNsGc+u7KX2VUhn7eOaESIrIzaFY6h6gknHCdwHm7dOMAJ2WICrgvqfq1onugpLwAFf8dcGFyZhoH4rgwbO1PeQmWSZc9VJ4BCq9yPvTdMrTQFyaYR0dnNIFbWozpGhHVsuMW3xaX+x0uKiw2xqQhoLTk/6oAYz/w=
+	t=1744200465; cv=none; b=ELYNddHyzRrDJc+2PYwSMbv5v++z/wWRbGOt4pwRcpuYebJP6HCSdNxk+A8OwWQdBs3bC26sg6EuJGYwrfMsp0/QNF5LfgvuIMe5jaRjOgLDrLI26AsikaF6hFSBYPkcxUgmh3Lo3KDkvRRSty32lB4/YVyOs8pr8ZeQkpMNyMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744200459; c=relaxed/simple;
-	bh=b8JlKxfWsW1Q1FUlQniB4qLGZUd/o9jlhbIFjs404XU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Zc+KQipfld6cQdGkWSDWV9nr2u3ZheCpokOzy3JnrbNO2Ko9DhQcUBqFUu3EHtHQyBR7KnXIqserRIe+l3nu7EJWyHtY0LCCCfSgDgMK6UJDRzmyay/0JetTVqzphXsxBKVXRgS6ldLPpB2cyw6vD6h2urpt0K1RZMPfjX5yROg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KkbzC/uQ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1744200465; c=relaxed/simple;
+	bh=FdUb0DPDYi+ttgoinI37K88fuRyaVge7JDVXiVilF7E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=XcNksFkot4tsp9YKxl1KmiF7mC7B3atWiA9KGb0S7PdoJKUDFpEDg/Pom0cbkJ57O+41zt72UWS7oA/KncJf74Ds4nyUV4AbUaMLsQuMbk5uCwng0v4UnES5Tevjc/UV5nJb7de1MBPWarHCDpbNDXynRtV1SO0HMc/Ik+pvuNI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GhqxgiUk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KkbzC/uQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744200456;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=93G2Nz5v0VWYsyTUc29spHX3l7oxT61r/O1+sjmvXx0=;
-	b=KkbzC/uQdxPdTxoM4x3vhyGYvg5SJJG4ewQcH00kSQ3KrrEEuN661YMTqzxr2smDga6qDg
-	esp6aA8p99RDwZOMyfKFDqScXcnnO2RkIG6tbwbnWqnyau/pDESvmdISNClFMI44WF44Hy
-	uX/mPxVBPlubZ9dGFyL3vLS2pAhNuK8=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-110-Rj8bCf4lP1qo7sbr3dqG2A-1; Wed, 09 Apr 2025 08:07:33 -0400
-X-MC-Unique: Rj8bCf4lP1qo7sbr3dqG2A-1
-X-Mimecast-MFC-AGG-ID: Rj8bCf4lP1qo7sbr3dqG2A_1744200452
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43ce8f82e66so42149875e9.3
-        for <virtualization@lists.linux.dev>; Wed, 09 Apr 2025 05:07:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744200452; x=1744805252;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=93G2Nz5v0VWYsyTUc29spHX3l7oxT61r/O1+sjmvXx0=;
-        b=mtiw+zdpQ3uz6k+DR6eRzgDpaY25JQoI7I7kKldRN3xhRNV7Ejkm4l74wc18Fp5Xom
-         33ab8N8sA+GxJuYypITRIYN/ht9HBsMJPjcMe3daaqS8zFcPzy2gmH+doFSKvKHDWF+P
-         yTG6Uz/RA1oWiEBdQa4JawdJa3eY4LecYbUPyY76qfIrQi6FgeBtz8sKo9cPYHdVz56N
-         n9YyndFxKEjKRkfkFHlXxXUe8/UgSmX8apT1m2K785bp7ewxslFBZ1HDy8mYK2uX+MWS
-         5YkJy4uk6vJPU2bfq1rGbYvqTTKHp01xD2qEujhNVfA7ACCduOM8sPiv19Wkk6SPWQ/Z
-         j02g==
-X-Forwarded-Encrypted: i=1; AJvYcCUDQ8XcX2GB9LMhdstTkkhFTfsz3nXZBFT0hMzMKblLs4m8yuNggN0i8Mn80DiZjftOklYyTEzlobkLKjJyKw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwKhE+vQYOouHFwknEL7F3APvFvGBbx2ZzodZlrHGOEeSVy3zp9
-	+VdTpQ4iDEw5v0Do8MLskCYBJLRsFqeqX0PlLpWwASjDk3/8+mud0260PX2GTwsr1ITF0WrNUJ8
-	bkde9SC3jwhSpuJefNm0KN/LN/zvX9Mh+pbLQpkj9f415qQkrSg3SBYIk3NgC+giC
-X-Gm-Gg: ASbGncsYJPFv18YEnfQsfuTA0G34snmlbJ9+MKo7pg9xkWmK9YqkG/JKIHQUIaQS9nU
-	1sS9R64MrHVpRkzovY/NdQgVmOU2Pa/jZ8/3Cl24VEgByTbZVRxZnUujDrtIjj5kuzPXAUhg6F3
-	P2SuQ2xwOZ0XZin5MAWsCXkjFllnj9R0dt601+0hjtnpCMgv0E2zcl1irlwikw+GGbkiOOubqGl
-	FuzyiuTCy4ReCfcLs7l4RnMli7AafEwXi2vxK7owLzsSz0y0qTKuNY4NwTbS2gIdM6w525MfvWx
-	BkYAxw==
-X-Received: by 2002:a05:600c:4f06:b0:43c:eec7:eabb with SMTP id 5b1f17b1804b1-43f1eca7d49mr25281735e9.8.1744200452005;
-        Wed, 09 Apr 2025 05:07:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEgSZUF2eaDFJtZf7ycuhgCh7uKezx7J6gwsxBt6Ke0ZQtqogJFzTU/28nf3axU595G1MOTHA==
-X-Received: by 2002:a05:600c:4f06:b0:43c:eec7:eabb with SMTP id 5b1f17b1804b1-43f1eca7d49mr25281355e9.8.1744200451567;
-        Wed, 09 Apr 2025 05:07:31 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43f2066d26bsm18374765e9.22.2025.04.09.05.07.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Apr 2025 05:07:30 -0700 (PDT)
-Date: Wed, 9 Apr 2025 08:07:27 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: Daniel Verkamp <dverkamp@chromium.org>,
-	Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
-	Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-	Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-Message-ID: <20250409073652-mutt-send-email-mst@kernel.org>
-References: <20250407045456-mutt-send-email-mst@kernel.org>
- <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com>
- <33def1b0-d9d5-46f1-9b61-b0269753ecce@redhat.com>
- <88d8f2d2-7b8a-458f-8fc4-c31964996817@redhat.com>
- <CABVzXAmMEsw70Tftg4ZNi0G4d8j9pGTyrNqOFMjzHwEpy0JqyA@mail.gmail.com>
- <3bbad51d-d7d8-46f7-a28c-11cc3af6ef76@redhat.com>
- <20250407170239-mutt-send-email-mst@kernel.org>
- <440de313-e470-4afa-9f8a-59598fe8dc21@redhat.com>
- <20250409065216-mutt-send-email-mst@kernel.org>
- <4ad4b12e-b474-48bb-a665-6c1dc843cd51@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GhqxgiUk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3DACC4CEE7;
+	Wed,  9 Apr 2025 12:07:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744200464;
+	bh=FdUb0DPDYi+ttgoinI37K88fuRyaVge7JDVXiVilF7E=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=GhqxgiUktLqE62NnlGbCozLGAOy1ebYKCfRTbO1C2V8isrEUvyivtHWOlIWWY3iNe
+	 lT7qBhQi0YUXEHd/a3nybBs+okp72WCBqbBHa/gUT5qc5stTjpZBUhmQIEvTFikt5z
+	 3QEX/nurLaDWBdA3+xqEX+t36u0MD+4s/DDnE947U63BOSLACxJE4ATzBnB7162kEM
+	 uJVlOhBR6ng/gxrCkIJmx2DVTmwcGtpsyRWe122qGV/9UBAusoKc1mqJjzRiizRz4e
+	 qqynMSOHuqVH/gL+pm4QM8yBcDL9Jr5dx5FDs1H6jkyRMDbX2Cuq8465NG5c4c31Ao
+	 m0BWGZ8ZfmD1w==
+From: Philipp Stanner <phasta@kernel.org>
+To: Sumit Semwal <sumit.semwal@linaro.org>,
+	Gustavo Padovan <gustavo@padovan.org>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	Felix Kuehling <Felix.Kuehling@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Xinhui Pan <Xinhui.Pan@amd.com>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas Stach <l.stach@pengutronix.de>,
+	Russell King <linux+etnaviv@armlinux.org.uk>,
+	Christian Gmeiner <christian.gmeiner@gmail.com>,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	Frank Binns <frank.binns@imgtec.com>,
+	Matt Coster <matt.coster@imgtec.com>,
+	Qiang Yu <yuq825@gmail.com>,
+	Rob Clark <robdclark@gmail.com>,
+	Sean Paul <sean@poorly.run>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Abhinav Kumar <quic_abhinavk@quicinc.com>,
+	Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+	Marijn Suijten <marijn.suijten@somainline.org>,
+	Lyude Paul <lyude@redhat.com>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Boris Brezillon <boris.brezillon@collabora.com>,
+	Rob Herring <robh@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Dave Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Philipp Stanner <phasta@kernel.org>,
+	Huang Rui <ray.huang@amd.com>,
+	Matthew Auld <matthew.auld@intel.com>,
+	Melissa Wen <mwen@igalia.com>,
+	=?UTF-8?q?Ma=C3=ADra=20Canal?= <mcanal@igalia.com>,
+	Zack Rusin <zack.rusin@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	=?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+	Yang Wang <kevinyang.wang@amd.com>,
+	Jesse Zhang <jesse.zhang@amd.com>,
+	Tim Huang <tim.huang@amd.com>,
+	Sathishkumar S <sathishkumar.sundararaju@amd.com>,
+	Saleemkhan Jamadar <saleemkhan.jamadar@amd.com>,
+	Sunil Khatri <sunil.khatri@amd.com>,
+	Lijo Lazar <lijo.lazar@amd.com>,
+	Hawking Zhang <Hawking.Zhang@amd.com>,
+	Ma Jun <Jun.Ma2@amd.com>,
+	Yunxiang Li <Yunxiang.Li@amd.com>,
+	Eric Huang <jinhuieric.huang@amd.com>,
+	Asad Kamal <asad.kamal@amd.com>,
+	Srinivasan Shanmugam <srinivasan.shanmugam@amd.com>,
+	Jack Xiao <Jack.Xiao@amd.com>,
+	Friedrich Vock <friedrich.vock@gmx.de>,
+	=?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Dan Carpenter <dan.carpenter@linaro.org>
+Cc: linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org,
+	etnaviv@lists.freedesktop.org,
+	intel-gfx@lists.freedesktop.org,
+	lima@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	freedreno@lists.freedesktop.org,
+	nouveau@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org
+Subject: [PATCH 2/2] dma-fence: Improve docu for dma_fence_check_and_signal()
+Date: Wed,  9 Apr 2025 14:06:38 +0200
+Message-ID: <20250409120640.106408-4-phasta@kernel.org>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250409120640.106408-2-phasta@kernel.org>
+References: <20250409120640.106408-2-phasta@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <4ad4b12e-b474-48bb-a665-6c1dc843cd51@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: gJq9aFiqvY4hv-PYbjP-oMQCNoRi8YXYj8fCXzywo7M_1744200452
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Wed, Apr 09, 2025 at 01:12:19PM +0200, David Hildenbrand wrote:
-> On 09.04.25 12:56, Michael S. Tsirkin wrote:
-> > On Wed, Apr 09, 2025 at 12:46:41PM +0200, David Hildenbrand wrote:
-> > > On 07.04.25 23:20, Michael S. Tsirkin wrote:
-> > > > On Mon, Apr 07, 2025 at 08:47:05PM +0200, David Hildenbrand wrote:
-> > > > > > In my opinion, it makes the most sense to keep the spec as it is and
-> > > > > > change QEMU and the kernel to match, but obviously that's not trivial
-> > > > > > to do in a way that doesn't break existing devices and drivers.
-> > > > > 
-> > > > > If only it would be limited to QEMU and Linux ... :)
-> > > > > 
-> > > > > Out of curiosity, assuming we'd make the spec match the current QEMU/Linux
-> > > > > implementation at least for the 3 involved features only, would there be a
-> > > > > way to adjust crossvm without any disruption?
-> > > > > 
-> > > > > I still have the feeling that it will be rather hard to get that all
-> > > > > implementations match the spec ... For new features+queues it will be easy
-> > > > > to force the usage of fixed virtqueue numbers, but for free-page-hinting and
-> > > > > reporting, it's a mess :(
-> > > > 
-> > > > 
-> > > > Still thinking about a way to fix drivers... We can discuss this
-> > > > theoretically, maybe?
-> > > 
-> > > Yes, absolutely. I took the time to do some more digging; regarding drivers
-> > > only Linux seems to be problematic.
-> > > 
-> > > virtio-win, FreeBSD, NetBSD and OpenBSD and don't seem to support
-> > > problematic features (free page hinting, free page reporting) in their
-> > > virtio-balloon implementations.
-> > > 
-> > > So from the known drivers, only Linux is applicable.
-> > > 
-> > > reporting_vq is either at idx 4/3/2
-> > > free_page_vq is either at idx 3/2
-> > > statsq is at idx2 (only relevant if the feature is offered)
-> > > 
-> > > So if we could test for the existence of a virtqueue at an idx easily, we
-> > > could test from highest-to-smallest idx.
-> > > 
-> > > But I recall that testing for the existance of a virtqueue on s390x resulted
-> > > in the problem/deadlock in the first place ...
-> > > 
-> > > -- 
-> > > Cheers,
-> > > 
-> > > David / dhildenb
-> > 
-> > So let's talk about a new feature bit?
-> 
-> Are you thinking about a new feature that switches between "fixed queue
-> indices" and "compressed queue indices", whereby the latter would be the
-> legacy default and we would expect all devices to switch to the new
-> fixed-queue-indices layout?
-> 
-> We could make all new features require "fixed-queue-indices".
+The documentation of the return value of dma_fence_check_and_signal()
+and dma_fence_check_and_signal_locked() reads as if the returned boolean
+only describes whether dma_fence_signal() (or similar) has been called
+before this function call already. That's not the case, since
+dma_fence_ops.signaled() usually just checks through the sequence number
+whether the hardware is finished with a fence. That doesn't mean a
+signaling function has been called already.
 
-I see two ways:
-1. we make driver behave correctly with in spec and out of spec devices
-   and we make qemu behave correctly with in spec and out of spec devices
-2. a new feature bit
+Make the documentation clearer.
 
-I prefer 1, and when we add a new feature we can also
-document that it should be in spec if negotiated.
+Move the Return: documentation to the end, since that's the officially
+recommended docu style.
 
-My question is if 1 is practical.
+Signed-off-by: Philipp Stanner <phasta@kernel.org>
+---
+ include/linux/dma-fence.h | 26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
-
-
-
-
-> > 
-> > Since vqs are probed after feature negotiation, it looks like
-> > we could have a feature bit trigger sane behaviour, right?
-> 
-> In the Linux driver, yes. In QEMU (devices), we add the queues when
-> realizing, so we'd need some mechanism to adjust the queue indices based on
-> feature negotiation I guess?
-
-Well we can add queues later, nothing prevents that.
-
-
-> For virtio-balloon it might be doable to simply always create+indicate
-> free-page hinting to resolve the issue easily.
-
-
-OK, so
-- for devices, we suggest that basically VIRTIO_BALLOON_F_REPORTING
-  only created with VIRTIO_BALLOON_F_FREE_PAGE_HINT and 
-  VIRTIO_BALLOON_F_FREE_PAGE_HINT only created with VIRTIO_BALLOON_F_STATS_VQ
-
-I got that.
-
-
-Now, for drivers.
-
-If the dependency is satisfied as above, no difference.
-
-What should drivers do if not?
-
-
-
-I think the thing to do would be to first probe spec compliant
-vq numbers? If not there, try with the non compliant version?
-
-
-However,  you wrote:
-> > > But I recall that testing for the existance of a virtqueue on s390x resulted
-> > > in the problem/deadlock in the first place ...
-
-I think the deadlock was if trying to *use* a non-existent virtqueue?
-
-This is qemu code:
-
-    case CCW_CMD_READ_VQ_CONF:
-        if (check_len) {
-            if (ccw.count != sizeof(vq_config)) {
-                ret = -EINVAL;
-                break;
-            }
-        } else if (ccw.count < sizeof(vq_config)) {
-            /* Can't execute command. */
-            ret = -EINVAL;
-            break;
-        }
-        if (!ccw.cda) {
-            ret = -EFAULT;
-        } else {
-            ret = ccw_dstream_read(&sch->cds, vq_config.index);
-            if (ret) {
-                break;
-            }
-            vq_config.index = be16_to_cpu(vq_config.index);
-            if (vq_config.index >= VIRTIO_QUEUE_MAX) {
-                ret = -EINVAL;
-                break;
-            }
-            vq_config.num_max = virtio_queue_get_num(vdev,
-                                                     vq_config.index);
-            vq_config.num_max = cpu_to_be16(vq_config.num_max);
-            ret = ccw_dstream_write(&sch->cds, vq_config.num_max);
-            if (!ret) {
-                sch->curr_status.scsw.count = ccw.count - sizeof(vq_config);
-            }
-        }
-
-and
-
-            
-int virtio_queue_get_num(VirtIODevice *vdev, int n)
-{               
-    return vdev->vq[n].vring.num;
-}           
-            
-
-
-it seems to happily return vq size with no issues?
-
-
-
-
-> For virtio-fs it might not be that easy.
-
-virtio fs? But it has no features?
-
-> > 
-> > I kind of dislike it that we have a feature bit for bugs though.
-> > What would be a minimal new feature to add so it does not
-> > feel wrong?
-> 
-> Probably as above: fixed vs. compressed virtqueue indices?
-> 
-> -- 
-> Cheers,
-> 
-> David / dhildenb
+diff --git a/include/linux/dma-fence.h b/include/linux/dma-fence.h
+index dc2ad171458b..3df370b2cc7c 100644
+--- a/include/linux/dma-fence.h
++++ b/include/linux/dma-fence.h
+@@ -385,14 +385,21 @@ void dma_fence_enable_sw_signaling(struct dma_fence *fence);
+  * dma_fence_check_and_signal_locked - Checks a fence and signals it if necessary
+  * @fence: the fence to check
+  *
+- * Returns true if the fence was already signaled, false if not. Since this
+- * function doesn't enable signaling, it is not guaranteed to ever return
+- * true if dma_fence_add_callback(), dma_fence_wait() or
++ * Checks whether the fence was already signaled, and, if not, whether
++ * &struct dma_fence_ops.signaled indicates that it should be signaled. If so,
++ * the fence gets signaled here.
++ *
++ * Since this function doesn't enable signaling, it is not guaranteed to ever
++ * return true if dma_fence_add_callback(), dma_fence_wait() or
+  * dma_fence_enable_sw_signaling() haven't been called before.
+  *
+  * This function requires &dma_fence.lock to be held.
+  *
+  * See also dma_fence_check_and_signal().
++ *
++ * Return: true if the fence was already signaled, or if
++ * &struct dma_fence_ops.signaled is implemented and indicates that this fence
++ * can be treated as signaled; false otherwise.
+  */
+ static inline bool
+ dma_fence_check_and_signal_locked(struct dma_fence *fence)
+@@ -412,9 +419,12 @@ dma_fence_check_and_signal_locked(struct dma_fence *fence)
+  * dma_fence_check_and_signal - Checks a fence and signals it if necessary
+  * @fence: the fence to check
+  *
+- * Returns true if the fence was already signaled, false if not. Since this
+- * function doesn't enable signaling, it is not guaranteed to ever return
+- * true if dma_fence_add_callback(), dma_fence_wait() or
++ * Checks whether the fence was already signaled, and, if not, whether
++ * &struct dma_fence_ops.signaled indicates that it should be signaled. If so,
++ * the fence gets signaled here.
++ *
++ * Since this function doesn't enable signaling, it is not guaranteed to ever
++ * return true if dma_fence_add_callback(), dma_fence_wait() or
+  * dma_fence_enable_sw_signaling() haven't been called before.
+  *
+  * It's recommended for seqno fences to call dma_fence_signal when the
+@@ -423,6 +433,10 @@ dma_fence_check_and_signal_locked(struct dma_fence *fence)
+  * value of this function before calling hardware-specific wait instructions.
+  *
+  * See also dma_fence_check_and_signal_locked().
++ *
++ * Return: true if the fence was already signaled, or if
++ * &struct dma_fence_ops.signaled is implemented and indicates that this fence
++ * can be treated as signaled; false otherwise.
+  */
+ static inline bool
+ dma_fence_check_and_signal(struct dma_fence *fence)
+-- 
+2.48.1
 
