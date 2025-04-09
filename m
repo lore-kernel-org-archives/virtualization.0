@@ -1,310 +1,180 @@
-Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 340CA26FD89
-	for <virtualization@lists.linux.dev>; Wed,  9 Apr 2025 15:04:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F3291C3BE0
+	for <virtualization@lists.linux.dev>; Wed,  9 Apr 2025 16:02:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744211069; cv=none; b=c6NMv5vIqyJOXwcKuehS5LVxoQGjmCLdwCVB/tDb3nGEdUp8pW8g1cyBUofuR8hRB9JAJAahLGWt5Z9ixFVQN57k8HWpuLAqjTfuJoom5pHcHH8L5fZul67iHF3vFdi8uwOqsVZHlG8VgnHm77EiwZfn2VoZT0zA6xUB4Xry21U=
+	t=1744214551; cv=none; b=hB0m4FSWTOqTB3RUKvSNgGgL9U7ICVPHauTlfu2HXCVwzvuPtQEsGwZa2BYuSCYJfu96bU/b4ruJHGqvD4QuH6OSPM/lvdt17ttWal7W0V0rs0jMCOlQ6coUsUIPWHqv+hbwJmdbqaa0gmmwpfCnXepmBNhI3+KGsaRqvbDS2LY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744211069; c=relaxed/simple;
-	bh=vXNbrTLUQrlYNydORT5K+rP57dVB2oADM2jV2AgBth4=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=hANqiunfNiLMiZ5Roz7J4XNLzWR1U5UKXcZjlvxHGPyXmNxadVdNaUVenVq5cYKm6l3wX18rn5Qz0KzBlEZLdtuW/hbEAAQcV4jGh+1zBtiPNo+GwRc9zWfRjM4KVPDiY5mnh9kj5ordAMb80kbQpX0/mVo3drKho2rtmEyEinM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=LS9up8sz; arc=none smtp.client-ip=80.241.56.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1744214551; c=relaxed/simple;
+	bh=iLOOZgcKCxmS9diP1p/CTcxPlq8i83pLfIIeCIiFfHg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Trn5uIjyMW8Wz7Kk0JD3Z+KOee6c7soS1YAnlVLbTbZZEvCXu/etijx7f8yndlt2Po+mwsX1tGRh+ZvEWH5oblGCxIo4KCK/HS2pfnbn5sqLZaA2H5sryqkpa11cPzPjFd2wuTldp8qyGQH1cuq1omZ+O3ZUQA4QWk0KRfYN4TM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T8ak22zt; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="LS9up8sz"
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [10.196.197.102])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4ZXmSR19b9z9t7P;
-	Wed,  9 Apr 2025 17:04:23 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1744211063; h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T8ak22zt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744214548;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vXNbrTLUQrlYNydORT5K+rP57dVB2oADM2jV2AgBth4=;
-	b=LS9up8szfCpBJACvt4gXa2EtpB97sVavX67wzRPpNDGRm6AHGs0RWhd+AXtPqRnp9op8zM
-	yE04pWSHbv+2bVCH/VYb7yTY+oy+qVUAZ4WW9/6lnP3PpHLGzc4tcRtTF4O7CQkK3tXhvX
-	cCiMrZuEgIld1a2KfjtHsIUu/oAQCKCx7fGs11u4gWzMoATXWnWjLCYPUuT99rUvw0HFVE
-	FckYqYRVDbBSXy1btg0Kjd2aoH0hjFAIPruG1nC4IsLJddiCYtoMfHQpDpP9RKPQBOiAnR
-	HJHimkXP9tmHGGqthFRauJolLOimIaLd2csSieO9zeWinLAUXQxNFxqKta20mA==
-Message-ID: <0b2fc70d8fae566c8ca43bafc929e2bd19725924.camel@mailbox.org>
-Subject: Re: [PATCH 1/2] dma-fence: Rename dma_fence_is_signaled()
-From: Philipp Stanner <phasta@mailbox.org>
-Reply-To: phasta@kernel.org
-To: Christian =?ISO-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, 
-	phasta@kernel.org, Boris Brezillon <boris.brezillon@collabora.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>, Gustavo Padovan
- <gustavo@padovan.org>, Felix Kuehling <Felix.Kuehling@amd.com>, Alex
- Deucher <alexander.deucher@amd.com>, Xinhui Pan <Xinhui.Pan@amd.com>, David
- Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Maarten
- Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
- <mripard@kernel.org>,  Thomas Zimmermann <tzimmermann@suse.de>, Lucas Stach
- <l.stach@pengutronix.de>, Russell King <linux+etnaviv@armlinux.org.uk>,
- Christian Gmeiner <christian.gmeiner@gmail.com>,  Jani Nikula
- <jani.nikula@linux.intel.com>, Joonas Lahtinen
- <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Tvrtko Ursulin <tursulin@ursulin.net>, Frank Binns
- <frank.binns@imgtec.com>, Matt Coster <matt.coster@imgtec.com>, Qiang Yu
- <yuq825@gmail.com>, Rob Clark <robdclark@gmail.com>, Sean Paul
- <sean@poorly.run>,  Konrad Dybcio <konradybcio@kernel.org>, Abhinav Kumar
- <quic_abhinavk@quicinc.com>, Dmitry Baryshkov
- <dmitry.baryshkov@linaro.org>, Marijn Suijten
- <marijn.suijten@somainline.org>,  Lyude Paul <lyude@redhat.com>, Danilo
- Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,  Steven Price
- <steven.price@arm.com>, Dave Airlie <airlied@redhat.com>, Gerd Hoffmann
- <kraxel@redhat.com>,  Matthew Brost <matthew.brost@intel.com>, Huang Rui
- <ray.huang@amd.com>, Matthew Auld <matthew.auld@intel.com>,  Melissa Wen
- <mwen@igalia.com>, =?ISO-8859-1?Q?Ma=EDra?= Canal <mcanal@igalia.com>, Zack
- Rusin <zack.rusin@broadcom.com>, Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Lucas De Marchi
- <lucas.demarchi@intel.com>, Thomas =?ISO-8859-1?Q?Hellstr=F6m?=
- <thomas.hellstrom@linux.intel.com>, Bas Nieuwenhuizen
- <bas@basnieuwenhuizen.nl>,  Yang Wang <kevinyang.wang@amd.com>, Jesse Zhang
- <jesse.zhang@amd.com>, Tim Huang <tim.huang@amd.com>,  Sathishkumar S
- <sathishkumar.sundararaju@amd.com>, Saleemkhan Jamadar
- <saleemkhan.jamadar@amd.com>, Sunil Khatri <sunil.khatri@amd.com>, Lijo
- Lazar <lijo.lazar@amd.com>, Hawking Zhang <Hawking.Zhang@amd.com>, Ma Jun
- <Jun.Ma2@amd.com>, Yunxiang Li <Yunxiang.Li@amd.com>, Eric Huang
- <jinhuieric.huang@amd.com>, Asad Kamal <asad.kamal@amd.com>, Srinivasan
- Shanmugam <srinivasan.shanmugam@amd.com>,  Jack Xiao <Jack.Xiao@amd.com>,
- Friedrich Vock <friedrich.vock@gmx.de>, Michel =?ISO-8859-1?Q?D=E4nzer?=
- <mdaenzer@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
- Anna-Maria Behnsen <anna-maria@linutronix.de>, Thomas Gleixner
- <tglx@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, Dan
- Carpenter <dan.carpenter@linaro.org>,  linux-media@vger.kernel.org,
- dri-devel@lists.freedesktop.org,  linaro-mm-sig@lists.linaro.org,
- linux-kernel@vger.kernel.org,  amd-gfx@lists.freedesktop.org,
- etnaviv@lists.freedesktop.org,  intel-gfx@lists.freedesktop.org,
- lima@lists.freedesktop.org,  linux-arm-msm@vger.kernel.org,
- freedreno@lists.freedesktop.org,  nouveau@lists.freedesktop.org,
- virtualization@lists.linux.dev,  spice-devel@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org
-Date: Wed, 09 Apr 2025 17:04:00 +0200
-In-Reply-To: <334e843c-d7fe-4e33-b4fc-f3d18226465a@amd.com>
-References: <20250409120640.106408-2-phasta@kernel.org>
-	 <20250409120640.106408-3-phasta@kernel.org>
-	 <20250409143917.31303d22@collabora.com>
-	 <73d41cd84c73b296789b654e45125bfce88e0dbf.camel@mailbox.org>
-	 <72eb974dfea8fa1167cf97e29848672223f6fc5b.camel@mailbox.org>
-	 <ab7d1937-d0e9-45f8-8f7d-ddd7a1a9d3d5@amd.com>
-	 <9a90f7f14c22c01aa28d89aa91bf4dfa4049c062.camel@mailbox.org>
-	 <334e843c-d7fe-4e33-b4fc-f3d18226465a@amd.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	bh=7S6RTtnxjFtETXDaFSyTSU/GXOPgC2C8pONoXXV9POg=;
+	b=T8ak22zteDeX0KL6DuOYmfE3Ve//Lee06dOqHigpTQs0d8eafksHwovUtHD/+vPWySybqr
+	P2vgxPH14f4i6YGhXLzRSwqg6TNR85GFis4FL6aZhJznmaP4FGF9wl97j3P+3Zqv0XTDrX
+	qRw5bIBRBYtA7dQ3JoMamTkbixwheM4=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-547-SXNAsfQMNmm0nBfZSEYgdw-1; Wed, 09 Apr 2025 12:02:26 -0400
+X-MC-Unique: SXNAsfQMNmm0nBfZSEYgdw-1
+X-Mimecast-MFC-AGG-ID: SXNAsfQMNmm0nBfZSEYgdw_1744214546
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43efa869b0aso24990185e9.3
+        for <virtualization@lists.linux.dev>; Wed, 09 Apr 2025 09:02:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744214545; x=1744819345;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7S6RTtnxjFtETXDaFSyTSU/GXOPgC2C8pONoXXV9POg=;
+        b=uhE44+nhFZssJU+Yq7yVzt1I/5mqbJ40C9NsxvXYe30mJ8NLohHGva+BGrVJW4kDOU
+         kQKa+1ti4yaT/7Bm/wTJdpr7+FZoEWPo24wX0HLhHBekdpe2ODUam5XfkKDpJuXuWkmh
+         NI49wI6mtDXoTYorvNEbqW1nhVW2hrGKREbpgrmfmWp5Y1xLxltZj/g5TFGoxJR4K1Tb
+         /COupKV1XKoiT6YJOPHYjpn1pCVGCqhxfebZP7g5T1tE/6O55pi4qjalGnDqgFcknLOK
+         BB33ZHQ5ZHQUr677znhrrndjO4I76dVCfFA9jtl6F+c90VYbaWuhILxymWSWgOPkUdX8
+         sccQ==
+X-Gm-Message-State: AOJu0YwF/3QuVn45+QVkxN6SJgyoBVbNvOzSTjIb0IiPsHg5RvW+9xbL
+	eHcpxqEqxz2c3j6+GuB+01jN8E/qp57KzVRULrdG1vo4aWkjP099KudFvs9q6n+XVz7xsefV3Cv
+	B77IRsVESLtmILIFq3Z01DTRW+p92CeU/YlLBnGAi0BLs0/VgQfkmLncanMs+87KS
+X-Gm-Gg: ASbGncvCLVXTD8V4LIkn33oO5oSWXsVRA5mP0M9AvznsG0OLoHdonROCGu/4PC8ylPs
+	j4eYQ1X8jGMKnXNkW+3LCn8jwCmwzaXiJSdDa1OILlcZUgzmzLJup6c11NQvK8F8kjQOR69MJ2+
+	Q0SK5EPmEmhUgGf+JqtDGev/Tm+tDePgyCQKZu+xXKbKNkGiaBQ+HdNcG90iyUqfTo+QlG6uJxS
+	/AtpHxpOVL9muehUE/kxWcr/D8lHoQB3p77i1TImcr003jMDGs0xeUNQepWwbgv4oawTOekkegv
+	X7wIXQ==
+X-Received: by 2002:a05:600c:1d94:b0:43c:f629:66f3 with SMTP id 5b1f17b1804b1-43f1ed0b0eamr35743005e9.18.1744214544886;
+        Wed, 09 Apr 2025 09:02:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH0Bb6EmagTxZr/IPFdSrQ4pZmpEZzF/2D8XI9ZNwOy9pr/mbv5QWqwhjozrawKvYW7bh/KpA==
+X-Received: by 2002:a05:600c:1d94:b0:43c:f629:66f3 with SMTP id 5b1f17b1804b1-43f1ed0b0eamr35740785e9.18.1744214542977;
+        Wed, 09 Apr 2025 09:02:22 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39d893fdfd9sm2035636f8f.92.2025.04.09.09.02.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Apr 2025 09:02:22 -0700 (PDT)
+Date: Wed, 9 Apr 2025 12:02:18 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"jasowang@redhat.com" <jasowang@redhat.com>,
+	"stefanha@redhat.com" <stefanha@redhat.com>,
+	"pbonzini@redhat.com" <pbonzini@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>,
+	"NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>,
+	Max Gurtovoy <mgurtovoy@nvidia.com>
+Subject: Re: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
+ pci device"
+Message-ID: <20250409115557-mutt-send-email-mst@kernel.org>
+References: <20250408145908.51811-1-parav@nvidia.com>
+ <20250408155057-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB71957D9729A72B8BD76513C0DCB42@CY8PR12MB7195.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MBO-RS-META: 9wh48drngnos9i43y9zpcu5f5mrpihgx
-X-MBO-RS-ID: f0082fb0ff96fc9be99
+In-Reply-To: <CY8PR12MB71957D9729A72B8BD76513C0DCB42@CY8PR12MB7195.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: xAaW_A7Lp-dc59tbBwsfalJHdIhn4Zcma1_oZQ8NGsY_1744214546
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 2025-04-09 at 16:10 +0200, Christian K=C3=B6nig wrote:
-> Am 09.04.25 um 16:01 schrieb Philipp Stanner:
-> > On Wed, 2025-04-09 at 15:14 +0200, Christian K=C3=B6nig wrote:
-> > > Am 09.04.25 um 14:56 schrieb Philipp Stanner:
-> > > > On Wed, 2025-04-09 at 14:51 +0200, Philipp Stanner wrote:
-> > > > > On Wed, 2025-04-09 at 14:39 +0200, Boris Brezillon wrote:
-> > > > > > Hi Philipp,
-> > > > > >=20
-> > > > > > On Wed,=C2=A0 9 Apr 2025 14:06:37 +0200
-> > > > > > Philipp Stanner <phasta@kernel.org> wrote:
-> > > > > >=20
-> > > > > > > dma_fence_is_signaled()'s name strongly reads as if this
-> > > > > > > function
-> > > > > > > were
-> > > > > > > intended for checking whether a fence is already
-> > > > > > > signaled.
-> > > > > > > Also
-> > > > > > > the
-> > > > > > > boolean it returns hints at that.
-> > > > > > >=20
-> > > > > > > The function's behavior, however, is more complex: it can
-> > > > > > > check
-> > > > > > > with a
-> > > > > > > driver callback whether the hardware's sequence number
-> > > > > > > indicates
-> > > > > > > that
-> > > > > > > the fence can already be treated as signaled, although
-> > > > > > > the
-> > > > > > > hardware's /
-> > > > > > > driver's interrupt handler has not signaled it yet. If
-> > > > > > > that's
-> > > > > > > the
-> > > > > > > case,
-> > > > > > > the function also signals the fence.
-> > > > > > >=20
-> > > > > > > (Presumably) this has caused a bug in Nouveau (unknown
-> > > > > > > commit),
-> > > > > > > where
-> > > > > > > nouveau_fence_done() uses the function to check a fence,
-> > > > > > > which
-> > > > > > > causes a
-> > > > > > > race.
-> > > > > > >=20
-> > > > > > > Give the function a more obvious name.
-> > > > > > This is just my personal view on this, but I find the new
-> > > > > > name
-> > > > > > just
-> > > > > > as
-> > > > > > confusing as the old one. It sounds like something is
-> > > > > > checked,
-> > > > > > but
-> > > > > > it's
-> > > > > > clear what, and then the fence is forcibly signaled like it
-> > > > > > would
-> > > > > > be
-> > > > > > if
-> > > > > > you call drm_fence_signal(). Of course, this clarified by
-> > > > > > the
-> > > > > > doc,
-> > > > > > but
-> > > > > > given the goal was to make the function name clearly
-> > > > > > reflect
-> > > > > > what
-> > > > > > it
-> > > > > > does, I'm not convinced it's significantly better.
-> > > > > >=20
-> > > > > > Maybe dma_fence_check_hw_state_and_propagate(), though it
-> > > > > > might
-> > > > > > be
-> > > > > > too long of name. Oh well, feel free to ignore this
-> > > > > > comments if
-> > > > > > a
-> > > > > > majority is fine with the new name.
-> > > > > Yoa, the name isn't perfect (the perfect name describing the
-> > > > > whole
-> > > > > behavior would be
-> > > > > dma_fence_check_if_already_signaled_then_check_hardware_state
-> > > > > _and
-> > > > > _pro
-> > > > > pa
-> > > > > gate() ^^'
-> > > > >=20
-> > > > > My intention here is to have the reader realize "watch out,
-> > > > > the
-> > > > > fence
-> > > > > might get signaled here!", which is probably the most
-> > > > > important
-> > > > > event
-> > > > > regarding fences, which can race, invoke the callbacks and so
-> > > > > on.
-> > > > >=20
-> > > > > For details readers will then check the documentation.
-> > > > >=20
-> > > > > But I'm of course open to see if there's a majority for this
-> > > > > or
-> > > > > that
-> > > > > name.
-> > > > how about:
-> > > >=20
-> > > > dma_fence_check_hw_and_signal() ?
-> > > I don't think that renaming the function is a good idea in the
-> > > first
-> > > place.
-> > >=20
-> > > What the function does internally is an implementation detail of
-> > > the
-> > > framework.
-> > >=20
-> > > For the code using this function it's completely irrelevant if
-> > > the
-> > > function might also signal the fence, what matters for the caller
-> > > is
-> > > the returned status of the fence. I think this also counts for
-> > > the
-> > > dma_fence_is_signaled() documentation.
-> > It does obviously matter. As it's currently implemented, a lot of
-> > important things happen implicitly.
->=20
-> Yeah, but that's ok.
->=20
-> The code who calls this is the consumer of the interface and so
-> shouldn't need to know this. That's why we have created the DMA fence
-> framework in the first place.
->=20
-> For the provider side when a driver or similar implements the
-> interface the relevant documentation is the dma_fence_ops structure.
->=20
-> > I only see improvement by making things more obvious.
-> >=20
-> > In any case, how would you call a wrapper that just does
-> > test_bit(IS_SIGNALED, =E2=80=A6) ?
->=20
-> Broken, that was very intentionally removed quite shortly after we
-> created the framework.
->=20
-> We have a few cases were implementations do check that for their
-> fences, but consumers should never be allowed to touch such
-> internals.
+On Wed, Apr 09, 2025 at 01:50:18PM +0000, Parav Pandit wrote:
+> Hi Michael,
+> 
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> > Sent: Wednesday, April 9, 2025 1:45 AM
+> > 
+> > On Tue, Apr 08, 2025 at 05:59:08PM +0300, Parav Pandit wrote:
+> > > This reverts commit 43bb40c5b926 ("virtio_pci: Support surprise removal of
+> > virtio pci device").
+> > >
+> > > The cited commit introduced a fix that marks the device as broken
+> > > during surprise removal. However, this approach causes uncompleted I/O
+> > > requests on virtio-blk device. The presence of uncompleted I/O
+> > > requests prevents the successful removal of virtio-blk devices.
+> > >
+> > > This fix allows devices that simulate a surprise removal but actually
+> > > remove gracefully to continue working as before.
+> > >
+> > > For surprise removals, a better solution will be preferred in the future.
+> > 
+> > Sorry I'm not breaking one thing to fix another.
+> > Device is gone so no new requests will be completed. Why not complete all
+> > unfinished requests, for example?
+> > 
+> > Come up with a proper fix pls.
+> > 
+> I would also like to have a proper fix that can be backportable.
+> However, an attempt [1] had race.
+> To overcome the race, a different approach also tried, however the block layer was stuck even if all requests in virtio-blk driver layer was completed like you suggested.
+> 
+> It appeared that supporting uncompleted requests won't be so straightforward to backport.
+> 
+> Hence, the request is to revert and restore the previous behavior.
+> This at least improves the case where the OS thinks that surprise removal occurred, but the device eventually completes the IO.
+> And hence, virtio block driver successfully unloads.
+> And virtio-net also does not experience the mentioned crash.
+> 
+> [1] https://lore.kernel.org/all/20240217180848.241068-1-parav@nvidia.com/
 
-There is theory and there is practice. In practice, those internals are
-being used by Nouveau, i915, Xe, vmgfx and radeon.
+Parav this is a commit from 2021. I am not reverting it "because it
+seems to help". We'll never make progress like this.
+You will have to debug and fix it properly. Sorry.
 
-So it seems that we failed quite a bit at communicating clearly how the
-interface should be used.
+Once we have a fix, we will worry about backports and stuff, this
+is how we do kernel development here.
 
-And, to repeat myself, with both name and docu of that function, I
-think it is very easy to misunderstand what it's doing. You say that it
-shouldn't matter =E2=80=93 and maybe that's true, in theory. In practice, i=
-t
-does matter. In practice, APIs get misused and have side-effects. And
-making that harder is desirable.
 
-In any case, I might have to add another such call to Nouveau, because
-the solution preferred by you over the callback causes another race.
-Certainly one could solve this in a clean way, but someone has to do
-the work, and we're talking about more than a few hours here.
-
-In any case, be so kind and look at patch 2 and tell me there if you're
-at least OK with making the documentation more detailed.
-
-P.
-
->=20
-> Regards,
-> Christian.
->=20
-> >=20
-> > P.
-> >=20
-> > > What we should improve is the documentation of the dma_fence_ops-
-> > > > enable_signaling and dma_fence_ops->signaled callbacks.
-> > > Especially see the comment about reference counts on
-> > > enable_signaling
-> > > which is missing on the signaled callback. That is most likely
-> > > the
-> > > root cause why nouveau implemented enable_signaling correctly but
-> > > not
-> > > the other one.
-> > >=20
-> > > But putting that aside I think we should make nails with heads
-> > > and
-> > > let the framework guarantee that the fences stay alive until they
-> > > are
-> > > signaled (one way or another). This completely removes the burden
-> > > to
-> > > keep a reference on unsignaled fences from the drivers /
-> > > implementations and make things more over all more defensive.
-> > >=20
-> > > Regards,
-> > > Christian.
-> > >=20
-> > > > P.
-> > > >=20
-> > > > > P.
-> > > > >=20
-> > > > >=20
-> > > > > > Regards,
-> > > > > >=20
-> > > > > > Boris
->=20
+> > >
+> > > Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio
+> > > pci device")
+> > > Cc: stable@vger.kernel.org
+> > > Reported-by: lirongqing@baidu.com
+> > > Closes:
+> > > https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b474
+> > > 1@baidu.com/
+> > > Reviewed-by: Max Gurtovoy<mgurtovoy@nvidia.com>
+> > > Signed-off-by: Parav Pandit <parav@nvidia.com>
+> > 
+> > 
+> > > ---
+> > >  drivers/virtio/virtio_pci_common.c | 7 -------
+> > >  1 file changed, 7 deletions(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio_pci_common.c
+> > > b/drivers/virtio/virtio_pci_common.c
+> > > index d6d79af44569..dba5eb2eaff9 100644
+> > > --- a/drivers/virtio/virtio_pci_common.c
+> > > +++ b/drivers/virtio/virtio_pci_common.c
+> > > @@ -747,13 +747,6 @@ static void virtio_pci_remove(struct pci_dev
+> > *pci_dev)
+> > >  	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+> > >  	struct device *dev = get_device(&vp_dev->vdev.dev);
+> > >
+> > > -	/*
+> > > -	 * Device is marked broken on surprise removal so that virtio upper
+> > > -	 * layers can abort any ongoing operation.
+> > > -	 */
+> > > -	if (!pci_device_is_present(pci_dev))
+> > > -		virtio_break_device(&vp_dev->vdev);
+> > > -
+> > >  	pci_disable_sriov(pci_dev);
+> > >
+> > >  	unregister_virtio_device(&vp_dev->vdev);
+> > > --
+> > > 2.26.2
 
