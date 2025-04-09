@@ -1,447 +1,127 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 821AA15F330
-	for <virtualization@lists.linux.dev>; Wed,  9 Apr 2025 04:06:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5587B1DE8A8
+	for <virtualization@lists.linux.dev>; Wed,  9 Apr 2025 06:44:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744171584; cv=none; b=eifRjd9L1tVMC0bILvMO++SxoXknB90shSKZKLLHl2BrPzDrlnZ8m/PSpNbtzwriT7Ih0z9Ts0gY23wcuJYfYkPzT7ap1krTWXVG3nZpWUQT6sm4cbSt8N7c+SfVzh/JbMoenkE8WLx+qepsxFSR0lJXdO0qVTC4gD5mdY00MP8=
+	t=1744181057; cv=none; b=ICLy5OKTvE6s3XKCvQM8ExBDYteX6FZJSFBWWsl9Vr+fPF7FAV7VG2XEirRcrPATsj3awJFsJT4WgGDS7Df/H5IocsFPphPjURVkVRfiBl92047vg6FEmZOlsmIoV1PpOr/z7zcGIQ2F8rCwdwFvCc6QQcNDknMc0K+HeBLIm7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744171584; c=relaxed/simple;
-	bh=2SPu6xhCzaCLCR5+l+uGkKQYmu6+IrftMrFP4K2kLbw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SWW0bTDGTeffIVoKyVjvhPlLScSVfDaEnP9k7TexGVeiJCZDBlxrTQ7PnHXoKgkixHvj7JPM5h0LXfdkcVLaX33Gr5D416SH6yFyDFTBd+oqJQXQHRivqKO9YXboR6DXolelI49iaXp+jF34UHEN0LEvIxWGmYU+6Vq7wQlyAW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AX9NAHpZ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1744181057; c=relaxed/simple;
+	bh=EA2abmK970vc5VUSwknSZAbpfozmiJ2WLu2yC0Rm9Q8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=G+iBxptMY39zla1sf2g0IDBWeQgpOFpQu2ZPZp07f7t30NzaZav4WfRL88zk5nIBod8Qrlh6nFtBq/K69rJcsriI7S1C0oAW67SPLKqz/lZT8Oi+C7hGzj/BhylPjUdJ8DixsP9Ry6DI77CuT8XzFprg1JRKTkwxgIoAe9bqrM4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i+BMAEye; arc=none smtp.client-ip=209.85.215.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AX9NAHpZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744171578;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ijXIXd8h6SmnPWZmcUGFMLkscl1xkFT8sup908yrvUs=;
-	b=AX9NAHpZVMQijdWk6BZFRw0I77SM3gRTAEMlp9JxIrO+zyPeAZQ0Pk/Xaqbaqn9GKoGv1K
-	2qEjni+sa/EeVn1PnuvsUgPmjuu5go0m/vtaIQQgdIp6tQPM1q8BW7D7YzrMneRNtM3y7C
-	xEA010Fuys6z1/edgEK8CcfzIfYyzMA=
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
- [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-315-iLXpzYujPqy2nQO6CngJzw-1; Wed, 09 Apr 2025 00:06:16 -0400
-X-MC-Unique: iLXpzYujPqy2nQO6CngJzw-1
-X-Mimecast-MFC-AGG-ID: iLXpzYujPqy2nQO6CngJzw_1744171575
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-736b2a25d9fso5053922b3a.0
-        for <virtualization@lists.linux.dev>; Tue, 08 Apr 2025 21:06:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i+BMAEye"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-af5139ad9a2so4329552a12.1
+        for <virtualization@lists.linux.dev>; Tue, 08 Apr 2025 23:44:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744181055; x=1744785855; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=zFnPHqAViJTArLLnMbNb1yqvVoshG4R2mnj5u2i0toE=;
+        b=i+BMAEye/usBkYugtA8J7QHr/r2mVIlcnZnT2UyxU3F9s4U71JHhOuOfiJU5Zqj4MV
+         6CaOpVeLAxA5scQaGCqU6ACxgTTgZKBYm6fX3rKf/9pKx4LaOzuQsMpDnBAumuLeuqsi
+         IQmLNJLxQXhEmrlKIjTHUBgJHLLuANGyGJNhAQL4lFLbkIjrcKfi8NWhmd3kO9nxQq9Q
+         uP1gXwyu7gpGrrPrJcVPcWLxobm8GbjeaSrZ0B7S/fBiRfOcljMGm19X61kK5RRILOqk
+         TTGgDZeM58Pb6pCjVrJ/oDubSk2G01Eu2uQJsGnVHNqp8soMyDzYBBRHJuLmBVWrNs3C
+         aI5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744171575; x=1744776375;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ijXIXd8h6SmnPWZmcUGFMLkscl1xkFT8sup908yrvUs=;
-        b=pI1rZKgAAxqmI7HFhSlTQZmYkiL+9fJFnAT1at54gz6o6RhGvxQV+7gZa8SDlcpSmz
-         yhnxCTzqFCSPsN6/78AcildzT0X9M16eqWgzzBiuxUxgdT8nefUvs7fiOluiIdZcM9Mc
-         V47KFX94OmUq6u3pq86PcugudyYBPyFykcOY4Opk2DVaZgBiRbULHqktlaudexe6OemQ
-         1DV0PkR7jruYgPa+DxWSZY6e5TezHmLLYoDI748eKw2NP95/SuDBd/i2fxokvcwaTneF
-         eS4oAMe0QecQtorsH7f1xtqm/STq9fZWmnx4WLaj/+LReLZkfQ+ugHt3325u+IckYe+2
-         onjQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUWr0v8+agZAsSeGbvbrIDPnoQRfo1ls1chzKoR50i0OaUym5KtuioKuY7lJD7e/6/a/0F94vY0DErZxQQfMg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwC9JKHZxZuE//mPQ+q4oZzCkwDTtt6M7qs2V7YSPoqbkigyaJO
-	OifbuO2ca/D/SXy9/wKTPJTbwH3vS/lZGYJsl6aUfMCYLPtT+VPZovpy1DS/GL46LNEf/sKTlGV
-	zEJvOfjW59XlBTJ/2cChL2DUMJBvZVxF/6buWonAKFxnKXloQBYIhCp2FISoGoq+CAx0MZIwMxF
-	ioImtzSFWKMlzb7zbfK99I1AvIMQok2QuVLwSjpiI=
-X-Gm-Gg: ASbGncvtBYzZg+PEGY+PInPoxfND0uKLX0JXYnyBa+LpRvqkNVLXcevroe2skv/bvMX
-	kkduOloj/BI9JTKuYed69ZVD51F0jki/LgOMuvaRL1nqcC8W7OaIywe8QZEmfbcT7enJ2q3Fu3A
-	==
-X-Received: by 2002:a05:6a00:1909:b0:735:d89c:4b9f with SMTP id d2e1a72fcca58-73bae30a7e1mr1792444b3a.0.1744171575259;
-        Tue, 08 Apr 2025 21:06:15 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF/GK37bglV1sRPs94dgS0EbzNjik/y4s/SyGHaLzsB9g0rDHlXisULL3q2KkdRzji4u9G49VZszDpcHBWQRFQ=
-X-Received: by 2002:a05:6a00:1909:b0:735:d89c:4b9f with SMTP id
- d2e1a72fcca58-73bae30a7e1mr1792422b3a.0.1744171574710; Tue, 08 Apr 2025
- 21:06:14 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1744181055; x=1744785855;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=zFnPHqAViJTArLLnMbNb1yqvVoshG4R2mnj5u2i0toE=;
+        b=AsqFaS85a4vm9zGgeA7IUvw7Y8B72kwDI+cvtQr5/Z3eTEDAhDADYQW250kJtyFqDT
+         xXB/x81zLjBHT/EXpiwc5hgSBFmIb22ViNUrrK7DB6luvWgjfhpB7Zz5maatI8i2ZRwl
+         rLLUIHtuX/esV8RO4WeQvZldpZBE6qnJN+YpG+rimFadQ96eHEDEW4hfIiGazKTOWhUp
+         f/jtbShTxo4VL/0DIqMIh48bCxH72Kc8HsN8hP8eWVRsRdEt4uNwB1QT++PVcVMBOxCt
+         rBFU4rmwDzi46DzR112DHlbEg4SRNXxNZKliGKVSYT5sXJwuc8eeRmg2344v3GKgy4Q9
+         NpIA==
+X-Forwarded-Encrypted: i=1; AJvYcCXmXstYFrJesW9Vx7ZNsXzCgJjQ6j3cpZGp4TkQY3YopwOUZJtmst3ch00XbqD7K6snaDkrcJXooImurHNc3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzDd++NQAJP8WL41DIjhN9NAXAWG4gT/cv/ZzNWQ6aZmJVeHH5O
+	rb9TvSwtMewMjGsqnsAygfqGq6VmCYlstaQbdj9EU2GPCaawIewy
+X-Gm-Gg: ASbGnctR3yh91BvFtGICTCTle/ZnFGBKFFRcKiMyVeDgih4pERD/zqdCSk3BGzBdmZc
+	wv+xFjBe2V6+VC0fKeERznAIFKbKMn97PFprmHTHL5gB/89g6VvHoaeAIjs9mVsSLN8TXQGkp22
+	Wd9xYONcC2GFBX9Zf1g29ANnVQVKYmpy3yIBJLbURVy4zbk5kipFbS5gh4bpDz/68eoePPE7MW5
+	6QjkFD2GLnSGZ8BKKyODPXv5RB1UtkJHYaGN9rGO4Vg3jBBRnb2KX+oPEDK9rbVQAb8oB97tLeK
+	k3Ad73t+4EYsjK/KOWT2slnegAPzqjLinpk0E+lDhA5qpxDUIA==
+X-Google-Smtp-Source: AGHT+IFEFBrVdU4Z60J6u9c77Kly+wSwU0+rEdmF+faACzLEkBXEARmQGsGuz7F6mtlkCJR4WkAuvA==
+X-Received: by 2002:a17:90a:d00b:b0:2fe:9783:afd3 with SMTP id 98e67ed59e1d1-306dbb8e8a5mr2762085a91.2.1744181055366;
+        Tue, 08 Apr 2025 23:44:15 -0700 (PDT)
+Received: from [192.168.0.118] ([14.169.40.45])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22ac7b8c617sm4321055ad.67.2025.04.08.23.44.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Apr 2025 23:44:14 -0700 (PDT)
+Message-ID: <4195db62-db43-4d61-88c3-7a7fbb164726@gmail.com>
+Date: Wed, 9 Apr 2025 13:44:07 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250324054333.1954-1-jasowang@redhat.com> <20250324060127.2358-1-jasowang@redhat.com>
- <20250407041729-mutt-send-email-mst@kernel.org> <CACGkMEv-=V0a7jpR9e-i=Oe+PE9pN_cH3yDBmyOYhwPcJXOHPQ@mail.gmail.com>
- <20250408073317-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250408073317-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 9 Apr 2025 12:06:03 +0800
-X-Gm-Features: ATxdqUF4O39qPwC7K414J9bQVl-02bUVSNUMKHYcCzPivVN_iNHqERNtrjFk_ZY
-Message-ID: <CACGkMEtmDM4_ZbAi4O8OUwZaPZnGLKEhnXkQGStFmeXETJtpkA@mail.gmail.com>
-Subject: Re: [PATCH 13/19] virtio_ring: introduce virtqueue ops
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 8CYUIjDRs5X-XZy8Tlg2S7atMiyRBUDW4eoid7Amdik_1744171575
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio-net: disable delayed refill when pausing rx
+To: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20250404093903.37416-1-minhquangbui99@gmail.com>
+ <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
+ <30419bd6-13b1-4426-9f93-b38b66ef7c3a@gmail.com>
+ <CACGkMEs7O7D5sztwJVn45c+1pap20Oi5f=02Sy_qxFjbeHuYiQ@mail.gmail.com>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <CACGkMEs7O7D5sztwJVn45c+1pap20Oi5f=02Sy_qxFjbeHuYiQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, Apr 8, 2025 at 7:37=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
-wrote:
+On 4/8/25 14:34, Jason Wang wrote:
+> On Mon, Apr 7, 2025 at 10:27 AM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>> On 4/7/25 08:03, Xuan Zhuo wrote:
+>>> On Fri,  4 Apr 2025 16:39:03 +0700, Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>>>> When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
+>>>> napi_disable() on the receive queue's napi. In delayed refill_work, it
+>>>> also calls napi_disable() on the receive queue's napi. This can leads to
+>>>> deadlock when napi_disable() is called on an already disabled napi. This
+>>>> scenario can be reproducible by binding a XDP socket to virtio-net
+>>>> interface without setting up the fill ring. As a result, try_fill_recv
+>>>> will fail until the fill ring is set up and refill_work is scheduled.
+>>> So, what is the problem? The refill_work is waiting? As I know, that thread
+>>> will sleep some time, so the cpu can do other work.
+>> When napi_disable is called on an already disabled napi, it will sleep
+>> in napi_disable_locked while still holding the netdev_lock. As a result,
+>> later napi_enable gets stuck too as it cannot acquire the netdev_lock.
+>> This leads to refill_work and the pause-then-resume tx are stuck altogether.
+> This needs to be added to the chagelog. And it looks like this is a fix for
 >
-> On Tue, Apr 08, 2025 at 03:02:35PM +0800, Jason Wang wrote:
-> > On Mon, Apr 7, 2025 at 4:20=E2=80=AFPM Michael S. Tsirkin <mst@redhat.c=
-om> wrote:
-> > >
-> > > On Mon, Mar 24, 2025 at 02:01:21PM +0800, Jason Wang wrote:
-> > > > This patch introduces virtqueue ops which is a set of the callbacks
-> > > > that will be called for different queue layout or features. This wo=
-uld
-> > > > help to avoid branches for split/packed and will ease the future
-> > > > implementation like in order.
-> > > >
-> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > >
-> > >
-> > >
-> > >
-> > > > ---
-> > > >  drivers/virtio/virtio_ring.c | 96 +++++++++++++++++++++++++-------=
-----
-> > > >  1 file changed, 67 insertions(+), 29 deletions(-)
-> > > >
-> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_r=
-ing.c
-> > > > index a2884eae14d9..ce1dc90ee89d 100644
-> > > > --- a/drivers/virtio/virtio_ring.c
-> > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > @@ -159,9 +159,30 @@ struct vring_virtqueue_packed {
-> > > >       size_t event_size_in_bytes;
-> > > >  };
-> > > >
-> > > > +struct vring_virtqueue;
-> > > > +
-> > > > +struct virtqueue_ops {
-> > > > +     int (*add)(struct vring_virtqueue *_vq, struct scatterlist *s=
-gs[],
-> > > > +                unsigned int total_sg, unsigned int out_sgs,
-> > > > +                unsigned int in_sgs, void *data,
-> > > > +                void *ctx, bool premapped, gfp_t gfp);
-> > > > +     void *(*get)(struct vring_virtqueue *vq, unsigned int *len, v=
-oid **ctx);
-> > > > +     bool (*kick_prepare)(struct vring_virtqueue *vq);
-> > > > +     void (*disable_cb)(struct vring_virtqueue *vq);
-> > > > +     bool (*enable_cb_delayed)(struct vring_virtqueue *vq);
-> > > > +     unsigned int (*enable_cb_prepare)(struct vring_virtqueue *vq)=
-;
-> > > > +     bool (*poll)(const struct vring_virtqueue *vq, u16 last_used_=
-idx);
-> > > > +     void *(*detach_unused_buf)(struct vring_virtqueue *vq);
-> > > > +     bool (*more_used)(const struct vring_virtqueue *vq);
-> > > > +     int (*resize)(struct vring_virtqueue *vq, u32 num);
-> > > > +     void (*reset)(struct vring_virtqueue *vq);
-> > > > +};
-> > >
-> > > I like it that it's organized but
-> > > I worry about the overhead of indirect calls here.
-> >
-> > We can switch to use INDIRECT_CALL_X() here
+> commit 413f0271f3966e0c73d4937963f19335af19e628
+> Author: Jakub Kicinski <kuba@kernel.org>
+> Date:   Tue Jan 14 19:53:14 2025 -0800
 >
-> If you think it's cleaner.. but INDIRECT_CALL is all chained
+>      net: protect NAPI enablement with netdev_lock()
+>
+> ?
 
-Yes, and it would be problematic as the number of ops increased.
+I'm not aware of this, will update the fix tags in the next patch.
 
-> while a switch can do a binary search.
->
+> I wonder if it's simpler to just hold the netdev lock in resize or xsk
+> binding instead of this.
 
-Do you mean a nested switch?
+That looks cleaner, let me try that approach.
 
->
-> > (but I'm not sure we
-> > should worry about it too much as ndo_ops or qdiscs doesn't use that).
->
->
-> And that's why we ended up with xdp, no? the stack's too heavy ...
->
-> > > How about a switch statement instead?
-> > >
-> > > struct vring_virtqueue {
-> > >         enum vring_virtqueue_ops ops;
-> > >
-> > > }
-> > >
-> > >
-> > > @@ -2248,10 +2303,8 @@ static inline int virtqueue_add(struct virtque=
-ue *_vq,
-> > >  {
-> > >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > >
-> > >         switch (vq->ops) {
-> > >          VQ_PACKED:
-> > >          VQ_SPLIT:
-> > >          VQ_IN_ORDER:
-> > >         }
-> > >
-> > >
-> > > }
-> > >
-> > >
-> > > What do you think?
-> >
-> > Actually, the matrix will be 2*2:
-> >
-> > PACKED, SPLIT, PACKED_IN_ORDER, SPLIT_IN_ORDER
->
-> Confused. Same amount of enums as ops structures in your approach, no?
-
-I meant in this series, we will have 4 ops not 3.
-
->
->
-> > And will be doubled if a new layout is implemented.
-> >
-> > If we open them such a switch will spread in a lot of places in the cod=
-e.
-> >
-> > Thanks
-
-Thanks
-
-> >
-> > >
-> > >
-> > >
-> > > > +
-> > > >  struct vring_virtqueue {
-> > > >       struct virtqueue vq;
-> > > >
-> > > > +     struct virtqueue_ops *ops;
-> > > > +
-> > > >       /* Is this a packed ring? */
-> > > >       bool packed_ring;
-> > > >
-> > > > @@ -1116,6 +1137,8 @@ static int vring_alloc_queue_split(struct vri=
-ng_virtqueue_split *vring_split,
-> > > >       return 0;
-> > > >  }
-> > > >
-> > > > +struct virtqueue_ops split_ops;
-> > > > +
-> > > >  static struct virtqueue *__vring_new_virtqueue_split(unsigned int =
-index,
-> > > >                                              struct vring_virtqueue=
-_split *vring_split,
-> > > >                                              struct virtio_device *=
-vdev,
-> > > > @@ -1134,6 +1157,7 @@ static struct virtqueue *__vring_new_virtqueu=
-e_split(unsigned int index,
-> > > >               return NULL;
-> > > >
-> > > >       vq->packed_ring =3D false;
-> > > > +     vq->ops =3D &split_ops;
-> > > >       vq->vq.callback =3D callback;
-> > > >       vq->vq.vdev =3D vdev;
-> > > >       vq->vq.name =3D name;
-> > > > @@ -2076,6 +2100,8 @@ static void virtqueue_reset_packed(struct vri=
-ng_virtqueue *vq)
-> > > >       virtqueue_vring_init_packed(&vq->packed, !!vq->vq.callback);
-> > > >  }
-> > > >
-> > > > +struct virtqueue_ops packed_ops;
-> > > > +
-> > > >  static struct virtqueue *__vring_new_virtqueue_packed(unsigned int=
- index,
-> > > >                                              struct vring_virtqueue=
-_packed *vring_packed,
-> > > >                                              struct virtio_device *=
-vdev,
-> > > > @@ -2107,6 +2133,7 @@ static struct virtqueue *__vring_new_virtqueu=
-e_packed(unsigned int index,
-> > > >       vq->broken =3D false;
-> > > >  #endif
-> > > >       vq->packed_ring =3D true;
-> > > > +     vq->ops =3D &packed_ops;
-> > > >       vq->dma_dev =3D dma_dev;
-> > > >       vq->use_dma_api =3D vring_use_dma_api(vdev);
-> > > >
-> > > > @@ -2194,6 +2221,34 @@ static int virtqueue_resize_packed(struct vr=
-ing_virtqueue *vq, u32 num)
-> > > >       return -ENOMEM;
-> > > >  }
-> > > >
-> > > > +struct virtqueue_ops split_ops =3D {
-> > > > +     .add =3D virtqueue_add_split,
-> > > > +     .get =3D virtqueue_get_buf_ctx_split,
-> > > > +     .kick_prepare =3D virtqueue_kick_prepare_split,
-> > > > +     .disable_cb =3D virtqueue_disable_cb_split,
-> > > > +     .enable_cb_delayed =3D virtqueue_enable_cb_delayed_split,
-> > > > +     .enable_cb_prepare =3D virtqueue_enable_cb_prepare_split,
-> > > > +     .poll =3D virtqueue_poll_split,
-> > > > +     .detach_unused_buf =3D virtqueue_detach_unused_buf_split,
-> > > > +     .more_used =3D more_used_split,
-> > > > +     .resize =3D virtqueue_resize_split,
-> > > > +     .reset =3D virtqueue_reset_split,
-> > > > +};
-> > > > +
-> > > > +struct virtqueue_ops packed_ops =3D {
-> > > > +     .add =3D virtqueue_add_packed,
-> > > > +     .get =3D virtqueue_get_buf_ctx_packed,
-> > > > +     .kick_prepare =3D virtqueue_kick_prepare_packed,
-> > > > +     .disable_cb =3D virtqueue_disable_cb_packed,
-> > > > +     .enable_cb_delayed =3D virtqueue_enable_cb_delayed_packed,
-> > > > +     .enable_cb_prepare =3D virtqueue_enable_cb_prepare_packed,
-> > > > +     .poll =3D virtqueue_poll_packed,
-> > > > +     .detach_unused_buf =3D virtqueue_detach_unused_buf_packed,
-> > > > +     .more_used =3D more_used_packed,
-> > > > +     .resize =3D virtqueue_resize_packed,
-> > > > +     .reset =3D virtqueue_reset_packed,
-> > > > +};
-> > > > +
-> > > >  static int virtqueue_disable_and_recycle(struct virtqueue *_vq,
-> > > >                                        void (*recycle)(struct virtq=
-ueue *vq, void *buf))
-> > > >  {
-> > > > @@ -2248,10 +2303,8 @@ static inline int virtqueue_add(struct virtq=
-ueue *_vq,
-> > > >  {
-> > > >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > > >
-> > > > -     return vq->packed_ring ? virtqueue_add_packed(vq, sgs, total_=
-sg,
-> > > > -                                     out_sgs, in_sgs, data, ctx, p=
-remapped, gfp) :
-> > > > -                              virtqueue_add_split(vq, sgs, total_s=
-g,
-> > > > -                                     out_sgs, in_sgs, data, ctx, p=
-remapped, gfp);
-> > > > +     return vq->ops->add(vq, sgs, total_sg,
-> > > > +                         out_sgs, in_sgs, data, ctx, premapped, gf=
-p);
-> > > >  }
-> > > >
-> > > >  /**
-> > > > @@ -2437,8 +2490,7 @@ bool virtqueue_kick_prepare(struct virtqueue =
-*_vq)
-> > > >  {
-> > > >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > > >
-> > > > -     return vq->packed_ring ? virtqueue_kick_prepare_packed(vq) :
-> > > > -                              virtqueue_kick_prepare_split(vq);
-> > > > +     return vq->ops->kick_prepare(vq);
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(virtqueue_kick_prepare);
-> > > >
-> > > > @@ -2508,8 +2560,7 @@ void *virtqueue_get_buf_ctx(struct virtqueue =
-*_vq, unsigned int *len,
-> > > >  {
-> > > >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > > >
-> > > > -     return vq->packed_ring ? virtqueue_get_buf_ctx_packed(vq, len=
-, ctx) :
-> > > > -                              virtqueue_get_buf_ctx_split(vq, len,=
- ctx);
-> > > > +     return vq->ops->get(vq, len, ctx);
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(virtqueue_get_buf_ctx);
-> > > >
-> > > > @@ -2531,10 +2582,7 @@ void virtqueue_disable_cb(struct virtqueue *=
-_vq)
-> > > >  {
-> > > >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > > >
-> > > > -     if (vq->packed_ring)
-> > > > -             virtqueue_disable_cb_packed(vq);
-> > > > -     else
-> > > > -             virtqueue_disable_cb_split(vq);
-> > > > +     return vq->ops->disable_cb(vq);
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
-> > > >
-> > > > @@ -2557,8 +2605,7 @@ unsigned int virtqueue_enable_cb_prepare(stru=
-ct virtqueue *_vq)
-> > > >       if (vq->event_triggered)
-> > > >               vq->event_triggered =3D false;
-> > > >
-> > > > -     return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(v=
-q) :
-> > > > -                              virtqueue_enable_cb_prepare_split(vq=
-);
-> > > > +     return vq->ops->enable_cb_prepare(vq);
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
-> > > >
-> > > > @@ -2579,8 +2626,7 @@ bool virtqueue_poll(struct virtqueue *_vq, un=
-signed int last_used_idx)
-> > > >               return false;
-> > > >
-> > > >       virtio_mb(vq->weak_barriers);
-> > > > -     return vq->packed_ring ? virtqueue_poll_packed(vq, last_used_=
-idx) :
-> > > > -                              virtqueue_poll_split(vq, last_used_i=
-dx);
-> > > > +     return vq->ops->poll(vq, last_used_idx);
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(virtqueue_poll);
-> > > >
-> > > > @@ -2623,8 +2669,7 @@ bool virtqueue_enable_cb_delayed(struct virtq=
-ueue *_vq)
-> > > >       if (vq->event_triggered)
-> > > >               vq->event_triggered =3D false;
-> > > >
-> > > > -     return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(v=
-q) :
-> > > > -                              virtqueue_enable_cb_delayed_split(vq=
-);
-> > > > +     return vq->ops->enable_cb_delayed(vq);
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
-> > > >
-> > > > @@ -2640,14 +2685,13 @@ void *virtqueue_detach_unused_buf(struct vi=
-rtqueue *_vq)
-> > > >  {
-> > > >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > > >
-> > > > -     return vq->packed_ring ? virtqueue_detach_unused_buf_packed(v=
-q) :
-> > > > -                              virtqueue_detach_unused_buf_split(vq=
-);
-> > > > +     return vq->ops->detach_unused_buf(vq);
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
-> > > >
-> > > >  static inline bool more_used(const struct vring_virtqueue *vq)
-> > > >  {
-> > > > -     return vq->packed_ring ? more_used_packed(vq) : more_used_spl=
-it(vq);
-> > > > +     return vq->ops->more_used(vq);
-> > > >  }
-> > > >
-> > > >  /**
-> > > > @@ -2785,10 +2829,7 @@ int virtqueue_resize(struct virtqueue *_vq, =
-u32 num,
-> > > >       if (recycle_done)
-> > > >               recycle_done(_vq);
-> > > >
-> > > > -     if (vq->packed_ring)
-> > > > -             err =3D virtqueue_resize_packed(vq, num);
-> > > > -     else
-> > > > -             err =3D virtqueue_resize_split(vq, num);
-> > > > +     err =3D vq->ops->resize(vq, num);
-> > > >
-> > > >       return virtqueue_enable_after_reset(_vq);
-> > > >  }
-> > > > @@ -2822,10 +2863,7 @@ int virtqueue_reset(struct virtqueue *_vq,
-> > > >       if (recycle_done)
-> > > >               recycle_done(_vq);
-> > > >
-> > > > -     if (vq->packed_ring)
-> > > > -             virtqueue_reset_packed(vq);
-> > > > -     else
-> > > > -             virtqueue_reset_split(vq);
-> > > > +     vq->ops->reset(vq);
-> > > >
-> > > >       return virtqueue_enable_after_reset(_vq);
-> > > >  }
-> > > > --
-> > > > 2.42.0
-> > >
->
-
+Thanks,
+Quang Minh
