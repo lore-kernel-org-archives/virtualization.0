@@ -1,190 +1,184 @@
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1468E212FA2
-	for <virtualization@lists.linux.dev>; Wed,  9 Apr 2025 06:55:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B034025A2CD
+	for <virtualization@lists.linux-foundation.org>; Wed,  9 Apr 2025 08:38:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744181755; cv=none; b=EMCCjMDqGccnBn/ASEfUwExlfYuvWKGdJ2TXG1pp1gfpJDkWMQ33F6oHR7rwm20FAkevP6fkqHU46RzHxA7pvdX8yxYoEi6fU0zwftdF6pdTm+25nyYM7i7FSA3/sZqsp8V+05d2ixpa3xMjoZNWHA5nSi/X+vctiXgsHTzdPYw=
+	t=1744187910; cv=none; b=h2FhjQzxcICUIe8F2YrQ8RuCAmXxwXnNC3DYQDaK3KhzGcSRXzqCobl2wp+12LzuiFr7NTcOs1/Xtz1KQ3ZmPuBD9+4DSsJ+t2Sn6QxHbLhKeVA4nXSovOSnNsI1BQYZSGzbMklqQ4liIUBqWfrC6VmQqAAAQ7bLtdkwlslmipw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744181755; c=relaxed/simple;
-	bh=OqC3v9Gphs/qwzgAJtXvKZfDCpF4ZGPS2GOM3FmsfrY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mzEUVfsM1vDrF5kd/ICEkWgKmibrbhxJXU9hJRFMYv/wmpVWCijRFTbgJghHawzbATKOCpsl9TERlKsr8TSNdVSMjRyH44PfnVz9ejsSuOQqtDCmJ6OLwkkeE1DUqJWGt9WqH5Pj8UnflUj3B0FARiULW5Kr+YlY9tC7w9QYXc0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j7UYfl7Y; arc=none smtp.client-ip=209.85.215.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1744187910; c=relaxed/simple;
+	bh=61PW9y7PDNWOcIblSehzngap5jGtPaiZoqUtTkIf7Q4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EMMpxCyXUuxe13HckAwqvspeVugz39J98svRjKnWEFrkfzAD07h3piMebjQedvGSEWmh8yvj8kCMa3w1u/cXz2xV5aqZca623CpVnGJHeQJCkWyu9he+weMymC9rd952TiVxBhDSBmkAOAG4P4CAaaFUWN4wea34hXDz5TFZKPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NSfCJDAX; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j7UYfl7Y"
-Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-af5cdf4a2f8so4719341a12.3
-        for <virtualization@lists.linux.dev>; Tue, 08 Apr 2025 23:55:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744181753; x=1744786553; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=8Co6gQM2wtA55c6R6TA7F5Fe1d0+w5yIt8c2Cnbe3qs=;
-        b=j7UYfl7YKnkZ/iKwTYl68cm2WWx3xl/dP2m+qNZJApQe462M/nC6wvVShQx8+PRgJd
-         IpBPx/6mXVBpZvolakqstTODUKz6+FYy/jp8vQ+trE/GWE1qXyCfjSQEcS7QFTWzoDoQ
-         ijltiWgkOWAv3c0sjd1+Of0SkOCGRgSDE72iukhscTxRJcbFSxz6E8TVIUzyJUS2Cf6U
-         LlyRBc4LV7Ijg2a/55tTz6WYrJwCBiMdiUul+8pKfAtjraCfCmCuptEi4Jrq9ag7dRML
-         QEkRQQJBN51hg51WvlC6XbZxN/nbeFCNzLzaIoTCQDG8GOYWCGGQI6yG49JxqIzUbFre
-         pAlA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NSfCJDAX"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 498D06086B
+	for <virtualization@lists.linux-foundation.org>; Wed,  9 Apr 2025 08:38:28 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id mvaUqT6wGwnX for <virtualization@lists.linux-foundation.org>;
+ Wed,  9 Apr 2025 08:38:27 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 80BE061077
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 80BE061077
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NSfCJDAX
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 80BE061077
+	for <virtualization@lists.linux-foundation.org>; Wed,  9 Apr 2025 08:38:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744187905;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Db2JSRrytLkXPNCk2u9oY2iCWyl++39LNyoKOlHjxS4=;
+	b=NSfCJDAXC34jrFptPGDjx0rTF0OMzG5QLUJf6xgealGWuI4d3jd+px3MoaSAS8ZOFABoOH
+	bMxw/efRCmI7NrHxZRolHq3bkfFCZVrLEDdeiypBa/GRag7BHbMBDR4I58pm3YqJWIds39
+	4F2alWgFNnA6e2qyMKSgANV6QvYWRGk=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-684-aRfgxG7TOq29Z57c3C2t2A-1; Wed, 09 Apr 2025 04:38:24 -0400
+X-MC-Unique: aRfgxG7TOq29Z57c3C2t2A-1
+X-Mimecast-MFC-AGG-ID: aRfgxG7TOq29Z57c3C2t2A_1744187903
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-ac79e4764e5so566985566b.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 09 Apr 2025 01:38:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744181753; x=1744786553;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8Co6gQM2wtA55c6R6TA7F5Fe1d0+w5yIt8c2Cnbe3qs=;
-        b=nbtEUwMyEL0M7y8/wMmaJySC9ageuWF5UUyEBenkoesmsRMvwnjba5NXQc3ABZuvMU
-         fNq+OdG1Pgfg5Obsykfn+H7kU51LWn+jZ4nk4SFvHge8oSjz4BGJt4a9PoQhgHjceXaC
-         MplPH2SteCG2Su5pvyHjvnYbWkmYxZtCObjZebf+23UxAGEp2aLnhmpOP6gsp7jPdzEK
-         mEzoFR05saeNucvxbFr9crXzNHvGFTaPqJf6WtIr7Hrj+p9x6Dj7puF1c1u5p8bN7L4m
-         SzqzbO0XMATvH7fkgG9JVBym0FeP81+L4S0QMHx13WuTx7Uvllxo76Qj+QzI74DS5weu
-         wEeg==
-X-Forwarded-Encrypted: i=1; AJvYcCWC6FyirnMY/GY+uvDqfyXI0u+Ht5ABj1CPD3b9COb7y27jXGcFFTfv4jzdC6Lk7v1km75AhQQ7AFamePjNRQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxh7tSdp82vecOmKlVxk0r248aDyidnfS0vCjmzimI71AdGGoAC
-	NlD/e958LEXj4fUcEjKi0k5owB5rfuegFahuy8VUZiNlQZ9A6A2w
-X-Gm-Gg: ASbGncuGWwGrkFvtb7OBFcgCgmFaRp2ymZWiwfas6/QLxa9sgJfU2qxyLo84Dcj+Mqh
-	jGQx/mtTiHPZsf12/nTuD8tjPLx5g8HM4IJmviOSyRWNOnu0+kpTdBwZ8KBJTI0F5CKxy0HDSyb
-	u6h0CtDlaccmnfI10grdtkS0NaQcVKY0cEvQyk+K3PmZbROiec5FsxaOI+jnLO/9AePfxtUnTYi
-	2MDnyjDJ0jDDJ5stRSfCQ9CaW5/tiu5Zq3DyaDiWE/gWNDRMRrPsO8R+TiCBvLt/yo9Ywo2xISC
-	uiSRZbcoepYnISvCJfaclVbIKP4992fSSbY+EaKvbrBAPAqj/w==
-X-Google-Smtp-Source: AGHT+IEFL/RkO95k+Uctmsp/HTB9p2W38kSipc4AhjUtOz8zgzH7KRoyrtOfhT8hIBTAFqPJi8hqKw==
-X-Received: by 2002:a05:6a20:c6c8:b0:1ee:c8e7:203c with SMTP id adf61e73a8af0-201591ceb04mr2970714637.24.1744181753017;
-        Tue, 08 Apr 2025 23:55:53 -0700 (PDT)
-Received: from [192.168.0.118] ([14.169.40.45])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b02a0cf374asm505349a12.26.2025.04.08.23.55.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Apr 2025 23:55:52 -0700 (PDT)
-Message-ID: <58b84867-086e-44f7-86b1-c1759bbc2009@gmail.com>
-Date: Wed, 9 Apr 2025 13:55:45 +0700
+        d=1e100.net; s=20230601; t=1744187903; x=1744792703;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Db2JSRrytLkXPNCk2u9oY2iCWyl++39LNyoKOlHjxS4=;
+        b=crkjanDXzgqhMuyPO0QsXl+LLT4v0sDucGBktgD9RbrcHSm03+ScrukMLASzBc1Lf1
+         wuCu+KLF3Hv9fyut6dvuScQ4AQ1Cq2H+/iw6tjvbZuZTc/MnrKnqP8zQN9O64n8dSzPK
+         HLP/SuljxkmPOJ9+zu6ufxMKYO9QQZ9WIG35PchjmVCpcwbdFqzxMY81wbCJcpEl+oGc
+         ENQwk7YbYvy12Cn9HuJ2qWDcv7MzPDAMKQmwJeVT6fzqQKByow/jHWh0I6kXt+wE2faF
+         2E8ptlFUkn7O+2r9XPTCOWjyzzDT7DzXzeytPNPsRY8p8sDaR5Kl5WTlbRbK6d2Kx580
+         UAYw==
+X-Forwarded-Encrypted: i=1; AJvYcCVqE5SmYOW4GDcHOno/fer5PGZJH3QaADaLQo8JJSI1ZcRA54ZoKdNSBBEXRi3h2D636bA5Py66JbnX4TK5jA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yzsx29yvKZ8qX+0DLYL1UNWQGJkqkSPKDHOU5i5wv/7B4/QtOEh
+	thiNPYFGRacZd4Gej0IgpCSlf1YTSaruODrkclDRVd9zdxepi7+gQup7m6ZdRfEpCQUmJSnmlxH
+	wSAPOCRw3SYfQyPkKAqrQBSRS+C+YZExxv/Wl0xs4iKiH9Z8rHn8zj2bw/56e9QC+9kMRyy+QuH
+	yDmXvj8aMjNWnClM6hVJTR/6Ff32XC/OcMkVUliR4rv0H7gZVbkfdJHg==
+X-Gm-Gg: ASbGnctAHlhiiNKiZlnQhDrhKfyziQftgkMVlyVcgVnCFUd+ZabXJIoNYnZXVU0RyY2
+	eyXi56cY132uVEHSpXOx0pjGJ3KeX9CUV2H80NJ3LXF/lCgcnvEiFP/aa6kXNcFkq4mdFWQ==
+X-Received: by 2002:a17:907:d22:b0:ac7:e5c7:d235 with SMTP id a640c23a62f3a-aca9d5f2efbmr173776966b.17.1744187902790;
+        Wed, 09 Apr 2025 01:38:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFfsT/n2l3DnTQQWDgOLT9XB9DPUTgcUViU2G8XrGBhEdFOH5XIrY6JzqMwM3FJqCj1qI/dn6iOuo9AsFhQy0g=
+X-Received: by 2002:a17:907:d22:b0:ac7:e5c7:d235 with SMTP id
+ a640c23a62f3a-aca9d5f2efbmr173774366b.17.1744187902343; Wed, 09 Apr 2025
+ 01:38:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio-net: disable delayed refill when pausing rx
-To: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Eric Dumazet <edumazet@google.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20250404093903.37416-1-minhquangbui99@gmail.com>
- <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
- <30419bd6-13b1-4426-9f93-b38b66ef7c3a@gmail.com>
- <CACGkMEs7O7D5sztwJVn45c+1pap20Oi5f=02Sy_qxFjbeHuYiQ@mail.gmail.com>
- <1b78c63b-7c07-4d25-8785-bfb0e28c71ad@redhat.com>
- <20250408073709.4e054636@kernel.org>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <20250408073709.4e054636@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20250328100359.1306072-1-lulu@redhat.com> <20250328100359.1306072-9-lulu@redhat.com>
+ <20250408075426-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250408075426-mutt-send-email-mst@kernel.org>
+From: Cindy Lu <lulu@redhat.com>
+Date: Wed, 9 Apr 2025 16:37:44 +0800
+X-Gm-Features: ATxdqUHSwziP5tEY_Ach5syGN9Prz3P9ZHSrioqnJKFuE86H3ZVl_NFlZH6Hdgk
+Message-ID: <CACLfguXTYy2BfmB3wLnVdANu6jvxjP4G8a3h2XHO-iw5RE1CnA@mail.gmail.com>
+Subject: Re: [PATCH v8 8/8] vhost: Add a KConfig knob to enable IOCTL VHOST_FORK_FROM_OWNER
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 88nQHgEC17LMVHAyTQ6-dJGx6PoY7tP5VmF_sSApRlM_1744187903
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/8/25 21:37, Jakub Kicinski wrote:
-> On Tue, 8 Apr 2025 11:28:54 +0200 Paolo Abeni wrote:
->>>> When napi_disable is called on an already disabled napi, it will sleep
->>>> in napi_disable_locked while still holding the netdev_lock. As a result,
->>>> later napi_enable gets stuck too as it cannot acquire the netdev_lock.
->>>> This leads to refill_work and the pause-then-resume tx are stuck altogether.
->>> This needs to be added to the chagelog. And it looks like this is a fix for
->>>
->>> commit 413f0271f3966e0c73d4937963f19335af19e628
->>> Author: Jakub Kicinski <kuba@kernel.org>
->>> Date:   Tue Jan 14 19:53:14 2025 -0800
->>>
->>>      net: protect NAPI enablement with netdev_lock()
->>>
->>> ?
->>>
->>> I wonder if it's simpler to just hold the netdev lock in resize or xsk
->>> binding instead of this.
->> Setting:
->>
->> 	dev->request_ops_lock = true;
->>
->> in virtnet_probe() before calling register_netdevice() should achieve
->> the above. Could you please have a try?
-> Can we do that or do we need a more tailored fix? request_ops_lock only
-> appeared in 6.15 and the bug AFAIU dates back to 6.14. We don't normally
-> worry about given the stream of fixes - request_ops_lock is a bit risky.
-> Jason's suggestion AFAIU is just to wrap the disable/enable pairs in
-> the lock. We can try request_ops_lock in -next ?
+On Tue, Apr 8, 2025 at 7:56=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
+wrote:
 >
-> Bui Quang Minh, could you add a selftest for this problem?
-> See tools/testing/selftests/drivers/net/virtio_net/
-> You can re-use / extend the XSK helper from
-> tools/testing/selftests/drivers/net/xdp_helper.c ?
-> (move it to tools/testing/selftests/net/lib for easier access)
-
-I've just tried the current selftests and found out that the queues.py 
-can trigger the deadlock.
-
-Running this a few times (the probability is quite high) on the guest 
-with virtio-net interface
-~ NETIF=enp0s2 ./ksft-net-drv/run_kselftest.sh -t drivers/net:queues.py
-
-The test hangs.
-
-I've got the hung task warning
-
-[  363.841549]  #0: ffff88800015c758 
-((wq_completion)events){+.+.}-{0:0}, at: process_scheduled_works+0x1a9/0x3c9
-[  363.841560]  #1: ffffc90000043e28 
-((work_completion)(&pool->work)){+.+.}-{0:0}, at: 
-process_scheduled_works+0x1c2/0x3c9
-[  363.841570]  #2: ffffffff81f5a150 (rtnl_mutex){+.+.}-{4:4}, at: 
-rtnl_lock+0x1b/0x1d
-[  363.841579]  #3: ffff8880035e49f0 (&dev->lock){+.+.}-{4:4}, at: 
-netdev_lock+0x12/0x14
-[  363.841587] 3 locks held by kworker/2:0/26:
-[  363.841589]  #0: ffff88800015c758 
-((wq_completion)events){+.+.}-{0:0}, at: process_scheduled_works+0x1a9/0x3c9
-[  363.841598]  #1: ffffc900000f7e28 
-((work_completion)(&(&vi->refill)->work)){+.+.}-{0:0}, at: 
-process_scheduled_works+0x1c2/0x3c9
-[  363.841608]  #2: ffff8880035e49f0 (&dev->lock){+.+.}-{4:4}, at: 
-netdev_lock+0x12/0x14
-
-~ cat /proc/7/stack
-[<0>] netdev_lock+0x12/0x14
-[<0>] napi_enable+0x1a/0x35
-[<0>] virtnet_napi_do_enable+0x1a/0x40
-[<0>] virtnet_napi_enable+0x32/0x4a
-[<0>] virtnet_rx_resume+0x4f/0x56
-[<0>] virtnet_rq_bind_xsk_pool+0xd8/0xfd
-[<0>] virtnet_xdp+0x6d3/0x72d
-[<0>] xp_disable_drv_zc+0x5a/0x63
-[<0>] xp_clear_dev+0x1d/0x4a
-[<0>] xp_release_deferred+0x24/0x75
-[<0>] process_scheduled_works+0x23e/0x3c9
-[<0>] worker_thread+0x13f/0x1ca
-[<0>] kthread+0x1b2/0x1ba
-[<0>] ret_from_fork+0x2b/0x40
-[<0>] ret_from_fork_asm+0x11/0x20
-
-~ cat /proc/26/stack
-[<0>] napi_disable_locked+0x41/0xaf
-[<0>] napi_disable+0x22/0x35
-[<0>] refill_work+0x4b/0x8f
-[<0>] process_scheduled_works+0x23e/0x3c9
-[<0>] worker_thread+0x13f/0x1ca
-[<0>] kthread+0x1b2/0x1ba
-[<0>] ret_from_fork+0x2b/0x40
-[<0>] ret_from_fork_asm+0x11/0x20
-
-The deadlock was caused by a race between xsk unbind and refill_work.
-
-
-Thanks,
-Quang Minh.
+> On Fri, Mar 28, 2025 at 06:02:52PM +0800, Cindy Lu wrote:
+> > Introduce a new config knob `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL`,
+> > to control the availability of the `VHOST_FORK_FROM_OWNER` ioctl.
+> > When CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL is set to n, the ioctl
+> > is disabled, and any attempt to use it will result in failure.
+> >
+> > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > ---
+> >  drivers/vhost/Kconfig | 15 +++++++++++++++
+> >  drivers/vhost/vhost.c |  3 +++
+> >  2 files changed, 18 insertions(+)
+> >
+> > diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> > index b455d9ab6f3d..e5b9dcbf31b6 100644
+> > --- a/drivers/vhost/Kconfig
+> > +++ b/drivers/vhost/Kconfig
+> > @@ -95,3 +95,18 @@ config VHOST_CROSS_ENDIAN_LEGACY
+> >         If unsure, say "N".
+> >
+> >  endif
+> > +
+> > +config VHOST_ENABLE_FORK_OWNER_IOCTL
+> > +     bool "Enable IOCTL VHOST_FORK_FROM_OWNER"
+> > +     default n
+> > +     help
+> > +       This option enables the IOCTL VHOST_FORK_FROM_OWNER, which allo=
+ws
+> > +       userspace applications to modify the thread mode for vhost devi=
+ces.
+>
+> ok
+>
+> > +          By default, `CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL` is set to=
+ `n`,
+> > +          meaning the ioctl is disabled and any operation using this i=
+octl
+> > +          will fail.
+> > +          When the configuration is enabled (y), the ioctl becomes
+> > +          available, allowing users to set the mode if needed.
+>
+> no need to be so verbose - the disabled beavious belongs in commit log
+> not here.
+>
+> Also either ioctl or IOCTL but not both.
+>
+sure, will change this
+Thanks
+cindy
+> > +
+> > +       If unsure, say "N".
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index fb0c7fb43f78..568e43cb54a9 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -2294,6 +2294,8 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigne=
+d int ioctl, void __user *argp)
+> >               r =3D vhost_dev_set_owner(d);
+> >               goto done;
+> >       }
+> > +
+> > +#ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL
+> >       if (ioctl =3D=3D VHOST_FORK_FROM_OWNER) {
+> >               u8 inherit_owner;
+> >               /*inherit_owner can only be modified before owner is set*=
+/
+> > @@ -2313,6 +2315,7 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigne=
+d int ioctl, void __user *argp)
+> >               r =3D 0;
+> >               goto done;
+> >       }
+> > +#endif
+> >       /* You must be the owner to do anything else */
+> >       r =3D vhost_dev_check_owner(d);
+> >       if (r)
+> > --
+> > 2.45.0
+>
 
