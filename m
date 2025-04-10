@@ -1,66 +1,66 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F87D1DDC1D
-	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 14:52:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 791591CAA90
+	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 15:51:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744296730; cv=none; b=qN38Z2dR4K5DyNgttAfo/VtxW/I9TWyWkHYpLmbh3WqPp2W8xwnuxtSK00pudmNtpNa4KbasRH0mFmsgrmiaxHXYAUkHRTaFg50yRHkC5jkKpe1vTngkQ3IRZpes6t5VaUlWdPA59HFl1Tvyo3XEqik07ZLKpAQtfajNB1J4r78=
+	t=1744300281; cv=none; b=DtXrabzyyS6gtqZWrAcPAEsuHLdQcZRJKPEP/Z7wwQDsbvBLjYYNqEULl0dKOGuc0IyI1G8Ja3V/Ac1q2nUlKH8ihaVwydNJxxa03cB8097HlswsdYuf/XaWJSlTTI8lSdJF3/JiHZ2R74h1g+zFl6GwjtgwEChGbdVVPjWaMEY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744296730; c=relaxed/simple;
-	bh=ZIicm+KVsGD+UXLKJQ6xU43zvhsJHugkh0vLpA6ilxk=;
+	s=arc-20240116; t=1744300281; c=relaxed/simple;
+	bh=I1HL4EhttE881MicAtF32b66FddNBn0rz1b+bJ5vSpI=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=nPa32BZaodGJvyL7yylLITGGWbNe87uteB/g9zMEU2R9x5HQASt7IBMqPwDiVn9u3MBWGFklieqUHqpzWVjUeSy5bOTOtN8Z91uU/NClWvlm0MIIAbCMnD41ixbzxrK+Y0u7s3BpnfCPhP4Z9vw7MmVcHoCqX0MjLa5LZXM4D6Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=UUeUlh5k; arc=none smtp.client-ip=209.85.216.73
+	 To:Cc:Content-Type; b=q9D/lVgd5G0rbkxcKvUSzgTxvjY0+y2DmvoMmD7BuRdisCToW3rEC32qsCpeIgkzpsXWg2wHcpSjiaRMbduSuH+KJdh3wsqRtflvLIqHun2DwfXO1kTR8Mg/mqFjeuGNHak8NR5ppIfNd/u5Gm7wzLcuXdAt6opyv3Y4HZTGuoI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=f4Q1eHLj; arc=none smtp.client-ip=209.85.214.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="UUeUlh5k"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2ff4b130bb2so1039354a91.0
-        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 07:52:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="f4Q1eHLj"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-22aa75e6653so7870515ad.0
+        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 08:51:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1744296728; x=1744901528; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1744300280; x=1744905080; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=1Z2Z/UC7GMxO7YogACXn6KcfTpVXYjk8lDSafrd3aGw=;
-        b=UUeUlh5keuvdJTcJ5m+LZXuygkbQLcrFLP2Y4XjoFcHuQgGSrcApc7P+37hJB2iYKk
-         +B2n0J3EDLLUiP7ZUYX/g6jr2S2mirY2pfpmUSyNH10yze8Ddfp5tCoR5naiMOe9GfpT
-         9Cyt81SQ2agJZlw97CJGnPMj2/dL5LlaB+PPQ31hsi16erpt0updjxs11gPn7WSQ/Q3y
-         17r2TAFREmQCMNb3GX1QiQBkLdVBJ72Vz5j14/Bn/FOC3pIhxT8BpMzf0Uz1TfA6CbUR
-         n5ThEbqN9e0nVoyQhnStgOn4XLZ3Bo2etv0OCPfRB/hOLaz1vcBNlvetK8frC9AzDsuC
-         4Mmw==
+        bh=WI+w75MsGfdj1Z+7uV4Y8gvQFBHXDpFpnvwgAEL/2AQ=;
+        b=f4Q1eHLjh06cqU5LbO2nDLH4y0Nqn2CxPLF9B7KXvr3Oah+uv5JxMlfwnd06rHn0RF
+         v4tfeUyir/NIhFOFF/8TE3eYn0sRmf/DVG7q8CepzReFXmZQo9/XKenVGQsi+0HNQxKl
+         8+le6Q02vjqRC86c59+NjkjGruwYEJKsmij41kkea1veoMr16f7fApLd1ecglfugocaU
+         NSYKUhKdGvI2BZJXBLlwNuuS6adRbcInX0IOfWyFx+QhJwUsop3boOHbK8PlOy202Ssx
+         M5EfAFqTzBnc/E6ElNIRtfLKRA2ftflhh4Xel6BaBmQE/ckwtlNX5rb/G2UdjYhOIXAd
+         SXag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744296728; x=1744901528;
+        d=1e100.net; s=20230601; t=1744300280; x=1744905080;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=1Z2Z/UC7GMxO7YogACXn6KcfTpVXYjk8lDSafrd3aGw=;
-        b=KeOv+7tN+o/p4XAtysMf4mrKyYmB9fi3TmrFiqyIjbpNWMUwrBij88BwEEoBtMAUSu
-         cfxT0ptnqL1foC46HOxPn6za82MwrWImKxzlMiN6PyPpOUAcGmBTKFDYvoHvxHPoDpKR
-         2+04kCgqLv2TZ9x5tnJH5r7bgULagpVGR+VFaR26Foa059FFbgZZ7TFlnuC2UOAYbLae
-         6wr+Sc7h0iz0IEdY77k/zGR6UCEOIVgS7UADAvA4otsSOjYnUi/5bdzN9uC7UbpwKz9k
-         6MpjF7yGc9G2ozWQoCv4BvnHHq6uzxU40/tB8OK1x15IqXKnqugQH6A5KVLMpm1e/T5Y
-         M0pA==
-X-Forwarded-Encrypted: i=1; AJvYcCXuGMkeKaLpdDFIXnaSOsdv4cnKEtfC/gRiyD+P6yiCIa6SvhgOqF6vmHtEdN63YmwMeBxGqafXuRC0kJon9w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx8NoJ0TsA8Ie+AsUKNSNHZoVhzo2qC8Pb/RkA7cIDlhiUpRyIK
-	IaBwFSMD/nQ9+e6umJjIYEqNd5lkqfeUZb6afIzY3GqrD5YexPEIT0/5Xj91aZoCgrHajQvyB5p
-	GcA==
-X-Google-Smtp-Source: AGHT+IGZay7VOQfADYHvwp0kpNoQEUaWaWhAXxEPULjNq/g/UaMADWvkJQ5d2IT2MEsdoUp5QTqBbaB3uao=
-X-Received: from pjvf15.prod.google.com ([2002:a17:90a:da8f:b0:2fc:2c9c:880])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:5844:b0:2ee:db8a:2a01
- with SMTP id 98e67ed59e1d1-307e9b43a9dmr3689922a91.30.1744296727781; Thu, 10
- Apr 2025 07:52:07 -0700 (PDT)
-Date: Thu, 10 Apr 2025 07:52:05 -0700
-In-Reply-To: <BN9PR11MB52769DDEE406798D028BC17D8CB72@BN9PR11MB5276.namprd11.prod.outlook.com>
+        bh=WI+w75MsGfdj1Z+7uV4Y8gvQFBHXDpFpnvwgAEL/2AQ=;
+        b=C18CNOWLIJ7y2kSQhShNuQG+dp9JUtz4C65CXEnwSu0hztSH7QT0AWHxZPNu8cPcE8
+         AMSQAMiq8sWCuiryOPOPS/QKWs5cj39959SczY+n4euQl5O8lT3xtpZ0NWXZLiY+4Jgl
+         t83vCekY7upPr/iFIK3fUGCtx11uugzzyA3DPZWMrcaX0gUvYDkGvMy7Wun2PcgrOfC5
+         OG2ZKKZij9en4RCnkkPqBoJ9FOauHteIk/5UT/ZII7PV4or4e9LaJV6Fgy6EBMEhleU7
+         deD49eOY68p7yJ1fJTbqA2/TP98oJ/bM/0HYugvt3N6LRRlTSRNl5w+VDxFCfQRah+du
+         OR1A==
+X-Forwarded-Encrypted: i=1; AJvYcCUHM88Ncl7DKUK2aEmHkbhIBxLXUDNS+xgVaLeY5Z1aCICpjw73x1Wjo/n0izyIsl/hJZ6ZzX/bzE2Cc+PDAg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YypH8ILOITK1UDyBoT0CQ03a1BBv0j8YraFbqbbsW8NoFgHAgyD
+	7PhoWB/R/NdTJBf50huMmodh0ldK6QW4Sefpvdjexy5L5jO6zcLX2PPLiQBApbkpeW/xRWeT71v
+	QJg==
+X-Google-Smtp-Source: AGHT+IHHdPvjX46b6rya58AVmth99Sr4qyG2wQ8QULk3PUwKRfJK74c4z91IfDSthvFsL0y+9dnZ4azBoYg=
+X-Received: from plsb7.prod.google.com ([2002:a17:902:b607:b0:229:2f8a:d4ba])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:d4cf:b0:220:d601:a704
+ with SMTP id d9443c01a7336-22be0302063mr29493945ad.18.1744300279479; Thu, 10
+ Apr 2025 08:51:19 -0700 (PDT)
+Date: Thu, 10 Apr 2025 08:51:18 -0700
+In-Reply-To: <BN9PR11MB5276385B4F4DB1919D4908CF8CB72@BN9PR11MB5276.namprd11.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
-References: <20250404211449.1443336-1-seanjc@google.com> <20250404211449.1443336-8-seanjc@google.com>
- <BN9PR11MB52769DDEE406798D028BC17D8CB72@BN9PR11MB5276.namprd11.prod.outlook.com>
-Message-ID: <Z_fbFcT3gxNK_dWr@google.com>
-Subject: Re: [PATCH 7/7] irqbypass: Use xarray to track producers and consumers
+References: <20250404211449.1443336-1-seanjc@google.com> <20250404211449.1443336-4-seanjc@google.com>
+ <BN9PR11MB5276385B4F4DB1919D4908CF8CB72@BN9PR11MB5276.namprd11.prod.outlook.com>
+Message-ID: <Z_fo9hPpSfpwi5Jn@google.com>
+Subject: Re: [PATCH 3/7] irqbypass: Take ownership of producer/consumer token tracking
 From: Sean Christopherson <seanjc@google.com>
 To: Kevin Tian <kevin.tian@intel.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
@@ -75,28 +75,34 @@ Content-Type: text/plain; charset="us-ascii"
 
 On Thu, Apr 10, 2025, Kevin Tian wrote:
 > > From: Sean Christopherson <seanjc@google.com>
-> > Sent: Saturday, April 5, 2025 5:15 AM
+> > +int irq_bypass_register_consumer(struct irq_bypass_consumer *consumer,
+> > +				 struct eventfd_ctx *eventfd)
+> >  {
+> >  	struct irq_bypass_consumer *tmp;
+> >  	struct irq_bypass_producer *producer;
+> >  	int ret;
 > > 
-> > Track IRQ bypass produsers and consumers using an xarray to avoid the
-> > O(2n)
-> > insertion time associated with walking a list to check for duplicate
-> > entries, and to search for an partner.
+> > -	if (!consumer->token ||
+> > -	    !consumer->add_producer || !consumer->del_producer)
+> > +	if (WARN_ON_ONCE(consumer->token))
+> > +		return -EINVAL;
+> > +
+> > +	if (!consumer->add_producer || !consumer->del_producer)
+> >  		return -EINVAL;
 > > 
-> > At low (tens or few hundreds) total producer/consumer counts, using a list
-> > is faster due to the need to allocate backing storage for xarray.  But as
-> > count creeps into the thousands, xarray wins easily, and can provide
-> > several orders of magnitude better latency at high counts.  E.g. hundreds
-> > of nanoseconds vs. hundreds of milliseconds.
+> >  	mutex_lock(&lock);
+> > 
+> >  	list_for_each_entry(tmp, &consumers, node) {
+> > -		if (tmp->token == consumer->token || tmp == consumer) {
+> > +		if (tmp->token == eventfd || tmp == consumer) {
+> >  			ret = -EBUSY;
+> >  			goto out_err;
+> >  		}
+> >  	}
 > 
-> add a link to the original data collected by Like.
-> 
-> > 
-> > Cc: Oliver Upton <oliver.upton@linux.dev>
-> > Cc: David Matlack <dmatlack@google.com>
-> > Cc: Like Xu <like.xu.linux@gmail.com>
-> > Reported-by: Yong He <alexyonghe@tencent.com>
-> > Closes: https://bugzilla.kernel.org/show_bug.cgi?id=217379
-> > Link: https://lore.kernel.org/all/20230801115646.33990-1-likexu@tencent.com
+> the 2nd check 'tmp == consumer' is redundant. If they are equal 
+> consumer->token is not NULL then the earlier WARN_ON will be
+> triggered already.
 
-I linked Like's submission here, which has his numbers.  Would it be helpful to
-explictly call this out in the meat of the changelog?
+Oh, nice.  Good catch!  That check subtly gets dropped on the conversion to
+xarray, so it definitely makes sense to remove it in this patch.
