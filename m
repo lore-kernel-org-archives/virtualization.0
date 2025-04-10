@@ -1,342 +1,212 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AD23205AC5
-	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 07:06:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744268767; cv=none; b=NRxf0BNrU6iWlXbcqXNc0kuq5FCdSUO9h8twcxTYpQwJ6B6Q8/Ad0S4mAbxiEpMMzT+mx+gleH0IkFlMBj7wwPM0HYhlMKnL7/nmBgphjyxY3K+qO+qAWsBy+clanqrUPU9YiyrMSIj3+z1Aw9m8tBDiAHns641RRSFcggdlrYU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744268767; c=relaxed/simple;
-	bh=H29HGz5dCVdWsyu4NNvoXXnk11dPJ6OVdf1MoeVHmj0=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Ywcy8/hz52umtMsmr0QJF/1o6lsc4T+vdl2Eox/eNLkVsj841XUYSyxdFh7iPizqjC7wS1svO/GoQk8q8XoaSJFZkdCiFWU4EBwHHAuIjm389DdyjMYSD+b7U290nbabY/0Ph1dG1gUMDPooWOj8aB5ZFjgvdb5QmgeLEIxXje4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lMWXHJLt; arc=none smtp.client-ip=209.85.215.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 074592054E3
+	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 07:12:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.16
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744269142; cv=fail; b=cOFAmaCrjB2Hn1A/2xMfScOn8JO0aFLrf5k9Lj8DHTS//FLrqYCpN85z377Bzyw5pxiwzjmyvNHy2atMGrusUICCPFbRRi1/31SUgh1Qd6c5dIZr9YkNZwJGrQyPneseWA6l/Hrbbi1TkCkp8/PvR5BB5jXULz6XmTfT/2wVemo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744269142; c=relaxed/simple;
+	bh=Rf/boW7BujMnl/a84OvH0nA/PZXLtY7Vw3qiRmC5aYc=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=FLQyLlJkYsv+d8/lnMZtQvHcLMG59TfwxK9QaSyIUnW96GE7R5HKHhX6ATf7ZcD5YFCsDjwEbXqP0a041j8EdYiZRwf1AssfZwpjwbMk+7RQf1ODqRqs7I8/76huJiTUEih2oWpZYVCQ2+eKdxk0hOZ/38W9tqIynhBy+oylKtU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nTngYPHO; arc=fail smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lMWXHJLt"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-af51596da56so473426a12.0
-        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 00:06:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744268765; x=1744873565; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=mtO4Cd3eyEjzyUiq+HOYkzpvu70Qjvaf96k0H5Kwoi8=;
-        b=lMWXHJLtBZsAbl0ikqpd0NEi0M9QTqBL96BNf+h6W1W3UBMYIhSbMrf5Z7hZs0b74t
-         aBt+zMBqbtj0Q/YBRmGz6OWyrvyW93vIhX+O6tO6HDp9UoZP+PVFUKABZVEp2/TE3Mfb
-         TrNk4+k95JOUHfjdhhMNgyYwmOhSj8dzqeEmuQ7tS71PIfdSTArHhzWx/kF3lXRT+rwU
-         Rn7rmd/IB7kh5hcZaNTZi7Tn/0nNZbqIGCDfEMxbc4BL0cLAesETIbXJ2x29Jd98jVKf
-         g2bf1636b8ymMrmMzbsu3/+PivaCsH+HPNml1YIM1uORVIIm1Xmlrv6omsgXZqIDrq22
-         a55Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744268765; x=1744873565;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mtO4Cd3eyEjzyUiq+HOYkzpvu70Qjvaf96k0H5Kwoi8=;
-        b=pxaxNQdcIhctDnbuuiAnztZ4OUgatrN+pwhlOxsfMk5o2DV5Q81tYuymTqUQCjzwdz
-         a2VIr8DF1PDBVrFMLbp3eN1AFkih9y5HDpvVTPuAOimHdKhl9kj74k32i7rE9/KqmF31
-         JfmO8TV1CP9kM3UuZPoz20gvfh3N+sCSWocpNJUsqLt2u7KvTVLsJ9aZW8vNjg6BbjD3
-         bTIBtU6X6+aKjZB10rOhBnBYcrxSul2MreWLJaDsDLE+yQRmsrEWKrlQ2hPGJkU3pI1Z
-         k0LPPIu8zC6kHeMBggI4BH57EL6+oSWX7eZLoxUq/9J1BfQ9P5gp2leqvHdf4hqMUzNi
-         A7iA==
-X-Forwarded-Encrypted: i=1; AJvYcCXCs+MKGQwiQS2GCENpv6iOXiYwSswYWJuMfp/3/gM369CelvkJBFGR8Oe+GydhlOdrk0pxOnTWdvQk3ipBlA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywzrg+/tLd+k8FXOOm1pqdQ7bD92hfbRjAglI7zkHXqOVxt288S
-	YCdwjOwXbsNEdzro0x9WTWuC18IAHfQc9E4fLlcXE2zaxRDO7i0j
-X-Gm-Gg: ASbGnctZMVNcBurs1MayWHq773ThmiYFEevemHjRXSQPjCmqUTHiJ/DinEa4yDFiA44
-	NpLxJUG9hogCkk51tIoljGTUh+F+zoDIp2QlaonvuXmr9ypdNXd8UJJG+GGx8moAuldEkngqMjq
-	fvjFqqUQ45UrkjjOSyYh01K/SWq0uKBYSOM4w1pNlm/Ifg5pWgyUq2U7+ElC0mgk3AhWJ2NoNRk
-	ovK8VfHbrHnCd1mZtIkQtqeDEQs7vJneXMf00WdpKRPNwyA6zoHc0n/L1JXvifgc7UVmToYkgl+
-	1+XU78lcktGpUmJSYEPyfZGzX+57nvqzxH/Lj0UzaC2zUxhfWejkwDsOFQiZsRQ2nKnSYiWYDHM
-	xx7wGBUE/zTYfUyTC+JY=
-X-Google-Smtp-Source: AGHT+IFC012ePYdg9YU5IJdv9OMsXwY8Yly4PrymASzDBwjSbXzE/FE47Ok1P78B+yqAZ9Z6q4iZ6w==
-X-Received: by 2002:a05:6a21:9007:b0:1f5:93b1:6a58 with SMTP id adf61e73a8af0-2016cc5eedbmr2153249637.8.1744268765300;
-        Thu, 10 Apr 2025 00:06:05 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:4f0e:fb30:959f:bd4a:33b6:cab1? ([2001:ee0:4f0e:fb30:959f:bd4a:33b6:cab1])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b02a322117bsm1978174a12.64.2025.04.10.00.05.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Apr 2025 00:06:04 -0700 (PDT)
-Message-ID: <4d3a1478-b6fc-47a3-8d77-7eca6a973a06@gmail.com>
-Date: Thu, 10 Apr 2025 14:05:57 +0700
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nTngYPHO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1744269142; x=1775805142;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=Rf/boW7BujMnl/a84OvH0nA/PZXLtY7Vw3qiRmC5aYc=;
+  b=nTngYPHOj3YFDXeNnOLSerg9740wMWzW5u1f9Mpphig54VXaiFV3vmCF
+   eCGjH5ac2Px2GxsLMjVK0V1aSqIoUMUTPFKc2IlRhzLS41eFLjuWGOxdH
+   qm1X70Vl/SwvfXL+K9UXFTf4/45W1rRkQ19y4uBA9r+gZ+/yqM77yfLN7
+   FZsdGfozJtjvJMX+4SETB3aKdtDFckycWEP0pzgFFk2dxKwmpZ5Gdy4Va
+   XXDFXkAXssJlGDtVnO+yQUWAKHcNsZNUeIr5aNkiJ10XPUzPPAjhoD13s
+   a1S7DZEDMqEYZMi/X+muSPc1lE9ZbQIrjqLTq+7wZv7F33mOfNq8mMz7o
+   g==;
+X-CSE-ConnectionGUID: yv+WjEYNQBavq0DkuwZ9/w==
+X-CSE-MsgGUID: 9by7kD19QPe+LjfhtHk5wA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11399"; a="45864812"
+X-IronPort-AV: E=Sophos;i="6.15,202,1739865600"; 
+   d="scan'208";a="45864812"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2025 00:12:21 -0700
+X-CSE-ConnectionGUID: jyP8jy2oSNSkBTLLhuLWqg==
+X-CSE-MsgGUID: Ams2IR6VQTWvWV003ZAARw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,202,1739865600"; 
+   d="scan'208";a="134007723"
+Received: from orsmsx901.amr.corp.intel.com ([10.22.229.23])
+  by orviesa005.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2025 00:12:20 -0700
+Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.14; Thu, 10 Apr 2025 00:12:20 -0700
+Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.14 via Frontend Transport; Thu, 10 Apr 2025 00:12:20 -0700
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.49) by
+ edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.44; Thu, 10 Apr 2025 00:12:20 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ccev6eDSebRfY4mHajQMmMaSsKjjFR3q7czQ7AMJbMGutWb4DvDXrrDKGgCTo2pNRmHKQVnGNm2w/XOf18A7eKYpDViZBBenVuUYIZq0ILpklEqxbh2iqJTYRiEwmv5/2y1sVMVRcQm1WWf1p5C803c2Hw/Sj9KOSYjTlRW/ytxbslDrWsoo5XDx6sx2+ir5B6DGoG2l5FhFMsmOQAdXaZtmyOBZmihZtc+r0vTwclji2PLWFNvW58j9yLjqyMxFZkR2vDjOo3Hst1xzW8Eo5ndUyZZspQazOND1ijb35s4XdzQ6tIqeKYieoOwO3CxHyfYmvGhSO59lh/BpWlgJtg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Rf/boW7BujMnl/a84OvH0nA/PZXLtY7Vw3qiRmC5aYc=;
+ b=I/sZMLihykz0ZGo+4/pO74B0fQ4dEInLHETwsFbQd4r06UklGyLaMhHSVRLManTCM07adryvBb5Kt7BtvSakczkBnyf7MZ4X6ueR73z1H1Z0q3mli/KwD6Us1E33BgWowFDpD5fhcwbJAfLIg9q5JDUqa6fGdEJJ6PKcqtMJxLaUnLHLWGO1pVC2NiCZpjWZLB2FEIhoN6HxTzCADOaS7ulC+5Ofacay/JtdFdyF2EUQIwVD6FwdyQAJj7IWoTdC+VIeV2I8KCDGEn5ZUfIM1m+0bPfskmZEYc2lUiO4fpbJVBwQoNQyzql8VJ96r4oeu3rFP/Fp+pN355uOpf+P2A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by DM4PR11MB8159.namprd11.prod.outlook.com (2603:10b6:8:17d::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8632.22; Thu, 10 Apr
+ 2025 07:12:18 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1%5]) with mapi id 15.20.8606.033; Thu, 10 Apr 2025
+ 07:12:17 +0000
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: Sean Christopherson <seanjc@google.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini
+	<pbonzini@redhat.com>, Alex Williamson <alex.williamson@redhat.com>
+CC: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Oliver Upton
+	<oliver.upton@linux.dev>, David Matlack <dmatlack@google.com>, Like Xu
+	<like.xu.linux@gmail.com>, Yong He <alexyonghe@tencent.com>
+Subject: RE: [PATCH 1/7] irqbypass: Drop pointless and misleading THIS_MODULE
+ get/put
+Thread-Topic: [PATCH 1/7] irqbypass: Drop pointless and misleading THIS_MODULE
+ get/put
+Thread-Index: AQHbpaa7i9NEBE8TQkOm4nLW9DD0lbOchEmQ
+Date: Thu, 10 Apr 2025 07:12:17 +0000
+Message-ID: <BN9PR11MB52768809C6ABA6EE31A283FE8CB72@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20250404211449.1443336-1-seanjc@google.com>
+ <20250404211449.1443336-2-seanjc@google.com>
+In-Reply-To: <20250404211449.1443336-2-seanjc@google.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|DM4PR11MB8159:EE_
+x-ms-office365-filtering-correlation-id: 26c94683-ae35-4492-801f-08dd77ff06f8
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|376014|7416014|366016|38070700018;
+x-microsoft-antispam-message-info: =?utf-8?B?c3haMmZoZFRHWDBpSVZ2Yk1XSkR6L2d2KzZTS1pjZzIwbW5WWWRPUVJnak9w?=
+ =?utf-8?B?a3RvYU9SUTBveEIvTERabytDcG5uc0d5cmtYbW53bTZ4RFVVVVZxZlRIWTVI?=
+ =?utf-8?B?V21jcHJyU3JWRytNZnJ0L0VBQ3JsSEY5d3pZbmxIcUhyNDhXbjhBdklsVTJ4?=
+ =?utf-8?B?Z293ZjRvQWNRaE5WYVpHWUZRNy8zbmgyYStNWGNCdk4vYTRtbVJYQTU0Q2FW?=
+ =?utf-8?B?eitJZHJadDY4Z2lJaExrUDMxK2lpZ2xZTlZsZk9nZ2FRcnlmeHlrTzBLU1JF?=
+ =?utf-8?B?Um5BcUxmbmVtRDZBMmhHeUx2Yy9aSVBPeGlZOWlWV0ZUbTN1Mk5Da0IzQytE?=
+ =?utf-8?B?QlZjdFVqYW1rSlYzQlY5MXFiSml0enpHQVliZVVyUHdZL055NWdZVDYvT3Rz?=
+ =?utf-8?B?Z0dzZmJJbllZVTZGQTZmSWlOMTV1TEZxbTdybUh1L1p2TlpiV1JIaGdJZXNm?=
+ =?utf-8?B?KzhYcHpHN1JRUmd5c0RSTWY1S2xkQVJ3SS9oQ3MrWEducktwZTNTTndiL3VX?=
+ =?utf-8?B?cEtTcWt4SzB6Q2FOeDRPYnMwMmZoaGFpWW1OYStuK1dHNUIwU2x5eExUQXJh?=
+ =?utf-8?B?aUZQSXdMTmhlQ2JCenlkd3Y0OXZrRlN3cGRYZDdCU1hkN0lUZzVuOTZLWjJu?=
+ =?utf-8?B?OWRIZzVCd2ZnOXNJakFSSTJ1dy9aSllkSnJUNkRIa1NCOVlObVd4WTlFTEdm?=
+ =?utf-8?B?TGRmTXRCczF6SllicE9rTTErTUxEU0N0WklHWi9IR2tJSXNWMGZraHMvWjVP?=
+ =?utf-8?B?U3YxVXBUWmUxR0UxOE5oN1FkOWliQ2VndVkvZUFMT09FOHF6QWwvQTJ5Z2pD?=
+ =?utf-8?B?N2lNT01TOFlTTFJjWmY0T2NEVmwvTDk4dU5MaHBlSjlvM0daeklCbFFRb3Av?=
+ =?utf-8?B?bE5ybnA4YWFobnZMVkUyeDBnUWdBZytlaGd0aVFTNzBBMUxocHc2QXVUWTZl?=
+ =?utf-8?B?Y2FHNWV2OEl2MS9xcW81MkgzdWJTQklpTlQ3bmtVM0lNYmx2aFhlNG9lWkRu?=
+ =?utf-8?B?TUQxTXRqNnk5UWNLcG94NTBQSjJ4TVZxMU9Ld21tdHpxUkUxeUhPYWpiUHZw?=
+ =?utf-8?B?amREWjMxUDBzeVJFa1VKbkJ5cHRMYWpCcmxEWXpkay9rRUdNK2JTNWgxVEZj?=
+ =?utf-8?B?OVlEOU9XUlU3ZmhYaHREUTBjejd0RnNtTFRsUWZGbVFPY2h4QmxqWmprbmha?=
+ =?utf-8?B?Z2xBNTkwbjYvZ2NJNlRFR1F2cE9xajYvODc3cTZMb081NDVzNHNjUi9lRit5?=
+ =?utf-8?B?MXZ0T0YyT1VOT3dhSjhXN1NQMXlaYmhtWGplczloN3Ftak4yK0hNVFNBbG5R?=
+ =?utf-8?B?c29yMEFDbzlzS29UNUF3ZDVtNHVtZDZsZWxpR0dEYm9oYnBOTjJzRzV3bGlp?=
+ =?utf-8?B?Ty9EMGRKS1BRclpCMUQva3RTN25rRFlmVUZwNUJRNGxzQTh2TG5rQ2pYVWpT?=
+ =?utf-8?B?dWsyRXNSYkt1NGxpb3NMbFJBdjRmZDVhZFNMKzE4bGd4aHl1QnZ4MlpKU2NQ?=
+ =?utf-8?B?bUtUeUlHTlFRd0NrdGZqQzVPR0p1R0JQeHZxRkNhNENpVS93S1FIVjVlNmp0?=
+ =?utf-8?B?aUJ3ejhpUkg4YS9OK0h0L3dGRHczYzU5TTJuSnNmeUtrOFdvMUI4dXlURFBi?=
+ =?utf-8?B?dmRVQ0xTQktBSG5RbmV3RzUzZnh4V21IS3R6VnBPZkpBQldGU0MrOGh1QlJ4?=
+ =?utf-8?B?UExVTzgxNHRtUXZyRWxxLzVPTmd4ZmplR21BWTFnWm9idVZkek5RMDZUbjRJ?=
+ =?utf-8?B?VU5NeHhNRWpaK21VK2FZY3drR1p0NXlVMU12c3FmSktERUhETVVqR25zZmJ1?=
+ =?utf-8?B?NnVQQzlKQ0ZnUFhmY21KbUZGVjN3M1VPSW1aRGF6Y1VGd0EzTHJUbW9OT2hr?=
+ =?utf-8?B?UzIvLzlmTzlWUlZUWkxQNTNRNFRSS1doVi9UeWlqVEVGMlZ5WG5VZ2pLS0Ft?=
+ =?utf-8?Q?OwFtGWmjVMHIDZhqeDud3KPM1OJvWwIr?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?aThxa1VOeW4xMngxTEZabjVTV28wUFdIcE9IYTNSVTRzRHcxeTRQZ2pWcFpm?=
+ =?utf-8?B?UkZ0TXFxSXFOL0dBa1Joc1F5cmRBS0xPcnRpczYvaGRieG5WUU5CeFY1eEcv?=
+ =?utf-8?B?YXlUWHFldURZN2VjSkRuMjlpajJPdS84TURRNEhYTWN1TEljU2Z4UVM4KzJ4?=
+ =?utf-8?B?dGhQYVExeGlFakV3T3VZSDhna3dwN0U0dnNwcXBGVHhzRGh0SUtHbk53WWlJ?=
+ =?utf-8?B?VStjS1hMSXk5ZEg0dWI4UEtKMmRlbFBuOE1qSkhwWFM0YkJlYkRlRUdYamQ3?=
+ =?utf-8?B?M1cxNXdqdmFsWUVNQ3IyekM5UFdMUkoyNkNRRE1Kd0pIYjZ3YU5UcTkwZGFR?=
+ =?utf-8?B?SEprV0VsR2swVm1CNzM0V0gzcDBMMm9wSkI5b2ZKZzdTYkxwWXloYlpuTTlP?=
+ =?utf-8?B?R3VBVytFUFV4bERNTEhwdnZUcTBaVUVjTW5YdDkzdEEvUHJ5MVJveUVOT1Bu?=
+ =?utf-8?B?KzVGSUFjRFdHRmZhRU4xOFJSbGJFZXJTbEUzYXVjY2Y3V1lDZkNvbTFRY2NQ?=
+ =?utf-8?B?OTNmTEM2M0RSdXVYSVAwWXZvSmxNK1l5NGw3bzJHellTYlR3dWYzQkE2TlY0?=
+ =?utf-8?B?L25FVDNPbUFhM2xrTFJrVVJrc1VhMFQrN0llRkVzR1NZbHpKZ2RhZ0RISFha?=
+ =?utf-8?B?TTZqTWdEVWhSSmNIUW9Vc20yWEUvQXpMYVk0VHY2cUVwcUZiSlJVZ0UzVjhj?=
+ =?utf-8?B?L2FUeTlBbXg1QS9MV0w5cDRnMloyUGZhSXRML0ZKK2lsS1o4N3JZOUtnYlFh?=
+ =?utf-8?B?WUJlZFVGRFZyOGFqNmx0ZVZzbmdYaFpLT0NMSGZvR3pGdFozaFRHdEdpR1Nn?=
+ =?utf-8?B?Y1dNK2w3cHlSN0VmWS9xTnc2RnVTYWFDQThSaUVOelZGYXdheGN5VXM2ZU84?=
+ =?utf-8?B?eE9uUjUzb1hycHdMZlNtd0tiQnY3d3lZc1A5aHhqU3hIbERST3pHMTRmWTh2?=
+ =?utf-8?B?dkJuWWV3UXJFUkpYdHVwL1F0ZDlKaDkvUHdWcDh0eUpLeTMrWVNIOU42aW8v?=
+ =?utf-8?B?cmhtaUpRR0VNWGJqb29KSGNKNGFLWTJZZldOc1EwRVMwbnFUeVhkUGwvNHpT?=
+ =?utf-8?B?M0krQjhoUW9rdW81QlRKdFhFZkd1U1lMVnJ4SmRhNXpuYi9taHNQT1ptc09T?=
+ =?utf-8?B?bmRyVGdYRDNUSnBObW84ZFJJYnNFWVl1dUNBZGRscjFnanZkQ245bHNMTWVT?=
+ =?utf-8?B?THpJSmsyWFNzZmFpMHBZTGIrNEk2NUx3UjFnM2ZqNUFQVUh2eFlQWURLMk1Q?=
+ =?utf-8?B?L1RTcWh1Vjh1ZWtXWTlkbkxWdWh0V0lsSUVOa2pSY1VhOW9xOFliWk5lSHNh?=
+ =?utf-8?B?TnUrRU5IZHZXTGJmZFdCSDlDSGVFajM3K2hTTDVsTWphSW1tQXJwY3lGTW9k?=
+ =?utf-8?B?ZFF5Yk85SlRJYm1ENkh0dXAybW9oUXBFazZJTmNXYUJqRCtMOVNuM09SMFF3?=
+ =?utf-8?B?MGd5MHRudzhabUQ0Qmd3QVR4N3habGRMNm91NVRZSFVwTm1OZnBXL3pzK0lY?=
+ =?utf-8?B?TkY5SzhrN1F1aG5LdWdxNnQ4a2hMWnJOeG5VTDVWRnVYK01YaXZDZngwd3ha?=
+ =?utf-8?B?WENGZmZQZ3VBcldFbHFxSnp2MHRDMlJ1ZFNBNzdiWk1QTzNwRmJNeWJXVEhq?=
+ =?utf-8?B?YVpmM0FhYnVUQU1pYi9saDRaRzl5R1VTTnlHQmwzck9mSThZNHh0VUxxUGdP?=
+ =?utf-8?B?M3FOb1VWbmVQWmJTblM1ZC9EcHlPamNxd0FvaDQyRXZxS2ZUSGhtSElDK1Rn?=
+ =?utf-8?B?Wnp5czVMdVZGeDUyOUhTenNINEFBc0Jma0hZYTNRMTB6ZUo3cVRkQ0tXN1R0?=
+ =?utf-8?B?M3ZORkxnWXF0VWVHZTNxK09PTzFRVFBDRVBkZmtLeE9CMlRkR3lRaWxDcVdT?=
+ =?utf-8?B?emF6NW1wbFpkdUE3TDFQcXhJZmtwZ2RnZDk1WkJaT05aaGlzRVpLS1puVVg4?=
+ =?utf-8?B?SUI1bVpjcm5ZdlVqNXJ0MEk5THQzWll6ay9OazdtWklsaklMaVZHY3ByMkZD?=
+ =?utf-8?B?UTRhQkNBbU9mLzZBbGkzR29sNEp3VUQ2eXZ2dk0rcDBTSWNOd1htajFTRFBz?=
+ =?utf-8?B?R1BhM21sOGxGN3VBS1RIa3lma3FBWVZTb3FYQjY2TDdQMzgwYW9rR2dYMmxQ?=
+ =?utf-8?Q?/8vK5+xdcQlc26m5jXkXZxVUX?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: [PATCH] virtio-net: hold netdev_lock when pausing rx
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20250404093903.37416-1-minhquangbui99@gmail.com>
- <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
- <30419bd6-13b1-4426-9f93-b38b66ef7c3a@gmail.com>
- <CACGkMEs7O7D5sztwJVn45c+1pap20Oi5f=02Sy_qxFjbeHuYiQ@mail.gmail.com>
- <4195db62-db43-4d61-88c3-7a7fbb164726@gmail.com>
- <b7b1f5de-7003-4960-a9d1-883bf2f1aa77@gmail.com>
-Content-Language: en-US
-In-Reply-To: <b7b1f5de-7003-4960-a9d1-883bf2f1aa77@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 26c94683-ae35-4492-801f-08dd77ff06f8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Apr 2025 07:12:17.3638
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: CBN7An2TI8SdafH9UqOiy9sZDjVqPZXBTlQn9lpMze3F10Wjk4PG8BQT7WLdw6nVtegi5n1YM9CKvaUzvauAmA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB8159
+X-OriginatorOrg: intel.com
 
-When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
-napi_disable() on the receive queue's napi. In delayed refill_work, it
-also calls napi_disable() on the receive queue's napi. When
-napi_disable() is called on an already disabled napi, it will sleep in
-napi_disable_locked while still holding the netdev_lock. As a result,
-later napi_enable gets stuck too as it cannot acquire the netdev_lock.
-This leads to refill_work and the pause-then-resume tx are stuck
-altogether.
-
-This scenario can be reproducible by binding a XDP socket to virtio-net
-interface without setting up the fill ring. As a result, try_fill_recv
-will fail until the fill ring is set up and refill_work is scheduled.
-
-This commit makes the pausing rx path hold the netdev_lock until
-resuming, prevent any napi_disable() to be called on a temporarily
-disabled napi.
-
-Fixes: 413f0271f396 ("net: protect NAPI enablement with netdev_lock()")
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
----
-  drivers/net/virtio_net.c | 74 +++++++++++++++++++++++++---------------
-  1 file changed, 47 insertions(+), 27 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 7e4617216a4b..74bd1065c586 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2786,9 +2786,13 @@ static void skb_recv_done(struct virtqueue *rvq)
-  }
-
-  static void virtnet_napi_do_enable(struct virtqueue *vq,
--                   struct napi_struct *napi)
-+                   struct napi_struct *napi,
-+                   bool netdev_locked)
-  {
--    napi_enable(napi);
-+    if (netdev_locked)
-+        napi_enable_locked(napi);
-+    else
-+        napi_enable(napi);
-
-      /* If all buffers were filled by other side before we napi_enabled, we
-       * won't get another interrupt, so process any outstanding packets 
-now.
-@@ -2799,16 +2803,16 @@ static void virtnet_napi_do_enable(struct 
-virtqueue *vq,
-      local_bh_enable();
-  }
-
--static void virtnet_napi_enable(struct receive_queue *rq)
-+static void virtnet_napi_enable(struct receive_queue *rq, bool 
-netdev_locked)
-  {
-      struct virtnet_info *vi = rq->vq->vdev->priv;
-      int qidx = vq2rxq(rq->vq);
-
--    virtnet_napi_do_enable(rq->vq, &rq->napi);
-+    virtnet_napi_do_enable(rq->vq, &rq->napi, netdev_locked);
-      netif_queue_set_napi(vi->dev, qidx, NETDEV_QUEUE_TYPE_RX, &rq->napi);
-  }
-
--static void virtnet_napi_tx_enable(struct send_queue *sq)
-+static void virtnet_napi_tx_enable(struct send_queue *sq, bool 
-netdev_locked)
-  {
-      struct virtnet_info *vi = sq->vq->vdev->priv;
-      struct napi_struct *napi = &sq->napi;
-@@ -2825,11 +2829,11 @@ static void virtnet_napi_tx_enable(struct 
-send_queue *sq)
-          return;
-      }
-
--    virtnet_napi_do_enable(sq->vq, napi);
-+    virtnet_napi_do_enable(sq->vq, napi, netdev_locked);
-      netif_queue_set_napi(vi->dev, qidx, NETDEV_QUEUE_TYPE_TX, napi);
-  }
-
--static void virtnet_napi_tx_disable(struct send_queue *sq)
-+static void virtnet_napi_tx_disable(struct send_queue *sq, bool 
-netdev_locked)
-  {
-      struct virtnet_info *vi = sq->vq->vdev->priv;
-      struct napi_struct *napi = &sq->napi;
-@@ -2837,18 +2841,24 @@ static void virtnet_napi_tx_disable(struct 
-send_queue *sq)
-
-      if (napi->weight) {
-          netif_queue_set_napi(vi->dev, qidx, NETDEV_QUEUE_TYPE_TX, NULL);
--        napi_disable(napi);
-+        if (netdev_locked)
-+            napi_disable_locked(napi);
-+        else
-+            napi_disable(napi);
-      }
-  }
-
--static void virtnet_napi_disable(struct receive_queue *rq)
-+static void virtnet_napi_disable(struct receive_queue *rq, bool 
-netdev_locked)
-  {
-      struct virtnet_info *vi = rq->vq->vdev->priv;
-      struct napi_struct *napi = &rq->napi;
-      int qidx = vq2rxq(rq->vq);
-
-      netif_queue_set_napi(vi->dev, qidx, NETDEV_QUEUE_TYPE_RX, NULL);
--    napi_disable(napi);
-+    if (netdev_locked)
-+        napi_disable_locked(napi);
-+    else
-+        napi_disable(napi);
-  }
-
-  static void refill_work(struct work_struct *work)
-@@ -2875,9 +2885,11 @@ static void refill_work(struct work_struct *work)
-           *     instance lock)
-           *   - check netif_running() and return early to avoid a race
-           */
--        napi_disable(&rq->napi);
-+        netdev_lock(vi->dev);
-+        napi_disable_locked(&rq->napi);
-          still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
--        virtnet_napi_do_enable(rq->vq, &rq->napi);
-+        virtnet_napi_do_enable(rq->vq, &rq->napi, true);
-+        netdev_unlock(vi->dev);
-
-          /* In theory, this can happen: if we don't get any buffers in
-           * we will *never* try to fill again.
-@@ -3074,8 +3086,8 @@ static int virtnet_poll(struct napi_struct *napi, 
-int budget)
-
-  static void virtnet_disable_queue_pair(struct virtnet_info *vi, int 
-qp_index)
-  {
--    virtnet_napi_tx_disable(&vi->sq[qp_index]);
--    virtnet_napi_disable(&vi->rq[qp_index]);
-+    virtnet_napi_tx_disable(&vi->sq[qp_index], false);
-+    virtnet_napi_disable(&vi->rq[qp_index], false);
-      xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
-  }
-
-@@ -3094,8 +3106,8 @@ static int virtnet_enable_queue_pair(struct 
-virtnet_info *vi, int qp_index)
-      if (err < 0)
-          goto err_xdp_reg_mem_model;
-
--    virtnet_napi_enable(&vi->rq[qp_index]);
--    virtnet_napi_tx_enable(&vi->sq[qp_index]);
-+    virtnet_napi_enable(&vi->rq[qp_index], false);
-+    virtnet_napi_tx_enable(&vi->sq[qp_index], false);
-
-      return 0;
-
-@@ -3347,7 +3359,8 @@ static void virtnet_rx_pause(struct virtnet_info 
-*vi, struct receive_queue *rq)
-      bool running = netif_running(vi->dev);
-
-      if (running) {
--        virtnet_napi_disable(rq);
-+        netdev_lock(vi->dev);
-+        virtnet_napi_disable(rq, true);
-          virtnet_cancel_dim(vi, &rq->dim);
-      }
-  }
-@@ -3359,8 +3372,10 @@ static void virtnet_rx_resume(struct virtnet_info 
-*vi, struct receive_queue *rq)
-      if (!try_fill_recv(vi, rq, GFP_KERNEL))
-          schedule_delayed_work(&vi->refill, 0);
-
--    if (running)
--        virtnet_napi_enable(rq);
-+    if (running) {
-+        virtnet_napi_enable(rq, true);
-+        netdev_unlock(vi->dev);
-+    }
-  }
-
-  static int virtnet_rx_resize(struct virtnet_info *vi,
-@@ -3389,7 +3404,7 @@ static void virtnet_tx_pause(struct virtnet_info 
-*vi, struct send_queue *sq)
-      qindex = sq - vi->sq;
-
-      if (running)
--        virtnet_napi_tx_disable(sq);
-+        virtnet_napi_tx_disable(sq, false);
-
-      txq = netdev_get_tx_queue(vi->dev, qindex);
-
-@@ -3423,7 +3438,7 @@ static void virtnet_tx_resume(struct virtnet_info 
-*vi, struct send_queue *sq)
-      __netif_tx_unlock_bh(txq);
-
-      if (running)
--        virtnet_napi_tx_enable(sq);
-+        virtnet_napi_tx_enable(sq, false);
-  }
-
-  static int virtnet_tx_resize(struct virtnet_info *vi, struct 
-send_queue *sq,
-@@ -5961,9 +5976,10 @@ static int virtnet_xdp_set(struct net_device 
-*dev, struct bpf_prog *prog,
-
-      /* Make sure NAPI is not using any XDP TX queues for RX. */
-      if (netif_running(dev)) {
-+        netdev_lock(dev);
-          for (i = 0; i < vi->max_queue_pairs; i++) {
--            virtnet_napi_disable(&vi->rq[i]);
--            virtnet_napi_tx_disable(&vi->sq[i]);
-+            virtnet_napi_disable(&vi->rq[i], true);
-+            virtnet_napi_tx_disable(&vi->sq[i], true);
-          }
-      }
-
-@@ -6000,11 +6016,14 @@ static int virtnet_xdp_set(struct net_device 
-*dev, struct bpf_prog *prog,
-          if (old_prog)
-              bpf_prog_put(old_prog);
-          if (netif_running(dev)) {
--            virtnet_napi_enable(&vi->rq[i]);
--            virtnet_napi_tx_enable(&vi->sq[i]);
-+            virtnet_napi_enable(&vi->rq[i], true);
-+            virtnet_napi_tx_enable(&vi->sq[i], true);
-          }
-      }
-
-+    if (netif_running(dev))
-+        netdev_unlock(dev);
-+
-      return 0;
-
-  err:
-@@ -6016,9 +6035,10 @@ static int virtnet_xdp_set(struct net_device 
-*dev, struct bpf_prog *prog,
-
-      if (netif_running(dev)) {
-          for (i = 0; i < vi->max_queue_pairs; i++) {
--            virtnet_napi_enable(&vi->rq[i]);
--            virtnet_napi_tx_enable(&vi->sq[i]);
-+            virtnet_napi_enable(&vi->rq[i], true);
-+            virtnet_napi_tx_enable(&vi->sq[i], true);
-          }
-+        netdev_unlock(dev);
-      }
-      if (prog)
-          bpf_prog_sub(prog, vi->max_queue_pairs - 1);
--- 
-2.43.0
-
-
+PiBGcm9tOiBTZWFuIENocmlzdG9waGVyc29uIDxzZWFuamNAZ29vZ2xlLmNvbT4NCj4gU2VudDog
+U2F0dXJkYXksIEFwcmlsIDUsIDIwMjUgNToxNSBBTQ0KPiANCj4gRHJvcCBpcnFieXBhc3Mua28n
+cyBzdXBlcmZsdW91cyBhbmQgbWlzbGVhZGluZyBnZXQvcHV0IGNhbGxzIG9uDQo+IFRISVNfTU9E
+VUxFLiAgQSBtb2R1bGUgdGFraW5nIGEgcmVmZXJlbmNlIHRvIGl0c2VsZiBpcyB1c2VsZXNzOyBu
+byBhbW91bnQNCj4gb2YgY2hlY2tzIHdpbGwgcHJldmVudCBkb29tIGFuZCBkZXN0cnVjdGlvbiBp
+ZiB0aGUgY2FsbGVyIGhhc24ndCBhbHJlYWR5DQo+IGd1YXJhbnRlZWQgdGhlIGxpdmVsaW5lc3Mg
+b2YgdGhlIG1vZHVsZSAodGhpcyBnb2VzIGZvciBhbnkgbW9kdWxlKS4gIEUuZy4NCj4gaWYgdHJ5
+X21vZHVsZV9nZXQoKSBmYWlscyBiZWNhdXNlIGlycWJ5cGFzcy5rbyBpcyBiZWluZyB1bmxvYWRl
+ZCwgdGhlbiB0aGUNCj4ga2VybmVsIGhhcyBhbHJlYWR5IGhpdCBhIHVzZS1hZnRlci1mcmVlIGJ5
+IHZpcnR1ZSBvZiBleGVjdXRpbmcgY29kZSB3aG9zZQ0KPiBsaWZlY3ljbGUgaXMgdGllZCB0byBp
+cnFieXBhc3Mua28uDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBTZWFuIENocmlzdG9waGVyc29uIDxz
+ZWFuamNAZ29vZ2xlLmNvbT4NCg0KUmV2aWV3ZWQtYnk6IEtldmluIFRpYW4gPGtldmluLnRpYW5A
+aW50ZWwuY29tPg0K
