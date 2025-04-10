@@ -1,64 +1,62 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30CD91DF73A
-	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 16:33:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6139528D82E
+	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 16:33:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744302799; cv=none; b=Wy6bN6bmDJwzGedmjTzi7dfIMUrwWxzDtmJ4mXmDn/NdO0K46s70EFTOLN28V5LKt/l/JABizHC13fpqKpRZ4xXD1gcpav7WDjw2apxFOstGKLKKN/LaO4hYM/9HVpiTzJrYIF0JAa5FuzXY5Qbkb+ks7GEHJP/awmSQOisEHAI=
+	t=1744302836; cv=none; b=jk7z4J/Sl/rWKNeK6xM3XxMe+9Qnstrl04OaI4qovYaLUyMePAzYjO9Y5EumX13QBcZiEbVJs0EVisPTbBmCbdRCBNuXuFAjyHWr0s6HAgo5SkxW55/itMzrwnn+TXRHuJeTlalIpAbPivvpO6iUMRisGwPjhCiGAPJ6ilcpLS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744302799; c=relaxed/simple;
-	bh=Sa2C75K7CTMVJhTRtB3tjcRJD+GhS151hIXgnCktYvU=;
+	s=arc-20240116; t=1744302836; c=relaxed/simple;
+	bh=ci23s2yV7joLO42Fmxs4iQxQok0ZlXRvmX/Awh5Boe4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CIJUEzGvFGdm0BTfJyk6WuvdwSmhpPLitobRc5bTQZqpj+iR13OFtZfr+GMPI77Hbb/Fpz095WcwSd2ZBIqhzZ8YysVq8fmD+D4AYiqhzScDA9zwwBxFYVXuDfao5I5q197Mi2LxH4jHs6h6hdCdLCMV1VaA67QGH7JSzjGJwhU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EfBbXk+Z; arc=none smtp.client-ip=192.198.163.10
+	 MIME-Version:Content-Type; b=Xxuel6at6oCK3qelxuPQSHLWA/YPhzhXTfG7AR4P27tBCDDrb3by7NwqXFQhstvpBxA/AZbhdvv+9IKhs0dTFEC0f6HjkacxC5oQ60ebEnsU86Phj1ULNkzvLX0PPLGyGm0rYtvquEh4CEWqcbKQeJ5n+Y7wu4UC3ACVgLO5kkg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EPtBhL1A; arc=none smtp.client-ip=192.198.163.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EfBbXk+Z"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EPtBhL1A"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1744302797; x=1775838797;
+  t=1744302834; x=1775838834;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Sa2C75K7CTMVJhTRtB3tjcRJD+GhS151hIXgnCktYvU=;
-  b=EfBbXk+ZKj+RZvMfIEt8fQQ6KUbstED7f4Fz0XLV8Bw6saqLdpFPoeaq
-   KgQrthgys1O94tNSY8ypLiLkL4eJRtDxAwXluRHDamX+WiSnTKXNxCA0J
-   eKLv6Nr9CdwFd3MrBRLEhBf+2xysnDFWyQCCcejvHVFebRShcNe7Gio8L
-   cHkryMMiIFiSefYth8RbCVGRlLB6gEY7hKNzT0LyNfVhQ4gLmMB9c8t4I
-   pPdg5z0aBBGyMsUgMRlrAchkarbmNJRQTvth74oiK/pbcWE+7CMRSa20P
-   RHMpZK3kC+m3AYFpLelNndbEaf4yjUBn2Eg/drTo/E9oRGOI+7MMJnER1
-   Q==;
-X-CSE-ConnectionGUID: ogXf9zuVSvWUnH8f5Tg7zQ==
-X-CSE-MsgGUID: 3gGNCmI7TuGW15qpGwDDbw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11400"; a="57220075"
+  bh=ci23s2yV7joLO42Fmxs4iQxQok0ZlXRvmX/Awh5Boe4=;
+  b=EPtBhL1AoAQUsqyxQQBjd7bA8CJqJ885JHlYACVRG2g8t2Iz/uT4l+rD
+   GNepHHe0pX23bO3J/3UfY0MRSX8hd5q7Kk4KS8dyUP3VpAr6JxRO2IH/l
+   F6NXAYb14PiGmT1B62ca1BohInB+LRCmijqc4+5LyOTF3l5ZskNoBQDHy
+   Dxb6+SlRGLSChdTpoIiWv4DFUU4x86d2IVZEVouIb2B784xOU9PdtjuI0
+   1k8usS95+3HzjHuEfnjAwITX4VNOGCoKaFnJTmr22NocvtDEL+Obl3vjh
+   QUh37CkPvMBozO0vIUOCsyfxtr1yFHB+nexLRlvKPbksRrNAvXp5Ak0f3
+   g==;
+X-CSE-ConnectionGUID: 8UNhXyyDQDe+kdBp1YiyLA==
+X-CSE-MsgGUID: 4T1jFPHZSJe8MxTEEkxq7g==
+X-IronPort-AV: E=McAfee;i="6700,10204,11400"; a="57220154"
 X-IronPort-AV: E=Sophos;i="6.15,202,1739865600"; 
-   d="scan'208";a="57220075"
+   d="scan'208";a="57220154"
 Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2025 09:33:14 -0700
-X-CSE-ConnectionGUID: PTWRf+9pQ3izDg2v7jHCYw==
-X-CSE-MsgGUID: MLZlESNhQt6cayGDSQeJ9Q==
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2025 09:33:53 -0700
+X-CSE-ConnectionGUID: ply9cMZVTZStZJCamCh4UQ==
+X-CSE-MsgGUID: guMNP9+ATVOLzYSdgdd5CA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.15,202,1739865600"; 
-   d="scan'208";a="134129221"
+   d="scan'208";a="134129404"
 Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.74])
-  by orviesa005.jf.intel.com with SMTP; 10 Apr 2025 09:33:11 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Thu, 10 Apr 2025 19:33:09 +0300
+  by orviesa005.jf.intel.com with SMTP; 10 Apr 2025 09:33:50 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Thu, 10 Apr 2025 19:33:49 +0300
 From: Ville Syrjala <ville.syrjala@linux.intel.com>
 To: dri-devel@lists.freedesktop.org
 Cc: intel-gfx@lists.freedesktop.org,
 	intel-xe@lists.freedesktop.org,
-	Dave Airlie <airlied@redhat.com>,
+	David Airlie <airlied@redhat.com>,
 	Gerd Hoffmann <kraxel@redhat.com>,
-	Sandy Huang <hjc@rock-chips.com>,
-	=?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>,
-	Andy Yan <andy.yan@rock-chips.com>,
-	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-	virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org
-Subject: [PATCH 07/19] drm/gem: Pass along the format info from .fb_create() to drm_helper_mode_fill_fb_struct()
-Date: Thu, 10 Apr 2025 19:32:06 +0300
-Message-ID: <20250410163218.15130-8-ville.syrjala@linux.intel.com>
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	virtualization@lists.linux.dev
+Subject: [PATCH 17/19] drm/virtio: Pass along the format info from .fb_create() to drm_helper_mode_fill_fb_struct()
+Date: Thu, 10 Apr 2025 19:32:16 +0300
+Message-ID: <20250410163218.15130-18-ville.syrjala@linux.intel.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250410163218.15130-1-ville.syrjala@linux.intel.com>
 References: <20250410163218.15130-1-ville.syrjala@linux.intel.com>
@@ -73,171 +71,51 @@ Content-Transfer-Encoding: 8bit
 
 From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Pass along the format info from .fb_create() to aliminate the
-redundant drm_get_format_info() calls from the gem fb code.
+Plumb the format info from .fb_create() all the way to
+drm_helper_mode_fill_fb_struct() to avoid the redundant
+lookup.
 
-Cc: Dave Airlie <airlied@redhat.com>
+Cc: David Airlie <airlied@redhat.com>
 Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Sandy Huang <hjc@rock-chips.com>
-Cc: "Heiko Stübner" <heiko@sntech.de>
-Cc: Andy Yan <andy.yan@rock-chips.com>
-Cc: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>
+Cc: Chia-I Wu <olvaffe@gmail.com>
 Cc: virtualization@lists.linux.dev
-Cc: spice-devel@lists.freedesktop.org
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 ---
- drivers/gpu/drm/drm_gem_framebuffer_helper.c | 21 ++++++++------------
- drivers/gpu/drm/qxl/qxl_display.c            |  2 +-
- drivers/gpu/drm/rockchip/rockchip_drm_fb.c   |  3 ++-
- drivers/gpu/drm/xen/xen_drm_front_kms.c      |  2 +-
- include/drm/drm_gem_framebuffer_helper.h     |  2 ++
- 5 files changed, 14 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_display.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_gem_framebuffer_helper.c b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
-index dc9cb6cdcfd6..44016915c8fe 100644
---- a/drivers/gpu/drm/drm_gem_framebuffer_helper.c
-+++ b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
-@@ -67,6 +67,7 @@ EXPORT_SYMBOL_GPL(drm_gem_fb_get_obj);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 93763b91bab5..e5805ca646c7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -66,6 +66,7 @@ static const struct drm_framebuffer_funcs virtio_gpu_fb_funcs = {
  static int
- drm_gem_fb_init(struct drm_device *dev,
- 		 struct drm_framebuffer *fb,
-+		 const struct drm_format_info *info,
- 		 const struct drm_mode_fb_cmd2 *mode_cmd,
- 		 struct drm_gem_object **obj, unsigned int num_planes,
- 		 const struct drm_framebuffer_funcs *funcs)
-@@ -74,7 +75,7 @@ drm_gem_fb_init(struct drm_device *dev,
- 	unsigned int i;
- 	int ret;
- 
--	drm_helper_mode_fill_fb_struct(dev, fb, NULL, mode_cmd);
-+	drm_helper_mode_fill_fb_struct(dev, fb, info, mode_cmd);
- 
- 	for (i = 0; i < num_planes; i++)
- 		fb->obj[i] = obj[i];
-@@ -151,21 +152,14 @@ EXPORT_SYMBOL(drm_gem_fb_create_handle);
- int drm_gem_fb_init_with_funcs(struct drm_device *dev,
- 			       struct drm_framebuffer *fb,
- 			       struct drm_file *file,
-+			       const struct drm_format_info *info,
- 			       const struct drm_mode_fb_cmd2 *mode_cmd,
- 			       const struct drm_framebuffer_funcs *funcs)
+ virtio_gpu_framebuffer_init(struct drm_device *dev,
+ 			    struct virtio_gpu_framebuffer *vgfb,
++			    const struct drm_format_info *info,
+ 			    const struct drm_mode_fb_cmd2 *mode_cmd,
+ 			    struct drm_gem_object *obj)
  {
--	const struct drm_format_info *info;
- 	struct drm_gem_object *objs[DRM_FORMAT_MAX_PLANES];
- 	unsigned int i;
- 	int ret;
+@@ -73,7 +74,7 @@ virtio_gpu_framebuffer_init(struct drm_device *dev,
  
--	info = drm_get_format_info(dev, mode_cmd->pixel_format,
--				   mode_cmd->modifier[0]);
--	if (!info) {
--		drm_dbg_kms(dev, "Failed to get FB format info\n");
--		return -EINVAL;
--	}
--
- 	if (drm_drv_uses_atomic_modeset(dev) &&
- 	    !drm_any_plane_has_format(dev, mode_cmd->pixel_format,
- 				      mode_cmd->modifier[0])) {
-@@ -200,7 +194,7 @@ int drm_gem_fb_init_with_funcs(struct drm_device *dev,
- 		}
+ 	vgfb->base.obj[0] = obj;
+ 
+-	drm_helper_mode_fill_fb_struct(dev, &vgfb->base, NULL, mode_cmd);
++	drm_helper_mode_fill_fb_struct(dev, &vgfb->base, info, mode_cmd);
+ 
+ 	ret = drm_framebuffer_init(dev, &vgfb->base, &virtio_gpu_fb_funcs);
+ 	if (ret) {
+@@ -315,7 +316,7 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+ 		return ERR_PTR(-ENOMEM);
  	}
  
--	ret = drm_gem_fb_init(dev, fb, mode_cmd, objs, i, funcs);
-+	ret = drm_gem_fb_init(dev, fb, info, mode_cmd, objs, i, funcs);
- 	if (ret)
- 		goto err_gem_object_put;
- 
-@@ -233,6 +227,7 @@ EXPORT_SYMBOL_GPL(drm_gem_fb_init_with_funcs);
-  */
- struct drm_framebuffer *
- drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
-+			     const struct drm_format_info *info,
- 			     const struct drm_mode_fb_cmd2 *mode_cmd,
- 			     const struct drm_framebuffer_funcs *funcs)
- {
-@@ -243,7 +238,7 @@ drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
- 	if (!fb)
- 		return ERR_PTR(-ENOMEM);
- 
--	ret = drm_gem_fb_init_with_funcs(dev, fb, file, mode_cmd, funcs);
-+	ret = drm_gem_fb_init_with_funcs(dev, fb, file, info, mode_cmd, funcs);
+-	ret = virtio_gpu_framebuffer_init(dev, virtio_gpu_fb, mode_cmd, obj);
++	ret = virtio_gpu_framebuffer_init(dev, virtio_gpu_fb, info, mode_cmd, obj);
  	if (ret) {
- 		kfree(fb);
- 		return ERR_PTR(ret);
-@@ -285,7 +280,7 @@ drm_gem_fb_create(struct drm_device *dev, struct drm_file *file,
- 		  const struct drm_format_info *info,
- 		  const struct drm_mode_fb_cmd2 *mode_cmd)
- {
--	return drm_gem_fb_create_with_funcs(dev, file, mode_cmd,
-+	return drm_gem_fb_create_with_funcs(dev, file, info, mode_cmd,
- 					    &drm_gem_fb_funcs);
- }
- EXPORT_SYMBOL_GPL(drm_gem_fb_create);
-@@ -324,7 +319,7 @@ drm_gem_fb_create_with_dirty(struct drm_device *dev, struct drm_file *file,
- 			     const struct drm_format_info *info,
- 			     const struct drm_mode_fb_cmd2 *mode_cmd)
- {
--	return drm_gem_fb_create_with_funcs(dev, file, mode_cmd,
-+	return drm_gem_fb_create_with_funcs(dev, file, info, mode_cmd,
- 					    &drm_gem_fb_funcs_dirtyfb);
- }
- EXPORT_SYMBOL_GPL(drm_gem_fb_create_with_dirty);
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index f7bc83f2d489..ae7e572b1b4a 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -1179,7 +1179,7 @@ qxl_user_framebuffer_create(struct drm_device *dev,
- 			    const struct drm_format_info *info,
- 			    const struct drm_mode_fb_cmd2 *mode_cmd)
- {
--	return drm_gem_fb_create_with_funcs(dev, file_priv, mode_cmd,
-+	return drm_gem_fb_create_with_funcs(dev, file_priv, info, mode_cmd,
- 					    &qxl_fb_funcs);
- }
- 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
-index d46297bec5f8..1211ca0ffa00 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
-@@ -40,7 +40,8 @@ rockchip_fb_create(struct drm_device *dev, struct drm_file *file,
- 	if (!afbc_fb)
- 		return ERR_PTR(-ENOMEM);
- 
--	ret = drm_gem_fb_init_with_funcs(dev, &afbc_fb->base, file, mode_cmd,
-+	ret = drm_gem_fb_init_with_funcs(dev, &afbc_fb->base,
-+					 file, info, mode_cmd,
- 					 &rockchip_drm_fb_funcs);
- 	if (ret) {
- 		kfree(afbc_fb);
-diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-index a360003bee47..806ec66ee7f7 100644
---- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-@@ -62,7 +62,7 @@ fb_create(struct drm_device *dev, struct drm_file *filp,
- 	struct drm_gem_object *gem_obj;
- 	int ret;
- 
--	fb = drm_gem_fb_create_with_funcs(dev, filp, mode_cmd, &fb_funcs);
-+	fb = drm_gem_fb_create_with_funcs(dev, filp, info, mode_cmd, &fb_funcs);
- 	if (IS_ERR(fb))
- 		return fb;
- 
-diff --git a/include/drm/drm_gem_framebuffer_helper.h b/include/drm/drm_gem_framebuffer_helper.h
-index 4fdf9d3d1863..971d266ab1ba 100644
---- a/include/drm/drm_gem_framebuffer_helper.h
-+++ b/include/drm/drm_gem_framebuffer_helper.h
-@@ -25,10 +25,12 @@ int drm_gem_fb_create_handle(struct drm_framebuffer *fb, struct drm_file *file,
- int drm_gem_fb_init_with_funcs(struct drm_device *dev,
- 			       struct drm_framebuffer *fb,
- 			       struct drm_file *file,
-+			       const struct drm_format_info *info,
- 			       const struct drm_mode_fb_cmd2 *mode_cmd,
- 			       const struct drm_framebuffer_funcs *funcs);
- struct drm_framebuffer *
- drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
-+			     const struct drm_format_info *info,
- 			     const struct drm_mode_fb_cmd2 *mode_cmd,
- 			     const struct drm_framebuffer_funcs *funcs);
- struct drm_framebuffer *
+ 		kfree(virtio_gpu_fb);
+ 		drm_gem_object_put(obj);
 -- 
 2.49.0
 
