@@ -1,179 +1,305 @@
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2067.outbound.protection.outlook.com [40.107.92.67])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C35D1DFE0A;
-	Thu, 10 Apr 2025 12:10:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.67
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744287016; cv=fail; b=VYQ+WEIkqbDYjiD1vZlJ9fMks1bXXM5OZRjiZDxbIjy5saLmTzbwfx3onbJ2XdPYus12Nov3F4Llx6BU2p1n8ddfegN3PNtqyeBJIcCnE6WJRvXyFaZ+yX+cbqXy0tjChPvu4YRQm8xk7N2zm/qYDf1Wlo3+C0rNvmZgJJzx2A0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744287016; c=relaxed/simple;
-	bh=llRELljhZ8Uz/Dz+IL5xPOfNp1pm2HUUCVdxMnJ9q6o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=mt5W8cLndRTGGMB7ilh2q23Ow6B60iGHou9ZclB39w51tQ4WbzFphayT84CiQPgEjXZ+6gR8ruOaG/tKNehNU5GjmQXboIPDg/gmgGgkKCG9VTLGPqwMZztd+pdfGSPp6WcdUQjsBDMtPlkCOWKbs1w/BS/bVFl/19YSdJMe0oY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=M3Z2Lon6; arc=fail smtp.client-ip=40.107.92.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFDED3A8C1
+	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 12:33:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744288419; cv=none; b=H8tMcDniJDmPmbSi/cqvc9/CasdXlitQG8DoUyjB6baEc93l9tiAL4FJPWUcvgXOjtKs5kxg3wa07PKKEEsYoS6okUFtuN4pDjHO0WhUwEXLkmBTkCvaioTEK62SjGSmFskCWYJXinq+YpKn+8cOqIuq84xo+DFgAJw008a8zuw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744288419; c=relaxed/simple;
+	bh=hPBWjhUNC69Gg9YMHZ0/OqW0bBM7jn4ObCQJ4FV+mfg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=H4m/UbPnW+nd+fmeGvPVkSH4AQE0HUpB7JIK8Jal3rtDf5GaRREKJ23JpyiNWa3Zo+g/h3GnMkN5hhinlqmasfW3YBwvX43njhz4RaX8bwFBE6ljvwfbfDLM240pXbOlm9ymlQW1ei1QjfUDQci6zhHPiJS0TbW2FDx+x0yoYw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Nhursxx6; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="M3Z2Lon6"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=E5Fr5MVo+/jBmNUj/Zl/z7bzvBxTWQcIH7XnJKT/E5AGR8HfRR71on8OahXqMGHK0Gm/IZ+wOZBRZjh5FcFsSmTK/UYAd+TsBxB/BWPSMiWYR4uAe977t6Od0fhOWVwDWOSmhwsO3vv8UKikzV2jT+eWmdB3n5iqdjSLdSztRWaJPNtAgpb8YGUXy5X1LAjtknmIlG+QKEFqDk8iDBljdqZ7pb9hPlQ+z93j1eRTn3ZFxt6zlbQ9PBhdA8f0Wy4TdmMeBKRTUNp1NMuulEtINj3qdxBRLeY+ZwT8sui316tAn5aGUUJW+ezCrtAXsXoBCjy75Ec/3BTBTN+HJIyGJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=WP/lcNtXVIT7ity84GWaer9uAx5uquFC6EQkdIEgIxI=;
- b=K+Td3BzYiHwj217RI6PsnHFKbrcBs7gbPTVvmzRRPIzrukJrzWBSn8o+X79NCU2zQKjydfVpz0mKSYV91ht1epKik4M7pzwtUYkVKhtxhra4B4tHrBRKYzjpA4X0oKrDJHElSJpsqMessc9M0PwYxkhWdNjjJOdSBVt1jI5HH+xt1IX37uFOvNOEjBBSL5KmzfpuQAB1Sm07b00tpxBnJcDvjkCs8kqLW8SpIpMFOKjhwyx6xJoqsOp0aRuIgtFkj2vC1Z5clayqHBQkg077LnaV5PLhpiyNJ149EaQkwukpmqGLbhNzoBg9e56V3Mq/l9oZWQNeEh84oiheHLJQoQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WP/lcNtXVIT7ity84GWaer9uAx5uquFC6EQkdIEgIxI=;
- b=M3Z2Lon6OtceZGlp/wcu0qoADepGDrOwgDbmV/84O9YD59nWv2lX+W7LLQ59dMyrJ++EK793Kj2VBBUqbrHoajdBkk1mZDUbab7UKwFbqxoI0zCoxUkLP7rTRyhBcOn1jQhk7ox51BVyxX04TgC4XwuWbq/gVC7syo0LknR3imXfNnA7k7rJKVel8bk/0YO6Bdeqa9V/4wMymdfnoVp9IVbP8IuJrif5pvpgBl0ur/vAh8by33OzcZiZAxh2SdhA8O0KFlCy2WNg5QvDgxVWrCiBwAJO3Hx5nJ6E2tUaKDbl4YdN2uSv/1I8IYZIkUw65+JPUuXr7Y4ZYE8YA++K5Q==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
- by DM6PR12MB4170.namprd12.prod.outlook.com (2603:10b6:5:219::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8583.46; Thu, 10 Apr
- 2025 12:10:06 +0000
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732%4]) with mapi id 15.20.8606.028; Thu, 10 Apr 2025
- 12:10:06 +0000
-Date: Thu, 10 Apr 2025 09:10:04 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: "Tian, Kevin" <kevin.tian@intel.com>
-Cc: "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-	Joerg Roedel <joro@8bytes.org>, Robin Murphy <robin.murphy@arm.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	Will Deacon <will@kernel.org>, Lu Baolu <baolu.lu@linux.intel.com>,
-	Eric Auger <eric.auger@redhat.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	"patches@lists.linux.dev" <patches@lists.linux.dev>
-Subject: Re: [PATCH v4 3/5] iommu/virtio: Move to domain_alloc_paging()
-Message-ID: <20250410121004.GS1778492@nvidia.com>
-References: <0-v4-ff5fb6b03bd1+288-iommu_virtio_domains_jgg@nvidia.com>
- <3-v4-ff5fb6b03bd1+288-iommu_virtio_domains_jgg@nvidia.com>
- <BN9PR11MB52762A98AB82CD58C41A47D58CB72@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB52762A98AB82CD58C41A47D58CB72@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-ClientProxiedBy: BL1PR13CA0335.namprd13.prod.outlook.com
- (2603:10b6:208:2c6::10) To CH3PR12MB8659.namprd12.prod.outlook.com
- (2603:10b6:610:17c::13)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Nhursxx6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744288415;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XzAKiwusa4FnfImDHjC+xF+rVFlzeZQXLdEAlRfe6aw=;
+	b=Nhursxx64YOgggAnfGtw+YtLGYx3vWZ5gpdRJKuWv/Ivye/YDeeCInasG8soPWyPEUP5aa
+	W83rrLQ5bFilcYQfw0AwCo1AaEyFvSpljTwyggVmvS9052Qc0ZZouifbEs2qGqOMXC5eJd
+	Px2cgs/rcmr8qkr1s9fd2yLURLbG40M=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-643-j_lIe9QZPEGR8DS4Pd8QhQ-1; Thu, 10 Apr 2025 08:33:34 -0400
+X-MC-Unique: j_lIe9QZPEGR8DS4Pd8QhQ-1
+X-Mimecast-MFC-AGG-ID: j_lIe9QZPEGR8DS4Pd8QhQ_1744288413
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43ced8c2eb7so6596995e9.1
+        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 05:33:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744288413; x=1744893213;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=XzAKiwusa4FnfImDHjC+xF+rVFlzeZQXLdEAlRfe6aw=;
+        b=u6tTV10qdM6sIutBK/e6IfiKrfGCvzQhIHp04OiYeeTVSHhakVKVcWtk6TQUhigOIW
+         O8122DX1ERqCDUKsb5bDlWLPLurVJG2iv9GN95tQucp/qeoE7F2pf6tExhqzD5laZbei
+         Nw9rDUPWTotAWKIroPXZFVH0VqnnAn+z4AN8r3LQQHh4IRiz0a45qZVzH1H37B7zWPpn
+         9dMDNbbYF6gzlDQbj7I1m+02pNCT05AmdDXmO6obhRpQOZfMsA2b+t2G4sA0zd0335nT
+         kTSDHxeTcHWtgzeYLHOzcTTbwr+j7EFdcKaZIE0Lb2eOYOl9ZA9wYw7Km2MPmgjyh9X+
+         hoJA==
+X-Forwarded-Encrypted: i=1; AJvYcCV72v0E6On1alnPabrj6JP31j+AQIGxhxfkGfdk1WCUThpsxpniZ6UaTjoTLP81Mf2kOULacNqVu1fskwzDfw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx1XFdTNt63fY3TOamk9FzOu0+vhegmIrGtyBmnzFoI3iWDGYq1
+	LdnLzqdhljHg78fbvm5cwOSdLqlZMj/Bgs1nT6j97H9yppVQu0TAgYoVVRknXLgO6LupKMPXD6r
+	GcoVDaygAC73sndnc1Buxfh5C7WSk0uqHIsqxF/XufWUdFIRQjbb+1Z+i1MjoxQFpT/3j1pPw
+X-Gm-Gg: ASbGncufT1yv2Q1zBEB1pEy+c8+AVeIhTTc30GJJDVdbFpx6j2AmUkRvuVSH1GVD5ZW
+	Mwm/2iS2Ag8PWRxYq6K8cim4PH8AhiWMLOS8QBz3GxLJBP1hX2ihkO9HyHGUrmUAgkih81Mker/
+	z6QHMRu87tCdEaqgUFWrZ83smPkb7EI81/VwAldA+7rI9gQXpMbw5AXQVBp/OnsiCbZA/ZLpLOT
+	HtkNblX+JYPPVDj5c0iKoleBwuFefuvVjuThz+g01JOtnvgXsFr2GKrXrY8USFCq8eTOTVkpmGZ
+	I+rCtmyrNNBOzGIk5M6Z4Ei6v1abjE6ybNmf2oDPiWgMx+xIx0k=
+X-Received: by 2002:a05:600c:3ac4:b0:43c:f5fe:5c26 with SMTP id 5b1f17b1804b1-43f2fdcd138mr22376255e9.4.1744288412623;
+        Thu, 10 Apr 2025 05:33:32 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH4Hg93CAtytIFwA2PdWCvdhwPGQlJQIhV6moMSLJ0JSV6AbPj1qF/4L4m/La1hkEppphCKAg==
+X-Received: by 2002:a05:600c:3ac4:b0:43c:f5fe:5c26 with SMTP id 5b1f17b1804b1-43f2fdcd138mr22375885e9.4.1744288411897;
+        Thu, 10 Apr 2025 05:33:31 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:c:37e0:ced3:55bd:f454:e722? ([2a01:e0a:c:37e0:ced3:55bd:f454:e722])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43f233c49f7sm49420895e9.17.2025.04.10.05.33.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Apr 2025 05:33:31 -0700 (PDT)
+Message-ID: <07b30329-b4f0-4655-87fb-3ac52f9c64ff@redhat.com>
+Date: Thu, 10 Apr 2025 14:33:26 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|DM6PR12MB4170:EE_
-X-MS-Office365-Filtering-Correlation-Id: 19ad3b71-d445-4a8a-c278-08dd7828a1a7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?C92j5+ohi1tI+haQgez8gYUHuWZ/PYjiuKadMaMSzeOQ1MZwNtOV6dC/QDK+?=
- =?us-ascii?Q?YriAQZoNTo1hLvjqEnXh/f9llVIzhYZvh5XUKNxG7+wMkKkXRrp9TzWN2OHE?=
- =?us-ascii?Q?9whuquGOyjnbSZZcmB8zYaWX3juLOy2iBKVQXNwjNU+Kafthhc/Ixpk9cXdO?=
- =?us-ascii?Q?eR0OX2F9NuUjYzn+99OsopTzHADQI+mlZFjevXTbypAiRgbNJ/13k92T47jL?=
- =?us-ascii?Q?ymzu98To4XWIGfcx7Vczh/K6rnY7x1EMq4c7n3gxu2zwQJylbAZcbJALnDXP?=
- =?us-ascii?Q?VfNGCDB9w6pKOFZba160/ycyonHmePSK/X8a+s7tDHHA56oW/0eoDsHDfC1p?=
- =?us-ascii?Q?uHPXPNmjvO+v0WxlWgmifQ6GYO1dnaRK9f4sm6lWa9nm9MZTbuPehoHatRKP?=
- =?us-ascii?Q?iiJ+FKYRYyIjoBVIviRVbECAAKNu47OlQYU7oUzoZYemrDYYSJLZihfzPzQd?=
- =?us-ascii?Q?zWb5PCZYp+rw95dIGwAYPMXRkkB/DK7SiG5L3ClF9FUsrltB68+Z5O9qSZq3?=
- =?us-ascii?Q?B+pdZEbezRq4Ih+UgRtrDG1nh9NsCmWign8FsoL81DNX6z1UH+TukVKaA6GJ?=
- =?us-ascii?Q?VkG9ZYHjlsi7bVaziqbKhqEhNTkRkp3QxFLtIXVWlA475Uvn4ECJeOcLxP54?=
- =?us-ascii?Q?N9zM+ynk/Wfo81kVX5SKh1ofsmFXWVugt3jO7GOI1rMG3d41rOFKolBnjz5F?=
- =?us-ascii?Q?Yc2IKmIpEIIp+oAwDG+xaJG5VVWADRXEed1M7uyLDUXQPG5ROzcp7XjMXKgy?=
- =?us-ascii?Q?CWPAxJwb5khIucz75o7DbmijoRrGzCAYh3hny2JWKYXvu5HastqHGQOra1Dx?=
- =?us-ascii?Q?XbZsjc3Hub8vdeNLhTAiTOMryOO5aKMtMMuUy5hx7aCTe+R8JiunXsiqtjg1?=
- =?us-ascii?Q?B18kLhSUXTmm6FkZN3M1l76actmO+W1qRzuo1/mK3eK2eWYCll0sQjqLzcmf?=
- =?us-ascii?Q?AQZDL1DDCtzQ0he+e3pj34JR4i2RzhdtD36Q1A4Aj1NCqW+7jSD0FiCeI/uS?=
- =?us-ascii?Q?jeGkSIukhuTj70iPzEQF8UqnTVQvkRHAMawNJj1BddEUJogCMZe2825V591U?=
- =?us-ascii?Q?VOJbra0XLNUGQoreJmvMvEG42n2aXKxD4SITMEkg8lsvBA196yUclua06ieW?=
- =?us-ascii?Q?I+OBVqlMohaAInYNXTDZe/yG8ZSS7b/isF3JQCAkmpYQJarHff/zlSP12PHF?=
- =?us-ascii?Q?DZUTXjQpOHk1bjW58BK/KD/YCS8ypNXEa2RDIaPW01hafA/Pm9WS5uOfbsE1?=
- =?us-ascii?Q?yfparoUENBy2m3JtUTeT/xSnYl9V7WW7mNeFkAT5nX+pUt9Y+RaWaIa06hKk?=
- =?us-ascii?Q?2gTX+iBQYl78xNknOr8CRZk5IBjKKrxex2kqgDS2efnmAw2dWZgzMkIOdaZL?=
- =?us-ascii?Q?b9KGA5rKwS+GDiE86Ve8DPp2F6ht1ewUVI/4hb3f72hLry695qVMSDaolQLz?=
- =?us-ascii?Q?sXZlcTwLz+s=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?AtgSUlWrK6x1ifHoJ5P+JFTJaMG3wJamn2wWe+eGCDQvoPEK6eClTryhnY4H?=
- =?us-ascii?Q?WgbpFGjezGQid6JCpVRFdcyWhziiCTR+67d9Ux6YbJqfiDtzWq06l61cEEem?=
- =?us-ascii?Q?eTpFeiG3L1lbwGesRZMCmv/fmKyETD+XmLl9JOel//SVLe7wgLJzPlHlK9db?=
- =?us-ascii?Q?nzxbQPZGz/8UMTUF1lx6gkpzX396AcJX4vj2y8ZRHk8d0Bcslv80BNOKo8bS?=
- =?us-ascii?Q?h1dlddQ3RBk1he18/qqCmjThRsMEP5t8ZskcUHAoeLWwZV1shdtTUsvdLGzf?=
- =?us-ascii?Q?PmV4yQeyu9Jny/cdVtj9mORiIqwdxJfXBLDCMc1WZk3OJW2SOkcgFiwGlvjP?=
- =?us-ascii?Q?MzgqvVBPKpakU0YaKqfcXVvBD5pLUcpIcwlDMgHdj0em1gwL0ydbx+m8p07o?=
- =?us-ascii?Q?zji/bysJXo2NYuxwDfU8XWido2ltwPKPcUzmdLM6DX56G5yTK3e+TSJlbtMl?=
- =?us-ascii?Q?A78j3Vd6lpRvkLyIZ8U+WZ0OquBlM3H7WyVM+aoUMeGNGBm+up0tE80vfWBt?=
- =?us-ascii?Q?ScmnhMY8AC+BSh8z491HtxJx2GyI/vz2EBkpbRH43DAm40IHhzFuJxRnMnwt?=
- =?us-ascii?Q?Q6I3AwlTeHX+8/EpFiJzSkFU9o3mKHo7Zdo4qIlGQn/gBytd46uWYJWUXKVT?=
- =?us-ascii?Q?6oeQQwkqYjnpvHAfy9bdg19jcf5haGcJvMmIqymfK1X3QuxvDPd22dA5RIWj?=
- =?us-ascii?Q?ovYWg58DUwOEfKVA02acRcJr/6Sp9oQVfp1obhBsZYUuecLzupw8fsHa/1nR?=
- =?us-ascii?Q?wtK8Zt4qANFuVnz9Jq8WkK692TjQRBusw083rFmCEBM/LT74cv3aUC5hfLT3?=
- =?us-ascii?Q?DYVYYEus2XVLI0Y/sGjTFiHQoPkN0S8soRvJtFLC2XAmqcuKi40q0WoslVAK?=
- =?us-ascii?Q?4Gj0SJfhwQtR1bEysMtjwLiDfcE5vAAQ12669s6ifrzJbIjp1Nf62JMOvnL2?=
- =?us-ascii?Q?T3PkyWkQhyekaJM/J09T53gdtfTAhZ/1fmcCDd6HvKSjKB45dsi23sUm6GiN?=
- =?us-ascii?Q?vAZgF4CykjhD7QT2ZNWeqM3lRkyxYPsqqBb4ysFxIHG1Y5B9LGTeHLBxSBDF?=
- =?us-ascii?Q?V+AdjHXGzxa07FMfYGtWIzUZV+6NX0DQVNIazH/hmd6tydqCDtXyjIE2QrIu?=
- =?us-ascii?Q?Qyve6M7ngVADFx1+Kd4kVMgcld00JWAHVchohZ8C9Az/rPk/1thykOBryn+q?=
- =?us-ascii?Q?A7FOvFZJyi9LGX5jV7jIMdr+CPZOovPv6zhRlLUnetE9Og7UYwKd65EJy+jr?=
- =?us-ascii?Q?YGayk3OevtFv/LVv85LOrX7y3l9qhG0VmXTknXrjYMlhD9Dpfw1EJEcA3rWC?=
- =?us-ascii?Q?RzKx+XITtDun37P/qVwWrFKrW3uWTTeS1kFuMkZZ7DQyGT7Vio/qwbz4XP5h?=
- =?us-ascii?Q?xXyprYX3f8C3Z7mWQcofo4swg/GsKvTlqcRgKrYlprewzC9BBxQGTuCUNYmy?=
- =?us-ascii?Q?bFoU+/FWJpziA3fBjFJ/T/01pVQCdphMP56tBX74ML8kFzd6YCqMDMHe/bIF?=
- =?us-ascii?Q?cfx6ZUMkELkhe2sW4B6V/q4eCgG5uxk+hfNy4WPsC1Uustwiu5N+y40nZV8G?=
- =?us-ascii?Q?DVb++QzJfdBjoNHjZ4TJjMkEqspC2FQFQvihenon?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 19ad3b71-d445-4a8a-c278-08dd7828a1a7
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Apr 2025 12:10:06.4449
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: pX5xXc/3TCltF1adT6VLh76ydQSWfFHs4PbGl0ROJJIZNn2171vHpWI5ROPewLpP
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4170
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC] virtgpu: don't reset on shutdown
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, Eric Auger <eauger@redhat.com>
+References: <0d24e539766c9220b2380839472d1dc8739b5322.1744268995.git.mst@redhat.com>
+From: Jocelyn Falempe <jfalempe@redhat.com>
+In-Reply-To: <0d24e539766c9220b2380839472d1dc8739b5322.1744268995.git.mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: dKQqGiTNJIIAIJM7emlK7lA5Pu2ieY1VPb71Nkjnux4_1744288413
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US, fr
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Apr 10, 2025 at 05:55:50AM +0000, Tian, Kevin wrote:
-> > From: Jason Gunthorpe <jgg@nvidia.com>
-> > Sent: Wednesday, April 9, 2025 12:36 AM
-> > 
-> > +static struct iommu_domain *viommu_domain_alloc_identity(struct device
-> > *dev)
-> > +{
-> > +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
-> > +	struct iommu_domain *domain;
-> > +	int ret;
-> > +
-> > +	if (virtio_has_feature(vdev->viommu->vdev,
-> > +			       VIRTIO_IOMMU_F_BYPASS_CONFIG))
-> > +		return &viommu_identity_domain.domain;
-> > +
+On 10/04/2025 09:16, Michael S. Tsirkin wrote:
+> It looks like GPUs are used by panic after shutdown is invoked.
+> Thus, breaking virtio gpu in the shutdown callback is not a good idea -
+> guest hangs attempting to flush out the panics, with this warnings:
+
+I don't think drm_panic is involved. In your backtrace, the warning
+comes from virtio_gpu_queue_ctrl_sgs(), which is called by fbcon, using 
+drm fbdev emulation to draw the console.
+
+In case of drm_panic, it is the panic variant, 
+virtio_gpu_panic_queue_ctrl_sgs() which is called.
+
+Also the line number is for the centos-stream-9 kernel, which don't have 
+the "panic" variant of this function yet.
+
 > 
-> Does it make more sense to keep the @identity_domain field (same
-> as all other drivers) 
+> [   20.504464] WARNING: CPU: 0 PID: 568 at drivers/gpu/drm/virtio/virtgpu_vq.c:358 virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+> [   20.505685] Modules linked in: nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 rfkill ip_set nf_tables nfnetlink vfat fat intel_rapl_msr intel_rapl_common intel_uncore_frequency_common nfit libnvdimm kvm_intel kvm rapl iTCO_wdt iTCO_vendor_support virtio_gpu virtio_dma_buf pcspkr drm_shmem_helper i2c_i801 drm_kms_helper lpc_ich i2c_smbus virtio_balloon joydev drm fuse xfs libcrc32c ahci libahci crct10dif_pclmul crc32_pclmul crc32c_intel libata virtio_net ghash_clmulni_intel net_failover virtio_blk failover serio_raw dm_mirror dm_region_hash dm_log dm_mod
+> [   20.511847] CPU: 0 PID: 568 Comm: kworker/0:3 Kdump: loaded Tainted: G        W         -------  ---  5.14.0-578.6675_1757216455.el9.x86_64 #1
+> [   20.513157] Hardware name: Red Hat KVM/RHEL, BIOS edk2-20241117-3.el9 11/17/2024
+> [   20.513918] Workqueue: events drm_fb_helper_damage_work [drm_kms_helper]
+> [   20.514626] RIP: 0010:virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+> [   20.515332] Code: 00 00 48 85 c0 74 0c 48 8b 78 08 48 89 ee e8 51 50 00 00 65 ff 0d 42 e3 74 3f 0f 85 69 ff ff ff 0f 1f 44 00 00 e9 5f ff ff ff <0f> 0b e9 3f ff ff ff 48 83 3c 24 00 74 0e 49 8b 7f 40 48 85 ff 74
+> [   20.517272] RSP: 0018:ff34f0a8c0787ad8 EFLAGS: 00010282
+> [   20.517820] RAX: 00000000fffffffb RBX: 0000000000000000 RCX: 0000000000000820
+> [   20.518565] RDX: 0000000000000000 RSI: ff34f0a8c0787be0 RDI: ff218bef03a26300
+> [   20.519308] RBP: ff218bef03a26300 R08: 0000000000000001 R09: ff218bef07224360
+> [   20.520059] R10: 0000000000008dc0 R11: 0000000000000002 R12: ff218bef02630028
+> [   20.520806] R13: ff218bef0263fb48 R14: ff218bef00cb8000 R15: ff218bef07224360
+> [   20.521555] FS:  0000000000000000(0000) GS:ff218bef7ba00000(0000) knlGS:0000000000000000
+> [   20.522397] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [   20.522996] CR2: 000055ac4f7871c0 CR3: 000000010b9f2002 CR4: 0000000000771ef0
+> [   20.523740] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> [   20.524477] DR3: 0000000000000000 DR6: 00000000fffe07f0 DR7: 0000000000000400
+> [   20.525223] PKRU: 55555554
+> [   20.525515] Call Trace:
+> [   20.525777]  <TASK>
+> [   20.526003]  ? show_trace_log_lvl+0x1c4/0x2df
+> [   20.526464]  ? show_trace_log_lvl+0x1c4/0x2df
+> [   20.526925]  ? virtio_gpu_queue_fenced_ctrl_buffer+0x82/0x2c0 [virtio_gpu]
+> [   20.527643]  ? virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+> [   20.528282]  ? __warn+0x7e/0xd0
+> [   20.528621]  ? virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+> [   20.529256]  ? report_bug+0x100/0x140
+> [   20.529643]  ? handle_bug+0x3c/0x70
+> [   20.530010]  ? exc_invalid_op+0x14/0x70
+> [   20.530421]  ? asm_exc_invalid_op+0x16/0x20
+> [   20.530862]  ? virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+> [   20.531506]  ? virtio_gpu_queue_ctrl_sgs+0x174/0x290 [virtio_gpu]
+> [   20.532148]  virtio_gpu_queue_fenced_ctrl_buffer+0x82/0x2c0 [virtio_gpu]
+> [   20.532843]  virtio_gpu_primary_plane_update+0x3e2/0x460 [virtio_gpu]
+> [   20.533520]  drm_atomic_helper_commit_planes+0x108/0x320 [drm_kms_helper]
+> [   20.534233]  drm_atomic_helper_commit_tail+0x45/0x80 [drm_kms_helper]
+> [   20.534914]  commit_tail+0xd2/0x130 [drm_kms_helper]
+> [   20.535446]  drm_atomic_helper_commit+0x11b/0x140 [drm_kms_helper]
+> [   20.536097]  drm_atomic_commit+0xa4/0xe0 [drm]
+> [   20.536588]  ? __pfx___drm_printfn_info+0x10/0x10 [drm]
+> [   20.537162]  drm_atomic_helper_dirtyfb+0x192/0x270 [drm_kms_helper]
+> [   20.537823]  drm_fbdev_shmem_helper_fb_dirty+0x43/0xa0 [drm_shmem_helper]
+> [   20.538536]  drm_fb_helper_damage_work+0x87/0x160 [drm_kms_helper]
+> [   20.539188]  process_one_work+0x194/0x380
+> [   20.539612]  worker_thread+0x2fe/0x410
+> [   20.540007]  ? __pfx_worker_thread+0x10/0x10
+> [   20.540456]  kthread+0xdd/0x100
+> [   20.540791]  ? __pfx_kthread+0x10/0x10
+> [   20.541190]  ret_from_fork+0x29/0x50
+> [   20.541566]  </TASK>
+> [   20.541802] ---[ end trace 0000000000000000 ]---
+> 
+> The warning is from here:
 
-I think having two ways to get an identity domain is more confusion as
-one will never be used..
+No, it comes from
 
-> and rename this new ops to @domain_alloc_sw_identity() so it's clear
-> that the new op is only used when identity is emulated using paging?
+static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+				     struct virtio_gpu_vbuffer *vbuf,
+				     struct virtio_gpu_fence *fence,
+				     int elemcnt,
+				     struct scatterlist **sgs,
+				     int outcnt,
+				     int incnt)
+> 
+> /* For drm_panic */
+> static int virtio_gpu_panic_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+>                                             struct virtio_gpu_vbuffer *vbuf,
+>                                             int elemcnt,
+>                                             struct scatterlist **sgs,
+>                                             int outcnt,
+>                                             int incnt)
+> {
+>          struct virtqueue *vq = vgdev->ctrlq.vq;
+>          int ret;
+> 
+>          if (vgdev->has_indirect)
+>                  elemcnt = 1;
+> 
+>          if (vq->num_free < elemcnt)
+>                  return -ENOMEM;
+> 
+>          ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
+>          WARN_ON(ret);
+> 
+>          vbuf->seqno = ++vgdev->ctrlq.seqno;
+>          trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
+> 
+>          atomic_inc(&vgdev->pending_commands);
+> 
+>          return 0;
+> }
+> 
+> 
+> Add an option for drivers to bypass the common break+reset handling.
+> As DRM is careful to flush/synchronize outstanding buffers, it looks like
+> GPU can just have a NOP there.
 
-I think no, we had some use cases to return real identity domains too,
-like DART can use this op to runtime detect if the iommu supports
-identity.
+So it looks like the shutdown is called in the middle of console 
+drawing, so either wait for it to finish, or let drm handle the 
+shutdown, like your patch does.
 
-s390 had something similar
+> 
+> Fixes: 8bd2fa086a04 ("virtio: break and reset virtio devices on device_shutdown()")
+> Cc: Eric Auger <eauger@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> 
+> Can someone who knows more about DRM and shutdown please tell me if this
+> is a good idea?  Posting for testing and early feedback, completely
+> untested.
+> 
+> 
+> 
+>   drivers/gpu/drm/virtio/virtgpu_drv.c | 9 +++++++++
+>   drivers/virtio/virtio.c              | 6 ++++++
+>   include/linux/virtio.h               | 3 +++
+>   3 files changed, 18 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index 2d88e390feb4..210464146a9c 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -128,6 +128,14 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
+>   	drm_dev_put(dev);
+>   }
+>   
+> +static void virtio_gpu_shutdown(struct virtio_device *vdev)
+> +{
+> +	/*
+> +	 * GPU is used by drm panic after shutdown.
 
-Thanks,
-Jason
+Hopefully, there are no panic on shutdown.
+
+> +	 * Do nothing here, opt out of device reset.
+> +	 */
+> +}
+> +
+>   static void virtio_gpu_config_changed(struct virtio_device *vdev)
+>   {
+>   	struct drm_device *dev = vdev->priv;
+> @@ -162,6 +170,7 @@ static struct virtio_driver virtio_gpu_driver = {
+>   	.id_table = id_table,
+>   	.probe = virtio_gpu_probe,
+>   	.remove = virtio_gpu_remove,
+> +	.shutdown = virtio_gpu_shutdown,
+>   	.config_changed = virtio_gpu_config_changed
+>   };
+>   
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index 150753c3b578..95d5d7993e5b 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -407,6 +407,12 @@ static void virtio_dev_shutdown(struct device *_d)
+>   	if (!drv)
+>   		return;
+>   
+> +	/* If the driver has its own shutdown method, use that. */
+> +	if (drv->shutdown) {
+> +		drv->shutdown(dev);
+> +		return;
+> +	}
+> +
+>   	/*
+>   	 * Some devices get wedged if you kick them after they are
+>   	 * reset. Mark all vqs as broken to make sure we don't.
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 4d16c13d0df5..64cb4b04be7a 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -220,6 +220,8 @@ size_t virtio_max_dma_size(const struct virtio_device *vdev);
+>    *    occurs.
+>    * @reset_done: optional function to call after transport specific reset
+>    *    operation has finished.
+> + * @shutdown: synchronize with the device on shutdown. If provided, replaces
+> + *    the virtio core implementation.
+>    */
+>   struct virtio_driver {
+>   	struct device_driver driver;
+> @@ -237,6 +239,7 @@ struct virtio_driver {
+>   	int (*restore)(struct virtio_device *dev);
+>   	int (*reset_prepare)(struct virtio_device *dev);
+>   	int (*reset_done)(struct virtio_device *dev);
+> +	void (*shutdown)(struct virtio_device *dev);
+>   };
+>   
+>   #define drv_to_virtio(__drv)	container_of_const(__drv, struct virtio_driver, driver)
+
+Best regards,
+
+-- 
+
+Jocelyn
+
