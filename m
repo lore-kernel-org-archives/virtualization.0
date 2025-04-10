@@ -1,72 +1,72 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C12926A1B9
-	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 13:14:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F4A0280CFC
+	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 13:59:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744290877; cv=none; b=Q9AfUnEhDClu22v5mE6qcrn966Gr/CwSehGCuBDbIc4cEdsNUjGaeIMTI2BXcLufeT9W2U3v1Eq6RA0xtypoYB4DAmvKbpbK1/9Hn+aR8r+GJi4q977WGUSqHdVLN6hqU1O5PZh3Q+UPHQClTj4kl+FgAvbhATwuofeM37KYzMY=
+	t=1744293589; cv=none; b=lAIyUb1E1TJ4c6i8hoxSEhnyj3YNNZm6rqQrry4RouEs6jOmtXzzIOK9+vscqEzG9FAPc1agCTinPMskQ+fEF2hlU6Ni0PN5BQulIs3xM3zdBsbf6mT4zN08LU3giEFsabnQPyGOsu9u291eWBmSSIDmJND2/AdR4oR9SWSTyP0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744290877; c=relaxed/simple;
-	bh=BcmKMDnLPpAVp3vzSciPmvFfbhWnoxQlSPB9efG3ZPs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=IRr2gdNRwLTqqDq7N1vKmC5gzBKIj9ocfxB+qg9nBRlDUXNtN4HY3gNckH8Awm6DeYGsk76i6oj+7Wv6MGNHZCCrld5D1Lj1g96V23uD1wzSrvAI21iO5JnzTCsltWh5kKdIh3f567uPDkMurdnllk6zPx0iWudysAU+jT8KMhk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a6ioDff5; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1744293589; c=relaxed/simple;
+	bh=dozxbqDyh0RTYArEIZ4nuZWXNjfO1WGiz7kCJLp4w7g=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=en2haT1+0qq31vqHSId8QRHAec9QwbuD8z7JJUPoLmDHYeM1+r2XEQwQpNERnnkQwPTAVz85r+ccIZRonsNQGl0wPdahdIo+TpaYjHbDl07SgKOWMNzea9waxKl07NDDpBCECADjDztcoJlSNZ9etpf77NGKs70RoLQPBzSN68A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OdBfkjeB; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a6ioDff5"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OdBfkjeB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744290874;
+	s=mimecast20190719; t=1744293586;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5CWh61VoBeWDkhfINVEgBQUPREI3OeT7vB60AjBLh4k=;
-	b=a6ioDff5p4pJ0jNuu8AEUWBsdjKDw3dn9/4up6+cCx/nBCHw0K48EYWD0oMdV3koStCEy1
-	JBYHJ67yxRwW8+xOkXPN3jL1IYJXwmYfWCQ2tiK84Ter8Biroov/PlZreiA0fFxqzMMXd5
-	/J7qhcUWYjwpC92f6DIVk2jXfaMaXTU=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=6lXGy6iAiZmOgyrTQM3k7GoQsEWd4e16jb/q6ytdasg=;
+	b=OdBfkjeBnoL06wONEZdvCGQBKh7aMt1+BpdkdRMlrzsII1sZ71FJvX6LrDmmxBqK/V6GHQ
+	UhkYdg/qXwsNWVfd3ZMwIXIOuXlcWKIp4p+oqiK/x1BU5GyBqQSwi5H4Hz6Q/i5vYz+97H
+	m9yYb7EFag9OUq0LGBC+zq0ydfgmisU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-470-M7836p6SMtKA9tTX5wL2gA-1; Thu, 10 Apr 2025 09:14:33 -0400
-X-MC-Unique: M7836p6SMtKA9tTX5wL2gA-1
-X-Mimecast-MFC-AGG-ID: M7836p6SMtKA9tTX5wL2gA_1744290872
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43cec217977so5549875e9.0
-        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 06:14:32 -0700 (PDT)
+ us-mta-333-2eqdmMFVPt2S6UvYq-DHnQ-1; Thu, 10 Apr 2025 09:59:44 -0400
+X-MC-Unique: 2eqdmMFVPt2S6UvYq-DHnQ-1
+X-Mimecast-MFC-AGG-ID: 2eqdmMFVPt2S6UvYq-DHnQ_1744293583
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-39134c762ebso371958f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 06:59:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744290872; x=1744895672;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5CWh61VoBeWDkhfINVEgBQUPREI3OeT7vB60AjBLh4k=;
-        b=L7RvqOh47goZki211Wx5fW+Kwseklizx7CBuLrWT/+FhxL1vigcbWa8Sn5+87X66c8
-         lsTSoRRGcbSTk40Q//Usk6XigU5hVmyxWctLdtq45kXMzIE9o8Jc7PT8Y4ts7u81i1t3
-         bzfaWKvHWiIYasFXPb9+GitHjw3kovjIFprEwYCNYxe6dvXVO3HWw/J1NsgRwgrjOXwt
-         8WhgAIlWq3beG9cF1esYDkyX+LT8fggbxWCCM/QL6Gw37LnHRJZtJ6IzbJVXk5Wc8wxZ
-         hMstws5ZejpHExcmK928lBxcvw+mpGNhR49g6Y4fI4CzFAwGzcPeevKTVTtfqTKa+x8W
-         k0JQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXCncYdhawh1bsjJKu3cH7yVS2wLK68hRTrQXw63MTCjZTI3fgXQHzTIugvrHRZsCPywCxcbmrAy1pfk1NNPA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzLU1iPaAZc33l6GnYvW+4Jpx5ldF8b9QpYVBm73zVZIkIK3A50
-	Hv/E0x8PA3sPZLijQ5Z/Vakph7Rtni6p1RmjR9wmHc9jCrm44Jbt22NTwiyA176/TyQ15r9jxDB
-	cmt3AzLzcELbclF+ZFJ+NK13J0H2tACTOIyqd0u7sNEPhRGbUXbWm7+uL709ivJd9
-X-Gm-Gg: ASbGncsOPpgNdlhXQAVDoOcEirjleM5WZSX6nQSvdtnlthK4eaee/WeBpM+aqmjvNNs
-	7C/1upbHpmyiFjeGVR5X5YPb9eRg1WRK4d3DEMtr175SooRwLrryx/g0ooaX9ECralZqSrP+c1z
-	3/G0heD6/Bqxqj0K9g2tjslnp6ThwQ4eueovH1k4dPbeoeGXgK6l4E+nwg6yH6wc/vqKmrn+EYi
-	60Q2a7Lnm7tFsJB9VOPvRBTJToJ1QzWdNdfjaGhuhw/34ksVW/dSFJQjEL4hxAi/7r/Uv3XsaCe
-	v1e50Q==
-X-Received: by 2002:a05:600c:674a:b0:43c:eeee:b70a with SMTP id 5b1f17b1804b1-43f2d97bc34mr26435655e9.22.1744290871753;
-        Thu, 10 Apr 2025 06:14:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEV4Lyb/tgfnVcyyFGflhKQfwEnIUsEBhqCrwWvjfkvUDgCHowyRpN3WF1pM6qN8aW55vrjDw==
-X-Received: by 2002:a05:600c:674a:b0:43c:eeee:b70a with SMTP id 5b1f17b1804b1-43f2d97bc34mr26435315e9.22.1744290871261;
-        Thu, 10 Apr 2025 06:14:31 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1744293583; x=1744898383;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=6lXGy6iAiZmOgyrTQM3k7GoQsEWd4e16jb/q6ytdasg=;
+        b=QnWCPuCpsb03OjoTQcfnZv+fDcqdKj4X4uwmf/dM0Mpye9lMgVZYZyRcXYrZy2k8cP
+         XDS7BW84AEGYxh7auaKMLfmf9OGknvfoSPISDuU0ApuXpSUU3EYMnsQcTNptGudRd+xF
+         zbNmp5Qc8MXDuIkwDwV39VLmTcaAFY8clpC3NTJ+Kpul/AW0UT7SsgzuYSR0G92wyEQH
+         q48Yyo6RTtBX7CiQKdj18UK70RsjK9sgHYnTSawM0gSaY282RY++6ZfU0FcYA8IcJFG8
+         /u8qjnI5bJG+Ncy1cu2ipVMQZ2AmlrZJ7lGfIlammdhFhry9R5oPdFXP5RM5GrIDid31
+         VwkA==
+X-Forwarded-Encrypted: i=1; AJvYcCVPBDJwSCJFtBnyHvf+K7FOAIM7CabHH+6301skV0sUZGXi9B3Ru2bYLemLhbdVKLwwemm7i8kjaJtvzDQCrw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxnQ4F1R5au8bZFrg/3ZBa6upxTGiCClOyoBip5NikPomXYmvNZ
+	bIBPAFidtnPGT8i9OZcxMyEz4bVknL1SD4XueMUU+RgJJnjJFn2uj9enQZ3SEA8C6+MueU9HirJ
+	qr1LaTjIqQrbXo8Pw92RIdwFTkD+Q4gaJiNmL69bvwuIoPn1hkwLMMfIj+IX0CVLG
+X-Gm-Gg: ASbGncuzxIwhk1fmEd0KB2KyXj05gNXgJ6RqHazVp7PWExQ9zrOBss1gSNQySGA2Kdx
+	TAl/+gDsxfowmTHNZkdh9jrQmcwODgNLTayFI2XkPzfLkxCVU/S8RRAW/Th09HkG2Qqd6JKPGBl
+	dw1riQz1UYxvrAs9/tbgVxFSkfAVhMDySXTgEyNFRKNzJXDmCTLb99zHOTSRu4nrMWbdqRDGFqA
+	YFtbfDZ7fWHGNa6VT+aeDJ19YHdjpKLlDwMCGcz20GhkqwQxWFE3RsE7el2OdgPAQUQjAqTjYCL
+	m4fbDA==
+X-Received: by 2002:a5d:64e7:0:b0:39c:30f9:339c with SMTP id ffacd0b85a97d-39d8f4733f5mr2497551f8f.28.1744293582680;
+        Thu, 10 Apr 2025 06:59:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGw+tyHh/388+fwunCYjGaGsvlhLWWOG8wscIdgu1ZoCVa9T/4VMl/VofRwJqpwdsBVtJzo3g==
+X-Received: by 2002:a5d:64e7:0:b0:39c:30f9:339c with SMTP id ffacd0b85a97d-39d8f4733f5mr2497525f8f.28.1744293582179;
+        Thu, 10 Apr 2025 06:59:42 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43f207aeaccsm53922205e9.33.2025.04.10.06.14.29
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43f233a2a13sm52019325e9.10.2025.04.10.06.59.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Apr 2025 06:14:30 -0700 (PDT)
-Date: Thu, 10 Apr 2025 09:14:27 -0400
+        Thu, 10 Apr 2025 06:59:40 -0700 (PDT)
+Date: Thu, 10 Apr 2025 09:59:38 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jocelyn Falempe <jfalempe@redhat.com>
-Cc: linux-kernel@vger.kernel.org, David Airlie <airlied@redhat.com>,
+To: linux-kernel@vger.kernel.org
+Cc: Eric Auger <eric.auger@redhat.com>, Eric Auger <eauger@redhat.com>,
+	Jocelyn Falempe <jfalempe@redhat.com>,
+	David Airlie <airlied@redhat.com>,
 	Gerd Hoffmann <kraxel@redhat.com>,
 	Gurchetan Singh <gurchetansingh@chromium.org>,
 	Chia-I Wu <olvaffe@gmail.com>,
@@ -75,40 +75,172 @@ Cc: linux-kernel@vger.kernel.org, David Airlie <airlied@redhat.com>,
 	Thomas Zimmermann <tzimmermann@suse.de>,
 	Simona Vetter <simona@ffwll.ch>, Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
-	Eric Auger <eauger@redhat.com>
-Subject: Re: [PATCH RFC] virtgpu: don't reset on shutdown
-Message-ID: <20250410090619-mutt-send-email-mst@kernel.org>
-References: <0d24e539766c9220b2380839472d1dc8739b5322.1744268995.git.mst@redhat.com>
- <07b30329-b4f0-4655-87fb-3ac52f9c64ff@redhat.com>
- <20250410084651-mutt-send-email-mst@kernel.org>
- <f1f3cfb2-86c4-42f9-b540-6feff196d426@redhat.com>
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
+Subject: [PATCH v2] virtgpu: don't reset on shutdown
+Message-ID: <8490dbeb6f79ed039e6c11d121002618972538a3.1744293540.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <f1f3cfb2-86c4-42f9-b540-6feff196d426@redhat.com>
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: oqy7o3hj12pdHxpcHpGXKQxznNnnmsjmCqoUwIvzRvY_1744290872
+X-Mimecast-MFC-PROC-ID: IdY_rkIlLDGaxAp8GHE_Q0BAs3TJ9pwhMOE9kv6p5lE_1744293583
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, Apr 10, 2025 at 02:51:47PM +0200, Jocelyn Falempe wrote:
-> > > So it looks like the shutdown is called in the middle of console drawing, so
-> > > either wait for it to finish, or let drm handle the shutdown, like your
-> > > patch does.
+It looks like GPUs are used after shutdown is invoked.
+Thus, breaking virtio gpu in the shutdown callback is not a good idea -
+guest hangs attempting to finish console drawing, with this warnings:
 
-The cleanest approach is actually just fixing surprise removal
-of virtio-gpu. Because that's the path the generic shotdown takes -
-pretends the device is gone.  I don't feel confident enough to work
-on this, though.
-Gerd, what's your take on it? Have some cycles to fix it properly?
-Now? Eventually? Ack my hack for now?
+[   20.504464] WARNING: CPU: 0 PID: 568 at drivers/gpu/drm/virtio/virtgpu_vq.c:358 virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.505685] Modules linked in: nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 rfkill ip_set nf_tables nfnetlink vfat fat intel_rapl_msr intel_rapl_common intel_uncore_frequency_common nfit libnvdimm kvm_intel kvm rapl iTCO_wdt iTCO_vendor_support virtio_gpu virtio_dma_buf pcspkr drm_shmem_helper i2c_i801 drm_kms_helper lpc_ich i2c_smbus virtio_balloon joydev drm fuse xfs libcrc32c ahci libahci crct10dif_pclmul crc32_pclmul crc32c_intel libata virtio_net ghash_clmulni_intel net_failover virtio_blk failover serio_raw dm_mirror dm_region_hash dm_log dm_mod
+[   20.511847] CPU: 0 PID: 568 Comm: kworker/0:3 Kdump: loaded Tainted: G        W         -------  ---  5.14.0-578.6675_1757216455.el9.x86_64 #1
+[   20.513157] Hardware name: Red Hat KVM/RHEL, BIOS edk2-20241117-3.el9 11/17/2024
+[   20.513918] Workqueue: events drm_fb_helper_damage_work [drm_kms_helper]
+[   20.514626] RIP: 0010:virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.515332] Code: 00 00 48 85 c0 74 0c 48 8b 78 08 48 89 ee e8 51 50 00 00 65 ff 0d 42 e3 74 3f 0f 85 69 ff ff ff 0f 1f 44 00 00 e9 5f ff ff ff <0f> 0b e9 3f ff ff ff 48 83 3c 24 00 74 0e 49 8b 7f 40 48 85 ff 74
+[   20.517272] RSP: 0018:ff34f0a8c0787ad8 EFLAGS: 00010282
+[   20.517820] RAX: 00000000fffffffb RBX: 0000000000000000 RCX: 0000000000000820
+[   20.518565] RDX: 0000000000000000 RSI: ff34f0a8c0787be0 RDI: ff218bef03a26300
+[   20.519308] RBP: ff218bef03a26300 R08: 0000000000000001 R09: ff218bef07224360
+[   20.520059] R10: 0000000000008dc0 R11: 0000000000000002 R12: ff218bef02630028
+[   20.520806] R13: ff218bef0263fb48 R14: ff218bef00cb8000 R15: ff218bef07224360
+[   20.521555] FS:  0000000000000000(0000) GS:ff218bef7ba00000(0000) knlGS:0000000000000000
+[   20.522397] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   20.522996] CR2: 000055ac4f7871c0 CR3: 000000010b9f2002 CR4: 0000000000771ef0
+[   20.523740] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   20.524477] DR3: 0000000000000000 DR6: 00000000fffe07f0 DR7: 0000000000000400
+[   20.525223] PKRU: 55555554
+[   20.525515] Call Trace:
+[   20.525777]  <TASK>
+[   20.526003]  ? show_trace_log_lvl+0x1c4/0x2df
+[   20.526464]  ? show_trace_log_lvl+0x1c4/0x2df
+[   20.526925]  ? virtio_gpu_queue_fenced_ctrl_buffer+0x82/0x2c0 [virtio_gpu]
+[   20.527643]  ? virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.528282]  ? __warn+0x7e/0xd0
+[   20.528621]  ? virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.529256]  ? report_bug+0x100/0x140
+[   20.529643]  ? handle_bug+0x3c/0x70
+[   20.530010]  ? exc_invalid_op+0x14/0x70
+[   20.530421]  ? asm_exc_invalid_op+0x16/0x20
+[   20.530862]  ? virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.531506]  ? virtio_gpu_queue_ctrl_sgs+0x174/0x290 [virtio_gpu]
+[   20.532148]  virtio_gpu_queue_fenced_ctrl_buffer+0x82/0x2c0 [virtio_gpu]
+[   20.532843]  virtio_gpu_primary_plane_update+0x3e2/0x460 [virtio_gpu]
+[   20.533520]  drm_atomic_helper_commit_planes+0x108/0x320 [drm_kms_helper]
+[   20.534233]  drm_atomic_helper_commit_tail+0x45/0x80 [drm_kms_helper]
+[   20.534914]  commit_tail+0xd2/0x130 [drm_kms_helper]
+[   20.535446]  drm_atomic_helper_commit+0x11b/0x140 [drm_kms_helper]
+[   20.536097]  drm_atomic_commit+0xa4/0xe0 [drm]
+[   20.536588]  ? __pfx___drm_printfn_info+0x10/0x10 [drm]
+[   20.537162]  drm_atomic_helper_dirtyfb+0x192/0x270 [drm_kms_helper]
+[   20.537823]  drm_fbdev_shmem_helper_fb_dirty+0x43/0xa0 [drm_shmem_helper]
+[   20.538536]  drm_fb_helper_damage_work+0x87/0x160 [drm_kms_helper]
+[   20.539188]  process_one_work+0x194/0x380
+[   20.539612]  worker_thread+0x2fe/0x410
+[   20.540007]  ? __pfx_worker_thread+0x10/0x10
+[   20.540456]  kthread+0xdd/0x100
+[   20.540791]  ? __pfx_kthread+0x10/0x10
+[   20.541190]  ret_from_fork+0x29/0x50
+[   20.541566]  </TASK>
+[   20.541802] ---[ end trace 0000000000000000 ]---
 
+It looks like the shutdown is called in the middle of console drawing, so
+we should either wait for it to finish, or let drm handle the shutdown.
+
+This patch implements this second option:
+
+Add an option for drivers to bypass the common break+reset handling.
+As DRM is careful to flush/synchronize outstanding buffers, it looks like
+GPU can just have a NOP there.
+
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Tested-by: Eric Auger <eric.auger@redhat.com>
+Fixes: 8bd2fa086a04 ("virtio: break and reset virtio devices on device_shutdown()")
+Cc: Eric Auger <eauger@redhat.com>
+Cc: Jocelyn Falempe <jfalempe@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+changes from v1 RFC:
+tested by Eric
+fixed up commit log and comments as suggested by Jocelyn
+
+ drivers/gpu/drm/virtio/virtgpu_drv.c | 9 +++++++++
+ drivers/virtio/virtio.c              | 6 ++++++
+ include/linux/virtio.h               | 3 +++
+ 3 files changed, 18 insertions(+)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index 2d88e390feb4..e32e680c7197 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -128,6 +128,14 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
+ 	drm_dev_put(dev);
+ }
+ 
++static void virtio_gpu_shutdown(struct virtio_device *vdev)
++{
++	/*
++	 * drm does its own synchronization on shutdown.
++	 * Do nothing here, opt out of device reset.
++	 */
++}
++
+ static void virtio_gpu_config_changed(struct virtio_device *vdev)
+ {
+ 	struct drm_device *dev = vdev->priv;
+@@ -162,6 +170,7 @@ static struct virtio_driver virtio_gpu_driver = {
+ 	.id_table = id_table,
+ 	.probe = virtio_gpu_probe,
+ 	.remove = virtio_gpu_remove,
++	.shutdown = virtio_gpu_shutdown,
+ 	.config_changed = virtio_gpu_config_changed
+ };
+ 
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 150753c3b578..95d5d7993e5b 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -407,6 +407,12 @@ static void virtio_dev_shutdown(struct device *_d)
+ 	if (!drv)
+ 		return;
+ 
++	/* If the driver has its own shutdown method, use that. */
++	if (drv->shutdown) {
++		drv->shutdown(dev);
++		return;
++	}
++
+ 	/*
+ 	 * Some devices get wedged if you kick them after they are
+ 	 * reset. Mark all vqs as broken to make sure we don't.
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 4d16c13d0df5..64cb4b04be7a 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -220,6 +220,8 @@ size_t virtio_max_dma_size(const struct virtio_device *vdev);
+  *    occurs.
+  * @reset_done: optional function to call after transport specific reset
+  *    operation has finished.
++ * @shutdown: synchronize with the device on shutdown. If provided, replaces
++ *    the virtio core implementation.
+  */
+ struct virtio_driver {
+ 	struct device_driver driver;
+@@ -237,6 +239,7 @@ struct virtio_driver {
+ 	int (*restore)(struct virtio_device *dev);
+ 	int (*reset_prepare)(struct virtio_device *dev);
+ 	int (*reset_done)(struct virtio_device *dev);
++	void (*shutdown)(struct virtio_device *dev);
+ };
+ 
+ #define drv_to_virtio(__drv)	container_of_const(__drv, struct virtio_driver, driver)
 -- 
 MST
 
