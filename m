@@ -1,220 +1,368 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 367F31E0B62
-	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 07:38:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.12
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744270714; cv=fail; b=IEDW9CRc6GiMOYntR+k2Hk7Rmi0x75C8Jwt+10RBo2UxPJlC6BGcEEckmOCMj82Xsd6rFRxazD0QtzwkXkZBOkZcqwHS6W+BM6ApWZMdNCCW/q8y83sLqZiYIIP/T4yp4NopnQ2w7xZfKoKNqd/ugOT5Gl4BN+fR5HWd/87/4V0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744270714; c=relaxed/simple;
-	bh=VpFURGFl/EZSZ3y3kofsYqLq+zhZmBCi6xVEtULZCcM=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=G4abfpAj83MHhJz6R/c853EIaepXZnhbGV9wn6yONJW+sh5mVd1cuaPa/XT9XheubVBkU+UYbK4YKVgY2AXOyi4Q4wuWusT7luImqNEZzhaKeWuNgUeBR/9CNeEJ6pBqs40hjkR0Z2eFZuRZ5S0HeKVM1/8PrQzjXhH5se3T3PY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hjyzEGKX; arc=fail smtp.client-ip=198.175.65.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D38C11E47BA
+	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 07:59:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744271944; cv=none; b=MQu1MZKiXtentG5nfWA86272XWDq2weGmR1wK5PtUvorC8nbEuNQU+57COwj068sXEz6N+OAhBZ1XjEY13yzYHQUeEIbiJtCRkwnUPZlmXNXFiRmbVEpWPnYtBGTin2G/nQdrpiEGycrb0n7Gd11NFduU2UoxY6mNUmcKXXiFxo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744271944; c=relaxed/simple;
+	bh=gm/a2mEQKsN6DHvodWcdGivkC33nKt6oCoSGpfBdg28=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=DhGQODx5uwQNRe0BdsjzjhLSXC+fJD+I1kepuemj/jR5mPRnSlBkJDIWAJJ4zaYYW8IBNwZsujYkxBUNm4NkC3EfPTZeHGtryddo2EaeG4vEibbFXNJaXm+eCx5rDqTj0gdJUKwsAD/vx94rt4edRdqtIPIhS05zqho0qL6Zukw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XjNCyKh1; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hjyzEGKX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1744270714; x=1775806714;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=VpFURGFl/EZSZ3y3kofsYqLq+zhZmBCi6xVEtULZCcM=;
-  b=hjyzEGKX6Y+TRwcwMuO7b/ZdhQcs0oMKf24uYKwcyMIpts1gD+7GfUVa
-   DEuaoNf4IkLt1q+7CLbEJ0pYMoMzZz1ehDN3f3UUDANlJCQdqhIBuNFmY
-   sY57zpzfBqtPfbvPpvaLxjJzTcOJ0WOMsf0Gj5TcMcVveg0EnPW6RwoK8
-   6oWGdJq/0AbAYlIPL7r57bZH/SdF0dysmqOOAYep9SZ7hhkkzsRbyp71B
-   h2Vp4dorcYJuM6pGA2tR9Mrc4OPS4DD0UdJfN3LwuwHGHFAvnEHITGXlH
-   hQPel4YNqdrwqUuSraJMDQrXDQUP+o7oyJ4XQFvGw87uyb3AGDKTO9TZR
-   A==;
-X-CSE-ConnectionGUID: mzvmqO7uSq6PbiAzjD1BdQ==
-X-CSE-MsgGUID: 0axo0N5TTJKyu+/bw8OYmA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11399"; a="57144143"
-X-IronPort-AV: E=Sophos;i="6.15,202,1739865600"; 
-   d="scan'208";a="57144143"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2025 00:38:33 -0700
-X-CSE-ConnectionGUID: zK0DHdznQK+u/+epkhY0dg==
-X-CSE-MsgGUID: mbutEvhFTpeNgeB1wD6VTA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.15,202,1739865600"; 
-   d="scan'208";a="128737522"
-Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
-  by orviesa010.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2025 00:38:32 -0700
-Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14; Thu, 10 Apr 2025 00:38:32 -0700
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14 via Frontend Transport; Thu, 10 Apr 2025 00:38:32 -0700
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (104.47.55.175)
- by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.44; Thu, 10 Apr 2025 00:38:31 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=TAB5Hul1yiSae7F/cJI3/U/wuzDOJZFmPULhsbvjWSmH6egQyf+bIEJCpnj2fNAtgvdiDcd5ZoejmKXr4/qN2XnYLNVOFUsInrGPMp9Q3GVDNaBlf4fUWZ0E92ElXMkwSALL+NlUN81UZCXqM3zoUEkglbXEOR3G6ELjgAqkhuChrDAnxIP95mHAEyQmec6FKSxXCypUsUx9xG0dhRp8Z1nT4umjFM6CAUvYx9EDe44fbwAnBhsuToLunfz2YLg8o+8FL7oraTBsj6CZRink+6M8APiBF7BInsOBoHNMkcLAkJjel9XWtXqPRmOG9PuhpcJuGsvawrlwym+2cDnuuw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=VpFURGFl/EZSZ3y3kofsYqLq+zhZmBCi6xVEtULZCcM=;
- b=W1vNHpfuSZG7wFFb82+6k4BD+DueycNIVc+JkTLEShCELKv/55v2PYl5TSyiENyt4BwZqk4mQ09V+dm1ZYtzV7HuxT+lRp7/gMFFntEjaT7C1JPHlp7Rzlb9ecoAJ+d9usSmwz0hNuDz9h3tjJtnNV9L0SGgfBetuDDgYdsIfBofQuKkhktvVHJWX5hRGSycC7yBqrdQRBxKXn9pCUStJ3C2jHYvqKHC15vIVf/RfvgDY1g3w+ahNba92IYbPs7VM8N4sS4/wqjd17l2wRrHVDMG7bAkaO0Ud+mTVZ/3LlL0pxiZAEnhMlk5md9q1jfRlZprzHYfS0nTUIzlpIGIFQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by SJ2PR11MB8585.namprd11.prod.outlook.com (2603:10b6:a03:56b::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8606.33; Thu, 10 Apr
- 2025 07:38:15 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1%5]) with mapi id 15.20.8606.033; Thu, 10 Apr 2025
- 07:38:15 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Sean Christopherson <seanjc@google.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini
-	<pbonzini@redhat.com>, Alex Williamson <alex.williamson@redhat.com>
-CC: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Oliver Upton
-	<oliver.upton@linux.dev>, David Matlack <dmatlack@google.com>, Like Xu
-	<like.xu.linux@gmail.com>, Yong He <alexyonghe@tencent.com>
-Subject: RE: [PATCH 7/7] irqbypass: Use xarray to track producers and
- consumers
-Thread-Topic: [PATCH 7/7] irqbypass: Use xarray to track producers and
- consumers
-Thread-Index: AQHbpacJ2ovkFo48akOGu44GvutTVbOcirKA
-Date: Thu, 10 Apr 2025 07:38:15 +0000
-Message-ID: <BN9PR11MB52769DDEE406798D028BC17D8CB72@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20250404211449.1443336-1-seanjc@google.com>
- <20250404211449.1443336-8-seanjc@google.com>
-In-Reply-To: <20250404211449.1443336-8-seanjc@google.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|SJ2PR11MB8585:EE_
-x-ms-office365-filtering-correlation-id: 61bf4e92-0fe2-4287-e35b-08dd7802a7a3
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014|38070700018;
-x-microsoft-antispam-message-info: =?utf-8?B?SjFDd2pIVlZwNGQ5QjhSWStaVWYwMmF5Qmlha0xCTHdUNzBpejVjRFV5WjlE?=
- =?utf-8?B?blhudjV5VFZ1UTNhQUdvZURzOEdLNW5nL0gvZ1plY0tVZ2NzSHgxbUJBY3FP?=
- =?utf-8?B?TysxWmJORUNIME5lQ3dRbnlnWjlMa3J1RFR1ZEJOUVJIZEJPdVg0bzdRcENi?=
- =?utf-8?B?NnVKQ3F2dktqSlg5VUlwb2ltSEg3NWZ0aXFoZEp2ekFxRmtKS1o1dk9tNmNX?=
- =?utf-8?B?TjdsbUhQR0FqbTlQTGI3Y3YvUnordm1sdUMzUGNiSGd2VzlDYTFTRlcvaDNS?=
- =?utf-8?B?cXQzOE1wV0tQYXNyTFU1eEhxSmlEYlNXanNDcFhTc0ZIRGtRcHp5ZnYyeUpI?=
- =?utf-8?B?bFFUMThmTnVkVWYzMnRaRnpmZ0FrM2ZRa0I4T3NkSWVqVEdHQnJiRGQwQkd6?=
- =?utf-8?B?ckdvSm5HRkp0YWdaQmNkOHozSHF0RHNSdm5NSGVSSWpjQWJNbldvN0dSUS9B?=
- =?utf-8?B?MWU1dUJlOWs3bHJrZ1RFOFUwcTVGSXJBUEt3dVh6bnQzT1MzUU9OTnUxN2VC?=
- =?utf-8?B?NTJyS0pDUjEza3Q4WFpGclo2bW92Y0F2K043VXhOOEZpOCtob0lPRUZCb09Z?=
- =?utf-8?B?WDhBUm8yZ3RYUm1RQkVOOXRlK1J1MXpPc3FUclFmWlZlMDFDbit5bzROU21v?=
- =?utf-8?B?ZHpGVldCNms0bWFocThBRk5uVGRpQ2RGQndRRlhVSE9GUjJNckNDZzdIR1BX?=
- =?utf-8?B?QWxnTWNjS245aVpvS05La01UOGRVQzFrTzFjMStvSHBIUTJzR3JMdmZ5MkJt?=
- =?utf-8?B?bEhzeGFGVjRQVUhHODk2Vlc2VEJmdXJDS0xXTEFNWS9reXV4TGl2VGVVQVk4?=
- =?utf-8?B?aGxJbThVcS91aGlpWlVVdWkzaXpGR2FaaTNXWnl4VmpkSTVEdjJYeitLM1ho?=
- =?utf-8?B?MUN0L1pHVWtHU3U2SlNOZHphWUIwNU9hU25jTFk1b3ZiVGxwTis4eWFJNW1D?=
- =?utf-8?B?UHVDZjBsVnVCQ1FSQVN2OTREWXp3SEJGaDVVSXg3WngzS2ErSENVUFR5OGJt?=
- =?utf-8?B?WHNXRTZ1SzFVeEF2YjVadFFpenFOb3NRV0sybWNVVTV5SmVVVTdsTlZVRXZU?=
- =?utf-8?B?RmVtSmtiNjYrNEVxc0UzV2FITEEzTnBxYnViSGhmMGJlVnhCWjNHeDc0V1Jj?=
- =?utf-8?B?d1psdDlkZENldU9YUUlQRXNIWjBlWENCbkZrMnhSSnYrVlVKUVFsMkZZNnA3?=
- =?utf-8?B?VUd2Z2ZmMnRaLzc4blB3R2NBTWRwcEFoRVFnNEV2SW1qczg4SGVKdGNETDZw?=
- =?utf-8?B?c3ZmUWRjU09ZVzhDNkNXU3hVVkRQNk81NUhqL1F0MUNCaEZKbXp0cW1LVmth?=
- =?utf-8?B?eE9OdTdjREN5ZkFkeDc5anl5cG1WU3dVT2ovMmVtNHdTcjl2bnZ2dmpNVk5Y?=
- =?utf-8?B?UXdKN0FvOE8yRTNsOEVCQ2ZwZFVnRm44S3lURFNJOXFNcnN4b1JsMXlodlNs?=
- =?utf-8?B?cTZPSGVaa01oRmFOSzZYMkFiNWovblhBRFU2NzZkTWUwZXpXNlVwdWJWajVU?=
- =?utf-8?B?aEI3WmdEcHFFSkFCSXo5K1c2SHFIeUl3aDB2QmZ2RDdqM0QzdkpUSTlWMWQy?=
- =?utf-8?B?YncrK3hFcm9aZlg2S29QQVhYcTJoejVnYkRQbXB2QzZLa1FXZU1NK0dHZU83?=
- =?utf-8?B?YXA5WWVZMmN4QWd0NG5UUG1JdkprcE96ZG1MNnllMy8rM096OXEzQklVTFI3?=
- =?utf-8?B?TmhjbDh6Z2pDajhlQnUyTnlOby8zVW5oeHRXS3crUlhNeXplMWl3bDk3ejJm?=
- =?utf-8?B?NG1hR25helZMcWlKczZHZCt1b3dQdm5VMnVMaDkrTzl1Z0NmV2R1V2prLytj?=
- =?utf-8?B?Ym11V2VGVVMrTGRXRmV1ZDBQY0xEWFpYOUc3M3JxakdiS1ZSVTNJdGhiVmc5?=
- =?utf-8?B?alNheUVQN3VzaEQvTEd3aHozbGUyUFZQY2ZXL0lPeTIvcWJUZFZWemtFUk9n?=
- =?utf-8?B?QlVkMkw4eHhxN1MvcXBCbjZaU3Y1NEM1VGw2bXdCOWszcWNGYVYxTGRiK3dQ?=
- =?utf-8?B?a1I5KzJEdDFBPT0=?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?c3VFS0UxYURPOGdmRUkvaEowVEQ0c1hqRUlRQjVBaEc4cEkwSXBCRlBjeXN1?=
- =?utf-8?B?c1Awd01rQkRsNGFJY2xwNHhaQ2RTby9Qbm8ydGNHRHQ2MVJkVWt5alprK2tN?=
- =?utf-8?B?NHlRdDhmNlBsZUJVQmJHQitrWThsL2tMWmdLeWJ2T3RndHhUd2lxdzROY1ZI?=
- =?utf-8?B?c0FIUDc1bkV0Qjg2OEhBcDg0VGpFTitUZXh5TGVKWHRVMThuL0YvWk5zNCtW?=
- =?utf-8?B?MExLMWRYRHVzR0pWdmtQTU80d2pJT1paaXd1aUFkTWVxQnN2RDNlVXZ0UEY4?=
- =?utf-8?B?QjBWQXNxc24vQnZlTEdJT0s5YmR3cDBJN1VVYUVDdDNJMXM1R3NXbElrQUFQ?=
- =?utf-8?B?ekdTNUNBY0JtdFBDNXVaUGhtSWViNERPMDVYYTFhMjlYVnNraUc5RzkvV0Qy?=
- =?utf-8?B?YnFCZXVYcERIVFRpb0JBOWtidkg4bDVkazlKL0x6N3ltekFNbmZGQjVjeTZN?=
- =?utf-8?B?elVYL1NudnA3M2czdUtvd2NQbVgxaVpFSldJL2hwSkJ3R3k4czQ1QkhwdE8z?=
- =?utf-8?B?Ny9iSUdTTzRZV1Q0ZkU2OWxlSTdjVEdjVkZoM0tCSythdGtad1dsSFRQWS9r?=
- =?utf-8?B?SG9VNWxacHJMalpsaTQ0QlVWQXM3Yk14RG9kRXVQODByMFBIT21TUlduWEVz?=
- =?utf-8?B?bGYzV1ZkSmlicGQrb0pRempHNE42aTY4enprK0wvQ2JGU01YalM3OFFCUElY?=
- =?utf-8?B?ckpjNkhGS3ZzZlBpa1JBbFZUNjdNSmVlK1hkcHZLWkNKYzd1ZlVEMGtPOGpE?=
- =?utf-8?B?SnJRMy9ZYVpFT0ZSOXYwVHVqZ3kvbHVqSUdaUHk2RStSMVJzdVdZczl5T29m?=
- =?utf-8?B?SzRQUW1wQ3p2S1psdi9hbkVVRnI0S2pkWWlUQzlEZFo2UWkraTJZb1NXc1V4?=
- =?utf-8?B?Ly9sZW9PckNhWTMzSlhPUDUra0hBMFU0RHE3OUpWQjlYUmdQRzlaZnB4SXN1?=
- =?utf-8?B?c1ovU09NNzhML1JweHVETzNHMjN0Y1Z2UEZFdWh4cm1KQ0ZQTlFxSytQOFVk?=
- =?utf-8?B?LzE1c1ZCY2ROSHhGcFpRcEY4RDlzYjl5NHFldjJiUndXNGVnQkl5ZmxCQTdJ?=
- =?utf-8?B?R09zMHpqcS9ZQ0lMMytOM0xCQUEvaFVMMDZpWWg4TEUybHZQQm9xamlOUEZx?=
- =?utf-8?B?M1gzTXU2VkNvcDdqN1BPNDRZT0J4N0dCRzZ4S0Nab1ZURXRnYWI0ZWxFNlJ4?=
- =?utf-8?B?ajJVOGJkVnBKVXcxd2RMZ2hvdHFEbjNYYmtQR2h1Y0VqUXhsd0ZWN1g1N215?=
- =?utf-8?B?STl2NXNBMFpySXppZ1pjZlhWaTAzWUFOZlRGemNscjV2cW5kb1BBV2lCS2NO?=
- =?utf-8?B?SWVxZllSaXJlSFJzbnBRZVpxRzJVYXBsZXFCVXRUYytHY3VMTTNBUVdYLzli?=
- =?utf-8?B?YmExWFlZeWRPa0lJdXNXT3hBbWZZQlV6WGZYY3J5elZVcnkwR052c2RWYTNi?=
- =?utf-8?B?b3ZJcHYrOEJ6c1FvZDNPWFMzZngvVXBoMHc4MGxmZCtTZTRWRWt0eE5ReUVa?=
- =?utf-8?B?ZktrVk9oaGt5SlR6MlZDOEZMSTFqNURTclVQUXhTQldkYm9CeitKWThGeUlT?=
- =?utf-8?B?SHVtNXpDaGRzM0UrTVdNbXFFeW5xNjY0REVLYVdaaVZDUXl3NUhnaTVXU1RJ?=
- =?utf-8?B?V21VK0VDMmRkckxhTllYZjZ4UHdESkR5RUZKMnRhUDJUOXZkeVBGMUlwUm12?=
- =?utf-8?B?SnBzMVdjN2djZ3BodFFHZmNLODhwWWVDQzhqTXlCYnNnREwyWWFBTEZHN0hM?=
- =?utf-8?B?amZocHpobHhuaW1TWlFlTHYrQnNMUFc5d01IVUJsS3Y5OFlhWS8xOEdaMy92?=
- =?utf-8?B?Yldwem1YVlBldjQ1aldSM25YdVZUUXZmWlFVaEVDWGd1N2NmaTBxQ0UwTERh?=
- =?utf-8?B?SFJRT0pIZlcvRnZvSnR5UFh5eXBld1FFZ2gxd2pQQWFueXJRRTdieGtQcXN0?=
- =?utf-8?B?VUlzdXFxY28rV0EvQzFYTjZNa1N0c2dkUTgvS2FDRjdJb1NpZGZoZ3dzWWJv?=
- =?utf-8?B?L05sUmxkbTBsZERKVExJL2EzV0pOeTZhaFNCbUV5MysvNCszS2ZBeTAxRG5P?=
- =?utf-8?B?ZnFmbTdCZnA4RXhlVDFJb3J1OGdSWmdaVzB4SkRjU0FHT2ZzTDkySHdhTkRP?=
- =?utf-8?Q?dzhW6PlX8at7X9l3OL/z2XoOn?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XjNCyKh1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744271941;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tQtoQw7jfUyWu+wsTQSZ7ijVwSrcSMWb6QJOSJ3s0/4=;
+	b=XjNCyKh13IKzFcCKmRyeJzHydXGwU2WvmuxA0n98L60xbUABPRgsCl/JeCmtx6lHr9JupI
+	wMWzx4U4eGJDCf80wtOrhLAFrA27GsZmRc2ijfV3OUBHUCAnoYBqkkAgTiyzBT6LO6CKKc
+	P0RuJWg7TxbfRnL7/1kDRh+JFlzhD7g=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-495-NJ14m18MPcC5Iu_ekI9dsw-1; Thu, 10 Apr 2025 03:58:59 -0400
+X-MC-Unique: NJ14m18MPcC5Iu_ekI9dsw-1
+X-Mimecast-MFC-AGG-ID: NJ14m18MPcC5Iu_ekI9dsw_1744271938
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43d4d15058dso4892915e9.0
+        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 00:58:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744271938; x=1744876738;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=tQtoQw7jfUyWu+wsTQSZ7ijVwSrcSMWb6QJOSJ3s0/4=;
+        b=gycyJFl28eybYAJ+rm7+UJjSTOkgctukQQe3sFR/wynxRJMxDNM3QZZcoVGMag/1uy
+         dHLJQ8Za+J7ySivW8qlY9vGOLseae/gSSD1Vquh/JyoghVRq+T8omT2kCQaAEZGtSa/5
+         m2cc0/l0iMxv57z5Fguc6jREJdwfC9syiontJGl5MRpagyunH8+eOmOI+1ZeG1d29FUg
+         iM6n/LwB672pi5WYS1qNiwn4U4JihvIqW0t6QyNpukFAI8bT0Y5JpqJk7Ehpe/6o1Aj3
+         hYipKp2st5jeEwxkFYGLvuY68VfHHrpsbJAI+eIURa+nsLJzpoLwqtKbKlBV4cuOMXzt
+         XB3g==
+X-Forwarded-Encrypted: i=1; AJvYcCWxWgRTjuJ+m76MmVw3dl1EU/kcEUG3Gdsjy5gCrTwKV5LXFc53wWUGTHld+ZTMiBuJToKC0GVTd2hTPd3h/Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwSw4x40v177ZNdCSM5+e0BP6GBL7UW5C3j3b1jTPP5zzTQp7AZ
+	XypUxaDLZO0M4yQmn0DIbjlFawFhBe0tH1XoPFNhjVEQiafEFghuM/LmjQ4nH00I6jU+ESo+Fra
+	gVlcwCBeTD653YY3cNo8WhsSKQH4RKD1oCJ9EH7nKN3ZBraHQl3sRr4mzgyJWhN/D
+X-Gm-Gg: ASbGncvIRqhZCUwgSOMxNQij1p1kvz55jOL8QQnwncM4gBdcOmigt+ZZiYofivLke5+
+	yiQw71GRdbCjDargvi/SGgkHHnlHCEzG+eSnQgC8NhNZmAG/eVkHfuGZWC8itqeF2F2AGVXJed2
+	+cMaDXFSMzRKd0tNnt0Eby1e3BljyXq1+PM7ya1khTRh/E+h3/IMIhYHQQQQ3rPV93Wzj0/9y6u
+	6QL0Zfp+fHiQmMMtaxQ3iifHpWkKoen8dF7V7P9xT9MwbO6rDuOVRGmhes064LDQaYmX8DEJQxY
+	eTQPeQ==
+X-Received: by 2002:a05:600c:c0e:b0:43d:aed:f7d0 with SMTP id 5b1f17b1804b1-43f2ffa04ccmr10843575e9.28.1744271938408;
+        Thu, 10 Apr 2025 00:58:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGnSNBEpGfHLNho/6PLwuLbgIXtPDmPI4Z7XkP6MyCZknh4+7smqJ4ID7o9X7MgjDoqER9qwA==
+X-Received: by 2002:a05:600c:c0e:b0:43d:aed:f7d0 with SMTP id 5b1f17b1804b1-43f2ffa04ccmr10843325e9.28.1744271938017;
+        Thu, 10 Apr 2025 00:58:58 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43f233a273fsm41808445e9.9.2025.04.10.00.58.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Apr 2025 00:58:57 -0700 (PDT)
+Date: Thu, 10 Apr 2025 03:58:54 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH] virtio-net: hold netdev_lock when pausing rx
+Message-ID: <20250410035158-mutt-send-email-mst@kernel.org>
+References: <20250404093903.37416-1-minhquangbui99@gmail.com>
+ <1743987836.9938157-1-xuanzhuo@linux.alibaba.com>
+ <30419bd6-13b1-4426-9f93-b38b66ef7c3a@gmail.com>
+ <CACGkMEs7O7D5sztwJVn45c+1pap20Oi5f=02Sy_qxFjbeHuYiQ@mail.gmail.com>
+ <4195db62-db43-4d61-88c3-7a7fbb164726@gmail.com>
+ <b7b1f5de-7003-4960-a9d1-883bf2f1aa77@gmail.com>
+ <4d3a1478-b6fc-47a3-8d77-7eca6a973a06@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 61bf4e92-0fe2-4287-e35b-08dd7802a7a3
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Apr 2025 07:38:15.3969
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: RXPNOw13KsXOoLWnOkkh9rh3CUD/3zF1Hpi1bpCyqLrGTop5kULUwyuB4mutuedT13xDVwfRQafMHu3wC/jFbg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR11MB8585
-X-OriginatorOrg: intel.com
+In-Reply-To: <4d3a1478-b6fc-47a3-8d77-7eca6a973a06@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 51ldwCzP_VvoEnqvmP8NILqMo_Rp_idpnENnodoxrFg_1744271938
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-PiBGcm9tOiBTZWFuIENocmlzdG9waGVyc29uIDxzZWFuamNAZ29vZ2xlLmNvbT4NCj4gU2VudDog
-U2F0dXJkYXksIEFwcmlsIDUsIDIwMjUgNToxNSBBTQ0KPiANCj4gVHJhY2sgSVJRIGJ5cGFzcyBw
-cm9kdXNlcnMgYW5kIGNvbnN1bWVycyB1c2luZyBhbiB4YXJyYXkgdG8gYXZvaWQgdGhlDQo+IE8o
-Mm4pDQo+IGluc2VydGlvbiB0aW1lIGFzc29jaWF0ZWQgd2l0aCB3YWxraW5nIGEgbGlzdCB0byBj
-aGVjayBmb3IgZHVwbGljYXRlDQo+IGVudHJpZXMsIGFuZCB0byBzZWFyY2ggZm9yIGFuIHBhcnRu
-ZXIuDQo+IA0KPiBBdCBsb3cgKHRlbnMgb3IgZmV3IGh1bmRyZWRzKSB0b3RhbCBwcm9kdWNlci9j
-b25zdW1lciBjb3VudHMsIHVzaW5nIGEgbGlzdA0KPiBpcyBmYXN0ZXIgZHVlIHRvIHRoZSBuZWVk
-IHRvIGFsbG9jYXRlIGJhY2tpbmcgc3RvcmFnZSBmb3IgeGFycmF5LiAgQnV0IGFzDQo+IGNvdW50
-IGNyZWVwcyBpbnRvIHRoZSB0aG91c2FuZHMsIHhhcnJheSB3aW5zIGVhc2lseSwgYW5kIGNhbiBw
-cm92aWRlDQo+IHNldmVyYWwgb3JkZXJzIG9mIG1hZ25pdHVkZSBiZXR0ZXIgbGF0ZW5jeSBhdCBo
-aWdoIGNvdW50cy4gIEUuZy4gaHVuZHJlZHMNCj4gb2YgbmFub3NlY29uZHMgdnMuIGh1bmRyZWRz
-IG9mIG1pbGxpc2Vjb25kcy4NCg0KYWRkIGEgbGluayB0byB0aGUgb3JpZ2luYWwgZGF0YSBjb2xs
-ZWN0ZWQgYnkgTGlrZS4NCg0KPiANCj4gQ2M6IE9saXZlciBVcHRvbiA8b2xpdmVyLnVwdG9uQGxp
-bnV4LmRldj4NCj4gQ2M6IERhdmlkIE1hdGxhY2sgPGRtYXRsYWNrQGdvb2dsZS5jb20+DQo+IENj
-OiBMaWtlIFh1IDxsaWtlLnh1LmxpbnV4QGdtYWlsLmNvbT4NCj4gUmVwb3J0ZWQtYnk6IFlvbmcg
-SGUgPGFsZXh5b25naGVAdGVuY2VudC5jb20+DQo+IENsb3NlczogaHR0cHM6Ly9idWd6aWxsYS5r
-ZXJuZWwub3JnL3Nob3dfYnVnLmNnaT9pZD0yMTczNzkNCj4gTGluazogaHR0cHM6Ly9sb3JlLmtl
-cm5lbC5vcmcvYWxsLzIwMjMwODAxMTE1NjQ2LjMzOTkwLTEtDQo+IGxpa2V4dUB0ZW5jZW50LmNv
-bQ0KPiBTaWduZWQtb2ZmLWJ5OiBTZWFuIENocmlzdG9waGVyc29uIDxzZWFuamNAZ29vZ2xlLmNv
-bT4NCg0KUmV2aWV3ZWQtYnk6IEtldmluIFRpYW4gPGtldmluLnRpYW5AaW50ZWwuY29tPg0K
+On Thu, Apr 10, 2025 at 02:05:57PM +0700, Bui Quang Minh wrote:
+> When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
+> napi_disable() on the receive queue's napi. In delayed refill_work, it
+> also calls napi_disable() on the receive queue's napi. When
+> napi_disable() is called on an already disabled napi, it will sleep in
+> napi_disable_locked while still holding the netdev_lock. As a result,
+> later napi_enable gets stuck too as it cannot acquire the netdev_lock.
+> This leads to refill_work and the pause-then-resume tx are stuck
+> altogether.
+> 
+> This scenario can be reproducible by binding a XDP socket to virtio-net
+> interface without setting up the fill ring. As a result, try_fill_recv
+> will fail until the fill ring is set up and refill_work is scheduled.
+> 
+> This commit makes the pausing rx path hold the netdev_lock until
+> resuming, prevent any napi_disable() to be called on a temporarily
+> disabled napi.
+> 
+> Fixes: 413f0271f396 ("net: protect NAPI enablement with netdev_lock()")
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> ---
+>  drivers/net/virtio_net.c | 74 +++++++++++++++++++++++++---------------
+>  1 file changed, 47 insertions(+), 27 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7e4617216a4b..74bd1065c586 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2786,9 +2786,13 @@ static void skb_recv_done(struct virtqueue *rvq)
+>  }
+> 
+>  static void virtnet_napi_do_enable(struct virtqueue *vq,
+> -                   struct napi_struct *napi)
+> +                   struct napi_struct *napi,
+> +                   bool netdev_locked)
+>  {
+> -    napi_enable(napi);
+> +    if (netdev_locked)
+> +        napi_enable_locked(napi);
+> +    else
+> +        napi_enable(napi);
+> 
+>      /* If all buffers were filled by other side before we napi_enabled, we
+>       * won't get another interrupt, so process any outstanding packets now.
+> @@ -2799,16 +2803,16 @@ static void virtnet_napi_do_enable(struct virtqueue
+> *vq,
+
+
+
+
+Your patch is line-wrapped, unfortunately. Here and elsewhere.
+
+
+
+
+>      local_bh_enable();
+>  }
+> 
+> -static void virtnet_napi_enable(struct receive_queue *rq)
+> +static void virtnet_napi_enable(struct receive_queue *rq, bool
+> netdev_locked)
+>  {
+>      struct virtnet_info *vi = rq->vq->vdev->priv;
+>      int qidx = vq2rxq(rq->vq);
+> 
+> -    virtnet_napi_do_enable(rq->vq, &rq->napi);
+> +    virtnet_napi_do_enable(rq->vq, &rq->napi, netdev_locked);
+>      netif_queue_set_napi(vi->dev, qidx, NETDEV_QUEUE_TYPE_RX, &rq->napi);
+>  }
+> 
+> -static void virtnet_napi_tx_enable(struct send_queue *sq)
+> +static void virtnet_napi_tx_enable(struct send_queue *sq, bool
+> netdev_locked)
+>  {
+>      struct virtnet_info *vi = sq->vq->vdev->priv;
+>      struct napi_struct *napi = &sq->napi;
+> @@ -2825,11 +2829,11 @@ static void virtnet_napi_tx_enable(struct send_queue
+> *sq)
+>          return;
+>      }
+> 
+> -    virtnet_napi_do_enable(sq->vq, napi);
+> +    virtnet_napi_do_enable(sq->vq, napi, netdev_locked);
+>      netif_queue_set_napi(vi->dev, qidx, NETDEV_QUEUE_TYPE_TX, napi);
+>  }
+> 
+> -static void virtnet_napi_tx_disable(struct send_queue *sq)
+> +static void virtnet_napi_tx_disable(struct send_queue *sq, bool
+> netdev_locked)
+>  {
+>      struct virtnet_info *vi = sq->vq->vdev->priv;
+>      struct napi_struct *napi = &sq->napi;
+> @@ -2837,18 +2841,24 @@ static void virtnet_napi_tx_disable(struct
+> send_queue *sq)
+> 
+>      if (napi->weight) {
+>          netif_queue_set_napi(vi->dev, qidx, NETDEV_QUEUE_TYPE_TX, NULL);
+> -        napi_disable(napi);
+> +        if (netdev_locked)
+> +            napi_disable_locked(napi);
+> +        else
+> +            napi_disable(napi);
+>      }
+>  }
+> 
+> -static void virtnet_napi_disable(struct receive_queue *rq)
+> +static void virtnet_napi_disable(struct receive_queue *rq, bool
+> netdev_locked)
+>  {
+>      struct virtnet_info *vi = rq->vq->vdev->priv;
+>      struct napi_struct *napi = &rq->napi;
+>      int qidx = vq2rxq(rq->vq);
+> 
+>      netif_queue_set_napi(vi->dev, qidx, NETDEV_QUEUE_TYPE_RX, NULL);
+> -    napi_disable(napi);
+> +    if (netdev_locked)
+> +        napi_disable_locked(napi);
+> +    else
+> +        napi_disable(napi);
+>  }
+> 
+>  static void refill_work(struct work_struct *work)
+> @@ -2875,9 +2885,11 @@ static void refill_work(struct work_struct *work)
+>           *     instance lock)
+>           *   - check netif_running() and return early to avoid a race
+>           */
+> -        napi_disable(&rq->napi);
+> +        netdev_lock(vi->dev);
+> +        napi_disable_locked(&rq->napi);
+>          still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
+
+
+This does mean netdev_lock is held potentially for a long while,
+while try_fill_recv and processing inside virtnet_napi_do_enable
+finish. Better ideas?
+
+> -        virtnet_napi_do_enable(rq->vq, &rq->napi);
+> +        virtnet_napi_do_enable(rq->vq, &rq->napi, true);
+> +        netdev_unlock(vi->dev);
+> 
+>          /* In theory, this can happen: if we don't get any buffers in
+>           * we will *never* try to fill again.
+> @@ -3074,8 +3086,8 @@ static int virtnet_poll(struct napi_struct *napi, int
+> budget)
+> 
+>  static void virtnet_disable_queue_pair(struct virtnet_info *vi, int
+> qp_index)
+>  {
+> -    virtnet_napi_tx_disable(&vi->sq[qp_index]);
+> -    virtnet_napi_disable(&vi->rq[qp_index]);
+> +    virtnet_napi_tx_disable(&vi->sq[qp_index], false);
+> +    virtnet_napi_disable(&vi->rq[qp_index], false);
+>      xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+>  }
+> 
+> @@ -3094,8 +3106,8 @@ static int virtnet_enable_queue_pair(struct
+> virtnet_info *vi, int qp_index)
+>      if (err < 0)
+>          goto err_xdp_reg_mem_model;
+> 
+> -    virtnet_napi_enable(&vi->rq[qp_index]);
+> -    virtnet_napi_tx_enable(&vi->sq[qp_index]);
+> +    virtnet_napi_enable(&vi->rq[qp_index], false);
+> +    virtnet_napi_tx_enable(&vi->sq[qp_index], false);
+> 
+>      return 0;
+> 
+> @@ -3347,7 +3359,8 @@ static void virtnet_rx_pause(struct virtnet_info *vi,
+> struct receive_queue *rq)
+>      bool running = netif_running(vi->dev);
+> 
+>      if (running) {
+> -        virtnet_napi_disable(rq);
+> +        netdev_lock(vi->dev);
+> +        virtnet_napi_disable(rq, true);
+>          virtnet_cancel_dim(vi, &rq->dim);
+>      }
+>  }
+> @@ -3359,8 +3372,10 @@ static void virtnet_rx_resume(struct virtnet_info
+> *vi, struct receive_queue *rq)
+>      if (!try_fill_recv(vi, rq, GFP_KERNEL))
+>          schedule_delayed_work(&vi->refill, 0);
+> 
+> -    if (running)
+> -        virtnet_napi_enable(rq);
+> +    if (running) {
+> +        virtnet_napi_enable(rq, true);
+> +        netdev_unlock(vi->dev);
+> +    }
+>  }
+> 
+>  static int virtnet_rx_resize(struct virtnet_info *vi,
+> @@ -3389,7 +3404,7 @@ static void virtnet_tx_pause(struct virtnet_info *vi,
+> struct send_queue *sq)
+>      qindex = sq - vi->sq;
+> 
+>      if (running)
+> -        virtnet_napi_tx_disable(sq);
+> +        virtnet_napi_tx_disable(sq, false);
+> 
+>      txq = netdev_get_tx_queue(vi->dev, qindex);
+> 
+> @@ -3423,7 +3438,7 @@ static void virtnet_tx_resume(struct virtnet_info *vi,
+> struct send_queue *sq)
+>      __netif_tx_unlock_bh(txq);
+> 
+>      if (running)
+> -        virtnet_napi_tx_enable(sq);
+> +        virtnet_napi_tx_enable(sq, false);
+>  }
+> 
+>  static int virtnet_tx_resize(struct virtnet_info *vi, struct send_queue
+> *sq,
+> @@ -5961,9 +5976,10 @@ static int virtnet_xdp_set(struct net_device *dev,
+> struct bpf_prog *prog,
+> 
+>      /* Make sure NAPI is not using any XDP TX queues for RX. */
+>      if (netif_running(dev)) {
+> +        netdev_lock(dev);
+>          for (i = 0; i < vi->max_queue_pairs; i++) {
+> -            virtnet_napi_disable(&vi->rq[i]);
+> -            virtnet_napi_tx_disable(&vi->sq[i]);
+> +            virtnet_napi_disable(&vi->rq[i], true);
+> +            virtnet_napi_tx_disable(&vi->sq[i], true);
+>          }
+>      }
+> 
+> @@ -6000,11 +6016,14 @@ static int virtnet_xdp_set(struct net_device *dev,
+> struct bpf_prog *prog,
+>          if (old_prog)
+>              bpf_prog_put(old_prog);
+>          if (netif_running(dev)) {
+> -            virtnet_napi_enable(&vi->rq[i]);
+> -            virtnet_napi_tx_enable(&vi->sq[i]);
+> +            virtnet_napi_enable(&vi->rq[i], true);
+> +            virtnet_napi_tx_enable(&vi->sq[i], true);
+>          }
+>      }
+> 
+> +    if (netif_running(dev))
+> +        netdev_unlock(dev);
+> +
+>      return 0;
+> 
+>  err:
+> @@ -6016,9 +6035,10 @@ static int virtnet_xdp_set(struct net_device *dev,
+> struct bpf_prog *prog,
+> 
+>      if (netif_running(dev)) {
+>          for (i = 0; i < vi->max_queue_pairs; i++) {
+> -            virtnet_napi_enable(&vi->rq[i]);
+> -            virtnet_napi_tx_enable(&vi->sq[i]);
+> +            virtnet_napi_enable(&vi->rq[i], true);
+> +            virtnet_napi_tx_enable(&vi->sq[i], true);
+>          }
+> +        netdev_unlock(dev);
+>      }
+>      if (prog)
+>          bpf_prog_sub(prog, vi->max_queue_pairs - 1);
+> -- 
+> 2.43.0
+> 
+
