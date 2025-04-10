@@ -1,238 +1,143 @@
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C81371E5206
-	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 19:40:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D09A28EA47
+	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 21:28:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744314021; cv=none; b=s9FYV+fxzfr0oLCp3ek6YpI9ZErVHzNImCHoGa1rxPjinzEslQBBycgSgzWlaZ6rLpge3RBAfNbRvywdNvhq2mQWZfGOkQbrXMNaQcx7m+1YV/P1lJHuOLEY8SVg41U5XMCKvzJ1GC2yTogfJ0sJNAC2e0EwF98J2uio520cP2k=
+	t=1744320538; cv=none; b=SADcxjp5D7g9q+VYBA3WOrxijW++YRsUWniumCzsC+2td+JD/bGCKVR9wz8zIfnZXIz3SQ3vTb9+qtQQAelyRTazSdpk7gu/kFHHjUB6MF9ilQH1QsZEFaERfFA0edFFXfaCOpD26ZDq5TH3cJeuMOuVmMJ5WwFaIju0QKLyCC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744314021; c=relaxed/simple;
-	bh=QaXzkPrVvfwcxYBQbGrOxKuze/RhgxL0BjGeu1qh5x4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mg5UefF7gM6u5v1U430FgdVk7vFtIz+HI24Qa6fvhgkY6u7ZcgqmIF5i5EGufd3qXUC6JGKqhsyB1mBuQuTmAeX8nqApSPN67mFthBvuocGG3Gm6ou24Bl+2//qlOGBSfTYrCv2vGqT0Yz1Jk4jeTkwVv8W7GarrhV3CpDwEfTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=qNwVeD4g; arc=none smtp.client-ip=213.167.242.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
+	s=arc-20240116; t=1744320538; c=relaxed/simple;
+	bh=PQyLMk4yD/KMsB1XsXeHfOQCgylwKZk+b6OaxBJWI7Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=trtw7Hy4ZPyYTzrtlMF96CSjX0vxNOfqeH4sweTrmPjKGpw8q1sgXv9/zCt7ZFTYDEPTG2PWSfLdvqPfKZyU/6CnHLdh/f3Cg2F6qpNpNZoMMPUg3JInxBnDbczXFA7bNnJO/46pW4k7VABQmaFZJZQRr3CDdpe+ODv2tEBHAZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D7bUe9P+; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="qNwVeD4g"
-Received: from pendragon.ideasonboard.com (81-175-209-231.bb.dnainternet.fi [81.175.209.231])
-	by perceval.ideasonboard.com (Postfix) with ESMTPSA id 432C8496;
-	Thu, 10 Apr 2025 21:38:19 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-	s=mail; t=1744313899;
-	bh=QaXzkPrVvfwcxYBQbGrOxKuze/RhgxL0BjGeu1qh5x4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=qNwVeD4gIFzPJmE6dGpl8MVpZMhqwPPkOjFu9WgENixtdOU+vSX77sSxivX+Faybv
-	 wQ0FLs8/LcpOnoudqlHbHsIKJlNTEExcz9GWQ5xl1cquCKPtZSP01+A2Zy1TTB8QL+
-	 FdVVlivMlx8EbwYguLyko0AOyWkhhw05h8qexg5c=
-Date: Thu, 10 Apr 2025 22:39:51 +0300
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To: Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc: dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>, Sandy Huang <hjc@rock-chips.com>,
-	Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>,
-	Andy Yan <andy.yan@rock-chips.com>,
-	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org
-Subject: Re: [PATCH 07/19] drm/gem: Pass along the format info from
- .fb_create() to drm_helper_mode_fill_fb_struct()
-Message-ID: <20250410193951.GF27834@pendragon.ideasonboard.com>
-References: <20250410163218.15130-1-ville.syrjala@linux.intel.com>
- <20250410163218.15130-8-ville.syrjala@linux.intel.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D7bUe9P+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744320534;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7wUygALbmEVMFAt4v+g0d0hTcs9oRhp7Sgk/twG05FU=;
+	b=D7bUe9P+uuUCgkLxwrATaynkYI5/P8/yiHNHAko2bw3hpNsT7mPtu6SPDan+7ID8mYoeFO
+	zYrLSjGYJV+9uxUi3s6IjxoWsOwjwCsWi6JvHEKTcyjm+0LSCkRggc2VE6wyOTp+Puh3bn
+	qXB6ua7QrkBwNrLja8VVWPwGl/gUXuQ=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-643-wWg8NsECMjKuIAcsdKOi4A-1; Thu, 10 Apr 2025 17:28:53 -0400
+X-MC-Unique: wWg8NsECMjKuIAcsdKOi4A-1
+X-Mimecast-MFC-AGG-ID: wWg8NsECMjKuIAcsdKOi4A_1744320532
+Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-85b3e93e052so13876539f.3
+        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 14:28:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744320532; x=1744925332;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7wUygALbmEVMFAt4v+g0d0hTcs9oRhp7Sgk/twG05FU=;
+        b=ZWKwRsIDASOyAzyONUOfg9rFA+iF1r7Me9DwvL4tw0R1jH+rZzdI+X2JitsOxdSxvX
+         6KnuCfWLU2gz48l8QyBv/ZOa5pZ09Ke2O/C03ckmcVlPynE6E0MqA7hdKWCoapYUoiJk
+         718fnvIQnqMw6DfN22EksbHszySBFTKpmGUYyyimxk8fTehvSXzziRUU/bgfnDBDtK/O
+         topTzUuzWNYQeSD8Dhb2IEUV2YGxj1RUZRW//VDImgtzB3B1aF833d0lARgWQOZhUgkf
+         9qS/EmfGItxbisSipPLydQs0cZg3cDwTHggDX9xwhzk0u0OoRqnWJ39G8x2nqxXgy0Qe
+         IIdg==
+X-Forwarded-Encrypted: i=1; AJvYcCVDnD9MTP7sumIk+rk4dRswXSFpdgM9nj8Dh5PgqwufCUCfuj+J+ChYpR0wfaztN058wBxAXDK2+9L/qVmO5A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxB4CKBK+Z5RQkMpTCaZdhG559udh98Vdfe2Td60qYNo0F9oi5m
+	2M5T3ZiTQCXoLgM8HqMarZFgpwtpCBUEZWWxNG/c5M7YB2gZp8XdS7PN5zCD40GKxWGtAD2/EbO
+	QCJ1Yok6XMtFwW48gAddCqYqc1c29ChM6mYx/SSZNUrA+1lIrmz5ge3jsGsz4Ni9V
+X-Gm-Gg: ASbGnctGPkJcasZ5viDj9h31GXkjysDRYV4Lohn0s8ChHiU+5l9+YLMQojAPXUELoi1
+	vLUTStsnmIyMOVicFrrLYFcoeWCk5IIDUhRBMQyvSFN87kacsUohgsRsGV4ZdJvP7xrk+R2caw8
+	enHZvQbzQK/m8eFOJJzXXhSnjXKRuTuB5kATbvC+CrC6cuITHIQxIW1pIqczZrEOPjoO6lELhpH
+	mfgR1AwGNOXB3e2nru09BYfFwEZyrkQN6Un8vA5rvTkAQziPoNGCKLoFGFhSY5PBeOoyeVdrN8Z
+	5yqZRmUydOGfBcM=
+X-Received: by 2002:a05:6602:6019:b0:85e:5cbc:115 with SMTP id ca18e2360f4ac-8617cb5482dmr14196039f.1.1744320532160;
+        Thu, 10 Apr 2025 14:28:52 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGObbSU7MqLRum1IP35oPdq16S0/HCvuDlUPSjApwT5xtjRxU2hDxipatt8y3sRp60U+ll1fA==
+X-Received: by 2002:a05:6602:6019:b0:85e:5cbc:115 with SMTP id ca18e2360f4ac-8617cb5482dmr14194539f.1.1744320531830;
+        Thu, 10 Apr 2025 14:28:51 -0700 (PDT)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4f505d1873bsm923375173.48.2025.04.10.14.28.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Apr 2025 14:28:49 -0700 (PDT)
+Date: Thu, 10 Apr 2025 15:28:46 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Sean Christopherson <seanjc@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Oliver Upton <oliver.upton@linux.dev>, David
+ Matlack <dmatlack@google.com>, Like Xu <like.xu.linux@gmail.com>, Yong He
+ <alexyonghe@tencent.com>
+Subject: Re: [PATCH 3/7] irqbypass: Take ownership of producer/consumer
+ token tracking
+Message-ID: <20250410152846.184e174f.alex.williamson@redhat.com>
+In-Reply-To: <20250404211449.1443336-4-seanjc@google.com>
+References: <20250404211449.1443336-1-seanjc@google.com>
+	<20250404211449.1443336-4-seanjc@google.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250410163218.15130-8-ville.syrjala@linux.intel.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Vorh7SCRSXYeYn0JPD9ACIQrCiWnLBdSpSLzyk_1z9s_1744320532
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi Ville,
-
-Thank you for the patch.
-
-On Thu, Apr 10, 2025 at 07:32:06PM +0300, Ville Syrjala wrote:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> 
-> Pass along the format info from .fb_create() to aliminate the
-> redundant drm_get_format_info() calls from the gem fb code.
-> 
-> Cc: Dave Airlie <airlied@redhat.com>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: Sandy Huang <hjc@rock-chips.com>
-> Cc: "Heiko Stübner" <heiko@sntech.de>
-> Cc: Andy Yan <andy.yan@rock-chips.com>
-> Cc: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-> Cc: virtualization@lists.linux.dev
-> Cc: spice-devel@lists.freedesktop.org
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> ---
->  drivers/gpu/drm/drm_gem_framebuffer_helper.c | 21 ++++++++------------
->  drivers/gpu/drm/qxl/qxl_display.c            |  2 +-
->  drivers/gpu/drm/rockchip/rockchip_drm_fb.c   |  3 ++-
->  drivers/gpu/drm/xen/xen_drm_front_kms.c      |  2 +-
->  include/drm/drm_gem_framebuffer_helper.h     |  2 ++
->  5 files changed, 14 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/drm_gem_framebuffer_helper.c b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
-> index dc9cb6cdcfd6..44016915c8fe 100644
-> --- a/drivers/gpu/drm/drm_gem_framebuffer_helper.c
-> +++ b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
-> @@ -67,6 +67,7 @@ EXPORT_SYMBOL_GPL(drm_gem_fb_get_obj);
->  static int
->  drm_gem_fb_init(struct drm_device *dev,
->  		 struct drm_framebuffer *fb,
-> +		 const struct drm_format_info *info,
->  		 const struct drm_mode_fb_cmd2 *mode_cmd,
->  		 struct drm_gem_object **obj, unsigned int num_planes,
->  		 const struct drm_framebuffer_funcs *funcs)
-> @@ -74,7 +75,7 @@ drm_gem_fb_init(struct drm_device *dev,
->  	unsigned int i;
->  	int ret;
+On Fri,  4 Apr 2025 14:14:45 -0700
+Sean Christopherson <seanjc@google.com> wrote:
+> diff --git a/include/linux/irqbypass.h b/include/linux/irqbypass.h
+> index 9bdb2a781841..379725b9a003 100644
+> --- a/include/linux/irqbypass.h
+> +++ b/include/linux/irqbypass.h
+> @@ -10,6 +10,7 @@
 >  
-> -	drm_helper_mode_fill_fb_struct(dev, fb, NULL, mode_cmd);
-> +	drm_helper_mode_fill_fb_struct(dev, fb, info, mode_cmd);
+>  #include <linux/list.h>
 >  
->  	for (i = 0; i < num_planes; i++)
->  		fb->obj[i] = obj[i];
-> @@ -151,21 +152,14 @@ EXPORT_SYMBOL(drm_gem_fb_create_handle);
-
-Missing documentation update. Please make sure to build to documentation
-when testing the next version of the series.
-
->  int drm_gem_fb_init_with_funcs(struct drm_device *dev,
->  			       struct drm_framebuffer *fb,
->  			       struct drm_file *file,
-> +			       const struct drm_format_info *info,
->  			       const struct drm_mode_fb_cmd2 *mode_cmd,
->  			       const struct drm_framebuffer_funcs *funcs)
->  {
-> -	const struct drm_format_info *info;
->  	struct drm_gem_object *objs[DRM_FORMAT_MAX_PLANES];
->  	unsigned int i;
->  	int ret;
+> +struct eventfd_ctx;
+>  struct irq_bypass_consumer;
 >  
-> -	info = drm_get_format_info(dev, mode_cmd->pixel_format,
-> -				   mode_cmd->modifier[0]);
-> -	if (!info) {
-> -		drm_dbg_kms(dev, "Failed to get FB format info\n");
-> -		return -EINVAL;
-> -	}
-> -
->  	if (drm_drv_uses_atomic_modeset(dev) &&
->  	    !drm_any_plane_has_format(dev, mode_cmd->pixel_format,
->  				      mode_cmd->modifier[0])) {
-> @@ -200,7 +194,7 @@ int drm_gem_fb_init_with_funcs(struct drm_device *dev,
->  		}
->  	}
->  
-> -	ret = drm_gem_fb_init(dev, fb, mode_cmd, objs, i, funcs);
-> +	ret = drm_gem_fb_init(dev, fb, info, mode_cmd, objs, i, funcs);
->  	if (ret)
->  		goto err_gem_object_put;
->  
-> @@ -233,6 +227,7 @@ EXPORT_SYMBOL_GPL(drm_gem_fb_init_with_funcs);
+>  /*
+> @@ -18,20 +19,20 @@ struct irq_bypass_consumer;
+>   * The IRQ bypass manager is a simple set of lists and callbacks that allows
+>   * IRQ producers (ex. physical interrupt sources) to be matched to IRQ
+>   * consumers (ex. virtualization hardware that allows IRQ bypass or offload)
+> - * via a shared token (ex. eventfd_ctx).  Producers and consumers register
+> - * independently.  When a token match is found, the optional @stop callback
+> - * will be called for each participant.  The pair will then be connected via
+> - * the @add_* callbacks, and finally the optional @start callback will allow
+> - * any final coordination.  When either participant is unregistered, the
+> - * process is repeated using the @del_* callbacks in place of the @add_*
+> - * callbacks.  Match tokens must be unique per producer/consumer, 1:N pairings
+> - * are not supported.
+> + * via a shared eventfd_ctx).  Producers and consumers register independently.
+> + * When a producer and consumer are paired, i.e. a token match is found, the
+> + * optional @stop callback will be called for each participant.  The pair will
+> + * then be connected via the @add_* callbacks, and finally the optional @start
+> + * callback will allow any final coordination.  When either participant is
+> + * unregistered, the process is repeated using the @del_* callbacks in place of
+> + * the @add_* callbacks.  Match tokens must be unique per producer/consumer,
+> + * 1:N pairings are not supported.
 >   */
+>  
+>  /**
+>   * struct irq_bypass_producer - IRQ bypass producer definition
+>   * @node: IRQ bypass manager private list management
+> - * @token: opaque token to match between producer and consumer (non-NULL)
+> + * @token: IRQ bypass manage private token to match producers and consumers
 
-Same here.
+The "token" terminology seems a little out of place after all is said
+and done in this series.  Should it just be an "index" in anticipation
+of the usage with xarray and changed to an unsigned long?  Or at least
+s/token/eventfd/ and changed to an eventfd_ctx pointer?  Thanks,
 
->  struct drm_framebuffer *
->  drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
-> +			     const struct drm_format_info *info,
->  			     const struct drm_mode_fb_cmd2 *mode_cmd,
->  			     const struct drm_framebuffer_funcs *funcs)
->  {
-> @@ -243,7 +238,7 @@ drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
->  	if (!fb)
->  		return ERR_PTR(-ENOMEM);
->  
-> -	ret = drm_gem_fb_init_with_funcs(dev, fb, file, mode_cmd, funcs);
-> +	ret = drm_gem_fb_init_with_funcs(dev, fb, file, info, mode_cmd, funcs);
->  	if (ret) {
->  		kfree(fb);
->  		return ERR_PTR(ret);
-> @@ -285,7 +280,7 @@ drm_gem_fb_create(struct drm_device *dev, struct drm_file *file,
->  		  const struct drm_format_info *info,
->  		  const struct drm_mode_fb_cmd2 *mode_cmd)
->  {
-> -	return drm_gem_fb_create_with_funcs(dev, file, mode_cmd,
-> +	return drm_gem_fb_create_with_funcs(dev, file, info, mode_cmd,
->  					    &drm_gem_fb_funcs);
->  }
->  EXPORT_SYMBOL_GPL(drm_gem_fb_create);
-> @@ -324,7 +319,7 @@ drm_gem_fb_create_with_dirty(struct drm_device *dev, struct drm_file *file,
->  			     const struct drm_format_info *info,
->  			     const struct drm_mode_fb_cmd2 *mode_cmd)
->  {
-> -	return drm_gem_fb_create_with_funcs(dev, file, mode_cmd,
-> +	return drm_gem_fb_create_with_funcs(dev, file, info, mode_cmd,
->  					    &drm_gem_fb_funcs_dirtyfb);
->  }
->  EXPORT_SYMBOL_GPL(drm_gem_fb_create_with_dirty);
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> index f7bc83f2d489..ae7e572b1b4a 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -1179,7 +1179,7 @@ qxl_user_framebuffer_create(struct drm_device *dev,
->  			    const struct drm_format_info *info,
->  			    const struct drm_mode_fb_cmd2 *mode_cmd)
->  {
-> -	return drm_gem_fb_create_with_funcs(dev, file_priv, mode_cmd,
-> +	return drm_gem_fb_create_with_funcs(dev, file_priv, info, mode_cmd,
->  					    &qxl_fb_funcs);
->  }
->  
-> diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
-> index d46297bec5f8..1211ca0ffa00 100644
-> --- a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
-> +++ b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
-> @@ -40,7 +40,8 @@ rockchip_fb_create(struct drm_device *dev, struct drm_file *file,
->  	if (!afbc_fb)
->  		return ERR_PTR(-ENOMEM);
->  
-> -	ret = drm_gem_fb_init_with_funcs(dev, &afbc_fb->base, file, mode_cmd,
-> +	ret = drm_gem_fb_init_with_funcs(dev, &afbc_fb->base,
-> +					 file, info, mode_cmd,
->  					 &rockchip_drm_fb_funcs);
->  	if (ret) {
->  		kfree(afbc_fb);
-> diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-> index a360003bee47..806ec66ee7f7 100644
-> --- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
-> +++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-> @@ -62,7 +62,7 @@ fb_create(struct drm_device *dev, struct drm_file *filp,
->  	struct drm_gem_object *gem_obj;
->  	int ret;
->  
-> -	fb = drm_gem_fb_create_with_funcs(dev, filp, mode_cmd, &fb_funcs);
-> +	fb = drm_gem_fb_create_with_funcs(dev, filp, info, mode_cmd, &fb_funcs);
->  	if (IS_ERR(fb))
->  		return fb;
->  
-> diff --git a/include/drm/drm_gem_framebuffer_helper.h b/include/drm/drm_gem_framebuffer_helper.h
-> index 4fdf9d3d1863..971d266ab1ba 100644
-> --- a/include/drm/drm_gem_framebuffer_helper.h
-> +++ b/include/drm/drm_gem_framebuffer_helper.h
-> @@ -25,10 +25,12 @@ int drm_gem_fb_create_handle(struct drm_framebuffer *fb, struct drm_file *file,
->  int drm_gem_fb_init_with_funcs(struct drm_device *dev,
->  			       struct drm_framebuffer *fb,
->  			       struct drm_file *file,
-> +			       const struct drm_format_info *info,
->  			       const struct drm_mode_fb_cmd2 *mode_cmd,
->  			       const struct drm_framebuffer_funcs *funcs);
->  struct drm_framebuffer *
->  drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
-> +			     const struct drm_format_info *info,
->  			     const struct drm_mode_fb_cmd2 *mode_cmd,
->  			     const struct drm_framebuffer_funcs *funcs);
->  struct drm_framebuffer *
+Alex
 
--- 
-Regards,
-
-Laurent Pinchart
