@@ -1,114 +1,160 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70C8A21148F
-	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 23:00:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E7DF212FAC
+	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 23:24:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744326013; cv=none; b=P6wd9mgJfn+6sr147ofLMcFoQ3us5fiv3pnFIoZ98eYeNmheWBvio5RS+8oAyUp67sJEmtWlgKJ1vdKFhpq5svUzs2nBwlvGQfe5K9l4IMbaSwyflw98Ki9Qy7HVDttQcqQk1ModCkhOv36KvE05f/8PrfIXSts9jIo1uJrgt4w=
+	t=1744327464; cv=none; b=jKcjp6Sp3FWuIE9JdE/qcWnaqDDDsW0FeF4unqW6kbZbLjfa/wNZf5/dGSHYkfyUO385swM48fr5hVOnDotQSdMAwIyvooffzjgnOZK0AGruly7TyjyL1oTqO+ILn0L1PelXcwSj2qXk9BdIcvrKyiD1WRhT5pZKatFnurubx4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744326013; c=relaxed/simple;
-	bh=KJDeLRPNP4KR15v2b6aVw2383AZQQQwiuSEL1SwZOgk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GdwqXdyYZxDi7MdJ5ZYiaQitwNS5Ng+7Er5ojjh59gLdj60JbsgmKsw2M5KpsSDA1DPTNeZDtWEDoK4VIrAgLDLkvQidNUWveFsYSFHTcpU1cAoCdQC8/6KSR4SxfO2DxTXLJt00YE7AkN5oYZgooGHB8k+Bh7TtYyqHNw4fGLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=WnbtB+Wd; arc=none smtp.client-ip=209.85.222.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1744327464; c=relaxed/simple;
+	bh=fRu1wIpBkqC/PAC+6Z3ide0GL77+kwaEESC4lKY2HQM=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=UgXT6jAsq77tfba6N5K7rzTjzMD/8GJkJYM6rT42JBtEgRJmBe+3kj1j0ZxBqY29uk+ty7lDANx8xAgrxRT5uBbDQ4bg5i7d/vVqp9svgf24RMIx6cyvdzk69wtQu+W7udMpT4nUaPGaEFzbtSVdsPLUzpyPqhq5QjNPXAhYv0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fGaM/Z7l; arc=none smtp.client-ip=209.85.210.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="WnbtB+Wd"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-7c5e39d1e0eso132066185a.1
-        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 16:00:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fGaM/Z7l"
+Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-736c7df9b6cso1623326b3a.3
+        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 16:24:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1744326010; x=1744930810; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JpO2S4wctyk68CVyOkNnoYhQpTc8ULQAveyt4WbuIOg=;
-        b=WnbtB+Wdyi9jHaaB9LPX2jwsCMHs+4q+9XCQ+OpRLZYucnGP6WDgROT3kKxuTzEeWi
-         KXUjSIVmGWoNz/PBKaGOL6+yr8gV2MnQ8K8MMHO/v/NHaaHUXbKNS8Y8SSOBLEdcQtDT
-         YCgPdnC/uusQps3rwyYhFbInqATGLjFwX5QrY4GNywF2MdoRZfvXUo4X1MurD00BtnFq
-         +WTHt6a1HFRWiAyTu5sVP4TZBxfCne0yQ7onMSEfo6pUEDs/DMPUpu7u9edozq227Xhz
-         xta22W+0WuDTvZCaljdx99q3Gi/On6bkqRbe7Dg+8OQMHNT/UHfGuVglClkIIVtzx5jg
-         aBSw==
+        d=google.com; s=20230601; t=1744327461; x=1744932261; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+8Hj0FhxYq298MEgk+A50ezX9To9apyasGONCk8/EIY=;
+        b=fGaM/Z7lj70R8kUXsqcMVsokWFyLSzAJ7WAIfqnd30WbDIBXw7X9UUcP1YRgZZv2PS
+         27NIwmWmCQ7NvYapCrwSFgfhQW/axF2LirtnQt1i2JRZweDZsofox/9zzYB+uVSu6364
+         7M6aUOc3hxzlxyXyAAaWTwS/hCbB7+X3C+WynIbqIsp8cfNKsWSSqYkj+jXIo7eL2pIy
+         Z8fr8mZEf1TWAnT+l3IwTSI98dPps+cQqjUdUfw5QMWJlSgJsVJIZq7v1JiGDX7cwDWt
+         Ao+HtK83aJFugAOcQ1fMCEVA5b6jlytBfyE6KQ69SaT96M1OhsZQSi8C+w4h9x/kKMJK
+         vWqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744326010; x=1744930810;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JpO2S4wctyk68CVyOkNnoYhQpTc8ULQAveyt4WbuIOg=;
-        b=p4KX2z4kAo91Or3y4nmxYn9CaHb78fW6fnWX3XQ4StHThxKIVYbpdNBWj+VsNROcnf
-         c7gUQMI7Pl548tGq73NqRDON4Ms676LNDz2X18NkF9jGEgdGhTnWqvXOgD3zyMNdhJQJ
-         qVhdLINQ57SuG82emitmOsrYj+QVaIq4KvJvHsx3KuLw9WPi1h1aNXNspZ9uq+Js50RK
-         4Pue+CcltU64hYnhyLAFX86dLkrPYjL1j5etEgt8f1J88QqmxAs8swXHtJNayd4/LJDe
-         riP8GAV82F4g8E9kgAzDjyRWJteUkp1hs3OGB7JdDbn073XujPOaZ7EQRSV2EbuAElSK
-         iDRA==
-X-Forwarded-Encrypted: i=1; AJvYcCX05/i5uGdOsJ7HHwDqTrOP9Aw9rTZStnUEADpMarX6YFpn7HSidGyGG5PuXnb+DG4KFgRVO2EQgrfg+Fr5IQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxMTMh4OJatsy9CmbCakbL09iPPMBf9Ep5L6ziJTyBYzQgUSGc8
-	v7+S/XGZo4G+NF9/mFqoQOv/48PCPxSg2I4E4a7tNXQYUcjIt05oJVrI0Z3fFBA=
-X-Gm-Gg: ASbGnctumtq6VsFRTPq3OyoIUAhdt3if4i2tsaQT1TD3nTOWxroPz/XG8uSj5xbeCfW
-	FiJpP2oTSR51uDuE4OMauIwSWWy4ZR0tjrgdKETuX+KK/37VqnerijVIBjamdo+XX4cQJMlPUAU
-	ClSOxIORBG7XnUEeTXC0OE1TcQ+u6ijTtZS3sOCQjtP1WXxCfx3ONjWVIflvqjYxxAa3LISnHN6
-	cV43u2pUwwhmYXHt31kYLvYL2Hr7C2/7GxArYB5q5NufmRmcYe0GmrZ6uFPS4GcQ5wBRnb8Je+z
-	mCdgirWrnCnkBoGjqid3bvrFpuPYPfbB4TbYpb+cKb/+MEhgrWImE1SjPjhEAFINrxviJTM6Mqp
-	uqw6er0Q8DN5EsMeDkgQ=
-X-Google-Smtp-Source: AGHT+IHr0/WY2Rqb4JC2JVZGgAH4AixNta9jAPZvPdjOUO1pv6CI6b5DlSO9IE1VF0/bDnrgXDRKew==
-X-Received: by 2002:a05:620a:4306:b0:7c5:5cc4:ca5c with SMTP id af79cd13be357-7c7af12e6ebmr102606285a.14.1744326010083;
-        Thu, 10 Apr 2025 16:00:10 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-167-219-86.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.167.219.86])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7c7a89437a4sm164415585a.23.2025.04.10.16.00.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Apr 2025 16:00:09 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1u30sS-00000000GRz-4851;
-	Thu, 10 Apr 2025 20:00:08 -0300
-Date: Thu, 10 Apr 2025 20:00:08 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Shyam Saini <shyamsaini@linux.microsoft.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
-	will@kernel.org, jacob.pan@linux.microsoft.com,
-	eric.auger@redhat.com, code@tyhicks.com,
-	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com
-Subject: Re: [PATCH v2 0/3] arm-smmu: select suitable IOVA
-Message-ID: <20250410230008.GA6905@ziepe.ca>
-References: <20250410225030.2528385-1-shyamsaini@linux.microsoft.com>
+        d=1e100.net; s=20230601; t=1744327461; x=1744932261;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+8Hj0FhxYq298MEgk+A50ezX9To9apyasGONCk8/EIY=;
+        b=DGjqsRTakFiEH8nf7+7v8dMuLQKShorXcJrXrm7vKk/sFRj5fCS7jol4R4FTgIi4qB
+         7OqN0nLdE28YfOcM39K6yoS8qTe1KRU88dhcb5gIcERvifyOogFrvzNA5RTao1pC04We
+         GSiemchB7rrYRsC+J6xLFlkahyUbiAriKbArjRFt80WGOqlI2tL1KWCA0CKdD3/3zyvz
+         JpKliDfNBCIP/ezVnLPI83K6Xx+kcv7Re0E8luCVrQRIhzAzoC/rEDmqGxtBHAZfPyro
+         vv8ChQEymapYQUKXrnnneiLu+zpfmW0T+iSKcPbSio0eBb0ODYuC4hBB4+zFoQwdYaRq
+         GNGw==
+X-Forwarded-Encrypted: i=1; AJvYcCXb8gm3EVvRfSRo7LBrAhDWdq7/3KsUAqHVqlnV2NYwUgo8mvyjYuKpm/hKsQByNqoKBms9RlZbtfGT4jfSnw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzk1pgMv3OHoDVVimy4PP2maupMkNzp5PN7FvfetIKaMiTrFdz9
+	4eEpPfjXRzBUreNn6z4qoG84uOBrkerRDriR9d8Pb4TrrQM1ijaJtd/IBMHtXT6LvMibJSs/28C
+	Q+g==
+X-Google-Smtp-Source: AGHT+IHWYnK2BwFW7Mr5VmhaaxwX1jXjykj9i9MFxC3vV2mlnL+NePMyv0dJBUjVtFSac3MvKiuBJyLqfxA=
+X-Received: from pfbfj37.prod.google.com ([2002:a05:6a00:3a25:b0:730:8b4c:546c])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:21c7:b0:736:5c8e:baaa
+ with SMTP id d2e1a72fcca58-73bd119427emr706022b3a.2.1744327460939; Thu, 10
+ Apr 2025 16:24:20 -0700 (PDT)
+Date: Thu, 10 Apr 2025 16:24:19 -0700
+In-Reply-To: <20250331082251.3171276-11-xin@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250410225030.2528385-1-shyamsaini@linux.microsoft.com>
+Mime-Version: 1.0
+References: <20250331082251.3171276-1-xin@zytor.com> <20250331082251.3171276-11-xin@zytor.com>
+Message-ID: <Z_hTI8ywa3rTxFaz@google.com>
+Subject: Re: [RFC PATCH v1 10/15] KVM: VMX: Use WRMSRNS or its immediate form
+ when available
+From: Sean Christopherson <seanjc@google.com>
+To: "Xin Li (Intel)" <xin@zytor.com>
+Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-edac@vger.kernel.org, kvm@vger.kernel.org, 
+	xen-devel@lists.xenproject.org, linux-ide@vger.kernel.org, 
+	linux-pm@vger.kernel.org, bpf@vger.kernel.org, llvm@lists.linux.dev, 
+	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
+	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, jgross@suse.com, 
+	andrew.cooper3@citrix.com, peterz@infradead.org, acme@kernel.org, 
+	namhyung@kernel.org, mark.rutland@arm.com, alexander.shishkin@linux.intel.com, 
+	jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com, 
+	kan.liang@linux.intel.com, wei.liu@kernel.org, ajay.kaher@broadcom.com, 
+	alexey.amakhalov@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
+	tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com, 
+	luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com, 
+	haiyangz@microsoft.com, decui@microsoft.com
+Content-Type: text/plain; charset="us-ascii"
 
-On Thu, Apr 10, 2025 at 03:50:27PM -0700, Shyam Saini wrote:
+On Mon, Mar 31, 2025, Xin Li (Intel) wrote:
+> Signed-off-by: Xin Li (Intel) <xin@zytor.com>
+> ---
+>  arch/x86/include/asm/msr-index.h |  6 ++++++
+>  arch/x86/kvm/vmx/vmenter.S       | 28 ++++++++++++++++++++++++----
+>  2 files changed, 30 insertions(+), 4 deletions(-)
 > 
-> Hi,
+> diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+> index e6134ef2263d..04244c3ba374 100644
+> --- a/arch/x86/include/asm/msr-index.h
+> +++ b/arch/x86/include/asm/msr-index.h
+> @@ -1226,4 +1226,10 @@
+>  						* a #GP
+>  						*/
+>  
+> +/* Instruction opcode for WRMSRNS supported in binutils >= 2.40 */
+> +#define ASM_WRMSRNS		_ASM_BYTES(0x0f,0x01,0xc6)
+> +
+> +/* Instruction opcode for the immediate form RDMSR/WRMSRNS */
+> +#define ASM_WRMSRNS_RAX		_ASM_BYTES(0xc4,0xe7,0x7a,0xf6,0xc0)
+> +
+>  #endif /* _ASM_X86_MSR_INDEX_H */
+> diff --git a/arch/x86/kvm/vmx/vmenter.S b/arch/x86/kvm/vmx/vmenter.S
+> index f6986dee6f8c..9fae43723c44 100644
+> --- a/arch/x86/kvm/vmx/vmenter.S
+> +++ b/arch/x86/kvm/vmx/vmenter.S
+> @@ -64,6 +64,29 @@
+>  	RET
+>  .endm
+>  
+> +/*
+> + * Write EAX to MSR_IA32_SPEC_CTRL.
+> + *
+> + * Choose the best WRMSR instruction based on availability.
+> + *
+> + * Replace with 'wrmsrns' and 'wrmsrns %rax, $MSR_IA32_SPEC_CTRL' once binutils support them.
+> + */
+> +.macro WRITE_EAX_TO_MSR_IA32_SPEC_CTRL
+> +	ALTERNATIVE_2 __stringify(mov $MSR_IA32_SPEC_CTRL, %ecx;		\
+> +				  xor %edx, %edx;				\
+> +				  mov %edi, %eax;				\
+> +				  ds wrmsr),					\
+> +		      __stringify(mov $MSR_IA32_SPEC_CTRL, %ecx;		\
+> +				  xor %edx, %edx;				\
+> +				  mov %edi, %eax;				\
+> +				  ASM_WRMSRNS),					\
+> +		      X86_FEATURE_WRMSRNS,					\
+> +		      __stringify(xor %_ASM_AX, %_ASM_AX;			\
+> +				  mov %edi, %eax;				\
+> +				  ASM_WRMSRNS_RAX; .long MSR_IA32_SPEC_CTRL),	\
+> +		      X86_FEATURE_MSR_IMM
+> +.endm
+
+This is quite hideous.  I have no objection to optimizing __vmx_vcpu_run(), but
+I would much prefer that a macro like this live in generic code, and that it be
+generic.  It should be easy enough to provide an assembly friendly equivalent to
+__native_wrmsr_constant().
+
+
+> +
+>  .section .noinstr.text, "ax"
+>  
+>  /**
+> @@ -123,10 +146,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
+>  	movl PER_CPU_VAR(x86_spec_ctrl_current), %esi
+>  	cmp %edi, %esi
+>  	je .Lspec_ctrl_done
+> -	mov $MSR_IA32_SPEC_CTRL, %ecx
+> -	xor %edx, %edx
+> -	mov %edi, %eax
+> -	wrmsr
+> +	WRITE_EAX_TO_MSR_IA32_SPEC_CTRL
+>  
+>  .Lspec_ctrl_done:
+>  
+> -- 
+> 2.49.0
 > 
-> Currently, the MSI_IOVA_BASE address is hard-coded to 0x80000000,
-> assuming that all platforms have this address available for MSI IOVA
-> reservation. However, this is not always the case, as some platforms
-> reserve this address for other purposes. Consequently, these platforms
-> cannot reserve the MSI_IOVA_BASE address for MSI.
-> 
-> There was an [1] attempt to fix this problem by passing the MSI IOVA
-> base as a kernel command line parameter.
-> 
-> This patch series aims to address the issue by introducing a new DTS
-> property, "arm,smmu-faulty-msi-iova" which can be used to hold faulty
-> MSI IOVA address. This property can be passed to ARM SMMU drivers
-> via device tree so that the drivers can select appropriate MSI IOVA base
-> address which doesn't intersect with the faulty MSI IOVA address.
-
-I thought we already talked about this and you were not going to be
-doing a DT proposal for a software knob?
-
-And then you didn't even link to the recent discussion :(
-
-https://lore.kernel.org/linux-iommu/20250403232619.GA681099@ziepe.ca/
-
-It is easily solved in the smmuv3 driver without out any DT. Please
-do that.
-
-Jason
