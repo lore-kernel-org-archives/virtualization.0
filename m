@@ -1,125 +1,114 @@
-Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80661202F7B
-	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 22:04:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F122420D4F9
+	for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 22:25:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744322679; cv=none; b=n6dRQZuuQ7B0HRkdxscojmMbUpmkRB2sR7TuLK+3+dTDNhcVCgAfQBRNGvYZcLMoM6wH7/vmEzwEm5/nC+POLCoy8LPWsKfDcN46+8CY3ZiXEibuaCepE3y9wST/gPWg+fxYQiGVAO+5z7RlGaxkLab1Y+T1Ti11WFsQFH7oDTo=
+	t=1744323923; cv=none; b=YWlxCqZlWKeGcyzrYhTu85NRoREWMoX627g1wIy0HtOGNcWxn81saZBsYfJjcmu3Fh44vvOmKBrYmtylTR/+dSdchiPLOOP/h05uHp5BYipcvVJETqks5kap2WxNKxCJ2J5KJMNd2Vk3jBbxIOYfM/3K7d+QovK4HesyUStd6zY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744322679; c=relaxed/simple;
-	bh=3uMBL4NPv3raozz5zKjQqEnw2j9SO97i6WwFa10I4Pg=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=tu1reDUJvHR9PvDlClEVx5h0aAF5sfrA85o/IzJ6UlSyWZ4YBoJGHRGO9S/5FirvZuBLGCJX+vnBLUE1Qm+KAgb5pefYOMRzvd5RrkBW+GWxmTtguUmWQUesfuzypCUryuHDysRdOqvTUCf290CzsqKPCOeefxPpXZveiGgFYco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=RQ2EDgNK; arc=none smtp.client-ip=209.85.214.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1744323923; c=relaxed/simple;
+	bh=mfywADYqJ4ew9xI3CclYYcgrZFl/YoOSYDIBc9Dd5cU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=pmTGb0M1HSNp9O3XsSWZn2MjdLiqXCfcsJo//vwI3bLQDFru0BfBbCffmOA0KkxaJJsKuMSdhROyn2rueEAEXhpR88lhqFZaGSiDarqBXBZXvnG2m105+odugWcAE2hCl2aQum4/NPwAzQ5/LQFvvDYly+l3JzQhR9H09PjgIas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ODCwvPht; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="RQ2EDgNK"
-Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-2265a09dbfcso20089875ad.0
-        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 15:04:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1744322677; x=1744927477; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7eShhCni2AeN9U5Jc2b4WOHTyOiv0aqWO9tX2xSw/mU=;
-        b=RQ2EDgNKiBzZmzcoHxY70r75vompJBFbNt8Jrg3Mk7Cc+refnoSSoV3c8lUDgU9ggv
-         eNcTCZUDDVjHrwhYiMa8mR/czhqoRQWB38ne3ykjMkRzzn1GrxvgR07wCXY9lJ/Y1hg0
-         vr+Cy+0GWbA7k92XBnXSUPrgTRGPOVayK/zxRYHBOIPc2q0fxXzCQAM7oB/oy1pBCk3b
-         4IqE6eVY8UCuHF2vs1ynvwhJy+Lu7a9MKmqMhZ5/a9Q5wieEktIZhgMyp1AJ6kFELCm1
-         DKgE/QaqCqMLf2UHsnlem69pQETqrkGgROrM9HiZPKMjjlBWUXhbrtQtetgiaWMhtbb5
-         FqcA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ODCwvPht"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744323920;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WYR4fCas43gwQw++5uVITo+VmUSNg0r33Tx+gqd6wEw=;
+	b=ODCwvPhtAlOznRhuW3gn6LYvi0U256nNQznMxqZ+b53kHFhpx7wdrLxeuynL8X0Azws62e
+	dwaHPaGJX7rzLF1Wk3w1m++7h3XaAGc6MFn4ajZ44EORHNLH3lh+GOr1wKFQMBuaKz5OrD
+	hqB0jZzyZUEyJh4UUPx4l42QGonpBV8=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-609-D0yEXhq5P9mdzydOlRyyNw-1; Thu, 10 Apr 2025 18:25:19 -0400
+X-MC-Unique: D0yEXhq5P9mdzydOlRyyNw-1
+X-Mimecast-MFC-AGG-ID: D0yEXhq5P9mdzydOlRyyNw_1744323919
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-85e80e2fbcdso13919439f.2
+        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 15:25:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744322677; x=1744927477;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7eShhCni2AeN9U5Jc2b4WOHTyOiv0aqWO9tX2xSw/mU=;
-        b=TzMg1aXVxlUTHZ16YmVbcjyx2rbRyNb3TGX6eW8Bpzd8wZvP0ysxpelxVzWHjulCvE
-         XLgX8++hzxsalll6tElPdf//cMy5d5xqQ6o8Zq6xipT/XFQdn9fzZCcN5HWOfPt1InZr
-         JBd+7+rtMt6m9ua2vOkq16ZpNauvXxwibK86IYgWIOt9uuJPGRrYB9L1LNgcGfwX0Ara
-         eA52U2bCHss6DcTxROqdUEAw725gAI8k7dVMkMdDOrkQ9jXUnOdTCRISavS8uf5jRXux
-         AtVpLNWciXkMFY8kQ/u9noJphCY3EfF75s2VnW3NCkIogKLafEWY0AQaI17IH0+RGmrt
-         jBdA==
-X-Forwarded-Encrypted: i=1; AJvYcCVRPQkvsWQicIFVvBZuY0gakUqo+kq866I2gd44CVVsCVTR8sPntLPKknc28NyZaG91C8wXtnfpNKdAKVjbNw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyVkyKO4Cr5hjYxO1gsGayE9gx1RSLW4XCnaWj51PwYfilB883I
-	S9TcF89r0fj7U6heHhTlBQVQe+wbJY7gKKwjGD0IRZuwp3c4ljLeLp4X6bkKfuu9agAARu/0qm0
-	VmA==
-X-Google-Smtp-Source: AGHT+IE/nhiyEmsRhP2rb2VCXmUB28XKf+JD6SxynR/MURcWw+q3szzXjCCZ52+kyzlA5ipAqMNlMQqrrE8=
-X-Received: from pltj8.prod.google.com ([2002:a17:902:76c8:b0:223:3f96:a29c])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:d481:b0:220:f59b:6e6
- with SMTP id d9443c01a7336-22bea495687mr4890535ad.8.1744322676625; Thu, 10
- Apr 2025 15:04:36 -0700 (PDT)
-Date: Thu, 10 Apr 2025 15:04:35 -0700
-In-Reply-To: <20250410152846.184e174f.alex.williamson@redhat.com>
+        d=1e100.net; s=20230601; t=1744323919; x=1744928719;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WYR4fCas43gwQw++5uVITo+VmUSNg0r33Tx+gqd6wEw=;
+        b=byMGp7ZkV5tXCTS0+3Rt4MvTro5KTVT3bEXOqCOYsE/NaRf6S+tN7RVMlF7iOJqVd0
+         U5Ru7CFtWcR9WKBqkZqjMxyEvSftlmDg1cAPeMVaMvom2iRwegzQq31TzphCvQFr7RfG
+         1JjLS3x6dYNZj8Krx8RWNeYXOGzhMsXSTrnTn3ePmADj7zWO8ucv9YicGlL669WPBX0e
+         U5kCyGPfU4EKJoU05MpEXiEN8jFSMDZADQfjU3/xkbCAZ0t54U345BFzQat8usudvFkm
+         blyDCor8fWFpOcnZ9E/Fe4t6yAe1UbhC3KL87yjo9DzAudfiLZVvL9Fi+nFIxgHjqlm0
+         UL6w==
+X-Forwarded-Encrypted: i=1; AJvYcCW7JxElxgr5Vi122psoHzYDj5X8KeK4COn2Yx0LOxNK2FypPQbr5X5N2x49E7rnqwKg8eT2P8KLn+W3WFWN3Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YysMKXpcfZpC8o25L0nnpYxLpf00bWNdc35oiH+E4PL5bzeziNL
+	lRBzyox3d1khL/Bzcrgfo01WL3p3jTsSrpfJ7YLPiw0hu6RjPLJZN5VVtRs7X9exOzAFaxFsAlk
+	K5ewKwPvm8cZ5pLyrlB0jhnXDbNSar9zOzKRVuifYnTH3xvx2oVVn2T+zyBafTW5k
+X-Gm-Gg: ASbGnct6rJ6Qr1JjNY4mgdY1HsLa7s49fbVDlkhRmflHDOm56P6RO7wRaS31/fdJnqf
+	RPLKCo8g/M0hMF8wYc8yBrrVp8wTXh5NYjoc/2Y+SxP8kwc5oiERCrz7FVcsEMcPp5xh6OfJWqo
+	sl06tvWn3hHtNh9a3deWJt6cLBBaujO+67actodyx2GGyOtQnhSawrDQYvPoaWyZxS4q47RmUjI
+	ZE5+wjaYHMoOWLP/DdlRAZjIztlvJtroCoIrSFxW/tQPnmvTlXl+z6SYDTULUktWF2djjSpMSs0
+	XjzHW4SnCN0+5RQ=
+X-Received: by 2002:a05:6602:134b:b0:85e:7974:b0ff with SMTP id ca18e2360f4ac-8617cc2c796mr15149339f.3.1744323918870;
+        Thu, 10 Apr 2025 15:25:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEQkXdAZ+OEzU4A2DZsacWYyZwm7ExYFaPxcS4RRuyEG/aWoQJVBgD7p6QneavEDnZmQ4ZUXg==
+X-Received: by 2002:a05:6602:134b:b0:85e:7974:b0ff with SMTP id ca18e2360f4ac-8617cc2c796mr15148639f.3.1744323918540;
+        Thu, 10 Apr 2025 15:25:18 -0700 (PDT)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4f505e2dce4sm941729173.110.2025.04.10.15.25.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Apr 2025 15:25:17 -0700 (PDT)
+Date: Thu, 10 Apr 2025 16:25:16 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Sean Christopherson <seanjc@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Oliver Upton <oliver.upton@linux.dev>, David
+ Matlack <dmatlack@google.com>, Like Xu <like.xu.linux@gmail.com>, Yong He
+ <alexyonghe@tencent.com>
+Subject: Re: [PATCH 3/7] irqbypass: Take ownership of producer/consumer
+ token tracking
+Message-ID: <20250410162516.6ebfa8ee.alex.williamson@redhat.com>
+In-Reply-To: <Z_hAc3rfMhlyQ9zd@google.com>
+References: <20250404211449.1443336-1-seanjc@google.com>
+	<20250404211449.1443336-4-seanjc@google.com>
+	<20250410152846.184e174f.alex.williamson@redhat.com>
+	<Z_hAc3rfMhlyQ9zd@google.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250404211449.1443336-1-seanjc@google.com> <20250404211449.1443336-4-seanjc@google.com>
- <20250410152846.184e174f.alex.williamson@redhat.com>
-Message-ID: <Z_hAc3rfMhlyQ9zd@google.com>
-Subject: Re: [PATCH 3/7] irqbypass: Take ownership of producer/consumer token tracking
-From: Sean Christopherson <seanjc@google.com>
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Oliver Upton <oliver.upton@linux.dev>, David Matlack <dmatlack@google.com>, 
-	Like Xu <like.xu.linux@gmail.com>, Yong He <alexyonghe@tencent.com>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: VYONvTRBBnovjLvxqPOKRdG-6AkgiFsN8gruguY6-AM_1744323919
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Apr 10, 2025, Alex Williamson wrote:
-> On Fri,  4 Apr 2025 14:14:45 -0700
-> Sean Christopherson <seanjc@google.com> wrote:
-> > diff --git a/include/linux/irqbypass.h b/include/linux/irqbypass.h
-> > index 9bdb2a781841..379725b9a003 100644
-> > --- a/include/linux/irqbypass.h
-> > +++ b/include/linux/irqbypass.h
-> > @@ -10,6 +10,7 @@
-> >  
-> >  #include <linux/list.h>
-> >  
-> > +struct eventfd_ctx;
-> >  struct irq_bypass_consumer;
-> >  
-> >  /*
-> > @@ -18,20 +19,20 @@ struct irq_bypass_consumer;
-> >   * The IRQ bypass manager is a simple set of lists and callbacks that allows
-> >   * IRQ producers (ex. physical interrupt sources) to be matched to IRQ
-> >   * consumers (ex. virtualization hardware that allows IRQ bypass or offload)
-> > - * via a shared token (ex. eventfd_ctx).  Producers and consumers register
-> > - * independently.  When a token match is found, the optional @stop callback
-> > - * will be called for each participant.  The pair will then be connected via
-> > - * the @add_* callbacks, and finally the optional @start callback will allow
-> > - * any final coordination.  When either participant is unregistered, the
-> > - * process is repeated using the @del_* callbacks in place of the @add_*
-> > - * callbacks.  Match tokens must be unique per producer/consumer, 1:N pairings
-> > - * are not supported.
-> > + * via a shared eventfd_ctx).  Producers and consumers register independently.
-> > + * When a producer and consumer are paired, i.e. a token match is found, the
-> > + * optional @stop callback will be called for each participant.  The pair will
-> > + * then be connected via the @add_* callbacks, and finally the optional @start
-> > + * callback will allow any final coordination.  When either participant is
-> > + * unregistered, the process is repeated using the @del_* callbacks in place of
-> > + * the @add_* callbacks.  Match tokens must be unique per producer/consumer,
-> > + * 1:N pairings are not supported.
-> >   */
-> >  
-> >  /**
-> >   * struct irq_bypass_producer - IRQ bypass producer definition
-> >   * @node: IRQ bypass manager private list management
-> > - * @token: opaque token to match between producer and consumer (non-NULL)
-> > + * @token: IRQ bypass manage private token to match producers and consumers
+On Thu, 10 Apr 2025 15:04:35 -0700
+Sean Christopherson <seanjc@google.com> wrote:
+> On Thu, Apr 10, 2025, Alex Williamson wrote:
+> > The "token" terminology seems a little out of place after all is said
+> > and done in this series.    
 > 
-> The "token" terminology seems a little out of place after all is said
-> and done in this series.  
+> Ugh, yeah, good point.  I don't know why I left it as "token".
+> 
+> > Should it just be an "index" in anticipation of the usage with xarray and
+> > changed to an unsigned long?  Or at least s/token/eventfd/ and changed to an
+> > eventfd_ctx pointer?  
+> 
+> My strong vote is for "struct eventfd_ctx *eventfd;"
 
-Ugh, yeah, good point.  I don't know why I left it as "token".
+WFM, thanks,
 
-> Should it just be an "index" in anticipation of the usage with xarray and
-> changed to an unsigned long?  Or at least s/token/eventfd/ and changed to an
-> eventfd_ctx pointer?
+Alex
 
-My strong vote is for "struct eventfd_ctx *eventfd;"
