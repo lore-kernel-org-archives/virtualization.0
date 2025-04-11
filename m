@@ -1,192 +1,131 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9D7A298984
-	for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 21:12:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 312312BD599;
+	Fri, 11 Apr 2025 23:29:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744405964; cv=none; b=RFtD5y1AAdHNZwmcy5RYzD0lP/rrfiHVvilWV4fk1RD8cz/bCP6qN4mDRvcb3TCDB+A8/5IX9MW1D0qOQZg7t8HBR6Nl5UhGg6C0l/wLXWr1++aPySmtD3Nk/biPZXPcc1YAdvI60iK23FhT+uqcRPJ6XMWon4kq66/d+1Xry1s=
+	t=1744414154; cv=none; b=NgTQ+oH8dz/WOdnuOpxcIAR5GNv8/gyKtX0jQMwHBGkHYpNZKP5ufoo07l+UhNmnZulKocaiRrkB3H0quae2h+ux9bbphzSZ0YEI3zIpXBXMqFLans2xK3FzDNUZqL+J4hM/jKZsOrCBCHyHQb4xnOQeezaWus/FRSudDAFf07E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744405964; c=relaxed/simple;
-	bh=6nlXqivw5n2s2vI3iH0kICSGFjaF+JSbbOv3yESDDQ8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aiFN0p2GcFaiH0cQ+EnZu2Ip4sSm3R2+P/YRN14Nh0peNfMOn7xQIjwaB48c/JPS2j4ts6SG28mSMtXGOCcp9bR0RtkRYlnE60Qn1rp4YG35dWk3mK0rkSbfdIO6n5dSA2BNXWY606mZcz0y6U7VNR01o3tBaDZc5b6S/uuyabY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IVb1Yi2R; arc=none smtp.client-ip=209.85.208.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1744414154; c=relaxed/simple;
+	bh=OJYsQ+v7XiUNwZtukFdPE6VB8Nuu1DBPLSvnq6QW3ZM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=a5cffghEjxWGPw9mx0+StMGZvuB5w5wIxY2YObzEVZ8pf/PUghXjoownyuxxvwKMqkB5BZokIf9+A8Ri+bPVRFlv4ea0z7qBXR4rxl/MGtXtsviZiBjGv81bVBOsW0njfjvLs6Hwu89w50qZiGl3NxvXnZEJcCVZMZmQS4tmYes=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iGrZzScj; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IVb1Yi2R"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-5e5cbd8b19bso1077a12.1
-        for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 14:12:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1744405960; x=1745010760; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5s9O/8O6xeMVl0tLPF60JEEeubmLlBJjqtBbS0i9ciQ=;
-        b=IVb1Yi2RJi5i6Ou48TzFcfDzjsfLVnPu21Y3KrQVYaXpxKYspdCf90kOT/+m7we+ZE
-         loVQ6itrNzII8DJoisJ/3ads/YOK12a9Z6VJOJ2M9BA/0+e0QJu5BkiScVjglrTLkLbT
-         bPRWKzDuC+AZyd+NO3Mw2H4R+Riu1vtNlGHNCIv3PMIJerVm56srQYzp07tZxOJTYbqC
-         cQsrA2B1G7cC6eNJ9K6no9iDzzHPEuYLGx8zB8AHE3TynDb6lRBJZ0ZSbjkD1lGIPWqG
-         Xrv4upsFP7zllOQh5kZ4ObUxihjR2x+tQnEBeBAz4wtgig6aWa/D7VNVd0b/4KPg3ykc
-         ZW0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744405960; x=1745010760;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5s9O/8O6xeMVl0tLPF60JEEeubmLlBJjqtBbS0i9ciQ=;
-        b=hNnKmvdzxG0DjF6cRH1Zahc1bQvSSbYHTbmyZqEo0a1QNTrabcl0TQrB0qqDk8I0gC
-         2bjU6VGnClRS1nMoMKEKwoo0zsbVxUInNx3pyQplfI8L9MlbW1+HmuS7N9s+JHfgaEzg
-         XtCE1BZWNg0FrmHTHUhEFV98x5riIJgNyKrXiyUoaFunuIx0gZqZZYstv62eHGED0Gy6
-         Tug9nIoJ1qycmxUefUCYv7gycH4rb4M5xFu5s8xJPU672XUqAawfVNNByMvi6AyrhY5d
-         wG999u2Uo6KjydcXr72w+QuVTMF1kPB4O2g1tgQvIQm3TwHIoQUWTxspm+D8NTkg1a0A
-         udsw==
-X-Forwarded-Encrypted: i=1; AJvYcCXx7v/PwwjKOOhNrjQ85yrGLPOLEwPM8Tuhco1A9Pk7GRWzapu8u+x3OyOuxopOx1q1MHixmT3PSXJUbJiHKA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx8ecw+QDIVxa5HCNxCnxDn+L7b5PLoZg/DSjBAu5m1gb3wtgzc
-	j5aODxyMvgFaZ4jr8KVbVvGw7X3MF805lv5o+o7YEHd6WGI3XxWVGW2yyfnZc5x1LQrQkelJZi0
-	ZhglP/b3p73FXnne3V53WBzGM73/V5gAfAQat
-X-Gm-Gg: ASbGnctdcgb3URs57/DKtYZRHMV3cx6q+VJVLZHNOyfA6r/ZgEZv5XWQqpLr9FcenTG
-	wmsbBE8kFf7h8Rki5GVlUNvSGYACQdttq2ZmUMbBNNY3dyauYPWL3LG1gaOoiP5oZxQ8HiEk+rS
-	4AuLj2gP4ftlFVmvGZkvc76Q==
-X-Google-Smtp-Source: AGHT+IG84lvI3gcXlEPRkJRlkOu8tneyZgmJwr3mqViY4ItysXFcNimZTO7gtwpNKCM01C6d/tdsOPRrFemjcCrBnfs=
-X-Received: by 2002:aa7:cfd6:0:b0:5ec:13d0:4505 with SMTP id
- 4fb4d7f45d1cf-5f3ea1e2b1dmr6826a12.5.1744405959793; Fri, 11 Apr 2025 14:12:39
- -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iGrZzScj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1744414150; x=1775950150;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=OJYsQ+v7XiUNwZtukFdPE6VB8Nuu1DBPLSvnq6QW3ZM=;
+  b=iGrZzScju2Dg97q2dPIK2oUr5pJt8fk76+R8NMDUrtK7MGYN9okhJ9RP
+   qs7s+rMRQQpYS20Uz7512bqgZWoq+cz4lCjzk+t45Yfz10lHISfBDjOh+
+   YbYnfV2Hyl9syTNOpCAy+l4ASo4MaYuiqK12VC127RZ21ehODSRNWoRQr
+   46p7q0ytw6qs/HEL1JyylGu74ZkEzHPoGOViMWTtlLDULvKXz4p193L3g
+   1usFVkFYAbWIb/toJ4UJm+SzYDpYeIxcvVDRIir4gS1Hho+C0iMQ9qGDh
+   KSPHubuLIZewvk5h4ExdUI1U2k0BL9WE/+L8qqFyLYl2SkkjtxQwbrx8J
+   g==;
+X-CSE-ConnectionGUID: ULBDGAdNT3mGcDke9edcTg==
+X-CSE-MsgGUID: SHO6VH+vT2iYzqX3qA2u8Q==
+X-IronPort-AV: E=McAfee;i="6700,10204,11401"; a="46103717"
+X-IronPort-AV: E=Sophos;i="6.15,206,1739865600"; 
+   d="scan'208";a="46103717"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2025 16:29:08 -0700
+X-CSE-ConnectionGUID: 9OhknDFPTe+BVkcOYOy2Nw==
+X-CSE-MsgGUID: GOGtGaBbSAWpi2xE8iassQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,206,1739865600"; 
+   d="scan'208";a="166511778"
+Received: from lkp-server01.sh.intel.com (HELO b207828170a5) ([10.239.97.150])
+  by orviesa001.jf.intel.com with ESMTP; 11 Apr 2025 16:29:05 -0700
+Received: from kbuild by b207828170a5 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1u3Nnz-000BR8-1g;
+	Fri, 11 Apr 2025 23:29:03 +0000
+Date: Sat, 12 Apr 2025 07:28:51 +0800
+From: kernel test robot <lkp@intel.com>
+To: Shyam Saini <shyamsaini@linux.microsoft.com>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: oe-kbuild-all@lists.linux.dev, jgg@ziepe.ca, will@kernel.org,
+	jacob.pan@linux.microsoft.com, eric.auger@redhat.com,
+	code@tyhicks.com, eahariha@linux.microsoft.com,
+	vijayb@linux.microsoft.com
+Subject: Re: [PATCH v2 1/3] arm-smmu: move MSI_IOVA macro definitions
+Message-ID: <202504120700.1UwOUvMR-lkp@intel.com>
+References: <20250410225030.2528385-2-shyamsaini@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250331082251.3171276-1-xin@zytor.com> <20250331082251.3171276-11-xin@zytor.com>
- <Z_hTI8ywa3rTxFaz@google.com>
-In-Reply-To: <Z_hTI8ywa3rTxFaz@google.com>
-From: Jim Mattson <jmattson@google.com>
-Date: Fri, 11 Apr 2025 14:12:27 -0700
-X-Gm-Features: ATxdqUHkE9VKKw2s7zj6-Bzo7sFhtVG2VPQmJwr2UovOBmetGvqQ1ElvaKggsjw
-Message-ID: <CALMp9eRJkzA2YXf1Dfxt3ONP+P9aTA=WPraOPJPJ6C6j677+6Q@mail.gmail.com>
-Subject: Re: [RFC PATCH v1 10/15] KVM: VMX: Use WRMSRNS or its immediate form
- when available
-To: Sean Christopherson <seanjc@google.com>
-Cc: "Xin Li (Intel)" <xin@zytor.com>, linux-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-edac@vger.kernel.org, 
-	kvm@vger.kernel.org, xen-devel@lists.xenproject.org, 
-	linux-ide@vger.kernel.org, linux-pm@vger.kernel.org, bpf@vger.kernel.org, 
-	llvm@lists.linux.dev, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
-	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, jgross@suse.com, 
-	andrew.cooper3@citrix.com, peterz@infradead.org, acme@kernel.org, 
-	namhyung@kernel.org, mark.rutland@arm.com, alexander.shishkin@linux.intel.com, 
-	jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com, 
-	kan.liang@linux.intel.com, wei.liu@kernel.org, ajay.kaher@broadcom.com, 
-	alexey.amakhalov@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
-	tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com, 
-	luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com, 
-	haiyangz@microsoft.com, decui@microsoft.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250410225030.2528385-2-shyamsaini@linux.microsoft.com>
 
-On Thu, Apr 10, 2025 at 4:24=E2=80=AFPM Sean Christopherson <seanjc@google.=
-com> wrote:
->
-> On Mon, Mar 31, 2025, Xin Li (Intel) wrote:
-> > Signed-off-by: Xin Li (Intel) <xin@zytor.com>
-> > ---
-> >  arch/x86/include/asm/msr-index.h |  6 ++++++
-> >  arch/x86/kvm/vmx/vmenter.S       | 28 ++++++++++++++++++++++++----
-> >  2 files changed, 30 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/ms=
-r-index.h
-> > index e6134ef2263d..04244c3ba374 100644
-> > --- a/arch/x86/include/asm/msr-index.h
-> > +++ b/arch/x86/include/asm/msr-index.h
-> > @@ -1226,4 +1226,10 @@
-> >                                               * a #GP
-> >                                               */
-> >
-> > +/* Instruction opcode for WRMSRNS supported in binutils >=3D 2.40 */
-> > +#define ASM_WRMSRNS          _ASM_BYTES(0x0f,0x01,0xc6)
-> > +
-> > +/* Instruction opcode for the immediate form RDMSR/WRMSRNS */
-> > +#define ASM_WRMSRNS_RAX              _ASM_BYTES(0xc4,0xe7,0x7a,0xf6,0x=
-c0)
-> > +
-> >  #endif /* _ASM_X86_MSR_INDEX_H */
-> > diff --git a/arch/x86/kvm/vmx/vmenter.S b/arch/x86/kvm/vmx/vmenter.S
-> > index f6986dee6f8c..9fae43723c44 100644
-> > --- a/arch/x86/kvm/vmx/vmenter.S
-> > +++ b/arch/x86/kvm/vmx/vmenter.S
-> > @@ -64,6 +64,29 @@
-> >       RET
-> >  .endm
-> >
-> > +/*
-> > + * Write EAX to MSR_IA32_SPEC_CTRL.
-> > + *
-> > + * Choose the best WRMSR instruction based on availability.
-> > + *
-> > + * Replace with 'wrmsrns' and 'wrmsrns %rax, $MSR_IA32_SPEC_CTRL' once=
- binutils support them.
-> > + */
-> > +.macro WRITE_EAX_TO_MSR_IA32_SPEC_CTRL
-> > +     ALTERNATIVE_2 __stringify(mov $MSR_IA32_SPEC_CTRL, %ecx;         =
-       \
-> > +                               xor %edx, %edx;                        =
-       \
-> > +                               mov %edi, %eax;                        =
-       \
-> > +                               ds wrmsr),                             =
-       \
-> > +                   __stringify(mov $MSR_IA32_SPEC_CTRL, %ecx;         =
-       \
-> > +                               xor %edx, %edx;                        =
-       \
-> > +                               mov %edi, %eax;                        =
-       \
-> > +                               ASM_WRMSRNS),                          =
-       \
-> > +                   X86_FEATURE_WRMSRNS,                               =
-       \
-> > +                   __stringify(xor %_ASM_AX, %_ASM_AX;                =
-       \
-> > +                               mov %edi, %eax;                        =
-       \
-> > +                               ASM_WRMSRNS_RAX; .long MSR_IA32_SPEC_CT=
-RL),   \
-> > +                   X86_FEATURE_MSR_IMM
-> > +.endm
->
-> This is quite hideous.  I have no objection to optimizing __vmx_vcpu_run(=
-), but
-> I would much prefer that a macro like this live in generic code, and that=
- it be
-> generic.  It should be easy enough to provide an assembly friendly equiva=
-lent to
-> __native_wrmsr_constant().
+Hi Shyam,
 
-Surely, any CPU that has WRMSRNS also supports "Virtualize
-IA32_SPEC_CTRL," right? Shouldn't we be using that feature rather than
-swapping host and guest values with some form of WRMSR?
+kernel test robot noticed the following build errors:
 
-> > +
-> >  .section .noinstr.text, "ax"
-> >
-> >  /**
-> > @@ -123,10 +146,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
-> >       movl PER_CPU_VAR(x86_spec_ctrl_current), %esi
-> >       cmp %edi, %esi
-> >       je .Lspec_ctrl_done
-> > -     mov $MSR_IA32_SPEC_CTRL, %ecx
-> > -     xor %edx, %edx
-> > -     mov %edi, %eax
-> > -     wrmsr
-> > +     WRITE_EAX_TO_MSR_IA32_SPEC_CTRL
-> >
-> >  .Lspec_ctrl_done:
-> >
-> > --
-> > 2.49.0
-> >
->
+[auto build test ERROR on robh/for-next]
+[also build test ERROR on linus/master v6.15-rc1 next-20250411]
+[cannot apply to soc/for-next]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Shyam-Saini/arm-smmu-move-MSI_IOVA-macro-definitions/20250411-070014
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git for-next
+patch link:    https://lore.kernel.org/r/20250410225030.2528385-2-shyamsaini%40linux.microsoft.com
+patch subject: [PATCH v2 1/3] arm-smmu: move MSI_IOVA macro definitions
+config: arc-randconfig-001-20250412 (https://download.01.org/0day-ci/archive/20250412/202504120700.1UwOUvMR-lkp@intel.com/config)
+compiler: arc-linux-gcc (GCC) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250412/202504120700.1UwOUvMR-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202504120700.1UwOUvMR-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   drivers/iommu/arm/arm-smmu/arm-smmu.c: In function 'arm_smmu_get_resv_regions':
+   drivers/iommu/arm/arm-smmu/arm-smmu.c:1597:42: error: 'MSI_IOVA_BASE' undeclared (first use in this function); did you mean 'PCI_IO_BASE'?
+    1597 |         region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
+         |                                          ^~~~~~~~~~~~~
+         |                                          PCI_IO_BASE
+   drivers/iommu/arm/arm-smmu/arm-smmu.c:1597:42: note: each undeclared identifier is reported only once for each function it appears in
+>> drivers/iommu/arm/arm-smmu/arm-smmu.c:1597:57: error: 'MSI_IOVA_LENGTH' undeclared (first use in this function)
+    1597 |         region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
+         |                                                         ^~~~~~~~~~~~~~~
+
+
+vim +/MSI_IOVA_LENGTH +1597 drivers/iommu/arm/arm-smmu/arm-smmu.c
+
+021bb8420d44cf5 drivers/iommu/arm-smmu.c              Robin Murphy 2016-09-14  1590  
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1591  static void arm_smmu_get_resv_regions(struct device *dev,
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1592  				      struct list_head *head)
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1593  {
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1594  	struct iommu_resv_region *region;
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1595  	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1596  
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19 @1597  	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
+0251d0107cfb0bb drivers/iommu/arm/arm-smmu/arm-smmu.c Lu Baolu     2022-10-19  1598  					 prot, IOMMU_RESV_SW_MSI, GFP_KERNEL);
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1599  	if (!region)
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1600  		return;
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1601  
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1602  	list_add_tail(&region->list, head);
+273df9635385b21 drivers/iommu/arm-smmu.c              Robin Murphy 2017-03-16  1603  
+273df9635385b21 drivers/iommu/arm-smmu.c              Robin Murphy 2017-03-16  1604  	iommu_dma_get_resv_regions(dev, head);
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1605  }
+f3ebee80b3131d4 drivers/iommu/arm-smmu.c              Eric Auger   2017-01-19  1606  
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
