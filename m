@@ -1,146 +1,113 @@
-Received: from smtpbgau1.qq.com (smtpbgau1.qq.com [54.206.16.166])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7967A238C0E
-	for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 10:56:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.206.16.166
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E79A5238C01
+	for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 11:12:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744369006; cv=none; b=ZCt1TwAr8l6Asvq8xnI7eiaMp/zTViOHL0ImqkuByTesHfC17KCQJhQR72DT8fO4yjw3jEYhJkpTNeDT3VB7VwwJ44lCCNWjjhByL5Hp4SlZh8BINFaKV1hdbI0euERDvNLOMmg7BNtwmj4gB3ktMW3SmguIC1Ja2cygNQL0JdI=
+	t=1744369924; cv=none; b=EBMgFb8pRz9FnTyyPBoB+e7ORdxq0LbL2oASDUrznmPABp78Tvu36VIVuBYc01agMfHeyMoxeR/Lcpbc8YXpD3qlHJhPgwzlgOaAlLKbvaQ1liV39vDsdGrVIv1jCPgcFqeW35eEqeVAMQH+P81dk0ic5MidOVirfBbHidSeFgY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744369006; c=relaxed/simple;
-	bh=zB/MGnfcUM0HicN1On6vH3cQhYwo+G4uPJU6tqb/Pgo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VuuvEsLfnRqv0QILq44jJiTLpyFXIcnqBJl4xYdkW6ukY/xmSAa2FOQ0r7W01jJSYYF4+l1/cowXTHzK/NbuJUzqE8la0fjV67YHj9UcVF6h9IyLE23yMRH0MAYKN2EvEAwPqVWa6mtuG8whjr2seDgkDXIDdR6i8OwLcVSvlJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=Li71ddM9; arc=none smtp.client-ip=54.206.16.166
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+	s=arc-20240116; t=1744369924; c=relaxed/simple;
+	bh=FUQOpShM/qKPlkYr0w/mK5JyznMNm4iflYY28xYMzuc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fmH6znAcNVZ/LxCrR547mZXUGUe+uWSf25zpDF3DujT26D8cENCSYj4f1LxOwrkfuBkf7UnX7zn+pL2WIYd8h0V6MWW2hxKTfwVtlqH/QAsana23pNyIlMsciUOczgk0d2TSLp/CAYU6+GQbhGU9t7gZNEkb0jG5Rtqyiw64BVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fcLkhqJT; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="Li71ddM9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1744368973;
-	bh=dnoZUln+EAjEGDwlnRvIY0rJIrjfNNUSfdyabxk3/N0=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=Li71ddM9aKP19uf1AwXGV5CCCAY5+C4xKJc2WxtHcRyRWsmvw0H9XE6Osd9a5cWt1
-	 Q+cHArAWkaTnjnbuk23RZtdQ+U9gDbVdDAd0zhjXkAu62jNxbjGYmAcFRI6HiHXlgv
-	 x/6OWjkXt6IyIWqmSINvdCdUCWGtM8x2TSYBxY5Y=
-X-QQ-mid: bizesmtp23t1744368946t15cf48c
-X-QQ-Originating-IP: ehBLQkOhan5VWsz5Lv+65mc8nv4szt2NCntTi+SKFNY=
-Received: from localhost.localdomain ( [113.57.152.160])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Fri, 11 Apr 2025 18:55:40 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 15212760454377048684
-EX-QQ-RecipientCnt: 10
-From: Chen Linxuan <chenlinxuan@uniontech.com>
-To: Yishai Hadas <yishaih@nvidia.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Alex Williamson <alex.williamson@redhat.com>
-Cc: Winston Wen <wentao@uniontech.com>,
-	Chen Linxuan <chenlinxuan@uniontech.com>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 3/7] vfio/virtio: add __always_inline for virtiovf_get_device_config_size
-Date: Fri, 11 Apr 2025 18:54:51 +0800
-Message-ID: <27A329AA0DBF4A2B+20250411105459.90782-3-chenlinxuan@uniontech.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250411105459.90782-1-chenlinxuan@uniontech.com>
-References: <31F42D8141CDD2D0+20250411105142.89296-1-chenlinxuan@uniontech.com>
- <20250411105459.90782-1-chenlinxuan@uniontech.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fcLkhqJT"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53B3kJD6027632;
+	Fri, 11 Apr 2025 11:12:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=qFNRJ0
+	NLHfjTNq+Xox+fYdzva/4pe8ltrKWFdZWaN/I=; b=fcLkhqJTA93tRApbCxcP7H
+	MdmzynvcEsxkbsxhV8gfGf+q4nB/Pbsl/+GOJurTZxbs71uKWyABCri5dvSNMX70
+	Nod+H9wgf3IjSFpZutTA1oPgzu8nKvUuBgBFgpT3juIG2Jonb7NlUFuASutTTHzK
+	KIFafoN0EzNuOXVA/erRh2hMrlSddivIKPM6jApC7Th9UKCg4KPoD0cYrQWZTfXF
+	yxRoDH2mYdKPyDgfkrYhJ0UhiriPbeRuOWnVQNHJihLVy1ngODZYxLKbdaTs4ezw
+	fZ02HS6QJ284bk2honJvQ9VdHmKvMJSyavBakgdr0GHy5rH66/jX/5kk7EdwLknw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45xufa9v72-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 11 Apr 2025 11:12:01 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53B9EIrl024577;
+	Fri, 11 Apr 2025 11:12:00 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45ueuttvvn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 11 Apr 2025 11:12:00 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53BBBuAP43057640
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 11 Apr 2025 11:11:56 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6F6902004B;
+	Fri, 11 Apr 2025 11:11:56 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8F2F620043;
+	Fri, 11 Apr 2025 11:11:55 +0000 (GMT)
+Received: from [9.171.62.213] (unknown [9.171.62.213])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 11 Apr 2025 11:11:55 +0000 (GMT)
+Message-ID: <a6f667b2-ef7d-4636-ba3c-cf4afe8ff6c3@linux.ibm.com>
+Date: Fri, 11 Apr 2025 13:11:55 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:uniontech.com:qybglogicsvrgz:qybglogicsvrgz5a-1
-X-QQ-XMAILINFO: M9OL2U7tWoeKVuKD663Z/dXV0DPNz+cv8UHITxKw6UV4gDMi1R6n144D
-	VyEBO1HNO1H0nRZPVeaIWwSvVNTRU4mcBYQes+2PuLcRM2CjzlKop4GtSvu1WilzEM4yUj+
-	5CHd91FYjlEFkxehBLmqfGxeIaSRf2Rj5++coAqFI0H63wnIhOI+jjyeg3SQAmnHxEZPGZt
-	CASF7CR/k2DlUgHRPJzmaf+WDVLiixHnEb7CDqevNbPOakp7RqjQEOqGlWibZXEF5b8icCY
-	BhZoNuv2t8GzJal4jA7WsULRVOmR0E2iRjPvgJN1z2rkNy/7JKERScAlehnmKewr0DTa2v5
-	36YuhBGVyAUVH6ja/I1c2wvl9/Lnzn3Xd+Fkh9EEKPEAnyV6pud8ZUG6ciq2F3ZvA4VynZT
-	w8S4lgzOa1bR3AXqwuSlnA+EFz1rLasBiHgfCaaKREGIV6b0A7jHqMZ0b2rSxHBiEdWAr/O
-	qUvKty7rhugcHHNwP9CmbYk93hdVpArIg3C52cVSp1CTfckIRLrZet2BDhBzarfmpewkaji
-	JNxhMByv3o+RT4NIZ2w3dQWJ/EjhiYS8OoRBNIKbfjWsIQ76N2lh7VTJNErG0V0wZK+6ldd
-	k3DAGh0hkwG8KRL9CbKYewMaYONYFuQp6quRsScnntHC9IK9JiyBVb5YMGgi6weD33vsKtn
-	0jc/Zf1FamqyWgquiaxKFkLRCgfH+ko+sTmoLXW+5a3bA0NnIjHe3GdV7cZSW7h2TO4rZ/0
-	5QKZ9va7M8lp4ntYQlvy83mCG1zMn/Vkl9MtUKrt67VsJjhnRvZYQcejDHySgh90ov9l8ZE
-	6tG/jyQbKRmjBuZJeTYcD4HmG+eN5xBv86Sr/OYgi+IEHHVjxWC2wyLSkZeu8/J5cga+WuC
-	j+7HkqMPkx7eZFwILQget+E11gB1a/+jGSzum5uswPCD/ULiWF77RSzQpDqVS3/7PLyhy8T
-	/WK+0OVJyVaCPrKNAcoXcFsQT1lyCMx8SclU1308jXohNYqmnuikpeNljgaOfzvp/Hyk+m2
-	RrfqqDx0+6dxSj98nhVgN99vZRLzVJZvarXrMWMw==
-X-QQ-XMRINFO: OWPUhxQsoeAVDbp3OJHYyFg=
-X-QQ-RECHKSPAM: 0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
+        Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>, Wei Wang <wei.w.wang@intel.com>
+References: <20250402203621.940090-1-david@redhat.com>
+ <065d46ba-83c1-473a-9cbe-d5388237d1ea@redhat.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <065d46ba-83c1-473a-9cbe-d5388237d1ea@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 7j2Hpeh7kYNRktpeuE5HSecIMZ7XXZyg
+X-Proofpoint-ORIG-GUID: 7j2Hpeh7kYNRktpeuE5HSecIMZ7XXZyg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-11_04,2025-04-10_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 adultscore=0 spamscore=0 bulkscore=0 mlxlogscore=852
+ clxscore=1015 suspectscore=0 malwarescore=0 mlxscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2504110069
 
-From: Winston Wen <wentao@uniontech.com>
+Am 10.04.25 um 20:44 schrieb David Hildenbrand:
+[...]
+>> ---
+> 
+> So, given that
+> 
+> (a) people are actively running into this
+> (b) we'll have to backport this quite a lot
+> (c) the spec issue is not a s390x-only issue
+> (d) it's still unclear how to best deal with the spec issue
+> 
+> I suggest getting this fix here upstream asap. It will neither making sorting out the spec issue easier nor harder :)
+> 
+> I can spot it in the s390 fixes tree already.
 
-On x86_64 with gcc version 13.3.0, I compile
-drivers/vfio/pci/virtio/legacy_io.c with:
-
-  make defconfig
-  ./scripts/kconfig/merge_config.sh .config <(
-    echo CONFIG_VFIO=m
-    echo CONFIG_VIRTIO_PCI=y
-    echo CONFIG_VIRTIO_PCI_LIB_LEGACY=y
-    echo CONFIG_VIRTIO_VFIO_PCI=m
-    echo CONFIG_VIRTIO_VFIO_PCI_ADMIN_LEGACY=y
-  )
-  make KCFLAGS="-fno-inline-small-functions -fno-inline-functions-called-once" \
-    drivers/vfio/pci/virtio/legacy_io.o
-
-Then I get a compile error:
-
-    CALL    scripts/checksyscalls.sh
-    DESCEND objtool
-    INSTALL libsubcmd_headers
-    CC      drivers/vfio/pci/virtio/legacy_io.o
-  In file included from <command-line>:
-  drivers/vfio/pci/virtio/legacy_io.c: In function 'virtiovf_init_legacy_io':
-  ././include/linux/compiler_types.h:557:45: error: call to '__compiletime_assert_889' declared with attribute error: BUILD_BUG_ON failed: !is_power_of_2(virtvdev->bar0_virtual_buf_size)
-    557 |         _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
-        |                                             ^
-  ././include/linux/compiler_types.h:538:25: note: in definition of macro '__compiletime_assert'
-    538 |                         prefix ## suffix();                             \
-        |                         ^~~~~~
-  ././include/linux/compiler_types.h:557:9: note: in expansion of macro '_compiletime_assert'
-    557 |         _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
-        |         ^~~~~~~~~~~~~~~~~~~
-  ./include/linux/build_bug.h:39:37: note: in expansion of macro 'compiletime_assert'
-     39 | #define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
-        |                                     ^~~~~~~~~~~~~~~~~~
-  ./include/linux/build_bug.h:50:9: note: in expansion of macro 'BUILD_BUG_ON_MSG'
-     50 |         BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
-        |         ^~~~~~~~~~~~~~~~
-  drivers/vfio/pci/virtio/legacy_io.c:401:9: note: in expansion of macro 'BUILD_BUG_ON'
-    401 |         BUILD_BUG_ON(!is_power_of_2(virtvdev->bar0_virtual_buf_size));
-        |         ^~~~~~~~~~~~
-
-Signed-off-by: Winston Wen <wentao@uniontech.com>
-Co-Developed-by: Chen Linxuan <chenlinxuan@uniontech.com>
-Signed-off-by: Chen Linxuan <chenlinxuan@uniontech.com>
----
- drivers/vfio/pci/virtio/legacy_io.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/vfio/pci/virtio/legacy_io.c b/drivers/vfio/pci/virtio/legacy_io.c
-index 832af5ba267c..b6871d50b9f9 100644
---- a/drivers/vfio/pci/virtio/legacy_io.c
-+++ b/drivers/vfio/pci/virtio/legacy_io.c
-@@ -350,7 +350,7 @@ int virtiovf_open_legacy_io(struct virtiovf_pci_core_device *virtvdev)
- 	return virtiovf_set_notify_addr(virtvdev);
- }
- 
--static int virtiovf_get_device_config_size(unsigned short device)
-+static __always_inline int virtiovf_get_device_config_size(unsigned short device)
- {
- 	/* Network card */
- 	return offsetofend(struct virtio_net_config, status);
--- 
-2.48.1
+Makes sense to me. MST, ok with you to send via s390 tree?
 
