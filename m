@@ -1,130 +1,429 @@
-Received: from mail-vk1-f193.google.com (mail-vk1-f193.google.com [209.85.221.193])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92311EDA05
-	for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 06:36:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A130C2980AE
+	for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 08:32:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744353389; cv=none; b=dYKS/5tsvQvTF0ua18w8Z7Yg2TDTMzkIuzbVIO1uLPTf/yqD5EEwS+vYDAF8oSmk7I5StDJf25IjXlvvanC3kJMLLsg6veGChOYikU7fvNDID8XyvLyEb1Subu79jXXFjeTziQnGQOjRD2nGDgWSIYhVl9IJP+qdiWefqjWC6xk=
+	t=1744360381; cv=none; b=dshN+ImfCHJeNC/pjY5dV00MJCrarUuldgCI64YPuv4ea6UMP9joe9Q2+HY89hUSDVw5Gt28bD2wcw1eLlO0Dy5kdfdOXotDeYQPohe1yOf9tNUnWXDOtrViKCUC3voV8wSscmqYb44xx8eyjwFgmYIqQA5iuYU15qKYTnMbY5o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744353389; c=relaxed/simple;
-	bh=TmRsfdrl+SkxHKqFCnuLtJKoWjb6p8iTBz1i+VJGK5k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=td+WsLI75ssPk6rOnjsrm2vPKQSzMdNPV1P4oBmMQsIzZh6X67gOgzhO4ERIh0K/e0UiBHeZMCndRlqzt4TL6MEM05lkydaFv8BQAyRu0S4MmKHgq2QEvRMZlvcV2vneskeKYjNyvOwFnHeplZ3DPqEA3oSSLzJ5wHT3bdHeNq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vk1-f193.google.com with SMTP id 71dfb90a1353d-523f670ca99so773791e0c.1
-        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 23:36:27 -0700 (PDT)
+	s=arc-20240116; t=1744360381; c=relaxed/simple;
+	bh=lgrNRIFjhj6cjp4P03cOwtb0ckMI+mMDroBzDgh4FQY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=u/GZI3NGGFfI5/4gRbPgEFPtJTJs34YSw1mG0nynJbFvbtr8wjJmtUNIRh1zLHnepou+B0AchJY++q8whm/JgvuTrfnqU6GPmu9L4RnAm37SX12ECOEu3rRVDuWn0zzuN7HdAdWUbinO/tGq0NSTuvTPM+bgi10ruQ6KkTO5Vb4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BICe6f19; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BICe6f19"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744360378;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=d8ujDQyl7nKAjtDljWHbr44QpF+FLzPUnk9PsDaPq38=;
+	b=BICe6f19LIXlJKlvZFh9Tx40H5HW0CAdYgWP96vQ+akMQiXOtgn3XS+5BPO4+U/M08/2BG
+	cs9eziw4nyazelWL2KWCLZiO2inOmsjb1FY5OY/CAXyvKV1Lzvz2upbcslXdLXl2oKP9kf
+	1FijA7TdCg/6G+amVHCFJsxeboQfPcU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-408-ztCieLOeN-yGqYC3tBrRig-1; Fri, 11 Apr 2025 04:32:55 -0400
+X-MC-Unique: ztCieLOeN-yGqYC3tBrRig-1
+X-Mimecast-MFC-AGG-ID: ztCieLOeN-yGqYC3tBrRig_1744360374
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-39d917b105bso890258f8f.2
+        for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 01:32:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744353386; x=1744958186;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6YaWTI7DWsK4VeI0QvD2ZFS0NMVC1Fl7xtwp7U/95NA=;
-        b=TYAKm9g6P5xs8VSZyk5MTT/r8ZuBelcoYBiDIH+ayEmB1FGJKBsPBRP1/C8fhDUnjX
-         +xgNQyk2GJupcfgriaYoZJ4Uc9DhH0nfKzpS/zkyvDfTNs5Xy2WXumrijo3NKfiwFbh/
-         rc4xOaghITUMSSAsmUXczE3xndoGyBXd1O7Xqo3x3eIWOiKbn5HRkDqHV9g2iRH0/8x4
-         gLT8cLx96lh7i/eonzojOLYqwVe/4hUn9jcXGkxzsnCJabdg2SIVbme3ETo2U8l2ATkS
-         cJjHWjDGMqn6png+nDxs90dYR9AqpcJ5ApRnz8Zqev8Nxh8ZKvWZpDiYfRIqPnyowDQl
-         OkwQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUKPWIGipW03H2gd/941J1vXyHDU5Rn9+LV/HH1AbtPHuP44vjSO35sE6Z7N0g2klUR0vSaQcWdIOajURxnSg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwbUj8kZMUc47Eg+7CCu8zmSu+ZJZ0lHYmtOhsmX5UppeowpVdg
-	AsTcGEnWuDp9rprDnshQK497aPqNPo9vYC3xuOtDraNgg4rcMYimpISOe5LZj8fTaw==
-X-Gm-Gg: ASbGncsHx1PpUNZmvHRyY8pv9ksbN3uC237zYb6zXTcdhU2aJh9MPveh5QnOsXWE/CX
-	Iv5y7W0SyhpMzx1qYZma9y10ih48me9AzNR/qD++IbRYVg+iYqRgbUv5pcF9rZVxdiBaU9/VVKQ
-	NS7Z5KzMxNJLvekQhH1dPr+EeH0HkHYCH716rWJdm+AXDOmb7lGodVywepFKiEgOMG8VewI717N
-	EPzA3UDXWBisDYsc6R1yZTn4BySdb4Eg+Wvx6xaHv0pIA9++PvMUY6i5/gTTwfkWR3Xt/nJZMho
-	8pyuSsRec78Q7JdCt7HD/rbNwlTPyQWQziQDqXNCKTPI9FNkjLCByMutJTRhJVAse7nRufxZnV+
-	crj8=
-X-Google-Smtp-Source: AGHT+IG5c41qh74nWTCgn5rOACUHa+fpm+pjZK4l7Pv1hjtWrviMxbbKCBOxbNEOWcw1fA3LTJFdTQ==
-X-Received: by 2002:a05:6122:1d89:b0:518:a0ac:1f42 with SMTP id 71dfb90a1353d-527c3464832mr712511e0c.1.1744353386553;
-        Thu, 10 Apr 2025 23:36:26 -0700 (PDT)
-Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com. [209.85.222.46])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-527abe8e78bsm984096e0c.32.2025.04.10.23.36.26
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Apr 2025 23:36:26 -0700 (PDT)
-Received: by mail-ua1-f46.google.com with SMTP id a1e0cc1a2514c-86d42f08219so682737241.0
-        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 23:36:26 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCV+vc6tqO3k62pzrDWoTseH9DakRO3KOiXaT1vVyyDxoY98VUo22kQNE7Br9N8mBQ+M9+NlhFvfl3g6Cfw06A==@lists.linux.dev
-X-Received: by 2002:a05:6102:5489:b0:4c1:924e:1a2a with SMTP id
- ada2fe7eead31-4c9e504c3aemr736947137.25.1744353386128; Thu, 10 Apr 2025
- 23:36:26 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1744360374; x=1744965174;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=d8ujDQyl7nKAjtDljWHbr44QpF+FLzPUnk9PsDaPq38=;
+        b=HBdMDnmFQxFxDL+oCW2wOeFFoe/QtmR/J2LyKmaC+hyGz6s0U+LFN7raUd2HBGQbzw
+         aQoMBm2G4mNKZGA9c8viMHhOC0admrKFoOZFc2B2FHbuEPD9JBYY+bG51TZaiUIJD31+
+         57bMqh4FdornvdgRhvmdkHv3U99JNhmqpV4fcWBQS+qrsvCfynUUe768C+ub81dbVTOl
+         J0+zkQEDg2e8v8MwQF56+RGxtlj/BI21OorPB1z0mztvJcPHMDElDiHtN3hk34GsClIp
+         T8SR9UMn/6gqS1rXhEmQOxjaMn7J5zIE0VOaS9b4ydAPEcmzoLOCcVK1ijiIy0SwT2Er
+         8cEA==
+X-Forwarded-Encrypted: i=1; AJvYcCUmwRgAFR83unYMHcLHWNTXDjalWuFs25tbfRzREtPHpU3Plum/DKoNl3LAM6qLEvznRSOyXNJ2jG1BgXKQyw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx8nz8kn6JpBRkuOhV98scAdP2Q2DEO9R8guveTERc+/yopS3uD
+	BKHnU6abw/HuI2Nt9zf9yGbq/K8PRX+GUoG25+SutUBMmQVZhMT2gXP38FqBaaFh4NVh6W1IVpj
+	FFcZ3C7t3SAegNgL/OXQerkxv3mBCGfp9+4UIj0XNm76evqkGRRg2WU0QD5oXvdLM
+X-Gm-Gg: ASbGncte21CExqjlzvNpMydKCgGH4ZqTsETNsFYT/NVS1GsShHDSFKtUlkhEjz5QmOK
+	3VXVc0tbfIVj3zf6/CPdff843z+wCpyzqGbiM9rLjYpCyMtHx+9yxpXgp03veJ5W+Rt7ZdAh8dU
+	EfjKw5MLJHf0CEqoPh1HtZ6J0901TNZUObd7T1vSzOmYDZPopIDEvUUcbh2DjV+oYZFJ4VNd0km
+	1bzne5f2IVVHR2+oyRpQJnLUdpNucMQCBgcMotl37lSs+EX4veZ8T7Ip1aYF2H3uBukK0hYnvbr
+	xOoHrNUVAJiLn81FYPqi/xEVo6VXOyCoLLPAY0Pp/RnXHa6L343/+47lkyy/
+X-Received: by 2002:a05:6000:1867:b0:391:3124:f287 with SMTP id ffacd0b85a97d-39ea52071d9mr1169984f8f.16.1744360373885;
+        Fri, 11 Apr 2025 01:32:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHYRObXGVdy7Fk5Huz1lKq/zXGFWZpzxM8mzE0+DPpVva9VRqqW0i3itgSpYq9hY1Wb+D8CEg==
+X-Received: by 2002:a05:6000:1867:b0:391:3124:f287 with SMTP id ffacd0b85a97d-39ea52071d9mr1169957f8f.16.1744360373377;
+        Fri, 11 Apr 2025 01:32:53 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-53-30-213.retail.telecomitalia.it. [79.53.30.213])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39eaf43cd17sm1302888f8f.78.2025.04.11.01.32.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Apr 2025 01:32:52 -0700 (PDT)
+Date: Fri, 11 Apr 2025 10:32:45 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net-next] selftests/vsock: add initial vmtest.sh for vsock
+Message-ID: <36wtdlekqx7hii6s7uydxeyrwwj7x5dmx5k5g474eseds6lshk@yrefm7laynyp>
+References: <20250410-vsock-vmtest-v1-1-f35a81dab98c@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250410163218.15130-1-ville.syrjala@linux.intel.com> <20250410163218.15130-5-ville.syrjala@linux.intel.com>
-In-Reply-To: <20250410163218.15130-5-ville.syrjala@linux.intel.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 11 Apr 2025 08:36:13 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUt4UkiTqe6T1QPxAwJdLnQfaDjw7_cKYtTx9WVed9Z0w@mail.gmail.com>
-X-Gm-Features: ATxdqUGG68dHUm49IQV8G2NJ_HEDfXWabJxNBHJkOpQT2upH4xlbmyKOguLtNHo
-Message-ID: <CAMuHMdUt4UkiTqe6T1QPxAwJdLnQfaDjw7_cKYtTx9WVed9Z0w@mail.gmail.com>
-Subject: Re: [PATCH 04/19] drm: Pass the format info to .fb_create()
-To: Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc: dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
-	intel-xe@lists.freedesktop.org, Alex Deucher <alexander.deucher@amd.com>, 
-	Liviu Dudau <liviu.dudau@arm.com>, Maxime Ripard <mripard@kernel.org>, 
-	Russell King <linux@armlinux.org.uk>, Inki Dae <inki.dae@samsung.com>, 
-	Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, 
-	Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Chun-Kuang Hu <chunkuang.hu@kernel.org>, 
-	Philipp Zabel <p.zabel@pengutronix.de>, Rob Clark <robdclark@gmail.com>, 
-	Abhinav Kumar <quic_abhinavk@quicinc.com>, Dmitry Baryshkov <lumag@kernel.org>, 
-	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
-	Marek Vasut <marex@denx.de>, Stefan Agner <stefan@agner.ch>, Lyude Paul <lyude@redhat.com>, 
-	Danilo Krummrich <dakr@kernel.org>, Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, 
-	Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, 
-	Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>, 
-	Biju Das <biju.das.jz@bp.renesas.com>, Geert Uytterhoeven <geert+renesas@glider.be>, 
-	Sandy Huang <hjc@rock-chips.com>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, 
-	Andy Yan <andy.yan@rock-chips.com>, Thierry Reding <thierry.reding@gmail.com>, 
-	Mikko Perttunen <mperttunen@nvidia.com>, Dave Stevenson <dave.stevenson@raspberrypi.com>, 
-	=?UTF-8?B?TWHDrXJhIENhbmFs?= <mcanal@igalia.com>, 
-	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>, 
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
-	Zack Rusin <zack.rusin@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
-	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, amd-gfx@lists.freedesktop.org, 
-	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
-	nouveau@lists.freedesktop.org, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20250410-vsock-vmtest-v1-1-f35a81dab98c@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: oHfjZB-hLB4f3jxmSfD1WDFFAWdhZ3pUEEcLYQfjPwA_1744360374
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Thu, 10 Apr 2025 at 18:33, Ville Syrjala
-<ville.syrjala@linux.intel.com> wrote:
-> From: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+On Thu, Apr 10, 2025 at 06:07:59PM -0700, Bobby Eshleman wrote:
+>This commit introduces a new vmtest.sh runner for vsock.
 >
-> Pass long the format information from the top to .fb_create()
+>It uses virtme-ng/qemu to run tests in a VM. The tests are designed to
+>validate both G2H and H2G paths. The testing tools from tools from
+>tools/testing/vsock/ are reused. Currently, only vsock_test is used.
 
-s/long/along/
+Coool, thanks for that.
+I'll leave some comments, but I'll try this next week since today I'm a 
+bit busy.
 
-> so that we can avoid redundant (and somewhat expensive) lookups
-> in the drivers.
+>
+>Only tested on x86.
+>
+>To run:
+>
+>  $ tools/testing/selftests/vsock/vmtest.sh
+>
+>Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+>---
+> MAINTAINERS                                |   1 +
+> tools/testing/selftests/vsock/.gitignore   |   1 +
+> tools/testing/selftests/vsock/config.vsock |   6 +
+> tools/testing/selftests/vsock/vmtest.sh    | 247 +++++++++++++++++++++++++++++
+> 4 files changed, 255 insertions(+)
+>
+>diff --git a/MAINTAINERS b/MAINTAINERS
+>index c3fce441672349f7850c57d788bc1a29b203fba5..f214cf7c4fb59ec67885ee6c81daa44e17c80f5f 100644
+>--- a/MAINTAINERS
+>+++ b/MAINTAINERS
+>@@ -25323,6 +25323,7 @@ F:	include/uapi/linux/vm_sockets.h
+> F:	include/uapi/linux/vm_sockets_diag.h
+> F:	include/uapi/linux/vsockmon.h
+> F:	net/vmw_vsock/
+>+F:	tools/testing/selftests/vsock/
+> F:	tools/testing/vsock/
+>
+> VMALLOC
+>diff --git a/tools/testing/selftests/vsock/.gitignore b/tools/testing/selftests/vsock/.gitignore
+>new file mode 100644
+>index 0000000000000000000000000000000000000000..1950aa8ac68c0831c12c1aaa429da45bbe41e60f
+>--- /dev/null
+>+++ b/tools/testing/selftests/vsock/.gitignore
+>@@ -0,0 +1 @@
+>+vsock_selftests.log
+>diff --git a/tools/testing/selftests/vsock/config.vsock b/tools/testing/selftests/vsock/config.vsock
+>new file mode 100644
+>index 0000000000000000000000000000000000000000..a229c329d44e4a0b650d073b74949b577da3dc64
+>--- /dev/null
+>+++ b/tools/testing/selftests/vsock/config.vsock
+>@@ -0,0 +1,6 @@
+>+CONFIG_VSOCKETS=y
+>+CONFIG_VSOCKETS_DIAG=y
+>+CONFIG_VSOCKETS_LOOPBACK=y
+>+CONFIG_VIRTIO_VSOCKETS=y
+>+CONFIG_VIRTIO_VSOCKETS_COMMON=y
+>+CONFIG_VHOST_VSOCK=y
 
-[...]
+Should we enabled also other transports?
 
-> Signed-off-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+(I'm not sure since we don't test it)
 
->  drivers/gpu/drm/renesas/shmobile/shmob_drm_kms.c       |  3 ++-
+>diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+>new file mode 100755
+>index 0000000000000000000000000000000000000000..f2dafcb893232f95ebb22104a62ce1e0312f4e89
+>--- /dev/null
+>+++ b/tools/testing/selftests/vsock/vmtest.sh
+>@@ -0,0 +1,247 @@
+>+#!/bin/bash
+>+# SPDX-License-Identifier: GPL-2.0
+>+#
+>+# Copyright (c) 2025 Meta Platforms, Inc. and affiliates
+>+#
+>+# Dependencies:
+>+#		* virtme-ng
+>+#		* busybox-static (used by virtme-ng)
+>+#		* qemu	(used by virtme-ng)
+>+
+>+SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+>+KERNEL_CHECKOUT=$(realpath ${SCRIPT_DIR}/../../../..)
+>+PLATFORM=${PLATFORM:-$(uname -m)}
+>+
+>+if [[ -z "${QEMU:-}" ]]; then
+>+	QEMU=$(which qemu-system-${PLATFORM})
+>+fi
+>+
+>+VSOCK_TEST=${KERNEL_CHECKOUT}/tools/testing/vsock/vsock_test
+>+
+>+TEST_GUEST_PORT=51000
+>+TEST_HOST_PORT=50000
+>+TEST_HOST_PORT_LISTENER=50001
+>+SSH_GUEST_PORT=22
+>+SSH_HOST_PORT=2222
+>+VSOCK_CID=1234
+>+
+>+QEMU_PIDFILE=/tmp/qemu.pid
+>+
+>+# virtme-ng offers a netdev for ssh when using "--ssh", but we also need a
+>+# control port forwarded for vsock_test.  Because virtme-ng doesn't support
+>+# adding an additional port to forward to the device created from "--ssh" and
+>+# virtme-init mistakenly sets identical IPs to the ssh device and additional
+>+# devices, we instead opt out of using --ssh, add the device manually, and also
+>+# add the kernel cmdline options that virtme-init uses to setup the interface.
+>+QEMU_OPTS=""
+>+QEMU_OPTS="${QEMU_OPTS} -netdev user,id=n0,hostfwd=tcp::${TEST_HOST_PORT}-:${TEST_GUEST_PORT}"
+>+QEMU_OPTS="${QEMU_OPTS},hostfwd=tcp::${SSH_HOST_PORT}-:${SSH_GUEST_PORT}"
+>+QEMU_OPTS="${QEMU_OPTS} -device virtio-net-pci,netdev=n0"
+>+QEMU_OPTS="${QEMU_OPTS} -device vhost-vsock-pci,guest-cid=${VSOCK_CID}"
+>+QEMU_OPTS="${QEMU_OPTS} --pidfile ${QEMU_PIDFILE}"
+>+KERNEL_CMDLINE="virtme.dhcp net.ifnames=0 biosdevname=0 virtme.ssh virtme_ssh_user=$USER"
+>+
+>+LOG=${SCRIPT_DIR}/vsock_selftests.log
+>+
+>+#		Name				Description
+>+tests="
+>+	vm_server_host_client			Run vsock_test in server mode on the VM and in client mode on the host.
+>+	vm_client_host_server			Run vsock_test in client mode on the VM and in server mode on the host.
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+What about adding tests also with loopback in the VM?
 
-Gr{oetje,eeting}s,
+>+"
+>+
+>+usage() {
+>+	echo
+>+	echo "$0 [OPTIONS]"
+>+	echo
+>+	echo "Options"
+>+	echo "  -v: verbose output"
+>+	echo
+>+	echo "Available tests${tests}"
+>+	exit 1
+>+}
+>+
+>+die() {
+>+	echo "$*" >&2
+>+	exit 1
+>+}
+>+
+>+vm_ssh() {
+>+	ssh -q -o UserKnownHostsFile=/dev/null -p 2222 localhost $*
+>+	return $?
+>+}
+>+
+>+cleanup() {
+>+	if [[ -f "${QEMU_PIDFILE}" ]]; then
+>+		pkill -9 -F ${QEMU_PIDFILE} 2>&1 >/dev/null
+>+	fi
+>+}
+>+
+>+build() {
+>+	log_setup "Building kernel and tests"
+>+
+>+	pushd ${KERNEL_CHECKOUT} >/dev/null
+>+	vng \
+>+		--kconfig \
+>+		--config ${KERNEL_CHECKOUT}/tools/testing/selftests/vsock/config.vsock
+>+	make -j$(nproc)
+>+	make -C ${KERNEL_CHECKOUT}/tools/testing/vsock
+>+	popd >/dev/null
+>+	echo
+>+}
+>+
+>+vm_setup() {
+>+	local VNG_OPTS=""
+>+	if [[ "${VERBOSE}" = 1 ]]; then
+>+		VNG_OPTS="--verbose"
+>+	fi
+>+	vng \
+>+		$VNG_OPTS	\
+>+		--run ~/local/linux \
+>+		--qemu /bin/qemu-system-x86_64 \
+>+		--qemu-opts="${QEMU_OPTS}" \
+>+		--user root \
+>+		--append "${KERNEL_CMDLINE}" \
+>+		--rw  2>&1 >/dev/null &
+>+}
+>+
+>+vm_wait_for_ssh() {
+>+	i=0
+>+	while [[ true ]]; do
+>+		if (( i > 20 )); then
+>+			die "Timed out waiting for guest ssh"
+>+		fi
+>+		vm_ssh -- true
+>+		if [[ $? -eq 0 ]]; then
+>+			break
+>+		fi
+>+		i=$(( i + 1 ))
+>+		sleep 5
+>+	done
+>+}
+>+
+>+wait_for_listener() {
+>+	local PORT=$1
+>+	local i=0
+>+	while ! ss -ltn | grep -q ":${PORT}"; do
+>+		if (( i > 30 )); then
+>+			die "Timed out waiting for listener on port ${PORT}"
+>+		fi
+>+		sleep 3
+>+		i=$(( i + 1 ))
+>+	done
+>+}
+>+
+>+vm_wait_for_listener() {
+>+	vm_ssh -- "$(declare -f wait)for_listener); wait_for_listener 
+>${TEST_GUEST_PORT}"
+>+}
+>+
+>+host_wait_for_listener() {
+>+	wait_for_listener ${TEST_HOST_LISTENER_PORT}
+>+}
+>+
+>+log() {
+>+	local prefix="$1"
+>+	shift
+>+
+>+	if [[ "$#" -eq 0 ]]; then
+>+		cat | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }' | tee -a ${LOG}
+>+	else
+>+		echo "$*" | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }' | tee -a ${LOG}
+>+	fi
+>+}
+>+
+>+log_setup() {
+>+	log "setup" "$@"
+>+}
+>+
+>+log_host() {
+>+	testname=$1
+>+	shift
+>+	log "test:${testname}:host" "$@"
+>+}
+>+
+>+log_guest() {
+>+	testname=$1
+>+	shift
+>+	log "test:${testname}:guest" "$@"
+>+}
+>+
+>+test_vm_server_host_client() {
+>+	local testname="vm_server_host_client"
+>+	vm_ssh -- "${VSOCK_TEST}" \
+>+							--mode=server \
+>+							--control-port="${TEST_GUEST_PORT}" \
+>+							--peer-cid=2 \
+>+							2>&1 | log_guest "${testname}" &
 
-                        Geert
+Strange indentation here.
 
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
+>+
+>+	vm_wait_for_listener
+>+	${VSOCK_TEST}	\
+>+		--mode=client	\
+>+		--control-host=127.0.0.1	\
+>+		--peer-cid="${VSOCK_CID}"	\
+>+		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host "${testname}"
+>+
+>+	rc=$?
+>+}
+>+
+>+test_vm_client_host_server() {
+>+	local testname="vm_client_host_server"
+>+
+>+	${VSOCK_TEST}	\
+>+		--mode "server" \
+>+		--control-port "${TEST_HOST_PORT_LISTENER}" \
+>+		--peer-cid "${VSOCK_CID}" 2>&1 | log_host "${testname}" &
+>+
+>+	host_wait_for_listener
+>+
+>+	vm_ssh -- "${VSOCK_TEST}"	\
+>+		--mode=client	\
+>+		--control-host=10.0.2.2	\
+>+		--peer-cid=2	\
+>+		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest "${testname}"
+>+
+>+	rc=$?
+>+}
+>+
+>+run_test() {
+>+	unset IFS
+>+	name=$(echo "${1}" | awk '{ print $1 }')
+>+	eval test_"${name}"
+>+}
+>+
+>+while getopts :hv o
+>+do
+>+	case $o in
+>+	v) VERBOSE=1;;
+>+	h|*) usage;;
+>+	esac
+>+done
+>+shift $((OPTIND-1))
+>+
+>+trap cleanup EXIT
+>+
+>+> ${LOG}
+>+build
+>+log_setup "Booting up VM"
+>+vm_setup
+>+vm_wait_for_ssh
+>+log_setup "VM booted up"
+>+
+>+IFS="
+>+"
+>+cnt=0
+>+for t in ${tests}; do
+>+	rc=0
+>+	run_test "${t}"
+>+	if [[ ${rc} != 0 ]]; then
+>+		cnt=$(( cnt + 1 ))
+>+	fi
+>+done
+>+
+>+if [[ ${cnt} = 0 ]]; then
+>+	echo OK
 
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+In my suite I also check if we have some kernel warnings or oops.
+Should we add something similar or does the infrastructure already
+handle that?
+
+Thanks,
+Stefano
+
+>+else
+>+	echo FAILED: ${cnt}
+>+fi
+>+echo "Log: ${LOG}"
+>+exit ${cnt}
+>
+>---
+>base-commit: cc04ed502457412960d215b9cd55f0d966fda255
+>change-id: 20250325-vsock-vmtest-b3a21d2102c2
+>
+>Best regards,
+>-- 
+>Bobby Eshleman <bobbyeshleman@gmail.com>
+>
+
