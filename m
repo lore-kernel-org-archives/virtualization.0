@@ -1,60 +1,70 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50F1B2367A0
-	for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 12:42:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 955942367A1
+	for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 12:47:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744375373; cv=none; b=sGxlLB69aZ557IEIM2JJ+fpyHOrNIPch3rD8Y6P+VNr9uWIa3XKZ00eS7I+MQCwzjSIfEmpJ+LBdzN2hgANljj51VnkukAjQEbezrbJ+z+ZyOGTfsfYyYk3ddECG3yh0o7nsBTA/XgrTHyf1ZhRXyKS9DHBiEp6fUhZfUKDeEgg=
+	t=1744375655; cv=none; b=BJU1qcDoSnT9ZsJDvfiGqXIq6PiZBxg3qV3cwnwOfMI+tl2Fm6pFHVd+x6xUMS9iXGxaKEcDGED0vkOjZz0RSQpm28WK1Pta4R0ICrgm9CWJVbf/V1b9FRplyHpYvuNq36UzmAsuhRhifbvAP10UykdOQS0D+LHu6IyBnpmxGrE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744375373; c=relaxed/simple;
-	bh=LRBlzSos3dhGHutKp01tSFMKt4Gbxl3XFGUSmAinjeU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AXJLLDpjs6h9gTlBAiHnZKn3TJP1LhGg6SZkEQAurVgcx/w1OOLH8f0JJ9vGwGeXDfotuFhiZl0oEmPavwejqWI2DHnvX7sf0IW/gvU5S13vWrtPRc85t/XYxE3L7eC8AMA55k5FCKxuxCdnXI1mD3Dim3AvN1pIO5YIkQxfiUA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SICH88CT; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1744375655; c=relaxed/simple;
+	bh=yEXSM0GUEEbC1EoQQ2NsENJB2K834/66CU5+MxF3xnY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uNyKtUvcwKSfQI0Xy4EgiedoBg6dLbHjS60ny00orjwGPNile2lxWdYPrH8sgoaxKhV6tnX3CMyGmaXMxs3GyAVwp5No0IxQbylu85TNtRpOZCrvbKBJO2RkBRo8uSM3y9PQn1PyZP2qn6ph541OcA6Ftaj4Eb8EW3H/i658G78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NV4jkFtV; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SICH88CT"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NV4jkFtV"
 Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53B2GwTQ028860;
-	Fri, 11 Apr 2025 12:42:49 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53B67S5t029160;
+	Fri, 11 Apr 2025 12:47:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=wllDMLVyjUN526ZRNsd50HowPiyj1q
-	cvrx5XL9ogpG0=; b=SICH88CT3h4e5JoHQhDhlysl8FFRCeiJoF4pIiDIj0HQtP
-	goz4LQb6iBTxk0A/2clqpGP0NesX0has3UbYRMOctiK8oYWULcvxWmKB8Mr0snls
-	vYmKQLxHRxkVMqGfR10cDTpw1YWMCbV/7Cv0M01Fuhrj942j9UI9AtBWcGBJolxz
-	Ikp1up47HDPeSYsgBo9cm9OfyX/M85K40LbAwLwlMbIIdZkGZzjM/b1HddImP4Jb
-	P1/DCW9JmB/dBfwEX9UKBOavUnI+8CauzOb1FuJWNQnwIreLrvE9xQ5ayXNYHdUf
-	yMTpC6wYa+/1Xc4Lw2j1RTULtDMULX8PGBi5ynjw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45xj5xmhh7-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=elmg/s
+	bueavbN5pHa2hAlrKAi+l5t4tQL/Ymj5aLTmU=; b=NV4jkFtVGO759WjFnqDC3f
+	BSrYh4byJiIimvAhsAX+xM90M1ca5fQR3+BtUFVj/q2NM1W4IUx2k6TaR74kNfsQ
+	NN8L9+rIQLZLv4HNURVcmdI6XzmhxMxodWBfvNQxyLRKNeQLPFJHO/c/btx5zDGi
+	oj2L3bb+dNsUq9D1SgRNtX71ibPkj/2MGMB01/5346z0SC/byOTH7te8G0JSOkFj
+	QKpS+pLMotP5+QJ5MRIK4Hz4NmrQxizKy9RhoRkJHknDUNpZOzlhtvml76vQ40jy
+	zTeNhMFDx5cqPbrDnReFTT1rj7oQOLMfNUebrK1/hvnLQFle93hp9mG+L9kPqJxg
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45xj5xmj39-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 11 Apr 2025 12:42:49 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53BB57rE017826;
-	Fri, 11 Apr 2025 12:42:48 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45uh2m2su6-1
+	Fri, 11 Apr 2025 12:47:30 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53B9OuEc025546;
+	Fri, 11 Apr 2025 12:47:30 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45ugbmaxvd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 11 Apr 2025 12:42:48 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53BCgitX45613410
+	Fri, 11 Apr 2025 12:47:30 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53BClQBr14156088
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 11 Apr 2025 12:42:45 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CD35420043;
-	Fri, 11 Apr 2025 12:42:44 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D7CD320040;
-	Fri, 11 Apr 2025 12:42:43 +0000 (GMT)
-Received: from osiris (unknown [9.171.65.230])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 11 Apr 2025 12:42:43 +0000 (GMT)
-Date: Fri, 11 Apr 2025 14:42:42 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>
+	Fri, 11 Apr 2025 12:47:26 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 31E6A2004B;
+	Fri, 11 Apr 2025 12:47:26 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6ECA820043;
+	Fri, 11 Apr 2025 12:47:25 +0000 (GMT)
+Received: from [9.171.62.213] (unknown [9.171.62.213])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 11 Apr 2025 12:47:25 +0000 (GMT)
+Message-ID: <d2806f87-05e1-4bf4-b9b9-21f35c419cf0@linux.ibm.com>
+Date: Fri, 11 Apr 2025 14:47:25 +0200
+Precedence: bulk
+X-Mailing-List: virtualization@lists.linux.dev
+List-Id: <virtualization.lists.linux.dev>
+List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
+List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+To: Heiko Carstens <hca@linux.ibm.com>
 Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
         kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
@@ -64,52 +74,52 @@ Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         "Michael S. Tsirkin" <mst@redhat.com>, Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-Message-ID: <20250411124242.123863D16-hca@linux.ibm.com>
 References: <20250402203621.940090-1-david@redhat.com>
  <065d46ba-83c1-473a-9cbe-d5388237d1ea@redhat.com>
  <a6f667b2-ef7d-4636-ba3c-cf4afe8ff6c3@linux.ibm.com>
-Precedence: bulk
-X-Mailing-List: virtualization@lists.linux.dev
-List-Id: <virtualization.lists.linux.dev>
-List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
-List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a6f667b2-ef7d-4636-ba3c-cf4afe8ff6c3@linux.ibm.com>
+ <20250411124242.123863D16-hca@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20250411124242.123863D16-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 9om_QFYPDMLFrBloZCYPQNzLoFWKkiaT
-X-Proofpoint-ORIG-GUID: 9om_QFYPDMLFrBloZCYPQNzLoFWKkiaT
+X-Proofpoint-GUID: a5lN-y0hY8Qb0l291hvTgndCFPPa854X
+X-Proofpoint-ORIG-GUID: a5lN-y0hY8Qb0l291hvTgndCFPPa854X
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-11_04,2025-04-10_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
  spamscore=0 malwarescore=0 bulkscore=0 phishscore=0 mlxscore=0
  suspectscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
- mlxlogscore=719 classifier=spam adjust=0 reason=mlx scancount=1
+ mlxlogscore=919 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2502280000 definitions=main-2504110080
 
-On Fri, Apr 11, 2025 at 01:11:55PM +0200, Christian Borntraeger wrote:
-> Am 10.04.25 um 20:44 schrieb David Hildenbrand:
-> [...]
-> > > ---
-> > 
-> > So, given that
-> > 
-> > (a) people are actively running into this
-> > (b) we'll have to backport this quite a lot
-> > (c) the spec issue is not a s390x-only issue
-> > (d) it's still unclear how to best deal with the spec issue
-> > 
-> > I suggest getting this fix here upstream asap. It will neither making sorting out the spec issue easier nor harder :)
-> > 
-> > I can spot it in the s390 fixes tree already.
+
+Am 11.04.25 um 14:42 schrieb Heiko Carstens:
+> On Fri, Apr 11, 2025 at 01:11:55PM +0200, Christian Borntraeger wrote:
+>> Am 10.04.25 um 20:44 schrieb David Hildenbrand:
+>> [...]
+>>>> ---
+>>>
+>>> So, given that
+>>>
+>>> (a) people are actively running into this
+>>> (b) we'll have to backport this quite a lot
+>>> (c) the spec issue is not a s390x-only issue
+>>> (d) it's still unclear how to best deal with the spec issue
+>>>
+>>> I suggest getting this fix here upstream asap. It will neither making sorting out the spec issue easier nor harder :)
+>>>
+>>> I can spot it in the s390 fixes tree already.
+>>
+>> Makes sense to me. MST, ok with you to send via s390 tree?
 > 
-> Makes sense to me. MST, ok with you to send via s390 tree?
+> Well, it is already part of a pull request:
+> https://lore.kernel.org/r/20250411100301.123863C11-hca@linux.ibm.com/
 
-Well, it is already part of a pull request:
-https://lore.kernel.org/r/20250411100301.123863C11-hca@linux.ibm.com/
+Oh, I missed that.
+> 
+> ...and contains all the Acks that were given in this thread.
 
-...and contains all the Acks that were given in this thread.
+Thanks.
