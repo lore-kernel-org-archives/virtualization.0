@@ -1,228 +1,396 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16033367
-	for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 00:09:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.16
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744330189; cv=fail; b=iHZ5drI7U2tLAqPbE0Jh5Eq5l5Hy8daiud/PXQap5irBrFeeLLpVFdAO2Yz/g08K7ex0nD3ZTA7/Zk/TTDGIqhdjkBVhuSU6pLayr1T+bLQbeZ/VF4SXjapYxagKjvisJXd9wK2pDvtkcJDwMQB4ncdGELuDU0d7372vpP5owM0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744330189; c=relaxed/simple;
-	bh=N6Rh9NfrhZCynL9YPEOrGLyitzrUbxjUFFMTOZkGAX0=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=r86Ai5/GK0XOh9ffREYUtUR59zqLSKkeEozAnHRQqxHEFEhubDmBo4nTD8SRvpwZN05UMwRdiPYf4J84LuxOljJxPwDLNBpP9m/gW8JvWS9ft1U0SXGiiMuY8t14D1A8VNjtcw4PyC3dwPMAMnz/A/q1rAH4/ChmHBS+VFnqdaE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FxvtLufI; arc=fail smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C77CDA94F
+	for <virtualization@lists.linux.dev>; Fri, 11 Apr 2025 01:08:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744333685; cv=none; b=YdVKgfN1n5YiT0dHxu1/rRMghOX4MXR0/O+iwrw9heElu9z/M+Isewy+BjI1wSzsf+1ANIvNU290ZVfByUIvFPvQkZGeFwEwC9VTah7tmi2JJHqg6ECBFQKBzacmwER9SYOthQkTP2hUhvC5L5/Nj3egS1iR4BsViCpGT2fYwew=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744333685; c=relaxed/simple;
+	bh=mrG0fIf92a5Tp/jYDe7PfqHpOhbSZIQ4fkZvzhIho/s=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Z8Pry1XpMZ+h+lu4POE4xhgAvCD0+xstuKXfuRogQIXY5kgrt4x1B0MLY3npnEk7ggAgzM8xdFAevegGYOWACRqF8JfE1Eu0hXyGTV8/5g1B3lPGPb4HdcHzrXsK3F1JrfmEi2TjP4Hzfwsueb7hhkGwdsDcxC1T+U/WzuGgboI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GHJG306x; arc=none smtp.client-ip=209.85.215.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FxvtLufI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1744330188; x=1775866188;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=N6Rh9NfrhZCynL9YPEOrGLyitzrUbxjUFFMTOZkGAX0=;
-  b=FxvtLufID0i+CTHxKaiW2FlWuGlS6Gl/9UT5fRHXDvxHFVAimMFCSJqb
-   79ptt/wBjGVLxqvdD0aRasW5rRlB9Pk3TR0sEGqZs9TgAgCC1dReBnMtt
-   qnNNGt/c5QrBGauyTCOUWKYsgPvJW8I4wQhpedisIOiCoMEi7pqgPlXHi
-   RTaXKakaQGt23JhW/xrUaf1I7DYVxyNoD/ZbFQ21u7v11Eb7y4ZO8UJIj
-   dopUVdFyp/VN2Pxxdz7bU5PkLLbx69TfQd6/qCJAjcgeWo9TTd94JPX1v
-   qEr7RtgkN8NPniAAQu7oZnUihB8dsjtKgrhIfmEf6G847Nn/vi95hmoGs
-   Q==;
-X-CSE-ConnectionGUID: nWf7Ft/JSXmq0PuwUxfQqg==
-X-CSE-MsgGUID: GR5yi8xjT1SDYxhuT7y4Jg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11400"; a="33485120"
-X-IronPort-AV: E=Sophos;i="6.15,203,1739865600"; 
-   d="scan'208";a="33485120"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2025 17:09:47 -0700
-X-CSE-ConnectionGUID: Gpinqh0/R9iJuiheyonQLw==
-X-CSE-MsgGUID: SLIatIHBTbygk5ZLsLg+Ew==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.15,203,1739865600"; 
-   d="scan'208";a="152233045"
-Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
-  by fmviesa002.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2025 17:09:47 -0700
-Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14; Thu, 10 Apr 2025 17:09:46 -0700
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14 via Frontend Transport; Thu, 10 Apr 2025 17:09:46 -0700
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.44) by
- edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.44; Thu, 10 Apr 2025 17:09:45 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=sRNLty/M2rKw7prcmTCIUfprrI0unBYiWbsoTY4LF5aDGzq58n70Kq86DIjgvkOcK8becLH884nZM5VtdyTcpUj0vQ22aq0WOiRqkmAGLi/N1qyheslSg+p4sp/1yFaKD9IA8BMcmeyfrDjVxy+naPzEBP1VqqZJvojDzTmK7FnWrgj04NzkkHIBgBop9gbpGSQK7VTIUIUfkXbKKTLrFjcLEdjW7w3srVlO75ZkYe1hVjC9mckQ9mHMPwXaeHqhbRkF9yZh9RDzu3hJp2HQezhsI2mx+H3eTuYOfDUCb2nTCa909F6Nd4UbjfzEAzpkxnoe2DPJTL8uoVXuJkQxCA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=N6Rh9NfrhZCynL9YPEOrGLyitzrUbxjUFFMTOZkGAX0=;
- b=BzJVisGfPr96oAEYTioW+LtPeXHI3v7sB8qjzGkn+MpSu8b0x4/1mfjfaY7bWZ4CbwDHz9Buy7NLlZl28Kh0RCZqCM9tJDJ4SIWbR3vG/sCN5RTIhepvzJkD3hvmTduSyiLbAZr2i9+IfwDZMjOuCY2m5+0zJsYSxlHyTYshIx1cLy+3GSHxs4zIZAfQBONfP9l6t7pHK3JX3oxuKLTFTbM3n57MvbraqTrEWBMmKe/7OyMykvsF5H7qH5PnLOV4qYOvaDYWwf8mq4JFh1ScNqLddazAdHhjlRppKC7pCqPGgjolnrGNxsxcv6DKxQIpHEb7u1J/doZWmBfCWYp5nA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by CH3PR11MB7764.namprd11.prod.outlook.com (2603:10b6:610:145::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8632.23; Fri, 11 Apr
- 2025 00:09:16 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1%5]) with mapi id 15.20.8606.033; Fri, 11 Apr 2025
- 00:09:16 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Sean Christopherson <seanjc@google.com>
-CC: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>, Alex Williamson
-	<alex.williamson@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Oliver Upton
-	<oliver.upton@linux.dev>, David Matlack <dmatlack@google.com>, Like Xu
-	<like.xu.linux@gmail.com>, Yong He <alexyonghe@tencent.com>
-Subject: RE: [PATCH 7/7] irqbypass: Use xarray to track producers and
- consumers
-Thread-Topic: [PATCH 7/7] irqbypass: Use xarray to track producers and
- consumers
-Thread-Index: AQHbpacJ2ovkFo48akOGu44GvutTVbOcirKAgAB6P4CAAJtecA==
-Date: Fri, 11 Apr 2025 00:09:15 +0000
-Message-ID: <BN9PR11MB5276AF8347DAF3D1C45150728CB62@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20250404211449.1443336-1-seanjc@google.com>
- <20250404211449.1443336-8-seanjc@google.com>
- <BN9PR11MB52769DDEE406798D028BC17D8CB72@BN9PR11MB5276.namprd11.prod.outlook.com>
- <Z_fbFcT3gxNK_dWr@google.com>
-In-Reply-To: <Z_fbFcT3gxNK_dWr@google.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|CH3PR11MB7764:EE_
-x-ms-office365-filtering-correlation-id: 43b0d015-be9f-47b1-8369-08dd788d18f0
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014|38070700018;
-x-microsoft-antispam-message-info: =?utf-8?B?ZHQ2VjJYdWNacGh1Qk9uTEtSU21lUXNsVnJMWjBQVTJqbW03Ry9GMjRCSUdH?=
- =?utf-8?B?ZEJXYmI5Tnh0TVRzbUNwUWJ0SGpRZ1JNczRCRDV4TCtaM1hhYXpNcW00RWNm?=
- =?utf-8?B?M0YvdGE3aE5HdXJ4NnFlYkZJS0hqcGpNWitwMFZ4c2F4ZTdacnkzQnl1VXNV?=
- =?utf-8?B?dTViR0R4b3dPYjBKZFZ6c0hHWnVBc0RZOVJJQjBaaWhvUmlOMUpMdkxKNVAz?=
- =?utf-8?B?TzBWbjF3cTBCOWMyYUIvb0JYclRmVWIzRXBubTdwQVZKSHlDM0dSeXRmQlEy?=
- =?utf-8?B?bm9PMFphdDFSeFVFNFFvT0h0MWNyY1gyM1hsS2p5cFdtWWswVFN0UDhUVmI1?=
- =?utf-8?B?ZG1wWlk5V0d6RTlrSDBRTHMwYy9PeUVnTTJoL1psSHBycHhhejVHZ3Z0dzE2?=
- =?utf-8?B?amhCU2tJREgrWU1TMXJWUndIMGdJejdDU0xYNzd4cGVXMHNkOHpwdVZ3bXVl?=
- =?utf-8?B?cGtGYTBDWDJWbHpWamlMU1QxbFZvdXNpSjBWUEl1WENWT092YWZVdVlxRG5y?=
- =?utf-8?B?aGNScm5FUWxUMDkrT09JMlhMVERCZ2Q0WVdzYXNlNFZYeVVSUFVLdUtuem11?=
- =?utf-8?B?Nld2Z3pEUzhjUjUyYXhuS3h3VDY5VkcrZHFUM2lhaXZmNnh5V0t1d1ZFQnVZ?=
- =?utf-8?B?L3B1MXZZOGIzSzYvVEQ2cERHcmFsT0NwNnRla2xZRzJOMTY1TkJscStvNHhj?=
- =?utf-8?B?Sm8vUEpmRjFlUnVGSXh5MGc0OGEvdlZlMHdFWWNyTVhNZXZ0MXhKQ1VDV2wx?=
- =?utf-8?B?SDFYRFNYZ1Q3NEZuQUdzcEJDU3BZNGhqd0NPeVNHT25kOVB0R1dyOGlieW9p?=
- =?utf-8?B?Q1dsWTBqUU0rV0pIWFczSHVncVhlVm1na3I1WW1YVnJGaWRxaG10a015Ympr?=
- =?utf-8?B?QXlSWnpmM2JwTjNwNHJCc0YwWEExUm9lbGxmL2ZwYkljQnZRVzd3YVc5cFJN?=
- =?utf-8?B?WDRzZGFqUjhjZFhnclV5UEJHcWpYT1FtRjJHR1FkRUp0T1lrUFZCV3ZoM0Nk?=
- =?utf-8?B?N1hHUldwcVJFSHNxVTg5UERYYWpSUUxMR2N1R0Y2VXBtRmduTDBRelNJN3Uy?=
- =?utf-8?B?TzNuN0pwczkxbzIxbmR0Zkl4NzVGem0rbXlZcEdsaW1RcXZJcnpnN0d5L09y?=
- =?utf-8?B?OXczelJoczVVNzJaLzFCV3h5bS8xVWpYa0laN3cyNzBtbG8zYTRrMlZvZURu?=
- =?utf-8?B?VmFZdkM1NktwRmJOdUJDWW01WlRuSzA0cEdzaEpPVE5wWjZlZENDTm5SM2JH?=
- =?utf-8?B?WnBVTGoyRGxYUU40U05MVDdkWGhlTmRsMDRNUmhCV1k2R3NibENxYVE1VFhO?=
- =?utf-8?B?R3dNN3c1OFh1NHRmcDNJa0lmTVlIQzNjaVcwSGdtdFQ4ZGlJUFM3ODdDUzVN?=
- =?utf-8?B?NEg1a1pRMDlkdXpIbGc3M2JKeTZBeTJaR3BxVm5QbUUxeVhnSDY3Lzd0dGZm?=
- =?utf-8?B?bllQNUN6MGlWZ1pIdkxGTzEzR0FVNjhkZ0NiMllIb1Vmd3YzdFh2ZGlvekpV?=
- =?utf-8?B?YXRJNW9BaGdDNjJnU3hwUHV3cVpxOXZyRTRyQlRobGtmbWhhVVRIeFFVZUdS?=
- =?utf-8?B?VWs3Z1BIcVByUFBDMG1TeTFVTEhKaE1SbHI4STJIblhXQmgwYjZxb3dTMW5G?=
- =?utf-8?B?Rkw3VEpJdjFFSnZTVjdlQTF5V0JrNm8vT2dKeHFQUUNRT0ZSZ21QeWorTzdD?=
- =?utf-8?B?ejdmZTRhNHlacWFtNDFwbFZxNUx2MTlESXBsZkNOcklxd0FuUWJPRkpmYlY3?=
- =?utf-8?B?NmN1dTVVbGd6V0ZnR2dHTHJIY2tITnJ2Ui9ZbjB5SVNsQ3lDdUlKUllIc0d3?=
- =?utf-8?B?NVhJZENLR2hrcjNGSmw1bmlJT3NqMGVkSTBVMnpsTWVWOWt5eEswWlBIWU5n?=
- =?utf-8?B?RG10ekcxbFNNd0dLaXdsQlhHOTFDRHV5VDkvUnFwdWprcHFaZW1kaStRS1VB?=
- =?utf-8?B?d3I0ZkduTXhiNndEUFZLdmowZ3A3UVdkcEFvdkEzSmJLbldCRGJ3SGVnZE9o?=
- =?utf-8?B?L0xoNzdjSE1nPT0=?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WVBnWkhDajRXNWJ2bU5SVlBLMDk2eDhxMStJU3htSjBiNGdUVjBjaStOTFVr?=
- =?utf-8?B?bmt4RUxsSFVCbUJHMnhURGNiWGwvbU5FYzFnS0Y4dC8yQXBkNWJQT3U3OWdM?=
- =?utf-8?B?Yng5OEhNUlpGcmlrNEhVZmtaaVFWOVg5dVkrNW9xc2JBb1FuN3FYMlJWbEUz?=
- =?utf-8?B?OU1JUzl6eC9hVXRZSWtwd0tURHVhdXdsbkRkNTdTQTZTWEtnUU5DT2hZemhZ?=
- =?utf-8?B?bnZqN1hqL0JodndXdktVSjRSMzErWnJnODRHdXhmSnNhNFBpeEJaM2F4SXkr?=
- =?utf-8?B?dlJ4djhkOGdTTHZ5YndVeWdEVlRNVmJPcG10ZnQ3OG1YclBmY2tCWkVPM2pV?=
- =?utf-8?B?YmhORXZobExEWnRna0pORS9TaHFPSUwxZ2RGUzRqVGtqSTBQd0hpR2FzVVhs?=
- =?utf-8?B?Qkt4MkF6ckJ4dVJpcHREZGRRYTBTME40RWhtc0VsN2IzcUN2eFltQktkRGFq?=
- =?utf-8?B?VzRoQXY5WFJCeElQcE9GaHNKUm9JUGVpMGpmejlZbTFrcFNnamxFV0ZsdktJ?=
- =?utf-8?B?VlRnMndxUkdTYVNSQWxCTlBUWFpGYUc5R3lyV09KUkdQK3JBNEl2V2JlRTg5?=
- =?utf-8?B?eDBtWUx1Z1RpemxCWHYxMXFPM0tFcGZydkoraXpJb0lPWlh4M0lmbmRqTzhC?=
- =?utf-8?B?Qkx4M3Y4ckRxamNWWmFkaEdPZkZlUk5SN1pFOGV6VGkvd2lnaE5kQlhNSzNt?=
- =?utf-8?B?QzBzSFhETk1WODIvK2huYW5wSG96QmRSNngyMVFxTkhpM3JRN1QwSGNoTE9k?=
- =?utf-8?B?M0sxbXNXcGNwTmNxYTlObll0eEs4NnZ3czBvK1gwcXR0aVNUMTQ2K3FvRFd3?=
- =?utf-8?B?cytNSGR2WHRKRlJralRRL0ZWanJ1Y1ZiR0h4eHc4dkx4bnhXZml5NWRkMUJH?=
- =?utf-8?B?eDVXUVRvYkh4Y1ZqV01ocmhsOVpmcml3RWRPQ1VPbm93UGQ2V0Y4S1BsdERy?=
- =?utf-8?B?bkdMSzdzbC9MSVdVRTc2MmxoVEFsY2pYWmI0Z2hsVHZpNEw0S2E4dmFJNWpT?=
- =?utf-8?B?TFA2WFRYa1AxZVBQZW4zUHVHaGdJOUtUUWRyNWlWVUFuQmpiZWh5ZjVHTGwv?=
- =?utf-8?B?MEVpbm1xaHp2OG12c2xrMjl2emF6Z0NsRzYwVkRhYUI4RHhkK2hiYVBhVUpT?=
- =?utf-8?B?REtVWWNIVC9qMUt5YlVRY285QUdWdXc1THUzeHdpTEN1NVpTekdhdzd3Mmtq?=
- =?utf-8?B?M2NOWHUvREtQd2I0eEkyRmw1ditnQ3I1WXl4K2FKRFVLTUtLdEpudDFuUHFX?=
- =?utf-8?B?VkRZMWp4MlFCbTNlbHdWVUZCU1dkNDBBakhHMm9MRnEyNjl4NWcrcXR1cmhn?=
- =?utf-8?B?UDZlc3VPd0wrbFNocVJzRTRCNUpIdUJFWERmZG1KS0pUNnM0TnhKNEFVMXd1?=
- =?utf-8?B?bGNOc0RHRmErSmNHRTBDekpRS1JRcWdYWXB1Qnk1KzdVVm9CQmxnUlNFUm51?=
- =?utf-8?B?L2wzNGRuQ2R5Ry9HWnhRRnFyZWFQaVUyVlBiVU50anIwaWVzRUhjTzl6ZW00?=
- =?utf-8?B?VmZiSEZmcUIyQ1dZbXhybzQvVUlnWG5wWEFoL1gzc3FpclNRU2pBT3pFU1U2?=
- =?utf-8?B?dHFGZktCaXRjT2RmNC91T3Mra0FMQ3puQmdEb1VxdzRYQ001WnpmWkVHamNH?=
- =?utf-8?B?K0M4Zmp2VW05aW1HR3NDbGsyU1A4N2pVNkpIanhpQ3RYamUyR3VQZlJKZ3pT?=
- =?utf-8?B?NVpFRXFJN1BLVk1DR3BZZlhaVFFHUnZ2QjVIUnI5YURGR1loSEpQWm5GcWJ6?=
- =?utf-8?B?eFVZREdiVFdCbmZveWptWW96azRmQjUxYVoxWWNaOXhtR3RHcXRweHJIUDBX?=
- =?utf-8?B?c0VFNTR3Snk5dy9iYmpaeGhtNVNHWTVKRW55SE5DRFVLVkdPQWlVbzJFRmVI?=
- =?utf-8?B?QWtiU1lBdjBEbytnVVhWM0htQkZSa0lnYytYdlRUbGxwSmZOaWpYRGFjV3hJ?=
- =?utf-8?B?VVBpS203VTg1MGxaNkhEM0REL0VmQ2xBTE5QeGJjd2tTVldTQkJlL0tZd0FR?=
- =?utf-8?B?cFNHTHZqcWhDd2Z6TlRMLzNSRG1rdCtOR290Qlp5Qkx2ZUNtb2NBdVNPaHQz?=
- =?utf-8?B?NE5lM0IvMjhDWUdNZGhnczNaVk9XbzZRYTRGeDhVbUZDRE5Yc3ZsaEJXdkd1?=
- =?utf-8?Q?wSuQgVLAJahSHzuBiaxDlou3H?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GHJG306x"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-af93cd64ef3so1088569a12.2
+        for <virtualization@lists.linux.dev>; Thu, 10 Apr 2025 18:08:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744333683; x=1744938483; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=JGskHW7seL/P/rvGWfICBJ6oMmfUPuzdCOaSxJuegB4=;
+        b=GHJG306xT4Yze7nfFOR6PtV5qJF8qlak2k9B3BLsD+IRtgyD3h7GcoNe2L0oz1T2fI
+         yCaLkig+EHtJ+wyjtjA8aYfSxswdYKljztp0W305nSYteR7ld41lRaR5h9tr2dh8C52n
+         lnhv/C2DnmtTqmmtTOUBKQ4Fewt1q9oayREUpPRhWc9K/fLrbHPtWXfXfI6waR9KQzIp
+         Pfv4J5xMRX9DtAXkY8h0LVmV3CzsHe4eEssBPiGcv2QRHEQ+ByLS7gZ4HErXTFu9h8wD
+         lVuMi6kRMXY/bqa/ii6i3TLKwWQj4xB3YF2AQkqw65PJCpng1OxiayTYCgnd5ECdmVhN
+         iFTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744333683; x=1744938483;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JGskHW7seL/P/rvGWfICBJ6oMmfUPuzdCOaSxJuegB4=;
+        b=dj5UwGkwNu8L6pqnOp2VLUAYR0sx4JHx7fm8U+TxBIZr1h7xpmqU7CCoeeDDoKLmsU
+         qF6Ef9ywoyPfF3ACuJiI763oGY9qt1GS0LwV0ynF+rWw4cPkOsd4twdyW9h55vX8Ld+n
+         hxMLfxqFoio5hX4Oxiu2m5cUiYmYY8g6HdQ7HCubVKEUi34B53pIFMsjg5ZtYYV41F0o
+         kV2S1K8GabaVq0xJM7XE7WdI1AAR0BaFVxxZ3PKG2No3IM40EvENR4b5QtTfVEmSEBFH
+         sDxMY0i09u9qqlY8xF7W0+N4aMPsYyDGv2er/s1/S1FYr0nDzds83sux34Gmyul+2871
+         37cg==
+X-Forwarded-Encrypted: i=1; AJvYcCUDr0EazJNbq0YfW9pU/7TGY/Z4LK4NBPb2qcaqWP9OikBvGB0jkWwpaJ/mATSS0mHUS8Ott30MVVHGL5hprQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YysHSknCw2h1YfjKuaphNak0gjcysg7ODKXzKaOcx6mhvwx7QZg
+	Pm/+q4UYz9Cjg/o2MVvdcNvABb9umgxOPUWl3GRTrSMcAoEip+aP
+X-Gm-Gg: ASbGncvJRoyY7LuC5Kvjuba+R2SM/NwsDvANHlIkdY2z6vL54HJ6LJnyWveJbK/KjwE
+	0PLu1Rdy8iE79qEprhZiqGL0D99dPkKt5sa2zcj6uYzyj5XoOIqI7EWuVRqvVbwJlylpVpSgrSd
+	6+d8m5JB7mBDEWihmrJRCQEu+xPtGNEl2QloZATzIfKY/04kxeG1BAhP57aaT4yPPcwCh9Lan5D
+	S3Bo5buMYeG5WNkDMjJnrpQaL2VCFYhh8knW0kkPIdCjCM4gLNjn2WPrzXvStlBjSlebUnvmz7L
+	ZKTI233NhLhgz5qWhGONOqimgUdZDm04j+UmzLF7xAGnhGGZ
+X-Google-Smtp-Source: AGHT+IH/PJdoKYT0aClNeZ6cG3SrtolFbPxI7bcbU1N2WvGjdVh+AypnsqfR8vsaLdVrqlT/u61amQ==
+X-Received: by 2002:a17:902:cccc:b0:224:6ee:ad with SMTP id d9443c01a7336-22bea4fdc13mr12842955ad.44.1744333682871;
+        Thu, 10 Apr 2025 18:08:02 -0700 (PDT)
+Received: from localhost ([2a03:2880:2ff:6::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22ac7b8b2absm37564365ad.83.2025.04.10.18.08.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Apr 2025 18:08:01 -0700 (PDT)
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+Date: Thu, 10 Apr 2025 18:07:59 -0700
+Subject: [PATCH net-next] selftests/vsock: add initial vmtest.sh for vsock
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 43b0d015-be9f-47b1-8369-08dd788d18f0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Apr 2025 00:09:15.9991
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: YeWRVuOfxvFK0wG4nEJ5uGHii9WT0wsqwa2x+1jw9XpKiZmlEwFH2C1/Qu68kzfLxTFnJMVjYjlnMATK6y9UYQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR11MB7764
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250410-vsock-vmtest-v1-1-f35a81dab98c@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAG5r+GcC/x3MQQqDMBAF0KsMf+1AMuImVyld2DjVoTSWTAiCe
+ Heh7wDvhGs1dSQ6UbWb216QKA6EvM1lVbYFiSBBpjDKxN33/OH+beqNX+MscZEYJAsGwq/q245
+ /90DRxkWPhud13ZZ2ustoAAAA
+X-Change-ID: 20250325-vsock-vmtest-b3a21d2102c2
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>
+Cc: kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ Bobby Eshleman <bobbyeshleman@gmail.com>
+X-Mailer: b4 0.14.2
 
-PiBGcm9tOiBTZWFuIENocmlzdG9waGVyc29uIDxzZWFuamNAZ29vZ2xlLmNvbT4NCj4gU2VudDog
-VGh1cnNkYXksIEFwcmlsIDEwLCAyMDI1IDEwOjUyIFBNDQo+IA0KPiBPbiBUaHUsIEFwciAxMCwg
-MjAyNSwgS2V2aW4gVGlhbiB3cm90ZToNCj4gPiA+IEZyb206IFNlYW4gQ2hyaXN0b3BoZXJzb24g
-PHNlYW5qY0Bnb29nbGUuY29tPg0KPiA+ID4gU2VudDogU2F0dXJkYXksIEFwcmlsIDUsIDIwMjUg
-NToxNSBBTQ0KPiA+ID4NCj4gPiA+IFRyYWNrIElSUSBieXBhc3MgcHJvZHVzZXJzIGFuZCBjb25z
-dW1lcnMgdXNpbmcgYW4geGFycmF5IHRvIGF2b2lkIHRoZQ0KPiA+ID4gTygybikNCj4gPiA+IGlu
-c2VydGlvbiB0aW1lIGFzc29jaWF0ZWQgd2l0aCB3YWxraW5nIGEgbGlzdCB0byBjaGVjayBmb3Ig
-ZHVwbGljYXRlDQo+ID4gPiBlbnRyaWVzLCBhbmQgdG8gc2VhcmNoIGZvciBhbiBwYXJ0bmVyLg0K
-PiA+ID4NCj4gPiA+IEF0IGxvdyAodGVucyBvciBmZXcgaHVuZHJlZHMpIHRvdGFsIHByb2R1Y2Vy
-L2NvbnN1bWVyIGNvdW50cywgdXNpbmcgYQ0KPiBsaXN0DQo+ID4gPiBpcyBmYXN0ZXIgZHVlIHRv
-IHRoZSBuZWVkIHRvIGFsbG9jYXRlIGJhY2tpbmcgc3RvcmFnZSBmb3IgeGFycmF5LiAgQnV0IGFz
-DQo+ID4gPiBjb3VudCBjcmVlcHMgaW50byB0aGUgdGhvdXNhbmRzLCB4YXJyYXkgd2lucyBlYXNp
-bHksIGFuZCBjYW4gcHJvdmlkZQ0KPiA+ID4gc2V2ZXJhbCBvcmRlcnMgb2YgbWFnbml0dWRlIGJl
-dHRlciBsYXRlbmN5IGF0IGhpZ2ggY291bnRzLiAgRS5nLiBodW5kcmVkcw0KPiA+ID4gb2YgbmFu
-b3NlY29uZHMgdnMuIGh1bmRyZWRzIG9mIG1pbGxpc2Vjb25kcy4NCj4gPg0KPiA+IGFkZCBhIGxp
-bmsgdG8gdGhlIG9yaWdpbmFsIGRhdGEgY29sbGVjdGVkIGJ5IExpa2UuDQo+ID4NCj4gPiA+DQo+
-ID4gPiBDYzogT2xpdmVyIFVwdG9uIDxvbGl2ZXIudXB0b25AbGludXguZGV2Pg0KPiA+ID4gQ2M6
-IERhdmlkIE1hdGxhY2sgPGRtYXRsYWNrQGdvb2dsZS5jb20+DQo+ID4gPiBDYzogTGlrZSBYdSA8
-bGlrZS54dS5saW51eEBnbWFpbC5jb20+DQo+ID4gPiBSZXBvcnRlZC1ieTogWW9uZyBIZSA8YWxl
-eHlvbmdoZUB0ZW5jZW50LmNvbT4NCj4gPiA+IENsb3NlczogaHR0cHM6Ly9idWd6aWxsYS5rZXJu
-ZWwub3JnL3Nob3dfYnVnLmNnaT9pZD0yMTczNzkNCj4gPiA+IExpbms6IGh0dHBzOi8vbG9yZS5r
-ZXJuZWwub3JnL2FsbC8yMDIzMDgwMTExNTY0Ni4zMzk5MC0xLQ0KPiBsaWtleHVAdGVuY2VudC5j
-b20NCj4gDQo+IEkgbGlua2VkIExpa2UncyBzdWJtaXNzaW9uIGhlcmUsIHdoaWNoIGhhcyBoaXMg
-bnVtYmVycy4gIFdvdWxkIGl0IGJlIGhlbHBmdWwNCj4gdG8NCj4gZXhwbGljdGx5IGNhbGwgdGhp
-cyBvdXQgaW4gdGhlIG1lYXQgb2YgdGhlIGNoYW5nZWxvZz8NCg0KTm8uIEkganVzdCBvdmVybG9v
-a2VkIHRoYXQgbGluZS4g8J+Yig0K
+This commit introduces a new vmtest.sh runner for vsock.
+
+It uses virtme-ng/qemu to run tests in a VM. The tests are designed to
+validate both G2H and H2G paths. The testing tools from tools from
+tools/testing/vsock/ are reused. Currently, only vsock_test is used.
+
+Only tested on x86.
+
+To run:
+
+  $ tools/testing/selftests/vsock/vmtest.sh
+
+Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+---
+ MAINTAINERS                                |   1 +
+ tools/testing/selftests/vsock/.gitignore   |   1 +
+ tools/testing/selftests/vsock/config.vsock |   6 +
+ tools/testing/selftests/vsock/vmtest.sh    | 247 +++++++++++++++++++++++++++++
+ 4 files changed, 255 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c3fce441672349f7850c57d788bc1a29b203fba5..f214cf7c4fb59ec67885ee6c81daa44e17c80f5f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -25323,6 +25323,7 @@ F:	include/uapi/linux/vm_sockets.h
+ F:	include/uapi/linux/vm_sockets_diag.h
+ F:	include/uapi/linux/vsockmon.h
+ F:	net/vmw_vsock/
++F:	tools/testing/selftests/vsock/
+ F:	tools/testing/vsock/
+ 
+ VMALLOC
+diff --git a/tools/testing/selftests/vsock/.gitignore b/tools/testing/selftests/vsock/.gitignore
+new file mode 100644
+index 0000000000000000000000000000000000000000..1950aa8ac68c0831c12c1aaa429da45bbe41e60f
+--- /dev/null
++++ b/tools/testing/selftests/vsock/.gitignore
+@@ -0,0 +1 @@
++vsock_selftests.log
+diff --git a/tools/testing/selftests/vsock/config.vsock b/tools/testing/selftests/vsock/config.vsock
+new file mode 100644
+index 0000000000000000000000000000000000000000..a229c329d44e4a0b650d073b74949b577da3dc64
+--- /dev/null
++++ b/tools/testing/selftests/vsock/config.vsock
+@@ -0,0 +1,6 @@
++CONFIG_VSOCKETS=y
++CONFIG_VSOCKETS_DIAG=y
++CONFIG_VSOCKETS_LOOPBACK=y
++CONFIG_VIRTIO_VSOCKETS=y
++CONFIG_VIRTIO_VSOCKETS_COMMON=y
++CONFIG_VHOST_VSOCK=y
+diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+new file mode 100755
+index 0000000000000000000000000000000000000000..f2dafcb893232f95ebb22104a62ce1e0312f4e89
+--- /dev/null
++++ b/tools/testing/selftests/vsock/vmtest.sh
+@@ -0,0 +1,247 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++#
++# Copyright (c) 2025 Meta Platforms, Inc. and affiliates
++#
++# Dependencies:
++#		* virtme-ng
++#		* busybox-static (used by virtme-ng)
++#		* qemu	(used by virtme-ng)
++
++SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
++KERNEL_CHECKOUT=$(realpath ${SCRIPT_DIR}/../../../..)
++PLATFORM=${PLATFORM:-$(uname -m)}
++
++if [[ -z "${QEMU:-}" ]]; then
++	QEMU=$(which qemu-system-${PLATFORM})
++fi
++
++VSOCK_TEST=${KERNEL_CHECKOUT}/tools/testing/vsock/vsock_test
++
++TEST_GUEST_PORT=51000
++TEST_HOST_PORT=50000
++TEST_HOST_PORT_LISTENER=50001
++SSH_GUEST_PORT=22
++SSH_HOST_PORT=2222
++VSOCK_CID=1234
++
++QEMU_PIDFILE=/tmp/qemu.pid
++
++# virtme-ng offers a netdev for ssh when using "--ssh", but we also need a
++# control port forwarded for vsock_test.  Because virtme-ng doesn't support
++# adding an additional port to forward to the device created from "--ssh" and
++# virtme-init mistakenly sets identical IPs to the ssh device and additional
++# devices, we instead opt out of using --ssh, add the device manually, and also
++# add the kernel cmdline options that virtme-init uses to setup the interface.
++QEMU_OPTS=""
++QEMU_OPTS="${QEMU_OPTS} -netdev user,id=n0,hostfwd=tcp::${TEST_HOST_PORT}-:${TEST_GUEST_PORT}"
++QEMU_OPTS="${QEMU_OPTS},hostfwd=tcp::${SSH_HOST_PORT}-:${SSH_GUEST_PORT}"
++QEMU_OPTS="${QEMU_OPTS} -device virtio-net-pci,netdev=n0"
++QEMU_OPTS="${QEMU_OPTS} -device vhost-vsock-pci,guest-cid=${VSOCK_CID}"
++QEMU_OPTS="${QEMU_OPTS} --pidfile ${QEMU_PIDFILE}"
++KERNEL_CMDLINE="virtme.dhcp net.ifnames=0 biosdevname=0 virtme.ssh virtme_ssh_user=$USER"
++
++LOG=${SCRIPT_DIR}/vsock_selftests.log
++
++#		Name				Description
++tests="
++	vm_server_host_client			Run vsock_test in server mode on the VM and in client mode on the host.
++	vm_client_host_server			Run vsock_test in client mode on the VM and in server mode on the host.
++"
++
++usage() {
++	echo
++	echo "$0 [OPTIONS]"
++	echo
++	echo "Options"
++	echo "  -v: verbose output"
++	echo
++	echo "Available tests${tests}"
++	exit 1
++}
++
++die() {
++	echo "$*" >&2
++	exit 1
++}
++
++vm_ssh() {
++	ssh -q -o UserKnownHostsFile=/dev/null -p 2222 localhost $*
++	return $?
++}
++
++cleanup() {
++	if [[ -f "${QEMU_PIDFILE}" ]]; then
++		pkill -9 -F ${QEMU_PIDFILE} 2>&1 >/dev/null
++	fi
++}
++
++build() {
++	log_setup "Building kernel and tests"
++
++	pushd ${KERNEL_CHECKOUT} >/dev/null
++	vng \
++		--kconfig \
++		--config ${KERNEL_CHECKOUT}/tools/testing/selftests/vsock/config.vsock
++	make -j$(nproc)
++	make -C ${KERNEL_CHECKOUT}/tools/testing/vsock
++	popd >/dev/null
++	echo
++}
++
++vm_setup() {
++	local VNG_OPTS=""
++	if [[ "${VERBOSE}" = 1 ]]; then
++		VNG_OPTS="--verbose"
++	fi
++	vng \
++		$VNG_OPTS	\
++		--run ~/local/linux \
++		--qemu /bin/qemu-system-x86_64 \
++		--qemu-opts="${QEMU_OPTS}" \
++		--user root \
++		--append "${KERNEL_CMDLINE}" \
++		--rw  2>&1 >/dev/null &
++}
++
++vm_wait_for_ssh() {
++	i=0
++	while [[ true ]]; do
++		if (( i > 20 )); then
++			die "Timed out waiting for guest ssh"
++		fi
++		vm_ssh -- true
++		if [[ $? -eq 0 ]]; then
++			break
++		fi
++		i=$(( i + 1 ))
++		sleep 5
++	done
++}
++
++wait_for_listener() {
++	local PORT=$1
++	local i=0
++	while ! ss -ltn | grep -q ":${PORT}"; do
++		if (( i > 30 )); then
++			die "Timed out waiting for listener on port ${PORT}"
++		fi
++		sleep 3
++		i=$(( i + 1 ))
++	done
++}
++
++vm_wait_for_listener() {
++	vm_ssh -- "$(declare -f wait_for_listener); wait_for_listener ${TEST_GUEST_PORT}"
++}
++
++host_wait_for_listener() {
++	wait_for_listener ${TEST_HOST_LISTENER_PORT}
++}
++
++log() {
++	local prefix="$1"
++	shift
++
++	if [[ "$#" -eq 0 ]]; then
++		cat | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }' | tee -a ${LOG}
++	else
++		echo "$*" | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }' | tee -a ${LOG}
++	fi
++}
++
++log_setup() {
++	log "setup" "$@"
++}
++
++log_host() {
++	testname=$1
++	shift
++	log "test:${testname}:host" "$@"
++}
++
++log_guest() {
++	testname=$1
++	shift
++	log "test:${testname}:guest" "$@"
++}
++
++test_vm_server_host_client() {
++	local testname="vm_server_host_client"
++	vm_ssh -- "${VSOCK_TEST}" \
++							--mode=server \
++							--control-port="${TEST_GUEST_PORT}" \
++							--peer-cid=2 \
++							2>&1 | log_guest "${testname}" &
++
++	vm_wait_for_listener
++	${VSOCK_TEST}	\
++		--mode=client	\
++		--control-host=127.0.0.1	\
++		--peer-cid="${VSOCK_CID}"	\
++		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host "${testname}"
++
++	rc=$?
++}
++
++test_vm_client_host_server() {
++	local testname="vm_client_host_server"
++
++	${VSOCK_TEST}	\
++		--mode "server" \
++		--control-port "${TEST_HOST_PORT_LISTENER}" \
++		--peer-cid "${VSOCK_CID}" 2>&1 | log_host "${testname}" &
++
++	host_wait_for_listener
++
++	vm_ssh -- "${VSOCK_TEST}"	\
++		--mode=client	\
++		--control-host=10.0.2.2	\
++		--peer-cid=2	\
++		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest "${testname}"
++
++	rc=$?
++}
++
++run_test() {
++	unset IFS
++	name=$(echo "${1}" | awk '{ print $1 }')
++	eval test_"${name}"
++}
++
++while getopts :hv o
++do
++	case $o in
++	v) VERBOSE=1;;
++	h|*) usage;;
++	esac
++done
++shift $((OPTIND-1))
++
++trap cleanup EXIT
++
++> ${LOG}
++build
++log_setup "Booting up VM"
++vm_setup
++vm_wait_for_ssh
++log_setup "VM booted up"
++
++IFS="
++"
++cnt=0
++for t in ${tests}; do
++	rc=0
++	run_test "${t}"
++	if [[ ${rc} != 0 ]]; then
++		cnt=$(( cnt + 1 ))
++	fi
++done
++
++if [[ ${cnt} = 0 ]]; then
++	echo OK
++else
++	echo FAILED: ${cnt}
++fi
++echo "Log: ${LOG}"
++exit ${cnt}
+
+---
+base-commit: cc04ed502457412960d215b9cd55f0d966fda255
+change-id: 20250325-vsock-vmtest-b3a21d2102c2
+
+Best regards,
+-- 
+Bobby Eshleman <bobbyeshleman@gmail.com>
+
