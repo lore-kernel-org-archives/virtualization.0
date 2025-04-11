@@ -1,35 +1,35 @@
-Received: from smtpbgau2.qq.com (smtpbgau2.qq.com [54.206.34.216])
+Received: from smtpbgsg1.qq.com (smtpbgsg1.qq.com [54.254.200.92])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41810278E6D;
-	Fri, 11 Apr 2025 10:54:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.206.34.216
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B423278E63;
+	Fri, 11 Apr 2025 10:54:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.254.200.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744368855; cv=none; b=QDrJ0/ZkstUyyGRJjSYNpplvTUf7mD2Rz5/JCyg8v1h7uyrKyawhG7Q5wYXsmYy4/bE1cFZ06WNbarBrBipRlaglRogJB+yL9PE3IuQpLHVxt0wGwD/nZOmMcryUaY4F9K1IXEGeZRvnyMaOsXnS2QVRT18sIcJec2phA0Tns6o=
+	t=1744368874; cv=none; b=YEd8Ksk19KifI0FLHt57jaZlnyhqhLS0+bvmLgnBd0KXahvORherCcRzY975qYefG0pRv59/ESnQKEM1nO/zzE4hSRnDPIW206CwX1jMEBRy8+xWQ8Mnazog/Iv9fMkHwOOTQ+mD+hTmEfPiF9/GvelggTcB5RDBOoDYMWSTNYg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744368855; c=relaxed/simple;
+	s=arc-20240116; t=1744368874; c=relaxed/simple;
 	bh=ivxH0h28h54uT++OFPn2fGmx8H36zuQIX9TAA6mwKOs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=p5gvvSpHNE3yuIuUgprHnxSVW2XR2i7mMmx/pOC2K76BWCDBDV8kv1woYWsfijXeXzG2AiP+XEPFwLRoTRCY4TUNpfA4Hy+7VOrSs8i2/KURMPy6lfRpXhGnP0tmAfh6Px+Xx8O8XB2WBBWb7J+/xupHBwY2iaJZCjOTb7kE7pM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=oEDtWs0M; arc=none smtp.client-ip=54.206.34.216
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ApnJgWHmYeycjU6qLx/FH/UEIvWibiniRPbpteWqCjalP8Idh/8ZFeyGGui1J6nJBohYVJ6LJg2cFQdRLNecsnrDDooS2fE/oZ7gboqkGU2zCEUsWOc8STMw3fLSKZJygpZNAmTE7PgO++1A/TXWHmtMScg40ixzXaSUxV4uCcs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=p4feHx0p; arc=none smtp.client-ip=54.254.200.92
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="oEDtWs0M"
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="p4feHx0p"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1744368776;
+	s=onoh2408; t=1744368814;
 	bh=X0ufIEoNyj3oR0IYewqEF9lLAz1QUMF0bHnORwk+1hQ=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=oEDtWs0MtOtqbQ52t42fAH2CYfpa2sjc/7YB7kmwSWKbRWNH4BcZQrd9TA+4+5NZ2
-	 sKAQcidFwdkcNzSb5JHuCHk5pz0WqfXcmx1G8haHtSclHKYen7zausbLoykZ/i9Jqk
-	 Tm38rBjPe35TVZtQBMfs8kZQBNVPKu4dDC+t5oRE=
-X-QQ-mid: izesmtp88t1744368758t32cfd97f
-X-QQ-Originating-IP: tKvnF/gmZ4DIpXdx6u7S98Ombl0e/s4+gqgyAGenmmg=
+	b=p4feHx0p+uyXjRmm0Fh1YM+W6uyVeqlOpxoVLDyQqqL1K0cO+qYKtns3HG2AkZHGw
+	 Lh+XRX5pm6Yz9A06BoVGe+h2zZsJsCMEI0WxP3Ty/SiUQVlm0FSjaKjVRPkm6TndWR
+	 FF/mJXOj0j7PAYTQTh1mQwJ2TIBNWEFTyzrq9kDM=
+X-QQ-mid: izesmtp89t1744368797te5117757
+X-QQ-Originating-IP: IPlCEmE7xzZ8ozIOcwucNJTzsElxK9Oh578T97Ar7i4=
 Received: from localhost.localdomain ( [113.57.152.160])
 	by bizesmtp.qq.com (ESMTP) with 
-	id ; Fri, 11 Apr 2025 18:52:34 +0800 (CST)
+	id ; Fri, 11 Apr 2025 18:53:13 +0800 (CST)
 X-QQ-SSF: 0000000000000000000000000000000
 X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 5811992715279106274
+X-BIZMAIL-ID: 3300532361145628569
 EX-QQ-RecipientCnt: 39
 From: Chen Linxuan <chenlinxuan@uniontech.com>
 To: Masahiro Yamada <masahiroy@kernel.org>,
@@ -72,8 +72,8 @@ Cc: linux-kbuild@vger.kernel.org,
 	linux-mm@kvack.org,
 	llvm@lists.linux.dev
 Subject: [RFC PATCH 0/7] kernel-hacking: introduce CONFIG_NO_AUTO_INLINE
-Date: Fri, 11 Apr 2025 18:51:35 +0800
-Message-ID: <31F42D8141CDD2D0+20250411105142.89296-1-chenlinxuan@uniontech.com>
+Date: Fri, 11 Apr 2025 18:52:59 +0800
+Message-ID: <E9B8B40E39453E89+20250411105306.89756-1-chenlinxuan@uniontech.com>
 X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -84,22 +84,24 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
 Feedback-ID: izesmtp:uniontech.com:qybglogicsvrgz:qybglogicsvrgz5a-1
-X-QQ-XMAILINFO: MtJoEQFRGvIzah4Ke5Vo4KIanFxZCiutX0b6+GqzojqVsHeLpmjJq+0/
-	rCj7ZUec/3JjBUW36XLND3xWPhVxvvJ6lz4kH0UFLiJVAxGNUuHNRdOQny7M9Q/9hKYTRpa
-	C2YSbQeNvRE4FfLsOpdlHPzB81Ft4O71uQLIImSOaEd/iqcf53UZdGxfJWx6yGYxr8r8eY7
-	SmWWRQn4wtyCBYoMKv2dD7zFhW6WzgJNPQUmskMSDfEMzu3eG8c83lNYJrGkdDf+EzEhrv3
-	ASu0G2TIiD2rKHxab3WcMxv5Fp14gHBAP5zM+mNWMdt0xMNlX7gc6s906MlnSF++XROGW9V
-	zUt+gVnqvTHsTRVQ/HYB1PiJ/p66PTnTEghuR2TV3uaCRpfUVkv+pXmJw1S2f41vP8PPgao
-	ishFqaBqT3foLyptn4Q92f+jYcIkS+KcoFH5Q3dGMYzUl4lw5vWnyovkZZWBMrK2VLHpam0
-	vA0x97qWEa7CwO3GB3Jl10nsMzByeXT2lykmVP5ax8TXrK6wLvx3CAjr0Ist0gh1A6bzL+B
-	ny1xpJtsm5Kd5tpZau+r+SSLohrxPl1v3yBpJQtCoN62s9lZV7ad/iEPeRQKxuOGqLI//hj
-	nMJFR/Ngs4Bd2Mlem/dCh0AN2ioLFgn0loX4T+MuJOJXqWk19CQn54mTbDnB71Rt7tnVIqK
-	9ryTh1S7dErXIVlg2Uf3Qbhh/XxVfuBJ+2qCDCLbxDxKYHI0/3+SgltiC5eN8Aq/PkeTgDd
-	6MXAArCIy20nGWxB21oLXCg+3t8WfsUG421o5VMAYw3Q5FEUp6f451+rc8wPfzCGieiZMf6
-	cNChTyHG3jmaZWCPTCa3eiihY+Pqz4l+KzFkr2z8t8lKr8X1xz+/vk0jzOIEJWcEMpq0gpP
-	tCGZ4qaWqpJv7IMydJ3Hleuduzdd8EIPHX9F5J5S8ggNk3cR77jGl8D5n+ehiyAyd0bNtoG
-	dRXwZS/HP38d0tGn4lS6Xp+clVOG5royvRDrFwH2UtUJbnW38pZf7v/zFczstz8UZDSE=
-X-QQ-XMRINFO: MPJ6Tf5t3I/ycC2BItcBVIA=
+X-QQ-XMAILINFO: NNy5VkfPTUBBcmzEQL7gJYMkRMwDXd9sA3Ie/+sW28mdx9tjiY7lL0AB
+	kZPoqBLUtK51UlG/54tbzRLbvRuwCMIeJfiY0lwSm0Gc8Mhzj5BlxXD1CCpmUfF9OKjfY+P
+	bSPgR14rkhpQYINf0+iKjwzjgP/s72xmujqHnJrkrduq+GQZV07AxjQ9V9k3ebnoaOzC093
+	yA/xqFl4aZ0leAaSjHYnTmLAM3VD0SBX4HVpk6j+ok33VhmrWCeGwFxUbXlOSpKNnnPFb1D
+	2em9GmdU6zCsM0tRnJ2SpqTbDZvAu3Terb5PbQdSd6a4PeUZm1CdcXHuF5GHN5sMCPvto/F
+	aUOXsJ+eOiF12eex1OKud28MiFufd3C9axpkwzvUAJMK9Nx9igUN1RMGkoOgJ8dHV24AuKE
+	gsB6utdERdV5x0PcM8Ho6LLOaeWldIQcXFi8wo2CpWf8TaQ8fd+4cSj19wan+dSFu0yZQXw
+	Pz1Zj2BZySMxIzRknWjWMQvoo3720MjOBWZxVw/YJFo1IU03UHL1Zm6SqxTEBkWnGrwQPPz
+	zwJT3e4YcSBEvDj9OqtRB26UKddQyyksB7pBQlUkQGwHYI6v4KrrnwJnSaXiK2VgHY5U+ri
+	9meK+XD9PgHlY6iFVYJq22KBIPL9/33fKacaQzd/t/7M+NeT7YZlRf3WPoZmuatbwwW8mHI
+	xN0oedUf5Xg8JnENvpTPlZagOzSQQcoi+E1u3fIXpRVMsfdtUgI5T3/RWPzt1v2S0HMILaC
+	C9sjOGytZaMk+ZpF1Ln38yiJJ9ANSir8Xvmj2n606kowiy2amaOFr/q6RLA9FNx5eDl1eZ3
+	F+cmIficnUh3fJaOAN2i0GZQfgBhSzbuQS1cirp/DiZdsy4PMMvO/82VxW+HQLiOpUzqe8C
+	CeA+F+HlWB5o0dHDS41dMXSUBklz4dUuKucv9F7LchFE8YVTf9muwLNGs6/gsZ5r7wEiQJo
+	rj8V4LjemM3Vufou5FlFef3yAbMWD/X+HQUdIGJHqaAh1kXY2y8oVi5Pe1MnBbzlAnnwivd
+	jdpqnL8lirVP+lzaZqrMsNNsS148NfZFp00c+DcctfI2RLRm+fJ0T3OpzXFv9icQRfsm08Q
+	ndHsF5aQpxw
+X-QQ-XMRINFO: Nq+8W0+stu50PRdwbJxPCL0=
 X-QQ-RECHKSPAM: 0
 
 This series introduces a new kernel configuration option NO_AUTO_INLINE,
