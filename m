@@ -1,111 +1,138 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C318F10F9;
-	Sat, 12 Apr 2025 04:33:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4451719CD1E
+	for <virtualization@lists.linux.dev>; Sat, 12 Apr 2025 13:21:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744432393; cv=none; b=PI3kHc5wvROflCd9nD5fjyiGG+cMsFIc3MFiL4f1+pFiB/x+6YLQuNF3W9z5X+ovQ2fIsSyA6tGjxL4XLVdmyKjA3ZIQZUMoklHI5HlA3nOmmURumHQ6Y0RzQK6R6/bsaNJL04DKTSLE7nTsnANm616Oj/3E9OYz1xWimlv+g5c=
+	t=1744464067; cv=none; b=bTW2TDViHnhWPU0fQy3G4jutCS6Qczv3Y+AI76ByyYRZFZO8jDEDxGmSdsEt9d8lnrSYQRNpLFT3AKwT5XgI42OrMwdL1BLKEHnZrJlrkgxFRoiehZo/mFf/MOnEvBs284FFQMaddWDjP5SHnkWuu/KccipWTrLB7QT1Y0bOj3A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744432393; c=relaxed/simple;
-	bh=8HY4pXq4/0sgSGqWKzYB0xMabci34z/M8SocsQbtjIc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JkGigN14ttjUx/HaIQZ+WOlkYRKi+WxNhmicw8EUPcTrCu1EtgWVBM9HqTkiTwA77nZhNrUCbmp9qdmA6bGVVjosnoxeSoG3nAQrXqb7k5qaQqIHWm12yIEbOSbAeHLBtuirIcoq1rke33lBC3X5zuqSJ/cks9nEiIvllqor0bc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=UmkMzcYF; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1744464067; c=relaxed/simple;
+	bh=3TPNIoSPNI0MehJrLCyOai0X0fQvy/BYAPhC/wsGsaE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=QT2cPz6A/r3g0sNESQX/VGe1OEnuQt31ig6BLkP+tlP8lwmpBb7jMSm++AuEZzZp/Io7I2a0I89IBG1yqw7wL93vmnf4Hj7dTa2rAbsM8DneMcn3kqZ0Gtw2Zr9Z+Utb2nJfENliWc5iYG+WM3QSYKzw7j2l6aJoo/1axTWuoXY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HwAQP4c4; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="UmkMzcYF"
-Received: from [192.168.7.202] ([71.202.166.45])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53C4WWUM871113
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Fri, 11 Apr 2025 21:32:32 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53C4WWUM871113
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025032001; t=1744432355;
-	bh=8HY4pXq4/0sgSGqWKzYB0xMabci34z/M8SocsQbtjIc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=UmkMzcYFMOohEYDvst/+wSrvJqxBWNM3y8pTlydtS9u0Vr7uRFr3Z3pCuQCca14kO
-	 ACsIUaW4DWSFZQk6os5w5N7c+E5hX8uOXvMG58Zw1ACWcaqL0evKoHrKsjwK2mCmbu
-	 3fbVO1XRm3rPuvtxsvqFa40+ZJdSrPdyFPMsAPCRm9EzVpscdqiU1jHIOYNpql0/Q+
-	 A4rJGWpOKXJ4rM8Ry7S9QSfW5JMyxnLBqri634s7bqAxLMEVGyTj2wxY2EKLJiAwY7
-	 7S3D+HGa8zlLeI3TPeDpXLNu9OHcHMD6lAYjW/h+oxH9TUSCd3g/AuG8/qoXjh0Ibr
-	 awatBQNumv6Tw==
-Message-ID: <fa16949e-7842-45f7-9715-1bdda13b762a@zytor.com>
-Date: Fri, 11 Apr 2025 21:32:32 -0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HwAQP4c4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744464062;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=cK1rC0XjXhIHTt9tiNECT2Vn+CAc7jag5l0SYJ2eGBk=;
+	b=HwAQP4c4LyCWFJGGIf48xoJ4B/AsUIAPQdxyOhtSEViJg2I6C4RJeS5xGjJSiSdK69fgqK
+	6ILQQIDPoV9kaeCOzZQHGy9U21XZNMUhxoS7jyKpG+VUKAcQM+y1u4XjTutNt+jUNCNSI/
+	5HL0bMPK6PmOo6YLF0pNzFqn8fw2UyI=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-73-r-LUuyZeNo-fOGZQdIfqYA-1; Sat, 12 Apr 2025 09:21:00 -0400
+X-MC-Unique: r-LUuyZeNo-fOGZQdIfqYA-1
+X-Mimecast-MFC-AGG-ID: r-LUuyZeNo-fOGZQdIfqYA_1744464060
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-22410053005so46148195ad.1
+        for <virtualization@lists.linux.dev>; Sat, 12 Apr 2025 06:21:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744464059; x=1745068859;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=cK1rC0XjXhIHTt9tiNECT2Vn+CAc7jag5l0SYJ2eGBk=;
+        b=AQH2AsNWE7a3cAJsN4KsTsWrqjUzGocXcHHfWHXsdbBooig7wP63+mReBWGo0sE9BO
+         BMY58n3hcTwUOsSLlMtOhYbp42OZRbyCWpJmIw5pc1fShMHsMKY46eklQZXAYtQl6KCd
+         fU820Rc8qAbWi7NwvrofdxfifklXor3AxsOa+2NewB6g4Rg3udSLqu/nubK+8wmjiYii
+         tN1i1JcS8llYEvpBWAJO8K4jaid0w64BgOZMZnBxFnbO+Jy61n34eSDaeDsxOXxOuSTz
+         szQadKscIHxKpONeS9bQKHLdQbaIPXMu7RBpF839F2jHwc8Qubw585YuGeAmGC5EKbME
+         fBmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWM8t5vKrjbU5ai6wtxMpjLPZHaL5fgBa05FJu32AY/15REo7IWRIEdVnQcL9uySw5xcwxmUI5+e7bdgt6nJQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwELRMK9ntPB/NK2Xdy9fUmv0wHX9X0mrB+4bzi9XcRk9hSmOvE
+	XK1wfMEqm87SH5xWMR1qGnUfXmVRlHUUDvnAA5D2NaRwLpCbHL1kgN8i4kLZMZdiPjTjaojI1Jf
+	k8car6ljhoLvmy/riTfhIrdQEASWkkUm751i1uScueNOTGm8YgBzJ29QqbTBgzj5Z
+X-Gm-Gg: ASbGncsA3rkr/kaZcd0jSyL3h/kw4Yb3Q354BBEjyt4MWz7fRrgTEv0ZAV39Ni3RxNU
+	nQ4J2hT5pXJxg3AmTrB4+V7tN3MOyN0nqik/Du7C8wwyc15m8itB8i85yanXnkLKO3z9+Iq/p45
+	ApTb93j2xS3/lPrS/U9x8SWAbpjjxKuJhEdAI4N5caR0AgEkk3Ygv4X2fPVSjZ/qS0SPEsUOxaU
+	YGxI3jWr1oFVBrtF8lvICljomDfiy4pPeVIxzLjZfvMOI/iPGQgV8uujUl52JAvV1HjwCa98nk2
+	A3WEXdkANYqp
+X-Received: by 2002:a17:902:eb8a:b0:21f:6bda:e492 with SMTP id d9443c01a7336-22bea4f1acamr104191795ad.35.1744464059530;
+        Sat, 12 Apr 2025 06:20:59 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEThxesy3Exij/NdLn+H03RMD7vSClcGR8SiZ0slO7o59/AF4Noe0XODfKIUFyC5GjjM9GJKw==
+X-Received: by 2002:a17:902:eb8a:b0:21f:6bda:e492 with SMTP id d9443c01a7336-22bea4f1acamr104191255ad.35.1744464059038;
+        Sat, 12 Apr 2025 06:20:59 -0700 (PDT)
+Received: from zeus.elecom ([240b:10:83a2:bd00:6e35:f2f5:2e21:ae3a])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b02a0818248sm6466199a12.9.2025.04.12.06.20.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 12 Apr 2025 06:20:58 -0700 (PDT)
+From: Ryosuke Yasuoka <ryasuoka@redhat.com>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	dmitry.osipenko@collabora.com,
+	gurchetansingh@chromium.org,
+	olvaffe@gmail.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	simona@ffwll.ch,
+	jfalempe@redhat.com
+Cc: Ryosuke Yasuoka <ryasuoka@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org
+Subject: [PATCH] drm/virtio: Support drm_panic with non-vmapped shmem BO
+Date: Sat, 12 Apr 2025 22:20:11 +0900
+Message-ID: <20250412132012.291837-1-ryasuoka@redhat.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v1 10/15] KVM: VMX: Use WRMSRNS or its immediate form
- when available
-To: Jim Mattson <jmattson@google.com>, Sean Christopherson <seanjc@google.com>
-Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-edac@vger.kernel.org, kvm@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-ide@vger.kernel.org,
-        linux-pm@vger.kernel.org, bpf@vger.kernel.org, llvm@lists.linux.dev,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        jgross@suse.com, andrew.cooper3@citrix.com, peterz@infradead.org,
-        acme@kernel.org, namhyung@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
-        wei.liu@kernel.org, ajay.kaher@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, luto@kernel.org,
-        boris.ostrovsky@oracle.com, kys@microsoft.com, haiyangz@microsoft.com,
-        decui@microsoft.com
-References: <20250331082251.3171276-1-xin@zytor.com>
- <20250331082251.3171276-11-xin@zytor.com> <Z_hTI8ywa3rTxFaz@google.com>
- <CALMp9eRJkzA2YXf1Dfxt3ONP+P9aTA=WPraOPJPJ6C6j677+6Q@mail.gmail.com>
-Content-Language: en-US
-From: Xin Li <xin@zytor.com>
-Autocrypt: addr=xin@zytor.com; keydata=
- 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
- l75w1xInsg==
-In-Reply-To: <CALMp9eRJkzA2YXf1Dfxt3ONP+P9aTA=WPraOPJPJ6C6j677+6Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 7ilAYuE19mcSPWJgy20aK_0Ko04W-GqAeDDKGJDaHHQ_1744464060
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-On 4/11/2025 2:12 PM, Jim Mattson wrote:
-> Surely, any CPU that has WRMSRNS also supports "Virtualize
-> IA32_SPEC_CTRL," right? Shouldn't we be using that feature rather than
-> swapping host and guest values with some form of WRMSR?
+Pass array of pages of the scanout buffer [1] to shmem BO, allowing
+drm_panic to work even if the BO is not vmapped.
 
-Good question, the simple answer is that they are irrelevant.
+[1] https://lore.kernel.org/all/20250407140138.162383-3-jfalempe@redhat.com/
+
+Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index a6f5a78f436a..2ff57d559c86 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -500,11 +500,19 @@ static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
+ 
+ 	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
+ 
+-	/* Only support mapped shmem bo */
+-	if (virtio_gpu_is_vram(bo) || bo->base.base.import_attach || !bo->base.vaddr)
++	if (virtio_gpu_is_vram(bo) || bo->base.base.import_attach)
+ 		return -ENODEV;
+ 
+-	iosys_map_set_vaddr(&sb->map[0], bo->base.vaddr);
++	if (bo->base.vaddr)
++		iosys_map_set_vaddr(&sb->map[0], bo->base.vaddr);
++	else {
++		struct drm_gem_shmem_object *shmem = &bo->base;
++
++		if (!shmem->pages)
++			return -ENODEV;
++		/* map scanout buffer later */
++		sb->pages = shmem->pages;
++	}
+ 
+ 	sb->format = plane->state->fb->format;
+ 	sb->height = plane->state->fb->height;
+
+base-commit: e7bb7d44c3b97aea1f0e354c6499900154ac67f2
+-- 
+2.49.0
+
