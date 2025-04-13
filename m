@@ -1,80 +1,79 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from mx.treblig.org (mx.treblig.org [46.235.229.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA88838385;
-	Sat, 12 Apr 2025 23:11:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 190431C5D56;
+	Sun, 13 Apr 2025 17:11:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.229.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744499480; cv=none; b=PDFpXaNMtMGVwR2bLRk7gdQp+VRcVqU1YIWvALnrRsy8yb5yInbCu5xQ81W3FzV4/3exUscvlcf07V7EaI03jS/4KhQvk3qU8nxkuIn7aHoiltpoXmwu+IoEynNtJ3bGUtgR7LE2z2w6fOevrJInRAm9BcTpcAplb1FfMw4tNwo=
+	t=1744564271; cv=none; b=ZpHpSWvCtiUm2VbMpJJZXZ2mRXdB+QZ7k22sIHhh6tZP8KDBZmpLPUehjcMu7GlRbzMX/WwymipseBxYamqbje66RJ68nOvmSjIVtb34flKC4N13F0qAkArr/26jpkHwRyf/UdPYouiyZEIzXKdCURtUHFTRY8lonW0Z36c5cRo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744499480; c=relaxed/simple;
-	bh=Z8ANyn5BO+4YSxFMj2ZIePI2Es9dy8Hv6toZ4ucWxdY=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=iSvsq5gPR4dyq0UTh7mA0LL37z0VWR2087NB+w6eqsXvrhO3by4lj0JJSs643LHcmk9sRyFJ5JRc6ZYhoxOppFesZKR69HQhfuWV150Jyvt3lkzDcjU2/9j/woaCDh7RVmd6awk6YZGXxulRzn61krfAMgOAC0joUrmZQi1wfeE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=lMBig7n3; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1744564271; c=relaxed/simple;
+	bh=Dd00MAcQXaBwzX5oHPO/PZyvKrghrdBUXv9jtXcuSEI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jDbiISjCU8w6GTFWs3b4svufWy9fDI8KpxLOZfOfHFS1fVPniZa57R38p6YjtJFwGVyjgEXzUiQu5RYZ/gTfMFONiQ0PqnQaH0EuO/LJwr6Mx/Cy4Pw/3lfWPim7UPdxyLGi1GZaQUNrKwlWNHsWA2xIeVHAAadNRtomhrYuoFM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org; spf=pass smtp.mailfrom=treblig.org; dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b=gXQb7WEx; arc=none smtp.client-ip=46.235.229.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=treblig.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="lMBig7n3"
-Received: from [127.0.0.1] ([76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53CNA8tE1265382
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Sat, 12 Apr 2025 16:10:09 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53CNA8tE1265382
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025032001; t=1744499412;
-	bh=Z8ANyn5BO+4YSxFMj2ZIePI2Es9dy8Hv6toZ4ucWxdY=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=lMBig7n3wyGQ77xYpn5pnxKVN4QM3Vkq6hDZcLvPaFwS2PWF/n09rzmm4i6ZIrSlX
-	 ldJKqqxh7XGdq6n0fK1xSbkbF0eDIoNvUz2LhiGL+7mwgnCfFlBgBbxU3imjGP8GwY
-	 zTU8dvf1jWNkf6+mSxkledPR0XPGAcZA1I9f+5+YiIA5YgCTj3M0isuBNWaO1BHck1
-	 A5Uh/ZdjOxEnzIwdlikBQnfr1jA4LYpMjCETWZHP0OeiOO0PyexivLyItY7m/buoB1
-	 Qlv5YTi1XbrFcCf8wBQrrImS7wL6ntMIDtBYRTjjMB9jzG1ZKHtxezcpa9pVk9CqYV
-	 YnyFnuF53LDCw==
-Date: Sat, 12 Apr 2025 16:10:06 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: Xin Li <xin@zytor.com>, Jim Mattson <jmattson@google.com>,
-        Sean Christopherson <seanjc@google.com>
-CC: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-edac@vger.kernel.org, kvm@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-ide@vger.kernel.org,
-        linux-pm@vger.kernel.org, bpf@vger.kernel.org, llvm@lists.linux.dev,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, jgross@suse.com,
-        andrew.cooper3@citrix.com, peterz@infradead.org, acme@kernel.org,
-        namhyung@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
-        wei.liu@kernel.org, ajay.kaher@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, luto@kernel.org,
-        boris.ostrovsky@oracle.com, kys@microsoft.com, haiyangz@microsoft.com,
-        decui@microsoft.com
-Subject: =?US-ASCII?Q?Re=3A_=5BRFC_PATCH_v1_10/15=5D_KVM=3A_VMX=3A_Use_WR?=
- =?US-ASCII?Q?MSRNS_or_its_immediate_form_when_available?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <fa16949e-7842-45f7-9715-1bdda13b762a@zytor.com>
-References: <20250331082251.3171276-1-xin@zytor.com> <20250331082251.3171276-11-xin@zytor.com> <Z_hTI8ywa3rTxFaz@google.com> <CALMp9eRJkzA2YXf1Dfxt3ONP+P9aTA=WPraOPJPJ6C6j677+6Q@mail.gmail.com> <fa16949e-7842-45f7-9715-1bdda13b762a@zytor.com>
-Message-ID: <EAB44BB2-99BB-4D4A-8306-0235D2931E72@zytor.com>
+	dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="gXQb7WEx"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=treblig.org
+	; s=bytemarkmx; h=MIME-Version:Message-ID:Date:Subject:From:Content-Type:From
+	:Subject; bh=zuyyklr2NSR5SZnTYhW13D4u+H13Qg7A3uaAtI3DJS8=; b=gXQb7WExS0sZ2bjQ
+	Tqch/B6Ur8i7yedpK714X8cDhVuGKbeEySlmK4VMq8L9r/SlTGFsRiGBZJYe1t4lceS6ZpSB+VGBo
+	ronFZzxmrHTPUtivRylrlPxjKTtGwT48FK6wpX2Ld+sImOIJwaxu+D56rX4FGwOyuUKnVEdo06eE1
+	XKP0x5CiZgNPiKzFmo7fpMboyK8hBZdkzQTzCasdtAGRTIMQg8mZWeodwfu0p7S+RTo4NWXD0E71U
+	n2Fd/yX83DJrmarZ4jr/aq1dQVUeu4s+yNPRpfnz5pLG2ZRsHqg2104d56et4qhA8INz/baUVUggp
+	fpj89oTb0JfBnA+3IA==;
+Received: from localhost ([127.0.0.1] helo=dalek.home.treblig.org)
+	by mx.treblig.org with esmtp (Exim 4.96)
+	(envelope-from <linux@treblig.org>)
+	id 1u40rD-00B22s-1j;
+	Sun, 13 Apr 2025 17:10:59 +0000
+From: linux@treblig.org
+To: kraxel@redhat.com,
+	airlied@redhat.com
+Cc: maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	simona@ffwll.ch,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	"Dr. David Alan Gilbert" <linux@treblig.org>
+Subject: [PATCH 0/2] drm: qxl: Deadcoding
+Date: Sun, 13 Apr 2025 18:10:56 +0100
+Message-ID: <20250413171058.271234-1-linux@treblig.org>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On April 11, 2025 9:32:32 PM PDT, Xin Li <xin@zytor=2Ecom> wrote:
->On 4/11/2025 2:12 PM, Jim Mattson wrote:
->> Surely, any CPU that has WRMSRNS also supports "Virtualize
->> IA32_SPEC_CTRL," right? Shouldn't we be using that feature rather than
->> swapping host and guest values with some form of WRMSR?
->
->Good question, the simple answer is that they are irrelevant=2E
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
 
-Also, *in this specific case* IA32_SPEC_CTRL is architecturally nonseriali=
-zing, i=2Ee=2E WRMSR executes as WRMSRNS anyway=2E
+Hi,
+  A couple of small deadcodings for qxl.  The first
+just cleans up a couple of trivial unusued wrappers.
+The second cleans out some debugfs code that's been unused
+for a few years.
+
+Dave
+Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
+
+
+Dr. David Alan Gilbert (2):
+  drm: qxl: Remove dead qxl_io_flush_* functions
+  drm: qxl: Remove unused debugfs code
+
+ drivers/gpu/drm/qxl/qxl_cmd.c     | 10 ----------
+ drivers/gpu/drm/qxl/qxl_debugfs.c | 29 -----------------------------
+ drivers/gpu/drm/qxl/qxl_drv.h     | 12 ------------
+ 3 files changed, 51 deletions(-)
+
+-- 
+2.49.0
+
