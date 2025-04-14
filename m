@@ -1,53 +1,82 @@
-Received: from mx.treblig.org (mx.treblig.org [46.235.229.95])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 737382F32;
-	Sun, 13 Apr 2025 17:11:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.229.95
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49E4F2CCC1
+	for <virtualization@lists.linux.dev>; Mon, 14 Apr 2025 05:09:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744564282; cv=none; b=Nkz3QQRJovIl2klyegfG3eoyZTN0HAbgBRE6paeS9lTlPKvg6OyxVARrBZeL2En13tAkvdDgyzWafqjO2i4nUEuLyWdwm3WQcvZUxifQjndxcdeIOWkve+2fYdQ5dxK7fCg98x5FrBl2KKR2zfKIcILUWdGrKx8WfJTQbrVeOTw=
+	t=1744607347; cv=none; b=XVMUR8W7KceEcf0cBXybZngT6kySbHgj8bRBQmUoIaGAettgwiya5ltNMZLwuthdpKO/10chWHzwnkwV9HzeQCtJz2/KRB8Ng0ipl/NXNLi9T+HVEcOyhYgPJsoOGkUfktD4FIfSuRjED+2W3LA0YGtWXjCcbgCeXYumA4GcJfk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744564282; c=relaxed/simple;
-	bh=9oHVQ7CtSbKX133UJ9gCH7uieSHnTxBKrJT23eh+fSU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jIKnxILWH2H6iPfdVp8KkeqEQuRXrdtjJA6Wd/XTSK0geFQQmP+1bekca8xiJx2RcHcmxJPM4zeTbxeX8FdQVY7Uua6KOt54BXUWvyqDBHM3Z88lTTpX+iJvHfPORTX/LW1FXr7TJHezTgx+/h2uPizpzZYsIn9ToeG6+w/UtV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org; spf=pass smtp.mailfrom=treblig.org; dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b=rr4lF3it; arc=none smtp.client-ip=46.235.229.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=treblig.org
+	s=arc-20240116; t=1744607347; c=relaxed/simple;
+	bh=EUELgt4hMnMMJOO/U7NuEFbDX9SHw5BmfrFvM/ORxqI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pZd3DShHYvQIqVrzbObDUAQaFa39gpQBVavBxAzSVzXI6OwzgMnSvVO6VCkstn3X5vp391nDkTAr6CG9388EXJp/Pk4NMXbH5KtRLmQLmigQMQFtb+oLtwPkb+Owu47CGD2MOnl+g5/HaEFF82nKcsL0DocDjSjtCAeg8Pbjt1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V12kWFJB; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="rr4lF3it"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=treblig.org
-	; s=bytemarkmx; h=MIME-Version:Message-ID:Date:Subject:From:Content-Type:From
-	:Subject; bh=bgWFqULpEF30Eenn5ri+Fulo5+82i9/JXUhAOMaGLMA=; b=rr4lF3itGf/2AhCA
-	9F21QhOwLgeQt97SnbCtdlMLTBX+pL7IzYL2VDi5Z6W69i8/kt2wX8w6zsaUKTI9YCt0LRhdWP+rx
-	0WxWMdvENyVyZr1+TqJqmrFbYQ+KaNlhzZt3SFVjnXXcIMvPdWc0ZYVjBc+bAtA/HJdrinNQBP0sN
-	TLV7TEuDGKsgMSFTqTUBQPQMDfPV1FEjeKZg33c1RTO8YV2EZ4yPRx9xOP3x96M5aV2G6iC4avli6
-	x0WRj+z9GhPyx+Nz9ao+/vNMN5nKlrSYMGKDe+T9KBQ/+lar6lee8qlmLPBSSFzqvoUQV9+p1ZBj9
-	G5w9pb7aDTDXFKMzSA==;
-Received: from localhost ([127.0.0.1] helo=dalek.home.treblig.org)
-	by mx.treblig.org with esmtp (Exim 4.96)
-	(envelope-from <linux@treblig.org>)
-	id 1u40rE-00B22s-0f;
-	Sun, 13 Apr 2025 17:11:00 +0000
-From: linux@treblig.org
-To: kraxel@redhat.com,
-	airlied@redhat.com
-Cc: maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	airlied@gmail.com,
-	simona@ffwll.ch,
-	virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V12kWFJB"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-22548a28d0cso57172625ad.3
+        for <virtualization@lists.linux.dev>; Sun, 13 Apr 2025 22:09:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744607345; x=1745212145; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=1Fej5fA5t2ol5BfFTXsvj0x2AUS/N3lMaLna6woIGmM=;
+        b=V12kWFJBYDPmnPeZ39QxwpdK4W7uYU7+9vbJKBh9Fpq4y5PXOEQ8VVOMYaJHsN2MYR
+         TxOsP1cmFV4DHndMA5Ht1w/L6/g7fsHbDy+ggpzshExlVBTNxjMAMpOwkY/Dt7ALMN65
+         N6BsP3L6nx2l+sSYmSNd4W6qqgvDjilxMRefc63px2vPmxPsyw8ZTesBxgSgiqnHcGOn
+         ScYzL8x4jKfyGNNe8y4d0Tc8YEd42L2cmul0HzdMH7usRD1MB+hBD22K3i9gMnQ3FFW5
+         tReDrrEGPRXkIEfJYvOZATQGWM7aLS6xovSHhLhei1fvLoUrLEgNaCk/dReTfRbD3VPC
+         gHXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744607345; x=1745212145;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1Fej5fA5t2ol5BfFTXsvj0x2AUS/N3lMaLna6woIGmM=;
+        b=u98ri2OUVXa95c2HmclysMNyV4XgT9e0UrJj5b9CbvkCHAijKi4UeHrPxEEiARBSDs
+         IhunlOkW/n8R0L/g+O8irl3wza1E/UcA5RPabLVPz1gYRovhq3xNj8p//ryfyFcUBqyM
+         q4UsyAgTOM5cNR9jDXg1Y4L9bmiOIkIkf+jihOU+uDjJrvliYIuBZSNd4Y7WYerDqvHC
+         vBqF5GBUsRPVK2WYwY74JhUGQnrms6rubMv5C2P/znxUruYJMTTb27kYUIYDVJ3bcsoc
+         B4qc/QmjzYCbVOLiZMmKytupaDmpx5cT2rfA/ZaRIc9iPSqfjdmxN9uWm5EZSXGzF/Gx
+         6I/g==
+X-Gm-Message-State: AOJu0YyxpqKLs4FrFpfZ79Haau9pw+6a3bQ/OVVVMZB9CrJomxJm4ywG
+	p8KCJU7yCwzYzpZuK+hobzsu7dxTA/Uk7PArlbNXmZ5M7hIZbCZhUD6PaCfG1YY=
+X-Gm-Gg: ASbGncsxBoS+YBodYC0g9gc/wSrXUPvFOfTcHN5+gaVAXQK1A5UTRWGXPSD8Pvo5gwo
+	CV6dYx3VEKxH39mvmOPGDxecR6D7rXWt1SDStaRdWvCrvE2vastf8PIFBPCRBrHDqIJQ64Ntn0a
+	5fK5gbQ6ieVljzHg/hWhIBhvqyt1aw1bFB3Om25Eh+UyzR/zHk/dJ58Di69rKs9kuOrvPHDVOxA
+	r6au21DyXq0U5kSOqd7BR0O2muRoDKJhhWrmLNY6gVPdxymY2s7Iry9KEa7MF/geP/NStKAccWf
+	ndZX2DkiLH0hcd818XaT6UJYOgLxEcDVjVm5dsPHOnX3J6jnpbiDpXJS0s5eQN21lw==
+X-Google-Smtp-Source: AGHT+IGdtrEP7ucqfNOc8FOWb04RISSfzP7ZCyxG4G1woJVwa1KuxSGZbHjR22opAFd/Nl338AzsgQ==
+X-Received: by 2002:a17:902:c951:b0:220:e5be:29c8 with SMTP id d9443c01a7336-22bea4f185dmr178332735ad.32.1744607344881;
+        Sun, 13 Apr 2025 22:09:04 -0700 (PDT)
+Received: from minh.192.168.1.1 ([2001:ee0:4f0e:fb30:b80:9edb:557f:f8a7])
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-22ac7cb5047sm90778665ad.170.2025.04.13.22.08.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 13 Apr 2025 22:09:04 -0700 (PDT)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	"Dr. David Alan Gilbert" <linux@treblig.org>
-Subject: [PATCH 1/2] drm: qxl: Remove dead qxl_io_flush_* functions
-Date: Sun, 13 Apr 2025 18:10:57 +0100
-Message-ID: <20250413171058.271234-2-linux@treblig.org>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250413171058.271234-1-linux@treblig.org>
-References: <20250413171058.271234-1-linux@treblig.org>
+	bpf@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH v2 0/3] virtio-net: disable delayed refill when pausing rx
+Date: Mon, 14 Apr 2025 12:08:34 +0700
+Message-ID: <20250414050837.31213-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -56,54 +85,55 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: "Dr. David Alan Gilbert" <linux@treblig.org>
+Hi everyone,
 
-qxl_io_flush_release() and qxl_io_flush_surfaces() were both added
-in 2013's
-commit f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+This series tries to fix a deadlock in virtio-net when binding/unbinding
+XDP program, XDP socket or resizing the rx queue.
 
-but have remained unused.  Remove them.
+When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
+napi_disable() on the receive queue's napi. In delayed refill_work, it
+also calls napi_disable() on the receive queue's napi. When
+napi_disable() is called on an already disabled napi, it will sleep in
+napi_disable_locked while still holding the netdev_lock. As a result,
+later napi_enable gets stuck too as it cannot acquire the netdev_lock.
+This leads to refill_work and the pause-then-resume tx are stuck
+altogether.
 
-Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
----
- drivers/gpu/drm/qxl/qxl_cmd.c | 10 ----------
- drivers/gpu/drm/qxl/qxl_drv.h |  2 --
- 2 files changed, 12 deletions(-)
+This scenario can be reproducible by binding a XDP socket to virtio-net
+interface without setting up the fill ring. As a result, try_fill_recv
+will fail until the fill ring is set up and refill_work is scheduled.
 
-diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index d6ea01f3797b..1bdc5abf8dd1 100644
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -356,16 +356,6 @@ void qxl_io_notify_oom(struct qxl_device *qdev)
- 	outb(0, qdev->io_base + QXL_IO_NOTIFY_OOM);
- }
- 
--void qxl_io_flush_release(struct qxl_device *qdev)
--{
--	outb(0, qdev->io_base + QXL_IO_FLUSH_RELEASE);
--}
--
--void qxl_io_flush_surfaces(struct qxl_device *qdev)
--{
--	wait_for_io_cmd(qdev, 0, QXL_IO_FLUSH_SURFACES_ASYNC);
--}
--
- void qxl_io_destroy_primary(struct qxl_device *qdev)
- {
- 	wait_for_io_cmd(qdev, 0, QXL_IO_DESTROY_PRIMARY_ASYNC);
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index cc02b5f10ad9..a6184aaebf62 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.h
-+++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -355,8 +355,6 @@ int qxl_io_update_area(struct qxl_device *qdev, struct qxl_bo *surf,
- void qxl_io_reset(struct qxl_device *qdev);
- void qxl_io_monitors_config(struct qxl_device *qdev);
- int qxl_ring_push(struct qxl_ring *ring, const void *new_elt, bool interruptible);
--void qxl_io_flush_release(struct qxl_device *qdev);
--void qxl_io_flush_surfaces(struct qxl_device *qdev);
- 
- union qxl_release_info *qxl_release_map(struct qxl_device *qdev,
- 					struct qxl_release *release);
+This fix adds virtnet_rx_(pause/resume)_all helpers and fixes up the
+virtnet_rx_resume to disable future and cancel all inflights delayed
+refill_work before calling napi_disable() to pause the rx.
+
+Version 2 changes:
+- Add selftest for deadlock scenario
+
+Thanks,
+Quang Minh.
+
+Bui Quang Minh (3):
+  virtio-net: disable delayed refill when pausing rx
+  selftests: net: move xdp_helper to net/lib
+  selftests: net: add a virtio_net deadlock selftest
+
+ drivers/net/virtio_net.c                      | 60 ++++++++++++++++---
+ tools/testing/selftests/Makefile              |  2 +-
+ tools/testing/selftests/drivers/net/Makefile  |  2 -
+ tools/testing/selftests/drivers/net/queues.py |  4 +-
+ .../selftests/drivers/net/virtio_net/Makefile |  2 +
+ .../selftests/drivers/net/virtio_net/config   |  1 +
+ .../drivers/net/virtio_net/lib/py/__init__.py | 16 +++++
+ .../drivers/net/virtio_net/xsk_pool.py        | 52 ++++++++++++++++
+ tools/testing/selftests/net/lib/.gitignore    |  1 +
+ tools/testing/selftests/net/lib/Makefile      |  1 +
+ .../{drivers/net => net/lib}/xdp_helper.c     |  0
+ 11 files changed, 127 insertions(+), 14 deletions(-)
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/lib/py/__init__.py
+ create mode 100755 tools/testing/selftests/drivers/net/virtio_net/xsk_pool.py
+ rename tools/testing/selftests/{drivers/net => net/lib}/xdp_helper.c (100%)
+
 -- 
-2.49.0
+2.43.0
 
