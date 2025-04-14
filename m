@@ -1,247 +1,496 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48B7429344E
-	for <virtualization@lists.linux.dev>; Mon, 14 Apr 2025 11:46:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2BF427CB2E
+	for <virtualization@lists.linux.dev>; Mon, 14 Apr 2025 12:14:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744631189; cv=none; b=sG9RO0UJSvyS9RXGXL/r0ZB91xM/vVIs1jvdWWa+MbySnFVDmmQHZEDiyaf1SzYS9m0MOcSNVdj3zsQV+e03Ihrqh3ul32byRF6fZPFwGGhjOLip8UAyoJSslYlYTCe71+nBoBmjo6LYRStGkHCMBfSP2A0evX17oWvSHk4X9mI=
+	t=1744632903; cv=none; b=mJWPPgjajJspBsTXHLqdvkrmuDu3lN5+lZ2V9kQrE5swyNYOsmd9INWb+61465hOk4bRLSfYT7zlJnQ/uVSO0OY1p3yjsgNXMR/x93gDDQCvhBzVhQx9tLQO6mSQnz+NnIcUz5PaKli/5DxiKtIIu85Fbou1OBnOAijsytY+njk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744631189; c=relaxed/simple;
-	bh=TGa5A74hhJRFatKtiDaBCJm3bNAxG+RmuZi9KC/N3rk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mIUUs9iXjLrD1i9LFovSnFVi27GWxkbdwNmb3W+HwvdHPyddyHb5NYU+WUaNjP7zX2kVXDsOIA+Uj5PT+DavNcYUxOzU1a4LSRUfGnG79zaxgm0NhvAwu+M57AQNNWivRvQjP7jk6F4gH0klyrcCa09ihZIiwBWP1flSJwReThI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F+rgE55F; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F+rgE55F"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744631186;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=zjO+mv63DF8OWXZ5ZxlPzpl6bC2oyYwvBcdRfK7EHgs=;
-	b=F+rgE55FtJUz/FEomUw6Nknpo0zNOemVnrUR/1RI97eX71CuTPUUUwy/wxWh4WT1j5XeGg
-	CSsSywtLxdSPgvpoZwNtWnmwE+wtJwF3/pJOzNQPR5sg2L2H9sTnCyBa0zr+j4Q90Wm0Eb
-	JsU9gfNdn+CxcQ41IFxp2fcFOwTOw+M=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-244-6AN6xCuOPoaHb2Abqee2aA-1; Mon, 14 Apr 2025 07:46:22 -0400
-X-MC-Unique: 6AN6xCuOPoaHb2Abqee2aA-1
-X-Mimecast-MFC-AGG-ID: 6AN6xCuOPoaHb2Abqee2aA_1744631182
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43cfda30a3cso23492785e9.3
-        for <virtualization@lists.linux.dev>; Mon, 14 Apr 2025 04:46:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744631182; x=1745235982;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zjO+mv63DF8OWXZ5ZxlPzpl6bC2oyYwvBcdRfK7EHgs=;
-        b=az/+oFUL6NmSdNYMqBcUYrp/cd+TUc4dzD3fcnrMZRcz/Q8ua+3XKZ9R6SkavL8miQ
-         O4wmJUh7tKymJn11O5bpZp4F2qSADyFYGIYZHXPkErGLsBuO/uhGpdsxw4AfjVTnWejU
-         p5RhWwCrFxpj4Qf81PQZtvEaL9YKOdlV2MDk1Q+afdhGg5369itO+4+0edlvxupUNDk+
-         7skLcD8Ow9px3ybFAJq3dPM13o3rtVq/rwl2Eti3QJLaqy4P+ATBgoPnJbzRtMdEQ28m
-         aHCuvIho9qiJs4riBxFMKBV9WWTCiS5bAc2Faf8R0Y5WnfjUieqNo6MLiUICNJCYB2pa
-         FxXQ==
-X-Gm-Message-State: AOJu0Yyv/aCCzv7HTpY/w0MDq94jRwXvDCbpwT4N/hRVRSYBxxEmiume
-	egpsK8eyaKvklueXrFmqYmzjT0upRZSzUfuJqjPi9EpWXicFfxlOp+I7IYO8Faf+wMBpyFDrTjp
-	LP6TamWzOQbAgbtgVfuxJMPHyA52+s0GsXVRfNuQog06qy5eSoJMmo1zvWyZGq1ZY
-X-Gm-Gg: ASbGncvVGYOfStsdAqXdoxEkIh/Mu/9bh99M1MrQzZId2hu4Ty8c1FXMzFAq0LnldEv
-	x6xeB5kr81GBqR4+zFLv0matuoMu4q5mvY5IOh4nCkjqFcwePG/CXUDCPqyaf/o502X1N4cd9e+
-	/4RXbnc4qHEc0ZSD9xqf2dzSaOhAPnsisNSUA5eRY4pR/7zD1oh/Ne2mVCoFzMNOXM3yYIMWmV2
-	KZ0om9rIfxX+IwXd8/t3TJlb9GP4yOidmFRrfwn/o/NfXbWaGZm+6prpv+R7zIk66vrY0LO2GDi
-	AvnW9A==
-X-Received: by 2002:a05:600c:810b:b0:43c:f61e:6ea8 with SMTP id 5b1f17b1804b1-43f3a926c29mr101650525e9.2.1744631181503;
-        Mon, 14 Apr 2025 04:46:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFq+5ke4eamrk9xDN2am47+k03CAk53gsv1lkSszP4cGrTySTbHEceig7E6SA/uputECe8AcA==
-X-Received: by 2002:a05:600c:810b:b0:43c:f61e:6ea8 with SMTP id 5b1f17b1804b1-43f3a926c29mr101650165e9.2.1744631181039;
-        Mon, 14 Apr 2025 04:46:21 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39eae96c074sm10536365f8f.28.2025.04.14.04.46.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Apr 2025 04:46:20 -0700 (PDT)
-Date: Mon, 14 Apr 2025 07:46:17 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] virtio-net: disable delayed refill when pausing rx
-Message-ID: <20250414074407-mutt-send-email-mst@kernel.org>
-References: <20250414050837.31213-1-minhquangbui99@gmail.com>
- <20250414050837.31213-2-minhquangbui99@gmail.com>
+	s=arc-20240116; t=1744632903; c=relaxed/simple;
+	bh=Vh1XYNk1Pgd7/7fao+EL3a14mR2DGRdB6cj8+UPIOGo=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=G4uKOiLzo4yqERVkdYJ0lVShA+qJsmQimRBLHjF1RhhF3r73sbgDmM5VRAbWDgbX9IRXJEkrF/U8ChGQCpWvr4Z3cnTJWrbcvNd4mW8u9B704mFWOlTSpsRlWsQVytLCquKVhADzoAwzHatNZydj+re0SYIKXc9KmgDpRyum0CU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.112])
+	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4ZbmTN4kPBz27hSp;
+	Mon, 14 Apr 2025 20:15:36 +0800 (CST)
+Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id 3309B140257;
+	Mon, 14 Apr 2025 20:14:55 +0800 (CST)
+Received: from localhost.localdomain (10.90.30.45) by
+ dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 14 Apr 2025 20:14:54 +0800
+From: Yunsheng Lin <linyunsheng@huawei.com>
+To: Andrew Morton <akpm@linux-foundation.org>, Yishai Hadas
+	<yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>, Shameer Kolothum
+	<shameerali.kolothum.thodi@huawei.com>, Kevin Tian <kevin.tian@intel.com>,
+	Alex Williamson <alex.williamson@redhat.com>, Chris Mason <clm@fb.com>, Josef
+ Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Gao Xiang
+	<xiang@kernel.org>, Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>,
+	Chuck Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil
+ Brown <neilb@suse.de>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
+	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Steven Rostedt
+	<rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, Mathieu
+ Desnoyers <mathieu.desnoyers@efficios.com>, Alexei Starovoitov
+	<ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko
+	<andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, Eduard
+ Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong Song
+	<yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, KP
+ Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>, Hao Luo
+	<haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, Jesper Dangaard Brouer
+	<hawk@kernel.org>, Ilias Apalodimas <ilias.apalodimas@linaro.org>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+	<horms@kernel.org>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
+	<anna@kernel.org>
+CC: Yunsheng Lin <linyunsheng@huawei.com>, Luiz Capitulino
+	<luizcap@redhat.com>, Mel Gorman <mgorman@techsingularity.net>,
+	<kvm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <linux-btrfs@vger.kernel.org>,
+	<linux-erofs@lists.ozlabs.org>, <linux-mm@kvack.org>,
+	<linux-nfs@vger.kernel.org>, <linux-trace-kernel@vger.kernel.org>,
+	<bpf@vger.kernel.org>, <netdev@vger.kernel.org>
+Subject: [PATCH v3] mm: alloc_pages_bulk: support both simple and full-featured API
+Date: Mon, 14 Apr 2025 20:08:11 +0800
+Message-ID: <20250414120819.3053967-1-linyunsheng@huawei.com>
+X-Mailer: git-send-email 2.30.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250414050837.31213-2-minhquangbui99@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: z6rRVlFsMI1cuGn6P9wFfc_77_rAvJRR-R9B6tD9cHA_1744631182
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemf200006.china.huawei.com (7.185.36.61)
 
-On Mon, Apr 14, 2025 at 12:08:35PM +0700, Bui Quang Minh wrote:
-> When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
-> napi_disable() on the receive queue's napi. In delayed refill_work, it
-> also calls napi_disable() on the receive queue's napi.  When
-> napi_disable() is called on an already disabled napi, it will sleep in
-> napi_disable_locked while still holding the netdev_lock. As a result,
-> later napi_enable gets stuck too as it cannot acquire the netdev_lock.
-> This leads to refill_work and the pause-then-resume tx are stuck
-> altogether.
-> 
-> This scenario can be reproducible by binding a XDP socket to virtio-net
-> interface without setting up the fill ring. As a result, try_fill_recv
-> will fail until the fill ring is set up and refill_work is scheduled.
-> 
-> This commit adds virtnet_rx_(pause/resume)_all helpers and fixes up the
-> virtnet_rx_resume to disable future and cancel all inflights delayed
-> refill_work before calling napi_disable() to pause the rx.
-> 
-> Fixes: 413f0271f396 ("net: protect NAPI enablement with netdev_lock()")
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
->  drivers/net/virtio_net.c | 60 ++++++++++++++++++++++++++++++++++------
->  1 file changed, 51 insertions(+), 9 deletions(-)
+As mentioned in [1], it seems odd to check NULL elements in
+the middle of page bulk allocating, and it seems caller can
+do a better job of bulk allocating pages into a whole array
+sequentially without checking NULL elements first before
+doing the page bulk allocation for most of existing users
+by passing 'page_array + allocated' and 'nr_pages - allocated'
+when calling subsequent page bulk alloc API so that NULL
+checking can be avoided, see the pattern in mm/mempolicy.c.
 
+Through analyzing of existing bulk allocation API users, it
+seems only the fs users are depending on the assumption of
+populating only NULL elements, see:
+commit 91d6ac1d62c3 ("btrfs: allocate page arrays using bulk page allocator")
+commit d6db47e571dc ("erofs: do not use pagepool in z_erofs_gbuf_growsize()")
+commit f6e70aab9dfe ("SUNRPC: refresh rq_pages using a bulk page allocator")
+commit 88e4d41a264d ("SUNRPC: Use __alloc_bulk_pages() in svc_init_buffer()")
 
-Thans for the patch! Yes something to improve:
+The current API adds a mental burden for most users. For most
+users, their code would be much cleaner if the interface accepts
+an uninitialised array with length, and were told how many pages
+had been stored in that array, so support one simple and one
+full-featured to meet the above different use cases as below:
+- alloc_pages_bulk() would be given an uninitialised array of page
+  pointers and a required count and would return the number of
+  pages that were allocated.
+- alloc_pages_bulk_refill() would be given an initialised array
+  of page pointers some of which might be NULL. It would attempt
+  to allocate pages for the non-NULL pointers, return 0 if all
+  pages are allocated, -EAGAIN if at least one page allocated,
+  ok to try again immediately or -ENOMEM if don't bother trying
+  again soon, which provides a more consistent semantics than the
+  current API as mentioned in [2], at the cost of the pages might
+  be getting re-ordered to make the implementation simpler.
 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7e4617216a4b..4361b91ccc64 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3342,10 +3342,53 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  	return NETDEV_TX_OK;
->  }
->  
-> +static void virtnet_rx_pause_all(struct virtnet_info *vi)
-> +{
-> +	bool running = netif_running(vi->dev);
-> +
-> +	/*
-> +	 * Make sure refill_work does not run concurrently to
-> +	 * avoid napi_disable race which leads to deadlock.
-> +	 */
-> +	disable_delayed_refill(vi);
-> +	cancel_delayed_work_sync(&vi->refill);
-> +	if (running) {
-> +		int i;
-> +
-> +		for (i = 0; i < vi->max_queue_pairs; i++) {
-> +			virtnet_napi_disable(&vi->rq[i]);
-> +			virtnet_cancel_dim(vi, &vi->rq[i].dim);
+Change the existing fs users to use the full-featured API, except
+for the one for svc_init_buffer() in net/sunrpc/svc.c. Other
+existing callers can use the simple API as they seems to be passing
+all NULL elements via memset, kzalloc, etc, only remove unnecessary
+memset for existing users calling the simple API in this patch.
 
-duplicates a bit of code from virtnet_rx_pause_all.
+The test result for xfstests full test:
+Before this patch:
+btrfs/default: 1061 tests, 3 failures, 290 skipped, 13152 seconds
+  Failures: btrfs/012 btrfs/226
+  Flaky: generic/301: 60% (3/5)
+Totals: 1073 tests, 290 skipped, 13 failures, 0 errors, 12540s
 
+nfs/loopback: 530 tests, 3 failures, 392 skipped, 3942 seconds
+  Failures: generic/464 generic/551
+  Flaky: generic/650: 40% (2/5)
+Totals: 542 tests, 392 skipped, 12 failures, 0 errors, 3799s
 
-> +		}
-> +	}
-> +}
-> +
-> +static void virtnet_rx_resume_all(struct virtnet_info *vi)
-> +{
-> +	bool running = netif_running(vi->dev);
-> +	int i;
-> +
-> +	enable_delayed_refill(vi);
-> +	for (i = 0; i < vi->max_queue_pairs; i++) {
-> +		if (i < vi->curr_queue_pairs) {
-> +			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> +				schedule_delayed_work(&vi->refill, 0);
-> +		}
-> +
-> +		if (running)
-> +			virtnet_napi_enable(&vi->rq[i]);
-> +	}
-> +}
-> +
->  static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
->  {
->  	bool running = netif_running(vi->dev);
->  
-> +	/*
-> +	 * Make sure refill_work does not run concurrently to
-> +	 * avoid napi_disable race which leads to deadlock.
-> +	 */
-> +	disable_delayed_refill(vi);
-> +	cancel_delayed_work_sync(&vi->refill);
+After this patch:
+btrfs/default: 1061 tests, 2 failures, 290 skipped, 13446 seconds
+  Failures: btrfs/012 btrfs/226
+Totals: 1069 tests, 290 skipped, 10 failures, 0 errors, 12853s
 
+nfs/loopback: 530 tests, 3 failures, 392 skipped, 4103 seconds
+  Failures: generic/464 generic/551
+  Flaky: generic/650: 60% (3/5)
+Totals: 542 tests, 392 skipped, 13 failures, 0 errors, 3933s
 
-Maybe rename this e.g. __virtnet_rx_pause ?
+The stress test also suggest there is no regression for the erofs
+too.
 
+Using the simple API also enable the caller to not zero the array
+before calling the page bulk allocating API, which has about 1~2 ns
+performance improvement for time_bench_page_pool03_slow() test case
+of page_pool in a x86 vm system, this reduces some performance impact
+of fixing the DMA API misuse problem in [3], performance improves
+from 87.886 ns to 86.429 ns.
 
->  	if (running) {
->  		virtnet_napi_disable(rq);
->  		virtnet_cancel_dim(vi, &rq->dim);
-> @@ -3356,6 +3399,7 @@ static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
->  {
->  	bool running = netif_running(vi->dev);
->  
-> +	enable_delayed_refill(vi);
->  	if (!try_fill_recv(vi, rq, GFP_KERNEL))
->  		schedule_delayed_work(&vi->refill, 0);
->  
-> @@ -5959,12 +6003,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  	if (prog)
->  		bpf_prog_add(prog, vi->max_queue_pairs - 1);
->  
-> +	virtnet_rx_pause_all(vi);
-> +
->  	/* Make sure NAPI is not using any XDP TX queues for RX. */
->  	if (netif_running(dev)) {
-> -		for (i = 0; i < vi->max_queue_pairs; i++) {
-> -			virtnet_napi_disable(&vi->rq[i]);
-> +		for (i = 0; i < vi->max_queue_pairs; i++)
->  			virtnet_napi_tx_disable(&vi->sq[i]);
-> -		}
->  	}
->  
->  	if (!prog) {
-> @@ -5996,13 +6040,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  		vi->xdp_enabled = false;
->  	}
->  
-> +	virtnet_rx_resume_all(vi);
->  	for (i = 0; i < vi->max_queue_pairs; i++) {
->  		if (old_prog)
->  			bpf_prog_put(old_prog);
-> -		if (netif_running(dev)) {
-> -			virtnet_napi_enable(&vi->rq[i]);
-> +		if (netif_running(dev))
->  			virtnet_napi_tx_enable(&vi->sq[i]);
-> -		}
->  	}
->  
->  	return 0;
-> @@ -6014,11 +6057,10 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  			rcu_assign_pointer(vi->rq[i].xdp_prog, old_prog);
->  	}
->  
-> +	virtnet_rx_resume_all(vi);
->  	if (netif_running(dev)) {
-> -		for (i = 0; i < vi->max_queue_pairs; i++) {
-> -			virtnet_napi_enable(&vi->rq[i]);
-> +		for (i = 0; i < vi->max_queue_pairs; i++)
->  			virtnet_napi_tx_enable(&vi->sq[i]);
-> -		}
->  	}
->  	if (prog)
->  		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
-> -- 
-> 2.43.0
+Also a temporary patch to enable the using of full-featured API in
+page_pool suggests that the new full-featured API doesn't seem to have
+noticeable performance impact for the existing users, like SUNRPC, btrfs
+and erofs.
+
+1. https://lore.kernel.org/all/bd8c2f5c-464d-44ab-b607-390a87ea4cd5@huawei.com/
+2. https://lore.kernel.org/all/180818a1-b906-4a0b-89d3-34cb71cc26c9@huawei.com/
+3. https://lore.kernel.org/all/20250212092552.1779679-1-linyunsheng@huawei.com/
+CC: Jesper Dangaard Brouer <hawk@kernel.org>
+CC: Luiz Capitulino <luizcap@redhat.com>
+CC: Mel Gorman <mgorman@techsingularity.net>
+Suggested-by: Neil Brown <neilb@suse.de>
+Acked-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+---
+V3:
+1. Provide both simple and full-featured API as suggested by NeilBrown.
+2. Do the fs testing as suggested in V2.
+
+V2:
+1. Drop RFC tag.
+2. Fix a compile error for xfs.
+3. Defragmemt the page_array for SUNRPC and btrfs.
+---
+ drivers/vfio/pci/mlx5/cmd.c       |  2 --
+ drivers/vfio/pci/virtio/migrate.c |  2 --
+ fs/btrfs/extent_io.c              | 21 +++++++++---------
+ fs/erofs/zutil.c                  | 11 +++++----
+ include/linux/gfp.h               | 37 +++++++++++++++++++++++++++++++
+ include/trace/events/sunrpc.h     | 12 +++++-----
+ kernel/bpf/arena.c                |  1 -
+ mm/page_alloc.c                   | 32 +++++---------------------
+ net/core/page_pool.c              |  3 ---
+ net/sunrpc/svc_xprt.c             | 12 ++++++----
+ 10 files changed, 72 insertions(+), 61 deletions(-)
+
+diff --git a/drivers/vfio/pci/mlx5/cmd.c b/drivers/vfio/pci/mlx5/cmd.c
+index 11eda6b207f1..fb094527715f 100644
+--- a/drivers/vfio/pci/mlx5/cmd.c
++++ b/drivers/vfio/pci/mlx5/cmd.c
+@@ -446,8 +446,6 @@ static int mlx5vf_add_migration_pages(struct mlx5_vhca_data_buffer *buf,
+ 		if (ret)
+ 			goto err_append;
+ 		buf->allocated_length += filled * PAGE_SIZE;
+-		/* clean input for another bulk allocation */
+-		memset(page_list, 0, filled * sizeof(*page_list));
+ 		to_fill = min_t(unsigned int, to_alloc,
+ 				PAGE_SIZE / sizeof(*page_list));
+ 	} while (to_alloc > 0);
+diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
+index ba92bb4e9af9..9f003a237dec 100644
+--- a/drivers/vfio/pci/virtio/migrate.c
++++ b/drivers/vfio/pci/virtio/migrate.c
+@@ -91,8 +91,6 @@ static int virtiovf_add_migration_pages(struct virtiovf_data_buffer *buf,
+ 		if (ret)
+ 			goto err_append;
+ 		buf->allocated_length += filled * PAGE_SIZE;
+-		/* clean input for another bulk allocation */
+-		memset(page_list, 0, filled * sizeof(*page_list));
+ 		to_fill = min_t(unsigned int, to_alloc,
+ 				PAGE_SIZE / sizeof(*page_list));
+ 	} while (to_alloc > 0);
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 197f5e51c474..51ef15703900 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -623,21 +623,22 @@ int btrfs_alloc_page_array(unsigned int nr_pages, struct page **page_array,
+ 			   bool nofail)
+ {
+ 	const gfp_t gfp = nofail ? (GFP_NOFS | __GFP_NOFAIL) : GFP_NOFS;
+-	unsigned int allocated;
+-
+-	for (allocated = 0; allocated < nr_pages;) {
+-		unsigned int last = allocated;
++	int ret;
+ 
+-		allocated = alloc_pages_bulk(gfp, nr_pages, page_array);
+-		if (unlikely(allocated == last)) {
++	do {
++		ret = alloc_pages_bulk_refill(gfp, nr_pages, page_array);
++		if (unlikely(ret == -ENOMEM)) {
+ 			/* No progress, fail and do cleanup. */
+-			for (int i = 0; i < allocated; i++) {
+-				__free_page(page_array[i]);
+-				page_array[i] = NULL;
++			for (int i = 0; i < nr_pages; i++) {
++				if (page_array[i]) {
++					__free_page(page_array[i]);
++					page_array[i] = NULL;
++				}
+ 			}
+ 			return -ENOMEM;
+ 		}
+-	}
++	} while (ret == -EAGAIN);
++
+ 	return 0;
+ }
+ 
+diff --git a/fs/erofs/zutil.c b/fs/erofs/zutil.c
+index 55ff2ab5128e..6ce11a8a261c 100644
+--- a/fs/erofs/zutil.c
++++ b/fs/erofs/zutil.c
+@@ -68,7 +68,7 @@ int z_erofs_gbuf_growsize(unsigned int nrpages)
+ 	struct page **tmp_pages = NULL;
+ 	struct z_erofs_gbuf *gbuf;
+ 	void *ptr, *old_ptr;
+-	int last, i, j;
++	int ret, i, j;
+ 
+ 	mutex_lock(&gbuf_resize_mutex);
+ 	/* avoid shrinking gbufs, since no idea how many fses rely on */
+@@ -86,12 +86,11 @@ int z_erofs_gbuf_growsize(unsigned int nrpages)
+ 		for (j = 0; j < gbuf->nrpages; ++j)
+ 			tmp_pages[j] = gbuf->pages[j];
+ 		do {
+-			last = j;
+-			j = alloc_pages_bulk(GFP_KERNEL, nrpages,
+-					     tmp_pages);
+-			if (last == j)
++			ret = alloc_pages_bulk_refill(GFP_KERNEL, nrpages,
++						      tmp_pages);
++			if (ret == -ENOMEM)
+ 				goto out;
+-		} while (j != nrpages);
++		} while (ret == -EAGAIN);
+ 
+ 		ptr = vmap(tmp_pages, nrpages, VM_MAP, PAGE_KERNEL);
+ 		if (!ptr)
+diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+index c9fa6309c903..cf6100981fd6 100644
+--- a/include/linux/gfp.h
++++ b/include/linux/gfp.h
+@@ -244,6 +244,43 @@ unsigned long alloc_pages_bulk_mempolicy_noprof(gfp_t gfp,
+ #define alloc_pages_bulk(_gfp, _nr_pages, _page_array)		\
+ 	__alloc_pages_bulk(_gfp, numa_mem_id(), NULL, _nr_pages, _page_array)
+ 
++/*
++ * alloc_pages_bulk_refill_noprof - Refill order-0 pages to an array
++ * @gfp: GFP flags for the allocation when refilling
++ * @nr_pages: The size of refilling array
++ * @page_array: The array to refill order-0 pages
++ *
++ * Note that only NULL elements are populated with pages and the pages might
++ * get re-ordered.
++ *
++ * Return 0 if all pages are refilled, -EAGAIN if at least one page is refilled,
++ * ok to try again immediately or -ENOMEM if no page is refilled and don't
++ * bother trying again soon.
++ */
++static inline int alloc_pages_bulk_refill_noprof(gfp_t gfp, int nr_pages,
++						 struct page **page_array)
++{
++	int allocated = 0, i;
++
++	for (i = 0; i < nr_pages; i++) {
++		if (page_array[i]) {
++			swap(page_array[allocated], page_array[i]);
++			allocated++;
++		}
++	}
++
++	i = alloc_pages_bulk_noprof(gfp, numa_mem_id(), NULL,
++				    nr_pages - allocated,
++				    page_array + allocated);
++	if (likely(allocated + i == nr_pages))
++		return 0;
++
++	return i ? -EAGAIN : -ENOMEM;
++}
++
++#define alloc_pages_bulk_refill(...)				\
++	alloc_hooks(alloc_pages_bulk_refill_noprof(__VA_ARGS__))
++
+ static inline unsigned long
+ alloc_pages_bulk_node_noprof(gfp_t gfp, int nid, unsigned long nr_pages,
+ 				   struct page **page_array)
+diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
+index 5d331383047b..cb8899f1cbdc 100644
+--- a/include/trace/events/sunrpc.h
++++ b/include/trace/events/sunrpc.h
+@@ -2143,23 +2143,23 @@ TRACE_EVENT(svc_wake_up,
+ TRACE_EVENT(svc_alloc_arg_err,
+ 	TP_PROTO(
+ 		unsigned int requested,
+-		unsigned int allocated
++		int ret
+ 	),
+ 
+-	TP_ARGS(requested, allocated),
++	TP_ARGS(requested, ret),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(unsigned int, requested)
+-		__field(unsigned int, allocated)
++		__field(int, ret)
+ 	),
+ 
+ 	TP_fast_assign(
+ 		__entry->requested = requested;
+-		__entry->allocated = allocated;
++		__entry->ret = ret;
+ 	),
+ 
+-	TP_printk("requested=%u allocated=%u",
+-		__entry->requested, __entry->allocated)
++	TP_printk("requested=%u ret=%d",
++		__entry->requested, __entry->ret)
+ );
+ 
+ DECLARE_EVENT_CLASS(svc_deferred_event,
+diff --git a/kernel/bpf/arena.c b/kernel/bpf/arena.c
+index 0d56cea71602..9022c4440814 100644
+--- a/kernel/bpf/arena.c
++++ b/kernel/bpf/arena.c
+@@ -445,7 +445,6 @@ static long arena_alloc_pages(struct bpf_arena *arena, long uaddr, long page_cnt
+ 			return 0;
+ 	}
+ 
+-	/* zeroing is needed, since alloc_pages_bulk() only fills in non-zero entries */
+ 	pages = kvcalloc(page_cnt, sizeof(struct page *), GFP_KERNEL);
+ 	if (!pages)
+ 		return 0;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index d7cfcfa2b077..59a4fe23e62a 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4784,9 +4784,6 @@ static inline bool prepare_alloc_pages(gfp_t gfp_mask, unsigned int order,
+  * This is a batched version of the page allocator that attempts to
+  * allocate nr_pages quickly. Pages are added to the page_array.
+  *
+- * Note that only NULL elements are populated with pages and nr_pages
+- * is the maximum number of pages that will be stored in the array.
+- *
+  * Returns the number of pages in the array.
+  */
+ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+@@ -4802,29 +4799,18 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+ 	struct alloc_context ac;
+ 	gfp_t alloc_gfp;
+ 	unsigned int alloc_flags = ALLOC_WMARK_LOW;
+-	int nr_populated = 0, nr_account = 0;
+-
+-	/*
+-	 * Skip populated array elements to determine if any pages need
+-	 * to be allocated before disabling IRQs.
+-	 */
+-	while (nr_populated < nr_pages && page_array[nr_populated])
+-		nr_populated++;
++	int nr_populated = 0;
+ 
+ 	/* No pages requested? */
+ 	if (unlikely(nr_pages <= 0))
+ 		goto out;
+ 
+-	/* Already populated array? */
+-	if (unlikely(nr_pages - nr_populated == 0))
+-		goto out;
+-
+ 	/* Bulk allocator does not support memcg accounting. */
+ 	if (memcg_kmem_online() && (gfp & __GFP_ACCOUNT))
+ 		goto failed;
+ 
+ 	/* Use the single page allocator for one page. */
+-	if (nr_pages - nr_populated == 1)
++	if (nr_pages == 1)
+ 		goto failed;
+ 
+ #ifdef CONFIG_PAGE_OWNER
+@@ -4896,24 +4882,16 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+ 	/* Attempt the batch allocation */
+ 	pcp_list = &pcp->lists[order_to_pindex(ac.migratetype, 0)];
+ 	while (nr_populated < nr_pages) {
+-
+-		/* Skip existing pages */
+-		if (page_array[nr_populated]) {
+-			nr_populated++;
+-			continue;
+-		}
+-
+ 		page = __rmqueue_pcplist(zone, 0, ac.migratetype, alloc_flags,
+ 								pcp, pcp_list);
+ 		if (unlikely(!page)) {
+ 			/* Try and allocate at least one page */
+-			if (!nr_account) {
++			if (!nr_populated) {
+ 				pcp_spin_unlock(pcp);
+ 				goto failed_irq;
+ 			}
+ 			break;
+ 		}
+-		nr_account++;
+ 
+ 		prep_new_page(page, 0, gfp, 0);
+ 		set_page_refcounted(page);
+@@ -4923,8 +4901,8 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+ 	pcp_spin_unlock(pcp);
+ 	pcp_trylock_finish(UP_flags);
+ 
+-	__count_zid_vm_events(PGALLOC, zone_idx(zone), nr_account);
+-	zone_statistics(zonelist_zone(ac.preferred_zoneref), zone, nr_account);
++	__count_zid_vm_events(PGALLOC, zone_idx(zone), nr_populated);
++	zone_statistics(zonelist_zone(ac.preferred_zoneref), zone, nr_populated);
+ 
+ out:
+ 	return nr_populated;
+diff --git a/net/core/page_pool.c b/net/core/page_pool.c
+index 7745ad924ae2..2431d2f6d610 100644
+--- a/net/core/page_pool.c
++++ b/net/core/page_pool.c
+@@ -541,9 +541,6 @@ static noinline netmem_ref __page_pool_alloc_pages_slow(struct page_pool *pool,
+ 	if (unlikely(pool->alloc.count > 0))
+ 		return pool->alloc.cache[--pool->alloc.count];
+ 
+-	/* Mark empty alloc.cache slots "empty" for alloc_pages_bulk */
+-	memset(&pool->alloc.cache, 0, sizeof(void *) * bulk);
+-
+ 	nr_pages = alloc_pages_bulk_node(gfp, pool->p.nid, bulk,
+ 					 (struct page **)pool->alloc.cache);
+ 	if (unlikely(!nr_pages))
+diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
+index ae25405d8bd2..1191686fc0af 100644
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -653,7 +653,8 @@ static bool svc_alloc_arg(struct svc_rqst *rqstp)
+ {
+ 	struct svc_serv *serv = rqstp->rq_server;
+ 	struct xdr_buf *arg = &rqstp->rq_arg;
+-	unsigned long pages, filled, ret;
++	unsigned long pages;
++	int ret;
+ 
+ 	pages = (serv->sv_max_mesg + 2 * PAGE_SIZE) >> PAGE_SHIFT;
+ 	if (pages > RPCSVC_MAXPAGES) {
+@@ -663,9 +664,12 @@ static bool svc_alloc_arg(struct svc_rqst *rqstp)
+ 		pages = RPCSVC_MAXPAGES;
+ 	}
+ 
+-	for (filled = 0; filled < pages; filled = ret) {
+-		ret = alloc_pages_bulk(GFP_KERNEL, pages, rqstp->rq_pages);
+-		if (ret > filled)
++	while (true) {
++		ret = alloc_pages_bulk_refill(GFP_KERNEL, pages, rqstp->rq_pages);
++		if (!ret)
++			break;
++
++		if (ret == -EAGAIN)
+ 			/* Made progress, don't sleep yet */
+ 			continue;
+ 
+-- 
+2.33.0
 
