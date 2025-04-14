@@ -1,61 +1,61 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 092911BC3C
-	for <virtualization@lists.linux.dev>; Mon, 14 Apr 2025 05:09:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D7EE13E02A
+	for <virtualization@lists.linux.dev>; Mon, 14 Apr 2025 05:09:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744607367; cv=none; b=hHy8m8NFMHGbomdeNT5rsVhPNE9bu3NdV36ZojafqBmXwyL3qcKcrqQksdho6NlDzCRo7ySvEd4u44xnhebK7D02M53qGUZqMDRsEVq4fFsVocZTpshBIr4EvWUH1QzSMLstm0UjXEDwqjeaonY4gjBWQ85Ol1halXtYthgmXOo=
+	t=1744607385; cv=none; b=sArLHJ/vQq9ZA80hiciyHdlocxlUYZgEgDi90/yk8Lu0urQbjDumD1jrdbTWTb/IOHnKq9Ln5D8KwgI/3H73GBnk86uie/RwwTb6TlwYGIAJXlx/WGvlHyvDOpcNeIeM3RNSch8kmI77HQ5IQpkAdMqb0O6ntTLE7pSHYxMZExg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744607367; c=relaxed/simple;
-	bh=LAqM7pdFY5uYBhtKsTe5wOlUvRbdtlTtvnMwlz4eVRw=;
+	s=arc-20240116; t=1744607385; c=relaxed/simple;
+	bh=fm0FD+nFpM4KIujT0zC25XQeJrJxwhYW3rijMoqQ0r0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HR6eXeocEu4or47tx+6YlGi1PQsU9jOhQVFZ/QNLWi8atczPeUJY8cwzU4abh90LH6/68d5Li1gzo8z0FLKUT1AmdcVyLvI4G2u9h1j27I5m1areSVxusAQuDAmPCx1XkPWbhnK92AQzQSQRDd40tLzuy1tdnPcxRYvXkVfFvB0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cSOjnqN8; arc=none smtp.client-ip=209.85.214.179
+	 MIME-Version; b=NSB3sEzndcJzLgLgVTHTS44f/Nzjv4ep/oAE3r3HVtufUTjhanjkjiQ4cgj54gomPN4peqC241iD/qVDpTKnSmD16c/gnzDDzi9wwpJMVZ+nNv/utRNIcQ2DHYXOc6EAvtK64L79i2nN0lbsCnvb25365uQTdxF6U4LnZtJAjTI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bdtSB/gy; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cSOjnqN8"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2240b4de12bso52471215ad.2
-        for <virtualization@lists.linux.dev>; Sun, 13 Apr 2025 22:09:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bdtSB/gy"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2241053582dso52159965ad.1
+        for <virtualization@lists.linux.dev>; Sun, 13 Apr 2025 22:09:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744607364; x=1745212164; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1744607382; x=1745212182; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=LTXn7wUxtDAnsVPk+xJ6XC8d5pS18e6iNJS/eIvyuiA=;
-        b=cSOjnqN8ycDpK/aLovBNTx6VSEjoPPXozyFn4OKTOMZxJhmTYDhTJdiqPuoBrVcNtq
-         tESfjBVR/kErULSnjKCK2rsvIuvnjhPHt6lc16f7SxCerBJ1kkfY00k4K71lij60uhDh
-         s8gruH13sLNiVX+rqVQY7AfnmsuYdwyKx4J/z4gI1vxqDf0oNCFWTAxqVUz48taek45b
-         Tn9+/vLTCHq+IhWvMiQM3vbx8hGGMycxzrE/2Io2k7qLiVgsH8eqwr3W3KRR8dV5PX5W
-         DyB1Os/EIJXWy23f/rMc6aNmJ67MI5nKOt1jJyNmgHFY6xpFbzr8cfVSQMsOWb0AP0iW
-         0y5A==
+        bh=CcTGqksFhMMv7htGFoe+A1pXwVfny33zxtLopOer7xA=;
+        b=bdtSB/gyxa/x7n3A9pll4rF8pHmIgWt7eyCuAjziQ4/SXFEI98OyF6xBZi5nmHp54d
+         aHOerv5PmtPHYjiFdiNzdM3Kp35mO4wdDpuIikLyycl/Hl6WMExra1rqad7+bKUn+cta
+         sxPAZpUysPpnWsrQ/pSesDAw936izmsk5i9//e1RDjiBmXjPpeORHmgWJ0j4I6tOJEOi
+         cL3ZZoam8/0lC6yq3K57AfqlK+nuct28t1Bl1ljSWtJsVEHB2e0uWgr/t3A3s46/MfTm
+         ZRSQOEWYJZzEhQQ7/XuuM+mLSY/43xN9aoUsCDSNibLzBiNGfeRQlCXbZrm320z1HeyU
+         UL3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744607364; x=1745212164;
+        d=1e100.net; s=20230601; t=1744607382; x=1745212182;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=LTXn7wUxtDAnsVPk+xJ6XC8d5pS18e6iNJS/eIvyuiA=;
-        b=L4U5yeo4hHL8XZ/qmLyFOC3WpqKZLBUKaDQnvHwRNYszW0OEMbc7eJESrh0dUKlF6W
-         tpajTPr5gCUvPc6iNHWWxGS7KnOwVBfmp0F1fQHhcBe9GYNSv5Y9wMeZq4P7w/2u/2Eo
-         /m9jSVUctLBGDwSD6X2SXYuCUR4+WNeEBACzyxALvzmZhEUsNhGwxcVmEJDyHAa3p6dT
-         gAoyyAbFASRxw694YZ8VhbulepkKEcWaUDeraHGuBRuUj018jHEWoDYf40FVYM5YNeV/
-         G9zIcznxaL3QcXGf4lMYUjPN2ns5/n7WAmHV8bpXYbtO04vQHl4lvHI3e2/hv27cWxHO
-         fPag==
-X-Gm-Message-State: AOJu0YzJq297r+fu52PMufP2/cQqLc5fb7sR6n2sqHQmnKHbmJ1ftowl
-	+szUwEHP1l4dwWTOtgw/Vcq3g2s5it7z0Ys3M0nwjbyySPnvXVj+xC7FNrC1is0=
-X-Gm-Gg: ASbGncuwVUfNAgcryUH2by2+m9sLAaIpZ8FpUdeQF13dao4djTVHPnP1mCX62fPr5AJ
-	Aw+AwQ8M1mkgt4iEIIAV8kSbOTjk8n4xQUVwkp5f0MDv4UMOJQauE+1F4dkLwk/b9lzLI5/5G/k
-	cfojDL/RFZ4D2rcX5jemAtv7acdf+Nsg66VBdP8u2MweueumVCXZwomeNB0lyUTt4chuWe5N2ts
-	TeGTjZ5PZGSW6t8MtIwgnFxZX8dTxddivvVZnh98aQjgFQX2S5/c8xQrPswm4NggUnlKtjxMq2z
-	K9w0eCBcRIEBpY7E+3JzkoEpjPC07VpQHkCbmyGoYMxlaOkiKdPZtcUIukCo+CFK0A==
-X-Google-Smtp-Source: AGHT+IH7f0CknUb+6MEjVojl4lI4iFs1kPGlPHbcWFIW45FscoSes5CP7bnZxlO1IqjFQUpKfftBEA==
-X-Received: by 2002:a17:902:d2d1:b0:223:f928:4553 with SMTP id d9443c01a7336-22bea50bb7dmr157537155ad.44.1744607364148;
-        Sun, 13 Apr 2025 22:09:24 -0700 (PDT)
+        bh=CcTGqksFhMMv7htGFoe+A1pXwVfny33zxtLopOer7xA=;
+        b=I4n3CDZYBxIBiBpBgMXHxQQvMq9A8K7kP+dYEbYpneleocdX/lZrSbjpmoekJWYwK4
+         kQmbGL9JFlNprsH/PyTkgDlahwsnNwdTAG1nXRUWsQv8Wx/DpYsBAU0uJswGs42VrZc1
+         YN/KezVmxpmsZBKyvDjkhXul1UhjOj2xNHzNStdZTJYUat+8XfiH+F4drqlklYrZD3k9
+         WeeL4qfdPOW2VIp2vO7ZSVDs3dWQCLKn0BoGGnpUvZdX+fpKPawB98hlIo3l2lPojc3h
+         8hb3fuHi8Xvw12xs2iswe5cnE0Jv2inne19Qla2gIMOoMPBEE/3tZ+6Kd+qhdvqb4lwe
+         EG9Q==
+X-Gm-Message-State: AOJu0YyLGKbb8ydL2kfKkOfMko4Va4rrCf5h6JtYH6M13rr2KVcHPQEH
+	KRbjGgff8fMxHuaHVuAhzG/E8y9J8XrHCEJwD0e+ssBG+WZP+9pcbAkPoCNSksI=
+X-Gm-Gg: ASbGncv/Wo8JCTilOOiX6bUiFsw7Tt6qrzp9XcxkX1MPmi0uZSlufmdibQEBx9klVoS
+	nrA8dS0InE4ezN8lJG8hdFdCcSX0R1WDzxCHpZ+w8KOULLya5EsDaugLmpajYzDc2Ov5mGOTcXn
+	5VktC6mtk3imXpxOAXywoEjGGG3Y2uURs6wCk8QSFESU2qRLNYyRCUPsmYojTxHdEGcPwNDUDht
+	c4FLkMGoviQ9sXOZdHOiBIKB5d9gH8I0BsBMDWz0xy/oksrnyASwT8zZwjqY8yO2N2K0LLHSYlA
+	ZtFoHjZQymLibLtTX1edB/fTe4AtBcNvY4IZyzfYWCe1miUYUxgUInw=
+X-Google-Smtp-Source: AGHT+IFRDdR+y7fnmSVY24vGxnYcOYF2oSqO5tUVnC8sp//HSH6HJAZuXejI1iqoNQq9MH59YuatVA==
+X-Received: by 2002:a17:902:e5cc:b0:21f:7e12:5642 with SMTP id d9443c01a7336-22bea4b5f93mr124668945ad.18.1744607381927;
+        Sun, 13 Apr 2025 22:09:41 -0700 (PDT)
 Received: from minh.192.168.1.1 ([2001:ee0:4f0e:fb30:b80:9edb:557f:f8a7])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-22ac7cb5047sm90778665ad.170.2025.04.13.22.09.17
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-22ac7cb5047sm90778665ad.170.2025.04.13.22.09.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Apr 2025 22:09:23 -0700 (PDT)
+        Sun, 13 Apr 2025 22:09:41 -0700 (PDT)
 From: Bui Quang Minh <minhquangbui99@gmail.com>
 To: virtualization@lists.linux.dev
 Cc: "Michael S . Tsirkin" <mst@redhat.com>,
@@ -75,9 +75,9 @@ Cc: "Michael S . Tsirkin" <mst@redhat.com>,
 	linux-kernel@vger.kernel.org,
 	bpf@vger.kernel.org,
 	Bui Quang Minh <minhquangbui99@gmail.com>
-Subject: [PATCH v2 1/3] virtio-net: disable delayed refill when pausing rx
-Date: Mon, 14 Apr 2025 12:08:35 +0700
-Message-ID: <20250414050837.31213-2-minhquangbui99@gmail.com>
+Subject: [PATCH v2 2/3] selftests: net: move xdp_helper to net/lib
+Date: Mon, 14 Apr 2025 12:08:36 +0700
+Message-ID: <20250414050837.31213-3-minhquangbui99@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20250414050837.31213-1-minhquangbui99@gmail.com>
 References: <20250414050837.31213-1-minhquangbui99@gmail.com>
@@ -89,141 +89,76 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
-napi_disable() on the receive queue's napi. In delayed refill_work, it
-also calls napi_disable() on the receive queue's napi.  When
-napi_disable() is called on an already disabled napi, it will sleep in
-napi_disable_locked while still holding the netdev_lock. As a result,
-later napi_enable gets stuck too as it cannot acquire the netdev_lock.
-This leads to refill_work and the pause-then-resume tx are stuck
-altogether.
+Move xdp_helper to net/lib to make it easier for other selftests to use
+the helper.
 
-This scenario can be reproducible by binding a XDP socket to virtio-net
-interface without setting up the fill ring. As a result, try_fill_recv
-will fail until the fill ring is set up and refill_work is scheduled.
-
-This commit adds virtnet_rx_(pause/resume)_all helpers and fixes up the
-virtnet_rx_resume to disable future and cancel all inflights delayed
-refill_work before calling napi_disable() to pause the rx.
-
-Fixes: 413f0271f396 ("net: protect NAPI enablement with netdev_lock()")
 Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 ---
- drivers/net/virtio_net.c | 60 ++++++++++++++++++++++++++++++++++------
- 1 file changed, 51 insertions(+), 9 deletions(-)
+ tools/testing/selftests/drivers/net/Makefile                  | 2 --
+ tools/testing/selftests/drivers/net/queues.py                 | 4 ++--
+ tools/testing/selftests/net/lib/.gitignore                    | 1 +
+ tools/testing/selftests/net/lib/Makefile                      | 1 +
+ tools/testing/selftests/{drivers/net => net/lib}/xdp_helper.c | 0
+ 5 files changed, 4 insertions(+), 4 deletions(-)
+ rename tools/testing/selftests/{drivers/net => net/lib}/xdp_helper.c (100%)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 7e4617216a4b..4361b91ccc64 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3342,10 +3342,53 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	return NETDEV_TX_OK;
- }
+diff --git a/tools/testing/selftests/drivers/net/Makefile b/tools/testing/selftests/drivers/net/Makefile
+index 0c95bd944d56..cd74f1eb3193 100644
+--- a/tools/testing/selftests/drivers/net/Makefile
++++ b/tools/testing/selftests/drivers/net/Makefile
+@@ -6,8 +6,6 @@ TEST_INCLUDES := $(wildcard lib/py/*.py) \
+ 		 ../../net/net_helper.sh \
+ 		 ../../net/lib.sh \
  
-+static void virtnet_rx_pause_all(struct virtnet_info *vi)
-+{
-+	bool running = netif_running(vi->dev);
-+
-+	/*
-+	 * Make sure refill_work does not run concurrently to
-+	 * avoid napi_disable race which leads to deadlock.
-+	 */
-+	disable_delayed_refill(vi);
-+	cancel_delayed_work_sync(&vi->refill);
-+	if (running) {
-+		int i;
-+
-+		for (i = 0; i < vi->max_queue_pairs; i++) {
-+			virtnet_napi_disable(&vi->rq[i]);
-+			virtnet_cancel_dim(vi, &vi->rq[i].dim);
-+		}
-+	}
-+}
-+
-+static void virtnet_rx_resume_all(struct virtnet_info *vi)
-+{
-+	bool running = netif_running(vi->dev);
-+	int i;
-+
-+	enable_delayed_refill(vi);
-+	for (i = 0; i < vi->max_queue_pairs; i++) {
-+		if (i < vi->curr_queue_pairs) {
-+			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-+				schedule_delayed_work(&vi->refill, 0);
-+		}
-+
-+		if (running)
-+			virtnet_napi_enable(&vi->rq[i]);
-+	}
-+}
-+
- static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
- {
- 	bool running = netif_running(vi->dev);
+-TEST_GEN_FILES := xdp_helper
+-
+ TEST_PROGS := \
+ 	netcons_basic.sh \
+ 	netcons_fragmented_msg.sh \
+diff --git a/tools/testing/selftests/drivers/net/queues.py b/tools/testing/selftests/drivers/net/queues.py
+index 06abd3f233e1..236005290a33 100755
+--- a/tools/testing/selftests/drivers/net/queues.py
++++ b/tools/testing/selftests/drivers/net/queues.py
+@@ -26,13 +26,13 @@ def nl_get_queues(cfg, nl, qtype='rx'):
  
-+	/*
-+	 * Make sure refill_work does not run concurrently to
-+	 * avoid napi_disable race which leads to deadlock.
-+	 */
-+	disable_delayed_refill(vi);
-+	cancel_delayed_work_sync(&vi->refill);
- 	if (running) {
- 		virtnet_napi_disable(rq);
- 		virtnet_cancel_dim(vi, &rq->dim);
-@@ -3356,6 +3399,7 @@ static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
- {
- 	bool running = netif_running(vi->dev);
+ def check_xsk(cfg, nl, xdp_queue_id=0) -> None:
+     # Probe for support
+-    xdp = cmd(f'{cfg.test_dir / "xdp_helper"} - -', fail=False)
++    xdp = cmd(f'{cfg.net_lib_dir / "xdp_helper"} - -', fail=False)
+     if xdp.ret == 255:
+         raise KsftSkipEx('AF_XDP unsupported')
+     elif xdp.ret > 0:
+         raise KsftFailEx('unable to create AF_XDP socket')
  
-+	enable_delayed_refill(vi);
- 	if (!try_fill_recv(vi, rq, GFP_KERNEL))
- 		schedule_delayed_work(&vi->refill, 0);
+-    with bkg(f'{cfg.test_dir / "xdp_helper"} {cfg.ifindex} {xdp_queue_id}',
++    with bkg(f'{cfg.net_lib_dir / "xdp_helper"} {cfg.ifindex} {xdp_queue_id}',
+              ksft_wait=3):
  
-@@ -5959,12 +6003,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	if (prog)
- 		bpf_prog_add(prog, vi->max_queue_pairs - 1);
+         rx = tx = False
+diff --git a/tools/testing/selftests/net/lib/.gitignore b/tools/testing/selftests/net/lib/.gitignore
+index 1ebc6187f421..bbc97d6bf556 100644
+--- a/tools/testing/selftests/net/lib/.gitignore
++++ b/tools/testing/selftests/net/lib/.gitignore
+@@ -1,2 +1,3 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ csum
++xdp_helper
+diff --git a/tools/testing/selftests/net/lib/Makefile b/tools/testing/selftests/net/lib/Makefile
+index c22623b9a2a5..88c4bc461459 100644
+--- a/tools/testing/selftests/net/lib/Makefile
++++ b/tools/testing/selftests/net/lib/Makefile
+@@ -10,6 +10,7 @@ TEST_FILES += ../../../../net/ynl
  
-+	virtnet_rx_pause_all(vi);
-+
- 	/* Make sure NAPI is not using any XDP TX queues for RX. */
- 	if (netif_running(dev)) {
--		for (i = 0; i < vi->max_queue_pairs; i++) {
--			virtnet_napi_disable(&vi->rq[i]);
-+		for (i = 0; i < vi->max_queue_pairs; i++)
- 			virtnet_napi_tx_disable(&vi->sq[i]);
--		}
- 	}
+ TEST_GEN_FILES += csum
+ TEST_GEN_FILES += $(patsubst %.c,%.o,$(wildcard *.bpf.c))
++TEST_GEN_FILES += xdp_helper
  
- 	if (!prog) {
-@@ -5996,13 +6040,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 		vi->xdp_enabled = false;
- 	}
+ TEST_INCLUDES := $(wildcard py/*.py sh/*.sh)
  
-+	virtnet_rx_resume_all(vi);
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		if (old_prog)
- 			bpf_prog_put(old_prog);
--		if (netif_running(dev)) {
--			virtnet_napi_enable(&vi->rq[i]);
-+		if (netif_running(dev))
- 			virtnet_napi_tx_enable(&vi->sq[i]);
--		}
- 	}
- 
- 	return 0;
-@@ -6014,11 +6057,10 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 			rcu_assign_pointer(vi->rq[i].xdp_prog, old_prog);
- 	}
- 
-+	virtnet_rx_resume_all(vi);
- 	if (netif_running(dev)) {
--		for (i = 0; i < vi->max_queue_pairs; i++) {
--			virtnet_napi_enable(&vi->rq[i]);
-+		for (i = 0; i < vi->max_queue_pairs; i++)
- 			virtnet_napi_tx_enable(&vi->sq[i]);
--		}
- 	}
- 	if (prog)
- 		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
+diff --git a/tools/testing/selftests/drivers/net/xdp_helper.c b/tools/testing/selftests/net/lib/xdp_helper.c
+similarity index 100%
+rename from tools/testing/selftests/drivers/net/xdp_helper.c
+rename to tools/testing/selftests/net/lib/xdp_helper.c
 -- 
 2.43.0
 
