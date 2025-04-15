@@ -1,321 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E89552356AF;
-	Tue, 15 Apr 2025 19:00:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 049ED2C2AA1
+	for <virtualization@lists.linux.dev>; Tue, 15 Apr 2025 22:47:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744743640; cv=none; b=BaDI7WrJlUqlvVLOEVNoyCer88wuUbisMRWUqqwCpH3Uci9D93Fz3ToBk7bfNMJ+J3Xm9PFgD6Svlo9z3P1nqSFayssTBszsfzPyXVr/FjeEHag3MVn+G3C85YWOFtbY5Imb+ErPDNo2IpzkwshLSgfTf/JKukAie9vtr8w7Jj0=
+	t=1744757280; cv=none; b=o2MKiNYDOTiwbV1Wdx2ZYSaXb7yM2TD0aNgwCLbBgpKObOr3uf7c6w6DroKrRP3xBl0mDXecOK6OnkIe2lwSK5oKvjVZnzjxrAmr8RhLldzhYqijR2goRusXXuZ/8E7C02CpuHpwfJEKeg2Jz4D37K9NJacnYft/Ur4Ejcn8pqs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744743640; c=relaxed/simple;
-	bh=yPQWtevyvyvOd0bvWj+A+jdbmEHZrh0qKPMQbiWHAIU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=qhKAudWIkCTAhJROz0EUZWNW0jJvPNtuGAKM6kcOdmENHmB9LDyMzgvdih9WZ7cILtphVc6kdQQTzgNwboKf4kBO8QafNFt9qfPgj5/jpBrFa58+DP5Pd0fW7GFWDlZ0eA57yToGtKJctbrFTOX1hyJtpEngsxnkyomnz5yneTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iuqK0+gQ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1744757280; c=relaxed/simple;
+	bh=cQDqckBf0hmDXK4g9ynIco3ZrZkTnIyGRhG/+zQ4Cws=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=dt7m+CrIaTprd2K2CWVbRGc/aZbsCITovgeyiYqZO5xCnmxSantgrQuE2gSTXGheKmQ8JPnqCZJzCjhoT5/Vr7pYHWiE06iG43A5CpUb1wQROzxChbdxApRZncLuyRBImCr37WM1InLSNax+AR6JbgKVpilxzfQj/zOdSIgq6tg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=XFFDEH2O; arc=none smtp.client-ip=209.85.216.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iuqK0+gQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 540BEC4CEEE;
-	Tue, 15 Apr 2025 19:00:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744743639;
-	bh=yPQWtevyvyvOd0bvWj+A+jdbmEHZrh0qKPMQbiWHAIU=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=iuqK0+gQSnGqfLMrXi4d0MR8JRh+vhFzWtO5F2nZfM5MWkM+0uIVndjseRUG6RqUG
-	 SBxE6j/sYgIiHE96gwQCI5096hY4O7JWC7oxv6QSuI7Cpsy1v4Nj89IRXAO1oASU0p
-	 3XJFqgYdqwsXbLuamUALtMdOe/ZIMMXhkRw81XXTFKtMD63tTLUIKG2G8SyB+ui/89
-	 IfynMV5EMxrpZbvNfIOcHsJ3L9ilZrvgVzrHw4OZRFzUTT4etLruwYYfoGc50zhEbe
-	 axY2B37205tjtuXlq8llSMel6Aexm7fAk63KGr0fnB0IOJjLXlgGFICRVAgVjvh5IX
-	 3CCfMvqcHBCMg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EA47C369AB;
-	Tue, 15 Apr 2025 19:00:39 +0000 (UTC)
-From: Brett Mastbergen via B4 Relay <devnull+bmastbergen.ciq.com@kernel.org>
-Date: Tue, 15 Apr 2025 14:59:53 -0400
-Subject: [PATCH REGRESSION-FIX] x86/paravirt: Move halt paravirt calls
- under CONFIG_PARAVIRT
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XFFDEH2O"
+Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2ff7aecba07so5913101a91.2
+        for <virtualization@lists.linux.dev>; Tue, 15 Apr 2025 15:47:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1744757278; x=1745362078; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=ZMYJ9mghgsGT04ywh+6f5ef6ONFOD7mnlTWJ6KE3E4s=;
+        b=XFFDEH2O/tA1sXrfMDTGknlW9ZBOe+lJlmFu+rHACPAN3V4Rk06K/zNFCtiilIC6PK
+         ozusINo9QJikRmqxpIE/QihZ9XBQayG8Cw7XWoEUUj7zYOLk5gO9bdmUt8vWFibBVQai
+         p+1/RSs8OdVSrCwcT0PU9lqTsLleAmXhtQa/0WG2YQkw4ea2YKZMlGNu26lhTBhTRMHr
+         PR5PM6w9mBlnOsp7r9xaIQUcxmPxEWQA0/ANn9+jRPzj2H3uf0P0XiA1OMJSu3wiSmQL
+         VNJum1KTTdWyL3g3yHQcUgKr4X684wSn0PoZTdIgzboB5wfWmGGsmGScUPoHFW5KIL4m
+         zQOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744757278; x=1745362078;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ZMYJ9mghgsGT04ywh+6f5ef6ONFOD7mnlTWJ6KE3E4s=;
+        b=D2t6DZ5yzViRUCKNweENGO1U+3JPYJxCraeq3nzqzOfd/GtjqE1Pc6p3KjAysBSBpH
+         vdCB7rQPUgNjiXIkfujbazJ1oufn+MxWw3gywg+YG7dnFf9gkgT8e3oiBy+Z/HiFwJNE
+         Pf8i/XOdzBmgONImLqx64tGIrNlLAc660oXSuhGyRaGDi4pZEbLuphrwThzqw06l5rAe
+         kBUd4RGjpn2FX069JUzCp+awXZEgerU+K4dswR6o+7FQDykKYBRspPE1qLeSNg1Idl0F
+         nxrqHEC4i4vRoBcIp3yBtHTe4f94bXxrHd9YRFNXAWlRgZNoq/CpswICskCWDC015FwJ
+         ITbA==
+X-Forwarded-Encrypted: i=1; AJvYcCXTz9ldiUgRJrbuZoqVNxbUqPa5YnmO4TVD0eTACi1rD7qcQSqO5NEguK+rCnodvhbQa5y9pK9ZctTQUkKSXQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz+ay/pglPIBjeh9vAuRvnukDSdnaTR4VzAfosKR2GrXuxwWoQF
+	Xb1S7cUupfXE7VEhH6eaXQSWPqCF9Z2aj0eWhgo3bn+EgnfQ8Kn8DBuCQ2dEUcsnwfnFchQnvXV
+	Kw4+ewXZ7Vc0uiE+s4QvaQw==
+X-Google-Smtp-Source: AGHT+IGJWEyQPog40oxrMqoGsHI/uR3lYwzFocZD/EUJPpg1Ph4n4p94UxN7V/pG7QlDhDYzCI99CzW4KOsDU+Dcvw==
+X-Received: from pjbso12.prod.google.com ([2002:a17:90b:1f8c:b0:2fc:13d6:b4cb])
+ (user=almasrymina job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a17:90b:3c8a:b0:308:5273:4dee with SMTP id 98e67ed59e1d1-3085ef200bemr1637324a91.15.1744757278334;
+ Tue, 15 Apr 2025 15:47:58 -0700 (PDT)
+Date: Tue, 15 Apr 2025 22:47:48 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20250415-stable_fixup-v1-1-0bea1b5f583c@ciq.com>
-X-B4-Tracking: v=1; b=H4sIAKis/mcC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDI1MDE0NT3eKSxKSc1Pi0zIrSAt1k8yRLYzMTc+M0U2MloJaColSgBNi46Nj
- aWgDM1KX9XgAAAA==
-X-Change-ID: 20250415-stable_fixup-c7b936473f53
-To: stable@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
- Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
- Alexey Makhalov <alexey.amakhalov@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, 
- Tony Luck <tony.luck@intel.com>, 
- Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>, 
- Andi Kleen <ak@linux.intel.com>, linux-kernel@vger.kernel.org, 
- virtualization@lists.linux.dev, regressions@lists.linux.dev, 
- Vishal Annapurve <vannapurve@google.com>, Ingo Molnar <mingo@kernel.org>, 
- Ryan Afranji <afranji@google.com>, Andy Lutomirski <luto@kernel.org>, 
- Brian Gerst <brgerst@gmail.com>, 
- Linus Torvalds <torvalds@linux-foundation.org>, stable@kernel.org, 
- Brett Mastbergen <bmastbergen@ciq.com>, 
- Josh Poimboeuf <jpoimboe@kernel.org>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1744743638; l=7817;
- i=bmastbergen@ciq.com; s=20250415; h=from:subject:message-id;
- bh=nfdTL9dMpc7u6M9sFod5SqMNA326684hq87+QJyATs8=;
- b=+t5fxrpGcEx5x+umwsUmc9j7PdY5seiSW08bQ2eIx6c6HOhRuigDDLzT+Ai4hQmRuNogfIQjg
- kGWz7WJjpTDCiYyzXgKseZJrgTjcepcZEfn5yRQuzZ6RFwpHCmzaEu2
-X-Developer-Key: i=bmastbergen@ciq.com; a=ed25519;
- pk=cjlR63i7BVF/7E0Yr3hTlnxYS/pC3WTR15UQusOZio4=
-X-Endpoint-Received: by B4 Relay for bmastbergen@ciq.com/20250415 with
- auth_id=379
-X-Original-From: Brett Mastbergen <bmastbergen@ciq.com>
-Reply-To: bmastbergen@ciq.com
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.49.0.777.g153de2bbd5-goog
+Message-ID: <20250415224756.152002-1-almasrymina@google.com>
+Subject: [PATCH net-next v8 1/9] netmem: add niov->type attribute to
+ distinguish different net_iov types
+From: Mina Almasry <almasrymina@google.com>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-doc@vger.kernel.org, io-uring@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org
+Cc: Mina Almasry <almasrymina@google.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Simon Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	Jeroen de Borst <jeroendb@google.com>, Harshitha Ramamurthy <hramamurthy@google.com>, 
+	Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn <willemb@google.com>, Jens Axboe <axboe@kernel.dk>, 
+	Pavel Begunkov <asml.silence@gmail.com>, David Ahern <dsahern@kernel.org>, 
+	Neal Cardwell <ncardwell@google.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Shuah Khan <shuah@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Later patches in the series adds TX net_iovs where there is no pp
+associated, so we can't rely on niov->pp->mp_ops to tell what is the
+type of the net_iov.
 
-CONFIG_PARAVIRT_XXL is mainly defined/used by XEN PV guests. For
-other VM guest types, features supported under CONFIG_PARAVIRT
-are self sufficient. CONFIG_PARAVIRT mainly provides support for
-TLB flush operations and time related operations.
+Add a type enum to the net_iov which tells us the net_iov type.
 
-For TDX guest as well, paravirt calls under CONFIG_PARVIRT meets
-most of its requirement except the need of HLT and SAFE_HLT
-paravirt calls, which is currently defined under
-CONFIG_PARAVIRT_XXL.
+Signed-off-by: Mina Almasry <almasrymina@google.com>
 
-Since enabling CONFIG_PARAVIRT_XXL is too bloated for TDX guest
-like platforms, move HLT and SAFE_HLT paravirt calls under
-CONFIG_PARAVIRT.
-
-Moving HLT and SAFE_HLT paravirt calls are not fatal and should not
-break any functionality for current users of CONFIG_PARAVIRT.
-
-Fixes: bfe6ed0c6727 ("x86/tdx: Add HLT support for TDX guests")
-Co-developed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Vishal Annapurve <vannapurve@google.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Tested-by: Ryan Afranji <afranji@google.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Brian Gerst <brgerst@gmail.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20250228014416.3925664-2-vannapurve@google.com
 ---
-6.12.23 fails to build with the following error if CONFIG_XEN_PV is
-not set:
 
-arch/x86/coco/tdx/tdx.c: In function ‘tdx_early_init’:
-arch/x86/coco/tdx/tdx.c:1080:19: error: ‘struct pv_irq_ops’ has no member
-named ‘safe_halt’
- 1080 |         pv_ops.irq.safe_halt = tdx_safe_halt;
-      |                   ^
-arch/x86/coco/tdx/tdx.c:1081:19: error: ‘struct pv_irq_ops’ has no member
-named ‘halt’
- 1081 |         pv_ops.irq.halt = tdx_halt;
-      |                   ^
+v8:
+- Since io_uring zcrx is now in net-next, update io_uring net_iov type
+  setting and remove the NET_IOV_UNSPECIFIED type
 
-This is because XEN_PV selects PARAVIRT_XXL, and 'safe_halt' and
-'halt' are only defined for pv_irq_ops if PARAVIRT_XXL is defined.
+v7:
+- New patch
 
-The build breakage was introduced in 6.12.23 by stable commit
-805e3ce5e0e3 which is a backport of 9f98a4f4e721 ("x86/tdx: Fix
-arch_safe_halt() execution for TDX VMs").
 
-Consider picking up upstream commit 22cc5ca5de52 ("x86/paravirt:
-Move halt paravirt calls under CONFIG_PARAVIRT") for stable 6.12.y
-which fixes the build regression by moving 'safe_halt' and 'halt'
-out from under the PARAVIRT_XXL config.
+fix iouring
 
-This patch is 22cc5ca5de52 backported to 6.12.23.  There were a
-couple of merge conflicts due to the missing upstream commits below:
-
-29188c160061 ("x86/paravirt: Remove the WBINVD callback")
-3101900218d7 ("x86/paravirt: Remove unused paravirt_disable_iospace()")
-
-I wasn't sure if it was appropriate to pull those to stable as well
-and the merge conflicts were trivial.
-
-Thanks!
-
-Signed-off-by: Brett Mastbergen <bmastbergen@ciq.com>
 ---
- arch/x86/include/asm/irqflags.h       | 40 +++++++++++++++++++----------------
- arch/x86/include/asm/paravirt.h       | 20 +++++++++---------
- arch/x86/include/asm/paravirt_types.h |  3 +--
- arch/x86/kernel/paravirt.c            | 13 +++++++-----
- 4 files changed, 41 insertions(+), 35 deletions(-)
+ include/net/netmem.h | 11 ++++++++++-
+ io_uring/zcrx.c      |  1 +
+ net/core/devmem.c    |  3 ++-
+ 3 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
-index cf7fc2b8e3ce1f4e5f5703ae9fbb5a7e1182ad4f..1c2db11a2c3cb9a289d80d4900b9933275d1eea6 100644
---- a/arch/x86/include/asm/irqflags.h
-+++ b/arch/x86/include/asm/irqflags.h
-@@ -76,6 +76,28 @@ static __always_inline void native_local_irq_restore(unsigned long flags)
- 
- #endif
- 
-+#ifndef CONFIG_PARAVIRT
-+#ifndef __ASSEMBLY__
-+/*
-+ * Used in the idle loop; sti takes one instruction cycle
-+ * to complete:
-+ */
-+static __always_inline void arch_safe_halt(void)
-+{
-+	native_safe_halt();
-+}
-+
-+/*
-+ * Used when interrupts are already enabled or to
-+ * shutdown the processor:
-+ */
-+static __always_inline void halt(void)
-+{
-+	native_halt();
-+}
-+#endif /* __ASSEMBLY__ */
-+#endif /* CONFIG_PARAVIRT */
-+
- #ifdef CONFIG_PARAVIRT_XXL
- #include <asm/paravirt.h>
- #else
-@@ -97,24 +119,6 @@ static __always_inline void arch_local_irq_enable(void)
- 	native_irq_enable();
- }
- 
--/*
-- * Used in the idle loop; sti takes one instruction cycle
-- * to complete:
-- */
--static __always_inline void arch_safe_halt(void)
--{
--	native_safe_halt();
--}
--
--/*
-- * Used when interrupts are already enabled or to
-- * shutdown the processor:
-- */
--static __always_inline void halt(void)
--{
--	native_halt();
--}
--
- /*
-  * For spinlocks, etc:
+diff --git a/include/net/netmem.h b/include/net/netmem.h
+index c61d5b21e7b4..64af9a288c80 100644
+--- a/include/net/netmem.h
++++ b/include/net/netmem.h
+@@ -20,8 +20,17 @@ DECLARE_STATIC_KEY_FALSE(page_pool_mem_providers);
   */
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index d4eb9e1d61b8ef8a3fc3a2510b0615ea93c11cb8..75d4c994f5e2a5dcbc2edbf7eed617de4a141fa0 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -107,6 +107,16 @@ static inline void notify_page_enc_status_changed(unsigned long pfn,
- 	PVOP_VCALL3(mmu.notify_page_enc_status_changed, pfn, npages, enc);
- }
+ #define NET_IOV 0x01UL
  
-+static __always_inline void arch_safe_halt(void)
-+{
-+	PVOP_VCALL0(irq.safe_halt);
-+}
++enum net_iov_type {
++	NET_IOV_DMABUF,
++	NET_IOV_IOURING,
 +
-+static inline void halt(void)
-+{
-+	PVOP_VCALL0(irq.halt);
-+}
++	/* Force size to unsigned long to make the NET_IOV_ASSERTS below pass.
++	 */
++	NET_IOV_MAX = ULONG_MAX,
++};
 +
- #ifdef CONFIG_PARAVIRT_XXL
- static inline void load_sp0(unsigned long sp0)
+ struct net_iov {
+-	unsigned long __unused_padding;
++	enum net_iov_type type;
+ 	unsigned long pp_magic;
+ 	struct page_pool *pp;
+ 	struct net_iov_area *owner;
+diff --git a/io_uring/zcrx.c b/io_uring/zcrx.c
+index 0f46e0404c04..17a54e74ed5d 100644
+--- a/io_uring/zcrx.c
++++ b/io_uring/zcrx.c
+@@ -247,6 +247,7 @@ static int io_zcrx_create_area(struct io_zcrx_ifq *ifq,
+ 		niov->owner = &area->nia;
+ 		area->freelist[i] = i;
+ 		atomic_set(&area->user_refs[i], 0);
++		niov->type = NET_IOV_IOURING;
+ 	}
+ 
+ 	area->free_count = nr_iovs;
+diff --git a/net/core/devmem.c b/net/core/devmem.c
+index 6e27a47d0493..f5c3a7e6dbb7 100644
+--- a/net/core/devmem.c
++++ b/net/core/devmem.c
+@@ -30,7 +30,7 @@ static const struct memory_provider_ops dmabuf_devmem_ops;
+ 
+ bool net_is_devmem_iov(struct net_iov *niov)
  {
-@@ -170,16 +180,6 @@ static inline void __write_cr4(unsigned long x)
- 	PVOP_VCALL1(cpu.write_cr4, x);
+-	return niov->pp->mp_ops == &dmabuf_devmem_ops;
++	return niov->type == NET_IOV_DMABUF;
  }
  
--static __always_inline void arch_safe_halt(void)
--{
--	PVOP_VCALL0(irq.safe_halt);
--}
--
--static inline void halt(void)
--{
--	PVOP_VCALL0(irq.halt);
--}
--
- extern noinstr void pv_native_wbinvd(void);
+ static void net_devmem_dmabuf_free_chunk_owner(struct gen_pool *genpool,
+@@ -266,6 +266,7 @@ net_devmem_bind_dmabuf(struct net_device *dev, unsigned int dmabuf_fd,
  
- static __always_inline void wbinvd(void)
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 8d4fbe1be489549ad33c968c2132bdbaf739b871..9334fdd1f6350231af7089802dfb94daa1653965 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -122,10 +122,9 @@ struct pv_irq_ops {
- 	struct paravirt_callee_save save_fl;
- 	struct paravirt_callee_save irq_disable;
- 	struct paravirt_callee_save irq_enable;
--
-+#endif
- 	void (*safe_halt)(void);
- 	void (*halt)(void);
--#endif
- } __no_randomize_layout;
- 
- struct pv_mmu_ops {
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index fec38153355581215eb93b6301ae90b6f0bd06c5..0c1b915d7efac895b2c8be67eb3b84b998d00fbc 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -100,6 +100,11 @@ int paravirt_disable_iospace(void)
- 	return request_resource(&ioport_resource, &reserve_ioports);
- }
- 
-+static noinstr void pv_native_safe_halt(void)
-+{
-+	native_safe_halt();
-+}
-+
- #ifdef CONFIG_PARAVIRT_XXL
- static noinstr void pv_native_write_cr2(unsigned long val)
- {
-@@ -121,10 +126,6 @@ noinstr void pv_native_wbinvd(void)
- 	native_wbinvd();
- }
- 
--static noinstr void pv_native_safe_halt(void)
--{
--	native_safe_halt();
--}
- #endif
- 
- struct pv_info pv_info = {
-@@ -182,9 +183,11 @@ struct paravirt_patch_template pv_ops = {
- 	.irq.save_fl		= __PV_IS_CALLEE_SAVE(pv_native_save_fl),
- 	.irq.irq_disable	= __PV_IS_CALLEE_SAVE(pv_native_irq_disable),
- 	.irq.irq_enable		= __PV_IS_CALLEE_SAVE(pv_native_irq_enable),
-+#endif /* CONFIG_PARAVIRT_XXL */
-+
-+	/* Irq HLT ops. */
- 	.irq.safe_halt		= pv_native_safe_halt,
- 	.irq.halt		= native_halt,
--#endif /* CONFIG_PARAVIRT_XXL */
- 
- 	/* Mmu ops. */
- 	.mmu.flush_tlb_user	= native_flush_tlb_local,
+ 		for (i = 0; i < owner->area.num_niovs; i++) {
+ 			niov = &owner->area.niovs[i];
++			niov->type = NET_IOV_DMABUF;
+ 			niov->owner = &owner->area;
+ 			page_pool_set_dma_addr_netmem(net_iov_to_netmem(niov),
+ 						      net_devmem_get_dma_addr(niov));
 
----
-base-commit: 83b4161a63b87ce40d9f24f09b5b006f63d95b7c
-change-id: 20250415-stable_fixup-c7b936473f53
-
-Best regards,
+base-commit: bbfc077d457272bcea4f14b3a28247ade99b196d
 -- 
-Brett Mastbergen <bmastbergen@ciq.com>
-
+2.49.0.777.g153de2bbd5-goog
 
