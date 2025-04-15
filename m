@@ -1,220 +1,252 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20B701E48A
-	for <virtualization@lists.linux.dev>; Tue, 15 Apr 2025 12:45:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DE942973A0
+	for <virtualization@lists.linux.dev>; Tue, 15 Apr 2025 13:19:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744721134; cv=none; b=KPjVTZ38iP7dfJ3oo6Az1ArSlbMw1+I0ciq1cCtdmXLorDSmcssm1LL5SLAn1VsKkviY7f+f+O1LVvmEFEia+dacdTAqySBNm0iWSCiQ8+t7gGw26QKizGhSjbMuqV9a453OMhGTx74H6sTafkOl9ZO4If90ujTU94Gyoob3kFQ=
+	t=1744723176; cv=none; b=JlukdXLez0nn8hEMHLAKQRlKG8HT/XESXq9OWUYNCe3/dKCP9DbnU9ep19KOOa5tkl1SDi7tpvXy+uiZ1rDS6iXzKfr5ATUTIwqygQC7JtjBBgtvXwWgVmW1OK+cB4+c0pjBlS2urrWIygsVLBuOd8ySYN1fqDn2EgBPfxeQqQ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744721134; c=relaxed/simple;
-	bh=E5XQcw4IEaB0LKYRVD7ZDLH2kh1PfwrDrSF+4CKaanw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=c1shhUGMiTxn6Aug2DpLBIufPH0HyPjdS5LV4v/rFWpO3/joj0Au4HBUbcGzWIS5xyH+yp/Nr4i9aGS9RhAM5PsQKD1HWEx8+CvfkKOE2v2lcwaIH6qMhKtZ9APKfTEpNjKy5gxI7rxrOF3uTm9u4RGhu4INKERVCADaruXQicE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4ZcP374bdHz1R7gs;
-	Tue, 15 Apr 2025 20:43:31 +0800 (CST)
-Received: from dggpemf200006.china.huawei.com (unknown [7.185.36.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id D4EBE1A016C;
-	Tue, 15 Apr 2025 20:45:27 +0800 (CST)
-Received: from [10.67.120.129] (10.67.120.129) by
- dggpemf200006.china.huawei.com (7.185.36.61) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Tue, 15 Apr 2025 20:45:27 +0800
-Message-ID: <28772dbe-1ae9-4ff7-91ef-c45d174b88d6@huawei.com>
-Date: Tue, 15 Apr 2025 20:45:22 +0800
+	s=arc-20240116; t=1744723176; c=relaxed/simple;
+	bh=e9R32tQBSXYQd8goFfR+Lx7lJByV3tKzSiDQM/hj3JU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=kuqRWT0w+XeCN7tBgqitx8pWp55m6ljYw3Q6f84GOM0KGRPMjBRRLcSMQS2il7ixAEsXCEh65FXwu93CimL1bjJj8hVi2HzRLKkOs8sZ9C/rC9E5K7VLIQtWRZhASgTqV312AzTkcj8OvrAz9c36aFqa2ARJ57ar8MKUHyEO53U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TjiiS0uH; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TjiiS0uH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744723173;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HDFRVUvYARrrdoMVKwNSz9nrR/1vGVN5NRO4r+H+6kk=;
+	b=TjiiS0uH7PjepR7rcajPBTCLIYGdOXmkFJVyHQGAVk2cVnWtVL0AJFsRl3+pdyVflqITKX
+	PtMf9ratbKcsB2CnfhHsmbeCKeA0FUYNglxqq5klJTvxGQ/mf0sVvEvgs4M1muEVYPNAuV
+	/OsNUWAGser3Vl7T4VGb8G3/kvUQH1M=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-679-C5LIj1mdNRCz92aeyfx0Zw-1; Tue, 15 Apr 2025 09:19:32 -0400
+X-MC-Unique: C5LIj1mdNRCz92aeyfx0Zw-1
+X-Mimecast-MFC-AGG-ID: C5LIj1mdNRCz92aeyfx0Zw_1744723171
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-39143311936so2228670f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 15 Apr 2025 06:19:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744723171; x=1745327971;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HDFRVUvYARrrdoMVKwNSz9nrR/1vGVN5NRO4r+H+6kk=;
+        b=hYWqJGfwHhNdOGtdxaRQMGs44ERN4F77NRBbsBw5aC/YyilPKMsMTwuN1vdrB7DR7t
+         g+jY2DxMMtGra0hgw8NRAz5KvmWBguUvXzCuovsdj9oWM62Z79IHC7yRwr7ZDuyawe8/
+         p9bd0Kqe+GLBmh37R6y5SOsHL8yYt0qnWCtC+FkkznN+qTA49qv/d+Kxr3qLxFEgGbng
+         4RgDzwF2BgG8h+UaqEE9Qh60BKKVhDCpWe7SozD170AvwfaTqoBqO6DfQ00FekWYt8ws
+         UtX9drJQsbkA0nB9JSCCq4FFZfHlm8iBqlDoejMYfHl37PJ9gryUs2/KNW8DnL7oUqnY
+         PxMQ==
+X-Gm-Message-State: AOJu0YxcBhtS7iQb4Egl+AUIy9dRiGNIhyuFZ0m5H/og3GMqtDi14Ql8
+	ev7YoQEuCUBzc3vSMfx4B72140AqGxzcQjJN3kJo/UeGSn+P900A8QxjQ7RYFFLcI7lIwefPcEJ
+	8gKVpi95E3bVAMlYX+EQ3n6AZ2r0/fKEDwNGTyJgFOYFmg5647fWtB9KoIBdNSy7m
+X-Gm-Gg: ASbGncsB6AEodKSCkP34Lk3Zxey5Lk52xaQ+oThqG2RFDTlZflpBjW9PufINC+56O1e
+	fIyBvr/BRVWKogtBMi55KMxT/+jcY2XuRVKdrDl/7AbC/vHNLF0Q3RwctEny5GRnlidDf5gHj7y
+	Et95b0z7KwwxRkSBuQ3TPJdGJ0J2Pnq5ZWlg+D0ArerA/pgCZS3JndDIWFTTFpMfb2bzMCabVMz
+	0WUGuAs1nkHBsgPS6CgIkhOqiW5eYgKFD69mFPUAs2EVWzSxxm/cFmsoli64d3FbcZJD1PXt15p
+	2Tm33Q==
+X-Received: by 2002:a5d:6d82:0:b0:38f:2b77:a9f3 with SMTP id ffacd0b85a97d-39eaaecd9d3mr14812806f8f.43.1744723171103;
+        Tue, 15 Apr 2025 06:19:31 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH3g59/gkleqCg6T/d47/qE3AgIRCAsXkZY+0Zs8YtzSwtO0Ld+xwTSwCyCTlke980a+IysoQ==
+X-Received: by 2002:a5d:6d82:0:b0:38f:2b77:a9f3 with SMTP id ffacd0b85a97d-39eaaecd9d3mr14812768f8f.43.1744723170724;
+        Tue, 15 Apr 2025 06:19:30 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43f206269c8sm217509515e9.16.2025.04.15.06.19.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Apr 2025 06:19:30 -0700 (PDT)
+Date: Tue, 15 Apr 2025 09:19:26 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH v3 1/3] virtio-net: disable delayed refill when pausing rx
+Message-ID: <20250415091917-mutt-send-email-mst@kernel.org>
+References: <20250415074341.12461-1-minhquangbui99@gmail.com>
+ <20250415074341.12461-2-minhquangbui99@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] mm: alloc_pages_bulk: support both simple and
- full-featured API
-To: Chuck Lever <chuck.lever@oracle.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Yishai Hadas <yishaih@nvidia.com>, Jason
- Gunthorpe <jgg@ziepe.ca>, Shameer Kolothum
-	<shameerali.kolothum.thodi@huawei.com>, Kevin Tian <kevin.tian@intel.com>,
-	Alex Williamson <alex.williamson@redhat.com>, Chris Mason <clm@fb.com>, Josef
- Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Gao Xiang
-	<xiang@kernel.org>, Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
-	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>,
-	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, Olga
- Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey
-	<tom@talpey.com>, Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
-	<mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>,
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, Yonghong
- Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, KP
- Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>, Hao Luo
-	<haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, Jesper Dangaard Brouer
-	<hawk@kernel.org>, Ilias Apalodimas <ilias.apalodimas@linaro.org>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
-	<horms@kernel.org>, Trond Myklebust <trondmy@kernel.org>, Anna Schumaker
-	<anna@kernel.org>
-CC: Luiz Capitulino <luizcap@redhat.com>, Mel Gorman
-	<mgorman@techsingularity.net>, <kvm@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-btrfs@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
-	<linux-mm@kvack.org>, <linux-nfs@vger.kernel.org>,
-	<linux-trace-kernel@vger.kernel.org>, <bpf@vger.kernel.org>,
-	<netdev@vger.kernel.org>
-References: <20250414120819.3053967-1-linyunsheng@huawei.com>
- <18713073-342e-48b2-9864-24004445e234@oracle.com>
-Content-Language: en-US
-From: Yunsheng Lin <linyunsheng@huawei.com>
-In-Reply-To: <18713073-342e-48b2-9864-24004445e234@oracle.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemf200006.china.huawei.com (7.185.36.61)
+In-Reply-To: <20250415074341.12461-2-minhquangbui99@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: GkDKDECmLaGvZ3B7DsQzKG_nu4RkrjE0jxLbu5GEN0Y_1744723171
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 2025/4/15 1:39, Chuck Lever wrote:
-> On 4/14/25 8:08 AM, Yunsheng Lin wrote:
->> As mentioned in [1], it seems odd to check NULL elements in
->> the middle of page bulk allocating, and it seems caller can
->> do a better job of bulk allocating pages into a whole array
->> sequentially without checking NULL elements first before
->> doing the page bulk allocation for most of existing users
->> by passing 'page_array + allocated' and 'nr_pages - allocated'
->> when calling subsequent page bulk alloc API so that NULL
->> checking can be avoided, see the pattern in mm/mempolicy.c.
->>
->> Through analyzing of existing bulk allocation API users, it
->> seems only the fs users are depending on the assumption of
->> populating only NULL elements, see:
->> commit 91d6ac1d62c3 ("btrfs: allocate page arrays using bulk page allocator")
->> commit d6db47e571dc ("erofs: do not use pagepool in z_erofs_gbuf_growsize()")
->> commit f6e70aab9dfe ("SUNRPC: refresh rq_pages using a bulk page allocator")
->> commit 88e4d41a264d ("SUNRPC: Use __alloc_bulk_pages() in svc_init_buffer()")
->>
->> The current API adds a mental burden for most users. For most
->> users, their code would be much cleaner if the interface accepts
->> an uninitialised array with length, and were told how many pages
->> had been stored in that array, so support one simple and one
->> full-featured to meet the above different use cases as below:
->> - alloc_pages_bulk() would be given an uninitialised array of page
->>   pointers and a required count and would return the number of
->>   pages that were allocated.
->> - alloc_pages_bulk_refill() would be given an initialised array
->>   of page pointers some of which might be NULL. It would attempt
->>   to allocate pages for the non-NULL pointers, return 0 if all
->>   pages are allocated, -EAGAIN if at least one page allocated,
->>   ok to try again immediately or -ENOMEM if don't bother trying
->>   again soon, which provides a more consistent semantics than the
->>   current API as mentioned in [2], at the cost of the pages might
->>   be getting re-ordered to make the implementation simpler.
->>
->> Change the existing fs users to use the full-featured API, except
->> for the one for svc_init_buffer() in net/sunrpc/svc.c. Other
->> existing callers can use the simple API as they seems to be passing
->> all NULL elements via memset, kzalloc, etc, only remove unnecessary
->> memset for existing users calling the simple API in this patch.
->>
->> The test result for xfstests full test:
->> Before this patch:
->> btrfs/default: 1061 tests, 3 failures, 290 skipped, 13152 seconds
->>   Failures: btrfs/012 btrfs/226
->>   Flaky: generic/301: 60% (3/5)
->> Totals: 1073 tests, 290 skipped, 13 failures, 0 errors, 12540s
->>
->> nfs/loopback: 530 tests, 3 failures, 392 skipped, 3942 seconds
->>   Failures: generic/464 generic/551
->>   Flaky: generic/650: 40% (2/5)
->> Totals: 542 tests, 392 skipped, 12 failures, 0 errors, 3799s
->>
->> After this patch:
->> btrfs/default: 1061 tests, 2 failures, 290 skipped, 13446 seconds
->>   Failures: btrfs/012 btrfs/226
->> Totals: 1069 tests, 290 skipped, 10 failures, 0 errors, 12853s
->>
->> nfs/loopback: 530 tests, 3 failures, 392 skipped, 4103 seconds
->>   Failures: generic/464 generic/551
->>   Flaky: generic/650: 60% (3/5)
->> Totals: 542 tests, 392 skipped, 13 failures, 0 errors, 3933s
+On Tue, Apr 15, 2025 at 02:43:39PM +0700, Bui Quang Minh wrote:
+> When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
+> napi_disable() on the receive queue's napi. In delayed refill_work, it
+> also calls napi_disable() on the receive queue's napi.  When
+> napi_disable() is called on an already disabled napi, it will sleep in
+> napi_disable_locked while still holding the netdev_lock. As a result,
+> later napi_enable gets stuck too as it cannot acquire the netdev_lock.
+> This leads to refill_work and the pause-then-resume tx are stuck
+> altogether.
 > 
-> Hi -
+> This scenario can be reproducible by binding a XDP socket to virtio-net
+> interface without setting up the fill ring. As a result, try_fill_recv
+> will fail until the fill ring is set up and refill_work is scheduled.
 > 
-> The "after" run for NFS took longer, and not by a little bit. Can you
-> explain the difference?
-
-Ah, I overlooked the difference as I was not looking to have a performance
-comparasion using xfstest full test due to possible noise, so the above test
-might be done with other job like kernel compiling behind the scenes as it
-was tested with the same machine where I was doing some kernel compiling.
-
-And I used a temporary patch to enable the using of full-featured API in
-page_pool to test if the full-featured API will cause performance regression
-for the existing users in fs as mentioned at the end of commit log.
-
+> This commit adds virtnet_rx_(pause/resume)_all helpers and fixes up the
+> virtnet_rx_resume to disable future and cancel all inflights delayed
+> refill_work before calling napi_disable() to pause the rx.
 > 
-> You can expunge the flakey test (generic/650) to help make the results
-> more directly comparable. 650 is a CPU hot-plugging test.
+> Fixes: 413f0271f396 ("net: protect NAPI enablement with netdev_lock()")
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 
-I retested in a newer and more powerful machine without obvious heavy job
-behind the scenes based on linux-next-20250411, and the flakey test seems
-gone too.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-before:
--------------------- Summary report
-KERNEL:    kernel 6.15.0-rc1-next-20250411-xfstests #369 SMP PREEMPT_DYNAMIC Tue Apr 15 16:17:08 CST 2025 x86_64
-CMDLINE:   full
-CPUS:      2
-MEM:       1972.54
-
-nfs/loopback: 539 tests, 4 failures, 400 skipped, 2364 seconds
-  Failures: generic/169 generic/363 generic/464 generic/551
-Totals: 555 tests, 400 skipped, 20 failures, 0 errors, 2205s
-
-after:
--------------------- Summary report
-KERNEL:    kernel 6.15.0-rc1-next-20250411-xfstests-00001-g316d17a7f7bb #370 SMP PREEMPT_DYNAMIC Tue Apr 15 19:57:48 CST 2025 x86_64
-CMDLINE:   full
-CPUS:      2
-MEM:       1972.54
-
-nfs/loopback: 539 tests, 4 failures, 400 skipped, 2327 seconds
-  Failures: generic/169 generic/363 generic/464 generic/551
-Totals: 555 tests, 400 skipped, 20 failures, 0 errors, 2148s
-
+> ---
+>  drivers/net/virtio_net.c | 69 +++++++++++++++++++++++++++++++++-------
+>  1 file changed, 57 insertions(+), 12 deletions(-)
 > 
-> 
->> The stress test also suggest there is no regression for the erofs
->> too.
->>
->> Using the simple API also enable the caller to not zero the array
->> before calling the page bulk allocating API, which has about 1~2 ns
->> performance improvement for time_bench_page_pool03_slow() test case
->> of page_pool in a x86 vm system, this reduces some performance impact
->> of fixing the DMA API misuse problem in [3], performance improves
->> from 87.886 ns to 86.429 ns.
->>
->> Also a temporary patch to enable the using of full-featured API in
->> page_pool suggests that the new full-featured API doesn't seem to have
->> noticeable performance impact for the existing users, like SUNRPC, btrfs
->> and erofs.
->>
->> 1. https://lore.kernel.org/all/bd8c2f5c-464d-44ab-b607-390a87ea4cd5@huawei.com/
->> 2. https://lore.kernel.org/all/180818a1-b906-4a0b-89d3-34cb71cc26c9@huawei.com/
->> 3. https://lore.kernel.org/all/20250212092552.1779679-1-linyunsheng@huawei.com/
->> CC: Jesper Dangaard Brouer <hawk@kernel.org>
->> CC: Luiz Capitulino <luizcap@redhat.com>
->> CC: Mel Gorman <mgorman@techsingularity.net>
->> Suggested-by: Neil Brown <neilb@suse.de>
->> Acked-by: Jeff Layton <jlayton@kernel.org>
->> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
->> ---
->> V3:
->> 1. Provide both simple and full-featured API as suggested by NeilBrown.
->> 2. Do the fs testing as suggested in V2.
->>
->> V2:
->> 1. Drop RFC tag.
->> 2. Fix a compile error for xfs.
->> 3. Defragmemt the page_array for SUNRPC and btrfs.
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7e4617216a4b..848fab51dfa1 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3342,7 +3342,8 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  	return NETDEV_TX_OK;
+>  }
+>  
+> -static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
+> +static void __virtnet_rx_pause(struct virtnet_info *vi,
+> +			       struct receive_queue *rq)
+>  {
+>  	bool running = netif_running(vi->dev);
+>  
+> @@ -3352,17 +3353,63 @@ static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
+>  	}
+>  }
+>  
+> -static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
+> +static void virtnet_rx_pause_all(struct virtnet_info *vi)
+> +{
+> +	int i;
+> +
+> +	/*
+> +	 * Make sure refill_work does not run concurrently to
+> +	 * avoid napi_disable race which leads to deadlock.
+> +	 */
+> +	disable_delayed_refill(vi);
+> +	cancel_delayed_work_sync(&vi->refill);
+> +	for (i = 0; i < vi->max_queue_pairs; i++)
+> +		__virtnet_rx_pause(vi, &vi->rq[i]);
+> +}
+> +
+> +static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
+> +{
+> +	/*
+> +	 * Make sure refill_work does not run concurrently to
+> +	 * avoid napi_disable race which leads to deadlock.
+> +	 */
+> +	disable_delayed_refill(vi);
+> +	cancel_delayed_work_sync(&vi->refill);
+> +	__virtnet_rx_pause(vi, rq);
+> +}
+> +
+> +static void __virtnet_rx_resume(struct virtnet_info *vi,
+> +				struct receive_queue *rq,
+> +				bool refill)
+>  {
+>  	bool running = netif_running(vi->dev);
+>  
+> -	if (!try_fill_recv(vi, rq, GFP_KERNEL))
+> +	if (refill && !try_fill_recv(vi, rq, GFP_KERNEL))
+>  		schedule_delayed_work(&vi->refill, 0);
+>  
+>  	if (running)
+>  		virtnet_napi_enable(rq);
+>  }
+>  
+> +static void virtnet_rx_resume_all(struct virtnet_info *vi)
+> +{
+> +	int i;
+> +
+> +	enable_delayed_refill(vi);
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		if (i < vi->curr_queue_pairs)
+> +			__virtnet_rx_resume(vi, &vi->rq[i], true);
+> +		else
+> +			__virtnet_rx_resume(vi, &vi->rq[i], false);
+> +	}
+> +}
+> +
+> +static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
+> +{
+> +	enable_delayed_refill(vi);
+> +	__virtnet_rx_resume(vi, rq, true);
+> +}
+> +
+>  static int virtnet_rx_resize(struct virtnet_info *vi,
+>  			     struct receive_queue *rq, u32 ring_num)
+>  {
+> @@ -5959,12 +6006,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>  	if (prog)
+>  		bpf_prog_add(prog, vi->max_queue_pairs - 1);
+>  
+> +	virtnet_rx_pause_all(vi);
+> +
+>  	/* Make sure NAPI is not using any XDP TX queues for RX. */
+>  	if (netif_running(dev)) {
+> -		for (i = 0; i < vi->max_queue_pairs; i++) {
+> -			virtnet_napi_disable(&vi->rq[i]);
+> +		for (i = 0; i < vi->max_queue_pairs; i++)
+>  			virtnet_napi_tx_disable(&vi->sq[i]);
+> -		}
+>  	}
+>  
+>  	if (!prog) {
+> @@ -5996,13 +6043,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>  		vi->xdp_enabled = false;
+>  	}
+>  
+> +	virtnet_rx_resume_all(vi);
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		if (old_prog)
+>  			bpf_prog_put(old_prog);
+> -		if (netif_running(dev)) {
+> -			virtnet_napi_enable(&vi->rq[i]);
+> +		if (netif_running(dev))
+>  			virtnet_napi_tx_enable(&vi->sq[i]);
+> -		}
+>  	}
+>  
+>  	return 0;
+> @@ -6014,11 +6060,10 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>  			rcu_assign_pointer(vi->rq[i].xdp_prog, old_prog);
+>  	}
+>  
+> +	virtnet_rx_resume_all(vi);
+>  	if (netif_running(dev)) {
+> -		for (i = 0; i < vi->max_queue_pairs; i++) {
+> -			virtnet_napi_enable(&vi->rq[i]);
+> +		for (i = 0; i < vi->max_queue_pairs; i++)
+>  			virtnet_napi_tx_enable(&vi->sq[i]);
+> -		}
+>  	}
+>  	if (prog)
+>  		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
+> -- 
+> 2.43.0
+
