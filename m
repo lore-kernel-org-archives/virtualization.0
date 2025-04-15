@@ -1,79 +1,142 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 014CD2749D3;
-	Tue, 15 Apr 2025 06:57:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46D2627A90B
+	for <virtualization@lists.linux.dev>; Tue, 15 Apr 2025 07:44:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744700255; cv=none; b=XzvXA57/LWBfo5qdIn5icvi+uTmd3kiAQcoLffTy4avHbIYbNvzw4g1pzBwX5e1vM2UEgM+doFDxDZ0et2g0lv5AC60ZDM1OL5kUGq0qUqiUBztl/00GactG2k/4C2QKYk2uYFJZFqLRZdAow2wru7gyBFJCk8fEYQwhWmSjl5U=
+	t=1744703091; cv=none; b=glk5aMzMJbV3EgU0hMCwEshE2VFloH4PBvjo7NBiGvu1bV0rGBU4NSvyg72owfDPZM0KPgFqYgpKcltq4pPaJ73wcqazFfawUyP559VceC4B+jgKT2KDYayUMvEuMeNV2jX4wAP3wLxBo1/Z6lDLYJDwzHHYz6r4VrTui3+sdDM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744700255; c=relaxed/simple;
-	bh=tEL///cSukVzcGZZ+2nvW1x1tC0cDrQQQifctHJH11o=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=MXmFbRkk6Dyo5YO9JrL85n/k+r+eqUYxkPHk4ouEdNwBgSgkKkdT0VfDHhw2EyIyEWiWUfUkghzwQkLLDxf1Bpg/M5ulMOXrHSZCbgsWQYCC4FBP/noqbt1rYScSjDv3LM99Mb2KTEs/XYZTJioKVtY5cdrRjgVqh6UboO4WkW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=YCTksIhB; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1744703091; c=relaxed/simple;
+	bh=/FMiH6f5AUMprgPLBbbPPAw7emqARXWFCdmaOPkb+7g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SrnFGzh0ExDLfBowJSePxKQV1a+Np4KyJY8pt78bMX5jNxA2LoEIRLIruOdLi9jbVx0bwwGzsOvx1/01DE0znPIPCoFQKPGMULLAQ53kw/mp0jyU47IbwLukfzAZLh6xo1bcd5BEQeUv+PPWRuvlHIovPXQERQIrGXXmXADpRXc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I4MD9IQj; arc=none smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="YCTksIhB"
-Received: from [127.0.0.1] ([76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53F6unIB2639618
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Mon, 14 Apr 2025 23:56:50 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53F6unIB2639618
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025032001; t=1744700212;
-	bh=tEL///cSukVzcGZZ+2nvW1x1tC0cDrQQQifctHJH11o=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=YCTksIhBMy5xplKGhKrpvDh+Gt4mtL5UACeLF4lslUD1VbrgQuefYVuMy0mei/Q60
-	 vdGgLY87TG/KgIIPPcUrpz6SBT/6R3SCkZ+mQgyRjw0lb2t8Z6V/DQuBdKKBVkDe+6
-	 dRzEAkOrIYGAMUNvTt4/aZ57QFtr4kcQPeum8uV8El7RCdX3ykwKs8rLpr1awvDFX1
-	 umsqFcRaAuHx6n2uvOGXI6BLdb5fvTagOGQLqqGtBW5qmxwGylfYFOFTGabqO9jMtD
-	 +PmCyVIUbPX92wEig0ZdnACF2Cws0xiPBLd5Sq9WMGFTT/VPR9E/iDGKXpwNHIR5BM
-	 tHMRkCne6bI6g==
-Date: Mon, 14 Apr 2025 23:56:47 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: Xin Li <xin@zytor.com>, Jim Mattson <jmattson@google.com>,
-        Sean Christopherson <seanjc@google.com>
-CC: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-edac@vger.kernel.org, kvm@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-ide@vger.kernel.org,
-        linux-pm@vger.kernel.org, bpf@vger.kernel.org, llvm@lists.linux.dev,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, jgross@suse.com,
-        andrew.cooper3@citrix.com, peterz@infradead.org, acme@kernel.org,
-        namhyung@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
-        wei.liu@kernel.org, ajay.kaher@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, luto@kernel.org,
-        boris.ostrovsky@oracle.com, kys@microsoft.com, haiyangz@microsoft.com,
-        decui@microsoft.com
-Subject: =?US-ASCII?Q?Re=3A_=5BRFC_PATCH_v1_10/15=5D_KVM=3A_VMX=3A_Use_WR?=
- =?US-ASCII?Q?MSRNS_or_its_immediate_form_when_available?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <0cad1e0b-2bfd-4258-90cd-8d319bf0e74a@zytor.com>
-References: <20250331082251.3171276-1-xin@zytor.com> <20250331082251.3171276-11-xin@zytor.com> <Z_hTI8ywa3rTxFaz@google.com> <CALMp9eRJkzA2YXf1Dfxt3ONP+P9aTA=WPraOPJPJ6C6j677+6Q@mail.gmail.com> <fa16949e-7842-45f7-9715-1bdda13b762a@zytor.com> <EAB44BB2-99BB-4D4A-8306-0235D2931E72@zytor.com> <0cad1e0b-2bfd-4258-90cd-8d319bf0e74a@zytor.com>
-Message-ID: <D212FABE-38FE-45D3-A082-CA819CCFFF95@zytor.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I4MD9IQj"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-73972a54919so4360064b3a.3
+        for <virtualization@lists.linux.dev>; Tue, 15 Apr 2025 00:44:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744703088; x=1745307888; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=INveNnza9CWIqZPyYaWqCh5Ba9wSoB725eCjLaHauL4=;
+        b=I4MD9IQjywhX8JwH5u0cMry+gkcO1cEFDUmY01k/1yoHxTD6T62tDtlPZh6C796Wu3
+         zgK4K7YQBj4mFAwPX1S9U2rDTLXDXBCdyKvA2hVEULIIFBdSx3sDkXx1HnPEXjhZew7d
+         AYJDxRT+BDjt/j/9WzYkis3fKsB9OIl1QxoGgsgmv1vnR8S6etNE2h7Haa+x3HGABMvn
+         3dnzhrRheSVGFz/3/PavSZ7659wXeQ0HURW+Ec81TQU6UMp3YInf4pw5vhBqZcD3h9Fa
+         SLIStafaTNRddwaLq6UAX/+lSb8oDzA7WO78vcOcQx+UjPg+WLZU+DeepS5ODoWP4n2/
+         X+JA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744703088; x=1745307888;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=INveNnza9CWIqZPyYaWqCh5Ba9wSoB725eCjLaHauL4=;
+        b=IBmxYkw+1cCci2eP3hxWKBO6Ybvfl8Q3B+4b/Stdmri54VjYokIqjPId9xd7vJhtPk
+         A8B9dWBqfYQtYTAqoJk6es3loFYaO/ZYixRkGlkcqyZgPxz4axDSk77EGWxw821NcVvU
+         +5bTmqNUVczjKungn+L/hXzZ13JvPYN1MWPrKIP7LCyw+R8kdj2iNS2qLPmS75E6/svv
+         jlOrYpKw3kKysDNiyt7iKRZuRqyUCVlJ7Xs7RmHOQ6EUFEoh12z8t+h94rAD23oPgt2v
+         gANpytihJQ8TZpNSMB4yLALh0W8TU/jwxTNtxJbh/otS7h4+ihqt+M0w64HLlpQDuctU
+         0xGg==
+X-Gm-Message-State: AOJu0YyMVUa3MD3w5R4ZOLERMcqaEr8ATrrBANlQC/yHhuY4KRIJ+iQj
+	2AV2Yd24WLmJyL7lnWtE6Y7ThxrypK8ad477D3OtUFSuQH1xv1Ndc+zrmZ5aUoP7gg==
+X-Gm-Gg: ASbGnct1a4nV3iKqQ3R3W6IecNp2goiCe6n8XD+KAYMtiEkY6D1DCTJaPHM6hb+nPMu
+	lThZuWfNjsjT+HiRXBtCc5GDLl8+PcUTycvSB6tAe0rJzy57Sv2opWtNm8ACpJDCNbT/X0BM8zu
+	GGolJTv0uVCc4+NM/80fkTRSUqi5vYjiSqEeiLF5B7ywJ4PChMt2VuicdUH1ffTKm82PLANRbS7
+	SEz5gjDd36RyR1MPu/NAZxD8+O6IDk1ITF4tMhElEDgeFwQC5bLm8MtlXGHzyUNIt/VymGdHtf7
+	8P5AeHoqBS2VU0qF4HsR1xBYUQKpZ1+U/Zhbt4VvGVhmD1I1Wdhvjl3G
+X-Google-Smtp-Source: AGHT+IFe3WANt4aQPrZWoKBiNglIghBIABqDLjBb7Rl9R3Vj+PTaviPvNoVUhpOXPz+mqNiZrIE0qw==
+X-Received: by 2002:a17:90b:51c3:b0:2ee:f076:20f1 with SMTP id 98e67ed59e1d1-308235db6f0mr26769695a91.0.1744703088365;
+        Tue, 15 Apr 2025 00:44:48 -0700 (PDT)
+Received: from minh.192.168.1.1 ([2001:ee0:4f0e:fb30:2e0b:88f9:a491:c18a])
+        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-306df401ac8sm12299767a91.45.2025.04.15.00.44.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Apr 2025 00:44:47 -0700 (PDT)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH v3 0/3] virtio-net: disable delayed refill when pausing rx
+Date: Tue, 15 Apr 2025 14:43:38 +0700
+Message-ID: <20250415074341.12461-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On April 14, 2025 10:48:47 AM PDT, Xin Li <xin@zytor=2Ecom> wrote:
->On 4/12/2025 4:10 PM, H=2E Peter Anvin wrote:
->> Also,*in this specific case* IA32_SPEC_CTRL is architecturally nonseria=
-lizing, i=2Ee=2E WRMSR executes as WRMSRNS anyway=2E
->
->While the immediate form WRMSRNS could be faster because the MSR index
->is available *much* earlier in the pipeline, right?
+Hi everyone,
 
-Yes, but then it would be redundant with the virtualization support=2E
+This series tries to fix a deadlock in virtio-net when binding/unbinding
+XDP program, XDP socket or resizing the rx queue.
+
+When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
+napi_disable() on the receive queue's napi. In delayed refill_work, it
+also calls napi_disable() on the receive queue's napi. When
+napi_disable() is called on an already disabled napi, it will sleep in
+napi_disable_locked while still holding the netdev_lock. As a result,
+later napi_enable gets stuck too as it cannot acquire the netdev_lock.
+This leads to refill_work and the pause-then-resume tx are stuck
+altogether.
+
+This scenario can be reproducible by binding a XDP socket to virtio-net
+interface without setting up the fill ring. As a result, try_fill_recv
+will fail until the fill ring is set up and refill_work is scheduled.
+
+This fix adds virtnet_rx_(pause/resume)_all helpers and fixes up the
+virtnet_rx_resume to disable future and cancel all inflights delayed
+refill_work before calling napi_disable() to pause the rx.
+
+Version 3 changes:
+- Patch 1: refactor to avoid code duplication
+
+Version 2 changes:
+- Add selftest for deadlock scenario
+
+Thanks,
+Quang Minh.
+
+Bui Quang Minh (3):
+  virtio-net: disable delayed refill when pausing rx
+  selftests: net: move xdp_helper to net/lib
+  selftests: net: add a virtio_net deadlock selftest
+
+ drivers/net/virtio_net.c                      | 69 +++++++++++++++----
+ tools/testing/selftests/Makefile              |  2 +-
+ tools/testing/selftests/drivers/net/Makefile  |  2 -
+ tools/testing/selftests/drivers/net/queues.py |  4 +-
+ .../selftests/drivers/net/virtio_net/Makefile |  2 +
+ .../selftests/drivers/net/virtio_net/config   |  1 +
+ .../drivers/net/virtio_net/lib/py/__init__.py | 16 +++++
+ .../drivers/net/virtio_net/xsk_pool.py        | 52 ++++++++++++++
+ tools/testing/selftests/net/lib/.gitignore    |  1 +
+ tools/testing/selftests/net/lib/Makefile      |  1 +
+ .../{drivers/net => net/lib}/xdp_helper.c     |  0
+ 11 files changed, 133 insertions(+), 17 deletions(-)
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/lib/py/__init__.py
+ create mode 100755 tools/testing/selftests/drivers/net/virtio_net/xsk_pool.py
+ rename tools/testing/selftests/{drivers/net => net/lib}/xdp_helper.c (100%)
+
+-- 
+2.43.0
+
