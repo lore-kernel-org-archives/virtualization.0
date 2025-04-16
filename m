@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21F9B236426;
-	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55142236441;
+	Wed, 16 Apr 2025 09:45:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744796701; cv=none; b=HIyqgFbkgmpTSAA2DoqDY+IF83smhFWBSssq31PFs00cw5eVmfqSaCuAuszthnbfOjEFG/5FzOYRhBKyVuqBaHpYEflzOKauTf8w9UbymQWFezYRRWuS/YOT4i1E2dUcJaEifTVbDJ3AIRfZCoH+D5cOJPYioIF+js0kFOB+YcU=
+	t=1744796701; cv=none; b=nx3RUg73RehQFrl3TlPSXoj1GsLYuHk34ISAUrUBaw6Hr0jgxmzd/kmXE1xRkc2yoXyLolC2jcKE/a98AsSgZAivjeb3xHBkmaH3zUmA58n8oAcD9zAPiTsrrnbc6HDjIPtHWM5+y6RB1GWNn9Mw3F3EI+A0OayZQsbQ1guJIcI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1744796701; c=relaxed/simple;
-	bh=yYZIxP4eDVftHS+35Bjf5qEDsqvjLlou31P6uZ50WKA=;
+	bh=pRU6wLgxXnLL1nq6ekG3r0pNLgbdqaE3J4O9xny8g9g=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=N6z9elceUNg5dEnc6QYXe6SkajH8FC0gN41KYgmEX/W7UaiLEbNMskKfeRyfBcX7FiqA/uIJo5xzEIpOa6Ot06kJHRDtbI2ntoZu7sCd437G4fAtBByMf6suJX7EOOLom2voNacJJk1eV2dHaThwWclh3Bi8EOMS/N1plpCtiB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TCGReCd0; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=u1BGpr8kGLvNxhgHeEvxIWZY2YL740+jmQfknJzaBVEWTARjSXKbgKkQn3DgDZn0pCegSZDJbbJLdAyObn9sJPNKft2Y+p+q882yESNWBDs/vM5P9VSkREkvx+5Wy8U+eaR4C2kbIW9nadLNjnp+qHgu4cN3aOKYrrN5EQvaCkQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ekqj+Gu/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TCGReCd0"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A0A10C4CEEE;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ekqj+Gu/"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id C2A3BC4CEF3;
 	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1744796700;
-	bh=yYZIxP4eDVftHS+35Bjf5qEDsqvjLlou31P6uZ50WKA=;
+	bh=pRU6wLgxXnLL1nq6ekG3r0pNLgbdqaE3J4O9xny8g9g=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=TCGReCd0cEKmjkNtA7we6hJ+GgtymTTF7EuDFkMlXZKe5wQlwsumnY9tZSo8n/zc0
-	 21ZWbI5r6KRGErwMi/dDmuJtq6LOYx5KnF6rQAkObQzUH1wnEbvHi1QdVsGZGj66Wc
-	 iY9cZAuM2Paaseb0Z1i6tZQ+1dTavp5c1wjtPZ/oqgkQnPRfMz+OnjllQ1rcVro0rM
-	 VZh5ZWbJHfGbIG4RrEM0zxtOdldbySwtzy9Ww0oal39Ur7u7wrd+xv6m+0weZFe85Y
-	 psks7hifOw+5lMCNPBDniJkrqtuqj68pw832qf0OXJZFFUQ3CdlwVaxWsWotQ1vOR1
-	 c3GCbBPLxVB7w==
+	b=ekqj+Gu/0hKmxeU3sm6q1f2ryuXtUFna6ArZ7i8VRK8suIQwaNNKThLw6ImaKsr5K
+	 t0mZIWV5XLpX6VHLck+gcTnsQVTrinH9PM7QVd9oguTIrn7SNyEEyk6GhQt2eCE+Xq
+	 58clWQAoWoEdCiRa24pVL33ZaWLNOUUCVE8PHQl6gKwS4H+pAlXWIgRnzBmqWeoxZ+
+	 STzsWCztCoWIdguL6ckBQtCF9551uC+sBRoMfvnJNK5FFrkWClkz563175vEhlF9nU
+	 B+hfAzBO8AkYTDIbAad2roMX8GONH0N9cvXRru8OFUGmGo3obvCkayvcukwGaF4p/D
+	 zk8QiATZhVaGQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D974C369C4;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B12E6C369C1;
 	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
 From: Chen Linxuan via B4 Relay <devnull+chenlinxuan.uniontech.com@kernel.org>
-Date: Wed, 16 Apr 2025 17:44:48 +0800
-Subject: [PATCH RFC v2 2/5] mm: add __always_inline for
- page_contains_unaccepted
+Date: Wed, 16 Apr 2025 17:44:50 +0800
+Subject: [PATCH RFC v2 4/5] tpm: add __always_inline for
+ tpm_is_hwrng_enabled
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250416-noautoinline-v2-2-e69a2717530f@uniontech.com>
+Message-Id: <20250416-noautoinline-v2-4-e69a2717530f@uniontech.com>
 References: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
 In-Reply-To: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
 To: Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
@@ -64,21 +64,21 @@ Cc: linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org,
  Chen Linxuan <chenlinxuan@uniontech.com>, 
  Changbin Du <changbin.du@intel.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2614;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3892;
  i=chenlinxuan@uniontech.com; h=from:subject:message-id;
- bh=ttFdjRheVD1OZ/EkBldHAgXU1FfcO+q/qyDgNDO6xxA=;
- b=owEBbQKS/ZANAwAKAXYe5hQ5ma6LAcsmYgBn/3wWMkdWR1YmxGEaQM5rETmyOEwb9WgsyzPib
- 4h8ODg1HWCJAjMEAAEKAB0WIQTO1VElAk6xdvy0ZVp2HuYUOZmuiwUCZ/98FgAKCRB2HuYUOZmu
- i+cdEADNT/9txgL8kjyC/wPjKEbB4hl/RFInpiCxVodRBNIWw5wpfvJ5vsG8gnTV28kQFDiRMbh
- hKll+Yo1pN1WQwmBS3d0F7h/e18CCNShQvLvfLAloblN1i7M1UgnmKeKL76XXDUKRxxqrQeTHDP
- CUMus0UtivuKibqn8CLVq6e5fbJ1RhwPsbv7D70xVHOM74/icwjmj1dPZu6DpYDfV5l00GYGS2b
- RsSbfDKkS9Y3H0ZIRiS3VMyQ2uK/1lqDTRcNw69OTDtKzeRDqUXkzTmAkZ1yo+XWJbU05MQnvN9
- 95PO/4u9U8yOzdSEY/JzzWE8B1jzPggCyIQR3AoEtU8sfvLzO8U1ro3Jw17/wQxZ0LL4csNqfmo
- fMDkPLMBwX4axRH3oyhhJpWNuOne+5V4FZe7ofqs5chLYTiWmguAJff7K3CLwNjtYf9wekUajng
- MeEUFOGz9PS4je56fpstwRPl0osMBPmAQhMUflHy8jGVX4Ai+mMmo72HfvLkq7gg2eqgpyQBohN
- pVdOVMQI8YGR2JwWxAFHXkIHE7b4wdHwN4V18J30GXbYxJ/TDPKqwiiNz0eQmx1nF4kWUuws9WK
- FifDNoUxHM5cv3Bi8sey0k3QP5FiIx0iDAMhW+1X3ikwX72hN0Whkhv84Sn5/keiJ0X/R0RCmo5
- d/FA4FSNrATMSUg==
+ bh=eVMGMErwkSKVlhFsRXd5VgFhkcLZ6sQRGgY0l5PVv8Q=;
+ b=owEBbQKS/ZANAwAKAXYe5hQ5ma6LAcsmYgBn/3wYTeAxxXYaBDNq6MoKT5/qwja5tvQJEZiWQ
+ VjsA0MmYHeJAjMEAAEKAB0WIQTO1VElAk6xdvy0ZVp2HuYUOZmuiwUCZ/98GAAKCRB2HuYUOZmu
+ i72UEAD2OIFAhd0YqHWxRgTYgam80CB7jU1JXtFVmnHuEVb2fZKwu3HLJvvNPTdU488rihW29Gv
+ a7Mp25dYGsmpP7Y94+fu8UZ4WFHadCc8hD/JMAHf9TYKA/QHF305zxqKfWDFsh45+9l/9GyxUGx
+ pn9FPSvodZ2un0zqttouu2KSsIVrqiSaWsJ/CJMWPUymTUQtgjhjTQYRpNgPD1Hgzy1NLg7qFn2
+ xXZ8H66IWPbH/UYx8FYT4u1nexNR8phuoDm1tbZgVG2reCPwbE7aqnvbp4nvOni6Ry75bTal19f
+ 1ph+O4sFDpacQ3l/zIvqqWbja+D5nbtDyeljbPTOLtO9BiUunxTtWzxx1jP9pZ+AfthSYLHtP6i
+ Fw0i6kS/FCH2vL86HtHiWMVhZLa2TB0sXTxz8IG1a5F+Ws6KUU8ATsuG7kYv/CVgO4uMR3caLvt
+ 9ZmjawH5WNd8M6YqYA9gX4OzOGn9BJL5MYTQQNg6vbx6UpzwWXxG1m/96VBePk+auO80b2gyVcW
+ kLoKOHVePJDYSgmqibXWCc2BQIEjkqDF1/bZgB/tuqmreGPUjrxR2RtT0xRLlh2K1fSFHUjMV26
+ wpWwKRlygPJbqNOMeoSfRl7qf5jn3XSxZvex19Soc7LaN/0iI+vfTTCYk/j6PbihEFAmhkJ92r1
+ +J10jZUB46Z8qgg==
 X-Developer-Key: i=chenlinxuan@uniontech.com; a=openpgp;
  fpr=D818ACDD385CAE92D4BAC01A6269794D24791D21
 X-Endpoint-Received: by B4 Relay for chenlinxuan@uniontech.com/default with
@@ -88,62 +88,111 @@ Reply-To: chenlinxuan@uniontech.com
 
 From: Winston Wen <wentao@uniontech.com>
 
-On x86_64 with gcc version 13.3.0, I compile mm/page_alloc.c with:
+Presume that kernel is compiled for x86_64 with gcc version 13.3.0:
 
   make defconfig
-  make KCFLAGS="-fno-inline-small-functions -fno-inline-functions-called-once" \
-    mm/page_alloc.o
+  ./scripts/kconfig/merge_config.sh .config <(
+    echo CONFIG_TCG_TPM=y
+    echo CONFIG_HW_RANDOM=m
+  )
+  make KCFLAGS="-fno-inline-small-functions -fno-inline-functions-called-once"
 
-Then I get a compile error:
+This results a link error:
 
-    CALL    scripts/checksyscalls.sh
-    DESCEND objtool
-    INSTALL libsubcmd_headers
-    CC      mm/page_alloc.o
-  In file included from <command-line>:
-  mm/page_alloc.c: In function '__free_unaccepted.isra':
-  ././include/linux/compiler_types.h:557:45: error: call to '__compiletime_assert_1013' declared with attribute error: BUILD_BUG failed
-    557 |         _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
-        |                                             ^
-  ././include/linux/compiler_types.h:538:25: note: in definition of macro '__compiletime_assert'
-    538 |                         prefix ## suffix();                             \
-        |                         ^~~~~~
-  ././include/linux/compiler_types.h:557:9: note: in expansion of macro '_compiletime_assert'
-    557 |         _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
-        |         ^~~~~~~~~~~~~~~~~~~
-  ./include/linux/build_bug.h:39:37: note: in expansion of macro 'compiletime_assert'
-     39 | #define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
-        |                                     ^~~~~~~~~~~~~~~~~~
-  ./include/linux/build_bug.h:59:21: note: in expansion of macro 'BUILD_BUG_ON_MSG'
-     59 | #define BUILD_BUG() BUILD_BUG_ON_MSG(1, "BUILD_BUG failed")
-        |                     ^~~~~~~~~~~~~~~~
-  mm/page_alloc.c:7301:9: note: in expansion of macro 'BUILD_BUG'
-   7301 |         BUILD_BUG();
-        |         ^~~~~~~~~
+  ld: vmlinux.o: in function `tpm_add_hwrng':
+  tpm-chip.c:(.text+0x6c5924): undefined reference to `hwrng_register'
+  ld: vmlinux.o: in function `tpm_chip_unregister':
+  (.text+0x6c5bc9): undefined reference to `hwrng_unregister'
+  ld: vmlinux.o: in function `tpm_chip_register':
+  (.text+0x6c5c9b): undefined reference to `hwrng_unregister'
 
-Marking page_contains_unaccepted with __always_inline and let dead code
-elimination remove reference to __free_unaccepted() here.
+With `CONFIG_TCG_TPM=y` and `CONFIG_HW_RANDOM=m`,
+the functions `tpm_add_hwrng`, `tpm_chip_unregister`, and
+`tpm_chip_register` are compiled into `vmlinux.o`
+and reference the symbols `hwrng_register` and `hwrng_unregister`.
+These symbols, however, are compiled into `rng-core.ko`, which results
+in the linking error.
+
+I am not sure but I think this weird linking error only arises when
+auto inlining is disabled because of some dead code elimination.
+
+`CONFIG_TCG_TPM=y` and `CONFIG_HW_RANDOM=m` set `CONFIG_HW_RANDOM_TPM=n`.
+This causes the function `tpm_is_hwrng_enabled` to always return
+`false`, as shown below:
+
+  static bool tpm_is_hwrng_enabled(struct tpm_chip *chip)
+  {
+      if (!IS_ENABLED(CONFIG_HW_RANDOM_TPM))
+          return false;
+      if (tpm_is_firmware_upgrade(chip))
+          return false;
+      if (chip->flags & TPM_CHIP_FLAG_HWRNG_DISABLED)
+          return false;
+      return true;
+  }
+
+When `tpm_is_hwrng_enabled` is inlined, dead code elimination
+optimizations are applied and the reference to the `hwrng_*` functions
+will been removed.
+For instance, in the `tpm_chip_unregister` function:
+
+  void tpm_chip_unregister(struct tpm_chip *chip)
+  {
+  #ifdef CONFIG_TCG_TPM2_HMAC
+      int rc;
+
+      rc = tpm_try_get_ops(chip);
+      if (!rc) {
+          tpm2_end_auth_session(chip);
+          tpm_put_ops(chip);
+      }
+  #endif
+
+      tpm_del_legacy_sysfs(chip);
+      if (tpm_is_hwrng_enabled(chip))
+          hwrng_unregister(&chip->hwrng);
+      tpm_bios_log_teardown(chip);
+      if (chip->flags & TPM_CHIP_FLAG_TPM2 && !tpm_is_firmware_upgrade(chip))
+          tpm_devs_remove(chip);
+      tpm_del_char_device(chip);
+  }
+
+When `tpm_is_hwrng_enabled` is inlined and always returns `false`,
+the call to `hwrng_unregister` is effectively part of a `if (false)`
+block, which I guess that will be then optimized out.
+
+However, when the `-fno-inline-small-functions` and
+`-fno-inline-functions-called-once` flags are used,
+tpm_is_hwrng_enabled is not inline.
+
+And this optimization some how cannot occur,
+leading to the undefined reference errors during linking.
+
+Adding the `__always_inline` attribute ensures that
+`tpm_is_hwrng_enabled` is inlined regardless of the compiler flags.
+This allows the dead code elimination to proceed as expected,
+resolving the linking issue.
 
 Co-developed-by: Chen Linxuan <chenlinxuan@uniontech.com>
 Signed-off-by: Chen Linxuan <chenlinxuan@uniontech.com>
 Signed-off-by: Winston Wen <wentao@uniontech.com>
 ---
- mm/page_alloc.c | 2 +-
+ drivers/char/tpm/tpm-chip.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index fd6b865cb1abfbd3d2ebd67cdaa5f86d92a62e14..7c0934c818ddc719c2dcb813599708f47d56352c 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -7286,7 +7286,7 @@ static bool __free_unaccepted(struct page *page)
- 
- #else
- 
--static bool page_contains_unaccepted(struct page *page, unsigned int order)
-+static __always_inline bool page_contains_unaccepted(struct page *page, unsigned int order)
- {
- 	return false;
+diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+index e25daf2396d37bcaeae8a96267764df0861ad1be..48cc74d84247e258a39f2118e03aa10d0cbb066a 100644
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -534,7 +534,7 @@ static int tpm_hwrng_read(struct hwrng *rng, void *data, size_t max, bool wait)
+ 	return tpm_get_random(chip, data, max);
  }
+ 
+-static bool tpm_is_hwrng_enabled(struct tpm_chip *chip)
++static __always_inline bool tpm_is_hwrng_enabled(struct tpm_chip *chip)
+ {
+ 	if (!IS_ENABLED(CONFIG_HW_RANDOM_TPM))
+ 		return false;
 
 -- 
 2.48.1
