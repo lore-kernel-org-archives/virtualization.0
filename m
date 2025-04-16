@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21F3C236422;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21F9B236426;
 	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744796701; cv=none; b=KCdEajRZ2l/IpUNu+KzH/aYgwp8SbwoTwnu2kN9QhP5sulus3qIFIH0PLV3F5vl/7FINp2fhSCQAxbIs2/szbFRhKfoapnzMEO2n9xtUEyxdCX5Hg/RFQEXb/iVNeA9qne95orFyG+A7gEG2xZiwvuOAMYGpThTVlsXjZ6qV8x4=
+	t=1744796701; cv=none; b=HIyqgFbkgmpTSAA2DoqDY+IF83smhFWBSssq31PFs00cw5eVmfqSaCuAuszthnbfOjEFG/5FzOYRhBKyVuqBaHpYEflzOKauTf8w9UbymQWFezYRRWuS/YOT4i1E2dUcJaEifTVbDJ3AIRfZCoH+D5cOJPYioIF+js0kFOB+YcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1744796701; c=relaxed/simple;
-	bh=eILsz6Mvrmj8Hn9PGeOEedbRB8s5mmbt0mI6LYUa9jc=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ZmCTpEN1gvIjP4r66OQzabCmbfPF3jFpj5aNmXJbF1yIPDIgKLHF41WFuLQryVfpRA6pHHPSlbXr/EHnWMG0fefm1Bf2r8zAp3xdxSxbqOVjao4rf3F/Ycls86oXgw0iEX/sYlRCn6Gy92ELUL+KaXwhIgbNZ1v8OAAI6WO7cwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eqlxv3VV; arc=none smtp.client-ip=10.30.226.201
+	bh=yYZIxP4eDVftHS+35Bjf5qEDsqvjLlou31P6uZ50WKA=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=N6z9elceUNg5dEnc6QYXe6SkajH8FC0gN41KYgmEX/W7UaiLEbNMskKfeRyfBcX7FiqA/uIJo5xzEIpOa6Ot06kJHRDtbI2ntoZu7sCd437G4fAtBByMf6suJX7EOOLom2voNacJJk1eV2dHaThwWclh3Bi8EOMS/N1plpCtiB4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TCGReCd0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eqlxv3VV"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 83E44C4CEE9;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TCGReCd0"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A0A10C4CEEE;
 	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1744796700;
-	bh=eILsz6Mvrmj8Hn9PGeOEedbRB8s5mmbt0mI6LYUa9jc=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=eqlxv3VVX/gz8dtqFH0K3dvSfr8pt/GS18Zs9YOgIVyMDZmzt+L7KmBU9HvyCVW6y
-	 uPxec1qXJCxN+16s5pQ3Yfh8/ysMylUF3FHC7xifXlRy2vypv6Y7N/8ggmmMC0BUrw
-	 f0D0N8ZN8IQFbRgKeBn+nOSt4nJWKjtX0kE3TbbmKP1xXDGNbRNI5wsN+PBDOuDPkQ
-	 EXgDIA0xjlBAzYDXc8m+KPHw9pdNUsXS3Vm8Ls91K9JK+65bfDmjq8dIAsvlv4rtl3
-	 euHR88AdOgcNq4b6QgOQmrKnDmKOMKbji9zqncimVbq30YHk4s8QVBsLLaS7/30i+6
-	 x/7wpAV3fr3+w==
+	bh=yYZIxP4eDVftHS+35Bjf5qEDsqvjLlou31P6uZ50WKA=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=TCGReCd0cEKmjkNtA7we6hJ+GgtymTTF7EuDFkMlXZKe5wQlwsumnY9tZSo8n/zc0
+	 21ZWbI5r6KRGErwMi/dDmuJtq6LOYx5KnF6rQAkObQzUH1wnEbvHi1QdVsGZGj66Wc
+	 iY9cZAuM2Paaseb0Z1i6tZQ+1dTavp5c1wjtPZ/oqgkQnPRfMz+OnjllQ1rcVro0rM
+	 VZh5ZWbJHfGbIG4RrEM0zxtOdldbySwtzy9Ww0oal39Ur7u7wrd+xv6m+0weZFe85Y
+	 psks7hifOw+5lMCNPBDniJkrqtuqj68pw832qf0OXJZFFUQ3CdlwVaxWsWotQ1vOR1
+	 c3GCbBPLxVB7w==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D6FEC369B1;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D974C369C4;
 	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
 From: Chen Linxuan via B4 Relay <devnull+chenlinxuan.uniontech.com@kernel.org>
-Subject: [PATCH RFC v2 0/5] kernel-hacking: introduce CONFIG_NO_AUTO_INLINE
-Date: Wed, 16 Apr 2025 17:44:46 +0800
-Message-Id: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
+Date: Wed, 16 Apr 2025 17:44:48 +0800
+Subject: [PATCH RFC v2 2/5] mm: add __always_inline for
+ page_contains_unaccepted
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -40,10 +41,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAA58/2cC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyjHQUlJIzE
- vPSU3UzU4B8JSMDI1MDE0Mz3bz8xNKS/My8nMy8VF2LVMsky1RTY1MTUyMloJaCotS0zAqwcdF
- KQW7OSrG1tQDz/agbYwAAAA==
-X-Change-ID: 20250416-noautoinline-8e9b9e535452
+Message-Id: <20250416-noautoinline-v2-2-e69a2717530f@uniontech.com>
+References: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
+In-Reply-To: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
 To: Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
  Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
  Andrew Morton <akpm@linux-foundation.org>, 
@@ -64,21 +64,21 @@ Cc: linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org,
  Chen Linxuan <chenlinxuan@uniontech.com>, 
  Changbin Du <changbin.du@intel.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1888;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2614;
  i=chenlinxuan@uniontech.com; h=from:subject:message-id;
- bh=eILsz6Mvrmj8Hn9PGeOEedbRB8s5mmbt0mI6LYUa9jc=;
- b=owEBbQKS/ZANAwAKAXYe5hQ5ma6LAcsmYgBn/3wUalbw8YXxAK7xQpV223bnIA+u37hAQ7ZbP
- 31Is5clK5GJAjMEAAEKAB0WIQTO1VElAk6xdvy0ZVp2HuYUOZmuiwUCZ/98FAAKCRB2HuYUOZmu
- i9AeD/4wyk7nT6JRtlKjfD/Ab1kLjJs3+99RNJxrdX+R8/G6iGoSQiWkxbQdltaqfw0oUPjwNYy
- XaGfqHhF455pzePiShPnA+iV39rxbOvn6GsFxHBVnBWlkuz00alqPc0k0wR+bnczsEtCco81lBW
- lQ5aEcBWmiza5jTuGvBmbzDhuf9P+4kzJpnpgzCzCuhYm8mlGOxuNpy/mYtB/qBpEC7HD2bOzno
- GuP2z2xSgPutEE3BfGPcn5zP/4ijt5eOLmnP+1mXNNruEcsH32NlzUGgvGTxEKp2nD7LbD61/lD
- aroqwImEljsIQLTw6B/cIDJcADaaCbizNlSvIZqypUFY2eq3R/So/PaJ9QNAvFJzFAcgQnpooco
- 8GZX6ycNSfjtBDTLtJv1A+SPqrybdP2439iBePQ8VcyWdTTuruQXPyDdn2f9TP7/S8g0hcPCSAP
- ennnvjtytcTGq2596hGubcC1z4thbLcYjqfHgzdnObIft+MOWtAu2MW7Z/Lgw4P95M/Pr594l+9
- ubrfuV+7sZ3gGfh54WBaWb95+RYn7Mqj2tD6/gYAfwZX+zv79yXt/lwQgyRE0Ca6BXzADjGnUm7
- J9FRNt7+juTONUEp8tp50NLRoa6zep6L3AvlkpcCm64pIEHIl3fPmONhEmU0KFIjc6FBDyR5X+J
- eTQCOlTIbGmy3TA==
+ bh=ttFdjRheVD1OZ/EkBldHAgXU1FfcO+q/qyDgNDO6xxA=;
+ b=owEBbQKS/ZANAwAKAXYe5hQ5ma6LAcsmYgBn/3wWMkdWR1YmxGEaQM5rETmyOEwb9WgsyzPib
+ 4h8ODg1HWCJAjMEAAEKAB0WIQTO1VElAk6xdvy0ZVp2HuYUOZmuiwUCZ/98FgAKCRB2HuYUOZmu
+ i+cdEADNT/9txgL8kjyC/wPjKEbB4hl/RFInpiCxVodRBNIWw5wpfvJ5vsG8gnTV28kQFDiRMbh
+ hKll+Yo1pN1WQwmBS3d0F7h/e18CCNShQvLvfLAloblN1i7M1UgnmKeKL76XXDUKRxxqrQeTHDP
+ CUMus0UtivuKibqn8CLVq6e5fbJ1RhwPsbv7D70xVHOM74/icwjmj1dPZu6DpYDfV5l00GYGS2b
+ RsSbfDKkS9Y3H0ZIRiS3VMyQ2uK/1lqDTRcNw69OTDtKzeRDqUXkzTmAkZ1yo+XWJbU05MQnvN9
+ 95PO/4u9U8yOzdSEY/JzzWE8B1jzPggCyIQR3AoEtU8sfvLzO8U1ro3Jw17/wQxZ0LL4csNqfmo
+ fMDkPLMBwX4axRH3oyhhJpWNuOne+5V4FZe7ofqs5chLYTiWmguAJff7K3CLwNjtYf9wekUajng
+ MeEUFOGz9PS4je56fpstwRPl0osMBPmAQhMUflHy8jGVX4Ai+mMmo72HfvLkq7gg2eqgpyQBohN
+ pVdOVMQI8YGR2JwWxAFHXkIHE7b4wdHwN4V18J30GXbYxJ/TDPKqwiiNz0eQmx1nF4kWUuws9WK
+ FifDNoUxHM5cv3Bi8sey0k3QP5FiIx0iDAMhW+1X3ikwX72hN0Whkhv84Sn5/keiJ0X/R0RCmo5
+ d/FA4FSNrATMSUg==
 X-Developer-Key: i=chenlinxuan@uniontech.com; a=openpgp;
  fpr=D818ACDD385CAE92D4BAC01A6269794D24791D21
 X-Endpoint-Received: by B4 Relay for chenlinxuan@uniontech.com/default with
@@ -86,59 +86,66 @@ X-Endpoint-Received: by B4 Relay for chenlinxuan@uniontech.com/default with
 X-Original-From: Chen Linxuan <chenlinxuan@uniontech.com>
 Reply-To: chenlinxuan@uniontech.com
 
-This series introduces a new kernel configuration option NO_AUTO_INLINE,
-which can be used to disable the automatic inlining of functions.
+From: Winston Wen <wentao@uniontech.com>
 
-This will allow the function tracer to trace more functions
-because it only traces functions that the compiler has not inlined.
+On x86_64 with gcc version 13.3.0, I compile mm/page_alloc.c with:
 
-Previous discussions can be found at
+  make defconfig
+  make KCFLAGS="-fno-inline-small-functions -fno-inline-functions-called-once" \
+    mm/page_alloc.o
 
-Link: https://lore.kernel.org/all/20181028130945.23581-3-changbin.du@gmail.com/
+Then I get a compile error:
 
-And v1 of this series can be found at
+    CALL    scripts/checksyscalls.sh
+    DESCEND objtool
+    INSTALL libsubcmd_headers
+    CC      mm/page_alloc.o
+  In file included from <command-line>:
+  mm/page_alloc.c: In function '__free_unaccepted.isra':
+  ././include/linux/compiler_types.h:557:45: error: call to '__compiletime_assert_1013' declared with attribute error: BUILD_BUG failed
+    557 |         _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+        |                                             ^
+  ././include/linux/compiler_types.h:538:25: note: in definition of macro '__compiletime_assert'
+    538 |                         prefix ## suffix();                             \
+        |                         ^~~~~~
+  ././include/linux/compiler_types.h:557:9: note: in expansion of macro '_compiletime_assert'
+    557 |         _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+        |         ^~~~~~~~~~~~~~~~~~~
+  ./include/linux/build_bug.h:39:37: note: in expansion of macro 'compiletime_assert'
+     39 | #define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
+        |                                     ^~~~~~~~~~~~~~~~~~
+  ./include/linux/build_bug.h:59:21: note: in expansion of macro 'BUILD_BUG_ON_MSG'
+     59 | #define BUILD_BUG() BUILD_BUG_ON_MSG(1, "BUILD_BUG failed")
+        |                     ^~~~~~~~~~~~~~~~
+  mm/page_alloc.c:7301:9: note: in expansion of macro 'BUILD_BUG'
+   7301 |         BUILD_BUG();
+        |         ^~~~~~~~~
 
-Link: https://lore.kernel.org/all/31F42D8141CDD2D0+20250411105142.89296-1-chenlinxuan@uniontech.com/
+Marking page_contains_unaccepted with __always_inline and let dead code
+elimination remove reference to __free_unaccepted() here.
 
-This patch depends on
-
-  [PATCH] drm/i915/pxp: fix undefined reference to
-          `intel_pxp_gsccs_is_ready_for_sessions'
-
-which can be found at
-
-  https://lore.kernel.org/all/20250415090616.2649889-1-jani.nikula@intel.com/
-
-as well as
-
-  [RFC PATCH 5/7] RDMA/hns: initialize db in update_srq_db()
-
-which can be found at
-
-  https://lore.kernel.org/all/FF922C77946229B6+20250411105459.90782-5-chenlinxuan@uniontech.com/
-
+Co-developed-by: Chen Linxuan <chenlinxuan@uniontech.com>
 Signed-off-by: Chen Linxuan <chenlinxuan@uniontech.com>
+Signed-off-by: Winston Wen <wentao@uniontech.com>
 ---
-Winston Wen (5):
-      nvme: add __always_inline for nvme_pci_npages_prp
-      mm: add __always_inline for page_contains_unaccepted
-      vfio/virtio: add __always_inline for virtiovf_get_device_config_size
-      tpm: add __always_inline for tpm_is_hwrng_enabled
-      lib/Kconfig.debug: introduce CONFIG_NO_AUTO_INLINE
+ mm/page_alloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Makefile                            |  6 ++++++
- drivers/char/tpm/tpm-chip.c         |  2 +-
- drivers/nvme/host/pci.c             |  2 +-
- drivers/vfio/pci/virtio/legacy_io.c |  2 +-
- lib/Kconfig.debug                   | 15 +++++++++++++++
- mm/page_alloc.c                     |  2 +-
- 6 files changed, 25 insertions(+), 4 deletions(-)
----
-base-commit: 1a1d569a75f3ab2923cb62daf356d102e4df2b86
-change-id: 20250416-noautoinline-8e9b9e535452
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index fd6b865cb1abfbd3d2ebd67cdaa5f86d92a62e14..7c0934c818ddc719c2dcb813599708f47d56352c 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -7286,7 +7286,7 @@ static bool __free_unaccepted(struct page *page)
+ 
+ #else
+ 
+-static bool page_contains_unaccepted(struct page *page, unsigned int order)
++static __always_inline bool page_contains_unaccepted(struct page *page, unsigned int order)
+ {
+ 	return false;
+ }
 
-Best regards,
 -- 
-Chen Linxuan <chenlinxuan@uniontech.com>
+2.48.1
 
 
