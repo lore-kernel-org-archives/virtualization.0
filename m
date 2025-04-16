@@ -1,179 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtpbgeu2.qq.com (smtpbgeu2.qq.com [18.194.254.142])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96B2D2376EF;
-	Wed, 16 Apr 2025 09:45:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6057B230BD9;
+	Wed, 16 Apr 2025 10:09:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.194.254.142
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744796701; cv=none; b=skXX7rICUQDQMn8RTC06fCbrmgB6JmMmJNPL2HZcIQkeNRp+eQU0H9lf2Xqd5AiGOZnn4DNIkUY49ZnXv+wl2fuPbcA1FlBmjbx+smgJcwX+UnRQQOgAyDSwBnmvee19mOInXecc/E/U4ITkdWyAYvUAtiTXu5sS9dS3YFGIUfg=
+	t=1744798191; cv=none; b=MtZ9yiWCwLnYwOBqAFRs5ZiUa8cQMSOLPCaWqaVr569cUVfgGiYwdIN/oV795psVm73FsLcRNei/Q8jCg/RX3LhKeu1yuXS80V8XDOoAltLh3RxKR5KAWMC9x9CaBEiSFm4q4+D4+sNv/iFnoZp/mo7NrClp6YKXhep+SGcLfHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744796701; c=relaxed/simple;
-	bh=y6sNLqLklzVcWeo9kuxbWWkQNColAUNOTv6uOnth8tc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=CMKoR5IQXVvvhnLqlzRBzelAuYVUqbkyQKjIHlc3IVaSChpZg8fkvAGeu83BYI7KusZAjyLZ4xF5Zt/sbXxLdy/oJppMGaC8Co9mZKFpdClQZp75wV33IBmZ3AtY0noWxqJaZlBQG7qYRvIRS7DGryeuWR9rmI9J2ju1pZnlsZk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HH1A403b; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1744798191; c=relaxed/simple;
+	bh=K5EIWptPNf+bD6TCzDb13Bmy9OoJJigove2+9RXxBVM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jiSxYOfGPPzsNZaR6+5Fwc7l9QCDcHyNyvgJru+V7TOITDv4CvUb1fjKxT5pruJOThaOAftbVvfn0gPJGT8yygbEKPejzJiCF84I9Dt1K9lnQB9nPXmh0rLSFtRLCEw2+TioWrEvgOrVSNTFMsLX3z3gUXNhw9QM9dGDzRO92Qo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=XniFCzRR; arc=none smtp.client-ip=18.194.254.142
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HH1A403b"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id CF0A4C4CEF6;
-	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744796700;
-	bh=y6sNLqLklzVcWeo9kuxbWWkQNColAUNOTv6uOnth8tc=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=HH1A403b+hjSeYH0fFnCcyVe3XGHSUQPNkSJexeBqDpRrGhcBviUoIMSx55nUSPHc
-	 7E2bOgl3XRblTUkvQiIH3j+Oe8tYXl5itG/R260Ckf+vjYlbDGm9wnykwHav/jGvKd
-	 HKOmMs2makfVltunNUFav5U7lB3/aGHP2iQg+tG8XV9j8NVptMijlodBYp274h10Cm
-	 BUhJ8Awo0UtY3JBapaSwGpz7v9nob885b8E6Z8m8POQmCnCiNWmTs7kYV44HgkQ8DK
-	 rSelb4535t5KDJhZldmuN2v5BTflT4lwrpvUUjKvvz/eihiQ1oVQQkCbAeza8o1QKM
-	 AvZp8tmlNMiLA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFE19C369C7;
-	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
-From: Chen Linxuan via B4 Relay <devnull+chenlinxuan.uniontech.com@kernel.org>
-Date: Wed, 16 Apr 2025 17:44:51 +0800
-Subject: [PATCH RFC v2 5/5] lib/Kconfig.debug: introduce
- CONFIG_NO_AUTO_INLINE
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="XniFCzRR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1744798179;
+	bh=K5EIWptPNf+bD6TCzDb13Bmy9OoJJigove2+9RXxBVM=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To;
+	b=XniFCzRRu2XnS24lydggXG5urVMcXZNtYGK346HVOEEuRL3mwInWhW6ZpFl9EfpHx
+	 v4y7I34TL18IfEU5VNVLVdmRLTBPTN+Jz2Rha/PN6P4G0IRRviQctnLPYXeFytfKoV
+	 4RMBfLlzr/QUuyw1THwa8YEMR1QQRINZs8gxGq/U=
+X-QQ-mid: izesmtp88t1744798177t30911463
+X-QQ-Originating-IP: Y0K1gEdnjwRv1AeBDV6CCq4xv4PZRxrn8U2uvTCCyEk=
+Received: from mail-yb1-f176.google.com ( [209.85.219.176])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Wed, 16 Apr 2025 18:09:35 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 0
+X-BIZMAIL-ID: 8037632543476522304
+Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e589c258663so5815090276.1;
+        Wed, 16 Apr 2025 03:09:36 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCW7QnI9bK7XeYnhHBcD9VEPDMBwTrE6BB4sJFsCVHhxmEr87BHJ+4JB1i34NLqbQ4bg18stPQOPV5ckSEa0yrQ=@lists.linux.dev, AJvYcCWHDmwmw5Ok15S7bZsVJR+pqQfl9nlqMvPBXQ4U7lSt5DD6Iav2iGOUM8tXLhiRG6DmW9na@lists.linux.dev
+X-Gm-Message-State: AOJu0YxvJbdABkAbg0fwxHUrQ7k6jmE7r6sgfEALiHFJG0Hy6lPOIKpM
+	80nRhIX4c6ySFP/M8Z7S1p9MSAhdORKehEeKvfxALai/erg5v+rPg3mwC3JC26PGc06VObxAcwb
+	49/FiodyxDqQsPyWGa/TE6WJCILk=
+X-Google-Smtp-Source: AGHT+IFxOQerwyXR4s01cKj1FQCmW5mZBGS8EUkxg2eBy2yn8PQm4fMpJOhxMxu+WrXOTx3w5ulHOeUcX04b8xnFFTA=
+X-Received: by 2002:a05:6902:2b8a:b0:e6d:eb74:272 with SMTP id
+ 3f1490d57ef6-e7275967af8mr1257382276.22.1744798174393; Wed, 16 Apr 2025
+ 03:09:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250416-noautoinline-v2-5-e69a2717530f@uniontech.com>
-References: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
-In-Reply-To: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
-To: Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
- Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
- Andrew Morton <akpm@linux-foundation.org>, 
- Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
- Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>, 
- Kevin Tian <kevin.tian@intel.com>, 
- Alex Williamson <alex.williamson@redhat.com>, 
- Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko@kernel.org>, 
- Masahiro Yamada <masahiroy@kernel.org>, 
- Nathan Chancellor <nathan@kernel.org>, 
- Nicolas Schier <nicolas.schier@linux.dev>, 
- Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, 
- Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>
-Cc: linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org, 
- linux-mm@kvack.org, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
- linux-integrity@vger.kernel.org, linux-kbuild@vger.kernel.org, 
- llvm@lists.linux.dev, Winston Wen <wentao@uniontech.com>, 
- Chen Linxuan <chenlinxuan@uniontech.com>, 
- Changbin Du <changbin.du@intel.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3064;
- i=chenlinxuan@uniontech.com; h=from:subject:message-id;
- bh=F+1qLaqiauypU+BRTQYkrjZEyIF0AG4hvaXQhsgJYk8=;
- b=owEBbQKS/ZANAwAKAXYe5hQ5ma6LAcsmYgBn/3wZT3NWiI2S8hRz1pjrEUmLoC/gt8RZUtPaC
- lubpf4A4hyJAjMEAAEKAB0WIQTO1VElAk6xdvy0ZVp2HuYUOZmuiwUCZ/98GQAKCRB2HuYUOZmu
- izAIEACY38ESmIVOjDr7Iwh8UUrW7TzIcDjdsV2Gz25pzxNRYt2UN7F1ih++IU0mVKuCRE8VqsZ
- COqv1koPLnaC5FnVtv40PZwIiMbk1JDsa2ErGt5FBgb7ada1ai8OVfO05xZmtLjDLu0LBYqJs20
- 54Nx0HAjECSeFJB7FsRxoyck9coB80nqWw4d6BRS0UG3/nsZJYJ5zvs3iEpL5BtNePBanOqbBao
- ey+EM2gyLwiAvD/x7pkIaPnvF9Y35X4eRaTm8+SYc48zK0Q/+9L5Vg2bmyyF9Up8vdoPVfNYD49
- zE1q9RpL992v3uSn4Uh+/XGggbgTV+nw1SXRZH1NcwML9S5Tk7czniyVD1h4KFXKUZpvkZvhQi/
- eU5K9FTQedxVsK+gma+7I3bWAbm0Yn5SZ9gUzZHGIHWSMNM6aByhX3QVbVGcrvz9uBgzJLA6G2v
- blyyctLKffNf5k3i4oGfEufOigeC2JeVcreJ8YcvZos9m3zQ9f+SWCKtvtlFdNpgcm8q7SgYEOi
- Vs4lmIBCBb2MgxZbCKfiz5qnt49ANDdBLL+6jGfnsSCdSR9yiHKDzItW4XHG62rQaZ/UgtnvTqP
- guR1IhGM9mQRv0qGS8ujapIi7oqfU995Jy3XGAG6t4uHwd0t7yItMqwthqHQwNxtgOzeuuclW/d
- ThVxVEEuZANNvYg==
-X-Developer-Key: i=chenlinxuan@uniontech.com; a=openpgp;
- fpr=D818ACDD385CAE92D4BAC01A6269794D24791D21
-X-Endpoint-Received: by B4 Relay for chenlinxuan@uniontech.com/default with
- auth_id=380
-X-Original-From: Chen Linxuan <chenlinxuan@uniontech.com>
-Reply-To: chenlinxuan@uniontech.com
+References: <E9B8B40E39453E89+20250411105306.89756-1-chenlinxuan@uniontech.com>
+ <20250416044827.GA24153@lst.de>
+In-Reply-To: <20250416044827.GA24153@lst.de>
+From: Chen Linxuan <chenlinxuan@uniontech.com>
+Date: Wed, 16 Apr 2025 18:09:22 +0800
+X-Gmail-Original-Message-ID: <45D187D71349584D+CAC1kPDPYiUKqRmqW=hzOyGudvUXcwxo0kgDU_j40+t7rYHsU-g@mail.gmail.com>
+X-Gm-Features: ATxdqUHphIIrq227AoMvNzUOdxFn7upg3kfvytoiynDmEPipLLJsDaFiQeVe_To
+Message-ID: <CAC1kPDPYiUKqRmqW=hzOyGudvUXcwxo0kgDU_j40+t7rYHsU-g@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/7] kernel-hacking: introduce CONFIG_NO_AUTO_INLINE
+To: Christoph Hellwig <hch@lst.de>
+Cc: Chen Linxuan <chenlinxuan@uniontech.com>, Masahiro Yamada <masahiroy@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nicolas.schier@linux.dev>, 
+	Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
+	Jani Nikula <jani.nikula@linux.intel.com>, 
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Chengchang Tang <tangchengchang@huawei.com>, 
+	Junxian Huang <huangjunxian6@hisilicon.com>, Leon Romanovsky <leon@kernel.org>, 
+	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Sagi Grimberg <sagi@grimberg.me>, 
+	Yishai Hadas <yishaih@nvidia.com>, 
+	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>, Kevin Tian <kevin.tian@intel.com>, 
+	Alex Williamson <alex.williamson@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
+	Justin Stitt <justinstitt@google.com>, linux-kbuild@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	linux-rdma@vger.kernel.org, linux-nvme@lists.infradead.org, 
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+	llvm@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+X-QQ-SENDSIZE: 520
+Feedback-ID: izesmtp:uniontech.com:qybglogicsvrgz:qybglogicsvrgz5a-1
+X-QQ-XMAILINFO: NwayLIc/Avn/uc+dRHJ7b63Usqzraz51Cf/oicWYU1KzQUw0JkCFlCqb
+	EHpejWNiykim42BXNNI7d72q3HszTlR5jcf6Xsv1+P/MJ7POWRzqMhhc1oqhVf0sTh9Q743
+	pjy6RvAWrZSUzf1xk6ybfjRty0uPmMxwtbLt1/ai8cr+oUKLxn1yX4H7syybrVvXD/8CPiV
+	N2z7mhyGjSMwptUGitgadmHzCyoc80WrkzZkNNQfrDrhT8K/6dFA4o5b3JftMoJM7SzWGJB
+	tod+UCw6cXy073asZkPcg/Un9mxgI+tIoqg4dvoodYVHkWavX7wwXDLh5FC3/r+4Z7RP3ma
+	jlnLpQDsjVD0aOOTrUBJdpUn0PbinL73i+CNsfxiGsnv/HWigLJMhQn0TclDjtChsnkI/1V
+	0kwQbVZdJwHOJl4OU+VaDeaovVcWYqjUwA77ef/TjAyIalZHkYp0v+mPK+sTPzbiRvLO4JV
+	dfYQUBzHqL79zmLgBgRgm8h4EchwYjJKgf7/q7TOMQrRct5QarS/+5dtgquOullcq04znPK
+	jgfe9mJ3D1aiJjDmQh0XvTulLU4faFLXrI+d1/czQZ5TmhjrwidKte5Hew3eOfsdUk/xO0A
+	XfQ9nsmHi8v35xzN9mRY3j8EfoUDzoATe9QmRby2aH4CyP9rdg0y3SA4XGNVDRZW0RWGKkr
+	/9qZ3sCd+w5nLmkTTx59BpeMV2b0HcqdPC9xrQnGNYvNwt1nVYuC/fRk+yBHHfbPC6cm83x
+	y7ynIm3VJ2HF5Bz6Z4AeP4/yVUFcvXayRHbVHglbL2kd0zDPt9n9FlAEHeN9PvwUDrvcM5R
+	UyEB93Y/KPDOCt+HxnO4oUpjxKhU9xL8Fwhr0PXr4z2HvLyhHTzgf4YjzM7F8h+B6egYbpn
+	CwtAxmsU9YPfRA7YaqYyg9OwAcInlCBeBajbYAoMt81SKRdD3VIs6dmsFDZqGjXPOGBSUUR
+	1ZS97ZwQeJkajkOCuxOB+GmKPlm2xaNnWYyPuU14FyAADXtPaP9ZMe8+wYmSZ2daRrgFlzU
+	baOryQr7xyKy0m/fSShWFBGbj9c4Wtu+9G6Pr7+Bi18eJ8Jr3FGthCni5MJn3ADs6BBtpb+
+	Q==
+X-QQ-XMRINFO: NS+P29fieYNw95Bth2bWPxk=
+X-QQ-RECHKSPAM: 0
 
-From: Winston Wen <wentao@uniontech.com>
+Sorry for the mistake, v2 has been send:
 
-Add a new kernel hacking option CONFIG_NO_AUTO_INLINE that prevents the
-compiler from auto-inlining functions not explicitly marked with the
-'inline' keyword.
-
-This enhancement improves function tracer capabilities as it can only
-trace functions that haven't been inlined by the compiler.
-
-Previous discussions:
-
-Link: https://lore.kernel.org/all/20181028130945.23581-3-changbin.du@gmail.com/
-
-This patch is modified from commit 917fad29febd ("kernel hacking: add a
-config option to disable compiler auto-inlining") which can be founded
-in linux-next-history:
-
-Link: https://web.git.kernel.org/pub/scm/linux/kernel/git/next/linux-next-history.git/commit/?id=917fad29febd
-
-Unlike the original implementation, this patch:
-
-1. Make it depends on CC_IS_GCC,
-   as Clang 18.1.3 break test_bitmap_const_eval() in lib/test_bitmap.c
-
-2. Make it depends on X86 and LOONGARCH,
-   as I haven't test other architectures
-
-3. Removes unnecessary cc-option checks per commit 7d73c3e9c514
-   ("Makefile: remove stale cc-option checks").
-
-4. Update help information.
-
-Cc: Changbin Du <changbin.du@gmail.com>
-Co-developed-by: Chen Linxuan <chenlinxuan@uniontech.com>
-Signed-off-by: Chen Linxuan <chenlinxuan@uniontech.com>
-Signed-off-by: Winston Wen <wentao@uniontech.com>
----
- Makefile          |  6 ++++++
- lib/Kconfig.debug | 15 +++++++++++++++
- 2 files changed, 21 insertions(+)
-
-diff --git a/Makefile b/Makefile
-index c91afd55099ea6bc7ed89bc3ef9cf58a498596d4..52da2c27f94167d2d2892a67c065e5df15efbde0 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1071,6 +1071,12 @@ endif
- # Ensure compilers do not transform certain loops into calls to wcslen()
- KBUILD_CFLAGS += -fno-builtin-wcslen
- 
-+ifdef CONFIG_NO_AUTO_INLINE
-+KBUILD_CFLAGS   += -fno-inline-functions \
-+		   -fno-inline-small-functions \
-+		   -fno-inline-functions-called-once
-+endif
-+
- # change __FILE__ to the relative path to the source directory
- ifdef building_out_of_srctree
- KBUILD_CPPFLAGS += $(call cc-option,-ffile-prefix-map=$(srcroot)/=)
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 9fe4d8dfe5782981cc0b2b6614106aac570bd229..2ebb4802886ab4a48841dbdd8973b7d9883548b9 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -436,8 +436,23 @@ config GDB_SCRIPTS
- 	  instance. See Documentation/process/debugging/gdb-kernel-debugging.rst
- 	  for further details.
- 
-+
- endif # DEBUG_INFO
- 
-+config NO_AUTO_INLINE
-+	bool "Disable compiler auto-inline optimizations (EXPERIMENTAL)"
-+	default n
-+	depends on CC_IS_GCC && (X86 || LOONGARCH)
-+	help
-+	  This will prevent the compiler from optimizing the kernel by
-+	  auto-inlining functions not marked with the inline keyword.
-+	  With this option, only functions explicitly marked with
-+	  "inline" will be inlined. This will allow the function tracer
-+	  to trace more functions because it only traces functions that
-+	  the compiler has not inlined.
-+
-+	  If unsure, select N.
-+
- config FRAME_WARN
- 	int "Warn for stack frames larger than"
- 	range 0 8192
-
--- 
-2.48.1
-
-
+https://lore.kernel.org/all/20250416-noautoinline-v2-0-e69a2717530f@uniontech.com/
