@@ -1,150 +1,155 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D298EA32
-	for <virtualization@lists.linux.dev>; Wed, 16 Apr 2025 09:00:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21EB9236421;
+	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744794060; cv=none; b=TNhiMUvJHtGggO7qn9kcjGD846DlvMU/Ch3MIYtAcUC8pUsIlanedj8eWFyPmEdAPBjhtnW+oMUkepOYqwhjXsckyCbQuv/gkww0FXRE3aZGUxaFioqBn2D7IFhJIfcw0Y/QCV78HM0WE4sCm3ghUGkNLsIJS9bhXfqRj1+27oo=
+	t=1744796701; cv=none; b=MMXUDDfAbzMNGebvyDPFy60k4NUIZvq5F43Bu6Sl0hNG+J504Soc16EoKYbmrc8FO2PzZH6rcVbPP6MDj37jGoibGHrpt5WWYCxOEMpPM1XiYnkz56C6mMPwXbL8Z1/znqvAMOA2Ku+X+hswD/0gxQv5vF+jcoELx9Vpsmo13zY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744794060; c=relaxed/simple;
-	bh=LkkRxVsKuChlvoYMnjLCZHxahJRvcKvpegCE7X/JCx4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iGzqebanb/Huvp8fHvXszZrpHvFTevuGJAIOnYFjmSNqYeAZRy3+Ee/eDKhCN28IxTKTzHGQMcXPjV+0yjeu54x0EGDl/2Yu4rMIyxYn8UhTqcM+5AV0brM/Jpi7zMF/PXilmsO7qXyZmBwPb08wj7U+Y6In68bUGNNribUSr8E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F+1I7hW7; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1744796701; c=relaxed/simple;
+	bh=Yv+kifpgtaJLLbyR4rAn27RlbXnINX7O4xl+RP8J8Ps=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=VgRVEp2sZGCjELve5cK7CflNS8wzSwNIOwmcaJNskzC7fjULShYnIIrefT8YaiG1HUcKjvyNNZRKXB00/8LX/OIgUEOUYkHvwYoEQV5hnYZh57BsLmiSyB6dL+3ierpoKovyWd+eTbENv6WIcRpf4ZVRpnVfZKQ5W13TjGNg7Cc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Lach4qKY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F+1I7hW7"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-224341bbc1dso60721655ad.3
-        for <virtualization@lists.linux.dev>; Wed, 16 Apr 2025 02:00:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744794058; x=1745398858; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=MmG5wLnCycwNioKCuXAaZLGjYi/ybga0dH9UjvjLbBQ=;
-        b=F+1I7hW71/z1Pw/ySDT7LCq8ALK8tstHLvNTVJXNKd5yzf15PKsoAyMogMfFabsE1R
-         HAs5oHkqEjy7qJINz7nMD6+U6AKJLbH6BptuaN+Vwe4oqwJ7AkUJo2/7dlMwqwO7LjXw
-         0WV1VaGkRqAIonWEpv6LKFbO3fLc79MGud7RB2sVYwupUGlPktjf+zthAXmIjhoEGVK9
-         RCJ9W7oZaVkkRJYQzr/awq6YdM2A/5HbBp87Y9pNqRz733ajKipWwuhJXfb0UTGuODZv
-         oiN1H6M56MOWKk7rzjL/1kUVLb0NRm5Ihc1uw7BoKknpKe4WGOreHbBSgpi8T14DqtPh
-         O56Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744794058; x=1745398858;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MmG5wLnCycwNioKCuXAaZLGjYi/ybga0dH9UjvjLbBQ=;
-        b=H4M5Z4QqYGoZ28EAu+xPOF4Pd99PTGhSA/TFDFjOOKVcMLHmQQ0acBt8Bhj1uM8ii2
-         D9cVzg/jE0L7ja+X1O8+y7J9Toasc+HonuDJki9RDtjEMHeVNgM1R4YGmEsY7GhDvNxx
-         FcOBK8JNPQcq4yBQa/40Awo76DVxM9XiAxoXzEflRldnzvVtJF3RKLmbn6UHhIeVlg7a
-         vgLc+ExWLWcDkkYxash1Wq1MmJ8/gFzp/XJztlIYql9m1kEecJ0XKi5oU1vRVXsj9mtg
-         GaGMwOBmr54VhAkmEOF0ibYtm/xObmvGCb7TrKKhhyhmTmCHqvuUcpnVyq4EGvOrau5G
-         POdA==
-X-Forwarded-Encrypted: i=1; AJvYcCXNtKIHp0NrtlkfkAF4g6DNNYvDK64g7xeNyB4qxDwTcZMNtjaCCAp0ROJaFZ9dC5AmmVggdUEQeCyCXE+cyA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyxw+zYR3oXJVLLZpkXJyvs/OczrWxulydtZJkK40y7a7L4IPD9
-	RBVanfL+gcWOUzAAHKbrcy/u0t0pL6DOsFcjKq34zYziFvMRxwdR
-X-Gm-Gg: ASbGnctD8gg1Q5oD0lxN+Ff2GAjDuTzh/ms8Lbi4jggV4pxYjZVdA8cee4t3AhJI1vf
-	zUBX5hSTNA74fcWOfWoeKUW65w1uT4m7nz0NVL0Jo9wOW1lft4m+RpORPgk/NnoApjl2XPz0e6u
-	yZj8GJyXOJ05tnIWdVd+OKVGeEDm9EtF6gru6gCa5UH6suXhfkkdOyt3KXvLsRCjB+cGqNzrWIx
-	2lrc34jtsYcuohOYt2bRfM/T1YssEJ3SYwDCucLTZfi+Qbbn/IHpIFHWMeLgGFUZtWEm50dwHp2
-	SDmoETH6IdtxNkh8Hz1nvTCBruzQ01F8TBR52QOSkjOiohQizQ7F0cFwv8s=
-X-Google-Smtp-Source: AGHT+IFKvp8JSTcKdJ90nG6KVwZddhuAz0H9jshWa+isMyWM0doLGpZ4rJFIqTTHy7XwTHyjEXrxRg==
-X-Received: by 2002:a17:902:ccc8:b0:22c:2492:b96b with SMTP id d9443c01a7336-22c358d9c65mr20545865ad.15.1744794058037;
-        Wed, 16 Apr 2025 02:00:58 -0700 (PDT)
-Received: from [172.16.0.99] ([113.161.92.19])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73bd22f8253sm10208920b3a.93.2025.04.16.02.00.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Apr 2025 02:00:57 -0700 (PDT)
-Message-ID: <e5369006-1439-4936-9193-3f931f8a6f29@gmail.com>
-Date: Wed, 16 Apr 2025 16:00:51 +0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Lach4qKY"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 94480C4CEEF;
+	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744796700;
+	bh=Yv+kifpgtaJLLbyR4rAn27RlbXnINX7O4xl+RP8J8Ps=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=Lach4qKYDtR1r2uJIArcYnjlMTOKDb0ehkvd5UN0MlTPQ66miK+ydvERbEHHi1kFA
+	 tBpf9tUwVubeot9VKKHdObFIhyHr/l51RlJxsTRZ8oj+g4/BdRuPjSBNuldgQBVM+9
+	 UvX2qv3N66+SaIbevmpj0dgd+m8BxLNLtkxxA8hz1nsdQQLysQx6/OlU0DrTjpN/i1
+	 pfOB/R/QsgyA7x4qHvwXeyAh6EW9/Zr4yPpm4MGoXjLe/CsH00SkVm2vlbMhQ71VT6
+	 zbEXJXdUkgPzB0m6KeyasjYLeU/Lt3gTqLYOSq30P+a2Ew9wGYWT/leA7ITiHM3RxA
+	 LyZSn/JD5X2vw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79C67C369BD;
+	Wed, 16 Apr 2025 09:45:00 +0000 (UTC)
+From: Chen Linxuan via B4 Relay <devnull+chenlinxuan.uniontech.com@kernel.org>
+Date: Wed, 16 Apr 2025 17:44:47 +0800
+Subject: [PATCH RFC v2 1/5] nvme: add __always_inline for
+ nvme_pci_npages_prp
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/3] selftests: net: add a virtio_net deadlock selftest
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-References: <20250415074341.12461-1-minhquangbui99@gmail.com>
- <20250415074341.12461-4-minhquangbui99@gmail.com>
- <20250415212709.39eafdb5@kernel.org>
- <1603c373-024d-4ec2-b655-b9e7fb942bba@gmail.com>
- <CACGkMEvceXT+=HJRRe6D3Zk3k40E2ADJiXNb4qqAYm=PZnxNpQ@mail.gmail.com>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <CACGkMEvceXT+=HJRRe6D3Zk3k40E2ADJiXNb4qqAYm=PZnxNpQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250416-noautoinline-v2-1-e69a2717530f@uniontech.com>
+References: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
+In-Reply-To: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
+To: Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
+ Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+ Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>, 
+ Kevin Tian <kevin.tian@intel.com>, 
+ Alex Williamson <alex.williamson@redhat.com>, 
+ Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko@kernel.org>, 
+ Masahiro Yamada <masahiroy@kernel.org>, 
+ Nathan Chancellor <nathan@kernel.org>, 
+ Nicolas Schier <nicolas.schier@linux.dev>, 
+ Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, 
+ Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>
+Cc: linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ linux-mm@kvack.org, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+ linux-integrity@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+ llvm@lists.linux.dev, Winston Wen <wentao@uniontech.com>, 
+ Chen Linxuan <chenlinxuan@uniontech.com>, 
+ Changbin Du <changbin.du@intel.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2975;
+ i=chenlinxuan@uniontech.com; h=from:subject:message-id;
+ bh=sGDh7M1GW9E/6Y/0K/CCKXvss9WxUze9tBDMdqLrW6k=;
+ b=owEBbQKS/ZANAwAKAXYe5hQ5ma6LAcsmYgBn/3wVG003JQmokzL+qRyfJcdxP60RFA0LrONcP
+ OK5orjrbTuJAjMEAAEKAB0WIQTO1VElAk6xdvy0ZVp2HuYUOZmuiwUCZ/98FQAKCRB2HuYUOZmu
+ i8TED/0fmsPVnspcWh0W6L0ZSZOLbCvbFNwkSR8ln0sclXUOPtKwmyiPlZa4zJmx7OcofjIaLD/
+ r/WJyI8YJpl735QY3QIBTbrps+iGTDVaqLw8NMv1GsgSn5r61K4TxGHIfCjlSFoamR3OMWdNCrS
+ WgKkuDC2E6ay6dA0WfzSP78maBTAvxztzt0mrFpxZQijD5Ky6gSFVQAeztouTp6ootKC9gvMeO5
+ +gtRmuu9R5kMvmwGyagr3VY9mc0otVIg2xlYhJiaVOu4CfRoc0oOpQcaFGlds7Ffe9vB6Apy562
+ 0ADyZ/DVMUzU4vli0sb0ABqeWUWJvQn0/PvNjTUSDE7ohfpIGMasSJ4U4pGTk2h2Uup4lO1Qk5Y
+ itpYWcQQWcxZirZzGnfIAEsscrdlIW1hfEPHbAAmbwUCKwM4mYIvIvT4jVx7V8WAsDJybp72ugL
+ sSHbcb/PohzAsREiVXj+ctQfKvFssyCqeC4QmvrsOAIySwTmvnVd/kmriXFtFBV32jCCFt1yrzy
+ DHcdVAGXK0AEbs+63WGWuWrlpIqyutFQpNNkxOFaL3DlLSgZdNLg8Z6TeBEpltgoSrnRHWSN6KK
+ 2We5DBjR8F7GIDWR3F/H9QRYE/Z0BaE7a9oEZKSwd3QL13ItpXVkjs4ZYIJ497+OIimgPtSzbF9
+ Tn7aHUXUKD2PLjg==
+X-Developer-Key: i=chenlinxuan@uniontech.com; a=openpgp;
+ fpr=D818ACDD385CAE92D4BAC01A6269794D24791D21
+X-Endpoint-Received: by B4 Relay for chenlinxuan@uniontech.com/default with
+ auth_id=380
+X-Original-From: Chen Linxuan <chenlinxuan@uniontech.com>
+Reply-To: chenlinxuan@uniontech.com
 
-On 4/16/25 14:46, Jason Wang wrote:
-> On Wed, Apr 16, 2025 at 2:54 PM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
->> On 4/16/25 11:27, Jakub Kicinski wrote:
->>> On Tue, 15 Apr 2025 14:43:41 +0700 Bui Quang Minh wrote:
->>>> +def setup_xsk(cfg, xdp_queue_id = 0) -> bkg:
->>>> +    # Probe for support
->>>> +    xdp = cmd(f'{cfg.net_lib_dir / "xdp_helper"} - -', fail=False)
->>>> +    if xdp.ret == 255:
->>>> +        raise KsftSkipEx('AF_XDP unsupported')
->>>> +    elif xdp.ret > 0:
->>>> +        raise KsftFailEx('unable to create AF_XDP socket')
->>>> +
->>>> +    return bkg(f'{cfg.net_lib_dir / "xdp_helper"} {cfg.ifindex} {xdp_queue_id}',
->>>> +               ksft_wait=3)
->>>> +
->>>> +def check_xdp_bind(cfg):
->>>> +    ip(f"link set dev %s xdp obj %s sec xdp" %
->>>> +       (cfg.ifname, cfg.net_lib_dir / "xdp_dummy.bpf.o"))
->>>> +    ip(f"link set dev %s xdp off" % cfg.ifname)
->>>> +
->>>> +def check_rx_resize(cfg, queue_size = 128):
->>>> +    rx_ring = _get_rx_ring_entries(cfg)
->>>> +    ethtool(f"-G %s rx %d" % (cfg.ifname, queue_size))
->>>> +    ethtool(f"-G %s rx %d" % (cfg.ifname, rx_ring))
->>> Unfortunately this doesn't work on a basic QEMU setup:
->>>
->>> # ethtool -G eth0 rx 128
->>> [   15.680655][  T287] virtio_net virtio2 eth0: resize rx fail: rx queue index: 0 err: -2
->>> netlink error: No such file or directory
->>>
->>> Is there a way to enable more capable virtio_net with QEMU?
-> What's the qemu command line and version?
->
-> Resize depends on queue_reset which should be supported from Qemu 7.2
->
->> I guess that virtio-pci-legacy is used in your setup.
-> Note that modern devices are used by default.
->
->> Here is how I setup virtio-net with Qemu
->>
->>       -netdev tap,id=hostnet1,vhost=on,script=$NETWORK_SCRIPT,downscript=no \
->>       -device
->> virtio-net-pci,netdev=hostnet1,iommu_platform=on,disable-legacy=on \
->>
->> The iommu_platform=on is necessary to make vring use dma API which is a
->> requirement to enable xsk_pool in virtio-net (XDP socket will be in
->> zerocopy mode for this case). Otherwise, the XDP socket will fallback to
->> copy mode, xsk_pool is not enabled in virtio-net that makes the
->> probability to reproduce bug to be very small. Currently, when you don't
->> have iommu_platform=on, you can pass the test even before the fix, so I
->> think I will try to harden the selftest to make it return skip in this case.
-> I would like to keep the resize test as it doesn't require iommu_platform.
+From: Winston Wen <wentao@uniontech.com>
 
-Okay, in next version I will force the XDP socket binding to zerocopy to 
-setup xsk_pool. When the binding fails, 2 tests still run but I will 
-print a warning message.
+On x86_64 with gcc version 13.3.0, I build drivers/nvme/host/pci.c
+with:
 
-Thanks,
-Quang Minh.
+  make defconfig
+  ./scripts/kconfig/merge_config.sh .config <(
+    echo CONFIG_BLK_DEV_NVME=m
+  )
+  make KCFLAGS="-fno-inline-small-functions -fno-inline-functions-called-once" \
+    drivers/nvme/host/pci.o
+
+Then I get a compile error:
+
+    CALL    scripts/checksyscalls.sh
+    DESCEND objtool
+    INSTALL libsubcmd_headers
+    CC      drivers/nvme/host/pci.o
+  In file included from <command-line>:
+  drivers/nvme/host/pci.c: In function 'nvme_init':
+  ././include/linux/compiler_types.h:557:45: error: call to '__compiletime_assert_878' declared with attribute error: BUILD_BUG_ON failed: nvme_pci_npages_prp() > NVME_MAX_NR_ALLOCATIONS
+    557 |         _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+        |                                             ^
+  ././include/linux/compiler_types.h:538:25: note: in definition of macro '__compiletime_assert'
+    538 |                         prefix ## suffix();                             \
+        |                         ^~~~~~
+  ././include/linux/compiler_types.h:557:9: note: in expansion of macro '_compiletime_assert'
+    557 |         _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+        |         ^~~~~~~~~~~~~~~~~~~
+  ./include/linux/build_bug.h:39:37: note: in expansion of macro 'compiletime_assert'
+     39 | #define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
+        |                                     ^~~~~~~~~~~~~~~~~~
+  ./include/linux/build_bug.h:50:9: note: in expansion of macro 'BUILD_BUG_ON_MSG'
+     50 |         BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
+        |         ^~~~~~~~~~~~~~~~
+  drivers/nvme/host/pci.c:3804:9: note: in expansion of macro 'BUILD_BUG_ON'
+   3804 |         BUILD_BUG_ON(nvme_pci_npages_prp() > NVME_MAX_NR_ALLOCATIONS);
+        |         ^~~~~~~~~~~~
+
+Mark nvme_pci_npages_prp() with __always_inline make it can be computed
+at compile time.
+
+Co-developed-by: Chen Linxuan <chenlinxuan@uniontech.com>
+Signed-off-by: Chen Linxuan <chenlinxuan@uniontech.com>
+Signed-off-by: Winston Wen <wentao@uniontech.com>
+---
+ drivers/nvme/host/pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index b178d52eac1b7f7286e217226b9b3686d07b7b6c..9ab070a9f0372bc6595c29a884ee9f2ffe5ae8e9 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -390,7 +390,7 @@ static bool nvme_dbbuf_update_and_check_event(u16 value, __le32 *dbbuf_db,
+  * as it only leads to a small amount of wasted memory for the lifetime of
+  * the I/O.
+  */
+-static int nvme_pci_npages_prp(void)
++static __always_inline int nvme_pci_npages_prp(void)
+ {
+ 	unsigned max_bytes = (NVME_MAX_KB_SZ * 1024) + NVME_CTRL_PAGE_SIZE;
+ 	unsigned nprps = DIV_ROUND_UP(max_bytes, NVME_CTRL_PAGE_SIZE);
+
+-- 
+2.48.1
+
+
