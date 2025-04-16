@@ -1,187 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27E2121146F;
-	Wed, 16 Apr 2025 19:34:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3CA391C4A20;
+	Wed, 16 Apr 2025 21:34:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744832061; cv=none; b=g/EU9kR9cxKz8UEWbZP8AcluyV37kk73JbLtlhw4Bpqtug9xCkSExDlqDU5Ga/T8BRYNrb4LyrPgYhQ5bLrrA2mw5Mrl8uLil16alG8ejJqRBkxW45s/dlbE8oKOQLWSwMT97BO77cu+MjG6yCJQjRCVsQPI3LmE0zJder1tuSY=
+	t=1744839250; cv=none; b=UmZVcdDpmWnfcZo+SxUqBlRoc0nvdoIeO8Mdlxu9m0FWF783qVi4ArK1/lNzHukAkVUkaGAM88E/VaPflz7jkUNqXlw3obPxGpqKZPOX0SaSLTJNzIr/+vPAD9bcGgNVky47C8hpNjySMlJIXuGvlF/bua2KuUHDtS1uuWEJ4KI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744832061; c=relaxed/simple;
-	bh=geLExcJtOAjXjEY3nYZsjfpMc2TX5ES0OBy8m9gKC/k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Yy005nBXdkAaHF1EwwQ8c0y9rp28Uo/T6FLQCmdaPAixt0MRl71W9muINEfO3tWan1DW7GfofxbeyYqcEsSTfbWbt0YFNf9c3yJCLJ5VZT1AiUPYf61FB/TDFjmvxDXOSIsXPCMIE1x1BYLlxFxn1W61cJz6FYTFwRbxKOi/doY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T+A0oHTS; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1744839250; c=relaxed/simple;
+	bh=LMx67qyjqOkSRXudgM4ifmov6dER+mwMsdPVhFLIUDA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JTnNmOF7PSP8um+To9yiWnsdK7zu2yp6S0c/noiykb0pJ06aKJb91b8qKs/CD3df3ENz7dXSqO3c1w26td+1x13PUjEnjmFh8EZeelBwBvjlvSOpBNof232OZbPGy7p5G9ALZXEshlzjs6gm7TrpWEso9/lbol8h6rQIFGztuLo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=AL8wUoxp; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T+A0oHTS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E34AC4CEE2;
-	Wed, 16 Apr 2025 19:34:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744832059;
-	bh=geLExcJtOAjXjEY3nYZsjfpMc2TX5ES0OBy8m9gKC/k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=T+A0oHTSymTtL9IlRxP2X49sZVIM+qKZykeUc2U1jckOh7Fab2nVwAlbNWbp/XYXH
-	 72yCmdRJgMazizkaUaoxG0Wn7KFWs6aHcG6OfFWYy+IW8oFbj4GScY3vpMq0460m83
-	 znneUQQNp70DChBAFipuLJMTCbl0QPbJuB9t45gg34S2XEtV2Xy7YIWXsmuR4MnGoB
-	 ONm30k/EW8IhlQTZhxZ/RMNIYfZyo3oG6WmJH2ox1m2hZrI+VEcIhKMAYk9WTZNjB/
-	 RizhkamT1QOnRjMZK46AjXuFi1Hwlokh2lbPLIBWcjDTJ5LJe25/TXY4xyWLb6lIOf
-	 LWfCobji2UGcQ==
-Date: Wed, 16 Apr 2025 22:34:16 +0300
-From: Jarkko Sakkinen <jarkko@kernel.org>
-To: chenlinxuan@uniontech.com
-Cc: Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas.schier@linux.dev>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-integrity@vger.kernel.org,
-	linux-kbuild@vger.kernel.org, llvm@lists.linux.dev,
-	Winston Wen <wentao@uniontech.com>,
-	Changbin Du <changbin.du@intel.com>
-Subject: Re: [PATCH RFC v2 4/5] tpm: add __always_inline for
- tpm_is_hwrng_enabled
-Message-ID: <aAAGOIN-IsnTK2gm@kernel.org>
-References: <20250416-noautoinline-v2-0-e69a2717530f@uniontech.com>
- <20250416-noautoinline-v2-4-e69a2717530f@uniontech.com>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="AL8wUoxp"
+Received: from DESKTOP-0403QTC. (unknown [20.236.11.42])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 0F1F72052509;
+	Wed, 16 Apr 2025 14:34:04 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 0F1F72052509
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1744839245;
+	bh=9HNqumPtmvmJAGW9wiQMrJO9t2eP9GkkKEQe9OhQp38=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Reply-To:From;
+	b=AL8wUoxp7F3VeHAsffQ3unWgZt3wlUbcSBmIwRkJrm9Du3X25ksLOq3F6A0TpFVTw
+	 1gGLyIw5+ZGeZ5Wf1Ie/K9phuvvU2nQM2nE2AzjFQUNCHD2lJque2p3Lw64pHFV6i5
+	 1MqgT74N8l7A1eQeBrKhACC88ucVYEpZbzBB9C5U=
+Date: Wed, 16 Apr 2025 14:34:03 -0700
+From: Jacob Pan <jacob.pan@linux.microsoft.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Shyam Saini <shyamsaini@linux.microsoft.com>, iommu@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+ virtualization@lists.linux.dev, will@kernel.org, eric.auger@redhat.com,
+ code@tyhicks.com, eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
+ jacob.pan@linux.microsoft.com
+Subject: Re: [PATCH v2 0/3] arm-smmu: select suitable IOVA
+Message-ID: <20250416143403.790f45d4@DESKTOP-0403QTC.>
+In-Reply-To: <20250416181759.GF493866@ziepe.ca>
+References: <20250410225030.2528385-1-shyamsaini@linux.microsoft.com>
+	<20250410230008.GA6905@ziepe.ca>
+	<67fff12d.650a0220.208c7c.d69dSMTPIN_ADDED_BROKEN@mx.google.com>
+	<20250416181759.GF493866@ziepe.ca>
+Reply-To: jacob.pan@linux.microsoft.com
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250416-noautoinline-v2-4-e69a2717530f@uniontech.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Apr 16, 2025 at 05:44:50PM +0800, Chen Linxuan via B4 Relay wrote:
-> From: Winston Wen <wentao@uniontech.com>
+Hi Jason,
+
+On Wed, 16 Apr 2025 15:17:59 -0300
+Jason Gunthorpe <jgg@ziepe.ca> wrote:
+
+> On Wed, Apr 16, 2025 at 11:04:27AM -0700, Jacob Pan wrote:
 > 
-> Presume that kernel is compiled for x86_64 with gcc version 13.3.0:
+> > Per last discussion "SMMU driver have a list of potential addresses
+> > and select the first one that does not intersect with the
+> > non-working IOVA ranges.". If we don't know what the "non-working
+> > IOVA" is, how do we know it does not intersect the "potential
+> > addresses"?  
 > 
->   make defconfig
->   ./scripts/kconfig/merge_config.sh .config <(
->     echo CONFIG_TCG_TPM=y
->     echo CONFIG_HW_RANDOM=m
->   )
->   make KCFLAGS="-fno-inline-small-functions -fno-inline-functions-called-once"
+> I had understood from previous discussions that this platform is
+> properly creating IOMMU_RESV_RESERVED regions for the IOVA that
+> doesn't work. Otherwise everything is broken..
 > 
-> This results a link error:
+Agree, but I thought the previous attempt was to make
+iommu_ops.get_resv_regions() report properly instead of at the platform
+level (DT or IORT). Maybe Shayam can show the current reserved regions
+in sysfs.
+
+> Presumably that happens through iommu_dma_get_resv_regions() calling
+> of_iommu_get_resv_regions() on a DT platform. There is a schema
+> describing how to do this, so platform firmware should be able to do
+> it..
 > 
->   ld: vmlinux.o: in function `tpm_add_hwrng':
->   tpm-chip.c:(.text+0x6c5924): undefined reference to `hwrng_register'
->   ld: vmlinux.o: in function `tpm_chip_unregister':
->   (.text+0x6c5bc9): undefined reference to `hwrng_unregister'
->   ld: vmlinux.o: in function `tpm_chip_register':
->   (.text+0x6c5c9b): undefined reference to `hwrng_unregister'
+> So the fix seems trivial enough to me:
 > 
-> With `CONFIG_TCG_TPM=y` and `CONFIG_HW_RANDOM=m`,
-> the functions `tpm_add_hwrng`, `tpm_chip_unregister`, and
-> `tpm_chip_register` are compiled into `vmlinux.o`
-> and reference the symbols `hwrng_register` and `hwrng_unregister`.
-> These symbols, however, are compiled into `rng-core.ko`, which results
-> in the linking error.
-> 
-> I am not sure but I think this weird linking error only arises when
-> auto inlining is disabled because of some dead code elimination.
-> 
-> `CONFIG_TCG_TPM=y` and `CONFIG_HW_RANDOM=m` set `CONFIG_HW_RANDOM_TPM=n`.
-> This causes the function `tpm_is_hwrng_enabled` to always return
-> `false`, as shown below:
-> 
->   static bool tpm_is_hwrng_enabled(struct tpm_chip *chip)
->   {
->       if (!IS_ENABLED(CONFIG_HW_RANDOM_TPM))
->           return false;
->       if (tpm_is_firmware_upgrade(chip))
->           return false;
->       if (chip->flags & TPM_CHIP_FLAG_HWRNG_DISABLED)
->           return false;
->       return true;
->   }
-> 
-> When `tpm_is_hwrng_enabled` is inlined, dead code elimination
-> optimizations are applied and the reference to the `hwrng_*` functions
-> will been removed.
-> For instance, in the `tpm_chip_unregister` function:
-> 
->   void tpm_chip_unregister(struct tpm_chip *chip)
->   {
->   #ifdef CONFIG_TCG_TPM2_HMAC
->       int rc;
-> 
->       rc = tpm_try_get_ops(chip);
->       if (!rc) {
->           tpm2_end_auth_session(chip);
->           tpm_put_ops(chip);
->       }
->   #endif
-> 
->       tpm_del_legacy_sysfs(chip);
->       if (tpm_is_hwrng_enabled(chip))
->           hwrng_unregister(&chip->hwrng);
->       tpm_bios_log_teardown(chip);
->       if (chip->flags & TPM_CHIP_FLAG_TPM2 && !tpm_is_firmware_upgrade(chip))
->           tpm_devs_remove(chip);
->       tpm_del_char_device(chip);
->   }
-> 
-> When `tpm_is_hwrng_enabled` is inlined and always returns `false`,
-> the call to `hwrng_unregister` is effectively part of a `if (false)`
-> block, which I guess that will be then optimized out.
-> 
-> However, when the `-fno-inline-small-functions` and
-> `-fno-inline-functions-called-once` flags are used,
-> tpm_is_hwrng_enabled is not inline.
-> 
-> And this optimization some how cannot occur,
-> leading to the undefined reference errors during linking.
-> 
-> Adding the `__always_inline` attribute ensures that
-> `tpm_is_hwrng_enabled` is inlined regardless of the compiler flags.
-> This allows the dead code elimination to proceed as expected,
-> resolving the linking issue.
-> 
-> Co-developed-by: Chen Linxuan <chenlinxuan@uniontech.com>
-> Signed-off-by: Chen Linxuan <chenlinxuan@uniontech.com>
-> Signed-off-by: Winston Wen <wentao@uniontech.com>
-> ---
->  drivers/char/tpm/tpm-chip.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index e25daf2396d37bcaeae8a96267764df0861ad1be..48cc74d84247e258a39f2118e03aa10d0cbb066a 100644
-> --- a/drivers/char/tpm/tpm-chip.c
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -534,7 +534,7 @@ static int tpm_hwrng_read(struct hwrng *rng, void *data, size_t max, bool wait)
->  	return tpm_get_random(chip, data, max);
+Make sense below, probably good to have this regardless of the
+current issue. IMHO, FW reserved region should take precedence.
+
+> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c index
+> b4c21aaed1266a..ebba18579151bc 100644 ---
+> a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c +++
+> b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c @@ -3562,17 +3562,29 @@
+> static int arm_smmu_of_xlate(struct device *dev, static void
+> arm_smmu_get_resv_regions(struct device *dev, struct list_head *head)
+>  {
+> -	struct iommu_resv_region *region;
+> -	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
+> -
+> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE,
+> MSI_IOVA_LENGTH,
+> -					 prot, IOMMU_RESV_SW_MSI,
+> GFP_KERNEL);
+> -	if (!region)
+> -		return;
+> -
+> -	list_add_tail(&region->list, head);
+> +	static const u64 msi_bases[] = { MSI_IOVA_BASE, 0x12340000 };
+>  
+>  	iommu_dma_get_resv_regions(dev, head);
+> +
+> +	/*
+> +	 * Use the first msi_base that does not intersect with a
+> platform
+> +	 * reserved region. The SW MSI base selection is entirely
+> arbitary.
+> +	 */
+> +	for (i = 0; i != ARRAY_SIZE(msi_bases); i++) {
+> +		struct iommu_resv_region *region;
+> +
+> +		if (resv_intersects(msi_bases[i], MSI_IOVA_LENGTH))
+> +			continue;
+> +
+> +		region = iommu_alloc_resv_region(msi_bases[i],
+> MSI_IOVA_LENGTH,
+> +						 IOMMU_WRITE |
+> IOMMU_NOEXEC |
+> +							 IOMMU_MMIO,
+> +						 IOMMU_RESV_SW_MSI,
+> GFP_KERNEL);
+> +		if (!region)
+> +			return;
+> +		list_add_tail(&region->list, head);
+> +		return;
+> +	}
 >  }
 >  
-> -static bool tpm_is_hwrng_enabled(struct tpm_chip *chip)
-> +static __always_inline bool tpm_is_hwrng_enabled(struct tpm_chip *chip)
->  {
->  	if (!IS_ENABLED(CONFIG_HW_RANDOM_TPM))
->  		return false;
+>  static int arm_smmu_dev_enable_feature(struct device *dev,
 > 
-> -- 
-> 2.48.1
-> 
-> 
-> 
+> Jason
 
-Thank you.
-
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-
-
-BR, Jarkko
