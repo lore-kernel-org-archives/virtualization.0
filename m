@@ -1,241 +1,144 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 653251865FA
-	for <virtualization@lists.linux.dev>; Thu, 17 Apr 2025 07:07:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E312221561
+	for <virtualization@lists.linux.dev>; Thu, 17 Apr 2025 07:29:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744873664; cv=none; b=Dj9Q7TsAUNXSiDIPTqMCV+35NQ5zhZHKVNC7rRBcKsNZjgxC2zVBL85glIrLB/3kTXoKuqiJLRM74/bjzhDscd+qUn6G5Vog6MRpiMtvCX02FHx8CU4YTIU2Eh7rwHJz/UBpYcerbEsL3K8dZUYQ2N5MEZEC2SKZNe3NzH3rkOs=
+	t=1744874963; cv=none; b=lCrO137kRNWF5RSSpdUkRL0oZzOvNJyQk2ZqiICbrZZNsUQwbFeq+oDh8tIHi3+y34advFu35XjR4PyVVj80b6ehZLEQfcrsfMOEN1CAYKNI8gaq3MeslzcU6m/E5VZ+Ob3t6i4zjLZr0wR/G5BXes7k9Pm33bU12/UdCwjtZyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744873664; c=relaxed/simple;
-	bh=VcH901qcljndDAkf6FKG0mL6ZW97IUPuNheWF2bFrwA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dqbWsIFrFTTgvgWKnIHE1WJzLhxbjc8CZcc7S9bi4slPhCURnHmu4G5uGT5UnoQHPL2Lr8WvGx10VB4870vy4jDWBPYngIrUXNtRyPJ1Pod2b9wctHjeC3cykSqBF28ZgQk7o+jXkwUOSxjGu2w+vSyF3/g6H+TmWEXN3CFgkgE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1fF3agDF; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7PqzR5Rz; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1fF3agDF; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7PqzR5Rz; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1744874963; c=relaxed/simple;
+	bh=y9TZDQGpXnKwI0UWUN8LOu9Cl+PcOJCJTNXweRk/7W0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cd4WXHcbrvRoKqwH5iIfxpIrHGxBGqvGnr7rcajitOKBI0hl9nLAXoyf3mox4ps7LfcDu+nzXT0EOq2BL1YWIi2ctT2sBpclubK2op6ROcrNWjScLk1njBUaVmgPVoY8SYjIa3IlvjD9vJosWFsOk4nDAPZ9rkZL4lX4Ma2QGzI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OXT+njma; arc=none smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1fF3agDF";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7PqzR5Rz";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1fF3agDF";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7PqzR5Rz"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 1390C1F457;
-	Thu, 17 Apr 2025 07:07:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1744873655; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=w+J/9yJ67aCLrPoS8RxKMt4E/7nOHMoej776qBrTYZE=;
-	b=1fF3agDF2wSsAzGB5ey594HlOXQH2H5zofC+ZaKlmURmcWFxMpADn/oOxCEdBD2exQ5UKC
-	R6i6zr+5Wd2Zd2/26Md9qZQygObkxXiuSNwwhajeqzq0uutdpoku478Ib4p/BAQea2Rc3w
-	08k/1x9zUq2NbUvExAEHkyLj/8//KcY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1744873655;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=w+J/9yJ67aCLrPoS8RxKMt4E/7nOHMoej776qBrTYZE=;
-	b=7PqzR5Rzfe3fMt1/sgxADxY3KNP9StqUImSAI1B1kNJZp/+iu5FzLZVbOlm79FvST0DZKz
-	tLZpDKNfHzfu8xDQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=1fF3agDF;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=7PqzR5Rz
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1744873655; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=w+J/9yJ67aCLrPoS8RxKMt4E/7nOHMoej776qBrTYZE=;
-	b=1fF3agDF2wSsAzGB5ey594HlOXQH2H5zofC+ZaKlmURmcWFxMpADn/oOxCEdBD2exQ5UKC
-	R6i6zr+5Wd2Zd2/26Md9qZQygObkxXiuSNwwhajeqzq0uutdpoku478Ib4p/BAQea2Rc3w
-	08k/1x9zUq2NbUvExAEHkyLj/8//KcY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1744873655;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=w+J/9yJ67aCLrPoS8RxKMt4E/7nOHMoej776qBrTYZE=;
-	b=7PqzR5Rzfe3fMt1/sgxADxY3KNP9StqUImSAI1B1kNJZp/+iu5FzLZVbOlm79FvST0DZKz
-	tLZpDKNfHzfu8xDQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9CA9F137CF;
-	Thu, 17 Apr 2025 07:07:34 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id Lb5mJLaoAGjGSAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Thu, 17 Apr 2025 07:07:34 +0000
-Message-ID: <d6315206-6ef5-4c44-8450-85aac01946c9@suse.de>
-Date: Thu, 17 Apr 2025 09:07:34 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OXT+njma"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-7376dd56eccso469512b3a.0
+        for <virtualization@lists.linux.dev>; Thu, 17 Apr 2025 00:29:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744874961; x=1745479761; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=PbhaIlXKAU6n8hzVFN1a+GS8NGL/eiRsd2Kom/nuTD4=;
+        b=OXT+njma80r3p1XN31Z4krVWBsI6QcR6FgTkp4ytSKXPuvKjgkR+aezsfl+07cY0hj
+         1PnDDu18KvdZun+dB+L1P0UyYDpdbBsFvGuLEfL+rRBONzGfsjwnoA4ZjNssHnrtDPz+
+         D3bJNjE/7mfyCljQ1a/SLXzSrOWm3JXTTmTsVpqgP4MB/Gewm7Ze5bjdBLTjZi2ommnK
+         0z0RAwp9x/IXj1M+PNxlRu/j8elYslHWjOsB4mAUOlr8sureRdfmx/uQNQkgJ0QtBpbC
+         Tq7CWQo3/WE3TVeqj8PS11poSfWy8FOLoMEGHD4lG0UkEHw8UeVdh6b0xB43VbqYp5a1
+         8Hpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744874961; x=1745479761;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=PbhaIlXKAU6n8hzVFN1a+GS8NGL/eiRsd2Kom/nuTD4=;
+        b=uuonI1p70zdIubvIBk2Hv8qpg2Y8Gi57zzAVHDDPuiBYdR+6X1gAAfnfrbef7kyFpe
+         o+B72KyTG56G4johtOfdwULz7hwqu5RlxrQYGJ8sfZmLXv3hrvesgJR+AkjNC/oYqUa4
+         Fxk5ygZOOMepMGSajEP600DHyNyHRi6kulOyJFuY75Fuh/hBkVlI2pFVrTBjgLLez1fQ
+         G3ElWGPr9s3KQSbVeGQdpn4+xUVMqe4y8PAzDNkNNtMQxpdB4JDpCOjjaPgAKmLcWoHk
+         DczOVgmRW5SmNssYJ/Nv5H6TlpBa6LxlOxFkW5dt7wcUsfjsTgAD+GxOTObjm0j76cmN
+         hlQw==
+X-Gm-Message-State: AOJu0YybbjGHYVrfWNJ+p/unAzbB2tmJvp5RB9CZu/Llv2Twa7Wb8MJa
+	XexkGxFNXgCG5Low84QMgnMtFWt11/DE9+tE8JgGHkHqTMejdwbNlj3OitgbhtI=
+X-Gm-Gg: ASbGncs6tgQAh9u3SADLWcOQC7stU5k3OEpQLJ+0VAnuSMsQ3VOKmA7dQD6QI27gxxS
+	Swh2/1seWSiGm4OPZnsmWpI20uSir6JuLmayh2PhjfRa5t1eSCqgGVmANb9MHN/XP1eCkRpX16l
+	xasWzzNrEv8Ssdz9DmHugYJ4HT9tO6FQDG2H6NHDlQ0yNBdbKfpE08gyNP4b1D4V+KoFC95XJx6
+	IL04YAyXYrGE7EiTszuJgIkfn1nY0gDrFxmXrWbXIPPw0jggpKuVB1dZeKxT35ooVXw+nrLS14R
+	K73jIdncCLZpgAvHMF8dfGu1ScmhhV9cToqVZYCK3MNwJA0HzP1XEkAJSsFJRmY5kUw=
+X-Google-Smtp-Source: AGHT+IFzEblk8eZ9i/5b7FlNpqvFEMtawQArN9INdKriryj2jHy81r0kRCXNbZYM8rVezBQJYW1ZKg==
+X-Received: by 2002:a05:6a20:43a8:b0:1f5:8e54:9f07 with SMTP id adf61e73a8af0-203b3ecd617mr7221150637.24.1744874960903;
+        Thu, 17 Apr 2025 00:29:20 -0700 (PDT)
+Received: from minh.192.168.1.1 ([2001:ee0:4f0e:fb30:ab45:ee9c:5719:f829])
+        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-73bd22f0f3fsm11625344b3a.115.2025.04.17.00.29.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Apr 2025 00:29:20 -0700 (PDT)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH v4 0/4] virtio-net: disable delayed refill when pausing rx
+Date: Thu, 17 Apr 2025 14:28:02 +0700
+Message-ID: <20250417072806.18660-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] virtgpu: don't reset on shutdown
-To: Gerd Hoffmann <kraxel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
- Eric Auger <eauger@redhat.com>, Jocelyn Falempe <jfalempe@redhat.com>,
- David Airlie <airlied@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Simona Vetter <simona@ffwll.ch>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
-References: <8490dbeb6f79ed039e6c11d121002618972538a3.1744293540.git.mst@redhat.com>
- <ge6675q3ahypfncrwbiodtcjnoftuza6ele5fhre3jmdeifsez@yy53fbwoulgo>
- <20250415095922-mutt-send-email-mst@kernel.org>
- <lgizdflxcku5ew2en55ux3r72u37d6aycuoosn5i5a5wagz6sc@d2kha7ycmmpy>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <lgizdflxcku5ew2en55ux3r72u37d6aycuoosn5i5a5wagz6sc@d2kha7ycmmpy>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: 1390C1F457
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	URIBL_BLOCKED(0.00)[suse.de:dkim,suse.de:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_TWELVE(0.00)[17];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	FREEMAIL_CC(0.00)[vger.kernel.org,redhat.com,chromium.org,gmail.com,linux.intel.com,kernel.org,ffwll.ch,linux.alibaba.com,lists.freedesktop.org,lists.linux.dev];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DKIM_TRACE(0.00)[suse.de:+];
-	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -4.51
-X-Spam-Flag: NO
+Content-Transfer-Encoding: 8bit
 
-Hi
+Hi everyone,
 
-Am 16.04.25 um 15:57 schrieb Gerd Hoffmann:
-> On Tue, Apr 15, 2025 at 10:00:48AM -0400, Michael S. Tsirkin wrote:
->> On Tue, Apr 15, 2025 at 01:16:32PM +0200, Gerd Hoffmann wrote:
->>>    Hi,
->>>
->>>> +static void virtio_gpu_shutdown(struct virtio_device *vdev)
->>>> +{
->>>> +	/*
->>>> +	 * drm does its own synchronization on shutdown.
->>>> +	 * Do nothing here, opt out of device reset.
->>>> +	 */
->>> I think a call to 'drm_dev_unplug()' is what you need here.
->>>
->>> take care,
->>>    Gerd
->> My patch reverts the behaviour back to what it was, so pls go
->> ahead and send a patch on top? I won't be able to explain
->> what it does and why it's needed.
-> See below.  Untested.
->
-> Eric, can you give this a spin?
->
-> thanks,
->    Gerd
->
-> ----------------------- cut here -------------------------------
->  From f3051dd52cb2004232941e6d2cbc0c694e290534 Mon Sep 17 00:00:00 2001
-> From: Gerd Hoffmann <kraxel@redhat.com>
-> Date: Wed, 16 Apr 2025 15:53:04 +0200
-> Subject: [PATCH] drm/virtio: implement virtio_gpu_shutdown
->
-> Calling drm_dev_unplug() is the drm way to say the device
-> is gone and can not be accessed any more.
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->   drivers/gpu/drm/virtio/virtgpu_drv.c | 8 ++++----
->   1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index e32e680c7197..71c6ccad4b99 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -130,10 +130,10 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
->   
->   static void virtio_gpu_shutdown(struct virtio_device *vdev)
->   {
-> -	/*
-> -	 * drm does its own synchronization on shutdown.
-> -	 * Do nothing here, opt out of device reset.
-> -	 */
-> +	struct drm_device *dev = vdev->priv;
-> +
-> +	/* stop talking to the device */
-> +	drm_dev_unplug(dev);
->   }
+This series tries to fix a deadlock in virtio-net when binding/unbinding
+XDP program, XDP socket or resizing the rx queue.
 
-It's the correct approach but also requires drm_dev_enter() and 
-drm_dev_exit() around all of the driver's hardware access.
+When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
+napi_disable() on the receive queue's napi. In delayed refill_work, it
+also calls napi_disable() on the receive queue's napi. When
+napi_disable() is called on an already disabled napi, it will sleep in
+napi_disable_locked while still holding the netdev_lock. As a result,
+later napi_enable gets stuck too as it cannot acquire the netdev_lock.
+This leads to refill_work and the pause-then-resume tx are stuck
+altogether.
 
-Best regards
-Thomas
+This scenario can be reproducible by binding a XDP socket to virtio-net
+interface without setting up the fill ring. As a result, try_fill_recv
+will fail until the fill ring is set up and refill_work is scheduled.
 
->   
->   static void virtio_gpu_config_changed(struct virtio_device *vdev)
+This fix adds virtnet_rx_(pause/resume)_all helpers and fixes up the
+virtnet_rx_resume to disable future and cancel all inflights delayed
+refill_work before calling napi_disable() to pause the rx.
+
+Version 4 changes:
+- Add force zerocopy mode to xdp_helper
+- Make virtio_net selftest use force zerocopy mode
+- Move virtio_net selftest to drivers/net/hw
+
+Version 3 changes:
+- Patch 1: refactor to avoid code duplication
+
+Version 2 changes:
+- Add selftest for deadlock scenario
+
+Thanks,
+Quang Minh.
+
+Bui Quang Minh (4):
+  virtio-net: disable delayed refill when pausing rx
+  selftests: net: move xdp_helper to net/lib
+  selftests: net: add flag to force zerocopy mode in xdp_helper
+  selftests: net: add a virtio_net deadlock selftest
+
+ drivers/net/virtio_net.c                      | 69 +++++++++++++++----
+ tools/testing/selftests/drivers/net/Makefile  |  2 -
+ .../testing/selftests/drivers/net/hw/Makefile |  1 +
+ .../selftests/drivers/net/hw/virtio_net.py    | 65 +++++++++++++++++
+ tools/testing/selftests/drivers/net/queues.py |  4 +-
+ tools/testing/selftests/net/lib/.gitignore    |  1 +
+ tools/testing/selftests/net/lib/Makefile      |  1 +
+ .../{drivers/net => net/lib}/xdp_helper.c     | 13 +++-
+ 8 files changed, 138 insertions(+), 18 deletions(-)
+ create mode 100755 tools/testing/selftests/drivers/net/hw/virtio_net.py
+ rename tools/testing/selftests/{drivers/net => net/lib}/xdp_helper.c (90%)
 
 -- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
+2.43.0
 
