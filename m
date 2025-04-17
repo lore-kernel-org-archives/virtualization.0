@@ -1,131 +1,241 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C042479CF;
-	Thu, 17 Apr 2025 00:08:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 653251865FA
+	for <virtualization@lists.linux.dev>; Thu, 17 Apr 2025 07:07:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744848539; cv=none; b=BaJ3Ryej6OupE+K2VoFtl+hfhN+q13sL9+haIJAe+o0PkOPsKUaRs4VgNLyZN+uEDZvZUAtMZ6ZrrQnzDPybiGJtmszgFqrEzSmVEQRsb/TIEy0k8O8o7AF9mXYbMCQkwCbUusRd6pgr/tCu7p1llJ3bdtPNeauY08fqdeSE2rQ=
+	t=1744873664; cv=none; b=Dj9Q7TsAUNXSiDIPTqMCV+35NQ5zhZHKVNC7rRBcKsNZjgxC2zVBL85glIrLB/3kTXoKuqiJLRM74/bjzhDscd+qUn6G5Vog6MRpiMtvCX02FHx8CU4YTIU2Eh7rwHJz/UBpYcerbEsL3K8dZUYQ2N5MEZEC2SKZNe3NzH3rkOs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744848539; c=relaxed/simple;
-	bh=VS3LVZY+zuP2UHLVuC8I4hhS1Y2XmPsmcUWcoKDowOo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=DZ6XgzXz+2sz4PFuEdrnINPH8QufcU+BzoUyB8RjjPw3SpUenWOwJzsr6CeQ2y6rvQRsY/1/vCUUuoGz/MfGqsqz1AUwy+/M84mjLJFKsqU9SusoPwtNOJPVCA2DM3uqSKpYFr9+ThxIwNWjzUV6zgGAMR4Xodki8bQixCS2Pc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hr7E1RmL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1744873664; c=relaxed/simple;
+	bh=VcH901qcljndDAkf6FKG0mL6ZW97IUPuNheWF2bFrwA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dqbWsIFrFTTgvgWKnIHE1WJzLhxbjc8CZcc7S9bi4slPhCURnHmu4G5uGT5UnoQHPL2Lr8WvGx10VB4870vy4jDWBPYngIrUXNtRyPJ1Pod2b9wctHjeC3cykSqBF28ZgQk7o+jXkwUOSxjGu2w+vSyF3/g6H+TmWEXN3CFgkgE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1fF3agDF; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7PqzR5Rz; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1fF3agDF; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7PqzR5Rz; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hr7E1RmL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDC42C4CEE2;
-	Thu, 17 Apr 2025 00:08:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744848539;
-	bh=VS3LVZY+zuP2UHLVuC8I4hhS1Y2XmPsmcUWcoKDowOo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Hr7E1RmL3siQy77g4rph6xqk3Z7uUq3Db/Xd0QyNX1Op3j7rxby2YwRkDQU69deBB
-	 ZsHplT6FQJX5LMfKcUyOJvfOrpRtogg7cSSgCFbFDz7TgmVTFq3pCSWLjsjEk1OV+d
-	 XL555eA1dURtyZ8dvsSMVmNx8VeQrLsOkv7zVmT783inykrCqkIo8v/QU7vvSqsjdu
-	 okljT38q0x/nhqiZLfcJV/nEkxWhmzMWdhQYp/5Q5MCiG6wz0D0FJzpuE/bSxPwMx/
-	 LPfzAwGaOm6jGojbOBhqd1xokqt37vnhoLY7kw0juH8FuHN4RK8bFMJ6SdeKpEwtGB
-	 0hcT/T2H3RJvQ==
-Date: Wed, 16 Apr 2025 17:08:57 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Bui Quang Minh <minhquangbui99@gmail.com>,
- virtualization@lists.linux.dev, "Michael S . Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Andrew Lunn
- <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>, Paolo Abeni
- <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann
- <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, John
- Fastabend <john.fastabend@gmail.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
- <eperezma@redhat.com>, "David S . Miller" <davem@davemloft.net>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH v3 3/3] selftests: net: add a virtio_net deadlock
- selftest
-Message-ID: <20250416170857.2e46a3be@kernel.org>
-In-Reply-To: <CACGkMEvceXT+=HJRRe6D3Zk3k40E2ADJiXNb4qqAYm=PZnxNpQ@mail.gmail.com>
-References: <20250415074341.12461-1-minhquangbui99@gmail.com>
-	<20250415074341.12461-4-minhquangbui99@gmail.com>
-	<20250415212709.39eafdb5@kernel.org>
-	<1603c373-024d-4ec2-b655-b9e7fb942bba@gmail.com>
-	<CACGkMEvceXT+=HJRRe6D3Zk3k40E2ADJiXNb4qqAYm=PZnxNpQ@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1fF3agDF";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7PqzR5Rz";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1fF3agDF";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7PqzR5Rz"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 1390C1F457;
+	Thu, 17 Apr 2025 07:07:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1744873655; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=w+J/9yJ67aCLrPoS8RxKMt4E/7nOHMoej776qBrTYZE=;
+	b=1fF3agDF2wSsAzGB5ey594HlOXQH2H5zofC+ZaKlmURmcWFxMpADn/oOxCEdBD2exQ5UKC
+	R6i6zr+5Wd2Zd2/26Md9qZQygObkxXiuSNwwhajeqzq0uutdpoku478Ib4p/BAQea2Rc3w
+	08k/1x9zUq2NbUvExAEHkyLj/8//KcY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1744873655;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=w+J/9yJ67aCLrPoS8RxKMt4E/7nOHMoej776qBrTYZE=;
+	b=7PqzR5Rzfe3fMt1/sgxADxY3KNP9StqUImSAI1B1kNJZp/+iu5FzLZVbOlm79FvST0DZKz
+	tLZpDKNfHzfu8xDQ==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=1fF3agDF;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=7PqzR5Rz
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1744873655; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=w+J/9yJ67aCLrPoS8RxKMt4E/7nOHMoej776qBrTYZE=;
+	b=1fF3agDF2wSsAzGB5ey594HlOXQH2H5zofC+ZaKlmURmcWFxMpADn/oOxCEdBD2exQ5UKC
+	R6i6zr+5Wd2Zd2/26Md9qZQygObkxXiuSNwwhajeqzq0uutdpoku478Ib4p/BAQea2Rc3w
+	08k/1x9zUq2NbUvExAEHkyLj/8//KcY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1744873655;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=w+J/9yJ67aCLrPoS8RxKMt4E/7nOHMoej776qBrTYZE=;
+	b=7PqzR5Rzfe3fMt1/sgxADxY3KNP9StqUImSAI1B1kNJZp/+iu5FzLZVbOlm79FvST0DZKz
+	tLZpDKNfHzfu8xDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9CA9F137CF;
+	Thu, 17 Apr 2025 07:07:34 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id Lb5mJLaoAGjGSAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 17 Apr 2025 07:07:34 +0000
+Message-ID: <d6315206-6ef5-4c44-8450-85aac01946c9@suse.de>
+Date: Thu, 17 Apr 2025 09:07:34 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] virtgpu: don't reset on shutdown
+To: Gerd Hoffmann <kraxel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+ Eric Auger <eauger@redhat.com>, Jocelyn Falempe <jfalempe@redhat.com>,
+ David Airlie <airlied@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Simona Vetter <simona@ffwll.ch>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
+References: <8490dbeb6f79ed039e6c11d121002618972538a3.1744293540.git.mst@redhat.com>
+ <ge6675q3ahypfncrwbiodtcjnoftuza6ele5fhre3jmdeifsez@yy53fbwoulgo>
+ <20250415095922-mutt-send-email-mst@kernel.org>
+ <lgizdflxcku5ew2en55ux3r72u37d6aycuoosn5i5a5wagz6sc@d2kha7ycmmpy>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <lgizdflxcku5ew2en55ux3r72u37d6aycuoosn5i5a5wagz6sc@d2kha7ycmmpy>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: 1390C1F457
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	URIBL_BLOCKED(0.00)[suse.de:dkim,suse.de:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_TWELVE(0.00)[17];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[vger.kernel.org,redhat.com,chromium.org,gmail.com,linux.intel.com,kernel.org,ffwll.ch,linux.alibaba.com,lists.freedesktop.org,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.de:+];
+	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -4.51
+X-Spam-Flag: NO
 
-On Wed, 16 Apr 2025 15:46:42 +0800 Jason Wang wrote:
-> On Wed, Apr 16, 2025 at 2:54=E2=80=AFPM Bui Quang Minh <minhquangbui99@gm=
-ail.com> wrote:
-> > On 4/16/25 11:27, Jakub Kicinski wrote: =20
-> > > Unfortunately this doesn't work on a basic QEMU setup:
-> > >
-> > > # ethtool -G eth0 rx 128
-> > > [   15.680655][  T287] virtio_net virtio2 eth0: resize rx fail: rx qu=
-eue index: 0 err: -2
-> > > netlink error: No such file or directory
-> > >
-> > > Is there a way to enable more capable virtio_net with QEMU? =20
->=20
-> What's the qemu command line and version?
->=20
-> Resize depends on queue_reset which should be supported from Qemu 7.2
+Hi
 
-I'm using virtme-ng with --net loop and:
+Am 16.04.25 um 15:57 schrieb Gerd Hoffmann:
+> On Tue, Apr 15, 2025 at 10:00:48AM -0400, Michael S. Tsirkin wrote:
+>> On Tue, Apr 15, 2025 at 01:16:32PM +0200, Gerd Hoffmann wrote:
+>>>    Hi,
+>>>
+>>>> +static void virtio_gpu_shutdown(struct virtio_device *vdev)
+>>>> +{
+>>>> +	/*
+>>>> +	 * drm does its own synchronization on shutdown.
+>>>> +	 * Do nothing here, opt out of device reset.
+>>>> +	 */
+>>> I think a call to 'drm_dev_unplug()' is what you need here.
+>>>
+>>> take care,
+>>>    Gerd
+>> My patch reverts the behaviour back to what it was, so pls go
+>> ahead and send a patch on top? I won't be able to explain
+>> what it does and why it's needed.
+> See below.  Untested.
+>
+> Eric, can you give this a spin?
+>
+> thanks,
+>    Gerd
+>
+> ----------------------- cut here -------------------------------
+>  From f3051dd52cb2004232941e6d2cbc0c694e290534 Mon Sep 17 00:00:00 2001
+> From: Gerd Hoffmann <kraxel@redhat.com>
+> Date: Wed, 16 Apr 2025 15:53:04 +0200
+> Subject: [PATCH] drm/virtio: implement virtio_gpu_shutdown
+>
+> Calling drm_dev_unplug() is the drm way to say the device
+> is gone and can not be accessed any more.
+>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>   drivers/gpu/drm/virtio/virtgpu_drv.c | 8 ++++----
+>   1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index e32e680c7197..71c6ccad4b99 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -130,10 +130,10 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
+>   
+>   static void virtio_gpu_shutdown(struct virtio_device *vdev)
+>   {
+> -	/*
+> -	 * drm does its own synchronization on shutdown.
+> -	 * Do nothing here, opt out of device reset.
+> -	 */
+> +	struct drm_device *dev = vdev->priv;
+> +
+> +	/* stop talking to the device */
+> +	drm_dev_unplug(dev);
+>   }
 
-QEMU emulator version 9.1.3 (qemu-9.1.3-2.fc41)
+It's the correct approach but also requires drm_dev_enter() and 
+drm_dev_exit() around all of the driver's hardware access.
 
---net loop resolves to:
+Best regards
+Thomas
 
-	-device virtio-net-device,netdev=3Dn0 \
-	-netdev hubport,id=3Dn0,hubid=3D0 \
-	-device virtio-net-device,netdev=3Dn1 \
-	-netdev hubport,id=3Dn1,hubid=3D0
+>   
+>   static void virtio_gpu_config_changed(struct virtio_device *vdev)
 
-> > I guess that virtio-pci-legacy is used in your setup. =20
->=20
-> Note that modern devices are used by default.
->=20
-> >
-> > Here is how I setup virtio-net with Qemu
-> >
-> >      -netdev tap,id=3Dhostnet1,vhost=3Don,script=3D$NETWORK_SCRIPT,down=
-script=3Dno \
-> >      -device
-> > virtio-net-pci,netdev=3Dhostnet1,iommu_platform=3Don,disable-legacy=3Do=
-n \
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
-That works! I rejigged the CI, for posterity I used two times:
-
-	-device	virtio-net-pci,netdev=3Dn0,iommu_platform=3Don,disable-legacy=3Don=
-,mq=3Don,vectors=3D18
-	-netdev tap,id=3Dn0,ifname=3Dtap4,vhost=3Don,script=3Dno,downscript=3Dno,q=
-ueues=3D8=20
-
-and then manually bridged the taps together on the hypervisor side.
-
-> > The iommu_platform=3Don is necessary to make vring use dma API which is=
- a
-> > requirement to enable xsk_pool in virtio-net (XDP socket will be in
-> > zerocopy mode for this case). Otherwise, the XDP socket will fallback to
-> > copy mode, xsk_pool is not enabled in virtio-net that makes the
-> > probability to reproduce bug to be very small. Currently, when you don't
-> > have iommu_platform=3Don, you can pass the test even before the fix, so=
- I
-> > think I will try to harden the selftest to make it return skip in this =
-case. =20
->=20
-> I would like to keep the resize test as it doesn't require iommu_platform.
-
-Sounds good but lets just add them to the drivers/net/hw directory.
-I don't think there's anything virtio specific in the test itself?
-
-Right now drivers/net/virtio_net has a test which expects to see
-both netdevs in the VM, while drivers / Python based tests expect
-to have the env prepared where only one end is on the local machine,=20
-and the other is accessible over SSH or in another netns. So it's a bit
-painful to marry the two kinds of tests in the CI. At least our netdev
-CI does not know how to figure this out :( It preps the env and then
-runs the whole kselftest TARGET in the same setup.
