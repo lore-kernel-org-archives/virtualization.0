@@ -1,194 +1,119 @@
-Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6E851FCFDB
-	for <virtualization@lists.linux.dev>; Thu, 17 Apr 2025 10:39:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D47232356DC;
+	Thu, 17 Apr 2025 11:12:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744886359; cv=none; b=gki43dwNG2NQYN5FqnaPi7oSk9xJFHJytU4GE1WkLUqtrMkcPl8Ta0ii1eZTxB4UBouY5usWo0kWqmmBcCQ0jtNUIedUA/aLTW4b54gtdrndzxayUVoUdfVJblnno5pAWN5J3dJdYlKYVkunvz0ZoCKBaOYraOdRZ97YUbcf6IM=
+	t=1744888327; cv=none; b=ZalYeqVqgKBh7Z4lIVqnS97un20xCjHRykkfgcsNlctuXPoKNZiJbIJyVWXTBvxywvGbIpMp0HRMjcz7KEX39s5SJC8FxVWka8Xto2TYmNGLXIGUTxm15kZUqBmx7xUaiTaZEvXOhCsfrgSLvEDeTQ3thWc2IPiwX89z+uZ0QLw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744886359; c=relaxed/simple;
-	bh=FScuytPa7BVtESYhlq0/ySpyt5XQoXcBSARNnZUAQk8=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=BYZHw3bEW7dmAZdNuICZiQgquDb6fb/8ybYdgWHa7EP4JgOzBQnQ5wDt06s4w/88vP55ABmAyKU5xe4x0BCKSMygsWagRvK1Z6zhT3j3uaysA+XSWE5fcoqJS6eaCzG7duTeXj7QsAFcc5hEhBAp6ZQJ7qB0fGxzbkE4HDZZYA8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=OblIvBKG; arc=none smtp.client-ip=80.241.56.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1744888327; c=relaxed/simple;
+	bh=zKR49UWsXQlKIMA1VnL+BkqgO+3iF8iLPVDDfF2KoTE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Oys/bhGakjqWlqdkQWCkS1Stx9Wm58a4JaiZD0EioQzeC4mssgXYNRC+bOthZK1cJdiPH4zPuaGjas1Wm7KKr+cwzjSx/7WIXnwyfa2B4NnO3vU04BkmRH+UrnjzB1jyF+G9JpXM8FpLZiUIOo69S740+iSO/aDr8l01QGSftDw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=ZIADA/NB; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="OblIvBKG"
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [10.196.197.2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4ZdZBg4Db6z9scS;
-	Thu, 17 Apr 2025 12:39:07 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1744886347; h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=bQLlTUlWNFBKex/ZjXydkFbFf0c+8GjaEBRE38VDF7g=;
-	b=OblIvBKGl8ll6MyS+W5A1C0MjamQS+o1lKEP9iaU9ZGIVGIIBlFrfbC2oGs1ziIzSt6PAz
-	FYeIk7racX2GXO+3SzkaRZdwz6+pSzOyE6K8Dcv91ZQXQU+8vhNAxENqh37r6FesJ4P/DX
-	wwdiFmxPoBJVI3vo1Yp0OeJdDQ/1uQU1GCbUUySBnb/sNhopi4Ew+HAF5p99mi4V80ZS64
-	3448dg5D0nimWTxQ2z+0xriyya+CoNCINTyTRuxA/A+etbPgSe0HAqjFpJCmDGhzgqRVYK
-	Eq7Na8OYujERjr+BUt34DopaHs/gmAvKxqRLgQxbn2kyWoUDRu0Wgme+DdVIwQ==
-Message-ID: <a57d5f6f47ec8ba2860df853aca324e96320eba5.camel@mailbox.org>
-Subject: Re: [EXTERNAL] [PATCH] vdpa/octeon_ep: Use non-hybrid PCI devres API
-From: Philipp Stanner <phasta@mailbox.org>
-Reply-To: phasta@kernel.org
-To: Vamsi Krishna Attunuru <vattunuru@marvell.com>, Philipp Stanner
- <phasta@kernel.org>, Srujana Challa <schalla@marvell.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Eugenio =?ISO-8859-1?Q?P=E9rez?=
- <eperezma@redhat.com>, Shijith Thotton <sthotton@marvell.com>, Dan
- Carpenter <dan.carpenter@linaro.org>, Satha Koteswara Rao Kottidi
- <skoteshwar@marvell.com>
-Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
- "linux-kernel@vger.kernel.org"
-	 <linux-kernel@vger.kernel.org>
-Date: Thu, 17 Apr 2025 12:39:03 +0200
-In-Reply-To: <MW4PR18MB5244915E54967510C5356B4DA6BC2@MW4PR18MB5244.namprd18.prod.outlook.com>
-References: <20250417080211.19970-2-phasta@kernel.org>
-	 <MW4PR18MB5244915E54967510C5356B4DA6BC2@MW4PR18MB5244.namprd18.prod.outlook.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="ZIADA/NB"
+Received: from [192.168.7.202] ([71.202.166.45])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53HBB0dU3967739
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Thu, 17 Apr 2025 04:11:01 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53HBB0dU3967739
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025032001; t=1744888264;
+	bh=zKR49UWsXQlKIMA1VnL+BkqgO+3iF8iLPVDDfF2KoTE=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ZIADA/NBWFdjMUgJTKpv9M9Wy2YG9IZEPFByL8wYabsxbBoRuZfKRlm/KXHCD1Dct
+	 p+vwf14YsIuc+VHp9bDfack/1J0ZEDi3/LMHCo05xDW9TD4JrJ0GM5fVVA/piqxPhD
+	 UyV8JWSU0hR2PMwkuYuHLcqgii53bDcW9KmA0ITTnJZG4RxQYf1Gr8LMHk+DKpR9xo
+	 v/L3GNQ4ChUSYncpwgOQsPYYlB/v/0qZd/JiW4t/kLzx/6ZLdqruZ97wB6zyl1mziC
+	 tKwEE+12hM3fNBR36tO17t9Oq8pShTsP2t1ihwsRhIESP8RHTn9IcCLiPfhw0jeR7+
+	 9wRv9KyfJmA3A==
+Message-ID: <edbeb41d-3c38-4778-9a7c-255edc7cd5fb@zytor.com>
+Date: Thu, 17 Apr 2025 04:10:59 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MBO-RS-META: rb5uzba7q5c5x9fspej4193ndgothiej
-X-MBO-RS-ID: 87fe8f476df6e81c675
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v1 13/15] x86/msr: Use the alternatives mechanism to
+ read MSR
+To: Francesco Lavra <francescolavra.fl@gmail.com>
+Cc: acme@kernel.org, adrian.hunter@intel.com, ajay.kaher@broadcom.com,
+        alexander.shishkin@linux.intel.com, andrew.cooper3@citrix.com,
+        bcm-kernel-feedback-list@broadcom.com, boris.ostrovsky@oracle.com,
+        bp@alien8.de, bpf@vger.kernel.org, dave.hansen@linux.intel.com,
+        decui@microsoft.com, haiyangz@microsoft.com, hpa@zytor.com,
+        irogers@google.com, jgross@suse.com, jolsa@kernel.org,
+        kan.liang@linux.intel.com, kvm@vger.kernel.org, kys@microsoft.com,
+        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, linux-pm@vger.kernel.org,
+        llvm@lists.linux.dev, luto@kernel.org, mark.rutland@arm.com,
+        mingo@redhat.com, namhyung@kernel.org, pbonzini@redhat.com,
+        peterz@infradead.org, seanjc@google.com, tglx@linutronix.de,
+        tony.luck@intel.com, virtualization@lists.linux.dev,
+        vkuznets@redhat.com, wei.liu@kernel.org, x86@kernel.org,
+        xen-devel@lists.xenproject.org
+References: <0f4f2ed70829fffb2eb816e34e26be22681705a5.camel@gmail.com>
+Content-Language: en-US
+From: Xin Li <xin@zytor.com>
+Autocrypt: addr=xin@zytor.com; keydata=
+ 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
+ l75w1xInsg==
+In-Reply-To: <0f4f2ed70829fffb2eb816e34e26be22681705a5.camel@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, 2025-04-17 at 09:02 +0000, Vamsi Krishna Attunuru wrote:
->=20
->=20
-> > -----Original Message-----
-> > From: Philipp Stanner <phasta@kernel.org>
-> > Sent: Thursday, April 17, 2025 1:32 PM
-> > To: Srujana Challa <schalla@marvell.com>; Vamsi Krishna Attunuru
-> > <vattunuru@marvell.com>; Michael S. Tsirkin <mst@redhat.com>; Jason
-> > Wang <jasowang@redhat.com>; Xuan Zhuo <xuanzhuo@linux.alibaba.com>;
-> > Eugenio P=C3=A9rez <eperezma@redhat.com>; Shijith Thotton
-> > <sthotton@marvell.com>; Dan Carpenter <dan.carpenter@linaro.org>;
-> > Philipp Stanner <phasta@kernel.org>; Satha Koteswara Rao Kottidi
-> > <skoteshwar@marvell.com>
-> > Cc: virtualization@lists.linux.dev; linux-kernel@vger.kernel.org
-> > Subject: [EXTERNAL] [PATCH] vdpa/octeon_ep: Use non-hybrid PCI
-> > devres
-> > API
-> >=20
-> > octeon enables its PCI device with pcim_enable_device(). This,
-> > implicitly,
-> > switches the function pci_request_region() into managed mode, where
-> > it
-> > becomes a devres function. The PCI subsystem wants to remove this
-> > hybrid
-> > nature from its interfaces.=20
-> > octeon enables its PCI device with pcim_enable_device(). This,
-> > implicitly,
-> > switches the function pci_request_region() into managed mode, where
-> > it
-> > becomes a devres function.
-> >=20
-> > The PCI subsystem wants to remove this hybrid nature from its
-> > interfaces. To
-> > do so, users of the aforementioned combination of functions must be
-> > ported
-> > to non-hybrid functions.
-> >=20
-> > Moreover, since both functions are already managed in this driver,
-> > the calls to
-> > pci_release_region() are unnecessary.
-> >=20
-> > Remove the calls to pci_release_region().
-> >=20
-> > Replace the call to sometimes-managed pci_request_region() with one
-> > to the
-> > always-managed pcim_request_region().
->=20
+On 4/14/2025 10:13 AM, Francesco Lavra wrote:
+> This works only if this function has been called directly (e.g. via
+> `call asm_xen_write_msr`), but doesn't work with alternative call types
+> (like indirect calls). Not sure why one might want to use an indirect
+> call to invoke asm_xen_write_msr, but this creates a hidden coupling
+> between caller and callee.
+> I don't have a suggestion on how to get rid of this coupling, other
+> than setting ipdelta in _ASM_EXTABLE_FUNC_REWIND() to 0 and adjusting
+> the _ASM_EXTABLE_TYPE entries at the call sites to consider the
+> instruction that follows the function call (instead of the call
+> instruction) as the faulting instruction (which seems pretty ugly, at
+> least because what follows the function call could be an instruction
+> that might itself fault). But you may want to make this caveat explicit
+> in the comment.
 
-Hi,
-
-> Thanks you, Philipps, for the patch. The Octeon EP driver does not
-> use managed calls for handling resource regions.=20
-> This is because the PCIe PF function reduces its resources to share
-> them with its VFs and later restores them to original size
-> once the VFs are released. Due to this resource sharing requirement,
-> the driver cannot use the always-managed request
-> regions calls.
-
-so this would mean that the driver is already broken.
-pci_request_region() in your driver is always-managed since you call
-pcim_enable_device(). Or am I missing something?
-
-The only way for you to, currently, have non-managed versions is by
-using pci_enable_device() instead and then doing pci_disable_device()
-manually in remove() and the other appropriate places.
-
-This patch should not change behavior in any way.
-
-If you're sure that having no management is not a problem, then we
-could simply drop this patch and I later remove the hybrid feature from
-PCI. Then your call to pci_request_region() will become unmanaged, even
-if you keep the pcim_enable_device().
-
-Tell me if you have a preference.
-
-P.
-
->=20
-> >=20
-> > Signed-off-by: Philipp Stanner <phasta@kernel.org>
-> > ---
-> > drivers/vdpa/octeon_ep/octep_vdpa_main.c | 4 +---
-> > 1 file changed, 1 insertion(+), 3 deletions(-)
-> >=20
-> > diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> > b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> > index f3d4dda4e04c..e0da6367661e 100644
-> > --- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> > +++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> > @@ -391,7 +391,7 @@ static int octep_iomap_region(struct pci_dev
-> > *pdev,
-> > u8 __iomem **tbl, u8 bar)=C2=A0 {
-> > 	int ret;
-> >=20
-> > -	ret =3D pci_request_region(pdev, bar,
-> > OCTEP_VDPA_DRIVER_NAME);
-> > +	ret =3D pcim_request_region(pdev, bar,
-> > OCTEP_VDPA_DRIVER_NAME);
-> > 	if (ret) {
-> > 		dev_err(&pdev->dev, "Failed to request BAR:%u
-> > region\n",
-> > bar);
-> > 		return ret;
-> > @@ -400,7 +400,6 @@ static int octep_iomap_region(struct pci_dev
-> > *pdev,
-> > u8 __iomem **tbl, u8 bar)
-> > 	tbl[bar] =3D pci_iomap(pdev, bar, pci_resource_len(pdev,
-> > bar));
-> > 	if (!tbl[bar]) {
-> > 		dev_err(&pdev->dev, "Failed to iomap BAR:%u\n",
-> > bar);
-> > -		pci_release_region(pdev, bar);
-> > 		ret =3D -ENOMEM;
-> > 	}
-> >=20
-> > @@ -410,7 +409,6 @@ static int octep_iomap_region(struct pci_dev
-> > *pdev,
-> > u8 __iomem **tbl, u8 bar)=C2=A0 static void octep_iounmap_region(struct
-> > pci_dev
-> > *pdev, u8 __iomem **tbl, u8 bar)=C2=A0 {
-> > 	pci_iounmap(pdev, tbl[bar]);
-> > -	pci_release_region(pdev, bar);
-> > }
-> >=20
-> > static void octep_vdpa_pf_bar_shrink(struct octep_pf *octpf)
-> > --
-> > 2.48.1
->=20
-
+Good idea, will state that in the comment.
