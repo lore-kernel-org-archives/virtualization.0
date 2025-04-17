@@ -1,138 +1,131 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3CA391C4A20;
-	Wed, 16 Apr 2025 21:34:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C042479CF;
+	Thu, 17 Apr 2025 00:08:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744839250; cv=none; b=UmZVcdDpmWnfcZo+SxUqBlRoc0nvdoIeO8Mdlxu9m0FWF783qVi4ArK1/lNzHukAkVUkaGAM88E/VaPflz7jkUNqXlw3obPxGpqKZPOX0SaSLTJNzIr/+vPAD9bcGgNVky47C8hpNjySMlJIXuGvlF/bua2KuUHDtS1uuWEJ4KI=
+	t=1744848539; cv=none; b=BaJ3Ryej6OupE+K2VoFtl+hfhN+q13sL9+haIJAe+o0PkOPsKUaRs4VgNLyZN+uEDZvZUAtMZ6ZrrQnzDPybiGJtmszgFqrEzSmVEQRsb/TIEy0k8O8o7AF9mXYbMCQkwCbUusRd6pgr/tCu7p1llJ3bdtPNeauY08fqdeSE2rQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744839250; c=relaxed/simple;
-	bh=LMx67qyjqOkSRXudgM4ifmov6dER+mwMsdPVhFLIUDA=;
+	s=arc-20240116; t=1744848539; c=relaxed/simple;
+	bh=VS3LVZY+zuP2UHLVuC8I4hhS1Y2XmPsmcUWcoKDowOo=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JTnNmOF7PSP8um+To9yiWnsdK7zu2yp6S0c/noiykb0pJ06aKJb91b8qKs/CD3df3ENz7dXSqO3c1w26td+1x13PUjEnjmFh8EZeelBwBvjlvSOpBNof232OZbPGy7p5G9ALZXEshlzjs6gm7TrpWEso9/lbol8h6rQIFGztuLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=AL8wUoxp; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	 MIME-Version:Content-Type; b=DZ6XgzXz+2sz4PFuEdrnINPH8QufcU+BzoUyB8RjjPw3SpUenWOwJzsr6CeQ2y6rvQRsY/1/vCUUuoGz/MfGqsqz1AUwy+/M84mjLJFKsqU9SusoPwtNOJPVCA2DM3uqSKpYFr9+ThxIwNWjzUV6zgGAMR4Xodki8bQixCS2Pc4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hr7E1RmL; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="AL8wUoxp"
-Received: from DESKTOP-0403QTC. (unknown [20.236.11.42])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 0F1F72052509;
-	Wed, 16 Apr 2025 14:34:04 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 0F1F72052509
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1744839245;
-	bh=9HNqumPtmvmJAGW9wiQMrJO9t2eP9GkkKEQe9OhQp38=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Reply-To:From;
-	b=AL8wUoxp7F3VeHAsffQ3unWgZt3wlUbcSBmIwRkJrm9Du3X25ksLOq3F6A0TpFVTw
-	 1gGLyIw5+ZGeZ5Wf1Ie/K9phuvvU2nQM2nE2AzjFQUNCHD2lJque2p3Lw64pHFV6i5
-	 1MqgT74N8l7A1eQeBrKhACC88ucVYEpZbzBB9C5U=
-Date: Wed, 16 Apr 2025 14:34:03 -0700
-From: Jacob Pan <jacob.pan@linux.microsoft.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Shyam Saini <shyamsaini@linux.microsoft.com>, iommu@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
- virtualization@lists.linux.dev, will@kernel.org, eric.auger@redhat.com,
- code@tyhicks.com, eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
- jacob.pan@linux.microsoft.com
-Subject: Re: [PATCH v2 0/3] arm-smmu: select suitable IOVA
-Message-ID: <20250416143403.790f45d4@DESKTOP-0403QTC.>
-In-Reply-To: <20250416181759.GF493866@ziepe.ca>
-References: <20250410225030.2528385-1-shyamsaini@linux.microsoft.com>
-	<20250410230008.GA6905@ziepe.ca>
-	<67fff12d.650a0220.208c7c.d69dSMTPIN_ADDED_BROKEN@mx.google.com>
-	<20250416181759.GF493866@ziepe.ca>
-Reply-To: jacob.pan@linux.microsoft.com
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hr7E1RmL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDC42C4CEE2;
+	Thu, 17 Apr 2025 00:08:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744848539;
+	bh=VS3LVZY+zuP2UHLVuC8I4hhS1Y2XmPsmcUWcoKDowOo=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Hr7E1RmL3siQy77g4rph6xqk3Z7uUq3Db/Xd0QyNX1Op3j7rxby2YwRkDQU69deBB
+	 ZsHplT6FQJX5LMfKcUyOJvfOrpRtogg7cSSgCFbFDz7TgmVTFq3pCSWLjsjEk1OV+d
+	 XL555eA1dURtyZ8dvsSMVmNx8VeQrLsOkv7zVmT783inykrCqkIo8v/QU7vvSqsjdu
+	 okljT38q0x/nhqiZLfcJV/nEkxWhmzMWdhQYp/5Q5MCiG6wz0D0FJzpuE/bSxPwMx/
+	 LPfzAwGaOm6jGojbOBhqd1xokqt37vnhoLY7kw0juH8FuHN4RK8bFMJ6SdeKpEwtGB
+	 0hcT/T2H3RJvQ==
+Date: Wed, 16 Apr 2025 17:08:57 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Bui Quang Minh <minhquangbui99@gmail.com>,
+ virtualization@lists.linux.dev, "Michael S . Tsirkin" <mst@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>, Paolo Abeni
+ <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann
+ <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, John
+ Fastabend <john.fastabend@gmail.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, "David S . Miller" <davem@davemloft.net>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH v3 3/3] selftests: net: add a virtio_net deadlock
+ selftest
+Message-ID: <20250416170857.2e46a3be@kernel.org>
+In-Reply-To: <CACGkMEvceXT+=HJRRe6D3Zk3k40E2ADJiXNb4qqAYm=PZnxNpQ@mail.gmail.com>
+References: <20250415074341.12461-1-minhquangbui99@gmail.com>
+	<20250415074341.12461-4-minhquangbui99@gmail.com>
+	<20250415212709.39eafdb5@kernel.org>
+	<1603c373-024d-4ec2-b655-b9e7fb942bba@gmail.com>
+	<CACGkMEvceXT+=HJRRe6D3Zk3k40E2ADJiXNb4qqAYm=PZnxNpQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Hi Jason,
+On Wed, 16 Apr 2025 15:46:42 +0800 Jason Wang wrote:
+> On Wed, Apr 16, 2025 at 2:54=E2=80=AFPM Bui Quang Minh <minhquangbui99@gm=
+ail.com> wrote:
+> > On 4/16/25 11:27, Jakub Kicinski wrote: =20
+> > > Unfortunately this doesn't work on a basic QEMU setup:
+> > >
+> > > # ethtool -G eth0 rx 128
+> > > [   15.680655][  T287] virtio_net virtio2 eth0: resize rx fail: rx qu=
+eue index: 0 err: -2
+> > > netlink error: No such file or directory
+> > >
+> > > Is there a way to enable more capable virtio_net with QEMU? =20
+>=20
+> What's the qemu command line and version?
+>=20
+> Resize depends on queue_reset which should be supported from Qemu 7.2
 
-On Wed, 16 Apr 2025 15:17:59 -0300
-Jason Gunthorpe <jgg@ziepe.ca> wrote:
+I'm using virtme-ng with --net loop and:
 
-> On Wed, Apr 16, 2025 at 11:04:27AM -0700, Jacob Pan wrote:
-> 
-> > Per last discussion "SMMU driver have a list of potential addresses
-> > and select the first one that does not intersect with the
-> > non-working IOVA ranges.". If we don't know what the "non-working
-> > IOVA" is, how do we know it does not intersect the "potential
-> > addresses"?  
-> 
-> I had understood from previous discussions that this platform is
-> properly creating IOMMU_RESV_RESERVED regions for the IOVA that
-> doesn't work. Otherwise everything is broken..
-> 
-Agree, but I thought the previous attempt was to make
-iommu_ops.get_resv_regions() report properly instead of at the platform
-level (DT or IORT). Maybe Shayam can show the current reserved regions
-in sysfs.
+QEMU emulator version 9.1.3 (qemu-9.1.3-2.fc41)
 
-> Presumably that happens through iommu_dma_get_resv_regions() calling
-> of_iommu_get_resv_regions() on a DT platform. There is a schema
-> describing how to do this, so platform firmware should be able to do
-> it..
-> 
-> So the fix seems trivial enough to me:
-> 
-Make sense below, probably good to have this regardless of the
-current issue. IMHO, FW reserved region should take precedence.
+--net loop resolves to:
 
-> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c index
-> b4c21aaed1266a..ebba18579151bc 100644 ---
-> a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c +++
-> b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c @@ -3562,17 +3562,29 @@
-> static int arm_smmu_of_xlate(struct device *dev, static void
-> arm_smmu_get_resv_regions(struct device *dev, struct list_head *head)
->  {
-> -	struct iommu_resv_region *region;
-> -	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
-> -
-> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE,
-> MSI_IOVA_LENGTH,
-> -					 prot, IOMMU_RESV_SW_MSI,
-> GFP_KERNEL);
-> -	if (!region)
-> -		return;
-> -
-> -	list_add_tail(&region->list, head);
-> +	static const u64 msi_bases[] = { MSI_IOVA_BASE, 0x12340000 };
->  
->  	iommu_dma_get_resv_regions(dev, head);
-> +
-> +	/*
-> +	 * Use the first msi_base that does not intersect with a
-> platform
-> +	 * reserved region. The SW MSI base selection is entirely
-> arbitary.
-> +	 */
-> +	for (i = 0; i != ARRAY_SIZE(msi_bases); i++) {
-> +		struct iommu_resv_region *region;
-> +
-> +		if (resv_intersects(msi_bases[i], MSI_IOVA_LENGTH))
-> +			continue;
-> +
-> +		region = iommu_alloc_resv_region(msi_bases[i],
-> MSI_IOVA_LENGTH,
-> +						 IOMMU_WRITE |
-> IOMMU_NOEXEC |
-> +							 IOMMU_MMIO,
-> +						 IOMMU_RESV_SW_MSI,
-> GFP_KERNEL);
-> +		if (!region)
-> +			return;
-> +		list_add_tail(&region->list, head);
-> +		return;
-> +	}
->  }
->  
->  static int arm_smmu_dev_enable_feature(struct device *dev,
-> 
-> Jason
+	-device virtio-net-device,netdev=3Dn0 \
+	-netdev hubport,id=3Dn0,hubid=3D0 \
+	-device virtio-net-device,netdev=3Dn1 \
+	-netdev hubport,id=3Dn1,hubid=3D0
 
+> > I guess that virtio-pci-legacy is used in your setup. =20
+>=20
+> Note that modern devices are used by default.
+>=20
+> >
+> > Here is how I setup virtio-net with Qemu
+> >
+> >      -netdev tap,id=3Dhostnet1,vhost=3Don,script=3D$NETWORK_SCRIPT,down=
+script=3Dno \
+> >      -device
+> > virtio-net-pci,netdev=3Dhostnet1,iommu_platform=3Don,disable-legacy=3Do=
+n \
+
+That works! I rejigged the CI, for posterity I used two times:
+
+	-device	virtio-net-pci,netdev=3Dn0,iommu_platform=3Don,disable-legacy=3Don=
+,mq=3Don,vectors=3D18
+	-netdev tap,id=3Dn0,ifname=3Dtap4,vhost=3Don,script=3Dno,downscript=3Dno,q=
+ueues=3D8=20
+
+and then manually bridged the taps together on the hypervisor side.
+
+> > The iommu_platform=3Don is necessary to make vring use dma API which is=
+ a
+> > requirement to enable xsk_pool in virtio-net (XDP socket will be in
+> > zerocopy mode for this case). Otherwise, the XDP socket will fallback to
+> > copy mode, xsk_pool is not enabled in virtio-net that makes the
+> > probability to reproduce bug to be very small. Currently, when you don't
+> > have iommu_platform=3Don, you can pass the test even before the fix, so=
+ I
+> > think I will try to harden the selftest to make it return skip in this =
+case. =20
+>=20
+> I would like to keep the resize test as it doesn't require iommu_platform.
+
+Sounds good but lets just add them to the drivers/net/hw directory.
+I don't think there's anything virtio specific in the test itself?
+
+Right now drivers/net/virtio_net has a test which expects to see
+both netdevs in the VM, while drivers / Python based tests expect
+to have the env prepared where only one end is on the local machine,=20
+and the other is accessible over SSH or in another netns. So it's a bit
+painful to marry the two kinds of tests in the CI. At least our netdev
+CI does not know how to figure this out :( It preps the env and then
+runs the whole kselftest TARGET in the same setup.
