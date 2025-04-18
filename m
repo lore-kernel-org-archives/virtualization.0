@@ -1,607 +1,477 @@
-Received: from mail-pg1-f202.google.com (mail-pg1-f202.google.com [209.85.215.202])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABE0222E403
-	for <virtualization@lists.linux.dev>; Thu, 17 Apr 2025 23:15:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36DAC253345
+	for <virtualization@lists.linux.dev>; Fri, 18 Apr 2025 05:06:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744931761; cv=none; b=scI6Gx/UMzwJ5a12SM+E9bqZbY9p07nKQHFCtWGM3J465fyAbWjv0zjnYilbtKOP2MBP2aJPJGGxJbKAslhgrikqsZgqJtRHbrT3JX1rEj3IrJVv9mFmqq3M1FtP+13LakaM9+ATvs56+YHp7nSdzhQQlz3xE4H/cwDKyo7Ep34=
+	t=1744952781; cv=none; b=CqVhWvDOjoB1kJSyUsb+JyIGS2pKJ/IavDkub87WywZw9S3tkD3JYSxk3GHav7u9wC1WV4WPPqHcQsj0kSLG+ohx9LMKNLUEjsrFz1oSXjQd/NoLho3xHihNt4q/d1nCTaTHW6A7WWA8Uq1mOl+kOmDifJE2Qu3ODr7Yw2F7mJQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744931761; c=relaxed/simple;
-	bh=EUMQ+oYsfQ+XsQtIRL6m6jDKl84jO4tSi7ABTsxE9FI=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=HArgo0OkHOyi5y3C/jwJ67+5fSABBbxFFrrByKMAeja6n4DVZ495pFuoi57KlVV400nLsPa6vd0p4fH6P0Mu6DNFwB6iScpD5uQGcwzrCIww8fPq92st5J50BkAem2jwp3Ydb6V66DhBNra73a+r0yfjz04KlT+WzSqF4yj9x3w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=aHIPK6HB; arc=none smtp.client-ip=209.85.215.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com
+	s=arc-20240116; t=1744952781; c=relaxed/simple;
+	bh=FcDsxO8PuWpeXpi+j/1c2opSjLUZpj4uBwXlxK3vFw8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=uf8ZX3TkvpBoMxWVbXO5LCRIXI/IaGqoQ2O5INo8eo2zFpK8Sm6mMWKjZkh/h0dRJkpQlCgoBdqOPB7EqLimc4VUNMSvs3T2TQEDzwrkx7FxuHkcd0wC7cw06nFkq620curw2VLQEPGPZXjNhDZ6bBtonj/+r6UW2AwO5wD37Tk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kQ5aH0cB; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="aHIPK6HB"
-Received: by mail-pg1-f202.google.com with SMTP id 41be03b00d2f7-af972dd0cd6so796356a12.1
-        for <virtualization@lists.linux.dev>; Thu, 17 Apr 2025 16:15:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kQ5aH0cB"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-224171d6826so23592085ad.3
+        for <virtualization@lists.linux.dev>; Thu, 17 Apr 2025 22:06:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1744931758; x=1745536558; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=qFn6/fkG+uVL9IfgXExy6dTJRMGzSiOxiZ+2kZV41/0=;
-        b=aHIPK6HBdW92fhNzOhWzJEpNKPil3k63AaOila02w4P1aD0D6qtdd+ivNgmdDDJrk7
-         VVScDAEidwZl5vgS4KFIXsr158+DD5ScLOlOU7Ptmx60A6msEktfegu5nAmpg+TuXn1Q
-         NavsaZSvtAwibknVB3WsY/w3kq20SlsAY6Z/0RcDCej9M3qQNEjrL/x1sdusIIW5Sdrw
-         RpGrL9TeyC6U4xVa99GcsjtbHyrD55YJqrW3O9rPkDhe1f1IfewnVifVk7ZVbofmKnNr
-         cYQM84DHk5QjnvVdjGDwVeJwE4kcOusb/MMCLLQ5lFA8b4Mu1H5zT5c7mbczVfyUAgWX
-         bM/w==
+        d=gmail.com; s=20230601; t=1744952777; x=1745557577; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xex5AEcGJGWj6dOdpaDDAlctwWeRYrvWdmFV2CE5qXU=;
+        b=kQ5aH0cBPc+jDRQF6scSX85SiSQTvDgp2lywGVkCXdGny4D9V9ueU1QolZLkfTpoJu
+         BjKGhKQ48C9Cjgw4NG7dF35AhLdgCsGXonz55W3F5Z5bDsYQv7eZwyv7bz6G/bE3T9AI
+         84zyN5hYjUmj9y40KyMB8aYpyAS1PfVDowcGsO/d6M3A9++zpEOl5MnaDcZ9DUJ4w2qY
+         j/G+Ol9vKSNR3K5ZdvFhzoE5rKqYi18kDBzzktSnw8S2tGpjtS/z1J0C0AarHQHz3SfX
+         3+NbJpGMdJ3KiGbhfD/5s8vWAHCIObJ73yKSC5onY1IuD+/aSyxMainQmxdDJRzGNrWR
+         tYVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744931758; x=1745536558;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=qFn6/fkG+uVL9IfgXExy6dTJRMGzSiOxiZ+2kZV41/0=;
-        b=kD1zuA6ACpqfPVRXVB8HAPyqB+SzEBpOzOpf6AgOW/jxeo/1clNbTcXMwUc/oPJ/Ms
-         xC8284eWOLvg/JXy5bgMXscWlWcSDoCp278WkTuJepmpupC4+9lgsNJ3vW7Uy1CsuWX0
-         ecKGQwAe66u3q7meNfAWvKvBKuUo37B1eZcPgLjVHe02P4E4Id+JV1v9XvJ46pO0syR7
-         9gyhY+ABiEKN3THyiVk07fBFCWaH7sZbt4stNUt403qKrIJ52H5dAK+5rRGOmozMH3WH
-         bwAIl29fJrr8EIZyybfvecDlmPvlkxT+dVV4eBsgldOY2QBzvlIe3BkHjC20x6qEWPCS
-         iZDw==
-X-Forwarded-Encrypted: i=1; AJvYcCVXanG/bmSaaT0thn3FMLHqfioBEVcfgQJLF3FNw6rhRvC8keK4XcxA0tnTzPU6smbSAfvDVxKcpyNAe3DgLQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzGx6Py3KDjHJpFh6XiRR1EAvLhzZEHQjM1W2bFlX62jnGrtnEF
-	oBnRyc/Iz3aCHZX/FJ/j/qWjTHuN6obKBGU0OHQEg1RvjVYqRORB62v2ydKvm8bZ52FUS387Jh7
-	CORkghVDuZOIgxt84S5nolg==
-X-Google-Smtp-Source: AGHT+IGyfn9bTZXJPUKQRId6hUYpGobcZbK2hoJ+30LIbp2W3VTAftEaA/hYuL3rWxSs+vehxe1sZWc2PD8G4m24XA==
-X-Received: from pjbsl12.prod.google.com ([2002:a17:90b:2e0c:b0:2fb:fa85:1678])
- (user=almasrymina job=prod-delivery.src-stubby-dispatcher) by
- 2002:a17:90b:4ed0:b0:2ea:3f34:f18f with SMTP id 98e67ed59e1d1-3087bb69c30mr946621a91.19.1744931758166;
- Thu, 17 Apr 2025 16:15:58 -0700 (PDT)
-Date: Thu, 17 Apr 2025 23:15:40 +0000
-In-Reply-To: <20250417231540.2780723-1-almasrymina@google.com>
+        d=1e100.net; s=20230601; t=1744952777; x=1745557577;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xex5AEcGJGWj6dOdpaDDAlctwWeRYrvWdmFV2CE5qXU=;
+        b=VTvj5ROJ69dBJgrCrg6Du9o8JMHswKV9Ix8NJmWuQz5XwxGasXVmIzeUr5pFaBdgtH
+         C237vaY/C6lDBMzQifwk5feksdLUGS1OI60BLoGf/CPDhLmSzQBiYlIwz/FJh1EWm7Ma
+         TbDFwKbc9gj0fev6K77HJg+XRE3Bg/9INet+rczTJ375O8rzVCFjbhFuo1U12PwEjElD
+         8j27eJILe6BH0BYC6WPzXM5MOXvcdPJAMNkwz+IMF0zDJoEB8UM1kaqNQV6hHe5NjJHW
+         kCao0zLSsBh/S/5j83ouz23zyjrQ3LuCEQpZyLblpOYeDWeS4vZ2ORQDYgPXnNjjEHrE
+         9ljw==
+X-Forwarded-Encrypted: i=1; AJvYcCUQFha4PQ1nRY6iCAse8UiUhiu/X6Y3+WAwJOf5XMsU4yWwgzFahYzmxJhowMm9oUENyH9Cmms8IO1sjvdr7g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw8X80Flmc63X13/HlZ13EfozpaKY5w66HzjhEHu1J3yRNM1Ztr
+	NYJGPQEUdzOncuq8TDp359p/RSahXXnSmxQrNbkF+KKzW+32dxZUhp+MSNcc
+X-Gm-Gg: ASbGncvmDyf1XpZ/x3gcqmdrgEUYxGNoZw7FzkoeSaSUHNHHvlOvqztVfy1bvDsPvWR
+	ng+fLB7zE+TEuqUaxRgvSnZX1ROhwhS0I78J+MHZYBnKk1PrCBxbAI3USN5KxJNck61byn/hAY1
+	imwYcxid75jzIduhIzecsFB0rWxQ+vGiuQJEnIcE7xiKLOkccweDEw3ammDG2hn8mtcFCoBwPAW
+	rOr7x2ons/cyI97t6MtM55m3qdHI7NTDWBfhO3VmgPBg9ShMjsCqMlUC9tvuh7J9sH3O+BuuBro
+	W/IUdZTKYUaxyI0+JRs1OADGuk5JiDdKaYJwRw==
+X-Google-Smtp-Source: AGHT+IHAbGhLfu84PEeqZdHsJ6K1Yq3WN2mVSNF4v8KsZRzMJjaeXTUFivP3lVE1bhgaZByvGHaJLQ==
+X-Received: by 2002:a17:902:f68a:b0:21f:1202:f2f5 with SMTP id d9443c01a7336-22c532857admr16973855ad.8.1744952772906;
+        Thu, 17 Apr 2025 22:06:12 -0700 (PDT)
+Received: from localhost ([2a03:2880:2ff:7::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22c50fda391sm8947985ad.214.2025.04.17.22.06.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Apr 2025 22:06:12 -0700 (PDT)
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+Date: Thu, 17 Apr 2025 22:05:53 -0700
+Subject: [PATCH net-next v2] selftests/vsock: add initial vmtest.sh for
+ vsock
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250417231540.2780723-1-almasrymina@google.com>
-X-Mailer: git-send-email 2.49.0.805.g082f7c87e0-goog
-Message-ID: <20250417231540.2780723-10-almasrymina@google.com>
-Subject: [PATCH net-next v9 9/9] selftests: ncdevmem: Implement devmem TCP TX
-From: Mina Almasry <almasrymina@google.com>
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-doc@vger.kernel.org, io-uring@vger.kernel.org, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org
-Cc: Mina Almasry <almasrymina@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Simon Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	Jeroen de Borst <jeroendb@google.com>, Harshitha Ramamurthy <hramamurthy@google.com>, 
-	Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn <willemb@google.com>, Jens Axboe <axboe@kernel.dk>, 
-	Pavel Begunkov <asml.silence@gmail.com>, David Ahern <dsahern@kernel.org>, 
-	Neal Cardwell <ncardwell@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, sdf@fomichev.me, dw@davidwei.uk, 
-	Jamal Hadi Salim <jhs@mojatatu.com>, Victor Nogueira <victor@mojatatu.com>, 
-	Pedro Tammela <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250417-vsock-vmtest-v2-1-3901a27331e8@gmail.com>
+X-B4-Tracking: v=1; b=H4sIALDdAWgC/1XNQQqDMBBA0auEWTslM1ZoXfUexUWMo4bWpCQhW
+ MS7F7Lr+sP7BySJThL06oAoxSUXPPSKGwV2NX4RdBP0Clhzp1vusKRgX1i2LCnj2BqmiUmzZWg
+ UfKLMbq/cE7xk9LJnGBoFq0s5xG/9FKq9klfS/2QhJJzbztxoMuP9Zh/LZtz7YsMGw3meP++6A
+ j+yAAAA
+X-Change-ID: 20250325-vsock-vmtest-b3a21d2102c2
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>
+Cc: kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ Bobby Eshleman <bobbyeshleman@gmail.com>
+X-Mailer: b4 0.14.2
 
-Add support for devmem TX in ncdevmem.
+This commit introduces a new vmtest.sh runner for vsock.
 
-This is a combination of the ncdevmem from the devmem TCP series RFCv1
-which included the TX path, and work by Stan to include the netlink API
-and refactored on top of his generic memory_provider support.
+It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
+H2G, and loopback. The testing tools from tools/testing/vsock/ are
+reused. Currently, only vsock_test is used.
 
-Signed-off-by: Mina Almasry <almasrymina@google.com>
-Signed-off-by: Stanislav Fomichev <sdf@fomichev.me>
-Acked-by: Stanislav Fomichev <sdf@fomichev.me>
+VMCI and hyperv support is automatically built, though not used.
+
+Only tested on x86.
+
+To run:
+
+  $ tools/testing/selftests/vsock/vmtest.sh
+
+Future work can include vsock_diag_test.
+
+Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+---
+Changes in v2:
+- add kernel oops and warnings checker
+- change testname variable to use FUNCNAME
+- fix spacing in test_vm_server_host_client
+- add -s skip build option to vmtest.sh
+- add test_vm_loopback
+- pass port to vm_wait_for_listener
+- fix indentation in vmtest.sh
+- add vmci and hyperv to config
+- changed whitespace from tabs to spaces in help string
+- Link to v1: https://lore.kernel.org/r/20250410-vsock-vmtest-v1-1-f35a81dab98c@gmail.com
+---
+ MAINTAINERS                                |   1 +
+ tools/testing/selftests/vsock/.gitignore   |   1 +
+ tools/testing/selftests/vsock/config.vsock |  10 +
+ tools/testing/selftests/vsock/vmtest.sh    | 306 +++++++++++++++++++++++++++++
+ 4 files changed, 318 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c3fce441672349f7850c57d788bc1a29b203fba5..f214cf7c4fb59ec67885ee6c81daa44e17c80f5f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -25323,6 +25323,7 @@ F:	include/uapi/linux/vm_sockets.h
+ F:	include/uapi/linux/vm_sockets_diag.h
+ F:	include/uapi/linux/vsockmon.h
+ F:	net/vmw_vsock/
++F:	tools/testing/selftests/vsock/
+ F:	tools/testing/vsock/
+ 
+ VMALLOC
+diff --git a/tools/testing/selftests/vsock/.gitignore b/tools/testing/selftests/vsock/.gitignore
+new file mode 100644
+index 0000000000000000000000000000000000000000..1950aa8ac68c0831c12c1aaa429da45bbe41e60f
+--- /dev/null
++++ b/tools/testing/selftests/vsock/.gitignore
+@@ -0,0 +1 @@
++vsock_selftests.log
+diff --git a/tools/testing/selftests/vsock/config.vsock b/tools/testing/selftests/vsock/config.vsock
+new file mode 100644
+index 0000000000000000000000000000000000000000..9e0fb2270e6a2fc0beb5f0d9f0bc37158d0a9d23
+--- /dev/null
++++ b/tools/testing/selftests/vsock/config.vsock
+@@ -0,0 +1,10 @@
++CONFIG_VSOCKETS=y
++CONFIG_VSOCKETS_DIAG=y
++CONFIG_VSOCKETS_LOOPBACK=y
++CONFIG_VMWARE_VMCI_VSOCKETS=y
++CONFIG_VIRTIO_VSOCKETS=y
++CONFIG_VIRTIO_VSOCKETS_COMMON=y
++CONFIG_HYPERV_VSOCKETS=y
++CONFIG_VMWARE_VMCI=y
++CONFIG_VHOST_VSOCK=y
++CONFIG_HYPERV=y
+diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+new file mode 100755
+index 0000000000000000000000000000000000000000..61dfcc06223fa7a30cb575cb3f2d01121b3ed3ce
+--- /dev/null
++++ b/tools/testing/selftests/vsock/vmtest.sh
+@@ -0,0 +1,306 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++#
++# Copyright (c) 2025 Meta Platforms, Inc. and affiliates
++#
++# Dependencies:
++#		* virtme-ng
++#		* busybox-static (used by virtme-ng)
++#		* qemu	(used by virtme-ng)
++
++SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
++KERNEL_CHECKOUT=$(realpath ${SCRIPT_DIR}/../../../..)
++PLATFORM=${PLATFORM:-$(uname -m)}
++
++if [[ -z "${QEMU:-}" ]]; then
++	QEMU=$(which qemu-system-${PLATFORM})
++fi
++
++SKIP_BUILD=0
++
++VSOCK_TEST=${KERNEL_CHECKOUT}/tools/testing/vsock/vsock_test
++
++TEST_GUEST_PORT=51000
++TEST_HOST_PORT=50000
++TEST_HOST_PORT_LISTENER=50001
++SSH_GUEST_PORT=22
++SSH_HOST_PORT=2222
++VSOCK_CID=1234
++
++QEMU_PIDFILE=/tmp/qemu.pid
++
++# virtme-ng offers a netdev for ssh when using "--ssh", but we also need a
++# control port forwarded for vsock_test.  Because virtme-ng doesn't support
++# adding an additional port to forward to the device created from "--ssh" and
++# virtme-init mistakenly sets identical IPs to the ssh device and additional
++# devices, we instead opt out of using --ssh, add the device manually, and also
++# add the kernel cmdline options that virtme-init uses to setup the interface.
++QEMU_OPTS=""
++QEMU_OPTS="${QEMU_OPTS} -netdev user,id=n0,hostfwd=tcp::${TEST_HOST_PORT}-:${TEST_GUEST_PORT}"
++QEMU_OPTS="${QEMU_OPTS},hostfwd=tcp::${SSH_HOST_PORT}-:${SSH_GUEST_PORT}"
++QEMU_OPTS="${QEMU_OPTS} -device virtio-net-pci,netdev=n0"
++QEMU_OPTS="${QEMU_OPTS} -device vhost-vsock-pci,guest-cid=${VSOCK_CID}"
++QEMU_OPTS="${QEMU_OPTS} --pidfile ${QEMU_PIDFILE}"
++KERNEL_CMDLINE="virtme.dhcp net.ifnames=0 biosdevname=0 virtme.ssh virtme_ssh_user=$USER"
++
++LOG=${SCRIPT_DIR}/vsock_selftests.log
++
++#		Name				Description
++tests="
++	vm_server_host_client     Run vsock_test in server mode on the VM and in client mode on the host.
++	vm_client_host_server     Run vsock_test in client mode on the VM and in server mode on the host.
++	vm_loopback               Run vsock_test using the loopback transport in the VM.
++"
++
++usage() {
++	echo
++	echo "$0 [OPTIONS]"
++	echo
++	echo "Options"
++	echo "  -v: verbose output"
++	echo "  -s: skip build"
++	echo
++	echo "Available tests${tests}"
++	exit 1
++}
++
++die() {
++	echo "$*" >&2
++	exit 1
++}
++
++vm_ssh() {
++	ssh -q -o UserKnownHostsFile=/dev/null -p 2222 localhost $*
++	return $?
++}
++
++cleanup() {
++	if [[ -f "${QEMU_PIDFILE}" ]]; then
++		pkill -9 -F ${QEMU_PIDFILE} 2>&1 >/dev/null
++	fi
++}
++
++build() {
++	log_setup "Building kernel and tests"
++
++	pushd ${KERNEL_CHECKOUT} >/dev/null
++	vng \
++		--kconfig \
++		--config ${KERNEL_CHECKOUT}/tools/testing/selftests/vsock/config.vsock
++	make -j$(nproc)
++	make -C ${KERNEL_CHECKOUT}/tools/testing/vsock
++	popd >/dev/null
++	echo
++}
++
++vm_setup() {
++	local VNG_OPTS=""
++	if [[ "${VERBOSE}" = 1 ]]; then
++		VNG_OPTS="--verbose"
++	fi
++	vng \
++		$VNG_OPTS	\
++		--run ~/local/linux \
++		--qemu /bin/qemu-system-x86_64 \
++		--qemu-opts="${QEMU_OPTS}" \
++		--user root \
++		--append "${KERNEL_CMDLINE}" \
++		--rw  2>&1 >/dev/null &
++}
++
++vm_wait_for_ssh() {
++	i=0
++	while [[ true ]]; do
++		if (( i > 20 )); then
++			die "Timed out waiting for guest ssh"
++		fi
++		vm_ssh -- true
++		if [[ $? -eq 0 ]]; then
++			break
++		fi
++		i=$(( i + 1 ))
++		sleep 5
++	done
++}
++
++wait_for_listener() {
++	local PORT=$1
++	local i=0
++	while ! ss -ltn | grep -q ":${PORT}"; do
++		if (( i > 30 )); then
++			die "Timed out waiting for listener on port ${PORT}"
++		fi
++		sleep 3
++		i=$(( i + 1 ))
++	done
++}
++
++vm_wait_for_listener() {
++	local port=$1
++	vm_ssh -- "$(declare -f wait_for_listener); wait_for_listener ${port}"
++}
++
++host_wait_for_listener() {
++	wait_for_listener ${TEST_HOST_LISTENER_PORT}
++}
++
++log() {
++	local prefix="$1"
++	shift
++
++	if [[ "$#" -eq 0 ]]; then
++		cat | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }' | tee -a ${LOG}
++	else
++		echo "$*" | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }' | tee -a ${LOG}
++	fi
++}
++
++log_setup() {
++	log "setup" "$@"
++}
++
++log_host() {
++	testname=$1
++	shift
++	log "test:${testname}:host" "$@"
++}
++
++log_guest() {
++	testname=$1
++	shift
++	log "test:${testname}:guest" "$@"
++}
++
++test_vm_server_host_client() {
++	local testname="${FUNCNAME[0]#test_}"
++
++	vm_ssh -- "${VSOCK_TEST}" \
++		--mode=server \
++		--control-port="${TEST_GUEST_PORT}" \
++		--peer-cid=2 \
++		2>&1 | log_guest "${testname}" &
++
++	vm_wait_for_listener ${TEST_GUEST_PORT}
++
++	${VSOCK_TEST}	\
++		--mode=client	\
++		--control-host=127.0.0.1	\
++		--peer-cid="${VSOCK_CID}"	\
++		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host "${testname}"
++
++	rc=$?
++}
++
++test_vm_client_host_server() {
++	local testname="${FUNCNAME[0]#test_}"
++
++	${VSOCK_TEST}	\
++		--mode "server" \
++		--control-port "${TEST_HOST_PORT_LISTENER}" \
++		--peer-cid "${VSOCK_CID}" 2>&1 | log_host "${testname}" &
++
++	host_wait_for_listener
++
++	vm_ssh -- "${VSOCK_TEST}"	\
++		--mode=client	\
++		--control-host=10.0.2.2	\
++		--peer-cid=2	\
++		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest "${testname}"
++
++	rc=$?
++}
++
++test_vm_loopback() {
++	local testname="${FUNCNAME[0]#test_}"
++	local port=60000 # non-forwarded local port
++
++	vm_ssh -- ${VSOCK_TEST}	\
++		--mode=server \
++		--control-port="${port}" \
++		--peer-cid="${VSOCK_CID}" &
++
++	vm_wait_for_listener ${port}
++
++	vm_ssh -- ${VSOCK_TEST}	\
++		--mode=client	\
++		--control-host="127.0.0.1" \
++		--control-port="${port}" \
++		--peer-cid="${VSOCK_CID}"
++
++	rc=$?
++}
++
++run_test() {
++	unset IFS
++	local host_oops_cnt_before=$(dmesg | grep -i 'Oops' | wc -l)
++	local host_warn_cnt_before=$(dmesg --level=warn | wc -l)
++	local vm_oops_cnt_before=$(vm_ssh -- dmesg | grep -i 'Oops' | wc -l)
++	local vm_warn_cnt_before=$(vm_ssh -- dmesg --level=warn | wc -l)
++
++	name=$(echo "${1}" | awk '{ print $1 }')
++	eval test_"${name}"
++
++	local host_oops_cnt_after=$(dmesg | grep -i 'Oops' | wc -l)
++	if [[ ${host_oops_cnt_after} -gt ${host_oops_cnt_before} ]]; then
++		echo "${name}: kernel oops detected on host" | log_host ${name}
++		rc=1
++	fi
++
++	local host_warn_cnt_after=$(dmesg --level=warn | wc -l)
++	if [[ ${host_warn_cnt_after} -gt ${host_warn_cnt_before} ]]; then
++		echo "${name}: kernel warning detected on host" | log_host ${name}
++		rc=1
++	fi
++
++	local vm_oops_cnt_after=$(vm_ssh -- dmesg | grep -i 'Oops' | wc -l)
++	if [[ ${vm_oops_cnt_after} -gt ${vm_oops_cnt_before} ]]; then
++		echo "${name}: kernel oops detected on vm" | log_host ${name}
++		rc=1
++	fi
++
++	local vm_warn_cnt_after=$(vm_ssh -- dmesg --level=warn | wc -l)
++	if [[ ${vm_warn_cnt_after} -gt ${vm_warn_cnt_before} ]]; then
++		echo "${name}: kernel warning detected on vm" | log_host ${name}
++		rc=1
++	fi
++}
++
++while getopts :hvs o
++do
++	case $o in
++	v) VERBOSE=1;;
++	s) SKIP_BUILD=1;;
++	h|*) usage;;
++	esac
++done
++shift $((OPTIND-1))
++
++trap cleanup EXIT
++
++> ${LOG}
++if (( SKIP_BUILD != 1 )); then
++	build
++fi
++log_setup "Booting up VM"
++vm_setup
++vm_wait_for_ssh
++log_setup "VM booted up"
++
++IFS="
++"
++cnt=0
++for t in ${tests}; do
++	rc=0
++	run_test "${t}"
++	if [[ ${rc} != 0 ]]; then
++		cnt=$(( cnt + 1 ))
++	fi
++done
++
++if [[ ${cnt} = 0 ]]; then
++	echo OK
++else
++	echo FAILED: ${cnt}
++fi
++echo "Log: ${LOG}"
++exit ${cnt}
 
 ---
+base-commit: cc04ed502457412960d215b9cd55f0d966fda255
+change-id: 20250325-vsock-vmtest-b3a21d2102c2
 
-v5:
-- Remove unnecassyr socat bindings (Stan).
-- Add exit_wait=True (Stan)
-- Remove unnecessary -c arg to ncdevmem in check_tx.
-
-v4:
-- Add TX test to devmem.py (Paolo).
-
-v3:
-- Update ncdevmem docs to run validation with RX-only and RX-with-TX.
-- Fix build warnings (Stan).
-- Make the validation expect new lines in the pattern so we can have the
-  TX path behave like netcat (Stan).
-- Change ret to errno in error() calls (Stan).
-- Handle the case where client_ip is not provided (Stan).
-- Don't assume mid is <= 2000 (Stan).
-
-v2:
-- make errors a static variable so that we catch instances where there
-  are less than 20 errors across different buffers.
-- Fix the issue where the seed is reset to 0 instead of its starting
-  value 1.
-- Use 1000ULL instead of 1000 to guard against overflow (Willem).
-- Do not set POLLERR (Willem).
-- Update the test to use the new interface where iov_base is the
-  dmabuf_offset.
-- Update the test to send 2 iov instead of 1, so we get some test
-  coverage over sending multiple iovs at once.
-- Print the ifindex the test is using, useful for debugging issues where
-  maybe the test may fail because the ifindex of the socket is different
-  from the dmabuf binding.
-
----
- .../selftests/drivers/net/hw/devmem.py        |  26 +-
- .../selftests/drivers/net/hw/ncdevmem.c       | 300 +++++++++++++++++-
- 2 files changed, 311 insertions(+), 15 deletions(-)
-
-diff --git a/tools/testing/selftests/drivers/net/hw/devmem.py b/tools/testing/selftests/drivers/net/hw/devmem.py
-index 3947e9157115..7fc686cf47a2 100755
---- a/tools/testing/selftests/drivers/net/hw/devmem.py
-+++ b/tools/testing/selftests/drivers/net/hw/devmem.py
-@@ -1,6 +1,7 @@
- #!/usr/bin/env python3
- # SPDX-License-Identifier: GPL-2.0
- 
-+from os import path
- from lib.py import ksft_run, ksft_exit
- from lib.py import ksft_eq, KsftSkipEx
- from lib.py import NetDrvEpEnv
-@@ -10,8 +11,7 @@ from lib.py import ksft_disruptive
- 
- def require_devmem(cfg):
-     if not hasattr(cfg, "_devmem_probed"):
--        port = rand_port()
--        probe_command = f"./ncdevmem -f {cfg.ifname}"
-+        probe_command = f"{cfg.bin_local} -f {cfg.ifname}"
-         cfg._devmem_supported = cmd(probe_command, fail=False, shell=True).ret == 0
-         cfg._devmem_probed = True
- 
-@@ -25,7 +25,7 @@ def check_rx(cfg) -> None:
-     require_devmem(cfg)
- 
-     port = rand_port()
--    listen_cmd = f"./ncdevmem -l -f {cfg.ifname} -s {cfg.addr_v['6']} -p {port}"
-+    listen_cmd = f"{cfg.bin_local} -l -f {cfg.ifname} -s {cfg.addr_v['6']} -p {port}"
- 
-     with bkg(listen_cmd) as socat:
-         wait_port_listen(port)
-@@ -34,9 +34,27 @@ def check_rx(cfg) -> None:
-     ksft_eq(socat.stdout.strip(), "hello\nworld")
- 
- 
-+@ksft_disruptive
-+def check_tx(cfg) -> None:
-+    cfg.require_ipver("6")
-+    require_devmem(cfg)
-+
-+    port = rand_port()
-+    listen_cmd = f"socat -U - TCP6-LISTEN:{port}"
-+
-+    with bkg(listen_cmd, exit_wait=True) as socat:
-+        wait_port_listen(port)
-+        cmd(f"echo -e \"hello\\nworld\"| {cfg.bin_remote} -f {cfg.ifname} -s {cfg.addr_v['6']} -p {port}", host=cfg.remote, shell=True)
-+
-+    ksft_eq(socat.stdout.strip(), "hello\nworld")
-+
-+
- def main() -> None:
-     with NetDrvEpEnv(__file__) as cfg:
--        ksft_run([check_rx],
-+        cfg.bin_local = path.abspath(path.dirname(__file__) + "/ncdevmem")
-+        cfg.bin_remote = cfg.remote.deploy(cfg.bin_local)
-+
-+        ksft_run([check_rx, check_tx],
-                  args=(cfg, ))
-     ksft_exit()
- 
-diff --git a/tools/testing/selftests/drivers/net/hw/ncdevmem.c b/tools/testing/selftests/drivers/net/hw/ncdevmem.c
-index 2bf14ac2b8c6..f801a1b3545f 100644
---- a/tools/testing/selftests/drivers/net/hw/ncdevmem.c
-+++ b/tools/testing/selftests/drivers/net/hw/ncdevmem.c
-@@ -9,22 +9,31 @@
-  *     ncdevmem -s <server IP> [-c <client IP>] -f eth1 -l -p 5201
-  *
-  *     On client:
-- *     echo -n "hello\nworld" | nc -s <server IP> 5201 -p 5201
-+ *     echo -n "hello\nworld" | \
-+ *		ncdevmem -s <server IP> [-c <client IP>] -p 5201 -f eth1
-  *
-- * Test data validation:
-+ * Note this is compatible with regular netcat. i.e. the sender or receiver can
-+ * be replaced with regular netcat to test the RX or TX path in isolation.
-+ *
-+ * Test data validation (devmem TCP on RX only):
-  *
-  *     On server:
-  *     ncdevmem -s <server IP> [-c <client IP>] -f eth1 -l -p 5201 -v 7
-  *
-  *     On client:
-  *     yes $(echo -e \\x01\\x02\\x03\\x04\\x05\\x06) | \
-- *             tr \\n \\0 | \
-- *             head -c 5G | \
-+ *             head -c 1G | \
-  *             nc <server IP> 5201 -p 5201
-  *
-+ * Test data validation (devmem TCP on RX and TX, validation happens on RX):
-  *
-- * Note this is compatible with regular netcat. i.e. the sender or receiver can
-- * be replaced with regular netcat to test the RX or TX path in isolation.
-+ *	On server:
-+ *	ncdevmem -s <server IP> [-c <client IP>] -l -p 5201 -v 8 -f eth1
-+ *
-+ *	On client:
-+ *	yes $(echo -e \\x01\\x02\\x03\\x04\\x05\\x06\\x07) | \
-+ *		head -c 1M | \
-+ *		ncdevmem -s <server IP> [-c <client IP>] -p 5201 -f eth1
-  */
- #define _GNU_SOURCE
- #define __EXPORTED_HEADERS__
-@@ -40,15 +49,18 @@
- #include <fcntl.h>
- #include <malloc.h>
- #include <error.h>
-+#include <poll.h>
- 
- #include <arpa/inet.h>
- #include <sys/socket.h>
- #include <sys/mman.h>
- #include <sys/ioctl.h>
- #include <sys/syscall.h>
-+#include <sys/time.h>
- 
- #include <linux/memfd.h>
- #include <linux/dma-buf.h>
-+#include <linux/errqueue.h>
- #include <linux/udmabuf.h>
- #include <linux/types.h>
- #include <linux/netlink.h>
-@@ -79,6 +91,8 @@ static int num_queues = -1;
- static char *ifname;
- static unsigned int ifindex;
- static unsigned int dmabuf_id;
-+static uint32_t tx_dmabuf_id;
-+static int waittime_ms = 500;
- 
- struct memory_buffer {
- 	int fd;
-@@ -92,6 +106,8 @@ struct memory_buffer {
- struct memory_provider {
- 	struct memory_buffer *(*alloc)(size_t size);
- 	void (*free)(struct memory_buffer *ctx);
-+	void (*memcpy_to_device)(struct memory_buffer *dst, size_t off,
-+				 void *src, int n);
- 	void (*memcpy_from_device)(void *dst, struct memory_buffer *src,
- 				   size_t off, int n);
- };
-@@ -152,6 +168,20 @@ static void udmabuf_free(struct memory_buffer *ctx)
- 	free(ctx);
- }
- 
-+static void udmabuf_memcpy_to_device(struct memory_buffer *dst, size_t off,
-+				     void *src, int n)
-+{
-+	struct dma_buf_sync sync = {};
-+
-+	sync.flags = DMA_BUF_SYNC_START | DMA_BUF_SYNC_WRITE;
-+	ioctl(dst->fd, DMA_BUF_IOCTL_SYNC, &sync);
-+
-+	memcpy(dst->buf_mem + off, src, n);
-+
-+	sync.flags = DMA_BUF_SYNC_END | DMA_BUF_SYNC_WRITE;
-+	ioctl(dst->fd, DMA_BUF_IOCTL_SYNC, &sync);
-+}
-+
- static void udmabuf_memcpy_from_device(void *dst, struct memory_buffer *src,
- 				       size_t off, int n)
- {
-@@ -169,6 +199,7 @@ static void udmabuf_memcpy_from_device(void *dst, struct memory_buffer *src,
- static struct memory_provider udmabuf_memory_provider = {
- 	.alloc = udmabuf_alloc,
- 	.free = udmabuf_free,
-+	.memcpy_to_device = udmabuf_memcpy_to_device,
- 	.memcpy_from_device = udmabuf_memcpy_from_device,
- };
- 
-@@ -187,14 +218,16 @@ void validate_buffer(void *line, size_t size)
- {
- 	static unsigned char seed = 1;
- 	unsigned char *ptr = line;
--	int errors = 0;
-+	unsigned char expected;
-+	static int errors;
- 	size_t i;
- 
- 	for (i = 0; i < size; i++) {
--		if (ptr[i] != seed) {
-+		expected = seed ? seed : '\n';
-+		if (ptr[i] != expected) {
- 			fprintf(stderr,
- 				"Failed validation: expected=%u, actual=%u, index=%lu\n",
--				seed, ptr[i], i);
-+				expected, ptr[i], i);
- 			errors++;
- 			if (errors > 20)
- 				error(1, 0, "validation failed.");
-@@ -393,6 +426,49 @@ static int bind_rx_queue(unsigned int ifindex, unsigned int dmabuf_fd,
- 	return -1;
- }
- 
-+static int bind_tx_queue(unsigned int ifindex, unsigned int dmabuf_fd,
-+			 struct ynl_sock **ys)
-+{
-+	struct netdev_bind_tx_req *req = NULL;
-+	struct netdev_bind_tx_rsp *rsp = NULL;
-+	struct ynl_error yerr;
-+
-+	*ys = ynl_sock_create(&ynl_netdev_family, &yerr);
-+	if (!*ys) {
-+		fprintf(stderr, "YNL: %s\n", yerr.msg);
-+		return -1;
-+	}
-+
-+	req = netdev_bind_tx_req_alloc();
-+	netdev_bind_tx_req_set_ifindex(req, ifindex);
-+	netdev_bind_tx_req_set_fd(req, dmabuf_fd);
-+
-+	rsp = netdev_bind_tx(*ys, req);
-+	if (!rsp) {
-+		perror("netdev_bind_tx");
-+		goto err_close;
-+	}
-+
-+	if (!rsp->_present.id) {
-+		perror("id not present");
-+		goto err_close;
-+	}
-+
-+	fprintf(stderr, "got tx dmabuf id=%d\n", rsp->id);
-+	tx_dmabuf_id = rsp->id;
-+
-+	netdev_bind_tx_req_free(req);
-+	netdev_bind_tx_rsp_free(rsp);
-+
-+	return 0;
-+
-+err_close:
-+	fprintf(stderr, "YNL failed: %s\n", (*ys)->err.msg);
-+	netdev_bind_tx_req_free(req);
-+	ynl_sock_destroy(*ys);
-+	return -1;
-+}
-+
- static void enable_reuseaddr(int fd)
- {
- 	int opt = 1;
-@@ -431,7 +507,7 @@ static int parse_address(const char *str, int port, struct sockaddr_in6 *sin6)
- 	return 0;
- }
- 
--int do_server(struct memory_buffer *mem)
-+static int do_server(struct memory_buffer *mem)
- {
- 	char ctrl_data[sizeof(int) * 20000];
- 	struct netdev_queue_id *queues;
-@@ -685,6 +761,206 @@ void run_devmem_tests(void)
- 	provider->free(mem);
- }
- 
-+static uint64_t gettimeofday_ms(void)
-+{
-+	struct timeval tv;
-+
-+	gettimeofday(&tv, NULL);
-+	return (tv.tv_sec * 1000ULL) + (tv.tv_usec / 1000ULL);
-+}
-+
-+static int do_poll(int fd)
-+{
-+	struct pollfd pfd;
-+	int ret;
-+
-+	pfd.revents = 0;
-+	pfd.fd = fd;
-+
-+	ret = poll(&pfd, 1, waittime_ms);
-+	if (ret == -1)
-+		error(1, errno, "poll");
-+
-+	return ret && (pfd.revents & POLLERR);
-+}
-+
-+static void wait_compl(int fd)
-+{
-+	int64_t tstop = gettimeofday_ms() + waittime_ms;
-+	char control[CMSG_SPACE(100)] = {};
-+	struct sock_extended_err *serr;
-+	struct msghdr msg = {};
-+	struct cmsghdr *cm;
-+	__u32 hi, lo;
-+	int ret;
-+
-+	msg.msg_control = control;
-+	msg.msg_controllen = sizeof(control);
-+
-+	while (gettimeofday_ms() < tstop) {
-+		if (!do_poll(fd))
-+			continue;
-+
-+		ret = recvmsg(fd, &msg, MSG_ERRQUEUE);
-+		if (ret < 0) {
-+			if (errno == EAGAIN)
-+				continue;
-+			error(1, errno, "recvmsg(MSG_ERRQUEUE)");
-+			return;
-+		}
-+		if (msg.msg_flags & MSG_CTRUNC)
-+			error(1, 0, "MSG_CTRUNC\n");
-+
-+		for (cm = CMSG_FIRSTHDR(&msg); cm; cm = CMSG_NXTHDR(&msg, cm)) {
-+			if (cm->cmsg_level != SOL_IP &&
-+			    cm->cmsg_level != SOL_IPV6)
-+				continue;
-+			if (cm->cmsg_level == SOL_IP &&
-+			    cm->cmsg_type != IP_RECVERR)
-+				continue;
-+			if (cm->cmsg_level == SOL_IPV6 &&
-+			    cm->cmsg_type != IPV6_RECVERR)
-+				continue;
-+
-+			serr = (void *)CMSG_DATA(cm);
-+			if (serr->ee_origin != SO_EE_ORIGIN_ZEROCOPY)
-+				error(1, 0, "wrong origin %u", serr->ee_origin);
-+			if (serr->ee_errno != 0)
-+				error(1, 0, "wrong errno %d", serr->ee_errno);
-+
-+			hi = serr->ee_data;
-+			lo = serr->ee_info;
-+
-+			fprintf(stderr, "tx complete [%d,%d]\n", lo, hi);
-+			return;
-+		}
-+	}
-+
-+	error(1, 0, "did not receive tx completion");
-+}
-+
-+static int do_client(struct memory_buffer *mem)
-+{
-+	char ctrl_data[CMSG_SPACE(sizeof(__u32))];
-+	struct sockaddr_in6 server_sin;
-+	struct sockaddr_in6 client_sin;
-+	struct ynl_sock *ys = NULL;
-+	struct msghdr msg = {};
-+	ssize_t line_size = 0;
-+	struct cmsghdr *cmsg;
-+	struct iovec iov[2];
-+	char *line = NULL;
-+	unsigned long mid;
-+	size_t len = 0;
-+	int socket_fd;
-+	__u32 ddmabuf;
-+	int opt = 1;
-+	int ret;
-+
-+	ret = parse_address(server_ip, atoi(port), &server_sin);
-+	if (ret < 0)
-+		error(1, 0, "parse server address");
-+
-+	socket_fd = socket(AF_INET6, SOCK_STREAM, 0);
-+	if (socket_fd < 0)
-+		error(1, socket_fd, "create socket");
-+
-+	enable_reuseaddr(socket_fd);
-+
-+	ret = setsockopt(socket_fd, SOL_SOCKET, SO_BINDTODEVICE, ifname,
-+			 strlen(ifname) + 1);
-+	if (ret)
-+		error(1, errno, "bindtodevice");
-+
-+	if (bind_tx_queue(ifindex, mem->fd, &ys))
-+		error(1, 0, "Failed to bind\n");
-+
-+	if (client_ip) {
-+		ret = parse_address(client_ip, atoi(port), &client_sin);
-+		if (ret < 0)
-+			error(1, 0, "parse client address");
-+
-+		ret = bind(socket_fd, &client_sin, sizeof(client_sin));
-+		if (ret)
-+			error(1, errno, "bind");
-+	}
-+
-+	ret = setsockopt(socket_fd, SOL_SOCKET, SO_ZEROCOPY, &opt, sizeof(opt));
-+	if (ret)
-+		error(1, errno, "set sock opt");
-+
-+	fprintf(stderr, "Connect to %s %d (via %s)\n", server_ip,
-+		ntohs(server_sin.sin6_port), ifname);
-+
-+	ret = connect(socket_fd, &server_sin, sizeof(server_sin));
-+	if (ret)
-+		error(1, errno, "connect");
-+
-+	while (1) {
-+		free(line);
-+		line = NULL;
-+		line_size = getline(&line, &len, stdin);
-+
-+		if (line_size < 0)
-+			break;
-+
-+		mid = (line_size / 2) + 1;
-+
-+		iov[0].iov_base = (void *)1;
-+		iov[0].iov_len = mid;
-+		iov[1].iov_base = (void *)(mid + 2);
-+		iov[1].iov_len = line_size - mid;
-+
-+		provider->memcpy_to_device(mem, (size_t)iov[0].iov_base, line,
-+					   iov[0].iov_len);
-+		provider->memcpy_to_device(mem, (size_t)iov[1].iov_base,
-+					   line + iov[0].iov_len,
-+					   iov[1].iov_len);
-+
-+		fprintf(stderr,
-+			"read line_size=%ld iov[0].iov_base=%lu, iov[0].iov_len=%lu, iov[1].iov_base=%lu, iov[1].iov_len=%lu\n",
-+			line_size, (unsigned long)iov[0].iov_base,
-+			iov[0].iov_len, (unsigned long)iov[1].iov_base,
-+			iov[1].iov_len);
-+
-+		msg.msg_iov = iov;
-+		msg.msg_iovlen = 2;
-+
-+		msg.msg_control = ctrl_data;
-+		msg.msg_controllen = sizeof(ctrl_data);
-+
-+		cmsg = CMSG_FIRSTHDR(&msg);
-+		cmsg->cmsg_level = SOL_SOCKET;
-+		cmsg->cmsg_type = SCM_DEVMEM_DMABUF;
-+		cmsg->cmsg_len = CMSG_LEN(sizeof(__u32));
-+
-+		ddmabuf = tx_dmabuf_id;
-+
-+		*((__u32 *)CMSG_DATA(cmsg)) = ddmabuf;
-+
-+		ret = sendmsg(socket_fd, &msg, MSG_ZEROCOPY);
-+		if (ret < 0)
-+			error(1, errno, "Failed sendmsg");
-+
-+		fprintf(stderr, "sendmsg_ret=%d\n", ret);
-+
-+		if (ret != line_size)
-+			error(1, errno, "Did not send all bytes");
-+
-+		wait_compl(socket_fd);
-+	}
-+
-+	fprintf(stderr, "%s: tx ok\n", TEST_PREFIX);
-+
-+	free(line);
-+	close(socket_fd);
-+
-+	if (ys)
-+		ynl_sock_destroy(ys);
-+
-+	return 0;
-+}
-+
- int main(int argc, char *argv[])
- {
- 	struct memory_buffer *mem;
-@@ -728,6 +1004,8 @@ int main(int argc, char *argv[])
- 
- 	ifindex = if_nametoindex(ifname);
- 
-+	fprintf(stderr, "using ifindex=%u\n", ifindex);
-+
- 	if (!server_ip && !client_ip) {
- 		if (start_queue < 0 && num_queues < 0) {
- 			num_queues = rxq_num(ifindex);
-@@ -778,7 +1056,7 @@ int main(int argc, char *argv[])
- 		error(1, 0, "Missing -p argument\n");
- 
- 	mem = provider->alloc(getpagesize() * NUM_PAGES);
--	ret = is_server ? do_server(mem) : 1;
-+	ret = is_server ? do_server(mem) : do_client(mem);
- 	provider->free(mem);
- 
- 	return ret;
+Best regards,
 -- 
-2.49.0.805.g082f7c87e0-goog
+Bobby Eshleman <bobbyeshleman@gmail.com>
 
