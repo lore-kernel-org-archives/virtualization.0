@@ -1,201 +1,152 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2041.outbound.protection.outlook.com [40.107.100.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C19C0197A8A
-	for <virtualization@lists.linux.dev>; Sun, 20 Apr 2025 07:32:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745134355; cv=none; b=YBje+Pwp6HnolPEXwhios3aL8Mzpnpmhc6LQSAykxy85ko/dL5ZUAqqydZKy12gS/oKGLf4qKmAJy0tjDKPqX7aYtAIajVzpTE7V4bXDV4X3gcXNMJTFrvIC3GkQ+7zdzEHy/M7WXycn9DiLd7+HR1s6kBK1ZOHRxWt0hGwknXI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745134355; c=relaxed/simple;
-	bh=esKQyW/mP1LV/UEbhdKK0N8rrzF46fMuyMoO4EiNSPM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=qhtDMaWUbNtbI39fcX//Yibstufj7BDl2A3ZHaHTWagI8mKhhfHqoM9WwLHnTuG0a1r5GdD9lDURIssLcKnG8l5PhPIAV0m/wg5DGaVatI6Ul7TQa5PFp2l28WbcpPCJPtRM9Cif8g2oKDMwS9NfDXTGL4sZR+5OT4q3m9jX9X8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fLG5iPIF; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 820EF155A25
+	for <virtualization@lists.linux.dev>; Sun, 20 Apr 2025 11:19:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1745147967; cv=fail; b=r7ydvKWl2fHkkmSAx2FEOERMSfP+bqA+oqVTjnIzJKY6BsCMKQFex7+1B17KKiys1/ubbOwGk4qH0IumikZrbgN4noBMY82zBagGt6B26POCLUY5IQECu8FcG7ZTph1/0v2JNq8dvAGMds+admbwiVIxd7S6chiZKMdE4VXzUjQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1745147967; c=relaxed/simple;
+	bh=9drNYT9pFuivDINJHn9XqO5QcBROvLJtllu5/3pwcbw=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Rx7aCbGGcgDS08A6dmJl+9ICUuDanlXMvtDph3FKWu7UHnndhdCT+4unjKSkn8Z27OD3gyiGdbpE/iZ783CJZvkRqmHa45BEiRVI38eVdqbO0zWYNwtQVtCkuR5LE6rYaZ92+GED0TOOoIxf0nfJ510UOsWqd7d6odqXwanjJgg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=FfaVpjpG; arc=fail smtp.client-ip=40.107.100.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fLG5iPIF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1745134352;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rPnHwBvdjCpYN+ILr2KbqTtEgmvkuvdxNwRCB+YgauQ=;
-	b=fLG5iPIFMB6O2SB6iLqS8OwCT9UqIVU6qSwGoSgWbMkPBogSS8QSrMOmDAoRmbS9GqOfFJ
-	YH89A6eqqj1HaHdt/XdNQVJV/lEV8c01djTi+I1SEsYZkgtb7P0gWnPJnxMjJnvVAdXqfb
-	z7rJuKt+t1NIyFGV9x7e/elnbUXrzjo=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-645-NJ3SWup_OUavIwWn3wrDHA-1; Sun, 20 Apr 2025 03:32:30 -0400
-X-MC-Unique: NJ3SWup_OUavIwWn3wrDHA-1
-X-Mimecast-MFC-AGG-ID: NJ3SWup_OUavIwWn3wrDHA_1745134349
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-39143311936so1012407f8f.0
-        for <virtualization@lists.linux.dev>; Sun, 20 Apr 2025 00:32:30 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745134349; x=1745739149;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rPnHwBvdjCpYN+ILr2KbqTtEgmvkuvdxNwRCB+YgauQ=;
-        b=UEYOP1xhq4uTWta3wkW9PhiFlVrXq6w88TzPjmGhwHaGVYR0zJFt8vJyp06vQI/PnJ
-         2avMarlz6D2s/6fGsu9m0qQWcEWCGTJeS/kMG9nTHvnrxws6NQKNFUTadE+NUdsP0b74
-         Nj4zc30Y4V8TwCudXkOZdWDTVE0JDS5GTFoWKP5ZaYiJOLA4p9daEQOJVdMBv0AKO0NL
-         iTDQZ1tNxZzBREB2gtT/n1aaYVL4nCwjdfiM9QbLSYs3T6xcIe2s8/k2uchk+avKFy27
-         JFvQ6rH79fpL6gA/Y8w/+cQ7FzUgzdpR9i5/Cfu943kGvpnHkj15HQ8ZvmsAeh0FkQSZ
-         3XrQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXGk9V4FH0IUrBAtMOmGs1qrVvTW9JtYIomZQNkgSlsbe/XaZExrOdeDu/ZScRg2FmH3f/FSbq4FxOfTlfy6Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxi0p/LwwGBaWPknkBK23bmV1feL4OopiS09+Q61eBlB53KC1+4
-	xrYmdFA+EWXZ0Gr4FIP2Wiknaymj0havEAFsEO7QK+wnxe0mJBljxLX2P5hz+W4Qwpy582UCFOg
-	QtMxV+rA7kqnj6DuwgkNLlQmO9pctlxhJGbDLE5BT29c7McGcdbFSz+dP29WYtM48
-X-Gm-Gg: ASbGncuqVMIFMqjrBrzKPEoBxLbCMWfBqM9KkM8MeDFa6gk8xSqgZ3XXZRiakZT7LgA
-	kQ6jpbjsDGOr3fTot08ZSsKpaXHWw5R+EJzKu79FqZUyVI87qcac2uUsBLNGW+5jOFxbYvWAKtM
-	0ndKsawwYKJkcaKDFJu3nsdoadCyCrAyRouOVprkU9oN/UBYn/3/nijK3jHsBuLDGXmBlRF4SCX
-	2KNpWJA+hIiMrpOZvRUx5Lvmjq39q7bE9Lnt9Nn/p2iDjw/Lq+7IFxgNwy40HKGrWjjJ7f10erx
-	XBOZ3A==
-X-Received: by 2002:a05:6000:186b:b0:391:13ef:1b1b with SMTP id ffacd0b85a97d-39efba60fa2mr5482627f8f.30.1745134349135;
-        Sun, 20 Apr 2025 00:32:29 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHrKjCeXR5ka2I9nS9y5bI3Cx9j6H+N6iEOY7I61+u5OZx0tRo6cSozrM/uepXIEFdsuc6J+Q==
-X-Received: by 2002:a05:6000:186b:b0:391:13ef:1b1b with SMTP id ffacd0b85a97d-39efba60fa2mr5482610f8f.30.1745134348687;
-        Sun, 20 Apr 2025 00:32:28 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39efa4331a9sm8243556f8f.36.2025.04.20.00.32.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Apr 2025 00:32:27 -0700 (PDT)
-Date: Sun, 20 Apr 2025 03:32:25 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jon Kohler <jon@nutanix.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v2] vhost/net: Defer TX queue re-enable until
- after sendmsg
-Message-ID: <20250420033135-mutt-send-email-mst@kernel.org>
-References: <20250420010518.2842335-1-jon@nutanix.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="FfaVpjpG"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=YMUebAboZCSzQosofNDFLw/3V9NKhkZEcdqBDxI/J8ntWTptiIy4dFYKUErTdoeC1w0wKxzU9QbhNzk5YNTccoKbXbTQZEgD7B7ZCcmIBayeWtCPxYN4krbLY58ClH6zAQ59l+EalcXsOUPqGtUJpdxva8X2Fo9Es6YBadHn1efUgxA2HFn9EekIKVK3h6jZEEIfrE2U3q4R144Ph0UnCbHx0+5NkaloYM8UHIcy9PX43c7egyh9iypFh+vLPnxA8MMxgb+kSV2fL5Q4IieAYAKk0U7IT5Y6Jia7Ytw3Iy2CccudBxWobRXxWjGhZEzQu43wNMGTUQ45k1CE7cdsGg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=EPJSrLtLfaypVosWhILVWoOltvYsqjppUv5W4qq0hqc=;
+ b=YHSKElUrfAQq/UnVguQ3MPqrxclgiiJExAn6n5s5I9pKcK8LXWufrBKdJX2kA+5CP/4eXUXMh6Amxh8mkRkgoGoawbMxEqEgFp3I1SRsNB8yzP6DAVs4NAy3ijFU5Uy3UNCtSKKOXQWrMr+XYNPBZ83lLv2KctxI5C4PADIBjcysDPs6rkp2sqv5kmInFldtb8iFKCR12tDHD5VcR2bSN94szhUNqMBZFdzY8jwMAkGO549m+lavZXOPDMVeTv0GRfFV0aT6fGYZau30lUsS9i8s2ihk1unWu8c0eR36E22VFQc8Kf+EEbD5z4s/as1qcN6TsDvS1dHMTb5PpZuGKg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=EPJSrLtLfaypVosWhILVWoOltvYsqjppUv5W4qq0hqc=;
+ b=FfaVpjpGvm6GFwCu9mCFQ2/R1RMIpVYnBkj5h0tYOEablUdDJddxq+sAHpoeaUhLbuVIQymFiXTZvMEJ4ghxrQIrpmpGSgAtBqy42k0B9L08hohTibWQOHHwQZLKjGKb6W8lT4NHN5rOK6qJl0ciYKpAMqun2vVSPQWa+0xvyQgvD+xyJggj3d3d04h2DTRFFsjH2DjVxWs4GDj5bwLo4eRG2bn0FQaubBMeAQpx6mEplAN1flXX1KMHO50uJ62dcHCiJv3G2Zj5GzlW8SIR4mqQ2j2FMYcN7Tqzr+gY190uPZwGi7LDrd/M3W+3DR5/IUyYFmPnRATiZIquRFd5Pw==
+Received: from SA1P222CA0166.NAMP222.PROD.OUTLOOK.COM (2603:10b6:806:3c3::10)
+ by SA1PR12MB8946.namprd12.prod.outlook.com (2603:10b6:806:375::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8655.25; Sun, 20 Apr
+ 2025 11:19:21 +0000
+Received: from SA2PEPF00003F61.namprd04.prod.outlook.com
+ (2603:10b6:806:3c3:cafe::58) by SA1P222CA0166.outlook.office365.com
+ (2603:10b6:806:3c3::10) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8655.25 via Frontend Transport; Sun,
+ 20 Apr 2025 11:19:21 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ SA2PEPF00003F61.mail.protection.outlook.com (10.167.248.36) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8655.12 via Frontend Transport; Sun, 20 Apr 2025 11:19:20 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Sun, 20 Apr
+ 2025 04:19:16 -0700
+Received: from drhqmail203.nvidia.com (10.126.190.182) by
+ drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.14; Sun, 20 Apr 2025 04:19:15 -0700
+Received: from rsws30.mtr.labs.mlnx (10.127.8.12) by mail.nvidia.com
+ (10.126.190.182) with Microsoft SMTP Server id 15.2.1544.14 via Frontend
+ Transport; Sun, 20 Apr 2025 04:19:12 -0700
+From: Israel Rukshin <israelr@nvidia.com>
+To: <virtualization@lists.linux.dev>, <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>
+CC: Max Gurtovoy <mgurtovoy@nvidia.com>, Nitzan Carmi <nitzanc@nvidia.com>,
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Israel Rukshin
+	<israelr@nvidia.com>
+Subject: [PATCH 0/2] Improve admin command handling and result
+Date: Sun, 20 Apr 2025 14:19:03 +0300
+Message-ID: <1745147945-194225-1-git-send-email-israelr@nvidia.com>
+X-Mailer: git-send-email 1.8.4.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250420010518.2842335-1-jon@nutanix.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: tWBu3z3VWvWzImAwKMC36g_lDKp7RUDRInWnN3lKhto_1745134349
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain
+X-NV-OnPremToCloud: AnonymousSubmission
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA2PEPF00003F61:EE_|SA1PR12MB8946:EE_
+X-MS-Office365-Filtering-Correlation-Id: ce55f38a-7c55-47c7-d8f6-08dd7ffd32ba
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|36860700013|82310400026|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?8Iho8w+DRKvJdimUCLsymR2FgVgiPWHGTuK8aLzVF4YhNoeShStyHUvxfzYR?=
+ =?us-ascii?Q?1/+/rCkBdeMKzz0fhx1tCyphl4eZsFvKJhrc/QWPXts2Y2zGSRi5ndmKY/vi?=
+ =?us-ascii?Q?U3mPKuVnhBuihvdXvyzDhqWrdKMApJqRYQI1tO3IA74tgFsOGYp2gmAJNk1/?=
+ =?us-ascii?Q?1entBTYkfYP7AYTOosa2ECdVN/riYqQLCctcp41GsD3CKbmiAZw1b7KpzXbG?=
+ =?us-ascii?Q?oZg3rLuSWkKhSpRKtwgB9sRMcpK7UwbRYMio8tq0ynas8AVf43YfV1feRWn1?=
+ =?us-ascii?Q?x14+ajOCz0oR00tuhjvoMyFSzERYIUibGYWlx+2dikpYsxAZBZBHAHVKp1YL?=
+ =?us-ascii?Q?WVKtiqtKq/gyz/lselLsr4oLx5in3GsGbUORo/WBiziTVPQYiiDJlP5+PHJu?=
+ =?us-ascii?Q?U0QSxdUoJqmQyHNh1JLq50kzEhIVG36fNtIUnc1uqs7OP0zt1zfwvkCx1Q/5?=
+ =?us-ascii?Q?jrpEUq/hk2SRE/MTeafLf5tUK54L6r+3oBRHYeASuMmuc/vnQzPUL7pkVgNi?=
+ =?us-ascii?Q?EEDdWGOA04bMivp3DNLkVM6LNXcYq3O+ilXKfzZ69ukjCIfExKEmbsPJ4Hg9?=
+ =?us-ascii?Q?eIn9V73WPnc0r0rev0BjgMf06fzR6f2SA+kY/yNVocmooBnF1NUUAb5wm1Pd?=
+ =?us-ascii?Q?KVhZI7ttL8RQPX3jKf+KyjMNhBJ96ah9hnjvzDQ+T+pfAFQw2UNlT2aecl+L?=
+ =?us-ascii?Q?jFYdxuDLrk2Yl6K1zQ/2zmRpwF2gNDfAhG0GrfFi7pNIPyJGG/iS6DwBC6S9?=
+ =?us-ascii?Q?/zwKDkJCoEXQ7T3/3RGdCZbSiku5pe0kmYwQMFp9W9F3a6EV/ADc+VRc285L?=
+ =?us-ascii?Q?jOH2rr+xdfBquumsWuxpj7RPqZAL8Kc3sfzeO1MJqVxHXHPWsU9PnGjoYRGA?=
+ =?us-ascii?Q?v6cFYZNnRPpTAVdsTdCJ6cnVXTBqi1L18PfJehzH6J9oM4BbOfL0sfskjIIA?=
+ =?us-ascii?Q?n2r80TacMzng/OJlRr62alA9iIlzLLa9XEV9UCojoc5t0U2mYqGus7m4a6m/?=
+ =?us-ascii?Q?4IqSOnO7mIf+9IqHleDcvwrvT6VpKZ5L/uucrsrFYc9uL76FOMng9HsxdNve?=
+ =?us-ascii?Q?kwqFFmAoxiXzCrTSyZ5uhB7muaDWmRYxnL2ADowU01czynH5/lv6iB4jtMCx?=
+ =?us-ascii?Q?aN0nCgky6vUgUzTnq4gqWgRtpHSZefoSkEdAhABZ0ns7LluYFsrqBEb6Dp3J?=
+ =?us-ascii?Q?XD/I3vTyW0F/AKYbCKEv+MW6+SxYzOh1AKlov4hW4PspfASAUDSostjstfmP?=
+ =?us-ascii?Q?QIXM+kUvjuH55jSNAItPV+rgT8T/VfwZgq2050MDiVeWobYDTK7fTsyVskzb?=
+ =?us-ascii?Q?wpFCuDQzSwKIF6mdTDKnb8A1QnOHf9b3PA0K5uK/XhZcpBi9aYm59Ugl4XvV?=
+ =?us-ascii?Q?drkOBtEHpe/y024iCSb3iPwgyAy3mx29oWiQDiXDs5rqmLCCIyl2P0sIssrL?=
+ =?us-ascii?Q?KHRtUUEcMe4v08JsTz3qXfGaS/WegoK4hk3BBwaGMXpOnscPUsj4cVkEgUF9?=
+ =?us-ascii?Q?pr57hTTbUXC8ZpEPXcy7hysWERvDiTbwuTds?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(36860700013)(82310400026)(376014);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Apr 2025 11:19:20.9944
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: ce55f38a-7c55-47c7-d8f6-08dd7ffd32ba
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SA2PEPF00003F61.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB8946
 
-On Sat, Apr 19, 2025 at 06:05:18PM -0700, Jon Kohler wrote:
-> In handle_tx_copy, TX batching processes packets below ~PAGE_SIZE and
-> batches up to 64 messages before calling sock->sendmsg.
-> 
-> Currently, when there are no more messages on the ring to dequeue,
-> handle_tx_copy re-enables kicks on the ring *before* firing off the
-> batch sendmsg. However, sock->sendmsg incurs a non-zero delay,
-> especially if it needs to wake up a thread (e.g., another vhost worker).
-> 
-> If the guest submits additional messages immediately after the last ring
-> check and disablement, it triggers an EPT_MISCONFIG vmexit to attempt to
-> kick the vhost worker. This may happen while the worker is still
-> processing the sendmsg, leading to wasteful exit(s).
-> 
-> This is particularly problematic for single-threaded guest submission
-> threads, as they must exit, wait for the exit to be processed
-> (potentially involving a TTWU), and then resume.
-> 
-> In scenarios like a constant stream of UDP messages, this results in a
-> sawtooth pattern where the submitter frequently vmexits, and the
-> vhost-net worker alternates between sleeping and waking.
-> 
-> A common solution is to configure vhost-net busy polling via userspace
-> (e.g., qemu poll-us). However, treating the sendmsg as the "busy"
-> period by keeping kicks disabled during the final sendmsg and
-> performing one additional ring check afterward provides a significant
-> performance improvement without any excess busy poll cycles.
-> 
-> If messages are found in the ring after the final sendmsg, requeue the
-> TX handler. This ensures fairness for the RX handler and allows
-> vhost_run_work_list to cond_resched() as needed.
-> 
-> Test Case
->     TX VM: taskset -c 2 iperf3  -c rx-ip-here -t 60 -p 5200 -b 0 -u -i 5
->     RX VM: taskset -c 2 iperf3 -s -p 5200 -D
->     6.12.0, each worker backed by tun interface with IFF_NAPI setup.
->     Note: TCP side is largely unchanged as that was copy bound
-> 
-> 6.12.0 unpatched
->     EPT_MISCONFIG/second: 5411
->     Datagrams/second: ~382k
->     Interval         Transfer     Bitrate         Lost/Total Datagrams
->     0.00-30.00  sec  15.5 GBytes  4.43 Gbits/sec  0/11481630 (0%)  sender
-> 
-> 6.12.0 patched
->     EPT_MISCONFIG/second: 58 (~93x reduction)
->     Datagrams/second: ~650k  (~1.7x increase)
->     Interval         Transfer     Bitrate         Lost/Total Datagrams
->     0.00-30.00  sec  26.4 GBytes  7.55 Gbits/sec  0/19554720 (0%)  sender
-> 
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Jon Kohler <jon@nutanix.com>
+This small series addresses two issues in the virtio-pci driver related
+to admin command handling:
 
-sounds like the right approach.
+1. Fix an incorrect result size in admin command completion, which
+   was causing issues with state transfer and buffer allocation.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+2. Add a safety check for the length of device-writable portions in
+   admin commands, ensuring compliance with the virtio specification.
 
+Israel Rukshin (2):
+  virtio-pci: Fix result size returned for the admin command completion
+  virtio-pci: Add admin command length check for device writable
+    portions
 
+ drivers/virtio/virtio_pci_modern.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-> ---
-
-
-in the future, pls put the changelog here as you progress v1->v2->v3.
-Thanks!
-
->  drivers/vhost/net.c | 19 +++++++++++++++----
->  1 file changed, 15 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index b9b9e9d40951..9b04025eea66 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -769,13 +769,17 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
->  			break;
->  		/* Nothing new?  Wait for eventfd to tell us they refilled. */
->  		if (head == vq->num) {
-> +			/* If interrupted while doing busy polling, requeue
-> +			 * the handler to be fair handle_rx as well as other
-> +			 * tasks waiting on cpu
-> +			 */
->  			if (unlikely(busyloop_intr)) {
->  				vhost_poll_queue(&vq->poll);
-> -			} else if (unlikely(vhost_enable_notify(&net->dev,
-> -								vq))) {
-> -				vhost_disable_notify(&net->dev, vq);
-> -				continue;
->  			}
-> +			/* Kicks are disabled at this point, break loop and
-> +			 * process any remaining batched packets. Queue will
-> +			 * be re-enabled afterwards.
-> +			 */
->  			break;
->  		}
->  
-> @@ -825,7 +829,14 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
->  		++nvq->done_idx;
->  	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
->  
-> +	/* Kicks are still disabled, dispatch any remaining batched msgs. */
->  	vhost_tx_batch(net, nvq, sock, &msg);
-> +
-> +	/* All of our work has been completed; however, before leaving the
-> +	 * TX handler, do one last check for work, and requeue handler if
-> +	 * necessary. If there is no work, queue will be reenabled.
-> +	 */
-> +	vhost_net_busy_poll_try_queue(net, vq);
->  }
->  
->  static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
-> -- 
-> 2.43.0
+-- 
+2.34.1
 
