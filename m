@@ -1,65 +1,65 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 915CB2571A7
-	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 905001E9B3D
+	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745203520; cv=none; b=ktLp00qDkUvHOMtDMz0ajThdibNHfjWrsgicxEfEeuFYT1rkRe/8afyiX7iE08/RWhHObmJ+xcstFFQrM48Xk0AKnnqe4ByJPT+mZlVaBWcgHzYe74Czsyo+5HYRcW0bwoO8a2ktalTZXA+w6YGnI6EeGLwZ9lX6S4RqSPXZAcU=
+	t=1745203524; cv=none; b=eshldrK3Bs0vaF8q20UBJurzEClLxeY/h7/O4sTOwMmm2Dm7aP+KzQQ7JgFORIzGWXnJQLsm0o6VORgOmWlfpISwnuMLt9SjzoSAq2Ebjg90rvgBNJyqW0p4BHrIy8eO8VMiHqIs8Ytip8i0azpNpfL4zqPJJSgEqSkuyX+vxGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745203520; c=relaxed/simple;
-	bh=sumMjmwZxo0qJvhw7S8ltFSvno0RZA0jV5PI4oksXXk=;
+	s=arc-20240116; t=1745203524; c=relaxed/simple;
+	bh=AZqGW8Ocgt8sq156c0ncQRRuaUsojrcIcO70tsL2zlg=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CYZR6u1yAvrQ/1kXpXAyKT4woijERMVbb44V5nUgcDSpCKv2zIxwb9yPaq1YwSmHCqoPgyhX9iKuRn58UkrkeiPizWT6TPR3anhka7oKjH4nGUrUJFBrboX2u5BXYNXUdnk4mQ6EvV+lgN8lxoJwK/pd3vXO/nG6OyVN8vfzrPU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZyqHelUo; arc=none smtp.client-ip=140.211.166.136
+	 MIME-Version:Content-Type; b=gdy4p/Ijn+lM2hqji3AjeQ7OF36mMPNN+BUl1RYYKtDA+wUIbcbgbdE+OVu/t8gm/egxg/ucIQseivtNRmsGaC4IAjQp+k1CN4e599cpSTYbx3mxnFhW0UAxvUmibTX572+WL6BLlxj9XVi9S0CGJTBL3zoPqbRztT7hBhPdAOM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=biyPVGDC; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZyqHelUo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="biyPVGDC"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1A78C608EF
-	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:17 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 27A4E81148
+	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:22 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.39
+X-Spam-Score: -5.79
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 5GB2B9IvJkhu for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Apr 2025 02:45:16 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 4roa-ZnWuHPJ for <virtualization@lists.linux-foundation.org>;
+ Mon, 21 Apr 2025 02:45:21 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 60FC260A54
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 60FC260A54
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZyqHelUo
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 470FD81143
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 470FD81143
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=biyPVGDC
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 60FC260A54
-	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:16 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 470FD81143
+	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1745203515;
+	s=mimecast20190719; t=1745203520;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NrTRtJXNWtpYPwMS+KZwGlCYM9RXuubPsDXsJSdgeYg=;
-	b=ZyqHelUoRxuqZiH8Wdb8SBEM4AWSo+R4QMYumIWgBLzUhJZoTiSptD9Ct6FNY/6KX1axyf
-	RE+TvGzNpv/bxDxJ6XfYISxGhf3lUOQ+b2MHrrMhC4glxCCmuXUYOimNEAPfbNZWBbz3by
-	CFZ57nVei8G3gSgau16mplN1AV9nKz0=
+	bh=q+V+8sRVGmZGRQi4jugHVy4Q0DFhBHCBFGufYnE9Lbc=;
+	b=biyPVGDCStVGGY4gki/WCIkXoMflptPG1HXj4kcbVAStk8x+Trzl/uIhIrBF2z8f6G++lL
+	+b+jgLBO54fKbi98gXAE4v8/AeNDHR+apYvaQgIa/W8gRvgsHwFNSYDNiKqf0bWzkxp/Ij
+	vnWnaEAEs1LocyfJxUCZGjIEvFi3qr0=
 Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-495-9UGXHUVXNde3xXFfbvUM-Q-1; Sun,
- 20 Apr 2025 22:45:11 -0400
-X-MC-Unique: 9UGXHUVXNde3xXFfbvUM-Q-1
-X-Mimecast-MFC-AGG-ID: 9UGXHUVXNde3xXFfbvUM-Q_1745203510
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-653-ko8SyFA-PnuTtm2w8azhsg-1; Sun,
+ 20 Apr 2025 22:45:16 -0400
+X-MC-Unique: ko8SyFA-PnuTtm2w8azhsg-1
+X-Mimecast-MFC-AGG-ID: ko8SyFA-PnuTtm2w8azhsg_1745203515
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 480301800570;
-	Mon, 21 Apr 2025 02:45:10 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5E7AC18004A7;
+	Mon, 21 Apr 2025 02:45:15 +0000 (UTC)
 Received: from server.redhat.com (unknown [10.72.112.29])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 33922180175B;
-	Mon, 21 Apr 2025 02:45:05 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id ED7741801778;
+	Mon, 21 Apr 2025 02:45:10 +0000 (UTC)
 From: Cindy Lu <lulu@redhat.com>
 To: lulu@redhat.com,
 	jasowang@redhat.com,
@@ -69,9 +69,9 @@ To: lulu@redhat.com,
 	linux-kernel@vger.kernel.org,
 	virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
-Subject: [PATCH v9 1/4] vhost: Add a new parameter in vhost_dev to allow user select kthread
-Date: Mon, 21 Apr 2025 10:44:07 +0800
-Message-ID: <20250421024457.112163-2-lulu@redhat.com>
+Subject: [PATCH v9 2/4] vhost: Reintroduce kthread mode support in vhost
+Date: Mon, 21 Apr 2025 10:44:08 +0800
+Message-ID: <20250421024457.112163-3-lulu@redhat.com>
 In-Reply-To: <20250421024457.112163-1-lulu@redhat.com>
 References: <20250421024457.112163-1-lulu@redhat.com>
 Precedence: bulk
@@ -80,58 +80,319 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-The vhost now uses vhost_task and workers as a child of the owner thread.
-While this aligns with containerization principles, it confuses some
-legacy userspace applications, therefore, we are reintroducing kthread
-API support.
+This patch reintroduces kthread mode support in vhost,
+It also introduces struct vhost_worker_ops to abstract
+worker create/stop/wakeup operations.
 
-Introduce a new parameter to enable users to choose between kthread and
-task mode.
+* Bring back the original vhost_worker() implementation,
+  and renamed to vhost_run_work_kthread_list().
 
-By default, this parameter is set to true, so the default behavior
-remains unchanged by this patch.
+* Add cgroup support for the kthread
+
+* Introduce struct vhost_worker_ops:
+  - Encapsulates create / stop / wake‑up callbacks.
+  - vhost_worker_create() selects the proper ops according to
+    inherit_owner.
+
+This partially reverts or improves upon:
+commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
+commit 1cdaafa1b8b4 ("vhost: replace single worker pointer with xarray")
 
 Signed-off-by: Cindy Lu <lulu@redhat.com>
 ---
- drivers/vhost/vhost.c | 1 +
- drivers/vhost/vhost.h | 9 +++++++++
- 2 files changed, 10 insertions(+)
+ drivers/vhost/vhost.c | 188 ++++++++++++++++++++++++++++++++++++++----
+ drivers/vhost/vhost.h |  12 +++
+ 2 files changed, 182 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 63612faeab72..250dc43f1786 100644
+index 250dc43f1786..be97028a8baf 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -552,6 +552,7 @@ void vhost_dev_init(struct vhost_dev *dev,
- 	dev->byte_weight = byte_weight;
- 	dev->use_worker = use_worker;
- 	dev->msg_handler = msg_handler;
-+	dev->inherit_owner = true;
- 	init_waitqueue_head(&dev->wait);
- 	INIT_LIST_HEAD(&dev->read_list);
- 	INIT_LIST_HEAD(&dev->pending_list);
+@@ -22,6 +22,7 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/kthread.h>
++#include <linux/cgroup.h>
+ #include <linux/module.h>
+ #include <linux/sort.h>
+ #include <linux/sched/mm.h>
+@@ -242,7 +243,7 @@ static void vhost_worker_queue(struct vhost_worker *worker,
+ 		 * test_and_set_bit() implies a memory barrier.
+ 		 */
+ 		llist_add(&work->node, &worker->work_list);
+-		vhost_task_wake(worker->vtsk);
++		worker->ops->wakeup(worker);
+ 	}
+ }
+ 
+@@ -388,6 +389,44 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+ 	__vhost_vq_meta_reset(vq);
+ }
+ 
++static int vhost_run_work_kthread_list(void *data)
++{
++	struct vhost_worker *worker = data;
++	struct vhost_work *work, *work_next;
++	struct vhost_dev *dev = worker->dev;
++	struct llist_node *node;
++
++	kthread_use_mm(dev->mm);
++
++	for (;;) {
++		/* mb paired w/ kthread_stop */
++		set_current_state(TASK_INTERRUPTIBLE);
++
++		if (kthread_should_stop()) {
++			__set_current_state(TASK_RUNNING);
++			break;
++		}
++		node = llist_del_all(&worker->work_list);
++		if (!node)
++			schedule();
++
++		node = llist_reverse_order(node);
++		/* make sure flag is seen after deletion */
++		smp_wmb();
++		llist_for_each_entry_safe(work, work_next, node, node) {
++			clear_bit(VHOST_WORK_QUEUED, &work->flags);
++			__set_current_state(TASK_RUNNING);
++			kcov_remote_start_common(worker->kcov_handle);
++			work->fn(work);
++			kcov_remote_stop();
++			cond_resched();
++		}
++	}
++	kthread_unuse_mm(dev->mm);
++
++	return 0;
++}
++
+ static bool vhost_run_work_list(void *data)
+ {
+ 	struct vhost_worker *worker = data;
+@@ -582,6 +621,46 @@ long vhost_dev_check_owner(struct vhost_dev *dev)
+ }
+ EXPORT_SYMBOL_GPL(vhost_dev_check_owner);
+ 
++struct vhost_attach_cgroups_struct {
++	struct vhost_work work;
++	struct task_struct *owner;
++	int ret;
++};
++
++static void vhost_attach_cgroups_work(struct vhost_work *work)
++{
++	struct vhost_attach_cgroups_struct *s;
++
++	s = container_of(work, struct vhost_attach_cgroups_struct, work);
++	s->ret = cgroup_attach_task_all(s->owner, current);
++}
++
++static int vhost_attach_task_to_cgroups(struct vhost_worker *worker)
++{
++	struct vhost_attach_cgroups_struct attach;
++	int saved_cnt;
++
++	attach.owner = current;
++
++	vhost_work_init(&attach.work, vhost_attach_cgroups_work);
++	vhost_worker_queue(worker, &attach.work);
++
++	mutex_lock(&worker->mutex);
++
++	/*
++	 * Bypass attachment_cnt check in __vhost_worker_flush:
++	 * Temporarily change it to INT_MAX to bypass the check
++	 */
++	saved_cnt = worker->attachment_cnt;
++	worker->attachment_cnt = INT_MAX;
++	__vhost_worker_flush(worker);
++	worker->attachment_cnt = saved_cnt;
++
++	mutex_unlock(&worker->mutex);
++
++	return attach.ret;
++}
++
+ /* Caller should have device mutex */
+ bool vhost_dev_has_owner(struct vhost_dev *dev)
+ {
+@@ -627,7 +706,7 @@ static void vhost_worker_destroy(struct vhost_dev *dev,
+ 
+ 	WARN_ON(!llist_empty(&worker->work_list));
+ 	xa_erase(&dev->worker_xa, worker->id);
+-	vhost_task_stop(worker->vtsk);
++	worker->ops->stop(worker);
+ 	kfree(worker);
+ }
+ 
+@@ -650,42 +729,115 @@ static void vhost_workers_free(struct vhost_dev *dev)
+ 	xa_destroy(&dev->worker_xa);
+ }
+ 
++static void vhost_task_wakeup(struct vhost_worker *worker)
++{
++	return vhost_task_wake(worker->vtsk);
++}
++
++static void vhost_kthread_wakeup(struct vhost_worker *worker)
++{
++	wake_up_process(worker->kthread_task);
++}
++
++static void vhost_task_do_stop(struct vhost_worker *worker)
++{
++	return vhost_task_stop(worker->vtsk);
++}
++
++static void vhost_kthread_do_stop(struct vhost_worker *worker)
++{
++	kthread_stop(worker->kthread_task);
++}
++
++static int vhost_task_worker_create(struct vhost_worker *worker,
++				    struct vhost_dev *dev, const char *name)
++{
++	struct vhost_task *vtsk;
++	u32 id;
++	int ret;
++
++	vtsk = vhost_task_create(vhost_run_work_list, vhost_worker_killed,
++				 worker, name);
++	if (IS_ERR(vtsk))
++		return PTR_ERR(vtsk);
++
++	worker->vtsk = vtsk;
++	vhost_task_start(vtsk);
++	ret = xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GFP_KERNEL);
++	if (ret < 0) {
++		vhost_task_do_stop(worker);
++		return ret;
++	}
++	worker->id = id;
++	return 0;
++}
++
++static int vhost_kthread_worker_create(struct vhost_worker *worker,
++				       struct vhost_dev *dev, const char *name)
++{
++	struct task_struct *task;
++	u32 id;
++	int ret;
++
++	task = kthread_create(vhost_run_work_kthread_list, worker, "%s", name);
++	if (IS_ERR(task))
++		return PTR_ERR(task);
++
++	worker->kthread_task = task;
++	wake_up_process(task);
++	ret = xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GFP_KERNEL);
++	if (ret < 0)
++		goto stop_worker;
++
++	ret = vhost_attach_task_to_cgroups(worker);
++	if (ret)
++		goto stop_worker;
++
++	worker->id = id;
++	return 0;
++
++stop_worker:
++	vhost_kthread_do_stop(worker);
++	return ret;
++}
++
++static const struct vhost_worker_ops kthread_ops = {
++	.create = vhost_kthread_worker_create,
++	.stop = vhost_kthread_do_stop,
++	.wakeup = vhost_kthread_wakeup,
++};
++
++static const struct vhost_worker_ops vhost_task_ops = {
++	.create = vhost_task_worker_create,
++	.stop = vhost_task_do_stop,
++	.wakeup = vhost_task_wakeup,
++};
++
+ static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
+ {
+ 	struct vhost_worker *worker;
+-	struct vhost_task *vtsk;
+ 	char name[TASK_COMM_LEN];
+ 	int ret;
+-	u32 id;
++	const struct vhost_worker_ops *ops =
++		dev->inherit_owner ? &vhost_task_ops : &kthread_ops;
+ 
+ 	worker = kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
+ 	if (!worker)
+ 		return NULL;
+ 
+ 	worker->dev = dev;
++	worker->ops = ops;
+ 	snprintf(name, sizeof(name), "vhost-%d", current->pid);
+ 
+-	vtsk = vhost_task_create(vhost_run_work_list, vhost_worker_killed,
+-				 worker, name);
+-	if (IS_ERR(vtsk))
+-		goto free_worker;
+-
+ 	mutex_init(&worker->mutex);
+ 	init_llist_head(&worker->work_list);
+ 	worker->kcov_handle = kcov_common_handle();
+-	worker->vtsk = vtsk;
+-
+-	vhost_task_start(vtsk);
+-
+-	ret = xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GFP_KERNEL);
++	ret = ops->create(worker, dev, name);
+ 	if (ret < 0)
+-		goto stop_worker;
+-	worker->id = id;
++		goto free_worker;
+ 
+ 	return worker;
+ 
+-stop_worker:
+-	vhost_task_stop(vtsk);
+ free_worker:
+ 	kfree(worker);
+ 	return NULL;
 diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index bb75a292d50c..19bb94922a0e 100644
+index 19bb94922a0e..af4b2f7d3b91 100644
 --- a/drivers/vhost/vhost.h
 +++ b/drivers/vhost/vhost.h
-@@ -176,6 +176,15 @@ struct vhost_dev {
- 	int byte_weight;
- 	struct xarray worker_xa;
- 	bool use_worker;
-+	/*
-+	 * If inherit_owner is true we use vhost_tasks to create
-+	 * the worker so all settings/limits like cgroups, NPROC,
-+	 * scheduler, etc are inherited from the owner. If false,
-+	 * we use kthreads and only attach to the same cgroups
-+	 * as the owner for compat with older kernels.
-+	 * here we use true as default value
-+	 */
-+	bool inherit_owner;
- 	int (*msg_handler)(struct vhost_dev *dev, u32 asid,
- 			   struct vhost_iotlb_msg *msg);
+@@ -26,7 +26,18 @@ struct vhost_work {
+ 	unsigned long		flags;
  };
+ 
++struct vhost_worker;
++struct vhost_dev;
++
++struct vhost_worker_ops {
++	int (*create)(struct vhost_worker *worker, struct vhost_dev *dev,
++		      const char *name);
++	void (*stop)(struct vhost_worker *worker);
++	void (*wakeup)(struct vhost_worker *worker);
++};
++
+ struct vhost_worker {
++	struct task_struct *kthread_task;
+ 	struct vhost_task	*vtsk;
+ 	struct vhost_dev	*dev;
+ 	/* Used to serialize device wide flushing with worker swapping. */
+@@ -36,6 +47,7 @@ struct vhost_worker {
+ 	u32			id;
+ 	int			attachment_cnt;
+ 	bool			killed;
++	const struct vhost_worker_ops *ops;
+ };
+ 
+ /* Poll a file (eventfd or socket) */
 -- 
 2.45.0
 
