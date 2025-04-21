@@ -1,63 +1,65 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74918347C7
-	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 915CB2571A7
+	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745203513; cv=none; b=jb+VCMk6XjrbazR7Wfma/zAlFenCkGcw4I5qJXZRZwl5oYImSMdBFcrevjniYrI7BM6LnaP+2k7DoqOBBRyescWF4IvORGN4ZTUv7mvBpU5I0uwnCdntK5jcno0W6Y/PpotPaA0jUXjo5IrBKyGITE9mMqwT+a9hI+A+HTyvuaA=
+	t=1745203520; cv=none; b=ktLp00qDkUvHOMtDMz0ajThdibNHfjWrsgicxEfEeuFYT1rkRe/8afyiX7iE08/RWhHObmJ+xcstFFQrM48Xk0AKnnqe4ByJPT+mZlVaBWcgHzYe74Czsyo+5HYRcW0bwoO8a2ktalTZXA+w6YGnI6EeGLwZ9lX6S4RqSPXZAcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745203513; c=relaxed/simple;
-	bh=ChmpkBWAcBUZ0isTg/2/kwH0+i+db/Z7zSyRokRGl4o=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=S92oYWIKPM6c6caPj10YQK/X4UyFgFvcZjzqdnWfYTbhXVKRwBShfej6BDpqLVrXrYc9ubF87hX2k0mQ0ynHFnkAX+kNOYyq5B9CIp9p7o7/co5JIc3gOJZGxkwYEVX3M8s1etsgbw4+EhXu+Ak4nxEv1XIGT7+fj7028agk76I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iwnWyg1o; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1745203520; c=relaxed/simple;
+	bh=sumMjmwZxo0qJvhw7S8ltFSvno0RZA0jV5PI4oksXXk=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=CYZR6u1yAvrQ/1kXpXAyKT4woijERMVbb44V5nUgcDSpCKv2zIxwb9yPaq1YwSmHCqoPgyhX9iKuRn58UkrkeiPizWT6TPR3anhka7oKjH4nGUrUJFBrboX2u5BXYNXUdnk4mQ6EvV+lgN8lxoJwK/pd3vXO/nG6OyVN8vfzrPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZyqHelUo; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iwnWyg1o"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZyqHelUo"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 97CA540A95
-	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:11 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1A78C608EF
+	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:17 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.79
+X-Spam-Score: -4.39
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id gMhVzG1ULUll for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Apr 2025 02:45:10 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 5GB2B9IvJkhu for <virtualization@lists.linux-foundation.org>;
+ Mon, 21 Apr 2025 02:45:16 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 4EACE40134
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4EACE40134
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iwnWyg1o
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 60FC260A54
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 60FC260A54
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZyqHelUo
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4EACE40134
-	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:09 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 60FC260A54
+	for <virtualization@lists.linux-foundation.org>; Mon, 21 Apr 2025 02:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1745203508;
+	s=mimecast20190719; t=1745203515;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=1rywFvr1FoN+KZUd9Jmk/NHuAzpjaZybpU9faUuHgMw=;
-	b=iwnWyg1o/NRCON2lacVVfOT6IDCoravFls78BdM1tkmbh6LrEM8Ytjyk75pWnxkgr95xxq
-	3AllqLA69bmVZ+e6ADBcZhFMtQZdcVpfpYEC0IXFGe/Ga3F3Id03AWgZBt1HTyEtHM6U6I
-	B5gSO/qhZhhowBOHRGkCnj/tpp24Z0c=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NrTRtJXNWtpYPwMS+KZwGlCYM9RXuubPsDXsJSdgeYg=;
+	b=ZyqHelUoRxuqZiH8Wdb8SBEM4AWSo+R4QMYumIWgBLzUhJZoTiSptD9Ct6FNY/6KX1axyf
+	RE+TvGzNpv/bxDxJ6XfYISxGhf3lUOQ+b2MHrrMhC4glxCCmuXUYOimNEAPfbNZWBbz3by
+	CFZ57nVei8G3gSgau16mplN1AV9nKz0=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-329-XCJievbiMWCnaGosBWBuGw-1; Sun,
- 20 Apr 2025 22:45:06 -0400
-X-MC-Unique: XCJievbiMWCnaGosBWBuGw-1
-X-Mimecast-MFC-AGG-ID: XCJievbiMWCnaGosBWBuGw_1745203505
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-495-9UGXHUVXNde3xXFfbvUM-Q-1; Sun,
+ 20 Apr 2025 22:45:11 -0400
+X-MC-Unique: 9UGXHUVXNde3xXFfbvUM-Q-1
+X-Mimecast-MFC-AGG-ID: 9UGXHUVXNde3xXFfbvUM-Q_1745203510
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 74A3E19560AB;
-	Mon, 21 Apr 2025 02:45:05 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 480301800570;
+	Mon, 21 Apr 2025 02:45:10 +0000 (UTC)
 Received: from server.redhat.com (unknown [10.72.112.29])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F27D71801778;
-	Mon, 21 Apr 2025 02:45:00 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 33922180175B;
+	Mon, 21 Apr 2025 02:45:05 +0000 (UTC)
 From: Cindy Lu <lulu@redhat.com>
 To: lulu@redhat.com,
 	jasowang@redhat.com,
@@ -67,88 +69,69 @@ To: lulu@redhat.com,
 	linux-kernel@vger.kernel.org,
 	virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
-Subject: [PATCH v9 0/4] vhost: Add support of kthread API
-Date: Mon, 21 Apr 2025 10:44:06 +0800
-Message-ID: <20250421024457.112163-1-lulu@redhat.com>
+Subject: [PATCH v9 1/4] vhost: Add a new parameter in vhost_dev to allow user select kthread
+Date: Mon, 21 Apr 2025 10:44:07 +0800
+Message-ID: <20250421024457.112163-2-lulu@redhat.com>
+In-Reply-To: <20250421024457.112163-1-lulu@redhat.com>
+References: <20250421024457.112163-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-In commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads"),   
-the vhost now uses vhost_task and operates as a child of the   
-owner thread. This aligns with containerization principles.   
-However, this change has caused confusion for some legacy   
-userspace applications. Therefore, we are reintroducing   
-support for the kthread API. 
+The vhost now uses vhost_task and workers as a child of the owner thread.
+While this aligns with containerization principles, it confuses some
+legacy userspace applications, therefore, we are reintroducing kthread
+API support.
 
-In this series, a new UAPI is implemented to allow   
-userspace applications to configure their thread mode.
+Introduce a new parameter to enable users to choose between kthread and
+task mode.
 
-Changelog v2:
- 1. Change the module_param's name to enforce_inherit_owner, and the default value is true.
- 2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
+By default, this parameter is set to true, so the default behavior
+remains unchanged by this patch.
 
-Changelog v3:
- 1. Change the module_param's name to inherit_owner_default, and the default value is true.
- 2. Add a structure for task function; the worker will select a different mode based on the value inherit_owner.
- 3. device will have their own inherit_owner in struct vhost_dev
- 4. Address other comments
+Signed-off-by: Cindy Lu <lulu@redhat.com>
+---
+ drivers/vhost/vhost.c | 1 +
+ drivers/vhost/vhost.h | 9 +++++++++
+ 2 files changed, 10 insertions(+)
 
-Changelog v4:
- 1. remove the module_param, only keep the UAPI
- 2. remove the structure for task function; change to use the function pointer in vhost_worker
- 3. fix the issue in vhost_worker_create and vhost_dev_ioctl
- 4. Address other comments
-
-Changelog v5:
- 1. Change wakeup and stop function pointers in struct vhost_worker to void.
- 2. merging patches 4, 5, 6 in a single patch
- 3. Fix spelling issues and address other comments.
-
-Changelog v6:
- 1. move the check of VHOST_NEW_WORKER from vhost_scsi to vhost
- 2. Change the ioctl name VHOST_SET_INHERIT_FROM_OWNER to VHOST_FORK_FROM_OWNER
- 3. reuse the function __vhost_worker_flush
- 4. use a ops sturct to support worker relates function
- 5. reset the value of inherit_owner in vhost_dev_reset_owner.
- 
-Changelog v7: 
- 1. add a KConfig knob to disable legacy app support
- 2. Split the changes into two patches to separately introduce the ops and add kthread support.
- 3. Utilized INX_MAX to avoid modifications in __vhost_worker_flush
- 4. Rebased on the latest kernel
- 5. Address other comments
- 
-Changelog v8: 
- 1. Rebased on the latest kernel
- 2. Address some other comments 
- 
-Changelog v9:
- 1. Rebased on the latest kernel. 
- 2. Squashed patches 6‑7. 
- 3. Squashed patches 2‑4. 
- 4. Minor fixes in commit log
-   
-Tested with QEMU with kthread mode/task mode/kthread+task mode
-
-Cindy Lu (4):
-  vhost: Add a new parameter in vhost_dev to allow user select kthread
-  vhost: Reintroduce kthread mode support in vhost
-  vhost: add VHOST_FORK_FROM_OWNER ioctl and validate inherit_owner
-  vhost: Add a KConfig knob to enable IOCTL VHOST_FORK_FROM_OWNER
-
- drivers/vhost/Kconfig      |  15 +++
- drivers/vhost/vhost.c      | 219 +++++++++++++++++++++++++++++++++----
- drivers/vhost/vhost.h      |  21 ++++
- include/uapi/linux/vhost.h |  16 +++
- 4 files changed, 252 insertions(+), 19 deletions(-)
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 63612faeab72..250dc43f1786 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -552,6 +552,7 @@ void vhost_dev_init(struct vhost_dev *dev,
+ 	dev->byte_weight = byte_weight;
+ 	dev->use_worker = use_worker;
+ 	dev->msg_handler = msg_handler;
++	dev->inherit_owner = true;
+ 	init_waitqueue_head(&dev->wait);
+ 	INIT_LIST_HEAD(&dev->read_list);
+ 	INIT_LIST_HEAD(&dev->pending_list);
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index bb75a292d50c..19bb94922a0e 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -176,6 +176,15 @@ struct vhost_dev {
+ 	int byte_weight;
+ 	struct xarray worker_xa;
+ 	bool use_worker;
++	/*
++	 * If inherit_owner is true we use vhost_tasks to create
++	 * the worker so all settings/limits like cgroups, NPROC,
++	 * scheduler, etc are inherited from the owner. If false,
++	 * we use kthreads and only attach to the same cgroups
++	 * as the owner for compat with older kernels.
++	 * here we use true as default value
++	 */
++	bool inherit_owner;
+ 	int (*msg_handler)(struct vhost_dev *dev, u32 asid,
+ 			   struct vhost_iotlb_msg *msg);
+ };
 -- 
 2.45.0
 
