@@ -1,46 +1,44 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EB691D95A3;
-	Mon, 21 Apr 2025 21:51:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3C641C6FE1;
+	Mon, 21 Apr 2025 21:51:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745272285; cv=none; b=BgQJTY0VVgHJ6qzQgyFTcedurLLCQ9N1AR8SYIFBpEU/mihw5WZAeTmeFocjpfEbjtDxEzeWgjXfeqQ9jW/hN3YWPzxmYNx1OQ207jHy+ozvTiicdI+Y4ztXYVO47fa20efJRvz3ZFsEU7VJM/natvO5MqwgiW4rz/7Y3RBEDFA=
+	t=1745272285; cv=none; b=kwhnDyHM9VMOAyRdc4O3mdMjtuw3ZLBDCH5Wfk+dnVo/YmIMT1j1CkHbqP4Bb0pULdVsGlf7Ntz1T/4JxHUwyemsA2kxHhk876hAp9R2YjNoN1VqvGCJZAtmmrt17h78nyaj+4+oMcjeUhNRFWTfPotNpIxhoobVi6o9LDznZVc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1745272285; c=relaxed/simple;
-	bh=bU72gZf0Mlr4a1DTEu4p6xddG7QuL34UyWY76ya9fjA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=tfd60kmd4cwEtiIDTM/PlEgW+hHjy9l7c43Ia1FJQK1qgY3SfSEokW4eoMYdYzs7jSs8+jBciV9RO35aEceTzp52Oir7t1KG1tim85uRWOy7xgjONyRBt4LsLNJzqGss4tY9R9m+JnlinThOWcrJjFctLZfTnAYSrs+fw6PQSJ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=J90FhxkX; arc=none smtp.client-ip=185.226.149.37
+	bh=HyT++7V1AOZvPoNvFoFoo1SlvVznay6EHuHNjPxCZQs=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=AEe31WSgGP4NCeg3gB5QA5ERvUOrQKFWvdUovoNGHbQvZSD3kx2JR/zs51zVwh2PvVuelSVCkwxMgb1uyNVqOwkroxvJtvySgEi+7Oscb84goggWl7lLqEH/QbcD3Mh8cTvNhcnwjTCSmv8/yUi+9xj/23OWZVvgNmqXBMql33Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=jukvpE8S; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="J90FhxkX"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="jukvpE8S"
 Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1u6z2n-000P5i-7E; Mon, 21 Apr 2025 23:51:13 +0200
+	id 1u6z2l-001iAh-UK; Mon, 21 Apr 2025 23:51:11 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=qswCCZ7zdNCGMNQd6xheEFi5M2DI/AzAcjRQmm33v3U=; b=J90FhxkXtWl335gXrcrN6soVBm
-	Q6xbudBOn9/qMff9L5+o9kTYwOU11Y3t5HhhRR0YxY5UjwSU1hclxGgL1ezvDNg/MagJC5i/4vhe4
-	4XxK+2vwetUSur5Tba/Ef81hulIVRsmBF5d6MYV99PCF/IsgCLbn92DPLcmYfALe02VxHoUWzdsFu
-	iAzHJu942Fpqc+NNT0Em53nbg83EpXVoYJhj3zqNQnerfItzsdiJJ+jaWvNI1opUKHD968AkLGEp2
-	0XgWbLMiAyG5rTK/Z+A8MApKTT6wujw5mAHOLzZbYfzbgwN1w5PxwRoWKw5wUWXbcf+mBnNhSIe8o
-	b9UUbbQw==;
+	s=selector1; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From; bh=cJG1o1PAVMfo65c2jak5MnoP2Klf8L19W0RX+/R9Jmo=
+	; b=jukvpE8Sn/PdpMalM4f8Sbjno2EmwvkP2RH/PBEWtTjE1qswKf9//9whYCvfVbuDA6NLKKQfu
+	Z05GR6tVp5/dTSDoa8L7It7xpmQ4HlEN0hBOLXLXCpXX+BlploSIPWk23KD/KaHjkEWb+mP4bm2Cv
+	nC4nAClKHGs5y5LBp5ySinYjuT2hPhOWmJF+pbBlmODODuA39IG0/wiy9Xgy88+lzeCcqX8ndVeyx
+	HwtVyYgoWSAk0Q6j9vstWgq1nfQDfxDyazAXHe2g6/nslmoQJcORZGTYC7qIYisAV6E47UAo4yB0h
+	aBwZuaP+1yNiEinAd6VH4lpOZrbjfnUAZ6HROQ==;
 Received: from [10.9.9.73] (helo=submission02.runbox)
 	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1u6z2m-0000Nf-T1; Mon, 21 Apr 2025 23:51:13 +0200
+	id 1u6z2k-0000NU-T9; Mon, 21 Apr 2025 23:51:11 +0200
 Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1u6z2j-0056xd-1t; Mon, 21 Apr 2025 23:51:09 +0200
+	id 1u6z2g-0056xd-NB; Mon, 21 Apr 2025 23:51:06 +0200
 From: Michal Luczaj <mhal@rbox.co>
-Date: Mon, 21 Apr 2025 23:50:43 +0200
-Subject: [PATCH net-next v2 3/3] vsock/test: Expand linger test to ensure
- close() does not misbehave
+Subject: [PATCH net-next v2 0/3] vsock: SOCK_LINGER rework
+Date: Mon, 21 Apr 2025 23:50:40 +0200
+Message-Id: <20250421-vsock-linger-v2-0-fe9febd64668@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,9 +47,11 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250421-vsock-linger-v2-3-fe9febd64668@rbox.co>
-References: <20250421-vsock-linger-v2-0-fe9febd64668@rbox.co>
-In-Reply-To: <20250421-vsock-linger-v2-0-fe9febd64668@rbox.co>
+X-B4-Tracking: v=1; b=H4sIALC9BmgC/1WNQQrCMBBFr1Jm7cg0SWvjyntIFxqndlASSUqol
+ N7dkJ3Lx+O/v0HiKJzg3GwQOUuS4AuoQwNuvvknozwKgyLVkSaDOQX3wrcUFdGS6rmbrB16B2X
+ yiTzJWnNX8Lyg53WBsZhZ0hLit/7ktvqaNHT6T+YWCVvTDaQH1saqS7yH9egCjPu+/wA1KxxGs
+ AAAAA==
+X-Change-ID: 20250304-vsock-linger-9026e5f9986c
 To: Stefano Garzarella <sgarzare@redhat.com>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -64,80 +64,34 @@ Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
  Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.2
 
-There was an issue with SO_LINGER: instead of blocking until all queued
-messages for the socket have been successfully sent (or the linger timeout
-has been reached), close() would block until packets were handled by the
-peer.
+Change vsock's lingerning to wait on close() until all data is sent, i.e.
+until workers picked all the packets for processing.
 
-Add a check to alert on close() lingering when it should not.
+Changes in v2:
+- Comment that some transports do not implement unsent_bytes [Stefano]
+- Reduce the indentation of virtio_transport_wait_close() [Stefano] 
+- Do not linger on shutdown(), expand the commit messages [Paolo]
+- Link to v1: https://lore.kernel.org/r/20250407-vsock-linger-v1-0-1458038e3492@rbox.co
+
+Changes in v1:
+- Do not assume `unsent_bytes()` is implemented by all transports [Stefano]
+- Link to v0: https://lore.kernel.org/netdev/df2d51fd-03e7-477f-8aea-938446f47864@rbox.co/
 
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- tools/testing/vsock/vsock_test.c | 30 +++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+Michal Luczaj (3):
+      vsock: Linger on unsent data
+      vsock: Reduce indentation in virtio_transport_wait_close()
+      vsock/test: Expand linger test to ensure close() does not misbehave
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index d0f6d253ac72d08a957cb81a3c38fcc72bec5a53..82d0bc20dfa75041f04eada1b4310be2f7c3a0c1 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -1788,13 +1788,16 @@ static void test_stream_connect_retry_server(const struct test_opts *opts)
- 	close(fd);
- }
- 
-+#define	LINGER_TIMEOUT	1	/* seconds */
-+
- static void test_stream_linger_client(const struct test_opts *opts)
- {
- 	struct linger optval = {
- 		.l_onoff = 1,
--		.l_linger = 1
-+		.l_linger = LINGER_TIMEOUT
- 	};
--	int fd;
-+	int bytes_unsent, fd;
-+	time_t ts;
- 
- 	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
- 	if (fd < 0) {
-@@ -1807,7 +1810,28 @@ static void test_stream_linger_client(const struct test_opts *opts)
- 		exit(EXIT_FAILURE);
- 	}
- 
-+	/* Byte left unread to expose any incorrect behaviour. */
-+	send_byte(fd, 1, 0);
-+
-+	/* Reuse LINGER_TIMEOUT to wait for bytes_unsent == 0. */
-+	timeout_begin(LINGER_TIMEOUT);
-+	do {
-+		if (ioctl(fd, SIOCOUTQ, &bytes_unsent) < 0) {
-+			perror("ioctl(SIOCOUTQ)");
-+			exit(EXIT_FAILURE);
-+		}
-+		timeout_check("ioctl(SIOCOUTQ) == 0");
-+	} while (bytes_unsent != 0);
-+	timeout_end();
-+
-+	ts = current_nsec();
- 	close(fd);
-+	if ((current_nsec() - ts) / NSEC_PER_SEC > 0) {
-+		fprintf(stderr, "Unexpected lingering on close()\n");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_writeln("DONE");
- }
- 
- static void test_stream_linger_server(const struct test_opts *opts)
-@@ -1820,7 +1844,7 @@ static void test_stream_linger_server(const struct test_opts *opts)
- 		exit(EXIT_FAILURE);
- 	}
- 
--	vsock_wait_remote_close(fd);
-+	control_expectln("DONE");
- 	close(fd);
- }
- 
+ net/vmw_vsock/virtio_transport_common.c | 29 +++++++++++++++++++----------
+ tools/testing/vsock/vsock_test.c        | 30 +++++++++++++++++++++++++++---
+ 2 files changed, 46 insertions(+), 13 deletions(-)
+---
+base-commit: 8066e388be48f1ad62b0449dc1d31a25489fa12a
+change-id: 20250304-vsock-linger-9026e5f9986c
 
+Best regards,
 -- 
-2.49.0
+Michal Luczaj <mhal@rbox.co>
 
