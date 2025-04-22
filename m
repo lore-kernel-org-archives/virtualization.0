@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CF571F0E34
-	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 08:23:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CBE1253F1A
+	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 08:23:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745310199; cv=none; b=MeF1GyhWEcxYDTARtQiVJDcApPOEbSPr4HETvJ1VsY3v0sxh4J1czUe17MdS1lYTUxD+n9mvT1D1FWpJeTXSQVYRI+6+qsWNdtDWkBm5HY/2h4okQpgls0kDn9C+G0anL1eWq5FLvJyRqLPhr/NRwxqM69p0TsAUlr1Du7T9UIo=
+	t=1745310200; cv=none; b=YbvOr67+5EkPZfkeGgtfVe0mm+kD+dzvsMUbzcV7TzrhgM7gY3jKnn+ZN4hWnSMLr3/sA+urlBOBXG12N2Epbz/M1P3XRsH8Dk8fAgS09eO7oeu8OEPGbdp+KBoFOdtAIimyeTul6x8O5oBlvOwdJaZBpiXNG6PgwCIDimmyJNc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745310199; c=relaxed/simple;
-	bh=mXHs9XWSjNOs2MwMruMnotiL7mSYRgEHo8iZA6y9x1U=;
+	s=arc-20240116; t=1745310200; c=relaxed/simple;
+	bh=nCPLLfO0p9R1MrFA/TpMmFLNN/ttdW86mD3Qbzz+eAE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PWoEpDDnEOfdBE3afJdWTj90uXjnBe37HkFPNgNzvoeo5YaHk9NzjDNi/pQfQuUJ0GepsNaVOEKuZKVsVJGCW/9WyJWAYnMXK1BqF4J8APJIHMqQMfUxlBpwxdx7AtBYWUlqoJb3OnfxVrO6XrUImU+b5yPgc3hVItab6HjqStw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=JnM1tOMn; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=ZS5jkSlAwWWdPCUVTjmuHSPzBEEaUy3cFwyKRBU+Wog6LHQyECZ/REl43tpVL5Am2pqdN7JbJ2szqwZU51+FCJOz8YKzO1i57OXtQOebq52ExvVQJbM7g02E5wLoEVsrdf0HffAKwRD95RkNlMLa9LvFieotCFBh++Z+9etYG+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=cbIqq/wL; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="JnM1tOMn"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="cbIqq/wL"
 Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53M8MG9M1954391
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53M8MG9X1954391
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Tue, 22 Apr 2025 01:22:36 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53M8MG9M1954391
+	Tue, 22 Apr 2025 01:22:59 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53M8MG9X1954391
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745310158;
-	bh=ZDjz7zZ6jpSk7UYBX1f+/D6FpEpADYtgSJeGI0K8PfU=;
+	s=2025042001; t=1745310181;
+	bh=NNx/bsW0ODtmJpfsi048P3Fj6b4nBpFrrvypKuPXLIg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=JnM1tOMn1uOqwogaGDb5MA0EnSbBUePNLnpaO/hoa8wawH5peRy9eV+Mxx6gdUAsP
-	 4J+kDIbBA+tj1HaAosm+HAGN3bs6BDN2tw/gvDOb3rz0QBzJKtmPhVFCU1gjPZARLN
-	 cVFTJm2CNABewq6f0h4AUzPrxnKJY7GgDt4k+LmQnyeNf/IJcVPLHUmkr4KgzM4ddw
-	 cpG5h9ajIgNj3NZXg8iZqKaJefvUYCb83TLTbKiVCSqsmym2tgrGB9O/MnG0tdrpqX
-	 e49cOPxt2MjmuEMWTIfxUCvSYUho6LiyNa9c/tKoPjWL4drYZI2WdYQ+dXK3vNAiOJ
-	 HJ3Be9VSRalww==
+	b=cbIqq/wL911bUtP7+WKZQwUp5BP2uQDF0M396c/1wV9SxBhoCkZqNqqK/X5WlcGHr
+	 ashWQDaWODnE6g9w4+IW/hSEyKjNsaVVVc+pObXiea4M3kb3inrzeAuXhSDfHp6Cx+
+	 HfUn2y8wZAC5H0mjajud2hEDrBLl2csSFGl0BMmU/YjJkF1ob54eK/BjPWWd13ikh9
+	 kLIBXoce48SGlAb8V3FWMUzo67hW5FrpbagoXdvt+RFV1FYEkIe1lKQFkOEY7FcA+R
+	 eeiYsX+Bcaf3/8X8V8OUbwLjuG+YkH53wOp7lVVoobhRWAMn1YmRpvzx2zJd94GdB2
+	 hN1HWhqneMGyA==
 From: "Xin Li (Intel)" <xin@zytor.com>
 To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
@@ -50,9 +50,9 @@ Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
         luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
         haiyangz@microsoft.com, decui@microsoft.com
-Subject: [RFC PATCH v2 08/34] x86/msr: Convert a native_wrmsr() use to native_wrmsrq()
-Date: Tue, 22 Apr 2025 01:21:49 -0700
-Message-ID: <20250422082216.1954310-9-xin@zytor.com>
+Subject: [RFC PATCH v2 19/34] x86/extable: Add support for immediate form MSR instructions
+Date: Tue, 22 Apr 2025 01:22:00 -0700
+Message-ID: <20250422082216.1954310-20-xin@zytor.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250422082216.1954310-1-xin@zytor.com>
 References: <20250422082216.1954310-1-xin@zytor.com>
@@ -64,32 +64,103 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert a native_wrmsr() use to native_wrmsrq() to zap meaningless type
-conversions when a u64 MSR value is splitted into two u32.
-
 Signed-off-by: Xin Li (Intel) <xin@zytor.com>
 ---
- arch/x86/include/asm/sev-internal.h | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ arch/x86/include/asm/msr.h | 18 ++++++++++++++++++
+ arch/x86/mm/extable.c      | 39 +++++++++++++++++++++++++++++++++-----
+ 2 files changed, 52 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/include/asm/sev-internal.h b/arch/x86/include/asm/sev-internal.h
-index 73cb774c3639..9da509e52e11 100644
---- a/arch/x86/include/asm/sev-internal.h
-+++ b/arch/x86/include/asm/sev-internal.h
-@@ -101,12 +101,7 @@ static inline u64 sev_es_rd_ghcb_msr(void)
+diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
+index c955339be9c9..8f7a67b1c61c 100644
+--- a/arch/x86/include/asm/msr.h
++++ b/arch/x86/include/asm/msr.h
+@@ -78,6 +78,24 @@ static inline void do_trace_rdpmc(u32 msr, u64 val, int failed) {}
+ extern u64 xen_read_pmc(int counter);
+ #endif
  
- static __always_inline void sev_es_wr_ghcb_msr(u64 val)
++/*
++ * Called only from an MSR fault handler, the instruction pointer points to
++ * the MSR access instruction that caused the fault.
++ */
++static __always_inline bool is_msr_imm_insn(void *ip)
++{
++	/*
++	 * A full decoder for immediate form MSR instructions appears excessive.
++	 */
++#ifdef CONFIG_X86_64
++	const u8 msr_imm_insn_prefix[] = { 0xc4, 0xe7 };
++
++	return !memcmp(ip, msr_imm_insn_prefix, sizeof(msr_imm_insn_prefix));
++#else
++	return false;
++#endif
++}
++
+ /*
+  * __rdmsr() and __wrmsr() are the two primitives which are the bare minimum MSR
+  * accessors and should not have any tracing or other functionality piggybacking
+diff --git a/arch/x86/mm/extable.c b/arch/x86/mm/extable.c
+index bf8dab18be97..f1743babafc8 100644
+--- a/arch/x86/mm/extable.c
++++ b/arch/x86/mm/extable.c
+@@ -167,23 +167,52 @@ static bool ex_handler_uaccess(const struct exception_table_entry *fixup,
+ static bool ex_handler_msr(const struct exception_table_entry *fixup,
+ 			   struct pt_regs *regs, bool wrmsr, bool safe, int reg)
  {
--	u32 low, high;
--
--	low  = (u32)(val);
--	high = (u32)(val >> 32);
--
--	native_wrmsr(MSR_AMD64_SEV_ES_GHCB, low, high);
-+	native_wrmsrq(MSR_AMD64_SEV_ES_GHCB, val);
- }
++	bool imm_insn = is_msr_imm_insn((void *)regs->ip);
++	u32 msr;
++
++	if (imm_insn)
++		/*
++		 * The 32-bit immediate specifying a MSR is encoded into
++		 * byte 5 ~ 8 of an immediate form MSR instruction.
++		 */
++		msr = *(u32 *)(regs->ip + 5);
++	else
++		msr = (u32)regs->cx;
++
+ 	if (__ONCE_LITE_IF(!safe && wrmsr)) {
+-		pr_warn("unchecked MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
+-			(unsigned int)regs->cx, (unsigned int)regs->dx,
+-			(unsigned int)regs->ax,  regs->ip, (void *)regs->ip);
++		/*
++		 * To maintain consistency with existing RDMSR and WRMSR(NS) instructions,
++		 * the register operand for immediate form MSR instructions is ALWAYS
++		 * encoded as RAX in <asm/msr.h> for reading or writing the MSR value.
++		 */
++		u64 msr_val = regs->ax;
++
++		if (!imm_insn) {
++			/*
++			 * On processors that support the Intel 64 architecture, the
++			 * high-order 32 bits of each of RAX and RDX are ignored.
++			 */
++			msr_val &= 0xffffffff;
++			msr_val |= (u64)regs->dx << 32;
++		}
++
++		pr_warn("unchecked MSR access error: WRMSR to 0x%x (tried to write 0x%016llx) at rIP: 0x%lx (%pS)\n",
++			msr, msr_val, regs->ip, (void *)regs->ip);
+ 		show_stack_regs(regs);
+ 	}
  
- enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
+ 	if (__ONCE_LITE_IF(!safe && !wrmsr)) {
+ 		pr_warn("unchecked MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
+-			(unsigned int)regs->cx, regs->ip, (void *)regs->ip);
++			msr, regs->ip, (void *)regs->ip);
+ 		show_stack_regs(regs);
+ 	}
+ 
+ 	if (!wrmsr) {
+ 		/* Pretend that the read succeeded and returned 0. */
+ 		regs->ax = 0;
+-		regs->dx = 0;
++
++		if (!imm_insn)
++			regs->dx = 0;
+ 	}
+ 
+ 	if (safe)
 -- 
 2.49.0
 
