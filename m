@@ -1,117 +1,153 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 717A61F8756
-	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 21:52:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8D9E1D63DF
+	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 23:00:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745358728; cv=none; b=TXoU60n8pV1dlMGQbZkj5fmYhZPWreonRUpHJI0SrTWEruG0ME6FSSMRJYSm62JejZlrUKH9Sr26aA//vrrysk76X27QZkBB6J8DffNRV2J8kW9kuqL1K9gtPrq04WEINB6R/L68TyyjExiHQt+wp9Xy1Niyi/SDSlzHdwVl2Ko=
+	t=1745362856; cv=none; b=bt5+tLvyUHTEPl15tLIr4xDpbwB0zFfIu5n+xnQqCLhSQrcl6ly7G1kPJFra7dm1eQ8+Zosl0McE3nHKyuYSKDgs/jeJeh9ACh6wMuUc4sl+uQT7zhbktaBzBXSEyPUoOY2T6It6TP1h7/8+ppfI3KyWN0m1Ny1mJK1fnoeo8pY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745358728; c=relaxed/simple;
-	bh=3LybbdQW1iMI36n6qF6wDQCtqVvVWx7aMPmreP0uZNQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=lNS/F78K0LK5gX8/l7rKVCLipgUICz9MMvM2GxSytdjVr4NH4T85u00LQHizj9hEPwUosVe2yTulkoqm9MMK2WSGu3vEkWBf8Mmbc9wOeEBr7wgVlMTT+1RjauKknVe2WIefCVL3dYE2wwVa8USuHatEPlac+6ehU3/sS/iTqkQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K+W40PZu; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1745362856; c=relaxed/simple;
+	bh=vA0x1LF+TTujtzA/a9qIyOuUZvc6uTpZ8L2xS4rCm/w=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dkjgeABn6S0pWvCgSUYG+gI7awWL+Q8P1qlymIloN3KECAouLk4tL5bWi1mv+5rtPH4gU/sMrp4XiLPVtc5Ma3eRgtfV60AJ1ZAVj4nmfYCkgaD0IDHlcvsO89b+A8W5nNaV1c/7ggbuT0XQfZ4DIWA6wzzLDvMlOp2RMRF3nXs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=CDOXibVf; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K+W40PZu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1745358725;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=joxllWRMo1gVbEqeWtbqHWjwqROo+sski2Q8YGooCfY=;
-	b=K+W40PZuILXux7cxYSbDBAV0XkWUo47lJQmOYzVYlebmi4ffFL6N9p9/KySuw2BVUcfiQI
-	BxAsy42yy42BOnba+hKjCUeEL+tMLVmD9/hRx+4eh2k1qaWltqWajxrXdaUZ1oHZUtRy5t
-	Pup7G08Lu/Ufg7ntPRcgk3KZqU4ZJZY=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-588-I5KCoFyxOqCYSM30Mm7wfQ-1; Tue, 22 Apr 2025 17:52:02 -0400
-X-MC-Unique: I5KCoFyxOqCYSM30Mm7wfQ-1
-X-Mimecast-MFC-AGG-ID: I5KCoFyxOqCYSM30Mm7wfQ_1745358721
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43cf3168b87so26859815e9.2
-        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 14:52:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="CDOXibVf"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2240aad70f2so102605ad.0
+        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 16:00:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1745362854; x=1745967654; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=X0wkS+mYcttDoYH2cbzpbLqiayCSdu0EeV0O89OnxB4=;
+        b=CDOXibVfzhsSRB56z8S9begxQncsDH3Ag8z/4uc/Xti9o7hq99QtW41YrLuzRBrEoG
+         +3lGeb4phSp8yRmwgUG1IYUqTdS4v0qYgbyzswRN6S71JaZptQGE9etJI6AceBCfQYDd
+         02yKKNdOdteclET4w8/MzsirqCov8W7Qvj7rheSfpL3lz2uWsX/UHA7nA1C2j/tv+Hml
+         BEY34F3xcUUhlV0cAEr65lk4s4q+fahpjPUElVY6i/TArqmGlaPOe8zzP1TAbTQZqNGT
+         qDE9vmPezPFw14syif5OggLqE8riHMnKg9wGOhTpMXNMZU5zCbig0MFzFKzZP1nh9/vb
+         O9Yg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745358721; x=1745963521;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=joxllWRMo1gVbEqeWtbqHWjwqROo+sski2Q8YGooCfY=;
-        b=AbVwHF4oOiLBzml2Y0nWahP4kr3oxMDf0M1L0AX5ejwdlY5aSREnQjCYvJpPfVzRhv
-         vfUBABTKV5x3HfDJgxh7MaynEs8ptu4vkF2T6QBmTLW0nejTa6CXQSdoC2kJCjuC4q/x
-         Qv0FWAdQrd4VucNUp0YXRC8X3XkZUrHLIV02gGlpnYnKJ5JjuZb4xfBSdfkP5Kq7WFIQ
-         JBzWtYDgS2636CGOsgm5ic45x8V7z9IrBWtooWQXhbNzuIFIWlCKxMQSwTKgI2oN4pQb
-         ScXx2jV4Hp+Pwc5iz4oMyk2hsteiQLfaZm6onaAvwPCczI0EdMvpyM/hCA3xqIQKDQTD
-         +M5w==
-X-Gm-Message-State: AOJu0Yx9CHXcSkFGV95ij7Qi1USFNaePI3t7BGejomOmbyG9hNivIaQf
-	sKycDqYBbdPSSVfSRZMBPkzrhMlnyTKUDKp3UCPJa4/Ba2S6JTZbr4XOXxT57Rio0zxDeq9jvBr
-	0MJwQJaM+4JsvIMxRo06+HN3DKqWM04s6/Pk2+lgEzMAGBLOFa0xpyccQSa/XGkCk
-X-Gm-Gg: ASbGncuK7+DIGRf9sizBYFqzDtpDReF6GCbtBNMGOPi/88kQaiuKu6ZvP2I+bXmuhsj
-	G1vK6fPySe6Pt/etKYfoE72L1MijhawGeaQ3IHj0AWulSMfqBMnil/IRBYPPNI7X9/ln0kasQ0i
-	KA6bD3btHeaVm6YQjefu5RFkp2/IM7RghLbIpabHQig3OOpKkQxLiq8UaLqwoZCiR9vOh+RcWND
-	UuSA1dmRwe9sQYTLM3Pxi3DOsCK91hWwQJF+/EEIfAfWJbihxX0BKjwgt1yBnNIcPzYp5nepesM
-	msY6V4QlxZxd4mS8tHCJZa+8E/AibQNehcCLVlccNQaMstGaakhKESKr9D7oAe+QoKIudg==
-X-Received: by 2002:a05:600c:154d:b0:43c:f4b3:b094 with SMTP id 5b1f17b1804b1-4406ab7a726mr134798705e9.6.1745358720934;
-        Tue, 22 Apr 2025 14:52:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGTLxTsyxpVT4t0zbtQAWUyHdf9Zx7V24YbCZxhwIqhnPj4RWkalHudFTrHtJPVsV+GXVwc/g==
-X-Received: by 2002:a05:600c:154d:b0:43c:f4b3:b094 with SMTP id 5b1f17b1804b1-4406ab7a726mr134798515e9.6.1745358720531;
-        Tue, 22 Apr 2025 14:52:00 -0700 (PDT)
-Received: from localhost (62-151-111-63.jazzfree.ya.com. [62.151.111.63])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-44092d37332sm2604005e9.30.2025.04.22.14.51.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Apr 2025 14:52:00 -0700 (PDT)
-From: Javier Martinez Canillas <javierm@redhat.com>
-To: Philipp Stanner <phasta@kernel.org>, Dave Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>, Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>,
- Arnd Bergmann <arnd@kernel.org>, Jani Nikula <jani.nikula@intel.com>,
- Niklas Schnelle <schnelle@linux.ibm.com>, Jeff Johnson
- <jeff.johnson@oss.qualcomm.com>, Philipp Stanner <phasta@kernel.org>
-Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drm/cirrus: Use non-hybrid PCI devres API
-In-Reply-To: <20250417094009.29297-2-phasta@kernel.org>
-References: <20250417094009.29297-2-phasta@kernel.org>
-Date: Tue, 22 Apr 2025 23:51:58 +0200
-Message-ID: <87frhzc1a9.fsf@minerva.mail-host-address-is-not-set>
+        d=1e100.net; s=20230601; t=1745362854; x=1745967654;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=X0wkS+mYcttDoYH2cbzpbLqiayCSdu0EeV0O89OnxB4=;
+        b=BF9NvmBYxOPlfTsyhHl0v44XgsY7M87IWkQXYitmMx4v5YIU+6jFTXmWFSEN6QNLDG
+         VpC+GZ4GQzjOBhUrpCYx2vd0uAaqpco+EyzGgjXEYAk/yZ0ZA8jujnzgRIX1UpoZYvy2
+         wOsZAbw/BKuyvrQKh/m3CYTt3fuHTS+ucWHOWD2fOuG1K5ABG2V05DzuJlNJvA9KK+KT
+         A8P/0XVZcD7vCslG8Qd7TApxCqhxwHzbNbhE44uc93PYENUhlfRYAVTpsy4eP1eceHem
+         LwOGP24EEyBozRp+2zM/NOEi1tvkGLeZ03g0xbAQUwoBAEW6LffRBKyQCj+FZcqZazo7
+         fIJg==
+X-Forwarded-Encrypted: i=1; AJvYcCUwTSG+z92YeKS/01cK0re6ohudS7CrAKB9gGXSO2/gy+3JZjov6MjW0pOqNdpdK2qGT7yw8nKHGGSfrBEJ/Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwtTqPZKMY74cU72O6bA3hQVw/7aPbkPi2UNjRhMqslETjofDZ0
+	vxAV05njuyMjDOJHTo/qGjX96Y95W6tPbk6D6PCj/lGO2xfBnYcO8WSR1gH3wreTz8k5CVK9Rpj
+	DqEzNuMchBt5vEOANHY75mMHUecGdVcP28OBP
+X-Gm-Gg: ASbGncvbRHIL+dDKjpmxV9ELE8W96glMzdTO9MxYzGe5edstUr1TGgdvSPDq0uK0m4v
+	ZbcKJdqCJkz4XAp5hzjkWOnDxTtj0v3XQdxR1K+QoYGh9dO2jb/ZDkaReClYgUlg/R4TTUpfQVo
+	l3dPGhOeGe9pRzGj9ddMLJ59bxVghfDeyP3lOmKbXXh4v/ShOmGyKECRwIevkKVSI=
+X-Google-Smtp-Source: AGHT+IFcA8eNct2OIuHlbOvxzm3T6NVzaOSOXt3ivEIqSJ8wke0kgYVfmjCEtUHN4nE+IsPWRgGhH+7fhESmeCiNRMo=
+X-Received: by 2002:a17:902:ef07:b0:215:86bf:7e46 with SMTP id
+ d9443c01a7336-22da4ebcff9mr256305ad.7.1745362853731; Tue, 22 Apr 2025
+ 16:00:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: zCrvHH46bt2zvt1m1LtvfogPSrTaPlWE-CQXWEFw90c_1745358721
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain
+References: <20250417231540.2780723-1-almasrymina@google.com>
+ <20250417231540.2780723-8-almasrymina@google.com> <CAEAWyHckGSYEMDqVDT0u7pFCpO9fmXpEDb7-YV87pu+R+ytxOw@mail.gmail.com>
+ <CAHS8izNZXmG0bi15DpmX2EcococF2swM83Urk19aQBvz=z3nUQ@mail.gmail.com>
+In-Reply-To: <CAHS8izNZXmG0bi15DpmX2EcococF2swM83Urk19aQBvz=z3nUQ@mail.gmail.com>
+From: Harshitha Ramamurthy <hramamurthy@google.com>
+Date: Tue, 22 Apr 2025 16:00:42 -0700
+X-Gm-Features: ATxdqUGxkrayoAGMPm_qgEhKu-sQHz14vjXf4E7ZJdbEqvqiDvu9MHtNVHd91NA
+Message-ID: <CAEAWyHf7Qzi8CDBeRMB5nMvvNawrFrUCh52k4JevbSHX1Y=zcw@mail.gmail.com>
+Subject: Re: [PATCH net-next v9 7/9] gve: add netmem TX support to GVE DQO-RDA mode
+To: Mina Almasry <almasrymina@google.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-doc@vger.kernel.org, io-uring@vger.kernel.org, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Simon Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	Jeroen de Borst <jeroendb@google.com>, Kuniyuki Iwashima <kuniyu@amazon.com>, 
+	Willem de Bruijn <willemb@google.com>, Jens Axboe <axboe@kernel.dk>, 
+	Pavel Begunkov <asml.silence@gmail.com>, David Ahern <dsahern@kernel.org>, 
+	Neal Cardwell <ncardwell@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	sdf@fomichev.me, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>, 
+	Victor Nogueira <victor@mojatatu.com>, Pedro Tammela <pctammela@mojatatu.com>, 
+	Samiullah Khawaja <skhawaja@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Philipp Stanner <phasta@kernel.org> writes:
-
-Hello Philipp,
-
-> cirrus enables its PCI device with pcim_enable_device(). This,
-> implicitly, switches the function pci_request_regions() into managed
-> mode, where it becomes a devres function.
+On Tue, Apr 22, 2025 at 2:30=E2=80=AFPM Mina Almasry <almasrymina@google.co=
+m> wrote:
 >
-> The PCI subsystem wants to remove this hybrid nature from its
-> interfaces. To do so, users of the aforementioned combination of
-> functions must be ported to non-hybrid functions.
+> On Tue, Apr 22, 2025 at 10:43=E2=80=AFAM Harshitha Ramamurthy
+> <hramamurthy@google.com> wrote:
+> >
+> > On Thu, Apr 17, 2025 at 4:15=E2=80=AFPM Mina Almasry <almasrymina@googl=
+e.com> wrote:
+> > >
+> > > Use netmem_dma_*() helpers in gve_tx_dqo.c DQO-RDA paths to
+> > > enable netmem TX support in that mode.
+> > >
+> > > Declare support for netmem TX in GVE DQO-RDA mode.
+> > >
+> > > Signed-off-by: Mina Almasry <almasrymina@google.com>
+> > >
+> > > ---
+> > >
+> > > v4:
+> > > - New patch
+> > > ---
+> > >  drivers/net/ethernet/google/gve/gve_main.c   | 4 ++++
+> > >  drivers/net/ethernet/google/gve/gve_tx_dqo.c | 8 +++++---
+> > >  2 files changed, 9 insertions(+), 3 deletions(-)
+> > >
+> > > diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net=
+/ethernet/google/gve/gve_main.c
+> > > index 8aaac9101377..430314225d4d 100644
+> > > --- a/drivers/net/ethernet/google/gve/gve_main.c
+> > > +++ b/drivers/net/ethernet/google/gve/gve_main.c
+> > > @@ -2665,6 +2665,10 @@ static int gve_probe(struct pci_dev *pdev, con=
+st struct pci_device_id *ent)
+> > >
+> > >         dev_info(&pdev->dev, "GVE version %s\n", gve_version_str);
+> > >         dev_info(&pdev->dev, "GVE queue format %d\n", (int)priv->queu=
+e_format);
+> > > +
+> > > +       if (!gve_is_gqi(priv) && !gve_is_qpl(priv))
+> > > +               dev->netmem_tx =3D true;
+> > > +
+> >
+> > a nit: but it would fit in better and be more uniform if this is set
+> > earlier in the function where other features are set for the
+> > net_device.
+> >
 >
-> Replace the call to sometimes-managed pci_request_regions() with one to
-> the always-managed pcim_request_all_regions().
+> Thanks for taking a look. I actually thought about that while trying
+> to implement this, but AFAIU (correct if wrong), gve_is_gqi and
+> gve_is_qpl need priv to be initialized, so this feature set must be
+> performed after gve_init_priv in this function. I suppose this feature
+> checking maybe can be put before register_netdev. Do you prefer that?
+
+Ah yes, you are right. Thanks for checking. That would be preferable.
+Another option is to move it inside gve_init_priv() after the mode has
+been set. Either is okay.
+
+Thanks,
+Harshitha
 >
-> Signed-off-by: Philipp Stanner <phasta@kernel.org>
-> ---
-
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-
--- 
-Best regards,
-
-Javier Martinez Canillas
-Core Platforms
-Red Hat
-
+>
+> --
+> Thanks,
+> Mina
