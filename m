@@ -1,58 +1,58 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D273F2D997A
-	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 20:46:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4A6B2DCB56
+	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 21:10:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745354800; cv=none; b=ac0SClAJx6Tf9YZ/DG9FRNOUrR58nG4HYasv8v+wBqsWqbbjgaVjaYuOVSphEE3zq3nvILyMEBBNW0dkXjN/dGL8Ok4tHTCKrythfZ5O29gTOw9kijNnkuR2iEofXRolSWZRkk51y+uhkXueRQd1iUQKUVl+bYR/hnceBPiX4SA=
+	t=1745356223; cv=none; b=nbGXGp/Pp55sNzBc2X0xH36kCn4XEJnAglCY8JT82K9+i4y/AMfT4SPpIYN9KiCV/WRi/4T4TL2qe/S6gLRWSq25o54mK5EKkBUHj7Gah/tnDYa96818gUSUEmw1jv4S+X8G5q/OIxBeuilG4P06d/sD+9SV322ApvryyJXNv84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745354800; c=relaxed/simple;
-	bh=AepzvkTaXC3tf015Trnt4kidHqKonWdB6m9AqTJB5Is=;
+	s=arc-20240116; t=1745356223; c=relaxed/simple;
+	bh=DGei0lrNYocjpAo+fluDzi6pCQENfL0ofHkr/7MyVCc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=u4H4M+oBcNIhts4v7vdSZDliwPhGMdsxL4ZiXFvDHyNyfrh1nOprB41ggdnKm+8IG6uoon/EpujwegmCvGRsL5V7fGE1SQoAgSAwP9teALqgXPSZHgesAzz0ZE+qm2NpfRhjYlayDo864L1kgJ3STpP5piUdpmh4HY+VojU8ADA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=k9OM2iyT; arc=none smtp.client-ip=209.85.214.177
+	 To:Cc:Content-Type; b=lWCd8pd328B72uYWBqe102bMP1KLlEzzfi0IGMCzeRjcP7cwCq5Vg9xnAiyF1TNt9VlymA8EiMXO+bZujF9/LEQ/e6S9OxjYNwNj+LR6EmzMENiSZFxjB0KqScesnfpow+QBNpJKSZaFP8Ls/6vigR0ZlXsgMcL4nzVDsFhah4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=0SoacibR; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="k9OM2iyT"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2263428c8baso13365ad.1
-        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 13:46:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="0SoacibR"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2240aad70f2so75145ad.0
+        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 14:10:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1745354798; x=1745959598; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1745356221; x=1745961021; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0hbnVvENaVU3NRLrUDXLjqPtRsqZnanRvkC7zMsTFmw=;
-        b=k9OM2iyTMtcPMasjZNuivzf6jZwX5cqL3gaVWT8Hf7LcdkwdLg0lzXPz2tZFL0vsFX
-         QDcSVdMBnqlMAA2oX6kYvriudKxUz9ha6AstH9GWfAzqg7E684dXOONHQZee+aDawzz/
-         X3Bs9Y2KYUhyFilaLtBwqtYPgT5Lo+U+c98Rgv348mx+tJ1m4zBvQ1cVqCa3qYCW5Afu
-         6s45mVnOMucWLdC7B4pFpJzeLZxvG52tIumKHLfzkQIC9xitLSG9Ma6VQgtF88ASrHCw
-         3+B6T91Oy5A/a3Kg0hXlY/8li27xuJBK5U0aBlNdji2tw+uBDyQ0AwnkC3wjAiX7wTpz
-         rHBQ==
+        bh=P7kxTjGBKB0aUEv3DpjjmftGzp6kA+GSoHXFlnyGsDM=;
+        b=0SoacibR2/UJ57R42v+bKi/QpZQrlIwXtS7LvqIifDi6mqhG8Xcj93vMTqMvcAAMMB
+         hBBM1mclYCeFIDuZFb4wZpIqyuQcoZGO+h2NKMjdojf5OFYpXt2fsHF7A3KCLiwPYd86
+         VRiiDJRkg0dzabmkCg9lq+wHl+3qz5Ofn/KXbOUNZ4WZfR0LptOzJsUbi8Gx1d+6IGZy
+         JHWH8d2gp2H/PwjMxZ6nBtWcpy3JFegskyIVxIKtMX7LZRIF5fa9M15AKZMuYNE3S8Ag
+         TsfeXxtwhXmFgwAmH0dK1wINtCfac0mWvjeRiZYBJv34Pg+iid9NDLgMVzEQ07Iih/16
+         qP2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745354798; x=1745959598;
+        d=1e100.net; s=20230601; t=1745356221; x=1745961021;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0hbnVvENaVU3NRLrUDXLjqPtRsqZnanRvkC7zMsTFmw=;
-        b=tp0X8cxF8XZh/GwV1xeVtJBu5573Q5HLW0qrxvnYCkBZVjUQAYZBl0MsrOOqrNu364
-         uQ5yycsBgs2hO/8Me5zpMcL9ho8jwutrSRjJ0uYcLbG0M6uvFhRQSqdUPYz4F2dR6G8g
-         N/ApnClEziKqiUD62b8QJQBZBLn91RTv5XyJjVTZCCoZgxiEf5mJkkgBLd2hTmhEsBKE
-         KAcLCYe8a8Hww5sEm7Y5YP/JY4GCnupuDhePJlH3MbgZHaiFsc7mTzHZXvRd/bUB3aOB
-         8jh/dcjA479xFIe5DVa5EZlWL7BmdTzL2U3PLzfraapx9CT5Es4FqnfvI1+NkmCmrpcX
-         z5Pg==
-X-Forwarded-Encrypted: i=1; AJvYcCW/vReYnIW/dJgBRkyA/ovhnnSV9JI28lWG/w2MmjURTlZWjdZlDDGTlPUTcJaye4laY0D78Y5j0EfG2vptoQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxGiLOyjm2M7XmtlUHvUoyqBjOyrEVtFIkzWWh6xF8PALjrW7U6
-	aqsAnTkiqkG6Qn9aRGy/Vp6ecma3jYobcMgYitN/X/Rj6rSmLHHUGUcpwf2OpN6lwJhng++9jhO
-	uVyNq5TgM5vEKeDhAzp1WtPRS6sYBPWWydbsT
-X-Gm-Gg: ASbGncsDYOQVb/xApTkGh3CFsltExJ9XEaOOhzMMpyGeHU3jtK4sBjTpJ2a9c2Z1kZ7
-	GXyQe4SwyC+MN4jgQPmd9HQ0mGZIA/TZt+s75np30AKWHKoIdMGUULgx06Cp3UwqJ12ZaohDfMT
-	jC3iqLj9Uih0r9eq5sAVTgEs1JUxZ6/LmZCa5qqAU8xKRuTsi996RT
-X-Google-Smtp-Source: AGHT+IEri+jHg7nzBWYce/s95T8w1odDrVsc9bNQomfJRGLKE9zLufWZUYri8enjRiH0NTmCrON34chxcEP4+8+fy1g=
-X-Received: by 2002:a17:902:f78d:b0:224:1fb:7b65 with SMTP id
- d9443c01a7336-22da2c3fe23mr741975ad.22.1745354797940; Tue, 22 Apr 2025
- 13:46:37 -0700 (PDT)
+        bh=P7kxTjGBKB0aUEv3DpjjmftGzp6kA+GSoHXFlnyGsDM=;
+        b=RyykEPesm/LG3+eG0rdbKPd44uwTiW6CPOYCQUK3fM4FI3YL+/oyHY+HG+z+BONE4/
+         A1EfMeYbUDG1LnSCD5wYAv2cDQllR6qlCEf0Wd3Zq0dpM2G4TaU/8JaLkmLIeyiamI5/
+         n2CW8CnUQYmVMFJmlbWRastdfOW4NTF9MjBYkwj4GotR35zUhy9bPKWG1Vq1GMAikmEa
+         bV054sCUL1DFZ7bvoHHS7maoFUV4Q3i/Rl0HFsI98tD6Zr4ZaNaHBZs414n2uNSQ8jJ+
+         L5IT2yEn74JKl9oubszfqgrD+Yk1uBs8RS8NOSrSh5+pBYQG7dlP3SN6heNnqknV+I7x
+         XO/Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWTN02l6eeyM0aUarG/djfr/VJPrfRRI462kuQYjeBC/9Dtt3bQuSII2tmlNiwIfYXlKhS+NP0fZaZuf9Srtg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxDWvsXBnY+Jb2QDBeNtQWh/Gj0pdoF96YK0oxKrjqeoWC3tSXB
+	nFNkIeW3u2HWbKAMMqJHkUIkv9HX3jy2WL3o3las1YAh9/JVstVDOBWGh9LNri6M98tgBHGZmY1
+	+7XDELhkQhkIOGkCT9VebID5P8mQBp4q8UA44
+X-Gm-Gg: ASbGncuAm94v0rpuk1qrNacmIRV2VqkF/MLTEmFv13J1Y/xC4h4Y7H6gVcwwCMRzz9K
+	xr4qan7EBhAWB/47iNHtwhzT8ywYqahrrbfC2ZIcKeDba9T+p6r6A0CV5i7SnfIdjLWcs99G9eX
+	1Swh2g38TEne753+n8x49DKTXKXRflT/rzwaWnsEamNIu6brWiNGX3
+X-Google-Smtp-Source: AGHT+IH158SP9GigskzwrjsRVwtmkJmUMnK2yFgK5B4j6Q7h/21qQMUx52O/Zx9vaqWSN5WxUUUx40w0l4D2Gn/nHjY=
+X-Received: by 2002:a17:903:440b:b0:21f:465d:c588 with SMTP id
+ d9443c01a7336-22da2b93ca8mr912615ad.14.1745356220781; Tue, 22 Apr 2025
+ 14:10:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,15 +60,16 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20250417231540.2780723-1-almasrymina@google.com>
- <20250417231540.2780723-2-almasrymina@google.com> <f7a96367-1bb0-4ed2-8fbf-af7558fccc20@gmail.com>
- <CAHS8izMFxDG5E07ZdqnDH_2D_g1fW8X0M7u3gGyV8efzxDNZbg@mail.gmail.com> <5d2f86ce-e2bb-406a-8d53-58a464958d2d@gmail.com>
-In-Reply-To: <5d2f86ce-e2bb-406a-8d53-58a464958d2d@gmail.com>
+ <20250417231540.2780723-3-almasrymina@google.com> <484ecaad-56de-4c0d-b7fa-a3337557b0bf@gmail.com>
+ <CAHS8izPw9maOMqLALTLc22eOKnutyLK9azOs4FzO1pfaY8xE6g@mail.gmail.com>
+ <957b74ed-f29c-4bb8-b819-af4e1168d6c1@gmail.com> <CAHS8izM8+zG6KOhV7ysTsCj_PEty5eL+P+uUxTZhdsOSZTwmow@mail.gmail.com>
+ <c0bd45f7-0325-4e4b-b0ea-ccae24a1eabd@gmail.com> <8c1c6405-1e60-4512-a675-4c00b00d400a@gmail.com>
+In-Reply-To: <8c1c6405-1e60-4512-a675-4c00b00d400a@gmail.com>
 From: Mina Almasry <almasrymina@google.com>
-Date: Tue, 22 Apr 2025 13:46:24 -0700
-X-Gm-Features: ATxdqUFHY8ewiDnZPwv9bGxstV-8bLqJUqf0obD0wDTOy1se33mAidQpqaIoPl0
-Message-ID: <CAHS8izMZbt=NAK0GF6VqJNBRKy+iZQGMFG+jFJEesbz=5RiLXg@mail.gmail.com>
-Subject: Re: [PATCH net-next v9 1/9] netmem: add niov->type attribute to
- distinguish different net_iov types
+Date: Tue, 22 Apr 2025 14:10:07 -0700
+X-Gm-Features: ATxdqUGGcVSR15YZdMmTAEwjNhzjDLr5MPRZuyqszCuepKJwAh2SaRe-PxHXBXc
+Message-ID: <CAHS8izPGuF1PxfdmXUC1XJHpmRqotXh=vUY_a-AEHdAgPmLQ1g@mail.gmail.com>
+Subject: Re: [PATCH net-next v9 2/9] net: add get_netmem/put_netmem support
 To: Pavel Begunkov <asml.silence@gmail.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-doc@vger.kernel.org, io-uring@vger.kernel.org, 
@@ -89,40 +90,115 @@ Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 22, 2025 at 12:52=E2=80=AFPM Pavel Begunkov <asml.silence@gmail=
-.com> wrote:
+On Tue, Apr 22, 2025 at 1:03=E2=80=AFPM Pavel Begunkov <asml.silence@gmail.=
+com> wrote:
 >
-> On 4/22/25 15:03, Mina Almasry wrote:
-> > On Tue, Apr 22, 2025 at 1:16=E2=80=AFAM Pavel Begunkov <asml.silence@gm=
-ail.com> wrote:
+> On 4/22/25 20:47, Pavel Begunkov wrote:
+> > On 4/22/25 19:30, Mina Almasry wrote:
+> >> On Tue, Apr 22, 2025 at 11:19=E2=80=AFAM Pavel Begunkov <asml.silence@=
+gmail.com> wrote:
+> >>>
+> >>> On 4/22/25 14:56, Mina Almasry wrote:
+> >>>> On Tue, Apr 22, 2025 at 1:43=E2=80=AFAM Pavel Begunkov <asml.silence=
+@gmail.com> wrote:
+> >>>>>
+> >>>>> On 4/18/25 00:15, Mina Almasry wrote:
+> >>>>>> Currently net_iovs support only pp ref counts, and do not support =
+a
+> >>>>>> page ref equivalent.
+> >>>>>
+> >>>>> Makes me wonder why it's needed. In theory, nobody should ever be
+> >>>>> taking page references without going through struct ubuf_info
+> >>>>> handling first, all in kernel users of these pages should always
+> >>>>> be paired with ubuf_info, as it's user memory, it's not stable,
+> >>>>> and without ubuf_info the user is allowed to overwrite it.
+> >>>>>
+> >>>>
+> >>>> The concern about the stability of the from-userspace data is alread=
+y
+> >>>> called out in the MSG_ZEROCOPY documentation that we're piggybacking
+> >>>> devmem TX onto:
+> >>>
+> >>> Sure, I didn't object that. There is no problem as long as the
+> >>> ubuf_info semantics is followed, which by extension mean that
+> >>> any ref manipulation should already be gated on ubuf_info, and
+> >>> there should be no need in changing generic paths.
+> >>>
 > >>
-> >> On 4/18/25 00:15, Mina Almasry wrote:
-> >>> Later patches in the series adds TX net_iovs where there is no pp
-> >>> associated, so we can't rely on niov->pp->mp_ops to tell what is the
-> >>> type of the net_iov.
-> >>
-> >> That's fine, but that needs a NULL pp check in io_uring as well,
-> >> specifically in io_zcrx_recv_frag().
-> >>
+> >> I'm sorry I'm not following. skb_frag_ref is how the net stack obtains
+> >> references on an skb_frag, regardless on whether the frag is a
+> >> MSG_ZEROCOPY one with ubuf info, or a regular tx frag without a
+> >> ubuf_info, or even an io_uring frag which I think have the
 > >
-> > I think you mean this update in the code:
+> > Yep
 > >
-> > if (!niov->pp || niov->pp->mp_ops !=3D &io_uring_pp_zc_ops ||
-> >      io_pp_to_ifq(niov->pp) !=3D ifq)
-> > return -EFAULT;
+> >> msg->ubuf_info like we discussed previously. I don't see the net stack
+> >> in the current code special casing how it obtains refs on frags, and I
+> >> don't see the need to add special casing. Can you elaborate in more
 > >
-> > Yes, thanks, will do.
+> > You'll be special casing it either way, it's probably unavoidable,
+> > just here it is in put/get_netmem.
+> >
+> >> detail what is the gating you expect, and why? Are you asking that I
+> >> check the skb has a ubuf_info before allowing to grab the reference on
+> >> the dmabuf binding? Or something else?
+> >
+> > get_page() already shouldn't be a valid operation for ubuf backed frags
+> > apart from few cases where frags are copied/moved together with ubuf.
+
+This is where I'm not following. Per the v5 changelog of this commit,
+all these skb_helpers hit skb_frag_ref (which is just get_page
+underneath):
+
+tcp_grow_skb, __skb_zcopy_downgrade_managed, __pskb_copy_fclone,
+  pskb_expand_head, skb_zerocopy, skb_split, pksb_carve_inside_header,
+  pskb_care_inside_nonlinear, tcp_clone_payload, skb_segment, skb_shift,
+  skb_try_coalesce.
+
+I don't see many of them opt-out of skb_frag_ref if the skb is
+unreadable or has ubuf_info. Are you saying all/most/some of these
+callers are invalid?  I tend to assume merged code is the correct one
+unless I have ample expertise to say otherwise.
+
+> > The frags are essentially bundled with ubuf and shouldn't exist without
+> > it, because otherwise user can overwrite memory with all the following
+> > nastiness. If there are some spots violating that, I'd rather say they
+> > should be addressed.
+> >
+> > Instead of adding net_iov / devmem handling in generic paths affecting
+> > everyone, you could change those functions where it's get_page() are
+> > called legitimately. The niov/devmem part of get/put_netmem doesn't
+> > even have the same semantics as the page counterparts as it cannot
+> > prevent from reallocation. That might be fine, but it's not clear
 >
-> That will work. I'm assuming that those pp-less niovs can
-> end up in the rx path. I think it was deemed not impossible,
-> right?
+> Actually, maybe it's not that exclusive to netiov, same reallocation
+> argument is true for user pages, even though they're reffed
+> separately.
+>
+> It might be fine to leave this approach, while suboptimal it should
+> be easier for you. Depends on how folks feel about the extra
+> overhead in the normal tx path.
 >
 
-I'm not sure these pp-less niovs can ever end up in the RX path, but
-I'm not sure, and I guess better safe than sorry. We usually get
-yelled at for defensive checks but I don't think this one is too
-defensive. There could be a path where a TX skb somehow ends up here.
+Right, I think there is only 2 ways to handle all the code paths in
+the tcp stack that hit skb_frag_ref:
 
---
+1. We go over all of them and make sure they're unreachable for unreadable =
+skbs:
+
+if (!skb_frags_readable()) return; // or something
+
+2. or, we just add net_iov support in skb_frag_ref.
+
+This patch series does the latter, which IMO is much preferred.
+
+FWIW I'm surprised that adding net_iov support to skb_frag_ref/unref
+is facing uncertainty. I've added net_iov support for many skb helpers
+in commit 65249feb6b3df ("net: add support for skbs with unreadable
+frags") and commit 9f6b619edf2e8 ("net: support non paged skb frags").
+skb_frag_ref/unref is just 1 helper I "missed" because it's mostly
+(but not entirely) used by the TX path.
+
+--=20
 Thanks,
 Mina
