@@ -1,170 +1,136 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BB59219A91
-	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 19:45:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 769E81DFE26
+	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 19:51:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745351160; cv=none; b=Nd5eRhoerI2qEHeVxcrWO7TuYSy2K8RuywkLV5Z9hPjDOZH5/Q/Y4iMJVqXaY6QHc4Hkm0HqgP0GB2LJ9gflT/Wtui4PNa0pMxWclMP2Z2hPkDXtrgBOcLfgYW6efP1+GjPp2w3bVZUvMtGzZGSLPTsp7uTENZRqqVbWxd/ofCA=
+	t=1745351485; cv=none; b=ooEwtzMYSWfKIaw+w9BcQUeyH0xTYRdLNE2UlmDKG31TL0uqdCBRSf1fFmHvGJtpC3Nil2afKc0CxPYY470GJMMEnThAaIoNqbsdMdyFQoxRHEKB0Nf5j5xIJk+eO4ReDPrd52XsMNxWwemC6ByO6/O6P9WFkn1v+mxQdlPMAcw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745351160; c=relaxed/simple;
-	bh=TuxclNuUfqcerA2pqrf6VxwnTOX21UT3Y4oqusyj6hQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UBtuh+QTzY+8FwhUm7+Nr3cHMoOtbTwPem6hPfv6uIgOHHPJHorfSQ8wg57aVdQIcMUI6Bc2nZw7GOllNUtPCDlehP94lk6D49L7wdzqW4/4QRZ6tHCI5coHjlk6hK3fqmbauh0s8hzi8KhSnTkn+SVmTE0+7nlqZirtVyDtKQ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D20iQ1mJ; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1745351485; c=relaxed/simple;
+	bh=G+t2v6BhLb+5vWztzdpssgwdNSlTOk90KThSVmnEfpo=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=GfRpcQCTG+IG/51UFuI9D/Bl35TgvhUDkshiHRGFms3wNv9UIhWy2sQvyR9BzrLjNGu8NNfQ28r9ptKzqeqfRtFKjagh5FWKwx3C8p51osMzqTPCpbyY+yDu3cJJGBrM5s1qScSqFCszzJO1+6egfvbvz78op1BdPpZTKm78dRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Na4uIwv7; arc=none smtp.client-ip=209.85.216.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D20iQ1mJ"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-39129fc51f8so4773181f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 12:45:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Na4uIwv7"
+Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-30364fc706fso4885187a91.3
+        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 12:51:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745351157; x=1745955957; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Ot+UV56+ds2L+x6seBu3bJVACsN/bCDZpbfhgi6yxHM=;
-        b=D20iQ1mJF00qB8MTPpiEtVnAUW0JlFj1plItED5EK6jo2LXYIKFtf0yM4L19YMhMoE
-         hubhJvfV5Ifkixxi9V3woz8iFvDkuhewq5mIbKUVvDK+EYaeHP+RflvjgO+6qAWvHWWc
-         3hH+FpVXhw/RGsEU+g//bHIWieMRJBP/G4XfPayUQmTWkXpAYZv+7cdXs6cGYHULBMDF
-         4WC36e84EpL3YNUxRSVamqtnDPzIjFf3KJQp6QAJSdDWfFFPTpy9nj4otDFzwOjsi93d
-         UTmr36ELZ+ktz1bpM7RP2loVfq/+U/kd4pbTBbf0VggSwHiBpOuxeNjMPM1ompQyPY/i
-         xRkg==
+        d=google.com; s=20230601; t=1745351483; x=1745956283; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=mH6UGx1+cJUt0+vdtDYj5GNgwh2+pJEonMo7kApLLOI=;
+        b=Na4uIwv7tIIpG8bXEAh/FdUao1eM2UV13E0TiZu/EvZoXm268jWoO0LwV/6Zz/gF/n
+         O58xS3/aP71mmvgGXGI2crZy/0IzXD2dixdllufXmO/9zQG8qLiRPhsbzXVS0KyX1kN/
+         12x6Jj0N9SimjAYUmFank3BdS7AWFUBwtoorkUlnQUcKQr3gownMP02MrujavnHgbvhv
+         X72WMFekJyzvhAdbL6HKRP5FOi6eUiWQbjoyouSmYiMRQvxHAC22DtwCriVM5pJo3efj
+         ad2HyIyRK95FESVjT7/GJvdpr7WS1D3zqJyezRucJnKce5kDlGUDnIPzORZe58516PpP
+         pFMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745351157; x=1745955957;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ot+UV56+ds2L+x6seBu3bJVACsN/bCDZpbfhgi6yxHM=;
-        b=oSgRdzKpu6oLwtp/Laq1jN2s0Ee1t5JhscFnnx8yQNVuVZijviv7pNA4KFzoXWdmKi
-         vZYiBaeQALAwlzWypH7aKrz1c3vO6+l9nsr46y3vNuon3+HgW/0ln2NYEb6ICDiHJEM2
-         MiOQfjSwdMbzxEFiBO/m7xmr8bhdxmrYlHHOMjBH2xuVMgklpQ1rP9YASsLm6JlbRKvM
-         +QU3soY3TmGjsT7LxYUmz0kEpoCzdMVRL7tONI2zLwNNLwmadWP20MsOcpPiLwBpSOAt
-         Y4uy/RUxLXfJ0L9KkZn0zb9TR1K1tY2nRs0dsuiFwsD/PUPG4ipE1sa9VXqsRXokNpc/
-         H4bw==
-X-Forwarded-Encrypted: i=1; AJvYcCUQjf8xUQ1SdWwwE4HajI3P3E3eaFh4XP1EvKn459Wd5dRKA1Y3FL3w57jTDzzq5NXWrzAEwzpRe6JG0R8nzA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxLPDEGGYRfY7r+a5t/Q5TNjZRCSy4YdwYUUkMb0KwU5bwiTuKd
-	CWXjnWrB1tnqLZgem8c/vq9vnu/v2B6oRvBLviZSBijkZQwPMnFz
-X-Gm-Gg: ASbGncsq/XaV0ZXHBFV+rovKiL4KOom50raz/gneL718TqtZNUegGJuTb37Eyf1Ar/8
-	02kkJtKeJduBNpDigi2x09uvtoQUI4mX9EzMveiQpEGLRj0fwWYejwfJIxePKC/5uLHJ/lRJld/
-	BoM+b5TbixcNipB6W+tT8XBuE7dzCCQKGZHFzJJSpbIozwqhtZExn2fOhBLpggHaT2R/je3Fd64
-	RKvTKto1eZmBsvgUak4Zjy9YQaRg3AATDezDOEGy5zE2lzp3g8jjg0VxABdai4p+c9zj6lfnw1r
-	3L9y1EHFbylcFnebTnMqXnED0tyuFypwa3dDc6RAe8CIVtVr
-X-Google-Smtp-Source: AGHT+IEZ6mFfkFKJXYFnWv0R6K2e+269K01WRtESaCqbhsKRKAntvkXBD22q88SDEn1QFhrdMRwIdA==
-X-Received: by 2002:a05:6000:1888:b0:390:f358:85db with SMTP id ffacd0b85a97d-39efba5edf2mr13171386f8f.30.1745351156437;
-        Tue, 22 Apr 2025 12:45:56 -0700 (PDT)
-Received: from [192.168.8.100] ([85.255.235.90])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39efa4331a9sm16481640f8f.36.2025.04.22.12.45.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Apr 2025 12:45:55 -0700 (PDT)
-Message-ID: <c0bd45f7-0325-4e4b-b0ea-ccae24a1eabd@gmail.com>
-Date: Tue, 22 Apr 2025 20:47:09 +0100
+        d=1e100.net; s=20230601; t=1745351483; x=1745956283;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=mH6UGx1+cJUt0+vdtDYj5GNgwh2+pJEonMo7kApLLOI=;
+        b=ZlEmSNcqG6TOYCPSn9eLN98fTCSU5oozxZ15wtHpZ2sUDL0yMrlv6U2lTEqGrkY/jt
+         WjS3FBnu7oPSP21mUSjcK/NrZIi6fFU5XcVFr161fRPerYPy92sNtt2XgMjg9QdWV25Z
+         EbXF7i6jAkGWLygD2C3lX6ct5Qs67wyIB4zkz/95uqv2+4m2k968fduUX5JZTvdgWxfZ
+         uyx0MvL4blPk1FRGxKN0fgMuACbcYk91CZGZWeON5XyAj8L4Lmo71htpstF2sJMAPfPT
+         guZQjZ5rms8PU3n9ZafiPHZ3rDt5mlTJ2RVXHxbW57Kurkl4iWVGYhWyGTubKtXXsAEL
+         vb9w==
+X-Forwarded-Encrypted: i=1; AJvYcCVg/8Smi30BlPG2MY35NYW8/daemrRSlf+iC+IBV9ft1TBoxjLIo1y5wY/3KdQ9pZNRFJwQS5GY5JpZInNZdg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxgceMhtjXyQcQk0MUkvAciR7R4xFB2F7D4CVWU08qiuL3eUJJy
+	m3KVI+C7eLcT9D46rr2lAC/lSkSbl/V81+kxn2vFvk+xY39iQi4vO+lfGFl46maZEoZpwMSuIVg
+	R5Q==
+X-Google-Smtp-Source: AGHT+IGkV0RcloCvNwgssDSlkXsqRo5n8/rzSZ0U6QUVt02K3Nbge8IReH8D+uHUWVsCRD28uFY//07FCPo=
+X-Received: from pjbsr7.prod.google.com ([2002:a17:90b:4e87:b0:301:2679:9d9])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:4b90:b0:2ee:bc7b:9237
+ with SMTP id 98e67ed59e1d1-3087bb9ede2mr21004314a91.27.1745351482796; Tue, 22
+ Apr 2025 12:51:22 -0700 (PDT)
+Date: Tue, 22 Apr 2025 12:51:21 -0700
+In-Reply-To: <aAfxuby_0eZZTrj-@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v9 2/9] net: add get_netmem/put_netmem support
-To: Mina Almasry <almasrymina@google.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org, io-uring@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-kselftest@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Donald Hunter <donald.hunter@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
- Andrew Lunn <andrew+netdev@lunn.ch>, Jeroen de Borst <jeroendb@google.com>,
- Harshitha Ramamurthy <hramamurthy@google.com>,
- Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn
- <willemb@google.com>, Jens Axboe <axboe@kernel.dk>,
- David Ahern <dsahern@kernel.org>, Neal Cardwell <ncardwell@google.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
- sdf@fomichev.me, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>,
- Victor Nogueira <victor@mojatatu.com>, Pedro Tammela
- <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
-References: <20250417231540.2780723-1-almasrymina@google.com>
- <20250417231540.2780723-3-almasrymina@google.com>
- <484ecaad-56de-4c0d-b7fa-a3337557b0bf@gmail.com>
- <CAHS8izPw9maOMqLALTLc22eOKnutyLK9azOs4FzO1pfaY8xE6g@mail.gmail.com>
- <957b74ed-f29c-4bb8-b819-af4e1168d6c1@gmail.com>
- <CAHS8izM8+zG6KOhV7ysTsCj_PEty5eL+P+uUxTZhdsOSZTwmow@mail.gmail.com>
-Content-Language: en-US
-From: Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <CAHS8izM8+zG6KOhV7ysTsCj_PEty5eL+P+uUxTZhdsOSZTwmow@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+References: <20250422082216.1954310-1-xin@zytor.com> <aAevpauKYWwObsB7@google.com>
+ <cb4e24a0-fdb7-46d2-9b0e-200f5e3e4c96@zytor.com> <DS7PR11MB6077B4D80EB7020C4D3FCD52FCBB2@DS7PR11MB6077.namprd11.prod.outlook.com>
+ <aAfxuby_0eZZTrj-@gmail.com>
+Message-ID: <aAfzOWnYzcPjZDEI@google.com>
+Subject: Re: [RFC PATCH v2 00/34] MSR refactor with new MSR instructions support
+From: Sean Christopherson <seanjc@google.com>
+To: Ingo Molnar <mingo@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>, Xin Li <xin@zytor.com>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>, 
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, 
+	"linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>, 
+	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, 
+	"linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, 
+	"linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>, 
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>, 
+	"tglx@linutronix.de" <tglx@linutronix.de>, "mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>, 
+	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, 
+	"hpa@zytor.com" <hpa@zytor.com>, "acme@kernel.org" <acme@kernel.org>, "jgross@suse.com" <jgross@suse.com>, 
+	"andrew.cooper3@citrix.com" <andrew.cooper3@citrix.com>, "peterz@infradead.org" <peterz@infradead.org>, 
+	"namhyung@kernel.org" <namhyung@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, 
+	"alexander.shishkin@linux.intel.com" <alexander.shishkin@linux.intel.com>, "jolsa@kernel.org" <jolsa@kernel.org>, 
+	"irogers@google.com" <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
+	"kan.liang@linux.intel.com" <kan.liang@linux.intel.com>, "wei.liu@kernel.org" <wei.liu@kernel.org>, 
+	"ajay.kaher@broadcom.com" <ajay.kaher@broadcom.com>, 
+	"bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>, 
+	"pbonzini@redhat.com" <pbonzini@redhat.com>, "vkuznets@redhat.com" <vkuznets@redhat.com>, 
+	"luto@kernel.org" <luto@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, 
+	"kys@microsoft.com" <kys@microsoft.com>, "haiyangz@microsoft.com" <haiyangz@microsoft.com>, 
+	Dexuan Cui <decui@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
 
-On 4/22/25 19:30, Mina Almasry wrote:
-> On Tue, Apr 22, 2025 at 11:19 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
->>
->> On 4/22/25 14:56, Mina Almasry wrote:
->>> On Tue, Apr 22, 2025 at 1:43 AM Pavel Begunkov <asml.silence@gmail.com> wrote:
->>>>
->>>> On 4/18/25 00:15, Mina Almasry wrote:
->>>>> Currently net_iovs support only pp ref counts, and do not support a
->>>>> page ref equivalent.
->>>>
->>>> Makes me wonder why it's needed. In theory, nobody should ever be
->>>> taking page references without going through struct ubuf_info
->>>> handling first, all in kernel users of these pages should always
->>>> be paired with ubuf_info, as it's user memory, it's not stable,
->>>> and without ubuf_info the user is allowed to overwrite it.
->>>>
->>>
->>> The concern about the stability of the from-userspace data is already
->>> called out in the MSG_ZEROCOPY documentation that we're piggybacking
->>> devmem TX onto:
->>
->> Sure, I didn't object that. There is no problem as long as the
->> ubuf_info semantics is followed, which by extension mean that
->> any ref manipulation should already be gated on ubuf_info, and
->> there should be no need in changing generic paths.
->>
+On Tue, Apr 22, 2025, Ingo Molnar wrote:
 > 
-> I'm sorry I'm not following. skb_frag_ref is how the net stack obtains
-> references on an skb_frag, regardless on whether the frag is a
-> MSG_ZEROCOPY one with ubuf info, or a regular tx frag without a
-> ubuf_info, or even an io_uring frag which I think have the
+> * Luck, Tony <tony.luck@intel.com> wrote:
+> 
+> > > >> base-commit: f30a0c0d2b08b355c01392538de8fc872387cb2b
+> > > >
+> > > > This commit doesn't exist in Linus' tree or the tip tree, and the series doesn't
+> > > > apply cleanly on any of the "obvious" choices.  Reviewing a 34 patches series
+> > > > without being able to apply it is a wee bit difficult...
+> > > >
+> > >
+> > > $ git show f30a0c0d2b08b355c01392538de8fc872387cb2b
+> > > commit f30a0c0d2b08b355c01392538de8fc872387cb2b
+> > > Merge: 49b517e68cf7 e396dd85172c
+> > > Author: Ingo Molnar <mingo@kernel.org>
+> > > Date:   Tue Apr 22 08:37:32 2025 +0200
+> > >
+> > >      Merge branch into tip/master: 'x86/sev'
+> > >
+> > >       # New commits in x86/sev:
+> > >          e396dd85172c ("x86/sev: Register tpm-svsm platform device")
+> > >          93b7c6b3ce91 ("tpm: Add SNP SVSM vTPM driver")
+> > >          b2849b072366 ("svsm: Add header with SVSM_VTPM_CMD helpers")
+> > >          770de678bc28 ("x86/sev: Add SVSM vTPM probe/send_command
+> > > functions")
+> > >
+> > >      Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> > >
+> > >
+> > > You probably need to git pull from the tip tree :-)
+> > 
+> > If possible, you should avoid basing a series on tip/master as it 
+> > gets recreated frequently by merging all the topic branches. The SHA1 
+> > is here today, gone tomorrow.
+> 
+> Correct, although for x86 patch submissions via email it's not wrong: 
+> what applies today will likely apply tomorrow as well, regardless of 
+> the SHA1 change. :-)
 
-Yep
-
-> msg->ubuf_info like we discussed previously. I don't see the net stack
-> in the current code special casing how it obtains refs on frags, and I
-> don't see the need to add special casing. Can you elaborate in more
-
-You'll be special casing it either way, it's probably unavoidable,
-just here it is in put/get_netmem.
-
-> detail what is the gating you expect, and why? Are you asking that I
-> check the skb has a ubuf_info before allowing to grab the reference on
-> the dmabuf binding? Or something else?
-
-get_page() already shouldn't be a valid operation for ubuf backed frags
-apart from few cases where frags are copied/moved together with ubuf.
-The frags are essentially bundled with ubuf and shouldn't exist without
-it, because otherwise user can overwrite memory with all the following
-nastiness. If there are some spots violating that, I'd rather say they
-should be addressed.
-
-Instead of adding net_iov / devmem handling in generic paths affecting
-everyone, you could change those functions where it's get_page() are
-called legitimately. The niov/devmem part of get/put_netmem doesn't
-even have the same semantics as the page counterparts as it cannot
-prevent from reallocation. That might be fine, but it's not clear
-why keep them together where they can't even follow the same behaviour.
-
-Interestingly, you can even replace per frag referencing with taking
-one ref per ubuf_info and putting it in the ubuf release callback,
-in a way similar to how SKBFL_MANAGED_FRAG_REFS works.
-
-FWIW, I do like the idea of get/put_netmem, it's nice to be able to
-easily list all callers, but maybe it should just warn on net_iovs.
-
--- 
-Pavel Begunkov
-
+Yeah, but as Tony pointed out, when using base commit that may be ephemeral, then
+the cover letter needs to call out the tree+branch.  This series applies on the
+current tip/master, but there was nothing to clue me into that fact.
