@@ -1,58 +1,58 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBBD128469B
-	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 13:56:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E88CC1EDA27
+	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 14:03:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745330194; cv=none; b=k3UPXJfNhXVEGNIRE40ATlRE29Eory1jY942wAOco7hMRoGK8/q2hhUVlgqJUnHgKBjAcX4cUmh458a4lGIUZnuSMcGhgAgeUPt9jGAKYuwCNC8ucpahLXteEPj7WL2KQAsVdMDnwVLBtYy6ImjsmhamZij1pAZ4xtiwBsbyyGs=
+	t=1745330622; cv=none; b=ZOieVanWNyGNpe4/lrqMR/9qH18s+gO7vSYpEgw8Ey9b9nOC3rG0XRE7fA1VaTqRr1ISNJFsYI5nVG6j93QN96C+9pke1ICmqjBRK063Ii35CZq3zqkQhl9qu6tNenEAstGgm7T93DUXAwNqVlFX4jX31lNDREe1R45MrorE6f4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745330194; c=relaxed/simple;
-	bh=5UhTPLXTy54HSw4bbuMVr6NHCHxgfaB24c/UygOGD5o=;
+	s=arc-20240116; t=1745330622; c=relaxed/simple;
+	bh=DI5wbiqZFhNjcg4g07wsE2rRpyR+Bg6kHqEcrbHze4Y=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RHdEDju54i7fk7k5kf5kvDH6E7rb5dJKGF79rdOnEsW5/5vr8QizxGTANr3hGlus+X1hozJZsagrmm2smsheNdflEuDo4/SX1VIvMd4I3OhPSsUQIWogHRV/+28G6utET9hiDZrFAAYA2T8T6v30Gogys5NSO0ZEMKJqfiw7CLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ojd8jFaq; arc=none smtp.client-ip=209.85.214.169
+	 To:Cc:Content-Type; b=iY4cBDbujO+Nes4MsZboMvTUdbOvh9Zmds2NldWNaozShYXrDh1kkGlpfTFO1dn2JB80MoH9zOv22qbuTgIdrHhbben9l5qxMwRF6E6S6WqK7Z5EVebbN7yCNqcElgyvAm827sQ4pSB35X+VCIJJyGMyS1GKPqIQ7aDLD5ZoC2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Id1+aAyk; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ojd8jFaq"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2240aad70f2so180175ad.0
-        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 06:56:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Id1+aAyk"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2240aad70f2so182735ad.0
+        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 07:03:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1745330191; x=1745934991; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1745330620; x=1745935420; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5UhTPLXTy54HSw4bbuMVr6NHCHxgfaB24c/UygOGD5o=;
-        b=ojd8jFaqZlEN2w6nJf5qd9q3v50iUPDBz+0v6Ql/L/K4knTzWEJJDCV3AjhoaZg/Gp
-         vCOFfUmwsNHTi0kYpHsoSITgox7Uvo9O5MLc8EyvSBkpZqO+0KN24gY4R+ol97SSLMdf
-         4iP9SDBEBVbJ3VEHehjGYR2da1H9n4Zwg9QOmNDAUjoT8C9V7eO7k9NC0tuvYK5fLxpC
-         bmN6vLFdh4LM59M9Nv2kqjiyu7hKVtz3wRkJKBL4PLe/gsa2L3j0SM+uJMe4+m3/u8DA
-         2KdN1FKDnGpQ/pLa1hJhwfxLSXK7uLcuumHfTwqSg8WSeneITcNzQgsOPdNG0SYqbXLF
-         zguQ==
+        bh=wxtxQ2q5f2CesvMzHl2K/43Dvf+KKs8Sp+BtzyImVRI=;
+        b=Id1+aAyknwoRktNHs9nKkh/jlb1vIYRGXccYfOzVao4PBUKW3XThEzMjzzCo1C0+eW
+         d3Kze3rVww4eXMt+KsxKsPe6wIPFC7mB+zmnj48y7hxuxuQiO61/3agjeMvghtEmbwM/
+         vB/zYeZ4oygq5Ke3YWU61dXjoI9fvNvDlPkTVnb8HkTryLaKmFbuTIHPGMjqTXHWO5kZ
+         2d12N5IsvYovyqe2Gs2YBLi3ZV4AvXzoPaSDdHUxsRx2UrpCIc+9Q4V3XFuDFfDdCh4h
+         04anSMVyzkvPlz/2ULzN7BPkn1b1Vh9vM/nX+FT4rpnlVIaVW7BE1dloZcd09l07RjO6
+         3E4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745330191; x=1745934991;
+        d=1e100.net; s=20230601; t=1745330620; x=1745935420;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5UhTPLXTy54HSw4bbuMVr6NHCHxgfaB24c/UygOGD5o=;
-        b=TDh6Mdy0uIUqrjs24LaP02wd1u1QR3W2dgQASQ6BYgKmftXIjtyQSs0RkYQnC1TYBS
-         dDoEDhz8NgoK8WCHGxyaOiT4ln1XGDTR0SbvqX++nOS4ecUfk8F1yS4jbrahTAXHp4zD
-         opYjeQztb0AE/m0UvsaaeAAWWbbh8AKLrbDK99bPZxf3zJXkhuosRBqncSamFNIAR2Is
-         r7Ke+0n4UeG/quuHbVADJH1EHKCmrLrgiGDfrmeb+pduM+ZZl0StxWDz+qraiHOpSGuQ
-         gmSV75+m6pQHbm8HD/ftCBp4jY0FVZkfKb+YSDdOIjTr91pqgtZqrfhh1jRFPvNH+SY4
-         nX+w==
-X-Forwarded-Encrypted: i=1; AJvYcCWpbdwRv+oaBtAK0QFn+vacK1Rej943CQ7AWXytOY3vZsrPwpoEeq9EjgML0zOr6mOfcRzkvhtL+xfBJz/Hvw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw4nlCFu/Rg0bqZGn666Q+nuvI9M7XF+VaBYHzVRWpq/cex6Axe
-	7qFj5/tP8jM1iSfhEhmwJ5ld6TNRsbVP3MuyXuujmRrBmQsU5qMyyRf2LxgTNHFbetQoD/qy2Uk
-	kS/NuzsCsrVXdvUD44mdbnWch5giFhixJRVtv
-X-Gm-Gg: ASbGnctJ63ZGwRTL1f4qzpZ76FpXmsNjv0tqxfe2tLAutnoDErX1bPT5WcAk7X3O5kS
-	Kmk55xnsCVLVkBXCB5R5W3/Klp4fSobW4+v0bSd9pqYkRiaytZEnfTv5zzZkf/GFQFG/XP4RS15
-	nTXxoGCYiS7YHzJvY0gKQdR/4=
-X-Google-Smtp-Source: AGHT+IH/hAru3MKmJ60Z25FXBslSMx5hLypeOWFuJfnaTmWFJ711/aVQCwonng9BnnPokRail3ZgA21iLnH/6NJDRM0=
-X-Received: by 2002:a17:902:ce0a:b0:220:ce33:6385 with SMTP id
- d9443c01a7336-22c54797b1bmr9643675ad.9.1745330190914; Tue, 22 Apr 2025
- 06:56:30 -0700 (PDT)
+        bh=wxtxQ2q5f2CesvMzHl2K/43Dvf+KKs8Sp+BtzyImVRI=;
+        b=mZpah9iyoiS/7A1hmbBZ3FZlv8vOGwr1GKMjewW7njzFwFBPXP3qANXEE4Z/qyIHjM
+         VIX5d3AWst8Zskqu+1Qg1+KuP5Y8KV4VttgRK9k8LUsctr7fvyXBE1lMh0ZoEngcqrii
+         crf4lNtlUutYN2RgKiAeQACj6Ibhgua4wbnjSLHqfqMGWa/rMdjWJZ7DmHn4x2Vq67z7
+         Ckl9ZqX07sR1jf24NltpFdUmlcqhDGTEaUlpSf/rXP91pQrPXWkrZCSOdCNou+xjs61W
+         Ly4WUuWNRV+27hHuYFsqTAMJr//a253Da/RIBt9ZyQSd1s6MT/H4NX1ywAEQgSsq7dsQ
+         OnGw==
+X-Forwarded-Encrypted: i=1; AJvYcCUESO2vkd0e6bCd7buJWLvB0s4U7fnUki0zJ7qlBGIqQ4CsGpF43jd3QTj9VV9MiBjuQhdk7k4spBguDpR+ZQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzyIfunoHpb0+AbeB4eZtIZw8YMY1YA+P0Oi5reIMuTjFUcJLOi
+	coXY3oBwhUSBiEXGrwv7DiJ+BC8lH0bb+jny7cKNvEntz0WDidocrvXBAtYuEaealOHZJp5gh6u
+	ftjFn0cGxNQjC01yN+jRjt7OevvDxZE9buHMr8d68tGpYFpyGeA==
+X-Gm-Gg: ASbGncu4NawZZcdtG2bMGiIlo52zi/jtFXVSCjZ89YPrr4bKU/1awaQPaLnlJZoaPKH
+	Dp1N5LQLPNo2Ss1yiwlH++a0GpiwWpDFdV1JglLHlfldVc/5uaiHBpnuvjqiDXlsj66+LXi65d+
+	IsK+3yXN8dX8s7RVZlV7xjaVgi93zVOvRF7Q==
+X-Google-Smtp-Source: AGHT+IG0i+651pdR53K0l/n7uIQCSuRiQEGLD3Fi7ND1TmWV2npssXiwnzzo30HBpgP42jyUy2IALw8wxWFt/Kz8RzE=
+X-Received: by 2002:a17:902:ebc3:b0:22c:33b4:c2ed with SMTP id
+ d9443c01a7336-22c52a93c28mr10089535ad.26.1745330619867; Tue, 22 Apr 2025
+ 07:03:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,13 +60,14 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20250417231540.2780723-1-almasrymina@google.com>
- <20250417231540.2780723-3-almasrymina@google.com> <484ecaad-56de-4c0d-b7fa-a3337557b0bf@gmail.com>
-In-Reply-To: <484ecaad-56de-4c0d-b7fa-a3337557b0bf@gmail.com>
+ <20250417231540.2780723-2-almasrymina@google.com> <f7a96367-1bb0-4ed2-8fbf-af7558fccc20@gmail.com>
+In-Reply-To: <f7a96367-1bb0-4ed2-8fbf-af7558fccc20@gmail.com>
 From: Mina Almasry <almasrymina@google.com>
-Date: Tue, 22 Apr 2025 06:56:17 -0700
-X-Gm-Features: ATxdqUFU-Nv8GeoWu8ltonWAw6xNaP21dKReuqOOxLDIWBd4SeZRRiQwqzNABOY
-Message-ID: <CAHS8izPw9maOMqLALTLc22eOKnutyLK9azOs4FzO1pfaY8xE6g@mail.gmail.com>
-Subject: Re: [PATCH net-next v9 2/9] net: add get_netmem/put_netmem support
+Date: Tue, 22 Apr 2025 07:03:26 -0700
+X-Gm-Features: ATxdqUHgiM0jEZwKYWOLJlVXJ7i1N-PNg4kE-n9ns-g62S6RZ7kqQTTDhmeVqPw
+Message-ID: <CAHS8izMFxDG5E07ZdqnDH_2D_g1fW8X0M7u3gGyV8efzxDNZbg@mail.gmail.com>
+Subject: Re: [PATCH net-next v9 1/9] netmem: add niov->type attribute to
+ distinguish different net_iov types
 To: Pavel Begunkov <asml.silence@gmail.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-doc@vger.kernel.org, io-uring@vger.kernel.org, 
@@ -87,49 +88,42 @@ Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 22, 2025 at 1:43=E2=80=AFAM Pavel Begunkov <asml.silence@gmail.=
+On Tue, Apr 22, 2025 at 1:16=E2=80=AFAM Pavel Begunkov <asml.silence@gmail.=
 com> wrote:
 >
 > On 4/18/25 00:15, Mina Almasry wrote:
-> > Currently net_iovs support only pp ref counts, and do not support a
-> > page ref equivalent.
+> > Later patches in the series adds TX net_iovs where there is no pp
+> > associated, so we can't rely on niov->pp->mp_ops to tell what is the
+> > type of the net_iov.
 >
-> Makes me wonder why it's needed. In theory, nobody should ever be
-> taking page references without going through struct ubuf_info
-> handling first, all in kernel users of these pages should always
-> be paired with ubuf_info, as it's user memory, it's not stable,
-> and without ubuf_info the user is allowed to overwrite it.
+> That's fine, but that needs a NULL pp check in io_uring as well,
+> specifically in io_zcrx_recv_frag().
 >
 
-The concern about the stability of the from-userspace data is already
-called out in the MSG_ZEROCOPY documentation that we're piggybacking
-devmem TX onto:
+I think you mean this update in the code:
 
-https://www.kernel.org/doc/html/v4.15/networking/msg_zerocopy.html
+if (!niov->pp || niov->pp->mp_ops !=3D &io_uring_pp_zc_ops ||
+    io_pp_to_ifq(niov->pp) !=3D ifq)
+return -EFAULT;
 
-Basically the userspace passes the memory to the kernel and waits for
-a notification for when it's safe to reuse/overwrite the data. I don't
-know that it's a security concern. Basically if the userspace modifies
-the data before it gets the notification from the kernel, then it will
-mess up its own TX. The notification is sent by the kernel to the
-userspace when the skb is freed I believe, at that point it's safe to
-reuse the buffer as the kernel no longer needs it for TX.
+Yes, thanks, will do.
 
-For devmem we do need to pin the binding until all TX users are done
-with it, so get_netmem will increase the refcount on the binding to
-keep it alive until the net stack is done with it.
-
-> Maybe there are some gray area cases like packet inspection or
-> tracing? However in this case, after the ubuf_info is dropped, the
-> user can overwrite the memory with its secrets. Definitely iffy
-> in security terms.
+> You can also move it to struct net_iov_area and check niov->owner->type
+> instead. It's a safer choice than aliasing with struct page, there is
+> no cost as you're loading ->owner anyway (e.g. for
+> net_iov_virtual_addr()), and it's better in terms of normalisation /
+> not unnecessary duplicating it, assuming we'll never have niovs of
+> different types bound to the same struct net_iov_area.
 >
 
-You can look at all the callers of skb_frag_ref to see all the code
-paths that grab a page ref on the frag today. There is also an
-inspection by me in the v5 changelog.
+Putting it in niov->owner->type is an alternative approach. I don't
+see a strong reason to go with one over the other. I'm thinking there
+will be fast code paths that want to know the type of the frag or skb
+and don't need the owner, so it will be good to save loading another
+cacheline. We have more space in struct net_iov than we know what to
+do with anyway.
 
 
---=20
+--
 Thanks,
 Mina
