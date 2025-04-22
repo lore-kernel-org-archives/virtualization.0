@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C474A22ACE7
-	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 08:23:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C585022ACE7
+	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 08:23:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745310208; cv=none; b=HNczSIMbrATriOuX4I/3fuWFvAT2QwSwrHCOOfFCoa+RzRz7FgowWcIMUM3iAxHqRktFlmgBF75QRUlD9Zjt8FeVHTfqqlPLPj5V1/Yw3lmBySJjX4GRRy9D9mYcYGCcS5uKtDbHkuCr7gdjtvW62rAZbl5ZjbWrPFtN4ih7JHE=
+	t=1745310210; cv=none; b=LvGnD6HyrXWKRnMw4f/Fg9N/mr9zikjPxdFEUd5Rx3ocbFTRJcdjDRkxuDLs4KvWBZ05k51f7+2zKEUYoDeqBg8hjK2ac/WY5/pmvwtYPygWRIMT1k/AFX3NpcQ8zb357K4R/F/TV8YfaZxmmtDgDzs0NpL7nce9b3BjjnHMKPQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745310208; c=relaxed/simple;
-	bh=4I/xnjAU8J5chjPtC3vwg3jYwfZ1NUQyd6ht2XY7zQo=;
+	s=arc-20240116; t=1745310210; c=relaxed/simple;
+	bh=gCCWGNArlIe5QDq/ZlbbEF1UPukyQ4I5goYB8Ysgc50=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EHsOfMekhGzyK3UUPOlSKXMNkUm1PzlkbPIARr2B7kwo80WGs0cduL/fcnC7ck91WgHorWucNpTgWJy0DjyLE4jRRtVHcpPRZMWfFzaHLjOesGnW0+jS8gDmb8jIxs36jo2JGoUXE0NCsYQdboAWzsGWweTHiFA/F2Hh7wJjHZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=foWRBYLs; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=Ge6I3kbnG9O4gfVBZdyKgnW/I5GqZhO/KXX72lWWWVgqU1tMjL852Cfs73FjcSTI26Y321ptF8vO5nxzXZXJ/G5EFccRjGB0n/ukHRnNW++hQpJJtLpUOPmvBjQagyNO8bNTynTjjFKjLo7eEk0Q3fj/9x1QB1W8LqyYV3uhq0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=OmKf37nj; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="foWRBYLs"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="OmKf37nj"
 Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53M8MG9c1954391
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53M8MG9e1954391
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Tue, 22 Apr 2025 01:23:09 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53M8MG9c1954391
+	Tue, 22 Apr 2025 01:23:13 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53M8MG9e1954391
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745310191;
-	bh=sK7SiEcLnDzK1DJz1rvdwY9xA/sqvcg2VrbN9TcPHbg=;
+	s=2025042001; t=1745310195;
+	bh=q4OhUI0rI50amKpqfciINYanq1RzzEK8yJ83O6y9rJ8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=foWRBYLsKAd18ivlovmpAbGclkDRxT1gihjkFNepAQkuXKH79JRP4ulwlbvMqwqjP
-	 suJQ6v0PsxMNzpKDmTjfE93RTV8V4gdoIR1d3JcQCSVVdKiFQhtivKD6EKhIDH+GvA
-	 pmr4R679vcjmvWNhbOk9b+590Omb7eLnU3x+Um/wSBr4mUnyhDNssmAuPp5adjEKNR
-	 oZMbEABpZ3jLduPbsg/STQMgOMmdpaBwCIu1MuDUpjSPvSNdVKRkzoakFpe/Lso2Ci
-	 xcBEorcc04dH7iKh95hVNKLSN78H46XgSqj4+4Nrve/RjaXkyN82gMV1u86fsqhsvJ
-	 +LDnx8McRaOiw==
+	b=OmKf37njdufOCKOu1+/pioZjS9aCdJkKDwOrFoBSJhYk4elP9gADQavcBJBzNl94M
+	 EIiY4v+5MJyXJSD3W/yIBbOBl42wgPprtbbrq1AfBAyn6/JOU6QaZPM3JueHwmQQ1g
+	 +KoW7aGTIXud9UNjjTcoKiR/eFW2JlRTjAThtiGF+xCNvMVYrZ7lw2ZIbbUz9KNdY0
+	 lPhh9NdtSqPJkUj5p+Wp804iYdMmNhvdZECXFxI2/+4EvygMdqQCV95AoKEVyrcLOd
+	 JUQ0rKKSP9GX6VJZM+ZRBvVN+7dPJtDzIyqhp4lXTnJyvDE1Q5Ebb4iaj/H5En1k1N
+	 N66LR8lz6prnw==
 From: "Xin Li (Intel)" <xin@zytor.com>
 To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
@@ -50,9 +50,9 @@ Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
         luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
         haiyangz@microsoft.com, decui@microsoft.com
-Subject: [RFC PATCH v2 24/34] x86/mce: Use native MSR API __native_{wr,rd}msrq()
-Date: Tue, 22 Apr 2025 01:22:05 -0700
-Message-ID: <20250422082216.1954310-25-xin@zytor.com>
+Subject: [RFC PATCH v2 26/34] x86/msr: Rename native_wrmsr() to native_wrmsr_no_trace()
+Date: Tue, 22 Apr 2025 01:22:07 -0700
+Message-ID: <20250422082216.1954310-27-xin@zytor.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250422082216.1954310-1-xin@zytor.com>
 References: <20250422082216.1954310-1-xin@zytor.com>
@@ -64,109 +64,63 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use native MSR API __native_{wr,rd}msrq() instead of MSR assemely.
+native_wrmsr() doesn't do trace thus can be used in noinstr context,
+rename it to native_wrmsr_no_trace() to make it explicit.
 
 Signed-off-by: Xin Li (Intel) <xin@zytor.com>
 ---
- arch/x86/kernel/cpu/mce/core.c | 55 +++++++++++++++++++++-------------
- 1 file changed, 35 insertions(+), 20 deletions(-)
+ arch/x86/include/asm/msr.h                | 8 ++++----
+ arch/x86/kernel/cpu/resctrl/pseudo_lock.c | 4 ++--
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 32286bad75e6..b854a60238de 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -370,13 +370,40 @@ static int msr_to_offset(u32 msr)
+diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
+index d130bdeed3ce..2a62a899f7a5 100644
+--- a/arch/x86/include/asm/msr.h
++++ b/arch/x86/include/asm/msr.h
+@@ -367,9 +367,9 @@ static __always_inline int rdmsrq_safe(u32 msr, u64 *val)
+  *                            /     \                                |
+  *                           /       \                               |
+  *        native_wrmsrq_no_trace()    native_write_msr_safe()        |
+- *                   /    \                                          |
+- *                  /      \                                         |
+- *      native_wrmsr()    native_write_msr()                         |
++ *                   /        \                                      |
++ *                  /          \                                     |
++ * native_wrmsr_no_trace()    native_write_msr()                     |
+  *                                                                   |
+  *                                                                   |
+  *                                                                   |
+@@ -467,7 +467,7 @@ static __always_inline void native_wrmsrq_no_trace(u32 msr, u64 val)
+ 	__native_wrmsrq(msr, val, EX_TYPE_WRMSR);
+ }
  
- void ex_handler_msr_mce(struct pt_regs *regs, bool wrmsr)
+-static __always_inline void native_wrmsr(u32 msr, u32 low, u32 high)
++static __always_inline void native_wrmsr_no_trace(u32 msr, u32 low, u32 high)
  {
-+	bool imm_insn = is_msr_imm_insn((void *)regs->ip);
-+	u32 msr;
-+
-+	if (imm_insn)
-+		/*
-+		 * The 32-bit immediate specifying a MSR is encoded into
-+		 * byte 5 ~ 8 of an immediate form MSR instruction.
-+		 */
-+		msr = *(u32 *)(regs->ip + 5);
-+	else
-+		msr = (u32)regs->cx;
-+
- 	if (wrmsr) {
--		pr_emerg("MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
--			 (unsigned int)regs->cx, (unsigned int)regs->dx, (unsigned int)regs->ax,
--			 regs->ip, (void *)regs->ip);
-+		/*
-+		 * To maintain consistency with existing RDMSR and WRMSR(NS) instructions,
-+		 * the register operand for immediate form MSR instructions is ALWAYS
-+		 * encoded as RAX in <asm/msr.h> for reading or writing the MSR value.
-+		 */
-+		u64 msr_val = regs->ax;
-+
-+		if (!imm_insn) {
-+			/*
-+			 * On processors that support the Intel 64 architecture, the
-+			 * high-order 32 bits of each of RAX and RDX are ignored.
-+			 */
-+			msr_val &= 0xffffffff;
-+			msr_val |= (u64)regs->dx << 32;
-+		}
-+
-+		pr_emerg("MSR access error: WRMSR to 0x%x (tried to write 0x%016llx) at rIP: 0x%lx (%pS)\n",
-+			 msr, msr_val, regs->ip, (void *)regs->ip);
- 	} else {
- 		pr_emerg("MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
--			 (unsigned int)regs->cx, regs->ip, (void *)regs->ip);
-+			 msr, regs->ip, (void *)regs->ip);
- 	}
- 
- 	show_stack_regs(regs);
-@@ -390,7 +417,7 @@ void ex_handler_msr_mce(struct pt_regs *regs, bool wrmsr)
- /* MSR access wrappers used for error injection */
- noinstr u64 mce_rdmsrq(u32 msr)
- {
--	DECLARE_ARGS(val, low, high);
-+	u64 val;
- 
- 	if (__this_cpu_read(injectm.finished)) {
- 		int offset;
-@@ -414,19 +441,13 @@ noinstr u64 mce_rdmsrq(u32 msr)
- 	 * architectural violation and needs to be reported to hw vendor. Panic
- 	 * the box to not allow any further progress.
+ 	native_wrmsrq_no_trace(msr, (u64)high << 32 | low);
+ }
+diff --git a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
+index e970a0de894f..184bc1b3fb02 100644
+--- a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
++++ b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
+@@ -495,7 +495,7 @@ int resctrl_arch_pseudo_lock_fn(void *_plr)
+ 	 * pseudo-locked followed by reading of kernel memory to load it
+ 	 * into the cache.
  	 */
--	asm volatile("1: rdmsr\n"
--		     "2:\n"
--		     _ASM_EXTABLE_TYPE(1b, 2b, EX_TYPE_RDMSR_IN_MCE)
--		     : EAX_EDX_RET(val, low, high) : "c" (msr));
-+	__native_rdmsrq(msr, &val, EX_TYPE_RDMSR_IN_MCE);
+-	native_wrmsr(MSR_IA32_PQR_ASSOC, rmid_p, plr->closid);
++	native_wrmsr_no_trace(MSR_IA32_PQR_ASSOC, rmid_p, plr->closid);
  
--
--	return EAX_EDX_VAL(val, low, high);
-+	return val;
- }
+ 	/*
+ 	 * Cache was flushed earlier. Now access kernel memory to read it
+@@ -532,7 +532,7 @@ int resctrl_arch_pseudo_lock_fn(void *_plr)
+ 	 * Critical section end: restore closid with capacity bitmask that
+ 	 * does not overlap with pseudo-locked region.
+ 	 */
+-	native_wrmsr(MSR_IA32_PQR_ASSOC, rmid_p, closid_p);
++	native_wrmsr_no_trace(MSR_IA32_PQR_ASSOC, rmid_p, closid_p);
  
- static noinstr void mce_wrmsrq(u32 msr, u64 v)
- {
--	u32 low, high;
--
- 	if (__this_cpu_read(injectm.finished)) {
- 		int offset;
- 
-@@ -441,14 +462,8 @@ static noinstr void mce_wrmsrq(u32 msr, u64 v)
- 		return;
- 	}
- 
--	low  = (u32)v;
--	high = (u32)(v >> 32);
--
- 	/* See comment in mce_rdmsrq() */
--	asm volatile("1: wrmsr\n"
--		     "2:\n"
--		     _ASM_EXTABLE_TYPE(1b, 2b, EX_TYPE_WRMSR_IN_MCE)
--		     : : "c" (msr), "a"(low), "d" (high) : "memory");
-+	__native_wrmsrq(msr, v, EX_TYPE_WRMSR_IN_MCE);
- }
- 
- /*
+ 	/* Re-enable the hardware prefetcher(s) */
+ 	wrmsrq(MSR_MISC_FEATURE_CONTROL, saved_msr);
 -- 
 2.49.0
 
