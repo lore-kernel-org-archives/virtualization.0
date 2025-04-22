@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 444F225335A
-	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 08:23:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EE501F4CA4
+	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 08:23:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745310198; cv=none; b=toY0NmcWUZpy7Rl8AV5f84RQ7lzkA6MbywtBVEr0HUCxubFi9T29X5nSYZP88eo/mej5m6urMQ4Y8k5+tsJb6OclcHASDHtios9eZk2frxY2yHMysWcLCwpRgYy/+/STkFm8EVDbRhEYgw0FRGuf8LPSca+prsqdK/wtEBEXMNs=
+	t=1745310199; cv=none; b=R2NibjtKM6xlXvh5K/2BaUouwEMQIuPhlWTNZBDwLtJNymkVLLGok5viZRHC+MORub9d28m2XFERcmyn1BurElxS8lSHtxyuCc9B3rYN7vhnHFXe+bCx2BxMohnyrLHZ/DCtdp11ph+pEvIieJWVHuCqqu6EWiGUJUHubdkevIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745310198; c=relaxed/simple;
-	bh=Umn2nybDh+IGdK7RwOrwJ3nbRm48MiJ42+qU3IFtNQ8=;
+	s=arc-20240116; t=1745310199; c=relaxed/simple;
+	bh=RZGiVx8WnrXBUkKKqZvIFcRKk/LzQAvMyRlpdcQCCUs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=s8aq67A6uZ3Yw4n1a4NQYvsWhhSC/gx3WybkydUwwVMqySQp8kLa6Xbj7pcbv4LAleWnFNKM3UQQz+rAkkaRzkMSU5npxcnwW+rDJZ4ZoZ2nKWxv5gPOmu4/jREdN77RPFz4l1HFkiOVzHJRbs1Ybi5Dw/4nCiGJH0exi54kUO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=KtH0j43n; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=K1Sb0zoQtzE9VvsCcd/LeJQE46tqnYsqJABtCDhr5U7WZ60EdAvM6IL1FLThL5u/4N52xvT6CBZgcm4A3aXC/1i3OIckdJ+Wo4aUq97WC2oJT9Yi8fuY7KXCcgpPkzO+yjhOadIa7dlDkWd3vaf3lHZ4+j1IEwiz7I7no+vdsco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=awo00TyT; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="KtH0j43n"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="awo00TyT"
 Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53M8MG9R1954391
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53M8MG9P1954391
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Tue, 22 Apr 2025 01:22:47 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53M8MG9R1954391
+	Tue, 22 Apr 2025 01:22:42 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53M8MG9P1954391
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745310169;
-	bh=hElDV5Vze4WAsf0tFZEf35YrdP6qWjxDv4JzPANXVNk=;
+	s=2025042001; t=1745310164;
+	bh=DiJ//ZCDdr9jGcfbSpj9Ofv6WJfHxK1CVTdlWhlF0ig=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=KtH0j43nk+Duf810zw1CEZbj53zexfsA4TSV0B76pxE9B3Sj1oCxiID+KXn1gmORq
-	 vu21eQ4c+tmMchOpXFtsfl+poNPSuVCMyQEoTucNuKqh68DeJWNwQYHG2wEEn23sg+
-	 1dLcK1ohYsx8lYF42FO6EUtkBUGnHmF1DeuOngZIDHY1MY+76NmeADYp9e+nBhq8bn
-	 Ehm+TadXMIp/OyRm+L7atsclg5gNJjCVXv+kLzElC+F0KilwKtEZ9UNRRrcN6CG/Lv
-	 Xdp6B4Pk8wYadmONeIh3mea2pnQKdrfmQDXjlUn7TWOlTGJbb5C8vw+ahCl0mRZQEL
-	 y0QzP7N4WO1Mw==
+	b=awo00TyT4cngwFyInD7AfuKbrTVw6bBZi3n6QyYwm0hfsJ7d5DOK6ryUYZ3uscVVA
+	 FF+/ZckvDC7vJBMN9CfhH0oB+rd6uUZellPGM3U8hSIrlyK6PBfkibWxmrGRbllYd1
+	 mE2ZFVrjThdSNLdX6irdbeka6A0ak4pjCNrLUx38kXIvxj25yQ4iJCUhdh/khFEnXG
+	 zYoEbXMPDWF9GI7E0m8RnYVRjYYkqS5swH1ZyZ2jVOmguT3He0hBROzSc2OnEczHY3
+	 OzNunzBKTcjX5LDne8JZTMzyp65l9t4ZqXugbpDnuQ/AfCTDwojG2MrD7a94yT3wHk
+	 joHUW+H9AE6gw==
 From: "Xin Li (Intel)" <xin@zytor.com>
 To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
@@ -50,9 +50,9 @@ Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
         luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
         haiyangz@microsoft.com, decui@microsoft.com
-Subject: [RFC PATCH v2 13/34] x86/xen/msr: Remove the error pointer argument from set_reg()
-Date: Tue, 22 Apr 2025 01:21:54 -0700
-Message-ID: <20250422082216.1954310-14-xin@zytor.com>
+Subject: [RFC PATCH v2 11/34] x86/msr: Remove calling native_{read,write}_msr{,_safe}() in pmu_msr_{read,write}()
+Date: Tue, 22 Apr 2025 01:21:52 -0700
+Message-ID: <20250422082216.1954310-12-xin@zytor.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250422082216.1954310-1-xin@zytor.com>
 References: <20250422082216.1954310-1-xin@zytor.com>
@@ -64,66 +64,119 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-set_reg() is used to write the following MSRs on Xen:
+hpa found that pmu_msr_write() is actually a completely pointless
+function [1]: all it does is shuffle some arguments, then calls
+pmu_msr_chk_emulated() and if it returns true AND the emulated flag
+is clear then does *exactly the same thing* that the calling code
+would have done if pmu_msr_write() itself had returned true.  And
+pmu_msr_read() does the equivalent stupidity.
 
-    MSR_FS_BASE
-    MSR_KERNEL_GS_BASE
-    MSR_GS_BASE
+Remove the calls to native_{read,write}_msr{,_safe}() within
+pmu_msr_{read,write}().  Instead reuse the existing calling code
+that decides whether to call native_{read,write}_msr{,_safe}() based
+on the return value from pmu_msr_{read,write}().  Consequently,
+eliminate the need to pass an error pointer to pmu_msr_{read,write}().
 
-But none of these MSRs are written using any MSR write safe API.
-Therefore there is no need to pass an error pointer argument to
-set_reg() for returning an error code to be used in MSR safe APIs.
+While at it, refactor pmu_msr_write() to take the MSR value as a u64
+argument, replacing the current dual u32 arguments, because the dual
+u32 arguments were only used to call native_write_msr{,_safe}(), which
+has now been removed.
 
-Remove the error pointer argument.
+[1]: https://lore.kernel.org/lkml/0ec48b84-d158-47c6-b14c-3563fd14bcc4@zytor.com/
 
-Signed-off-by: Xin Li (Intel) <xin@zytor.com>
+Suggested-by: H. Peter Anvin (Intel) <hpa@zytor.com>
+Sign-off-by: Xin Li (Intel) <xin@zytor.com>
 ---
- arch/x86/xen/enlighten_pv.c | 16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ arch/x86/xen/enlighten_pv.c |  6 +++++-
+ arch/x86/xen/pmu.c          | 27 ++++-----------------------
+ arch/x86/xen/xen-ops.h      |  4 ++--
+ 3 files changed, 11 insertions(+), 26 deletions(-)
 
 diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index b5a8bceb5f56..9a89cb29fa35 100644
+index 9fbe187aff00..1418758b57ff 100644
 --- a/arch/x86/xen/enlighten_pv.c
 +++ b/arch/x86/xen/enlighten_pv.c
-@@ -1111,17 +1111,11 @@ static u64 xen_do_read_msr(unsigned int msr, int *err)
- 	return val;
- }
- 
--static void set_seg(unsigned int which, unsigned int low, unsigned int high,
--		    int *err)
-+static void set_seg(u32 which, u32 low, u32 high)
+@@ -1132,6 +1132,8 @@ static void set_seg(unsigned int which, unsigned int low, unsigned int high,
+ static void xen_do_write_msr(unsigned int msr, unsigned int low,
+ 			     unsigned int high, int *err)
  {
- 	u64 base = ((u64)high << 32) | low;
- 
--	if (HYPERVISOR_set_segment_base(which, base) == 0)
--		return;
--
--	if (err)
--		*err = -EIO;
--	else
-+	if (HYPERVISOR_set_segment_base(which, base))
- 		WARN(1, "Xen set_segment_base(%u, %llx) failed\n", which, base);
- }
- 
-@@ -1138,15 +1132,15 @@ static void xen_do_write_msr(unsigned int msr, unsigned int low,
- 
++	u64 val;
++
  	switch (msr) {
  	case MSR_FS_BASE:
--		set_seg(SEGBASE_FS, low, high, err);
-+		set_seg(SEGBASE_FS, low, high);
+ 		set_seg(SEGBASE_FS, low, high, err);
+@@ -1158,7 +1160,9 @@ static void xen_do_write_msr(unsigned int msr, unsigned int low,
  		break;
  
- 	case MSR_KERNEL_GS_BASE:
--		set_seg(SEGBASE_GS_USER, low, high, err);
-+		set_seg(SEGBASE_GS_USER, low, high);
- 		break;
+ 	default:
+-		if (!pmu_msr_write(msr, low, high, err)) {
++		val = (u64)high << 32 | low;
++
++		if (!pmu_msr_write(msr, val)) {
+ 			if (err)
+ 				*err = native_write_msr_safe(msr, low, high);
+ 			else
+diff --git a/arch/x86/xen/pmu.c b/arch/x86/xen/pmu.c
+index 9c1682af620a..95caae97a394 100644
+--- a/arch/x86/xen/pmu.c
++++ b/arch/x86/xen/pmu.c
+@@ -313,37 +313,18 @@ static bool pmu_msr_chk_emulated(unsigned int msr, uint64_t *val, bool is_read,
+ 	return true;
+ }
  
- 	case MSR_GS_BASE:
--		set_seg(SEGBASE_GS_KERNEL, low, high, err);
-+		set_seg(SEGBASE_GS_KERNEL, low, high);
- 		break;
+-bool pmu_msr_read(unsigned int msr, uint64_t *val, int *err)
++bool pmu_msr_read(u32 msr, u64 *val)
+ {
+ 	bool emulated;
  
- 	case MSR_STAR:
+-	if (!pmu_msr_chk_emulated(msr, val, true, &emulated))
+-		return false;
+-
+-	if (!emulated) {
+-		*val = err ? native_read_msr_safe(msr, err)
+-			   : native_read_msr(msr);
+-	}
+-
+-	return true;
++	return pmu_msr_chk_emulated(msr, val, true, &emulated) && emulated;
+ }
+ 
+-bool pmu_msr_write(unsigned int msr, uint32_t low, uint32_t high, int *err)
++bool pmu_msr_write(u32 msr, u64 val)
+ {
+-	uint64_t val = ((uint64_t)high << 32) | low;
+ 	bool emulated;
+ 
+-	if (!pmu_msr_chk_emulated(msr, &val, false, &emulated))
+-		return false;
+-
+-	if (!emulated) {
+-		if (err)
+-			*err = native_write_msr_safe(msr, low, high);
+-		else
+-			native_write_msr(msr, low, high);
+-	}
+-
+-	return true;
++	return pmu_msr_chk_emulated(msr, &val, false, &emulated) && emulated;
+ }
+ 
+ static u64 xen_amd_read_pmc(int counter)
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index dc886c3cc24d..a1875e10be31 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -271,8 +271,8 @@ void xen_pmu_finish(int cpu);
+ static inline void xen_pmu_init(int cpu) {}
+ static inline void xen_pmu_finish(int cpu) {}
+ #endif
+-bool pmu_msr_read(unsigned int msr, uint64_t *val, int *err);
+-bool pmu_msr_write(unsigned int msr, uint32_t low, uint32_t high, int *err);
++bool pmu_msr_read(u32 msr, u64 *val);
++bool pmu_msr_write(u32 msr, u64 val);
+ int pmu_apic_update(uint32_t reg);
+ u64 xen_read_pmc(int counter);
+ 
 -- 
 2.49.0
 
