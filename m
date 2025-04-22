@@ -1,130 +1,174 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3119F283C8D
-	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 15:09:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2A0829009F
+	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 16:49:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745334579; cv=none; b=HiUmUxN6SzpnUMxwX/TsTKGdMykw0Si8ekUjOGKOgwK27rQvjWZ8JzQV+QlCBBlQVd/gsdo/OMwTftiC76Roz+vVAQ/OQmzpwPVKx8IN5ZGoz+8l+8bvFAfD+EAiEmLVbN7coz7xCWjci76E3bWCfP1fudDZbj+trl6IMprauNw=
+	t=1745340555; cv=none; b=e9TT6j6PYqoR6LeyuANsI9JeQF6sQRnwjbObC4f6RXketZ7wVEnG+3jbEw1G121CGff9vDDqIvGiOfzRs1GyYX2Xw86U+YP732KvSWfnGjC+n0Df6CSjcoHno0dV5ui9cl2htJTPAqfgnlto7E1x0u32qzhASN+BxVzFvPanqMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745334579; c=relaxed/simple;
-	bh=u2pTJx0Ij+runOvsJmA0q5y9Kslc+OcE1AiOs4Q52gA=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=ULKWlViL6AdEWaerR/Zzsz3O9Q3jOIhQmIAgE3xws8VOJdnNjB8KgZQ7lPdgFV+vhG5bRnjLeOrq/WqpMjECs4a4cyYRSKIkO0Hjz/tfZFlweVed94LmjWuBed9RmV2wclNp5f1c5XTZc5fsfhPSP4uy0FAc+mhu1fbwyE+lI6Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=iT6X0q/5; arc=none smtp.client-ip=209.85.216.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1745340555; c=relaxed/simple;
+	bh=OnwSNDn64S8aCsL+BPdxyk1KPcCrvENt7q1PLD17rCQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jDExmEq5yo+rGOmI4pwvf8/QeN4JPiygNwabHAU7LzVGFJqZabe4x8vcH9ctTcJoSPIOz1DBKU+SeSRrXRJnxvbj+M35x/GrWdy5APZM/J18GKxAstgvfSSaxNlohvO8QQ/eAHW/jB/DXaGWcXo488pCIybpOLYO/PqvxlUetrw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FZD6OZhB; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iT6X0q/5"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-3086107d023so5116236a91.2
-        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 08:09:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1745334576; x=1745939376; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=rRXArVhux4Bsw70YvwQ+lh5zlccYMqH0xPXNTi9FZ8g=;
-        b=iT6X0q/5tA3762UAd0EWvZHrh+nVmGOP1DtcM/dftgKWxh5QUtZ5E/SG4YiLJE7tvc
-         uyJ+bP+RShG72q0/WbPHw6W9cnJPvtVirnOttdDQwYJ+aXfyPQcH10q0oYZsh+MxWroN
-         p08nweoWPOR4HmwlSjIGr1/rDZoL6GWQW/l0XosxFU7b8eDunkMwCMm/JrmbAQ8Zx2Ya
-         rW7jgy7juqdtcgiCXvuOwQZz6Vki9Fe4JSEs0nbKnSk2VBgOd4m293HDpRVECOO7OcQt
-         og+n2YreZ1rnzebNqvQq3J9p5Jjkg7hH4gEQZKvsStul65NBKwy1SgOq/9l/g3xWVBiv
-         ugsw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FZD6OZhB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1745340551;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zrsd/3p7dvdW/2Y1idz3MOxsrZjO4oXnRPdIb4aDyus=;
+	b=FZD6OZhB6PUKbnyJ8Sx/oQhiW4OJcg0RhWK3eQOao1iVUbGsj2hVgcoshj0ExRBOUNM5iQ
+	ocBZ58GRZNSXSnXhTamL2hhEF+769icgcV+0CPAPSxIkwKBvUpLiRfTaleagwe3H2UdDD9
+	NjnakHJ+x/5cjMoZJh+i49IaaqJo2co=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-32-6AW5mJazPMaPSkYg_apgeA-1; Tue, 22 Apr 2025 12:49:09 -0400
+X-MC-Unique: 6AW5mJazPMaPSkYg_apgeA-1
+X-Mimecast-MFC-AGG-ID: 6AW5mJazPMaPSkYg_apgeA_1745340548
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43d0a037f97so29008445e9.2
+        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 09:49:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745334576; x=1745939376;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rRXArVhux4Bsw70YvwQ+lh5zlccYMqH0xPXNTi9FZ8g=;
-        b=qHwbFtaP2ZamTGeEy5riPosA5PQ/KmgYYtBU928sH+bdpHeeda4hkAX+SHH5gFUL3d
-         pm/CL05c7OKi2wtsmsNTFVtAJc9fhre0XuluJywwQ235POWbC+eI5ZrF3wRx39fLEcjj
-         ot9iY1gwmcXNtXLscOwucdu2QZLXzEtL4i4cLQleo1AKG/U3TZbUEJLfsWp9xX8B5mdI
-         xqmm1qlSpruzmei4Yf+jI5zL7A83ux2MiRbiCoTBpmdlTu3TRQNf0lz3+tbMXd+IUbQw
-         mOeGlMawahpe1+pU8C5ocUWScyaSUoP6HnR7tZREF1Upd7vRX+w+HBWIyX6gQp1bkrnn
-         GQDw==
-X-Forwarded-Encrypted: i=1; AJvYcCU+Reb7/t6x7TSJ6nsD1WfpuZZMthPSHssgVamhjsS+j9SuFqh78uiJf5LNMKUyWANvnt2kL5sr7XRaMM59ZA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyqvlHaOvnOe6pbRYxAKEvwANZAc4Cq7yS6Iy/aRzPTT3S+mmH+
-	UReb80qBSbHPeD+81lbN9e7A4JzQFGcZrC6YBaDFS1o8tODWerEJ852t3Gp29jCav2fCa0e+oFt
-	viQ==
-X-Google-Smtp-Source: AGHT+IHGR6YFubcBkAQrqhkjsdDwq21aLEhFyH8uteoXFGo84CYqI3Y4PMerNLsX7Qx/XFlRMipUTrfnrN0=
-X-Received: from pjbrr7.prod.google.com ([2002:a17:90b:2b47:b0:2fc:2c9c:880])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:4ecf:b0:2ff:692b:b15
- with SMTP id 98e67ed59e1d1-3087bbca3b0mr26039866a91.33.1745334576501; Tue, 22
- Apr 2025 08:09:36 -0700 (PDT)
-Date: Tue, 22 Apr 2025 08:09:34 -0700
-In-Reply-To: <20250422082216.1954310-11-xin@zytor.com>
+        d=1e100.net; s=20230601; t=1745340548; x=1745945348;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:reply-to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zrsd/3p7dvdW/2Y1idz3MOxsrZjO4oXnRPdIb4aDyus=;
+        b=l5nVk72xjWps3Xoz8GoSktIqEEv3S2Jo+W3re2AfE7KeepkMajJFXRphum2o7JgIIX
+         BlZ6r7Hwt9bP5Ujvj4xAAYzcyD/X1jVOh3ZUNsyu/olTmQKegWcFa2y+BgWxQdkTLSSn
+         TykTg98lOGvcFc1QRwmPIwp3ZnnQhqUiwBuMsqCsMzFinChgDH5MEuyA/kQC8RUSq922
+         9uu46+NImXpotiNZTSN9mjgz44PrC/gKfiYaUD5A76SIw6XGS+dZYl+0SG7j1xCwhy4p
+         VyPNW79PuenbwRwuhbk+5EOwWbI3qEtI6nXm+olv/m0MkeeVXj1zpsu0qpIiXnzOVPGF
+         m8CQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWqweVwjpQPPR54BZVrDArmRB/p41+IGQwL6GR3FN+UAlbB49OY3WOFP8QjKRxIP43w9FwzZQE/a33J5YXIfA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxEZhEBi2CwTIT+xkYsHOwvdphb4WYn+nNCfMR1y6cA/ItyyAF2
+	JLN0u90U2TWPgiQ54cEdHE8NlrSPrukB4F2DijXxQ2mH1DoOYoPes/Xfa8v4oI1x1XPiZTwLc71
+	7PTDmTRu5wYX6hrYvzjB3XYbs3tbsNiIqlte8UOcJMMCYsvkMfx2nyISQwmrPlRan
+X-Gm-Gg: ASbGncv+5+udCrS3N8O4W+ds6zGRxW/ODHg1YpL+T2gi2Y4uaNFofFtHoW53ozgyGLr
+	e+46leQFgiud+2kdfIQceYLCcMCvHOvFKhD5OaGPBCgix2VmFHgsdHH4udrUlIVqM2XNc/Psh4F
+	aeQ+5T9jeVHiCO04Xo9e3RlGG60uK3PnlMNBK+PWIt3icByC8QPT3dcHNOECCPUW1F/LI77v8TC
+	A6CuQOqIr0N2pTkKXKrGxj8PH003GCAu6XlUxvkGqfdvdTiuEkuZFYgR3NswrRAhSx5mbNvLwiJ
+	jp7RmV4P7Hi6CObyRbgWRHNn08oPlKoh5BmSf+0T0ZcthXnv74KA6QlHkVg=
+X-Received: by 2002:a05:600c:1906:b0:43d:fa58:8378 with SMTP id 5b1f17b1804b1-4406ac11581mr132427915e9.33.1745340548369;
+        Tue, 22 Apr 2025 09:49:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEL0BTg1501d7TjC/8u5Gc8ZzZQofR/EdbhGN5AMF4Ozt8Ub8BwgAm98X6mqgEsGUZkPjE5Lw==
+X-Received: by 2002:a05:600c:1906:b0:43d:fa58:8378 with SMTP id 5b1f17b1804b1-4406ac11581mr132427685e9.33.1745340547956;
+        Tue, 22 Apr 2025 09:49:07 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:f0e:9070:527b:9dff:feef:3874? ([2a01:e0a:f0e:9070:527b:9dff:feef:3874])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4406d5ace47sm178502985e9.15.2025.04.22.09.49.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Apr 2025 09:49:07 -0700 (PDT)
+Message-ID: <5aede4c4-5dfd-4ec1-9fd8-a5d6700678bd@redhat.com>
+Date: Tue, 22 Apr 2025 18:49:04 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250422082216.1954310-1-xin@zytor.com> <20250422082216.1954310-11-xin@zytor.com>
-Message-ID: <aAexLqjhKncFyw2V@google.com>
-Subject: Re: [RFC PATCH v2 10/34] x86/msr: Convert __rdmsr() uses to
- native_rdmsrq() uses
-From: Sean Christopherson <seanjc@google.com>
-To: "Xin Li (Intel)" <xin@zytor.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-pm@vger.kernel.org, 
-	linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org, 
-	linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org, 
-	netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
-	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
-	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, acme@kernel.org, 
-	jgross@suse.com, andrew.cooper3@citrix.com, peterz@infradead.org, 
-	namhyung@kernel.org, mark.rutland@arm.com, alexander.shishkin@linux.intel.com, 
-	jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com, 
-	kan.liang@linux.intel.com, wei.liu@kernel.org, ajay.kaher@broadcom.com, 
-	bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com, 
-	pbonzini@redhat.com, vkuznets@redhat.com, luto@kernel.org, 
-	boris.ostrovsky@oracle.com, kys@microsoft.com, haiyangz@microsoft.com, 
-	decui@microsoft.com
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Reply-To: eric.auger@redhat.com
+Subject: Re: [PATCH v2] virtgpu: don't reset on shutdown
+To: Gerd Hoffmann <kraxel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Eric Auger <eauger@redhat.com>,
+ Jocelyn Falempe <jfalempe@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev
+References: <8490dbeb6f79ed039e6c11d121002618972538a3.1744293540.git.mst@redhat.com>
+ <ge6675q3ahypfncrwbiodtcjnoftuza6ele5fhre3jmdeifsez@yy53fbwoulgo>
+ <20250415095922-mutt-send-email-mst@kernel.org>
+ <lgizdflxcku5ew2en55ux3r72u37d6aycuoosn5i5a5wagz6sc@d2kha7ycmmpy>
+From: Eric Auger <eric.auger@redhat.com>
+In-Reply-To: <lgizdflxcku5ew2en55ux3r72u37d6aycuoosn5i5a5wagz6sc@d2kha7ycmmpy>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: QFXgOannBrBR8tAJUr0o4JlOpEopSK19BDncGRnZFHI_1745340548
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 22, 2025, Xin Li (Intel) wrote:
-> __rdmsr() is the lowest level primitive MSR read API, and its direct
-> use is NOT preferred.
+Hi Gerd, Michael,
 
-Doesn't mean it's wrong.
-
-> Use its wrapper function native_rdmsrq() instead.
-
-...
-
-> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-> index 1547bfacd40f..e73c1d5ba6c4 100644
-> --- a/arch/x86/kvm/vmx/vmx.c
-> +++ b/arch/x86/kvm/vmx/vmx.c
-> @@ -380,7 +380,7 @@ static __always_inline void vmx_disable_fb_clear(struct vcpu_vmx *vmx)
->  	if (!vmx->disable_fb_clear)
->  		return;
+On 4/16/25 3:57 PM, Gerd Hoffmann wrote:
+> On Tue, Apr 15, 2025 at 10:00:48AM -0400, Michael S. Tsirkin wrote:
+>> On Tue, Apr 15, 2025 at 01:16:32PM +0200, Gerd Hoffmann wrote:
+>>>   Hi,
+>>>
+>>>> +static void virtio_gpu_shutdown(struct virtio_device *vdev)
+>>>> +{
+>>>> +	/*
+>>>> +	 * drm does its own synchronization on shutdown.
+>>>> +	 * Do nothing here, opt out of device reset.
+>>>> +	 */
+>>> I think a call to 'drm_dev_unplug()' is what you need here.
+>>>
+>>> take care,
+>>>   Gerd
+>> My patch reverts the behaviour back to what it was, so pls go
+>> ahead and send a patch on top? I won't be able to explain
+>> what it does and why it's needed.
+> See below.  Untested.
+>
+> Eric, can you give this a spin?
+>
+> thanks,
+>   Gerd
+>
+> ----------------------- cut here -------------------------------
+> From f3051dd52cb2004232941e6d2cbc0c694e290534 Mon Sep 17 00:00:00 2001
+> From: Gerd Hoffmann <kraxel@redhat.com>
+> Date: Wed, 16 Apr 2025 15:53:04 +0200
+> Subject: [PATCH] drm/virtio: implement virtio_gpu_shutdown
+>
+> Calling drm_dev_unplug() is the drm way to say the device
+> is gone and can not be accessed any more.
+>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_drv.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index e32e680c7197..71c6ccad4b99 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -130,10 +130,10 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
 >  
-> -	msr = __rdmsr(MSR_IA32_MCU_OPT_CTRL);
-> +	msr = native_rdmsrq(MSR_IA32_MCU_OPT_CTRL);
->  	msr |= FB_CLEAR_DIS;
->  	native_wrmsrq(MSR_IA32_MCU_OPT_CTRL, msr);
->  	/* Cache the MSR value to avoid reading it later */
-> @@ -7307,7 +7307,7 @@ void noinstr vmx_spec_ctrl_restore_host(struct vcpu_vmx *vmx,
->  		return;
+>  static void virtio_gpu_shutdown(struct virtio_device *vdev)
+>  {
+> -	/*
+> -	 * drm does its own synchronization on shutdown.
+> -	 * Do nothing here, opt out of device reset.
+> -	 */
+> +	struct drm_device *dev = vdev->priv;
+> +
+> +	/* stop talking to the device */
+> +	drm_dev_unplug(dev);
+I have tested this patch on top of Michael's v2 and I don't see any
+splat on guest.
+
+Feel free to add my
+
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Tested-by: Eric Auger <eric.auger@redhat.com>
+
+Thanks
+
+Eric
+>  }
 >  
->  	if (flags & VMX_RUN_SAVE_SPEC_CTRL)
-> -		vmx->spec_ctrl = __rdmsr(MSR_IA32_SPEC_CTRL);
-> +		vmx->spec_ctrl = native_rdmsrq(MSR_IA32_SPEC_CTRL);
+>  static void virtio_gpu_config_changed(struct virtio_device *vdev)
 
-And what guarantees that native_rdmsrq() won't have tracing?  Ugh, a later patch
-renames native_rdmsrq() => native_rdmsrq_no_trace().
-
-I really don't like this.  It makes simple and obvious code:
-
-	vmx->spec_ctrl = __rdmsr(MSR_IA32_SPEC_CTRL);
-
-so much harder to read:
-
-	vmx->spec_ctrl = native_rdmsrq_no_trace(MSR_IA32_SPEC_CTRL);
-
-and does so in a way that is difficult to review, e.g. I have to peek ahead to
-understand that this is even ok.
-
-I strongly prefer that we find a way to not require such verbose APIs, especially
-if KVM ends up using native variants throughout.  Xen PV is supposed to be the
-odd one out, yet native code is what suffers.  Blech.
