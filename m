@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 509E11EB1A7
-	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 08:23:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D85D023A9A5
+	for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 08:23:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745310227; cv=none; b=mK1WC2CMfKF3nn46dY92FhX9E1wuizSI5Gq49ygU5MV+BUHVg4+PrxMVi9n+2wq/qjjptpzTWXkg94jUFnM/YiNk6eOzQE2c3TJpT+TkXzVnIhSCM7GrnozQXQ4iFdTX+GjXY/elW2br4sjwFXrcQGF3SDjuDaHvImY1uptur2o=
+	t=1745310229; cv=none; b=QNi/LvK9NGhdzOkIHxkBZbO311bNShTGA9EwpVBgLc8XL0XVuWOSZHi0RO0TliXLzZCvy8XEUbYCY2PqEwsLMoYkby3dN0SeftU7PNZ90A2bLqGQq1GtLTYlbMHSfrQNJNQpYkDi2V4hTj5WAMcH2wYGoUX/KJscNfwkRyDQc8Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745310227; c=relaxed/simple;
-	bh=HFXlOSrmXh0pQzmh70nzr8a0e2j82SKgXVMAzu1LuBk=;
+	s=arc-20240116; t=1745310229; c=relaxed/simple;
+	bh=eCu+m7zBbJAkqm4TZtPyOH/iZjKrV+2z+Fto4mzxhmE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jXojzyVPrH9oBKjJXabdCPvIMVEDJv+JryZWs6Wgk3BB++2akBbcSh974/iKtZnJ4GwHeAZmZ9vWSnxUhK/vdJuS4FSZMN5br9u8VOmT7BRT6qxvtGa7cPIb2jYHmnTvXeRWKJ7Y2A7KHnUWpt7MwU95WykV3DA0G9A1Q7Go9VM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=Uc1b2MMH; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=hGuS4ZlR9Qb4RxD9MCbweWPfXAmwg3u7FXSPUP6uroq073xAzPmXXB2eCezBrJb9ycruMLLUEYI+sR2djFReiNFvI+tPBQyeaskDt6ONnWKquLRzY8MBBdsDBGFETOYmLL976ziripbhOViHopGvy9yUolYoh1pshjLRIG57Q4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=QKcrrs1C; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="Uc1b2MMH"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="QKcrrs1C"
 Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53M8MG9m1954391
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53M8MG9l1954391
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Tue, 22 Apr 2025 01:23:30 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53M8MG9m1954391
+	Tue, 22 Apr 2025 01:23:28 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53M8MG9l1954391
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745310212;
-	bh=qnYCpm2Cl6ZIZ5hId3xkbPkJqqrZQFZfyOkhGDhffqY=;
+	s=2025042001; t=1745310210;
+	bh=WuTf4DKpHMtSM1ra3KvkSmb+zvqoPj+dUC25U2G1occ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Uc1b2MMHUkmSSWkI2MOrRUT6ZGc7p2OK1RO57VTRGzrFk3nJp7mExF9yRLqhXwrcN
-	 BEEh5kJRgcNa0ORqLGKos3bgYft/LGNyer5Hj/VmrWBwEfN4bo5k4h7fYDJnj7l0iH
-	 x3KPzP8Y8/4VNpO8JH9Yfwzhho87jdCmeXcBpjzy/qaN1+VLUT/st/KMk2S7jIMbTL
-	 ErV/dz7vQ+VWICcFlhVd+X7D1ljAh8bI0Ed7Om76UDvHltu1oSI+3z4c9vWm1fO4pm
-	 4dTYUhuIvfW4g6DD8/vRKD69Q3YVmGv0OG8qFORLYD4AB4LVkHungT3s69bi00Wvfu
-	 KweyIKTZ9esZQ==
+	b=QKcrrs1CLj1GklRXrRY5aS2PCtwaEhGTlYpiDyTQTjEtLCtpGP6PF4lU6okTlCAxs
+	 YcOPgbljQyNdip4ad/TqaWX7E6oaZNhnbuHaO/9CAxKWtXtH5IcEpsPeCqrhCapA2j
+	 7/sjlQ+echmy0OGy5x+sG8HYkRhBfTDD46yscv1eNtFvuMspT3EJZSfGIsXT9FuHEP
+	 lwGS4cuq9Pl52a1bmYOQrcwDRDzLfN6Hjtx3Y5PSt1EOkUcnE2fwjGxqtkl4sfrZ/e
+	 1E4b3AKvled+9XSPax5BGjZyR4j5ep8Tvn55jTFJhcMHXdiudbJQjCPXUevI1KzTbM
+	 JdJzBLsp4NdOg==
 From: "Xin Li (Intel)" <xin@zytor.com>
 To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
@@ -50,9 +50,9 @@ Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
         luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
         haiyangz@microsoft.com, decui@microsoft.com
-Subject: [RFC PATCH v2 34/34] x86/msr: Convert native_rdmsr_no_trace() uses to native_rdmsrq_no_trace() uses
-Date: Tue, 22 Apr 2025 01:22:15 -0700
-Message-ID: <20250422082216.1954310-35-xin@zytor.com>
+Subject: [RFC PATCH v2 33/34] x86/msr: Move the ARGS macros after the MSR read/write APIs
+Date: Tue, 22 Apr 2025 01:22:14 -0700
+Message-ID: <20250422082216.1954310-34-xin@zytor.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250422082216.1954310-1-xin@zytor.com>
 References: <20250422082216.1954310-1-xin@zytor.com>
@@ -64,136 +64,77 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert native_rdmsr_no_trace() uses to native_rdmsrq_no_trace() uses
-cleanly with the use of struct msr, and remove native_rdmsr_no_trace().
+Since the ARGS macros are no longer used in the MSR read/write API
+implementation, move them after their definitions.
 
 Signed-off-by: Xin Li (Intel) <xin@zytor.com>
 ---
- arch/x86/include/asm/microcode.h      |  6 +++---
- arch/x86/include/asm/msr.h            | 13 +++----------
- arch/x86/kernel/cpu/microcode/amd.c   |  8 ++------
- arch/x86/kernel/cpu/microcode/core.c  |  4 ++--
- arch/x86/kernel/cpu/microcode/intel.c |  6 +++---
- 5 files changed, 13 insertions(+), 24 deletions(-)
+ arch/x86/include/asm/msr.h | 38 +++++++++++++++++++++-----------------
+ 1 file changed, 21 insertions(+), 17 deletions(-)
 
-diff --git a/arch/x86/include/asm/microcode.h b/arch/x86/include/asm/microcode.h
-index d581fdaf1f36..1d9641349744 100644
---- a/arch/x86/include/asm/microcode.h
-+++ b/arch/x86/include/asm/microcode.h
-@@ -61,7 +61,7 @@ static inline int intel_microcode_get_datasize(struct microcode_header_intel *hd
- 
- static inline u32 intel_get_microcode_revision(void)
- {
--	u32 rev, dummy;
-+	struct msr val;
- 
- 	native_wrmsrq_no_trace(MSR_IA32_UCODE_REV, 0);
- 
-@@ -69,9 +69,9 @@ static inline u32 intel_get_microcode_revision(void)
- 	native_cpuid_eax(1);
- 
- 	/* get the current revision from MSR 0x8B */
--	native_rdmsr_no_trace(MSR_IA32_UCODE_REV, dummy, rev);
-+	val.q = native_rdmsrq_no_trace(MSR_IA32_UCODE_REV);
- 
--	return rev;
-+	return val.h;
- }
- #endif /* !CONFIG_CPU_SUP_INTEL */
- 
 diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index be593a15a838..aebcd846af3e 100644
+index b4447ba4d6c2..be593a15a838 100644
 --- a/arch/x86/include/asm/msr.h
 +++ b/arch/x86/include/asm/msr.h
-@@ -141,9 +141,9 @@ static __always_inline bool is_msr_imm_insn(void *ip)
-  *                            /     \                                |
-  *                           /       \                               |
-  *        native_rdmsrq_no_trace()    native_rdmsrq_safe()           |
-- *                   /      \                                        |
-- *                  /        \                                       |
-- * native_rdmsr_no_trace()    native_rdmsrq()                        |
-+ *               /                                                   |
-+ *              /                                                    |
-+ *      native_rdmsrq()                                              |
-  *                                                                   |
-  *                                                                   |
-  *                                                                   |
-@@ -239,13 +239,6 @@ static __always_inline u64 native_rdmsrq_no_trace(u32 msr)
- 	return val;
- }
+@@ -38,23 +38,6 @@ struct saved_msrs {
+ 	struct saved_msr *array;
+ };
  
--#define native_rdmsr_no_trace(msr, low, high)		\
--do {							\
--	u64 __val = native_rdmsrq_no_trace(msr);	\
--	(void)((low) = (u32)__val);			\
--	(void)((high) = (u32)(__val >> 32));		\
--} while (0)
+-/*
+- * both i386 and x86_64 returns 64-bit value in edx:eax, but gcc's "A"
+- * constraint has different meanings. For i386, "A" means exactly
+- * edx:eax, while for x86_64 it doesn't mean rdx:rax or edx:eax. Instead,
+- * it means rax *or* rdx.
+- */
+-#ifdef CONFIG_X86_64
+-/* Using 64-bit values saves one instruction clearing the high half of low */
+-#define DECLARE_ARGS(val, low, high)	unsigned long low, high
+-#define EAX_EDX_VAL(val, low, high)	((low) | (high) << 32)
+-#define EAX_EDX_RET(val, low, high)	"=a" (low), "=d" (high)
+-#else
+-#define DECLARE_ARGS(val, low, high)	u64 val
+-#define EAX_EDX_VAL(val, low, high)	(val)
+-#define EAX_EDX_RET(val, low, high)	"=A" (val)
+-#endif
 -
- static inline u64 native_rdmsrq(u32 msr)
- {
- 	u64 val = native_rdmsrq_no_trace(msr);
-diff --git a/arch/x86/kernel/cpu/microcode/amd.c b/arch/x86/kernel/cpu/microcode/amd.c
-index f1f275ddab57..b4d66e79089c 100644
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -254,11 +254,7 @@ static bool verify_sha256_digest(u32 patch_id, u32 cur_rev, const u8 *data, unsi
- 
- static u32 get_patch_level(void)
- {
--	u32 rev, dummy __always_unused;
--
--	native_rdmsr_no_trace(MSR_AMD64_PATCH_LEVEL, rev, dummy);
--
--	return rev;
-+	return native_rdmsrq_no_trace(MSR_AMD64_PATCH_LEVEL);
- }
- 
- static union cpuid_1_eax ucode_rev_to_cpuid(unsigned int val)
-@@ -835,7 +831,7 @@ static struct ucode_patch *find_patch(unsigned int cpu)
- 
- void reload_ucode_amd(unsigned int cpu)
- {
--	u32 rev, dummy __always_unused;
-+	u32 rev;
- 	struct microcode_amd *mc;
- 	struct ucode_patch *p;
- 
-diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
-index 9bda8fd987ab..81b264373d3e 100644
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -81,10 +81,10 @@ struct early_load_data early_data;
+ /*
+  * Be very careful with includes. This header is prone to include loops.
   */
- static bool amd_check_current_patch_level(void)
+@@ -559,6 +542,23 @@ static __always_inline int wrmsr_safe(u32 msr, u32 low, u32 high)
+ extern int rdmsr_safe_regs(u32 regs[8]);
+ extern int wrmsr_safe_regs(u32 regs[8]);
+ 
++/*
++ * both i386 and x86_64 returns 64-bit value in edx:eax, but gcc's "A"
++ * constraint has different meanings. For i386, "A" means exactly
++ * edx:eax, while for x86_64 it doesn't mean rdx:rax or edx:eax. Instead,
++ * it means rax *or* rdx.
++ */
++#ifdef CONFIG_X86_64
++/* Using 64-bit values saves one instruction clearing the high half of low */
++#define DECLARE_ARGS(val, low, high)	unsigned long low, high
++#define EAX_EDX_VAL(val, low, high)	((low) | (high) << 32)
++#define EAX_EDX_RET(val, low, high)	"=a" (low), "=d" (high)
++#else
++#define DECLARE_ARGS(val, low, high)	u64 val
++#define EAX_EDX_VAL(val, low, high)	(val)
++#define EAX_EDX_RET(val, low, high)	"=A" (val)
++#endif
++
+ static __always_inline u64 native_rdpmcq(int counter)
  {
--	u32 lvl, dummy, i;
-+	u32 lvl, i;
- 	u32 *levels;
- 
--	native_rdmsr_no_trace(MSR_AMD64_PATCH_LEVEL, lvl, dummy);
-+	lvl = native_rdmsrq_no_trace(MSR_AMD64_PATCH_LEVEL);
- 
- 	levels = final_levels;
- 
-diff --git a/arch/x86/kernel/cpu/microcode/intel.c b/arch/x86/kernel/cpu/microcode/intel.c
-index c0307b1ad63d..1b484214f3ee 100644
---- a/arch/x86/kernel/cpu/microcode/intel.c
-+++ b/arch/x86/kernel/cpu/microcode/intel.c
-@@ -75,11 +75,11 @@ void intel_collect_cpu_info(struct cpu_signature *sig)
- 	sig->rev = intel_get_microcode_revision();
- 
- 	if (IFM(x86_family(sig->sig), x86_model(sig->sig)) >= INTEL_PENTIUM_III_DESCHUTES) {
--		unsigned int val[2];
-+		struct msr val;
- 
- 		/* get processor flags from MSR 0x17 */
--		native_rdmsr_no_trace(MSR_IA32_PLATFORM_ID, val[0], val[1]);
--		sig->pf = 1 << ((val[1] >> 18) & 7);
-+		val.q = native_rdmsrq_no_trace(MSR_IA32_PLATFORM_ID);
-+		sig->pf = 1 << ((val.h >> 18) & 7);
- 	}
+ 	DECLARE_ARGS(val, low, high);
+@@ -571,6 +571,10 @@ static __always_inline u64 native_rdpmcq(int counter)
+ 	return EAX_EDX_VAL(val, low, high);
  }
- EXPORT_SYMBOL_GPL(intel_collect_cpu_info);
+ 
++#undef DECLARE_ARGS
++#undef EAX_EDX_VAL
++#undef EAX_EDX_RET
++
+ static __always_inline u64 rdpmcq(int counter)
+ {
+ #ifdef CONFIG_XEN_PV
 -- 
 2.49.0
 
