@@ -1,181 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 190501EFFBE;
-	Wed, 23 Apr 2025 01:41:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1163263F2B;
+	Wed, 23 Apr 2025 01:49:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745372514; cv=none; b=OqnfqEAL63iHZfjsAfO3YD3CnAlm3YwTM6Pd79LmibBi2HfbEN2Uk5DRl4SaSJ5mR1fT2yqo6Pej9LnblaUCY66DGFf3Lj59aBAum8ANpk9ekziMG1z+0qwDg+7csoDdsmZSZXuES8Cj9kFeHOVTbNG6Nc40dIOQfWENAix//NQ=
+	t=1745372991; cv=none; b=r6tudF9CLgbi9hEw8iE+wH11D4S3hAORNUYZIPuXHJIm07yEFWsVkFd9UIqs2BDoRAD9SgzsDCz/hhtNfyIa0t5lE4evp3c2uEFAznLHVgzg8JCY7YRxHKjmQikvGVXpyd4BTpLi9XhM6QEiTIM3IM6AWQaW6lcs2kjKXa3HFF0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745372514; c=relaxed/simple;
-	bh=x20Xqy3N6oQmptfey0Z2+QB1DWZUT41kOcINg+dlCvo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Q0OoalEBBRglP/heOvVDQqKB1amZBTQBqaqG5/8oh3yfhsTVZLpWflIlAMuc9uLYCFpRD/yn5DdHkBLeVIuG9Maw47aA1kNMy69YFDfzISwroI1PWPgphxOME6Q+zsZ8F3FqBJVf2UE1JQjtvTsBHENeAM/7VHfpISZ8jYcMIeo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nUz+CU3V; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1745372991; c=relaxed/simple;
+	bh=QxEqK4cbT808ELsKax+8p0w2UjvmBOkBNaPB8xPHKI0=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=FkUmokrMd43VBYmyfgA20UdNPS+Ykyug340Aqv0awR94SxCMy0ckLOVpkA5fHFnzNodPFDvAiSCSIBeS0l9vlmtG19A8R5XlUFUgTCHqGUDYGatj0WnKaQyjV1Wg+VkF8HxVBTFZ/ZzHH/8YhOZJQb2+/UVv8gfHFvBegd2gtjM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oMqDL6ga; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nUz+CU3V"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFFC3C4CEE9;
-	Wed, 23 Apr 2025 01:41:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oMqDL6ga"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44E7AC4CEE9;
+	Wed, 23 Apr 2025 01:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745372513;
-	bh=x20Xqy3N6oQmptfey0Z2+QB1DWZUT41kOcINg+dlCvo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=nUz+CU3V3ZYW8R389v8ud02QPJjMXKfHgq/Vc/tTpIOzO5md27YOQLdR9fv5vQmmG
-	 v2Q4ZgGqcc/eWgdL+B4DqY6PKnYh8/oGLkKd6gV1U0Kgs7uCSmigJE9HDsFhZRHqWC
-	 4cdDPTR8Dz3ycCCmCZkI77Qh8fwfQlfJQUHaB2j3irOH70C1RJfcsfAUfOHl4XqLHs
-	 DKelC0B3tQrrq3sPm67xHDVteWAUHLdQ+rFU4yFBZDJnJZphSjpaSVL8xmud6rG8eB
-	 Di0jRsOu98XW66wm7LwfomwBBhKmrG4SkH2dV5lFCYiP8g2y/fg51CfBbcaF8UI+WB
-	 X0+M+21Hc1xtg==
-Date: Tue, 22 Apr 2025 18:41:51 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer
- <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Eugenio
- =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, "David S. Miller"
- <davem@davemloft.net>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH v4 4/4] selftests: net: add a virtio_net deadlock
- selftest
-Message-ID: <20250422184151.2fb4fffe@kernel.org>
-In-Reply-To: <20250417072806.18660-5-minhquangbui99@gmail.com>
-References: <20250417072806.18660-1-minhquangbui99@gmail.com>
-	<20250417072806.18660-5-minhquangbui99@gmail.com>
+	s=k20201202; t=1745372990;
+	bh=QxEqK4cbT808ELsKax+8p0w2UjvmBOkBNaPB8xPHKI0=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=oMqDL6gaQ1PJBIb8WuncnlC8rKeAuIxBOoptE52dnZSIzFVX2NRF49ZuY2GXBir8q
+	 3G+Mnddyg6c2pzc7MB+7oXQBA1N2tPwUHVjkFFxfM5UcRri/E6DDcYxHoKwXvceLWK
+	 qDE61VAN5rPNCfA6xTBtHpg/JnD3biqsxRoLZ5uFEArHoXnTiRQvIS/Z8+q1YxbZUW
+	 6gVv2nxcoXuB9ACLmK20ieFP2ogZZhSK1oipFZr4BxCrkE1eBVtnInN5fg4nrqCm9M
+	 eY86mTyh+xOXXtWWFtKkHy7Z+N5iOWh25DwgFtCkLNWZsPj5GprJKnTgWD8dn81XqC
+	 mbOedOKZs3f7Q==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAE67380CEF4;
+	Wed, 23 Apr 2025 01:50:29 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v4 0/4] virtio-net: disable delayed refill when pausing rx
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <174537302875.2111809.8543884098526067319.git-patchwork-notify@kernel.org>
+Date: Wed, 23 Apr 2025 01:50:28 +0000
+References: <20250417072806.18660-1-minhquangbui99@gmail.com>
+In-Reply-To: <20250417072806.18660-1-minhquangbui99@gmail.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: virtualization@lists.linux.dev, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, andrew+netdev@lunn.ch, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, ast@kernel.org, daniel@iogearbox.net,
+ hawk@kernel.org, john.fastabend@gmail.com, eperezma@redhat.com,
+ davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ bpf@vger.kernel.org
 
-On Thu, 17 Apr 2025 14:28:06 +0700 Bui Quang Minh wrote:
-> The selftest reproduces the deadlock scenario when binding/unbinding XDP
-> program, XDP socket, rx ring resize on virtio_net interface.
+Hello:
+
+This series was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Thu, 17 Apr 2025 14:28:02 +0700 you wrote:
+> Hi everyone,
 > 
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
->  .../testing/selftests/drivers/net/hw/Makefile |  1 +
->  .../selftests/drivers/net/hw/virtio_net.py    | 65 +++++++++++++++++++
->  2 files changed, 66 insertions(+)
->  create mode 100755 tools/testing/selftests/drivers/net/hw/virtio_net.py
+> This series tries to fix a deadlock in virtio-net when binding/unbinding
+> XDP program, XDP socket or resizing the rx queue.
 > 
-> diff --git a/tools/testing/selftests/drivers/net/hw/Makefile b/tools/testing/selftests/drivers/net/hw/Makefile
-> index 07cddb19ba35..b5af7c1412bf 100644
-> --- a/tools/testing/selftests/drivers/net/hw/Makefile
-> +++ b/tools/testing/selftests/drivers/net/hw/Makefile
-> @@ -21,6 +21,7 @@ TEST_PROGS = \
->  	rss_ctx.py \
->  	rss_input_xfrm.py \
->  	tso.py \
-> +	virtio_net.py \
+> When pausing rx (e.g. set up xdp, xsk pool, rx resize), we call
+> napi_disable() on the receive queue's napi. In delayed refill_work, it
+> also calls napi_disable() on the receive queue's napi. When
+> napi_disable() is called on an already disabled napi, it will sleep in
+> napi_disable_locked while still holding the netdev_lock. As a result,
+> later napi_enable gets stuck too as it cannot acquire the netdev_lock.
+> This leads to refill_work and the pause-then-resume tx are stuck
+> altogether.
+> 
+> [...]
 
-Maybe xsk_reconfig.py ? Other drivers will benefit from this test, too,
-and that's a more descriptive name.
+Here is the summary with links:
+  - [v4,1/4] virtio-net: disable delayed refill when pausing rx
+    https://git.kernel.org/netdev/net/c/4bc12818b363
+  - [v4,2/4] selftests: net: move xdp_helper to net/lib
+    (no matching commit)
+  - [v4,3/4] selftests: net: add flag to force zerocopy mode in xdp_helper
+    (no matching commit)
+  - [v4,4/4] selftests: net: add a virtio_net deadlock selftest
+    (no matching commit)
 
->  	#
->  
->  TEST_FILES := \
-> diff --git a/tools/testing/selftests/drivers/net/hw/virtio_net.py b/tools/testing/selftests/drivers/net/hw/virtio_net.py
-> new file mode 100755
-> index 000000000000..7cad7ab98635
-> --- /dev/null
-> +++ b/tools/testing/selftests/drivers/net/hw/virtio_net.py
-> @@ -0,0 +1,65 @@
-> +#!/usr/bin/env python3
-> +# SPDX-License-Identifier: GPL-2.0
-> +
-> +# This is intended to be run on a virtio-net guest interface.
-> +# The test binds the XDP socket to the interface without setting
-> +# the fill ring to trigger delayed refill_work. This helps to
-> +# make it easier to reproduce the deadlock when XDP program,
-> +# XDP socket bind/unbind, rx ring resize race with refill_work on
-> +# the buggy kernel.
-> +#
-> +# The Qemu command to setup virtio-net
-> +# -netdev tap,id=hostnet1,vhost=on,script=no,downscript=no
-> +# -device virtio-net-pci,netdev=hostnet1,iommu_platform=on,disable-legacy=on
-> +
-> +from lib.py import ksft_exit, ksft_run
-> +from lib.py import KsftSkipEx, KsftFailEx
-> +from lib.py import NetDrvEnv
-> +from lib.py import bkg, ip, cmd, ethtool
-> +import re
-> +
-> +def _get_rx_ring_entries(cfg):
-> +    output = ethtool(f"-g {cfg.ifname}").stdout
-> +    values = re.findall(r'RX:\s+(\d+)', output)
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-no need for the regexps, ethtool -g supports json formatting:
-
-	output = ethtool(f"-g {cfg.ifname}", json=True)[0]
-	return output["rx"]
-
-?
-
-> +    return int(values[1])
-> +
-> +def setup_xsk(cfg, xdp_queue_id = 0) -> bkg:
-> +    # Probe for support
-> +    xdp = cmd(f'{cfg.net_lib_dir / "xdp_helper"} - -', fail=False)
-> +    if xdp.ret == 255:
-> +        raise KsftSkipEx('AF_XDP unsupported')
-> +    elif xdp.ret > 0:
-> +        raise KsftFailEx('unable to create AF_XDP socket')
-> +
-> +    try:
-> +        xsk_bkg = bkg(f'{cfg.net_lib_dir / "xdp_helper"} {cfg.ifindex} ' \
-> +                      '{xdp_queue_id} -z', ksft_wait=3)
-
-This process will time out after 3 seconds but the test really
-shouldn't leave things running after it exits. Don't worry about
-the couple of seconds of execution time. Wrap each test in
-
-	with bkg(f"... the exec info ... "):
-		# test code here
-
-The bkg() class has an __exit__() handle once the test finishes
-and leaves the with block it will terminate.
-
-> +        return xsk_bkg
-> +    except:
-> +        raise KsftSkipEx('Failed to bind XDP socket in zerocopy. ' \
-> +                         'Please consider adding iommu_platform=on ' \
-> +                         'when setting up virtio-net-pci')
-> +
-> +def check_xdp_bind(cfg):
-> +    ip(f"link set dev %s xdp obj %s sec xdp" %
-> +       (cfg.ifname, cfg.net_lib_dir / "xdp_dummy.bpf.o"))
-> +    ip(f"link set dev %s xdp off" % cfg.ifname)
-> +
-> +def check_rx_resize(cfg, queue_size = 128):
-> +    rx_ring = _get_rx_ring_entries(cfg)
-> +    ethtool(f"-G %s rx %d" % (cfg.ifname, queue_size))
-> +    ethtool(f"-G %s rx %d" % (cfg.ifname, rx_ring))
-
-Why guess the ring size? What if it's already 128? I usually do:
-
-	rx_ring = _get_rx_ring_entries(cfg)
-	ethtool(f"-G %s rx %d" % (cfg.ifname, rx_ring / 2))
-	ethtool(f"-G %s rx %d" % (cfg.ifname, rx_ring))
-
-IOW flip between half or double and current.
-
-> +def main():
-> +    with NetDrvEnv(__file__, nsim_test=False) as cfg:
-> +        try:
-> +            xsk_bkg = setup_xsk(cfg)
-> +        except KsftSkipEx as e:
-> +            print(f"WARN: xsk pool is not set up, err: {e}")
-> +
-> +        ksft_run([check_xdp_bind, check_rx_resize],
-> +                 args=(cfg, ))
-> +    ksft_exit()
-> +
-> +if __name__ == "__main__":
-> +    main()
 
