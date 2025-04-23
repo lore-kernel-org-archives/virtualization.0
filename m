@@ -1,127 +1,86 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3D6928A40F
-	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 17:28:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3796E28DF05
+	for <virtualization@lists.linux-foundation.org>; Wed, 23 Apr 2025 17:29:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745429285; cv=none; b=uuIr/n1QY/8WDbAW/ALO/je97pUgFv3gXbbXXDJmzQwkgS1vuklcgn8OQ7T5MVq6Pzc+0hge3eG5s4Uc2WO2CeyHb2OIAt0wfLJkT8l9kbwGTQwbvDSu74p8xPqx5eRLhOMptL0ebDRRC9PBs8dgtRBBm4KOlX0aic8avWBsk5E=
+	t=1745429348; cv=none; b=iSMBICFttXOCNNvB9223s+1CsSva5ei78J0h978zw2+rNUBzGXc8OrOrr2t7Vt3ezIMtco+zPWNghFOPh+xCy4NQyJRBvIX6NJfan6G8eu835Y5UGJTd6R1zlniRMmlvLn6UUI50qCgVJhjgzU3Dj7OEapsOok4/WFpYknBM+Z0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745429285; c=relaxed/simple;
-	bh=Wa2nKVy62V+d/qbDEyNIn13+ePN0sTeeuwvCl+4mMK0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tG+T9u+78Zn7Ow0ki1wJWIM1lgRfgvcYVY82CM2RJWAArSp/o26LH+e+3OlIAfVPd8klZ2T9/ppZ1I0lXCHTzJGE/oliCP5986NtYp6PPlQhDcupueQTqRfrhYMp2sVYZ+ZCVjXJ87qC/SAsWWYkULNfsrkok/GUWP5djVgeJD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=FYHpQRl8; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1745429348; c=relaxed/simple;
+	bh=vlh4+BR1H/RmxNREq1KSV9QK1KeKmMVnQikynmcuhwo=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=PTXkACkZE2tSJVVg67qJV2LLKt1wuF8YT7/C498B4vTbDCubJjKGS67CmXilgBG53/plrCVKkOBZ8rBbfpVhxwUiBodpOzoPLtns4qLyODkPMoPtW29zPJnAO+L0cDKOx1xUPX+qCG8RTdCWdiHxei1Os5hcYe/CllbacrnHay8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EvatOY7j; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="FYHpQRl8"
-Received: from [192.168.7.202] ([71.202.166.45])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53NHRSwP3822273
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Wed, 23 Apr 2025 10:27:28 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53NHRSwP3822273
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745429251;
-	bh=3DNEiH9ClADNNdC4s2AFGq03za4/i0hRtsw7HdWhX8Q=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=FYHpQRl8w+nTjaGGRqdQx9A21dGh6eRp5/7vZcoeVQfJ9FBrAtuE4a8nbQdhPJpY7
-	 C5nTvzzz33F1edToPwWHSeJXgoh6SwIuUPr91pgD6ORF2jN+/5fZh9Ofi3nO2wDCgX
-	 NyB6TneZbcSNhKwI3FWPkvGtSRtfl8YKXephFBr2m8UWFGjBObYHKKsepz0L/aTUGo
-	 jFGXQZIyrJ70pWBdnFXn75qaBkvkid3XPvRU6MU8TH8CRJxSKjrb4b2UYHO+wGQ51t
-	 Z5W8BeQoRoZzPHd5lWutYI7E+jcqOoxDsMyaxvuPKWJE7ftMpslNO0VeQ/i0ZeFCUN
-	 zwJslGTaEkwWw==
-Message-ID: <0e5cf01a-2cc1-46a2-89c1-3bcc502229c8@zytor.com>
-Date: Wed, 23 Apr 2025 10:27:27 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EvatOY7j"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id BDD9D6106D
+	for <virtualization@lists.linux-foundation.org>; Wed, 23 Apr 2025 17:29:06 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -10.792
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id gNBRT2xkxuFF for <virtualization@lists.linux-foundation.org>;
+ Wed, 23 Apr 2025 17:29:06 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org DC8F360740
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DC8F360740
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=EvatOY7j
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DC8F360740
+	for <virtualization@lists.linux-foundation.org>; Wed, 23 Apr 2025 17:29:05 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 66BC15C5EB9;
+	Wed, 23 Apr 2025 17:26:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AA69C4CEE2;
+	Wed, 23 Apr 2025 17:29:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1745429344;
+	bh=vlh4+BR1H/RmxNREq1KSV9QK1KeKmMVnQikynmcuhwo=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=EvatOY7j4yFv4XGVGP3rNEdg/WKME+vsbamFNlzOONW7QA8WC2SVwQYVbLVtItU9c
+	 nI7MSrPUcMdNxrj5PaIFmpCudbbBbjLQt6iAzDWDXpjNxQRtwz4BgmqDcIafWyGNJ6
+	 Etvuga9n13LB6xyr8GSQH6RRpJBZ7sSqTTZANjmJzHo6SyByVMDMhcqcovZPHMEF4e
+	 3M+WqNF1OPH1SMrEiQWRmzTu0gpn1BhvGFJQ9w1pGV14qHGuw+x/YCwTvaijd8fgMT
+	 0+tCyJlNXblO+0wdqPfpymr3kcTekTMZtf6NLNIkbUnTgVwqpcLb2/82am44eacyA7
+	 OvjXbylSjPxNA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EB0D9380CED9;
+	Wed, 23 Apr 2025 17:29:43 +0000 (UTC)
+Subject: Re: [GIT PULL] virtio, vhost: fixes
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20250423024239-mutt-send-email-mst@kernel.org>
+References: <20250423024239-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <kvm.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20250423024239-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: 58465d86071b61415e25fb054201f61e83d21465
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 0251ddbffbeb213f0f74ef94b2cacce580eb8d76
+Message-Id: <174542938258.2710377.13663228633712440875.pr-tracker-bot@kernel.org>
+Date: Wed, 23 Apr 2025 17:29:42 +0000
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, danielj@nvidia.com, dongli.zhang@oracle.com, eauger@redhat.com, eric.auger@redhat.com, jasowang@redhat.com, jfalempe@redhat.com, maxbr@linux.ibm.com, mst@redhat.com, pasic@linux.ibm.com, quic_zhonhan@quicinc.com, sgarzare@redhat.com, syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 08/34] x86/msr: Convert a native_wrmsr() use to
- native_wrmsrq()
-To: Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-pm@vger.kernel.org, linux-edac@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com,
-        peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
-        wei.liu@kernel.org, ajay.kaher@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
-        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
-        haiyangz@microsoft.com, decui@microsoft.com
-References: <20250422082216.1954310-1-xin@zytor.com>
- <20250422082216.1954310-9-xin@zytor.com>
- <2932db03-164a-447e-92cf-1ef6c35c15a4@intel.com>
-Content-Language: en-US
-From: Xin Li <xin@zytor.com>
-Autocrypt: addr=xin@zytor.com; keydata=
- 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
- l75w1xInsg==
-In-Reply-To: <2932db03-164a-447e-92cf-1ef6c35c15a4@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 4/23/2025 8:51 AM, Dave Hansen wrote:
-> On 4/22/25 01:21, Xin Li (Intel) wrote:
->>   static __always_inline void sev_es_wr_ghcb_msr(u64 val)
->>   {
->> -	u32 low, high;
->> -
->> -	low  = (u32)(val);
->> -	high = (u32)(val >> 32);
->> -
->> -	native_wrmsr(MSR_AMD64_SEV_ES_GHCB, low, high);
->> +	native_wrmsrq(MSR_AMD64_SEV_ES_GHCB, val);
->>   }
-> 
-> A note on ordering: Had this been a native_wrmsr()=>__wrmsr()
-> conversion, it could be sucked into the tree easily before the big
-> __wrmsr()=>native_wrmsrq() conversion.
-> 
-> Yeah, you'd have to base the big rename on top of this. But with a
-> series this big, I'd prioritize whatever gets it trimmed down.
+The pull request you sent on Wed, 23 Apr 2025 02:42:39 -0400:
 
-Okay, I will focus on cleanup first.
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/0251ddbffbeb213f0f74ef94b2cacce580eb8d76
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
