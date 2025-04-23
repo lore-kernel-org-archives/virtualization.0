@@ -1,39 +1,39 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCBBC24466F
-	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 09:04:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7D2C2701B5
+	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 09:28:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745399061; cv=none; b=jMqLp+BJ2wMP4EDUFYghxd8oVHfE/Wg/eItl1pemVSkKAskpHPy5daJ2yEROCcAYR9HHz1vhGuIqthG36f8LmyhjHSAbClR3c6yv0jGcDpBcC1UmnKlX056oFJDfgs0z03q3qJnp3g7OhJnZmD+PWFA0t+0Az6uOwz9LLaNeUhg=
+	t=1745400507; cv=none; b=Upvfi96yfGoCVbyYCiSsWn8XlrhBJ8lnwh+lYDiHsU8t9XuHPI9knVApdLIIiFKgdKcz9AXFeh6sFL2zK2Iwug0dEmUt0OiLEjgB5i63WhYC81hjjK8eYKVRS+mRI1YMvF2iugp7AatfpkvRV6S61y5Zlaxwxe83hpg5XD7pgUk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745399061; c=relaxed/simple;
-	bh=Scv61BPn1S5NCIrOFvABukt5YWGju5wHJrpfJQ5MtTs=;
+	s=arc-20240116; t=1745400507; c=relaxed/simple;
+	bh=+EYVuYrtu0aOqe3lbGO7b9PG5zqWh+Kau/58q5Ikx7w=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZNXtZZ0GQKMNK91nnfXYxa7J1Q4vABB4F9613P22oRmOXpvGkeA8QenRMEwypOzwdMNsCZ/TV95z1p5TLpDQxxdGgvlDrmnYZamWqN6tYn86XzJ6+bMlYv4cNOY+EvuOioUN+sEy5yhhFwncZpncvE45v4gOm9ndgG1xMlBM1nk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=jHhglhXv; arc=none smtp.client-ip=198.137.202.136
+	 In-Reply-To:Content-Type; b=Sm5PQt1MmXgOcsv9zlD+MWVT5G1KquBzGLf3LDy6vlnj6KM/ZGkTWOjHZRyXWuehIQEKU3ljcxNXtxQpa8zvTzmj4LLdzJ+ivuGH9QaEq0Q0homGnVtljH3ra9tAqXmRaNdSe9FhPwjyHHR491FFsKX6Q1vEQRQwZh7ttDnAL7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=UmIumy9c; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="jHhglhXv"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="UmIumy9c"
 Received: from [192.168.7.202] ([71.202.166.45])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53N93fQA3189218
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53N9RlMD3219913
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Wed, 23 Apr 2025 02:03:42 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53N93fQA3189218
+	Wed, 23 Apr 2025 02:27:48 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53N9RlMD3219913
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745399025;
-	bh=u0XOm4Pe1y26VX9KraE8lCfVMIhih5CUvlEon/+N7r8=;
+	s=2025042001; t=1745400470;
+	bh=ljTCYrwFB4jWmVUKcnZoEtS1ENJ4as2xI12Y2XbkMGU=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=jHhglhXvhVyTJ9jbGbBEsLpKKKBonwgJfuJebJkfdM2ZVf587fR3O1LmBPaAX8A+7
-	 Y/kQ8sy1SWT03AqNGStd9X6lus78yvsubZ9m4m+1Q78rLFEGgbDfDd5TAdwoyWFOo7
-	 QE2PAqjPMr7Nf9QsR+7zMCqsy41tHPFwJQOXdldXH4Uef0v3MZmMgxjyvQfzSoLRiS
-	 nHnSLuwIeibOtU52hStVUmkHsV08RKi82jG7O+XUZkO1n+JM2syhx8Jp+OwjcGZBEa
-	 gS0TDoUjBiODs26vxsCih9QvNtT077p8SGL+iciRZQ/Xtdur9QA3BHiJOB0btfGNTu
-	 cVHFdG56BYXAQ==
-Message-ID: <7899fcd9-3492-49d3-8097-a3ddefaaeef0@zytor.com>
-Date: Wed, 23 Apr 2025 02:03:41 -0700
+	b=UmIumy9ccUWtp5ZpbFY6Ho9GgYRlVSRySL3D0+L6jUnzCuWo+VAXnfIYm+WcNWHcr
+	 3vdBJ+wwDthlqUfiIoaN3DvHPiYn4gb/+Mbw6citZ1Nn3xuBxFNqKSFdRNvSlmfDHg
+	 sgDUE/YJgzJJyaLCEhkxOt4S6E7bN3HrTuYY85xE4DOyVvo6Ap2JfPnfbPyl+GWU88
+	 BCLMSAjhGktSUoCdwdyy/ZS83Z3KwNGZuWXVpY05BNcjcn6RiyoIM0nH70HIaJUZTW
+	 sxPrQvxiLK2+ljs3l/mZq4cz6GbUS+eJfVvDu2BEsKu2EVOjGnH6pzErQiG0qnjLGr
+	 yA9/DCpyDaO8g==
+Message-ID: <7527f09c-7163-4276-b9a4-edac6c8217ae@zytor.com>
+Date: Wed, 23 Apr 2025 02:27:46 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -41,29 +41,28 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 22/34] x86/msr: Utilize the alternatives mechanism
- to read MSR
-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+Subject: Re: [RFC PATCH v2 10/34] x86/msr: Convert __rdmsr() uses to
+ native_rdmsrq() uses
+To: Sean Christopherson <seanjc@google.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
         virtualization@lists.linux.dev, linux-pm@vger.kernel.org,
         linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org,
         linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org
-Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        acme@kernel.org, andrew.cooper3@citrix.com, peterz@infradead.org,
-        namhyung@kernel.org, mark.rutland@arm.com,
+        acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com,
+        peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com,
         alexander.shishkin@linux.intel.com, jolsa@kernel.org,
         irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
         wei.liu@kernel.org, ajay.kaher@broadcom.com,
         bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
-        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
-        haiyangz@microsoft.com, decui@microsoft.com
+        pbonzini@redhat.com, vkuznets@redhat.com, luto@kernel.org,
+        boris.ostrovsky@oracle.com, kys@microsoft.com, haiyangz@microsoft.com,
+        decui@microsoft.com
 References: <20250422082216.1954310-1-xin@zytor.com>
- <20250422082216.1954310-23-xin@zytor.com>
- <080351cb-6c3d-4540-953d-6205f1ff0745@suse.com>
+ <20250422082216.1954310-11-xin@zytor.com> <aAexLqjhKncFyw2V@google.com>
 Content-Language: en-US
 From: Xin Li <xin@zytor.com>
 Autocrypt: addr=xin@zytor.com; keydata=
@@ -100,37 +99,75 @@ Autocrypt: addr=xin@zytor.com; keydata=
  PYbAkjBbm+tuJ/Sm+5Yp5T/BnKz21FoCS8uvTiziHj2H7Cuekn6F8EYhegONm+RVg3vikOpn
  gao85i4HwQTK9/D1wgJIQkdwWXVMZ6q/OALaBp82vQ2U9sjTyFXgDjglgh00VRAHP7u1Rcu4
  l75w1xInsg==
-In-Reply-To: <080351cb-6c3d-4540-953d-6205f1ff0745@suse.com>
+In-Reply-To: <aAexLqjhKncFyw2V@google.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 4/22/2025 4:12 AM, Jürgen Groß wrote:
->> +
->> +static __always_inline bool __rdmsrq(u32 msr, u64 *val, int type)
->> +{
->> +    bool ret;
->> +
->> +#ifdef CONFIG_XEN_PV
->> +    if (cpu_feature_enabled(X86_FEATURE_XENPV))
->> +        return __xenpv_rdmsrq(msr, val, type);
+On 4/22/2025 8:09 AM, Sean Christopherson wrote:
+> On Tue, Apr 22, 2025, Xin Li (Intel) wrote:
+>> __rdmsr() is the lowest level primitive MSR read API, and its direct
+>> use is NOT preferred.
 > 
-> I don't think this will work for the Xen PV case.
+> Doesn't mean it's wrong.
 
-Well, I have been testing the code on xen-4.17 coming with Ubuntu
-24.04.2 LTS :)
+I wouldn't go so far as to claim that it's wrong :-)
+
+>> Use its wrapper function native_rdmsrq() instead.
+
+The current code exhibits a somewhat haphazard use of MSR APIs, so I
+wanted to clarify which API to employ in specific situations with
+verbose function naming.
+
+Here is an example that Boris had to fix the use of MSR APIs:
+
+https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f980f9c31a923e9040dee0bc679a5f5b09e61f40
 
 > 
-> X86_FEATURE_XENPV is set only after the first MSR is being read.
-
-No matter whether the code works or not, good catch!
-
+> ...
 > 
-> This can be fixed by setting the feature earlier, but it shows that the
-> paravirt feature has its benefits in such cases.
+>> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+>> index 1547bfacd40f..e73c1d5ba6c4 100644
+>> --- a/arch/x86/kvm/vmx/vmx.c
+>> +++ b/arch/x86/kvm/vmx/vmx.c
+>> @@ -380,7 +380,7 @@ static __always_inline void vmx_disable_fb_clear(struct vcpu_vmx *vmx)
+>>   	if (!vmx->disable_fb_clear)
+>>   		return;
+>>   
+>> -	msr = __rdmsr(MSR_IA32_MCU_OPT_CTRL);
+>> +	msr = native_rdmsrq(MSR_IA32_MCU_OPT_CTRL);
+>>   	msr |= FB_CLEAR_DIS;
+>>   	native_wrmsrq(MSR_IA32_MCU_OPT_CTRL, msr);
+>>   	/* Cache the MSR value to avoid reading it later */
+>> @@ -7307,7 +7307,7 @@ void noinstr vmx_spec_ctrl_restore_host(struct vcpu_vmx *vmx,
+>>   		return;
+>>   
+>>   	if (flags & VMX_RUN_SAVE_SPEC_CTRL)
+>> -		vmx->spec_ctrl = __rdmsr(MSR_IA32_SPEC_CTRL);
+>> +		vmx->spec_ctrl = native_rdmsrq(MSR_IA32_SPEC_CTRL);
+> 
+> And what guarantees that native_rdmsrq() won't have tracing?  Ugh, a later patch
+> renames native_rdmsrq() => native_rdmsrq_no_trace().
+> 
+> I really don't like this.  It makes simple and obvious code:
+> 
+> 	vmx->spec_ctrl = __rdmsr(MSR_IA32_SPEC_CTRL);
+> 
+> so much harder to read:
+> 
+> 	vmx->spec_ctrl = native_rdmsrq_no_trace(MSR_IA32_SPEC_CTRL);
+> 
+> and does so in a way that is difficult to review, e.g. I have to peek ahead to
+> understand that this is even ok.
+> 
+> I strongly prefer that we find a way to not require such verbose APIs, especially
+> if KVM ends up using native variants throughout.  Xen PV is supposed to be the
+> odd one out, yet native code is what suffers.  Blech.
 
-See my other reply to let Xen handle all the details.
+Will try to figure out how to name the APIs.
 
-Plus the code actually works, I would actually argue the opposite :-P
+One reason I chose verbose names is that short names are in use and
+renaming needs to touch a lot of files (and not fun at all).
 
-
+Thanks!
+     Xin
 
