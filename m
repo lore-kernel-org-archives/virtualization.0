@@ -1,39 +1,39 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D9213B797
-	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 17:24:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3D6928A40F
+	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 17:28:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745429048; cv=none; b=QPagH/6vhmoIIoeMhwSHrowixOUrDluv8Mv27D68LevclUrbrm/G54RpydQkupSMclzYibl2e2FZQj8Wq2T7IhcQ3jNGhf/uHeKFXHfgW0b3asIpinBNYaHuEJDF/dneNErNlANCuKkJj//OOEzpnH0VV88SHX+fEyEpE9L4MRo=
+	t=1745429285; cv=none; b=uuIr/n1QY/8WDbAW/ALO/je97pUgFv3gXbbXXDJmzQwkgS1vuklcgn8OQ7T5MVq6Pzc+0hge3eG5s4Uc2WO2CeyHb2OIAt0wfLJkT8l9kbwGTQwbvDSu74p8xPqx5eRLhOMptL0ebDRRC9PBs8dgtRBBm4KOlX0aic8avWBsk5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745429048; c=relaxed/simple;
-	bh=yeOm1bRB3Atij+ZTfp6eaNb/4+mfC36qGQgJzn4E+sk=;
+	s=arc-20240116; t=1745429285; c=relaxed/simple;
+	bh=Wa2nKVy62V+d/qbDEyNIn13+ePN0sTeeuwvCl+4mMK0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Xm1LxgWyOLzfXMfPugCQNeyqOrWF0OQ0nz3cdwL+DF4/crBk1Wmbi0mDK+buJF6wI+9m7nAlmIEhgYZB0y8HLC07+vzni2kYMBVgr8bzucsEs+WgdAMi+0JiRnja48VXwG3KptwS9+Yr9Y2mlPxr1aEkRF9zxzElqT0lMlmtuGQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=Rx4uvcSb; arc=none smtp.client-ip=198.137.202.136
+	 In-Reply-To:Content-Type; b=tG+T9u+78Zn7Ow0ki1wJWIM1lgRfgvcYVY82CM2RJWAArSp/o26LH+e+3OlIAfVPd8klZ2T9/ppZ1I0lXCHTzJGE/oliCP5986NtYp6PPlQhDcupueQTqRfrhYMp2sVYZ+ZCVjXJ87qC/SAsWWYkULNfsrkok/GUWP5djVgeJD0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=FYHpQRl8; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="Rx4uvcSb"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="FYHpQRl8"
 Received: from [192.168.7.202] ([71.202.166.45])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53NHNUhb3816392
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53NHRSwP3822273
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Wed, 23 Apr 2025 10:23:31 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53NHNUhb3816392
+	Wed, 23 Apr 2025 10:27:28 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53NHRSwP3822273
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745429016;
-	bh=KGV0WbN8TQwHu403QGuVpSGpOVYPp977T4l8EnRBnpo=;
+	s=2025042001; t=1745429251;
+	bh=3DNEiH9ClADNNdC4s2AFGq03za4/i0hRtsw7HdWhX8Q=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Rx4uvcSbUxH27ZQufmzp9l6akeq6GAi04sDD2NQ2xWVKfdMclJjO/DcJ9bIJk5ZG1
-	 bscfklmB1ttA3gzakhyLww5MWnvMsItmBlyJjingcwZnTTm1oYYfF7Qpf27ZfId+5F
-	 Ez85JANkyjBmXnLXd+PhV1vM7/AIZ5QfjZDbcghLL9pJ+wAI8EdZGxfPPEI8qELUl9
-	 LC09mduxpQ/6PRNDwNsLr8nEp2KuEP/mRBfORYy9GV2SNxTRqCFfrqSv7eOpU1snyu
-	 NzeDiDDgVnY3Qi3mqxpv4Z7c/1Ea5do28c8gpruH0YApRf8wfcUUDz3ihrvAg2jbjw
-	 wfyCSXMbouIaA==
-Message-ID: <08b7e342-61f7-47fe-bc8a-5ce55e658e84@zytor.com>
-Date: Wed, 23 Apr 2025 10:23:29 -0700
+	b=FYHpQRl8w+nTjaGGRqdQx9A21dGh6eRp5/7vZcoeVQfJ9FBrAtuE4a8nbQdhPJpY7
+	 C5nTvzzz33F1edToPwWHSeJXgoh6SwIuUPr91pgD6ORF2jN+/5fZh9Ofi3nO2wDCgX
+	 NyB6TneZbcSNhKwI3FWPkvGtSRtfl8YKXephFBr2m8UWFGjBObYHKKsepz0L/aTUGo
+	 jFGXQZIyrJ70pWBdnFXn75qaBkvkid3XPvRU6MU8TH8CRJxSKjrb4b2UYHO+wGQ51t
+	 Z5W8BeQoRoZzPHd5lWutYI7E+jcqOoxDsMyaxvuPKWJE7ftMpslNO0VeQ/i0ZeFCUN
+	 zwJslGTaEkwWw==
+Message-ID: <0e5cf01a-2cc1-46a2-89c1-3bcc502229c8@zytor.com>
+Date: Wed, 23 Apr 2025 10:27:27 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -41,16 +41,16 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 03/34] x86/msr: Rename rdpmcl() to rdpmcq()
-To: Dave Hansen <dave.hansen@intel.com>,
-        Sean Christopherson <seanjc@google.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        virtualization@lists.linux.dev, linux-pm@vger.kernel.org,
-        linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org,
-        linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+Subject: Re: [RFC PATCH v2 08/34] x86/msr: Convert a native_wrmsr() use to
+ native_wrmsrq()
+To: Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-pm@vger.kernel.org, linux-edac@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org,
+        linux-hwmon@vger.kernel.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
         acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com,
         peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com,
@@ -58,12 +58,12 @@ Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
         wei.liu@kernel.org, ajay.kaher@broadcom.com,
         bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, luto@kernel.org,
-        boris.ostrovsky@oracle.com, kys@microsoft.com, haiyangz@microsoft.com,
-        decui@microsoft.com
+        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
+        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
+        haiyangz@microsoft.com, decui@microsoft.com
 References: <20250422082216.1954310-1-xin@zytor.com>
- <20250422082216.1954310-4-xin@zytor.com> <aAj5F9IZXG7MB0ai@google.com>
- <6211378e-955b-47f4-8688-ec93728f0087@intel.com>
+ <20250422082216.1954310-9-xin@zytor.com>
+ <2932db03-164a-447e-92cf-1ef6c35c15a4@intel.com>
 Content-Language: en-US
 From: Xin Li <xin@zytor.com>
 Autocrypt: addr=xin@zytor.com; keydata=
@@ -100,18 +100,28 @@ Autocrypt: addr=xin@zytor.com; keydata=
  PYbAkjBbm+tuJ/Sm+5Yp5T/BnKz21FoCS8uvTiziHj2H7Cuekn6F8EYhegONm+RVg3vikOpn
  gao85i4HwQTK9/D1wgJIQkdwWXVMZ6q/OALaBp82vQ2U9sjTyFXgDjglgh00VRAHP7u1Rcu4
  l75w1xInsg==
-In-Reply-To: <6211378e-955b-47f4-8688-ec93728f0087@intel.com>
+In-Reply-To: <2932db03-164a-447e-92cf-1ef6c35c15a4@intel.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 4/23/2025 8:06 AM, Dave Hansen wrote:
-> On 4/23/25 07:28, Sean Christopherson wrote:
->> Now that rdpmc() is gone, i.e. rdpmcl/rdpmcq() is the only helper, why not simply
->> rename rdpmcl() => rdpmc()?  I see no point in adding a 'q' qualifier; it doesn't
->> disambiguate anything and IMO is pure noise.
+On 4/23/2025 8:51 AM, Dave Hansen wrote:
+> On 4/22/25 01:21, Xin Li (Intel) wrote:
+>>   static __always_inline void sev_es_wr_ghcb_msr(u64 val)
+>>   {
+>> -	u32 low, high;
+>> -
+>> -	low  = (u32)(val);
+>> -	high = (u32)(val >> 32);
+>> -
+>> -	native_wrmsr(MSR_AMD64_SEV_ES_GHCB, low, high);
+>> +	native_wrmsrq(MSR_AMD64_SEV_ES_GHCB, val);
+>>   }
 > 
-> That makes total sense to me.
+> A note on ordering: Had this been a native_wrmsr()=>__wrmsr()
+> conversion, it could be sucked into the tree easily before the big
+> __wrmsr()=>native_wrmsrq() conversion.
 > 
+> Yeah, you'd have to base the big rename on top of this. But with a
+> series this big, I'd prioritize whatever gets it trimmed down.
 
-Unable to argue with two maintainers on a simple naming ;), so will make
-the change.
+Okay, I will focus on cleanup first.
