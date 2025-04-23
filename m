@@ -1,150 +1,166 @@
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [80.241.56.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 910AF1DE4E6
-	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 10:48:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B8F1208A9
+	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 12:09:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745405294; cv=none; b=EZ6TRED2blAi3YLl4Nei7/tfx0l1tPIXSfvxfaLKQQCDLU5ZahLrsbKuo+qYhtm/AjZ2EtCbZzDqjLdZCJiPxeXZy2UJ/Xq55nMvof/Ng5b3JSgOtqCYCaH+0GX4qpidLa9mdDCA17jaf00n3d5eS47GvDNJTkRy8+Tu97LCDcE=
+	t=1745410185; cv=none; b=rWx7LjLC82pseeVeglznN5WRcw1yx4AyzCBY4bEdVJbw7A5MAd+TY5FcML5zleAwGFYpWstNmlCwkAG/BjBW46LjF0PUg68NH2oXftTTtmmSavmQMZYgjxfmp9PxUgVr/1Js0GZtiNbvUPoedtJe4qIeeuBoNU0nc437fjF7EqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745405294; c=relaxed/simple;
-	bh=QBBn9vTmnK8rVIlRrvQjN8xkipKr+QbWyEEEv7UESDY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NyeMTHGqagBtnbYr71nF424nsVeeg4lqV9H7HWRuBdg88iaTwZn2Frbluu6X5gDXbHfgG2EVBg1OyYH963k3oo/BiJQi3G6R0D/YhrmoXRc/7RzlJv9q/obDMxyFTxXamR4ATZjLGkZxnGxsvgdI1UdgBdHCwykaoKgDCMOAXvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=arZzhmc7; arc=none smtp.client-ip=209.85.218.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1745410185; c=relaxed/simple;
+	bh=7KM4xGp4HlmfivR3OmdYM85IdsrIUugdEnzXveqN3NU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=tpQfVRUqTRZkbRTua0dX02e7NvMdlNS8tnaoYJvO92FZ2WK6A4c5X/C1z7fkvr8NceySD66RwNivrwpZkP/7BGacEURsuBbPQIwl4fupHGKtktnfbZDixxLc9J1gLlEM+/syS1GMho3lZHz4tdKn16HtYrnHyWxfQKen2RoKz00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=TjN39GP2; arc=none smtp.client-ip=80.241.56.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="arZzhmc7"
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-ac2c663a3daso1016824766b.2
-        for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 03:48:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745405291; x=1746010091; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=yW3Ewl9XC1g0tqlHWENmHDvEOdSUdHOSXTlz2TpUlQc=;
-        b=arZzhmc7uLncTkOmoYGqbxbNecqKEZ8hxR5D8yo9Zy8pgEBB5sJLRKeAOfCPpsgCle
-         ZBKWAm5bd6u5q4XRPEGvUpKSufxz4vzfYFdWihhIMRYAlYXt9jYof2V7JaZIx8ISXgYP
-         sy3I0+ZepYueU4SbAkvorU5scgKUqs48qeiP6WAIvh0H7sTgC6KAoPuhujCTyaRMLdmE
-         Nz9gnDGNtrHYr/4qKA3C0TBBi5rFy/gsobk+c4Ishwt+XYSAGZJtNUGpHGwxmygXJosc
-         CeiFVXob64+P6ZNHCuljX5c+BQZnO++/6igoPAEBoaDpweL2Yw9QjBz0VZeYGM2T+PnW
-         II3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745405291; x=1746010091;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yW3Ewl9XC1g0tqlHWENmHDvEOdSUdHOSXTlz2TpUlQc=;
-        b=WUhbPfhBCuLmaXyC/HDy7mM3vluVOn1zkuCM7D5BugZwdt1t2S86f+lzhGrq6g0/Wc
-         BA2ovQA82l1Nx3AAdQ83f3YoIboiU6dunxlvQUQQDcl3gi1R2kWpYK5EBHO/WLYryLZ4
-         s+X+8aVJIl5AB3/rM2HweJLQqjk/eIfi5il55XTJd2fqAcz6EWq/9C8T/RIGorIwu0Ex
-         RzaR5383iJECjjPbv9y83gwssUf15gsspeML34RrW1cTICQk2s2ot3BuPbNuCCVcYgk9
-         FCFS22s3NG5RBmtdIcjp8mzUXgbOrs2fCkazOCxNLOc99QfnTdTpVGCuHFoHphOTOA3V
-         A14g==
-X-Forwarded-Encrypted: i=1; AJvYcCU13Znh9Rn5Y6RHy2GnaJv3rhS0/6gSqQhkmFWvi3p8ckfyyCjTGrR6w+Yba9OoC3v9WiZm48e2qGH0WGyAdg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx8C3tXA6xTvFc3+f9Sd/1e4iVFX5f6VRiTYbFZLYsBjrC2/19R
-	zCN4OmUenSyIcMzVwdDk+g3mFENVVNQ7l8TWQwGBKQTHTAGrZGpC
-X-Gm-Gg: ASbGnctt27lfNGbkQmCsRX9zjscvtuiGXLXDJ2G+BvSt9jCDnd/PV7dDzPolJxUupnG
-	i2qKcYU6yEU6y1ossnxrL21HOsfI5Eh4b+xvJHiH4bnKRtuNUCBXPEPMi4h+PEQRqx73HPGb7nr
-	JD3iBT+ZoV6s5T7DPTLxvWo9nSXQRmc1D5b2cbfAb0ReRwkYarvIc9XQRqLH93UCeqFNViIZf30
-	LPws1epa+W97dBoBgobPFhwWEPxyCagLWNHy/XrwEY/9/GRsymz7XeC6fxWGaIKBnKM3AwSwdJx
-	1GFNp3nvfsRu1gE64uoNa/nM9c6YHsltz0fb0oB4Q1SUIey9xhE=
-X-Google-Smtp-Source: AGHT+IGSOkms0vGWAQQk5LDkY0uQOFjlrtaq8CZWRZeiflOHa+/oqFgsKRBzQiPT5EoHF60fgvH8Mw==
-X-Received: by 2002:a17:907:1c21:b0:ab7:1012:3ccb with SMTP id a640c23a62f3a-acb74b2e84cmr1451252366b.14.1745405290671;
-        Wed, 23 Apr 2025 03:48:10 -0700 (PDT)
-Received: from [192.168.8.100] ([148.252.144.224])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-acb6ef9669csm780506166b.161.2025.04.23.03.48.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Apr 2025 03:48:09 -0700 (PDT)
-Message-ID: <97fd3326-94d0-4d85-bb33-802ed88fcbda@gmail.com>
-Date: Wed, 23 Apr 2025 11:49:23 +0100
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="TjN39GP2"
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4ZjHwL4HJmz9tRC;
+	Wed, 23 Apr 2025 14:09:38 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1745410178; h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C0jC58EfDbgWI0/tDSxSeNIT9SElMZbwhS6KdJFqF6U=;
+	b=TjN39GP24kDOqITpSTyTXHWv2/OYcMYUl7gsDGsanyFD7iHHFhcDZ8imo0znrROtKm+ZDr
+	xdTA7lKtsCw6dsaInzG9l/2BMdaTYDqSL6ZreCITNucF1xbsOyCXt2AGIo2o02wpU00Czi
+	NIzVsB+fG0dQQKNE+K3YZHRIaufSXrZyJMfEP5S1Yt6LbMfJuA3w5xgrQRLzNxqoZ9dHN6
+	x2FXpG2XC82+InNRNX+YOgIDgHtEwcFSdQHDdRmthtpBdaSfXg2Ba3gn9j7rEaPhDMZIGK
+	jXvKdDHyZr6nlQbeqDGrBtscsLgONGX5uNm/w2ClKTimYKDx+WqARJx38vbLJQ==
+Message-ID: <f7c67d6cb24e94b9fd053b144f616d71354f114e.camel@mailbox.org>
+Subject: Re: [PATCH v2] vdpa/octeon_ep: Control PCI dev enabling manually
+From: Philipp Stanner <phasta@mailbox.org>
+Reply-To: phasta@kernel.org
+To: Philipp Stanner <phasta@kernel.org>, schalla@marvell.com, 
+ vattunuru@marvell.com, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
+ =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, Shijith Thotton
+ <sthotton@marvell.com>, Dan Carpenter <dan.carpenter@linaro.org>, Satha Rao
+ <skoteshwar@marvell.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Date: Wed, 23 Apr 2025 14:09:34 +0200
+In-Reply-To: <20250423103909.59063-2-phasta@kernel.org>
+References: <20250423103909.59063-2-phasta@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v9 2/9] net: add get_netmem/put_netmem support
-To: Mina Almasry <almasrymina@google.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org, io-uring@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-kselftest@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Donald Hunter <donald.hunter@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
- Andrew Lunn <andrew+netdev@lunn.ch>, Jeroen de Borst <jeroendb@google.com>,
- Harshitha Ramamurthy <hramamurthy@google.com>,
- Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn
- <willemb@google.com>, Jens Axboe <axboe@kernel.dk>,
- David Ahern <dsahern@kernel.org>, Neal Cardwell <ncardwell@google.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
- sdf@fomichev.me, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>,
- Victor Nogueira <victor@mojatatu.com>, Pedro Tammela
- <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
-References: <20250417231540.2780723-1-almasrymina@google.com>
- <20250417231540.2780723-3-almasrymina@google.com>
- <484ecaad-56de-4c0d-b7fa-a3337557b0bf@gmail.com>
- <CAHS8izPw9maOMqLALTLc22eOKnutyLK9azOs4FzO1pfaY8xE6g@mail.gmail.com>
- <957b74ed-f29c-4bb8-b819-af4e1168d6c1@gmail.com>
- <CAHS8izM8+zG6KOhV7ysTsCj_PEty5eL+P+uUxTZhdsOSZTwmow@mail.gmail.com>
- <c0bd45f7-0325-4e4b-b0ea-ccae24a1eabd@gmail.com>
- <8c1c6405-1e60-4512-a675-4c00b00d400a@gmail.com>
- <CAHS8izPGuF1PxfdmXUC1XJHpmRqotXh=vUY_a-AEHdAgPmLQ1g@mail.gmail.com>
-Content-Language: en-US
-From: Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <CAHS8izPGuF1PxfdmXUC1XJHpmRqotXh=vUY_a-AEHdAgPmLQ1g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MBO-RS-ID: 96cd80a0a5606745c10
+X-MBO-RS-META: 5wrhks35ng1jssaf3jb64kukjh6p3gsx
 
-On 4/22/25 22:10, Mina Almasry wrote:
-...
->>> Instead of adding net_iov / devmem handling in generic paths affecting
->>> everyone, you could change those functions where it's get_page() are
->>> called legitimately. The niov/devmem part of get/put_netmem doesn't
->>> even have the same semantics as the page counterparts as it cannot
->>> prevent from reallocation. That might be fine, but it's not clear
->>
->> Actually, maybe it's not that exclusive to netiov, same reallocation
->> argument is true for user pages, even though they're reffed
->> separately.
->>
->> It might be fine to leave this approach, while suboptimal it should
->> be easier for you. Depends on how folks feel about the extra
->> overhead in the normal tx path.
->>
-> 
-> Right, I think there is only 2 ways to handle all the code paths in
-> the tcp stack that hit skb_frag_ref:
-> 
-> 1. We go over all of them and make sure they're unreachable for unreadable skbs:
-> 
-> if (!skb_frags_readable()) return; // or something
-> 
-> 2. or, we just add net_iov support in skb_frag_ref.
-> 
-> This patch series does the latter, which IMO is much preferred.
-> 
-> FWIW I'm surprised that adding net_iov support to skb_frag_ref/unref
-> is facing uncertainty. I've added net_iov support for many skb helpers
-> in commit 65249feb6b3df ("net: add support for skbs with unreadable
-> frags") and commit 9f6b619edf2e8 ("net: support non paged skb frags").
-> skb_frag_ref/unref is just 1 helper I "missed" because it's mostly
-> (but not entirely) used by the TX path.
+On Wed, 2025-04-23 at 12:39 +0200, Philipp Stanner wrote:
+> PCI region request functions such as pci_request_region() currently
+> have
+> the problem of becoming sometimes managed functions, if
+> pcim_enable_device() instead of pci_enable_device() was called. The
+> PCI
+> subsystem wants to remove this deprecated behavior from its
+> interfaces.
+>=20
+> octeopn_ep enables its device with pcim_enable_device(), but does so
+> only to get automatic disablement. The driver wants to manage its PCI
+> resources manually, without devres.
+>=20
+> The easiest way not to use automatic resource management at all is by
+> also handling device enable- and disablement manually.
+>=20
+> Replace pcim_enable_device() with pci_enable_device(). Add the
+> necessary
+> calls to pci_disable_device().	struct
+> list_head		pending_list;
+>=20
+> Signed-off-by: Philipp Stanner <phasta@kernel.org>
+> ---
+> Was formerly called "Use non-hybrid PCI devres API"
+>=20
+> Changes in v2:
+> =C2=A0 - Don't replace the request functions. Enable / disable manually
+> =C2=A0=C2=A0=C2=A0 instead. (Vamsi)
+> ---
+> =C2=A0drivers/vdpa/octeon_ep/octep_vdpa_main.c | 16 +++++++++++-----
+> =C2=A01 file changed, 11 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> index f3d4dda4e04c..0a282f9186f4 100644
+> --- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> +++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+> @@ -492,6 +492,8 @@ static void octep_vdpa_remove(struct pci_dev
+> *pdev)
+> =C2=A0		octep_vdpa_remove_vf(pdev);
+> =C2=A0	else
+> =C2=A0		octep_vdpa_remove_pf(pdev);
+> +
+> +	pci_disable_device(pdev);
 
-It'd have looked completely different if you did it back then, which
-is the same semantics mismatch I mentioned. For pp rx niovs it'd
-have incremented the niovs ref pinning that specific niov down
-and preventing reallocation (by pp), and that with no devmem specific
-code sticking into generic code.
-This patch adds a 3rd way to refcount a frag (after page refs and
-pp_ref_count), which is why it attracted attention.
+Taking a second glance, we probably want to do this only for PF, don't
+we?
 
--- 
-Pavel Begunkov
+So VF would use pcim_enable_device(), but none of the request
+functions, and PF would replace its pcim_enable_device(), and to
+compensate for that only the PF remove / deactivate path would actively
+call pci_disable_device. Right?
+
+P.
+
+> =C2=A0}
+> =C2=A0
+> =C2=A0static int octep_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const cha=
+r
+> *name,
+> @@ -825,7 +827,7 @@ static int octep_vdpa_probe_pf(struct pci_dev
+> *pdev)
+> =C2=A0	struct octep_pf *octpf;
+> =C2=A0	int ret;
+> =C2=A0
+> -	ret =3D pcim_enable_device(pdev);
+> +	ret =3D pci_enable_device(pdev);
+> =C2=A0	if (ret) {
+> =C2=A0		dev_err(dev, "Failed to enable device\n");
+> =C2=A0		return ret;
+> @@ -834,15 +836,17 @@ static int octep_vdpa_probe_pf(struct pci_dev
+> *pdev)
+> =C2=A0	ret =3D dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64));
+> =C2=A0	if (ret) {
+> =C2=A0		dev_err(dev, "No usable DMA configuration\n");
+> -		return ret;
+> +		goto disable_pci;
+> =C2=A0	}
+> =C2=A0	octpf =3D devm_kzalloc(dev, sizeof(*octpf), GFP_KERNEL);
+> -	if (!octpf)
+> -		return -ENOMEM;
+> +	if (!octpf) {
+> +		ret =3D -ENOMEM;
+> +		goto disable_pci;
+> +	}
+> =C2=A0
+> =C2=A0	ret =3D octep_iomap_region(pdev, octpf->base,
+> OCTEP_HW_MBOX_BAR);
+> =C2=A0	if (ret)
+> -		return ret;
+> +		goto disable_pci;
+> =C2=A0
+> =C2=A0	pci_set_master(pdev);
+> =C2=A0	pci_set_drvdata(pdev, octpf);
+> @@ -856,6 +860,8 @@ static int octep_vdpa_probe_pf(struct pci_dev
+> *pdev)
+> =C2=A0
+> =C2=A0unmap_region:
+> =C2=A0	octep_iounmap_region(pdev, octpf->base, OCTEP_HW_MBOX_BAR);
+> +disable_pci:
+> +	pci_disable_device(pdev);
+> =C2=A0	return ret;
+> =C2=A0}
+> =C2=A0
 
