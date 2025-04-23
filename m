@@ -1,181 +1,115 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C7291B0F17
-	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 06:45:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AB39223DC8
+	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 07:42:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745390717; cv=none; b=K/6SHd8dsDzxnkrnsaT2WHxem/DC7pBJ8aaysRt9xZ5hH2y4kDImNA+XPSpCqZHEGlfbVYfs2HlWF8DrGxVZcI9hOVrT+mJ7XF4y5e4bcK7XnMQrlBG6JjWRjQpHIB4/XTzxpsRdxuDQi4CAhE8cLCicvVUrLDm+GtBAmry9m2c=
+	t=1745394127; cv=none; b=cy1TmXqFl+gTwWzqB55n3XcZWsLJ+/n77IvVoSAOWjBpAgF+x6Bz3FJvxA80zu9DY5ZnMtLIybjJJBwNsMZBtTalk/vzUKElUzSrFHx0IhoIsgys8m8OuDOBsTDec5UfzBRWLhe6QHF6DOK7RcjgqBNNo9+EvhClMLxTStng4og=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745390717; c=relaxed/simple;
-	bh=h3D+v7S/DE8v4VXSLO4J78ijDrD37ur1IijJWbA1kPc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Gswrm081PubVzIibbKtkYG+BVqCj4M7tPcdaKz17z5YsGxQOvjjIdj/ZizGWYnSQorQyFMbsKPLo2HtaOQLGqbn3yK1aLXyaohjNyGCgXmcj3epzGvbQUiXQwxX6WdQ+xw6nqK/2xr+YCtzFv0bY2UHnqe4fh01xpBBIkqDJqQ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YtvnDUah; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1745394127; c=relaxed/simple;
+	bh=Xg0KnLB4URmkB602Xl9ajDC10CPLIyV/X6uVweDcuCc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=t8B7rl5JZvD55wHy2ce4bTdDJKmzDGY8cQwsxns9xH0iFLlNdY8Kc6zIGZe9qDQqs0ZbUXOzETyi3tIResTwpI93oyt0rRcSjZHZ6W5SBPA+l6pWXjuN2eElv1JhxcSO8hgmB8nob6Fw7IqEvxhqYabw0S+IP+vw/4Q8C/y4tcQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=ht8Pg4C2; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YtvnDUah"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1745390714;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FJQr5daKI6/1i+nwgHlDoYSZzm+JP1wEk08aCiKUf8w=;
-	b=YtvnDUahU/NIwm+jAMKeVlRp1kxa+PIRtpYrXvqAt+sXFgHRJgMmO44CU6A8T/ptHFlOMs
-	+iyk/aCXGJ3RXN6WO21sq8lGnxkcSwOnlofl56c7bhQyRkFlERhazW1klDifFJMeuECXzq
-	kynOOvA+s9zsG/6Dk6dIX9YfQcC5WiQ=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-132-77VmSeFTO4-cHiyjin-gFg-1; Wed, 23 Apr 2025 02:45:13 -0400
-X-MC-Unique: 77VmSeFTO4-cHiyjin-gFg-1
-X-Mimecast-MFC-AGG-ID: 77VmSeFTO4-cHiyjin-gFg_1745390712
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43efa869b0aso38182975e9.3
-        for <virtualization@lists.linux.dev>; Tue, 22 Apr 2025 23:45:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745390712; x=1745995512;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FJQr5daKI6/1i+nwgHlDoYSZzm+JP1wEk08aCiKUf8w=;
-        b=PAFckPGLHWMjbc+uDealPh8SbZ/Yc1+kFQtUwBETla9oRMnwjKYVk05xnyBpLZr+oK
-         1v2GqkYTWYCjCOA0JhuZoVu3VhzJjDDVvq9dqpkJV1O4hYfhYm3F0TjSPrEyA+VK8hMN
-         im2LgMOkT2GEnF9/4uWgOHXKhILcD+Sf9NVFu7IyOAL9niNm6UvN8H6vQrkPQ46vRYFr
-         Mn3w/4Po2g4EiR4k1SYZ9j60SxT9VevaetsRvYs9y3Sv+KZb/D4J+ljigfNen0gnrTFA
-         +yqw4CgrkvbqgFbqwbeHkTYjUWc/BpfT6HfXz9bbjjtWxteM+keXqMMzOyiblVjDN636
-         V42A==
-X-Forwarded-Encrypted: i=1; AJvYcCU9vvBJwUgPTdpwloc/N7w0VUJembU3CTKox+tOcCcV/Zig7ZC8NCQ5X+wq4bOgMBZgLd/HL3biE0yzPoNHIg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyCx9sp2hoURimwJH/3aPwuoz8ZjYPwM/mqOVHgmHSbPmuRd1Y/
-	0IOuC9t00y9TWMN9gysQy6JDA836RbT00U1cHry8H+68Z1QODvBAAX+2x+2NSUfofuiTL4sxNm/
-	Mb9p+AWsZAfd5SR9tGNudBK3tptI47NLZFUxy50qcxr5OczNbChiJwpuAnejyxSvj
-X-Gm-Gg: ASbGnctfhtKLsABY40JAJMmzzKn9BvxtUOerYT/5E9KQTlGf4AXzPDOSIqQUUwSYxQg
-	9AssiQDhXWvG12MTqdbNOAo/FdD89kfuktNlNkUr2smvZe8pAzBgR0AScZsnKOiOpGECtYMA3mL
-	Y6TO+eYlEfeboGLvMu4QlCKjdf8Vg24kbSKv/KWJQC2+Dpa4cG8Tr6LDEcDDKBKoschic/jLUOg
-	CYZLOdVGAPkvYRgt/h515jp5gFzyGV8vKbTZKuXOCtYHwOZ80v0nZ5tlDmfMjfRfwqUOVhivUii
-	0W6IYQ==
-X-Received: by 2002:a05:600c:3487:b0:43e:a7c9:8d2b with SMTP id 5b1f17b1804b1-4406abfab7dmr152587625e9.24.1745390712285;
-        Tue, 22 Apr 2025 23:45:12 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IESPeBSydPIH0zVAjW7EqTg1hmkncqgVOAhXdcSWQ91oQ3uYj81WGlTIQYk3qbwlXLCw+komw==
-X-Received: by 2002:a05:600c:3487:b0:43e:a7c9:8d2b with SMTP id 5b1f17b1804b1-4406abfab7dmr152587385e9.24.1745390711947;
-        Tue, 22 Apr 2025 23:45:11 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-44092d4707csm14014875e9.40.2025.04.22.23.45.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Apr 2025 23:45:11 -0700 (PDT)
-Date: Wed, 23 Apr 2025 02:45:08 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eric Auger <eric.auger@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, linux-kernel@vger.kernel.org,
-	Eric Auger <eauger@redhat.com>,
-	Jocelyn Falempe <jfalempe@redhat.com>,
-	David Airlie <airlied@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Simona Vetter <simona@ffwll.ch>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH v2] virtgpu: don't reset on shutdown
-Message-ID: <20250423023922-mutt-send-email-mst@kernel.org>
-References: <8490dbeb6f79ed039e6c11d121002618972538a3.1744293540.git.mst@redhat.com>
- <ge6675q3ahypfncrwbiodtcjnoftuza6ele5fhre3jmdeifsez@yy53fbwoulgo>
- <20250415095922-mutt-send-email-mst@kernel.org>
- <lgizdflxcku5ew2en55ux3r72u37d6aycuoosn5i5a5wagz6sc@d2kha7ycmmpy>
- <5aede4c4-5dfd-4ec1-9fd8-a5d6700678bd@redhat.com>
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="ht8Pg4C2"
+Received: from [192.168.7.202] ([71.202.166.45])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53N7efcj3105192
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Wed, 23 Apr 2025 00:41:21 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53N7efcj3105192
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025042001; t=1745394085;
+	bh=6GdmFpMZgynlN0+8/dR5L54gssO+r5xFLscuv7Zb+Vs=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ht8Pg4C2x78BenMmhZHdlstOae3d80RJunxbx/Cvdsa9Ng1sweJyhq1qZe74uad8w
+	 dHIUkIaWpBwuEpEQXpNTzZstGa5HP1LuibQWsRATlidlNhOkvy0MIlrog/VWtzXAtz
+	 iLAft/hoYaZa+I3d3ZuooQk2COryT2hVxNfUJCgHWslPfgG0MkXcQL1z8/s+UH5PeL
+	 gb+2hbsIwrgPCaQZfJBxkbSwSmLHKEpQNdet6O8uEfcXydqh1elJk/5c7nEHD20WPV
+	 eqeeCqMeQgCc7w45x4no+uWwxrEjeXlIz4D82w4Q141GaNuvo9afJ+SLxKkWxA61fx
+	 KcYJYI7GY7/WQ==
+Message-ID: <9268e169-554d-43c8-a00c-f43c274f6116@zytor.com>
+Date: Wed, 23 Apr 2025 00:40:40 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <5aede4c4-5dfd-4ec1-9fd8-a5d6700678bd@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: AROPRgVr_JNUlPS2NOP5m3P5ptoh7YvEyQNjjsY0Ho8_1745390712
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v2 06/34] x86/msr: Use the alternatives mechanism to
+ read PMC
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-pm@vger.kernel.org, linux-edac@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org,
+        linux-hwmon@vger.kernel.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        acme@kernel.org, andrew.cooper3@citrix.com, peterz@infradead.org,
+        namhyung@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
+        wei.liu@kernel.org, ajay.kaher@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
+        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
+        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
+        haiyangz@microsoft.com, decui@microsoft.com
+References: <20250422082216.1954310-1-xin@zytor.com>
+ <20250422082216.1954310-7-xin@zytor.com>
+ <fbb509e8-0bd6-480f-be32-fd0895255a21@suse.com>
+ <a482b4df-f662-4d5d-8100-ade07afcdc24@zytor.com>
+ <bfeba521-0a49-42d0-bf83-15d031dfc6da@suse.com>
+Content-Language: en-US
+From: Xin Li <xin@zytor.com>
+Autocrypt: addr=xin@zytor.com; keydata=
+ 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
+ l75w1xInsg==
+In-Reply-To: <bfeba521-0a49-42d0-bf83-15d031dfc6da@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 22, 2025 at 06:49:04PM +0200, Eric Auger wrote:
-> Hi Gerd, Michael,
+On 4/22/2025 2:28 AM, Juergen Gross wrote:
 > 
-> On 4/16/25 3:57 PM, Gerd Hoffmann wrote:
-> > On Tue, Apr 15, 2025 at 10:00:48AM -0400, Michael S. Tsirkin wrote:
-> >> On Tue, Apr 15, 2025 at 01:16:32PM +0200, Gerd Hoffmann wrote:
-> >>>   Hi,
-> >>>
-> >>>> +static void virtio_gpu_shutdown(struct virtio_device *vdev)
-> >>>> +{
-> >>>> +	/*
-> >>>> +	 * drm does its own synchronization on shutdown.
-> >>>> +	 * Do nothing here, opt out of device reset.
-> >>>> +	 */
-> >>> I think a call to 'drm_dev_unplug()' is what you need here.
-> >>>
-> >>> take care,
-> >>>   Gerd
-> >> My patch reverts the behaviour back to what it was, so pls go
-> >> ahead and send a patch on top? I won't be able to explain
-> >> what it does and why it's needed.
-> > See below.  Untested.
-> >
-> > Eric, can you give this a spin?
-> >
-> > thanks,
-> >   Gerd
-> >
-> > ----------------------- cut here -------------------------------
-> > From f3051dd52cb2004232941e6d2cbc0c694e290534 Mon Sep 17 00:00:00 2001
-> > From: Gerd Hoffmann <kraxel@redhat.com>
-> > Date: Wed, 16 Apr 2025 15:53:04 +0200
-> > Subject: [PATCH] drm/virtio: implement virtio_gpu_shutdown
-> >
-> > Calling drm_dev_unplug() is the drm way to say the device
-> > is gone and can not be accessed any more.
-> >
-> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> > ---
-> >  drivers/gpu/drm/virtio/virtgpu_drv.c | 8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> > index e32e680c7197..71c6ccad4b99 100644
-> > --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> > +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> > @@ -130,10 +130,10 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
-> >  
-> >  static void virtio_gpu_shutdown(struct virtio_device *vdev)
-> >  {
-> > -	/*
-> > -	 * drm does its own synchronization on shutdown.
-> > -	 * Do nothing here, opt out of device reset.
-> > -	 */
-> > +	struct drm_device *dev = vdev->priv;
-> > +
-> > +	/* stop talking to the device */
-> > +	drm_dev_unplug(dev);
-> I have tested this patch on top of Michael's v2 and I don't see any
-> splat on guest.
-> 
-> Feel free to add my
-> 
-> Reviewed-by: Eric Auger <eric.auger@redhat.com>
-> Tested-by: Eric Auger <eric.auger@redhat.com>
-> 
-> Thanks
-> 
-> Eric
+> I have worked rather hard to make it less intrusive, especially by removing
+> the paravirt specific code patching (now all done via alternative patching)
+> and by removing 32-bit Xen PV mode.
 
-Thanks, Eric!
-Gerd, do you want to post a patch officially?
-I just sent the dependency to Linus, maybe mention this for the
-maintainers.
-
-
-> >  }
-> >  
-> >  static void virtio_gpu_config_changed(struct virtio_device *vdev)
-
+I looked at the optimization, and it is a nice improvement.
