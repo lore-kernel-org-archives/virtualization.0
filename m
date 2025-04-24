@@ -1,116 +1,183 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E13391F78E0
-	for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 07:22:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8123B1F4CB1
+	for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 07:29:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745479334; cv=none; b=ekBHPCHqaQVHIGG40jRf3DHA4eEn+MhKy+5gbzvZyQrhZ40vGcH5sEBv8T1MsReh+MF5DgTba4pU30NWAXiSIva6FPV+zO8wwJaCXHxxb74Ip9ajE7fWbc55HN290GsetlS8cgNM7vtDT0NR7W31LstOmr8pmqo3bYdmt3s3tPc=
+	t=1745479746; cv=none; b=t0gP1g18c1uU9JwbYSTFjAVeEcqcVzKzBcsyEe95CpiHuaCopDiwJnbAhEXkRcHgYb4xKv3SWXZvCSjVdDbgiiTwhDAUVEW5PX5u0Ti/PV87pCsv8A8TZP4yDUzFqqCSZhBES8h/DfhCToF42c/i2g3OXJsSqz7pvJVbZJBdWLA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745479334; c=relaxed/simple;
-	bh=O9DVYPK4RZY6YYB7/ewtc8a7TzxiyHmBlNZob9ULLMA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JpOeEO0O69eoJfM/h8wW2PDb6onsfGyphNd26lFjq8Y9yVwRR8r2hXusTGF8GYoN6j8WOVSlkfd5UxjeB61SVX2mpcOLXZyVU4/8SbcPbOy88Cfc2rv0I17YV/oyuFnLWrHSTs93nsCV0eLAC9JIkEwvgdo4tSC+LYGoHcwkaKg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=EzvxVtK1; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1745479746; c=relaxed/simple;
+	bh=58VbzL7WBIj/gt8GsrfhUli+bScIim9A36WA+y91mr0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=IrPD1iWYSSDX+ENdEjZ2QszDGWNrv8LzXOKrqSRtTcnDU4Qq20nYYspWkQ3qh+ordlQ9UqyzpKbLJxYVOvTLsWhehtwAuBF2I270rnB1n3R4n4vZSPhZT6+g2U0pRnrbDge/EhKVr8K/MWRjm6Gt7skv5xdEPGC9LESYGJ6x95g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EnbufuRh; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="EzvxVtK1"
-Received: from [192.168.7.202] ([71.202.166.45])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53O7LZ5g680960
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Thu, 24 Apr 2025 00:21:35 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53O7LZ5g680960
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745479299;
-	bh=O9DVYPK4RZY6YYB7/ewtc8a7TzxiyHmBlNZob9ULLMA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=EzvxVtK1RQzG5pBpbz5wweMmUbLdbX/ewshxBSEyzwL/iSqjs/faWzfoVSom8e2bU
-	 rmtjJO6WWsw5MRs+zFMZdhntary9psA+7pGR0qJdm5RToXkkDchyg/7J6wq+MXnydS
-	 UyLEA/gHD031cZVbQISWf2vqYtuDBOavy4tsFM7jHVW35I0N3LU2ji43dZuWviNu+n
-	 FFLmIt3g5crz4RF3ksAJwKElGMES6WqszkBNO0xqtkqsXJyqbnXEZbMYTHwHd3awyK
-	 c6+7Hh3YMNGJO193usGiO/3RsTuBx8nz3JVH/XdAf95WQAP9Kvgb0r/sHpAcHBWEwG
-	 PsB6OXwrQJnjg==
-Message-ID: <45f95d01-4b98-457c-8272-c396a52b3844@zytor.com>
-Date: Thu, 24 Apr 2025 00:21:34 -0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EnbufuRh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1745479743;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bwzIUNmrfNNFBn2a+tyDnc0Y7kp3uVqhE1QTaSwZ2sg=;
+	b=EnbufuRhVKQ3MScffgEbzj5OJeRj/jQH1Pcj1cEcnt5f59amLCb8wkYDEMJrjFfWIFtWPT
+	zVwqdxm7O+ssavoo/3N1S4UqgI1nqgBbcJN2aRjoMFfVtRRMhEEuGxUWhEFk/W28Y8eyvO
+	TzG/IMwoARWTWaPzzl9bp9RQI2UMs8o=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-155-Q-EGZGG2MviCuSe9mkAM4A-1; Thu, 24 Apr 2025 03:28:59 -0400
+X-MC-Unique: Q-EGZGG2MviCuSe9mkAM4A-1
+X-Mimecast-MFC-AGG-ID: Q-EGZGG2MviCuSe9mkAM4A_1745479739
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43d22c304adso6991285e9.0
+        for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 00:28:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745479738; x=1746084538;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bwzIUNmrfNNFBn2a+tyDnc0Y7kp3uVqhE1QTaSwZ2sg=;
+        b=tZSEcAHnTtefX5y2ZE8Nsks+S6tp7BRK78e61S19ZU2qPMB/Ye6v+NjCPiylJpqeo6
+         S5fz6TqRWAnZ7G167ZrFqCtXd6PNmNoSu7nK7GhRzM28f+XVv7xLcIm+9BzJ/C39K5Fy
+         MR0pv8MpSQf7rq9KpSwaxBndIAPlRCoQrJzFbYfwVPitUG5pi45qP2WJnqq1cTQlp30G
+         GC2oYAgDPmvy97OfciZUWOp9O7PGhR1aAJ0KsP14Y3n5yC0MNQ7ve71jNLxJ64GZwlFZ
+         W3WeVVsRWM2rjQTm/Lm39+DWsXSbJCWX+Wo+xB3WTVdvLK87UohMUcYp4VIlmovoS0wF
+         KN1A==
+X-Forwarded-Encrypted: i=1; AJvYcCW1sG/F2diDhcDhLNa3HlLxqh0ng9d/cUFSI/Xt7wE9b6AA1N8gMRLZfQ1BBNUQUIlQIRYneuxX+P5FJRJCRA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxBTTMuCPKAQRiBDHyjnpBYSy90iztVqlnS5Ru0kOmEzGut7cFk
+	uhPszWosStB5WszVdznb225VuRgj3xkrz4NsJfysAdcEgxSFX+JOAn0fvOkIfDc5oDTttHoQXlv
+	uxZCLA7/qXRiZv+EDW4XNKDWkEyFoXeLWah+1QjM4l0YvngIoj67oZgrRlzDL1/7R
+X-Gm-Gg: ASbGncvA3HX1VuKbrXg0pKAv7Yx2vY25EQwNyTRmz5U7KQvnMVvx9mxjKO9bUcROBQd
+	GtxuPC3Kd7xYy1vBxlmddhhkCRBFMDjfU//q5p1txGZMa09flCIWkHoJ8jl9BuZ6HeJOXKuHkV9
+	w9nq/C807MV4WOF2HGDhdDHY6JcQtufIcfSAJNzP0zerajzvNxOfN9x0cYJACXOa6e9PYRaW9ib
+	tB1DK7Xk7L+J1nhbbR3Qqin7ZG275wJvey/kuLT75fNkOk5wOUqxzFlgBjpptcyb20hRw7vC48f
+	bv1S8WlDzU3IQubyOQ==
+X-Received: by 2002:a05:6000:1ac8:b0:391:952:c74a with SMTP id ffacd0b85a97d-3a06d64c740mr949968f8f.8.1745479738596;
+        Thu, 24 Apr 2025 00:28:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGuUa0YduITc/StEvDnDrjkIBytecQS6p/m5AkoGY//NHIa97UcP6cmwP+3zmnYPvZk3FjUWA==
+X-Received: by 2002:a05:6000:1ac8:b0:391:952:c74a with SMTP id ffacd0b85a97d-3a06d64c740mr949939f8f.8.1745479738094;
+        Thu, 24 Apr 2025 00:28:58 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.217.208])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a06d569b38sm1080863f8f.100.2025.04.24.00.28.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Apr 2025 00:28:57 -0700 (PDT)
+Date: Thu, 24 Apr 2025 09:28:50 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Michal Luczaj <mhal@rbox.co>
+Cc: Luigi Leonardi <leonardi@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH net-next v2 1/3] vsock: Linger on unsent data
+Message-ID: <wnonuiluxgy6ixoioi57lwlixfgcu27kcewv4ajb3k3hihi773@nv3om2t3tsgo>
+References: <20250421-vsock-linger-v2-0-fe9febd64668@rbox.co>
+ <20250421-vsock-linger-v2-1-fe9febd64668@rbox.co>
+ <km2nad6hkdi3ngtho2xexyhhosh4aq37scir2hgxkcfiwes2wd@5dyliiq7cpuh>
+ <k47d2h7dwn26eti2p6nv2fupuybabvbexwinvxv7jnfbn6o3ep@cqtbaqlqyfrq>
+ <ee09df9b-9804-49de-b43b-99ccd4cbe742@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 12/34] x86/msr: Remove pmu_msr_{read,write}()
-To: "Mi, Dapeng" <dapeng1.mi@linux.intel.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-pm@vger.kernel.org, linux-edac@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com,
-        peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
-        wei.liu@kernel.org, ajay.kaher@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
-        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
-        haiyangz@microsoft.com, decui@microsoft.com
-References: <20250422082216.1954310-1-xin@zytor.com>
- <20250422082216.1954310-13-xin@zytor.com>
- <7c44da88-72bb-4d1f-9f38-bf0e7e79b7a0@linux.intel.com>
-Content-Language: en-US
-From: Xin Li <xin@zytor.com>
-Autocrypt: addr=xin@zytor.com; keydata=
- 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
- l75w1xInsg==
-In-Reply-To: <7c44da88-72bb-4d1f-9f38-bf0e7e79b7a0@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <ee09df9b-9804-49de-b43b-99ccd4cbe742@rbox.co>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: K2G2DpBpqYA3SDkrmny-vGw7Xc1E-SQhZFECP3qHGIo_1745479739
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 4/23/2025 11:33 PM, Mi, Dapeng wrote:
-> Could we merge this patch and previous patch into a single patch? It's
-> unnecessary to just modify the pmu_msr_read()/pmu_msr_write() in previous
-> patch and delete them immediately. It just wastes the effort.
+On Wed, Apr 23, 2025 at 11:06:33PM +0200, Michal Luczaj wrote:
+>On 4/23/25 18:34, Stefano Garzarella wrote:
+>> On Wed, Apr 23, 2025 at 05:53:12PM +0200, Luigi Leonardi wrote:
+>>> Hi Michal,
+>>>
+>>> On Mon, Apr 21, 2025 at 11:50:41PM +0200, Michal Luczaj wrote:
+>>>> Currently vsock's lingering effectively boils down to waiting (or timing
+>>>> out) until packets are consumed or dropped by the peer; be it by receiving
+>>>> the data, closing or shutting down the connection.
+>>>>
+>>>> To align with the semantics described in the SO_LINGER section of man
+>>>> socket(7) and to mimic AF_INET's behaviour more closely, change the logic
+>>>> of a lingering close(): instead of waiting for all data to be handled,
+>>>> block until data is considered sent from the vsock's transport point of
+>>>> view. That is until worker picks the packets for processing and decrements
+>>>> virtio_vsock_sock::bytes_unsent down to 0.
+>>>>
+>>>> Note that such lingering is limited to transports that actually implement
+>>>> vsock_transport::unsent_bytes() callback. This excludes Hyper-V and VMCI,
+>>>> under which no lingering would be observed.
+>>>>
+>>>> The implementation does not adhere strictly to man page's interpretation of
+>>>> SO_LINGER: shutdown() will not trigger the lingering. This follows AF_INET.
+>>>>
+>>>> Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>>>> ---
+>>>> net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++--
+>>>> 1 file changed, 11 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>>>> index 7f7de6d8809655fe522749fbbc9025df71f071bd..aeb7f3794f7cfc251dde878cb44fdcc54814c89c 100644
+>>>> --- a/net/vmw_vsock/virtio_transport_common.c
+>>>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>>>> @@ -1196,12 +1196,21 @@ static void virtio_transport_wait_close(struct sock *sk, long timeout)
+>>>> {
+>>>> 	if (timeout) {
+>>>> 		DEFINE_WAIT_FUNC(wait, woken_wake_function);
+>>>> +		ssize_t (*unsent)(struct vsock_sock *vsk);
+>>>> +		struct vsock_sock *vsk = vsock_sk(sk);
+>>>> +
+>>>> +		/* Some transports (Hyper-V, VMCI) do not implement
+>>>> +		 * unsent_bytes. For those, no lingering on close().
+>>>> +		 */
+>>>> +		unsent = vsk->transport->unsent_bytes;
+>>>> +		if (!unsent)
+>>>> +			return;
+>>>
+>>> IIUC if `unsent_bytes` is not implemented, virtio_transport_wait_close
+>>> basically does nothing. My concern is that we are breaking the
+>>> userspace due to a change in the behavior: Before this patch, with a
+>>> vmci/hyper-v transport, this function would wait for SOCK_DONE to be
+>>> set, but not anymore.
+>>
+>> Wait, we are in virtio_transport_common.c, why we are talking about
+>> Hyper-V and VMCI?
+>>
+>> I asked to check `vsk->transport->unsent_bytes` in the v1, because this
+>> code was part of af_vsock.c, but now we are back to virtio code, so I'm
+>> confused...
+>
+>Might your confusion be because of similar names?
 
-No, it's not wasting effort, it's for easier review.
+In v1 this code IIRC was in af_vsock.c, now you pushed back on virtio 
+common code, so I still don't understand how 
+virtio_transport_wait_close() can be called with vmci or hyper-v 
+transports.
 
-Look at this patch, you can easily tell that pmu_msr_read() and
-pmu_msr_write() are nothing more than pmu_msr_chk_emulated(), and
-then removing them makes a lot of sense.
+Can you provide an example?
+
+>vsock_transport::unsent_bytes != virtio_vsock_sock::bytes_unsent
+>
+>I agree with Luigi, it is a breaking change for userspace depending on a
+>non-standard behaviour. What's the protocol here; do it anyway, then see if
+>anyone complains?
+>
+>As for Hyper-V and VMCI losing the "lingering", do we care? And if we do,
+>take Hyper-V, is it possible to test any changes without access to
+>proprietary host/hypervisor?
+>
+
+Again, how this code can be called when using vmci or hyper-v 
+transports?
+
+If we go back on v1 implementation, I can understand it, but with this 
+version I really don't understand the scenario.
+
+Stefano
 
