@@ -1,111 +1,84 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE67F1DF988
-	for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 18:49:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7F614E2E2
+	for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 21:15:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745520571; cv=none; b=dAk6qB5FL5xXk/k0tu0vMiBeLiB0GOLuQorPppPnj1FVxhs+ohsXIaYW4/W7IhK00VGMTwBjGzPAcdyPqhGsDAaOMf3tkmsf/WxTd3KBfiMXQ7O2KtwjX0FbuDlobeTczwwUo5woLlBry2Rn9Hskfst6CKQ7hxi0wFyhnhD7txM=
+	t=1745529302; cv=none; b=AowZs+Qki8zgCimjUHK69CFwQP9HoMI+VaJ1TwaYIM/k0+mE04QDbqSWkfszmOccSmZVUGc3AYPaGDhnCWnJtb4jVHDlbRif/Q5HYH8sdF4rlaKgQHcWcSnAXXYps3d3RJG3QSj3a/doi4b1jrWHp9Yq6uzSw2CCCxsJpOmDjDY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745520571; c=relaxed/simple;
-	bh=YJThV8OU+yLTh48RfiUdm+OTToDHsoL5U/oCrdFEqDQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hBOaEcWCAhZd+9osiz235Da4BwYzd3FAeLCthz1HfOqzpcVY+HJbGobo57hKxE+nCXhwru7MmP1h2pD7rSN4kiHft5CICfSaPnCOFYic5MI7QmV8BBdE8GmU3hHE8MPIkueAqaVWddXpXB+9vRFCRQIMBcqcVKWD9vhu4J4ZlCc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=I914G6RA; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1745529302; c=relaxed/simple;
+	bh=fbePqpXsVBFA3b05CfQZoudDssWCQj14Vtwe8+dAbac=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=A48DMdgPneHjTDedMo0XcJE63903PcIzDQra+a+lALOIBHRNfbk3kzvPojIDMAM71wLFTmJs52gKZrbVl7NtwvZxV0wp+kKEl1OHhOOsjUcyM583llWlAezuSMtHWkPPLpdnfV2Cj1ZCPIn8iTbkk4qbihAF3Cb346ng0eaXMIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=b2EYzYod; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="I914G6RA"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2240aad70f2so22925ad.0
-        for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 11:49:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1745520569; x=1746125369; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YJThV8OU+yLTh48RfiUdm+OTToDHsoL5U/oCrdFEqDQ=;
-        b=I914G6RABY7rJ27ML/nOPE+XmRwr2Sv6FL/WCA4sjLcwWzI1jOhosyIjcnpI275/PC
-         oaZUDtbexDOvsr7VRZKlGneKjPWXsnkaqeWrh3cOi+W8W00i3eeVNYzd1CUe4LsGx0wX
-         tOgFQThRPYVCfeQLq/x2h9G0lS5BM87Abpepw3dWaNENgWBQ2AUpXKDv42fR3KvgMl3H
-         wj0ofSEoJsPJHMmy8MGxh6f4XrX8DCTu70qn/PL0i2PealT6VfKcEPreiDWogvV16etx
-         V/FsHY76Ka9cfsotyNZp40ZD54GNQZ/rR9duCzNr9z1vE8glvpJV+GF4aRlQrHNEfXYY
-         deHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745520569; x=1746125369;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YJThV8OU+yLTh48RfiUdm+OTToDHsoL5U/oCrdFEqDQ=;
-        b=V4tvp4uz638aIepGJaLLGu3Ze4VjFsEm5UyS/AsRqjuJSjzWzPEzTatll4R84Xi37v
-         OVrNe+Um1PZ1wJZGs3+YM/LjiAofgXAtkQmIDm4fgyVfi54fc4mzxDRiWnvS1Dd5l5ni
-         NjtLizEw6euqmHMndT+RGktnoKcw9lxq7x7ToXwNjl80teleZyH3K1u/XjDAOXGJMq9K
-         YJPuk+7UmT//eyhhcPN3Q1imsMnfCNZaPP/vbnH43A4ZHpcdWy+WutL1utkAppueyv8x
-         FUAVrp2OZYuvijViz0b9lDdY3fDRJ//PeuguORVvwB3Xamfx8WyLxEuzzV2xgqkGTX1V
-         QGOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXEKG34/D7GkgCSK6gvNo4iui3+//KuIFuoPr1Thz0CMxPTzVaVIqwOpMafZD+GivVvbT/sllMIHjvMIs4AEw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz6pwwfeWdt8f7USKmgBO091IZMPu7DBeEfjVOBypMHfli+oCxS
-	Z+bHflp/WomnMg6syloJz9KZYLB90Zqk6qbT2YMmveIJ5IffjQqiL0XxLLmmpNNN+zwFg20eJwq
-	nkHwFrtCTMAoUHjoCEB5Sy465dR20m6TxKg6B
-X-Gm-Gg: ASbGncsNJg1aC6dXsxBsGEkI6FHeXip2rxnFoNOJiHGmVoPFDUA1EAuUqnWLQmyUVeL
-	pqRlYmDgAi9e5NXSZ5MOCkjsRq+/UmGvz3hdv/Famcp5Z5CDOjcjYKIlo4c4j+3ruxYVH4AHqFA
-	b21O6laVd81yGSbdPKLJACmKsSfkZb36L6pLXbdr44hY2K2jJe4Jve
-X-Google-Smtp-Source: AGHT+IG7TvFiypkSdm6cFL8QXv7Geze56CiuyUqiMCDjIy5B3tjxrLsMvkElYIkhtHnXIN1qIRY0zGBcPAIono1A5h0=
-X-Received: by 2002:a17:903:2053:b0:220:ce33:6385 with SMTP id
- d9443c01a7336-22dbdb49fd4mr181535ad.9.1745520568724; Thu, 24 Apr 2025
- 11:49:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="b2EYzYod"
+Received: from [127.0.0.1] ([76.133.66.138])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53OLEFGV1614013
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Thu, 24 Apr 2025 14:14:15 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53OLEFGV1614013
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025042001; t=1745529257;
+	bh=fbePqpXsVBFA3b05CfQZoudDssWCQj14Vtwe8+dAbac=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=b2EYzYodyQjJ1ivIsEmkKH2t2+MFFTbYKTMXxiq4ngho+EPg7RDeSa2QY0zU3k7I6
+	 RN61uEVxuOFyhUwF3mAy8cHv6Z4FYf2CxBcMEmWvdr2DQUvRfPzZM/iNJ2SaZGkcbi
+	 UDaP7PXrKVnNJgW3SRLPxFD1BMbGSjssSS7c0i84j+8Jm8fWDnoENz8P5a1Jd5X9AE
+	 YeKJLfs/prqdFpmvrMCTt4Lf9g4iZhNiXh9GJorxSh8b9JQoVphIe+5AyBQlhioJ6S
+	 KAYln5qQrQumWrckqE9SV5vLlM+oXOd+2n91sqkeXt69I3byDARDpBKA8HfhZxu6f+
+	 76vUr76BOVI7A==
+Date: Thu, 24 Apr 2025 14:14:12 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Xin Li <xin@zytor.com>, =?ISO-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        virtualization@lists.linux.dev, linux-pm@vger.kernel.org,
+        linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org,
+        linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org
+CC: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, acme@kernel.org,
+        andrew.cooper3@citrix.com, peterz@infradead.org, namhyung@kernel.org,
+        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
+        jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com,
+        kan.liang@linux.intel.com, wei.liu@kernel.org, ajay.kaher@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
+        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
+        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
+        haiyangz@microsoft.com, decui@microsoft.com
+Subject: Re: [RFC PATCH v2 12/34] x86/msr: Remove pmu_msr_{read,write}()
+User-Agent: K-9 Mail for Android
+In-Reply-To: <ca088501-2fbe-4a32-b191-04f7be6a2713@zytor.com>
+References: <20250422082216.1954310-1-xin@zytor.com> <20250422082216.1954310-13-xin@zytor.com> <8944b510-6d70-472c-99a2-52a60517733d@suse.com> <ca088501-2fbe-4a32-b191-04f7be6a2713@zytor.com>
+Message-ID: <018705C7-35CF-406A-85DA-360FF7BCB072@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250424040301.2480876-1-almasrymina@google.com>
-In-Reply-To: <20250424040301.2480876-1-almasrymina@google.com>
-From: Mina Almasry <almasrymina@google.com>
-Date: Thu, 24 Apr 2025 11:49:16 -0700
-X-Gm-Features: ATxdqUGSuXy2A5TP0CkyPakNQ5S2ontOlQJJboyrRu9J3Ao5kJdPZ2OrP3y4P5Q
-Message-ID: <CAHS8izOT38_nGbPnvxaqxV-y-dUcUkqEEjfSAutd0oqsYrB4RQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v11 0/8] Device memory TCP TX
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-doc@vger.kernel.org, io-uring@vger.kernel.org, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Donald Hunter <donald.hunter@gmail.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, Jeroen de Borst <jeroendb@google.com>, 
-	Harshitha Ramamurthy <hramamurthy@google.com>, Kuniyuki Iwashima <kuniyu@amazon.com>, 
-	Willem de Bruijn <willemb@google.com>, Jens Axboe <axboe@kernel.dk>, 
-	Pavel Begunkov <asml.silence@gmail.com>, David Ahern <dsahern@kernel.org>, 
-	Neal Cardwell <ncardwell@google.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	sdf@fomichev.me, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>, 
-	Victor Nogueira <victor@mojatatu.com>, Pedro Tammela <pctammela@mojatatu.com>, 
-	Samiullah Khawaja <skhawaja@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 23, 2025 at 9:03=E2=80=AFPM Mina Almasry <almasrymina@google.co=
-m> wrote:
+On April 24, 2025 10:49:59 AM PDT, Xin Li <xin@zytor=2Ecom> wrote:
+>On 4/24/2025 3:05 AM, J=C3=BCrgen Gro=C3=9F wrote:
+>>=20
+>> May I suggest to get rid of the "emul" parameter of pmu_msr_chk_emulate=
+d()?
+>> It has no real value, as pmu_msr_chk_emulated() could easily return fal=
+se in
+>> the cases where it would set *emul to false=2E
 >
-> v11: https://lore.kernel.org/netdev/20250423031117.907681-1-almasrymina@g=
-oogle.com/
+>Good idea!
 >
-> Addressed a couple of nits and collected Acked-by from Harshitha
-> (thanks!)
->
+>The function type is a bit of weird but I didn't think of change it=2E
 
-Hello,
+It is weird in the extreme=2E=20
 
-I made a slight mistake sending this iteration and accidentally
-dropped patch 9, which contains the selftest. There is nothing wrong
-with the selftest in this iteration, I just accidentally cropped the
-series 1 patch too early.
-
-I'll repost after the cooldown, and if this happens to get merged I'll
-just send the selftest as a follow up patch, it's an independent
-change anyway.
-
---=20
-Thanks,
-Mina
+By the way, this patch should have "xen" in its subject tag=2E
