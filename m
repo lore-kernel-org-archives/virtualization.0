@@ -1,304 +1,337 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 624012701BF
-	for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 23:49:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF89C1865EB
+	for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 04:03:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745452186; cv=none; b=K73CFK9nm+SRn78jMYsxXZjpU/gs/+u0bqH1olCkDqod3fi8x8G2N5SiirF6Ig1iuf8Wpw0A+bz2+1iU6dR/xQlD25cgtBNR2Tbz+93HBo7S5VZt7o4nnZq6yyD6Kc9TwVGIFNWbiXRT0g7zmXguBakjaWBqHXrFn7eCWER6svo=
+	t=1745467385; cv=none; b=QCCw7AbKX3vUU4f/U3UWkkPyKcf43m5hM6W0pg7BSmupNn9cJZpljdMnaTedspWzz8OIL7em0V/DLOyz+XWrEyZQOF/a/43YHwZbAo29hQXsLnsEXRnV+g1OJxuOY8Ar+qs/b7owgGnXbMX1p8GGHZKjh2KCjszbn3jt7CEpPoQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745452186; c=relaxed/simple;
-	bh=2VepqBRKfk+JUtYK6Opi6yC4PoH9lRaO6DVRy49F788=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=g3Y6Rl4fFK4/YGdyfcrA8JqGnRuakbzKPKOMgnKNlgBKkJBFPXb9Rp8IX0l5KvNThPFRTxceJ69+DjFsv9vy5IDG+f2In+MVQVqff3Zdxczl7iMjsc0zoZgTHpTCEwfrBxcFk3KSWLjIgaQVYPMu1HwxIXgg+ePDcg9kDvh23JY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=SrkJQpKJ; arc=none smtp.client-ip=209.85.214.171
+	s=arc-20240116; t=1745467385; c=relaxed/simple;
+	bh=zt6yYBvh0d8AfeUCUhVJzGOK4AHq2m+OxMp5MyPKv78=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=mPNlGTCCGYW59uGdvs7MKuBiDCOlV1OZqb3pdqcfPeVeUDtRf1TS7sD+Y5MSuxJ7nzZznF5d4aD+SibSm5uLsh0XR/LxEYV4L+UHsotgz87fHgqFhGyPDNgqmI9As4ZvQVxpUW+wgUc8kp8F+CY/D19aaS1O2mFEJtORzK1gELQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ROj+NrWB; arc=none smtp.client-ip=209.85.210.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="SrkJQpKJ"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2242ac37caeso40985ad.1
-        for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 16:49:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ROj+NrWB"
+Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-736d30d2570so502732b3a.1
+        for <virtualization@lists.linux.dev>; Wed, 23 Apr 2025 21:03:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1745452184; x=1746056984; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZgkZ0Ext9iMP/JpiGlrjV0G3sg7KUzWq6I5onInGXLo=;
-        b=SrkJQpKJ9+cAUdTA4qrPK9mJsTFIMCCjfhdJ6yP1nVd5BTjE9PUHKUfW6Wwfo3hyCJ
-         DybF1Mj98RtTHbWskZ30KchMylKS2F2b5ZJ5hU/pPdFas9GDJ931uS17aqAYGweC43Tv
-         6/h8jh3zAkZxO3d13DLLLD56D+Mb5gfp5BLObeYCcfT/iVr8SFzvty7IUfJV6FD+jAaH
-         JmEfr3olLrakN5SLKtH3SxalMa5ZMuxgKxY1Zr9he1IqorwPAztnJINFrdQynya1b9Op
-         dyQ2YJby+7VpKvjbGYHjpYHuZsBqEGuW+cGHicXXzeFTiG+sUDtbj7ub0GS7GoTi6p4j
-         x5/A==
+        d=google.com; s=20230601; t=1745467383; x=1746072183; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=D09PgC93ZS3ZLjn25gSS3hEDnTkEIUuDkcd6alRURFw=;
+        b=ROj+NrWBkEKOsEPA2AGk8gTxsiGPDJ9MtH/GzEr5ZdqQg9A+fxtG9V5ZznX0tm9Flu
+         4V3K9TsPPpYoSN2ypUY23VTHrPL0wzTml9rY4L5Mt2AWvQunw1BuDB/x2Uf4FTpgvHty
+         MqUAMWmD4wybo3XXIJ8IISaIOvqvieJu3KacjOI2ZqqnkBwvGFDj37hmBpOH/3q6wXYQ
+         0chTXn71Oyn00sK88Cf4NMKhvtXlREbdlbao+F3YyBd/HAwDYLwC3mEv9jsZPfpcWp+I
+         q41NetAe4JebBETC9cfiAum1VhoKAamyoMYNoTXTbTQOdiHHU90mocjxFRqpJxOv1aXa
+         8WzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745452184; x=1746056984;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZgkZ0Ext9iMP/JpiGlrjV0G3sg7KUzWq6I5onInGXLo=;
-        b=j88+Y3ByHIPtGmUP9hG5akA2Bx1YlxDkCmwlklH8ZYNlbO36abuA9w8/hgo6F0X7EE
-         YGIPnbhsQayeclHIVis+Rmyfs7rR+d+m8s3W48jvVR0s8a8FdkecU6Fb0X3mx8uDEvVh
-         yhWmR5vavU+h4/oCAbI0DceLh/iOIMQAxjWhCfFwh0q6JVikOdy7W7mgTwc97Gydf9Of
-         4jhUFgrif7bHOi4cQsmnkLzO28oaM9dLy1H/3JOdYFectxsT/49GmqSPhGKGUDVAYaEC
-         fXhwvM4vJCV5o0SCH4yqnvEqPbBJvSM0rkYpDU4/TAFf7lKn3UkDq8QemMBlOlHk+pnR
-         9G/g==
-X-Forwarded-Encrypted: i=1; AJvYcCUrt+7E4IomKijwEgKbm4QJ6QBM6Ds1o3WZnaTcU5XHcEmYeYR9LpKzozKGQE1wrlpFm+N8sxeGZDZCGdvWNQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzUqjPUb4bTqj0s/OJD1WLCOCmIYCsB074oZGRWbXihGwOAU50O
-	7rCEIWT5OFhrL+jAVrc+FvTpqJxpakH+ShrrxaN67CuvGzgJRpzHCQgKkLvnqpzZxZ7HAk+4hc1
-	t90w8GUCI2pw8n6MTsc7cuxk1gwaxG/XzeBG+
-X-Gm-Gg: ASbGncs9XQuIKUiGaX8LxdRfRbecTuLW9atifXQYLTn3bFDF9HWnn+z2gid5jDlMg/d
-	xw0/16pClq+cQkuz1SmdfAi+Ge02gn8RQSxeG/2X2UUMIar6xvgfE4HWi8AoT3+tnpZ6JO6qRGb
-	74Dpay9SIIIGrMpLNhXC9qLzeAn4M4BFgSTQQHXqEnsHQ0XYTmdA3A
-X-Google-Smtp-Source: AGHT+IGX7LK2aizJTPRrsUG1SCwbT2wY7Q85CyE+4DCuBGCQwpCEAfBGkW2ltJ7AcRFVxOQFDMwRmDSguzDhCxxr7Yc=
-X-Received: by 2002:a17:903:46c6:b0:21f:3c4a:136f with SMTP id
- d9443c01a7336-22db2214bfcmr1400785ad.28.1745452183416; Wed, 23 Apr 2025
- 16:49:43 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1745467383; x=1746072183;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=D09PgC93ZS3ZLjn25gSS3hEDnTkEIUuDkcd6alRURFw=;
+        b=ZKBlxd+ujK/R1lPaTaSrjdqInQVaMA+IsqCJBvWOWMxzkTovXZJyXlSfDXh0EQQm6G
+         QW9wyF9hl7e3DSrq7cCJzrx/rs4z+1NHshc5cYJbfR8Aqi9F34BvSzB5d/m85ePAmzDs
+         6TQ/7oHRY50vL3v//63iW3Q2t6KSzUSGnntD6Qk5gyupdrW/wJPCdH7zm0afUJj0sW3W
+         5tRALPiX01aum58ez8zoQ8DD5MJmzEGX5kwUuG7KMlIhoLBP7LcDA756TD+kRn9GAEVO
+         p0x8hCraQQOP0OFVL8p2CyGBfT3A1Od8k8KmcSyVT1ALa2UUqL3p7ylXblJo8KR4/lJb
+         xqrA==
+X-Forwarded-Encrypted: i=1; AJvYcCVQbFqSLraO79pbBAnUZldhzhuInmXb8hvAad+FhhIwHTP4e2JmjSXDNLGyXAKQhGZ/t8IlsSrw3zovMsdZsg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzySyIK18iPth6ENXCdYqMUBYdYEuJv9otQUCVtaRM8rbDYit17
+	Pn3hqePyYyj3SlSwU+8jWlSb0P1gUy91c/9isB+51QdBiN4atRFVyOstqGAklb+2B+fKsxhDxQ5
+	CQRbU2jGo8VLIuXDhtm7lUQ==
+X-Google-Smtp-Source: AGHT+IHoYiJAViOyibsmWNa7O71nPYflx8ZwtWAOGvKQYrLpeEes5pAjno8XPyEp9J+g4sJP6zp56GC4j/ih4PdS9g==
+X-Received: from pfblc5.prod.google.com ([2002:a05:6a00:4f45:b0:73e:1cf2:cd5c])
+ (user=almasrymina job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:6a00:ac86:b0:73c:3060:d53 with SMTP id d2e1a72fcca58-73e24ac977amr1627489b3a.18.1745467382895;
+ Wed, 23 Apr 2025 21:03:02 -0700 (PDT)
+Date: Thu, 24 Apr 2025 04:02:52 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20250423031117.907681-1-almasrymina@google.com>
- <20250423031117.907681-5-almasrymina@google.com> <20250423140931-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250423140931-mutt-send-email-mst@kernel.org>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.49.0.805.g082f7c87e0-goog
+Message-ID: <20250424040301.2480876-1-almasrymina@google.com>
+Subject: [PATCH net-next v11 0/8] Device memory TCP TX
 From: Mina Almasry <almasrymina@google.com>
-Date: Wed, 23 Apr 2025 16:49:30 -0700
-X-Gm-Features: ATxdqUHdLn2wP88hj2tffPEL1QlUjkAMN1_0DSb5R09qEYsDQJ9iaUC4P8x0YMU
-Message-ID: <CAHS8izNRk1MOs-R1RmWMQ5zMBOo70YpTzOdt8=OrrjrD7JQTfA@mail.gmail.com>
-Subject: Re: [PATCH net-next v10 4/9] net: devmem: Implement TX path
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	linux-doc@vger.kernel.org, io-uring@vger.kernel.org, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, Donald Hunter <donald.hunter@gmail.com>, 
-	Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org
+Cc: Mina Almasry <almasrymina@google.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Simon Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>, 
 	Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
 	Jeroen de Borst <jeroendb@google.com>, Harshitha Ramamurthy <hramamurthy@google.com>, 
 	Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn <willemb@google.com>, Jens Axboe <axboe@kernel.dk>, 
 	Pavel Begunkov <asml.silence@gmail.com>, David Ahern <dsahern@kernel.org>, 
 	Neal Cardwell <ncardwell@google.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Shuah Khan <shuah@kernel.org>, sdf@fomichev.me, dw@davidwei.uk, 
+	Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, sdf@fomichev.me, dw@davidwei.uk, 
 	Jamal Hadi Salim <jhs@mojatatu.com>, Victor Nogueira <victor@mojatatu.com>, 
-	Pedro Tammela <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>, 
-	Kaiyuan Zhang <kaiyuanz@google.com>
+	Pedro Tammela <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 23, 2025 at 11:24=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
-> wrote:
->
-> some nits
->
-> On Wed, Apr 23, 2025 at 03:11:11AM +0000, Mina Almasry wrote:
-> > @@ -189,43 +200,44 @@ net_devmem_bind_dmabuf(struct net_device *dev, un=
-signed int dmabuf_fd,
-> >       }
-> >
-> >       binding->dev =3D dev;
-> > -
-> > -     err =3D xa_alloc_cyclic(&net_devmem_dmabuf_bindings, &binding->id=
-,
-> > -                           binding, xa_limit_32b, &id_alloc_next,
-> > -                           GFP_KERNEL);
-> > -     if (err < 0)
-> > -             goto err_free_binding;
-> > -
-> >       xa_init_flags(&binding->bound_rxqs, XA_FLAGS_ALLOC);
-> > -
-> >       refcount_set(&binding->ref, 1);
-> > -
-> >       binding->dmabuf =3D dmabuf;
-> >
->
-> given you keep iterating, don't tweak whitespace in the same patch-
-> will make the review a tiny bit easier.
->
+v11: https://lore.kernel.org/netdev/20250423031117.907681-1-almasrymina@google.com/
 
-Sure.
+Addressed a couple of nits and collected Acked-by from Harshitha
+(thanks!)
 
->
-> >       binding->attachment =3D dma_buf_attach(binding->dmabuf, dev->dev.=
-parent);
-> >       if (IS_ERR(binding->attachment)) {
-> >               err =3D PTR_ERR(binding->attachment);
-> >               NL_SET_ERR_MSG(extack, "Failed to bind dmabuf to device")=
-;
-> > -             goto err_free_id;
-> > +             goto err_free_binding;
-> >       }
-> >
-> >       binding->sgt =3D dma_buf_map_attachment_unlocked(binding->attachm=
-ent,
-> > -                                                    DMA_FROM_DEVICE);
-> > +                                                    direction);
-> >       if (IS_ERR(binding->sgt)) {
-> >               err =3D PTR_ERR(binding->sgt);
-> >               NL_SET_ERR_MSG(extack, "Failed to map dmabuf attachment")=
-;
-> >               goto err_detach;
-> >       }
-> >
-> > +     if (direction =3D=3D DMA_TO_DEVICE) {
-> > +             binding->tx_vec =3D kvmalloc_array(dmabuf->size / PAGE_SI=
-ZE,
-> > +                                              sizeof(struct net_iov *)=
-,
-> > +                                              GFP_KERNEL);
-> > +             if (!binding->tx_vec) {
-> > +                     err =3D -ENOMEM;
-> > +                     goto err_unmap;
-> > +             }
-> > +     }
-> > +
-> >       /* For simplicity we expect to make PAGE_SIZE allocations, but th=
-e
-> >        * binding can be much more flexible than that. We may be able to
-> >        * allocate MTU sized chunks here. Leave that for future work...
-> >        */
-> > -     binding->chunk_pool =3D
-> > -             gen_pool_create(PAGE_SHIFT, dev_to_node(&dev->dev));
-> > +     binding->chunk_pool =3D gen_pool_create(PAGE_SHIFT,
-> > +                                           dev_to_node(&dev->dev));
-> >       if (!binding->chunk_pool) {
-> >               err =3D -ENOMEM;
-> > -             goto err_unmap;
-> > +             goto err_tx_vec;
-> >       }
-> >
-> >       virtual =3D 0;
-> > @@ -270,24 +282,34 @@ net_devmem_bind_dmabuf(struct net_device *dev, un=
-signed int dmabuf_fd,
-> >                       niov->owner =3D &owner->area;
-> >                       page_pool_set_dma_addr_netmem(net_iov_to_netmem(n=
-iov),
-> >                                                     net_devmem_get_dma_=
-addr(niov));
-> > +                     if (direction =3D=3D DMA_TO_DEVICE)
-> > +                             binding->tx_vec[owner->area.base_virtual =
-/ PAGE_SIZE + i] =3D niov;
-> >               }
-> >
-> >               virtual +=3D len;
-> >       }
-> >
-> > +     err =3D xa_alloc_cyclic(&net_devmem_dmabuf_bindings, &binding->id=
-,
-> > +                           binding, xa_limit_32b, &id_alloc_next,
-> > +                           GFP_KERNEL);
-> > +     if (err < 0)
-> > +             goto err_free_id;
-> > +
-> >       return binding;
-> >
-> > +err_free_id:
-> > +     xa_erase(&net_devmem_dmabuf_bindings, binding->id);
-> >  err_free_chunks:
-> >       gen_pool_for_each_chunk(binding->chunk_pool,
-> >                               net_devmem_dmabuf_free_chunk_owner, NULL)=
-;
-> >       gen_pool_destroy(binding->chunk_pool);
-> > +err_tx_vec:
-> > +     kvfree(binding->tx_vec);
-> >  err_unmap:
-> >       dma_buf_unmap_attachment_unlocked(binding->attachment, binding->s=
-gt,
-> >                                         DMA_FROM_DEVICE);
-> >  err_detach:
-> >       dma_buf_detach(dmabuf, binding->attachment);
-> > -err_free_id:
-> > -     xa_erase(&net_devmem_dmabuf_bindings, binding->id);
-> >  err_free_binding:
-> >       kfree(binding);
-> >  err_put_dmabuf:
-> > @@ -295,6 +317,21 @@ net_devmem_bind_dmabuf(struct net_device *dev, uns=
-igned int dmabuf_fd,
-> >       return ERR_PTR(err);
-> >  }
-> >
-> > +struct net_devmem_dmabuf_binding *net_devmem_lookup_dmabuf(u32 id)
-> > +{
-> > +     struct net_devmem_dmabuf_binding *binding;
-> > +
-> > +     rcu_read_lock();
-> > +     binding =3D xa_load(&net_devmem_dmabuf_bindings, id);
-> > +     if (binding) {
-> > +             if (!net_devmem_dmabuf_binding_get(binding))
-> > +                     binding =3D NULL;
-> > +     }
-> > +     rcu_read_unlock();
-> > +
-> > +     return binding;
-> > +}
-> > +
-> >  void net_devmem_get_net_iov(struct net_iov *niov)
-> >  {
-> >       net_devmem_dmabuf_binding_get(net_devmem_iov_binding(niov));
-> > @@ -305,6 +342,53 @@ void net_devmem_put_net_iov(struct net_iov *niov)
-> >       net_devmem_dmabuf_binding_put(net_devmem_iov_binding(niov));
-> >  }
-> >
-> > +struct net_devmem_dmabuf_binding *net_devmem_get_binding(struct sock *=
-sk,
-> > +                                                      unsigned int dma=
-buf_id)
-> > +{
-> > +     struct net_devmem_dmabuf_binding *binding;
-> > +     struct dst_entry *dst =3D __sk_dst_get(sk);
-> > +     int err =3D 0;
-> > +
-> > +     binding =3D net_devmem_lookup_dmabuf(dmabuf_id);
->
-> why not initialize binding together with the declaration?
->
+v10: https://lore.kernel.org/netdev/20250417231540.2780723-1-almasrymina@google.com/
 
-I find it stylistically much better to error check this right after
-it's assigned.
+Addressed comments following conversations with Pavel, Stan, and
+Harshitha. Thank you guys for the reviews again. Overall minor changes:
 
-> > +     if (!binding || !binding->tx_vec) {
-> > +             err =3D -EINVAL;
-> > +             goto out_err;
-> > +     }
-> > +
-> > +     /* The dma-addrs in this binding are only reachable to the corres=
-ponding
-> > +      * net_device.
-> > +      */
-> > +     if (!dst || !dst->dev || dst->dev->ifindex !=3D binding->dev->ifi=
-ndex) {
-> > +             err =3D -ENODEV;
-> > +             goto out_err;
-> > +     }
-> > +
-> > +     return binding;
-> > +
-> > +out_err:
-> > +     if (binding)
-> > +             net_devmem_dmabuf_binding_put(binding);
-> > +
-> > +     return ERR_PTR(err);
-> > +}
-> > +
-> > +struct net_iov *
-> > +net_devmem_get_niov_at(struct net_devmem_dmabuf_binding *binding,
-> > +                    size_t virt_addr, size_t *off, size_t *size)
-> > +{
-> > +     size_t idx;
-> > +
-> > +     if (virt_addr >=3D binding->dmabuf->size)
-> > +             return NULL;
-> > +
-> > +     idx =3D virt_addr / PAGE_SIZE;
->
-> init this at where it's declared?
-> or where it's used.
->
+Changelog:
+- Check for !niov->pp in io_zcrx_recv_frag, just in case we end up with
+  a TX niov in that path (Pavel).
+- Fix locking case in !netif_device_present (Jakub/Stan).
 
-I think probably a local variable isn't warranted. Will remove.
+v9: https://lore.kernel.org/netdev/20250415224756.152002-1-almasrymina@google.com/
 
---=20
-Thanks,
-Mina
+Changelog:
+- Use priv->bindings list instead of sock_bindings_list. This was missed
+  during the rebase as the bindings have been updated to use
+  priv->bindings recently (thanks Stan!)
+
+v8: https://lore.kernel.org/netdev/20250308214045.1160445-1-almasrymina@google.com/
+
+Only address minor comments on V7
+
+Changelog:
+- Use netdev locking instead of rtnl_locking to match rx path.
+- Now that iouring zcrx is in net-next, use NET_IOV_IOURING instead of
+  NET_IOV_UNSPECIFIED.
+- Post send binding to net_devmem_dmabuf_bindings after it's been fully
+  initialized (Stan).
+
+v7: https://lore.kernel.org/netdev/20250227041209.2031104-1-almasrymina@google.com/
+===
+
+Changelog:
+- Check the dmabuf net_iov binding belongs to the device the TX is going
+  out on. (Jakub)
+- Provide detailed inspection of callsites of
+  __skb_frag_ref/skb_page_unref in patch 2's changelog (Jakub)
+
+v6: https://lore.kernel.org/netdev/20250222191517.743530-1-almasrymina@google.com/
+===
+
+v6 has no major changes. Addressed a few issues from Paolo and David,
+and collected Acks from Stan. Thank you everyone for the review!
+
+Changes:
+- retain behavior to process MSG_FASTOPEN even if the provided cmsg is
+  invalid (Paolo).
+- Rework the freeing of tx_vec slightly (it now has its own err label).
+  (Paolo).
+- Squash the commit that makes dmabuf unbinding scheduled work into the
+  same one which implements the TX path so we don't run into future
+  errors on bisecting (Paolo).
+- Fix/add comments to explain how dmabuf binding refcounting works
+  (David).
+
+v5: https://lore.kernel.org/netdev/20250220020914.895431-1-almasrymina@google.com/
+===
+
+v5 has no major changes; it clears up the relatively minor issues
+pointed out to in v4, and rebases the series on top of net-next to
+resolve the conflict with a patch that raced to the tree. It also
+collects the review tags from v4.
+
+Changes:
+- Rebase to net-next
+- Fix issues in selftest (Stan).
+- Address comments in the devmem and netmem driver docs (Stan and Bagas)
+- Fix zerocopy_fill_skb_from_devmem return error code (Stan).
+
+v4: https://lore.kernel.org/netdev/20250203223916.1064540-1-almasrymina@google.com/
+===
+
+v4 mainly addresses the critical driver support issue surfaced in v3 by
+Paolo and Stan. Drivers aiming to support netmem_tx should make sure not
+to pass the netmem dma-addrs to the dma-mapping APIs, as these dma-addrs
+may come from dma-bufs.
+
+Additionally other feedback from v3 is addressed.
+
+Major changes:
+- Add helpers to handle netmem dma-addrs. Add GVE support for
+  netmem_tx.
+- Fix binding->tx_vec not being freed on error paths during the
+  tx binding.
+- Add a minimal devmem_tx test to devmem.py.
+- Clean up everything obsolete from the cover letter (Paolo).
+
+v3: https://patchwork.kernel.org/project/netdevbpf/list/?series=929401&state=*
+===
+
+Address minor comments from RFCv2 and fix a few build warnings and
+ynl-regen issues. No major changes.
+
+RFC v2: https://patchwork.kernel.org/project/netdevbpf/list/?series=920056&state=*
+=======
+
+RFC v2 addresses much of the feedback from RFC v1. I plan on sending
+something close to this as net-next  reopens, sending it slightly early
+to get feedback if any.
+
+Major changes:
+--------------
+
+- much improved UAPI as suggested by Stan. We now interpret the iov_base
+  of the passed in iov from userspace as the offset into the dmabuf to
+  send from. This removes the need to set iov.iov_base = NULL which may
+  be confusing to users, and enables us to send multiple iovs in the
+  same sendmsg() call. ncdevmem and the docs show a sample use of that.
+
+- Removed the duplicate dmabuf iov_iter in binding->iov_iter. I think
+  this is good improvment as it was confusing to keep track of
+  2 iterators for the same sendmsg, and mistracking both iterators
+  caused a couple of bugs reported in the last iteration that are now
+  resolved with this streamlining.
+
+- Improved test coverage in ncdevmem. Now multiple sendmsg() are tested,
+  and sending multiple iovs in the same sendmsg() is tested.
+
+- Fixed issue where dmabuf unmapping was happening in invalid context
+  (Stan).
+
+====================================================================
+
+The TX path had been dropped from the Device Memory TCP patch series
+post RFCv1 [1], to make that series slightly easier to review. This
+series rebases the implementation of the TX path on top of the
+net_iov/netmem framework agreed upon and merged. The motivation for
+the feature is thoroughly described in the docs & cover letter of the
+original proposal, so I don't repeat the lengthy descriptions here, but
+they are available in [1].
+
+Full outline on usage of the TX path is detailed in the documentation
+included with this series.
+
+Test example is available via the kselftest included in the series as well.
+
+The series is relatively small, as the TX path for this feature largely
+piggybacks on the existing MSG_ZEROCOPY implementation.
+
+Patch Overview:
+---------------
+
+1. Documentation & tests to give high level overview of the feature
+   being added.
+
+1. Add netmem refcounting needed for the TX path.
+
+2. Devmem TX netlink API.
+
+3. Devmem TX net stack implementation.
+
+4. Make dma-buf unbinding scheduled work to handle TX cases where it gets
+   freed from contexts where we can't sleep.
+
+5. Add devmem TX documentation.
+
+6. Add scaffolding enabling driver support for netmem_tx. Add helpers, driver
+feature flag, and docs to enable drivers to declare netmem_tx support.
+
+7. Guard netmem_tx against being enabled against drivers that don't
+   support it.
+
+8. Add devmem_tx selftests. Add TX path to ncdevmem and add a test to
+   devmem.py.
+
+Testing:
+--------
+
+Testing is very similar to devmem TCP RX path. The ncdevmem test used
+for the RX path is now augemented with client functionality to test TX
+path.
+
+* Test Setup:
+
+Kernel: net-next with this RFC and memory provider API cherry-picked
+locally.
+
+Hardware: Google Cloud A3 VMs.
+
+NIC: GVE with header split & RSS & flow steering support.
+
+Performance results are not included with this version, unfortunately.
+I'm having issues running the dma-buf exporter driver against the
+upstream kernel on my test setup. The issues are specific to that
+dma-buf exporter and do not affect this patch series. I plan to follow
+up this series with perf fixes if the tests point to issues once they're
+up and running.
+
+Special thanks to Stan who took a stab at rebasing the TX implementation
+on top of the netmem/net_iov framework merged. Parts of his proposal [2]
+that are reused as-is are forked off into their own patches to give full
+credit.
+
+[1] https://lore.kernel.org/netdev/20240909054318.1809580-1-almasrymina@google.com/
+[2] https://lore.kernel.org/netdev/20240913150913.1280238-2-sdf@fomichev.me/T/#m066dd407fbed108828e2c40ae50e3f4376ef57fd
+
+Cc: sdf@fomichev.me
+Cc: asml.silence@gmail.com
+Cc: dw@davidwei.uk
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Victor Nogueira <victor@mojatatu.com>
+Cc: Pedro Tammela <pctammela@mojatatu.com>
+Cc: Samiullah Khawaja <skhawaja@google.com>
+Cc: Kuniyuki Iwashima <kuniyu@amazon.com>
+
+
+Mina Almasry (7):
+  netmem: add niov->type attribute to distinguish different net_iov
+    types
+  net: add get_netmem/put_netmem support
+  net: devmem: Implement TX path
+  net: add devmem TCP TX documentation
+  net: enable driver support for netmem TX
+  gve: add netmem TX support to GVE DQO-RDA mode
+  net: check for driver support in netmem TX
+
+Stanislav Fomichev (1):
+  net: devmem: TCP tx netlink api
+
+ Documentation/netlink/specs/netdev.yaml       |  12 ++
+ Documentation/networking/devmem.rst           | 150 +++++++++++++++++-
+ .../networking/net_cachelines/net_device.rst  |   1 +
+ Documentation/networking/netdev-features.rst  |   5 +
+ Documentation/networking/netmem.rst           |  23 ++-
+ drivers/net/ethernet/google/gve/gve_main.c    |   3 +
+ drivers/net/ethernet/google/gve/gve_tx_dqo.c  |   8 +-
+ include/linux/netdevice.h                     |   2 +
+ include/linux/skbuff.h                        |  17 +-
+ include/linux/skbuff_ref.h                    |   4 +-
+ include/net/netmem.h                          |  34 +++-
+ include/net/sock.h                            |   1 +
+ include/uapi/linux/netdev.h                   |   1 +
+ io_uring/zcrx.c                               |   3 +-
+ net/core/datagram.c                           |  48 +++++-
+ net/core/dev.c                                |  34 +++-
+ net/core/devmem.c                             | 133 +++++++++++++---
+ net/core/devmem.h                             |  83 ++++++++--
+ net/core/netdev-genl-gen.c                    |  13 ++
+ net/core/netdev-genl-gen.h                    |   1 +
+ net/core/netdev-genl.c                        |  80 +++++++++-
+ net/core/skbuff.c                             |  48 +++++-
+ net/core/sock.c                               |   6 +
+ net/ipv4/ip_output.c                          |   3 +-
+ net/ipv4/tcp.c                                |  50 ++++--
+ net/ipv6/ip6_output.c                         |   3 +-
+ net/vmw_vsock/virtio_transport_common.c       |   5 +-
+ tools/include/uapi/linux/netdev.h             |   1 +
+ 28 files changed, 699 insertions(+), 73 deletions(-)
+
+
+base-commit: abcec3ed92fca92cd81d743bb8a5409da73b7560
+-- 
+2.49.0.805.g082f7c87e0-goog
+
