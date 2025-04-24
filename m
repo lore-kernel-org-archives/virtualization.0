@@ -1,113 +1,126 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F086E200B99
-	for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 10:24:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5E70223DDA
+	for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 10:33:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745490288; cv=none; b=KuwPwhuuNG6VuLp02RZhR/VfyyH0OxiGBeS3mab7WghZ/9RYbtXdhF9zcuOdr1RTKgcdOYFDVTYsCo+eh+Fxa+Xhq3P/6xkEZht4qdyvHie2wK5qmuY5pFk82p5W+Jax4zmrVx2yU6/3WzU2Z7lICc5bjDvi+U0lxb8q/jDqOmI=
+	t=1745490840; cv=none; b=mBZEyQhcN5fewqF+Bu22YrNZdk37Vx3CNkd5jvjztuIDe/2jWO1ZoGI6dLVONwt12VqsnvkA5mVLUW7HWMx5uSG0fEJA3KvdW2Z6aU86bs5Rxcf6vvEfwYOPbLsQCVJJVI/11wqYalFtVgDGB8KDJM40aQRYbPwkhtSsu+sftxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745490288; c=relaxed/simple;
-	bh=xRGlQ+YuAfq0yjKo537Wvq+MxdVlDxgBBdCxFEB1sqw=;
-	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References:
-	 MIME-Version:Content-Type; b=l5wIc85qVtbcFA3WHNKC/w3eh4rM5OVEIZH+RT6I8yMjb8jBD+2d5xW5x4nRWkRzTzX+QPyS1a3sKFKdml03+1zYLkg0CTc7DwRU4GgZxL4ePGcIcvUpCT7JhBNuPj4Wn/pEAR+Sv6rVE9aAD9dsDFLXz4PC+0c6kGzFzqXFS/k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FnYrgzrt; arc=none smtp.client-ip=209.85.221.47
+	s=arc-20240116; t=1745490840; c=relaxed/simple;
+	bh=Uy+mUasuhKbgXtDTxk3JR8h6eqRQF8rsNoKeGi5WQnw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=r4LHnuXu537cdcqvpIf2Nc9z0P+Q9yX4a1Vj4BuykCYNsPh9p3infCzNDbJKrCvEeVR1w9KaV2t16L+B7bG9WF+XniiUMk1+hr6yvrV0afwXiV8YIsmu6BR5W8DANk2fFMKo0RJTss0WvXe1EE4rSJEmpRrtWrV7FJ5Wm33hBbU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m8idOT7e; arc=none smtp.client-ip=209.85.210.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FnYrgzrt"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-39ee5ac4321so908698f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 03:24:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m8idOT7e"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-736c1cf75e4so646871b3a.2
+        for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 03:33:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745490284; x=1746095084; darn=lists.linux.dev;
-        h=mime-version:user-agent:references:message-id:date:in-reply-to
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=xRGlQ+YuAfq0yjKo537Wvq+MxdVlDxgBBdCxFEB1sqw=;
-        b=FnYrgzrtqe7V4IWQdhegOMpF1CQZrxuB9fV3IGOcnxzdS8GHZ/v4gWcMieFD7vIKMV
-         nAmTGR3iN95vmncBQwwMuuYKW7toG7zGoOMcT0+fmx53K5eNJT7gkKItYDsj3LPYIT72
-         w3Xr4tWiq2l83oybsDvgSu3XNxiWEjj1vhVPrrOJfhvi/SGHvGp6epE3iuVxqa1IwHn9
-         rqDSQm/4L2nuuIBvXB04w9nPFk/DZwZgzADOh5a60YL7ihvRI3vBuCgG0TBrDx3Nxqv7
-         KeDXz9WfCtFAOWZS3U31vMQRn/u5F+1Y0ExTEF6olW+plNu1SGopljjV0m76Gaqf906o
-         cgdw==
+        d=gmail.com; s=20230601; t=1745490838; x=1746095638; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=VS98H9vhuUvesz4nn7FmfvGAmjamAD7zXnYiaxDdLvI=;
+        b=m8idOT7etBGxkXB1y5B057YUeEFrBiqJuU0DUjIXNwCugmQtrF7gBkRFLQxKcFxEzY
+         /4XE4PBiPZ+iQKuZWzDpW9OW8onF+PSUSS8dyH12o7+XfeS3EkWsrnt37VHjXpqJoLAh
+         Ou/EC/BMU3/tncWtrgQwgm7bQByDuYH/ajwF0HhFO0ASH/9thK1rc80v1jSuN7XQXZCw
+         YcYzyRVpxIpdNcn6P0Fvx2bU6i17xK7Bi/drz7GGesbEipTz1ItQbUSUdP3vq6KDVEFV
+         4XZB2JDUAbOJPueCJHvDSSS+pe6H+ukGyY1zfPFQmXidofD44H4HSQAOSb9NX3JJzf82
+         Xx7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745490284; x=1746095084;
-        h=mime-version:user-agent:references:message-id:date:in-reply-to
-         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xRGlQ+YuAfq0yjKo537Wvq+MxdVlDxgBBdCxFEB1sqw=;
-        b=VegoqLsWp7CmdJrKaL4ZgWgq586246pPHgpM0y00scm1HKhD1gR2Jh/7atRa7Y9Vnb
-         XlS6jSViEp1lJ1/g+cES2rtniKV6canPFs+Z1s56GeR1mgpM0YVkaz6BlfDtodpgWeRu
-         6k89I6kiH5xahSzfCzm/0ImAjbZEV0TvyGU6AqJD0c8cH4343mVKBWMfonowm479v7Ph
-         TJ/ppPcE242QXWUjab2vdnLZImodO6TPeqYX7ItmdxHy/RxqXxa71xmtQ6gAkF53AE+U
-         nJfFCB8odUtb489jRWxlpHIzmek8uzv0TrLE+Slav5BFlG8NdxKX5dl3+ZVyqiXmiL/p
-         YOQQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX84RImT8GAg55Gzmn4kowyBJ3p2/Z2e9Qn9TykvDrYiW+GFssylxaTJ16TFFV0JztnGR5f9sK11+e1HkVf7g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyY9I7zFhiWN0kL/hE/Z7JyD6DK2EQe4wPfaZJA6BSgn8M1VYw6
-	DNuzgExObosTaZbwEPyUpPDHl1z/y1XNPaP8hYr2rDp1OslRfEX8
-X-Gm-Gg: ASbGncuLaTbiRWc8x0rnpOeIlEPx6vIoM66bDpUFQkRwb/4TfIe+iO3G4lNXz1q8q/P
-	qebYY/6CSJL0APQKO4tiWtTUPWCIFT/FB22rjK+ktULYOyAWqEp94Zqc6Kkb/NO3vOaRvjfLQUS
-	LZPVSPS3PV9ViLKoukRM9In5qTn/uDvNnQK5Wj8ksn/t1m5rYjDZR6kWoxnEyrtXzRRwYolB15r
-	TtH4VaxczhtQ86Nz+PH8D42I1FrPfyAABrB2RN3N7YcndPGQ0E95T+5EuLq3/J5Do98nw7mVf7z
-	l2T3x3rqcsjE+6fkE5uixsXYbRbcy2Qhu+Qrk4T2cRfFmd5OXBUbOe5umWg=
-X-Google-Smtp-Source: AGHT+IHEb3DW07bLAA/VXg08jEDjB059mOzNk65AI9NhSRJOViAxq2muSv9evi1rARkf40X091csiA==
-X-Received: by 2002:a5d:5983:0:b0:39e:e438:8e4b with SMTP id ffacd0b85a97d-3a06cfab546mr1827774f8f.50.1745490283934;
-        Thu, 24 Apr 2025 03:24:43 -0700 (PDT)
-Received: from imac ([2a02:8010:60a0:0:7d34:7f0d:292f:fa10])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a06d569b38sm1578696f8f.100.2025.04.24.03.24.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Apr 2025 03:24:43 -0700 (PDT)
-From: Donald Hunter <donald.hunter@gmail.com>
-To: Mina Almasry <almasrymina@google.com>
-Cc: netdev@vger.kernel.org,  linux-kernel@vger.kernel.org,
-  linux-doc@vger.kernel.org,  io-uring@vger.kernel.org,
-  virtualization@lists.linux.dev,  kvm@vger.kernel.org,
-  linux-kselftest@vger.kernel.org,  Jakub Kicinski <kuba@kernel.org>,
-  "David S. Miller" <davem@davemloft.net>,  Eric Dumazet
- <edumazet@google.com>,  Paolo Abeni <pabeni@redhat.com>,  Simon Horman
- <horms@kernel.org>,  Jonathan Corbet <corbet@lwn.net>,  Andrew Lunn
- <andrew+netdev@lunn.ch>,  Jeroen de Borst <jeroendb@google.com>,
-  Harshitha Ramamurthy <hramamurthy@google.com>,  Kuniyuki Iwashima
- <kuniyu@amazon.com>,  Willem de Bruijn <willemb@google.com>,  Jens Axboe
- <axboe@kernel.dk>,  Pavel Begunkov <asml.silence@gmail.com>,  David Ahern
- <dsahern@kernel.org>,  Neal Cardwell <ncardwell@google.com>,  Stefan
- Hajnoczi <stefanha@redhat.com>,  Stefano Garzarella <sgarzare@redhat.com>,
-  "Michael S. Tsirkin" <mst@redhat.com>,  Jason Wang <jasowang@redhat.com>,
-  Xuan Zhuo <xuanzhuo@linux.alibaba.com>,  Eugenio =?utf-8?Q?P=C3=A9rez?=
- <eperezma@redhat.com>,  Shuah Khan <shuah@kernel.org>,  sdf@fomichev.me,
-  dw@davidwei.uk,  Jamal Hadi Salim <jhs@mojatatu.com>,  Victor Nogueira
- <victor@mojatatu.com>,  Pedro Tammela <pctammela@mojatatu.com>,  Samiullah
- Khawaja <skhawaja@google.com>
-Subject: Re: [PATCH net-next v10 3/9] net: devmem: TCP tx netlink api
-In-Reply-To: <CAHS8izNUOO-X0WHFTMd3_yEjCDu4sPYADE1oDEtWTYFNNMB5wQ@mail.gmail.com>
-	(Mina Almasry's message of "Wed, 23 Apr 2025 10:59:17 -0700")
-Date: Thu, 24 Apr 2025 10:06:42 +0100
-Message-ID: <m21ptiszbx.fsf@gmail.com>
-References: <20250423031117.907681-1-almasrymina@google.com>
-	<20250423031117.907681-4-almasrymina@google.com>
-	<m2y0vrtd5i.fsf@gmail.com>
-	<CAHS8izNUOO-X0WHFTMd3_yEjCDu4sPYADE1oDEtWTYFNNMB5wQ@mail.gmail.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+        d=1e100.net; s=20230601; t=1745490838; x=1746095638;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=VS98H9vhuUvesz4nn7FmfvGAmjamAD7zXnYiaxDdLvI=;
+        b=mF2O/aChGV5Rs6Ml0ddvy+EYLGGO+/rQQt4RssedIjy8CXEXtCdfI9PJmHycHTlmgX
+         Tp/My6dpcnxqqXh/WTXH84tv9Mf27EbN+CgzzxVZZ4GAnHeh3aI/8rF1dwMNsyaVkHsn
+         /ZMG3a7grAXFOB9Qi17KPwwNmLL9/jobQTx3yZ32QLcT7wT73JmEee6RBczJzK5mrBRb
+         4isbMNNrQUpBLZ/W7qumdjv+85zB9AiwGuAqoPZL63l8ZEqI/UCVdGLgjLbCKCW/cCAK
+         KXUcOtbRqsHVsdY4n86izUc4Yv4KXOBzlaL1WGfhWYwG5XAn1sqzzBgZe8XbSrSnjtQD
+         lndQ==
+X-Gm-Message-State: AOJu0YwXhr6xuCY55lFY1B+XlWlxtf/EsvTbC708x3C1lHN2OmwD4o4y
+	28/GQ2g1+pasUUxBtYFUUgrzstYoC1hxpZt8o4hJnV8XfTspVoad
+X-Gm-Gg: ASbGncudpndO14dJQ2uq77tmcS7+/39skdUlpT+n5tPLAhpgxrkvM8f4LdZLFyFan4V
+	VehAyo5IybtR3cRyrardo1TB27QXP16GHRlfugmJpbt3oeGd7g/iOW9xzW0yZ1mnm8er8hwx6qc
+	VM9goxBtVe/8pnTMdwHB4MdH1Z1CMbix4Q7jOIKx+oVHfRVykDv0eLi5jR9PBPOB85p70iUNjL1
+	B3h/80WAJwo5FrKCC2ALllKz52Uu83dLm9MQTBvCO2flaHnOFLS64RxLVBV34YHQMZ5Cc4XQ9kM
+	5R7PTkH6K/HB0F8/wgU4Zf/RsjafbiLI/u4u5L94f7uGmv0gn1j92kAxUPoY1lCOJlNUyDjIbwv
+	uJ1MulIGhepOaEeQ9Y+Q=
+X-Google-Smtp-Source: AGHT+IE16otPz//YJ1TEtt4Uv/PnG/T0CeZp27eSS79xfdk9zP1F3OBCyutLV1LXJhRM9Cm0Rt17bg==
+X-Received: by 2002:a17:90a:e7c5:b0:2ff:5357:1c7f with SMTP id 98e67ed59e1d1-309ed3424efmr3084886a91.30.1745490837878;
+        Thu, 24 Apr 2025 03:33:57 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0e:fb30:f632:6238:46f4:702e? ([2001:ee0:4f0e:fb30:f632:6238:46f4:702e])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-309ef03b27asm1086032a91.6.2025.04.24.03.33.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Apr 2025 03:33:57 -0700 (PDT)
+Message-ID: <619bc46d-4acf-4c54-bd47-6b482fb76878@gmail.com>
+Date: Thu, 24 Apr 2025 17:33:49 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 4/4] selftests: net: add a virtio_net deadlock selftest
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20250417072806.18660-1-minhquangbui99@gmail.com>
+ <20250417072806.18660-5-minhquangbui99@gmail.com>
+ <20250422184151.2fb4fffe@kernel.org>
+ <aac402b4-d04c-4d7e-91c8-ab6c20c9a74d@gmail.com>
+ <20250423152333.68117196@kernel.org>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <20250423152333.68117196@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Mina Almasry <almasrymina@google.com> writes:
+On 4/24/25 05:23, Jakub Kicinski wrote:
+> On Wed, 23 Apr 2025 22:20:41 +0700 Bui Quang Minh wrote:
+>> I've tried to make the setup_xsk into each test. However, I've an issue
+>> that the XDP socket destruct waits for an RCU grace period as I see this
+>> sock's flag SOCK_RCU_FREE is set. So if we start the next test right
+>> away, we can have the error when setting up XDP socket again because
+>> previous XDP socket has not unbound the network interface's queue yet. I
+>> can resolve the issue by putting the sleep(1) after closing the socket
+>> in xdp_helper:
 >>
->> The bind-rx op has "flags: [ admin-perm ]", should bind-tx also?
->
-> The omission of admin-perm for tx is intentional.
->
-> Binding a dmabuf to an rx queue should and is a privileged operation,
-> because basically the application doing the binding is taking
-> ownership of this rx queue. For TX, no such queue ownership is being
-> taken. The TX binding just gives the netdevice access to the dmabuf
-> dma-addresses so the netdevice can send from there. It's very similar
-> to a normal dma-map with normal memory. There is no need for privilege
-> checks.
+>> diff --git a/tools/testing/selftests/net/lib/xdp_helper.c
+>> b/tools/testing/selftests/net/lib/xdp_helper.c
+>> index f21536ab95ba..e882bb22877f 100644
+>> --- a/tools/testing/selftests/net/lib/xdp_helper.c
+>> +++ b/tools/testing/selftests/net/lib/xdp_helper.c
+>> @@ -162,5 +162,6 @@ int main(int argc, char **argv)
+>>            */
+>>
+>>           close(sock_fd);
+>> +       sleep(1);
+>>           return 0;
+>>    }
+>>
+>> Do you think it's enough or do you have a better suggestion here?
+> Interesting :S What errno does the kernel return? EBUSY?
+> Perhaps we could loop for a second retrying the bind()
+> if kernel returns EBUSY in case it's just a socket waiting
+> to be cleaned up?
 
-Thanks for the explanation. I couldn't find any mention of ownership in
-the docs.
+Yes, the kernel returns EBUSY. Loop and retry sounds good to me but it's 
+not easy to get the return code when using bkg(). So for simplicity, 
+I'll retry with sleep(1) 3 times when the xdp_helper fails.
+
+Thanks,
+Quang Minh.
