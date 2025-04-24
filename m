@@ -1,134 +1,159 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B94622DF9B;
-	Thu, 24 Apr 2025 11:49:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3E8D22E3E9
+	for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 12:11:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745495348; cv=none; b=SyofkH2Z4gHhaSseVdeo+vJYJxTNiFkoCooirNB1xfE19XlM8isPjhKWySV7eywrJtqVPs63mDeh8nfObCYiY4BbQUty5tvoCTJH3lC5SkrAau2A/EzoggDVH+vKCAHuDoSpKpdyM7iwufqgwx3Ccs8wiyKAbdG7CWUVF40P/Gk=
+	t=1745496673; cv=none; b=UYd621izGgul0eFwYBtfqKOtHmSMyF6HSi9wgTbjYPS9xmdacu16KjKJQgt5pRvXmsgVi127PBhb6jdvTyUPqXQG3GXAUj6mz2G2I29Da0BDjangy61/Z7pKtuMwBYYroTVX4dlMns3A9Zb+pHOQAeWbu61R/BwSovfd95glJ5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745495348; c=relaxed/simple;
-	bh=YszgFMEifreBpsMwGircv5QIeLTFD0j7nAEcYCOWvVQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rEm3yVhe3A06iNtZJoelPJP5/+cgtNQ43Nyhqmg9RHritj/QVG2o6RF3/qZFt9V+2BEIqZ5FgTCxv7J6o84mdN5jgADKrCU61Ff6JQKdQ42nLwVCpJ3yb97nmn846Jdue4ZYWLtOIICd+p0JRGzwPmS3G0U9CbDZ3xNTIhKJQJ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mleqz8TQ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1745496673; c=relaxed/simple;
+	bh=bz4+/X497RFI15mRxsIqRhNBIwSZjCmNalMcue3pcXU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=cZbVANq+ivgcx53zDzrWFmILNM4cNxwCd+sCTZO9WERYUU/rNE5o3R4/bXcrRPqbw85OFxLt7OBkyjSjtNs9hPWXcdlQK35C7Y+KcbwCtpfaoqM/G5S0/Y02zhmsPuVdlGKlFaiuzHF+E3GV7F4fOXBuMODhM37agiFsxhb5DbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OGtOZZ4p; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mleqz8TQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A7F0C4CEE3;
-	Thu, 24 Apr 2025 11:49:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745495348;
-	bh=YszgFMEifreBpsMwGircv5QIeLTFD0j7nAEcYCOWvVQ=;
-	h=From:To:Cc:Subject:Date:From;
-	b=Mleqz8TQ7U+Pi7a+4PHn/kY69ycMeNpkNmBUap9Ga1d1SCv8s3mILXeDsn/QM3hQJ
-	 bz0qvaxDERfv8wAN5oceaCVpoDAQtlI9nlbdDjDyHzHB4UU3iSKanSfnh8yomtNEUM
-	 qwZrsEAy65mmP8b3rjrigMxDFgVuHkCb0++t1IxPpqkw/7/HbL5wIwdF2nxBKM1I/H
-	 poPlG96nqwUCZHYzS01lINcyP5w1j/3MFFu9htKhAZ9qyCVaov2FTHQAJkQ+Lxk7sM
-	 6Nyf7OmGjBVF/HSVBm+LsQZzcYcqm3pR2AqFaFa/+Ms0efyWZ+tny8G6dumRFkxv5t
-	 oP0mmvToo9VwQ==
-From: Philipp Stanner <phasta@kernel.org>
-To: schalla@marvell.com,
-	vattunuru@marvell.com,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Shijith Thotton <sthotton@marvell.com>,
-	Dan Carpenter <dan.carpenter@linaro.org>,
-	Philipp Stanner <phasta@kernel.org>,
-	Satha Rao <skoteshwar@marvell.com>
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3] vdpa/octeon_ep: Control PCI dev enabling manually
-Date: Thu, 24 Apr 2025 13:48:51 +0200
-Message-ID: <20250424114850.34045-2-phasta@kernel.org>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OGtOZZ4p"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1745496670;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=J+iBi7KEPHVPdl78TuinUFRyNTsFrvN4I3oDOUPKzwc=;
+	b=OGtOZZ4pELLlpsDfRSPosBgIxy9Yo/hTbR/mPEJbTM8qtqlkiJRQ37c6WdlwPSc6VDHoRL
+	jhymIOCo0UXhIyppfSzMa1XJGOT21M1GjmfXwE7gNhvKGxu8cj4GQ/gGJIsgDLXSDM9itg
+	H87XgQXbrkKmHo1nCOmKtYvt/01hrUk=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-642-x9j5U1zCPpyXNh9VQuzXiw-1; Thu, 24 Apr 2025 08:11:09 -0400
+X-MC-Unique: x9j5U1zCPpyXNh9VQuzXiw-1
+X-Mimecast-MFC-AGG-ID: x9j5U1zCPpyXNh9VQuzXiw_1745496668
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43d5ca7c86aso5154155e9.0
+        for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 05:11:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745496668; x=1746101468;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=J+iBi7KEPHVPdl78TuinUFRyNTsFrvN4I3oDOUPKzwc=;
+        b=PFsNeVnwXloOStPAXH5QLEOcSDwUik5XDsYGd1N4kJshzxSm+kBA2S1yWXFWUnwK1i
+         g0OlECnhCMX4LdT3nLppzzy1CI2fuIsQ0n8SnHqDfHDjxWoAHO6yXvy3+ioTgeWwdgtI
+         xTXTZfbVJp+dTgt0EIS5O5gldMei1EPYXLcj34U+BBMetbFEwG9FQgm4ioovHcz8bAMf
+         cmik9PSbh4aL9kYucEM+NFaISE+DsxFHp02bdN7XPrSYEE4ZuDc9deKlhk0c/IOH/A+A
+         82rmwjTcZJf0fu8wgOTSUyg9c2REfPb12/5WAAna6xCBxJ/3dqhUIWEH9hAzZIikbSen
+         hryA==
+X-Forwarded-Encrypted: i=1; AJvYcCX9kAcZsJpGwIoP/jLzV1K/WjnVGLJHTCatkbn2D3nvb/Szb474PHhb1ESvT+bY/D09JUZkwrCnyIQquaWU7A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw3xVRaf5/ar/Fvp09sonScjCNxoilZQRAi9LAZdAbC4e8OL8Wu
+	ccqpPizzZOT4N925ljk+GFmNrnpicFaBFaTG0885fFZ59txZkpiNGBVif6H82A6PxjJUAVyN9ab
+	B2mwCuWZZr5sNAc3kBQms0jCUR0NDGjmUK6JKTncFBaY1f8wT/O0Mugi3igfCdkE0
+X-Gm-Gg: ASbGncvLGOoLOvZs5ahuZeiCH8URcM4gmeZipP+vIzldaAjjy3Z6ORVHo77ujEZpf9u
+	5jw5MmgQO1pKz4jdDXg8zGYEBYnnQFUTLCWuO8hbp+/3ML9451WhtKqkEopgeHAiJh+bRo3fZ1C
+	4SqsTvkRaObE6q6FumuOXeNQgSKgg9+euTCyS11frTRa3lZqo6xx3AEHr93z+0jn0QgG1UsxC0i
+	JY7JTqYW8hWOmx7sOYOgrPQaUqHR/wlngqzCr/OzcI0Yt3mgKjgsWjiz7SbsIIcfeUz8BmG9rTg
+	Qk/kJQ==
+X-Received: by 2002:a05:600c:1395:b0:43c:f616:f08 with SMTP id 5b1f17b1804b1-4409bd17dfdmr21734035e9.8.1745496668274;
+        Thu, 24 Apr 2025 05:11:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE9n0roJbpJf5HRR05saKucJsNpfjrLxCLOXtUJbPRGicV0Zxwyv2cOdsaG6FPN2tpgup02FQ==
+X-Received: by 2002:a05:600c:1395:b0:43c:f616:f08 with SMTP id 5b1f17b1804b1-4409bd17dfdmr21733875e9.8.1745496667950;
+        Thu, 24 Apr 2025 05:11:07 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4409d2b77f9sm18718025e9.25.2025.04.24.05.11.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Apr 2025 05:11:07 -0700 (PDT)
+Date: Thu, 24 Apr 2025 08:11:03 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Jon Kohler <jon@nutanix.com>, Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v2] vhost/net: Defer TX queue re-enable until
+ after sendmsg
+Message-ID: <20250424080749-mutt-send-email-mst@kernel.org>
+References: <20250420010518.2842335-1-jon@nutanix.com>
+ <a0894275-6b23-4cff-9e36-a635f776c403@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <a0894275-6b23-4cff-9e36-a635f776c403@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Lr0pRsklbOQXKm3Q2lY7aWuOKrane6Eg0Px5SW9r87g_1745496668
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-PCI region request functions such as pci_request_region() currently have
-the problem of becoming sometimes managed functions, if
-pcim_enable_device() instead of pci_enable_device() was called. The PCI
-subsystem wants to remove this deprecated behavior from its interfaces.
+On Thu, Apr 24, 2025 at 01:48:53PM +0200, Paolo Abeni wrote:
+> On 4/20/25 3:05 AM, Jon Kohler wrote:
+> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> > index b9b9e9d40951..9b04025eea66 100644
+> > --- a/drivers/vhost/net.c
+> > +++ b/drivers/vhost/net.c
+> > @@ -769,13 +769,17 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
+> >  			break;
+> >  		/* Nothing new?  Wait for eventfd to tell us they refilled. */
+> >  		if (head == vq->num) {
+> > +			/* If interrupted while doing busy polling, requeue
+> > +			 * the handler to be fair handle_rx as well as other
+> > +			 * tasks waiting on cpu
+> > +			 */
+> >  			if (unlikely(busyloop_intr)) {
+> >  				vhost_poll_queue(&vq->poll);
+> > -			} else if (unlikely(vhost_enable_notify(&net->dev,
+> > -								vq))) {
+> > -				vhost_disable_notify(&net->dev, vq);
+> > -				continue;
+> >  			}
+> > +			/* Kicks are disabled at this point, break loop and
+> > +			 * process any remaining batched packets. Queue will
+> > +			 * be re-enabled afterwards.
+> > +			 */
+> >  			break;
+> >  		}
+> 
+> It's not clear to me why the zerocopy path does not need a similar change.
 
-octeopn_ep enables its device with pcim_enable_device() (for AF. PF uses
-manual management), but does so only to get automatic disablement. The
-driver wants to manage its PCI resources for AF manually, without devres.
+It can have one, it's just that Jon has a separate patch to drop
+it completely. A commit log comment mentioning this would be a good
+idea, yes.
 
-The easiest way not to use automatic resource management at all is by
-also handling device enable- and disablement manually.
+> > @@ -825,7 +829,14 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
+> >  		++nvq->done_idx;
+> >  	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
+> >  
+> > +	/* Kicks are still disabled, dispatch any remaining batched msgs. */
+> >  	vhost_tx_batch(net, nvq, sock, &msg);
+> > +
+> > +	/* All of our work has been completed; however, before leaving the
+> > +	 * TX handler, do one last check for work, and requeue handler if
+> > +	 * necessary. If there is no work, queue will be reenabled.
+> > +	 */
+> > +	vhost_net_busy_poll_try_queue(net, vq);
+> 
+> This will call vhost_poll_queue() regardless of the 'busyloop_intr' flag
+> value, while AFAICS prior to this patch vhost_poll_queue() is only
+> performed with busyloop_intr == true. Why don't we need to take care of
+> such flag here?
 
-Replace pcim_enable_device() with pci_enable_device(). Add the necessary
-calls to pci_disable_device().
+Hmm I agree this is worth trying, a free if possibly small performance
+gain, why not. Jon want to try?
 
-Signed-off-by: Philipp Stanner <phasta@kernel.org>
----
-Changes in v3:
-  - Only call pci_disable_device() for the PF version. For AF it would
-    cause a WARN_ON because pcim_enable_device()'s callback will also
-    try to disable.
----
- drivers/vdpa/octeon_ep/octep_vdpa_main.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-index f3d4dda4e04c..9b49efd24391 100644
---- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-+++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-@@ -454,6 +454,9 @@ static void octep_vdpa_remove_pf(struct pci_dev *pdev)
- 		octep_iounmap_region(pdev, octpf->base, OCTEP_HW_MBOX_BAR);
- 
- 	octep_vdpa_pf_bar_expand(octpf);
-+
-+	/* The pf version does not use managed PCI. */
-+	pci_disable_device(pdev);
- }
- 
- static void octep_vdpa_vf_bar_shrink(struct pci_dev *pdev)
-@@ -825,7 +828,7 @@ static int octep_vdpa_probe_pf(struct pci_dev *pdev)
- 	struct octep_pf *octpf;
- 	int ret;
- 
--	ret = pcim_enable_device(pdev);
-+	ret = pci_enable_device(pdev);
- 	if (ret) {
- 		dev_err(dev, "Failed to enable device\n");
- 		return ret;
-@@ -834,15 +837,17 @@ static int octep_vdpa_probe_pf(struct pci_dev *pdev)
- 	ret = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64));
- 	if (ret) {
- 		dev_err(dev, "No usable DMA configuration\n");
--		return ret;
-+		goto disable_pci;
- 	}
- 	octpf = devm_kzalloc(dev, sizeof(*octpf), GFP_KERNEL);
--	if (!octpf)
--		return -ENOMEM;
-+	if (!octpf) {
-+		ret = -ENOMEM;
-+		goto disable_pci;
-+	}
- 
- 	ret = octep_iomap_region(pdev, octpf->base, OCTEP_HW_MBOX_BAR);
- 	if (ret)
--		return ret;
-+		goto disable_pci;
- 
- 	pci_set_master(pdev);
- 	pci_set_drvdata(pdev, octpf);
-@@ -856,6 +861,8 @@ static int octep_vdpa_probe_pf(struct pci_dev *pdev)
- 
- unmap_region:
- 	octep_iounmap_region(pdev, octpf->base, OCTEP_HW_MBOX_BAR);
-+disable_pci:
-+	pci_disable_device(pdev);
- 	return ret;
- }
- 
+> @Michael: I assume you prefer that this patch will go through the
+> net-next tree, right?
+> 
+> Thanks,
+> 
+> Paolo
+
+I don't mind and this seems to be what Jon wants.
+I could queue it too, but extra review  it gets in the net tree is good.
+
 -- 
-2.48.1
+MST
 
