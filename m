@@ -1,89 +1,135 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D7502749C3
-	for <virtualization@lists.linux.dev>; Fri, 25 Apr 2025 15:29:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5076E14A0B7
+	for <virtualization@lists.linux.dev>; Fri, 25 Apr 2025 15:45:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745594978; cv=none; b=XvE0j9D2IEQGfY+FD0mO6xAU3ZMPO3n2+h9UtPQmOMHUbZ8WnIJjANO2SvreMhIeJAh4ILMwycpH0haUhB8LCuJWocCyean3hnaaDyIsXKEFivhet5hgf20t6TT9AAkhIFh9+UEGDANKDxY+K938UJ4Kr7tI3tCWAWdW70NbWr0=
+	t=1745595936; cv=none; b=RIuXHVWPev3Jb4lMnsNX1T3Gf+i7QpFGRU21hYBYp98dgTExq9KD4UxfrkMSS6+3dNAvXGPl6DINlYok0SKfepvyvTQqWnNR2o1bVS9Ip3oHFEQ51lMc8Ga1DkQDyrzkh0OFtPhhppgsCnNyVguQaS86I4oIqkDndK7d5K94wNQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745594978; c=relaxed/simple;
-	bh=HV6VAWyHmVnGscrHkhlxywgfLhBCIOaIqAHKg4TF8Ww=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=HijVtwOh9+H5fJb3+4HFARaA+h3PZZvzf7mluU2EBAnCIpwGWxgyeSEOlF6BbfAB/aDqKqv3aBAQpJjk1N+Az1CJTxeDN+s8jw8yScI3F3/oXxiGgWyxSIq91jiB9cDjXGH6fO/AHei+jp9nw+TtEUt62ltHbnyu3dM/KwjZkpE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=iQ+XMvqc; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1745595936; c=relaxed/simple;
+	bh=NDEMzXyKMQaX/1P4v8LWPCUwLdyUYFm0Z5j9i1NuUNc=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=kgO7TO+PWICs1OP1eL3wD4jTgSOISqNfOq6S2tCDeyCmlyULFbW7Bjox6yZOG8yAtxqGZvviF6ypshkbeYJYIlcS4GiL0/3kIPJXtxeAGvQs4XErsG8jrHYjF9pY87kqnAtMXD8bFO7DsmlULnm7/uWZAbJGF1NgT1aPW9mmZdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DOtRuxsu; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="iQ+XMvqc"
-Received: from [127.0.0.1] ([76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53PFTBaV2880069
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Fri, 25 Apr 2025 08:29:11 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53PFTBaV2880069
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745594953;
-	bh=HV6VAWyHmVnGscrHkhlxywgfLhBCIOaIqAHKg4TF8Ww=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=iQ+XMvqcZNxnOa/I9EZR/mshfDVcYq+cePk2TG9e54uOwCvKB3Jjm1xPdmYlOwRHP
-	 DQZfYPcgHJ15ycfkCO44CHxAPNtKlEpwO+e3HbxLS3WN5m2GlJgLqWvrW6B8D4o5ub
-	 Zes9COz/AXoKuLU158cfbQSbTaxvthVom0W4PheBM19CU1DpvbPqSU/MWFk1vVebut
-	 H1I+EYvdBYhAeTwxxohUMZyQi5+jbZbMqhhRx83ibCp8qGgDSmy4rn/uqaOKU2J8Xd
-	 bhvIxW5HPWNJCE2YRbuH/hDPmgfebrJ9qBuyd4/X+QvQ9OurZ3B/Ph0cuuoO0f3nvo
-	 c91K5uZbr30YA==
-Date: Fri, 25 Apr 2025 08:29:10 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: Peter Zijlstra <peterz@infradead.org>,
-        =?ISO-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>
-CC: Xin Li <xin@zytor.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        virtualization@lists.linux.dev, linux-pm@vger.kernel.org,
-        linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org,
-        linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, acme@kernel.org,
-        andrew.cooper3@citrix.com, namhyung@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
-        wei.liu@kernel.org, ajay.kaher@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
-        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
-        haiyangz@microsoft.com, decui@microsoft.com
-Subject: =?US-ASCII?Q?Re=3A_=5BRFC_PATCH_v2_21/34=5D_x86/msr=3A_Utiliz?=
- =?US-ASCII?Q?e_the_alternatives_mechanism_to_write_MSR?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20250425123317.GB22125@noisy.programming.kicks-ass.net>
-References: <20250422082216.1954310-1-xin@zytor.com> <20250422082216.1954310-22-xin@zytor.com> <b2624e84-6fab-44a3-affc-ce0847cd3da4@suse.com> <f7198308-e8f8-4cc5-b884-24bc5f408a2a@zytor.com> <37c88ea3-dd24-4607-9ee1-0f19025aaef3@suse.com> <20250425123317.GB22125@noisy.programming.kicks-ass.net>
-Message-ID: <E1BAF52C-A955-466A-B5A2-DE12876FBFCF@zytor.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DOtRuxsu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1745595935; x=1777131935;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=NDEMzXyKMQaX/1P4v8LWPCUwLdyUYFm0Z5j9i1NuUNc=;
+  b=DOtRuxsuifpWMt+RNUXqvXrseIWeLyGpVzw8QJo+MRUytNhTsvKbeUcw
+   D46N7GxJJ7jNGyR1BHoHYhrQJ6IYDveCAavRw4AMJODWjtTIMzgdBp3gk
+   t4Gk5oCWGRxLWAOc37hLG3cjui0HmCi8xcq+BBrFUV4XhF6M8FKOtnfaE
+   LhW8av5/Lclp6knKcC+prHK/gsyKYymA0RpcPX2S6KmKCTPwMqTWdkBnO
+   UIWghlBxTHerikHgNzF7tZfbK0Iu/beFiHtmP6CDCkyHc2rmsl6wdnMYz
+   NzWcikX4Jz1AZiu0hYOuF42K7K/5bP3EtU34bB1Uw3iGfKCz1in5WboQ6
+   Q==;
+X-CSE-ConnectionGUID: J05Soj1TTeChM3MsDr8QRg==
+X-CSE-MsgGUID: 5f7MaQWeQbmF8whOjNq0PA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11414"; a="50928838"
+X-IronPort-AV: E=Sophos;i="6.15,238,1739865600"; 
+   d="scan'208";a="50928838"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2025 08:45:35 -0700
+X-CSE-ConnectionGUID: zVyTiGS+Tp27oRIuRu3o/Q==
+X-CSE-MsgGUID: FTR+bshYRAKz5gvHmp9NIg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,238,1739865600"; 
+   d="scan'208";a="133870388"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.154])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2025 08:45:22 -0700
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Fri, 25 Apr 2025 18:45:18 +0300 (EEST)
+To: "Xin Li (Intel)" <xin@zytor.com>
+cc: LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, 
+    linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+    virtualization@lists.linux.dev, linux-pm@vger.kernel.org, 
+    linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org, 
+    linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+    Netdev <netdev@vger.kernel.org>, platform-driver-x86@vger.kernel.org, 
+    tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
+    dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
+    acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com, 
+    peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com, 
+    alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com, 
+    adrian.hunter@intel.com, kan.liang@linux.intel.com, wei.liu@kernel.org, 
+    ajay.kaher@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
+    tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com, 
+    seanjc@google.com, luto@kernel.org, boris.ostrovsky@oracle.com, 
+    kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com, 
+    dapeng1.mi@linux.intel.com
+Subject: Re: [PATCH v3 01/14] x86/msr: Move rdtsc{,_ordered}() to
+ <asm/tsc.h>
+In-Reply-To: <20250425083442.2390017-2-xin@zytor.com>
+Message-ID: <42dc90e1-df2a-2324-d28c-d75fb525e4a2@linux.intel.com>
+References: <20250425083442.2390017-1-xin@zytor.com> <20250425083442.2390017-2-xin@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
 
-On April 25, 2025 5:33:17 AM PDT, Peter Zijlstra <peterz@infradead=2Eorg> w=
-rote:
->On Wed, Apr 23, 2025 at 06:05:19PM +0200, J=C3=BCrgen Gro=C3=9F wrote:
->
->> > It's not a major change, but when it is patched to use the immediate
->> > form MSR write instruction, it's straightforwardly streamlined=2E
->>=20
->> It should be rather easy to switch the current wrmsr/rdmsr paravirt pat=
-ching
->> locations to use the rdmsr/wrmsr instructions instead of doing a call t=
-o
->> native_*msr()=2E
->
->Right, just make the Xen functions asm stubs that expect the instruction
->registers instead of C-abi and ALT_NOT_XEN the thing=2E
->
->Shouldn't be hard at all=2E
+On Fri, 25 Apr 2025, Xin Li (Intel) wrote:
 
-And that's what we will be doing=2E We already have code for that=2E
+> For some reason, there are some TSC-related functions in the MSR
+> header even though there is a tsc.h header.
+> 
+> Relocate rdtsc{,_ordered}() from <asm/msr.h> to <asm/tsc.h>, and
+> subsequently remove the inclusion of <asm/msr.h> in <asm/tsc.h>.
+> Consequently, <asm/msr.h> must be included in several source files
+> that previously did not require it.
+>
+> Signed-off-by: Xin Li (Intel) <xin@zytor.com>
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+> ---
+> 
+> Change in v3:
+> * Add a problem statement to the changelog (Dave Hansen).
+> ---
+
+>  drivers/platform/x86/intel/pmc/cnp.c          |  1 +
+>  .../intel/speed_select_if/isst_if_common.c    |  1 +
+>  drivers/platform/x86/intel/turbo_max_3.c      |  1 +
+
+Hi,
+
+To me this looks really a random set of source files, maybe it helped some 
+build success but it's hard for me to review this because there are still 
+cases that depend on indirect include chains.
+
+Could you just look into solving all missing msr.h includes instead 
+as clearly some are still missing after 3 pre-existing ones and you adding 
+it into 3 files:
+
+$ git grep -e rdmsr -e wrmsr -l drivers/platform/x86/
+drivers/platform/x86/intel/ifs/core.c
+drivers/platform/x86/intel/ifs/load.c
+drivers/platform/x86/intel/ifs/runtest.c
+drivers/platform/x86/intel/pmc/cnp.c
+drivers/platform/x86/intel/pmc/core.c
+drivers/platform/x86/intel/speed_select_if/isst_if_common.c
+drivers/platform/x86/intel/speed_select_if/isst_if_mbox_msr.c
+drivers/platform/x86/intel/speed_select_if/isst_tpmi_core.c
+drivers/platform/x86/intel/tpmi_power_domains.c
+drivers/platform/x86/intel/turbo_max_3.c
+drivers/platform/x86/intel/uncore-frequency/uncore-frequency.c
+drivers/platform/x86/intel_ips.c
+
+$ git grep -e 'msr.h' -l drivers/platform/x86/
+drivers/platform/x86/intel/pmc/core.c
+drivers/platform/x86/intel/tpmi_power_domains.c
+drivers/platform/x86/intel_ips.c
+
+I'd also prefer the patch(es) adding missing includes be in a different 
+patch.
+
+-- 
+ i.
+
