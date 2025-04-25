@@ -1,39 +1,64 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 361634315C
-	for <virtualization@lists.linux.dev>; Fri, 25 Apr 2025 03:45:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB8A66FC5
+	for <virtualization@lists.linux.dev>; Fri, 25 Apr 2025 04:21:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745552710; cv=none; b=LW/fLng9D/PsygofO9g7QpGPsoXpn11m0dicoep88kwlkDi/LrHsjO8/5kTHQFBjt0r1YI7vlm2BC6dIpJuA+ShvEapTZEjrghlqWLkRRyUQGCrcQTre71a4+FRd+Mfvrsu+lqvNYdZVzEE8vuSVbrzcEqAZdTqNtYwdUFagAeE=
+	t=1745554872; cv=none; b=jN8seQtRSYWhI3XoNYXS0ywZmLFvYQQs3dzi572GAnap6iwP+zheMo9+iD2UeclDnT4SwTjl6rs02nakFzx963q2CFXWjcoZfVVcS1dBu3Om16Sxvg17VVon6cyZzYGCik47/iRQx1VS135FGqAcxKuTs4xV5TjrnLZBtuU3wMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745552710; c=relaxed/simple;
-	bh=GCsuJBHrLb8OOsw0Nrc363phMun5O+wCt6+3FMpkJQo=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=MKVged376+C1REiU8h+L96UgtUHdc1RrQeHuqRTZnVYPBokX/Q1IHEwoYKgf14efwnWycYCgMFf4+GzY6+ePqV/F/Fhuuuhxw1+Xg4BV9W06wSxpZ+Na8tWzcKqahVeV+r8WM8CIWkOjVDMn1e8IP4Sv8Tldy2+CJMR4/RQG6hY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=h6tkGPZf; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1745554872; c=relaxed/simple;
+	bh=+yaWzT6r4JMRJQXV6x1vvZyp88WGrpRvUaCULB0Q3qA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QgQAo9ormXB9g0p+IFFVfebaPnsEbTLsqIEO6xsFclBo6IiDb9EJmMyP11bxorKVy1X+lMUxwzLF5hwqYkg9XXh+GscHn3VfY/BILWLMaGyQpERJJK3pRGuuYxzQB7xeFAZpn0DaCkN9Cn+HhWc0pIEEo9mCJMzLg9TXC6tyscA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RAmHNscg; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="h6tkGPZf"
-Received: from [IPV6:2601:646:8081:1f93:ace:6989:11eb:d5d3] ([IPv6:2601:646:8081:1f93:ace:6989:11eb:d5d3])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53P3iRFQ2047105
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Thu, 24 Apr 2025 20:44:27 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53P3iRFQ2047105
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745552672;
-	bh=b2EU0c9r4+7Z91N6+uKj1oR80E0vF0IHEbyiUhJnLQA=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=h6tkGPZf95yQ3bAcYVi/++g5apF9dA+xDaGqiCLYRc9VcHVlrJdGQsg4l29MEZ7CJ
-	 aLVdgM7ERZdGZm+YeYHxkaRoWYmC139k7kZqYZoAzT/znx6Kx6O2GtZpDA/JUfvlJ1
-	 CcsBsfRHddjbpCzdM4zIuzpA7epwqsOqTiZB4ua/CkyilKNABnOQlavSOZxha0+wfj
-	 cX6ckW2WvvNyLFS1B2A5lWVYkYGzgGJhfmVN53iSVa6vyOu/NY5xsXrNsSQKXTH85b
-	 +dwG+fJzWTGalgBqhI1nG1clXUnlMv9jRJvaiZN9wKeE5vSAPLzqIsZZs/a531ezoe
-	 HihwH9Nv3ITtg==
-Message-ID: <72516271-5b28-434a-838b-d8532e1b4fc1@zytor.com>
-Date: Thu, 24 Apr 2025 20:44:19 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RAmHNscg"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2240b4de12bso27881885ad.2
+        for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 21:21:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1745554870; x=1746159670; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+yaWzT6r4JMRJQXV6x1vvZyp88WGrpRvUaCULB0Q3qA=;
+        b=RAmHNscg5AMHOxQANu7TNyEx3V5WhwduHH90wD/9UGCVVhRAYUTeEqZIHwtHdMUIw+
+         jVUkxmch+DM2PQ3/B8jm/AnYZs2MqYWhCIW+sn7JZgArrSunH6PKPZxHWW/EzXoV2s3P
+         SF4jqGwsknppe0741JLLtOgppOuRM/CAHZcvokFmclSjPQ1LQ3LBYzeFEDL5noxWWDj0
+         OU6390cGhE09NGT2QNOkrD8Wxb4NiKJ/nrhdlzdLTiZf3SoS56Owk0U5FhGDA2l1tXP6
+         2Nz1oXztKYysC1RKSqjelIVSn1FsovYpn83s2N2cheAQasMMFBpb4lLibTMpmz7ivwnG
+         wVQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745554870; x=1746159670;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+yaWzT6r4JMRJQXV6x1vvZyp88WGrpRvUaCULB0Q3qA=;
+        b=aLOXzPeTiApI4rIBC+B9Q/C+u3u/e3ckgshlL57LZjvoO7L+MfY+HP8QOALBXy0VKb
+         cQVMGjhujFAhNwWLYDELlNlkcQmi4mHgT6+LnF9TSONNoATt/MNCP6lFHBLvykW0gGfb
+         TNaJfTO6PVOZtui6xHljMYzYS/iM2Of/Gyrcz9rSoe9B6lwFk5W9qIFgjMYtU+MAky9K
+         d8Sr5N2TH8x9tTmvOt7gFQvYuzuxXzXPbHv9LecdRjAgWw4OtLexSqRp3/++8cZ6+DZC
+         K3wFUW7nFz5/JNrCO79Bt5CQIxCL48kNJFVSgXTzNcebZnkWc1Myhsgzjss6a41i14mB
+         NWCQ==
+X-Gm-Message-State: AOJu0YzBIBkS7mBxyT8rOugezJiKLajqGM6MrfE0Ym3YIMFN+b2N7hfl
+	tNQY4n84pq2yowGGl1AXit2KsuYgIPmU3SfpkWupk5vndvg0ekHU
+X-Gm-Gg: ASbGncv71v4r1iRrqObJdiZNroRbMfbscVy4va9okp9bOlQp7kthg8RPaPZ/w3lmvi+
+	hiMzznOw3BzgthccG9j3RB/Hs9k2CnToouVVyEDPW9E/YHSmSuhKrWVoj4nNsoxJddRbVLVL6dK
+	m47Pnif5gi5XHYHks3d7Tknk5jI2K4+yrGs7cpIKk139pX8gnuQaX9SvR43n236GwepaM4nBC1x
+	T1IG7uJX5+HnjBR7mMFpK/8YZ4Cf1nBpg8Q8w4e3vjDSRKzjKkHnukx1SO8CicWRRmdr4BoKYUz
+	D3Lq00F2WgFHwUhhi8LTLk5jHDvSrRRHttydxUxhir2/G0mFIpufgCZdMjUxMF3SOkfxCCQOfgp
+	6GhSrBIWE+a+tEbDse7k=
+X-Google-Smtp-Source: AGHT+IGWLbMKf5sYtW4rSiMV38NKZyqcmVeq1HvhSCzBrf7T/vSTtn9Z0BU/6O41NwkpiLMa+8jRAQ==
+X-Received: by 2002:a17:903:fa6:b0:22d:b305:e082 with SMTP id d9443c01a7336-22dbf640a4emr13120665ad.47.1745554869899;
+        Thu, 24 Apr 2025 21:21:09 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0e:fb30:ed97:ee93:42a1:7559? ([2001:ee0:4f0e:fb30:ed97:ee93:42a1:7559])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22db5103259sm22367705ad.185.2025.04.24.21.21.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Apr 2025 21:21:09 -0700 (PDT)
+Message-ID: <099f2537-e756-4608-ab28-d7702b9c1436@gmail.com>
+Date: Fri, 25 Apr 2025 11:21:01 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -41,87 +66,35 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 21/34] x86/msr: Utilize the alternatives mechanism
- to write MSR
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
-        Xin Li
- <xin@zytor.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-pm@vger.kernel.org, linux-edac@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, acme@kernel.org,
-        andrew.cooper3@citrix.com, peterz@infradead.org, namhyung@kernel.org,
-        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
-        jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com,
-        kan.liang@linux.intel.com, wei.liu@kernel.org, ajay.kaher@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
-        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
-        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
-        haiyangz@microsoft.com, decui@microsoft.com
-References: <20250422082216.1954310-1-xin@zytor.com>
- <20250422082216.1954310-22-xin@zytor.com>
- <b2624e84-6fab-44a3-affc-ce0847cd3da4@suse.com>
- <f7198308-e8f8-4cc5-b884-24bc5f408a2a@zytor.com>
- <37c88ea3-dd24-4607-9ee1-0f19025aaef3@suse.com>
- <bb8f6b85-4e7d-440a-a8c3-0e0da45864b8@zytor.com>
- <0cdc6e9d-88eb-4ead-8d55-985474257d53@suse.com>
- <483eb20c-7302-4733-a15f-21d140396919@zytor.com>
+Subject: Re: [PATCH v5 0/3] virtio-net: disable delayed refill when pausing rx
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20250424104716.40453-1-minhquangbui99@gmail.com>
+ <20250424183450.28f5d5fb@kernel.org>
 Content-Language: en-US
-In-Reply-To: <483eb20c-7302-4733-a15f-21d140396919@zytor.com>
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <20250424183450.28f5d5fb@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 4/24/25 18:15, H. Peter Anvin wrote:
-> On 4/24/25 01:14, Jürgen Groß wrote:
->>>
->>> Actually, that is how we get this patch with the existing alternatives
->>> infrastructure.  And we took a step further to also remove the pv_ops
->>> MSR APIs...
->>
->> And this is what I'm questioning. IMHO this approach is adding more
->> code by removing the pv_ops MSR_APIs just because "pv_ops is bad". And
->> I believe most refusal of pv_ops is based on no longer valid reasoning.
->>
-> 
-> pvops are a headache because it is effectively a secondary alternatives 
-> infrastructure that is incompatible with the alternatives one...
-> 
->>> It looks to me that you want to add a new facility to the alternatives
->>> infrastructure first?
->>
->> Why would we need a new facility in the alternatives infrastructure?
-> 
-> I'm not sure what Xin means with "facility", but a key motivation for 
-> this is to:
-> 
-> a. Avoid using the pvops for MSRs when on the only remaining user 
-> thereof (Xen) is only using it for a very small subset of MSRs and for 
-> the rest it is just overhead, even for Xen;
-> 
-> b. Being able to do wrmsrns immediate/wrmsrns/wrmsr and rdmsr immediate/ 
-> rdmsr alternatives.
-> 
-> Of these, (b) is by far the biggest motivation. The architectural 
-> direction for supervisor states is to avoid ad hoc and XSAVES ISA and 
-> instead use MSRs. The immediate forms are expected to be significantly 
-> faster, because they make the MSR index available at the very beginning 
-> of the pipeline instead of at a relatively late stage.
-> 
+On 4/25/25 08:34, Jakub Kicinski wrote:
+> On Thu, 24 Apr 2025 17:47:13 +0700 Bui Quang Minh wrote:
+>> This only includes the selftest for virtio-net deadlock bug. The fix
+>> commit has been applied already.
+> This conflicts with Joe's series slightly:
+> https://lore.kernel.org/all/20250424002746.16891-1-jdamato@fastly.com/
+> Could you rebase on latest net-next and perhaps follow the comment
+> I left on v4 ?
 
-Note that to support the immediate forms, we *must* do these inline, or 
-the const-ness of the MSR index -- which applies to by far the vast 
-majority of MSR references -- gets lost. pvops does exactly that.
+Sure, I'll do it. Thanks for your review :)
 
-Furthermore, the MSR immediate instructions take a 64-bit number in a 
-single register; as these instructions are by necessity relatively long, 
-it makes sense for the alternative sequence to accept a 64-bit input 
-register and do the %eax/%edx shuffle in the legacy fallback code... we 
-did a bunch of experiments to see what made most sense.
-
-	-hpa
-
+Quang Minh.
