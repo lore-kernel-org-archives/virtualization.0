@@ -1,64 +1,80 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB8A66FC5
-	for <virtualization@lists.linux.dev>; Fri, 25 Apr 2025 04:21:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AD8522D4C9
+	for <virtualization@lists.linux.dev>; Fri, 25 Apr 2025 06:26:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745554872; cv=none; b=jN8seQtRSYWhI3XoNYXS0ywZmLFvYQQs3dzi572GAnap6iwP+zheMo9+iD2UeclDnT4SwTjl6rs02nakFzx963q2CFXWjcoZfVVcS1dBu3Om16Sxvg17VVon6cyZzYGCik47/iRQx1VS135FGqAcxKuTs4xV5TjrnLZBtuU3wMw=
+	t=1745562388; cv=none; b=GH5UfldJQXEPYMp7KSAVJpRIPpPPKpqk2P/8ym3fjW6oObauZsik+E4KD6uGoRAyXfnizI8gVM1pr/6/CEdlIr0nY36/khypQl5HRxNcM5fNf/bvNyIeCIxwB4M4H5fFj5mWhh4jeHvpGpGqTUCYkoVnXs6JkzGtGqMNWOHXF6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745554872; c=relaxed/simple;
-	bh=+yaWzT6r4JMRJQXV6x1vvZyp88WGrpRvUaCULB0Q3qA=;
+	s=arc-20240116; t=1745562388; c=relaxed/simple;
+	bh=3W0PsPG5cYrkJB3TzI7oAEJ9tlMrcxDDShjnimiDYoI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QgQAo9ormXB9g0p+IFFVfebaPnsEbTLsqIEO6xsFclBo6IiDb9EJmMyP11bxorKVy1X+lMUxwzLF5hwqYkg9XXh+GscHn3VfY/BILWLMaGyQpERJJK3pRGuuYxzQB7xeFAZpn0DaCkN9Cn+HhWc0pIEEo9mCJMzLg9TXC6tyscA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RAmHNscg; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=YkzoMG5w6URx1USbS64ht2lnG1XU9yZTiWjwoIH0zqnYtBqiLctAlyiZCnFfxFmn/C0t5Zd1xorl/C5YGwCtsyRK+W/8TuFlTuEbpkTQ/YCjwgkQ1xioM9IpgQWVZnt31pbzph//tCVTLDfP1XO6WA4lZgMGeRMAEtKRhmgIs98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tJ57+Buj; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=YaS7BkpV; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tJ57+Buj; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=YaS7BkpV; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RAmHNscg"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2240b4de12bso27881885ad.2
-        for <virtualization@lists.linux.dev>; Thu, 24 Apr 2025 21:21:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745554870; x=1746159670; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=+yaWzT6r4JMRJQXV6x1vvZyp88WGrpRvUaCULB0Q3qA=;
-        b=RAmHNscg5AMHOxQANu7TNyEx3V5WhwduHH90wD/9UGCVVhRAYUTeEqZIHwtHdMUIw+
-         jVUkxmch+DM2PQ3/B8jm/AnYZs2MqYWhCIW+sn7JZgArrSunH6PKPZxHWW/EzXoV2s3P
-         SF4jqGwsknppe0741JLLtOgppOuRM/CAHZcvokFmclSjPQ1LQ3LBYzeFEDL5noxWWDj0
-         OU6390cGhE09NGT2QNOkrD8Wxb4NiKJ/nrhdlzdLTiZf3SoS56Owk0U5FhGDA2l1tXP6
-         2Nz1oXztKYysC1RKSqjelIVSn1FsovYpn83s2N2cheAQasMMFBpb4lLibTMpmz7ivwnG
-         wVQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745554870; x=1746159670;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+yaWzT6r4JMRJQXV6x1vvZyp88WGrpRvUaCULB0Q3qA=;
-        b=aLOXzPeTiApI4rIBC+B9Q/C+u3u/e3ckgshlL57LZjvoO7L+MfY+HP8QOALBXy0VKb
-         cQVMGjhujFAhNwWLYDELlNlkcQmi4mHgT6+LnF9TSONNoATt/MNCP6lFHBLvykW0gGfb
-         TNaJfTO6PVOZtui6xHljMYzYS/iM2Of/Gyrcz9rSoe9B6lwFk5W9qIFgjMYtU+MAky9K
-         d8Sr5N2TH8x9tTmvOt7gFQvYuzuxXzXPbHv9LecdRjAgWw4OtLexSqRp3/++8cZ6+DZC
-         K3wFUW7nFz5/JNrCO79Bt5CQIxCL48kNJFVSgXTzNcebZnkWc1Myhsgzjss6a41i14mB
-         NWCQ==
-X-Gm-Message-State: AOJu0YzBIBkS7mBxyT8rOugezJiKLajqGM6MrfE0Ym3YIMFN+b2N7hfl
-	tNQY4n84pq2yowGGl1AXit2KsuYgIPmU3SfpkWupk5vndvg0ekHU
-X-Gm-Gg: ASbGncv71v4r1iRrqObJdiZNroRbMfbscVy4va9okp9bOlQp7kthg8RPaPZ/w3lmvi+
-	hiMzznOw3BzgthccG9j3RB/Hs9k2CnToouVVyEDPW9E/YHSmSuhKrWVoj4nNsoxJddRbVLVL6dK
-	m47Pnif5gi5XHYHks3d7Tknk5jI2K4+yrGs7cpIKk139pX8gnuQaX9SvR43n236GwepaM4nBC1x
-	T1IG7uJX5+HnjBR7mMFpK/8YZ4Cf1nBpg8Q8w4e3vjDSRKzjKkHnukx1SO8CicWRRmdr4BoKYUz
-	D3Lq00F2WgFHwUhhi8LTLk5jHDvSrRRHttydxUxhir2/G0mFIpufgCZdMjUxMF3SOkfxCCQOfgp
-	6GhSrBIWE+a+tEbDse7k=
-X-Google-Smtp-Source: AGHT+IGWLbMKf5sYtW4rSiMV38NKZyqcmVeq1HvhSCzBrf7T/vSTtn9Z0BU/6O41NwkpiLMa+8jRAQ==
-X-Received: by 2002:a17:903:fa6:b0:22d:b305:e082 with SMTP id d9443c01a7336-22dbf640a4emr13120665ad.47.1745554869899;
-        Thu, 24 Apr 2025 21:21:09 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:4f0e:fb30:ed97:ee93:42a1:7559? ([2001:ee0:4f0e:fb30:ed97:ee93:42a1:7559])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22db5103259sm22367705ad.185.2025.04.24.21.21.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Apr 2025 21:21:09 -0700 (PDT)
-Message-ID: <099f2537-e756-4608-ab28-d7702b9c1436@gmail.com>
-Date: Fri, 25 Apr 2025 11:21:01 +0700
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tJ57+Buj";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="YaS7BkpV";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tJ57+Buj";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="YaS7BkpV"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 4061C1F38D;
+	Fri, 25 Apr 2025 06:26:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1745562384; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OLgKfCbCVqikub0xsQ6YzyN1X5Po1F5mNq/DanEZdYo=;
+	b=tJ57+BujWKRE97a/MZXooL0scEH33wVaP0bmJAwganLGFzYKZUibAcwLb6UqW17jAaqs5T
+	/9yUNoHyTthSiLmKo99fJyigS2aZ8/LHn5c5faxU99IfWZEGi2HxSQ0eJPKBW3nzAwVA65
+	hqXVB5zsf2TkCC4mE3hxMn2zBwu/xaQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1745562384;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OLgKfCbCVqikub0xsQ6YzyN1X5Po1F5mNq/DanEZdYo=;
+	b=YaS7BkpVaCEJq2KPTxI9CYECWtOiZIqSMcc0o6MnkY32SsCWhrvDjNeuME7OGNl/epYYFT
+	XrR7WgC5fCVEWrAQ==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1745562384; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OLgKfCbCVqikub0xsQ6YzyN1X5Po1F5mNq/DanEZdYo=;
+	b=tJ57+BujWKRE97a/MZXooL0scEH33wVaP0bmJAwganLGFzYKZUibAcwLb6UqW17jAaqs5T
+	/9yUNoHyTthSiLmKo99fJyigS2aZ8/LHn5c5faxU99IfWZEGi2HxSQ0eJPKBW3nzAwVA65
+	hqXVB5zsf2TkCC4mE3hxMn2zBwu/xaQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1745562384;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OLgKfCbCVqikub0xsQ6YzyN1X5Po1F5mNq/DanEZdYo=;
+	b=YaS7BkpVaCEJq2KPTxI9CYECWtOiZIqSMcc0o6MnkY32SsCWhrvDjNeuME7OGNl/epYYFT
+	XrR7WgC5fCVEWrAQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id D02DC13A80;
+	Fri, 25 Apr 2025 06:26:22 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id COLgMA4rC2ijXgAAD6G6ig
+	(envelope-from <hare@suse.de>); Fri, 25 Apr 2025 06:26:22 +0000
+Message-ID: <2db989db-4849-46a9-9bad-0b67d85d1650@suse.de>
+Date: Fri, 25 Apr 2025 08:26:22 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -66,35 +82,73 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 0/3] virtio-net: disable delayed refill when pausing rx
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-References: <20250424104716.40453-1-minhquangbui99@gmail.com>
- <20250424183450.28f5d5fb@kernel.org>
+Subject: Re: [PATCH v6 6/9] isolation: introduce io_queue isolcpus type
+To: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+ Sagi Grimberg <sagi@grimberg.me>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Costa Shulyupin
+ <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
+ Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>,
+ Ming Lei <ming.lei@redhat.com>, Frederic Weisbecker <frederic@kernel.org>,
+ Mel Gorman <mgorman@suse.de>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+ linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com,
+ linux-scsi@vger.kernel.org, storagedev@microchip.com,
+ virtualization@lists.linux.dev, GR-QLogic-Storage-Upstream@marvell.com
+References: <20250424-isolcpus-io-queues-v6-0-9a53a870ca1f@kernel.org>
+ <20250424-isolcpus-io-queues-v6-6-9a53a870ca1f@kernel.org>
 Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <20250424183450.28f5d5fb@kernel.org>
+From: Hannes Reinecke <hare@suse.de>
+In-Reply-To: <20250424-isolcpus-io-queues-v6-6-9a53a870ca1f@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.998];
+	MIME_GOOD(-0.10)[text/plain];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[24];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid]
+X-Spam-Score: -4.30
+X-Spam-Flag: NO
 
-On 4/25/25 08:34, Jakub Kicinski wrote:
-> On Thu, 24 Apr 2025 17:47:13 +0700 Bui Quang Minh wrote:
->> This only includes the selftest for virtio-net deadlock bug. The fix
->> commit has been applied already.
-> This conflicts with Joe's series slightly:
-> https://lore.kernel.org/all/20250424002746.16891-1-jdamato@fastly.com/
-> Could you rebase on latest net-next and perhaps follow the comment
-> I left on v4 ?
+On 4/24/25 20:19, Daniel Wagner wrote:
+> Multiqueue drivers spreading IO queues on all CPUs for optimal
+> performance. The drivers are not aware of the CPU isolated requirement
+> and will spread all queues ignoring the isolcpus configuration.
+> 
+> Introduce a new isolcpus mask which allows the user to define on which
+> CPUs IO queues should be placed. This is similar to the managed_irq but
+> for drivers which do not use the managed IRQ infrastructure.
+> 
+> Signed-off-by: Daniel Wagner <wagi@kernel.org>
+> ---
+>   include/linux/sched/isolation.h | 1 +
+>   kernel/sched/isolation.c        | 7 +++++++
+>   2 files changed, 8 insertions(+)
+> 
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-Sure, I'll do it. Thanks for your review :)
+Cheers,
 
-Quang Minh.
+Hannes
+-- 
+Dr. Hannes Reinecke                  Kernel Storage Architect
+hare@suse.de                                +49 911 74053 688
+SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
+HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
