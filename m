@@ -1,110 +1,115 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF1DE1E5B95
-	for <virtualization@lists.linux.dev>; Fri, 25 Apr 2025 07:32:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7628117AE1D
+	for <virtualization@lists.linux.dev>; Fri, 25 Apr 2025 08:35:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745566349; cv=none; b=UE83H3ue3CpS3jfPuX2A/hpbVsIt3z36DkXn0smo+SMAbSAF5AkJ+iTScCGaF/odizu6eekbFtxhK3pmX63/JBCnzhCNBsJkSlpqqjT71bO4rCpW0NAbFhekjYSPs0pJzkh65Jd8LEVV9YweZiY9Dn6+WeEMM3hzFUPRXHBmLzo=
+	t=1745570125; cv=none; b=R0whj8DQTENFNbb0fihL8BXqW6plMHFhClzeFl7S76fCJd4APlsbZFT6x1UlQS+vgcue5lFPwM3RjPgFKMI30Z8V+pgCE1WAJ+JhU6GCqQYQ79e1BOspRk20xjvMEp7n6aIvPn32+gGwBpxPHQc9YjcUTIBNEIhU8em+ek2noEo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745566349; c=relaxed/simple;
-	bh=qh3+deB5RfXkp3djJ1R95fy9ZiJQodi7eJFwTJQylFY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SUovvACHUpponIGR3W1CTY18axLo8Tw/Xfpb1rryww85ndLmv0pQM4IdYihwY2pqGwDW1gTmTaTx4Cxs0W/9DDLfWj4WOODwS6nW72eysx0P2bR0E4wAyl0uwBxFUuY9+XGIMadcjR6Hq3zJHNvnn8jlXdB8cBrjk9k0XkE+9H4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id CC7D8210F9;
-	Fri, 25 Apr 2025 07:32:25 +0000 (UTC)
-Authentication-Results: smtp-out1.suse.de;
-	none
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A597113A79;
-	Fri, 25 Apr 2025 07:32:25 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id i4FpKIk6C2iYbwAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Fri, 25 Apr 2025 07:32:25 +0000
-Date: Fri, 25 Apr 2025 09:32:16 +0200
-From: Daniel Wagner <dwagner@suse.de>
-To: Hannes Reinecke <hare@suse.de>
-Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Costa Shulyupin <costa.shul@redhat.com>, 
-	Juri Lelli <juri.lelli@redhat.com>, Valentin Schneider <vschneid@redhat.com>, 
-	Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>, 
-	Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
-	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
-	storagedev@microchip.com, virtualization@lists.linux.dev, 
-	GR-QLogic-Storage-Upstream@marvell.com
-Subject: Re: [PATCH v6 6/9] isolation: introduce io_queue isolcpus type
-Message-ID: <dd4719dc-5ac4-44d9-bccb-e867d322864e@flourine.local>
-References: <20250424-isolcpus-io-queues-v6-0-9a53a870ca1f@kernel.org>
- <20250424-isolcpus-io-queues-v6-6-9a53a870ca1f@kernel.org>
- <2db989db-4849-46a9-9bad-0b67d85d1650@suse.de>
+	s=arc-20240116; t=1745570125; c=relaxed/simple;
+	bh=gZx2n843OdPdB1BGfKpg70GhjxL1zsFHF5UrTkAlJOE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=i+NzLV8rXtk4lsjVRve7Wc3NnixVxYCtod6xnx0kOuvZuNfh7FFFvIwq/CuT0nY++gFTlNmMvmIPqQvOeO2QT0s+Se3ED4l68DBdVoaVFf9TX9ZmEjGmwE/ukkEyiCzdk1/cn2fXWZoRtCqAmMBo5zC/aMeCcPUq9AWkY2AHo0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=cA82jInR; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="cA82jInR"
+Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53P8Yg5Q2390085
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
+	Fri, 25 Apr 2025 01:34:51 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53P8Yg5Q2390085
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025042001; t=1745570093;
+	bh=lNRi52fPuelCbqEpttWsWEMCSZtlZ0beyL7G7ad5WoI=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=cA82jInRsydXIwm6m1XH1TkZYoK4mqKL9NBirr8sCUCj+XPqLN/CeEGAoiOSyyuRI
+	 QdzTgWC1eF7uXuSSS5zTnBU4pLicou3MhJxxwhQ0NFlMmKq20cvYz5Yav1PoyNkayn
+	 KgKYJZr5z4IHK8I9dsC9QY691QE5y3054zf0B6D/9Nh0g2dd24jiFcwT00q/Uc8L8m
+	 E68o2mwpxEZX8CjJCyzCeaSRisGH61g0Njb+EtcPu/0Wr2HpIpxcjMwV/AJKqwrhjK
+	 CatTGQb6lGQHqqJDVz+V8dcGz7WC1dbY1YZ9LdaSMsyYJl1UHPDrRZ5b3knqA1I/lN
+	 SmcyUOUKSfGjQ==
+From: "Xin Li (Intel)" <xin@zytor.com>
+To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        virtualization@lists.linux.dev, linux-pm@vger.kernel.org,
+        linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org,
+        linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com,
+        peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com,
+        wei.liu@kernel.org, ajay.kaher@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
+        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
+        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
+        haiyangz@microsoft.com, decui@microsoft.com,
+        dapeng1.mi@linux.intel.com
+Subject: [PATCH v3 02/14] x86/msr: Remove rdpmc()
+Date: Fri, 25 Apr 2025 01:34:25 -0700
+Message-ID: <20250425083442.2390017-3-xin@zytor.com>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250425083442.2390017-1-xin@zytor.com>
+References: <20250425083442.2390017-1-xin@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2db989db-4849-46a9-9bad-0b67d85d1650@suse.de>
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
-X-Spam-Score: -4.00
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: CC7D8210F9
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+Content-Transfer-Encoding: 8bit
 
-On Fri, Apr 25, 2025 at 08:26:22AM +0200, Hannes Reinecke wrote:
-> On 4/24/25 20:19, Daniel Wagner wrote:
-> > Multiqueue drivers spreading IO queues on all CPUs for optimal
-> > performance. The drivers are not aware of the CPU isolated requirement
-> > and will spread all queues ignoring the isolcpus configuration.
-> > 
-> > Introduce a new isolcpus mask which allows the user to define on which
-> > CPUs IO queues should be placed. This is similar to the managed_irq but
-> > for drivers which do not use the managed IRQ infrastructure.
-> > 
-> > Signed-off-by: Daniel Wagner <wagi@kernel.org>
-> > ---
-> >   include/linux/sched/isolation.h | 1 +
-> >   kernel/sched/isolation.c        | 7 +++++++
-> >   2 files changed, 8 insertions(+)
-> > 
-> Reviewed-by: Hannes Reinecke <hare@suse.de>
+rdpmc() is not used anywhere, remove it.
 
-Just realized I forgot to also add some document on this new argument:
+Signed-off-by: Xin Li (Intel) <xin@zytor.com>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+---
+ arch/x86/include/asm/msr.h      | 7 -------
+ arch/x86/include/asm/paravirt.h | 7 -------
+ 2 files changed, 14 deletions(-)
 
-			io_queue
-			  Isolate from IO queue work caused by multiqueue
-			  device drivers. Restrict the placement of
-			  queues to housekeeping CPUs only, ensuring that
-			  all IO work is processed by a housekeeping CPU.
+diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
+index 2caa13830e11..e05466e486fc 100644
+--- a/arch/x86/include/asm/msr.h
++++ b/arch/x86/include/asm/msr.h
+@@ -234,13 +234,6 @@ static inline int rdmsrq_safe(u32 msr, u64 *p)
+ 	return err;
+ }
+ 
+-#define rdpmc(counter, low, high)			\
+-do {							\
+-	u64 _l = native_read_pmc((counter));		\
+-	(low)  = (u32)_l;				\
+-	(high) = (u32)(_l >> 32);			\
+-} while (0)
+-
+ #define rdpmcl(counter, val) ((val) = native_read_pmc(counter))
+ 
+ #endif	/* !CONFIG_PARAVIRT_XXL */
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 86a77528792d..c4dedb984735 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -244,13 +244,6 @@ static inline u64 paravirt_read_pmc(int counter)
+ 	return PVOP_CALL1(u64, cpu.read_pmc, counter);
+ }
+ 
+-#define rdpmc(counter, low, high)		\
+-do {						\
+-	u64 _l = paravirt_read_pmc(counter);	\
+-	low = (u32)_l;				\
+-	high = _l >> 32;			\
+-} while (0)
+-
+ #define rdpmcl(counter, val) ((val) = paravirt_read_pmc(counter))
+ 
+ static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
+-- 
+2.49.0
 
-			  Note: When an isolated CPU issues an IO, it is
-			  forwarded to a housekeeping CPU. This will
-			  trigger a software interrupt on the completion
-			  path.
-
-			  Note: It is not possible to offline housekeeping
-			  CPUs that serve isolated CPUs.
