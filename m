@@ -1,200 +1,151 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp.smtpout.orange.fr (smtp-75.smtpout.orange.fr [80.12.242.75])
+	(using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96D3F1E5B7F
-	for <virtualization@lists.linux.dev>; Sat, 26 Apr 2025 13:45:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACD0625C83E
+	for <virtualization@lists.linux.dev>; Sat, 26 Apr 2025 15:14:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.75
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745675148; cv=none; b=gs9bskay9f/N99f5tSgea+tjzUAKdALoT+0Oq4moL4bWw9qKwAsUPw8DzIOLfjKQGr/JVHfPKtiaVLAnEcbgDBAkJKt4M5SGTgeJHXlHtuZ7UkodnEmj6j3AF4fYSYved+sEkiY2EJk653WaMFI13VjPUXQ4jHR/+uwULIj0ds8=
+	t=1745680465; cv=none; b=dzD6j9gSPcGgUvEcHZaxnQHF85coBIcnWXrWm3oz1+whq+Z7YBaqWh8qi4iVIPIiKzjtoGqZfiB5m3j2tHU9kWYL2vE5CIzxSLZZbpyY2uFLnwhHxU99J6nKScjSzjS7Ql5zF0fihkVT8ACdLz3EBwInT4jLVi+vXbaScX0liv8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745675148; c=relaxed/simple;
-	bh=I4nsA4r/Iu57UddEcOKuVuHTuSSaO7yRpZoDOY/Qp2U=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=hIBZ+PQk+//gKoQ1iTJT7Tmy4KkWknz/GlQy6L161hwFu0it8MwIDHv6rQ7iUvt6971QKhpS2JLPmshD3Q0YClrcaA63tByTy/CT4Z47YYtiMpM0ZNd0yslS4CuF1KduhY1Z4ifO7tf6MKWS8/OkmqPmpibI81/LM0RWOn5gngI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Q/bVhlwj; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1745680465; c=relaxed/simple;
+	bh=IWfcmPKJHXBs8q7otC+Rd8qWS2HN1vQ1l6y9dmgLnGM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=q2Oxa7SeaQhEFlX3yzXnC47wjw0979ANSbqQszh8CW0LiV7+Sp8ScKkhs6xaQEt1HrbsZ3TbN4yU/rXvKl2xjDxIMqjUHLbLKGLZ0KNg8M4DjXqHQtdAKDPj0tpbZF6pzO/nszouwnHqf/TWWilsYLaW3UNadEJjDNkIoJiWxvk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=aqZKh2uL; arc=none smtp.client-ip=80.12.242.75
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Q/bVhlwj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1745675146; x=1777211146;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=I4nsA4r/Iu57UddEcOKuVuHTuSSaO7yRpZoDOY/Qp2U=;
-  b=Q/bVhlwjGSUcdsEYob5LgNUAUKXuCxQ+FDAYRDVGnN4JIYvozoUXD5M9
-   9+0korZvNbzIBL0p7IBbknCERVR8d4Au5m/HxqwHhAIMnmz9qv65u759e
-   WA7ZrhUjDcBqAGxKbFWKm9LUB6a7ZsRFLdInfRvsGNMwCcenHq+oBztIs
-   4hA9O/qtnad06PJBPiQEN118IUJAmqB7O2c4gZSZUTYNqk07ONsR0f4ZT
-   OWJBON0fuRN6MwRPEVcz1cDUJFZOkEn80MGs3NRGqIeYDLdXg0LnEy+Fc
-   Mao/t2I/UmA/sQ1clHI88z/2cIpyhw5taXLVyxpxq613bJ71x38YXmWmf
-   Q==;
-X-CSE-ConnectionGUID: ZcroZhxZQBS+CJLftaAdjQ==
-X-CSE-MsgGUID: WAiaTuOlT+ur6eQV39iLAg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11415"; a="47229786"
-X-IronPort-AV: E=Sophos;i="6.15,241,1739865600"; 
-   d="scan'208";a="47229786"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2025 06:45:44 -0700
-X-CSE-ConnectionGUID: WMbNce1ORpCDbJZHWjGjpw==
-X-CSE-MsgGUID: UaIR2HdjTjK095toUEDbGQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.15,241,1739865600"; 
-   d="scan'208";a="138223278"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.235])
-  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2025 06:45:29 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Sat, 26 Apr 2025 16:45:26 +0300 (EEST)
-To: Xin Li <xin@zytor.com>
-cc: LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, 
-    linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-    virtualization@lists.linux.dev, linux-pm@vger.kernel.org, 
-    linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org, 
-    linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org, 
-    Netdev <netdev@vger.kernel.org>, platform-driver-x86@vger.kernel.org, 
-    tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
-    dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
-    acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com, 
-    peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com, 
-    alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com, 
-    adrian.hunter@intel.com, kan.liang@linux.intel.com, wei.liu@kernel.org, 
-    ajay.kaher@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
-    tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com, 
-    seanjc@google.com, luto@kernel.org, boris.ostrovsky@oracle.com, 
-    kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com, 
-    dapeng1.mi@linux.intel.com
-Subject: Re: [PATCH v3 01/14] x86/msr: Move rdtsc{,_ordered}() to
- <asm/tsc.h>
-In-Reply-To: <e62b81f3-1952-43e6-85fd-18c6f37d531d@zytor.com>
-Message-ID: <f8a5b080-b2a8-06f0-3d2d-d232ef0887a4@linux.intel.com>
-References: <20250425083442.2390017-1-xin@zytor.com> <20250425083442.2390017-2-xin@zytor.com> <42dc90e1-df2a-2324-d28c-d75fb525e4a2@linux.intel.com> <e62b81f3-1952-43e6-85fd-18c6f37d531d@zytor.com>
+	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="aqZKh2uL"
+Received: from [192.168.1.37] ([90.11.132.44])
+	by smtp.orange.fr with ESMTPA
+	id 8hD8uuyJPSxyX8hDCuh2W3; Sat, 26 Apr 2025 17:13:09 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
+	s=t20230301; t=1745680389;
+	bh=lGpF8EKyLgMCkElYaAwd2ZnEJtgke/GdzymKjUrzlVM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:From;
+	b=aqZKh2uL+y+b2Aub09013KtAOCdfvwHnCs1YOFRkOMpkOzHgfYygb59ix86fOed/Z
+	 0a9DevAK9H5NZ5PKOWVXnAiNJCdSZlyR66ghl6FEzVwwyFDDj5D8ScupQ0HH3lajcX
+	 yYfRZX4co8wOtYe/Bmfnlmrv96J5qgOVsUu+r/gOCzzcZVSgUXa9QkJI2oieEQve0J
+	 nVXxZUfiwRQjlDk73akeFu8pOJvwe88V3wuigzVPg3oCqdR8eA5w6/ni7O8tQF2F+h
+	 K3CqdJ5NnN5vWlHR252XUnBkOA7aCDr8fFukRCjcGziJPxi1UrpugV8858pvnMdPAj
+	 qiZQMm1CyWk2A==
+X-ME-Helo: [192.168.1.37]
+X-ME-Auth: bWFyaW9uLmphaWxsZXRAd2FuYWRvby5mcg==
+X-ME-Date: Sat, 26 Apr 2025 17:13:09 +0200
+X-ME-IP: 90.11.132.44
+Message-ID: <fceb6891-2749-496a-a6d5-db0748728e8a@wanadoo.fr>
+Date: Sat, 26 Apr 2025 17:12:58 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323328-589040720-1745675126=:944"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v12 4/9] net: devmem: Implement TX path
+To: Mina Almasry <almasrymina@google.com>
+Cc: andrew+netdev@lunn.ch, asml.silence@gmail.com, axboe@kernel.dk,
+ corbet@lwn.net, davem@davemloft.net, donald.hunter@gmail.com,
+ dsahern@kernel.org, dw@davidwei.uk, edumazet@google.com,
+ eperezma@redhat.com, horms@kernel.org, hramamurthy@google.com,
+ io-uring@vger.kernel.org, jasowang@redhat.com, jeroendb@google.com,
+ jhs@mojatatu.com, kaiyuanz@google.com, kuba@kernel.org, kuniyu@amazon.com,
+ kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ mst@redhat.com, ncardwell@google.com, netdev@vger.kernel.org,
+ pabeni@redhat.com, pctammela@mojatatu.com, sdf@fomichev.me,
+ sgarzare@redhat.com, shuah@kernel.org, skhawaja@google.com,
+ stefanha@redhat.com, victor@mojatatu.com, virtualization@lists.linux.dev,
+ willemb@google.com, xuanzhuo@linux.alibaba.com
+References: <20250425204743.617260-1-almasrymina@google.com>
+ <20250425204743.617260-5-almasrymina@google.com>
+Content-Language: en-US, fr-FR
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+In-Reply-To: <20250425204743.617260-5-almasrymina@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Le 25/04/2025 à 22:47, Mina Almasry a écrit :
+> Augment dmabuf binding to be able to handle TX. Additional to all the RX
+> binding, we also create tx_vec needed for the TX path.
+> 
+> Provide API for sendmsg to be able to send dmabufs bound to this device:
+> 
+> - Provide a new dmabuf_tx_cmsg which includes the dmabuf to send from.
+> - MSG_ZEROCOPY with SCM_DEVMEM_DMABUF cmsg indicates send from dma-buf.
+> 
+> Devmem is uncopyable, so piggyback off the existing MSG_ZEROCOPY
+> implementation, while disabling instances where MSG_ZEROCOPY falls back
+> to copying.
 
---8323328-589040720-1745675126=:944
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+...
 
-On Sat, 26 Apr 2025, Xin Li wrote:
+> @@ -270,24 +284,34 @@ net_devmem_bind_dmabuf(struct net_device *dev, unsigned int dmabuf_fd,
+>   			niov->owner = &owner->area;
+>   			page_pool_set_dma_addr_netmem(net_iov_to_netmem(niov),
+>   						      net_devmem_get_dma_addr(niov));
+> +			if (direction == DMA_TO_DEVICE)
+> +				binding->tx_vec[owner->area.base_virtual / PAGE_SIZE + i] = niov;
+>   		}
+>   
+>   		virtual += len;
+>   	}
+>   
+> +	err = xa_alloc_cyclic(&net_devmem_dmabuf_bindings, &binding->id,
+> +			      binding, xa_limit_32b, &id_alloc_next,
+> +			      GFP_KERNEL);
+> +	if (err < 0)
+> +		goto err_free_id;
+> +
+>   	return binding;
+>   
+> +err_free_id:
+> +	xa_erase(&net_devmem_dmabuf_bindings, binding->id);
 
-> On 4/25/2025 8:45 AM, Ilpo J=C3=A4rvinen wrote:
-> > To me this looks really a random set of source files, maybe it helped s=
-ome
-> > build success but it's hard for me to review this because there are sti=
-ll
-> > cases that depend on indirect include chains.
-> >=20
-> > Could you just look into solving all missing msr.h includes instead
-> > as clearly some are still missing after 3 pre-existing ones and you add=
-ing
-> > it into 3 files:
-> >=20
-> > $ git grep -e rdmsr -e wrmsr -l drivers/platform/x86/
-> > drivers/platform/x86/intel/ifs/core.c
-> > drivers/platform/x86/intel/ifs/load.c
-> > drivers/platform/x86/intel/ifs/runtest.c
-> > drivers/platform/x86/intel/pmc/cnp.c
-> > drivers/platform/x86/intel/pmc/core.c
-> > drivers/platform/x86/intel/speed_select_if/isst_if_common.c
-> > drivers/platform/x86/intel/speed_select_if/isst_if_mbox_msr.c
-> > drivers/platform/x86/intel/speed_select_if/isst_tpmi_core.c
-> > drivers/platform/x86/intel/tpmi_power_domains.c
-> > drivers/platform/x86/intel/turbo_max_3.c
-> > drivers/platform/x86/intel/uncore-frequency/uncore-frequency.c
-> > drivers/platform/x86/intel_ips.c
-> >=20
-> > $ git grep -e 'msr.h' -l drivers/platform/x86/
-> > drivers/platform/x86/intel/pmc/core.c
-> > drivers/platform/x86/intel/tpmi_power_domains.c
-> > drivers/platform/x86/intel_ips.c
->=20
-> I think you want me to add all necessary direct inclusions, right?
+Not sure this is correct now that xa_alloc_cyclic() is the last function 
+which is called.
+I guess that that the last goto should be to err_free_chunks.
 
-For asm/msr.h yes, as it seems you're altering the inclusion paths and all=
-=20
-non-direct includes have a chance of breaking so it seems prudent to just=
-=20
-convert them into direct includes.
+>   err_free_chunks:
+>   	gen_pool_for_each_chunk(binding->chunk_pool,
+>   				net_devmem_dmabuf_free_chunk_owner, NULL);
+>   	gen_pool_destroy(binding->chunk_pool);
+> +err_tx_vec:
+> +	kvfree(binding->tx_vec);
+>   err_unmap:
+>   	dma_buf_unmap_attachment_unlocked(binding->attachment, binding->sgt,
+>   					  DMA_FROM_DEVICE);
+>   err_detach:
+>   	dma_buf_detach(dmabuf, binding->attachment);
+> -err_free_id:
+> -	xa_erase(&net_devmem_dmabuf_bindings, binding->id);
+>   err_free_binding:
+>   	kfree(binding);
+>   err_put_dmabuf:
 
-> This is the right thing to do, and I did try it but gave up later.
->=20
-> I will do it in the next iteration as you asked.  But I want to make my
-> points:
->=20
-> 1) It's not just two patterns {rd,wr}msr, there are a lot of definitions
->    in <asm/msr.h> and we need to cover all of them:
+...
 
-I know and I don't expect you to get it 100% perfect, but taking a major=20
-step into the right direction would be way better than build testing one=20
-configuration and see what blows up and fix only those.
+> diff --git a/net/core/sock.c b/net/core/sock.c
+> index b64df2463300b..9dd2989040357 100644
+> --- a/net/core/sock.c
+> +++ b/net/core/sock.c
+> @@ -3017,6 +3017,12 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
+>   		if (!sk_set_prio_allowed(sk, *(u32 *)CMSG_DATA(cmsg)))
+>   			return -EPERM;
+>   		sockc->priority = *(u32 *)CMSG_DATA(cmsg);
+> +		break;
+> +	case SCM_DEVMEM_DMABUF:
+> +		if (cmsg->cmsg_len != CMSG_LEN(sizeof(u32)))
+> +			return -EINVAL;
+> +		sockc->dmabuf_id = *(u32 *)CMSG_DATA(cmsg);
+> +
 
-In this particular case, the amount of includes seemed really subpar with=
-=20
-many users lacking the include.
+Nitpick: Unneeded newline, to be consistent with the surrounding code.
 
->       struct msr_info
->       struct msr_regs_info
->       struct saved_msr
->       struct saved_msrs
+>   		break;
+>   	default:
+>   		return -EINVAL;
 
-Could be shortened to -e 'struct msr' -e 'struct saved_msr'.
+...
 
->       {read,write}_msr
->       rdpmc
->       .*msr.*_on_cpu
-
-Well, my pattern already caught rdmsr.*on_cpu and wrmsr.*on_cpu.
-
-For the other patterns, I don't see those at all under=20
-drivers/platform/x86/ but I think when one typically implies the=20
-others tend appear as well so this might not be as hard as it seems.
-
-> 2) Once all necessary direct inclusions are in place, it's easy to
->    overlook adding a header inclusion in practice, especially if the
->    build passes.  Besides we often forget to remove a header when a
->    definition is removed.  In other words, direct inclusion is hard to
->    maintain.
-
-This is true as well but we should still try to move towards the right=20
-state affairs even if we will not get it near 100% until there's a real=20
-tool that relentlessly keeps exposing such human oversight.
-
-And do I try to check also includes whenever I remember while reviewing=20
-patches (which requires some effort as they are not visible in the code=20
-context and might not appear in a patch at all).
-
-> 3) Some random kernel configuration combinations can cause the current
->    kernel build to fail.  I hit one in x86 UML.
-
-Yes, which why direct including is much better than relying on fragile=20
-indirects.
-
-> We all know Ingo is the best person to discuss this with :).  While my
-> understanding of the header inclusion issue may be inaccurate or
-> outdated.
->=20
-> So for me, using "make allyesconfig" is a practical method for a quick
-> local build check, plus I always send my patches to Intel LKP.
-
-Even with LKP, randconfig builds may still require many tests to find=20
-issues.
-
-> There probably wants a script that identifies all files that reference a
-> definition in a header thus need to include it explicitly.  And indirect
-> includes should be zapped.
-
-Sadly, the clang based include-what-you-use tool is not yet there for=20
-the kernel AFAIK.
-
---=20
- i.
-
---8323328-589040720-1745675126=:944--
+CJ
