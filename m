@@ -1,286 +1,200 @@
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B290478F2D
-	for <virtualization@lists.linux.dev>; Sat, 26 Apr 2025 08:33:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96D3F1E5B7F
+	for <virtualization@lists.linux.dev>; Sat, 26 Apr 2025 13:45:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745656398; cv=none; b=vAfv4jZJNT5qOXUN2WzIu+U5TWEfjDhtMWyrTTYnd8l0FF6SOOe6YeYf4aw4ikE2ZadD22RlrPQWrTVRMbovbF8bCcO7JIPmP1o/cHZq0VAjKopssOTqudxxOIKIb6PqzdLsKadMcWMqqffp2m2k3q0xv5YS0xwiFBLw7HQoHRw=
+	t=1745675148; cv=none; b=gs9bskay9f/N99f5tSgea+tjzUAKdALoT+0Oq4moL4bWw9qKwAsUPw8DzIOLfjKQGr/JVHfPKtiaVLAnEcbgDBAkJKt4M5SGTgeJHXlHtuZ7UkodnEmj6j3AF4fYSYved+sEkiY2EJk653WaMFI13VjPUXQ4jHR/+uwULIj0ds8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745656398; c=relaxed/simple;
-	bh=cq/kgfvwWTD+KOCGbdVDLUFl6oNg/Ou2BRx0e32C2q0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gXVqvNlDHqZDBAxejrz5rui+UYfVaCBuUO43/bgmDVVGkoePQWS+z1HpoIAkRLwqQaCvftweV9lijWVBdDY4i/Ab9nSugNV4Pf7BB41ZGGpH/j/gjIqV2nBAzftXB7gQzpxT4E3uaTJJkxbWgpRkrr+ArHVSXiJrsywYiSDQQ7c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q8K0jyGG; arc=none smtp.client-ip=209.85.210.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1745675148; c=relaxed/simple;
+	bh=I4nsA4r/Iu57UddEcOKuVuHTuSSaO7yRpZoDOY/Qp2U=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=hIBZ+PQk+//gKoQ1iTJT7Tmy4KkWknz/GlQy6L161hwFu0it8MwIDHv6rQ7iUvt6971QKhpS2JLPmshD3Q0YClrcaA63tByTy/CT4Z47YYtiMpM0ZNd0yslS4CuF1KduhY1Z4ifO7tf6MKWS8/OkmqPmpibI81/LM0RWOn5gngI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Q/bVhlwj; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q8K0jyGG"
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-739be717eddso2439139b3a.2
-        for <virtualization@lists.linux.dev>; Sat, 26 Apr 2025 01:33:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745656396; x=1746261196; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=x7xDbNUtc3GNk6oeUFqhP9sjyvenI2ax5rh3mY81Ris=;
-        b=Q8K0jyGGfjNnYZXqgVHsWu68QA7Ci/Z0thWI/3jatuIwnHdhmTD1nuNlWRlDWIzj4S
-         AKh+4nxyI0h23L44b1bAj2T2b3wDnb59OAI++v2kwmb7auiViiW48EqdYTYzI5wXfGuo
-         mrUYHOn/7E7Fl5qRbS7Sge1Jpcwc9NL9uaW5ptAdyZ/8edoBAV4UamQENx8SUl1cUFEJ
-         lFCwE4cgLC+Zjv5guRgGz+IWr8rD0ZeBJTK07NGoStFqchAEbswKMTvyDhant8B7MRh0
-         CyN11uZZRdq3gKPPSstFuDPqYB1ptnkiXwD15PL4+EQB5LEgvNia3ohPjTmzbFzOooO1
-         Y8VQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745656396; x=1746261196;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=x7xDbNUtc3GNk6oeUFqhP9sjyvenI2ax5rh3mY81Ris=;
-        b=LeDXkwB90fZxEjiRyp0BLPVGFsCplk13a08ugLYe+CzgaaFibFDVT4oswWEYeA7L0K
-         Xl8pSCR2BGKeMF09piQGgakDS6hdpUf326Z+BTQG2v2A16scJNXK5g+s+Okj78ugHH6w
-         gCdDUBm8MFgUrlZb1Z8OF0amT6Eb7EkkrWWH/GztGl6iUyXNK9FGJvDCEPuXDkeXoZZu
-         91IPqqev9qL+5RAnPV92BpuwFfKVqZHEYYMJ8HawVf5JnM9fRZMmpQC46Vhz5A1KXwAg
-         pxYYd430WWE5dnd8zH9+ROY/Ud0owpfcv+IKymL6Cs8uI0hnUKi+Us/0zLFuksjEGbcB
-         yXSQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW2H9IGDuUPDofLUfb/TsFM5+rk3f+dd7LIvCmFYz4pghbQm0aFnSLqdO8KpRIgqGFk8xaormbXqCMR1gzgcg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw2h3oc9DJqiEZwRiafqYYzBra3AYWnSohGtoYpATqydnSGy2af
-	jHm1UM4w4oyHB2EPPLDTqITlrtJgtWKGrlikO3WTRRgLWPV3Ys17
-X-Gm-Gg: ASbGncv8GEJjnQXHswVxx7a8bMvuoaggMEPLjePT0vpLzKR2FMGStVKKOs/4jDBukFn
-	MEiStjNJlt0grJ7ug2njwl0tRUBwVrxF4ZTA/K1xPqr4djtU2SPw1FLo+4tBzh98jgELlyzZpVG
-	0GVHY8qrK/YPih08nsYPGYiZtMH3VhEoxnl1YaTxbwEj2E/0ILJTuKFBFIJWHMvdwBoo1g/Q8r1
-	jZRjFq1XHl2CAbJogo7xJS6xFlNezzNZNWYBsIwM22sK6o8qoQw3jcomGjPJyR460yidZteS2wP
-	w/uqqSwRpSdSxryqZqxCLdlQ6eqSJO8EEQClbOcUufl8kuh5/71ekZNAf6k9VuDIzADT4acZivL
-	PQIo8X8x5IAmDoEdkZjE8avgK68FdOw==
-X-Google-Smtp-Source: AGHT+IFFzdieNjceqUWjKCn57tE0HAT55Xq8uc8EhTbvjF77l7dXFwaf0Cd4FmYWkJbLx3Eoywyfvg==
-X-Received: by 2002:a05:6a00:4606:b0:736:5dae:6b0d with SMTP id d2e1a72fcca58-73fd72c7c31mr7101427b3a.10.1745656395842;
-        Sat, 26 Apr 2025 01:33:15 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:4f0e:fb30:52b1:1f45:145e:af27? ([2001:ee0:4f0e:fb30:52b1:1f45:145e:af27])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73e25912ad3sm4546267b3a.13.2025.04.26.01.33.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 26 Apr 2025 01:33:15 -0700 (PDT)
-Message-ID: <6b918a27-4c87-4c8c-bb31-7a5cca15844f@gmail.com>
-Date: Sat, 26 Apr 2025 15:33:07 +0700
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Q/bVhlwj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1745675146; x=1777211146;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=I4nsA4r/Iu57UddEcOKuVuHTuSSaO7yRpZoDOY/Qp2U=;
+  b=Q/bVhlwjGSUcdsEYob5LgNUAUKXuCxQ+FDAYRDVGnN4JIYvozoUXD5M9
+   9+0korZvNbzIBL0p7IBbknCERVR8d4Au5m/HxqwHhAIMnmz9qv65u759e
+   WA7ZrhUjDcBqAGxKbFWKm9LUB6a7ZsRFLdInfRvsGNMwCcenHq+oBztIs
+   4hA9O/qtnad06PJBPiQEN118IUJAmqB7O2c4gZSZUTYNqk07ONsR0f4ZT
+   OWJBON0fuRN6MwRPEVcz1cDUJFZOkEn80MGs3NRGqIeYDLdXg0LnEy+Fc
+   Mao/t2I/UmA/sQ1clHI88z/2cIpyhw5taXLVyxpxq613bJ71x38YXmWmf
+   Q==;
+X-CSE-ConnectionGUID: ZcroZhxZQBS+CJLftaAdjQ==
+X-CSE-MsgGUID: WAiaTuOlT+ur6eQV39iLAg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11415"; a="47229786"
+X-IronPort-AV: E=Sophos;i="6.15,241,1739865600"; 
+   d="scan'208";a="47229786"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2025 06:45:44 -0700
+X-CSE-ConnectionGUID: WMbNce1ORpCDbJZHWjGjpw==
+X-CSE-MsgGUID: UaIR2HdjTjK095toUEDbGQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,241,1739865600"; 
+   d="scan'208";a="138223278"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.235])
+  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2025 06:45:29 -0700
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Sat, 26 Apr 2025 16:45:26 +0300 (EEST)
+To: Xin Li <xin@zytor.com>
+cc: LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, 
+    linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+    virtualization@lists.linux.dev, linux-pm@vger.kernel.org, 
+    linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org, 
+    linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+    Netdev <netdev@vger.kernel.org>, platform-driver-x86@vger.kernel.org, 
+    tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
+    dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
+    acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com, 
+    peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com, 
+    alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com, 
+    adrian.hunter@intel.com, kan.liang@linux.intel.com, wei.liu@kernel.org, 
+    ajay.kaher@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
+    tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com, 
+    seanjc@google.com, luto@kernel.org, boris.ostrovsky@oracle.com, 
+    kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com, 
+    dapeng1.mi@linux.intel.com
+Subject: Re: [PATCH v3 01/14] x86/msr: Move rdtsc{,_ordered}() to
+ <asm/tsc.h>
+In-Reply-To: <e62b81f3-1952-43e6-85fd-18c6f37d531d@zytor.com>
+Message-ID: <f8a5b080-b2a8-06f0-3d2d-d232ef0887a4@linux.intel.com>
+References: <20250425083442.2390017-1-xin@zytor.com> <20250425083442.2390017-2-xin@zytor.com> <42dc90e1-df2a-2324-d28c-d75fb525e4a2@linux.intel.com> <e62b81f3-1952-43e6-85fd-18c6f37d531d@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next] virtio-net: support zerocopy multi buffer
- XDP in mergeable
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-References: <20250426082752.43222-1-minhquangbui99@gmail.com>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <20250426082752.43222-1-minhquangbui99@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="8323328-589040720-1745675126=:944"
 
-On 4/26/25 15:27, Bui Quang Minh wrote:
-> Currently, in zerocopy mode with mergeable receive buffer, virtio-net
-> does not support multi buffer but a single buffer only. This commit adds
-> support for multi mergeable receive buffer in the zerocopy XDP path by
-> utilizing XDP buffer with frags.
->
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
->   drivers/net/virtio_net.c | 107 +++++++++++++++++++--------------------
->   1 file changed, 51 insertions(+), 56 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 848fab51dfa1..8d21767dd607 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -45,6 +45,8 @@ module_param(napi_tx, bool, 0644);
->   #define VIRTIO_XDP_TX		BIT(0)
->   #define VIRTIO_XDP_REDIR	BIT(1)
->   
-> +#define VIRTNET_MAX_ZC_SEGS	8
-> +
->   /* RX packet size EWMA. The average packet size is used to determine the packet
->    * buffer size when refilling RX rings. As the entire RX ring may be refilled
->    * at once, the weight is chosen so that the EWMA will be insensitive to short-
-> @@ -1232,65 +1234,53 @@ static void xsk_drop_follow_bufs(struct net_device *dev,
->   	}
->   }
->   
-> -static int xsk_append_merge_buffer(struct virtnet_info *vi,
-> -				   struct receive_queue *rq,
-> -				   struct sk_buff *head_skb,
-> -				   u32 num_buf,
-> -				   struct virtio_net_hdr_mrg_rxbuf *hdr,
-> -				   struct virtnet_rq_stats *stats)
-> +static int virtnet_build_xsk_buff_mrg(struct virtnet_info *vi,
-> +				      struct receive_queue *rq,
-> +				      u32 num_buf,
-> +				      struct xdp_buff *xdp,
-> +				      struct virtnet_rq_stats *stats)
->   {
-> -	struct sk_buff *curr_skb;
-> -	struct xdp_buff *xdp;
-> -	u32 len, truesize;
-> -	struct page *page;
-> +	unsigned int len;
->   	void *buf;
->   
-> -	curr_skb = head_skb;
-> +	if (num_buf < 2)
-> +		return 0;
-> +
-> +	while (num_buf > 1) {
-> +		struct xdp_buff *new_xdp;
->   
-> -	while (--num_buf) {
->   		buf = virtqueue_get_buf(rq->vq, &len);
-> -		if (unlikely(!buf)) {
-> -			pr_debug("%s: rx error: %d buffers out of %d missing\n",
-> -				 vi->dev->name, num_buf,
-> -				 virtio16_to_cpu(vi->vdev,
-> -						 hdr->num_buffers));
-> +		if (!unlikely(buf)) {
-> +			pr_debug("%s: rx error: %d buffers missing\n",
-> +				 vi->dev->name, num_buf);
->   			DEV_STATS_INC(vi->dev, rx_length_errors);
-> -			return -EINVAL;
-> -		}
-> -
-> -		u64_stats_add(&stats->bytes, len);
-> -
-> -		xdp = buf_to_xdp(vi, rq, buf, len);
-> -		if (!xdp)
-> -			goto err;
-> -
-> -		buf = napi_alloc_frag(len);
-> -		if (!buf) {
-> -			xsk_buff_free(xdp);
-> -			goto err;
-> +			return -1;
->   		}
->   
-> -		memcpy(buf, xdp->data - vi->hdr_len, len);
-> -
-> -		xsk_buff_free(xdp);
-> +		new_xdp = buf_to_xdp(vi, rq, buf, len);
-> +		if (!new_xdp)
-> +			goto drop_bufs;
->   
-> -		page = virt_to_page(buf);
-> +		/* In virtnet_add_recvbuf_xsk(), we ask the host to fill from
-> +		 * xdp->data - vi->hdr_len with both virtio_net_hdr and data.
-> +		 * However, only the first packet has the virtio_net_hdr, the
-> +		 * following ones do not. So we need to adjust the following
-> +		 * packets' data pointer to the correct place.
-> +		 */
-> +		new_xdp->data -= vi->hdr_len;
-> +		new_xdp->data_end = new_xdp->data + len;
->   
-> -		truesize = len;
-> +		if (!xsk_buff_add_frag(xdp, new_xdp))
-> +			goto drop_bufs;
->   
-> -		curr_skb  = virtnet_skb_append_frag(head_skb, curr_skb, page,
-> -						    buf, len, truesize);
-> -		if (!curr_skb) {
-> -			put_page(page);
-> -			goto err;
-> -		}
-> +		num_buf--;
->   	}
->   
->   	return 0;
->   
-> -err:
-> +drop_bufs:
->   	xsk_drop_follow_bufs(vi->dev, rq, num_buf, stats);
-> -	return -EINVAL;
-> +	return -1;
->   }
->   
->   static struct sk_buff *virtnet_receive_xsk_merge(struct net_device *dev, struct virtnet_info *vi,
-> @@ -1307,23 +1297,28 @@ static struct sk_buff *virtnet_receive_xsk_merge(struct net_device *dev, struct
->   	num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
->   
->   	ret = XDP_PASS;
-> +	if (virtnet_build_xsk_buff_mrg(vi, rq, num_buf, xdp, stats))
-> +		goto drop;
-> +
->   	rcu_read_lock();
->   	prog = rcu_dereference(rq->xdp_prog);
-> -	/* TODO: support multi buffer. */
-> -	if (prog && num_buf == 1)
-> +	if (prog)
->   		ret = virtnet_xdp_handler(prog, xdp, dev, xdp_xmit, stats);
->   	rcu_read_unlock();
->   
->   	switch (ret) {
->   	case XDP_PASS:
-> -		skb = xsk_construct_skb(rq, xdp);
-> +		skb = xdp_build_skb_from_zc(xdp);
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-This function has a bug which needs this fix commit to be applied to 
-work correctly: 
-https://lore.kernel.org/netdev/20250426081220.40689-2-minhquangbui99@gmail.com/
+--8323328-589040720-1745675126=:944
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
->   		if (!skb)
-> -			goto drop_bufs;
-> +			break;
->   
-> -		if (xsk_append_merge_buffer(vi, rq, skb, num_buf, hdr, stats)) {
-> -			dev_kfree_skb(skb);
-> -			goto drop;
-> -		}
-> +		/* Later, in virtnet_receive_done(), eth_type_trans()
-> +		 * is called. However, in xdp_build_skb_from_zc(), it is called
-> +		 * already. As a result, we need to reset the data to before
-> +		 * the mac header so that the later call in
-> +		 * virtnet_receive_done() works correctly.
-> +		 */
-> +		skb_push(skb, ETH_HLEN);
->   
->   		return skb;
->   
-> @@ -1332,14 +1327,11 @@ static struct sk_buff *virtnet_receive_xsk_merge(struct net_device *dev, struct
->   		return NULL;
->   
->   	default:
-> -		/* drop packet */
-> -		xsk_buff_free(xdp);
-> +		break;
->   	}
->   
-> -drop_bufs:
-> -	xsk_drop_follow_bufs(dev, rq, num_buf, stats);
-> -
->   drop:
-> +	xsk_buff_free(xdp);
->   	u64_stats_inc(&stats->drops);
->   	return NULL;
->   }
-> @@ -1396,6 +1388,8 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
->   		return -ENOMEM;
->   
->   	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
-> +	/* Reserve some space for skb_shared_info */
-> +	len -= SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
->   
->   	for (i = 0; i < num; ++i) {
->   		/* Use the part of XDP_PACKET_HEADROOM as the virtnet hdr space.
-> @@ -6721,6 +6715,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->   	dev->netdev_ops = &virtnet_netdev;
->   	dev->stat_ops = &virtnet_stat_ops;
->   	dev->features = NETIF_F_HIGHDMA;
-> +	dev->xdp_zc_max_segs = VIRTNET_MAX_ZC_SEGS;
->   
->   	dev->ethtool_ops = &virtnet_ethtool_ops;
->   	SET_NETDEV_DEV(dev, &vdev->dev);
+On Sat, 26 Apr 2025, Xin Li wrote:
 
+> On 4/25/2025 8:45 AM, Ilpo J=C3=A4rvinen wrote:
+> > To me this looks really a random set of source files, maybe it helped s=
+ome
+> > build success but it's hard for me to review this because there are sti=
+ll
+> > cases that depend on indirect include chains.
+> >=20
+> > Could you just look into solving all missing msr.h includes instead
+> > as clearly some are still missing after 3 pre-existing ones and you add=
+ing
+> > it into 3 files:
+> >=20
+> > $ git grep -e rdmsr -e wrmsr -l drivers/platform/x86/
+> > drivers/platform/x86/intel/ifs/core.c
+> > drivers/platform/x86/intel/ifs/load.c
+> > drivers/platform/x86/intel/ifs/runtest.c
+> > drivers/platform/x86/intel/pmc/cnp.c
+> > drivers/platform/x86/intel/pmc/core.c
+> > drivers/platform/x86/intel/speed_select_if/isst_if_common.c
+> > drivers/platform/x86/intel/speed_select_if/isst_if_mbox_msr.c
+> > drivers/platform/x86/intel/speed_select_if/isst_tpmi_core.c
+> > drivers/platform/x86/intel/tpmi_power_domains.c
+> > drivers/platform/x86/intel/turbo_max_3.c
+> > drivers/platform/x86/intel/uncore-frequency/uncore-frequency.c
+> > drivers/platform/x86/intel_ips.c
+> >=20
+> > $ git grep -e 'msr.h' -l drivers/platform/x86/
+> > drivers/platform/x86/intel/pmc/core.c
+> > drivers/platform/x86/intel/tpmi_power_domains.c
+> > drivers/platform/x86/intel_ips.c
+>=20
+> I think you want me to add all necessary direct inclusions, right?
+
+For asm/msr.h yes, as it seems you're altering the inclusion paths and all=
+=20
+non-direct includes have a chance of breaking so it seems prudent to just=
+=20
+convert them into direct includes.
+
+> This is the right thing to do, and I did try it but gave up later.
+>=20
+> I will do it in the next iteration as you asked.  But I want to make my
+> points:
+>=20
+> 1) It's not just two patterns {rd,wr}msr, there are a lot of definitions
+>    in <asm/msr.h> and we need to cover all of them:
+
+I know and I don't expect you to get it 100% perfect, but taking a major=20
+step into the right direction would be way better than build testing one=20
+configuration and see what blows up and fix only those.
+
+In this particular case, the amount of includes seemed really subpar with=
+=20
+many users lacking the include.
+
+>       struct msr_info
+>       struct msr_regs_info
+>       struct saved_msr
+>       struct saved_msrs
+
+Could be shortened to -e 'struct msr' -e 'struct saved_msr'.
+
+>       {read,write}_msr
+>       rdpmc
+>       .*msr.*_on_cpu
+
+Well, my pattern already caught rdmsr.*on_cpu and wrmsr.*on_cpu.
+
+For the other patterns, I don't see those at all under=20
+drivers/platform/x86/ but I think when one typically implies the=20
+others tend appear as well so this might not be as hard as it seems.
+
+> 2) Once all necessary direct inclusions are in place, it's easy to
+>    overlook adding a header inclusion in practice, especially if the
+>    build passes.  Besides we often forget to remove a header when a
+>    definition is removed.  In other words, direct inclusion is hard to
+>    maintain.
+
+This is true as well but we should still try to move towards the right=20
+state affairs even if we will not get it near 100% until there's a real=20
+tool that relentlessly keeps exposing such human oversight.
+
+And do I try to check also includes whenever I remember while reviewing=20
+patches (which requires some effort as they are not visible in the code=20
+context and might not appear in a patch at all).
+
+> 3) Some random kernel configuration combinations can cause the current
+>    kernel build to fail.  I hit one in x86 UML.
+
+Yes, which why direct including is much better than relying on fragile=20
+indirects.
+
+> We all know Ingo is the best person to discuss this with :).  While my
+> understanding of the header inclusion issue may be inaccurate or
+> outdated.
+>=20
+> So for me, using "make allyesconfig" is a practical method for a quick
+> local build check, plus I always send my patches to Intel LKP.
+
+Even with LKP, randconfig builds may still require many tests to find=20
+issues.
+
+> There probably wants a script that identifies all files that reference a
+> definition in a header thus need to include it explicitly.  And indirect
+> includes should be zapped.
+
+Sadly, the clang based include-what-you-use tool is not yet there for=20
+the kernel AFAIK.
+
+--=20
+ i.
+
+--8323328-589040720-1745675126=:944--
