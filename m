@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 969521F8724
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 969A31FE45C
 	for <virtualization@lists.linux.dev>; Sun, 27 Apr 2025 09:21:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745745678; cv=none; b=DvBICTj1IMqniLIHUTCXFmMIdR91WUuFpvU5Ef04UzwmhuM0igUwPZdV60aNkBz8NEB/rS8VoewPv7UYAfLqjpQXKCGpRZpfCYaomnCloef/XSstLQuPIRLBBmdi4N8xlESD0V4xXkgXvEaGmbkZZ1HUkrs6r79NsOg9kFW+bJE=
+	t=1745745678; cv=none; b=LxNMVl9zzarThqbqoMAAoQ6q7m10zlBFk5NB7hNk8fXmUoY8JQKL2xmYGmJ9EBs+rdfQpmOvKmZK8juJRfRBzrOolD2WhBe8wdce+BEoaSA5pcOE2UKogyzIBWHoYvF6CPeSsmviA1hkL/ycr7KEvhyiEZx1+xMYDpdPjGpQLDg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1745745678; c=relaxed/simple;
-	bh=rbxzf68/Vj5fZR65xbmGi6PPQumi/66r4NWz9FfmpQk=;
+	bh=POeWP1OeCKuZRSOpQsm5z1482Z4JAEDNnoL556x+v5k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OZkNkiQyn2ZWJORJ1QQ7CQi0NXekWTSaxDqZMnIxWWWPPOF0S9174Ucg4jNFhL3pAUJw8OyYWQFxELaBY9jw8SlO8hjvSZQY+KYZmclkbR40YdJ8p/XFiFYDLqrMkY107tcl/30K258rOyEGBJX3qCtg/Nq8uzmlKCr1F0zzQvw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=aHoFz+mI; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version:Content-Type; b=cyJc1aL14sOeqRCfMxste0LFUbpjUp/aYt9c4YD5wMKt5ySuahXnz36z28M7EcPQu0UtyXiykruWvE9OVf+sqUCgaeIpRT3b/1MJQZVZQo6w3sbbP9Vuxzqc1JwQpHmgNMpEWuFl+v1ihyPoukbJ68KZBU6rfD4jU1CKyxMBk6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=VNmo3uia; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="aHoFz+mI"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="VNmo3uia"
 Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53R9KRS01598826
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53R9KRRx1598826
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Sun, 27 Apr 2025 02:20:38 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53R9KRS01598826
+	Sun, 27 Apr 2025 02:20:36 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53R9KRRx1598826
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745745639;
-	bh=lM6Xh3F6Lo/yPj1rM3I4OaRflD96nKu0SVSLsJxV00A=;
+	s=2025042001; t=1745745637;
+	bh=+pVPbNpNJhKlbxpDgv7RbZVuTFqKjEBhcRqOVxNg35M=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=aHoFz+mICGp81O0KJOKAxa5iOLm4bZRUKpcOSFkpt035GtQEhfvwtzTohlmTTikyD
-	 WIXhtMVyvJf2WpPakld45ClefSO5LDSiWZ5HbSvn13DMcewSQT7tmb5Pv9flgS8Ka+
-	 PQksSV9DTZJsHmTO/zwvj0kzgxo3UhrI2kjGVmnahssYpxHNc53hdlrnK4sDGhkGju
-	 77tmcIhGq7971egIkqWOFkXcUl8S6ClNqcGQ1osGc1XwmJzhYkdALbrN7E+uEKry15
-	 ds4vg4dhJO96xA6Yu6iFFhgw46lbknedOlJc/41Vj9cS7XJOWOh7hRjXLXThx+xquP
-	 5sgnO/GlUTDzQ==
+	b=VNmo3uiak1noYpKTG/jLw/iJPvxthCPJphOG7oNxfBB0fU/ujY4AM6rt1iCWNcVmB
+	 PkVpItnEGcCeGnjVW5id6u8fewAPR6ih7c46JrOyu+ctmHJXDsx5VdOvDr14TGh/Lb
+	 PgF26Pfs59jrRsEMvx/lql25UmR2CqpIshcSLlVH4fSW899RlSygMuGqkK3a74Z/tx
+	 uGL4GxEX0OQ097TNxvCv7jEIzqA5H4lGqzh2IIybrBnLRjIlIfRghl6fcpAklhsDbS
+	 7pEx8/ly1QrIWFMPItt5SnDpgkaS83vH3Hk/09/rsrMY16LPtDhd0EBO4KSIszK85N
+	 GhEnY34L8vjHg==
 From: "Xin Li (Intel)" <xin@zytor.com>
 To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
@@ -51,9 +51,9 @@ Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
         haiyangz@microsoft.com, decui@microsoft.com,
         dapeng1.mi@linux.intel.com, ilpo.jarvinen@linux.intel.com
-Subject: [PATCH v4 03/15] x86/msr: Remove rdpmc()
-Date: Sun, 27 Apr 2025 02:20:15 -0700
-Message-ID: <20250427092027.1598740-4-xin@zytor.com>
+Subject: [PATCH v4 02/15] x86/msr: Move rdtsc{,_ordered}() to <asm/tsc.h>
+Date: Sun, 27 Apr 2025 02:20:14 -0700
+Message-ID: <20250427092027.1598740-3-xin@zytor.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250427092027.1598740-1-xin@zytor.com>
 References: <20250427092027.1598740-1-xin@zytor.com>
@@ -63,54 +63,182 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-rdpmc() is not used anywhere, remove it.
+For some reason, there are some TSC-related functions in the MSR
+header even though there is a tsc.h header.
+
+Relocate rdtsc{,_ordered}() from <asm/msr.h> to <asm/tsc.h>, and
+subsequently remove the inclusion of <asm/msr.h> in <asm/tsc.h>.
 
 Signed-off-by: Xin Li (Intel) <xin@zytor.com>
 Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/x86/include/asm/msr.h      | 7 -------
- arch/x86/include/asm/paravirt.h | 7 -------
- 2 files changed, 14 deletions(-)
+
+Change in v4:
+*) Add missing includes in a different patch (Ilpo Järvinen).
+
+Change in v3:
+* Add a problem statement to the changelog (Dave Hansen).
+---
+ arch/x86/include/asm/msr.h | 54 ---------------------------
+ arch/x86/include/asm/tsc.h | 76 +++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 75 insertions(+), 55 deletions(-)
 
 diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index 2caa13830e11..e05466e486fc 100644
+index 72a9ebc99078..2caa13830e11 100644
 --- a/arch/x86/include/asm/msr.h
 +++ b/arch/x86/include/asm/msr.h
-@@ -234,13 +234,6 @@ static inline int rdmsrq_safe(u32 msr, u64 *p)
- 	return err;
- }
+@@ -170,60 +170,6 @@ native_write_msr_safe(u32 msr, u32 low, u32 high)
+ extern int rdmsr_safe_regs(u32 regs[8]);
+ extern int wrmsr_safe_regs(u32 regs[8]);
  
--#define rdpmc(counter, low, high)			\
--do {							\
--	u64 _l = native_read_pmc((counter));		\
--	(low)  = (u32)_l;				\
--	(high) = (u32)(_l >> 32);			\
--} while (0)
+-/**
+- * rdtsc() - returns the current TSC without ordering constraints
+- *
+- * rdtsc() returns the result of RDTSC as a 64-bit integer.  The
+- * only ordering constraint it supplies is the ordering implied by
+- * "asm volatile": it will put the RDTSC in the place you expect.  The
+- * CPU can and will speculatively execute that RDTSC, though, so the
+- * results can be non-monotonic if compared on different CPUs.
+- */
+-static __always_inline u64 rdtsc(void)
+-{
+-	DECLARE_ARGS(val, low, high);
 -
- #define rdpmcl(counter, val) ((val) = native_read_pmc(counter))
- 
- #endif	/* !CONFIG_PARAVIRT_XXL */
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 86a77528792d..c4dedb984735 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -244,13 +244,6 @@ static inline u64 paravirt_read_pmc(int counter)
- 	return PVOP_CALL1(u64, cpu.read_pmc, counter);
- }
- 
--#define rdpmc(counter, low, high)		\
--do {						\
--	u64 _l = paravirt_read_pmc(counter);	\
--	low = (u32)_l;				\
--	high = _l >> 32;			\
--} while (0)
+-	asm volatile("rdtsc" : EAX_EDX_RET(val, low, high));
 -
- #define rdpmcl(counter, val) ((val) = paravirt_read_pmc(counter))
+-	return EAX_EDX_VAL(val, low, high);
+-}
+-
+-/**
+- * rdtsc_ordered() - read the current TSC in program order
+- *
+- * rdtsc_ordered() returns the result of RDTSC as a 64-bit integer.
+- * It is ordered like a load to a global in-memory counter.  It should
+- * be impossible to observe non-monotonic rdtsc_unordered() behavior
+- * across multiple CPUs as long as the TSC is synced.
+- */
+-static __always_inline u64 rdtsc_ordered(void)
+-{
+-	DECLARE_ARGS(val, low, high);
+-
+-	/*
+-	 * The RDTSC instruction is not ordered relative to memory
+-	 * access.  The Intel SDM and the AMD APM are both vague on this
+-	 * point, but empirically an RDTSC instruction can be
+-	 * speculatively executed before prior loads.  An RDTSC
+-	 * immediately after an appropriate barrier appears to be
+-	 * ordered as a normal load, that is, it provides the same
+-	 * ordering guarantees as reading from a global memory location
+-	 * that some other imaginary CPU is updating continuously with a
+-	 * time stamp.
+-	 *
+-	 * Thus, use the preferred barrier on the respective CPU, aiming for
+-	 * RDTSCP as the default.
+-	 */
+-	asm volatile(ALTERNATIVE_2("rdtsc",
+-				   "lfence; rdtsc", X86_FEATURE_LFENCE_RDTSC,
+-				   "rdtscp", X86_FEATURE_RDTSCP)
+-			: EAX_EDX_RET(val, low, high)
+-			/* RDTSCP clobbers ECX with MSR_TSC_AUX. */
+-			:: "ecx");
+-
+-	return EAX_EDX_VAL(val, low, high);
+-}
+-
+ static inline u64 native_read_pmc(int counter)
+ {
+ 	DECLARE_ARGS(val, low, high);
+diff --git a/arch/x86/include/asm/tsc.h b/arch/x86/include/asm/tsc.h
+index 94408a784c8e..13335a130edf 100644
+--- a/arch/x86/include/asm/tsc.h
++++ b/arch/x86/include/asm/tsc.h
+@@ -7,7 +7,81 @@
  
- static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
+ #include <asm/cpufeature.h>
+ #include <asm/processor.h>
+-#include <asm/msr.h>
++
++/*
++ * both i386 and x86_64 returns 64-bit value in edx:eax, but gcc's "A"
++ * constraint has different meanings. For i386, "A" means exactly
++ * edx:eax, while for x86_64 it doesn't mean rdx:rax or edx:eax. Instead,
++ * it means rax *or* rdx.
++ */
++#ifdef CONFIG_X86_64
++/* Using 64-bit values saves one instruction clearing the high half of low */
++#define DECLARE_ARGS(val, low, high)	unsigned long low, high
++#define EAX_EDX_VAL(val, low, high)	((low) | (high) << 32)
++#define EAX_EDX_RET(val, low, high)	"=a" (low), "=d" (high)
++#else
++#define DECLARE_ARGS(val, low, high)	u64 val
++#define EAX_EDX_VAL(val, low, high)	(val)
++#define EAX_EDX_RET(val, low, high)	"=A" (val)
++#endif
++
++/**
++ * rdtsc() - returns the current TSC without ordering constraints
++ *
++ * rdtsc() returns the result of RDTSC as a 64-bit integer.  The
++ * only ordering constraint it supplies is the ordering implied by
++ * "asm volatile": it will put the RDTSC in the place you expect.  The
++ * CPU can and will speculatively execute that RDTSC, though, so the
++ * results can be non-monotonic if compared on different CPUs.
++ */
++static __always_inline u64 rdtsc(void)
++{
++	DECLARE_ARGS(val, low, high);
++
++	asm volatile("rdtsc" : EAX_EDX_RET(val, low, high));
++
++	return EAX_EDX_VAL(val, low, high);
++}
++
++/**
++ * rdtsc_ordered() - read the current TSC in program order
++ *
++ * rdtsc_ordered() returns the result of RDTSC as a 64-bit integer.
++ * It is ordered like a load to a global in-memory counter.  It should
++ * be impossible to observe non-monotonic rdtsc_unordered() behavior
++ * across multiple CPUs as long as the TSC is synced.
++ */
++static __always_inline u64 rdtsc_ordered(void)
++{
++	DECLARE_ARGS(val, low, high);
++
++	/*
++	 * The RDTSC instruction is not ordered relative to memory
++	 * access.  The Intel SDM and the AMD APM are both vague on this
++	 * point, but empirically an RDTSC instruction can be
++	 * speculatively executed before prior loads.  An RDTSC
++	 * immediately after an appropriate barrier appears to be
++	 * ordered as a normal load, that is, it provides the same
++	 * ordering guarantees as reading from a global memory location
++	 * that some other imaginary CPU is updating continuously with a
++	 * time stamp.
++	 *
++	 * Thus, use the preferred barrier on the respective CPU, aiming for
++	 * RDTSCP as the default.
++	 */
++	asm volatile(ALTERNATIVE_2("rdtsc",
++				   "lfence; rdtsc", X86_FEATURE_LFENCE_RDTSC,
++				   "rdtscp", X86_FEATURE_RDTSCP)
++			: EAX_EDX_RET(val, low, high)
++			/* RDTSCP clobbers ECX with MSR_TSC_AUX. */
++			:: "ecx");
++
++	return EAX_EDX_VAL(val, low, high);
++}
++
++#undef DECLARE_ARGS
++#undef EAX_EDX_VAL
++#undef EAX_EDX_RET
+ 
+ /*
+  * Standard way to access the cycle counter.
 -- 
 2.49.0
 
