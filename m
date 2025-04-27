@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70CF924C08D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70C7F24BC04
 	for <virtualization@lists.linux.dev>; Sun, 27 Apr 2025 09:21:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745745680; cv=none; b=M/N+Fg/eRCVEU3c+j0B3xc0xKyKVWZG5yc7OC1XMUQJCBmjRjGvlZGYCdfAOJA6lKcHkwLFU3q9iC8Ukl2OjwII+Xsfhg0DH/QU7YcNtDRorsXUs7DwddMFpZkSa32ytvsxf4sJnSPWt+KokrUDM5dn7ejt+/Kapicla3KQfMkA=
+	t=1745745680; cv=none; b=HUdmZGSkZK13lblpGCUOleiLFGCo6Q7vg80xey+0tJQ10rEt6ql7acC5kCil3/X6u57ME8Q1iiJUpC7JSm+djUzGA6/Si43tVY07lNCKenDwCk/0ThlH5iGbiXvfcTra489Mk5uML51w1tjx4d5a+Wxc191Zfmjh0F9N2RXsooI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1745745680; c=relaxed/simple;
-	bh=+vAkAmxzXYdQ7DHyzTYgczxeCtY6E6PCVIeemR8f2UE=;
+	bh=u8xjMs0f/wZ6npeeiO/kGoUf8izCKrVIU+y3Uw+zGRY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nRwTixN51wirtqS+NvBpppGABcS/lmut8/FX1W0CJsIbpoBkaeLWG2JDbY2rs898ieWMG6zq73aOabh34mSyHrQg5yc4tSspk6oO7rFYw8qGErnkuruh4G8tWEFg64VHa6KZF2L3eMkhE+XSjFcwMdTESN1BlwhL59rTKJzmvPA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=Nqa5qcgm; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=M5qyh0qDhi+MPS/8FQHqSxZuGVX0STkqPMVfw6D5/EmWydQIa4RxWyHulpHK7yFxK3vaaZDJ/vjMsYlkFrpIJHj9KSS6/DHu1NKv4MyR4kUwPa13jWRA5lB4m+qjd1ZdYYuD8TcLmHVJrrH5YMOZs1l2AfYSPkJhAIA1Ry0HxvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=D0ogFz8x; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="Nqa5qcgm"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="D0ogFz8x"
 Received: from terminus.zytor.com (terminus.zytor.com [IPv6:2607:7c80:54:3:0:0:0:136])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53R9KRS11598826
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 53R9KRS21598826
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Sun, 27 Apr 2025 02:20:40 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53R9KRS11598826
+	Sun, 27 Apr 2025 02:20:42 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 53R9KRS21598826
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1745745642;
-	bh=p8ppX0g6LR5uDE4H5rP+F1T7auiPTWqUYddLIkJbPBw=;
+	s=2025042001; t=1745745644;
+	bh=ksSIeWAVTacslihTdf7Zx49dtQ9Az+Y+aR8mjOcQqHA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Nqa5qcgm1xt2cbOzPOOE5NTQDSJVVDFWZs7ob5S90pzNOZfMWVzZfhzHCfPnW8k7H
-	 zGpTUYIqhLXK8edV6yOy5p8PVMegfBJ1AMwHGn3Wa6T8BFhC5IEyjwLALmMZVQHZvj
-	 FeAbywJiMCctZCYsrmeOmeRizPkCyPvpQqB4s20r9z+1KwReqSF0DU+LNVxkOYQyxN
-	 AIOC2xb33NMVp462kdpe7gascdkGx9CtJomG+ik64uXcr/WH65c56t948uSi/JqPTJ
-	 iYcnejO0EO5nB8HlBGaTzztJpKwC4CTb1LA+IrTBxA5vlEjmvH3lhGeW1IdF6DrQFD
-	 0gDpuTZqKjvRQ==
+	b=D0ogFz8xK+U7+UDSUO9GSUMse1XC6Jyah0kmGFtpu5IzZEm46jWJ40rUrbGWi2csJ
+	 9o6vLboUmczU+neAMTj74y44dFlbR92Grb53hWR0cR2b7H+o91aoHqaUwmQcyCKUJq
+	 FwjqWWVhsgoqWlKjk24/r1/hHZ+ui4ceJrKMSvBGCCvkCUoyAk6LTtv3QrczwHQOpq
+	 QY8tV47D00uLSMVryvI0jqkdTDmxmYJN5KYAnJQtq4BUwInkvj3e8YipxAb+9JCIhX
+	 yqNBXqdUB81Htf6c+l0BmGUtvczcAzQQm6BiN5EfF9sCUa/yYFBoJHtTLn/u5pMZYg
+	 7/vgd7gA2lURw==
 From: "Xin Li (Intel)" <xin@zytor.com>
 To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
@@ -51,9 +51,9 @@ Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
         haiyangz@microsoft.com, decui@microsoft.com,
         dapeng1.mi@linux.intel.com, ilpo.jarvinen@linux.intel.com
-Subject: [PATCH v4 04/15] x86/msr: Rename rdpmcl() to rdpmc()
-Date: Sun, 27 Apr 2025 02:20:16 -0700
-Message-ID: <20250427092027.1598740-5-xin@zytor.com>
+Subject: [PATCH v4 05/15] x86/msr: Convert the rdpmc() macro into an always inline function
+Date: Sun, 27 Apr 2025 02:20:17 -0700
+Message-ID: <20250427092027.1598740-6-xin@zytor.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250427092027.1598740-1-xin@zytor.com>
 References: <20250427092027.1598740-1-xin@zytor.com>
@@ -65,124 +65,136 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Now that rdpmc() is gone, i.e. rdpmcl() is the sole PMC read helper,
-simply rename rdpmcl() to rdpmc().
+Functions offer type safety and better readability compared to macros.
+Additionally, always inline functions can match the performance of
+macros.  Converting the rdpmc() macro into an always inline function
+is simple and straightforward, so just make the change.
+
+Moreover, the read result is now the returned value, further enhancing
+readability.
 
 Signed-off-by: Xin Li (Intel) <xin@zytor.com>
 Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
 
-Changes in v3:
-*) Explain the reason of the renaming in the changelog (Dave Hansen).
-*) Use shorter name rdpmc() instead of rdpmcq() as the name of the
-   sole PMC read helper (Sean Christopherson).
+Change in v3:
+*) Add a changelog even it's obvious (Dave Hansen).
 ---
  arch/x86/events/amd/uncore.c              |  2 +-
  arch/x86/events/core.c                    |  2 +-
  arch/x86/events/intel/core.c              |  4 ++--
  arch/x86/events/intel/ds.c                |  2 +-
- arch/x86/include/asm/msr.h                |  2 +-
- arch/x86/include/asm/paravirt.h           |  2 +-
+ arch/x86/include/asm/msr.h                |  5 ++++-
+ arch/x86/include/asm/paravirt.h           |  4 +---
  arch/x86/kernel/cpu/resctrl/pseudo_lock.c | 12 ++++++------
- 7 files changed, 13 insertions(+), 13 deletions(-)
+ 7 files changed, 16 insertions(+), 15 deletions(-)
 
 diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
-index 2a3259df619a..42c833cf9d98 100644
+index 42c833cf9d98..13c4cea545c5 100644
 --- a/arch/x86/events/amd/uncore.c
 +++ b/arch/x86/events/amd/uncore.c
 @@ -108,7 +108,7 @@ static void amd_uncore_read(struct perf_event *event)
  	if (hwc->event_base_rdpmc < 0)
  		rdmsrq(hwc->event_base, new);
  	else
--		rdpmcl(hwc->event_base_rdpmc, new);
-+		rdpmc(hwc->event_base_rdpmc, new);
+-		rdpmc(hwc->event_base_rdpmc, new);
++		new = rdpmc(hwc->event_base_rdpmc);
  
  	local64_set(&hwc->prev_count, new);
  	delta = (new << COUNTER_SHIFT) - (prev << COUNTER_SHIFT);
 diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-index 85b55c1dc162..ea618dd8a678 100644
+index ea618dd8a678..d8634446684e 100644
 --- a/arch/x86/events/core.c
 +++ b/arch/x86/events/core.c
 @@ -134,7 +134,7 @@ u64 x86_perf_event_update(struct perf_event *event)
  	 */
  	prev_raw_count = local64_read(&hwc->prev_count);
  	do {
--		rdpmcl(hwc->event_base_rdpmc, new_raw_count);
-+		rdpmc(hwc->event_base_rdpmc, new_raw_count);
+-		rdpmc(hwc->event_base_rdpmc, new_raw_count);
++		new_raw_count = rdpmc(hwc->event_base_rdpmc);
  	} while (!local64_try_cmpxchg(&hwc->prev_count,
  				      &prev_raw_count, new_raw_count));
  
 diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index 394fa83b537b..8ac7a03ae4e9 100644
+index 8ac7a03ae4e9..9fa94b6e4e74 100644
 --- a/arch/x86/events/intel/core.c
 +++ b/arch/x86/events/intel/core.c
 @@ -2724,12 +2724,12 @@ static u64 intel_update_topdown_event(struct perf_event *event, int metric_end,
  
  	if (!val) {
  		/* read Fixed counter 3 */
--		rdpmcl((3 | INTEL_PMC_FIXED_RDPMC_BASE), slots);
-+		rdpmc((3 | INTEL_PMC_FIXED_RDPMC_BASE), slots);
+-		rdpmc((3 | INTEL_PMC_FIXED_RDPMC_BASE), slots);
++		slots = rdpmc(3 | INTEL_PMC_FIXED_RDPMC_BASE);
  		if (!slots)
  			return 0;
  
  		/* read PERF_METRICS */
--		rdpmcl(INTEL_PMC_FIXED_RDPMC_METRICS, metrics);
-+		rdpmc(INTEL_PMC_FIXED_RDPMC_METRICS, metrics);
+-		rdpmc(INTEL_PMC_FIXED_RDPMC_METRICS, metrics);
++		metrics = rdpmc(INTEL_PMC_FIXED_RDPMC_METRICS);
  	} else {
  		slots = val[0];
  		metrics = val[1];
 diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
-index 410a8975d1b9..be05e93b48e7 100644
+index be05e93b48e7..a093cb485278 100644
 --- a/arch/x86/events/intel/ds.c
 +++ b/arch/x86/events/intel/ds.c
 @@ -2274,7 +2274,7 @@ intel_pmu_save_and_restart_reload(struct perf_event *event, int count)
  	WARN_ON(this_cpu_read(cpu_hw_events.enabled));
  
  	prev_raw_count = local64_read(&hwc->prev_count);
--	rdpmcl(hwc->event_base_rdpmc, new_raw_count);
-+	rdpmc(hwc->event_base_rdpmc, new_raw_count);
+-	rdpmc(hwc->event_base_rdpmc, new_raw_count);
++	new_raw_count = rdpmc(hwc->event_base_rdpmc);
  	local64_set(&hwc->prev_count, new_raw_count);
  
  	/*
 diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index e05466e486fc..ae96d35e0621 100644
+index ae96d35e0621..73d44081e597 100644
 --- a/arch/x86/include/asm/msr.h
 +++ b/arch/x86/include/asm/msr.h
-@@ -234,7 +234,7 @@ static inline int rdmsrq_safe(u32 msr, u64 *p)
+@@ -234,7 +234,10 @@ static inline int rdmsrq_safe(u32 msr, u64 *p)
  	return err;
  }
  
--#define rdpmcl(counter, val) ((val) = native_read_pmc(counter))
-+#define rdpmc(counter, val) ((val) = native_read_pmc(counter))
+-#define rdpmc(counter, val) ((val) = native_read_pmc(counter))
++static __always_inline u64 rdpmc(int counter)
++{
++	return native_read_pmc(counter);
++}
  
  #endif	/* !CONFIG_PARAVIRT_XXL */
  
 diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index c4dedb984735..faa0713553b1 100644
+index faa0713553b1..f272c4bd3d5b 100644
 --- a/arch/x86/include/asm/paravirt.h
 +++ b/arch/x86/include/asm/paravirt.h
-@@ -244,7 +244,7 @@ static inline u64 paravirt_read_pmc(int counter)
+@@ -239,13 +239,11 @@ static inline int rdmsrq_safe(unsigned msr, u64 *p)
+ 	return err;
+ }
+ 
+-static inline u64 paravirt_read_pmc(int counter)
++static __always_inline u64 rdpmc(int counter)
+ {
  	return PVOP_CALL1(u64, cpu.read_pmc, counter);
  }
  
--#define rdpmcl(counter, val) ((val) = paravirt_read_pmc(counter))
-+#define rdpmc(counter, val) ((val) = paravirt_read_pmc(counter))
- 
+-#define rdpmc(counter, val) ((val) = paravirt_read_pmc(counter))
+-
  static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
  {
+ 	PVOP_VCALL2(cpu.alloc_ldt, ldt, entries);
 diff --git a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
-index 26c354bdea07..15ff62d83bd8 100644
+index 15ff62d83bd8..61d762555a79 100644
 --- a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
 +++ b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
 @@ -1019,8 +1019,8 @@ static int measure_residency_fn(struct perf_event_attr *miss_attr,
  	 * used in L1 cache, second to capture accurate value that does not
  	 * include cache misses incurred because of instruction loads.
  	 */
--	rdpmcl(hit_pmcnum, hits_before);
--	rdpmcl(miss_pmcnum, miss_before);
-+	rdpmc(hit_pmcnum, hits_before);
-+	rdpmc(miss_pmcnum, miss_before);
+-	rdpmc(hit_pmcnum, hits_before);
+-	rdpmc(miss_pmcnum, miss_before);
++	hits_before = rdpmc(hit_pmcnum);
++	miss_before = rdpmc(miss_pmcnum);
  	/*
  	 * From SDM: Performing back-to-back fast reads are not guaranteed
  	 * to be monotonic.
@@ -190,10 +202,10 @@ index 26c354bdea07..15ff62d83bd8 100644
  	 * before proceeding.
  	 */
  	rmb();
--	rdpmcl(hit_pmcnum, hits_before);
--	rdpmcl(miss_pmcnum, miss_before);
-+	rdpmc(hit_pmcnum, hits_before);
-+	rdpmc(miss_pmcnum, miss_before);
+-	rdpmc(hit_pmcnum, hits_before);
+-	rdpmc(miss_pmcnum, miss_before);
++	hits_before = rdpmc(hit_pmcnum);
++	miss_before = rdpmc(miss_pmcnum);
  	/*
  	 * Use LFENCE to ensure all previous instructions are retired
  	 * before proceeding.
@@ -201,10 +213,10 @@ index 26c354bdea07..15ff62d83bd8 100644
  	 * before proceeding.
  	 */
  	rmb();
--	rdpmcl(hit_pmcnum, hits_after);
--	rdpmcl(miss_pmcnum, miss_after);
-+	rdpmc(hit_pmcnum, hits_after);
-+	rdpmc(miss_pmcnum, miss_after);
+-	rdpmc(hit_pmcnum, hits_after);
+-	rdpmc(miss_pmcnum, miss_after);
++	hits_after = rdpmc(hit_pmcnum);
++	miss_after = rdpmc(miss_pmcnum);
  	/*
  	 * Use LFENCE to ensure all previous instructions are retired
  	 * before proceeding.
