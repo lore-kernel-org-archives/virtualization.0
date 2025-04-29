@@ -1,48 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B11A23C501;
-	Tue, 29 Apr 2025 23:53:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECDF52D5599;
+	Tue, 29 Apr 2025 23:53:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745970781; cv=none; b=rVZZF44Vsn//0vpR66NMI+nRfSKhTiWnYlqZ2jAE3ZVBgbPRkYig9ukil7kKVQC5kTnb3aIiFlz4tA1yCmXmgDhAjRUYpW/QZqbPOQa2F7CkBneJ+wtPHQklGwP3geYJ+uLfOWo/sGyOt6Z9u+6DzbqjKedRZypCPcw2DBsmCZY=
+	t=1745970803; cv=none; b=Ob87A6+1YQEDaC1rxRWTNZuFZzlPtYvMA0cgIkr2SzFassWsumVc3Zctj7nntjmSryAo5mJGuaWedncaJVT+7gB+mRfWCtOArZ6n/VX/t/qhEPIpDQ3/X15ISVF8vuZel1SCNrl0GEG6uexQ8sD5KlBskgPLYvw48efxp59K87Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745970781; c=relaxed/simple;
-	bh=3MOEBFzFO7/aysooKzH5y1R6gbx8Xi4AfTz2KrC1bjI=;
+	s=arc-20240116; t=1745970803; c=relaxed/simple;
+	bh=OAD7ZFG1GUYz7hjEYbrtr+kwOWUj46bWbklNEQe66lY=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=XukrD7LBtGVKDbDDY/rmwL+HF+/QkicKYXNM0RCS9CrvT0zCP/CTEX1sRxjsooisLDujugfHzmAKzZX6DkYzf13BFtxeiAPN0FgoU5sVtjPZMkbB70Q3LFYxSFvIOCErFZHoECw/ThgQgr+x9fABsi6ndxkSWBW3bWYgswCXdJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P9sEXz8J; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=t4e6tR0OfVf444Keo9eAKb3VL2cTxSQT/ODOuHI7qguyOsTA1VVsQvTxBeUeR3GRSfqkPOUXIGYqRdBu4GDP05TWHjqFmY2MG38OLFTVW3oJGrWE4IZuVgAO4WXEJ5ZiJMAJHM7PPrJImxFNfp+nTsnsPAl77Z+Kkpkhm9gHeTY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mnbDJdDg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P9sEXz8J"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9878FC4CEE3;
-	Tue, 29 Apr 2025 23:52:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mnbDJdDg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4404C4CEEE;
+	Tue, 29 Apr 2025 23:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745970780;
-	bh=3MOEBFzFO7/aysooKzH5y1R6gbx8Xi4AfTz2KrC1bjI=;
+	s=k20201202; t=1745970802;
+	bh=OAD7ZFG1GUYz7hjEYbrtr+kwOWUj46bWbklNEQe66lY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=P9sEXz8JwINUhoArEs0uq9NtUs+ETngfRZpGUvYePcpDOP3Cvrfo+x5/lem6RRfBd
-	 fOD4Z/qAKJsPu42rmx2jsMoJ/p18QCzVV0Cqk1XbkwL+HI9yh4zzKarm7oTYgbki9f
-	 gDEpLi08anMc8wpgx6MoIj6PMYJitGSaW0Bp1NuL2FvQBWzGsc7/MytXoFRPD8CSYr
-	 VWZBjAj8QeJ1l+hIlbEmVk5MQdgYc3ocIkM/RyImJXdqYJhbs2ZC9NOUtwxrG/4Stu
-	 tssRzHGcfTZ+9icUsqBPF1j6U+pwsi1Fie69emW3FDCpqDeH7Zp6IDX9BCfWprXJu2
-	 mSi1LNeqwLsDg==
+	b=mnbDJdDgBSbxNQMhA/qxNXKiKppL59kfZDvE+YqxvXQBGttrkLdigL4CO5l0Si6Tv
+	 GW8yCtxu4oRdsSb8NDG7jqgCGCeXby7HXjDFpJwLgJn/fcEgHcdS2MphhiQOnTEFL4
+	 NVpEMRBGmjKaGEXbRjNfv0/0elzpF//Tn+BVSNKPZEcbnuslaAiydZ8vmwpeT1pQzT
+	 2ZZhdrBXIRbi944J6ybMPEDvTwTf81eey9qzQwP3B6+ZSAEYRErFyYYuiOWSzMBsu0
+	 D1/IlyXqGPPPzwaCxALM+EJjG5fIf2AMJAS81bue4PFhY171yaRYZ4I1O0yglTT1RO
+	 fAboD2LYEncHg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Dongli Zhang <dongli.zhang@oracle.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Mike Christie <michael.christie@oracle.com>,
+Cc: Zhongqiu Han <quic_zhonhan@quicinc.com>,
+	syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com,
 	"Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.6 14/21] vhost-scsi: protect vq->log_used with vq->mutex
-Date: Tue, 29 Apr 2025 19:52:26 -0400
-Message-Id: <20250429235233.537828-14-sashal@kernel.org>
+	virtualization@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.1 02/10] virtio_ring: Fix data race by tagging event_triggered as racy for KCSAN
+Date: Tue, 29 Apr 2025 19:53:07 -0400
+Message-Id: <20250429235316.538129-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250429235233.537828-1-sashal@kernel.org>
-References: <20250429235233.537828-1-sashal@kernel.org>
+In-Reply-To: <20250429235316.538129-1-sashal@kernel.org>
+References: <20250429235316.538129-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -51,83 +49,71 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.6.88
+X-stable-base: Linux 6.1.135
 Content-Transfer-Encoding: 8bit
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Zhongqiu Han <quic_zhonhan@quicinc.com>
 
-[ Upstream commit f591cf9fce724e5075cc67488c43c6e39e8cbe27 ]
+[ Upstream commit 2e2f925fe737576df2373931c95e1a2b66efdfef ]
 
-The vhost-scsi completion path may access vq->log_base when vq->log_used is
-already set to false.
+syzbot reports a data-race when accessing the event_triggered, here is the
+simplified stack when the issue occurred:
 
-    vhost-thread                       QEMU-thread
+==================================================================
+BUG: KCSAN: data-race in virtqueue_disable_cb / virtqueue_enable_cb_delayed
 
-vhost_scsi_complete_cmd_work()
--> vhost_add_used()
-   -> vhost_add_used_n()
-      if (unlikely(vq->log_used))
-                                      QEMU disables vq->log_used
-                                      via VHOST_SET_VRING_ADDR.
-                                      mutex_lock(&vq->mutex);
-                                      vq->log_used = false now!
-                                      mutex_unlock(&vq->mutex);
+write to 0xffff8881025bc452 of 1 bytes by task 3288 on cpu 0:
+ virtqueue_enable_cb_delayed+0x42/0x3c0 drivers/virtio/virtio_ring.c:2653
+ start_xmit+0x230/0x1310 drivers/net/virtio_net.c:3264
+ __netdev_start_xmit include/linux/netdevice.h:5151 [inline]
+ netdev_start_xmit include/linux/netdevice.h:5160 [inline]
+ xmit_one net/core/dev.c:3800 [inline]
 
-				      QEMU gfree(vq->log_base)
-        log_used()
-        -> log_write(vq->log_base)
+read to 0xffff8881025bc452 of 1 bytes by interrupt on cpu 1:
+ virtqueue_disable_cb_split drivers/virtio/virtio_ring.c:880 [inline]
+ virtqueue_disable_cb+0x92/0x180 drivers/virtio/virtio_ring.c:2566
+ skb_xmit_done+0x5f/0x140 drivers/net/virtio_net.c:777
+ vring_interrupt+0x161/0x190 drivers/virtio/virtio_ring.c:2715
+ __handle_irq_event_percpu+0x95/0x490 kernel/irq/handle.c:158
+ handle_irq_event_percpu kernel/irq/handle.c:193 [inline]
 
-Assuming the VMM is QEMU. The vq->log_base is from QEMU userpace and can be
-reclaimed via gfree(). As a result, this causes invalid memory writes to
-QEMU userspace.
+value changed: 0x01 -> 0x00
+==================================================================
 
-The control queue path has the same issue.
+When the data race occurs, the function virtqueue_enable_cb_delayed() sets
+event_triggered to false, and virtqueue_disable_cb_split/packed() reads it
+as false due to the race condition. Since event_triggered is an unreliable
+hint used for optimization, this should only cause the driver temporarily
+suggest that the device not send an interrupt notification when the event
+index is used.
 
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Message-Id: <20250403063028.16045-2-dongli.zhang@oracle.com>
+Fix this KCSAN reported data-race issue by explicitly tagging the access as
+data_racy.
+
+Reported-by: syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/all/67c7761a.050a0220.15b4b9.0018.GAE@google.com/
+Signed-off-by: Zhongqiu Han <quic_zhonhan@quicinc.com>
+Message-Id: <20250312130412.3516307-1-quic_zhonhan@quicinc.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/scsi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/virtio/virtio_ring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 8d8a22504d71f..724dd69c86489 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -560,6 +560,9 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 	int ret;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 7d320f799ca1e..06a64c4adc987 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2415,7 +2415,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
  
- 	llnode = llist_del_all(&svq->completion_list);
-+
-+	mutex_lock(&svq->vq.mutex);
-+
- 	llist_for_each_entry_safe(cmd, t, llnode, tvc_completion_list) {
- 		se_cmd = &cmd->tvc_se_cmd;
+ 	if (vq->event_triggered)
+-		vq->event_triggered = false;
++		data_race(vq->event_triggered = false);
  
-@@ -593,6 +596,8 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 		vhost_scsi_release_cmd_res(se_cmd);
- 	}
- 
-+	mutex_unlock(&svq->vq.mutex);
-+
- 	if (signal)
- 		vhost_signal(&svq->vs->dev, &svq->vq);
- }
-@@ -1301,8 +1306,11 @@ static void vhost_scsi_tmf_resp_work(struct vhost_work *work)
- 		resp_code = VIRTIO_SCSI_S_FUNCTION_REJECTED;
- 	}
- 
-+	mutex_lock(&tmf->svq->vq.mutex);
- 	vhost_scsi_send_tmf_resp(tmf->vhost, &tmf->svq->vq, tmf->in_iovs,
- 				 tmf->vq_desc, &tmf->resp_iov, resp_code);
-+	mutex_unlock(&tmf->svq->vq.mutex);
-+
- 	vhost_scsi_release_tmf_res(tmf);
- }
- 
+ 	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
+ 				 virtqueue_enable_cb_delayed_split(_vq);
 -- 
 2.39.5
 
