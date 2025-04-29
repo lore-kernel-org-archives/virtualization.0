@@ -1,50 +1,52 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFD43242D6E;
-	Tue, 29 Apr 2025 16:43:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE166221719;
+	Tue, 29 Apr 2025 17:04:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745945006; cv=none; b=KNV0GHq9ZKXxOrBMKnetuFAhOhKME29cJpP5txBIg2H5eI3TGnJa2e6kecC4G6h0wjLAVXCk6rMBwZjk6UiugvR4ECgPN9LRxXcaXk2ocnl7BcaHpT/OlSNCIq2cgDl7kTJ1C/PCcz5uhXCKXxvbbvUc3nNJE4r6uHs+OA3xNzE=
+	t=1745946258; cv=none; b=JapfsT+Ou9OXqAOyUlqDvz7TZmZnWLASDcd3iLuE9bFehuS9iQ5qFDT657PO4QoDTVoEYtd8WOBvCTJ0wal2QhzjdDd7stSnIp1zPqMmBrGFEnilcj6YIfhyHiSFbucirjKKH7QJqix1OBLbHRHcPn0I2GQ/eqDiqWjD+pLerhE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745945006; c=relaxed/simple;
-	bh=v4HYRW3IdUqTT2QWf/d9Tt5mMI3zidThP9+8m01Fppc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WmTv2x1AUeXbhh2YgvLdrnbukkMHeQgFPzQlIfPN017UK0bWvXwbRdzVsMh/PZAvriWKw9aGOgJn/+3nu3lub4UhZmDTXegs77Kmy8JTIgY2cEWZW/ldte+VreNvxpkNcDHZcdaz12ZGeToAVSB2XwcnQSN8z1VS3N0/XMUlXc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=q32lQCkF; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1745946258; c=relaxed/simple;
+	bh=YShFUnpYZEgUv4Vpgsp8E6tvIaRSbjibXOpLfs4Ft6Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=F/S2oFB8NjFwTnunW913DfN6lvy6Yy3dSh77NRynDnPSCHIMpihFzeoSo4bo603n2O1g9c7jlTFZQULsh57XLLgvKe0upfzzjE49WQ6uIerr0Cje3PpsnZ9jrzGEdr9Y+eCluggcLsOxbiL5q3ff/6wscygyHpvQLJocklnS0EM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=eJaONrOw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="q32lQCkF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEEABC4CEE3;
-	Tue, 29 Apr 2025 16:43:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745945006;
-	bh=v4HYRW3IdUqTT2QWf/d9Tt5mMI3zidThP9+8m01Fppc=;
-	h=From:To:Cc:Subject:Date:From;
-	b=q32lQCkFNSkYeE2Pyl+ZWmnc95ZLWQ2abEqGokSsfHwhlwSEmhvRIgWIO7xm144ff
-	 /nokDyZx1nnXW378xCZAhlxEVsP0Ls3BhPNRWk+AtWDVb+F4wtGsu67IkRDr8+ogDf
-	 VYJ015xR2haIikjqbNZg0TKtCO7sMnLk+SY7YkZHU4+H02tFd11F7tzcO+fNLIsmh4
-	 N6NJkdEIdlw5aDu1v+UmDlQm8fITG9UVX9mdcnKZZ573Su1qcFVn549TUcM7AbdnDS
-	 POZ6USkiv0nSNrfSQlKNT5Rv6v/kYmY1fuhix4cS5J8HUsqfQBzP1dv+pjkEPQUHP/
-	 ier68dPLY3w/Q==
-From: Jakub Kicinski <kuba@kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org,
-	edumazet@google.com,
-	pabeni@redhat.com,
-	andrew+netdev@lunn.ch,
-	horms@kernel.org,
-	Jakub Kicinski <kuba@kernel.org>,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	hawk@kernel.org,
-	john.fastabend@gmail.com,
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="eJaONrOw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D1EEC4CEE3;
+	Tue, 29 Apr 2025 17:04:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1745946258;
+	bh=YShFUnpYZEgUv4Vpgsp8E6tvIaRSbjibXOpLfs4Ft6Q=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=eJaONrOwl2ey8mkj78TT8U+9LO9zbMrgkGQK/f9DYocalPOt+uzLAI70PtsC8tST0
+	 nsYlXsPL7+egfM88aTfUMfW4XnOzPdxtNk8tNIZcKqUsJ1j6rV9Y6uKD0JiNs+gyuG
+	 D+Td2P3qeRl/sa1sXCXsihYK5U4cv32+bd9eoNPE=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	patches@lists.linux.dev,
+	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>,
 	virtualization@lists.linux.dev,
-	minhquangbui99@gmail.com
-Subject: [PATCH net] virtio-net: free xsk_buffs on error in virtnet_xsk_pool_enable()
-Date: Tue, 29 Apr 2025 09:43:23 -0700
-Message-ID: <20250429164323.2637891-1-kuba@kernel.org>
+	linux-sound@vger.kernel.org,
+	kernel-team@android.com,
+	Betty Zhou <bettyzhou@google.com>,
+	Takashi Iwai <tiwai@suse.de>,
+	John Stultz <jstultz@google.com>,
+	Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.14 207/311] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
+Date: Tue, 29 Apr 2025 18:40:44 +0200
+Message-ID: <20250429161129.485975994@linuxfoundation.org>
 X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250429161121.011111832@linuxfoundation.org>
+References: <20250429161121.011111832@linuxfoundation.org>
+User-Agent: quilt/0.68
+X-stable: review
+X-Patchwork-Hint: ignore
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -53,61 +55,112 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The selftests added to our CI by Bui Quang Minh recently reveals
-that there is a mem leak on the error path of virtnet_xsk_pool_enable():
+6.14-stable review patch.  If anyone has any objections, please let me know.
 
-unreferenced object 0xffff88800a68a000 (size 2048):
-  comm "xdp_helper", pid 318, jiffies 4294692778
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace (crc 0):
-    __kvmalloc_node_noprof+0x402/0x570
-    virtnet_xsk_pool_enable+0x293/0x6a0 (drivers/net/virtio_net.c:5882)
-    xp_assign_dev+0x369/0x670 (net/xdp/xsk_buff_pool.c:226)
-    xsk_bind+0x6a5/0x1ae0
-    __sys_bind+0x15e/0x230
-    __x64_sys_bind+0x72/0xb0
-    do_syscall_64+0xc1/0x1d0
-    entry_SYSCALL_64_after_hwframe+0x77/0x7f
+------------------
 
-Fixes: e9f3962441c0 ("virtio_net: xsk: rx: support fill with xsk buffer")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+From: John Stultz <jstultz@google.com>
+
+[ Upstream commit 3c7df2e27346eb40a0e86230db1ccab195c97cfe ]
+
+Betty reported hitting the following warning:
+
+[    8.709131][  T221] WARNING: CPU: 2 PID: 221 at kernel/workqueue.c:4182
+...
+[    8.713282][  T221] Call trace:
+[    8.713365][  T221]  __flush_work+0x8d0/0x914
+[    8.713468][  T221]  __cancel_work_sync+0xac/0xfc
+[    8.713570][  T221]  cancel_work_sync+0x24/0x34
+[    8.713667][  T221]  virtsnd_remove+0xa8/0xf8 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
+[    8.713868][  T221]  virtsnd_probe+0x48c/0x664 [virtio_snd ab15f34d0dd772f6d11327e08a81d46dc9c36276]
+[    8.714035][  T221]  virtio_dev_probe+0x28c/0x390
+[    8.714139][  T221]  really_probe+0x1bc/0x4c8
+...
+
+It seems we're hitting the error path in virtsnd_probe(), which
+triggers a virtsnd_remove() which iterates over the substreams
+calling cancel_work_sync() on the elapsed_period work_struct.
+
+Looking at the code, from earlier in:
+virtsnd_probe()->virtsnd_build_devs()->virtsnd_pcm_parse_cfg()
+
+We set snd->nsubstreams, allocate the snd->substreams, and if
+we then hit an error on the info allocation or something in
+virtsnd_ctl_query_info() fails, we will exit without having
+initialized the elapsed_period work_struct.
+
+When that error path unwinds we then call virtsnd_remove()
+which as long as the substreams array is allocated, will iterate
+through calling cancel_work_sync() on the uninitialized work
+struct hitting this warning.
+
+Takashi Iwai suggested this fix, which initializes the substreams
+structure right after allocation, so that if we hit the error
+paths we avoid trying to cleanup uninitialized data.
+
+Note: I have not yet managed to reproduce the issue myself, so
+this patch has had limited testing.
+
+Feedback or thoughts would be appreciated!
+
+Cc: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: virtualization@lists.linux.dev
+Cc: linux-sound@vger.kernel.org
+Cc: kernel-team@android.com
+Reported-by: Betty Zhou <bettyzhou@google.com>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: John Stultz <jstultz@google.com>
+Message-Id: <20250116194114.3375616-1-jstultz@google.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-CC: mst@redhat.com
-CC: jasowang@redhat.com
-CC: xuanzhuo@linux.alibaba.com
-CC: eperezma@redhat.com
-CC: hawk@kernel.org
-CC: john.fastabend@gmail.com
-CC: virtualization@lists.linux.dev
-CC: minhquangbui99@gmail.com
----
- drivers/net/virtio_net.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/virtio/virtio_pcm.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 848fab51dfa1..a3d4e666c2a0 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -5886,7 +5886,7 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
- 	hdr_dma = virtqueue_dma_map_single_attrs(sq->vq, &xsk_hdr, vi->hdr_len,
- 						 DMA_TO_DEVICE, 0);
- 	if (virtqueue_dma_mapping_error(sq->vq, hdr_dma))
--		return -ENOMEM;
-+		goto err_free_buffs;
+diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
+index 967e4c45be9bb..2f7c5e709f075 100644
+--- a/sound/virtio/virtio_pcm.c
++++ b/sound/virtio/virtio_pcm.c
+@@ -339,6 +339,21 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
+ 	if (!snd->substreams)
+ 		return -ENOMEM;
  
- 	err = xsk_pool_dma_map(pool, dma_dev, 0);
- 	if (err)
-@@ -5914,6 +5914,8 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
- err_xsk_map:
- 	virtqueue_dma_unmap_single_attrs(rq->vq, hdr_dma, vi->hdr_len,
- 					 DMA_TO_DEVICE, 0);
-+err_free_buffs:
-+	kvfree(rq->xsk_buffs);
- 	return err;
- }
++	/*
++	 * Initialize critical substream fields early in case we hit an
++	 * error path and end up trying to clean up uninitialized structures
++	 * elsewhere.
++	 */
++	for (i = 0; i < snd->nsubstreams; ++i) {
++		struct virtio_pcm_substream *vss = &snd->substreams[i];
++
++		vss->snd = snd;
++		vss->sid = i;
++		INIT_WORK(&vss->elapsed_period, virtsnd_pcm_period_elapsed);
++		init_waitqueue_head(&vss->msg_empty);
++		spin_lock_init(&vss->lock);
++	}
++
+ 	info = kcalloc(snd->nsubstreams, sizeof(*info), GFP_KERNEL);
+ 	if (!info)
+ 		return -ENOMEM;
+@@ -352,12 +367,6 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
+ 		struct virtio_pcm_substream *vss = &snd->substreams[i];
+ 		struct virtio_pcm *vpcm;
  
+-		vss->snd = snd;
+-		vss->sid = i;
+-		INIT_WORK(&vss->elapsed_period, virtsnd_pcm_period_elapsed);
+-		init_waitqueue_head(&vss->msg_empty);
+-		spin_lock_init(&vss->lock);
+-
+ 		rc = virtsnd_pcm_build_hw(vss, &info[i]);
+ 		if (rc)
+ 			goto on_exit;
 -- 
-2.49.0
+2.39.5
+
+
 
