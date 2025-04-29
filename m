@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECDF52D5599;
-	Tue, 29 Apr 2025 23:53:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 037D22DFA57;
+	Tue, 29 Apr 2025 23:53:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745970803; cv=none; b=Ob87A6+1YQEDaC1rxRWTNZuFZzlPtYvMA0cgIkr2SzFassWsumVc3Zctj7nntjmSryAo5mJGuaWedncaJVT+7gB+mRfWCtOArZ6n/VX/t/qhEPIpDQ3/X15ISVF8vuZel1SCNrl0GEG6uexQ8sD5KlBskgPLYvw48efxp59K87Y=
+	t=1745970827; cv=none; b=b3OMr0iPGv3CD3oRus6ko2V6gaPmArTvgjoa0muT+iKdw64JzkQCkRORwN+7h+bdNwZiKEXdoJhYY5BiwUGGKWv2sxp375YYHPZoUZ6oycU95VyJ4tayow7jqbWfnaiQsz/3IwIgi/GOxEZz3R+/LiXYgeyJfFp+DoQtNR7/D6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745970803; c=relaxed/simple;
-	bh=OAD7ZFG1GUYz7hjEYbrtr+kwOWUj46bWbklNEQe66lY=;
+	s=arc-20240116; t=1745970827; c=relaxed/simple;
+	bh=01+C2jiaOzO6JrR/lwHRiEWzFD9FgWxyIjm+0KqvVv0=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=t4e6tR0OfVf444Keo9eAKb3VL2cTxSQT/ODOuHI7qguyOsTA1VVsQvTxBeUeR3GRSfqkPOUXIGYqRdBu4GDP05TWHjqFmY2MG38OLFTVW3oJGrWE4IZuVgAO4WXEJ5ZiJMAJHM7PPrJImxFNfp+nTsnsPAl77Z+Kkpkhm9gHeTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mnbDJdDg; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=n3lVfo19WV9gscuMYPpQ0Bhci/TBMPLbDwrGZu5m5QF5dhYXwhbEty7ba3u+Uqzc2Li5n4ethtIX9PzrTgKOPouuJ+y+stOGTzblEnJpP54xr7PHGEELp9hRlb0CME6hCmSRHOu9zOxlLB1xqn86OuZXJP8fFaON4/7yOQ9+VLA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ncdN7Eox; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mnbDJdDg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4404C4CEEE;
-	Tue, 29 Apr 2025 23:53:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ncdN7Eox"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFA94C4CEEE;
+	Tue, 29 Apr 2025 23:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745970802;
-	bh=OAD7ZFG1GUYz7hjEYbrtr+kwOWUj46bWbklNEQe66lY=;
+	s=k20201202; t=1745970826;
+	bh=01+C2jiaOzO6JrR/lwHRiEWzFD9FgWxyIjm+0KqvVv0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=mnbDJdDgBSbxNQMhA/qxNXKiKppL59kfZDvE+YqxvXQBGttrkLdigL4CO5l0Si6Tv
-	 GW8yCtxu4oRdsSb8NDG7jqgCGCeXby7HXjDFpJwLgJn/fcEgHcdS2MphhiQOnTEFL4
-	 NVpEMRBGmjKaGEXbRjNfv0/0elzpF//Tn+BVSNKPZEcbnuslaAiydZ8vmwpeT1pQzT
-	 2ZZhdrBXIRbi944J6ybMPEDvTwTf81eey9qzQwP3B6+ZSAEYRErFyYYuiOWSzMBsu0
-	 D1/IlyXqGPPPzwaCxALM+EJjG5fIf2AMJAS81bue4PFhY171yaRYZ4I1O0yglTT1RO
-	 fAboD2LYEncHg==
+	b=ncdN7EoxkgUAUxu1/yUYGfxqpRGOJA02xx87rDlCFXLTjQQZRBtayJABd/U7MLzjb
+	 MNQSZOzlMZHnCqLAB7Xe+gpt9W35zaSaZwbHMfF0TDDm7+OcxlomLEdRAZtSU+OTq1
+	 m997pBrItxgk0SY0OaAg9YA76qc4i6+ChwYMW68DVHmkvK4Cs6+r2Jo9rQQFRn8gIa
+	 ++o/MlKnpuBcwoj3ZxTLL6ZTA80fH7us24zKX/2+YZfzns1lp2EcnGjoeTgpKt1xIM
+	 /saIUtPwRxYq169c60FO2zoJ61uUxE4tg0ECs6laoWnqXPMR7vhdgu+nqqxfZyuyLO
+	 27Mdxyn0EExhQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -35,12 +35,12 @@ Cc: Zhongqiu Han <quic_zhonhan@quicinc.com>,
 	Jason Wang <jasowang@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
 	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.1 02/10] virtio_ring: Fix data race by tagging event_triggered as racy for KCSAN
-Date: Tue, 29 Apr 2025 19:53:07 -0400
-Message-Id: <20250429235316.538129-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 2/7] virtio_ring: Fix data race by tagging event_triggered as racy for KCSAN
+Date: Tue, 29 Apr 2025 19:53:33 -0400
+Message-Id: <20250429235339.538269-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250429235316.538129-1-sashal@kernel.org>
-References: <20250429235316.538129-1-sashal@kernel.org>
+In-Reply-To: <20250429235339.538269-1-sashal@kernel.org>
+References: <20250429235339.538269-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.1.135
+X-stable-base: Linux 5.15.180
 Content-Transfer-Encoding: 8bit
 
 From: Zhongqiu Han <quic_zhonhan@quicinc.com>
@@ -102,10 +102,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 7d320f799ca1e..06a64c4adc987 100644
+index 067b68168f93e..b541d861475e6 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -2415,7 +2415,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+@@ -2125,7 +2125,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
  	struct vring_virtqueue *vq = to_vvq(_vq);
  
  	if (vq->event_triggered)
