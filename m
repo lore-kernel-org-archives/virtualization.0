@@ -1,28 +1,28 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2CB840C03;
-	Tue, 29 Apr 2025 18:05:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78984240611;
+	Tue, 29 Apr 2025 18:17:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745949953; cv=none; b=gU33o8fDo6qepAXbXfkrtfs2Hghm9BkIlKI6gZPbqQQwMCxfUtSDRARD3Kw/ylzxOPz48xSdO51DaPhpaxkO9z0nrh/eRLiQeNvzGE1e3WUDhL1K1VwZZQbybErP7Q8SRjXJYHf5SQ8ApwucyqjS0vDqZlttGrDk5Y5jOBNMA1Y=
+	t=1745950657; cv=none; b=gPoG+wgzXLJHC1WLeDp8R3w14GOcu2VPGfdevzQThQQStE2m0IrqpppQ33vEVlK2Y3mIMnsp6uIXnkRcdaHywZNJZXXILRo+avltsfwH42PatD4NV3Cu7PhcPwZZvbV942BOmLSnhXJ6BQxv4e3MZIRLPq2vq45oZL6DrVZntOo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745949953; c=relaxed/simple;
-	bh=3Djvvtp2+QZtAPeMxXz5FYR8v7r2wjNxGet/UIX4Bjg=;
+	s=arc-20240116; t=1745950657; c=relaxed/simple;
+	bh=MaAak02TOo5OtODB/zK0OfSOjp7uSiByUW2GLbri97M=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gZPFU90fn08DaCjxsoWPN9Hi02q5YrZ11rb46YpImWIcTtZwGEHg8CYwCIdLOwz+1uvm/IqDu2kk6hR8jllu7dEHzmATEqKQDOXWcbtPKjARBJemqbl5XhOpgBh3woRTiYN4fpOBQ8k+MoJRQIqhZTxICCkm3JlP+JAXXRGLclo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=idss620X; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=TqFcB2E/kpT0IhBcdT8xwxK9UbB2ms6Y0VXEnOEIKY021257Sb/+ks40nJ9AX8V6EoAuJmw2I1dK3MziclHGzRGfANN/b9SI7fw5vaNADxJhYBnPT6d7Mc3s+JwQ59T1K3ss42A9F/ocetO9RpSRfmvynuoOSIiyhaCgnwiIwrU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=HVs+fVdW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="idss620X"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 410E2C4CEEE;
-	Tue, 29 Apr 2025 18:05:53 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="HVs+fVdW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B11EC4CEE3;
+	Tue, 29 Apr 2025 18:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1745949953;
-	bh=3Djvvtp2+QZtAPeMxXz5FYR8v7r2wjNxGet/UIX4Bjg=;
+	s=korg; t=1745950657;
+	bh=MaAak02TOo5OtODB/zK0OfSOjp7uSiByUW2GLbri97M=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=idss620XXeA5ggRcDi49togKRfjunJBuk1LNA8N32goDc2hhuT/+1t9eKV7/sqbiC
-	 L7Pph3t0spWzB6jkb7eDkFXvvu/KiAICbSg7xTrJZtdcCBI3r3Zb0sT+KDWYwBh74J
-	 tclwYoPoSLtgHAZ2ttLfiB/dKUxx2U+rxSJ9Lo0M=
+	b=HVs+fVdW4HFj/y2RdAcqinOYk6moDG91MaFq6tLkWb6N9LOinlox/yKVcqHGVoFgt
+	 2LCLkphL8jiSKz2A17XS+4nzTlDTcKFFg6ctEitc3mqe5vwGxE/TdM5/YZnh2hzSsU
+	 DdBv+krOoxXvX5nYqxNJZ5Z03S2Nz8u/k4VPIozk=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,12 +38,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Takashi Iwai <tiwai@suse.de>,
 	John Stultz <jstultz@google.com>,
 	Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 109/167] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
-Date: Tue, 29 Apr 2025 18:43:37 +0200
-Message-ID: <20250429161056.151017326@linuxfoundation.org>
+Subject: [PATCH 6.6 135/204] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
+Date: Tue, 29 Apr 2025 18:43:43 +0200
+Message-ID: <20250429161104.950441258@linuxfoundation.org>
 X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250429161051.743239894@linuxfoundation.org>
-References: <20250429161051.743239894@linuxfoundation.org>
+In-Reply-To: <20250429161059.396852607@linuxfoundation.org>
+References: <20250429161059.396852607@linuxfoundation.org>
 User-Agent: quilt/0.68
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -55,7 +55,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-6.1-stable review patch.  If anyone has any objections, please let me know.
+6.6-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
