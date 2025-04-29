@@ -1,84 +1,129 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A495B280A52;
-	Tue, 29 Apr 2025 12:35:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF61C17BCE;
+	Tue, 29 Apr 2025 14:31:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745930114; cv=none; b=JFwTCJmo+VvLLK/nTtMaY1XkDJgKAxbUcg9puFZ8ySVag67XllV55l0h4MIIMLH4PSa3JZg25CwMZMyOYg+UH1lnSTe7+BuszaRnlYa0gf7+2oj2LxHxCdDn+0I5RjuGg0DWZCOmkrZST8Hni379SkU+POV8LN2b1xk75she8vM=
+	t=1745937072; cv=none; b=ZDVm6ohAL+aKaxL9cAQiUhTOku8Ya/SYsGnUYOZtf0W061aVXIuhoAal8DP9DYbD8ax0l2nhSAsQGhKm+R22D5Ad0oyrOoB+bWhpO7ZDqnXsJ9YosKOnZQHN1NaIulXZL6ja53jIjmEQ3GtiBfHD0kslJgWad1iz9nwIKv+/INA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745930114; c=relaxed/simple;
-	bh=YA9K64SGJNboEqUy75D/7syj4zAm+0ahG0X4Cz9zGlk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GQNj/YK9l86LH6lCQTW7/MlwxLUJN0QVo1e+qJgWBnejwDysuKhbunXsUxNeO5WfquxSpoL0WwDyZ4nWicKaBjSWAsTlIBAAP+3zIgbs7X8oYhm6IEULcJVb/7AsqrDT9ONOHQMtfen8x2RdALnXYEs3qHphGdsrsOnsVqtetNI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id DBA7F68AA6; Tue, 29 Apr 2025 14:35:04 +0200 (CEST)
-Date: Tue, 29 Apr 2025 14:35:04 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: chenlinxuan@uniontech.com
-Cc: Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Jarkko Sakkinen <jarkko@kernel.org>,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas.schier@linux.dev>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	"Paul E. McKenney" <paulmck@kernel.org>,
-	Boqun Feng <boqun.feng@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Juergen Gross <jgross@suse.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-nvme@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-integrity@vger.kernel.org, linux-kbuild@vger.kernel.org,
-	llvm@lists.linux.dev, Winston Wen <wentao@uniontech.com>,
-	kasan-dev@googlegroups.com, xen-devel@lists.xenproject.org,
-	Changbin Du <changbin.du@intel.com>,
-	Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH RFC v3 0/8] kernel-hacking: introduce
- CONFIG_NO_AUTO_INLINE
-Message-ID: <20250429123504.GA13093@lst.de>
-References: <20250429-noautoinline-v3-0-4c49f28ea5b5@uniontech.com>
+	s=arc-20240116; t=1745937072; c=relaxed/simple;
+	bh=n1MOblvz9LCeIQL3f5bV0p3VsgSmJFiNF5ozBVnuPs0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZnsAILHaFezxbsbZgoUp0Oepb/g+1vf7935zx+DhlzbuNYNGl3xUmwHLwEGIxSv4xn0OklJHfwGnEikDFIMkrhIEzv0syZjfWI6w8tGX9GD9tSrW1+o9HPrgCv9i5FxDWzB4eC+5mXr4qcPqAzJpsCX+r8HxJCk56zBqA3nPu/Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ec2nQoFT; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ec2nQoFT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC14CC4CEE3;
+	Tue, 29 Apr 2025 14:31:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1745937072;
+	bh=n1MOblvz9LCeIQL3f5bV0p3VsgSmJFiNF5ozBVnuPs0=;
+	h=From:To:Cc:Subject:Date:From;
+	b=Ec2nQoFTilvo6sqrkeiX6M/qLEkgE4W5JTl/kEqWI/4ERrdtNmUa4CWYCIOYD6hN+
+	 OjHa+4JQ6FZ6LxGCWwTTqTKp978yUrJ+xI/GrqVSw5KuFVQB890L5nLlJ01rENqaZw
+	 JiMcOk0OLl50ebfTKH7obNTf+C+elWP86kDod8euj/zuP90tyhdsnDzu0x8TS/Pxua
+	 0h7+AG2g1GPkwtRVCAkzI7KAyo3S0yt3+ZLpknkxY3psoLMUPb1gV3AxqUuuKtYbxt
+	 XUw9fmdy1WbL526erUOpmX2pKFyswcIMXnR5/cLxvYs/AUOp9jWblVz4v4hSTZAaLL
+	 jCDm9yMK14uwg==
+From: Jakub Kicinski <kuba@kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	andrew+netdev@lunn.ch,
+	horms@kernel.org,
+	Jakub Kicinski <kuba@kernel.org>,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	minhquangbui99@gmail.com,
+	romieu@fr.zoreil.com,
+	kuniyu@amazon.com,
+	virtualization@lists.linux.dev
+Subject: [PATCH net] virtio-net: don't re-enable refill work too early when NAPI is disabled
+Date: Tue, 29 Apr 2025 07:31:04 -0700
+Message-ID: <20250429143104.2576553-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250429-noautoinline-v3-0-4c49f28ea5b5@uniontech.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
 
-On Tue, Apr 29, 2025 at 12:06:04PM +0800, Chen Linxuan via B4 Relay wrote:
-> This series introduces a new kernel configuration option NO_AUTO_INLINE,
-> which can be used to disable the automatic inlining of functions.
-> 
-> This will allow the function tracer to trace more functions
-> because it only traces functions that the compiler has not inlined.
+Commit 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
+fixed a deadlock between reconfig paths and refill work trying to disable
+the same NAPI instance. The refill work can't run in parallel with reconfig
+because trying to double-disable a NAPI instance causes a stall under the
+instance lock, which the reconfig path needs to re-enable the NAPI and
+therefore unblock the stalled thread.
 
-This still feels like a bad idea because it is extremely fragile.
+There are two cases where we re-enable refill too early. One is in the
+virtnet_set_queues() handler. We call it when installing XDP:
+
+   virtnet_rx_pause_all(vi);
+   ...
+   virtnet_napi_tx_disable(..);
+   ...
+   virtnet_set_queues(..);
+   ...
+   virtnet_rx_resume_all(..);
+
+We want the work to be disabled until we call virtnet_rx_resume_all(),
+but virtnet_set_queues() kicks it before NAPIs were re-enabled.
+
+The other case is a more trivial case of mis-ordering in
+__virtnet_rx_resume() found by code inspection.
+
+Fixes: 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
+Fixes: 413f0271f396 ("net: protect NAPI enablement with netdev_lock()")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+CC: mst@redhat.com
+CC: jasowang@redhat.com
+CC: xuanzhuo@linux.alibaba.com
+CC: eperezma@redhat.com
+CC: minhquangbui99@gmail.com
+CC: romieu@fr.zoreil.com
+CC: kuniyu@amazon.com
+CC: virtualization@lists.linux.dev
+---
+ drivers/net/virtio_net.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 848fab51dfa1..4c904e176495 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3383,12 +3383,15 @@ static void __virtnet_rx_resume(struct virtnet_info *vi,
+ 				bool refill)
+ {
+ 	bool running = netif_running(vi->dev);
++	bool schedule_refill = false;
+ 
+ 	if (refill && !try_fill_recv(vi, rq, GFP_KERNEL))
+-		schedule_delayed_work(&vi->refill, 0);
+-
++		schedule_refill = true;
+ 	if (running)
+ 		virtnet_napi_enable(rq);
++
++	if (schedule_refill)
++		schedule_delayed_work(&vi->refill, 0);
+ }
+ 
+ static void virtnet_rx_resume_all(struct virtnet_info *vi)
+@@ -3728,7 +3731,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+ succ:
+ 	vi->curr_queue_pairs = queue_pairs;
+ 	/* virtnet_open() will refill when device is going to up. */
+-	if (dev->flags & IFF_UP)
++	if (dev->flags & IFF_UP && vi->refill_enabled)
+ 		schedule_delayed_work(&vi->refill, 0);
+ 
+ 	return 0;
+-- 
+2.49.0
 
