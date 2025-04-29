@@ -1,28 +1,28 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 640D8215F7C;
-	Tue, 29 Apr 2025 17:35:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2CED2AE96;
+	Tue, 29 Apr 2025 17:58:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745948157; cv=none; b=t+JlltNkxGT9l0EY2RRP046WICxMClXv3ivuvJ/fNtiAu+zRDYbx81vENC0lQbBU3J/eA8C7o4t7JQ76tvXEaWpG1G7l3qEAAxJ7RvT3OtBPdRpBjkxFbhb57uIJAg16MPD+XuYnqcYA5Fx4Y7i6OFrcXoTCAnTEEpagWoU+ves=
+	t=1745949480; cv=none; b=EzCmu3e8sO05PQZhHEsWjE6OtUSS4qAYtGHyqueRSFkRBJ+5axqNw4tt+1OAx5M2VWfMQpVnOYRv6fPWeZs6grQZAeAwke/l47BZvTiCDSbPEFQyfPvAfFqIkI067/AimvPCqgKQatQXvp6RVN1LWPg46UBZw1bMvSAQEzb3/WI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745948157; c=relaxed/simple;
-	bh=lR/iRMmFa+c2IAK1RdZWcwvTl/bCp1c+DR89DjzMy90=;
+	s=arc-20240116; t=1745949480; c=relaxed/simple;
+	bh=UfDASlu8O+YBtkFq9UnyYJf775ozLSENVdFXDBm+54w=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Y/ptb196Dg10mnO5iW4kEEUg12JptTK0GwUhzsFni9wsO2Cd7bGuk+m9Qc1+ftwYE2gWSXEawvsUHFEP6jcFXB4kz7tlAUUh+6QCnBV16NR91XuThq0eUbrIQuruvzDDqS34BUMy5Tbf33f214nTtlLq9TEYhRp1+YmD1PgQqZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=e8DgLqOR; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=KPMVuQ8HMXMLZjoBR9jfL5VgDNXaPuWQP1uG6h4fq2XXa+laThqxzM+y1uhHDRgJ5RCYmoUo0lRvKtYh9j72VZcM3c1Hh+Yr4Sm4GpQ3HKcJ/5y5eqIueBaTGdv+7T0g3g7CciJ7u3re1VIMLvWD/IV3W6JCDmNP9DljzSQvOco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=kFmAX7UW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="e8DgLqOR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B88C5C4CEE3;
-	Tue, 29 Apr 2025 17:35:56 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="kFmAX7UW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04DD4C4CEE3;
+	Tue, 29 Apr 2025 17:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1745948157;
-	bh=lR/iRMmFa+c2IAK1RdZWcwvTl/bCp1c+DR89DjzMy90=;
+	s=korg; t=1745949480;
+	bh=UfDASlu8O+YBtkFq9UnyYJf775ozLSENVdFXDBm+54w=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=e8DgLqORO3IdyqRSIN0Zy0C6rX3ASldp7sO7m+YOrr9pXCDXd68JCMlryuk+RGhzj
-	 2Boq59qjYbCPzD2HxKwMV4Pi0vds8UpbUAlz1VdHneqpKr9hbqkChjrac3eXHlO4xu
-	 CjaXT/+0Q/nqOpxMhMzzrImGk/wJZLiksWVZLRLg=
+	b=kFmAX7UWvaMrtEuetODWgoa44thM9EywLIOUntDonIJafVbc0RkyXI3i2ctECLUjj
+	 ohWmTpDg8NCWEi+a7AAfZ3fpKDHy7naSPtZcETOzsSsv1N4ghECPdO4IBuf5+KTUre
+	 zAKbD9hsCC/QJ9FiMleLQ2qPETlZYCXw25BWrG9Y=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,12 +38,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Takashi Iwai <tiwai@suse.de>,
 	John Stultz <jstultz@google.com>,
 	Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.12 175/280] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
-Date: Tue, 29 Apr 2025 18:41:56 +0200
-Message-ID: <20250429161122.271364047@linuxfoundation.org>
+Subject: [PATCH 5.15 332/373] sound/virtio: Fix cancel_sync warnings on uninitialized work_structs
+Date: Tue, 29 Apr 2025 18:43:29 +0200
+Message-ID: <20250429161136.784794970@linuxfoundation.org>
 X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250429161115.008747050@linuxfoundation.org>
-References: <20250429161115.008747050@linuxfoundation.org>
+In-Reply-To: <20250429161123.119104857@linuxfoundation.org>
+References: <20250429161123.119104857@linuxfoundation.org>
 User-Agent: quilt/0.68
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -55,7 +55,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-6.12-stable review patch.  If anyone has any objections, please let me know.
+5.15-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -121,10 +121,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 15 insertions(+), 6 deletions(-)
 
 diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
-index 967e4c45be9bb..2f7c5e709f075 100644
+index c10d91fff2fb0..1ddec1f4f05d5 100644
 --- a/sound/virtio/virtio_pcm.c
 +++ b/sound/virtio/virtio_pcm.c
-@@ -339,6 +339,21 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
+@@ -337,6 +337,21 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
  	if (!snd->substreams)
  		return -ENOMEM;
  
@@ -146,7 +146,7 @@ index 967e4c45be9bb..2f7c5e709f075 100644
  	info = kcalloc(snd->nsubstreams, sizeof(*info), GFP_KERNEL);
  	if (!info)
  		return -ENOMEM;
-@@ -352,12 +367,6 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
+@@ -350,12 +365,6 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
  		struct virtio_pcm_substream *vss = &snd->substreams[i];
  		struct virtio_pcm *vpcm;
  
