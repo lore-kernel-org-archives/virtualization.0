@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEDA22DDCF2;
-	Tue, 29 Apr 2025 23:50:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AD47235040;
+	Tue, 29 Apr 2025 23:50:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745970630; cv=none; b=Sj3o217GRNC+Ed7pDlv97ePgXkFX9AYars0YoZJ3AlXKIIQ+JBclx3TOwnhQUjb94vDjHo0lXD4grwQvmKdDexVud5Lq87JAD9d5zbLw+aC8fAVtcPIbpdpGpQqGq8l5OTI4WQHxiXBQ2NN2rbTkySV3RyrEQYEfyoh13oh7yG0=
+	t=1745970645; cv=none; b=LXoo9qnp0SfCTUm/JZMdl8QMr3HQSq+mlKeqxqf5kHTSLkzjQ0fhXgY599PpUfMQ8m34za2SfMQNqQWoByeXO/8RUU/Te23y15St78zKvYvXIt2QjSbOQMYtgSp0EwQzqFQvStDD3248izdm27WW1FtXrpszVPnvpWo42oTsfFo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745970630; c=relaxed/simple;
-	bh=x8kv/S21LabV30nAvthj+EKvwrLSTJvRd9hWWCsk4J0=;
+	s=arc-20240116; t=1745970645; c=relaxed/simple;
+	bh=IzBhOCAVYFmFiUQDsYqBC9p3Z3/XGMlBkDU+3zszrB4=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=JFAZEHI9VibsdlTJ9DcfgEMp6OM4s0trGjLMFpe7ltod439i/wPpRCfEuYemYetshUTpGYBX8sj2lmSNK6G4TIORqHu/5Lh8zLg7aq3qLtjQYgg12TUAmMIY6TymacssF9lSa4MclXrWpyZCp5sTxeg50MEDRshseyQR3063kH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LTRm96zl; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=oLCVCl8k/mqhnL8DiOu4oytN0hUEgdwrWMb5zIa96+iuzvnjnT+bDzmtYPGC70znnxclAc4ucEM6MumRDHBdkR2qTwCwRD3j5VYDxvRjSwEY8rezSl/OiLVR5ae3dvV2Ou8VF+yRngEFYQfG2wK69sOIkN930Q+rsRTuKnnA2DU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XKD9Uo2N; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LTRm96zl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19694C4CEEB;
-	Tue, 29 Apr 2025 23:50:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XKD9Uo2N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC36C4CEE3;
+	Tue, 29 Apr 2025 23:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745970630;
-	bh=x8kv/S21LabV30nAvthj+EKvwrLSTJvRd9hWWCsk4J0=;
+	s=k20201202; t=1745970645;
+	bh=IzBhOCAVYFmFiUQDsYqBC9p3Z3/XGMlBkDU+3zszrB4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=LTRm96zlhXhVwbm9umQa30tnPosSubBbVe4Pg6RXLYHuIz3lMpwj7BBtYihZ3uLQV
-	 B3x6CRjtn5u4R1a8w1bDEHoUuR1VRR8giLlMh5JcwJhpVdbNX6pKXQB4kVut7Qe3cA
-	 AUZJ86PsgIQaNfvq1uOgscUmY1u8H872wjXNr+tX265p6ilBySGmE4S+jfSiscumOf
-	 Yi3AtctDynXDlOU4ge3H/j6m65mpT1zVOlJ3qIMMaPrbYxdeGWO6YM3yzG8S8kf1+r
-	 SscmPpuVtzZxp/OOTjSsUawBiq/Rw5OFRxgGim9QRWbZCYzwWHLQyOwPvImWti1q/u
-	 IG5W3JQ6QJXgQ==
+	b=XKD9Uo2Nwi58iZASk/WbhQQzNhSalDGsDcP51TiWgeBfCqK6Rauop5WtoQW0JPwy0
+	 VZgrVVN2YtXs9sTIpU1axF4g52msLd0SZPSDPRLEXq5yhlP/1jwqRHpOYANf0SCKF4
+	 3pxWa4Z/Lo0M12sv11ox6Sc5kLkfMPjEtuXQ2S3IfVuHt8bqDYn/NHOim6IQc5cUWy
+	 1TdhA6AFqv0nbQpnUX/y4cIoXg3Vrw1or/fBPB8wuu51cJGKlD0ae0GZiQSWk3U36W
+	 9OCCBihhsYRM4L7uKxMjT4gDa/no3G2mC7l+xQG9Vw3Y7GZq3iFlFj8jyE0r1+PEr/
+	 yxozTNgyqp6pw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Zhongqiu Han <quic_zhonhan@quicinc.com>,
-	syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com,
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
 	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
-	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.14 11/39] virtio_ring: Fix data race by tagging event_triggered as racy for KCSAN
-Date: Tue, 29 Apr 2025 19:49:38 -0400
-Message-Id: <20250429235006.536648-11-sashal@kernel.org>
+	jasowang@redhat.com,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.14 20/39] vhost_task: fix vhost_task_create() documentation
+Date: Tue, 29 Apr 2025 19:49:47 -0400
+Message-Id: <20250429235006.536648-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20250429235006.536648-1-sashal@kernel.org>
 References: <20250429235006.536648-1-sashal@kernel.org>
@@ -52,68 +53,38 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.14.4
 Content-Transfer-Encoding: 8bit
 
-From: Zhongqiu Han <quic_zhonhan@quicinc.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 2e2f925fe737576df2373931c95e1a2b66efdfef ]
+[ Upstream commit fec0abf52609c20279243699d08b660c142ce0aa ]
 
-syzbot reports a data-race when accessing the event_triggered, here is the
-simplified stack when the issue occurred:
+Commit cb380909ae3b ("vhost: return task creation error instead of NULL")
+changed the return value of vhost_task_create(), but did not update the
+documentation.
 
-==================================================================
-BUG: KCSAN: data-race in virtqueue_disable_cb / virtqueue_enable_cb_delayed
+Reflect the change in the documentation: on an error, vhost_task_create()
+returns an ERR_PTR() and no longer NULL.
 
-write to 0xffff8881025bc452 of 1 bytes by task 3288 on cpu 0:
- virtqueue_enable_cb_delayed+0x42/0x3c0 drivers/virtio/virtio_ring.c:2653
- start_xmit+0x230/0x1310 drivers/net/virtio_net.c:3264
- __netdev_start_xmit include/linux/netdevice.h:5151 [inline]
- netdev_start_xmit include/linux/netdevice.h:5160 [inline]
- xmit_one net/core/dev.c:3800 [inline]
-
-read to 0xffff8881025bc452 of 1 bytes by interrupt on cpu 1:
- virtqueue_disable_cb_split drivers/virtio/virtio_ring.c:880 [inline]
- virtqueue_disable_cb+0x92/0x180 drivers/virtio/virtio_ring.c:2566
- skb_xmit_done+0x5f/0x140 drivers/net/virtio_net.c:777
- vring_interrupt+0x161/0x190 drivers/virtio/virtio_ring.c:2715
- __handle_irq_event_percpu+0x95/0x490 kernel/irq/handle.c:158
- handle_irq_event_percpu kernel/irq/handle.c:193 [inline]
-
-value changed: 0x01 -> 0x00
-==================================================================
-
-When the data race occurs, the function virtqueue_enable_cb_delayed() sets
-event_triggered to false, and virtqueue_disable_cb_split/packed() reads it
-as false due to the race condition. Since event_triggered is an unreliable
-hint used for optimization, this should only cause the driver temporarily
-suggest that the device not send an interrupt notification when the event
-index is used.
-
-Fix this KCSAN reported data-race issue by explicitly tagging the access as
-data_racy.
-
-Reported-by: syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/all/67c7761a.050a0220.15b4b9.0018.GAE@google.com/
-Signed-off-by: Zhongqiu Han <quic_zhonhan@quicinc.com>
-Message-Id: <20250312130412.3516307-1-quic_zhonhan@quicinc.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Message-Id: <20250327124435.142831-1-sgarzare@redhat.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_ring.c | 2 +-
+ kernel/vhost_task.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index fdd2d2b07b5a2..b784aab668670 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2650,7 +2650,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
- 	if (vq->event_triggered)
--		vq->event_triggered = false;
-+		data_race(vq->event_triggered = false);
- 
- 	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
- 				 virtqueue_enable_cb_delayed_split(_vq);
+diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+index 2ef2e1b800916..2f844c279a3e0 100644
+--- a/kernel/vhost_task.c
++++ b/kernel/vhost_task.c
+@@ -111,7 +111,7 @@ EXPORT_SYMBOL_GPL(vhost_task_stop);
+  * @arg: data to be passed to fn and handled_kill
+  * @name: the thread's name
+  *
+- * This returns a specialized task for use by the vhost layer or NULL on
++ * This returns a specialized task for use by the vhost layer or ERR_PTR() on
+  * failure. The returned task is inactive, and the caller must fire it up
+  * through vhost_task_start().
+  */
 -- 
 2.39.5
 
