@@ -1,593 +1,359 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8888921504A
-	for <virtualization@lists.linux.dev>; Mon, 28 Apr 2025 23:48:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3CCC1DB127
+	for <virtualization@lists.linux.dev>; Tue, 29 Apr 2025 03:26:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745884099; cv=none; b=S/4BWCKJfup0sYMDJpmxuhNPkzS0yDgtevYoS5iREpmFX13G0pzrmxpyYQfS7coaGo8h2i5Fv6UYnohACr5BHXMTJ8KZDgDGvWxIHMmVrnJod/4hGX1UV1E8KyfZagZbluKrIXCDF71gatL0UJjRdBaoaDzQ3sXcpn3xSFzZObw=
+	t=1745897210; cv=none; b=QTFXRkrafBFK4A3L1Ri3uJqi6fteFr2kLKckFkBWWO1V8IJ20OaLyHO/e7EB8AJkk535wAhOBi7MXGW2dGd0TTCAecy/laKs5M8ISOfTshWuiabJyksfhETJUC0/XqgF8OqS2O2gqSLgEqrbJtOmfEwkeJsAfASMmmBxWirc+pE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745884099; c=relaxed/simple;
-	bh=49ROLzawylDGisDR4b5cQk2J2s2uS1rJZQCKXcndmTA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=oDy3UZUv6SNv59QHGoiCvxy61/QzA+PA+b0g5RjVD3oWp9v/+A3Cuhcs909F+8lBhp7FnufBXUe41InPTGHnWCZzgrAyqcz60OVkQzxroI9+4g4nzmQTvrxwB2wMu65FZIdQ435NOE+y6UoIpNpVvOCmpOiHhvdD7vGXV7krLMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Abi6ZNDX; arc=none smtp.client-ip=209.85.214.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1745897210; c=relaxed/simple;
+	bh=pVWNnw+VrTtCs/KYH9fNRegsSM6AgJuO+C4fehW3t0s=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=BlbOMgsfyqxcIQC81rScwJR5EoI41e+h+/SJ82xLSb72URV6l5+dL7bzmQHbCqmwL/S4r+9DJb4G1cJ9iAjqXWWQF9XLoSbS4Eebc3ArQ/nP0sZFG7jFjwpfFA78TuzUP4WCOrOUUkYWDPJcP94j254xPZfAydMivE6HjJg9Hts=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=w8fnTR/b; arc=none smtp.client-ip=209.85.210.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Abi6ZNDX"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-22c33e5013aso64699475ad.0
-        for <virtualization@lists.linux.dev>; Mon, 28 Apr 2025 16:48:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="w8fnTR/b"
+Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-739515de999so4334341b3a.1
+        for <virtualization@lists.linux.dev>; Mon, 28 Apr 2025 20:26:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745884097; x=1746488897; darn=lists.linux.dev;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ED3ibpC0qbQg/Ur3Nbal6fYS9/2lPwVHr8moAJPp128=;
-        b=Abi6ZNDXGyK99Za+MnFWwhSdR7DsgKYVOC+mnSlFMHRgmT4HLffEwG/XOMQpuDnWrJ
-         JINnoOXaTwWyXcbxDcUp95VtZ4pWLWjI9LfTpJ3a2pbo6f/jOmbRyRls6I0hQyx2bZsw
-         jRZMKE+VLDyRrVSN87LIOx2oSqx2GASIAY45hnvKvpYoBnItSpRzEaBemDig5Ziyb/Dd
-         nss8XCm2RWmfSx+hUCfiN+X+egY+rxI4uHYE/MheXe3uKCfOPT89C6UYo7n5Gc2TRx7P
-         iGutuTSOTTAV+OMMhbzN1uBgZT7vhJeB+PGuqRHhXCeCLk8DmsjV9gVdblVClud7qEkv
-         cZtA==
+        d=google.com; s=20230601; t=1745897207; x=1746502007; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=pAhN58w7LrRsnk32jx8DwkELByg2oiFxPx+yIaTkjK8=;
+        b=w8fnTR/bHtSkqrv/t/W6N7/oMtcuUCznRKDb1mB9aT/ZIy2K64T/EENsy7/+pNMUwl
+         LYHMVgyjg0hZ3vfNFAOpXfcW6ZszDH1FQ1duxlbDYXFYDsa21ruvMNZmqXWfJi3OstSJ
+         gGUxbvSbMV280YpniOkuTEzIGDO8FjLkwfKO+1GfrTr+7vCziFRFM04/MnTfaMc7ilAj
+         gH5neHABX2++cQVKvpkHpcWHpcNa44BsIobp6S0HYLQWAIOANOO2cYYhczXF9Yq+DhOu
+         YyCBx9xtXPFvuG7n9W0zY3O4BuzNO33OYn7z3CcwCbdmX9BoHN5MyxfRtitFQzFc5TlC
+         jEtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745884097; x=1746488897;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ED3ibpC0qbQg/Ur3Nbal6fYS9/2lPwVHr8moAJPp128=;
-        b=W7shhYPUqvJv9ZkFXG+Ts/lhYU2GH6hQ0VjQYSrRxM5QIrfL4+VHkRSuaqY0VV1HxK
-         orSdQBAPx2Ak7u7WzJOh2huObkmVqbnXQnrPvTXx0lFesRBj8bQQdvkoRdc1MVKwIGtK
-         96A5/RRox4eyRPSKgYX4Vmteb+H/BwkNeQnVNINfvU+RuDGtAgg72oHCv04PyxA6Ezap
-         OcvR9bD48IwPrtCQ3baFcQgFbJyMiJEY/E9YlaZNTtRQdnUlp+wvIBGz4etvIIsnHz53
-         /8etlmBJVQEgerQmkIDl7karWLrmZA+JMTElkN9p28KgATTCVd6E+asCjP2iuGsRyBkv
-         xnCg==
-X-Forwarded-Encrypted: i=1; AJvYcCVKgj6yPwHcGXILQf6k59Fjnhr9kjFNe9GQC33T/kfZRfxXlnUhbqhTWJS/JQnm5WTPK55FoH3bz9yhX4LIkA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzndFlgrp1ujohu7bRc2GdSDFWn0JvLdU7RRUR9yTUSz6Qkrvvx
-	mg7pPQ2Yh14XUjQr7feaDvwJYap7Rfdxq+aBEXdwshKvLLJW1gwA
-X-Gm-Gg: ASbGncvF/6fL03gGofUxVMy/LvVQ98NvdeRuTebyqntJbMArDmUR/BRwEpvWjUjeK6G
-	yaIK9qS5e3yBxB8DQCmvjkU7XPLPwmaLpylzUoExF0o+w8KpxHOnkJhn5Q3kuyQ9y1nr9FYnWUB
-	pIRvo2B6EkmF/o6gorOFLimhv9Gn4sfL5LrS2Gl3HF5tlkNZnQoP3MACQl1/yvW+N4opXrNA4MD
-	s8wFc2AMviR1qIteqdwI9HL4PEPTUMkd2ad9gAp6RcCpiqhfyJfKlvZk4xFhbLn1WrNWUiGdf9l
-	nZqBIrMlXh4iXBhqH/836/ubtPyOCcfCuaYQ
-X-Google-Smtp-Source: AGHT+IE6eQa76JeHbxm2jWCeRYajdfJlPsZ4LJppKsQLj9D38rBTr4y6lEtu//eW9aawttxlbsbaAQ==
-X-Received: by 2002:a17:902:c412:b0:223:66bc:f1de with SMTP id d9443c01a7336-22dc6a04765mr174292815ad.21.1745884096398;
-        Mon, 28 Apr 2025 16:48:16 -0700 (PDT)
-Received: from localhost ([2a03:2880:ff:9::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22db4db99b1sm89386535ad.54.2025.04.28.16.48.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Apr 2025 16:48:15 -0700 (PDT)
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Mon, 28 Apr 2025 16:48:11 -0700
-Subject: [PATCH net-next v3] selftests/vsock: add initial vmtest.sh for
- vsock
+        d=1e100.net; s=20230601; t=1745897207; x=1746502007;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=pAhN58w7LrRsnk32jx8DwkELByg2oiFxPx+yIaTkjK8=;
+        b=d+KwHXjESS8OJ3/X0fEP+8ecSCdHpOdPQOrwqBqrcQTu2X0be8Q19it/qgo1iCk+KB
+         SZrkKqiqNcbD5HGNuH1wewNLB25ZRkfy3w3/qjZ2sYb1p2zyWBKTyAeQTiBmiFE7Mnqa
+         A5GxtasKK/nXJgakWp3qR3KNU4MoWQjGKjIrgypE0EM6B3AyHtdJuJurAbXFZOqgKaZC
+         ZGVGY508megArKGsp+7mVlOiFa486G+6zPxzqDGWEvx9FcxZGCmZ3b6UihAGimnzf6xg
+         UVbuhE5MA1z+qdqbjWXF5w6lH7RBD/xPawn095mk1Sx0Bo5AEDZq5I5gWwaOzZWpSN+a
+         dvqQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVenUFKz8AR4jVYhAQXpAUYOyd45lQ135wGyFCnkGTh84ohqFSDTNJsg8FFIk0KBSGy3WFBqV12A9aAMs65Sg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyhwX2MMvZpPIeO1ZvXpqTS8/WYBYrj4rzAMRw1thvKi9Zaa782
+	7EZlH/kyZ3uCO9YT/hzQFfh9mKc8OYFIB7uRTHNUv2nMA0UEROWIvA9M6WlEoJobehNTi/S/GcM
+	OfzQLWsq2HIJNOWkC9GDYpw==
+X-Google-Smtp-Source: AGHT+IHPGrbrkLrPlxuB9ba2UkDM0NP8sdzNVktyOUF/jvXAIbAYsA2yohXW8qB/SHe824C2SSjJtCI+XZ/y6fu51w==
+X-Received: from pgcp16.prod.google.com ([2002:a63:7410:0:b0:af2:448e:a04d])
+ (user=almasrymina job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:6a20:7fa6:b0:1f5:7f45:7f95 with SMTP id adf61e73a8af0-2093e7242afmr2572864637.27.1745897207047;
+ Mon, 28 Apr 2025 20:26:47 -0700 (PDT)
+Date: Tue, 29 Apr 2025 03:26:36 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250428-vsock-vmtest-v3-1-181af6163f3e@gmail.com>
-X-B4-Tracking: v=1; b=H4sIALoTEGgC/13NQQ6CMBCF4as0s2ZMZyoBWXkP46KUERuFGto0G
- MLdTbpS1y//9zaIsniJ0KkNFsk++jBDp0ylwN3tPAr6AToFrLnWhmvMMbgH5ilJTNgbyzQwaXY
- MlYLXIje/Fu4CsyScZU1wrRTcfUxheZefTGUv5JH0L5kJCW+mti0Ntj+17jxO1j8PLkwFyvwdN
- 38xI6E5abLcGEPSfsf7vn8AaKfEZu8AAAA=
-X-Change-ID: 20250325-vsock-vmtest-b3a21d2102c2
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>
-Cc: kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, 
- Bobby Eshleman <bobbyeshleman@gmail.com>
-X-Mailer: b4 0.14.2
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.49.0.901.g37484f566f-goog
+Message-ID: <20250429032645.363766-1-almasrymina@google.com>
+Subject: [PATCH net-next v13 0/9] Device memory TCP TX
+From: Mina Almasry <almasrymina@google.com>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-doc@vger.kernel.org, io-uring@vger.kernel.org, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org
+Cc: Mina Almasry <almasrymina@google.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Simon Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	Jeroen de Borst <jeroendb@google.com>, Harshitha Ramamurthy <hramamurthy@google.com>, 
+	Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn <willemb@google.com>, Jens Axboe <axboe@kernel.dk>, 
+	Pavel Begunkov <asml.silence@gmail.com>, David Ahern <dsahern@kernel.org>, 
+	Neal Cardwell <ncardwell@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, sdf@fomichev.me, dw@davidwei.uk, 
+	Jamal Hadi Salim <jhs@mojatatu.com>, Victor Nogueira <victor@mojatatu.com>, 
+	Pedro Tammela <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-This commit introduces a new vmtest.sh runner for vsock.
+v13: https://lore.kernel.org/netdev/20250425204743.617260-1-almasrymina@google.com/
+===
 
-It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
-H2G, and loopback. The testing tools from tools/testing/vsock/ are
-reused. Currently, only vsock_test is used.
+Changelog:
 
-VMCI and hyperv support is automatically built, though not used.
+- Fix unneeded error label pointed out by Christoph, and addressed
+  nitpick.
 
-Only tested on x86.
+v12: https://lore.kernel.org/netdev/20250423031117.907681-1-almasrymina@google.com/
+====
 
-To run:
+No changes in v12, just restored the selftests patch I accidentally dropped in
+v11
 
-  $ tools/testing/selftests/vsock/vmtest.sh
+v11: https://lore.kernel.org/netdev/20250423031117.907681-1-almasrymina@google.com/
+====
 
-or
+Addressed a couple of nits and collected Acked-by from Harshitha
+(thanks!)
 
-  $ make -C tools/testing/selftests TARGETS=vsock run_tests
+v10: https://lore.kernel.org/netdev/20250417231540.2780723-1-almasrymina@google.com/
+====
 
-Results:
-	# linux/tools/testing/selftests/vsock/vmtest.log
-	setup:  Building kernel and tests
-	setup:  Booting up VM
-	setup:  VM booted up
-	test:vm_server_host_client:guest:       Control socket listening on 0.0.0.0:51000
-	test:vm_server_host_client:guest:       Control socket connection accepted...
-	[...]
-	test:vm_loopback:guest: 30 - SOCK_STREAM retry failed connect()...ok
-	test:vm_loopback:guest: 31 - SOCK_STREAM SO_LINGER null-ptr-deref...ok
-	test:vm_loopback:guest: 31 - SOCK_STREAM SO_LINGER null-ptr-deref...ok
+Addressed comments following conversations with Pavel, Stan, and
+Harshitha. Thank you guys for the reviews again. Overall minor changes:
 
-Future work can include vsock_diag_test.
+Changelog:
+- Check for !niov->pp in io_zcrx_recv_frag, just in case we end up with
+  a TX niov in that path (Pavel).
+- Fix locking case in !netif_device_present (Jakub/Stan).
 
-vmtest.sh is loosely based off of tools/testing/selftests/net/pmtu.sh,
-which was picked out of the bag of tests I knew to work with NIPA.
+v9: https://lore.kernel.org/netdev/20250415224756.152002-1-almasrymina@google.com/
+===
 
-Because vsock requires a VM to test anything other than loopback, this
-patch adds vmtest.sh as a kselftest itself. This is different than other
-systems that have a "vmtest.sh", where it is used as a utility script to
-spin up a VM to run the selftests as a guest (but isn't hooked into
-kselftest). This aspect is worth review, as I'm not aware of all of the
-enviroments where this would run.
+Changelog:
+- Use priv->bindings list instead of sock_bindings_list. This was missed
+  during the rebase as the bindings have been updated to use
+  priv->bindings recently (thanks Stan!)
 
-Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
----
-Changes in v3:
-- use common conditional syntax for checking variables
-- use return value instead of global rc
-- fix typo TEST_HOST_LISTENER_PORT -> TEST_HOST_PORT_LISTENER
-- use SIGTERM instead of SIGKILL on cleanup
-- use peer-cid=1 for loopback
-- change sleep delay times into globals
-- fix test_vm_loopback logging
-- add test selection in arguments
-- make QEMU an argument
-- check that vng binary is on path
-- use QEMU variable
-- change <tab><backslash> to <space><backslash>
-- fix hardcoded file paths
-- add comment in commit msg about script that vmtest.sh was based off of
-- Add tools/testing/selftest/vsock/Makefile for kselftest
-- Link to v2: https://lore.kernel.org/r/20250417-vsock-vmtest-v2-1-3901a27331e8@gmail.com
+v8: https://lore.kernel.org/netdev/20250308214045.1160445-1-almasrymina@google.com/
+===
 
-Changes in v2:
-- add kernel oops and warnings checker
-- change testname variable to use FUNCNAME
-- fix spacing in test_vm_server_host_client
-- add -s skip build option to vmtest.sh
-- add test_vm_loopback
-- pass port to vm_wait_for_listener
-- fix indentation in vmtest.sh
-- add vmci and hyperv to config
-- changed whitespace from tabs to spaces in help string
-- Link to v1: https://lore.kernel.org/r/20250410-vsock-vmtest-v1-1-f35a81dab98c@gmail.com
----
- MAINTAINERS                                |   1 +
- tools/testing/selftests/vsock/.gitignore   |   1 +
- tools/testing/selftests/vsock/Makefile     |   9 +
- tools/testing/selftests/vsock/config.vsock |  10 +
- tools/testing/selftests/vsock/settings     |   1 +
- tools/testing/selftests/vsock/vmtest.sh    | 354 +++++++++++++++++++++++++++++
- 6 files changed, 376 insertions(+)
+Only address minor comments on V7
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 657a67f9031ef7798c19ac63e6383d4cb18a9e1f..3fbdd7bbfce7196a3cc7db70203317c6bd0e51fd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -25751,6 +25751,7 @@ F:	include/uapi/linux/vm_sockets.h
- F:	include/uapi/linux/vm_sockets_diag.h
- F:	include/uapi/linux/vsockmon.h
- F:	net/vmw_vsock/
-+F:	tools/testing/selftests/vsock/
- F:	tools/testing/vsock/
- 
- VMALLOC
-diff --git a/tools/testing/selftests/vsock/.gitignore b/tools/testing/selftests/vsock/.gitignore
-new file mode 100644
-index 0000000000000000000000000000000000000000..1950aa8ac68c0831c12c1aaa429da45bbe41e60f
---- /dev/null
-+++ b/tools/testing/selftests/vsock/.gitignore
-@@ -0,0 +1 @@
-+vsock_selftests.log
-diff --git a/tools/testing/selftests/vsock/Makefile b/tools/testing/selftests/vsock/Makefile
-new file mode 100644
-index 0000000000000000000000000000000000000000..6fded8c4d593541a6f7462147bffcb719def378f
---- /dev/null
-+++ b/tools/testing/selftests/vsock/Makefile
-@@ -0,0 +1,9 @@
-+# SPDX-License-Identifier: GPL-2.0
-+.PHONY: all
-+all:
-+
-+TEST_PROGS := vmtest.sh
-+EXTRA_CLEAN := vmtest.log
-+
-+include ../lib.mk
-+
-diff --git a/tools/testing/selftests/vsock/config.vsock b/tools/testing/selftests/vsock/config.vsock
-new file mode 100644
-index 0000000000000000000000000000000000000000..9e0fb2270e6a2fc0beb5f0d9f0bc37158d0a9d23
---- /dev/null
-+++ b/tools/testing/selftests/vsock/config.vsock
-@@ -0,0 +1,10 @@
-+CONFIG_VSOCKETS=y
-+CONFIG_VSOCKETS_DIAG=y
-+CONFIG_VSOCKETS_LOOPBACK=y
-+CONFIG_VMWARE_VMCI_VSOCKETS=y
-+CONFIG_VIRTIO_VSOCKETS=y
-+CONFIG_VIRTIO_VSOCKETS_COMMON=y
-+CONFIG_HYPERV_VSOCKETS=y
-+CONFIG_VMWARE_VMCI=y
-+CONFIG_VHOST_VSOCK=y
-+CONFIG_HYPERV=y
-diff --git a/tools/testing/selftests/vsock/settings b/tools/testing/selftests/vsock/settings
-new file mode 100644
-index 0000000000000000000000000000000000000000..e7b9417537fbc4626153b72e8f295ab4594c844b
---- /dev/null
-+++ b/tools/testing/selftests/vsock/settings
-@@ -0,0 +1 @@
-+timeout=0
-diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-new file mode 100755
-index 0000000000000000000000000000000000000000..d70b9446e531d6d20beb24ddeda2cf0a9f7e9a39
---- /dev/null
-+++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -0,0 +1,354 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Copyright (c) 2025 Meta Platforms, Inc. and affiliates
-+#
-+# Dependencies:
-+#		* virtme-ng
-+#		* busybox-static (used by virtme-ng)
-+#		* qemu	(used by virtme-ng)
-+
-+SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-+KERNEL_CHECKOUT=$(realpath ${SCRIPT_DIR}/../../../..)
-+QEMU=$(command -v qemu-system-$(uname -m))
-+VERBOSE=0
-+SKIP_BUILD=0
-+VSOCK_TEST=${KERNEL_CHECKOUT}/tools/testing/vsock/vsock_test
-+
-+TEST_GUEST_PORT=51000
-+TEST_HOST_PORT=50000
-+TEST_HOST_PORT_LISTENER=50001
-+SSH_GUEST_PORT=22
-+SSH_HOST_PORT=2222
-+VSOCK_CID=1234
-+WAIT_PERIOD=3
-+WAIT_PERIOD_MAX=20
-+
-+QEMU_PIDFILE=/tmp/qemu.pid
-+
-+# virtme-ng offers a netdev for ssh when using "--ssh", but we also need a
-+# control port forwarded for vsock_test.  Because virtme-ng doesn't support
-+# adding an additional port to forward to the device created from "--ssh" and
-+# virtme-init mistakenly sets identical IPs to the ssh device and additional
-+# devices, we instead opt out of using --ssh, add the device manually, and also
-+# add the kernel cmdline options that virtme-init uses to setup the interface.
-+QEMU_OPTS=""
-+QEMU_OPTS="${QEMU_OPTS} -netdev user,id=n0,hostfwd=tcp::${TEST_HOST_PORT}-:${TEST_GUEST_PORT}"
-+QEMU_OPTS="${QEMU_OPTS},hostfwd=tcp::${SSH_HOST_PORT}-:${SSH_GUEST_PORT}"
-+QEMU_OPTS="${QEMU_OPTS} -device virtio-net-pci,netdev=n0"
-+QEMU_OPTS="${QEMU_OPTS} -device vhost-vsock-pci,guest-cid=${VSOCK_CID}"
-+QEMU_OPTS="${QEMU_OPTS} --pidfile ${QEMU_PIDFILE}"
-+KERNEL_CMDLINE="virtme.dhcp net.ifnames=0 biosdevname=0 virtme.ssh virtme_ssh_user=$USER"
-+
-+LOG=${SCRIPT_DIR}/vmtest.log
-+
-+#		Name				Description
-+avail_tests="
-+	vm_server_host_client	Run vsock_test in server mode on the VM and in client mode on the host.	
-+	vm_client_host_server	Run vsock_test in client mode on the VM and in server mode on the host.	
-+	vm_loopback		Run vsock_test using the loopback transport in the VM.	
-+"
-+
-+usage() {
-+	echo
-+	echo "$0 [OPTIONS] [TEST]..."
-+	echo "If no TEST argument is given, all tests will be run."
-+	echo
-+	echo "Options"
-+	echo "  -v: verbose output"
-+	echo "  -s: skip build"
-+	echo
-+	echo "Available tests${avail_tests}"
-+	exit 1
-+}
-+
-+die() {
-+	echo "$*" >&2
-+	exit 1
-+}
-+
-+vm_ssh() {
-+	ssh -q -o UserKnownHostsFile=/dev/null -p 2222 localhost $*
-+	return $?
-+}
-+
-+cleanup() {
-+	if [[ -f "${QEMU_PIDFILE}" ]]; then
-+		pkill -SIGTERM -F ${QEMU_PIDFILE} 2>&1 >/dev/null
-+	fi
-+}
-+
-+build() {
-+	log_setup "Building kernel and tests"
-+
-+	pushd ${KERNEL_CHECKOUT} >/dev/null
-+	vng \
-+		--kconfig \
-+		--config ${KERNEL_CHECKOUT}/tools/testing/selftests/vsock/config.vsock
-+	make -j$(nproc)
-+	make -C ${KERNEL_CHECKOUT}/tools/testing/vsock
-+	popd >/dev/null
-+	echo
-+}
-+
-+vm_setup() {
-+	local VNG_OPTS=""
-+	if [[ "${VERBOSE}" = 1 ]]; then
-+		VNG_OPTS="--verbose"
-+	fi
-+	vng \
-+		$VNG_OPTS \
-+		--run ${KERNEL_CHECKOUT} \
-+		--qemu-opts="${QEMU_OPTS}" \
-+		--qemu="${QEMU}" \
-+		--user root \
-+		--append "${KERNEL_CMDLINE}" \
-+		--rw  2>&1 >/dev/null &
-+}
-+
-+vm_wait_for_ssh() {
-+	i=0
-+	while [[ true ]]; do
-+		if [[ ${i} > ${WAIT_PERIOD_MAX} ]]; then
-+			die "Timed out waiting for guest ssh"
-+		fi
-+		vm_ssh -- true
-+		if [[ $? -eq 0 ]]; then
-+			break
-+		fi
-+		i=$(( i + 1 ))
-+		sleep ${WAIT_PERIOD}
-+	done
-+}
-+
-+wait_for_listener() {
-+	local PORT=$1
-+	local i=0
-+	while ! ss -ltn | grep -q ":${PORT}"; do
-+		if [[ ${i} > ${WAIT_PERIOD_MAX} ]]; then
-+			die "Timed out waiting for listener on port ${PORT}"
-+		fi
-+		i=$(( i + 1 ))
-+		sleep ${WAIT_PERIOD}
-+	done
-+}
-+
-+vm_wait_for_listener() {
-+	local port=$1
-+	vm_ssh -- "$(declare -f wait_for_listener); wait_for_listener ${port}"
-+}
-+
-+host_wait_for_listener() {
-+	wait_for_listener ${TEST_HOST_PORT_LISTENER}
-+}
-+
-+log() {
-+	local prefix="$1"
-+	shift
-+
-+	if [[ "$#" -eq 0 ]]; then
-+		cat | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }' | tee -a ${LOG}
-+	else
-+		echo "$*" | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }' | tee -a ${LOG}
-+	fi
-+}
-+
-+log_setup() {
-+	log "setup" "$@"
-+}
-+
-+log_host() {
-+	testname=$1
-+	shift
-+	log "test:${testname}:host" "$@"
-+}
-+
-+log_guest() {
-+	testname=$1
-+	shift
-+	log "test:${testname}:guest" "$@"
-+}
-+
-+test_vm_server_host_client() {
-+	local testname="${FUNCNAME[0]#test_}"
-+
-+	vm_ssh -- "${VSOCK_TEST}" \
-+		--mode=server \
-+		--control-port="${TEST_GUEST_PORT}" \
-+		--peer-cid=2 \
-+		2>&1 | log_guest "${testname}" &
-+
-+	vm_wait_for_listener ${TEST_GUEST_PORT}
-+
-+	${VSOCK_TEST} \
-+		--mode=client \
-+		--control-host=127.0.0.1 \
-+		--peer-cid="${VSOCK_CID}" \
-+		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host "${testname}"
-+
-+	return $?
-+}
-+
-+test_vm_client_host_server() {
-+	local testname="${FUNCNAME[0]#test_}"
-+
-+	${VSOCK_TEST} \
-+		--mode "server" \
-+		--control-port "${TEST_HOST_PORT_LISTENER}" \
-+		--peer-cid "${VSOCK_CID}" 2>&1 | log_host "${testname}" &
-+
-+	host_wait_for_listener
-+
-+	vm_ssh -- "${VSOCK_TEST}" \
-+		--mode=client \
-+		--control-host=10.0.2.2 \
-+		--peer-cid=2 \
-+		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest "${testname}"
-+
-+	return $?
-+}
-+
-+test_vm_loopback() {
-+	local testname="${FUNCNAME[0]#test_}"
-+	local port=60000 # non-forwarded local port
-+
-+	vm_ssh -- ${VSOCK_TEST} \
-+		--mode=server \
-+		--control-port="${port}" \
-+		--peer-cid=1 2>&1 | log_guest "${testname}" &
-+
-+	vm_wait_for_listener ${port}
-+
-+	vm_ssh -- ${VSOCK_TEST} \
-+		--mode=client \
-+		--control-host="127.0.0.1" \
-+		--control-port="${port}" \
-+		--peer-cid=1 2>&1 | log_guest "${testname}"
-+
-+	return $?
-+}
-+
-+run_test() {
-+	unset IFS
-+	local host_oops_cnt_before
-+	local host_warn_cnt_before
-+	local vm_oops_cnt_before
-+	local vm_warn_cnt_before
-+	local host_oops_cnt_after
-+	local host_warn_cnt_after
-+	local vm_oops_cnt_after
-+	local vm_warn_cnt_after
-+	local name
-+	local rc
-+
-+	host_oops_cnt_before=$(dmesg | grep -c -i 'Oops')
-+	host_warn_cnt_before=$(dmesg --level=warn | wc -l)
-+	vm_oops_cnt_before=$(vm_ssh -- dmesg | grep -c -i 'Oops')
-+	vm_warn_cnt_before=$(vm_ssh -- dmesg --level=warn | wc -l)
-+
-+	name=$(echo "${1}" | awk '{ print $1 }')
-+	eval test_"${name}"
-+
-+	host_oops_cnt_after=$(dmesg | grep -i 'Oops' | wc -l)
-+	if [[ ${host_oops_cnt_after} > ${host_oops_cnt_before} ]]; then
-+		echo "${name}: kernel oops detected on host" | log_host ${name}
-+		rc=1
-+	fi
-+
-+	host_warn_cnt_after=$(dmesg --level=warn | wc -l)
-+	if [[ ${host_warn_cnt_after} > ${host_warn_cnt_before} ]]; then
-+		echo "${name}: kernel warning detected on host" | log_host ${name}
-+		rc=1
-+	fi
-+
-+	vm_oops_cnt_after=$(vm_ssh -- dmesg | grep -i 'Oops' | wc -l)
-+	if [[ ${vm_oops_cnt_after} > ${vm_oops_cnt_before} ]]; then
-+		echo "${name}: kernel oops detected on vm" | log_host ${name}
-+		rc=1
-+	fi
-+
-+	vm_warn_cnt_after=$(vm_ssh -- dmesg --level=warn | wc -l)
-+	if [[ ${vm_warn_cnt_after} > ${vm_warn_cnt_before} ]]; then
-+		echo "${name}: kernel warning detected on vm" | log_host ${name}
-+		rc=1
-+	fi
-+
-+	return ${rc}
-+}
-+
-+while getopts :hvsq: o
-+do
-+	case $o in
-+	v) VERBOSE=1;;
-+	s) SKIP_BUILD=1;;
-+	q) QEMU=$OPTARG;;
-+	h|*) usage;;
-+	esac
-+done
-+shift $((OPTIND-1))
-+
-+trap cleanup EXIT
-+
-+if [[ ! -x "$(command -v vng)" ]]; then
-+	die "vng not found."
-+fi
-+
-+if [[ ! -x "${QEMU}" ]]; then
-+	die "${QEMU} not found."
-+fi
-+
-+rm -f "${LOG}"
-+if [[ "${SKIP_BUILD}" != 1 ]]; then
-+	build
-+fi
-+log_setup "Booting up VM"
-+vm_setup
-+vm_wait_for_ssh
-+log_setup "VM booted up"
-+
-+for arg in "$@"; do
-+	if ! command -v > /dev/null "test_${arg}"; then
-+		echo "Test ${arg} not found"
-+		die "${usage}"
-+	fi
-+done
-+
-+IFS="	
-+"
-+cnt=0
-+name=""
-+desc=""
-+for t in ${avail_tests}; do
-+	[ "${name}" = "" ] && name="${t}" && continue
-+	# desc is unused, but we need to eat it.
-+	[ "${desc}" = "" ] && desc="${t}"
-+
-+	run_this=0
-+	if [[ "${#}" -eq 0 ]]; then
-+		run_this=1
-+	else
-+		for arg in "$@"; do
-+			if [[ "${arg}" = "${name}" ]]; then
-+				run_this=1
-+			fi
-+		done
-+	fi
-+
-+	if [[ "${run_this}" = 1 ]]; then
-+		run_test "${name}"
-+		rc=$?
-+		if [[ ${rc} != 0 ]]; then
-+			cnt=$(( cnt + 1 ))
-+		fi
-+	fi
-+	name=""
-+	desc=""
-+done
-+
-+if [[ ${cnt} = 0 ]]; then
-+	echo OK
-+else
-+	echo FAILED: ${cnt}
-+fi
-+echo "Log: ${LOG}"
-+exit ${cnt}
+Changelog:
+- Use netdev locking instead of rtnl_locking to match rx path.
+- Now that iouring zcrx is in net-next, use NET_IOV_IOURING instead of
+  NET_IOV_UNSPECIFIED.
+- Post send binding to net_devmem_dmabuf_bindings after it's been fully
+  initialized (Stan).
 
----
-base-commit: 8066e388be48f1ad62b0449dc1d31a25489fa12a
-change-id: 20250325-vsock-vmtest-b3a21d2102c2
+v7: https://lore.kernel.org/netdev/20250227041209.2031104-1-almasrymina@google.com/
+===
 
-Best regards,
+Changelog:
+- Check the dmabuf net_iov binding belongs to the device the TX is going
+  out on. (Jakub)
+- Provide detailed inspection of callsites of
+  __skb_frag_ref/skb_page_unref in patch 2's changelog (Jakub)
+
+v6: https://lore.kernel.org/netdev/20250222191517.743530-1-almasrymina@google.com/
+===
+
+v6 has no major changes. Addressed a few issues from Paolo and David,
+and collected Acks from Stan. Thank you everyone for the review!
+
+Changes:
+- retain behavior to process MSG_FASTOPEN even if the provided cmsg is
+  invalid (Paolo).
+- Rework the freeing of tx_vec slightly (it now has its own err label).
+  (Paolo).
+- Squash the commit that makes dmabuf unbinding scheduled work into the
+  same one which implements the TX path so we don't run into future
+  errors on bisecting (Paolo).
+- Fix/add comments to explain how dmabuf binding refcounting works
+  (David).
+
+v5: https://lore.kernel.org/netdev/20250220020914.895431-1-almasrymina@google.com/
+===
+
+v5 has no major changes; it clears up the relatively minor issues
+pointed out to in v4, and rebases the series on top of net-next to
+resolve the conflict with a patch that raced to the tree. It also
+collects the review tags from v4.
+
+Changes:
+- Rebase to net-next
+- Fix issues in selftest (Stan).
+- Address comments in the devmem and netmem driver docs (Stan and Bagas)
+- Fix zerocopy_fill_skb_from_devmem return error code (Stan).
+
+v4: https://lore.kernel.org/netdev/20250203223916.1064540-1-almasrymina@google.com/
+===
+
+v4 mainly addresses the critical driver support issue surfaced in v3 by
+Paolo and Stan. Drivers aiming to support netmem_tx should make sure not
+to pass the netmem dma-addrs to the dma-mapping APIs, as these dma-addrs
+may come from dma-bufs.
+
+Additionally other feedback from v3 is addressed.
+
+Major changes:
+- Add helpers to handle netmem dma-addrs. Add GVE support for
+  netmem_tx.
+- Fix binding->tx_vec not being freed on error paths during the
+  tx binding.
+- Add a minimal devmem_tx test to devmem.py.
+- Clean up everything obsolete from the cover letter (Paolo).
+
+v3: https://patchwork.kernel.org/project/netdevbpf/list/?series=929401&state=*
+===
+
+Address minor comments from RFCv2 and fix a few build warnings and
+ynl-regen issues. No major changes.
+
+RFC v2: https://patchwork.kernel.org/project/netdevbpf/list/?series=920056&state=*
+=======
+
+RFC v2 addresses much of the feedback from RFC v1. I plan on sending
+something close to this as net-next  reopens, sending it slightly early
+to get feedback if any.
+
+Major changes:
+--------------
+
+- much improved UAPI as suggested by Stan. We now interpret the iov_base
+  of the passed in iov from userspace as the offset into the dmabuf to
+  send from. This removes the need to set iov.iov_base = NULL which may
+  be confusing to users, and enables us to send multiple iovs in the
+  same sendmsg() call. ncdevmem and the docs show a sample use of that.
+
+- Removed the duplicate dmabuf iov_iter in binding->iov_iter. I think
+  this is good improvment as it was confusing to keep track of
+  2 iterators for the same sendmsg, and mistracking both iterators
+  caused a couple of bugs reported in the last iteration that are now
+  resolved with this streamlining.
+
+- Improved test coverage in ncdevmem. Now multiple sendmsg() are tested,
+  and sending multiple iovs in the same sendmsg() is tested.
+
+- Fixed issue where dmabuf unmapping was happening in invalid context
+  (Stan).
+
+====================================================================
+
+The TX path had been dropped from the Device Memory TCP patch series
+post RFCv1 [1], to make that series slightly easier to review. This
+series rebases the implementation of the TX path on top of the
+net_iov/netmem framework agreed upon and merged. The motivation for
+the feature is thoroughly described in the docs & cover letter of the
+original proposal, so I don't repeat the lengthy descriptions here, but
+they are available in [1].
+
+Full outline on usage of the TX path is detailed in the documentation
+included with this series.
+
+Test example is available via the kselftest included in the series as well.
+
+The series is relatively small, as the TX path for this feature largely
+piggybacks on the existing MSG_ZEROCOPY implementation.
+
+Patch Overview:
+---------------
+
+1. Documentation & tests to give high level overview of the feature
+   being added.
+
+1. Add netmem refcounting needed for the TX path.
+
+2. Devmem TX netlink API.
+
+3. Devmem TX net stack implementation.
+
+4. Make dma-buf unbinding scheduled work to handle TX cases where it gets
+   freed from contexts where we can't sleep.
+
+5. Add devmem TX documentation.
+
+6. Add scaffolding enabling driver support for netmem_tx. Add helpers, driver
+feature flag, and docs to enable drivers to declare netmem_tx support.
+
+7. Guard netmem_tx against being enabled against drivers that don't
+   support it.
+
+8. Add devmem_tx selftests. Add TX path to ncdevmem and add a test to
+   devmem.py.
+
+Testing:
+--------
+
+Testing is very similar to devmem TCP RX path. The ncdevmem test used
+for the RX path is now augemented with client functionality to test TX
+path.
+
+* Test Setup:
+
+Kernel: net-next with this RFC and memory provider API cherry-picked
+locally.
+
+Hardware: Google Cloud A3 VMs.
+
+NIC: GVE with header split & RSS & flow steering support.
+
+Performance results are not included with this version, unfortunately.
+I'm having issues running the dma-buf exporter driver against the
+upstream kernel on my test setup. The issues are specific to that
+dma-buf exporter and do not affect this patch series. I plan to follow
+up this series with perf fixes if the tests point to issues once they're
+up and running.
+
+Special thanks to Stan who took a stab at rebasing the TX implementation
+on top of the netmem/net_iov framework merged. Parts of his proposal [2]
+that are reused as-is are forked off into their own patches to give full
+credit.
+
+[1] https://lore.kernel.org/netdev/20240909054318.1809580-1-almasrymina@google.com/
+[2] https://lore.kernel.org/netdev/20240913150913.1280238-2-sdf@fomichev.me/T/#m066dd407fbed108828e2c40ae50e3f4376ef57fd
+
+Cc: sdf@fomichev.me
+Cc: asml.silence@gmail.com
+Cc: dw@davidwei.uk
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Victor Nogueira <victor@mojatatu.com>
+Cc: Pedro Tammela <pctammela@mojatatu.com>
+Cc: Samiullah Khawaja <skhawaja@google.com>
+Cc: Kuniyuki Iwashima <kuniyu@amazon.com>
+
+
+Mina Almasry (8):
+  netmem: add niov->type attribute to distinguish different net_iov
+    types
+  net: add get_netmem/put_netmem support
+  net: devmem: Implement TX path
+  net: add devmem TCP TX documentation
+  net: enable driver support for netmem TX
+  gve: add netmem TX support to GVE DQO-RDA mode
+  net: check for driver support in netmem TX
+  selftests: ncdevmem: Implement devmem TCP TX
+
+Stanislav Fomichev (1):
+  net: devmem: TCP tx netlink api
+
+ Documentation/netlink/specs/netdev.yaml       |  12 +
+ Documentation/networking/devmem.rst           | 150 ++++++++-
+ .../networking/net_cachelines/net_device.rst  |   1 +
+ Documentation/networking/netdev-features.rst  |   5 +
+ Documentation/networking/netmem.rst           |  23 +-
+ drivers/net/ethernet/google/gve/gve_main.c    |   3 +
+ drivers/net/ethernet/google/gve/gve_tx_dqo.c  |   8 +-
+ include/linux/netdevice.h                     |   2 +
+ include/linux/skbuff.h                        |  17 +-
+ include/linux/skbuff_ref.h                    |   4 +-
+ include/net/netmem.h                          |  34 +-
+ include/net/sock.h                            |   1 +
+ include/uapi/linux/netdev.h                   |   1 +
+ io_uring/zcrx.c                               |   3 +-
+ net/core/datagram.c                           |  48 ++-
+ net/core/dev.c                                |  34 +-
+ net/core/devmem.c                             | 131 ++++++--
+ net/core/devmem.h                             |  83 ++++-
+ net/core/netdev-genl-gen.c                    |  13 +
+ net/core/netdev-genl-gen.h                    |   1 +
+ net/core/netdev-genl.c                        |  80 ++++-
+ net/core/skbuff.c                             |  48 ++-
+ net/core/sock.c                               |   6 +
+ net/ipv4/ip_output.c                          |   3 +-
+ net/ipv4/tcp.c                                |  50 ++-
+ net/ipv6/ip6_output.c                         |   3 +-
+ net/vmw_vsock/virtio_transport_common.c       |   5 +-
+ tools/include/uapi/linux/netdev.h             |   1 +
+ .../selftests/drivers/net/hw/devmem.py        |  26 +-
+ .../selftests/drivers/net/hw/ncdevmem.c       | 300 +++++++++++++++++-
+ 30 files changed, 1008 insertions(+), 88 deletions(-)
+
+
+base-commit: 0d15a26b247d25cd012134bf8825128fedb15cc9
 -- 
-Bobby Eshleman <bobbyeshleman@gmail.com>
+2.49.0.901.g37484f566f-goog
 
