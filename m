@@ -1,63 +1,63 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C750D248F5D
-	for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 10:36:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F0922580F3
+	for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 10:38:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746009375; cv=none; b=En1etzivuat0pUp/RVL320MB1WPBKKIUzZTRMdDzPJL2qb94GO7eVBvaaRtAbqUJzVMsrd826Nm716oBieeurmOj9cCFnuEbyEf/s1qQAvvnFgrcOu0vCrcSImERCSfzO5OWGmCdzaBlnKr2eb1R/lhTXwIatpJgn5dlnvkz0k8=
+	t=1746009493; cv=none; b=UEWMB5rmwykCBCTF4ZnGfHogP5qbIT9imtfzteaMpBowleXjKx7lMsusAc7hE5ZvhtyGbRdjj65hWF377yWyfqCBbip9Etszd6mv0uunhNKHW7acd9p3k1xLKs/tJ6wJEqdh8njXzhskwpEm6wL54dmnk53YCpltbO+X+croWQQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746009375; c=relaxed/simple;
-	bh=mhr10cYfBfC4zr3WVDjrKQCUfiTgNn/5cxCG1MJj3Kc=;
+	s=arc-20240116; t=1746009493; c=relaxed/simple;
+	bh=L0SAAefyveDoX/FjdHc/xGaLZ37kY++Yjt697RpzkAY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=keeUObjuIxWkNZKN2mClelFyubboySrko8kD7JXaL9Ii2gjmxyf1ASGX67fJl8ImqRyG6zA9jMW+XMAgfrof9/GtgaBZ0OO188UaiPdA1HRb4LBNQinXGabW/3apOJtZehFYgCdsxV6UA1YxC5rR/EGsDgoazzwrot7fQUcIFwI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Nw2aDXQP; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=sKiziAtqMJ9aNT/wOir0b3Xgmltz4kibcgJCNVMuKexifC1J+pQdYKE2XPd1SDR2mGeLKQsuVOAAKM7nm81fftvpJeiCSMe5WCZ/fmwQ/StVuNw6BP2yv6Y9w+vsmhGj/b8JJBN9daA8nVyHVHj7/fmSHrOXSXxWr9jD1e8zZYE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VSaaGBYn; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Nw2aDXQP"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VSaaGBYn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1746009372;
+	s=mimecast20190719; t=1746009489;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ofEnQUAiXxunrVfb3X1JnXlrqr5QDc+0a3iYkP1Wxqg=;
-	b=Nw2aDXQPvrdVvxgHHOz54MIvxgQZlR0cTjnbWVC6gXpgNIhs+hI53dhQO12i1e8XpSWamt
-	7aDnWxKwtAc5Li0LTXDP9o1Dz5gY5moiFWtIQ/pyxoLCq1US+LPVX11+Fd7hNOdV4kNJX4
-	LhiulHxjd8Tw5RzkcMhv1ojzA4caxLI=
-Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
- [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Pi8G66LgJAq886SVmCWw3P+Bv6HYWhRZ3tZsp9fmenI=;
+	b=VSaaGBYnZsbDN/u/h/hkm0eLQ//menwOIxwmF4p5BxtRGTdI38Q78i57GzFgkmq0nHRurx
+	OPAi84ey85fFOfQ17nq/mCJ4FB13KfmMFK8g45jvuLSCnXm6p6JwVRKnejT26qInIxdg5o
+	qxKqv4tvrXBkNRcp9MJudgKqaaOZfRY=
+Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
+ [209.85.219.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-553-oszzurofOMu8cJyEgSbtUw-1; Wed, 30 Apr 2025 06:36:11 -0400
-X-MC-Unique: oszzurofOMu8cJyEgSbtUw-1
-X-Mimecast-MFC-AGG-ID: oszzurofOMu8cJyEgSbtUw_1746009370
-Received: by mail-yb1-f199.google.com with SMTP id 3f1490d57ef6-e73ff0469cbso1153841276.1
-        for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 03:36:11 -0700 (PDT)
+ us-mta-461-kzloihIZN5SjS-Zbz_PyEw-1; Wed, 30 Apr 2025 06:38:06 -0400
+X-MC-Unique: kzloihIZN5SjS-Zbz_PyEw-1
+X-Mimecast-MFC-AGG-ID: kzloihIZN5SjS-Zbz_PyEw_1746009486
+Received: by mail-yb1-f197.google.com with SMTP id 3f1490d57ef6-e5b0f2778d6so5181000276.3
+        for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 03:38:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746009370; x=1746614170;
+        d=1e100.net; s=20230601; t=1746009486; x=1746614286;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ofEnQUAiXxunrVfb3X1JnXlrqr5QDc+0a3iYkP1Wxqg=;
-        b=srDOGU/zsVeRv4MGOhyzrgmD5pe70w0cnJCliKpKeIVk2+3VWkCywvNu12VyIemXqP
-         5mBmFPAJjieGPJDrhnZQYao3jDc5dQMbtcOHQlURoo9m5nuOaXCH2IVvC9AZuXNopZJ2
-         n02cXEqvGTaUZXq6kpBkm/vxIi1NLFZzzAug7iYnnQr4R391it2Dp6vKDnaHsMlLpGga
-         HsOpA16ZPCLp4L7X52taO/SHVz+g5VJ9PQkmr/pPXcUXNW4XEolc2AHmtASXA9w0fa+5
-         FbgzHws7lcqrn+MAltoAbumNksLGAMVFXErwQIUEoKb5zg02y7xHSNmLHQMVuE/XKuwH
-         Utrw==
-X-Forwarded-Encrypted: i=1; AJvYcCUuid31aYE8Hr2ArXYdJCDtgGqNk0lUoC/oHWssEayaL72X/638vV7BZ60E3Bv2mgze7jy+A5SjI80/E1H4wg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx+FOU7YJW5lzQf30fkP0j69v0UNKe1+cpjEmNrKzDNc3p77vkR
-	Y1Rf9IaEvMQr/syC1OG6ZkOT8zmyl536BX84Bwznr9miI7/VX0yUv1Up5FE5zovG0e0nFEP0ly3
-	U4LIMnDP+IpwbHh4L94EVZBSoTYmyIfF8TebvJlw8x5xi8eVSiOn6qktehtfiKdkfUyhGuYpgzX
-	Sg+BATm6geibn/lsM2BjEt5pLoT8p3Z9hJHAkbBJU=
-X-Gm-Gg: ASbGncvBc+EkJ1KEDgu3MVDCt1mc56ZuVrWkXjqfVosuuHTig5z+KwzCjwdxBpQcUxB
-	PqUCux/LSUGCBhb/w16HK54oA+qvFKR+nF8tvhp/Z56kvDX9KG3CQLEUxE5s4y4DVa/yexas=
-X-Received: by 2002:a05:6902:200b:b0:e72:8094:7ef2 with SMTP id 3f1490d57ef6-e7403b434b8mr2679063276.5.1746009370618;
-        Wed, 30 Apr 2025 03:36:10 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFd6mFph/jL7kLcuyN4SBa/2KU+rAGfiImT7cec/RSo77iKESmm4t45Oot64cbpBSJwO29YwZRGDmgsMtUfxOE=
-X-Received: by 2002:a05:6902:200b:b0:e72:8094:7ef2 with SMTP id
- 3f1490d57ef6-e7403b434b8mr2679053276.5.1746009370232; Wed, 30 Apr 2025
- 03:36:10 -0700 (PDT)
+        bh=Pi8G66LgJAq886SVmCWw3P+Bv6HYWhRZ3tZsp9fmenI=;
+        b=KitNSbZg2ZNX5iUjZYgiai6owF47Pnj3GuJ+wX7OPuUS5uwXJl4gqHmmtHVPMw4NQN
+         XiXfEnqRZ7AsiJpFsPFpQtf5rADvdeldFfOmneayUy1zGq+vWPIV6vVyag2RdZbbsS4B
+         9SPVkBsDPgP4pCOQM3ik8oAmpAb1FYC3hzTdnK1UT3L/1OWr4eCo2pWiCayH/22WDPkw
+         b3WA5MKMUqwyUUp84xC3lZVZ/E32Ng8e68J+1k9r7ypZMlwcon7ipMILCgFdYrElpz+Y
+         VHtRN2IqoBzGonoOs0W1BlPee+QrROilMB21F7t2In2KbvZKUifDo/wRdPBSsXPvJ11e
+         eXUA==
+X-Forwarded-Encrypted: i=1; AJvYcCW9Sd07YQrDuu+fVubkrYaEnatMhY8ocoa8t6uFvhgorFRrjOeaJXRx3fZuas5ABXnApcutV1bu5oJBOoQs9g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzPILW7ZOpJ2GCXkr4dPktGNSTDFJouDQZ3RiJEbaCymRf5wSMp
+	sTM3FtLE1lJEUI4OGS0o3UR2piQ+XctJWh693ylNdryMZV1kvYPzlk0hY0FklDAJAmhRbSIrnA0
+	FHgZhkTGe0UyjMRayy6RBS/WZ5AAoC2Hfw7Z/blDyclOSWQwZQvJyTGtjF7RVYlCO7XvQxOsEeO
+	nqYbXl6vyIm9477g1A3OZSwX3AJZfOTl1axyPWq/M=
+X-Gm-Gg: ASbGncubnvbsnpiQknf8L4foAzInO4GUQXGQbyAfNBr4lW4+O+Whgt1L56PJIlGp8z/
+	kRUvn0dgyHWpM0G/sQ8+DVCP4+gW6i5n4IgGOE+1WOyD88Ih9nSxedjFgQ16QFqt3Z0ZVBo4=
+X-Received: by 2002:a05:6902:70f:b0:e73:1a8c:b85c with SMTP id 3f1490d57ef6-e7404cf1cd6mr2499381276.27.1746009485714;
+        Wed, 30 Apr 2025 03:38:05 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHe4hS/4tTJe3wQp1DO4q16a9js38tPsRexlXFhwlVepkoC+asFZ9MA+8cxL1MgjRQ/gYtfO9kGzahI7xKCWA8=
+X-Received: by 2002:a05:6902:70f:b0:e73:1a8c:b85c with SMTP id
+ 3f1490d57ef6-e7404cf1cd6mr2499358276.27.1746009485276; Wed, 30 Apr 2025
+ 03:38:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -65,13 +65,13 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20250430-vsock-linger-v3-0-ddbe73b53457@rbox.co>
- <20250430-vsock-linger-v3-3-ddbe73b53457@rbox.co> <kz3s5mu7bc5kqb22g6voacrinda3wszwhlda7nnwhm5bciweuc@dpsyq2yfrs7f>
- <cc2d5c7c-a031-402d-b2d7-fe57fa0bf321@rbox.co>
-In-Reply-To: <cc2d5c7c-a031-402d-b2d7-fe57fa0bf321@rbox.co>
+ <20250430-vsock-linger-v3-3-ddbe73b53457@rbox.co> <oo5tmbu7okyqojwxt4xked4jvq6jqydrddowspz3p66nsjzajt@36mxuduci4am>
+ <fa71ef5e-7603-4241-bfd3-7aa7b5ea8945@rbox.co>
+In-Reply-To: <fa71ef5e-7603-4241-bfd3-7aa7b5ea8945@rbox.co>
 From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Wed, 30 Apr 2025 12:35:59 +0200
-X-Gm-Features: ATxdqUHqbCSxT_egwqwRscXnk2hQ8Isa4NXFhfUyLX35mZgR_JT8VJB4qZt0zWI
-Message-ID: <CAGxU2F6Z0Um6GkvsAzH4tBzhQNvZpU3zAJAQ7jPyNp2c-LVo4Q@mail.gmail.com>
+Date: Wed, 30 Apr 2025 12:37:54 +0200
+X-Gm-Features: ATxdqUFYdEhpc2hMG3McWkKruB0g8l88EcvME9mfW0rN5K7PplMaQvDwSrnYRHE
+Message-ID: <CAGxU2F62CTUKVjuG9Fjo29E6uopVzOK8zgr+HwooqMr4V_RvLQ@mail.gmail.com>
 Subject: Re: [PATCH net-next v3 3/4] vsock: Move lingering logic to af_vsock core
 To: Michal Luczaj <mhal@rbox.co>
 Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
@@ -81,13 +81,13 @@ Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
 	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, 
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: MxcRn0rIFrHTa5bv2CxO8u-h79NoQUT9FPDfnAo8JCw_1746009370
+X-Mimecast-MFC-PROC-ID: aKH6eJHJB_HG-Z9vRzZAGdLwKt7qAb7EaINonB3qQ0o_1746009486
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 
-On Wed, 30 Apr 2025 at 12:30, Michal Luczaj <mhal@rbox.co> wrote:
+On Wed, 30 Apr 2025 at 12:33, Michal Luczaj <mhal@rbox.co> wrote:
 >
-> On 4/30/25 11:33, Stefano Garzarella wrote:
+> On 4/30/25 11:36, Stefano Garzarella wrote:
 > > On Wed, Apr 30, 2025 at 11:10:29AM +0200, Michal Luczaj wrote:
 > >> Lingering should be transport-independent in the long run. In preparation
 > >> for supporting other transports, as well the linger on shutdown(), move
@@ -190,13 +190,39 @@ On Wed, 30 Apr 2025 at 12:30, Michal Luczaj <mhal@rbox.co> wrote:
 > >> -            virtio_transport_wait_close(sk, sk->sk_lingertime);
 > >> +            vsock_linger(sk, sk->sk_lingertime);
 > >
-> > What about removing the `sk->sk_lingertime` parameter here?
-> > vsock_linger() can get it from sk.
+> > Ah, I'd also move the check in that function, I mean:
+> >
+> > void vsock_linger(struct sock *sk) {
+> >       ...
+> >       if (!sock_flag(sk, SOCK_LINGER) || (current->flags & PF_EXITING))
+> >               return;
+> >
+> >       ...
+> > }
 >
-> Certainly. I assume this does not need a separate patch and can be done
-> while moving (and de-indenting) the code?
+> One note: if we ever use vsock_linger() in vsock_shutdown(), the PF_EXITING
+> condition would be unnecessary checked for that caller, right?
 
-Yep, single patch to implement vsock_linger() in af_vsock.c is fine.
+Right, for shutdown it should always be false, so maybe better to keep
+the check in the caller.
 
+Thanks,
 Stefano
+
+>
+> > Or, if we move the call to vsock_linger() in __vsock_release(), we can
+> > do the check there.
+> >
+> > Thanks,
+> > Stefano
+> >
+> >>
+> >>      if (sock_flag(sk, SOCK_DONE)) {
+> >>              return true;
+> >>
+> >> --
+> >> 2.49.0
+> >>
+> >>
+>
 
