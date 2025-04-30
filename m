@@ -1,122 +1,108 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E98A72609CB;
-	Wed, 30 Apr 2025 16:38:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86AB52609C5;
+	Wed, 30 Apr 2025 17:20:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746031120; cv=none; b=ojagNVH6V0xDoIvRQNBnF7MqpD9TH95eNv2kJEBxSo068SnBj/thgntrQkMSo1h4AnqT/Z394xtGoAyRZ17Wc6g8aiCJW9ZzvWHvWzeLlXITetealHKmFcvL5zj9n9encURcSqNYC7zgWuwxwLn6iAzwFpP5VmAXbVIxE1lc07U=
+	t=1746033655; cv=none; b=po5KW45EueBSa+Ip5hdMDNBwI+m/dcFETDy4mNNzAL5zQPGniKI5t5dSnTYnGtIMxVWyLEPRC68OsV2yY1CBMO5bxP9o0/bdaE7x9ObePsQe8RVA/UtFMO5ZyNcCk5REATmZ+3Pqc89Z2HiEn5cldt0jppzqKzJDEXObsKX10ps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746031120; c=relaxed/simple;
-	bh=sTUHXrpvWbBmLoVSvQCq6iPznegP/mPeO9mAVlWZ1kw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pys/gW8ubqDxq0WOHI5y1w+EXt1iZXeFipJF+EuU53nQYCeXjZCotOhTbcadcpqysFZuCymEVAsiP1d0HXES9brJB5fBkYnLp+XP2dA0tJbCQP8pPsS0cWGJTLiKH0IfAOSA6/h855/Di2JsF70aZ3p4EXxqyXceovFOvxuKLx0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z+nJPxvK; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z+nJPxvK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC4D7C4CEE7;
-	Wed, 30 Apr 2025 16:38:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746031119;
-	bh=sTUHXrpvWbBmLoVSvQCq6iPznegP/mPeO9mAVlWZ1kw=;
-	h=From:To:Cc:Subject:Date:From;
-	b=Z+nJPxvKgMChoR0FLK79zGQeL/3sOLIrIAECg1z4BB+0WFoIUNctuiJxdyjAaPoc3
-	 o8lb1E2Ij1AqpxAZu63v47EzhcdyJPqrmWPQBIxBiiADwRsyoPFBVoPXoP3UkO+4Rw
-	 EeMGVR5nNxEaZxUqne1/c5mqbl3ZYVBoBoJW54lKLSmLYLSFgABkoFvl5RcQSKtVDz
-	 tDlYDWBjqNkv8ToJlvQ5kK25LZmyiBwdChyIthUzdeIDu9+j1vKawBsgMNzRATdhdw
-	 cb8mJreqpaokaIQxR5uxvpgMVjN0oGT9/44bO4mSXqlj8WMFkdL8HOCdcz+/e3ThUw
-	 XSwZtg+XB2mZg==
-From: Jakub Kicinski <kuba@kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org,
-	edumazet@google.com,
-	pabeni@redhat.com,
-	andrew+netdev@lunn.ch,
-	horms@kernel.org,
-	Jakub Kicinski <kuba@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	mst@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	hawk@kernel.org,
-	john.fastabend@gmail.com,
-	virtualization@lists.linux.dev,
-	minhquangbui99@gmail.com
-Subject: [PATCH net v2] virtio-net: free xsk_buffs on error in virtnet_xsk_pool_enable()
-Date: Wed, 30 Apr 2025 09:38:36 -0700
-Message-ID: <20250430163836.3029761-1-kuba@kernel.org>
-X-Mailer: git-send-email 2.49.0
+	s=arc-20240116; t=1746033655; c=relaxed/simple;
+	bh=39KWSZA/+5ZTjQd4vRuOPIK2i+N4nybWhXUJllaBu/c=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=b5KntVeZGijtm27y0qoRBsKEEiFDMkIKwEvZM0FeCpVtTB54aV5+y+O5v2hyhZBSCsjWQVAw7nEzVvV5/Qmb0KAoEiU+o+OeCC8SjkJEB3be28rMTHxDNpWwUpG2iLO9pMjr2o4vb/8ZzBaKa5X2sLL0bWAcXuBH8s0RJTK3efY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD676C4CEEB;
+	Wed, 30 Apr 2025 17:20:43 +0000 (UTC)
+Date: Wed, 30 Apr 2025 13:20:47 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: Valentin Schneider <vschneid@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+ linux-perf-users@vger.kernel.org, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-modules@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, rcu@vger.kernel.org,
+ linux-hardening@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ bpf@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>, Marcelo Tosatti
+ <mtosatti@redhat.com>, Yair Podemsky <ypodemsk@redhat.com>, Josh Poimboeuf
+ <jpoimboe@kernel.org>, Daniel Wagner <dwagner@suse.de>, Petr Tesarik
+ <ptesarik@suse.com>, Nicolas Saenz Julienne <nsaenz@amazon.com>, Frederic
+ Weisbecker <frederic@kernel.org>, "Paul E. McKenney" <paulmck@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Sean Christopherson
+ <seanjc@google.com>, Juergen Gross <jgross@suse.com>, Ajay Kaher
+ <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will
+ Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
+ <kernel@xen0n.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer
+ Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Alexandre
+ Ghiti <alex@ghiti.fr>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar
+ <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H.
+ Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
+ <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alexander
+ Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa
+ <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, Adrian Hunter
+ <adrian.hunter@intel.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Pawan
+ Gupta <pawan.kumar.gupta@linux.intel.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Jason Baron
+ <jbaron@akamai.com>, Ard Biesheuvel <ardb@kernel.org>, Luis Chamberlain
+ <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>, Sami Tolvanen
+ <samitolvanen@google.com>, Daniel Gomez <da.gomez@samsung.com>, Naveen N
+ Rao <naveen@kernel.org>, Anil S Keshavamurthy
+ <anil.s.keshavamurthy@intel.com>, "David S. Miller" <davem@davemloft.net>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Neeraj Upadhyay
+ <neeraj.upadhyay@kernel.org>, Joel Fernandes <joel@joelfernandes.org>, Josh
+ Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
+ Uladzislau Rezki <urezki@gmail.com>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>,
+ Zqiang <qiang.zhang1211@gmail.com>, Vincent Guittot
+ <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Kees Cook
+ <kees@kernel.org>, Shuah Khan <shuah@kernel.org>, Masahiro Yamada
+ <masahiroy@kernel.org>, Alice Ryhl <aliceryhl@google.com>, Miguel Ojeda
+ <ojeda@kernel.org>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>, Rong Xu
+ <xur@google.com>, Rafael Aquini <aquini@redhat.com>, Song Liu
+ <song@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, Dan Carpenter
+ <dan.carpenter@linaro.org>, Brian Gerst <brgerst@gmail.com>, "Kirill A.
+ Shutemov" <kirill.shutemov@linux.intel.com>, Benjamin Berg
+ <benjamin.berg@intel.com>, Vishal Annapurve <vannapurve@google.com>, Randy
+ Dunlap <rdunlap@infradead.org>, John Stultz <jstultz@google.com>, Tiezhu
+ Yang <yangtiezhu@loongson.cn>
+Subject: Re: [PATCH v5 00/25] context_tracking,x86: Defer some IPIs until a
+ user->kernel transition
+Message-ID: <20250430132047.01d48647@gandalf.local.home>
+In-Reply-To: <fefcd1a6-f146-4f3c-b28b-f907e7346ddd@intel.com>
+References: <20250429113242.998312-1-vschneid@redhat.com>
+	<fefcd1a6-f146-4f3c-b28b-f907e7346ddd@intel.com>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-The selftests added to our CI by Bui Quang Minh recently reveals
-that there is a mem leak on the error path of virtnet_xsk_pool_enable():
+On Tue, 29 Apr 2025 09:11:57 -0700
+Dave Hansen <dave.hansen@intel.com> wrote:
 
-unreferenced object 0xffff88800a68a000 (size 2048):
-  comm "xdp_helper", pid 318, jiffies 4294692778
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace (crc 0):
-    __kvmalloc_node_noprof+0x402/0x570
-    virtnet_xsk_pool_enable+0x293/0x6a0 (drivers/net/virtio_net.c:5882)
-    xp_assign_dev+0x369/0x670 (net/xdp/xsk_buff_pool.c:226)
-    xsk_bind+0x6a5/0x1ae0
-    __sys_bind+0x15e/0x230
-    __x64_sys_bind+0x72/0xb0
-    do_syscall_64+0xc1/0x1d0
-    entry_SYSCALL_64_after_hwframe+0x77/0x7f
+> I don't think we should do this series.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-Fixes: e9f3962441c0 ("virtio_net: xsk: rx: support fill with xsk buffer")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
-v2:
- - remember to set the err
-v1: https://lore.kernel.org/20250429164323.2637891-1-kuba@kernel.org
+Could you provide more rationale for your decision.
 
-CC: mst@redhat.com
-CC: jasowang@redhat.com
-CC: xuanzhuo@linux.alibaba.com
-CC: eperezma@redhat.com
-CC: hawk@kernel.org
-CC: john.fastabend@gmail.com
-CC: virtualization@lists.linux.dev
-CC: minhquangbui99@gmail.com
----
- drivers/net/virtio_net.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+>=20
+> If folks want this functionality, they should get a new CPU that can
+> flush the TLB without IPIs.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 848fab51dfa1..c107916b685e 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -5885,8 +5885,10 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
- 
- 	hdr_dma = virtqueue_dma_map_single_attrs(sq->vq, &xsk_hdr, vi->hdr_len,
- 						 DMA_TO_DEVICE, 0);
--	if (virtqueue_dma_mapping_error(sq->vq, hdr_dma))
--		return -ENOMEM;
-+	if (virtqueue_dma_mapping_error(sq->vq, hdr_dma)) {
-+		err = -ENOMEM;
-+		goto err_free_buffs;
-+	}
- 
- 	err = xsk_pool_dma_map(pool, dma_dev, 0);
- 	if (err)
-@@ -5914,6 +5916,8 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
- err_xsk_map:
- 	virtqueue_dma_unmap_single_attrs(rq->vq, hdr_dma, vi->hdr_len,
- 					 DMA_TO_DEVICE, 0);
-+err_free_buffs:
-+	kvfree(rq->xsk_buffs);
- 	return err;
- }
- 
--- 
-2.49.0
+That's a pretty heavy handed response. I'm not sure that's always a
+feasible solution.
+
+=46rom my experience in the world, software has always been around to fix the
+hardware, not the other way around ;-)
+
+-- Steve
 
