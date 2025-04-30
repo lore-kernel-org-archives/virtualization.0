@@ -1,150 +1,149 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55182171D2
-	for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 09:17:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91E61220689
+	for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 09:27:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746004645; cv=none; b=JcX5e7iAPh7Ret/+hMECLpnhFq5/CYZyGcKTrPnFQTxGjbgC8mYFjAWdprGb8XqJf2hqa4/m54Ci0FTAgnrTmdFvBTyKAcMEwyqDpKJWhjumiaYdmNQWN843h+paC9pKn5tn08Pmw+99AuNkvbeENFU7ZdP/lSmQ5Kjv0NlBl3k=
+	t=1746005230; cv=none; b=X0hDXQvYwcqlh2r+uLNhtIi7ijTbP5cEJB2GnuB1OU3WG5eWSWkvw5RDp2ZAgLWH2VzhSpJI3Yjon+l/mh31Ev3jnAUzaQp9jBOSp8iLrAR0MgoUvT8gOnTosmAH7iggZ7+81Zd9VKfhhRqupO4H1ADPT/VqiAXc4vChnP/ixcw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746004645; c=relaxed/simple;
-	bh=0MRDc7XkKAhdLo9NoWiZ7a37tKdrUj31jPMIXHPElEQ=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=RRBgKXohTast61fKl91rf3h/rwcItulzGAOl+ke5XhQwtP25bSfVXUz87MaiXjeom57bwORqkQlTji+OM/ywpXf8NxybgKyN73F8GhzrAjA5rD5xwNd/4BaGrjR/vQRTnuPUs2Quz1qniNn+W65J5pQbPlqUFBGrjCtDvTQK2kc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=V/vS34HD; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1746005230; c=relaxed/simple;
+	bh=kjb/2qlRokzw4V64RKekB6zLbCzs3UmMCafUrdMO+5o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=hMCyujSjLsZznU0MGNWtzc7KiPeKiHn4I5G6plbpyXTMUqqT0n8dEo/Ke69xDHq9yQMxfIASfanKIE9mkgmMAB4o17uXl3h+MiftSn7jy2LA53hngmRA592r7SM3jxR6ZhZGNukbsMlVm3VqU4YM7DP6BnLZ/fKWltp064+kz/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Pibo+tnp; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="V/vS34HD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1746004643; x=1777540643;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version:content-id;
-  bh=0MRDc7XkKAhdLo9NoWiZ7a37tKdrUj31jPMIXHPElEQ=;
-  b=V/vS34HDrLHQepMg78pb36TUjpGXYxdeLXntC0ZcKhUA5vNOmYzrTOPu
-   6fi6AfQZRNLcTkPKrWhl61zF4ifUZypn1ItQXBThJqu5n3WvmngbiCboZ
-   Q4BOUDCh9Z04z7A22oGR7sM52NMX3tDreG2lcoJzQbTRIl0s49VD92+X8
-   yf3NnA/CjUQ8xBSSxD5xYJq6JhIAIwc+92/Raat67wI2W0tJQGrGibEK2
-   tLKrpNk+hO1dzRca+M1uIjjJRKp98kGvtFPvAN9IxZhfT/XNs7HiCEtfF
-   blT64eHJlBAObBnrsdzBe7Iq6uskFRXYr8MTBHLuYQWkrPHktrocRw1VJ
-   A==;
-X-CSE-ConnectionGUID: gbMTQE7YQ7CvqLA4pOTAvg==
-X-CSE-MsgGUID: QD2jdg++S+6dGXkIWoAOLw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11418"; a="73044387"
-X-IronPort-AV: E=Sophos;i="6.15,251,1739865600"; 
-   d="scan'208";a="73044387"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2025 02:17:22 -0700
-X-CSE-ConnectionGUID: /a7mAvi6S1y/UJBA/L4NuA==
-X-CSE-MsgGUID: NSdWhcCYRFm9Gy2+IE0YuA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.15,251,1739865600"; 
-   d="scan'208";a="139249217"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.97])
-  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2025 02:17:10 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Wed, 30 Apr 2025 12:17:06 +0300 (EEST)
-To: Xin Li <xin@zytor.com>
-cc: LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, 
-    linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-    virtualization@lists.linux.dev, linux-pm@vger.kernel.org, 
-    linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org, 
-    linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org, 
-    Netdev <netdev@vger.kernel.org>, platform-driver-x86@vger.kernel.org, 
-    tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
-    dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
-    acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com, 
-    peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com, 
-    alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com, 
-    adrian.hunter@intel.com, kan.liang@linux.intel.com, wei.liu@kernel.org, 
-    ajay.kaher@broadcom.com, bcm-kernel-feedback-list@broadcom.com, 
-    tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com, 
-    seanjc@google.com, luto@kernel.org, boris.ostrovsky@oracle.com, 
-    kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com, 
-    dapeng1.mi@linux.intel.com
-Subject: Re: [PATCH v4 01/15] x86/msr: Add missing includes of <asm/msr.h>
-In-Reply-To: <c16677bd-ee63-4032-8825-7d2789dd7555@zytor.com>
-Message-ID: <d1bf0657-1cc5-b6ec-5601-f31efefacd9a@linux.intel.com>
-References: <20250427092027.1598740-1-xin@zytor.com> <20250427092027.1598740-2-xin@zytor.com> <a1917b37-e41e-d303-749b-4007cda01605@linux.intel.com> <c16677bd-ee63-4032-8825-7d2789dd7555@zytor.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pibo+tnp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1746005227;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BnGE355VKh8cwgKuDwR0kb5tI61AXcZQbhXFxQc6RqM=;
+	b=Pibo+tnpQS2AmL4YzChF5unANdCDon7pI8mcnAk7va3BN+ztA4AeVa8qjrkh19kducQK+D
+	dDQr5MzxU81SXts17mJTVPA3RQJAMgoAM2hdKFv3ZgyX/ZYbLtLauXwKpFt4X25Nz5oXXZ
+	H1G3olNPVSEC4KFpasqX6ujLcnQWuCo=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-203-ZUj4H_ukPjCEQvP3JdYDow-1; Wed, 30 Apr 2025 05:27:06 -0400
+X-MC-Unique: ZUj4H_ukPjCEQvP3JdYDow-1
+X-Mimecast-MFC-AGG-ID: ZUj4H_ukPjCEQvP3JdYDow_1746005225
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-ac287f28514so578914666b.0
+        for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 02:27:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746005225; x=1746610025;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BnGE355VKh8cwgKuDwR0kb5tI61AXcZQbhXFxQc6RqM=;
+        b=aLa5G5YylvHMVzarkfKSBRkAxVp30AqlTmR+wnAzN6tvp/qJ8g7azVHLmqsmzTPA8H
+         0t8X7MLijaBihe7Cl3GVgw7INHENpCCH9d50rhUhAj85i4T7jEqlXKj9pfmDmkbtn1h7
+         vu0DOqwFPkmgJZjbo92NmOCikHAxF2fhGfvIiky/eNiqTCdpkqkcIuSWnGabmgGD7QIE
+         2T0A8ZCW9nTMnn/2LSmKvzS3/fo9qvxcxbNvkdFpD2L/qpsus/+/R/m3rlACTSVkDAGm
+         rjdjCnbkd1OrVNxzhSQLo00px4KDwun6d9bhIkIgQD9mPL0Gtjs7UCYKE56CmmRAn9cc
+         w1Kg==
+X-Forwarded-Encrypted: i=1; AJvYcCVNO26x3G3ATYMZ/wtPaUlQY/z6YCTrlVdwlgkuGAq3lTX4W9J75F2xwgal+890eLGJfo0LcBUYny/S4QKZkQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw3KK5ASb+mU101y3jl8mOBSj/ttI0DRFYjIM8SCqZOC2kgYow9
+	Xw3GO/p3sI1eG7frPmPgZaYfeQxzSWJidgnKNuu9X7ANtTVd0MSsPulnyJKufjh7X8ENJB572n6
+	WTB8Sas06O/cFZm9/N2kpPznpCzic9azPyumGljFcGEc64H04udwwO5G7kwnIiIyf
+X-Gm-Gg: ASbGncswN1FZR6cpego+2uPxGajXMNvieWGe6vGgB+F6j5lKNOBJ9x6Z2p4SLNq81au
+	zEecPV7Bujn352cjX1H2xkYyS9ITjaJilg29bUS29/drBb9E3nzvONdhj4tdaWGur3xt3QNINEr
+	U+YK614+sYEZMxBmAw2EbgYDUqBWFQYyyrEZDMqTQ/6EMyqR2xT4T6Xo7UcjOVf/BxgggrYqNp6
+	RTDU+BVENucYcTzJgvehduTLJNkCgBtibuZuO6VpZAlP2YJ5tx6HHjbMLInSDbJB/GjRY4r1Y5Z
+	+SHN2z13J9X7Yvmpmg==
+X-Received: by 2002:a17:907:6d22:b0:acb:6081:14ec with SMTP id a640c23a62f3a-acee26469f2mr167108966b.61.1746005224701;
+        Wed, 30 Apr 2025 02:27:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHpWzcCN+MPKS91oqLZ/RURiVcQD7mwDZdTf3RoSbMle6jXy5M9/HSlwH5Kk6tGLLsNJHDLYA==
+X-Received: by 2002:a17:907:6d22:b0:acb:6081:14ec with SMTP id a640c23a62f3a-acee26469f2mr167105766b.61.1746005224017;
+        Wed, 30 Apr 2025 02:27:04 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.220.254])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ace6e4e70b0sm895358966b.43.2025.04.30.02.27.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Apr 2025 02:27:03 -0700 (PDT)
+Date: Wed, 30 Apr 2025 11:26:55 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Michal Luczaj <mhal@rbox.co>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH net-next v3 1/4] vsock/virtio: Linger on unsent data
+Message-ID: <x3kkxnrqujqjkrtptr2qdd3227ncof2vb7jbrcg3aibvwjfqxa@hbinpxjuk3qe>
+References: <20250430-vsock-linger-v3-0-ddbe73b53457@rbox.co>
+ <20250430-vsock-linger-v3-1-ddbe73b53457@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="8323328-830254077-1746003796=:7433"
-Content-ID: <b1309532-f075-10c2-3416-1951dccf3d32@linux.intel.com>
+In-Reply-To: <20250430-vsock-linger-v3-1-ddbe73b53457@rbox.co>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: yGofYnOMLL4S3wdcI0Q35m4nDGwj2_oLEFgp3AKMsnA_1746005225
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, Apr 30, 2025 at 11:10:27AM +0200, Michal Luczaj wrote:
+>Currently vsock's lingering effectively boils down to waiting (or timing
+>out) until packets are consumed or dropped by the peer; be it by receiving
+>the data, closing or shutting down the connection.
+>
+>To align with the semantics described in the SO_LINGER section of man
+>socket(7) and to mimic AF_INET's behaviour more closely, change the logic
+>of a lingering close(): instead of waiting for all data to be handled,
+>block until data is considered sent from the vsock's transport point of
+>view. That is until worker picks the packets for processing and decrements
+>virtio_vsock_sock::bytes_unsent down to 0.
+>
+>Note that (some interpretation of) lingering was always limited to
+>transports that called virtio_transport_wait_close() on transport release.
+>This does not change, i.e. under Hyper-V and VMCI no lingering would be
+>observed.
+>
+>The implementation does not adhere strictly to man page's interpretation of
+>SO_LINGER: shutdown() will not trigger the lingering. This follows AF_INET.
+>
+>Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>---
+> net/vmw_vsock/virtio_transport_common.c | 8 ++++++--
+> 1 file changed, 6 insertions(+), 2 deletions(-)
+>
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index 7f7de6d8809655fe522749fbbc9025df71f071bd..49c6617b467195ba385cc3db86caa4321b422d7a 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -1196,12 +1196,16 @@ static void virtio_transport_wait_close(struct sock *sk, long timeout)
+> {
+> 	if (timeout) {
+> 		DEFINE_WAIT_FUNC(wait, woken_wake_function);
+>+		ssize_t (*unsent)(struct vsock_sock *vsk);
+>+		struct vsock_sock *vsk = vsock_sk(sk);
+>+
+>+		unsent = vsk->transport->unsent_bytes;
 
---8323328-830254077-1746003796=:7433
-Content-Type: text/plain; CHARSET=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-ID: <d13050cf-2b1d-6913-5e66-9452e1353593@linux.intel.com>
+Just use `virtio_transport_unsent_bytes`, we don't need to be generic on 
+transport here.
 
-On Wed, 30 Apr 2025, Xin Li wrote:
+>
+> 		add_wait_queue(sk_sleep(sk), &wait);
+>
+> 		do {
+>-			if (sk_wait_event(sk, &timeout,
+>-					  sock_flag(sk, SOCK_DONE), &wait))
+>+			if (sk_wait_event(sk, &timeout, unsent(vsk) == 0,
+>+					  &wait))
+> 				break;
+> 		} while (!signal_pending(current) && timeout);
+>
+>
+>-- 
+>2.49.0
+>
 
-> On 4/29/2025 2:45 AM, Ilpo J=E4rvinen wrote:
-> > >   arch/x86/events/msr.c                                         | 3 +=
-++
-> > >   arch/x86/events/perf_event.h                                  | 1 +
-> > >   arch/x86/events/probe.c                                       | 2 +=
-+
-> > Under arch/x86/events/ a few files seem to be missing the include?
->=20
->=20
-> Most C files in arch/x86/events/ include arch/x86/events/perf_event.h,
-> thus they don't need to include <asm/msr.h> directly once
-> arch/x86/events/perf_event.h includes <asm/msr.h>, and this patch does
-> that.
->=20
->=20
-> The following files include arch/x86/events/intel/uncore.h which includes
-> arch/x86/events/perf_event.h, thus no change needed:
->     arch/x86/events/intel/uncore.c
->     arch/x86/events/intel/uncore_discovery.c
->     arch/x86/events/intel/uncore_nhmex.c
->     arch/x86/events/intel/uncore_snb.c
->     arch/x86/events/intel/uncore_snbep.c
->=20
-> The following 2 files don't include arch/x86/events/perf_event.h so they
-> include <asm/msr.h> directly with this patch:
->     arch/x86/events/msr.c
->     arch/x86/events/probe.c
->=20
-> arch/x86/events/amd/uncore.c doesn't include
-> arch/x86/events/perf_event.h but includes <asm/msr.h> already.
->=20
->=20
-> So we are good in this directory, but it should be a separate patch with
-> the above explanation then.
-
-Hi,
-
-While this is not my subsystem so don't have the final say here, you had=20
-to explain quite much to prove that (and reviewer would have to go through=
-=20
-the same places to check). Wouldn't it be much simpler for all if all=20
-those .c files would just include <asm/msr.h> directly? No need to explain=
-=20
-anything then.
-
-Also, similar to what you're doing for some tsc related things in this=20
-series, somebody could in the future decide that hey, these static inline=
-=20
-functions (that use .*msr.*) belong to some other file, allowing msr.h to=
-=20
-be removed from arch/x86/events/perf_event.h. Again, we'd need to add=20
-asm/msr.h into more .c files. This is the problem with relying on indirect=
-=20
-includes, they create hard to track dependencies for #includes done in .h=
-=20
-files. If we actively encourage to depend on indirect #include=20
-dependencies like that, it makes it very hard to  _remove_ any #include=20
-from a header file (as you have yourself discovered).
-
---=20
- i.
---8323328-830254077-1746003796=:7433--
