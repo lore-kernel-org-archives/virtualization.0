@@ -1,119 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 037D22DFA57;
-	Tue, 29 Apr 2025 23:53:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 573B434545;
+	Wed, 30 Apr 2025 02:37:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745970827; cv=none; b=b3OMr0iPGv3CD3oRus6ko2V6gaPmArTvgjoa0muT+iKdw64JzkQCkRORwN+7h+bdNwZiKEXdoJhYY5BiwUGGKWv2sxp375YYHPZoUZ6oycU95VyJ4tayow7jqbWfnaiQsz/3IwIgi/GOxEZz3R+/LiXYgeyJfFp+DoQtNR7/D6I=
+	t=1745980633; cv=none; b=hFxFpcX7FvZKWt+M7zeiH0rcc50wTxAGOEWgCpxyvjjvrsaAHbaNXtb770TqbtGNB91v4NMtpiCkOuuGqNsnFqHVANszSg9AwbhNQfXpInOiPNQ4y6HKgO3ZLISlKZzojW05CmD0qLTb72FRJjeMw0ly8NZACbVwk0rQwxw8GvE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745970827; c=relaxed/simple;
-	bh=01+C2jiaOzO6JrR/lwHRiEWzFD9FgWxyIjm+0KqvVv0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=n3lVfo19WV9gscuMYPpQ0Bhci/TBMPLbDwrGZu5m5QF5dhYXwhbEty7ba3u+Uqzc2Li5n4ethtIX9PzrTgKOPouuJ+y+stOGTzblEnJpP54xr7PHGEELp9hRlb0CME6hCmSRHOu9zOxlLB1xqn86OuZXJP8fFaON4/7yOQ9+VLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ncdN7Eox; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1745980633; c=relaxed/simple;
+	bh=UeVWVQMtCSgoY6I17XEsqNEXKT0TWbHaFTIMLOeTnTs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=E56n228goyoSAXxOhpFWC2KLQVS8csCsq4kC74nRfcQ0aQFqCk/Wox3cUg2geCq01QypWbua7rOUS+krIVDVhkFawPqRKWltaBOcpnHMAjlU433HVIfMfAO14PJY36s7l8OCkDeGHar7GDzUvcNtgj+RpigxJ4UjcHJnP7JZ/rE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RsGi18MN; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ncdN7Eox"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFA94C4CEEE;
-	Tue, 29 Apr 2025 23:53:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745970826;
-	bh=01+C2jiaOzO6JrR/lwHRiEWzFD9FgWxyIjm+0KqvVv0=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ncdN7EoxkgUAUxu1/yUYGfxqpRGOJA02xx87rDlCFXLTjQQZRBtayJABd/U7MLzjb
-	 MNQSZOzlMZHnCqLAB7Xe+gpt9W35zaSaZwbHMfF0TDDm7+OcxlomLEdRAZtSU+OTq1
-	 m997pBrItxgk0SY0OaAg9YA76qc4i6+ChwYMW68DVHmkvK4Cs6+r2Jo9rQQFRn8gIa
-	 ++o/MlKnpuBcwoj3ZxTLL6ZTA80fH7us24zKX/2+YZfzns1lp2EcnGjoeTgpKt1xIM
-	 /saIUtPwRxYq169c60FO2zoJ61uUxE4tg0ECs6laoWnqXPMR7vhdgu+nqqxfZyuyLO
-	 27Mdxyn0EExhQ==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Zhongqiu Han <quic_zhonhan@quicinc.com>,
-	syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Sasha Levin <sashal@kernel.org>,
-	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 2/7] virtio_ring: Fix data race by tagging event_triggered as racy for KCSAN
-Date: Tue, 29 Apr 2025 19:53:33 -0400
-Message-Id: <20250429235339.538269-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250429235339.538269-1-sashal@kernel.org>
-References: <20250429235339.538269-1-sashal@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RsGi18MN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1745980632; x=1777516632;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=UeVWVQMtCSgoY6I17XEsqNEXKT0TWbHaFTIMLOeTnTs=;
+  b=RsGi18MNF8jGZalT5uwWEr7+XwHGKafTsSeLz/yTc84l1CVW8nb6eQGn
+   bJ5FJSZOGdHd3qCWfIEZHesxJGcPvsgwyCTM9Rs7iv2vYhNSpQNw+1DkH
+   hT+41b02Igg2vBsZ1GTXYHAStTougPRAkcRhKN02U9FiuNf6F2UI182dh
+   fibc0UebK422qSdSPFDtQyoQ8NwXcQvSAkIE4w1KMepXqzyTBWLvjZbkt
+   h3GIjj1rlbYDH+Qmf4kpYsGKajeeI6qA/RTWeJ3+Ki4VyYCJmE/5H/lE1
+   03k5aWTVaHL7VGQnXJOCL3OZkfKZLRlTBoUS+WWnKKDS4hhXjArOAIvvP
+   A==;
+X-CSE-ConnectionGUID: R4sf0fRGTneoXFUXRXqVvQ==
+X-CSE-MsgGUID: xhXryxAsTla99pI9NZIkXw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11418"; a="51445225"
+X-IronPort-AV: E=Sophos;i="6.15,250,1739865600"; 
+   d="scan'208";a="51445225"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2025 19:37:10 -0700
+X-CSE-ConnectionGUID: rPKpQb86Qv+hi9Gbn/bOCw==
+X-CSE-MsgGUID: eN7Ab3jZTbWZDraScrUmnA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,250,1739865600"; 
+   d="scan'208";a="134508430"
+Received: from allen-sbox.sh.intel.com (HELO [10.239.159.30]) ([10.239.159.30])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2025 19:37:00 -0700
+Message-ID: <0a5f2f46-f474-49d3-baee-59f2ad0a6f0a@linux.intel.com>
+Date: Wed, 30 Apr 2025 10:32:46 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.180
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/7] iommu: Remove ops.pgsize_bitmap from drivers that
+ don't use it
+To: Jason Gunthorpe <jgg@nvidia.com>, Alexandre Ghiti <alex@ghiti.fr>,
+ Alim Akhtar <alim.akhtar@samsung.com>,
+ Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+ Janne Grunau <j@jannau.net>, Jean-Philippe Brucker
+ <jean-philippe@linaro.org>, Jernej Skrabec <jernej.skrabec@gmail.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
+ Kevin Tian <kevin.tian@intel.com>, Krzysztof Kozlowski <krzk@kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+ linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
+ linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+ linux-tegra@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ Matthew Rosato <mjrosato@linux.ibm.com>, Neal Gompa <neal@gompa.dev>,
+ Orson Zhai <orsonzhai@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>, Rob Clark <robdclark@gmail.com>,
+ Robin Murphy <robin.murphy@arm.com>, Samuel Holland <samuel@sholland.org>,
+ Niklas Schnelle <schnelle@linux.ibm.com>, Sven Peter <sven@svenpeter.dev>,
+ Thierry Reding <thierry.reding@gmail.com>,
+ Tomasz Jeznach <tjeznach@rivosinc.com>, Krishna Reddy <vdumpa@nvidia.com>,
+ virtualization@lists.linux.dev, Chen-Yu Tsai <wens@csie.org>,
+ Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>,
+ Chunyan Zhang <zhang.lyra@gmail.com>
+Cc: patches@lists.linux.dev
+References: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Zhongqiu Han <quic_zhonhan@quicinc.com>
+On 4/29/25 22:34, Jason Gunthorpe wrote:
+> These drivers all set the domain->pgsize_bitmap in their
+> domain_alloc_paging() functions, so the ops value is never used. Delete
+> it.
+> 
+> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
+> ---
+>   drivers/iommu/apple-dart.c       | 1 -
+>   drivers/iommu/intel/iommu.c      | 1 -
+>   drivers/iommu/iommufd/selftest.c | 1 -
+>   drivers/iommu/riscv/iommu.c      | 1 -
+>   drivers/iommu/virtio-iommu.c     | 6 ++----
+>   5 files changed, 2 insertions(+), 8 deletions(-)
 
-[ Upstream commit 2e2f925fe737576df2373931c95e1a2b66efdfef ]
+For intel vt-d driver,
 
-syzbot reports a data-race when accessing the event_triggered, here is the
-simplified stack when the issue occurred:
-
-==================================================================
-BUG: KCSAN: data-race in virtqueue_disable_cb / virtqueue_enable_cb_delayed
-
-write to 0xffff8881025bc452 of 1 bytes by task 3288 on cpu 0:
- virtqueue_enable_cb_delayed+0x42/0x3c0 drivers/virtio/virtio_ring.c:2653
- start_xmit+0x230/0x1310 drivers/net/virtio_net.c:3264
- __netdev_start_xmit include/linux/netdevice.h:5151 [inline]
- netdev_start_xmit include/linux/netdevice.h:5160 [inline]
- xmit_one net/core/dev.c:3800 [inline]
-
-read to 0xffff8881025bc452 of 1 bytes by interrupt on cpu 1:
- virtqueue_disable_cb_split drivers/virtio/virtio_ring.c:880 [inline]
- virtqueue_disable_cb+0x92/0x180 drivers/virtio/virtio_ring.c:2566
- skb_xmit_done+0x5f/0x140 drivers/net/virtio_net.c:777
- vring_interrupt+0x161/0x190 drivers/virtio/virtio_ring.c:2715
- __handle_irq_event_percpu+0x95/0x490 kernel/irq/handle.c:158
- handle_irq_event_percpu kernel/irq/handle.c:193 [inline]
-
-value changed: 0x01 -> 0x00
-==================================================================
-
-When the data race occurs, the function virtqueue_enable_cb_delayed() sets
-event_triggered to false, and virtqueue_disable_cb_split/packed() reads it
-as false due to the race condition. Since event_triggered is an unreliable
-hint used for optimization, this should only cause the driver temporarily
-suggest that the device not send an interrupt notification when the event
-index is used.
-
-Fix this KCSAN reported data-race issue by explicitly tagging the access as
-data_racy.
-
-Reported-by: syzbot+efe683d57990864b8c8e@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/all/67c7761a.050a0220.15b4b9.0018.GAE@google.com/
-Signed-off-by: Zhongqiu Han <quic_zhonhan@quicinc.com>
-Message-Id: <20250312130412.3516307-1-quic_zhonhan@quicinc.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/virtio/virtio_ring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 067b68168f93e..b541d861475e6 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2125,7 +2125,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
- 	if (vq->event_triggered)
--		vq->event_triggered = false;
-+		data_race(vq->event_triggered = false);
- 
- 	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
- 				 virtqueue_enable_cb_delayed_split(_vq);
--- 
-2.39.5
-
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
