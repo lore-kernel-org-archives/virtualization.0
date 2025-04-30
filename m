@@ -1,178 +1,141 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBA7E17CA17;
-	Wed, 30 Apr 2025 15:55:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38A532609CA;
+	Wed, 30 Apr 2025 16:38:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746028515; cv=none; b=T2I2DM+DLDg8HgZyNwWyLP8yWkKlDpDyzOKK9DSHeerTmb/2yYhqyoO3QGtwMOnr1ADpU3AgOWaiFiciJcOqulRqrdecAJOwIFye33G5Vlill5eJLmFRoCuCvqy2tzCFQFRAC0/m5qM57/wb3oMB4fpDPoeAYqBdFK+ordgyDdc=
+	t=1746031088; cv=none; b=DO9+43XZPTGdj0ccoj64PIMXPB6HifeNoRGTLffGT+MI2TsTVyAdDdiZZVQPejSMgpTDlayJeCHzjVyxnvAvt2P211lep88dyxvrP3FXZa7GDJCH2ENQKg3tcNBvqIvuu3Dd+JtiylZ6hpBTiFS1bWVg7T0NMmyaeOs4Sqb5ovQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746028515; c=relaxed/simple;
-	bh=pAi1g0+GcrXhsxxUwg/COVu8QWbSDq0H9FeDRKmvTZo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FXMG7xbadRuonjgqa5+C5FxdJGVqkk38tzvdTSRmxLd43eZa9L45BTAqRiT1MaKMFau575QQpP4IMjpC8bDESFKLzJIewcLlevCfoq9E4Pi31cuPUOwARVtJUKNLnKHtV04XhMSSPtWyIAY1LJ1ZmdRX7/J0bHMw0m2O3k5Lp0M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=K2wiGfB1; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1746031088; c=relaxed/simple;
+	bh=Kwh+D250+lz6tQ6Lf6LcLo7vr/SWVWmbcIzExKcLGiA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fqKUfILf3kz7nFNNbGJyB2wbOHHHW9z8X7agY94hZFKADLZgUUt6vaouMhyK6ECGGCgApJsopXITgfY1b4WMaCNaVZ4riG7oYAvlpKcMniyjlgi9LMw2IxOD6J31q9Rj/J0Wk5OyaEBiUG0SCJeJbqFsZt5tZ5xgXsVntpM8xPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=daDImLdX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="K2wiGfB1"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53UDnBtg027609;
-	Wed, 30 Apr 2025 15:54:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=0rJOsX
-	oPMQhpiqynyefL1qZwMh6TkDUagnvd4/qOyd8=; b=K2wiGfB15TYazXEnpvRv1V
-	CpV8N8jNb1inCirUlCY5p1+Mpp/dKc9l6G+rth3k3o7nHl5+c3OWq6Npvs5h+nWW
-	Lcm7zbgzHrVXdY7cUj0/fjTV+4A4ELvvRncr/+0hlIFwk2gjmH6ZoCB6G0CyPiN4
-	t+9DR3Qccj5dFQ7j4N9y9zmHw41KNdMG97QxmQR2mwoi9YwYnLWa5FAT9QD4tTC2
-	o/vT7uGXCG51UopyBrzbcy+ZWUZaOvOD1xUxDrAeHcxBG94GyS7dFD3TvnLmt6k6
-	mApOaKQs/+bHcz4nY8N1iERMAdVAhklDXOEMNCGfpp9xY/TLyRj0g5TGw8etc08Q
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46b8r0un51-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Apr 2025 15:54:55 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 53UFmj17027098;
-	Wed, 30 Apr 2025 15:54:54 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46b8r0un4u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Apr 2025 15:54:54 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53UFdC7A031677;
-	Wed, 30 Apr 2025 15:54:53 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4699tu8pwy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Apr 2025 15:54:53 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53UFspgu14156496
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 30 Apr 2025 15:54:52 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C11CE5805A;
-	Wed, 30 Apr 2025 15:54:51 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B44C25805C;
-	Wed, 30 Apr 2025 15:54:49 +0000 (GMT)
-Received: from [9.61.85.22] (unknown [9.61.85.22])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 30 Apr 2025 15:54:49 +0000 (GMT)
-Message-ID: <c8e88c29-e1bb-4845-a362-dc352d690508@linux.ibm.com>
-Date: Wed, 30 Apr 2025 11:54:49 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="daDImLdX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 200E3C4CEE7;
+	Wed, 30 Apr 2025 16:38:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1746031087;
+	bh=Kwh+D250+lz6tQ6Lf6LcLo7vr/SWVWmbcIzExKcLGiA=;
+	h=From:To:Cc:Subject:Date:From;
+	b=daDImLdXwxrnlZiVPC2+mWqe4o84V5Vc+FmbO9JXve8VUI+0e8poHICdC9UxB+eqh
+	 xgymxEK/aghoCo8v2hK00dylWpe48/1dsF4cSIl4z1kJSdrWbEd6sHT6eqUXr2ybTZ
+	 WIMlJ6J/wYTumdqHekjzjKlCpPvGZMbla/5Oqcom5xIeyYP8TmMUlr14CykUNqfjNU
+	 PXsHsjXKBEls/LFkZHbZbyDzsPElItNzNnQ94Vzsy/fXKHnHpR5VSCZolBV36ZVOFK
+	 xZ7cAGrQWnVF1GiE27iP0mmny/hPe522Nreve0wAQG773CWw5L215zAEdwLEVcRoqd
+	 07uvBQU0D+jaA==
+From: Jakub Kicinski <kuba@kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	andrew+netdev@lunn.ch,
+	horms@kernel.org,
+	Jakub Kicinski <kuba@kernel.org>,
+	Bui Quang Minh <minhquangbui99@gmail.com>,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	romieu@fr.zoreil.com,
+	kuniyu@amazon.com,
+	virtualization@lists.linux.dev
+Subject: [PATCH net v2] virtio-net: don't re-enable refill work too early when NAPI is disabled
+Date: Wed, 30 Apr 2025 09:37:58 -0700
+Message-ID: <20250430163758.3029367-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 6.1 000/167] 6.1.136-rc1 review
-To: Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org,
-        hargar@microsoft.com, broonie@kernel.org,
-        clang-built-linux <llvm@lists.linux.dev>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dan Carpenter <dan.carpenter@linaro.org>, linux-s390@vger.kernel.org,
-        linux-mips@vger.kernel.org, io-uring@vger.kernel.org,
-        virtualization@lists.linux.dev, Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
-References: <20250429161051.743239894@linuxfoundation.org>
- <CA+G9fYuNjKcxFKS_MKPRuga32XbndkLGcY-PVuoSwzv6VWbY=w@mail.gmail.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <CA+G9fYuNjKcxFKS_MKPRuga32XbndkLGcY-PVuoSwzv6VWbY=w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNDMwMDExMSBTYWx0ZWRfX7Wf07gSrdqCk zb0K3R03TxsVsyR1iTUQrpsn8SgfAs0YFKySz/5l60nS4Ty5Ocio1IGZiRsSV+b6BaQ34Fw0vKl ioFN6STKCZicQtlKBajk+fMGVQHIWLwsOHmjMfdnISc6UX6/lQi32CbkOacKy/qWe59SsGqD1FW
- yGAw7jomIrcY7Y+QlX3QnxqhlFLuOCqh+3nvUuQYjBBEicyOXHCNHfg56gMlKo5TQ/HU7CKD1Vz W4soxBFSdg8ydvaCNHKx0zyGUk5RgEVNwU6w4KkJxsKXecKKMDQcqtH9SDveCufpn4QuNdXaLOW HAoIki6/XzHtkh/RZDURZLd+FVRmQ2ZYWFKlr3RObtf5HJq1oVyxlxnHoPOrM947oMgF6/F//iH
- LrRowoVxEOQ07s5PL23CPXOo0ntDDhtUxrPRU8Domof8K1cr/useUFXFiV+noDH/q8fUiJLd
-X-Authority-Analysis: v=2.4 cv=OqdPyz/t c=1 sm=1 tr=0 ts=681247cf cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=IkcTkHD0fZMA:10 a=XR8D0OoHHMoA:10 a=eZE_XS7iPCa-stX4-vkA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: Sij4fx90_ksNlpmCP9y4w-QIVKqfbDsT
-X-Proofpoint-ORIG-GUID: 2ilcYsyPiGbEAPeMVPlTbkq5Tf2pWo3G
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-04-30_04,2025-04-24_02,2025-02-21_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 malwarescore=0 priorityscore=1501 bulkscore=0 mlxscore=0
- lowpriorityscore=0 adultscore=0 clxscore=1011 spamscore=0 mlxlogscore=602
- phishscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2504070000
- definitions=main-2504300111
+Content-Transfer-Encoding: 8bit
 
+Commit 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
+fixed a deadlock between reconfig paths and refill work trying to disable
+the same NAPI instance. The refill work can't run in parallel with reconfig
+because trying to double-disable a NAPI instance causes a stall under the
+instance lock, which the reconfig path needs to re-enable the NAPI and
+therefore unblock the stalled thread.
 
-> 2)
-> Regressions on s390 with defconfig builds with gcc-13, gcc-8 and
-> clang-20 and clang-nightly toolchains on the stable-rc 6.1.136-rc1.
-> 
-> * s390, build
->   - clang-20-defconfig
->   - clang-nightly-defconfig
->   - gcc-13-allmodconfig
->   - gcc-13-defconfig
->   - gcc-8-defconfig-fe40093d
-> 
-> Regression Analysis:
->  - New regression? Yes
->  - Reproducibility? Yes
-> 
-...
-> drivers/s390/virtio/virtio_ccw.c:88:9: error: unknown type name 'dma64_t'
->    88 |         dma64_t queue;
->       |         ^~~~~~~
-> drivers/s390/virtio/virtio_ccw.c:95:9: error: unknown type name 'dma64_t'
->    95 |         dma64_t desc;
->       |         ^~~~~~~
-> drivers/s390/virtio/virtio_ccw.c:99:9: error: unknown type name 'dma64_t'
->    99 |         dma64_t avail;
->       |         ^~~~~~~
-> drivers/s390/virtio/virtio_ccw.c:100:9: error: unknown type name 'dma64_t'
->   100 |         dma64_t used;
->       |         ^~~~~~~
-> drivers/s390/virtio/virtio_ccw.c:109:9: error: unknown type name 'dma64_t'
->   109 |         dma64_t summary_indicator;
->       |         ^~~~~~~
-> drivers/s390/virtio/virtio_ccw.c:110:9: error: unknown type name 'dma64_t'
->   110 |         dma64_t indicator;
->       |         ^~~~~~~
-> drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_drop_indicator':
-> drivers/s390/virtio/virtio_ccw.c:370:25: error: implicit declaration
-> of function 'virt_to_dma64'; did you mean 'virt_to_page'?
-> [-Werror=implicit-function-declaration]
->   370 |                         virt_to_dma64(get_summary_indicator(airq_info));
->       |                         ^~~~~~~~~~~~~
->       |                         virt_to_page
-> drivers/s390/virtio/virtio_ccw.c:374:28: error: implicit declaration
-> of function 'virt_to_dma32'; did you mean 'virt_to_page'?
-> [-Werror=implicit-function-declaration]
->   374 |                 ccw->cda = virt_to_dma32(thinint_area);
->       |                            ^~~~~~~~~~~~~
->       |                            virt_to_page
-> drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_setup_vq':
-> drivers/s390/virtio/virtio_ccw.c:552:45: error: implicit declaration
-> of function 'u64_to_dma64' [-Werror=implicit-function-declaration]
->   552 |                 info->info_block->l.queue = u64_to_dma64(queue);
->       |                                             ^~~~~~~~~~~~
-> drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_find_vqs':
-> drivers/s390/virtio/virtio_ccw.c:654:9: error: unknown type name 'dma64_t'
->   654 |         dma64_t *indicatorp = NULL;
->       |         ^~~~~~~
-> cc1: some warnings being treated as errors
+There are two cases where we re-enable refill too early. One is in the
+virtnet_set_queues() handler. We call it when installing XDP:
 
-The virtio_ccw errors are caused by '[PATCH 6.1 033/167] s390/virtio_ccw: fix virtual vs physical address confusion'
+   virtnet_rx_pause_all(vi);
+   ...
+   virtnet_napi_tx_disable(..);
+   ...
+   virtnet_set_queues(..);
+   ...
+   virtnet_rx_resume_all(..);
 
-Picking the following 2 dependencies would resolve the build error:
+We want the work to be disabled until we call virtnet_rx_resume_all(),
+but virtnet_set_queues() kicks it before NAPIs were re-enabled.
 
-1bcf7f48b7d4 s390/cio: use bitwise types to allow for type checking
-8b19e145e82f s390/cio: introduce bitwise dma types and helper functions
+The other case is a more trivial case of mis-ordering in
+__virtnet_rx_resume() found by code inspection.
+
+Taking the spin lock in virtnet_set_queues() (requested during review)
+may be unnecessary as we are under rtnl_lock and so are all paths writing
+to ->refill_enabled.
+
+Reviewed-by: Bui Quang Minh <minhquangbui99@gmail.com>
+Fixes: 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
+Fixes: 413f0271f396 ("net: protect NAPI enablement with netdev_lock()")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+v2:
+ - wrap schedule under the spin lock
+v1: https://lore.kernel.org/20250429143104.2576553-1-kuba@kernel.org
+
+CC: mst@redhat.com
+CC: jasowang@redhat.com
+CC: xuanzhuo@linux.alibaba.com
+CC: eperezma@redhat.com
+CC: minhquangbui99@gmail.com
+CC: romieu@fr.zoreil.com
+CC: kuniyu@amazon.com
+CC: virtualization@lists.linux.dev
+---
+ drivers/net/virtio_net.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index c107916b685e..f9e3e628ec4d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3383,12 +3383,15 @@ static void __virtnet_rx_resume(struct virtnet_info *vi,
+ 				bool refill)
+ {
+ 	bool running = netif_running(vi->dev);
++	bool schedule_refill = false;
+ 
+ 	if (refill && !try_fill_recv(vi, rq, GFP_KERNEL))
+-		schedule_delayed_work(&vi->refill, 0);
+-
++		schedule_refill = true;
+ 	if (running)
+ 		virtnet_napi_enable(rq);
++
++	if (schedule_refill)
++		schedule_delayed_work(&vi->refill, 0);
+ }
+ 
+ static void virtnet_rx_resume_all(struct virtnet_info *vi)
+@@ -3728,8 +3731,10 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+ succ:
+ 	vi->curr_queue_pairs = queue_pairs;
+ 	/* virtnet_open() will refill when device is going to up. */
+-	if (dev->flags & IFF_UP)
++	spin_lock_bh(&vi->refill_lock);
++	if (dev->flags & IFF_UP && vi->refill_enabled)
+ 		schedule_delayed_work(&vi->refill, 0);
++	spin_unlock_bh(&vi->refill_lock);
+ 
+ 	return 0;
+ }
+-- 
+2.49.0
+
