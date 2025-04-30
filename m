@@ -1,95 +1,75 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B6F82512D9;
-	Wed, 30 Apr 2025 14:00:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1427101E6;
+	Wed, 30 Apr 2025 14:02:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746021610; cv=none; b=P80hAPf5b3ktteNiIJvd4KYgCIwQjNO8rLsfeRcaZKMJ0yI4fgyKWa+mC90+G157VXdVMkrdQFrwix2Ap6qOpYQxLH+/fwsjW4grHEEhCxI8HJCPEuAsSiuvEzZS0jcum8b3X6zQg+2ne99aGil5Mg7Js/ye/e/5djDUVIJqB0s=
+	t=1746021727; cv=none; b=gYTyWExmPwACgjGNZvKc1chXBJZM+SUjUDd8MNGyh5T6b+hOvbWpIYqgfeKdmMAolxF+mKjLxo9ML5is2PErUfMcfceY9j414+cbkx3913CAgLtVDBL107Gjls4uMDYYJe0I3TxbVIaxsdY/lyVzPi/EqFocaAxpeBUqa3eA5i4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746021610; c=relaxed/simple;
-	bh=jzKXco1InVJpT8YnddnfCznsHQ/xhGBSVeadGGk6FjQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=E7ymVcRKUszMqa4Oa0qhosoOHv8PyQL47JUX9mDLAgs8Jix/F3/hHrFO+0bO9BP5Jzr2V9z9t4AvG/Yl/5p4doUA21Rbxufp863jijsAfnhnx99/3H6IsMUaq1ZHgJvj1fm7zSeIfRdZvqaMX3R0qrIOrYBFysIjkBANDCcPEXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=FbBbUVmN; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1746021727; c=relaxed/simple;
+	bh=NAsBTwFVPS7juHrtzSxt4siydlB9BQ3vucA7U6SK+vA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=EJ5Jqq3j5bPg2KDblZBq9ogSH0A7pqoqg7JIQj8n/C//uHHZCeAyvRRzXA2ySG5MIHQbZRFaY7/y0fXW1iGR3iCY8QgHOSt8VFp3wqfnT3JirZeyjPmfplaecMpt8kmTiFXNER7L2LjfXd1uzRasnimOIlVcnYnZmrxzz/fdYyc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kvgqftpJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="FbBbUVmN"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-	Content-ID:Content-Description:In-Reply-To:References;
-	bh=hp1dhRMiEEl3xs/2lDO5cInsDNc9pOFtlVo1nTqdIlw=; b=FbBbUVmNAG5SNipgjSq5IkJKVH
-	vvgl50G4wFhNJsVw1GMKgTZSpOtLq5Xs7C7+MxgvAJtjJFQR4d3ZZhDnFgn/XtW4XKlnKlL7EUWQH
-	0pKXg2MgJnGHcGTxr0vveMZcPK+3kcEZmUY+hbr97icxgYZPPsnsUS+hCimIhIhs9+gsh4AxfZk/c
-	Dtcop5nQLPyx+M6BZ9CBanmRo3sreSDnN4Dfu5ryrFRKlACSPxOwa4i7D/cWYpbrpRpC41G5uu1/v
-	w1dR2z5pz7Sv0V9mjMpP7HEG/U8en/Pom0XGayT6leUn+/E8NLzF3YmXS7eStzPi2004Z+nBS922M
-	Nvi5Zo/g==;
-Received: from [206.0.71.33] (helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uA7yp-0000000D40G-1cAx;
-	Wed, 30 Apr 2025 14:00:07 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: eperezma@redhat.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH] vringh: use bvec_kmap_local
-Date: Wed, 30 Apr 2025 09:00:04 -0500
-Message-ID: <20250430140004.2724391-1-hch@lst.de>
-X-Mailer: git-send-email 2.47.2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kvgqftpJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFE96C4CEE9;
+	Wed, 30 Apr 2025 14:02:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1746021727;
+	bh=NAsBTwFVPS7juHrtzSxt4siydlB9BQ3vucA7U6SK+vA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=kvgqftpJMvJpu9PJtUkOaSz8xWn3mKJstUFpQ3lxq/kDq1xPACnGu4abv2xmw1Z9W
+	 +8xXHHWbzag+YinvB5rN84JlkZ0fNDE6YHyapOC8PO/bwOFvtEK+RZZTA31yUQLhFI
+	 pbXhaZRqE2U2HAzyODxwfEX5LjxIwe9gp6rxfqWwDXFMbJa6POzYZG2K0HmkG6AnvE
+	 BqMdV9BLN52W2PFWamzRT2N2rn+pL5ZPbcKc3VZICvrTHDQPBxYn8Ui0e98IbzmJl+
+	 PmTOXzpmYuKqA2ocqFtVusfUyfhQpyy9enUDHurLPpxULTkOiLFzuiboze+85o1qhc
+	 hB/M6J25SjLEg==
+Date: Wed, 30 Apr 2025 07:02:05 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, davem@davemloft.net,
+ netdev@vger.kernel.org, edumazet@google.com, pabeni@redhat.com,
+ andrew+netdev@lunn.ch, horms@kernel.org, xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com, minhquangbui99@gmail.com, romieu@fr.zoreil.com,
+ kuniyu@amazon.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH net] virtio-net: don't re-enable refill work too early
+ when NAPI is disabled
+Message-ID: <20250430070205.09a4ea5d@kernel.org>
+In-Reply-To: <20250430012856-mutt-send-email-mst@kernel.org>
+References: <20250429143104.2576553-1-kuba@kernel.org>
+	<CACGkMEs0LuLDdEphRcdmKthdJeNAJzHBqKTe8Euhm2adOS=k2w@mail.gmail.com>
+	<20250430012856-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Use the bvec_kmap_local helper rather than digging into the bvec
-internals.
+On Wed, 30 Apr 2025 01:29:06 -0400 Michael S. Tsirkin wrote:
+> > > @@ -3728,7 +3731,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+> > >  succ:
+> > >         vi->curr_queue_pairs = queue_pairs;
+> > >         /* virtnet_open() will refill when device is going to up. */
+> > > -       if (dev->flags & IFF_UP)
+> > > +       if (dev->flags & IFF_UP && vi->refill_enabled)
+> > >                 schedule_delayed_work(&vi->refill, 0);  
+> > 
+> > This has the assumption that the toggle of the refill_enabled is under
+> > RTNL.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/vhost/vringh.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+Yes, this line of code must be under rtnl_lock to be correct, since 
+it is also checking flags & IFF_UP. I was thinking of moving it to
+virtnet_restore(), AFAIU that's the only place that needs it.
+But that's more of a -next change.
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 73e153f9b449..f8caa322bafa 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -1291,11 +1291,10 @@ static inline int getu16_iotlb(const struct vringh *vrh,
- 		if (ret)
- 			return ret;
- 	} else {
--		void *kaddr = kmap_local_page(ivec.iov.bvec[0].bv_page);
--		void *from = kaddr + ivec.iov.bvec[0].bv_offset;
-+		__virtio16 *from = bvec_kmap_local(&ivec.iov.bvec[0]);
- 
--		tmp = READ_ONCE(*(__virtio16 *)from);
--		kunmap_local(kaddr);
-+		tmp = READ_ONCE(*from);
-+		kunmap_local(from);
- 	}
- 
- 	*val = vringh16_to_cpu(vrh, tmp);
-@@ -1330,11 +1329,10 @@ static inline int putu16_iotlb(const struct vringh *vrh,
- 		if (ret)
- 			return ret;
- 	} else {
--		void *kaddr = kmap_local_page(ivec.iov.bvec[0].bv_page);
--		void *to = kaddr + ivec.iov.bvec[0].bv_offset;
-+		__virtio16 *to = kmap_local_page(&ivec.iov.bvec[0]);
- 
--		WRITE_ONCE(*(__virtio16 *)to, tmp);
--		kunmap_local(kaddr);
-+		WRITE_ONCE(*to, tmp);
-+		kunmap_local(to);
- 	}
- 
- 	return 0;
--- 
-2.47.2
+> > Though it's true now but it looks to me it's better to protect
+> > it against refill_lock.
+> 
+> Good point.
 
+Sure. I'll wrap the check and the call to schedule_.. with the lock.
