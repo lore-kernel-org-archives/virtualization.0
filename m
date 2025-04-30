@@ -1,228 +1,439 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f178.google.com (mail-vk1-f178.google.com [209.85.221.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F0922580F3
-	for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 10:38:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33BCF25B697
+	for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 10:39:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746009493; cv=none; b=UEWMB5rmwykCBCTF4ZnGfHogP5qbIT9imtfzteaMpBowleXjKx7lMsusAc7hE5ZvhtyGbRdjj65hWF377yWyfqCBbip9Etszd6mv0uunhNKHW7acd9p3k1xLKs/tJ6wJEqdh8njXzhskwpEm6wL54dmnk53YCpltbO+X+croWQQ=
+	t=1746009576; cv=none; b=PkvBEqxbhq+J41qXltcRdScAGP/cx8cebLRlWPYSFf0k6m3Mv5j5Dh2mpouwcvIh+I7pfrtqaamnPliYAC2sAuSpVnlXhQGrrhKhJBm2Ndb46EtNcCv/l7yh4HhfPBNeQSleyf76jB08bQf9bXppPQ9MfbSfJZ7tLdroQMNoBbk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746009493; c=relaxed/simple;
-	bh=L0SAAefyveDoX/FjdHc/xGaLZ37kY++Yjt697RpzkAY=;
+	s=arc-20240116; t=1746009576; c=relaxed/simple;
+	bh=d4RLgrZhyX8/Pg01VVv6h4TRP9Jm0WhqcAfzUScAuus=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sKiziAtqMJ9aNT/wOir0b3Xgmltz4kibcgJCNVMuKexifC1J+pQdYKE2XPd1SDR2mGeLKQsuVOAAKM7nm81fftvpJeiCSMe5WCZ/fmwQ/StVuNw6BP2yv6Y9w+vsmhGj/b8JJBN9daA8nVyHVHj7/fmSHrOXSXxWr9jD1e8zZYE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VSaaGBYn; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=q4E6YAtqf0VA4BxkDl23IRa6+BRVHvf3d/WDZEd4JxnporsvppFmSreohoPMWpxWH1A/zI67zBKFyX2mPNc6mNYycsoQihHC9XuMJDCy6GTmGJu/5GkFxpw2F4s+orQYdx0yE6y6pamAvG8dKMUMU4gcrbzb2cWyrKAUcIAiAJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=r5IjD4EH; arc=none smtp.client-ip=209.85.221.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VSaaGBYn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1746009489;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Pi8G66LgJAq886SVmCWw3P+Bv6HYWhRZ3tZsp9fmenI=;
-	b=VSaaGBYnZsbDN/u/h/hkm0eLQ//menwOIxwmF4p5BxtRGTdI38Q78i57GzFgkmq0nHRurx
-	OPAi84ey85fFOfQ17nq/mCJ4FB13KfmMFK8g45jvuLSCnXm6p6JwVRKnejT26qInIxdg5o
-	qxKqv4tvrXBkNRcp9MJudgKqaaOZfRY=
-Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
- [209.85.219.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-461-kzloihIZN5SjS-Zbz_PyEw-1; Wed, 30 Apr 2025 06:38:06 -0400
-X-MC-Unique: kzloihIZN5SjS-Zbz_PyEw-1
-X-Mimecast-MFC-AGG-ID: kzloihIZN5SjS-Zbz_PyEw_1746009486
-Received: by mail-yb1-f197.google.com with SMTP id 3f1490d57ef6-e5b0f2778d6so5181000276.3
-        for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 03:38:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="r5IjD4EH"
+Received: by mail-vk1-f178.google.com with SMTP id 71dfb90a1353d-5259331b31eso2735768e0c.0
+        for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 03:39:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1746009571; x=1746614371; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=ylwsJDrt4vv0hbcQwuLON7i6O6OaEoOImrGaJinpJGA=;
+        b=r5IjD4EHYTJjRg9F0mHo3J2H4XDwzL8kZV66tv6M6HmWI2dswObYyEmE96R3otuCHK
+         BWSls3BOntYc04xmI7UhC8kVfTlKQERYtcxdLK79L/2daF0RjEtyAsxe6avvuu6HZzMX
+         mvtlFCmOmnTx7qtUwm3Odwn1XRSLV/dJACLt+B6keDlD8TkZm0rq9dDdvpyEKdpMBxpk
+         0I+Eb2nSrAuTDnuvr3nV+Fg12Pcu5nWOtJh356E3XLxXNZ1vrO2sJMIM494PYP6H9Twq
+         8f3xPjKPRXYTJecL5FiXRrXHpjQsLEXpA3xWg2A5vtSPXGNc+nv9UHje7BL2Vq+73X67
+         Ep7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746009486; x=1746614286;
+        d=1e100.net; s=20230601; t=1746009571; x=1746614371;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Pi8G66LgJAq886SVmCWw3P+Bv6HYWhRZ3tZsp9fmenI=;
-        b=KitNSbZg2ZNX5iUjZYgiai6owF47Pnj3GuJ+wX7OPuUS5uwXJl4gqHmmtHVPMw4NQN
-         XiXfEnqRZ7AsiJpFsPFpQtf5rADvdeldFfOmneayUy1zGq+vWPIV6vVyag2RdZbbsS4B
-         9SPVkBsDPgP4pCOQM3ik8oAmpAb1FYC3hzTdnK1UT3L/1OWr4eCo2pWiCayH/22WDPkw
-         b3WA5MKMUqwyUUp84xC3lZVZ/E32Ng8e68J+1k9r7ypZMlwcon7ipMILCgFdYrElpz+Y
-         VHtRN2IqoBzGonoOs0W1BlPee+QrROilMB21F7t2In2KbvZKUifDo/wRdPBSsXPvJ11e
-         eXUA==
-X-Forwarded-Encrypted: i=1; AJvYcCW9Sd07YQrDuu+fVubkrYaEnatMhY8ocoa8t6uFvhgorFRrjOeaJXRx3fZuas5ABXnApcutV1bu5oJBOoQs9g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzPILW7ZOpJ2GCXkr4dPktGNSTDFJouDQZ3RiJEbaCymRf5wSMp
-	sTM3FtLE1lJEUI4OGS0o3UR2piQ+XctJWh693ylNdryMZV1kvYPzlk0hY0FklDAJAmhRbSIrnA0
-	FHgZhkTGe0UyjMRayy6RBS/WZ5AAoC2Hfw7Z/blDyclOSWQwZQvJyTGtjF7RVYlCO7XvQxOsEeO
-	nqYbXl6vyIm9477g1A3OZSwX3AJZfOTl1axyPWq/M=
-X-Gm-Gg: ASbGncubnvbsnpiQknf8L4foAzInO4GUQXGQbyAfNBr4lW4+O+Whgt1L56PJIlGp8z/
-	kRUvn0dgyHWpM0G/sQ8+DVCP4+gW6i5n4IgGOE+1WOyD88Ih9nSxedjFgQ16QFqt3Z0ZVBo4=
-X-Received: by 2002:a05:6902:70f:b0:e73:1a8c:b85c with SMTP id 3f1490d57ef6-e7404cf1cd6mr2499381276.27.1746009485714;
-        Wed, 30 Apr 2025 03:38:05 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHe4hS/4tTJe3wQp1DO4q16a9js38tPsRexlXFhwlVepkoC+asFZ9MA+8cxL1MgjRQ/gYtfO9kGzahI7xKCWA8=
-X-Received: by 2002:a05:6902:70f:b0:e73:1a8c:b85c with SMTP id
- 3f1490d57ef6-e7404cf1cd6mr2499358276.27.1746009485276; Wed, 30 Apr 2025
- 03:38:05 -0700 (PDT)
+        bh=ylwsJDrt4vv0hbcQwuLON7i6O6OaEoOImrGaJinpJGA=;
+        b=wkcSGX1hJDuk3LvG4fM45CCnqC3AZuPKvjzyrHdW1nP7xnra5JZQnGZjGy+1ivSKmW
+         Cds3zQweUaZFWTpKd2V6cCa43TzZyG5r2LK74prVCYqGoPU6y3cHnU2K7YgHrZ9ta0u3
+         nX1ch7lISy7S+Q/xfySugPqDsG8p1IiYPCogNrW+3f61sTMPrJs9OzWKJC1iufVM7Ocw
+         sh1T5Gz+urcQMXvptxEVU0sk5EycqHUIfCVJL3IHI2KD75CogOUpVS1XnkzL7qlz9TBP
+         ggN9Ef3pczHFkFw1lgw3yfjq3H66rQuGyE5NMsoVJX6qtIuxSzdDJ+a8dow9pMTvdgLh
+         pAQA==
+X-Forwarded-Encrypted: i=1; AJvYcCVt5DF8JYCXyst/TDWWZhyVvmKiFzVGupLYBo+jbkgHMmCJhIZNIkv/J3lLf9Z+TOdMMwFkYRUrFpL4RnObLQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy1kPrVpCEb3fvGfaiUzOdkrHiIivM1DutVaa6yHRmtMrQ3Gura
+	j76ImRXqL6fqDdqBCFNsDpgiGZ4LrIBJGdyOgxCHKLt/y+RrZwNvGz+0130yCEukJb9zsawFFLE
+	jV5CvzQLKxIfik84odEF4tWS5rjj6aVVndxRcBA==
+X-Gm-Gg: ASbGncsmZLSXwv4OMPE5xNT9+NXibSTXQFrVw1NEt3CTkwNVH4FqHecmwN/XVxDghYV
+	gBeaJMYvCeYNdCFpjANhZ/GmS4Oqvt7wQRbLX8yAvQtk96z+PSVUboEotvlzbg+cB+6sTVQdBIj
+	HXpNCyq4UI5T1PtKZ3XXbe0UREldIphTONyk36GCNk4VSsEN3Y/f8sUyVtChGBal7M
+X-Google-Smtp-Source: AGHT+IEGrbJc8JxtRP89FE4xXSHbjaEwuC2CG8y2YBkTpepRUy6crz/1pfGUdfcI0IOB0Gksvo22zIGEP03RI2L25Ng=
+X-Received: by 2002:a05:6122:25d8:b0:52a:d0f3:1ec1 with SMTP id
+ 71dfb90a1353d-52ad0f31f5fmr358417e0c.0.1746009570825; Wed, 30 Apr 2025
+ 03:39:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250430-vsock-linger-v3-0-ddbe73b53457@rbox.co>
- <20250430-vsock-linger-v3-3-ddbe73b53457@rbox.co> <oo5tmbu7okyqojwxt4xked4jvq6jqydrddowspz3p66nsjzajt@36mxuduci4am>
- <fa71ef5e-7603-4241-bfd3-7aa7b5ea8945@rbox.co>
-In-Reply-To: <fa71ef5e-7603-4241-bfd3-7aa7b5ea8945@rbox.co>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Wed, 30 Apr 2025 12:37:54 +0200
-X-Gm-Features: ATxdqUFYdEhpc2hMG3McWkKruB0g8l88EcvME9mfW0rN5K7PplMaQvDwSrnYRHE
-Message-ID: <CAGxU2F62CTUKVjuG9Fjo29E6uopVzOK8zgr+HwooqMr4V_RvLQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v3 3/4] vsock: Move lingering logic to af_vsock core
-To: Michal Luczaj <mhal@rbox.co>
-Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: aKH6eJHJB_HG-Z9vRzZAGdLwKt7qAb7EaINonB3qQ0o_1746009486
-X-Mimecast-Originator: redhat.com
+References: <20250429161051.743239894@linuxfoundation.org>
+In-Reply-To: <20250429161051.743239894@linuxfoundation.org>
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Wed, 30 Apr 2025 16:09:18 +0530
+X-Gm-Features: ATxdqUGXDo7pBa4eq0bS5qcWzmVSW-p2cU-XdgUlse38VYng22TRg-n231NAwjI
+Message-ID: <CA+G9fYuNjKcxFKS_MKPRuga32XbndkLGcY-PVuoSwzv6VWbY=w@mail.gmail.com>
+Subject: Re: [PATCH 6.1 000/167] 6.1.136-rc1 review
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org, patches@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, 
+	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, 
+	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, 
+	jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, 
+	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org, hargar@microsoft.com, 
+	broonie@kernel.org, clang-built-linux <llvm@lists.linux.dev>, 
+	Nathan Chancellor <nathan@kernel.org>, Anders Roxell <anders.roxell@linaro.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Dan Carpenter <dan.carpenter@linaro.org>, linux-s390@vger.kernel.org, 
+	linux-mips@vger.kernel.org, io-uring@vger.kernel.org, 
+	virtualization@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
 
-On Wed, 30 Apr 2025 at 12:33, Michal Luczaj <mhal@rbox.co> wrote:
+On Tue, 29 Apr 2025 at 23:31, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On 4/30/25 11:36, Stefano Garzarella wrote:
-> > On Wed, Apr 30, 2025 at 11:10:29AM +0200, Michal Luczaj wrote:
-> >> Lingering should be transport-independent in the long run. In preparation
-> >> for supporting other transports, as well the linger on shutdown(), move
-> >> code to core.
-> >>
-> >> Guard against an unimplemented vsock_transport::unsent_bytes() callback.
-> >>
-> >> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-> >> Signed-off-by: Michal Luczaj <mhal@rbox.co>
-> >> ---
-> >> include/net/af_vsock.h                  |  1 +
-> >> net/vmw_vsock/af_vsock.c                | 25 +++++++++++++++++++++++++
-> >> net/vmw_vsock/virtio_transport_common.c | 23 +----------------------
-> >> 3 files changed, 27 insertions(+), 22 deletions(-)
-> >>
-> >> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> >> index 9e85424c834353d016a527070dd62e15ff3bfce1..bd8b88d70423051dd05fc445fe37971af631ba03 100644
-> >> --- a/include/net/af_vsock.h
-> >> +++ b/include/net/af_vsock.h
-> >> @@ -221,6 +221,7 @@ void vsock_for_each_connected_socket(struct vsock_transport *transport,
-> >>                                   void (*fn)(struct sock *sk));
-> >> int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk);
-> >> bool vsock_find_cid(unsigned int cid);
-> >> +void vsock_linger(struct sock *sk, long timeout);
-> >>
-> >> /**** TAP ****/
-> >>
-> >> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> >> index fc6afbc8d6806a4d98c66abc3af4bd139c583b08..946b37de679a0e68b84cd982a3af2a959c60ee57 100644
-> >> --- a/net/vmw_vsock/af_vsock.c
-> >> +++ b/net/vmw_vsock/af_vsock.c
-> >> @@ -1013,6 +1013,31 @@ static int vsock_getname(struct socket *sock,
-> >>      return err;
-> >> }
-> >>
-> >> +void vsock_linger(struct sock *sk, long timeout)
-> >> +{
-> >> +    DEFINE_WAIT_FUNC(wait, woken_wake_function);
-> >> +    ssize_t (*unsent)(struct vsock_sock *vsk);
-> >> +    struct vsock_sock *vsk = vsock_sk(sk);
-> >> +
-> >> +    if (!timeout)
-> >> +            return;
-> >> +
-> >> +    /* unsent_bytes() may be unimplemented. */
-> >> +    unsent = vsk->transport->unsent_bytes;
-> >> +    if (!unsent)
-> >> +            return;
-> >> +
-> >> +    add_wait_queue(sk_sleep(sk), &wait);
-> >> +
-> >> +    do {
-> >> +            if (sk_wait_event(sk, &timeout, unsent(vsk) == 0, &wait))
-> >> +                    break;
-> >> +    } while (!signal_pending(current) && timeout);
-> >> +
-> >> +    remove_wait_queue(sk_sleep(sk), &wait);
-> >> +}
-> >> +EXPORT_SYMBOL_GPL(vsock_linger);
-> >> +
-> >> static int vsock_shutdown(struct socket *sock, int mode)
-> >> {
-> >>      int err;
-> >> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> >> index 4425802c5d718f65aaea425ea35886ad64e2fe6e..9230b8358ef2ac1f6e72a5961bae39f9093c8884 100644
-> >> --- a/net/vmw_vsock/virtio_transport_common.c
-> >> +++ b/net/vmw_vsock/virtio_transport_common.c
-> >> @@ -1192,27 +1192,6 @@ static void virtio_transport_remove_sock(struct vsock_sock *vsk)
-> >>      vsock_remove_sock(vsk);
-> >> }
-> >>
-> >> -static void virtio_transport_wait_close(struct sock *sk, long timeout)
-> >> -{
-> >> -    DEFINE_WAIT_FUNC(wait, woken_wake_function);
-> >> -    ssize_t (*unsent)(struct vsock_sock *vsk);
-> >> -    struct vsock_sock *vsk = vsock_sk(sk);
-> >> -
-> >> -    if (!timeout)
-> >> -            return;
-> >> -
-> >> -    unsent = vsk->transport->unsent_bytes;
-> >> -
-> >> -    add_wait_queue(sk_sleep(sk), &wait);
-> >> -
-> >> -    do {
-> >> -            if (sk_wait_event(sk, &timeout, unsent(vsk) == 0, &wait))
-> >> -                    break;
-> >> -    } while (!signal_pending(current) && timeout);
-> >> -
-> >> -    remove_wait_queue(sk_sleep(sk), &wait);
-> >> -}
-> >> -
-> >> static void virtio_transport_cancel_close_work(struct vsock_sock *vsk,
-> >>                                             bool cancel_timeout)
-> >> {
-> >> @@ -1283,7 +1262,7 @@ static bool virtio_transport_close(struct vsock_sock *vsk)
-> >>              (void)virtio_transport_shutdown(vsk, SHUTDOWN_MASK);
-> >>
-> >>      if (sock_flag(sk, SOCK_LINGER) && !(current->flags & PF_EXITING))
-> >> -            virtio_transport_wait_close(sk, sk->sk_lingertime);
-> >> +            vsock_linger(sk, sk->sk_lingertime);
-> >
-> > Ah, I'd also move the check in that function, I mean:
-> >
-> > void vsock_linger(struct sock *sk) {
-> >       ...
-> >       if (!sock_flag(sk, SOCK_LINGER) || (current->flags & PF_EXITING))
-> >               return;
-> >
-> >       ...
-> > }
+> This is the start of the stable review cycle for the 6.1.136 release.
+> There are 167 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> One note: if we ever use vsock_linger() in vsock_shutdown(), the PF_EXITING
-> condition would be unnecessary checked for that caller, right?
-
-Right, for shutdown it should always be false, so maybe better to keep
-the check in the caller.
-
-Thanks,
-Stefano
-
+> Responses should be made by Thu, 01 May 2025 16:10:15 +0000.
+> Anything received after that time might be too late.
 >
-> > Or, if we move the call to vsock_linger() in __vsock_release(), we can
-> > do the check there.
-> >
-> > Thanks,
-> > Stefano
-> >
-> >>
-> >>      if (sock_flag(sk, SOCK_DONE)) {
-> >>              return true;
-> >>
-> >> --
-> >> 2.49.0
-> >>
-> >>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.136-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> and the diffstat can be found below.
 >
+> thanks,
+>
+> greg k-h
 
+There are three build regressions and two build warnings.
+
+1)
+Regressions on x86_64 with defconfig builds with clang-nightly toolchain
+on the stable-rc 6.1.136-rc1.
+
+* x86_64, build
+  - clang-nightly-lkftconfig
+  - clang-nightly-x86_64_defconfig
+
+Regression Analysis:
+ - New regression? Yes
+ - Reproducibility? Yes
+
+Build regression: x86_64 clang-nightly net ip.h error default
+initialization of an object of type 'typeof (rt->dst.expires)'
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build error x86_64
+include/net/ip.h:462:14: error: default initialization of an object of
+type 'typeof (rt->dst.expires)' (aka 'const unsigned long') leaves the
+object uninitialized and is incompatible with C++
+[-Werror,-Wdefault-const-init-unsafe]
+  462 |                 if (mtu && time_before(jiffies, rt->dst.expires))
+      |                            ^
+
+## Build x86_64
+* Build log: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268204/suite/build/test/clang-nightly-x86_64_defconfig/log
+* Build history:
+https://qa-reports.linaro.org/lkft/linux-stale-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268204/suite/build/test/clang-nightly-x86_64_defconfig/history/
+* Build details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268204/suite/build/test/clang-nightly-x86_64_defconfig/details/
+* Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfmTxuT4qMCUSSj4ZwJQJrqY/
+* Kernel config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfmTxuT4qMCUSSj4ZwJQJrqY/config
+* Toolchain: Debian clang version 21.0.0
+(++20250428112741+e086d7b1464a-1~exp1~20250428112923.1416)
+
+2)
+Regressions on s390 with defconfig builds with gcc-13, gcc-8 and
+clang-20 and clang-nightly toolchains on the stable-rc 6.1.136-rc1.
+
+* s390, build
+  - clang-20-defconfig
+  - clang-nightly-defconfig
+  - gcc-13-allmodconfig
+  - gcc-13-defconfig
+  - gcc-8-defconfig-fe40093d
+
+Regression Analysis:
+ - New regression? Yes
+ - Reproducibility? Yes
+
+Build regression: s390 pci_report.c fatal error linux sprintf.h No
+such file or directory
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build error S390
+arch/s390/pci/pci_report.c:14:10: fatal error: linux/sprintf.h: No
+such file or directory
+   14 | #include <linux/sprintf.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+arch/s390/pci/pci_fixup.c: In function 'zpci_ism_bar_no_mmap':
+arch/s390/pci/pci_fixup.c:19:13: error: 'struct pci_dev' has no member
+named 'non_mappable_bars'
+   19 |         pdev->non_mappable_bars = 1;
+      |             ^~
+drivers/s390/virtio/virtio_ccw.c:88:9: error: unknown type name 'dma64_t'
+   88 |         dma64_t queue;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:95:9: error: unknown type name 'dma64_t'
+   95 |         dma64_t desc;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:99:9: error: unknown type name 'dma64_t'
+   99 |         dma64_t avail;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:100:9: error: unknown type name 'dma64_t'
+  100 |         dma64_t used;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:109:9: error: unknown type name 'dma64_t'
+  109 |         dma64_t summary_indicator;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:110:9: error: unknown type name 'dma64_t'
+  110 |         dma64_t indicator;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_drop_indicator':
+drivers/s390/virtio/virtio_ccw.c:370:25: error: implicit declaration
+of function 'virt_to_dma64'; did you mean 'virt_to_page'?
+[-Werror=implicit-function-declaration]
+  370 |                         virt_to_dma64(get_summary_indicator(airq_info));
+      |                         ^~~~~~~~~~~~~
+      |                         virt_to_page
+drivers/s390/virtio/virtio_ccw.c:374:28: error: implicit declaration
+of function 'virt_to_dma32'; did you mean 'virt_to_page'?
+[-Werror=implicit-function-declaration]
+  374 |                 ccw->cda = virt_to_dma32(thinint_area);
+      |                            ^~~~~~~~~~~~~
+      |                            virt_to_page
+drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_setup_vq':
+drivers/s390/virtio/virtio_ccw.c:552:45: error: implicit declaration
+of function 'u64_to_dma64' [-Werror=implicit-function-declaration]
+  552 |                 info->info_block->l.queue = u64_to_dma64(queue);
+      |                                             ^~~~~~~~~~~~
+drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_find_vqs':
+drivers/s390/virtio/virtio_ccw.c:654:9: error: unknown type name 'dma64_t'
+  654 |         dma64_t *indicatorp = NULL;
+      |         ^~~~~~~
+cc1: some warnings being treated as errors
+
+## Build s390
+* Build log: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268210/suite/build/test/gcc-13-defconfig/log
+* Build history:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268210/suite/build/test/gcc-13-defconfig/history/
+* Build details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268210/suite/build/test/gcc-13-defconfig/details/
+* Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfcqRiiDhTc38knEJ0xbygtF/
+* Kernel config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfcqRiiDhTc38knEJ0xbygtF/config
+* Toolchain: Debian clang version 21.0.0
+(++20250428112741+e086d7b1464a-1~exp1~20250428112923.1416)
+
+3)
+Regressions on mips with defconfig builds with clang-nightly
+toolchains on the stable-rc 6.1.136-rc1.
+
+* mips, build
+  - clang-nightly-allnoconfig
+  - clang-nightly-defconfig
+  - clang-nightly-tinyconfig
+
+Regression Analysis:
+ - New regression? Yes
+ - Reproducibility? Yes
+
+Build regression: mips kernel branch.c error default initialization of
+an object of type union
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build error mips
+arch/mips/kernel/branch.c:35:6: error: default initialization of an
+object of type 'union (unnamed union at
+arch/mips/kernel/branch.c:35:6)' with const member leaves the object
+uninitialized and is incompatible with C++
+[-Werror,-Wdefault-const-init-unsafe]
+   35 |         if (__get_user(inst, (u16 __user *) msk_isa16_mode(epc))) {
+      |             ^
+
+
+## Build mips
+* Build log:  https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28266863/suite/build/test/clang-nightly-tinyconfig/log
+* Build history:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28266863/suite/build/test/clang-nightly-tinyconfig/history/
+* Build details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28266863/suite/build/test/clang-nightly-tinyconfig/details/
+* Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfMHLLGL9OjZrjKvW9u8uy4b/
+* Kernel config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfMHLLGL9OjZrjKvW9u8uy4b/config
+
+
+## Build warnings
+
+a)
+Build warnings on x86_64 builds.
+io_uring/timeout.c:410:31: warning: default initialization of an
+object of type 'typeof ((sqe->addr2))' (aka 'const unsigned long
+long') leaves the object uninitialized and is incompatible with C++
+[-Wdefault-const-init-unsafe]
+  410 |                 if (get_timespec64(&tr->ts,
+u64_to_user_ptr(sqe->addr2)))
+      |                                             ^
+
+Links:
+ - https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjeiV7BNYgKZ2oXuK3BNEYYBa/
+
+b)
+Build warnings on arm with clang-nightly with tinyconfig.
+
+clang: warning: argument unused during compilation: '-march=armv7-m'
+[-Wunused-command-line-argument]
+kernel/params.c:367:22: warning: default initialization of an object
+of type 'struct kernel_param' with const member leaves the object
+uninitialized and is incompatible with C++
+[-Wdefault-const-init-unsafe]
+  367 |         struct kernel_param dummy;
+      |                             ^
+include/linux/moduleparam.h:73:12: note: member 'perm' declared 'const' here
+   73 |         const u16 perm;
+      |                   ^
+kernel/params.c:423:22: warning: default initialization of an object
+of type 'struct kernel_param' with const member leaves the object
+uninitialized and is incompatible with C++
+[-Wdefault-const-init-unsafe]
+  423 |         struct kernel_param kp;
+      |                             ^
+include/linux/moduleparam.h:73:12: note: member 'perm' declared 'const' here
+   73 |         const u16 perm;
+      |                   ^
+2 warnings generated.
+
+Links:
+ - https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjeaX1oyIaa7F0nsdW1BymEGQ/
+
+## Build
+* kernel: 6.1.136-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+* git commit: 961a5173f29d2aa1f2c87ff9612b029c46086972
+* git describe: v6.1.134-461-g961a5173f29d
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d
+
+## Test Regressions (compared to v6.1.134-292-gb8b5da130779)
+* i386, build
+  - clang-nightly-defconfig
+  - clang-nightly-lkftconfig
+
+* mips, build
+  - clang-nightly-allnoconfig
+  - clang-nightly-defconfig
+  - clang-nightly-tinyconfig
+
+* s390, build
+  - clang-20-defconfig
+  - clang-nightly-defconfig
+  - gcc-13-allmodconfig
+  - gcc-13-defconfig
+  - gcc-8-defconfig-fe40093d
+
+* x86_64, build
+  - clang-nightly-lkftconfig
+  - clang-nightly-x86_64_defconfig
+
+## Metric Regressions (compared to v6.1.134-292-gb8b5da130779)
+
+## Test Fixes (compared to v6.1.134-292-gb8b5da130779)
+
+## Metric Fixes (compared to v6.1.134-292-gb8b5da130779)
+
+## Test result summary
+total: 96862, pass: 76665, fail: 4435, skip: 15439, xfail: 323
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 135 total, 135 passed, 0 failed
+* arm64: 43 total, 43 passed, 0 failed
+* i386: 27 total, 20 passed, 7 failed
+* mips: 26 total, 22 passed, 4 failed
+* parisc: 4 total, 4 passed, 0 failed
+* powerpc: 32 total, 31 passed, 1 failed
+* riscv: 11 total, 9 passed, 2 failed
+* s390: 14 total, 8 passed, 6 failed
+* sh: 10 total, 10 passed, 0 failed
+* sparc: 7 total, 7 passed, 0 failed
+* x86_64: 35 total, 32 passed, 3 failed
+
+## Test suites summary
+* boot
+* commands
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-exec
+* kselftest-fpu
+* kselftest-ftrace
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-mincore
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-mptcp
+* kselftest-openat2
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-tc-testing
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user_events
+* kselftest-vDSO
+* kselftest-x86
+* kunit
+* kvm-unit-tests
+* lava
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-build-clang
+* log-parser-build-gcc
+* log-parser-test
+* ltp-capability
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-hugetlb
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-pty
+* ltp-sched
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* perf
+* rcutorture
+
+--
+Linaro LKFT
+https://lkft.linaro.org
