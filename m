@@ -1,99 +1,111 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF1FF1F1313;
-	Thu,  1 May 2025 14:22:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F41321EA7C6;
+	Thu,  1 May 2025 15:03:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746109369; cv=none; b=hQkI3UFKJkJ22gEqp5bm7Sw63wVVKO7qHcjpSOML/O5gGROWAfnb9VyyHZdSX1bHqOcjHzh6t08lODAk4VGUrPSOpN5s8pmuAomK4LlsT0auiXmgajq/lUndfPib0xPI7gWjAsREautLnPmPjiBbGqf89wJdskvGs7ZaVwp6OP0=
+	t=1746111791; cv=none; b=A1NB3QJuSlt0AQJcIAzD5Glj4GSf98aU4GhqvCEBi9zz/UQ/v3vlbQl75P/LWG3EFuuXHRy2XnBKrZ6KQF3tIKpxURGOumJ3nyWyqS8zTo/GUqEeWFwZEbsjq0wo17l0W7GFY8VJkuQhXmsw1/P6PMMZKcSwRKirm3FTa4ylEus=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746109369; c=relaxed/simple;
-	bh=4uduP/E1+iiWW5QwTqKsiTlY+NnSHbK8s0ipJNrwbCk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o1o6PHzbBv28segKLS92/sNST5HZs3OMpzDFVdKQmbupLw046rYwd+CqRsrVzM6iGqXeLYZpmdbp185Z/Y9o13uKTofEWJ1NjkX/acJ67PT4muvFANa1wFyjc2xr56OZ/G53xs0iiBWQn2CsJ1kBw1dRrdDrpybyUWAnNjgUsAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=0hBlpnr4; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1746111791; c=relaxed/simple;
+	bh=4ySaPdEMd4+Vb4yQ+0YUSkKNLjFLCkYhYBoAAExMs3U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mkA40cvOe/OtEv8hBUGlPDxu68SZALFpXB3HobIqYdNeHwgSfoTWLTJZ5JUaYhONFPxWvst8EFgVOjLN10UQWtklOi2tY02YJ5IR9q9NZJ1UFQwpGz/Bl1d7ChOcc8FtSc0eCQ0qGX8rybZc9CV1WKY1Ja0eSpow47+EvI3u3GE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=QE9K7S0F; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="0hBlpnr4"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="QE9K7S0F"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-	Content-ID:Content-Description:In-Reply-To:References;
-	bh=Y0IQBEy5A72SAbKcBMN9KFzK0p4E//3l79XMemTBafw=; b=0hBlpnr4hU8vi3PFOkslX08aAH
-	xd3HfFz7pis+wBju+KL/ABPoI4eBWseb+TTLYm8Z0rwvhyT3RQIczD4sUgOebGMp7IaKayWsYlOdm
-	CXAyqE+RcN1cdA3yH+6Lg1xNVBXw7A30aV56zY30qxw0JWQgSxRaamKRELx7vsCzzXTO12JwiTDPb
-	Ie0xcCJXk2j7aiaWYh9ki2V/zRDFf87zNs1C61OJxDbxcb5RUeOsxcnVStTm/UhYyidx9Xl76hnUF
-	B43QBocnkbTN0hDVEjWbXMszZfTkJICHGbImWk0UiwvxHVv2BaOcSsLm6FTjv6WoaYjpMPCXc9SBi
-	bXnS5tdA==;
-Received: from [206.0.71.14] (helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uAUoJ-0000000FxIF-0c9G;
-	Thu, 01 May 2025 14:22:47 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: eperezma@redhat.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH v2] vringh: use bvec_kmap_local
-Date: Thu,  1 May 2025 09:22:30 -0500
-Message-ID: <20250501142244.2888227-1-hch@lst.de>
-X-Mailer: git-send-email 2.47.2
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=SknNweDJMYv6Cc7JXUCuginAJHi4T0ZKllMpOn1Yf9A=; b=QE9K7S0FqJXdRMiI2MUQfyFVKN
+	zJkaOZZAvX0UK9xBOJnD6xr1oo4dLko0vESRIIkP4sjHHPxZkleb2D8Zai321exEYA2JJr82ElX7s
+	y72vsCa48dbNhj3sR2u6AvvpDc6GUftTpqrd7fLDiVr8l4ZJcPOvCc/B4Kso/X5VwtY001koeorb7
+	w0lpR1LpdbzQwtNNGzQXqNnli6Sbl3pH+QAdCVePhkf3FUFd/ngVNiv41q8dPOdm8t1mbTM/UmJ5P
+	NuryBBTCcNBBOjT/+JRWnUfQQL+DhMwA+igl0308JTBNEPRBnnqN+OImNHFtw2Imib6YH9ERSKUcP
+	cmUpe09A==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1uAVQk-00000000oH8-33tB;
+	Thu, 01 May 2025 15:02:30 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 1B7DC30072F; Thu,  1 May 2025 17:02:30 +0200 (CEST)
+Date: Thu, 1 May 2025 17:02:29 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Brendan Jackman <jackmanb@google.com>
+Cc: Christoph Hellwig <hch@lst.de>, chenlinxuan@uniontech.com,
+	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nicolas Schier <nicolas.schier@linux.dev>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Andrey Konovalov <andreyknvl@gmail.com>,
+	Juergen Gross <jgross@suse.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-nvme@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-integrity@vger.kernel.org, linux-kbuild@vger.kernel.org,
+	llvm@lists.linux.dev, Winston Wen <wentao@uniontech.com>,
+	kasan-dev@googlegroups.com, xen-devel@lists.xenproject.org,
+	Changbin Du <changbin.du@intel.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH RFC v3 0/8] kernel-hacking: introduce
+ CONFIG_NO_AUTO_INLINE
+Message-ID: <20250501150229.GU4439@noisy.programming.kicks-ass.net>
+References: <20250429-noautoinline-v3-0-4c49f28ea5b5@uniontech.com>
+ <20250429123504.GA13093@lst.de>
+ <D9KW1QQR88EY.2TOSTVYZZH5KN@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D9KW1QQR88EY.2TOSTVYZZH5KN@google.com>
 
-Use the bvec_kmap_local helper rather than digging into the bvec
-internals.
+On Thu, May 01, 2025 at 02:19:47PM +0000, Brendan Jackman wrote:
+> On Tue Apr 29, 2025 at 12:35 PM UTC, Christoph Hellwig wrote:
+> > On Tue, Apr 29, 2025 at 12:06:04PM +0800, Chen Linxuan via B4 Relay wrote:
+> >> This series introduces a new kernel configuration option NO_AUTO_INLINE,
+> >> which can be used to disable the automatic inlining of functions.
+> >> 
+> >> This will allow the function tracer to trace more functions
+> >> because it only traces functions that the compiler has not inlined.
+> >
+> > This still feels like a bad idea because it is extremely fragile.
+> 
+> Can you elaborate on that - does it introduce new fragility?
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
+given it needs to sprinkle __always_inline around where it wasn't needed
+before, yeah.
 
-Changes since v1:
- - actually finish the conversion
+Also, why would you want this? function tracer is already too much
+output. Why would you want even more?
 
- drivers/vhost/vringh.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 73e153f9b449..f3ec2483b014 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -1291,11 +1291,10 @@ static inline int getu16_iotlb(const struct vringh *vrh,
- 		if (ret)
- 			return ret;
- 	} else {
--		void *kaddr = kmap_local_page(ivec.iov.bvec[0].bv_page);
--		void *from = kaddr + ivec.iov.bvec[0].bv_offset;
-+		__virtio16 *from = bvec_kmap_local(&ivec.iov.bvec[0]);
- 
--		tmp = READ_ONCE(*(__virtio16 *)from);
--		kunmap_local(kaddr);
-+		tmp = READ_ONCE(*from);
-+		kunmap_local(from);
- 	}
- 
- 	*val = vringh16_to_cpu(vrh, tmp);
-@@ -1330,11 +1329,10 @@ static inline int putu16_iotlb(const struct vringh *vrh,
- 		if (ret)
- 			return ret;
- 	} else {
--		void *kaddr = kmap_local_page(ivec.iov.bvec[0].bv_page);
--		void *to = kaddr + ivec.iov.bvec[0].bv_offset;
-+		__virtio16 *to = bvec_kmap_local(&ivec.iov.bvec[0]);
- 
--		WRITE_ONCE(*(__virtio16 *)to, tmp);
--		kunmap_local(kaddr);
-+		WRITE_ONCE(*to, tmp);
-+		kunmap_local(to);
- 	}
- 
- 	return 0;
--- 
-2.47.2
 
