@@ -1,107 +1,129 @@
-Received: from mail-il1-f179.google.com (mail-il1-f179.google.com [209.85.166.179])
+Received: from mail-wm1-f74.google.com (mail-wm1-f74.google.com [209.85.128.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D7D1F1509
-	for <virtualization@lists.linux.dev>; Thu,  1 May 2025 15:12:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93A03201276
+	for <virtualization@lists.linux.dev>; Thu,  1 May 2025 15:22:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746112350; cv=none; b=XaNsRz2JPELzzxksw6Z4HtP9Q2iD2iCryl5mdzLrUwJX2LWOf6WFmf0ghxN7ZfSSn2XAnYztupbpb9HAJcfZkwz6nDf8+v4mtKHQ71sjaxwEPOJ9mJVf0Uze5ciJARExrpHfuY11LPbLqEIc6LFvGQNCGZPcCJltXG9mUZhPhHM=
+	t=1746112980; cv=none; b=IUtYnza/tiJ+j1QQR7qqZq0Q9dwXOxlE6QZTPJYhuHqWbQFGFI4qnVC94Xx9Q213vXnMKTV2VrfBcpkKpDlCBsGFHDopsYcxXGZ50GkLSsrEhYFgz7aN3B3tIvlRZ3FkX9op8A1HxrF0KnNGnl8j+8BsCEurcT9g8sUfuG3F0Mk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746112350; c=relaxed/simple;
-	bh=dWnGMRLuuiig00/q1qNO4cfo1u8O7FAVX0O/ycoMXU8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OfOwTRs6KAmfxovF3ZXSR0jSi9cLVErbrC9Yy7l4bPN7yPKSUMDqXbsfsqD5ZKUToJqjs3lO+/nBUZxxcClJcyVPskcRLZkI5C4ywJQIHOhe7Znc8w+pZYLKdv3T/HXpswoBzjs9E2clpt6lA90i2EcOpyhGdXgkB4EdKA3dgAk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cloudflare.com; spf=pass smtp.mailfrom=cloudflare.com; dkim=pass (2048-bit key) header.d=cloudflare.com header.i=@cloudflare.com header.b=EzHUHdJ9; arc=none smtp.client-ip=209.85.166.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cloudflare.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloudflare.com
+	s=arc-20240116; t=1746112980; c=relaxed/simple;
+	bh=GnwsPoOxW8mCGc7CAgjoDtFw8dTWra4gUIbWL5YCLUs=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=i5+XVT26ILzqqpxUuwW5B+/9ZfXU1dorNV3q9MZmnScFOZP51wSpVQb3BFc4rBpM7UgQ4yJ6l4fg1+w4k/hnlXDVGnNLbx0A8jD692sYguMyktp0DSGKRbJoVVaQZPe7tz4TrA0vQOxlCDGBun7o7cUn2oWxfVhLnSyWDKwQQuM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=yn69Ui8P; arc=none smtp.client-ip=209.85.128.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cloudflare.com header.i=@cloudflare.com header.b="EzHUHdJ9"
-Received: by mail-il1-f179.google.com with SMTP id e9e14a558f8ab-3d812103686so3831895ab.0
-        for <virtualization@lists.linux.dev>; Thu, 01 May 2025 08:12:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="yn69Ui8P"
+Received: by mail-wm1-f74.google.com with SMTP id 5b1f17b1804b1-43d0a037f97so5052365e9.2
+        for <virtualization@lists.linux.dev>; Thu, 01 May 2025 08:22:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google09082023; t=1746112347; x=1746717147; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=fiSgvlc+jgTt+SalF/TBVD1MvIkMlCI4kO67DxSibGs=;
-        b=EzHUHdJ9hINhEkOBfHg57z+NgTw0v/eeKq2QE3VrJZ10mQ6ZNVBZ7rAbbBwQKVRZud
-         a4fyQmd+/6mYr+FM7s+wRc4sFZTMH5PlbyjTMkwHIxS+RdwLTLdSENi6xpWRdhIGPfP1
-         DiWiEjzEyVDjQ783FSRYRwaGJlN0GT9i2OpoE87Mg5WNBDM8w0I1q07gC23io0cLyPtF
-         QkG3FYGas+Nv+YeWjerzEMRUCaob3hk7+k5W0Ekr7ORYQ0v9EFvw5rYEjlMsWeUJSSWA
-         QlSJaa47q0yjj5VCqpAliRsushU1Da3n+ZQqzfiZEWGu9pcH9/xJdD6j90lSysCaBesS
-         I49g==
+        d=google.com; s=20230601; t=1746112977; x=1746717777; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=wm8HDKzWcPs/ZOJ7u1MGp3oUtkY4RQR0TPLRQCBj5DQ=;
+        b=yn69Ui8PYCjNhi6G7e60HhHeO/ejIaOVFI/Zcx2xDYJl2h/8F+LYdxfV+805iKNOOW
+         4RoOIwEo3PHfmf4eFlW6/TSE4H6t+ogfn+UXBwbXKud2mcmXUKXp0BdTrOHB54KGm36Q
+         a4euszSjkiITBnDOSLqmCTvK/pjyp9XHTm/sJlPmFYk2I8YwwMkTDyn6QcxjcbSH6gtg
+         vrm5MX4Koq/L95sf5xV7RbQNMuK3R+sH8Kq31OAcZaxQIyPXZbAlfcJ7pAPG6WCOAPJG
+         ZJQ7QQPMkNmR0jOwg9IxQpnj/5ONcOm2QncGgDwN9Jpa6Dlqkgr8DHPEXbQs9EieYHkn
+         OAUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746112347; x=1746717147;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fiSgvlc+jgTt+SalF/TBVD1MvIkMlCI4kO67DxSibGs=;
-        b=DSzwf69EP7cR2oe4exghtH/LZSVzRsu8gFoWJJCEcSRJPCIGKUavXxxvVgE0cYplE3
-         +Brz4J+ZDPq9B0SxJus3z8ZyMYZqxCawEFLUtREBYg29hBshFzA+lPERvkLaLz34ab3X
-         OgJZmO6t3TK9oyH6l2T1g3fpbj090R/E578DsZUkqUxtIa3QNggAaDaBJO46OGuIneTs
-         LVtJj4pbuuUuYXygcTARE0HyZyN9TQnKsl2WaCLS1qdNBa1xxHG2v0Z/qUyAyHlCliUU
-         3bVClirU3oiAwQoRnzsE1yrsQZiWtuc4MgO5lijQr0cQrZQEwlNiDBGk5BYaCmt///2x
-         /Utg==
-X-Forwarded-Encrypted: i=1; AJvYcCUD7mKX/J6j2zyrBxjzkeRUI3AXpBMyjBM65OOcW4s6yfLUm9IoZMHC224YAvuBSTycGc+lQotvJ7Ohn8TN4g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YynZI5SyA0slJH0fISdN56HRu3Azi0+Kak5G1GwpMnm5GO5BzNs
-	Py5PWZrUuubZa95EEXcuN7JSj/GcPcS+ZS8XyOqEFFpjx1VMZF6z3O+oR1R5YOs=
-X-Gm-Gg: ASbGncukHS+MNrdEPPX5RPNbW4np3ZxFaW2toK90XGOSQtByeSHiKLCp99L3X62Mw7/
-	VX7DiCIEXiDin7ZPNMmdZPA4RiJx1Cd+Zun1hPIL8ZZpdbcmgjemrYwkQuokaWBLuN1/hXKRLVr
-	qq758U+O2qkkJ42nd2JKA78xpV50tpcw1IsrYFhImobFpZIVWxf61JzYnhf8M7D1Efr/ZCDm58O
-	j0Ga711oAmN7xFW0RQaryroAXWn9TYoZwdGG04VhoqRqo1ffX69xuUVhvx+LanPSZAehRbNan38
-	rFB9nOFppzXfxoKbVHiPeRA=
-X-Google-Smtp-Source: AGHT+IEIOmyJqg0IDfnq12HF/KNZxN2C+QMTntsNo+GE5770dKW40hle7cceFLWUyRubp7ZQk3Lr0w==
-X-Received: by 2002:a05:6e02:5c2:b0:3d3:d08d:d526 with SMTP id e9e14a558f8ab-3d970bab314mr23866965ab.11.1746112346920;
-        Thu, 01 May 2025 08:12:26 -0700 (PDT)
-Received: from CMGLRV3 ([2a09:bac5:9478:1b37::2b6:2f])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4f882ead968sm224915173.12.2025.05.01.08.12.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 May 2025 08:12:26 -0700 (PDT)
-Date: Thu, 1 May 2025 10:12:24 -0500
-From: Frederick Lawler <fred@cloudflare.com>
-To: Keith Busch <kbusch@kernel.org>
-Cc: Simon Horman <horms@kernel.org>, Keith Busch <kbusch@meta.com>,
-	seanjc@google.com, pbonzini@redhat.com, kvm@vger.kernel.org,
-	leiyang@redhat.com, virtualization@lists.linux.dev, x86@kernel.org,
-	netdev@vger.kernel.org, kernel-team@cloudfalre.com
-Subject: Re: [PATCHv3 2/2] kvm: retry nx_huge_page_recovery_thread creation
-Message-ID: <aBOPWGPTCgnUgtw-@CMGLRV3>
-References: <20250227230631.303431-1-kbusch@meta.com>
- <20250227230631.303431-3-kbusch@meta.com>
- <20250304155922.GG3666230@kernel.org>
- <Z8clO24vFqlDdge4@kbusch-mbp.dhcp.thefacebook.com>
+        d=1e100.net; s=20230601; t=1746112977; x=1746717777;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=wm8HDKzWcPs/ZOJ7u1MGp3oUtkY4RQR0TPLRQCBj5DQ=;
+        b=NQzpQ7t5U5M//rj6CoBw+xoaC7xNDknfiApj2J1qmKBKUMXIkoIPQU9/gB8Nenf/FD
+         VlgDk2zKaYO8O9wRR5DLRXPI4DJ4c/oxr0dsi3Q/HxAyMJc1mm+mNvS8HXGLqIWeb3ef
+         bVXRpPcE7kkoGvvY0Z4DfNT4H1121X80Ysv6XqwE87AgvluRYA8PqPjXyfnK293vfsNg
+         oSpOrXnCPpbGFH9mYN1r4WKXiakOUVMiddlSmOCXJMBKV++xQ2jwStzbUpZE2O3JLzHZ
+         aJI2cNNSxOHXymzccYzZiELBOClteivheKpoce+NwJeo9vhXKEXGihaEUMICYILlk0xv
+         mooQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVdHxcSye8yuaR/f9ZlwxOvsBlDiI6bxkJr74OF72DRFPIRypTmCN13/XcQztrJ2W1MnH6PnBGOzdY9RkX0vg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywa462NbhZDJOYWC5pi3ZLS6LRk+TL3etul0xm9MPDfO7WQw0Xu
+	DKsoiAqzBUQn5jm453gls9GiIWAnhtwpfJDqveoATwOXPJTnidXO5drb2TkHYA16n1RWEpW9+07
+	BBCKApmQMRw==
+X-Google-Smtp-Source: AGHT+IG1H8EWFmTdy9mXUfcCJxQBprr6abVa1X9treBvRrD020Cub+yFF9voa0K8UUVl5WCrL4gH+SDc7+SKLQ==
+X-Received: from wmbel14.prod.google.com ([2002:a05:600c:3e0e:b0:440:5f8a:667c])
+ (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:600c:4ec6:b0:43d:a90:9f1 with SMTP id 5b1f17b1804b1-441b2635482mr61130455e9.6.1746112976936;
+ Thu, 01 May 2025 08:22:56 -0700 (PDT)
+Date: Thu, 01 May 2025 15:22:55 +0000
+In-Reply-To: <20250501150229.GU4439@noisy.programming.kicks-ass.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z8clO24vFqlDdge4@kbusch-mbp.dhcp.thefacebook.com>
+Mime-Version: 1.0
+References: <20250429-noautoinline-v3-0-4c49f28ea5b5@uniontech.com>
+ <20250429123504.GA13093@lst.de> <D9KW1QQR88EY.2TOSTVYZZH5KN@google.com> <20250501150229.GU4439@noisy.programming.kicks-ass.net>
+X-Mailer: aerc 0.20.0
+Message-ID: <D9KXE2YX8R2M.3L7Q6NVIXKPE9@google.com>
+Subject: Re: [PATCH RFC v3 0/8] kernel-hacking: introduce CONFIG_NO_AUTO_INLINE
+From: Brendan Jackman <jackmanb@google.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Christoph Hellwig <hch@lst.de>, <chenlinxuan@uniontech.com>, 
+	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, Sagi Grimberg <sagi@grimberg.me>, 
+	Andrew Morton <akpm@linux-foundation.org>, Yishai Hadas <yishaih@nvidia.com>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>, 
+	Kevin Tian <kevin.tian@intel.com>, Alex Williamson <alex.williamson@redhat.com>, 
+	Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko@kernel.org>, 
+	Masahiro Yamada <masahiroy@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
+	Nicolas Schier <nicolas.schier@linux.dev>, 
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
+	Justin Stitt <justinstitt@google.com>, Vlastimil Babka <vbabka@suse.cz>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, "Paul E. McKenney" <paulmck@kernel.org>, 
+	Boqun Feng <boqun.feng@gmail.com>, Dmitry Vyukov <dvyukov@google.com>, 
+	Andrey Konovalov <andreyknvl@gmail.com>, Juergen Gross <jgross@suse.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>, 
+	"H. Peter Anvin" <hpa@zytor.com>, <linux-nvme@lists.infradead.org>, 
+	<linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>, <kvm@vger.kernel.org>, 
+	<virtualization@lists.linux.dev>, <linux-integrity@vger.kernel.org>, 
+	<linux-kbuild@vger.kernel.org>, <llvm@lists.linux.dev>, 
+	Winston Wen <wentao@uniontech.com>, <kasan-dev@googlegroups.com>, 
+	<xen-devel@lists.xenproject.org>, Changbin Du <changbin.du@intel.com>, 
+	Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Keith,
+On Thu May 1, 2025 at 3:02 PM UTC, Peter Zijlstra wrote:
+> On Thu, May 01, 2025 at 02:19:47PM +0000, Brendan Jackman wrote:
+>> On Tue Apr 29, 2025 at 12:35 PM UTC, Christoph Hellwig wrote:
+>> > On Tue, Apr 29, 2025 at 12:06:04PM +0800, Chen Linxuan via B4 Relay wrote:
+>> >> This series introduces a new kernel configuration option NO_AUTO_INLINE,
+>> >> which can be used to disable the automatic inlining of functions.
+>> >> 
+>> >> This will allow the function tracer to trace more functions
+>> >> because it only traces functions that the compiler has not inlined.
+>> >
+>> > This still feels like a bad idea because it is extremely fragile.
+>> 
+>> Can you elaborate on that - does it introduce new fragility?
+>
+> given it needs to sprinkle __always_inline around where it wasn't needed
+> before, yeah.
 
-On Tue, Mar 04, 2025 at 09:07:23AM -0700, Keith Busch wrote:
-> On Tue, Mar 04, 2025 at 03:59:22PM +0000, Simon Horman wrote:
-> > A minor nit from my side:
-> > 
-> > As you are changing this line, and it seems like there will be another
-> > revision of this series anyway, please consider updating the indentation to
-> > use tabs.
-> 
-> The patch is already applied to upstream and stable, and I think Paolo
-> must have taken care of the formatting because it looks good in the
-> commit now:
-> 
->   https://web.git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=916b7f42b3b3b539a71c204a9b49fdc4ca92cd82a
+Right, I guess I just wouldn't have associated that with the word
+"fragility", but that's a reasonable complaint!
 
-I backported this patch cleanly on top of 6.12.24 and ran it on some of
-our production nodes. I compared 6.12.24 to the patched 6.12.24 over the
-last three days, and we saw a drop in ENOMEM reports from firecracker.
-It also appears our VM's to be consistently spinning up again.
+> Also, why would you want this? function tracer is already too much
+> output. Why would you want even more?
 
-When you said stable here, I checked the stable queue and lists, but I
-didn't see this patch in 6.12. (only in the 6.14/15 stable) Can we get
-this backported to 6.12 as well?
+Yes, tracing every function is already too noisy, this would make it
+even more too-noisy, not sure "too noisy" -> "way too noisy" is a
+particularly meaningful degradation.
 
-Fred
+Whereas enlarging the pool of functions that you can _optionally target_
+for tracing, or nice reliable breakpoints in GDB, and disasm that's
+easier to mentally map back to C, seems like a helpful improvement for
+test builds. Personally I sometimes spam a bunch of `noinline` into code
+I'm debugging so this seems like a way to just slap that same thing on
+the whole tree without dirtying the code, right?
+
+Not that I have a strong opinion on the cost/benefit here, but the
+benefit seems nonzero to me.
