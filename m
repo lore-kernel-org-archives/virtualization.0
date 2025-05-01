@@ -1,112 +1,145 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1B5C2777F1
-	for <virtualization@lists.linux.dev>; Thu,  1 May 2025 08:05:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBD1722D4E5;
+	Thu,  1 May 2025 10:11:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746086757; cv=none; b=JanHOyCvO2fpv0iIaMZMKDoihT1ezWncvWtP+Lpd/igoiyjvFtSLuQyqFSmtG81sGbDjhzrXHPkqKIPCwEqtjQvtpFNsgxL7x7O+jb0EfAVSeRTeucTFr8e44zFjAd90W+oZgtNCdmdmy9vXxebHOJbD/vEmpIy+mjJ2y9m2zH0=
+	t=1746094305; cv=none; b=kcTfB6e9hnoubcLRYOHvHeboTDdQwFV8/Tiedf8Ko19SmuAK4Fs9nUa8C6Ya4wQeFydwELFvrFc/xyxTJqn6AMoFVl0ORat2NMQ5VrSC8yzuFlJJzx1uRzqRiK5zYpjRr9dGECtrM9B6GtnReWV6atDwvIccvW0iw4gHxIlMa4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746086757; c=relaxed/simple;
-	bh=ccMcuDXcJUUiFHGfdCsCuXcBJFwK42HgB+FyX3k8HAk=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Qb5KoIo5s4IJkaGUNRiXi7B9KqmjgsYXAVl+pf4UmiIdvOsYH9J316ZyU/ftUXpbU1dSI237Tcz/jDgaRDzYfKTYcfRO13EYwI8Zom9iZ7Q7YRlpDJV6yi5wetp7cFzTV3O32VK+5MiZTBR7PekWgM7pLELQ779gWeLNufXFO/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=X11sVjtD; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1746094305; c=relaxed/simple;
+	bh=dxneAx6cI3IFpADOLFOssD5GBtmaUHCHg8pPx5RmHF4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GsSIyJvkel5bUgalwjFYR3IJQdBWoRZFlSbQBWmrm6B7yLpwt/NFkE4DHljX9KvVZL2ZzafU7NxutJJijpv0G5I8HU2iCUi8Fg3GrS09IvZiRHfXohGlEk4TWas3oq7D9ngMMavBmcsNKRHF7vzkl3EBkyPhvngriz0p3EBwdcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YND6zxFE; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="X11sVjtD"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1uAOvT-009GJC-0c; Thu, 01 May 2025 10:05:47 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
-	Message-Id:Date:Subject:From; bh=sJUhKrCcta0cCKfNjfc+tCMkcd0YHLjBP3lnJByQx5E=
-	; b=X11sVjtDFm8yEoNaMhpaLlXQ5Gdp5LwHcvuzebpXnDjfB7AV4Efk7x1QxEy4RRol1i9j0WIT7
-	/VvEWY/SZm7IUGiF3ycw6qozv0morKNS//I6HBI/VdAMSoIAkv/CVkIUbvcOmsSxR/rb5ObZv4ks2
-	ufbvGcgMnYvYUfYO8Xusgh54BpFsSR+Cb89aJpjz6b1eIvuP3FTRuHepZI65bv2NAuPZNKxOVtCYZ
-	6kloxVzc0a9jNrHWX/xn40UIqD3MOAaTfbX6QWC5KI11FwkEsx1ferPNNHYKDQM1TyZJLlZFzEz16
-	M1ET2wVBpwgh4Qo/VPWXGgyEUj/7SyuP+Zm5pg==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1uAOvS-0007wp-N3; Thu, 01 May 2025 10:05:46 +0200
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1uAOvH-005lsv-Rc; Thu, 01 May 2025 10:05:36 +0200
-From: Michal Luczaj <mhal@rbox.co>
-Subject: [PATCH net-next v4 0/3] vsock: SOCK_LINGER rework
-Date: Thu, 01 May 2025 10:05:21 +0200
-Message-Id: <20250501-vsock-linger-v4-0-beabbd8a0847@rbox.co>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YND6zxFE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1746094305; x=1777630305;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=dxneAx6cI3IFpADOLFOssD5GBtmaUHCHg8pPx5RmHF4=;
+  b=YND6zxFEIioARDa4zhjS6lRzKbG679HN1wnEHNCOIvh6IX9XpxRRQa/s
+   ucIQVyX4/PnyfA4pKG+b2PjPL3Mq4gpHduFVu3eoCEN8qG0DOjQ/z/+PR
+   +3KFVRkhCCgM3XSd91FOhFLNZqYpUiCIRmLF04MJAlDSuOhcvVtv5COsF
+   k4kmILhr7OPPBMeDkTFlGc3gra9/W32yDvjgjx0lAPHM7PEixc4bAAEcA
+   9waMbCQqKRB4M20PHq9WP0xoDFwEINiCMYwkdFGw5SF/LLfdUoVrONAde
+   +ZXIKvAPolqhfID3YsMOSxvT4JTwbx5Wt9ZA5bWNSZ+qjarVKvHN1e/VC
+   A==;
+X-CSE-ConnectionGUID: IoEhhaXxQQeSSm9hb0izlg==
+X-CSE-MsgGUID: C14GaScATeWHEEuWTBBzTA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11419"; a="51586277"
+X-IronPort-AV: E=Sophos;i="6.15,254,1739865600"; 
+   d="scan'208";a="51586277"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 May 2025 03:11:43 -0700
+X-CSE-ConnectionGUID: 2gFzeo5SSrKfvo7agMSFBQ==
+X-CSE-MsgGUID: aNItNEOWSquxVxQwR8d4zw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,254,1739865600"; 
+   d="scan'208";a="134875143"
+Received: from lkp-server01.sh.intel.com (HELO 1992f890471c) ([10.239.97.150])
+  by fmviesa010.fm.intel.com with ESMTP; 01 May 2025 03:11:40 -0700
+Received: from kbuild by 1992f890471c with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uAQtF-00046H-2A;
+	Thu, 01 May 2025 10:11:37 +0000
+Date: Thu, 1 May 2025 18:11:02 +0800
+From: kernel test robot <lkp@intel.com>
+To: Christoph Hellwig <hch@lst.de>, mst@redhat.com, jasowang@redhat.com
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	eperezma@redhat.com, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH] vringh: use bvec_kmap_local
+Message-ID: <202505011754.RqgPPZa9-lkp@intel.com>
+References: <20250430140004.2724391-1-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAEErE2gC/13NTQ6CMBCG4auQrq0Z+kfrynsYFwJTaTTUtKTBE
- O5u043AcvLleWchEYPDSC7VQgImF50f8yFOFemGx/hE6vp8EwZMAgdBU/Tdi75dngI1wBRKa4x
- WHcnkE9C6ueRuZMSJjjhP5J6XwcXJh2/5k+qyl6SAZp9MNQVaC6mBa+TCsGto/XzufMkktqGsP
- lCWqUVjse2VUErvKd9QDgfKM+37FhveSi5k86fruv4AbNsNOyYBAAA=
-X-Change-ID: 20250304-vsock-linger-9026e5f9986c
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
- Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250430140004.2724391-1-hch@lst.de>
 
-Change vsock's lingerning to wait on close() until all data is sent, i.e.
-until workers picked all the packets for processing.
+Hi Christoph,
 
-Changes in v4:
-- While in virtio, stick to virtio_transport_unsent_bytes() [Stefano]
-- Squash the indentation reduction [Stefano]
-- Pull SOCK_LINGER check into vsock_linger() [Stefano]
-- Don't explicitly pass sk->sk_lingertime [Stefano]
-- Link to v3: https://lore.kernel.org/r/20250430-vsock-linger-v3-0-ddbe73b53457@rbox.co
+kernel test robot noticed the following build errors:
 
-Changes in v3:
-- Set "vsock/virtio" topic where appropriate
-- Do not claim that Hyper-V and VMCI ever lingered [Stefano]
-- Move lingering to af_vsock core [Stefano] 
-- Link to v2: https://lore.kernel.org/r/20250421-vsock-linger-v2-0-fe9febd64668@rbox.co
+[auto build test ERROR on mst-vhost/linux-next]
+[also build test ERROR on linus/master v6.15-rc4 next-20250430]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Changes in v2:
-- Comment that some transports do not implement unsent_bytes [Stefano]
-- Reduce the indentation of virtio_transport_wait_close() [Stefano] 
-- Do not linger on shutdown(), expand the commit messages [Paolo]
-- Link to v1: https://lore.kernel.org/r/20250407-vsock-linger-v1-0-1458038e3492@rbox.co
+url:    https://github.com/intel-lab-lkp/linux/commits/Christoph-Hellwig/vringh-use-bvec_kmap_local/20250430-220531
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+patch link:    https://lore.kernel.org/r/20250430140004.2724391-1-hch%40lst.de
+patch subject: [PATCH] vringh: use bvec_kmap_local
+config: arm64-randconfig-003-20250501 (https://download.01.org/0day-ci/archive/20250501/202505011754.RqgPPZa9-lkp@intel.com/config)
+compiler: clang version 21.0.0git (https://github.com/llvm/llvm-project f819f46284f2a79790038e1f6649172789734ae8)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250501/202505011754.RqgPPZa9-lkp@intel.com/reproduce)
 
-Changes in v1:
-- Do not assume `unsent_bytes()` is implemented by all transports [Stefano]
-- Link to v0: https://lore.kernel.org/netdev/df2d51fd-03e7-477f-8aea-938446f47864@rbox.co/
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202505011754.RqgPPZa9-lkp@intel.com/
 
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
----
-Michal Luczaj (3):
-      vsock/virtio: Linger on unsent data
-      vsock: Move lingering logic to af_vsock core
-      vsock/test: Expand linger test to ensure close() does not misbehave
+All errors (new ones prefixed by >>):
 
- include/net/af_vsock.h                  |  1 +
- net/vmw_vsock/af_vsock.c                | 30 ++++++++++++++++++++++++++++++
- net/vmw_vsock/virtio_transport_common.c | 21 ++-------------------
- tools/testing/vsock/vsock_test.c        | 30 +++++++++++++++++++++++++++---
- 4 files changed, 60 insertions(+), 22 deletions(-)
----
-base-commit: deeed351e982ac4d521598375b34b071304533b0
-change-id: 20250304-vsock-linger-9026e5f9986c
+>> drivers/vhost/vringh.c:1332:36: error: incompatible pointer types passing 'struct bio_vec *' to parameter of type 'struct page *' [-Werror,-Wincompatible-pointer-types]
+    1332 |                 __virtio16 *to = kmap_local_page(&ivec.iov.bvec[0]);
+         |                                                  ^~~~~~~~~~~~~~~~~
+   include/linux/highmem.h:96:50: note: passing argument to parameter 'page' here
+      96 | static inline void *kmap_local_page(struct page *page);
+         |                                                  ^
+   1 error generated.
 
-Best regards,
+
+vim +1332 drivers/vhost/vringh.c
+
+  1304	
+  1305	static inline int putu16_iotlb(const struct vringh *vrh,
+  1306				       __virtio16 *p, u16 val)
+  1307	{
+  1308		struct iotlb_vec ivec;
+  1309		union {
+  1310			struct iovec iovec;
+  1311			struct bio_vec bvec;
+  1312		} iov;
+  1313		__virtio16 tmp;
+  1314		int ret;
+  1315	
+  1316		ivec.iov.iovec = &iov.iovec;
+  1317		ivec.count = 1;
+  1318	
+  1319		/* Atomic write is needed for putu16 */
+  1320		ret = iotlb_translate(vrh, (u64)(uintptr_t)p, sizeof(*p),
+  1321				      NULL, &ivec, VHOST_MAP_RO);
+  1322		if (ret < 0)
+  1323			return ret;
+  1324	
+  1325		tmp = cpu_to_vringh16(vrh, val);
+  1326	
+  1327		if (vrh->use_va) {
+  1328			ret = __put_user(tmp, (__virtio16 __user *)ivec.iov.iovec[0].iov_base);
+  1329			if (ret)
+  1330				return ret;
+  1331		} else {
+> 1332			__virtio16 *to = kmap_local_page(&ivec.iov.bvec[0]);
+  1333	
+  1334			WRITE_ONCE(*to, tmp);
+  1335			kunmap_local(to);
+  1336		}
+  1337	
+  1338		return 0;
+  1339	}
+  1340	
+
 -- 
-Michal Luczaj <mhal@rbox.co>
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
