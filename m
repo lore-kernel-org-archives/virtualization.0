@@ -1,290 +1,456 @@
-Received: from mx0b-002c1b01.pphosted.com (mx0b-002c1b01.pphosted.com [148.163.155.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 812731D7E26
-	for <virtualization@lists.linux.dev>; Thu,  1 May 2025 01:34:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=148.163.155.12
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746063293; cv=fail; b=sHHy09R0zNb/SD5D1gkv2A1OQDHFh/dhpJd/bEBTAeYQUyKp833KBpKwANiOSfbCogPjlRm6cNUKqF6Ff878KBBjXeDwoHxEIFPfELTemWBjt37RXJ2INSPJjboWvPCkIW96Vq1VVb5jcXSzqAHDpDGWmChRkFwf1hzDPLvW2Go=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746063293; c=relaxed/simple;
-	bh=UGCRPEAT7BENgTGLULR0YmT6qhIfmzSA1CjU3rvj6Jk=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=W3YyHbEhxRTUMBHEs+XhIBI0f8XU88cbbxOO8Bqg3doO0v4ghu4DOI16kzn5YjTdTOZOmceOW1c+6L+fnobXBzr564LjdZts5MPDUQL9ELIeubk8amPpJGRmLWLMbOT4d7P7BRBPkPLElO4KrQJpdSnDaqrHYUax1c51vIMY2hA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nutanix.com; spf=pass smtp.mailfrom=nutanix.com; dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b=dahn0+c+; dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b=tFkKJIbz; arc=fail smtp.client-ip=148.163.155.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nutanix.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nutanix.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C4B54C79
+	for <virtualization@lists.linux.dev>; Thu,  1 May 2025 02:37:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.172
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1746067080; cv=none; b=QJcLPMRIJyaJg/zayPTVYfBj4mL8JHYdN/4c1lRPhJM+tj9sWg7YUtRCyP9KYQuA7LwBSgJm4gNLGVGgIwbGNJfQRdPLpBtKdLUgpQRHlGBUWYErqc7ZLiknC+FqBU+J6r4RrK/7ZPegVzSa8gd6/SONVB44E+b9CaU4qt/omd4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1746067080; c=relaxed/simple;
+	bh=kaGKadSipMjkOxe0UWpsondzGYM4Gzs5D64A1rgZPvE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iWPPrCtbsVf03uDEyjyPZfqcdhmn2wkp8yAN+9IoSZ6X2AbDB1jN+d6QFqr6jaVP7iuJ/8K204hSF0e79UlDBWIsBnNiX4i3XPv3xXfZGCD+YnzbWNJyNsbyHGphJO2C44tEG10DiEqbc2p09ON7C6bW5ZghlVxz08VY+G9k6bU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D9CVgYbf; arc=none smtp.client-ip=209.85.208.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b="dahn0+c+";
-	dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b="tFkKJIbz"
-Received: from pps.filterd (m0127842.ppops.net [127.0.0.1])
-	by mx0b-002c1b01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5411CKg1002229;
-	Wed, 30 Apr 2025 18:34:49 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nutanix.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=proofpoint20171006; bh=t6lAQghpkT9Vf
-	c23SNqRafw+J+SrG87Kqs566IT2MOQ=; b=dahn0+c+oQMP7vjqa0s4waBt98yOg
-	90z54SlclS4pwxfPbjQh3DnYPJCyNIHM7F64V52POKXkBOFjRAjVYzc1uB8n5jzQ
-	f6lvv0IRJeAcNbZag8JrZXZSv+nFnsmGtKKwEZqtyLnGPq3CW/GTOAnqr0NYPF0q
-	vYxq0Gy504IhPef/fW0zaJBo3x1HLdym1HVsxdK0/R1nU8JU+grNLRTMYZyyqEDx
-	+K0VKgAhPARLAR8FLlmY6+6Ae6IkMqrpY1upmbsuIkfgA8ChFRakT+w0phC72wDp
-	6dro9dLl4fuC/E0k+Jp58Jfy2BA0kRRpyN2DAfvMF2UvUAfI9sBzAubsQ==
-Received: from cy4pr02cu008.outbound.protection.outlook.com (mail-westcentralusazlp17011031.outbound.protection.outlook.com [40.93.6.31])
-	by mx0b-002c1b01.pphosted.com (PPS) with ESMTPS id 468xtbjqar-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Apr 2025 18:34:49 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=TTM4GrT8jFTxic+iJgkOwz9c8ZMWPinh3Kob/A4h2O9NDQSw2D1bBVvuEXVUGxG8HdIMA2TXTlpu1VE+nYIImSqfwah1hgPgq9NKg4lTUxfaUbqDrkhJzlBmN9WFNbbNtzEwcXU3ORLw2C+mGOHTZUT3xIs09n+Z7bWDoKLXX7WPld5tmcWX3IMgZyCAKOf1ojiZDlDA+9LqRd3n+/BgCTbfCQs8gPAcp8+p4LFlqzuCpaYMPRUOxxpDEZcoZG3Bg2TMq6cYYFq/F7QOxhtvxZIXZ4cl0DQPB2RfVlDRtvXag43bOtTaaJ1zyX323Hkrnzp6lZ7T6/Z/CpJH+sxNVg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=t6lAQghpkT9Vfc23SNqRafw+J+SrG87Kqs566IT2MOQ=;
- b=xUAvNPsjxWYrPE6IlDLl2xvjeLAta4IJDVyJ7SXtaXP1vDg0FR1kaK+Mi0w6Fuu71+PDXZqfvajKHa9hyqo48XdRXY8nTOzK+gK9vKPxOiXkgwS2AtCJebe6cVeruiDs4vvg40hc0wES4gQxzTUa5vKBQC6huKv2s3/FZWGw5WxysgpPF6v+m8ulhnoTAi47bAawEqa2VfCPD/X6UMf8hPVnLech4s7/DQGxGHVUDZMrd0haap23MIJolA9J9G8+jQzR0Iw47X404EL1XtfhI94N2/7xU9/Ql/zkwXbkKlCmrtPi6k4aXqgAgqMeuJnWyAj7g5fU1v+p8elKC/EZsA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nutanix.com; dmarc=pass action=none header.from=nutanix.com;
- dkim=pass header.d=nutanix.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nutanix.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=t6lAQghpkT9Vfc23SNqRafw+J+SrG87Kqs566IT2MOQ=;
- b=tFkKJIbzZrNLF7E5ja1KtzOVWHG91z98H2rade6qXH38NxHxMEufSCuuPfv9nrSWzOQVrtq4pFJCfiHv3mAvyC6bKcwUKb7kpLvxcrnFFX/5+05qRG2e4KmNknYriWa75fd2NYmJvsMvQoYrzNdb7F8RJ4g28vGsuO42mbkq1echyBaPBF9jQQXjpjMdn9S0WOtRvw7jr2ohUHYg5cskgy88R6i7WHqt7740k+zTzHjwcoZ0uYvCl1ryM5VML9sE4hOFC0RfJgV96YdS7AzZyK/3dEMnS3YeQKuXs2xxcN5BCasvdWr/i8ayQvDiqKKzNZqJTRYTRQMxKMkWgjSXeQ==
-Received: from LV8PR02MB10287.namprd02.prod.outlook.com
- (2603:10b6:408:1fa::10) by SN7PR02MB10177.namprd02.prod.outlook.com
- (2603:10b6:806:2a5::18) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8699.21; Thu, 1 May
- 2025 01:34:46 +0000
-Received: from LV8PR02MB10287.namprd02.prod.outlook.com
- ([fe80::b769:6234:fd94:5054]) by LV8PR02MB10287.namprd02.prod.outlook.com
- ([fe80::b769:6234:fd94:5054%4]) with mapi id 15.20.8699.012; Thu, 1 May 2025
- 01:34:46 +0000
-From: Jon Kohler <jon@nutanix.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-        kvm@vger.kernel.org, virtualization@lists.linux.dev,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jon Kohler <jon@nutanix.com>
-Subject: [PATCH net-next v3] vhost/net: Defer TX queue re-enable until after sendmsg
-Date: Wed, 30 Apr 2025 19:04:28 -0700
-Message-ID: <20250501020428.1889162-1-jon@nutanix.com>
-X-Mailer: git-send-email 2.43.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BYAPR07CA0099.namprd07.prod.outlook.com
- (2603:10b6:a03:12b::40) To LV8PR02MB10287.namprd02.prod.outlook.com
- (2603:10b6:408:1fa::10)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D9CVgYbf"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-30db1bd3bebso4150061fa.2
+        for <virtualization@lists.linux.dev>; Wed, 30 Apr 2025 19:37:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1746067075; x=1746671875; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Q3w+Z99sex7Ni2LgQQ+OducHadVY0Ao4TEVcRPZFwJ4=;
+        b=D9CVgYbf1RIMg98qvf1/3NYJZhMJnAZVLFlepY/2zVRqZ7G9a7azTlG749bW9ZXpKM
+         nrr+8UBwl3ehNtEaRXkhyuv91+V5utVEWwlq5srgMpixYxUSQOiqtnUsXeG+cNCWU3RS
+         ZQLf4/bTlrwTM7Ropjy0BC+BdpfumLRCxah30psoqC4ITIw/XYODFhXo5bN9Bw5pz3E+
+         UqGJX7QowJUm3s3FTdJI6WG//IbUinkM+uCdzOWbpEaYO16AeHit9ctObd63juj9ie8T
+         DBOnmj6E5gpFKF6+kE+p32DMnohyMykRKmmTocwPKR35jXjj0E2Tfq930QbjsyjPA0Yk
+         2eVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746067075; x=1746671875;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Q3w+Z99sex7Ni2LgQQ+OducHadVY0Ao4TEVcRPZFwJ4=;
+        b=BTJv8jcADcq3ldW249GN14k8UM4q3OOPJ2HP1cEnhXwgKpxo4P411qmvTsylTRGun+
+         4law0x+8kLpz+O/IJCo4WD+bRPsNMAu4XRHEiBrI5GCKpIJ6SEm0WZYILcJV4EDozyEl
+         MtWotrtMZwOoRHoQYy6OFIA7yX5uyvKhp8vdhEVjB1DVIyVgZ++OEwRYEl/U7r2K+2Zt
+         OA+Pv6MaZX5O1CCCmFvnaEZi/56z5LRYu2mH95J1YFeqEEgGAGRMvMZDqP4fTNt0ABgp
+         z0Ek0zmp+ScXcfaeykRaatq3iEVFoP4gQ9jDvrrty0WjfMySUyvAPBdOFBEdzj6V8SRE
+         NAuQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV1Z1qdfpbhg2iU60W6rX35HLT76eOdkxNP7yCdF/Lpcq1Ysk8NNYH/7s/G57RN0832jZw5aDobK90b9Lpf7w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxt4R/5OsNL2FwEY8K4hf0DQIrP0pGrLBSgC/QsZt101+ekHgca
+	7hWC60eDe9iq4wO3pFjg2YF86LiyjqeYUDJcQBlJjpIqLnK5eQdRos+E7lIS6ZFg/awVHB5tMbG
+	DkBQBaNVFJgyWN9RRdrMLGhpXPUI=
+X-Gm-Gg: ASbGnctF0OXdCsmHl1S7/U4qynCxOFW5N/lc8EOz1QmMoMvIt2ZrsJMU32e8PnJeqT/
+	bIexl/l5vtIp9LuG6HOcOX5vwEKYbEhgpaNC3l1KlHlzpC0jVKKQDkkMgaD+HbUbV18WeOxmwV9
+	F7qKAOvWPsn8DIscgKNxf5KBO74YGhUA==
+X-Google-Smtp-Source: AGHT+IGr8K0QKoeX/DRDo5lbY3tKzJAxx64L6SAHJUEP8kVJUmCILE2pbbaoAxRnvBn/YyHIDfPf1TgvL1DY2x81x5Q=
+X-Received: by 2002:a2e:ad93:0:b0:31a:6644:25c with SMTP id
+ 38308e7fff4ca-31ea2da9e32mr15765931fa.12.1746067075209; Wed, 30 Apr 2025
+ 19:37:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV8PR02MB10287:EE_|SN7PR02MB10177:EE_
-X-MS-Office365-Filtering-Correlation-Id: ae36c420-59eb-44d2-cff0-08dd88505aea
-x-proofpoint-crosstenant: true
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|52116014|376014|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?la3E7FLUtAgxtRAPh0s90iQcWOjCW0dawTpVnB3c036FUch3dqEp4psSAqOL?=
- =?us-ascii?Q?SBKa6MekT8PexyJdt/NwT8g4B6EVndB0aE8HBU9wVCetkWDcH1uj+JCvdCEm?=
- =?us-ascii?Q?3QpGVrHuTZRdIsNYLAH0vNs0SRnJ1Fn3Z19LkmB+XfkLlKDwHM49R+h5SVUk?=
- =?us-ascii?Q?hshJfn3WjvpW1lEjLOV6LuCE3MxzVcOGExg+x8AOHu4XM1fmYN/j9XMoDGCt?=
- =?us-ascii?Q?Kgj8uwjdI5GQyBCwVCcqIuj5XP5dH9UENS6HEAsUjzNTjZVtDP7s8MVVj+YU?=
- =?us-ascii?Q?TyFxCZK1duBm5O+F5x1DqtUM1fLd32QLo68SnooCLke6yzBkykW3NsV2Y1EQ?=
- =?us-ascii?Q?yVVzyhxNIc8XzHR8TCjWR6kqIOF8MGFlZszoINkmDYnybGRYboVd1hQXNhYC?=
- =?us-ascii?Q?vAYU2T2E6MlT81UUoT7CphEGvB7SAgqz6Kk3UBwUXRaV/IJ741DZBW+gIpNM?=
- =?us-ascii?Q?rNUCGWgHHGPqX8vrLjvadLCq4iODr2sUIbOf20jMDB8wLY9VEHNqtMh42+Z0?=
- =?us-ascii?Q?lNrohDucwiUBIXEGS0+K0X5GtHAwjVaaN3BQFaWRrccontDCCkDloVrH0Oms?=
- =?us-ascii?Q?iPo66HTnqRsgS0BWdsjJqIOfK3LaIpa75vSTGPcHfcUd1pIb6gC/XLstgrws?=
- =?us-ascii?Q?K+yC8w+wnApFueI7v+zb8AqnXUuDYr6e3XQHnIp+IL+x80C9ApDgwpPWVgJ1?=
- =?us-ascii?Q?CU9fqZ0K78zVo0QkyGRAqBDoUSjE2zwAgKoM37A8mrJGUuLMYJD4kf7fZLxE?=
- =?us-ascii?Q?ChJ5MwdDEtbvi/w5AwH4aiwdI7QxhLFiIZe0QWZZ3X7rRvV8QRpskG5N5VwF?=
- =?us-ascii?Q?zJBw3AUW9rBREwoE9+ppbKBLUD8R8d3/W05PFkHK9Wtqv/He8M7q1ujbaOw9?=
- =?us-ascii?Q?+sCCYr1EqfdITg+8tlsrQSkFu0lYXM66xMpr6sxNfs6I19LyUK0+FIAT2LDf?=
- =?us-ascii?Q?7uz0MQA2DWhfpVVu1y6DEo6EMedg7zmmfmgAb8pdACINqlPw3g0OMChXEd5V?=
- =?us-ascii?Q?VkwkD0Paah65NGnUJQOVQpRb0L/3ztrlzHA2R5VBAWIdQ4vfP8BG5Lw1gFvN?=
- =?us-ascii?Q?YE0vbgEJPuQTWgLZYGjoQmxsa0DaVPbrZ5v6WKTWs1d2lobFThvPFB1DONEo?=
- =?us-ascii?Q?2MPpKcZe370J0EEV/wT+94iRaAUEZSWy1mUgzR17bL+2nZ92Tqqn8eBh5l+t?=
- =?us-ascii?Q?HrUdYMpkXC6WthuUG0MWjxUzvxceVQGJl/dle0Ov+Kg886QZuVQ73AS5/T+F?=
- =?us-ascii?Q?JuZt47FSFk/dL2gCizO8Lw89yYgek619YgANFbpCoPdM6Ib29w686fy1YnBp?=
- =?us-ascii?Q?oRDHPOx3iXwZB+wI6pgJFiaWgfR6g1yUlt452Kg5bF358QZg8AAb1BASn/o/?=
- =?us-ascii?Q?NmZ49I8CItiC6lYD4ikBaMEy5A/ZcoLOgXkq+syzHMXtsh57EZeasUD9f+XD?=
- =?us-ascii?Q?pOBBsCZTi5CUP3SvIj/QPw79JNFz/8KZtzpG7AAg9JrJTDF86Hrxvf6pEk5l?=
- =?us-ascii?Q?GsJN3hkokg6Tg0Y=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR02MB10287.namprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(52116014)(376014)(38350700014);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?UhY5vQzyBamc08s+TZxuR86LQNLoJdLLHo/hHa/SAJYX0WF0ml8VdpyZ/idu?=
- =?us-ascii?Q?044ejNxN/MTaEi2ahQ6kM2s9MtNGclrLF+UKEBqfySJIrWcaHodnk4S8H1C3?=
- =?us-ascii?Q?/uhsNc5xYQjA7BVsTKZmbsZP/Fx+irg9S6QspRnbmWcB0Uestdzdz7G1M5RT?=
- =?us-ascii?Q?l6sbyB4cztJtd/xJC82eEQr1Hr9cMANnd0+YF79YGF+OqbvaAbGxBzXBgFb1?=
- =?us-ascii?Q?k+kHa8iD+Q96jydW5oyGlnDHT2EJ7N0+nEd9EyoBybS7mf6bHUspvXUIDuI8?=
- =?us-ascii?Q?25oNdk1XuEer5IPLoXtZhUDt7mD18KvJJJY3ZTeqH5HAQxMjXmJAYizo7R0p?=
- =?us-ascii?Q?M0mvubWhG/bieTbVM/ABa2TPxW5YNtnnJNBGvMGYptBvO1EYKvpF2vDM5MG7?=
- =?us-ascii?Q?H420EK/Y6RKB5lsqHRcxHhvcXrNnbUhUEMhWtKwIZEgUWjjukyw0y1FBo7m4?=
- =?us-ascii?Q?6223uzhK52QTIVvqCOCe5NE4qkxufLe3RQMA+1fCQtM+zBL0UvumEv+5CI1M?=
- =?us-ascii?Q?gt+w/1gt1Iy5tU/Zp71T+QoGHzQMZ6LlxxlBpYM3n8HBBfCEv5sGMIlK74Iz?=
- =?us-ascii?Q?dsfvVFFNTdEMBHdsZIHDFJaWGyfAWhOgdbKBkLuhM7Z25FyDm6XvHFn1mnxg?=
- =?us-ascii?Q?uvoBf1oQ857pTnUezdBK3ne288QB7D/TAlzLIDVXbnaFzM5AZJn3Vyr9FJ2/?=
- =?us-ascii?Q?1Dre38Qr9DtDdr+vVTN2FT5C7KUmH8c1P8BpnpSmFFgIxLV7r+DzKAef68x8?=
- =?us-ascii?Q?kxh5CbcA3qw00ppLn8Y8AN/AE103dcMZ/Py0dUmYpT+5FRYmTPibnNApKUi5?=
- =?us-ascii?Q?xD8sLZCBbJs35tsIrWS6lnwJJXdDg3PpahbdKN1mu31CtXAR7ibwmllZB25S?=
- =?us-ascii?Q?mcQUL57rdi6gAYGzLdoSMZZ7ukhmr1LqTO19/QkwZdhheo8sTTkx/W0NkXIu?=
- =?us-ascii?Q?jYWuV1rGBpX1Zxm1gHzO8xp+HWxMsZ/xfC/iJKpSTCHL7zwC+vZoxzMSTfZn?=
- =?us-ascii?Q?n7TGC7ZWQKrxwtx4jYsdh90XXy4bMXccw1zlk0XbygHP1MnlxqBSx52/+TRr?=
- =?us-ascii?Q?vkvKOLZK/6iNlxKAOQoFkMvy1+nRejn2i+MUsZS9IhpYOc39N1uhiJFXJYqz?=
- =?us-ascii?Q?TRE9FuWNny45X9M0OhITHjzYOpA0L8uyN32vNfJTEHV38U2UR26hKDp69eEl?=
- =?us-ascii?Q?egM/NY3IAGiZqVpXpAUO8UggJZWK+aV5AvxFndGRxF2leqS4SFuBrHlhML64?=
- =?us-ascii?Q?wGwvAJ+OYVsfjWQ0TW7a80nIpbJ37yS9FVboO++xgt4ADIeX08DqupcLb80b?=
- =?us-ascii?Q?WIVvZyjrRKxwVkZ2TZ/KcyWsdoMvC6eTjOF6JSsPP4pCilK+3dXMk7UGdJny?=
- =?us-ascii?Q?tNqYXYtfrQFCAqDfOGhrXBHauJ525JHRHOXy66AYXASvoYfNGkti3NsVH/FX?=
- =?us-ascii?Q?lnElsaxxNcEvfBS3wbJkp+IP/yMTB10ZyTclwa9Hjt0z6z5wdGJPna4sOdXa?=
- =?us-ascii?Q?DD9PLm/J6MeFiVofUMxUrSIT3E3mFAL1BPPgusHk+8UpWN90aA3iixeduIij?=
- =?us-ascii?Q?vFtJSw53P/gmDs6ufnGk+mZmndSraDfBTytqq62EnsAotC+yLbyu1d7P91T/?=
- =?us-ascii?Q?vg=3D=3D?=
-X-OriginatorOrg: nutanix.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ae36c420-59eb-44d2-cff0-08dd88505aea
-X-MS-Exchange-CrossTenant-AuthSource: LV8PR02MB10287.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 May 2025 01:34:46.3305
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: bb047546-786f-4de1-bd75-24e5b6f79043
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Nh6hfIKDrDoVM8W7CCWRquX2THyGinn8wEghSEKdV0KPL1yhp5TmzBZXZnISkA5sMWQCaiAWN3lGVytjsC/1qanJejisRkzO3bOUPbq4WXc=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR02MB10177
-X-Authority-Analysis: v=2.4 cv=QLBoRhLL c=1 sm=1 tr=0 ts=6812cfb9 cx=c_pps a=BzboTkwgGU/iU5aMRKiaVQ==:117 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19 a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=XR8D0OoHHMoA:10
- a=0kUYKlekyDsA:10 a=VwQbUJbxAAAA:8 a=64Cc0HZtAAAA:8 a=20KFwNOVAAAA:8 a=HhlKS6Ypksj65T2L5G8A:9
-X-Proofpoint-GUID: gXOPbPjJknFVpuqVEX2uDUUVUBHZ-N-j
-X-Proofpoint-ORIG-GUID: gXOPbPjJknFVpuqVEX2uDUUVUBHZ-N-j
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTAxMDAxMSBTYWx0ZWRfX/QwKjs/F8Ohk 68Yf62Jd0l7U7JibzQtM0vMWsLtfVBxrGfR5l4fT82KUn5osLezTwefv0mvkvT20dkf2xqM2bz8 Jlj/SNgzJ2KoEVy7I5uigxpy0IRfxwrC5bBj4Lg5lEMB1K1doCTQowqpLVrnNNEs4VJOsPq8HYk
- mhsM/shTp86yoCJIpYPhPXqofkemdRkG+BrJhpiyBoWj5cJc6pDDd+tNeeVpOgt3FyWe+ju0gsl pGLUApZpHZJ6wIExdKpx9+PraFYuf9K/98h2HiH/aepdh2QJCOMUo+u4fNG5vY1UDvvkNMzyEFZ 06Vg/fPOgBsvAPE8A4cXkbVP/T5OdHFy01rga27wtijUHVSLgFhkia4habWfBS1wluyS77MJgId
- MpaxLsdKBzdtEM0eY0U6vieh86YQ4I/WFMeTKMCaQ+yGfY4pI8bMEGX/62wvmymwCWiYEMlh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-01_01,2025-04-24_02,2025-02-21_01
-X-Proofpoint-Spam-Reason: safe
+References: <20250428-vsock-vmtest-v3-1-181af6163f3e@gmail.com> <a57wg5kmprrpk2dm3zlzvegb3gzj73ubs5lxeukyinc4edlcsw@itkgfcm44qu2>
+In-Reply-To: <a57wg5kmprrpk2dm3zlzvegb3gzj73ubs5lxeukyinc4edlcsw@itkgfcm44qu2>
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+Date: Wed, 30 Apr 2025 19:37:42 -0700
+X-Gm-Features: ATxdqUFExi5mAUA3_K_BOnza8T3UmjEygvcghGvKSijB9no_-t7o0YFhm-ZnYS4
+Message-ID: <CAKB00G2pEJAFzFBMbCGW4gBNB4UqBpEw22a2Cs4oOdSXUWfsuQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v3] selftests/vsock: add initial vmtest.sh for vsock
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>, kvm@vger.kernel.org, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kselftest@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In handle_tx_copy, TX batching processes packets below ~PAGE_SIZE and
-batches up to 64 messages before calling sock->sendmsg.
+On Wed, Apr 30, 2025 at 6:06=E2=80=AFAM Stefano Garzarella <sgarzare@redhat=
+.com> wrote:
+>
+> On Mon, Apr 28, 2025 at 04:48:11PM -0700, Bobby Eshleman wrote:
+> >This commit introduces a new vmtest.sh runner for vsock.
+> >
+> >It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
+> >H2G, and loopback. The testing tools from tools/testing/vsock/ are
+> >reused. Currently, only vsock_test is used.
+> >
+> >VMCI and hyperv support is automatically built, though not used.
+> >
+> >Only tested on x86.
+> >
+> >To run:
+> >
+> >  $ tools/testing/selftests/vsock/vmtest.sh
+>
+> I tried and it's working, but I have a lot of these messages in the
+> output:
+>      dmesg: read kernel buffer failed: Operation not permitted
+>
+> I'm on Fedora 41:
+>
+> $ uname -r
+> 6.14.4-200.fc41.x86_64
+>
+> >
+> >or
+> >
+> >  $ make -C tools/testing/selftests TARGETS=3Dvsock run_tests
+> >
+> >Results:
+> >       # linux/tools/testing/selftests/vsock/vmtest.log
+> >       setup:  Building kernel and tests
+> >       setup:  Booting up VM
+> >       setup:  VM booted up
+> >       test:vm_server_host_client:guest:       Control socket listening =
+on 0.0.0.0:51000
+> >       test:vm_server_host_client:guest:       Control socket connection=
+ accepted...
+> >       [...]
+> >       test:vm_loopback:guest: 30 - SOCK_STREAM retry failed connect()..=
+.ok
+> >       test:vm_loopback:guest: 31 - SOCK_STREAM SO_LINGER null-ptr-deref=
+...ok
+> >       test:vm_loopback:guest: 31 - SOCK_STREAM SO_LINGER null-ptr-deref=
+...ok
+> >
+> >Future work can include vsock_diag_test.
+> >
+> >vmtest.sh is loosely based off of tools/testing/selftests/net/pmtu.sh,
+> >which was picked out of the bag of tests I knew to work with NIPA.
+> >
+> >Because vsock requires a VM to test anything other than loopback, this
+> >patch adds vmtest.sh as a kselftest itself. This is different than other
+> >systems that have a "vmtest.sh", where it is used as a utility script to
+> >spin up a VM to run the selftests as a guest (but isn't hooked into
+> >kselftest). This aspect is worth review, as I'm not aware of all of the
+> >enviroments where this would run.
+>
+> Yeah, an opinion from net maintainers on this would be great.
+>
+> >
+> >Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+> >---
+> >Changes in v3:
+> >- use common conditional syntax for checking variables
+> >- use return value instead of global rc
+> >- fix typo TEST_HOST_LISTENER_PORT -> TEST_HOST_PORT_LISTENER
+> >- use SIGTERM instead of SIGKILL on cleanup
+> >- use peer-cid=3D1 for loopback
+> >- change sleep delay times into globals
+> >- fix test_vm_loopback logging
+> >- add test selection in arguments
+> >- make QEMU an argument
+> >- check that vng binary is on path
+> >- use QEMU variable
+> >- change <tab><backslash> to <space><backslash>
+> >- fix hardcoded file paths
+> >- add comment in commit msg about script that vmtest.sh was based off of
+> >- Add tools/testing/selftest/vsock/Makefile for kselftest
+> >- Link to v2: https://lore.kernel.org/r/20250417-vsock-vmtest-v2-1-3901a=
+27331e8@gmail.com
+> >
+> >Changes in v2:
+> >- add kernel oops and warnings checker
+> >- change testname variable to use FUNCNAME
+> >- fix spacing in test_vm_server_host_client
+> >- add -s skip build option to vmtest.sh
+> >- add test_vm_loopback
+> >- pass port to vm_wait_for_listener
+> >- fix indentation in vmtest.sh
+> >- add vmci and hyperv to config
+> >- changed whitespace from tabs to spaces in help string
+> >- Link to v1: https://lore.kernel.org/r/20250410-vsock-vmtest-v1-1-f35a8=
+1dab98c@gmail.com
+> >---
+> > MAINTAINERS                                |   1 +
+> > tools/testing/selftests/vsock/.gitignore   |   1 +
+> > tools/testing/selftests/vsock/Makefile     |   9 +
+> > tools/testing/selftests/vsock/config.vsock |  10 +
+> > tools/testing/selftests/vsock/settings     |   1 +
+> > tools/testing/selftests/vsock/vmtest.sh    | 354 ++++++++++++++++++++++=
++++++++
+> > 6 files changed, 376 insertions(+)
+>
+> While applying git warned about trailing spaces, but also checkpatch is
+> warning about them, please can you fix at least the errors (and maybe
+> the misspelling):
+>
+> $ ./scripts/checkpatch.pl --strict -g master..HEAD --codespell
+> WARNING: Prefer a maximum 75 chars per line (possible unwrapped commit
+> description?)
+> #31:
+>         test:vm_server_host_client:guest:       Control socket listening =
+on 0.0.0.0:51000
+>
+> WARNING: 'enviroments' may be misspelled - perhaps 'environments'?
+> #48:
+> enviroments where this would run.
+> ^^^^^^^^^^^
+>
+> ERROR: trailing whitespace
+> #174: FILE: tools/testing/selftests/vsock/vmtest.sh:47:
+> +^Ivm_server_host_client^IRun vsock_test in server mode on the VM and in =
+client mode on the host.^I$
+>
+> WARNING: line length of 104 exceeds 100 columns
+> #174: FILE: tools/testing/selftests/vsock/vmtest.sh:47:
+> +       vm_server_host_client   Run vsock_test in server mode on the VM a=
+nd in client mode on the host.
+>
+> ERROR: trailing whitespace
+> #175: FILE: tools/testing/selftests/vsock/vmtest.sh:48:
+> +^Ivm_client_host_server^IRun vsock_test in client mode on the VM and in =
+server mode on the host.^I$
+>
+> WARNING: line length of 104 exceeds 100 columns
+> #175: FILE: tools/testing/selftests/vsock/vmtest.sh:48:
+> +       vm_client_host_server   Run vsock_test in client mode on the VM a=
+nd in server mode on the host.
+>
+> ERROR: trailing whitespace
+> #176: FILE: tools/testing/selftests/vsock/vmtest.sh:49:
+> +^Ivm_loopback^I^IRun vsock_test using the loopback transport in the VM.^=
+I$
+>
+> ERROR: trailing whitespace
+> #443: FILE: tools/testing/selftests/vsock/vmtest.sh:316:
+> +IFS=3D"^I$
+>
+> total: 4 errors, 4 warnings, 0 checks, 382 lines checked
+>
+> NOTE: For some of the reported defects, checkpatch may be able to
+>        mechanically convert to the typical style using --fix or --fix-inp=
+lace.
+>
+> NOTE: Whitespace errors detected.
+>        You may wish to use scripts/cleanpatch or scripts/cleanfile
+>
+> Commit ffa17d673263 ("selftests/vsock: add initial vmtest.sh for vsock") =
+has style problems, please review.
+>
+> NOTE: If any of the errors are false positives, please report
+>        them to the maintainer, see CHECKPATCH in MAINTAINERS.
+>
 
-Currently, when there are no more messages on the ring to dequeue,
-handle_tx_copy re-enables kicks on the ring *before* firing off the
-batch sendmsg. However, sock->sendmsg incurs a non-zero delay,
-especially if it needs to wake up a thread (e.g., another vhost worker).
+This might not have been the right choice, but I adopted the technique
+from the pmtu selftest of
+using a tab at the end of the help text lines and then splitting with
+"IFS=3D\t\n". I guess the win is that
+running the script has the side effect of checking that the help text
+has been updated, and the tab
+is not visible?
 
-If the guest submits additional messages immediately after the last ring
-check and disablement, it triggers an EPT_MISCONFIG vmexit to attempt to
-kick the vhost worker. This may happen while the worker is still
-processing the sendmsg, leading to wasteful exit(s).
+I think we could do something similar with bash arrays though and have
+no checkpatch complaints, and
+not having to do "git commit --no-verify" to bypass the checks.
 
-This is particularly problematic for single-threaded guest submission
-threads, as they must exit, wait for the exit to be processed
-(potentially involving a TTWU), and then resume.
+> >
+> >diff --git a/MAINTAINERS b/MAINTAINERS
+> >index 657a67f9031ef7798c19ac63e6383d4cb18a9e1f..3fbdd7bbfce7196a3cc7db70=
+203317c6bd0e51fd 100644
+> >--- a/MAINTAINERS
+> >+++ b/MAINTAINERS
+> >@@ -25751,6 +25751,7 @@ F:     include/uapi/linux/vm_sockets.h
+> > F:    include/uapi/linux/vm_sockets_diag.h
+> > F:    include/uapi/linux/vsockmon.h
+> > F:    net/vmw_vsock/
+> >+F:    tools/testing/selftests/vsock/
+> > F:    tools/testing/vsock/
+> >
+> > VMALLOC
+> >diff --git a/tools/testing/selftests/vsock/.gitignore b/tools/testing/se=
+lftests/vsock/.gitignore
+> >new file mode 100644
+> >index 0000000000000000000000000000000000000000..1950aa8ac68c0831c12c1aaa=
+429da45bbe41e60f
+> >--- /dev/null
+> >+++ b/tools/testing/selftests/vsock/.gitignore
+> >@@ -0,0 +1 @@
+> >+vsock_selftests.log
+> >diff --git a/tools/testing/selftests/vsock/Makefile b/tools/testing/self=
+tests/vsock/Makefile
+> >new file mode 100644
+> >index 0000000000000000000000000000000000000000..6fded8c4d593541a6f746214=
+7bffcb719def378f
+> >--- /dev/null
+> >+++ b/tools/testing/selftests/vsock/Makefile
+> >@@ -0,0 +1,9 @@
+> >+# SPDX-License-Identifier: GPL-2.0
+> >+.PHONY: all
+> >+all:
+> >+
+> >+TEST_PROGS :=3D vmtest.sh
+> >+EXTRA_CLEAN :=3D vmtest.log
+> >+
+> >+include ../lib.mk
+> >+
+> >diff --git a/tools/testing/selftests/vsock/config.vsock b/tools/testing/=
+selftests/vsock/config.vsock
+> >new file mode 100644
+> >index 0000000000000000000000000000000000000000..9e0fb2270e6a2fc0beb5f0d9=
+f0bc37158d0a9d23
+> >--- /dev/null
+> >+++ b/tools/testing/selftests/vsock/config.vsock
+> >@@ -0,0 +1,10 @@
+> >+CONFIG_VSOCKETS=3Dy
+> >+CONFIG_VSOCKETS_DIAG=3Dy
+> >+CONFIG_VSOCKETS_LOOPBACK=3Dy
+> >+CONFIG_VMWARE_VMCI_VSOCKETS=3Dy
+> >+CONFIG_VIRTIO_VSOCKETS=3Dy
+> >+CONFIG_VIRTIO_VSOCKETS_COMMON=3Dy
+> >+CONFIG_HYPERV_VSOCKETS=3Dy
+> >+CONFIG_VMWARE_VMCI=3Dy
+> >+CONFIG_VHOST_VSOCK=3Dy
+> >+CONFIG_HYPERV=3Dy
+> >diff --git a/tools/testing/selftests/vsock/settings b/tools/testing/self=
+tests/vsock/settings
+> >new file mode 100644
+> >index 0000000000000000000000000000000000000000..e7b9417537fbc4626153b72e=
+8f295ab4594c844b
+> >--- /dev/null
+> >+++ b/tools/testing/selftests/vsock/settings
+> >@@ -0,0 +1 @@
+> >+timeout=3D0
+> >diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/sel=
+ftests/vsock/vmtest.sh
+> >new file mode 100755
+> >index 0000000000000000000000000000000000000000..d70b9446e531d6d20beb24dd=
+eda2cf0a9f7e9a39
+> >--- /dev/null
+> >+++ b/tools/testing/selftests/vsock/vmtest.sh
+> >@@ -0,0 +1,354 @@
+> >+#!/bin/bash
+> >+# SPDX-License-Identifier: GPL-2.0
+> >+#
+> >+# Copyright (c) 2025 Meta Platforms, Inc. and affiliates
+> >+#
+> >+# Dependencies:
+> >+#             * virtme-ng
+> >+#             * busybox-static (used by virtme-ng)
+> >+#             * qemu  (used by virtme-ng)
+> >+
+> >+SCRIPT_DIR=3D"$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)=
+"
+> >+KERNEL_CHECKOUT=3D$(realpath ${SCRIPT_DIR}/../../../..)
+> >+QEMU=3D$(command -v qemu-system-$(uname -m))
+> >+VERBOSE=3D0
+> >+SKIP_BUILD=3D0
+> >+VSOCK_TEST=3D${KERNEL_CHECKOUT}/tools/testing/vsock/vsock_test
+> >+
+> >+TEST_GUEST_PORT=3D51000
+> >+TEST_HOST_PORT=3D50000
+> >+TEST_HOST_PORT_LISTENER=3D50001
+> >+SSH_GUEST_PORT=3D22
+> >+SSH_HOST_PORT=3D2222
+> >+VSOCK_CID=3D1234
+> >+WAIT_PERIOD=3D3
+> >+WAIT_PERIOD_MAX=3D20
+> >+
+> >+QEMU_PIDFILE=3D/tmp/qemu.pid
+> >+
+> >+# virtme-ng offers a netdev for ssh when using "--ssh", but we also nee=
+d a
+> >+# control port forwarded for vsock_test.  Because virtme-ng doesn't sup=
+port
+> >+# adding an additional port to forward to the device created from "--ss=
+h" and
+> >+# virtme-init mistakenly sets identical IPs to the ssh device and addit=
+ional
+> >+# devices, we instead opt out of using --ssh, add the device manually, =
+and also
+> >+# add the kernel cmdline options that virtme-init uses to setup the int=
+erface.
+> >+QEMU_OPTS=3D""
+> >+QEMU_OPTS=3D"${QEMU_OPTS} -netdev user,id=3Dn0,hostfwd=3Dtcp::${TEST_HO=
+ST_PORT}-:${TEST_GUEST_PORT}"
+> >+QEMU_OPTS=3D"${QEMU_OPTS},hostfwd=3Dtcp::${SSH_HOST_PORT}-:${SSH_GUEST_=
+PORT}"
+> >+QEMU_OPTS=3D"${QEMU_OPTS} -device virtio-net-pci,netdev=3Dn0"
+> >+QEMU_OPTS=3D"${QEMU_OPTS} -device vhost-vsock-pci,guest-cid=3D${VSOCK_C=
+ID}"
+> >+QEMU_OPTS=3D"${QEMU_OPTS} --pidfile ${QEMU_PIDFILE}"
+>
+> What about:
+>
+> QEMU_OPTS=3D" \
+>      -netdev user,id=3Dn0,hostfwd=3Dtcp::${TEST_HOST_PORT}-:${TEST_GUEST_=
+PORT},hostfwd=3Dtcp::${SSH_HOST_PORT}-:${SSH_GUEST_PORT} \
+>      -device virtio-net-pci,netdev=3Dn0 \
+>      -device vhost-vsock-pci,guest-cid=3D${VSOCK_CID} \
+>      --pidfile ${QEMU_PIDFILE}
+> "
+>
+> Not a strong opinion, just I see too much "QEMU_OPTS=3D"${QEMU_OPTS}" xD
+> You can leave it in that way if you prefer.
+>
 
-In scenarios like a constant stream of UDP messages, this results in a
-sawtooth pattern where the submitter frequently vmexits, and the
-vhost-net worker alternates between sleeping and waking.
+That's totally fine by me, no strong opinion on my side. I tend to do
+the string-building thing
+across the board because for some reason multiline strings look odd to
+me when inside
+function scope, and string-building looks like the same pattern
+everywhere. Definitely not
+a preference I hold tightly though.
 
-A common solution is to configure vhost-net busy polling via userspace
-(e.g., qemu poll-us). However, treating the sendmsg as the "busy"
-period by keeping kicks disabled during the final sendmsg and
-performing one additional ring check afterward provides a significant
-performance improvement without any excess busy poll cycles.
+> >+KERNEL_CMDLINE=3D"virtme.dhcp net.ifnames=3D0 biosdevname=3D0 virtme.ss=
+h virtme_ssh_user=3D$USER"
+> >+
+> >+LOG=3D${SCRIPT_DIR}/vmtest.log
+> >+
+> >+#             Name                            Description
+> >+avail_tests=3D"
+> >+      vm_server_host_client   Run vsock_test in server mode on the VM a=
+nd in client mode on the host.
+> >+      vm_client_host_server   Run vsock_test in client mode on the VM a=
+nd in server mode on the host.
+> >+      vm_loopback             Run vsock_test using the loopback transpo=
+rt in the VM.
+> >+"
+> >+
+> >+usage() {
+> >+      echo
+> >+      echo "$0 [OPTIONS] [TEST]..."
+> >+      echo "If no TEST argument is given, all tests will be run."
+> >+      echo
+> >+      echo "Options"
+> >+      echo "  -v: verbose output"
+> >+      echo "  -s: skip build"
+> >+      echo
+> >+      echo "Available tests${avail_tests}"
+> >+      exit 1
+> >+}
+> >+
+> >+die() {
+> >+      echo "$*" >&2
+> >+      exit 1
+> >+}
+> >+
+> >+vm_ssh() {
+> >+      ssh -q -o UserKnownHostsFile=3D/dev/null -p 2222 localhost $*
+>
+> ${SSH_HOST_PORT} instead of 2222, right?
+>
 
-If messages are found in the ring after the final sendmsg, requeue the
-TX handler. This ensures fairness for the RX handler and allows
-vhost_run_work_list to cond_resched() as needed.
+Oops. Yep, will fix.
 
-Test Case
-    TX VM: taskset -c 2 iperf3  -c rx-ip-here -t 60 -p 5200 -b 0 -u -i 5
-    RX VM: taskset -c 2 iperf3 -s -p 5200 -D
-    6.12.0, each worker backed by tun interface with IFF_NAPI setup.
-    Note: TCP side is largely unchanged as that was copy bound
+> The rest LGTM!
+>
+> Thanks,
+> Stefano
+>
 
-6.12.0 unpatched
-    EPT_MISCONFIG/second: 5411
-    Datagrams/second: ~382k
-    Interval         Transfer     Bitrate         Lost/Total Datagrams
-    0.00-30.00  sec  15.5 GBytes  4.43 Gbits/sec  0/11481630 (0%)  sender
+Thanks for the review!
 
-6.12.0 patched
-    EPT_MISCONFIG/second: 58 (~93x reduction)
-    Datagrams/second: ~650k  (~1.7x increase)
-    Interval         Transfer     Bitrate         Lost/Total Datagrams
-    0.00-30.00  sec  26.4 GBytes  7.55 Gbits/sec  0/19554720 (0%)  sender
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Jon Kohler <jon@nutanix.com>
----
-v2->v3: Address MST's comments regarding busyloop_intr
-	https://patchwork.kernel.org/project/netdevbpf/patch/20250420010518.2842335-1-jon@nutanix.com/
-v1->v2: Move from net to net-next (no changes)
-	https://patchwork.kernel.org/project/netdevbpf/patch/20250401043230.790419-1-jon@nutanix.com/
----
- drivers/vhost/net.c | 30 +++++++++++++++++++++---------
- 1 file changed, 21 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index b9b9e9d40951..7cbfc7d718b3 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -755,10 +755,10 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
- 	int err;
- 	int sent_pkts = 0;
- 	bool sock_can_batch = (sock->sk->sk_sndbuf == INT_MAX);
-+	bool busyloop_intr;
- 
- 	do {
--		bool busyloop_intr = false;
--
-+		busyloop_intr = false;
- 		if (nvq->done_idx == VHOST_NET_BATCH)
- 			vhost_tx_batch(net, nvq, sock, &msg);
- 
-@@ -769,13 +769,10 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
- 			break;
- 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
- 		if (head == vq->num) {
--			if (unlikely(busyloop_intr)) {
--				vhost_poll_queue(&vq->poll);
--			} else if (unlikely(vhost_enable_notify(&net->dev,
--								vq))) {
--				vhost_disable_notify(&net->dev, vq);
--				continue;
--			}
-+			/* Kicks are disabled at this point, break loop and
-+			 * process any remaining batched packets. Queue will
-+			 * be re-enabled afterwards.
-+			 */
- 			break;
- 		}
- 
-@@ -825,7 +822,22 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
- 		++nvq->done_idx;
- 	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
- 
-+	/* Kicks are still disabled, dispatch any remaining batched msgs. */
- 	vhost_tx_batch(net, nvq, sock, &msg);
-+
-+	if (unlikely(busyloop_intr))
-+		/* If interrupted while doing busy polling, requeue the
-+		 * handler to be fair handle_rx as well as other tasks
-+		 * waiting on cpu.
-+		 */
-+		vhost_poll_queue(&vq->poll);
-+	else
-+		/* All of our work has been completed; however, before
-+		 * leaving the TX handler, do one last check for work,
-+		 * and requeue handler if necessary. If there is no work,
-+		 * queue will be reenabled.
-+		 */
-+		vhost_net_busy_poll_try_queue(net, vq);
- }
- 
- static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
--- 
-2.43.0
-
+Best,
+Bobby
