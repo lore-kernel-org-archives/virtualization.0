@@ -1,134 +1,183 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C186C23183C;
-	Thu,  1 May 2025 07:18:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6BBC1EB1BC;
+	Thu,  1 May 2025 08:05:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746083917; cv=none; b=N4dCyTAi7FzYFTknkpy0Au8XgR2hKBWFURpGKPRS/teVXzy6IL+S6Dww7iS3wZDEfrLHNN3sNGriYXOnmdWHVGhhiHRtFVm6zD9C1AHdAe8V0jf5Jlhz+NxneKZ7LNP4Ub2cPZqYALobVy5sdCzMh415noqp+jHpocQaKafkPDo=
+	t=1746086754; cv=none; b=oZq+Wx3W7QZYSfuf++4QiVtn5PITRQk5wMAVMc3+oXqPpczEJmELDlVtxZl+AvLe724Mf6gr9Zc8XTJ04E1mH8LC1/HLvdy2E66uhOM0WXw7w0ydf0m2aq4yLjWp7lfsDfkmBRxhDov3k8nzISvkXhnXSfvlUlCbVPh5Ll+PyDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746083917; c=relaxed/simple;
-	bh=su7Ol8QR1fuFy/VFNGr36BLKigm4/e1vZx94ZJZJg38=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MZhuhOu117thaXJQZkTJ/e61FAj0NVkae/MZcg6O++mknv3TD2g+Rb4E2CUbsuqZQxCOQRTM/m4LA/Te33m7MoG0VRdxc9/HDftU6VuxsRrwfX4yH9LRLRiXIF0YeOfYpE/djRnr0gC9n+xLhBrAF92DY+fVn20WzetdWpfZMi0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=rPJcbEsX; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1746086754; c=relaxed/simple;
+	bh=sG2QEyQbrobbnyUhVWEtJMUwJvJ74lxMh2X+TVU/j8Y=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=cTOPhIDxylehN341umQNjXZbv6q34N5UiBtCKlhw6LrzzxvRSL2lCgIJR6NhBrk/QpeNkqZj8vfRH64VuSgcrckgET8/oPKKVsx4R5+8/GT154GKpgVK869cjoaTd+6w73ippuXK9LluJisHI/ol1jlEKzcF1z8q8VOrNf8M2Tc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=G751hQCu; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="rPJcbEsX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CF92C4CEE3;
-	Thu,  1 May 2025 07:18:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1746083916;
-	bh=su7Ol8QR1fuFy/VFNGr36BLKigm4/e1vZx94ZJZJg38=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rPJcbEsXhGMC0dq469bmaLlkkVmpTUn3Tb0S6zGu3+bqDNRihHhQAt0pboiT/Bfnn
-	 oDLbw5I2ui5R8d5zxjLUmtpyyQ/Ql3Q2drqkJMJTROy9N0EmaHutplO2D6U4sEAGcu
-	 61EjbwYysFa7sycvpKmbswX/b8m0KRwA739rNN6k=
-Date: Thu, 1 May 2025 09:18:32 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Matthew Rosato <mjrosato@linux.ibm.com>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>, stable@vger.kernel.org,
-	patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-	torvalds@linux-foundation.org, akpm@linux-foundation.org,
-	linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-	lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-	f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org,
-	hargar@microsoft.com, broonie@kernel.org,
-	clang-built-linux <llvm@lists.linux.dev>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Anders Roxell <anders.roxell@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Dan Carpenter <dan.carpenter@linaro.org>,
-	linux-s390@vger.kernel.org, linux-mips@vger.kernel.org,
-	io-uring@vger.kernel.org, virtualization@lists.linux.dev,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>
-Subject: Re: [PATCH 6.1 000/167] 6.1.136-rc1 review
-Message-ID: <2025050118-glade-lunchroom-927f@gregkh>
-References: <20250429161051.743239894@linuxfoundation.org>
- <CA+G9fYuNjKcxFKS_MKPRuga32XbndkLGcY-PVuoSwzv6VWbY=w@mail.gmail.com>
- <c8e88c29-e1bb-4845-a362-dc352d690508@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="G751hQCu"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1uAOvU-009GJK-I6; Thu, 01 May 2025 10:05:48 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Cc:To:In-Reply-To:References:Message-Id:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
+	bh=2+Pq8Xix56XtZggy9D9QenLSKFUy39lDf1vpQzvRUiU=; b=G751hQCu0JZMaPkaorZdkE1h9o
+	i9d0NdWrxcOy8IhaePt6pvZN+zX5OWaDJ1qz709RzRp7uXe9FEwlE2Z1kAQ8VsOiQ1W0v73eupzx2
+	vn4KbyUfOZ4u+kSqBdAa6zXHj1aEdNMEYcia0haFA+44wex6TCyjMLXsSA7UyrO8h/YJMPFcfk77V
+	3qaWTUMVixpxefpue4SnBiFxfhHs/jUCKuFjLo1pXqzffCsGuZ49hW4I6s+dECB4obvVZV/S3sFMc
+	Z/0UTI8c5ogXFsohW7Hiz/iSDgc4Dv5ijVO2AZpJLiTznNLc+/KZfgpN40sANqEuJQXTDxUk5Ybxh
+	7Py8fQig==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1uAOvU-0001EA-8b; Thu, 01 May 2025 10:05:48 +0200
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1uAOvJ-005lsv-Oq; Thu, 01 May 2025 10:05:37 +0200
+From: Michal Luczaj <mhal@rbox.co>
+Date: Thu, 01 May 2025 10:05:23 +0200
+Subject: [PATCH net-next v4 2/3] vsock: Move lingering logic to af_vsock
+ core
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c8e88c29-e1bb-4845-a362-dc352d690508@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250501-vsock-linger-v4-2-beabbd8a0847@rbox.co>
+References: <20250501-vsock-linger-v4-0-beabbd8a0847@rbox.co>
+In-Reply-To: <20250501-vsock-linger-v4-0-beabbd8a0847@rbox.co>
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+ Michal Luczaj <mhal@rbox.co>
+X-Mailer: b4 0.14.2
 
-On Wed, Apr 30, 2025 at 11:54:49AM -0400, Matthew Rosato wrote:
-> 
-> > 2)
-> > Regressions on s390 with defconfig builds with gcc-13, gcc-8 and
-> > clang-20 and clang-nightly toolchains on the stable-rc 6.1.136-rc1.
-> > 
-> > * s390, build
-> >   - clang-20-defconfig
-> >   - clang-nightly-defconfig
-> >   - gcc-13-allmodconfig
-> >   - gcc-13-defconfig
-> >   - gcc-8-defconfig-fe40093d
-> > 
-> > Regression Analysis:
-> >  - New regression? Yes
-> >  - Reproducibility? Yes
-> > 
-> ...
-> > drivers/s390/virtio/virtio_ccw.c:88:9: error: unknown type name 'dma64_t'
-> >    88 |         dma64_t queue;
-> >       |         ^~~~~~~
-> > drivers/s390/virtio/virtio_ccw.c:95:9: error: unknown type name 'dma64_t'
-> >    95 |         dma64_t desc;
-> >       |         ^~~~~~~
-> > drivers/s390/virtio/virtio_ccw.c:99:9: error: unknown type name 'dma64_t'
-> >    99 |         dma64_t avail;
-> >       |         ^~~~~~~
-> > drivers/s390/virtio/virtio_ccw.c:100:9: error: unknown type name 'dma64_t'
-> >   100 |         dma64_t used;
-> >       |         ^~~~~~~
-> > drivers/s390/virtio/virtio_ccw.c:109:9: error: unknown type name 'dma64_t'
-> >   109 |         dma64_t summary_indicator;
-> >       |         ^~~~~~~
-> > drivers/s390/virtio/virtio_ccw.c:110:9: error: unknown type name 'dma64_t'
-> >   110 |         dma64_t indicator;
-> >       |         ^~~~~~~
-> > drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_drop_indicator':
-> > drivers/s390/virtio/virtio_ccw.c:370:25: error: implicit declaration
-> > of function 'virt_to_dma64'; did you mean 'virt_to_page'?
-> > [-Werror=implicit-function-declaration]
-> >   370 |                         virt_to_dma64(get_summary_indicator(airq_info));
-> >       |                         ^~~~~~~~~~~~~
-> >       |                         virt_to_page
-> > drivers/s390/virtio/virtio_ccw.c:374:28: error: implicit declaration
-> > of function 'virt_to_dma32'; did you mean 'virt_to_page'?
-> > [-Werror=implicit-function-declaration]
-> >   374 |                 ccw->cda = virt_to_dma32(thinint_area);
-> >       |                            ^~~~~~~~~~~~~
-> >       |                            virt_to_page
-> > drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_setup_vq':
-> > drivers/s390/virtio/virtio_ccw.c:552:45: error: implicit declaration
-> > of function 'u64_to_dma64' [-Werror=implicit-function-declaration]
-> >   552 |                 info->info_block->l.queue = u64_to_dma64(queue);
-> >       |                                             ^~~~~~~~~~~~
-> > drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_find_vqs':
-> > drivers/s390/virtio/virtio_ccw.c:654:9: error: unknown type name 'dma64_t'
-> >   654 |         dma64_t *indicatorp = NULL;
-> >       |         ^~~~~~~
-> > cc1: some warnings being treated as errors
-> 
-> The virtio_ccw errors are caused by '[PATCH 6.1 033/167] s390/virtio_ccw: fix virtual vs physical address confusion'
-> 
-> Picking the following 2 dependencies would resolve the build error:
-> 
-> 1bcf7f48b7d4 s390/cio: use bitwise types to allow for type checking
-> 8b19e145e82f s390/cio: introduce bitwise dma types and helper functions
+Lingering should be transport-independent in the long run. In preparation
+for supporting other transports, as well the linger on shutdown(), move
+code to core.
 
-I'm just going to drop all of these now and wait for a tested series to
-be sent.
+Generalize by querying vsock_transport::unsent_bytes(), guard against the
+callback being unimplemented. Do not pass sk_lingertime explicitly. Pull
+SOCK_LINGER check into vsock_linger().
 
-thanks,
+Flatten the function. Remove the nested block by inverting the condition:
+return early on !timeout.
 
-greg k-h
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+---
+ include/net/af_vsock.h                  |  1 +
+ net/vmw_vsock/af_vsock.c                | 30 ++++++++++++++++++++++++++++++
+ net/vmw_vsock/virtio_transport_common.c | 23 ++---------------------
+ 3 files changed, 33 insertions(+), 21 deletions(-)
+
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 9e85424c834353d016a527070dd62e15ff3bfce1..d56e6e135158939087d060dfcf65d3fdaea53bf3 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -221,6 +221,7 @@ void vsock_for_each_connected_socket(struct vsock_transport *transport,
+ 				     void (*fn)(struct sock *sk));
+ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk);
+ bool vsock_find_cid(unsigned int cid);
++void vsock_linger(struct sock *sk);
+ 
+ /**** TAP ****/
+ 
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index fc6afbc8d6806a4d98c66abc3af4bd139c583b08..a31ad6b141cd38d1806df4b5d417924bb8607e32 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1013,6 +1013,36 @@ static int vsock_getname(struct socket *sock,
+ 	return err;
+ }
+ 
++void vsock_linger(struct sock *sk)
++{
++	DEFINE_WAIT_FUNC(wait, woken_wake_function);
++	ssize_t (*unsent)(struct vsock_sock *vsk);
++	struct vsock_sock *vsk = vsock_sk(sk);
++	long timeout;
++
++	if (!sock_flag(sk, SOCK_LINGER))
++		return;
++
++	timeout = sk->sk_lingertime;
++	if (!timeout)
++		return;
++
++	/* unsent_bytes() may be unimplemented. */
++	unsent = vsk->transport->unsent_bytes;
++	if (!unsent)
++		return;
++
++	add_wait_queue(sk_sleep(sk), &wait);
++
++	do {
++		if (sk_wait_event(sk, &timeout, unsent(vsk) == 0, &wait))
++			break;
++	} while (!signal_pending(current) && timeout);
++
++	remove_wait_queue(sk_sleep(sk), &wait);
++}
++EXPORT_SYMBOL_GPL(vsock_linger);
++
+ static int vsock_shutdown(struct socket *sock, int mode)
+ {
+ 	int err;
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 045ac53f69735e1979162aea8c9ab5961407640c..aa308f285bf1bcf4c689407033de854c6f85a639 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1192,25 +1192,6 @@ static void virtio_transport_remove_sock(struct vsock_sock *vsk)
+ 	vsock_remove_sock(vsk);
+ }
+ 
+-static void virtio_transport_wait_close(struct sock *sk, long timeout)
+-{
+-	if (timeout) {
+-		DEFINE_WAIT_FUNC(wait, woken_wake_function);
+-		struct vsock_sock *vsk = vsock_sk(sk);
+-
+-		add_wait_queue(sk_sleep(sk), &wait);
+-
+-		do {
+-			if (sk_wait_event(sk, &timeout,
+-					  virtio_transport_unsent_bytes(vsk) == 0,
+-					  &wait))
+-				break;
+-		} while (!signal_pending(current) && timeout);
+-
+-		remove_wait_queue(sk_sleep(sk), &wait);
+-	}
+-}
+-
+ static void virtio_transport_cancel_close_work(struct vsock_sock *vsk,
+ 					       bool cancel_timeout)
+ {
+@@ -1280,8 +1261,8 @@ static bool virtio_transport_close(struct vsock_sock *vsk)
+ 	if ((sk->sk_shutdown & SHUTDOWN_MASK) != SHUTDOWN_MASK)
+ 		(void)virtio_transport_shutdown(vsk, SHUTDOWN_MASK);
+ 
+-	if (sock_flag(sk, SOCK_LINGER) && !(current->flags & PF_EXITING))
+-		virtio_transport_wait_close(sk, sk->sk_lingertime);
++	if (!(current->flags & PF_EXITING))
++		vsock_linger(sk);
+ 
+ 	if (sock_flag(sk, SOCK_DONE)) {
+ 		return true;
+
+-- 
+2.49.0
+
