@@ -1,84 +1,74 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f179.google.com (mail-il1-f179.google.com [209.85.166.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F41321EA7C6;
-	Thu,  1 May 2025 15:03:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D7D1F1509
+	for <virtualization@lists.linux.dev>; Thu,  1 May 2025 15:12:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746111791; cv=none; b=A1NB3QJuSlt0AQJcIAzD5Glj4GSf98aU4GhqvCEBi9zz/UQ/v3vlbQl75P/LWG3EFuuXHRy2XnBKrZ6KQF3tIKpxURGOumJ3nyWyqS8zTo/GUqEeWFwZEbsjq0wo17l0W7GFY8VJkuQhXmsw1/P6PMMZKcSwRKirm3FTa4ylEus=
+	t=1746112350; cv=none; b=XaNsRz2JPELzzxksw6Z4HtP9Q2iD2iCryl5mdzLrUwJX2LWOf6WFmf0ghxN7ZfSSn2XAnYztupbpb9HAJcfZkwz6nDf8+v4mtKHQ71sjaxwEPOJ9mJVf0Uze5ciJARExrpHfuY11LPbLqEIc6LFvGQNCGZPcCJltXG9mUZhPhHM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746111791; c=relaxed/simple;
-	bh=4ySaPdEMd4+Vb4yQ+0YUSkKNLjFLCkYhYBoAAExMs3U=;
+	s=arc-20240116; t=1746112350; c=relaxed/simple;
+	bh=dWnGMRLuuiig00/q1qNO4cfo1u8O7FAVX0O/ycoMXU8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mkA40cvOe/OtEv8hBUGlPDxu68SZALFpXB3HobIqYdNeHwgSfoTWLTJZ5JUaYhONFPxWvst8EFgVOjLN10UQWtklOi2tY02YJ5IR9q9NZJ1UFQwpGz/Bl1d7ChOcc8FtSc0eCQ0qGX8rybZc9CV1WKY1Ja0eSpow47+EvI3u3GE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=QE9K7S0F; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=OfOwTRs6KAmfxovF3ZXSR0jSi9cLVErbrC9Yy7l4bPN7yPKSUMDqXbsfsqD5ZKUToJqjs3lO+/nBUZxxcClJcyVPskcRLZkI5C4ywJQIHOhe7Znc8w+pZYLKdv3T/HXpswoBzjs9E2clpt6lA90i2EcOpyhGdXgkB4EdKA3dgAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cloudflare.com; spf=pass smtp.mailfrom=cloudflare.com; dkim=pass (2048-bit key) header.d=cloudflare.com header.i=@cloudflare.com header.b=EzHUHdJ9; arc=none smtp.client-ip=209.85.166.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cloudflare.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloudflare.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="QE9K7S0F"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=SknNweDJMYv6Cc7JXUCuginAJHi4T0ZKllMpOn1Yf9A=; b=QE9K7S0FqJXdRMiI2MUQfyFVKN
-	zJkaOZZAvX0UK9xBOJnD6xr1oo4dLko0vESRIIkP4sjHHPxZkleb2D8Zai321exEYA2JJr82ElX7s
-	y72vsCa48dbNhj3sR2u6AvvpDc6GUftTpqrd7fLDiVr8l4ZJcPOvCc/B4Kso/X5VwtY001koeorb7
-	w0lpR1LpdbzQwtNNGzQXqNnli6Sbl3pH+QAdCVePhkf3FUFd/ngVNiv41q8dPOdm8t1mbTM/UmJ5P
-	NuryBBTCcNBBOjT/+JRWnUfQQL+DhMwA+igl0308JTBNEPRBnnqN+OImNHFtw2Imib6YH9ERSKUcP
-	cmUpe09A==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uAVQk-00000000oH8-33tB;
-	Thu, 01 May 2025 15:02:30 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 1B7DC30072F; Thu,  1 May 2025 17:02:30 +0200 (CEST)
-Date: Thu, 1 May 2025 17:02:29 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Brendan Jackman <jackmanb@google.com>
-Cc: Christoph Hellwig <hch@lst.de>, chenlinxuan@uniontech.com,
-	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Jarkko Sakkinen <jarkko@kernel.org>,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas.schier@linux.dev>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	"Paul E. McKenney" <paulmck@kernel.org>,
-	Boqun Feng <boqun.feng@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Juergen Gross <jgross@suse.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-nvme@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-integrity@vger.kernel.org, linux-kbuild@vger.kernel.org,
-	llvm@lists.linux.dev, Winston Wen <wentao@uniontech.com>,
-	kasan-dev@googlegroups.com, xen-devel@lists.xenproject.org,
-	Changbin Du <changbin.du@intel.com>,
-	Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH RFC v3 0/8] kernel-hacking: introduce
- CONFIG_NO_AUTO_INLINE
-Message-ID: <20250501150229.GU4439@noisy.programming.kicks-ass.net>
-References: <20250429-noautoinline-v3-0-4c49f28ea5b5@uniontech.com>
- <20250429123504.GA13093@lst.de>
- <D9KW1QQR88EY.2TOSTVYZZH5KN@google.com>
+	dkim=pass (2048-bit key) header.d=cloudflare.com header.i=@cloudflare.com header.b="EzHUHdJ9"
+Received: by mail-il1-f179.google.com with SMTP id e9e14a558f8ab-3d812103686so3831895ab.0
+        for <virtualization@lists.linux.dev>; Thu, 01 May 2025 08:12:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloudflare.com; s=google09082023; t=1746112347; x=1746717147; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=fiSgvlc+jgTt+SalF/TBVD1MvIkMlCI4kO67DxSibGs=;
+        b=EzHUHdJ9hINhEkOBfHg57z+NgTw0v/eeKq2QE3VrJZ10mQ6ZNVBZ7rAbbBwQKVRZud
+         a4fyQmd+/6mYr+FM7s+wRc4sFZTMH5PlbyjTMkwHIxS+RdwLTLdSENi6xpWRdhIGPfP1
+         DiWiEjzEyVDjQ783FSRYRwaGJlN0GT9i2OpoE87Mg5WNBDM8w0I1q07gC23io0cLyPtF
+         QkG3FYGas+Nv+YeWjerzEMRUCaob3hk7+k5W0Ekr7ORYQ0v9EFvw5rYEjlMsWeUJSSWA
+         QlSJaa47q0yjj5VCqpAliRsushU1Da3n+ZQqzfiZEWGu9pcH9/xJdD6j90lSysCaBesS
+         I49g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746112347; x=1746717147;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fiSgvlc+jgTt+SalF/TBVD1MvIkMlCI4kO67DxSibGs=;
+        b=DSzwf69EP7cR2oe4exghtH/LZSVzRsu8gFoWJJCEcSRJPCIGKUavXxxvVgE0cYplE3
+         +Brz4J+ZDPq9B0SxJus3z8ZyMYZqxCawEFLUtREBYg29hBshFzA+lPERvkLaLz34ab3X
+         OgJZmO6t3TK9oyH6l2T1g3fpbj090R/E578DsZUkqUxtIa3QNggAaDaBJO46OGuIneTs
+         LVtJj4pbuuUuYXygcTARE0HyZyN9TQnKsl2WaCLS1qdNBa1xxHG2v0Z/qUyAyHlCliUU
+         3bVClirU3oiAwQoRnzsE1yrsQZiWtuc4MgO5lijQr0cQrZQEwlNiDBGk5BYaCmt///2x
+         /Utg==
+X-Forwarded-Encrypted: i=1; AJvYcCUD7mKX/J6j2zyrBxjzkeRUI3AXpBMyjBM65OOcW4s6yfLUm9IoZMHC224YAvuBSTycGc+lQotvJ7Ohn8TN4g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YynZI5SyA0slJH0fISdN56HRu3Azi0+Kak5G1GwpMnm5GO5BzNs
+	Py5PWZrUuubZa95EEXcuN7JSj/GcPcS+ZS8XyOqEFFpjx1VMZF6z3O+oR1R5YOs=
+X-Gm-Gg: ASbGncukHS+MNrdEPPX5RPNbW4np3ZxFaW2toK90XGOSQtByeSHiKLCp99L3X62Mw7/
+	VX7DiCIEXiDin7ZPNMmdZPA4RiJx1Cd+Zun1hPIL8ZZpdbcmgjemrYwkQuokaWBLuN1/hXKRLVr
+	qq758U+O2qkkJ42nd2JKA78xpV50tpcw1IsrYFhImobFpZIVWxf61JzYnhf8M7D1Efr/ZCDm58O
+	j0Ga711oAmN7xFW0RQaryroAXWn9TYoZwdGG04VhoqRqo1ffX69xuUVhvx+LanPSZAehRbNan38
+	rFB9nOFppzXfxoKbVHiPeRA=
+X-Google-Smtp-Source: AGHT+IEIOmyJqg0IDfnq12HF/KNZxN2C+QMTntsNo+GE5770dKW40hle7cceFLWUyRubp7ZQk3Lr0w==
+X-Received: by 2002:a05:6e02:5c2:b0:3d3:d08d:d526 with SMTP id e9e14a558f8ab-3d970bab314mr23866965ab.11.1746112346920;
+        Thu, 01 May 2025 08:12:26 -0700 (PDT)
+Received: from CMGLRV3 ([2a09:bac5:9478:1b37::2b6:2f])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4f882ead968sm224915173.12.2025.05.01.08.12.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 May 2025 08:12:26 -0700 (PDT)
+Date: Thu, 1 May 2025 10:12:24 -0500
+From: Frederick Lawler <fred@cloudflare.com>
+To: Keith Busch <kbusch@kernel.org>
+Cc: Simon Horman <horms@kernel.org>, Keith Busch <kbusch@meta.com>,
+	seanjc@google.com, pbonzini@redhat.com, kvm@vger.kernel.org,
+	leiyang@redhat.com, virtualization@lists.linux.dev, x86@kernel.org,
+	netdev@vger.kernel.org, kernel-team@cloudfalre.com
+Subject: Re: [PATCHv3 2/2] kvm: retry nx_huge_page_recovery_thread creation
+Message-ID: <aBOPWGPTCgnUgtw-@CMGLRV3>
+References: <20250227230631.303431-1-kbusch@meta.com>
+ <20250227230631.303431-3-kbusch@meta.com>
+ <20250304155922.GG3666230@kernel.org>
+ <Z8clO24vFqlDdge4@kbusch-mbp.dhcp.thefacebook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -87,25 +77,31 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D9KW1QQR88EY.2TOSTVYZZH5KN@google.com>
+In-Reply-To: <Z8clO24vFqlDdge4@kbusch-mbp.dhcp.thefacebook.com>
 
-On Thu, May 01, 2025 at 02:19:47PM +0000, Brendan Jackman wrote:
-> On Tue Apr 29, 2025 at 12:35 PM UTC, Christoph Hellwig wrote:
-> > On Tue, Apr 29, 2025 at 12:06:04PM +0800, Chen Linxuan via B4 Relay wrote:
-> >> This series introduces a new kernel configuration option NO_AUTO_INLINE,
-> >> which can be used to disable the automatic inlining of functions.
-> >> 
-> >> This will allow the function tracer to trace more functions
-> >> because it only traces functions that the compiler has not inlined.
-> >
-> > This still feels like a bad idea because it is extremely fragile.
+Hi Keith,
+
+On Tue, Mar 04, 2025 at 09:07:23AM -0700, Keith Busch wrote:
+> On Tue, Mar 04, 2025 at 03:59:22PM +0000, Simon Horman wrote:
+> > A minor nit from my side:
+> > 
+> > As you are changing this line, and it seems like there will be another
+> > revision of this series anyway, please consider updating the indentation to
+> > use tabs.
 > 
-> Can you elaborate on that - does it introduce new fragility?
+> The patch is already applied to upstream and stable, and I think Paolo
+> must have taken care of the formatting because it looks good in the
+> commit now:
+> 
+>   https://web.git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=916b7f42b3b3b539a71c204a9b49fdc4ca92cd82a
 
-given it needs to sprinkle __always_inline around where it wasn't needed
-before, yeah.
+I backported this patch cleanly on top of 6.12.24 and ran it on some of
+our production nodes. I compared 6.12.24 to the patched 6.12.24 over the
+last three days, and we saw a drop in ENOMEM reports from firecracker.
+It also appears our VM's to be consistently spinning up again.
 
-Also, why would you want this? function tracer is already too much
-output. Why would you want even more?
+When you said stable here, I checked the stable queue and lists, but I
+didn't see this patch in 6.12. (only in the 6.14/15 stable) Can we get
+this backported to 6.12 as well?
 
-
+Fred
