@@ -1,59 +1,71 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D05BD23BCE4
-	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 10:22:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56F5623C515
+	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 10:28:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746181376; cv=none; b=X9LeC4COs1tpKcdi8tlqWyDqrpxmXp2aq4ft2o4aQ+eNoSx4vbdSw+3MnmOyM6WOZQpOK7TCueoR1i+QS8orSmlGRExDwjxR7Nrjgn/EPk+3qaDuijbNZ6R8r9zTDwx4oUymu9HnhQNw9p1No2rPMgtbvChabmJpJJ3r5sy5g/4=
+	t=1746181706; cv=none; b=hu4qFVaOKoT9fnY183XDKBv18cFL/9ijw8tBluBI4a/TuV7XTfCJHBbz5orC0xXsKRFqDwE5HBuWO0pFnyRigi9VwnN6gr3fQDnYed8vev4krni4SZS+aM/al2kAe08DXBiJz3Ylthf3D4QjVhFRsOGhkjDs7bvANCYF+qEc/Ek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746181376; c=relaxed/simple;
-	bh=i0/o7pVkw7duSUK3m7urAHcNVUQGmAMppqUpi02REMs=;
+	s=arc-20240116; t=1746181706; c=relaxed/simple;
+	bh=SEU8CqxPdXWm5kBs+itfyCdnnlLFQ0gV+s9EvH0h3a4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=t6VPYQ4sf+07xweyHT92UniFFMkMe9kOh2fPuR3XDOPat7IHVsWBJMrc8RXFtuKchjo7dj4rf29JmDMsPSvf/MuztiH2stiPEpGfS8WRfa2dOywsxJJUrzC9m2ynKlP4dXv/HrpQ5CptOp/zaCXFzFLDwt3okL1qHJyF0sq3mz8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=e/hbEwz/3YyKeMhexXHLcqSwVk1n7rKtAmj0+jyce1UgwbxTKMuQ3RDHpJMBt56d/H6uC2s5/fwPlr4lHDJQclIEfHcm29PIt3mI705e2oHe8Ds7Sy9HmSDwJTb264MIOhsGNMpHh+YiYGujVE8sZOZImsBPs0RgVc6M2TzeY78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O49jaUlT; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O49jaUlT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1746181704;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QSbhw2lx3uIU9bt71Ke9bjoVhiyqLGEvU1SMMBHqrLU=;
+	b=O49jaUlTgeTmaChlaxAksfMo5LHGkdS33Hsf9XQac/P61QpIZaRVJTJbtvjGxe5SWZYcBA
+	37BP44hIWOINq2yraJR+rYlBCxd9wR+69lJf55wdZc7n9Aev+V4ymmQg4Otk6btN10OiCn
+	noZ2U012LV7ultjUlT6wRvz4Jdfuxhs=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-453-g8Dg4S-EOLKqm8YgnECtrg-1; Fri, 02 May 2025 06:22:50 -0400
-X-MC-Unique: g8Dg4S-EOLKqm8YgnECtrg-1
-X-Mimecast-MFC-AGG-ID: g8Dg4S-EOLKqm8YgnECtrg_1746181369
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-391315098b2so547250f8f.2
-        for <virtualization@lists.linux.dev>; Fri, 02 May 2025 03:22:50 -0700 (PDT)
+ us-mta-558-t0xKPKXtPvGAOlvB4vdr0Q-1; Fri, 02 May 2025 06:28:21 -0400
+X-MC-Unique: t0xKPKXtPvGAOlvB4vdr0Q-1
+X-Mimecast-MFC-AGG-ID: t0xKPKXtPvGAOlvB4vdr0Q_1746181700
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-39ee4b91d1cso1160193f8f.0
+        for <virtualization@lists.linux.dev>; Fri, 02 May 2025 03:28:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746181369; x=1746786169;
+        d=1e100.net; s=20230601; t=1746181700; x=1746786500;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=oPxLSU1XqT/NXlV7eFy5ZcbBJizdwKiKGPSIW+m2/2o=;
-        b=WsWs+5eoY9E5sjQVACcp9gWiKU+GZedJkRcuDwZ4nS1eER6yxK/ErpCoN5qMGLS3QW
-         SSnrmsKpEKElSuFkNY089Oz3b3gSH41nrLc5c8hbyYon8jwMQnsb9t9a3FZq+o9kJ6dj
-         3mdF+pxPuoKXYoWUtqRBnUeZS7aBY2I67Sp4nFLz77EovtAAt7xhjdEcMtSMIeVXvMDZ
-         8t7+71bhrqRAjvOvU6XZoO+x7tigL4XrAn5FknOkbHQPOJQzULMzMHx83mGNOudTJmsR
-         zkxsx/H4fG8A2JGV9gIdIH3pP+CGK0hFEud42VrdyLawrtYYAAoMpY+vWU4p+O7nZhV/
-         ed9g==
-X-Forwarded-Encrypted: i=1; AJvYcCUfvM0FUj/6ELzqNXR5jFYZXk5pwuOUTWCJ7VIox/yUfu1KS8dLP+VRdwU1JLiVJA3Ky+4xsYBmbpp6NUB6iw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyjm/6AvagZFeCmoEJY36llUPhpE7eFDzpyR9QxDI70mfVL0dHP
-	gPTsSwWYkqYr180Oi22OczYQe2EVhWICZYQ/34YMCqQVQwxZplEHy+sY6yMc5GoR/Pb7G8dTap7
-	i0I+2kLv7ouOBXIIqz29KBSIOW+s2K9PuxPoIjLDe4okeA0lkGByJJ1NOHXNW+Zea
-X-Gm-Gg: ASbGncuo3xB8i+GfUVBuni/jRF0CoNc2YGY8kRtYaLCMsLGT2N2Uj/ZvM2YMcMtep4T
-	EoZ6w79irlYXvJJc4a6ypcZbVqsKbTcRGjaqhHvKx/iOvAw48zae6OhDi/GknIjzgLhKVyJEsjc
-	tIOvCRwxDnfPu7PEQI5xgE6mw4HhWdFC74ZM6tED2gB7d2UqLpZwl1fgJKeS79l4o7hO5o809xJ
-	2vtDerVdUC3jp34xx9p0aZjqmzXw4latk+82vFBOLle8p8sHOxGgLeq239tQdL3jJ2rnA9t4qMd
-	ktgq5mM7ra94xOZnxOg=
-X-Received: by 2002:a05:6000:4387:b0:391:4674:b10f with SMTP id ffacd0b85a97d-3a099ae9774mr1913558f8f.36.1746181369499;
-        Fri, 02 May 2025 03:22:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFzkS1lKR2T7hyh9gkaUuVs/7+Dq04YWJdFuTxAo1hUYcodL6jGaO9eOC3AbB7PExj+iPODSw==
-X-Received: by 2002:a05:6000:4387:b0:391:4674:b10f with SMTP id ffacd0b85a97d-3a099ae9774mr1913529f8f.36.1746181369141;
-        Fri, 02 May 2025 03:22:49 -0700 (PDT)
+        bh=QSbhw2lx3uIU9bt71Ke9bjoVhiyqLGEvU1SMMBHqrLU=;
+        b=sZu/cmRhSDcLbtoIzwvNd1jSIHbp82lTKU46kwLamxqEzkzXnbR1K6xFleAEdZrTPh
+         az5D6czC/fwAX3ict5el9wHj9dYYQ4TM1C4F3W382YfV7opWWHm5zUxB4hAhGt/ZC1Qo
+         BqyP4HcKzQtyIDwaPozKkQfDh7yjtvkqctktUM3zp0SdL6Umww+yh9uKs/KDrXzPDU6X
+         xP5/WD47KMuECqfEcOj6YRvYE1xBRP+oGjtk/vyMntmtbU++FZBjD3jdx5DDnDTH5crL
+         +IJG03LsJssHgDR7zTlh70bOZfmyyf8+ec9DBs9CsTuwf/l7EWxUbF43RNdtbXC4As57
+         GCEQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVweMDHepB9AoZKae9MafBZnhQ/csA27dAzBv35pb0jD1eSaHm+3gz1xV12Ggkm0VMehyDdGYSKX3LeaD5DrA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YweILGPZIviNdN+R+Tp8f8nqWldSSnZ9GeB+5rLmfBgk7JPrN7N
+	QcadyUCLQ0DQdvRjm7osLPHvt1LQdiElRcpM1IQUkUGlh9G4b8NV3sGdNrCgFk6xxJZ4oR0tISU
+	SPE3m8knWR2/BbOT8wOok7mJQKqtoOqxEu9+8cZMW7hXEGVHW3gFxCnRYMU9eSb7/
+X-Gm-Gg: ASbGnctUnX0YlBLHrOjapoDKhkgsZO3hZ1LbnmsbIAh+Q2NwgW0+2nXdzROW41WXTCq
+	knGPXIhBcyKL7WQxRLV2DXptCpruxcPprZhlY2UM2VptEdkRwuOM0fPkNz/j+18yYo6R/UoD0kK
+	6rs99D37M1YsZBCQ5W0xUn45RVMgApHO3DTqJV6veRQAhGasnhvTwHOh1hWwqfJkdBSTN/xdT3a
+	MYv9ipysjijg7WxjvKqDE9nsMQ1G1jdn98/4usRd8KfHFnWeIpyWpKe4xqm1b7hRT6KJjgCcSk7
+	DcHUETIqXxm4Ip8NN1M=
+X-Received: by 2002:a05:6000:1a85:b0:3a0:8524:b480 with SMTP id ffacd0b85a97d-3a09402cacbmr5066374f8f.2.1746181699723;
+        Fri, 02 May 2025 03:28:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGWyOVTRRGEVNWXO/iDfooNor6IST3SO4x3a3xxs7csOvOKwxwfMPv7xS3Tnv2MrR9Li9kpkg==
+X-Received: by 2002:a05:6000:1a85:b0:3a0:8524:b480 with SMTP id ffacd0b85a97d-3a09402cacbmr5066344f8f.2.1746181699348;
+        Fri, 02 May 2025 03:28:19 -0700 (PDT)
 Received: from ?IPV6:2a0d:3344:246d:aa10::f39? ([2a0d:3344:246d:aa10::f39])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a099ae0c25sm1762567f8f.17.2025.05.02.03.22.47
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-441b2ad784asm85337125e9.7.2025.05.02.03.28.18
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 02 May 2025 03:22:48 -0700 (PDT)
-Message-ID: <3e3eea6b-10a6-4a32-aa12-ef6fdf2eeeb8@redhat.com>
-Date: Fri, 2 May 2025 12:22:46 +0200
+        Fri, 02 May 2025 03:28:18 -0700 (PDT)
+Message-ID: <74e11512-934b-446c-94cf-93bf97eff9fb@redhat.com>
+Date: Fri, 2 May 2025 12:28:17 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,195 +75,84 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net-next v3] selftests/vsock: add initial vmtest.sh for
  vsock
-To: Bobby Eshleman <bobbyeshleman@gmail.com>,
- Stefano Garzarella <sgarzare@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>
-Cc: kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+To: Stefano Garzarella <sgarzare@redhat.com>,
+ Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>,
+ kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
  Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
  Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org,
  virtualization@lists.linux.dev, netdev@vger.kernel.org,
  linux-kselftest@vger.kernel.org
 References: <20250428-vsock-vmtest-v3-1-181af6163f3e@gmail.com>
+ <a57wg5kmprrpk2dm3zlzvegb3gzj73ubs5lxeukyinc4edlcsw@itkgfcm44qu2>
 From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20250428-vsock-vmtest-v3-1-181af6163f3e@gmail.com>
+In-Reply-To: <a57wg5kmprrpk2dm3zlzvegb3gzj73ubs5lxeukyinc4edlcsw@itkgfcm44qu2>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: qv435e58_YCqcD5YabW1SE_hce0CcukQH7Mz8UjVj80_1746181369
+X-Mimecast-MFC-PROC-ID: _8sP3IWzS4jMNZfRDgijje6dIlPDCE0S97C3UHSChbk_1746181700
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 4/29/25 1:48 AM, Bobby Eshleman wrote:
-> This commit introduces a new vmtest.sh runner for vsock.
+On 4/30/25 3:06 PM, Stefano Garzarella wrote:
+> On Mon, Apr 28, 2025 at 04:48:11PM -0700, Bobby Eshleman wrote:
+>> This commit introduces a new vmtest.sh runner for vsock.
+>>
+>> It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
+>> H2G, and loopback. The testing tools from tools/testing/vsock/ are
+>> reused. Currently, only vsock_test is used.
+>>
+>> VMCI and hyperv support is automatically built, though not used.
+>>
+>> Only tested on x86.
+>>
+>> To run:
+>>
+>>  $ tools/testing/selftests/vsock/vmtest.sh
 > 
-> It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
-> H2G, and loopback. The testing tools from tools/testing/vsock/ are
-> reused. Currently, only vsock_test is used.
+> I tried and it's working, but I have a lot of these messages in the
+> output:
+>      dmesg: read kernel buffer failed: Operation not permitted
 > 
-> VMCI and hyperv support is automatically built, though not used.
+> I'm on Fedora 41:
 > 
-> Only tested on x86.
-> 
-> To run:
-> 
->   $ tools/testing/selftests/vsock/vmtest.sh
-> 
-> or
-> 
->   $ make -C tools/testing/selftests TARGETS=vsock run_tests
-> 
-> Results:
-> 	# linux/tools/testing/selftests/vsock/vmtest.log
-> 	setup:  Building kernel and tests
-> 	setup:  Booting up VM
-> 	setup:  VM booted up
-> 	test:vm_server_host_client:guest:       Control socket listening on 0.0.0.0:51000
-> 	test:vm_server_host_client:guest:       Control socket connection accepted...
-> 	[...]
-> 	test:vm_loopback:guest: 30 - SOCK_STREAM retry failed connect()...ok
-> 	test:vm_loopback:guest: 31 - SOCK_STREAM SO_LINGER null-ptr-deref...ok
-> 	test:vm_loopback:guest: 31 - SOCK_STREAM SO_LINGER null-ptr-deref...ok
-> 
-> Future work can include vsock_diag_test.
-> 
-> vmtest.sh is loosely based off of tools/testing/selftests/net/pmtu.sh,
-> which was picked out of the bag of tests I knew to work with NIPA.
-> 
-> Because vsock requires a VM to test anything other than loopback, this
-> patch adds vmtest.sh as a kselftest itself. This is different than other
-> systems that have a "vmtest.sh", where it is used as a utility script to
-> spin up a VM to run the selftests as a guest (but isn't hooked into
-> kselftest). This aspect is worth review, as I'm not aware of all of the
-> enviroments where this would run.
+> $ uname -r
+> 6.14.4-200.fc41.x86_64
 
-I think this approach is interesting, but I think it will need some
-additional more work, see below...
+This sounds like the test tripping on selinux. I think this problem
+should not be handled by the script itself.
 
 [...]
-
-> diff --git a/tools/testing/selftests/vsock/settings b/tools/testing/selftests/vsock/settings
-> new file mode 100644
-> index 0000000000000000000000000000000000000000..e7b9417537fbc4626153b72e8f295ab4594c844b
-> --- /dev/null
-> +++ b/tools/testing/selftests/vsock/settings
-> @@ -0,0 +1 @@
-> +timeout=0
-
-We need a reasonable, bounded runtime for nipa integration.
-
-> diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-> new file mode 100755
-> index 0000000000000000000000000000000000000000..d70b9446e531d6d20beb24ddeda2cf0a9f7e9a39
-> --- /dev/null
-> +++ b/tools/testing/selftests/vsock/vmtest.sh
-> @@ -0,0 +1,354 @@
-> +#!/bin/bash
-> +# SPDX-License-Identifier: GPL-2.0
-> +#
-> +# Copyright (c) 2025 Meta Platforms, Inc. and affiliates
-> +#
-> +# Dependencies:
-> +#		* virtme-ng
-> +#		* busybox-static (used by virtme-ng)
-> +#		* qemu	(used by virtme-ng)
-
-You should probably check for such tools presence and bail out with skip
-otherwise.
-
-> +
-> +SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-> +KERNEL_CHECKOUT=$(realpath ${SCRIPT_DIR}/../../../..)
-
-This is not going to work if/when the self-tests are installed in their
-own directory via `make install` in the tools/testing/selftests/
-directory, and that use case is supposed to work.
-
-At very least you should check for the expected layout and skip otherwise.
-
-> +QEMU=$(command -v qemu-system-$(uname -m))
-> +VERBOSE=0
-> +SKIP_BUILD=0
-> +VSOCK_TEST=${KERNEL_CHECKOUT}/tools/testing/vsock/vsock_test
-> +
-> +TEST_GUEST_PORT=51000
-> +TEST_HOST_PORT=50000
-> +TEST_HOST_PORT_LISTENER=50001
-> +SSH_GUEST_PORT=22
-> +SSH_HOST_PORT=2222
-> +VSOCK_CID=1234
-> +WAIT_PERIOD=3
-> +WAIT_PERIOD_MAX=20
-> +
-> +QEMU_PIDFILE=/tmp/qemu.pid
-> +
-> +# virtme-ng offers a netdev for ssh when using "--ssh", but we also need a
-> +# control port forwarded for vsock_test.  Because virtme-ng doesn't support
-> +# adding an additional port to forward to the device created from "--ssh" and
-> +# virtme-init mistakenly sets identical IPs to the ssh device and additional
-> +# devices, we instead opt out of using --ssh, add the device manually, and also
-> +# add the kernel cmdline options that virtme-init uses to setup the interface.
-> +QEMU_OPTS=""
-> +QEMU_OPTS="${QEMU_OPTS} -netdev user,id=n0,hostfwd=tcp::${TEST_HOST_PORT}-:${TEST_GUEST_PORT}"
-> +QEMU_OPTS="${QEMU_OPTS},hostfwd=tcp::${SSH_HOST_PORT}-:${SSH_GUEST_PORT}"
-> +QEMU_OPTS="${QEMU_OPTS} -device virtio-net-pci,netdev=n0"
-> +QEMU_OPTS="${QEMU_OPTS} -device vhost-vsock-pci,guest-cid=${VSOCK_CID}"
-> +QEMU_OPTS="${QEMU_OPTS} --pidfile ${QEMU_PIDFILE}"
-> +KERNEL_CMDLINE="virtme.dhcp net.ifnames=0 biosdevname=0 virtme.ssh virtme_ssh_user=$USER"
-> +
-> +LOG=${SCRIPT_DIR}/vmtest.log
-> +
-> +#		Name				Description
-> +avail_tests="
+> ERROR: trailing whitespace
+> #174: FILE: tools/testing/selftests/vsock/vmtest.sh:47:
+> +^Ivm_server_host_client^IRun vsock_test in server mode on the VM and in client mode on the host.^I$
+> 
+> WARNING: line length of 104 exceeds 100 columns
+> #174: FILE: tools/testing/selftests/vsock/vmtest.sh:47:
 > +	vm_server_host_client	Run vsock_test in server mode on the VM and in client mode on the host.	
+> 
+> ERROR: trailing whitespace
+> #175: FILE: tools/testing/selftests/vsock/vmtest.sh:48:
+> +^Ivm_client_host_server^IRun vsock_test in client mode on the VM and in server mode on the host.^I$
+> 
+> WARNING: line length of 104 exceeds 100 columns
+> #175: FILE: tools/testing/selftests/vsock/vmtest.sh:48:
 > +	vm_client_host_server	Run vsock_test in client mode on the VM and in server mode on the host.	
-> +	vm_loopback		Run vsock_test using the loopback transport in the VM.	
-> +"
-> +
-> +usage() {
-> +	echo
-> +	echo "$0 [OPTIONS] [TEST]..."
-> +	echo "If no TEST argument is given, all tests will be run."
-> +	echo
-> +	echo "Options"
-> +	echo "  -v: verbose output"
-> +	echo "  -s: skip build"
-> +	echo
-> +	echo "Available tests${avail_tests}"
-> +	exit 1
-> +}
-> +
-> +die() {
-> +	echo "$*" >&2
-> +	exit 1
-> +}
-> +
-> +vm_ssh() {
-> +	ssh -q -o UserKnownHostsFile=/dev/null -p 2222 localhost $*
-> +	return $?
-> +}
-> +
-> +cleanup() {
-> +	if [[ -f "${QEMU_PIDFILE}" ]]; then
-> +		pkill -SIGTERM -F ${QEMU_PIDFILE} 2>&1 >/dev/null
-> +	fi
-> +}
-> +
-> +build() {
-> +	log_setup "Building kernel and tests"
-> +
-> +	pushd ${KERNEL_CHECKOUT} >/dev/null
-> +	vng \
-> +		--kconfig \
-> +		--config ${KERNEL_CHECKOUT}/tools/testing/selftests/vsock/config.vsock
-> +	make -j$(nproc)
-> +	make -C ${KERNEL_CHECKOUT}/tools/testing/vsock
-> +	popd >/dev/null
+> 
+> ERROR: trailing whitespace
+> #176: FILE: tools/testing/selftests/vsock/vmtest.sh:49:
+> +^Ivm_loopback^I^IRun vsock_test using the loopback transport in the VM.^I$
+> 
+> ERROR: trailing whitespace
+> #443: FILE: tools/testing/selftests/vsock/vmtest.sh:316:
+> +IFS="^I$
+> 
+> total: 4 errors, 4 warnings, 0 checks, 382 lines checked
+> 
+I almost forgot: I think it's better to avoid the special formatting and
+replies on review for proper updating of the script's help.
 
-I think it would be better to avoid the kernel rebuild. A possible
-alternative could be including in 'config' the needed knobs for vng's
-sake and re-use the running kernel.
-
-Cheers,
+Thanks,
 
 Paolo
 
