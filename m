@@ -1,164 +1,114 @@
-Received: from flow-a8-smtp.messagingengine.com (flow-a8-smtp.messagingengine.com [103.168.172.143])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EBFD224AE8;
-	Thu,  1 May 2025 19:08:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.143
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7D3426772A;
+	Fri,  2 May 2025 08:02:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746126492; cv=none; b=PTG+Aq0BM93D8Kn0vHZVEIIAr5sOgW67drYIWhuOf5LBOMRfgnTqqrFBtTSbesalUtRyFVv7F+2rdBhTYaW79mjAn6yIw3AUYUbcbeGBWO7mTTDoYUOxhrGl6mPYxPgZQAczVVWeLtZBwvC1GT2bBW2l6EKIawDnQtwUxf3sIm8=
+	t=1746172957; cv=none; b=SsNGsBRXJZfNjBj2nlca3vZEuGbvN3I7SRrrLrzOeaE3tp8BZn43mf1SWIYNiu04HBLXibI4LRyX2YHVuLX70JMLW1Idv8qEOVu4OzWnPJQgHvdR6Kolvxin3w+DWKsBLBjGGMEe99ljp3HGaBSmm5f8l3HwQGKv1nkdRYM889U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746126492; c=relaxed/simple;
-	bh=t72V4cMXfgECq2XlBkakvc0ngW0PUat2k9kI4OAGgGQ=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=kC7dmTuOD2kBD3XP+cqE0QVE84XzTZ1P2dKP/6YBWw8IN2gi0SKXbxTHjgL+5nn7+9J/WqHmVQRgU6xAGHglwrtHNVJQxMg/3y7047EZxjGikorOTCnEFVHhP2jtMiT1h85jE9MY83t6r+o4jFop9dgHZdorpa1yYFSxwU49jzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svenpeter.dev; spf=pass smtp.mailfrom=svenpeter.dev; dkim=pass (2048-bit key) header.d=svenpeter.dev header.i=@svenpeter.dev header.b=gMWu11vI; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=kRRWrsXt; arc=none smtp.client-ip=103.168.172.143
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svenpeter.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svenpeter.dev
+	s=arc-20240116; t=1746172957; c=relaxed/simple;
+	bh=VrP6FYMiM8APrbbiFFr3vwipUq0BMzeGXIdgg8yPKw0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LCHlu1zSYY41ig/48LvnpO9otB1H8qnK5lJAz2V6++HLw/UNq3c6aR9r71UgJfjDGbsy+AtpDOc80YBA+a7cdxtk3Xv3w2GG7KlqKU8a5xw35u3t9UPtw39myLGqHMyXhxviHVio+U1AdfuDH/o+ZZtfR1jfVUXrKkoKQxEE3Uc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o40ruDpd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=svenpeter.dev header.i=@svenpeter.dev header.b="gMWu11vI";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="kRRWrsXt"
-Received: from phl-compute-04.internal (phl-compute-04.phl.internal [10.202.2.44])
-	by mailflow.phl.internal (Postfix) with ESMTP id 2F84F2007A6;
-	Thu,  1 May 2025 15:08:09 -0400 (EDT)
-Received: from phl-imap-07 ([10.202.2.97])
-  by phl-compute-04.internal (MEProxy); Thu, 01 May 2025 15:08:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svenpeter.dev;
-	 h=cc:cc:content-transfer-encoding:content-type:content-type
-	:date:date:from:from:in-reply-to:in-reply-to:message-id
-	:mime-version:references:reply-to:subject:subject:to:to; s=fm1;
-	 t=1746126489; x=1746133689; bh=uy2Z23D4UX2pb4MGng/RS7Rc0DqXehjP
-	gXYL1GZyHEA=; b=gMWu11vIGwyUkebQS6FfJoMbvmG1K5I4PcYPfgos/+3IKTG9
-	gplwSngSdL9b0tzDvioUBprhL4wfVkOmTpNtoAAODeB28Xg6R/kwHB7dvxSuftFL
-	yhPHuhfnyZhbGy1Hk4LH0DS38ZnX4s0nqvPXJdj6j6YsCbSDjUNCmIVLH/A/20KP
-	oo3/VMPCqW0WLap/EGtkYjtqLqADG6I7601JRBgJjC9L0IW/fnmqPmRfywBz38B2
-	l4rECgxFIIXyjmPcKpJ3MKrLDuuogSY9AnqaHJ7N27iyCvQLDrLJO+Uzbvq2a1Ob
-	z/jW7mFvVIaWGr7pr0l6vyW2GdTQ2Hejj4c04Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1746126489; x=
-	1746133689; bh=uy2Z23D4UX2pb4MGng/RS7Rc0DqXehjPgXYL1GZyHEA=; b=k
-	RRWrsXtBP2dGvKqi4W7O8NcUE4T3criJTN4RNqnwM3jvVZB6DFHHOoJRSzF4WwTC
-	zyfSgrVfEAEZo6Ar3KWwXFFgpo9OcSnMRAJNahqn3nlXJrX0g/PcOryetxJVwBdg
-	bMvCV+WGJfrIwElsLCpZTQGf+AFh+vAPQIz7pR9L3B7fo46k+1htBqhXoVi3Nr6i
-	iPfXM7t0uPbUxV6yQuN2xxuUHDxXOhwyx1GBr0m/YPvpPLJFGrE4r55Y1vhjLJkG
-	EYbgK2ov6OqW9yBM/N3vWdDrYa4RmB3gucHV7PaTEJHhJOlijJtkhtTp35Hug9Lp
-	KdTUch2CHWx/XAiNccw8Q==
-X-ME-Sender: <xms:lMYTaGgjwoD9jvvLQF3kWWQqAITXOwX2J_Tz44npf0_rwZTz5vZWuA>
-    <xme:lMYTaHCfTlr4IcDYYP9mfLiZVIcfetmb5w7EMXV6Z0z5aHP8l6w5d06NcLSmpdfDF
-    y_HHxOzjxiGRzZWmjM>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvjedtfeekucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
-    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
-    gvnhhtshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertder
-    tddtnecuhfhrohhmpedfufhvvghnucfrvghtvghrfdcuoehsvhgvnhesshhvvghnphgvth
-    gvrhdruggvvheqnecuggftrfgrthhtvghrnhepleefteeugeduudeuudeuhfefheegveek
-    ueefffdvffektdffffelveffvddvueffnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
-    hrrghmpehmrghilhhfrhhomhepshhvvghnsehsvhgvnhhpvghtvghrrdguvghvpdhnsggp
-    rhgtphhtthhopeegledpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepjhhorhhose
-    eksgihthgvshdrohhrghdprhgtphhtthhopehrohgsihhnrdhmuhhrphhhhiesrghrmhdr
-    tghomhdprhgtphhtthhopegrnhhgvghlohhgihhorggttghhihhnohdruggvlhhrvghgnh
-    hosegtohhllhgrsghorhgrrdgtohhmpdhrtghpthhtohepfigvnhhssegtshhivgdrohhr
-    ghdprhgtphhtthhopehprghlmhgvrhesuggrsggsvghlthdrtghomhdprhgtphhtthhope
-    grohhusegvvggtshdrsggvrhhkvghlvgihrdgvughupdhrtghpthhtoheprghlvgigsehg
-    hhhithhirdhfrhdprhgtphhtthhopehjvghrnhgvjhdrshhkrhgrsggvtgesghhmrghilh
-    drtghomhdprhgtphhtthhopehmrghtthhhihgrshdrsghgghesghhmrghilhdrtghomh
-X-ME-Proxy: <xmx:lMYTaOHaWClXa7praEdCDETzg-YVo8ghBfqAEKgcYyCNv-z3uiOvlg>
-    <xmx:lMYTaPTDyplPkZ6QrXRyRgI6CFJO6g9IDexaTEMgKEAyXB5CcIWOgQ>
-    <xmx:lMYTaDxrliDpH1IiImjsat2Qz56tDsozwSqIgW3l_ha48UqBCKavYA>
-    <xmx:lMYTaN4smmith_jw1KGBc7w4dLVQ7r3zWaP24jB2SlIhLdcRPVRmOw>
-    <xmx:mcYTaH2ZstH58KGLmGnY3MmWQlgQtyVkrQuLwkep4LE-hnCp6R9N54B6>
-Feedback-ID: i51094778:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 6CE25BA0070; Thu,  1 May 2025 15:08:04 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o40ruDpd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE92BC4CEE4;
+	Fri,  2 May 2025 08:02:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1746172956;
+	bh=VrP6FYMiM8APrbbiFFr3vwipUq0BMzeGXIdgg8yPKw0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=o40ruDpdxuzYi5SlPXBVO3KE83CyehxDNrNO/541PgVjFTDFgkp9ttfsSywwoC2Xi
+	 deyF+fk2wjQxxc5XQRBVm8Bmt2O6KE/EWUyWPBtkP4DjmRVUsgvwR4qUU7TcNGYno2
+	 LrsDSCZuBZAWl/LYiTehIFOfFP/Ile60POceUApHmDdzreBk3ZrpTs99IMSeErgzEI
+	 qcVRENdvjn60dt64quynSDl7VztBTPTl/yjYLXHI6ByaM4mPy/wh1yniu8zkGauz6l
+	 KWZFS4mxzAp7qh9gzlauN/px1lSmL30l6NU2jcy73WKeezA7wFlGHek2h34pt4xuBA
+	 QpbqWIpAjreaA==
+Date: Fri, 2 May 2025 10:02:26 +0200
+From: Ingo Molnar <mingo@kernel.org>
+To: "Xin Li (Intel)" <xin@zytor.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-pm@vger.kernel.org,
+	linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org,
+	linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org,
+	netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+	acme@kernel.org, jgross@suse.com, andrew.cooper3@citrix.com,
+	peterz@infradead.org, namhyung@kernel.org, mark.rutland@arm.com,
+	alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+	irogers@google.com, adrian.hunter@intel.com,
+	kan.liang@linux.intel.com, wei.liu@kernel.org,
+	ajay.kaher@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+	tony.luck@intel.com, pbonzini@redhat.com, vkuznets@redhat.com,
+	seanjc@google.com, luto@kernel.org, boris.ostrovsky@oracle.com,
+	kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com,
+	dapeng1.mi@linux.intel.com, ilpo.jarvinen@linux.intel.com
+Subject: Re: [PATCH v4 02/15] x86/msr: Move rdtsc{,_ordered}() to <asm/tsc.h>
+Message-ID: <aBR8EoYkxaFHwZN2@gmail.com>
+References: <20250427092027.1598740-1-xin@zytor.com>
+ <20250427092027.1598740-3-xin@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-ThreadId: T5b013bf7ff4edb46
-Date: Thu, 01 May 2025 21:07:44 +0200
-From: "Sven Peter" <sven@svenpeter.dev>
-To: "Jason Gunthorpe" <jgg@nvidia.com>, "Alexandre Ghiti" <alex@ghiti.fr>,
- "Alim Akhtar" <alim.akhtar@samsung.com>,
- "Alyssa Rosenzweig" <alyssa@rosenzweig.io>,
- "AngeloGioacchino Del Regno" <angelogioacchino.delregno@collabora.com>,
- "Albert Ou" <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
- "Baolin Wang" <baolin.wang@linux.alibaba.com>,
- "Lu Baolu" <baolu.lu@linux.intel.com>,
- "David Woodhouse" <dwmw2@infradead.org>,
- "Gerald Schaefer" <gerald.schaefer@linux.ibm.com>,
- "Heiko Stuebner" <heiko@sntech.de>, iommu@lists.linux.dev,
- "Janne Grunau" <j@jannau.net>,
- "Jean-Philippe Brucker" <jean-philippe@linaro.org>,
- "Jernej Skrabec" <jernej.skrabec@gmail.com>,
- "Jonathan Hunter" <jonathanh@nvidia.com>,
- "Joerg Roedel" <joro@8bytes.org>, "Kevin Tian" <kevin.tian@intel.com>,
- "Krzysztof Kozlowski" <krzk@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
- linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
- linux-tegra@vger.kernel.org,
- "Marek Szyprowski" <m.szyprowski@samsung.com>,
- "Matthias Brugger" <matthias.bgg@gmail.com>,
- "Matthew Rosato" <mjrosato@linux.ibm.com>, "Neal Gompa" <neal@gompa.dev>,
- "Orson Zhai" <orsonzhai@gmail.com>,
- "Palmer Dabbelt" <palmer@dabbelt.com>,
- "Paul Walmsley" <paul.walmsley@sifive.com>,
- "Rob Clark" <robdclark@gmail.com>, "Robin Murphy" <robin.murphy@arm.com>,
- "Samuel Holland" <samuel@sholland.org>,
- "Niklas Schnelle" <schnelle@linux.ibm.com>,
- "Thierry Reding" <thierry.reding@gmail.com>,
- "Tomasz Jeznach" <tjeznach@rivosinc.com>,
- "Krishna Reddy" <vdumpa@nvidia.com>, virtualization@lists.linux.dev,
- "Chen-Yu Tsai" <wens@csie.org>, "Will Deacon" <will@kernel.org>,
- "Yong Wu" <yong.wu@mediatek.com>,
- "Chunyan Zhang" <zhang.lyra@gmail.com>
-Cc: patches@lists.linux.dev
-Message-Id: <38706b77-4e58-4dfb-add3-814746f4a3c5@app.fastmail.com>
-In-Reply-To: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
-References: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
-Subject: Re: [PATCH 3/7] iommu: Remove ops.pgsize_bitmap from drivers that don't use it
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Tue, Apr 29, 2025, at 16:34, Jason Gunthorpe wrote:
-> These drivers all set the domain->pgsize_bitmap in their
-> domain_alloc_paging() functions, so the ops value is never used. Delete
-> it.
->
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/iommu/apple-dart.c       | 1 -
->  drivers/iommu/intel/iommu.c      | 1 -
->  drivers/iommu/iommufd/selftest.c | 1 -
->  drivers/iommu/riscv/iommu.c      | 1 -
->  drivers/iommu/virtio-iommu.c     | 6 ++----
->  5 files changed, 2 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
-> index 757d24f67ad45a..190f28d7661515 100644
-> --- a/drivers/iommu/apple-dart.c
-> +++ b/drivers/iommu/apple-dart.c
-> @@ -991,7 +991,6 @@ static const struct iommu_ops apple_dart_iommu_ops = {
->  	.of_xlate = apple_dart_of_xlate,
->  	.def_domain_type = apple_dart_def_domain_type,
->  	.get_resv_regions = apple_dart_get_resv_regions,
-> -	.pgsize_bitmap = -1UL, /* Restricted during dart probe */
->  	.owner = THIS_MODULE,
->  	.default_domain_ops = &(const struct iommu_domain_ops) {
->  		.attach_dev	= apple_dart_attach_dev_paging,
-
-Reviewed-by: Sven Peter <sven@svenpeter.dev> # for Apple DART
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250427092027.1598740-3-xin@zytor.com>
 
 
+* Xin Li (Intel) <xin@zytor.com> wrote:
 
-Best,
+> index 94408a784c8e..13335a130edf 100644
+> --- a/arch/x86/include/asm/tsc.h
+> +++ b/arch/x86/include/asm/tsc.h
+> @@ -7,7 +7,81 @@
+>  
+>  #include <asm/cpufeature.h>
+>  #include <asm/processor.h>
+> -#include <asm/msr.h>
+> +
+> +/*
+> + * both i386 and x86_64 returns 64-bit value in edx:eax, but gcc's "A"
+> + * constraint has different meanings. For i386, "A" means exactly
+> + * edx:eax, while for x86_64 it doesn't mean rdx:rax or edx:eax. Instead,
+> + * it means rax *or* rdx.
+> + */
+> +#ifdef CONFIG_X86_64
+> +/* Using 64-bit values saves one instruction clearing the high half of low */
+> +#define DECLARE_ARGS(val, low, high)	unsigned long low, high
+> +#define EAX_EDX_VAL(val, low, high)	((low) | (high) << 32)
+> +#define EAX_EDX_RET(val, low, high)	"=a" (low), "=d" (high)
+> +#else
+> +#define DECLARE_ARGS(val, low, high)	u64 val
+> +#define EAX_EDX_VAL(val, low, high)	(val)
+> +#define EAX_EDX_RET(val, low, high)	"=A" (val)
+> +#endif
 
+Meh, this patch creates a duplicate copy of DECLARE_ARGS() et al in 
+<asm/tsc.h> now:
 
-Sven
+ arch/x86/include/asm/msr.h:#define DECLARE_ARGS(val, low, high) unsigned long low, high
+ arch/x86/include/asm/msr.h:#define DECLARE_ARGS(val, low, high) u64 val
+ arch/x86/include/asm/msr.h:     DECLARE_ARGS(val, low, high);
+ arch/x86/include/asm/msr.h:     DECLARE_ARGS(val, low, high);
+ arch/x86/include/asm/msr.h:     DECLARE_ARGS(val, low, high);
+ arch/x86/include/asm/tsc.h:#define DECLARE_ARGS(val, low, high) unsigned long low, high
+ arch/x86/include/asm/tsc.h:#define DECLARE_ARGS(val, low, high) u64 val
+ arch/x86/include/asm/tsc.h:     DECLARE_ARGS(val, low, high);
+ arch/x86/include/asm/tsc.h:     DECLARE_ARGS(val, low, high);
+ arch/x86/include/asm/tsc.h:#undef DECLARE_ARGS
+
+Which was both an undeclared change, bloats the code, causes various 
+problems, and is totally unnecessary to boot.
+
+Please don't do that ...
+
+Thanks,
+
+	Ingo
