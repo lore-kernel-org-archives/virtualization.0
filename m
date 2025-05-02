@@ -1,180 +1,201 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB7FD25F78A
-	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 16:38:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1015C1A08A4
+	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 17:50:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746203904; cv=none; b=BthWRX44D5VxlP4wCmX2aq+884Xz09DGI9UxznbmMQVUYsn5JF3wM9KcQWg+i7cZJc+/NRAjpoy0/lejPKqp0D7m4mFiMqmDn2K2MH1k7f7WwDtz2kq/t3321tlxBpVU6sEWjtzzZ58YNSpC02Y4NYC8RMyjDlxFERvT+mklGIM=
+	t=1746208249; cv=none; b=NrXiP0wrL9vwwJg++rwGEEqwjWdDnGw3GDDGh+rQEWg8K+D86WaRjCvDD4XxdZF1pfLLUsuqxT99u0FKzaWpg+dMHoU6tYhFWUVHP+cEZB0xkR7I59BV4txME6YhO1SnjkGiQbpJ3aiANjfNzFtj/HshzPSh4PfYefjPsswckoc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746203904; c=relaxed/simple;
-	bh=XsE7SiV+aikMHOLaaXZ7a8kPrkm9AwB5yoxuMKmx1sQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=NJ6uPbSvZR0YgQrtJL4nScKO8KCBs+7EmOrpuna2o0p26BgQzYSW56cds1Zatb0N9ig4aD2n/tuqMfdF9mGrE+F1xILSgRefNiCT00eUVdB8B7Bxt8jIv3DI/N8gJZZUHQXQxDHhP0bxwLuoT8Hl4LSkuEapUDAKKYazymBi6K0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cw8uykW0; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1746208249; c=relaxed/simple;
+	bh=drM8O3toaDkU9WbF5hourjHUHTWTN+EOTGXaXdM7ew0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZSusFBwHhG1roQP97m0D8mJfun9m63i2N2/SVYlAszyWzTrSUgTVMiVODmFUJYQispME6xEfXhNZgcWgA+aGLy3NIomDCHDmErQDAdIPk5QNpualhLq421YM6nDNZ51dkb4Q2VwvenJYGOdfRsTwH2UvQsOX7QA5mxC3b4vreBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=f2DvQ9MW; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cw8uykW0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1746203900;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=14Itu0wJcqKS8hAd7pT4xJxMeQ8wSKPFd/cQcnRkK64=;
-	b=cw8uykW0L/SBrt55QU4jKDvHttf2fYgdn+awiObf/sl7Sob5SGzUL74bgrBMoEOaTAHwmN
-	X0+4qFX3cSPer92WjgahnutlktFZ5bqrZo7nc2+egfiRt/N5nW3cDq1RHNoqlLEOg7FVX7
-	pXyajsgNTnu+MG6x6V23P05c+YvDG/o=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-43-DuYulLe3Nhut-TBtyppSCQ-1; Fri, 02 May 2025 12:38:18 -0400
-X-MC-Unique: DuYulLe3Nhut-TBtyppSCQ-1
-X-Mimecast-MFC-AGG-ID: DuYulLe3Nhut-TBtyppSCQ_1746203897
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43e9b0fd00cso9363655e9.0
-        for <virtualization@lists.linux.dev>; Fri, 02 May 2025 09:38:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746203897; x=1746808697;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=14Itu0wJcqKS8hAd7pT4xJxMeQ8wSKPFd/cQcnRkK64=;
-        b=OACpWgZ4lAPxFtl0ALJ76IcuscdirPnrTX8FLEMLWu7ECcB8XJ6sT7YbvZwULoZccX
-         eZcL3YzhlpWsxFuwB1QJ9OcQJuXcT8cxzqleiUtNBYDHUJ3cslg7Fc33fBhOb5hjOO2P
-         VnjNGUqMB/5/vHsxvGki7A1+GozF98OM3FUSLSXNYWaTNCt+tYHSFpZDia1+v4LfVg7w
-         eY03QwU+NBLwD7t/2tghrLkRPL8BZBIW9nAQHCm5O+MOEZIDmIgkhRqgbSAWpX4xBQ57
-         ONk9EZ5Ms7hXETSE318ZWoNXlC9fDLpO9VDg80Uqvu+pcsO7ZUlsQclwQJw63QZdIRNz
-         a+Uw==
-X-Forwarded-Encrypted: i=1; AJvYcCVH/RhK0IHl7OHZno0lFrtlnnUzgC0ljRIHk0uQvD6awGNWPN+HgoGdd+G60aFbYdNwaiMDP/qO9ZiPja6HFw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwAnPX+Y1TuBSzlpZIrmmUUiZfck1VhxvJWtmYWOKB7R9h0rQUr
-	IlMuhowWsYYlnZZqVS2hhG1OWwc7gs2gOFjncEQZdWpnNLbwzPx09LcgohdE4OOtMt47sWS0hCJ
-	uyVQE6fu2mDOXUUWQKLIfyMvxSJVX7Tvucj4AsgAjj3ix3YqxDLMXuPMNbSkIAPjd
-X-Gm-Gg: ASbGncupO7/SSL36/wxSbtLkcvKTmsNOw1R0P+NZva15h7eD+qe3otbPzAWMWmf699N
-	1xRKtyd4YQ6q7dVovt0gcHrxMTa68K3n4e73BKxK1qnC01qTyzVYDn/Pb3CXO0NcNWIyM3AEbrr
-	9Z1fOQmySPATVezVHyrVWTRrRS6L+5oRCepK/izGRHPPQIzdmZn3mR/pzLk76IcQGg9Yu/oofqS
-	Yu9JaD1ww9w9IT4QOBLuFt66fa5du0vIl90jO3HqKmzOsabl2W3nuA5L7X8qtk8nOETxzh9VFMo
-	3h5KKhxhJICz4oc/sG+FfNmuWTwOKQj6CplWUd9wUZH+j/DN
-X-Received: by 2002:a05:600c:528f:b0:43b:c857:e9d7 with SMTP id 5b1f17b1804b1-441bb852744mr33829195e9.5.1746203896738;
-        Fri, 02 May 2025 09:38:16 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEMHXR/p+bYllCeFUiu3mvj1rpI7ZOiyLrHoitDd00Nmz4qAV27N+1EVZD+X61FQi8x3pEBZA==
-X-Received: by 2002:a05:600c:528f:b0:43b:c857:e9d7 with SMTP id 5b1f17b1804b1-441bb852744mr33828185e9.5.1746203896267;
-        Fri, 02 May 2025 09:38:16 -0700 (PDT)
-Received: from vschneid-thinkpadt14sgen2i.remote.csb ([2001:861:43c1:5950:3e51:b684:9982:d4a2])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-441b2b28732sm94362125e9.37.2025.05.02.09.38.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 May 2025 09:38:15 -0700 (PDT)
-From: Valentin Schneider <vschneid@redhat.com>
-To: Dave Hansen <dave.hansen@intel.com>, Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
- kvm@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-modules@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- rcu@vger.kernel.org, linux-hardening@vger.kernel.org,
- linux-kselftest@vger.kernel.org, bpf@vger.kernel.org, Juri Lelli
- <juri.lelli@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Yair
- Podemsky <ypodemsk@redhat.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Daniel Wagner <dwagner@suse.de>, Petr Tesarik <ptesarik@suse.com>, Nicolas
- Saenz Julienne <nsaenz@amazon.com>, Frederic Weisbecker
- <frederic@kernel.org>, "Paul E. McKenney" <paulmck@kernel.org>, Dave
- Hansen <dave.hansen@linux.intel.com>, Sean Christopherson
- <seanjc@google.com>, Juergen Gross <jgross@suse.com>, Ajay Kaher
- <ajay.kaher@broadcom.com>, Alexey Makhalov
- <alexey.amakhalov@broadcom.com>, Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Russell King
- <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will
- Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
- <kernel@xen0n.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer
- Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Alexandre
- Ghiti <alex@ghiti.fr>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar
- <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H.
- Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
- Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
- <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alexander
- Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa
- <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, Adrian Hunter
- <adrian.hunter@intel.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Pawan
- Gupta <pawan.kumar.gupta@linux.intel.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Jason Baron
- <jbaron@akamai.com>, Ard Biesheuvel <ardb@kernel.org>, Luis Chamberlain
- <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>, Sami Tolvanen
- <samitolvanen@google.com>, Daniel Gomez <da.gomez@samsung.com>, Naveen N
- Rao <naveen@kernel.org>, Anil S Keshavamurthy
- <anil.s.keshavamurthy@intel.com>, "David S. Miller" <davem@davemloft.net>,
- Masami Hiramatsu <mhiramat@kernel.org>, Neeraj Upadhyay
- <neeraj.upadhyay@kernel.org>, Joel Fernandes <joel@joelfernandes.org>,
- Josh Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
- Uladzislau Rezki <urezki@gmail.com>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>,
- Zqiang <qiang.zhang1211@gmail.com>, Vincent Guittot
- <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Kees Cook
- <kees@kernel.org>, Shuah Khan <shuah@kernel.org>, Masahiro Yamada
- <masahiroy@kernel.org>, Alice Ryhl <aliceryhl@google.com>, Miguel Ojeda
- <ojeda@kernel.org>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>, Rong Xu
- <xur@google.com>, Rafael Aquini <aquini@redhat.com>, Song Liu
- <song@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, Dan Carpenter
- <dan.carpenter@linaro.org>, Brian Gerst <brgerst@gmail.com>, "Kirill A.
- Shutemov" <kirill.shutemov@linux.intel.com>, Benjamin Berg
- <benjamin.berg@intel.com>, Vishal Annapurve <vannapurve@google.com>, Randy
- Dunlap <rdunlap@infradead.org>, John Stultz <jstultz@google.com>, Tiezhu
- Yang <yangtiezhu@loongson.cn>
-Subject: Re: [PATCH v5 00/25] context_tracking,x86: Defer some IPIs until a
- user->kernel transition
-In-Reply-To: <34535b8c-35c8-4a7f-8363-f5a9c5a69023@intel.com>
-References: <20250429113242.998312-1-vschneid@redhat.com>
- <fefcd1a6-f146-4f3c-b28b-f907e7346ddd@intel.com>
- <20250430132047.01d48647@gandalf.local.home>
- <019f6713-cfbd-466b-8fb5-dcd982cf8644@intel.com>
- <20250430154228.1d6306b4@gandalf.local.home>
- <a6b3a331-1ff3-4490-b300-a62b3c21578d@intel.com>
- <xhsmhr0179w1i.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <34535b8c-35c8-4a7f-8363-f5a9c5a69023@intel.com>
-Date: Fri, 02 May 2025 18:38:12 +0200
-Message-ID: <xhsmho6wb9de3.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="f2DvQ9MW"
+Received: from [192.168.7.202] ([71.202.166.45])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 542Ho3nX2101973
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Fri, 2 May 2025 10:50:03 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 542Ho3nX2101973
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025042001; t=1746208207;
+	bh=LzR4L+NzvxhTrQ0qnGzytLxrMo2x9HNW2SUoBs+4hnk=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=f2DvQ9MW8Z0JHknIhUmlaIPnE6PHfIIPe0rpr7QJUvAXpKBCT+qAa2LT23C9nwyHn
+	 /1a1mWwt981CwHC7LEhukO1K0m1bgC3vouAUx32YzUdMpcsCtQbd/jw/0r9+oZFhHH
+	 zWNmyzJlWsf15/gfOAQCHW/PstZJwBaw5PzyA2AIZsvRshoRiosxrgxL3BGNy8GnvI
+	 j1N92z82OgALfPhLkgXq737LFNKZtz9B4b6V3qkfZIO+IB2Ra6RgpyueZDDglkuTjG
+	 iaLXdZxYtCOMzwCegp0RoTN30GI8VbyzguvhXK2x0MgYmhv6FrtA1j3wSshxLcp5ca
+	 a3YLWxbyYWbZw==
+Message-ID: <a2bdcbaf-2a00-4b12-84e9-14c40610d599@zytor.com>
+Date: Fri, 2 May 2025 10:50:02 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _1et89fnRRJSk8BiwY8BcTv0WIbrn0OGAmJp5dez26w_1746203897
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4A 01/15] x86/msr: Add missing includes of <asm/msr.h>
+To: =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        mingo@redhat.com
+Cc: LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        virtualization@lists.linux.dev, linux-pm@vger.kernel.org,
+        linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org,
+        linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        Netdev <netdev@vger.kernel.org>, platform-driver-x86@vger.kernel.org,
+        tglx@linutronix.de, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, hpa@zytor.com, acme@kernel.org, jgross@suse.com,
+        andrew.cooper3@citrix.com, peterz@infradead.org, namhyung@kernel.org,
+        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
+        jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com,
+        kan.liang@linux.intel.com, wei.liu@kernel.org, ajay.kaher@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com,
+        pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com,
+        luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com,
+        haiyangz@microsoft.com, decui@microsoft.com,
+        dapeng1.mi@linux.intel.com
+References: <a1917b37-e41e-d303-749b-4007cda01605@linux.intel.com>
+ <20250501054241.1245648-1-xin@zytor.com>
+ <a34d7955-aa31-7bef-52cf-65dc4bb7a5c1@linux.intel.com>
+Content-Language: en-US
+From: Xin Li <xin@zytor.com>
+Autocrypt: addr=xin@zytor.com; keydata=
+ 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
+ l75w1xInsg==
+In-Reply-To: <a34d7955-aa31-7bef-52cf-65dc4bb7a5c1@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 02/05/25 06:53, Dave Hansen wrote:
-> On 5/2/25 02:55, Valentin Schneider wrote:
->> My gripe with that was having two separate mechanisms
->> - super early entry around SWITCH_TO_KERNEL_CR3)
->> - later entry at context tracking
+On 5/2/2025 6:13 AM, Ilpo Järvinen wrote:
+>> diff --git a/arch/x86/kernel/trace_clock.c b/arch/x86/kernel/trace_clock.c
+>> index b8e7abe00b06..708d61743d15 100644
+>> --- a/arch/x86/kernel/trace_clock.c
+>> +++ b/arch/x86/kernel/trace_clock.c
+>> @@ -4,7 +4,7 @@
+>>    */
+>>   #include <asm/trace_clock.h>
+>>   #include <asm/barrier.h>
+>> -#include <asm/msr.h>
+>> +#include <asm/tsc.h>
+> Does this change belong to this patch?
+> 
+> It might even cause a build failure until the second patch which moves
+> the tsc related things to the other file (unless there's indirect include
+> path to asm/msr.h).
+
+Ah, you're right as I have separated the relocation of rdtsc_ordered()
+into a following patch.
+
+> 
+>> diff --git a/arch/x86/lib/kaslr.c b/arch/x86/lib/kaslr.c
+>> index a58f451a7dd3..b5893928d55c 100644
+>> --- a/arch/x86/lib/kaslr.c
+>> +++ b/arch/x86/lib/kaslr.c
+>> @@ -8,7 +8,7 @@
+>>    */
+>>   #include <asm/asm.h>
+>>   #include <asm/kaslr.h>
+>> -#include <asm/msr.h>
+>> +#include <asm/tsc.h>
+> Same thing here.
+> 
+>>   #include <asm/archrandom.h>
+>>   #include <asm/e820/api.h>
+>>   #include <asm/shared/io.h>
+>> diff --git a/drivers/accel/habanalabs/common/habanalabs_ioctl.c b/drivers/accel/habanalabs/common/habanalabs_ioctl.c
+>> index 8729a0c57d78..dc80ca921d90 100644
+>> --- a/drivers/accel/habanalabs/common/habanalabs_ioctl.c
+>> +++ b/drivers/accel/habanalabs/common/habanalabs_ioctl.c
+>> @@ -17,8 +17,6 @@
+>>   #include <linux/uaccess.h>
+>>   #include <linux/vmalloc.h>
+>>   
+>> -#include <asm/msr.h>
+>> -
+> I suggested making a separate patch out of these removals. Currently you
+> do them without any clear warning in the changelog which only talks about
+> adding asm/msr.h.
 >
-> What do you mean by "later entry"?
->
 
-I meant the point at which the deferred operation is run in the current
-patches, i.e. ct_kernel_enter() - kernel entry from the PoV of context
-tracking.
+I didn't want to add an extra patch to the v4 series, but I really
+should have mentioned the removal at least.
 
-> All of the paths to enter the kernel from userspace have some
-> SWITCH_TO_KERNEL_CR3 variant. If they didn't, the userspace that they
-> entered from could have attacked the kernel with Meltdown.
->
-> I'm theorizing that if this is _just_ about avoiding TLB flush IPIs that
-> you can get away with a single mechanism.
 
-So right now there would indeed be the TLB flush IPIs, but also the
-text_poke() ones (sync_core() after patching text).
+>> diff --git a/drivers/acpi/processor_throttling.c b/drivers/acpi/processor_throttling.c
+>> index 00d045e5f524..ecd7fe256153 100644
+>> --- a/drivers/acpi/processor_throttling.c
+>> +++ b/drivers/acpi/processor_throttling.c
+>> @@ -18,9 +18,13 @@
+>>   #include <linux/sched.h>
+>>   #include <linux/cpufreq.h>
+>>   #include <linux/acpi.h>
+>> +#include <linux/uaccess.h>
+>>   #include <acpi/processor.h>
+>>   #include <asm/io.h>
+>> -#include <linux/uaccess.h>
+>> +#include <asm/asm.h>
+> ???
 
-These are the two NOHZ-breaking IPIs that show up on my HP box, and that I
-also got reports for from folks using NOHZ_FULL + CPU isolation in
-production, mostly on SPR "edge enhanced" type of systems.
+Damn me!
 
-There's been some other sources of IPIs that have been fixed with an ad-hoc
-solution - disable the mechanism for NOHZ_FULL CPUs or do it differently
-such that an IPI isn't required, e.g.
+Not to find an excuse but I guess I got somewhat tired when doing it.
 
-  https://lore.kernel.org/lkml/ZJtBrybavtb1x45V@tpad/
+> 
+>> +#ifdef CONFIG_X86
+>> +#include <asm/msr.h>
+>> +#endif
+> 
+> I really appreciate you took the effort to do this change the correct
+> way! 🙂
 
-While I don't expect the list to grow much, it's unfortunately not just the
-TLB flush IPIs.
+Same here for pushing it the right direction!
 
+
+Hi Ingo,
+
+Since you *wisely* didn't remove msr.h from tsc.h, maybe you could just
+zap this patch and I will send an afterwards patch set to replace this
+patch?
+
+Apology for the noise.
+
+Thanks!
+     Xin
