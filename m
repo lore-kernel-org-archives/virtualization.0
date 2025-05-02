@@ -1,309 +1,225 @@
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11olkn2074.outbound.protection.outlook.com [40.92.20.74])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 501DB225417
-	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 14:13:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.20.74
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746195237; cv=fail; b=uSTu/ChTRnQAtPJOUBFzFYhvTlULgxPsOtDFrUrvtiG0T9pXajJMOGsZ0eJy17n0e0LhXld5d5m5Rp+DLyLJWY7QeQ1+Jv0SlRU6R+SX/gTJq6qbXO9L0PvipGkvV6hS3KWQwFZLdBkF3iccT90VIH3EyeoBw9gg25xYFh92Z34=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746195237; c=relaxed/simple;
-	bh=HPDPEHHNfaI6poBnOTe22WZK2ATvE4F3Z6XZcUYUgK8=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=tVeiGB92Htm1o++cKtnwOfzV/Ct4s8y0owIoVdZy2gZa7T1VQEluK6pMzhQ99StWKnFd/6E77U0Me6eFbRLZwsDFFr1sNdQx0oEPMU04tBn6J85kDofBmqmDEOO/BWrVqg5yEL+bB1jHvhMsuSjLEXmue+dZySBjyHdtYeudz98=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=Ks6KMk1F; arc=fail smtp.client-ip=40.92.20.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7284151991;
+	Fri,  2 May 2025 14:34:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1746196446; cv=none; b=BHswbV6ucsOkPKq1QFB2qb/iLg460GYBhI0I1eDm5uY5ZblPhJFgydTHQQWq+irRG5fXUvr5F+zbkcmGCmbNIEAAdpKlCXBf1kqHsJk3jFqsPavTGeyKC5tUI+/DK3hYAm8IYVYj40y2baj6p0FqZOto/9NMWQDnLix5J44awJI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1746196446; c=relaxed/simple;
+	bh=6xpTcm5i9h8w6CwoFRxZPxtoKJJ3BBCKGnmNa7Z2kh4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=X9TXmjeRv6CYNL1dhvXEZTi+K1FFzuNhN7bGmHy5esLSK6pC5pmkH8DeOsDjXoZJqhhpWbaK3HJsRs33jFW/M9LOgpu5HDf/tbJ7qG3yQABY5Yl/zzF2JVKO1NDQfLRbmKIfppznCLnIUzdY66Ei7fzA97K3J/J0/mji00MhOHE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=at67td67; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="Ks6KMk1F"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=MxcRbFILndfXwII9UXMBr1c+xXfsvRXh584O1ucvmg6EHyeOZ9/CDCSHgQHBrJT4qHMqDitX1ZBrlW55vO9OEo7ftszcQw/Z20kKAi1FuwG70NtBAbkw85qMYEVHz2Im96kG3trjzjp+NZZYUY9v+eN5F2cHlbS7Bnvcvg8Ai4wugByqHRiX6G3lfCZsV/jBX3fET1ca/qXr30VzyODTkHtrX7k7FBAiPCf5Fc6alN/jnhNEjlJCK1PBEBvfQy6d5m/xn7xhuFDfiSKpM8lL4lDP24mVV5r5fCDxQkOUoaU+1G2NB8g/gosTVyWm/h2r2oTWHinWuP1eptj6AjWazg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=SXX+mnG2WHo9t8x/IA8X75MEMzdHA2eYKWnGflsfPGc=;
- b=VVclVsNHgYSeKuehzEifcPzdiZQuHVUvDer1btQo+WEoJQGmW+EU0jvbPOJ9U60MpQhSvg3DMsr6MPu89tgeVKuR+vNQR9W6S9gnhFtJBRp5wAPBI9ocadvmwcMulAa+l7BesRW8etXiMNCWjPwYoHQpBw504FMHUvS+9zpL0czYDdKgKUjdtdtmTFG/UU3OypoJT6U9Wcb6KU/A0U8LNmeAf98Ko9QzadpQazyPEZvqz6l0DiMjJ4j72+d3MTsf3nG2xXAqlFXl8a1Wpd/Z8OvFRyny1RCZD8q7B4ERsQJ8baDF4o+rryzzy7KFv8bYi7IVictjAgMdDnl8aozIeA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SXX+mnG2WHo9t8x/IA8X75MEMzdHA2eYKWnGflsfPGc=;
- b=Ks6KMk1FkgYJMLPJx410idSYwcPSt597Z/J8Gq7kOnOAKprr/dfUNl2HxkCPt+L2wvqmPqR+HMSSbOreeQnuthI5M+rwhw6c8Rug9rjsaqmzlBNGL0sANt+fqeSCCA1NabbkJ0vpEr4mBTcpm7vMAZ8Na1x7FRA54MOh5R4EBBuh/u9yumrz8UOJePtCQRKqpcftkxXxQnFrUdXFCH79srYestSvsuQ0MyL92onzX81eLyDbObGZI3uu6eIzs9HeZU/SD5JoZCFO3ZcOBesOQHV1EW4W5KeYxeT6yLm7JiWnlnrslHdhA6vd/ejRrIfNDLDnMpkPzOTILTsEKpYCWQ==
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
- by IA1PR02MB9158.namprd02.prod.outlook.com (2603:10b6:208:42d::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8699.24; Fri, 2 May
- 2025 14:13:49 +0000
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::cedd:1e64:8f61:b9df]) by SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::cedd:1e64:8f61:b9df%3]) with mapi id 15.20.8699.022; Fri, 2 May 2025
- 14:13:49 +0000
-From: Michael Kelley <mhklinux@outlook.com>
-To: "Xin Li (Intel)" <xin@zytor.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
-	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	"linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-	"linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-	"linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>
-CC: "tglx@linutronix.de" <tglx@linutronix.de>, "mingo@redhat.com"
-	<mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>,
-	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "x86@kernel.org"
-	<x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>, "acme@kernel.org"
-	<acme@kernel.org>, "jgross@suse.com" <jgross@suse.com>,
-	"andrew.cooper3@citrix.com" <andrew.cooper3@citrix.com>,
-	"peterz@infradead.org" <peterz@infradead.org>, "namhyung@kernel.org"
-	<namhyung@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>,
-	"alexander.shishkin@linux.intel.com" <alexander.shishkin@linux.intel.com>,
-	"jolsa@kernel.org" <jolsa@kernel.org>, "irogers@google.com"
-	<irogers@google.com>, "adrian.hunter@intel.com" <adrian.hunter@intel.com>,
-	"kan.liang@linux.intel.com" <kan.liang@linux.intel.com>, "wei.liu@kernel.org"
-	<wei.liu@kernel.org>, "ajay.kaher@broadcom.com" <ajay.kaher@broadcom.com>,
-	"bcm-kernel-feedback-list@broadcom.com"
-	<bcm-kernel-feedback-list@broadcom.com>, "tony.luck@intel.com"
-	<tony.luck@intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
-	"vkuznets@redhat.com" <vkuznets@redhat.com>, "seanjc@google.com"
-	<seanjc@google.com>, "luto@kernel.org" <luto@kernel.org>,
-	"boris.ostrovsky@oracle.com" <boris.ostrovsky@oracle.com>,
-	"kys@microsoft.com" <kys@microsoft.com>, "haiyangz@microsoft.com"
-	<haiyangz@microsoft.com>, "decui@microsoft.com" <decui@microsoft.com>,
-	"dapeng1.mi@linux.intel.com" <dapeng1.mi@linux.intel.com>,
-	"ilpo.jarvinen@linux.intel.com" <ilpo.jarvinen@linux.intel.com>
-Subject: RE: [PATCH v4 00/15] MSR code cleanup part one
-Thread-Topic: [PATCH v4 00/15] MSR code cleanup part one
-Thread-Index: AQHbt1Z92Fo/8zkiv0KdjUYDp5u46rO/aE4w
-Date: Fri, 2 May 2025 14:13:49 +0000
-Message-ID:
- <SN6PR02MB415763422E06220F9893BD77D48D2@SN6PR02MB4157.namprd02.prod.outlook.com>
-References: <20250427092027.1598740-1-xin@zytor.com>
-In-Reply-To: <20250427092027.1598740-1-xin@zytor.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|IA1PR02MB9158:EE_
-x-ms-office365-filtering-correlation-id: 3cbee300-ee01-41f7-303a-08dd89838f34
-x-ms-exchange-slblob-mailprops:
- a+H6FLLcF3qJxlamga53fEWW0rZ5v6J0GJXP+PrHq6TbYR/PNxWQz8Npub/gV3qr+knoDxujy/GsTsGaOt+RDdN+aOx0mxpGGeHjSqIBdEqvu9cO//Sd04ETGN8XX7EG/QjTZdG54SgS7DLF+gLy1w6YE9fXQtoaWG9N0be13CcK53D/vhpX21C8bN8N9IAnML6gmDH/gCU/lTf/tVJf6lgoSmtxe2lQA2p5PAdr09R0z+oXB+/v+0/iWQpv0AjudzDVJ62Z6Fwzoj3raWZ2nAEtXnirfNBqfZotb4NIyJBxUB4CgK/l3lUagQA4NMUz8XMJjopKk0/ua7NctNUSUhex97XMI8j44+qcR8Jk5pHY26/2ZqiL64R/fUt0kyMwgM5AXZV/et5X55VqAKnEtKwjFrtH7u/VaLT6v7AQBGiEHbm5QgN1GDLLUrIHlBcKYkb+bQQ3Ek9qczDo+HcakAf/J+mSb0OUFzB1a3MGjKBc8o0PtvAs31Q/qHSClGc/N15RgMDj7tr2ApETiHZIVxQZmXSxl9yVxVmUh8zkHCvPIW8+sl6XkVzbT6f7B0Qa/vIh/CgNsuiQbcBp4Mf8lx9TylVHWxjVgW0DSWXnfhBWd2xuKuZL5XxFa9XALLY9YrqZ3vSAHhWv26QZEDjqlz8YDla/mN0qbIeKYIlbd0CKMipHKKbYaiSw/82uOMMUDatpQh4pUspxOjgUb8a/dmvEWMn7yAhj4h0dHxFYaBPIYYBTO2RcNw4E60poa/8z1tYxDHLg1HWJiqZvfVJhUicfs3LeDMK4OFK3sQXJw1ox7Q58453UCYkaE5q5IUbN
-x-microsoft-antispam:
- BCL:0;ARA:14566002|8062599003|15080799006|8060799006|19110799003|461199028|102099032|1602099012|10035399004|4302099013|440099028|3412199025|41001999003|19111999003;
-x-microsoft-antispam-message-info:
- =?iso-8859-1?Q?5DACIFfVfInExwWvPhGZVFFHufnFUPIPl+lfb3KCfKLiM46EjtNXjkBuA0?=
- =?iso-8859-1?Q?i5MiB4+Cwds48YTLUPVxOjdxyLbqCrpRtxPSbScDUvGQ1QXm7r0SkPW73L?=
- =?iso-8859-1?Q?OIyROJHuAZMjoIAvKuyiV0Afpwg9JSzaOX2DDl40Mqbqub0xLyEnQcFIiy?=
- =?iso-8859-1?Q?H7cMt8j3WhV50YrRBYPvbVjs6b5iFX/14WKbJwxRCVHQEo5/Cc1lTWwOL0?=
- =?iso-8859-1?Q?LH8oCExSnCh2/U4f0R+Cl+kGYj6Md1Khla9O5Fygrx13IayTnbO5+XkZjA?=
- =?iso-8859-1?Q?pWQRjFquwbwKdbjU2eTu12JFYiEyDgF+AzN3tXlXN9FH+II306PTTi9Yr7?=
- =?iso-8859-1?Q?rFYQ9EzlcDF+nlrg6HTpe9NiuETA6EGU+1V2knkCARliS5NZXtUrp5RO58?=
- =?iso-8859-1?Q?DOGox/Ra8lrGlE9wdgsyBPJv6oDjzDbzIqQCZivHozzlYS1ru6HGAdQ5Qo?=
- =?iso-8859-1?Q?bh1Hr5PWBTF8qVI6S02oDSUatxEbjQWOYc581iWTHCkIIqPxvbw0Hact3V?=
- =?iso-8859-1?Q?Hgb9ei1j14HkdlWlZjIAj+4N1FNQ+zqY+tJQuA0GYMY9QJlMdbWL+U0mGB?=
- =?iso-8859-1?Q?4SCNVExftJO+0PM3gEp5fsAiD3OgtugsMNlwVJCAOiS0AcXcxAbqZ98kXN?=
- =?iso-8859-1?Q?TKmy5KSIa6uEVm6n2aq3EqRF6M8vvMfvqSHucl+ZzJn99pPYLc5NVlsEJu?=
- =?iso-8859-1?Q?DyKGUaHRhrqVvYTC/Vp166hbHBMvQXzClnGvvy3DQjPHfT7L64jBNWmRrv?=
- =?iso-8859-1?Q?OrdDOhty3SvtGjg5mct9aeSTslEgHF32l17S1IXbhyNrejWqQ0RPr4yeLs?=
- =?iso-8859-1?Q?wYy1rkwsKm4+tyiNekXPUKp/rsbQGLa/R/m8gEViLDK7o0LiM0aAphJAuA?=
- =?iso-8859-1?Q?+o2RKLVLUmrGL8f9NoMegP6PKhMcUES0m9LLzmxXfEbkTjSQKpZNFWx72w?=
- =?iso-8859-1?Q?YyqEceXMZOFqpXkywOG6p5CYMRROBRYiL8WmR7v3yoaH7HxFD2TwmGTa5d?=
- =?iso-8859-1?Q?rkTHZ5dHSpBrl9np6NUYlTRBjCkauPI5GAPiPVo7z+Plko/WNMQxJSHWsa?=
- =?iso-8859-1?Q?4PZj7xWEQZgHdsemqOWEMMYnqFV3dXg6QU0o7DOF2qUNUk+k9z4995/LJJ?=
- =?iso-8859-1?Q?2DiDlzOQXWxSCZnXWRGtyUg0WHlizRUfzSErsKAI79QbAE526oglsNcFGF?=
- =?iso-8859-1?Q?KAoqEysYC3jMhhWBzMr144DmzkXIkK/x3nyl/WBygNHcYxNQBTsiR+QpoN?=
- =?iso-8859-1?Q?UiFfp1sqvONXcUFJ7SIB76/jAK8W1tLVeke4C2BNafLLTQde8UE/H39spX?=
- =?iso-8859-1?Q?otjIkXkNysed68pjUcGNXXlaqyjP88Ifr5qaMuT5COE2lCYkWylmtfWgk6?=
- =?iso-8859-1?Q?GqolUhrFmY?=
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?KYlKITl/e96EgPF0jSFlU7K0zZcxHgH9+VQ3/DPucLcZfb4651FTbXZ5ux?=
- =?iso-8859-1?Q?dFPWVuFpAp7jVC6M/B66j21+DENs1c/bmGqw0PBudha6yqQ8xhMWKy7T2s?=
- =?iso-8859-1?Q?MSbYGrJEP2pSpjS6h1YituiMaQxOp9rSL9sLeFNW+Xp1weKTBb74sM5NLC?=
- =?iso-8859-1?Q?ynMet8Z9NXYGhBsubv2ViEWs9051C71l7j8JPzA7/1nsSMOv3URPKHnK2b?=
- =?iso-8859-1?Q?a6jOu3sMEowhrRUpDNEhjQg4eoeufukENJBeji04EAysiMN2/LuyYjFdul?=
- =?iso-8859-1?Q?DsumJI8KbVO1K/zJXDoK6vrsHcdc4C/OaHyhrraBxw9h/T1GXSJr3AC2J+?=
- =?iso-8859-1?Q?8k68aFh+7+NZeYiuquSitRniFu26YYG17K0E1BZowNZyQHViQXTtl1ydX8?=
- =?iso-8859-1?Q?iQQeWe6h+URxDXn8U5Dkkc9hHmCyPhMOp2B+zEuqaVn6n421gP9d9mWEal?=
- =?iso-8859-1?Q?fA/2h692XeYhfO33POp35q/v2JqgOlI3wBBjap8EOjZT7AQWlA7V7dbRkq?=
- =?iso-8859-1?Q?5ba3U9QnoUCg2b05QfTG+WfUyM0wiqfJUq++N3aXXzq733jTzYRmssZTs9?=
- =?iso-8859-1?Q?nBcP+27uNzZpctHpbSmv0g3hCNpdczhDvK9nV4Px+VAPXg9qd89F+kxS/b?=
- =?iso-8859-1?Q?7k8t6v6k3EQj47iLcStVqIl/iF8y43E0L0evOn1xMi2k+yfI+ZFn6ZHCE6?=
- =?iso-8859-1?Q?tV+adzkhDc5lHt8f5hbI3xSXsR1rJlJnDZ2L8ZWH9V68JmFAMGIjSKIXZV?=
- =?iso-8859-1?Q?abm1E+F1a4ou9pHOhUY+nI+yy32Ok/4ok9YkSQjHNqd7IkBU6dZbD2WGqF?=
- =?iso-8859-1?Q?02jMTlIYlStvjHzo3sav1yjgZcOVsDiXJyg8v/MK/fwgux7Kx8zBIEsqgn?=
- =?iso-8859-1?Q?nVU5PEZ1UTorfi4vlvnK2Yoxg7MdQWaEneoX7WGcs2BZZl4gc0O0JDlLHu?=
- =?iso-8859-1?Q?HDsRPhc9Opa+yPJqdxap/aXFUqqxMB2COdgtYAjPMgKkij6Y/OJfS6+UFv?=
- =?iso-8859-1?Q?rZNnNpbuTmaiiV39jpJrKRIjjPvg4jhJ/Gd0KE2cr/OZnvfdMl8kqIC/Gg?=
- =?iso-8859-1?Q?qEjeTju3pEF8jY+vKbOe5VNN6R8YNheeZtyH+K+G1F7jEmzZKEx0IO78Kr?=
- =?iso-8859-1?Q?B6x/6DrDMML9dXnmuG/usrwV9n0rbO5y+MGwGF6GAhXzHoVNLtkklpcTly?=
- =?iso-8859-1?Q?2OvBkCafFjOquWOqchHGrT4ycDBaa1RbhL+bSvWhcSCB6TfhRKuA8rzJCE?=
- =?iso-8859-1?Q?26rAdgteG1rpp74tRPcE8TS3JeNJrKW7yGSIioA7g=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="at67td67"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1746196445; x=1777732445;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=6xpTcm5i9h8w6CwoFRxZPxtoKJJ3BBCKGnmNa7Z2kh4=;
+  b=at67td6797xwqwFsUL1PXYKiWVlWVQBr0UAgCpeK+/hHCORYYcVqxxJW
+   QKoCKCcuf65c+zKgvHx6kmLZMktHJYISSsPvCI3Ruc7yjo45lHdO813G3
+   gIdfBMUCC06Dwf9CvptLB2iXnyDfaS9+MkHDMMpv9hyx5ZXD2dU66cDd9
+   oQg6Xx8+zdd6uczatcreEjbC00ajovMrOEzylT/Rjd0w89sjH/80tPVUG
+   i0xewcwp9A8nyyoDz9V5PFX+B3RhFK8bXuh4hrkChpj1hWG8eXN+3TTEk
+   UtDL6eqt6LQLH9nG2ainFgH/0jdcIIHFLNtlGC2qYpVWv67rvDPUGGnr5
+   Q==;
+X-CSE-ConnectionGUID: 9nf0DBVJQkewRefdTUO7Og==
+X-CSE-MsgGUID: i1adLKTOTx66M2/d86v7nQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11421"; a="47762466"
+X-IronPort-AV: E=Sophos;i="6.15,256,1739865600"; 
+   d="scan'208";a="47762466"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2025 07:34:04 -0700
+X-CSE-ConnectionGUID: VxHvVA4GR1yhOEAvPb47UQ==
+X-CSE-MsgGUID: rx5pPAMZTRORyTUWVz/hDw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,256,1739865600"; 
+   d="scan'208";a="135634956"
+Received: from bjrankin-mobl3.amr.corp.intel.com (HELO [10.124.220.153]) ([10.124.220.153])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2025 07:33:59 -0700
+Message-ID: <6c44fa0e-28ed-400e-aaf2-e0e0720d3811@intel.com>
+Date: Fri, 2 May 2025 07:33:55 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3cbee300-ee01-41f7-303a-08dd89838f34
-X-MS-Exchange-CrossTenant-originalarrivaltime: 02 May 2025 14:13:49.2725
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR02MB9158
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 00/25] context_tracking,x86: Defer some IPIs until a
+ user->kernel transition
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+ Valentin Schneider <vschneid@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+ linux-perf-users@vger.kernel.org, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-modules@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, rcu@vger.kernel.org,
+ linux-hardening@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ bpf@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
+ Marcelo Tosatti <mtosatti@redhat.com>, Yair Podemsky <ypodemsk@redhat.com>,
+ Josh Poimboeuf <jpoimboe@kernel.org>, Daniel Wagner <dwagner@suse.de>,
+ Petr Tesarik <ptesarik@suse.com>, Nicolas Saenz Julienne
+ <nsaenz@amazon.com>, Frederic Weisbecker <frederic@kernel.org>,
+ "Paul E. McKenney" <paulmck@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Sean Christopherson <seanjc@google.com>, Juergen Gross <jgross@suse.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Paul Walmsley <paul.walmsley@sifive.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Alexandre Ghiti <alex@ghiti.fr>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>,
+ "Liang, Kan" <kan.liang@linux.intel.com>,
+ Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+ Jason Baron <jbaron@akamai.com>, Ard Biesheuvel <ardb@kernel.org>,
+ Luis Chamberlain <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>,
+ Sami Tolvanen <samitolvanen@google.com>, Daniel Gomez
+ <da.gomez@samsung.com>, Naveen N Rao <naveen@kernel.org>,
+ Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Masami Hiramatsu <mhiramat@kernel.org>,
+ Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+ Joel Fernandes <joel@joelfernandes.org>,
+ Josh Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
+ Uladzislau Rezki <urezki@gmail.com>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Lai Jiangshan <jiangshanlai@gmail.com>, Zqiang <qiang.zhang1211@gmail.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, Ben Segall
+ <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+ Kees Cook <kees@kernel.org>, Shuah Khan <shuah@kernel.org>,
+ Masahiro Yamada <masahiroy@kernel.org>, Alice Ryhl <aliceryhl@google.com>,
+ Miguel Ojeda <ojeda@kernel.org>, "Mike Rapoport (Microsoft)"
+ <rppt@kernel.org>, Rong Xu <xur@google.com>,
+ Rafael Aquini <aquini@redhat.com>, Song Liu <song@kernel.org>,
+ Andrii Nakryiko <andrii@kernel.org>, Dan Carpenter
+ <dan.carpenter@linaro.org>, Brian Gerst <brgerst@gmail.com>,
+ "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+ Benjamin Berg <benjamin.berg@intel.com>,
+ Vishal Annapurve <vannapurve@google.com>,
+ Randy Dunlap <rdunlap@infradead.org>, John Stultz <jstultz@google.com>,
+ Tiezhu Yang <yangtiezhu@loongson.cn>
+References: <20250429113242.998312-1-vschneid@redhat.com>
+ <fefcd1a6-f146-4f3c-b28b-f907e7346ddd@intel.com>
+ <20250430132047.01d48647@gandalf.local.home>
+ <019f6713-cfbd-466b-8fb5-dcd982cf8644@intel.com>
+ <20250502112216.GZ4198@noisy.programming.kicks-ass.net>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20250502112216.GZ4198@noisy.programming.kicks-ass.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-From: Xin Li (Intel) <xin@zytor.com> Sent: Sunday, April 27, 2025 2:20 AM
->=20
-> This patch set is the first part of the patch set:
->=20
->   MSR refactor with new MSR instructions support
->=20
-> @ https://lore.kernel.org/lkml/20250422082216.1954310-1-xin@zytor.com/=20
->=20
-> It's getting *WAY* too big, and whether to zap the pv_ops MSR APIs is
-> still under argument.  Dave Hansen suggested to focus on rename stuff
-> first, most of which he acked.
->=20
-> J=FCrgen Gro=DF also gave his RBs to the Xen MSR cleanup patches.
->=20
-> So here comes the first MSR cleanup patch set with version 4.
->=20
->=20
-> Changes in v4:
-> 1) Add missing includes in a different patch (Ilpo J=E4rvinen).
-> 2) Add all necessary direct inclusions for msr.h (Ilpo J=E4rvinen).
-> 3) Remove two "else" that no longer make sense (Juergen Gross).
-> 4) Collect RBs from J=FCrgen Gro=DF and ABs from Peter Zijlstra.
->=20
->=20
-> Link to the previous v3 patch set:
-> https://lore.kernel.org/lkml/20250425083442.2390017-1-xin@zytor.com/=20
->=20
->=20
-> This patch series is based on:
->=20
->   git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git x86/msr
+On 5/2/25 04:22, Peter Zijlstra wrote:
+> On Wed, Apr 30, 2025 at 11:07:35AM -0700, Dave Hansen wrote:
+> 
+>> Both AMD and Intel have hardware to do it. ARM CPUs do it too, I think.
+>> You can go buy the Intel hardware off the shelf today.
+> To be fair, the Intel RAR thing is pretty horrific 🙁 Definitely
+> sub-par compared to the AMD and ARM things.
+> 
+> Furthermore, the paper states it is a uarch feature for SPR with no
+> guarantee future uarchs will get it (and to be fair, I'd prefer it if
+> they didn't).
 
-Tested this patch set (plus the v4A version of Patch 1) in VMs on
-Hyper-V. Tested a normal VM, a TDX VM (with paravisor) and a
-SEV-SNP VM (with paravisor). No issues found. Since this patch set is
-just a rename, the risk should be low. But I wanted to make sure
-there's nothing unexpected happening with Hyper-V and the
-synthetic MSRs that it presents to guest VMs, as well as with the
-paravisor configurations.
+I don't think any of that is set in stone, fwiw. It should be entirely
+possible to obtain a longer promise about its availability.
 
-Tested-by: Michael Kelley <mhklinux@outlook.com>
+Or ask that AMD and Intel put their heads together in their fancy new
+x86 advisory group and figure out a single way forward. If you're right
+that RAR stinks and INVLPGB rocks, then it'll be an easy thing to advise.
 
->=20
->=20
-> Xin Li (Intel) (15):
->   x86/msr: Add missing includes of <asm/msr.h>
->   x86/msr: Move rdtsc{,_ordered}() to <asm/tsc.h>
->   x86/msr: Remove rdpmc()
->   x86/msr: Rename rdpmcl() to rdpmc()
->   x86/msr: Convert the rdpmc() macro into an always inline function
->   x86/xen/msr: Return u64 consistently in Xen PMC read functions
->   x86/msr: Convert __wrmsr() uses to native_wrmsr{,q}() uses
->   x86/msr: Add the native_rdmsrq() helper
->   x86/msr: Convert __rdmsr() uses to native_rdmsrq() uses
->   x86/xen/msr: Remove calling native_{read,write}_msr{,_safe}() in
->     pmu_msr_{read,write}()
->   x86/xen/msr: Remove pmu_msr_{read,write}()
->   x86/xen/msr: Remove the error pointer argument from set_seg()
->   x86/pvops/msr: refactor pv_cpu_ops.write_msr{,_safe}()
->   x86/msr: Replace wrmsr(msr, low, 0) with wrmsrq(msr, low)
->   x86/msr: Change the function type of native_read_msr_safe()
->=20
->  arch/x86/coco/sev/core.c                      |   2 +-
->  arch/x86/events/amd/brs.c                     |   4 +-
->  arch/x86/events/amd/uncore.c                  |   2 +-
->  arch/x86/events/core.c                        |   2 +-
->  arch/x86/events/intel/core.c                  |   4 +-
->  arch/x86/events/intel/ds.c                    |   2 +-
->  arch/x86/events/msr.c                         |   3 +
->  arch/x86/events/perf_event.h                  |   1 +
->  arch/x86/events/probe.c                       |   2 +
->  arch/x86/hyperv/hv_apic.c                     |   6 +-
->  arch/x86/hyperv/hv_vtl.c                      |   4 +-
->  arch/x86/hyperv/ivm.c                         |   3 +-
->  arch/x86/include/asm/apic.h                   |   4 +-
->  arch/x86/include/asm/fred.h                   |   1 +
->  arch/x86/include/asm/microcode.h              |   2 +
->  arch/x86/include/asm/mshyperv.h               |   3 +-
->  arch/x86/include/asm/msr.h                    | 130 +++++-------------
->  arch/x86/include/asm/paravirt.h               |  57 ++++----
->  arch/x86/include/asm/paravirt_types.h         |  10 +-
->  arch/x86/include/asm/suspend_32.h             |   1 +
->  arch/x86/include/asm/suspend_64.h             |   1 +
->  arch/x86/include/asm/switch_to.h              |   4 +-
->  arch/x86/include/asm/tsc.h                    |  76 +++++++++-
->  arch/x86/kernel/cpu/amd.c                     |   2 +-
->  arch/x86/kernel/cpu/common.c                  |  10 +-
->  arch/x86/kernel/cpu/mce/core.c                |   6 +-
->  arch/x86/kernel/cpu/resctrl/pseudo_lock.c     |  25 ++--
->  arch/x86/kernel/cpu/resctrl/rdtgroup.c        |   2 +-
->  arch/x86/kernel/cpu/umwait.c                  |   4 +-
->  arch/x86/kernel/fpu/xstate.h                  |   1 +
->  arch/x86/kernel/hpet.c                        |   1 +
->  arch/x86/kernel/kvm.c                         |   2 +-
->  arch/x86/kernel/kvmclock.c                    |   2 +-
->  arch/x86/kernel/process_64.c                  |   1 +
->  arch/x86/kernel/trace_clock.c                 |   2 +-
->  arch/x86/kernel/tsc_sync.c                    |   1 +
->  arch/x86/kvm/svm/svm.c                        |  34 ++---
->  arch/x86/kvm/vmx/vmx.c                        |   4 +-
->  arch/x86/lib/kaslr.c                          |   2 +-
->  arch/x86/mm/mem_encrypt_identity.c            |   5 +-
->  arch/x86/realmode/init.c                      |   1 +
->  arch/x86/xen/enlighten_pv.c                   |  58 ++++----
->  arch/x86/xen/pmu.c                            |  72 +++-------
->  arch/x86/xen/xen-ops.h                        |   5 +-
->  drivers/acpi/acpi_extlog.c                    |   1 +
->  drivers/acpi/processor_perflib.c              |   1 +
->  drivers/acpi/processor_throttling.c           |   3 +-
->  drivers/char/agp/nvidia-agp.c                 |   1 +
->  drivers/cpufreq/amd-pstate-ut.c               |   2 +
->  drivers/crypto/ccp/sev-dev.c                  |   1 +
->  drivers/edac/amd64_edac.c                     |   1 +
->  drivers/edac/ie31200_edac.c                   |   1 +
->  drivers/edac/mce_amd.c                        |   1 +
->  drivers/hwmon/hwmon-vid.c                     |   4 +
->  drivers/idle/intel_idle.c                     |   1 +
->  drivers/misc/cs5535-mfgpt.c                   |   1 +
->  drivers/net/vmxnet3/vmxnet3_drv.c             |   4 +
->  drivers/platform/x86/intel/ifs/core.c         |   1 +
->  drivers/platform/x86/intel/ifs/load.c         |   1 +
->  drivers/platform/x86/intel/ifs/runtest.c      |   1 +
->  drivers/platform/x86/intel/pmc/cnp.c          |   1 +
->  .../intel/speed_select_if/isst_if_common.c    |   1 +
->  .../intel/speed_select_if/isst_if_mbox_msr.c  |   1 +
->  .../intel/speed_select_if/isst_tpmi_core.c    |   1 +
->  drivers/platform/x86/intel/turbo_max_3.c      |   1 +
->  .../intel/uncore-frequency/uncore-frequency.c |   1 +
->  drivers/powercap/intel_rapl_common.c          |   1 +
->  drivers/powercap/intel_rapl_msr.c             |   1 +
->  .../processor_thermal_device.c                |   1 +
->  drivers/thermal/intel/intel_tcc_cooling.c     |   1 +
->  drivers/thermal/intel/x86_pkg_temp_thermal.c  |   1 +
->  drivers/video/fbdev/geode/display_gx.c        |   1 +
->  drivers/video/fbdev/geode/gxfb_core.c         |   1 +
->  drivers/video/fbdev/geode/lxfb_ops.c          |   1 +
->  74 files changed, 308 insertions(+), 295 deletions(-)
->=20
->=20
-> base-commit: a5447e92e169dafaf02fd653500105c7186d7128
-> --
-> 2.49.0
->=20
+> Furthermore, I suspect it will actually be slower than IPIs for anything
+> with more than 64 logical CPUs due to reduced parallelism.
 
+Maybe my brain is crusty and I need to go back and read the spec, but I
+remember RAR using the normal old APIC programming that normal old TLB
+flush IPIs use. So they have similar restrictions. If it's inefficient
+to program a wide IPI, it's also inefficient to program a RAR operation.
+So the (theoretical) pro is that you program it like an IPI and it slots
+into the IPI code fairly easily. But the con is that it has the same
+limitations as IPIs.
+
+I was actually concerned that INVLPGB won't be scalable. Since it
+doesn't have the ability to target specific CPUs in the ISA, it
+fundamentally need to either have a mechanism to reach all CPUs, or some
+way to know which TLB entries each CPU might have.
+
+Maybe AMD has something super duper clever to limit the broadcast scope.
+But if they don't, then a small range flush on a small number of CPUs
+might end up being pretty expensive, relatively.
+
+I don't think this is a big problem in Rik's series because he had a
+floor on the size of processes that get INVLPGB applied. Also, if it
+turns out to be a problem, it's dirt simple to revert back to IPIs for
+problematic TLB flushes.
+
+But I am deeply curious how the system will behave if there are a
+boatload of processes doing modestly-sized INVLPGBs that only apply to a
+handful of CPUs on a very large system.
+
+AMD and Intel came at this from very different angles (go figure). The
+designs are prioritizing different things for sure. I can't wait to see
+both of them fighting it out under real workloads.
