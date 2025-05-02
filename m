@@ -1,158 +1,144 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56F5623C515
-	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 10:28:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19C881E5B62;
+	Fri,  2 May 2025 11:23:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746181706; cv=none; b=hu4qFVaOKoT9fnY183XDKBv18cFL/9ijw8tBluBI4a/TuV7XTfCJHBbz5orC0xXsKRFqDwE5HBuWO0pFnyRigi9VwnN6gr3fQDnYed8vev4krni4SZS+aM/al2kAe08DXBiJz3Ylthf3D4QjVhFRsOGhkjDs7bvANCYF+qEc/Ek=
+	t=1746185014; cv=none; b=osDXjMz7z3TvR5RrTV/Pr9VN+i+4UsqNkekmmHrcX8UD7kONHuXPO59sxibhAp05FwEE9AkRCpGa3Oz1MqB7oMnm9SIYUUKehsyyOi6aFqsZLNuzxKIfnatunEPPGzT8pxsbi4w9Opvd/JQGZEPx0lIN3hmjD7f9NK9FWnFEKno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746181706; c=relaxed/simple;
-	bh=SEU8CqxPdXWm5kBs+itfyCdnnlLFQ0gV+s9EvH0h3a4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=e/hbEwz/3YyKeMhexXHLcqSwVk1n7rKtAmj0+jyce1UgwbxTKMuQ3RDHpJMBt56d/H6uC2s5/fwPlr4lHDJQclIEfHcm29PIt3mI705e2oHe8Ds7Sy9HmSDwJTb264MIOhsGNMpHh+YiYGujVE8sZOZImsBPs0RgVc6M2TzeY78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O49jaUlT; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1746185014; c=relaxed/simple;
+	bh=PRPW/uDt3qcKT5KOPbhmERJnNbucXaeqN2L1IjyyPX4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aUCWQpoSrcP0KEtS9ljATKEOt7WiXA5RQ2z+e0iHBPRJeKQCPi3tt0EeYalYNgp2ATSgIPh+L2QvHQlqOv9R+GpI/hsa+uZofrQvEZLA+bgRvMLfVVWYFA+fIWQ5+1a1mWqy87yKc5dwVNsHTfdkX6Kp7houkXPsPp4kxzVElJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=lmV94JNE; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O49jaUlT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1746181704;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QSbhw2lx3uIU9bt71Ke9bjoVhiyqLGEvU1SMMBHqrLU=;
-	b=O49jaUlTgeTmaChlaxAksfMo5LHGkdS33Hsf9XQac/P61QpIZaRVJTJbtvjGxe5SWZYcBA
-	37BP44hIWOINq2yraJR+rYlBCxd9wR+69lJf55wdZc7n9Aev+V4ymmQg4Otk6btN10OiCn
-	noZ2U012LV7ultjUlT6wRvz4Jdfuxhs=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-558-t0xKPKXtPvGAOlvB4vdr0Q-1; Fri, 02 May 2025 06:28:21 -0400
-X-MC-Unique: t0xKPKXtPvGAOlvB4vdr0Q-1
-X-Mimecast-MFC-AGG-ID: t0xKPKXtPvGAOlvB4vdr0Q_1746181700
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-39ee4b91d1cso1160193f8f.0
-        for <virtualization@lists.linux.dev>; Fri, 02 May 2025 03:28:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746181700; x=1746786500;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QSbhw2lx3uIU9bt71Ke9bjoVhiyqLGEvU1SMMBHqrLU=;
-        b=sZu/cmRhSDcLbtoIzwvNd1jSIHbp82lTKU46kwLamxqEzkzXnbR1K6xFleAEdZrTPh
-         az5D6czC/fwAX3ict5el9wHj9dYYQ4TM1C4F3W382YfV7opWWHm5zUxB4hAhGt/ZC1Qo
-         BqyP4HcKzQtyIDwaPozKkQfDh7yjtvkqctktUM3zp0SdL6Umww+yh9uKs/KDrXzPDU6X
-         xP5/WD47KMuECqfEcOj6YRvYE1xBRP+oGjtk/vyMntmtbU++FZBjD3jdx5DDnDTH5crL
-         +IJG03LsJssHgDR7zTlh70bOZfmyyf8+ec9DBs9CsTuwf/l7EWxUbF43RNdtbXC4As57
-         GCEQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVweMDHepB9AoZKae9MafBZnhQ/csA27dAzBv35pb0jD1eSaHm+3gz1xV12Ggkm0VMehyDdGYSKX3LeaD5DrA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YweILGPZIviNdN+R+Tp8f8nqWldSSnZ9GeB+5rLmfBgk7JPrN7N
-	QcadyUCLQ0DQdvRjm7osLPHvt1LQdiElRcpM1IQUkUGlh9G4b8NV3sGdNrCgFk6xxJZ4oR0tISU
-	SPE3m8knWR2/BbOT8wOok7mJQKqtoOqxEu9+8cZMW7hXEGVHW3gFxCnRYMU9eSb7/
-X-Gm-Gg: ASbGnctUnX0YlBLHrOjapoDKhkgsZO3hZ1LbnmsbIAh+Q2NwgW0+2nXdzROW41WXTCq
-	knGPXIhBcyKL7WQxRLV2DXptCpruxcPprZhlY2UM2VptEdkRwuOM0fPkNz/j+18yYo6R/UoD0kK
-	6rs99D37M1YsZBCQ5W0xUn45RVMgApHO3DTqJV6veRQAhGasnhvTwHOh1hWwqfJkdBSTN/xdT3a
-	MYv9ipysjijg7WxjvKqDE9nsMQ1G1jdn98/4usRd8KfHFnWeIpyWpKe4xqm1b7hRT6KJjgCcSk7
-	DcHUETIqXxm4Ip8NN1M=
-X-Received: by 2002:a05:6000:1a85:b0:3a0:8524:b480 with SMTP id ffacd0b85a97d-3a09402cacbmr5066374f8f.2.1746181699723;
-        Fri, 02 May 2025 03:28:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGWyOVTRRGEVNWXO/iDfooNor6IST3SO4x3a3xxs7csOvOKwxwfMPv7xS3Tnv2MrR9Li9kpkg==
-X-Received: by 2002:a05:6000:1a85:b0:3a0:8524:b480 with SMTP id ffacd0b85a97d-3a09402cacbmr5066344f8f.2.1746181699348;
-        Fri, 02 May 2025 03:28:19 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:246d:aa10::f39? ([2a0d:3344:246d:aa10::f39])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-441b2ad784asm85337125e9.7.2025.05.02.03.28.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 02 May 2025 03:28:18 -0700 (PDT)
-Message-ID: <74e11512-934b-446c-94cf-93bf97eff9fb@redhat.com>
-Date: Fri, 2 May 2025 12:28:17 +0200
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="lmV94JNE"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=PRPW/uDt3qcKT5KOPbhmERJnNbucXaeqN2L1IjyyPX4=; b=lmV94JNEzV4MsUJuxpPUrg3Bax
+	VPmVO1/zySgMAd5F2IJnFvPiwZNPECAQ1noECVKMioFjFmA+n5SOAzV+kGbk/f9S1iWtVP9rLg6cZ
+	hHF7SAR0m7IaJh5tCHy2qA/R/vkevPz7ZR3+xa+Zh5GSLdg0ezbI6iHsuifF9HE00+OjyODMdnQyb
+	JkPl44vhH6EmamOKaWacZeeUgT5U6RxA5F79Ex/83F13pJOquOWPbK7ely8gHy1uVeRQNWbA0aBQP
+	f+nYHty39Jk6K+NlHv/lPYoCn7B5BgUPqoEMb82IHPQShd8FJim54uJ17ucrfOJGKm432KMXzRw1R
+	RwhYSB9w==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1uAoTJ-0000000FKnO-0XWf;
+	Fri, 02 May 2025 11:22:27 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 6C1A530057C; Fri,  2 May 2025 13:22:16 +0200 (CEST)
+Date: Fri, 2 May 2025 13:22:16 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+	Valentin Schneider <vschneid@redhat.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
+	kvm@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-modules@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	rcu@vger.kernel.org, linux-hardening@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Marcelo Tosatti <mtosatti@redhat.com>,
+	Yair Podemsky <ypodemsk@redhat.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Daniel Wagner <dwagner@suse.de>, Petr Tesarik <ptesarik@suse.com>,
+	Nicolas Saenz Julienne <nsaenz@amazon.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	"Liang, Kan" <kan.liang@linux.intel.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	Paolo Bonzini <pbonzini@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+	Jason Baron <jbaron@akamai.com>, Ard Biesheuvel <ardb@kernel.org>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Petr Pavlu <petr.pavlu@suse.com>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Daniel Gomez <da.gomez@samsung.com>,
+	Naveen N Rao <naveen@kernel.org>,
+	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Joel Fernandes <joel@joelfernandes.org>,
+	Josh Triplett <josh@joshtriplett.org>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Lai Jiangshan <jiangshanlai@gmail.com>,
+	Zqiang <qiang.zhang1211@gmail.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Kees Cook <kees@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>, Miguel Ojeda <ojeda@kernel.org>,
+	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+	Rong Xu <xur@google.com>, Rafael Aquini <aquini@redhat.com>,
+	Song Liu <song@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Brian Gerst <brgerst@gmail.com>,
+	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+	Benjamin Berg <benjamin.berg@intel.com>,
+	Vishal Annapurve <vannapurve@google.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	John Stultz <jstultz@google.com>,
+	Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: Re: [PATCH v5 00/25] context_tracking,x86: Defer some IPIs until a
+ user->kernel transition
+Message-ID: <20250502112216.GZ4198@noisy.programming.kicks-ass.net>
+References: <20250429113242.998312-1-vschneid@redhat.com>
+ <fefcd1a6-f146-4f3c-b28b-f907e7346ddd@intel.com>
+ <20250430132047.01d48647@gandalf.local.home>
+ <019f6713-cfbd-466b-8fb5-dcd982cf8644@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3] selftests/vsock: add initial vmtest.sh for
- vsock
-To: Stefano Garzarella <sgarzare@redhat.com>,
- Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>,
- kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kselftest@vger.kernel.org
-References: <20250428-vsock-vmtest-v3-1-181af6163f3e@gmail.com>
- <a57wg5kmprrpk2dm3zlzvegb3gzj73ubs5lxeukyinc4edlcsw@itkgfcm44qu2>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <a57wg5kmprrpk2dm3zlzvegb3gzj73ubs5lxeukyinc4edlcsw@itkgfcm44qu2>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _8sP3IWzS4jMNZfRDgijje6dIlPDCE0S97C3UHSChbk_1746181700
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <019f6713-cfbd-466b-8fb5-dcd982cf8644@intel.com>
 
-On 4/30/25 3:06 PM, Stefano Garzarella wrote:
-> On Mon, Apr 28, 2025 at 04:48:11PM -0700, Bobby Eshleman wrote:
->> This commit introduces a new vmtest.sh runner for vsock.
->>
->> It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
->> H2G, and loopback. The testing tools from tools/testing/vsock/ are
->> reused. Currently, only vsock_test is used.
->>
->> VMCI and hyperv support is automatically built, though not used.
->>
->> Only tested on x86.
->>
->> To run:
->>
->>  $ tools/testing/selftests/vsock/vmtest.sh
-> 
-> I tried and it's working, but I have a lot of these messages in the
-> output:
->      dmesg: read kernel buffer failed: Operation not permitted
-> 
-> I'm on Fedora 41:
-> 
-> $ uname -r
-> 6.14.4-200.fc41.x86_64
+On Wed, Apr 30, 2025 at 11:07:35AM -0700, Dave Hansen wrote:
 
-This sounds like the test tripping on selinux. I think this problem
-should not be handled by the script itself.
+> Both AMD and Intel have hardware to do it. ARM CPUs do it too, I think.
+> You can go buy the Intel hardware off the shelf today.
 
-[...]
-> ERROR: trailing whitespace
-> #174: FILE: tools/testing/selftests/vsock/vmtest.sh:47:
-> +^Ivm_server_host_client^IRun vsock_test in server mode on the VM and in client mode on the host.^I$
-> 
-> WARNING: line length of 104 exceeds 100 columns
-> #174: FILE: tools/testing/selftests/vsock/vmtest.sh:47:
-> +	vm_server_host_client	Run vsock_test in server mode on the VM and in client mode on the host.	
-> 
-> ERROR: trailing whitespace
-> #175: FILE: tools/testing/selftests/vsock/vmtest.sh:48:
-> +^Ivm_client_host_server^IRun vsock_test in client mode on the VM and in server mode on the host.^I$
-> 
-> WARNING: line length of 104 exceeds 100 columns
-> #175: FILE: tools/testing/selftests/vsock/vmtest.sh:48:
-> +	vm_client_host_server	Run vsock_test in client mode on the VM and in server mode on the host.	
-> 
-> ERROR: trailing whitespace
-> #176: FILE: tools/testing/selftests/vsock/vmtest.sh:49:
-> +^Ivm_loopback^I^IRun vsock_test using the loopback transport in the VM.^I$
-> 
-> ERROR: trailing whitespace
-> #443: FILE: tools/testing/selftests/vsock/vmtest.sh:316:
-> +IFS="^I$
-> 
-> total: 4 errors, 4 warnings, 0 checks, 382 lines checked
-> 
-I almost forgot: I think it's better to avoid the special formatting and
-replies on review for proper updating of the script's help.
+To be fair, the Intel RAR thing is pretty horrific :-( Definitely
+sub-par compared to the AMD and ARM things.
 
-Thanks,
+Furthermore, the paper states it is a uarch feature for SPR with no
+guarantee future uarchs will get it (and to be fair, I'd prefer it if
+they didn't).
 
-Paolo
-
+Furthermore, I suspect it will actually be slower than IPIs for anything
+with more than 64 logical CPUs due to reduced parallelism.
