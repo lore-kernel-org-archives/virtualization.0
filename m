@@ -1,155 +1,325 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7634123C4F8
-	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 11:51:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6259252914
+	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 13:13:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746186673; cv=none; b=Nk0RuwlvcThm62PEG1bebPS9sI0htnl0Uj35+voz8gvopr/aYruQ0OG45UunHbJvAQ4FT5EntF+S1yLcxbhkIBltWCqh89ObWFNdkFIvOAWgfx4lg++nwD4Dnk4tDhtMR8YCiOFwldVk2VDxx2mtEEq7xwiBq4/xLb2ff9DcYCk=
+	t=1746191605; cv=none; b=KkPZB77MRj3PhmZb14uHjHqEHg5J691zP9A7kjYLuql0iruESS9ISdhHvNA0mwLZ7nce29MgyFdzUrR0+SQAhnmoYRy9lpckRhAlmQ3NogVNs/YXX4OGGkT3vC4GTwSKYK5sNw57k5iWOjytZwq/IxW2vhif5vLwCOvXcpI8TnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746186673; c=relaxed/simple;
-	bh=+0d8CwTuHrJs/E25TFaoH65v9LAce4x6lhTEyfS7GV8=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=BDmTIHFwPgljjVE49hT0Xqh5k/+NEliTuFuUXwiEi/KJ0zuMm+oteA3aiE9XirS9PJfzafhEITC0DOSC3nq4VlN7GUZLT/ioNYX5npfusAJNkrYxv/0mpq+yaXi33elOOthDW0Twch1MyMS36f6pZhWpzJS4M4MUCJDgubb5W1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SqA0BRXi; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1746191605; c=relaxed/simple;
+	bh=8rjzfX3W2W2Ua3bnqMyXei5mk/ntSXdZx8V9rkAjM0A=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=CeSQskKsyapoGWTEf2qoMb5FFsaZPewFbprCHhttMUwP/HQjNcfUVZfiC8q7TAHKZll8AOizlnrJTfJVKaQvNQiGecqTxrB8LifMGJGnUjdUnlO3FOMqbQzLMHN6RuWkdCYx2LBhhzdA67KUQmJaSW+28LiMaMgy3W4jJlMVR/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PUfTHgWM; arc=none smtp.client-ip=192.198.163.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SqA0BRXi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1746186670;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1ZIQ1vSgG4BCH48a70PyavGFGPqBvO/w0OyHX60QmKc=;
-	b=SqA0BRXi1yO0TlYbIoRJI/oS2OpGQjLSuH0RBW1r33/aetqs+KF/gsXu9mQVG3vkIe3beX
-	XLuFoB/gIZoQdNu1D8P01T1mhaq4hintAfmReMKRuEf+9mygIDHOjxX+Z+iN2vYpM/BTiM
-	hWmdAQ+oZUeq2v751Vbv6yo7hxq+/RY=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-372-EgeqroR5ON6xEdXy5hTkQQ-1; Fri, 02 May 2025 07:51:09 -0400
-X-MC-Unique: EgeqroR5ON6xEdXy5hTkQQ-1
-X-Mimecast-MFC-AGG-ID: EgeqroR5ON6xEdXy5hTkQQ_1746186668
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-39c30f26e31so1002377f8f.3
-        for <virtualization@lists.linux.dev>; Fri, 02 May 2025 04:51:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746186668; x=1746791468;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=1ZIQ1vSgG4BCH48a70PyavGFGPqBvO/w0OyHX60QmKc=;
-        b=oU6CBwnKd0LJNpDDyctTKJ774BFg3fzdQe8F19Bx/LGZ4qiqww2GkxLR68RI/1u0q9
-         t5vuH0yvEsvmAunPA+H9YoTmbLZRYmEVNUVD0ce6fHg6jC4WRfSetyHO+hozedaVBttW
-         F6n6YiYPl2VDDrFjJB1cJmYv8tE6tCdllkXckS23TJvCHjJ7OzGEwlQM3ma2bSU5fWBO
-         JHD6xp8xgkejRY9ohL8JJfpFpd8/KXS8cH1FkRr2wrbdHfEHTUCeGZ+wYgkm1Qtz0J1i
-         sjYNJAH3hrWJ7f8JU1Fi9bSmxeZrTFRehkaA681JC72eFZm8MSJtnzOnFQViQgKC8IQn
-         m05A==
-X-Forwarded-Encrypted: i=1; AJvYcCWnYb9i0ETQEAggr8b4LmNPsBjgWj1nvuP8VqWhNYVArbGWSTqd2hWTM0161DRps1fqB2LzLNn/8ENZBSCK6w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzmnK/Asb7PQI4mKvDY9kQ7g+ON5Jb6nZrKS83Xvy2QE4SaFwYW
-	ehJSFJ+poCnCx3E+q2C5uyMqG283opLqAhCIULvdxBK5m1IKDFhn1CRW5tvWnCqLTWWwIW1U/J6
-	b1ulygX0ILCnxej5v/pNhF7qEbZ48Q10yGJBbGfSX4p9fBnwoFm5etVmIVzWQH/bH
-X-Gm-Gg: ASbGncvIg95FrA+Xg4TL4TQhZHIVfSKYsr6Ehjatif2gemEFa0C65VmGtYa3dqoVeCE
-	n/IANIKcrpDuIpqxfhelAhHrb9OT2ym8z4/ujjQxRK7vPrzl8F1COI+GrtVR5oK5oqCyRVFGJzh
-	L+9Vucq3JkKWBtqH7eL885JfrqAanThbzOm0NjZFn2R4FjoIpmiyqoNhcx1X3QvuEEzpcwQ89hu
-	c2u6PKL1ePZ5LTEvOJMKxwbDLyU5d8MeH57qs2LiLtXN8qqd+O/5zx3IodXckicqjxqWpG11/z/
-	q+4JoOr95nnbrKy/B/A=
-X-Received: by 2002:a05:6000:2a6:b0:3a0:89e9:bb4 with SMTP id ffacd0b85a97d-3a099aea7f7mr2048293f8f.47.1746186667976;
-        Fri, 02 May 2025 04:51:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGwOQCZM3FMB5HKcpzIblBW1hsxg0qNkNXGCkUBBPHwGkLVJaHQAHnvurydrDJEy7YqzuycIQ==
-X-Received: by 2002:a05:6000:2a6:b0:3a0:89e9:bb4 with SMTP id ffacd0b85a97d-3a099aea7f7mr2048272f8f.47.1746186667564;
-        Fri, 02 May 2025 04:51:07 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:246d:aa10::f39? ([2a0d:3344:246d:aa10::f39])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a099b10083sm1959004f8f.62.2025.05.02.04.51.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 02 May 2025 04:51:07 -0700 (PDT)
-Message-ID: <fd7f21d9-3f45-4f68-85cb-dd160a0a95ca@redhat.com>
-Date: Fri, 2 May 2025 13:51:04 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PUfTHgWM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1746191604; x=1777727604;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version:content-id;
+  bh=8rjzfX3W2W2Ua3bnqMyXei5mk/ntSXdZx8V9rkAjM0A=;
+  b=PUfTHgWMvFJxTxND5TgwBvNsgJId94eVBVfY440xMak13A4AWz2tAXMD
+   Tao5LLz6glxthe48jZDAji454nEQ7pCS0yaWIRtt58SJAPgIb8CALdIzn
+   XjXoRZMkps0dcuyhpJu5ErZ/E3FMm724c1VeqkvyhLDVla9PiJNPNQ+hb
+   UI2miYeVyfl8xb9sD5fQDWVHBUH7OlS2t6VwkIU4+iQP76IHZjN0OWL7D
+   k2GhxH/HW2A29ksO0xD7OsaxXM/E0fegq45MRQzdcYeFZs+un+N0qk1rp
+   Yr6I/ELrKocmRKRB/psq9q++qBO2KKjoqZHjZWXykBb5aSUxgu2PFj0aa
+   w==;
+X-CSE-ConnectionGUID: znLGWY9wSTaKlfvpuh/x9w==
+X-CSE-MsgGUID: YQNHv1tcRKyg+XHbUgbSUg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11421"; a="59233293"
+X-IronPort-AV: E=Sophos;i="6.15,256,1739865600"; 
+   d="scan'208";a="59233293"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2025 06:13:23 -0700
+X-CSE-ConnectionGUID: uqJeJQZ9QjyJ9pDg+lbEpA==
+X-CSE-MsgGUID: eaKgRDz1TzO6Du8usPzXEw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,256,1739865600"; 
+   d="scan'208";a="135599266"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.135])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2025 06:13:07 -0700
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Fri, 2 May 2025 16:13:03 +0300 (EEST)
+To: "Xin Li (Intel)" <xin@zytor.com>, mingo@redhat.com
+cc: LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, 
+    linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+    virtualization@lists.linux.dev, linux-pm@vger.kernel.org, 
+    linux-edac@vger.kernel.org, xen-devel@lists.xenproject.org, 
+    linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+    Netdev <netdev@vger.kernel.org>, platform-driver-x86@vger.kernel.org, 
+    tglx@linutronix.de, bp@alien8.de, dave.hansen@linux.intel.com, 
+    x86@kernel.org, hpa@zytor.com, acme@kernel.org, jgross@suse.com, 
+    andrew.cooper3@citrix.com, peterz@infradead.org, namhyung@kernel.org, 
+    mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@kernel.org, 
+    irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com, 
+    wei.liu@kernel.org, ajay.kaher@broadcom.com, 
+    bcm-kernel-feedback-list@broadcom.com, tony.luck@intel.com, 
+    pbonzini@redhat.com, vkuznets@redhat.com, seanjc@google.com, 
+    luto@kernel.org, boris.ostrovsky@oracle.com, kys@microsoft.com, 
+    haiyangz@microsoft.com, decui@microsoft.com, dapeng1.mi@linux.intel.com
+Subject: Re: [PATCH v4A 01/15] x86/msr: Add missing includes of <asm/msr.h>
+In-Reply-To: <20250501054241.1245648-1-xin@zytor.com>
+Message-ID: <a34d7955-aa31-7bef-52cf-65dc4bb7a5c1@linux.intel.com>
+References: <a1917b37-e41e-d303-749b-4007cda01605@linux.intel.com> <20250501054241.1245648-1-xin@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v13 4/9] net: devmem: Implement TX path
-From: Paolo Abeni <pabeni@redhat.com>
-To: Mina Almasry <almasrymina@google.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
- io-uring@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-kselftest@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Simon Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>,
- Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Jeroen de Borst <jeroendb@google.com>,
- Harshitha Ramamurthy <hramamurthy@google.com>,
- Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn
- <willemb@google.com>, Jens Axboe <axboe@kernel.dk>,
- Pavel Begunkov <asml.silence@gmail.com>, David Ahern <dsahern@kernel.org>,
- Neal Cardwell <ncardwell@google.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
- sdf@fomichev.me, dw@davidwei.uk, Jamal Hadi Salim <jhs@mojatatu.com>,
- Victor Nogueira <victor@mojatatu.com>, Pedro Tammela
- <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>,
- Kaiyuan Zhang <kaiyuanz@google.com>
-References: <20250429032645.363766-1-almasrymina@google.com>
- <20250429032645.363766-5-almasrymina@google.com>
- <53433089-7beb-46cf-ae8a-6c58cd909e31@redhat.com>
-In-Reply-To: <53433089-7beb-46cf-ae8a-6c58cd909e31@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -QpzGlLvv5dSlZyKzgKG9-BY7pz9iL4jfp15kasxt6Q_1746186668
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; BOUNDARY="8323328-2124274657-1746191047=:958"
+Content-ID: <69d4ead6-fa09-8594-add2-0d027d3e7e6c@linux.intel.com>
 
-On 5/2/25 1:47 PM, Paolo Abeni wrote:
-> On 4/29/25 5:26 AM, Mina Almasry wrote:
->> Augment dmabuf binding to be able to handle TX. Additional to all the RX
->> binding, we also create tx_vec needed for the TX path.
->>
->> Provide API for sendmsg to be able to send dmabufs bound to this device:
->>
->> - Provide a new dmabuf_tx_cmsg which includes the dmabuf to send from.
->> - MSG_ZEROCOPY with SCM_DEVMEM_DMABUF cmsg indicates send from dma-buf.
->>
->> Devmem is uncopyable, so piggyback off the existing MSG_ZEROCOPY
->> implementation, while disabling instances where MSG_ZEROCOPY falls back
->> to copying.
->>
->> We additionally pipe the binding down to the new
->> zerocopy_fill_skb_from_devmem which fills a TX skb with net_iov netmems
->> instead of the traditional page netmems.
->>
->> We also special case skb_frag_dma_map to return the dma-address of these
->> dmabuf net_iovs instead of attempting to map pages.
->>
->> The TX path may release the dmabuf in a context where we cannot wait.
->> This happens when the user unbinds a TX dmabuf while there are still
->> references to its netmems in the TX path. In that case, the netmems will
->> be put_netmem'd from a context where we can't unmap the dmabuf, Resolve
->> this by making __net_devmem_dmabuf_binding_free schedule_work'd.
->>
->> Based on work by Stanislav Fomichev <sdf@fomichev.me>. A lot of the meat
->> of the implementation came from devmem TCP RFC v1[1], which included the
->> TX path, but Stan did all the rebasing on top of netmem/net_iov.
->>
->> Cc: Stanislav Fomichev <sdf@fomichev.me>
->> Signed-off-by: Kaiyuan Zhang <kaiyuanz@google.com>
->> Signed-off-by: Mina Almasry <almasrymina@google.com>
->> Acked-by: Stanislav Fomichev <sdf@fomichev.me>
-> 
-> I'm sorry for the late feedback. A bunch of things I did not notice
-> before...
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-The rest LGTM, and my feedback here ranges from nit to corner-cases, so
-we are probably better off with a follow-up than with a repost, other
-opinions welcome!
+--8323328-2124274657-1746191047=:958
+Content-Type: text/plain; CHARSET=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-ID: <914dd26d-9889-125a-917d-3b9acfbc7938@linux.intel.com>
 
-/P
+On Wed, 30 Apr 2025, Xin Li (Intel) wrote:
 
+> For some reason, there are some TSC-related functions in the MSR
+> header even though there is a tsc.h header.
+>=20
+> To facilitate the relocation of rdtsc{,_ordered}() from <asm/msr.h>
+> to <asm/tsc.h> and to eventually eliminate the inclusion of
+> <asm/msr.h> in <asm/tsc.h>, add <asm/msr.h> to the source files that
+> reference definitions from <asm/msr.h>.
+>=20
+> Signed-off-by: Xin Li (Intel) <xin@zytor.com>
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Acked-by: Ilpo J=E4rvinen <ilpo.jarvinen@linux.intel.com>
+> ---
+>=20
+> Change in v4A:
+> *) Use "git grep -l -e $PATTERN | grep -v -f <(git grep -l -e 'asm/msr\.h=
+')"
+>    to ensure ALL required *direct* inclusion of <asm/msr.h> (Ilpo J=E4rvi=
+nen).
+>=20
+> Change in v4:
+> *) Add missing includes in a different patch (Ilpo J=E4rvinen).
+> *) Add all necessary direct inclusions for msr.h (Ilpo J=E4rvinen).
+>=20
+> Change in v3:
+> * Add a problem statement to the changelog (Dave Hansen).
+> ---
+>  arch/x86/coco/sev/core.c                                    | 1 +
+>  arch/x86/events/amd/core.c                                  | 1 +
+>  arch/x86/events/amd/ibs.c                                   | 1 +
+>  arch/x86/events/amd/iommu.c                                 | 2 ++
+>  arch/x86/events/amd/lbr.c                                   | 1 +
+>  arch/x86/events/amd/power.c                                 | 1 +
+>  arch/x86/events/core.c                                      | 1 +
+>  arch/x86/events/intel/bts.c                                 | 1 +
+>  arch/x86/events/intel/core.c                                | 1 +
+>  arch/x86/events/intel/cstate.c                              | 1 +
+>  arch/x86/events/intel/ds.c                                  | 1 +
+>  arch/x86/events/intel/knc.c                                 | 1 +
+>  arch/x86/events/intel/p4.c                                  | 1 +
+>  arch/x86/events/intel/p6.c                                  | 1 +
+>  arch/x86/events/intel/pt.c                                  | 1 +
+>  arch/x86/events/intel/uncore.c                              | 1 +
+>  arch/x86/events/intel/uncore_discovery.c                    | 1 +
+>  arch/x86/events/intel/uncore_nhmex.c                        | 1 +
+>  arch/x86/events/intel/uncore_snb.c                          | 1 +
+>  arch/x86/events/intel/uncore_snbep.c                        | 1 +
+>  arch/x86/events/msr.c                                       | 2 ++
+>  arch/x86/events/perf_event.h                                | 1 +
+>  arch/x86/events/probe.c                                     | 2 ++
+>  arch/x86/events/rapl.c                                      | 1 +
+>  arch/x86/events/utils.c                                     | 1 +
+>  arch/x86/events/zhaoxin/core.c                              | 1 +
+>  arch/x86/hyperv/hv_apic.c                                   | 1 +
+>  arch/x86/hyperv/hv_init.c                                   | 1 +
+>  arch/x86/hyperv/hv_spinlock.c                               | 1 +
+>  arch/x86/hyperv/hv_vtl.c                                    | 1 +
+>  arch/x86/hyperv/ivm.c                                       | 1 +
+>  arch/x86/include/asm/fred.h                                 | 1 +
+>  arch/x86/include/asm/kvm_host.h                             | 1 +
+>  arch/x86/include/asm/microcode.h                            | 2 ++
+>  arch/x86/include/asm/mshyperv.h                             | 1 +
+>  arch/x86/include/asm/msr.h                                  | 1 +
+>  arch/x86/include/asm/resctrl.h                              | 2 ++
+>  arch/x86/include/asm/suspend_32.h                           | 1 +
+>  arch/x86/include/asm/suspend_64.h                           | 1 +
+>  arch/x86/include/asm/switch_to.h                            | 2 ++
+>  arch/x86/kernel/acpi/sleep.c                                | 1 +
+>  arch/x86/kernel/amd_nb.c                                    | 1 +
+>  arch/x86/kernel/apic/apic.c                                 | 1 +
+>  arch/x86/kernel/apic/apic_numachip.c                        | 1 +
+>  arch/x86/kernel/cet.c                                       | 1 +
+>  arch/x86/kernel/cpu/amd.c                                   | 1 +
+>  arch/x86/kernel/cpu/aperfmperf.c                            | 1 +
+>  arch/x86/kernel/cpu/bus_lock.c                              | 1 +
+>  arch/x86/kernel/cpu/feat_ctl.c                              | 1 +
+>  arch/x86/kernel/cpu/hygon.c                                 | 1 +
+>  arch/x86/kernel/cpu/mce/inject.c                            | 1 +
+>  arch/x86/kernel/cpu/microcode/core.c                        | 1 +
+>  arch/x86/kernel/cpu/mshyperv.c                              | 1 +
+>  arch/x86/kernel/cpu/resctrl/core.c                          | 1 +
+>  arch/x86/kernel/cpu/resctrl/monitor.c                       | 1 +
+>  arch/x86/kernel/cpu/resctrl/pseudo_lock.c                   | 1 +
+>  arch/x86/kernel/cpu/resctrl/rdtgroup.c                      | 1 +
+>  arch/x86/kernel/cpu/sgx/main.c                              | 1 +
+>  arch/x86/kernel/cpu/topology.c                              | 1 +
+>  arch/x86/kernel/cpu/topology_amd.c                          | 1 +
+>  arch/x86/kernel/cpu/tsx.c                                   | 1 +
+>  arch/x86/kernel/cpu/zhaoxin.c                               | 1 +
+>  arch/x86/kernel/fpu/core.c                                  | 1 +
+>  arch/x86/kernel/fpu/xstate.c                                | 1 +
+>  arch/x86/kernel/fpu/xstate.h                                | 1 +
+>  arch/x86/kernel/fred.c                                      | 1 +
+>  arch/x86/kernel/hpet.c                                      | 1 +
+>  arch/x86/kernel/kvm.c                                       | 1 +
+>  arch/x86/kernel/paravirt.c                                  | 1 +
+>  arch/x86/kernel/process.c                                   | 1 +
+>  arch/x86/kernel/process_64.c                                | 1 +
+>  arch/x86/kernel/trace_clock.c                               | 2 +-
+>  arch/x86/kernel/traps.c                                     | 1 +
+>  arch/x86/kernel/tsc.c                                       | 1 +
+>  arch/x86/kernel/tsc_sync.c                                  | 1 +
+>  arch/x86/kvm/svm/avic.c                                     | 1 +
+>  arch/x86/kvm/svm/sev.c                                      | 1 +
+>  arch/x86/kvm/svm/svm.c                                      | 1 +
+>  arch/x86/kvm/vmx/nested.c                                   | 1 +
+>  arch/x86/kvm/vmx/pmu_intel.c                                | 1 +
+>  arch/x86/kvm/vmx/sgx.c                                      | 1 +
+>  arch/x86/kvm/vmx/vmx.c                                      | 1 +
+>  arch/x86/lib/insn-eval.c                                    | 1 +
+>  arch/x86/lib/kaslr.c                                        | 2 +-
+>  arch/x86/mm/mem_encrypt_identity.c                          | 1 +
+>  arch/x86/mm/tlb.c                                           | 1 +
+>  arch/x86/pci/amd_bus.c                                      | 1 +
+>  arch/x86/pci/mmconfig-shared.c                              | 3 ++-
+>  arch/x86/power/cpu.c                                        | 1 +
+>  arch/x86/realmode/init.c                                    | 1 +
+>  arch/x86/virt/svm/sev.c                                     | 1 +
+>  arch/x86/xen/enlighten_pv.c                                 | 1 +
+>  arch/x86/xen/pmu.c                                          | 1 +
+>  arch/x86/xen/suspend.c                                      | 1 +
+>  drivers/accel/habanalabs/common/habanalabs_ioctl.c          | 2 --
+>  drivers/acpi/acpi_extlog.c                                  | 1 +
+>  drivers/acpi/processor_perflib.c                            | 1 +
+>  drivers/acpi/processor_throttling.c                         | 6 +++++-
+>  drivers/char/agp/nvidia-agp.c                               | 1 +
+>  drivers/cpufreq/amd-pstate-ut.c                             | 2 ++
+>  drivers/cpufreq/elanfreq.c                                  | 1 -
+>  drivers/cpufreq/sc520_freq.c                                | 1 -
+>  drivers/crypto/ccp/sev-dev.c                                | 1 +
+>  drivers/edac/amd64_edac.c                                   | 1 +
+>  drivers/edac/ie31200_edac.c                                 | 1 +
+>  drivers/edac/mce_amd.c                                      | 1 +
+>  drivers/hwmon/hwmon-vid.c                                   | 4 ++++
+>  drivers/idle/intel_idle.c                                   | 1 +
+>  drivers/misc/cs5535-mfgpt.c                                 | 1 +
+>  drivers/net/vmxnet3/vmxnet3_drv.c                           | 4 ++++
+>  drivers/platform/x86/intel/ifs/core.c                       | 1 +
+>  drivers/platform/x86/intel/ifs/load.c                       | 1 +
+>  drivers/platform/x86/intel/ifs/runtest.c                    | 1 +
+>  drivers/platform/x86/intel/pmc/cnp.c                        | 1 +
+>  drivers/platform/x86/intel/speed_select_if/isst_if_common.c | 1 +
+>  .../platform/x86/intel/speed_select_if/isst_if_mbox_msr.c   | 1 +
+>  drivers/platform/x86/intel/speed_select_if/isst_tpmi_core.c | 1 +
+>  drivers/platform/x86/intel/turbo_max_3.c                    | 1 +
+>  .../platform/x86/intel/uncore-frequency/uncore-frequency.c  | 1 +
+>  drivers/powercap/intel_rapl_common.c                        | 1 +
+>  drivers/powercap/intel_rapl_msr.c                           | 1 +
+>  .../intel/int340x_thermal/processor_thermal_device.c        | 1 +
+>  drivers/thermal/intel/intel_tcc_cooling.c                   | 1 +
+>  drivers/thermal/intel/x86_pkg_temp_thermal.c                | 1 +
+>  drivers/video/fbdev/geode/display_gx.c                      | 1 +
+>  drivers/video/fbdev/geode/gxfb_core.c                       | 1 +
+>  drivers/video/fbdev/geode/lxfb_ops.c                        | 1 +
+>  127 files changed, 142 insertions(+), 8 deletions(-)
+>=20
+
+> diff --git a/arch/x86/kernel/trace_clock.c b/arch/x86/kernel/trace_clock.=
+c
+> index b8e7abe00b06..708d61743d15 100644
+> --- a/arch/x86/kernel/trace_clock.c
+> +++ b/arch/x86/kernel/trace_clock.c
+> @@ -4,7 +4,7 @@
+>   */
+>  #include <asm/trace_clock.h>
+>  #include <asm/barrier.h>
+> -#include <asm/msr.h>
+> +#include <asm/tsc.h>
+
+Does this change belong to this patch?
+
+It might even cause a build failure until the second patch which moves=20
+the tsc related things to the other file (unless there's indirect include=
+=20
+path to asm/msr.h).
+
+> diff --git a/arch/x86/lib/kaslr.c b/arch/x86/lib/kaslr.c
+> index a58f451a7dd3..b5893928d55c 100644
+> --- a/arch/x86/lib/kaslr.c
+> +++ b/arch/x86/lib/kaslr.c
+> @@ -8,7 +8,7 @@
+>   */
+>  #include <asm/asm.h>
+>  #include <asm/kaslr.h>
+> -#include <asm/msr.h>
+> +#include <asm/tsc.h>
+
+Same thing here.
+
+>  #include <asm/archrandom.h>
+>  #include <asm/e820/api.h>
+>  #include <asm/shared/io.h>
+
+> diff --git a/drivers/accel/habanalabs/common/habanalabs_ioctl.c b/drivers=
+/accel/habanalabs/common/habanalabs_ioctl.c
+> index 8729a0c57d78..dc80ca921d90 100644
+> --- a/drivers/accel/habanalabs/common/habanalabs_ioctl.c
+> +++ b/drivers/accel/habanalabs/common/habanalabs_ioctl.c
+> @@ -17,8 +17,6 @@
+>  #include <linux/uaccess.h>
+>  #include <linux/vmalloc.h>
+> =20
+> -#include <asm/msr.h>
+> -
+
+I suggested making a separate patch out of these removals. Currently you=20
+do them without any clear warning in the changelog which only talks about=
+=20
+adding asm/msr.h.
+
+> diff --git a/drivers/acpi/processor_throttling.c b/drivers/acpi/processor=
+_throttling.c
+> index 00d045e5f524..ecd7fe256153 100644
+> --- a/drivers/acpi/processor_throttling.c
+> +++ b/drivers/acpi/processor_throttling.c
+> @@ -18,9 +18,13 @@
+>  #include <linux/sched.h>
+>  #include <linux/cpufreq.h>
+>  #include <linux/acpi.h>
+> +#include <linux/uaccess.h>
+>  #include <acpi/processor.h>
+>  #include <asm/io.h>
+> -#include <linux/uaccess.h>
+> +#include <asm/asm.h>
+
+???
+
+> +#ifdef CONFIG_X86
+> +#include <asm/msr.h>
+> +#endif
+
+
+I really appreciate you took the effort to do this change the correct
+way! :-)
+
+--
+ i.
+--8323328-2124274657-1746191047=:958--
