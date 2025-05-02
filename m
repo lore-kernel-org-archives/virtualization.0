@@ -1,39 +1,39 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDCA3195
-	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 18:01:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E96B3215789
+	for <virtualization@lists.linux.dev>; Fri,  2 May 2025 18:02:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746208886; cv=none; b=pZpxJKYLXTk40Mgz/gYFUsD7LH0Xhv13GLoupSF1PqR1VSPLxMAwWNEi+FtK/s9CoghVtahnbP0OHOv3npTDjmBoKYC5/ult66GAWBaTHnKYiz7EwrevSr005p3113ILdp27Swbgjt6nMrRlk5TJBe/lrkxnzePVfJB+JY/8wkU=
+	t=1746208940; cv=none; b=HegZmItg3eJ/ivAbYq1zgeppZmOLCjUOjPVeKLd0A+x3PTZKM5iMv3WtmE/ZMjtYwNhozyNK7Xvx5H1cTMCgUm+ov2CYN/Glwymqn0vSXWs2DCpRSk3OeZ/fvS2zl1ptNhkDoDt8PZ1XQbewiTbVRYgbnDRKnpJstAp9YdF3FS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746208886; c=relaxed/simple;
-	bh=bVi2uLJgadMIDrlKX2yiVqiyC/JIX88QVjfioOah/5Q=;
+	s=arc-20240116; t=1746208940; c=relaxed/simple;
+	bh=P09igpDPPUN4W2AMrznc4R4gg1j+zk9bYVIjtPmI5Qo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LfhrUbZaDMw9lhsx2HT0FEZKI4uqBmMwsFyuuash/mAWkGQHOgRmjgjXYstqub5PyPRljIdzBxUknGgXrO1TfkTP44AGlOVsg5VVW/8GDpAxT7SFAqE4WVR2Y8bUWJ3cJHBKifavLWb9fplhqr2L94Ir+7sWloPnVH6kklHn7VU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=CAJaBviD; arc=none smtp.client-ip=198.137.202.136
+	 In-Reply-To:Content-Type; b=EqG530SUGVpCHWLCJhaS122Lu5/joY383SnUYGiuI4XHBouMOSPC1g3cphpz0tx3kY05r9pZ+WUGJiaMwaxr7r5CNqoNAHlgl4vdmgLNX2HKDII1j+czvp5fEBqcOgFSNp/t41PtI7Su7fxWqzhaRSVUljTHo3VRX7dF4T9VUsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=VOCJ0eCC; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="CAJaBviD"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="VOCJ0eCC"
 Received: from [192.168.7.202] ([71.202.166.45])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 542I0lLB2105252
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 542I1mpa2105495
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Fri, 2 May 2025 11:00:48 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 542I0lLB2105252
+	Fri, 2 May 2025 11:01:48 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 542I1mpa2105495
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1746208851;
-	bh=hT0wLy4M/v5r4X1GaFGl658jjbwFpHKBOET/YkmHGHo=;
+	s=2025042001; t=1746208911;
+	bh=YB94RPwo0LiI+lMqmkXijW8cqAbUGVDkYACiu4rhJOk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=CAJaBviDhg9dcDsmvqA7VZfyDyiseEFTi17BVGAsmrhSXWlwiI3sYKkn5aE2mwhbP
-	 bgZAZCKk7pLOdVIAGKVBRNa+jDTPSLoC/S4MqW+rGSD/V4WtV8+NS0S15CsAopcW/D
-	 17kzdds9fMZzZC5qWrbmIdApNBkD8vV6qwWs5V7taNjREQAvzbGbXtMwRqqeGWDmv1
-	 xWQCz/zWDImzXOdooMewYA4YdpZtEtQmtoEmaUnapfwXICzNPcQLl4pKTBi4Mr75n/
-	 VvCXK2e99oq/VMAeMrTNHzml4+e9V0yqLoSG6KEbpqN8YhN5gnNNj/Afn1DJ5XrLTD
-	 OXrUGFJVQ0RAQ==
-Message-ID: <4b896294-66a3-4f4b-84f2-ec67dbaa9a6e@zytor.com>
-Date: Fri, 2 May 2025 11:00:47 -0700
+	b=VOCJ0eCCKEI1R2ioFr5ehcvkLYBzIHaFZ7pM8wyOLShTf+o7l9PFmGhWDbsdpLxQW
+	 rcoCbdc89fjuUFgfp7bB1gHXoCLu9YHYUOC9OAcpCU56iXWZ2OKCrPGpjrEMLxkE2d
+	 n/S+MTkFrGLR3Rf9GG0B/ASRUKucjVEKTIdvAyOPgijN7QnsACq5Y2axwtq96cdTCl
+	 5+6d46fXskfc2RwEpwu2heXdygLklUe6dzhmSFhZ15wH2HmKiCsM+42OPweeJlvkgL
+	 waa4XMFGYhcr5mQd3ciW2VlgRbYtUdo8/6h8/XYwibFp0MRNe2QxHohkamu9kpC1+h
+	 ynCS6u6OzyyAw==
+Message-ID: <3a88480e-c705-4914-ac18-9764b799a36c@zytor.com>
+Date: Fri, 2 May 2025 11:01:47 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -62,7 +62,7 @@ Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         haiyangz@microsoft.com, decui@microsoft.com,
         dapeng1.mi@linux.intel.com, ilpo.jarvinen@linux.intel.com
 References: <20250427092027.1598740-1-xin@zytor.com>
- <20250427092027.1598740-3-xin@zytor.com> <aBSHyo-pu7K_CfpI@gmail.com>
+ <20250427092027.1598740-3-xin@zytor.com> <aBR_1oQN-gKCREBD@gmail.com>
 Content-Language: en-US
 From: Xin Li <xin@zytor.com>
 Autocrypt: addr=xin@zytor.com; keydata=
@@ -99,42 +99,30 @@ Autocrypt: addr=xin@zytor.com; keydata=
  PYbAkjBbm+tuJ/Sm+5Yp5T/BnKz21FoCS8uvTiziHj2H7Cuekn6F8EYhegONm+RVg3vikOpn
  gao85i4HwQTK9/D1wgJIQkdwWXVMZ6q/OALaBp82vQ2U9sjTyFXgDjglgh00VRAHP7u1Rcu4
  l75w1xInsg==
-In-Reply-To: <aBSHyo-pu7K_CfpI@gmail.com>
+In-Reply-To: <aBR_1oQN-gKCREBD@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 5/2/2025 1:52 AM, Ingo Molnar wrote:
+On 5/2/2025 1:18 AM, Ingo Molnar wrote:
 > 
 > * Xin Li (Intel) <xin@zytor.com> wrote:
 > 
 >> For some reason, there are some TSC-related functions in the MSR
+>    ^^^^^^^^^^^^^^^
 >> header even though there is a tsc.h header.
->>
->> Relocate rdtsc{,_ordered}() from <asm/msr.h> to <asm/tsc.h>, and
->> subsequently remove the inclusion of <asm/msr.h> in <asm/tsc.h>.
->>
->> Signed-off-by: Xin Li (Intel) <xin@zytor.com>
->> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
->> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 > 
->> --- a/arch/x86/include/asm/tsc.h
->> +++ b/arch/x86/include/asm/tsc.h
->> @@ -7,7 +7,81 @@
->>   
->>   #include <asm/cpufeature.h>
->>   #include <asm/processor.h>
->> -#include <asm/msr.h>
+> The real reason is that the rdtsc{,_ordered}() methods use the
+> EAX_EDX_*() macros to optimize their EDX/EAX assembly accessors, which
+> is why these methods were in <asm/msr.h>.
 > 
-> Note that in the tip:x86/msr commit I've applied today I've
-> intentionally delayed the removal of this header dependency, to reduce
-> the probability of breaking -next today or in the near future.
+> Your followup patch tacitly acknowledges this by silently creating
+> duplicate copies of these facilities in both headers ...
 > 
-> We can remove that now superfluous header dependency in a future patch.
+> I've cleaned it all up in tip:x86/msr via these preparatory patches:
+> 
+>    x86/msr: Improve the comments of the DECLARE_ARGS()/EAX_EDX_VAL()/EAX_EDX_RET() facility
+>    x86/msr: Rename DECLARE_ARGS() to EAX_EDX_DECLARE_ARGS
+>    x86/msr: Move the EAX_EDX_*() methods from <asm/msr.h> to <asm/asm.h>
 > 
 
-This is truly a brilliant decision!
-
-Especially regarding the issues Ilpo identified.
-
-Thanks!
-     Xin
+Brilliant!
