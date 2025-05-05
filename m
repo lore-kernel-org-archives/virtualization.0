@@ -1,44 +1,52 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81A2528DF34;
-	Mon,  5 May 2025 22:28:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA67C28A41E;
+	Mon,  5 May 2025 22:28:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746484082; cv=none; b=Q0DWRWqACzPW4UUPNcpxECQZpNtqEetzNLGLyimiNc/hP9aMs4CIkR441wLtkfnxj6+A5KphJtmRHpqKsQb//+4Rr6W5YqT8/7dk8KX5wqhEUS0rSSItf1w7Bkfm/jV03wb4ofxmNGomlrAv+2/h+mq/1EbBxOaQ1FSsJRdyN7w=
+	t=1746484113; cv=none; b=oNvLR2t36tvyQYb1NvJqye0fe71K3AgIFJpWESFEoi4nkX8xCNkLbwH3j42dGQZWQdA2iNtKVfqzkgxJIfwzCdnVHwVajvP+hMyXQ8uX99pQqMwI9G7pNHJoUtYrQCGaD+D4OPUBnPPwR0NECbwG++dtvHVdn6O6GfHPm61JiPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746484082; c=relaxed/simple;
-	bh=GpP7fij2MVDiTOiIkQApfI57N4DJxLmRdJ3y3rhZlkc=;
+	s=arc-20240116; t=1746484113; c=relaxed/simple;
+	bh=ApFm9vLJ/UCWGBwkbNk+1UcafOAJvv7wL+n2CHNQN2w=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Ewa8KE3nsathpCmCImdKe5S5+HI/WTBVB3LeqJ7DYNvxYAigczN+77ziY9CXjcMO26hmMTpWqXNnYNT3e93IpkrzK6t2KeCtaBcaac18TlLOzRY7jWl2tr8zv0Reo8xyiRL9oMl+ZVH9HrC3qIv+8QC2IhuBiHbCXn76TZBChJI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iIiG3Vn8; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=sYNUZ2F2BRZ58w/UU4jqyL7CQuEjXP9P0igUjNc9Xg1IBtc+Jg8aM/vfLSnN2XEVysGp57YKaV34WCNW7hGUFwM6s+FNU/MQLVwRZCHoUXIZvnLh8O+yys4BgxlisVGRnyhtPTuh00ThCTb0fZzIiG0XD8SrSPuTIDwf7xfpEto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RTLJgtmi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iIiG3Vn8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA231C4CEEF;
-	Mon,  5 May 2025 22:28:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RTLJgtmi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F09BC4CEED;
+	Mon,  5 May 2025 22:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746484082;
-	bh=GpP7fij2MVDiTOiIkQApfI57N4DJxLmRdJ3y3rhZlkc=;
+	s=k20201202; t=1746484112;
+	bh=ApFm9vLJ/UCWGBwkbNk+1UcafOAJvv7wL+n2CHNQN2w=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=iIiG3Vn8d5I6YUY8TfSmJki89nUBvin+UJ0s9hkcTA0AxQaBWq+ebjGYyMRuEPMF/
-	 iWurS665XCRYZiVi3mGxaDCosPhv0az9ctuy32gjcox/tR5xy1kVC/X9MUgh1ElmiX
-	 SriAUdphuz0P0NUCmVg0QUVtz9MxU+YDdcsRNQuE3gmLnNQA5c8z4uGzmQojgyuSz4
-	 EQLooGrVRaBvGGMMUAw+nThN06OmQOeKAfqTQy5J8916262QYVxfAS3zgCx/Yg5N4J
-	 QizhdnMpF/hPPA84TY5sJw/nb07g8WI3HDIXao8VobRHXePZTCQ5Zozl6Bpsj99JFK
-	 2xLXuDkZR/U+A==
+	b=RTLJgtmimST+gN+SoaKK9lvljXGMaztm07ezAPoeoca39H6vP9oFW8lOeC5WjvNhG
+	 V8HNQTLTJeI/RSBgWFG0DXxUjiIJ4yOWqG1MjL89NkZQoCNXxTaIQYKOM6HyOc564e
+	 bmnjuIwzkVyPL1tAvEFZ4weqCyUsw9GQPSVeJcGS5l7JZjl5VF4Wt4HhjNc9cX1SH+
+	 O1iZeT3IdXw4YgqRuynhuLUguTHr5jHQqQeCWTCvvresjTSMZQUUc2WHZyFAJmZxcG
+	 /khnFRHASctyqKkdJiHyZNHBC9p3d8tzvSXx1vyCTEOjGhQF2bVqhuPCHqACnjnfIR
+	 29MHQe9MitQ4w==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Eric Auger <eauger@redhat.com>,
-	Hongyu Ning <hongyu.ning@linux.intel.com>,
-	Eric Auger <eric.auger@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
+Cc: Rik van Riel <riel@surriel.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	Manali Shukla <Manali.Shukla@amd.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Michael Kelley <mhklinux@outlook.com>,
 	Sasha Levin <sashal@kernel.org>,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	x86@kernel.org,
+	jgross@suse.com,
+	luto@kernel.org,
 	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.14 340/642] virtio: break and reset virtio devices on device_shutdown()
-Date: Mon,  5 May 2025 18:09:16 -0400
-Message-Id: <20250505221419.2672473-340-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.14 356/642] x86/mm: Make MMU_GATHER_RCU_TABLE_FREE unconditional
+Date: Mon,  5 May 2025 18:09:32 -0400
+Message-Id: <20250505221419.2672473-356-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20250505221419.2672473-1-sashal@kernel.org>
 References: <20250505221419.2672473-1-sashal@kernel.org>
@@ -53,88 +61,161 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.14.5
 Content-Transfer-Encoding: 8bit
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Rik van Riel <riel@surriel.com>
 
-[ Upstream commit 8bd2fa086a04886798b505f28db4002525895203 ]
+[ Upstream commit a37259732a7dc33047fa1e4f9a338088f452e017 ]
 
-Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
-accesses during the hang.
+Currently x86 uses CONFIG_MMU_GATHER_TABLE_FREE when using
+paravirt, and not when running on bare metal.
 
-	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
-	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
-	...
+There is no real good reason to do things differently for
+each setup. Make them all the same.
 
-It was traced down to virtio-console. Kexec works fine if virtio-console
-is not in use.
+Currently get_user_pages_fast synchronizes against page table
+freeing in two different ways:
 
-The issue is that virtio-console continues to write to the MMIO even after
-underlying virtio-pci device is reset.
+ - on bare metal, by blocking IRQs, which block TLB flush IPIs
+ - on paravirt, with MMU_GATHER_RCU_TABLE_FREE
 
-Additionally, Eric noticed that IOMMUs are reset before devices, if
-devices are not reset on shutdown they continue to poke at guest memory
-and get errors from the IOMMU. Some devices get wedged then.
+This is done because some paravirt TLB flush implementations
+handle the TLB flush in the hypervisor, and will do the flush
+even when the target CPU has interrupts disabled.
 
-The problem can be solved by breaking all virtio devices on virtio
-bus shutdown, then resetting them.
+Always handle page table freeing with MMU_GATHER_RCU_TABLE_FREE.
+Using RCU synchronization between page table freeing and get_user_pages_fast()
+allows bare metal to also do TLB flushing while interrupts are disabled.
 
-Reported-by: Eric Auger <eauger@redhat.com>
-Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
-Message-ID: <c1dbc7dbad9b445245d3348f19e6742b0be07347.1740094946.git.mst@redhat.com>
-Tested-by: Eric Auger <eric.auger@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Various places in the mm do still block IRQs or disable preemption
+as an implicit way to block RCU frees.
+
+That makes it safe to use INVLPGB on AMD CPUs.
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Manali Shukla <Manali.Shukla@amd.com>
+Tested-by: Brendan Jackman <jackmanb@google.com>
+Tested-by: Michael Kelley <mhklinux@outlook.com>
+Link: https://lore.kernel.org/r/20250213161423.449435-2-riel@surriel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio.c | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ arch/x86/Kconfig           |  2 +-
+ arch/x86/kernel/paravirt.c | 17 +----------------
+ arch/x86/mm/pgtable.c      | 27 ++++-----------------------
+ 3 files changed, 6 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index ba37665188b51..150753c3b5782 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -395,6 +395,34 @@ static const struct cpumask *virtio_irq_get_affinity(struct device *_d,
- 	return dev->config->get_vq_affinity(dev, irq_vec);
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index aeb95b6e55369..088f7555e1ac0 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -277,7 +277,7 @@ config X86
+ 	select HAVE_PCI
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
+-	select MMU_GATHER_RCU_TABLE_FREE	if PARAVIRT
++	select MMU_GATHER_RCU_TABLE_FREE
+ 	select MMU_GATHER_MERGE_VMAS
+ 	select HAVE_POSIX_CPU_TIMERS_TASK_WORK
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index c5bb980b8a673..6669d251c4f75 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -59,21 +59,6 @@ void __init native_pv_lock_init(void)
+ 		static_branch_enable(&virt_spin_lock_key);
  }
  
-+static void virtio_dev_shutdown(struct device *_d)
-+{
-+	struct virtio_device *dev = dev_to_virtio(_d);
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-+
-+	/*
-+	 * Stop accesses to or from the device.
-+	 * We only need to do it if there's a driver - no accesses otherwise.
-+	 */
-+	if (!drv)
-+		return;
-+
-+	/*
-+	 * Some devices get wedged if you kick them after they are
-+	 * reset. Mark all vqs as broken to make sure we don't.
-+	 */
-+	virtio_break_device(dev);
-+	/*
-+	 * Guarantee that any callback will see vq->broken as true.
-+	 */
-+	virtio_synchronize_cbs(dev);
-+	/*
-+	 * As IOMMUs are reset on shutdown, this will block device access to memory.
-+	 * Some devices get wedged if this happens, so reset to make sure it does not.
-+	 */
-+	dev->config->reset(dev);
-+}
-+
- static const struct bus_type virtio_bus = {
- 	.name  = "virtio",
- 	.match = virtio_dev_match,
-@@ -403,6 +431,7 @@ static const struct bus_type virtio_bus = {
- 	.probe = virtio_dev_probe,
- 	.remove = virtio_dev_remove,
- 	.irq_get_affinity = virtio_irq_get_affinity,
-+	.shutdown = virtio_dev_shutdown,
- };
+-#ifndef CONFIG_PT_RECLAIM
+-static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
+-{
+-	struct ptdesc *ptdesc = (struct ptdesc *)table;
+-
+-	pagetable_dtor(ptdesc);
+-	tlb_remove_page(tlb, ptdesc_page(ptdesc));
+-}
+-#else
+-static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
+-{
+-	tlb_remove_table(tlb, table);
+-}
+-#endif
+-
+ struct static_key paravirt_steal_enabled;
+ struct static_key paravirt_steal_rq_enabled;
  
- int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
+@@ -197,7 +182,7 @@ struct paravirt_patch_template pv_ops = {
+ 	.mmu.flush_tlb_kernel	= native_flush_tlb_global,
+ 	.mmu.flush_tlb_one_user	= native_flush_tlb_one_user,
+ 	.mmu.flush_tlb_multi	= native_flush_tlb_multi,
+-	.mmu.tlb_remove_table	= native_tlb_remove_table,
++	.mmu.tlb_remove_table	= tlb_remove_table,
+ 
+ 	.mmu.exit_mmap		= paravirt_nop,
+ 	.mmu.notify_page_enc_status_changed	= paravirt_nop,
+diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
+index 9b0ee41b545c7..1ddbd799acdf5 100644
+--- a/arch/x86/mm/pgtable.c
++++ b/arch/x86/mm/pgtable.c
+@@ -18,25 +18,6 @@ EXPORT_SYMBOL(physical_mask);
+ #define PGTABLE_HIGHMEM 0
+ #endif
+ 
+-#ifndef CONFIG_PARAVIRT
+-#ifndef CONFIG_PT_RECLAIM
+-static inline
+-void paravirt_tlb_remove_table(struct mmu_gather *tlb, void *table)
+-{
+-	struct ptdesc *ptdesc = (struct ptdesc *)table;
+-
+-	pagetable_dtor(ptdesc);
+-	tlb_remove_page(tlb, ptdesc_page(ptdesc));
+-}
+-#else
+-static inline
+-void paravirt_tlb_remove_table(struct mmu_gather *tlb, void *table)
+-{
+-	tlb_remove_table(tlb, table);
+-}
+-#endif /* !CONFIG_PT_RECLAIM */
+-#endif /* !CONFIG_PARAVIRT */
+-
+ gfp_t __userpte_alloc_gfp = GFP_PGTABLE_USER | PGTABLE_HIGHMEM;
+ 
+ pgtable_t pte_alloc_one(struct mm_struct *mm)
+@@ -64,7 +45,7 @@ early_param("userpte", setup_userpte);
+ void ___pte_free_tlb(struct mmu_gather *tlb, struct page *pte)
+ {
+ 	paravirt_release_pte(page_to_pfn(pte));
+-	paravirt_tlb_remove_table(tlb, page_ptdesc(pte));
++	tlb_remove_table(tlb, page_ptdesc(pte));
+ }
+ 
+ #if CONFIG_PGTABLE_LEVELS > 2
+@@ -78,21 +59,21 @@ void ___pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd)
+ #ifdef CONFIG_X86_PAE
+ 	tlb->need_flush_all = 1;
+ #endif
+-	paravirt_tlb_remove_table(tlb, virt_to_ptdesc(pmd));
++	tlb_remove_table(tlb, virt_to_ptdesc(pmd));
+ }
+ 
+ #if CONFIG_PGTABLE_LEVELS > 3
+ void ___pud_free_tlb(struct mmu_gather *tlb, pud_t *pud)
+ {
+ 	paravirt_release_pud(__pa(pud) >> PAGE_SHIFT);
+-	paravirt_tlb_remove_table(tlb, virt_to_ptdesc(pud));
++	tlb_remove_table(tlb, virt_to_ptdesc(pud));
+ }
+ 
+ #if CONFIG_PGTABLE_LEVELS > 4
+ void ___p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d)
+ {
+ 	paravirt_release_p4d(__pa(p4d) >> PAGE_SHIFT);
+-	paravirt_tlb_remove_table(tlb, virt_to_ptdesc(p4d));
++	tlb_remove_table(tlb, virt_to_ptdesc(p4d));
+ }
+ #endif	/* CONFIG_PGTABLE_LEVELS > 4 */
+ #endif	/* CONFIG_PGTABLE_LEVELS > 3 */
 -- 
 2.39.5
 
