@@ -1,46 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F214304F49;
-	Mon,  5 May 2025 22:27:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81A2528DF34;
+	Mon,  5 May 2025 22:28:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746484061; cv=none; b=Hli1I1opMOc4D9pVUE21OakLQsqK5726d2itpIgGvSw8+zYVR5k871kLULuv0U8nvkTOzZKe8ZLxctYaBA2RotzU5RSL4acPh6xeDuNPafIGkn/ga2ETi4GizxrSJxY1+6SaMHpIdH3ypV9LM3eNIQxBj1BaE8QQC6jBY0kmN6U=
+	t=1746484082; cv=none; b=Q0DWRWqACzPW4UUPNcpxECQZpNtqEetzNLGLyimiNc/hP9aMs4CIkR441wLtkfnxj6+A5KphJtmRHpqKsQb//+4Rr6W5YqT8/7dk8KX5wqhEUS0rSSItf1w7Bkfm/jV03wb4ofxmNGomlrAv+2/h+mq/1EbBxOaQ1FSsJRdyN7w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746484061; c=relaxed/simple;
-	bh=i5y9xk12CZLq4R5fPksIHIbwKTgyzbpskjBKUj8Qk4I=;
+	s=arc-20240116; t=1746484082; c=relaxed/simple;
+	bh=GpP7fij2MVDiTOiIkQApfI57N4DJxLmRdJ3y3rhZlkc=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PJ6JKxwD9fh9ZQWC0t1hiZK1c9q3t65ZZMvXpfKUqFOUqtkwrVMjFMO0fkqY0bzWclG6QX9Fx+vUt84wRGhUhBLzwT3O088+LLfUzHMy9z/FubRW6fT2jH7Jc4loLc8WTKHyIj5BCWACmZnUWxEB8z7Gr9OW0jqsCH3h05loYwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YdIBhEZX; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=Ewa8KE3nsathpCmCImdKe5S5+HI/WTBVB3LeqJ7DYNvxYAigczN+77ziY9CXjcMO26hmMTpWqXNnYNT3e93IpkrzK6t2KeCtaBcaac18TlLOzRY7jWl2tr8zv0Reo8xyiRL9oMl+ZVH9HrC3qIv+8QC2IhuBiHbCXn76TZBChJI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iIiG3Vn8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YdIBhEZX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAA2CC4CEED;
-	Mon,  5 May 2025 22:27:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iIiG3Vn8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA231C4CEEF;
+	Mon,  5 May 2025 22:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746484061;
-	bh=i5y9xk12CZLq4R5fPksIHIbwKTgyzbpskjBKUj8Qk4I=;
+	s=k20201202; t=1746484082;
+	bh=GpP7fij2MVDiTOiIkQApfI57N4DJxLmRdJ3y3rhZlkc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=YdIBhEZXVotYkNpwMjddl4BNPHKq4vKJ94Jdfk2lE6Id7PF2fmT+R3nvfPIVSX/Nw
-	 0DqHzbsmCnQoHax1xgJKsBDqHlu0aOEDYFiZH05usNIMb7tz6Zpy65bWgaSsVjhaiJ
-	 ajHKN6YGoV5QqI6c16bZMsYfbGrdVXIlE87gEUc5IpnU2kiat3dGv8SlSpdcIIDIlW
-	 4oTRwwYuNsT6FGFOpIMToUZ9bflCGRiQ81Nob8Tc7vSGH09lw/R0/Ntm7Y6gmUGZPS
-	 ZnKRFryK1YF1Mp7JvSRAhvpgRbew948W8dLchmHEX9J0X/OkVZG2FKG43lyX1dkbl1
-	 auLPbdpH1kQqg==
+	b=iIiG3Vn8d5I6YUY8TfSmJki89nUBvin+UJ0s9hkcTA0AxQaBWq+ebjGYyMRuEPMF/
+	 iWurS665XCRYZiVi3mGxaDCosPhv0az9ctuy32gjcox/tR5xy1kVC/X9MUgh1ElmiX
+	 SriAUdphuz0P0NUCmVg0QUVtz9MxU+YDdcsRNQuE3gmLnNQA5c8z4uGzmQojgyuSz4
+	 EQLooGrVRaBvGGMMUAw+nThN06OmQOeKAfqTQy5J8916262QYVxfAS3zgCx/Yg5N4J
+	 QizhdnMpF/hPPA84TY5sJw/nb07g8WI3HDIXao8VobRHXePZTCQ5Zozl6Bpsj99JFK
+	 2xLXuDkZR/U+A==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Konstantin Shkolnyy <kshk@linux.ibm.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Dragos Tatulea <dtatulea@nvidia.com>,
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Eric Auger <eauger@redhat.com>,
+	Hongyu Ning <hongyu.ning@linux.intel.com>,
+	Eric Auger <eric.auger@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
-	eperezma@redhat.com,
-	cratiu@nvidia.com,
-	tariqt@nvidia.com,
 	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.14 331/642] vdpa/mlx5: Fix mlx5_vdpa_get_config() endianness on big-endian machines
-Date: Mon,  5 May 2025 18:09:07 -0400
-Message-Id: <20250505221419.2672473-331-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.14 340/642] virtio: break and reset virtio devices on device_shutdown()
+Date: Mon,  5 May 2025 18:09:16 -0400
+Message-Id: <20250505221419.2672473-340-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20250505221419.2672473-1-sashal@kernel.org>
 References: <20250505221419.2672473-1-sashal@kernel.org>
@@ -50,52 +48,93 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.14.5
 Content-Transfer-Encoding: 8bit
 
-From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-[ Upstream commit 439252e167ac45a5d46f573aac1da7d8f3e051ad ]
+[ Upstream commit 8bd2fa086a04886798b505f28db4002525895203 ]
 
-mlx5_vdpa_dev_add() doesn’t initialize mvdev->actual_features. It’s
-initialized later by mlx5_vdpa_set_driver_features(). However,
-mlx5_vdpa_get_config() depends on the VIRTIO_F_VERSION_1 flag in
-actual_features, to return data with correct endianness. When it’s called
-before mlx5_vdpa_set_driver_features(), the data are incorrectly returned
-as big-endian on big-endian machines, while QEMU then interprets them as
-little-endian.
+Hongyu reported a hang on kexec in a VM. QEMU reported invalid memory
+accesses during the hang.
 
-The fix is to initialize this VIRTIO_F_VERSION_1 as early as possible,
-especially considering that mlx5_vdpa_dev_add() insists on this flag to
-always be set anyway.
+	Invalid read at addr 0x102877002, size 2, region '(null)', reason: rejected
+	Invalid write at addr 0x102877A44, size 2, region '(null)', reason: rejected
+	...
 
-Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
-Message-Id: <20250204173127.166673-1-kshk@linux.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+It was traced down to virtio-console. Kexec works fine if virtio-console
+is not in use.
+
+The issue is that virtio-console continues to write to the MMIO even after
+underlying virtio-pci device is reset.
+
+Additionally, Eric noticed that IOMMUs are reset before devices, if
+devices are not reset on shutdown they continue to poke at guest memory
+and get errors from the IOMMU. Some devices get wedged then.
+
+The problem can be solved by breaking all virtio devices on virtio
+bus shutdown, then resetting them.
+
+Reported-by: Eric Auger <eauger@redhat.com>
+Reported-by: Hongyu Ning <hongyu.ning@linux.intel.com>
+Message-ID: <c1dbc7dbad9b445245d3348f19e6742b0be07347.1740094946.git.mst@redhat.com>
+Tested-by: Eric Auger <eric.auger@redhat.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/virtio/virtio.c | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 36099047560df..cccc49a08a1ab 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -3884,6 +3884,9 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
- 	ndev->mvdev.max_vqs = max_vqs;
- 	mvdev = &ndev->mvdev;
- 	mvdev->mdev = mdev;
-+	/* cpu_to_mlx5vdpa16() below depends on this flag */
-+	mvdev->actual_features =
-+			(device_features & BIT_ULL(VIRTIO_F_VERSION_1));
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index ba37665188b51..150753c3b5782 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -395,6 +395,34 @@ static const struct cpumask *virtio_irq_get_affinity(struct device *_d,
+ 	return dev->config->get_vq_affinity(dev, irq_vec);
+ }
  
- 	ndev->vqs = kcalloc(max_vqs, sizeof(*ndev->vqs), GFP_KERNEL);
- 	ndev->event_cbs = kcalloc(max_vqs + 1, sizeof(*ndev->event_cbs), GFP_KERNEL);
++static void virtio_dev_shutdown(struct device *_d)
++{
++	struct virtio_device *dev = dev_to_virtio(_d);
++	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
++
++	/*
++	 * Stop accesses to or from the device.
++	 * We only need to do it if there's a driver - no accesses otherwise.
++	 */
++	if (!drv)
++		return;
++
++	/*
++	 * Some devices get wedged if you kick them after they are
++	 * reset. Mark all vqs as broken to make sure we don't.
++	 */
++	virtio_break_device(dev);
++	/*
++	 * Guarantee that any callback will see vq->broken as true.
++	 */
++	virtio_synchronize_cbs(dev);
++	/*
++	 * As IOMMUs are reset on shutdown, this will block device access to memory.
++	 * Some devices get wedged if this happens, so reset to make sure it does not.
++	 */
++	dev->config->reset(dev);
++}
++
+ static const struct bus_type virtio_bus = {
+ 	.name  = "virtio",
+ 	.match = virtio_dev_match,
+@@ -403,6 +431,7 @@ static const struct bus_type virtio_bus = {
+ 	.probe = virtio_dev_probe,
+ 	.remove = virtio_dev_remove,
+ 	.irq_get_affinity = virtio_irq_get_affinity,
++	.shutdown = virtio_dev_shutdown,
+ };
+ 
+ int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
 -- 
 2.39.5
 
