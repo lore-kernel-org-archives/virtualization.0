@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1412E36E099;
-	Mon,  5 May 2025 23:01:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ABC62BEC52;
+	Mon,  5 May 2025 22:48:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746486117; cv=none; b=eN9FE3VYhTufET/RDNDzmB91Wv3Z510Kv7LAp2YXDDEpxEZHZFW/nmmUL1q1r8lJIb258F15EuT0uIuZQcBX04yHmMwZtGUh6QNma+XmPJA8MyUXIV3jMN2Qx2U1K4jp2EpN9tOQI0rYuviZ4eavq+76shaF75Dbv/ZSDC0gcd0=
+	t=1746485304; cv=none; b=kxMe0AgegsmWlRUY5X+V0z10ROvs0nOsX5+Pklku1S6prW4MjGmNVGpRk7oZko1VLIiAN4LpkROoIMPwcPjwnkDmV8alPIlf5Jdof9Me6cv1Lw5k0OUFTzzH1tDiRPPpR8ne5A/HmE8F0Oz2MwY44FgIIljJCSSqSCA0B62Omnk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746486117; c=relaxed/simple;
-	bh=PAZV3TgFo6qGCFziwxdvUIXqDXd56PaqynSudrDxEgU=;
+	s=arc-20240116; t=1746485304; c=relaxed/simple;
+	bh=Me0u92KtWJbVatZweqiucn310jO79Ids9W1Hom/IDw8=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=p4BBcLfXiFBvYkl5XFuF7HJwXFcR66QmVRSU0bdXxyGwfQLmP46YFqihESFNfUuAc9FdEmxRzpYy639KSdkB0kTxp00jJDuv3YaNPXeewL8qIfqHK+hVYztXM1xfmnnLQZh1I/1rvRXE7fRqunE1UxWTObS16/FF6Xba1NxyFpI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VUrgY/at; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=n1TtrqLEpQ90RzB0tBU0RAhqRkJuk62jS9SbEU3kmtMS5R0GAIsrdMGY++hSbZEa2aEuiJok74hEE8J0aqBhHR5ZzYGZBov7z6YwdfCGGFSIjYbBO6NpbxtxVKIQ/UzS5+i3H8+5KR7Q8AjwRj4Z1T2Kvz3gglle6Ag9JD5+HHo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nh4xGY9a; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VUrgY/at"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6E78C4CEF2;
-	Mon,  5 May 2025 23:01:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nh4xGY9a"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2687C4CEEE;
+	Mon,  5 May 2025 22:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746486116;
-	bh=PAZV3TgFo6qGCFziwxdvUIXqDXd56PaqynSudrDxEgU=;
+	s=k20201202; t=1746485304;
+	bh=Me0u92KtWJbVatZweqiucn310jO79Ids9W1Hom/IDw8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=VUrgY/at7dgk0SfpA+WFXOR8anyvfrpIPQrqniYEwHMlvUmm9QffwmPk1LqEr4NHJ
-	 VHI8dRY5SF0MWLxY8t646Zjt5v/Dq/BDNkVDCaspY7PIdNaW6JhzykC2RLK1B/JVsy
-	 rO/rEWx3Oe0FbAZu7Xa9tUf4Jsr7b36h089z2NrdAhnkZ1ZtnZnZnq/BxqCdAZOEfS
-	 NkoKalXOXK+41jt1AJL2tc/cfBMRtwhvYYSlv8gAYUndFJ0u4zuH6O+9TXmV47Uyk5
-	 /LbOeurpxPChb6WoKDINNPDS4e/elA++6dOjRnhAxiQD38IJL5MVtKddM15Yckci5z
-	 MIvlqRuKSs8Fw==
+	b=Nh4xGY9aSPXBxAOmIAwg7HoD700taaHrLQuoIQTIiwwgWX84l19OSQX7LGR6Zv7Yz
+	 jpJcbeRBv6QQdwXS1F17KiS7Yi3BniJcQXMVaMthe/GM60Sa2A25DwGu6aR67fxGTm
+	 qfTdhM2HwV/YtW6inwkI/FtlGj1gLHysF15i1w4OUVk3u3a1qwLh7lfK/OTlJFioGn
+	 56aTRxfDlKDeXv4dpNfP5ObxhxBdFIKLiCSm3xYG5NfSCQrRgCUhSJ8oKZpL3rLaMg
+	 P9R2qMLigPgRQ/ZftMXAeRIzx8I//JA1YQhOKuLrEhb38bRzm5b9WPPf7iWIP6cpI0
+	 8D5dJGcx2Fgtw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -37,12 +37,12 @@ Cc: Mike Christie <michael.christie@oracle.com>,
 	virtualization@lists.linux.dev,
 	kvm@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.6 160/294] vhost-scsi: Return queue full for page alloc failures during copy
-Date: Mon,  5 May 2025 18:54:20 -0400
-Message-Id: <20250505225634.2688578-160-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.12 258/486] vhost-scsi: Return queue full for page alloc failures during copy
+Date: Mon,  5 May 2025 18:35:34 -0400
+Message-Id: <20250505223922.2682012-258-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250505225634.2688578-1-sashal@kernel.org>
-References: <20250505225634.2688578-1-sashal@kernel.org>
+In-Reply-To: <20250505223922.2682012-1-sashal@kernel.org>
+References: <20250505223922.2682012-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -51,7 +51,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.6.89
+X-stable-base: Linux 6.12.26
 Content-Transfer-Encoding: 8bit
 
 From: Mike Christie <michael.christie@oracle.com>
@@ -71,10 +71,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 9 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 8d8a22504d71f..9a62372bdac32 100644
+index 35a03306d1345..f9a106bbe8ee1 100644
 --- a/drivers/vhost/scsi.c
 +++ b/drivers/vhost/scsi.c
-@@ -746,7 +746,7 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
+@@ -757,7 +757,7 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
  	size_t len = iov_iter_count(iter);
  	unsigned int nbytes = 0;
  	struct page *page;
@@ -83,7 +83,7 @@ index 8d8a22504d71f..9a62372bdac32 100644
  
  	if (cmd->tvc_data_direction == DMA_FROM_DEVICE) {
  		cmd->saved_iter_addr = dup_iter(&cmd->saved_iter, iter,
-@@ -759,6 +759,7 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
+@@ -770,6 +770,7 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
  		page = alloc_page(GFP_KERNEL);
  		if (!page) {
  			i--;
@@ -91,7 +91,7 @@ index 8d8a22504d71f..9a62372bdac32 100644
  			goto err;
  		}
  
-@@ -766,8 +767,10 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
+@@ -777,8 +778,10 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
  		sg_set_page(&sg[i], page, nbytes, 0);
  
  		if (cmd->tvc_data_direction == DMA_TO_DEVICE &&
@@ -103,7 +103,7 @@ index 8d8a22504d71f..9a62372bdac32 100644
  
  		len -= nbytes;
  	}
-@@ -782,7 +785,7 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
+@@ -793,7 +796,7 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
  	for (; i >= 0; i--)
  		__free_page(sg_page(&sg[i]));
  	kfree(cmd->saved_iter_addr);
@@ -112,7 +112,7 @@ index 8d8a22504d71f..9a62372bdac32 100644
  }
  
  static int
-@@ -1221,9 +1224,9 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+@@ -1277,9 +1280,9 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
  			 " %d\n", cmd, exp_data_len, prot_bytes, data_direction);
  
  		if (data_direction != DMA_NONE) {
