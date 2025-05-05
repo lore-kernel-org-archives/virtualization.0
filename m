@@ -1,52 +1,51 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA67C28A41E;
-	Mon,  5 May 2025 22:28:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E336295537;
+	Mon,  5 May 2025 22:38:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746484113; cv=none; b=oNvLR2t36tvyQYb1NvJqye0fe71K3AgIFJpWESFEoi4nkX8xCNkLbwH3j42dGQZWQdA2iNtKVfqzkgxJIfwzCdnVHwVajvP+hMyXQ8uX99pQqMwI9G7pNHJoUtYrQCGaD+D4OPUBnPPwR0NECbwG++dtvHVdn6O6GfHPm61JiPs=
+	t=1746484726; cv=none; b=ZPMjpa2FjJjRP2SFcu+fNzVPBC7jkPQj1Cqz6ZIYElX08602dI2x6ZNCt8xdPqINrCng/GrBT48XTEOFZKGWz0G1hP2MGjKBd56GHOH1kUKpQFGA8OAHviVd2uLY8tbMas6PslbNKHiHRTxZhs9NdX3nTztti6o9xk4hPd+eVo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746484113; c=relaxed/simple;
-	bh=ApFm9vLJ/UCWGBwkbNk+1UcafOAJvv7wL+n2CHNQN2w=;
+	s=arc-20240116; t=1746484726; c=relaxed/simple;
+	bh=i5KDcsJRxpsGRgzCsGV1PrbgVlBZ7u+DRvn7a7HomWM=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=sYNUZ2F2BRZ58w/UU4jqyL7CQuEjXP9P0igUjNc9Xg1IBtc+Jg8aM/vfLSnN2XEVysGp57YKaV34WCNW7hGUFwM6s+FNU/MQLVwRZCHoUXIZvnLh8O+yys4BgxlisVGRnyhtPTuh00ThCTb0fZzIiG0XD8SrSPuTIDwf7xfpEto=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RTLJgtmi; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=SDPssd1mnxPMQCHTeW6JomczXr5wiHliKEkNsgELZSkh6D+VEMe5oK0cKHHM4+zvsbxS23tJapO7T9YT6D9ssHA4RzX58AHi8UVWH+S4Ko8wsDjsv5GsNv0s0/EdGTHRp/+4EY2xCQjYGZjR0g5m+zMg5jyfBuwZSho7cOz7/rc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NHyV6H2U; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RTLJgtmi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F09BC4CEED;
-	Mon,  5 May 2025 22:28:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NHyV6H2U"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 055E9C4CEE4;
+	Mon,  5 May 2025 22:38:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746484112;
-	bh=ApFm9vLJ/UCWGBwkbNk+1UcafOAJvv7wL+n2CHNQN2w=;
+	s=k20201202; t=1746484725;
+	bh=i5KDcsJRxpsGRgzCsGV1PrbgVlBZ7u+DRvn7a7HomWM=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=RTLJgtmimST+gN+SoaKK9lvljXGMaztm07ezAPoeoca39H6vP9oFW8lOeC5WjvNhG
-	 V8HNQTLTJeI/RSBgWFG0DXxUjiIJ4yOWqG1MjL89NkZQoCNXxTaIQYKOM6HyOc564e
-	 bmnjuIwzkVyPL1tAvEFZ4weqCyUsw9GQPSVeJcGS5l7JZjl5VF4Wt4HhjNc9cX1SH+
-	 O1iZeT3IdXw4YgqRuynhuLUguTHr5jHQqQeCWTCvvresjTSMZQUUc2WHZyFAJmZxcG
-	 /khnFRHASctyqKkdJiHyZNHBC9p3d8tzvSXx1vyCTEOjGhQF2bVqhuPCHqACnjnfIR
-	 29MHQe9MitQ4w==
+	b=NHyV6H2UO8LHJQJjY68pePli1ytYI1qvZWUBV5bnLCF7ct+kJK1uW9YXzmxjsXK9M
+	 g7toQd2zJ0cDFxlaO5C4YCeJHH5dVnyfVoYJNG2QY4MHARNWleJXUIXKoZ1MH3B/Ck
+	 YiswfIHbLp+6UTUiVevsad5CrRswEvL6FryfXIib+Crt44XrsTWoAguK35C8AavgHX
+	 1WbG/TvJXH8QHyWuB+BsZeJPJgRZjvjsnin0dS2b02D1u5d0pFEWTqAGZc+KRISAxW
+	 C52YIF/X7/iG4mkRP/bDGINKblInDayUUdd5aV2tx4g+nM5rMMcTKBGad/1Y4/jWD/
+	 RkF5CZCAOLPCQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Rik van Riel <riel@surriel.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Manali Shukla <Manali.Shukla@amd.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Michael Kelley <mhklinux@outlook.com>,
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Eric Auger <eric.auger@redhat.com>,
+	Eric Auger <eauger@redhat.com>,
+	Jocelyn Falempe <jfalempe@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	dave.hansen@linux.intel.com,
-	x86@kernel.org,
-	jgross@suse.com,
-	luto@kernel.org,
+	airlied@redhat.com,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	simona@ffwll.ch,
+	jasowang@redhat.com,
+	dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.14 356/642] x86/mm: Make MMU_GATHER_RCU_TABLE_FREE unconditional
-Date: Mon,  5 May 2025 18:09:32 -0400
-Message-Id: <20250505221419.2672473-356-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.14 629/642] virtgpu: don't reset on shutdown
+Date: Mon,  5 May 2025 18:14:05 -0400
+Message-Id: <20250505221419.2672473-629-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20250505221419.2672473-1-sashal@kernel.org>
 References: <20250505221419.2672473-1-sashal@kernel.org>
@@ -61,161 +60,155 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.14.5
 Content-Transfer-Encoding: 8bit
 
-From: Rik van Riel <riel@surriel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-[ Upstream commit a37259732a7dc33047fa1e4f9a338088f452e017 ]
+[ Upstream commit 183a08715af1491d381b4e22efd61578fbe05fa5 ]
 
-Currently x86 uses CONFIG_MMU_GATHER_TABLE_FREE when using
-paravirt, and not when running on bare metal.
+It looks like GPUs are used after shutdown is invoked.
+Thus, breaking virtio gpu in the shutdown callback is not a good idea -
+guest hangs attempting to finish console drawing, with these warnings:
 
-There is no real good reason to do things differently for
-each setup. Make them all the same.
+[   20.504464] WARNING: CPU: 0 PID: 568 at drivers/gpu/drm/virtio/virtgpu_vq.c:358 virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.505685] Modules linked in: nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 rfkill ip_set nf_tables nfnetlink vfat fat intel_rapl_msr intel_rapl_common intel_uncore_frequency_common nfit libnvdimm kvm_intel kvm rapl iTCO_wdt iTCO_vendor_support virtio_gpu virtio_dma_buf pcspkr drm_shmem_helper i2c_i801 drm_kms_helper lpc_ich i2c_smbus virtio_balloon joydev drm fuse xfs libcrc32c ahci libahci crct10dif_pclmul crc32_pclmul crc32c_intel libata virtio_net ghash_clmulni_intel net_failover virtio_blk failover serio_raw dm_mirror dm_region_hash dm_log dm_mod
+[   20.511847] CPU: 0 PID: 568 Comm: kworker/0:3 Kdump: loaded Tainted: G        W         -------  ---  5.14.0-578.6675_1757216455.el9.x86_64 #1
+[   20.513157] Hardware name: Red Hat KVM/RHEL, BIOS edk2-20241117-3.el9 11/17/2024
+[   20.513918] Workqueue: events drm_fb_helper_damage_work [drm_kms_helper]
+[   20.514626] RIP: 0010:virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.515332] Code: 00 00 48 85 c0 74 0c 48 8b 78 08 48 89 ee e8 51 50 00 00 65 ff 0d 42 e3 74 3f 0f 85 69 ff ff ff 0f 1f 44 00 00 e9 5f ff ff ff <0f> 0b e9 3f ff ff ff 48 83 3c 24 00 74 0e 49 8b 7f 40 48 85 ff 74
+[   20.517272] RSP: 0018:ff34f0a8c0787ad8 EFLAGS: 00010282
+[   20.517820] RAX: 00000000fffffffb RBX: 0000000000000000 RCX: 0000000000000820
+[   20.518565] RDX: 0000000000000000 RSI: ff34f0a8c0787be0 RDI: ff218bef03a26300
+[   20.519308] RBP: ff218bef03a26300 R08: 0000000000000001 R09: ff218bef07224360
+[   20.520059] R10: 0000000000008dc0 R11: 0000000000000002 R12: ff218bef02630028
+[   20.520806] R13: ff218bef0263fb48 R14: ff218bef00cb8000 R15: ff218bef07224360
+[   20.521555] FS:  0000000000000000(0000) GS:ff218bef7ba00000(0000) knlGS:0000000000000000
+[   20.522397] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   20.522996] CR2: 000055ac4f7871c0 CR3: 000000010b9f2002 CR4: 0000000000771ef0
+[   20.523740] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   20.524477] DR3: 0000000000000000 DR6: 00000000fffe07f0 DR7: 0000000000000400
+[   20.525223] PKRU: 55555554
+[   20.525515] Call Trace:
+[   20.525777]  <TASK>
+[   20.526003]  ? show_trace_log_lvl+0x1c4/0x2df
+[   20.526464]  ? show_trace_log_lvl+0x1c4/0x2df
+[   20.526925]  ? virtio_gpu_queue_fenced_ctrl_buffer+0x82/0x2c0 [virtio_gpu]
+[   20.527643]  ? virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.528282]  ? __warn+0x7e/0xd0
+[   20.528621]  ? virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.529256]  ? report_bug+0x100/0x140
+[   20.529643]  ? handle_bug+0x3c/0x70
+[   20.530010]  ? exc_invalid_op+0x14/0x70
+[   20.530421]  ? asm_exc_invalid_op+0x16/0x20
+[   20.530862]  ? virtio_gpu_queue_ctrl_sgs+0x236/0x290 [virtio_gpu]
+[   20.531506]  ? virtio_gpu_queue_ctrl_sgs+0x174/0x290 [virtio_gpu]
+[   20.532148]  virtio_gpu_queue_fenced_ctrl_buffer+0x82/0x2c0 [virtio_gpu]
+[   20.532843]  virtio_gpu_primary_plane_update+0x3e2/0x460 [virtio_gpu]
+[   20.533520]  drm_atomic_helper_commit_planes+0x108/0x320 [drm_kms_helper]
+[   20.534233]  drm_atomic_helper_commit_tail+0x45/0x80 [drm_kms_helper]
+[   20.534914]  commit_tail+0xd2/0x130 [drm_kms_helper]
+[   20.535446]  drm_atomic_helper_commit+0x11b/0x140 [drm_kms_helper]
+[   20.536097]  drm_atomic_commit+0xa4/0xe0 [drm]
+[   20.536588]  ? __pfx___drm_printfn_info+0x10/0x10 [drm]
+[   20.537162]  drm_atomic_helper_dirtyfb+0x192/0x270 [drm_kms_helper]
+[   20.537823]  drm_fbdev_shmem_helper_fb_dirty+0x43/0xa0 [drm_shmem_helper]
+[   20.538536]  drm_fb_helper_damage_work+0x87/0x160 [drm_kms_helper]
+[   20.539188]  process_one_work+0x194/0x380
+[   20.539612]  worker_thread+0x2fe/0x410
+[   20.540007]  ? __pfx_worker_thread+0x10/0x10
+[   20.540456]  kthread+0xdd/0x100
+[   20.540791]  ? __pfx_kthread+0x10/0x10
+[   20.541190]  ret_from_fork+0x29/0x50
+[   20.541566]  </TASK>
+[   20.541802] ---[ end trace 0000000000000000 ]---
 
-Currently get_user_pages_fast synchronizes against page table
-freeing in two different ways:
+It looks like the shutdown is called in the middle of console drawing, so
+we should either wait for it to finish, or let drm handle the shutdown.
 
- - on bare metal, by blocking IRQs, which block TLB flush IPIs
- - on paravirt, with MMU_GATHER_RCU_TABLE_FREE
+This patch implements this second option:
 
-This is done because some paravirt TLB flush implementations
-handle the TLB flush in the hypervisor, and will do the flush
-even when the target CPU has interrupts disabled.
+Add an option for drivers to bypass the common break+reset handling.
+As DRM is careful to flush/synchronize outstanding buffers, it looks like
+GPU can just have a NOP there.
 
-Always handle page table freeing with MMU_GATHER_RCU_TABLE_FREE.
-Using RCU synchronization between page table freeing and get_user_pages_fast()
-allows bare metal to also do TLB flushing while interrupts are disabled.
-
-Various places in the mm do still block IRQs or disable preemption
-as an implicit way to block RCU frees.
-
-That makes it safe to use INVLPGB on AMD CPUs.
-
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Manali Shukla <Manali.Shukla@amd.com>
-Tested-by: Brendan Jackman <jackmanb@google.com>
-Tested-by: Michael Kelley <mhklinux@outlook.com>
-Link: https://lore.kernel.org/r/20250213161423.449435-2-riel@surriel.com
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Tested-by: Eric Auger <eric.auger@redhat.com>
+Fixes: 8bd2fa086a04 ("virtio: break and reset virtio devices on device_shutdown()")
+Cc: Eric Auger <eauger@redhat.com>
+Cc: Jocelyn Falempe <jfalempe@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Message-Id: <8490dbeb6f79ed039e6c11d121002618972538a3.1744293540.git.mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Kconfig           |  2 +-
- arch/x86/kernel/paravirt.c | 17 +----------------
- arch/x86/mm/pgtable.c      | 27 ++++-----------------------
- 3 files changed, 6 insertions(+), 40 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.c | 9 +++++++++
+ drivers/virtio/virtio.c              | 6 ++++++
+ include/linux/virtio.h               | 3 +++
+ 3 files changed, 18 insertions(+)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index aeb95b6e55369..088f7555e1ac0 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -277,7 +277,7 @@ config X86
- 	select HAVE_PCI
- 	select HAVE_PERF_REGS
- 	select HAVE_PERF_USER_STACK_DUMP
--	select MMU_GATHER_RCU_TABLE_FREE	if PARAVIRT
-+	select MMU_GATHER_RCU_TABLE_FREE
- 	select MMU_GATHER_MERGE_VMAS
- 	select HAVE_POSIX_CPU_TIMERS_TASK_WORK
- 	select HAVE_REGS_AND_STACK_ACCESS_API
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index c5bb980b8a673..6669d251c4f75 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -59,21 +59,6 @@ void __init native_pv_lock_init(void)
- 		static_branch_enable(&virt_spin_lock_key);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index 6a67c6297d583..8719b778a1ff0 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -125,6 +125,14 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
+ 	drm_dev_put(dev);
  }
  
--#ifndef CONFIG_PT_RECLAIM
--static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
--{
--	struct ptdesc *ptdesc = (struct ptdesc *)table;
--
--	pagetable_dtor(ptdesc);
--	tlb_remove_page(tlb, ptdesc_page(ptdesc));
--}
--#else
--static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
--{
--	tlb_remove_table(tlb, table);
--}
--#endif
--
- struct static_key paravirt_steal_enabled;
- struct static_key paravirt_steal_rq_enabled;
- 
-@@ -197,7 +182,7 @@ struct paravirt_patch_template pv_ops = {
- 	.mmu.flush_tlb_kernel	= native_flush_tlb_global,
- 	.mmu.flush_tlb_one_user	= native_flush_tlb_one_user,
- 	.mmu.flush_tlb_multi	= native_flush_tlb_multi,
--	.mmu.tlb_remove_table	= native_tlb_remove_table,
-+	.mmu.tlb_remove_table	= tlb_remove_table,
- 
- 	.mmu.exit_mmap		= paravirt_nop,
- 	.mmu.notify_page_enc_status_changed	= paravirt_nop,
-diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-index 9b0ee41b545c7..1ddbd799acdf5 100644
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -18,25 +18,6 @@ EXPORT_SYMBOL(physical_mask);
- #define PGTABLE_HIGHMEM 0
- #endif
- 
--#ifndef CONFIG_PARAVIRT
--#ifndef CONFIG_PT_RECLAIM
--static inline
--void paravirt_tlb_remove_table(struct mmu_gather *tlb, void *table)
--{
--	struct ptdesc *ptdesc = (struct ptdesc *)table;
--
--	pagetable_dtor(ptdesc);
--	tlb_remove_page(tlb, ptdesc_page(ptdesc));
--}
--#else
--static inline
--void paravirt_tlb_remove_table(struct mmu_gather *tlb, void *table)
--{
--	tlb_remove_table(tlb, table);
--}
--#endif /* !CONFIG_PT_RECLAIM */
--#endif /* !CONFIG_PARAVIRT */
--
- gfp_t __userpte_alloc_gfp = GFP_PGTABLE_USER | PGTABLE_HIGHMEM;
- 
- pgtable_t pte_alloc_one(struct mm_struct *mm)
-@@ -64,7 +45,7 @@ early_param("userpte", setup_userpte);
- void ___pte_free_tlb(struct mmu_gather *tlb, struct page *pte)
++static void virtio_gpu_shutdown(struct virtio_device *vdev)
++{
++	/*
++	 * drm does its own synchronization on shutdown.
++	 * Do nothing here, opt out of device reset.
++	 */
++}
++
+ static void virtio_gpu_config_changed(struct virtio_device *vdev)
  {
- 	paravirt_release_pte(page_to_pfn(pte));
--	paravirt_tlb_remove_table(tlb, page_ptdesc(pte));
-+	tlb_remove_table(tlb, page_ptdesc(pte));
- }
+ 	struct drm_device *dev = vdev->priv;
+@@ -159,6 +167,7 @@ static struct virtio_driver virtio_gpu_driver = {
+ 	.id_table = id_table,
+ 	.probe = virtio_gpu_probe,
+ 	.remove = virtio_gpu_remove,
++	.shutdown = virtio_gpu_shutdown,
+ 	.config_changed = virtio_gpu_config_changed
+ };
  
- #if CONFIG_PGTABLE_LEVELS > 2
-@@ -78,21 +59,21 @@ void ___pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd)
- #ifdef CONFIG_X86_PAE
- 	tlb->need_flush_all = 1;
- #endif
--	paravirt_tlb_remove_table(tlb, virt_to_ptdesc(pmd));
-+	tlb_remove_table(tlb, virt_to_ptdesc(pmd));
- }
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 150753c3b5782..95d5d7993e5b1 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -407,6 +407,12 @@ static void virtio_dev_shutdown(struct device *_d)
+ 	if (!drv)
+ 		return;
  
- #if CONFIG_PGTABLE_LEVELS > 3
- void ___pud_free_tlb(struct mmu_gather *tlb, pud_t *pud)
- {
- 	paravirt_release_pud(__pa(pud) >> PAGE_SHIFT);
--	paravirt_tlb_remove_table(tlb, virt_to_ptdesc(pud));
-+	tlb_remove_table(tlb, virt_to_ptdesc(pud));
- }
++	/* If the driver has its own shutdown method, use that. */
++	if (drv->shutdown) {
++		drv->shutdown(dev);
++		return;
++	}
++
+ 	/*
+ 	 * Some devices get wedged if you kick them after they are
+ 	 * reset. Mark all vqs as broken to make sure we don't.
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 4d16c13d0df58..64cb4b04be7ad 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -220,6 +220,8 @@ size_t virtio_max_dma_size(const struct virtio_device *vdev);
+  *    occurs.
+  * @reset_done: optional function to call after transport specific reset
+  *    operation has finished.
++ * @shutdown: synchronize with the device on shutdown. If provided, replaces
++ *    the virtio core implementation.
+  */
+ struct virtio_driver {
+ 	struct device_driver driver;
+@@ -237,6 +239,7 @@ struct virtio_driver {
+ 	int (*restore)(struct virtio_device *dev);
+ 	int (*reset_prepare)(struct virtio_device *dev);
+ 	int (*reset_done)(struct virtio_device *dev);
++	void (*shutdown)(struct virtio_device *dev);
+ };
  
- #if CONFIG_PGTABLE_LEVELS > 4
- void ___p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d)
- {
- 	paravirt_release_p4d(__pa(p4d) >> PAGE_SHIFT);
--	paravirt_tlb_remove_table(tlb, virt_to_ptdesc(p4d));
-+	tlb_remove_table(tlb, virt_to_ptdesc(p4d));
- }
- #endif	/* CONFIG_PGTABLE_LEVELS > 4 */
- #endif	/* CONFIG_PGTABLE_LEVELS > 3 */
+ #define drv_to_virtio(__drv)	container_of_const(__drv, struct virtio_driver, driver)
 -- 
 2.39.5
 
