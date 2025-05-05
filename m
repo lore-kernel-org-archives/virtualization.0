@@ -1,137 +1,157 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27AB41F7580
-	for <virtualization@lists.linux.dev>; Mon,  5 May 2025 09:00:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60F9C25B67E
+	for <virtualization@lists.linux.dev>; Mon,  5 May 2025 14:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746435605; cv=none; b=ohshukKHa/oco+zvkHYJ5VBUBrCoK3CoFzoEf3XliM1Yd2VZlLak0d3Q1xVK7i8nzJWZjXh4R3/wnFlJZJTdEqxi5KMlHvBoT2mPoPl0Qh9UjQCp7Mgzya5TU/L5FNPfzlkNX/WnGTyyAivjsLxIhN0Di/JHBD5PpSmMvsyukyg=
+	t=1746455283; cv=none; b=p+FlDwfbwH4q3G1hACLxXbnmZ9vzDG3MR0nKw/nD2cgCxBfbGwT/5QdEiC6Dcm0kjxy/MQPcq+HkrR7q8gM/7/2UNodxpkYqEcaq/G7lO4ImS4SlScP5t3cwmQpu/YAy8iOP9hmb+hLuqGrryvT6lzAQcSlUv7GR21Lb0qXvGqk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746435605; c=relaxed/simple;
-	bh=0gWVNbRB11j6NzQheFtP3AhW2B6FSY8x/IiQjLkDkHA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ZNcV+B6tTF1crtz/g4l86sFeImitIzDuBSjMG82occbCMwd0uGEsHKAkfrS8iRVpnHNuoxT+RE1U/MW4VhQXYhZ3341qnaoUejLJa7KPyvpdJrWFeB/kieA+EBZwAoiR4JneBe2RAITwOlvQFWs4Nt3i+9ETxRjVDBUITz6fOGc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=vJgpg+Iu; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1746455283; c=relaxed/simple;
+	bh=8bG+q9cvIxNRKMt+IdST9BOBQGsJ4SSG4cIoMmhVp70=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FJwjckHW/jxscnYQ0qK/Rv5zge4qhS36oJxsig0bYnQyHJkZ1D9yw+N+zF6QZALZ7athMMALgXchkDigweWbI7fAm9t8A433jSrMaYOzEN71cHI/vyZGbFvOIZ7Mf3jRFTGA1qc4CkdmmAEsB/3uB7kpvI2Lcn0C2x/L2tmKbc8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=FozA6eZ4; arc=none smtp.client-ip=209.85.208.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="vJgpg+Iu"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-43cfe63c592so38181585e9.2
-        for <virtualization@lists.linux.dev>; Mon, 05 May 2025 02:00:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="FozA6eZ4"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-5e5c7d6b96fso8325533a12.3
+        for <virtualization@lists.linux.dev>; Mon, 05 May 2025 07:27:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1746435602; x=1747040402; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2aENDSHoBUQDncGi75hijmd8KFyNYGfXXoOg+4vaXxg=;
-        b=vJgpg+IuM9gikiatC83VDlXpYK0sy9BsIGPq0n+TmHoaU3k1PAnR+PFsd+d/luzx/K
-         P443zXG/00O87LMOQ+0laSyNXDYZf8jnU02nbcm38/Vkj9LStNXq0/N9/58xKFDIYhhS
-         nrHREbV3ck/iYhzqTCvS5WMajsJbV9cnb+Vf2sWx1VyLV5l8F1GUwcv8XMt/ex5r8nPX
-         9N5ZkBaqd2oGjtq09iAYptHgtv9WMbTPh85lRUivmuXbgLmHpbBLnajBBitm4uBqcuTb
-         CoNMd4fTDuqq63FvtwRYfCcO6GFp2KQ8kRb07hgw3+tWCtnGjEhHn+gIdwPVYJy3onxG
-         xUzQ==
+        d=suse.com; s=google; t=1746455278; x=1747060078; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=VBzMpH2jBdczGJAGi07riCizg5SErgbDrt1biXSYE6I=;
+        b=FozA6eZ47e7hrM/bseFq5UEl/h42IaYtSkUn4lAcdVhSc+NI7c4AYGxRnh93P4vxAb
+         n29IjM3hvRuVErXe9SnrHoF1+9+OhRd9AYU4u32x5ufnVeLoT4pe4BmZmX3j8OkWl6r1
+         MgdIMCxHEJg4dl3AmDGerkoaG9xo9AqhomGvPE7LVIYQnh8kF99ADsS/iUU8gJTTEgOx
+         gyMdO91CtsrNabNNFbD/W79dbvSnnHPOa6MvcsRo/tSfITzAOjw52O+/QdvbZnkV5SI1
+         cr4vLiAsVJwLnyQ8aHaNMN+Yxc5ePbUsqkOEXBMLC4cQS3rDJrm0rIj3BSkHH7FmAIhp
+         2Dmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746435602; x=1747040402;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2aENDSHoBUQDncGi75hijmd8KFyNYGfXXoOg+4vaXxg=;
-        b=eMpDz4XeI2VQzM0iEXUxyS4+zZIdqzizeN7u+88m+xgSmmSdi5QD4tec+AbWS+sGi5
-         lWchDLLJbglxec66oXfNYr/OQJ+jAhZ/kUyyIFGdA+uhVZEXHRWv8b4EC/U6Y5Woyoat
-         DTc+ABXQ1bL7rqwJ09bmAYzPk1GV8H3QL85sIhrTRb+q3iS0GIXdyGrSldLqk3Bs9fAa
-         LPPIi9AkuOZTR2RAwCwx7Gydt957asnIRfUMcQO2ktBOxEJL/menCjlJCdirXUNA65FU
-         DAkWgy0Be7nUwD5yQb6ICkSmMbEdd2fCDsrIIwTZEaRK8O7lOTjkAU8keF4Ey9pD20M9
-         I2Tg==
-X-Forwarded-Encrypted: i=1; AJvYcCVW0sY8DzAvJqsQtGxT+Ag9MQCFzgINN/LpcDSHe/hAjrN52nyvn52Z9sWzFsc3rCMbXRKSNzwiE2gnLg7L5A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwUkgw+7KUNHU9sK1uZRBeUZXOLXY12iSpC/3GACBCEoQULe4U9
-	U1fI/cN31VvXUsB5eiryZvYnWCHOAl9tkeqGxl42+FziLt3rgBE4ZXFdjtv+t+w=
-X-Gm-Gg: ASbGnctMbvkFIWwhbNlDkDQBJnYhddi9AQvCwU4/fZfcvJyD1djHEOyG1B7HpEDSVo+
-	QBcJyHB/ZEAcMuLmpNA6JJ9EtK3HpS+khCy8utjMBwB/Qy4uqSaqdFSmiwn2kzNSZkDaVRNV0PV
-	8UeKAlH5uyy8Y6vl4EBicLMcBpv3JlJmYxUi3jhNbJWM7IKCif6HfcQENl+63IpKgmGceWOLdgb
-	tyGfT+rFO4rlXGGMsHzNBwD+EYBopDo51/Lv0Hz3RWT+nmVtNdJsfUYLs6kpOfrreOG50XylPTV
-	6xLxS0aAiqWU88Ev6JW7hOXvPQm1wJgLyOidQ+ju6tE82C9krpPLISIuSbNyesIEue0VerVgbHr
-	LLxxKfrdz9pHY174=
-X-Google-Smtp-Source: AGHT+IGg0Vn+z3bbOg/uzaXcU9oRZ5gyFrNKK7mD8WX6VvRKSYjefILs7xFlLJvJAY/rZ0IGfGWxiA==
-X-Received: by 2002:a05:600c:8283:b0:43c:fe5e:f03b with SMTP id 5b1f17b1804b1-441c49483f8mr58600635e9.30.1746435602452;
-        Mon, 05 May 2025 02:00:02 -0700 (PDT)
-Received: from [127.0.1.1] (adsl-186.37.6.163.tellas.gr. [37.6.163.186])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-441b2b28045sm170432475e9.35.2025.05.05.02.00.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 May 2025 02:00:02 -0700 (PDT)
-From: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>
-Date: Mon, 05 May 2025 11:59:16 +0300
-Subject: [PATCH 3/3] virtgpu: deallocate capsets on device deinit
+        d=1e100.net; s=20230601; t=1746455278; x=1747060078;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=VBzMpH2jBdczGJAGi07riCizg5SErgbDrt1biXSYE6I=;
+        b=U0et9B4WJBhp4Zwv9WW+2wQOrOE6UvivEI0glb3BinPk16gTqBIYQlXFachVVWcGHA
+         /X9+dXx3nwrHMJf9Q/bmkEfXN8j5LFFXfW/NNVWBj+4+fJdOqC4lSYcR5GUf0t6TAjt9
+         2XM9ASa6ntqy2+g78f7yGnJRxsSl8JaUYEyVQSgiw2XS0Upb+zWv8or/bUfsG5ycgVRN
+         x7QaTDGf9O6T98pLPmbojTdLYEgnAYKtIhhtke5JbK6i/9rD46a3KZyzklFjICuhMJ6e
+         FGq70W+GzJzvj9md8Y262McS56Wc8fooOrOPhCEfOaiNRnHnECErrBz0WMewjnvpnW3r
+         6k/A==
+X-Forwarded-Encrypted: i=1; AJvYcCVpFrymCgBgwc/xozj+S1ENnIyYg0HVotparWszMaLzqxz8dnWxtlkAiu0Txw9OElsqGOHeV4j8Utkr0nLieQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzDzxxePvPKoP3RPjYTq1cGlEggFblh4fudkkyf7jUYuq1hsHqA
+	skoulUrlQDPNJpkFSNTv4yTYPHGG9qjMGUiRXi9PlDda6zsYJQt1BrD0YatB7ZI=
+X-Gm-Gg: ASbGncvbeFLEo+HHkVrUvH8btDF8MVkNj5cjsfU8uKvtAEjjqAuHUJ7p75I8tRzuY23
+	5s/ysC2ab1XCvKPRz1De3vafpXyNbF8sRpTf7JdBMGfJicqs4OHv0ZuEerQ/ED3fi3g5AewePLJ
+	QRSDrtvuPOpx2TFQID+zfz6DUkKKYNrqzmxJEPnhi9+ulT2ChkvJbGaUtd5nEnIfeHm6SbPr3xn
+	GD4amYu8WZ9c4GLz4UGntqS4TzKZBVMS8/nNLnF0Kdl2YgfxBcFu5V/cX0e3OH5/Yss67HKtOP1
+	XTWItlYRwiazomkqf/FFNonADnTnqAO+8UKxgsXJlXMLKJrriLeefg==
+X-Google-Smtp-Source: AGHT+IExfE0hcX78gw0nn1iPLAnLmMN0HdxWQnnSN8VNB89rL2yQ8NHWy4t+WCuJ1B8DNVSnVHuwAg==
+X-Received: by 2002:a17:906:c115:b0:ad0:c6ae:c0c9 with SMTP id a640c23a62f3a-ad1a4ab7f0dmr731420066b.40.1746455277537;
+        Mon, 05 May 2025 07:27:57 -0700 (PDT)
+Received: from [10.100.51.48] ([193.86.92.181])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ad1891a1f2dsm498974566b.40.2025.05.05.07.27.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 May 2025 07:27:57 -0700 (PDT)
+Message-ID: <68e762ec-d320-4077-b321-63eefefe6d7d@suse.com>
+Date: Mon, 5 May 2025 16:27:54 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 22/25] module: Remove outdated comment about text_size
+To: Valentin Schneider <vschneid@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
+ kvm@vger.kernel.org, linux-arch@vger.kernel.org,
+ linux-modules@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ rcu@vger.kernel.org, linux-hardening@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, bpf@vger.kernel.org,
+ Juri Lelli <juri.lelli@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>,
+ Yair Podemsky <ypodemsk@redhat.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Daniel Wagner <dwagner@suse.de>, Petr Tesarik <ptesarik@suse.com>,
+ Nicolas Saenz Julienne <nsaenz@amazon.com>,
+ Frederic Weisbecker <frederic@kernel.org>,
+ "Paul E. McKenney" <paulmck@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Sean Christopherson <seanjc@google.com>, Juergen Gross <jgross@suse.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Paul Walmsley <paul.walmsley@sifive.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Alexandre Ghiti <alex@ghiti.fr>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>,
+ "Liang, Kan" <kan.liang@linux.intel.com>,
+ Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+ Jason Baron <jbaron@akamai.com>, Steven Rostedt <rostedt@goodmis.org>,
+ Ard Biesheuvel <ardb@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>,
+ Petr Pavlu <petr.pavlu@suse.com>, Sami Tolvanen <samitolvanen@google.com>,
+ Daniel Gomez <da.gomez@samsung.com>, Naveen N Rao <naveen@kernel.org>,
+ Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Masami Hiramatsu <mhiramat@kernel.org>,
+ Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+ Joel Fernandes <joel@joelfernandes.org>,
+ Josh Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
+ Uladzislau Rezki <urezki@gmail.com>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Lai Jiangshan <jiangshanlai@gmail.com>, Zqiang <qiang.zhang1211@gmail.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, Ben Segall
+ <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+ Kees Cook <kees@kernel.org>, Shuah Khan <shuah@kernel.org>,
+ Masahiro Yamada <masahiroy@kernel.org>, Alice Ryhl <aliceryhl@google.com>,
+ Miguel Ojeda <ojeda@kernel.org>, "Mike Rapoport (Microsoft)"
+ <rppt@kernel.org>, Rong Xu <xur@google.com>,
+ Rafael Aquini <aquini@redhat.com>, Song Liu <song@kernel.org>,
+ Andrii Nakryiko <andrii@kernel.org>, Dan Carpenter
+ <dan.carpenter@linaro.org>, Brian Gerst <brgerst@gmail.com>,
+ "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+ Benjamin Berg <benjamin.berg@intel.com>,
+ Vishal Annapurve <vannapurve@google.com>,
+ Randy Dunlap <rdunlap@infradead.org>, John Stultz <jstultz@google.com>,
+ Tiezhu Yang <yangtiezhu@loongson.cn>
+References: <20250429113242.998312-1-vschneid@redhat.com>
+ <20250429113242.998312-23-vschneid@redhat.com>
+Content-Language: en-US
+From: Petr Pavlu <petr.pavlu@suse.com>
+In-Reply-To: <20250429113242.998312-23-vschneid@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250505-virtgpu-queue-cleanup-v1-v1-3-810923da2b1e@linaro.org>
-References: <20250505-virtgpu-queue-cleanup-v1-v1-0-810923da2b1e@linaro.org>
-In-Reply-To: <20250505-virtgpu-queue-cleanup-v1-v1-0-810923da2b1e@linaro.org>
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
- Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- Chia-I Wu <olvaffe@gmail.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Simona Vetter <simona@ffwll.ch>
-Cc: =?utf-8?q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>, 
- Viresh Kumar <viresh.kumar@linaro.org>, dri-devel@lists.freedesktop.org, 
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
- Manos Pitsidianakis <manos.pitsidianakis@linaro.org>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1065;
- i=manos.pitsidianakis@linaro.org; h=from:subject:message-id;
- bh=0gWVNbRB11j6NzQheFtP3AhW2B6FSY8x/IiQjLkDkHA=;
- b=LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpvd0VCYlFLUy9aQU5Bd0FLQVhjcHgzQi9mZ
- 25RQWNzbVlnQm9HSDRMbDdqamlhQ3I0b0s2OVo3LzBzKzdVNWx3CmpudkIydlE2b2hCOEdXWElV
- ZzJKQWpNRUFBRUtBQjBXSVFUTVhCdE9SS0JXODRkd0hSQjNLY2R3ZjM0SjBBVUMKYUJoK0N3QUt
- DUkIzS2Nkd2YzNEowTHZSRUFDUkIrdGM4Sk9ENzJTL3lzM2JPWDhFV3RaLzByRWszRm9aSnpWZA
- pTQ0RSem0zL1BKeWZmeWMyYmUzS3o2RDU3SkFjRzV2dERlOFJFbXNxaE5GUmlrdnd6RVZnOGo5N
- 2NrNTFsZHR4CnMxdC82TmlXYzFlZmFXMTJNNVprWGFwdVpPSVZ3SVlGUVFwY1N1VDg0REtMV0xQ
- UnBqTG9BcmFSYTE2UndaRk0KWEJWVEl3ZUg4WWI3ekluMzkzMFVKckordDgxaUg4bUFFTlFjVHB
- PVWFxMVFCeWE1U3FHK29aSENWTFV3b21kdwpwS3Z3ajBKMW5MM0VvTVJNOUhLUFZPRTlpVjdzVk
- RvdnlDRHlNM3M3T095OXJ0elk1c0VqYkhxK3ptdWJrU1ZZCmhsRWNKUkRVYk1yVnRBSGI0Zy84d
- GxzMGp0OEluUGhERWg1SmNTeTlJYnpwWjNVQnJxNithNEpxQ2M3bzVzSjYKUUg2YmJJelZYZlkr
- VThvamc3a05VSGd0V0lYc0VNOFozeUhhcG1NWWVzRVhMWDRCTTdjMUxIK2NoT2syRk54UQpjWkx
- HblBlNVl3ZkFQQnYyNkJCUnhMdFhvUGZRNGJqdWd1YnVnTkRsQnNNajFnOHRUQmhBZ3pIMkZ1bX
- VjdDJHCkhBcjVaTVR1N2JUYVlPQ2dHL2ZwNVZzZERWYWd5UTliSGpubjNqS0RlWjR5Z2hFcHlQO
- EtydjdPV0JzVTZpdFEKR1Z5T0RNUi9JeXdycjFuNUVGQUtaOHQrRjk1MmtmWHZlVEFPQkRxZHI1
- WS8ra09OckRpem5iVnptcDZzbmx0OApURFpab1Mxa1d3ZDFEVGR5cm96T3puajRYQ00wdTVRSGZ
- sYWhPQWNhdjJZY0Q0ZVRTcVl4b0hTZFlONkJoZUl5CnluUnNNdz09Cj1MSFJmCi0tLS0tRU5EIF
- BHUCBNRVNTQUdFLS0tLS0K
-X-Developer-Key: i=manos.pitsidianakis@linaro.org; a=openpgp;
- fpr=7C721DF9DB3CC7182311C0BF68BC211D47B421E1
 
-virtio_gpu_device's capsets field is allocated with the DRM memory
-allocator but never freed. Add the appropriate freeing call inside
-virtio_gpu_deinit.
+On 4/29/25 13:32, Valentin Schneider wrote:
+> The text_size bit referred to by the comment has been removed as of commit
+> 
+>   ac3b43283923 ("module: replace module_layout with module_memory")
+> 
+> and is thus no longer relevant. Remove it and comment about the contents of
+> the masks array instead.
+> 
+> Signed-off-by: Valentin Schneider <vschneid@redhat.com>
 
-Signed-off-by: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>
----
- drivers/gpu/drm/virtio/virtgpu_kms.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 7b3c4d314f8eee692e2842a7056d6dc64936fc2f..a8b751179332b9ec2fbba1392a6ee0e638a5192e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -286,6 +286,10 @@ void virtio_gpu_deinit(struct drm_device *dev)
- 	flush_work(&vgdev->cursorq.dequeue_work);
- 	flush_work(&vgdev->config_changed_work);
- 	virtio_reset_device(vgdev->vdev);
-+	spin_lock(&vgdev->display_info_lock);
-+	drmm_kfree(dev, vgdev->capsets);
-+	vgdev->capsets = NULL;
-+	spin_unlock(&vgdev->display_info_lock);
- 	virtio_gpu_fence_cleanup(vgdev);
- 	virtio_gpu_queue_cleanup(vgdev);
- 	vgdev->vdev->config->del_vqs(vgdev->vdev);
+This comment cleanup is independent of the rest of the series. I've
+picked it separately on modules-next.
 
 -- 
-2.47.2
-
+Thanks,
+Petr
