@@ -1,179 +1,85 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8A9525A337
-	for <virtualization@lists.linux.dev>; Mon,  5 May 2025 15:45:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746459930; cv=none; b=W710s6JP0YoxHeFYHpmdxotwrgzGs44UEc3e5TXWgDIOnTKjoEcB6AhvCXW+OX/+Df2E6igaxcDOfjI9NpxIiGEDNq/9ensJSiM3yqVEnd0r4FqV2l6zAkkYQ8VIGfrBjgkbcjM4YACBraJku3oKRhYSbRmuNh0Grkk3/ATMf0I=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746459930; c=relaxed/simple;
-	bh=fT63Qjgxn2mmOj4nEoT8zNbpR7UCW8tfN5uQH3dFpw4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=G+JxTCTA9h1AWFNbYqx/N+yIrxE3nVwl4ycAvGi0ZHAwIxYaAd5GONsFO0KtnC1UphtXGOsNCoJsyv/d5XENHTvdcsdGSIEikRCvxV7r3IRiOTGZeA4dPUJE/ovxYK9Dw7a1Y2dxhpbay9w3N87aoHD7AnAsdvfD4NsdCsc75kU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Tb8YzG2O; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC80125B66A
+	for <virtualization@lists.linux.dev>; Mon,  5 May 2025 15:58:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1746460718; cv=pass; b=jO/6jh/McVjI7VzZWyDWcPYq7BMwqaZ9aWWOTe9sSCSuD2G9vC0COChFCiFPCOpXiFYk9PMbg0QU5BrB+yyFCMr3ExZafm/fj5C2Z1GoCdk4oXqkASX2rfWj6JlN7n4VMzChZX6HLLGkuFHABKfkEZUGZogGnKIN28RWMZtLnYQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1746460718; c=relaxed/simple;
+	bh=dqzIEx/W4l4vbBcDBDn0WwrxquzWxWupbZcwuG21YlQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hn1zyaLPsma440OpgoHSx/ECm8F1khLdX10y+b+ZmEeB4TmctxblYffjVjjJYlVfU8bvpHy9kBSTKpj0ehASgS02BkDztduLJmSeqryfNQ6uXd8xdky/0nh+4shzCAqkN4D7H/yr1gwL5o3uT5Cl8WT993JBt3VX4CRv+JCkHkE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=f49hcz9h; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tb8YzG2O"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1746459928;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fT63Qjgxn2mmOj4nEoT8zNbpR7UCW8tfN5uQH3dFpw4=;
-	b=Tb8YzG2O3QCkKZNDYjzJKkJVyl3diw9H/UoX5tDcF1C8oFW9PSBYHaSjubyxKhQiUnVXOI
-	C35va0tjIEDNtCII5vn5rSETfQj4HrNNVYZcVrzpsZNfIP2ntpyF3tgwhKB4AicCuHLRLJ
-	6hYjEurUBOtjVyLbm5WbE/JfT/vU2dQ=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-554-eYj2XBGfNXKXJ1B8Ivm_SA-1; Mon, 05 May 2025 11:45:26 -0400
-X-MC-Unique: eYj2XBGfNXKXJ1B8Ivm_SA-1
-X-Mimecast-MFC-AGG-ID: eYj2XBGfNXKXJ1B8Ivm_SA_1746459925
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43efa869b0aso30501635e9.3
-        for <virtualization@lists.linux.dev>; Mon, 05 May 2025 08:45:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746459924; x=1747064724;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fT63Qjgxn2mmOj4nEoT8zNbpR7UCW8tfN5uQH3dFpw4=;
-        b=MC1OKr4XYcNm1q8XXBT1Y7cZcI2KjY0cIb5TMYfda7fDABBaVhssJJ2fMYq0DrBHXk
-         TVYtt48HOnpf3fueEQXIrzSHIlV4ZYgusZr91CWUbIS2wkhfxkuPiXMQbIx3xJDjZsvK
-         fMw6UGbXyEB8dSyQ8PROrzSfQrrLmIGfebVS+X593MrsvEFi248ROBlV3ukIvAeTW1Mr
-         4LZrvu6UrfRZnma051fzuMlt6MvAmQHVCpUXswVc9fWFcUbMH5OuNRisTYkFnaYtV/8j
-         n2k6Y41/qf8lk52ohGMIric+GxG4cy9j/MkyGxqZEBKXrVOK5F9aI+K0fpuimaCFz/mA
-         NZyQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVe6EYhZUgtHD5jSlJD67TFMRNXkqEPNmuAgu2Nhopy2+XfBADEaXcUxl+AL7SaEMuz+pb+TQQsuKeKYzf8eQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyYfbq40hSRz5Sx3kstTx54luBxoKrRdEGULJCr/JUrPmhY034d
-	5YgBi263B8YvWz73+UqBeeVppSYar5s8ruxmCGR6lZjDShCA7lY6468B4ze+25T4uQbIp31DNNF
-	/xZUgg0tsvpV6hXcr09ZEJbTWw3ChtoKV30wm1QqJRxUbWo+L81xdlDByFA1eRzWT
-X-Gm-Gg: ASbGncupwkIGpICrSRS+s11vmK7b9NuBOTrDL88szPbdM8BsklAK33XvCgvKK+DPNgm
-	VhPsO3QDwxjMcRPGEBFLrLq4C6KLG3ZWn/J6A84rqJaAGPnxopfG7REhU57LCH3qfHc+IuHmDmO
-	YRC1xoisfkZGNWGIweHj8JDqOcXZHmfB6YYs9R4N+mspi9Kn6an9bTGs09ObfR3pKGJJoQMuMku
-	PWyO67emRiqkG5yid2P2uyIgR1CPkxF9g3JFx4ZEQ3HusTpK/dTnTkVl85+ffH+4IPjzROISXir
-	jaiVFQG8RRk/m8lV10cnie8II14jTowFVOUTck23UDVb8dWr
-X-Received: by 2002:a05:600c:5290:b0:43d:fa59:bcee with SMTP id 5b1f17b1804b1-441c49340e5mr60613695e9.33.1746459924582;
-        Mon, 05 May 2025 08:45:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHbfW0Iv3UrCtUauOGIpvVxzFiIHYGFD4OyH1evLHyjz0zJwfLTvcXbPZ3pmzRKAXfEnCx79Q==
-X-Received: by 2002:a05:600c:5290:b0:43d:fa59:bcee with SMTP id 5b1f17b1804b1-441c49340e5mr60612745e9.33.1746459924071;
-        Mon, 05 May 2025 08:45:24 -0700 (PDT)
-Received: from vschneid-thinkpadt14sgen2i.remote.csb ([2001:861:43c1:5950:3e51:b684:9982:d4a2])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-441b89d1358sm138001675e9.10.2025.05.05.08.45.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 May 2025 08:45:22 -0700 (PDT)
-From: Valentin Schneider <vschneid@redhat.com>
-To: Dave Hansen <dave.hansen@intel.com>, Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
- kvm@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-modules@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- rcu@vger.kernel.org, linux-hardening@vger.kernel.org,
- linux-kselftest@vger.kernel.org, bpf@vger.kernel.org, Juri Lelli
- <juri.lelli@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Yair
- Podemsky <ypodemsk@redhat.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Daniel Wagner <dwagner@suse.de>, Petr Tesarik <ptesarik@suse.com>, Nicolas
- Saenz Julienne <nsaenz@amazon.com>, Frederic Weisbecker
- <frederic@kernel.org>, "Paul E. McKenney" <paulmck@kernel.org>, Dave
- Hansen <dave.hansen@linux.intel.com>, Sean Christopherson
- <seanjc@google.com>, Juergen Gross <jgross@suse.com>, Ajay Kaher
- <ajay.kaher@broadcom.com>, Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Russell King
- <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will
- Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
- <kernel@xen0n.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer
- Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Alexandre
- Ghiti <alex@ghiti.fr>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar
- <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H.
- Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
- Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
- <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alexander
- Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa
- <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, Adrian Hunter
- <adrian.hunter@intel.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Pawan
- Gupta <pawan.kumar.gupta@linux.intel.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Jason Baron
- <jbaron@akamai.com>, Ard Biesheuvel <ardb@kernel.org>, Luis Chamberlain
- <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>, Sami Tolvanen
- <samitolvanen@google.com>, Daniel Gomez <da.gomez@samsung.com>, Naveen N
- Rao <naveen@kernel.org>, Anil S Keshavamurthy
- <anil.s.keshavamurthy@intel.com>, "David S. Miller" <davem@davemloft.net>,
- Masami Hiramatsu <mhiramat@kernel.org>, Neeraj Upadhyay
- <neeraj.upadhyay@kernel.org>, Joel Fernandes <joel@joelfernandes.org>,
- Josh Triplett <josh@joshtriplett.org>, Boqun Feng <boqun.feng@gmail.com>,
- Uladzislau Rezki <urezki@gmail.com>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>,
- Zqiang <qiang.zhang1211@gmail.com>, Vincent Guittot
- <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Kees Cook
- <kees@kernel.org>, Shuah Khan <shuah@kernel.org>, Masahiro Yamada
- <masahiroy@kernel.org>, Alice Ryhl <aliceryhl@google.com>, Miguel Ojeda
- <ojeda@kernel.org>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>, Rong Xu
- <xur@google.com>, Rafael Aquini <aquini@redhat.com>, Song Liu
- <song@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, Dan Carpenter
- <dan.carpenter@linaro.org>, Brian Gerst <brgerst@gmail.com>, "Kirill A.
- Shutemov" <kirill.shutemov@linux.intel.com>, Benjamin Berg
- <benjamin.berg@intel.com>, Vishal Annapurve <vannapurve@google.com>, Randy
- Dunlap <rdunlap@infradead.org>, John Stultz <jstultz@google.com>, Tiezhu
- Yang <yangtiezhu@loongson.cn>
-Subject: Re: [PATCH v5 00/25] context_tracking,x86: Defer some IPIs until a
- user->kernel transition
-In-Reply-To: <2c5d11cf-ad06-444c-b84a-42de7a10159d@intel.com>
-References: <20250429113242.998312-1-vschneid@redhat.com>
- <fefcd1a6-f146-4f3c-b28b-f907e7346ddd@intel.com>
- <20250430132047.01d48647@gandalf.local.home>
- <019f6713-cfbd-466b-8fb5-dcd982cf8644@intel.com>
- <20250430154228.1d6306b4@gandalf.local.home>
- <a6b3a331-1ff3-4490-b300-a62b3c21578d@intel.com>
- <xhsmhr0179w1i.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <34535b8c-35c8-4a7f-8363-f5a9c5a69023@intel.com>
- <xhsmho6wb9de3.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
- <2c5d11cf-ad06-444c-b84a-42de7a10159d@intel.com>
-Date: Mon, 05 May 2025 17:45:20 +0200
-Message-ID: <xhsmhldrb9i3z.mognet@vschneid-thinkpadt14sgen2i.remote.csb>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="f49hcz9h"
+ARC-Seal: i=1; a=rsa-sha256; t=1746460699; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=hkUgx6Mj/ja9r8LQOpbhvnz1tEB+uND8C0BBBexnI5VPuVRmlXjhYVAadafBQ15CdzBdIRUx8FegOjiFlym9ZtjgkE9ODh1Mt6ZZSbIR1f9e11P4e3QctvXi1EHd82wzxM6kbBOSXj4S7wJIHMJId/O7icQXyS/TzkmDO3u5gZU=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1746460699; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=TBneRj8Wi3aNUjuAlFYRMoAHRWU9YFWZYst/MYENSsQ=; 
+	b=YflmZBIk1tFU68O2ldxn8mopG7vCn7GTdSFAwknks0prURZvK9A7rPQjV6FTt1uiMhFZBcbvkoFhGXE25+k5VXbaDzGogEEBvfO7VyBJnIuX6mY0G7V99aGizFPypIg+j2bW7sLDOeiGeBhM7B7KxD1h484CkrVllc5TyBSVGkc=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1746460699;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=TBneRj8Wi3aNUjuAlFYRMoAHRWU9YFWZYst/MYENSsQ=;
+	b=f49hcz9h3d8aXahF6KPCqBKJrWYbRPoyLvDAgCu9MCKQjf694ZHcTHtrzmuJr/bB
+	4kRh+yznnWV8nhiOHyqMEO8AjlBXISA0t4Ggo7CqaA7m4avMt+jeyMZVj2hj/9K1Hr4
+	Olo9ZhRpErCWAmyQItoVLm5iQq4gqgKGOzLEqP0k=
+Received: by mx.zohomail.com with SMTPS id 1746460696721946.0446506917006;
+	Mon, 5 May 2025 08:58:16 -0700 (PDT)
+Message-ID: <5271820d-7afd-45e5-8103-b7d4fc818278@collabora.com>
+Date: Mon, 5 May 2025 18:58:11 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: zfRlu0a02hQ_ahWr7R2wLnQvtwmQh3UH-3b6Gn2rfYI_1746459925
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/3] virtgpu: deallocate capsets on device deinit
+To: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>
+Cc: =?UTF-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>,
+ Viresh Kumar <viresh.kumar@linaro.org>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20250505-virtgpu-queue-cleanup-v1-v1-0-810923da2b1e@linaro.org>
+ <20250505-virtgpu-queue-cleanup-v1-v1-3-810923da2b1e@linaro.org>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20250505-virtgpu-queue-cleanup-v1-v1-3-810923da2b1e@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On 02/05/25 10:57, Dave Hansen wrote:
-> gah, the cc list here is rotund...
->
-> On 5/2/25 09:38, Valentin Schneider wrote:
-> ...
->>> All of the paths to enter the kernel from userspace have some
->>> SWITCH_TO_KERNEL_CR3 variant. If they didn't, the userspace that they
->>> entered from could have attacked the kernel with Meltdown.
->>>
->>> I'm theorizing that if this is _just_ about avoiding TLB flush IPIs that
->>> you can get away with a single mechanism.
->>
->> So right now there would indeed be the TLB flush IPIs, but also the
->> text_poke() ones (sync_core() after patching text).
->>
->> These are the two NOHZ-breaking IPIs that show up on my HP box, and that I
->> also got reports for from folks using NOHZ_FULL + CPU isolation in
->> production, mostly on SPR "edge enhanced" type of systems.
-> ...
->> While I don't expect the list to grow much, it's unfortunately not just the
->> TLB flush IPIs.
->
-> Isn't text patching way easier than TLB flushes? You just need *some*
-> serialization. Heck, since TLB flushes are architecturally serializing,
-> you could probably even reuse the exact same mechanism: implement
-> deferred text patch serialization operations as a deferred TLB flush.
->
-> The hardest part is figuring out which CPUs are in the state where they
-> can be deferred or not. But you have to solve that in any case, and you
-> already have an algorithm to do it.
+On 5/5/25 11:59, Manos Pitsidianakis wrote:
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> index 7b3c4d314f8eee692e2842a7056d6dc64936fc2f..a8b751179332b9ec2fbba1392a6ee0e638a5192e 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> @@ -286,6 +286,10 @@ void virtio_gpu_deinit(struct drm_device *dev)
+>  	flush_work(&vgdev->cursorq.dequeue_work);
+>  	flush_work(&vgdev->config_changed_work);
+>  	virtio_reset_device(vgdev->vdev);
+> +	spin_lock(&vgdev->display_info_lock);
+> +	drmm_kfree(dev, vgdev->capsets);
+> +	vgdev->capsets = NULL;
+> +	spin_unlock(&vgdev->display_info_lock);
 
-Alright, off to mess around SWITCH_TO_KERNEL_CR3 to see how shoving
-deferred operations there would look then.
+Isn't this lock superfluous?
 
+-- 
+Best regards,
+Dmitry
