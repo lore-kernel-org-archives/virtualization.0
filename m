@@ -1,101 +1,90 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3BD32BF3D0;
-	Mon,  5 May 2025 22:48:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33907312809;
+	Mon,  5 May 2025 23:50:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746485307; cv=none; b=UzAVkzwbRvxZAH5Fg3f8RhKkq13t3oT7GXlhHNcJlASoY21JeI1t59Ky4z9/Z6aml0vrOLClpyNFfoVgwwkv4cyA/JGw4A8dU3n3KOfBiPaOGc4ZSRNBWFz/GSK0EMw9oJJbs3KzcxFeI7MUelDr9KJrfEWFNV3fYkOAjMp5FPg=
+	t=1746489044; cv=none; b=d0e5n0odes1b11salZLvtnGV36G/zsGxAtGPu5jGR37W5Jd9QeiUbHp3WEO8thd8NcvQ45+LtGIDSjiRpK7FTROWC8e+jmdF2E2rmZR0AbVNUXXfWRQ0H78l+EGfo/hPtt+dUlV/DAgq1siUCgappVpK/FPUCsKfMQaHJPdFXN8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746485307; c=relaxed/simple;
-	bh=ThMI58tx3Plf6LbcYctJfyvp+twd840+OZ1wM5jYdTU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gyg5tKXb5oSXn7GRhz90r26frtFgpap94doLVIFCm82+SuWC99YGR23eQ8dxxoM+m1tjm4DhvysuAm8TrNaKC1h1E5uv772rVl6KmadrbKz/I6E2PgU5YrEXODiwi6zbOOy1tM/vSJ95kMJwZV7U5uzqcp6AqLjcNkb2RM5NVag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pFX23x09; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1746489044; c=relaxed/simple;
+	bh=2ovfTBu8BtfROUp5TFoIE/nZlSdnbc4INB3TudhG3Ks=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=BIilSrUiNg+jh0+6xgdWs3i7IQcFePNG9kHFF5XdcBw5fcHZFAcWi4AqB5mf1c1glBYg/VYEcvJPTLzn3TCXPr+N6faE8f/6LZoWatShHkUjIm0TCNUCPWvkoUeLkzCfJVx1zLGVuYKia+pgDzQcGJJJiv0KZ2Y7MPk/BhA4StE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U2pJeK2s; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pFX23x09"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63CE6C4CEE4;
-	Mon,  5 May 2025 22:48:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U2pJeK2s"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA854C4CEED;
+	Mon,  5 May 2025 23:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746485306;
-	bh=ThMI58tx3Plf6LbcYctJfyvp+twd840+OZ1wM5jYdTU=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=pFX23x094F0y/6vHaVmD8vcn27+0pa2DWbJse0sy88mrIE/8OQytJyQKLNM2NzI7I
-	 yZNzbsnck58aUuIpGF1GwUxJOl2Yr8gdEfNUA0GmupdMZhHyEF11TFUB3A/iEX+mKj
-	 mpiWSfqitarvHX0dcrj902BGpx2rtPh+C7tbDAZrtLjMXGubG2BtEUTNWxjXkvjaf7
-	 E5RWs1OYw+y30zdcCgvCYePE5Ncvxgf5LfZ+vPI4iaYiJYO6w2XjvIjG++TONIFLJW
-	 D9hokaDkFYFHVd5z46mG8C1fYn2gl/9cUEwc4ZmetOYey7968MP2y4HJmyK4dhWdG1
-	 FzJRfJcBfZH/w==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Konstantin Shkolnyy <kshk@linux.ibm.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Dragos Tatulea <dtatulea@nvidia.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Sasha Levin <sashal@kernel.org>,
-	eperezma@redhat.com,
-	cratiu@nvidia.com,
-	tariqt@nvidia.com,
-	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.12 259/486] vdpa/mlx5: Fix mlx5_vdpa_get_config() endianness on big-endian machines
-Date: Mon,  5 May 2025 18:35:35 -0400
-Message-Id: <20250505223922.2682012-259-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250505223922.2682012-1-sashal@kernel.org>
-References: <20250505223922.2682012-1-sashal@kernel.org>
+	s=k20201202; t=1746489043;
+	bh=2ovfTBu8BtfROUp5TFoIE/nZlSdnbc4INB3TudhG3Ks=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=U2pJeK2sRpk3FVIBIKNEXlZHl2GldeBdH++mB8y1buY0toOUWHfm5mLYhJMW0B9nc
+	 z2fGiiRPwGKkEnoE/7Av8BEdLrcpCet+2ViW94o74Da8z7IMxwxN9rCOhXDRsgRlqU
+	 NgLhwn6MT1JeqVC/+9V2k7EcpDhqfsTGRYB8SLGHfJYb/vACmIylGfuVae/QolPfvz
+	 GirPMPLTt8hl1RCEpGTqUb5cxMQimOIuH5igYFnvRzqSxyDueXtzicNRk4MBVyvIQW
+	 eiOC6fz/vH/rmY5+3iTvQ+9WZIWVC3AfwAVXZuCYW3YMnjqXW2WOb6NtcHZI7ipKMF
+	 amQmb9iRw1i0w==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 339F2380CFD9;
+	Mon,  5 May 2025 23:51:24 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.12.26
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2] virtio-net: free xsk_buffs on error in
+ virtnet_xsk_pool_enable()
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <174648908298.967302.6128357304548070079.git-patchwork-notify@kernel.org>
+Date: Mon, 05 May 2025 23:51:22 +0000
+References: <20250430163836.3029761-1-kuba@kernel.org>
+In-Reply-To: <20250430163836.3029761-1-kuba@kernel.org>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
+ pabeni@redhat.com, andrew+netdev@lunn.ch, horms@kernel.org,
+ jasowang@redhat.com, mst@redhat.com, xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com, hawk@kernel.org, john.fastabend@gmail.com,
+ virtualization@lists.linux.dev, minhquangbui99@gmail.com
 
-From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+Hello:
 
-[ Upstream commit 439252e167ac45a5d46f573aac1da7d8f3e051ad ]
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-mlx5_vdpa_dev_add() doesn’t initialize mvdev->actual_features. It’s
-initialized later by mlx5_vdpa_set_driver_features(). However,
-mlx5_vdpa_get_config() depends on the VIRTIO_F_VERSION_1 flag in
-actual_features, to return data with correct endianness. When it’s called
-before mlx5_vdpa_set_driver_features(), the data are incorrectly returned
-as big-endian on big-endian machines, while QEMU then interprets them as
-little-endian.
+On Wed, 30 Apr 2025 09:38:36 -0700 you wrote:
+> The selftests added to our CI by Bui Quang Minh recently reveals
+> that there is a mem leak on the error path of virtnet_xsk_pool_enable():
+> 
+> unreferenced object 0xffff88800a68a000 (size 2048):
+>   comm "xdp_helper", pid 318, jiffies 4294692778
+>   hex dump (first 32 bytes):
+>     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+>     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+>   backtrace (crc 0):
+>     __kvmalloc_node_noprof+0x402/0x570
+>     virtnet_xsk_pool_enable+0x293/0x6a0 (drivers/net/virtio_net.c:5882)
+>     xp_assign_dev+0x369/0x670 (net/xdp/xsk_buff_pool.c:226)
+>     xsk_bind+0x6a5/0x1ae0
+>     __sys_bind+0x15e/0x230
+>     __x64_sys_bind+0x72/0xb0
+>     do_syscall_64+0xc1/0x1d0
+>     entry_SYSCALL_64_after_hwframe+0x77/0x7f
+> 
+> [...]
 
-The fix is to initialize this VIRTIO_F_VERSION_1 as early as possible,
-especially considering that mlx5_vdpa_dev_add() insists on this flag to
-always be set anyway.
+Here is the summary with links:
+  - [net,v2] virtio-net: free xsk_buffs on error in virtnet_xsk_pool_enable()
+    https://git.kernel.org/netdev/net/c/4397684a292a
 
-Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
-Message-Id: <20250204173127.166673-1-kshk@linux.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 5f581e71e2010..76aedac37a788 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -3884,6 +3884,9 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
- 	ndev->mvdev.max_vqs = max_vqs;
- 	mvdev = &ndev->mvdev;
- 	mvdev->mdev = mdev;
-+	/* cpu_to_mlx5vdpa16() below depends on this flag */
-+	mvdev->actual_features =
-+			(device_features & BIT_ULL(VIRTIO_F_VERSION_1));
- 
- 	ndev->vqs = kcalloc(max_vqs, sizeof(*ndev->vqs), GFP_KERNEL);
- 	ndev->event_cbs = kcalloc(max_vqs + 1, sizeof(*ndev->event_cbs), GFP_KERNEL);
+You are awesome, thank you!
 -- 
-2.39.5
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
