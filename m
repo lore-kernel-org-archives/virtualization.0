@@ -1,79 +1,82 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6F1031281D;
-	Mon,  5 May 2025 23:50:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2606B297128;
+	Tue,  6 May 2025 01:38:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746489045; cv=none; b=dtHHdrH6c3IYApX7bp2nkm33LVdvN8eRhzzliwOF5ayQ6Htrjh29QiIvwiC+0fb1L/30JHe7QD7u+S7Ud71Bueex+BxPaMu2HzCzWGlrUKKRbAyMTAUGBSSRoxw5qZ/K1FSMR9ztTw05OviC0TAq/y1eLz4ScYwQL4O3KmZmACg=
+	t=1746495481; cv=none; b=Xy2iGnBdSqfoJ7Wby26DGDLEq/UZHkekL2gUmJhuo3dtaFpJ8U4Io0XSu8rrHzOnlY74YWYLGr/Xkzg0ZohZXOL9qeHrpe7HoizYiRhfScjcU1SZ5HOe/7fmZqacXU9BN9Gg/inehlZU+5G83F4J16qlE6mY+Emy03jEKiykWZI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746489045; c=relaxed/simple;
-	bh=9tjhNDn0NgbadNYoCcvnypG2qb/hyPzLaYytJs+fY9g=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=FGNSOehpfiHhhKOMSbyF+47i9m20oMXqyyecFOAOLdo2TjbjbuYN4nxV9byHHBa4ow2yFm4c+CRTJsrOuIQzhEX8KfXC3fWUKuPAhdKsJxcVipUVE9DjdWJV1eVdaxMeRkRsbQXVziqq4ltZlZSeLfoe+fVl4c7NrXO7MhuMZiA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h/YKpv43; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1746495481; c=relaxed/simple;
+	bh=zKECytagb87TMOLvGwWUa+PfDXa1A/lXuEpkDrkjAnM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=E6EZ+dZ+f9hOKTVe0R7h0+p/Dkze0edVobRPa0BNczcIdkxQQLkyKQm7JrX+IC6dwdd9YJAFD21QM5no9RiRrmG97l6RY7fhEr/1DgPLLeKXvW2em9w88B/2Hu7gWee7GKntQVyh/pSRmjQOZ5pyIH3mfPdMg/EPk+HwRCJ0C6o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AUcv5z9c; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h/YKpv43"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C8A5C4CEE4;
-	Mon,  5 May 2025 23:50:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AUcv5z9c"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62AD4C4CEE4;
+	Tue,  6 May 2025 01:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746489045;
-	bh=9tjhNDn0NgbadNYoCcvnypG2qb/hyPzLaYytJs+fY9g=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=h/YKpv4334p9MTxmphcHTXw0eh/la2yf8vQWRJJJwYhSAqC/9B6j36zlG33aNaZg3
-	 zowRVJSaS3msm1T21BKtGvCHp9ujDCAd1Bas2s1HMJevgrQgRXgXHY76jebA+C/dxX
-	 wxhZMQX0JjUKOzpv95RBuRy5PZNluw7R4NdYe64lT9CCFXEPrKlhs7YvSPnBjPd3M7
-	 vUmihzmZABofcrQUH3QeqVu75Eengyj+i2hj7H+h101Lhi4KsKRGKXaCBpyqnOvxjs
-	 tONpZMdkBdpwOYtdJ7/4J+fZlrzGDjTlJfAUuj55B66Dj2+iSi1CzZp2dwebKUS9ZN
-	 lvADnD+5fTbMA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADD42380CFD9;
-	Mon,  5 May 2025 23:51:25 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1746495480;
+	bh=zKECytagb87TMOLvGwWUa+PfDXa1A/lXuEpkDrkjAnM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=AUcv5z9ca99yIo2NLkz4SbM2b9WWkH0uw/wz4j+St1LLxEyfCJEsFq1ZdUTAa9c2L
+	 TDlUp+WqRO3spDiJ7VP6zq4YtkngpCzgRsN3AhxF+iHbRhEpHJo/NGCGI/GH8hrwir
+	 akWRoH0LOdfxi2MuogXg+4weQT1gWeuj3VxnAbtPI8laajeMTjyU2oJPsHI0FtLUlN
+	 26f/mL+aTgG6bFUz9+H/yNgZjmt9fEPOoYa+C6GN7FIUyKlwExDdKuTyScVnhiGYBJ
+	 3wSuE0Q1rlqd6GvOeqkb9nRRKhcVH1g7UT3bBvgRcbZWqs/1L0pgZ/upZbY7X5pSUU
+	 kUOM/O+IQitUQ==
+Date: Mon, 5 May 2025 18:37:58 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Mina Almasry <almasrymina@google.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, io-uring@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon
+ Horman <horms@kernel.org>, Donald Hunter <donald.hunter@gmail.com>,
+ Jonathan Corbet <corbet@lwn.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Jeroen de Borst <jeroendb@google.com>, Harshitha Ramamurthy
+ <hramamurthy@google.com>, Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de
+ Bruijn <willemb@google.com>, Jens Axboe <axboe@kernel.dk>, Pavel Begunkov
+ <asml.silence@gmail.com>, David Ahern <dsahern@kernel.org>, Neal Cardwell
+ <ncardwell@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "Eugenio
+ =?UTF-8?B?UMOpcmV6?=" <eperezma@redhat.com>, Stefan Hajnoczi
+ <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan
+ <shuah@kernel.org>, sdf@fomichev.me, dw@davidwei.uk, Jamal Hadi Salim
+ <jhs@mojatatu.com>, Victor Nogueira <victor@mojatatu.com>, Pedro Tammela
+ <pctammela@mojatatu.com>, Samiullah Khawaja <skhawaja@google.com>, Kaiyuan
+ Zhang <kaiyuanz@google.com>
+Subject: Re: [PATCH net-next v13 4/9] net: devmem: Implement TX path
+Message-ID: <20250505183758.7778811c@kernel.org>
+In-Reply-To: <20250429032645.363766-5-almasrymina@google.com>
+References: <20250429032645.363766-1-almasrymina@google.com>
+	<20250429032645.363766-5-almasrymina@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] virtio-net: don't re-enable refill work too early when
- NAPI is disabled
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <174648908424.967302.11832658516748544814.git-patchwork-notify@kernel.org>
-Date: Mon, 05 May 2025 23:51:24 +0000
-References: <20250430163758.3029367-1-kuba@kernel.org>
-In-Reply-To: <20250430163758.3029367-1-kuba@kernel.org>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
- pabeni@redhat.com, andrew+netdev@lunn.ch, horms@kernel.org,
- minhquangbui99@gmail.com, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, romieu@fr.zoreil.com,
- kuniyu@amazon.com, virtualization@lists.linux.dev
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hello:
+Functionally LGTM. But I'm not sure if the discussion with Paolo is
+resolved, so here's a couple more nit picks:
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+On Tue, 29 Apr 2025 03:26:40 +0000 Mina Almasry wrote:
+> +	case SCM_DEVMEM_DMABUF:
+> +		if (cmsg->cmsg_len != CMSG_LEN(sizeof(u32)))
+> +			return -EINVAL;
+> +		sockc->dmabuf_id = *(u32 *)CMSG_DATA(cmsg);
+> +
+>  		break;
 
-On Wed, 30 Apr 2025 09:37:58 -0700 you wrote:
-> Commit 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
-> fixed a deadlock between reconfig paths and refill work trying to disable
-> the same NAPI instance. The refill work can't run in parallel with reconfig
-> because trying to double-disable a NAPI instance causes a stall under the
-> instance lock, which the reconfig path needs to re-enable the NAPI and
-> therefore unblock the stalled thread.
-> 
-> [...]
+The empty line before break is very odd.
 
-Here is the summary with links:
-  - [net,v2] virtio-net: don't re-enable refill work too early when NAPI is disabled
-    https://git.kernel.org/netdev/net/c/1e20324b23f0
+> +	sockc = (struct sockcm_cookie){ .tsflags = READ_ONCE(sk->sk_tsflags),
+> +					.dmabuf_id = 0 };
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Too ugly to exist, either full init fits on a line or there needs to be
+a line break after {.
