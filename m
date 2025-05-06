@@ -1,145 +1,109 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8BCA266576
-	for <virtualization@lists.linux.dev>; Tue,  6 May 2025 09:44:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73927267B15
+	for <virtualization@lists.linux.dev>; Tue,  6 May 2025 09:46:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746524699; cv=none; b=Br1elERuYBP6swz+8MCc9mdcYvY/5BE+zA7jseE4/RuoXoJKi98xljrXaH2JnwHfkaV2OOQQeJDqsByTjmnlR4w3q5d6F48SugieRqnC4lv5Rdyvt0SUMv+gbPSoWuvPUzuCgOVyCd0d7aeAGtdnJI8e0GgXrHaLvnl7RgCKEFw=
+	t=1746524795; cv=none; b=NRdQGD9Vi8HpE50opBJtnKHNwCCwkVaI/F2atI1xnIzy55jj9KSrpkTMeKS07CvuCa7VBDeev2ZoiwJcWveggUNONAzPQsUeXFW1GBEF/VlYigGwhr7wEaFRZ7Xx/V62OAsIgA/LX0GAqqmr6R22AbfQvLB7gTdq1t4bof8ftaI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746524699; c=relaxed/simple;
-	bh=XtmhV9BRgG8S3EP7Ij8mgx59xV75hcQcMAEky/2dcT4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rjdT0Cui8C54cuoxgywmscAgQM/Kv/rI6KF2Y//nokydDDZ00XVWlKvE/5pAyPUEhfX2hYiOf6XTaBQXfGOZYBHcsqHkqqOXkTaD3tF3tEWdom3kcvjcU3EIJs3iW6Eyno7UmRS65G/QuZ3PilVKm7357M3eUUh0QaTSrf9K2d4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FQ0pfE/N; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1746524795; c=relaxed/simple;
+	bh=tA6N3YnyAi4SY4a6Jf1gNb1Di0YDjYwF9O0IKocrk4Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HcoLtB2qovC09xCvWpG4qeciJuy/GVyqFbc57mx8vgYwIwWsIUhMSUPLVAfCKcvYlPFrzOaK0PSyzAbCquMI3dGevkbvM1mhaC9vOT0rQokXWQPHtMXfvPS3zUPjwbaFid9SkxwcPSGGwpNpmV4sYVCz3uzOfw/cuxXyX6/NzrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XBgPFrZH; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FQ0pfE/N"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XBgPFrZH"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1746524696;
+	s=mimecast20190719; t=1746524793;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Ywb7zRNx3vPc7CyeVZadCCnMzE2V02v3OC1ITxjbuEs=;
-	b=FQ0pfE/NEQIx8FZeRMrSAhhLAnPe/ur9KgsT++4OJNIkJ+6GMQhJPSAxsm62WC1/oRGuH3
-	C+KJ+mtxWB+0M7kdkmaHRBzqETlFcJIxOnGDqXHAglLVG/JFXV+Twd6E7JPsyexNCpBURs
-	If4jIpV28BD8XO9eziDW1OROJFw39M0=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=tA6N3YnyAi4SY4a6Jf1gNb1Di0YDjYwF9O0IKocrk4Y=;
+	b=XBgPFrZHgi7kIzFg08Q6cni/KKcT4+WWcbRLzQHP6suDYGZUjX30o0M8fRvPEb4765hG35
+	mR9McwNYUvCPpozww89znLesju/2COhzXqfgliUoUIttUdKAapgesI99oCQdKmRczbIvPp
+	x8Icz70M7CsQXDDVyN4vcpKYycFVPTs=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-597-yWwkG1u_OoeRmkGwIXp7oA-1; Tue, 06 May 2025 05:44:55 -0400
-X-MC-Unique: yWwkG1u_OoeRmkGwIXp7oA-1
-X-Mimecast-MFC-AGG-ID: yWwkG1u_OoeRmkGwIXp7oA_1746524694
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-acb2fdc6b29so600524266b.1
-        for <virtualization@lists.linux.dev>; Tue, 06 May 2025 02:44:55 -0700 (PDT)
+ us-mta-617-swLoKJjsOryzWWbqY2kYpQ-1; Tue, 06 May 2025 05:46:30 -0400
+X-MC-Unique: swLoKJjsOryzWWbqY2kYpQ-1
+X-Mimecast-MFC-AGG-ID: swLoKJjsOryzWWbqY2kYpQ_1746524789
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-7082d8db9bcso70222987b3.3
+        for <virtualization@lists.linux.dev>; Tue, 06 May 2025 02:46:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746524694; x=1747129494;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Ywb7zRNx3vPc7CyeVZadCCnMzE2V02v3OC1ITxjbuEs=;
-        b=fsv2ra4KKT9Vh8stSK5UcpzT/pkhBoMESA2RaYxao3SggNAjPENJcXgS7EC8OAYv+i
-         FNZ+ISC8YYawM3PtwyX2Vw4aFSJIERBRtBSNUP8Ra4E0nJrUquCANbGjov2BTMAadgzz
-         M+oKYdef0O9iQUUEECyz/y8geyB3SHUhDcTp9r3HK5neQUTeVRmYTK5e0JbnfPe8CfHB
-         gSTLcpxhOGGdbhz4t7dAoG2vsp3xoolf/en3QGFvtpcF1D2tluqs5w5wKIpjh+pA/e/R
-         EfimABvMmzTjct6lmw/j4MmwUOdp4umsfHxbo5ZldNJq083AyNz2PPJMI/nJ2EcCbnMJ
-         kXWg==
-X-Forwarded-Encrypted: i=1; AJvYcCXYBZ2qq42B67NmPhV/8Sj0nOk/acdz3AlZmGplS/ufALMdWhHqyxMNAcGlLowdtIRG6yhDl6Ez0xP07Xsx5w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YycpB602pIub0cgcUkt5iDFds/kM4StnbtuqKpnBUY5vTEb+exG
-	T2Hg3TUPK/+rdLW/6zMh+8rgaKvhAH3EmS/doQUfz7F1jUtOmM8cZuhNKkyGlo8rcrLKOb8+YGp
-	1LEGDo6efib4O6CZMc8ypPQt5tP04fpXYUeA1dIARZsmY8krfvLwf4iBYjLCuELn9
-X-Gm-Gg: ASbGncu+D/tOf64BZfLugPrqC1LyeHUB8xfXZE4HDYVPjc5Gi/EnnCw5U4hJMWQ8hYd
-	CLOlywhLkJCuAr6SxVfzkYXP8kLGXNxUJtnmY3zsGtkFNX9v6OMUP1jBIhITHgmLxOrbUyQ6Se2
-	1+RkB3G1Lr2f4yf/lK2qb1g24T2q4cRGHHpgtSsn1qSSnZy8/0FKQWP8acwKE5Vji66w66lECca
-	M/okGOzbXGMt6HiQ1ECM/5CvzQsqsEQto7JKwccW+GVxHbVdPEohcHpCtPEuwEiLeE3tTNG9KRZ
-	znsUtZfH3yofPJ+akw==
-X-Received: by 2002:a17:907:720e:b0:ace:c47c:d05 with SMTP id a640c23a62f3a-ad1d2edb5a8mr271263466b.17.1746524694205;
-        Tue, 06 May 2025 02:44:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEy3Ipkv1JwfR8lsrwW2awsV3Xlbn5tYIVtWI1ItVLrYmS6wlQhRVbeVxW3XdsKsaomx8V8tg==
-X-Received: by 2002:a17:907:720e:b0:ace:c47c:d05 with SMTP id a640c23a62f3a-ad1d2edb5a8mr271260366b.17.1746524693669;
-        Tue, 06 May 2025 02:44:53 -0700 (PDT)
-Received: from sgarzare-redhat ([193.207.219.197])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ad189146991sm676458966b.14.2025.05.06.02.44.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 May 2025 02:44:53 -0700 (PDT)
-Date: Tue, 6 May 2025 11:44:44 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH net-next v4 1/3] vsock/virtio: Linger on unsent data
-Message-ID: <2latqq7jrneyimj6okjbarofnksmgwddwq2eie4mforjrjaxwv@jjbru7irkyyi>
-References: <20250501-vsock-linger-v4-0-beabbd8a0847@rbox.co>
- <20250501-vsock-linger-v4-1-beabbd8a0847@rbox.co>
+        d=1e100.net; s=20230601; t=1746524789; x=1747129589;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=tA6N3YnyAi4SY4a6Jf1gNb1Di0YDjYwF9O0IKocrk4Y=;
+        b=gr92EG+xW1JnIgCtllwrgKt21HM8DElV0llLBObu8Gg6JZR91FwsFOxLU2OxzPLC2+
+         I/GVxa9PaTlr7a5mSai7YyYozec6eIBQR9y7PLLLb3VH4TkztsGtZhCX3gMDibVAuBSP
+         Y44CgAYHt4wVJucB3IrqvJTLU64tFohJJJzFXMPrNp4aOBsDdKsuax8fs4XMLIgjZwQ2
+         Ty9C2OtLjCSUp5Btjt3Pe2zblU9vkuXuozNGjU8oaAJLmEvp1NMOhtngFT5Yz8iTFJSH
+         8W78e4ub4kFZ+U8//FnUiUuGB02fonj02MIRfCOkZnAvu8Vu4XmTPjRmv5LP6eMlnNe3
+         k+Sg==
+X-Forwarded-Encrypted: i=1; AJvYcCU5k5tbwrHiGm+iVuFgKWXGjzo5JSa+ox6j+IhCLGP3pdfzJ8HUEkg34GHwvKnab4QLbJyCyplb6tAh5yWrPA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzowQHjgPiLdo6Gaq3b3Kx/Bx51/MWKbYnCXoBLZio07yxuAulN
+	87nC0UUcTCmIsNrZNLGuFs4qtPgBfSiLNwUwWZ0klZJ0pVBJMJp9jltjEwx9lj09/UY60xr6nZh
+	VGLKnrc5AU+ykfErjT45ninh/peUMFnXrTBshLyMgcoge6jE79Lb49Kwy33XlyIjtIxxxiL35K7
+	Cd5i91xPUImGYCCz8RUP/TVqxVMFT4zg7sujWA3BA=
+X-Gm-Gg: ASbGncvTVmRYRiRRMOxpN7XQNPsoIGj4+tjGqDdqsWCgWL83N1PisqKAKm0t8uOO42f
+	cgP9IveMRdYVDu2D4DGZ3ZSmj+BAwTjOTPQuSGn0+q4/fhA8iEY95c0CelpWluMty/OlCWN0=
+X-Received: by 2002:a05:690c:881:b0:708:b7c4:89d9 with SMTP id 00721157ae682-708eaed228dmr161341827b3.11.1746524789550;
+        Tue, 06 May 2025 02:46:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF8SnKlOiGYxAIgFjpIz/3a6Amq4RJJRae2tHMUWHhFAEAWBZQzJ97jvAOQKqp6vtJokq7tr543XXcIaZE89NQ=
+X-Received: by 2002:a05:690c:881:b0:708:b7c4:89d9 with SMTP id
+ 00721157ae682-708eaed228dmr161341627b3.11.1746524789214; Tue, 06 May 2025
+ 02:46:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250501-vsock-linger-v4-1-beabbd8a0847@rbox.co>
+References: <20250501-vsock-linger-v4-0-beabbd8a0847@rbox.co>
+ <20250501-vsock-linger-v4-3-beabbd8a0847@rbox.co> <g5wemyogxthe43rkigufv7p5wrkegbdxbleujlsrk45dmbmm4l@qdynsbqfjwbk>
+In-Reply-To: <g5wemyogxthe43rkigufv7p5wrkegbdxbleujlsrk45dmbmm4l@qdynsbqfjwbk>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Tue, 6 May 2025 11:46:17 +0200
+X-Gm-Features: ATxdqUGB2JgQGBx1SBATpWkN34LfUWNEz6bg2h7UGX2v3-s9HEuTp1ypMzGQ-9I
+Message-ID: <CAGxU2F59O7QK2Q7TeaP6GU9wHrDMTpcO94TKz72UQndXfgNLVA@mail.gmail.com>
+Subject: Re: [PATCH net-next v4 3/3] vsock/test: Expand linger test to ensure
+ close() does not misbehave
+To: Michal Luczaj <mhal@rbox.co>
+Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: FurjktPd2G-WlaPZLeaUn_vtsXdKczJCkj3VPONG-_k_1746524694
+X-Mimecast-MFC-PROC-ID: P9MCYxcCkiZXo24LhvjnyTmas-XPiOyIiETeZmL3De4_1746524789
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, May 01, 2025 at 10:05:22AM +0200, Michal Luczaj wrote:
->Currently vsock's lingering effectively boils down to waiting (or timing
->out) until packets are consumed or dropped by the peer; be it by receiving
->the data, closing or shutting down the connection.
+On Tue, 6 May 2025 at 11:43, Stefano Garzarella <sgarzare@redhat.com> wrote:
 >
->To align with the semantics described in the SO_LINGER section of man
->socket(7) and to mimic AF_INET's behaviour more closely, change the logic
->of a lingering close(): instead of waiting for all data to be handled,
->block until data is considered sent from the vsock's transport point of
->view. That is until worker picks the packets for processing and decrements
->virtio_vsock_sock::bytes_unsent down to 0.
+> On Thu, May 01, 2025 at 10:05:24AM +0200, Michal Luczaj wrote:
+> >There was an issue with SO_LINGER: instead of blocking until all queued
+> >messages for the socket have been successfully sent (or the linger timeout
+> >has been reached), close() would block until packets were handled by the
+> >peer.
 >
->Note that (some interpretation of) lingering was always limited to
->transports that called virtio_transport_wait_close() on transport release.
->This does not change, i.e. under Hyper-V and VMCI no lingering would be
->observed.
+> This is a new behaviour that only new kernels will follow, so I think
+> it is better to add a new test instead of extending a pre-existing test
+> that we described as "SOCK_STREAM SO_LINGER null-ptr-deref".
 >
->The implementation does not adhere strictly to man page's interpretation of
->SO_LINGER: shutdown() will not trigger the lingering. This follows AF_INET.
->
->Signed-off-by: Michal Luczaj <mhal@rbox.co>
->---
-> net/vmw_vsock/virtio_transport_common.c | 4 +++-
-> 1 file changed, 3 insertions(+), 1 deletion(-)
+> The old test should continue to check the null-ptr-deref also for old
+> kernels, while the new test will check the new behaviour, so we can skip
+> the new test while testing an old kernel.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+I also saw that we don't have any test to verify that actually the
+lingering is working, should we add it since we are touching it?
 
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 7f7de6d8809655fe522749fbbc9025df71f071bd..045ac53f69735e1979162aea8c9ab5961407640c 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -1196,12 +1196,14 @@ static void virtio_transport_wait_close(struct sock *sk, long timeout)
-> {
-> 	if (timeout) {
-> 		DEFINE_WAIT_FUNC(wait, woken_wake_function);
->+		struct vsock_sock *vsk = vsock_sk(sk);
->
-> 		add_wait_queue(sk_sleep(sk), &wait);
->
-> 		do {
-> 			if (sk_wait_event(sk, &timeout,
->-					  sock_flag(sk, SOCK_DONE), &wait))
->+					  virtio_transport_unsent_bytes(vsk) == 0,
->+					  &wait))
-> 				break;
-> 		} while (!signal_pending(current) && timeout);
->
->
->-- 
->2.49.0
->
+Thanks,
+Stefano
 
