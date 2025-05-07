@@ -1,97 +1,74 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3C80218ADD
-	for <virtualization@lists.linux.dev>; Tue,  6 May 2025 22:47:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB5B042056;
+	Wed,  7 May 2025 00:32:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746571674; cv=none; b=ALIehPDXMhUhvjRnQTx3f4j9mdCq623naAc2c/yOwQxFYOt9MxmeSomd/gejfZ1Usd4KpjjiHJQ9KX/6Hxh+Njs/7BvAd/jS7572P+9SXcWCAf6oHq/eSRyB/97NXhuA/p1jNf9l/sjlugxPIj79J+BpN0vFDC0qch5tgljHaUI=
+	t=1746577946; cv=none; b=I3mtS18MNEjeSvUS0FL/3qBon8XIUHstGvOvru0l4FXnVmFgJpG3nhL9mM+zNWdpkUouJd9nyzyosHuMO6t2hfBKzn9ySHUNFvlzdo8zFQXbb6XwgE3oqgK2zCEcYFQZZRM+3ZDytAIzeJ6n2z0d8s9r8cdxaDw874OMol5fo3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746571674; c=relaxed/simple;
-	bh=BmVebgSwoJe1CZ2YVQOiNYym1SpMqws0eh/maQxHzZU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HgfjzeNhO1niT2R80c4l4mHmC9nSKkunazv+cfDmdmRBnsr9glWPpSi3ryvfQySnRssRCsYriPjvW3eSPdbo8eByswoGeQjY2fMgAif5eWqBsrfHFCslil9N5iT4GuQzCR6323j//zYdduSmOdVTH/lR0N8k7yi3ohoO9zx1E/o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=OV/XZL1C; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1746577946; c=relaxed/simple;
+	bh=7Z7HFia5inGYREF861yG/kIZqHxHikGnB87XGqV+y9w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rtCc0HXBkHCDH7BkKc49sIbROm/JyRr++Id9P8Nm8r7jNW9Lp20pKOr3hXF9bwbLFASyKJvNPDGPIfKnnRBxki2N/N2EMCu3Hetg9/Q4tmkTwd7HR4UDYu31HJUXueDpG5D0aU5n4aovyREV7IpYOPyCOCMWJAoWwXPG/1dPIp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S1+hPZgw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="OV/XZL1C"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1uCR4m-007tKE-77; Wed, 07 May 2025 00:47:48 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=BmVebgSwoJe1CZ2YVQOiNYym1SpMqws0eh/maQxHzZU=; b=OV/XZL1CJjjLBM6ND5SoR0EevN
-	h6AOvVWGeUNvub+mIIa2x4xRhY04lqYnRMMnd0uubnBIg2WjpVNcvVh4r0ZGa6FH3bwuC9ftcH80d
-	IW010Kswehpf4inm7fVh/7jNgaAa7Uyy7pjT4B/jwyJqak+kmG7awJS9quWpU885AskrSU4BZXPSA
-	tkFgcMkCTz8JIdSvKkefvE4mR6Qvd+MG+AMMRDfiK/H2+4BmcgIDukIyywl1hJ+qfPd5OnSwwTjab
-	qzT0EOqh06fHXLSqo/Kpk34dbNGKbq2yWhNb5NmDZe4IQINz/G4pzrRzrw64D0+Jxw8OyF2XDhyWd
-	zFpR2GtA==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1uCR4l-0005WD-MV; Wed, 07 May 2025 00:47:48 +0200
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1uCR4i-00FMkF-A2; Wed, 07 May 2025 00:47:44 +0200
-Message-ID: <ff959c3e-4c47-4f93-8ab8-32446bb0e0d0@rbox.co>
-Date: Wed, 7 May 2025 00:47:43 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S1+hPZgw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96EE1C4CEE4;
+	Wed,  7 May 2025 00:32:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1746577946;
+	bh=7Z7HFia5inGYREF861yG/kIZqHxHikGnB87XGqV+y9w=;
+	h=From:To:Cc:Subject:Date:From;
+	b=S1+hPZgwhQ7sSAJB1eXj5EMKi/WZECPgNMdcqTHSvpuLJji8O/Z62nRxnnsKBLS5b
+	 C4+Xxls7mLOhSbbxFO4kLknUiLJJ28EkTb/lcPgx5H8qxkN7qrslhl6a3Vy1WT+7Em
+	 0uQ7LwJj+8STxRyM1nTELk8Ya++mpiQjiyF7M5tU6DhHt2LoVxMsEy6arcoCqU/7yx
+	 t98OJF6o7Q7nH6m/f8OG435EnDW0H6UA1/QNQZfGm58r3fTIta1bLArXv0yLt/00ya
+	 yqqFE0vXQ0/HWOCm1INi1d4Eaywx3rCCspQUXMgjFEYQJ+HQLchMpN7Q4LjIqv3g2F
+	 qZC9/QO0wv69Q==
+From: Jakub Kicinski <kuba@kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	andrew+netdev@lunn.ch,
+	horms@kernel.org,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	jdamato@fastly.com,
+	virtualization@lists.linux.dev,
+	Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH net 0/2] virtio-net: fix total qstat values
+Date: Tue,  6 May 2025 17:32:19 -0700
+Message-ID: <20250507003221.823267-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v4 3/3] vsock/test: Expand linger test to ensure
- close() does not misbehave
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-References: <20250501-vsock-linger-v4-0-beabbd8a0847@rbox.co>
- <20250501-vsock-linger-v4-3-beabbd8a0847@rbox.co>
- <g5wemyogxthe43rkigufv7p5wrkegbdxbleujlsrk45dmbmm4l@qdynsbqfjwbk>
- <CAGxU2F59O7QK2Q7TeaP6GU9wHrDMTpcO94TKz72UQndXfgNLVA@mail.gmail.com>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <CAGxU2F59O7QK2Q7TeaP6GU9wHrDMTpcO94TKz72UQndXfgNLVA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 5/6/25 11:46, Stefano Garzarella wrote:
-> On Tue, 6 May 2025 at 11:43, Stefano Garzarella <sgarzare@redhat.com> wrote:
->>
->> On Thu, May 01, 2025 at 10:05:24AM +0200, Michal Luczaj wrote:
->>> There was an issue with SO_LINGER: instead of blocking until all queued
->>> messages for the socket have been successfully sent (or the linger timeout
->>> has been reached), close() would block until packets were handled by the
->>> peer.
->>
->> This is a new behaviour that only new kernels will follow, so I think
->> it is better to add a new test instead of extending a pre-existing test
->> that we described as "SOCK_STREAM SO_LINGER null-ptr-deref".
->>
->> The old test should continue to check the null-ptr-deref also for old
->> kernels, while the new test will check the new behaviour, so we can skip
->> the new test while testing an old kernel.
+Another small fix discovered after we enabled virtio multi-queue
+in netdev CI. The queue stat test fails:
 
-Right, I'll split it.
+  # Exception| Exception: Qstats are lower, fetched later
+  not ok 3 stats.pkt_byte_sum
 
-> I also saw that we don't have any test to verify that actually the
-> lingering is working, should we add it since we are touching it?
+The queue stats from disabled queues are supposed to be reported
+in the "base" stats.
 
-Yeah, I agree we should. Do you have any suggestion how this could be done
-reliably?
+Jakub Kicinski (2):
+  net: export a helper for adding up queue stats
+  virtio-net: fix total qstat values
 
-Thanks,
-Michal
+ include/net/netdev_queues.h |  6 ++++
+ drivers/net/virtio_net.c    |  4 +++
+ net/core/netdev-genl.c      | 69 +++++++++++++++++++++++++++----------
+ 3 files changed, 60 insertions(+), 19 deletions(-)
+
+-- 
+2.49.0
 
