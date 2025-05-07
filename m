@@ -1,157 +1,295 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-002c1b01.pphosted.com (mx0b-002c1b01.pphosted.com [148.163.155.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2518259CB0
-	for <virtualization@lists.linux.dev>; Wed,  7 May 2025 15:15:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746630912; cv=none; b=RDwWGhR/YbWKgzAP57eqMTbb6iBWOf02kxnsueFNlal6Qw7krMun02VeNu8mwVGZEUjEIZKjKAx47ov0H/XOXmBHvgL/8wnU3lLrHtpvhXUkxyFWAp70joTmS5DMBtUk7b5+YKOeGidGIhZSfjgw0u1mgYE8xxN435vstQmWlZc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746630912; c=relaxed/simple;
-	bh=5tkF3CDM/SiahZE1ey/V/R9PuHe6xmDu1THD4EbU57Q=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=IX4QPfKOH0cZrbCKtbjCZfUN9gEkXKwCFJZbETtg2vVGhyDcXF0+xvVixNoxqQBIkdB69u/GiksB4sKXQ2tMHSs/cmWCmk9ddeh26lTxbbUkrJ0qs3DXE72dUPetObhow25CXmSf5xLttQfajD8yhlgKB7k9fy8FlLYmEGojQe8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lszMnzFx; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A00928A3E2
+	for <virtualization@lists.linux.dev>; Wed,  7 May 2025 15:32:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=148.163.155.12
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1746631946; cv=fail; b=jGT+9V3x+475lRzxCk01POgPgtNG3D43QRH/ovGW+ccmKdy25cjzaFi+9a5awLaAI+W+JkivfAOghpzLDuRCwAU3uFJP8mfQEFLArVJHdiihkUP0Afdtoz3IAFoApxfYBuc2JvjCpDT33S86/wr15YxVZDbYePsPsuLyYfsex8A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1746631946; c=relaxed/simple;
+	bh=kKkSHJyEs6BluvhFeuBycUvDHf485n0udp+MTYB8Hgs=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=ZT4PEuTbM3dFdZ7WEZj2+BM8Upgp84lAHyHiAkH1dNOsj6jK4m3tgOZCJWYw01xsqRZC/0He4Y+K/pyB4HFkHDmI6JdXvxYQEvxYKOjX5eJ6IcdVwLv9l4/hVzE6/UxzZuoiYFKpMbWqCVh1l0Sx2SeMPpRFUWJ5DpNJTckwFDw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nutanix.com; spf=pass smtp.mailfrom=nutanix.com; dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b=24gbbV55; dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b=GTLghCcG; arc=fail smtp.client-ip=148.163.155.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nutanix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nutanix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lszMnzFx"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54795ISI004107;
-	Wed, 7 May 2025 15:15:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=uNrmQhTG6hbnUeRlUgPPTB1Jk+T5FRziSefdljTfZ
-	YY=; b=lszMnzFxEynDa40P61y45fNpCk784ts7Q0wM2XHskJfIzh7YiG40jcFeK
-	/KR4oEJEbDL/mkbQgvouksvIRVcPLNM/nc9+jTCnJzRMn6U0pzjRs1fk/Flp2mJ3
-	0fdn59oeQJfZh1vGPwzaAuOj14/pvXFU/h60AF4cR2S8hWd4nKN1ed4x4sJen2Nb
-	w+Txfwt5//NswH99gmCYc790VDMmy5c75kyR8gnT9U6JDKPTw4Xra4d7b78iqyMc
-	4h2uwruZO2tNJNPNa95Oc+qK4Qcvf4toyNsIO8zCOCaL3JMZcug3tGAVmPrnwKnw
-	1ahYPYGzrrohjlB9Uh6nrKY7cRkpA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46ft0mcg2n-1
+	dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b="24gbbV55";
+	dkim=pass (2048-bit key) header.d=nutanix.com header.i=@nutanix.com header.b="GTLghCcG"
+Received: from pps.filterd (m0127843.ppops.net [127.0.0.1])
+	by mx0b-002c1b01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54785SL5025158;
+	Wed, 7 May 2025 08:31:53 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nutanix.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=proofpoint20171006; bh=dEE//ImHiurOx
+	XDPaluhxh4uxJnRe/VHtth62Y35010=; b=24gbbV55gOQ7OS5qjSOC0DIKaZ27z
+	Pxdrpvv+/kANS9IULq25t7l6GQ3Ef1B0ZrZObIEzonWVacq4RflfJOB/u8TG/YcW
+	TyJZS8fVI4+VAjzZumoghVVaDvzAzbOqPZ253m5rZoH6gh7fP2OB444acE+MgMk5
+	Oi2u43v40K3K83ozeD0t/s8sVN2S9HYtttv9tuzJljXUV6Sj+6OTsrdpmzy49vkC
+	sL1STR8TnKyNBElbf1XD3XpBLQZ8fLwtMcO0ODuF+NHvTJEn08rJeFx0EvbnIj8T
+	qoCiefk3qe5yyHavxw6XpABxGg9FQMzMV9+6vK/nL/Hhj1UIC/qiWfoAw==
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2171.outbound.protection.outlook.com [104.47.58.171])
+	by mx0b-002c1b01.pphosted.com (PPS) with ESMTPS id 46dh8j1d5m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 May 2025 15:15:08 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 547CDWaF004231;
-	Wed, 7 May 2025 15:15:07 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46fjb25ynx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 May 2025 15:15:07 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 547FF2rT24707818
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 May 2025 15:15:03 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BB69558062;
-	Wed,  7 May 2025 15:15:05 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 848E65805E;
-	Wed,  7 May 2025 15:15:05 +0000 (GMT)
-Received: from WIN-DU0DFC9G5VV.austin.ibm.com (unknown [9.41.105.251])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 May 2025 15:15:05 +0000 (GMT)
-From: Konstantin Shkolnyy <kshk@linux.ibm.com>
-To: sgarzare@redhat.com
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com,
-        Konstantin Shkolnyy <kshk@linux.ibm.com>
-Subject: [PATCH net v2] vsock/test: Fix occasional failure in SIOCOUTQ tests
-Date: Wed,  7 May 2025 10:14:56 -0500
-Message-Id: <20250507151456.2577061-1-kshk@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+	Wed, 07 May 2025 08:31:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=AqSN5/ABCaIvKu4UfhpbtRQQN+S3Kw+rNClYZUqKOQzYbgKESN+8Gmw6B5eSapXqxjQbJ77A/TZQE2u3VzJQRXYp70Zkr+NwggnOnQh0dk2YMcTWep7e9HnzLRIftszzZSadqpbq+o2YE6EG84x38tx/iyJnychxvEQmC/5xkfGUzu1rvH68nlz7QVgATRgSmDzjL5NAOhjUn9D6zMCVCDkYP7V7YxqfR4/WWK7Z46RvgnLAiIw0NlQfS5Vztbzly8fETZoBENj6vqwhhqdWkgJPT+tpcNGn3JBs0DJGs2UvC3jGxv5H7pofnehySidCHI+uW503tzsWepNLaONAEA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=dEE//ImHiurOxXDPaluhxh4uxJnRe/VHtth62Y35010=;
+ b=caKDpwnuYGjupS+NrXRjv/f9X5RPMGqxomfmLGgU//kG2VApjpyPpV+HBawa9o1dhjre8nTm01cKKvmZjdeywKyVQE3nvm/ngB2EyMMrRIRfSsCxPKU53TJ8JkA0OLjXjhMqithicVYCOYJk5ac9AtO0Jmo9xadPH8BmnibSv33xmcr308tKcBdGcBQvW5F9HlH/6KxIBZRcnWdBidyeL9GronVFcarzxOxg3/d9TMOtAbncZEcsHRddcwzkMxq0iHYfH9kfAEczZivP72dkvLLIFucx5AdmXS9aq5SNhZ3QsEVkoe+1kOutsFUuWMzFD2GKFHWTkIYb2rTyvnsbzg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nutanix.com; dmarc=pass action=none header.from=nutanix.com;
+ dkim=pass header.d=nutanix.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nutanix.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dEE//ImHiurOxXDPaluhxh4uxJnRe/VHtth62Y35010=;
+ b=GTLghCcG4QVpnhWC2n1c2vKw5cCTBcAAzuJc9X5WWS6URa2uaYZKfj12dEG141c3kWSHfwmugFqIVLDwpyXPYCZXYjHCnBXjoCbLFOyOv/RMIt1oVd2ZzXxDRgiWoc7Jcac+3kYtQGTH6qgv6lIgvZ8AMy9ursILunLy69Wey4EFt3ZmV4k8G37/MYKCaPtMqf5rAg43p92uy3KWr416vgGeudljMoI/hycZdIw5ZX4cAqPIksGYf121lVS5wsawO0TvLt0AnYAgXpYxkp7TbaNeznnmfTTHmxZA98xG7xc+Kz3FSKTw4mqOyY+/8oKa0ZuLiGoj4Q2y8PoqsYqr5Q==
+Received: from LV8PR02MB10287.namprd02.prod.outlook.com
+ (2603:10b6:408:1fa::10) by PH0PR02MB7365.namprd02.prod.outlook.com
+ (2603:10b6:510:b::19) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8722.12; Wed, 7 May
+ 2025 15:31:51 +0000
+Received: from LV8PR02MB10287.namprd02.prod.outlook.com
+ ([fe80::b769:6234:fd94:5054]) by LV8PR02MB10287.namprd02.prod.outlook.com
+ ([fe80::b769:6234:fd94:5054%4]) with mapi id 15.20.8722.020; Wed, 7 May 2025
+ 15:31:50 +0000
+From: Jon Kohler <jon@nutanix.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+Cc: Jon Kohler <jon@nutanix.com>
+Subject: [PATCH net-next] vhost/net: align variable names with XDP terminology
+Date: Wed,  7 May 2025 09:02:05 -0700
+Message-ID: <20250507160206.3267692-1-jon@nutanix.com>
+X-Mailer: git-send-email 2.43.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: MN0PR02CA0015.namprd02.prod.outlook.com
+ (2603:10b6:208:530::16) To LV8PR02MB10287.namprd02.prod.outlook.com
+ (2603:10b6:408:1fa::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: N5VCJu82kjq3pSZkrKerxRsT73TIubyF
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTA3MDE0MiBTYWx0ZWRfX0RBznA7dB3wc o99INo9SP5+GQM+nfpXtHYE7gvSpE+8ms8Vd4ilsnLGkvSCLlUafIj256ntO9yIAdONEm8kJpvf 6DPjNmF28P/0cL6aDXBG5+8BU9rP5ABQoe12o14xDkuDwvqGHiRTGMAIR9P1OSVgudHkaHayUUq
- y+ttoyXDhabtviVhdSnLqGSKPBB9zHycSN8RoFYwKDOOEJunWh3KmMj6+DaLnJM+oFOo1X1jgWJ CcyhHWpjGxwygDGxgzHrhP/hA5x6N76/VNH45SpvqHD7mjtK4lMZW104duVUBx/LUKG0AokBige MKH6Go8PqxHpW7J6ImEbHZJbD7APFiuaQIR9T1PbdvJuljncE2Nsb0nK59H+FafqoBP6/Iqce0b
- Fc90gQ7qMtvE3GMmSQgobebZYFXPDgSJLK/8i+1fuCUWT3aSrWO9itYBpUp5u2l/xOw61Ah2
-X-Authority-Analysis: v=2.4 cv=U4eSDfru c=1 sm=1 tr=0 ts=681b78fc cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=3dInbp6vRfHhuKdI63AA:9
-X-Proofpoint-GUID: N5VCJu82kjq3pSZkrKerxRsT73TIubyF
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV8PR02MB10287:EE_|PH0PR02MB7365:EE_
+X-MS-Office365-Filtering-Correlation-Id: e3b0f8af-56af-44ba-04dd-08dd8d7c497b
+x-proofpoint-crosstenant: true
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|7416014|52116014|366016|376014|38350700014|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?46yVQQPf1PcHdlMlsqakOnw0Evw9B9ar2QNz9l16e07e+Vd+mHgKjSdot56N?=
+ =?us-ascii?Q?k8sXOkO5TkHKc1orweMaFx+cNF4AeBgAWbHQPK56x9p4nl4r/yfLDh6Bgryf?=
+ =?us-ascii?Q?EhH0zu8NHalPf1e6Hu04QF00mHGxqjKy0kZLAPkpEk+DVvC46L6Dkh2s/veC?=
+ =?us-ascii?Q?kjIyyaaFmDy2NsskS13JzHKq0HcVZZc9DrPA3vdhb42jt4js6ONj/ibMQ25B?=
+ =?us-ascii?Q?tZH062fW4FEiGZDGpHlJZXWv3sAM0j5U91IwF8Y7dXSv7U3oWu/RHsBjcgKE?=
+ =?us-ascii?Q?dv7eUF9xAVBtOmkK64INH1LvZualJHq3SWbNJ3rHEUy+mkm6ajLF8RBRXrEM?=
+ =?us-ascii?Q?eNrskdifojOaOPdkJRAemS/ME09qYJyQDUkmhE466J4AeESdrEbcLCMe0DF3?=
+ =?us-ascii?Q?oX/YevbMo/HH3D8k7gwFiiaJQ53lsskCFy2mZPcu03vX0HLvtd/RYvGMwlp8?=
+ =?us-ascii?Q?UMrzkCfRggnFRopf51MYxZBVoWUtjhddaixhygI3xgbaFufEy0042cQLFI7p?=
+ =?us-ascii?Q?6L4TwDCySaDQ5I7P+6dL2AJY+420ByiI33dcIVdhGURdUBDuWo0l7/PM0IQb?=
+ =?us-ascii?Q?37FqOMLTYB6ibJjDa2Fhb53qZROcSFnjzzTUBv/5FXq6CWZnLk59oaR7uXB1?=
+ =?us-ascii?Q?JmnCU9unV+mljpp9+68xhZVidyNhKlKRSPE441rcCO0dnxbawL3aecxxRb58?=
+ =?us-ascii?Q?wqLevB9yqg2AgKpd8RdUtO/YVPNnR2uga6A8NOLRACi5L29iyZhPidN/WynY?=
+ =?us-ascii?Q?rxuv6R4VkXUnpLK6XoY68nZ23I4KNPAqCnVNn9yLzIAwyZ3VPB3wXrkHlQhG?=
+ =?us-ascii?Q?ZeuGQNFfA7sEGBrNz+iVnpbetwjEuFybdGRfPq9wkO3TrU80W/kUfa/UrVox?=
+ =?us-ascii?Q?wl0c+BmGApc0VIauxH4Vmm1op8yGhPddnxtKUjWtB+bfl35UBT4PhOny0S+5?=
+ =?us-ascii?Q?M1yYFsdgsKL76wQxf1OsZxKRfN27h21zOZ+WRT84P9Iy9+dYkUKFKY5NUHyk?=
+ =?us-ascii?Q?9HIUO7mmo592TbKWvdjIwnYzHrWI6IKejtMhAKdOERp/ZomatdC+RN4SGBNb?=
+ =?us-ascii?Q?gXndaGs1p9XuV2A64ITPgSaU/x1VZe57h5vMr2uLLJ60GEAkyDGXJ7hUyoW9?=
+ =?us-ascii?Q?EaZKYkPa84b8SGfLlt/LMNYqI4fljJAzTd8c4IOwn44s73DcMmDrg3lbB8NW?=
+ =?us-ascii?Q?X0Q6C6HWgKKA3qSWnYn3OxZ08VnTs7cSmAjpzomOLlVLcuTBHbG0GVNahyfI?=
+ =?us-ascii?Q?IuEK6MQgp3fSda8ZmsVOiWkZnQwe6l3qR2Grt8s4TZjBniLlK2oiZ+oTyhRe?=
+ =?us-ascii?Q?XQkMO1YEzP1vQJGwnuCOQfBIi/50UJvalyupo1f2/t2c53C4EGAJy4MwORzl?=
+ =?us-ascii?Q?EVrhyITY55JZQMBcqx47iHf8T69wpn79YcW5QJv/S9Lvnwc+//7PFZEqZOcm?=
+ =?us-ascii?Q?qaWiYd0JwsAyZ9ZdxufRywi2wqSxHIzcyeH9XiP3m+wgxNH3G6nUPkTCcK4K?=
+ =?us-ascii?Q?O+cclg4nuFLJdFI=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR02MB10287.namprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(52116014)(366016)(376014)(38350700014)(921020);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?U4VugbPerIR1ou75gPweMe6AO3dYTv5v0q1WC0gxpHbjZeK/1m3ZOPdRNSTI?=
+ =?us-ascii?Q?tqXkdQ5pVLnp20h4RyAuaIEygTJWVibS654AB+UGmT6FrhtXI8ctOrmDGNIW?=
+ =?us-ascii?Q?yCAd5QTrTgtnExnXSEyjff5Bsp+3TmRDVPDRH5F8vVMZaImDaqR6kuXM8kI4?=
+ =?us-ascii?Q?C31s5qZUM3Qa2w8lOsaizV0XN+sDVaTTLObYeR70Fn3t8dETrKPlkjwM6bnb?=
+ =?us-ascii?Q?YHEDtgaBtQnuV5i1wSAOjx3XZjswpaCo4bnd0BRiFwy9A3WUQW5nkjpl1GAp?=
+ =?us-ascii?Q?gv+Nj/mn4xcFX7ObKMgA0jkFSQw/gmUusxoqEksRx2Sy6+d+lUn8taF3xesf?=
+ =?us-ascii?Q?8JrcFrdi6lfeWNZp2Vn70S/D2LTbYumveGofILaQ0eVM9AvN6qVn028le9kQ?=
+ =?us-ascii?Q?bEOEMtLyAeGjSFGpMmXayimaSCuTS5yLWzSTFTcCGLfTASLGFQk9SJhSJHah?=
+ =?us-ascii?Q?j9Mv9ztq9ymg/2EW1md9gDGrRDHcrFD4H+v9o6AF4SYqiiu539jc2D23Uq4t?=
+ =?us-ascii?Q?O1Wd2CB722TaPZT4iCWOFMGgIOO5Aj4Qg9fXSJS2VjyuzY5vfsNv5IZlnlo4?=
+ =?us-ascii?Q?/9G4+8ZxSjFhbezFaojIv0brQAcXUccmM45zbqzmNAZYCpxy8zLKsAlNrlW4?=
+ =?us-ascii?Q?Yo58uTkbH4cSEjuqWFw6DGduw69nONpOd1EKhVxS1ZjNqdFf4w1BUfgIzEGX?=
+ =?us-ascii?Q?b68125zxarCzfhC8BbiF/YBacqayLysAnoOSF9w8poPljYGavxdma6B0o3Xx?=
+ =?us-ascii?Q?u8R2NEKRgnf+cx1hq56M0yk+xqtysJD5Q94zDtFE7Ivh5WuMC+XcjFg2ziJB?=
+ =?us-ascii?Q?4/JuhDN7PGLuTykd9R/cUzD+BBn7bkiybvYvD5oPggzhxu8Vg+U9dddYK6mw?=
+ =?us-ascii?Q?m/yGUmwZvrioj3VidLYJ/lf8b2roFp/CVPWOcS9/T2Fp0XR4tpRwbwGpiEJ9?=
+ =?us-ascii?Q?7NxX8YiuySg1KPQzoWg4X4dQ48fQRDOCx1sdIsg3SSugRfvzin+XV92mhPn5?=
+ =?us-ascii?Q?YMlr402gUHdBACOH/JKHgGFlUiK8dP6QT+Hznsqpzr3cIGcXAqnj2OnNZUhZ?=
+ =?us-ascii?Q?W6oWa1SXzSutnO5KhUi6uXRSMJNrYbGw7ctmqXPd2btFBAlNqPooHr6WJsI/?=
+ =?us-ascii?Q?jVJ0qUwHs3vCy+5FGJhIPv8LRWG8X8ZblSH0rnX1P8JKe7StQjEyjhq0jgG3?=
+ =?us-ascii?Q?zXOYJx7t0v2UXxs6C5JDbLYfz5CNiXWYP+kYQc4rojECaAt+beLVRmGNiIMb?=
+ =?us-ascii?Q?ixJVnCExTaw3k5Kv8fL04Oop79rQDzbKx4+ygGrqH1mmA0AuR7NpLtA8n6yo?=
+ =?us-ascii?Q?flh5wuVphRI85GNgFb7u9m0mxx3cCWoF6rZY/xrjm0qTD+C6sLMiHl/N/yMn?=
+ =?us-ascii?Q?iaFkrVP/cNR2MdLXQmk7bfBw+vfXYaXYTW5F0fFOxY51EIs96Z8ZwFAum/zM?=
+ =?us-ascii?Q?6UMaAjA3kLV7M5L99bwJ7VCJFnWwANfgV+Aya2UvrfgiDjEvNdM1PN/iWSEN?=
+ =?us-ascii?Q?8dUVFeQv69ROB8jFayDbmPOwTTEIzLHwYzEhg/qKlYp+CkxkXje3PWURGzIY?=
+ =?us-ascii?Q?lBIr5yZJMXRivP5K5r7rWotY6jq38pb7ey9ENh/Fl4a42NS8ySNMrDBp9sZq?=
+ =?us-ascii?Q?hA=3D=3D?=
+X-OriginatorOrg: nutanix.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e3b0f8af-56af-44ba-04dd-08dd8d7c497b
+X-MS-Exchange-CrossTenant-AuthSource: LV8PR02MB10287.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 May 2025 15:31:50.8309
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: bb047546-786f-4de1-bd75-24e5b6f79043
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LS780KXfOIw/MHzE/4qhTfLDfT+1KxCkLRJTnxt2Eeq5P210RAH0Fhq5w9e/o2ooJ+nUvYKBSA1eqKNTGKoZjkv64W0ZRhI3DuZ3nt1ispQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR02MB7365
+X-Authority-Analysis: v=2.4 cv=B/y50PtM c=1 sm=1 tr=0 ts=681b7ce9 cx=c_pps a=b6GhQBMDPEYsGtK7UrBDFg==:117 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19 a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=dt9VzEwgFbYA:10
+ a=0kUYKlekyDsA:10 a=64Cc0HZtAAAA:8 a=jDBx4MJtfhcO1TTigScA:9
+X-Proofpoint-ORIG-GUID: 8sbzHxemAkgzA6G_cXbxV8GTD6keDeNG
+X-Proofpoint-GUID: 8sbzHxemAkgzA6G_cXbxV8GTD6keDeNG
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTA3MDE0NSBTYWx0ZWRfX5NM87VaEAJNo nQew2wkYQPmoht/hCH8NYnYBzg1MJPtPFF0QmWWMtVULfhjob/wX9JeYB7Vrd2+Pvl/hE2QJ1R4 jL/ZllqYN32RC3uU1VAdtIqT3mG89hnLpk+He+3Pb9feDMw1FY0is6Eco1bubfSP2oIoe2lioFP
+ heZzm+amigkxSRseSKQZfbkP2dGcBNkzpEbIoRjYlx0rMkZJ+WoO4MplgVTKpZJRKDD0qGROwKC TuE941o9y5jqUyPQ7XAP66pfHbW3LMRRJ82sNpzLuczsO1jxZ3bVScHYNA1BnXCi+aFBHvtanH1 o8yBnk3f+80nnrZ0MAeti/RMpRby+miMFTsGuHicxbruTa0+2lgj987Kj9rylElnCXEkL3O46LS
+ 6T+ZeHsFeYKXz59P4FoEwGi3Ew7AOQ38YZRey4w/Aa6xiFgBnSIxRS5k95f6uV5axHaD+1G6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-07_04,2025-05-06_01,2025-02-21_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- suspectscore=0 phishscore=0 spamscore=0 clxscore=1015 mlxlogscore=999
- lowpriorityscore=0 priorityscore=1501 malwarescore=0 bulkscore=0
- mlxscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2504070000
- definitions=main-2505070142
+ definitions=2025-05-07_05,2025-05-06_01,2025-02-21_01
+X-Proofpoint-Spam-Reason: safe
 
-These tests:
-    "SOCK_STREAM ioctl(SIOCOUTQ) 0 unsent bytes"
-    "SOCK_SEQPACKET ioctl(SIOCOUTQ) 0 unsent bytes"
-output: "Unexpected 'SIOCOUTQ' value, expected 0, got 64 (CLIENT)".
+Refactor variable names in vhost_net_build_xdp to align with XDP
+terminology, enhancing code clarity and consistency. Additionally,
+reorder variables to follow a reverse Christmas tree structure,
+improving code organization and readability.
 
-They test that the SIOCOUTQ ioctl reports 0 unsent bytes after the data
-have been received by the other side. However, sometimes there is a delay
-in updating this "unsent bytes" counter, and the test fails even though
-the counter properly goes to 0 several milliseconds later.
+This change introduces no functional modifications.
 
-The delay occurs in the kernel because the used buffer notification
-callback virtio_vsock_tx_done(), called upon receipt of the data by the
-other side, doesn't update the counter itself. It delegates that to
-a kernel thread (via vsock->tx_work). Sometimes that thread is delayed
-more than the test expects.
-
-Change the test to poll SIOCOUTQ until it returns 0 or a timeout occurs.
-
-Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+Signed-off-by: Jon Kohler <jon@nutanix.com>
 ---
-Changes in v2:
- - Use timeout_check() to end polling, instead of counting iterations.
+ drivers/vhost/net.c | 53 ++++++++++++++++++++++-----------------------
+ 1 file changed, 26 insertions(+), 27 deletions(-)
 
- tools/testing/vsock/vsock_test.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
-
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index d0f6d253ac72..613551132a96 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -1264,21 +1264,25 @@ static void test_unsent_bytes_client(const struct test_opts *opts, int type)
- 	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
- 	control_expectln("RECEIVED");
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 7cbfc7d718b3..86db8add92eb 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -665,44 +665,43 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+ 	struct vhost_virtqueue *vq = &nvq->vq;
+ 	struct vhost_net *net = container_of(vq->dev, struct vhost_net,
+ 					     dev);
++	int copied, headroom, ret, sock_hlen = nvq->sock_hlen;
++	struct xdp_buff *xdp = &nvq->xdp[nvq->batched_xdp];
+ 	struct socket *sock = vhost_vq_get_backend(vq);
++	size_t data_len = iov_iter_count(from);
+ 	struct virtio_net_hdr *gso;
+-	struct xdp_buff *xdp = &nvq->xdp[nvq->batched_xdp];
+ 	struct tun_xdp_hdr *hdr;
+-	size_t len = iov_iter_count(from);
+-	int headroom = vhost_sock_xdp(sock) ? XDP_PACKET_HEADROOM : 0;
+-	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+-	int pad = SKB_DATA_ALIGN(VHOST_NET_RX_PAD + headroom + nvq->sock_hlen);
+-	int sock_hlen = nvq->sock_hlen;
+-	void *buf;
+-	int copied;
+-	int ret;
++	void *hard_start;
++	u32 frame_sz;
  
--	ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
--	if (ret < 0) {
--		if (errno == EOPNOTSUPP) {
--			fprintf(stderr, "Test skipped, SIOCOUTQ not supported.\n");
--		} else {
-+	/* SIOCOUTQ isn't guaranteed to instantly track sent data. Even though
-+	 * the "RECEIVED" message means that the other side has received the
-+	 * data, there can be a delay in our kernel before updating the "unsent
-+	 * bytes" counter. Repeat SIOCOUTQ until it returns 0.
-+	 */
-+	timeout_begin(TIMEOUT);
-+	do {
-+		ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
-+		if (ret < 0) {
-+			if (errno == EOPNOTSUPP) {
-+				fprintf(stderr, "Test skipped, SIOCOUTQ not supported.\n");
-+				break;
-+			}
- 			perror("ioctl");
- 			exit(EXIT_FAILURE);
+-	if (unlikely(len < nvq->sock_hlen))
++	if (unlikely(data_len < sock_hlen))
+ 		return -EFAULT;
+ 
+-	if (SKB_DATA_ALIGN(len + pad) +
+-	    SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) > PAGE_SIZE)
++	headroom = SKB_DATA_ALIGN(VHOST_NET_RX_PAD + sock_hlen +
++				  vhost_sock_xdp(sock) ? XDP_PACKET_HEADROOM : 0);
++
++	frame_sz = SKB_HEAD_ALIGN(headroom + data_len);
++
++	if (frame_sz > PAGE_SIZE)
+ 		return -ENOSPC;
+ 
+-	buflen += SKB_DATA_ALIGN(len + pad);
+-	buf = page_frag_alloc_align(&net->pf_cache, buflen, GFP_KERNEL,
+-				    SMP_CACHE_BYTES);
+-	if (unlikely(!buf))
++	hard_start = page_frag_alloc_align(&net->pf_cache, frame_sz,
++					   GFP_KERNEL, SMP_CACHE_BYTES);
++	if (unlikely(!hard_start))
+ 		return -ENOMEM;
+ 
+-	copied = copy_from_iter(buf + offsetof(struct tun_xdp_hdr, gso),
++	copied = copy_from_iter(hard_start + offsetof(struct tun_xdp_hdr, gso),
+ 				sock_hlen, from);
+ 	if (copied != sock_hlen) {
+ 		ret = -EFAULT;
+ 		goto err;
+ 	}
+ 
+-	hdr = buf;
++	hdr = hard_start;
+ 	gso = &hdr->gso;
+ 
+ 	if (!sock_hlen)
+-		memset(buf, 0, pad);
++		memset(hard_start, 0, headroom);
+ 
+ 	if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
+ 	    vhost16_to_cpu(vq, gso->csum_start) +
+@@ -712,29 +711,29 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+ 			       vhost16_to_cpu(vq, gso->csum_start) +
+ 			       vhost16_to_cpu(vq, gso->csum_offset) + 2);
+ 
+-		if (vhost16_to_cpu(vq, gso->hdr_len) > len) {
++		if (vhost16_to_cpu(vq, gso->hdr_len) > data_len) {
+ 			ret = -EINVAL;
+ 			goto err;
  		}
--	} else if (ret == 0 && sock_bytes_unsent != 0) {
--		fprintf(stderr,
--			"Unexpected 'SIOCOUTQ' value, expected 0, got %i\n",
--			sock_bytes_unsent);
--		exit(EXIT_FAILURE);
--	}
--
-+		timeout_check("SIOCOUTQ");
-+	} while (sock_bytes_unsent != 0);
-+	timeout_end();
- 	close(fd);
+ 	}
+ 
+-	len -= sock_hlen;
+-	copied = copy_from_iter(buf + pad, len, from);
+-	if (copied != len) {
++	data_len -= sock_hlen;
++	copied = copy_from_iter(hard_start + headroom, data_len, from);
++	if (copied != data_len) {
+ 		ret = -EFAULT;
+ 		goto err;
+ 	}
+ 
+-	xdp_init_buff(xdp, buflen, NULL);
+-	xdp_prepare_buff(xdp, buf, pad, len, true);
+-	hdr->buflen = buflen;
++	xdp_init_buff(xdp, frame_sz, NULL);
++	xdp_prepare_buff(xdp, hard_start, headroom, data_len, true);
++	hdr->buflen = frame_sz;
+ 
+ 	++nvq->batched_xdp;
+ 
+ 	return 0;
+ 
+ err:
+-	page_frag_free(buf);
++	page_frag_free(hard_start);
+ 	return ret;
  }
  
 -- 
-2.34.1
+2.43.0
 
