@@ -1,81 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A3334B1E48;
-	Thu,  8 May 2025 09:59:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C24B521D3F0
+	for <virtualization@lists.linux.dev>; Thu,  8 May 2025 10:38:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746698391; cv=none; b=Zmuf3sBL42ZN+K3bikxr9k+AFDjZEISNr8h98MwdlSJ+iqHGkp/C+L9qXgwVd3hzoZVB+Wui4aqcPxkviwmb9qnckSCuVxirU5qO10/hfsgcEVmFpjuTsOoQRXYzhRUibEGBlApKH+Hq3pPhbzOSz7/ykiHo60ze0qDmfbiFESY=
+	t=1746700721; cv=none; b=IUHM/hEgJdaJmNvGpb8+5T60GGiZC0mlTvPeFG/2JshmTjcO/GWoRMNJsc4X6RwnNk3uLrHp0tFXeifEDVxdgYDwzsK3/Ait34iIqrcjgFDR2dbBlv3QUNbXUEKICqfBZg7dD6zNUBxC3njJgNjY/8kGD2Nsf7GTrNh1Cud65cA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746698391; c=relaxed/simple;
-	bh=e3G0ZI1AqiLNpCUaMIy1salHpVtsB1W7fQyBWCso3a4=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=lsjEA02PhpB8Vo2eG2e137Gt83+1emFhIu9FJ4kbuPKEbEh/yF8SHjz63evXzA3dd5bdV9DWI03nr1tKfLinkAjhPXkuQUia7nAbWTBL+dUqFitl+mFt7RUJHjGi2yl9TYppcYX3jRP90gpnRi9Ola++0NqOZg7KogVrqUQh/O8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oaZ374IY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1746700721; c=relaxed/simple;
+	bh=AVxwamcYava5lHCm6Qh9yjmfXpxlW465v9ROitrFuKI=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=TPS69ADbcCS8fHGkpjlw0czyW9jpxouml1wf8Sw5d1Cyxxv8ioiOaWtpiMZ1vUZ1GWxP4PfhoWhMLO0kANwF4f+mxPNmWSMd1nlogOvpHLK+7pXVDPSWvlHSnLz8fLdFK2iqCqXyEyVxl2V3LmHlshe1rxT+A411YF1pXT8UtNw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=ayrMChE5; arc=none smtp.client-ip=80.241.56.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oaZ374IY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED44C4CEE7;
-	Thu,  8 May 2025 09:59:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746698391;
-	bh=e3G0ZI1AqiLNpCUaMIy1salHpVtsB1W7fQyBWCso3a4=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=oaZ374IYA5Sby7wigX78P+Vzb45bqrpmIMd3ZAWzjJytttTiHEg2P3GVAqaIpKSpz
-	 OLYcukCFmjNywc+JKv5+EUTKqwi8BJtquIy44xdg6lj3FUX9USr/7pg3rdI+dSyINp
-	 NLJvw6ZJOc7+6f1wkRbgs0Ft+H0s7XiSx3j1iGmAePB3m+54T1o7lnxRvIRyzCzS0d
-	 ZMscASZx1GQvCYhCwOfvizbYDd/bwh8WGpg411hZaupir2ymUgvOIKbp8tN9XERTJ1
-	 mQQ28n39wqkwMtknMtUTnmxdm6JHC1+qy1L4A7MDcmA29bHIQmafK4Xomr+c81HufR
-	 eqIKzqSnphmDg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAC9E380AA70;
-	Thu,  8 May 2025 10:00:30 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="ayrMChE5"
+Received: from smtp202.mailbox.org (smtp202.mailbox.org [IPv6:2001:67c:2050:b231:465::202])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4ZtTBD5WXcz9t8J;
+	Thu,  8 May 2025 12:38:28 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1746700708; h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=AVxwamcYava5lHCm6Qh9yjmfXpxlW465v9ROitrFuKI=;
+	b=ayrMChE5XdfDfYf1cfl3RZbSg/culTQ8pB1fMNV3jNoIuXZLlegP7GUMqrhCsvXg+6BLKs
+	i8IM9X9YuC04X24Zi2QTKkpoYVHZJ39KD3t9qvLxTBiElFt0oA1dkqHULcuuwTCKycBDbB
+	sfXGFKtyQ7Y7GVf2dvlJb53kQ1AHL2GjaYaID0hiLAtkKtR7NKZn2Pu4eESk3GZrjUnvum
+	Mk/BPt66RSKSKCE+i6pH/sIIwnq7Ir6H6lEOJTCOWpujkKrc2oxGdXQGLJl0DWvShfMF53
+	y8ERh2UyjuDfHo1A4O0z+hPGoIVuhUfhY7AScYqeaJTjnTHD5XNKpEzSKdB3Ow==
+Message-ID: <6d46103afab9fc8e843e5681226f7db34a4ca57d.camel@mailbox.org>
+Subject: Re: [PATCH] drm/cirrus: Use non-hybrid PCI devres API
+From: Philipp Stanner <phasta@mailbox.org>
+Reply-To: phasta@kernel.org
+To: Javier Martinez Canillas <javierm@redhat.com>, Philipp Stanner
+ <phasta@kernel.org>, Dave Airlie <airlied@redhat.com>, Gerd Hoffmann
+ <kraxel@redhat.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+  Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann
+ <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>,  Simona Vetter
+ <simona@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, Arnd Bergmann
+ <arnd@kernel.org>,  Jani Nikula <jani.nikula@intel.com>, Niklas Schnelle
+ <schnelle@linux.ibm.com>, Jeff Johnson <jeff.johnson@oss.qualcomm.com>
+Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org, 
+	linux-kernel@vger.kernel.org
+Date: Thu, 08 May 2025 12:38:20 +0200
+In-Reply-To: <87frhzc1a9.fsf@minerva.mail-host-address-is-not-set>
+References: <20250417094009.29297-2-phasta@kernel.org>
+	 <87frhzc1a9.fsf@minerva.mail-host-address-is-not-set>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/2] virtio-net: fix total qstat values
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <174669842974.2857326.9626590973544032817.git-patchwork-notify@kernel.org>
-Date: Thu, 08 May 2025 10:00:29 +0000
-References: <20250507003221.823267-1-kuba@kernel.org>
-In-Reply-To: <20250507003221.823267-1-kuba@kernel.org>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
- pabeni@redhat.com, andrew+netdev@lunn.ch, horms@kernel.org, mst@redhat.com,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- jdamato@fastly.com, virtualization@lists.linux.dev
+X-MBO-RS-META: 95gcigcooksuqbomehep45nhjaz56pkg
+X-MBO-RS-ID: bc6ee78d190767a69aa
 
-Hello:
+On Tue, 2025-04-22 at 23:51 +0200, Javier Martinez Canillas wrote:
+> Philipp Stanner <phasta@kernel.org> writes:
+>=20
+> Hello Philipp,
+>=20
+> > cirrus enables its PCI device with pcim_enable_device(). This,
+> > implicitly, switches the function pci_request_regions() into
+> > managed
+> > mode, where it becomes a devres function.
+> >=20
+> > The PCI subsystem wants to remove this hybrid nature from its
+> > interfaces. To do so, users of the aforementioned combination of
+> > functions must be ported to non-hybrid functions.
+> >=20
+> > Replace the call to sometimes-managed pci_request_regions() with
+> > one to
+> > the always-managed pcim_request_all_regions().
+> >=20
+> > Signed-off-by: Philipp Stanner <phasta@kernel.org>
+> > ---
+>=20
+> Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+>=20
 
-This series was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
+Who's in charge of applying this? Any objections with me just putting
+it into drm-misc-next?
 
-On Tue,  6 May 2025 17:32:19 -0700 you wrote:
-> Another small fix discovered after we enabled virtio multi-queue
-> in netdev CI. The queue stat test fails:
-> 
->   # Exception| Exception: Qstats are lower, fetched later
->   not ok 3 stats.pkt_byte_sum
-> 
-> The queue stats from disabled queues are supposed to be reported
-> in the "base" stats.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net,1/2] net: export a helper for adding up queue stats
-    https://git.kernel.org/netdev/net/c/23fa6a23d971
-  - [net,2/2] virtio-net: fix total qstat values
-    https://git.kernel.org/netdev/net/c/001160ec8c59
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+P.
