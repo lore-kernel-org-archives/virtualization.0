@@ -1,171 +1,277 @@
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2070.outbound.protection.outlook.com [40.107.244.70])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 857121DB366
-	for <virtualization@lists.linux.dev>; Thu,  8 May 2025 15:20:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.70
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746717636; cv=fail; b=FeG4i7VffO73QoRVTcR2gO/xmpnVuwRxaCs7YQo4IWLNrBG13ANfJ8f1JuOvWbe9YVxrohkbvFAH+1MK3KJCny6El80BiQZ66KKCUD04SW1U0T55a49s42x7UOrYMguQKQqcGseRWMWEP5qkeIZ7W+3GPKbfQL9RKT+xXO2gJwo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746717636; c=relaxed/simple;
-	bh=WAJQ2fuDaJyCZoWM0a+F6oukRQD7XlpJ2A/WZaLbLQs=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=ecDkCMzI1AJPUbVReR2LA8FG+OQtfAt6eNrK88ln+qDy7YPJizGR3JWCshgCXtWOhmklNTHMyYD8q+yUz1qquz39eXYRpfkr7/NjK5HZVpkc/VjPw8IFNz5KFPY8T0eJEB7eir3hNZheaPRo02/27+okT+QNKICnLKmGgtRPsWo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=FmNFDKiF; arc=fail smtp.client-ip=40.107.244.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E9AD469D
+	for <virtualization@lists.linux.dev>; Fri,  9 May 2025 01:30:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1746754218; cv=none; b=UlJWtziqy7U832RYTIzG8FPP/zuo2Vk+JwF5G3htRIMYKpMLEBT/Ce5qfk9fWTj7b7bZX+Q81LeQEaFyvWiMEkzfdEKsMfYLg2qkVLHdySK0oBhgzaqnuFjZrHd2AUpDEc0pw4RXM0/BS9HaX6VK2qdDdbw0JjiN9bQI0iKDSj4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1746754218; c=relaxed/simple;
+	bh=/qbfzc8/AS/igr2+ccTAmTclHpAKBi+VPfU1OA167hY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=c4zlK/L/rW8Z7LqIgLtpGT2LzqdhoMumvcmXm9C8XofnvSq9CuprG1iZfVB0I5jZpTVhDEzKrm0GfT2v+jIo+dg0g0ovqG7yjnO56Zyb+2Sk0Sw9YwjL2rwdT4PENX2AxLXsvBFWdEK5Z3q8/0aBn02XSyfmSKmKDTIFuyfje9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cfKPiIbb; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="FmNFDKiF"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=YtN+dQMSyMutVeM+RONuYXcg1S3HQ8FQL7NdMZvwiR5aj1DuAqPqNkTNntdxNUaBAJXFcuyVb+3pgFRjxHh/a0daPuFL1NouMrqTJ5Yp8uNhNKkieLGpGkGPTN6Aa1nXBDMS/4/zlwMTQDtYCdhakPjguhr/Dwad3MRCds3+WcSZLCrbBhZHuhgu0hK6Nb9FcXEGLl9RtCW0HpVXlkMNUAZrTYUG9or0tDkVm+Rz1+IuoUvh+e2cgaqAQMQVJtzWeB4M2vOesY3oR7LlZ9TYcrroxa/yvgRG7KbViN4AvJSMDOw80so7QX83NJM3mekO3G7LI00CrWyySvVdeqD4xA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=WAJQ2fuDaJyCZoWM0a+F6oukRQD7XlpJ2A/WZaLbLQs=;
- b=QcCupjPTTKJJPJv4ShMnrR6UXoQptGw50jw+3NDAtM01qpMYW4RIlKlsZstZl6VpqCYpnHTt9PsXae4myI449Uvq0lSHPjFVU4tyfWIzxv/wxgFAvqqjfKSYudI+oCbl2JQsjPaFSQx7b45F/RQqnMkcTygaa/DgBxZ9WOR9OrRayrj8czJFXlVABjRQMlXNbm0pnLiaEV7f4JrafS/qazGCf+P3pHzdJVrucJFc6v1izwDvt8u3TS22WguZTa85bNPCuyaYXL8yNEHD3mYq2qajRDrdFBIt9UKllsX+tm8wCEWCBSaLOFIK3EbH1MEQPcItuuZrCmMJnqEA5zGdqw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WAJQ2fuDaJyCZoWM0a+F6oukRQD7XlpJ2A/WZaLbLQs=;
- b=FmNFDKiFurWf694CMW9O1pEikg4BGqaxxSCzf2n0va/QIFKYZSaJ4ZxOLQPqTqpgelJiJV4xsioSCjM/FRMv7PfpZlt46ithNBa2zl+C6wz1KLTB4LkMy5ebfZg1QOFcHiOFASjhGM0Rm2u6UglC0zAIFoMvOvdgnmq6qTJmKaZedol5DKrxfz0GxEAbIeXBHmPgAhh/RNDCCDJNkZWeUDnyLRl9Smy2H1pjMYSg+UUnNsRpD+YlRLm7/9RrPOcNq5V69GkMscInrol5CkQuoW6WpGLAhYCWiqcZLR0GDbMoL7j2tH8drjVaCZ0sRUTbb030WB5UcDoWaIEIrYxOrQ==
-Received: from LV3PR12MB9404.namprd12.prod.outlook.com (2603:10b6:408:219::9)
- by DS0PR12MB8816.namprd12.prod.outlook.com (2603:10b6:8:14f::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8699.26; Thu, 8 May
- 2025 15:20:26 +0000
-Received: from LV3PR12MB9404.namprd12.prod.outlook.com
- ([fe80::57ac:82e6:1ec5:f40b]) by LV3PR12MB9404.namprd12.prod.outlook.com
- ([fe80::57ac:82e6:1ec5:f40b%5]) with mapi id 15.20.8699.024; Thu, 8 May 2025
- 15:20:26 +0000
-From: Chaitanya Kulkarni <chaitanyak@nvidia.com>
-To: Christoph Hellwig <hch@lst.de>, "mst@redhat.com" <mst@redhat.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>
-CC: "eperezma@redhat.com" <eperezma@redhat.com>, "kvm@vger.kernel.org"
-	<kvm@vger.kernel.org>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>
-Subject: Re: [PATCH v2] vringh: use bvec_kmap_local
-Thread-Topic: [PATCH v2] vringh: use bvec_kmap_local
-Thread-Index: AQHbuqSIdf/M3o8V1kGFcND3MpicdbPI5CiA
-Date: Thu, 8 May 2025 15:20:26 +0000
-Message-ID: <ba360382-710b-4b61-b4d4-4fd9d6d42c35@nvidia.com>
-References: <20250501142244.2888227-1-hch@lst.de>
-In-Reply-To: <20250501142244.2888227-1-hch@lst.de>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Mozilla Thunderbird
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: LV3PR12MB9404:EE_|DS0PR12MB8816:EE_
-x-ms-office365-filtering-correlation-id: 2a898946-5219-4bde-8b0f-08dd8e43dc12
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|376014|366016|1800799024|10070799003|38070700018;
-x-microsoft-antispam-message-info:
- =?utf-8?B?NmhmTHg4MXZkQUFuZ0MwN1ZNcFFqVkdDUzdNM21OMkV6S0hpNFUzakFPODFo?=
- =?utf-8?B?bWZNTEJXcUFWMlpmNHV0VVU2bUZLbnpYd1hFbmFjZW9zZisvcHptbldIRVpB?=
- =?utf-8?B?K0tXMkgvMG15WUI1RWxra2o0aUp0VzdXaGFrVHJhdzZsd2JROUo2bTJHV2o5?=
- =?utf-8?B?bkNrNlhiUGJRVDdyZlY4OVorNG1hMFBEcDRlT1NlOEV2VmQ2dUlia3RJeXhP?=
- =?utf-8?B?TG00RFVGeEZCNEVCMjFhRzVYTm1uWjhNVnYvQTVQSkhjMmxtT0lva0dmZFBw?=
- =?utf-8?B?NG5DZE9CK3JlUnU4c1B5cm1tNXVlVFhuMnVXVTdhbXhJeEt0U2VmNVY1OWhq?=
- =?utf-8?B?SGFMZ2N2RTBUSXZWOWt4NzE4bXNhWEN0RGNESmV6Rzh0Q2FkZkE3VGt0amg2?=
- =?utf-8?B?clFUNERhRDZXTGpFN1E3dDFTVmxxRWp4ZndlUkphbnQ1b1VWSHBCaHFBeHdQ?=
- =?utf-8?B?d1pvV3g5OTRSM1lZcFZwS3VYYkduazhRQUVKWHFsQ21iTlNEcm5GK0lSS0U2?=
- =?utf-8?B?MTRHUE9CUzJPVHRKYjgrVTJqWkk4UnlOaDZXMXdqOGlPWTJiQkNpMlJvNkdu?=
- =?utf-8?B?VXFRK3hHTE40SzIvbDNYQ3d6eXdOeWcvWk1vV0txVEZlRVBvQlE5M2FGV09W?=
- =?utf-8?B?UU81bnd5MjRaUHR1MitDRTFUbnZWTHNzb2VmT1lQb212K1ZlZzJzVTFnYmhr?=
- =?utf-8?B?Z2s0VWxib2FRWTBLY0E3aHdoRHg3d2NHeWwxQ3VEOTBqcCtpaUh2dVRFMmNP?=
- =?utf-8?B?VG9YcUxlK2Y5dTQxY0Niclh1b0FCSHdxeUQ2SVU5bkhtOEN0UEJwMzI2MTh1?=
- =?utf-8?B?ZW1xK01GZmx0VC9kdVRpZVUveEY0WTE3L3ZuVy94UW1pS0U1TVozSEtwUjJq?=
- =?utf-8?B?L2QwdzV0Wm5ITVV3cWh1dFBIOWNmaEsxdjRIZDNmclF6bE5BTjFrZG9kdW8w?=
- =?utf-8?B?WXF0WGcvM1djOEhqRlg5VmtSU1NPa0VBNkh0S2xRK004VTZ3QkhMTXFmVzRB?=
- =?utf-8?B?cE5EWUpoVTVsVEhrLzEvVG4yaWo0ZnNaTW43endRZTlHTXFxekJmalpUWGIy?=
- =?utf-8?B?N1dlbHNKcjJSRGFsL3VSYTFmVXVQeUpORytZaUdsNDdNb2lkQnR0VVROUnh4?=
- =?utf-8?B?K1NVUkF0eDBqTkxNbTBIeG1iTVZnSVdOUUxBSWVjNnczdllhc2VPQS9QY0ta?=
- =?utf-8?B?b1ArQVZPWVlHN1M1MktvRnR3UUNqNGlhQ0N0dGNUakVBdXRZTDJKbkRTTmNJ?=
- =?utf-8?B?TzdGZ0FraThYYnY1RW9lb2piUmQwVDRBQTBMZ055cWh1dlY4ZS9BbHJuMDRR?=
- =?utf-8?B?NWNmV2l0NTlmdG9nL2FZek9xUDhVWGYwbzBqbTlqTklrcVZLaXlUTVBYNk9G?=
- =?utf-8?B?aVpza0xRWDVBcTFoaURTVXVFM2tQREQ1UWU4R1IyNmptOTQ5eW1TOVVGV29R?=
- =?utf-8?B?dUVwbXMxcUx3dWh2VVBwb2pKT3hBaVh0TDJZY0JwTFFaMWs5ZnpjdWsrNEY3?=
- =?utf-8?B?MWFXNG9sb3FqbUJsM2ZORjZ2emdVdGxnaVZMa0Z2UHN2cURCNzNMTTFVYWZZ?=
- =?utf-8?B?RTFzTVJBVnJDZXFsQ3ZkdDl0M0xodjlpOHNIWTNjTERlU3NHbDdWNUVsbUI5?=
- =?utf-8?B?bVM1Q2lYYnY2NGkycFFNcHhRMHlqaTFUdG5LOWJSWlNHUERoMnZ5R3B4cHFF?=
- =?utf-8?B?SWE0WllCcFlGUEk3ME5sWlJKcHhsd2tvcnJEWWQ0bFB3bVFVbCsrK0pyb0g4?=
- =?utf-8?B?SHU5WDdSQVBUa0RQcHJOTlRLRGE1SHQySmJqWUV6SmdaeFF2Yy9LcWZEU05G?=
- =?utf-8?B?UHpLVnJJbDlJeVAxNjJLNEJRRUtxa08yNUpvVTZxbFQxdk1XNlZpZmZSZTJX?=
- =?utf-8?B?UnNMZEhhdWRoSll5ZmlrYWp1eGllUWhTazd2TnFNS2RKNmtWYmM3TUs3R0lS?=
- =?utf-8?B?UVRDL0JwZHFZS2xuSkRPYWFJcXQ2L0pBMmZOZGltWTBoYWcxeWdBcktUamg5?=
- =?utf-8?B?ZW91bmxaaFBBPT0=?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:ja;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9404.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(10070799003)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?ZXpyNHAvK1lEcEZyK0JkWGNBbVlnOWdRUWFwemhNTHpTREtKdmpjUTJueVNq?=
- =?utf-8?B?WlQrb1hEeitINFMxbGJkSHM4cHBxWHdLbTloTVZOdm5UUkd6OVhvYXRuMTls?=
- =?utf-8?B?YmxNL095WmI0THhMUlYvTnY3dnRnOFVWRjRsUFFyTEFrR3gxdGxQeW4ya3Z6?=
- =?utf-8?B?dDJhd2JJTlQrc0xTVVZ3VVpXN0lFNVMzRDZoN2hld2dtRlBSM1duRXd4Rkpw?=
- =?utf-8?B?OFlGOG1GMVJCdnFSek1FcUx5QmxXY0tBUmxoeXEzM1NTdVRGOExTMyttOXYx?=
- =?utf-8?B?S3pqaUFSdXVxa0VZZjhpV3pUTXFkandRcjhmc0VIYmtTM2pxQi9ZRGJUeHhL?=
- =?utf-8?B?UjNXdEUwa1N5U3U2aHFZdm9waFhCa0t0amNBUjZReXpZZTN3VTVBd051UWVr?=
- =?utf-8?B?K3ZSSWJlbUpGL0o0Z1YwK0k5YlZnOVJwelNwd3BwSG54ZERiQ0xlL2tYTCtQ?=
- =?utf-8?B?cUozUVAwWWNvL2l0N2Q2YnJlWXRoQlFHb2l4NkdIbXZHT1ptWTZxOTN1RmJh?=
- =?utf-8?B?ZUx5R3dVcUs3VDVHM0dHelhhUC9lRnVFT1pDV0R6dzk0Q3ZzY0pUWlhFS2ND?=
- =?utf-8?B?WVJEa1F6VlBKSXI1UFlZeE1naGltOXBzYXRwSFFuSWtwUkNoZS9tK2VJTXJu?=
- =?utf-8?B?YUVzRzNqbnRQdlNva1cvY3pzQnZTMW9waWhaVDFMa0FGTWFud2ZXMElIRFc2?=
- =?utf-8?B?WUxRMCtVQzhJSmZkREtXUjdlTmM1SFBQd1N4b1RKa1dBNzhMVVlsTmowUDVM?=
- =?utf-8?B?OTJCZnJVd0hUWndDL094azhEMTdrYnd1RzlGcW8xNjY4WGdpV2hFRlZhdU0y?=
- =?utf-8?B?TFRtVG5NVkpiZ05DRWJmc1BleEpXQncrMWFyNHFocWpqQlBqWkp0d0pscU14?=
- =?utf-8?B?YlZ2M1F5ckovWGxIMlRndHRoTTlOaTZmbFZvRDZQam90Y05ERTRJY0dQdHg1?=
- =?utf-8?B?TUgyVE1URmZQb0hPSnJMaVR3WUIzcnNzbHJES2VBaWlScStrNlFURmhYaHps?=
- =?utf-8?B?UGhJL1U3YkM5T1VLeDY5aGVnQzRkZEdRRE5IQXA4UWRaQ3dsUFFSZVM0TlVp?=
- =?utf-8?B?blY0WXVMcXl0SVdQbG9XZGdzVThYaUdLQVdkeFJBQThGV2FKbGFBSjF5REZI?=
- =?utf-8?B?L0lIN1JkTEc2YzdzRHhwb3pIc2pFY2NHZmtCait5TXdleXJ6SXlmaUgycUpr?=
- =?utf-8?B?c1dvaFh1YnZZR1p1SVcva0prTXh4ZmJ2YlVMRTNWZGd1YTNrNnhrVFBLM0NS?=
- =?utf-8?B?QlZyazNIaDNuSFo0NFBKZGV2czZjTGRZOENPS1IzZEU5WDd3U20rVVhoczF3?=
- =?utf-8?B?ZVpxZWQ1M2djOFJOZlN4Yy9laVZ5ZnFHMGl3L0FkWTNVdDRRVXQxcUpJWjBW?=
- =?utf-8?B?azU1NVpZaTc3M1c1MzBxU2I5NlNWY3lFdEgzeDFTWTNOSGtXQndCNUJrNktO?=
- =?utf-8?B?alljTmxlbFIwc0ZPSkR3dzh6bDRWbGhtUS9NVXZQYVRiMlNoNkxyRUNuYlI2?=
- =?utf-8?B?Y1NJb3pJZkxXUXZQbTZCdXlieURSazAxb2JTeXROL0dHVDhFT09sdDNkcGQ3?=
- =?utf-8?B?N2lVRzZOZERPN24xR0cxdllQbEcrREdsTlQ5ZGVBVDVCUWRlV2FOUHVXYVFV?=
- =?utf-8?B?ZGlWUVBOQW5RRXNjQmJSb0oweTZ2cVR1YjBwQjl0WGYrbUthOE83UGtjUVdX?=
- =?utf-8?B?Rjk3Yy9pbEdYcTRweC9hVUFvckZPT3VlVG5aMldCV2hrYzhxYU5FSnJZT0ZE?=
- =?utf-8?B?alUrc24wM2dtYy9yRnFNTDlEVzZDclFpRkgyalo0NDVldDRwK29Bd29YVDRt?=
- =?utf-8?B?SmQ5ZUxiMkpHV2VEVnFhK1h6QWxBc0pVa1dXME54bWFneWJ1a3drZ0d0RE5T?=
- =?utf-8?B?VVZrVkRPcWNRNEdxOExndXFmVFlWWlBYZ1cvYy9VNE52aEkvVFpRVGp4UGor?=
- =?utf-8?B?V3BRdDFvc2RGYXllOWw3RFcxSGoyakYwanVZcXM3ZVduZTRnZW9MdjdTNUow?=
- =?utf-8?B?UXVDSUx3Qk5wRkFJV0lrUzRIZDArZkc3Tzh0RmxVUEhUZHRiSlA5aks4UFl2?=
- =?utf-8?B?VDVqZzdGQUNqVnBpNEpZS09UeFdNOWFxSEtyOC9lNjBMNWRnelhuVDAyc0Jx?=
- =?utf-8?B?MzFKVFI4bElzMkpmRjRzTWJ6WFZMYnZPaGphVXQ3TjhhaUpwVmRTRDYrMWVY?=
- =?utf-8?Q?VQxvtMeMozv2T97iRFPePrHnbsooaNHS6qbRuC7SH5fn?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <50F9434F29E9FB4481037B1B0F1D8D08@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cfKPiIbb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1746754215;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=cMx2+KSa5+OqN7vVFvRFQnhnHcLAVcYaLjsZze86Tmg=;
+	b=cfKPiIbbOuVxpVFqgOvR4fD9Z+1Zlpsy8sCEbD4HpxmwNwQtVlFy1FXv0UbSRyDWOXSikI
+	bP662fFg/cq+G8Jf9lbiBu/mmpjKOhwTUDL3TscdLGIFgIwNo/g7L1Ha6Rku633Udq+npt
+	C0EHUq3a2EXvM0YbRUZJeGM7rSWjFEU=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-177-EaCFTf9fM4K98gUIpMorrw-1; Thu,
+ 08 May 2025 21:30:11 -0400
+X-MC-Unique: EaCFTf9fM4K98gUIpMorrw-1
+X-Mimecast-MFC-AGG-ID: EaCFTf9fM4K98gUIpMorrw_1746754209
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C9F4219560AF;
+	Fri,  9 May 2025 01:30:07 +0000 (UTC)
+Received: from fedora (unknown [10.72.116.120])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 03478180049D;
+	Fri,  9 May 2025 01:29:53 +0000 (UTC)
+Date: Fri, 9 May 2025 09:29:48 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Daniel Wagner <wagi@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
+	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Costa Shulyupin <costa.shul@redhat.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Waiman Long <llong@redhat.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com,
+	linux-scsi@vger.kernel.org, storagedev@microchip.com,
+	virtualization@lists.linux.dev,
+	GR-QLogic-Storage-Upstream@marvell.com
+Subject: Re: [PATCH v6 1/9] lib/group_cpus: let group_cpu_evenly return
+ number initialized masks
+Message-ID: <aB1ajDUwJy6PVGEY@fedora>
+References: <20250424-isolcpus-io-queues-v6-0-9a53a870ca1f@kernel.org>
+ <20250424-isolcpus-io-queues-v6-1-9a53a870ca1f@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9404.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2a898946-5219-4bde-8b0f-08dd8e43dc12
-X-MS-Exchange-CrossTenant-originalarrivaltime: 08 May 2025 15:20:26.2039
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: N36T4wdqZmS+qWAZXtTw+xsk7V2llE5Pn0rrzV64RlfEXjlU9iiUmAqM3NOA4CbyE0XUtMNi64UoPWjP81TZ9g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8816
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250424-isolcpus-io-queues-v6-1-9a53a870ca1f@kernel.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-T24gNS8xLzI1IDA3OjIyLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToNCj4gVXNlIHRoZSBidmVj
-X2ttYXBfbG9jYWwgaGVscGVyIHJhdGhlciB0aGFuIGRpZ2dpbmcgaW50byB0aGUgYnZlYw0KPiBp
-bnRlcm5hbHMuDQo+DQo+IFNpZ25lZC1vZmYtYnk6IENocmlzdG9waCBIZWxsd2lnPGhjaEBsc3Qu
-ZGU+DQo+IC0tLQ0KDQpSZXZpZXdlZC1ieTogQ2hhaXRhbnlhIEt1bGthcm5pIDxrY2hAbnZpZGlh
-LmNvbT4NCg0KLWNrDQoNCg0K
+On Thu, Apr 24, 2025 at 08:19:40PM +0200, Daniel Wagner wrote:
+> group_cpu_evenly might allocated less groups then the requested:
+> 
+> group_cpu_evenly
+>   __group_cpus_evenly
+>     alloc_nodes_groups
+>       # allocated total groups may be less than numgrps when
+>       # active total CPU number is less then numgrps
+> 
+> In this case, the caller will do an out of bound access because the
+> caller assumes the masks returned has numgrps.
+> 
+> Return the number of groups created so the caller can limit the access
+> range accordingly.
+> 
+> Reviewed-by: Hannes Reinecke <hare@suse.de>
+> Signed-off-by: Daniel Wagner <wagi@kernel.org>
+> ---
+>  block/blk-mq-cpumap.c        |  6 +++---
+>  drivers/virtio/virtio_vdpa.c |  9 +++++----
+>  fs/fuse/virtio_fs.c          |  6 +++---
+>  include/linux/group_cpus.h   |  3 ++-
+>  kernel/irq/affinity.c        |  9 +++++----
+>  lib/group_cpus.c             | 12 +++++++++---
+>  6 files changed, 27 insertions(+), 18 deletions(-)
+> 
+> diff --git a/block/blk-mq-cpumap.c b/block/blk-mq-cpumap.c
+> index 444798c5374f48088b661b519f2638bda8556cf2..269161252add756897fce1b65cae5b2e6aebd647 100644
+> --- a/block/blk-mq-cpumap.c
+> +++ b/block/blk-mq-cpumap.c
+> @@ -19,9 +19,9 @@
+>  void blk_mq_map_queues(struct blk_mq_queue_map *qmap)
+>  {
+>  	const struct cpumask *masks;
+> -	unsigned int queue, cpu;
+> +	unsigned int queue, cpu, nr_masks;
+>  
+> -	masks = group_cpus_evenly(qmap->nr_queues);
+> +	masks = group_cpus_evenly(qmap->nr_queues, &nr_masks);
+>  	if (!masks) {
+>  		for_each_possible_cpu(cpu)
+>  			qmap->mq_map[cpu] = qmap->queue_offset;
+> @@ -29,7 +29,7 @@ void blk_mq_map_queues(struct blk_mq_queue_map *qmap)
+>  	}
+>  
+>  	for (queue = 0; queue < qmap->nr_queues; queue++) {
+> -		for_each_cpu(cpu, &masks[queue])
+> +		for_each_cpu(cpu, &masks[queue % nr_masks])
+>  			qmap->mq_map[cpu] = qmap->queue_offset + queue;
+>  	}
+>  	kfree(masks);
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index 1f60c9d5cb1810a6f208c24bb2ac640d537391a0..a7b297dae4890c9d6002744b90fc133bbedb7b44 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -329,20 +329,21 @@ create_affinity_masks(unsigned int nvecs, struct irq_affinity *affd)
+>  
+>  	for (i = 0, usedvecs = 0; i < affd->nr_sets; i++) {
+>  		unsigned int this_vecs = affd->set_size[i];
+> +		unsigned int nr_masks;
+>  		int j;
+> -		struct cpumask *result = group_cpus_evenly(this_vecs);
+> +		struct cpumask *result = group_cpus_evenly(this_vecs, &nr_masks);
+>  
+>  		if (!result) {
+>  			kfree(masks);
+>  			return NULL;
+>  		}
+>  
+> -		for (j = 0; j < this_vecs; j++)
+> +		for (j = 0; j < nr_masks; j++)
+>  			cpumask_copy(&masks[curvec + j], &result[j]);
+>  		kfree(result);
+>  
+> -		curvec += this_vecs;
+> -		usedvecs += this_vecs;
+> +		curvec += nr_masks;
+> +		usedvecs += nr_masks;
+>  	}
+>  
+>  	/* Fill out vectors at the end that don't need affinity */
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 2c7b24cb67adb2cb329ed545f56f04700aca8b81..7ed43b9ea4f3f8b108f1e0d7050c27267b9941c9 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -862,7 +862,7 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
+>  static void virtio_fs_map_queues(struct virtio_device *vdev, struct virtio_fs *fs)
+>  {
+>  	const struct cpumask *mask, *masks;
+> -	unsigned int q, cpu;
+> +	unsigned int q, cpu, nr_masks;
+>  
+>  	/* First attempt to map using existing transport layer affinities
+>  	 * e.g. PCIe MSI-X
+> @@ -882,7 +882,7 @@ static void virtio_fs_map_queues(struct virtio_device *vdev, struct virtio_fs *f
+>  	return;
+>  fallback:
+>  	/* Attempt to map evenly in groups over the CPUs */
+> -	masks = group_cpus_evenly(fs->num_request_queues);
+> +	masks = group_cpus_evenly(fs->num_request_queues, &nr_masks);
+>  	/* If even this fails we default to all CPUs use first request queue */
+>  	if (!masks) {
+>  		for_each_possible_cpu(cpu)
+> @@ -891,7 +891,7 @@ static void virtio_fs_map_queues(struct virtio_device *vdev, struct virtio_fs *f
+>  	}
+>  
+>  	for (q = 0; q < fs->num_request_queues; q++) {
+> -		for_each_cpu(cpu, &masks[q])
+> +		for_each_cpu(cpu, &masks[q % nr_masks])
+>  			fs->mq_map[cpu] = q + VQ_REQUEST;
+>  	}
+>  	kfree(masks);
+> diff --git a/include/linux/group_cpus.h b/include/linux/group_cpus.h
+> index e42807ec61f6e8cf3787af7daa0d8686edfef0a3..bd5dada6e8606fa6cf8f7babf939e39fd7475c8d 100644
+> --- a/include/linux/group_cpus.h
+> +++ b/include/linux/group_cpus.h
+> @@ -9,6 +9,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/cpu.h>
+>  
+> -struct cpumask *group_cpus_evenly(unsigned int numgrps);
+> +struct cpumask *group_cpus_evenly(unsigned int numgrps,
+> +				  unsigned int *nummasks);
+>  
+>  #endif
+> diff --git a/kernel/irq/affinity.c b/kernel/irq/affinity.c
+> index 44a4eba80315cc098ecfa366ca1d88483641b12a..d2aefab5eb2b929877ced43f48b6268098484bd7 100644
+> --- a/kernel/irq/affinity.c
+> +++ b/kernel/irq/affinity.c
+> @@ -70,20 +70,21 @@ irq_create_affinity_masks(unsigned int nvecs, struct irq_affinity *affd)
+>  	 */
+>  	for (i = 0, usedvecs = 0; i < affd->nr_sets; i++) {
+>  		unsigned int this_vecs = affd->set_size[i];
+> +		unsigned int nr_masks;
+>  		int j;
+> -		struct cpumask *result = group_cpus_evenly(this_vecs);
+> +		struct cpumask *result = group_cpus_evenly(this_vecs, &nr_masks);
+>  
+>  		if (!result) {
+>  			kfree(masks);
+>  			return NULL;
+>  		}
+>  
+> -		for (j = 0; j < this_vecs; j++)
+> +		for (j = 0; j < nr_masks; j++)
+>  			cpumask_copy(&masks[curvec + j].mask, &result[j]);
+>  		kfree(result);
+>  
+> -		curvec += this_vecs;
+> -		usedvecs += this_vecs;
+> +		curvec += nr_masks;
+> +		usedvecs += nr_masks;
+>  	}
+>  
+>  	/* Fill out vectors at the end that don't need affinity */
+> diff --git a/lib/group_cpus.c b/lib/group_cpus.c
+> index ee272c4cefcc13907ce9f211f479615d2e3c9154..016c6578a07616959470b47121459a16a1bc99e5 100644
+> --- a/lib/group_cpus.c
+> +++ b/lib/group_cpus.c
+> @@ -332,9 +332,11 @@ static int __group_cpus_evenly(unsigned int startgrp, unsigned int numgrps,
+>  /**
+>   * group_cpus_evenly - Group all CPUs evenly per NUMA/CPU locality
+>   * @numgrps: number of groups
+> + * @nummasks: number of initialized cpumasks
+>   *
+>   * Return: cpumask array if successful, NULL otherwise. And each element
+> - * includes CPUs assigned to this group
+> + * includes CPUs assigned to this group. nummasks contains the number
+> + * of initialized masks which can be less than numgrps.
+>   *
+>   * Try to put close CPUs from viewpoint of CPU and NUMA locality into
+>   * same group, and run two-stage grouping:
+> @@ -344,7 +346,8 @@ static int __group_cpus_evenly(unsigned int startgrp, unsigned int numgrps,
+>   * We guarantee in the resulted grouping that all CPUs are covered, and
+>   * no same CPU is assigned to multiple groups
+>   */
+> -struct cpumask *group_cpus_evenly(unsigned int numgrps)
+> +struct cpumask *group_cpus_evenly(unsigned int numgrps,
+> +				  unsigned int *nummasks)
+>  {
+>  	unsigned int curgrp = 0, nr_present = 0, nr_others = 0;
+>  	cpumask_var_t *node_to_cpumask;
+> @@ -421,10 +424,12 @@ struct cpumask *group_cpus_evenly(unsigned int numgrps)
+>  		kfree(masks);
+>  		return NULL;
+>  	}
+> +	*nummasks = nr_present + nr_others;
+
+WARN_ON(nr_present + nr_others < numgrps) can be removed now.
+
+Other than that and with Thomas's comment addressed:
+
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+
+
+Thanks,
+Ming
+
