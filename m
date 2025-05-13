@@ -1,166 +1,113 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 589CB1AB6D4
-	for <virtualization@lists.linux-foundation.org>; Tue, 13 May 2025 04:09:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E450B1E5B62
+	for <virtualization@lists.linux.dev>; Tue, 13 May 2025 05:56:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747109350; cv=none; b=B+cb+kTvoEUaavMz0T/9qGgKYCfYu75BKyXAo3gEgFKUIWio76kD15CUSKC0HKx6pTFtpGYiI49PKkfW1A06YFh47PtYoCGmhQnssyqcAXDG256CkjNrRgwYWzJS9nvKCw0xpmPAio0eguhr6CyNprcqnAMwiNU6K1Xy+bN3fPo=
+	t=1747115783; cv=none; b=POoqKrFWHUeL2nZGFvq2wGmHYt5LeTGDPG/7fUyaFVk13YNbgtMFFfigngW6olOmt+P/odMiGvx6Br7jnjnp4ZVrXNTk/l3KHSAmpFUadavMuy5ACwVg5IqS+F+F2PfD0hIPXTePPa07lluAl1tra+4N0d5yERdhWe4O6SZI6CM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747109350; c=relaxed/simple;
-	bh=/7PexB5fSgQlaIRo7HZc5/n/QHKjEqlW3Nl3Mba+2fU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WP/IWGDxDXpDu9YryVndfr5O32elCcuQ5dUht4SR8WFBXablrJrqDpTbD0lybLZdSTgGqZtb7gg+2gixBw9ytipt8PqCFzd+FX+y2kw2frs/1cnCIgD7D46hR0YWBcCea0Wu9upj5/Icwh2g37uXbQ9wcdaBigzfzGfIhv5Jivc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ieFYV1q6; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1747115783; c=relaxed/simple;
+	bh=RPz0eLbYPFGINc2p56hFio954XIUXmr+cMCiO/Mj88g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=THkPJS8ewmmeJnTCoIo3q2r2SYUCWgYWpzslzDIarFYz77kKHz7VmuYdMq7RAxapeH/61Sn2EwicnQ06ZrYHG7jXgBwRWDVK+9NFdHJuL37YmfKzRLDGUDzyXdD0tkIGBzgWuDMDxBJnfedW/D8u/9JeOm5zqou6rCzW8z3uk9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=RUlxtiSS; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ieFYV1q6"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C0B5881EC0
-	for <virtualization@lists.linux-foundation.org>; Tue, 13 May 2025 04:09:08 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id DYbCjKh6NEQG for <virtualization@lists.linux-foundation.org>;
- Tue, 13 May 2025 04:09:08 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 127F8819CC
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 127F8819CC
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ieFYV1q6
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 127F8819CC
-	for <virtualization@lists.linux-foundation.org>; Tue, 13 May 2025 04:09:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747109346;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/7PexB5fSgQlaIRo7HZc5/n/QHKjEqlW3Nl3Mba+2fU=;
-	b=ieFYV1q6wMxvubB7WWpbCprv9pNx8LueksFHtFLFB3ZJNIH/w3ClxQYwuZZ+EAF7La8WRM
-	AXwbNXYog91u/PLqP9TwtCcfp2N63YcsFc9bGUjXOTAiidSeF7/y+r0QgTaR4ADU0FCUbH
-	wH/bKp1otwso9VNVVP6TZLMe9Zmi3UE=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-536-pYYVUNkzOgueRSK8nHSU7Q-1; Tue, 13 May 2025 00:09:04 -0400
-X-MC-Unique: pYYVUNkzOgueRSK8nHSU7Q-1
-X-Mimecast-MFC-AGG-ID: pYYVUNkzOgueRSK8nHSU7Q_1747109343
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-30ac9855e35so6600502a91.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 12 May 2025 21:09:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747109343; x=1747714143;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/7PexB5fSgQlaIRo7HZc5/n/QHKjEqlW3Nl3Mba+2fU=;
-        b=O0L3Hz3pIrsfw1X/iyR4HpHiAaF3w6NWFIvS2N1+IwvfoI4ARSPylRdieqVHjVO/0R
-         Cgi8jQQk0N7xZ2sbiTvX3l0kHRfJOqW41+9nR0A6ynHh2kyK6qliSTVN3G2YX235hMTr
-         F9TZ+w28E6lPrGN6RIHIVO1rkueLlcL5+pYCOh3nvR9UVqqcLtgLDRuDdYDrEmj/q/rJ
-         kD9NPgDbscOY1YDcoz1SB71TmZBrq3Qx/bmv8xb8reuPJE6xreH3sUXydK4gFmgo2BVX
-         2CsxbpWFIo8f7qyEHLXtNenDGV2jBuCShL3+zQN546A5ANQtuba7EGpMxPEv1CMdzGf1
-         YfsA==
-X-Forwarded-Encrypted: i=1; AJvYcCWnPhie21pnh7lLafvfbgAiQNyQmPkrcqrtINqAPZFurP4xE44OKJJUDLyQQCdjkkOZteoL46T7xC/mKmHx3A==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yzdy1yDWPUbTnBAuADYhhftn1UoaLZQ5hAOoE1/qb8bpQ48SoJA
-	l0pns4Hf6y66fyvC6/gM/uTsEUx68MDMZPKAaDbKZg3nKOJGtPk65IC50OcyhW6kkHiwfHSpBaG
-	F0cQec+Q5yD+wtawGCqcs9CmkxfGXq8qd0LNKEL9Y3+ejLmOZ4CXm4uZXLmlXSs8+5RtdfL390S
-	f2ND+TXxkaaUo0kk0+qcc3xfBESJXnQsoUQD1aBfTn6/LUaKhpFQSzSg==
-X-Gm-Gg: ASbGncuMdXOKDbYkzARm7BI06vF0zZqrVRYFRRkZjH2GJXHyAYtgbeQu6V0v+mo7+nu
-	6VwqttBc/AomGfmIcnsYZt49Bf0DbpVRRaWFJqaJ5Nft1aBrAYeGe47oG4bF0Twq1fQ==
-X-Received: by 2002:a17:90a:d605:b0:2fe:ba82:ca5 with SMTP id 98e67ed59e1d1-30c3ce0470bmr26232825a91.11.1747109343310;
-        Mon, 12 May 2025 21:09:03 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHyBWgHCft3k//tAxwx54BhvxIyBUdAIfMV5MOII1cMr/aB5z20Oh2o8khSRERHIdevOIlxT4LnUgaV8ZRyza0=
-X-Received: by 2002:a17:90a:d605:b0:2fe:ba82:ca5 with SMTP id
- 98e67ed59e1d1-30c3ce0470bmr26232784a91.11.1747109342873; Mon, 12 May 2025
- 21:09:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="RUlxtiSS"
+Received: from [192.168.7.202] ([71.202.166.45])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 54D5trQ52161420
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Mon, 12 May 2025 22:55:54 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 54D5trQ52161420
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025042001; t=1747115755;
+	bh=U6rcHZb4UW+jBgjxBhhwYGrN+qx8Tm8tX6P2roKukRQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=RUlxtiSSvL2zbdTxckg53o+QAfrDWf6H+yzUUXrHIYb0PPAoQ6MSHxFw6kOeUq+oG
+	 KaQwRsRKDadcJVZUk4LoQ4MIDtSjEH3MpMtwbWMljIEvGit9JSB3LYtAao5NqnaxX3
+	 73OkpjBHIhaCU8wAFyZtfQi/UnvDInPkne+6fTfWNJhjvGnfWd8YoEVchZUGfFJImV
+	 FWYoBlTrVymscSGDsakRpQiYXvt6BwN3Ai4Frx5MvB9uLc3FZ3II0QTJImlziUnnTb
+	 FZTI0Uo45mq/idyBSi8WPkEJ86WHg5azErFWd76rcZG+l/h/FwJ6OcsIrUh9XwWEp7
+	 xHc1pAahRuBKA==
+Message-ID: <eb077393-ea95-4ac0-9479-980e227f7bff@zytor.com>
+Date: Mon, 12 May 2025 22:55:53 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250421024457.112163-1-lulu@redhat.com> <20250421024457.112163-5-lulu@redhat.com>
- <CACGkMEt-ewTqeHDMq847WDEGiW+x-TEPG6GTDDUbayVmuiVvzg@mail.gmail.com>
- <CACGkMEte6Lobr+tFM9ZmrDWYOpMtN6Xy=rzvTy=YxSPkHaVdPA@mail.gmail.com>
- <CACGkMEstbCKdHahYE6cXXu1kvFxiVGoBw3sr4aGs4=MiDE4azg@mail.gmail.com>
- <20250429065044-mutt-send-email-mst@kernel.org> <CACGkMEteBReoezvqp0za98z7W3k_gHOeSpALBxRMhjvj_oXcOw@mail.gmail.com>
- <20250430052424-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250430052424-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 13 May 2025 12:08:51 +0800
-X-Gm-Features: AX0GCFv7w4A3XPsR5LhhGFMy4lH1n0jPjulwvckB7Zf4ezIel8xqf6nhTotZRJ0
-Message-ID: <CACGkMEub28qBCe4Mw13Q5r-VX4771tBZ1zG=YVuty0VBi2UeWg@mail.gmail.com>
-Subject: Re: [PATCH v9 4/4] vhost: Add a KConfig knob to enable IOCTL VHOST_FORK_FROM_OWNER
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Cindy Lu <lulu@redhat.com>, michael.christie@oracle.com, sgarzare@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: L1-VgbMGZYxflU8ZA-0ckAAHKq9Vb4PbI85qngrX2vQ_1747109343
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 5/6] x86/paravirt: Switch MSR access pv_ops functions to
+ instruction interfaces
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
+        x86@kernel.org, virtualization@lists.linux.dev
+Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
+        Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+        Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+        Thomas Gleixner
+ <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        xen-devel@lists.xenproject.org
+References: <20250506092015.1849-1-jgross@suse.com>
+ <20250506092015.1849-6-jgross@suse.com>
+ <722f5b30-20e9-4540-98e4-d211d7c44cbe@zytor.com>
+ <9f4e33d5-9cb3-4079-b764-87a15265fd52@suse.com>
+ <ff567466-a46a-4f66-935a-8fae1140c1a2@suse.com>
+Content-Language: en-US
+From: Xin Li <xin@zytor.com>
+Autocrypt: addr=xin@zytor.com; keydata=
+ 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
+ l75w1xInsg==
+In-Reply-To: <ff567466-a46a-4f66-935a-8fae1140c1a2@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Apr 30, 2025 at 5:27=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Wed, Apr 30, 2025 at 11:34:49AM +0800, Jason Wang wrote:
-> > On Tue, Apr 29, 2025 at 6:56=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Tue, Apr 29, 2025 at 11:39:37AM +0800, Jason Wang wrote:
-> > > > On Mon, Apr 21, 2025 at 11:46=E2=80=AFAM Jason Wang <jasowang@redha=
-t.com> wrote:
-> > > > >
-> > > > > On Mon, Apr 21, 2025 at 11:45=E2=80=AFAM Jason Wang <jasowang@red=
-hat.com> wrote:
-> > > > > >
-> > > > > > On Mon, Apr 21, 2025 at 10:45=E2=80=AFAM Cindy Lu <lulu@redhat.=
-com> wrote:
-> > > > > > >
-> > > > > > > Introduce a new config knob `CONFIG_VHOST_ENABLE_FORK_OWNER_I=
-OCTL`,
-> > > > > > > to control the availability of the `VHOST_FORK_FROM_OWNER` io=
-ctl.
-> > > > > > > When CONFIG_VHOST_ENABLE_FORK_OWNER_IOCTL is set to n, the io=
-ctl
-> > > > > > > is disabled, and any attempt to use it will result in failure=
-.
-> > > > > >
-> > > > > > I think we need to describe why the default value was chosen to=
- be false.
-> > > > > >
-> > > > > > What's more, should we document the implications here?
-> > > > > >
-> > > > > > inherit_owner was set to false: this means "legacy" userspace m=
-ay
-> > > > >
-> > > > > I meant "true" actually.
-> > > >
-> > > > MIchael, I'd expect inherit_owner to be false. Otherwise legacy
-> > > > applications need to be modified in order to get the behaviour
-> > > > recovered which is an impossible taks.
-> > > >
-> > > > Any idea on this?
-> > > >
-> > > > Thanks
->
-> So, let's say we had a modparam? Enough for this customer?
-> WDYT?
+On 5/12/2025 4:24 AM, Juergen Gross wrote:
+> Now with the mentioned patch really attached. :-)
+> 
 
-Just to make sure I understand the proposal.
+Does it allow patching with an instruction more than 6 bytes long?
 
-Did you mean a module parameter like "inherit_owner_by_default"? I
-think it would be fine if we make it false by default.
+The immediate form MSR instructions are 9 bytes long.
 
-Thanks
-
->
-> --
-> MST
->
-
+Thanks!
+     Xin
