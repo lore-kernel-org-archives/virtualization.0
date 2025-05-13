@@ -1,105 +1,738 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82408227E8C;
-	Tue, 13 May 2025 09:30:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76890241680
+	for <virtualization@lists.linux.dev>; Tue, 13 May 2025 10:08:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747128606; cv=none; b=O5Nk4olKc0C6MSTowdRXg3BAJsgb7An9/yQqweOHpc7tFXoLTYMpzFoVUvvAkePms9wlWaqKzm1TeEPP8UD/87f/DuHuuxYmCRGEozNBBPkC2gWxOJAYC1pIGXXoYxN/kSk+PcGRg7uIHH0Bl2ACbVzxrOLZu10jroNaLmp9KLQ=
+	t=1747130937; cv=none; b=RM8sP38CQat1+fqcU4JaLz+10MCvs0L5VJ7iInN/vPmV/PL2iLP/fhEAwRGELTMCfmRMFnF6N9Rr2zkxMuB+gPTNbZGY6jFq66vYNk2n7aoCtBXXy3jls8DDeoju7ZkMGXeFSHBYAvbE4qlpkqJ2/8FkH7uSr1ps1pO7TeqVJzs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747128606; c=relaxed/simple;
-	bh=982jXf6QjefdLWj60I4V7qnuv7iqFenReu2jMD1Hcfw=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=q3qJdNxfBktA4+CSxShq8fZpzdt7yocr342ltES4cNSJCG900LA9dVvswKQx9ySvQfiy42l6msW9WPP1wWhrftFHtohA+9L3OBkedsr3MVpdtMCd2b0lf3oIw4oTywWSgqWqMgDxlTzWlxPOFb0lzGjHxrJhqNicbXBFk+V4aAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cJ5StDbd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1747130937; c=relaxed/simple;
+	bh=4VckvqPn7EO3j94yJh+DBfYD9uQ/3qARyzBskmt38UE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=baSCLlR5EXYJB5PXdfTyc2vwh1XkVv+LY36UwPUf/OEP9Y0Pox0YhbgaSGbtyfc35o+yAO3J3OqZF8ThMBfpDY6Sp4Zqc0IvuVPAHufLatcQlkt84kHkehdN9gM59W8JOeNl0Hq1rGLToRw65IxeUCePdphIK5IFTTFGTKPzwcY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yni1sjCp; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cJ5StDbd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC583C4CEE4;
-	Tue, 13 May 2025 09:30:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1747128605;
-	bh=982jXf6QjefdLWj60I4V7qnuv7iqFenReu2jMD1Hcfw=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=cJ5StDbdMUqgFU1nibcKTcrE/lbpar8UNz+17VvmArjbq84lV9qpZZqyb1B0AE5F0
-	 hzLxOV7veV6tbS1CpfJ5d1udD1Dmx22doiZvU3S0D+beoc4jKqsLWChkqyUjXAbTBc
-	 Ps0hpLc4ENGfEhFxB+Z7bfRoPm7cZZJQGXKVzgPS3fIJHygsFh1GgJSna8BIaytCHN
-	 GX1bgSWC8ATTt5ym2XRwjuH+nZnROAbHmox5yXjEnIlbQmRPsCOY21TaZtoxqCkY0p
-	 pAJSg1K3OfodDaqE8/TZ+2gCV0N+JrRw2vwA4f76drx+Dp6A1beSfuE3d/BFT6at2z
-	 YZiYii6kMOuqA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADF8839D6553;
-	Tue, 13 May 2025 09:30:44 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yni1sjCp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1747130933;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Z3xt88UJJ72WfJejkpBXFIZcel7ydvHEDPDn9ATzxlg=;
+	b=Yni1sjCpN7zOwpeSkWVCRB5W03WK80kXAbgLVk00x+ei0QdhunviaS7yLxv1JVUHdqOd4o
+	CXw7dRwIyAl3yIAnVvKs/AHdg7Lybv+iVK7x/M8urn4DeKRWviPjGTTkI5wsq+WtZgkHeu
+	0IkrtrdAVXPm2reqG8kCmIlvhC3YZxc=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-389-ARX6wQXDPHmPDN3tVctMpw-1; Tue, 13 May 2025 06:08:52 -0400
+X-MC-Unique: ARX6wQXDPHmPDN3tVctMpw-1
+X-Mimecast-MFC-AGG-ID: ARX6wQXDPHmPDN3tVctMpw_1747130931
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-442ccf0eb4eso40278235e9.1
+        for <virtualization@lists.linux.dev>; Tue, 13 May 2025 03:08:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747130931; x=1747735731;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Z3xt88UJJ72WfJejkpBXFIZcel7ydvHEDPDn9ATzxlg=;
+        b=p9z8pX9Tx994AV90FACQjBmWCN+EOqxPRDXey6UGcJmyC+yBmh2g8GXL9m5clDdLLA
+         zn04XW7KjIIeAU/MxnnfwOpDvmYt3IjsjPq2OOsjPNrx7k1Q7SvjEP5dUe9kvNRFPWCf
+         JyKllPyB23+8LIZsm9tfXO4ZMdKY3LwzMpr8wYiIT106jaYDgx0rzyAF970cIrGuvysY
+         +XTeGApo9EL2xneXX+jUXmAY4hP6GWR1389kUQnyhx31wDElP3zRpObnfW1+32KdCWqH
+         okEhF/Ww5kmi9tUV/duDqlGmg3CGEqwo1JBfmsA3RywcI5udWJ4i9IJFmn1AQB6iBGQd
+         EGyQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWJ8W2ZrWi0xhNRfKCKHrogecIQk6wcs/rTxnRQP6ZXaV7Lp5wlmP45CrSmWH/dLcrmm6d1DT79NHDYYm71vA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwF2oJrv2fk5+fn5WAtzNtBSHfuDT+VgvmqA2bLzwVHYpJcxGaN
+	WSMt8IZ4glj16szBnHXgVlV7aww14P84SwAyoKiQPEJz6sqONYwbmack2wDaLt5B3EEcB9ijlkS
+	zOmXNPr5uEMZW27UA9ka7Vnt/AD4RKPL3874HFMVOPoKE3kL1Tf2MoL4r2jq/HHvk
+X-Gm-Gg: ASbGnctyk3tX43pDyMfct6ezk8ZOm2X+Jv9MPBhXoy2EJMB+THTlFeaStc1DuehjcuF
+	wysMp4fASAC5gLJ+frXbmU+EkZHwPLZBXhZd/SirGZX+AXuN0CrYV5bC/T4D5BWEgfyty4HBvxH
+	WtJpHH50B8ntX6S7GKAOBru140tZUsIkvgqXJDpKPV5GD8Ml3Q7xmyP5qU0LbD3WnBnRBQp8YUU
+	+6zIGiyLyXpjv/iiHUIe7gtUblYStq50Q7aoxMg9/4KXaIU6kglzhW14MEOm2J4Vdg2+M6Dy3Bw
+	UHvsZBfC9x35erBZwuA=
+X-Received: by 2002:a05:600c:384e:b0:43c:fe9f:ab90 with SMTP id 5b1f17b1804b1-442d6ddf558mr112141685e9.28.1747130930746;
+        Tue, 13 May 2025 03:08:50 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEc8OLFYrx8vh1+DoUzPOC3tRCoxaxeynKtchE2ufa3vecTplBhEYOjpUDwCPgC6toCi02ytA==
+X-Received: by 2002:a05:600c:384e:b0:43c:fe9f:ab90 with SMTP id 5b1f17b1804b1-442d6ddf558mr112141325e9.28.1747130930180;
+        Tue, 13 May 2025 03:08:50 -0700 (PDT)
+Received: from ?IPV6:2a0d:3341:cc59:6510::f39? ([2a0d:3341:cc59:6510::f39])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-442cd3af15bsm205900395e9.30.2025.05.13.03.08.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 May 2025 03:08:49 -0700 (PDT)
+Message-ID: <534195a0-e7be-42ba-ac0f-177526b127d7@redhat.com>
+Date: Tue, 13 May 2025 12:08:48 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v14 0/9] Device memory TCP TX
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <174712864353.1250182.17683820324947823076.git-patchwork-notify@kernel.org>
-Date: Tue, 13 May 2025 09:30:43 +0000
-References: <20250508004830.4100853-1-almasrymina@google.com>
-In-Reply-To: <20250508004830.4100853-1-almasrymina@google.com>
-To: Mina Almasry <almasrymina@google.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org, io-uring@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-kselftest@vger.kernel.org, donald.hunter@gmail.com, kuba@kernel.org,
- davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
- horms@kernel.org, corbet@lwn.net, andrew+netdev@lunn.ch, jeroendb@google.com,
- hramamurthy@google.com, kuniyu@amazon.com, willemb@google.com,
- axboe@kernel.dk, asml.silence@gmail.com, dsahern@kernel.org,
- ncardwell@google.com, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, stefanha@redhat.com,
- sgarzare@redhat.com, shuah@kernel.org, sdf@fomichev.me, dw@davidwei.uk,
- jhs@mojatatu.com, victor@mojatatu.com, pctammela@mojatatu.com,
- skhawaja@google.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v4] selftests/vsock: add initial vmtest.sh for
+ vsock
+To: Bobby Eshleman <bobbyeshleman@gmail.com>,
+ Stefano Garzarella <sgarzare@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>
+Cc: kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kselftest@vger.kernel.org
+References: <20250507-vsock-vmtest-v4-1-6e2a97262cd6@gmail.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20250507-vsock-vmtest-v4-1-6e2a97262cd6@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 497AF5zQG67Dc-_naAWiMVw3auAFpjE_5ddd4QYTlwM_1747130931
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hello:
-
-This series was applied to netdev/net-next.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Thu,  8 May 2025 00:48:20 +0000 you wrote:
-> v14: https://lore.kernel.org/netdev/20250429032645.363766-1-almasrymina@google.com/
-> ===
+On 5/8/25 3:23 AM, Bobby Eshleman wrote:
+> This commit introduces a new vmtest.sh runner for vsock.
 > 
-> Picked up acks from Paolo, and addressed feedback from Paolo and Jakub.
+> It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
+> H2G, and loopback. The testing tools from tools/testing/vsock/ are
+> reused. Currently, only vsock_test is used.
 > 
-> Changelog:
-> - Fix issue in patch 4 where sockc_valid == false but err is
->   overwritten.
-> - Addressed nits.
+> VMCI and hyperv support is automatically built, though not used.
 > 
-> [...]
+> Only tested on x86.
+> 
+> To run:
+> 
+>   $ tools/testing/selftests/vsock/vmtest.sh
+> 
+> or
+> 
+>   $ make -C tools/testing/selftests TARGETS=vsock run_tests
+> 
+> Output (vmtest.sh):
+> TAP version 13
+> 1..3
+> not ok 1 vm_server_host_client # exit=1
+> ok 1 vm_client_host_server
+> ok 2 vm_loopback
+> SUMMARY: PASS=2 SKIP=0 FAIL=1
+> 1..3
+> 
+> Future work can include vsock_diag_test.
+> 
+> The tap output style copies mm's run_vmtests.sh.
+> 
+> Because vsock requires a VM to test anything other than loopback, this
+> patch adds vmtest.sh as a kselftest itself. This is different than other
+> systems that have a "vmtest.sh", where it is used as a utility script to
+> spin up a VM to run the selftests as a guest (but isn't hooked into
+> kselftest).
+> 
+> I've began testing this in one of the NIPA environments Jakub as
+> graciously provided. I would expect at least one more revision to have
+> that setup ironed out and fully tested.
+> 
+> Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+> ---
+> Changes in v4:
+> - do not use special tab delimiter for help string parsing (Stefano + Paolo)
+> - fix paths for when installing kselftest and running out-of-tree (Paolo)
+> - change vng to using running kernel instead of compiled kernel (Paolo)
+> - use multi-line string for QEMU_OPTS (Stefano)
+> - change timeout to 300s (Paolo)
+> - skip if tools are not found and use kselftests status codes (Paolo)
+> - remove build from vmtest.sh (Paolo)
+> - change 2222 -> SSH_HOST_PORT (Stefano)
+> - add tap-format output
+> - add vmtest.log to gitignore
+> - check for vsock_test binary and remind user to build it if missing
+> - create a proper build in makefile
+> - style fixes
+> - add ssh, timeout, and pkill to dependency check, just in case
+> - fix numerical comparison in conditionals
+> - check qemu pidfile exists before proceeding (avoid wasting time waiting for ssh)
+> - fix tracking of pass/fail bug
+> - fix stderr redirection bug
+> - Link to v3: https://lore.kernel.org/r/20250428-vsock-vmtest-v3-1-181af6163f3e@gmail.com
+> 
+> Changes in v3:
+> - use common conditional syntax for checking variables
+> - use return value instead of global rc
+> - fix typo TEST_HOST_LISTENER_PORT -> TEST_HOST_PORT_LISTENER
+> - use SIGTERM instead of SIGKILL on cleanup
+> - use peer-cid=1 for loopback
+> - change sleep delay times into globals
+> - fix test_vm_loopback logging
+> - add test selection in arguments
+> - make QEMU an argument
+> - check that vng binary is on path
+> - use QEMU variable
+> - change <tab><backslash> to <space><backslash>
+> - fix hardcoded file paths
+> - add comment in commit msg about script that vmtest.sh was based off of
+> - Add tools/testing/selftest/vsock/Makefile for kselftest
+> - Link to v2: https://lore.kernel.org/r/20250417-vsock-vmtest-v2-1-3901a27331e8@gmail.com
+> 
+> Changes in v2:
+> - add kernel oops and warnings checker
+> - change testname variable to use FUNCNAME
+> - fix spacing in test_vm_server_host_client
+> - add -s skip build option to vmtest.sh
+> - add test_vm_loopback
+> - pass port to vm_wait_for_listener
+> - fix indentation in vmtest.sh
+> - add vmci and hyperv to config
+> - changed whitespace from tabs to spaces in help string
+> - Link to v1: https://lore.kernel.org/r/20250410-vsock-vmtest-v1-1-f35a81dab98c@gmail.com
+> ---
+>  MAINTAINERS                              |   1 +
+>  tools/testing/selftests/vsock/.gitignore |   2 +
+>  tools/testing/selftests/vsock/Makefile   |  17 ++
+>  tools/testing/selftests/vsock/config     | 114 +++++++++
+>  tools/testing/selftests/vsock/settings   |   1 +
+>  tools/testing/selftests/vsock/vmtest.sh  | 423 +++++++++++++++++++++++++++++++
+>  6 files changed, 558 insertions(+)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 657a67f9031e..3fbdd7bbfce7 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -25751,6 +25751,7 @@ F:	include/uapi/linux/vm_sockets.h
+>  F:	include/uapi/linux/vm_sockets_diag.h
+>  F:	include/uapi/linux/vsockmon.h
+>  F:	net/vmw_vsock/
+> +F:	tools/testing/selftests/vsock/
+>  F:	tools/testing/vsock/
+>  
+>  VMALLOC
+> diff --git a/tools/testing/selftests/vsock/.gitignore b/tools/testing/selftests/vsock/.gitignore
+> new file mode 100644
+> index 000000000000..9c5bf379480f
+> --- /dev/null
+> +++ b/tools/testing/selftests/vsock/.gitignore
+> @@ -0,0 +1,2 @@
+> +vmtest.log
+> +vsock_test
+> diff --git a/tools/testing/selftests/vsock/Makefile b/tools/testing/selftests/vsock/Makefile
+> new file mode 100644
+> index 000000000000..71fca0a2b8da
+> --- /dev/null
+> +++ b/tools/testing/selftests/vsock/Makefile
+> @@ -0,0 +1,17 @@
+> +# SPDX-License-Identifier: GPL-2.0
+> +
+> +CURDIR := $(abspath .)
+> +TOOLSDIR := $(abspath ../../..)
+> +
+> +$(OUTPUT)/vsock_test: $(TOOLSDIR)/testing/vsock/vsock_test
+> +	install -m 755 $< $@
+> +
+> +$(TOOLSDIR)/testing/vsock/vsock_test:
+> +	$(MAKE) -C $(TOOLSDIR)/testing/vsock vsock_test
+> +
+> +TEST_PROGS += vmtest.sh
+> +EXTRA_CLEAN += vmtest.log
+> +TEST_GEN_FILES := vsock_test
+> +
+> +include ../lib.mk
+> +
+> diff --git a/tools/testing/selftests/vsock/config b/tools/testing/selftests/vsock/config
+> new file mode 100644
+> index 000000000000..3bffaaf98fff
+> --- /dev/null
+> +++ b/tools/testing/selftests/vsock/config
+> @@ -0,0 +1,114 @@
+> +CONFIG_BLK_DEV_INITRD=y
+> +CONFIG_BPF=y
+> +CONFIG_BPF_SYSCALL=y
+> +CONFIG_BPF_JIT=y
+> +CONFIG_HAVE_EBPF_JIT=y
+> +CONFIG_BPF_EVENTS=y
+> +CONFIG_FTRACE_SYSCALLS=y
+> +CONFIG_FUNCTION_TRACER=y
+> +CONFIG_HAVE_DYNAMIC_FTRACE=y
+> +CONFIG_DYNAMIC_FTRACE=y
+> +CONFIG_HAVE_KPROBES=y
+> +CONFIG_KPROBES=y
+> +CONFIG_KPROBE_EVENTS=y
+> +CONFIG_ARCH_SUPPORTS_UPROBES=y
+> +CONFIG_UPROBES=y
+> +CONFIG_UPROBE_EVENTS=y
+> +CONFIG_DEBUG_FS=y
+> +CONFIG_FW_CFG_SYSFS=y
+> +CONFIG_FW_CFG_SYSFS_CMDLINE=y
+> +CONFIG_DRM=y
+> +CONFIG_DRM_VIRTIO_GPU=y
+> +CONFIG_DRM_VIRTIO_GPU_KMS=y
+> +CONFIG_DRM_BOCHS=y
+> +CONFIG_VIRTIO_IOMMU=y
+> +CONFIG_SOUND=y
+> +CONFIG_SND=y
+> +CONFIG_SND_SEQUENCER=y
+> +CONFIG_SND_PCI=y
+> +CONFIG_SND_INTEL8X0=y
+> +CONFIG_SND_HDA_CODEC_REALTEK=y
+> +CONFIG_SECURITYFS=y
+> +CONFIG_CGROUP_BPF=y
+> +CONFIG_SQUASHFS=y
+> +CONFIG_SQUASHFS_XZ=y
+> +CONFIG_SQUASHFS_ZSTD=y
+> +CONFIG_FUSE_FS=y
+> +CONFIG_SERIO=y
+> +CONFIG_PCI=y
+> +CONFIG_INPUT=y
+> +CONFIG_INPUT_KEYBOARD=y
+> +CONFIG_KEYBOARD_ATKBD=y
+> +CONFIG_SERIAL_8250=y
+> +CONFIG_SERIAL_8250_CONSOLE=y
+> +CONFIG_X86_VERBOSE_BOOTUP=y
+> +CONFIG_VGA_CONSOLE=y
+> +CONFIG_FB=y
+> +CONFIG_FB_VESA=y
+> +CONFIG_FRAMEBUFFER_CONSOLE=y
+> +CONFIG_RTC_CLASS=y
+> +CONFIG_RTC_HCTOSYS=y
+> +CONFIG_RTC_DRV_CMOS=y
+> +CONFIG_HYPERVISOR_GUEST=y
+> +CONFIG_PARAVIRT=y
+> +CONFIG_KVM_GUEST=y
+> +CONFIG_KVM=y
+> +CONFIG_KVM_INTEL=y
+> +CONFIG_KVM_AMD=y
+> +CONFIG_VSOCKETS=y
+> +CONFIG_VSOCKETS_DIAG=y
+> +CONFIG_VSOCKETS_LOOPBACK=y
+> +CONFIG_VMWARE_VMCI_VSOCKETS=y
+> +CONFIG_VIRTIO_VSOCKETS=y
+> +CONFIG_VIRTIO_VSOCKETS_COMMON=y
+> +CONFIG_HYPERV_VSOCKETS=y
+> +CONFIG_VMWARE_VMCI=y
+> +CONFIG_VHOST_VSOCK=y
+> +CONFIG_HYPERV=y
+> +CONFIG_UEVENT_HELPER=n
+> +CONFIG_VIRTIO=y
+> +CONFIG_VIRTIO_PCI=y
+> +CONFIG_VIRTIO_MMIO=y
+> +CONFIG_VIRTIO_BALLOON=y
+> +CONFIG_NET=y
+> +CONFIG_NET_CORE=y
+> +CONFIG_NETDEVICES=y
+> +CONFIG_NETWORK_FILESYSTEMS=y
+> +CONFIG_INET=y
+> +CONFIG_NET_9P=y
+> +CONFIG_NET_9P_VIRTIO=y
+> +CONFIG_9P_FS=y
+> +CONFIG_VIRTIO_NET=y
+> +CONFIG_CMDLINE_OVERRIDE=n
+> +CONFIG_BINFMT_SCRIPT=y
+> +CONFIG_SHMEM=y
+> +CONFIG_TMPFS=y
+> +CONFIG_UNIX=y
+> +CONFIG_MODULE_SIG_FORCE=n
+> +CONFIG_DEVTMPFS=y
+> +CONFIG_TTY=y
+> +CONFIG_VT=y
+> +CONFIG_UNIX98_PTYS=y
+> +CONFIG_EARLY_PRINTK=y
+> +CONFIG_INOTIFY_USER=y
+> +CONFIG_BLOCK=y
+> +CONFIG_SCSI_LOWLEVEL=y
+> +CONFIG_SCSI=y
+> +CONFIG_SCSI_VIRTIO=y
+> +CONFIG_BLK_DEV_SD=y
+> +CONFIG_VIRTIO_CONSOLE=y
+> +CONFIG_WATCHDOG=y
+> +CONFIG_WATCHDOG_CORE=y
+> +CONFIG_I6300ESB_WDT=y
+> +CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y
+> +CONFIG_OVERLAY_FS=y
+> +CONFIG_DAX=y
+> +CONFIG_DAX_DRIVER=y
+> +CONFIG_FS_DAX=y
+> +CONFIG_MEMORY_HOTPLUG=y
+> +CONFIG_MEMORY_HOTREMOVE=y
+> +CONFIG_ZONE_DEVICE=y
+> +CONFIG_FUSE_FS=y
+> +CONFIG_VIRTIO_FS=y
+> +CONFIG_VSOCKETS=y
+> +CONFIG_VIRTIO_VSOCKETS=y
+> diff --git a/tools/testing/selftests/vsock/settings b/tools/testing/selftests/vsock/settings
+> new file mode 100644
+> index 000000000000..694d70710ff0
+> --- /dev/null
+> +++ b/tools/testing/selftests/vsock/settings
+> @@ -0,0 +1 @@
+> +timeout=300
+> diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+> new file mode 100755
+> index 000000000000..d7e727306175
+> --- /dev/null
+> +++ b/tools/testing/selftests/vsock/vmtest.sh
+> @@ -0,0 +1,423 @@
+> +#!/bin/bash
+> +# SPDX-License-Identifier: GPL-2.0
+> +#
+> +# Copyright (c) 2025 Meta Platforms, Inc. and affiliates
+> +#
+> +# Dependencies:
+> +#		* virtme-ng
+> +#		* busybox-static (used by virtme-ng)
+> +#		* qemu	(used by virtme-ng)
+> +
+> +TAP_PREFIX="# "
+> +VERBOSE=0
+> +KSFT_PASS=0
+> +KSFT_FAIL=1
+> +KSFT_SKIP=4
 
-Here is the summary with links:
-  - [net-next,v14,1/9] netmem: add niov->type attribute to distinguish different net_iov types
-    https://git.kernel.org/netdev/net-next/c/03e96b8c11d1
-  - [net-next,v14,2/9] net: add get_netmem/put_netmem support
-    https://git.kernel.org/netdev/net-next/c/e9f3d61db5cb
-  - [net-next,v14,3/9] net: devmem: TCP tx netlink api
-    https://git.kernel.org/netdev/net-next/c/8802087d20c0
-  - [net-next,v14,4/9] net: devmem: Implement TX path
-    https://git.kernel.org/netdev/net-next/c/bd61848900bf
-  - [net-next,v14,5/9] net: add devmem TCP TX documentation
-    https://git.kernel.org/netdev/net-next/c/17af8cc06a5a
-  - [net-next,v14,6/9] net: enable driver support for netmem TX
-    https://git.kernel.org/netdev/net-next/c/383faec0fd64
-  - [net-next,v14,7/9] gve: add netmem TX support to GVE DQO-RDA mode
-    https://git.kernel.org/netdev/net-next/c/c32532670cec
-  - [net-next,v14,8/9] net: check for driver support in netmem TX
-    https://git.kernel.org/netdev/net-next/c/ae28cb114727
-  - [net-next,v14,9/9] selftests: ncdevmem: Implement devmem TCP TX
-    https://git.kernel.org/netdev/net-next/c/2f1a805f32ba
+Possibly you could source kselftest/ktap_helpers.sh for the above
+'constant'. Otherwise it would be better to make them readonly.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> +SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+> +VSOCK_TEST=${SCRIPT_DIR}/vsock_test
+> +
+> +TEST_GUEST_PORT=51000
+> +TEST_HOST_PORT=50000
+> +TEST_HOST_PORT_LISTENER=50001
+> +SSH_GUEST_PORT=22
+> +SSH_HOST_PORT=2222
+> +VSOCK_CID=1234
+> +WAIT_PERIOD=3
+> +WAIT_PERIOD_MAX=20
+> +WAIT_TOTAL=$(( WAIT_PERIOD * WAIT_PERIOD_MAX ))
+> +
+> +QEMU_PIDFILE=/tmp/qemu.pid
 
+You likely want to use mktemp for the above file name.
+
+> +# virtme-ng offers a netdev for ssh when using "--ssh", but we also need a
+> +# control port forwarded for vsock_test.  Because virtme-ng doesn't support
+> +# adding an additional port to forward to the device created from "--ssh" and
+> +# virtme-init mistakenly sets identical IPs to the ssh device and additional
+> +# devices, we instead opt out of using --ssh, add the device manually, and also
+> +# add the kernel cmdline options that virtme-init uses to setup the interface.
+> +QEMU_TEST_PORT_FWD="hostfwd=tcp::${TEST_HOST_PORT}-:${TEST_GUEST_PORT}"
+> +QEMU_SSH_PORT_FWD="hostfwd=tcp::${SSH_HOST_PORT}-:${SSH_GUEST_PORT}"
+> +QEMU_OPTS="\
+> +	 -netdev user,id=n0,${QEMU_TEST_PORT_FWD},${QEMU_SSH_PORT_FWD} \
+> +	 -device virtio-net-pci,netdev=n0 \
+> +	 -device vhost-vsock-pci,guest-cid=${VSOCK_CID} \
+> +	 --pidfile ${QEMU_PIDFILE} \
+> +"
+> +KERNEL_CMDLINE="virtme.dhcp net.ifnames=0 biosdevname=0 virtme.ssh virtme_ssh_user=$USER"
+> +
+> +LOG=${SCRIPT_DIR}/vmtest.log
+
+Same here.
+
+> +TEST_NAMES=(vm_server_host_client vm_client_host_server vm_loopback)
+> +TEST_DESCS=(
+> +	"Run vsock_test in server mode on the VM and in client mode on the host."
+> +	"Run vsock_test in client mode on the VM and in server mode on the host."
+> +	"Run vsock_test using the loopback transport in the VM."
+> +)
+> +
+> +usage() {
+> +	local name
+> +	local desc
+> +	local i
+
+Minor nit, plewase leave an empty line between variables declaration and
+the actual code.
+
+[...]
+> +check_deps() {
+> +	for dep in vng ${QEMU} busybox timeout pkill ssh; do
+
+You don't need to check for 'timeout', as that is part of the coreutils
+and supposed to be available on all the running hosts.
+
+> +		if [[ ! -x "$(command -v ${dep})" ]]; then
+> +			echo -e "skip:    dependency ${dep} not found!\n"
+> +			exit ${KSFT_SKIP}
+> +		fi
+> +	done
+> +
+> +	if [[ ! -x $(command -v ${VSOCK_TEST}) ]]; then
+> +		printf "skip:    ${VSOCK_TEST} not found!"
+> +		printf " Please build the kselftest vsock target.\n"
+> +		exit ${KSFT_SKIP}
+> +	fi
+> +}
+> +
+> +vm_setup() {
+
+Possibly 'vm_start()' ?
+
+> +	local VNG_OPTS=""
+> +	local logfile=/dev/null
+> +
+> +	if [[ "${VERBOSE}" = 1 ]]; then
+> +		VNG_OPTS="--verbose"
+> +		logfile=/dev/stdout
+> +	fi
+> +	vng \
+> +		$VNG_OPTS \
+> +		--run \
+> +		--qemu-opts="${QEMU_OPTS}" \
+> +		--qemu="${QEMU}" \
+> +		--user root \
+> +		--append "${KERNEL_CMDLINE}" \
+> +		--rw  &> ${logfile} &
+> +
+> +	timeout ${WAIT_TOTAL} \
+> +		bash -c 'while [[ ! -e '"${QEMU_PIDFILE}"' ]]; do sleep 1; done; exit 0'
+> +	if [[ ! $? -eq 0 ]]; then
+> +		die "failed to boot VM"
+> +	fi
+> +}
+> +
+> +vm_wait_for_ssh() {
+> +	i=0
+> +	while [[ true ]]; do
+> +		if [[ ${i} -gt ${WAIT_PERIOD_MAX} ]]; then
+
+WAIT_PERIOD_MAX == 20 is possibly a little low for some systems (i.e.
+the 'host' itself could be a VM)
+
+> +			die "Timed out waiting for guest ssh"
+> +		fi
+> +		vm_ssh -- true
+> +		if [[ $? -eq 0 ]]; then
+> +			break
+> +		fi
+> +		i=$(( i + 1 ))
+> +		sleep ${WAIT_PERIOD}
+> +	done
+> +}
+> +
+> +wait_for_listener() {
+> +	local port=$1
+> +	local interval=$2
+> +	local max_intervals=$3
+> +	local i=0
+> +	while ! ss -ltn | grep -q ":${port}"; do
+> +		if [[ ${i} -gt ${max_intervals} ]]; then
+> +			die "Timed out waiting for listener on port ${port}"
+> +		fi
+> +		i=$(( i + 1 ))
+> +		sleep ${interval}
+> +	done
+> +}
+
+FTR there is a very similar helper in selftests/net/net_helper.sh
+
+> +
+> +vm_wait_for_listener() {
+> +	local port=$1
+> +	vm_ssh <<EOF
+> +$(declare -f wait_for_listener)
+> +wait_for_listener ${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX}
+> +EOF
+> +}
+> +
+> +host_wait_for_listener() {
+> +	wait_for_listener ${TEST_HOST_PORT_LISTENER} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX}
+> +}
+> +
+> +__log_stdin() {
+> +	cat | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }'
+> +}
+> +
+> +__log_args() {
+> +	echo "$*" | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }'
+> +}
+> +
+> +log() {
+> +	local prefix="$1"
+> +	shift
+> +
+> +	local redirect=
+> +	if [[ ${VERBOSE} -eq 0 ]]; then
+> +		redirect=/dev/null
+> +	else
+> +		redirect=/dev/stdout
+> +	fi
+> +
+> +	if [[ "$#" -eq 0 ]]; then
+> +		__log_stdin | tee -a ${LOG} > ${redirect}
+> +	else
+> +		__log_args | tee -a ${LOG} > ${redirect}
+> +	fi
+> +}
+> +
+> +log_setup() {
+> +	log "setup" "$@"
+> +}
+> +
+> +log_host() {
+> +	testname=$1
+> +	shift
+> +	log "test:${testname}:host" "$@"
+> +}
+> +
+> +log_guest() {
+> +	testname=$1
+> +	shift
+> +	log "test:${testname}:guest" "$@"
+> +}
+> +
+> +tap_prefix() {
+> +	sed -e "s/^/${TAP_PREFIX}/"
+> +}
+> +
+> +tap_output() {
+> +	if [[ ! -z "$TAP_PREFIX" ]]; then
+> +		read str
+> +		echo $str
+> +	fi
+> +}
+> +
+> +test_vm_server_host_client() {
+> +	local testname="${FUNCNAME[0]#test_}"
+> +
+> +	vm_ssh -- "${VSOCK_TEST}" \
+> +		--mode=server \
+> +		--control-port="${TEST_GUEST_PORT}" \
+> +		--peer-cid=2 \
+> +		2>&1 | log_guest "${testname}" &
+> +
+> +	vm_wait_for_listener ${TEST_GUEST_PORT}
+> +
+> +	${VSOCK_TEST} \
+> +		--mode=client \
+> +		--control-host=127.0.0.1 \
+> +		--peer-cid="${VSOCK_CID}" \
+> +		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host "${testname}"
+> +
+> +	return $?
+> +}
+> +
+> +test_vm_client_host_server() {
+> +	local testname="${FUNCNAME[0]#test_}"
+> +
+> +	${VSOCK_TEST} \
+> +		--mode "server" \
+> +		--control-port "${TEST_HOST_PORT_LISTENER}" \
+> +		--peer-cid "${VSOCK_CID}" 2>&1 | log_host "${testname}" &
+> +
+> +	host_wait_for_listener
+> +
+> +	vm_ssh -- "${VSOCK_TEST}" \
+> +		--mode=client \
+> +		--control-host=10.0.2.2 \
+> +		--peer-cid=2 \
+> +		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest "${testname}"
+> +
+> +	return $?
+> +}
+> +
+> +test_vm_loopback() {
+> +	local testname="${FUNCNAME[0]#test_}"
+> +	local port=60000 # non-forwarded local port
+> +
+> +	vm_ssh -- ${VSOCK_TEST} \
+> +		--mode=server \
+> +		--control-port="${port}" \
+> +		--peer-cid=1 2>&1 | log_guest "${testname}" &
+> +
+> +	vm_wait_for_listener ${port}
+> +
+> +	vm_ssh -- ${VSOCK_TEST} \
+> +		--mode=client \
+> +		--control-host="127.0.0.1" \
+> +		--control-port="${port}" \
+> +		--peer-cid=1 2>&1 | log_guest "${testname}"
+> +
+> +	return $?
+> +}
+> +
+> +run_test() {
+> +	unset IFS
+
+This is usually preceed by
+	OLD_IFS=$IFS
+
+and restored at the end of the relevant scope, to avoid side effects
+elsewhere.
+
+> +	local host_oops_cnt_before
+> +	local host_warn_cnt_before
+> +	local vm_oops_cnt_before
+> +	local vm_warn_cnt_before
+> +	local host_oops_cnt_after
+> +	local host_warn_cnt_after
+> +	local vm_oops_cnt_after
+> +	local vm_warn_cnt_after
+> +	local name
+> +	local rc
+> +
+> +	host_oops_cnt_before=$(dmesg | grep -c -i 'Oops')
+> +	host_warn_cnt_before=$(dmesg --level=warn | wc -l)
+> +	vm_oops_cnt_before=$(vm_ssh -- dmesg | grep -c -i 'Oops')
+> +	vm_warn_cnt_before=$(vm_ssh -- dmesg --level=warn | wc -l)
+> +
+> +	name=$(echo "${1}" | awk '{ print $1 }')
+> +	eval test_"${name}"
+> +	rc=$?
+> +
+> +	host_oops_cnt_after=$(dmesg | grep -i 'Oops' | wc -l)
+> +	if [[ ${host_oops_cnt_after} -gt ${host_oops_cnt_before} ]]; then
+> +		echo "${name}: kernel oops detected on host" | log_host ${name}
+> +		rc=$KSFT_FAIL
+> +	fi
+> +
+> +	host_warn_cnt_after=$(dmesg --level=warn | wc -l)
+> +	if [[ ${host_warn_cnt_after} -gt ${host_warn_cnt_before} ]]; then
+> +		echo "${name}: kernel warning detected on host" | log_host ${name}
+> +		rc=$KSFT_FAIL
+> +	fi
+> +
+> +	vm_oops_cnt_after=$(vm_ssh -- dmesg | grep -i 'Oops' | wc -l)
+> +	if [[ ${vm_oops_cnt_after} -gt ${vm_oops_cnt_before} ]]; then
+> +		echo "${name}: kernel oops detected on vm" | log_host ${name}
+> +		rc=$KSFT_FAIL
+> +	fi
+> +
+> +	vm_warn_cnt_after=$(vm_ssh -- dmesg --level=warn | wc -l)
+> +	if [[ ${vm_warn_cnt_after} -gt ${vm_warn_cnt_before} ]]; then
+> +		echo "${name}: kernel warning detected on vm" | log_host ${name}
+> +		rc=$KSFT_FAIL
+> +	fi
+> +
+> +	return ${rc}
+> +}
+> +
+> +while getopts :hvsq: o
+> +do
+> +	case $o in
+> +	v) VERBOSE=1;;
+> +	q) QEMU=$OPTARG;;
+> +	h|*) usage;;
+> +	esac
+> +done
+> +shift $((OPTIND-1))
+> +
+> +trap cleanup EXIT
+> +
+> +if [[ ${#} -eq 0 ]]; then
+> +	ARGS=(${TEST_NAMES[@]})
+> +else
+> +	ARGS=($@)
+> +fi
+> +
+> +check_args "${ARGS[@]}"
+> +check_deps
+> +
+> +QEMU=$(command -v ${QEMU:-qemu-system-$(uname -m)})
+
+Should the QEMU variable be initialized before check_deps() - where it's
+used?
+
+To me tt looks like this is almost ready, thank you for the great effort!
+
+/P
 
