@@ -1,123 +1,362 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB5FF1E5B68
-	for <virtualization@lists.linux.dev>; Wed, 14 May 2025 06:08:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF86413D539
+	for <virtualization@lists.linux.dev>; Wed, 14 May 2025 06:28:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747202912; cv=none; b=Qalz6g+PkNr8X2SN/kd/4X8CvxH+ypoBCTcnJlvZPtExeV49EbYiKf1MBXevaqY+4e/UPCQWxT9vk3g12FBx1gF2iUlbrchuk/1C+WZTrJiQE0LQjzUdnMOyUzqFEupXk2nb5tDaSapkr0R8DrYRcPddF/zya8XbXFt/LW4CD1o=
+	t=1747204092; cv=none; b=NTomXZZsgSCQL6TDSQjjGnyGXJrWBrkX8+wUCRrxfgQLRoVA57bo4lPWU9EanvOi40VFYtkRjvAsV8BpXrRC7L/Ay6XbBqGjllCvASeloxRJ3i2VKZE5wDZIO/25R0tI31GKFTjiatwzpNxxWDQszn+0Y0ifpsSYQqkDk4OkcxQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747202912; c=relaxed/simple;
-	bh=clqW7NWTFiJ7YoR3lDVtuE7JolyoGieukxj9gWfyBjk=;
+	s=arc-20240116; t=1747204092; c=relaxed/simple;
+	bh=UQ1J5sAQuLUSnUT79u1IDdk8KzumY3Ko6aSIBtrrU9E=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aLKdSDm8CEnfVL9mbzsYB140V0PTyPRTWnza+lxXAHkBDsTyWU4O59RT2oNH9AKTIlDsNMpRntocfeXETE2CBtLzzWpQzl84RqoImx79zNAMlSRJYM8Ae2Zlel7/sr6RZqMVLG7SFbprb3qWvEikZwHEc48lWE8kdPMjlEX5cqQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hz2pfLdP; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=c8NdbxyhgxIDE+zFz1BFQyjl5jrUVfwroxSTotpGYrfPCaKCi13J4FEPDiQfJW4SbOwuSFhJPDhq4oRY8V56NHZRCposVLr7P8cKmhv0K8X8aE/jkFUrdmVe9wqH2NqvdFJyVVtfH7qmiCwgqdo+X8FawlVWGFkoJnYWaz0ktV0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZXEEWFNB; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hz2pfLdP"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZXEEWFNB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747202908;
+	s=mimecast20190719; t=1747204089;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=GTiJAnWJjUYIhLrqKEbp6nIdZ7MIc80RxWcquMrGcF4=;
-	b=Hz2pfLdP/rROvTSi9uoyWKxpMAGl7WUfEsxY8j22iPKzXaUPEMjt50MEDKdR29ihtGe7K/
-	3ImSs8rRNjX0cRkm7MV1yGC9+luYsSbObacxBYyl1UK/Mlop56yrvOzjOEhAwXEqHLjXY7
-	ALjRKjHWYMCoeqAy2Hj15fMxKdf6WZw=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=hOp4hY0PMAH5wqsNNGlH3vrlg2J5pgcfFuboWc+PXtg=;
+	b=ZXEEWFNByiyuDmW7Od58AQoqi7bvGkBC6OXF8MAXL1cYyencZgg/fpR7IkCk/QPACuvpe9
+	ljYN9VmQWNK+zU7wj6Oqy1z5MTPfl03/ElQuCIzq9P6CFV6mrnO5Af+8ryPkMZOzy6ElNJ
+	MZ+okzQFpXKXooK6iNIxNGUN8JbZzTc=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-272-JHGDAKLmO7O1A-tGmYX_hw-1; Wed, 14 May 2025 02:08:25 -0400
-X-MC-Unique: JHGDAKLmO7O1A-tGmYX_hw-1
-X-Mimecast-MFC-AGG-ID: JHGDAKLmO7O1A-tGmYX_hw_1747202905
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-b269789425bso3680293a12.0
-        for <virtualization@lists.linux.dev>; Tue, 13 May 2025 23:08:25 -0700 (PDT)
+ us-mta-628-wipWpeKYO7OziZsr3noBpg-1; Wed, 14 May 2025 02:28:08 -0400
+X-MC-Unique: wipWpeKYO7OziZsr3noBpg-1
+X-Mimecast-MFC-AGG-ID: wipWpeKYO7OziZsr3noBpg_1747204087
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-30ad9303655so9884297a91.2
+        for <virtualization@lists.linux.dev>; Tue, 13 May 2025 23:28:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747202904; x=1747807704;
+        d=1e100.net; s=20230601; t=1747204087; x=1747808887;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GTiJAnWJjUYIhLrqKEbp6nIdZ7MIc80RxWcquMrGcF4=;
-        b=wbvaCoi5fOa4ikMsooPOcTES6usAqp0IF5x3YueTZVIM7LD6DC+oRGXWWNE3mCvByi
-         TkQ4lDdj/yUSrBov5lJdK3FScFQA9NyQXCAlWWaLS34AIDcbGg/95nr28RQDZGYS4FAa
-         fUlHMxpJ9RA62IBpoWGO3Djl5LbzLM4+mLEYq/bHXt/UFSkgC4nQzZnLbdopiDmIb6Jm
-         HgAJe+t4LMAToDQ3QjDLASv1YdwDWpA00CLeH+Wd/GgB3QCkbW487VHIJScRQ6URoZ+Z
-         9MA+yg94GpM8ctMsiqgodLMLCq0Tn+K1rbjd6zrqIbhG+rznnWtif3yklCXFXKUKwDjN
-         jEkw==
-X-Forwarded-Encrypted: i=1; AJvYcCUAe+AgZRMPAdN4aRUwwMpDgxfuA3rx+tNvQInFlyOy8/dOR9rkkRnRACSgDDMzvqHYy+xsyonrQflZrS9Hhw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyYxNXmesdTT2Mxthv1iJ959b16JKfqBL5yLGQW0O73gNl/3IG7
-	X4qUP5i6/O4WnUg4HKFCY8IOaDWvLzu4vODqnekO1nZ3yBuxOTRog4ExmJkQJJx5lEdzQKTXXLi
-	wg0hJBoPYMLr3dxweT6V8zf1uipOeuUlpJzLwlC7IlwL+pqSan98qdF0rlSaPV2hY1tbJfaL4Gx
-	S668RTIZyPWxsHrFMArvpSOqppSti6rew2zhq9YLM=
-X-Gm-Gg: ASbGncttzm4Yy9vjReKyDcuFLwbfhOqy/pCVNGAxF+m37ITxA3bVv+jdTLs/hCkJIa9
-	LaqL01aj2EvWWd0n1HxFKcVdcDH0G2reshudDDfBoSItWUuXFNVthPixqoyePBmEkpBbl
-X-Received: by 2002:a17:90a:e188:b0:301:1c11:aa74 with SMTP id 98e67ed59e1d1-30e2e623b1cmr3638563a91.28.1747202904471;
-        Tue, 13 May 2025 23:08:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEhn6kqdMgQ6s4WnRHem1sYVRVuHeAiWgE6nRiMRHJ5QkKKuABSWLiPE/twiXG+1HU+576sx0nKCmDWB9E2sN4=
-X-Received: by 2002:a17:90a:e188:b0:301:1c11:aa74 with SMTP id
- 98e67ed59e1d1-30e2e623b1cmr3638535a91.28.1747202904089; Tue, 13 May 2025
- 23:08:24 -0700 (PDT)
+        bh=hOp4hY0PMAH5wqsNNGlH3vrlg2J5pgcfFuboWc+PXtg=;
+        b=pHRm6JwTakGeEydJrbLn2XFlrlD2AsE5fJhaHJeoKnLl/INxc9rPI6G0I14wdLdqmW
+         FY5PVctT0vPpQos8MQthxdB4qiWoyPFeavigdNmNKSl8rjuVEujQfdQwaQl9/8jJ0kEE
+         mHPXkin+mBqkl1OzdZSNZMcs4riII0DtoqP/wZhb9fYo1/U6tD5qO2PaiNAARBdplcfT
+         Bu75tYmcXc35awUq4XYkYs6/q9ayu6izpcd7YD4rfO+T51Zcv0e7wVNLZn3B9g6S+eSP
+         C4bjMJTH8s8W0+nX6dZP9xKvrh4EkITVB1yOz0zMiLwrWENRpCQ9wQoUNk8dXNxvtNaH
+         xZpg==
+X-Forwarded-Encrypted: i=1; AJvYcCWx+Dng0ylrjtG7k0UTQsttEBZc5hwiBD7fzuump7/cA76oPuFPspkL4ok5O5kN91rWItyeCvjLzC3OPQa4SA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YySHxc6Fkxpep87f6GiMSafkv61kCJyOjM2NT2DkCk9M/02nIEH
+	UIbWwkIgGU11zILi1d5F7PrMMOdn4YmHxlnJIl1ePP7EHV0iRVxPfyWbj2YaFL5Ey2lbKYyUfV+
+	fcXf/j4rpwQKBobu1RZO3cwQq5qWKBBF122ALiNtuj/CEgz1VqQa8fLthHMn35MClGkt8RVkAvU
+	B2o6Q205I5qKTavcIkEnCFXz/AREvA14fTmsCZI2w=
+X-Gm-Gg: ASbGncuMc/aW/DNrJuwRJfwc0zpmmjqq+O0THL2CO4dTS9gTpfeLgsulzBWXIrq6D/A
+	6iLf/cwB4liSRgXv6aWimp3qv+yAnxtqjd5O4UaNlTrnZ7z9bDtZBwfQ3uXI2Yhtm4eVd
+X-Received: by 2002:a17:90b:3b4a:b0:2ff:6a5f:9b39 with SMTP id 98e67ed59e1d1-30e2e5dcde5mr3933266a91.18.1747204087115;
+        Tue, 13 May 2025 23:28:07 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGa8v+OcSzRWdhZzNcxoBuSbj+/AdqHp+HfAdjjwy0jvkIl0bUIQMv+O4S+pz9KyLi+opmWvTkyIhYe/KrmvWU=
+X-Received: by 2002:a17:90b:3b4a:b0:2ff:6a5f:9b39 with SMTP id
+ 98e67ed59e1d1-30e2e5dcde5mr3933239a91.18.1747204086621; Tue, 13 May 2025
+ 23:28:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250511222153.2332-1-sami.md.ko@gmail.com>
-In-Reply-To: <20250511222153.2332-1-sami.md.ko@gmail.com>
+References: <20250404145241.1125078-1-jon@nutanix.com> <CACGkMEsFc-URhXBCGZ1=CTMZKcWPf57pYy1TcyKLL=N65u+F0Q@mail.gmail.com>
+ <B32E2C5D-25FB-427F-8567-701C152DFDE6@nutanix.com> <CACGkMEucg5mduA-xoyrTRK5nOkdHvUAkG9fH6KpO=HxMVPYONA@mail.gmail.com>
+ <CAJaqyWdhLCNs_B0gcxXHut7xufw23HMR6PaO11mqAQFoGkdfXQ@mail.gmail.com> <92470838-2B98-4FC6-8E5B-A8AF14965D4C@nutanix.com>
+In-Reply-To: <92470838-2B98-4FC6-8E5B-A8AF14965D4C@nutanix.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 14 May 2025 14:08:12 +0800
-X-Gm-Features: AX0GCFtz_D_3mYpYzBUGBYhubV1vNLsSLsRetmERaz5Lx-ANh9YkQtT84sru_W8
-Message-ID: <CACGkMEvw7GB1UtZtNjw4TVD1nzr2JCgdsjFK7tiGC46CLV8hPw@mail.gmail.com>
-Subject: Re: [PATCH v3] virtio: reject shm region if length is zero
-To: Sami Uddin <sami.md.ko@gmail.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Date: Wed, 14 May 2025 14:27:55 +0800
+X-Gm-Features: AX0GCFvO5_TynaC7ilLiE_zM1DHi8DARvxgXq012o8cd1y0a6sUXeX2xGypEwtA
+Message-ID: <CACGkMEugQPYZuL75i7xBGy9vUmkH=6NN1uhi9wuLa4ruebAcew@mail.gmail.com>
+Subject: Re: [PATCH] vhost/net: remove zerocopy support
+To: Jon Kohler <jon@nutanix.com>
+Cc: Eugenio Perez Martin <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stefano Brivio <sbrivio@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: njh6PHGohJBfZEKgLnt3L2wkFRYpa-KFqR6ZWTwSVr0_1747202905
+X-Mimecast-MFC-PROC-ID: FatvC3XtBExFmoNX5WMp48uR97km5-g22kYY3O3hoFA_1747204087
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 12, 2025 at 6:22=E2=80=AFAM Sami Uddin <sami.md.ko@gmail.com> w=
-rote:
+On Thu, May 1, 2025 at 9:21=E2=80=AFAM Jon Kohler <jon@nutanix.com> wrote:
 >
-> From: Sami Uddin <sami.md.ko@gmail.com>
 >
-> Prevent usage of shared memory regions where the length is zero,
-> as such configurations are not valid and may lead to unexpected behavior.
 >
-> Signed-off-by: Sami Uddin <sami.md.ko@gmail.com>
-> ---
-> v3:
-> - Use idiomatic 'if (!region->len)' as suggested by reviewer
-> v2:
-> - Fixed coding style issue: added space after 'if' statement
+> > On Apr 16, 2025, at 6:15=E2=80=AFAM, Eugenio Perez Martin <eperezma@red=
+hat.com> wrote:
+> >
+> > !-------------------------------------------------------------------|
+> >  CAUTION: External Email
+> >
+> > |-------------------------------------------------------------------!
+> >
+> > On Tue, Apr 8, 2025 at 8:28=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
+ wrote:
+> >>
+> >> On Tue, Apr 8, 2025 at 9:18=E2=80=AFAM Jon Kohler <jon@nutanix.com> wr=
+ote:
+> >>>
+> >>>
+> >>>
+> >>>> On Apr 6, 2025, at 7:14=E2=80=AFPM, Jason Wang <jasowang@redhat.com>=
+ wrote:
+> >>>>
+> >>>> !-------------------------------------------------------------------=
+|
+> >>>> CAUTION: External Email
+> >>>>
+> >>>> |-------------------------------------------------------------------=
+!
+> >>>>
+> >>>> On Fri, Apr 4, 2025 at 10:24=E2=80=AFPM Jon Kohler <jon@nutanix.com>=
+ wrote:
+> >>>>>
+> >>>>> Commit 098eadce3c62 ("vhost_net: disable zerocopy by default") disa=
+bled
+> >>>>> the module parameter for the handle_tx_zerocopy path back in 2019,
+> >>>>> nothing that many downstream distributions (e.g., RHEL7 and later) =
+had
+> >>>>> already done the same.
+> >>>>>
+> >>>>> Both upstream and downstream disablement suggest this path is rarel=
+y
+> >>>>> used.
+> >>>>>
+> >>>>> Testing the module parameter shows that while the path allows packe=
+t
+> >>>>> forwarding, the zerocopy functionality itself is broken. On outboun=
+d
+> >>>>> traffic (guest TX -> external), zerocopy SKBs are orphaned by eithe=
+r
+> >>>>> skb_orphan_frags_rx() (used with the tun driver via tun_net_xmit())
+> >>>>
+> >>>> This is by design to avoid DOS.
+> >>>
+> >>> I understand that, but it makes ZC non-functional in general, as ZC f=
+ails
+> >>> and immediately increments the error counters.
+> >>
+> >> The main issue is HOL, but zerocopy may still work in some setups that
+> >> don't need to care about HOL. One example the macvtap passthrough
+> >> mode.
+> >>
+> >>>
+> >>>>
+> >>>>> or
+> >>>>> skb_orphan_frags() elsewhere in the stack,
+> >>>>
+> >>>> Basically zerocopy is expected to work for guest -> remote case, so
+> >>>> could we still hit skb_orphan_frags() in this case?
+> >>>
+> >>> Yes, you=E2=80=99d hit that in tun_net_xmit().
+> >>
+> >> Only for local VM to local VM communication.
 >
->  include/linux/virtio_config.h | 2 ++
->  1 file changed, 2 insertions(+)
+> Sure, but the tricky bit here is that if you have a mix of VM-VM and VM-e=
+xternal
+> traffic patterns, any time the error path is hit, the zc error counter wi=
+ll go up.
 >
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.=
-h
-> index 169c7d367fac..b3e1d30c765b 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -329,6 +329,8 @@ static inline
->  bool virtio_get_shm_region(struct virtio_device *vdev,
->                            struct virtio_shm_region *region, u8 id)
->  {
-> +       if (!region->len)
-> +               return false;
->         if (!vdev->config->get_shm_region)
->                 return false;
->         return vdev->config->get_shm_region(vdev, region, id);
-> --
-> 2.34.1
->
+> When that happens, ZC will get silently disabled anyhow, so it leads to s=
+poradic
+> success / non-deterministic performance.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+As discussed, the main issue is safety: a malicious VM can refuse to
+receive packets which may cause tx to be stuck. So scarfing
+performance for safety is the only way to go. If we can find a way to
+fix them, it could be relaxed.
+
+>
+> >>
+> >>> If you punch a hole in that *and* in the
+> >>> zc error counter (such that failed ZC doesn=E2=80=99t disable ZC in v=
+host), you get ZC
+> >>> from vhost; however, the network interrupt handler under net_tx_actio=
+n and
+> >>> eventually incurs the memcpy under dev_queue_xmit_nit().
+> >>
+> >> Well, yes, we need a copy if there's a packet socket. But if there's
+> >> no network interface taps, we don't need to do the copy here.
+> >>
+>
+> Agreed on the packet socket side. I recently fixed an issue in lldpd [1] =
+that prevented
+> this specific case; however, there are still other trip wires spread out =
+across the
+> stack that would need to be addressed.
+>
+> [1] https://github.com/lldpd/lldpd/commit/622a91144de4ae487ceebdb333863e9=
+f660e0717
+
+I see.
+
+>
+> >
+> > Hi!
+> >
+> > I need more time diving into the issues. As Jon mentioned, vhost ZC is
+> > so little used I didn't have the chance to experiment with this until
+> > now :). But yes, I expect to be able to overcome these for pasta, by
+> > adapting buffer sizes or modifying code etc.
+>
+> Another tricky bit here is that it has been disabled both upstream and do=
+wnstream
+> for so long, the code naturally has a bit of wrench-in-the-engine.
+>
+> RE Buffer sizes: I tried this as well, because I think on sufficiently fa=
+st systems,
+> zero copy gets especially interesting in GSO/TSO cases where you have meg=
+a
+> payloads.
+
+Yes.
+
+>
+> I tried playing around with the good copy value such that ZC restricted i=
+tself to
+> only lets say 32K payloads and above, and while it *does* work (with enou=
+gh
+> holes punched in), absolute t-put doesn=E2=80=99t actually go up, its jus=
+t that CPU utilization
+> goes down a pinch. Not a bad thing for certain, but still not great.
+>
+> In fact, I found that tput actually went down with this path, even with Z=
+C occurring
+> successfully, as there was still a mix of ZC and non-ZC because you can o=
+nly
+> have so many pending at any given time before the copy path kicks in agai=
+n.
+
+TCP has hursitisc that may try to coalesce more writes into a larger
+packet so we might get "worse" throughput when vhost becomes faster.
+For example, only my testing environment, qemu, is faster than vhost
+single TCP stream testing of netperf.
+
+>
+>
+> >
+> >>>
+> >>> This is no more performant, and in fact is actually worse since the t=
+ime spent
+> >>> waiting on that memcpy to resolve is longer.
+> >>>
+> >>>>
+> >>>>> as vhost_net does not set
+> >>>>> SKBFL_DONT_ORPHAN.
+> >>
+> >> Maybe we can try to set this as vhost-net can hornor ulimit now.
+>
+> Yea I tried that, and while it helps kick things further down the stack, =
+its not actually
+> faster in any testing I=E2=80=99ve drummed up.
+
+Can I see the codes?
+
+>
+> >>
+> >>>>>
+> >>>>> Orphaning enforces a memcpy and triggers the completion callback, w=
+hich
+> >>>>> increments the failed TX counter, effectively disabling zerocopy ag=
+ain.
+> >>>>>
+> >>>>> Even after addressing these issues to prevent SKB orphaning and err=
+or
+> >>>>> counter increments, performance remains poor. By default, only 64
+> >>>>> messages can be zerocopied, which is immediately exhausted by workl=
+oads
+> >>>>> like iperf, resulting in most messages being memcpy'd anyhow.
+> >>>>>
+> >>>>> Additionally, memcpy'd messages do not benefit from the XDP batchin=
+g
+> >>>>> optimizations present in the handle_tx_copy path.
+> >>>>>
+> >>>>> Given these limitations and the lack of any tangible benefits, remo=
+ve
+> >>>>> zerocopy entirely to simplify the code base.
+> >>>>>
+> >>>>> Signed-off-by: Jon Kohler <jon@nutanix.com>
+> >>>>
+> >>>> Any chance we can fix those issues? Actually, we had a plan to make
+> >>>> use of vhost-net and its tx zerocopy (or even implement the rx
+> >>>> zerocopy) in pasta.
+> >>>
+> >>> Happy to take direction and ideas here, but I don=E2=80=99t see a cle=
+ar way to fix these
+> >>> issues, without dealing with the assertions that skb_orphan_frags_rx =
+calls out.
+> >>>
+> >>> Said another way, I=E2=80=99d be interested in hearing if there is a =
+config where ZC in
+> >>> current host-net implementation works, as I was driving myself crazy =
+trying to
+> >>> reverse engineer.
+> >>
+> >> See above.
+> >>
+> >>>
+> >>> Happy to collaborate if there is something we could do here.
+> >>
+> >> Great, we can start here by seeking a way to fix the known issues of
+> >> the vhost-net zerocopy code.
+> >>
+> >
+> > Happy to help here :).
+> >
+> > Jon, could you share more details about the orphan problem so I can
+> > speed up the help? For example, can you describe the code changes and
+> > the code path that would lead to that assertion of
+> > skb_orphan_frags_rx?
+> >
+> > Thanks!
+> >
+>
+> Sorry for the slow response, getting back from holiday and catching up.
+>
+> When running through tun.c, there are a handful of places where ZC turns =
+into
+> a full copy, whether that is in the tun code itself, or in the interrupt =
+handler when
+> tun xmit is running.
+>
+> For example, tun_net_xmit mandatorily calls skb_orphan_frags_rx. Anything
+> with frags will get this memcpy, which are of course the =E2=80=9Cjuicy=
+=E2=80=9D targets here as
+> they would take up the most memory bandwidth in general. Nasty catch22 :)
+>
+> There are also plenty of places that call normal skb_orphan_frags, which
+> triggers because vhost doesn=E2=80=99t set SKBFL_DONT_ORPHAN. That=E2=80=
+=99s an easy
+> fix, but still something to think about.
+>
+> Then there is the issue of packet sockets, which throw a king sized wrenc=
+h into
+> this. Its slightly insidious, but it isn=E2=80=99t directly apparent that=
+ loading some user
+> space app nukes zero copy, but it happens.
+>
+> See my previous comment about LLDPD, where a simply compiler snafu caused
+> one socket option to get silently break, and it then ripped out ZC capabi=
+lity. Easy
+> fix, but its an example of how this can fall over.
+>
+> Bottom line, I=E2=80=99d *love****** have ZC work, work well and so on. I=
+=E2=80=99m open to ideas
+> here :) (up to and including both A) fixing it and B) deleting it)
+
+Zerocopy still has its advantages in some specific setups. Maybe a way
+to start is to make it work automatically depending on the lower
+setups? For example, enable it by default with macvtap.
 
 Thanks
+
+>
 
