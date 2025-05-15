@@ -1,175 +1,171 @@
-Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B002B282F1
-	for <virtualization@lists.linux.dev>; Thu, 15 May 2025 07:14:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A629E1E5713
+	for <virtualization@lists.linux.dev>; Thu, 15 May 2025 07:33:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747293280; cv=none; b=q+YGM5uwiphwwsz3y5p0+WX7qBdVw+lsgzRyixnxqb234RyM9cMHeOZAK/47XC0WLenZg1YilLai91HaRSV7aGzPA/Dn/nuvdfIMdBg1QWoHiR5+Aqz46esnWF/vTkZuhSsEg7jPl2X+9FkAc18EUKo5yM0tLlv1aZDjgSWffgo=
+	t=1747294395; cv=none; b=ePXHiISIx4ZK9rpgQ9PwQpKOeu6oUyeuPQtbPSXExAOBsqlWfAABnnQFfIXq+oFZSmIBGQmT/MDLlGVtQIcsL4S1gwXTTOr49RWI1HriGhfdIqymEchH9PupelUQnME/G+jOxMqxWZ6IGE9pVbgohKNuS4GbU8NNf9cR7DiBSu8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747293280; c=relaxed/simple;
-	bh=AdiOzKd1rAm178x2PI7l6wU3wLgZH0OiaXgsBhxCeMI=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=uIjfwxOi9EuIhgmHoCeg70B/dTVEhPAgputAqaIVGRqCB9Hx8mtpnRxDWM1eRX5WNZ1nDQ9WJN13W1MQzOQooqW4gx0bf1fy0j2DhFusavgF9sLRsr0xVUzsU1Bbe0RE8pXg7gHbonOQgPZz5/o6uPZ/ch1PwZ7zbpG6T7uys/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=MsqpcZxi; arc=none smtp.client-ip=80.241.56.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1747294395; c=relaxed/simple;
+	bh=JNzgfSL4CsTGy1bjrPz4RxndSl0WA53cyHjzmh8RFj4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jl5dlnMWnOrGX3SF8rphUimbMdKh22Esvk7xnTVPtCx2gxG7q8EnhLViwXTNaVfWtKEwoRTgbolTe6l5wrDB++9wfBh6DtqmsdudKlI9j9CSnMgXFHI5DKJjywSMG7RW8t0zM6c2pjHQa3rVxsXYXFOWFG65tg0QbriHj46O2RU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=OeZftPa4; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="MsqpcZxi"
-Received: from smtp202.mailbox.org (smtp202.mailbox.org [10.196.197.202])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4ZyhKd1Fhwz9sd7;
-	Thu, 15 May 2025 09:14:29 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1747293269; h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tN/OjUP+F6ny/aTLHg6lQwqtubMOvdX5Usteik+4erk=;
-	b=MsqpcZxivPqCxu/8noY1ASy7Vgd+/guOaewqqIbACu92A1XqKqzTrFoY+vBT64jfkB5GNH
-	JqbPP1TrTWzUf/n8zYfaOM5ysHEkoCpCTPlmgHZLHbqywfZjIcryq02hh4PIZzQ5LQPZnq
-	BpvcMhUWBE8K2vdVXZmjHywsDn+LMrmtlOdlDuRWe5cWENSfDMtM2aqUURPkGoNW7+snZm
-	Q3r8LOoY0WFgPMxuA9hUZozhv+OMtvFc3zcWx4HDWbaSA3ehekYemNoV97+phv6i8jYVlP
-	ppUfNpEWxlbGCSwxMKD8FDE8myjdBPYqMlOpU2XpJXkZKb4ya4WTRpEP/5bysg==
-Message-ID: <f6e5e4c0f32f8ecb3be71181042082d2d8a9533b.camel@mailbox.org>
-Subject: Re: [PATCH v4] vdpa/octeon_ep: Control PCI dev enabling manually
-From: Philipp Stanner <phasta@mailbox.org>
-Reply-To: phasta@kernel.org
-To: Philipp Stanner <phasta@kernel.org>, schalla@marvell.com, 
- vattunuru@marvell.com, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
- <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
- =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, Shijith Thotton
- <sthotton@marvell.com>, Dan Carpenter <dan.carpenter@linaro.org>, Satha Rao
- <skoteshwar@marvell.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Date: Thu, 15 May 2025 09:14:22 +0200
-In-Reply-To: <20250508085134.24084-2-phasta@kernel.org>
-References: <20250508085134.24084-2-phasta@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="OeZftPa4"
+Received: from [192.168.7.202] ([71.202.166.45])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 54F7WfsF3336298
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Thu, 15 May 2025 00:32:41 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 54F7WfsF3336298
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025042001; t=1747294363;
+	bh=FTKlSsiJd9+jpos7AVLXF8LAqgwtfl1Qy7H7vRzCDXE=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=OeZftPa4P2RcLNrfq7mYvwL9TgxRMcLlkVGZC6h8vETFbJVCjpBbzmpzH5AR13wKx
+	 15mv9dkcpvv5ouP63h6d4FyAbbBv4ahXZZT/mJEs0YcVe4dSsuiidCYyb5eLIFmmab
+	 KZh7WExvvM7f5dcUXiiH4kI087BVfYMnwIxDBqPfWZBau2sgqY1q7vFYn0CwCYjxM9
+	 k2IdZTAsWYVBOheuyRj88cuKgPcjoyTQbvMyOTslRINSkfMVXRDIiVGVCAqieKjmOF
+	 vIstWyCK+xY4GqiDXwaoMJ8FcLhCdyf9Y7Wv9kaBeH/qOTfV0h+xsRne4kDWAibHx3
+	 4HrOazqt1wu0g==
+Message-ID: <652dfd63-e41c-4d7a-8fea-40509e8191ef@zytor.com>
+Date: Thu, 15 May 2025 00:32:40 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MBO-RS-META: 9qmrm7e38ipgezxi671tj9uij9ejszxe
-X-MBO-RS-ID: 53e957ff3b9784b003f
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 5/6] x86/paravirt: Switch MSR access pv_ops functions to
+ instruction interfaces
+To: "H. Peter Anvin" <hpa@zytor.com>,
+        =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?=
+ <jgross@suse.com>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        virtualization@lists.linux.dev, Peter Zijlstra <peterz@infradead.org>
+Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
+        Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+        Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+        Thomas Gleixner
+ <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        xen-devel@lists.xenproject.org
+References: <20250506092015.1849-1-jgross@suse.com>
+ <20250506092015.1849-6-jgross@suse.com>
+ <722f5b30-20e9-4540-98e4-d211d7c44cbe@zytor.com>
+ <9f4e33d5-9cb3-4079-b764-87a15265fd52@suse.com>
+ <ff567466-a46a-4f66-935a-8fae1140c1a2@suse.com>
+ <eb077393-ea95-4ac0-9479-980e227f7bff@zytor.com>
+ <6cc20ef6-d8e5-4c74-89d9-6a949c84b397@suse.com>
+ <DDA7C560-1BD9-40A6-8B93-28D5AC10EBB2@zytor.com>
+Content-Language: en-US
+From: Xin Li <xin@zytor.com>
+Autocrypt: addr=xin@zytor.com; keydata=
+ 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
+ l75w1xInsg==
+In-Reply-To: <DDA7C560-1BD9-40A6-8B93-28D5AC10EBB2@zytor.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu, 2025-05-08 at 10:51 +0200, Philipp Stanner wrote:
-> PCI region request functions such as pci_request_region() currently
-> have
-> the problem of becoming sometimes managed functions, if
-> pcim_enable_device() instead of pci_enable_device() was called. The
-> PCI
-> subsystem wants to remove this deprecated behavior from its
-> interfaces.
->=20
-> octeopn_ep enables its device with pcim_enable_device() (for VF. PF
-> uses
-> manual management), but does so only to get automatic disablement.
-> The
-> driver wants to manage its PCI resources for VF manually, without
-> devres.
->=20
-> The easiest way not to use automatic resource management at all is by
-> also handling device enable- and disablement manually.
->=20
-> Replace pcim_enable_device() with pci_enable_device(). Add the
-> necessary
-> calls to pci_disable_device().
->=20
-> Signed-off-by: Philipp Stanner <phasta@kernel.org>
-> Acked-by: Vamsi Attunuru <vattunuru@marvell.com>
+On 5/13/2025 3:24 PM, H. Peter Anvin wrote:
+> On May 12, 2025 11:06:02 PM PDT, "Jürgen Groß" <jgross@suse.com> wrote:
+>> On 13.05.25 07:55, Xin Li wrote:
+>>> On 5/12/2025 4:24 AM, Juergen Gross wrote:
+>>>> Now with the mentioned patch really attached. :-)
+>>>>
+>>>
+>>> Does it allow patching with an instruction more than 6 bytes long?
+>>>
+>>> The immediate form MSR instructions are 9 bytes long.
+>>
+>> Yes, shouldn't be a problem.
+>>
+>>
+>> Juergen
+> 
+> However, it is more than that. The immediate instructions have a different interface, and it makes more sense to use the extra bytes to shuffle the bits around for the legacy forms:
+> 
+> Write:
+> 
+>      mov %rax,%rdx
+>      shr $32,%rdx
+>      wrmsr(ns)
+> 
+> Read:
+> 
+>      rdmsr
+>      shl $32,%rdx
+>      or %rdx,%rax
+> 
+> For the write case, this also means that two separate trap points are needed.
+> 
+> As far as Xen (the only user of pv msrs), note that it only paravirtualizes a very small number of MSRs, and some of those are fairly performance sensitive, so not going through the Xen framework for MSRs known to be either native or null on Xen would definitely be a win.
+> 
+> 
 
-Hi again,
+Hi Juergen,
 
-this is the last of 12 drivers blocking me from removing a few hundred
-lines of broken code from PCI. Would be great if it could be sent to
-Linus next merge window.
+I have some update on this thread while working on it.
 
-Can someone take this patch in?
+If we continue down the path of maintaining pvops MSR APIs as this patch
+series does, it seems we’ll need to duplicate the ALTERNATIVE code in
+three different places.
 
-Thx
-P.
+1) The MSR access primitives defined in <asm/msr.h>, which is used when
+    CONFIG_PARAVIRT=n.
 
-> ---
-> Changes in v4:
-> =C2=A0 - s/AF/PF
-> =C2=A0 - Add Vamsi's AB
->=20
-> Changes in v3:
-> =C2=A0 - Only call pci_disable_device() for the PF version. For AF it
-> would
-> =C2=A0=C2=A0=C2=A0 cause a WARN_ON because pcim_enable_device()'s callbac=
-k will also
-> =C2=A0=C2=A0=C2=A0 try to disable.
-> ---
-> =C2=A0drivers/vdpa/octeon_ep/octep_vdpa_main.c | 17 ++++++++++++-----
-> =C2=A01 file changed, 12 insertions(+), 5 deletions(-)
->=20
-> diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> index f3d4dda4e04c..9b49efd24391 100644
-> --- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> +++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> @@ -454,6 +454,9 @@ static void octep_vdpa_remove_pf(struct pci_dev
-> *pdev)
-> =C2=A0		octep_iounmap_region(pdev, octpf->base,
-> OCTEP_HW_MBOX_BAR);
-> =C2=A0
-> =C2=A0	octep_vdpa_pf_bar_expand(octpf);
-> +
-> +	/* The pf version does not use managed PCI. */
-> +	pci_disable_device(pdev);
-> =C2=A0}
-> =C2=A0
-> =C2=A0static void octep_vdpa_vf_bar_shrink(struct pci_dev *pdev)
-> @@ -825,7 +828,7 @@ static int octep_vdpa_probe_pf(struct pci_dev
-> *pdev)
-> =C2=A0	struct octep_pf *octpf;
-> =C2=A0	int ret;
-> =C2=A0
-> -	ret =3D pcim_enable_device(pdev);
-> +	ret =3D pci_enable_device(pdev);
-> =C2=A0	if (ret) {
-> =C2=A0		dev_err(dev, "Failed to enable device\n");
-> =C2=A0		return ret;
-> @@ -834,15 +837,17 @@ static int octep_vdpa_probe_pf(struct pci_dev
-> *pdev)
-> =C2=A0	ret =3D dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64));
-> =C2=A0	if (ret) {
-> =C2=A0		dev_err(dev, "No usable DMA configuration\n");
-> -		return ret;
-> +		goto disable_pci;
-> =C2=A0	}
-> =C2=A0	octpf =3D devm_kzalloc(dev, sizeof(*octpf), GFP_KERNEL);
-> -	if (!octpf)
-> -		return -ENOMEM;
-> +	if (!octpf) {
-> +		ret =3D -ENOMEM;
-> +		goto disable_pci;
-> +	}
-> =C2=A0
-> =C2=A0	ret =3D octep_iomap_region(pdev, octpf->base,
-> OCTEP_HW_MBOX_BAR);
-> =C2=A0	if (ret)
-> -		return ret;
-> +		goto disable_pci;
-> =C2=A0
-> =C2=A0	pci_set_master(pdev);
-> =C2=A0	pci_set_drvdata(pdev, octpf);
-> @@ -856,6 +861,8 @@ static int octep_vdpa_probe_pf(struct pci_dev
-> *pdev)
-> =C2=A0
-> =C2=A0unmap_region:
-> =C2=A0	octep_iounmap_region(pdev, octpf->base, OCTEP_HW_MBOX_BAR);
-> +disable_pci:
-> +	pci_disable_device(pdev);
-> =C2=A0	return ret;
-> =C2=A0}
-> =C2=A0
+2) The pvops native MSR functions pv_native_{rd,wr}msr{,_safe}() defined
+    in arch/x86/kernel/paravirt.c, used when CONFIG_PARAVIRT=y on bare
+    metal.
 
+3) The pvops Xen MSR functions paravirt_{read,write}_msr{,_safe}()
+    defined in <asm/paravirt.h>, used when CONFIG_PARAVIRT_XXL=y.
+
+hpa had mentioned to me earlier that this would be a maintenance burden
+— something I only truly realized once I got hands-on with it.
+
+Maybe you have something in mind to address it?
+
+Also add PeterZ to the To list because he cares it.
+
+Thanks!
+     Xin
