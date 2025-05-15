@@ -1,80 +1,121 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 709481BC9F4;
-	Thu, 15 May 2025 14:10:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 803A91E9B2F;
+	Thu, 15 May 2025 16:33:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747318245; cv=none; b=AfXPsJK40cNC+rmXJMJrpde9xh9AWyd2PpQyM34eFV0lesKOba34O0bE/SwmcwkrWaFYyVSXsF+4R02TgxJfSj/a7CH62imgAkxQTHl82HGsPdGV5ddi211wny70g/vUMKbga0PoLKMK1I447npVvvE6doRHS9O2n0TFUinFhRg=
+	t=1747326799; cv=none; b=hHgxwd6dAfhD/Xs8+obIQrhjBzIC/0bCK2pjPJiaYakrnTL84+AUUllCywHUrcXpeqDxJtzGf2icVqb3KafM/adoavA4JqFjQzzqbpWfCxX9U8Hppg6nsZcNxxxKjzlt71/ap/4CnsxBrhACokhdEym0P9d+QtPFgS1du4JYGjQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747318245; c=relaxed/simple;
-	bh=gscMF9fKg71CimMwFFr2f/OqsDrXvF6hN+Br5igsxTo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Fuzix0S4ddJEnIJOX9s72R+eF0oahywaDX7z5841Xjiw6pVEXVgPD1bxg1M2idx+NC7ktQZAX7NfI+VeCZw/ZtbmJbe9RqbugDgFXs19uJa5G+Zc1YYvh/R4/x4T7sSnsxsVTXPr8JC0XUSVi2wNxMjl17FBoshcfPMMyubTBS0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ng+giE9Y; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1747326799; c=relaxed/simple;
+	bh=kKPojMJd9kqH6u8NArAZ+Lui+uo9ndwDNquYyy93G0k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qFsyrOQMc3Okqe2XSTaMkfLCbg1F6RZfS1OT4At0Ain6h4SfcZ6AEeRx59lV/w4ku59wfRlNv+RCEmASCkB1O7z7fPs+dR2/u+xxlhuYDBjAkDkkPCFc+1ByT1eUv7Icnb2g4f8uKs6stDo34UaMe4VwYhSN4HZFi4qiN/W3LBU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ESjhprCJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ng+giE9Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CECCC4CEE7;
-	Thu, 15 May 2025 14:10:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ESjhprCJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD5EC4CEE7;
+	Thu, 15 May 2025 16:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1747318243;
-	bh=gscMF9fKg71CimMwFFr2f/OqsDrXvF6hN+Br5igsxTo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=ng+giE9YXCJ5Gs/6E5Rr1L+69lHHBRBRcWUJBzV9q3KQl3gdER0kxNl+Kgw2cSvhN
-	 GKg75JE6cIALoPGWVFvEqUGgbz+SAn0kakqvPksXh+/ntrUL8iSod1ufZMDltKkLUN
-	 NexDehEIYgSMsgrz8gjtxhiMIsXTEWoJ/a2XAUV9HRcxS3l+nUKFW1M3rj0A8HBTMr
-	 GDO3+bovxvQy2Kth1Q6SQySovdMPy5vMbjtbSCWgW5hq+eUqIv0LtsASRRxManBgWg
-	 LwCBcUZtj/gMNnk232qMV24AR8N+/PfWQIQp2wO3VecUiEtxKaphPUdyYU/kDw0Sll
-	 lp1i2vMfmkMKQ==
-Date: Thu, 15 May 2025 07:10:42 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Tang Longjun <lange_tang@163.com>
-Cc: xuanzhuo@linux.alibaba.com, jasowang@redhat.com, mst@redhat.com,
- davem@davemloft.net, edumazet@google.com, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, Tang Longjun <tanglongjun@kylinos.cn>
-Subject: Re: [PATCH] virtio_net: Fix duplicated return values in
- virtnet_get_hw_stats
-Message-ID: <20250515071042.5f668345@kernel.org>
-In-Reply-To: <20250514054433.29709-1-lange_tang@163.com>
-References: <20250514054433.29709-1-lange_tang@163.com>
+	s=k20201202; t=1747326799;
+	bh=kKPojMJd9kqH6u8NArAZ+Lui+uo9ndwDNquYyy93G0k=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ESjhprCJouXAhjQr0dZG6SyTXibttfDkEXUZ8Ep+z+gy7A2IEg74Pih3DzIhR92mQ
+	 Wg1fRLZ7AahHltL5KOdUISnA+OaOb/NOKa//4TXRGsVv+rtItX6BET9OvhMNCVjW8U
+	 De/WmZChNK1Me4d3LxDTawHPD0qDmGXiVYicOpf6dOYdfucJiAUxulmuYxUjdIzoNg
+	 rv5OilXcNBVStDgu4CYEBWfv8QrLAI7K0VbMfOL+gk/FQ5MrHdl540MrndCpVvuVnX
+	 7099wIC/Jq/PwBwkwpUYCjiluxA04ZhHxA2VwN2NdOyoYvtGtPBJorxsEY9l/w9orN
+	 6Z7TkSd+Kro/w==
+Date: Thu, 15 May 2025 17:33:07 +0100
+From: Will Deacon <will@kernel.org>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexandre Ghiti <alex@ghiti.fr>, Alim Akhtar <alim.akhtar@samsung.com>,
+	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+	Janne Grunau <j@jannau.net>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Joerg Roedel <joro@8bytes.org>, Kevin Tian <kevin.tian@intel.com>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Rob Clark <robdclark@gmail.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Samuel Holland <samuel@sholland.org>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Sven Peter <sven@svenpeter.dev>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Tomasz Jeznach <tjeznach@rivosinc.com>,
+	Krishna Reddy <vdumpa@nvidia.com>, virtualization@lists.linux.dev,
+	Chen-Yu Tsai <wens@csie.org>, Yong Wu <yong.wu@mediatek.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>, patches@lists.linux.dev
+Subject: Re: [PATCH 0/7] Remove ops.pgsize_bitmap
+Message-ID: <20250515163307.GA12396@willie-the-truck>
+References: <0-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 
-On Wed, 14 May 2025 13:44:33 +0800 Tang Longjun wrote:
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index e53ba600605a..c9a86f325619 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -4897,7 +4897,7 @@ static int __virtnet_get_hw_stats(struct virtnet_info *vi,
->  					&sgs_out, &sgs_in);
->  
->  	if (!ok)
-> -		return ok;
-> +		return 1;
+On Tue, Apr 29, 2025 at 11:34:10AM -0300, Jason Gunthorpe wrote:
+> Now that all drivers are using domain_alloc_paging() and dev is never
+> NULL, we can have all drivers correctly set domain.pgsize_bitmap during
+> their allocation function.
+> 
+> There are a few oddities that have accumulated here over past changes:
+> 
+>  - Some drivers always set domain.pgsize_bitmap during their
+>    domain_alloc_paging() call but still provide a value in ops. This is dead
+>    code, delete it.
+> 
+>  - Some drivers calculate a system global pgsize_bitmap in the ops, but
+>    it is now trivial to use the per-instance value instead. In several
+>    cases this is dead code, delete it. This also allows
+>    constifying the ops in these drivers as a hardening measure
+> 
+>  - Some drivers have a fixed pgsize_bitmap, put it next to setting up the
+>    geometry in their domain_alloc_paging() functions.
+> 
+>  - Finally a few drivers still use ops because they have a delayed
+>    finalize operation. Set the constant pgsize_bitmap in the
+>    domain_alloc_paging().
+> 
+> Then remove ops.pgsize_bitmap.
+> 
+> This is based on iommu next, and must go after the virtio
+> domain_alloc_paging() conversion.
+> 
+> Jason Gunthorpe (7):
+>   iommu/arm-smmu-v3: Remove iommu_ops pgsize_bitmap
+>   iommu/arm-smmu: Remove iommu_ops pgsize_bitmap
 
-This makes sense, looks like a typo in the original code.
-But we are now returning the reverse polarity of "ok", so we should
-probably rename the variable in virtnet_get_hw_stats() ok -> failed
-Or invert the polarity here and in virtnet_get_hw_stats()
+These two SMMU changes look correct to me:
 
->  	for (p = reply; p - reply < res_size; p += le16_to_cpu(hdr->size)) {
->  		hdr = p;
-> @@ -4937,7 +4937,7 @@ static int virtnet_get_hw_stats(struct virtnet_info *vi,
->  	int ok;
->  
->  	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_DEVICE_STATS))
-> -		return 0;
-> +		return -EOPNOTSUPP;
+Acked-by: Will Deacon <will@kernel.org>
 
-IDK about this part. We should not spam the logs if the device does not
-support a feature. We should instead skip reporting the relevant stats.
-User can tell that those stats are not supported from the fact they are
-not present.
--- 
-pw-bot: cr
+Please yell if you'd like me to pick them up separately from the rest
+of the series.
+
+Will
