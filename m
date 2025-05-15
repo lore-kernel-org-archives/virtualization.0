@@ -1,352 +1,149 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B3C128030E
-	for <virtualization@lists.linux.dev>; Thu, 15 May 2025 07:52:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE141F461A
+	for <virtualization@lists.linux.dev>; Thu, 15 May 2025 08:36:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747295576; cv=none; b=dkkCb5brTeAL8rAlDr0cj7Vc4pJbZ5ygnDjygSnPk+PfIQFcBCJlu20D9758MX7DeJFCm14J/c0drLAfeX5l9In3Zywh8lDSQTWj3sQjj/zl/dZ05o6ymv1EgIrnYWkx0OVDSACYocszKu1E+yFAiirmVUctF9Mzua+xm46sAG4=
+	t=1747298213; cv=none; b=YYDLlHPeEfj+RWPEfJ9U8/W9JdWYmBhCSZVsasoxp29uL3DQd9aEFVJasonZubBs4AvLtRjIYUBOIh+OCmV68JXi5AhbYbyxktLKVXCR/AMtbcwmHZJk3vgvGDW+kxO6mrydIUPm0NZYONdr44LsmrgtYk0S25d4yjl/3vLI6Ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747295576; c=relaxed/simple;
-	bh=eb+wlR6VhvXrZxjAcmXbXZfUEYlOr+TaIdA3h+BHceE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LOn3GUiuYGZGeqV/kMN7mw6txAFeRz44dPBtvujiXlmRh1RVytnCkJA1yTjN9D0E3ivrLpsCdTKNXzooh8we+9olBMY9qQEmYio0lzBoqtzMR648R48HU9o8/J7iyUp5+5Pog09K0msIfC/5U1lb6gzl8z8JrqIHsoanG0+fLzQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IzvIJ9XX; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1747298213; c=relaxed/simple;
+	bh=+c9NGYmiEkqdCnm5003uXEFhtfdeTB7uo/kvDiYpTHE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SMXxkVm3/QaxLXyjroGpbYBKWMS/wOtW0IGsxE7vsjCzsioKNvkT1aTajLMS7KVL/zpUmSuPJU0VG3L4aMXlXwjdPWhqL3RgF91UULRXOJFHnTZEvJn2oKkjjxoRYopsEuKV2Fwseis1kOwdG/6Da7qBcxaC+3HFhFh3Kj82JXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=aqC1eiDN; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=J/xY8Bkn; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=aqC1eiDN; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=J/xY8Bkn; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IzvIJ9XX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747295572;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="aqC1eiDN";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="J/xY8Bkn";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="aqC1eiDN";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="J/xY8Bkn"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 709EE211B5;
+	Thu, 15 May 2025 08:36:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1747298209; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=eb+wlR6VhvXrZxjAcmXbXZfUEYlOr+TaIdA3h+BHceE=;
-	b=IzvIJ9XXCSxHEXmnAqFvYCvZ8eAo6hOXvyTq3Wj3voyl6bPBqGkoHMNS8I6qu8xPHB5o/b
-	cVvntRjbyRP3v2LUNR3nym99r9/tkb+stFfTImmDqa+LPEeIK1ltiJ0PmHOkcjyh9HxCnp
-	UQbRFEiCHA5lzLbrbSq/b9xx5EEWgbU=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-475-Ho-kokNAP3GjpAm_fYOqAw-1; Thu, 15 May 2025 03:52:51 -0400
-X-MC-Unique: Ho-kokNAP3GjpAm_fYOqAw-1
-X-Mimecast-MFC-AGG-ID: Ho-kokNAP3GjpAm_fYOqAw_1747295571
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-30ab4d56096so828056a91.0
-        for <virtualization@lists.linux.dev>; Thu, 15 May 2025 00:52:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747295570; x=1747900370;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=eb+wlR6VhvXrZxjAcmXbXZfUEYlOr+TaIdA3h+BHceE=;
-        b=p05oaP0pKx4l5ufa+PeEPhTU3MWgKE9cuDloGQ+pD+iZ618iIhWgO8h187kaAhA9Ky
-         XG51rDKGhIXn4aAcBB49pVUcNLftltbIdN+LjoAE0lK4V8hArMwuc2KuwPxAUQHgHc8S
-         oq0V5d7jnLZu6pV7QyaUsHCf2BRiKDHsvkkI5XDTNGUV0RML90KVJ9e/hlJPP9CXubFK
-         vip2V73LJkAUWn5+OYKKmmUo1JxhgaIZvneShrBBaa136nGXUbTBi+iQCfIVDSOxbsGH
-         l+lS1lG53T2X4YzMFZXFUMnm9VmTIWKnqQHMsWTqVa5qYVCRRUgNJGCES+mpimB9KSlz
-         hp6g==
-X-Forwarded-Encrypted: i=1; AJvYcCUOFPM/ocF58JAqgvDX/PbpdCjHeulVu9yTgmw0TFu7C+zwmHVK8a0nX8OCRe6K75bfVekq7594GvXfG916ag==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyd8DFqYYZpAnq8KAS/8JYOSnvjNkqzArCo8Wi6R9/vEcYIBkSP
-	y+rx9ua+sO7HQvnSTIYz24p8ih7FDiiQrc3C6vBGedTF66RE+5lNeZa2zd9Vv/xXXaR3SpnE9Qx
-	9iMr3TMIm0NBwNbjsafu/EdABeB3UwP+iosJE9qrwYXyKv1NfzroAr5Uh03xri+jDojITHQdkgC
-	dEBTiWEVptV7rJ+TNckQypqffOY6Xqlex8TykMgbU=
-X-Gm-Gg: ASbGncthHbTu5rozVtGHoxF4WKgW7mVzhy7/tezlWyIekZwQF0HTnKAYw5DvtKds2w8
-	MQjU1ZGOpLHYAkxyKdf+SBSwI/vzhc9GqYKJvGqgCfa7ctqi8TJPF3R2vaNmq44qnVyoU
-X-Received: by 2002:a17:90b:5748:b0:30e:5c7f:5d26 with SMTP id 98e67ed59e1d1-30e5c7f5e1cmr1092167a91.24.1747295570395;
-        Thu, 15 May 2025 00:52:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEPfseK+eDrNin6aeBitCZZLriHMOdldIb61D6rL2kRvicPYUO6lNTIgEIIN2iOKGqmJOl/hc7b+UCsh2aPCts=
-X-Received: by 2002:a17:90b:5748:b0:30e:5c7f:5d26 with SMTP id
- 98e67ed59e1d1-30e5c7f5e1cmr1092136a91.24.1747295569920; Thu, 15 May 2025
- 00:52:49 -0700 (PDT)
+	bh=Kvzf/cT7kFTGGu4qe+BKuApOCbvOUKO36BdytQuX9bg=;
+	b=aqC1eiDNM7x3s6EozlAR5OWCQviVaAtCIVVgIiVqcB5WImfCQcQSz6EKUql/QHKN5ac2ld
+	bqwy15BWMFuXP6q/FvItc1ldfOdTVkAafcpVQ2xzORslHnbLpp4moQX3Z7VPcHwnkoO917
+	WandeC9N+tQ+ikWVdzmqhgEDCjiAF7I=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1747298209;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Kvzf/cT7kFTGGu4qe+BKuApOCbvOUKO36BdytQuX9bg=;
+	b=J/xY8BknbdxEFblaXLWVlGBNQFfjNKxZQlySvLAf7Ew69O48nQxw0BiCJEwyMZTGwEUpIE
+	S+1f4MolWlZmm2Cg==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=aqC1eiDN;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="J/xY8Bkn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1747298209; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Kvzf/cT7kFTGGu4qe+BKuApOCbvOUKO36BdytQuX9bg=;
+	b=aqC1eiDNM7x3s6EozlAR5OWCQviVaAtCIVVgIiVqcB5WImfCQcQSz6EKUql/QHKN5ac2ld
+	bqwy15BWMFuXP6q/FvItc1ldfOdTVkAafcpVQ2xzORslHnbLpp4moQX3Z7VPcHwnkoO917
+	WandeC9N+tQ+ikWVdzmqhgEDCjiAF7I=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1747298209;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Kvzf/cT7kFTGGu4qe+BKuApOCbvOUKO36BdytQuX9bg=;
+	b=J/xY8BknbdxEFblaXLWVlGBNQFfjNKxZQlySvLAf7Ew69O48nQxw0BiCJEwyMZTGwEUpIE
+	S+1f4MolWlZmm2Cg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4A0B6137E8;
+	Thu, 15 May 2025 08:36:49 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id uh33EKGnJWgzPAAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Thu, 15 May 2025 08:36:49 +0000
+Date: Thu, 15 May 2025 10:36:40 +0200
+From: Daniel Wagner <dwagner@suse.de>
+To: Ming Lei <ming.lei@redhat.com>
+Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
+	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
+	Thomas Gleixner <tglx@linutronix.de>, Costa Shulyupin <costa.shul@redhat.com>, 
+	Juri Lelli <juri.lelli@redhat.com>, Valentin Schneider <vschneid@redhat.com>, 
+	Waiman Long <llong@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, 
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
+	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
+	storagedev@microchip.com, virtualization@lists.linux.dev, 
+	GR-QLogic-Storage-Upstream@marvell.com
+Subject: Re: [PATCH v6 8/9] blk-mq: use hk cpus only when isolcpus=io_queue
+ is enabled
+Message-ID: <8c162a99-05f5-408c-b513-4005690d56a2@flourine.local>
+References: <20250424-isolcpus-io-queues-v6-0-9a53a870ca1f@kernel.org>
+ <20250424-isolcpus-io-queues-v6-8-9a53a870ca1f@kernel.org>
+ <aB1qqNDEnHMlpMH_@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250404145241.1125078-1-jon@nutanix.com> <CACGkMEsFc-URhXBCGZ1=CTMZKcWPf57pYy1TcyKLL=N65u+F0Q@mail.gmail.com>
- <B32E2C5D-25FB-427F-8567-701C152DFDE6@nutanix.com> <CACGkMEucg5mduA-xoyrTRK5nOkdHvUAkG9fH6KpO=HxMVPYONA@mail.gmail.com>
- <CAJaqyWdhLCNs_B0gcxXHut7xufw23HMR6PaO11mqAQFoGkdfXQ@mail.gmail.com>
- <92470838-2B98-4FC6-8E5B-A8AF14965D4C@nutanix.com> <A2A66437-60B2-491E-96F7-CD302E90452F@nutanix.com>
-In-Reply-To: <A2A66437-60B2-491E-96F7-CD302E90452F@nutanix.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 15 May 2025 09:52:12 +0200
-X-Gm-Features: AX0GCFvxwoG_KF2kIsCofHB3OnMAdD648vC3tjuloR2Wyw6ADVoQtW7FrhQDNsw
-Message-ID: <CAJaqyWcNNFRnFmmkEHhOPGWAL05P1EO1ebMJY8+YUC0jxyq3hg@mail.gmail.com>
-Subject: Re: [PATCH] vhost/net: remove zerocopy support
-To: Jon Kohler <jon@nutanix.com>
-Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stefano Brivio <sbrivio@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: S1tM_S4Htkb5c5H-q_xnnpu_6xv_7OSxi-sJKmzTzFg_1747295571
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aB1qqNDEnHMlpMH_@fedora>
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: 709EE211B5
+X-Spam-Flag: NO
+X-Spam-Score: -4.51
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_TWELVE(0.00)[25];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MISSING_XM_UA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Action: no action
 
-On Mon, May 12, 2025 at 5:21=E2=80=AFPM Jon Kohler <jon@nutanix.com> wrote:
->
->
->
-> > On Apr 30, 2025, at 9:21=E2=80=AFPM, Jon Kohler <jon@nutanix.com> wrote=
-:
-> >
-> >
-> >
-> >> On Apr 16, 2025, at 6:15=E2=80=AFAM, Eugenio Perez Martin <eperezma@re=
-dhat.com> wrote:
-> >>
-> >> !-------------------------------------------------------------------|
-> >> CAUTION: External Email
-> >>
-> >> |-------------------------------------------------------------------!
-> >>
-> >> On Tue, Apr 8, 2025 at 8:28=E2=80=AFAM Jason Wang <jasowang@redhat.com=
-> wrote:
-> >>>
-> >>> On Tue, Apr 8, 2025 at 9:18=E2=80=AFAM Jon Kohler <jon@nutanix.com> w=
-rote:
-> >>>>
-> >>>>
-> >>>>
-> >>>>> On Apr 6, 2025, at 7:14=E2=80=AFPM, Jason Wang <jasowang@redhat.com=
-> wrote:
-> >>>>>
-> >>>>> !------------------------------------------------------------------=
--|
-> >>>>> CAUTION: External Email
-> >>>>>
-> >>>>> |------------------------------------------------------------------=
--!
-> >>>>>
-> >>>>> On Fri, Apr 4, 2025 at 10:24=E2=80=AFPM Jon Kohler <jon@nutanix.com=
-> wrote:
-> >>>>>>
-> >>>>>> Commit 098eadce3c62 ("vhost_net: disable zerocopy by default") dis=
-abled
-> >>>>>> the module parameter for the handle_tx_zerocopy path back in 2019,
-> >>>>>> nothing that many downstream distributions (e.g., RHEL7 and later)=
- had
-> >>>>>> already done the same.
-> >>>>>>
-> >>>>>> Both upstream and downstream disablement suggest this path is rare=
-ly
-> >>>>>> used.
-> >>>>>>
-> >>>>>> Testing the module parameter shows that while the path allows pack=
-et
-> >>>>>> forwarding, the zerocopy functionality itself is broken. On outbou=
-nd
-> >>>>>> traffic (guest TX -> external), zerocopy SKBs are orphaned by eith=
-er
-> >>>>>> skb_orphan_frags_rx() (used with the tun driver via tun_net_xmit()=
-)
-> >>>>>
-> >>>>> This is by design to avoid DOS.
-> >>>>
-> >>>> I understand that, but it makes ZC non-functional in general, as ZC =
-fails
-> >>>> and immediately increments the error counters.
-> >>>
-> >>> The main issue is HOL, but zerocopy may still work in some setups tha=
-t
-> >>> don't need to care about HOL. One example the macvtap passthrough
-> >>> mode.
-> >>>
-> >>>>
-> >>>>>
-> >>>>>> or
-> >>>>>> skb_orphan_frags() elsewhere in the stack,
-> >>>>>
-> >>>>> Basically zerocopy is expected to work for guest -> remote case, so
-> >>>>> could we still hit skb_orphan_frags() in this case?
-> >>>>
-> >>>> Yes, you=E2=80=99d hit that in tun_net_xmit().
-> >>>
-> >>> Only for local VM to local VM communication.
-> >
-> > Sure, but the tricky bit here is that if you have a mix of VM-VM and VM=
--external
-> > traffic patterns, any time the error path is hit, the zc error counter =
-will go up.
-> >
-> > When that happens, ZC will get silently disabled anyhow, so it leads to=
- sporadic
-> > success / non-deterministic performance.
-> >
-> >>>
-> >>>> If you punch a hole in that *and* in the
-> >>>> zc error counter (such that failed ZC doesn=E2=80=99t disable ZC in =
-vhost), you get ZC
-> >>>> from vhost; however, the network interrupt handler under net_tx_acti=
-on and
-> >>>> eventually incurs the memcpy under dev_queue_xmit_nit().
-> >>>
-> >>> Well, yes, we need a copy if there's a packet socket. But if there's
-> >>> no network interface taps, we don't need to do the copy here.
-> >>>
-> >
-> > Agreed on the packet socket side. I recently fixed an issue in lldpd [1=
-] that prevented
-> > this specific case; however, there are still other trip wires spread ou=
-t across the
-> > stack that would need to be addressed.
-> >
-> > [1] https://github.com/lldpd/lldpd/commit/622a91144de4ae487ceebdb333863=
-e9f660e0717
-> >
-> >>
-> >> Hi!
-> >>
-> >> I need more time diving into the issues. As Jon mentioned, vhost ZC is
-> >> so little used I didn't have the chance to experiment with this until
-> >> now :). But yes, I expect to be able to overcome these for pasta, by
-> >> adapting buffer sizes or modifying code etc.
-> >
-> > Another tricky bit here is that it has been disabled both upstream and =
-downstream
-> > for so long, the code naturally has a bit of wrench-in-the-engine.
-> >
-> > RE Buffer sizes: I tried this as well, because I think on sufficiently =
-fast systems,
-> > zero copy gets especially interesting in GSO/TSO cases where you have m=
-ega
-> > payloads.
-> >
-> > I tried playing around with the good copy value such that ZC restricted=
- itself to
-> > only lets say 32K payloads and above, and while it *does* work (with en=
-ough
-> > holes punched in), absolute t-put doesn=E2=80=99t actually go up, its j=
-ust that CPU utilization
-> > goes down a pinch. Not a bad thing for certain, but still not great.
-> >
-> > In fact, I found that tput actually went down with this path, even with=
- ZC occurring
-> > successfully, as there was still a mix of ZC and non-ZC because you can=
- only
-> > have so many pending at any given time before the copy path kicks in ag=
-ain.
-> >
-> >
-> >>
-> >>>>
-> >>>> This is no more performant, and in fact is actually worse since the =
-time spent
-> >>>> waiting on that memcpy to resolve is longer.
-> >>>>
-> >>>>>
-> >>>>>> as vhost_net does not set
-> >>>>>> SKBFL_DONT_ORPHAN.
-> >>>
-> >>> Maybe we can try to set this as vhost-net can hornor ulimit now.
-> >
-> > Yea I tried that, and while it helps kick things further down the stack=
-, its not actually
-> > faster in any testing I=E2=80=99ve drummed up.
-> >
-> >>>
-> >>>>>>
-> >>>>>> Orphaning enforces a memcpy and triggers the completion callback, =
-which
-> >>>>>> increments the failed TX counter, effectively disabling zerocopy a=
-gain.
-> >>>>>>
-> >>>>>> Even after addressing these issues to prevent SKB orphaning and er=
-ror
-> >>>>>> counter increments, performance remains poor. By default, only 64
-> >>>>>> messages can be zerocopied, which is immediately exhausted by work=
-loads
-> >>>>>> like iperf, resulting in most messages being memcpy'd anyhow.
-> >>>>>>
-> >>>>>> Additionally, memcpy'd messages do not benefit from the XDP batchi=
-ng
-> >>>>>> optimizations present in the handle_tx_copy path.
-> >>>>>>
-> >>>>>> Given these limitations and the lack of any tangible benefits, rem=
-ove
-> >>>>>> zerocopy entirely to simplify the code base.
-> >>>>>>
-> >>>>>> Signed-off-by: Jon Kohler <jon@nutanix.com>
-> >>>>>
-> >>>>> Any chance we can fix those issues? Actually, we had a plan to make
-> >>>>> use of vhost-net and its tx zerocopy (or even implement the rx
-> >>>>> zerocopy) in pasta.
-> >>>>
-> >>>> Happy to take direction and ideas here, but I don=E2=80=99t see a cl=
-ear way to fix these
-> >>>> issues, without dealing with the assertions that skb_orphan_frags_rx=
- calls out.
-> >>>>
-> >>>> Said another way, I=E2=80=99d be interested in hearing if there is a=
- config where ZC in
-> >>>> current host-net implementation works, as I was driving myself crazy=
- trying to
-> >>>> reverse engineer.
-> >>>
-> >>> See above.
-> >>>
-> >>>>
-> >>>> Happy to collaborate if there is something we could do here.
-> >>>
-> >>> Great, we can start here by seeking a way to fix the known issues of
-> >>> the vhost-net zerocopy code.
-> >>>
-> >>
-> >> Happy to help here :).
-> >>
-> >> Jon, could you share more details about the orphan problem so I can
-> >> speed up the help? For example, can you describe the code changes and
-> >> the code path that would lead to that assertion of
-> >> skb_orphan_frags_rx?
-> >>
-> >> Thanks!
-> >>
-> >
-> > Sorry for the slow response, getting back from holiday and catching up.
-> >
-> > When running through tun.c, there are a handful of places where ZC turn=
-s into
-> > a full copy, whether that is in the tun code itself, or in the interrup=
-t handler when
-> > tun xmit is running.
-> >
-> > For example, tun_net_xmit mandatorily calls skb_orphan_frags_rx. Anythi=
-ng
-> > with frags will get this memcpy, which are of course the =E2=80=9Cjuicy=
-=E2=80=9D targets here as
-> > they would take up the most memory bandwidth in general. Nasty catch22 =
-:)
-> >
-> > There are also plenty of places that call normal skb_orphan_frags, whic=
-h
-> > triggers because vhost doesn=E2=80=99t set SKBFL_DONT_ORPHAN. That=E2=
-=80=99s an easy
-> > fix, but still something to think about.
-> >
-> > Then there is the issue of packet sockets, which throw a king sized wre=
-nch into
-> > this. Its slightly insidious, but it isn=E2=80=99t directly apparent th=
-at loading some user
-> > space app nukes zero copy, but it happens.
-> >
-> > See my previous comment about LLDPD, where a simply compiler snafu caus=
-ed
-> > one socket option to get silently break, and it then ripped out ZC capa=
-bility. Easy
-> > fix, but its an example of how this can fall over.
-> >
-> > Bottom line, I=E2=80=99d *love****** have ZC work, work well and so on.=
- I=E2=80=99m open to ideas
-> > here :) (up to and including both A) fixing it and B) deleting it)
->
-> Hey Eugenio - wondering if you had a chance to check out my notes on this=
-?
->
+On Fri, May 09, 2025 at 10:38:32AM +0800, Ming Lei wrote:
+> > +static bool blk_mq_map_hk_queues(struct blk_mq_queue_map *qmap)
+> > +{
+> > +	struct cpumask *hk_masks;
+> > +	cpumask_var_t isol_mask;
+> > +	unsigned int queue, cpu, nr_masks;
+> > +
+> > +	if (!housekeeping_enabled(HK_TYPE_IO_QUEUE))
+> > +		return false;
+> 
+> It could be more readable to move the above check to the caller.
 
-Sorry I thought I was going to have the code ready by now :). I'll
-need more time to go through the items.
-
+I wanted to avoid checking if housekeeping is enabled twice in a row.
+I'll post the next version with your suggestion and see if this approach
+is better.
