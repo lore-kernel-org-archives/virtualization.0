@@ -1,171 +1,352 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A629E1E5713
-	for <virtualization@lists.linux.dev>; Thu, 15 May 2025 07:33:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B3C128030E
+	for <virtualization@lists.linux.dev>; Thu, 15 May 2025 07:52:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747294395; cv=none; b=ePXHiISIx4ZK9rpgQ9PwQpKOeu6oUyeuPQtbPSXExAOBsqlWfAABnnQFfIXq+oFZSmIBGQmT/MDLlGVtQIcsL4S1gwXTTOr49RWI1HriGhfdIqymEchH9PupelUQnME/G+jOxMqxWZ6IGE9pVbgohKNuS4GbU8NNf9cR7DiBSu8=
+	t=1747295576; cv=none; b=dkkCb5brTeAL8rAlDr0cj7Vc4pJbZ5ygnDjygSnPk+PfIQFcBCJlu20D9758MX7DeJFCm14J/c0drLAfeX5l9In3Zywh8lDSQTWj3sQjj/zl/dZ05o6ymv1EgIrnYWkx0OVDSACYocszKu1E+yFAiirmVUctF9Mzua+xm46sAG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747294395; c=relaxed/simple;
-	bh=JNzgfSL4CsTGy1bjrPz4RxndSl0WA53cyHjzmh8RFj4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jl5dlnMWnOrGX3SF8rphUimbMdKh22Esvk7xnTVPtCx2gxG7q8EnhLViwXTNaVfWtKEwoRTgbolTe6l5wrDB++9wfBh6DtqmsdudKlI9j9CSnMgXFHI5DKJjywSMG7RW8t0zM6c2pjHQa3rVxsXYXFOWFG65tg0QbriHj46O2RU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=OeZftPa4; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1747295576; c=relaxed/simple;
+	bh=eb+wlR6VhvXrZxjAcmXbXZfUEYlOr+TaIdA3h+BHceE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=LOn3GUiuYGZGeqV/kMN7mw6txAFeRz44dPBtvujiXlmRh1RVytnCkJA1yTjN9D0E3ivrLpsCdTKNXzooh8we+9olBMY9qQEmYio0lzBoqtzMR648R48HU9o8/J7iyUp5+5Pog09K0msIfC/5U1lb6gzl8z8JrqIHsoanG0+fLzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IzvIJ9XX; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="OeZftPa4"
-Received: from [192.168.7.202] ([71.202.166.45])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 54F7WfsF3336298
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Thu, 15 May 2025 00:32:41 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 54F7WfsF3336298
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025042001; t=1747294363;
-	bh=FTKlSsiJd9+jpos7AVLXF8LAqgwtfl1Qy7H7vRzCDXE=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=OeZftPa4P2RcLNrfq7mYvwL9TgxRMcLlkVGZC6h8vETFbJVCjpBbzmpzH5AR13wKx
-	 15mv9dkcpvv5ouP63h6d4FyAbbBv4ahXZZT/mJEs0YcVe4dSsuiidCYyb5eLIFmmab
-	 KZh7WExvvM7f5dcUXiiH4kI087BVfYMnwIxDBqPfWZBau2sgqY1q7vFYn0CwCYjxM9
-	 k2IdZTAsWYVBOheuyRj88cuKgPcjoyTQbvMyOTslRINSkfMVXRDIiVGVCAqieKjmOF
-	 vIstWyCK+xY4GqiDXwaoMJ8FcLhCdyf9Y7Wv9kaBeH/qOTfV0h+xsRne4kDWAibHx3
-	 4HrOazqt1wu0g==
-Message-ID: <652dfd63-e41c-4d7a-8fea-40509e8191ef@zytor.com>
-Date: Thu, 15 May 2025 00:32:40 -0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IzvIJ9XX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1747295572;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eb+wlR6VhvXrZxjAcmXbXZfUEYlOr+TaIdA3h+BHceE=;
+	b=IzvIJ9XXCSxHEXmnAqFvYCvZ8eAo6hOXvyTq3Wj3voyl6bPBqGkoHMNS8I6qu8xPHB5o/b
+	cVvntRjbyRP3v2LUNR3nym99r9/tkb+stFfTImmDqa+LPEeIK1ltiJ0PmHOkcjyh9HxCnp
+	UQbRFEiCHA5lzLbrbSq/b9xx5EEWgbU=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-475-Ho-kokNAP3GjpAm_fYOqAw-1; Thu, 15 May 2025 03:52:51 -0400
+X-MC-Unique: Ho-kokNAP3GjpAm_fYOqAw-1
+X-Mimecast-MFC-AGG-ID: Ho-kokNAP3GjpAm_fYOqAw_1747295571
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-30ab4d56096so828056a91.0
+        for <virtualization@lists.linux.dev>; Thu, 15 May 2025 00:52:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747295570; x=1747900370;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eb+wlR6VhvXrZxjAcmXbXZfUEYlOr+TaIdA3h+BHceE=;
+        b=p05oaP0pKx4l5ufa+PeEPhTU3MWgKE9cuDloGQ+pD+iZ618iIhWgO8h187kaAhA9Ky
+         XG51rDKGhIXn4aAcBB49pVUcNLftltbIdN+LjoAE0lK4V8hArMwuc2KuwPxAUQHgHc8S
+         oq0V5d7jnLZu6pV7QyaUsHCf2BRiKDHsvkkI5XDTNGUV0RML90KVJ9e/hlJPP9CXubFK
+         vip2V73LJkAUWn5+OYKKmmUo1JxhgaIZvneShrBBaa136nGXUbTBi+iQCfIVDSOxbsGH
+         l+lS1lG53T2X4YzMFZXFUMnm9VmTIWKnqQHMsWTqVa5qYVCRRUgNJGCES+mpimB9KSlz
+         hp6g==
+X-Forwarded-Encrypted: i=1; AJvYcCUOFPM/ocF58JAqgvDX/PbpdCjHeulVu9yTgmw0TFu7C+zwmHVK8a0nX8OCRe6K75bfVekq7594GvXfG916ag==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyd8DFqYYZpAnq8KAS/8JYOSnvjNkqzArCo8Wi6R9/vEcYIBkSP
+	y+rx9ua+sO7HQvnSTIYz24p8ih7FDiiQrc3C6vBGedTF66RE+5lNeZa2zd9Vv/xXXaR3SpnE9Qx
+	9iMr3TMIm0NBwNbjsafu/EdABeB3UwP+iosJE9qrwYXyKv1NfzroAr5Uh03xri+jDojITHQdkgC
+	dEBTiWEVptV7rJ+TNckQypqffOY6Xqlex8TykMgbU=
+X-Gm-Gg: ASbGncthHbTu5rozVtGHoxF4WKgW7mVzhy7/tezlWyIekZwQF0HTnKAYw5DvtKds2w8
+	MQjU1ZGOpLHYAkxyKdf+SBSwI/vzhc9GqYKJvGqgCfa7ctqi8TJPF3R2vaNmq44qnVyoU
+X-Received: by 2002:a17:90b:5748:b0:30e:5c7f:5d26 with SMTP id 98e67ed59e1d1-30e5c7f5e1cmr1092167a91.24.1747295570395;
+        Thu, 15 May 2025 00:52:50 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEPfseK+eDrNin6aeBitCZZLriHMOdldIb61D6rL2kRvicPYUO6lNTIgEIIN2iOKGqmJOl/hc7b+UCsh2aPCts=
+X-Received: by 2002:a17:90b:5748:b0:30e:5c7f:5d26 with SMTP id
+ 98e67ed59e1d1-30e5c7f5e1cmr1092136a91.24.1747295569920; Thu, 15 May 2025
+ 00:52:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/6] x86/paravirt: Switch MSR access pv_ops functions to
- instruction interfaces
-To: "H. Peter Anvin" <hpa@zytor.com>,
-        =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?=
- <jgross@suse.com>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        virtualization@lists.linux.dev, Peter Zijlstra <peterz@infradead.org>
-Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
-        Alexey Makhalov <alexey.amakhalov@broadcom.com>,
-        Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>,
-        Thomas Gleixner
- <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        xen-devel@lists.xenproject.org
-References: <20250506092015.1849-1-jgross@suse.com>
- <20250506092015.1849-6-jgross@suse.com>
- <722f5b30-20e9-4540-98e4-d211d7c44cbe@zytor.com>
- <9f4e33d5-9cb3-4079-b764-87a15265fd52@suse.com>
- <ff567466-a46a-4f66-935a-8fae1140c1a2@suse.com>
- <eb077393-ea95-4ac0-9479-980e227f7bff@zytor.com>
- <6cc20ef6-d8e5-4c74-89d9-6a949c84b397@suse.com>
- <DDA7C560-1BD9-40A6-8B93-28D5AC10EBB2@zytor.com>
-Content-Language: en-US
-From: Xin Li <xin@zytor.com>
-Autocrypt: addr=xin@zytor.com; keydata=
- xsDNBGUPz1cBDACS/9yOJGojBFPxFt0OfTWuMl0uSgpwk37uRrFPTTLw4BaxhlFL0bjs6q+0
- 2OfG34R+a0ZCuj5c9vggUMoOLdDyA7yPVAJU0OX6lqpg6z/kyQg3t4jvajG6aCgwSDx5Kzg5
- Rj3AXl8k2wb0jdqRB4RvaOPFiHNGgXCs5Pkux/qr0laeFIpzMKMootGa4kfURgPhRzUaM1vy
- bsMsL8vpJtGUmitrSqe5dVNBH00whLtPFM7IbzKURPUOkRRiusFAsw0a1ztCgoFczq6VfAVu
- raTye0L/VXwZd+aGi401V2tLsAHxxckRi9p3mc0jExPc60joK+aZPy6amwSCy5kAJ/AboYtY
- VmKIGKx1yx8POy6m+1lZ8C0q9b8eJ8kWPAR78PgT37FQWKYS1uAroG2wLdK7FiIEpPhCD+zH
- wlslo2ETbdKjrLIPNehQCOWrT32k8vFNEMLP5G/mmjfNj5sEf3IOKgMTMVl9AFjsINLHcxEQ
- 6T8nGbX/n3msP6A36FDfdSEAEQEAAc0WWGluIExpIDx4aW5Aenl0b3IuY29tPsLBDQQTAQgA
- NxYhBIUq/WFSDTiOvUIqv2u9DlcdrjdRBQJlD89XBQkFo5qAAhsDBAsJCAcFFQgJCgsFFgID
- AQAACgkQa70OVx2uN1HUpgv/cM2fsFCQodLArMTX5nt9yqAWgA5t1srri6EgS8W3F+3Kitge
- tYTBKu6j5BXuXaX3vyfCm+zajDJN77JHuYnpcKKr13VcZi1Swv6Jx1u0II8DOmoDYLb1Q2ZW
- v83W55fOWJ2g72x/UjVJBQ0sVjAngazU3ckc0TeNQlkcpSVGa/qBIHLfZraWtdrNAQT4A1fa
- sWGuJrChBFhtKbYXbUCu9AoYmmbQnsx2EWoJy3h7OjtfFapJbPZql+no5AJ3Mk9eE5oWyLH+
- QWqtOeJM7kKvn/dBudokFSNhDUw06e7EoVPSJyUIMbYtUO7g2+Atu44G/EPP0yV0J4lRO6EA
- wYRXff7+I1jIWEHpj5EFVYO6SmBg7zF2illHEW31JAPtdDLDHYcZDfS41caEKOQIPsdzQkaQ
- oW2hchcjcMPAfyhhRzUpVHLPxLCetP8vrVhTvnaZUo0xaVYb3+wjP+D5j/3+hwblu2agPsaE
- vgVbZ8Fx3TUxUPCAdr/p73DGg57oHjgezsDNBGUPz1gBDAD4Mg7hMFRQqlzotcNSxatlAQNL
- MadLfUTFz8wUUa21LPLrHBkUwm8RujehJrzcVbPYwPXIO0uyL/F///CogMNx7Iwo6by43KOy
- g89wVFhyy237EY76j1lVfLzcMYmjBoTH95fJC/lVb5Whxil6KjSN/R/y3jfG1dPXfwAuZ/4N
- cMoOslWkfZKJeEut5aZTRepKKF54T5r49H9F7OFLyxrC/uI9UDttWqMxcWyCkHh0v1Di8176
- jjYRNTrGEfYfGxSp+3jYL3PoNceIMkqM9haXjjGl0W1B4BidK1LVYBNov0rTEzyr0a1riUrp
- Qk+6z/LHxCM9lFFXnqH7KWeToTOPQebD2B/Ah5CZlft41i8L6LOF/LCuDBuYlu/fI2nuCc8d
- m4wwtkou1Y/kIwbEsE/6RQwRXUZhzO6llfoN96Fczr/RwvPIK5SVMixqWq4QGFAyK0m/1ap4
- bhIRrdCLVQcgU4glo17vqfEaRcTW5SgX+pGs4KIPPBE5J/ABD6pBnUUAEQEAAcLA/AQYAQgA
- JhYhBIUq/WFSDTiOvUIqv2u9DlcdrjdRBQJlD89ZBQkFo5qAAhsMAAoJEGu9DlcdrjdR4C0L
- /RcjolEjoZW8VsyxWtXazQPnaRvzZ4vhmGOsCPr2BPtMlSwDzTlri8BBG1/3t/DNK4JLuwEj
- OAIE3fkkm+UG4Kjud6aNeraDI52DRVCSx6xff3bjmJsJJMb12mWglN6LjdF6K+PE+OTJUh2F
- dOhslN5C2kgl0dvUuevwMgQF3IljLmi/6APKYJHjkJpu1E6luZec/lRbetHuNFtbh3xgFIJx
- 2RpgVDP4xB3f8r0I+y6ua+p7fgOjDLyoFjubRGed0Be45JJQEn7A3CSb6Xu7NYobnxfkwAGZ
- Q81a2XtvNS7Aj6NWVoOQB5KbM4yosO5+Me1V1SkX2jlnn26JPEvbV3KRFcwV5RnDxm4OQTSk
- PYbAkjBbm+tuJ/Sm+5Yp5T/BnKz21FoCS8uvTiziHj2H7Cuekn6F8EYhegONm+RVg3vikOpn
- gao85i4HwQTK9/D1wgJIQkdwWXVMZ6q/OALaBp82vQ2U9sjTyFXgDjglgh00VRAHP7u1Rcu4
- l75w1xInsg==
-In-Reply-To: <DDA7C560-1BD9-40A6-8B93-28D5AC10EBB2@zytor.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20250404145241.1125078-1-jon@nutanix.com> <CACGkMEsFc-URhXBCGZ1=CTMZKcWPf57pYy1TcyKLL=N65u+F0Q@mail.gmail.com>
+ <B32E2C5D-25FB-427F-8567-701C152DFDE6@nutanix.com> <CACGkMEucg5mduA-xoyrTRK5nOkdHvUAkG9fH6KpO=HxMVPYONA@mail.gmail.com>
+ <CAJaqyWdhLCNs_B0gcxXHut7xufw23HMR6PaO11mqAQFoGkdfXQ@mail.gmail.com>
+ <92470838-2B98-4FC6-8E5B-A8AF14965D4C@nutanix.com> <A2A66437-60B2-491E-96F7-CD302E90452F@nutanix.com>
+In-Reply-To: <A2A66437-60B2-491E-96F7-CD302E90452F@nutanix.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 15 May 2025 09:52:12 +0200
+X-Gm-Features: AX0GCFvxwoG_KF2kIsCofHB3OnMAdD648vC3tjuloR2Wyw6ADVoQtW7FrhQDNsw
+Message-ID: <CAJaqyWcNNFRnFmmkEHhOPGWAL05P1EO1ebMJY8+YUC0jxyq3hg@mail.gmail.com>
+Subject: Re: [PATCH] vhost/net: remove zerocopy support
+To: Jon Kohler <jon@nutanix.com>
+Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stefano Brivio <sbrivio@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: S1tM_S4Htkb5c5H-q_xnnpu_6xv_7OSxi-sJKmzTzFg_1747295571
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 5/13/2025 3:24 PM, H. Peter Anvin wrote:
-> On May 12, 2025 11:06:02 PM PDT, "Jürgen Groß" <jgross@suse.com> wrote:
->> On 13.05.25 07:55, Xin Li wrote:
->>> On 5/12/2025 4:24 AM, Juergen Gross wrote:
->>>> Now with the mentioned patch really attached. :-)
->>>>
->>>
->>> Does it allow patching with an instruction more than 6 bytes long?
->>>
->>> The immediate form MSR instructions are 9 bytes long.
->>
->> Yes, shouldn't be a problem.
->>
->>
->> Juergen
-> 
-> However, it is more than that. The immediate instructions have a different interface, and it makes more sense to use the extra bytes to shuffle the bits around for the legacy forms:
-> 
-> Write:
-> 
->      mov %rax,%rdx
->      shr $32,%rdx
->      wrmsr(ns)
-> 
-> Read:
-> 
->      rdmsr
->      shl $32,%rdx
->      or %rdx,%rax
-> 
-> For the write case, this also means that two separate trap points are needed.
-> 
-> As far as Xen (the only user of pv msrs), note that it only paravirtualizes a very small number of MSRs, and some of those are fairly performance sensitive, so not going through the Xen framework for MSRs known to be either native or null on Xen would definitely be a win.
-> 
-> 
+On Mon, May 12, 2025 at 5:21=E2=80=AFPM Jon Kohler <jon@nutanix.com> wrote:
+>
+>
+>
+> > On Apr 30, 2025, at 9:21=E2=80=AFPM, Jon Kohler <jon@nutanix.com> wrote=
+:
+> >
+> >
+> >
+> >> On Apr 16, 2025, at 6:15=E2=80=AFAM, Eugenio Perez Martin <eperezma@re=
+dhat.com> wrote:
+> >>
+> >> !-------------------------------------------------------------------|
+> >> CAUTION: External Email
+> >>
+> >> |-------------------------------------------------------------------!
+> >>
+> >> On Tue, Apr 8, 2025 at 8:28=E2=80=AFAM Jason Wang <jasowang@redhat.com=
+> wrote:
+> >>>
+> >>> On Tue, Apr 8, 2025 at 9:18=E2=80=AFAM Jon Kohler <jon@nutanix.com> w=
+rote:
+> >>>>
+> >>>>
+> >>>>
+> >>>>> On Apr 6, 2025, at 7:14=E2=80=AFPM, Jason Wang <jasowang@redhat.com=
+> wrote:
+> >>>>>
+> >>>>> !------------------------------------------------------------------=
+-|
+> >>>>> CAUTION: External Email
+> >>>>>
+> >>>>> |------------------------------------------------------------------=
+-!
+> >>>>>
+> >>>>> On Fri, Apr 4, 2025 at 10:24=E2=80=AFPM Jon Kohler <jon@nutanix.com=
+> wrote:
+> >>>>>>
+> >>>>>> Commit 098eadce3c62 ("vhost_net: disable zerocopy by default") dis=
+abled
+> >>>>>> the module parameter for the handle_tx_zerocopy path back in 2019,
+> >>>>>> nothing that many downstream distributions (e.g., RHEL7 and later)=
+ had
+> >>>>>> already done the same.
+> >>>>>>
+> >>>>>> Both upstream and downstream disablement suggest this path is rare=
+ly
+> >>>>>> used.
+> >>>>>>
+> >>>>>> Testing the module parameter shows that while the path allows pack=
+et
+> >>>>>> forwarding, the zerocopy functionality itself is broken. On outbou=
+nd
+> >>>>>> traffic (guest TX -> external), zerocopy SKBs are orphaned by eith=
+er
+> >>>>>> skb_orphan_frags_rx() (used with the tun driver via tun_net_xmit()=
+)
+> >>>>>
+> >>>>> This is by design to avoid DOS.
+> >>>>
+> >>>> I understand that, but it makes ZC non-functional in general, as ZC =
+fails
+> >>>> and immediately increments the error counters.
+> >>>
+> >>> The main issue is HOL, but zerocopy may still work in some setups tha=
+t
+> >>> don't need to care about HOL. One example the macvtap passthrough
+> >>> mode.
+> >>>
+> >>>>
+> >>>>>
+> >>>>>> or
+> >>>>>> skb_orphan_frags() elsewhere in the stack,
+> >>>>>
+> >>>>> Basically zerocopy is expected to work for guest -> remote case, so
+> >>>>> could we still hit skb_orphan_frags() in this case?
+> >>>>
+> >>>> Yes, you=E2=80=99d hit that in tun_net_xmit().
+> >>>
+> >>> Only for local VM to local VM communication.
+> >
+> > Sure, but the tricky bit here is that if you have a mix of VM-VM and VM=
+-external
+> > traffic patterns, any time the error path is hit, the zc error counter =
+will go up.
+> >
+> > When that happens, ZC will get silently disabled anyhow, so it leads to=
+ sporadic
+> > success / non-deterministic performance.
+> >
+> >>>
+> >>>> If you punch a hole in that *and* in the
+> >>>> zc error counter (such that failed ZC doesn=E2=80=99t disable ZC in =
+vhost), you get ZC
+> >>>> from vhost; however, the network interrupt handler under net_tx_acti=
+on and
+> >>>> eventually incurs the memcpy under dev_queue_xmit_nit().
+> >>>
+> >>> Well, yes, we need a copy if there's a packet socket. But if there's
+> >>> no network interface taps, we don't need to do the copy here.
+> >>>
+> >
+> > Agreed on the packet socket side. I recently fixed an issue in lldpd [1=
+] that prevented
+> > this specific case; however, there are still other trip wires spread ou=
+t across the
+> > stack that would need to be addressed.
+> >
+> > [1] https://github.com/lldpd/lldpd/commit/622a91144de4ae487ceebdb333863=
+e9f660e0717
+> >
+> >>
+> >> Hi!
+> >>
+> >> I need more time diving into the issues. As Jon mentioned, vhost ZC is
+> >> so little used I didn't have the chance to experiment with this until
+> >> now :). But yes, I expect to be able to overcome these for pasta, by
+> >> adapting buffer sizes or modifying code etc.
+> >
+> > Another tricky bit here is that it has been disabled both upstream and =
+downstream
+> > for so long, the code naturally has a bit of wrench-in-the-engine.
+> >
+> > RE Buffer sizes: I tried this as well, because I think on sufficiently =
+fast systems,
+> > zero copy gets especially interesting in GSO/TSO cases where you have m=
+ega
+> > payloads.
+> >
+> > I tried playing around with the good copy value such that ZC restricted=
+ itself to
+> > only lets say 32K payloads and above, and while it *does* work (with en=
+ough
+> > holes punched in), absolute t-put doesn=E2=80=99t actually go up, its j=
+ust that CPU utilization
+> > goes down a pinch. Not a bad thing for certain, but still not great.
+> >
+> > In fact, I found that tput actually went down with this path, even with=
+ ZC occurring
+> > successfully, as there was still a mix of ZC and non-ZC because you can=
+ only
+> > have so many pending at any given time before the copy path kicks in ag=
+ain.
+> >
+> >
+> >>
+> >>>>
+> >>>> This is no more performant, and in fact is actually worse since the =
+time spent
+> >>>> waiting on that memcpy to resolve is longer.
+> >>>>
+> >>>>>
+> >>>>>> as vhost_net does not set
+> >>>>>> SKBFL_DONT_ORPHAN.
+> >>>
+> >>> Maybe we can try to set this as vhost-net can hornor ulimit now.
+> >
+> > Yea I tried that, and while it helps kick things further down the stack=
+, its not actually
+> > faster in any testing I=E2=80=99ve drummed up.
+> >
+> >>>
+> >>>>>>
+> >>>>>> Orphaning enforces a memcpy and triggers the completion callback, =
+which
+> >>>>>> increments the failed TX counter, effectively disabling zerocopy a=
+gain.
+> >>>>>>
+> >>>>>> Even after addressing these issues to prevent SKB orphaning and er=
+ror
+> >>>>>> counter increments, performance remains poor. By default, only 64
+> >>>>>> messages can be zerocopied, which is immediately exhausted by work=
+loads
+> >>>>>> like iperf, resulting in most messages being memcpy'd anyhow.
+> >>>>>>
+> >>>>>> Additionally, memcpy'd messages do not benefit from the XDP batchi=
+ng
+> >>>>>> optimizations present in the handle_tx_copy path.
+> >>>>>>
+> >>>>>> Given these limitations and the lack of any tangible benefits, rem=
+ove
+> >>>>>> zerocopy entirely to simplify the code base.
+> >>>>>>
+> >>>>>> Signed-off-by: Jon Kohler <jon@nutanix.com>
+> >>>>>
+> >>>>> Any chance we can fix those issues? Actually, we had a plan to make
+> >>>>> use of vhost-net and its tx zerocopy (or even implement the rx
+> >>>>> zerocopy) in pasta.
+> >>>>
+> >>>> Happy to take direction and ideas here, but I don=E2=80=99t see a cl=
+ear way to fix these
+> >>>> issues, without dealing with the assertions that skb_orphan_frags_rx=
+ calls out.
+> >>>>
+> >>>> Said another way, I=E2=80=99d be interested in hearing if there is a=
+ config where ZC in
+> >>>> current host-net implementation works, as I was driving myself crazy=
+ trying to
+> >>>> reverse engineer.
+> >>>
+> >>> See above.
+> >>>
+> >>>>
+> >>>> Happy to collaborate if there is something we could do here.
+> >>>
+> >>> Great, we can start here by seeking a way to fix the known issues of
+> >>> the vhost-net zerocopy code.
+> >>>
+> >>
+> >> Happy to help here :).
+> >>
+> >> Jon, could you share more details about the orphan problem so I can
+> >> speed up the help? For example, can you describe the code changes and
+> >> the code path that would lead to that assertion of
+> >> skb_orphan_frags_rx?
+> >>
+> >> Thanks!
+> >>
+> >
+> > Sorry for the slow response, getting back from holiday and catching up.
+> >
+> > When running through tun.c, there are a handful of places where ZC turn=
+s into
+> > a full copy, whether that is in the tun code itself, or in the interrup=
+t handler when
+> > tun xmit is running.
+> >
+> > For example, tun_net_xmit mandatorily calls skb_orphan_frags_rx. Anythi=
+ng
+> > with frags will get this memcpy, which are of course the =E2=80=9Cjuicy=
+=E2=80=9D targets here as
+> > they would take up the most memory bandwidth in general. Nasty catch22 =
+:)
+> >
+> > There are also plenty of places that call normal skb_orphan_frags, whic=
+h
+> > triggers because vhost doesn=E2=80=99t set SKBFL_DONT_ORPHAN. That=E2=
+=80=99s an easy
+> > fix, but still something to think about.
+> >
+> > Then there is the issue of packet sockets, which throw a king sized wre=
+nch into
+> > this. Its slightly insidious, but it isn=E2=80=99t directly apparent th=
+at loading some user
+> > space app nukes zero copy, but it happens.
+> >
+> > See my previous comment about LLDPD, where a simply compiler snafu caus=
+ed
+> > one socket option to get silently break, and it then ripped out ZC capa=
+bility. Easy
+> > fix, but its an example of how this can fall over.
+> >
+> > Bottom line, I=E2=80=99d *love****** have ZC work, work well and so on.=
+ I=E2=80=99m open to ideas
+> > here :) (up to and including both A) fixing it and B) deleting it)
+>
+> Hey Eugenio - wondering if you had a chance to check out my notes on this=
+?
+>
 
-Hi Juergen,
+Sorry I thought I was going to have the code ready by now :). I'll
+need more time to go through the items.
 
-I have some update on this thread while working on it.
-
-If we continue down the path of maintaining pvops MSR APIs as this patch
-series does, it seems we’ll need to duplicate the ALTERNATIVE code in
-three different places.
-
-1) The MSR access primitives defined in <asm/msr.h>, which is used when
-    CONFIG_PARAVIRT=n.
-
-2) The pvops native MSR functions pv_native_{rd,wr}msr{,_safe}() defined
-    in arch/x86/kernel/paravirt.c, used when CONFIG_PARAVIRT=y on bare
-    metal.
-
-3) The pvops Xen MSR functions paravirt_{read,write}_msr{,_safe}()
-    defined in <asm/paravirt.h>, used when CONFIG_PARAVIRT_XXL=y.
-
-hpa had mentioned to me earlier that this would be a maintenance burden
-— something I only truly realized once I got hands-on with it.
-
-Maybe you have something in mind to address it?
-
-Also add PeterZ to the To list because he cares it.
-
-Thanks!
-     Xin
