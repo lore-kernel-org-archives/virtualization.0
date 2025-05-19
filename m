@@ -1,60 +1,62 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EA6A265CC2
-	for <virtualization@lists.linux.dev>; Mon, 19 May 2025 07:07:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB01B265CCB
+	for <virtualization@lists.linux.dev>; Mon, 19 May 2025 07:07:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747638423; cv=none; b=gIvFZjvxdn6mg7GNug5d6GXUnZmhvAJozXV62hpWtI8mVYQfj0G61iCBVoJpvu1PrZoB9XXl5qMYweuORVxGEts3KQjQDKKjyqni3LlUJhYNzepLUeM+OooGbgSqHctdjFJ2A0iu83uO3Mxs8qJBL9V7SKj6FpEe9gHEulcv6JA=
+	t=1747638431; cv=none; b=KgBP/Xq188GUM/XSp6YPKKXuMifMTox5bxiNZvgL0+08DRDZDvWDDKOXkrqea9tWq6wYPSgVWScpvTWoETfA1Xm94s/yV982D94B/yWdzuK4F56Zt7R18OR/kKrjwKaSGoqlPAZ7oKO/Wx6Rwns8Nt6EtOfQotSDe6a6H+DEY2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747638423; c=relaxed/simple;
-	bh=5lYdAnViKm8ZvLr7E7yBx5ATwm/YFLGHyRh1AvmTXmg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=e7+U7vEqy73Ri+MMXh+daGAvnLUSV7SZOJHw9OP0R6LU5itkFOq2AYKHlxZ0pDCZd/3taWnTZWf2DfmE1qYP2yyOWgakbMYVLVkVS1Xm4Zysr5/0PsXo+Pa+wpbtPLcpVt7za9CBEqMuACMluRnipyj9TKX2gj6dnCoFKnCx38I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XWhTIjTO; arc=none smtp.client-ip=209.85.210.173
+	s=arc-20240116; t=1747638431; c=relaxed/simple;
+	bh=eoGMF2Rt9uZ2gIcNe72NFY9+t/U8Awv10xG4k5ShIao=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=UvBgdY/gk2kcRGCmnhBeFMUIX0y/jjVgIBLEYYhuHU0DW0DegaGG3Cvr/XuiPyAOmkayALU64djhOCqZoiICebG2KFs6ymPi1ZPUMic8aFMZt6DSAu6xhDMbUZDhdGl3yQk1We/ZJBXGXVyqGcCvAdOVRRcLswPcjpYtFqEhSSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZSJkdib8; arc=none smtp.client-ip=209.85.210.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XWhTIjTO"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-742c5eb7d1cso1460001b3a.3
-        for <virtualization@lists.linux.dev>; Mon, 19 May 2025 00:07:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZSJkdib8"
+Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-742c035f2afso695972b3a.2
+        for <virtualization@lists.linux.dev>; Mon, 19 May 2025 00:07:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747638421; x=1748243221; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=xs2BEGm0Er+d1dRSYQn4lykSzo7rxtonmxLe+6KSkkg=;
-        b=XWhTIjTOT6bQjEVlFT9Heu95NH/JjrcyLGPljoAMG60EZ1Qkb9EXmuE5/4wnG7kDF6
-         0BX3AyecZ92VSX6nV6uaiaAGUdyl1NRHINCcDwXt+mus/zIHjpzNbSgT5qyqA0PCUcOz
-         dt6R7jPyJ+jkzTs+iJUCCltzk0R+G/XxUxIz+3kMbK9ej90YuMEavEPb+JmAz+xKrdXs
-         Oy0cbqfe4xzZ0RptmKNoaFwBqz/tRwB733v9sHH0eeq44WW7a7EXUARUDxANQillA/Hj
-         csJFwpm9yb8c1VaekS1V/EU3d3QaTdI8koXOnkL/t573YIqiaedvS0Q2sSn7Y1I9vog+
-         7BrQ==
+        d=gmail.com; s=20230601; t=1747638429; x=1748243229; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XHAaWm/nwPVfz2tbZm/P8yaDDY/dUJ8pDKEX+ugzIbQ=;
+        b=ZSJkdib8DxcCGzPDdFMXLpZTlMJ2SVPGt/m3pQrtO8T/G8K7UNyXlHSR/vd5HMN9I0
+         KpZtykaY/EDEPjeC3N/8jCHMImvJq9NpotkYpv7WWT1rltZp2HLGRcCsVa/FXvCl85gs
+         S67lWBpCc0qJ59xYs6jwgS4bZVYReFhySYdto69OGm+upTmOudGjNiQhIBSMqLdP2Z1I
+         lmckQ1B0t4VcDJksJnoVvAHtvOTJiMX09VSFqyg0ZKpztFPZ1RIrMzHWzJYPj7t1rD5J
+         J54RMIguZcDxpuBB1tDxgosLJJr28RPcUk94jl8A6DzZCIpUTiiFOzZdgEJXOOHBDoGn
+         /soA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747638421; x=1748243221;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xs2BEGm0Er+d1dRSYQn4lykSzo7rxtonmxLe+6KSkkg=;
-        b=NmKLieWXNhOmmL9C8WJEb4zLnjjQOnwoZYIhyDLwN0lfmPYWfmeZpKhqwzexYLVI1Q
-         p7GwMsz4uRsoLQzrbZXx8P4MhANogRuc2cDRYxq3w4j1lq8u2FHRSnmEIEyyicEbCXQH
-         ADPzz750esk1VBXQiL+2ryWWoyYDG2Kl90XIYoCCII2w2Dwtx0tlI92+60SwvKaqe/nI
-         BiEw+EDwUxc+j8lUdMcirbMR809C32jHl2i1jpA+Ru+l48GvoWd9zP7S6ebAZl5uu6Yd
-         Apf5JwiOR/KyUcrS2UR2qIVtw42nPsi1FXrLRY4JOsWYGgFCv0tm5xp2Cij59oodLuYH
-         8YLQ==
-X-Gm-Message-State: AOJu0Ywp8b6maH3GCurh/v5OJ/GaBfEbs1606XI30L+sn9W78/M64psp
-	3seiqaozeJEOeb2mugQx1EQG83+pWWPxnKuwCSPpbrHf+bHWUlyMSeG5
-X-Gm-Gg: ASbGncvr81441SNFs/LRyP8I+pyZkc5opJVbrLZ3n2afTNe7PLoLH2TGsqArt/sEhtW
-	zB++FidR/pOh9P+S4UWTl+QeqBlIOtg3i+capmpIdBeYzub3Ki3vgOH3UutYYfFHgJ6fDwBZhDw
-	CwtArMNlM3ovRxCi9ytCCr9d+KHElYjzF/QFx8usLVidia9R+2nQDqOvDzBF+fSpW99aoR5OP8J
-	uWbTFtdXl79pgou8QEGdT7nBj247EMcJ+/uOefMG1kc+WsN+bCCZpa5LZbt7E2i/sS3Psi0kwN6
-	NjComKB0Ot6slTmibOjFf/yp8v0w34S78Wu6EAScPOEZea0jJK0raqykltpwEoezQgVG23QkmA=
+        d=1e100.net; s=20230601; t=1747638429; x=1748243229;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=XHAaWm/nwPVfz2tbZm/P8yaDDY/dUJ8pDKEX+ugzIbQ=;
+        b=sTGGEUsN7EzSOdCQceqT6YrPYSKFDOp8CxvI6ZwTzV7YbbgNocjXII7gs+qDIzSKoi
+         9NQ8hgFA0lvUdVhzKin7YzR/nv2FgAIzONPj6YGmPBAPfGpfOEEjpgI5RubU/LQxpDdR
+         Rld/FrZtou4bw67StUhRUbPt67UVIqYrvAOvFSp5RJ1cQdEj2/Lp5Zt4VbxkUw/+7iHe
+         NC/jg9RvyYIWH3wz9wU80ZhnLzQ6mWuTjFMYgKD8Vp8ss8kw/U46kh4BRNpgYd2br8z/
+         AP9/aFmxETBiqLJc0OCT1dRe8O7GhXpbCpA8e5f24mHLLD72BkBca1gAkWY4gtKCkfNh
+         FcJQ==
+X-Gm-Message-State: AOJu0YwsZnYnZgGGhLLsP7e29y3ki7lSPjAV/KAvCCXfc7FMWm95YF7H
+	BZBQuC9/Kj75k2dJg8aQ6cBpRvQxc8AmvV974JHLj73hmsyQ8e4zYryr
+X-Gm-Gg: ASbGncumZSa2wfFn7zR+CXIwx9r52HxCA8HnG8MWqTg/lS++aqppqMRIemx9lkcz7wc
+	gO84210Vk3YujKY9f/Szcxvy+VlTSX5oabx7RPIsRdFSHqmrM6RpVXfOsUGFhePlL64oe9vdBGq
+	feHNLX2+zQ1y2ESZy2NO83enMK3F8tAbd5ArDUgAkqVfcPiPlN/2dOJnCWfdU0G02YTs0VXdls4
+	fcHwez+n4yZgue/zNJegzFwAPm/eQbflkxVoVHqN0FABgifr/kcFBhj5mquh+T4Dp+H0M33Phsz
+	AYyYYODN7CWq6btv8+Cmo2xVc+/NROjuikcPdQ8Ju8Y0yl+36fVmfoxE2si8yI+S7q70OMIYTg=
 	=
-X-Google-Smtp-Source: AGHT+IHA8A2vT2UvBCutX6PgYTZMcsbF6MTlQsqWarY6LSxYLDm0eBIJO+c55zh4t9TegLcLV4EIcg==
-X-Received: by 2002:a05:6a21:33a5:b0:216:20de:52d9 with SMTP id adf61e73a8af0-2162189f109mr18185129637.14.1747638421326;
-        Mon, 19 May 2025 00:07:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IENpOr+coy+nuUYSAQz1G13SXO8o5nY1ZaRb3QaUw56V4IvmR4mxX3+5YP0g6/vBT3U7sT4sw==
+X-Received: by 2002:a05:6a00:9455:b0:73d:ff02:8d83 with SMTP id d2e1a72fcca58-742a9786a85mr17865169b3a.3.1747638428863;
+        Mon, 19 May 2025 00:07:08 -0700 (PDT)
 Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b26eb0a0120sm5574336a12.63.2025.05.19.00.06.57
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b26eb0a0120sm5574336a12.63.2025.05.19.00.07.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 May 2025 00:07:00 -0700 (PDT)
+        Mon, 19 May 2025 00:07:08 -0700 (PDT)
 From: Xuewei Niu <niuxuewei97@gmail.com>
 X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
 To: sgarzare@redhat.com,
@@ -69,10 +71,12 @@ Cc: virtualization@lists.linux.dev,
 	kvm@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Subject: [PATCH 0/3] vsock: Introduce SIOCINQ ioctl support
-Date: Mon, 19 May 2025 15:06:46 +0800
-Message-Id: <20250519070649.3063874-1-niuxuewei.nxw@antgroup.com>
+Subject: [PATCH 1/3] vsock: Add support for SIOCINQ ioctl
+Date: Mon, 19 May 2025 15:06:47 +0800
+Message-Id: <20250519070649.3063874-2-niuxuewei.nxw@antgroup.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20250519070649.3063874-1-niuxuewei.nxw@antgroup.com>
+References: <20250519070649.3063874-1-niuxuewei.nxw@antgroup.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -81,35 +85,61 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patchset introduces SIOCINQ ioctl support for vsock, indicating the
-number of unread bytes.
-
-Similar to SIOCOUTQ ioctl, the information is transport-dependent. The
-first patch introduces a new callback, unread_bytes, in vsock transport,
-and adds ioctl support in AF_VSOCK.
-
-The second patch implements the SIOCINQ ioctl for all virtio-based transports.
-
-The last one adds two test cases to check the functionality. The changes
-have been tested, and the results are as expected.
+This patch adds support for SIOCINQ ioctl, which returns the number of
+bytes unread in the socket.
 
 Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+---
+ include/net/af_vsock.h   |  2 ++
+ net/vmw_vsock/af_vsock.c | 22 ++++++++++++++++++++++
+ 2 files changed, 24 insertions(+)
 
-Xuewei Niu (3):
-  vsock: Add support for SIOCINQ ioctl
-  vsock/virtio: Add SIOCINQ support for all virtio based transports
-  test/vsock: Add ioctl SIOCINQ tests
-
- drivers/vhost/vsock.c                   |   1 +
- include/linux/virtio_vsock.h            |   2 +
- include/net/af_vsock.h                  |   2 +
- net/vmw_vsock/af_vsock.c                |  22 +++++
- net/vmw_vsock/virtio_transport.c        |   1 +
- net/vmw_vsock/virtio_transport_common.c |  17 ++++
- net/vmw_vsock/vsock_loopback.c          |   1 +
- tools/testing/vsock/vsock_test.c        | 102 ++++++++++++++++++++++++
- 8 files changed, 148 insertions(+)
-
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 9e85424c8343..6f32a2601a49 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -171,6 +171,8 @@ struct vsock_transport {
+ 
+ 	/* SIOCOUTQ ioctl */
+ 	ssize_t (*unsent_bytes)(struct vsock_sock *vsk);
++	/* SIOCINQ ioctl */
++	ssize_t (*unread_bytes)(struct vsock_sock *vsk);
+ 
+ 	/* Shutdown. */
+ 	int (*shutdown)(struct vsock_sock *, int);
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index fc6afbc8d680..288bbfd43bc5 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1356,6 +1356,28 @@ static int vsock_do_ioctl(struct socket *sock, unsigned int cmd,
+ 	vsk = vsock_sk(sk);
+ 
+ 	switch (cmd) {
++	case SIOCINQ: {
++		ssize_t n_bytes;
++
++		if (!vsk->transport || !vsk->transport->unread_bytes) {
++			ret = -EOPNOTSUPP;
++			break;
++		}
++
++		if (sock_type_connectible(sk->sk_type) &&
++		    sk->sk_state == TCP_LISTEN) {
++			ret = -EINVAL;
++			break;
++		}
++
++		n_bytes = vsk->transport->unread_bytes(vsk);
++		if (n_bytes < 0) {
++			ret = n_bytes;
++			break;
++		}
++		ret = put_user(n_bytes, arg);
++		break;
++	}
+ 	case SIOCOUTQ: {
+ 		ssize_t n_bytes;
+ 
 -- 
 2.34.1
 
