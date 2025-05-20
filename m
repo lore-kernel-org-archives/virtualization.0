@@ -1,45 +1,44 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B032B1E5702
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E963D2566C4
 	for <virtualization@lists.linux.dev>; Tue, 20 May 2025 22:56:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747781791; cv=none; b=vApC/nhdBnSv7T4Ss7qCt3PciGDrEnbq/LdVzQqNXNllU7jF9z5/5ckRflmGyhuqJSslLXY+8JcZQmLKR2Hs2mUQ9e4UHdfDbMG/6hFiBar/wshH/vIQuIMtmDdCO2rUPyp0MxWt0A77c7zoxojgEnfc+f06EpcNez/+uIobX3k=
+	t=1747781791; cv=none; b=l/+k1RP0dVH6JoIwiqSjuatOMMNXaewELBqXiU8UnJjHJ9+Sp5J5l5DDwCbKY1fu128q/em4CcxE/KPdgE7oInk0NLkMyVk1KEZJpthCuq0qGRyO9QIdIaEQXup7mcHXfTFQkeXzjCUOT3H0i1D+oXKlwViR0mRAP05zvSHMcbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747781791; c=relaxed/simple;
-	bh=Bisvp9WXtx0uaSzm4IId2G0NuCg21iZTRlMs7KZj3Zs=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=i4kyjRzdjiTgGkzg94cBC1VEuzOrZ5bYnPTiL3mCT6tyR4aD6yF/+qoRxS1OcfN8/bnVPVWmGPKKcCLnAu85T7B47JCOb5qIJJZKz+xP3eF8qz/w9tf8wmk69045+Uvu8t5Sj3MoAQ1bZ4GPEUyqLGPbxV0qZqtTM4BY8Kb3iPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=EbqaShv5; arc=none smtp.client-ip=185.226.149.38
+	bh=+9/o4prQpeZc0AmfoSpveY11MqEyfGKVbpQfFFqt900=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=QZ5UMGYbwN09rBLsXF1c3rpiwo53oRmPr6HbY7uVBm3T/Bxe+kObCT3hTQO1Tot35i58dVUIR8we8xoBRYfJq2LChydAnxCqUph46xkY0s+0+clbMXidJna3YB+JLe3tPyI5q66xsgmNLIoCCxAomliQQFK1wVcnKOMbuj8TCrE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=dXrhyDZO; arc=none smtp.client-ip=185.226.149.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="EbqaShv5"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="dXrhyDZO"
 Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1uHVsg-001Mgz-Sf; Wed, 21 May 2025 00:56:18 +0200
+	id 1uHVsh-001X4x-CG; Wed, 21 May 2025 00:56:19 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=bJE5agG6suW5EMhVSS9xIoPl9te7wqkSo/E38GSN3wQ=; b=EbqaShv58TyWcztpNBCjVoxyeK
-	mLkk6jGtgmElvKvh5rmBeLXsR/cHk+9iT9ZSDpYanrpEEG1v3/eIz0ZM/19k41HArDYPBTEuCkwM2
-	mxk25tr5bAtCy+OtlHRUI8tFXZuhHH7WeElIkKGpqdMsNliC7f+cS+cbp9wmokN6blQ7HJFXgnjSI
-	g/ZV2kuUlWsZ6kK96Tpre3NE0BwP6xxjc77kAZLRBLMfrscYbAtl/w8SaoFhTcEhNIh208qbR1gQl
-	qQOP8AZi7KdB4GowGiX5P8uyz2YTXzA9ICkDSBDUpLPUkLc02XS3W1D2x54AOOMenqBhPVrGGZlty
-	J9qx78BQ==;
+	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From; bh=knfvcN2cjAGG2Tfr0KwPblV7ImwR2xWBY5X7KR10gL4=
+	; b=dXrhyDZO2nlEw4eqddXYOWApIZNmg2mrwscfo81kjw7h6WeLCuuXe/+RGh38/uzMekx46J5k9
+	TTBFS3P3Le31D6PKstfvgFvSLCCHDAdD7DlW5+nTIYECvJW8d0S8Ej7qHvUcwTIW/KByhBwKsjgEX
+	5kTpCVzfaZagJLJJpYQIBjupoabXAxss1RWLheFGAVq1BxGY0YPdjMk9ByLUX7V9ndszQ18dJ4is7
+	CHin3YqDG9wsaYI2cOlXbJbEALG6Pdht6e+4fBlokFwZb5442n7MjFke5Oy6WG+NFQ7YGgzJaDiUP
+	FTFInce+KYQpOJU+q8KeXTuXszZG6S+NWJeutg==;
 Received: from [10.9.9.73] (helo=submission02.runbox)
 	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1uHVsf-0007mr-Ni; Wed, 21 May 2025 00:56:17 +0200
+	id 1uHVsg-0007mv-Om; Wed, 21 May 2025 00:56:19 +0200
 Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1uHVsW-00CxGf-QH; Wed, 21 May 2025 00:56:08 +0200
+	id 1uHVsW-00CxGf-4H; Wed, 21 May 2025 00:56:08 +0200
 From: Michal Luczaj <mhal@rbox.co>
-Date: Wed, 21 May 2025 00:55:19 +0200
-Subject: [PATCH net-next v5 1/5] vsock/virtio: Linger on unsent data
+Subject: [PATCH net-next v5 0/5] vsock: SOCK_LINGER rework
+Date: Wed, 21 May 2025 00:55:18 +0200
+Message-Id: <20250521-vsock-linger-v5-0-94827860d1d6@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,9 +47,12 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250521-vsock-linger-v5-1-94827860d1d6@rbox.co>
-References: <20250521-vsock-linger-v5-0-94827860d1d6@rbox.co>
-In-Reply-To: <20250521-vsock-linger-v5-0-94827860d1d6@rbox.co>
+X-B4-Tracking: v=1; b=H4sIAFYILWgC/13NwW7DIBAE0F+JOIdqDQuGnPIfVQ/GrBvUyERgI
+ VeR/72IS20fR6M382aZUqDMbpc3S1RCDnGuQV0vbHwM8zfx4GtmAoQCCchLjuMPf4ZaJW5BaFK
+ TtUaPrJJXoimsbe6TzbTwmdaFfdXmEfIS02/7KV3r2yRCf5wsHQfeoTIgDUm04p5cXD/G2GaK2
+ FHRnaiodCI7kfMatTZHKndUwonKSr131EunJKr+SPGfKji/YqWOBue8GcDgjm7b9geVTS4ZYQE
+ AAA==
+X-Change-ID: 20250304-vsock-linger-9026e5f9986c
 To: Stefano Garzarella <sgarzare@redhat.com>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -63,52 +65,62 @@ Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
  Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.2
 
-Currently vsock's lingering effectively boils down to waiting (or timing
-out) until packets are consumed or dropped by the peer; be it by receiving
-the data, closing or shutting down the connection.
+Change vsock's lingerning to wait on close() until all data is sent, i.e.
+until workers picked all the packets for processing.
 
-To align with the semantics described in the SO_LINGER section of man
-socket(7) and to mimic AF_INET's behaviour more closely, change the logic
-of a lingering close(): instead of waiting for all data to be handled,
-block until data is considered sent from the vsock's transport point of
-view. That is until worker picks the packets for processing and decrements
-virtio_vsock_sock::bytes_unsent down to 0.
+Changes in v5:
+- Move unsent_bytes fetching logic to utils.c
+- Add a helper for enabling SO_LINGER
+- Accommodate for close() taking a long time for reasons unrelated to
+  lingering
+- Separate and redo the testcase [Stefano]
+- Enrich the comment [Stefano]
+- Link to v4: https://lore.kernel.org/r/20250501-vsock-linger-v4-0-beabbd8a0847@rbox.co
 
-Note that (some interpretation of) lingering was always limited to
-transports that called virtio_transport_wait_close() on transport release.
-This does not change, i.e. under Hyper-V and VMCI no lingering would be
-observed.
+Changes in v4:
+- While in virtio, stick to virtio_transport_unsent_bytes() [Stefano]
+- Squash the indentation reduction [Stefano]
+- Pull SOCK_LINGER check into vsock_linger() [Stefano]
+- Don't explicitly pass sk->sk_lingertime [Stefano]
+- Link to v3: https://lore.kernel.org/r/20250430-vsock-linger-v3-0-ddbe73b53457@rbox.co
 
-The implementation does not adhere strictly to man page's interpretation of
-SO_LINGER: shutdown() will not trigger the lingering. This follows AF_INET.
+Changes in v3:
+- Set "vsock/virtio" topic where appropriate
+- Do not claim that Hyper-V and VMCI ever lingered [Stefano]
+- Move lingering to af_vsock core [Stefano] 
+- Link to v2: https://lore.kernel.org/r/20250421-vsock-linger-v2-0-fe9febd64668@rbox.co
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Changes in v2:
+- Comment that some transports do not implement unsent_bytes [Stefano]
+- Reduce the indentation of virtio_transport_wait_close() [Stefano] 
+- Do not linger on shutdown(), expand the commit messages [Paolo]
+- Link to v1: https://lore.kernel.org/r/20250407-vsock-linger-v1-0-1458038e3492@rbox.co
+
+Changes in v1:
+- Do not assume `unsent_bytes()` is implemented by all transports [Stefano]
+- Link to v0: https://lore.kernel.org/netdev/df2d51fd-03e7-477f-8aea-938446f47864@rbox.co/
+
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- net/vmw_vsock/virtio_transport_common.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Michal Luczaj (5):
+      vsock/virtio: Linger on unsent data
+      vsock: Move lingering logic to af_vsock core
+      vsock/test: Introduce vsock_wait_sent() helper
+      vsock/test: Introduce enable_so_linger() helper
+      vsock/test: Add test for an unexpectedly lingering close()
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 6e7b727c781c88674c147b7b75f49f4f1c670d38..f2f1b166731b1bf2baa3db2854de19aa331128ea 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1195,12 +1195,14 @@ static void virtio_transport_wait_close(struct sock *sk, long timeout)
- {
- 	if (timeout) {
- 		DEFINE_WAIT_FUNC(wait, woken_wake_function);
-+		struct vsock_sock *vsk = vsock_sk(sk);
- 
- 		add_wait_queue(sk_sleep(sk), &wait);
- 
- 		do {
- 			if (sk_wait_event(sk, &timeout,
--					  sock_flag(sk, SOCK_DONE), &wait))
-+					  virtio_transport_unsent_bytes(vsk) == 0,
-+					  &wait))
- 				break;
- 		} while (!signal_pending(current) && timeout);
- 
+ include/net/af_vsock.h                  |  1 +
+ net/vmw_vsock/af_vsock.c                | 33 ++++++++++++++
+ net/vmw_vsock/virtio_transport_common.c | 21 +--------
+ tools/testing/vsock/util.c              | 38 ++++++++++++++++
+ tools/testing/vsock/util.h              |  5 +++
+ tools/testing/vsock/vsock_test.c        | 80 ++++++++++++++++++++++-----------
+ 6 files changed, 134 insertions(+), 44 deletions(-)
+---
+base-commit: 9ab0ac0e532afd167b3bec39b2eb25c53486dcb5
+change-id: 20250304-vsock-linger-9026e5f9986c
 
+Best regards,
 -- 
-2.49.0
+Michal Luczaj <mhal@rbox.co>
 
