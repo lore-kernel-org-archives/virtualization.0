@@ -1,145 +1,149 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6F1C274678
-	for <virtualization@lists.linux.dev>; Tue, 20 May 2025 10:58:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D58CA27511F
+	for <virtualization@lists.linux.dev>; Tue, 20 May 2025 11:09:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747738706; cv=none; b=JBvIz5OAgikCcnBs+wQSHf1r+TlxikDx4GFpNTPq7V86y/4mLAhNrl0J+evSkM7ci7u452kAD1os7rfrW471X5tjuGiTWvShOesSUn7vnS+jIYHhTCYQON3C930nXM8bfU+yCBq9SvXPGPGV8Xn/cjssho/2+azT0/xGMfxIxNc=
+	t=1747739377; cv=none; b=SZ4yg6kajc5asEt/6dhBWKeFMC7EEAqf6xg1UYj8QPMlNkKa0Q3C+Kp/VZkswidL5CUFLO2bn/rRXJYQhU42kn6iWacRUVWw54FoF1N7/x5qbWd5Ck063B3zBQLyZToz3rcAvYXjQFdugpqX8a8T47TIZ2tkCBCg2e8kehTySXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747738706; c=relaxed/simple;
-	bh=XCjhuqMISSLiz8GE+zUfY3bVdPUVO6omDyP1PQiJ4QE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=amzBOct+xipxv6Lis+aT4cYHGTThhFruocDyx0LCp8zJUl5qixfwOCm8DWruUZfVc7vUo8+E2/mihz+y+gkJ2iCDqNOmSa9dU2L6DSARD1iaYbkXIZKarjguzS0iEjo0kU3ZqCajWSgl9s5RNTF7/PqwmVzSfiucSnqNNTZTOe4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FL/1PXNI; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1747739377; c=relaxed/simple;
+	bh=DyjGjmIKPnH7C36i8ffActQ/GQ9mwbRyIId9YRlceUU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=jRKqxs+k1iLX46BLYHqfIGYoGTE9o80eAEcrRBRx1HEUl9oBZJ814A32cNWPgsv5kgH8Goyd8peM5GhdL5R4QQBf/dSXlbscgKyw2CYaUjbR07dI6iOv+LJlit2KMxnYRxrSBGDzFNT9IMvRXGtllc1+0yFy8AUTIrwTkVzMxOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ly0Gi48E; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FL/1PXNI"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ly0Gi48E"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747738703;
+	s=mimecast20190719; t=1747739373;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=D274b/Kowlx4frHiCJWZP9nEutUPctu6wUBTBcBAl+Q=;
-	b=FL/1PXNIhWSeLXnyHnd6L1CGvcIpqOeGjkYUPkenRVJ23R1Fr5eOF/+kkgqWIiBQMRuEGX
-	G/Jz/H50tVl12AC68A+385ys8j6BeQkOTibLyyAq9XeYXVtr89ts7h4+4dAU8lC4/DrsEn
-	Gh6+1SOoStzECLl3V75G9ptC+vIgCHQ=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=DARJsHp4jsWx/AeNTG3Ix546yRHwSXlPjjzPU2VmlJs=;
+	b=Ly0Gi48EC6Ro1oYwtH1YQy21QYrxKNSW7z8VC3gtjyFYN/72+rWOsg673CXNmmZ1lZna+S
+	vipqRQSkWN/Rmfuy5nszAsN/lHMdiS+oBJq5LxADRBbrwwFsHCCjoQE9qHt/LhvqKrpmu/
+	PUYpANs2HwQ5C5rjUQ0C1MhUbUpHJMI=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-190-lPBe4BWENuKpbbgQbeEVyA-1; Tue, 20 May 2025 06:58:22 -0400
-X-MC-Unique: lPBe4BWENuKpbbgQbeEVyA-1
-X-Mimecast-MFC-AGG-ID: lPBe4BWENuKpbbgQbeEVyA_1747738701
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-442cd12d151so38666295e9.1
-        for <virtualization@lists.linux.dev>; Tue, 20 May 2025 03:58:22 -0700 (PDT)
+ us-mta-577-3j7eLjlvNei1TsquIhn0iQ-1; Tue, 20 May 2025 07:09:32 -0400
+X-MC-Unique: 3j7eLjlvNei1TsquIhn0iQ-1
+X-Mimecast-MFC-AGG-ID: 3j7eLjlvNei1TsquIhn0iQ_1747739371
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-acb8f9f58ebso439404966b.2
+        for <virtualization@lists.linux.dev>; Tue, 20 May 2025 04:09:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747738701; x=1748343501;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=D274b/Kowlx4frHiCJWZP9nEutUPctu6wUBTBcBAl+Q=;
-        b=pybgFMkKLVZLBu3RVjrWC27k4BwW3km69Wlj8xEaXwXMyZSfJG8LIB4/hgByUJjKoF
-         Ywt/RJo7uQO+D4fzAN21pcCfY+Y1KksnptaBxwcBwQhKFuXipWYxBuwiX6uao0cT6LAi
-         Laci+9oq5fl24BhWd1eNWqQxiK2PzZIi8VGO4UNw9L+gbjAuxjvoKN3U9fz3eR8BDRZw
-         oCO1hFjPhpjkkDDSb7hwz8LxJl1tLtriECl9ihHXfzcjldETeWFDqAk+vzo9Yjz+t2zD
-         J8yqkNNEUQGd66ckC4cPZrpjcsVuIFUYu7h+hZsJvcuRp91XFjSit0rsG+RWfoCRHhNk
-         w9oQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXmDc3qbOwRwbvlc6hjFHKe/nqIy7aWt5zBg3TNI6IXgC1fn7qh/s9oO91i3uRctb4ZqAqGnFZrJ0lMVnRkEA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxZkClFZUUnWSP+Ed6ABH2heS0u91lYTEy9g+CHKwzkpYdQUpZg
-	P9HQhvKbnNmI0fMmUJMmSfq8+Tu5WEBSI8rEZhIxliidbt91hNEj8ZE5Kh6STXDES6jej5xMFZx
-	oVdFupKzxO4VvAn5hNNuFAgty2C4huXaWj1cX5tzd4VqLXQT7NMC71PUCugq66cLY64ZW
-X-Gm-Gg: ASbGnctgSaDPSCIPAoZbMUswdY0bPZtegq3ksB0mZjT0gxm7595fLEYs0GfX26T3h0Q
-	FkcG3ivluivagY8OYYnuBEMp9QzZdlPayJx1Rd7LOPlmrS6uhVNrBx1Zh4g+bDGykElWPjD1hIj
-	ndniatrpABtB3yrWkLGrK+8ygS85woF0M062hOS9zNUR8tJszsw4XlPc/uPQholiefp+ByTQbOs
-	DQupp+i8GEop4FIoVX6MyJhdPJNqKuAuDg60ZzclEHrZ9InaqJ06D22ZwYRfj2kLqAB4Uwli+Hv
-	2F+2/w9YbzpMeLAawcFDzn61OCnpz/0/BrejCRzVUDGZ9QzPkiNv1y1RDgA=
-X-Received: by 2002:a05:600c:34c9:b0:43d:fa59:af97 with SMTP id 5b1f17b1804b1-442fd671d12mr138378705e9.32.1747738701187;
-        Tue, 20 May 2025 03:58:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGvQyiml0UoaDF/88g9sn8ucNfch1PfIPLwL2A/DSRiTilof5rRlAsf3z16t0LsF6Ckj58VyA==
-X-Received: by 2002:a05:600c:34c9:b0:43d:fa59:af97 with SMTP id 5b1f17b1804b1-442fd671d12mr138378435e9.32.1747738700827;
-        Tue, 20 May 2025 03:58:20 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:244f:5710:ef42:9a8d:40c2:f2db? ([2a0d:3344:244f:5710:ef42:9a8d:40c2:f2db])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a35ca9417dsm15708833f8f.101.2025.05.20.03.58.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 May 2025 03:58:20 -0700 (PDT)
-Message-ID: <73a4740e-755e-4ba8-8130-df09bd25197a@redhat.com>
-Date: Tue, 20 May 2025 12:58:18 +0200
+        d=1e100.net; s=20230601; t=1747739371; x=1748344171;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DARJsHp4jsWx/AeNTG3Ix546yRHwSXlPjjzPU2VmlJs=;
+        b=K8WRwl/4C9FKOTobfIt25wbX39WOCksW4pr6G73ugEO3lrCj7Tl6UJPvTeA1GBVuTU
+         /cjgPTZsr5mtvq9JZlwcURgLHChPuAB4wtsMAaDxRC+qCk1KJenIequ0zo4WTRCYSXyj
+         Iitn1cSemIjrhdYU1IevhT6fdiTyME3RapnV2B3aHwBWoF38wjeO2zieehRTwFTxnMmR
+         hf+jSVUKU1vPi9RXmN7mHrpsvUGSZTB09BuFeb8KDnq2W4AEiv9gmgMZuCd1kkXzECw1
+         2OqBNGK16Z96jptP0nDwBAOQS1/eSSInKvLhi20YCHpSiA6iy+AQ622X3qo9YtSnDSMY
+         hiug==
+X-Forwarded-Encrypted: i=1; AJvYcCXMtgOwcwrUSYHtAIy5tErisBXH46lBieBBs3H2Rg8CQAeAlWHaLshofVw5+p3K8H2rzpPXjsyp0/JJXDwCdA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YynUFWKZ0L+x2CdP423oDF4J5XM99XKn4jIV+CF/Pt5i70AM6PP
+	W0GyH7tFudpcRNy/rX4gw6/LBvSpNTfjFZ2iJ7hRAdugTnI1/kjXUdGw4a6N4C5aCIbauVtf1aQ
+	O/nh74/3konzjjnNGR9UTCajzLPdmR/GaSHM7j4kK7oMnzMWJtSCiHSwzUZGqGobWH75K
+X-Gm-Gg: ASbGncsQzHu8eWwAFHX8MnoN9sXuXOj7E+4ZC32AzgffoDfokAAy3cdGV17b8Q1YeBh
+	CZ7edKHY8akPvemPaOVUaGwjMgUYuYWBgygmPLjODmZQGqkBsJP/vKPrpyUPm9OGzB2C12684pm
+	HhgVuIaXuCvsxgM527aVVx8vAe1yH4eAme9dZsX2jShyFF50keopAXZdFpK/XUSP2jhheUvqXLe
+	coqO4C7Ck4RhCdRMjUZ5PyP1N/BjPohf3gADuoWEZ+gqJYUBHXQubHQHv1XKXS0LTLvLvQU1xIz
+	rlzsSu421QXoMs46+t8S0kcQ36qmz5djsrymqXtel42XoI4/RqfOE08o4TRx
+X-Received: by 2002:a17:907:d26:b0:ad5:715b:d1d4 with SMTP id a640c23a62f3a-ad5715bd3b3mr675886366b.32.1747739371297;
+        Tue, 20 May 2025 04:09:31 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGVmZPA0gP+lVwuu4tl/IU00u142/ZIBl7HKt5LlJNVBoXEwIpfvNF2MTZxVOWT8Ao84FYsRQ==
+X-Received: by 2002:a17:907:d26:b0:ad5:715b:d1d4 with SMTP id a640c23a62f3a-ad5715bd3b3mr675881166b.32.1747739370698;
+        Tue, 20 May 2025 04:09:30 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-134-35.retail.telecomitalia.it. [82.53.134.35])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ad52d271916sm722395766b.69.2025.05.20.04.09.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 May 2025 04:09:30 -0700 (PDT)
+Date: Tue, 20 May 2025 13:09:25 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Bobby Eshleman <bobbyeshleman@gmail.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>, kvm@vger.kernel.org, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net-next v7] selftests/vsock: add initial vmtest.sh for
+ vsock
+Message-ID: <w6aizeb2i5m52e2ifqcikgwdbrkkbc46sf4hx5b6jsm7o4drio@n3dzlatb426s>
+References: <20250515-vsock-vmtest-v7-1-ba6fa86d6c2c@gmail.com>
+ <f7dpfvsdupcf4iucmmit2xzgwk53ial6mcl445uxocizw6iow5@rhmh6m2qd3zu>
+ <73a4740e-755e-4ba8-8130-df09bd25197a@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v7] selftests/vsock: add initial vmtest.sh for
- vsock
-To: Stefano Garzarella <sgarzare@redhat.com>,
- Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>,
- kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kselftest@vger.kernel.org
-References: <20250515-vsock-vmtest-v7-1-ba6fa86d6c2c@gmail.com>
- <f7dpfvsdupcf4iucmmit2xzgwk53ial6mcl445uxocizw6iow5@rhmh6m2qd3zu>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <f7dpfvsdupcf4iucmmit2xzgwk53ial6mcl445uxocizw6iow5@rhmh6m2qd3zu>
+In-Reply-To: <73a4740e-755e-4ba8-8130-df09bd25197a@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: hQIEWLqOvB2ZDAi9zvRUP2UW9idcrHtAbRPQnfLtShE_1747738701
+X-Mimecast-MFC-PROC-ID: M2LFS6x3ZXeDR_R_D_ZQzGY7OFjWGqRb8oCDgcuPPpw_1747739371
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 5/20/25 10:24 AM, Stefano Garzarella wrote:
-> On Thu, May 15, 2025 at 03:00:48PM -0700, Bobby Eshleman wrote:
->> This commit introduces a new vmtest.sh runner for vsock.
+On Tue, May 20, 2025 at 12:58:18PM +0200, Paolo Abeni wrote:
+>On 5/20/25 10:24 AM, Stefano Garzarella wrote:
+>> On Thu, May 15, 2025 at 03:00:48PM -0700, Bobby Eshleman wrote:
+>>> This commit introduces a new vmtest.sh runner for vsock.
+>>>
+>>> It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
+>>> H2G, and loopback. The testing tools from tools/testing/vsock/ are
+>>> reused. Currently, only vsock_test is used.
+>>>
+>>> VMCI and hyperv support is automatically built, though not used.
+>>>
+>>> Only tested on x86.
+>>>
+>>> To run:
+>>>
+>>>  $ make -C tools/testing/selftests TARGETS=vsock
+>>>  $ tools/testing/selftests/vsock/vmtest.sh
 >>
->> It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
->> H2G, and loopback. The testing tools from tools/testing/vsock/ are
->> reused. Currently, only vsock_test is used.
+>> I am a little confused, now we have removed the kernel build step, so
+>> how should I test this? (It's running my fedora kernel, but then ssh
+>> fails to connect)
 >>
->> VMCI and hyperv support is automatically built, though not used.
+>> Would it be better to re-introduce the build phase at least in the
+>> script as optional (not used by selftest, but usable if you want to use
+>> the script directly)?
 >>
->> Only tested on x86.
->>
->> To run:
->>
->>  $ make -C tools/testing/selftests TARGETS=vsock
->>  $ tools/testing/selftests/vsock/vmtest.sh
-> 
-> I am a little confused, now we have removed the kernel build step, so 
-> how should I test this? (It's running my fedora kernel, but then ssh 
-> fails to connect)
-> 
-> Would it be better to re-introduce the build phase at least in the 
-> script as optional (not used by selftest, but usable if you want to use 
-> the script directly)?
-> 
-> Or at least I think we should explain that the script launches the 
-> running kernel, because the config file introduced by this patch 
-> confused me. How it's supposed to be used?
+>> Or at least I think we should explain that the script launches the
+>> running kernel, because the config file introduced by this patch
+>> confused me. How it's supposed to be used?
+>
+>This is the usual selftests schema. The user has to build and install
+>the kernel including the specified config before running the tests, see
+>
+>make help |grep kselftest
+>
+>Also this is what we do for our CI:
+>
+>https://github.com/linux-netdev/nipa/wiki/How-to-run-netdev-selftests-CI-style
 
-This is the usual selftests schema. The user has to build and install
-the kernel including the specified config before running the tests, see
+Thanks for the link!
 
-make help |grep kselftest
+>
+>@Bobby: AFAICS this now has all the ingredients to fit NIPA integration
+>am I correct? the last commit message sentence could possibly be dropped.
+>
+>Still it could be worthy to re-introduce (behind a command line option)
+>the ability to build the kernel as per Stefano request, to fit his
+>existing workflow (sorry for the partial back and forth).
 
-Also this is what we do for our CI:
-
-https://github.com/linux-netdev/nipa/wiki/How-to-run-netdev-selftests-CI-style
-
-@Bobby: AFAICS this now has all the ingredients to fit NIPA integration
-am I correct? the last commit message sentence could possibly be dropped.
-
-Still it could be worthy to re-introduce (behind a command line option)
-the ability to build the kernel as per Stefano request, to fit his
-existing workflow (sorry for the partial back and forth).
+If that's possible, I'd appreciate it (not a strong opinion). Otherwise 
+if we don't, I'd say take the use of the direct script out of the commit 
+messaging, because to me it's confusing if we don't plan to use it 
+without the selftest infrastructure.
 
 Thanks,
-
-Paolo
+Stefano
 
