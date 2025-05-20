@@ -1,46 +1,46 @@
 Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C1B925FA07;
-	Tue, 20 May 2025 22:56:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7019525FA0F;
+	Tue, 20 May 2025 22:56:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747781794; cv=none; b=Lqb/MbmIvvHKbJ9PRoAyH4yjwUsQPnu1+6FRRdSPLSNrwL4RnlTjDlkG81JFphuqvCd9H52fiTbL9V2lyH4F5JwJJtbIA0z65hDDyCCnh3FC1DSe1kbu99NRfyl3ofP1BuIdEpZ187/ud9obE4TONEr/035BjpfovpaWbCAZjz0=
+	t=1747781794; cv=none; b=tXy3wYofFYys6wFuumW3F8ZME43R0gpUMWG9Imaym99qAJZ7cB7WTOQFBOpUAkLurNZ50UJ3NB2ZghiYCuVea21FJUfLslezJGwRQLJ+MmaVOjqbgj2vRch8BzKVxU6ZPkaF8+0ZVjVu7kgQDuHw9giS+uqEl90ZbfQpGxMUJlI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747781794; c=relaxed/simple;
-	bh=wQQubEBib3byNdfTnd7ko0vhCud06Uio7n09JluN5A0=;
+	bh=LSPBwF/h8fdoRSP5rra5dxI9Jgsh64MRZKZAeajtuFE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=JXnnQ5CDL4fekJ5U1e0ng7XeNpjW29GT6K/7t5akmDug/btZ1S03oSh74AO7cbtaFfRh3Cn51rvARNCqu936ctwD0b8rwHBRb1ZEDC5r3FZsgDGFlHZ1BShIX1TdjOPA5FkcFxeoy4MhTmDt4zxydkV2i598b9HOreJFUw0TfqQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=a1zwU4lC; arc=none smtp.client-ip=185.226.149.38
+	 In-Reply-To:To:Cc; b=FNYnWm6E7n09ICLwsCl1iYcvbkR84IWKo2/aEM6p812gNiQUUztE0Vp7vpabcQBqP+SRznx+9QNhDEdk+TpPYJyLr16+gljRxLbz+AtJ09SBGaV//uXvhHhjAO6lq8XCuCSJ7soIK6ign37p59jcLV8NbkqpSewAWF7FYfWiZX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=mqyLc1BR; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="a1zwU4lC"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="mqyLc1BR"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
 	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1uHVsi-001MhD-En; Wed, 21 May 2025 00:56:20 +0200
+	id 1uHVsl-001MhU-K1; Wed, 21 May 2025 00:56:23 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
 	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
 	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=J8ECBmbAYxlbH2+qPMrZpA1tVV7W3mma7W+7fWFHowY=; b=a1zwU4lCjIw4rl0eCGmePhdG70
-	Kl5MZpMWS3dDQKCbhrvJuYTJICmXOGRkgD6tSjAQ8IiGd6MX/2NVB3J/JEe3jmdNkaYOXfkBX1HOF
-	titg1QEnk4LOFk22l1ttevdjoS2E559+ym1/Zr00rZO5NdIEoVjphwk1Hp3p0R8gUlnrzJLBuROj+
-	pppmsVvoNZRMHuK8sqZagfc63xgF3JBR7NtfRNnTW8LiXj7cX8GoI+d5HEpzwTzvSyIYrPX1mf6N7
-	DnETfPryVxqiiBBRXqyfJ9Mx6vMFCvgEmhtHpV6ve+b6EDEpej9FLZ0Z8g+vSHgijXUKU4ri7JPAj
-	6F2jVpdA==;
+	bh=2cwdhH2ahVirQ/fffeWGbWy0yyPkZHiMvGUr/k2S5C4=; b=mqyLc1BRJ+yhwRKHYqH/xUHQr5
+	EQjpejWv3vjT7gtS1x6749TiMg8CMLyYHsvVs4FygzdfKbanvR80H5azoInwDtOfxeozLYAw1KeOP
+	QQgpl0ROjK0reKxr5ntogy+ueMR70yQCYgdvLaLFLR3nQpxZk5x9y4JOVTxu0lZxAtqHbjT2mSeWD
+	p6gkDjWAaffRAJrNVBAVxqtYyYuzV09ERPCOz8S0/ag+GYvgG/jdg1cEHBlSIX0lxOAhAZRWepNeU
+	gwm1JKNEMTErzpaPa0ReK+5sGxRDVIpOz4nwPx/2ZhtaG+UNl5HhBHNZvAZ/8ODlqXEPhlQ/8uX6c
+	+omqtesg==;
 Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1uHVsi-0007nJ-6I; Wed, 21 May 2025 00:56:20 +0200
+	id 1uHVsl-00083t-AZ; Wed, 21 May 2025 00:56:23 +0200
 Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1uHVsZ-00CxGf-Hx; Wed, 21 May 2025 00:56:11 +0200
+	id 1uHVsY-00CxGf-6E; Wed, 21 May 2025 00:56:10 +0200
 From: Michal Luczaj <mhal@rbox.co>
-Date: Wed, 21 May 2025 00:55:23 +0200
-Subject: [PATCH net-next v5 5/5] vsock/test: Add test for an unexpectedly
- lingering close()
+Date: Wed, 21 May 2025 00:55:21 +0200
+Subject: [PATCH net-next v5 3/5] vsock/test: Introduce vsock_wait_sent()
+ helper
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250521-vsock-linger-v5-5-94827860d1d6@rbox.co>
+Message-Id: <20250521-vsock-linger-v5-3-94827860d1d6@rbox.co>
 References: <20250521-vsock-linger-v5-0-94827860d1d6@rbox.co>
 In-Reply-To: <20250521-vsock-linger-v5-0-94827860d1d6@rbox.co>
 To: Stefano Garzarella <sgarzare@redhat.com>, 
@@ -64,84 +64,119 @@ Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
  Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.2
 
-There was an issue with SO_LINGER: instead of blocking until all queued
-messages for the socket have been successfully sent (or the linger timeout
-has been reached), close() would block until packets were handled by the
-peer.
-
-Add a test to alert on close() lingering when it should not.
+Distill the virtio_vsock_sock::bytes_unsent checking loop (ioctl SIOCOUTQ)
+and move it to utils. Tweak the comment.
 
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- tools/testing/vsock/vsock_test.c | 49 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ tools/testing/vsock/util.c       | 25 +++++++++++++++++++++++++
+ tools/testing/vsock/util.h       |  1 +
+ tools/testing/vsock/vsock_test.c | 23 ++++++-----------------
+ 3 files changed, 32 insertions(+), 17 deletions(-)
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index f401c6a79495bc7fda97012e5bfeabec7dbfb60a..1040503333cf315e52592c876f2c1809b36fdfdb 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -1839,6 +1839,50 @@ static void test_stream_linger_server(const struct test_opts *opts)
- 	close(fd);
+diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+index de25892f865f07672da0886be8bd1a429ade8b05..120277be14ab2f58e0350adcdd56fc18861399c9 100644
+--- a/tools/testing/vsock/util.c
++++ b/tools/testing/vsock/util.c
+@@ -17,6 +17,7 @@
+ #include <assert.h>
+ #include <sys/epoll.h>
+ #include <sys/mman.h>
++#include <linux/sockios.h>
+ 
+ #include "timeout.h"
+ #include "control.h"
+@@ -96,6 +97,30 @@ void vsock_wait_remote_close(int fd)
+ 	close(epollfd);
  }
  
-+static void test_stream_nolinger_client(const struct test_opts *opts)
++/* Wait until transport reports no data left to be sent.
++ * Return non-zero if transport does not implement the unsent_bytes() callback.
++ */
++int vsock_wait_sent(int fd)
 +{
-+	bool nowait;
-+	time_t ns;
++	int ret, sock_bytes_unsent;
++
++	timeout_begin(TIMEOUT);
++	do {
++		ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
++		if (ret < 0) {
++			if (errno == EOPNOTSUPP)
++				break;
++
++			perror("ioctl(SIOCOUTQ)");
++			exit(EXIT_FAILURE);
++		}
++		timeout_check("SIOCOUTQ");
++	} while (sock_bytes_unsent != 0);
++	timeout_end();
++
++	return ret;
++}
++
+ /* Create socket <type>, bind to <cid, port> and return the file descriptor. */
+ int vsock_bind(unsigned int cid, unsigned int port, int type)
+ {
+diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+index d1f765ce3eeeed8f738630846bb47c4f3f6f946f..e307f0d4f6940e984b84a95fd0d57598e7c4e35f 100644
+--- a/tools/testing/vsock/util.h
++++ b/tools/testing/vsock/util.h
+@@ -54,6 +54,7 @@ int vsock_stream_listen(unsigned int cid, unsigned int port);
+ int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
+ 			   struct sockaddr_vm *clientaddrp);
+ void vsock_wait_remote_close(int fd);
++int vsock_wait_sent(int fd);
+ void send_buf(int fd, const void *buf, size_t len, int flags,
+ 	      ssize_t expected_ret);
+ void recv_buf(int fd, void *buf, size_t len, int flags, ssize_t expected_ret);
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index 9ea33b78b9fcb532f4f9616b38b4d2b627b04d31..4c2c94151070d54d1ed6e6af5a6de0b262a0206e 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -21,7 +21,6 @@
+ #include <poll.h>
+ #include <signal.h>
+ #include <sys/ioctl.h>
+-#include <linux/sockios.h>
+ #include <linux/time64.h>
+ 
+ #include "vsock_test_zerocopy.h"
+@@ -1280,7 +1279,7 @@ static void test_unsent_bytes_server(const struct test_opts *opts, int type)
+ static void test_unsent_bytes_client(const struct test_opts *opts, int type)
+ {
+ 	unsigned char buf[MSG_BUF_IOCTL_LEN];
+-	int ret, fd, sock_bytes_unsent;
 +	int fd;
-+
-+	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	enable_so_linger(fd);
-+	send_byte(fd, 1, 0); /* Left unread to expose incorrect behaviour. */
-+	nowait = vsock_wait_sent(fd);
-+
-+	ns = current_nsec();
-+	close(fd);
-+	ns = current_nsec() - ns;
-+
-+	if (nowait) {
+ 
+ 	fd = vsock_connect(opts->peer_cid, opts->peer_port, type);
+ 	if (fd < 0) {
+@@ -1297,22 +1296,12 @@ static void test_unsent_bytes_client(const struct test_opts *opts, int type)
+ 	/* SIOCOUTQ isn't guaranteed to instantly track sent data. Even though
+ 	 * the "RECEIVED" message means that the other side has received the
+ 	 * data, there can be a delay in our kernel before updating the "unsent
+-	 * bytes" counter. Repeat SIOCOUTQ until it returns 0.
++	 * bytes" counter. vsock_wait_sent() will repeat SIOCOUTQ until it
++	 * returns 0.
+ 	 */
+-	timeout_begin(TIMEOUT);
+-	do {
+-		ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
+-		if (ret < 0) {
+-			if (errno == EOPNOTSUPP) {
+-				fprintf(stderr, "Test skipped, SIOCOUTQ not supported.\n");
+-				break;
+-			}
+-			perror("ioctl");
+-			exit(EXIT_FAILURE);
+-		}
+-		timeout_check("SIOCOUTQ");
+-	} while (sock_bytes_unsent != 0);
+-	timeout_end();
++	if (vsock_wait_sent(fd))
 +		fprintf(stderr, "Test skipped, SIOCOUTQ not supported.\n");
-+	} else if ((ns + NSEC_PER_SEC - 1) / NSEC_PER_SEC >= LINGER_TIMEOUT) {
-+		fprintf(stderr, "Unexpected lingering\n");
-+		exit(EXIT_FAILURE);
-+	}
 +
-+	control_writeln("DONE");
-+}
-+
-+static void test_stream_nolinger_server(const struct test_opts *opts)
-+{
-+	int fd;
-+
-+	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-+	if (fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_expectln("DONE");
-+	close(fd);
-+}
-+
- static struct test_case test_cases[] = {
- 	{
- 		.name = "SOCK_STREAM connection reset",
-@@ -1999,6 +2043,11 @@ static struct test_case test_cases[] = {
- 		.run_client = test_stream_linger_client,
- 		.run_server = test_stream_linger_server,
- 	},
-+	{
-+		.name = "SOCK_STREAM SO_LINGER close() on unread",
-+		.run_client = test_stream_nolinger_client,
-+		.run_server = test_stream_nolinger_server,
-+	},
- 	{},
- };
+ 	close(fd);
+ }
  
 
 -- 
