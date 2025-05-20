@@ -1,104 +1,114 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 104FC25F984;
-	Tue, 20 May 2025 22:42:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B032B1E5702
+	for <virtualization@lists.linux.dev>; Tue, 20 May 2025 22:56:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747780946; cv=none; b=egWiFMeezupkYlEpXMAEE3woWMc7vZdI77AOlQIhcY3tQenzMX/8O+BCOQXGdy0reY3uah1RmynrechfQWRrkZ4kNjoQYKz8ImP7bO3CWZz1Ch8XD8TaAcShZ0xso3wzi9gqSHgdrCDGU6vaOgmKQcGbgpn6nvi8phIjgZL0FzE=
+	t=1747781791; cv=none; b=vApC/nhdBnSv7T4Ss7qCt3PciGDrEnbq/LdVzQqNXNllU7jF9z5/5ckRflmGyhuqJSslLXY+8JcZQmLKR2Hs2mUQ9e4UHdfDbMG/6hFiBar/wshH/vIQuIMtmDdCO2rUPyp0MxWt0A77c7zoxojgEnfc+f06EpcNez/+uIobX3k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747780946; c=relaxed/simple;
-	bh=LEmHzMGZMeWbHV95axfvamFFe4GU6DbF7lodqwp38Jk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jNm/JiBolc5BvNEQyKy2GDupDj0XgKYoAz8srJa9neBObpbQbRp/BW8xp1mkV3u3ZKflb/BwSYQfcljcVOtzpUe50pfV+7WksuGnO0GVdUGiLcNZ50DfauHndyn1IJ5s5hfAJGdJm+KQF0xGks0i9Jm1Dc8Wx8TsrCamZW5jqtQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=bvUGCBR4; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1747781791; c=relaxed/simple;
+	bh=Bisvp9WXtx0uaSzm4IId2G0NuCg21iZTRlMs7KZj3Zs=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=i4kyjRzdjiTgGkzg94cBC1VEuzOrZ5bYnPTiL3mCT6tyR4aD6yF/+qoRxS1OcfN8/bnVPVWmGPKKcCLnAu85T7B47JCOb5qIJJZKz+xP3eF8qz/w9tf8wmk69045+Uvu8t5Sj3MoAQ1bZ4GPEUyqLGPbxV0qZqtTM4BY8Kb3iPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=EbqaShv5; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="bvUGCBR4"
-Received: by linux.microsoft.com (Postfix, from userid 1152)
-	id 9616F2067864; Tue, 20 May 2025 15:42:24 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 9616F2067864
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1747780944;
-	bh=DlpgK8+tZkkDHiRWgBwHzi2Y0cqlH2RIldw1jLBTIb4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=bvUGCBR4iqg/M7Vg3HP94282EcXsXC5noJNb1o/uDAj1lfvSmUtR3/enibqZKqGml
-	 IvzwXSS/YTm9/i/m4JJRERdIp388+J5wxgwzStIpmjQ4uI+6mrY/MlL8XjdktFOfqI
-	 o3HYFu1SfU5/WDFlksRh6wBlNWwZk7zhBZ5f0IOI=
-Date: Tue, 20 May 2025 15:42:24 -0700
-From: Shyam Saini <shyamsaini@linux.microsoft.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Jacob Pan <jacob.pan@linux.microsoft.com>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	virtualization@lists.linux.dev, will@kernel.org,
-	eric.auger@redhat.com, code@tyhicks.com,
-	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com
-Subject: Re: [PATCH v2 0/3] arm-smmu: select suitable IOVA
-Message-ID: <20250520224224.GA16365@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20250410225030.2528385-1-shyamsaini@linux.microsoft.com>
- <20250410230008.GA6905@ziepe.ca>
- <67fff12d.650a0220.208c7c.d69dSMTPIN_ADDED_BROKEN@mx.google.com>
- <20250416181759.GF493866@ziepe.ca>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="EbqaShv5"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1uHVsg-001Mgz-Sf; Wed, 21 May 2025 00:56:18 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
+	bh=bJE5agG6suW5EMhVSS9xIoPl9te7wqkSo/E38GSN3wQ=; b=EbqaShv58TyWcztpNBCjVoxyeK
+	mLkk6jGtgmElvKvh5rmBeLXsR/cHk+9iT9ZSDpYanrpEEG1v3/eIz0ZM/19k41HArDYPBTEuCkwM2
+	mxk25tr5bAtCy+OtlHRUI8tFXZuhHH7WeElIkKGpqdMsNliC7f+cS+cbp9wmokN6blQ7HJFXgnjSI
+	g/ZV2kuUlWsZ6kK96Tpre3NE0BwP6xxjc77kAZLRBLMfrscYbAtl/w8SaoFhTcEhNIh208qbR1gQl
+	qQOP8AZi7KdB4GowGiX5P8uyz2YTXzA9ICkDSBDUpLPUkLc02XS3W1D2x54AOOMenqBhPVrGGZlty
+	J9qx78BQ==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1uHVsf-0007mr-Ni; Wed, 21 May 2025 00:56:17 +0200
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1uHVsW-00CxGf-QH; Wed, 21 May 2025 00:56:08 +0200
+From: Michal Luczaj <mhal@rbox.co>
+Date: Wed, 21 May 2025 00:55:19 +0200
+Subject: [PATCH net-next v5 1/5] vsock/virtio: Linger on unsent data
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250416181759.GF493866@ziepe.ca>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250521-vsock-linger-v5-1-94827860d1d6@rbox.co>
+References: <20250521-vsock-linger-v5-0-94827860d1d6@rbox.co>
+In-Reply-To: <20250521-vsock-linger-v5-0-94827860d1d6@rbox.co>
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+ Michal Luczaj <mhal@rbox.co>
+X-Mailer: b4 0.14.2
 
-Hi Jason,
+Currently vsock's lingering effectively boils down to waiting (or timing
+out) until packets are consumed or dropped by the peer; be it by receiving
+the data, closing or shutting down the connection.
 
-apologies for the delayed response.
+To align with the semantics described in the SO_LINGER section of man
+socket(7) and to mimic AF_INET's behaviour more closely, change the logic
+of a lingering close(): instead of waiting for all data to be handled,
+block until data is considered sent from the vsock's transport point of
+view. That is until worker picks the packets for processing and decrements
+virtio_vsock_sock::bytes_unsent down to 0.
 
-> On Wed, Apr 16, 2025 at 11:04:27AM -0700, Jacob Pan wrote:
-> 
-> > Per last discussion "SMMU driver have a list of potential addresses and
-> > select the first one that does not intersect with the non-working IOVA
-> > ranges.". If we don't know what the "non-working IOVA" is, how do we
-> > know it does not intersect the "potential addresses"?
-> 
-> I had understood from previous discussions that this platform is
-> properly creating IOMMU_RESV_RESERVED regions for the IOVA that
-> doesn't work. Otherwise everything is broken..
-> 
-> Presumably that happens through iommu_dma_get_resv_regions() calling
-> of_iommu_get_resv_regions() on a DT platform. There is a schema
-> describing how to do this, so platform firmware should be able to do it..
-> 
-> So the fix seems trivial enough to me:
-> 
-> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> index b4c21aaed1266a..ebba18579151bc 100644
-> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> @@ -3562,17 +3562,29 @@ static int arm_smmu_of_xlate(struct device *dev,
->  static void arm_smmu_get_resv_regions(struct device *dev,
->  				      struct list_head *head)
->  {
-> -	struct iommu_resv_region *region;
-> -	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
-> -
-> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
-> -					 prot, IOMMU_RESV_SW_MSI, GFP_KERNEL);
-> -	if (!region)
-> -		return;
-> -
-> -	list_add_tail(&region->list, head);
-> +	static const u64 msi_bases[] = { MSI_IOVA_BASE, 0x12340000 };
->  
->  	iommu_dma_get_resv_regions(dev, head);
+Note that (some interpretation of) lingering was always limited to
+transports that called virtio_transport_wait_close() on transport release.
+This does not change, i.e. under Hyper-V and VMCI no lingering would be
+observed.
 
-my understand is, this hook is not called for all the devices, eg: pcie dts node
-doesn't use [1] "iommus" property instead it uses "iommu-map" property
-as a consequence, [1] while loop exits prematurely and iommu_dma_get_resv_regions()
-is not called, so there is no IOVA reservation for the pcie device. 
+The implementation does not adhere strictly to man page's interpretation of
+SO_LINGER: shutdown() will not trigger the lingering. This follows AF_INET.
 
-Did i miss something? Please let me know.
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+---
+ net/vmw_vsock/virtio_transport_common.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-[1] https://elixir.bootlin.com/linux/v6.15-rc7/source/drivers/of/device.c#L161
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 6e7b727c781c88674c147b7b75f49f4f1c670d38..f2f1b166731b1bf2baa3db2854de19aa331128ea 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1195,12 +1195,14 @@ static void virtio_transport_wait_close(struct sock *sk, long timeout)
+ {
+ 	if (timeout) {
+ 		DEFINE_WAIT_FUNC(wait, woken_wake_function);
++		struct vsock_sock *vsk = vsock_sk(sk);
+ 
+ 		add_wait_queue(sk_sleep(sk), &wait);
+ 
+ 		do {
+ 			if (sk_wait_event(sk, &timeout,
+-					  sock_flag(sk, SOCK_DONE), &wait))
++					  virtio_transport_unsent_bytes(vsk) == 0,
++					  &wait))
+ 				break;
+ 		} while (!signal_pending(current) && timeout);
+ 
 
-Thanks,
-Shyam
+-- 
+2.49.0
+
