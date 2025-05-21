@@ -1,165 +1,260 @@
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04on2055.outbound.protection.outlook.com [40.107.101.55])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8691F23D291
-	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 09:18:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.101.55
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747819126; cv=fail; b=i3Y3+qbrQJreeJs1FQq9hZUCWbjls01BjPHItkT8F1yR7P900WORZ7Bg+aZUBkLult7vBGlRtVef2ppkLjGQMjyOvZnI6LjrcBz6nODvjZc1mXKEkqvn874I6knqeuU+5jmXM4InRcc7fElP5coEPCIyEaSHHvRGqkTRyKIRsu8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747819126; c=relaxed/simple;
-	bh=4p0Qb2oela3kJ1ALp0Od/1qzYEM3yQNrASHjUIAYOo0=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=mK/jMfiZB5NlVFihdtmYkacIoGNJcYNMTqJIp3PI+rmpGEJtkiR2pQJ08Y6MZEhHNafwKSUWKmBkFqVDRHLaPYc9iRjhtltui0+DSpT+Z4G3NITpkcPvyGxOAPYKY1sJcXMBA8ZLPgTnjhHHAYqB49pnmUW9lejph1xlAPcZyQs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=UIz1lkBK; arc=fail smtp.client-ip=40.107.101.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4881823BD0B
+	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 09:19:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1747819167; cv=none; b=aJLK/bMWs4A8RVODFNgpVtLml/r56rYh6wA5fMa7zzI+E1fk29iXNqBztdKQJ1qjGmDuApIFTQiv323+cwuVWN77K28/TgzFjQdO4XeN9A0Mn4ZmN2cZAqRo8GnsPzDaP0F4XScG+fs9fS6+NyX4DM99+xKf6180VLMglS5/wlo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1747819167; c=relaxed/simple;
+	bh=B7wXPyXUP2w07U8Up6D4wr9emBg7GtP6vgGU4Rn9vb4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=l7aaOI/JmQy3c8Luq0Ww8vFNoVo1gd5LuxSwhwqWGz5eKityCTD7snHwm1tJpj4mo0bt86z6L3OhKkkbjmcDjguvYc3sG0WbITKFfyt3mqjW5JQORFeoHmcen8LzULK6NR1kOgSX4PEWwtrxe2QkP4Xk6wUCFZCoqUI+Lh1J25A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IewRUBxP; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="UIz1lkBK"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=pkdJ4V7N6ygrZOc0vJpvBOfRWmUsBRN9DEUmieSLb1ttpFRRO6hgFP8QpLTbjqeqdKEUGTc7LvapNc5mPARHZeW0sokDEaepvkTYhQPYqkQ3Y/cRQuEX4T4lPBQJY871qJhm2O6psGQmu6fpL5d/q9vLPMCBZu85SfA745G/Z/BbLee5HD8DwTMySbyuT9ctHtWo4Mmz0mFBq3tihRTnZIpofJjr6BxpH7W9TUTyvVwEGjVbEWC3xZyB9RgmOorThS1tXKYQodYf8udrbZCDJX7sYYXRCQpEt10OBdRoPWisFWt5k/c7ZN3kFD8jHgAqz8A/zoJZaI3WCysMlvOk+A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4p0Qb2oela3kJ1ALp0Od/1qzYEM3yQNrASHjUIAYOo0=;
- b=aCn5kWnYzneuTfBgaaa8ycFqrjo9sNMxdYEN0RlG2W+6Ne5K6/Tj3HHyk8AY+TAiO/CjiaCAYqxEKvcxJqJkQ+r96KIJ5Q0NlLRIBUv7NYuhOQr2d89Nexi1BuG3PQlq2tUEAfRLjAACHMsCB3SlzjDgWCxscWVK4iwrzevk5ydXNohoRutI8n6eIJcFfmDp6tBNXS4XtlF7jS5nFdAmB+9qOkcrU94BtGracOACz8x5DOlKAHrnYEEQ1tUApSwHp27F6a/zs93aESTNlr1zkqYjva7BizxdGxI2pBb93kUI6W7ty1I4126EGYX5JYKQbdRx3j4WJ/MZhyHgW76qNQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4p0Qb2oela3kJ1ALp0Od/1qzYEM3yQNrASHjUIAYOo0=;
- b=UIz1lkBKFpRqEXgqru4zOsJapxxVIbekeuUGuermOe4sprasGARf+H4dmaU1Ub3wXA8KwouSSmPU7aP8GlOE6UDIF5QHHRWPfmwIJXzxHbsMTztC0j1U3kFUw8bKGLuzkJOrCsUmvAJwTdAbpSVSnHv1g7aPfvwKS4k8r47p9pD8of5J6xAmctbdtBYmBU1XJyXQDeuA7mMexAXvRK5sU758n5R4Vb6vReCl090olpaX5H6QrdP95I6sNr85l/hTgq7Ewkiuf/TYApDyjyeBsIYgl1Sscps2wIVMstRQZqSWwZzHPI/5CBSdTiBG8ARTrukX4IhDlc3ebBgfmeJmeA==
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
- by MN2PR12MB4189.namprd12.prod.outlook.com (2603:10b6:208:1d8::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8746.30; Wed, 21 May
- 2025 09:18:30 +0000
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::c06c:905a:63f8:9cd]) by CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::c06c:905a:63f8:9cd%4]) with mapi id 15.20.8699.026; Wed, 21 May 2025
- 09:18:29 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: Parav Pandit <parav@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>
-CC: "stefanha@redhat.com" <stefanha@redhat.com>, "axboe@kernel.dk"
-	<axboe@kernel.dk>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "linux-block@vger.kernel.org"
-	<linux-block@vger.kernel.org>, "NBU-Contact-Li Rongqing (EXTERNAL)"
-	<lirongqing@baidu.com>, Chaitanya Kulkarni <chaitanyak@nvidia.com>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IewRUBxP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1747819164;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Z/o09y9SC9Ywr/vW/q2zNIFJBJF7X0kmooxajrWqv/s=;
+	b=IewRUBxPcrP8Z2LV9yz7vevwl7FMJXgYSNWgfs9L/wJWmF32yBcyWfbAl/rS5cRL0KdsgM
+	9WWLZG2j20Fk8XTi3yTi+KFHf6fWFMfsLgEFx5kp4LKCwE4m3h/UTE2VNDNKPCpLgNZbCn
+	Vo+zFxjCtuAyeqSDB6xic7lvQZSBq8U=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-106-EmyEocTNPyqpMEGaMIs8Qw-1; Wed, 21 May 2025 05:19:22 -0400
+X-MC-Unique: EmyEocTNPyqpMEGaMIs8Qw-1
+X-Mimecast-MFC-AGG-ID: EmyEocTNPyqpMEGaMIs8Qw_1747819161
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a3696a0ce6so1676577f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 21 May 2025 02:19:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747819161; x=1748423961;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Z/o09y9SC9Ywr/vW/q2zNIFJBJF7X0kmooxajrWqv/s=;
+        b=jEfZThPKNNWI0R7I6SKhRfHSRieqIVNOsJSuUgDzBkbuMpt4tJ6YNO1t82adF35ORS
+         OoK4PuaJ2y7flbG+YpT8OCqSc/1hJX8SP5Lev/8vqwV2u2fJqooIMPbjxLkFHerCnCXw
+         +jbagz442YQeQHC9GXjj+DkJrbWyelteDN5n5c2b4Anb+8dlUcKBCwTZRUJX46yIeoN0
+         LKx3SsHJiYwNpf72etiZn6zYEfd7JG7vrRjav0yNaoLWUlb7WAKjOj3LY/pjiqNlQpBM
+         BqowenMHi3vb2GjDUj3PMAlZkOxWeuCtVbsqhH5jyzqZAnkw5KvU+l6mDE+xNY+2Jbrf
+         l8bA==
+X-Forwarded-Encrypted: i=1; AJvYcCXA/uDU50fpvMNueRw3MLaAPLh34BHJNsRgD97T9zx4Nwn3XiHqR476W9GwbGGQXKPDPyJR8AmK8mjSdzr6yg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxUeaefT1cRs5p3awQwTUicoPDc4yAfkws9NhKcK8d14+kLJDyr
+	bXmi0HRzCluI11WY+NSLWo5tEZdsdnrXCXlvgZgP01+i4FwDX++cLBpCfM4XZyLLNn8E1YrA/08
+	liyegwnjWpekPdIsMPjEhL7wS42RNIJpSI+2MKPyuqkuQUHNzObiXEa3k64dSI8L8H1oa
+X-Gm-Gg: ASbGnctwuhsqLLLLGqLLgcDJNT+j4gvJz/VM+qTlknrizc+tnPeC+7NgGqiktW8Q7Kx
+	rwnMSqDY49B94omPsxTqbA/+F2b+hPtWJVPCgYqSDdszhatWQBAMU8kV1xzAB65gargNnU6BTfQ
+	LG0L9l8gR6QO0H2efwo6UFgBk8ZRLVqUSgfRTANuWkEcoGYnLtEHmZCrGeSwnyCE52kNc8kzJqp
+	I427vCpEYF2XO0c9V0dvRSpFdvOA58wqaQDuAZaTTcL5XL3ERgJlK5Ew0+C11vluHbqe4C8j7Pi
+	Ter8tg==
+X-Received: by 2002:a05:6000:3103:b0:3a3:6415:96c8 with SMTP id ffacd0b85a97d-3a364159712mr14162620f8f.41.1747819161445;
+        Wed, 21 May 2025 02:19:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHLmTcHyyqMuzgg9O5ETbsMsgVAw3A3cvgRdzmCanUIuc6/dYk73VWGritQ97Q4VSUoXhdZCA==
+X-Received: by 2002:a05:6000:3103:b0:3a3:6415:96c8 with SMTP id ffacd0b85a97d-3a364159712mr14162590f8f.41.1747819161026;
+        Wed, 21 May 2025 02:19:21 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-447f6ffaa6esm63402155e9.16.2025.05.21.02.19.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 May 2025 02:19:20 -0700 (PDT)
+Date: Wed, 21 May 2025 05:19:17 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Cc: "stefanha@redhat.com" <stefanha@redhat.com>,
+	"axboe@kernel.dk" <axboe@kernel.dk>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-block@vger.kernel.or" <linux-block@vger.kernel.or>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>,
+	"NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>,
+	Chaitanya Kulkarni <chaitanyak@nvidia.com>,
 	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"pbonzini@redhat.com" <pbonzini@redhat.com>, "jasowang@redhat.com"
-	<jasowang@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>, Israel Rukshin
-	<israelr@nvidia.com>
-Subject: RE: [PATCH v1] virtio_blk: Fix disk deletion hang on device surprise
+	"pbonzini@redhat.com" <pbonzini@redhat.com>,
+	"jasowang@redhat.com" <jasowang@redhat.com>,
+	Max Gurtovoy <mgurtovoy@nvidia.com>,
+	Israel Rukshin <israelr@nvidia.com>
+Subject: Re: [PATCH v1] virtio_blk: Fix disk deletion hang on device surprise
  removal
-Thread-Topic: [PATCH v1] virtio_blk: Fix disk deletion hang on device surprise
- removal
-Thread-Index: AQHbyhrdL96Oqawka0G+Ryv5JzR6PLPcvXWAgAALoUCAAASOUA==
-Date: Wed, 21 May 2025 09:18:29 +0000
-Message-ID:
- <CY8PR12MB719585BEB8E62DDB228942BDDC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
+Message-ID: <20250521051556-mutt-send-email-mst@kernel.org>
 References: <20250521062744.1361774-1-parav@nvidia.com>
  <20250521041506-mutt-send-email-mst@kernel.org>
  <CY8PR12MB7195F56A84CAF0D486B82239DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
-In-Reply-To:
- <CY8PR12MB7195F56A84CAF0D486B82239DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|MN2PR12MB4189:EE_
-x-ms-office365-filtering-correlation-id: 070d3d02-28cb-4f18-4513-08dd9848737b
-x-ld-processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|366016|1800799024|38070700018;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?bmdjARbc/O9B3ySUczB2Hj34ZeaUqhxVYX1GXVU6Paf1CxIrdSM6xhPPaPxt?=
- =?us-ascii?Q?m59YEGbcXWdOormKKnAoHFmTKKXYHViS+CwavZ0R6I+AepWptGraaHwsQb6r?=
- =?us-ascii?Q?S2tEtEUaXHbrEXkoIX+IuKmmD+keJlB4rm+uSIQG6J+PhhiVGACd/KPZEMW9?=
- =?us-ascii?Q?RR919EEs/6gsowQtlPBs8jms7H0yjlh2T9qEVVxZeCAjMpzKvTuD32HRecYW?=
- =?us-ascii?Q?OfpjD5yeun8EonGca13MD723spele9bws8Vh5+c1weSCC/Ga9R44n19zJzwj?=
- =?us-ascii?Q?6EtVmr/6DOJ2YE4BXqfCNQLBqxMA7iKWKrZEEI+74xli3qD1n6QBh4S+sVxc?=
- =?us-ascii?Q?Th9COAm9vdqsp0+w4KMkviz5EiR92rWRiYca5g70nlqxsZHx/vbDSM8DUNv5?=
- =?us-ascii?Q?CKeGBEbkJOr/XTKGq871DK3L0YUJ0/X04DdSAK8tWp4dCbP/f01gD8fJvs+2?=
- =?us-ascii?Q?vQbilgo9oz0RduFq2oXj2X8m+hjJDj0GdJtXju4WVSw7p4Q/0M+yza0BuYOM?=
- =?us-ascii?Q?36oW62HdsXm3sDgdWxTyR8EwKntRnK+izdKGwz3ZRaWKUdW8UeAUJ5hKNGbZ?=
- =?us-ascii?Q?O3vqOhefUEk7OuCATo5pzjsApY/8uyPCiL+wIpSfdhSP6ca/hM/19WbDFiFR?=
- =?us-ascii?Q?Z7vNZ6RYrqF4Tu77j4DK9F/ynDFcWdsQ6cSrFPu7IlKead4gt9csPA6K3OI/?=
- =?us-ascii?Q?WSVXjGZodXAfVB/SaiJ1AcFkKrc5U/hscdrHkdwgpM86rpnEGVkFfgBB6zxW?=
- =?us-ascii?Q?zIkOtCF320SFKj8IsuN3Y7qZRM0hGaN2kdpcMd5R6tMdsnrlXbrocfReE+Bt?=
- =?us-ascii?Q?EW4b0IkHolE+tmveNJDaVOhBgtSNCMwCRUDSASCBdVqbLQQ84OUWc3alS2ov?=
- =?us-ascii?Q?3bGgDagbt4iODkupaoWcm5O90xNEKm/HhcmVx7vA4h6GF++udrwdQgPPQtiS?=
- =?us-ascii?Q?8+o4nRwxv/C3Y1Jrw69iQqoowtNr0DpWkuBBqVbeaYjzaoKeW75uHRuvPSDY?=
- =?us-ascii?Q?g6o3h5+6hcj23J4OgRVSU/A/9TEqz4h8oJMUGSds34/iWpDvqoPtACOPlhvm?=
- =?us-ascii?Q?hHV8atRzRHVdmrK/xNNCu6COKgOXWTEmUqm40A1lM4vjQUjvvK33AittFm8d?=
- =?us-ascii?Q?LU1tJGb9mMnrC/2yIbG7Vo6/tQB9xeSRfNujdr8j3A3z2qilDnoTphWeIXJV?=
- =?us-ascii?Q?3UXBoCPIXAHVj6611MTNkrfcN79mCAE+Ovs64EdCe1fQ6wqZFxumiSqCi2td?=
- =?us-ascii?Q?yYTY1Tf6haV9bEiCyL9X5kDzncgYfgvNJiBWthl+qnDQZ1CYd2kcwm9PKano?=
- =?us-ascii?Q?p9797wQLAw5liY0HBJGKSlvt+xQFa7DtNDmSkBVCujbT3F1nlxet7I/9jpGt?=
- =?us-ascii?Q?Gw7hGAp7KMDDoyiYiE9JnkFpBv4Z5/7XC+sEZN1y5qnTtNTeZY3eQfRkpqwj?=
- =?us-ascii?Q?H9ybBZU8+5yGWbKJUgU8p6cInS9TVoknxsCYdHOVRGwXI1SOo3S3NA=3D=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?SLY1kUp4DOVUP4WK1o6uwL6AsIIDqnKTQxQVDVJDAFZQDC1D0wKFgm37ogCU?=
- =?us-ascii?Q?MxBCkKGCH81LHXZUhPzvyBnmw+Pmo2n3OmVk2fDXTk1QkqBFcau9WG+RHtIs?=
- =?us-ascii?Q?KY6ncCTw5A/t2M4mrV/RGz1AXHbyum44hyQwABEUT1hkgl37ZXDLeun4R803?=
- =?us-ascii?Q?tYcEEoWlOjex5iBIrRpUBHBpHOFITOqza+Fun/U89dhAWWTydtqx/bjNSPme?=
- =?us-ascii?Q?5lF6FN6Q1FZCgZVLMUD026Bb6c/QF2w3QRtoj7TiOqcgfZ7Os56LWEmainKf?=
- =?us-ascii?Q?cYMXzwxurHzaUYfS9XhKFkl9N+2eSb2DJO19n23D47H2B+dfku5f6X4DT1Py?=
- =?us-ascii?Q?f6oBqAclVn5oBvgOI90J8mDQl1/D3B+i92CGg2tGqIzJN4oIk3AtaD/GXqG6?=
- =?us-ascii?Q?8DPPef7vXDNxswxkIpJsrlLUzhkTZYdVsg58+jCDwXUOUMYbSwVg9FSD/vUa?=
- =?us-ascii?Q?GgSojY2iUK3H3od5KCdv3lw+Ln4PHYDrljp05wwkgxOSfpzg5zE7TeM74zMH?=
- =?us-ascii?Q?zhuNaQ5zu5Mr0/QF7uEuhkn7gzj7d3UBGOcOZuFvhmV0oBrZFgrOSE16cxp4?=
- =?us-ascii?Q?+uzJppEi/zFq7gvHNN8tKFCSX2JsxarCituv0qmlZCQsQcn7jwSkj2m/36Ny?=
- =?us-ascii?Q?v2OQOTimuDywk3X+Me75w5+/aOJcBb6fwTNj1OZE8r3GetHD0+Ie3StUC2lx?=
- =?us-ascii?Q?Dy/30r/TP8/d69yMltlL9quEDbBBck4iG3iDeNhOKkwd+Mlur5QmqnBH1+YS?=
- =?us-ascii?Q?JrEwwFAfV3mzUOZoexFa5182usgZlYq4WpdS75zooaOzikXznlJAE1TCR/U7?=
- =?us-ascii?Q?ELGc4nohZnl/PDaNIx+IZg9oh7tn87EolGiU56geqOxJxN+RRC2LntlkdWoc?=
- =?us-ascii?Q?hAGv5LhhDc4TF3rKdwl3cXVvsaSoqbBrQnwzvmgTMdHg+Az/tHTGYP4/7UBG?=
- =?us-ascii?Q?6n0+mrmwz/RYLJwWyJ6bjjWKxj6zvFiH7kqJdvsgGCa5dvtfPhGfLBov9992?=
- =?us-ascii?Q?qs/Oez63OC1a9XfHxzKsv6OkYobeViuLUC0YjRR1HZqqVWnOLBl/YMyoBzhS?=
- =?us-ascii?Q?Uain1WeEZyZbx/leoNOJ5E+ypuXCxFpNZGbNGhuSVYPvBolOnxnA0V/UFNja?=
- =?us-ascii?Q?ezqxNrdbvh9siZDq8MQra4DPdnxmAsWbiv/Y7g3Fa5NUk109ZNeB7DVgqlUM?=
- =?us-ascii?Q?2At+v3KApprSxfAxH4NBKZCwNqRwNRKGuWe1/Ww/kuaX/5RHe4L3qBxCFbEJ?=
- =?us-ascii?Q?7MQlh65PBfMJNMOYWQkcrKh9OOSPqmfjsB2MjlSR3zG4RtCxBC9SRcbOaXWm?=
- =?us-ascii?Q?aOX4bAKnOkJ1Gc0sAXqPS/16vM3fg85n/WtzeoJnEJPQOxBDzF7zyqS4bwZ3?=
- =?us-ascii?Q?iML2XPerYLDAOw2ibS2LVkTq15BjGATgNV/uSu9GK+OqmKTWBI9FQfsbVM7R?=
- =?us-ascii?Q?/GcPg63kJSRkeFYUqrdURb46yUk5p3ZlPZX7nVcYDlweoYFNx7I6B+c+O7y/?=
- =?us-ascii?Q?WIkBZMlsIB/L7o92os5ddAWAIog0M/UClLC3RW5TnolZfWc6XdTyFAaFh5+q?=
- =?us-ascii?Q?ltiwINJSf4zbY3VUY0w=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 070d3d02-28cb-4f18-4513-08dd9848737b
-X-MS-Exchange-CrossTenant-originalarrivaltime: 21 May 2025 09:18:29.8800
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: XSWkpKVU+TmIqqIUP/anu8/ugO7CBEjd61MDw2rhd0/YgnyI3rVCAyes91CLX0cvAm9x9Acq2PyGaaspqKMbVw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4189
+In-Reply-To: <CY8PR12MB7195F56A84CAF0D486B82239DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: -4XKWuNlhrm5Nk6hsiI33HHwjnIen2eMFo4agzyGVFw_1747819161
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, May 21, 2025 at 09:14:31AM +0000, Parav Pandit wrote:
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> > Sent: Wednesday, May 21, 2025 1:48 PM
+> > 
+> > On Wed, May 21, 2025 at 06:37:41AM +0000, Parav Pandit wrote:
+> > > When the PCI device is surprise removed, requests may not complete the
+> > > device as the VQ is marked as broken. Due to this, the disk deletion
+> > > hangs.
+> > >
+> > > Fix it by aborting the requests when the VQ is broken.
+> > >
+> > > With this fix now fio completes swiftly.
+> > > An alternative of IO timeout has been considered, however when the
+> > > driver knows about unresponsive block device, swiftly clearing them
+> > > enables users and upper layers to react quickly.
+> > >
+> > > Verified with multiple device unplug iterations with pending requests
+> > > in virtio used ring and some pending with the device.
+> > >
+> > > Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio
+> > > pci device")
+> > > Cc: stable@vger.kernel.org
+> > > Reported-by: lirongqing@baidu.com
+> > > Closes:
+> > >
+> > https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b474
+> > > 1@baidu.com/
+> > > Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> > > Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+> > > Signed-off-by: Parav Pandit <parav@nvidia.com>
+> > > ---
+> > > changelog:
+> > > v0->v1:
+> > > - Fixed comments from Stefan to rename a cleanup function
+> > > - Improved logic for handling any outstanding requests
+> > >   in bio layer
+> > > - improved cancel callback to sync with ongoing done()
+> > 
+> > thanks for the patch!
+> > questions:
+> > 
+> > 
+> > > ---
+> > >  drivers/block/virtio_blk.c | 95
+> > > ++++++++++++++++++++++++++++++++++++++
+> > >  1 file changed, 95 insertions(+)
+> > >
+> > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > > index 7cffea01d868..5212afdbd3c7 100644
+> > > --- a/drivers/block/virtio_blk.c
+> > > +++ b/drivers/block/virtio_blk.c
+> > > @@ -435,6 +435,13 @@ static blk_status_t virtio_queue_rq(struct
+> > blk_mq_hw_ctx *hctx,
+> > >  	blk_status_t status;
+> > >  	int err;
+> > >
+> > > +	/* Immediately fail all incoming requests if the vq is broken.
+> > > +	 * Once the queue is unquiesced, upper block layer flushes any
+> > pending
+> > > +	 * queued requests; fail them right away.
+> > > +	 */
+> > > +	if (unlikely(virtqueue_is_broken(vblk->vqs[qid].vq)))
+> > > +		return BLK_STS_IOERR;
+> > > +
+> > >  	status = virtblk_prep_rq(hctx, vblk, req, vbr);
+> > >  	if (unlikely(status))
+> > >  		return status;
+> > 
+> > just below this:
+> >         spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+> >         err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
+> >         if (err) {
+> > 
+> > 
+> > and virtblk_add_req calls virtqueue_add_sgs, so it will fail on a broken vq.
+> > 
+> > Why do we need to check it one extra time here?
+> > 
+> It may work, but for some reason if the hw queue is stopped in this flow, it can hang the IOs flushing.
+
+> I considered it risky to rely on the error code ENOSPC returned by non virtio-blk driver.
+> In other words, if lower layer changed for some reason, we may end up in stopping the hw queue when broken, and requests would hang.
+> 
+> Compared to that one-time entry check seems more robust.
+
+I don't get it.
+Checking twice in a row is more robust?
+What am I missing?
+Can you describe the scenario in more detail?
+
+> 
+> > 
+> > 
+> > > @@ -508,6 +515,11 @@ static void virtio_queue_rqs(struct rq_list *rqlist)
+> > >  	while ((req = rq_list_pop(rqlist))) {
+> > >  		struct virtio_blk_vq *this_vq = get_virtio_blk_vq(req-
+> > >mq_hctx);
+> > >
+> > > +		if (unlikely(virtqueue_is_broken(this_vq->vq))) {
+> > > +			rq_list_add_tail(&requeue_list, req);
+> > > +			continue;
+> > > +		}
+> > > +
+> > >  		if (vq && vq != this_vq)
+> > >  			virtblk_add_req_batch(vq, &submit_list);
+> > >  		vq = this_vq;
+> > 
+> > similarly
+> > 
+> The error code is not surfacing up here from virtblk_add_req().
 
 
-> From: Parav Pandit <parav@nvidia.com>
-> Sent: Wednesday, May 21, 2025 2:45 PM
-> To: Michael S. Tsirkin <mst@redhat.com>
-> Cc: stefanha@redhat.com; axboe@kernel.dk; virtualization@lists.linux.dev;
-> linux-block@vger.kernel.or;=20
+but wait a sec:
 
-I had a typo in the addressing block driver's mailing list.
-Will resend with right email shortly.
+static void virtblk_add_req_batch(struct virtio_blk_vq *vq,
+                struct rq_list *rqlist)
+{       
+        struct request *req; 
+        unsigned long flags;
+        bool kick;
+        
+        spin_lock_irqsave(&vq->lock, flags);
+        
+        while ((req = rq_list_pop(rqlist))) {
+                struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+                int err;
+                        
+                err = virtblk_add_req(vq->vq, vbr);
+                if (err) {
+                        virtblk_unmap_data(req, vbr);
+                        virtblk_cleanup_cmd(req);
+                        blk_mq_requeue_request(req, true);
+                }
+        }
+
+        kick = virtqueue_kick_prepare(vq->vq);
+        spin_unlock_irqrestore(&vq->lock, flags);
+
+        if (kick)
+                virtqueue_notify(vq->vq);
+}
+
+
+it actually handles the error internally?
+
+
+
+
+> It would end up adding checking for special error code here as well to abort by translating broken VQ -> EIO to break the loop in virtblk_add_req_batch().
+> 
+> Weighing on specific error code-based data path that may require audit from lower layers now and future, an explicit check of broken in this layer could be better.
+> 
+> [..]
+
+
+Checking add was successful is preferred because it has to be done
+*anyway* - device can get broken after you check before add.
+
+So I would like to understand why are we also checking explicitly and I
+do not get it so far.
+
