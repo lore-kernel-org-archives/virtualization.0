@@ -1,184 +1,131 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7019525FA0F;
-	Tue, 20 May 2025 22:56:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A82CC22A814
+	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 02:01:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747781794; cv=none; b=tXy3wYofFYys6wFuumW3F8ZME43R0gpUMWG9Imaym99qAJZ7cB7WTOQFBOpUAkLurNZ50UJ3NB2ZghiYCuVea21FJUfLslezJGwRQLJ+MmaVOjqbgj2vRch8BzKVxU6ZPkaF8+0ZVjVu7kgQDuHw9giS+uqEl90ZbfQpGxMUJlI=
+	t=1747792870; cv=none; b=LQN5RQHyzK+k+HUzM5yU1O8VHgDuWbd83DgLSux4EjXqRv+fp2Gi9JPv/RfIuPkgZzDLkE7ps0vOJSK/VzBS6l9a54LxHoaC4KY5IeS6UrBkuhudyrXQJ1eeuq4V2j9LNaSYBbKb5ILby3/n6FUK2V150dH4lV6wiRMY2ew1D7w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747781794; c=relaxed/simple;
-	bh=LSPBwF/h8fdoRSP5rra5dxI9Jgsh64MRZKZAeajtuFE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=FNYnWm6E7n09ICLwsCl1iYcvbkR84IWKo2/aEM6p812gNiQUUztE0Vp7vpabcQBqP+SRznx+9QNhDEdk+TpPYJyLr16+gljRxLbz+AtJ09SBGaV//uXvhHhjAO6lq8XCuCSJ7soIK6ign37p59jcLV8NbkqpSewAWF7FYfWiZX0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=mqyLc1BR; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1747792870; c=relaxed/simple;
+	bh=rfD1WdfiPVKd5LCp0hGuro5Zqx3sYVINot3Bg53oUCc=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=HYIu7ZfJwOnAXj9tKcE4HWOG1PpoyOojf3x3AshRkilMqaDCnPXMM2Lb2VbtwjOLggBmDedKO+wUlznqoQF1sJq+/tmiklEhuxSoibB91ZA/kYeE1ih8gZiv2lMNuhWG9QM35OkqVxnbmlQE+/1xIxL0gC/kpBn8UY0RmQfE6XI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Tl3wDBOb; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="mqyLc1BR"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1uHVsl-001MhU-K1; Wed, 21 May 2025 00:56:23 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=2cwdhH2ahVirQ/fffeWGbWy0yyPkZHiMvGUr/k2S5C4=; b=mqyLc1BRJ+yhwRKHYqH/xUHQr5
-	EQjpejWv3vjT7gtS1x6749TiMg8CMLyYHsvVs4FygzdfKbanvR80H5azoInwDtOfxeozLYAw1KeOP
-	QQgpl0ROjK0reKxr5ntogy+ueMR70yQCYgdvLaLFLR3nQpxZk5x9y4JOVTxu0lZxAtqHbjT2mSeWD
-	p6gkDjWAaffRAJrNVBAVxqtYyYuzV09ERPCOz8S0/ag+GYvgG/jdg1cEHBlSIX0lxOAhAZRWepNeU
-	gwm1JKNEMTErzpaPa0ReK+5sGxRDVIpOz4nwPx/2ZhtaG+UNl5HhBHNZvAZ/8ODlqXEPhlQ/8uX6c
-	+omqtesg==;
-Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1uHVsl-00083t-AZ; Wed, 21 May 2025 00:56:23 +0200
-Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1uHVsY-00CxGf-6E; Wed, 21 May 2025 00:56:10 +0200
-From: Michal Luczaj <mhal@rbox.co>
-Date: Wed, 21 May 2025 00:55:21 +0200
-Subject: [PATCH net-next v5 3/5] vsock/test: Introduce vsock_wait_sent()
- helper
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tl3wDBOb"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-3108d54332eso212707a91.2
+        for <virtualization@lists.linux.dev>; Tue, 20 May 2025 19:01:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1747792868; x=1748397668; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1n8xYtWpS3N+9P8jTX3q4mFWmzpvnHf8VvSlpwIoG/I=;
+        b=Tl3wDBObWKxUYEn2RiPggfUpfnB0iP4JK5ccUX/AT92ayskqOEcelDUnJZhogR1kbs
+         hsuphK4MyaFsC9NUoD940FB5BnTHicW43be4NXChdnmbI7iyb8p6ruOAy5BxfHtMYzLm
+         05IYyY8fl/F/8qDaT3b/qC+v1Zltk9ap0tEZHbXZu0UodGKj+a88lRpeDmkHhJ5yrR+/
+         j1l5Nl8e1hfuDQq2B0Ch298Y4Nu9Ta/rizO2IYbpe8xMAuUu113Gn8Mm7XBzGETuljWo
+         1adqqBohnIG3G1yVXKnYhQZrlKZtppmh/MpoH1EwBBQDBT485Es9SxkdEiRtds2Tl9Ph
+         Biqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747792868; x=1748397668;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1n8xYtWpS3N+9P8jTX3q4mFWmzpvnHf8VvSlpwIoG/I=;
+        b=DMyAGMpmCCblRkZKmROp9S/oGeNjDxNbUTprp5SJpSZuZLFnXqNPG0JclPrSIGwHgP
+         5Hr2hmN9ErKeAdlmxIIFCB5RugbzE2T7nh541JWY5pj1iROopgDd7saEfX1v/v7waxtO
+         EudPV9IYwInMdEXJoPATmWin8hNEpvjSCdjDcq0Bmq+fR2IL8ZBNBAWGTonITcjOYDmh
+         pk4+kntAg6320UqiusL6s635k1tNW/5ocz0OWTO1WD5tGlpm+TUlXaPrUHtjNK8LgNnh
+         zMyHPyYEiDoqIPE8gx0Em9tXuISMU75ZGowyclCsQoAODfAwxwCzejzZVjE2a0GuW0wa
+         miDw==
+X-Forwarded-Encrypted: i=1; AJvYcCXRVF22JSSZ4F7gYRG8cZ5FZbwLNdlq9siMKbIiTW+CUIbIGShp48e5p1ar34UGlFCrpq7e0N+iXGQq7DIrYA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YySioZF9xRYTda0W5ePsLfqjF0+x/X20xCamzjNKxth/Q4CVERg
+	K6+ZH2yle6Vn/LPOO0UlcgqyfcbcswDPPxjTJCd716fDaCvKHrl+4+oR
+X-Gm-Gg: ASbGnctFR6AqqddAc8IMoTAnt1qFdHtuD9MgBbLbAMMzGN/QDYGw6kCF2N2EfCy5mb+
+	LsmsfzYO63pgfSsuuhwNIcxIDTeDA2j+F3RhxesO2UKb5G3+utmLjHJhmwSyM4Gcu4FnmmcEiTr
+	eoku+tiJJ/cBRa1SwcxiiS8IC5XALbQBBY7lDcLipfUfIOUm3goJvr7LqP/57AIL2/nq/odi4wM
+	OR0tNVOxe1sTMHEW241tP1cp/qldfqerhBwIinZfXcZLruvNBHjfamA7yJ8jtu9370Ld5fqin8N
+	GQC9PmzExyeC5GHAI+Z1vrl+CnnKLgCwYGSLXbwqAKlp62MgY5Hxo5ozOpgC3IvUUb2F/lIsUQ=
+	=
+X-Google-Smtp-Source: AGHT+IHWb+J1+0XyVk1FWW7GI32Fre4UxcrIQ+CYKT872G0qE9ugR2XJASnOtsJcO/JYKjhX6VIecQ==
+X-Received: by 2002:a17:90b:51c1:b0:2ff:796b:4d05 with SMTP id 98e67ed59e1d1-30e830ebf21mr29331126a91.11.1747792867654;
+        Tue, 20 May 2025 19:01:07 -0700 (PDT)
+Received: from devant.antgroup-inc.local ([47.89.83.0])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-30f36368e44sm2477647a91.1.2025.05.20.19.01.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 May 2025 19:01:07 -0700 (PDT)
+From: Xuewei Niu <niuxuewei97@gmail.com>
+X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+To: sgarzare@redhat.com
+Cc: davem@davemloft.net,
+	fupan.lfp@antgroup.com,
+	jasowang@redhat.com,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	niuxuewei.nxw@antgroup.com,
+	niuxuewei97@gmail.com,
+	pabeni@redhat.com,
+	stefanha@redhat.com,
+	virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH 0/3] vsock: Introduce SIOCINQ ioctl support
+Date: Wed, 21 May 2025 10:00:41 +0800
+Message-Id: <20250521020041.3215959-1-niuxuewei.nxw@antgroup.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <27pwterjsrrvgzcdwgkrfkthbqdaqptj6lj75gzfmhuouilexp@jg4t54gsnw2h>
+References: <27pwterjsrrvgzcdwgkrfkthbqdaqptj6lj75gzfmhuouilexp@jg4t54gsnw2h>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250521-vsock-linger-v5-3-94827860d1d6@rbox.co>
-References: <20250521-vsock-linger-v5-0-94827860d1d6@rbox.co>
-In-Reply-To: <20250521-vsock-linger-v5-0-94827860d1d6@rbox.co>
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
- Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.2
+Content-Transfer-Encoding: 8bit
 
-Distill the virtio_vsock_sock::bytes_unsent checking loop (ioctl SIOCOUTQ)
-and move it to utils. Tweak the comment.
+> On Mon, May 19, 2025 at 03:06:46PM +0800, Xuewei Niu wrote:
+> >This patchset introduces SIOCINQ ioctl support for vsock, indicating the
+> >number of unread bytes.
+> 
+> Thanks for this work, but please use net-next tree since this is a new 
+> feature: 
+> https://www.kernel.org/doc/html/latest/process/maintainer-netdev.html#netdev
+> 
+> Thanks,
+> Stefano
 
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
----
- tools/testing/vsock/util.c       | 25 +++++++++++++++++++++++++
- tools/testing/vsock/util.h       |  1 +
- tools/testing/vsock/vsock_test.c | 23 ++++++-----------------
- 3 files changed, 32 insertions(+), 17 deletions(-)
+Will do.
 
-diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-index de25892f865f07672da0886be8bd1a429ade8b05..120277be14ab2f58e0350adcdd56fc18861399c9 100644
---- a/tools/testing/vsock/util.c
-+++ b/tools/testing/vsock/util.c
-@@ -17,6 +17,7 @@
- #include <assert.h>
- #include <sys/epoll.h>
- #include <sys/mman.h>
-+#include <linux/sockios.h>
- 
- #include "timeout.h"
- #include "control.h"
-@@ -96,6 +97,30 @@ void vsock_wait_remote_close(int fd)
- 	close(epollfd);
- }
- 
-+/* Wait until transport reports no data left to be sent.
-+ * Return non-zero if transport does not implement the unsent_bytes() callback.
-+ */
-+int vsock_wait_sent(int fd)
-+{
-+	int ret, sock_bytes_unsent;
-+
-+	timeout_begin(TIMEOUT);
-+	do {
-+		ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
-+		if (ret < 0) {
-+			if (errno == EOPNOTSUPP)
-+				break;
-+
-+			perror("ioctl(SIOCOUTQ)");
-+			exit(EXIT_FAILURE);
-+		}
-+		timeout_check("SIOCOUTQ");
-+	} while (sock_bytes_unsent != 0);
-+	timeout_end();
-+
-+	return ret;
-+}
-+
- /* Create socket <type>, bind to <cid, port> and return the file descriptor. */
- int vsock_bind(unsigned int cid, unsigned int port, int type)
- {
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index d1f765ce3eeeed8f738630846bb47c4f3f6f946f..e307f0d4f6940e984b84a95fd0d57598e7c4e35f 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -54,6 +54,7 @@ int vsock_stream_listen(unsigned int cid, unsigned int port);
- int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
- 			   struct sockaddr_vm *clientaddrp);
- void vsock_wait_remote_close(int fd);
-+int vsock_wait_sent(int fd);
- void send_buf(int fd, const void *buf, size_t len, int flags,
- 	      ssize_t expected_ret);
- void recv_buf(int fd, void *buf, size_t len, int flags, ssize_t expected_ret);
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index 9ea33b78b9fcb532f4f9616b38b4d2b627b04d31..4c2c94151070d54d1ed6e6af5a6de0b262a0206e 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -21,7 +21,6 @@
- #include <poll.h>
- #include <signal.h>
- #include <sys/ioctl.h>
--#include <linux/sockios.h>
- #include <linux/time64.h>
- 
- #include "vsock_test_zerocopy.h"
-@@ -1280,7 +1279,7 @@ static void test_unsent_bytes_server(const struct test_opts *opts, int type)
- static void test_unsent_bytes_client(const struct test_opts *opts, int type)
- {
- 	unsigned char buf[MSG_BUF_IOCTL_LEN];
--	int ret, fd, sock_bytes_unsent;
-+	int fd;
- 
- 	fd = vsock_connect(opts->peer_cid, opts->peer_port, type);
- 	if (fd < 0) {
-@@ -1297,22 +1296,12 @@ static void test_unsent_bytes_client(const struct test_opts *opts, int type)
- 	/* SIOCOUTQ isn't guaranteed to instantly track sent data. Even though
- 	 * the "RECEIVED" message means that the other side has received the
- 	 * data, there can be a delay in our kernel before updating the "unsent
--	 * bytes" counter. Repeat SIOCOUTQ until it returns 0.
-+	 * bytes" counter. vsock_wait_sent() will repeat SIOCOUTQ until it
-+	 * returns 0.
- 	 */
--	timeout_begin(TIMEOUT);
--	do {
--		ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
--		if (ret < 0) {
--			if (errno == EOPNOTSUPP) {
--				fprintf(stderr, "Test skipped, SIOCOUTQ not supported.\n");
--				break;
--			}
--			perror("ioctl");
--			exit(EXIT_FAILURE);
--		}
--		timeout_check("SIOCOUTQ");
--	} while (sock_bytes_unsent != 0);
--	timeout_end();
-+	if (vsock_wait_sent(fd))
-+		fprintf(stderr, "Test skipped, SIOCOUTQ not supported.\n");
-+
- 	close(fd);
- }
- 
-
--- 
-2.49.0
-
+> >Similar to SIOCOUTQ ioctl, the information is transport-dependent. The
+> >first patch introduces a new callback, unread_bytes, in vsock transport,
+> >and adds ioctl support in AF_VSOCK.
+> >
+> >The second patch implements the SIOCINQ ioctl for all virtio-based transports.
+> >
+> >The last one adds two test cases to check the functionality. The changes
+> >have been tested, and the results are as expected.
+> >
+> >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+> >
+> >Xuewei Niu (3):
+> >  vsock: Add support for SIOCINQ ioctl
+> >  vsock/virtio: Add SIOCINQ support for all virtio based transports
+> >  test/vsock: Add ioctl SIOCINQ tests
+> >
+> > drivers/vhost/vsock.c                   |   1 +
+> > include/linux/virtio_vsock.h            |   2 +
+> > include/net/af_vsock.h                  |   2 +
+> > net/vmw_vsock/af_vsock.c                |  22 +++++
+> > net/vmw_vsock/virtio_transport.c        |   1 +
+> > net/vmw_vsock/virtio_transport_common.c |  17 ++++
+> > net/vmw_vsock/vsock_loopback.c          |   1 +
+> > tools/testing/vsock/vsock_test.c        | 102 ++++++++++++++++++++++++
+> > 8 files changed, 148 insertions(+)
+> >
+> >-- 
+> >2.34.1
+> >
