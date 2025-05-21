@@ -1,390 +1,253 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8196025F972
-	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 10:43:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C18EE2627EC
+	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 11:34:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747824203; cv=none; b=e+bvmbVYp/I25omZyYK1z1opBvoUQdTV70ZxbRyIPmscwcqie5iUTLDC5SWQW3ee5/wu4viBsQHALSYpcCYjSYN8nHnPkWfOqzFnkrCJeNibPZ6OobFsQ1kq/JcYdgKAmYDnOSmDahE4MJt51ZrxrMraGWa9mwK6+lv2/0GEYwU=
+	t=1747827252; cv=none; b=d9tl35aPCqPKpKjz3hA5tKk9nudCZ6HHtWEP4JZ/0RP/3/XtINA8NQzJcTTK7e8Gj+nF5zSgT6vBNg/Unut1t3Fgfzlhv0RsyfsPZsH2L/478sZqyKT7xYJVtYxxfxhCBEYwKOG8EYommZ98CevF6gom4smscgt2gFf8JWC9ouc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747824203; c=relaxed/simple;
-	bh=oa6MeRB5CJ/R3r6EFeH8af8vbkfDvVkcEcztqPBmLDo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jC+hHWjMcu8kCkSwdX0+AFBP26YDAkMTS/WezpyxSvEAhK2bfWBTj0wqwCu62uXxLdbiE4dHDfQRbGIYYlAfB59yJhTJWprMTVKV34aD6cI2QAQ/wVgOcoYxy6vXilC96KbhbD/z4NGUJgGCZhgkPUh6khu0k0VsORzfEpA0f8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J/5Iz1WM; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1747827252; c=relaxed/simple;
+	bh=YmK9jUVMjyM4XGpiOToRK6zoyZKLYlRbYzUIMY0DNzk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=nahzfekbNIC8710cbP9cA+gLg2tsxz+sw03US7faqsdavr/8rtZDvXWh6bsHyVfN5bjK0hWfhvbuUU9efEzTuSMZvw2SSDEZ7Iw1o+tT1ButjelG4s9/DXEPOBnUCw1EmYTyCkDMAc12vflrb39pRV3B6CdwNZe3zLHnMuULinA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=SYHColW6; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J/5Iz1WM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747824200;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KaAAcn+DxIYRR3PXSp0qt/sOHsdn2bo8wrK71rZXEoI=;
-	b=J/5Iz1WMD2GJHsDXD7K9/+K3qHrKXgw5IwJQqNC0ZUaUgzVOCbld6siJEaN5nHfKUPkgHU
-	1x6+yneE9CZkD+Zn0XOikE280FS5jdUNMOqAIwU/utZObnz63LEJbQT1N657Cm0P+P0Jym
-	GleoU3iqP3s4oAU1gU5goAeiW5ReR08=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-367-7MW9RfbjPJqewqIRw5-WNA-1; Wed, 21 May 2025 06:43:19 -0400
-X-MC-Unique: 7MW9RfbjPJqewqIRw5-WNA-1
-X-Mimecast-MFC-AGG-ID: 7MW9RfbjPJqewqIRw5-WNA_1747824198
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43d0830c3f7so48489835e9.2
-        for <virtualization@lists.linux.dev>; Wed, 21 May 2025 03:43:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="SYHColW6"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-30e93626065so4399982a91.1
+        for <virtualization@lists.linux.dev>; Wed, 21 May 2025 04:34:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1747827249; x=1748432049; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0+4xzIECcnulitki27nkBn5Q23UYHsSRhtXD1c9rOoA=;
+        b=SYHColW6FK4o84IStHH0egmFuKcI7IWcs1bbuFltMeZsfpGpAwbXFuV0+bH/jZcqD1
+         oP8BfyMhZ2buT6yHHY0Ltm+5gMvzh2Iadd0FixtPwlwlOrRxr3auiknG71rm6r3JNVB8
+         1w3kAE/kE6FihUgRblpBVIEnOEFrxmhSSRLu4cEKLWDLCi6mtqkeDywVtI+PST3xwQ2y
+         0JjJkfcxdsz4fMuniD/oopdMCnBK5XzhVVSsKoxdw3AswAP0NLdx2V/Kblz2WHyOOr7e
+         d4l4akLsozQ/x1xidYQe+gEr0PhJybOAISjsSuz8sQ/rJX6fzzcB5J2TN4nYaGQZG4pT
+         RC/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747824198; x=1748428998;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KaAAcn+DxIYRR3PXSp0qt/sOHsdn2bo8wrK71rZXEoI=;
-        b=plWnePjCTAJrCsxwzWjs5kTSP++Pxez7wolwuoEr8/D0xKXgT50FRQkiiW3MX5JUTJ
-         SiVoP7hvNlY+MTNxVEg9qQPA2Uvzo8/S1azRWZGDJVsAh670pP/gXtznNK8TiJ7V7PhV
-         CofOcKRycpth3N4LUp3js4Zwk4OJhe7D0j94HJ9B9lVZ6RBdA25dZaKE7TmEQcP8XBab
-         A5nh6dAi/XSI/Ar/ZsppIArpNyBHgk1WdjmORpdmcIf3Z1GszQcqF0CjZ3U32EM015M8
-         UmXpS2hq9LUs9oenjX+WzS5eb+Leo8B20j+JOHtM4Ac2qtXn8MyxHUFLLIxJQUEFVgkJ
-         3yZg==
-X-Forwarded-Encrypted: i=1; AJvYcCVamHlBBjUbLOxfKc3jOnNhuhzp74eNy/s8cVooXGBCwEPfeKQhgcVMIZxZ8suzbjh8edvCWlQgpYoNTwpxkw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzOQXdQdASDd+UFzI8YhFjk++wL+yzlvmlomIIitYVCgleJhuuZ
-	pVOXEF/R8YHIfOt0NWv20+kbG4ibcAXfyB/OQREQ2qPt56jlbZ59okXWuo9u7G7C8HHNIAbpH7n
-	Z5NZ5dUWA9Kh6rbAxKCo4x+cd5+cpiazZqzkEsLyVJgM0pYsSZ5B7dLrACezRmT30+mEi
-X-Gm-Gg: ASbGncsGRByk9dsvRrQFyzXRne98D7ByMJMIdEsFzPi+P2wpxtwR0o8ulijffWKN3wv
-	6AnT0+4r/82fHXn10+8a+6sE79Avseg43A5YxGuqvktr/7Kd2FR9z4+0WTtDB0uEeddgfqAhSCt
-	KaJpA9+UhSGPg1qfPvfnq7THkoWNUlt5xNS9veivdE0LXQ7e6El/J7rKbG+uUY2XwanFa5bKjyr
-	guw0DTJbVX0F9JoTyGK23ZsCuoX1AHzvKc/x8IgEbIPcg0J9tUfvTNGRMBCXUMrdioap5rmWeOx
-	SJgpFw==
-X-Received: by 2002:a05:600c:3d0c:b0:443:48:66d2 with SMTP id 5b1f17b1804b1-44300486a13mr211982195e9.16.1747824197887;
-        Wed, 21 May 2025 03:43:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGTb2nf0nJ4vg/zTNkehoTxERDFiMuMd4v0jMkv7rA71RWawlXZPW1wTpknzHIBNKPn+Se9Gg==
-X-Received: by 2002:a05:600c:3d0c:b0:443:48:66d2 with SMTP id 5b1f17b1804b1-44300486a13mr211981755e9.16.1747824197410;
-        Wed, 21 May 2025 03:43:17 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-448ba3d8facsm41029845e9.6.2025.05.21.03.43.15
+        d=1e100.net; s=20230601; t=1747827249; x=1748432049;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0+4xzIECcnulitki27nkBn5Q23UYHsSRhtXD1c9rOoA=;
+        b=sX1+ZtyBpXt/O0zs4p7Q9AlKmHiiamM9MnfFZXvA9UAyJJPS7EgNiTHodBe1/4PDCc
+         4quQ7DWEKXCMtN1qeZHzH0JLleTa/soVRqhnLwRsQxK7cKQt55R8BG0u82cpngQJoLcs
+         G+JI+6YoeJ03VGZoxZj+/Ztoukxdv3NAcYb3llAMSwHGh9LRFNLmMkQAtnGWEfBGpqWa
+         vWoFmlYlFZqy+SNBiASGuj8CieV+UCfHh/Pmy0GivF3D9l+0Y56dZW0AGXLjZa/mNwFU
+         f71376ACMkyEeNG2JYkG5KxFXKEYTft34HO1znDMGV5COniLQb54bpvXupZCSVNwxepb
+         VheA==
+X-Forwarded-Encrypted: i=1; AJvYcCU+xP5fWHvmzTxuj3aYapGkookoG0+V9XmJJ6aBI3CfGIerkLns9+6I8U6MywabWc8YYyMlcQlekmxxrmPT6g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwdBC4/6uTYGaBno61kT5FYJFmii7Q9hO92ASeE4jpZoqYo5PgJ
+	Mh13PYxE+3LQt+vXyX2qh3YUC8IuatRorOsa1FjqFR193eDObDpbwSZfoTl6XhvCMJ8=
+X-Gm-Gg: ASbGncsIICuJLj5vgXUSklZuJK8wt5hZCDR/d/suGM63cLFDl7LGzq2CDzlhHXomgR+
+	WF+VEo/3LWyGCTFdfKw8Tx8U7CkWJ7KL1lqg+Bwfnw1nl1JRyzXgknX02I4p8gTTkHP3m8e3cY3
+	8L2d7DfuKtj5VHYlT8XlewG4KE8FxyL7AcKJ0SPN+qH7LynTWeI6sS6c4Op69mFZbPMingE+WH1
+	Zs+JPn8zJZwrIhFaLyJKL70Dbtj0vI3B+siLubPqEeOWt/yJhWuAB59tiwiXdqFxFUKbBLwcNnJ
+	mAWJ6E5PHEup9mpFoC5z/JkWrCGcQqr4M+06VVz0M7bKNTQFkNNt
+X-Google-Smtp-Source: AGHT+IHEP4cY4L10ow0JzAIxRCHqZRLKI4tTfPyWgXFzxw0d78MaqKPCU0DzphedaKmdHEozMC86Eg==
+X-Received: by 2002:a17:90b:55cc:b0:2ee:d63f:d73 with SMTP id 98e67ed59e1d1-30e830ebe05mr35629396a91.11.1747827249017;
+        Wed, 21 May 2025 04:34:09 -0700 (PDT)
+Received: from localhost ([122.172.81.72])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-30f36385b68sm3437381a91.11.2025.05.21.04.34.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 May 2025 03:43:16 -0700 (PDT)
-Date: Wed, 21 May 2025 06:43:13 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Cc: "stefanha@redhat.com" <stefanha@redhat.com>,
-	"axboe@kernel.dk" <axboe@kernel.dk>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-	"stable@vger.kernel.org" <stable@vger.kernel.org>,
-	"NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>,
-	Chaitanya Kulkarni <chaitanyak@nvidia.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"pbonzini@redhat.com" <pbonzini@redhat.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	Max Gurtovoy <mgurtovoy@nvidia.com>,
-	Israel Rukshin <israelr@nvidia.com>
-Subject: Re: [PATCH v1] virtio_blk: Fix disk deletion hang on device surprise
- removal
-Message-ID: <20250521063626-mutt-send-email-mst@kernel.org>
-References: <20250521062744.1361774-1-parav@nvidia.com>
- <20250521041506-mutt-send-email-mst@kernel.org>
- <CY8PR12MB7195F56A84CAF0D486B82239DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250521051556-mutt-send-email-mst@kernel.org>
- <CY8PR12MB7195A306A9A8CFE8FFC1B033DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250521061236-mutt-send-email-mst@kernel.org>
- <CY8PR12MB7195A01F9B43B25B19A64770DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
+        Wed, 21 May 2025 04:34:08 -0700 (PDT)
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	=?UTF-8?q?Alex=20Benn=C3=A9e?= <alex.bennee@linaro.org>,
+	Bill Mills <bill.mills@linaro.org>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] virtio-mmio: Remove virtqueue list from mmio device
+Date: Wed, 21 May 2025 17:03:46 +0530
+Message-Id: <3e56c6f74002987e22f364d883cbad177cd9ad9c.1747827066.git.viresh.kumar@linaro.org>
+X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CY8PR12MB7195A01F9B43B25B19A64770DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: zIvPI1CoU8scI9jcNv5fTuAY-StpC2P_p9X9nxwUlgg_1747824198
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Wed, May 21, 2025 at 10:34:46AM +0000, Parav Pandit wrote:
-> 
-> > From: Michael S. Tsirkin <mst@redhat.com>
-> > Sent: Wednesday, May 21, 2025 3:46 PM
-> > 
-> > On Wed, May 21, 2025 at 09:32:30AM +0000, Parav Pandit wrote:
-> > > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > > Sent: Wednesday, May 21, 2025 2:49 PM
-> > > > To: Parav Pandit <parav@nvidia.com>
-> > > > Cc: stefanha@redhat.com; axboe@kernel.dk;
-> > > > virtualization@lists.linux.dev; linux-block@vger.kernel.or;
-> > > > stable@vger.kernel.org; NBU-Contact-Li Rongqing
-> > > > (EXTERNAL) <lirongqing@baidu.com>; Chaitanya Kulkarni
-> > > > <chaitanyak@nvidia.com>; xuanzhuo@linux.alibaba.com;
-> > > > pbonzini@redhat.com; jasowang@redhat.com; Max Gurtovoy
-> > > > <mgurtovoy@nvidia.com>; Israel Rukshin <israelr@nvidia.com>
-> > > > Subject: Re: [PATCH v1] virtio_blk: Fix disk deletion hang on device
-> > > > surprise removal
-> > > >
-> > > > On Wed, May 21, 2025 at 09:14:31AM +0000, Parav Pandit wrote:
-> > > > > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > > > > Sent: Wednesday, May 21, 2025 1:48 PM
-> > > > > >
-> > > > > > On Wed, May 21, 2025 at 06:37:41AM +0000, Parav Pandit wrote:
-> > > > > > > When the PCI device is surprise removed, requests may not
-> > > > > > > complete the device as the VQ is marked as broken. Due to
-> > > > > > > this, the disk deletion hangs.
-> > > > > > >
-> > > > > > > Fix it by aborting the requests when the VQ is broken.
-> > > > > > >
-> > > > > > > With this fix now fio completes swiftly.
-> > > > > > > An alternative of IO timeout has been considered, however when
-> > > > > > > the driver knows about unresponsive block device, swiftly
-> > > > > > > clearing them enables users and upper layers to react quickly.
-> > > > > > >
-> > > > > > > Verified with multiple device unplug iterations with pending
-> > > > > > > requests in virtio used ring and some pending with the device.
-> > > > > > >
-> > > > > > > Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of
-> > > > > > > virtio pci device")
-> > > > > > > Cc: stable@vger.kernel.org
-> > > > > > > Reported-by: lirongqing@baidu.com
-> > > > > > > Closes:
-> > > > > > >
-> > > > > > https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73c
-> > > > > > a9b4
-> > > > > > 74
-> > > > > > > 1@baidu.com/
-> > > > > > > Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > > > > > Reviewed-by: Israel Rukshin <israelr@nvidia.com>
-> > > > > > > Signed-off-by: Parav Pandit <parav@nvidia.com>
-> > > > > > > ---
-> > > > > > > changelog:
-> > > > > > > v0->v1:
-> > > > > > > - Fixed comments from Stefan to rename a cleanup function
-> > > > > > > - Improved logic for handling any outstanding requests
-> > > > > > >   in bio layer
-> > > > > > > - improved cancel callback to sync with ongoing done()
-> > > > > >
-> > > > > > thanks for the patch!
-> > > > > > questions:
-> > > > > >
-> > > > > >
-> > > > > > > ---
-> > > > > > >  drivers/block/virtio_blk.c | 95
-> > > > > > > ++++++++++++++++++++++++++++++++++++++
-> > > > > > >  1 file changed, 95 insertions(+)
-> > > > > > >
-> > > > > > > diff --git a/drivers/block/virtio_blk.c
-> > > > > > > b/drivers/block/virtio_blk.c index 7cffea01d868..5212afdbd3c7
-> > > > > > > 100644
-> > > > > > > --- a/drivers/block/virtio_blk.c
-> > > > > > > +++ b/drivers/block/virtio_blk.c
-> > > > > > > @@ -435,6 +435,13 @@ static blk_status_t
-> > > > > > > virtio_queue_rq(struct
-> > > > > > blk_mq_hw_ctx *hctx,
-> > > > > > >  	blk_status_t status;
-> > > > > > >  	int err;
-> > > > > > >
-> > > > > > > +	/* Immediately fail all incoming requests if the vq is broken.
-> > > > > > > +	 * Once the queue is unquiesced, upper block layer flushes
-> > > > > > > +any
-> > > > > > pending
-> > > > > > > +	 * queued requests; fail them right away.
-> > > > > > > +	 */
-> > > > > > > +	if (unlikely(virtqueue_is_broken(vblk->vqs[qid].vq)))
-> > > > > > > +		return BLK_STS_IOERR;
-> > > > > > > +
-> > > > > > >  	status = virtblk_prep_rq(hctx, vblk, req, vbr);
-> > > > > > >  	if (unlikely(status))
-> > > > > > >  		return status;
-> > > > > >
-> > > > > > just below this:
-> > > > > >         spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
-> > > > > >         err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
-> > > > > >         if (err) {
-> > > > > >
-> > > > > >
-> > > > > > and virtblk_add_req calls virtqueue_add_sgs, so it will fail on a broken
-> > vq.
-> > > > > >
-> > > > > > Why do we need to check it one extra time here?
-> > > > > >
-> > > > > It may work, but for some reason if the hw queue is stopped in
-> > > > > this flow, it
-> > > > can hang the IOs flushing.
-> > > >
-> > > > > I considered it risky to rely on the error code ENOSPC returned by
-> > > > > non virtio-
-> > > > blk driver.
-> > > > > In other words, if lower layer changed for some reason, we may end
-> > > > > up in
-> > > > stopping the hw queue when broken, and requests would hang.
-> > > > >
-> > > > > Compared to that one-time entry check seems more robust.
-> > > >
-> > > > I don't get it.
-> > > > Checking twice in a row is more robust?
-> > > No. I am not confident on the relying on the error code -ENOSPC from layers
-> > outside of virtio-blk driver.
-> > 
-> > You can rely on virtio core to return an error on a broken vq.
-> > The error won't be -ENOSPC though, why would it?
-> > 
-> Presently that is not the API contract between virtio core and driver.
-> When the VQ is broken the error code is EIO. This is from the code inspection.
+The MMIO transport implementation creates a list of virtqueues for a
+virtio device, while the same is already available in the struct
+virtio_device.
 
-yes
+Don't create a duplicate list, and use the other one instead.
 
-> If you prefer to rely on the code inspection of lower layer to define the virtio-blk, I am fine and remove the two checks.
-> I just find it fragile, but if you prefer this way, I am fine.
+While at it, fix the virtio_device_for_each_vq() macro to accept an
+argument like "&vm_dev->vdev" (which currently fails to build).
 
-I think it's better, yes. 
-
-> > > If for a broken VQ, ENOSPC arrives, then hw queue is stopped and requests
-> > could be stuck.
-> > 
-> > Can you describe the scenario in more detail pls?
-> > where does ENOSPC arrive from? when is the vq get broken ...
-> > 
-> ENOSPC arrives when it fails to enqueue the request in present form.
-> EIO arrives when VQ is broken.
-> 
-> If in the future, ENOSPC arrives for broken VQ, following flow can trigger a hang.
-> 
-> cpu_0:
-> virtblk_broken_device_cleanup()
-> ...
->     blk_mq_unquiesce_queue();
->     ... stage_1:
->     blk_mq_freeze_queue_wait().
-> 
-> 
-> Cpu_1:
-> Queue_rq()
->   virtio_queue_rq()
->      virtblk_add_req()
->         -ENOSPC
->             Stop_hw_queue()
->                 At this point, new requests in block layer may get stuck and may not be enqueued to queue_rq().
-> 
-> > 
-> > > > What am I missing?
-> > > > Can you describe the scenario in more detail?
-> > > >
-> > > > >
-> > > > > >
-> > > > > >
-> > > > > > > @@ -508,6 +515,11 @@ static void virtio_queue_rqs(struct
-> > > > > > > rq_list
-> > > > *rqlist)
-> > > > > > >  	while ((req = rq_list_pop(rqlist))) {
-> > > > > > >  		struct virtio_blk_vq *this_vq = get_virtio_blk_vq(req-
-> > > > > > >mq_hctx);
-> > > > > > >
-> > > > > > > +		if (unlikely(virtqueue_is_broken(this_vq->vq))) {
-> > > > > > > +			rq_list_add_tail(&requeue_list, req);
-> > > > > > > +			continue;
-> > > > > > > +		}
-> > > > > > > +
-> > > > > > >  		if (vq && vq != this_vq)
-> > > > > > >  			virtblk_add_req_batch(vq, &submit_list);
-> > > > > > >  		vq = this_vq;
-> > > > > >
-> > > > > > similarly
-> > > > > >
-> > > > > The error code is not surfacing up here from virtblk_add_req().
-> > > >
-> > > >
-> > > > but wait a sec:
-> > > >
-> > > > static void virtblk_add_req_batch(struct virtio_blk_vq *vq,
-> > > >                 struct rq_list *rqlist) {
-> > > >         struct request *req;
-> > > >         unsigned long flags;
-> > > >         bool kick;
-> > > >
-> > > >         spin_lock_irqsave(&vq->lock, flags);
-> > > >
-> > > >         while ((req = rq_list_pop(rqlist))) {
-> > > >                 struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
-> > > >                 int err;
-> > > >
-> > > >                 err = virtblk_add_req(vq->vq, vbr);
-> > > >                 if (err) {
-> > > >                         virtblk_unmap_data(req, vbr);
-> > > >                         virtblk_cleanup_cmd(req);
-> > > >                         blk_mq_requeue_request(req, true);
-> > > >                 }
-> > > >         }
-> > > >
-> > > >         kick = virtqueue_kick_prepare(vq->vq);
-> > > >         spin_unlock_irqrestore(&vq->lock, flags);
-> > > >
-> > > >         if (kick)
-> > > >                 virtqueue_notify(vq->vq); }
-> > > >
-> > > >
-> > > > it actually handles the error internally?
-> > > >
-> > > For all the errors it requeues the request here.
-> > 
-> > ok and they will not prevent removal will they?
-> > 
-> It should not prevent removal.
-> One must be careful every single time changing it to make sure that hw queues are not stopped in lower layer, but may be this is ok.
-> 
-> > 
-> > > >
-> > > >
-> > > >
-> > > > > It would end up adding checking for special error code here as
-> > > > > well to abort
-> > > > by translating broken VQ -> EIO to break the loop in
-> > virtblk_add_req_batch().
-> > > > >
-> > > > > Weighing on specific error code-based data path that may require
-> > > > > audit from
-> > > > lower layers now and future, an explicit check of broken in this
-> > > > layer could be better.
-> > > > >
-> > > > > [..]
-> > > >
-> > > >
-> > > > Checking add was successful is preferred because it has to be done
-> > > > *anyway* - device can get broken after you check before add.
-> > > >
-> > > > So I would like to understand why are we also checking explicitly
-> > > > and I do not get it so far.
-> > >
-> > > checking explicitly to not depend on specific error code-based logic.
-> > 
-> > 
-> > I do not understand. You must handle vq add errors anyway.
-> 
-> I believe removal of the two vq broken checks should also be fine.
-> I would probably add the comment in the code indicating virtio block driver assumes that ENOSPC is not returned for broken VQ.
-
-You can include this in the series if you like. Tweak to taste:
-
--->
-
-virtio: document ENOSPC
-
-drivers handle ENOSPC specially since it's an error one can
-get from a working VQ. Document the semantics.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
+I have tested this with a Xen/Qemu based setup to test guest to host virtio-i2c
+communication. Works fine, not sure why this code was added in the first place.
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b784aab66867..97ab0cce527d 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2296,6 +2296,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
-  * at the same time (except where noted).
-  *
-  * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
-+ *
-+ * NB: ENOSPC is a special code that is only returned on an attempt to add a
-+ * buffer to a full VQ. It indicates that some buffers are outstanding and that
-+ * the operation can be retried after some buffers have been used.
-  */
- int virtqueue_add_sgs(struct virtqueue *_vq,
- 		      struct scatterlist *sgs[],
+ drivers/virtio/virtio_mmio.c | 52 +++---------------------------------
+ include/linux/virtio.h       |  2 +-
+ 2 files changed, 4 insertions(+), 50 deletions(-)
+
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 5d78c2d572ab..b152a1eca05a 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -65,7 +65,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm.h>
+ #include <linux/slab.h>
+-#include <linux/spinlock.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_config.h>
+ #include <uapi/linux/virtio_mmio.h>
+@@ -88,22 +87,8 @@ struct virtio_mmio_device {
+ 
+ 	void __iomem *base;
+ 	unsigned long version;
+-
+-	/* a list of queues so we can dispatch IRQs */
+-	spinlock_t lock;
+-	struct list_head virtqueues;
+-};
+-
+-struct virtio_mmio_vq_info {
+-	/* the actual virtqueue */
+-	struct virtqueue *vq;
+-
+-	/* the list node for the virtqueues list */
+-	struct list_head node;
+ };
+ 
+-
+-
+ /* Configuration interface */
+ 
+ static u64 vm_get_features(struct virtio_device *vdev)
+@@ -300,9 +285,8 @@ static bool vm_notify_with_data(struct virtqueue *vq)
+ static irqreturn_t vm_interrupt(int irq, void *opaque)
+ {
+ 	struct virtio_mmio_device *vm_dev = opaque;
+-	struct virtio_mmio_vq_info *info;
++	struct virtqueue *vq;
+ 	unsigned long status;
+-	unsigned long flags;
+ 	irqreturn_t ret = IRQ_NONE;
+ 
+ 	/* Read and acknowledge interrupts */
+@@ -315,10 +299,8 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+ 	}
+ 
+ 	if (likely(status & VIRTIO_MMIO_INT_VRING)) {
+-		spin_lock_irqsave(&vm_dev->lock, flags);
+-		list_for_each_entry(info, &vm_dev->virtqueues, node)
+-			ret |= vring_interrupt(irq, info->vq);
+-		spin_unlock_irqrestore(&vm_dev->lock, flags);
++		virtio_device_for_each_vq(&vm_dev->vdev, vq)
++			ret |= vring_interrupt(irq, vq);
+ 	}
+ 
+ 	return ret;
+@@ -329,14 +311,8 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+ static void vm_del_vq(struct virtqueue *vq)
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
+-	struct virtio_mmio_vq_info *info = vq->priv;
+-	unsigned long flags;
+ 	unsigned int index = vq->index;
+ 
+-	spin_lock_irqsave(&vm_dev->lock, flags);
+-	list_del(&info->node);
+-	spin_unlock_irqrestore(&vm_dev->lock, flags);
+-
+ 	/* Select and deactivate the queue */
+ 	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
+ 	if (vm_dev->version == 1) {
+@@ -347,8 +323,6 @@ static void vm_del_vq(struct virtqueue *vq)
+ 	}
+ 
+ 	vring_del_virtqueue(vq);
+-
+-	kfree(info);
+ }
+ 
+ static void vm_del_vqs(struct virtio_device *vdev)
+@@ -375,9 +349,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+ 	bool (*notify)(struct virtqueue *vq);
+-	struct virtio_mmio_vq_info *info;
+ 	struct virtqueue *vq;
+-	unsigned long flags;
+ 	unsigned int num;
+ 	int err;
+ 
+@@ -399,13 +371,6 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 		goto error_available;
+ 	}
+ 
+-	/* Allocate and fill out our active queue description */
+-	info = kmalloc(sizeof(*info), GFP_KERNEL);
+-	if (!info) {
+-		err = -ENOMEM;
+-		goto error_kmalloc;
+-	}
+-
+ 	num = readl(vm_dev->base + VIRTIO_MMIO_QUEUE_NUM_MAX);
+ 	if (num == 0) {
+ 		err = -ENOENT;
+@@ -463,13 +428,6 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
+ 	}
+ 
+-	vq->priv = info;
+-	info->vq = vq;
+-
+-	spin_lock_irqsave(&vm_dev->lock, flags);
+-	list_add(&info->node, &vm_dev->virtqueues);
+-	spin_unlock_irqrestore(&vm_dev->lock, flags);
+-
+ 	return vq;
+ 
+ error_bad_pfn:
+@@ -481,8 +439,6 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
+ 		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
+ 	}
+-	kfree(info);
+-error_kmalloc:
+ error_available:
+ 	return ERR_PTR(err);
+ }
+@@ -627,8 +583,6 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+ 	vm_dev->vdev.dev.release = virtio_mmio_release_dev;
+ 	vm_dev->vdev.config = &virtio_mmio_config_ops;
+ 	vm_dev->pdev = pdev;
+-	INIT_LIST_HEAD(&vm_dev->virtqueues);
+-	spin_lock_init(&vm_dev->lock);
+ 
+ 	vm_dev->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(vm_dev->base)) {
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 64cb4b04be7a..8b745ce0cf5f 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -196,7 +196,7 @@ int virtio_device_reset_done(struct virtio_device *dev);
+ size_t virtio_max_dma_size(const struct virtio_device *vdev);
+ 
+ #define virtio_device_for_each_vq(vdev, vq) \
+-	list_for_each_entry(vq, &vdev->vqs, list)
++	list_for_each_entry(vq, &(vdev)->vqs, list)
+ 
+ /**
+  * struct virtio_driver - operations for a virtio I/O driver
+-- 
+2.31.1.272.g89b43f80a514
 
