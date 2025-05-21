@@ -1,276 +1,259 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EA7622FAC3
-	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 08:17:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D98F723370A
+	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 08:57:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747815477; cv=none; b=TemEc9Lk8CAhjTmB2WXdAJFo2rf5KyovfLszh/nq+VTx3bDr7jsxB0JDCK1yzTpkMltt86Huh4cDZXdTdzvMvpPiHNeEGjvR9+ZyocqsYyFKCsSTq5IYLZ9NApv/thV1cizG2Mlxj6rSQnP+q8Cbsnp2TVir1R3DHopa6rYm5Ts=
+	t=1747817845; cv=none; b=Q0efag3e9hezScbqcg0SAnRF6LoHx1jkXY/eoOE4kHamXHv07EFSwPQ//X1QRFI4b/7ofkGu16uPGF5Ge1YOzStFmyWpQi06ERitrKrYjps5jVzbdCAbVfVbiAZljX/jPxBrY/WOevhIYPPB8XvZ+pmvE+MCa3NcZuY0DmYleVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747815477; c=relaxed/simple;
-	bh=/Md1wVc8jsu8RCloniLIcrAHX4lRcINHKYCHDmb1GT4=;
+	s=arc-20240116; t=1747817845; c=relaxed/simple;
+	bh=/4i/nK+t1ryn5HGVFpM4RXNec1OC5YglYAfJmaJDfgo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=IPYgnXDdAQd3lu3ThrQX7CDydPzbgIuFuPEwnIqeibcUkMDXuuai60yrnPKQiEuyEOjSWbe0fr4XZGZ+A81pFFPuMyhhxTP8RCqbhd6qQZs9NgQDIbfeZ0wgo3H3OKrGh4ueBaV1Ropuk0/rv5sxhCcgGmNwyAY4Qtvf0xw5QRg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iF31CoGF; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=CowNr0sd4SeVU8jyjVl1uSD+XJ7wbithoc4//fSyhxiEUAH6HjpRKi8q8EKAhXBI0sAVAT9Mgyndui7P5H06/HhjmGhZT7IAAAugidETm8wok8uoQKj0f19BB6GiUC61MS41Qcl3Q+aPiyqTtpft7UZIHkNb6iRoLOUni5QHQzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NDLkbx4X; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iF31CoGF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NDLkbx4X"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747815474;
+	s=mimecast20190719; t=1747817841;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5XzrO8wxMVXlpPsshH+MqZE9AXciR/wR4/zf6Sx4tJ8=;
-	b=iF31CoGFJHKw9efrhZJ9m5P7ajbmb0Lo8DykJ6NI4+Oti1elrWPgeMYxm8NDFWzzF6JT96
-	lMDSK7NWmAkrEcjnjoI/bq+/gxDtMQaLLg/CirbaWhh53XLyjg70rQ+cwyDst5xbeC2Zp+
-	o/V3Vfd6qh7aeM7BM2lGZsxYcBC1BJE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=JfOqXSQo7CKTaqGd/jh9hve0GBvT5oZOukPMAeA+fDA=;
+	b=NDLkbx4XHnCjLv1BqWIVv/dQaH2BZw5ibZvqGFRBjZF/wuixJgGg6vnt5DdxlLzdDUuw5L
+	YeolP0aBESDsG3ujLv56NXKQ2CJkDqn4Lgzu2HgqH9BiC2wrdfFrV1BcZ503uRjuGjAXa8
+	jDLT4gVvEakIDgMgq1Nr1VFYQqiLBpg=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-215-1FNwMHgRPy-z41aSVbwmFg-1; Wed, 21 May 2025 04:17:52 -0400
-X-MC-Unique: 1FNwMHgRPy-z41aSVbwmFg-1
-X-Mimecast-MFC-AGG-ID: 1FNwMHgRPy-z41aSVbwmFg_1747815472
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43d734da1a3so35322045e9.0
-        for <virtualization@lists.linux.dev>; Wed, 21 May 2025 01:17:52 -0700 (PDT)
+ us-mta-117-mrjtX581OWKYIPIGJ58-Sw-1; Wed, 21 May 2025 04:57:20 -0400
+X-MC-Unique: mrjtX581OWKYIPIGJ58-Sw-1
+X-Mimecast-MFC-AGG-ID: mrjtX581OWKYIPIGJ58-Sw_1747817839
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-acf16746a74so215329966b.0
+        for <virtualization@lists.linux.dev>; Wed, 21 May 2025 01:57:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747815472; x=1748420272;
+        d=1e100.net; s=20230601; t=1747817839; x=1748422639;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5XzrO8wxMVXlpPsshH+MqZE9AXciR/wR4/zf6Sx4tJ8=;
-        b=uCRlau4h4ImTv8GWff2SNvRhlR7csAHLWPHGrayqWF7Z1MSibOKr4fSsAyP/d4Ilu7
-         YvumlOTf46GMiH7BQb8T1OLCQliwPu0wd6WBYYXfWiYnwWSKOSZ+cexvGSZm+MSyBL7x
-         WznTECZjVU3qkJ6iQe6KEZgneBkn5Cpr82ihPYs6qAAs/OHr1aeJu7vmtzX1PtfUJ5b4
-         bGi5uXR+QD/dwaO8HJcLnqS+q3GQtx40ph+Gd/73dojumdQ/GtOUZWcd1wL8dA2599M8
-         bxMwbf5b2exNQVkHIeTrrUiJGtQSXHe/XVGP3KJaFh+Knu4Gt5xttygUp5h4xcJDm+DX
-         bH+A==
-X-Forwarded-Encrypted: i=1; AJvYcCWivqIOZjS2TJDKBspv81eQQp1xe3UzYyU1f9BGq3bhfiQnjZAQjY8AQTSEJOODTbA8wgXNLWdtAsUuiryEOA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywt1wacibusfWFWGBY0f/MPIEmf1oOFvDcjwyyWebsUHG6b1NtN
-	CioXXp+0JA51rCF7hkm7R/y2drkLm/m2Din4u5bMRGbVISn94yC1+by7kY40nPUhtysqxv2Hdo+
-	euIbQotoaqULei3RhK1NNdEDsjhpd9KYdsvsqeaZylX9lVp7Q1/CRJPQljXqeFdZtzeyS
-X-Gm-Gg: ASbGncupceat78TI3uRyxNGbeqZs7U1ELF3h6+TA3C6EZcxheotezlXoa66e6siKLM5
-	hUqHyDJSegATsqsomrJiZgiKH+xSrd1YfsUu2AzbAgeAqMMG8dkg4J323T8zQC3HTKV1SOs3eYs
-	734TjGkWMBu3xsmiPAuvbkpKHYh6O/xm56Ll8Cx1MwjOGT0/Djh36XE9NMIpCHM3lbn2K01gXYg
-	widqbN7BDA92Sp9+Ok9l+ldDGNMS33BkA4Oz1lkkUEbgYMK9L/8BzFobNM5tWwQcrbGXXheYrRr
-	wqWaFQ==
-X-Received: by 2002:a05:600c:4e14:b0:43d:563:6fef with SMTP id 5b1f17b1804b1-442ff031969mr162418225e9.21.1747815471655;
-        Wed, 21 May 2025 01:17:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE8z097l9PyFs5Kuqq7TGJjpdpAXxCe0BbGPvzb+M7qRUc6JXFhcT9Qb/VQ01c59gV3kROxQQ==
-X-Received: by 2002:a05:600c:4e14:b0:43d:563:6fef with SMTP id 5b1f17b1804b1-442ff031969mr162417805e9.21.1747815471129;
-        Wed, 21 May 2025 01:17:51 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-447f73d3defsm58843485e9.18.2025.05.21.01.17.49
+        bh=JfOqXSQo7CKTaqGd/jh9hve0GBvT5oZOukPMAeA+fDA=;
+        b=eqRMQlVU9kmyuAuX+2ThbWb3XDWdDbXmOylY7usn4Hh8hO1tO0WvXoQNz8glooAUdM
+         DMRy87bhGkWaubHenoqa5AQtW52QvPQhiwhzEV6snLBiNHpawwWS1BgB7sBppqz7wiUv
+         uXp1VUKHdQaj7bA4miWfIWD9X6d4/aEAeBhNjyd2b7S7Gp4HzKYt+o8ERVtw5GriQ6w/
+         M2cWhAq7Afq1PxNN6E5iQxyx0bqGusffR/17fsWgGKKDvDG+2eRFVAmy0nwsy59CnX9Q
+         xKyzz4Oda9z21UpkeGxFD5nIjDW2fLqgIwTVgmf/M7qhCUeY1/V+CWO8jQV2WTpqnogY
+         dzxw==
+X-Forwarded-Encrypted: i=1; AJvYcCXPapDafqDul9rXxZPfWDNaTi/7AbZcE+Eq1dsWrquGPeSwWOQZKvyJAs6umkv71FSRVZVLmqxZV4taRbXchg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw2jRYhiIIFoaUnxCShel+zg4D2Wg043vQd90wQ+53wBehaF75m
+	4vQ4FfVjwXGZkp+WRGobAX6EeVDVgz71rdlBmW+HFVFfWQ3oqw/odQ/fupQjcw1oQ2XlCERw7bS
+	pB4A/DrHFw3YrjMNEb0YGkILpDIJIqi4q7Ypn8mwhRx4zEmqsGCRA3u0COCUfpFCFqsjC
+X-Gm-Gg: ASbGncs1cGn2SSUWUDgaETOS3j0wrUjRV6tXtD6iXqo2zTmztAybrSO9mwM3g3LJ4Nv
+	FJNTwYzPFBnroHyExI4CcvPp+eeV8AC+jdRKbPRxxCHoUBTJQ1fp3ymNvwyH2h6sTdiUdyzidsW
+	EPpr/emmy4ZppvGcukc4MJjweZewTRUhqzGWC4CDROL6W3l01lDHzy96SM9OkDxeP3cArKiq0Lp
+	L5xOGj0KBrWETysk29KO1Qffas349mjeToPLESHcndJ/Wdcukf4hReQcCnrQ8SWOIViSWX2qxc7
+	fF1H/Kf5ZT7+iiA6nAzHo42Z8OxLRxAruGBMp2wL9rezzRZ6YLSMs4kJH2N/
+X-Received: by 2002:a17:907:6d23:b0:ac1:ea29:4e63 with SMTP id a640c23a62f3a-ad52d54495amr1849743366b.26.1747817839306;
+        Wed, 21 May 2025 01:57:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEtnUdwERWpUNuT2ZQpVUSKe1pvNBlwNoQW+BT1WYvMhwywmwvGk8BSRk37JEWNFyWGGlv3dA==
+X-Received: by 2002:a17:907:6d23:b0:ac1:ea29:4e63 with SMTP id a640c23a62f3a-ad52d54495amr1849740766b.26.1747817838661;
+        Wed, 21 May 2025 01:57:18 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-134-35.retail.telecomitalia.it. [82.53.134.35])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ad52d047754sm858957766b.7.2025.05.21.01.57.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 May 2025 01:17:50 -0700 (PDT)
-Date: Wed, 21 May 2025 04:17:47 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Cc: stefanha@redhat.com, axboe@kernel.dk, virtualization@lists.linux.dev,
-	linux-block@vger.kernel.or, stable@vger.kernel.org,
-	lirongqing@baidu.com, kch@nvidia.com, xuanzhuo@linux.alibaba.com,
-	pbonzini@redhat.com, jasowang@redhat.com,
-	Max Gurtovoy <mgurtovoy@nvidia.com>,
-	Israel Rukshin <israelr@nvidia.com>
-Subject: Re: [PATCH v1] virtio_blk: Fix disk deletion hang on device surprise
- removal
-Message-ID: <20250521041506-mutt-send-email-mst@kernel.org>
-References: <20250521062744.1361774-1-parav@nvidia.com>
+        Wed, 21 May 2025 01:57:17 -0700 (PDT)
+Date: Wed, 21 May 2025 10:57:13 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Xuewei Niu <niuxuewei97@gmail.com>
+Cc: davem@davemloft.net, fupan.lfp@antgroup.com, jasowang@redhat.com, 
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, 
+	niuxuewei.nxw@antgroup.com, pabeni@redhat.com, stefanha@redhat.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH 2/3] vsock/virtio: Add SIOCINQ support for all virtio
+ based transports
+Message-ID: <bbn4lvdwh42m2zvi3rdyws66y5ulew32rchtz3kxirqlllkr63@7toa4tcepax3>
+References: <ca3jkuttkt3yfdgcevp7s3ejrxx3ngkoyuopqw2k2dtgsqox7w@fhicoics2kiv>
+ <20250521020613.3218651-1-niuxuewei.nxw@antgroup.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250521062744.1361774-1-parav@nvidia.com>
+In-Reply-To: <20250521020613.3218651-1-niuxuewei.nxw@antgroup.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Wz5nWl_Z7nXSOIltQeh6Q-d20k0XvFgyoFddS5MCNJw_1747815472
+X-Mimecast-MFC-PROC-ID: lmWSbCKHHvsZ6l6LIhLoD0VqWdOeIuOynskV13pQse4_1747817839
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Wed, May 21, 2025 at 06:37:41AM +0000, Parav Pandit wrote:
-> When the PCI device is surprise removed, requests may not complete
-> the device as the VQ is marked as broken. Due to this, the disk
-> deletion hangs.
-> 
-> Fix it by aborting the requests when the VQ is broken.
-> 
-> With this fix now fio completes swiftly.
-> An alternative of IO timeout has been considered, however
-> when the driver knows about unresponsive block device, swiftly clearing
-> them enables users and upper layers to react quickly.
-> 
-> Verified with multiple device unplug iterations with pending requests in
-> virtio used ring and some pending with the device.
-> 
-> Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio pci device")
-> Cc: stable@vger.kernel.org
-> Reported-by: lirongqing@baidu.com
-> Closes: https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b4741@baidu.com/
-> Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> Reviewed-by: Israel Rukshin <israelr@nvidia.com>
-> Signed-off-by: Parav Pandit <parav@nvidia.com>
-> ---
-> changelog:
-> v0->v1:
-> - Fixed comments from Stefan to rename a cleanup function
-> - Improved logic for handling any outstanding requests
->   in bio layer
-> - improved cancel callback to sync with ongoing done()
+On Wed, May 21, 2025 at 10:06:13AM +0800, Xuewei Niu wrote:
+>> On Mon, May 19, 2025 at 03:06:48PM +0800, Xuewei Niu wrote:
+>> >The virtio_vsock_sock has a new field called bytes_unread as the return
+>> >value of the SIOCINQ ioctl.
+>> >
+>> >Though the rx_bytes exists, we introduce a bytes_unread field to the
+>> >virtio_vsock_sock struct. The reason is that it will not be updated
+>> >until the skbuff is fully consumed, which causes inconsistency.
+>> >
+>> >The byte_unread is increased by the length of the skbuff when skbuff is
+>> >enqueued, and it is decreased when dequeued.
+>> >
+>> >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+>> >---
+>> > drivers/vhost/vsock.c                   |  1 +
+>> > include/linux/virtio_vsock.h            |  2 ++
+>> > net/vmw_vsock/virtio_transport.c        |  1 +
+>> > net/vmw_vsock/virtio_transport_common.c | 17 +++++++++++++++++
+>> > net/vmw_vsock/vsock_loopback.c          |  1 +
+>> > 5 files changed, 22 insertions(+)
+>> >
+>> >diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>> >index 802153e23073..0f20af6e5036 100644
+>> >--- a/drivers/vhost/vsock.c
+>> >+++ b/drivers/vhost/vsock.c
+>> >@@ -452,6 +452,7 @@ static struct virtio_transport vhost_transport = {
+>> > 		.notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat,
+>> >
+>> > 		.unsent_bytes             = virtio_transport_unsent_bytes,
+>> >+		.unread_bytes             = virtio_transport_unread_bytes,
+>> >
+>> > 		.read_skb = virtio_transport_read_skb,
+>> > 	},
+>> >diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>> >index 0387d64e2c66..0a7bd240113a 100644
+>> >--- a/include/linux/virtio_vsock.h
+>> >+++ b/include/linux/virtio_vsock.h
+>> >@@ -142,6 +142,7 @@ struct virtio_vsock_sock {
+>> > 	u32 buf_alloc;
+>> > 	struct sk_buff_head rx_queue;
+>> > 	u32 msg_count;
+>> >+	size_t bytes_unread;
+>>
+>> Can we just use `rx_bytes` field we already have?
+>>
+>> Thanks,
+>> Stefano
+>
+>I perfer not. The `rx_bytes` won't be updated until the skbuff is fully
+>consumed, causing inconsistency issues. If it is acceptable to you, I'll
+>reuse the field instead.
 
-thanks for the patch!
-questions:
+I think here we found a little pre-existing issue that should be related
+also to what Arseniy (CCed) is trying to fix (low_rx_bytes).
 
+We basically have 2 counters:
+- rx_bytes, which we use internally to see if there are bytes to read
+   and for sock_rcvlowat
+- fwd_cnt, which we use instead for the credit mechanism and informing
+   the other peer whether we have space or not
 
-> ---
->  drivers/block/virtio_blk.c | 95 ++++++++++++++++++++++++++++++++++++++
->  1 file changed, 95 insertions(+)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 7cffea01d868..5212afdbd3c7 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -435,6 +435,13 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->  	blk_status_t status;
->  	int err;
->  
-> +	/* Immediately fail all incoming requests if the vq is broken.
-> +	 * Once the queue is unquiesced, upper block layer flushes any pending
-> +	 * queued requests; fail them right away.
-> +	 */
-> +	if (unlikely(virtqueue_is_broken(vblk->vqs[qid].vq)))
-> +		return BLK_STS_IOERR;
-> +
->  	status = virtblk_prep_rq(hctx, vblk, req, vbr);
->  	if (unlikely(status))
->  		return status;
+These are updated with virtio_transport_dec_rx_pkt() and 
+virtio_transport_inc_rx_pkt()
 
-just below this:
-        spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
-        err = virtblk_add_req(vblk->vqs[qid].vq, vbr);
-        if (err) {
+As far as I can see, from the beginning, we call 
+virtio_transport_dec_rx_pkt() only when we consume the entire packet.
+This makes sense for `fwd_cnt`, because we still have occupied space in 
+memory and we don't want to update the credit until we free all the 
+space, but I think it makes no sense for `rx_bytes`, which is only used 
+internally and should reflect the current situation of bytes to read.
 
+So in my opinion we should fix it this way (untested):
 
-and virtblk_add_req calls virtqueue_add_sgs, so it will fail
-on a broken vq.
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 11eae88c60fc..ee70cb114328 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -449,10 +449,10 @@ static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
+  }
 
-Why do we need to check it one extra time here?
+  static void virtio_transport_dec_rx_pkt(struct virtio_vsock_sock *vvs,
+-					u32 len)
++					u32 bytes_read, u32 bytes_dequeued)
+  {
+-	vvs->rx_bytes -= len;
+-	vvs->fwd_cnt += len;
++	vvs->rx_bytes -= bytes_read;
++	vvs->fwd_cnt += bytes_dequeued;
+  }
 
+  void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct sk_buff *skb)
+@@ -581,11 +581,11 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+  				   size_t len)
+  {
+  	struct virtio_vsock_sock *vvs = vsk->trans;
+-	size_t bytes, total = 0;
+  	struct sk_buff *skb;
+  	u32 fwd_cnt_delta;
+  	bool low_rx_bytes;
+  	int err = -EFAULT;
++	size_t total = 0;
+  	u32 free_space;
 
+  	spin_lock_bh(&vvs->rx_lock);
+@@ -597,6 +597,8 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+  	}
 
-> @@ -508,6 +515,11 @@ static void virtio_queue_rqs(struct rq_list *rqlist)
->  	while ((req = rq_list_pop(rqlist))) {
->  		struct virtio_blk_vq *this_vq = get_virtio_blk_vq(req->mq_hctx);
->  
-> +		if (unlikely(virtqueue_is_broken(this_vq->vq))) {
-> +			rq_list_add_tail(&requeue_list, req);
-> +			continue;
-> +		}
-> +
->  		if (vq && vq != this_vq)
->  			virtblk_add_req_batch(vq, &submit_list);
->  		vq = this_vq;
+  	while (total < len && !skb_queue_empty(&vvs->rx_queue)) {
++		size_t bytes, dequeued = 0;
++
+  		skb = skb_peek(&vvs->rx_queue);
 
-similarly
+  		bytes = min_t(size_t, len - total,
+@@ -620,12 +622,12 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+  		VIRTIO_VSOCK_SKB_CB(skb)->offset += bytes;
 
-> @@ -1554,6 +1566,87 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	return err;
->  }
->  
-> +static bool virtblk_request_cancel(struct request *rq, void *data)
-> +{
-> +	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
-> +	struct virtio_blk *vblk = data;
-> +	struct virtio_blk_vq *vq;
-> +	unsigned long flags;
-> +
-> +	vq = &vblk->vqs[rq->mq_hctx->queue_num];
-> +
-> +	spin_lock_irqsave(&vq->lock, flags);
-> +
-> +	vbr->in_hdr.status = VIRTIO_BLK_S_IOERR;
-> +	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
-> +		blk_mq_complete_request(rq);
-> +
-> +	spin_unlock_irqrestore(&vq->lock, flags);
-> +	return true;
-> +}
-> +
-> +static void virtblk_broken_device_cleanup(struct virtio_blk *vblk)
-> +{
-> +	struct request_queue *q = vblk->disk->queue;
-> +
-> +	if (!virtqueue_is_broken(vblk->vqs[0].vq))
-> +		return;
-> +
-> +	/* Start freezing the queue, so that new requests keeps waitng at the
-> +	 * door of bio_queue_enter(). We cannot fully freeze the queue because
-> +	 * freezed queue is an empty queue and there are pending requests, so
-> +	 * only start freezing it.
-> +	 */
-> +	blk_freeze_queue_start(q);
-> +
-> +	/* When quiescing completes, all ongoing dispatches have completed
-> +	 * and no new dispatch will happen towards the driver.
-> +	 * This ensures that later when cancel is attempted, then are not
-> +	 * getting processed by the queue_rq() or queue_rqs() handlers.
-> +	 */
-> +	blk_mq_quiesce_queue(q);
-> +
-> +	/*
-> +	 * Synchronize with any ongoing VQ callbacks, effectively quiescing
-> +	 * the device and preventing it from completing further requests
-> +	 * to the block layer. Any outstanding, incomplete requests will be
-> +	 * completed by virtblk_request_cancel().
-> +	 */
-> +	virtio_synchronize_cbs(vblk->vdev);
-> +
-> +	/* At this point, no new requests can enter the queue_rq() and
-> +	 * completion routine will not complete any new requests either for the
-> +	 * broken vq. Hence, it is safe to cancel all requests which are
-> +	 * started.
-> +	 */
-> +	blk_mq_tagset_busy_iter(&vblk->tag_set, virtblk_request_cancel, vblk);
-> +	blk_mq_tagset_wait_completed_request(&vblk->tag_set);
-> +
-> +	/* All pending requests are cleaned up. Time to resume so that disk
-> +	 * deletion can be smooth. Start the HW queues so that when queue is
-> +	 * unquiesced requests can again enter the driver.
-> +	 */
-> +	blk_mq_start_stopped_hw_queues(q, true);
-> +
-> +	/* Unquiescing will trigger dispatching any pending requests to the
-> +	 * driver which has crossed bio_queue_enter() to the driver.
-> +	 */
-> +	blk_mq_unquiesce_queue(q);
-> +
-> +	/* Wait for all pending dispatches to terminate which may have been
-> +	 * initiated after unquiescing.
-> +	 */
-> +	blk_mq_freeze_queue_wait(q);
-> +
-> +	/* Mark the disk dead so that once queue unfreeze, the requests
-> +	 * waiting at the door of bio_queue_enter() can be aborted right away.
-> +	 */
-> +	blk_mark_disk_dead(vblk->disk);
-> +
-> +	/* Unfreeze the queue so that any waiting requests will be aborted. */
-> +	blk_mq_unfreeze_queue_nomemrestore(q);
-> +}
-> +
->  static void virtblk_remove(struct virtio_device *vdev)
->  {
->  	struct virtio_blk *vblk = vdev->priv;
-> @@ -1561,6 +1654,8 @@ static void virtblk_remove(struct virtio_device *vdev)
->  	/* Make sure no work handler is accessing the device. */
->  	flush_work(&vblk->config_work);
->  
-> +	virtblk_broken_device_cleanup(vblk);
-> +
->  	del_gendisk(vblk->disk);
->  	blk_mq_free_tag_set(&vblk->tag_set);
->  
-> -- 
-> 2.34.1
+  		if (skb->len == VIRTIO_VSOCK_SKB_CB(skb)->offset) {
+-			u32 pkt_len = le32_to_cpu(virtio_vsock_hdr(skb)->len);
+-
+-			virtio_transport_dec_rx_pkt(vvs, pkt_len);
++			dequeued = le32_to_cpu(virtio_vsock_hdr(skb)->len);
+  			__skb_unlink(skb, &vvs->rx_queue);
+  			consume_skb(skb);
+  		}
++
++		virtio_transport_dec_rx_pkt(vvs, bytes, dequeued);
+  	}
+
+  	fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt;
+@@ -782,7 +784,7 @@ static int virtio_transport_seqpacket_do_dequeue(struct vsock_sock *vsk,
+  				msg->msg_flags |= MSG_EOR;
+  		}
+
+-		virtio_transport_dec_rx_pkt(vvs, pkt_len);
++		virtio_transport_dec_rx_pkt(vvs, pkt_len, pkt_len);
+  		vvs->bytes_unread -= pkt_len;
+  		kfree_skb(skb);
+  	}
+@@ -1752,6 +1754,7 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
+  	struct sock *sk = sk_vsock(vsk);
+  	struct virtio_vsock_hdr *hdr;
+  	struct sk_buff *skb;
++	u32 pkt_len;
+  	int off = 0;
+  	int err;
+
+@@ -1769,7 +1772,8 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
+  	if (le32_to_cpu(hdr->flags) & VIRTIO_VSOCK_SEQ_EOM)
+  		vvs->msg_count--;
+
+-	virtio_transport_dec_rx_pkt(vvs, le32_to_cpu(hdr->len));
++	pkt_len = le32_to_cpu(hdr->len);
++	virtio_transport_dec_rx_pkt(vvs, pkt_len, pkt_len);
+  	spin_unlock_bh(&vvs->rx_lock);
+
+  	virtio_transport_send_credit_update(vsk);
+
+@Arseniy WDYT?
+I will test it and send a proper patch.
+
+@Xuewei with that fixed, I think you can use `rx_bytes`, right?
+
+Also because you missed for example `virtio_transport_read_skb()` used 
+by ebpf (see commit 3543152f2d33 ("vsock: Update rx_bytes on 
+read_skb()")).
+
+Thanks,
+Stefano
 
