@@ -1,248 +1,489 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2062.outbound.protection.outlook.com [40.107.93.62])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0C55267B83
-	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 12:17:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747829841; cv=none; b=laAxGI+nG2tns8T5bzlEniW2PoQkMDHV5xlDKV3SdMyK962gyGNyRttsFrYUa4H8yTabadVKQTruQDWkRNfjBxZewkn6fbsM9tE3UWxDJDfCxoeXRdgnfg3tnUMs8m5bykSZuk03cI7acshj8AxP1MBFCq7UDIIX3trySeBs34A=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747829841; c=relaxed/simple;
-	bh=CfktD8zgoXzFHpGPN33h183DcOy5eNSJ26il1oP9PIE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YWoP2ip8NEGhXIViAYJg9Bgtqtb4UPxuTtB0OUmMy7NwL2wvfwXscrkVGkGmsumw4rBpUbuWJO9Z08J/cSgqdHZu2Of3KwI/pl5ml2ALXAYa0NEtLKHJ7X6ks38lvAlnWHtvPz8cGxN8bFmryvtRBm+PJFyRWcRKpzsxtTtC8UI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Sb/zGD9i; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AD9125C71C
+	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 12:40:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.62
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1747831219; cv=fail; b=gR16AnF+NTh3wcBLsHMXL8MkJNqxxO9D2QMkblYx/2jVNQ5+PGXz6+d0W8+D7LYGYec0vNU7pgOZEDWnFop8Fz8F/UPveKlkDSV9DcqYP+mUy2XNdukJ/kBH5VgCqj35G4ag5gwqqY/pKS2YiJaohlcEKMWRLJmy3dH7LQ7mptc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1747831219; c=relaxed/simple;
+	bh=+vM1zQC6laS2iBnsDy3cvkT8v7QF4VBnJqbZP4sDMdE=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=de2w8jICPq8DrhCWDgY9qdTwQsyIQpSXWYSzKJP/D60HygBHdMl944+r1QAygpMC0m4y7ExrxsnBxVHm9OBbUVHWdjiPTAcuMmAZhqoKMC1+KIVJe8bFU4jZl3xRMXp8NmjkIfp/8cUxsZMhoHeGe9a86tl8esMC/zeuNke0F7g=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=R1Lpz67y; arc=fail smtp.client-ip=40.107.93.62
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Sb/zGD9i"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747829838;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=koXbHLCrgYB2PDtOqNQzcLGwc+0kyTs5q0PGoBFShLg=;
-	b=Sb/zGD9ibWhk9xoBVHe9q8HWY1CUi8x6KwdztL+Cg6pRDX0j1XHfIIJWXQvEK/en81W9Ky
-	N99GmGhQnMW8RdLE8nEorMib5O/lo+/UL6I1yxxCnt2k6C1O3X47DiFsEi7TZkusz+Z49+
-	jfvJVHuLnvW+hoClzdn+K5MVhqTbHWo=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-671-OXvRZ1OCPmu-vYfwZcbEsw-1; Wed, 21 May 2025 08:17:17 -0400
-X-MC-Unique: OXvRZ1OCPmu-vYfwZcbEsw-1
-X-Mimecast-MFC-AGG-ID: OXvRZ1OCPmu-vYfwZcbEsw_1747829836
-Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-60214f89ce0so1391654a12.3
-        for <virtualization@lists.linux.dev>; Wed, 21 May 2025 05:17:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747829836; x=1748434636;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=koXbHLCrgYB2PDtOqNQzcLGwc+0kyTs5q0PGoBFShLg=;
-        b=AViQ5uEyZZp/DeL6IPxPTsDUmj1GQy1taUkDVMn7i+iYd5BJqIRVJbXXQ3wVsFS4K2
-         Jk1JHSYs3haB4z3acPWavy3TrIg5OgmeGAKrEQ4QxBKomLs7pEQLoSJRzPm3aNycMRiJ
-         fcAlpNubFCLKeMUINMI8gTRb3aZa1tkaZQmTzv8lUVjZKBZya9As+1MCGUhOt2SrkNut
-         c0PqdMYHfi3SHSI1UpuvfREL8z30khhDCRwHGuIcksx/6K8S4Bsei50AJTGHZEZmDMCv
-         GAbvxFMeJAjrb+qVw2KevjI+pf3E1xW1z+9i4+jEkTBWA+nMRs5XnquGHHGW1qn7jlGT
-         D7gw==
-X-Gm-Message-State: AOJu0Yxp6zJVaserPJLEGd2cJsHrmsg0ZqnsloJFQ/KFdn+2TXpySP8x
-	+xR/8mGQoRJ0OEVdZ1Din88XCvfeYAoh7sPRw7hcjFqeF++TCK47+V5XXTh1Yd4Zt9edyFf+RSB
-	1NNtRGD6LrWsULZl4swblFBVUW3gbj6ppafIL8zys7sifIoSu0hn90s1I/Rj67cNJYkAW
-X-Gm-Gg: ASbGncvn18BBbUJ9/xR1uqpKbv6iKWYNHIBdUt9aruU2IK3JFWQ2tZ08J2fh0LiVPpb
-	H2M8KBkrYGhwqOn4Oa9R/lOd3kfbK8gYBL0obREgmHQ6bVBc6n6QMmUIVVO/M6OgEAu+i1nbeUM
-	S7xfKkEei/i7gYPFd9PYT4N+ubbwtLk2jgbWKLdqy9j1CKmU4fUhay+EeQRz2tB5PHKW3Wn4tsB
-	GMYaLE6XYzra2xU1g64bmmzejSDctpnepEQq+o0McKJqBaIgmKcdX8m9NaNWLxcMtkDwK1X5BMX
-	N9s20dxirnhym08qe20rb0SoPmxBtdev3iGm8BQPPktEqE6ZnT5RDYh3i2/TnklW9zeg
-X-Received: by 2002:a05:6402:50c9:b0:601:a681:4d5c with SMTP id 4fb4d7f45d1cf-601a6814f05mr12934883a12.32.1747829836030;
-        Wed, 21 May 2025 05:17:16 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH4cgb/1piVsTbjdMMKwjk3dNR8qjrtqCCwZsJc1XfaRl4HuQDjqQbxQefkqEDzpnU155bKIg==
-X-Received: by 2002:a05:6402:50c9:b0:601:a681:4d5c with SMTP id 4fb4d7f45d1cf-601a6814f05mr12934847a12.32.1747829835404;
-        Wed, 21 May 2025 05:17:15 -0700 (PDT)
-Received: from localhost.localdomain (host-82-53-134-35.retail.telecomitalia.it. [82.53.134.35])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6005ae3918esm8725254a12.68.2025.05.21.05.17.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 May 2025 05:17:14 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: netdev@vger.kernel.org
-Cc: virtualization@lists.linux.dev,
-	Paolo Abeni <pabeni@redhat.com>,
-	linux-kernel@vger.kernel.org,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	kvm@vger.kernel.org,
-	Jakub Kicinski <kuba@kernel.org>,
-	Arseniy Krasnov <avkrasnov@salutedevices.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuewei Niu <niuxuewei97@gmail.com>,
-	Krasnov Arseniy <Oxffffaa@gmail.com>,
-	Simon Horman <horms@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH net] vsock/virtio: fix `rx_bytes` accounting for stream sockets
-Date: Wed, 21 May 2025 14:17:05 +0200
-Message-ID: <20250521121705.196379-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.49.0
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="R1Lpz67y"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=OZQ+w5j3/kD6lnLTCIpkSOKYMlmlq7//muyoYnXJPdCUOx/8E9A3yMSu0jWd2Khh9J7QB4K3bHHrX6vStaBv8YBm65ZjGw0owuhv5kAH6ZFE2Hllo9aIdSb6a3/K6WrmEGmwC/xT3SREIokPF1gHvV/VFqxRsngeOdjL5IWck7ZUmUR7aQxUvlltf15AaK/ojhXzz7CD17qjNs2U5+4DN8dMBIkfevmWbeL12VU8UBWwCuj4l8J8H9zRVmekXrYBjDLhbxw8iCqVtjgbBvFTaO5F8TfrSGXuJC1LtQ4ChyQjJWlv2bWYBz5cSEJDja0VwiH+Ew/3rI5f3q2WKUUHrg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=pP9DobPMwvXlzJw9oFwIGVx7jFcsGm0xSHYaUg9sBqg=;
+ b=EbzuPi52LUq1V3dRoSR+3dvCU3uEma+x6P5kWznVACqx3cRJq6uQOU7Ae+7eUrXuys82Y0TdwnFe1aWwfe7DjMGkN2+1stqfG+pRSpVzchj4lnqimO3TjZ5AeoQtXF63AY60Dlc8rnGiWwPt82P6nfBfEJq8QGwAEC6t8eCoKYQC7LNFPUVNrs4HgUAKYBg2nVIFaO6vVO8YaxlOvmOQ/YXF8At4/z28DWn+TLQV9fhr+l5xJ3PWLxmi9qrUJdPuNUj5jX1stX2gBrWpgr9tj8GFhztkhTLtq4UQagLGcZfns0GsZHsowUPLvj7M5kPXsI0bhZdP2IoLwPvRgbgbTw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=pP9DobPMwvXlzJw9oFwIGVx7jFcsGm0xSHYaUg9sBqg=;
+ b=R1Lpz67yF8p2ha6I2/GVguZe9qUCP/ablSzR/dTzn0KWWsyUKbEyFp7YYA/M4Ffh5f6mQhSn6Q4ymzb7tq0GYDiHX6g91ZIwF02/o/48BZvnPSscPAGcPnngbF+fI2yGRChB8igCB6Q87ottAdWAJHvR7C2Ec6TqCGiRKgtsmlvQIhpq7be7GMQKdZqd0rN242Hn8VZKalDvgGLAxzEmaoaRGbPIn/vG1qXtDLJ2JSpVL6HUhFtOpUq+CmD0CEZR4xfASxW1OGTwr06jDSjRKw4qMeFmB73gZiiEJVuaAMBQH6bRd8trgJx/JeAzMXzkGIukVzbxBnkg4wwsAyIJ8Q==
+Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
+ by IA1PR12MB7759.namprd12.prod.outlook.com (2603:10b6:208:420::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8699.26; Wed, 21 May
+ 2025 12:40:10 +0000
+Received: from CY8PR12MB7195.namprd12.prod.outlook.com
+ ([fe80::c06c:905a:63f8:9cd]) by CY8PR12MB7195.namprd12.prod.outlook.com
+ ([fe80::c06c:905a:63f8:9cd%4]) with mapi id 15.20.8699.026; Wed, 21 May 2025
+ 12:40:10 +0000
+From: Parav Pandit <parav@nvidia.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: "stefanha@redhat.com" <stefanha@redhat.com>, "axboe@kernel.dk"
+	<axboe@kernel.dk>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "linux-block@vger.kernel.org"
+	<linux-block@vger.kernel.org>, "stable@vger.kernel.org"
+	<stable@vger.kernel.org>, "NBU-Contact-Li Rongqing (EXTERNAL)"
+	<lirongqing@baidu.com>, Chaitanya Kulkarni <chaitanyak@nvidia.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"pbonzini@redhat.com" <pbonzini@redhat.com>, "jasowang@redhat.com"
+	<jasowang@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>, Israel Rukshin
+	<israelr@nvidia.com>
+Subject: RE: [PATCH v1] virtio_blk: Fix disk deletion hang on device surprise
+ removal
+Thread-Topic: [PATCH v1] virtio_blk: Fix disk deletion hang on device surprise
+ removal
+Thread-Index:
+ AQHbyhrdL96Oqawka0G+Ryv5JzR6PLPcvXWAgAALoUCAAAWOgIAAALHggAAPPoCAAAHooIAABZyAgAAf9OA=
+Date: Wed, 21 May 2025 12:40:10 +0000
+Message-ID:
+ <CY8PR12MB7195200C1F5D877448DF1D3BDC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
+References: <20250521062744.1361774-1-parav@nvidia.com>
+ <20250521041506-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195F56A84CAF0D486B82239DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250521051556-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195A306A9A8CFE8FFC1B033DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250521061236-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195A01F9B43B25B19A64770DC9EA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250521063626-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250521063626-mutt-send-email-mst@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|IA1PR12MB7759:EE_
+x-ms-office365-filtering-correlation-id: 97686bcb-123b-4b13-d421-08dd98649fee
+x-ld-processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|7416014|376014|366016|1800799024|38070700018;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?NK2g1V0oE0bZsqG0I5ktNTXxN7P/kA7yh3M+ygCfSk37fs9/nfApY0cv41fb?=
+ =?us-ascii?Q?RNgQn+p5WNm7vVVOg5E2qiEBNx7lvSgzRJh/TlNBlVIqv03wdqA55Agwb6NG?=
+ =?us-ascii?Q?U1v6eY7mSZdIdWrcfcZphsV3/lcE7O7q3Yae5xBBboKlyi7b2QSgi1dVYqHe?=
+ =?us-ascii?Q?qu2U0Yep9lRInlUhrOo3DxZPme9N38fnx4a/mNlewD3j3ee6NstC4Y9vhwTp?=
+ =?us-ascii?Q?G3y7yJLkHNr2JnDsVJWM/udOpdlbcVnzugxDRGaom9jxVQADpCmTOmylXbPN?=
+ =?us-ascii?Q?pHzU2HNNI884mbaW7W/rDlC1rdy0tUKJECrY+mPvqoL+wVOYIzS197r26KNx?=
+ =?us-ascii?Q?io8cK5csHjqLYvaEq5V+8OTLxaF4vA4ING5DUE8jCG8QSGsW+WXWa7sRqvKe?=
+ =?us-ascii?Q?/ErX4ji23DKNt5rOiLl2Bu23ri5W8sEnR5307Sd1f2Bor0u/9oYC4UxB7mIv?=
+ =?us-ascii?Q?5Ycfqq6gg/Uou5vGXTw8rkfWgu0MrdjW2fGFrpzB1zuE/995LUITdJdg864o?=
+ =?us-ascii?Q?WfdhEGJfVkU/++1yZMgd95nWnx2u6UkvNewLMA11QgOutdumKbDp1eEp3Cu7?=
+ =?us-ascii?Q?Lxmt9NC2WQnoFCDgtV2YVbfd9VUrWoYqnSFS1Kt300Ka4Pa3d43J19EbVcvI?=
+ =?us-ascii?Q?8ncVBP80XZS74Y8TALcxLDf/RUR0FAtqBgacCFzGTgY+hIuoMrMYVOZkL1su?=
+ =?us-ascii?Q?m11Hhd2ZVWCkXEEx3UZpTf9IZAYmEifhld/UJy8QnJ01TmoVleMrxpwlsnga?=
+ =?us-ascii?Q?6Gpk37vjA4dHcp2YWv6oRmL5yGJRnnyjRAEtXntpnv/WTvjOP137OkVoDUk/?=
+ =?us-ascii?Q?8jw5gnLkwepX6NC3iDKyVB9XuYbt7XobVP4cC4vgMKwzjNk/CVuN1iTIcbRW?=
+ =?us-ascii?Q?QOp3ZDq+mwCgDNWqE9ceNr9vsXx36OHcLCo7RBa8SpHv31IhGfvErEdi8FvQ?=
+ =?us-ascii?Q?58QhwqCbf9omBHmg8qljLqlkEae+3z3NxvHYcxAne8xOOaWnYAi1yG72w75g?=
+ =?us-ascii?Q?PeZj3C5G5zxbMyc2kLYaQfxcW9DAyCCvbETaERGWK76Ls4DiSw2V6ErO8lV6?=
+ =?us-ascii?Q?BXJY70Y2OKO5AkU2OocZR37kaA7JvwDMK/BkXtFd9q8bIvjhyjJ5kgwGLhrR?=
+ =?us-ascii?Q?eRrdmdFk1ZbCA0lGrzNZLspnsqjXNyj+NjGvxv8JDmdY0xJ5VlC6qFvQVRtJ?=
+ =?us-ascii?Q?gQPvumEsvdyOOMJLgDbXVWajF/bNpeRQqd2246E2ZaWqsx0J5gTCtkfZKtkL?=
+ =?us-ascii?Q?j5ldDNH6aItW/h+9WVSnk3N8ofZn0u6VVwhVo+zhvQ0qDikN8buvvoi0lASE?=
+ =?us-ascii?Q?kfOath2GFILpLfGZp1bppEUsRpRA91KNn5UJNAAYKcsZYC9WNjwVv3a+AFOs?=
+ =?us-ascii?Q?fkJLOc8fgr/oa0jcKymHcZFCm60Uy2aB6LhvlbIUetL5SeYaxlQWrhqFfhiy?=
+ =?us-ascii?Q?KOWimVhHxgG2EMVvOf9SgnREP5CahVbonV+Y5RY9WIKs2Ph5sR1JK7f7xBnv?=
+ =?us-ascii?Q?FIgJWVcXWCxjHUY=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?J0Kuv6NNwVQpz3b4IP3S1zqMw/KeQSsiOrumVPSRBvZd3mm+eF8B0zR6RtGA?=
+ =?us-ascii?Q?w609PVX+fsgml6MjePdw+6+fjvKY8BkaORLsZYKdSS5azgyEjiG+IhNgXGxZ?=
+ =?us-ascii?Q?rOPOjm2X1422xp9OlaIF56aaQeypzaxiQV7oHxjQhac0o01wULvdP722zxR+?=
+ =?us-ascii?Q?7OHNEXOMNE8m9Zn0JjVEeYE7OrXRnQGybNGAFsTor2sLsDCoVtgqrvbCA4Wh?=
+ =?us-ascii?Q?vFtwQ9/2cGRMMI7UQckaPKdiGJMK0j+viyGb6zlXBQ35y4X5XYsBtEth+2aN?=
+ =?us-ascii?Q?Mem4iDKXKAg6q/OVgTYk9FKdpKMIRDnOTAKld+hz0JpNT84EANfgochjlTP5?=
+ =?us-ascii?Q?L1PJG5/wik7w8pFu6ZMs4rr3FiLYOGsohBxlfM4wJlcOj6vFNu4eFcGvCK+u?=
+ =?us-ascii?Q?oFrJExObx+5zMSWzlLEq+MeffkRKdMMYHTfwN8/AEqRahkhX7NhLEw72h8/7?=
+ =?us-ascii?Q?WtLKOcjWee0lVn3MuQP2TO0sFGbzhx+g6AtjSpnQbankcK2TqgC0HBgL8CzT?=
+ =?us-ascii?Q?w6EXIdZOWAxzy59UCxRvrsmjpPhMvRp1dOmVR1rmNJyKP2wJkQpI4+oxkvZm?=
+ =?us-ascii?Q?3DL5Q+vMpS1DP5SCRrbFWmwdftbeOsj3NSugxKALgFjAQbGVSjy2C0kMlfgQ?=
+ =?us-ascii?Q?nB8/FOJeXAcHKS9M5agatKMFPXdHwdyBiHF487FglWiTTLV74UuK/90A7BBF?=
+ =?us-ascii?Q?0uKnYScyNk06a3kKWjBoszAr81JA1Pi5GJIq2cXt6zAxSK/duTZ7TrulVB0d?=
+ =?us-ascii?Q?D6i8XY9XCMCqmmMnpbhl/jG4YayzhSXmrfa/7euzy66QdHZj9FClovPOKDC7?=
+ =?us-ascii?Q?fUEGp2AgZhP2VWuvN/iZzDwJTx2jNvE2P1/5X/L++FcuH6GpbTlklH8gMcWQ?=
+ =?us-ascii?Q?KOC3AAFOePMou/TJ+gOsYYZ37ls5dHop+oXdTZIo+lI6OahxfFk0hOoOuwbH?=
+ =?us-ascii?Q?OKcyU9fHw5tiZ8W0AiXsXR5Abr4ArIAM6GmoMzgpAVZ1jHbxV4Yfo/Ydmu/7?=
+ =?us-ascii?Q?Gsx56oqSZPjzuzfXnttdnyjFDalX1lfcD84DwrqiJrwlkcPmtMLMZmsizBQj?=
+ =?us-ascii?Q?2F4Q2ZeH3Cq/hqJK/SscBx4ZeJZI7bWnn4/uxXrIk84clWAsO5V/w3mK0ZGg?=
+ =?us-ascii?Q?CmqVkw69tA0tp0mGdVkjWKQO9++hIdubT2QRmTd6Yxc5XEmj7AgHQHyxtJIv?=
+ =?us-ascii?Q?JFlVazqxzInA4Jd4kLheDfBmiRv+ZQiq+EBQ5D3DPh7l6CSzINmLorx+Gox3?=
+ =?us-ascii?Q?w1lpoNvQVvGWCYrG+9jR2+D2jUNL0wNVGPUaDyLHeGOA6EIlE88aZeQy+5Sm?=
+ =?us-ascii?Q?4tJgx2Qa/5HC4OCaoqXlmVODzTbGDfoJ4/JP86VZZM/RoLtTFioIAe73ZoO2?=
+ =?us-ascii?Q?5s0LawT6jxEXJAg7kD7rZyco8Om3DwNd9g6CQTd6n3twsXcOZdmkFIVUov1D?=
+ =?us-ascii?Q?gsB6xhjgkW0BE93qFfcbTxO1QwZX0fKe1V3o3iYnULzsIW1+ya2gSxTBESy2?=
+ =?us-ascii?Q?6fzYcKTsJV3vWAtULVtgcVODWQ/cPhAYgXb5Rq0tBBCwExzhiZuKITLPev8V?=
+ =?us-ascii?Q?0PUDjrgaOdJ4YUuAPXU=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -_bSJ3pcvzSnjUBZGl79STuZ0RggpDnrtCdOhcSpWbk_1747829836
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 97686bcb-123b-4b13-d421-08dd98649fee
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 May 2025 12:40:10.3421
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: OjBe6uW6TwcQxe/aQ7aFCFxsOz3B7MEKVl0CAdb9vIK2JoxWgIzPaRZQDncvoRiVm9fSt5i0KZBwbm1KYNbfWg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB7759
 
-From: Stefano Garzarella <sgarzare@redhat.com>
 
-In `struct virtio_vsock_sock`, we maintain two counters:
-- `rx_bytes`: used internally to track how many bytes have been read.
-  This supports mechanisms like .stream_has_data() and sock_rcvlowat().
-- `fwd_cnt`: used for the credit mechanism to inform available receive
-  buffer space to the remote peer.
+> From: Michael S. Tsirkin <mst@redhat.com>
+> Sent: Wednesday, May 21, 2025 4:13 PM
+>=20
+> On Wed, May 21, 2025 at 10:34:46AM +0000, Parav Pandit wrote:
+> >
+> > > From: Michael S. Tsirkin <mst@redhat.com>
+> > > Sent: Wednesday, May 21, 2025 3:46 PM
+> > >
+> > > On Wed, May 21, 2025 at 09:32:30AM +0000, Parav Pandit wrote:
+> > > > > From: Michael S. Tsirkin <mst@redhat.com>
+> > > > > Sent: Wednesday, May 21, 2025 2:49 PM
+> > > > > To: Parav Pandit <parav@nvidia.com>
+> > > > > Cc: stefanha@redhat.com; axboe@kernel.dk;
+> > > > > virtualization@lists.linux.dev; linux-block@vger.kernel.or;
+> > > > > stable@vger.kernel.org; NBU-Contact-Li Rongqing
+> > > > > (EXTERNAL) <lirongqing@baidu.com>; Chaitanya Kulkarni
+> > > > > <chaitanyak@nvidia.com>; xuanzhuo@linux.alibaba.com;
+> > > > > pbonzini@redhat.com; jasowang@redhat.com; Max Gurtovoy
+> > > > > <mgurtovoy@nvidia.com>; Israel Rukshin <israelr@nvidia.com>
+> > > > > Subject: Re: [PATCH v1] virtio_blk: Fix disk deletion hang on
+> > > > > device surprise removal
+> > > > >
+> > > > > On Wed, May 21, 2025 at 09:14:31AM +0000, Parav Pandit wrote:
+> > > > > > > From: Michael S. Tsirkin <mst@redhat.com>
+> > > > > > > Sent: Wednesday, May 21, 2025 1:48 PM
+> > > > > > >
+> > > > > > > On Wed, May 21, 2025 at 06:37:41AM +0000, Parav Pandit wrote:
+> > > > > > > > When the PCI device is surprise removed, requests may not
+> > > > > > > > complete the device as the VQ is marked as broken. Due to
+> > > > > > > > this, the disk deletion hangs.
+> > > > > > > >
+> > > > > > > > Fix it by aborting the requests when the VQ is broken.
+> > > > > > > >
+> > > > > > > > With this fix now fio completes swiftly.
+> > > > > > > > An alternative of IO timeout has been considered, however
+> > > > > > > > when the driver knows about unresponsive block device,
+> > > > > > > > swiftly clearing them enables users and upper layers to rea=
+ct
+> quickly.
+> > > > > > > >
+> > > > > > > > Verified with multiple device unplug iterations with
+> > > > > > > > pending requests in virtio used ring and some pending with =
+the
+> device.
+> > > > > > > >
+> > > > > > > > Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal
+> > > > > > > > of virtio pci device")
+> > > > > > > > Cc: stable@vger.kernel.org
+> > > > > > > > Reported-by: lirongqing@baidu.com
+> > > > > > > > Closes:
+> > > > > > > >
+> > > > > > > https://lore.kernel.org/virtualization/c45dd68698cd47238c55f
+> > > > > > > b73c
+> > > > > > > a9b4
+> > > > > > > 74
+> > > > > > > > 1@baidu.com/
+> > > > > > > > Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> > > > > > > > Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+> > > > > > > > Signed-off-by: Parav Pandit <parav@nvidia.com>
+> > > > > > > > ---
+> > > > > > > > changelog:
+> > > > > > > > v0->v1:
+> > > > > > > > - Fixed comments from Stefan to rename a cleanup function
+> > > > > > > > - Improved logic for handling any outstanding requests
+> > > > > > > >   in bio layer
+> > > > > > > > - improved cancel callback to sync with ongoing done()
+> > > > > > >
+> > > > > > > thanks for the patch!
+> > > > > > > questions:
+> > > > > > >
+> > > > > > >
+> > > > > > > > ---
+> > > > > > > >  drivers/block/virtio_blk.c | 95
+> > > > > > > > ++++++++++++++++++++++++++++++++++++++
+> > > > > > > >  1 file changed, 95 insertions(+)
+> > > > > > > >
+> > > > > > > > diff --git a/drivers/block/virtio_blk.c
+> > > > > > > > b/drivers/block/virtio_blk.c index
+> > > > > > > > 7cffea01d868..5212afdbd3c7
+> > > > > > > > 100644
+> > > > > > > > --- a/drivers/block/virtio_blk.c
+> > > > > > > > +++ b/drivers/block/virtio_blk.c
+> > > > > > > > @@ -435,6 +435,13 @@ static blk_status_t
+> > > > > > > > virtio_queue_rq(struct
+> > > > > > > blk_mq_hw_ctx *hctx,
+> > > > > > > >  	blk_status_t status;
+> > > > > > > >  	int err;
+> > > > > > > >
+> > > > > > > > +	/* Immediately fail all incoming requests if the vq is br=
+oken.
+> > > > > > > > +	 * Once the queue is unquiesced, upper block layer
+> > > > > > > > +flushes any
+> > > > > > > pending
+> > > > > > > > +	 * queued requests; fail them right away.
+> > > > > > > > +	 */
+> > > > > > > > +	if (unlikely(virtqueue_is_broken(vblk->vqs[qid].vq)))
+> > > > > > > > +		return BLK_STS_IOERR;
+> > > > > > > > +
+> > > > > > > >  	status =3D virtblk_prep_rq(hctx, vblk, req, vbr);
+> > > > > > > >  	if (unlikely(status))
+> > > > > > > >  		return status;
+> > > > > > >
+> > > > > > > just below this:
+> > > > > > >         spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+> > > > > > >         err =3D virtblk_add_req(vblk->vqs[qid].vq, vbr);
+> > > > > > >         if (err) {
+> > > > > > >
+> > > > > > >
+> > > > > > > and virtblk_add_req calls virtqueue_add_sgs, so it will fail
+> > > > > > > on a broken
+> > > vq.
+> > > > > > >
+> > > > > > > Why do we need to check it one extra time here?
+> > > > > > >
+> > > > > > It may work, but for some reason if the hw queue is stopped in
+> > > > > > this flow, it
+> > > > > can hang the IOs flushing.
+> > > > >
+> > > > > > I considered it risky to rely on the error code ENOSPC
+> > > > > > returned by non virtio-
+> > > > > blk driver.
+> > > > > > In other words, if lower layer changed for some reason, we may
+> > > > > > end up in
+> > > > > stopping the hw queue when broken, and requests would hang.
+> > > > > >
+> > > > > > Compared to that one-time entry check seems more robust.
+> > > > >
+> > > > > I don't get it.
+> > > > > Checking twice in a row is more robust?
+> > > > No. I am not confident on the relying on the error code -ENOSPC
+> > > > from layers
+> > > outside of virtio-blk driver.
+> > >
+> > > You can rely on virtio core to return an error on a broken vq.
+> > > The error won't be -ENOSPC though, why would it?
+> > >
+> > Presently that is not the API contract between virtio core and driver.
+> > When the VQ is broken the error code is EIO. This is from the code
+> inspection.
+>=20
+> yes
+>=20
+> > If you prefer to rely on the code inspection of lower layer to define t=
+he virtio-
+> blk, I am fine and remove the two checks.
+> > I just find it fragile, but if you prefer this way, I am fine.
+>=20
+> I think it's better, yes.
+>=20
+Ok. Will adapt this in v2.
 
-These counters are updated via virtio_transport_inc_rx_pkt() and
-virtio_transport_dec_rx_pkt().
+> > > > If for a broken VQ, ENOSPC arrives, then hw queue is stopped and
+> > > > requests
+> > > could be stuck.
+> > >
+> > > Can you describe the scenario in more detail pls?
+> > > where does ENOSPC arrive from? when is the vq get broken ...
+> > >
+> > ENOSPC arrives when it fails to enqueue the request in present form.
+> > EIO arrives when VQ is broken.
+> >
+> > If in the future, ENOSPC arrives for broken VQ, following flow can trig=
+ger a
+> hang.
+> >
+> > cpu_0:
+> > virtblk_broken_device_cleanup()
+> > ...
+> >     blk_mq_unquiesce_queue();
+> >     ... stage_1:
+> >     blk_mq_freeze_queue_wait().
+> >
+> >
+> > Cpu_1:
+> > Queue_rq()
+> >   virtio_queue_rq()
+> >      virtblk_add_req()
+> >         -ENOSPC
+> >             Stop_hw_queue()
+> >                 At this point, new requests in block layer may get stuc=
+k and may not
+> be enqueued to queue_rq().
+> >
+> > >
+> > > > > What am I missing?
+> > > > > Can you describe the scenario in more detail?
+> > > > >
+> > > > > >
+> > > > > > >
+> > > > > > >
+> > > > > > > > @@ -508,6 +515,11 @@ static void virtio_queue_rqs(struct
+> > > > > > > > rq_list
+> > > > > *rqlist)
+> > > > > > > >  	while ((req =3D rq_list_pop(rqlist))) {
+> > > > > > > >  		struct virtio_blk_vq *this_vq =3D get_virtio_blk_vq(req-
+> > > > > > > >mq_hctx);
+> > > > > > > >
+> > > > > > > > +		if (unlikely(virtqueue_is_broken(this_vq->vq))) {
+> > > > > > > > +			rq_list_add_tail(&requeue_list, req);
+> > > > > > > > +			continue;
+> > > > > > > > +		}
+> > > > > > > > +
+> > > > > > > >  		if (vq && vq !=3D this_vq)
+> > > > > > > >  			virtblk_add_req_batch(vq, &submit_list);
+> > > > > > > >  		vq =3D this_vq;
+> > > > > > >
+> > > > > > > similarly
+> > > > > > >
+> > > > > > The error code is not surfacing up here from virtblk_add_req().
+> > > > >
+> > > > >
+> > > > > but wait a sec:
+> > > > >
+> > > > > static void virtblk_add_req_batch(struct virtio_blk_vq *vq,
+> > > > >                 struct rq_list *rqlist) {
+> > > > >         struct request *req;
+> > > > >         unsigned long flags;
+> > > > >         bool kick;
+> > > > >
+> > > > >         spin_lock_irqsave(&vq->lock, flags);
+> > > > >
+> > > > >         while ((req =3D rq_list_pop(rqlist))) {
+> > > > >                 struct virtblk_req *vbr =3D blk_mq_rq_to_pdu(req)=
+;
+> > > > >                 int err;
+> > > > >
+> > > > >                 err =3D virtblk_add_req(vq->vq, vbr);
+> > > > >                 if (err) {
+> > > > >                         virtblk_unmap_data(req, vbr);
+> > > > >                         virtblk_cleanup_cmd(req);
+> > > > >                         blk_mq_requeue_request(req, true);
+> > > > >                 }
+> > > > >         }
+> > > > >
+> > > > >         kick =3D virtqueue_kick_prepare(vq->vq);
+> > > > >         spin_unlock_irqrestore(&vq->lock, flags);
+> > > > >
+> > > > >         if (kick)
+> > > > >                 virtqueue_notify(vq->vq); }
+> > > > >
+> > > > >
+> > > > > it actually handles the error internally?
+> > > > >
+> > > > For all the errors it requeues the request here.
+> > >
+> > > ok and they will not prevent removal will they?
+> > >
+> > It should not prevent removal.
+> > One must be careful every single time changing it to make sure that hw
+> queues are not stopped in lower layer, but may be this is ok.
+> >
+> > >
+> > > > >
+> > > > >
+> > > > >
+> > > > > > It would end up adding checking for special error code here as
+> > > > > > well to abort
+> > > > > by translating broken VQ -> EIO to break the loop in
+> > > virtblk_add_req_batch().
+> > > > > >
+> > > > > > Weighing on specific error code-based data path that may
+> > > > > > require audit from
+> > > > > lower layers now and future, an explicit check of broken in this
+> > > > > layer could be better.
+> > > > > >
+> > > > > > [..]
+> > > > >
+> > > > >
+> > > > > Checking add was successful is preferred because it has to be
+> > > > > done
+> > > > > *anyway* - device can get broken after you check before add.
+> > > > >
+> > > > > So I would like to understand why are we also checking
+> > > > > explicitly and I do not get it so far.
+> > > >
+> > > > checking explicitly to not depend on specific error code-based logi=
+c.
+> > >
+> > >
+> > > I do not understand. You must handle vq add errors anyway.
+> >
+> > I believe removal of the two vq broken checks should also be fine.
+> > I would probably add the comment in the code indicating virtio block dr=
+iver
+> assumes that ENOSPC is not returned for broken VQ.
+>=20
+> You can include this in the series if you like. Tweak to taste:
+>=20
+Thanks for the patch. This virtio core comment update can be done at later =
+point without fixes tag.
+Will park for the later.
 
-Since the beginning with commit 06a8fc78367d ("VSOCK: Introduce
-virtio_vsock_common.ko"), we call virtio_transport_dec_rx_pkt() in
-virtio_transport_stream_do_dequeue() only when we consume the entire
-packet, so partial reads, do not update `rx_bytes` and `fwd_cnt`.
-
-This is fine for `fwd_cnt`, because we still have space used for the
-entire packet, and we don't want to update the credit for the other
-peer until we free the space of the entire packet. However, this
-causes `rx_bytes` to be stale on partial reads.
-
-Previously, this didn’t cause issues because `rx_bytes` was used only by
-.stream_has_data(), and any unread portion of a packet implied data was
-still available. However, since commit 93b808876682
-("virtio/vsock: fix logic which reduces credit update messages"), we now
-rely on `rx_bytes` to determine if a credit update should be sent when
-the data in the RX queue drops below SO_RCVLOWAT value.
-
-This patch fixes the accounting by updating `rx_bytes` with the number
-of bytes actually read, even on partial reads, while leaving `fwd_cnt`
-untouched until the packet is fully consumed. Also introduce a new
-`buf_used` counter to check that the remote peer is honoring the given
-credit; this was previously done via `rx_bytes`.
-
-Fixes: 93b808876682 ("virtio/vsock: fix logic which reduces credit update messages")
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- include/linux/virtio_vsock.h            |  1 +
- net/vmw_vsock/virtio_transport_common.c | 26 +++++++++++++++----------
- 2 files changed, 17 insertions(+), 10 deletions(-)
-
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index 0387d64e2c66..36fb3edfa403 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -140,6 +140,7 @@ struct virtio_vsock_sock {
- 	u32 last_fwd_cnt;
- 	u32 rx_bytes;
- 	u32 buf_alloc;
-+	u32 buf_used;
- 	struct sk_buff_head rx_queue;
- 	u32 msg_count;
- };
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 7f7de6d88096..2c9b1011cdcc 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -441,18 +441,20 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
- 					u32 len)
- {
--	if (vvs->rx_bytes + len > vvs->buf_alloc)
-+	if (vvs->buf_used + len > vvs->buf_alloc)
- 		return false;
- 
- 	vvs->rx_bytes += len;
-+	vvs->buf_used += len;
- 	return true;
- }
- 
- static void virtio_transport_dec_rx_pkt(struct virtio_vsock_sock *vvs,
--					u32 len)
-+					u32 bytes_read, u32 bytes_dequeued)
- {
--	vvs->rx_bytes -= len;
--	vvs->fwd_cnt += len;
-+	vvs->rx_bytes -= bytes_read;
-+	vvs->buf_used -= bytes_dequeued;
-+	vvs->fwd_cnt += bytes_dequeued;
- }
- 
- void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct sk_buff *skb)
-@@ -581,11 +583,11 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
- 				   size_t len)
- {
- 	struct virtio_vsock_sock *vvs = vsk->trans;
--	size_t bytes, total = 0;
- 	struct sk_buff *skb;
- 	u32 fwd_cnt_delta;
- 	bool low_rx_bytes;
- 	int err = -EFAULT;
-+	size_t total = 0;
- 	u32 free_space;
- 
- 	spin_lock_bh(&vvs->rx_lock);
-@@ -597,6 +599,8 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
- 	}
- 
- 	while (total < len && !skb_queue_empty(&vvs->rx_queue)) {
-+		size_t bytes, dequeued = 0;
-+
- 		skb = skb_peek(&vvs->rx_queue);
- 
- 		bytes = min_t(size_t, len - total,
-@@ -620,12 +624,12 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
- 		VIRTIO_VSOCK_SKB_CB(skb)->offset += bytes;
- 
- 		if (skb->len == VIRTIO_VSOCK_SKB_CB(skb)->offset) {
--			u32 pkt_len = le32_to_cpu(virtio_vsock_hdr(skb)->len);
--
--			virtio_transport_dec_rx_pkt(vvs, pkt_len);
-+			dequeued = le32_to_cpu(virtio_vsock_hdr(skb)->len);
- 			__skb_unlink(skb, &vvs->rx_queue);
- 			consume_skb(skb);
- 		}
-+
-+		virtio_transport_dec_rx_pkt(vvs, bytes, dequeued);
- 	}
- 
- 	fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt;
-@@ -781,7 +785,7 @@ static int virtio_transport_seqpacket_do_dequeue(struct vsock_sock *vsk,
- 				msg->msg_flags |= MSG_EOR;
- 		}
- 
--		virtio_transport_dec_rx_pkt(vvs, pkt_len);
-+		virtio_transport_dec_rx_pkt(vvs, pkt_len, pkt_len);
- 		kfree_skb(skb);
- 	}
- 
-@@ -1735,6 +1739,7 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
- 	struct sock *sk = sk_vsock(vsk);
- 	struct virtio_vsock_hdr *hdr;
- 	struct sk_buff *skb;
-+	u32 pkt_len;
- 	int off = 0;
- 	int err;
- 
-@@ -1752,7 +1757,8 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
- 	if (le32_to_cpu(hdr->flags) & VIRTIO_VSOCK_SEQ_EOM)
- 		vvs->msg_count--;
- 
--	virtio_transport_dec_rx_pkt(vvs, le32_to_cpu(hdr->len));
-+	pkt_len = le32_to_cpu(hdr->len);
-+	virtio_transport_dec_rx_pkt(vvs, pkt_len, pkt_len);
- 	spin_unlock_bh(&vvs->rx_lock);
- 
- 	virtio_transport_send_credit_update(vsk);
--- 
-2.49.0
+> -->
+>=20
+> virtio: document ENOSPC
+>=20
+> drivers handle ENOSPC specially since it's an error one can get from a wo=
+rking
+> VQ. Document the semantics.
+>=20
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>=20
+> ---
+>=20
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c =
+index
+> b784aab66867..97ab0cce527d 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -2296,6 +2296,10 @@ static inline int virtqueue_add(struct virtqueue
+> *_vq,
+>   * at the same time (except where noted).
+>   *
+>   * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
+> + *
+> + * NB: ENOSPC is a special code that is only returned on an attempt to
+> + add a
+> + * buffer to a full VQ. It indicates that some buffers are outstanding
+> + and that
+> + * the operation can be retried after some buffers have been used.
+>   */
+>  int virtqueue_add_sgs(struct virtqueue *_vq,
+>  		      struct scatterlist *sgs[],
 
