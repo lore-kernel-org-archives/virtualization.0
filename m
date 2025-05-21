@@ -1,253 +1,234 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from xvfrnhpk.outbound-mail.sendgrid.net (xvfrnhpk.outbound-mail.sendgrid.net [168.245.32.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0F1A213E74
-	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 02:15:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C1C1230269
+	for <virtualization@lists.linux.dev>; Wed, 21 May 2025 06:37:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.245.32.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747793760; cv=none; b=bXh+P5LSjOBRqRKx+zhMc9nlWI7VQwX/eQGxgVHM4UkWBFQgti8J2MV8YXmxgHyKgbeg3R1eOv/GVrc2S6F3G3WhCmjYhmehqkPVoAiQ4PwsdYMD0ti9IRBVsbcwklyKVtsI1TbaWZaXQcExMQPLG10Y8iQf4ADs5y7wQHo7zn8=
+	t=1747809464; cv=none; b=sTpuXwsFHc3Bt2atON8KhD30yzK0N/kuIWKc7rEXpMIfj01Wbll1+WCXngwqHBcVOkR0zK1emZYa5ZDPruj+csNBmvIuG1Na5njnE9JRqKt0jEt1LElJh5tXHY1cn1J7HBh/BvKCh/50gyTn9lA+WP+8rVGCbqWRWvFn8dQWTOk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747793760; c=relaxed/simple;
-	bh=Bs4BiJyZnHS+osIO5aswWUeDg/rd7svFNSIs/C9/26E=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=LJt8YXrUJpvVwm7ryqtQsfU4bQ6EaOgbbejTbbVdauD5PXIQNUeESTP2eIo05vRVZdmIbas6VEuPFFOXFnOtf9HUJ5rfaWS9uM/iMk6TWrW1ksIJ7ak3r5ZKaFU/WiiesKQHsn0EWlnw/FnSvLkOjNLbRJB+U2Y6tiZDW4BEHqw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LmK0Wj4y; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1747809464; c=relaxed/simple;
+	bh=UO9vsoK70Big7/KvMfY5WCDXE04LNglNvuTtAK1DSOM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:To:Cc:Content-Type; b=fI7UepJPydlaDlJFw5PKNpUyAwj2nF6IrkCfRJVR8AjlpVfcAzLkWfIyoLFQu0ceXQNWKyoaIeUWFcVJQeiUeLaTh0DWVlaiYKZ38BIR2Kgero2Ib2a1SyYveXb0MdpGwmIXchmIY/qgSPQkmWX9IErWiZ8XpbvEGn2k/RkpiBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=pass smtp.mailfrom=sendgridstats.nvidia.com; dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b=t8Qko6wD; arc=none smtp.client-ip=168.245.32.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sendgridstats.nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LmK0Wj4y"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-30ec226b7d6so3158115a91.2
-        for <virtualization@lists.linux.dev>; Tue, 20 May 2025 19:15:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747793758; x=1748398558; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kd9cM0q6TzRXjUrGv1P7+9M2LieKCrro4Un91zfrq/Q=;
-        b=LmK0Wj4yAuwjIMtrgbFN0yZC457ziGfzemDEhSIrxV3b2z5ckcuWKbV/kt3BcUaI+n
-         1QLjKCYxorAmB+3AiQbs2bvzikuoXhz8EFqkkWeDMpCZ9bdSHX0RxlS5ShvY7eNUI9wL
-         xkKs2igGFgKMuX41TRItZwYWaJHnRlxAOKOg54+eG2OdNkqgrIvEy7IrclsdR+EmMHtN
-         t86RhEzbCIgtP88vOl5/pE9CF4Yh8sOBfYtVLUxkf6GhEM2JguoIEMAo9y2X5BqUt//P
-         tz1ZKICdHDYkSdKTMblKFEJG2J6awPvk4nFBvNR0qMPATVPrL6w4UI38xYKs5wcnAoIY
-         rlhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747793758; x=1748398558;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kd9cM0q6TzRXjUrGv1P7+9M2LieKCrro4Un91zfrq/Q=;
-        b=AUTtohQTXsd8nphE8l02wp7a+l/xmsMCaQhQt45ER664D7So4+NGT5KoGALw9q9pNz
-         CCPhdWF8bgkxdfy8xKC1csBUR4f0gwIRiUh1LS81xgrMnZFru40z6flJdr6cSwLF0GRh
-         lOTAI1SD8pSnmZtYrqkTf0wKZNESeNyEofeu4BBHYNiLjh0mfFJuO55fqjKT+kQalK3e
-         7Eezdd5YI7aRkmI0h2SQm16GwbCIC39tOPzAOldTwi1vWUe1H74ePidJDoykWFUJxvB4
-         7TWaq8HAQLXUW03uphpAx6xIku7B8ajP24EN7ZKKaDyfzHwQk4DfSth5sxtHvNkuyRGa
-         PJ+w==
-X-Forwarded-Encrypted: i=1; AJvYcCXRBlbpkkmIvv6dRl1zp4Nye5+iTaZtAywsKS4Zrl31RUzoY0iFFjR10/WU4JeG5DxA4QAJBbzbDIiJ46NloQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxUvDQ5WJKujRK5TItjHT8eFRJY4m184PDzKzbKGXzHQ/cCAgQt
-	EYULXXQv6oVI/bqvBMFKFrYJcmnTIDKHUzaavKC6UlMAQJM9chCvtKku
-X-Gm-Gg: ASbGncu7xwiS5vMpPNcAViBQgKbVyWPV/1Cv1jnBNhMsY4FFBwV2ckJf/mRQH6AQNRv
-	y1BBjyInFP6tHXk9NExNR9PB8CvkmAH6rmKyYSNpCCWctw9npSSP6pAbGjNB3tovWlqOI07SoDc
-	BS2uNLCLBHdbJtg/Jjjw3VVohfEDzyeEYCLRavd4MML8fZNPlLj9L1KdLtq+YsYKNY9DhhpC7lo
-	Dcm4c68t8WVjpzCaCJxBdmG4vtibmQ7O+uPZRX4e9PiayRGqp7MWAG/IHlhZoyATTRlHNPYNZ2P
-	6CnVjmW+Z7VrFU3AJfCKnM3p9Go0yMX5K8O4EglAmYoat3C4E1E1p2GgIIbAh8kKURxhbzIYNA=
-	=
-X-Google-Smtp-Source: AGHT+IFi6LzKyxEuGPX8+9ng4fooYqUmoGNYHzHrk3u0MP3KOPqggigCsjb9hq7ZYiVqv62DNpiDVA==
-X-Received: by 2002:a17:90b:2f85:b0:30e:8f60:b53 with SMTP id 98e67ed59e1d1-30e8f600d9bmr22899418a91.19.1747793757727;
-        Tue, 20 May 2025 19:15:57 -0700 (PDT)
-Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-30f364fff8asm2475124a91.39.2025.05.20.19.15.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 May 2025 19:15:57 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-To: sgarzare@redhat.com
-Cc: davem@davemloft.net,
-	fupan.lfp@antgroup.com,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	niuxuewei.nxw@antgroup.com,
-	niuxuewei97@gmail.com,
-	pabeni@redhat.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH 3/3] test/vsock: Add ioctl SIOCINQ tests
-Date: Wed, 21 May 2025 10:15:47 +0800
-Message-Id: <20250521021547.3219644-1-niuxuewei.nxw@antgroup.com>
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="t8Qko6wD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com;
+	h=from:subject:mime-version:to:cc:content-transfer-encoding:
+	content-type:cc:content-type:from:subject:to;
+	s=s1; bh=NyrBcHEkbWOVETWAAvvJyp3NO785xGw9PjLScVVqAO0=;
+	b=t8Qko6wDvzmq3ozTc0ar+MffwYg8mG1Bkw/lXqfcRfxZJnPZepc6Cm53I/EwlGfas/2U
+	8yViSfTYZs4rHLAdf3j54TZ745hHhBjQMitrP9MvdhH6enn8pAgkk27DTQxw1UMDKGENaG
+	CIEKyGe+O/b+tmD7BNoBct/aoimSFPgcMFcyfjI13SFeJvSCD3dqqPnHn8FcyhTYNKsTlt
+	JOXwuC5NrA/ds8F79DQ2RfWXYI/Ga+ohQqLXbT1K6eQPw6W/8PRMlqRfqeHhSS4mC5Phgo
+	vVbR23topvhEFiYJIPQW2npYkJ4RFiZQCw0iBqx5CT/KvYp9sw1tanOqhBoMYHfg==
+Received: by recvd-5448569fb4-xld5r with SMTP id recvd-5448569fb4-xld5r-1-682D74B5-6
+	2025-05-21 06:37:41.153917535 +0000 UTC m=+3659372.687142474
+Received: from mtl123.mtl.labs.mlnx (unknown)
+	by geopod-ismtpd-3 (SG)
+	with ESMTP
+	id nnpml6V7RhCaE_lTnVA57A
+	Wed, 21 May 2025 06:37:40.921 +0000 (UTC)
+Received: from gen-l-vrt-306.mtl.labs.mlnx (gen-l-vrt-306.mtl.labs.mlnx [10.237.7.80])
+	by mtl123.mtl.labs.mlnx (8.14.4/8.14.4) with ESMTP id 54L6bedY011940;
+	Wed, 21 May 2025 09:37:40 +0300
+Received: from gen-l-vrt-306.mtl.labs.mlnx (localhost [127.0.0.1])
+	by gen-l-vrt-306.mtl.labs.mlnx (8.15.2/8.15.2/Debian-22ubuntu3) with ESMTP id 54L6SBF81361785;
+	Wed, 21 May 2025 09:28:11 +0300
+Received: (from root@localhost)
+	by gen-l-vrt-306.mtl.labs.mlnx (8.15.2/8.15.2/Submit) id 54L6RmcE1361784;
+	Wed, 21 May 2025 09:27:48 +0300
+From: Parav Pandit <parav@nvidia.com>
+Subject: [PATCH v1] virtio_blk: Fix disk deletion hang on device surprise
+ removal
+Date: Wed, 21 May 2025 06:37:41 +0000 (UTC)
+Message-Id: <20250521062744.1361774-1-parav@nvidia.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <66nlxrh4spcyhp666gqhovnevnnarq2a56fxgkffijnwiartrt@622gumoesmde>
-References: <66nlxrh4spcyhp666gqhovnevnnarq2a56fxgkffijnwiartrt@622gumoesmde>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-SG-EID: 
+ =?us-ascii?Q?u001=2EGKIzaBmeMpQo8dENF3BKzHhooF+oMOnrwKqptdheemMEs2maYobIgHNSi?=
+ =?us-ascii?Q?3HpuxQn0J1ksZ0bJ2Es9Y+grYdP1clVLhx=2Ft6Qz?=
+ =?us-ascii?Q?r76iOrDcmrnjW+4eXv08Ara0j+lPdBCrOleYQSw?=
+ =?us-ascii?Q?7oaFrh22tJn16EHCCE9UewjeCaSv19=2Fhe2j+CPU?=
+ =?us-ascii?Q?CzZ7zoCOTdJJlEw2LH7YvVbVfXC9fdTK0E0YPHi?=
+ =?us-ascii?Q?8jHAt9hRxrhPgLWpCHhG1nFFpbiQk1mfXYxVF1c?= =?us-ascii?Q?GFAe?=
+To: mst@redhat.com, stefanha@redhat.com, axboe@kernel.dk,
+	virtualization@lists.linux.dev, linux-block@vger.kernel.or
+Cc: stable@vger.kernel.org, lirongqing@baidu.com, kch@nvidia.com,
+	xuanzhuo@linux.alibaba.com, pbonzini@redhat.com, jasowang@redhat.com,
+	Parav Pandit <parav@nvidia.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
+	Israel Rukshin <israelr@nvidia.com>
+X-Entity-ID: u001.9Nu+sJkq3f0LJ/tZbyfOWA==
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 
-> On Mon, May 19, 2025 at 03:06:49PM +0800, Xuewei Niu wrote:
-> >This patch adds two tests for ioctl SIOCINQ for SOCK_STREAM and
-> >SOCK_SEQPACKET. The client waits for the server to send data, and checks if
-> >the return value of the SIOCINQ is the size of the data. Then, consumes the
-> >data and checks if the value is 0.
-> 
-> We recently fixed the SIOCOUTQ test, see:
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7fd7ad6f36af36f30a06d165eff3780cb139fa79
-> 
-> Should we do the same here?
+When the PCI device is surprise removed, requests may not complete
+the device as the VQ is marked as broken. Due to this, the disk
+deletion hangs.
 
-Yeah! Indeed, we have recognized this issue before. I think it is better to
-wrap this ioctl operation in a function in "tools/testing/vsock/util.c" and
-make it reusable.
+Fix it by aborting the requests when the VQ is broken.
 
-Will do.
+With this fix now fio completes swiftly.
+An alternative of IO timeout has been considered, however
+when the driver knows about unresponsive block device, swiftly clearing
+them enables users and upper layers to react quickly.
 
-> >
-> >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-> >---
-> > tools/testing/vsock/vsock_test.c | 102 +++++++++++++++++++++++++++++++
-> > 1 file changed, 102 insertions(+)
-> >
-> >diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-> >index d0f6d253ac72..8b3fb88e2877 100644
-> >--- a/tools/testing/vsock/vsock_test.c
-> >+++ b/tools/testing/vsock/vsock_test.c
-> >@@ -1282,6 +1282,78 @@ static void test_unsent_bytes_client(const struct test_opts *opts, int type)
-> > 	close(fd);
-> > }
-> >
-> >+static void test_unread_bytes_server(const struct test_opts *opts, int type)
-> >+{
-> >+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-> >+	int client_fd;
-> >+
-> >+	client_fd = vsock_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
-> >+	if (client_fd < 0) {
-> >+		perror("accept");
-> >+		exit(EXIT_FAILURE);
-> >+	}
-> >+
-> >+	for (int i = 0; i < sizeof(buf); i++)
-> >+		buf[i] = rand() & 0xFF;
-> >+
-> >+	send_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
-> >+	control_writeln("SENT");
-> >+	control_expectln("RECEIVED");
-> >+
-> >+	close(client_fd);
-> >+}
-> >+
-> >+static void test_unread_bytes_client(const struct test_opts *opts, int type)
-> >+{
-> >+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-> >+	int ret, fd;
-> >+	int sock_bytes_unread;
-> >+
-> >+	fd = vsock_connect(opts->peer_cid, opts->peer_port, type);
-> >+	if (fd < 0) {
-> >+		perror("connect");
-> >+		exit(EXIT_FAILURE);
-> >+	}
-> >+
-> >+	control_expectln("SENT");
-> >+	// The data have come in but is not read, the expected value is
-> >+	// MSG_BUF_IOCTL_LEN.
-> >+	ret = ioctl(fd, SIOCINQ, &sock_bytes_unread);
-> >+	if (ret < 0) {
-> >+		if (errno == EOPNOTSUPP) {
-> >+			fprintf(stderr,
-> >+				"Test skipped, SIOCINQ not supported.\n");
-> >+			goto out;
-> >+		} else {
-> >+			perror("ioctl");
-> >+			exit(EXIT_FAILURE);
-> >+		}
-> >+	} else if (ret == 0 && sock_bytes_unread != MSG_BUF_IOCTL_LEN) {
-> >+		fprintf(stderr,
-> >+			"Unexpected 'SIOCOUTQ' value, expected %d, got %i\n",
-> >+			MSG_BUF_IOCTL_LEN, sock_bytes_unread);
-> >+		exit(EXIT_FAILURE);
-> >+	}
-> >+
-> >+	recv_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-> >+	// The data is consumed, so the expected is 0.
-> >+	ret = ioctl(fd, SIOCINQ, &sock_bytes_unread);
-> >+	if (ret < 0) {
-> >+		// Don't ignore EOPNOTSUPP since we have already checked it!
-> >+		perror("ioctl");
-> >+		exit(EXIT_FAILURE);
-> >+	} else if (ret == 0 && sock_bytes_unread != 0) {
-> >+		fprintf(stderr,
-> >+			"Unexpected 'SIOCOUTQ' value, expected 0, got %i\n",
-> >+			sock_bytes_unread);
-> >+		exit(EXIT_FAILURE);
-> >+	}
-> >+	control_writeln("RECEIVED");
-> >+
-> >+out:
-> >+	close(fd);
-> >+}
-> >+
-> > static void test_stream_unsent_bytes_client(const struct test_opts *opts)
-> > {
-> > 	test_unsent_bytes_client(opts, SOCK_STREAM);
-> >@@ -1302,6 +1374,26 @@ static void test_seqpacket_unsent_bytes_server(const struct test_opts *opts)
-> > 	test_unsent_bytes_server(opts, SOCK_SEQPACKET);
-> > }
-> >
-> >+static void test_stream_unread_bytes_client(const struct test_opts *opts)
-> >+{
-> >+	test_unread_bytes_client(opts, SOCK_STREAM);
-> >+}
-> >+
-> >+static void test_stream_unread_bytes_server(const struct test_opts *opts)
-> >+{
-> >+	test_unread_bytes_server(opts, SOCK_STREAM);
-> >+}
-> >+
-> >+static void test_seqpacket_unread_bytes_client(const struct test_opts *opts)
-> >+{
-> >+	test_unread_bytes_client(opts, SOCK_SEQPACKET);
-> >+}
-> >+
-> >+static void test_seqpacket_unread_bytes_server(const struct test_opts *opts)
-> >+{
-> >+	test_unread_bytes_server(opts, SOCK_SEQPACKET);
-> >+}
-> >+
-> > #define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
-> > /* This define is the same as in 'include/linux/virtio_vsock.h':
-> >  * it is used to decide when to send credit update message during
-> >@@ -1954,6 +2046,16 @@ static struct test_case test_cases[] = {
-> > 		.run_client = test_seqpacket_unsent_bytes_client,
-> > 		.run_server = test_seqpacket_unsent_bytes_server,
-> > 	},
-> >+	{
-> >+		.name = "SOCK_STREAM ioctl(SIOCINQ) functionality",
-> >+		.run_client = test_stream_unread_bytes_client,
-> >+		.run_server = test_stream_unread_bytes_server,
-> >+	},
-> >+	{
-> >+		.name = "SOCK_SEQPACKET ioctl(SIOCINQ) functionality",
-> >+		.run_client = test_seqpacket_unread_bytes_client,
-> >+		.run_server = test_seqpacket_unread_bytes_server,
-> >+	},
-> 
-> Please, append new test at the end, so we will not change test IDs.
-> 
-> Thanks,
-> Stefano
+Verified with multiple device unplug iterations with pending requests in
+virtio used ring and some pending with the device.
 
-Will do.
+Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio pci device")
+Cc: stable@vger.kernel.org
+Reported-by: lirongqing@baidu.com
+Closes: https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b4741@baidu.com/
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+---
+changelog:
+v0->v1:
+- Fixed comments from Stefan to rename a cleanup function
+- Improved logic for handling any outstanding requests
+  in bio layer
+- improved cancel callback to sync with ongoing done()
 
-Thanks,
-Xuewei
+---
+ drivers/block/virtio_blk.c | 95 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 95 insertions(+)
 
-> > 	{
-> > 		.name = "SOCK_STREAM leak accept queue",
-> > 		.run_client = test_stream_leak_acceptq_client,
-> >-- 
-> >2.34.1
-> >
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 7cffea01d868..5212afdbd3c7 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -435,6 +435,13 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	blk_status_t status;
+ 	int err;
+ 
++	/* Immediately fail all incoming requests if the vq is broken.
++	 * Once the queue is unquiesced, upper block layer flushes any pending
++	 * queued requests; fail them right away.
++	 */
++	if (unlikely(virtqueue_is_broken(vblk->vqs[qid].vq)))
++		return BLK_STS_IOERR;
++
+ 	status = virtblk_prep_rq(hctx, vblk, req, vbr);
+ 	if (unlikely(status))
+ 		return status;
+@@ -508,6 +515,11 @@ static void virtio_queue_rqs(struct rq_list *rqlist)
+ 	while ((req = rq_list_pop(rqlist))) {
+ 		struct virtio_blk_vq *this_vq = get_virtio_blk_vq(req->mq_hctx);
+ 
++		if (unlikely(virtqueue_is_broken(this_vq->vq))) {
++			rq_list_add_tail(&requeue_list, req);
++			continue;
++		}
++
+ 		if (vq && vq != this_vq)
+ 			virtblk_add_req_batch(vq, &submit_list);
+ 		vq = this_vq;
+@@ -1554,6 +1566,87 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	return err;
+ }
+ 
++static bool virtblk_request_cancel(struct request *rq, void *data)
++{
++	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
++	struct virtio_blk *vblk = data;
++	struct virtio_blk_vq *vq;
++	unsigned long flags;
++
++	vq = &vblk->vqs[rq->mq_hctx->queue_num];
++
++	spin_lock_irqsave(&vq->lock, flags);
++
++	vbr->in_hdr.status = VIRTIO_BLK_S_IOERR;
++	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
++		blk_mq_complete_request(rq);
++
++	spin_unlock_irqrestore(&vq->lock, flags);
++	return true;
++}
++
++static void virtblk_broken_device_cleanup(struct virtio_blk *vblk)
++{
++	struct request_queue *q = vblk->disk->queue;
++
++	if (!virtqueue_is_broken(vblk->vqs[0].vq))
++		return;
++
++	/* Start freezing the queue, so that new requests keeps waitng at the
++	 * door of bio_queue_enter(). We cannot fully freeze the queue because
++	 * freezed queue is an empty queue and there are pending requests, so
++	 * only start freezing it.
++	 */
++	blk_freeze_queue_start(q);
++
++	/* When quiescing completes, all ongoing dispatches have completed
++	 * and no new dispatch will happen towards the driver.
++	 * This ensures that later when cancel is attempted, then are not
++	 * getting processed by the queue_rq() or queue_rqs() handlers.
++	 */
++	blk_mq_quiesce_queue(q);
++
++	/*
++	 * Synchronize with any ongoing VQ callbacks, effectively quiescing
++	 * the device and preventing it from completing further requests
++	 * to the block layer. Any outstanding, incomplete requests will be
++	 * completed by virtblk_request_cancel().
++	 */
++	virtio_synchronize_cbs(vblk->vdev);
++
++	/* At this point, no new requests can enter the queue_rq() and
++	 * completion routine will not complete any new requests either for the
++	 * broken vq. Hence, it is safe to cancel all requests which are
++	 * started.
++	 */
++	blk_mq_tagset_busy_iter(&vblk->tag_set, virtblk_request_cancel, vblk);
++	blk_mq_tagset_wait_completed_request(&vblk->tag_set);
++
++	/* All pending requests are cleaned up. Time to resume so that disk
++	 * deletion can be smooth. Start the HW queues so that when queue is
++	 * unquiesced requests can again enter the driver.
++	 */
++	blk_mq_start_stopped_hw_queues(q, true);
++
++	/* Unquiescing will trigger dispatching any pending requests to the
++	 * driver which has crossed bio_queue_enter() to the driver.
++	 */
++	blk_mq_unquiesce_queue(q);
++
++	/* Wait for all pending dispatches to terminate which may have been
++	 * initiated after unquiescing.
++	 */
++	blk_mq_freeze_queue_wait(q);
++
++	/* Mark the disk dead so that once queue unfreeze, the requests
++	 * waiting at the door of bio_queue_enter() can be aborted right away.
++	 */
++	blk_mark_disk_dead(vblk->disk);
++
++	/* Unfreeze the queue so that any waiting requests will be aborted. */
++	blk_mq_unfreeze_queue_nomemrestore(q);
++}
++
+ static void virtblk_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_blk *vblk = vdev->priv;
+@@ -1561,6 +1654,8 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 	/* Make sure no work handler is accessing the device. */
+ 	flush_work(&vblk->config_work);
+ 
++	virtblk_broken_device_cleanup(vblk);
++
+ 	del_gendisk(vblk->disk);
+ 	blk_mq_free_tag_set(&vblk->tag_set);
+ 
+-- 
+2.34.1
+
