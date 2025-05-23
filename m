@@ -1,76 +1,76 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 054721DDC11
-	for <virtualization@lists.linux.dev>; Fri, 23 May 2025 09:18:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 533C4225405
+	for <virtualization@lists.linux.dev>; Fri, 23 May 2025 09:20:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747991930; cv=none; b=Po5H079PeItq9yM5zsD7cYghCsTU0QL2+FzzdA6TyjYYWVo2gffQzI6J0koD+o/UQHu+8OYYgE+FXw5jiE8FIGIFQRVYfr7iyHZ4MUPsAU/4wnxg0A0z992kHAlYE3Tx5mVYnI3V3ZHaBd8wp4kU9dW/ggjsy1eTat5oP1aF13s=
+	t=1747992041; cv=none; b=pumoJQMlZ5dVP3UVtg1Of7Li7aWPQfg+c2QtwTTlmSxJ6NUeYdpRGMkH8tmBY3w1gsdzWmOaA6jPMifqB9mnmOzqSkvb7ctth2pBb88rfzFMsKKhyJa+VhIJ6hw/V8g/W/2cAH+/u4ApIMa585mG9g/mhd4sRFlQ+FJkEl0adr8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747991930; c=relaxed/simple;
-	bh=rGFq3hRsaRLAuI27U5a/OCyuFucgK09/K1MMbJIvUYM=;
+	s=arc-20240116; t=1747992041; c=relaxed/simple;
+	bh=/EkxK+M2AMYeKqef5dtTIUrZK0FP6bFrkqka0DXQUnc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gQr+9Ua0QUNTWxbd07d07ZcJ5NcBr3nBX0wLsEvbmhaz3s4lrcqGIuCMEB696nKarp/egLxsW1ipqMFTqr4yLShIMNUzyfqU+wNdk976S73MTn+hHuacDItaeGsGqxuyjfjLmCYNILFtAkShwy89g42jJOsLZvckADttC+AIsJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=LHg88W1w; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qyiDzrOl; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=SBgYLN2F; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=LHIAcL0M; arc=none smtp.client-ip=195.135.223.130
+	 Content-Type:Content-Disposition:In-Reply-To; b=p6qircFcyyvNS4mim9AVlBvyxbzdFevD70xyWna4xgQxZ8+P2DMcFUrVibhqeOkpIXSsAx2mV08n2HiwDs3ezbqNtn+KApNI+SkLpN71oVN8nMlW397ba1Sjk0YfoUbvsVAfv0Lz61q96TKZW4wFL6k1VJEJFF3YfoEDJYUv1EU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YN0IA3On; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=cBR3AZxY; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YN0IA3On; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=cBR3AZxY; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="LHg88W1w";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qyiDzrOl";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="SBgYLN2F";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="LHIAcL0M"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YN0IA3On";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="cBR3AZxY";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YN0IA3On";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="cBR3AZxY"
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id A0D9821903;
-	Fri, 23 May 2025 09:18:46 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 52AB21F821;
+	Fri, 23 May 2025 09:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1747991927; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1747992037; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=BsIsjOsaTKpNfrWu+kt/OF9VH7LhERm5+U9vDLPwdYs=;
-	b=LHg88W1wvA62laKbyGLjPDVzEskDD9NqAdI+7vm1VU89pPKuIL/QmTR8DfnoiRbcdlxYQ2
-	kHV9vcsOSQQnVa3VPFzgtMtOJXU5kngfxTXBnklHx1Vp9+bFBUChSy/gC4Vh94mYveYszv
-	9M4ZHqoaplR1CC4i3t6hLowccHUsXqM=
+	bh=HhocMSSXD2Ob4YbeI+06yEIZuiMpJcrclTZN4rAvaTA=;
+	b=YN0IA3OnH294PXpXi5dDe00kzw9uu8MzxlzJIvvIMeAdWoZoHcJjpDqTzW7DGsgNUeWcOY
+	l7CxoxCrx05CHkag6MSt2bg+6w5w72IqBq4i9LC2zk6D+yqQ9GRzmmvIM+nWpnsz8siHe9
+	ByI9YP/xomosUoLSK+5I96RpDViYEyo=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1747991927;
+	s=susede2_ed25519; t=1747992037;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=BsIsjOsaTKpNfrWu+kt/OF9VH7LhERm5+U9vDLPwdYs=;
-	b=qyiDzrOlhugPoqsB1W9h+fjrSgKBidlt15np2PtwFVWsx0p9cL9XgZh/YsxYdRM74h2PgD
-	OoWV4ClGlibhIeCw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=SBgYLN2F;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=LHIAcL0M
+	bh=HhocMSSXD2Ob4YbeI+06yEIZuiMpJcrclTZN4rAvaTA=;
+	b=cBR3AZxYlhc0linbdmpXVLkmWYbFS3BRxGGCGZ6LxeHg7U9Jk0E4DNj+m90tV5Fe7bapOD
+	VocegoYBxStLaLCA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=YN0IA3On;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=cBR3AZxY
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1747991926; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1747992037; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=BsIsjOsaTKpNfrWu+kt/OF9VH7LhERm5+U9vDLPwdYs=;
-	b=SBgYLN2F3qtNci/ljuuUY0eDkxdG+WZGQzOuLX9Tyv0BGaMbQq6Z/tIZn7jY6xIbmfajBO
-	BfDFBHBR+zFzRBWB6SBenl+HfXUwoQIgZXl6epWincqLjP476WYpH833qi4Fh2EJX+2vyt
-	LHKDH0xOgK+Ia9pVXUFIUqe5eJKWc0I=
+	bh=HhocMSSXD2Ob4YbeI+06yEIZuiMpJcrclTZN4rAvaTA=;
+	b=YN0IA3OnH294PXpXi5dDe00kzw9uu8MzxlzJIvvIMeAdWoZoHcJjpDqTzW7DGsgNUeWcOY
+	l7CxoxCrx05CHkag6MSt2bg+6w5w72IqBq4i9LC2zk6D+yqQ9GRzmmvIM+nWpnsz8siHe9
+	ByI9YP/xomosUoLSK+5I96RpDViYEyo=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1747991926;
+	s=susede2_ed25519; t=1747992037;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=BsIsjOsaTKpNfrWu+kt/OF9VH7LhERm5+U9vDLPwdYs=;
-	b=LHIAcL0Mvfa9p/RcUSVWMgqd4YEqMsvTZBVir4JqT4e+IDmJMaAu2nQ4xRIDDt6LPENleu
-	s4x9UVUSPP6x3xBw==
+	bh=HhocMSSXD2Ob4YbeI+06yEIZuiMpJcrclTZN4rAvaTA=;
+	b=cBR3AZxYlhc0linbdmpXVLkmWYbFS3BRxGGCGZ6LxeHg7U9Jk0E4DNj+m90tV5Fe7bapOD
+	VocegoYBxStLaLCA==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C34C0137B8;
-	Fri, 23 May 2025 09:18:45 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 691E2137B8;
+	Fri, 23 May 2025 09:20:36 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id TdfLLHU9MGhcPQAAD6G6ig
-	(envelope-from <osalvador@suse.de>); Fri, 23 May 2025 09:18:45 +0000
-Date: Fri, 23 May 2025 11:18:36 +0200
+	id q32/FuQ9MGjqPQAAD6G6ig
+	(envelope-from <osalvador@suse.de>); Fri, 23 May 2025 09:20:36 +0000
+Date: Fri, 23 May 2025 11:20:34 +0200
 From: Oscar Salvador <osalvador@suse.de>
 To: David Hildenbrand <david@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
@@ -88,11 +88,9 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
 	"Matthew Wilcox (Oracle)" <willy@infradead.org>
 Subject: Re: [PATCH v2 1/1] mm/memory_hotplug: PG_offline_skippable for
  offlining memory blocks with PageOffline pages
-Message-ID: <aDA9bCYzE2qENfDv@localhost.localdomain>
+Message-ID: <aDA94oHm1k-I01dv@localhost.localdomain>
 References: <20250520164216.866543-1-david@redhat.com>
  <20250520164216.866543-2-david@redhat.com>
- <aC3V1Sr7rGqqgLzW@localhost.localdomain>
- <d7b756cc-8a39-4124-ab57-912bb97ed967@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -101,9 +99,14 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d7b756cc-8a39-4124-ab57-912bb97ed967@redhat.com>
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
+In-Reply-To: <20250520164216.866543-2-david@redhat.com>
+X-Rspamd-Action: no action
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 52AB21F821
+X-Spam-Score: -1.51
+X-Spam-Flag: NO
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-1.51 / 50.00];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
 	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	NEURAL_HAM_SHORT(-0.20)[-1.000];
@@ -121,65 +124,84 @@ X-Spamd-Result: default: False [-4.51 / 50.00];
 	FROM_HAS_DN(0.00)[];
 	TO_DN_SOME(0.00)[];
 	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,localhost.localdomain:mid];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,localhost.localdomain:mid,suse.de:email,suse.de:dkim,nvidia.com:email];
 	RCVD_COUNT_TWO(0.00)[2];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
 	DKIM_TRACE(0.00)[suse.de:+]
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Score: -4.51
-X-Rspamd-Queue-Id: A0D9821903
-X-Spam-Level: 
-X-Spam-Flag: NO
 
-On Wed, May 21, 2025 at 03:44:32PM +0200, David Hildenbrand wrote:
-> No, the code is confusing.
+On Tue, May 20, 2025 at 06:42:11PM +0200, David Hildenbrand wrote:
+> A long-term goal is supporting frozen PageOffline pages, and later
+> PageOffline pages that don't have a refcount at all. Some more work for
+> that is needed -- in particular around non-folio page migration and
+> memory ballooning drivers -- but let's start by handling PageOffline pages
+> that can be skipped during memory offlining differently.
 > 
-> All pages are PageOffline. Only the ones that have not been onlined are *in
-> addition* PageDirty.
+> Note that PageOffline is used to mark pages that are logically offline
+> in an otherwise online memory block (e.g., 128 MiB). If a memory
+> block is offline, the memmap is considered compeltely uninitialized
+> and stale (see pfn_to_online_page()).
 > 
-> The relevant bit is documented in page-flags.h:
+> Let's introduce a PageOffline specific page flag (PG_offline_skippable)
+> that for now reuses PG_owner_2. In the memdesc future, it will be one of
+> a small number of per-memdesc flags stored alongside the type.
 > 
-> "When a memory block gets onlined, all pages are initialized with a refcount
-> of 1 and PageOffline(). generic_online_page() will take care of clearing
-> PageOffline()."
+> By setting PG_offline_skippable, a driver indicates that it can
+> restore the PageOffline state of these specific pages when re-onlining a
+> memory block: it knows that these pages are supposed to be PageOffline()
+> without the information in the vmemmap, so it can filter them out and
+> not expose them to the buddy -> they stay PageOffline().
+> 
+> While PG_offline_offlineable might be clearer, it is also super
+> confusing. Alternatives (PG_offline_sticky?) also don't quite feel right.
+> So let's use "skippable" for now.
+> 
+> The flag is not supposed to be used for movable PageOffline pages as
+> used for balloon compaction; movable PageOffline() pages can simply be
+> migrated during the memory offlining stage, turning the migration
+> destination page PageOffline() and turning the migration source page
+> into a free buddy page.
+> 
+> Let's convert the single user from our MEM_GOING_OFFLINE approach
+> to the new PG_offline_skippable approach: virtio-mem. Fortunately,
+> this simplifies the code quite a lot. The only corner case we have to
+> take care of is when force-unloading the virtio-mem driver: we have to
+> prevent partially-plugged memory blocks from getting offlined by
+> clearing PG_offline_skippable again.
+> 
+> What if someone decides to grab a reference on these pages although they
+> really shouldn't? After all, we'll now keep the refcount at 1 (until we
+> can properly stop using the refcount completely).
+> 
+> Well, less worse things will happen than would currently: currently,
+> if someone would grab a reference to these pages, in MEM_GOING_OFFLINE
+> we would run into the
+> 		if (WARN_ON(!page_ref_dec_and_test(page)))
+> 			dump_page(page, "fake-offline page referenced");
+> 
+> And once that unexpected reference would get dropped, we would end up
+> freeing that page to the buddy: ouch.
+> 
+> Now, we'll allow for offlining that memory, and when that unexpected
+> reference would get dropped, we would not end up freeing that page to
+> the buddy. Once we have frozen PageOffline() pages, it will all get a
+> lot cleaner.
+> 
+> Note that we didn't see the existing WARN_ON so far, because nobody
+> should ever be referencing such pages.
+> 
+> An alternative might be to have another callback chain from memory hotplug
+> code, where a driver that owns that page could agree to skip the
+> PageOffline() page. However, we would have to repeatedly issue these
+> callbacks for individual PageOffline() pages, which does not sound
+> compelling. As we have spare bits, let's use this simpler approach for
+> now.
+> 
+> Acked-by: Zi Yan <ziy@nvidia.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 
-Ah ok, I see it in __free_pages_core().
-
-
-> > - If we want to release logically-offline pages belonging to an onlined memory-block,
-> >    we ClearDirty them and be done
-> 
-> PageOffline gets cleared in both cases: See the comment in
-> virtio_mem_clear_fake_offline()
-> 
-> "/* generic_online_page() will clear PageOffline(). */"
-> 
-> I'll note that I am planning on removing that PageDirty() handling
-> completely, and also letting handling PageOffline() clearing be always
-> performed by memory freeing core (the latter is easier to achieve).
-
-Cool, I think that would be much clearer.
+Acked-by: Oscar Salvador <osalvador@suse.de>
 
  
-> When re-onlining, the core will set them all PageOffline, and virtio-mem
-> will intercept page onlining using the page_online_cb.
-> 
-> virtio-mem will then online the actually plugged parts (->
-> generic_online_page(), which clears PageOffline and exposes them to the
-> buddy) and set the unplugged/hole parts as PageOfflineSkipabble again.
-> 
-> That logic resides in virtio_mem_online_page_cb().
-
-Sorry, I had to re-cache this.
-Ok, I think that now I caught up with the code.
-
-I see that we mark it Offline in memmap_init_range(), and then
-__free_pages_core() will clear the flag before releasing them to the
-buddy.
-
-Ok, I think it is much clear now, thanks for helping me out with the
-details! 
 
 -- 
 Oscar Salvador
