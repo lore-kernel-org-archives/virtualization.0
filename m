@@ -1,197 +1,214 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from xvfrnhpk.outbound-mail.sendgrid.net (xvfrnhpk.outbound-mail.sendgrid.net [168.245.32.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3086028EB
-	for <virtualization@lists.linux.dev>; Mon, 26 May 2025 14:40:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F66E8F5E
+	for <virtualization@lists.linux.dev>; Mon, 26 May 2025 14:40:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.245.32.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748270408; cv=none; b=XgEhqWiq4G5Mbz2eG9w1lBWTAyReBZGwhVTtmbG/5Yb7/vmbKREU4GcOCY39+XM2Nf4VqWH29BXPQ2ZX++dMPoUChIXbphIZNASQYk19PMJQCtOiTFE5wY7LLTBCqiajOa+PXU70GNMOPwMXvlhiEoFGrVfjc7GBqk6jaksBBEI=
+	t=1748270436; cv=none; b=rGZg7/6N4KHXI9vv1W1A4AxbXdUM4mz8CEiT6IMZeT3dEE9/5Sss0AVq5tqm/ziu5wX11e0bkERbPHjcDe1xyZ4TOdXDrCSphKBpUMie3mDFgavkEXg6+3qJK40vtCOEORh36rgxeiaoJuvajZ0C0z0+kRtPe+6gv4iK1zywwKk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748270408; c=relaxed/simple;
-	bh=/e+vyLtK0CFZ4t4mAapQB9b2M2hDkw8sV9L58+jnCMc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=PWicbObwqnAVFQVlR7Gvv0a8EBHn266cqVdMm5UQ7nJO46aZSHbfq9QHeMRAtURVrSp12I5q8YkrewZWph+YuP1ekZ8gHXAA2S9c8ZYYtbfFwY1vtFCEoBbrDw+Yc3SR+xl5OP6qc0UD/dISRUXypgsYqssU+vehTtc8VLN0aLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SVRr/v9F; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1748270436; c=relaxed/simple;
+	bh=d1PQxs10lfmqJnGYJS95aWDX8GIwfpFbiVXasZo1Mdo=;
+	h=From:Subject:Date:Message-Id:MIME-Version:To:Cc:Content-Type; b=GDEv5+NAZEuTha6Rpg/ChM8c7ZP20gSPeXnk+FE0bneCMb1w1UtX4kAUdQm//w7ChWa6qwptfQ8FpVlyCLvHG0yA7X8jYyZuXRPMD8BAOsDkvrFviFg64txjU5kKxS9GIvUPKBJ3fVR8AVyqkBPxr2dl78VfyZOblbc92eTuWT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=pass smtp.mailfrom=sendgridstats.nvidia.com; dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b=SdX+A1Sg; arc=none smtp.client-ip=168.245.32.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sendgridstats.nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SVRr/v9F"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1748270405;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RF6pS1ObcOVvDlmvm5nj8NiMFIwIn9dVx82Hog1fdnE=;
-	b=SVRr/v9FJT06dcOlhOj83WXFKXwEwe1uyLXphH6RWF1p8K+jEz04YYKrC6AmmKvxgPbFwn
-	v35+5juJVxRydN/Mg149rZaADI7P90oicJ4AguVuUxNJ6+Otz3HPYHUEJcId6zR0Ol2cMP
-	aJBNckqFIM2NrI70y009uPCeQVl6vj8=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-44-k8S4QaPLOXGykSUIlMWaNw-1; Mon, 26 May 2025 10:40:02 -0400
-X-MC-Unique: k8S4QaPLOXGykSUIlMWaNw-1
-X-Mimecast-MFC-AGG-ID: k8S4QaPLOXGykSUIlMWaNw_1748270401
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-44b1f5b8e9dso8629345e9.2
-        for <virtualization@lists.linux.dev>; Mon, 26 May 2025 07:40:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748270401; x=1748875201;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RF6pS1ObcOVvDlmvm5nj8NiMFIwIn9dVx82Hog1fdnE=;
-        b=IZQlWwRg6OHAjFClNpfRy7HjBKlY8qebgsoHZmjT9m8iimcs+QLMhQ7g4VPQE1t6UZ
-         waupmKOzfH5NBAcE+OLnjPn6JGw8ss7PgYhDD9JGkLlLY8vw9gn4+sAI/dlTyfRpd2wV
-         cLAyFourq6NVWtlj6lC6D67mJq705+XnrcHlQ7SL5Db6myl2VeABp5zgshYfYa8WsiKg
-         NHhLBIbuKdgLRUCAoVe6Db4vZvWk3V1pyV5LmaE0xFxVMZuyQi749wY6AniWu+mItRs8
-         Ujsg8FqBAf79tTu10tGh/LR/nwr+/jgT79ISxosnX2/eOh5l8mfa0CubhiZ9UOP6i62m
-         R1sw==
-X-Gm-Message-State: AOJu0YwWnNWgpK7YRMXNdU5UCWKgY03jsSna3u0eCfSkjWC8dWTpBxoL
-	PzG+fl4K/fWWfpWOuuXShBIaCY+GIsj7qkMOrK5falB85hDPrnCrxNIETeZbaVXDA5miOXZX8u1
-	5LSs6zMuXY8DnhdBVQSD9j8XTjIQpvlUkO4wJvho6HBmZo3ERT28bPRVw4jWF0JjVcTWD
-X-Gm-Gg: ASbGncv7SCZGTMwW6H8rv9knlNaqTOIUBXyzt0JsCubDGXDYGSN20xUlVyQn9rwAnvo
-	oYycOK6RTsLkD4QgRasIRikhFUxLWZJ/oaDnw7ROXyz7R14joajSzaePLd7vLCjRno4xDMnps2w
-	h4JgFLKacHcCMcbjNVt0lKkgSA8xqJHzFNLYzWtClfFXZyXb+pggaJIePbMRwRFVcEpmCLvXXNY
-	0/D27rEh6XKMmjkHPMAD1copoXpAPZirykCSdl9du+0ubGQgtftt48b7YdgLRADo7s8ZPhVIsGv
-	mOTBXKKudtdUXjt8RM0eYs/La/2aOvaBraXrf57OB5RJj0GTAGNHTni21UrA
-X-Received: by 2002:a05:600c:511b:b0:442:dc6f:2f11 with SMTP id 5b1f17b1804b1-44c9493e671mr77932115e9.25.1748270401505;
-        Mon, 26 May 2025 07:40:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEWo+GvCwfq/rkNxHnvWQwirh+1VtVO+LjjW3fAOxqDotyizM//UqyOYsGby8MQArjXhlSeww==
-X-Received: by 2002:a05:600c:511b:b0:442:dc6f:2f11 with SMTP id 5b1f17b1804b1-44c9493e671mr77931885e9.25.1748270400947;
-        Mon, 26 May 2025 07:40:00 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-134-35.retail.telecomitalia.it. [82.53.134.35])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-447f78aef8asm247808255e9.29.2025.05.26.07.39.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 May 2025 07:40:00 -0700 (PDT)
-Date: Mon, 26 May 2025 16:39:55 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] vsock/test: Cover more CIDs in transport_uaf
- test
-Message-ID: <gfmoupl72tjyymhwxcstwpgaabbfaz6f4v6vj4lwwzwssg577c@urkmgn7rapnj>
-References: <20250523-vsock-test-inc-cov-v1-1-fa3507941bbd@rbox.co>
- <limbmrszio42lvkmalapooflj5miedlszkmnnm4ckmy2upfghw@24vxuhgdji2z>
- <1f5cc46a-de4c-4361-a706-fc7fe06a7068@rbox.co>
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="SdX+A1Sg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com;
+	h=from:subject:mime-version:to:cc:content-transfer-encoding:
+	content-type:cc:content-type:from:subject:to;
+	s=s1; bh=r8qrSsIQoSyWBb80Ej3JuxeIF4SIQooUkXB7mTluPk8=;
+	b=SdX+A1Sg67Qn3VtAmP2urBG5VDKs6ugDShlhqXPgQme7IHmRu2Eob0VBcwqh9LjKtb9d
+	4OOcDcdUyqE04r50RltexOP6fqy7snUOrXPYVeCCR5d4NgffzCmV8oVtYMCyKYu5+4KLiV
+	UthIdcyHvW1DtsP+x1TGNOH2jhQ0xeX09X99UUiQH/Wl1er6auHiBYv74CEWZCOU7XcKCV
+	HJr3fqzqXTAJyKyfjIQ6Hd/vm48oh8WF9dH9O7emxOMf9QEcOcibPr0lnKHQ19kzdCOMah
+	iRCnT+BsrDc4HHmY8lNC+FX/a4/SVGYVeYbOZ9KtpG0OTPe0iSZ/1iwJ54yoCB4A==
+Received: by recvd-7dbb94f885-lz6hq with SMTP id recvd-7dbb94f885-lz6hq-1-68347D60-38
+	2025-05-26 14:40:32.854673969 +0000 UTC m=+4052039.235472752
+Received: from mtl123.mtl.labs.mlnx (unknown)
+	by geopod-ismtpd-8 (SG)
+	with ESMTP
+	id X1cc6yNcRW2lorK4LsFVBg
+	Mon, 26 May 2025 14:40:32.663 +0000 (UTC)
+Received: from gen-l-vrt-306.mtl.labs.mlnx (gen-l-vrt-306.mtl.labs.mlnx [10.237.7.80])
+	by mtl123.mtl.labs.mlnx (8.14.4/8.14.4) with ESMTP id 54QEeWCH032459;
+	Mon, 26 May 2025 17:40:32 +0300
+Received: from gen-l-vrt-306.mtl.labs.mlnx (localhost [127.0.0.1])
+	by gen-l-vrt-306.mtl.labs.mlnx (8.15.2/8.15.2/Debian-22ubuntu3) with ESMTP id 54QEeV0n124581;
+	Mon, 26 May 2025 17:40:31 +0300
+Received: (from root@localhost)
+	by gen-l-vrt-306.mtl.labs.mlnx (8.15.2/8.15.2/Submit) id 54QEe8FE124580;
+	Mon, 26 May 2025 17:40:08 +0300
+From: Parav Pandit <parav@nvidia.com>
+Subject: [PATCH v2] virtio_blk: Fix disk deletion hang on device surprise
+ removal
+Date: Mon, 26 May 2025 14:40:33 +0000 (UTC)
+Message-Id: <20250526144007.124570-1-parav@nvidia.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1f5cc46a-de4c-4361-a706-fc7fe06a7068@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 8taBIjCdiJRhtdzCK8l5kGSIlOcHTd64cUwdtlixJQI_1748270401
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-SG-EID: 
+ =?us-ascii?Q?u001=2EGKIzaBmeMpQo8dENF3BKzHhooF+oMOnrwKqptdheemMEs2maYobIgHNSi?=
+ =?us-ascii?Q?3HpuxQn0J1ksZ0bJ2Es9Y+grYdP1USALh4RuT0z?=
+ =?us-ascii?Q?wYzioSPvv9w6YjhFerFgDDd1sSm+rehxtoA=2F2pf?=
+ =?us-ascii?Q?jq2NPF=2F+AHAFoh1ejB44e+cOTdkiftfUUpJ4cyB?=
+ =?us-ascii?Q?2RaP+WhxYs30iNIIOghGn+nmIyB9ho7EusoeKld?=
+ =?us-ascii?Q?jaWddl+pZ+JuR0lYr6kiLXzLsxmJIpACkyCX3XO?= =?us-ascii?Q?LZNs?=
+To: mst@redhat.com, stefanha@redhat.com, axboe@kernel.dk,
+	virtualization@lists.linux.dev, linux-block@vger.kernel.org
+Cc: stable@vger.kernel.org, lirongqing@baidu.com, kch@nvidia.com,
+	xuanzhuo@linux.alibaba.com, pbonzini@redhat.com, jasowang@redhat.com,
+	Parav Pandit <parav@nvidia.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
+	Israel Rukshin <israelr@nvidia.com>
+X-Entity-ID: u001.9Nu+sJkq3f0LJ/tZbyfOWA==
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 
-On Mon, May 26, 2025 at 02:51:18PM +0200, Michal Luczaj wrote:
->On 5/26/25 10:25, Stefano Garzarella wrote:
->> On Fri, May 23, 2025 at 12:31:16AM +0200, Michal Luczaj wrote:
->>> Increase the coverage of test for UAF due to socket unbinding, and losing
->>> transport in general. It's a follow up to commit 301a62dfb0d0 ("vsock/test:
->>> Add test for UAF due to socket unbinding") and discussion in [1].
->>>
->>> The idea remains the same: take an unconnected stream socket with a
->>> transport assigned and then attempt to switch the transport by trying (and
->>> failing) to connect to some other CID. Now do this iterating over all the
->>> well known CIDs (plus one).
->>>
->>> Note that having only a virtio transport loaded (without vhost_vsock) is
->>> unsupported; test will always pass. Depending on transports available, a
->>
->> Do you think it might make sense to print a warning if we are in this
->> case, perhaps by parsing /proc/modules and looking at vsock
->> dependencies?
->
->That'd nice, but would parsing /proc/modules work if a transport is
->compiled-in (not a module)?
+When the PCI device is surprise-removed, requests may not complete on
+the device as the VQ is marked as broken. As a result, disk deletion
+hangs.
 
-Good point, I think not, maybe we can see something under /sys/module,
-though, I would say let's do best effort without going crazy ;-)
+Fix it by aborting the requests when the VQ is broken.
 
->
->>> +static bool test_stream_transport_uaf(int cid)
->>> {
->>> +	struct sockaddr_vm addr = {
->>> +		.svm_family = AF_VSOCK,
->>> +		.svm_cid = cid,
->>> +		.svm_port = VMADDR_PORT_ANY
->>> +	};
->>> 	int sockets[MAX_PORT_RETRIES];
->>> -	struct sockaddr_vm addr;
->>> -	int fd, i, alen;
->>> +	socklen_t alen;
->>> +	int fd, i, c;
->>>
->>> -	fd = vsock_bind(VMADDR_CID_ANY, VMADDR_PORT_ANY, SOCK_STREAM);
->>> +	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
->>> +	if (fd < 0) {
->>> +		perror("socket");
->>> +		exit(EXIT_FAILURE);
->>> +	}
->>> +
->>> +	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr))) {
->>> +		if (errno != EADDRNOTAVAIL) {
->>> +			perror("Unexpected bind() errno");
->>> +			exit(EXIT_FAILURE);
->>> +		}
->>> +
->>> +		close(fd);
->>> +		return false;
->>
->> Perhaps we should mention in the commit or in a comment above this
->> function, what we return and why we can expect EADDRNOTAVAIL.
->
->Something like
->
->/* Probe for a transport by attempting a local CID bind. Unavailable
-> * transport (or more specifically: an unsupported transport/CID
-> * combination) results in EADDRNOTAVAIL, other errnos are fatal.
-> */
->
->?
+With this fix now fio completes swiftly.
+An alternative of IO timeout has been considered, however
+when the driver knows about unresponsive block device, swiftly clearing
+them enables users and upper layers to react quickly.
 
-LGTM!
+Verified with multiple device unplug iterations with pending requests in
+virtio used ring and some pending with the device.
 
->
->And I've just realized feeding VMADDR_CID_HYPERVISOR to bind() doesn't make
->sense at all. Will fix.
+Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio pci device")
+Cc: stable@vger.kernel.org
+Reported-by: Li RongQing <lirongqing@baidu.com>
+Closes: https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b4741@baidu.com/
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+Signed-off-by: Parav Pandit <parav@nvidia.com>
 
-Yeah, we don't support it for now and maybe it makes sense only in the 
-VMM code (e.g. QEMU), but it's a test, so if you want to leave to stress 
-it more, I don't think it's a big issue.
+---
+v1->v2:
+- Addressed comments from Stephan
+- fixed spelling to 'waiting'
+- Addressed comments from Michael
+- Dropped checking broken vq from queue_rq() and queue_rqs()
+  because it is checked in lower layer routines in virtio core
 
->
->> What about adding a vsock_bind_try() in util.c that can fail returning
->> errno, so we can share most of the code with vsock_bind()?
->
->Ah, yes, good idea.
->
->>> +static void test_stream_transport_uaf_client(const struct test_opts *opts)
->>> +{
->>> +	bool tested = false;
->>> +	int cid;
->>> +
->>> +	for (cid = VMADDR_CID_HYPERVISOR; cid <= VMADDR_CID_HOST + 1; ++cid)
->>
->>> +		tested |= test_stream_transport_uaf(cid);
->>> +
->>> +	if (!tested)
->>> +		fprintf(stderr, "No transport tested\n");
->>> +
->>> 	control_writeln("DONE");
->>
->> While we're at it, I think we can remove this message, looking at
->> run_tests() in util.c, we already have a barrier.
->
->Ok, sure. Note that console output gets slightly de-synchronised: server
->will immediately print next test's prompt and wait there.
+v0->v1:
+- Fixed comments from Stefan to rename a cleanup function
+- Improved logic for handling any outstanding requests
+  in bio layer
+- improved cancel callback to sync with ongoing done()
+---
+ drivers/block/virtio_blk.c | 83 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 83 insertions(+)
 
-I see, however I don't have a strong opinion, you can leave it that way 
-if you prefer.
-
-Thanks,
-Stefano
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 7cffea01d868..12f31e6c00cb 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -1554,6 +1554,87 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	return err;
+ }
+ 
++static bool virtblk_request_cancel(struct request *rq, void *data)
++{
++	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
++	struct virtio_blk *vblk = data;
++	struct virtio_blk_vq *vq;
++	unsigned long flags;
++
++	vq = &vblk->vqs[rq->mq_hctx->queue_num];
++
++	spin_lock_irqsave(&vq->lock, flags);
++
++	vbr->in_hdr.status = VIRTIO_BLK_S_IOERR;
++	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
++		blk_mq_complete_request(rq);
++
++	spin_unlock_irqrestore(&vq->lock, flags);
++	return true;
++}
++
++static void virtblk_broken_device_cleanup(struct virtio_blk *vblk)
++{
++	struct request_queue *q = vblk->disk->queue;
++
++	if (!virtqueue_is_broken(vblk->vqs[0].vq))
++		return;
++
++	/* Start freezing the queue, so that new requests keeps waiting at the
++	 * door of bio_queue_enter(). We cannot fully freeze the queue because
++	 * freezed queue is an empty queue and there are pending requests, so
++	 * only start freezing it.
++	 */
++	blk_freeze_queue_start(q);
++
++	/* When quiescing completes, all ongoing dispatches have completed
++	 * and no new dispatch will happen towards the driver.
++	 * This ensures that later when cancel is attempted, then are not
++	 * getting processed by the queue_rq() or queue_rqs() handlers.
++	 */
++	blk_mq_quiesce_queue(q);
++
++	/*
++	 * Synchronize with any ongoing VQ callbacks, effectively quiescing
++	 * the device and preventing it from completing further requests
++	 * to the block layer. Any outstanding, incomplete requests will be
++	 * completed by virtblk_request_cancel().
++	 */
++	virtio_synchronize_cbs(vblk->vdev);
++
++	/* At this point, no new requests can enter the queue_rq() and
++	 * completion routine will not complete any new requests either for the
++	 * broken vq. Hence, it is safe to cancel all requests which are
++	 * started.
++	 */
++	blk_mq_tagset_busy_iter(&vblk->tag_set, virtblk_request_cancel, vblk);
++	blk_mq_tagset_wait_completed_request(&vblk->tag_set);
++
++	/* All pending requests are cleaned up. Time to resume so that disk
++	 * deletion can be smooth. Start the HW queues so that when queue is
++	 * unquiesced requests can again enter the driver.
++	 */
++	blk_mq_start_stopped_hw_queues(q, true);
++
++	/* Unquiescing will trigger dispatching any pending requests to the
++	 * driver which has crossed bio_queue_enter() to the driver.
++	 */
++	blk_mq_unquiesce_queue(q);
++
++	/* Wait for all pending dispatches to terminate which may have been
++	 * initiated after unquiescing.
++	 */
++	blk_mq_freeze_queue_wait(q);
++
++	/* Mark the disk dead so that once queue unfreeze, the requests
++	 * waiting at the door of bio_queue_enter() can be aborted right away.
++	 */
++	blk_mark_disk_dead(vblk->disk);
++
++	/* Unfreeze the queue so that any waiting requests will be aborted. */
++	blk_mq_unfreeze_queue_nomemrestore(q);
++}
++
+ static void virtblk_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_blk *vblk = vdev->priv;
+@@ -1561,6 +1642,8 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 	/* Make sure no work handler is accessing the device. */
+ 	flush_work(&vblk->config_work);
+ 
++	virtblk_broken_device_cleanup(vblk);
++
+ 	del_gendisk(vblk->disk);
+ 	blk_mq_free_tag_set(&vblk->tag_set);
+ 
+-- 
+2.34.1
 
