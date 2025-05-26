@@ -1,272 +1,180 @@
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95BA720C00B
-	for <virtualization@lists.linux.dev>; Mon, 26 May 2025 13:29:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A4AE1F463C
+	for <virtualization@lists.linux.dev>; Mon, 26 May 2025 13:50:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748266171; cv=none; b=hOniXJmIWba22s523mgsUR9abXgRu3jQnem1svzTWduPl45SSct24yc4HEKxAF11qh9oP6LRxjsoqbdjAoG/0el3RL/Z7PlxaI04IhhCmYFS1ADc1mUXykd2YQHSXUfFRy2pY0jXc95OrFKD4oio8a1BWBNxTpthUXdcMCEntF4=
+	t=1748267449; cv=none; b=dsjqoOLZSuGzKqJMelPadbuq6z/8eOeVPC8KBQQS0Xu5rFBXgTlxbU1Z84pt8yTVakzMKUCd4tnr61BSMEducbsst9uhnVwZzWgVCrGEOYTHkcGL27aECdHlS0bgZQeARS8o3ETdYjVG70T99DSQaLBFHsB5aGOF+63U3nQqIzo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748266171; c=relaxed/simple;
-	bh=ftqgrdFI1GpSlLjZn+vqEpJ3cfGGNQo5NsWZGQWfDcQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QFEnSCrDDs6hFgT/GSHiOePSlYGTulfHGCMkzpEedLkGi5XuYgdRVchh74Nys7t4vCyMeQQhsmqUl8djUHWZJ0KMpj3Hcs0K4GxwP9szLKTNPASWpXGRgo6X1kZ1V5aFACoQMS5jKUFiAitkDjHryu2sezer2Jd6RR5h6sdE+04=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f7vvg4o8; arc=none smtp.client-ip=209.85.208.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1748267449; c=relaxed/simple;
+	bh=BPzMadv+6y0REco6m/3KTHH6etAqFJH+OU0kdoFoggU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=lYyjCSYFI18Gg31z56c19wYYXyzEFlVXt10zTZbDr10aACHRU/OgsUWpMlUuLMTBT02gioACn1Zn/PQev6VNdtpN+T+BA6tWqXfH2EMmYg1rRWbLGq7+laarCzw1XWX0FhCAUhTygRjxpStY4G2S3/iF21wes60nnwyZkIlD9aE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hsHqLega; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f7vvg4o8"
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-601f278369bso4679400a12.1
-        for <virtualization@lists.linux.dev>; Mon, 26 May 2025 06:29:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1748266168; x=1748870968; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Ky+DCkhEOyCcqlejBTI455CsOSMLvUBLS4Gb0hfKRHc=;
-        b=f7vvg4o8iWz/gi+D5vddlpW/jdJ4DL+03CFApU64jaJndxLfUkngSrJYeuZFhmdiLF
-         CTlRIfkWgXycg8Wpdowu3da1C7NnoJQKagAZb1nr1nMmQhzDZC/wU/zfFs8Yg5ZnfW0g
-         Z5AgoPiFPPSmy50bNgeoKBlxtLZn+1e9mfaVpUg7pIWmHYgq+M5vGEbqlhUEsNawG6+N
-         m6y/yhNAaS/f+A0EdYpoXf/wX2PoueysHvO9rq3wsA9xCPihhc0gkgbr2/KFsXLB5OYe
-         C5XuQdasiPTEHEi40Tp5XBr+enFLMc1lRSQGedkgjxRn6ILBtrrOSGwXLU6t/besAbMS
-         KbOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748266168; x=1748870968;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Ky+DCkhEOyCcqlejBTI455CsOSMLvUBLS4Gb0hfKRHc=;
-        b=WOnpxAasOwirGyYue/PCBVdEAim2XvcEJloQxfTa4ntmFgMFYbnTeh6FbNiTeqJCdE
-         tyUAC9+o/s96ZWMfdAjzTzFWdmRf4ocMzYaaNuRKj0+L1KgwjvdlVV1qmu/sl4Pq9/WJ
-         DcCty/VV+mTgHzhFYE0J38rZQqIX9Rty+/veXqCo2mr8WqlYL01vtv5FEq4FacQmFQUF
-         pK9zydtF0Ru5k+pajldK8ze1gWbMyfMBIzKUPT8ChAKnGGuznMDqjLlk5T3ES4N3GBa0
-         qtjtrtMJtBxHtP1E7kpJTh4nbeS85ZMCTUela31zB0gO5cNK0bY05sQjDYEsamNAE5a/
-         sGWQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWqSS7Axp0yqYX6i2DwoeqdBmanqXPbd0x3oiuSIneZ7ROq5t9B+kLzBX1KrlvZ+bshNHu6FheNWYG3uej9lA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy5YyHugO/MrDelxPfwBj7tdPR02iP2SN59NZzEgkFhjxG8F3S5
-	R0tR2XH1kbY2pmVmiouMHKkInPSRPPHXVz9LoKhJNtMtZpfZTa7d+xnz25rufUasHgW+VTlhYcF
-	SFkP2wkDO/030E/WC2ImN1vH4nr1apYg=
-X-Gm-Gg: ASbGncv82wGBqdH0WGNVURkSCPzNZNrrmY/mI3KijsE4erR5a6hKcNpP4tA5KXz+dQn
-	EOcWwTb1Zq3RqraoJWgH1ex8PjpDUD4dZDmbDr9RRwVlG7vUEC2zZmSYNufNjTjuant3EKtVl9R
-	JgvgxzeyP8+Kc64SmHnLAZoBHOGS4ZLHk=
-X-Google-Smtp-Source: AGHT+IFvyx15Wv4KKKNKkL+b/IrI3XgNbs0ShaeDrFV2k6yVufyn/+YNtOoVkbAi0R7bkFeyzpJaGzrINco9iSKSY4w=
-X-Received: by 2002:a05:6402:3486:b0:601:89d4:968e with SMTP id
- 4fb4d7f45d1cf-602dacbfd7amr7816048a12.27.1748266167610; Mon, 26 May 2025
- 06:29:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hsHqLega"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54QB8SNo002304;
+	Mon, 26 May 2025 13:50:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=3c6hymiUmN+Rg7HCY4QK3LteXbtKZUBJA+lVBNURd
+	7U=; b=hsHqLegazLreSfsez2oGYh2z1tOg89vK55eHDC2rHvnnPRx0hUmVEvIkj
+	CCqjHPZ1ucuQnBoiaww3HmZx2eJ8nU+Mqf8O5mVO81acc6jhKvxtunVt7FFOfodq
+	xrZknecWAkj//e32zDQ4ubPVBcPyIUUOQ4k/xfKxNUh4S9KbZnwp4cJg4mJoxqvM
+	FsJNOf8pLdCDa+AhXGkC6KW0xG139eH/Tq4lSf+Y5q8P29PsEs59CFrRsyMQIOJv
+	/SVMEkpxlE1AgCNWbHRFzDxPesEdkOmM4YvqB6+7oWxgwxc9vyO8WQ4hIr5/eV68
+	3QhdTIikKsva84MYVHerKLC90zhQg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46v0p2d8cd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 May 2025 13:50:44 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54Q9Or9C007944;
+	Mon, 26 May 2025 13:50:44 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 46uu52x2t7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 May 2025 13:50:44 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54QDohGH29098502
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 26 May 2025 13:50:43 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5F27158056;
+	Mon, 26 May 2025 13:50:43 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2B4F05805E;
+	Mon, 26 May 2025 13:50:43 +0000 (GMT)
+Received: from WIN-DU0DFC9G5VV.ibm.com (unknown [9.61.242.189])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 26 May 2025 13:50:43 +0000 (GMT)
+From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+To: sgarzare@redhat.com
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com,
+        Konstantin Shkolnyy <kshk@linux.ibm.com>
+Subject: [PATCH net v2] vsock/test: Fix occasional failure in SOCK_STREAM SHUT_RD test
+Date: Mon, 26 May 2025 08:49:49 -0500
+Message-Id: <20250526134949.907948-1-kshk@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250521062744.1361774-1-parav@nvidia.com> <20250521145635.GA120766@fedora>
- <CY8PR12MB7195DE1F8F11675CD2584D22DC99A@CY8PR12MB7195.namprd12.prod.outlook.com>
- <CAJSP0QXxspELYnToMuP1w86rayQgPDRccVo892C258y9UbH_Hg@mail.gmail.com>
- <CY8PR12MB71958DFA8D0043DA3842B93ADC99A@CY8PR12MB7195.namprd12.prod.outlook.com>
- <CY8PR12MB719552B560C843F8CC334EDEDC65A@CY8PR12MB7195.namprd12.prod.outlook.com>
-In-Reply-To: <CY8PR12MB719552B560C843F8CC334EDEDC65A@CY8PR12MB7195.namprd12.prod.outlook.com>
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Date: Mon, 26 May 2025 09:29:14 -0400
-X-Gm-Features: AX0GCFuapTTNbi28N7wHTBYiG_3DZOJJw1MIzEKxGOcBFWIlrSs2rlkpolyRhLY
-Message-ID: <CAJSP0QX70Om0Q-yGSN90N-4XJvhOV1XvVER-a0E05BRcd2JBKw@mail.gmail.com>
-Subject: Re: [PATCH v1] virtio_blk: Fix disk deletion hang on device surprise removal
-To: Parav Pandit <parav@nvidia.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, "mst@redhat.com" <mst@redhat.com>, 
-	"axboe@kernel.dk" <axboe@kernel.dk>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, 
-	"stable@vger.kernel.org" <stable@vger.kernel.org>, 
-	"NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>, Chaitanya Kulkarni <chaitanyak@nvidia.com>, 
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, 
-	"jasowang@redhat.com" <jasowang@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>, 
-	Israel Rukshin <israelr@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1KLNkpw_zqN2FlZFwL1EjlOzqrFWMiuh
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI2MDExNSBTYWx0ZWRfX8uLBm9zuaCCS PtMBhmeQCYiH05VvSB2GPoeM3nP+lXrktzofztIgxl1wp0Xy5+Tmz47AfH3IrTeR02dCVR7tFbB P4X3b/D2UKVKE+THaFri8edpuQycpPvdpvX/61kC8g+VJEjgMQpkQvE3j0515uo9fMEyZL7Oxab
+ 70d/BH9OM54BGDv0kjU5vrxhNKSQCCfjl0dSeq6Ej0yPrWSPMGGQinnKLjrDldT2CeQCKCUkFZL /bfWiMEHlm+R4x8/ajW91IADDs5xnVaYQXUd6fuGPZM4XkZuh+IH8jFkRBOvh/4muP6J+t2FKyq /HjQeMq/RfJJFfskmC8snCjYrcYURjW1VTy7s4X/cILIJMvce8TurCody8SqEtlB3n/FjXCQfSY
+ M10fXH+86GEfNmOWH3LKrDyn4JHkyPgOeZBfACC0ywPdVcvuokuBm1Kue3HD9bh9Ihsg9aDN
+X-Authority-Analysis: v=2.4 cv=Q7TS452a c=1 sm=1 tr=0 ts=683471b5 cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=Qnlq2qKdrR5swm6YVpgA:9
+X-Proofpoint-GUID: 1KLNkpw_zqN2FlZFwL1EjlOzqrFWMiuh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-26_06,2025-05-26_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 mlxlogscore=999 phishscore=0 clxscore=1015
+ malwarescore=0 adultscore=0 mlxscore=0 impostorscore=0 spamscore=0
+ suspectscore=0 lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a
+ authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2505160000 definitions=main-2505260115
 
-On Mon, May 26, 2025 at 5:23=E2=80=AFAM Parav Pandit <parav@nvidia.com> wro=
-te:
->
-> Hi Stefan,
->
-> > From: Parav Pandit <parav@nvidia.com>
-> > Sent: Thursday, May 22, 2025 8:26 PM
-> >
-> >
-> > > From: Stefan Hajnoczi <stefanha@gmail.com>
-> > > Sent: Thursday, May 22, 2025 8:06 PM
-> > >
-> > > On Wed, May 21, 2025 at 10:57=E2=80=AFPM Parav Pandit <parav@nvidia.c=
-om>
-> > wrote:
-> > > > > From: Stefan Hajnoczi <stefanha@redhat.com>
-> > > > > Sent: Wednesday, May 21, 2025 8:27 PM
-> > > > >
-> > > > > On Wed, May 21, 2025 at 06:37:41AM +0000, Parav Pandit wrote:
-> > > > > > When the PCI device is surprise removed, requests may not
-> > > > > > complete the device as the VQ is marked as broken. Due to this,
-> > > > > > the disk deletion hangs.
-> > > > > >
-> > > > > > Fix it by aborting the requests when the VQ is broken.
-> > > > > >
-> > > > > > With this fix now fio completes swiftly.
-> > > > > > An alternative of IO timeout has been considered, however when
-> > > > > > the driver knows about unresponsive block device, swiftly
-> > > > > > clearing them enables users and upper layers to react quickly.
-> > > > > >
-> > > > > > Verified with multiple device unplug iterations with pending
-> > > > > > requests in virtio used ring and some pending with the device.
-> > > > > >
-> > > > > > Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of
-> > > > > > virtio pci device")
-> > > > > > Cc: stable@vger.kernel.org
-> > > > > > Reported-by: lirongqing@baidu.com
-> > > > > > Closes:
-> > > > > > https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73=
-c
-> > > > > > a9
-> > > > > > b474
-> > > > > > 1@baidu.com/
-> > > > > > Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > > > > Reviewed-by: Israel Rukshin <israelr@nvidia.com>
-> > > > > > Signed-off-by: Parav Pandit <parav@nvidia.com>
-> > > > > > ---
-> > > > > > changelog:
-> > > > > > v0->v1:
-> > > > > > - Fixed comments from Stefan to rename a cleanup function
-> > > > > > - Improved logic for handling any outstanding requests
-> > > > > >   in bio layer
-> > > > > > - improved cancel callback to sync with ongoing done()
-> > > > > >
-> > > > > > ---
-> > > > > >  drivers/block/virtio_blk.c | 95
-> > > > > > ++++++++++++++++++++++++++++++++++++++
-> > > > > >  1 file changed, 95 insertions(+)
-> > > > > >
-> > > > > > diff --git a/drivers/block/virtio_blk.c
-> > > > > > b/drivers/block/virtio_blk.c index 7cffea01d868..5212afdbd3c7
-> > > > > > 100644
-> > > > > > --- a/drivers/block/virtio_blk.c
-> > > > > > +++ b/drivers/block/virtio_blk.c
-> > > > > > @@ -435,6 +435,13 @@ static blk_status_t virtio_queue_rq(struct
-> > > > > blk_mq_hw_ctx *hctx,
-> > > > > >     blk_status_t status;
-> > > > > >     int err;
-> > > > > >
-> > > > > > +   /* Immediately fail all incoming requests if the vq is brok=
-en.
-> > > > > > +    * Once the queue is unquiesced, upper block layer flushes
-> > > > > > + any
-> > > > > pending
-> > > > > > +    * queued requests; fail them right away.
-> > > > > > +    */
-> > > > > > +   if (unlikely(virtqueue_is_broken(vblk->vqs[qid].vq)))
-> > > > > > +           return BLK_STS_IOERR;
-> > > > > > +
-> > > > > >     status =3D virtblk_prep_rq(hctx, vblk, req, vbr);
-> > > > > >     if (unlikely(status))
-> > > > > >             return status;
-> > > > > > @@ -508,6 +515,11 @@ static void virtio_queue_rqs(struct rq_lis=
-t
-> > > *rqlist)
-> > > > > >     while ((req =3D rq_list_pop(rqlist))) {
-> > > > > >             struct virtio_blk_vq *this_vq =3D
-> > > > > >get_virtio_blk_vq(req- mq_hctx);
-> > > > > >
-> > > > > > +           if (unlikely(virtqueue_is_broken(this_vq->vq))) {
-> > > > > > +                   rq_list_add_tail(&requeue_list, req);
-> > > > > > +                   continue;
-> > > > > > +           }
-> > > > > > +
-> > > > > >             if (vq && vq !=3D this_vq)
-> > > > > >                     virtblk_add_req_batch(vq, &submit_list);
-> > > > > >             vq =3D this_vq;
-> > > > > > @@ -1554,6 +1566,87 @@ static int virtblk_probe(struct
-> > > > > > virtio_device
-> > > > > *vdev)
-> > > > > >     return err;
-> > > > > >  }
-> > > > > >
-> > > > > > +static bool virtblk_request_cancel(struct request *rq, void *d=
-ata) {
-> > > > > > +   struct virtblk_req *vbr =3D blk_mq_rq_to_pdu(rq);
-> > > > > > +   struct virtio_blk *vblk =3D data;
-> > > > > > +   struct virtio_blk_vq *vq;
-> > > > > > +   unsigned long flags;
-> > > > > > +
-> > > > > > +   vq =3D &vblk->vqs[rq->mq_hctx->queue_num];
-> > > > > > +
-> > > > > > +   spin_lock_irqsave(&vq->lock, flags);
-> > > > > > +
-> > > > > > +   vbr->in_hdr.status =3D VIRTIO_BLK_S_IOERR;
-> > > > > > +   if (blk_mq_request_started(rq) &&
-> > !blk_mq_request_completed(rq))
-> > > > > > +           blk_mq_complete_request(rq);
-> > > > > > +
-> > > > > > +   spin_unlock_irqrestore(&vq->lock, flags);
-> > > > > > +   return true;
-> > > > > > +}
-> > > > > > +
-> > > > > > +static void virtblk_broken_device_cleanup(struct virtio_blk *v=
-blk) {
-> > > > > > +   struct request_queue *q =3D vblk->disk->queue;
-> > > > > > +
-> > > > > > +   if (!virtqueue_is_broken(vblk->vqs[0].vq))
-> > > > > > +           return;
-> > > > >
-> > > > > Can a subset of virtqueues be broken? If so, then this code
-> > > > > doesn't handle
-> > > it.
-> > > > On device removal all the VQs are broken. This check only uses a VQ
-> > > > to decide
-> > > on.
-> > > > In future may be more elaborate API to have virtio_dev_broken() can
-> > > > be
-> > > added.
-> > > > Prefer to keep this patch without extending many APIs given it has =
-Fixes
-> > tag.
-> > >
-> > > virtblk_remove() is called not just when a PCI device is hot
-> > > unplugged. For example, removing the virtio_blk kernel module or
-> > > unbinding a specific virtio device instance also calls it.
-> > >
-> > This is ok.
-> >
-> > > My concern is that virtblk_broken_device_cleanup() is only intended
-> > > for the cases where all virtqueues are broken or none are broken. If
-> > > just the first virtqueue is broken then it completes requests on
-> > > operational virtqueues and they may still raise an interrupt.
-> > >
-> > I see that vq broken is extended for each reset scenario too lately in
-> > vp_modern_enable_vq_after_reset().
-> > So yes, this patch which was intended for original surprise removal bug=
- where
-> > vq broken was not done for reset cases.
-> >
-> > I believe for fixing the cited patch, device->broken flag should be use=
-d.
-> > Max indicated this in an internal review, but I was inclined to avoid a=
-dding
-> > many changes.
-> > And hence reuse vq broken.
-> >
-> > So one option is to extend,
-> >
-> > virtio_break_device() to have a flag like below and check during remove=
-().
-> >   dev->broken =3D true;
-> >
->
-> I dig further.
-> VQ resize is the only user of dynamically break-unbreak a VQ; and specifi=
-c only to vnet device.
-> So vq[0].broken check in this patch is sufficient in this proposed functi=
-on without adding above dev->broken check.
->
-> If no further comments, I would like to post v2 addressing your and Micha=
-el's inputs.
-> Please let me know.
+The test outputs:
+"SOCK_STREAM SHUT_RD...expected send(2) failure, got 1".
 
-Yes, please go ahead with the next revision.
+It tests that shutdown(fd, SHUT_RD) on one side causes send() to fail on
+the other side. However, sometimes there is a delay in delivery of the
+SHUT_RD command, send() succeeds and the test fails, even though the
+command is properly delivered and send() starts failing several
+milliseconds later.
 
-Stefan
+The delay occurs in the kernel because the used buffer notification
+callback virtio_vsock_rx_done(), called upon receipt of the SHUT_RD
+command, doesn't immediately disable send(). It delegates that to
+a kernel thread (via vsock->rx_work). Sometimes that thread is delayed
+more than the test expects.
+
+Change the test to keep calling send() until it fails or a timeout occurs.
+
+Fixes: b698bd97c5711 ("test/vsock: shutdowned socket test")
+Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+---
+Changes in v2:
+ - Move the new function to utils.c.
+
+ tools/testing/vsock/util.c       | 11 +++++++++++
+ tools/testing/vsock/util.h       |  1 +
+ tools/testing/vsock/vsock_test.c | 14 ++------------
+ 3 files changed, 14 insertions(+), 12 deletions(-)
+
+diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+index de25892f865f..04ac88dc4d3a 100644
+--- a/tools/testing/vsock/util.c
++++ b/tools/testing/vsock/util.c
+@@ -798,3 +798,14 @@ void enable_so_zerocopy_check(int fd)
+ 	setsockopt_int_check(fd, SOL_SOCKET, SO_ZEROCOPY, 1,
+ 			     "setsockopt SO_ZEROCOPY");
+ }
++
++void vsock_test_for_send_failure(int fd, int send_flags)
++{
++	timeout_begin(TIMEOUT);
++	while (true) {
++		if (send(fd, "A", 1, send_flags) == -1)
++			return;
++		timeout_check("expected send(2) failure");
++	}
++	timeout_end();
++}
+diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+index d1f765ce3eee..58c17cfb63d4 100644
+--- a/tools/testing/vsock/util.h
++++ b/tools/testing/vsock/util.h
+@@ -79,4 +79,5 @@ void setsockopt_int_check(int fd, int level, int optname, int val,
+ void setsockopt_timeval_check(int fd, int level, int optname,
+ 			      struct timeval val, char const *errmsg);
+ void enable_so_zerocopy_check(int fd);
++void vsock_test_for_send_failure(int fd, int send_flags);
+ #endif /* UTIL_H */
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index 613551132a96..b68a85a6d929 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -1060,15 +1060,9 @@ static void sigpipe(int signo)
+ 
+ static void test_stream_check_sigpipe(int fd)
+ {
+-	ssize_t res;
+-
+ 	have_sigpipe = 0;
+ 
+-	res = send(fd, "A", 1, 0);
+-	if (res != -1) {
+-		fprintf(stderr, "expected send(2) failure, got %zi\n", res);
+-		exit(EXIT_FAILURE);
+-	}
++	vsock_test_for_send_failure(fd, 0);
+ 
+ 	if (!have_sigpipe) {
+ 		fprintf(stderr, "SIGPIPE expected\n");
+@@ -1077,11 +1071,7 @@ static void test_stream_check_sigpipe(int fd)
+ 
+ 	have_sigpipe = 0;
+ 
+-	res = send(fd, "A", 1, MSG_NOSIGNAL);
+-	if (res != -1) {
+-		fprintf(stderr, "expected send(2) failure, got %zi\n", res);
+-		exit(EXIT_FAILURE);
+-	}
++	vsock_test_for_send_failure(fd, MSG_NOSIGNAL);
+ 
+ 	if (have_sigpipe) {
+ 		fprintf(stderr, "SIGPIPE not expected\n");
+-- 
+2.34.1
+
