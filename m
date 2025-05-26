@@ -1,156 +1,159 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C00271F4289
-	for <virtualization@lists.linux.dev>; Sun, 25 May 2025 19:07:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 898D67F9
+	for <virtualization@lists.linux.dev>; Mon, 26 May 2025 04:32:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748200027; cv=none; b=f0giPxebwZ58y8ZuPs253q+HrQuX6XvS3w6tVn5Ssa2lNMPQIVBuZmoULCT4NCn6qmjub0msWvrkybfzAyXVxbFe6llXG/OKsKm335tyvsvelNZKnHI/8lrOMSeHc08UEzpiiG5YGDDOuMarp4HCjdYxOT0NbVSE/9DekmuqtRk=
+	t=1748233969; cv=none; b=ViWudaYazH0BUb/Aqcb7IPAIe959SVEsYHUWD0AH68UGsEemltL/yB9Oy1MzDoCwqXwpcV0s8fGHXNpDaPW7mc7IQ20IYJOllghSaux6UpkMEpI3T2sDaTw46LNwZnz3MA+rEyce1qvoHxPA1pGX4VO1m3LRMGCKLXNFuXJbV/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748200027; c=relaxed/simple;
-	bh=uXkJcfGzBIMUXOzmp9Pum4qEKxXyA66d7FwQCanN8o0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=i50c3ZpoIF+lOtCYWC68gWHsmXd5aSiB4/aznuI5FnXeT5lrAMcmXeVC+rh4ZeJXltFiIEXKeqwhWZpM8Rp+vJaTUgPp2CoOlLGXFaYWkz2oGBb8x9wZtIDJo2zrHy2ygGGCygYVUBne3u6baj+pvf3v5APUg5bUcMVk5ow9zjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=YnPz4uVL; arc=none smtp.client-ip=209.85.160.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1748233969; c=relaxed/simple;
+	bh=mn8ba3UTDa4URrSa/YaCqXTzQBlqqLMeOBmtg4InUXg=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=sykk41rroI/YXeoX0K7F51lT8wkbG1N7w3L/eiokAGHJsHDPZp6HbLsiupUP9sMpvlFAzql5NVqbaOopHGzol9gtnVhzAGct2ay6TaWvl+Y+ieWJYDJydt0k0kqC2+K/lnMCEiKovPN1R2VI4E299QTOCsTvw6a8n5c4XwB0GC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OoXew1jd; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="YnPz4uVL"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4775ce8a4b0so26928741cf.1
-        for <virtualization@lists.linux.dev>; Sun, 25 May 2025 12:07:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1748200024; x=1748804824; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=SlfPbl9U0b/o5N9rX3Vqr5rZsZeMWo7A8d3jNHieFXg=;
-        b=YnPz4uVLqWbPMOwzL6SfHcbxNwd0rkPbmG8TozjjF7peqGZBgWbG0A+c3dae6+WdPs
-         6ewl7KDFs6vDfu2FbKiHr7XdG12sRB71pHUkTBnbPP2zZjDyx8OAKn03hBGQ3BZZl7Ym
-         UBeK/tAbYJaaqtIWPvVKcRVvmgwWIfkdVkkNTTDyi9cU7P6415AbOh2mTYWpkEpXUBsB
-         yWcn98mkfOKRzIALkvI6zSnHSbE8O89NP6/xja/Gjz/lrCpz2SR/9hXbQ/DEk1qiDhLp
-         DwukN6ke0HIlwCZGJCUVTADTMEkz5wWDs7VoqTyqNF4MsSL67LViqiL8qjiDs+XmC4yk
-         6t4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748200024; x=1748804824;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SlfPbl9U0b/o5N9rX3Vqr5rZsZeMWo7A8d3jNHieFXg=;
-        b=wuRGnEdbY93ElDVbJmfHFdouj7GgQ9tQyzY0IfumXxIAYwQvgBHfvIrDDaFIrSo6Nz
-         ApQhyS6+b6AG1d6jtMeridah0Im/RXLvqFP4lmfmsqbUVfXVklEdGg3xhshNwx+7gHoT
-         vEKFKHMeFASxuXNpCDLeMoVPHLvKAlARFXC2ldYsNeBeMh7Hq1orzKAkUHxCAm1uf0CU
-         BUaDGXXCNeV9Anhjkwk+WwQAibd/gVjCHPwqugRK3d8oOXdhyV1VVBOU+m2VCIqvszKa
-         woYNx/ul/lv3beKpg7MbOyx3QgoY9LkFYkrcd7KHGLBLntJYx/TUswAK4a4Pc8hNJ7ud
-         10Eg==
-X-Forwarded-Encrypted: i=1; AJvYcCUTFVdVhrrLBBzBgdASbmdHtg08Xzz1ktoysTS98IALWaa/og4HYcJP0YxqlyRAO1WRjc3Whqqs+mZmMeak0Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwS3UhlFyOfymS1TIXzoYi6AqxZ5sOjTEtl/bch+CL8pFD8ATAL
-	7EgG8Wf9taymJUJqBnSjer+niZehmpAu4g172+mlGJ+Q9CjMqzrUTGPXLRjvd/Ga2OE=
-X-Gm-Gg: ASbGncv5W3qcWzy/f73eUAhzw6/M5Szk90j45ZNGLTu7UfJzvDmPY+5DcpIy7J06iIc
-	IwYKssWnwAMF5Q6e5wfMoTTfiheBQJoYH6DF9KPtTu0NJmDLBZLazt5ZpJ74z9vSNoVsi76KmUW
-	3KOvDCADjB2sPbLyXXIpj6D3zvi2clAGSx5uAtebCmdMU2haia8htnzQzDU39ZMNxabymVhEt6f
-	0CdvzY6hNAFMyDy4bu6NcC/TRxL8rIY329JOUp1/nGoLe/nFb0Cj/wdWH+vjraA82j7QlSgcAPR
-	t2yO2wT6ewbUKrENwKwC69jvCB3zZN0OGKCfyj7MbaM7+ttvg7nnOHYCvfsl8Vyz2hmjRKn+CUR
-	at28Z6x/u1OjY5epjd+XJvPwdwr8=
-X-Google-Smtp-Source: AGHT+IEsK8RsIZHAhqzNbJPFGKthMn51tZwQ52JiopY7fu+XaQ8UU+nS+s5NnIXGcLb0DNTM1neWbA==
-X-Received: by 2002:a05:622a:550f:b0:494:95b5:ce38 with SMTP id d75a77b69052e-49f4781f4damr107883391cf.42.1748200024664;
-        Sun, 25 May 2025 12:07:04 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-167-56-70.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.167.56.70])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7cd468b7400sm1472991785a.66.2025.05.25.12.07.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 May 2025 12:07:04 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1uJGgZ-000000003eK-2F45;
-	Sun, 25 May 2025 16:07:03 -0300
-Date: Sun, 25 May 2025 16:07:03 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Shyam Saini <shyamsaini@linux.microsoft.com>
-Cc: Jacob Pan <jacob.pan@linux.microsoft.com>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	virtualization@lists.linux.dev, will@kernel.org,
-	eric.auger@redhat.com, code@tyhicks.com,
-	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com
-Subject: Re: [PATCH v2 0/3] arm-smmu: select suitable IOVA
-Message-ID: <20250525190703.GD12328@ziepe.ca>
-References: <20250410225030.2528385-1-shyamsaini@linux.microsoft.com>
- <20250410230008.GA6905@ziepe.ca>
- <67fff12d.650a0220.208c7c.d69dSMTPIN_ADDED_BROKEN@mx.google.com>
- <20250416181759.GF493866@ziepe.ca>
- <20250520224224.GA16365@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OoXew1jd"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54PKe6cS001698;
+	Mon, 26 May 2025 04:32:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=A/2Y9sujCohNMkIn/XEj5QKAxZbDlEiFLj/Bbpg1/
+	Ko=; b=OoXew1jdL3xZ7eMIt2UAVW2XlBkhJdm3DeTka3nnqxBs0QdagSuVT04D2
+	CKOG0CN7S4NHpzDSEXE9WhVaRGZaK6IJ/szAp2Q8a3ugrcx/GPqbdstxEXd5XUaw
+	fthYbkeBjHvvCKmrGtM6uZprex8EtjpyJ+0HIw+MabvWuMuHZFAYh4KWl6jg2LUF
+	raVNsY3tUJIVg/6kxeuThb3OMoEfJmDnVhHpiqPsG2MfwF1C4WcDE/cwqXzpO+95
+	deQwYvmmQ6CtBb7O7MuxjTbjYY11Lws7xueuycJhkVgrM7eVHoDb80jfIEH2MQQ1
+	hUGJ5jx6ZY5IKYochHJD0jfMD1MyQ==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46u5mby608-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 May 2025 04:32:45 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54Q1vueF016644;
+	Mon, 26 May 2025 04:32:44 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 46ureu4t1v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 May 2025 04:32:44 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54Q4WglU27198140
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 26 May 2025 04:32:42 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C5EE358059;
+	Mon, 26 May 2025 04:32:42 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5533E58043;
+	Mon, 26 May 2025 04:32:42 +0000 (GMT)
+Received: from WIN-DU0DFC9G5VV.ibm.com (unknown [9.61.243.103])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 26 May 2025 04:32:42 +0000 (GMT)
+From: Konstantin Shkolnyy <kshk@linux.ibm.com>
+To: sgarzare@redhat.com
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com,
+        Konstantin Shkolnyy <kshk@linux.ibm.com>
+Subject: [PATCH net] vsock/test: Fix occasional failure in SOCK_STREAM SHUT_RD test
+Date: Sun, 25 May 2025 23:32:20 -0500
+Message-Id: <20250526043220.897565-1-kshk@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250520224224.GA16365@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=E9bNpbdl c=1 sm=1 tr=0 ts=6833eeed cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=HT24iyfb7oJRp2wcDU8A:9
+X-Proofpoint-GUID: -d6ii3Z_t74ZB3IEDtDn0pcimtKEABzh
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI2MDAzNSBTYWx0ZWRfX8iLOaLeU+aoC zCzZUz1xaXrsPsXaH9RIfrsYGVqDnqKdW99RAdo8h1uAROKUvvca57wBSCMF4A5Cp/mluyK37ds RjoqKrU53aC4F1wjMCS+RcfsmXxNuR34f5VKsCNrr6mmr9i6xV3y/xF70qv+Zufze0BjvabK71k
+ GPIVGXId1MgrmnxwGQ/6TxOLRDXrvMPi5ywELZqKegF923OKQ09ng5ro/tNcOlSZjm3s2+rBN9S yg3HGbROjESG0GRRV18Tv1osvonYaCrnOW+TnDRThyNemw5T1ESVYK4GoaWqHJCMOyZd59nCL6B zWvuMPWvbKaU/7hUkBSrx36sIhS/s9WXrbR5BPEhyLQotoVABMgtGyIdSVKci0yAlunmRnX5R7w
+ k4/FkzWrgt+sQeYll6M4A6vbGyHoPMmDn1ksMPtA/X+TloRCmeO0P7GI59qXXvMKBDI+HlIE
+X-Proofpoint-ORIG-GUID: -d6ii3Z_t74ZB3IEDtDn0pcimtKEABzh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-26_02,2025-05-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ mlxlogscore=999 lowpriorityscore=0 priorityscore=1501 spamscore=0
+ mlxscore=0 bulkscore=0 adultscore=0 impostorscore=0 clxscore=1015
+ suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
+ definitions=main-2505260035
 
-On Tue, May 20, 2025 at 03:42:24PM -0700, Shyam Saini wrote:
-> Hi Jason,
-> 
-> apologies for the delayed response.
-> 
-> > On Wed, Apr 16, 2025 at 11:04:27AM -0700, Jacob Pan wrote:
-> > 
-> > > Per last discussion "SMMU driver have a list of potential addresses and
-> > > select the first one that does not intersect with the non-working IOVA
-> > > ranges.". If we don't know what the "non-working IOVA" is, how do we
-> > > know it does not intersect the "potential addresses"?
-> > 
-> > I had understood from previous discussions that this platform is
-> > properly creating IOMMU_RESV_RESERVED regions for the IOVA that
-> > doesn't work. Otherwise everything is broken..
-> > 
-> > Presumably that happens through iommu_dma_get_resv_regions() calling
-> > of_iommu_get_resv_regions() on a DT platform. There is a schema
-> > describing how to do this, so platform firmware should be able to do it..
-> > 
-> > So the fix seems trivial enough to me:
-> > 
-> > diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> > index b4c21aaed1266a..ebba18579151bc 100644
-> > --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> > +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> > @@ -3562,17 +3562,29 @@ static int arm_smmu_of_xlate(struct device *dev,
-> >  static void arm_smmu_get_resv_regions(struct device *dev,
-> >  				      struct list_head *head)
-> >  {
-> > -	struct iommu_resv_region *region;
-> > -	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
-> > -
-> > -	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
-> > -					 prot, IOMMU_RESV_SW_MSI, GFP_KERNEL);
-> > -	if (!region)
-> > -		return;
-> > -
-> > -	list_add_tail(&region->list, head);
-> > +	static const u64 msi_bases[] = { MSI_IOVA_BASE, 0x12340000 };
-> >  
-> >  	iommu_dma_get_resv_regions(dev, head);
-> 
-> my understand is, this hook is not called for all the devices, eg: pcie dts node
-> doesn't use [1] "iommus" property instead it uses "iommu-map" property
-> as a consequence, [1] while loop exits prematurely and iommu_dma_get_resv_regions()
-> is not called, so there is no IOVA reservation for the pcie device. 
+The test outputs:
+"SOCK_STREAM SHUT_RD...expected send(2) failure, got 1".
 
-I can't really understand this sentance.
+It tests that shutdown(fd, SHUT_RD) on one side causes send() to fail on
+the other side. However, sometimes there is a delay in delivery of the
+SHUT_RD command, send() succeeds and the test fails, even though the
+command is properly delivered and send() starts failing several
+milliseconds later.
 
-The above is the only place that creates a IOMMU_RESV_SW_MSI so it is
-definately called and used, right? If not where does your
-IOMMU_RESV_SW_MSI come from?
+The delay occurs in the kernel because the used buffer notification
+callback virtio_vsock_rx_done(), called upon receipt of the SHUT_RD
+command, doesn't immediately disable send(). It delegates that to
+a kernel thread (via vsock->rx_work). Sometimes that thread is delayed
+more than the test expects.
 
-This function is also the only thing that computes the reserved ranges
-that iommu_get_resv_regions() returns.
+Change the test to keep calling send() until it fails or a timeout occurs.
 
-As above, I've asked a few times now if your resv_regions() is
-correct, meaning there is a reserved range covering the address space
-that doesn't have working translation. That means
-iommu_get_resv_regions() returns such a range.
+Fixes: b698bd97c5711 ("test/vsock: shutdowned socket test")
+Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+---
+ tools/testing/vsock/vsock_test.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-If you don't have that then you have a bigger platform problem, IMHO,
-as vfio/iommufd only respect reserved ranges.
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index 613551132a96..c3b90a94a281 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -1058,17 +1058,22 @@ static void sigpipe(int signo)
+ 	have_sigpipe = 1;
+ }
+ 
+-static void test_stream_check_sigpipe(int fd)
++static void test_for_send_failure(int fd, int send_flags)
+ {
+-	ssize_t res;
++	timeout_begin(TIMEOUT);
++	while (true) {
++		if (send(fd, "A", 1, send_flags) == -1)
++			return;
++		timeout_check("expected send(2) failure");
++	}
++	timeout_end();
++}
+ 
++static void test_stream_check_sigpipe(int fd)
++{
+ 	have_sigpipe = 0;
+ 
+-	res = send(fd, "A", 1, 0);
+-	if (res != -1) {
+-		fprintf(stderr, "expected send(2) failure, got %zi\n", res);
+-		exit(EXIT_FAILURE);
+-	}
++	test_for_send_failure(fd, 0);
+ 
+ 	if (!have_sigpipe) {
+ 		fprintf(stderr, "SIGPIPE expected\n");
+@@ -1077,11 +1082,7 @@ static void test_stream_check_sigpipe(int fd)
+ 
+ 	have_sigpipe = 0;
+ 
+-	res = send(fd, "A", 1, MSG_NOSIGNAL);
+-	if (res != -1) {
+-		fprintf(stderr, "expected send(2) failure, got %zi\n", res);
+-		exit(EXIT_FAILURE);
+-	}
++	test_for_send_failure(fd, MSG_NOSIGNAL);
+ 
+ 	if (have_sigpipe) {
+ 		fprintf(stderr, "SIGPIPE not expected\n");
+-- 
+2.34.1
 
-Otherwise, what is the issue you see, exactly? Did you even try it?
-
-Jason
