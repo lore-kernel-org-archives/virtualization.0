@@ -1,170 +1,311 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88B271E104E
-	for <virtualization@lists.linux.dev>; Mon, 26 May 2025 07:54:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB6841DED4C
+	for <virtualization@lists.linux.dev>; Mon, 26 May 2025 08:25:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748246054; cv=none; b=J1eU9R7syq93E5B23DOKYTn5RzSKc1NCu3nkb+Qb+ttIcmuLR1gNdP6Q4T//lAX81Z6c40HoqvYU2jz2b4/KRTw9/dfWDCfcC8ZAC98SU8dNLpZ5OjvuYvDX7i4ySY2liVqblUNVEpv8h2unwFrUaRJbPFHapnaUG/A/TOn6JaQ=
+	t=1748247950; cv=none; b=M55JDFBvsEZjvQlKrtDwNFIZ1/KwcpVdGB5ONNRUWGM0w0ROXLYlz5vTup8P1X9Zecr9hEi/h4zSKLxi41zfztN0MDv3Fx3l1O6yH7GJwctJP9kJWdbKUd5wgkn5XhBkFTNvSS/R+aU7FWmCbf3KB0G28VnCxiL7c2/puCGYW9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748246054; c=relaxed/simple;
-	bh=ICHW/uN1OvSvaGQ7jIZodYWZnLa0EL03cumMRfWphYs=;
+	s=arc-20240116; t=1748247950; c=relaxed/simple;
+	bh=K83yCE+YzRiWzacXiQCLsKtaqmiaTfFf5Eo2iw8w190=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=BrWrRKXNikylQbfem2jKBSIkHXF+vQ6Wr6RsCtvzxiBHIKqzKAj9R4GwtqCNALT6nMlj9BndxudZUWZIrNI9pCiGiLVBTjwbisFGgYLRk4tNGsSxc24pUGqHpWwUyAjWbKbOyaMdJDQ1lVQjzud5GFQT7i1JiBj6sO3DSwoO/nI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EfQgBNOi; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=OD5W0GdIJRvVpFVDhoZggB251+WA5Yq2TuXHtRF6a/jmOHniTV13vbUACZRiphIU4XcTfyTOo7FxfkJMnDlMszDpkJQXwMMeHRCR0vLEKBCBkgKWKt+dqP46tldgjyc4ktr90UkLDFSkkaqgILggqRZYH2mVpSuBgqhW/oY1424=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BDIxokqa; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EfQgBNOi"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BDIxokqa"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1748246051;
+	s=mimecast20190719; t=1748247947;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=xr52sKmwroB97DOF/8SzXO2IZSVBxqAkPJsvVxhDFw0=;
-	b=EfQgBNOiq4Kmm/NDtGYSmGHXwLr8Gmjwd/DYrIIJT/ovYa5pVbo25WpKrFKFg3ijclJcGb
-	yrd8XKnqjr2XPMXM6ONSNfkVyqMmkydFfIxVtqRvUEsF2LzN/B3mRD39OL5e+EdFnddI8B
-	p1I8raS9GoGjPdazshEZCABfRgFM75k=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=brR9RanZLd9PDDvGU6pW/0vav9vfvMbdh04Ccji6D3Y=;
+	b=BDIxokqaVxbILjItaQii+eH7YQIa2/qXXtmmWfwKB4PrX7JCkr56d2zAtA8v6bBfSoeeAq
+	84XKKc+GIt11o68QEGSLrcIsql0qdexJTOleIob6M7A6lJTV9abOMA1rMOcLeATa4zWOIt
+	2qRHg28XSo12UTLui9U3vmLutZhBKkg=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-383-kQllZ5ZgNdmBo7xjw_78rQ-1; Mon, 26 May 2025 03:54:09 -0400
-X-MC-Unique: kQllZ5ZgNdmBo7xjw_78rQ-1
-X-Mimecast-MFC-AGG-ID: kQllZ5ZgNdmBo7xjw_78rQ_1748246048
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-ad55a32b7afso114117166b.3
-        for <virtualization@lists.linux.dev>; Mon, 26 May 2025 00:54:09 -0700 (PDT)
+ us-mta-353-lpprd6wfNOaeJiWIGn7WXA-1; Mon, 26 May 2025 04:25:43 -0400
+X-MC-Unique: lpprd6wfNOaeJiWIGn7WXA-1
+X-Mimecast-MFC-AGG-ID: lpprd6wfNOaeJiWIGn7WXA_1748247942
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ad540ac3219so159655766b.3
+        for <virtualization@lists.linux.dev>; Mon, 26 May 2025 01:25:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748246048; x=1748850848;
+        d=1e100.net; s=20230601; t=1748247942; x=1748852742;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xr52sKmwroB97DOF/8SzXO2IZSVBxqAkPJsvVxhDFw0=;
-        b=iPyzpJd2i1cJfnc2W9tdKQao9euKfGwW9pf0HuQ58PnqLCFC+vPrnwV8ags9+xnHZp
-         O8+gGTvWmW3b5IMXE9noNa6e+dD6Q7aMaTkt4YKOzen7R40QLquoVjg7Pbt5OY8juo0Z
-         eNx9UGHbEpZX0hCkRDfUSpXAjcmJc6U5JnaMqLf6pJ2Cz30wrcmjAoyeqP1fVbSQLy2W
-         bTeL0c7qNSW/U7owP0otxkyO2xPKn76zLWo5UCFXqT85poux5bNEewM51uIxqoHLDEdM
-         3gHcs+zCsG/2I3cB+9b5t7dOAiZYn0BW1M7O88rBDGy5x6uJf7597+5TCxyG733X8oci
-         3eIg==
-X-Gm-Message-State: AOJu0YyV3CwEMs/MF0sFZqWyj7AUVdGa13rzBnGQv/VqJiv0rXfeo4nc
-	D5Dz6jkowl3ABup+dyWcoSX4LSPqXHQguG9L5dW0q610Krb6icvV7rvkmP6vurdX4MiiwDf9PkS
-	uU7LK4x1ALilagu2a8Nu8UHhzYu1T1a9KhTynkdruVe7kHGWMa1cVEfQaKjAXLs4DkWQe
-X-Gm-Gg: ASbGncvAWCvab2L5o8qq2KaoG0YfiEowoerxEfpLLkkJRMusrbqwEmOM0g7QaWHL+cV
-	Nx8wd6YF+qEfSJyU+s2a/mNEXIr3goNuKMYZjRoOwr9dxUnyecB3EBgJH1vRoCluTDZZH3tC6wL
-	H9VcwAEEZkowmPkMCcNBZRWQMu/DyNwVRPsszm+wcnjQuYJD0fLislVSZ5SuCznjhIXUSLYg2rP
-	hS6J/Wp1nTBGUPZ/s5NkGRjA/8XuPsgpcqr5cytLAVYoAfY+cD1uaguJkZquTq5/mtwqimk0kwg
-	6mQKY/aGuph2PVw9W+io9yCzeC9VipGFTxFAfugIqTy3d6TvNHXj4d14O+BU
-X-Received: by 2002:a17:906:dc89:b0:ad2:4e96:ee11 with SMTP id a640c23a62f3a-ad85b03b73dmr652294666b.8.1748246048093;
-        Mon, 26 May 2025 00:54:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGXDorcGibcC8mJCNU0lHQiUbuXJHSvC/4551ubBzHRPqBuymTAUbX8ir3OqGUx+Fn5tp1GUA==
-X-Received: by 2002:a17:906:dc89:b0:ad2:4e96:ee11 with SMTP id a640c23a62f3a-ad85b03b73dmr652292866b.8.1748246047597;
-        Mon, 26 May 2025 00:54:07 -0700 (PDT)
+        bh=brR9RanZLd9PDDvGU6pW/0vav9vfvMbdh04Ccji6D3Y=;
+        b=KcWwA77qqwqOCrasVQsh6KG/cc6r5kCqGaOppi2LtoAeTBah+SIYSthe2GMZq41sPn
+         MbNJ6m33ZLNMG2iEh6oRPZiUeZE/2ky0NNYtNZ+SnKmo/j+DyVNYWGojPynkyxMZ3AcT
+         M6bjK5kwdO8LZTka76IPSkkkGchA3iKHNjR9+kt92IZMAHo5pLfw8AzgpGo08EbrdROe
+         lvQ1w+o/m3acZXTbvZreedIoB5bbCQKiYysCm4a42fDH2vOJHaWNa7UnCNyp6n3LQlhc
+         HA4YU0R2SIv1q9qPNgLI5nT87u9be1ERKQeY+D6lk3+2J1IgwdKObhxFFUVwJBdOoHTA
+         JN5A==
+X-Gm-Message-State: AOJu0YwNY6aU6SVmN66ucSS6CmYjFIB+vDJ7j6HJ7SbQm9iFL/u77OuZ
+	ozTuhWqMa3v1ji0o6J6Dc5AEkiU26Dgj+1OGTk3OW9aTMfHEG3U4yQo73s7qQ9ZXJjzOoBk9vQs
+	U32ojhgzld+5N9vfrdYQo6Hxl2b11mpku980+axjM0+BewRfe7JS9qweIkUGJBrpCHHkM2q3FYr
+	z/
+X-Gm-Gg: ASbGncv4PiQq+v2XSmEqjkum7pZ7ou8PzKOxfGe4DYQyZcPk52ky6+DBgaOWKKAKkDi
+	H69te+tOox5ARFhLq1DiUlnidBpjjaY+BtFlCb3U4eH6o5zeCAP0oHPWt6pRkj9Zzsn+yRe1crA
+	JjPW47IgkPzh1/OYiHk85jmmA9xa8NL+qiz+Mc2OFSwbPwtCAKuZoqXhBpSuv93uP20oJl/n/G1
+	G9K/kf5Gn/PExvkyzN1aPknCrYdcE6ihRNADWXHFLx0mBQmwjeK5Y0HJg9WrzqzPaBy+57LfyeR
+	wpBBSdhKTYgtEDtfR9qHXY5hLN3aB0SkMrMf1Q5SJ7H36mbJvbxeOlCjlM0S
+X-Received: by 2002:a17:907:6091:b0:ad2:541f:b663 with SMTP id a640c23a62f3a-ad85b03dffdmr799372466b.16.1748247941985;
+        Mon, 26 May 2025 01:25:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH6YPwyH+H3hAxOxOP41htYHc+je4EMl3hPGFZtw4HbhwMYTqW3rxKk3dK/pDtj9+zmOaQp4w==
+X-Received: by 2002:a17:907:6091:b0:ad2:541f:b663 with SMTP id a640c23a62f3a-ad85b03dffdmr799368766b.16.1748247941312;
+        Mon, 26 May 2025 01:25:41 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-53-134-35.retail.telecomitalia.it. [82.53.134.35])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ad52d4e8afdsm1652640066b.176.2025.05.26.00.54.06
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ad52d27192dsm1640853866b.71.2025.05.26.01.25.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 May 2025 00:54:07 -0700 (PDT)
-Date: Mon, 26 May 2025 09:54:02 +0200
+        Mon, 26 May 2025 01:25:40 -0700 (PDT)
+Date: Mon, 26 May 2025 10:25:35 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Konstantin Shkolnyy <kshk@linux.ibm.com>
+To: Michal Luczaj <mhal@rbox.co>
 Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, mjrosato@linux.ibm.com
-Subject: Re: [PATCH net] vsock/test: Fix occasional failure in SOCK_STREAM
- SHUT_RD test
-Message-ID: <2y6v7vog4dylnnu7j625gkijth7lnznvgcjl4kg2q3xy5ht6fe@uikdt45mmocp>
-References: <20250526043220.897565-1-kshk@linux.ibm.com>
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next] vsock/test: Cover more CIDs in transport_uaf
+ test
+Message-ID: <limbmrszio42lvkmalapooflj5miedlszkmnnm4ckmy2upfghw@24vxuhgdji2z>
+References: <20250523-vsock-test-inc-cov-v1-1-fa3507941bbd@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250526043220.897565-1-kshk@linux.ibm.com>
+In-Reply-To: <20250523-vsock-test-inc-cov-v1-1-fa3507941bbd@rbox.co>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: bbu7QqxDK9FPSUqxpLv2C7SK4bNpcsjEBTCExeuPxrs_1748246048
+X-Mimecast-MFC-PROC-ID: QS47c5IC7O2jdgjr-3Is7TYQiNGSR2KcegI4IDa7HkM_1748247942
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Sun, May 25, 2025 at 11:32:20PM -0500, Konstantin Shkolnyy wrote:
->The test outputs:
->"SOCK_STREAM SHUT_RD...expected send(2) failure, got 1".
+On Fri, May 23, 2025 at 12:31:16AM +0200, Michal Luczaj wrote:
+>Increase the coverage of test for UAF due to socket unbinding, and losing
+>transport in general. It's a follow up to commit 301a62dfb0d0 ("vsock/test:
+>Add test for UAF due to socket unbinding") and discussion in [1].
 >
->It tests that shutdown(fd, SHUT_RD) on one side causes send() to fail on
->the other side. However, sometimes there is a delay in delivery of the
->SHUT_RD command, send() succeeds and the test fails, even though the
->command is properly delivered and send() starts failing several
->milliseconds later.
+>The idea remains the same: take an unconnected stream socket with a
+>transport assigned and then attempt to switch the transport by trying (and
+>failing) to connect to some other CID. Now do this iterating over all the
+>well known CIDs (plus one).
 >
->The delay occurs in the kernel because the used buffer notification
->callback virtio_vsock_rx_done(), called upon receipt of the SHUT_RD
->command, doesn't immediately disable send(). It delegates that to
->a kernel thread (via vsock->rx_work). Sometimes that thread is delayed
->more than the test expects.
+>Note that having only a virtio transport loaded (without vhost_vsock) is
+>unsupported; test will always pass. Depending on transports available, a
+
+Do you think it might make sense to print a warning if we are in this 
+case, perhaps by parsing /proc/modules and looking at vsock 
+dependencies?
+
+>variety of splats are possible on unpatched machines. After reverting
+>commit fcdd2242c023 ("vsock: Keep the binding until socket destruction"):
 >
->Change the test to keep calling send() until it fails or a timeout occurs.
+>BUG: KASAN: slab-use-after-free in __vsock_bind+0x61f/0x720
+>Read of size 4 at addr ffff88811ff46b54 by task vsock_test/1475
+>Call Trace:
+> dump_stack_lvl+0x68/0x90
+> print_report+0x170/0x53d
+> kasan_report+0xc2/0x180
+> __vsock_bind+0x61f/0x720
+> vsock_connect+0x727/0xc40
+> __sys_connect+0xe8/0x100
+> __x64_sys_connect+0x6e/0xc0
+> do_syscall_64+0x92/0x1c0
+> entry_SYSCALL_64_after_hwframe+0x4b/0x53
 >
->Fixes: b698bd97c5711 ("test/vsock: shutdowned socket test")
->Signed-off-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+>WARNING: CPU: 0 PID: 1475 at net/vmw_vsock/virtio_transport_common.c:37 virtio_transport_send_pkt_info+0xb2b/0x1160
+>Call Trace:
+> virtio_transport_connect+0x90/0xb0
+> vsock_connect+0x782/0xc40
+> __sys_connect+0xe8/0x100
+> __x64_sys_connect+0x6e/0xc0
+> do_syscall_64+0x92/0x1c0
+> entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>
+>KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
+>RIP: 0010:sock_has_perm+0xa7/0x2a0
+>Call Trace:
+> selinux_socket_connect_helper.isra.0+0xbc/0x450
+> selinux_socket_connect+0x3b/0x70
+> security_socket_connect+0x31/0xd0
+> __sys_connect_file+0x79/0x1f0
+> __sys_connect+0xe8/0x100
+> __x64_sys_connect+0x6e/0xc0
+> do_syscall_64+0x92/0x1c0
+> entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>
+>refcount_t: addition on 0; use-after-free.
+>WARNING: CPU: 7 PID: 1518 at lib/refcount.c:25 refcount_warn_saturate+0xdd/0x140
+>RIP: 0010:refcount_warn_saturate+0xdd/0x140
+>Call Trace:
+> __vsock_bind+0x65e/0x720
+> vsock_connect+0x727/0xc40
+> __sys_connect+0xe8/0x100
+> __x64_sys_connect+0x6e/0xc0
+> do_syscall_64+0x92/0x1c0
+> entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>
+>refcount_t: underflow; use-after-free.
+>WARNING: CPU: 0 PID: 1475 at lib/refcount.c:28 refcount_warn_saturate+0x12b/0x140
+>RIP: 0010:refcount_warn_saturate+0x12b/0x140
+>Call Trace:
+> vsock_remove_bound+0x18f/0x280
+> __vsock_release+0x371/0x480
+> vsock_release+0x88/0x120
+> __sock_release+0xaa/0x260
+> sock_close+0x14/0x20
+> __fput+0x35a/0xaa0
+> task_work_run+0xff/0x1c0
+> do_exit+0x849/0x24c0
+> make_task_dead+0xf3/0x110
+> rewind_stack_and_make_dead+0x16/0x20
+>
+>[1]: https://lore.kernel.org/netdev/CAGxU2F5zhfWymY8u0hrKksW8PumXAYz-9_qRmW==92oAx1BX3g@mail.gmail.com/
+>
+>Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+>Signed-off-by: Michal Luczaj <mhal@rbox.co>
 >---
-> tools/testing/vsock/vsock_test.c | 25 +++++++++++++------------
-> 1 file changed, 13 insertions(+), 12 deletions(-)
+> tools/testing/vsock/vsock_test.c | 72 +++++++++++++++++++++++++++++++---------
+> 1 file changed, 57 insertions(+), 15 deletions(-)
 >
 >diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index 613551132a96..c3b90a94a281 100644
+>index 9ea33b78b9fcb532f4f9616b38b4d2b627b04d31..460a8838e5e6a0f155e66e7720358208bab9520f 100644
 >--- a/tools/testing/vsock/vsock_test.c
 >+++ b/tools/testing/vsock/vsock_test.c
->@@ -1058,17 +1058,22 @@ static void sigpipe(int signo)
-> 	have_sigpipe = 1;
-> }
+>@@ -1729,16 +1729,32 @@ static void test_stream_msgzcopy_leak_zcskb_server(const struct test_opts *opts)
 >
->-static void test_stream_check_sigpipe(int fd)
->+static void test_for_send_failure(int fd, int send_flags)
+> #define MAX_PORT_RETRIES	24	/* net/vmw_vsock/af_vsock.c */
+>
+>-/* Test attempts to trigger a transport release for an unbound socket. This can
+>- * lead to a reference count mishandling.
+>- */
+>-static void test_stream_transport_uaf_client(const struct test_opts *opts)
+>+static bool test_stream_transport_uaf(int cid)
 > {
->-	ssize_t res;
->+	timeout_begin(TIMEOUT);
->+	while (true) {
->+		if (send(fd, "A", 1, send_flags) == -1)
->+			return;
->+		timeout_check("expected send(2) failure");
+>+	struct sockaddr_vm addr = {
+>+		.svm_family = AF_VSOCK,
+>+		.svm_cid = cid,
+>+		.svm_port = VMADDR_PORT_ANY
+>+	};
+> 	int sockets[MAX_PORT_RETRIES];
+>-	struct sockaddr_vm addr;
+>-	int fd, i, alen;
+>+	socklen_t alen;
+>+	int fd, i, c;
+>
+>-	fd = vsock_bind(VMADDR_CID_ANY, VMADDR_PORT_ANY, SOCK_STREAM);
+>+	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
+>+	if (fd < 0) {
+>+		perror("socket");
+>+		exit(EXIT_FAILURE);
 >+	}
->+	timeout_end();
+>+
+>+	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr))) {
+>+		if (errno != EADDRNOTAVAIL) {
+>+			perror("Unexpected bind() errno");
+>+			exit(EXIT_FAILURE);
+>+		}
+>+
+>+		close(fd);
+>+		return false;
+
+Perhaps we should mention in the commit or in a comment above this 
+function, what we return and why we can expect EADDRNOTAVAIL.
+
+>+	}
+
+What about adding a vsock_bind_try() in util.c that can fail returning
+errno, so we can share most of the code with vsock_bind()?
+
+>
+> 	alen = sizeof(addr);
+> 	if (getsockname(fd, (struct sockaddr *)&addr, &alen)) {
+>@@ -1746,9 +1762,9 @@ static void test_stream_transport_uaf_client(const struct test_opts *opts)
+> 		exit(EXIT_FAILURE);
+> 	}
+>
+>+	/* Drain the autobind pool; see __vsock_bind_connectible(). */
+> 	for (i = 0; i < MAX_PORT_RETRIES; ++i)
+>-		sockets[i] = vsock_bind(VMADDR_CID_ANY, ++addr.svm_port,
+>-					SOCK_STREAM);
+>+		sockets[i] = vsock_bind(cid, ++addr.svm_port, SOCK_STREAM);
+>
+> 	close(fd);
+> 	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
+>@@ -1757,21 +1773,47 @@ static void test_stream_transport_uaf_client(const struct test_opts *opts)
+> 		exit(EXIT_FAILURE);
+> 	}
+>
+>-	if (!vsock_connect_fd(fd, addr.svm_cid, addr.svm_port)) {
+>-		perror("Unexpected connect() #1 success");
+>+	/* Assign transport, while failing to autobind.
+>+	 * ENODEV indicates a missing transport.
+>+	 */
+>+	errno = 0;
+>+	if (!vsock_connect_fd(fd, cid, VMADDR_PORT_ANY) ||
+>+	    errno != EADDRNOTAVAIL) {
+>+		perror("Unexpected connect() result");
+> 		exit(EXIT_FAILURE);
+> 	}
+>
+>-	/* Vulnerable system may crash now. */
+>-	if (!vsock_connect_fd(fd, VMADDR_CID_HOST, VMADDR_PORT_ANY)) {
+>-		perror("Unexpected connect() #2 success");
+>-		exit(EXIT_FAILURE);
+>+	/* Reassign transport, triggering old transport release and
+>+	 * (potentially) unbinding of an unbound socket.
+>+	 *
+>+	 * Vulnerable system may crash now.
+>+	 */
+>+	for (c = VMADDR_CID_HYPERVISOR; c <= VMADDR_CID_HOST + 1; ++c) {
+>+		if (c != cid)
+>+			(void)vsock_connect_fd(fd, c, VMADDR_PORT_ANY);
+> 	}
+>
+> 	close(fd);
+> 	while (i--)
+> 		close(sockets[i]);
+>
+>+	return true;
 >+}
+>+
+>+/* Test attempts to trigger a transport release for an unbound socket. This can
+>+ * lead to a reference count mishandling.
+>+ */
+>+static void test_stream_transport_uaf_client(const struct test_opts *opts)
+>+{
+>+	bool tested = false;
+>+	int cid;
+>+
+>+	for (cid = VMADDR_CID_HYPERVISOR; cid <= VMADDR_CID_HOST + 1; ++cid)
 
-I'd move this in util.c like we did in 
-https://lore.kernel.org/virtualization/20250522-vsock-linger-v6-3-2ad00b0e447e@rbox.co/
+>+		tested |= test_stream_transport_uaf(cid);
+>+
+>+	if (!tested)
+>+		fprintf(stderr, "No transport tested\n");
+>+
+> 	control_writeln("DONE");
 
-And I'd rename following the other functions we have there.
+While we're at it, I think we can remove this message, looking at 
+run_tests() in util.c, we already have a barrier.
 
 Thanks,
 Stefano
 
+> }
 >
->+static void test_stream_check_sigpipe(int fd)
->+{
-> 	have_sigpipe = 0;
 >
->-	res = send(fd, "A", 1, 0);
->-	if (res != -1) {
->-		fprintf(stderr, "expected send(2) failure, got %zi\n", res);
->-		exit(EXIT_FAILURE);
->-	}
->+	test_for_send_failure(fd, 0);
+>---
+>base-commit: 610c248178b38fac2b601cd9f0f8a5e8be7fd248
+>change-id: 20250326-vsock-test-inc-cov-b823822bdb78
 >
-> 	if (!have_sigpipe) {
-> 		fprintf(stderr, "SIGPIPE expected\n");
->@@ -1077,11 +1082,7 @@ static void test_stream_check_sigpipe(int fd)
->
-> 	have_sigpipe = 0;
->
->-	res = send(fd, "A", 1, MSG_NOSIGNAL);
->-	if (res != -1) {
->-		fprintf(stderr, "expected send(2) failure, got %zi\n", res);
->-		exit(EXIT_FAILURE);
->-	}
->+	test_for_send_failure(fd, MSG_NOSIGNAL);
->
-> 	if (have_sigpipe) {
-> 		fprintf(stderr, "SIGPIPE not expected\n");
+>Best regards,
 >-- 
->2.34.1
+>Michal Luczaj <mhal@rbox.co>
 >
 
