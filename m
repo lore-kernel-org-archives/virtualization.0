@@ -1,113 +1,378 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B662248F5D
-	for <virtualization@lists.linux.dev>; Tue, 27 May 2025 14:27:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C75515A864
+	for <virtualization@lists.linux.dev>; Tue, 27 May 2025 14:30:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748356047; cv=none; b=Bn6vm4nWHj5a+oZ56ljBO7IPQ+kmNkIdfyKK13j4LVrFH+adVnoijqFup8W99bgiqfuT+sFSj+4mBqlLGr8N7Od9ym9txk2ytYn8IGrCLthM8JHzqSV8FGjgmfDWzGFL6GjHEPdIKGi+Crmx6NJy4PVmVmHWjKLkbQ6ClvRfH/A=
+	t=1748356240; cv=none; b=vGP9uIS7wI1ce5GPWSU7+GjUIQkumXqzGtMAm8LwPWYk0bhcKVh7d3F8GGog6Z4ZSiX3bW0pRo7J5+qp4OIqtL2agzyEpGdy/4paSPMcFPn1iNXtHTJ94/f/WtBZozduo6rCmSbis8b3mzw6YEe2R4CFacuvL1w8iF7nP0LCTy0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748356047; c=relaxed/simple;
-	bh=JzQItSNVv23zDd1t1/2QMHHi4DVBx9+mJ/ig56B2iEI=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=HQAvEMbbclbtZ/uEUJ81jLAoTok7Rxqa/KPMvC1lAR2RYH+9ZJxB8hUQcbf2w3iUDWZ3c1xuhPI50Oy9ym2uMHujOpnSuKG+HPXgPpqY8wI4+yzHVLSnBYB/nUoxguVdv4+E4sT7ie07twWH9rwFPYQpbuPc0r3T5KLwL+UeEFo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HteH1A9X; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1748356240; c=relaxed/simple;
+	bh=IcpPfnidxaG2mH++08tRi3pwklaJVqooNOuSYP3pAZg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uUZ9k/h5IbjtCYdyhe8tdzAbEio37TUKOXXBBxrYWXUZwLY4Z117sF8NCOBW5LTViqNEhtPUb04tuWXlYLKSLUl98x2CSm+owE1L/Keh7qBl/bAnzuyrvThK0vjn/wKLLusfteS5bOCjaJcG1mkyl9lxdfKmZvSDonpKCk9POh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=llXwvan0; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HteH1A9X"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1748356045;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=loG0I+Dl2oQWj8aB672jQJbZ1XRhgLNEO/t73xTMpm8=;
-	b=HteH1A9XB2ZcOVbCWxu3Mt3CiwSbbJxjbpxpO4ehm3txgJLevmsr3KzqiPXpV+4WRavLoo
-	DfV0P0tLTZTlkjVfFvbLYWGIVQ/xvb+TUUyAJ5s7V4nhPU7RSaiTUhzVB7maMjg4XiDLSc
-	TfIN/v54BMJmZvQutw2T+z6WwAKKa9E=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-553-OOurGPNvNzioHdHvyo1nJA-1; Tue, 27 May 2025 10:27:23 -0400
-X-MC-Unique: OOurGPNvNzioHdHvyo1nJA-1
-X-Mimecast-MFC-AGG-ID: OOurGPNvNzioHdHvyo1nJA_1748356042
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-442dc702850so22234695e9.1
-        for <virtualization@lists.linux.dev>; Tue, 27 May 2025 07:27:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="llXwvan0"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-b271f3ae786so2016161a12.3
+        for <virtualization@lists.linux.dev>; Tue, 27 May 2025 07:30:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748356238; x=1748961038; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=X9tKwO8Wx7rf36hHJX1eRThFLvMDogIpHiZO7Aibmao=;
+        b=llXwvan0/zvIIdN/bUqYUYLlbm3JzVpbXI4wsVsxKIHLGjUmh9pMgfnkyf282TpJC0
+         s1QvpHOXkbDm9l8dEDR6lwdegSHVeULHiWRvhfLxPOujzJMJBR4G60pedzmL+xe4/ZqT
+         XdDjsqycflOd4780+yI+p7hgL+sQghr2bofFoYPpHBB4y1h2PLPDg2z2Bu/jKLbQ4nno
+         Fxr/ZghifpmyJ5ujKIsYpeUn+c8uVN2Mp9xiafu1pGo3NACUfyzuI/OkAZYwsZ133NLM
+         KdJwCumN3k+YkHNN7FgtexmdR1oZy8jrHDsKC4w8JnkJXb/Tx0qxcXMW5p5XOifTUYSR
+         xYVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748356042; x=1748960842;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=loG0I+Dl2oQWj8aB672jQJbZ1XRhgLNEO/t73xTMpm8=;
-        b=lbjnSWTBQ+IZtDQEdM1ju8i/xUeWwpvEzpQrl5uZ61arEJkPVkEHYr8LtTZ8vxX+Mj
-         ozwqTw5u2PYllQPfbYYzR7l2MoQD4KQLrLqgK3bdwpmKllqdTSWm419bbOiPEr0TeBYI
-         RFs+fxXB2MevKvfAAx5m6DM4cF/LiLzDzbT9EKN+MiFhpP/Rey/tTuDl/kM2eKsYv4oD
-         emYIcOBUZPfcivO6SL0l6HgRPooRPcTm+0Zijn2jTwuFFbMLc+kZKJqSXCR8MIN14ETz
-         S5PobMin7XLTcEj0gwiCi0/IclsK3oj6Jp9fnT7XT95Q0mjJtjvLymNjr6JMPSFjgQ95
-         DOAQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUGihKGQKtA98HkdtKvyEOXsglN9qfwOyllcossAoQFqu4BmM15JwZJPPbR2VYLaLm48LwwwfM1dtFxyFe7iw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxtlNfB7oVg8BvjPXfPDPUrnnup2hb8/Lvxbs99M9OXBe1iL/kA
-	1wQWHqkqw4oEWaDSHq3vT/ULzlfaV495OgKxzgoxB3ImCXPwYCZLbepAlCOf/kYPwTYu4OUzfje
-	eUtW6o2cm0a9wyiPmFsMWJmICZVSNlmTznbdWia5/ITXPCSTWsKXH5uFEvvg2+XdVTsXO
-X-Gm-Gg: ASbGnctIW3dRBGIlCK5ZOr+pOmjumPvACmaWnzj4IpYSZJXEhL3/UUJ3RT6WBQonIu8
-	T4nKWapA81F+itVJZQ4DIaypClHXqB9MYBytDhfkWvQ9lPzb65o8GNRURT4VlBNCFcM2ETd2Ool
-	JLjUH6OpQbsUE+v0goKDbSIDe3dvuh8RYIkgBl9gAMs7zqkjxQkkcVqKxRMqY6bO8OUfFg5mac+
-	dGFZrr83siZ3Q2wMhtnmi8Vaa2n1OdgUrHMuyAYGO09qbMmL9LCi8gCTsoKSPZcIbjlnTpYVtTF
-	mR42/Q==
-X-Received: by 2002:a05:600c:1d99:b0:43c:fb95:c76f with SMTP id 5b1f17b1804b1-44c91cc3e83mr126110335e9.9.1748356042492;
-        Tue, 27 May 2025 07:27:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGbK8SlBZJYpkjFZFAqyV31vx7Hq1g5B/8buxgeL4/qwgmibcMk2FtXwnmTaXHM3QP5L/O9lg==
-X-Received: by 2002:a05:600c:1d99:b0:43c:fb95:c76f with SMTP id 5b1f17b1804b1-44c91cc3e83mr126110045e9.9.1748356042110;
-        Tue, 27 May 2025 07:27:22 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-447f73d4a3csm277186565e9.22.2025.05.27.07.27.20
+        d=1e100.net; s=20230601; t=1748356238; x=1748961038;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=X9tKwO8Wx7rf36hHJX1eRThFLvMDogIpHiZO7Aibmao=;
+        b=ftL/dgX+tMqfiqIb+Kotwp4dxEj6H31SJr4Ls3fB7O/MrJDG66H17LBWCnqvidBjIZ
+         omMJihIG2BjniT3+bQEaKgT8emtX2qM0CgdpB9P4vc8nj6ACdowL2uthXeQ7NS/e+XZt
+         BrevWfaH9H3oRmIdVmLedEd0ThPTGJe9Vxjvf+CnJ2YpwgcpyGVeUytSY5ZLVJ1G2ADF
+         RIOokoQQfSTxbNN/s2ODb78Y9U123dPfX6/DdUL+vzTooLFooOd7BK8kfiyOM9FAlToX
+         39KQYUJrXg/w7d/RejPYVAuKMep6tuOACT/aj3vrphDJUd4TBYFwdwMZ1WzidGm7Ra1O
+         IntA==
+X-Forwarded-Encrypted: i=1; AJvYcCWaKKwUfhpeM10G1VgAGx+Y2FzSjxtsQCD+pwGRZ6QIR+BBkAVcVYBoTLGK0cUQi9ZkM1+RdU7A5GKNDoFA3g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy24SEgbB7kdX8zwPtYJ8tTNSpeDQCEPjEdO+aWWsk4m79CKcF6
+	rfzTKXKpg1YEMDTEtu/C5pywltwb6KsAZd0yGSTjRELPgDG4IMEG4Gfj
+X-Gm-Gg: ASbGncvz3MC8OTtgWSD8vVggQbE5NMK1F8im7cL7lV+8rd2BOADnJgNwiQH2e0yxLDn
+	bRB9ev82CdyFpGwWLQijlhasK8ZQvSriXlDoQNv40eyupAQjuM3SHAnc5Uwy3T7hl2ssUFbNwo1
+	H2O6k5Kc2pRbmkTtgT3iGd9Z3+Nur1JK7EPiJPZJGuwjcMEpNKcYCcIJ1+XTncCTxoIXqRMKxRs
+	Dl5DT44nP2hs841ef8vNPzqBBbr+nt3Ub3E/1lCC1BcdPgJeeZzsfYOWcF8l+s1U5aY1FERVV16
+	Nj6YpycB+/ss8GVqveNWxwGPOzPNB1RSf1GcHl8R1tADo5uJiz5Yw6cNmA5t8Cmjo8F0q+rF
+X-Google-Smtp-Source: AGHT+IGrlxlAxBUf2B6+HHJ2snDBUtgWgFpLWtKgcDP1nxRdNKyBVxUaPtDr9m/Y5ifGrVhBtCfQvA==
+X-Received: by 2002:a17:903:4b30:b0:224:1af1:87f4 with SMTP id d9443c01a7336-23414f70222mr231740775ad.22.1748356237389;
+        Tue, 27 May 2025 07:30:37 -0700 (PDT)
+Received: from devbig793.prn5.facebook.com ([2a03:2880:ff:55::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-233fa48a669sm70501725ad.257.2025.05.27.07.30.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 May 2025 07:27:21 -0700 (PDT)
-Date: Tue, 27 May 2025 10:27:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Parav Pandit <parav@nvidia.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH] virtio: document ENOSPC
-Message-ID: <2e6ec46b8d5e6755be291cec8e2ec57ef286e97b.1748356035.git.mst@redhat.com>
+        Tue, 27 May 2025 07:30:36 -0700 (PDT)
+Date: Tue, 27 May 2025 07:30:29 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>,
+	kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net-next v8] selftests/vsock: add initial vmtest.sh for
+ vsock
+Message-ID: <aDXMhbqhhUAMe0Oz@devbig793.prn5.facebook.com>
+References: <20250522-vsock-vmtest-v8-1-367619bef134@gmail.com>
+ <ta2ub5v7txhobccgvpnwsz7cyzcnx6aw74cjlcviosjetuwfhh@7gdahptdpbnd>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 4J6orsM8peeABdNzt6_dC_zfP1EEi_dw5IsUOd6Gx1c_1748356042
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <ta2ub5v7txhobccgvpnwsz7cyzcnx6aw74cjlcviosjetuwfhh@7gdahptdpbnd>
 
-drivers handle ENOSPC specially since it's an error one can
-get from a working VQ. Document the semantics.
+On Mon, May 26, 2025 at 01:18:18PM +0200, Stefano Garzarella wrote:
+> On Thu, May 22, 2025 at 09:59:07PM -0700, Bobby Eshleman wrote:
+> > This commit introduces a new vmtest.sh runner for vsock.
+> > 
+> > It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
+> > H2G, and loopback. The testing tools from tools/testing/vsock/ are
+> > reused. Currently, only vsock_test is used.
+> > 
+> > VMCI and hyperv support is included in the config file to be built with
+> > the -b option, though not used in the tests.
+> > 
+> > Only tested on x86.
+> > 
+> > To run:
+> > 
+> >  $ make -C tools/testing/selftests TARGETS=vsock
+> >  $ tools/testing/selftests/vsock/vmtest.sh
+> > 
+> > or
+> > 
+> >  $ make -C tools/testing/selftests TARGETS=vsock run_tests
+> > 
+> > Example runs (after make -C tools/testing/selftests TARGETS=vsock):
+> > 
+> > $ ./tools/testing/selftests/vsock/vmtest.sh
+> > 1..3
+> > ok 0 vm_server_host_client
+> > ok 1 vm_client_host_server
+> > ok 2 vm_loopback
+> > SUMMARY: PASS=3 SKIP=0 FAIL=0
+> > Log: /tmp/vsock_vmtest_m7DI.log
+> > 
+> > $ ./tools/testing/selftests/vsock/vmtest.sh vm_loopback
+> > 1..1
+> > ok 0 vm_loopback
+> > SUMMARY: PASS=1 SKIP=0 FAIL=0
+> > Log: /tmp/vsock_vmtest_a1IO.log
+> > 
+> > $ mkdir -p ~/scratch
+> > $ make -C tools/testing/selftests install TARGETS=vsock INSTALL_PATH=~/scratch
+> > [... omitted ...]
+> > $ cd ~/scratch
+> > $ ./run_kselftest.sh
+> > TAP version 13
+> > 1..1
+> > # timeout set to 300
+> > # selftests: vsock: vmtest.sh
+> > # 1..3
+> > # ok 0 vm_server_host_client
+> > # ok 1 vm_client_host_server
+> > # ok 2 vm_loopback
+> > # SUMMARY: PASS=3 SKIP=0 FAIL=0
+> > # Log: /tmp/vsock_vmtest_svEl.log
+> > ok 1 selftests: vsock: vmtest.sh
+> > 
+> > Future work can include vsock_diag_test.
+> > 
+> > Because vsock requires a VM to test anything other than loopback, this
+> > patch adds vmtest.sh as a kselftest itself. This is different than other
+> > systems that have a "vmtest.sh", where it is used as a utility script to
+> > spin up a VM to run the selftests as a guest (but isn't hooked into
+> > kselftest).
+> > 
+> > Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+> > ---
+> > Changes in v8:
+> > - remove NIPA comment from commit msg
+> > - remove tap_* functions and TAP_PREFIX
+> > - add -b for building kernel
+> > - Link to v7: https://lore.kernel.org/r/20250515-vsock-vmtest-v7-1-ba6fa86d6c2c@gmail.com
+> > 
+> > Changes in v7:
+> > - fix exit code bug when ran is kselftest: use cnt_total instead of KSFT_NUM_TESTS
+> > - updated commit message with updated output
+> > - updated commit message with commands for installing/running as
+> >  kselftest
+> > - Link to v6: https://lore.kernel.org/r/20250515-vsock-vmtest-v6-1-9af1cc023900@gmail.com
+> > 
+> > Changes in v6:
+> > - add make cmd in commit message in vmtest.sh example (Stefano)
+> > - check nonzero size of QEMU_PIDFILE using -s conditional (Stefano)
+> > - display log file path after tests so it is easier to find amongst other random names
+> > - cleanup qemu pidfile if qemu is unable to remove it
+> > - make oops/warning failures more obvious with 'FAIL' prefix in log
+> >  (simply saying 'detected' wasn't clear enough to identify failing
+> >  condition)
+> > - Link to v5: https://lore.kernel.org/r/20250513-vsock-vmtest-v5-1-4e75c4a45ceb@gmail.com
+> > 
+> > Changes in v5:
+> > - make log file a tmpfile (Paolo)
+> > - make sure both default and user defined QEMU gets handled by the dependency check (Paolo)
+> > - increased VM boot up timeout from 1m to 3m for slow hosts (Paolo)
+> > - rename vm_setup -> vm_start (Paolo)
+> > - derive wait_for_listener from selftests/net/net_helper.sh to removes ss usage
+> > - Remove unused 'unset IFS' line (Paolo)
+> > - leave space after variable declarations (Paolo)
+> > - make QEMU_PIDFILE a tmp file (Paolo)
+> > - make everything readonly that is only read (Paolo)
+> > - source ktap_helpers.sh for KSFT_PASS and friends (Paolo)
+> > - don't check for timeout util (Paolo)
+> > - add missing usage string for -q qemu arg
+> > - add tap prefix to SUMMARY line since it isn't part of TAP protocol
+> > - exit with the correct status code based on failure/pass counts
+> > - Link to v4: https://lore.kernel.org/r/20250507-vsock-vmtest-v4-1-6e2a97262cd6@gmail.com
+> > 
+> > Changes in v4:
+> > - do not use special tab delimiter for help string parsing (Stefano + Paolo)
+> > - fix paths for when installing kselftest and running out-of-tree (Paolo)
+> > - change vng to using running kernel instead of compiled kernel (Paolo)
+> > - use multi-line string for QEMU_OPTS (Stefano)
+> > - change timeout to 300s (Paolo)
+> > - skip if tools are not found and use kselftests status codes (Paolo)
+> > - remove build from vmtest.sh (Paolo)
+> > - change 2222 -> SSH_HOST_PORT (Stefano)
+> > - add tap-format output
+> > - add vmtest.log to gitignore
+> > - check for vsock_test binary and remind user to build it if missing
+> > - create a proper build in makefile
+> > - style fixes
+> > - add ssh, timeout, and pkill to dependency check, just in case
+> > - fix numerical comparison in conditionals
+> > - check qemu pidfile exists before proceeding (avoid wasting time waiting for ssh)
+> > - fix tracking of pass/fail bug
+> > - fix stderr redirection bug
+> > - Link to v3: https://lore.kernel.org/r/20250428-vsock-vmtest-v3-1-181af6163f3e@gmail.com
+> > 
+> > Changes in v3:
+> > - use common conditional syntax for checking variables
+> > - use return value instead of global rc
+> > - fix typo TEST_HOST_LISTENER_PORT -> TEST_HOST_PORT_LISTENER
+> > - use SIGTERM instead of SIGKILL on cleanup
+> > - use peer-cid=1 for loopback
+> > - change sleep delay times into globals
+> > - fix test_vm_loopback logging
+> > - add test selection in arguments
+> > - make QEMU an argument
+> > - check that vng binary is on path
+> > - use QEMU variable
+> > - change <tab><backslash> to <space><backslash>
+> > - fix hardcoded file paths
+> > - add comment in commit msg about script that vmtest.sh was based off of
+> > - Add tools/testing/selftest/vsock/Makefile for kselftest
+> > - Link to v2: https://lore.kernel.org/r/20250417-vsock-vmtest-v2-1-3901a27331e8@gmail.com
+> > 
+> > Changes in v2:
+> > - add kernel oops and warnings checker
+> > - change testname variable to use FUNCNAME
+> > - fix spacing in test_vm_server_host_client
+> > - add -s skip build option to vmtest.sh
+> > - add test_vm_loopback
+> > - pass port to vm_wait_for_listener
+> > - fix indentation in vmtest.sh
+> > - add vmci and hyperv to config
+> > - changed whitespace from tabs to spaces in help string
+> > - Link to v1: https://lore.kernel.org/r/20250410-vsock-vmtest-v1-1-f35a81dab98c@gmail.com
+> > ---
+> > MAINTAINERS                              |   1 +
+> > tools/testing/selftests/vsock/.gitignore |   2 +
+> > tools/testing/selftests/vsock/Makefile   |  16 ++
+> > tools/testing/selftests/vsock/config     | 114 ++++++++
+> > tools/testing/selftests/vsock/settings   |   1 +
+> > tools/testing/selftests/vsock/vmtest.sh  | 460 +++++++++++++++++++++++++++++++
+> > 6 files changed, 594 insertions(+)
+> > 
+> > diff --git a/MAINTAINERS b/MAINTAINERS
+> > index 657a67f9031ef7798c19ac63e6383d4cb18a9e1f..3fbdd7bbfce7196a3cc7db70203317c6bd0e51fd 100644
+> > --- a/MAINTAINERS
+> > +++ b/MAINTAINERS
+> > @@ -25751,6 +25751,7 @@ F:	include/uapi/linux/vm_sockets.h
+> > F:	include/uapi/linux/vm_sockets_diag.h
+> > F:	include/uapi/linux/vsockmon.h
+> > F:	net/vmw_vsock/
+> > +F:	tools/testing/selftests/vsock/
+> > F:	tools/testing/vsock/
+> > 
+> > VMALLOC
+> > diff --git a/tools/testing/selftests/vsock/.gitignore b/tools/testing/selftests/vsock/.gitignore
+> > new file mode 100644
+> > index 0000000000000000000000000000000000000000..9c5bf379480f829a14713d5f5dc7d525bc272e84
+> > --- /dev/null
+> > +++ b/tools/testing/selftests/vsock/.gitignore
+> > @@ -0,0 +1,2 @@
+> > +vmtest.log
+> > +vsock_test
+> > diff --git a/tools/testing/selftests/vsock/Makefile b/tools/testing/selftests/vsock/Makefile
+> > new file mode 100644
+> > index 0000000000000000000000000000000000000000..7ab4970e5e8a019be33f96a36f95c00573d7bfcf
+> > --- /dev/null
+> > +++ b/tools/testing/selftests/vsock/Makefile
+> > @@ -0,0 +1,16 @@
+> > +# SPDX-License-Identifier: GPL-2.0
+> > +
+> > +CURDIR := $(abspath .)
+> > +TOOLSDIR := $(abspath ../../..)
+> > +
+> > +$(OUTPUT)/vsock_test: $(TOOLSDIR)/testing/vsock/vsock_test
+> > +	install -m 755 $< $@
+> > +
+> > +$(TOOLSDIR)/testing/vsock/vsock_test:
+> > +	$(MAKE) -C $(TOOLSDIR)/testing/vsock vsock_test
+> > +
+> > +TEST_PROGS += vmtest.sh
+> > +TEST_GEN_FILES := vsock_test
+> > +
+> > +include ../lib.mk
+> > +
+> 
+> I had modified the tests, but I noticed that they were not copied,
+> in fact we have no dependencies on the test sources.
+> 
+> This may not be a problem in the selftest environment, but locally I
+> think it is.
+> 
+> We can either use .PHONY and call `$(MAKE) -C ...` each time, or do
+> something like this (which solved my problem):
+> 
+> diff --git a/tools/testing/selftests/vsock/Makefile b/tools/testing/selftests/vsock/Makefile
+> index 7ab4970e5e8a..d1bb1f63a9d1 100644
+> --- a/tools/testing/selftests/vsock/Makefile
+> +++ b/tools/testing/selftests/vsock/Makefile
+> @@ -3,11 +3,14 @@
+>  CURDIR := $(abspath .)
+>  TOOLSDIR := $(abspath ../../..)
+> -$(OUTPUT)/vsock_test: $(TOOLSDIR)/testing/vsock/vsock_test
+> +VSOCK_TEST_DIR := $(TOOLSDIR)/testing/vsock
+> +VSOCK_TEST_SRCS := $(wildcard $(VSOCK_TEST_DIR)/*.c $(VSOCK_TEST_DIR)/*.h)
+> +
+> +$(OUTPUT)/vsock_test: $(VSOCK_TEST_DIR)/vsock_test
+>         install -m 755 $< $@
+> -$(TOOLSDIR)/testing/vsock/vsock_test:
+> -       $(MAKE) -C $(TOOLSDIR)/testing/vsock vsock_test
+> +$(VSOCK_TEST_DIR)/vsock_test: $(VSOCK_TEST_SRCS)
+> +       $(MAKE) -C $(VSOCK_TEST_DIR) vsock_test
+>  TEST_PROGS += vmtest.sh
+>  TEST_GEN_FILES := vsock_test
+> 
+> 
 
-Reported-by: Parav Pandit <parav@nvidia.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_ring.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Makes sense!
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b784aab66867..97ab0cce527d 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2296,6 +2296,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
-  * at the same time (except where noted).
-  *
-  * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
-+ *
-+ * NB: ENOSPC is a special code that is only returned on an attempt to add a
-+ * buffer to a full VQ. It indicates that some buffers are outstanding and that
-+ * the operation can be retried after some buffers have been used.
-  */
- int virtqueue_add_sgs(struct virtqueue *_vq,
- 		      struct scatterlist *sgs[],
--- 
-MST
+> > +
+> > +# virtme-ng offers a netdev for ssh when using "--ssh", but we also need a
+> > +# control port forwarded for vsock_test.  Because virtme-ng doesn't support
+> > +# adding an additional port to forward to the device created from "--ssh" and
+> > +# virtme-init mistakenly sets identical IPs to the ssh device and additional
+> > +# devices, we instead opt out of using --ssh, add the device manually, and also
+> > +# add the kernel cmdline options that virtme-init uses to setup the interface.
+> 
+> This version of the script doesn't work for me, the VM starts, but I
+> can't connect in ssh. After spending some time debugging, I saw that
+> `sshd` was not being launched inside the VM.
+> 
+> I think it depends on the version of vng (maybe recently updated on my
+> Fedora 41); here I have:
+> $ vng --version
+> virtme-ng 1.36
+> 
+> Playing around with `vng`, I found that it now also supports ssh on
+> vsock (I think it is now default). By forcing it to use tcp
+> (`vng ... --ssh --ssh-tcp`), it adds another parameter to my cmdline:
+> `virtme_ssh_channel=tcp`.
+> 
+> And indeed this change fixed my issues:
+> --- a/tools/testing/selftests/vsock/vmtest.sh
+> +++ b/tools/testing/selftests/vsock/vmtest.sh
+> @@ -39,7 +39,7 @@ readonly QEMU_OPTS="\
+>          -device vhost-vsock-pci,guest-cid=${VSOCK_CID} \
+>          --pidfile ${QEMU_PIDFILE} \
+>  "
+> -readonly KERNEL_CMDLINE="virtme.dhcp net.ifnames=0 biosdevname=0 virtme.ssh virtme_ssh_user=$USER"
+> +readonly KERNEL_CMDLINE="virtme.dhcp net.ifnames=0 biosdevname=0 virtme.ssh virtme_ssh_channel=tcp virtme_ssh_user=$USER"
+>  readonly LOG=$(mktemp /tmp/vsock_vmtest_XXXX.log)
+>  readonly TEST_NAMES=(vm_server_host_client vm_client_host_server vm_loopback)
+>  readonly TEST_DESCS=(
+> 
+> That said, I'm concerned about the weakness of assuming the cmdlines
+> supported by vng (which do not seem stable to me at this point).
+> 
+> Should we check the version of vng and at least print a warning to say
+> that this script is not tested on that version?
+> 
+> Thanks,
+> Stefano
+> 
 
+I'm also not a big fan of assuming cmdlines and I think adding the
+version warning sounds good. I have been using 1.33. One thought I'm
+having is that I should probably submit a PR to vng to either fix the
+multi-NIC setup in virtme-ng or add a hostfwd option... then restrict
+our assumptions here to only prior versions.
+
+Thanks!
+
+Best,
+Bobby
