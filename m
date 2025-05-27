@@ -1,233 +1,292 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCAF4270572;
-	Tue, 27 May 2025 13:35:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42BD11EA7DF
+	for <virtualization@lists.linux.dev>; Tue, 27 May 2025 14:03:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748352956; cv=none; b=tHMw1Ziae/kp34BPUb6c3/X0RxIyGMMxGV1iUyW+YgKs8fU0q4KwdJ0mGsiORexQuMrHgR26p9+tE7XqQys3ETaEcL6hnOnN3mbp4+Ar7XgZQPxh9gmb9mYQXGJujtHTkUFIG4OaXEyvnD0WdeRDI0TMypDzMIsInDQaAKbOzSA=
+	t=1748354636; cv=none; b=eURQwupT0vcaonM1hJhwAyKehrNt1P2usoVZsu1jeoK2zBm+u6666Qva4LamiFFa2GzPpKgKqWe+Mjls54c1jcnHqW04eoDvePLRo0JXcgUe7tYt13lyjCQl/rZTIk6UuNhcbhGFe8HscFN/2CgjoNfKKXzDYpJbhcLpoBOEmOk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748352956; c=relaxed/simple;
-	bh=8lfh6bvcEFYdSzOgfOnnU+yhKsW3ISNP3ikpxpfHbCI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IGzDxbVQXL74WwVNro0S8M4sy7KBQ1/EfJ+K5PE8tsL+7qI31tA52c+N6lXkQMN2mVA06IY0wvKX6ZGtlQq1+kSuacxZUPkZKUQ9DtyCQR4sA5BHHLLQAKbJtFtMVgwOgtY9x2n/bLY26RmguGToW3RbwOt4Sd98B0+yIJvnpaM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NnLBVP8q; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1748354636; c=relaxed/simple;
+	bh=PfYHN7ZvbjqF1SZrJiDI+N31npoIF2JXnH9nV3P+NF4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KPNOH3nEWgRrEoO+WXYI6UspFBZFjRCM4d3aBd5+bM3/OxgaqR+fyLfYzd2GopShI/4YBU1cZO0cbpY61TAtU5XldAHzT36IfzITCCy4cTbN1dfm5B600PK7NFGzSCvEW7/XwUUC13Nr43B49Yw0mRWzz5E0ByaqFKI1k72reDA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Qr5WoPJH; arc=none smtp.client-ip=209.85.208.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NnLBVP8q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D30EBC4CEE9;
-	Tue, 27 May 2025 13:35:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1748352956;
-	bh=8lfh6bvcEFYdSzOgfOnnU+yhKsW3ISNP3ikpxpfHbCI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=NnLBVP8qDQHfegA+pmu+8JlZiD4Su8VU3PPKiE+ubOZ7I0L0QwRZsjPxq0wBVd/v0
-	 NLs9oYdYLVr/AYwGFRIF0N1a2ASguKEf8J2l9QZt+yQgBm8yMPVzGDQqYky0OFoWd7
-	 MRUJnxoSQq/8iUixwLqnh86vuDSlCwW7Ndra+64yVv1fqMfXXEAmNdghiACN7ILknZ
-	 etoKTATaDfHAQiFEqIJRqdtCQ+6PyaNN2C5Iu8ruQ7k+lmkMNjTId1jrAnCr8Rxyvv
-	 Ip+AR9GMfOL3invz+sTrTdtUoTmxQLHubTzJnM9gAi/jXHUVP26UWAkWUZWAThLcWO
-	 d9PPo9QxOn7TQ==
-Date: Tue, 27 May 2025 15:35:47 +0200
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-To: Alexandre Courbot <gnurou@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mauro Carvalho Chehab
- <mchehab@kernel.org>, Hans Verkuil <hverkuil@xs4all.nl>, Albert Esteve
- <aesteve@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
- <eperezma@redhat.com>, gurchetansingh@google.com,
- daniel.almeida@collabora.com, adelva@google.com, changyeon@google.com,
- nicolas.dufresne@collabora.com, linux-kernel@vger.kernel.org,
- linux-media@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH v3] media: add virtio-media driver
-Message-ID: <20250527153547.6603eaf4@sal.lan>
-In-Reply-To: <CAAVeFu+=RpEfu3i_Fh9_eq_g=cmDFF0gcurT0gU9AX1UX+UNVA@mail.gmail.com>
-References: <20250412-virtio-media-v3-1-97dc94c18398@gmail.com>
-	<20250526141316.7e907032@foz.lan>
-	<DA6Q0LZPGS2D.2QCV889PQL2A7@gmail.com>
-	<20250527111311.105246f2@sal.lan>
-	<CAAVeFu+=RpEfu3i_Fh9_eq_g=cmDFF0gcurT0gU9AX1UX+UNVA@mail.gmail.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qr5WoPJH"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3106217268dso31073141fa.1
+        for <virtualization@lists.linux.dev>; Tue, 27 May 2025 07:03:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748354631; x=1748959431; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xsFURRaAVAF5NyqQux52FKE+IWC38BqGr/pMMame8ds=;
+        b=Qr5WoPJHkEN1kGk6Mp+ls/LZ7ZzDeqVpe+t4B783nJm/s4EEcNXdgP2OH+axR0g2iH
+         iIDBygEyrJFGbrVo9GlgcSJCkzrcAbd+OX9RjZ5ahxx0ofk+yM5hxG6Ho/KAd0lwADxr
+         a66Iq0ZOkXaiN7vrTMdeCZ2gtoiJC3nXzXHRLwfLBX2DLM9x2kiDF+2I+cR2joft2Lut
+         XYRnfcQzOR0Ji0NlDafCHbsWuPmElp1imSGix9TYejKzLSigmY9XW46PdlzsrdIEZUng
+         vt9EFIWzgooHC+QStvOImtR5FkBYmFEiRHFyxs6OznMrgiEH1e7RiHEmv6+z7BgWpJTU
+         zEEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748354631; x=1748959431;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xsFURRaAVAF5NyqQux52FKE+IWC38BqGr/pMMame8ds=;
+        b=T31hJj4nZPjIRN/KUPTBQ1A+3WAX6hLGF7uSZNhqFmEGuphBeJ+313dl/zw9i5Wz10
+         YdQP/o3G4R6tctq5Gz8hasoJ//QEUTbqgsfw9duFfIYal/81mXmDwmboU0E7mcXouDTc
+         nVWTKlxrzvTdRREwwry4MhVfVFnTzex1181bTj5g+eh4QcvF3V5cHg5ZRwFLhPKPSwdl
+         FHzxMp5gRad+CSnEQzCC3gHJsBHmrAk9DqTVWyx1D+OLVARmdX2X+QQiJGSOH5ck4TIf
+         D33CSsQRJpROkaevc5+so+MPP/ZPQZ3D+Uv5FomKVt7ZVYyc98O1WOK8r2oXW7DpNogF
+         5xIg==
+X-Forwarded-Encrypted: i=1; AJvYcCUB1SIyITq7SLHDGdz7Mi1vaJqsh0STR6fn1MI9rVG+TR6tOvhDTbEek/B8lPJ0ph0ZYttPglnPJvyiiM0uPw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxADmx9Wco/q37zgvNsm2OH+zRbKxOfzuO0o8bOmqfY3Wr7FZs5
+	Yg7eauh/lx7kENv4GZchWgiltoSOYpc/amL07kd2fktMrUyaP8xtBDPvkr1U6/i+m1BO30d3gmA
+	VRVaTsA1g0Sjl1PK+h3WxsMngEqoTiLU=
+X-Gm-Gg: ASbGncu3J6QqQrANzo3ZZpGWu6FWVsVluwDtVjG4Rg3RFs47ESc5nMkby4OLIm/W6i9
+	zEC71rX6h99MLtLDkaePtUe8lJEb1iWjVLBGCZSHFQpd2wwo1COJ3ttFRbZEmA3Rc8EBjhRG6wX
+	ruZrMGNfk+aOGsLR2DVEUDaKFCIBfEO4qenDIqjddNXOhS286Hmb3FXQAgCbxLqpi7o+nk79P33
+	A==
+X-Google-Smtp-Source: AGHT+IE3sOdVMBPm6Ph+lDBvdIisLgXQVbeEI/OwtwfoXYAZvm9V6hdGhNRWj6AmrFGMfg3LNZwv9XRpjINn0fwcvBE=
+X-Received: by 2002:a05:651c:f01:b0:32a:664e:a932 with SMTP id
+ 38308e7fff4ca-32a664eaa5bmr18000161fa.37.1748354631031; Tue, 27 May 2025
+ 07:03:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+References: <20250412-virtio-media-v3-1-97dc94c18398@gmail.com>
+ <20250526141316.7e907032@foz.lan> <DA6Q0LZPGS2D.2QCV889PQL2A7@gmail.com>
+ <20250527111311.105246f2@sal.lan> <CAAVeFu+=RpEfu3i_Fh9_eq_g=cmDFF0gcurT0gU9AX1UX+UNVA@mail.gmail.com>
+ <20250527153547.6603eaf4@sal.lan>
+In-Reply-To: <20250527153547.6603eaf4@sal.lan>
+From: Alexandre Courbot <gnurou@gmail.com>
+Date: Tue, 27 May 2025 23:03:39 +0900
+X-Gm-Features: AX0GCFsjbpsQ1gE__bp7WHcbUJ9r5cDGiNxMBHIwTxLbUSGCpF8_YZBzNIeqr7k
+Message-ID: <CAAVeFuJtp=UEEULeMSVpmYDmH81Y6OQgj6NCeuPUhabSRHw4dA@mail.gmail.com>
+Subject: Re: [PATCH v3] media: add virtio-media driver
+To: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Albert Esteve <aesteve@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
+	Hans Verkuil <hverkuil@xs4all.nl>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	gurchetansingh@google.com, daniel.almeida@collabora.com, adelva@google.com, 
+	changyeon@google.com, nicolas.dufresne@collabora.com, 
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Em Tue, 27 May 2025 22:21:42 +0900
-Alexandre Courbot <gnurou@gmail.com> escreveu:
-
-> On Tue, May 27, 2025 at 6:13=E2=80=AFPM Mauro Carvalho Chehab
-> <mchehab+huawei@kernel.org> wrote:
-> >
-> > Em Tue, 27 May 2025 15:14:50 +0900
-> > "Alexandre Courbot" <gnurou@gmail.com> escreveu:
-> > =20
-> > > Hi Mauro,
+On Tue, May 27, 2025 at 10:35=E2=80=AFPM Mauro Carvalho Chehab
+<mchehab+huawei@kernel.org> wrote:
+>
+> Em Tue, 27 May 2025 22:21:42 +0900
+> Alexandre Courbot <gnurou@gmail.com> escreveu:
+>
+> > On Tue, May 27, 2025 at 6:13=E2=80=AFPM Mauro Carvalho Chehab
+> > <mchehab+huawei@kernel.org> wrote:
 > > >
-> > > On Mon May 26, 2025 at 9:13 PM JST, Mauro Carvalho Chehab wrote: =20
-> > > > Hi Michael,
-> > > >
-> > > > Em Sat, 12 Apr 2025 13:08:01 +0900
-> > > > Alexandre Courbot <gnurou@gmail.com> escreveu:
-> > > > =20
-> > > >> Add the first version of the virtio-media driver.
-> > > >>
-> > > >> This driver acts roughly as a V4L2 relay between user-space and the
-> > > >> virtio virtual device on the host, so it is relatively simple, yet
-> > > >> unconventional. It doesn't use VB2 or other frameworks typically u=
-sed in
-> > > >> a V4L2 driver, and most of its complexity resides in correctly and
-> > > >> efficiently building the virtio descriptor chain to pass to the ho=
-st,
-> > > >> avoiding copies whenever possible. This is done by
-> > > >> scatterlist_builder.[ch].
-> > > >>
-> > > >> virtio_media_ioctls.c proxies each supported ioctl to the host, us=
-ing
-> > > >> code generated through macros for ioctls that can be forwarded dir=
-ectly,
-> > > >> which is most of them.
-> > > >>
-> > > >> virtio_media_driver.c provides the expected driver hooks, and supp=
-ort
-> > > >> for mmapping and polling.
-> > > >>
-> > > >>  This version supports MMAP buffers, while USERPTR buffers can als=
-o be
-> > > >>  enabled through a driver option. DMABUF support is still pending.=
- =20
-> > > >
-> > > > It sounds that you applied this one at the virtio tree, but it hasn=
-'t
-> > > > being reviewed or acked by media maintainers.
-> > > >
-> > > > Please drop it.
-> > > >
-> > > > Alexandre,
-> > > >
-> > > > Please send media patches to media maintainers, c/c other subsystem
-> > > > maintainers, as otherwise they might end being merged without a
-> > > > proper review. =20
+> > > Em Tue, 27 May 2025 15:14:50 +0900
+> > > "Alexandre Courbot" <gnurou@gmail.com> escreveu:
 > > >
-> > > Sorry about that, I put everyone in "To:" without giving it a second
-> > > thought.
-> > > =20
+> > > > Hi Mauro,
 > > > >
-> > > > In this particular case, we need to double-check if this won't cause
-> > > > any issues, in special with regards to media locks and mutexes. =20
-> > >
-> > > Agreed, I am not 100% confident about that part myself.
-> > > =20
+> > > > On Mon May 26, 2025 at 9:13 PM JST, Mauro Carvalho Chehab wrote:
+> > > > > Hi Michael,
+> > > > >
+> > > > > Em Sat, 12 Apr 2025 13:08:01 +0900
+> > > > > Alexandre Courbot <gnurou@gmail.com> escreveu:
+> > > > >
+> > > > >> Add the first version of the virtio-media driver.
+> > > > >>
+> > > > >> This driver acts roughly as a V4L2 relay between user-space and =
+the
+> > > > >> virtio virtual device on the host, so it is relatively simple, y=
+et
+> > > > >> unconventional. It doesn't use VB2 or other frameworks typically=
+ used in
+> > > > >> a V4L2 driver, and most of its complexity resides in correctly a=
+nd
+> > > > >> efficiently building the virtio descriptor chain to pass to the =
+host,
+> > > > >> avoiding copies whenever possible. This is done by
+> > > > >> scatterlist_builder.[ch].
+> > > > >>
+> > > > >> virtio_media_ioctls.c proxies each supported ioctl to the host, =
+using
+> > > > >> code generated through macros for ioctls that can be forwarded d=
+irectly,
+> > > > >> which is most of them.
+> > > > >>
+> > > > >> virtio_media_driver.c provides the expected driver hooks, and su=
+pport
+> > > > >> for mmapping and polling.
+> > > > >>
+> > > > >>  This version supports MMAP buffers, while USERPTR buffers can a=
+lso be
+> > > > >>  enabled through a driver option. DMABUF support is still pendin=
+g.
+> > > > >
+> > > > > It sounds that you applied this one at the virtio tree, but it ha=
+sn't
+> > > > > being reviewed or acked by media maintainers.
+> > > > >
+> > > > > Please drop it.
+> > > > >
+> > > > > Alexandre,
+> > > > >
+> > > > > Please send media patches to media maintainers, c/c other subsyst=
+em
+> > > > > maintainers, as otherwise they might end being merged without a
+> > > > > proper review.
 > > > >
-> > > > I'll try to look on it after this merge window, as it is too late
-> > > > for it to be applied during this one. =20
+> > > > Sorry about that, I put everyone in "To:" without giving it a secon=
+d
+> > > > thought.
+> > > >
+> > > > >
+> > > > > In this particular case, we need to double-check if this won't ca=
+use
+> > > > > any issues, in special with regards to media locks and mutexes.
+> > > >
+> > > > Agreed, I am not 100% confident about that part myself.
+> > > >
+> > > > >
+> > > > > I'll try to look on it after this merge window, as it is too late
+> > > > > for it to be applied during this one.
+> > > >
+> > > > Appreciate that - given the high traffic on the list I was worried =
+that
+> > > > this patch would eventually be overlooked. Not making it for this m=
+erge
+> > > > window should not be a problem, so please take the time you need.
 > > >
-> > > Appreciate that - given the high traffic on the list I was worried th=
-at
-> > > this patch would eventually be overlooked. Not making it for this mer=
-ge
-> > > window should not be a problem, so please take the time you need. =20
+> > > Provided that your patch was caught by patchwork, it won't be lost:
+> > >         https://patchwork.linuxtv.org/project/linux-media/patch/20250=
+412-virtio-media-v3-1-97dc94c18398@gmail.com/
+> > >
+> > > Please notice that our CI got a number of checkpatch issues there.
+> > > Please check and fix the non-false-positive ones.
 > >
-> > Provided that your patch was caught by patchwork, it won't be lost:
-> >         https://patchwork.linuxtv.org/project/linux-media/patch/2025041=
-2-virtio-media-v3-1-97dc94c18398@gmail.com/
+> > Will do. The macro-related ones are false-positives AFAICT. Some of
+> > the "lines should not end with a '('" are actually the result of
+> > applying clang-format with the kernel-provided style...
+>
+> I don't know any lint tool that honors kernel style. The best one
+> is checkpatch with the auto-correcting parameter in pedantic mode,
+> but still one needs to manually review its output.
+>
 > >
-> > Please notice that our CI got a number of checkpatch issues there.
-> > Please check and fix the non-false-positive ones. =20
->=20
-> Will do. The macro-related ones are false-positives AFAICT. Some of
-> the "lines should not end with a '('" are actually the result of
-> applying clang-format with the kernel-provided style...
-
-I don't know any lint tool that honors kernel style. The best one
-is checkpatch with the auto-correcting parameter in pedantic mode,
-but still one needs to manually review its output.
-
->=20
+> > >
+> > > Btw, I was looking at:
+> > >
+> > >         https://github.com/chromeos/virtio-media
+> > >
+> > > (I'm assuming that this is the QEMU counterpart, right?)
 > >
-> > Btw, I was looking at:
+> > crosvm actually, but QEMU support is also being worked on.
+>
+> Do you have already QEMU patches? The best is to have the Kernel driver
+> submitted altogether with QEMU, as Kernel developers need it to do the
+> tests. In my case, I never use crosvm, and I don't have any Chromebook
+> anymore.
+
+IIRC Albert Esteve was working on this, maybe he can share the current stat=
+us.
+
+Note that crosvm does not require a Chromebook, you can build and run
+it pretty easily on a regular PC. I have put together a document to
+help with that:
+
+https://github.com/chromeos/virtio-media/blob/main/TRY_IT_OUT.md
+
+It also shows how to proxy a host UVC camera into the guest and use
+some of the "fake" devices I talked about earlier. If following these
+steps is too much friction, just reading through the document should
+give you a decent idea of what virtio-media can do.
+
+>
+> > > And I noticed something weird there:
+> > >
+> > >         "Unsupported ioctls
+> > >
+> > >          A few ioctls are replaced by other, more suitable mechanisms=
+. If being requested these ioctls, the device must return the same response=
+ as it would for an unknown ioctl, i.e. ENOTTY.
+> > >
+> > >             VIDIOC_QUERYCAP is replaced by reading the configuration =
+area.
+> > >             VIDIOC_DQBUF is replaced by a dedicated event.
+> > >             VIDIOC_DQEVENT is replaced by a dedicated event."
+> > >
+> > > While this could be ok for cromeOS, this will be broken for guests wi=
+th
+> > > Linux, as all Linux applications rely on VIDIOC_QUERYCAP and VIDIOC_D=
+QBUF
+> > > to work. Please implement support for it, as otherwise we won't even =
+be
+> > > able to test the driver with the v4l2-compliance tool (*).
 > >
-> >         https://github.com/chromeos/virtio-media
+> > The phrasing was a bit confusing. The guest driver does support these
+> > ioctls, and passes v4l2-compliance. So there is no problem here.
+>
+> Please add v4l2-compliance output on the next patch series.
+
+Certainly. Note that the output is dependent on what the host provides
+for a device. If it e.g. proxies something that is not fully
+compliant, the guest will reflect the same errors.
+
+>
+> > Where these ioctls are not supported is between the guest and the
+> > host, i.e. as ioctls encapsulated into a virtio request. For QUERYCAP,
+> > that's because the virtio configuration area already provides the same
+> > information. For DQBUF and DQEVENT, that's because we want to serve
+> > these asynchronously for performance reasons (hence the dedicated
+> > events).
 > >
-> > (I'm assuming that this is the QEMU counterpart, right?) =20
->=20
-> crosvm actually, but QEMU support is also being worked on.
-
-Do you have already QEMU patches? The best is to have the Kernel driver
-submitted altogether with QEMU, as Kernel developers need it to do the
-tests. In my case, I never use crosvm, and I don't have any Chromebook
-anymore.
-
-> > And I noticed something weird there:
+> > But these differences don't affect guest user applications which will
+> > be able to perform these ioctls exactly as they expect.
+>
+> OK. Better to let it clear then at the documentation.
+>
+> > >
+> > > (*) Passing at v4l2-compliance is a requirement for any media driver
+> > >     to be merged.
+> > >
+> > > With regards to testing, what's the expected testing scenario?
+> > > My guess is that, as a virtio device, a possible test scenario would =
+be
+> > > to have the UVC camera from the host OS mapped using virtio-camera in=
+to
+> > > the guest OS, allowing a V4L2 application running at the guest to map=
+ the
+> > > camera from the host, right?
 > >
-> >         "Unsupported ioctls
-> >
-> >          A few ioctls are replaced by other, more suitable mechanisms. =
-If being requested these ioctls, the device must return the same response a=
-s it would for an unknown ioctl, i.e. ENOTTY.
-> >
-> >             VIDIOC_QUERYCAP is replaced by reading the configuration ar=
-ea.
-> >             VIDIOC_DQBUF is replaced by a dedicated event.
-> >             VIDIOC_DQEVENT is replaced by a dedicated event."
-> >
-> > While this could be ok for cromeOS, this will be broken for guests with
-> > Linux, as all Linux applications rely on VIDIOC_QUERYCAP and VIDIOC_DQB=
-UF
-> > to work. Please implement support for it, as otherwise we won't even be
-> > able to test the driver with the v4l2-compliance tool (*). =20
->=20
-> The phrasing was a bit confusing. The guest driver does support these
-> ioctls, and passes v4l2-compliance. So there is no problem here.
+> > That's one of the scenarios, yes.
+>
+> Ok, this is the easiest test scenario for media developers.
+>
+> > Another one is to expose an accelerated decoder on the host to the gues=
+t.
+>
+> > One can also create
+> > "fake" devices backed by software on the host for testing purposes.
+>
+> That sounds interesting. It probably makes sense to have some test
+> scenario using such fake devices plus v4l2-compliance test to check
+> for regressions running on some CI engine.
 
-Please add v4l2-compliance output on the next patch series.
+Yes, regression catching in a CI is one of the use-cases we thought about.
 
-> Where these ioctls are not supported is between the guest and the
-> host, i.e. as ioctls encapsulated into a virtio request. For QUERYCAP,
-> that's because the virtio configuration area already provides the same
-> information. For DQBUF and DQEVENT, that's because we want to serve
-> these asynchronously for performance reasons (hence the dedicated
-> events).
->=20
-> But these differences don't affect guest user applications which will
-> be able to perform these ioctls exactly as they expect.
+>
+> > That's actually the benefit of using V4L2 as a guest/host protocol:
+> > the same guest and the same software stack on the host can be used to
 
-OK. Better to let it clear then at the documentation.
+I made a typo here: "the same guest DRIVER". That's an important point. :)
 
-> >
-> > (*) Passing at v4l2-compliance is a requirement for any media driver
-> >     to be merged.
-> >
-> > With regards to testing, what's the expected testing scenario?
-> > My guess is that, as a virtio device, a possible test scenario would be
-> > to have the UVC camera from the host OS mapped using virtio-camera into
-> > the guest OS, allowing a V4L2 application running at the guest to map t=
-he
-> > camera from the host, right? =20
->=20
-> That's one of the scenarios, yes.=20
-
-Ok, this is the easiest test scenario for media developers.
-
-> Another one is to expose an accelerated decoder on the host to the guest.=
-=20
-
-> One can also create
-> "fake" devices backed by software on the host for testing purposes.
-
-That sounds interesting. It probably makes sense to have some test
-scenario using such fake devices plus v4l2-compliance test to check
-for regressions running on some CI engine.
-
-> That's actually the benefit of using V4L2 as a guest/host protocol:
-> the same guest and the same software stack on the host can be used to
-> virtualize multiple kinds of media devices, removing the need to have
-> e.g. virtio-camera and virtio-codec. This removes a ton of work (and
-> code).
-
-Makes sense.
-
-Regards,
-Mauro
+Cheers,
+Alex.
