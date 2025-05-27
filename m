@@ -1,85 +1,83 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA21C24DCF4
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 May 2025 09:43:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ABE6248F73
+	for <virtualization@lists.linux-foundation.org>; Tue, 27 May 2025 09:44:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748338990; cv=none; b=gelcSoJdFnJVYNQoImxkFuNP2WtD4H+0G4+F21ea4LvRW2pSmw1x57dv7gUV5o0lIKIxwOtz+jxLaIiv5RAFgnQNLQRtW56tQc06sUll5E5LH2XJV5qgVDQ/x5x4YuVenCm4Prmne6EA0rm4VOym3JC6ib38YsqJKoNywJ2/mWA=
+	t=1748339067; cv=none; b=nHHJxOuZZx20SA5/3xW5EyBs+gVQV0P/tbzIJgkqn6MrsBqU+3cPkOcipAhXm2xCUWWng2e9LfFkeLAyPP8rP/r21nYxGSLegz5H2+1gylFs14sbrB56TFLhbfleIL4Q4WWTQZlPzBWj8Gz1zV3suqw4HPWDQCo9hkxYGA8RXTE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748338990; c=relaxed/simple;
-	bh=h7smYiUcX+tT7kLAc4b3pIX/1loHsFg1RnYO6HNTOnw=;
-	h=From:To:Cc:In-Reply-To:Subject:Date:Message-ID:MIME-Version:
-	 Content-Type:References; b=K+6d532x8bRep+9rOV9vhLYPBtiwcHo26MgkoxCjlfMo3egbKRWzwRsHupgF4tkxSrbMBb0Y8XOnQpTW8yPkE1VVtJjteNwEJAQY52Tg64Dd/1VERQEAzeMn3J7h14xKxrQLC/jWJcCtbHw5BCfK0254Oy6DqaGTevbpafTQQIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=FztWDh6x; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1748339067; c=relaxed/simple;
+	bh=POVU09RRorUzDphhZzX5iBIkP1p1HjruuE6wRTen/2M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type:
+	 References; b=KCBfM1SojgigaXyZYE48UMFglAF9SYHrf2xpCCMh4Uhi0a/T5bn02yFw2ArvbhqP/J2Vc6OhkLJ9SHVOoAx0GsUFs1i8reHgyF0pY64Qo6AP+j1AlbVr0eJQUHtZlOHkAYJUGkxKweh+e7QUHRb6/Il2v5883scv7EIuTYUG0Nc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=NyCOlfN3; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="FztWDh6x"
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="NyCOlfN3"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1F50260AD5
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 May 2025 09:43:07 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9ABC780B68
+	for <virtualization@lists.linux-foundation.org>; Tue, 27 May 2025 09:44:24 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -8.092
+X-Spam-Score: -8.095
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 2ldqMfpmPbZR for <virtualization@lists.linux-foundation.org>;
- Tue, 27 May 2025 09:43:06 +0000 (UTC)
-X-Greylist: delayed 509 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 27 May 2025 09:43:03 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 3835860ACE
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3835860ACE
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=FztWDh6x
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=203.254.224.33; helo=mailout3.samsung.com; envelope-from=hyunki00.koo@samsung.com; receiver=<UNKNOWN> 
-Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3835860ACE
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 May 2025 09:43:02 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 9lMCuNI9Nv1n for <virtualization@lists.linux-foundation.org>;
+ Tue, 27 May 2025 09:44:23 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=203.254.224.25; helo=mailout2.samsung.com; envelope-from=hyunki00.koo@samsung.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 2E4D180AFC
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E4D180AFC
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=NyCOlfN3
+Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2E4D180AFC
+	for <virtualization@lists.linux-foundation.org>; Tue, 27 May 2025 09:44:23 +0000 (UTC)
 Received: from epcas2p2.samsung.com (unknown [182.195.41.54])
-	by mailout3.samsung.com (KnoxPortal) with ESMTP id 20250527094300epoutp03ed5510a4323b291a189bde79e69dfcde~DWQo5UzJN1624216242epoutp03d
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 May 2025 09:43:00 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20250527094300epoutp03ed5510a4323b291a189bde79e69dfcde~DWQo5UzJN1624216242epoutp03d
+	by mailout2.samsung.com (KnoxPortal) with ESMTP id 20250527093432epoutp0221eb7b281febadab690e0e2f32087f4d~DWJPKkikq1806318063epoutp024
+	for <virtualization@lists.linux-foundation.org>; Tue, 27 May 2025 09:34:32 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20250527093432epoutp0221eb7b281febadab690e0e2f32087f4d~DWJPKkikq1806318063epoutp024
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1748338980;
-	bh=I54wYfntDzP8WlRHOCqcCZDGI9Uj3cp3k5bSZTUgPwE=;
-	h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
-	b=FztWDh6xB2UINXqBnt1Q1rlf0w90ubI0NEbx9aLde8w955yJap0DYKOt32P8v58u8
-	 cP3d0Xt1+pfcoBMR8d8khs4oS2hXdLQae0NlOWlX57S5/ggeye7pkQ/oNE0v3Zo7XT
-	 vBwLCWtGDyvqGauXxToEIP/oiSsRHeS9fkF7V8xw=
-Received: from epsnrtp02.localdomain (unknown [182.195.42.154]) by
-	epcas2p3.samsung.com (KnoxPortal) with ESMTPS id
-	20250527094300epcas2p3475f94590c9e9bd18e400e24f552ac13~DWQoUkJYl1636116361epcas2p3x;
-	Tue, 27 May 2025 09:43:00 +0000 (GMT)
-Received: from epcas2p2.samsung.com (unknown [182.195.36.99]) by
-	epsnrtp02.localdomain (Postfix) with ESMTP id 4b673R4J5dz2SSKX; Tue, 27 May
-	2025 09:42:59 +0000 (GMT)
+	s=mail20170921; t=1748338472;
+	bh=xYGelAVB0voM2HyQARDHZF9wpiRDObiAfkkhC+Tsj5U=;
+	h=From:To:Cc:Subject:Date:References:From;
+	b=NyCOlfN3MKEhZSIL8DE/HKkmY6O8FhN2kPXTWgDSwvJYmpH7Vre/Bnl1gd4jBed96
+	 x9EetfFMRufsf6QpTNG/JzmF1nJirqUqquacuXs4NtH34dMB3Bib0PHNSAypAFRol6
+	 Zg2iQr6MKIKOJqnsDRw4WBHS+eFLn3XpXc9+vijc=
+Received: from epsnrtp03.localdomain (unknown [182.195.42.155]) by
+	epcas2p1.samsung.com (KnoxPortal) with ESMTPS id
+	20250527093431epcas2p13084371dc859a06ecebebcbc6c7be011~DWJOhfuH33037130371epcas2p1J;
+	Tue, 27 May 2025 09:34:31 +0000 (GMT)
+Received: from epcas2p4.samsung.com (unknown [182.195.36.70]) by
+	epsnrtp03.localdomain (Postfix) with ESMTP id 4b66sf5XCNz3hhTB; Tue, 27 May
+	2025 09:34:30 +0000 (GMT)
 Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
 	epcas2p1.samsung.com (KnoxPortal) with ESMTPA id
-	20250527094258epcas2p148075e4a9a1ca860feed842f9c7ce61e~DWQmUSixt0190001900epcas2p12;
-	Tue, 27 May 2025 09:42:58 +0000 (GMT)
-Received: from epsmgmcp1.samsung.com (unknown [182.195.42.82]) by
+	20250527093429epcas2p1ae70ad7304305bf547ce34a70f9badc6~DWJNIHHF10452004520epcas2p1X;
+	Tue, 27 May 2025 09:34:29 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
 	epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20250527094258epsmtrp13fb50c708fdaca25919466e759a41b82~DWQmTBmBq1471014710epsmtrp1i;
-	Tue, 27 May 2025 09:42:58 +0000 (GMT)
-X-AuditID: b6c32a52-40bff70000004c16-29-68358921a5c7
+	20250527093429epsmtrp10b4a4667deec0bfde670f082054e1392~DWJNHXDmR1031210312epsmtrp1y;
+	Tue, 27 May 2025 09:34:29 +0000 (GMT)
+X-AuditID: b6c32a29-55afd7000000223e-5a-683587253150
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-	epsmgmcp1.samsung.com (Symantec Messaging Gateway) with SMTP id
-	2D.00.19478.12985386; Tue, 27 May 2025 18:42:57 +0900 (KST)
+	epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	33.AA.08766.52785386; Tue, 27 May 2025 18:34:29 +0900 (KST)
 Received: from KORCO187997 (unknown [12.36.150.128]) by epsmtip2.samsung.com
 	(KnoxPortal) with ESMTPA id
-	20250527094257epsmtip2380c8854e3d5648a72e2f2aa3c1508d7~DWQmEWbBt2686026860epsmtip2T;
-	Tue, 27 May 2025 09:42:57 +0000 (GMT)
+	20250527093429epsmtip229ed4625164472fc703cc7263b4c5a3f~DWJM52XKv2264022640epsmtip2S;
+	Tue, 27 May 2025 09:34:29 +0000 (GMT)
 From: <hyunki00.koo@samsung.com>
 To: <john.garry@huawei.com>, <joro@8bytes.org>, <will@kernel.org>,
 	<mst@redhat.com>, <jasowang@redhat.com>, <robin.murphy@arm.com>
-Cc: <iommu@lists.linux-foundation.org>, <linux-kernel@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <linuxarm@huawei.com>,
-	<taeyang.choi@samsung.com>, <bumyong.lee@samsung.com>
-In-Reply-To: 
+Cc: <xieyongji@bytedance.com>, <iommu@lists.linux-foundation.org>,
+	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<linuxarm@huawei.com>, <taeyang.choi@samsung.com>, <bumyong.lee@samsung.com>
 Subject: Please backport 32e92d9f6f87
  ("iommu/iova: Separate out rcache init") to linux-5.15.y
-Date: Tue, 27 May 2025 18:42:58 +0900
-Message-ID: <000e01dbceeb$badbe050$3093a0f0$@samsung.com>
+Date: Tue, 27 May 2025 18:34:30 +0900
+Message-ID: <000d01dbceea$8bfec3c0$a3fc4b40$@samsung.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -88,32 +86,32 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AdvO6aZq9ptLQRizSkqjLQ4e8EdQ3wAAYPng
+Thread-Index: AdvO6aZq9ptLQRizSkqjLQ4e8EdQ3w==
 Content-Language: ko
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprLIsWRmVeSWpSXmKPExsWy7bCSvK5ip2mGwbS1ZhZ7T1tYLNhvbbHs
-	0mcmi037m1gtOmdvYLe4vGsOm8XhjWeYLP7/esVqcfDDE1aLhfOMLJafncdm0XLH1IHH48nB
-	eUwea+atYfRoOfKW1WPTqk42j8k3ljN6vN93lc2jb8sqRo/Pm+QCOKK4bFJSczLLUov07RK4
-	Mq5cTC5YF1Wx/dsVxgbG3V5djJwcEgImEqsPzWXqYuTiEBLYzihx8tocVoiEjMSEF0uYIWxh
-	ifstR1ghip4zSnxrm8rWxcjBwSagIHG3Ow2kRkSgh1Fi7s1okBpmgdOMElO+TANrFhLgkXi1
-	YT8jSD2nAK/EhH/WIGFhgTiJg/NXs4KEWQRUJU78CAUJ8wpYSryZMIkVwhaUODnzCQtICbOA
-	nkTbRkaQMLOAvMT2t3OgLlOQ+Pl0GdgUEQEjif2TlCBKRCRmd7YxT2AUnoVk0CyEQbOQDJqF
-	pGMBI8sqRtHUguLc9NzkAkO94sTc4tK8dL3k/NxNjOAY1Arawbhs/V+9Q4xMHIyHGCU4mJVE
-	eLdNMMkQ4k1JrKxKLcqPLyrNSS0+xCjNwaIkzquc05kiJJCeWJKanZpakFoEk2Xi4JRqYJp2
-	x6L9wrQ/zxPnXCzJnBQ1N+pYm0PpXA//fgXWx93CRxws1dlWKLnc8/ee9sxvilSDb2x57ieV
-	jGfLGB/8ZHhw69NGt45FmsK9t86adbbMWekTV6geWbWGpe3T+zuue6Ys8n8lOz0kaS8je8fJ
-	U4s2/Pq3/YxA17EFhiofr5w78YVxGpeI3e6C8HP1S7k6FLX/7Jh3d4tcUWPph+btW+aqNK8W
-	kExt0Xb+bhLBP/frr49Gq1X41og6vzCJv86cGiYj0FCQdW7PXbUQw8M3lbNX5zLf6H4QzXi9
-	bpZZZ1tQxs390WUPNuzvXSpgf2bLnWO9x+8p/Ba74CEicXjejC4rNvGn7/k4q/cxb7Kbb6nE
-	UpyRaKjFXFScCAC5kiFMMAMAAA==
-X-CMS-MailID: 20250527094258epcas2p148075e4a9a1ca860feed842f9c7ce61e
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprGIsWRmVeSWpSXmKPExsWy7bCSvK5qu2mGwZxOY4u9py0sFuy3tlh2
+	6TOTxab9TawWnbM3sFtc3jWHzeLwxjNMFv9/vWK1OPjhCavFwnlGFsvPzmOzaLljajH5oIID
+	r8eTg/OYPNbMW8Po8e/EGjaPliNvWT02repk85h8Yzmjx/t9V9k8+rasYvT4vEkugDOKyyYl
+	NSezLLVI3y6BK2PPzAcsBXujKr48f83cwHjSq4uRk0NCwETi78TzLF2MXBxCArsZJb5/2s8G
+	kZCRmPBiCTOELSxxv+UIK0TRc0aJP/sWAhVxcLAJKEjc7U4DqRER6GGUmHszGqSGWeAFo8Sc
+	f7PAmoUF4iQOzl/NCmKzCKhKXF6xiBHE5hWwlNh8+iwbhC0ocXLmExaQmcwCehJtG8FKmAXk
+	Jba/nQN1g4LEz6fLWCF26Umsav7KDlEjIjG7s415AqPgLCSTZiFMmoVk0iwkHQsYWVYxSqYW
+	FOem5xYbFhjmpZbrFSfmFpfmpesl5+duYgRHnZbmDsbtqz7oHWJk4mA8xCjBwawkwrttgkmG
+	EG9KYmVValF+fFFpTmrxIUZpDhYlcV7xF70pQgLpiSWp2ampBalFMFkmDk6pBqZou5D5G8Qj
+	73a8Ctt1oeR2xEShiYc3fNgVoel10zUzd/HZPoW44JCgvPrZW7+uXK227oTHy08lzzhjTp2S
+	Ov8mTbBU23fCb6uXGbtNJGq/+bwwdr8+UZXz13eBG6cKTA43vFyimNx2oUx630GWvcIejBX9
+	imZ7Lk+4ci/q4W8Gi2MuS+f2LAnZ8a874Tbb3Wrbk/tvxXClW51IF9qs+1eNZS1nHn9+iRz3
+	SYn/sRfnfmot5ZGI1zlZXdGiYhzdVFwqfbfumsvVe67Mh7vTWw4yb405dI/v7Z3V988WSn4p
+	vGLqvcrwmJNZ7oeohG7N37fWzTl01Oix8cGIjRf288xceMeuUOJBxGW3uxuvhQkpsRRnJBpq
+	MRcVJwIAUSdLxikDAAA=
+X-CMS-MailID: 20250527093429epcas2p1ae70ad7304305bf547ce34a70f9badc6
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: AUTO_CONFIDENTIAL
 CMS-TYPE: 102P
 cpgsPolicy: CPGSC10-234,Y
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250527094258epcas2p148075e4a9a1ca860feed842f9c7ce61e
-References: <CGME20250527094258epcas2p148075e4a9a1ca860feed842f9c7ce61e@epcas2p1.samsung.com>
+X-CMS-RootMailID: 20250527093429epcas2p1ae70ad7304305bf547ce34a70f9badc6
+References: <CGME20250527093429epcas2p1ae70ad7304305bf547ce34a70f9badc6@epcas2p1.samsung.com>
 
 Please backport 32e92d9f6f87 ("iommu/iova: Separate out rcache init") to
 linux-5.15.y
@@ -129,14 +127,14 @@ As you metioned in commit message, fails in init_iova_rcaches() are not
 handled safely, 
 and a problem actually occurs.
 
-By the context of the 2 lines below, 
-callback of cpuhp may be called before the percpu variable is allocated .
+By the context of the 2 lines below in linux-5.15.y, 
+callback of cpuhp may be called before the percpu variable is allocated.
 
 cpuhp_state_add_instance_nocalls(CPUHP_IOMMU_IOVA_DEAD, &iovad->cpuhp_dead);
 init_iova_rcaches(iovad);    
 
 The problem occurred in the Linux kernel version 5.15.144, if
-remove_cpu(cpu) is called between 2 line, 
+remove_cpu(cpu) is called between 2 line. 
 The following is the panic log:
 [    2.097125][    T1] Unable to handle kernel paging request at virtual
 address ffffffcb74a6b004
