@@ -1,174 +1,103 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0B6C2CA8
-	for <virtualization@lists.linux.dev>; Wed, 28 May 2025 09:08:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D85D42153C6
+	for <virtualization@lists.linux.dev>; Wed, 28 May 2025 11:07:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748423335; cv=none; b=qINPZB7qU/a5Hmbmd9eOkpPkCtdDmwDDfA/NvBqeJM9xXLaaVERrZ1KizbsWMbUSfrkIvTFxab4PEZIYl00vz2QrQnAugadgtDyNx8g8Cp3PDVake6u7XOM7kgMviGFiaAJ0fkdzzQhXK8u2GxaKc84M9K0wtIuz9llGOj3ZqtU=
+	t=1748430471; cv=none; b=XnX8zN9njWQ13n/B414rOgh2RPiTh2IWz0h2tmzjd/Abj9T/YYJIpUkHTIKBmCwZtQhLICqsQNFgLS+8VdtFgR20W6SB5qXmVzqRUDoVkJYdXJFh7KKaI6GzTvwyEDXFCUDRmAeSRipXajmoGI+2ad9vQ/sJwwOaoBJ7l6R1bKQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748423335; c=relaxed/simple;
-	bh=HeRntkvpjTLIxIK7T/7PBTHCgMLMpgZe/nO0/0LPjDw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=WQPHSOdRr1fJQRIcEoZnJMSLcahok5GPROT++QDd/NeqvpXR+uP4QCXDOmHI4/CnCjSL+ukht6lvrO28GN1u4tYCzuQKr8m5ijTfgANJT1sWvPdt8dthjxdteh65v8EGePr4PyUkYSo3lhsej2z4sn7oDytnUscTHJwpt8BsW8Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J7bz+mpb; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1748430471; c=relaxed/simple;
+	bh=jF/5ubFo89BoEZAJxrybV/UPR1THG6liaCfHYoxNyQY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sCD3b7z02W1LLpe+huiluNBb2LlcvrSmn+7l1nJeAwW0ptNrRdYFd2I4wOgDIPZuZ5m/mkMOqCYgVUjk2IkcPirUIcPj2Inl7WYnFeonxEobA53jRtCBWEo7cOhLlhSxMZymiZqluusC9+APmLyQQhiZG4O+biMpUEU05qiDPH0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R/EcULKd; arc=none smtp.client-ip=209.85.208.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J7bz+mpb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1748423332;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=K6fOjoths9BP+7g43cHI3UErFOLHs1REkE1Ir6J/HUc=;
-	b=J7bz+mpbE7IQQhaIpGwDuP0MWCiAg86qqcGKbW3RTlMS3WHu6ThOlj9AoM/ltdPId3vTTn
-	P0apfR3H1Ml5FMb2sDhMuZurXxqjMsOkXUo7FMlTVRPVn6Gu1jr5BdVLT5t3TavMBg+kR5
-	cy6m275FBy/SDXIvyiqlA5knttw6woQ=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-117-WHOdfN0wP9q8TOivYLd5MA-1; Wed, 28 May 2025 05:08:51 -0400
-X-MC-Unique: WHOdfN0wP9q8TOivYLd5MA-1
-X-Mimecast-MFC-AGG-ID: WHOdfN0wP9q8TOivYLd5MA_1748423330
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-442d472cf7fso35286645e9.3
-        for <virtualization@lists.linux.dev>; Wed, 28 May 2025 02:08:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748423330; x=1749028130;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R/EcULKd"
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-32923999549so40581561fa.2
+        for <virtualization@lists.linux.dev>; Wed, 28 May 2025 04:07:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748430468; x=1749035268; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=K6fOjoths9BP+7g43cHI3UErFOLHs1REkE1Ir6J/HUc=;
-        b=MsNg5HwtNFg47Z08vQQ+Q1YRuEMei/rO5hUfkaGnAPNA+HFuBu6A6bWz6zG73DAQmU
-         7huykk2vtmKg2HdE9uXxzZhdzVGGTYlZMwSq6c/RJoT+D61o3C5zH2zMUlFg4fmkFKli
-         MoYQ9o80sMMLqovF66Yd2B2RhIZBKjnpzkDjfipeCDO3owM6QnFAEm07sR5V/To4KyL5
-         9BKwTseEE98wXu4qRAyw09hWhVPH/ReFy3tE+JblIaFpVudMbCWBJXizpzeoDcLyQhQg
-         QbNrMtGN32k6Z+XsDQKpfwH65KPGlpZrau9xYtlqUfm1FUkrSXdX04p0xGuw9sCd1UUA
-         5Z1g==
-X-Gm-Message-State: AOJu0Yxk5jVSFUp/l2tIRaabnrTIB7aArgtNwEGxS5ZGG3W1khZIXEmW
-	tVsW1CzmiuF8SXRnt1X45SwSBMoFjGGrU6ALMcIsm6cft+ntZJ3zIKiJfLE8tA6B4YS6nc/lIrM
-	D2BnUMus9zpOxl0OE9zeFVJZXflyB4l76C76Gz47wTC5qpZPedLxR3tl3FPr1tvpNnAM3
-X-Gm-Gg: ASbGncthZiSH+wcPrsGquh8pRoq0xuEG3yGWPuW+POJa1WdXuOj4xw3H7EgPNTZmjmT
-	wB+m6l8b7zRjUiZeeU7cluO4NacgWmw6Ho0WNu8atL34B5Jaont3Q0Edn9vkxGq+r2AiuioY7cA
-	ldxprsTJfh1enWJeFJqecMOGmm7CPnBWSoc0poIBLZ8rY2Ew1RpX0zRpexI+FnmQv5GgY3FGg5E
-	Mp/1c9sRRLMBvQZCi3Mz6EQeRkmrkrNYMWErQ1PDRkWlvrmBBOdPCL01QigbDlEAOyVJlBTp49E
-	8IQF4uyJZWf5O+ZFR4O5xBGrmI8SAUlzC+UVppvvfTHSbzl3rBISVdy8EOu5
-X-Received: by 2002:a05:600c:64c6:b0:43d:300f:fa1d with SMTP id 5b1f17b1804b1-44c937d125amr158521945e9.31.1748423329750;
-        Wed, 28 May 2025 02:08:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHSUDpB7MCB0r+KZHQbLDKkjrX6HPTl91hhU9m2/A027cB52iPz1nlOjL0WRytjQ2mFsWDovg==
-X-Received: by 2002:a05:600c:64c6:b0:43d:300f:fa1d with SMTP id 5b1f17b1804b1-44c937d125amr158521515e9.31.1748423329064;
-        Wed, 28 May 2025 02:08:49 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-134-35.retail.telecomitalia.it. [82.53.134.35])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45006498c72sm14805555e9.2.2025.05.28.02.08.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 May 2025 02:08:48 -0700 (PDT)
-Date: Wed, 28 May 2025 11:08:37 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] vsock/test: Cover more CIDs in transport_uaf
- test
-Message-ID: <7zqv5toj2qjucy7fvaebbpwj6pth53uunsbapwhgrhwbr5pq5t@gp7h6klhr5sj>
-References: <20250523-vsock-test-inc-cov-v1-1-fa3507941bbd@rbox.co>
- <limbmrszio42lvkmalapooflj5miedlszkmnnm4ckmy2upfghw@24vxuhgdji2z>
- <1f5cc46a-de4c-4361-a706-fc7fe06a7068@rbox.co>
- <gfmoupl72tjyymhwxcstwpgaabbfaz6f4v6vj4lwwzwssg577c@urkmgn7rapnj>
- <151bf5fe-c9ca-4244-aa21-8d7b8ff2470f@rbox.co>
- <skvayogoenhntikkdnqrkkjvqesmpnukjlil6reubrouo45sat@j7zw6lfthfrd>
- <54959090-440e-49e8-80b3-8eee0ef4582c@rbox.co>
+        bh=jF/5ubFo89BoEZAJxrybV/UPR1THG6liaCfHYoxNyQY=;
+        b=R/EcULKdy834mlo0aAKi63rxEjdEVdCYbkppNNs8lbCop3z+q0c7MQ9LNJS3owPH6N
+         X5/SR7Lf6pkN2HLQeB5SR9D8cZ44XyTwEti2prSc7+/nr/7qvfti7u17Am3qgHtOancE
+         2cyOzF3yksMMBfGQNGjKkKQniRR8QMdF1zFWwMhYlbK99dbexLlFTE7XAYLY6Xafnt2Y
+         lh3Nm1RevLOiJRM6hCUuAlN91UPNIRXrZNaCoQ+B8SEB0ePDqzk1JCP5BA4GzstKyMa+
+         mtCQssI+5sFzaruVv084zbaBII45ZIKAtMD2ky0PLvQMP9LEdwTh2ZkI5Kg/d8dFsSGU
+         qZXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748430468; x=1749035268;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jF/5ubFo89BoEZAJxrybV/UPR1THG6liaCfHYoxNyQY=;
+        b=og+V/g0EchamaTAZrPVmLg64K3PdHpSO0wjNVjd/aF5NBZF93RFcXEPiKBBFvR7I9D
+         i3FaN4gwFmYB9kbJA4TjivU1jB4mGaFR8qFWR2wHYjW8GLz45cUzAZSmDbnjoAjN4XkV
+         /HIr2yQiGdNOJnoEUEfbKlm7SLSy0fMKsOYFmmyX2Sd0QKXU43ZW1JBMNAupOWVNKL/6
+         cF56dOkArt0tDjsNP/GQeuXFiLlceTTesrxalkolT3xwtqbB8/5tSr1RoqCO7yZntu+I
+         cz/MGHs4a652j7lsWaTOtYXYldlRzKSkFgzgiiH637708sjVHdwGYXGZq1Azgw5ryDLP
+         DEng==
+X-Forwarded-Encrypted: i=1; AJvYcCW0bkvTSVw7lLxh4yPB0/+lzV9KqGhgvfabWDOT7UUTwAP1O8SBi7Tdnvrv4hpGKtI/nZM9T8Mv8EfsN6hL9w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyCDPfCjh7/RFrFbHwGLOH2HuXdxh1FHJGx5Mqg9vEjM75y0H4T
+	gvy3UyF+oePBYsyhZZH5oHDn7jB8JfZl7LiULr7DtV5YqIuZ0vBbKNkP9IM+h2Zc1FA8y1+SYFo
+	4w26aT+OtiqCzaXbcZFAis57KzDr3Dq0=
+X-Gm-Gg: ASbGncvSu4KP3udn4RpuUoBb990VvG7utOUo+Slvg+OPRsme5VXqk9mOe6zcOZ2u5+U
+	bhzGN60UMnGg8SRwKVjtMIw2faWUvIhUFRkD1XZBZpy2iygHoP70Y97juZ/H/3sFAitxsHkB9co
+	b7rBpHPSTLhUv4PsZdCVwplSk7V602YT19JKTk3iYYXSmp/bXigNDkyBBAvyR5tAU=
+X-Google-Smtp-Source: AGHT+IE1hcIMK7m1GKoGJB24P7DGefofaI/Vg8OKATdfKWNBjeH6OMyp4e7LeetXAmTIp+kezDsWsaZdJxJ8WU97Ous=
+X-Received: by 2002:a2e:a9ab:0:b0:327:fec0:b85d with SMTP id
+ 38308e7fff4ca-3295b9e5920mr57437991fa.21.1748430467655; Wed, 28 May 2025
+ 04:07:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <54959090-440e-49e8-80b3-8eee0ef4582c@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VErlnLkwVmqZ-OCzb3IARnN0USd7GwD7A0Yfngg5z0k_1748423330
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+References: <20250412-virtio-media-v3-1-97dc94c18398@gmail.com>
+ <20250526141316.7e907032@foz.lan> <20250527102111-mutt-send-email-mst@kernel.org>
+ <20250527163927.02924adc@sal.lan> <20250527110444-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250527110444-mutt-send-email-mst@kernel.org>
+From: Alexandre Courbot <gnurou@gmail.com>
+Date: Wed, 28 May 2025 20:07:34 +0900
+X-Gm-Features: AX0GCFt5INry7hbLxnLIuUw8ffHrRUe_PZb75vuWFFXrALkR7hnpqJJcOCl5zNg
+Message-ID: <CAAVeFuJ-zbbUT3ss5rw-=Sx52aoLxf7BCLz9tPxcA2AY+PX+yQ@mail.gmail.com>
+Subject: Re: [PATCH v3] media: add virtio-media driver
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
+	Hans Verkuil <hverkuil@xs4all.nl>, Albert Esteve <aesteve@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	gurchetansingh@google.com, daniel.almeida@collabora.com, adelva@google.com, 
+	changyeon@google.com, nicolas.dufresne@collabora.com, 
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 28, 2025 at 10:58:28AM +0200, Michal Luczaj wrote:
->On 5/27/25 10:41, Stefano Garzarella wrote:
->> On Mon, May 26, 2025 at 10:44:05PM +0200, Michal Luczaj wrote:
->>> On 5/26/25 16:39, Stefano Garzarella wrote:
->>>> On Mon, May 26, 2025 at 02:51:18PM +0200, Michal Luczaj wrote:
->>>>> On 5/26/25 10:25, Stefano Garzarella wrote:
->>>>>> On Fri, May 23, 2025 at 12:31:16AM +0200, Michal Luczaj wrote:
->>>>>>> Note that having only a virtio transport loaded (without vhost_vsock) is
->>>>>>> unsupported; test will always pass. Depending on transports available, a
->>>>>>
->>>>>> Do you think it might make sense to print a warning if we are in this
->>>>>> case, perhaps by parsing /proc/modules and looking at vsock
->>>>>> dependencies?
->>>>>
->>>>> That'd nice, but would parsing /proc/modules work if a transport is
->>>>> compiled-in (not a module)?
->>>>
->>>> Good point, I think not, maybe we can see something under /sys/module,
->>>> though, I would say let's do best effort without going crazy ;-)
->>>
->>> Grepping through /proc/kallsyms would do the trick. Is this still a sane
->>> ground?
->>
->> It also depends on a config right?
->> I see CONFIG_KALLSYMS, CONFIG_KALLSYMS_ALL, etc. but yeah, if it's
->> enabled, it should work for both modules and built-in transports.
+Hi Michael,
+
+On Wed, May 28, 2025 at 12:06=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
+> wrote:
 >
->FWIW, tools/testing/selftests/net/config has CONFIG_KALLSYMS=y, which
->is enough for being able to check symbols like virtio_transport and
->vhost_transport.
-
-Ok, I see, so let's go in that direction.
-
+> On Tue, May 27, 2025 at 04:39:27PM +0200, Mauro Carvalho Chehab wrote:
+> > > It's up to you though.
+> > > I can keep it in next for now, so it gets some coverage by
+> > > tools scanning that tree.
+> >
+> > Sure, feel free to keep it on next if you prefer so. Just
+> > please don't submit it upstream while we don't review and
+> > properly test it.
 >
->Administrative query: while net-next is closed, am I supposed to mark this
->series as "RFC" and post v2 for a review as usual, or is it better to just
->hold off until net-next opens?
+> No prob. I just want to see it get reviewed and merged.
+> My understanding is, it wasn't because maintainers were
+> not Cc'd so that should be all ironed out now.
+> Alexandre, do you want this in next for now or just drop it?
 
-Whichever you prefer, if you are uncertain about the next version and 
-want to speed things up with a review while waiting, then go with RFC, 
-but if you think all comments are resolved and the next version is ready 
-to be merged, wait for the reopening.
-Thanks for asking!
-
->
->>>>>>> +static void test_stream_transport_uaf_client(const struct test_opts *opts)
->>>>>>> +{
->>>>>>> +	bool tested = false;
->>>>>>> +	int cid;
->>>>>>> +
->>>>>>> +	for (cid = VMADDR_CID_HYPERVISOR; cid <= VMADDR_CID_HOST + 1; ++cid)
->>>>>>
->>>>>>> +		tested |= test_stream_transport_uaf(cid);
->>>>>>> +
->>>>>>> +	if (!tested)
->>>>>>> +		fprintf(stderr, "No transport tested\n");
->>>>>>> +
->>>>>>> 	control_writeln("DONE");
->>>>>>
->>>>>> While we're at it, I think we can remove this message, looking at
->>>>>> run_tests() in util.c, we already have a barrier.
->>>>>
->>>>> Ok, sure. Note that console output gets slightly de-synchronised: server
->>>>> will immediately print next test's prompt and wait there.
->>>>
->>>> I see, however I don't have a strong opinion, you can leave it that way
->>>> if you prefer.
->>>
->>> How about adding a sync point to run_tests()? E.g.
->>
->> Yep, why not, of course in another series :-)
->>
->> And if you like, you can remove that specific sync point in that series
->> and check also other tests, but I think we have only that one.
->
->OK, I'll leave that for later.
-
-Yep, feel free to discard my suggestion, we can fix it later.
-
-Thanks,
-Stefano
-
+I think it doesn't hurt to give some exposure to this driver, if Mauro
+is ok with it (and it eventually gets merged through the media tree).
