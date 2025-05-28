@@ -1,90 +1,125 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E5B517B50F;
-	Wed, 28 May 2025 20:45:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A0DC14A8E
+	for <virtualization@lists.linux.dev>; Wed, 28 May 2025 20:47:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748465139; cv=none; b=Czbpwx5GIHpLZsnLVf+WgbZvdwp+U7zHNwrNk9ele2s9RpST3aIVxcaXdA1cgcPGn8iXyY5zD7KzWA6D5bDaOLzaAK5QrPZ6sogLruhIS0zWxiUMz1OxKlt9sEw+umux3BZKsIOjzv0B+8PwvNfbLEdabZ4WJy3KI/PuZB3clnw=
+	t=1748465225; cv=none; b=hoanoFD7k8cQlVVMaEXyT6gsU/jBiLdWB+EE2KHgl8pyfIM80U05P9taA5k9vWOwVAkeLhWaslZdCUXrr/VmHN1HWQBIScp5oRoRJOHwQHZmU2voBx2NkaQmyu3lgZ6OTy+bJwZ6txuu7KXgW8n4/GYX+ft9hc/OO7i2bCN9TIs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748465139; c=relaxed/simple;
-	bh=3hVQnUv6HQ7b3Vcrs7g4iPMlZImqNuEe5cv19aJL/X0=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=GDDTY2xOqHXaZ4v69QP+OtmYt230vroX5fqK3FKACRERf7QubaykPnuIYkBCPFhak+BrMUSJPMj5xMvOe7KBzdoWDj7pxoOVozV2+DOAk3HgQc3HTsS3w9CqkqvF6wydB5D/gdkhBXoKLSsOW41DDzhfSACLKfVtvCKDkL4jbi8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=m+YoZGYd; arc=none smtp.client-ip=185.226.149.37
+	s=arc-20240116; t=1748465225; c=relaxed/simple;
+	bh=fVp99q/7nR/2Qu8kOa163BQ8/bMTec7kquQzdJRIRwg=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=eKeTInWVrS6h2fwfUhHtYR5mrML/lt2ia6vCkYLqAOX9uXgtEEsjxxWBLLW1CFnInS2FCh4+sIlLsGjafeeZckbtIeJEqROnr9FPRlkRsdakCmz+IcPVpV4LBQhPAB+P8VlEoLQka8K4CFNv/yppmPrxDMB2P2GvzkGfRIkWkpc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=d5usDPDZ; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="m+YoZGYd"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="d5usDPDZ"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1uKNeZ-006kdy-2i; Wed, 28 May 2025 22:45:35 +0200
+	id 1uKNfw-006aPP-PW
+	for virtualization@lists.linux.dev; Wed, 28 May 2025 22:47:00 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
-	Message-Id:Date:Subject:From; bh=Rd9rH5LWALXhky9SyUkPFVgbR0mem8A0/IW38W7sOqo=
-	; b=m+YoZGYdqcPmj1T0bKHa16j87Dv+HLFEH7mVQHnKTwJ98iE+crUre3xSDQxCQzW57m/yJ4A4Z
-	0+fkuSmDK5T2v88WiXrnjgotOical13YGyZk6P2dX0S4b1+zhJ44JQp7M1cmckF9HbkLZWSiULPsT
-	bDqAIBimRKEzTDVJNvozlbCoHbnAFVrHSaOV+j8DD52rEYxYxVwHgEv9HPbXNjCJx2phnlkgx9/Vg
-	aRe898Aoi8RLiYHV2wmH+bNIQFUHdr2MD/Qq9f2bUwJJRCFltIpqUrCLI8UlKEBcw8HteX3gSlg7M
-	529utMbocyijxvXsaZDb8L2YvnPlQTXUlf30qA==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
+	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
+	bh=mHGbDnTnT+lOyuS9ni4kZmOkuGfOKTTj/i53GQlfiKA=; b=d5usDPDZ82aCjqem6aXrDuz4pd
+	GCzPX05k0anzYyu3ogAhKHm719fu9E0pDSswit8b2N/i3B2zfTlYleOIHJ7Qzw9QAWjAOeVz+AnJV
+	/4I8DH8W9xJp8EP2FDd4MGZofmtiAqGPoMZYE9lsNbhqbKkzi9t/mMcYranG5hr8tIy2m4Ob3YRK+
+	5gzZbHJnH9hmOoN6Tk8w7d28wJn0o4FHup7DtZRNO/L1ZQKWP/kdE9ebrCf4tC1xtyJVYm22hbZga
+	xju4WjWu/zg/oLdPuTdIlaXEPYa6loK66DK9G5JedE8ZQoSgQi/DEd8la4IunHkRcdUuHTGEc40Yp
+	e2HuW1EA==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1uKNeY-0008Q6-Bh; Wed, 28 May 2025 22:45:34 +0200
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	id 1uKNfw-0005OQ-C3; Wed, 28 May 2025 22:47:00 +0200
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1uKNeA-00GEBu-SY; Wed, 28 May 2025 22:45:10 +0200
-From: Michal Luczaj <mhal@rbox.co>
-Subject: [PATCH RFC net-next v2 0/3] vsock/test: Improve transport_uaf test
-Date: Wed, 28 May 2025 22:44:40 +0200
-Message-Id: <20250528-vsock-test-inc-cov-v2-0-8f655b40d57c@rbox.co>
+	id 1uKNfg-00GL99-0q; Wed, 28 May 2025 22:46:44 +0200
+Message-ID: <1ed7b81c-4c7f-4c4b-9fb5-d231aeeeb5b6@rbox.co>
+Date: Wed, 28 May 2025 22:46:43 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIALh1N2gC/22NwQrCMBBEf6Xs2ZVmY231JAh+gFfpoUm3NgiJJ
- CFUSv/dmLPHN8y8WSGwNxzgXK3gOZlgnM1Auwr0PNgnoxkzA9XU1JKOmILTL4wcIhqrUbuEqiP
- ZEalRtR3k4dvzZJYifcD9dv1lliNaXiL0GWYTovOfcppEqRV/Q/KfPwkUOA2yqdvTQSg1Xrxyy
- 1476Ldt+wKHbWUFwwAAAA==
-X-Change-ID: 20250326-vsock-test-inc-cov-b823822bdb78
+User-Agent: Mozilla Thunderbird
+From: Michal Luczaj <mhal@rbox.co>
+Subject: Re: [PATCH net-next] vsock/test: Cover more CIDs in transport_uaf
+ test
 To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.2
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20250523-vsock-test-inc-cov-v1-1-fa3507941bbd@rbox.co>
+ <limbmrszio42lvkmalapooflj5miedlszkmnnm4ckmy2upfghw@24vxuhgdji2z>
+ <1f5cc46a-de4c-4361-a706-fc7fe06a7068@rbox.co>
+ <gfmoupl72tjyymhwxcstwpgaabbfaz6f4v6vj4lwwzwssg577c@urkmgn7rapnj>
+ <151bf5fe-c9ca-4244-aa21-8d7b8ff2470f@rbox.co>
+ <skvayogoenhntikkdnqrkkjvqesmpnukjlil6reubrouo45sat@j7zw6lfthfrd>
+ <54959090-440e-49e8-80b3-8eee0ef4582c@rbox.co>
+ <7zqv5toj2qjucy7fvaebbpwj6pth53uunsbapwhgrhwbr5pq5t@gp7h6klhr5sj>
+Content-Language: pl-PL, en-GB
+In-Reply-To: <7zqv5toj2qjucy7fvaebbpwj6pth53uunsbapwhgrhwbr5pq5t@gp7h6klhr5sj>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Increase the coverage of a test implemented in commit 301a62dfb0d0
-("vsock/test: Add test for UAF due to socket unbinding"). Take this
-opportunity to factor out some utility code, drop a redundant sync between
-client and server, and introduce a /proc/kallsyms harvesting logic.
+On 5/28/25 11:08, Stefano Garzarella wrote:
+> On Wed, May 28, 2025 at 10:58:28AM +0200, Michal Luczaj wrote:
+>> Administrative query: while net-next is closed, am I supposed to mark this
+>> series as "RFC" and post v2 for a review as usual, or is it better to just
+>> hold off until net-next opens?
+> 
+> Whichever you prefer, if you are uncertain about the next version and 
+> want to speed things up with a review while waiting, then go with RFC, 
+> but if you think all comments are resolved and the next version is ready 
+> to be merged, wait for the reopening.
+> Thanks for asking!
 
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
----
-Changes in v2:
-- Speed up: don't bother checking EINTR or respecting timeout on connect()s
-- Introduce get_transports(), warn on unsupported setup [Stefano]
-- Comment the code, drop the sync, introduce vsock_bind_try() [Stefano]
-- Link to v1: https://lore.kernel.org/r/20250523-vsock-test-inc-cov-v1-1-fa3507941bbd@rbox.co
+All right then, I gave RFC a try:
+https://lore.kernel.org/netdev/20250528-vsock-test-inc-cov-v2-0-8f655b40d57c@rbox.co/
 
----
-Michal Luczaj (3):
-      vsock/test: Introduce vsock_bind_try() helper
-      vsock/test: Introduce get_transports()
-      vsock/test: Cover more CIDs in transport_uaf test
+>>>>>>>> +static void test_stream_transport_uaf_client(const struct test_opts *opts)
+>>>>>>>> +{
+>>>>>>>> +	bool tested = false;
+>>>>>>>> +	int cid;
+>>>>>>>> +
+>>>>>>>> +	for (cid = VMADDR_CID_HYPERVISOR; cid <= VMADDR_CID_HOST + 1; ++cid)
+>>>>>>>
+>>>>>>>> +		tested |= test_stream_transport_uaf(cid);
+>>>>>>>> +
+>>>>>>>> +	if (!tested)
+>>>>>>>> +		fprintf(stderr, "No transport tested\n");
+>>>>>>>> +
+>>>>>>>> 	control_writeln("DONE");
+>>>>>>>
+>>>>>>> While we're at it, I think we can remove this message, looking at
+>>>>>>> run_tests() in util.c, we already have a barrier.
+>>>>>>
+>>>>>> Ok, sure. Note that console output gets slightly de-synchronised: server
+>>>>>> will immediately print next test's prompt and wait there.
+>>>>>
+>>>>> I see, however I don't have a strong opinion, you can leave it that way
+>>>>> if you prefer.
+>>>>
+>>>> How about adding a sync point to run_tests()? E.g.
+>>>
+>>> Yep, why not, of course in another series :-)
+>>>
+>>> And if you like, you can remove that specific sync point in that series
+>>> and check also other tests, but I think we have only that one.
+>>
+>> OK, I'll leave that for later.
+> 
+> Yep, feel free to discard my suggestion, we can fix it later.
 
- tools/testing/vsock/util.c       | 84 ++++++++++++++++++++++++++++++++++++++--
- tools/testing/vsock/util.h       | 13 +++++++
- tools/testing/vsock/vsock_test.c | 83 ++++++++++++++++++++++++++++++---------
- 3 files changed, 158 insertions(+), 22 deletions(-)
----
-base-commit: 7e34abd434644fdc3f7efe02a7f0b7947cd06aac
-change-id: 20250326-vsock-test-inc-cov-b823822bdb78
+I was thinking about doing a console-output-beautification series
+with: 1) drop the redundant sync in test_stream_transport_uaf_*, 2) add a
+sync in run_tests(). But I guess we can have the sync dropping part here.
+Definitely less churn this way.
 
-Best regards,
--- 
-Michal Luczaj <mhal@rbox.co>
+Thanks,
+Michal
 
