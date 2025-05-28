@@ -1,258 +1,947 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D47624728B
-	for <virtualization@lists.linux.dev>; Wed, 28 May 2025 08:23:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 579E126A092
+	for <virtualization@lists.linux.dev>; Wed, 28 May 2025 08:42:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748420627; cv=none; b=qMPZj+yUPFOiy2O/5f6vyMuTfKZ2MOLGNfO7BqEnN6qkwodNLvMHiCWFchAdI6yPy0MRK6KA8ECCQ76TJdU3TJaVoEVbxWfD1iazmg/Xr8RldMJfVMYbYj2J7SZi1EkaxR+cxlGisinTZgmLwVqC938PYxW72AfIA3EsIPsb5xU=
+	t=1748421760; cv=none; b=KAvqaISqkZK1TwLCT4fR/vy58KBLa5U27GxoaJPltBX00TAaVgpyMmkrUG8PANXL6QdWGG7T5kulmxG4L0GmaHyur2dCr6UkhZptq1mbBaisGPPr5IqmsRmLSCksFpa04DwS3Y2hT2a43q32BHEmzPTkLe+Anl99LVenPRaVngM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748420627; c=relaxed/simple;
-	bh=hPpCkqmIV43PRTAs+6NgJYsugLDjdi0tBiqd5hG+J4U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=e4Z9qnq6z/CRoAHFn53pElhfm9EI6BjWTDVBWI6NlG83pE0c2mSzHvNfbRZ2st8Yij10FQ+y9bvZfkhpvzOI6K+up8KYh7EisErjxKfqs3ndRzXohEglmDu6gVaFkTR+U6GI3UEjG2ufEtsQ6qx6aqXopOGDVgyu+25GEZ4n5w8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=XQBmtfRd; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dvJt6W9e; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=XQBmtfRd; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dvJt6W9e; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1748421760; c=relaxed/simple;
+	bh=MQPDWV7r0RHu2w4W96VCQTnKfbdIE83e4A8rM/0jNHk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=nRCohF4w3PeoQl2+s1M0AIwuPwmr8Y9CJXsojAO5G94EA8kGHs5ak+FNxtT8/jsn/pM2Xorump13qpuTzTsJ+IuqjrYkLk8o/8vmfaLnITzTSSD10VcfVU6ayKmsCGKpWXUnrFpFyrxM5ezYpM6397OwAPwRcxvwQpXgKzVPd5U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DIENIk0V; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="XQBmtfRd";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dvJt6W9e";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="XQBmtfRd";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dvJt6W9e"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 5358A21D18;
-	Wed, 28 May 2025 08:23:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1748420622; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=IsYeUMzNWf+c4bLmoKUOHp5YpWvtC7v74oJ9jXBtnHM=;
-	b=XQBmtfRd9f0BD+wpJmfsDg89bjVUFtWxyB8+k37xabISALbh+H9l1F8nnknU7GJur2Ir6r
-	Kmlkb+phPU6vHmBUvrOzKLyPdCDiqZ5OX7tAinz1caXlC0ZC8KfcFq7XHirFV3R3ifXNaY
-	lyqWj/ehrK8c6iCWlXr1VU2Q1LKJ/G4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1748420622;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=IsYeUMzNWf+c4bLmoKUOHp5YpWvtC7v74oJ9jXBtnHM=;
-	b=dvJt6W9eqTR5Rd+KiuP01H+RwKo8jKPYSaFQcOmtWsSoyOZPFSM4P/6LbT/SZoQfSnPT4b
-	VftOkM9jdhB63YBw==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1748420622; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=IsYeUMzNWf+c4bLmoKUOHp5YpWvtC7v74oJ9jXBtnHM=;
-	b=XQBmtfRd9f0BD+wpJmfsDg89bjVUFtWxyB8+k37xabISALbh+H9l1F8nnknU7GJur2Ir6r
-	Kmlkb+phPU6vHmBUvrOzKLyPdCDiqZ5OX7tAinz1caXlC0ZC8KfcFq7XHirFV3R3ifXNaY
-	lyqWj/ehrK8c6iCWlXr1VU2Q1LKJ/G4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1748420622;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=IsYeUMzNWf+c4bLmoKUOHp5YpWvtC7v74oJ9jXBtnHM=;
-	b=dvJt6W9eqTR5Rd+KiuP01H+RwKo8jKPYSaFQcOmtWsSoyOZPFSM4P/6LbT/SZoQfSnPT4b
-	VftOkM9jdhB63YBw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CC0DA136E0;
-	Wed, 28 May 2025 08:23:41 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id pmh/MA3INmgxVwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 28 May 2025 08:23:41 +0000
-Message-ID: <1926848a-9334-4c15-a076-a93ef29c80d6@suse.de>
-Date: Wed, 28 May 2025 10:23:41 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DIENIk0V"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1748421757;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pHVZFZS1fa9rWPWraBTZ2PRVzHOX2XKsUZnAQXgZ7Iw=;
+	b=DIENIk0V8PvmvjqZXLktaxs+69t82NSG0Tw+zjb//nCOYGnlhUeeFoE5hBDGJQ18gz7rRu
+	fCQNC+lJafkoNWLjNh1E58t3dCK2CcGQ7NgKOu9IFCS2oy93C8IjZ8jLd1QqGn3H1cy8QZ
+	tp+a/s+SAfISkD0uSvpeQybr1jGKkFA=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-369-B13xBon2Ny-wDYyabisdzg-1; Wed, 28 May 2025 04:42:33 -0400
+X-MC-Unique: B13xBon2Ny-wDYyabisdzg-1
+X-Mimecast-MFC-AGG-ID: B13xBon2Ny-wDYyabisdzg_1748421752
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43d209dc2d3so26020795e9.3
+        for <virtualization@lists.linux.dev>; Wed, 28 May 2025 01:42:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748421752; x=1749026552;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pHVZFZS1fa9rWPWraBTZ2PRVzHOX2XKsUZnAQXgZ7Iw=;
+        b=qo1LyuJMvceilSf/c7VpsL4JxLc3nQUQHs7qjZhDxT9cp9DL4jzixbMAhpXzlzSJOd
+         n8HduQv0guj07YZUmt5irTUQPPTWjqIrlSsgLb09ECypqsxxlMBBFqa/zip4v+dUp8a3
+         XWS/yzEXA0ofzQ1S9pbv+0pb0fZNHc6FIYCxvZHP7CuQANqAlBF5UJctZ44YZ1FjDH7w
+         7x8SlKiYrS2wpYnlQJWcfI16sJtwj2J5Vhj/4tzW6GFoOF8CxfOjmbGX6WjvwjBJcHQV
+         rqeR1RjDs+yR6a1F3O9z44PZqQtq2erNKclacDnWazUUIGy6lRYwDIG0FFAe+7g6csxW
+         2Ijg==
+X-Forwarded-Encrypted: i=1; AJvYcCU78cRF098wVImyB8BMMBG9aJYuzPS3DIP+qfkruaSbKFdXjD/WOn/f1clt0zo1ozeQkxKGe2bwUp9jSqdQ4Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz2+0S7OuySEZb0VMfVWzjKhxJGOiWrjvwXz0JBKfEcG9Es/DGe
+	RBEAWzC5T3cwtNLZ4LAGv/zD4CsQo9BG4hZfFIjk26YOTyA6ZC6XrtXvniMr/BVSnb4sA9zx82r
+	AiWqycwPgbtseoOHnT/L60qXjbSgji4crZRxkoAuLKnnbo7e6O3kjuJCGKagWfvXZ5RzZ
+X-Gm-Gg: ASbGncvwrWGrB4lgeRoylBLT55oQ2c+rrGeOgp+1MK7jfQWVX2muBiU4nMm82UUACun
+	hRBVkArETmwXEmzzdt4piekV0u9F9ZVz2hzmRiCRvbXwSo/kGQsvM1M9w+4zEAn9tsp5JY7azOq
+	nUMGhpm5WkBCcfdfe2v4KRFqJQJx6+kQf2PucW6DFwfdHsjyO5JcjFcrEY9bHKV/HqjFmwt1IgT
+	TIEvoaRA0sUoHqZ64WlcInUZ+oYEM+iN+Rdb1vnEJkM/6K6qnSVT5z5F6IT0Hn4Y4yxoV2L17tP
+	s5bWf4TlRQAUZ6jcTBgkHOJQ1KXHsfdPCa+3V/4Sz6pG7r8Cms2bP7cn7cP8
+X-Received: by 2002:a05:600c:470b:b0:442:ccf9:e6f2 with SMTP id 5b1f17b1804b1-44c91dceb03mr175213775e9.16.1748421752050;
+        Wed, 28 May 2025 01:42:32 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHNuCW5HXGwi/4xGSaC2njkJeERkK949nit0Lq8CufwPmLuRJIhGmKIp/EVE+I3+UGcMKBYrw==
+X-Received: by 2002:a05:600c:470b:b0:442:ccf9:e6f2 with SMTP id 5b1f17b1804b1-44c91dceb03mr175213255e9.16.1748421751289;
+        Wed, 28 May 2025 01:42:31 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-134-35.retail.telecomitalia.it. [82.53.134.35])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-44fcbd61630sm39727565e9.0.2025.05.28.01.42.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 May 2025 01:42:30 -0700 (PDT)
+Date: Wed, 28 May 2025 10:42:23 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net-next v9] selftests/vsock: add initial vmtest.sh for
+ vsock
+Message-ID: <mti4hxjrs6rzleoijjhby5hdghgcvsegwfytizxngg7bjxs3ds@prhrn3b3o6os>
+References: <20250527-vsock-vmtest-v9-1-24eaeec6fa55@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 00/25] drm/dumb-buffers: Fix and improve buffer-size
- calculation
-To: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
- maarten.lankhorst@linux.intel.com, geert@linux-m68k.org,
- tomi.valkeinen@ideasonboard.com
-Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
- freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org
-References: <20250311155120.442633-1-tzimmermann@suse.de>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20250311155120.442633-1-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Score: -2.80
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.996];
-	MIME_GOOD(-0.10)[text/plain];
-	FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,linux-m68k.org,ideasonboard.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCPT_COUNT_TWELVE(0.00)[20];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCVD_TLS_ALL(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	TO_DN_NONE(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Level: 
+In-Reply-To: <20250527-vsock-vmtest-v9-1-24eaeec6fa55@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: TDchF2q4-CsxnEiCxFkj4i0i3T4X8odjXPYSfZ_JVos_1748421752
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-ping
+On Tue, May 27, 2025 at 05:36:54PM -0700, Bobby Eshleman wrote:
+>This commit introduces a new vmtest.sh runner for vsock.
+>
+>It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
+>H2G, and loopback. The testing tools from tools/testing/vsock/ are
+>reused. Currently, only vsock_test is used.
+>
+>VMCI and hyperv support is included in the config file to be built with
+>the -b option, though not used in the tests.
+>
+>Only tested on x86.
+>
+>To run:
+>
+>  $ make -C tools/testing/selftests TARGETS=vsock
+>  $ tools/testing/selftests/vsock/vmtest.sh
+>
+>or
+>
+>  $ make -C tools/testing/selftests TARGETS=vsock run_tests
+>
+>Example runs (after make -C tools/testing/selftests TARGETS=vsock):
+>
+>$ ./tools/testing/selftests/vsock/vmtest.sh
+>1..3
+>ok 0 vm_server_host_client
+>ok 1 vm_client_host_server
+>ok 2 vm_loopback
+>SUMMARY: PASS=3 SKIP=0 FAIL=0
+>Log: /tmp/vsock_vmtest_m7DI.log
+>
+>$ ./tools/testing/selftests/vsock/vmtest.sh vm_loopback
+>1..1
+>ok 0 vm_loopback
+>SUMMARY: PASS=1 SKIP=0 FAIL=0
+>Log: /tmp/vsock_vmtest_a1IO.log
+>
+>$ mkdir -p ~/scratch
+>$ make -C tools/testing/selftests install TARGETS=vsock INSTALL_PATH=~/scratch
+> [... omitted ...]
+>$ cd ~/scratch
+>$ ./run_kselftest.sh
+> TAP version 13
+> 1..1
+> # timeout set to 300
+> # selftests: vsock: vmtest.sh
+> # 1..3
+> # ok 0 vm_server_host_client
+> # ok 1 vm_client_host_server
+> # ok 2 vm_loopback
+> # SUMMARY: PASS=3 SKIP=0 FAIL=0
+> # Log: /tmp/vsock_vmtest_svEl.log
+> ok 1 selftests: vsock: vmtest.sh
+>
+>Future work can include vsock_diag_test.
+>
+>Because vsock requires a VM to test anything other than loopback, this
+>patch adds vmtest.sh as a kselftest itself. This is different than other
+>systems that have a "vmtest.sh", where it is used as a utility script to
+>spin up a VM to run the selftests as a guest (but isn't hooked into
+>kselftest).
+>
+>Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+>---
+>Changes in v9:
+>- make kselftest build target depend on tools/testing/vsock sources (Stefano)
+>- add check_vng() for vng version checking (Stefano)
+>- add virtme_ssh_channel=tcp to kernel cmdline (Stefano)
+>- Link to v8: https://lore.kernel.org/r/20250522-vsock-vmtest-v8-1-367619bef134@gmail.com
 
-I'm still looking for more reviews; especially patches 1 and 2.
+Cool, this 
 
-Best regards
-Thomas
+>
+>Changes in v8:
+>- remove NIPA comment from commit msg
+>- remove tap_* functions and TAP_PREFIX
+>- add -b for building kernel
+>- Link to v7: https://lore.kernel.org/r/20250515-vsock-vmtest-v7-1-ba6fa86d6c2c@gmail.com
+>
+>Changes in v7:
+>- fix exit code bug when ran is kselftest: use cnt_total instead of KSFT_NUM_TESTS
+>- updated commit message with updated output
+>- updated commit message with commands for installing/running as
+>  kselftest
+>- Link to v6: https://lore.kernel.org/r/20250515-vsock-vmtest-v6-1-9af1cc023900@gmail.com
+>
+>Changes in v6:
+>- add make cmd in commit message in vmtest.sh example (Stefano)
+>- check nonzero size of QEMU_PIDFILE using -s conditional (Stefano)
+>- display log file path after tests so it is easier to find amongst 
+>other random names
+>- cleanup qemu pidfile if qemu is unable to remove it
+>- make oops/warning failures more obvious with 'FAIL' prefix in log
+>  (simply saying 'detected' wasn't clear enough to identify failing
+>  condition)
+>- Link to v5: https://lore.kernel.org/r/20250513-vsock-vmtest-v5-1-4e75c4a45ceb@gmail.com
+>
+>Changes in v5:
+>- make log file a tmpfile (Paolo)
+>- make sure both default and user defined QEMU gets handled by the dependency check (Paolo)
+>- increased VM boot up timeout from 1m to 3m for slow hosts (Paolo)
+>- rename vm_setup -> vm_start (Paolo)
+>- derive wait_for_listener from selftests/net/net_helper.sh to removes ss usage
+>- Remove unused 'unset IFS' line (Paolo)
+>- leave space after variable declarations (Paolo)
+>- make QEMU_PIDFILE a tmp file (Paolo)
+>- make everything readonly that is only read (Paolo)
+>- source ktap_helpers.sh for KSFT_PASS and friends (Paolo)
+>- don't check for timeout util (Paolo)
+>- add missing usage string for -q qemu arg
+>- add tap prefix to SUMMARY line since it isn't part of TAP protocol
+>- exit with the correct status code based on failure/pass counts
+>- Link to v4: https://lore.kernel.org/r/20250507-vsock-vmtest-v4-1-6e2a97262cd6@gmail.com
+>
+>Changes in v4:
+>- do not use special tab delimiter for help string parsing (Stefano + Paolo)
+>- fix paths for when installing kselftest and running out-of-tree (Paolo)
+>- change vng to using running kernel instead of compiled kernel (Paolo)
+>- use multi-line string for QEMU_OPTS (Stefano)
+>- change timeout to 300s (Paolo)
+>- skip if tools are not found and use kselftests status codes (Paolo)
+>- remove build from vmtest.sh (Paolo)
+>- change 2222 -> SSH_HOST_PORT (Stefano)
+>- add tap-format output
+>- add vmtest.log to gitignore
+>- check for vsock_test binary and remind user to build it if missing
+>- create a proper build in makefile
+>- style fixes
+>- add ssh, timeout, and pkill to dependency check, just in case
+>- fix numerical comparison in conditionals
+>- check qemu pidfile exists before proceeding (avoid wasting time waiting for ssh)
+>- fix tracking of pass/fail bug
+>- fix stderr redirection bug
+>- Link to v3: https://lore.kernel.org/r/20250428-vsock-vmtest-v3-1-181af6163f3e@gmail.com
+>
+>Changes in v3:
+>- use common conditional syntax for checking variables
+>- use return value instead of global rc
+>- fix typo TEST_HOST_LISTENER_PORT -> TEST_HOST_PORT_LISTENER
+>- use SIGTERM instead of SIGKILL on cleanup
+>- use peer-cid=1 for loopback
+>- change sleep delay times into globals
+>- fix test_vm_loopback logging
+>- add test selection in arguments
+>- make QEMU an argument
+>- check that vng binary is on path
+>- use QEMU variable
+>- change <tab><backslash> to <space><backslash>
+>- fix hardcoded file paths
+>- add comment in commit msg about script that vmtest.sh was based off of
+>- Add tools/testing/selftest/vsock/Makefile for kselftest
+>- Link to v2: https://lore.kernel.org/r/20250417-vsock-vmtest-v2-1-3901a27331e8@gmail.com
+>
+>Changes in v2:
+>- add kernel oops and warnings checker
+>- change testname variable to use FUNCNAME
+>- fix spacing in test_vm_server_host_client
+>- add -s skip build option to vmtest.sh
+>- add test_vm_loopback
+>- pass port to vm_wait_for_listener
+>- fix indentation in vmtest.sh
+>- add vmci and hyperv to config
+>- changed whitespace from tabs to spaces in help string
+>- Link to v1: https://lore.kernel.org/r/20250410-vsock-vmtest-v1-1-f35a81dab98c@gmail.com
+>---
+> MAINTAINERS                              |   1 +
+> tools/testing/selftests/vsock/.gitignore |   2 +
+> tools/testing/selftests/vsock/Makefile   |  17 ++
+> tools/testing/selftests/vsock/config     | 114 ++++++++
+> tools/testing/selftests/vsock/settings   |   1 +
+> tools/testing/selftests/vsock/vmtest.sh  | 487 +++++++++++++++++++++++++++++++
+> 6 files changed, 622 insertions(+)
+>
+>diff --git a/MAINTAINERS b/MAINTAINERS
+>index 657a67f9031ef7798c19ac63e6383d4cb18a9e1f..3fbdd7bbfce7196a3cc7db70203317c6bd0e51fd 100644
+>--- a/MAINTAINERS
+>+++ b/MAINTAINERS
+>@@ -25751,6 +25751,7 @@ F:	include/uapi/linux/vm_sockets.h
+> F:	include/uapi/linux/vm_sockets_diag.h
+> F:	include/uapi/linux/vsockmon.h
+> F:	net/vmw_vsock/
+>+F:	tools/testing/selftests/vsock/
+> F:	tools/testing/vsock/
+>
+> VMALLOC
+>diff --git a/tools/testing/selftests/vsock/.gitignore b/tools/testing/selftests/vsock/.gitignore
+>new file mode 100644
+>index 0000000000000000000000000000000000000000..9c5bf379480f829a14713d5f5dc7d525bc272e84
+>--- /dev/null
+>+++ b/tools/testing/selftests/vsock/.gitignore
+>@@ -0,0 +1,2 @@
+>+vmtest.log
+>+vsock_test
+>diff --git a/tools/testing/selftests/vsock/Makefile b/tools/testing/selftests/vsock/Makefile
+>new file mode 100644
+>index 0000000000000000000000000000000000000000..c407c0afd9388ee692d59a95f304182f067596e9
+>--- /dev/null
+>+++ b/tools/testing/selftests/vsock/Makefile
+>@@ -0,0 +1,17 @@
+>+# SPDX-License-Identifier: GPL-2.0
+>+
+>+CURDIR := $(abspath .)
+>+TOOLSDIR := $(abspath ../../..)
+>+VSOCK_TEST_DIR := $(TOOLSDIR)/testing/vsock
+>+VSOCK_TEST_SRCS := $(wildcard $(VSOCK_TEST_DIR)/*.c $(VSOCK_TEST_DIR)/*.h)
+>+
+>+$(OUTPUT)/vsock_test: $(VSOCK_TEST_DIR)/vsock_test
+>+	install -m 755 $< $@
+>+
+>+$(VSOCK_TEST_DIR)/vsock_test: $(VSOCK_TEST_SRCS)
+>+	$(MAKE) -C $(VSOCK_TEST_DIR) vsock_test
+>+TEST_PROGS += vmtest.sh
+>+TEST_GEN_FILES := vsock_test
+>+
+>+include ../lib.mk
+>+
+>diff --git a/tools/testing/selftests/vsock/config b/tools/testing/selftests/vsock/config
+>new file mode 100644
+>index 
+>0000000000000000000000000000000000000000..3bffaaf98fff92dc0e3bc1286afa3d8d5d52f4c7
+>--- /dev/null
+>+++ b/tools/testing/selftests/vsock/config
+>@@ -0,0 +1,114 @@
+>+CONFIG_BLK_DEV_INITRD=y
+>+CONFIG_BPF=y
+>+CONFIG_BPF_SYSCALL=y
+>+CONFIG_BPF_JIT=y
+>+CONFIG_HAVE_EBPF_JIT=y
+>+CONFIG_BPF_EVENTS=y
+>+CONFIG_FTRACE_SYSCALLS=y
+>+CONFIG_FUNCTION_TRACER=y
+>+CONFIG_HAVE_DYNAMIC_FTRACE=y
+>+CONFIG_DYNAMIC_FTRACE=y
+>+CONFIG_HAVE_KPROBES=y
+>+CONFIG_KPROBES=y
+>+CONFIG_KPROBE_EVENTS=y
+>+CONFIG_ARCH_SUPPORTS_UPROBES=y
+>+CONFIG_UPROBES=y
+>+CONFIG_UPROBE_EVENTS=y
+>+CONFIG_DEBUG_FS=y
+>+CONFIG_FW_CFG_SYSFS=y
+>+CONFIG_FW_CFG_SYSFS_CMDLINE=y
+>+CONFIG_DRM=y
+>+CONFIG_DRM_VIRTIO_GPU=y
+>+CONFIG_DRM_VIRTIO_GPU_KMS=y
+>+CONFIG_DRM_BOCHS=y
+>+CONFIG_VIRTIO_IOMMU=y
+>+CONFIG_SOUND=y
+>+CONFIG_SND=y
+>+CONFIG_SND_SEQUENCER=y
+>+CONFIG_SND_PCI=y
+>+CONFIG_SND_INTEL8X0=y
+>+CONFIG_SND_HDA_CODEC_REALTEK=y
+>+CONFIG_SECURITYFS=y
+>+CONFIG_CGROUP_BPF=y
+>+CONFIG_SQUASHFS=y
+>+CONFIG_SQUASHFS_XZ=y
+>+CONFIG_SQUASHFS_ZSTD=y
+>+CONFIG_FUSE_FS=y
+>+CONFIG_SERIO=y
+>+CONFIG_PCI=y
+>+CONFIG_INPUT=y
+>+CONFIG_INPUT_KEYBOARD=y
+>+CONFIG_KEYBOARD_ATKBD=y
+>+CONFIG_SERIAL_8250=y
+>+CONFIG_SERIAL_8250_CONSOLE=y
+>+CONFIG_X86_VERBOSE_BOOTUP=y
+>+CONFIG_VGA_CONSOLE=y
+>+CONFIG_FB=y
+>+CONFIG_FB_VESA=y
+>+CONFIG_FRAMEBUFFER_CONSOLE=y
+>+CONFIG_RTC_CLASS=y
+>+CONFIG_RTC_HCTOSYS=y
+>+CONFIG_RTC_DRV_CMOS=y
+>+CONFIG_HYPERVISOR_GUEST=y
+>+CONFIG_PARAVIRT=y
+>+CONFIG_KVM_GUEST=y
+>+CONFIG_KVM=y
+>+CONFIG_KVM_INTEL=y
+>+CONFIG_KVM_AMD=y
+>+CONFIG_VSOCKETS=y
+>+CONFIG_VSOCKETS_DIAG=y
+>+CONFIG_VSOCKETS_LOOPBACK=y
+>+CONFIG_VMWARE_VMCI_VSOCKETS=y
+>+CONFIG_VIRTIO_VSOCKETS=y
+>+CONFIG_VIRTIO_VSOCKETS_COMMON=y
+>+CONFIG_HYPERV_VSOCKETS=y
+>+CONFIG_VMWARE_VMCI=y
+>+CONFIG_VHOST_VSOCK=y
+>+CONFIG_HYPERV=y
+>+CONFIG_UEVENT_HELPER=n
+>+CONFIG_VIRTIO=y
+>+CONFIG_VIRTIO_PCI=y
+>+CONFIG_VIRTIO_MMIO=y
+>+CONFIG_VIRTIO_BALLOON=y
+>+CONFIG_NET=y
+>+CONFIG_NET_CORE=y
+>+CONFIG_NETDEVICES=y
+>+CONFIG_NETWORK_FILESYSTEMS=y
+>+CONFIG_INET=y
+>+CONFIG_NET_9P=y
+>+CONFIG_NET_9P_VIRTIO=y
+>+CONFIG_9P_FS=y
+>+CONFIG_VIRTIO_NET=y
+>+CONFIG_CMDLINE_OVERRIDE=n
+>+CONFIG_BINFMT_SCRIPT=y
+>+CONFIG_SHMEM=y
+>+CONFIG_TMPFS=y
+>+CONFIG_UNIX=y
+>+CONFIG_MODULE_SIG_FORCE=n
+>+CONFIG_DEVTMPFS=y
+>+CONFIG_TTY=y
+>+CONFIG_VT=y
+>+CONFIG_UNIX98_PTYS=y
+>+CONFIG_EARLY_PRINTK=y
+>+CONFIG_INOTIFY_USER=y
+>+CONFIG_BLOCK=y
+>+CONFIG_SCSI_LOWLEVEL=y
+>+CONFIG_SCSI=y
+>+CONFIG_SCSI_VIRTIO=y
+>+CONFIG_BLK_DEV_SD=y
+>+CONFIG_VIRTIO_CONSOLE=y
+>+CONFIG_WATCHDOG=y
+>+CONFIG_WATCHDOG_CORE=y
+>+CONFIG_I6300ESB_WDT=y
+>+CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y
+>+CONFIG_OVERLAY_FS=y
+>+CONFIG_DAX=y
+>+CONFIG_DAX_DRIVER=y
+>+CONFIG_FS_DAX=y
+>+CONFIG_MEMORY_HOTPLUG=y
+>+CONFIG_MEMORY_HOTREMOVE=y
+>+CONFIG_ZONE_DEVICE=y
+>+CONFIG_FUSE_FS=y
+>+CONFIG_VIRTIO_FS=y
+>+CONFIG_VSOCKETS=y
+>+CONFIG_VIRTIO_VSOCKETS=y
 
-Am 11.03.25 um 16:47 schrieb Thomas Zimmermann:
-> Dumb-buffer pitch and size is specified by width, height, bits-per-pixel
-> plus various hardware-specific alignments. The calculation of these
-> values is inconsistent and duplicated among drivers. The results for
-> formats with bpp < 8 are sometimes incorrect.
->
-> This series fixes this for most drivers. Default scanline pitch and
-> buffer size are now calculated with the existing 4CC helpers. There is
-> a new helper drm_mode_size_dumb() that calculates scanline pitch and
-> buffer size according to driver requirements.
->
-> The series fixes the common GEM implementations for DMA, SHMEM and
-> VRAM. It further changes most implementations of dumb_create to use
-> the new helper. A small number of drivers has more complicated
-> calculations and will be updated by a later patches.
->
-> v4:
-> - improve UAPI documentation
-> - document bpp special cases
-> - use drm_warn_once()
-> - add TODO lists
-> - armada: fix pitch alignment
-> v3:
-> - document UAPI semantics
-> - fall back to bpp-based allocation for unknown color modes
-> - cleanups
-> v2:
-> - rewrite series
-> - convert many individual drivers besides the shared GEM helpers
->
-> Thomas Zimmermann (25):
->    drm/dumb-buffers: Sanitize output on errors
->    drm/dumb-buffers: Provide helper to set pitch and size
->    drm/gem-dma: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/gem-shmem: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/gem-vram: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/armada: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/exynos: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/gma500: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/hibmc: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/imx/ipuv3: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/loongson: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/mediatek: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/msm: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/nouveau: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/omapdrm: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/qxl: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/renesas/rcar-du: Compute dumb-buffer sizes with
->      drm_mode_size_dumb()
->    drm/renesas/rz-du: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/rockchip: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/tegra: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/virtio: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/vmwgfx: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/xe: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/xen: Compute dumb-buffer sizes with drm_mode_size_dumb()
->    drm/xlnx: Compute dumb-buffer sizes with drm_mode_size_dumb()
->
->   Documentation/gpu/todo.rst                    |  28 +++
->   drivers/gpu/drm/armada/armada_gem.c           |  16 +-
->   drivers/gpu/drm/drm_dumb_buffers.c            | 172 ++++++++++++++++--
->   drivers/gpu/drm/drm_gem_dma_helper.c          |   7 +-
->   drivers/gpu/drm/drm_gem_shmem_helper.c        |  16 +-
->   drivers/gpu/drm/drm_gem_vram_helper.c         |  89 +++------
->   drivers/gpu/drm/exynos/exynos_drm_gem.c       |   8 +-
->   drivers/gpu/drm/gma500/gem.c                  |  21 +--
->   .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c   |  25 ++-
->   drivers/gpu/drm/imx/ipuv3/imx-drm-core.c      |  29 ++-
->   drivers/gpu/drm/loongson/lsdc_gem.c           |  29 +--
->   drivers/gpu/drm/mediatek/mtk_gem.c            |  13 +-
->   drivers/gpu/drm/msm/msm_gem.c                 |  27 ++-
->   drivers/gpu/drm/nouveau/nouveau_display.c     |   7 +-
->   drivers/gpu/drm/omapdrm/omap_gem.c            |  15 +-
->   drivers/gpu/drm/qxl/qxl_dumb.c                |  17 +-
->   drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c |   7 +-
->   drivers/gpu/drm/renesas/rz-du/rzg2l_du_kms.c  |   7 +-
->   drivers/gpu/drm/rockchip/rockchip_drm_gem.c   |  12 +-
->   drivers/gpu/drm/tegra/gem.c                   |   8 +-
->   drivers/gpu/drm/virtio/virtgpu_gem.c          |  11 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_surface.c       |  21 +--
->   drivers/gpu/drm/xe/xe_bo.c                    |   8 +-
->   drivers/gpu/drm/xen/xen_drm_front.c           |   7 +-
->   drivers/gpu/drm/xlnx/zynqmp_kms.c             |   7 +-
->   include/drm/drm_dumb_buffers.h                |  14 ++
->   include/drm/drm_gem_vram_helper.h             |   6 -
->   include/uapi/drm/drm_mode.h                   |  50 ++++-
->   28 files changed, 449 insertions(+), 228 deletions(-)
->   create mode 100644 include/drm/drm_dumb_buffers.h
->
+There are some CONFIG_ duplicated (e.g. CONFIG_VSOCKETS, 
+CONFIG_VIRTIO_VSOCKETS, CONFIG_FUSE_FS), can we remove them?
 
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
+The rest LGTM and now it's working on my side!
+I think you can send the next version after the merge window.
+
+Thanks,
+Stefano
+
+>diff --git a/tools/testing/selftests/vsock/settings b/tools/testing/selftests/vsock/settings
+>new file mode 100644
+>index 0000000000000000000000000000000000000000..694d70710ff08ac9fc91e9ecb5dbdadcf051f019
+>--- /dev/null
+>+++ b/tools/testing/selftests/vsock/settings
+>@@ -0,0 +1 @@
+>+timeout=300
+>diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+>new file mode 100755
+>index 0000000000000000000000000000000000000000..edacebfc163251eee9cd495eb5e704dc7adc958e
+>--- /dev/null
+>+++ b/tools/testing/selftests/vsock/vmtest.sh
+>@@ -0,0 +1,487 @@
+>+#!/bin/bash
+>+# SPDX-License-Identifier: GPL-2.0
+>+#
+>+# Copyright (c) 2025 Meta Platforms, Inc. and affiliates
+>+#
+>+# Dependencies:
+>+#		* virtme-ng
+>+#		* busybox-static (used by virtme-ng)
+>+#		* qemu	(used by virtme-ng)
+>+
+>+readonly SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+>+readonly KERNEL_CHECKOUT=$(realpath "${SCRIPT_DIR}"/../../../../)
+>+
+>+source "${SCRIPT_DIR}"/../kselftest/ktap_helpers.sh
+>+
+>+readonly VSOCK_TEST="${SCRIPT_DIR}"/vsock_test
+>+readonly TEST_GUEST_PORT=51000
+>+readonly TEST_HOST_PORT=50000
+>+readonly TEST_HOST_PORT_LISTENER=50001
+>+readonly SSH_GUEST_PORT=22
+>+readonly SSH_HOST_PORT=2222
+>+readonly VSOCK_CID=1234
+>+readonly WAIT_PERIOD=3
+>+readonly WAIT_PERIOD_MAX=60
+>+readonly WAIT_TOTAL=$(( WAIT_PERIOD * WAIT_PERIOD_MAX ))
+>+readonly QEMU_PIDFILE=$(mktemp /tmp/qemu_vsock_vmtest_XXXX.pid)
+>+
+>+# virtme-ng offers a netdev for ssh when using "--ssh", but we also need a
+>+# control port forwarded for vsock_test.  Because virtme-ng doesn't support
+>+# adding an additional port to forward to the device created from "--ssh" and
+>+# virtme-init mistakenly sets identical IPs to the ssh device and additional
+>+# devices, we instead opt out of using --ssh, add the device manually, and also
+>+# add the kernel cmdline options that virtme-init uses to setup the interface.
+>+readonly QEMU_TEST_PORT_FWD="hostfwd=tcp::${TEST_HOST_PORT}-:${TEST_GUEST_PORT}"
+>+readonly QEMU_SSH_PORT_FWD="hostfwd=tcp::${SSH_HOST_PORT}-:${SSH_GUEST_PORT}"
+>+readonly QEMU_OPTS="\
+>+	 -netdev user,id=n0,${QEMU_TEST_PORT_FWD},${QEMU_SSH_PORT_FWD} \
+>+	 -device virtio-net-pci,netdev=n0 \
+>+	 -device vhost-vsock-pci,guest-cid=${VSOCK_CID} \
+>+	 --pidfile ${QEMU_PIDFILE} \
+>+"
+>+readonly KERNEL_CMDLINE="\
+>+	virtme.dhcp net.ifnames=0 biosdevname=0 \
+>+	virtme.ssh virtme_ssh_channel=tcp virtme_ssh_user=$USER \
+>+"
+>+readonly LOG=$(mktemp /tmp/vsock_vmtest_XXXX.log)
+>+readonly TEST_NAMES=(vm_server_host_client vm_client_host_server vm_loopback)
+>+readonly TEST_DESCS=(
+>+	"Run vsock_test in server mode on the VM and in client mode on the host."
+>+	"Run vsock_test in client mode on the VM and in server mode on the host."
+>+	"Run vsock_test using the loopback transport in the VM."
+>+)
+>+
+>+VERBOSE=0
+>+
+>+usage() {
+>+	local name
+>+	local desc
+>+	local i
+>+
+>+	echo
+>+	echo "$0 [OPTIONS] [TEST]..."
+>+	echo "If no TEST argument is given, all tests will be run."
+>+	echo
+>+	echo "Options"
+>+	echo "  -b: build the kernel from the current source tree and use it for guest VMs"
+>+	echo "  -q: set the path to or name of qemu binary"
+>+	echo "  -v: verbose output"
+>+	echo
+>+	echo "Available tests"
+>+
+>+	for ((i = 0; i < ${#TEST_NAMES[@]}; i++)); do
+>+		name=${TEST_NAMES[${i}]}
+>+		desc=${TEST_DESCS[${i}]}
+>+		printf "\t%-35s%-35s\n" "${name}" "${desc}"
+>+	done
+>+	echo
+>+
+>+	exit 1
+>+}
+>+
+>+die() {
+>+	echo "$*" >&2
+>+	exit "${KSFT_FAIL}"
+>+}
+>+
+>+vm_ssh() {
+>+	ssh -q -o UserKnownHostsFile=/dev/null -p ${SSH_HOST_PORT} localhost "$@"
+>+	return $?
+>+}
+>+
+>+cleanup() {
+>+	if [[ -s "${QEMU_PIDFILE}" ]]; then
+>+		pkill -SIGTERM -F "${QEMU_PIDFILE}" > /dev/null 2>&1
+>+	fi
+>+
+>+	# If failure occurred during or before qemu start up, then we need
+>+	# to clean this up ourselves.
+>+	if [[ -e "${QEMU_PIDFILE}" ]]; then
+>+		rm "${QEMU_PIDFILE}"
+>+	fi
+>+}
+>+
+>+check_args() {
+>+	local found
+>+
+>+	for arg in "$@"; do
+>+		found=0
+>+		for name in "${TEST_NAMES[@]}"; do
+>+			if [[ "${name}" = "${arg}" ]]; then
+>+				found=1
+>+				break
+>+			fi
+>+		done
+>+
+>+		if [[ "${found}" -eq 0 ]]; then
+>+			echo "${arg} is not an available test" >&2
+>+			usage
+>+		fi
+>+	done
+>+
+>+	for arg in "$@"; do
+>+		if ! command -v > /dev/null "test_${arg}"; then
+>+			echo "Test ${arg} not found" >&2
+>+			usage
+>+		fi
+>+	done
+>+}
+>+
+>+check_deps() {
+>+	for dep in vng ${QEMU} busybox pkill ssh; do
+>+		if [[ ! -x $(command -v "${dep}") ]]; then
+>+			echo -e "skip:    dependency ${dep} not found!\n"
+>+			exit "${KSFT_SKIP}"
+>+		fi
+>+	done
+>+
+>+	if [[ ! -x $(command -v "${VSOCK_TEST}") ]]; then
+>+		printf "skip:    %s not found!" "${VSOCK_TEST}"
+>+		printf " Please build the kselftest vsock target.\n"
+>+		exit "${KSFT_SKIP}"
+>+	fi
+>+}
+>+
+>+check_vng() {
+>+	local tested_versions
+>+	local version
+>+	local ok
+>+
+>+	tested_versions=("1.33" "1.36")
+>+	version="$(vng --version)"
+>+
+>+	ok=0
+>+	for tv in "${tested_versions[@]}"; do
+>+		if [[ "${version}" == *"${tv}"* ]]; then
+>+			ok=1
+>+			break
+>+		fi
+>+	done
+>+
+>+	if [[ ! "${ok}" -eq 1 ]]; then
+>+		printf "warning: vng version '%s' has not been tested and may " "${version}" >&2
+>+		printf "not function properly.\n\tThe following versions have been tested: " >&2
+>+		echo "${tested_versions[@]}" >&2
+>+	fi
+>+}
+>+
+>+handle_build() {
+>+	if [[ ! "${BUILD}" -eq 1 ]]; then
+>+		return
+>+	fi
+>+
+>+	if [[ ! -d "${KERNEL_CHECKOUT}" ]]; then
+>+		echo "-b requires vmtest.sh called from the kernel source tree" >&2
+>+		exit 1
+>+	fi
+>+
+>+	pushd "${KERNEL_CHECKOUT}" &>/dev/null
+>+
+>+	if ! vng --kconfig --config "${SCRIPT_DIR}"/config; then
+>+		die "failed to generate .config for kernel source tree (${KERNEL_CHECKOUT})"
+>+	fi
+>+
+>+	if ! make -j$(nproc); then
+>+		die "failed to build kernel from source tree (${KERNEL_CHECKOUT})"
+>+	fi
+>+
+>+	popd &>/dev/null
+>+}
+>+
+>+vm_start() {
+>+	local logfile=/dev/null
+>+	local verbose_opt=""
+>+	local kernel_opt=""
+>+	local qemu
+>+
+>+	qemu=$(command -v "${QEMU}")
+>+
+>+	if [[ "${VERBOSE}" -eq 1 ]]; then
+>+		verbose_opt="--verbose"
+>+		logfile=/dev/stdout
+>+	fi
+>+
+>+	if [[ "${BUILD}" -eq 1 ]]; then
+>+		kernel_opt="${KERNEL_CHECKOUT}"
+>+	fi
+>+
+>+	vng \
+>+		--run \
+>+		${kernel_opt} \
+>+		${verbose_opt} \
+>+		--qemu-opts="${QEMU_OPTS}" \
+>+		--qemu="${qemu}" \
+>+		--user root \
+>+		--append "${KERNEL_CMDLINE}" \
+>+		--rw  &> ${logfile} &
+>+
+>+	if ! timeout ${WAIT_TOTAL} \
+>+		bash -c 'while [[ ! -s '"${QEMU_PIDFILE}"' ]]; do sleep 1; done; exit 0'; then
+>+		die "failed to boot VM"
+>+	fi
+>+}
+>+
+>+vm_wait_for_ssh() {
+>+	local i
+>+
+>+	i=0
+>+	while true; do
+>+		if [[ ${i} -gt ${WAIT_PERIOD_MAX} ]]; then
+>+			die "Timed out waiting for guest ssh"
+>+		fi
+>+		if vm_ssh -- true; then
+>+			break
+>+		fi
+>+		i=$(( i + 1 ))
+>+		sleep ${WAIT_PERIOD}
+>+	done
+>+}
+>+
+>+# derived from selftests/net/net_helper.sh
+>+wait_for_listener()
+>+{
+>+	local port=$1
+>+	local interval=$2
+>+	local max_intervals=$3
+>+	local protocol=tcp
+>+	local pattern
+>+	local i
+>+
+>+	pattern=":$(printf "%04X" "${port}") "
+>+
+>+	# for tcp protocol additionally check the socket state
+>+	[ "${protocol}" = "tcp" ] && pattern="${pattern}0A"
+>+	for i in $(seq "${max_intervals}"); do
+>+		if awk '{print $2" "$4}' /proc/net/"${protocol}"* | \
+>+		   grep -q "${pattern}"; then
+>+			break
+>+		fi
+>+		sleep "${interval}"
+>+	done
+>+}
+>+
+>+vm_wait_for_listener() {
+>+	local port=$1
+>+
+>+	vm_ssh <<EOF
+>+$(declare -f wait_for_listener)
+>+wait_for_listener ${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX}
+>+EOF
+>+}
+>+
+>+host_wait_for_listener() {
+>+	wait_for_listener "${TEST_HOST_PORT_LISTENER}" "${WAIT_PERIOD}" "${WAIT_PERIOD_MAX}"
+>+}
+>+
+>+__log_stdin() {
+>+	cat | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }'
+>+}
+>+
+>+__log_args() {
+>+	echo "$*" | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }'
+>+}
+>+
+>+log() {
+>+	local prefix="$1"
+>+
+>+	shift
+>+	local redirect=
+>+	if [[ ${VERBOSE} -eq 0 ]]; then
+>+		redirect=/dev/null
+>+	else
+>+		redirect=/dev/stdout
+>+	fi
+>+
+>+	if [[ "$#" -eq 0 ]]; then
+>+		__log_stdin | tee -a "${LOG}" > ${redirect}
+>+	else
+>+		__log_args "$@" | tee -a "${LOG}" > ${redirect}
+>+	fi
+>+}
+>+
+>+log_setup() {
+>+	log "setup" "$@"
+>+}
+>+
+>+log_host() {
+>+	local testname=$1
+>+
+>+	shift
+>+	log "test:${testname}:host" "$@"
+>+}
+>+
+>+log_guest() {
+>+	local testname=$1
+>+
+>+	shift
+>+	log "test:${testname}:guest" "$@"
+>+}
+>+
+>+test_vm_server_host_client() {
+>+	local testname="${FUNCNAME[0]#test_}"
+>+
+>+	vm_ssh -- "${VSOCK_TEST}" \
+>+		--mode=server \
+>+		--control-port="${TEST_GUEST_PORT}" \
+>+		--peer-cid=2 \
+>+		2>&1 | log_guest "${testname}" &
+>+
+>+	vm_wait_for_listener "${TEST_GUEST_PORT}"
+>+
+>+	${VSOCK_TEST} \
+>+		--mode=client \
+>+		--control-host=127.0.0.1 \
+>+		--peer-cid="${VSOCK_CID}" \
+>+		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host "${testname}"
+>+
+>+	return $?
+>+}
+>+
+>+test_vm_client_host_server() {
+>+	local testname="${FUNCNAME[0]#test_}"
+>+
+>+	${VSOCK_TEST} \
+>+		--mode "server" \
+>+		--control-port "${TEST_HOST_PORT_LISTENER}" \
+>+		--peer-cid "${VSOCK_CID}" 2>&1 | log_host "${testname}" &
+>+
+>+	host_wait_for_listener
+>+
+>+	vm_ssh -- "${VSOCK_TEST}" \
+>+		--mode=client \
+>+		--control-host=10.0.2.2 \
+>+		--peer-cid=2 \
+>+		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest "${testname}"
+>+
+>+	return $?
+>+}
+>+
+>+test_vm_loopback() {
+>+	local testname="${FUNCNAME[0]#test_}"
+>+	local port=60000 # non-forwarded local port
+>+
+>+	vm_ssh -- "${VSOCK_TEST}" \
+>+		--mode=server \
+>+		--control-port="${port}" \
+>+		--peer-cid=1 2>&1 | log_guest "${testname}" &
+>+
+>+	vm_wait_for_listener "${port}"
+>+
+>+	vm_ssh -- "${VSOCK_TEST}" \
+>+		--mode=client \
+>+		--control-host="127.0.0.1" \
+>+		--control-port="${port}" \
+>+		--peer-cid=1 2>&1 | log_guest "${testname}"
+>+
+>+	return $?
+>+}
+>+
+>+run_test() {
+>+	local host_oops_cnt_before
+>+	local host_warn_cnt_before
+>+	local vm_oops_cnt_before
+>+	local vm_warn_cnt_before
+>+	local host_oops_cnt_after
+>+	local host_warn_cnt_after
+>+	local vm_oops_cnt_after
+>+	local vm_warn_cnt_after
+>+	local name
+>+	local rc
+>+
+>+	host_oops_cnt_before=$(dmesg | grep -c -i 'Oops')
+>+	host_warn_cnt_before=$(dmesg --level=warn | wc -l)
+>+	vm_oops_cnt_before=$(vm_ssh -- dmesg | grep -c -i 'Oops')
+>+	vm_warn_cnt_before=$(vm_ssh -- dmesg --level=warn | wc -l)
+>+
+>+	name=$(echo "${1}" | awk '{ print $1 }')
+>+	eval test_"${name}"
+>+	rc=$?
+>+
+>+	host_oops_cnt_after=$(dmesg | grep -i 'Oops' | wc -l)
+>+	if [[ ${host_oops_cnt_after} -gt ${host_oops_cnt_before} ]]; then
+>+		echo "FAIL: kernel oops detected on host" | log_host "${name}"
+>+		rc=$KSFT_FAIL
+>+	fi
+>+
+>+	host_warn_cnt_after=$(dmesg --level=warn | wc -l)
+>+	if [[ ${host_warn_cnt_after} -gt ${host_warn_cnt_before} ]]; then
+>+		echo "FAIL: kernel warning detected on host" | log_host "${name}"
+>+		rc=$KSFT_FAIL
+>+	fi
+>+
+>+	vm_oops_cnt_after=$(vm_ssh -- dmesg | grep -i 'Oops' | wc -l)
+>+	if [[ ${vm_oops_cnt_after} -gt ${vm_oops_cnt_before} ]]; then
+>+		echo "FAIL: kernel oops detected on vm" | log_host "${name}"
+>+		rc=$KSFT_FAIL
+>+	fi
+>+
+>+	vm_warn_cnt_after=$(vm_ssh -- dmesg --level=warn | wc -l)
+>+	if [[ ${vm_warn_cnt_after} -gt ${vm_warn_cnt_before} ]]; then
+>+		echo "FAIL: kernel warning detected on vm" | log_host "${name}"
+>+		rc=$KSFT_FAIL
+>+	fi
+>+
+>+	return "${rc}"
+>+}
+>+
+>+QEMU="qemu-system-$(uname -m)"
+>+
+>+while getopts :hvsq:b o
+>+do
+>+	case $o in
+>+	v) VERBOSE=1;;
+>+	b) BUILD=1;;
+>+	q) QEMU=$OPTARG;;
+>+	h|*) usage;;
+>+	esac
+>+done
+>+shift $((OPTIND-1))
+>+
+>+trap cleanup EXIT
+>+
+>+if [[ ${#} -eq 0 ]]; then
+>+	ARGS=("${TEST_NAMES[@]}")
+>+else
+>+	ARGS=("$@")
+>+fi
+>+
+>+check_args "${ARGS[@]}"
+>+check_deps
+>+check_vng
+>+handle_build
+>+
+>+echo "1..${#ARGS[@]}"
+>+
+>+log_setup "Booting up VM"
+>+vm_start
+>+vm_wait_for_ssh
+>+log_setup "VM booted up"
+>+
+>+cnt_pass=0
+>+cnt_fail=0
+>+cnt_skip=0
+>+cnt_total=0
+>+for arg in "${ARGS[@]}"; do
+>+	run_test "${arg}"
+>+	rc=$?
+>+	if [[ ${rc} -eq $KSFT_PASS ]]; then
+>+		cnt_pass=$(( cnt_pass + 1 ))
+>+		echo "ok ${cnt_total} ${arg}"
+>+	elif [[ ${rc} -eq $KSFT_SKIP ]]; then
+>+		cnt_skip=$(( cnt_skip + 1 ))
+>+		echo "ok ${cnt_total} ${arg} # SKIP"
+>+	elif [[ ${rc} -eq $KSFT_FAIL ]]; then
+>+		cnt_fail=$(( cnt_fail + 1 ))
+>+		echo "not ok ${cnt_total} ${arg} # exit=$rc"
+>+	fi
+>+	cnt_total=$(( cnt_total + 1 ))
+>+done
+>+
+>+echo "SUMMARY: PASS=${cnt_pass} SKIP=${cnt_skip} FAIL=${cnt_fail}"
+>+echo "Log: ${LOG}"
+>+
+>+if [ $((cnt_pass + cnt_skip)) -eq ${cnt_total} ]; then
+>+	exit "$KSFT_PASS"
+>+else
+>+	exit "$KSFT_FAIL"
+>+fi
+>
+>---
+>base-commit: 8066e388be48f1ad62b0449dc1d31a25489fa12a
+>change-id: 20250325-vsock-vmtest-b3a21d2102c2
+>
+>Best regards,
+>-- 
+>Bobby Eshleman <bobbyeshleman@gmail.com>
+>
 
