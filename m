@@ -1,109 +1,301 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94F75214232
-	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 07:31:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7F4155322
+	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 08:03:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748503911; cv=none; b=gcxZZ4dXiROvjfsTqczgZguBhrhgXN5YQPCZ60iPvx5v/j4MMvKfTg2TsaqQKmsUc/Du2If1vcLyucjF6WySHEBU3tUw51gVsLNLGl7xBaffN4agbN4rNlKL0vvZBb/u249BEz6/AY2z0hSJXJfCD73yqDLqyPGP+Abz/PGqhVM=
+	t=1748505842; cv=none; b=pBlpcxT9m/d8c/5WXvUtESwPMHFHN9yVl2IvEpeviVjv3jEVsBHQFfPky646WRLBMIrarQzMCUCo0bXAybsvTxOmMoEO9s35nPYYOJ0b0mryYRkBWb6nv6z7TOfv+PJ9J3wMvm3JGiktsKZyAOJ/wD+0HFL7Kw1iu3FaJAYx0Lo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748503911; c=relaxed/simple;
-	bh=BFxCceWMxY0SEICuf5EA0saOeCuLQXtonksnjpgX6+M=;
+	s=arc-20240116; t=1748505842; c=relaxed/simple;
+	bh=dR9QGKE90y/lp9jy4v7nUrC3OvpRiFOEyRDIq/Mb0K0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=G10Brbh7U46aNSRno10kjOXB+h14PQ1OK3kJAAg+b1H+vSC887QFsV3zgVb/CKy03Xtm8Rt3cGF7zmCkZ7jBdUHRe8I7XHxVuneSRNot1VrNA/gjwTEzGgkoyKkNxwkq6XYkUvmoC7Ku2VpdnhPD7OpPhMEwLjpPML18pzSQXCs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=GVu82CXm; arc=none smtp.client-ip=209.85.210.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	 In-Reply-To:Content-Type:Content-Disposition; b=pA03XUnfWth2asLW0V66DBmCNKzC2DWFP5eUGO9BmZkAiQZKXOmfg1c0aoalNjrjWcglNQmIorXP0UfKTV4FEVuI3OTtwbMRHlPgjGHDT2kKLUHX/4Dpy4xNA1QtNjXuOkpr+wEAMXGQM1+xY370M3B9pS79oWesckqQD13BbAM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NB1ESN2e; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="GVu82CXm"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-742b0840d98so348403b3a.1
-        for <virtualization@lists.linux.dev>; Thu, 29 May 2025 00:31:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1748503909; x=1749108709; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=62y5vxiX9AVUW2V52SBBgeurxZxG3fCF/i4ngW1ZYV8=;
-        b=GVu82CXm6GV91z1GC3n+BN4JcJpOBaXUfxI/RP35QcTixk8AiBBLsMioVl3SO5RNv1
-         vT5mlEYKLVfP/5EO/8rIP9X++MVlR8pB0EwrykSsGMA1LO9e3d9k3j8h0Cgp3qIaWngw
-         FacxEgqzrYVrI9Ip0QHLX2DZ73VqM6V9bQ+xV+vYDByWG+yvuFdCAxunC678n8w2V72l
-         L8BK2cNjULrjc4O9W5yC+8Hw1Xqpzc5d6kiV8LDnEabwPOyED+jsNyQS3IYx3E8EYpTg
-         ee70D75mrIvhcvmhMEJAAYuFeAtzZZLv9/lrnBnqFYHPbdHgqSV7VXyjycWg6VuiU9A2
-         gkmA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NB1ESN2e"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1748505838;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=E+E8ddedkpspBDqc7m7TRdYhn2aSST9La2vzARWwv0M=;
+	b=NB1ESN2ee3IS84qjPDLDvrF8pzNjOG6KctAYAXt99ju3D8I9fryqV/eee+wnBn5jyRR87F
+	fIQ+90Po70Qu40EyT/hdtIdwU+UnU/IonB+yUU0ATWItYXK5xXVskWHCrtotXW38ypLElK
+	g0RmfzYr7DQk/HT70V9puo7yiZxdvwU=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-687-zgLcKZNTOmi90oEb9kD58w-1; Thu, 29 May 2025 04:03:57 -0400
+X-MC-Unique: zgLcKZNTOmi90oEb9kD58w-1
+X-Mimecast-MFC-AGG-ID: zgLcKZNTOmi90oEb9kD58w_1748505836
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-442f90418b0so3433095e9.2
+        for <virtualization@lists.linux.dev>; Thu, 29 May 2025 01:03:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748503909; x=1749108709;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=62y5vxiX9AVUW2V52SBBgeurxZxG3fCF/i4ngW1ZYV8=;
-        b=HWi9Ss6bZ/fBuKt2cR+jVOLk38yJyY2boGJO1CPs6XZHSMXEYG+4GVbZ3gDZaN7K1I
-         RUOtFZX6Vs1DfiRzZSwNmuQr4oSuHqwnVAl07VR63D/F1SahzPr0jRQC6klsXQz9IRvR
-         YuatFtTT7Ycf/nymYX8WmuhEl7D2cNGpbt5lUiy+zuRTm4xeNPIzmy1jy0tl53/oZfhc
-         tHNbanI7HTl/oEqG/C0CtJ4ZafWIWH+ldxhUdPMfXmCpjXpDbhBs+K8sfwiZQbvNFvE5
-         KSlEWdEomieXvBCmUpijd06pHuS3CZImh1gRc6LsDXxts8F3MwX5c3yhxIwwvRbC0zi/
-         wBUA==
-X-Forwarded-Encrypted: i=1; AJvYcCU6wqztS186Y/MUGlqPIbA0LG4putNVZJQbYoHaASBd9oRWFDnN/ca8/NAvKm0UXFInXMs+DFTiDmbo2AhuXw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwnkZoG1/njavLtn7M3XVtcDfEvI3XBnPrdgbZHCImtIskYELnB
-	ocO7KyWLVkOC4VdYR0oEbiEUa6dc1uusIKPMJWsV6LNUM2av6Kh/D/irOUvSZ61zoLs=
-X-Gm-Gg: ASbGncsQ6FHJI+i/97/MK+K5klriXYRmkf3KTEyfDQmfZ/suH6jbLODEpZ5luyGpyA1
-	Gf0ymo8KYC3x7eQYS9Ba94XZdQv44M02qA+d/Inq0HRCDlNHU9RiI1H2eYBVctI3E7PRiyGJHda
-	MbS/Z5zLNQmDibE1AUFgqHe1HANctAlIS8SPUUOqkfPe+1SdnpC648+62nbUFYKTHuz7uU28RJ1
-	G7L2L5twQ+uQrEYHmh6UpLGUn4Od/IWsROo8IXAG7Kl4SeG5J2M6IimTlmErGmJG92KsK94+Q/Y
-	H6k/66F5NfWrHOCggJNWCwgc/yM08fBaC0hwTRcfhSCjMv+etwM+PqcQcdX/fEI=
-X-Google-Smtp-Source: AGHT+IFdl3yeDqGbsySeFH3EsP9AcF6U1idqzjnmwCHgn9ExUS6KfoHWBKHAHvMS270b21x4Yy7Hwg==
-X-Received: by 2002:a05:6a21:3409:b0:1f5:8e94:2e83 with SMTP id adf61e73a8af0-2188c1eddbfmr31156339637.8.1748503908727;
-        Thu, 29 May 2025 00:31:48 -0700 (PDT)
-Received: from localhost ([122.172.81.72])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b2d99ec762dsm2149640a12.52.2025.05.29.00.31.47
+        d=1e100.net; s=20230601; t=1748505836; x=1749110636;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=E+E8ddedkpspBDqc7m7TRdYhn2aSST9La2vzARWwv0M=;
+        b=Hp/qB6EqUrDpThY+Fzx2J5pTHiqbl53bfuHGIBWl4GUd5wUoR58i4qO/JxjmQL6cCK
+         NVfK1UmUrnZdOrBZM+sK5FAzB5EE7q4yFE+sopf+1cus6Tihn9Rhk7AL2X35zaLLecnU
+         jDdf8Y/Ujsmt2g7LnzFfZITn3oH9hI/61jv8xW+AXO/41tJNpRkRzYEe46Hr3vX7+4JK
+         CXMnJZ6TmRdnqmpau5J7S8V+cI4girM3QFxTqrdSjT0JAmDX7s09FMY/6rjbHzVCgeOH
+         rbOS27RaCnncG2Vy5t6bMFjsdDSHu78Lx8G/0WSwGksFfx+1Obr0egf8CvgW61A23ylL
+         JAEg==
+X-Forwarded-Encrypted: i=1; AJvYcCVMuaMS5vzJmvPW7M+B/o5NR4Xd0go73Wx5UmiHKCIT0OzNRW8XcWQAsJIaM6QXtPC0WcNMR94msKqyK0Nwig==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzu7iC3RvbtaOZCUjvH/S66+hJeuo5ktNDDHX7NwySJ+Sg5QeCH
+	aaNCzypjQ81mTlZBywLJhiSVK8lzU6iOTukB/5fyakaUYChEMJuLXTF2GEKcpPp9t0StBi92bu0
+	JKKE7oliCSFakCOsLEiSDY3gQEiahurTZxpUjJVg68bJX8LutQgQqMUNoKf1crdy7t+KW
+X-Gm-Gg: ASbGncteFjXxzBIiT4VRFHLV2O6hIuZjQb0BJzDzo0hkGzsbmlxdoIsLqjMk8icEh17
+	5eHdNkkc8lu6+AiBnO9SZ+l0KDi7aoO00ZGgzMJ/F1utJw+gAhQGDbYgOMxBxhLld8E5JfNG9jl
+	N+vILthlrwguHzV2iD1o5gRYwiQlJPhnfiqqIKZ/X0+crfsdX3aeJLGU/Znvi75hv3TMKtte0/F
+	v3bVMu2C4714evG/PI5iubgK8v7pQPM+ZsKrvnLrR/SHyqZAx6PupeZ/HjqD5TgplAvStb8tGsl
+	Ka2vjg==
+X-Received: by 2002:a05:6000:248a:b0:3a4:dd16:a26d with SMTP id ffacd0b85a97d-3a4dd16a2e9mr12199957f8f.38.1748505836089;
+        Thu, 29 May 2025 01:03:56 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEGur16GF9vO5hI+T4bVnnBBYKGhZTcRLwWon1WeRZpP41jJWLYSKKmtOvCAP2xoidG+N+83g==
+X-Received: by 2002:a05:6000:248a:b0:3a4:dd16:a26d with SMTP id ffacd0b85a97d-3a4dd16a2e9mr12199917f8f.38.1748505835566;
+        Thu, 29 May 2025 01:03:55 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a4f00a00d4sm1207464f8f.92.2025.05.29.01.03.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 May 2025 00:31:48 -0700 (PDT)
-Date: Thu, 29 May 2025 13:01:45 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>,
-	Bill Mills <bill.mills@linaro.org>, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio-mmio: Remove virtqueue list from mmio device
-Message-ID: <20250529073145.ss5ejipnlbl6v5fj@vireshk-i7>
-References: <3e56c6f74002987e22f364d883cbad177cd9ad9c.1747827066.git.viresh.kumar@linaro.org>
- <CACGkMEsfgGU99_NC3NTYgyH89=6eADKPFiChVW0kZkfF1Js7NA@mail.gmail.com>
+        Thu, 29 May 2025 01:03:54 -0700 (PDT)
+Date: Thu, 29 May 2025 04:03:52 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Cc: stefanha@redhat.com, axboe@kernel.dk, virtualization@lists.linux.dev,
+	linux-block@vger.kernel.org, stable@vger.kernel.org,
+	lirongqing@baidu.com, kch@nvidia.com, xuanzhuo@linux.alibaba.com,
+	pbonzini@redhat.com, jasowang@redhat.com,
+	Max Gurtovoy <mgurtovoy@nvidia.com>,
+	Israel Rukshin <israelr@nvidia.com>
+Subject: Re: [PATCH v3] virtio_blk: Fix disk deletion hang on device surprise
+ removal
+Message-ID: <20250529035007-mutt-send-email-mst@kernel.org>
+References: <20250529061913.28868-1-parav@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20250529061913.28868-1-parav@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: oOxELDpxpzghkPcQizm_cvXPizeCWvrOkjf48tMwgTk_1748505836
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEsfgGU99_NC3NTYgyH89=6eADKPFiChVW0kZkfF1Js7NA@mail.gmail.com>
 
-On 29-05-25, 14:05, Jason Wang wrote:
-> On Wed, May 21, 2025 at 7:34 PM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> >
-> > The MMIO transport implementation creates a list of virtqueues for a
-> > virtio device, while the same is already available in the struct
-> > virtio_device.
-> >
-> > Don't create a duplicate list, and use the other one instead.
-> >
-> > While at it, fix the virtio_device_for_each_vq() macro to accept an
-> > argument like "&vm_dev->vdev" (which currently fails to build).
-> >
-> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > ---
+On Thu, May 29, 2025 at 06:19:31AM +0000, Parav Pandit wrote:
+> When the PCI device is surprise removed, requests may not complete
+> the device as the VQ is marked as broken. Due to this, the disk
+> deletion hangs.
 > 
-> Acked-by: Jason Wang <jasowang@redhat.com>
+> Fix it by aborting the requests when the VQ is broken.
 > 
-> Btw, virtio-vdpa may need the same optimization.
+> With this fix now fio completes swiftly.
+> An alternative of IO timeout has been considered, however
+> when the driver knows about unresponsive block device, swiftly clearing
+> them enables users and upper layers to react quickly.
+> 
+> Verified with multiple device unplug iterations with pending requests in
+> virtio used ring and some pending with the device.
+> 
+> Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio pci device")
+> Cc: stable@vger.kernel.org
+> Reported-by: Li RongQing <lirongqing@baidu.com>
+> Closes: https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b4741@baidu.com/
+> Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+> Signed-off-by: Parav Pandit <parav@nvidia.com>
+> 
+> ---
+> v2->v3:
+> - Addressed comments from Michael
+> - updated comment for synchronizing with callbacks
+> 
+> v1->v2:
+> - Addressed comments from Stephan
+> - fixed spelling to 'waiting'
+> - Addressed comments from Michael
+> - Dropped checking broken vq from queue_rq() and queue_rqs()
+>   because it is checked in lower layer routines in virtio core
+> 
+> v0->v1:
+> - Fixed comments from Stefan to rename a cleanup function
+> - Improved logic for handling any outstanding requests
+>   in bio layer
+> - improved cancel callback to sync with ongoing done()
 
-Sent a patch for that now.
 
-https://lore.kernel.org/all/7808f2f7e484987b95f172fffb6c71a5da20ed1e.1748503784.git.viresh.kumar@linaro.org/
+Thanks!
+Something else small to improve.
 
--- 
-viresh
+> ---
+>  drivers/block/virtio_blk.c | 82 ++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 82 insertions(+)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 7cffea01d868..d37df878f4e9 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -1554,6 +1554,86 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	return err;
+>  }
+>  
+> +static bool virtblk_request_cancel(struct request *rq, void *data)
+
+it is more
+
+virtblk_request_complete_broken_with_ioerr
+
+and maybe a comment?
+/*
+ * If the vq is broken, device will not complete requests.
+ * So we do it for the device.
+ */
+
+> +{
+> +	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
+> +	struct virtio_blk *vblk = data;
+> +	struct virtio_blk_vq *vq;
+> +	unsigned long flags;
+> +
+> +	vq = &vblk->vqs[rq->mq_hctx->queue_num];
+> +
+> +	spin_lock_irqsave(&vq->lock, flags);
+> +
+> +	vbr->in_hdr.status = VIRTIO_BLK_S_IOERR;
+> +	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
+> +		blk_mq_complete_request(rq);
+> +
+> +	spin_unlock_irqrestore(&vq->lock, flags);
+> +	return true;
+> +}
+> +
+> +static void virtblk_broken_device_cleanup(struct virtio_blk *vblk)
+
+and one goes okay what does it do exactly? cleanup device in
+a broken way? turns out no, it cleans up a broken device.
+And an overview would be good. Maybe, a small comment will help:
+
+/*
+ * if the device is broken, it will not use any buffers and waiting
+ * for that to happen is pointless. We'll do it in the driver,
+ * completing all requests for the device.
+ */
+
+
+> +{
+> +	struct request_queue *q = vblk->disk->queue;
+> +
+> +	if (!virtqueue_is_broken(vblk->vqs[0].vq))
+> +		return;
+
+so one has to read it, and understand that we did not need to call
+it in the 1st place on a non broken device.
+Moving it to the caller would be cleaner.
+
+
+> +
+> +	/* Start freezing the queue, so that new requests keeps waiting at the
+
+wrong style of comment for blk.
+
+/* this is
+ * net style
+ */
+
+/*
+ * this is
+ * rest of the linux style
+ */
+
+> +	 * door of bio_queue_enter(). We cannot fully freeze the queue because
+> +	 * freezed queue is an empty queue and there are pending requests, so
+
+a frozen queue
+
+> +	 * only start freezing it.
+> +	 */
+> +	blk_freeze_queue_start(q);
+> +
+> +	/* When quiescing completes, all ongoing dispatches have completed
+> +	 * and no new dispatch will happen towards the driver.
+> +	 * This ensures that later when cancel is attempted, then are not
+
+they are not?
+
+> +	 * getting processed by the queue_rq() or queue_rqs() handlers.
+> +	 */
+> +	blk_mq_quiesce_queue(q);
+> +
+> +	/*
+> +	 * Synchronize with any ongoing VQ callbacks that may have started
+> +	 * before the VQs were marked as broken. Any outstanding requests
+> +	 * will be completed by virtblk_request_cancel().
+> +	 */
+> +	virtio_synchronize_cbs(vblk->vdev);
+> +
+> +	/* At this point, no new requests can enter the queue_rq() and
+> +	 * completion routine will not complete any new requests either for the
+> +	 * broken vq. Hence, it is safe to cancel all requests which are
+> +	 * started.
+> +	 */
+> +	blk_mq_tagset_busy_iter(&vblk->tag_set, virtblk_request_cancel, vblk);
+> +	blk_mq_tagset_wait_completed_request(&vblk->tag_set);
+> +
+> +	/* All pending requests are cleaned up. Time to resume so that disk
+> +	 * deletion can be smooth. Start the HW queues so that when queue is
+> +	 * unquiesced requests can again enter the driver.
+> +	 */
+> +	blk_mq_start_stopped_hw_queues(q, true);
+> +
+> +	/* Unquiescing will trigger dispatching any pending requests to the
+> +	 * driver which has crossed bio_queue_enter() to the driver.
+> +	 */
+> +	blk_mq_unquiesce_queue(q);
+> +
+> +	/* Wait for all pending dispatches to terminate which may have been
+> +	 * initiated after unquiescing.
+> +	 */
+> +	blk_mq_freeze_queue_wait(q);
+> +
+> +	/* Mark the disk dead so that once queue unfreeze, the requests
+
+... once we unfreeze the queue
+
+
+> +	 * waiting at the door of bio_queue_enter() can be aborted right away.
+> +	 */
+> +	blk_mark_disk_dead(vblk->disk);
+> +
+> +	/* Unfreeze the queue so that any waiting requests will be aborted. */
+> +	blk_mq_unfreeze_queue_nomemrestore(q);
+> +}
+> +
+>  static void virtblk_remove(struct virtio_device *vdev)
+>  {
+>  	struct virtio_blk *vblk = vdev->priv;
+> @@ -1561,6 +1641,8 @@ static void virtblk_remove(struct virtio_device *vdev)
+>  	/* Make sure no work handler is accessing the device. */
+>  	flush_work(&vblk->config_work);
+>
+
+I prefer simply moving the test here:
+  
+	if (virtqueue_is_broken(vblk->vqs[0].vq))
+		virtblk_broken_device_cleanup(vblk);
+
+makes it much clearer what is going on, imho.
+
+
+>  	del_gendisk(vblk->disk);
+>  	blk_mq_free_tag_set(&vblk->tag_set);
+>  
+> -- 
+> 2.34.1
+
