@@ -1,224 +1,109 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B16864C92
-	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 07:30:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94F75214232
+	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 07:31:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748503842; cv=none; b=C8+v1TdXkoQ7UxI9sDv0B1Aoiwi4vNvGciaYz7OhWocGTej7g5Nbwr4ib+mW24La3suYLnJNqSRzDNggjtTxPga1HrGVcjVfvBt1gbqQNS5wwfRluEKLOI98FrxIXNlkjL5PoDYlE2wsYKyBPK9wXjWDynTUgpY4XPAGl64GnVA=
+	t=1748503911; cv=none; b=gcxZZ4dXiROvjfsTqczgZguBhrhgXN5YQPCZ60iPvx5v/j4MMvKfTg2TsaqQKmsUc/Du2If1vcLyucjF6WySHEBU3tUw51gVsLNLGl7xBaffN4agbN4rNlKL0vvZBb/u249BEz6/AY2z0hSJXJfCD73yqDLqyPGP+Abz/PGqhVM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748503842; c=relaxed/simple;
-	bh=c50mQ5huAqIJ9TuesG10iXacwGj3JZQrHzSFKs6ln3I=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=e9XV/hov43lOU55IWMv9W4I/c/Rz5ngY+vHiuCEKaoNKeMeJNw3/NAkYwyAFi78zDGqCVkcSic5qRQr7Qv1YrO8KReH7P2CKW4X/hk6gjb0vFHDiUgcN1fZ5B0rtJUJFZQND2fk+9LsgA0BxqjK7qqOt801HCDrOSYejXs9CSz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=aEUkYAAs; arc=none smtp.client-ip=209.85.214.173
+	s=arc-20240116; t=1748503911; c=relaxed/simple;
+	bh=BFxCceWMxY0SEICuf5EA0saOeCuLQXtonksnjpgX6+M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=G10Brbh7U46aNSRno10kjOXB+h14PQ1OK3kJAAg+b1H+vSC887QFsV3zgVb/CKy03Xtm8Rt3cGF7zmCkZ7jBdUHRe8I7XHxVuneSRNot1VrNA/gjwTEzGgkoyKkNxwkq6XYkUvmoC7Ku2VpdnhPD7OpPhMEwLjpPML18pzSQXCs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=GVu82CXm; arc=none smtp.client-ip=209.85.210.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="aEUkYAAs"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-23228b9d684so7503695ad.1
-        for <virtualization@lists.linux.dev>; Thu, 29 May 2025 00:30:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="GVu82CXm"
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-742b0840d98so348403b3a.1
+        for <virtualization@lists.linux.dev>; Thu, 29 May 2025 00:31:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1748503840; x=1749108640; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=phRweVKzj4zCYuXKOOK9r81XusegUAwTG5l94I+5yT8=;
-        b=aEUkYAAsEWGkTRCOwasbPQnSEChm7/tWeeXArtcD1cqpFBSwkgVd/HOxmMnDLk4NhI
-         dfUhHjVNqQiXKZMclnfykaHvDHr+DE9YycxQ15gIcvzjuvmscuEgJLckXG9plpa76rV/
-         a6ecJ2qOiUNkN+T0tMQAidhb84w1xJfU904/KB2sI+jIhMllvtqUfs5Wl5IxTHSh9Er9
-         4/V2cai+gf+dfIFhFg9lInXVTghMx25XGELHsdeVaCC6Rkd4MXSQqCrhdJ0Ua7AmnAOc
-         rG8Jlp4KR82vcIfGfugh6B7ITXbLZru388cH8b/1EcTiLJ0YFvHuaPrJf6iRjLMAL8Fy
-         xfPQ==
+        d=linaro.org; s=google; t=1748503909; x=1749108709; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=62y5vxiX9AVUW2V52SBBgeurxZxG3fCF/i4ngW1ZYV8=;
+        b=GVu82CXm6GV91z1GC3n+BN4JcJpOBaXUfxI/RP35QcTixk8AiBBLsMioVl3SO5RNv1
+         vT5mlEYKLVfP/5EO/8rIP9X++MVlR8pB0EwrykSsGMA1LO9e3d9k3j8h0Cgp3qIaWngw
+         FacxEgqzrYVrI9Ip0QHLX2DZ73VqM6V9bQ+xV+vYDByWG+yvuFdCAxunC678n8w2V72l
+         L8BK2cNjULrjc4O9W5yC+8Hw1Xqpzc5d6kiV8LDnEabwPOyED+jsNyQS3IYx3E8EYpTg
+         ee70D75mrIvhcvmhMEJAAYuFeAtzZZLv9/lrnBnqFYHPbdHgqSV7VXyjycWg6VuiU9A2
+         gkmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748503840; x=1749108640;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=phRweVKzj4zCYuXKOOK9r81XusegUAwTG5l94I+5yT8=;
-        b=r3ftkY1CsY2GrcL0wvONyQ7pM9y+H3JZk/LyL9U/xmWqh1EA59s7DsAualvWfN0IVT
-         325/SuQ+Nc2rEqZ97t93JxS8ccqiVTKHe9m3petLTSnDBnm40XkHT34TIqhPN9oqOJDD
-         gtSBCbXD+tkz5XjZmLxBzT7zw/lXMfRnirtOBeHvZTWrQkHlcc4bA5mndU0X0/C1p/p7
-         RSWEFlQrfZb/wFrN9Lx7VI6xxWvYOGnxPUMVHfRe2KYOUE/fIKlf1NXB3vujF8LkRH23
-         tWkU7ZSS+RDmN2rQL59w7LAkr3IGU/hPs/TUgqTCIb3CY4vN0n8EoAcwJjzUmIUPaCNI
-         QepA==
-X-Forwarded-Encrypted: i=1; AJvYcCWQTsNWoJP7hTFsH011GKrTB+sCXYO7FG88qvZh9QrNMb8vnczg4UZy4+WV6Zb0vcLxFzBCKDS9V5dB5yhreg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxvTTGLuyWxyBvcNBZKFbSxF7Jbu86B/oxhvW2YXmklSfD0iVsU
-	oXRXvq8eeN5+c61ihQipBm/fJQTwPxlOXUElA8nt33yluBOHNgiAxSoF+xQfC/Zqs6s=
-X-Gm-Gg: ASbGncucyaRxAW8/pVLXyRDGNubDY/DMKkId28rBMZyHxMclPNYAH6eTqC6VROK/tvz
-	BBBCJmns4OgkMhg++8FDxoVKrMEBlHvU+ccv4ij+pOU158tkTvdMeNRJfTXLboOlDMXDWRGIpTA
-	tScNDPS8BewlFavFFGH+xKXIRyXvuRF/2PMkGfIAD+vpXhseNMM92uQ2Ev9W/STQ4lEUjBycxBD
-	yckLkwG3rCRFvqMITh8fw9JMFcydK/zeU7Ni+xQ8P+OYksLDjeXVvUlgESrvA4I/LgcdakVtc02
-	AQGVj4O/bwJnFMNrNqvunSILw2wGfFc589bUnGkdrDo6YEPpXdHY
-X-Google-Smtp-Source: AGHT+IHd5/KWNV9VKdQPqtItgJkEPX4zpPmZJI4+W2UWf0JOaI6dh2PDCi0poajFkldkVqQmb0PmPg==
-X-Received: by 2002:a17:902:cf05:b0:235:be0:db57 with SMTP id d9443c01a7336-2350be0de2dmr13115035ad.4.1748503839760;
-        Thu, 29 May 2025 00:30:39 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1748503909; x=1749108709;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=62y5vxiX9AVUW2V52SBBgeurxZxG3fCF/i4ngW1ZYV8=;
+        b=HWi9Ss6bZ/fBuKt2cR+jVOLk38yJyY2boGJO1CPs6XZHSMXEYG+4GVbZ3gDZaN7K1I
+         RUOtFZX6Vs1DfiRzZSwNmuQr4oSuHqwnVAl07VR63D/F1SahzPr0jRQC6klsXQz9IRvR
+         YuatFtTT7Ycf/nymYX8WmuhEl7D2cNGpbt5lUiy+zuRTm4xeNPIzmy1jy0tl53/oZfhc
+         tHNbanI7HTl/oEqG/C0CtJ4ZafWIWH+ldxhUdPMfXmCpjXpDbhBs+K8sfwiZQbvNFvE5
+         KSlEWdEomieXvBCmUpijd06pHuS3CZImh1gRc6LsDXxts8F3MwX5c3yhxIwwvRbC0zi/
+         wBUA==
+X-Forwarded-Encrypted: i=1; AJvYcCU6wqztS186Y/MUGlqPIbA0LG4putNVZJQbYoHaASBd9oRWFDnN/ca8/NAvKm0UXFInXMs+DFTiDmbo2AhuXw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwnkZoG1/njavLtn7M3XVtcDfEvI3XBnPrdgbZHCImtIskYELnB
+	ocO7KyWLVkOC4VdYR0oEbiEUa6dc1uusIKPMJWsV6LNUM2av6Kh/D/irOUvSZ61zoLs=
+X-Gm-Gg: ASbGncsQ6FHJI+i/97/MK+K5klriXYRmkf3KTEyfDQmfZ/suH6jbLODEpZ5luyGpyA1
+	Gf0ymo8KYC3x7eQYS9Ba94XZdQv44M02qA+d/Inq0HRCDlNHU9RiI1H2eYBVctI3E7PRiyGJHda
+	MbS/Z5zLNQmDibE1AUFgqHe1HANctAlIS8SPUUOqkfPe+1SdnpC648+62nbUFYKTHuz7uU28RJ1
+	G7L2L5twQ+uQrEYHmh6UpLGUn4Od/IWsROo8IXAG7Kl4SeG5J2M6IimTlmErGmJG92KsK94+Q/Y
+	H6k/66F5NfWrHOCggJNWCwgc/yM08fBaC0hwTRcfhSCjMv+etwM+PqcQcdX/fEI=
+X-Google-Smtp-Source: AGHT+IFdl3yeDqGbsySeFH3EsP9AcF6U1idqzjnmwCHgn9ExUS6KfoHWBKHAHvMS270b21x4Yy7Hwg==
+X-Received: by 2002:a05:6a21:3409:b0:1f5:8e94:2e83 with SMTP id adf61e73a8af0-2188c1eddbfmr31156339637.8.1748503908727;
+        Thu, 29 May 2025 00:31:48 -0700 (PDT)
 Received: from localhost ([122.172.81.72])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23506bd96f9sm6804415ad.98.2025.05.29.00.30.38
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b2d99ec762dsm2149640a12.52.2025.05.29.00.31.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 May 2025 00:30:39 -0700 (PDT)
+        Thu, 29 May 2025 00:31:48 -0700 (PDT)
+Date: Thu, 29 May 2025 13:01:45 +0530
 From: Viresh Kumar <viresh.kumar@linaro.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
 	Vincent Guittot <vincent.guittot@linaro.org>,
-	virtualization@lists.linux.dev,
+	Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>,
+	Bill Mills <bill.mills@linaro.org>, virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] virtio-vdpa: Remove virtqueue list
-Date: Thu, 29 May 2025 13:00:27 +0530
-Message-Id: <7808f2f7e484987b95f172fffb6c71a5da20ed1e.1748503784.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
+Subject: Re: [PATCH] virtio-mmio: Remove virtqueue list from mmio device
+Message-ID: <20250529073145.ss5ejipnlbl6v5fj@vireshk-i7>
+References: <3e56c6f74002987e22f364d883cbad177cd9ad9c.1747827066.git.viresh.kumar@linaro.org>
+ <CACGkMEsfgGU99_NC3NTYgyH89=6eADKPFiChVW0kZkfF1Js7NA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CACGkMEsfgGU99_NC3NTYgyH89=6eADKPFiChVW0kZkfF1Js7NA@mail.gmail.com>
 
-The virtio vdpa implementation creates a list of virtqueues, while the
-same is already available in the struct virtio_device.
+On 29-05-25, 14:05, Jason Wang wrote:
+> On Wed, May 21, 2025 at 7:34 PM Viresh Kumar <viresh.kumar@linaro.org> wrote:
+> >
+> > The MMIO transport implementation creates a list of virtqueues for a
+> > virtio device, while the same is already available in the struct
+> > virtio_device.
+> >
+> > Don't create a duplicate list, and use the other one instead.
+> >
+> > While at it, fix the virtio_device_for_each_vq() macro to accept an
+> > argument like "&vm_dev->vdev" (which currently fails to build).
+> >
+> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> > ---
+> 
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> 
+> Btw, virtio-vdpa may need the same optimization.
 
-This list is never traversed though, and only the pointer to the struct
-virtio_vdpa_vq_info is used in the callback, where the virtqueue pointer
-could be directly used.
+Sent a patch for that now.
 
-Remove the unwanted code to simplify the driver.
+https://lore.kernel.org/all/7808f2f7e484987b95f172fffb6c71a5da20ed1e.1748503784.git.viresh.kumar@linaro.org/
 
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
-Only build tested.
----
- drivers/virtio/virtio_vdpa.c | 44 +++---------------------------------
- 1 file changed, 3 insertions(+), 41 deletions(-)
-
-diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index 1f60c9d5cb18..e25610e3393a 100644
---- a/drivers/virtio/virtio_vdpa.c
-+++ b/drivers/virtio/virtio_vdpa.c
-@@ -28,19 +28,6 @@ struct virtio_vdpa_device {
- 	struct virtio_device vdev;
- 	struct vdpa_device *vdpa;
- 	u64 features;
--
--	/* The lock to protect virtqueue list */
--	spinlock_t lock;
--	/* List of virtio_vdpa_vq_info */
--	struct list_head virtqueues;
--};
--
--struct virtio_vdpa_vq_info {
--	/* the actual virtqueue */
--	struct virtqueue *vq;
--
--	/* the list node for the virtqueues list */
--	struct list_head node;
- };
- 
- static inline struct virtio_vdpa_device *
-@@ -135,9 +122,9 @@ static irqreturn_t virtio_vdpa_config_cb(void *private)
- 
- static irqreturn_t virtio_vdpa_virtqueue_cb(void *private)
- {
--	struct virtio_vdpa_vq_info *info = private;
-+	struct virtqueue *vq = private;
- 
--	return vring_interrupt(0, info->vq);
-+	return vring_interrupt(0, vq);
- }
- 
- static struct virtqueue *
-@@ -145,18 +132,15 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 		     void (*callback)(struct virtqueue *vq),
- 		     const char *name, bool ctx)
- {
--	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
- 	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
- 	struct device *dma_dev;
- 	const struct vdpa_config_ops *ops = vdpa->config;
--	struct virtio_vdpa_vq_info *info;
- 	bool (*notify)(struct virtqueue *vq) = virtio_vdpa_notify;
- 	struct vdpa_callback cb;
- 	struct virtqueue *vq;
- 	u64 desc_addr, driver_addr, device_addr;
- 	/* Assume split virtqueue, switch to packed if necessary */
- 	struct vdpa_vq_state state = {0};
--	unsigned long flags;
- 	u32 align, max_num, min_num = 1;
- 	bool may_reduce_num = true;
- 	int err;
-@@ -179,10 +163,6 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 	if (ops->get_vq_ready(vdpa, index))
- 		return ERR_PTR(-ENOENT);
- 
--	/* Allocate and fill out our active queue description */
--	info = kmalloc(sizeof(*info), GFP_KERNEL);
--	if (!info)
--		return ERR_PTR(-ENOMEM);
- 	if (ops->get_vq_size)
- 		max_num = ops->get_vq_size(vdpa, index);
- 	else
-@@ -217,7 +197,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 
- 	/* Setup virtqueue callback */
- 	cb.callback = callback ? virtio_vdpa_virtqueue_cb : NULL;
--	cb.private = info;
-+	cb.private = vq;
- 	cb.trigger = NULL;
- 	ops->set_vq_cb(vdpa, index, &cb);
- 	ops->set_vq_num(vdpa, index, virtqueue_get_vring_size(vq));
-@@ -248,13 +228,6 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 
- 	ops->set_vq_ready(vdpa, index, 1);
- 
--	vq->priv = info;
--	info->vq = vq;
--
--	spin_lock_irqsave(&vd_dev->lock, flags);
--	list_add(&info->node, &vd_dev->virtqueues);
--	spin_unlock_irqrestore(&vd_dev->lock, flags);
--
- 	return vq;
- 
- err_vq:
-@@ -263,7 +236,6 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 	ops->set_vq_ready(vdpa, index, 0);
- 	/* VDPA driver should make sure vq is stopeed here */
- 	WARN_ON(ops->get_vq_ready(vdpa, index));
--	kfree(info);
- 	return ERR_PTR(err);
- }
- 
-@@ -272,20 +244,12 @@ static void virtio_vdpa_del_vq(struct virtqueue *vq)
- 	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vq->vdev);
- 	struct vdpa_device *vdpa = vd_dev->vdpa;
- 	const struct vdpa_config_ops *ops = vdpa->config;
--	struct virtio_vdpa_vq_info *info = vq->priv;
- 	unsigned int index = vq->index;
--	unsigned long flags;
--
--	spin_lock_irqsave(&vd_dev->lock, flags);
--	list_del(&info->node);
--	spin_unlock_irqrestore(&vd_dev->lock, flags);
- 
- 	/* Select and deactivate the queue (best effort) */
- 	ops->set_vq_ready(vdpa, index, 0);
- 
- 	vring_del_virtqueue(vq);
--
--	kfree(info);
- }
- 
- static void virtio_vdpa_del_vqs(struct virtio_device *vdev)
-@@ -501,8 +465,6 @@ static int virtio_vdpa_probe(struct vdpa_device *vdpa)
- 	vd_dev->vdev.dev.release = virtio_vdpa_release_dev;
- 	vd_dev->vdev.config = &virtio_vdpa_config_ops;
- 	vd_dev->vdpa = vdpa;
--	INIT_LIST_HEAD(&vd_dev->virtqueues);
--	spin_lock_init(&vd_dev->lock);
- 
- 	vd_dev->vdev.id.device = ops->get_device_id(vdpa);
- 	if (vd_dev->vdev.id.device == 0)
 -- 
-2.31.1.272.g89b43f80a514
-
+viresh
