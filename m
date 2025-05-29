@@ -1,105 +1,50 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3165223185B
-	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 20:46:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8198B1D63D8;
+	Thu, 29 May 2025 22:08:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748551583; cv=none; b=V9TD3gbQfSUPwbHha6lNEzsR/HhuFWkKnaRLAPiphlXyFhTFfHKy01XKhjpSTIYT77PQf2Q0+E2l0szsh/LPHN4BUCC1Q9wgyB8moR9L+xMjNp3Qn+07Uqa11xaM7LaWabUZCCCkMBUXg5Q2VcEIg7vlMgM3JX3ediSDFw2O4Mc=
+	t=1748556528; cv=none; b=ecirKygmWMhMVH2ZZOLX1w6Nr2+XVqackcMP4DVJq1TlCReuRRs+66/hH+0K1yc+HBxbkpbnrWPgxk74RK/hs9QBzLlF40vf/edEBPRXgELSpb8B4cVa2+j7t5JSJCvb+Afdvip+I3icxNYdw/HO9i/E+30IE8i5yZC3OH6lljc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748551583; c=relaxed/simple;
-	bh=/6z1v/qNBfUFOoxicD1V48QdZQfp4IVH4S3L1yiqKHc=;
+	s=arc-20240116; t=1748556528; c=relaxed/simple;
+	bh=cGiGOMXLaYTmt7AaI+VhQm+s+r9LaPFKl+EsXixyGgM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NCRIfkc60LXcfdo0AQ5i2CDxZZCjCZF48bB7J6WHrhz9rIxbK+Tw4rNp4nzKy8nYe9LhXokIUyOYk6pvZJDAbJjaMcHDKK3sKAyON0yx7+4IzCm6ZvipVuGymbc5hOcIPXeOm5Ub4tTMFtzP8rkIkO0LH7Pwa5jIytws/UdS0fU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=I0t6PiXS; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=FN2D1r1e/vxXPUXs3c+wJ7tbqKWYNDQ125QTvLgXJmGn2KrrI5uRbFprdscBO6fYhj+BzE3KnuE+DMCsYgSvm2tF+QVsQ+PHP9hAsgOt9rcsuBCtzaHV7s4HOJ3peHZ3GL+nDwynObR1QIpTWza+DTFEVk9+4a4upT2ubWaHZmA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=LHMwxnqH; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="I0t6PiXS"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-311e2cc157bso983843a91.2
-        for <virtualization@lists.linux.dev>; Thu, 29 May 2025 13:46:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1748551581; x=1749156381; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=6TtaMd1HywfsuyRcNH/42AXM3iz/qus8mLnXbozVUkA=;
-        b=I0t6PiXSoZrBF9J5KO5c/+TWwhbLPDqzCbnETq88BbHJPm/JDwrvmZ/8E/8s/2vcH7
-         ghjD5okdEGDLVyuLJxOJp4VGX+y7J0PyeqPWffzJWl92rDOnFCFoVs4tVNd/41Zqw25x
-         o57NpwVM74chDLx0+ulFXTGCKz23JhENKaFX/IKV98gYVzM0pq4aOT1jj5wXCM0OFShr
-         60bbKWMLDPMpCO0YTzObVuWqVuqxAQfYxw0/vH5B0lF8EOdavfcmaRhb/9Xh78ZdfaVF
-         1kaV9VTGps6KzYs55kZh0lPj/GmBF7ugYQjgukohSYZyElelLr1CTl4huFDqY+sDpdbv
-         hzqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748551581; x=1749156381;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6TtaMd1HywfsuyRcNH/42AXM3iz/qus8mLnXbozVUkA=;
-        b=lb385w/GgiOydn2cZBPVCpSYrPAMjCu1SA2T26MwbqqGwef2tpXb1cCcsjfgF/Y2qd
-         wByJS1r4Ehx7v3mQzkf+uf8DAilT9MfqH4WDA8Aewst4bptSiXe/8mF7dDwZJ54HfjmM
-         b7rXBzpKd52pDjDS0ck8WgFEhsKU5XLCD5CCJPn71AMVfmg640SHker8EAfc8k8BvY7l
-         HAj46bJlEh9JLAbkLsk1Pf2U3lUo5i9RgahmeXCMpspHnRJhscIi8UOIz03Hk6sroInp
-         Icl8o5vRMhwySTMjeWFRWdcA8OKffSLBOrJZ+I6Mo7aJHN1Nd1AXNpraXvAOSpOKxAJp
-         Bcvg==
-X-Forwarded-Encrypted: i=1; AJvYcCVxe8ru7LXQe20lZaXdx8wi4PWuDq2ncN/hu6BGdX80zF+79hhU6gN055O/szkKHWMW0Qg2MbdmRDkbtVZo+A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy0+LN2c+7W+UCuRhfDlMh5+WOZBWIECV2p+vJPedM1TbIbNVW5
-	NIKFoJdMlkiJg11l81VFl4C+3ZeGBSdG5uE+RnIW1+nckZgLmy3Op0/hjaN1aC08em8=
-X-Gm-Gg: ASbGncuw/n8N829671hQ6T5fvIhkDhs6j5CQZv2bWqYl1WYExAyUZu9EvNgXNz3ZN+c
-	8baI8NSwK4QVf3ezeMelWHa1PXaWMV2SdOtQ1ehIxkUQc5+L/0doaNgDU327mZuE/zkbyvBcWPL
-	8LP17hRpJzh1C7L+BQPpV6trMP1NIx3EaU5MU++PO95FLZHLEW8wq1ik+9p+S54l55MNkBhTmG6
-	kipyChzITYamePk1eWom5bQp4tT32+UgS4G0f2V3Z4Qc3tj1IrPnX6UVOCmvQWAc0z7txBBxXCH
-	8G7KfPu0Mf5rtzye3rDSj8crMwz6QdXbZqOcu5HjXw/p+QgfX7rNx+AkIcBurzMxgJdP+w==
-X-Google-Smtp-Source: AGHT+IEO8HwssTrnrLL8DGNfi7UDT2JfkJIUURFRStahz0gCmflYidew8g3m8w3QvBPF+GZDsBP2sw==
-X-Received: by 2002:a17:90b:1d89:b0:311:f99e:7f51 with SMTP id 98e67ed59e1d1-312415329famr1432137a91.18.1748551581341;
-        Thu, 29 May 2025 13:46:21 -0700 (PDT)
-Received: from tjeznach.ba.rivosinc.com ([64.71.180.162])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23506bd9486sm16245345ad.67.2025.05.29.13.46.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 May 2025 13:46:20 -0700 (PDT)
-Date: Thu, 29 May 2025 13:46:17 -0700
-From: Tomasz Jeznach <tjeznach@rivosinc.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexandre Ghiti <alex@ghiti.fr>, Alim Akhtar <alim.akhtar@samsung.com>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-	Janne Grunau <j@jannau.net>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Joerg Roedel <joro@8bytes.org>, Kevin Tian <kevin.tian@intel.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Rob Clark <robdclark@gmail.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Sven Peter <sven@svenpeter.dev>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Krishna Reddy <vdumpa@nvidia.com>, virtualization@lists.linux.dev,
-	Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-	Yong Wu <yong.wu@mediatek.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 3/7] iommu: Remove ops.pgsize_bitmap from drivers that
- don't use it
-Message-ID: <aDjHmR7ZVTbsSITO@tjeznach.ba.rivosinc.com>
-References: <0-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
- <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="LHMwxnqH"
+Received: by linux.microsoft.com (Postfix, from userid 1152)
+	id 055982078637; Thu, 29 May 2025 15:08:39 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 055982078637
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1748556520;
+	bh=juarSgwBFGe3iViHJxllLX5IRN9Zg1P5MRm4SRs7zB0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=LHMwxnqHXXo3wa+V+35wQifLfvXLriHKHW5eGkkdJAjqAkADrNIZdIxDyen4qxLBx
+	 4WjJ/ExVEV4qmWcel4XSNsNtuShzmN84HakhkafW1rJbAg1hkLGTLf1ayRVa6iaHer
+	 IJoO60jJYrYbH59KUyDuBJZ/IbSn3zDGk7uP/yno=
+Date: Thu, 29 May 2025 15:08:39 -0700
+From: Shyam Saini <shyamsaini@linux.microsoft.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>, robh+dt@kernel.org,
+	krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org
+Cc: Jacob Pan <jacob.pan@linux.microsoft.com>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+	virtualization@lists.linux.dev, will@kernel.org,
+	eric.auger@redhat.com, code@tyhicks.com,
+	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com
+Subject: Re: [PATCH v2 0/3] arm-smmu: select suitable IOVA
+Message-ID: <20250529220839.GA9911@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+References: <20250410225030.2528385-1-shyamsaini@linux.microsoft.com>
+ <20250410230008.GA6905@ziepe.ca>
+ <67fff12d.650a0220.208c7c.d69dSMTPIN_ADDED_BROKEN@mx.google.com>
+ <20250416181759.GF493866@ziepe.ca>
+ <20250520224224.GA16365@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <20250525190703.GD12328@ziepe.ca>
+ <20250527205428.GA14019@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <20250528000425.GC146260@ziepe.ca>
+ <20250529182219.GA20289@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <20250529183815.GA236098@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -108,36 +53,85 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
+In-Reply-To: <20250529183815.GA236098@ziepe.ca>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On Tue, Apr 29, 2025 at 11:34:13AM -0300, Jason Gunthorpe wrote:
-> These drivers all set the domain->pgsize_bitmap in their
-> domain_alloc_paging() functions, so the ops value is never used. Delete
-> it.
+On Thu, May 29, 2025 at 03:38:15PM -0300, Jason Gunthorpe wrote:
+> On Thu, May 29, 2025 at 11:22:19AM -0700, Shyam Saini wrote:
+> > > All IOVA that the platform cannot DMA from should be reported in the
+> > > reserved_regions file as "reserved". You must make your platform
+> > > achieve this.
+> > 
+> > so should it be for all the iommu groups?
+> > 
+> >                 no_dma_mem {
+> >                        reg = <0x0 0x8000000 0x0 0x100000>;
+> >                         no-map;
+> >                 };
+> >  
+> > i think that's how we reserve memory in general, eg: ramoops
+> > but this doesn't show up in:
+> >   /sys/kernel/iommu_groups/*/reserved_regions
 > 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/iommu/apple-dart.c       | 1 -
->  drivers/iommu/intel/iommu.c      | 1 -
->  drivers/iommu/iommufd/selftest.c | 1 -
->  drivers/iommu/riscv/iommu.c      | 1 -
->  drivers/iommu/virtio-iommu.c     | 6 ++----
->  5 files changed, 2 insertions(+), 8 deletions(-)
+> I don't know anymore, I've forgotten these details about DT, you will
+> need to consult with DT experts..
+
+no worries, added maintainers and the list
+
+> > > But I still don't have a clear sense of what your actual problem is as
+> > > you are show DT that seems reasonable and saying that
+> > > /sys/../reserved_regions is working..
+> > 
+> > /sys/../reserved_regions is working for certain devices like dma controller
+> > but it doesn't work for pcie devices and its vfio-pcie driver calling
+> > iommu_get_resv_regions() but we don't have dts node for vfio.
+> > I have confirmed this about pcie on two different platforms, it seems to be
+> > OF DMA-API gap that you hinted above, happy to work on that :), it would be
+> > great if you can share any other reference discussions to that problem
 > 
-> diff --git a/drivers/iommu/riscv/iommu.c b/drivers/iommu/riscv/iommu.c
-> index bb57092ca90110..2d0d31ba28860a 100644
-> --- a/drivers/iommu/riscv/iommu.c
-> +++ b/drivers/iommu/riscv/iommu.c
-> @@ -1533,7 +1533,6 @@ static void riscv_iommu_release_device(struct device *dev)
->  }
->  
->  static const struct iommu_ops riscv_iommu_ops = {
-> -	.pgsize_bitmap = SZ_4K,
->  	.of_xlate = riscv_iommu_of_xlate,
->  	.identity_domain = &riscv_iommu_identity_domain,
->  	.blocked_domain = &riscv_iommu_blocking_domain,
+> Some of it was around the dma_mask and the ranges, but I'm not sure
+> exactly what is your issue here..
+> 
+> It is very important the the dma-iommu.c code also knows not to use
+> the non-working IOVA or your system will be buggy and eventually fail.
+> If that isn't happening you have a critical bug beyond the SW_MSI
+> issue.
 
-Reviewed-by: Tomasz Jeznach <tjeznach@rivosinc.com> # for RISC-V
+thanks, i will look into this
 
-Sorry for the delayed response.
-- Tomasz
+> The easiest way to fix it is to have reserved_regions report the right
+> stuff.
+> 
+> > When i specify this for dma controller:
+> > 
+> > 		faulty_iova: resv_faulty {
+> > 			iommu-addresses = <&dmaX 0x8000000 0x100000>;
+> > 		};
+> > &dmaX {
+> > 	memory-region = <&faulty_iova>;
+> > };
+> > 
+> > I see following:
+> > $ cat /sys/kernel/iommu_groups/y/reserved_regions 
+> > 0x0000000008000000 0x00000000080fffff reserved
+> > 0x00000000a0000000 0x00000000a00fffff msi
+> 
+> See, that looks better. You need to make that happen for all the
+> effected devices.
+> 
+> > Upon investigation, our hardware team confirmed that the memory region
+> > containing 0x08000000 is already mapped for other peripherals, making it
+> > unavailable for MSI usage.
+> 
+> See, that's just wrong HW design. The path from PCI to the SMMU should
+> not have any other decodes on it, isn't that SBSA?
+
+I am not 100% sure
+
+> How does your platform work at all? Isn't 0x08000000 physical memory in
+> your address map? 
+
+unfornately, this 0x08000000 physical address is not in our address map
+
+Thanks,
+Shyam
