@@ -1,148 +1,168 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DB9E242D6A
-	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 02:23:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E8B8247295
+	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 03:42:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748485427; cv=none; b=je+4q7NaLVvdZiOf7B0qNC84x4qWLAQOcYVGy6M45nBwQ5I+1TzywJGYqgHewWBw6B3HlCcBv9NehjKaDs4ypq9ep/GzF2LrMIqboCu7JpD27wKcRZfdGGArrZx581iJkGoC8YuzcQs57s9TNTf9jQ4YKkm1bBTbryACBvReLrk=
+	t=1748490158; cv=none; b=nwFmEyapc9xKk6M3oYAvxxWSn8jMx8NqkvyXroH08JcQdcgXtxVDqwiD/sB1LuopxU0SsY8sb13knf0Dam48E/soQ6m5jDAXRuXaZUwpHDl5S24kFqF9NCsf2q7U9ApHi/h7NuXX6U5+A6hEJgFnkOleVpsw3/I2JYkd7bydX+U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748485427; c=relaxed/simple;
-	bh=8QP2bAPt4AJKcTljc8zaWDC7qeLtgVJNoRtLBeWnfto=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pIcb5EbGgzfLdBQBo1yllbHDJ176MzfguNCC9JJqIVaatmHO5yBORK/K3ycavYN84A6spTYkFuAftdri7WQVFGndEN5PE5QTFPApLB+OARfi77skKJc1qCzvsQmF6qGWhRs6Ufg257tQjtlJqK4/9GzOZfTRHD+IUwOXST84Ccs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KvIMUw+q; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1748490158; c=relaxed/simple;
+	bh=1oGqF+kLpE2T0HCkMCKtmAmdZ5GNX4oGFxPLWIQEJkM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ub5TpxBsfdg2XKgIz1VeI5MrJesf/smI7A3X6vL0t61ELaNY6tTmzE4hnQX92rVvPdVGKnQqBLXnfrLUQbRTIHjEIrEIDGXdZ4qUzzXJ4PqAilg/rVOUib3ixPRSC4PWNkFzCAdHRHykDkLatjEij2B86pd9uqx/njSnIhMZZ8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lnnyktfc; arc=none smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KvIMUw+q"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1748485424;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4pAhwizCUFXp7MX+Ed3OCbEQsG/dB7EmiP8FGYlOO1o=;
-	b=KvIMUw+qXIPxe8UT4DBO0n6U8kL1lFA3ZzANGSitwcHnxToqFWWHv/wSzb8dyK3THeJTdw
-	5f0KJLiGVhGTr0nAQXKUFtPyIFKN+xNWidB+AO8bTRJB8H+u3tudgDqVzDZD0OopO+TnYn
-	XliPAO41Frn4l9ce6uqkn3vFpxU/Pxk=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-159-LaDghyBrPQyPdSIywF1Brg-1; Wed, 28 May 2025 22:23:40 -0400
-X-MC-Unique: LaDghyBrPQyPdSIywF1Brg-1
-X-Mimecast-MFC-AGG-ID: LaDghyBrPQyPdSIywF1Brg_1748485419
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-b2c3e576201so1337241a12.0
-        for <virtualization@lists.linux.dev>; Wed, 28 May 2025 19:23:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lnnyktfc"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2301ac32320so5252135ad.1
+        for <virtualization@lists.linux.dev>; Wed, 28 May 2025 20:42:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748490156; x=1749094956; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=sGQ6gPvbs0cdDm4yHXwvrbROFKsQxn254OqSH+zgs90=;
+        b=lnnyktfcRbTJerz8wyGYlBHE0YK56+zLrW6SvC2j3CaHE/CyBv4Vco3VFPt2BlAebz
+         C6lH4WZyG6SFpTmfNx19wtCQm03jWQ+qPO+lTSGcyDC3WdN3bavlFtD+0rx0YBxcEATA
+         TMdxjGig8b+Tk5GFUMSVCxGk7XYSHwGRsTEtpW2Mcx/c+aPyFQUoFaQuC2F0y2AwNjTl
+         vrY398CMq/3z57rZoQwq/sYTgkw+yXsoOyBLO3ILCMMMfqDrWs1o7QFLz1iPu6awedhZ
+         tB5zXtkRHeDP9EbUIEs8HpFYyRcqSFQJ8R5ZuUGsNKMhEfwkKwHsFc6hRTu+qupEj+Tk
+         /NTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748485419; x=1749090219;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4pAhwizCUFXp7MX+Ed3OCbEQsG/dB7EmiP8FGYlOO1o=;
-        b=fcYLWFcKl+IqJJGipXwLLcNT5Isc2eFHrs0XaD1bD5AC/SHxU074UVucl8R9c9Yn6A
-         CvuIoC+YnsgBffB4pCDIXfNsD+8+I9OV9riNUF8ghKMPMq7VCDe6tEw1F7Zs0+4q/FfA
-         5ranZkU2wh9nKRBqtMchgPVOAEeTPDuTaGmhTg64DRqg9gFmZ48Djq58mZWZ6/1d8f40
-         8fR+3ePhYMShs2Vx18Y9ELyzFI3HafRl3FLWc9RDh6f+480H+nDznvGd46vMZQTpmJog
-         YrDCP40b5NDXmhyI7cLFHGicU82Si2MTfvrZ5+E5nXAMyUrLAtjHsSIr0C/wrUFVFCdq
-         Q2aw==
-X-Forwarded-Encrypted: i=1; AJvYcCW7dXIOus6Vioz9sdFCcjstIs/l3oQt5471K8JzgNB5v6Fu1GADvO+QsA/QP1i6b8sRD1czOmEtM323ipFOfw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyf2P8MDKNVXfvZRP+aGn2P6jc0g7XFu3S7vQt7cg0OJpWOt0Ht
-	fYPDh4AE6uh01GUYv+LnPVDqGXV+yBQTIEc8xpQ4kjqKbePz7vdUgyWVMAP76F6rq58kUQv7Sbt
-	2rH1EHwnckKM1pCkeFJ91F21QiuYPiarCKGuuMiwAMSy8HAfz+bnFglFDcJmyJV1LLM+cEBKFut
-	Dz4HHS2FPNCR+UIdAQ99rciz/iEBdrXwWjs84Hw3GoFik=
-X-Gm-Gg: ASbGncsyqOFKBZc+/1Vraq6fBLVafx8fd3h9hiFx7eBjYqqFxn9n06n9Alx5JWc6goj
-	ctqdeuAGRkJm1qNCTR57bpmjxzgbrKM1uFgo09BuWQgPcni42+dha82r9iKQiSWaMZ5S1DQ==
-X-Received: by 2002:a17:90b:2dc7:b0:311:b413:f5ce with SMTP id 98e67ed59e1d1-31214e91a5amr2442913a91.16.1748485419308;
-        Wed, 28 May 2025 19:23:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFbJMI07EpZilkM5JxdiosTizQrqYZyB/qRtI+w/FM5dBmfqE//T38u8vud/Cj9lDN3v2/ob0WOSKOvTGd//g0=
-X-Received: by 2002:a17:90b:2dc7:b0:311:b413:f5ce with SMTP id
- 98e67ed59e1d1-31214e91a5amr2442889a91.16.1748485418879; Wed, 28 May 2025
- 19:23:38 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1748490156; x=1749094956;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=sGQ6gPvbs0cdDm4yHXwvrbROFKsQxn254OqSH+zgs90=;
+        b=Z0hkbFYEijt02gp1xuhn31nbNKqW2gVvx8z0Yz+939K8cK8xD4qyqqXlom/SIBEP5l
+         e9w1L/RaEYDSNRgVyeF6hjUOXwkS7pOeZKC3lCq0MhUSki4bSLom9twGtAGd/vGqKz7L
+         rg7XHNFkHJ89HWqNBXvACyOAU1aLr9D6GHxgotQOFPvo+EvT+MI3a/4wMdLolsiWFxLY
+         kHHnUP8iwusgEHpNisOc5WtXDbum4UE5F9cfXtcMhZ7/nRewkxDkXtqOcJ/7hJK4HE8Q
+         qPGT9beJK37M0V6AgbIxMRYNFYE0SXcn9af63ECZAYVxD8SSWZBgIjqfds+sZ8zQLKoh
+         DYUw==
+X-Forwarded-Encrypted: i=1; AJvYcCW6YmadrsKRIdbe/nE1eo4Y1lDm8OxeVKXyVkVfZGbEfSENbHRrMZw5+lloZN9EMFmw9BN4Uj2IZBDSti3EHw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyFAqe4kOQSB11hTZioqUgMdcOjIZCHbqdMU0C4f+MKuQVUUXz3
+	5WORGXi5J4CCWUp68DRzEt4juzhV4qE4U17aUW+sy8SFYX4YvabjhUeH
+X-Gm-Gg: ASbGncvIhGuoQNJ0TxU3lK1h2KCthjmQK525S6jTjTEkGyXgzUOm9D1uUMVAC/xDebE
+	xIP/GbhkE4SirmGmoxS0WgZqNua5piviwVpxSJT8Qb+cnPk1iPI0u0KBa8kQxUcBhQkrxm7PSno
+	ZpdUXOjhxh+yPKwUxolfQgeDfIKeyq0PBRRxZkPPDB+bOvxsFtSQC6FO0/zTDFJyJnDYHjwDQuU
+	AfEiNFu8GV7CXwNdUUyqBRpCiXSamthz4uRlMYHL2tWegp6hAQGHcIo7MCvQRo8/6NEF3v0IhZ7
+	mkewK//5ct/UuGiOjLs2bkyv3TtsNm1FeKH7fq4nKoCgo8R35X+c6bF8iz+hx84yZdun4AVT89O
+	xi+2bluXTpjcnkiDBBqRbSyjIrxI=
+X-Google-Smtp-Source: AGHT+IGeJBpGKs8MTyCqIF7KiEXWtVJVhEgmHCJGR2AwCEysIcKML8h49AWwZtiK+qYj1P1TkFjW1g==
+X-Received: by 2002:a17:903:32c7:b0:234:f580:9f8 with SMTP id d9443c01a7336-23507fda8edmr8895975ad.3.1748490156212;
+        Wed, 28 May 2025 20:42:36 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0e:fb30:76aa:9d32:607:b042? ([2001:ee0:4f0e:fb30:76aa:9d32:607:b042])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-235069fa2c7sm3485485ad.0.2025.05.28.20.42.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 28 May 2025 20:42:35 -0700 (PDT)
+Message-ID: <c75005c0-7e1a-48f0-b39b-b6310642ad4a@gmail.com>
+Date: Thu, 29 May 2025 10:42:27 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250528064234.12228-1-jasowang@redhat.com> <20250528084904-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250528084904-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 29 May 2025 10:23:27 +0800
-X-Gm-Features: AX0GCFsWi2hAyo6cMAwsnlFmTUQ9cJ_sIixNLHLmIggVmxpTlfOkzhhCr9jarhs
-Message-ID: <CACGkMEsd_Actjat0cjDdLW01ent8OgBCGjgwkP2UFFX+5rhOQw@mail.gmail.com>
-Subject: Re: [PATCH V2 00/19] virtio_ring in order support
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vR1PmPJbjSlysJK5fTmURdwew01rB5_B9kwthRqLUTQ_1748485419
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH net-next v2 1/2] virtio-net: support zerocopy multi
+ buffer XDP in mergeable
+To: ALOK TIWARI <alok.a.tiwari@oracle.com>, netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20250527161904.75259-1-minhquangbui99@gmail.com>
+ <20250527161904.75259-2-minhquangbui99@gmail.com>
+ <d855c95e-06db-4c68-af01-8997ce9b9257@oracle.com>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <d855c95e-06db-4c68-af01-8997ce9b9257@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Wed, May 28, 2025 at 8:51=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
+On 5/28/25 23:44, ALOK TIWARI wrote:
 >
-> On Wed, May 28, 2025 at 02:42:15PM +0800, Jason Wang wrote:
-> > Hello all:
-> >
-> > This sereis tries to implement the VIRTIO_F_IN_ORDER to
-> > virtio_ring. This is done by introducing virtqueue ops so we can
-> > implement separate helpers for different virtqueue layout/features
-> > then the in-order were implemented on top.
-> >
-> > Tests shows 3%-5% imporvment with packed virtqueue PPS with KVM guest
-> > testpmd on the host.
 >
-> ok this looks quite clean. We are in the merge window so not merging new
-> intrusive stuff, but after rc2 or so pls ping me I will put it in next.
+> On 27-05-2025 21:49, Bui Quang Minh wrote:
+>> Currently, in zerocopy mode with mergeable receive buffer, virtio-net
+>> does not support multi buffer but a single buffer only. This commit adds
+>> support for multi mergeable receive buffer in the zerocopy XDP path by
+>> utilizing XDP buffer with frags.
+>>
+>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+>> ---
+>>   drivers/net/virtio_net.c | 123 +++++++++++++++++++++------------------
+>>   1 file changed, 66 insertions(+), 57 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index e53ba600605a..a9558650f205 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -45,6 +45,8 @@ module_param(napi_tx, bool, 0644);
+>>   #define VIRTIO_XDP_TX        BIT(0)
+>>   #define VIRTIO_XDP_REDIR    BIT(1)
+>>   +#define VIRTNET_MAX_ZC_SEGS    8
+>> +
+>>   /* RX packet size EWMA. The average packet size is used to 
+>> determine the packet
+>>    * buffer size when refilling RX rings. As the entire RX ring may 
+>> be refilled
+>>    * at once, the weight is chosen so that the EWMA will be 
+>> insensitive to short-
+>> @@ -1232,65 +1234,53 @@ static void xsk_drop_follow_bufs(struct 
+>> net_device *dev,
+>>       }
+>>   }
+>>   -static int xsk_append_merge_buffer(struct virtnet_info *vi,
+>> -                   struct receive_queue *rq,
+>> -                   struct sk_buff *head_skb,
+>> -                   u32 num_buf,
+>> -                   struct virtio_net_hdr_mrg_rxbuf *hdr,
+>> -                   struct virtnet_rq_stats *stats)
+>> +static int virtnet_build_xsk_buff_mrg(struct virtnet_info *vi,
+>> +                      struct receive_queue *rq,
+>> +                      u32 num_buf,
+>> +                      struct xdp_buff *xdp,
+>> +                      struct virtnet_rq_stats *stats)
+>>   {
+>> -    struct sk_buff *curr_skb;
+>> -    struct xdp_buff *xdp;
+>> -    u32 len, truesize;
+>> -    struct page *page;
+>> +    unsigned int len;
+>>       void *buf;
+>>   -    curr_skb = head_skb;
+>> +    if (num_buf < 2)
+>> +        return 0;
+>> +
+>> +    while (num_buf > 1) {
+>> +        struct xdp_buff *new_xdp;
+>>   -    while (--num_buf) {
+>>           buf = virtqueue_get_buf(rq->vq, &len);
+>> -        if (unlikely(!buf)) {
+>> -            pr_debug("%s: rx error: %d buffers out of %d missing\n",
+>> -                 vi->dev->name, num_buf,
+>> -                 virtio16_to_cpu(vi->vdev,
+>> -                         hdr->num_buffers));
+>> +        if (!unlikely(buf)) {
+>
+> if (unlikely(!buf)) { ?
 
-Ok, I will post a new v3 at that time since build bot found an issue.
-
-Thanks
+Thanks, I'll fix this in the next version.
 
 >
-> > Changes since V1:
-> >
-> > - use const global array of function pointers to avoid indirect
-> >   branches to eliminate retpoline when mitigation is enabled
-> > - fix used length calculation when processing used ids in a batch
-> > - fix sparse warnings
-> >
-> > Please review.
-> >
-> > Thanks
-> >
-> > Jason Wang (19):
-> >   virtio_ring: rename virtqueue_reinit_xxx to virtqueue_reset_xxx()
-> >   virtio_ring: switch to use vring_virtqueue in virtqueue_poll variants
-> >   virtio_ring: unify logic of virtqueue_poll() and more_used()
-> >   virtio_ring: switch to use vring_virtqueue for virtqueue resize
-> >     variants
-> >   virtio_ring: switch to use vring_virtqueue for virtqueue_kick_prepare
-> >     variants
-> >   virtio_ring: switch to use vring_virtqueue for virtqueue_add variants
-> >   virtio: switch to use vring_virtqueue for virtqueue_add variants
-> >   virtio_ring: switch to use vring_virtqueue for enable_cb_prepare
-> >     variants
-> >   virtio_ring: use vring_virtqueue for enable_cb_delayed variants
-> >   virtio_ring: switch to use vring_virtqueue for disable_cb variants
-> >   virtio_ring: switch to use vring_virtqueue for detach_unused_buf
-> >     variants
-> >   virtio_ring: use u16 for last_used_idx in virtqueue_poll_split()
-> >   virtio_ring: introduce virtqueue ops
-> >   virtio_ring: determine descriptor flags at one time
-> >   virtio_ring: factor out core logic of buffer detaching
-> >   virtio_ring: factor out core logic for updating last_used_idx
-> >   virtio_ring: factor out split indirect detaching logic
-> >   virtio_ring: factor out split detaching logic
-> >   virtio_ring: add in order support
-> >
-> >  drivers/virtio/virtio_ring.c | 896 ++++++++++++++++++++++++++---------
-> >  1 file changed, 684 insertions(+), 212 deletions(-)
-> >
-> > --
-> > 2.31.1
+>> +            pr_debug("%s: rx error: %d buffers missing\n",
+>> +                 vi->dev->name, num_buf);
+>>               DEV_STATS_INC(vi->dev, rx_length_errors);
 >
+> Thanks,
+> Alok
 
