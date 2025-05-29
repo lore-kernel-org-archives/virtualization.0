@@ -1,138 +1,122 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 024B1221FC1;
-	Wed, 28 May 2025 22:42:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B51DEAFA
+	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 00:38:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748472179; cv=none; b=BRpFgMHW4wS+mJc4qC4kWW4WJpFpSHUaHhz3px6bNKYKcTmhoMVfT20RaSWFle5fxuQ44d13HqZzsX6mSqKeuuXho1mTAQwOnlslzzut4xdXrsy0z0hdl7FPp1gw5SAzxP3/03qP+92WPrFVEP2p+SdmcYENUaVFfH7AY8YGORQ=
+	t=1748479110; cv=none; b=egg7uvmelabexEN6yax+aqcyJXU7rENns1S21dOywgCXHQY2yhLGeydugWGqQOpBCoj/6fFEWR/G7wGRyWR4QjtPHJoYViuqc+5KEnlu0AwNw/TaB5erN7aBVrSnHCjNaI5K1WKvgG4ri2x3QIzS9oXBOPyLzDHSwZILSxfKfVk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748472179; c=relaxed/simple;
-	bh=2gBNwsOeGW7Yv6KEgKzYQWe+cGkLFTh7Ui3Y6qQWXVc=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=P2x10bzflxKaLFYIMh2LmYc6E7k2doqIIJ+JB4Becv0Y/FmiypYVY61HvFUAog++PegCd8s36gzlvyZYjUquLpg6zlgS/9kQChnYQ52Bb7pCLuj2giYZddasL6RSJ9KQRfFs/FH2NPjZ4z+xaST1cvn2ViVFCdH+Rvz6o9ZFIcU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=eEO2qnr/; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1748479110; c=relaxed/simple;
+	bh=ze/vE+pLOw8LtKqumJmv32tL8OFv0ndyxShmm8Q5lTg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MRhE7yFJgVmnCUlbd5eEKaU/F54WDOElSmWI/TiGrZo4qOb6+/WgzlUk7Mur7mo+afiKXBmaVxHx8UodvaqpoLLFxKUqXiXU4J7JTMrTuXQrkbbekwyAYIU8vdSdwf+As66atnvb+FwrTh733WFpgVFf1OVJ6x4HyRDEShhz234=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=pH+kIo9J; arc=none smtp.client-ip=209.85.219.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="eEO2qnr/"
-Received: from DESKTOP-0403QTC. (unknown [20.236.10.120])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 112512068337;
-	Wed, 28 May 2025 15:42:56 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 112512068337
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1748472177;
-	bh=BBNnTlhHJfRhv50gKjTeM2IF6Sms1SVDjpmf3Got7WQ=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Reply-To:From;
-	b=eEO2qnr/d9KBIV2c9UfOMrsgOxO8ffJ8l9rq15vuEQBLDFh5iBI555Do3su8BZVjI
-	 kLM+luZtvxH46g0otgcojJ+UHPeWMEbsvfAZyVUdSVvlv2DAxduzoBCXsWO9aXsDnK
-	 tgc4dE26hxnh6h5muSK7GIUUmcJbcjj4uIw6yP7U=
-Date: Wed, 28 May 2025 15:42:55 -0700
-From: Jacob Pan <jacob.pan@linux.microsoft.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="pH+kIo9J"
+Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-6f8a70fe146so7193996d6.0
+        for <virtualization@lists.linux.dev>; Wed, 28 May 2025 17:38:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1748479108; x=1749083908; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=sVQkha02xf9SMmtYT1jV9HNI/f56xB5GG/vabKlGDf4=;
+        b=pH+kIo9JCIM989xAeZgCTlHvTWVlV3FIi+EyRdOk30GYUcTtC1b1WxqmG3iktVw8u9
+         mfKFJSEB54m8Y63LxACD4PssiWCsp3ZvRgIhUhLNvLLb0tF9xiM4H0Tn5ClQAZFniTsO
+         0Vdhx1JN5hg6lWYCdTRRs4tMsYSwX7zYSQXUrDjiMeDR2bIrJwO0x5m7N3GCfSJA/DFs
+         01om6YaSlJL+NBd1ZELL0nLVQFclw+Cg4YSWVfnChg7ISGG1Pg4SnfaeEu+cnQxRm1As
+         OSX9Jp8i2WzdNcSCCD1f8VAs+pN4BJltOv0zAKuogPGlJMKVMMyJq7SKnaPnYn37+uv5
+         y8cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748479108; x=1749083908;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sVQkha02xf9SMmtYT1jV9HNI/f56xB5GG/vabKlGDf4=;
+        b=nq+3ZTF7718W1lEvkJ+SHIvwo5ZnlisLpmU/1R7jOlB5rMysNQyF+Rm+YTC6JYErXo
+         TqgMGjTBwC5Fvk3E9KpTtwxq8+rqhRuxUHzbW/w1MkqqwHpaSGrrlTUGju6a2lxQAtoM
+         rtZGqxJMCwCYCeKfU+Tt85ymWErs1i6BDFay9nic1xRBcCcrDJtqVVLF8xj0MUF9AaIS
+         XH9NdPE/iC2tjTq4/bjts/94B/zLofH9iDoU3TRxWI5JT5HOqI7RirhCOUL93atZzfeQ
+         sZx4xLdnTUtifGiV4kumVB4CYw1DU3jf4qbOovLYO9gYZhsf7Tir8/kgnxYhSjsTxF/Q
+         wyxw==
+X-Forwarded-Encrypted: i=1; AJvYcCVM2tU6KY/RVkWw+pYtBjCYRZvgY/FVuC8Ch3mvePK0xz25QEvB35MC9YSRzS71+1rOFOv1wgUBz58OEZ3OfA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxlcqRGgkiae5jGa0Pv4hDnkvK9jfZYk2NaB+ady+Z8Py4ZQC3d
+	oAaTw5hVu/pALwTUAMIElFkK89gCoJD9FOxvgmpVMBveGa02hIdwkS97xLsE7tJi30k=
+X-Gm-Gg: ASbGnct1H8N/W9PIipGg8XdDh1J/Fbtbw/ovvvHQY1zaaUa+2zW0cmFFBCxwN7AHa5w
+	uF2uGyE4q1tiAIiuL4m7KoLiVIP+C7bQ45YB049oeZX7ls6hmOSw+oBojVYG6yDrsYgjZMN2Ie8
+	ntXrjTQ0HuFG0lQe7S/QQV2uHI4OcYN6oJJtIZVW1cdgx22mCMwDrG8nrSf7J1QbDTou3r2g4ny
+	ZpJTJQag8wA9wQazudkTyWs8trhIyAtVpMh7ztiOMOSI95ZMeF5AI0t8gYtHwaXeBS46fHcLI4u
+	8HPvDio8we46CPLZz901J63jHH09KLi0gcMc7SaQ+CT/RyLvoAYRrzA2+DdBE/KXrjWKQXSw3V0
+	AI+R+rjHu9wmbvE2yFzfVPrjxSvo=
+X-Google-Smtp-Source: AGHT+IGrrQU6seLehXMngMNgswY4d6WsTh2X0qCSzttXJecRsw5bF1myMzmOuM/dLs2M8hI+8CLE1g==
+X-Received: by 2002:a05:6214:234e:b0:6fa:c85a:20c0 with SMTP id 6a1803df08f44-6fac85a2328mr4035616d6.28.1748479107982;
+        Wed, 28 May 2025 17:38:27 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-167-56-70.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.167.56.70])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6fac6d337aesm2521866d6.8.2025.05.28.17.38.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 May 2025 17:38:27 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1uKRHu-00000000qmU-32Wy;
+	Wed, 28 May 2025 21:38:26 -0300
+Date: Wed, 28 May 2025 21:38:26 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Jacob Pan <jacob.pan@linux.microsoft.com>
 Cc: Shyam Saini <shyamsaini@linux.microsoft.com>, iommu@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
- virtualization@lists.linux.dev, will@kernel.org, eric.auger@redhat.com,
- code@tyhicks.com, eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
- jacob.pan@linux.microsoft.com
+	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+	virtualization@lists.linux.dev, will@kernel.org,
+	eric.auger@redhat.com, code@tyhicks.com,
+	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com
 Subject: Re: [PATCH v2 0/3] arm-smmu: select suitable IOVA
-Message-ID: <20250528154255.769e07dc@DESKTOP-0403QTC.>
-In-Reply-To: <20250528000425.GC146260@ziepe.ca>
+Message-ID: <20250529003826.GA192517@ziepe.ca>
 References: <20250410225030.2528385-1-shyamsaini@linux.microsoft.com>
-	<20250410230008.GA6905@ziepe.ca>
-	<67fff12d.650a0220.208c7c.d69dSMTPIN_ADDED_BROKEN@mx.google.com>
-	<20250416181759.GF493866@ziepe.ca>
-	<20250520224224.GA16365@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-	<20250525190703.GD12328@ziepe.ca>
-	<20250527205428.GA14019@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-	<20250528000425.GC146260@ziepe.ca>
-Reply-To: jacob.pan@linux.microsoft.com
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+ <20250410230008.GA6905@ziepe.ca>
+ <67fff12d.650a0220.208c7c.d69dSMTPIN_ADDED_BROKEN@mx.google.com>
+ <20250416181759.GF493866@ziepe.ca>
+ <20250520224224.GA16365@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <20250525190703.GD12328@ziepe.ca>
+ <20250527205428.GA14019@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <20250528000425.GC146260@ziepe.ca>
+ <68379171.170a0220.191ee0.8d6bSMTPIN_ADDED_BROKEN@mx.google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <68379171.170a0220.191ee0.8d6bSMTPIN_ADDED_BROKEN@mx.google.com>
 
-Hi Jason,
+On Wed, May 28, 2025 at 03:42:55PM -0700, Jacob Pan wrote:
 
-On Tue, 27 May 2025 21:04:25 -0300
-Jason Gunthorpe <jgg@ziepe.ca> wrote:
+> > All IOVA that the platform cannot DMA from should be reported in the
+> > reserved_regions file as "reserved". You must make your platform
+> > achieve this.
+> > 
+> Just to double confirm, the expected reserved region should be marked as
+> "direct" instead of "msi", right?
 
-> On Tue, May 27, 2025 at 01:54:28PM -0700, Shyam Saini wrote:
-> > > The above is the only place that creates a IOMMU_RESV_SW_MSI so
-> > > it is definately called and used, right? If not where does your
-> > > IOMMU_RESV_SW_MSI come from?  
-> > 
-> > code tracing and printks in that code path suggests
-> > iommu_dma_get_resv_regions() called by vfio-pci driver,   
-> 
-> Yes, I know it is, that is how it setups the SW_MSI.
-> 
-> > > As above, I've asked a few times now if your resv_regions() is
-> > > correct, meaning there is a reserved range covering the address
-> > > space that doesn't have working translation. That means
-> > > iommu_get_resv_regions() returns such a range.  
-> > 
-> > sorry about missing that, i see msi iova being reserved:
-> > 
-> > cat /sys/kernel/iommu_groups/*/reserved_regions
-> > 0x0000000008000000 0x00000000080fffff msi
-> > 0x0000000008000000 0x00000000080fffff msi
-> > 0x0000000008000000 0x00000000080fffff msi
-> > 0x0000000008000000 0x00000000080fffff msi
-> > [output trimmed]  
-> 
-> But this does not seem correct, you should have a "reserved" region
-> covering 0x8000000 as well because you say your platform cannot do DMA
-> to 0x8000000 and this is why you are doing all this.
-> 
-> All IOVA that the platform cannot DMA from should be reported in the
-> reserved_regions file as "reserved". You must make your platform
-> achieve this.
-> 
-Just to double confirm, the expected reserved region should be marked as
-"direct" instead of "msi", right?
+I don't know, it depends what is wrong with this platform.
 
-> > Yes, i tried that,
-> > 
-> > This is how my dts node looked like
-> > reserved-memory {
-> >                faulty_iova: resv_faulty {
-> >                        iommu-addresses = <&pcieX 0x8000000
-> > 0x100000>; };
-> >                ..
-> >                ..
-> > }
-> > 
-> > &pcieX {
-> >     memory-region = <&faulty_iova>;
-> > };
-> > 
-> > I see it working for the devices which are calling
-> > iommu_get_resv_regions(), eg if I specify faulty_iova for dma
-> > controller dts node then i see an additional entry in the related
-> > group  
-> 
-> Exactly, it has to flow from the DT into the reserved_regions, that is
-> essential.
-> 
-> So what is the problem if you have figured out how to fix up
-> /sys/kernel/iommu_groups/Y/reserved_regions?
-> 
-> If you found some cases where you can't get /sys/../reserved_regions
-> to report the right things from the DT then that needs to be addressed
-> first before you think about fixing SW_MSI.
-> 
-> I very vaguely recall we have some gaps on OF where the DMA-API code
-> is understanding parts of the DT that don't get mapped into
-> reserved_regions and nobody has cared to fix it because it only
-> effects VFIO. You may have landed in the seat that has to fix it :)
-> 
-> But I still don't have a clear sense of what your actual problem is as
-> you are show DT that seems reasonable and saying that
-> /sys/../reserved_regions is working..
-> 
-> Jason
+"msi" is the SW_MSI region created by the iommu driver, ignore it.
 
+"reserved" should be from the DT and it says "my platform is broken,
+this IOVA doesn't work, don't use it"
+
+"direct" is something entirely different, it also should come from the
+DT and it says "must be mapped 1:1 (iova:physical) at all times" which
+usually means some FW or other component is controlling the device and
+doing DMA using that physical memory space which is unknown to the OS.
+
+Both cases would interfere with the MSI so if the DT/ACPI declares
+such regions that overlap with the SW_MSI address then Linux should
+select another SW_MSI address.
+
+From a linux perspective "reserved" just ignores those IOVA spaces
+while "direct" sets up 1:1 translations there. So FW using direct
+incorrectly could become a security problem.
+
+Jason
