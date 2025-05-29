@@ -1,118 +1,107 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3D9F254861
-	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 06:02:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77FD4156CA
+	for <virtualization@lists.linux.dev>; Thu, 29 May 2025 06:05:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748498580; cv=none; b=uGC7P1dhYkNbccjm+Je2wuvwLXFQFuwaQdo8SW8jTzKeAVFlVbXUUCC7XBgur7UcuWXk/HTcxAiJmakhSUv55syGSw4asuFu5fB1YSEOGWJaJB01kc0OE8CH3Zjp8WBhg0Ck82W8+f6qH6l5NHdLbZpVLT4I2BK2nDxJ5kglqaY=
+	t=1748498752; cv=none; b=HxkUsZEHsWnL3f9HKSJbFOPssXlGIhKeKuhy+yxyZ909k0HhfJt1roFYRLwXlUF/8s/ykxP02ZcGMkk54xnQdoK87n0cM3G8fSoUpfZG/b4aWv5gqN5OGKkp/SGGcGq56WugX5B8x3GcNJc5QnhBPnEOqtPSezNoRCUvAbECAt0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748498580; c=relaxed/simple;
-	bh=Fkp+IGW7TPGnZNAbAinEElfDl2SRpDjwPauRa8hMm6I=;
+	s=arc-20240116; t=1748498752; c=relaxed/simple;
+	bh=no1aqbbZyBCpfeXzJTYYTAIz/S0TB+7xts0vma9pIFc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dPh00NRDz6hPfiqulP04fVCrpXiF+sgSK3S2zCMN9S172/92F1dQRnt2vpseCzwrsugPt35mehsNfl+sP5rNUKav+XJVn97D1xqhwJ6OpClIOOpB40xUWPascmwxntQVXjOElNdNwKFx9yCYMS1L/6Gpuk3qx5REaHw3EvPiMek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NjWiSFx+; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=HFhL8PAWdiWOajVtPjKBRWERBwdKazNac1z3yh0emati5GF2tj6N7yi8WRa1mGSMP7eCq3r0evVEhZJT+WbuU5eYyYB54W6FtkDmJICy5+izv4q5ULBUa8YT2PxaMc1XntcGxoaJw6jTJHcxdIiGVNAvN6FRt5UKuGxCxuhnMm0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T1reMGJ7; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NjWiSFx+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T1reMGJ7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1748498577;
+	s=mimecast20190719; t=1748498749;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Ox8p/2RUuwEy8Y6Yrm/mFWz/y7tZxRVqzbJuQ+vAXU0=;
-	b=NjWiSFx+itAGDtxbBPbJv46nCvqz1Q2i9x28zwrBN6fA4cKiiJQVoQUrtCdOpzv75dzCHM
-	2IhGIwmv4pSIirCgAhANg6gEwbnu/19EEUXW+Zuvdi6ktDLZveUmAO15QouvSMpwCERGBk
-	3dRT8EnhJrsoPWxH6hZob4A4btvIrOI=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=no1aqbbZyBCpfeXzJTYYTAIz/S0TB+7xts0vma9pIFc=;
+	b=T1reMGJ7ncAcE97l+c7wGeJTE8jJwL7IQyQUU+qHWi9hZEYkviZX/gAL4xIPaAt36jap1f
+	u5Vp/v8aB+3nLc/0HXslHYDvMv3BqEwsLf28BQWbGJ2KcWj/acv4GEggMwEMgelMzdJsRe
+	e8MqaODv5DHN9PV/RygTzuG26qtMAv8=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-37-D3TumRvSPqyWfZ9jxMsChQ-1; Thu, 29 May 2025 02:02:52 -0400
-X-MC-Unique: D3TumRvSPqyWfZ9jxMsChQ-1
-X-Mimecast-MFC-AGG-ID: D3TumRvSPqyWfZ9jxMsChQ_1748498571
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-af59547f55bso427845a12.0
-        for <virtualization@lists.linux.dev>; Wed, 28 May 2025 23:02:52 -0700 (PDT)
+ us-mta-209-1juY81oBMXWqIUB-JPJJQw-1; Thu, 29 May 2025 02:05:47 -0400
+X-MC-Unique: 1juY81oBMXWqIUB-JPJJQw-1
+X-Mimecast-MFC-AGG-ID: 1juY81oBMXWqIUB-JPJJQw_1748498746
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-310efb64693so538026a91.0
+        for <virtualization@lists.linux.dev>; Wed, 28 May 2025 23:05:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748498571; x=1749103371;
+        d=1e100.net; s=20230601; t=1748498746; x=1749103546;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Ox8p/2RUuwEy8Y6Yrm/mFWz/y7tZxRVqzbJuQ+vAXU0=;
-        b=L1DMRj8qyTnHbLIxehMsTzechY9DcJlBSUw+i5LFKETf3BCPaoKxCQuyzsjnoovmqZ
-         I26zZXUWStk3XRzMP0zcpC6eUPC6dAESQyTTFn7aBdoDL7jwxc6dZSlgdql9cPkNVPlx
-         TvE/Tkp2WdXhpZAHw6lfyNbZmvdFMoSSCi9iL9eD2qP7xLGYtKqUSYLBG6LOBfZI+jFo
-         xShRlWvRlZawlqu+bmSK4udc+ktTmFev0SYb1vZd+pDa+rTCHZRjxrSqvPoa3zKsE/wb
-         zPGtcZtvDHNjdxVR5Mfod9cspUnHVywZjw7mBw94RpYugIi/+uOfSN9zJzeimaxrhr15
-         3q6w==
-X-Forwarded-Encrypted: i=1; AJvYcCVICqiDJgQKwJgbDZFquZbWq4pwPBZb9+I1LMybYlO9amdAXTlHhiFGlygEKIt9a/e3CARjT/1+E0DjL9M9ow==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzhPPWr54XDMAun8MOMlcndyYJuuBXnh3nVuMNKDgyEH5RjObhA
-	29BNMTkbVLHb/70WpIEfwzIVopiIAIj4+TMrODDEgb297/F/Rxc1MZtWaaLNBzYl//mw2/fR7dw
-	W+UW9rxrnA4P1we29VrlbY8KkfC9RimsYniSMRBKx9L/RdRkL644V5O37QbjNjHUHMiUuMo9wTF
-	jLv3RF9WjUUqIOKQoMZRCOLl3sXtWNKeDuln2hTwtzSJI=
-X-Gm-Gg: ASbGncu6U034RjjlKotUFF931N3uYyUT+opkWVDiFOdGxiS4/kQcDDd3r2W8EKpm2qG
-	rudZoghh9XU3M6m7G9OJKtkelv+zsrsgqCZCeI7PaaLOjeaXVvAuMILWk2l1Uv7espFgn7g==
-X-Received: by 2002:a17:90b:55c3:b0:312:1e41:3a5b with SMTP id 98e67ed59e1d1-3121e413beemr1546585a91.4.1748498571184;
-        Wed, 28 May 2025 23:02:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGseKM57uPSH1yzFvA1sPyp64ebVJHorKWlBt3avCzTNh2XNJWP+T1mUEEHN7w8KQS8+ef/r6g+EcKIjodekn8=
-X-Received: by 2002:a17:90b:55c3:b0:312:1e41:3a5b with SMTP id
- 98e67ed59e1d1-3121e413beemr1546549a91.4.1748498570780; Wed, 28 May 2025
- 23:02:50 -0700 (PDT)
+        bh=no1aqbbZyBCpfeXzJTYYTAIz/S0TB+7xts0vma9pIFc=;
+        b=XwWAfBoxPwYH3IAflDsAME2akEN3+FN1+rrunwtZeAm8fXFlN3e4tsQ+vPMmLCFWvM
+         q6B1qFcZOTIECTrqS9KKIn2Rp8I4lB+9KdMF0JH9oKt+dAEB5zWuMRZEJapKHY6Hcts9
+         3s8ihF+Ud2pYqQtLucNA2LP+fZ/ex6PWIxqo26AcLLtVPCExCEs5HbNBFD+CGmBtgs4V
+         gELB0h92nxnCyFxFTJ4AtbhKMHtozswNrEo6y4lgt+WPjjREziKcNb6pLh1pCNRHuHGa
+         0KreGHuxDeLt53vQdZFYhIt7gC08yX04bOPSgKgAydqjbesJv/TVEP/DW79oUdm3HFTe
+         eRQw==
+X-Forwarded-Encrypted: i=1; AJvYcCX2Z9X6Mr/P6r5fb1jNajSaiWnFDWWsyEUXydlz/4nLIited0Xf+Z+mMca9BhpSG+tqVs6m1kO/LJD4FnzoOQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwJ8czbfbRBEjrh+bn4lxL9eKeXVm78QQWrjHFqzK2j51g0HeEX
+	lZVHsDFTgqPRKagBJl855L3kjwsEE7KkSkrtctA95Ls0XL5823XfkqMuOhxQF9fmBR8psqM8wtJ
+	Bs73WR6tiSI0IUwSV5zYYyrEkOc21wX/oHxWNoaRk6wOO5Gj7KwN9BJbM05pjJO3I36M+pOv8SS
+	/uck97UgPbpUiAXEuqrqIEss6Q5S7Q1q0nTB+7hBlz/S8=
+X-Gm-Gg: ASbGncthBxHQrBAsX5NEcnzdc8O5P87XeB2izKJ49Fmb9utExuVR+BJoqaO7V4hD6zU
+	ftMiCUn8Ko71lnb5Whv4zVs7JvluZrvqU+LN+OozAp3k2XHURXXeFehA2PFUkqDRF8YVC5g==
+X-Received: by 2002:a17:90b:1b4b:b0:311:d670:a10e with SMTP id 98e67ed59e1d1-311e741d857mr8403834a91.18.1748498746015;
+        Wed, 28 May 2025 23:05:46 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEhKm7vTdAWm+ZVfYsKZk4PLZyQfaAbTNQNUVYnzDB+/vla96NEa/sHqud4vlifM7NPP/JX6vV0pVkRrsEa74w=
+X-Received: by 2002:a17:90b:1b4b:b0:311:d670:a10e with SMTP id
+ 98e67ed59e1d1-311e741d857mr8403795a91.18.1748498745614; Wed, 28 May 2025
+ 23:05:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250527183407.2093374-1-alok.a.tiwari@oracle.com>
-In-Reply-To: <20250527183407.2093374-1-alok.a.tiwari@oracle.com>
+References: <3e56c6f74002987e22f364d883cbad177cd9ad9c.1747827066.git.viresh.kumar@linaro.org>
+In-Reply-To: <3e56c6f74002987e22f364d883cbad177cd9ad9c.1747827066.git.viresh.kumar@linaro.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 29 May 2025 14:02:39 +0800
-X-Gm-Features: AX0GCFuDDpVrmW1-K7aWF5F3A4LuqINynrQFLI1IwHM-GXbe0Lza7KjoUEaxLzE
-Message-ID: <CACGkMEv-FAbx-TU0Lvi_C=9Tk94EiHmDQzT7Fqn0ZsMcP3BPkQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] virtio: Fix typo in register_virtio_device() doc comment
-To: Alok Tiwari <alok.a.tiwari@oracle.com>
-Cc: david@redhat.com, mst@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, darren.kenny@oracle.com
+Date: Thu, 29 May 2025 14:05:34 +0800
+X-Gm-Features: AX0GCFvm7_KOQ3_CSX-l22USsRFufClSk2dV8c7bgpa8kJcsAcwAfJSzihrbHw0
+Message-ID: <CACGkMEsfgGU99_NC3NTYgyH89=6eADKPFiChVW0kZkfF1Js7NA@mail.gmail.com>
+Subject: Re: [PATCH] virtio-mmio: Remove virtqueue list from mmio device
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, =?UTF-8?B?QWxleCBCZW5uw6ll?= <alex.bennee@linaro.org>, 
+	Bill Mills <bill.mills@linaro.org>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: QnWUuFkB4d7grJzSLnlUB8Y1PLLMcEsBS0ztH_dZxYk_1748498571
+X-Mimecast-MFC-PROC-ID: namrd87UZSRd9QsdXQ0NiovUn8EA7j0Z1Jw2SRLPaRA_1748498746
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 28, 2025 at 2:34=E2=80=AFAM Alok Tiwari <alok.a.tiwari@oracle.c=
-om> wrote:
+On Wed, May 21, 2025 at 7:34=E2=80=AFPM Viresh Kumar <viresh.kumar@linaro.o=
+rg> wrote:
 >
-> Corrected "suceess" to "success" in the function documentation
-> for clarity.
+> The MMIO transport implementation creates a list of virtqueues for a
+> virtio device, while the same is already available in the struct
+> virtio_device.
 >
-> Signed-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>
+> Don't create a duplicate list, and use the other one instead.
+>
+> While at it, fix the virtio_device_for_each_vq() macro to accept an
+> argument like "&vm_dev->vdev" (which currently fails to build).
+>
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 > ---
->  drivers/virtio/virtio.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 95d5d7993e5b..2c022640ec4b 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -506,7 +506,7 @@ static int virtio_device_of_init(struct virtio_device=
- *dev)
->   * On error, the caller must call put_device on &@dev->dev (and not kfre=
-e),
->   * as another code path may have obtained a reference to @dev.
->   *
-> - * Returns: 0 on suceess, -error on failure
-> + * Returns: 0 on success, -error on failure
->   */
->  int register_virtio_device(struct virtio_device *dev)
->  {
-> --
-> 2.47.1
->
 
 Acked-by: Jason Wang <jasowang@redhat.com>
+
+Btw, virtio-vdpa may need the same optimization.
 
 Thanks
 
