@@ -1,330 +1,263 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD12B22FDEC
-	for <virtualization@lists.linux.dev>; Fri, 30 May 2025 16:54:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748624071; cv=none; b=TZn1d+EnT4e/J74oO7cKH1AfBkVQ8xR+ZANOYJUarCuWGRuGhzoBCq0dWhhgRi6a3XHc1KvhyGSADiChEbf/7X8Kuv7UgptwZ9vGPa9kUT0+LtRt15ZlXts4gr9+bcFzjhpWTi1A0UmVw8fOJDjqI6BRPy9QVVB6rTW2EC0JFwE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748624071; c=relaxed/simple;
-	bh=RXLmFWxoFIJycLMgEmUPoFkj2rLa+5V5ozpa6WNzSX8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=M95ddOLjonBtZ/qkLprc19npKswuBdcCYwiC8iwhhiaI/5aPEbhZEklcJAhi1j7PIx0FwwWJe+mMSeIGERaoIG93LtVniwHy0aGrk9EHKHXSKeIH4ptv+nTp1VRQe0rLxErg6hCRu9GYp/bCo9PDxGRPkFCbR3CtXl1nZnIBjeo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=V8BjR+1i; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=P+Z/dvim; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=V8BjR+1i; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=P+Z/dvim; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF4DF23E35B
+	for <virtualization@lists.linux.dev>; Fri, 30 May 2025 19:10:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1748632211; cv=fail; b=MfiGH8/f5ED1ZEJ42Wn09A/4SH9nrCFzDZto5r53RDl5XXW90UY3RruID9mMHyiZ/EtJXoZ1qK6HFMQ2Vn7jNJQukASVk3uGy7QzhCZFIBybSjDUeH9Y/eo+3WIOG/e359Bm+/PgkvaT+U7fNSTwCQGehjQ4j49rLaLK9W3rwWQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1748632211; c=relaxed/simple;
+	bh=D8Oo8/gT5LN2qAMs1YNY1PoxIqSjZLeRRb+AjAP9SM8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=T0AhOESiTuFgmD4LJZTICbI6VDD+PZt3WEWSmAzMK6YniWfi1es+aqIpKPV3xlsoA4VpVediq42+ZvHty1z3QWVDVKppa+KBXpVAgfaUhsLkYbVGlkPZ5sI1E3TO2GungTFtByTla5XzH76F71bE7wRT+uIPO7Wkx8f6BrELKHA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=bEl3DquR; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=MJHoueYr; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="V8BjR+1i";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="P+Z/dvim";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="V8BjR+1i";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="P+Z/dvim"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id ACFCB1F791;
-	Fri, 30 May 2025 16:54:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1748624065; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=S9NNRjMCeuQEBzBHlmjDA51y656c4U2QaDFVTqvP2PE=;
-	b=V8BjR+1i179CcI3Oa3VQkZtxvSCHAND0N9Vhr3cJ2KIEVQOsqzZUbfUp55cce7uX86ifJY
-	svqSJsSmVzjFZfBraq7Y00L4oTE9i1EIHSYWvCM1On1Y1FaTMc9N1aMuJ888jhVKsWBPr0
-	VzRut4TXjoYFAaARQi/dp+AKDqgUmSo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1748624065;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=S9NNRjMCeuQEBzBHlmjDA51y656c4U2QaDFVTqvP2PE=;
-	b=P+Z/dvimtiPDMUbz9O1pgXi/YXKGJOI5gf0eNtiGXXyCjNcVkbqgKZpGdAlPKEjeJdeuu9
-	dzfdNDvqyjO2JJDg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=V8BjR+1i;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b="P+Z/dvim"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1748624065; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=S9NNRjMCeuQEBzBHlmjDA51y656c4U2QaDFVTqvP2PE=;
-	b=V8BjR+1i179CcI3Oa3VQkZtxvSCHAND0N9Vhr3cJ2KIEVQOsqzZUbfUp55cce7uX86ifJY
-	svqSJsSmVzjFZfBraq7Y00L4oTE9i1EIHSYWvCM1On1Y1FaTMc9N1aMuJ888jhVKsWBPr0
-	VzRut4TXjoYFAaARQi/dp+AKDqgUmSo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1748624065;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=S9NNRjMCeuQEBzBHlmjDA51y656c4U2QaDFVTqvP2PE=;
-	b=P+Z/dvimtiPDMUbz9O1pgXi/YXKGJOI5gf0eNtiGXXyCjNcVkbqgKZpGdAlPKEjeJdeuu9
-	dzfdNDvqyjO2JJDg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7E5D9132D8;
-	Fri, 30 May 2025 16:54:25 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id Y78YHsHiOWipcQAAD6G6ig
-	(envelope-from <vbabka@suse.cz>); Fri, 30 May 2025 16:54:25 +0000
-Message-ID: <d3336028-174f-4312-864c-2b1e1b736e07@suse.cz>
-Date: Fri, 30 May 2025 18:54:25 +0200
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="bEl3DquR";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="MJHoueYr"
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54UJ7Vkn026387;
+	Fri, 30 May 2025 19:09:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=corp-2025-04-25; bh=I+DxlQAbrpaOCVfQVy
+	LgrK9X1SNPjzSzIGLlfFmHbLc=; b=bEl3DquRUZ4iOPho8YbFLUlX40U92QQyZi
+	J84f5A9066yNxz9R9YKi67eBo7KrcfC3CvxOlO+O4UzSyyxu25IojqTXjokNMlkH
+	o5UVmTvI6tXI7INYXNdjDndyXt4B3UzScVuA9lr3+RSUQBlSeY0BgVfdt9BAhuI8
+	incx/SIVHhTHfXUQAVM0WZeugKPTO+vc4XoWfcbzkesMeHW0r6mjwzMsUsiKT9bj
+	lwpb3MUg8gWQv6hObiDvuD5YXDeyISs/sAhMfePOf4En0Gn7Y7kJv6rEt4KGWLqE
+	jNFptIaa18EYsw25jS3/5pnaRJRGXImwVir19iGxhyVWEdUTRjww==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 46v3pdanjr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 30 May 2025 19:09:10 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 54UI6IRK023031;
+	Fri, 30 May 2025 19:09:09 GMT
+Received: from ch5pr02cu005.outbound.protection.outlook.com (mail-northcentralusazon11012031.outbound.protection.outlook.com [40.107.200.31])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 46u4jdcw05-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 30 May 2025 19:09:09 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=fV83HSaVXL0nwGdOC7JLeoNVWKvDHT8TulziKNYJRcEwT67HYlN/96q0r75Pj/f+Kz2gEabRRXz6MDrJlowy0L22Qv0VQi/ep9nus/ctQ2M0/ZRb67FIZUdKo7Sa2/7IKv6toPu9UEGxBsUAAcZopTKBdwlZI1+ddFFncm3lMSipSfuDu7uSrPanTOy5xg2SYK+c/PUBaPS7Vz16Hz1Pp5w/+k1HejxV3b2Kc1YFhdYCSupzy26iUbmpIMj9pz4YvTS+MIEknrVAgILM6dL9+C2+Jq6pw9P7KZtGQnAHsv9S+o8u24HgdfBtGcpfAYaCaK8RGnUN2U0Dzva0waWziw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=I+DxlQAbrpaOCVfQVyLgrK9X1SNPjzSzIGLlfFmHbLc=;
+ b=QWh4UjgstVjzu6qvtWYkgrFHzt8Qp7B4JQ02a4nX8jxzyyuK3XhFFMc1X+HIGnUmREP1jZiRQcklth4jpBuCT+4CGI9UnpY5Zpjq60w7vH4isKxyrJuj5mnvRC/AuzYgiYzRKZLTF7xL9ZGnRRNYbA3Wsc/U2cLcoDy163s3XaKkm28+zElgxA6BV5UdX2KQerRu7QJP9SnQt5oTql+FUI0Xxhk1BmCV3SPMcz9hbxVgYJo3DNdsDD5IAtw38vY8WSCNhNGSSzLlW80HLjCSsxT0SBiAAiedstaRlzrDbEyLfC2ZEM2thLBhqBYkA5RCtAPPPBbgNdqZ4FJDr8SbbQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=I+DxlQAbrpaOCVfQVyLgrK9X1SNPjzSzIGLlfFmHbLc=;
+ b=MJHoueYr52bEQ2q3YLNjhCoqAXHl6fgHZ68oSWO7QV/bJ46G5Y+Yl90yAVtjnw0P3vwnvYEW/gF9h7zlgX0LHshKt3vDKz8VLYe1qAdPreIMlLRNLQxIjjCRrDL1D0U7YRc3vNgxyslMPFXRRhRC4msHFgzdpY89pQ4ets+h9uA=
+Received: from PH0PR10MB5777.namprd10.prod.outlook.com (2603:10b6:510:128::16)
+ by SA1PR10MB7593.namprd10.prod.outlook.com (2603:10b6:806:385::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8746.40; Fri, 30 May
+ 2025 19:09:06 +0000
+Received: from PH0PR10MB5777.namprd10.prod.outlook.com
+ ([fe80::75a8:21cc:f343:f68c]) by PH0PR10MB5777.namprd10.prod.outlook.com
+ ([fe80::75a8:21cc:f343:f68c%6]) with mapi id 15.20.8746.035; Fri, 30 May 2025
+ 19:09:06 +0000
+Date: Fri, 30 May 2025 15:08:59 -0400
+From: "Liam R. Howlett" <Liam.Howlett@oracle.com>
+To: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>, Juergen Gross <jgross@suse.com>,
+        Ajay Kaher <ajay.kaher@broadcom.com>,
+        Alexey Makhalov <alexey.makhalov@broadcom.com>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>,
+        David Hildenbrand <david@redhat.com>,
+        Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
+        linux-mm@kvack.org
+Subject: Re: [RFC PATCH v1 3/6] mm: Avoid calling page allocator from
+ apply_to_page_range()
+Message-ID: <fbscxpcwnqu7fblvzzngvgop2n5upal2wdlqn7k2rsbswdmna6@xiyhbt5j3web>
+Mail-Followup-To: "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Juergen Gross <jgross@suse.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+	Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Arnd Bergmann <arnd@arndb.de>, David Hildenbrand <david@redhat.com>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Andrey Ryabinin <ryabinin.a.a@gmail.com>, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, 
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, linux-mm@kvack.org
+References: <20250530140446.2387131-1-ryan.roberts@arm.com>
+ <20250530140446.2387131-4-ryan.roberts@arm.com>
+ <6nf3cxwhij7jtfi2u6nmt4igezf754gmue5dfskn4jkfkxmjzr@7btdipzmzjuo>
+ <c7017555-cc46-4cf9-86d2-03a252165062@arm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c7017555-cc46-4cf9-86d2-03a252165062@arm.com>
+User-Agent: NeoMutt/20240425
+X-ClientProxiedBy: YQXP288CA0033.CANP288.PROD.OUTLOOK.COM
+ (2603:10b6:c00:41::30) To PH0PR10MB5777.namprd10.prod.outlook.com
+ (2603:10b6:510:128::16)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/1] mm/memory_hotplug: PG_offline_skippable for
- offlining memory blocks with PageOffline pages
-Content-Language: en-US
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- Oscar Salvador <osalvador@suse.de>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>,
- Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>
-References: <20250520164216.866543-1-david@redhat.com>
- <20250520164216.866543-2-david@redhat.com>
-From: Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; keydata=
- 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
- m6M14QORSWTLRg==
-In-Reply-To: <20250520164216.866543-2-david@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[16];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_TLS_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	TO_DN_SOME(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[nvidia.com:email,suse.cz:dkim,suse.cz:mid,suse.cz:email];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	DKIM_TRACE(0.00)[suse.cz:+]
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: ACFCB1F791
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Score: -4.51
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR10MB5777:EE_|SA1PR10MB7593:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2e839227-86dd-4acf-0686-08dd9fad72bb
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?kJfJ27FNTVe2elKeGPhwHyIB9h05nb+1Vq9VYumafk3WQiKzfWzXBoxfON2F?=
+ =?us-ascii?Q?0FlC7c5Ar0S5XbmPYUMUyvXOAG4IuW0nXYul/sGj40PUOyR8+R86Ltpt7yDi?=
+ =?us-ascii?Q?YZ58DTqJ6EMW+NSSuA+3zAwJVNScajb55/lViaP2kKZdMO5bkGnRVPVLgWC5?=
+ =?us-ascii?Q?OmGGFCtXDD3AXoWzskoLu05yfZUJ4RHxiK83StuAGjeq5LbryQJogJ0wK3Vn?=
+ =?us-ascii?Q?vEAzbuwFgEwZDHSz7Y1UXdPlp5FT71U8kcdRACjaJkdbwSieLLiyKyPGwMmA?=
+ =?us-ascii?Q?1uzQF8U2nIRtabfqFJttRDYWO2UnwuEQHY2ZgkYDtwP3QUIW2rVNFYjTg362?=
+ =?us-ascii?Q?Rt5drQjjDDy4XbZfQHfF6EG84dGMat2ls+ERAm+erO29TDmIPPQMlvXsLJ9n?=
+ =?us-ascii?Q?kFwhU5MMxBh7srtBonXmcEmczw2+ldl96JAFBMAy/B8sRKUrRdP9Mj8PdqF5?=
+ =?us-ascii?Q?Ch45xBA9bFM7KhNcN8+QiHun4DqGOSzzcO0ZPkwvZdgjFrfWQB6bZ6QANPw0?=
+ =?us-ascii?Q?SkpzA29tjBhaVHFtOU41Tk4VSO4T2Dmh0L54Gpi8oJrnKWxED9rVJ5xXx6/o?=
+ =?us-ascii?Q?Rv7GobdElxEig9BVUABsM8BWIO/h+lxnujuzKvVxulZd7U2FjNCRWNoRuUBp?=
+ =?us-ascii?Q?C6lJLNRZIeOCJsAF8By1wkR6TZAlyTSSUcQwXfqHh9veAmh+Zz+vYI/ko8+C?=
+ =?us-ascii?Q?VAxzPZ0J3ZZsbvkjBNTVzxTANfqjD+Aby6MJJhTqeBqYFh+Hs26G7Z1tdxG9?=
+ =?us-ascii?Q?Bk0ncYW5s0fHomai3RV5rwDodiwu0it6ov7y9h2HXXlJbTTRFdWdmHVWZyoi?=
+ =?us-ascii?Q?p2Rzt5U/r7+uZ8mRSYfyCh5awfIEtb5e4u/ZJQzNegmbFWJP7mBYc8MZ9WRR?=
+ =?us-ascii?Q?T2LNAACoGdgZnrKoPHWL4f4Dv6IFbsp7l89y+EiQS4hd6AE9FKn649thwzsZ?=
+ =?us-ascii?Q?29k5bXGAL46mVBm8SUCj2hGnhgw+Rlh/9/2f3sI2W/M6yqQS0l7Dt+nJzRV7?=
+ =?us-ascii?Q?vVLiqjk4yBUkyxrDY+z5T1yniX1Ec52W4BtzmwBUbp4E+MsxPqetxO5jax2D?=
+ =?us-ascii?Q?56JKPc1+IZBDhbGn0sdLzxbg/OeYWmYAmCuU8CTeklSO6edzAwF21YjIiceh?=
+ =?us-ascii?Q?gSDtVJ1HQE61sHO4hJafudFT5BsugtXCmvPR2MvD70CrD82ohZSbngNweMzf?=
+ =?us-ascii?Q?sDpQdAOzj6sJt2/K+yjrVlApUFMLCQp39XN6KTmIHuvEbr2NRypP03dIfsmn?=
+ =?us-ascii?Q?ktnYKg8YlSDocA7ArIT7DYKsqN028+QVrM5uUz7LB9yvCeYk3kcel0/Unf92?=
+ =?us-ascii?Q?BX7EhvnayfhBBCLFXvQ/kquGY+INF8jUnqTlrhxWaCzn16OKDYVCsibL3RAf?=
+ =?us-ascii?Q?PiDKP+G1pnDTh5cAfokdyyxpsylxN0N4/dbqCXlmR5t/5p/FpRTJZtx+xSXP?=
+ =?us-ascii?Q?BIPnk8Nus4M=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5777.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?zTYbfM0EgQQX8gpYimYG+IHwqtA03TxEjLVbg/rAsKOH5DybqwTUs8pub+q6?=
+ =?us-ascii?Q?TUx5u4WASY8/YqrCbAl18nRZR1w3cWOu4H/nZfVFqY0zKyDJoNsy0QtvG9MX?=
+ =?us-ascii?Q?GlfxOc64Oopo5fmVLnJtHAd55+i9cYv3WPqlZG8J00MMj3RI9ht4Vg8ynrCV?=
+ =?us-ascii?Q?96s0W3FEa/nLsPc8hv7tdzcJQDHx4U5q7UAbaoSBhTJk1gY/1EwP9YugCjJQ?=
+ =?us-ascii?Q?d58KNDMAWhN1j7Q8fIB5x9Rvm13VAZoSwhaFhwNFIBBFBbaM/cBL8hyKQGvE?=
+ =?us-ascii?Q?loll5Cm7G28eNduVSvFvL+24+7RszRhxTOP6klaJdU3/XsYykUo/34CEK+M1?=
+ =?us-ascii?Q?8QcHC+WA7rt7wcXvufFLe+cQQ7yPNAToTtxrcaAIL5QiLDD0n4yyUjQLk5jk?=
+ =?us-ascii?Q?qE1A2iIAOQ+uV+2WnVFlWfVFzjAacP0Bc/kOJ+hcMoortaEEFdr3lTOIOBeO?=
+ =?us-ascii?Q?vj5UIVHRsGOLtzsSJw9hAPXlqzi14Y4cqoAmb/9k71+LRxQg0GpLquReu9Sm?=
+ =?us-ascii?Q?Wx85fCujj1C9ZfZLoiKm5aSR1fzvCUWnWMtrbVV6YSi5a6yALFFRRmsNn1o+?=
+ =?us-ascii?Q?0VmWzwo7KbIfy1lvaVmFED0B7jRr60X0ms83Lu91ULW+xOM881l9yDrXGpc+?=
+ =?us-ascii?Q?ZGhNwRR8aLeeVbRVlaUcTIipjFZ+485RlQ76i6/dwuzZv+9X2m9McYqekLNJ?=
+ =?us-ascii?Q?18Ik3KB4HtRvJDC6AuhH/Xx9Our9leurZAQ0xMLhHAJzq7k+wpjdHctRLkVQ?=
+ =?us-ascii?Q?VqlIzWB7FhWnk8lp6WtuHm5wA79aIe2241QWCFCYu/KuBblGP/TuBkxiZNu+?=
+ =?us-ascii?Q?dKmkH8SFRcWM1esiyyp5QsmZJ7JUUP52dllfdr6/w9zpM8xbTkE/bCF6c1M+?=
+ =?us-ascii?Q?6eg6jdT9ZBkTlhZy15ap9YzzAQxXzBhJhfXgSjaqVf3w5VPVv7NI9VfDNk78?=
+ =?us-ascii?Q?AyVKrfmX3PQcSir1SKGOcXqmTTcGoknhubqqQqC7PLLGuP4AhRL0iiS9aU4Q?=
+ =?us-ascii?Q?9byzPA1qqtBZckB1++ApodRrHfT94dPthF7ruoSMVE4V+A1gst7iym34NZ7f?=
+ =?us-ascii?Q?TxGMcvEnA7SZBB72u57tXgfL9eHud35qGMF1JJVRMLTk0L8yoedzaBXR0nzq?=
+ =?us-ascii?Q?jbNjDE/qD2HJb+daxdmFT8F5a6SxqA5RqQtW+82oAC35JcQH+0FngnYz60M7?=
+ =?us-ascii?Q?IUwnKDjsi7c1aU5I7RE9OrQqjzVNsOaSNZUHqCrgYOotZTvt5qTMFlAw829R?=
+ =?us-ascii?Q?+N0d5EMHN2CLIyUIrfKxsn86hUCWW1vE9v/uEmuI6zpIZDUvKSbKTIfoM/Vx?=
+ =?us-ascii?Q?EqILs386Hlo3EudocuLPZbOupKnVxawG50hSQDDLRER+S2bvaCr8rgmPjTpN?=
+ =?us-ascii?Q?6k4y62i6aF9KnP9Ty2KZy2AX7rAjKvjkbED91IeBHJXjFjuFXNVjnEMIYJen?=
+ =?us-ascii?Q?s9f3cxuYaeMYxXFwUK+5PWU2Ucae3x+/IP4dK7WaIazL/dz6MSztuQ405mFV?=
+ =?us-ascii?Q?3r3UPl41/H61SYNYaUmWXb69AJnjGGN3JlmAU7P++gXOBXepeLIKQO+fEdUN?=
+ =?us-ascii?Q?L1Rk0Ewyg7Ooc+wg+gpXFxPxRR5Udo2kd9sJCUPq?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	sVOhol8w0ju45MVFlO9oaBViN5h1i1vgyURSUcj+8Uq8tfa3EGqFbqavu1BPB34DKpibb7W/p6MmBMSsJ8MC/mT/+ugUd80dJ12eO4g/L+KI0NkfGVc0yUk/81ez0HT5DpDRIgKZ6eJ7g0WY4gz2XKQw7E59ma9ZwgnfmAxGT3yuS2J5gN8YJl/sC1AwB6WFsCyNKMWYJq6CKkON+pRgICF+c/MmSzmThfbNI/ONi6yWMLz4Bse7D4CPcfUpaUxrytmamokB8oEovxEExkDgEeVb/E7MD7RHmmYaCAbLDXfknmrGulRjGTaiGf6+HtE24GO0LAZB4solVtSm+GS2l4ByDLcBl4wpabWA0zu4T5jvCUttEQabInBcynG8WqmJOd9sxcSHqfFZ4DXxi4fPm6eh2CKz7bE/t5aCIJXs7tEjZnBpadgRuu9RHd6c8KGqZPHICQEYY5tvsFo+Vm9mzzS2TNFIu4gjorWDwu2cgQ3/g3CgX1kxK9B2s2KP0fyUEt43XFbcdfkMlCngH9q5xWszSa7m3D3etIuwA3nDHUyHp82eJu8L7sY+rhXopcHhLnHOvd08SzjBHHpn9fRStTs83SwXqQA+ROikWPUkTO8=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2e839227-86dd-4acf-0686-08dd9fad72bb
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5777.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 May 2025 19:09:06.1273
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Hu2NOjsxXxo2oTSz1+Y81cGkmpy1+8BIh/ozIz51cIt6tohYaFvsh/6aCI1k8xVr5uKdfukIYc1VfjtTTAzP7Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR10MB7593
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-30_08,2025-05-30_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 phishscore=0 mlxlogscore=631
+ bulkscore=0 suspectscore=0 malwarescore=0 spamscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2505160000
+ definitions=main-2505300170
+X-Proofpoint-ORIG-GUID: nizOyBwxlJx-LsgCzOdBD7qM-5WR2XWe
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTMwMDE3MCBTYWx0ZWRfX/+5je1+eyY0p fCIECjqdNPoz7vevwpuWFWr1a/w1t04zXEqnMKnEAFmMugLmT2LEbbmEJiDe/IUu2THrQeZTE1k KM1pS38bPV588quwm5+isxAt/xruV6sHGkYQYwpvWfMnByrbC0ioyu+qAUiSoaRCLcHZ/fCopw3
+ bmWekhCPXl/PI6VOS8oPWOqyRzRODnBcDoS24DK9lsm787TL9Y9opwOqwteEhFb4W6Ux+VlASvA vtaLL8n+09X/QQ9ngE7AaDrnQNPwPSExAcDjqwdxjP+T4ViYpkPs0APD8lI0rbVmFw++MGdC5rM c90Bu5SLtlrUs2JW1S+5ad5JEOxhHG4kXRRxYlbEY+rkrSrS3a3/G8NEoEpdskQWKMGg2Cl/k25
+ ov2ha5l6ZXxScVKXR/Gm3hwoH1iyLqQkiyGMOU70+oZMOchAM80ejZu9YN4tptSF/G6eU4M8
+X-Authority-Analysis: v=2.4 cv=UZNRSLSN c=1 sm=1 tr=0 ts=683a0256 b=1 cx=c_pps a=e1sVV491RgrpLwSTMOnk8w==:117 a=e1sVV491RgrpLwSTMOnk8w==:17 a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19
+ a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=GoEa3M9JfhUA:10 a=7CQSdrXTAAAA:8 a=qmk0JyoKvBD0N212XD8A:9 a=CjuIK1q_8ugA:10 a=zZCYzV9kfG8A:10 a=a-qgeE7W1pNrGK8U0ZQC:22 cc=ntf awl=host:14714
+X-Proofpoint-GUID: nizOyBwxlJx-LsgCzOdBD7qM-5WR2XWe
 
-On 5/20/25 18:42, David Hildenbrand wrote:
-> A long-term goal is supporting frozen PageOffline pages, and later
-> PageOffline pages that don't have a refcount at all. Some more work for
+* Ryan Roberts <ryan.roberts@arm.com> [250530 12:50]:
+...
 
-Looking forward to that :)
-
-> that is needed -- in particular around non-folio page migration and
-> memory ballooning drivers -- but let's start by handling PageOffline pages
-> that can be skipped during memory offlining differently.
+> > 
+> > 
+> > These wrappers are terrible for readability and annoying for argument
+> > lists too.
 > 
-> Note that PageOffline is used to mark pages that are logically offline
-> in an otherwise online memory block (e.g., 128 MiB). If a memory
-> block is offline, the memmap is considered compeltely uninitialized
-> and stale (see pfn_to_online_page()).
+> Agreed.
 > 
-> Let's introduce a PageOffline specific page flag (PG_offline_skippable)
-> that for now reuses PG_owner_2. In the memdesc future, it will be one of
-> a small number of per-memdesc flags stored alongside the type.
+> > 
+> > Could we do something like the pgtbl_mod_mask or zap_details and pass
+> > through a struct or one unsigned int for create and lazy_mmu?
 > 
-> By setting PG_offline_skippable, a driver indicates that it can
-> restore the PageOffline state of these specific pages when re-onlining a
-> memory block: it knows that these pages are supposed to be PageOffline()
-> without the information in the vmemmap, so it can filter them out and
-> not expose them to the buddy -> they stay PageOffline().
+> Or just create some enum flags?
 > 
-> While PG_offline_offlineable might be clearer, it is also super
-> confusing. Alternatives (PG_offline_sticky?) also don't quite feel right.
-> So let's use "skippable" for now.
+> > 
+> > At least we'd have better self-documenting code in the wrappers.. and if
+> > we ever need a third boolean, we could avoid multiplying the wrappers
+> > again.
+> > 
+> > WDYT?
 > 
-> The flag is not supposed to be used for movable PageOffline pages as
-> used for balloon compaction; movable PageOffline() pages can simply be
-> migrated during the memory offlining stage, turning the migration
-> destination page PageOffline() and turning the migration source page
-> into a free buddy page.
-> 
-> Let's convert the single user from our MEM_GOING_OFFLINE approach
-> to the new PG_offline_skippable approach: virtio-mem. Fortunately,
-> this simplifies the code quite a lot. The only corner case we have to
-> take care of is when force-unloading the virtio-mem driver: we have to
-> prevent partially-plugged memory blocks from getting offlined by
-> clearing PG_offline_skippable again.
-> 
-> What if someone decides to grab a reference on these pages although they
-> really shouldn't? After all, we'll now keep the refcount at 1 (until we
-> can properly stop using the refcount completely).
-> 
-> Well, less worse things will happen than would currently: currently,
-> if someone would grab a reference to these pages, in MEM_GOING_OFFLINE
-> we would run into the
-> 		if (WARN_ON(!page_ref_dec_and_test(page)))
-> 			dump_page(page, "fake-offline page referenced");
-> 
-> And once that unexpected reference would get dropped, we would end up
-> freeing that page to the buddy: ouch.
-> 
-> Now, we'll allow for offlining that memory, and when that unexpected
-> reference would get dropped, we would not end up freeing that page to
-> the buddy. Once we have frozen PageOffline() pages, it will all get a
-> lot cleaner.
+> I'm happy with either approach. I was expecting more constination about the idea
+> of being able to disable lazy mode though, so perhaps I'll wait and see if any
+> arrives. If it doesn't... flags?
 
-Hmm, a question on that later in the code (assuming I identified the right
-place).
+Yes, that works as well.  Please use pmd_flags or anything more
+descriptive than just 'flags' :)
 
-> Note that we didn't see the existing WARN_ON so far, because nobody
-> should ever be referencing such pages.
+I wonder which approach is best in asm instructions and self-documenting
+code.
 
-It's mostly a speculative refcount increase from a pfn walker, such as
-compaction scanner, that can happen due to its inherent raciness.
-
-> An alternative might be to have another callback chain from memory hotplug
-> code, where a driver that owns that page could agree to skip the
-> PageOffline() page. However, we would have to repeatedly issue these
-> callbacks for individual PageOffline() pages, which does not sound
-> compelling. As we have spare bits, let's use this simpler approach for
-> now.
-> 
-> Acked-by: Zi Yan <ziy@nvidia.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-
-Acked-by: Vlastimil Babka <vbabka@suse.cz> # page allocator
-
-I'll leave hotplug to the experts :)
-
-<snip>
-
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index f6482223e28a2..7e4c41e46a911 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -7023,12 +7023,12 @@ unsigned long __offline_isolated_pages(unsigned long start_pfn,
->  			continue;
->  		}
->  		/*
-> -		 * At this point all remaining PageOffline() pages have a
-> -		 * reference count of 0 and can simply be skipped.
-> +		 * At this point all remaining PageOffline() pages must be
-> +		 * "skippable" and have exactly one reference.
->  		 */
->  		if (PageOffline(page)) {
-> -			BUG_ON(page_count(page));
-> -			BUG_ON(PageBuddy(page));
-> +			WARN_ON_ONCE(!PageOfflineSkippable(page));
-> +			WARN_ON_ONCE(page_count(page) != 1);
-
-So is this the part where an unexpected speculative refcount might be
-detected? Should be harmless then as it will then decrease the refcount from
-e.g. 2 to 1 and nothing will happen right.
-That's assuming that once we pass __offline_isolated_pages(), the following
-actions wont modify the refcount or the struct page won't be zeroed, or
-removed completely (vmemmap). Probably something already prevents that...
-
->  			already_offline++;
->  			pfn++;
->  			continue;
-> diff --git a/mm/page_isolation.c b/mm/page_isolation.c
-> index b2fc5266e3d26..debd898b794ea 100644
-> --- a/mm/page_isolation.c
-> +++ b/mm/page_isolation.c
-> @@ -121,16 +121,11 @@ static struct page *has_unmovable_pages(unsigned long start_pfn, unsigned long e
->  			continue;
->  
->  		/*
-> -		 * We treat all PageOffline() pages as movable when offlining
-> -		 * to give drivers a chance to decrement their reference count
-> -		 * in MEM_GOING_OFFLINE in order to indicate that these pages
-> -		 * can be offlined as there are no direct references anymore.
-> -		 * For actually unmovable PageOffline() where the driver does
-> -		 * not support this, we will fail later when trying to actually
-> -		 * move these pages that still have a reference count > 0.
-> -		 * (false negatives in this function only)
-> +		 * PageOffline() pages that are marked as "skippable"
-> +		 * are treated like movable pages for memory offlining.
->  		 */
-> -		if ((flags & MEMORY_OFFLINE) && PageOffline(page))
-> +		if ((flags & MEMORY_OFFLINE) && PageOffline(page) &&
-> +		    PageOfflineSkippable(page))
->  			continue;
->  
->  		if (__PageMovable(page) || PageLRU(page))
-> @@ -577,11 +572,11 @@ __test_page_isolated_in_pageblock(unsigned long pfn, unsigned long end_pfn,
->  			/* A HWPoisoned page cannot be also PageBuddy */
->  			pfn++;
->  		else if ((flags & MEMORY_OFFLINE) && PageOffline(page) &&
-> -			 !page_count(page))
-> +			 PageOfflineSkippable(page))
->  			/*
-> -			 * The responsible driver agreed to skip PageOffline()
-> -			 * pages when offlining memory by dropping its
-> -			 * reference in MEM_GOING_OFFLINE.
-> +			 * If the page is a skippable PageOffline() page,
-> +			 * we can offline the memory block, as the driver will
-> +			 * re-discover them when re-onlining the memory.
->  			 */
->  			pfn++;
->  		else
+Regards,
+Liam
 
