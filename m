@@ -1,25 +1,81 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id C8CF31A5BAF
-	for <virtualization@lists.linux.dev>; Fri, 30 May 2025 16:50:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD12B22FDEC
+	for <virtualization@lists.linux.dev>; Fri, 30 May 2025 16:54:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748623853; cv=none; b=Ba3wNR5vEFxNlR+eJZDWWRVzjSLSa8o39Dqs2aJftHSnjh5ftQy8xMUJAJ6LCXwFtSrogUybPmdElSemI0i9V5iHgWjDylvx+4+yeDi+SobieVBAz6fkDMMLS4U7WPM0sGdpRaHPxFka3cCfILFs/HiDYLNg9fkfKYhhd7Flkkc=
+	t=1748624071; cv=none; b=TZn1d+EnT4e/J74oO7cKH1AfBkVQ8xR+ZANOYJUarCuWGRuGhzoBCq0dWhhgRi6a3XHc1KvhyGSADiChEbf/7X8Kuv7UgptwZ9vGPa9kUT0+LtRt15ZlXts4gr9+bcFzjhpWTi1A0UmVw8fOJDjqI6BRPy9QVVB6rTW2EC0JFwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748623853; c=relaxed/simple;
-	bh=1rAT+8CKJoN9r0BGm8ytHBHiBDR3P2OL3nwvv9m2gCU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=Otfeep/9p2WmUlC0InQeFIOnNLvAlmfRcQgPJCLMRP5ZchsVoSppzvpgkICv/5j4vU1e0OzIvwCvmcoCViqogJEWYTiBP+DSCHjPLYij/qiFAjrXUaWnTjA5FwGlexK328jxgXpw9YRIv5NZzeRO90L76V84PG0GHaX5WvpEOBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 63DD81692;
-	Fri, 30 May 2025 09:50:34 -0700 (PDT)
-Received: from [10.57.95.14] (unknown [10.57.95.14])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4A56B3F673;
-	Fri, 30 May 2025 09:50:45 -0700 (PDT)
-Message-ID: <c7017555-cc46-4cf9-86d2-03a252165062@arm.com>
-Date: Fri, 30 May 2025 17:50:43 +0100
+	s=arc-20240116; t=1748624071; c=relaxed/simple;
+	bh=RXLmFWxoFIJycLMgEmUPoFkj2rLa+5V5ozpa6WNzSX8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=M95ddOLjonBtZ/qkLprc19npKswuBdcCYwiC8iwhhiaI/5aPEbhZEklcJAhi1j7PIx0FwwWJe+mMSeIGERaoIG93LtVniwHy0aGrk9EHKHXSKeIH4ptv+nTp1VRQe0rLxErg6hCRu9GYp/bCo9PDxGRPkFCbR3CtXl1nZnIBjeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=V8BjR+1i; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=P+Z/dvim; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=V8BjR+1i; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=P+Z/dvim; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="V8BjR+1i";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="P+Z/dvim";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="V8BjR+1i";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="P+Z/dvim"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id ACFCB1F791;
+	Fri, 30 May 2025 16:54:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1748624065; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=S9NNRjMCeuQEBzBHlmjDA51y656c4U2QaDFVTqvP2PE=;
+	b=V8BjR+1i179CcI3Oa3VQkZtxvSCHAND0N9Vhr3cJ2KIEVQOsqzZUbfUp55cce7uX86ifJY
+	svqSJsSmVzjFZfBraq7Y00L4oTE9i1EIHSYWvCM1On1Y1FaTMc9N1aMuJ888jhVKsWBPr0
+	VzRut4TXjoYFAaARQi/dp+AKDqgUmSo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1748624065;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=S9NNRjMCeuQEBzBHlmjDA51y656c4U2QaDFVTqvP2PE=;
+	b=P+Z/dvimtiPDMUbz9O1pgXi/YXKGJOI5gf0eNtiGXXyCjNcVkbqgKZpGdAlPKEjeJdeuu9
+	dzfdNDvqyjO2JJDg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=V8BjR+1i;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b="P+Z/dvim"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1748624065; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=S9NNRjMCeuQEBzBHlmjDA51y656c4U2QaDFVTqvP2PE=;
+	b=V8BjR+1i179CcI3Oa3VQkZtxvSCHAND0N9Vhr3cJ2KIEVQOsqzZUbfUp55cce7uX86ifJY
+	svqSJsSmVzjFZfBraq7Y00L4oTE9i1EIHSYWvCM1On1Y1FaTMc9N1aMuJ888jhVKsWBPr0
+	VzRut4TXjoYFAaARQi/dp+AKDqgUmSo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1748624065;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=S9NNRjMCeuQEBzBHlmjDA51y656c4U2QaDFVTqvP2PE=;
+	b=P+Z/dvimtiPDMUbz9O1pgXi/YXKGJOI5gf0eNtiGXXyCjNcVkbqgKZpGdAlPKEjeJdeuu9
+	dzfdNDvqyjO2JJDg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7E5D9132D8;
+	Fri, 30 May 2025 16:54:25 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id Y78YHsHiOWipcQAAD6G6ig
+	(envelope-from <vbabka@suse.cz>); Fri, 30 May 2025 16:54:25 +0000
+Message-ID: <d3336028-174f-4312-864c-2b1e1b736e07@suse.cz>
+Date: Fri, 30 May 2025 18:54:25 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -27,345 +83,248 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v1 3/6] mm: Avoid calling page allocator from
- apply_to_page_range()
-Content-Language: en-GB
-To: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, Juergen Gross <jgross@suse.com>,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>,
- David Hildenbrand <david@redhat.com>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Alexei Starovoitov <ast@kernel.org>, Andrey Ryabinin
- <ryabinin.a.a@gmail.com>, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- sparclinux@vger.kernel.org, virtualization@lists.linux.dev,
- xen-devel@lists.xenproject.org, linux-mm@kvack.org
-References: <20250530140446.2387131-1-ryan.roberts@arm.com>
- <20250530140446.2387131-4-ryan.roberts@arm.com>
- <6nf3cxwhij7jtfi2u6nmt4igezf754gmue5dfskn4jkfkxmjzr@7btdipzmzjuo>
-From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <6nf3cxwhij7jtfi2u6nmt4igezf754gmue5dfskn4jkfkxmjzr@7btdipzmzjuo>
+Subject: Re: [PATCH v2 1/1] mm/memory_hotplug: PG_offline_skippable for
+ offlining memory blocks with PageOffline pages
+Content-Language: en-US
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, virtualization@lists.linux.dev,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Oscar Salvador <osalvador@suse.de>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>,
+ Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>
+References: <20250520164216.866543-1-david@redhat.com>
+ <20250520164216.866543-2-david@redhat.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Autocrypt: addr=vbabka@suse.cz; keydata=
+ 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
+ m6M14QORSWTLRg==
+In-Reply-To: <20250520164216.866543-2-david@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[16];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_TLS_ALL(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	TO_DN_SOME(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[nvidia.com:email,suse.cz:dkim,suse.cz:mid,suse.cz:email];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.cz:+]
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: ACFCB1F791
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Score: -4.51
 
-On 30/05/2025 17:23, Liam R. Howlett wrote:
-> * Ryan Roberts <ryan.roberts@arm.com> [250530 10:05]:
->> Lazy mmu mode applies to the current task and permits pte modifications
->> to be deferred and updated at a later time in a batch to improve
->> performance. apply_to_page_range() calls its callback in lazy mmu mode
->> and some of those callbacks call into the page allocator to either
->> allocate or free pages.
->>
->> This is problematic with CONFIG_DEBUG_PAGEALLOC because
->> debug_pagealloc_[un]map_pages() calls the arch implementation of
->> __kernel_map_pages() which must modify the ptes for the linear map.
->>
->> There are two possibilities at this point:
->>
->>  - If the arch implementation modifies the ptes directly without first
->>    entering lazy mmu mode, the pte modifications may get deferred until
->>    the existing lazy mmu mode is exited. This could result in taking
->>    spurious faults for example.
->>
->>  - If the arch implementation enters a nested lazy mmu mode before
->>    modification of the ptes (many arches use apply_to_page_range()),
->>    then the linear map updates will definitely be applied upon leaving
->>    the inner lazy mmu mode. But because lazy mmu mode does not support
->>    nesting, the remainder of the outer user is no longer in lazy mmu
->>    mode and the optimization opportunity is lost.
->>
->> So let's just ensure that the page allocator is never called from within
->> lazy mmu mode. New "_nolazy" variants of apply_to_page_range() and
->> apply_to_existing_page_range() are introduced which don't enter lazy mmu
->> mode. Then users which need to call into the page allocator within their
->> callback are updated to use the _nolazy variants.
->>
->> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
->> ---
->>  include/linux/mm.h |  6 ++++++
->>  kernel/bpf/arena.c |  6 +++---
->>  mm/kasan/shadow.c  |  2 +-
->>  mm/memory.c        | 54 +++++++++++++++++++++++++++++++++++-----------
->>  4 files changed, 51 insertions(+), 17 deletions(-)
->>
->> diff --git a/include/linux/mm.h b/include/linux/mm.h
->> index e51dba8398f7..11cae6ce04ff 100644
->> --- a/include/linux/mm.h
->> +++ b/include/linux/mm.h
->> @@ -3743,9 +3743,15 @@ static inline bool gup_can_follow_protnone(struct vm_area_struct *vma,
->>  typedef int (*pte_fn_t)(pte_t *pte, unsigned long addr, void *data);
->>  extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
->>  			       unsigned long size, pte_fn_t fn, void *data);
->> +extern int apply_to_page_range_nolazy(struct mm_struct *mm,
->> +				      unsigned long address, unsigned long size,
->> +				      pte_fn_t fn, void *data);
-> 
-> We are removing externs as things are edited, so probably drop them
-> here.
+On 5/20/25 18:42, David Hildenbrand wrote:
+> A long-term goal is supporting frozen PageOffline pages, and later
+> PageOffline pages that don't have a refcount at all. Some more work for
 
-ACK
+Looking forward to that :)
 
+> that is needed -- in particular around non-folio page migration and
+> memory ballooning drivers -- but let's start by handling PageOffline pages
+> that can be skipped during memory offlining differently.
 > 
->>  extern int apply_to_existing_page_range(struct mm_struct *mm,
->>  				   unsigned long address, unsigned long size,
->>  				   pte_fn_t fn, void *data);
->> +extern int apply_to_existing_page_range_nolazy(struct mm_struct *mm,
->> +				   unsigned long address, unsigned long size,
->> +				   pte_fn_t fn, void *data);
->>  
->>  #ifdef CONFIG_PAGE_POISONING
->>  extern void __kernel_poison_pages(struct page *page, int numpages);
->> diff --git a/kernel/bpf/arena.c b/kernel/bpf/arena.c
->> index 0d56cea71602..ca833cfeefb7 100644
->> --- a/kernel/bpf/arena.c
->> +++ b/kernel/bpf/arena.c
->> @@ -187,10 +187,10 @@ static void arena_map_free(struct bpf_map *map)
->>  	/*
->>  	 * free_vm_area() calls remove_vm_area() that calls free_unmap_vmap_area().
->>  	 * It unmaps everything from vmalloc area and clears pgtables.
->> -	 * Call apply_to_existing_page_range() first to find populated ptes and
->> -	 * free those pages.
->> +	 * Call apply_to_existing_page_range_nolazy() first to find populated
->> +	 * ptes and free those pages.
->>  	 */
->> -	apply_to_existing_page_range(&init_mm, bpf_arena_get_kern_vm_start(arena),
->> +	apply_to_existing_page_range_nolazy(&init_mm, bpf_arena_get_kern_vm_start(arena),
->>  				     KERN_VM_SZ - GUARD_SZ, existing_page_cb, NULL);
->>  	free_vm_area(arena->kern_vm);
->>  	range_tree_destroy(&arena->rt);
->> diff --git a/mm/kasan/shadow.c b/mm/kasan/shadow.c
->> index d2c70cd2afb1..2325c5166c3a 100644
->> --- a/mm/kasan/shadow.c
->> +++ b/mm/kasan/shadow.c
->> @@ -590,7 +590,7 @@ void kasan_release_vmalloc(unsigned long start, unsigned long end,
->>  
->>  
->>  		if (flags & KASAN_VMALLOC_PAGE_RANGE)
->> -			apply_to_existing_page_range(&init_mm,
->> +			apply_to_existing_page_range_nolazy(&init_mm,
->>  					     (unsigned long)shadow_start,
->>  					     size, kasan_depopulate_vmalloc_pte,
->>  					     NULL);
->> diff --git a/mm/memory.c b/mm/memory.c
->> index 49199410805c..24436074ce48 100644
->> --- a/mm/memory.c
->> +++ b/mm/memory.c
->> @@ -2913,7 +2913,7 @@ EXPORT_SYMBOL(vm_iomap_memory);
->>  static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
->>  				     unsigned long addr, unsigned long end,
->>  				     pte_fn_t fn, void *data, bool create,
->> -				     pgtbl_mod_mask *mask)
->> +				     pgtbl_mod_mask *mask, bool lazy_mmu)
->>  {
->>  	pte_t *pte, *mapped_pte;
->>  	int err = 0;
->> @@ -2933,7 +2933,8 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
->>  			return -EINVAL;
->>  	}
->>  
->> -	arch_enter_lazy_mmu_mode();
->> +	if (lazy_mmu)
->> +		arch_enter_lazy_mmu_mode();
->>  
->>  	if (fn) {
->>  		do {
->> @@ -2946,7 +2947,8 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
->>  	}
->>  	*mask |= PGTBL_PTE_MODIFIED;
->>  
->> -	arch_leave_lazy_mmu_mode();
->> +	if (lazy_mmu)
->> +		arch_leave_lazy_mmu_mode();
->>  
->>  	if (mm != &init_mm)
->>  		pte_unmap_unlock(mapped_pte, ptl);
->> @@ -2956,7 +2958,7 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
->>  static int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
->>  				     unsigned long addr, unsigned long end,
->>  				     pte_fn_t fn, void *data, bool create,
->> -				     pgtbl_mod_mask *mask)
->> +				     pgtbl_mod_mask *mask, bool lazy_mmu)
+> Note that PageOffline is used to mark pages that are logically offline
+> in an otherwise online memory block (e.g., 128 MiB). If a memory
+> block is offline, the memmap is considered compeltely uninitialized
+> and stale (see pfn_to_online_page()).
 > 
-> I am having a hard time understanding why other lazy mmus were more
-> self-contained, but arm has added arguments to generic code?
+> Let's introduce a PageOffline specific page flag (PG_offline_skippable)
+> that for now reuses PG_owner_2. In the memdesc future, it will be one of
+> a small number of per-memdesc flags stored alongside the type.
+> 
+> By setting PG_offline_skippable, a driver indicates that it can
+> restore the PageOffline state of these specific pages when re-onlining a
+> memory block: it knows that these pages are supposed to be PageOffline()
+> without the information in the vmemmap, so it can filter them out and
+> not expose them to the buddy -> they stay PageOffline().
+> 
+> While PG_offline_offlineable might be clearer, it is also super
+> confusing. Alternatives (PG_offline_sticky?) also don't quite feel right.
+> So let's use "skippable" for now.
+> 
+> The flag is not supposed to be used for movable PageOffline pages as
+> used for balloon compaction; movable PageOffline() pages can simply be
+> migrated during the memory offlining stage, turning the migration
+> destination page PageOffline() and turning the migration source page
+> into a free buddy page.
+> 
+> Let's convert the single user from our MEM_GOING_OFFLINE approach
+> to the new PG_offline_skippable approach: virtio-mem. Fortunately,
+> this simplifies the code quite a lot. The only corner case we have to
+> take care of is when force-unloading the virtio-mem driver: we have to
+> prevent partially-plugged memory blocks from getting offlined by
+> clearing PG_offline_skippable again.
+> 
+> What if someone decides to grab a reference on these pages although they
+> really shouldn't? After all, we'll now keep the refcount at 1 (until we
+> can properly stop using the refcount completely).
+> 
+> Well, less worse things will happen than would currently: currently,
+> if someone would grab a reference to these pages, in MEM_GOING_OFFLINE
+> we would run into the
+> 		if (WARN_ON(!page_ref_dec_and_test(page)))
+> 			dump_page(page, "fake-offline page referenced");
+> 
+> And once that unexpected reference would get dropped, we would end up
+> freeing that page to the buddy: ouch.
+> 
+> Now, we'll allow for offlining that memory, and when that unexpected
+> reference would get dropped, we would not end up freeing that page to
+> the buddy. Once we have frozen PageOffline() pages, it will all get a
+> lot cleaner.
 
-They are not; as I explain in the cover letter, arm64 can work with the code as
-it is today, but IMHO opinion it is very fragile and this is an attempt to
-reduce the fragility (for all).
+Hmm, a question on that later in the code (assuming I identified the right
+place).
 
-> 
->>  {
->>  	pmd_t *pmd;
->>  	unsigned long next;
->> @@ -2983,7 +2985,7 @@ static int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
->>  			pmd_clear_bad(pmd);
->>  		}
->>  		err = apply_to_pte_range(mm, pmd, addr, next,
->> -					 fn, data, create, mask);
->> +					 fn, data, create, mask, lazy_mmu);
->>  		if (err)
->>  			break;
->>  	} while (pmd++, addr = next, addr != end);
->> @@ -2994,7 +2996,7 @@ static int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
->>  static int apply_to_pud_range(struct mm_struct *mm, p4d_t *p4d,
->>  				     unsigned long addr, unsigned long end,
->>  				     pte_fn_t fn, void *data, bool create,
->> -				     pgtbl_mod_mask *mask)
->> +				     pgtbl_mod_mask *mask, bool lazy_mmu)
->>  {
->>  	pud_t *pud;
->>  	unsigned long next;
->> @@ -3019,7 +3021,7 @@ static int apply_to_pud_range(struct mm_struct *mm, p4d_t *p4d,
->>  			pud_clear_bad(pud);
->>  		}
->>  		err = apply_to_pmd_range(mm, pud, addr, next,
->> -					 fn, data, create, mask);
->> +					 fn, data, create, mask, lazy_mmu);
->>  		if (err)
->>  			break;
->>  	} while (pud++, addr = next, addr != end);
->> @@ -3030,7 +3032,7 @@ static int apply_to_pud_range(struct mm_struct *mm, p4d_t *p4d,
->>  static int apply_to_p4d_range(struct mm_struct *mm, pgd_t *pgd,
->>  				     unsigned long addr, unsigned long end,
->>  				     pte_fn_t fn, void *data, bool create,
->> -				     pgtbl_mod_mask *mask)
->> +				     pgtbl_mod_mask *mask, bool lazy_mmu)
->>  {
->>  	p4d_t *p4d;
->>  	unsigned long next;
->> @@ -3055,7 +3057,7 @@ static int apply_to_p4d_range(struct mm_struct *mm, pgd_t *pgd,
->>  			p4d_clear_bad(p4d);
->>  		}
->>  		err = apply_to_pud_range(mm, p4d, addr, next,
->> -					 fn, data, create, mask);
->> +					 fn, data, create, mask, lazy_mmu);
->>  		if (err)
->>  			break;
->>  	} while (p4d++, addr = next, addr != end);
->> @@ -3065,7 +3067,7 @@ static int apply_to_p4d_range(struct mm_struct *mm, pgd_t *pgd,
->>  
->>  static int __apply_to_page_range(struct mm_struct *mm, unsigned long addr,
->>  				 unsigned long size, pte_fn_t fn,
->> -				 void *data, bool create)
->> +				 void *data, bool create, bool lazy_mmu)
->>  {
->>  	pgd_t *pgd;
->>  	unsigned long start = addr, next;
->> @@ -3091,7 +3093,7 @@ static int __apply_to_page_range(struct mm_struct *mm, unsigned long addr,
->>  			pgd_clear_bad(pgd);
->>  		}
->>  		err = apply_to_p4d_range(mm, pgd, addr, next,
->> -					 fn, data, create, &mask);
->> +					 fn, data, create, &mask, lazy_mmu);
-> 
-> This is annoying.  We now have a bool, bool passed through with mask
-> inserted in the middle.
-> 
->>  		if (err)
->>  			break;
->>  	} while (pgd++, addr = next, addr != end);
->> @@ -3105,11 +3107,14 @@ static int __apply_to_page_range(struct mm_struct *mm, unsigned long addr,
->>  /*
->>   * Scan a region of virtual memory, filling in page tables as necessary
->>   * and calling a provided function on each leaf page table.
->> + *
->> + * fn() is called in lazy mmu mode. As a result, the callback must be careful
->> + * not to perform memory allocation.
->>   */
->>  int apply_to_page_range(struct mm_struct *mm, unsigned long addr,
->>  			unsigned long size, pte_fn_t fn, void *data)
->>  {
->> -	return __apply_to_page_range(mm, addr, size, fn, data, true);
->> +	return __apply_to_page_range(mm, addr, size, fn, data, true, true);
-> 
-> Please add something here to tell me what false, true is.
-> 
->>  }
->>  EXPORT_SYMBOL_GPL(apply_to_page_range);
->>  
->> @@ -3117,13 +3122,36 @@ EXPORT_SYMBOL_GPL(apply_to_page_range);
->>   * Scan a region of virtual memory, calling a provided function on
->>   * each leaf page table where it exists.
->>   *
->> + * fn() is called in lazy mmu mode. As a result, the callback must be careful
->> + * not to perform memory allocation.
->> + *
->>   * Unlike apply_to_page_range, this does _not_ fill in page tables
->>   * where they are absent.
->>   */
->>  int apply_to_existing_page_range(struct mm_struct *mm, unsigned long addr,
->>  				 unsigned long size, pte_fn_t fn, void *data)
->>  {
->> -	return __apply_to_page_range(mm, addr, size, fn, data, false);
->> +	return __apply_to_page_range(mm, addr, size, fn, data, false, true);
-> 
-> every..
-> 
->> +}
->> +
->> +/*
->> + * As per apply_to_page_range() but fn() is not called in lazy mmu mode.
->> + */
->> +int apply_to_page_range_nolazy(struct mm_struct *mm, unsigned long addr,
->> +			       unsigned long size, pte_fn_t fn, void *data)
->> +{
->> +	return __apply_to_page_range(mm, addr, size, fn, data, true, false);
-> 
-> one...
-> 
->> +}
->> +
->> +/*
->> + * As per apply_to_existing_page_range() but fn() is not called in lazy mmu
->> + * mode.
->> + */
->> +int apply_to_existing_page_range_nolazy(struct mm_struct *mm,
->> +					unsigned long addr, unsigned long size,
->> +					pte_fn_t fn, void *data)
->> +{
->> +	return __apply_to_page_range(mm, addr, size, fn, data, false, false);
-> 
-> adds confusion :)
-> 
-> 
-> These wrappers are terrible for readability and annoying for argument
-> lists too.
+> Note that we didn't see the existing WARN_ON so far, because nobody
+> should ever be referencing such pages.
 
-Agreed.
+It's mostly a speculative refcount increase from a pfn walker, such as
+compaction scanner, that can happen due to its inherent raciness.
 
+> An alternative might be to have another callback chain from memory hotplug
+> code, where a driver that owns that page could agree to skip the
+> PageOffline() page. However, we would have to repeatedly issue these
+> callbacks for individual PageOffline() pages, which does not sound
+> compelling. As we have spare bits, let's use this simpler approach for
+> now.
 > 
-> Could we do something like the pgtbl_mod_mask or zap_details and pass
-> through a struct or one unsigned int for create and lazy_mmu?
+> Acked-by: Zi Yan <ziy@nvidia.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 
-Or just create some enum flags?
+Acked-by: Vlastimil Babka <vbabka@suse.cz> # page allocator
 
-> 
-> At least we'd have better self-documenting code in the wrappers.. and if
-> we ever need a third boolean, we could avoid multiplying the wrappers
-> again.
-> 
-> WDYT?
+I'll leave hotplug to the experts :)
 
-I'm happy with either approach. I was expecting more constination about the idea
-of being able to disable lazy mode though, so perhaps I'll wait and see if any
-arrives. If it doesn't... flags?
+<snip>
 
-> 
-> Cheers,
-> Liam
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index f6482223e28a2..7e4c41e46a911 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -7023,12 +7023,12 @@ unsigned long __offline_isolated_pages(unsigned long start_pfn,
+>  			continue;
+>  		}
+>  		/*
+> -		 * At this point all remaining PageOffline() pages have a
+> -		 * reference count of 0 and can simply be skipped.
+> +		 * At this point all remaining PageOffline() pages must be
+> +		 * "skippable" and have exactly one reference.
+>  		 */
+>  		if (PageOffline(page)) {
+> -			BUG_ON(page_count(page));
+> -			BUG_ON(PageBuddy(page));
+> +			WARN_ON_ONCE(!PageOfflineSkippable(page));
+> +			WARN_ON_ONCE(page_count(page) != 1);
+
+So is this the part where an unexpected speculative refcount might be
+detected? Should be harmless then as it will then decrease the refcount from
+e.g. 2 to 1 and nothing will happen right.
+That's assuming that once we pass __offline_isolated_pages(), the following
+actions wont modify the refcount or the struct page won't be zeroed, or
+removed completely (vmemmap). Probably something already prevents that...
+
+>  			already_offline++;
+>  			pfn++;
+>  			continue;
+> diff --git a/mm/page_isolation.c b/mm/page_isolation.c
+> index b2fc5266e3d26..debd898b794ea 100644
+> --- a/mm/page_isolation.c
+> +++ b/mm/page_isolation.c
+> @@ -121,16 +121,11 @@ static struct page *has_unmovable_pages(unsigned long start_pfn, unsigned long e
+>  			continue;
+>  
+>  		/*
+> -		 * We treat all PageOffline() pages as movable when offlining
+> -		 * to give drivers a chance to decrement their reference count
+> -		 * in MEM_GOING_OFFLINE in order to indicate that these pages
+> -		 * can be offlined as there are no direct references anymore.
+> -		 * For actually unmovable PageOffline() where the driver does
+> -		 * not support this, we will fail later when trying to actually
+> -		 * move these pages that still have a reference count > 0.
+> -		 * (false negatives in this function only)
+> +		 * PageOffline() pages that are marked as "skippable"
+> +		 * are treated like movable pages for memory offlining.
+>  		 */
+> -		if ((flags & MEMORY_OFFLINE) && PageOffline(page))
+> +		if ((flags & MEMORY_OFFLINE) && PageOffline(page) &&
+> +		    PageOfflineSkippable(page))
+>  			continue;
+>  
+>  		if (__PageMovable(page) || PageLRU(page))
+> @@ -577,11 +572,11 @@ __test_page_isolated_in_pageblock(unsigned long pfn, unsigned long end_pfn,
+>  			/* A HWPoisoned page cannot be also PageBuddy */
+>  			pfn++;
+>  		else if ((flags & MEMORY_OFFLINE) && PageOffline(page) &&
+> -			 !page_count(page))
+> +			 PageOfflineSkippable(page))
+>  			/*
+> -			 * The responsible driver agreed to skip PageOffline()
+> -			 * pages when offlining memory by dropping its
+> -			 * reference in MEM_GOING_OFFLINE.
+> +			 * If the page is a skippable PageOffline() page,
+> +			 * we can offline the memory block, as the driver will
+> +			 * re-discover them when re-onlining the memory.
+>  			 */
+>  			pfn++;
+>  		else
 
