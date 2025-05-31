@@ -1,122 +1,149 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98B66BE5E
-	for <virtualization@lists.linux.dev>; Sat, 31 May 2025 08:52:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 187C1239E84
+	for <virtualization@lists.linux-foundation.org>; Sat, 31 May 2025 09:51:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748681528; cv=none; b=Rg8Wy2Qv0wlnpqFLyb0AigmjKt7i+5AsALlqflwjTg7b6RTaFqTruhF+R+COZC0rV420BeOLZVYuWXBc8XGbyrvxG8TBJE5A14g3BWrN0uEAnBDRc/ipS/6Wi72yhaGakGU7b4JdAi5STGZszlZFhMJz2zCvj0UM4rMWp2nPscQ=
+	t=1748685120; cv=none; b=uTup4JLlbXcz8UYuMK8lgWBwc2eziaP6bvKxccmQ9cEW2PxcsBCluWYa0MrMlmVL7orc+dnWpw/vNo+gvkqIV0CZ86DRupaOv5rpvavJPbesIdNMlNgQ84TAulUy9Ynnt1zhVK4a8bvDD+7ZcBxwMTO7uqh4s8NsH+qQuc2Onbw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748681528; c=relaxed/simple;
-	bh=REe60zlbqeu01BOJVePubuQZLx8kofDHdn8NxkEDkks=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Vblc3wbrUEjjHjqzV0r1WzwN+Y04r5kHgA7p1rpgEGfALyDD48/6jV5Myyh12mZ2vckt07UartyglysDrMVQ9vsSW/SIDfUHdTRTLkMvzULWzmcviqeaybNt3KzaEZ+JAhDBiMBENdYcXg7EORI2DSuOecixdJpJe8UnhPo9vwI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=erOt4QR7; arc=none smtp.client-ip=209.85.210.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1748685120; c=relaxed/simple;
+	bh=mw/Qer8CeHGw4edMlvresJ7xkZve9Gz7YMI12DPZe2E=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=KEe5fkjwwxoQ+lzuKi6pFyU8HqeBKzbOAOuMaa5aPT8g5lQQENwBQ9NjvRxmGzMYBVIjZ6Uwixvv7XrSETd+ovs+Nu7NQucQIRBHluC7oncvYe6Y09OM+H9xyPFStnEkh5kcQ+DpAmIPzDlXGRUxkebTkVaW2LhMHK0Ec6HS8ng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WUntj5Co; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="erOt4QR7"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-7406c6dd2b1so3191341b3a.0
-        for <virtualization@lists.linux.dev>; Sat, 31 May 2025 01:52:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1748681526; x=1749286326; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=REe60zlbqeu01BOJVePubuQZLx8kofDHdn8NxkEDkks=;
-        b=erOt4QR7x/uBEh4VJZfuuVul8uc28eO2ERVvJOotBEC65+ebVcYC8lWlS8S7JyS7rL
-         bx6UBAgD5uc5jqNzLu17Q9WpJtwL5wGmbPLCn5oNMCSbn0G53YjgfrSKoOHcIQrGJ8Hw
-         RoI6Zd0EeCQ4OHwbN5Zaj9/wO4b8+NUkdxuUMJ7pcaOjoDP2lGt3ze6xslQCo8HkGtVM
-         cWj8otXm5/EZL5nhGJvdjUH/BNyhSWZ8A01WSti32zNZSg7qADMKg5DN9sHCEb0lI6/h
-         3UNmXR5l/3TKPDpaBSTWxTtJloMIdnlCAlXGzi+MXPi/EFDvDTFa+WEssMtkuIi5y0yX
-         hcUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748681526; x=1749286326;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=REe60zlbqeu01BOJVePubuQZLx8kofDHdn8NxkEDkks=;
-        b=uPS+PXwpckD2SJ6w/cSGnrzatT4TZbrgsrHRJwHgDXUuDLiISUq8MhjgXl/ARTv//A
-         AjdZqmrzqBQdJ1WLIgH7QE65hb1MSREWQyqUjRHJ9QePG9lVgxQFz4ypBCIl9+vRN020
-         CnStdgUj/x/+HiDtGbCSoVlfThhn1No769e3/qwVX03mBTlK90WMLvcpDoXSbr4xwckS
-         GzRSx512ksUgv0XSPPgTLpAPkBNqrm7cpgM8xvUnxbdzniaXq1mE8oq7YAraUtuEdLZT
-         h3IGeg97qpbEqrzgkkwWVI6CDjsO5YBv4AiIqFFeNbiYUPPK7QdHXtC04VoiAxVIQqmZ
-         ICEA==
-X-Forwarded-Encrypted: i=1; AJvYcCWNrrkQ9RnUl+5k0ef9CTrbHfzRu+U4JE1kqjHwR8Yn8PQAcgN3iwB6mczRrBQCa3vXEVenMZM3yXrKv/Ovsg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YymSE2YbykqvVy4+MhCPW93Lywtlfg8a1M4Y80Mzr6Ownw/P4Zg
-	K5HmDB4jKYgDJ/GYQ4hWB9FveVJ/FsUFXztPMWEVD0K8bA7R1F4aTEuo
-X-Gm-Gg: ASbGncvULJxhWx0ohLiTVgt6AvyEyihj+bN+Oqkr0y7f2oSxYP3SUmvdBNzfnIFRD2I
-	WKDyb5ZL0aITo0fLWFzcspYPXbnhtW8qXXPa9RtbvpF7wDMWvk7AThiuY+V0l6nVEu8yUwLpYqk
-	+no4ePwppD6vU7kuwXLJnAfa9R2nbbj+GRExgrd0YmUA+zBkpjL2dr5rQgReegMkYP3LPmw6iiT
-	jXjoWAcKThxG+4HZOdxy/o5CuSEMQU+m7xXMVK/tZf3S60kr/Fmec2soija2PXkwkVQBMymgKh8
-	rup4hHiFACNs+eGkChMAF1XQsRYIHkU/5ZRVH9jOo46HTkj8qWRSbB1J81/lbd0SIIzHudmwdLk
-	/FyYf10PsighYj7sRXabyPYVLdjYBQpbRtdH9dG3y
-X-Google-Smtp-Source: AGHT+IFrK8g6/dGJ+qH8DK2puY7/mPl63dYSmPTZk3WE+0FNPHkZ94c11mvWpcO4rQ5k5aBxw+s1VQ==
-X-Received: by 2002:a17:903:1a0b:b0:234:71c1:d34f with SMTP id d9443c01a7336-234f67a7c06mr152428215ad.8.1748681525735;
-        Sat, 31 May 2025 01:52:05 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:4f0e:fb30:af83:9564:6a79:4f18? ([2001:ee0:4f0e:fb30:af83:9564:6a79:4f18])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23506cd362fsm39298485ad.116.2025.05.31.01.52.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 31 May 2025 01:52:05 -0700 (PDT)
-Message-ID: <ef4ac528-3f91-4004-b47b-e758a5712d28@gmail.com>
-Date: Sat, 31 May 2025 15:51:57 +0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WUntj5Co"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9DB1D40BC8
+	for <virtualization@lists.linux-foundation.org>; Sat, 31 May 2025 09:51:58 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 543GK3KoeFtL for <virtualization@lists.linux-foundation.org>;
+ Sat, 31 May 2025 09:51:58 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E926840BB5
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E926840BB5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WUntj5Co
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E926840BB5
+	for <virtualization@lists.linux-foundation.org>; Sat, 31 May 2025 09:51:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1748685116;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nrPgdD64vKDtkpdzZC+la9VolCi4JsMi5slKhfemFX0=;
+	b=WUntj5CoqiJIZ+nEUBqDrty7EeJzWpZhCnqG7FgJKdqMTYzvwRoDrMINRWYfxJTcr1j0FP
+	5aRbJLuClhktWEKzY2T5pCrMOTSNEFbdr6CAfkxDWzlXvEK377Z6BZk0QwIKp7ehCg6tFB
+	ZfDwqMbOvC+UvvajPVVFlKg9z2kzF+k=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-172-QjWVvrC3MwKxOniWVVTuQg-1; Sat,
+ 31 May 2025 05:51:54 -0400
+X-MC-Unique: QjWVvrC3MwKxOniWVVTuQg-1
+X-Mimecast-MFC-AGG-ID: QjWVvrC3MwKxOniWVVTuQg_1748685113
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2E34718004A7;
+	Sat, 31 May 2025 09:51:53 +0000 (UTC)
+Received: from server.redhat.com (unknown [10.72.112.30])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 1A9DF1800371;
+	Sat, 31 May 2025 09:51:48 +0000 (UTC)
+From: Cindy Lu <lulu@redhat.com>
+To: lulu@redhat.com,
+	jasowang@redhat.com,
+	mst@redhat.com,
+	michael.christie@oracle.com,
+	sgarzare@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org
+Subject: [PATCH v10 1/3] vhost: Add a new modparam to allow userspace select kthread
+Date: Sat, 31 May 2025 17:47:03 +0800
+Message-ID: <20250531095135.159582-2-lulu@redhat.com>
+In-Reply-To: <20250531095135.159582-1-lulu@redhat.com>
+References: <20250531095135.159582-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next v2 2/2] selftests: net: add XDP socket tests
- for virtio-net
-To: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-References: <20250527161904.75259-1-minhquangbui99@gmail.com>
- <20250527161904.75259-3-minhquangbui99@gmail.com> <aDhCfxHo3M5dxlpH@boxer>
- <fe162eed-fd44-4c18-a541-8243ccfc4252@gmail.com> <aDmaT1cmoRa6PaqK@boxer>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <aDmaT1cmoRa6PaqK@boxer>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On 5/30/25 18:45, Maciej Fijalkowski wrote:
-> On Thu, May 29, 2025 at 09:29:14PM +0700, Bui Quang Minh wrote:
->> On 5/29/25 18:18, Maciej Fijalkowski wrote:
->>> On Tue, May 27, 2025 at 11:19:04PM +0700, Bui Quang Minh wrote:
->>>> This adds a test to test the virtio-net rx when there is a XDP socket
->>>> bound to it. There are tests for both copy mode and zerocopy mode, both
->>>> cases when XDP program returns XDP_PASS and XDP_REDIRECT to a XDP socket.
->>>>
->>>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
->>> Hi Bui,
->>>
->>> have you considered adjusting xskxceiver for your needs? If yes and you
->>> decided to go with another test app then what were the issues around it?
->>>
->>> This is yet another approach for xsk testing where we already have a
->>> test framework.
->> Hi,
->>
->> I haven't tried much hard to adapt xskxceiver. I did have a look at
->> xskxceiver but I felt the supported topology is not suitable for my need. To
->> test the receiving side in virtio-net, I use Qemu to set up virtio-net in
->> the guest and vhost-net in the host side. The sending side is in the host
->> and the receiving is in the guest so I can't figure out how to do that with
->> xskxceiver.
-> I see - couldn't the python side be executing xdpsock then instead of your
-> own app?
+The vhost now uses vhost_task and workers as a child of the owner thread.
+While this aligns with containerization principles, it confuses some
+legacy userspace applications, therefore, we are reintroducing kthread
+API support.
 
-I'm not aware of xdpsock. Could you give the path to that file?
+Add a new module parameter to allow userspace to select behavior
+between using kthread and task.
 
-> I wouldn't like to end up with several xsk tools for testing data path on
-> different environments.
+By default, this parameter is set to true (task mode). This means the
+default behavior remains unchanged by this patch.
+
+Signed-off-by: Cindy Lu <lulu@redhat.com>
+---
+ drivers/vhost/vhost.c |  5 +++++
+ drivers/vhost/vhost.h | 10 ++++++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 3a5ebb973dba..240ba78b1e3f 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -41,6 +41,10 @@ static int max_iotlb_entries = 2048;
+ module_param(max_iotlb_entries, int, 0444);
+ MODULE_PARM_DESC(max_iotlb_entries,
+ 	"Maximum number of iotlb entries. (default: 2048)");
++bool inherit_owner_default = true;
++module_param(inherit_owner_default, bool, 0444);
++MODULE_PARM_DESC(inherit_owner_default,
++		 "Set task mode as the default(default: Y)");
+ 
+ enum {
+ 	VHOST_MEMORY_F_LOG = 0x1,
+@@ -552,6 +556,7 @@ void vhost_dev_init(struct vhost_dev *dev,
+ 	dev->byte_weight = byte_weight;
+ 	dev->use_worker = use_worker;
+ 	dev->msg_handler = msg_handler;
++	dev->inherit_owner = inherit_owner_default;
+ 	init_waitqueue_head(&dev->wait);
+ 	INIT_LIST_HEAD(&dev->read_list);
+ 	INIT_LIST_HEAD(&dev->pending_list);
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index bb75a292d50c..c1ff4a92b925 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -176,6 +176,16 @@ struct vhost_dev {
+ 	int byte_weight;
+ 	struct xarray worker_xa;
+ 	bool use_worker;
++	/*
++	 * If inherit_owner is true we use vhost_tasks to create
++	 * the worker so all settings/limits like cgroups, NPROC,
++	 * scheduler, etc are inherited from the owner. If false,
++	 * we use kthreads and only attach to the same cgroups
++	 * as the owner for compat with older kernels.
++	 * here we use true as default value.
++	 * The default value is set by modparam inherit_owner_default
++	 */
++	bool inherit_owner;
+ 	int (*msg_handler)(struct vhost_dev *dev, u32 asid,
+ 			   struct vhost_iotlb_msg *msg);
+ };
+-- 
+2.45.0
+
