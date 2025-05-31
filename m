@@ -1,180 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87204143736;
-	Sat, 31 May 2025 07:47:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98B66BE5E
+	for <virtualization@lists.linux.dev>; Sat, 31 May 2025 08:52:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748677627; cv=none; b=Rrr2J4ueAgRLv5QTQa7QLpkJMNrgYymkOnvgWEFmhEyRCwymLKORgRReYcPF0BVw5yr0mMaBrELG9nXIa7WYDicx9T13zVU9VzTn+me6l/WL1t3UFSs4aTFNxcnqe8f4H3CHgW5avF+lIJkx1IngpdnDNZf3OlagUVcI8/Cj678=
+	t=1748681528; cv=none; b=Rg8Wy2Qv0wlnpqFLyb0AigmjKt7i+5AsALlqflwjTg7b6RTaFqTruhF+R+COZC0rV420BeOLZVYuWXBc8XGbyrvxG8TBJE5A14g3BWrN0uEAnBDRc/ipS/6Wi72yhaGakGU7b4JdAi5STGZszlZFhMJz2zCvj0UM4rMWp2nPscQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748677627; c=relaxed/simple;
-	bh=sT8ax5dbTHlITwDR7EB59IJncQ2gJREmL936Z5hIaHo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=De0DmsTMkWvYx2KTIqKGsNmMiZwDlwR7cRT7PX+IX59zuSycU8likPhc2zA5ZxciTDg5hb6E6WovPPuFuXUUDhGpy4/Gn4ThWWNhEBaXKalYlsVJdtxenshPaxqt4zUe9HHJOkOvMr/jGJ8XHfqaTBiU1hyixrKmEEeOb4ITPIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m4l+/YKI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1748681528; c=relaxed/simple;
+	bh=REe60zlbqeu01BOJVePubuQZLx8kofDHdn8NxkEDkks=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Vblc3wbrUEjjHjqzV0r1WzwN+Y04r5kHgA7p1rpgEGfALyDD48/6jV5Myyh12mZ2vckt07UartyglysDrMVQ9vsSW/SIDfUHdTRTLkMvzULWzmcviqeaybNt3KzaEZ+JAhDBiMBENdYcXg7EORI2DSuOecixdJpJe8UnhPo9vwI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=erOt4QR7; arc=none smtp.client-ip=209.85.210.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m4l+/YKI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEAB7C4CEE3;
-	Sat, 31 May 2025 07:46:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1748677627;
-	bh=sT8ax5dbTHlITwDR7EB59IJncQ2gJREmL936Z5hIaHo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=m4l+/YKIs/KGay8y5vMJQ2bX/6i3fxjZ0gJ0+6SfB85gTMv9isMoswQqVsv4Dm+Yl
-	 5gBNStHJ++v6+O0EtdOWObMpAyqqJtKiiiHCvqbrRYRGbqgk54Gsoto2+2xSaTGEX/
-	 UjUmkcVswzLe8hErYSg4k60I8QKcdT/ikfO8I1+QYom9bCQCk6Jq/eiD5Mj9Y39hlp
-	 sAiyJS/N7snMk3XQ2/Bvj/0wr0qADR+cJOCyKzCUqM5WQ0/2ASiXFMHCRpT2zrg06m
-	 ciDBHHpS087W/LZIa9rTY4pgSp3axMokcqCHGPjdvNd0LKzornyQw2tVBbwFtOMgVG
-	 zRx/WnEiPnYpA==
-Date: Sat, 31 May 2025 10:46:52 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Ryan Roberts <ryan.roberts@arm.com>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Arnd Bergmann <arnd@arndb.de>, David Hildenbrand <david@redhat.com>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>, Alexei Starovoitov <ast@kernel.org>,
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
-	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org,
-	linux-mm@kvack.org, Jann Horn <jannh@google.com>
-Subject: Re: [RFC PATCH v1 0/6] Lazy mmu mode fixes and improvements
-Message-ID: <aDqz7H-oBo35FRXe@kernel.org>
-References: <20250530140446.2387131-1-ryan.roberts@arm.com>
- <5b5d6352-9018-4658-b8fe-6eadaad46881@lucifer.local>
- <af9a96e1-064b-4627-bd34-e7e7e8a05452@arm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="erOt4QR7"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-7406c6dd2b1so3191341b3a.0
+        for <virtualization@lists.linux.dev>; Sat, 31 May 2025 01:52:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748681526; x=1749286326; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=REe60zlbqeu01BOJVePubuQZLx8kofDHdn8NxkEDkks=;
+        b=erOt4QR7x/uBEh4VJZfuuVul8uc28eO2ERVvJOotBEC65+ebVcYC8lWlS8S7JyS7rL
+         bx6UBAgD5uc5jqNzLu17Q9WpJtwL5wGmbPLCn5oNMCSbn0G53YjgfrSKoOHcIQrGJ8Hw
+         RoI6Zd0EeCQ4OHwbN5Zaj9/wO4b8+NUkdxuUMJ7pcaOjoDP2lGt3ze6xslQCo8HkGtVM
+         cWj8otXm5/EZL5nhGJvdjUH/BNyhSWZ8A01WSti32zNZSg7qADMKg5DN9sHCEb0lI6/h
+         3UNmXR5l/3TKPDpaBSTWxTtJloMIdnlCAlXGzi+MXPi/EFDvDTFa+WEssMtkuIi5y0yX
+         hcUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748681526; x=1749286326;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=REe60zlbqeu01BOJVePubuQZLx8kofDHdn8NxkEDkks=;
+        b=uPS+PXwpckD2SJ6w/cSGnrzatT4TZbrgsrHRJwHgDXUuDLiISUq8MhjgXl/ARTv//A
+         AjdZqmrzqBQdJ1WLIgH7QE65hb1MSREWQyqUjRHJ9QePG9lVgxQFz4ypBCIl9+vRN020
+         CnStdgUj/x/+HiDtGbCSoVlfThhn1No769e3/qwVX03mBTlK90WMLvcpDoXSbr4xwckS
+         GzRSx512ksUgv0XSPPgTLpAPkBNqrm7cpgM8xvUnxbdzniaXq1mE8oq7YAraUtuEdLZT
+         h3IGeg97qpbEqrzgkkwWVI6CDjsO5YBv4AiIqFFeNbiYUPPK7QdHXtC04VoiAxVIQqmZ
+         ICEA==
+X-Forwarded-Encrypted: i=1; AJvYcCWNrrkQ9RnUl+5k0ef9CTrbHfzRu+U4JE1kqjHwR8Yn8PQAcgN3iwB6mczRrBQCa3vXEVenMZM3yXrKv/Ovsg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YymSE2YbykqvVy4+MhCPW93Lywtlfg8a1M4Y80Mzr6Ownw/P4Zg
+	K5HmDB4jKYgDJ/GYQ4hWB9FveVJ/FsUFXztPMWEVD0K8bA7R1F4aTEuo
+X-Gm-Gg: ASbGncvULJxhWx0ohLiTVgt6AvyEyihj+bN+Oqkr0y7f2oSxYP3SUmvdBNzfnIFRD2I
+	WKDyb5ZL0aITo0fLWFzcspYPXbnhtW8qXXPa9RtbvpF7wDMWvk7AThiuY+V0l6nVEu8yUwLpYqk
+	+no4ePwppD6vU7kuwXLJnAfa9R2nbbj+GRExgrd0YmUA+zBkpjL2dr5rQgReegMkYP3LPmw6iiT
+	jXjoWAcKThxG+4HZOdxy/o5CuSEMQU+m7xXMVK/tZf3S60kr/Fmec2soija2PXkwkVQBMymgKh8
+	rup4hHiFACNs+eGkChMAF1XQsRYIHkU/5ZRVH9jOo46HTkj8qWRSbB1J81/lbd0SIIzHudmwdLk
+	/FyYf10PsighYj7sRXabyPYVLdjYBQpbRtdH9dG3y
+X-Google-Smtp-Source: AGHT+IFrK8g6/dGJ+qH8DK2puY7/mPl63dYSmPTZk3WE+0FNPHkZ94c11mvWpcO4rQ5k5aBxw+s1VQ==
+X-Received: by 2002:a17:903:1a0b:b0:234:71c1:d34f with SMTP id d9443c01a7336-234f67a7c06mr152428215ad.8.1748681525735;
+        Sat, 31 May 2025 01:52:05 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0e:fb30:af83:9564:6a79:4f18? ([2001:ee0:4f0e:fb30:af83:9564:6a79:4f18])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23506cd362fsm39298485ad.116.2025.05.31.01.52.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 31 May 2025 01:52:05 -0700 (PDT)
+Message-ID: <ef4ac528-3f91-4004-b47b-e758a5712d28@gmail.com>
+Date: Sat, 31 May 2025 15:51:57 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <af9a96e1-064b-4627-bd34-e7e7e8a05452@arm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH net-next v2 2/2] selftests: net: add XDP socket tests
+ for virtio-net
+To: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20250527161904.75259-1-minhquangbui99@gmail.com>
+ <20250527161904.75259-3-minhquangbui99@gmail.com> <aDhCfxHo3M5dxlpH@boxer>
+ <fe162eed-fd44-4c18-a541-8243ccfc4252@gmail.com> <aDmaT1cmoRa6PaqK@boxer>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <aDmaT1cmoRa6PaqK@boxer>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Ryan,
+On 5/30/25 18:45, Maciej Fijalkowski wrote:
+> On Thu, May 29, 2025 at 09:29:14PM +0700, Bui Quang Minh wrote:
+>> On 5/29/25 18:18, Maciej Fijalkowski wrote:
+>>> On Tue, May 27, 2025 at 11:19:04PM +0700, Bui Quang Minh wrote:
+>>>> This adds a test to test the virtio-net rx when there is a XDP socket
+>>>> bound to it. There are tests for both copy mode and zerocopy mode, both
+>>>> cases when XDP program returns XDP_PASS and XDP_REDIRECT to a XDP socket.
+>>>>
+>>>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+>>> Hi Bui,
+>>>
+>>> have you considered adjusting xskxceiver for your needs? If yes and you
+>>> decided to go with another test app then what were the issues around it?
+>>>
+>>> This is yet another approach for xsk testing where we already have a
+>>> test framework.
+>> Hi,
+>>
+>> I haven't tried much hard to adapt xskxceiver. I did have a look at
+>> xskxceiver but I felt the supported topology is not suitable for my need. To
+>> test the receiving side in virtio-net, I use Qemu to set up virtio-net in
+>> the guest and vhost-net in the host side. The sending side is in the host
+>> and the receiving is in the guest so I can't figure out how to do that with
+>> xskxceiver.
+> I see - couldn't the python side be executing xdpsock then instead of your
+> own app?
 
-On Fri, May 30, 2025 at 04:55:36PM +0100, Ryan Roberts wrote:
-> On 30/05/2025 15:47, Lorenzo Stoakes wrote:
-> > +cc Jann who is a specialist in all things page table-y and especially scary
-> > edge cases :)
-> > 
-> > On Fri, May 30, 2025 at 03:04:38PM +0100, Ryan Roberts wrote:
-> >> Hi All,
-> >>
-> >> I recently added support for lazy mmu mode on arm64. The series is now in
-> >> Linus's tree so should be in v6.16-rc1. But during testing in linux-next we
-> >> found some ugly corners (unexpected nesting). I was able to fix those issues by
-> >> making the arm64 implementation more permissive (like the other arches). But
-> >> this is quite fragile IMHO. So I'd rather fix the root cause and ensure that
-> >> lazy mmu mode never nests, and more importantly, that code never makes pgtable
-> >> modifications expecting them to be immediate, not knowing that it's actually in
-> >> lazy mmu mode so the changes get deferred.
-> > 
-> > When you say fragile, are you confident it _works_ but perhaps not quite as well
-> > as you want? Or are you concerned this might be broken upstream in any way?
-> 
-> I'm confident that it _works_ for arm64 as it is, upstream. But if Dev's series
-> were to go in _without_ the lazy_mmu bracketting in some manner, then it would
-> be broken if the config includes CONFIG_DEBUG_PAGEALLOC.
-> 
-> There's a lot more explanation in the later patches as to how it can be broken,
-> but for arm64, the situation is currently like this, because our implementation
-> of __change_memory_common() uses apply_to_page_range() which implicitly starts
-> an inner lazy_mmu_mode. We enter multiple times, but we exit one the first call
-> to exit. Everything works correctly but it's not optimal because C is no longer
-> deferred:
-> 
-> arch_enter_lazy_mmu_mode()                        << outer lazy mmu region
->   <do some pte changes (A)>
->   alloc_pages()
->     debug_pagealloc_map_pages()
->       __kernel_map_pages()
->         __change_memory_common()
->           arch_enter_lazy_mmu_mode()              << inner lazy mmu region
->             <change kernel pte to make valid (B)>
->           arch_leave_lazy_mmu_mode()              << exit; complete A + B
->     clear_page()
->   <do some more pte changes (C)>                  << no longer in lazy mode
-> arch_leave_lazy_mmu_mode()                        << nop
-> 
-> An alternative implementation would not add the nested lazy mmu mode, so we end
-> up with this:
-> 
-> arch_enter_lazy_mmu_mode()                        << outer lazy mmu region
->   <do some pte changes (A)>
->   alloc_pages()
->     debug_pagealloc_map_pages()
->       __kernel_map_pages()
->         __change_memory_common()
->             <change kernel pte to make valid (B)> << deferred due to lazy mmu
->     clear_page()                                  << BANG! B has not be actioned
->   <do some more pte changes (C)>
-> arch_leave_lazy_mmu_mode()
-> 
-> This is clearly a much worse outcome. It's not happening today but it could in
-> future. That's why I'm claiming it's fragile. It's much better (IMHO) to
-> disallow calling the page allocator when in lazy mmu mode.
+I'm not aware of xdpsock. Could you give the path to that file?
 
-First, I think it should be handled completely inside arch/arm64. Page
-allocation worked on lazy mmu mode on other architectures, no reason it
-should be changed because of the way arm64 implements lazy mmu.
-
-Second, DEBUG_PAGEALLOC already implies that performance is bad, for it to
-be useful the kernel should be mapped with base pages and there's map/unmap
-for every page allocation so optimizing a few pte changes (C in your
-example) won't matter much.
-
-If there's a potential correctness issue with Dev's patches, it should be
-dealt with as a part of those patches with the necessary updates of how
-lazy mmu is implemented on arm64 and used in pageattr.c.
-
-And it seems to me that adding something along the lines below to
-__kernel_map_pages() would solve DEBUG_PAGEALLOC issue:
-
-void __kernel_map_pages(struct page *page, int numpages, int enable)
-{
-	unsigned long flags;
-	bool lazy_mmu = false;
-
-	if (!can_set_direct_map())
-		return;
-
-	flags = read_thread_flags();
-	if (flags & BIT(TIF_LAZY_MMU))
-		lazy_mmu = true;
-
-	set_memory_valid((unsigned long)page_address(page), numpages, enable);
-
-	if (lazy_mmu)
-		set_thread_flag(TIF_LAZY_MMU);
-}
-
-> Thanks,
-> Ryan
-
--- 
-Sincerely yours,
-Mike.
+> I wouldn't like to end up with several xsk tools for testing data path on
+> different environments.
