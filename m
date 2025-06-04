@@ -1,129 +1,142 @@
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D56523BD0B
-	for <virtualization@lists.linux.dev>; Tue,  3 Jun 2025 15:07:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70DB3C2FA
+	for <virtualization@lists.linux.dev>; Wed,  4 Jun 2025 00:37:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748963231; cv=none; b=IjmDrgCToPYUvB/L+8cF1bAuAP15CfizQgXrmx6t21JHdccksNu1bJg6D8iz1/HIQA6EbhaTsjZCWEITO3FbTtn+/wXFi5x8lMwHhCI5YHhy5iRAfzi1bA3t0uNTezppyviCyzCI1IEfYFtH6AQCiTuNmuJcVY+D3X6/IzC8bjs=
+	t=1748997456; cv=none; b=ADZ+ISbtQbDUAXoyefgvVJ1BomDpyVwzGxtEA/fU2ySZs4nsKY8bU+fLKj80A/LhXdNO7rhkxbNz6dh5zLztFTEx0AP1s+Y6XqDBnzGKK6ToZK+PUus2IqE5sfWCc1NVvAlDMGfYMssCJVeT1KXUq7TwlQr8y/JYGc9wEHHAY6s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748963231; c=relaxed/simple;
-	bh=8V2kmbUZiu9hSlXFWJGJ4smleoQNWTcBNXYPPBlHjmY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sy3Tt7tzNa8LN+fLqRB04sWQ/7P7o3IfYOirEp1Ed4Ihjn1pdtpxMxR3l3FE3CYvAPppyyOHjdY3sSV6gxJWOzejqRYvtDQIJJmZV+Ll+CC2+SkrwW09YB5rTFVf3PCPqGpQtU1dFkMRhUzE7UnHTikirbNk/dvPjPPG7XtXR4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AJNOjSCO; arc=none smtp.client-ip=209.85.210.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1748997456; c=relaxed/simple;
+	bh=FIhhwRMnEvPjuGUpf9qf+tqZDLEP9lZKLjQ3YYZd4as=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RO3cxzamWp+exuKzx5hfr/orv6gcmVln+0QSxsueeCSFaH7idyGwJYgHjYCH7P8M5YO0dOXrBsFuiESB63T//lxfssxZ11jeoALuMMcnrCKSK9L2CYqukrG+8YZ5kzORcdCswG0kR0JgfMGMNmxbCWgxmwPlNt/UmRWxNiwK/Tk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JHrHmKTt; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AJNOjSCO"
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-747fba9f962so951578b3a.0
-        for <virtualization@lists.linux.dev>; Tue, 03 Jun 2025 08:07:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1748963229; x=1749568029; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=rHRcx0Q2kd7s5w9xmY/qLmUUkyxdFzsoRB5ggIvT+6M=;
-        b=AJNOjSCOoCn8/FWFye1iP8RDb+5VHkIViSmeQKMGhmlKGBsQX9VCs5U/u1zQJRXoAR
-         iAlMGN/W3+RvS6Ts/EAUnVLbwJzvgNDs12vVcRCNG1TlthEPFfgeUbkLS2FYwzeK8+XK
-         PDDHR8bT29GuHjzUmWp3ouSWBTM/r/HhNOnWlO27JFIAc8NP+TZDFX2JsvoeX9lfMX4j
-         nEuzFVj8tbZAiNzKQYgrkhJ1Ojh+H7pEbH/uIluzPtNKAjOO6pQs6LilixcOSZxsatoQ
-         CntR/qOFPyr7bTP5QpoW8mYRifF4VJRg3buGZM4YgKsjQEMTtfFtXP7LOGnivzHQg4sC
-         s6yQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JHrHmKTt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1748997453;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TCJQT/kav5ff3pRxvzcaTAEwPIznqrXjhdq5yD+vQEE=;
+	b=JHrHmKTtGxsbSDhcDPs7r88LWdiZ8uKIHJaxRhtVsTNvL1uwwNFSci40UEyq54QcNOXWIl
+	roPeCoFKS0qCfUMBz+Oak/7jaKqqECqFibnwBOTe6Q9C0FvPYcHWNhg4t5iMCpYd0YV79Y
+	BLssLdnKty1e1qWe84SBWMXE56pGTUA=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-304-JiWV8prUNcW9BYxm_TB-qg-1; Tue, 03 Jun 2025 20:37:30 -0400
+X-MC-Unique: JiWV8prUNcW9BYxm_TB-qg-1
+X-Mimecast-MFC-AGG-ID: JiWV8prUNcW9BYxm_TB-qg_1748997449
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-310efe825ccso6228258a91.3
+        for <virtualization@lists.linux.dev>; Tue, 03 Jun 2025 17:37:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748963229; x=1749568029;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=rHRcx0Q2kd7s5w9xmY/qLmUUkyxdFzsoRB5ggIvT+6M=;
-        b=ZeezvObSzdFOKlzgZ1ZIVFPvbI4d9ibomPspAR725YlV7ASjD1cTaFX5/wmvjXQzL4
-         WgRVUarw11Hh7G1wGU6qzBES+UjAjgrxvTu5Th+vch6GahqV8yPlZFllDujIqwpX7p2O
-         IsP4rGsawb03rgYjZ/xmbUFXyqK/ur1Rew2voKHOwz1v4AgHpp26e/D+YquJnM45lVOr
-         29MZ10Ja2lL49B6R7VaOYS3a4JHiFIFx6gqewTBN4nw9XRq7H9mHjSQf5mrqMtKZg4wv
-         2S8gzzCLfCah/Gl94X/gXJmMT3le2DH2+0/6e1UurnJOIu3U2bVJLZdpgMV5BVZfm3/q
-         vjLQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXedQO/oc4RtHbG1ltQ1+/ImXJXGGFDSgTVZJbjLYfHcG/APYHwIekQvR+EV8CUaIw3T5igdlyjCk5jSwd04Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YziWYSgabXojAvLCRScKfPrO0+jpOlVdrwzB0bep6NTPbzwHb5G
-	aNgYsb4LCrewbwkP8X7t+jxFrQZ2YYqt7ukjrPnMpCaFHBCHNG7GUPDh
-X-Gm-Gg: ASbGncsdfKaTuPpGUzj/Rv/TbHn0i+jt4/vpbeajsRwgg8qDMMa049RxVL97pD78dCb
-	EKjTamc5lDJqg1SQ7g9ah0X+pDwMT+StOjJ6dducUeyjIRiKvA72MK4tNhbMpo/RBlhjnxLpw0Z
-	HQmRbMvVYw0K0/RRmR3SI7vni4yWIFMK8menxFSOAY3EbLVVMQ9GuL2LW/XyymLTRZeruy/8Tmo
-	XdAZph5esSLTURhnFUREn49GirvskS2KCvgN8kZj7R+r7UII0anjz3zFThm5hsLqlxRiFvbPmi9
-	BjqWUgVEJCXaxwKiKl/Siz1tWznm0tfcQzLAgJzL6TULg25DR1a1rQOulcfpCpEGJYtJKsF26mF
-	VoQ==
-X-Google-Smtp-Source: AGHT+IF0pZpF9yVqhFdo6KrG71N2ZNsh9D4aeXFDJnmId/+aHoYpiDUuxam3stwW5F7pvrA6H0vAzA==
-X-Received: by 2002:a05:6a00:194a:b0:746:2ae9:fc49 with SMTP id d2e1a72fcca58-747fe29e165mr3581505b3a.9.1748963229373;
-        Tue, 03 Jun 2025 08:07:09 -0700 (PDT)
-Received: from minh.192.168.1.1 ([2001:ee0:4f0e:fb30:c672:ef11:a97b:5717])
-        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-747afeab0d0sm9461782b3a.44.2025.06.03.08.07.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Jun 2025 08:07:08 -0700 (PDT)
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org,
-	Bui Quang Minh <minhquangbui99@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH net] virtio-net: drop the multi-buffer XDP packet in zerocopy
-Date: Tue,  3 Jun 2025 22:06:13 +0700
-Message-ID: <20250603150613.83802-1-minhquangbui99@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20230601; t=1748997449; x=1749602249;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TCJQT/kav5ff3pRxvzcaTAEwPIznqrXjhdq5yD+vQEE=;
+        b=lKGAsK6gSwQsR7eAo+tf5JFwMG+EXOFDPLaWcvKMPol+98J3nazpllep/J8N/D375S
+         e6TggaD1Rdja/iNQEozEGdmMG0EylEno9M7PMcDmL1nFT1GqOchqbGVm059qsZbEePwP
+         jipdchVjGTQMvrbix9uPmtpQCSbDZD6u96JLm2eUEnUEs3o2pSPEAdFgKbrqWoMZbWBY
+         LFHAjEbE/u8hLDssTHfWk6xNjkPDU71ysxUsNSl+UMdeMask+QwAe7yySJe1iSs1P1Ya
+         y3T4oOcqNLOYK+GbWR3lzXGGx7DhNlWYKvQeUYHXjhKC3ock3udzq7w2sR5PcyBZbgLC
+         dN+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWZe6AteqVVelUQmXkJzrTbqhwbU4sTZ8i+jn+Oq3H/eU/086mXMGeEtw1hnGouyygz9gjekubQ/KGFdVUokQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwOv0exWRp3PfH40XpE2fgiBLPU9gRAedYatqp0AnE+HB99Fle8
+	aenpPNSCECEoAaSaiiqR9EnZo0ubZw3nvKVhkABcCADG/IMoGk9/MDt12nkAiTLh4D7TffkebXn
+	b6jumgAUSSl2bnYIEqJyMbZd7xtouLdL6o1sXLKMZbi7OH8bCNO9er7NHGyIAoABJVl4cLtFfDP
+	Ar6tfHjYDRGhusDkd5S2o74ck7n4SSFVYveuE4Qmkma+w=
+X-Gm-Gg: ASbGnctBZ8KUTM3xORrOY1DMRYFgaWo+sPjk3fBhiw0pP1i/5P7tuYGrCnkJX7xpexV
+	IRIttKSL/ka82YoXay6i+6/KtapGhOfZAsO3UVWkM00k8H8UNDpiEOZl06y59iYvkjyK8ZQ==
+X-Received: by 2002:a17:90b:51c4:b0:311:c1ec:7d0c with SMTP id 98e67ed59e1d1-3130cd65aaemr1426541a91.27.1748997449159;
+        Tue, 03 Jun 2025 17:37:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHQeODWbQfUbRlPw0j1gKXQJysD64GEXXnB2RuYnjq0y+PzQoFeIG5PN3PQdqbkgUndiDNUyG9oiwKSrJbbewE=
+X-Received: by 2002:a17:90b:51c4:b0:311:c1ec:7d0c with SMTP id
+ 98e67ed59e1d1-3130cd65aaemr1426509a91.27.1748997448759; Tue, 03 Jun 2025
+ 17:37:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250603150613.83802-1-minhquangbui99@gmail.com>
+In-Reply-To: <20250603150613.83802-1-minhquangbui99@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 4 Jun 2025 08:37:16 +0800
+X-Gm-Features: AX0GCFt_tMiNdtyDIBlXvuQJILPten36fjn0u2OKQnhU-6uwjA7mU6t1xM2SrDY
+Message-ID: <CACGkMEuHDLJiw=VdX38xqkaS-FJPTAU6+XUNwfGkNZGfp+6tKg@mail.gmail.com>
+Subject: Re: [PATCH net] virtio-net: drop the multi-buffer XDP packet in zerocopy
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	bpf@vger.kernel.org, stable@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 8czkrIFcK3_3NaMGi5gvzKfAVMSlKIWx3SErZGBomJ4_1748997449
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In virtio-net, we have not yet supported multi-buffer XDP packet in
-zerocopy mode when there is a binding XDP program. However, in that
-case, when receiving multi-buffer XDP packet, we skip the XDP program
-and return XDP_PASS. As a result, the packet is passed to normal network
-stack which is an incorrect behavior. This commit instead returns
-XDP_DROP in that case.
+On Tue, Jun 3, 2025 at 11:07=E2=80=AFPM Bui Quang Minh <minhquangbui99@gmai=
+l.com> wrote:
+>
+> In virtio-net, we have not yet supported multi-buffer XDP packet in
+> zerocopy mode when there is a binding XDP program. However, in that
+> case, when receiving multi-buffer XDP packet, we skip the XDP program
+> and return XDP_PASS. As a result, the packet is passed to normal network
+> stack which is an incorrect behavior. This commit instead returns
+> XDP_DROP in that case.
+>
+> Fixes: 99c861b44eb1 ("virtio_net: xsk: rx: support recv merge mode")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> ---
+>  drivers/net/virtio_net.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index e53ba600605a..4c35324d6e5b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1309,9 +1309,14 @@ static struct sk_buff *virtnet_receive_xsk_merge(s=
+truct net_device *dev, struct
+>         ret =3D XDP_PASS;
 
-Fixes: 99c861b44eb1 ("virtio_net: xsk: rx: support recv merge mode")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
----
- drivers/net/virtio_net.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+It would be simpler to just assign XDP_DROP here?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e53ba600605a..4c35324d6e5b 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1309,9 +1309,14 @@ static struct sk_buff *virtnet_receive_xsk_merge(struct net_device *dev, struct
- 	ret = XDP_PASS;
- 	rcu_read_lock();
- 	prog = rcu_dereference(rq->xdp_prog);
--	/* TODO: support multi buffer. */
--	if (prog && num_buf == 1)
--		ret = virtnet_xdp_handler(prog, xdp, dev, xdp_xmit, stats);
-+	if (prog) {
-+		/* TODO: support multi buffer. */
-+		if (num_buf == 1)
-+			ret = virtnet_xdp_handler(prog, xdp, dev, xdp_xmit,
-+						  stats);
-+		else
-+			ret = XDP_DROP;
-+	}
- 	rcu_read_unlock();
- 
- 	switch (ret) {
--- 
-2.43.0
+Or if you wish to stick to the way, we can simply remove this assignment.
+
+>         rcu_read_lock();
+>         prog =3D rcu_dereference(rq->xdp_prog);
+> -       /* TODO: support multi buffer. */
+> -       if (prog && num_buf =3D=3D 1)
+> -               ret =3D virtnet_xdp_handler(prog, xdp, dev, xdp_xmit, sta=
+ts);
+> +       if (prog) {
+> +               /* TODO: support multi buffer. */
+> +               if (num_buf =3D=3D 1)
+> +                       ret =3D virtnet_xdp_handler(prog, xdp, dev, xdp_x=
+mit,
+> +                                                 stats);
+> +               else
+> +                       ret =3D XDP_DROP;
+> +       }
+>         rcu_read_unlock();
+>
+>         switch (ret) {
+> --
+> 2.43.0
+>
+
+Thanks
 
