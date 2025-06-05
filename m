@@ -1,71 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB32A203706
-	for <virtualization@lists.linux.dev>; Thu,  5 Jun 2025 11:03:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 869B527B4F2
+	for <virtualization@lists.linux.dev>; Thu,  5 Jun 2025 14:25:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749121392; cv=none; b=QrwuAnK7kSYBFSJ60qRv58suhd0PaxkPrDhYP4Y95oSE9DKX2yqRlyBhiMwwo7733Xyt5kLrqTT7A42XtrElaqqYeqI/ZkzYlZf91FVrBnNQJ5+BtFGQriHu8wAFp3aLJbv+DIsziPQ14/3JfgOAcuiA45qbhTn/xO8B5sKCLgE=
+	t=1749133515; cv=none; b=F7/21B/od2XkoZS/OCvjn0JEcp6mFPMRugQ2yKzvfC1I4beEag2EGJAQLoPn0VKLhJhjNn2YyUFn5icvIg/1flqPlHtVp0iM3GCIwp6HxYeXAnU4djjL5kDvRIDVIqq6vl5ctsugjcNQgNgE1EM9gfEhqCVBnoQX19dzdvFrvss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749121392; c=relaxed/simple;
-	bh=5iVRkX4FSgcRxi/CvcNtolFKz6k8kFco9qX1fh/s/lk=;
+	s=arc-20240116; t=1749133515; c=relaxed/simple;
+	bh=X600dW54IagONIXRnn2TcBhMfRUF8CY7hzPPC9iyc/o=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=seYRyTx9kC6HlMBISkmiwEb0X75ACcJkXxv6kY9/AjGykNz8EGZ4wsNm5nVVBr5t+d7izewq0iOlU1jEHo8/eWXXTVdajIfbDVpLAqgbuz/AoaABRR4QuxsJC3av3W4C0RkK/QAfnEpn/beWNEfT/VzH2+RvktymMdlTCSQghHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XUJUQRaE; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=oZ4hPUNaNkDSWRPHv0a4Q77EOTEJHuwsGOsvyf0QmRiFoz8WDDcR8hhG/o5mSFrbi2t9jLc6zxGpEGpon6gRtoAs+3J5hf0BkdXY35UMYHJruiCCLJSI3TMgIf7dHkLeugRRGRJwVEeCh7KwMNspeiMbE0Jhlt6rYGufArLQQ1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CyMRz6cb; arc=none smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XUJUQRaE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749121389;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=t/iNd4rCLMH3G4cLnw5oDzeODmTZrxz5jMOWbyZxDPY=;
-	b=XUJUQRaEJTUdQYD2qx1MPkdyzhLQ9y8MjiHQrDqIWIlt+ww6FOYUbg8iOh/OVrJsha0heB
-	SOkFWwpRMtzL0qiEIoTQXBr1H8nnnqc5+tKuqAjnF/vBwXl43QCBlzKd9c9QHSvqiVCpSw
-	SAsU5iW83mlbl1fxzsQhBsdQNXWTD5s=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-552-Qbyn9E0qO8CIOugbxZt7sA-1; Thu, 05 Jun 2025 07:03:08 -0400
-X-MC-Unique: Qbyn9E0qO8CIOugbxZt7sA-1
-X-Mimecast-MFC-AGG-ID: Qbyn9E0qO8CIOugbxZt7sA_1749121388
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a4f3796779so589350f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 05 Jun 2025 04:03:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CyMRz6cb"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-7390d21bb1cso911934b3a.2
+        for <virtualization@lists.linux.dev>; Thu, 05 Jun 2025 07:25:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1749133512; x=1749738312; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=gqic3Vsyj4bzSmL05WQaZvcda3GIaM4YL+rFO5Ane1s=;
+        b=CyMRz6cb5Dk1loSPZrTMcYdGT604IfF9plFCC5mBMdD0ZjYSoBdJXun7nIbOC/omuZ
+         Vudr/bQnhQmL80fc94h99WCKh8Yfxaw68KABFibzziGDTU9cHHgTyyt2GpAegUfMg/uh
+         T/qvVhHjrDGpXWOZqkloBdWgvUG/16sG9p3Hq6DJSBQtQAfOcqZ7w7PzlgRkJz+TOgNR
+         4GZZzrakh7Y6BQTtu0+mExOMdKe6FXHQRc+zIKWQqGcFTu+M9XBhyrO8yfn8MvMiR8lv
+         9bn6xBwvjdgbyGGn/4x6r+qurtS5lCjWMnYLJtfvBYycRq5U3OX+5Kdjajs+EpbSk8Yb
+         GDgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749121387; x=1749726187;
+        d=1e100.net; s=20230601; t=1749133512; x=1749738312;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=t/iNd4rCLMH3G4cLnw5oDzeODmTZrxz5jMOWbyZxDPY=;
-        b=e0h6Nu5MqAxpkfyImXXH2Tp2pqvPaXMCAPubCjZe4enF09c3smwv4tVWJS0SGLMhsD
-         azRKVqUmVoS0OwY+6iqvfcA5P6XLjIJyjrwFA7TnhGkIEh1g6l8Io1Ir4O/RLL/YEvTt
-         3YnTUw0HOX8d8XMR+er92ahvJWOQdIWKDWYzHhdS3xf+5puVKR26far9/Tsk/kl8+8fW
-         g1YLRQ1wKoMBqslRYYnVAQXyBewezcFRk2lkXsscwPphbsMV0owvsGA4Gzjk1mNNtUW3
-         gfvLrur1yhS5dk3QeWm6BgdFCxQPs4IrwQy1a5N4Y4EFUtYe8+4wTTwM++4BoDzzvZ+n
-         gXqg==
-X-Forwarded-Encrypted: i=1; AJvYcCUP9hRUSPBsL73JXRvwD7t3qwZBbAvNdcI6IPfO5Ob0WztZYcmOkfjlp/U9nbQO9JNVSceIhzQOiLVwBMYBfw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxz8TGX+Z2u6IFsNqigTqkTi7qoYuQuY6BD9pIJeCZIZxek18rM
-	Gq30FY1fOKLlQRFSEcfdqrpiWxhjy6ntl2hfIiqgZ7YzoEt/NdgeYD7kO9H8DSikAW2kLfUPW8t
-	dRdW1mRKwcrZYIMdl9GB6dIVibhat4Ok+RH/ZeecZxaTbSCH9wJhb3wF3cSAIGrDkWj6R
-X-Gm-Gg: ASbGncsg+oaCqvnxRcLoOqL2CMOe4T7ygYw55ga3apZxtPPNIU6gNWuLs+4BEHNR6rp
-	Wmh3FPI8PE56+ZqiZbxC2fO2zojSAnQ4/L8enD04BFn0oudBK+U1ATANROymS9IPs709q9tQsmG
-	FuRESWwskaKgCPFQ06+OD41GFer4DApgKhhdauEhr6NW8A2girdegwbQHR5YXys6n3Gg3/BXNAx
-	qFwUOk5LhlUbIEi/IBKDc9CPnuHAVJe9wsUKdipMe94YiMvSp3iOP3kZjuCic49xoEwVzn3UYY4
-	HD/IACy2LAD2urOLGewc/0nenvL3fA==
-X-Received: by 2002:a05:6000:4387:b0:3a5:2949:6c24 with SMTP id ffacd0b85a97d-3a529496f56mr1757620f8f.51.1749121384691;
-        Thu, 05 Jun 2025 04:03:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFdGUXYZXrNIrCyhAh0tp1ScDeHW0FOJjHuHj6Po7K6huTF1gR9wGCaSTi+dFD3HnrC0pmIFw==
-X-Received: by 2002:a05:6000:4387:b0:3a5:2949:6c24 with SMTP id ffacd0b85a97d-3a529496f56mr1757543f8f.51.1749121383960;
-        Thu, 05 Jun 2025 04:03:03 -0700 (PDT)
-Received: from ?IPV6:2a0d:3341:cced:ed10::f39? ([2a0d:3341:cced:ed10::f39])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-451f990cfe3sm20995275e9.23.2025.06.05.04.03.02
+        bh=gqic3Vsyj4bzSmL05WQaZvcda3GIaM4YL+rFO5Ane1s=;
+        b=D+elq39stSNqDFr2N1cyc183+JvN3I8/7hN4DEfk1zdzYOD1I9AVtObW0Wqa/GCyjM
+         Nhbpp7bjfu0LiUsG/gQdMg+Lm6/WGGTGyyjsCm8PZi7KOgQ0IVa4+LDUjf5y6Wll5w6H
+         W0w7YNlFQ7WdTFCrHcKGBszG0yljIoZr2CeaF0+SI75tgS7ZdCKAKLa1MfXftcWWjN95
+         2GH9iigXRpNnfep/LINV2a1uH69ohIEYo2IXby7Bf7+UvYSkDYsezHPx/J39RTqr/0Gk
+         7Oa6TL4ohVACzmPLm59soYKxTwhcSlFS+5mQS7wstvuyktgy6LVJY5po6Xctxee5xaXF
+         G6nQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVLEKMX/afrJRzj9kanN7CnSdxQ22HtlEgAjxB7ThdaLXUasT1eGW0ApWMh8YC5Xf3X+6bcUbz1suFT5BVzmA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyAvA53HC9kgSSr1YirpUHgQ0uf+HLfQ+fHYyOxTIXRhakMkrXw
+	SBzZbpasiK+A8TskhXQYBT8PPUu0b6RRm93MMouZSpVUP51WuFmBwLvw
+X-Gm-Gg: ASbGncuiAASwXvncG+Tpj6E0uP20hGhvUNH52JNwwProoLlMh0tIYzhAaCtMHhYv0Br
+	wwuILrLnS76wlu+IVNT33gwGAdf41lFocqXPi4BZMoxiDAAkyR9hs1Tw8FVYFvKMTujpvTdQuJa
+	TmBiQS6jMmD+8I0qVH5ZSPiDHIClKqkkUwvyB80/G/iun0h/aZ7AahMZfmtBkHPE0tD/fUvqHVI
+	6t8Jjk1anCslzWiYz3k7owDE1DWKTFgBFvwjV8sFwRVmqbvevGueLYQeJWoSW2XbY6u7IQHFz23
+	kzjJXOjSTHQAmWLAp/3d/SDrj5wvt8O5MOd3lVndOHplEFCSkEzzeA1Ar7+NwMv28xdUsVX0sFn
+	kTxCVAjxWUGDXEhUwz4ceZ+QRVEo=
+X-Google-Smtp-Source: AGHT+IH4vL0ow3LtCX+mnTgMUIKUpP6tlNeWjyc30axYR85Pz7Znrto5PFXe7BtNog4L00G5ukEv0w==
+X-Received: by 2002:a05:6a00:13a2:b0:736:5e28:cfba with SMTP id d2e1a72fcca58-7480d023dc6mr9016645b3a.18.1749133511687;
+        Thu, 05 Jun 2025 07:25:11 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0e:fb30:fe1:cf75:ee2d:d934? ([2001:ee0:4f0e:fb30:fe1:cf75:ee2d:d934])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-747afeabad9sm13367104b3a.51.2025.06.05.07.25.06
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Jun 2025 04:03:03 -0700 (PDT)
-Message-ID: <dd087fdf-5d6c-4015-bed3-29760002f859@redhat.com>
-Date: Thu, 5 Jun 2025 13:03:01 +0200
+        Thu, 05 Jun 2025 07:25:11 -0700 (PDT)
+Message-ID: <099a66e1-c271-488c-8997-daf07602d16b@gmail.com>
+Date: Thu, 5 Jun 2025 21:25:03 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,42 +69,76 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net] virtio-net: drop the multi-buffer XDP packet in
  zerocopy
-To: Bui Quang Minh <minhquangbui99@gmail.com>, netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
+To: Zvi Effron <zeffron@riotgames.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
  Jesper Dangaard Brouer <hawk@kernel.org>,
  John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
  linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
 References: <20250603150613.83802-1-minhquangbui99@gmail.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20250603150613.83802-1-minhquangbui99@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: pYSp_IwxnUzvuBj55QniP6wo5JXhFKJ89ONy1SOsjaw_1749121388
-X-Mimecast-Originator: redhat.com
+ <CAC1LvL0xTSv9sBRYnD-ykDqQr+Reg7yB0uwAR158-+aAm1J1Ew@mail.gmail.com>
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <CAC1LvL0xTSv9sBRYnD-ykDqQr+Reg7yB0uwAR158-+aAm1J1Ew@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 6/3/25 5:06 PM, Bui Quang Minh wrote:
-> In virtio-net, we have not yet supported multi-buffer XDP packet in
-> zerocopy mode when there is a binding XDP program. However, in that
-> case, when receiving multi-buffer XDP packet, we skip the XDP program
-> and return XDP_PASS. As a result, the packet is passed to normal network
-> stack which is an incorrect behavior. 
+On 6/4/25 23:55, Zvi Effron wrote:
+> On Tue, Jun 3, 2025 at 8:09 AM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>> In virtio-net, we have not yet supported multi-buffer XDP packet in
+>> zerocopy mode when there is a binding XDP program. However, in that
+>> case, when receiving multi-buffer XDP packet, we skip the XDP program
+>> and return XDP_PASS. As a result, the packet is passed to normal network
+>> stack which is an incorrect behavior. This commit instead returns
+>> XDP_DROP in that case.
+> Does it make more sense to return XDP_ABORTED? This seems like an unexpected
+> exception case to me, but I'm not familiar enough with virtio-net's multibuffer
+> support.
 
-Why? AFAICS the multi-buffer mode depends on features negotiation, which
-is not controlled by the VM user.
+The following code after this treats XDP_DROP and XDP_ABORTED in the 
+same way. I don't have strong opinion between these 2 values here. We 
+may add a call to trace_xdp_exception in case we want XDP_ABORTED here.
 
-Let's suppose the user wants to attach an XDP program to do some per
-packet stats accounting. That suddenly would cause drop packets
-depending on conditions not controlled by the (guest) user. It looks
-wrong to me.
+Thanks,
+Quang Minh.
 
-XDP_ABORTED looks like a better choice.
-
-/P
+>
+>> Fixes: 99c861b44eb1 ("virtio_net: xsk: rx: support recv merge mode")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+>> ---
+>> drivers/net/virtio_net.c | 11 ++++++++---
+>> 1 file changed, 8 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index e53ba600605a..4c35324d6e5b 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -1309,9 +1309,14 @@ static struct sk_buff *virtnet_receive_xsk_merge(struct net_device *dev, struct
+>> ret = XDP_PASS;
+>> rcu_read_lock();
+>> prog = rcu_dereference(rq->xdp_prog);
+>> - /* TODO: support multi buffer. */
+>> - if (prog && num_buf == 1)
+>> - ret = virtnet_xdp_handler(prog, xdp, dev, xdp_xmit, stats);
+>> + if (prog) {
+>> + /* TODO: support multi buffer. */
+>> + if (num_buf == 1)
+>> + ret = virtnet_xdp_handler(prog, xdp, dev, xdp_xmit,
+>> + stats);
+>> + else
+>> + ret = XDP_DROP;
+>> + }
+>> rcu_read_unlock();
+>>
+>> switch (ret) {
+>> --
+>> 2.43.0
+>>
+>>
 
