@@ -1,213 +1,164 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E9C2175A5;
-	Wed,  4 Jun 2025 19:11:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D206B18C06
+	for <virtualization@lists.linux.dev>; Thu,  5 Jun 2025 00:46:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749064303; cv=none; b=KaYbRhZINkg9osI44jZetCMqU+eSTS5UCkKL6x+j0ANSFVZn0P5xOauz8lgBfPOMK1dqTPjbMTEHkACiwmJgLBxS8GCwAStDONR90GhXcPpDJtBqcNH9AxfrDo5/xo8EivVHXeYh+i/RXN6Bd387IGf9GyJm//ke5dp1AUmsgqc=
+	t=1749084399; cv=none; b=o18IYo6JOOg6SKLosyvLg/f72gh8UvlazTjPC84Qx7oArGzxC8xcF4wfXk7X0Dygm1hqynNAlGKyktbvYUtUcc5yPPjRAOzgam+wzregBbNZnogHLzjysnAmvYBaHxlokrt62ROp93KI+d1vdUP0S4jCd7ob7ca6QFNUiw5rTts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749064303; c=relaxed/simple;
-	bh=Ksjn+bV45i0A9pWDjuu7EeJglLRGYHw1mTFGii9v/S8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YsZEZGeXoLuw21H3wGM0YCzI2Yfpsezdjtq+Evm/xMJ/U4hFPfs93omRF2fqYbDZ3/Kv7kVDimqF+tbGPYd7G5Ofo/0Lo84S3WJx8Yzsoj85pgqnp4zgJaKFEHPamp974vJ6ZlfO1MBsvU8fp+EgD5JyNoo9TCl3nztkaCAGPhw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=ZLWeHm8T; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1749084399; c=relaxed/simple;
+	bh=gQ2K28JFSJwrXcviJxZJUo1aNRaVu0m2YAcpDoDihjo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rTngS2nNxS91VwZw9khKAd7TGWCQXLa7ZQ8klpvLLXfVv1FNhTWAfCNYh7zx8Ejqrl6mgsn2B7dUOLSyj44vZ5lifA/Og1dkoBhhKdwWQUIC3dM5BUGvvSp9MI/O6B1TNnwgTcDBneh9di9wN214VtnpnRZCPiECEsK9S9TLewQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GhsJaU9/; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="ZLWeHm8T"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1uMtWU-008zin-8O; Wed, 04 Jun 2025 21:11:38 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=HqjKTGpDcvQPnWOU38KH5Qrtb2k6G5HRlDi/DrOBjL8=; b=ZLWeHm8TTlvp9wvbq4hTVuTT2y
-	adNm+N9/8tfgRXt6b0/D9y1J1AfhASRyn2u79a2xBMsNfrqUUikNVcdAalbvKaoxAmBhhE4wzVRcc
-	IWLMPhfF7MaQa2mYYgnvjftTG8p6HP8Dq9qqR0y3rWeUtXSs/bvdQ85Lb2DahwkxEvALD/S0BT/S0
-	Lq/6vMsg/tueKD+fmmqz/w2TTnl11/XatsrBw6f1r5YjbTAYsrP7yj2WkGIRxNm/d3VgtCtjBfduj
-	zm6clatigKJb973ckW5njspOT5w843dmJib3lnI/+yzHPsGfi6ioCRuOdW/NK6FyxVn8UqigloidY
-	v6JddLZA==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1uMtWS-0000r5-Sb; Wed, 04 Jun 2025 21:11:37 +0200
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1uMtWQ-00Dqjl-OK; Wed, 04 Jun 2025 21:11:34 +0200
-Message-ID: <77c48b6d-4539-4d01-bd7f-7b5415b7b995@rbox.co>
-Date: Wed, 4 Jun 2025 21:11:33 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GhsJaU9/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749084396;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4rvoJRZ+941RRB3yT2eqwz3H2iab1etLIqCrT/3n0JQ=;
+	b=GhsJaU9/rE/SoJoBJJl9Eb2skRBQm2WkBGZmWRmOwQ9uUKytkuNeUQOfiSJQYUrVaRPGE7
+	a5Et05D+W/iaJfuJ29Lin3L7ExD4M4nvBb+6PLQyUbjsYfqET4wMhAUtHq3nNX7j0CnmbV
+	/r2vQFxQXDmIrKgj5zes25FkIhKCcnY=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-608-We0Yof3xOaCbR5jSURcKAQ-1; Wed, 04 Jun 2025 20:46:30 -0400
+X-MC-Unique: We0Yof3xOaCbR5jSURcKAQ-1
+X-Mimecast-MFC-AGG-ID: We0Yof3xOaCbR5jSURcKAQ_1749084388
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-742b6705a52so654512b3a.1
+        for <virtualization@lists.linux.dev>; Wed, 04 Jun 2025 17:46:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749084387; x=1749689187;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4rvoJRZ+941RRB3yT2eqwz3H2iab1etLIqCrT/3n0JQ=;
+        b=OVdWdpkGxdcjFL0U60c3y9iGXyguasPVF9i21SIb6A1eE2/oEexyEzBZH76jJFm5B0
+         hFTgHlt18IQViD0HZmHuf14vF5BNUrEF+RBoMKw8SfTgEB4Hnyi7mtPllCR5Tmd0zzjI
+         M56mlvO/rE1Vy9SjN33OQ4hKGTj9o1PUBhgjOjD6Vu/HOGeHWLzDHRk54CV9gvW0DGrI
+         fwhg1PONRXQPyJ/N/wO4qXXMmstzdkWfVxuDUIm6jxCk8PegRIj58RPdiztC40Xu+yz+
+         9lnd2eXuG3LHdPDEhG4by8rpUwsa6RIWbQXIUkK9OmOmdZwKH/OgLGrpV4MfZ2sgDsK2
+         0I1A==
+X-Forwarded-Encrypted: i=1; AJvYcCV78dhE65LudZSgo6fzhoGz34cxnbzqOI3CFEbw5QWvpSl/t8+hrCq14f3c+co5SHYk6H1xEVNdpYNdwcIcGg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzw9qNr6rvhibTC8CVBed5Q/J5ST9UiZON17ljGg2FUrIZ6+kw2
+	x93R61+IEOvO7zRiwOOrB5W6NWHJgSSHwKX+BHrjKfWA9hhqZie1k9Mh1zExQdniT/zghDn0iF8
+	rVq89I4FUf0YZBkbzWYEwKW3nqZE5ecbVZ38IGyjK4LXD49aK2WxuFKAHJWEyP4yFNQJ2ot9+Bc
+	rfACfc5DuxngXsGRX3PTB/xWYvCj8J63dVQnsVgvkIAhc=
+X-Gm-Gg: ASbGnctw1QtdQiqP6hflusg/Hqsg13Si8jrngCc0ZhEfhIkaW7Li9V1zeV0vPHgLFv1
+	cuRLoymL0SbP+iiZrR8PSpQosVzIIIRsDswjee3fraF6BF6M3WENQaZg00LZsmXXHVS53
+X-Received: by 2002:a05:6a00:1a8b:b0:736:53f2:87bc with SMTP id d2e1a72fcca58-7480b41c057mr6620869b3a.13.1749084387546;
+        Wed, 04 Jun 2025 17:46:27 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGWm/kjbk8cd6j93CgnJ1yt93I+3ZM/WhLMOUv1rkUy4RSWdCL17+h6rPArAx08BKWo82wHYZSyXb0/Dn2zN4A=
+X-Received: by 2002:a05:6a00:1a8b:b0:736:53f2:87bc with SMTP id
+ d2e1a72fcca58-7480b41c057mr6620834b3a.13.1749084387116; Wed, 04 Jun 2025
+ 17:46:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC net-next v2 3/3] vsock/test: Cover more CIDs in
- transport_uaf test
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20250528-vsock-test-inc-cov-v2-0-8f655b40d57c@rbox.co>
- <20250528-vsock-test-inc-cov-v2-3-8f655b40d57c@rbox.co>
- <ocuwnpdoo7yxoqiockcs7yopoayg5x4b747ksvy4kmk3ds6lb3@f7zgcx7gigt5>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <ocuwnpdoo7yxoqiockcs7yopoayg5x4b747ksvy4kmk3ds6lb3@f7zgcx7gigt5>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20250603150613.83802-1-minhquangbui99@gmail.com>
+ <CACGkMEuHDLJiw=VdX38xqkaS-FJPTAU6+XUNwfGkNZGfp+6tKg@mail.gmail.com> <0bc8547d-aa8f-4d96-9191-fd52d1bec74e@gmail.com>
+In-Reply-To: <0bc8547d-aa8f-4d96-9191-fd52d1bec74e@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 5 Jun 2025 08:46:16 +0800
+X-Gm-Features: AX0GCFvjyMd1H9dniamKbUvfa3PlpuL7i79qr8xhrVJzz6-ckoHw99myc9wjf_U
+Message-ID: <CACGkMEvnn52XaidBdD9yGy8Yfpw3vu+QLcd8JoBSNS5ZEtmMqw@mail.gmail.com>
+Subject: Re: [PATCH net] virtio-net: drop the multi-buffer XDP packet in zerocopy
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	bpf@vger.kernel.org, stable@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 7qLq21KTvvQaZM8w9qjZlAjo4CMHuW2xHf8zfQVeclk_1749084388
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 6/4/25 11:37, Stefano Garzarella wrote:
-> On Wed, May 28, 2025 at 10:44:43PM +0200, Michal Luczaj wrote:
->> +static bool test_stream_transport_uaf(int cid)
->> {
->> 	int sockets[MAX_PORT_RETRIES];
->> 	struct sockaddr_vm addr;
->> -	int fd, i, alen;
->> +	socklen_t alen;
->> +	int fd, i, c;
->> +	bool ret;
->> +
->> +	/* Probe for a transport by attempting a local CID bind. Unavailable
->> +	 * transport (or more specifically: an unsupported transport/CID
->> +	 * combination) results in EADDRNOTAVAIL, other errnos are fatal.
->> +	 */
->> +	fd = vsock_bind_try(cid, VMADDR_PORT_ANY, SOCK_STREAM);
->> +	if (fd < 0) {
->> +		if (errno != EADDRNOTAVAIL) {
->> +			perror("Unexpected bind() errno");
->> +			exit(EXIT_FAILURE);
->> +		}
->>
->> -	fd = vsock_bind(VMADDR_CID_ANY, VMADDR_PORT_ANY, SOCK_STREAM);
->> +		return false;
->> +	}
->>
->> 	alen = sizeof(addr);
->> 	if (getsockname(fd, (struct sockaddr *)&addr, &alen)) {
->> @@ -1735,38 +1746,73 @@ static void test_stream_transport_uaf_client(const struct test_opts *opts)
->> 		exit(EXIT_FAILURE);
->> 	}
->>
->> +	/* Drain the autobind pool; see __vsock_bind_connectible(). */
->> 	for (i = 0; i < MAX_PORT_RETRIES; ++i)
->> -		sockets[i] = vsock_bind(VMADDR_CID_ANY, ++addr.svm_port,
->> -					SOCK_STREAM);
->> +		sockets[i] = vsock_bind(cid, ++addr.svm_port, SOCK_STREAM);
->>
->> 	close(fd);
->> -	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
->> +	fd = socket(AF_VSOCK, SOCK_STREAM | SOCK_NONBLOCK, 0);
-> 
-> Why we need this change?
+On Wed, Jun 4, 2025 at 10:17=E2=80=AFPM Bui Quang Minh <minhquangbui99@gmai=
+l.com> wrote:
+>
+> On 6/4/25 07:37, Jason Wang wrote:
+> > On Tue, Jun 3, 2025 at 11:07=E2=80=AFPM Bui Quang Minh <minhquangbui99@=
+gmail.com> wrote:
+> >> In virtio-net, we have not yet supported multi-buffer XDP packet in
+> >> zerocopy mode when there is a binding XDP program. However, in that
+> >> case, when receiving multi-buffer XDP packet, we skip the XDP program
+> >> and return XDP_PASS. As a result, the packet is passed to normal netwo=
+rk
+> >> stack which is an incorrect behavior. This commit instead returns
+> >> XDP_DROP in that case.
+> >>
+> >> Fixes: 99c861b44eb1 ("virtio_net: xsk: rx: support recv merge mode")
+> >> Cc: stable@vger.kernel.org
+> >> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> >> ---
+> >>   drivers/net/virtio_net.c | 11 ++++++++---
+> >>   1 file changed, 8 insertions(+), 3 deletions(-)
+> >>
+> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> >> index e53ba600605a..4c35324d6e5b 100644
+> >> --- a/drivers/net/virtio_net.c
+> >> +++ b/drivers/net/virtio_net.c
+> >> @@ -1309,9 +1309,14 @@ static struct sk_buff *virtnet_receive_xsk_merg=
+e(struct net_device *dev, struct
+> >>          ret =3D XDP_PASS;
+> > It would be simpler to just assign XDP_DROP here?
+> >
+> > Or if you wish to stick to the way, we can simply remove this assignmen=
+t.
+>
+> This XDP_PASS is returned for the case when there is no XDP program
+> binding (!prog).
 
-It's for the (void)connect() below (not the connect() expecting early
-EADDRNOTAVAIL, the second one). We're not connecting to anything anyway, so
-there's no point entering the main `while (sk->sk_state != TCP_ESTABLISHED`
-loop in vsock_connect().
+You're right.
 
->> 	if (fd < 0) {
->> 		perror("socket");
->> 		exit(EXIT_FAILURE);
->> 	}
->>
->> -	if (!vsock_connect_fd(fd, addr.svm_cid, addr.svm_port)) {
->> -		perror("Unexpected connect() #1 success");
->> +	/* Assign transport, while failing to autobind. Autobind pool was
->> +	 * drained, so EADDRNOTAVAIL coming from __vsock_bind_connectible() is
->> +	 * expected.
->> +	 */
->> +	addr.svm_port = VMADDR_PORT_ANY;
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-(Ugh, this line looks useless...)
+Thanks
 
->> +	if (!connect(fd, (struct sockaddr *)&addr, alen)) {
->> +		fprintf(stderr, "Unexpected connect() success\n");
->> +		exit(EXIT_FAILURE);
->> +	} else if (errno == ENODEV) {
->> +		/* Handle unhappy vhost_vsock */
-> 
-> Why it's unhappy? No peer?
-
-It's the case of test_stream_transport_uaf(VMADDR_CID_HOST) when only
-vhost_vsock transport is loaded. Before we even reach (and fail)
-vsock_auto_bind(), vsock_assign_transport() fails earlier: `new_transport`
-gets set to `transport_g2h` (NULL) and then it's `if (!new_transport)
-return -ENODEV`. So the idea was to swallow this errno and let the caller
-report that nothing went through.
-
-I guess we can narrow this down to `if (errno == ENODEV && cid ==
-VMADDR_CID_HOST)`.
-
->> +		ret = false;
->> +		goto cleanup;
->> +	} else if (errno != EADDRNOTAVAIL) {
->> +		perror("Unexpected connect() errno");
->> 		exit(EXIT_FAILURE);
->> 	}
->>
->> -	/* Vulnerable system may crash now. */
->> -	if (!vsock_connect_fd(fd, VMADDR_CID_HOST, VMADDR_PORT_ANY)) {
->> -		perror("Unexpected connect() #2 success");
->> -		exit(EXIT_FAILURE);
->> +	/* Reassign transport, triggering old transport release and
->> +	 * (potentially) unbinding of an unbound socket.
->> +	 *
->> +	 * Vulnerable system may crash now.
->> +	 */
->> +	for (c = VMADDR_CID_HYPERVISOR; c <= VMADDR_CID_HOST + 1; ++c) {
->> +		if (c != cid) {
->> +			addr.svm_cid = c;
->> +			(void)connect(fd, (struct sockaddr *)&addr, alen);
->> +		}
->> 	}
->>
->> +	ret = true;
->> +cleanup:
->> 	close(fd);
->> 	while (i--)
->> 		close(sockets[i]);
->>
->> -	control_writeln("DONE");
->> +	return ret;
->> }
->>
->> -static void test_stream_transport_uaf_server(const struct test_opts *opts)
->> +/* Test attempts to trigger a transport release for an unbound socket. This can
->> + * lead to a reference count mishandling.
->> + */
->> +static void test_stream_transport_uaf_client(const struct test_opts *opts)
->> {
->> -	control_expectln("DONE");
->> +	bool tested = false;
->> +	int cid, tr;
->> +
->> +	for (cid = VMADDR_CID_HYPERVISOR; cid <= VMADDR_CID_HOST + 1; ++cid)
->> +		tested |= test_stream_transport_uaf(cid);
->> +
->> +	tr = get_transports();
->> +	if (!tr)
->> +		fprintf(stderr, "No transports detected\n");
->> +	else if (tr == TRANSPORT_VIRTIO)
->> +		fprintf(stderr, "Setup unsupported: sole virtio transport\n");
->> +	else if (!tested)
->> +		fprintf(stderr, "No transports tested\n");
->> }
->>
->> static void test_stream_connect_retry_client(const struct test_opts *opts)
->> @@ -2034,7 +2080,6 @@ static struct test_case test_cases[] = {
->> 	{
->> 		.name = "SOCK_STREAM transport release use-after-free",
->> 		.run_client = test_stream_transport_uaf_client,
->> -		.run_server = test_stream_transport_uaf_server,
-> 
-> Overall LGTM. I was not able to apply, so I'll test next version.
-
-Bummer, I'll make sure to rebase.
-
-Thanks,
-Michal
+>
+> >
+> >>          rcu_read_lock();
+> >>          prog =3D rcu_dereference(rq->xdp_prog);
+> >> -       /* TODO: support multi buffer. */
+> >> -       if (prog && num_buf =3D=3D 1)
+> >> -               ret =3D virtnet_xdp_handler(prog, xdp, dev, xdp_xmit, =
+stats);
+> >> +       if (prog) {
+> >> +               /* TODO: support multi buffer. */
+> >> +               if (num_buf =3D=3D 1)
+> >> +                       ret =3D virtnet_xdp_handler(prog, xdp, dev, xd=
+p_xmit,
+> >> +                                                 stats);
+> >> +               else
+> >> +                       ret =3D XDP_DROP;
+> >> +       }
+> >>          rcu_read_unlock();
+> >>
+> >>          switch (ret) {
+> >> --
+> >> 2.43.0
+> >>
+> > Thanks
+> >
+>
+>
+> Thanks,
+> Quang Minh.
+>
+>
 
