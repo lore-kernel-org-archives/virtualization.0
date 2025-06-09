@@ -1,168 +1,160 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658151FC0EA
-	for <virtualization@lists.linux.dev>; Mon,  9 Jun 2025 06:11:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 415BB280CFA
+	for <virtualization@lists.linux-foundation.org>; Mon,  9 Jun 2025 07:34:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749449462; cv=none; b=sLHymNWHVKqV1RvBUo0NFxsmXyTtfboBJi386x/4HWZ5dd0cgckt9mHB3fu4H2ye2W/Fw1f6bEY81/IsBx395tSyDivAq+adNyUaEBItQUZz1+4UTfnDmD2aIpd5Aobd7KQrLcb3yql7sYrMTcl54d3D0QsKAjN5ttFVa43WDxU=
+	t=1749454486; cv=none; b=lbojVkqX8t1mDhZXrUU05QEilR2HcWV1B5JjdbwE1Xn67oo6duD8Mwji76GlvRKNVj9ELlIh8G3kmrGAcoc3t+/KojNQj3LTpmtbRnGR2RrvaP8rS9zl75QoVaCHjo5wBZFj3Q04KAA+qLSdvFzl26rc5U9r2EqRPOY/cs7YIfM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749449462; c=relaxed/simple;
-	bh=6B//4am4kf0/sPk4mJgCJJwvxYd2J+xNJ7hXmBZcR0k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Sp8y917ojeFd38fYuJ4XokmIbw9aYdtQE3xP9pyg22PcKPtzr64sKBJr+l3vjMdrnwCx3Cvr8oFA9b8omaoZHhBYa8kQXmry0uCoMsutn5/YjbUsXgh/audUDd4KVDJnDvIwBducaWpui33oQmRkqqfP97SYcX7znAHsTeaQC+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NwP97CWY; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1749454486; c=relaxed/simple;
+	bh=Pk2IKlN944aLWRdOUSAy2DXbgVTz9MMRw1o6JvUdAXE=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VCiFxOb1c+OMrLMwlZvRJezHqTbC6dWeUQIPo01CsLdFfUx8FGXc0ZaYmqBylmEI8JD6vxO9H0H5jMDyDlUKnbaj3QkpNAnf9uG55zz0H6gw7j99heigL8GmkzjDLRjE2B2RaAIdwgULn24QNScLXePaZJMHEFbJysaDbrgG978=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GTZXs/J6; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NwP97CWY"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GTZXs/J6"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id BE188815CC
+	for <virtualization@lists.linux-foundation.org>; Mon,  9 Jun 2025 07:34:44 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Mlna8iIS2ypV for <virtualization@lists.linux-foundation.org>;
+ Mon,  9 Jun 2025 07:34:44 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 1CAC1816F0
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1CAC1816F0
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GTZXs/J6
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1CAC1816F0
+	for <virtualization@lists.linux-foundation.org>; Mon,  9 Jun 2025 07:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749449459;
+	s=mimecast20190719; t=1749454482;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8fAHnSUgbK0T/Jvj5lZ7rfRDImFhPiFzgFqOeLLWznI=;
-	b=NwP97CWYXVxlEIETOV0qPtvl7p1Jkf96AEsk5cDgmkxUIfKWmLUUU/v3BgiFZmxskJ4DVn
-	6Q0zJ7/kQ5mbyAfjZNay9R4bcXZUZq2iokBc5EvLLCog/URfswP2BpIywmBmZCUwow8iEB
-	UYTOAc6w6EOaVVFbDnrpmx1qRNJ7UU0=
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
- [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-317-Iay-IQzVNamlhLDtLjwOPg-1; Mon, 09 Jun 2025 02:10:56 -0400
-X-MC-Unique: Iay-IQzVNamlhLDtLjwOPg-1
-X-Mimecast-MFC-AGG-ID: Iay-IQzVNamlhLDtLjwOPg_1749449455
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-b26eec6da92so3917525a12.1
-        for <virtualization@lists.linux.dev>; Sun, 08 Jun 2025 23:10:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749449455; x=1750054255;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8fAHnSUgbK0T/Jvj5lZ7rfRDImFhPiFzgFqOeLLWznI=;
-        b=PVPi0M1mZzomWMcAWxhvvZbO6qwGWpcbOPsbcHZ/DR95Tf9tDOHSLLAm80CbQtdVAR
-         MG+pOhWLhw1zxwCLA6Ss2easrfOglxE8y5CKEDxDDoggx7MOsMvd2EQxKInLwDTGOoVq
-         CDs3EHLndEpUJwJHgAjyIdCMQWEjuvmhD68vrfoVHGffom2oLDocKnaMdPDGLqMFVEIs
-         y1bYaHHUpVboqUnN/Z0ClMLPpbcXz2HThk8k3/5afNHhHwqBXWHvujDhkQyNcMjCOXie
-         R/Nz5TnlMYgg4T+ybzC1ZHQsTK7Jt4+GAGUgAzU8WFGPfOZSuy2oirRuap8PGYcBpJpF
-         Q6qg==
-X-Forwarded-Encrypted: i=1; AJvYcCWflq20yGeKSmjtInuqz62OcGEyVY3ad2yQYvPXGRo4tnZ1Dn1jNcE5Sn4GdE3Ven5YVHkHe0zEQFU2EIbATA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyQzeC7dwPZ5gU+Bq3EDd8zp0B6zyBkDl+9ZAwMuE+kp4dO4n4w
-	aruXz3T+mgav06qg43Z+mZtd2/AH2NkAvyrW4GhjteyzawLUpP4oGd9oUVXHYmn2WWTx8GO4Znk
-	j48crM9O2rqkbrUesGrZe8LJ8hXa2JHxWuPvhfvqQPJxQXmYd4n9auVWhb9lHOoAikmK/DAAuWi
-	KhU2iE1eUfiyy3+cov73IKrJve7ejUvrlq0tl3omoyx6k=
-X-Gm-Gg: ASbGnctVodQAJAIAr6+Qaw9vOiI7Sx7cowSYQ/KLnvH1F+msQVSyFhjEgLc7v/P0eh0
-	b3pS7bBsvAiXJ0kYHBPZF0d8B+0k28z+VdGh4/Lvy5k7q056GLDJWVPBej1vNnkoAh6S6WYO6yE
-	pSFA==
-X-Received: by 2002:a17:90b:2802:b0:310:8d4a:4a97 with SMTP id 98e67ed59e1d1-313666b18d2mr10246577a91.15.1749449455520;
-        Sun, 08 Jun 2025 23:10:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE6/2UHn7/Uo8w2el5l2Rn8LGz769MNneYKHjrmdgTaipoeImVc5NlpqZY+cvQ12Vc/NyTuf6CIGXI035ffYfA=
-X-Received: by 2002:a17:90b:2802:b0:310:8d4a:4a97 with SMTP id
- 98e67ed59e1d1-313666b18d2mr10246553a91.15.1749449455207; Sun, 08 Jun 2025
- 23:10:55 -0700 (PDT)
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=lgIvOtbbVoeCdziN1/6LEAtUpp454oRAjXMdabFdZhE=;
+	b=GTZXs/J6qprmElJPO8aUsuDZVGyFzKsHhDNh17+fneVEjEhvcg1nmknu8owenteuM4EaVC
+	ju26lkoKbOPZ/B8M1HCT3/a7/esCalTgEtb44Ly0nJ8Jf5JlC9jVJjK6kPPwUZ2VInwIQJ
+	Vu/DzyVkYq83SuTpaf0ocpQdGgSxL10=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-682-XO18P4WAPvuO8ZGsJPSbuQ-1; Mon,
+ 09 Jun 2025 03:34:38 -0400
+X-MC-Unique: XO18P4WAPvuO8ZGsJPSbuQ-1
+X-Mimecast-MFC-AGG-ID: XO18P4WAPvuO8ZGsJPSbuQ_1749454477
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 34B7B1800343;
+	Mon,  9 Jun 2025 07:34:37 +0000 (UTC)
+Received: from server.redhat.com (unknown [10.72.112.22])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 449DA19560AB;
+	Mon,  9 Jun 2025 07:34:32 +0000 (UTC)
+From: Cindy Lu <lulu@redhat.com>
+To: lulu@redhat.com,
+	jasowang@redhat.com,
+	mst@redhat.com,
+	michael.christie@oracle.com,
+	sgarzare@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org
+Subject: [PATCH v11 0/3] vhost: Add support of kthread API
+Date: Mon,  9 Jun 2025 15:33:06 +0800
+Message-ID: <20250609073430.442159-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250606115012.1331551-1-eperezma@redhat.com> <20250606115012.1331551-2-eperezma@redhat.com>
- <CACGkMEsw2taXgW11na2CFK6W03c=x=wMn3iwNZPypgPkeSU06Q@mail.gmail.com> <CACGkMEvinV7Zd+xddnxcerFbw_c+RZypkeD5HaN8=g6+peZvMQ@mail.gmail.com>
-In-Reply-To: <CACGkMEvinV7Zd+xddnxcerFbw_c+RZypkeD5HaN8=g6+peZvMQ@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Mon, 9 Jun 2025 08:10:19 +0200
-X-Gm-Features: AX0GCFunBg0u2F00zqo-pilSrjGR2wWnYVAnlGyKdS6mvzmpjVUJMCnjdbab8LA
-Message-ID: <CAJaqyWeetDsdoDzVrN-n0+jr97MBPeHdTxeM3ttmNUeLK702VA@mail.gmail.com>
-Subject: Re: [RFC 1/6] vduse: add v1 API definition
-To: Jason Wang <jasowang@redhat.com>
-Cc: Yongji Xie <xieyongji@bytedance.com>, Cindy Lu <lulu@redhat.com>, 
-	linux-kernel@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Laurent Vivier <lvivier@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: r2UgE-8pM1IEAzyUu4B8WAlR-MKiFSQN5lCrIsHQ7Ms_1749449455
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-On Mon, Jun 9, 2025 at 3:50=E2=80=AFAM Jason Wang <jasowang@redhat.com> wro=
-te:
->
-> On Mon, Jun 9, 2025 at 9:41=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
-> >
-> > On Fri, Jun 6, 2025 at 7:50=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@red=
-hat.com> wrote:
-> > >
-> > > This allows to define all functions checking the API version set by t=
-he
-> > > userland device.
-> > >
-> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> >
-> > It might be worth clarifying how it works.
-> >
-> > For example,
-> >
-> > 1) would VDUSE behave differently or if it's just some new ioctls
+In this series, a new UAPI is implemented to allow   
+userspace applications to configure their thread mode.
 
-I'd like to test more in-depth, but a device can just bump the version
-ID and then implement the replies to the vduse messages. No need to
-implement new ioctls. If the VDUSE device sets 0 in either number of
-ASID or vq groups, the kernel assumes 1.
+Changelog v2:
+ 1. Change the module_param's name to enforce_inherit_owner, and the default value is true.
+ 2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
 
-But you have a very good point here, I think it is wise to evaluate
-the shortcut of these messages in the VDUSE kernel module. If a VDUSE
-device only has one vq group and one ASID, it can always return group
-0 and asid 0 for everything, and fail every try to ser asid !=3D 0. This
-way, the update is transparent for the VDUSE device, and future
-devices do not need to implement the reply of these. What do you
-think?
+Changelog v3:
+ 1. Change the module_param's name to inherit_owner_default, and the default value is true.
+ 2. Add a structure for task function; the worker will select a different mode based on the value inherit_owner.
+ 3. device will have their own inherit_owner in struct vhost_dev
+ 4. Address other comments
 
-> > 2) If VDUSE behave differently, do we need a ioctl to set the API
-> > version for backward compatibility?
->
-> Speak too fast, there's a VDUSE_SET_API_VERSION actually.
->
-> I think we need to think if it complicates the migration compatibility or=
- not.
->
+Changelog v4:
+ 1. remove the module_param, only keep the UAPI
+ 2. remove the structure for task function; change to use the function pointer in vhost_worker
+ 3. fix the issue in vhost_worker_create and vhost_dev_ioctl
+ 4. Address other comments
 
-Do you mean migration as "increase the VDUSE version number", not "VM
-live migration from vduse version 0 to vduse version 1", isn't it? The
-second should not have any problem but I haven't tested it.
+Changelog v5:
+ 1. Change wakeup and stop function pointers in struct vhost_worker to void.
+ 2. merging patches 4, 5, 6 in a single patch
+ 3. Fix spelling issues and address other comments.
 
-> > 3) If it means a brunch of new ioctls, could userspace just probe the
-> > new ioctls instead?
-> >
-> > Thanks
->
-> Thanks
->
-> >
-> > > ---
-> > >  include/uapi/linux/vduse.h | 4 ++++
-> > >  1 file changed, 4 insertions(+)
-> > >
-> > > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
-> > > index 68a627d04afa..9a56d0416bfe 100644
-> > > --- a/include/uapi/linux/vduse.h
-> > > +++ b/include/uapi/linux/vduse.h
-> > > @@ -10,6 +10,10 @@
-> > >
-> > >  #define VDUSE_API_VERSION      0
-> > >
-> > > +/* VQ groups and ASID support */
-> > > +
-> > > +#define VDUSE_API_VERSION_1    1
-> > > +
-> > >  /*
-> > >   * Get the version of VDUSE API that kernel supported (VDUSE_API_VER=
-SION).
-> > >   * This is used for future extension.
-> > > --
-> > > 2.49.0
-> > >
->
+Changelog v6:
+ 1. move the check of VHOST_NEW_WORKER from vhost_scsi to vhost
+ 2. Change the ioctl name VHOST_SET_INHERIT_FROM_OWNER to VHOST_FORK_FROM_OWNER
+ 3. reuse the function __vhost_worker_flush
+ 4. use a ops sturct to support worker relates function
+ 5. reset the value of inherit_owner in vhost_dev_reset_owner.
+ 
+Changelog v7: 
+ 1. add a KConfig knob to disable legacy app support
+ 2. Split the changes into two patches to separately introduce the ops and add kthread support.
+ 3. Utilized INX_MAX to avoid modifications in __vhost_worker_flush
+ 4. Rebased on the latest kernel
+ 5. Address other comments
+ 
+Changelog v8: 
+ 1. Rebased on the latest kernel
+ 2. Address some other comments 
+ 
+Changelog v9:
+ 1. Rebased on the latest kernel. 
+ 2. Squashed patches 6‑7. 
+ 3. Squashed patches 2‑4. 
+ 4. Minor fixes in commit log
+ 
+Changelog v10:
+ 1.Add support for the module_param.
+ 2.Squash patches 3 and 4.
+ 3.Make minor fixes in the commit log.
+ 4.Fix the mismatched tabs in Kconfig.
+ 5.Rebase on the latest kernel.
+
+Changelog v11:
+ 1.make the module_param under Kconfig
+ 2.Make minor fixes in the commit log.
+ 3.change the name inherit_owner to fork_owner
+ 4.add NEW ioctl VHOST_GET_FORK_FROM_OWNER
+ 5.Rebase on the latest kernel
+     
+Tested with QEMU with kthread mode/task mode/kthread+task mode
+
+Cindy Lu (3):
+  vhost: Add a new parameter in vhost_dev to allow user select kthread
+  vhost: Reintroduce kthread mode support in vhost
+  vhost: Add configuration controls for vhost worker's mode
+
+ drivers/vhost/Kconfig      |  17 +++
+ drivers/vhost/vhost.c      | 234 ++++++++++++++++++++++++++++++++++---
+ drivers/vhost/vhost.h      |  22 ++++
+ include/uapi/linux/vhost.h |  25 ++++
+ 4 files changed, 280 insertions(+), 18 deletions(-)
+
+-- 
+2.45.0
 
