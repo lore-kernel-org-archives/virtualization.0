@@ -1,386 +1,248 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E815D201034
-	for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 15:36:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749569797; cv=none; b=k7CXGPmJK+AV82V3lbAGKgi1K8NPzW8MdHhRI5qNXHAY1Ry30aXv0OB+ZEjkNgKVLf6lh4/F62+oa4cA5tvlyLGxU880PwgaqjStl4inQIt26bygyv6h0lzJlA/Ugy4Kv91AhSPuIGjaWa52/xXT5zoJaFrQ1Bp5RoyMULDaKy8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749569797; c=relaxed/simple;
-	bh=nXx95NlhJaiHLux/OiIqSKKVLTxOrW1AVIPGp3GbvHo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lhUdK3qdG2XgInzTs4t6FXS256Oxdab2jYAu5mAUGpO2he8HmvUClpbRd4P/ceHyS3oMwnV6u3IyMrshvRNdJ4pBn41ydt1ZC9ywLGIWv4G77T6gxXvScIu52igmAKlJjOXS7Fl4UO9XAJkDCTZGSqMmWQMokeI+LjEVkuvxjvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=KUrmNtZL; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=y3lj1sqs; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=VxUT/P0W; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=eYnjU2tj; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51EBD35897
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Jun 2025 16:31:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1749573071; cv=fail; b=K4AKMChC9n7dSRRaltzQMbwEyAwL1OQMGgwK4GsLwHhFiSXxkWZPrBKBK+yCjrlg1Kwi2dGAxJgMKY8moACmwewveIhfBsTzzlDfw9Asm31nNL6x6BP1okwu3XZ7mHIXQKUxBfNo8IJkC/Ls6keQWVyQ+djH39rWb4mDjRbx+9c=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1749573071; c=relaxed/simple;
+	bh=P+ju5kKPZf8Tyi78BUQDIy6GUPRdEgxI5HXy8wUEsMI=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=JFzULVAwv5s9ddNQ43nrGRfK8/M2BrhGiN3cEZ1J9UfcU6mDhu+PCHFlb2LZhPxLRY5J4Wc7zJB4nj6o/g5Q2U6k71vEBfIKF+RiYuADJuz4sbQyi2fgx1yp34o3ZhWn7AL176VIfggwUbXIlcQL0hVS9I8WeEQSfB4iu4Uxzy8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=m689oizN; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=i/+6h6zP; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="KUrmNtZL";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="y3lj1sqs";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="VxUT/P0W";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="eYnjU2tj"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id D22B6210F3;
-	Tue, 10 Jun 2025 15:36:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1749569793; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=hQeVmqzuDx8T11tzAp4//+RKapBPir1cG8RoUEQn4Q4=;
-	b=KUrmNtZLWBz9Za3YMByEyT2yKdEb9kOzUoCPqNlZS11CoNFloUaYwZ8ayMx6SnWQ+yGCSV
-	iHU5YQMTf1em+qCn5bpI3yUEggH4jSg0y0/r9tXo6Cb8vq8cGTuZCcBpKjakdgcxjy1dcR
-	uuzfEYf2AAupjg8TrHNz1V/0/Qw0oO8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1749569793;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=hQeVmqzuDx8T11tzAp4//+RKapBPir1cG8RoUEQn4Q4=;
-	b=y3lj1sqsDqRkNEtsKC41JvhuK4aDZaxw3cvpfJjZ75AgYQ+49Sz9QCO7Rj8FaSqpR6mZhn
-	GfgZMD/3cJQXxXDQ==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="VxUT/P0W";
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=eYnjU2tj
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1749569792; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=hQeVmqzuDx8T11tzAp4//+RKapBPir1cG8RoUEQn4Q4=;
-	b=VxUT/P0W1ZH44FMzQtyjwCKM0g6PG+Uljd5Y49f43N2YhhgrCp5dkxbg5RPEcHP93t17wx
-	PAqEx+6ZDLcQhoL8uH7YF6prGx5VG1xWmdB2yHZAyd/Jp+PmtNkVhmUSphybwTAftemShu
-	Inq55CxI0s+S4xpDB/3yS1v2jQvNJZ8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1749569792;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=hQeVmqzuDx8T11tzAp4//+RKapBPir1cG8RoUEQn4Q4=;
-	b=eYnjU2tjuUELLGYgMcsFCoSKutSJLdjYpvi33BPxaDPbv7sw6ZbXeH8a5B4FEyFqmG3kl+
-	TPfL0ubHD/8KDTCQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 685CB13964;
-	Tue, 10 Jun 2025 15:36:32 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id M7QfGABRSGihUQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 10 Jun 2025 15:36:32 +0000
-Message-ID: <48f5a294-ab53-4cad-bb92-e1a90ee41fd0@suse.de>
-Date: Tue, 10 Jun 2025 17:36:31 +0200
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="m689oizN";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="i/+6h6zP"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id DEA116083A
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Jun 2025 16:31:08 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -6.489
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id h3H-XT8Uizkj for <virtualization@lists.linux-foundation.org>;
+ Tue, 10 Jun 2025 16:31:06 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.165.32; helo=mx0a-00069f02.pphosted.com; envelope-from=michael.christie@oracle.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 978366074D
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 978366074D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2025-04-25 header.b=m689oizN;
+	dkim=pass (1024-bit key, unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=i/+6h6zP
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 978366074D
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Jun 2025 16:31:05 +0000 (UTC)
+Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55AGMacL008628;
+	Tue, 10 Jun 2025 16:31:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	corp-2025-04-25; bh=9e3+1/2xFX4wcmNZA8000XZbvvS9rMjSKT4KKPNOQiU=; b=
+	m689oizNt2u5PChQcwquJ8uNkxnXVuaBPU0wxqXsI5VgFzPxjD54EylA5WRtClE3
+	cHlGU91Ka6YEzsUH1NrjYuAtbSCCjTvV4j7LGC/OX+M08QA1zeGreY5H0cI9cQ7X
+	Hqt51NugnfxIKB4B9VDu6S2+FyxvQpvCVZkE86gLbIMf5MQTrCsDcmKBvddWrtYx
+	YkUEXwazIlejKCamvv91R+lsscAyWGgT2p/JvM4tU1guc5AFgPpAG2odg7WvBGDR
+	oG5J58Sk8NUM6gmVZ+dbyU1f+dA5AuKd6iCVkyHypHxaUMeInP78iNgwHMpyZBGI
+	edYw+h7KPSACuRV9J9Fy9A==
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 474cbecmd4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 10 Jun 2025 16:31:05 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 55AFUJed020677;
+	Tue, 10 Jun 2025 16:31:03 GMT
+Received: from cy3pr05cu001.outbound.protection.outlook.com (mail-westcentralusazon11013052.outbound.protection.outlook.com [40.93.201.52])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 474bv9p2e9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 10 Jun 2025 16:31:03 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=TLXERnaSIrbuH2C6+kVx6eSyGPlWDWP2hi0B+3S77wfo7IJ3X04+7Z9n0SkWLGiTznpyCQSsePZ9+KyYRGonXbBO4OUrcLl8bEmxBUVRrXrnemKiBkqy1Le5I7LLUxvUt1Ox9Q9fgug8IyTLdk7oBddhvq0LlWQ01LGyNyE00+Y8EiFyzjNf04a+3Vl00FCRPIj0kd3/9FqsHOunfzgE+CZ7XpmQdm1jg/zbS3+voS/RuL1X70PIKzF0VdVMSPQYkVNCGAvB3/17isJfkPnsLs2rtBv5JZ3yoNYRrD5QnI7IY58ofmlFG8T8kl3sUVsQLEPAiWwakcTTmiAqA2OtfA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9e3+1/2xFX4wcmNZA8000XZbvvS9rMjSKT4KKPNOQiU=;
+ b=DhbBwdNJq3mxK4ZafjgX4JbVOh5tA7gQUYOHV4T/Shxhir9R/3Iw8hwgI+MSwRsiHzTsT7+vcizIdkBscAtJEaYU5850NfJQCur23hD1cnozEfRdxDW+qS7mn8PNNh7/ExyhnnJ67YKxpfxDC1CeKVn+/Y44moQ0rqhoFVlUE818q6W9AajzgVsHN/q4XoFC4citIYZbcyTeab9E/9E4enHSsvnnO439+DISVxt/ZcCI86OKzFVA+gneW16ERbBHtEn9DyCyG9BqOdBVwjqTY6blnCG8WfATQzxRg54JrPpxeGB7b+i6aTOgfQxbvC2Jj/rJ6C3WiYaA283dkv10Pg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9e3+1/2xFX4wcmNZA8000XZbvvS9rMjSKT4KKPNOQiU=;
+ b=i/+6h6zP8POIiiRo3tIzjGohj4qjqJVM1QxVbfPPQM5nzy9v5zEmHeGGCWvMU57jHPdXyr3pItk/e4EeVYERI50Du5ZEyohJNbBOtJaFIH/Fv+HJCicW0GjlsjFlxlw/Vl0XS2YxIi76nNOoFm+hO4X2HBXSgDyhHVK5wIJr294=
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
+ by SN4PR10MB5589.namprd10.prod.outlook.com (2603:10b6:806:204::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8792.33; Tue, 10 Jun
+ 2025 16:31:00 +0000
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0]) by CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0%4]) with mapi id 15.20.8813.024; Tue, 10 Jun 2025
+ 16:31:00 +0000
+Message-ID: <051e7185-5fd9-418b-92ca-807418e88ae9@oracle.com>
+Date: Tue, 10 Jun 2025 11:30:58 -0500
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vhost-scsi: Fix log flooding with target does not exist
+ errors
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
+        virtualization@lists.linux-foundation.org
+References: <20250607171815.111030-1-michael.christie@oracle.com>
+ <7hsh4exxtfbeu2h4zvt2bptunezs5ppaeqep6gkn7xkmpu4y7k@rb5wfwqaembu>
+Content-Language: en-US
+From: michael.christie@oracle.com
+In-Reply-To: <7hsh4exxtfbeu2h4zvt2bptunezs5ppaeqep6gkn7xkmpu4y7k@rb5wfwqaembu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: DM6PR03CA0033.namprd03.prod.outlook.com
+ (2603:10b6:5:40::46) To CY8PR10MB7243.namprd10.prod.outlook.com
+ (2603:10b6:930:7c::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/6] drm/vblank: Add vblank timer
-To: Louis Chauvet <louis.chauvet@bootlin.com>, mhklinux@outlook.com,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
- simona@ffwll.ch, drawat.floss@gmail.com, javierm@redhat.com,
- kraxel@redhat.com, hamohammed.sa@gmail.com, melissa.srw@gmail.com,
- fvogt@suse.com
-Cc: dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20250605152637.98493-1-tzimmermann@suse.de>
- <20250605152637.98493-2-tzimmermann@suse.de>
- <b6b43b7f-f3bd-442a-9174-97d3ada0f695@bootlin.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <b6b43b7f-f3bd-442a-9174-97d3ada0f695@bootlin.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_TO(0.00)[bootlin.com,outlook.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch,redhat.com,suse.com];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com,outlook.com];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[15];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	TO_DN_SOME(0.00)[]
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: D22B6210F3
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Score: -3.01
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|SN4PR10MB5589:EE_
+X-MS-Office365-Filtering-Correlation-Id: d8ee17d1-3352-4ae9-f1e4-08dda83c2f58
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?U1ZQajM0bkpWUm02R0dIQXBndTBaa2FzejlLQm5weDk3ZHRiRVZYaXhQcWxk?=
+ =?utf-8?B?TStZQXIySUF0Yjl2bFNLaW5FN2hOeVhwR3VsendadXlKaWdQKzlVZ0xDc24v?=
+ =?utf-8?B?ZzI3SnY4RmtXblB5alpYT2hyK1haM1IvZTFsb25mc1VDdjZnSUF4M0x5SDRS?=
+ =?utf-8?B?RnU4cGltSExaRW1OVlB4eXo0WmVMM1RqdGRtQXl0N09QNkFkK1JKT1FiY29H?=
+ =?utf-8?B?Zkswb0lZd1B6cGJ5Z0xnL1Z5TUZURmQ1QlBrOUVQYm5OdnVaRFlWVEgzZHlH?=
+ =?utf-8?B?WDlOOHdRUFptWGRmeEZ4MkVBSDBkeUlzb2VMQ3dsc1gvc1paSFl0UVl3L1Zh?=
+ =?utf-8?B?YkJOMVdkVlduajJkdWNoRFF5Uyt5V3gwRFVla0MwL0tSWUZuZVlLd0VRNm5J?=
+ =?utf-8?B?bElvbGFFWThhdG15YTUxSG1NN2NBTFBVYkVrNUR3QWdVUFVTMmFzQlpBQk5T?=
+ =?utf-8?B?eEtEYmJBM3M2c1JPZTlieUlpTzRYK1JURmMva2VhMDZjeGVxVWdQaFlCMDR2?=
+ =?utf-8?B?SGZlTmhKR1YvTzRPcEU4MWhWL0d1WGV1aFI5bytqOEo0dTFqM1l2S0lBV0tJ?=
+ =?utf-8?B?M0pVci82Z3hMVnc5bWFPQVhkaVJ2Tlg4VmZvejcrbWI4djJVR2lNQ3dLQ0dV?=
+ =?utf-8?B?ZWpBcEhnbEJxMnFINHM2SkFVYzRGU1dYMkt4N3Zuc3pHMmh6eVJYc3dvS29H?=
+ =?utf-8?B?eEJkaWk2Q0U1akdLdHF6dE1qZEZnYzhlZHRhTDZYZmgxOGE4YzJGTm5mY2Rx?=
+ =?utf-8?B?ZkcrcUE4NzQvN2FnWGN5UHF0anEyaWlIa1Q5TEV4RDQ1RzV4N1ZiVjVGT2xJ?=
+ =?utf-8?B?V0oyY00rQjZBaXdMNktpKzR5QWVXMkJuVWg0aXcwYlhWRHdMdjROT1pING9s?=
+ =?utf-8?B?cStUZEtTQjVod3pHdVNHRjloMWpVSXFaTVE1KzB6ck1sNkg5T1RpSEFmRkZV?=
+ =?utf-8?B?eStYRktDMkRVRjRQN3dJNU1sRVpPUk51ZUQzalJiZE9JbVdhVG4rVXJ4SVAr?=
+ =?utf-8?B?Yjl5WkNQenc3T3pPZlllaUFseW1qWjFwNFIwdUI0Z2pES0Rwc3dLQkliaG90?=
+ =?utf-8?B?bkNHcUdyMmNkcklVVGhiQWhPOXI1QUhDRWJOMlVLM0FOSVRQcEgyVUR5SVpa?=
+ =?utf-8?B?cjkvelVjaUZISC9Pb2hSYWRTazNnMzNCUjBQVTdWN3BleGlOaGFuNUdBdHRF?=
+ =?utf-8?B?SGNQU1VPOUJzQkZKSmlCYS9xOWJlUGRFR29CSTlSdTBJRHMrY3hJdFE4dGtF?=
+ =?utf-8?B?N1FIdDhleTFzamtSN080S3NacjcxY1hINE81QVM4NHJoeWpLV2ZDOFRFYmY5?=
+ =?utf-8?B?TmlsNGZudUVnTnJrNVRwYWUzMU9RRUlRaFkwSzArTy82ZExGLy9ONm5TUmxO?=
+ =?utf-8?B?c05DTW1XbmF3L3kzWmxTbEd3QUZhQklPVW9WYS8yMHBNMTJ1UmZEa2J0YjJr?=
+ =?utf-8?B?dnpyUnVKK2lSZEhhQXpZbS9oclhXdXFwazY1YmhmbUhOZ3ZTcElnMTRDVU4y?=
+ =?utf-8?B?SEJHRWFwWGtYSnFxSnZ6R3djbk9ZNmxWbmpUSkFJN2E3NHE2WnBhYVQ3REdR?=
+ =?utf-8?B?ZVBrSkhBaGFDbmtuUXJQMDZEenBUNDREeTZNV0ZWOXl4MGphd1kvVTBheVpr?=
+ =?utf-8?B?REg1OWZNUjJhYm1xZmdiQjBOYlFpd1FhOFd1aVZvN0JUTWVXUFRnL0Z4MHRI?=
+ =?utf-8?B?L0JqcWpkdkxtbDQxaXZyUFJuWGpsZUdvc1RoRnhUZWNmaENicDhONytjQ2tl?=
+ =?utf-8?B?SmEwR2M3Q0FUbkJLeCtnTkVwL0NUY29aRGRtVkFlMCtUa0ZuajNXT2QyOUd5?=
+ =?utf-8?B?cEZvdGVLNE1WZlVtbHdram9ZcXczVmVVbUVZTFhBWGVib3lma1EyOFVCSDVv?=
+ =?utf-8?B?SWtGQ2ZMWjdMaml1N3ZLQjlYMENaUE5DNmFqRWYvbCtTWjR5dExnSWNCZGVI?=
+ =?utf-8?Q?WyTL+29/wDs=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?UklOcjI0STBxeU14aVg4Z2NPOFgwWEgvbjJGWk5CTW9BclQ3NFFSczFobTlk?=
+ =?utf-8?B?d3NScWNoU0NMZ3daalo2clFydnVQdnFLVERETzA2QTI5Ty9WOHlwQmpMb2RG?=
+ =?utf-8?B?VTcxSElTSXV1NWl1WDd0VDZxU1crZUZ4VmNvMnNRS0RnYjFGK0xMWjBnMkRU?=
+ =?utf-8?B?K1YvN2ZCejJ2ZGp3WjVPS1RQNkxEUUFibU1lTjJidWZEU1hzTGZvcHA1eUk3?=
+ =?utf-8?B?WTVwd1IyMng0WldFUE9jMUt3bUdtanVrSEcrUzlpV2YxVEhqc3JmNXF4d1Fy?=
+ =?utf-8?B?cUI2d0NueFhqemdZNWRkRExzWWUzV3VPUVd1WTBYSWFyekE3Q0dzM3BoS3c1?=
+ =?utf-8?B?bzhCLzE4eUdaYWtEUVR0WnVVRlNLVnZJZTIwV2Q4RjdYNE9hYU9tb296ZFR6?=
+ =?utf-8?B?WCtDTlJ2TkQrSFNCWitPWDFQRTd5ZG1VWTBRZHArdWRpekM1NEh4RngrN2ZW?=
+ =?utf-8?B?aHFKWmFYWmliZ3A2Wjg0dndNSS9IYXZVQk5BK05JbnBsTTJ6UDNURS9FVWNm?=
+ =?utf-8?B?RW0xV1Y4bThmZERhbStGOGl0QmFIQW81cFZ0SlhzRTlEWDNzM0paT1BTZUpV?=
+ =?utf-8?B?UGRCdkRxckwzd1ZHMzRhdTFralJYUnJBY2JYeXU5dkdoY0l6UXBtUnJkTk9s?=
+ =?utf-8?B?L0JvaS9oa0pCS0h2dmpKVGpmWHUza1ZtLzRZdE1PTUx1MTM0NGdXTWRsTG5u?=
+ =?utf-8?B?WU51WEtSZnN1V0dKUG5DOTJPTVhTbldzalRLOFNLSElDNzhSZTlScVpEeU1K?=
+ =?utf-8?B?MFBJRTJYOXp5Vi90S3FNVjV4ZDdqbjFwb1h1YWo4dXMrTzR4eDNwNDV0U2JC?=
+ =?utf-8?B?ZzBQMlhZbWhEMnpZa0M2UDU4d2NxaVhOQ014WEtZdzBKaDNnWUZrSmRZUXZa?=
+ =?utf-8?B?UjdIclNLSHZUUTF4K1Z2Mm9QeGpzaGdMSXhCYWJPd1hPMGRzYnViQmlyMEIv?=
+ =?utf-8?B?UTRZNTFEQjIyM0dzLzZoU1poR2Z4ak83Snh0M2cxekZJNmJYSEVaTUx2VG1a?=
+ =?utf-8?B?S1NiT1BYWE41bkFVSHVnSE5TQmVnWWd1dThxcjQzZVh4aTY0ZFJLZjRTbXdJ?=
+ =?utf-8?B?TnBxd0VvbUZYV2RTdFlzQU03QkFYZHJkNElOU0gweGU5d2hjbHlvcURma3N2?=
+ =?utf-8?B?aXdzZk95aG04YU0vOTdCNW1YcUpvV0xkRVRwcGNNcXFnRGRRQTFJc2pRcEhE?=
+ =?utf-8?B?K2pkaml6L2FrcjJYSGNIVEF4OW1QZUhwdENKMkMrTEZ5a0FrTDJmS0dMcE9k?=
+ =?utf-8?B?ZXVKY0ZZRHFwTDQzbjF3dDA2Z3d1NGZQak5aWS9UdE5Dd0Y5Z2IwYXdHSnJh?=
+ =?utf-8?B?UVpuMTY4TnN2a2xjcTFJaW5yUzl1STFQUkh2QnYyWnR2czVoeXZHYXZzQ05E?=
+ =?utf-8?B?NFBlZ0tSRzFhUzVjNmdYajltL2ljcDNsNkEwa2lYS0w1a2laZEl2Q2tXOVlX?=
+ =?utf-8?B?WUd5SmUySk5yOTdaNWp2L0NiZXhHT1BrNjVraGxQV1M4d2F5b0NhUS9CY3Nl?=
+ =?utf-8?B?V1NNNXhrRGl2Ky9MaTVndlNDMVhGVkZJQVc1Q2x1RS95RHFoRmpUZnhNZ3Ry?=
+ =?utf-8?B?VmRaaGlEekRSTzB6Qis1a0Z6cEpRZGZVa1FHL29HSEVzN1JtckFMKzlsQXdo?=
+ =?utf-8?B?STdzelVkdnJoV0FyQjhoZ2FRamp0cWJiOUd5djlNSmd5TmE1SHhrZmtjQjVk?=
+ =?utf-8?B?cGl0YmoxcW1RdDg5RmpYZHFzY29FSzZVSTREKzRQenc0UWFDUmZwQTVrTy9v?=
+ =?utf-8?B?dzVJaTdJUTdlVXM2bURzODZicEQ5a0hEMlFtSjBTZHQ2b0F4MGtSZVZ4N1kz?=
+ =?utf-8?B?TVltRmo2M080MVkwNUJqcHZqKzlSYjVmSmJqbC9sWXc5NG54STlLOWVZWWR4?=
+ =?utf-8?B?MzNyTG1oclM0bXowU3lLeWZpdnpVT3FjZjQvcmV3RDRYcEVNbVNzaytyVmFS?=
+ =?utf-8?B?ZUpXbklubDNXcVhCa3NXdUpuS3Z2eVpGMUpVMkVvUFdzWUFFdkZGQ0lHRW5O?=
+ =?utf-8?B?eldmSDkxdTlwZ0RCT2pWUm16S29FUytySEREcVNEcS94Lytoa3VrNkh3UE9Z?=
+ =?utf-8?B?cHdWSGYxQTlkMlNQTWRIczBpYTlKN1M3aXZId0traE1ab2NERTdPWER4aS9v?=
+ =?utf-8?B?RVJiMEtMMzRmYW5LbnIxNUdJNUwrUWFvK01jVmROeURWZit6cG1mVE5Yb0NY?=
+ =?utf-8?B?RVE9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	Sw2cjWDII5i8HdoXZBYkZ5VvhN+irHAV06rOjQW2m27AaxeeaqsIlaiJ+Oxy/th5LODAnlM3hp9BC0Fh9HW1NGU/ZQRu3TtKBC6SjhQ6Srj8FTWFLEvABhEVqJza+/Va1fV2uAVDILjt6zDft9k1cr40LnAAqLaF+OBYSXGQuEAnh2hAqUIUZVZ/ee+DFrYAWv0fvXdkGAogzNQcw1ryN9/hrVvMD0CHOizsxnmThscozy+dIYoN5UMm/yPOHcgRS6utaaFsJj2VzVSfo4NWmNe6+xmnXIECy4mJ79pjSEI8q9VT84JC4YJ07sa6oD4T9L+dGerO+IkzTYypmqzBXK2eg+KUYSPw7F38rxIjq1HV7XLPEDCFPgZfls4YNH25EOJytzo36XZyU2a+XzlGfrto0fWPZvIVQmbbX4dvTTMqQLC5PNzFFfXE1khJKjqYzUPQZ1xUnx/sYytqmO0dn/3KnTzP0o/9AVknH3aCJkxjeNpgrquRo9Jgig68UArRg+WqoqzAQjzIiNsdOZtF+3KdAHhlX77jr53kPnAblKOv0MwZB1e4uz/tW2n0eY85afZkusWh06T652b0EmskKZWbDJOSfn7GwsHF0gVWEds=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d8ee17d1-3352-4ae9-f1e4-08dda83c2f58
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jun 2025 16:31:00.3999
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: wytk70VdpX3a0chUgwK4zjwitqyonsgQ76RPKAZ7osHBmWVZw9PD7omGxfQQyXwWSyFfjUdu7N9kKGyB96uke/JmsPzK56aCs87/aPJ+ZUI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN4PR10MB5589
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-06-10_08,2025-06-10_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=979 bulkscore=0
+ malwarescore=0 suspectscore=0 spamscore=0 phishscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2505160000
+ definitions=main-2506100133
+X-Proofpoint-GUID: GZg6xE5_7uz9dfCT7NxiQ4s7WGAJOZf_
+X-Authority-Analysis: v=2.4 cv=BffY0qt2 c=1 sm=1 tr=0 ts=68485dc9 b=1 cx=c_pps a=zPCbziy225d3KhSqZt3L1A==:117 a=zPCbziy225d3KhSqZt3L1A==:17 a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19
+ a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=GoEa3M9JfhUA:10 a=8Ht5mTzImztgYP5ylZkA:9 a=QEXdDO2ut3YA:10 cc=ntf awl=host:13206
+X-Proofpoint-ORIG-GUID: GZg6xE5_7uz9dfCT7NxiQ4s7WGAJOZf_
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjEwMDEzMyBTYWx0ZWRfX5HqLD9C4cB2X 9IJecwXLtjXO7aTvtW1JWyq9uqjhlDf/U72C7L/890Qpxqc79BGawmI/mHgf391MY6tvxwqvWFU +80r7Dsic/j/U8rapXpVQLYbHwjefvIpW60Rq6EjCVR0gqpBoSU5fP5DDOpAlCWAxyTxy6mGB32
+ dM120vyfKgFE41M+hFzHftHBZafijhRUTncFKZ62nfshJKO+8xscG2n3dAFbzteV0/lmCz8Ypx5 aw9Fd0E+SfWKLYaMkupXN3ICkAfTsXkD9wYSp82akK47jyoBfnGt1BPflEPPa/tCfWwpsRSH0Nt QjiPwTZIn3lszgNVc3bJ8Xz7VmICpH8Kkwb8JCQz2auMPPsqPFbrkSnXcFhEFAGrs8F5hcJSg/v
+ +AZqH5Rgem2GVIol4PVdyNTFqe+3cL/2B/KCMSguLaDM6X0RpX4or9yAyaFO9VWiKviVK4bS
 
-Hi
-
-Am 06.06.25 um 10:43 schrieb Louis Chauvet:
->
->
-> Le 05/06/2025 à 17:24, Thomas Zimmermann a écrit :
->> The vblank timer simulates a vblank interrupt for hardware without
->> support. Rate-limits the display update frequency.
+On 6/10/25 9:18 AM, Stefano Garzarella wrote:
+> On Sat, Jun 07, 2025 at 12:18:15PM -0500, Mike Christie wrote:
+>> As part of the normal initiator side scanning the guest's scsi layer
+>> will loop over all possible targets and send an inquiry. Since the
+>> max number of targets for virtio-scsi is 256, this results in 255
+>> error messages about targets not existing. When there's more than 1
+>> vhost-scsi device, then you get N * 255 log messages.
 >>
->> DRM drivers for hardware without vblank support apply display updates
->> ASAP. A vblank event informs DRM clients of the completed update.
+>> It looks like the log message was added by accident in:
 >>
->> Userspace compositors immediately schedule the next update, which
->> creates significant load on virtualization outputs. Display updates
->> are usually fast on virtualization outputs, as their framebuffers are
->> in regular system memory and there's no hardware vblank interrupt to
->> throttle the update rate.
->>
->> The vblank timer is a HR timer that signals the vblank in software.
->> It limits the update frequency of a DRM driver similar to a hardware
->> vblank interrupt. The timer is not synchronized to the actual vblank
->> interval of the display.
->>
->> The code has been adopted from vkms, which added the funtionality
->> in commit 3a0709928b17 ("drm/vkms: Add vblank events simulated by
->> hrtimers").
->>
->> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->
-> Tested-by: Louis Chauvet <louis.chauvet@bootlin.com>
-> Reviewed-by: Louis Chauvet <louis.chauvet@bootlin.com>
+>> commit 09d7583294aa ("vhost/scsi: Use common handling code in request
+>> queue handler")
+> 
+> IIUC that commit just moved the code, but it looks like it was added by
+> commit 3f8ca2e115e5 ("vhost/scsi: Extract common handling code from
+> control queue handler")
 
-Thanks for looking through the series. I'll add the tags when I prepare 
-the next iteration, but the interfaces will change quite a bit. You may 
-want to take another look at the series then.
+I saw that and was not 100% sure what patch to blame.
 
-Best regards
-Thomas
+Your commit adds the new vhost_scsi_get_req function which adds the
+vq_err call. It also hooks the control queue handler into it (control ==
+SCSI task management like LUN_RESET). With just this patch we don't see
+a problem yet because the normal SCSI command handler is not using it yet.
 
->
->> ---
->>   drivers/gpu/drm/Makefile           |   3 +-
->>   drivers/gpu/drm/drm_vblank_timer.c | 100 +++++++++++++++++++++++++++++
->>   include/drm/drm_vblank_timer.h     |  26 ++++++++
->>   3 files changed, 128 insertions(+), 1 deletion(-)
->>   create mode 100644 drivers/gpu/drm/drm_vblank_timer.c
->>   create mode 100644 include/drm/drm_vblank_timer.h
->>
->> diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
->> index b5d5561bbe5f..6722e2d1aa7e 100644
->> --- a/drivers/gpu/drm/Makefile
->> +++ b/drivers/gpu/drm/Makefile
->> @@ -146,7 +146,8 @@ drm_kms_helper-y := \
->>       drm_plane_helper.o \
->>       drm_probe_helper.o \
->>       drm_self_refresh_helper.o \
->> -    drm_simple_kms_helper.o
->> +    drm_simple_kms_helper.o \
->> +    drm_vblank_timer.o
->>   drm_kms_helper-$(CONFIG_DRM_PANEL_BRIDGE) += bridge/panel.o
->>   drm_kms_helper-$(CONFIG_DRM_FBDEV_EMULATION) += drm_fb_helper.o
->>   obj-$(CONFIG_DRM_KMS_HELPER) += drm_kms_helper.o
->> diff --git a/drivers/gpu/drm/drm_vblank_timer.c 
->> b/drivers/gpu/drm/drm_vblank_timer.c
->> new file mode 100644
->> index 000000000000..be46d3135c8e
->> --- /dev/null
->> +++ b/drivers/gpu/drm/drm_vblank_timer.c
->> @@ -0,0 +1,100 @@
->> +// SPDX-License-Identifier: GPL-2.0+
->> +
->> +#include <linux/hrtimer.h>
->> +
->> +#include <drm/drm_crtc.h>
->> +#include <drm/drm_managed.h>
->> +#include <drm/drm_print.h>
->> +#include <drm/drm_vblank.h>
->> +#include <drm/drm_vblank_timer.h>
->> +
->> +static enum hrtimer_restart drm_vblank_timer_function(struct hrtimer 
->> *timer)
->> +{
->> +    struct drm_vblank_timer *vtimer = container_of(timer, struct 
->> drm_vblank_timer, timer);
->> +    struct drm_crtc *crtc = vtimer->crtc;
->> +    struct drm_device *dev = crtc->dev;
->> +    u64 ret_overrun;
->> +    bool succ;
->> +
->> +    ret_overrun = hrtimer_forward_now(&vtimer->timer, 
->> vtimer->period_ns);
->> +    if (ret_overrun != 1)
->> +        drm_warn(dev, "vblank timer overrun\n");
->> +
->> +    if (vtimer->crtc_handle_vblank)
->> +        succ = vtimer->crtc_handle_vblank(crtc);
->> +    else
->> +        succ = drm_crtc_handle_vblank(crtc);
->> +    if (!succ)
->> +        return HRTIMER_NORESTART;
->> +
->> +    return HRTIMER_RESTART;
->> +}
->> +
->> +static void drmm_vblank_timer_release(struct drm_device *dev, void 
->> *res)
->> +{
->> +    struct drm_vblank_timer *vtimer = res;
->> +
->> +    hrtimer_cancel(&vtimer->timer);
->> +}
->> +
->> +int drmm_vblank_timer_init(struct drm_vblank_timer *vtimer, struct 
->> drm_crtc *crtc,
->> +               bool (*crtc_handle_vblank)(struct drm_crtc *crtc))
->> +{
->> +    struct hrtimer *timer = &vtimer->timer;
->> +
->> +    vtimer->crtc = crtc;
->> +    vtimer->crtc_handle_vblank = crtc_handle_vblank;
->> +
->> +    hrtimer_setup(timer, drm_vblank_timer_function, CLOCK_MONOTONIC, 
->> HRTIMER_MODE_REL);
->> +
->> +    return drmm_add_action_or_reset(crtc->dev, 
->> drmm_vblank_timer_release, vtimer);
->> +}
->> +EXPORT_SYMBOL(drmm_vblank_timer_init);
->> +
->> +void drm_vblank_timer_start(struct drm_vblank_timer *vtimer)
->> +{
->> +    struct drm_crtc *crtc = vtimer->crtc;
->> +    struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
->> +
->> +    drm_calc_timestamping_constants(crtc, &crtc->mode);
->> +
->> +    vtimer->period_ns = ktime_set(0, vblank->framedur_ns);
->> +    hrtimer_start(&vtimer->timer, vtimer->period_ns, HRTIMER_MODE_REL);
->> +}
->> +EXPORT_SYMBOL(drm_vblank_timer_start);
->> +
->> +void drm_vblank_timer_cancel(struct drm_vblank_timer *vtimer)
->> +{
->> +    hrtimer_cancel(&vtimer->timer);
->> +}
->> +EXPORT_SYMBOL(drm_vblank_timer_cancel);
->> +
->> +bool drm_vblank_timer_get_vblank_timestamp(struct drm_vblank_timer 
->> *vtimer,
->> +                       int *max_error, ktime_t *vblank_time,
->> +                       bool in_vblank_irq)
->> +{
->> +    struct drm_crtc *crtc = vtimer->crtc;
->> +    struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
->> +
->> +    if (!READ_ONCE(vblank->enabled)) {
->> +        *vblank_time = ktime_get();
->> +        return true;
->> +    }
->> +
->> +    *vblank_time = READ_ONCE(vtimer->timer.node.expires);
->> +
->> +    if (WARN_ON(*vblank_time == vblank->time))
->> +        return true;
->> +
->> +    /*
->> +     * To prevent races we roll the hrtimer forward before we do any
->> +     * interrupt processing - this is how real hw works (the 
->> interrupt is
->> +     * only generated after all the vblank registers are updated) 
->> and what
->> +     * the vblank core expects. Therefore we need to always correct the
->> +     * timestampe by one frame.
->> +     */
->> +    *vblank_time -= vtimer->period_ns;
->> +
->> +    return true;
->> +}
->> +EXPORT_SYMBOL(drm_vblank_timer_get_vblank_timestamp);
->> diff --git a/include/drm/drm_vblank_timer.h 
->> b/include/drm/drm_vblank_timer.h
->> new file mode 100644
->> index 000000000000..0b827ff1f59c
->> --- /dev/null
->> +++ b/include/drm/drm_vblank_timer.h
->> @@ -0,0 +1,26 @@
->> +/* SPDX-License-Identifier: GPL-2.0+ */
->> +
->> +#ifndef _DRM_VBLANK_TIMER_H_
->> +#define _DRM_VBLANK_TIMER_H_
->> +
->> +#include <linux/hrtimer_types.h>
->> +#include <linux/types.h>
->> +
->> +struct drm_crtc;
->> +
->> +struct drm_vblank_timer {
->> +    struct drm_crtc *crtc;
->> +    bool (*crtc_handle_vblank)(struct drm_crtc *crtc);
->> +    ktime_t period_ns;
->> +    struct hrtimer timer;
->> +};
->> +
->> +int drmm_vblank_timer_init(struct drm_vblank_timer *vtimer, struct 
->> drm_crtc *crtc,
->> +               bool (*handle_vblank)(struct drm_crtc *crtc));
->> +void drm_vblank_timer_start(struct drm_vblank_timer *vtimer);
->> +void drm_vblank_timer_cancel(struct drm_vblank_timer *vtimer);
->> +bool drm_vblank_timer_get_vblank_timestamp(struct drm_vblank_timer 
->> *vtimer,
->> +                       int *max_error, ktime_t *vblank_time,
->> +                       bool in_vblank_irq);
->> +
->> +#endif
->
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
-
+My commit hooks the normal SCSI command handler into the new
+vhost_scsi_get_req function. The SCSI command handler calling the new
+function is what hits the problem because it's the SCSI INQUIRY command
+going through this path during scanning that hits the problem.
