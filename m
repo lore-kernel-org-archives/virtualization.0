@@ -1,65 +1,81 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60D2524887C
-	for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 15:18:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E815D201034
+	for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 15:36:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749568722; cv=none; b=eHq6wFanDlPFkvMIJeplub4FAoG4BZsxOJI37YH0qbbxAQL5vjThMhjH+lGf5N7cPMRnkHH2w63sDsnK5SP6091iavPoLYJhv6sv7OynzjbYuM+svTu5pWMguk4izXkuhPFI9ybfF4Ujvit/tdpPJ1v8bNGUR9QqYO76/blDQRE=
+	t=1749569797; cv=none; b=k7CXGPmJK+AV82V3lbAGKgi1K8NPzW8MdHhRI5qNXHAY1Ry30aXv0OB+ZEjkNgKVLf6lh4/F62+oa4cA5tvlyLGxU880PwgaqjStl4inQIt26bygyv6h0lzJlA/Ugy4Kv91AhSPuIGjaWa52/xXT5zoJaFrQ1Bp5RoyMULDaKy8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749568722; c=relaxed/simple;
-	bh=gOnIpi7jKT6E0yFvnngAH2TDUzwDY8Q0gWw1+BeaW+c=;
+	s=arc-20240116; t=1749569797; c=relaxed/simple;
+	bh=nXx95NlhJaiHLux/OiIqSKKVLTxOrW1AVIPGp3GbvHo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=b7wvtCkfuqlHA6/hLyPpySVQDYJeXG74m/2n1ncKb+aa1YV18hQ+DVpIW8utnHFfwV/RwDrDuTqCxyKH32rG4XDtxfidOksv75X+PPeBMEO4xvRBPdrJFUwhe5znq+Qrx3oR/l2pqPImHv8MJEZuiSCwSy/56Ekdp2xc3K9kezA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dAwHRe23; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=lhUdK3qdG2XgInzTs4t6FXS256Oxdab2jYAu5mAUGpO2he8HmvUClpbRd4P/ceHyS3oMwnV6u3IyMrshvRNdJ4pBn41ydt1ZC9ywLGIWv4G77T6gxXvScIu52igmAKlJjOXS7Fl4UO9XAJkDCTZGSqMmWQMokeI+LjEVkuvxjvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=KUrmNtZL; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=y3lj1sqs; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=VxUT/P0W; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=eYnjU2tj; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dAwHRe23"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-312e747d2d8so4803877a91.0
-        for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 08:18:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749568720; x=1750173520; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Hbx+bHktyO4/4VPvenmlBdgvye7zZKBy6tNsedw1riY=;
-        b=dAwHRe23xLYVEPgJoEHffICwe4Rh4nxRa6K+yPwovo2zhbqHI0tOZStbTxtzTBHAjp
-         iI1wdlxjnce4ZwQ8lQcDr5UEROar9/d+++HBEJJdp2R+huxPwv/S1zCwQULlIg91c5vL
-         X1sP+bfctWX56pzgqgzpm1nCLEuzTAeRBnpQ6+4NQWw5jWlgpNHULzy1rYl+4dSaUBIj
-         09K8AxYW9U3FxEh448qRgVaFl9NCly2YS9MtQzJIhn2Zv5E+ZucLJlHTY/A6E2pqaa8r
-         X9fUoTI3mgkkFZGz012G4IrU+uOtIadH4qfBsYFZl0peav+yk2ZU+DlAlSRU//gvd8q6
-         28dA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749568720; x=1750173520;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Hbx+bHktyO4/4VPvenmlBdgvye7zZKBy6tNsedw1riY=;
-        b=gQJOmSVugfhd6D61D2zSp7wOcPgRn1f6Pytz4HmmVnn3RZBqWKbH/Z5FlmHACXX0Dc
-         0Ra+gxILohBKBB29CQruBfOAq767KSRwceQQ1exP1QxvaJV290bbQTugJvVz27HHD+Au
-         Y8BdQSA53ae+OXkoOOZ8TGPq5dou5dBaCYvgZ4+GA+HJ0dqVpnsKhsoWszVziQfkmr1M
-         Xdmkp4RZrJyzQYdTfQrcqL6F95LJOa+RSPyMfbWFBEG1+tIv5tN/bPdA/yvWHFOKJ1sx
-         Ey6xH+YuXHeneDqL4iIdW+C4uHn3sDA9voankrNk3BZqKHczcvyKAJs068OvK/TAxMrb
-         XeNg==
-X-Forwarded-Encrypted: i=1; AJvYcCXH6cMYdTsl2OV8RK8An2h04D1d26k7m5EcyYyWsbek4fp3hOVkzhv6AfZF4ep4OSYsTSEKxTio6nXFf7LryA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyoF++0RGt5wZU4MQDSO3T9ELnYgPYmIAuCAUUHdSuaVmCzmaUa
-	vh9oDZWVyZqVNntEtD5s94M6VTpa5NtJNDCZpNB1nHIjJhlp16hxjMmY
-X-Gm-Gg: ASbGncs8RyFFP3ZMyxELkn+wNxyzGnhFW8ZNi4LeN2dciinYvPe5IT8Hn6VKiq2pa4k
-	vT8HGJpOhnO3Kx2qp5iwre98ji9V8c6wVL+6+MwcZXlU7c+vzWLlftuJmRccGunG0j6UYwe3riz
-	7ON5JvFL83tpK/r/2hLVyXdN3G2AY80qfbvzHZEPdH1/Jqn7E+dJMHFYWCfpXjIIhrzK6gzfQmK
-	feidTF/S8+yMgUH11/trhxufSw+hYEJ4xeBRv0NtZVal5T1Qd8m7FlvZK5VCJH5mj3hodKdrR5u
-	b4fMqsxHm7pFxm5bdUtHjp1OmV8mLh66qFkNaP07gTwg0ksSeXxfrSTLqIawBkyj555QjNugYuw
-	BE17ZsIgIE/jDTFLlOjg9L7kGPevB/gX9mMuz34Z+
-X-Google-Smtp-Source: AGHT+IFaLkJBXLMB5kRAXzQ6BTbGig21zU55qmOvpJ9RWPtjwP3TLdPuITWrEAgEHQ56jpCpm82CNQ==
-X-Received: by 2002:a17:90a:dfd0:b0:30e:9b31:9495 with SMTP id 98e67ed59e1d1-3139e039a1dmr4917189a91.9.1749568720457;
-        Tue, 10 Jun 2025 08:18:40 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:4f0e:fb30:6df1:5935:37b2:fe6a? ([2001:ee0:4f0e:fb30:6df1:5935:37b2:fe6a])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-31349f17bd2sm7467484a91.5.2025.06.10.08.18.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Jun 2025 08:18:40 -0700 (PDT)
-Message-ID: <e2de0cd8-6ee2-4dab-9d41-cfe5e85d796d@gmail.com>
-Date: Tue, 10 Jun 2025 22:18:32 +0700
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="KUrmNtZL";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="y3lj1sqs";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="VxUT/P0W";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="eYnjU2tj"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id D22B6210F3;
+	Tue, 10 Jun 2025 15:36:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1749569793; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=hQeVmqzuDx8T11tzAp4//+RKapBPir1cG8RoUEQn4Q4=;
+	b=KUrmNtZLWBz9Za3YMByEyT2yKdEb9kOzUoCPqNlZS11CoNFloUaYwZ8ayMx6SnWQ+yGCSV
+	iHU5YQMTf1em+qCn5bpI3yUEggH4jSg0y0/r9tXo6Cb8vq8cGTuZCcBpKjakdgcxjy1dcR
+	uuzfEYf2AAupjg8TrHNz1V/0/Qw0oO8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1749569793;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=hQeVmqzuDx8T11tzAp4//+RKapBPir1cG8RoUEQn4Q4=;
+	b=y3lj1sqsDqRkNEtsKC41JvhuK4aDZaxw3cvpfJjZ75AgYQ+49Sz9QCO7Rj8FaSqpR6mZhn
+	GfgZMD/3cJQXxXDQ==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="VxUT/P0W";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=eYnjU2tj
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1749569792; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=hQeVmqzuDx8T11tzAp4//+RKapBPir1cG8RoUEQn4Q4=;
+	b=VxUT/P0W1ZH44FMzQtyjwCKM0g6PG+Uljd5Y49f43N2YhhgrCp5dkxbg5RPEcHP93t17wx
+	PAqEx+6ZDLcQhoL8uH7YF6prGx5VG1xWmdB2yHZAyd/Jp+PmtNkVhmUSphybwTAftemShu
+	Inq55CxI0s+S4xpDB/3yS1v2jQvNJZ8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1749569792;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=hQeVmqzuDx8T11tzAp4//+RKapBPir1cG8RoUEQn4Q4=;
+	b=eYnjU2tjuUELLGYgMcsFCoSKutSJLdjYpvi33BPxaDPbv7sw6ZbXeH8a5B4FEyFqmG3kl+
+	TPfL0ubHD/8KDTCQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 685CB13964;
+	Tue, 10 Jun 2025 15:36:32 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id M7QfGABRSGihUQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 10 Jun 2025 15:36:32 +0000
+Message-ID: <48f5a294-ab53-4cad-bb92-e1a90ee41fd0@suse.de>
+Date: Tue, 10 Jun 2025 17:36:31 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,76 +83,304 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] virtio-net: drop the multi-buffer XDP packet in
- zerocopy
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
-References: <20250603150613.83802-1-minhquangbui99@gmail.com>
- <dd087fdf-5d6c-4015-bed3-29760002f859@redhat.com>
- <f6d7610b-abfe-415d-adf8-08ce791e4e72@gmail.com>
- <20250605074810.2b3b2637@kernel.org>
- <f073b150-b2e9-43db-aa61-87eee4755a2f@gmail.com>
- <20250609095824.414cffa1@kernel.org>
+Subject: Re: [PATCH 1/6] drm/vblank: Add vblank timer
+To: Louis Chauvet <louis.chauvet@bootlin.com>, mhklinux@outlook.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
+ simona@ffwll.ch, drawat.floss@gmail.com, javierm@redhat.com,
+ kraxel@redhat.com, hamohammed.sa@gmail.com, melissa.srw@gmail.com,
+ fvogt@suse.com
+Cc: dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20250605152637.98493-1-tzimmermann@suse.de>
+ <20250605152637.98493-2-tzimmermann@suse.de>
+ <b6b43b7f-f3bd-442a-9174-97d3ada0f695@bootlin.com>
 Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <20250609095824.414cffa1@kernel.org>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <b6b43b7f-f3bd-442a-9174-97d3ada0f695@bootlin.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[bootlin.com,outlook.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch,redhat.com,suse.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	MIME_TRACE(0.00)[0:+];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com,outlook.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[15];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	TO_DN_SOME(0.00)[]
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: D22B6210F3
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Score: -3.01
 
-On 6/9/25 23:58, Jakub Kicinski wrote:
-> On Fri, 6 Jun 2025 22:48:53 +0700 Bui Quang Minh wrote:
->>>> But currently, if a multi-buffer packet arrives, it will not go through
->>>> XDP program so it doesn't increase the stats but still goes to network
->>>> stack. So I think it's not a correct behavior.
->>> Sounds fair, but at a glance the normal XDP path seems to be trying to
->>> linearize the frame. Can we not try to flatten the frame here?
->>> If it's simply to long for the chunk size that's a frame length error,
->>> right?
->> Here we are in the zerocopy path, so the buffers for the frame to fill
->> in are allocated from XDP socket's umem. And if the frame spans across
->> multiple buffers then the total frame size is larger than the chunk
->> size.
-> Is that always the case? Can the multi-buf not be due to header-data
-> split of the incoming frame? (I'm not familiar with the virtio spec)
+Hi
 
-Ah, maybe I cause some confusion :) zerocopy here means zerocopy if the 
-frame is redirected to XDP socket. In this zerocopy mode, XDP socket 
-will provide buffers to virtio-net, the frame from vhost will be placed 
-in those buffers. If the bind XDP program in virtio-net returns 
-XDP_REDIRECT to that XDP socket, then the frame is zerocopy. In case 
-XDP_PASS is returned, the frame's data is copied to newly created skb 
-and the frame's buffer is returned to XDP socket. AFAIK, virtio-net has 
-not supported header-data split yet.
+Am 06.06.25 um 10:43 schrieb Louis Chauvet:
+>
+>
+> Le 05/06/2025 à 17:24, Thomas Zimmermann a écrit :
+>> The vblank timer simulates a vblank interrupt for hardware without
+>> support. Rate-limits the display update frequency.
+>>
+>> DRM drivers for hardware without vblank support apply display updates
+>> ASAP. A vblank event informs DRM clients of the completed update.
+>>
+>> Userspace compositors immediately schedule the next update, which
+>> creates significant load on virtualization outputs. Display updates
+>> are usually fast on virtualization outputs, as their framebuffers are
+>> in regular system memory and there's no hardware vblank interrupt to
+>> throttle the update rate.
+>>
+>> The vblank timer is a HR timer that signals the vblank in software.
+>> It limits the update frequency of a DRM driver similar to a hardware
+>> vblank interrupt. The timer is not synchronized to the actual vblank
+>> interval of the display.
+>>
+>> The code has been adopted from vkms, which added the funtionality
+>> in commit 3a0709928b17 ("drm/vkms: Add vblank events simulated by
+>> hrtimers").
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>
+> Tested-by: Louis Chauvet <louis.chauvet@bootlin.com>
+> Reviewed-by: Louis Chauvet <louis.chauvet@bootlin.com>
 
->> Furthermore, we are in the zerocopy so we cannot linearize by
->> allocating a large enough buffer to cover the whole frame then copy the
->> frame data to it. That's not zerocopy anymore. Also, XDP socket zerocopy
->> receive has assumption that the packet it receives must from the umem
->> pool. AFAIK, the generic XDP path is for copy mode only.
-> Generic XDP == do_xdp_generic(), here I think you mean the normal XDP
-> patch in the virtio driver? If so then no, XDP is very much not
-> expected to copy each frame before processing.
+Thanks for looking through the series. I'll add the tags when I prepare 
+the next iteration, but the interfaces will change quite a bit. You may 
+want to take another look at the series then.
 
-Yes, I mean generic XDP = do_xdp_generic(). I mean that we can linearize 
-the frame if needed (like in netif_skb_check_for_xdp()) in copy mode for 
-XDP socket but not in zerocopy mode.
+Best regards
+Thomas
 
 >
-> This is only slightly related to you patch but while we talk about
-> multi-buf - in the netdev CI the test which sends ping while XDP
-> multi-buf program is attached is really flaky :(
-> https://netdev.bots.linux.dev/contest.html?executor=vmksft-drv-hw&test=ping-py.ping-test-xdp-native-mb&ld-cases=1
+>> ---
+>>   drivers/gpu/drm/Makefile           |   3 +-
+>>   drivers/gpu/drm/drm_vblank_timer.c | 100 +++++++++++++++++++++++++++++
+>>   include/drm/drm_vblank_timer.h     |  26 ++++++++
+>>   3 files changed, 128 insertions(+), 1 deletion(-)
+>>   create mode 100644 drivers/gpu/drm/drm_vblank_timer.c
+>>   create mode 100644 include/drm/drm_vblank_timer.h
+>>
+>> diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
+>> index b5d5561bbe5f..6722e2d1aa7e 100644
+>> --- a/drivers/gpu/drm/Makefile
+>> +++ b/drivers/gpu/drm/Makefile
+>> @@ -146,7 +146,8 @@ drm_kms_helper-y := \
+>>       drm_plane_helper.o \
+>>       drm_probe_helper.o \
+>>       drm_self_refresh_helper.o \
+>> -    drm_simple_kms_helper.o
+>> +    drm_simple_kms_helper.o \
+>> +    drm_vblank_timer.o
+>>   drm_kms_helper-$(CONFIG_DRM_PANEL_BRIDGE) += bridge/panel.o
+>>   drm_kms_helper-$(CONFIG_DRM_FBDEV_EMULATION) += drm_fb_helper.o
+>>   obj-$(CONFIG_DRM_KMS_HELPER) += drm_kms_helper.o
+>> diff --git a/drivers/gpu/drm/drm_vblank_timer.c 
+>> b/drivers/gpu/drm/drm_vblank_timer.c
+>> new file mode 100644
+>> index 000000000000..be46d3135c8e
+>> --- /dev/null
+>> +++ b/drivers/gpu/drm/drm_vblank_timer.c
+>> @@ -0,0 +1,100 @@
+>> +// SPDX-License-Identifier: GPL-2.0+
+>> +
+>> +#include <linux/hrtimer.h>
+>> +
+>> +#include <drm/drm_crtc.h>
+>> +#include <drm/drm_managed.h>
+>> +#include <drm/drm_print.h>
+>> +#include <drm/drm_vblank.h>
+>> +#include <drm/drm_vblank_timer.h>
+>> +
+>> +static enum hrtimer_restart drm_vblank_timer_function(struct hrtimer 
+>> *timer)
+>> +{
+>> +    struct drm_vblank_timer *vtimer = container_of(timer, struct 
+>> drm_vblank_timer, timer);
+>> +    struct drm_crtc *crtc = vtimer->crtc;
+>> +    struct drm_device *dev = crtc->dev;
+>> +    u64 ret_overrun;
+>> +    bool succ;
+>> +
+>> +    ret_overrun = hrtimer_forward_now(&vtimer->timer, 
+>> vtimer->period_ns);
+>> +    if (ret_overrun != 1)
+>> +        drm_warn(dev, "vblank timer overrun\n");
+>> +
+>> +    if (vtimer->crtc_handle_vblank)
+>> +        succ = vtimer->crtc_handle_vblank(crtc);
+>> +    else
+>> +        succ = drm_crtc_handle_vblank(crtc);
+>> +    if (!succ)
+>> +        return HRTIMER_NORESTART;
+>> +
+>> +    return HRTIMER_RESTART;
+>> +}
+>> +
+>> +static void drmm_vblank_timer_release(struct drm_device *dev, void 
+>> *res)
+>> +{
+>> +    struct drm_vblank_timer *vtimer = res;
+>> +
+>> +    hrtimer_cancel(&vtimer->timer);
+>> +}
+>> +
+>> +int drmm_vblank_timer_init(struct drm_vblank_timer *vtimer, struct 
+>> drm_crtc *crtc,
+>> +               bool (*crtc_handle_vblank)(struct drm_crtc *crtc))
+>> +{
+>> +    struct hrtimer *timer = &vtimer->timer;
+>> +
+>> +    vtimer->crtc = crtc;
+>> +    vtimer->crtc_handle_vblank = crtc_handle_vblank;
+>> +
+>> +    hrtimer_setup(timer, drm_vblank_timer_function, CLOCK_MONOTONIC, 
+>> HRTIMER_MODE_REL);
+>> +
+>> +    return drmm_add_action_or_reset(crtc->dev, 
+>> drmm_vblank_timer_release, vtimer);
+>> +}
+>> +EXPORT_SYMBOL(drmm_vblank_timer_init);
+>> +
+>> +void drm_vblank_timer_start(struct drm_vblank_timer *vtimer)
+>> +{
+>> +    struct drm_crtc *crtc = vtimer->crtc;
+>> +    struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>> +
+>> +    drm_calc_timestamping_constants(crtc, &crtc->mode);
+>> +
+>> +    vtimer->period_ns = ktime_set(0, vblank->framedur_ns);
+>> +    hrtimer_start(&vtimer->timer, vtimer->period_ns, HRTIMER_MODE_REL);
+>> +}
+>> +EXPORT_SYMBOL(drm_vblank_timer_start);
+>> +
+>> +void drm_vblank_timer_cancel(struct drm_vblank_timer *vtimer)
+>> +{
+>> +    hrtimer_cancel(&vtimer->timer);
+>> +}
+>> +EXPORT_SYMBOL(drm_vblank_timer_cancel);
+>> +
+>> +bool drm_vblank_timer_get_vblank_timestamp(struct drm_vblank_timer 
+>> *vtimer,
+>> +                       int *max_error, ktime_t *vblank_time,
+>> +                       bool in_vblank_irq)
+>> +{
+>> +    struct drm_crtc *crtc = vtimer->crtc;
+>> +    struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>> +
+>> +    if (!READ_ONCE(vblank->enabled)) {
+>> +        *vblank_time = ktime_get();
+>> +        return true;
+>> +    }
+>> +
+>> +    *vblank_time = READ_ONCE(vtimer->timer.node.expires);
+>> +
+>> +    if (WARN_ON(*vblank_time == vblank->time))
+>> +        return true;
+>> +
+>> +    /*
+>> +     * To prevent races we roll the hrtimer forward before we do any
+>> +     * interrupt processing - this is how real hw works (the 
+>> interrupt is
+>> +     * only generated after all the vblank registers are updated) 
+>> and what
+>> +     * the vblank core expects. Therefore we need to always correct the
+>> +     * timestampe by one frame.
+>> +     */
+>> +    *vblank_time -= vtimer->period_ns;
+>> +
+>> +    return true;
+>> +}
+>> +EXPORT_SYMBOL(drm_vblank_timer_get_vblank_timestamp);
+>> diff --git a/include/drm/drm_vblank_timer.h 
+>> b/include/drm/drm_vblank_timer.h
+>> new file mode 100644
+>> index 000000000000..0b827ff1f59c
+>> --- /dev/null
+>> +++ b/include/drm/drm_vblank_timer.h
+>> @@ -0,0 +1,26 @@
+>> +/* SPDX-License-Identifier: GPL-2.0+ */
+>> +
+>> +#ifndef _DRM_VBLANK_TIMER_H_
+>> +#define _DRM_VBLANK_TIMER_H_
+>> +
+>> +#include <linux/hrtimer_types.h>
+>> +#include <linux/types.h>
+>> +
+>> +struct drm_crtc;
+>> +
+>> +struct drm_vblank_timer {
+>> +    struct drm_crtc *crtc;
+>> +    bool (*crtc_handle_vblank)(struct drm_crtc *crtc);
+>> +    ktime_t period_ns;
+>> +    struct hrtimer timer;
+>> +};
+>> +
+>> +int drmm_vblank_timer_init(struct drm_vblank_timer *vtimer, struct 
+>> drm_crtc *crtc,
+>> +               bool (*handle_vblank)(struct drm_crtc *crtc));
+>> +void drm_vblank_timer_start(struct drm_vblank_timer *vtimer);
+>> +void drm_vblank_timer_cancel(struct drm_vblank_timer *vtimer);
+>> +bool drm_vblank_timer_get_vblank_timestamp(struct drm_vblank_timer 
+>> *vtimer,
+>> +                       int *max_error, ktime_t *vblank_time,
+>> +                       bool in_vblank_irq);
+>> +
+>> +#endif
+>
 
-metal-drv-hw means the NETIF is the real NIC, right?
-
-Thanks,
-Quang Minh.
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
