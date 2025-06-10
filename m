@@ -1,115 +1,156 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 025BC5789D;
-	Tue, 10 Jun 2025 03:48:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E1E21D555
+	for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 08:36:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749527283; cv=none; b=RcPface6eB7pTR/+owj9PNTilCiy0P9jomjcgcV2YmfjjjvVjEDTBaab8q6kLvcpYkxem6kvnbF4nqSfniT6i/pTpqvyu8P4hoy0v88KTnQ+Nq7Qvyng0/pOQlYGem9lNhE32AE+v47Oqjx2zb6Dmc3RBqO0EH5iSVSHJAlncMY=
+	t=1749544569; cv=none; b=XVGtcmizAtDe2oyMzL49EWk7Vh0QKIs1XZwlNslADxe/B8uo9XgylTxSfnOh3fne/9rBNDh26ZUddLyulBcquRcGNuWPgL5xsNSCcchLubF3x7E95rkcX5u8knR1Es2bqAajvCYlsaVtwjmtAfZnpScAF3IF9C5WYSnTf/8pYbA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749527283; c=relaxed/simple;
-	bh=SuVp9AFmt8gLD64j4a+SRLxEwyPAPmST5oVeKyyVGVI=;
+	s=arc-20240116; t=1749544569; c=relaxed/simple;
+	bh=VefeL8UvNo27hF0y5cq0ZWoxdT+CX5fteuza6wXt5O0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Mu8uHccwBCdDoNdl2v6G+sovkuBYpacsA6eHpP+f/r1PPH2PbphcqF/A6tfn2tAcHlaTtc/w4twB2vq/n3DRdGK9/WF2dAwMzEDtsu7UaLpz26BciL0asHsnf4iuwMIQne7dFmHa1kmWXtdeNslqPwm3dUNNlqORtBfjEiF1ofc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.167.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-55324062ea8so6500869e87.3;
-        Mon, 09 Jun 2025 20:48:00 -0700 (PDT)
+	 To:Cc:Content-Type; b=FcwvJVzwGXxr2X6eadaSNSSA6bKXgjx7Q1oHhXcQzJ2gdVRtTGEAk6q70n9j5dJ19T/xVmCvPml/U1dyro1LqH086R4TywU0U546akHCTiPZKLcFXAENMzBrLfGERVatFmtKqCdLw6oWetUQE7hoyna89xSzr3GjtQjeCzS9z9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ibrQTmMt; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ibrQTmMt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749544566;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VefeL8UvNo27hF0y5cq0ZWoxdT+CX5fteuza6wXt5O0=;
+	b=ibrQTmMtk3M5foxu/Ky9PvDjH8b29cynno3Dmgf9buC3r3RDQi/7A3QwWZNPs5yj3ThyZn
+	ELyJMbD+FTN6//MIvhESL8O403XsWdlRHXjCNTEDvhdmbgO0d12feOAT8X4jYZM4zdnWs+
+	SBIsygS/W+hsHsoK72XJl5WVfQMNuQA=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-551-EXqr3WDdObOu0IRoVkce8A-1; Tue, 10 Jun 2025 04:36:05 -0400
+X-MC-Unique: EXqr3WDdObOu0IRoVkce8A-1
+X-Mimecast-MFC-AGG-ID: EXqr3WDdObOu0IRoVkce8A_1749544564
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-3138e64b3f1so2003254a91.3
+        for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 01:36:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749527277; x=1750132077;
+        d=1e100.net; s=20230601; t=1749544564; x=1750149364;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :reply-to:in-reply-to:references:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=nZk/7/4MvcJfckdyvA+r+JfqYVWkeTH5dDDkcVRzYjI=;
-        b=npvz1VhC5KA6u0OjMoj+2uReTIGarS2o8jVousLs6Afkzhd8G2R57JFi2vtTrJuNIJ
-         trK8Q5ZTy/MUU6pYPmu7a3wImIRNTuYxImi0OCZ6R7QGstT9gJyk836A9n2TROqACrde
-         ShR23YagqDPM14maJYdqzvvl7jGVDkCjYYVaN+LKOO/hwyVTAWp+8xSvSrnC8JP2CUHs
-         RiW7k8x1n1HafOs2cXfVkMfcHO36TRShZ9DqllJetOTYl3oJcBTye40+ffNVRoF7WZpW
-         uv44gW+BzbZeI/UAukkpG62i0uLZftUWs9qqL9TV/UEfhtKokT4Y9JnbZEQklBk9GEgI
-         ruFQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUuCNGfHBqrsxmopS937gDBeAwtbS+bXXK5kVommpfigOKLBmBzOQhCmKjnUKk6K0GnDjrXKw==@lists.linux.dev, AJvYcCUvBWV36XJYOLKOpC7fvHxX7VpGI6amZUqqFJZnQGcfsN9lTY8ekF3vodfzZRmg3XCu+NkEO0jpYXNe69A=@lists.linux.dev, AJvYcCVzieEgg+FGZ5ffHRcwXozLrXTLT7jKca0mRVIEKGYFbOwK1gWr7cCwsXdzL+fZt6+2eJVtMUNaS2Gb1C+Lbwo=@lists.linux.dev, AJvYcCXr7B6Zi6KNoG5QTqPDNe/GyUopy7xDFoKubMnKY0b0Ss6DvSWLmY9UIiiYgucGKcpA572X3Zw=@lists.linux.dev, AJvYcCXxmTeWUMZPEeI6IH1VA/4kHHFh7nNF3s3UL8M9CLWgdilKuMtwmdrALBKOG3qq6J22SNN8nyjFvw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXp6RRlRhQDnjIthr9igEBeRZ9OfhtbYq1SJjIDsLDQhHTjKtW
-	cn726Lr4hREecR9o3iFQF1ETDFuPwZeePcLZg5HMnD7VRi36kVLRWnLTOn7do94sx3o=
-X-Gm-Gg: ASbGncsrvPv+DUbvpksIuO9QyjqNTU2b1+p5y7yJy8/fUBswHRxnEXmBnwD46G5/z0f
-	A3tUTXk8hrf8XLW1Hd/cEO8ANbBYLjzkVjE9T7o6pqr2vim7uqGHh0zZMPf+s3yQiTvTj4+dPPB
-	6VUw6VYAS0bV90P8WpW40M2hSuOvzmwqruVYvb3zeGwEVwLRDgjEz2vSORz1x7swo9qh46cH17X
-	CFQxt/GiguAjZqbHr5QdyhxfyU/M+QeQZjGfrPvp6tab16qgbisatogOFnr1Ht8gR9X3W/8SMkb
-	JFLihVKgval7KVc4MQfA3s3D1AfsGGYzMnvwZj7F5c2UvlYmOL5uB+wAW6CAmf2SLPXvRpOg5xq
-	X80WmCsTb3ssTW9Twknw=
-X-Google-Smtp-Source: AGHT+IGtAx3E0GkGm96xBngjQMnlMxOYfUOrjVJ/FWCIHj0a/rSABsf/iGXRzYWdHKJrM9Fw89B6Hw==
-X-Received: by 2002:a05:6512:3056:b0:553:2ca4:39d3 with SMTP id 2adb3069b0e04-55366c3288cmr4346426e87.48.1749527276542;
-        Mon, 09 Jun 2025 20:47:56 -0700 (PDT)
-Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com. [209.85.208.180])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-553676d03c2sm1402937e87.18.2025.06.09.20.47.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Jun 2025 20:47:55 -0700 (PDT)
-Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-310447fe59aso47865611fa.0;
-        Mon, 09 Jun 2025 20:47:54 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUUcfAxfY09EycBp3URiND+SBv5l3fAtTjE/yVJDQCqTgViZ2U0hOwQI67UUkk6+SOdgen3OGXK5g==@lists.linux.dev, AJvYcCVHDbgWHO5Uc/sxr4wVLoo4RRzbCjCVa54gMv3VMXTFGeQPNOpFW3dS6uqh+XjrukaSB1KaR9Pt/++VPN5uFOw=@lists.linux.dev, AJvYcCVIf1kXeQACZUBx1ahX1ocsBna+ZJ06MZ/3s10reUGmHlhH9mdabNk4+OmgjQhp/ecaAARxbBu1ABmhg5Y=@lists.linux.dev, AJvYcCVQPkd+8Lt9QXzKL35O4rANoTXKN0ALeSv4gzmTVhLLnwrGJK4oYgsZ7hBy+wIHh43+j0dN9g==@lists.linux.dev, AJvYcCWoGIUBgdLptIW9DQYxbVZvq5jIiVuoETE4gOYXvndBxnyt9nwnSBb2sJF+xY9Ii+ShUC3v0Ys=@lists.linux.dev
-X-Received: by 2002:a2e:b693:0:b0:32a:ddd2:208e with SMTP id
- 38308e7fff4ca-32adfc06f41mr30364041fa.9.1749527274652; Mon, 09 Jun 2025
- 20:47:54 -0700 (PDT)
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VefeL8UvNo27hF0y5cq0ZWoxdT+CX5fteuza6wXt5O0=;
+        b=wte4XxWEGzTxbozaS+NxHx29Vcg06uhiYvzxWqhWCJi9jOGHq/etnyGGmdeBj2Kas3
+         52J3SZJEg9sUAVdVkltB6EmhMMrb/y4J5LmwR+RtORFwmSkYeinTs5dalclSxoOJS9PN
+         H4fmVe//hUzoNjO+kjt0K+uo320ToBAM0uAQE/U2GtfwbCye8gZDKmOtsmRsN4nP3M82
+         Wt+lBD8oXZ6DSFFM/i68uUgrs3UB6nv+PhrdobXNVPErq6WNCJ/+aDnHO/BKNzfckej7
+         XCh4GZSRwTaZ7iSrN0nMlM3vqIEMaESFqNYLCXanmy8PuR43fkxJtq14lJrlmhlHevcw
+         pJJA==
+X-Forwarded-Encrypted: i=1; AJvYcCUizk0lxJcDRCHF67fxoG+6VQauP+ZeNR3y+wiDkpk6hAaJAmyxFelCVccffls0F+DyNtGHJjbRxSLVRLOZaw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwNEt+WGLxzeu17XFUBXX50P718g8KNiUwSgujd2ASkWZzXCxzY
+	QUis20/cylx6z3K3/iUGa9aprDgXdWXfzlfvzjuFju6779eei2tokMygMd7Tpds1oiZzycxUgxy
+	gdy9V49jvnG3VyfBHvNLP7RhW40UV9vxgzdtwLN5cQDuDsK2RvhukjZ8OYE+0I04dh5+2LZAT+X
+	JRtyRn8h2vOOM2131q0vRKwOQHRlTS6moTz6aveT+LsPo=
+X-Gm-Gg: ASbGnct7jr+znK+bHgUbUzYfv0pvATWQ6BLQkwPniy0z/B2xw+rs2DKmfFLTzv0sGm9
+	fXTg+L1mD+L4d0DVHsqVBLSkJPybQC7+97/MTxihnszDt8npVJp4rzqhLCTWpLSL2sDEFMdts9k
+	IA6UDn
+X-Received: by 2002:a17:90b:3c52:b0:311:ffe8:20e2 with SMTP id 98e67ed59e1d1-313472d4297mr23372952a91.4.1749544563414;
+        Tue, 10 Jun 2025 01:36:03 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEyRjmPW82hemp2fvewBDHQY7oy/7+OpxoQVKnjOKQ7RWf7UJnCJb7ETeE1WE5gEIg7PUb6KZi6iotqVC+KBWI=
+X-Received: by 2002:a17:90b:3c52:b0:311:ffe8:20e2 with SMTP id
+ 98e67ed59e1d1-313472d4297mr23372919a91.4.1749544562994; Tue, 10 Jun 2025
+ 01:36:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <0-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com> <4-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
-In-Reply-To: <4-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
-Reply-To: wens@csie.org
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Tue, 10 Jun 2025 11:47:42 +0800
-X-Gmail-Original-Message-ID: <CAGb2v672aLfjX2_+=gnYEt09Z2m+sDoUi-weN2VsgtqnrK_fDw@mail.gmail.com>
-X-Gm-Features: AX0GCFvT3cfnNTYictCtJSVKUrXJH3fCgSrvu85ggYc6KyathRV-zklZHWwYSnM
-Message-ID: <CAGb2v672aLfjX2_+=gnYEt09Z2m+sDoUi-weN2VsgtqnrK_fDw@mail.gmail.com>
-Subject: Re: [PATCH v2 4/7] iommu: Remove iommu_ops pgsize_bitmap from simple drivers
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexandre Ghiti <alex@ghiti.fr>, Alim Akhtar <alim.akhtar@samsung.com>, 
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	asahi@lists.linux.dev, Baolin Wang <baolin.wang@linux.alibaba.com>, 
-	David Woodhouse <dwmw2@infradead.org>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
-	Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev, Janne Grunau <j@jannau.net>, 
-	Jean-Philippe Brucker <jean-philippe@linaro.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
-	Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>, 
-	Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org, 
-	linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, 
-	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, 
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	Matthew Rosato <mjrosato@linux.ibm.com>, Neal Gompa <neal@gompa.dev>, 
-	Orson Zhai <orsonzhai@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paul Walmsley <paul.walmsley@sifive.com>, Rob Clark <robin.clark@oss.qualcomm.com>, 
-	Robin Murphy <robin.murphy@arm.com>, Samuel Holland <samuel@sholland.org>, Sven Peter <sven@kernel.org>, 
-	Thierry Reding <thierry.reding@gmail.com>, Krishna Reddy <vdumpa@nvidia.com>, 
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, 
-	Yong Wu <yong.wu@mediatek.com>, Chunyan Zhang <zhang.lyra@gmail.com>, 
-	Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>, patches@lists.linux.dev, 
-	Niklas Schnelle <schnelle@linux.ibm.com>, Sven Peter <sven@svenpeter.dev>, 
-	Tomasz Jeznach <tjeznach@rivosinc.com>
+References: <20250606115012.1331551-1-eperezma@redhat.com> <20250606115012.1331551-2-eperezma@redhat.com>
+ <CACGkMEsw2taXgW11na2CFK6W03c=x=wMn3iwNZPypgPkeSU06Q@mail.gmail.com>
+ <CACGkMEvinV7Zd+xddnxcerFbw_c+RZypkeD5HaN8=g6+peZvMQ@mail.gmail.com> <CAJaqyWeetDsdoDzVrN-n0+jr97MBPeHdTxeM3ttmNUeLK702VA@mail.gmail.com>
+In-Reply-To: <CAJaqyWeetDsdoDzVrN-n0+jr97MBPeHdTxeM3ttmNUeLK702VA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 10 Jun 2025 16:35:52 +0800
+X-Gm-Features: AX0GCFuawXYYWuy28X2V_BYwSq7bE1Tmlxm4lE_BVF2reMyJ9g-qSAngee-y6Wk
+Message-ID: <CACGkMEvbxZsmPPHgfst89FCbZamBPLt8V=K-eepa4s3muFuM4A@mail.gmail.com>
+Subject: Re: [RFC 1/6] vduse: add v1 API definition
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: Yongji Xie <xieyongji@bytedance.com>, Cindy Lu <lulu@redhat.com>, 
+	linux-kernel@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Laurent Vivier <lvivier@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ZLEfZ080JyP3UVRV4I5bUO1IoZJDtWGbXozhlJHmaPU_1749544564
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 10, 2025 at 4:41=E2=80=AFAM Jason Gunthorpe <jgg@nvidia.com> wr=
-ote:
+On Mon, Jun 9, 2025 at 2:11=E2=80=AFPM Eugenio Perez Martin <eperezma@redha=
+t.com> wrote:
 >
-> These drivers just have a constant value for their page size, move it
-> into their domain_alloc_paging function before setting up the geometry.
+> On Mon, Jun 9, 2025 at 3:50=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
+rote:
+> >
+> > On Mon, Jun 9, 2025 at 9:41=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
+ wrote:
+> > >
+> > > On Fri, Jun 6, 2025 at 7:50=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@r=
+edhat.com> wrote:
+> > > >
+> > > > This allows to define all functions checking the API version set by=
+ the
+> > > > userland device.
+> > > >
+> > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > >
+> > > It might be worth clarifying how it works.
+> > >
+> > > For example,
+> > >
+> > > 1) would VDUSE behave differently or if it's just some new ioctls
 >
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Acked-by: Niklas Schnelle <schnelle@linux.ibm.com> # for s390-iommu.c
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/iommu/exynos-iommu.c   | 3 ++-
->  drivers/iommu/ipmmu-vmsa.c     | 4 ++--
->  drivers/iommu/mtk_iommu_v1.c   | 3 ++-
->  drivers/iommu/omap-iommu.c     | 3 ++-
->  drivers/iommu/rockchip-iommu.c | 3 ++-
->  drivers/iommu/s390-iommu.c     | 2 +-
->  drivers/iommu/sprd-iommu.c     | 3 ++-
->  drivers/iommu/sun50i-iommu.c   | 3 ++-
+> I'd like to test more in-depth, but a device can just bump the version
+> ID and then implement the replies to the vduse messages. No need to
+> implement new ioctls. If the VDUSE device sets 0 in either number of
+> ASID or vq groups, the kernel assumes 1.
 
-Acked-by: Chen-Yu Tsai <wens@csie.org> # sun50i-iommu.c
+Right, this is the way we use now and I think maybe we can document
+this somewhere.
+
+>
+> But you have a very good point here, I think it is wise to evaluate
+> the shortcut of these messages in the VDUSE kernel module. If a VDUSE
+> device only has one vq group and one ASID, it can always return group
+> 0 and asid 0 for everything, and fail every try to ser asid !=3D 0.
+
+Yes, and vhost-vDPA needs to guard against the misconfiguration.
+
+> This
+> way, the update is transparent for the VDUSE device, and future
+> devices do not need to implement the reply of these. What do you
+> think?
+
+This should work.
+
+>
+> > > 2) If VDUSE behave differently, do we need a ioctl to set the API
+> > > version for backward compatibility?
+> >
+> > Speak too fast, there's a VDUSE_SET_API_VERSION actually.
+> >
+> > I think we need to think if it complicates the migration compatibility =
+or not.
+> >
+>
+> Do you mean migration as "increase the VDUSE version number", not "VM
+> live migration from vduse version 0 to vduse version 1", isn't it? The
+> second should not have any problem but I haven't tested it.
+
+I mean if we bump the version, we can't migrate from version 1 to
+version 0. Or we can offload this to the management (do we need to
+extend the vdpa tool for this)?
+
+Thanks
+
