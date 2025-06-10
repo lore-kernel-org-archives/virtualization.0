@@ -1,121 +1,160 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DB8E22FE10
-	for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 13:34:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 638C921ABD5
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Jun 2025 14:18:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749562466; cv=none; b=UhoU2gkOv9tTmRsuyV3eVIXVnJDSmYOdq+4LI1taKjDifNWFA+RLXGnxcJxpXDO29KWIwRb5FShglW6onG6FQg0i5LIcQNmDd57w+PMDKXCJV3MFv/o7v90xqMPisQnSdxjcqALNF/1c9syorGjFStHPK3sLm1fPAranhwPL2xk=
+	t=1749565098; cv=none; b=nc6o4w75jTuxjd34EOn7Z441/ka1JVytONATX9RfZWfFypcBWNYfaGNIJL+YORpMG496D5kjyeu0DZFgedOH6WEQNf6vt4N2T+F/Pf+SPTp1HiefEbWA9aD5mMsJrEb+iu9VTDmciHjGYDOsEJN1PzPrBbjnjUvRWRBij5r32+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749562466; c=relaxed/simple;
-	bh=XvrsqEOdfXf0A5sl8PhNexgikLmqQdrUFQcyvSHgxyA=;
+	s=arc-20240116; t=1749565098; c=relaxed/simple;
+	bh=jVgRDHdKzEsdiZHSyNutF/aYwtWhtxXmhHnMZHxaDNE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=IKr0IfNyEpqgNr0aXY1qH8jElHlhSagvoMfht+9YdR0C3pIb0TCauzojedILd5SnDR0w3z0vG/erVAktO8eWZCwdunOf0XiUPRXe1o7s3GAAhF1vxTGa7hDIvjjJJAgkmSePz2WPuuWj/5FMbpsbrRa5elORq0Y6ZcD6Q8zjvEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c+Ujewyv; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=JeZsIRWi9zUAa8euBP+ayT/mNwmRbbkBr0CIcBaNujCce8rCPZtvP8422py7cJO0hv5heWCFlnNY1udAigTZRAR21a9mYi4XKwGhl77pNbcJMwNDDQ3I9Bhm7YyFMUdnLw5LhtvbcanQmkJvzDEuSpGK52mmHoxNMR2QfMsCW6Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c/KrS3bo; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c+Ujewyv"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c/KrS3bo"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id F359B40620
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Jun 2025 14:18:15 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 660KvC-asv5M for <virtualization@lists.linux-foundation.org>;
+ Tue, 10 Jun 2025 14:18:15 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 520C340053
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 520C340053
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c/KrS3bo
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 520C340053
+	for <virtualization@lists.linux-foundation.org>; Tue, 10 Jun 2025 14:18:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749562463;
+	s=mimecast20190719; t=1749565093;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=JaThg5+r5uhS87jz3/gzU48kE9fYSYuQjTKSX+XLaXk=;
-	b=c+UjewyvG2W/yozdrHtmVYPsp50amu/VP9oR5wcSmttf8kJNRuYrcpJK/6zt2XoI04Gjy5
-	SZ3bNFp0jgls609mH41X+apNxF5M3EzlG/b4Ncko7rF+sLJpplxdxb6QRofOjkVMy1V0ZN
-	wrxZSRK/+TGEcZacrunzEszT5VFSziU=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=YWdGsTP9UdVNfFRFI1m3+P+PKI5R7Dmno5tLlKSkopc=;
+	b=c/KrS3bo+CFsmd8lDBaLr4sCWiPmcOjOVq2H1o8z8pGNwdM8ybSTDSb9/DDyZj64ugQhkv
+	dYBIaIkmBiQmJhuAjKB+f5Lu8cjvNAbAc4WA9H+LWy/VKNoIu5Aeph2NgGijrYh8p/rRvj
+	/eKI76o9Ip2IO7tnOkzaFisDdD6ogP8=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-194-NFBNkAtMNv-Za70HuXnC0Q-1; Tue, 10 Jun 2025 09:34:22 -0400
-X-MC-Unique: NFBNkAtMNv-Za70HuXnC0Q-1
-X-Mimecast-MFC-AGG-ID: NFBNkAtMNv-Za70HuXnC0Q_1749562461
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-ade354a2f6aso266315466b.2
-        for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 06:34:21 -0700 (PDT)
+ us-mta-119-mO1JUDohOjWMuQFn5msLig-1; Tue, 10 Jun 2025 10:18:10 -0400
+X-MC-Unique: mO1JUDohOjWMuQFn5msLig-1
+X-Mimecast-MFC-AGG-ID: mO1JUDohOjWMuQFn5msLig_1749565089
+Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-606b62ce2d4so4736503a12.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 10 Jun 2025 07:18:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749562461; x=1750167261;
+        d=1e100.net; s=20230601; t=1749565088; x=1750169888;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JaThg5+r5uhS87jz3/gzU48kE9fYSYuQjTKSX+XLaXk=;
-        b=NyokAiunj4t9AXuWuMYyEJOt716iRqAbNJvSEDbRSVEOQ58METwXQ04i5RIxcykJh+
-         uTVOfzumQhu+fExg+q+j84OKmXiUIOCB2u75Bls8DV2Dumcvp1U8bp7Ogz4/Dp0ChbKQ
-         S93B0lMfK0ENggjQUpeallz0XEwHB7OCHrQk87zZ+HeNEMbao9l1eQed/H9jbzC3Ox/+
-         OKMK/RqPV293hdLvVOWkeMQtnqaowyyAAfa5Pxqcr3H1LDLWro3e/NglLWnlUns8Flwm
-         q/Z8yR9Rj5kleR8AwKeMzE/XYfR+gp0n+mgPwIgUv/lF2mdLU/zIaEH1XlzpoRNcU4Lp
-         2Vew==
-X-Forwarded-Encrypted: i=1; AJvYcCWxi79SRHWZdgp1nlTenIKQl72Qxb7o+UZ9sCXSgfKMg4HCAuzMmgEOXXvOyKdfnt9oT2VXTxuXiKb5AqXbrw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx3ZBEo7xMvquO9fGvs+5zCXU9gRDrtD851p8QN6kDNMlAGR1Q0
-	nDmBLSliL81uAllukz8p0RsHkglaZ4lH1YNp4P4SOtg5DrvBX9yGz28gRQpyCU8YtLym+/AnNji
-	E/Oc6OHQeJSRNietdm7okP0Tmp21z4RxqCgSm6OooRhvVAzmhbQzaIrz0ilbMKWkohIo+
-X-Gm-Gg: ASbGncsyvqEe2ewXKLNnX2oU+/9jPxIm9Pi7E7GJNIuj+EiRWobXkD+yKAsWbqIzyoP
-	wPFnvDOBwXTRUozbkL7RAHrKO3W9PZc4xM2JkGV59syYqdKX4Z0p7lEmuA6C43mYxpu66NXaUuC
-	0bmQw40CDEJKYwIK48PUJGjPqiuUHgY4FlMpK5awUTGRI1t9ghvNiJqzYWa185Rn3eQ61Jqospr
-	Kjze6Tm4ozr/bsbVlNxG8+mx+VgFahTfmOVbZn9Ny4csGYCYjC3bjpFTWl4X+a+FcZf8Db017gp
-	4zkw2+KBFYKhqzmwQyDB7dJsDxKU
-X-Received: by 2002:a17:907:9627:b0:ad2:4fa0:88cd with SMTP id a640c23a62f3a-ade1a9161d5mr1556452866b.9.1749562460786;
-        Tue, 10 Jun 2025 06:34:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFVQJ9XKVtgWAPBPx92DgJukt6mEoSr0j96sE8wez5IFUYtTCsIHQA0fNWr/TED56i/nhFt1g==
-X-Received: by 2002:a17:907:9627:b0:ad2:4fa0:88cd with SMTP id a640c23a62f3a-ade1a9161d5mr1556448066b.9.1749562460153;
-        Tue, 10 Jun 2025 06:34:20 -0700 (PDT)
+        bh=YWdGsTP9UdVNfFRFI1m3+P+PKI5R7Dmno5tLlKSkopc=;
+        b=nvRQgi9I0rt10Cu01G/p6AP8HFkOkJBoZKSgcp2b4NmImSGU6oRbm64fgamN9kQm+L
+         R6etKwB3ceX4avpMooiBt3bSSsWoP7xywT9EfG4XgNKe5M2kR25+BlEMvmqNqbOqP2nk
+         8FmNj1CnNYUwgy5Cuzk0ONOUfObzYo62Bme3AMPBlyWJvtAlmVm8Bs3mhnyCASrhO35m
+         1RGGiGssI4Ln4eyLyq+i+5gCi9ViSPx+1CiB1fjVDr2KYTZKg91UNx3vsJ5Da8ZRMrm7
+         jjHanBBejW1TYwTb9u59ZVv8QKcaIWWl2rikYskyvdeq5ymJj6MMRvrLrCdad3zz67Ax
+         KsVQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUnstKF8lxibF0EG+njm+2NtfUuXi/1TVngJTvoUkrg00NrineTgkyNU123jj65mksARfUUyJpteHEs8ViytA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzlW5+GKwWc/2THAU+oaV/Ng/YNLYJLyt4GJGTPXd5DE/9bvagD
+	cLGlV1x9RH7xvDaPQ0f9Sak31+U8Lz/qrRtwNHuVnKxuvREI7xDGH16JstU4RF88ZhVe6zNIkx6
+	aY7TAx3Idx4qXORIYKqu4ZMlzm3qKlYaozFT31e3HA+r2tEblbjrlq4l08m9hTuFf6qwPHSd5/Q
+	BQrXU57oQ=
+X-Gm-Gg: ASbGncuLUrU9CPoBgPPXdgEgxfEInpWMkItGUqWEVk/gUQJHJ750CJNtEmTk1usPRPm
+	B0X9iUzL3NmadYsvqSXwUhg+/u+ZR3NIXzi9zfsjfeWJuLE4e+b8+pQis1Ff+X5723f0dZ8oo8+
+	02obKg5b+SLNR57/TWzFoSsIy2v9TgHabKnJdKmEhvxMR3BxON3jrNW6mNkcKkpLc53stkHuMjc
+	wwK3p/sNGOb6bMTlv93S2ouXgl3oiY38TMZK85U4isQAUjmEvhTN5eUeuxhUfovWXTUS5DDf7qF
+	W+qaaZwUMemmHdSdteiACURW/OkN
+X-Received: by 2002:a05:6402:2710:b0:602:29e0:5e2f with SMTP id 4fb4d7f45d1cf-60773ec89c5mr16387604a12.10.1749565088416;
+        Tue, 10 Jun 2025 07:18:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG6nFffzk4/Z4yX45yLgRLcy81iUKREpGhoM8zZ6oemdeWy7AymyJ/wnCe7rlJJKGZLyAFjxQ==
+X-Received: by 2002:a05:6402:2710:b0:602:29e0:5e2f with SMTP id 4fb4d7f45d1cf-60773ec89c5mr16387568a12.10.1749565087853;
+        Tue, 10 Jun 2025 07:18:07 -0700 (PDT)
 Received: from sgarzare-redhat ([193.207.220.112])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ade1db57856sm727888966b.63.2025.06.10.06.34.18
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-607f3dbc3b9sm2760118a12.33.2025.06.10.07.18.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Jun 2025 06:34:19 -0700 (PDT)
-Date: Tue, 10 Jun 2025 15:34:13 +0200
+        Tue, 10 Jun 2025 07:18:06 -0700 (PDT)
+Date: Tue, 10 Jun 2025 16:18:01 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, 
-	David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Simona Vetter <simona@ffwll.ch>, 
-	Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>, Viresh Kumar <viresh.kumar@linaro.org>, 
-	dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] virtgpu: deallocate capsets on device deinit
-Message-ID: <4si3wc7jhfcyukrepw3wi6zmylqf7b5ilnlxfpbbexcijcvlnz@3r2zcpxne275>
-References: <20250505-virtgpu-queue-cleanup-v1-v1-0-810923da2b1e@linaro.org>
- <20250505-virtgpu-queue-cleanup-v1-v1-3-810923da2b1e@linaro.org>
- <5271820d-7afd-45e5-8103-b7d4fc818278@collabora.com>
- <c3ae2790-20d8-4220-848e-7b02b185e893@collabora.com>
+To: Mike Christie <michael.christie@oracle.com>
+Cc: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com, 
+	virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH] vhost-scsi: Fix log flooding with target does not exist
+ errors
+Message-ID: <7hsh4exxtfbeu2h4zvt2bptunezs5ppaeqep6gkn7xkmpu4y7k@rb5wfwqaembu>
+References: <20250607171815.111030-1-michael.christie@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <c3ae2790-20d8-4220-848e-7b02b185e893@collabora.com>
+In-Reply-To: <20250607171815.111030-1-michael.christie@oracle.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: qPrqY-HsEvN2Pq6n9WDsTsSi20ErNrQvS42n4PT2wiE_1749562461
+X-Mimecast-MFC-PROC-ID: uyQyy8Emkac4ohCqc_yJP2st7hF2p_PbaMqZSdfJc_8_1749565089
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Mon, May 05, 2025 at 07:22:35PM +0300, Dmitry Osipenko wrote:
->On 5/5/25 18:58, Dmitry Osipenko wrote:
->> On 5/5/25 11:59, Manos Pitsidianakis wrote:
->>> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
->>> index 7b3c4d314f8eee692e2842a7056d6dc64936fc2f..a8b751179332b9ec2fbba1392a6ee0e638a5192e 100644
->>> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
->>> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
->>> @@ -286,6 +286,10 @@ void virtio_gpu_deinit(struct drm_device *dev)
->>>  	flush_work(&vgdev->cursorq.dequeue_work);
->>>  	flush_work(&vgdev->config_changed_work);
->>>  	virtio_reset_device(vgdev->vdev);
->>> +	spin_lock(&vgdev->display_info_lock);
->>> +	drmm_kfree(dev, vgdev->capsets);
->>> +	vgdev->capsets = NULL;
->>> +	spin_unlock(&vgdev->display_info_lock);
->>
->> Isn't this lock superfluous?
+On Sat, Jun 07, 2025 at 12:18:15PM -0500, Mike Christie wrote:
+>As part of the normal initiator side scanning the guest's scsi layer
+>will loop over all possible targets and send an inquiry. Since the
+>max number of targets for virtio-scsi is 256, this results in 255
+>error messages about targets not existing. When there's more than 1
+>vhost-scsi device, then you get N * 255 log messages.
 >
->Wait a minute, vgdev->capsets is allocated using drmm, hence it's
->auto-freed when DRM device is freed. This patch shouldn't be needed.
+>It looks like the log message was added by accident in:
+>
+>commit 09d7583294aa ("vhost/scsi: Use common handling code in request
+>queue handler")
 
-Yep, good point. I mean the patch is not wrong, but I think we can avoid 
-it.
+IIUC that commit just moved the code, but it looks like it was added by
+commit 3f8ca2e115e5 ("vhost/scsi: Extract common handling code from
+control queue handler")
+
+The rest LGTM!
 
 Thanks,
 Stefano
+
+>
+>The patch was just making some coce common but added the vq_err call
+>and I'm guessing the patch author forgot to enable the vq_err call
+>(vq_err is implemented by pr_debug which defaults to off). So this
+>patch removes the call since it's expected to hit this path during
+>device discovery.
+>
+>Fixes: 09d7583294aa ("vhost/scsi: Use common handling code in request queue handler")
+>Signed-off-by: Mike Christie <michael.christie@oracle.com>
+>---
+> drivers/vhost/scsi.c | 4 +---
+> 1 file changed, 1 insertion(+), 3 deletions(-)
+>
+>diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+>index c12a0d4e6386..c9f418a4571a 100644
+>--- a/drivers/vhost/scsi.c
+>+++ b/drivers/vhost/scsi.c
+>@@ -1226,10 +1226,8 @@ vhost_scsi_get_req(struct vhost_virtqueue *vq, struct vhost_scsi_ctx *vc,
+> 			/* validated at handler entry */
+> 			vs_tpg = vhost_vq_get_backend(vq);
+> 			tpg = READ_ONCE(vs_tpg[*vc->target]);
+>-			if (unlikely(!tpg)) {
+>-				vq_err(vq, "Target 0x%x does not exist\n", *vc->target);
+>+			if (unlikely(!tpg))
+> 				goto out;
+>-			}
+> 		}
+>
+> 		if (tpgp)
+>-- 
+>2.43.0
+>
 
