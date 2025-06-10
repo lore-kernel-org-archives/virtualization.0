@@ -1,169 +1,121 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6570217A301
-	for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 13:33:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DB8E22FE10
+	for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 13:34:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749562403; cv=none; b=gtbN23cc3XH10EZqNswiLDqcYx5HoKf22l4jq4iILznUr8NbV0Chj9qEmRF4L2n+kvErf/qcyoHdOp0WvmBDAr8GJdRzdAfgbGpwR23ue/18gpia0oAuN6NNDVq+9aQPg0IwbP5siRVVdh6Dk6uphGlgAOGMt2rOdftILWBOPxc=
+	t=1749562466; cv=none; b=UhoU2gkOv9tTmRsuyV3eVIXVnJDSmYOdq+4LI1taKjDifNWFA+RLXGnxcJxpXDO29KWIwRb5FShglW6onG6FQg0i5LIcQNmDd57w+PMDKXCJV3MFv/o7v90xqMPisQnSdxjcqALNF/1c9syorGjFStHPK3sLm1fPAranhwPL2xk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749562403; c=relaxed/simple;
-	bh=kBu2U59AaQV7icfovVyvlI2+b63QrLthVpms/gIWz2Y=;
+	s=arc-20240116; t=1749562466; c=relaxed/simple;
+	bh=XvrsqEOdfXf0A5sl8PhNexgikLmqQdrUFQcyvSHgxyA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ZoyWqKZf+JcssYVh9rQo79yiEIu4t74cQe3UeYvX5Ar2P2p3oj1Tu4I523KH87aOtrvTttrYPVSUVNVph3z5diHcfPRcXq1qrF6kJbzFzPQtWYgJE461Sger9phbLL5hPWfTAVNOGtQpOpJN0wc3WbNIf5AxI0shEZcNEjPVZG4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=essZbmsj; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=IKr0IfNyEpqgNr0aXY1qH8jElHlhSagvoMfht+9YdR0C3pIb0TCauzojedILd5SnDR0w3z0vG/erVAktO8eWZCwdunOf0XiUPRXe1o7s3GAAhF1vxTGa7hDIvjjJJAgkmSePz2WPuuWj/5FMbpsbrRa5elORq0Y6ZcD6Q8zjvEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c+Ujewyv; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="essZbmsj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c+Ujewyv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749562400;
+	s=mimecast20190719; t=1749562463;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AtqlHRGptORwtIvFn6KwxIkuSp1lm8xfaqwxzgijrrY=;
-	b=essZbmsjVlmZuxtm8Nd9ppPFASYAUqGKpm6QHSzhgTakDvioYbFlNLVl1WZgFNQunm5bvd
-	EoAdJzFMKlMfoxV1qyaURXuTdEYBGthLhoCvXPbX9luSOO1Zgn8+AS3tL+kNFYyqHsv1HO
-	Bkt5xVdZVC3Kjg1GmMaabl3UQQGq5ho=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=JaThg5+r5uhS87jz3/gzU48kE9fYSYuQjTKSX+XLaXk=;
+	b=c+UjewyvG2W/yozdrHtmVYPsp50amu/VP9oR5wcSmttf8kJNRuYrcpJK/6zt2XoI04Gjy5
+	SZ3bNFp0jgls609mH41X+apNxF5M3EzlG/b4Ncko7rF+sLJpplxdxb6QRofOjkVMy1V0ZN
+	wrxZSRK/+TGEcZacrunzEszT5VFSziU=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-421-HX2kp2kbPbCvyi49EUX_lA-1; Tue, 10 Jun 2025 09:33:17 -0400
-X-MC-Unique: HX2kp2kbPbCvyi49EUX_lA-1
-X-Mimecast-MFC-AGG-ID: HX2kp2kbPbCvyi49EUX_lA_1749562396
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-ade32b5771bso302896166b.0
-        for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 06:33:17 -0700 (PDT)
+ us-mta-194-NFBNkAtMNv-Za70HuXnC0Q-1; Tue, 10 Jun 2025 09:34:22 -0400
+X-MC-Unique: NFBNkAtMNv-Za70HuXnC0Q-1
+X-Mimecast-MFC-AGG-ID: NFBNkAtMNv-Za70HuXnC0Q_1749562461
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-ade354a2f6aso266315466b.2
+        for <virtualization@lists.linux.dev>; Tue, 10 Jun 2025 06:34:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749562396; x=1750167196;
+        d=1e100.net; s=20230601; t=1749562461; x=1750167261;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AtqlHRGptORwtIvFn6KwxIkuSp1lm8xfaqwxzgijrrY=;
-        b=dytqZf4g32cG8HwTO3zQjANSsba7IS1OQP8C/4SSyAnNOBVxnBQ8sbjDqWWkq/UdLl
-         jsjgxMxlJr2Oap6sywcs7sMff+je/LNKsJjKDbwssshR7fjIKxXAP6MDrRFn9iUgyHxs
-         Pab6bwOdXXZ/+euWSTOexbcmCLozdJp9hh/x+4CLI0G9ih6HyUhrQC9OWIcxgEcdBZDB
-         wgVAabZAHWxMNJu9Ll+O0n0jmLetHwVWNE0m6RS1ODrDghO1TWesjExmvFBrefAT30/D
-         Ge2Lc5Il966bYXnzNy7gLexYgcuuAcDBGLUgy14bOdXWHLhSgpZGwIwOaWlSdxSggGAD
-         WmiQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWOGq14IKChI5ztlWIdwa4nb88yEWEkbYgvcTTzwunUF/3U3zAKAA1yONOLBjlYWB9VP9Gmn8ieb/+M7fSm8g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz59+6+e/zDAjukmL0t0TCWkGemVfSsRwsJ9ydK1Xj4Ttdj+F90
-	SPjhJHFx+66lOme2f4XTR7jhFBO9Opnc3pqNy3nOIkF8yQsCcb8U1oPtOW4t//41te0xuNedOiq
-	tiYsucftKGtD+Vdwz/sz/qau++HLhB2lDj3Erhao06g5gwjAl2V9CObcHDUJ9jqgcW3o9
-X-Gm-Gg: ASbGncuAWu+Qbu1gR09TabcpMnEwamT7fTpPE9Vrm1B0fhQXa5QpqY3b38GuWsAt8BV
-	rH56chSwdFz7/LlNCDyMzUquF1JODrXa0xsPcpmNX5SLDYbyyUqQAlVU5HoM0DJrG38Gg8sRo2F
-	6RCP6IQ5CvF9z1vbY/kSrddbF943GN3tsr4fe6hXTeoPuNk53swZQkeqkYDSaBuMlUz7b0Q409t
-	V54P0VTsf981FWIPwYEw5SitfACUFRchY+aLY/lnJ8//ygElqlL5oTKxPyQyg7U+SwDybJeIVWd
-	1pCPC0jNK+71tSxTPWnezQkMl3n0
-X-Received: by 2002:a17:907:3f89:b0:ade:4121:8d32 with SMTP id a640c23a62f3a-ade4121a383mr1222162266b.3.1749562395887;
-        Tue, 10 Jun 2025 06:33:15 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEbCYWNhgV43RFZfnzAeG7ctwgQxrUyNw/JhykbTR3vkEQZBONy5pO/0Uf1BHdqc/iqEcYmPw==
-X-Received: by 2002:a17:907:3f89:b0:ade:4121:8d32 with SMTP id a640c23a62f3a-ade4121a383mr1222157766b.3.1749562395268;
-        Tue, 10 Jun 2025 06:33:15 -0700 (PDT)
+        bh=JaThg5+r5uhS87jz3/gzU48kE9fYSYuQjTKSX+XLaXk=;
+        b=NyokAiunj4t9AXuWuMYyEJOt716iRqAbNJvSEDbRSVEOQ58METwXQ04i5RIxcykJh+
+         uTVOfzumQhu+fExg+q+j84OKmXiUIOCB2u75Bls8DV2Dumcvp1U8bp7Ogz4/Dp0ChbKQ
+         S93B0lMfK0ENggjQUpeallz0XEwHB7OCHrQk87zZ+HeNEMbao9l1eQed/H9jbzC3Ox/+
+         OKMK/RqPV293hdLvVOWkeMQtnqaowyyAAfa5Pxqcr3H1LDLWro3e/NglLWnlUns8Flwm
+         q/Z8yR9Rj5kleR8AwKeMzE/XYfR+gp0n+mgPwIgUv/lF2mdLU/zIaEH1XlzpoRNcU4Lp
+         2Vew==
+X-Forwarded-Encrypted: i=1; AJvYcCWxi79SRHWZdgp1nlTenIKQl72Qxb7o+UZ9sCXSgfKMg4HCAuzMmgEOXXvOyKdfnt9oT2VXTxuXiKb5AqXbrw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx3ZBEo7xMvquO9fGvs+5zCXU9gRDrtD851p8QN6kDNMlAGR1Q0
+	nDmBLSliL81uAllukz8p0RsHkglaZ4lH1YNp4P4SOtg5DrvBX9yGz28gRQpyCU8YtLym+/AnNji
+	E/Oc6OHQeJSRNietdm7okP0Tmp21z4RxqCgSm6OooRhvVAzmhbQzaIrz0ilbMKWkohIo+
+X-Gm-Gg: ASbGncsyvqEe2ewXKLNnX2oU+/9jPxIm9Pi7E7GJNIuj+EiRWobXkD+yKAsWbqIzyoP
+	wPFnvDOBwXTRUozbkL7RAHrKO3W9PZc4xM2JkGV59syYqdKX4Z0p7lEmuA6C43mYxpu66NXaUuC
+	0bmQw40CDEJKYwIK48PUJGjPqiuUHgY4FlMpK5awUTGRI1t9ghvNiJqzYWa185Rn3eQ61Jqospr
+	Kjze6Tm4ozr/bsbVlNxG8+mx+VgFahTfmOVbZn9Ny4csGYCYjC3bjpFTWl4X+a+FcZf8Db017gp
+	4zkw2+KBFYKhqzmwQyDB7dJsDxKU
+X-Received: by 2002:a17:907:9627:b0:ad2:4fa0:88cd with SMTP id a640c23a62f3a-ade1a9161d5mr1556452866b.9.1749562460786;
+        Tue, 10 Jun 2025 06:34:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFVQJ9XKVtgWAPBPx92DgJukt6mEoSr0j96sE8wez5IFUYtTCsIHQA0fNWr/TED56i/nhFt1g==
+X-Received: by 2002:a17:907:9627:b0:ad2:4fa0:88cd with SMTP id a640c23a62f3a-ade1a9161d5mr1556448066b.9.1749562460153;
+        Tue, 10 Jun 2025 06:34:20 -0700 (PDT)
 Received: from sgarzare-redhat ([193.207.220.112])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ade1dc7b55bsm721616066b.160.2025.06.10.06.33.13
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ade1db57856sm727888966b.63.2025.06.10.06.34.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Jun 2025 06:33:14 -0700 (PDT)
-Date: Tue, 10 Jun 2025 15:33:09 +0200
+        Tue, 10 Jun 2025 06:34:19 -0700 (PDT)
+Date: Tue, 10 Jun 2025 15:34:13 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>
-Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
-	Chia-I Wu <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Simona Vetter <simona@ffwll.ch>, Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>, 
-	Viresh Kumar <viresh.kumar@linaro.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] virtgpu: add virtio_gpu_fence_cleanup()
-Message-ID: <4izeqsk6wgptwbk37qlbsp4fmxwgen6xyqqscrvgcejkoeh6nn@7g433deykx3x>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, 
+	David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Simona Vetter <simona@ffwll.ch>, 
+	Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>, Viresh Kumar <viresh.kumar@linaro.org>, 
+	dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] virtgpu: deallocate capsets on device deinit
+Message-ID: <4si3wc7jhfcyukrepw3wi6zmylqf7b5ilnlxfpbbexcijcvlnz@3r2zcpxne275>
 References: <20250505-virtgpu-queue-cleanup-v1-v1-0-810923da2b1e@linaro.org>
- <20250505-virtgpu-queue-cleanup-v1-v1-2-810923da2b1e@linaro.org>
+ <20250505-virtgpu-queue-cleanup-v1-v1-3-810923da2b1e@linaro.org>
+ <5271820d-7afd-45e5-8103-b7d4fc818278@collabora.com>
+ <c3ae2790-20d8-4220-848e-7b02b185e893@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250505-virtgpu-queue-cleanup-v1-v1-2-810923da2b1e@linaro.org>
+In-Reply-To: <c3ae2790-20d8-4220-848e-7b02b185e893@collabora.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: QVy4z2z5duwT3L8mP2vX9NDp7lc5f-XGC2m4TYRMNwY_1749562396
+X-Mimecast-MFC-PROC-ID: qPrqY-HsEvN2Pq6n9WDsTsSi20ErNrQvS42n4PT2wiE_1749562461
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Mon, May 05, 2025 at 11:59:15AM +0300, Manos Pitsidianakis wrote:
->When virtio_gpu_remove() is called, there might be in-flight command
->objects in the virtqueues that the VIRTIO device hasn't processed. These
->commands might use fences, which end up being leaked, as reported by
->/sys/kernel/debug/kmemleak.
+On Mon, May 05, 2025 at 07:22:35PM +0300, Dmitry Osipenko wrote:
+>On 5/5/25 18:58, Dmitry Osipenko wrote:
+>> On 5/5/25 11:59, Manos Pitsidianakis wrote:
+>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>>> index 7b3c4d314f8eee692e2842a7056d6dc64936fc2f..a8b751179332b9ec2fbba1392a6ee0e638a5192e 100644
+>>> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+>>> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>>> @@ -286,6 +286,10 @@ void virtio_gpu_deinit(struct drm_device *dev)
+>>>  	flush_work(&vgdev->cursorq.dequeue_work);
+>>>  	flush_work(&vgdev->config_changed_work);
+>>>  	virtio_reset_device(vgdev->vdev);
+>>> +	spin_lock(&vgdev->display_info_lock);
+>>> +	drmm_kfree(dev, vgdev->capsets);
+>>> +	vgdev->capsets = NULL;
+>>> +	spin_unlock(&vgdev->display_info_lock);
+>>
+>> Isn't this lock superfluous?
 >
->This commit adds a cleanup function that lowers the reference count of
->all in-flight fences, resulting in their de-allocation.
->
->Signed-off-by: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>
->---
-> drivers/gpu/drm/virtio/virtgpu_drv.h   |  1 +
-> drivers/gpu/drm/virtio/virtgpu_fence.c | 12 ++++++++++++
-> drivers/gpu/drm/virtio/virtgpu_kms.c   |  1 +
-> 3 files changed, 14 insertions(+)
->
->diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
->index b3d367be6f204dbc98bf1c6e5c43a37ac8c0d8b3..c94b5edb2aec42fe5cd6416e243cf40e4e2b060f 100644
->--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
->+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
->@@ -465,6 +465,7 @@ void virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
-> 			  struct virtio_gpu_fence *fence);
-> void virtio_gpu_fence_event_process(struct virtio_gpu_device *vdev,
-> 				    u64 fence_id);
->+void virtio_gpu_fence_cleanup(struct virtio_gpu_device *vdev);
->
-> /* virtgpu_object.c */
-> void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo);
->diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
->index 44c1d8ef3c4d07881e2c4c92cc67f6aba7a5df4f..3e536d190c0464f4db8955605bbf0aa4aa3612bd 100644
->--- a/drivers/gpu/drm/virtio/virtgpu_fence.c
->+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
->@@ -157,3 +157,15 @@ void virtio_gpu_fence_event_process(struct virtio_gpu_device *vgdev,
-> 	}
-> 	spin_unlock_irqrestore(&drv->lock, irq_flags);
-> }
->+
->+void virtio_gpu_fence_cleanup(struct virtio_gpu_device *vgdev)
->+{
->+	struct virtio_gpu_fence_driver *drv = &vgdev->fence_drv;
->+	struct virtio_gpu_fence *curr, *tmp;
->+
->+	list_for_each_entry_safe(curr, tmp, &drv->fences, node) {
+>Wait a minute, vgdev->capsets is allocated using drmm, hence it's
+>auto-freed when DRM device is freed. This patch shouldn't be needed.
 
-I don't know this code, but I see that when we access `drv->fences` we 
-hold `drv->lock`, should we do the same here? (or it isn't needed since 
-we are in the cleaning phase?)
-
-The rest LGTM!
+Yep, good point. I mean the patch is not wrong, but I think we can avoid 
+it.
 
 Thanks,
 Stefano
-
-
->+		dma_fence_signal_locked(&curr->f);
->+		list_del(&curr->node);
->+		dma_fence_put(&curr->f);
->+	}
->+}
->diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
->index da70d9248072b64786a5d48b71bccaa80b8aae8f..7b3c4d314f8eee692e2842a7056d6dc64936fc2f 100644
->--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
->+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
->@@ -286,6 +286,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
-> 	flush_work(&vgdev->cursorq.dequeue_work);
-> 	flush_work(&vgdev->config_changed_work);
-> 	virtio_reset_device(vgdev->vdev);
->+	virtio_gpu_fence_cleanup(vgdev);
-> 	virtio_gpu_queue_cleanup(vgdev);
-> 	vgdev->vdev->config->del_vqs(vgdev->vdev);
-> }
->
->-- 
->2.47.2
->
->
 
