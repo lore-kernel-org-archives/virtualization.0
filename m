@@ -1,182 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 304D02BEC25;
-	Wed, 11 Jun 2025 14:59:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7295199E8D
+	for <virtualization@lists.linux.dev>; Wed, 11 Jun 2025 15:10:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749653998; cv=none; b=q1H4iW+nOjlPVYUgKQE9FEbEmVCAd59MC0+L7mxDBI380cwIlHcDqdwwKKYzvJyd8IqwaeAmwDTCZn35O6U03bi/DVtXW27sp0MF8xt2tbx1ukBe619FBsPO+ZN72gy01J3XPTJQLpfyztflUWYoUxf1MojkvMOMr9J6GkDBOIQ=
+	t=1749654655; cv=none; b=OAMhhBAo1CnoPld8or9xMJd3LO3VUT8HEbqDX9LQtLrt7unLukbVm3aHQDERW/EE9VjVlNuccpzGofim18wCzISTQiN74EDLCZHMLKlkcKHOKOdxanxomeDgyvaZndA/eyJ+z9CdgxE4tc82lT+5mh9ra0JILPMVPme+XXCaFvo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749653998; c=relaxed/simple;
-	bh=h9qmosAz+vAYhkNwkZ+iy8d19OT9uqxy2kBvrYS9AEU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VOHVCyeKO32s+5dkP039H/hxt0q9iwxRHVSO6V6qPfk95nP6m/gaU7Or9AD7yvDbqbGWVis55rlXiSidNye/Ov0EBmF4WsrR+FiLkEqEBEHOKu1YGTCQG0pu2UVl7blRNwypU7vQ25KCrHww68uV5/y1/EBnyYBO4AB7Fa9Lahc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o/LA2e8C; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1749654655; c=relaxed/simple;
+	bh=J+Cb82L7O/BiPrcKvhRJcV6B/aNRdSmFiESgx/lMDDQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=p/bUvX1QWXE2s8JFwleB0yNd8yG4gHnjIcY7EOiymVd/vl8l1qCUcK6OCgj3X775EyU8tgeiRRKcn5m5ZdD4KJPdN/IMlszPdJUfJ5pyXZOtpXo1p6/MSr6O9Fq458opGIShNI+MyImNhjaRQrirSfISd4xHAa7OXYKFQAqGVuM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gUxILMLX; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o/LA2e8C"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9A33C4CEF4;
-	Wed, 11 Jun 2025 14:59:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749653998;
-	bh=h9qmosAz+vAYhkNwkZ+iy8d19OT9uqxy2kBvrYS9AEU=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=o/LA2e8Cwaa3ZHvgtF4q/Y1iLKt1oHY6JXY3JEYpgPPxwP6DjmxVGFyji37LB5MoU
-	 DrCFwDv6l/DuD/L791oIjZfk7kGNOdA6oBmcj7Cn9S5Uo0syPY7VlWHO7FdVGU6lGn
-	 J4CMbXQdU9aM42KzSyDCu15iRaLoMRR3iK+Las/JplbucjAATQ9qyQG8gkM+tCs7Ic
-	 y9DquVkz9XX0n1Ux9T1i/qEISYMinsXv27pz3qxIf1cnWkdRtNcwWLdbLv1bgIrru+
-	 rkX/hhT1wASyJaLGZnUndGql7hqUvCdjRi25HPq5o6oBZY8FR1QEjsV3x0t5WyI7WO
-	 D3TBif0b2b9EA==
-From: Jakub Kicinski <kuba@kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org,
-	edumazet@google.com,
-	pabeni@redhat.com,
-	andrew+netdev@lunn.ch,
-	horms@kernel.org,
-	ecree.xilinx@gmail.com,
-	Jakub Kicinski <kuba@kernel.org>,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev
-Subject: [PATCH net-next 8/9] net: drv: virtio: migrate to new RXFH callbacks
-Date: Wed, 11 Jun 2025 07:59:48 -0700
-Message-ID: <20250611145949.2674086-9-kuba@kernel.org>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250611145949.2674086-1-kuba@kernel.org>
-References: <20250611145949.2674086-1-kuba@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gUxILMLX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749654652;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lWkNewhRJ4wpEDm7PPC52E6cJKu2Um4iV+x8uvVQe/M=;
+	b=gUxILMLX+kN8XKOfs4UCUAC/gsPzyJVIhtFoqKhztfp9bTaWpvBcHsy6ZP6WdicN9KEWxG
+	M5q3683wbhES4NuiqWqRT8m6ktmplucYBDA5Ee65Rk/y/Dppzd9JBX4VXzZQXzlYtsT4Za
+	zpaOtYJ4DTdsg8S1Y5OHcHSIsLr0Uc0=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-94-zveqg8ABN8KQBI07Ze_SoA-1; Wed,
+ 11 Jun 2025 11:10:49 -0400
+X-MC-Unique: zveqg8ABN8KQBI07Ze_SoA-1
+X-Mimecast-MFC-AGG-ID: zveqg8ABN8KQBI07Ze_SoA_1749654647
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 69F09195604F;
+	Wed, 11 Jun 2025 15:10:46 +0000 (UTC)
+Received: from fedora (unknown [10.72.116.18])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4AFD11956087;
+	Wed, 11 Jun 2025 15:10:33 +0000 (UTC)
+Date: Wed, 11 Jun 2025 23:10:28 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
+Cc: stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+	Hagar Hemdan <hagarhem@amazon.com>, Shaoying Xu <shaoyi@amazon.com>,
+	Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+	Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-nvme@lists.infradead.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Revert "block: don't reorder requests in
+ blk_add_rq_to_plug"
+Message-ID: <aEmcZLGtQFWMDDXZ@fedora>
+References: <20250611121626.7252-1-abuehaze@amazon.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250611121626.7252-1-abuehaze@amazon.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-Add support for the new rxfh_fields callbacks, instead of de-muxing
-the rxnfc calls. This driver does not support flow filtering so
-the set_rxnfc callback is completely removed.
+On Wed, Jun 11, 2025 at 12:14:54PM +0000, Hazem Mohamed Abuelfotoh wrote:
+> This reverts commit e70c301faece15b618e54b613b1fd6ece3dd05b4.
+> 
+> Commit <e70c301faece> ("block: don't reorder requests in
+> blk_add_rq_to_plug") reversed how requests are stored in the blk_plug
+> list, this had significant impact on bio merging with requests exist on
+> the plug list. This impact has been reported in [1] and could easily be
+> reproducible using 4k randwrite fio benchmark on an NVME based SSD without
+> having any filesystem on the disk.
+> 
+> My benchmark is:
+> 
+>     fio --time_based --name=benchmark --size=50G --rw=randwrite \
+> 	--runtime=60 --filename="/dev/nvme1n1" --ioengine=psync \
+> 	--randrepeat=0 --iodepth=1 --fsync=64 --invalidate=1 \
+> 	--verify=0 --verify_fatal=0 --blocksize=4k --numjobs=4 \
+> 	--group_reporting
+> 
+> On 1.9TiB SSD(180K Max IOPS) attached to i3.16xlarge AWS EC2 instance.
+> 
+> Kernel        |  fio (B.W MiB/sec)  | I/O size (iostat)
+> --------------+---------------------+--------------------
+> 6.15.1        |   362               |  2KiB
+> 6.15.1+revert |   660 (+82%)        |  4KiB
+> --------------+---------------------+--------------------
 
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
-CC: mst@redhat.com
-CC: jasowang@redhat.com
-CC: xuanzhuo@linux.alibaba.com
-CC: eperezma@redhat.com
-CC: virtualization@lists.linux.dev
----
- drivers/net/virtio_net.c | 47 +++++++++++++++-------------------------
- 1 file changed, 18 insertions(+), 29 deletions(-)
+I just run one quick test in my test VM, but can't reproduce it.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e53ba600605a..07e41dce4203 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -4193,8 +4193,11 @@ static void virtnet_init_default_rss(struct virtnet_info *vi)
- 	netdev_rss_key_fill(vi->rss_hash_key_data, vi->rss_key_size);
- }
- 
--static void virtnet_get_hashflow(const struct virtnet_info *vi, struct ethtool_rxnfc *info)
-+static int virtnet_get_hashflow(struct net_device *dev,
-+				struct ethtool_rxfh_fields *info)
- {
-+	struct virtnet_info *vi = netdev_priv(dev);
-+
- 	info->data = 0;
- 	switch (info->flow_type) {
- 	case TCP_V4_FLOW:
-@@ -4243,17 +4246,22 @@ static void virtnet_get_hashflow(const struct virtnet_info *vi, struct ethtool_r
- 		info->data = 0;
- 		break;
- 	}
-+
-+	return 0;
- }
- 
--static bool virtnet_set_hashflow(struct virtnet_info *vi, struct ethtool_rxnfc *info)
-+static int virtnet_set_hashflow(struct net_device *dev,
-+				const struct ethtool_rxfh_fields *info,
-+				struct netlink_ext_ack *extack)
- {
-+	struct virtnet_info *vi = netdev_priv(dev);
- 	u32 new_hashtypes = vi->rss_hash_types_saved;
- 	bool is_disable = info->data & RXH_DISCARD;
- 	bool is_l4 = info->data == (RXH_IP_SRC | RXH_IP_DST | RXH_L4_B_0_1 | RXH_L4_B_2_3);
- 
- 	/* supports only 'sd', 'sdfn' and 'r' */
- 	if (!((info->data == (RXH_IP_SRC | RXH_IP_DST)) | is_l4 | is_disable))
--		return false;
-+		return -EINVAL;
- 
- 	switch (info->flow_type) {
- 	case TCP_V4_FLOW:
-@@ -4292,21 +4300,22 @@ static bool virtnet_set_hashflow(struct virtnet_info *vi, struct ethtool_rxnfc *
- 		break;
- 	default:
- 		/* unsupported flow */
--		return false;
-+		return -EINVAL;
- 	}
- 
- 	/* if unsupported hashtype was set */
- 	if (new_hashtypes != (new_hashtypes & vi->rss_hash_types_supported))
--		return false;
-+		return -EINVAL;
- 
- 	if (new_hashtypes != vi->rss_hash_types_saved) {
- 		vi->rss_hash_types_saved = new_hashtypes;
- 		vi->rss_hdr->hash_types = cpu_to_le32(vi->rss_hash_types_saved);
- 		if (vi->dev->features & NETIF_F_RXHASH)
--			return virtnet_commit_rss_command(vi);
-+			if (!virtnet_commit_rss_command(vi))
-+				return -EINVAL;
- 	}
- 
--	return true;
-+	return 0;
- }
- 
- static void virtnet_get_drvinfo(struct net_device *dev,
-@@ -5539,27 +5548,6 @@ static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info,
- 	switch (info->cmd) {
- 	case ETHTOOL_GRXRINGS:
- 		info->data = vi->curr_queue_pairs;
--		break;
--	case ETHTOOL_GRXFH:
--		virtnet_get_hashflow(vi, info);
--		break;
--	default:
--		rc = -EOPNOTSUPP;
--	}
--
--	return rc;
--}
--
--static int virtnet_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info)
--{
--	struct virtnet_info *vi = netdev_priv(dev);
--	int rc = 0;
--
--	switch (info->cmd) {
--	case ETHTOOL_SRXFH:
--		if (!virtnet_set_hashflow(vi, info))
--			rc = -EINVAL;
--
- 		break;
- 	default:
- 		rc = -EOPNOTSUPP;
-@@ -5591,8 +5579,9 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_rxfh_indir_size = virtnet_get_rxfh_indir_size,
- 	.get_rxfh = virtnet_get_rxfh,
- 	.set_rxfh = virtnet_set_rxfh,
-+	.get_rxfh_fields = virtnet_get_hashflow,
-+	.set_rxfh_fields = virtnet_set_hashflow,
- 	.get_rxnfc = virtnet_get_rxnfc,
--	.set_rxnfc = virtnet_set_rxnfc,
- };
- 
- static void virtnet_get_queue_stats_rx(struct net_device *dev, int i,
--- 
-2.49.0
+Also be curious, why does writeback produce so many 2KiB bios?
+
+
+Thanks,
+Ming
 
