@@ -1,136 +1,81 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3592BDC03;
-	Wed, 11 Jun 2025 19:57:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 311FC221F1C;
+	Wed, 11 Jun 2025 20:19:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749671850; cv=none; b=XxPOwVvUL6sWQS5Egbn6K44V7joCiKWytT15bgr/0MTd1ykLV6169dLr10lVfHgBQMa9+cQ/+pqHSNYaRVQ2XO8QOlPNa0TpYg9kHxoqghhhNDLija9RWYJsq98edWEQReIEgi5qDduCeGV2HUDpWOj7yl0vIuyXELhyWlPGRDo=
+	t=1749673199; cv=none; b=GSDsu1l0Pdb/lqPV+7UaCWljWgUs7JkS8VW9fe3ui6oldlrjySi+Py1QxNwH3VaKgYRDOiBrjdnfOYzjwNb0Mr9faICaWE6o+qKSadF7ro2nJirsHuQc0sRlXhH1UNs/CEqBggihD0TbQPMjlvSP2rOKopg9dngQT06SuOtHrv0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749671850; c=relaxed/simple;
-	bh=eeQeEYKaHhYr+Maa1kLsJ5dq174xCMqjaPKqjE8uStE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=a+M9CuqYrAs3iitF7wqGyVIl6q+spHKWdFp58QrfQ6sn2Hyhfxoe3qtg1fWxo7WSLGhBM6uUf1ccgW2D/z9jt9Wpu6HWKayT4xB9n6K+ShJX8AKY3Q8eMqw/L17vgLmMfJsfvp0nuaUSwSXZXlfI5f9BRoxXYAeLJI+24/cltCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=Ej6iqr6w; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1749673199; c=relaxed/simple;
+	bh=sVPJNnU4KUdgzcWkpA0/cHyEhadQYNuxyP1hdsqxzbs=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=LPhL8dZMW0Dps4GlpBwt5RcSeAD1pbG1kFgC+CtTJ9EEY2syVPfeq/fJNW2qW6SSuBYBH1mqTYzl+tDMNWcINPnpNy4rinJuWygaBVVAqQ3jf6RfuWgF4nGAn64BI862aPv41YRmvO5nPmBoT9lGtILYKPUfKSVXk0cBf00802A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NMuFaECk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="Ej6iqr6w"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1uPRZX-00BIDf-5o; Wed, 11 Jun 2025 21:57:19 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=a5J8eYpVuE7o2VJSMjWSJdlZvj2jMI+mcwHoJe+gsJc=; b=Ej6iqr6w0DXcnV/u6mIfzp/bYV
-	WAtWU9WTzRV3+x0wEEuW/bHoqyPLrIy5YEzS1OTkrpM+TPGPJE/nk4IbtUVM8VCmV2FDcEwAqYoag
-	JLmTkiUmpyuHABMnfz3U/1fn8LrFgVF4dzWtPaualNEIC99dCLuDFvyVC7sIEDPid1aygZGcCwUF2
-	9vISyA9lWzkfq73DElyNxY3TBReJ+eRjtdW18yx2gFeDDieeK53TPlQ3l6GAS2vmJW1kPeaxn12Ez
-	8JibnISN1VLXl0fmkzXmBoK50JlpOxZ392wOYndyWWfIMquoxuKHFrhBbl4+91QEZSZ3KEGszlIDi
-	BISpl6sw==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1uPRZW-0005E8-R3; Wed, 11 Jun 2025 21:57:19 +0200
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1uPRZH-00BycS-BQ; Wed, 11 Jun 2025 21:57:03 +0200
-From: Michal Luczaj <mhal@rbox.co>
-Date: Wed, 11 Jun 2025 21:56:50 +0200
-Subject: [PATCH net-next v3 1/3] vsock/test: Introduce vsock_bind_try()
- helper
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NMuFaECk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4E65C4CEE3;
+	Wed, 11 Jun 2025 20:19:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1749673198;
+	bh=sVPJNnU4KUdgzcWkpA0/cHyEhadQYNuxyP1hdsqxzbs=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=NMuFaECkTyG3OMTtDySYQDoyUlHeHX4Lv9neEBaGb8qPWbjmFrohhi8Jk+6BNreCZ
+	 khX8woBUHD0XJPDbue2fIJ+iRvCBUDjrt2N5ZWIb6bn6SbBPFPrA2EWnaekuIiL5gQ
+	 cj4RT8zzd1XstyzPT+p49sTfXzrtp5XL8MLc/LXyBXOe5XYXhORIjiEh2oVZFiRDuc
+	 vtt91AsI4NKvDQ5x3VSDiaSUR114rLsGmpTnRM/wuceV2e8B5w/3BNDFAUcLc60421
+	 v5+4pKkun/8ZpCrRBvSIGoJyKpl8ZsFj2cz0qhXvZAz+N3gWVf7KrDtOXCns4cKfWD
+	 rO5EsQZmvkBaQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAE4B380DBE9;
+	Wed, 11 Jun 2025 20:20:29 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250611-vsock-test-inc-cov-v3-1-5834060d9c20@rbox.co>
-References: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
-In-Reply-To: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.2
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v10] selftests/vsock: add initial vmtest.sh for
+ vsock
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <174967322875.3469458.13217210613857945716.git-patchwork-notify@kernel.org>
+Date: Wed, 11 Jun 2025 20:20:28 +0000
+References: <20250609-vsock-vmtest-v10-1-7f37198e1cd4@gmail.com>
+In-Reply-To: <20250609-vsock-vmtest-v10-1-7f37198e1cd4@gmail.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: sgarzare@redhat.com, stefanha@redhat.com, shuah@kernel.org,
+ kvm@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kselftest@vger.kernel.org
 
-Create a socket and bind() it. If binding failed, gracefully return an
-error code while preserving `errno`.
+Hello:
 
-Base vsock_bind() on top of it.
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
----
- tools/testing/vsock/util.c | 24 +++++++++++++++++++++---
- tools/testing/vsock/util.h |  1 +
- 2 files changed, 22 insertions(+), 3 deletions(-)
+On Mon, 09 Jun 2025 09:39:24 -0700 you wrote:
+> This commit introduces a new vmtest.sh runner for vsock.
+> 
+> It uses virtme-ng/qemu to run tests in a VM. The tests validate G2H,
+> H2G, and loopback. The testing tools from tools/testing/vsock/ are
+> reused. Currently, only vsock_test is used.
+> 
+> VMCI and hyperv support is included in the config file to be built with
+> the -b option, though not used in the tests.
+> 
+> [...]
 
-diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-index 0c7e9cbcbc85cde9c8764fc3bb623cde2f6c77a6..b7b3fb2221c1682ecde58cf12e2f0b0ded1cff39 100644
---- a/tools/testing/vsock/util.c
-+++ b/tools/testing/vsock/util.c
-@@ -121,15 +121,17 @@ bool vsock_wait_sent(int fd)
- 	return !ret;
- }
- 
--/* Create socket <type>, bind to <cid, port> and return the file descriptor. */
--int vsock_bind(unsigned int cid, unsigned int port, int type)
-+/* Create socket <type>, bind to <cid, port>.
-+ * Return the file descriptor, or -1 on error.
-+ */
-+int vsock_bind_try(unsigned int cid, unsigned int port, int type)
- {
- 	struct sockaddr_vm sa = {
- 		.svm_family = AF_VSOCK,
- 		.svm_cid = cid,
- 		.svm_port = port,
- 	};
--	int fd;
-+	int fd, saved_errno;
- 
- 	fd = socket(AF_VSOCK, type, 0);
- 	if (fd < 0) {
-@@ -138,6 +140,22 @@ int vsock_bind(unsigned int cid, unsigned int port, int type)
- 	}
- 
- 	if (bind(fd, (struct sockaddr *)&sa, sizeof(sa))) {
-+		saved_errno = errno;
-+		close(fd);
-+		errno = saved_errno;
-+		fd = -1;
-+	}
-+
-+	return fd;
-+}
-+
-+/* Create socket <type>, bind to <cid, port> and return the file descriptor. */
-+int vsock_bind(unsigned int cid, unsigned int port, int type)
-+{
-+	int fd;
-+
-+	fd = vsock_bind_try(cid, port, type);
-+	if (fd < 0) {
- 		perror("bind");
- 		exit(EXIT_FAILURE);
- 	}
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index 5e2db67072d5053804a9bb93934b625ea78bcd7a..0afe7cbae12e5194172c639ccfbeb8b81f7c25ac 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -44,6 +44,7 @@ int vsock_connect(unsigned int cid, unsigned int port, int type);
- int vsock_accept(unsigned int cid, unsigned int port,
- 		 struct sockaddr_vm *clientaddrp, int type);
- int vsock_stream_connect(unsigned int cid, unsigned int port);
-+int vsock_bind_try(unsigned int cid, unsigned int port, int type);
- int vsock_bind(unsigned int cid, unsigned int port, int type);
- int vsock_bind_connect(unsigned int cid, unsigned int port,
- 		       unsigned int bind_port, int type);
+Here is the summary with links:
+  - [net-next,v10] selftests/vsock: add initial vmtest.sh for vsock
+    https://git.kernel.org/netdev/net-next/c/a4a65c6fe08b
 
+You are awesome, thank you!
 -- 
-2.49.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
