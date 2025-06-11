@@ -1,415 +1,182 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48A8E2BB04
-	for <virtualization@lists.linux.dev>; Wed, 11 Jun 2025 14:53:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 304D02BEC25;
+	Wed, 11 Jun 2025 14:59:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749653603; cv=none; b=nkwFV0vw575OpY4VKXj9lD0DH2Wyz7WBte4WYo9fOy4Pde9f5elMVGO75x+ltdr7z0URsb2KQDXh4SOCE2iQK7ktqCkTlElYSEf9D4+YWYuR+Tk51tZUGMMdIwIzOK7nw1r+sMF+DHWTtIWxMYZ6oYfz7fHfsd+erWz+3fEddsA=
+	t=1749653998; cv=none; b=q1H4iW+nOjlPVYUgKQE9FEbEmVCAd59MC0+L7mxDBI380cwIlHcDqdwwKKYzvJyd8IqwaeAmwDTCZn35O6U03bi/DVtXW27sp0MF8xt2tbx1ukBe619FBsPO+ZN72gy01J3XPTJQLpfyztflUWYoUxf1MojkvMOMr9J6GkDBOIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749653603; c=relaxed/simple;
-	bh=z/i4/E5DOr+PEti0Bz8z+s8pDPkNo/Hyhatgsrlrrgw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=VMKLj+9fCgdZjln0hsEim+m7qh+Ng9uRBqFycSRV4RBuXT8JWqJVq7um3Xl9XL+RCCacoD4ksZHRGpjCq/UflAw70f8ZD/OkxlbZugdTOkitGtMEILJityv2ADRMMLVpz3vugQHsLGc7eEnM5Vp+NYr3QGxIdY3jlXG2qAZI+5M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f8Ai0Qyk; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1749653998; c=relaxed/simple;
+	bh=h9qmosAz+vAYhkNwkZ+iy8d19OT9uqxy2kBvrYS9AEU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=VOHVCyeKO32s+5dkP039H/hxt0q9iwxRHVSO6V6qPfk95nP6m/gaU7Or9AD7yvDbqbGWVis55rlXiSidNye/Ov0EBmF4WsrR+FiLkEqEBEHOKu1YGTCQG0pu2UVl7blRNwypU7vQ25KCrHww68uV5/y1/EBnyYBO4AB7Fa9Lahc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o/LA2e8C; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f8Ai0Qyk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749653600;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lf9xzKCZ2Qn0juoDOpkczXBo7DHMysvOR4TsAgqr+cg=;
-	b=f8Ai0Qyk2iOmYu+7qOYHO0KPgjlCF0IHoaHTX0IygHubQCwi9TOZ3xGK9bh6JsGVK7jvKD
-	wMcZYqVs4f4Mfa9Wg95tvI7wDmQdpPal5zUzwzLR+cD72NdbLhgpg4CV1UaEqwNxdz4D1z
-	VEsFwPUgpmiFjKscMoqJkHSp7NitHec=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-441-J2d4sKAVMKiUGYApT1AkpA-1; Wed, 11 Jun 2025 10:53:18 -0400
-X-MC-Unique: J2d4sKAVMKiUGYApT1AkpA-1
-X-Mimecast-MFC-AGG-ID: J2d4sKAVMKiUGYApT1AkpA_1749653598
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-7c7c30d8986so2110834985a.2
-        for <virtualization@lists.linux.dev>; Wed, 11 Jun 2025 07:53:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749653598; x=1750258398;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lf9xzKCZ2Qn0juoDOpkczXBo7DHMysvOR4TsAgqr+cg=;
-        b=Fl/1wDDo3RtN1H732+3OxUMYnVpeoeTOoPSiQ8Nl9TRWz1cBD81Qoe5XHwiAJUmjK+
-         FRejlENH4syXK4xYWvyp8/qMslvcMYAsQt/ozHnXDoQ+ThxZKg4xyAZQAoJ3qhvOcxoC
-         XzKVwHmeOKwnetUbg/8KQSjMHRv9Go3vjbmTV54wembrRREcPdBMo4HjBrfgIY9B+fo7
-         /15QFDBwdUUr0TpfTnnAmojfTydLHGB4ykf+K313n+WD6RWosvFO8T1eOLb7zvqxOfM2
-         a3zrzU4RqIoFZDQup74EFXXKN6ymcCeljagMape9LiBO9cXZfT2S4K+svPCbbphxt1Rx
-         k4gA==
-X-Forwarded-Encrypted: i=1; AJvYcCWKW0j3qmu9f2mKED38dbM9UrveK8VpO2bW4tXaTbbS88/s1mHRKMh84ld+asLc8pz62msZ+qWHEDyQ3T0YoA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxI+gdzoDMgpJvJRzdZZtbmaNkzVd1ssoXq2w23EUcRJ0vPkg2w
-	+4KmO6S3FS5mUth/wXvaXrfAKkCNpOOG0ttdsMtnCxvHXen7J7TdycnTdczZk4LqohS7HwYdbMR
-	56rnOjZR3ZGjVB4MNdusFkRCmF9B8CGnj7CThqzKa1r/IYyADrwe4IPMcADAUEx3JutGp
-X-Gm-Gg: ASbGncuxfqj3ey+e3MXjbg+yqc+lST59PkpV9+A6rAk0DD4PkODe6oiue5ABNAnYYCy
-	uy/tfVnFiMfNEuTmuhOnR18FT4Ing5kCGJEOc8AcOvAiaRZdtMBGFs4vyT218vKLeaKU08NrXjT
-	Y2XamRjruy2XBejR//stf6FHPal+vluiUxiJ5tChCgwiNCz0yQGmlbyub7F/AV8qALw6vx27krE
-	cofjY7/TrhlQjeuTmrAboJHQYDi0n1X2LgsYbzY3nS+moatVy0EqPbVTmdUAK+inHrXrdR4Jwwv
-	hIQlOSwXB2CUei3hJBOzVJPMQal5
-X-Received: by 2002:a05:620a:2984:b0:7ce:f3fd:cc69 with SMTP id af79cd13be357-7d3a9576ab1mr425909785a.19.1749653597748;
-        Wed, 11 Jun 2025 07:53:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHVvQXdBxvFGgQ4UAlmckh17KS2srASaNg+jQYfvx4Ww+gN7/Vyvgw8J9f72/KtbRIhgog87Q==
-X-Received: by 2002:a05:620a:2984:b0:7ce:f3fd:cc69 with SMTP id af79cd13be357-7d3a9576ab1mr425903885a.19.1749653597022;
-        Wed, 11 Jun 2025 07:53:17 -0700 (PDT)
-Received: from sgarzare-redhat ([193.207.148.235])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d25a61d725sm863276885a.88.2025.06.11.07.53.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Jun 2025 07:53:16 -0700 (PDT)
-Date: Wed, 11 Jun 2025 16:53:11 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Luigi Leonardi <leonardi@redhat.com>
-Cc: Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Hyunwoo Kim <v4bel@theori.io>
-Subject: Re: [PATCH net-next v3] vsock/test: Add test for null ptr deref when
- transport changes
-Message-ID: <zpc6pbabs5m5snrsfubtl3wp4eb64w4qwqosywp7tsmrfnba3j@ybkgg2cnhqec>
-References: <20250611-test_vsock-v3-1-8414a2d4df62@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o/LA2e8C"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9A33C4CEF4;
+	Wed, 11 Jun 2025 14:59:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1749653998;
+	bh=h9qmosAz+vAYhkNwkZ+iy8d19OT9uqxy2kBvrYS9AEU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=o/LA2e8Cwaa3ZHvgtF4q/Y1iLKt1oHY6JXY3JEYpgPPxwP6DjmxVGFyji37LB5MoU
+	 DrCFwDv6l/DuD/L791oIjZfk7kGNOdA6oBmcj7Cn9S5Uo0syPY7VlWHO7FdVGU6lGn
+	 J4CMbXQdU9aM42KzSyDCu15iRaLoMRR3iK+Las/JplbucjAATQ9qyQG8gkM+tCs7Ic
+	 y9DquVkz9XX0n1Ux9T1i/qEISYMinsXv27pz3qxIf1cnWkdRtNcwWLdbLv1bgIrru+
+	 rkX/hhT1wASyJaLGZnUndGql7hqUvCdjRi25HPq5o6oBZY8FR1QEjsV3x0t5WyI7WO
+	 D3TBif0b2b9EA==
+From: Jakub Kicinski <kuba@kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	andrew+netdev@lunn.ch,
+	horms@kernel.org,
+	ecree.xilinx@gmail.com,
+	Jakub Kicinski <kuba@kernel.org>,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	virtualization@lists.linux.dev
+Subject: [PATCH net-next 8/9] net: drv: virtio: migrate to new RXFH callbacks
+Date: Wed, 11 Jun 2025 07:59:48 -0700
+Message-ID: <20250611145949.2674086-9-kuba@kernel.org>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250611145949.2674086-1-kuba@kernel.org>
+References: <20250611145949.2674086-1-kuba@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250611-test_vsock-v3-1-8414a2d4df62@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: f2BXKye5BNrbtdfAdVpmjQ_s8ftaVi2L33fRI7ZivRo_1749653598
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 11, 2025 at 04:07:25PM +0200, Luigi Leonardi wrote:
->Add a new test to ensure that when the transport changes a null pointer
->dereference does not occur. The bug was reported upstream [1] and fixed
->with commit 2cb7c756f605 ("vsock/virtio: discard packets if the
->transport changes").
->
->KASAN: null-ptr-deref in range [0x0000000000000060-0x0000000000000067]
->CPU: 2 UID: 0 PID: 463 Comm: kworker/2:3 Not tainted
->Workqueue: vsock-loopback vsock_loopback_work
->RIP: 0010:vsock_stream_has_data+0x44/0x70
->Call Trace:
-> virtio_transport_do_close+0x68/0x1a0
-> virtio_transport_recv_pkt+0x1045/0x2ae4
-> vsock_loopback_work+0x27d/0x3f0
-> process_one_work+0x846/0x1420
-> worker_thread+0x5b3/0xf80
-> kthread+0x35a/0x700
-> ret_from_fork+0x2d/0x70
-> ret_from_fork_asm+0x1a/0x30
->
->Note that this test may not fail in a kernel without the fix, but it may
->hang on the client side if it triggers a kernel oops.
->
->This works by creating a socket, trying to connect to a server, and then
->executing a second connect operation on the same socket but to a
->different CID (0). This triggers a transport change. If the connect
->operation is interrupted by a signal, this could cause a null-ptr-deref.
->
->Since this bug is non-deterministic, we need to try several times. It
->is reasonable to assume that the bug will show up within the timeout
->period.
->
->If there is a G2H transport loaded in the system, the bug is not
->triggered and this test will always pass.
+Add support for the new rxfh_fields callbacks, instead of de-muxing
+the rxnfc calls. This driver does not support flow filtering so
+the set_rxnfc callback is completely removed.
 
-Should we re-use what Michal is doing in 
-https://lore.kernel.org/virtualization/20250528-vsock-test-inc-cov-v2-0-8f655b40d57c@rbox.co/
-to print a warning?
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+CC: mst@redhat.com
+CC: jasowang@redhat.com
+CC: xuanzhuo@linux.alibaba.com
+CC: eperezma@redhat.com
+CC: virtualization@lists.linux.dev
+---
+ drivers/net/virtio_net.c | 47 +++++++++++++++-------------------------
+ 1 file changed, 18 insertions(+), 29 deletions(-)
 
->
->[1]https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
->
->Suggested-by: Hyunwoo Kim <v4bel@theori.io>
->Suggested-by: Michal Luczaj <mhal@rbox.co>
->Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
->---
->This series introduces a new test that checks for a null pointer
->dereference that may happen when there is a transport change[1]. This
->bug was fixed in [2].
->
->Note that this test *cannot* fail, it hangs if it triggers a kernel
->oops. The intended use-case is to run it and then check if there is any
->oops in the dmesg.
->
->This test is based on Hyunwoo Kim's[3] and Michal's python
->reproducers[4].
->
->[1]https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
->[2]https://lore.kernel.org/netdev/20250110083511.30419-1-sgarzare@redhat.com/
->[3]https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/#t
->[4]https://lore.kernel.org/netdev/2b3062e3-bdaa-4c94-a3c0-2930595b9670@rbox.co/
->---
->Sorry, this took waaay longer than expected.
->
->Changes in v3:
->Addressed Stefano's and Michal's comments:
->    - Added the splat text to the commit commessage.
->    - Introduced commit hash that fixes the bug.
->    - Not using perror anymore on pthread_* functions.
->    - Listener is just created once.
->
->- Link to v2:
->https://lore.kernel.org/r/20250314-test_vsock-v2-1-3c0a1d878a6d@redhat.com
->
->Changes in v2:
->- Addressed Stefano's comments:
->    - Timeout is now using current_nsec()
->    - Check for return values
->    - Style issues
->- Added Hyunwoo Kim to Suggested-by
->- Link to v1: https://lore.kernel.org/r/20250306-test_vsock-v1-0-0320b5accf92@redhat.com
->---
-> tools/testing/vsock/Makefile     |   1 +
-> tools/testing/vsock/vsock_test.c | 169 +++++++++++++++++++++++++++++++++++++++
-> 2 files changed, 170 insertions(+)
->
->diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
->index 6e0b4e95e230500f99bb9c74350701a037ecd198..88211fd132d23ecdfd56ab0815580a237889e7f2 100644
->--- a/tools/testing/vsock/Makefile
->+++ b/tools/testing/vsock/Makefile
->@@ -5,6 +5,7 @@ vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o util.o msg_ze
-> vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
-> vsock_perf: vsock_perf.o msg_zerocopy_common.o
->
->+vsock_test: LDLIBS = -lpthread
-> vsock_uring_test: LDLIBS = -luring
-> vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o msg_zerocopy_common.o
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index f669baaa0dca3bebc678d00eafa80857d1f0fdd6..1aed483e7e622d3623be07fcd7fe4295fcfce230 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -22,6 +22,8 @@
-> #include <signal.h>
-> #include <sys/ioctl.h>
-> #include <linux/time64.h>
->+#include <pthread.h>
->+#include <fcntl.h>
->
-> #include "vsock_test_zerocopy.h"
-> #include "timeout.h"
->@@ -1811,6 +1813,168 @@ static void test_stream_connect_retry_server(const struct test_opts *opts)
-> 	close(fd);
-> }
->
->+#define TRANSPORT_CHANGE_TIMEOUT 2 /* seconds */
->+
->+static void *test_stream_transport_change_thread(void *vargp)
->+{
->+	pid_t *pid = (pid_t *)vargp;
->+	int ret;
->+
->+	/* We want this thread to terminate as soon as possible */
->+	ret = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
->+	if (ret) {
->+		fprintf(stderr, "pthread_setcanceltype: %d\n", ret);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	while (true) {
->+		if (kill(*pid, SIGUSR1) < 0) {
->+			perror("kill");
->+			exit(EXIT_FAILURE);
->+		}
->+	}
->+	return NULL;
->+}
->+
->+static void test_transport_change_signal_handler(int signal)
->+{
->+	/* We need a custom handler for SIGUSR1 as the default one terminates the process. */
->+}
->+
->+static void test_stream_transport_change_client(const struct test_opts *opts)
->+{
->+	__sighandler_t old_handler;
->+	pid_t pid = getpid();
->+	pthread_t thread_id;
->+	time_t tout;
->+	int ret;
->+
->+	old_handler = signal(SIGUSR1, test_transport_change_signal_handler);
->+	if (old_handler == SIG_ERR) {
->+		perror("signal");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	ret = pthread_create(&thread_id, NULL, test_stream_transport_change_thread, &pid);
->+	if (ret) {
->+		fprintf(stderr, "pthread_create: %d\n", ret);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	control_expectln("LISTENING");
->+
->+	tout = current_nsec() + TRANSPORT_CHANGE_TIMEOUT * NSEC_PER_SEC;
->+	do {
->+		struct sockaddr_vm sa = {
->+			.svm_family = AF_VSOCK,
->+			.svm_cid = opts->peer_cid,
->+			.svm_port = opts->peer_port,
->+		};
->+		int s;
->+
->+		s = socket(AF_VSOCK, SOCK_STREAM, 0);
->+		if (s < 0) {
->+			perror("socket");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
->+		/* The connect can fail due to signals coming from the thread.
->+		 * or because the receiver connection queue is full.
->+		 * Ignoring also the latter case because there is no way
->+		 * of synchronizing client's connect and server's accept when
->+		 * connect(s) are constantly being interrupted by signals.
->+		 */
->+		if (ret == -1 && (errno != EINTR && errno != ECONNRESET)) {
->+			perror("connect");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		/* Set CID to 0 cause a transport change. */
->+		sa.svm_cid = 0;
->+		/* This connect must fail. No-one listening on CID 0
->+		 * This connect can also be interrupted, ignore this error.
->+		 */
->+		ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
->+		if (ret != -1 && errno != EINTR) {
-
-Should this condition be `ret != -1 || errno != EINTR` ?
-
-
->+			fprintf(stderr,
->+				"connect: expected a failure because of unused CID: %d\n", errno);
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		close(s);
->+
->+		control_writeulong(CONTROL_CONTINUE);
->+
->+	} while (current_nsec() < tout);
->+
->+	control_writeulong(CONTROL_DONE);
->+
->+	ret = pthread_cancel(thread_id);
->+	if (ret) {
->+		fprintf(stderr, "pthread_cancel: %d\n", ret);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	/* Wait for the thread to terminate */
->+	ret = pthread_join(thread_id, NULL);
->+	if (ret) {
->+		fprintf(stderr, "pthread_join: %d\n", ret);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	/* Restore the old handler */
->+	if (signal(SIGUSR1, old_handler) == SIG_ERR) {
->+		perror("signal");
->+		exit(EXIT_FAILURE);
->+	}
->+}
->+
->+static void test_stream_transport_change_server(const struct test_opts *opts)
->+{
->+	int ret, s;
->+
->+	s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
->+
->+	/* Set the socket to be nonblocking because connects that have been interrupted
->+	 * (EINTR) can fill the receiver's accept queue anyway, leading to connect failure.
->+	 * As of today (6.15) in such situation there is no way to understand, from the
->+	 * client side, if the connection has been queued in the server or not.
->+	 */
->+	ret = fcntl(s, F_SETFL, fcntl(s, F_GETFL, 0) | O_NONBLOCK);
->+	if (ret < 0) {
-
-nit: If you need to resend, I'd remove `ret` and check fcntl directly:
-	if (fcntl(...) < 0) {
-
->+		perror("fcntl");
->+		exit(EXIT_FAILURE);
->+	}
->+	control_writeln("LISTENING");
->+
->+	while (control_readulong() == CONTROL_CONTINUE) {
->+		struct sockaddr_vm sa_client;
->+		socklen_t socklen_client = sizeof(sa_client);
->+
->+		/* Must accept the connection, otherwise the `listen`
->+		 * queue will fill up and new connections will fail.
->+		 * There can be more than one queued connection,
->+		 * clear them all.
->+		 */
->+		while (true) {
->+			int client = accept(s, (struct sockaddr *)&sa_client, &socklen_client);
->+
->+			if (client < 0 && errno != EAGAIN) {
->+				perror("accept");
->+				exit(EXIT_FAILURE);
->+			} else if (client > 0) {
-
-0 in theory is a valid fd, so here we should check `client >= 0`.
-
->+				close(client);
->+			}
->+
->+			if (errno == EAGAIN)
->+				break;
-
-I think you can refactor in this way:
-			if (client < 0) {
-				if (errno == EAGAIN)
-					break;
-
-				perror("accept");
-				exit(EXIT_FAILURE);
-			}
-
-			close(client);
-
-Thanks,
-Stefano
-
->+		}
->+	}
->+
->+	close(s);
->+}
->+
-> static void test_stream_linger_client(const struct test_opts *opts)
-> {
-> 	int fd;
->@@ -2051,6 +2215,11 @@ static struct test_case test_cases[] = {
-> 		.run_client = test_stream_nolinger_client,
-> 		.run_server = test_stream_nolinger_server,
-> 	},
->+	{
->+		.name = "SOCK_STREAM transport change null-ptr-deref",
->+		.run_client = test_stream_transport_change_client,
->+		.run_server = test_stream_transport_change_server,
->+	},
-> 	{},
-> };
->
->
->---
->base-commit: 5abc7438f1e9d62e91ad775cc83c9594c48d2282
->change-id: 20250306-test_vsock-3e77a9c7a245
->
->Best regards,
->-- 
->Luigi Leonardi <leonardi@redhat.com>
->
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e53ba600605a..07e41dce4203 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -4193,8 +4193,11 @@ static void virtnet_init_default_rss(struct virtnet_info *vi)
+ 	netdev_rss_key_fill(vi->rss_hash_key_data, vi->rss_key_size);
+ }
+ 
+-static void virtnet_get_hashflow(const struct virtnet_info *vi, struct ethtool_rxnfc *info)
++static int virtnet_get_hashflow(struct net_device *dev,
++				struct ethtool_rxfh_fields *info)
+ {
++	struct virtnet_info *vi = netdev_priv(dev);
++
+ 	info->data = 0;
+ 	switch (info->flow_type) {
+ 	case TCP_V4_FLOW:
+@@ -4243,17 +4246,22 @@ static void virtnet_get_hashflow(const struct virtnet_info *vi, struct ethtool_r
+ 		info->data = 0;
+ 		break;
+ 	}
++
++	return 0;
+ }
+ 
+-static bool virtnet_set_hashflow(struct virtnet_info *vi, struct ethtool_rxnfc *info)
++static int virtnet_set_hashflow(struct net_device *dev,
++				const struct ethtool_rxfh_fields *info,
++				struct netlink_ext_ack *extack)
+ {
++	struct virtnet_info *vi = netdev_priv(dev);
+ 	u32 new_hashtypes = vi->rss_hash_types_saved;
+ 	bool is_disable = info->data & RXH_DISCARD;
+ 	bool is_l4 = info->data == (RXH_IP_SRC | RXH_IP_DST | RXH_L4_B_0_1 | RXH_L4_B_2_3);
+ 
+ 	/* supports only 'sd', 'sdfn' and 'r' */
+ 	if (!((info->data == (RXH_IP_SRC | RXH_IP_DST)) | is_l4 | is_disable))
+-		return false;
++		return -EINVAL;
+ 
+ 	switch (info->flow_type) {
+ 	case TCP_V4_FLOW:
+@@ -4292,21 +4300,22 @@ static bool virtnet_set_hashflow(struct virtnet_info *vi, struct ethtool_rxnfc *
+ 		break;
+ 	default:
+ 		/* unsupported flow */
+-		return false;
++		return -EINVAL;
+ 	}
+ 
+ 	/* if unsupported hashtype was set */
+ 	if (new_hashtypes != (new_hashtypes & vi->rss_hash_types_supported))
+-		return false;
++		return -EINVAL;
+ 
+ 	if (new_hashtypes != vi->rss_hash_types_saved) {
+ 		vi->rss_hash_types_saved = new_hashtypes;
+ 		vi->rss_hdr->hash_types = cpu_to_le32(vi->rss_hash_types_saved);
+ 		if (vi->dev->features & NETIF_F_RXHASH)
+-			return virtnet_commit_rss_command(vi);
++			if (!virtnet_commit_rss_command(vi))
++				return -EINVAL;
+ 	}
+ 
+-	return true;
++	return 0;
+ }
+ 
+ static void virtnet_get_drvinfo(struct net_device *dev,
+@@ -5539,27 +5548,6 @@ static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info,
+ 	switch (info->cmd) {
+ 	case ETHTOOL_GRXRINGS:
+ 		info->data = vi->curr_queue_pairs;
+-		break;
+-	case ETHTOOL_GRXFH:
+-		virtnet_get_hashflow(vi, info);
+-		break;
+-	default:
+-		rc = -EOPNOTSUPP;
+-	}
+-
+-	return rc;
+-}
+-
+-static int virtnet_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info)
+-{
+-	struct virtnet_info *vi = netdev_priv(dev);
+-	int rc = 0;
+-
+-	switch (info->cmd) {
+-	case ETHTOOL_SRXFH:
+-		if (!virtnet_set_hashflow(vi, info))
+-			rc = -EINVAL;
+-
+ 		break;
+ 	default:
+ 		rc = -EOPNOTSUPP;
+@@ -5591,8 +5579,9 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ 	.get_rxfh_indir_size = virtnet_get_rxfh_indir_size,
+ 	.get_rxfh = virtnet_get_rxfh,
+ 	.set_rxfh = virtnet_set_rxfh,
++	.get_rxfh_fields = virtnet_get_hashflow,
++	.set_rxfh_fields = virtnet_set_hashflow,
+ 	.get_rxnfc = virtnet_get_rxnfc,
+-	.set_rxnfc = virtnet_set_rxnfc,
+ };
+ 
+ static void virtnet_get_queue_stats_rx(struct net_device *dev, int i,
+-- 
+2.49.0
 
