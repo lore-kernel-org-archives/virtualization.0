@@ -1,46 +1,44 @@
 Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE3BC1DE4CD
-	for <virtualization@lists.linux.dev>; Wed, 11 Jun 2025 20:27:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 668E1210F44;
+	Wed, 11 Jun 2025 20:27:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749673647; cv=none; b=JyYxsCXKYutxqdJfOYx42LgbeOVzHUGsBj3Ka8uI8AtaoEp/n2CN8kb7S/hCY6nadYJxLd4qhvq3K13M6PUnyed3sQ/f97YIoUY5TA7DVB2eslKhJWqX7YYkrrMUm2SRx16exet41fX3JIBkoScdvhC7yiW53Lm4foAwzK8t1nY=
+	t=1749673666; cv=none; b=VdhLCjlGZ96kY7r2BYjodCjAJp/Y5edAQPrMbJ1YUVa+1XzAoYm5qRhcCFfBWR+fqGIvrJmGR1kDELlAU/3TZ3ADhj/m7p3VbJlFU3yzuyypI3QrHkxLjQWEV0Cykan0jwSeCfXq5fmiJXgtXpwjg4aPIXarJudMaVGf5ftGdOc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749673647; c=relaxed/simple;
-	bh=l+3eGtGFJPPGFfFCjxhEmKxENxAOs/hijlNpTuHUvQ8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=kxlfvp0BLtl1BKp3QGK3ElRZ3LHR4E2R5XA4+w0bwLKAL72lLr1Q3j6aV9akK0uEHYf40U2r8l7U1BxQBAF2AQllAC3fX86h65IB9O0QvDAs7yNWd7HcjBRw6WjHLcPDmZCLeGZPWAQdBdC8WJpNwF8UNFqcDDhR6jgF/JQdh2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=0vdyDy4w; arc=none smtp.client-ip=185.226.149.38
+	s=arc-20240116; t=1749673666; c=relaxed/simple;
+	bh=MU8Zi+pntPYytdt49KNwDwq4ACCf3lHI4qQsBgK7E6g=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=qd8o+onRBPh6GAu8RFql6jbvYWcKiU/BafGOJcF9bR1JR32k+K0cuUrx0pjz62cRaO+0PipPyattUWvFxS7kiP124eIg6444SRo+GLVhKjMx2bPsDxgo+Za8PObujsz9xIJ1uvjqxUkDsUuQ6xWasUa2A4eUdV+sfFIv2QgYJZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=KTGAP0oJ; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="0vdyDy4w"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="KTGAP0oJ"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
 	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1uPRZZ-00BKm2-4D
-	for virtualization@lists.linux.dev; Wed, 11 Jun 2025 21:57:21 +0200
+	id 1uPRZW-00BKls-1R; Wed, 11 Jun 2025 21:57:18 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=g3P/b2xpkd5Ju2ZEi9PD/MpzldHWyAMly/rPPt2zMp4=; b=0vdyDy4w5DEKVG4vQ/baGS47cS
-	St3J+CbDkgG9+KuUpsqMHAiOIIsofDG+d1F4xW9EJXAcX/EgIZI55kbLU+jVWCNMxXOrR/JIEubnY
-	75ipr07E23f8+d9qn5bBKjBLH3qjsEOj46h8abjZdGVloRSY8dCnyky1RL8F3a1hfz5iXAPqkbpSf
-	lAkw1vd/v1QAjRJBDOvR+ZD/yxSKJ3wjzjn+2MeL7ZQcK7J0JET1taicdFl9arVnQ5hHTcqhw/kq1
-	ej4d2tXfyD99id4VJyVF0smc59cihC2Sm1LH+Fg/VE8s/jpfIwrmeXlIS78Q+ibAyOrpbHRVC9HfS
-	3yxlyouQ==;
+	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From; bh=d1QaSFHfEh3cM2Uv7I3zUqxXFc1eWwgg2qbFxn/xMxc=
+	; b=KTGAP0oJ7ZLO4T+XONPBBuZ8nO5acq803LvkagTvlFsHLizXcHUUNHkwSl4x+PGiPriobqTJk
+	u7/5LM2t7Zl5CEIFaelft39YuLdSwumZCY01r/tWC+BAHHYS+URDpJtzj/HtTIDwyFW7WPlV4DuCw
+	tPOvDs0TGlQfuKlKAT0WeYMGAJr20p7ETXT+X9AM8seNzlgFswC2upqvafnuOMRUD5MVjvDRQSQXC
+	XwEGj38a2lelMCjiMdrAjvju58mc60qkIdxrWcwwSgCHHsjmurFyx8trG98niAVYf4B1o9oO7ViPV
+	+mDGsjgI2VFjP7GN0mqQDw0b8KAAtHdJX4d1AA==;
 Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1uPRZY-0004Bc-PC; Wed, 11 Jun 2025 21:57:20 +0200
+	id 1uPRZV-0005DR-G9; Wed, 11 Jun 2025 21:57:17 +0200
 Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1uPRZH-00BycS-Lv; Wed, 11 Jun 2025 21:57:03 +0200
+	id 1uPRZH-00BycS-19; Wed, 11 Jun 2025 21:57:03 +0200
 From: Michal Luczaj <mhal@rbox.co>
-Date: Wed, 11 Jun 2025 21:56:51 +0200
-Subject: [PATCH net-next v3 2/3] vsock/test: Introduce get_transports()
+Subject: [PATCH net-next v3 0/3] vsock/test: Improve transport_uaf test
+Date: Wed, 11 Jun 2025 21:56:49 +0200
+Message-Id: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,190 +47,53 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250611-vsock-test-inc-cov-v3-2-5834060d9c20@rbox.co>
-References: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
-In-Reply-To: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
+X-B4-Tracking: v=1; b=H4sIAIHfSWgC/23NTQ7CIBQE4Ks0rH0GHqVFV97DuCg/tcQEDBBS0
+ /TuEja66HIymW82kmx0NpFrt5Foi0su+Br4qSN6mfzTgjM1E6QoKMcBSgr6BdmmDM5r0KGAksg
+ lojJqlKQO39HObm3onXibwds1k0dtFpdyiJ/2VljrGyyQH8GFAYN54oKOl54pZW5RhfWsQ8MK/
+ gPyEECgIOdBCNVTI0b9A/Z9/wLGVSFF/QAAAA==
+X-Change-ID: 20250326-vsock-test-inc-cov-b823822bdb78
 To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.2
 
-Return a bitmap of registered vsock transports. As guesstimated by grepping
-/proc/kallsyms (CONFIG_KALLSYMS=y) for known symbols of type `struct
-vsock_transport`, or `struct virtio_transport` in case the vsock_transport
-is embedded within.
+Increase the coverage of a test implemented in commit 301a62dfb0d0
+("vsock/test: Add test for UAF due to socket unbinding"). Take this
+opportunity to factor out some utility code, drop a redundant sync between
+client and server, and introduce a /proc/kallsyms harvesting logic for
+auto-detecting registered vsock transports.
 
-Note that the way `enum transport` and `transport_ksyms[]` are defined
-triggers checkpatch.pl:
-
-util.h:11: ERROR: Macros with complex values should be enclosed in parentheses
-util.h:20: ERROR: Macros with complex values should be enclosed in parentheses
-util.h:20: WARNING: Argument 'symbol' is not used in function-like macro
-util.h:28: WARNING: Argument 'name' is not used in function-like macro
-
-While commit 15d4734c7a58 ("checkpatch: qualify do-while-0 advice")
-suggests it is known that the ERRORs heuristics are insufficient, I can not
-find many other places where preprocessor is used in this
-checkpatch-unhappy fashion. Notable exception being bcachefs, e.g.
-fs/bcachefs/alloc_background_format.h. WARNINGs regarding unused macro
-arguments seem more common, e.g. __ASM_SEL in arch/x86/include/asm/asm.h.
-
-In other words, this might be unnecessarily complex. The same can be
-achieved by just telling human to keep the order:
-
-enum transport {
-	TRANSPORT_LOOPBACK = BIT(0),
-	TRANSPORT_VIRTIO = BIT(1),
-	TRANSPORT_VHOST = BIT(2),
-	TRANSPORT_VMCI = BIT(3),
-	TRANSPORT_HYPERV = BIT(4),
-	TRANSPORT_NUM = 5,
-};
-
- #define KSYM_ENTRY(sym) "d " sym "_transport"
-
-/* Keep `enum transport` order */
-static const char * const transport_ksyms[] = {
-	KSYM_ENTRY("loopback"),
-	KSYM_ENTRY("virtio"),
-	KSYM_ENTRY("vhost"),
-	KSYM_ENTRY("vmci"),
-	KSYM_ENTRY("vhs"),
-};
-
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- tools/testing/vsock/util.c | 56 ++++++++++++++++++++++++++++++++++++++++++++++
- tools/testing/vsock/util.h | 29 ++++++++++++++++++++++++
- 2 files changed, 85 insertions(+)
+Changes in v3:
+- Drop "RFC" prefix, rebase, amend commit logs
+- get_transports(): don't look for a symbol that was already found
+- Expand testcase comments, clean up the code [Stefano]
+- Streamline `enum transport` and `transport_ksyms` [Stefano]
+- Move KALLSYMS_* defines from utils.h to utils.c [Stefano]
+- Link to v2: https://lore.kernel.org/r/20250528-vsock-test-inc-cov-v2-0-8f655b40d57c@rbox.co
 
-diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-index b7b3fb2221c1682ecde58cf12e2f0b0ded1cff39..803f1e075b62228c25f9dffa1eff131b8072a06a 100644
---- a/tools/testing/vsock/util.c
-+++ b/tools/testing/vsock/util.c
-@@ -7,6 +7,7 @@
-  * Author: Stefan Hajnoczi <stefanha@redhat.com>
-  */
- 
-+#include <ctype.h>
- #include <errno.h>
- #include <stdio.h>
- #include <stdint.h>
-@@ -23,6 +24,9 @@
- #include "control.h"
- #include "util.h"
- 
-+#define KALLSYMS_PATH		"/proc/kallsyms"
-+#define KALLSYMS_LINE_LEN	512
-+
- /* Install signal handlers */
- void init_signals(void)
- {
-@@ -854,3 +858,55 @@ void enable_so_linger(int fd, int timeout)
- 		exit(EXIT_FAILURE);
- 	}
- }
-+
-+static int __get_transports(void)
-+{
-+	char buf[KALLSYMS_LINE_LEN];
-+	const char *ksym;
-+	int ret = 0;
-+	FILE *f;
-+
-+	f = fopen(KALLSYMS_PATH, "r");
-+	if (!f) {
-+		perror("Can't open " KALLSYMS_PATH);
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	while (fgets(buf, sizeof(buf), f)) {
-+		char *match;
-+		int i;
-+
-+		assert(buf[strlen(buf) - 1] == '\n');
-+
-+		for (i = 0; i < TRANSPORT_NUM; ++i) {
-+			if (ret & BIT(i))
-+				continue;
-+
-+			/* Match should be followed by '\t' or '\n'.
-+			 * See kallsyms.c:s_show().
-+			 */
-+			ksym = transport_ksyms[i];
-+			match = strstr(buf, ksym);
-+			if (match && isspace(match[strlen(ksym)])) {
-+				ret |= BIT(i);
-+				break;
-+			}
-+		}
-+	}
-+
-+	fclose(f);
-+	return ret;
-+}
-+
-+/* Return integer with TRANSPORT_* bit set for every (known) registered vsock
-+ * transport.
-+ */
-+int get_transports(void)
-+{
-+	static int tr = -1;
-+
-+	if (tr == -1)
-+		tr = __get_transports();
-+
-+	return tr;
-+}
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index 0afe7cbae12e5194172c639ccfbeb8b81f7c25ac..71895192cc02313bf52784e2f77aa3b0c28a0c94 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -3,8 +3,36 @@
- #define UTIL_H
- 
- #include <sys/socket.h>
-+#include <linux/bitops.h>
-+#include <linux/kernel.h>
- #include <linux/vm_sockets.h>
- 
-+/* All known vsock transports, see callers of vsock_core_register() */
-+#define KNOWN_TRANSPORTS(x)		\
-+	x(LOOPBACK, "loopback")		\
-+	x(VIRTIO, "virtio")		\
-+	x(VHOST, "vhost")		\
-+	x(VMCI, "vmci")			\
-+	x(HYPERV, "hvs")
-+
-+enum transport {
-+	TRANSPORT_COUNTER_BASE = __COUNTER__ + 1,
-+	#define x(name, symbol)		\
-+		TRANSPORT_##name = BIT(__COUNTER__ - TRANSPORT_COUNTER_BASE),
-+	KNOWN_TRANSPORTS(x)
-+	TRANSPORT_NUM = __COUNTER__ - TRANSPORT_COUNTER_BASE,
-+	#undef x
-+};
-+
-+static const char * const transport_ksyms[] = {
-+	#define x(name, symbol) "d " symbol "_transport",
-+	KNOWN_TRANSPORTS(x)
-+	#undef x
-+};
-+
-+static_assert(ARRAY_SIZE(transport_ksyms) == TRANSPORT_NUM);
-+static_assert(BITS_PER_TYPE(int) >= TRANSPORT_NUM);
-+
- /* Tests can either run as the client or the server */
- enum test_mode {
- 	TEST_MODE_UNSET,
-@@ -82,4 +110,5 @@ void setsockopt_timeval_check(int fd, int level, int optname,
- 			      struct timeval val, char const *errmsg);
- void enable_so_zerocopy_check(int fd);
- void enable_so_linger(int fd, int timeout);
-+int get_transports(void);
- #endif /* UTIL_H */
+Changes in v2:
+- Speed up: don't bother checking EINTR or respecting timeout on connect()s
+- Introduce get_transports(), warn on unsupported setup [Stefano]
+- Comment the code, drop the sync, introduce vsock_bind_try() [Stefano]
+- Link to v1: https://lore.kernel.org/r/20250523-vsock-test-inc-cov-v1-1-fa3507941bbd@rbox.co
 
+---
+Michal Luczaj (3):
+      vsock/test: Introduce vsock_bind_try() helper
+      vsock/test: Introduce get_transports()
+      vsock/test: Cover more CIDs in transport_uaf test
+
+ tools/testing/vsock/util.c       | 80 ++++++++++++++++++++++++++++++++--
+ tools/testing/vsock/util.h       | 30 +++++++++++++
+ tools/testing/vsock/vsock_test.c | 93 ++++++++++++++++++++++++++++++++--------
+ 3 files changed, 181 insertions(+), 22 deletions(-)
+---
+base-commit: 0097c4195b1d0ca57d15979626c769c74747b5a0
+change-id: 20250326-vsock-test-inc-cov-b823822bdb78
+
+Best regards,
 -- 
-2.49.0
+Michal Luczaj <mhal@rbox.co>
 
