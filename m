@@ -1,107 +1,136 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F29F11B21AD
-	for <virtualization@lists.linux.dev>; Wed, 11 Jun 2025 18:17:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3592BDC03;
+	Wed, 11 Jun 2025 19:57:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749665839; cv=none; b=IXkPi3T+NQ6yePbeRPFkph9/S7VSI7hBl7ZmMsCz93uoqOxo0jTFFf9e7OgLXXCaHht8FT7D8VlUaGP6D5xt5jXkQs6x4bZ2vGqBXYl/WhAElwbykkrs8qJ5uDlLxnoqoPa7VKUPWk6OiKfs7skawlaHMCqTtAdPAImjGJuB5NU=
+	t=1749671850; cv=none; b=XxPOwVvUL6sWQS5Egbn6K44V7joCiKWytT15bgr/0MTd1ykLV6169dLr10lVfHgBQMa9+cQ/+pqHSNYaRVQ2XO8QOlPNa0TpYg9kHxoqghhhNDLija9RWYJsq98edWEQReIEgi5qDduCeGV2HUDpWOj7yl0vIuyXELhyWlPGRDo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749665839; c=relaxed/simple;
-	bh=1c4s7Lji5Nnz3Z5x1vCWg8zk5kajAvQcU8JPpA7A1ZA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NFlJKTOyVqcaHyVnZl3PNPNfNaRuapzc2+19yNwVcy+7yNmhOQwnMqx8NuidiSCrJM03VOD7VsmtPR68afchxYP09BdYb85O1n6P4hkTEAIeZXqlzuFY8bNP50RPLN5+peqNvdsDfaO6Pe6bw41dO04dvMxtuG6TV0h2qcr0G2I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IzSW3ppB; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1749671850; c=relaxed/simple;
+	bh=eeQeEYKaHhYr+Maa1kLsJ5dq174xCMqjaPKqjE8uStE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=a+M9CuqYrAs3iitF7wqGyVIl6q+spHKWdFp58QrfQ6sn2Hyhfxoe3qtg1fWxo7WSLGhBM6uUf1ccgW2D/z9jt9Wpu6HWKayT4xB9n6K+ShJX8AKY3Q8eMqw/L17vgLmMfJsfvp0nuaUSwSXZXlfI5f9BRoxXYAeLJI+24/cltCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=Ej6iqr6w; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IzSW3ppB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749665837;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1JMhrtoc6VGTvPWyUNfrznOPKUCtOzmnixDC1vIpkrE=;
-	b=IzSW3ppBcyk7ShPRGfI402IB4PI8oX2pVUDyeW2hT3T5ei5tmNwlWkptZsgAX4ZxNbz0Vp
-	kec2xmr9EXlQlhe0AHGjp2NVvg/mImAGXYKySi0rwm1IBbGs+3AUeZR2dyazOVCuKy7LYz
-	rD6cgN1gDlwoteVRaa2+Krz8wsuhZb8=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-149-gtno2Wf_M-iaVTwhr2GpoA-1; Wed,
- 11 Jun 2025 14:17:13 -0400
-X-MC-Unique: gtno2Wf_M-iaVTwhr2GpoA-1
-X-Mimecast-MFC-AGG-ID: gtno2Wf_M-iaVTwhr2GpoA_1749665832
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 643A11800289;
-	Wed, 11 Jun 2025 18:17:12 +0000 (UTC)
-Received: from localhost (unknown [10.2.16.122])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 93C0219560AF;
-	Wed, 11 Jun 2025 18:17:11 +0000 (UTC)
-Date: Wed, 11 Jun 2025 14:17:10 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Alok Tiwari <alok.a.tiwari@oracle.com>
-Cc: mst@redhat.com, jasowang@redhat.com, michael.christie@oracle.com,
-	pbonzini@redhat.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	darren.kenny@oracle.com, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] vhost-scsi: Improve error handling in
- vhost_scsi_make_nexus and tpg
-Message-ID: <20250611181710.GB190743@fedora>
-References: <20250611143932.2443796-1-alok.a.tiwari@oracle.com>
- <20250611143932.2443796-2-alok.a.tiwari@oracle.com>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="Ej6iqr6w"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1uPRZX-00BIDf-5o; Wed, 11 Jun 2025 21:57:19 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
+	bh=a5J8eYpVuE7o2VJSMjWSJdlZvj2jMI+mcwHoJe+gsJc=; b=Ej6iqr6w0DXcnV/u6mIfzp/bYV
+	WAtWU9WTzRV3+x0wEEuW/bHoqyPLrIy5YEzS1OTkrpM+TPGPJE/nk4IbtUVM8VCmV2FDcEwAqYoag
+	JLmTkiUmpyuHABMnfz3U/1fn8LrFgVF4dzWtPaualNEIC99dCLuDFvyVC7sIEDPid1aygZGcCwUF2
+	9vISyA9lWzkfq73DElyNxY3TBReJ+eRjtdW18yx2gFeDDieeK53TPlQ3l6GAS2vmJW1kPeaxn12Ez
+	8JibnISN1VLXl0fmkzXmBoK50JlpOxZ392wOYndyWWfIMquoxuKHFrhBbl4+91QEZSZ3KEGszlIDi
+	BISpl6sw==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1uPRZW-0005E8-R3; Wed, 11 Jun 2025 21:57:19 +0200
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1uPRZH-00BycS-BQ; Wed, 11 Jun 2025 21:57:03 +0200
+From: Michal Luczaj <mhal@rbox.co>
+Date: Wed, 11 Jun 2025 21:56:50 +0200
+Subject: [PATCH net-next v3 1/3] vsock/test: Introduce vsock_bind_try()
+ helper
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="UaYLH/pZI3CB/ihz"
-Content-Disposition: inline
-In-Reply-To: <20250611143932.2443796-2-alok.a.tiwari@oracle.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250611-vsock-test-inc-cov-v3-1-5834060d9c20@rbox.co>
+References: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
+In-Reply-To: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
+X-Mailer: b4 0.14.2
 
+Create a socket and bind() it. If binding failed, gracefully return an
+error code while preserving `errno`.
 
---UaYLH/pZI3CB/ihz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Base vsock_bind() on top of it.
 
-On Wed, Jun 11, 2025 at 07:39:22AM -0700, Alok Tiwari wrote:
-> Use PTR_ERR to return the actual error code when vhost_scsi_make_nexus
-> fails to create a session, instead of returning -ENOMEM.
-> This ensures more accurate error propagation.
->=20
-> Replace NULL with ERR_PTR(ret) in vhost_scsi_make_tpg to follow kernel
-> conventions for pointer-returning functions, allowing callers to use
-> IS_ERR and PTR_ERR for proper error handling.
->=20
-> Signed-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>
-> ---
->  drivers/vhost/scsi.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+---
+ tools/testing/vsock/util.c | 24 +++++++++++++++++++++---
+ tools/testing/vsock/util.h |  1 +
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+index 0c7e9cbcbc85cde9c8764fc3bb623cde2f6c77a6..b7b3fb2221c1682ecde58cf12e2f0b0ded1cff39 100644
+--- a/tools/testing/vsock/util.c
++++ b/tools/testing/vsock/util.c
+@@ -121,15 +121,17 @@ bool vsock_wait_sent(int fd)
+ 	return !ret;
+ }
+ 
+-/* Create socket <type>, bind to <cid, port> and return the file descriptor. */
+-int vsock_bind(unsigned int cid, unsigned int port, int type)
++/* Create socket <type>, bind to <cid, port>.
++ * Return the file descriptor, or -1 on error.
++ */
++int vsock_bind_try(unsigned int cid, unsigned int port, int type)
+ {
+ 	struct sockaddr_vm sa = {
+ 		.svm_family = AF_VSOCK,
+ 		.svm_cid = cid,
+ 		.svm_port = port,
+ 	};
+-	int fd;
++	int fd, saved_errno;
+ 
+ 	fd = socket(AF_VSOCK, type, 0);
+ 	if (fd < 0) {
+@@ -138,6 +140,22 @@ int vsock_bind(unsigned int cid, unsigned int port, int type)
+ 	}
+ 
+ 	if (bind(fd, (struct sockaddr *)&sa, sizeof(sa))) {
++		saved_errno = errno;
++		close(fd);
++		errno = saved_errno;
++		fd = -1;
++	}
++
++	return fd;
++}
++
++/* Create socket <type>, bind to <cid, port> and return the file descriptor. */
++int vsock_bind(unsigned int cid, unsigned int port, int type)
++{
++	int fd;
++
++	fd = vsock_bind_try(cid, port, type);
++	if (fd < 0) {
+ 		perror("bind");
+ 		exit(EXIT_FAILURE);
+ 	}
+diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+index 5e2db67072d5053804a9bb93934b625ea78bcd7a..0afe7cbae12e5194172c639ccfbeb8b81f7c25ac 100644
+--- a/tools/testing/vsock/util.h
++++ b/tools/testing/vsock/util.h
+@@ -44,6 +44,7 @@ int vsock_connect(unsigned int cid, unsigned int port, int type);
+ int vsock_accept(unsigned int cid, unsigned int port,
+ 		 struct sockaddr_vm *clientaddrp, int type);
+ int vsock_stream_connect(unsigned int cid, unsigned int port);
++int vsock_bind_try(unsigned int cid, unsigned int port, int type);
+ int vsock_bind(unsigned int cid, unsigned int port, int type);
+ int vsock_bind_connect(unsigned int cid, unsigned int port,
+ 		       unsigned int bind_port, int type);
 
---UaYLH/pZI3CB/ihz
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmhJyCYACgkQnKSrs4Gr
-c8jsnAf+LyyAkSoBI7A+MjiUFeFjRBvGlsTqBrICWJL8lwGcy8xUuQSzQVJeyZOu
-baPKiWlkudJvy+kO8hEXMhhnD3bhRhcbV846F1Ql1cmLIYqdpwKjGZngmAqKVtpY
-OVJ7iByOfZWEdD+/Yhn55cfK7gzhJYcFsAKy08e0DCdb2X5AGaMbFllhzNN836nL
-ikBm1H66C80IAYYZdJfZeULJmoV8CEpL9A253hB4/aMoM3J93tj/5erd3r/IP6Ub
-ypaFuPImR1/5vZEhNxxjEfyswdIUcEfd2Kw2YpvZ9eBZVPqjDhjN/9VHfW/USdih
-2zNYY0AfVAzpKq1dhvZJDSaY85QrIg==
-=ZF3e
------END PGP SIGNATURE-----
-
---UaYLH/pZI3CB/ihz--
+-- 
+2.49.0
 
