@@ -1,104 +1,121 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8557D1798F
-	for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 05:32:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 054791F4CA1
+	for <virtualization@lists.linux-foundation.org>; Thu, 12 Jun 2025 06:12:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749706346; cv=none; b=RYXS5JCtxFf0G6kFhsKav9PK8vKSbOwMbMo5FkVZyWOlVyXp7oS5CGwpHv2/jWxkfl0W8j72FX1RrYG8hnqk5KROEPlDDm13XtfvDvMRork7nxkmux7zGhKra0pfDMYHYrF0qHyi48GgXzBAAGSC3q2wbN8UuCqRuY0jZU3/4pU=
+	t=1749708773; cv=none; b=LEtGBGfHWozDn0KxB1X3miWU8Zzuo2s+xS7apqBx9sY6X+aPMhvU84TVdgFW8cgUWONyuSiPRGqNc1OBv9kesrOFAJWLwUYsfw/EB//oOkK2Gxfsw7qP/uN1IhGrYqkobqvBapybDHyECOq5SlNF9hen2FOusbiYRLb4l52C4sc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749706346; c=relaxed/simple;
-	bh=vii4+vAE/cNdk6rrbsnHbx44XX91OlPcufm+uzCCWrs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Wdw7XfNGdiFBstYAuB2AbcOVPtyuxrQwWTfeBl/J3ryCd8MgYJc4MTbMgUtL6kvjOwQROuB4Yjnf/ar0byfnstpRcrwfilV+vkFhtKv0x4sOdREa8UjULaak87aQsc6iiYEuPyH5RqlD/NiqW/Ubbnt8dQ9IFEIkq/DxXXXU1C8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RtIgj7v2; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1749708773; c=relaxed/simple;
+	bh=MlbQ50o4f6u5pnc00CzQIFi2h3qEcGsw79ewAeB7PF4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nV/kAsgdclGQPuaqDX5TcjZ0fYts2M0rQGmwp51L6v3Ikea5TdqBz2ZHxSCHMgURNvcjUl2W3i6wNK58rfj+CZnp48jcZN4YzMPaCNbCu1DUdg1wBeJyXiwZo8eLLNG9IkqvLXGDAfsUG8/lI8DxmJrzqkxtRGhmehOTz2UwLh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AFo7PDvY; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RtIgj7v2"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-23636167b30so5466885ad.1
-        for <virtualization@lists.linux.dev>; Wed, 11 Jun 2025 22:32:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749706345; x=1750311145; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vii4+vAE/cNdk6rrbsnHbx44XX91OlPcufm+uzCCWrs=;
-        b=RtIgj7v2bUJEYaUpixmB2TH8NjQK7VVnuC/LSRf5UeKto38xdT6TYyoGe3GuZfq2wR
-         V+OlXixBTFelypjyI/0XtuCKmZGwJbyxhLf2KkJ73LkhuNbF2Ty4qxikmRL1RxaYH6+3
-         QFh3AzpCE+0kL3y2ClftjaZTylKbxn9dItj5/dJsJiCZ2NBJdDv1K6sEQjbloAfTflcq
-         ihwx8CiHXCV/hjNLuumubUpyVHE6+zvz8r3cR/vI64VG8YYREWu60XygEoivg1dGTY8g
-         NaCc6ts1RFLJaORprxeJfn54fiaaUz1p0POVbCOPzY808cuvW4ucVtF6zevJUJCqG5n8
-         cg6g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AFo7PDvY"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id AB27080BCE
+	for <virtualization@lists.linux-foundation.org>; Thu, 12 Jun 2025 06:12:51 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id AsnQlDJXv9aG for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 Jun 2025 06:12:51 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 1662680BC4
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1662680BC4
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AFo7PDvY
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1662680BC4
+	for <virtualization@lists.linux-foundation.org>; Thu, 12 Jun 2025 06:12:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749708768;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=MlbQ50o4f6u5pnc00CzQIFi2h3qEcGsw79ewAeB7PF4=;
+	b=AFo7PDvYF2NK0MHYckJiofc4sBFl/b9wToNdnDfXkP+f57M57IoIEocSIVYHqkd8lAT3ro
+	nS65bv8sQ6iKhWMUGSJl5/1+T0byvB3Wop+cCaJkt9tX+rHgsjxkPWsxeVrCHAo2tpSVa/
+	uHIuV071aUA3+VmhuvW3hi8xBjR4jO8=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-484-aWSeGLJPMryMUQV_INfxWQ-1; Thu, 12 Jun 2025 02:12:46 -0400
+X-MC-Unique: aWSeGLJPMryMUQV_INfxWQ-1
+X-Mimecast-MFC-AGG-ID: aWSeGLJPMryMUQV_INfxWQ_1749708765
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-3121cffd7e8so589879a91.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 11 Jun 2025 23:12:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749706345; x=1750311145;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1749708765; x=1750313565;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vii4+vAE/cNdk6rrbsnHbx44XX91OlPcufm+uzCCWrs=;
-        b=RMihdlM80KS67xeiaPvY7oLPzlc1d0Auk+y9iL38/slCJeY0Quoy2xB5pxHzyLYzA4
-         TpNSMXSBNAGMx9WhO0LVGwsgwa5UFDKYFVnX1d4A+km4GYWxZbGAOYUUaHnbUEHMJQ6c
-         7pt+L+roD1SI6m05JISs3G0pDbUMETpS2XW58WbFudLLphz6HxJ9Lh1ZmMk/H09DABXE
-         YsxH8ABuSotrMi6KyAHWk6X7cyAw9f4RLGz+2pYW2zmRtUDo5yozX7nVZd+hVGVgmnxB
-         BN+fvygLo7Ml1JO5+MIcO/HGekXuyRl1caUnVF4gzNysI2N0Of1m2T+eC1GfxAEccCHq
-         8QDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUw/lnKwsQ/iAiA86NME1+FIMko7bM+/DL0WOZ3PlUSnFY48z+uGVYokcRX6HuY15AcOV8TCbnbcrqojxkUmQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YypCf+fNSQTQVER60iCIh64WxTnitrXSHb4oyMOmxRlpy4RomLc
-	ISF64i/GxD4A3llvoRurcAZYsd8eiiSqgfFJCk+Vb2j/zyis6zyIzuzg
-X-Gm-Gg: ASbGnctoyrC2DpS38MVqabdbUe0T07icppiCMW4Ybrovxy6FKDHPfnazSvrnnwTi/MI
-	iOnj6CzFE2itgbIMkQ7yEdyfEpkxxntKEt7Qc1ZeDveV411w7QinSTULlX6FuDoH1OdMHf6WfzJ
-	h9T289OtIPXEdRcV4ZIDg4rTNJZH+5CEhRPJGSAcMBA9s6AuhTP5e/IKfyducDY2ZjlKKWc/uOY
-	ix87/eYQYQw6WJXn3khATnMoAmkXNlHviqSqFyhHUwhvo3BB2mASLkiMcIaXrX4pcFKUY2SPzBz
-	69ltVCFaqQXvHf47KVjXCrATWi8teNFFac0zvEnajeY9dCmoa7IjWUanN4F+TTndmHAj8FeTezT
-	0E/25alC5
-X-Google-Smtp-Source: AGHT+IHcqVGofAGhSc43EaW6uyTom42iW5fqDOibqA0yTFHdAqUwPEUt9Zalv0PruwPswO0c0C3b7g==
-X-Received: by 2002:a17:902:e5cb:b0:235:ed02:288b with SMTP id d9443c01a7336-2364ca4bbcdmr29724125ad.30.1749706344723;
-        Wed, 11 Jun 2025 22:32:24 -0700 (PDT)
-Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2364e6db2a6sm5243415ad.120.2025.06.11.22.32.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Jun 2025 22:32:24 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-To: sgarzare@redhat.com
-Cc: Oxffffaa@gmail.com,
-	avkrasnov@salutedevices.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	eperezma@redhat.com,
-	horms@kernel.org,
-	jasowang@redhat.com,
-	kuba@kernel.org,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	niuxuewei97@gmail.com,
-	pabeni@redhat.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com,
-	Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Subject: Re: [PATCH net] vsock/virtio: fix `rx_bytes` accounting for stream sockets
-Date: Thu, 12 Jun 2025 13:32:01 +0800
-Message-Id: <20250612053201.959017-1-niuxuewei.nxw@antgroup.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20250521121705.196379-1-sgarzare@redhat.com>
-References: <20250521121705.196379-1-sgarzare@redhat.com>
+        bh=MlbQ50o4f6u5pnc00CzQIFi2h3qEcGsw79ewAeB7PF4=;
+        b=HWV6Y11wkncav90ptk1twIUD/hdrZBM839cJmdE9o3brbVaEKrTyXZH8GlQ/cNvvl1
+         ilSiirLGQpz85Pn0q8p9xVBqAsCfMWu+9+A43GRlI+5o3lSZIBsoVzv6216X8PH4RgwG
+         CHwMJBJPDySbUQbb8OuPTkEKMTmylnk8Fr7cuVNj5chWTOE5aSXEJ1rdD9Mi5h94v2I1
+         n6kCO3sDzvOr/ttfbKYUJjzTQSvSMZ74eBPot/YPS3c8szKsb/WUY5sU+V+1Ey7a0L3Q
+         cwpfgtbA1VCYmhu/u+95oDoOEusb+dWzKj5jDdl9dtdq2XiGAqigGFdralvybvV+yYef
+         Jwvg==
+X-Forwarded-Encrypted: i=1; AJvYcCVIMEbruvG02SQx9KxS4MZUpmi6eV9MJE8aeDxRTf3KfGJeS5fvYpNPJFeyMyW8u4DLaRSds8cY5L0wSY8Olg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yx2/gL0Dl3osYm2W/Q/URg8yNiSKDbOUNBYCfWjt73V8jA0iuLv
+	OQK0DpaNNL7lgQWsIJTywkK+/zNo8JjDMiVbR9+wRYA0uSwS/6rG+3/rA+RxWvwh3p7YqhERy6G
+	BhKX+pOS570WfggnNv0wj6M582ahIqZQUWKwy7OoUz5+temArprHEfxeU5s5MPYWVhNu2WWVGzp
+	T80RN6bRdVS2Q8J4GhldQMG0xMB/qb4ulD+irc0J66dJhSukjFAUnzZTIcXQ==
+X-Gm-Gg: ASbGncsoGC4PNhtCA3UMOiplmGN5u9fhuDfx7Ij61SCt7ZT4iJNqGE1o2uU99ofxIJd
+	rWZcksL7BIft10m8D9fuKi2sP0HfQOZA7rGYeYMrwBDBP/V3nHjCxojWbrmK5TOV4XVIs5nuZy9
+	L19KHp
+X-Received: by 2002:a17:90b:5628:b0:311:e4ff:1810 with SMTP id 98e67ed59e1d1-313c0668326mr2584706a91.3.1749708765328;
+        Wed, 11 Jun 2025 23:12:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE8nEsPFjSfYppZCrGBwOZj2EXvMsBbci1aiHbuZSbde5qDOX/uaEqUZ1HZNfewkqJpsnTzU7HSRHu/P9/nbYo=
+X-Received: by 2002:a17:90b:5628:b0:311:e4ff:1810 with SMTP id
+ 98e67ed59e1d1-313c0668326mr2584680a91.3.1749708764934; Wed, 11 Jun 2025
+ 23:12:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250609073430.442159-1-lulu@redhat.com> <20250609073430.442159-2-lulu@redhat.com>
+In-Reply-To: <20250609073430.442159-2-lulu@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 12 Jun 2025 14:12:31 +0800
+X-Gm-Features: AX0GCFua3qf1tKF-j83aW6duXknVJEBpOabQNRyFghC9nw8Dh5yPS6CPiPjCd68
+Message-ID: <CACGkMEskts7y7bCxRLoZvDbg0YZbdF59b3Jzxkgpg0KCCY+TiA@mail.gmail.com>
+Subject: Re: [PATCH v11 1/3] vhost: Add a new parameter in vhost_dev to allow
+ user select kthread
+To: Cindy Lu <lulu@redhat.com>
+Cc: mst@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: txS9j4ua_3aei0Kkr-KnbYdRHpR2b2agTAF2IXZVoP0_1749708765
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-No comments since last month.
+On Mon, Jun 9, 2025 at 3:34=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+>
+> The vhost now uses vhost_task and workers as a child of the owner thread.
+> While this aligns with containerization principles, it confuses some
+> legacy userspace applications, therefore, we are reintroducing kthread
+> API support.
+>
+> Introduce a new parameter to enable users to choose between kthread and
+> task mode.
+>
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> ---
 
-The patch [1], which adds SIOCINQ ioctl support for vsock, depends on this
-patch. Could I get more eyes on this one?
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-[1]: https://lore.kernel.org/lkml/bbn4lvdwh42m2zvi3rdyws66y5ulew32rchtz3kxirqlllkr63@7toa4tcepax3/#t
+Thanks
 
-Thanks,
-Xuewei
