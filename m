@@ -1,107 +1,112 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80EF6212FB7
-	for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 07:25:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59081170A2B
+	for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 08:04:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749713136; cv=none; b=A935eVQhLgF1+IVZPlnGDGLKPTrnx/Q5I8T2v8Kv69eV6NThKHM/5IeoO0clwGpiEifo6pFDNWFM9iRB6+Syyz9Z6eb+eGbWrpU9Pw3PuA3DiHLGPIMPjbSMiGvv8owwEmlwJURgkhhkHXus23N0WxxiubXBNh4VtE4jFhJofi8=
+	t=1749715459; cv=none; b=nYXZ0hYvKx6xn+0pS94lNvKDVA02GOuX9NHUXTxGtj50tH1UC26VFoC34xmY/VLUNUQZF3tWe/+eEIcmm/SYMrIci7MX1kw5TpIqlfCyOpukbfw/TVEXRvEI7sDYc6a80LPgGFPLTX4A2UZhg/b0G/UUYv5T3vKEYaKqrCWCXME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749713136; c=relaxed/simple;
-	bh=ur9blTN+fSDyxSNvmsKgVelNyCknt1MsnEQUweyXk10=;
+	s=arc-20240116; t=1749715459; c=relaxed/simple;
+	bh=dZMHVNBbyE0k8GdpEWwXqBscTuEFNGdf3G5hSUKiNHU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gZ1/4FYl3vDTGO53ZjgYKrYgXrRM4axvMnXm7gSlLwu8mX9z5cF0Xf1ioxPpMcIxQFy1w3HaCziIuKprT7+E+H5WSiMvX/yRrVxfla4bKtZAjn8CUKoxwWRIfOkhmQo1ZnRuU6UeXhFAWCrnGDrd9klYc0WoO3ECEVLn7HnXluI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LxVlust5; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=foCqED4L/pYr3y0R3sdeESEO9YM7/r5FL7/ODb0rs94LKrtl+P6wC3a053SMw+3XsDIlrfezAKYWWD2PEb8dFEsAWPhvkP6/RAdud6qrHwLUC/MaYw2NgfuD6VDkDFSg7f42dwUyq+S3M9gLa0UgZeiAiBCErnPjup3bL0FgowA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dvPsAKye; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LxVlust5"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dvPsAKye"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749713133;
+	s=mimecast20190719; t=1749715455;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NIFNGdl55UNkNcCSJnLvJTDzJi2fG6iDBcZL44c6Epc=;
-	b=LxVlust5XAOgG1iIvqLkQOOONDikt8XJE7ZlQTdmgYlw0jFM6l+R7JVmFZdCCM79x1sudu
-	lrncj2F5lRobn3vEY/WX51bsMwosK/BG8m3BoATtiHxso9kV0hVrDKS4TPDbqgBpt9HNj4
-	Z7OSDw68eiSuYvV81Mq66PSYCTYat6s=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=dZMHVNBbyE0k8GdpEWwXqBscTuEFNGdf3G5hSUKiNHU=;
+	b=dvPsAKyeMM+wZAvhdHWOsuLyeuJfM0qVvG9Cv5K4fXe+DIxthEDvxWuz/3Bvmwbi80T/sA
+	GELLLAQxhv292HIA3z88URY90THDwWweVKfwk/3hCeefl8xQipTAMOGZSQkfyytR+MYQte
+	Zia63cs44dv4MHYASPWrDtTsloej8vs=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-280-M3J-hby_PNCnxIHDNy7i_A-1; Thu, 12 Jun 2025 03:25:31 -0400
-X-MC-Unique: M3J-hby_PNCnxIHDNy7i_A-1
-X-Mimecast-MFC-AGG-ID: M3J-hby_PNCnxIHDNy7i_A_1749713131
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-311f4f2e6baso701202a91.0
-        for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 00:25:31 -0700 (PDT)
+ us-mta-274-RNqMyGixOZCq4JXBMVUY8g-1; Thu, 12 Jun 2025 04:04:14 -0400
+X-MC-Unique: RNqMyGixOZCq4JXBMVUY8g-1
+X-Mimecast-MFC-AGG-ID: RNqMyGixOZCq4JXBMVUY8g_1749715454
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-70f841fb19dso9051617b3.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 01:04:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749713131; x=1750317931;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NIFNGdl55UNkNcCSJnLvJTDzJi2fG6iDBcZL44c6Epc=;
-        b=YSMjn3x6O4Wqqv4lr4xVPygzgQEh9AITVdx/EDohKKNnJHI7iEChD4ofFb7rZ25t7S
-         PyKEAiE1HjrkfBM7CH38C77dnPNI8B3wyhnMtM7oFRa/40mdLwtNi6J6Zjif2KtYAao2
-         oans8rToOBJf0D/4GvHmrpDDKNyCw7Kixz+F65/NChV28LhY0pfTljrWajj3vjU+Pcf2
-         vj0SmBzUWQdRfr1eBEROUEe9zxJfl7zhTf9MGotD619TT0UpmwKOWdUU0Pvj6OX3Ur6m
-         gJ26FDq3dSushYHPDClDaKZr05+YztHG4gwo0snxbQu5WCBPljxn/RTdySzFF97rHXMs
-         QWTA==
-X-Forwarded-Encrypted: i=1; AJvYcCX2CObFc1pXrtuqfYoc107rWlFEQo87u3jaMjokoA8PFf99g0Y2UZuCPghgjwo3pbQD+Mbd6NE0aq+UnG3uTw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwK+wqfOCIcIFPbkoWEN12LxIgZcLrg6JAxqfYQ839IHjQoDkDo
-	IA3K6b0riyZxVf8H2BGdNaOhuoYLPqvZIl73sI0f8f2GRqHAFfKTHwozwBtJN/1hO2IWg/ir5tR
-	VWZ1XgJhpXSJsp3NbvQEROPCAiApp0FAP+eTpGO8flulfnjsFeDs+hC705DeWbmg4ZyEooDWoW2
-	+iovrT4s3O12jVVq49pvp9VA6JYszH5/818m/I6X/lfPs=
-X-Gm-Gg: ASbGncuz/+9e4G1htaj/F8xB7UBBfErwAfN1F67OlAZyXyDRN4BKfeWxq+71CA6B0u/
-	L9snJ9iMuxSQQxswXyBrflAx0Gq5NskSPF8Wg19d2De2f15ZDw5d+mXdw9Kq/ZvRF36QFI8QZPq
-	+ycw==
-X-Received: by 2002:a17:90b:3a86:b0:312:e9d:4002 with SMTP id 98e67ed59e1d1-313c08d2a7amr2927541a91.28.1749713130832;
-        Thu, 12 Jun 2025 00:25:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEsn9cQekYcoWU3hmfR9nZcFgm5yG2fmnWGf0A0tOWhrHNUnC4LDJH9grLMX433snr/rMDLwZSQaKfwa5hMM/g=
-X-Received: by 2002:a17:90b:3a86:b0:312:e9d:4002 with SMTP id
- 98e67ed59e1d1-313c08d2a7amr2927511a91.28.1749713130441; Thu, 12 Jun 2025
- 00:25:30 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1749715454; x=1750320254;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=dZMHVNBbyE0k8GdpEWwXqBscTuEFNGdf3G5hSUKiNHU=;
+        b=C+KPFrmlryOAwd9JDX4rY3pWFsogUeZvyhIaRCNy1y4hu3d5FwBlsoY5jV3jZhN5Dz
+         EyAzrw1Pf86m3/GL3TOwM0A2GOyMS+XfH5dTnwS0//T16EzESQKRvyqpo3M4aw9PhNd4
+         65wIwIAt6vUwPWJMtieUVpwnDGVS7R99hJkjH3R2shEu413/+hR5xX798+vFOGv5N0Nm
+         tJMLZF8WLxBp54TvsSoL1vZLd9GRRQcrYU97BwdiECC4WggQIR4w7ijj2AaKApaK6G3p
+         iE3YPRV1WIKmJLuaMzlUZ2CTb0/QoCxBa2KvUGQZukMTtH718EKtefAhs3jtl6/OnL8z
+         Y6uw==
+X-Forwarded-Encrypted: i=1; AJvYcCVyPxaXmlpRtpiSoxkGd/Hf2PGp8KSy2Plf2OZyRDFAM3cVS8MKL1v3T0ZEq4rP09/1UFDqCe5mBIoPFt5csQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyqPeSqNUgD9jCvxlCf7zxgrejendz6xytOdVIymIotVOCL/i2i
+	Vvt2QUOVUmoyTMzGiiA8cdqA6cMM8mQYkyNPx7ILlH08n0tHZzeeJgY5/PmzuTUhh+vosAVI6xz
+	oZcrd/9AMdf2HEbex1ypA4zwhQzhhD186q7c7FXQTHqkvzFOsa6X15ZiZ6zdEvBcaAwCSLxlCtu
+	2jVnFiwFDuFCJ66ye1u08SydTmHS9YK21XEJzlrOxZXr4=
+X-Gm-Gg: ASbGncvxtW62s2RQtqoDGFhXRnJk0CsnXlvQIYgg7VyIYmB6DqHsJHj8D9qRAvKuX68
+	FaeSPQY8W3bh5D85MG3gO9qvIiCnjaRb9MjITW1diK0JrnCyohkzk8Zmg0u1B9Tz6hZZl0lgn91
+	RA3emTq2D0kxYXZa2Y0MaBl/pJGUq/J+UhglI=
+X-Received: by 2002:a05:690c:39d:b0:6fb:ae6b:a340 with SMTP id 00721157ae682-71140af6833mr89683117b3.30.1749715453784;
+        Thu, 12 Jun 2025 01:04:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHKpH0zV8WAQdWv1lhM5ZZcw077V1kJarsSUj2zqX5HwhgGv6teM4sCUgx4Nym37iltxkdXS6Iqa2//rPnys9A=
+X-Received: by 2002:a05:690c:39d:b0:6fb:ae6b:a340 with SMTP id
+ 00721157ae682-71140af6833mr89682727b3.30.1749715453466; Thu, 12 Jun 2025
+ 01:04:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250606115012.1331551-1-eperezma@redhat.com> <20250606115012.1331551-6-eperezma@redhat.com>
- <CACGkMEsoC9g5j+GDaQGaRdGZXaCorfgP7mdhsk3cOg4BFnCcpA@mail.gmail.com>
-In-Reply-To: <CACGkMEsoC9g5j+GDaQGaRdGZXaCorfgP7mdhsk3cOg4BFnCcpA@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 12 Jun 2025 09:24:54 +0200
-X-Gm-Features: AX0GCFvci-W3cksqXjkQxoSVAR1GDsfAe_M9pONGx-R3lnQEy3g31a2aAJARTwk
-Message-ID: <CAJaqyWe_R_59mm1i3UE=MmrVfYCQsqP5=EvHC6Ax234zibFZew@mail.gmail.com>
-Subject: Re: [RFC 5/6] vduse: reset group asid in reset
-To: Jason Wang <jasowang@redhat.com>
-Cc: Yongji Xie <xieyongji@bytedance.com>, Cindy Lu <lulu@redhat.com>, 
-	linux-kernel@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Laurent Vivier <lvivier@redhat.com>
+References: <20250612023334-mutt-send-email-mst@kernel.org> <20250612064957.978503-1-niuxuewei.nxw@antgroup.com>
+In-Reply-To: <20250612064957.978503-1-niuxuewei.nxw@antgroup.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Thu, 12 Jun 2025 10:04:00 +0200
+X-Gm-Features: AX0GCFuxXcX7tZ1g-iY8JvPcecHdu0pQdDpj1BwVsu9-6iJkGFvAwtpFRMmd4Tk
+Message-ID: <CAGxU2F6c7=M-jbBRXkU-iUfzNbUYAr9QApDvRVOAU6Q0zDsFGQ@mail.gmail.com>
+Subject: Re: [PATCH net] vsock/virtio: fix `rx_bytes` accounting for stream sockets
+To: Xuewei Niu <niuxuewei97@gmail.com>
+Cc: mst@redhat.com, Oxffffaa@gmail.com, avkrasnov@salutedevices.com, 
+	davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
+	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	niuxuewei.nxw@antgroup.com, pabeni@redhat.com, stefanha@redhat.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 3CKz0qzEAgdYMcI2lXSek2HeVUjXADixzwOpBvNu-sc_1749713131
+X-Mimecast-MFC-PROC-ID: 0pRLfoKM1EAe-kzaT-ciieYsycM3K6JxpfW2Rp2SRMM_1749715454
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 12, 2025 at 2:33=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
+On Thu, 12 Jun 2025 at 08:50, Xuewei Niu <niuxuewei97@gmail.com> wrote:
 >
-> On Fri, Jun 6, 2025 at 7:50=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redha=
-t.com> wrote:
+> > On Thu, Jun 12, 2025 at 01:32:01PM +0800, Xuewei Niu wrote:
+> > > No comments since last month.
+> > >
+> > > The patch [1], which adds SIOCINQ ioctl support for vsock, depends on this
+> > > patch. Could I get more eyes on this one?
+> > >
+> > > [1]: https://lore.kernel.org/lkml/bbn4lvdwh42m2zvi3rdyws66y5ulew32rchtz3kxirqlllkr63@7toa4tcepax3/#t
+> > >
+> > > Thanks,
+> > > Xuewei
 > >
-> > Is the expected behavior with vdpa_sim and mlx.
-> >
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > ---
-> >  drivers/vdpa/vdpa_user/vduse_dev.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> >
+> > it's been in net for two weeks now, no?
 >
-> Should we squash this into patch 3?
+> Umm sorry, I didn't check the date carefully, because there are several
+> ongoing patches. Next time I'll check it carefully. Sorry again.
 >
+> It looks like no one is paying attention to this patch. I am requesting
+> someone interested in vsock to review this. I'd appreciate that!
 
-I agree, I'll do it for the next series. Thanks!
+Which patch do you mean?
+
+Thanks,
+Stefano
 
