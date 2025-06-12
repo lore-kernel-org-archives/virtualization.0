@@ -1,45 +1,47 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED35E2192E5
-	for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 08:32:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E10F72222BB
+	for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 08:32:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749717149; cv=none; b=OV3X5qyvtghUWf4e4jjlkYztzZsFlvLkO9uoxcHWcVFnD0ZKELK77N9Kc9toDNLr43Z50wygx/uPB4zTxLTHelBONkHE00kQmCRyfXAl6wJAu6QuxkxiJkC7ttiY8qwwjJzKNv4tRwxJaYQn30x/59ExODjpbZjWpeA8mhXX33E=
+	t=1749717160; cv=none; b=AEHb853tnXHKJ3dAKZh3NNzk41HfIOSu1a8dclTXhExVZUZMxcc4q8aOpXd46/1V/9yokPQbPvWHzrw6VhPdv0Bs129qWSqqESWQ2FXGhydDg0uhG0VWbci9G1Rhg3DtFz4+lhXSXHi7N4oJfXLG89hWmn7hn1Tpb7Ao4VqL+1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749717149; c=relaxed/simple;
-	bh=0H65YCBltM3mzM7cKC6Wde80q9ECLX3BrCRHdl1gq/A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iOJ37X/diNPSbstu4duONUFdCLUh3gcqLJHddJQfNOu0nFhJAF6GsyKxb26CCBnIsu9JX9pdcPb5KtorLSYbswXLPrNmrpJgeMrdcSeYHTOAfmCtb7K4gSu3kaatITncz2j0Ro3TsYbbVQcDYflswZ0BDkuxaLJ5/PFI9o7Iih8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cfyBCL/p; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1749717160; c=relaxed/simple;
+	bh=dRnpTqZOgxtCjtrEYPRyB19fZASY1zRRbygsfhWRtpA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=rhHsjt9OuWD78/xjl77+f5pvv7gJ3Kk1DY26ykIkvsf+8JQ983sRF/Rrafx45kKQv27qVtl0p3J58fCJS5U0b0fD03d2pvy+2nFMK1njDVArwN6yobQK3DMj9/Sk6E8yH741q5ZK0O2JgL6A5yD3pSzfnGCBkj8sLW82Xjme5kc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Pis2Zha+; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cfyBCL/p"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pis2Zha+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749717146;
+	s=mimecast20190719; t=1749717155;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=YgJVMs0RGxMwkZXnXqV6sqGHx/KtJsdRvyJMHrklXlk=;
-	b=cfyBCL/pN7ldHouiU+Eqoj8tOExG2Sr0D4O8hEUPdnZJBubB5ziGvHV7Y3T49rXTOL+2Ng
-	dKFHvHeixvx/TAL6Qto/txbyLequLNorqFSXh2p3heb+qaU+hmLts12X6Wf05odsr+rV+l
-	bob1n+IFCz/Pg9qR/IBikWMAHo6Q8VY=
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WBc9H8Z/EQERaKXzDLp/qCNq6MVVbEZ78ho0JJh2JsQ=;
+	b=Pis2Zha+u2wZK2HvaS1lLsAl+enJF19NCA+hCs+Ixfy4OVTqpLiH3JPKpdES8lUeEO5ofi
+	lnEowELTtA+EjasNs06JZlGJl9uvAd6a3DDGncm155C/0Uf/Ai3rJSTN4hCjJbk92ZedCK
+	CKhvMHfsy57UVaEdRwRPE9rORQG4Tj0=
 Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-626-3KqVGTcKP0mvvuQ604UXJA-1; Thu,
- 12 Jun 2025 04:32:25 -0400
-X-MC-Unique: 3KqVGTcKP0mvvuQ604UXJA-1
-X-Mimecast-MFC-AGG-ID: 3KqVGTcKP0mvvuQ604UXJA_1749717144
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-616-qHPjq-GQPCy8ACNRN0g0hg-1; Thu,
+ 12 Jun 2025 04:32:32 -0400
+X-MC-Unique: qHPjq-GQPCy8ACNRN0g0hg-1
+X-Mimecast-MFC-AGG-ID: qHPjq-GQPCy8ACNRN0g0hg_1749717150
 Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AE4CC19560AD;
-	Thu, 12 Jun 2025 08:32:23 +0000 (UTC)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2D83019560B6;
+	Thu, 12 Jun 2025 08:32:30 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.112.165])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0518C19560A3;
-	Thu, 12 Jun 2025 08:32:17 +0000 (UTC)
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 72DFC19560A3;
+	Thu, 12 Jun 2025 08:32:24 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com
@@ -53,9 +55,11 @@ Cc: eperezma@redhat.com,
 	edumazet@google.com,
 	kuba@kernel.org,
 	pabeni@redhat.com
-Subject: [PATCH net-next 1/2] tun: remove unnecessary tun_xdp_hdr structure
-Date: Thu, 12 Jun 2025 16:32:12 +0800
-Message-ID: <20250612083213.2704-1-jasowang@redhat.com>
+Subject: [PATCH net-next 2/2] vhost-net: reduce one userspace copy when building XDP buff
+Date: Thu, 12 Jun 2025 16:32:13 +0800
+Message-ID: <20250612083213.2704-2-jasowang@redhat.com>
+In-Reply-To: <20250612083213.2704-1-jasowang@redhat.com>
+References: <20250612083213.2704-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -65,109 +69,54 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-With f95f0f95cfb7("net, xdp: Introduce xdp_init_buff utility routine"),
-buffer length could be stored as frame size so there's no need to have
-a dedicated tun_xdp_hdr structure. We can simply store virtio net
-header instead.
+We used to do twice copy_from_iter() to copy virtio-net and packet
+separately. This introduce overheads for userspace access hardening as
+well as SMAP (for x86 it's stac/clac). So this patch tries to use one
+copy_from_iter() to copy them once and move the virtio-net header
+afterwards to reduce overheads.
+
+Testpmd + vhost_net shows 10% improvement from 5.45Mpps to 6.0Mpps.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/tap.c      | 5 ++---
- drivers/net/tun.c      | 5 ++---
- drivers/vhost/net.c    | 8 ++------
- include/linux/if_tun.h | 5 -----
- 4 files changed, 6 insertions(+), 17 deletions(-)
+ drivers/vhost/net.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index bdf0788d8e66..d82eb7276a8b 100644
---- a/drivers/net/tap.c
-+++ b/drivers/net/tap.c
-@@ -1044,9 +1044,8 @@ static const struct file_operations tap_fops = {
- 
- static int tap_get_user_xdp(struct tap_queue *q, struct xdp_buff *xdp)
- {
--	struct tun_xdp_hdr *hdr = xdp->data_hard_start;
--	struct virtio_net_hdr *gso = &hdr->gso;
--	int buflen = hdr->buflen;
-+	struct virtio_net_hdr *gso = xdp->data_hard_start;
-+	int buflen = xdp->frame_sz;
- 	int vnet_hdr_len = 0;
- 	struct tap_dev *tap;
- 	struct sk_buff *skb;
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 1207196cbbed..90055947a54b 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -2356,13 +2356,12 @@ static int tun_xdp_one(struct tun_struct *tun,
- 		       struct tun_page *tpage)
- {
- 	unsigned int datasize = xdp->data_end - xdp->data;
--	struct tun_xdp_hdr *hdr = xdp->data_hard_start;
--	struct virtio_net_hdr *gso = &hdr->gso;
-+	struct virtio_net_hdr *gso = xdp->data_hard_start;
- 	struct bpf_prog *xdp_prog;
- 	struct sk_buff *skb = NULL;
- 	struct sk_buff_head *queue;
- 	u32 rxhash = 0, act;
--	int buflen = hdr->buflen;
-+	int buflen = xdp->frame_sz;
- 	int metasize = 0;
- 	int ret = 0;
- 	bool skb_xdp = false;
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 7cbfc7d718b3..777eb6193985 100644
+index 777eb6193985..2845e0a473ea 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -668,7 +668,6 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
- 	struct socket *sock = vhost_vq_get_backend(vq);
- 	struct virtio_net_hdr *gso;
- 	struct xdp_buff *xdp = &nvq->xdp[nvq->batched_xdp];
--	struct tun_xdp_hdr *hdr;
- 	size_t len = iov_iter_count(from);
- 	int headroom = vhost_sock_xdp(sock) ? XDP_PACKET_HEADROOM : 0;
- 	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-@@ -691,15 +690,13 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+@@ -690,13 +690,13 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
  	if (unlikely(!buf))
  		return -ENOMEM;
  
--	copied = copy_from_iter(buf + offsetof(struct tun_xdp_hdr, gso),
--				sock_hlen, from);
-+	copied = copy_from_iter(buf, sock_hlen, from);
- 	if (copied != sock_hlen) {
+-	copied = copy_from_iter(buf, sock_hlen, from);
+-	if (copied != sock_hlen) {
++	copied = copy_from_iter(buf + pad - sock_hlen, len, from);
++	if (copied != len) {
  		ret = -EFAULT;
  		goto err;
  	}
  
--	hdr = buf;
--	gso = &hdr->gso;
-+	gso = buf;
+-	gso = buf;
++	gso = buf + pad - sock_hlen;
  
  	if (!sock_hlen)
  		memset(buf, 0, pad);
-@@ -727,7 +724,6 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+@@ -715,12 +715,7 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+ 		}
+ 	}
+ 
+-	len -= sock_hlen;
+-	copied = copy_from_iter(buf + pad, len, from);
+-	if (copied != len) {
+-		ret = -EFAULT;
+-		goto err;
+-	}
++	memcpy(buf, buf + pad - sock_hlen, sock_hlen);
  
  	xdp_init_buff(xdp, buflen, NULL);
  	xdp_prepare_buff(xdp, buf, pad, len, true);
--	hdr->buflen = buflen;
- 
- 	++nvq->batched_xdp;
- 
-diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
-index 043d442994b0..80166eb62f41 100644
---- a/include/linux/if_tun.h
-+++ b/include/linux/if_tun.h
-@@ -19,11 +19,6 @@ struct tun_msg_ctl {
- 	void *ptr;
- };
- 
--struct tun_xdp_hdr {
--	int buflen;
--	struct virtio_net_hdr gso;
--};
--
- #if defined(CONFIG_TUN) || defined(CONFIG_TUN_MODULE)
- struct socket *tun_get_socket(struct file *);
- struct ptr_ring *tun_get_tx_ring(struct file *file);
 -- 
 2.34.1
 
