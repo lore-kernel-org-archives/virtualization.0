@@ -1,74 +1,99 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f169.google.com (mail-yb1-f169.google.com [209.85.219.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4019F1B0402
-	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 01:53:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF8921DE3C8
+	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 02:03:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749779597; cv=none; b=P2jXhr5Gxgik0q7HoOOs29V3Pti3sUsZcL8bKX65Duw6ACpZgncBIQseBvnF89NOFR4G5CGOKInaRLfRWr5yjMyzeT0SZnU8sisF75FiwcksbaVp+F5yGgfRlocRvoEpvBeiAxq3nCfrSpKefzfnQYfsa45uDHGme5LMKH9hXMw=
+	t=1749780221; cv=none; b=eqwwjQysfpjeLKv/PNWHjXjHNLG4Abh6fzwvwGO7gm5O/AzTHVemNQ8eU8XXl8FjFoq62IrWRjNXyyiRZqsVAkixuHG+nfiqWXhKshKpMZR34aiM73jEq4VjhB79yT52jxA+xVIyVV0o96RRs7D9kUAzubv+RTo/K2vMtsjKrtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749779597; c=relaxed/simple;
-	bh=q2CeiThjXnBn+PX0vpfkOk8gxArW4doBcjm6JOl6Xd4=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=OcdDk+zBOyiqFGrJjwXacNJwMJ09EtyCtow8nCiUYb/shySGDtiIha9L/Gf+VGQsm2ABxmyKe5RR+YL7YKOM8fd6pCAs6drt1ElybU4SyKkcU0S+Sakl0V+1D8vP2doxRqoYocxen6GK717cDMvvVM4f9pgWqk+a9exs0fEv/lQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=D11dQ9Fr; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1749780221; c=relaxed/simple;
+	bh=DbJgbMC9kNuTQ0O9LP8iTiW8/nxoO2aXmMm7k2OBOeE=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=OlQjC9aDQHHbm5Tmw4zRH/IuLP/AqkTJFiM5Qa4/4h3pLfgPJqGYg/7l+uPS4huUFpRkaPm//6LeQx8U9alFojw/qruLtq/CiG0xY2JQ+s/dySfm0Ax6ma0wVUayF8XdqyaZf86Oj+9byyCpX/frenvwApC/LVlM5pWwrVABNT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VqTIDiEx; arc=none smtp.client-ip=209.85.219.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="D11dQ9Fr"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1749779593; h=Message-ID:Subject:Date:From:To;
-	bh=5Oe5PaQlPk7LtILWAf2eOzYErXMVWS9+usSmUJzI5Dc=;
-	b=D11dQ9Fr8ZhlYdkGKecfmI9RBh52MBPq1oKo+h7vm4DNEUnzEWUJAM4AhRbDcYyNIWxvUBsfyuxj1UB2zMKnQnCr7WPI20FtoM+0NB6P1jH0iVeKOVBQXEKF1zA2RJYJV1EX8/FW+6w+n0xD4L2ETY7r/q8RQ4i2pRmozDDCKbs=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WdifYuV_1749779592 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 13 Jun 2025 09:53:12 +0800
-Message-ID: <1749779585.8414617-4-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH] virtio: document ENOSPC
-Date: Fri, 13 Jun 2025 09:53:05 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Parav Pandit <parav@nvidia.com>,
- Jason Wang <jasowang@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <2e6ec46b8d5e6755be291cec8e2ec57ef286e97b.1748356035.git.mst@redhat.com>
-In-Reply-To: <2e6ec46b8d5e6755be291cec8e2ec57ef286e97b.1748356035.git.mst@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VqTIDiEx"
+Received: by mail-yb1-f169.google.com with SMTP id 3f1490d57ef6-e733cd55f9eso1582996276.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 19:03:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1749780218; x=1750385018; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wy/uhLM4uWfwEUS86OoGZrfU4y1O/okTHJ9nm0xWHjw=;
+        b=VqTIDiExFrwv3WTZjCP8hEtaWBaemTgwncbjgmmaUQ9gJB60LcOfPto1bPNlgvobdF
+         72kNC9k6ZyCIeg7QBqvJ6DQgH0iyrOvQgMJmr/Eyi+wBScWRKcFR5b2gsI0jfZrx4YOq
+         YbzI67KZykoHz/p4RdEV7HE8wzW+pmDVkWz3guKk1fx5n0sIiAgVN3mtS7PvbMj1KIKx
+         aDcsMD7tKhbR0YqE2K2dLZ1uzMmWgJVYHhjSIqivi1/EM6O8ocQx0BoN5iE3yIBiN3P0
+         FkGxEEytjCIRHP18vABkdWxdrem34Cxq7G4MkwoQq2chrR/nG7CPnpf60JIvfChGvgHW
+         Jn8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749780218; x=1750385018;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=wy/uhLM4uWfwEUS86OoGZrfU4y1O/okTHJ9nm0xWHjw=;
+        b=HRDOyUC84wTq0dqYDnwfp/g2oLyeSTxxfua8uvEXLgsykY52wTqtgfi+B6YmG6aEVT
+         s/5Jef9CwIfbJnmMfP4tQFizAlpHmD50aJgdnWOppeD56aBDndanLVYDmmzRcO0OhhmO
+         Fvv4ZTVaobNRx3ytcrX7c7ntQLNt3L+3mZB5oi7ZcIxJqa8hl+DyW8JSTPjWfylu8kKM
+         mkCZD5xwwuVRMaEa1e1R+tpA4mroYWtkNvGEWxJsjVMLG/N1L5V9kbMMKN+VawCjvO4L
+         Eva4AwVhwoBf4Q1psbeBESZuSiId++gB1wWkWp9xJDgJgdetv8/TdwNpfE1s4VMhHC0V
+         i/Yg==
+X-Forwarded-Encrypted: i=1; AJvYcCXO+MabFvJh6qSSSudCoFVCVCodQ9gMTeNHFdXVcswDUstynw3sPDZxZMinzmUqrOacJCVKtU02Hk8C+gO+NA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx4P3N9XcP6puTjoyq06Ad27c37CJ5sXgUZbM71gcaMIun/0JA9
+	0ik9zqXJj6DOxprUU60ijVX+mvJbZzRHvu7iY3PxY2v0cDryZdvQ9mWI
+X-Gm-Gg: ASbGncsVfGkdcQ999rocQCgaYT136TRQjIXPc2LvU+IURz3GE3v7kac8xayQ/+tqGDK
+	+GVERYMDtQPw54RLrSY6wMwXQHvjBRJtA+1/XatFWuSGYtfTKrCGrNBeY8UpWqo7jlI6Fp6VjYt
+	+Zl8jmdQu4w4JnEqbeY6G5rBplaMv1yRDrgWJYMy7+QNZ3r3uXmh/BN42vSA5KkrwTOnweY6ToD
+	ve8fH5ttgWm1IYGagsAnPS1uqxdlp2Vs1/3d1Visqz2jkSfnkPG+1HosYiMRCOkPCnGG7IUOza7
+	DiVN2UASZP2uPxeUrnK63Gdp9TqPm918uMLgOPU/DmBKC3vVstje8GqMsa7WjCHIpNfJj+A+MzK
+	T5a6U5ABJZkvfn3eLztY3hVKBMrca91Aco546duP9fw==
+X-Google-Smtp-Source: AGHT+IGhfFBS3ucnKhn/lux2ltNMn+fnATvgUPhFfUSkE0XmjQ2hZWkK9TSYAm0wp2Sp+W2K9B+1/A==
+X-Received: by 2002:a05:6902:2210:b0:e81:9b3c:b79b with SMTP id 3f1490d57ef6-e821c34749emr1626258276.45.1749780217764;
+        Thu, 12 Jun 2025 19:03:37 -0700 (PDT)
+Received: from localhost (141.139.145.34.bc.googleusercontent.com. [34.145.139.141])
+        by smtp.gmail.com with UTF8SMTPSA id 3f1490d57ef6-e820e33cb6csm786872276.50.2025.06.12.19.03.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Jun 2025 19:03:37 -0700 (PDT)
+Date: Thu, 12 Jun 2025 22:03:36 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Jason Wang <jasowang@redhat.com>, 
+ mst@redhat.com, 
+ jasowang@redhat.com
+Cc: eperezma@redhat.com, 
+ kvm@vger.kernel.org, 
+ virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, 
+ willemdebruijn.kernel@gmail.com, 
+ davem@davemloft.net, 
+ andrew+netdev@lunn.ch, 
+ edumazet@google.com, 
+ kuba@kernel.org, 
+ pabeni@redhat.com
+Message-ID: <684b86f8d9df9_dcc4529437@willemb.c.googlers.com.notmuch>
+In-Reply-To: <20250612083213.2704-1-jasowang@redhat.com>
+References: <20250612083213.2704-1-jasowang@redhat.com>
+Subject: Re: [PATCH net-next 1/2] tun: remove unnecessary tun_xdp_hdr
+ structure
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, 27 May 2025 10:27:19 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> drivers handle ENOSPC specially since it's an error one can
-> get from a working VQ. Document the semantics.
->
-> Reported-by: Parav Pandit <parav@nvidia.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Jason Wang wrote:
+> With f95f0f95cfb7("net, xdp: Introduce xdp_init_buff utility routine"),
+> buffer length could be stored as frame size so there's no need to have
+> a dedicated tun_xdp_hdr structure. We can simply store virtio net
+> header instead.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-
-> ---
->  drivers/virtio/virtio_ring.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index b784aab66867..97ab0cce527d 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -2296,6 +2296,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
->   * at the same time (except where noted).
->   *
->   * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
-> + *
-> + * NB: ENOSPC is a special code that is only returned on an attempt to add a
-> + * buffer to a full VQ. It indicates that some buffers are outstanding and that
-> + * the operation can be retried after some buffers have been used.
->   */
->  int virtqueue_add_sgs(struct virtqueue *_vq,
->  		      struct scatterlist *sgs[],
-> --
-> MST
->
+Acked-by: Willem de Bruijn <willemb@google.com>
