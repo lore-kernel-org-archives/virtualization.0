@@ -1,156 +1,128 @@
-Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com [209.85.219.181])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23FBAAD5E
-	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 02:15:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C43A324DCF9
+	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 03:12:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749780961; cv=none; b=Tn1WKYiBynKiL/uV0FAetdeIWc2eTKaHj09OT8cRWCNA1gXIzq/57UiGL5e8dcQkD2BZIlfrRjIkT3cIJvfVyVlV4XDMJR1/FI1e4JcFyyhsogxPXYB7llEnHWnQF47sBPaSZ0u9wKxIYMSTG3o7mZ62BL94vpaBRT4TbLpdZ+4=
+	t=1749784329; cv=none; b=Bn3MUCvfAZovhsopxUSdX0sAOwdJsamhcolkRbYwQyHppNdkfoyOrl7gNN+BY1rtvK9A8W8y96rBlOo4L0cw6ZzzjnGwSXZPCvUbCKzI5+UwCpnbYDjzBLXANdKzYUOYvdnECnS2QxRFv0Fx5qQ1kL4DChhhYq9a9up3PYh+pc4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749780961; c=relaxed/simple;
-	bh=hhA4hRWSrpkLSGj8Jisx6+n8n8ogU+EaoUZol/upAgE=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=jQbuG6KcOqQi5qacnj+8Xtyv3XCCQ2IhVECOQI14mDugqBpn/VywItd+j5NGWl4kF/WcOC47+yyhz6W3zep8HqinLaM4u719lBw7nOn9IGl0VUIixyvCoWpfi/8Vy6GLl0VGPzLlksPCDSqoGvMxFikuED4dAdMpHuDmQOPDAWg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CbY4+yk2; arc=none smtp.client-ip=209.85.219.181
+	s=arc-20240116; t=1749784329; c=relaxed/simple;
+	bh=8vDZCrVqGSpvB+A9Uufa93gUzdJNJe6C92j12YvonB4=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=LzLOx+iZQiItC+YXi8DhfwBVM99+yNiC+3WLIImypOAfsJyVqVHj3P/W8/MApgoBdoMuGW6/5m8YxIrToP2IsOCrTgKsfl8tS3RUc3xqeMxHEDtSG8ej3NYya3S6VPPmXxltHMy7KkAUwNTcTbyABgSIGidt6lKPBl9T9t5ezf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AXt05ks5; arc=none smtp.client-ip=209.85.214.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CbY4+yk2"
-Received: by mail-yb1-f181.google.com with SMTP id 3f1490d57ef6-e7db5c13088so1434258276.1
-        for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 19:15:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AXt05ks5"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2351227b098so13882675ad.2
+        for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 20:12:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749780959; x=1750385759; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=A4OSg9tMv2M+t3/zopdwTDlZ3XltE4WsKCLg6MjL/6Q=;
-        b=CbY4+yk27wJtC/LAWnAnnYrAIH9X0EU6+a7EoQSqtAGcbiVAtjBJaZSqOxmMg3t3ho
-         b+hSX/4pUn4OM+UaUS6kWyoiupSqn9ewjNxm0HSOj4817eeAziYp6M14NS9gyVDQ+oGZ
-         M27Az9KVeg3j/mDmLxuY4f4JIC6/fTM4LLJRSRTB7Ait3EiNdJ7ZsnQyLdMnTzjljjTp
-         azdjd9Rct8PzlFAd8aRQ3kqFYfc/lgcG2akZrYWJXrj3U7GtmMWhuWVaSte8JnJ00sNF
-         ct5KhZROPHQ9cJSw2uX+/Zgc0D3EvhyszsVW91tW8csCAVkq9MkocJTrf2pizYdA3W0h
-         oOug==
+        d=gmail.com; s=20230601; t=1749784327; x=1750389127; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=jvQMCmLVoexZEbAMVw+cxcVxwTbZmJeFmGnASyg8vqY=;
+        b=AXt05ks571Dw1zfJGL5ROCdzrOwUpGscapHc+RnruWSfHZ+Z+0mVcosep2kRjlMgI1
+         yJfc3yvog6F/SMO3hPEY9heXbPvxlULvhlDnlbup+7GSBh8dVC4VsF8mTDfLbiwcqaDH
+         3XRD7opV40ABJgjtV+cuphnLbz2qcu/Ek4yGJTgYajOJzEzBj33vPAQ7/VKg9CwWMHep
+         OmiyC+7flkA9KnxhBeZQQRVYe0JW6fJ8HUdRwCuOIZPmo5yobXBRZ/cGl4yvzANFZWBy
+         7lfMkMaz+JUZGuBWdnwvmPFSogYPyntJ7M7js1O7zXZ4jsiVXxnfEOF59PaCH60ABkTY
+         3ucA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749780959; x=1750385759;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=A4OSg9tMv2M+t3/zopdwTDlZ3XltE4WsKCLg6MjL/6Q=;
-        b=kgZQ+PCOW4/Zs3UW2kXKeVuz1nC/+2oHXwQtwFnlTkb5JoXkmUL+QpJu6TJF/XrtFk
-         buRHn3UZ0kL32nrSr+ajE9/+C5en5/djd7olj1X60dLSpbWxWLgTYybo7VBD+ouvSuPb
-         wW0EEV3rvCTJVU+RlL0E1JGuyB5uON0IWB6R0cYL1q6OzDYvTKp71j+93fJ7nNmMxyU9
-         NXPd2778e/W7yr3X9ScF7yBpz5pnQ3JvDWrxw8A09VQcOv0kryNOKvFf6jM6HRU5xRbw
-         hENv9vLZsFyerV76FlOcWc+cAZ/vv6KuJonmNAtHP3VxeUGu9xg9zksPqu3mBKPwhjf6
-         ygzQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUsR1GSX021EgDLDj8FHIEa+/6IY0S5ecpA1c/vTvonUv8vYRqDq+gTyOgCq0NK+LhMIKMZmIt7Eq1z5xVEEQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxwq19eyassrgiXEOHRgZ8/iZkpcOfoH9hoU9HZ1nbyTkyNB7yF
-	fRo1CsNeIFhzRvv7t8qwQQuB5VQbwQyIV5wxem3/PHKllpIhZ2iAnahP
-X-Gm-Gg: ASbGncsYhcgtAssGNlPWPsFyC2Bhi9VrxEyQSgdIhqZykaMeDqo4NtHGGYx3+VBY3dV
-	F2XSBf9quVvDCwdynvSXHXCyvta+GgxVZX9PP1iOj4vLVqDn5n126HudLgrA1TGgWOa0Q+4jhj5
-	isccoD4LUKv4q8E1splo+5ObeZEpULSZnwKeoneBEt596JE9JoZ1Bie2HOMuX3++EAE5y/EcF1j
-	EJmKbiVk9V2f4wSPr3mwpv5UDHLRTXWvSSvrRXAMNw/62zTBkFswIzzpOOeo9ObrN+wK+FWIFt9
-	m+3pUjtSCFzVkjF7N6+BiUGBvJ4XNOT0c7OWUNvYWP2mgEB5b5qeCTXJmMLS1W5vbwZSnEwyGTV
-	y5plecFJkHIsFMCXC0jUeWrhMHXEjy+JHDegLRApl8Q==
-X-Google-Smtp-Source: AGHT+IFNJsQBvWYBgsCWdmxYYF6e6UN9FeyqBxn+1/yGfoGQcLpzsbu5qgjeR9PWb955JCwfENqtVQ==
-X-Received: by 2002:a05:6902:250f:b0:e81:b5c8:3d71 with SMTP id 3f1490d57ef6-e821ddc2fccmr967447276.17.1749780959097;
-        Thu, 12 Jun 2025 19:15:59 -0700 (PDT)
-Received: from localhost (141.139.145.34.bc.googleusercontent.com. [34.145.139.141])
-        by smtp.gmail.com with UTF8SMTPSA id 3f1490d57ef6-e820e09d3ffsm813581276.23.2025.06.12.19.15.58
+        d=1e100.net; s=20230601; t=1749784327; x=1750389127;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=jvQMCmLVoexZEbAMVw+cxcVxwTbZmJeFmGnASyg8vqY=;
+        b=H/AnXycIG5+XatY3KFXRQ8Dgo2tk9owwSMLMpQxnjVwvwUch5YC/hSuEM5KYVjH3Hk
+         NsXvuNbXkoguQJ1eFyEcV7t2Y9pTt358FhbLeL2cTGBk2WisaLHFsY2R62duDRL6g1cG
+         R0BbFkE/eEaAv6htxsWhYM0LZ6sxwfXyjyybiqmKgz+lH1WOvrsAaZKZCkWFKKBPsseN
+         0jqW84FdsegWtXtS2f51IJQMfat53dAt6+vO8BKzHyKt/Y9at2mOcZ3y3M16MfyyR6hx
+         HNAaUN6Vylfn08MExgbobYjEAE9Y8+OrrnYRtl8vtjVYSZ/81Ws6mGrKOYyGf+JMcBl6
+         u5OA==
+X-Gm-Message-State: AOJu0YxQ0bMWom6oHXrybt6i9EQtXP3ISyiFzanelXSrBqmCPwq2H6ST
+	JmgiWUR8Qy+e3uUlwyDa1L4P624pPbuDOK1f2On2R4Bo6g7DY1cMCowS
+X-Gm-Gg: ASbGncve1pmILVoLUA705zbrlj1kBH2IhoCfpVIb/4L7swJIn9lEN/DrAQJPP8CiX8N
+	0kOULNxNiafqpVh/g2dN6oHvpqL08+6+6NprM2vbafQdv35RC+T8ZMb4UKWHGGogztt7Gj19TFU
+	CWXgaTVZ4T82IeiurDN4mY4fV8SSY1/qcI/mvAMrGTsJyNEPphwNSt3QzHRX/P1iXjxjtgLosb5
+	ufKhAx/7Yfv9Fuh0LpNPVe/HLP8CHS2xukT8M0Lji8HjtAO0yoriA/dqykBzupuwPgRiONA5Jqk
+	36KYJgq/JxeSfup9y+cqNKQmZj1LMOuJCGZVjh5uXksSBDzcbOodyx2Bf4KB/n2yyMnPwfB2DCW
+	Qr0saM9KS
+X-Google-Smtp-Source: AGHT+IEWDr4/2rO+qFnFyPkG4l6WRFZhlQHqkd8lc3GlzWs2YR06IinaIb5kW1nJVC9KS1xMri1Yyw==
+X-Received: by 2002:a17:902:e547:b0:234:a734:4ab1 with SMTP id d9443c01a7336-2365d886a50mr18462605ad.3.1749784326668;
+        Thu, 12 Jun 2025 20:12:06 -0700 (PDT)
+Received: from devant.antgroup-inc.local ([47.89.83.0])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-313c1bcbb39sm2291801a91.8.2025.06.12.20.12.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Jun 2025 19:15:58 -0700 (PDT)
-Date: Thu, 12 Jun 2025 22:15:58 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Jason Wang <jasowang@redhat.com>, 
- mst@redhat.com, 
- jasowang@redhat.com
-Cc: eperezma@redhat.com, 
- kvm@vger.kernel.org, 
- virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, 
- willemdebruijn.kernel@gmail.com, 
- davem@davemloft.net, 
- andrew+netdev@lunn.ch, 
- edumazet@google.com, 
- kuba@kernel.org, 
- pabeni@redhat.com
-Message-ID: <684b89de38e3_dcc452944e@willemb.c.googlers.com.notmuch>
-In-Reply-To: <20250612083213.2704-2-jasowang@redhat.com>
-References: <20250612083213.2704-1-jasowang@redhat.com>
- <20250612083213.2704-2-jasowang@redhat.com>
-Subject: Re: [PATCH net-next 2/2] vhost-net: reduce one userspace copy when
- building XDP buff
+        Thu, 12 Jun 2025 20:12:06 -0700 (PDT)
+From: Xuewei Niu <niuxuewei97@gmail.com>
+X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+To: sgarzare@redhat.com,
+	mst@redhat.com,
+	pabeni@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	davem@davemloft.net,
+	netdev@vger.kernel.org,
+	stefanha@redhat.com
+Cc: virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	fupan.lfp@antgroup.com,
+	Xuewei Niu <niuxuewei.nxw@antgroup.com>
+Subject: [PATCH net-next v2 0/3] vsock: Introduce SIOCINQ ioctl support
+Date: Fri, 13 Jun 2025 11:11:49 +0800
+Message-Id: <20250613031152.1076725-1-niuxuewei.nxw@antgroup.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Jason Wang wrote:
-> We used to do twice copy_from_iter() to copy virtio-net and packet
-> separately. This introduce overheads for userspace access hardening as
-> well as SMAP (for x86 it's stac/clac). So this patch tries to use one
-> copy_from_iter() to copy them once and move the virtio-net header
-> afterwards to reduce overheads.
-> 
-> Testpmd + vhost_net shows 10% improvement from 5.45Mpps to 6.0Mpps.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+This patchset introduces SIOCINQ ioctl support for vsock, indicating the
+length of unread bytes.
 
-Acked-by: Willem de Bruijn <willemb@google.com>
+Similar with SIOCOUTQ ioctl, the information is transport-dependent.
 
-> ---
->  drivers/vhost/net.c | 13 ++++---------
->  1 file changed, 4 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 777eb6193985..2845e0a473ea 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -690,13 +690,13 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
->  	if (unlikely(!buf))
->  		return -ENOMEM;
->  
-> -	copied = copy_from_iter(buf, sock_hlen, from);
-> -	if (copied != sock_hlen) {
-> +	copied = copy_from_iter(buf + pad - sock_hlen, len, from);
-> +	if (copied != len) {
->  		ret = -EFAULT;
->  		goto err;
->  	}
->  
-> -	gso = buf;
-> +	gso = buf + pad - sock_hlen;
->  
->  	if (!sock_hlen)
->  		memset(buf, 0, pad);
-> @@ -715,12 +715,7 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
->  		}
->  	}
->  
-> -	len -= sock_hlen;
-> -	copied = copy_from_iter(buf + pad, len, from);
-> -	if (copied != len) {
-> -		ret = -EFAULT;
-> -		goto err;
-> -	}
-> +	memcpy(buf, buf + pad - sock_hlen, sock_hlen);
+The first patch introduces a new callback, unread_bytes, in vsock
+transport, and adds ioctl support in AF_VSOCK.
 
-It's not trivial to see that the dst and src do not overlap, and does
-does not need memmove.
+The second patch implements the SIOCINQ ioctl for all virtio-based transports.
 
-Minimal pad that I can find is 32B and and maximal sock_hlen is 12B.
+The last one adds two test cases to check the functionality. The changes
+have been tested, and the results are as expected.
 
-So this is safe. But not obviously so. Unfortunately, these offsets
-are not all known at compile time, so a BUILD_BUG_ON is not possible.
+Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
 
->  	xdp_init_buff(xdp, buflen, NULL);
->  	xdp_prepare_buff(xdp, buf, pad, len, true);
-> -- 
-> 2.34.1
-> 
+--
 
+v1->v2:
+https://lore.kernel.org/lkml/20250519070649.3063874-1-niuxuewei.nxw@antgroup.com/
+- Use net-next tree.
+- Reuse `rx_bytes` to count unread bytes.
+- Wrap ioctl syscall with an int pointer argument to implement a retry
+  mechanism.
+
+Xuewei Niu (3):
+  vsock: Add support for SIOCINQ ioctl
+  vsock/virtio: Add SIOCINQ support for all virtio based transports
+  test/vsock: Add ioctl SIOCINQ tests
+
+ drivers/vhost/vsock.c                   |  1 +
+ include/linux/virtio_vsock.h            |  1 +
+ include/net/af_vsock.h                  |  2 +
+ net/vmw_vsock/af_vsock.c                | 22 +++++++
+ net/vmw_vsock/virtio_transport.c        |  1 +
+ net/vmw_vsock/virtio_transport_common.c | 13 ++++
+ net/vmw_vsock/vsock_loopback.c          |  1 +
+ tools/testing/vsock/util.c              | 36 ++++++++---
+ tools/testing/vsock/util.h              |  2 +
+ tools/testing/vsock/vsock_test.c        | 83 ++++++++++++++++++++++++-
+ 10 files changed, 152 insertions(+), 10 deletions(-)
+
+-- 
+2.34.1
 
