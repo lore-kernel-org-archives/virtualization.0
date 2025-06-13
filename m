@@ -1,99 +1,106 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBDE44A1E;
-	Thu, 12 Jun 2025 19:04:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D74701BFE00
+	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 00:42:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749755056; cv=none; b=eiZHH5u3P/wyVdBM61vJ2QkbvSyBJZYmkHKh/OffIhrV/cb5uMkmQQHoKO6UO9b4U2vDCXW6utzR5WUkQIeB7sEO/4Qyh/A7B19BjqpVNFkWnh8aW9Wg7NU4fp9trnjwbfT1Bj++zb/VRN0YWhhROhaKLwj6lZGKyf3Bw+0o1Hs=
+	t=1749775351; cv=none; b=D4w/Cciey1lDYYbSfY/qSBqV6bKPvmPUB1oTUOOw0wWoCPAJsQ6ihOMxpOv6p+q29Jsgs2wGK9RnyjW/qkUiUWJ1iwT70MQcSzdMJD9fPSKAm9lBcUX3TLNiizP2Ny26b9dNdQXYoCZtMO1prqbnQOSWIqktzDUZBbXMCPM4Lkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749755056; c=relaxed/simple;
-	bh=6D6BxuzqFc6289gWzxr9MD9k6SduwODZ6NYAWgJEVvE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FDa0uDsyVShTp5cZFGhjA/TA6k+ZjfBfUywBrVVrlY+s38vKjjT9NlJGn1y9V5/V9ls5gwERkngeSfWRehJhjrhK/BmIRH1BOtn7FJV8GW6/6Z4TDlnJVGvpl8D4y/vO0pk9jF3r7omVpIJu5k4b939kefHFwZu7IBt1nTcm59A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TVg3k6+1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1749775351; c=relaxed/simple;
+	bh=maylzhN3R1kW/ohhBSyd7HqzpVdN7/AKHxThCz98Pi8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DmDXiVKPvegeCykhc40HfSYjOsa4gd0fch1Htf5PbtN5K8ENsTjKsTUI0NSfD9HXvin4/wJ+os5CmhpAZLHwLNxSs+gnsbACrbGm8y3Pws8VgsdawHdcIfRm3tjUjqwVKB09za0iKbzfH7tlASZiqlnBztqxSvB/FdTHZ2kiFuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RMFcvSjZ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TVg3k6+1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CDC4C4CEEA;
-	Thu, 12 Jun 2025 19:04:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749755055;
-	bh=6D6BxuzqFc6289gWzxr9MD9k6SduwODZ6NYAWgJEVvE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=TVg3k6+1fIFCDCqzj07OpTxgI7rzCORKFJbnqm8GeR9/Oss7I+h/K8zjYgLY7WVC2
-	 w1+q2edN6g8e8Croaj+1DDwH6LAQMtjnSMyvSJZQSZsUuTEvp0KAXFESX8PacCrgJs
-	 aM3hbncXgquVHDukx3NmSg6cOb/FLcRQHUlhHwyvNG0pHb532yUDsKwlX0RWY/oQZ3
-	 Ov6H5FMMYGTeK/p+HkjAExQ3JC4gemnACMbtpztskO8CiI5c/QKFz9RrAEpIYHWD2y
-	 ISKKCAodFRejkVVX257Qga1XEswstCcv2G8CP5fuaoGIjydsqYgaxXwTvC2YTs8QDZ
-	 b/EskwBtyvQrA==
-Date: Thu, 12 Jun 2025 12:03:47 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Zhenghan Cheng <chengzhenghan@uniontech.com>
-Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-	dave.hansen@linux.intel.com, x86@kernel.org,
-	mario.limonciello@amd.com, yazen.ghannam@amd.com,
-	jpoimboe@kernel.org, tony.luck@intel.com, jarkko@kernel.org,
-	bhelgaas@google.com, pbonzini@redhat.com, oleg@redhat.com,
-	jbaron@akamai.com, ning.sun@intel.com, seanjc@google.com,
-	luto@kernel.org, andy@kernel.org, jim.cromie@gmail.com,
-	kirill.shutemov@linux.intel.com, hpa@zytor.com,
-	pawan.kumar.gupta@linux.intel.com, vkuznets@redhat.com,
-	rostedt@goodmis.org, ardb@kernel.org, thomas.lendacky@amd.com,
-	nikunj@amd.com, ashish.kalra@amd.com, kees@kernel.org,
-	alexandre.chartre@oracle.com, rppt@kernel.org, steve.wahl@hpe.com,
-	jirislaby@kernel.org, apatel@ventanamicro.com, bvanassche@acm.org,
-	ptsm@linux.microsoft.com, Jonathan.Cameron@huawei.com,
-	beata.michalska@arm.com, xin@zytor.com, davydov-max@yandex-team.ru,
-	ravi.bangoria@amd.com, joel.granados@kernel.org,
-	ffmancera@riseup.net, kprateek.nayak@amd.com,
-	akpm@linux-foundation.org, bhe@redhat.com, brgerst@gmail.com,
-	coxu@redhat.com, dmaluka@chromium.org, linux-kernel@vger.kernel.org,
-	linux-edac@vger.kernel.org, linux-sgx@vger.kernel.org,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	tboot-devel@lists.sourceforge.net, nouveau@lists.freedesktop.org,
-	linux-coco@lists.linux.dev, xen-devel@lists.xenproject.org,
-	Huacai Chen <chenhuacai@loongson.cn>,
-	Zhenghan Cheng <your_email@example.com>
-Subject: Re: [PATCH] x86: Fix build warnings about export.h
-Message-ID: <20250612190347.GB1283@sol>
-References: <20250612093228.7655-1-chengzhenghan@uniontech.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RMFcvSjZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749775348;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=maylzhN3R1kW/ohhBSyd7HqzpVdN7/AKHxThCz98Pi8=;
+	b=RMFcvSjZMZyoBnBCXTyNfeAZ/2Ztg3WaXkS2KnM/M7GRet83s3Yx1rksg/IPPpjbB8Av6y
+	hZ9fGQGS8R8BkqsxhBIAaAxXWK4Tm7IkDvArLWW3fApISI2NQDK29AmLItGTmWXZMmNXjW
+	Z5kC12o8deNi/h/5Jr8vDHw2OgeVVrE=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-477-8B-_mjiiMr2Wo4-xxtW3cg-1; Thu, 12 Jun 2025 20:42:27 -0400
+X-MC-Unique: 8B-_mjiiMr2Wo4-xxtW3cg-1
+X-Mimecast-MFC-AGG-ID: 8B-_mjiiMr2Wo4-xxtW3cg_1749775346
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2350804a43eso23528785ad.0
+        for <virtualization@lists.linux.dev>; Thu, 12 Jun 2025 17:42:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749775346; x=1750380146;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=maylzhN3R1kW/ohhBSyd7HqzpVdN7/AKHxThCz98Pi8=;
+        b=qxivB7fOrfrya8t0m9tDHRg4gWZ+Q107DpUUmNI1y7RuZQl3roaFaHmgt9N9wXT0Gm
+         8lDIZMraZydO62MRyAhaN5gG8uJySlChkHuOVigdJRxNGzJbZxPKiLJZOuzCVF1bYSU0
+         MogqA5kPrlwLHX6haGc3JWDlbteocDI2woE24N7pRwZzQy/tbfBWMdtWUTkRLNc++6a9
+         tlJMX7YatO/qvTTqz+KIFqu49cb0Ksqo8hrsaWpxCNf6Q7exv8fMqc9q74e4t3iWTqR1
+         Wk3y0bTjF6wlZMtMS+7RPH8DPPXSk9JKrvvSevJ3OhSJ5n8jgw7i1Idf1zYxps871IFY
+         KaxA==
+X-Forwarded-Encrypted: i=1; AJvYcCV6ZAGXiwYfiNaUZVdY6QifHLUnwqqBcRrS9xoX6G2w5JDPV90p57M8DYZslJaVr2Pt9/p2RfDvmU7lwGk5Jw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxZceMftUf3bnUrSe7SM4nJvPXIMva+bMoUOU8ClkLjrBvJEf0B
+	DqsCgiVPxkDWmj0hTQ1j3C7eo5u6qOfnUxrFD592QXwQ9mQSmJXExlW24vaqc5HzzgZKzi94CAA
+	gAp/ic/vjZGrQDC7wLxGvfV4H1syEcYfqk4b+KvlY3IVowNtpqkctQQWP+p6I1YXow2kyATtZJj
+	fYtalAilgGUbvf94DeM1Ef/B8Hoqwzfdlf0e62CXKG9zI=
+X-Gm-Gg: ASbGncud/jwar7YMFoJK7ow7Ol0JE0ugPCu4rDrfXdAb5cNLTdP3CYBi2kA+HvpN94v
+	ZdLpZG3mOPDhl5Xj43ctj57nBaBUeHIXbrAve9ViGxe9oLGZAuVm3c8kgAh6z0sZQFaQRA6CxX7
+	We
+X-Received: by 2002:a17:902:ecc1:b0:234:8ec1:4aea with SMTP id d9443c01a7336-2365de3ffebmr15643925ad.52.1749775346547;
+        Thu, 12 Jun 2025 17:42:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFyAdb9tOchMbc5VNkQkyQSUnXYNZ2kaRcZWI02WcZBsf9KTCg9tOz9NPCpeq9Fvd5gqgpmYLmy0vfEXIRGarw=
+X-Received: by 2002:a17:902:ecc1:b0:234:8ec1:4aea with SMTP id
+ d9443c01a7336-2365de3ffebmr15643675ad.52.1749775346178; Thu, 12 Jun 2025
+ 17:42:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250612093228.7655-1-chengzhenghan@uniontech.com>
+References: <20250611145949.2674086-1-kuba@kernel.org> <20250611145949.2674086-9-kuba@kernel.org>
+In-Reply-To: <20250611145949.2674086-9-kuba@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 13 Jun 2025 08:42:15 +0800
+X-Gm-Features: AX0GCFtduX1ZN2Z9MpNLZYiPSNj2kJDaR7Qwn7qrUaaQEilxwRPmYc-DFKEweUg
+Message-ID: <CACGkMEsDmQc-zcSpKSC=ezfTfVQNayZDHC2VTxRvrz7qZ_+kgw@mail.gmail.com>
+Subject: Re: [PATCH net-next 8/9] net: drv: virtio: migrate to new RXFH callbacks
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com, 
+	pabeni@redhat.com, andrew+netdev@lunn.ch, horms@kernel.org, 
+	ecree.xilinx@gmail.com, mst@redhat.com, xuanzhuo@linux.alibaba.com, 
+	eperezma@redhat.com, virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: EGwDxKdgeFlcUhIxmljGy5pImHGcTakHOEsYUlIDC_U_1749775346
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 12, 2025 at 05:32:28PM +0800, Zhenghan Cheng wrote:
-> After commit a934a57a42f64a4 ("scripts/misc-check:
-> check missing #include <linux/export.h> when W=1")
-> and commit 7d95680d64ac8e836c ("scripts/misc-check:
-> check unnecessary #include <linux/export.h> when W=1"),
-> we get some build warnings with W=1,such as:
-> 
-> arch/x86/coco/sev/core.c: warning: EXPORT_SYMBOL() is used, but #include <linux/export.h> is missing
-> arch/x86/crypto/aria_aesni_avx2_glue.c: warning: EXPORT_SYMBOL() is used, but #include <linux/export.h> is missing
-> arch/x86/kernel/unwind_orc.c: warning: EXPORT_SYMBOL() is used, but #include <linux/export.h> is missing
-> arch/x86/kvm/hyperv.c: warning: EXPORT_SYMBOL() is used, but #include <linux/export.h> is missing
-> arch/x86/events/intel/core.c: warning: EXPORT_SYMBOL() is not used, but #include <linux/export.h> is present
-> arch/x86/events/zhaoxin/core.c: warning: EXPORT_SYMBOL() is not used, but #include <linux/export.h> is present
-> arch/x86/kernel/crash.c: warning: EXPORT_SYMBOL() is not used, but #include <linux/export.h> is present
-> arch/x86/kernel/devicetree.c: warning: EXPORT_SYMBOL() is not used, but #include <linux/export.h> is present
-> 
-> so fix these build warnings for x86.
-> 
-> Signed-off-by: "Zhenghan Cheng" <chengzhenghan@uniontech.com>
-> Suggested-by: "Huacai Chen" <chenhuacai@loongson.cn>
+On Wed, Jun 11, 2025 at 11:00=E2=80=AFPM Jakub Kicinski <kuba@kernel.org> w=
+rote:
+>
+> Add support for the new rxfh_fields callbacks, instead of de-muxing
+> the rxnfc calls. This driver does not support flow filtering so
+> the set_rxnfc callback is completely removed.
+>
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> ---
+> CC: mst@redhat.com
+> CC: jasowang@redhat.com
+> CC: xuanzhuo@linux.alibaba.com
+> CC: eperezma@redhat.com
+> CC: virtualization@lists.linux.dev
+> ---
 
-FYI, I'm planning to handle arch/x86/lib/crc*.c and arch/x86/lib/crypto/.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-(Specifically, I'm migrating them to lib/crc/ and lib/crypto/ respectively, and
-one of the effects of that is the EXPORT_SYMBOL in arch-specific crc and crypto
-library files go away.  The lib/crc/ change is already in linux-next, and
-https://lore.kernel.org/r/20250612183852.114878-1-ebiggers@kernel.org adds
-<linux/export.h> to all files with EXPORT_SYMBOL in lib/crc/.)
+Thanks
 
-- Eric
