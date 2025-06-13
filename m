@@ -1,39 +1,66 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755EA1EFF80
-	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 07:32:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D737F7DA6C
+	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 08:01:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749799937; cv=none; b=KeIBqr74PGXJsbtd6he6p/sn8UR1w/gjOKLIuMlSb8JcNZczr2bcx/kDU6fOIea1fEbYp/EYONyAmsNKNduMOvZPQw7AC8Shl1pAmqgJ8/Byiib584lCrL448QduVs3QyOipDx8uaR/jJNk3j7RT83kjpwXZ2y8YOIfFJyncCMg=
+	t=1749801676; cv=none; b=nKcetncDxcOEJsFm8Iw8OX22SL7WuCItDpf4Vx9rSIAlbswC56XoI7aaftYom7sZan/0lT60DX0PUDpBm3cJnH4s+SHgJI+XTFkef3esEJObsyMuhnOpNKYDnyeUE7uRtoGr8DddMJNfQA9AcbtoccA0r/iE8+ajzXLE61dzhvo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749799937; c=relaxed/simple;
-	bh=zck7WMGgzZa3cnxbw9rpUAXo+PXfsfoJCR4vIZekB7s=;
+	s=arc-20240116; t=1749801676; c=relaxed/simple;
+	bh=oVkBrK/A0vLvhoTA8U0y8twjRvHkjlMpOpc6rdFuRs4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BMaUzjIs+p5XfqQawstWAIcDJl4xJAFJln0YhNAlo2rOrjSUGg12THO/PdFL0CEvepchP32ulh+Fsh5lHzY+YaDja9FpeRoMYREIw5kWVJk8QAcVw4z1nqQgBM/6oYS/DZ0nN3by7Lmqk6t+FNk7N5ZteE9WJmvdyH9K3SlRxa8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=ssHkh09E; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	 In-Reply-To:Content-Type; b=H7vLnOhtJ8Fzje5pNjcHK53jH4/gBEGseq1HgShHQ73uw6F8zQgyDnYmy/mMG88o93Q3ckTjf2snY+cY/Ljdh8bI3tfR9Y6uI9AAd9uY8uDSjKr6BqKA3b5f9PiNqr9LRDoJe9Z5IC5huk0Zo1HZIy3ocNMNUTutd0+NvH/YcU0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=gMrWJh66; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="ssHkh09E"
-Received: from [192.168.7.202] ([71.202.166.45])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 55D7VjwM3704239
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Fri, 13 Jun 2025 00:31:46 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 55D7VjwM3704239
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025052101; t=1749799910;
-	bh=krbuP/fm6w7WAkYJYWFwpvmZlC0fDISskA1NKizA7xQ=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ssHkh09EYcaM0Ax6sdq6MtHrSSxYTaTdcsnzbRZgcdG+Isq/WnrBYczUvXTg5CwxN
-	 pcVjrm3xKQn0yhcf7jb4dEx6sAKdEgZR2whPfrJi89pD9zuGgdch3sodHzB0WrMC7R
-	 znHrQnL1Zvv+QUqFkfvmElRpjUN5lFqBkpRJm4PrSkrsX90V3GU0gMSIA7JFCrIutu
-	 PwNP6YQlhIiu/pootMO99LR+3o2402BhzCDOvvFgc9nC53bLkUx4x+coky0NVxfIxv
-	 7y4XiCFqoDT400d95pn8JvIEA/eXVRCbaX7CtNG3q80d78+ryMmj16UFMuEHvO2ytx
-	 T+ZJnfwKScM6Q==
-Message-ID: <0c2dab1d-9b5c-4d34-af0e-8a14907d7335@zytor.com>
-Date: Fri, 13 Jun 2025 00:31:44 -0700
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="gMrWJh66"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-441ab63a415so20175425e9.3
+        for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 01:01:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1749801672; x=1750406472; darn=lists.linux.dev;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=oVkBrK/A0vLvhoTA8U0y8twjRvHkjlMpOpc6rdFuRs4=;
+        b=gMrWJh66p5yEzQeVAhrn6o1rcbClsgTx//iTBGr0l6B+MJt3/Jmj/chw5UaVUI1xQC
+         F/unm8R0OlrEZz7wigJ0YNhmi99bmqiV6KLtwEokm2O/cL2YlUcQ5xs3B6vbzWqywjf6
+         Mzfkd5/VGu4Cjc9LGK8ddTkqUQHmHoVC2s47BjbyeZgmjq9Qn3y0vHVtj/2WP9gH001k
+         W5MyUvin4dZGQ5mveqzamvQOBAtKpL1kGq5gfofTUTX9ztoIqN9hGHjEiEyrWElAipXl
+         nIHy5Yi6vmPBvHp+GF4oP3vIAUSpOmCqj+lw6q8rJnyjeQbau1C1FbGujWQ1ffuaylYg
+         44QQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749801672; x=1750406472;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=oVkBrK/A0vLvhoTA8U0y8twjRvHkjlMpOpc6rdFuRs4=;
+        b=H33X3YfW8H/Hpp9Ur8H9ms0EliSDI00+PpNK4G4Z+8Qyt0vi4L4mIqPnI161CrWwKw
+         hiZeeXOy2NGPbM4g3DJQNzU/yj7X6FENQXu3hQ+HrkbobK2LILt2OQjfXhTwUjKMM7IZ
+         ZHxJ6Juc87fkpP7h5lmBuDMG1uYWLz1skxiXZAZfwvdPlC77X4wWoxyrqiixvTGTT0Vv
+         SwdrC4/w8BwcnouFieyHYjPHM4WPSzxBgfq3OZuam4E3u0ZyBLb5KqR8KiN8XRsUpsW6
+         nZ3p+ucmwjSA7XswlDKLk4w6GMhJkhKfhbdg3Svrry6Wcj7QtAmOD5QmsTfmaR7lm+d5
+         BKiA==
+X-Forwarded-Encrypted: i=1; AJvYcCVDxHG2dzZvHQASAAQpeNjCCbr2kJ4ngDFfyuLDl1sB4xl3Ass8wKGm8zoF+F+hpp4sVxzJMJ1vq4XqVD7dXw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzz4qX2q8BL2AxUrkCo8T1GmNpayMCMqOWDltLaaFGMDORgy9az
+	FQHxPuU/jmr+yE0/mFbAZGffPrxdYUC/Mr4c8d3w4G0YdALmGJA2NR35i3HwZsvIUxQ=
+X-Gm-Gg: ASbGncvaUQuFXgB7VDC3aRnxwqBy0LBenwpq2dHm3stv+Kw9K7qt71PQJOyPhWVta5L
+	7zVmfWqf/t3gpcrHm0GcCnf19q8gqv6rKT/r7sR2NfjCsJbuRJS0jV+y+ULpJDOpOCE3B73Fd0c
+	wKhJqAhk1SNfKWgL5C6dg32C+bulXBGy3e8ycS5D1xk8SM2FEGQpBiVbgsioeM9wmQU/H/kXnLg
+	fFR4QhkJj1ZQlL9PzaMZl0WCzh7+20jKJKCSInJF/fdmU326bHhe+ugbZK+uth3DDN31/ixFd8Z
+	QefHYzj8rmWdnIPb1F54Yh/kNg+ZrhT/YpwQABIoRuqOvgqlYwpzCOHKoo84I/iXUUgQPIeBr7M
+	85+kwaioG0yoHFgsWYmTBQeIycFxQ5vrF9D4vwfAJFRqUQZWYxDJtPzhLOvloaiJBzPdLtUCLtX
+	fjP5nI+2Fg95U=
+X-Google-Smtp-Source: AGHT+IFMe7wbeTc0LOBRSkO3BDuKqUyRIhs/5ZGTQ8wq12AaIc2cDx4+sbER33SEbuRIuacSzKv0ag==
+X-Received: by 2002:a05:600c:4e02:b0:442:e147:bea6 with SMTP id 5b1f17b1804b1-45334a7fce4mr17323885e9.11.1749801671116;
+        Fri, 13 Jun 2025 01:01:11 -0700 (PDT)
+Received: from ?IPV6:2003:e5:872a:8800:5c7b:1ac1:4fa0:423b? (p200300e5872a88005c7b1ac14fa0423b.dip0.t-ipconnect.de. [2003:e5:872a:8800:5c7b:1ac1:4fa0:423b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4532e224cb2sm46051975e9.5.2025.06.13.01.01.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 13 Jun 2025 01:01:10 -0700 (PDT)
+Message-ID: <bd565df5-b87c-42b1-a717-9ed1267df0c2@suse.com>
+Date: Fri, 13 Jun 2025 10:01:09 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -43,100 +70,196 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 5/6] x86/paravirt: Switch MSR access pv_ops functions to
  instruction interfaces
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
-        x86@kernel.org, virtualization@lists.linux.dev
+To: Xin Li <xin@zytor.com>, linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev
 Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
-        Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>,
-        Thomas Gleixner
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner
  <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        xen-devel@lists.xenproject.org,
-        Andrew Cooper <andrew.cooper3@citrix.com>
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Andrew Cooper <andrew.cooper3@citrix.com>
 References: <20250506092015.1849-1-jgross@suse.com>
  <20250506092015.1849-6-jgross@suse.com>
  <722f5b30-20e9-4540-98e4-d211d7c44cbe@zytor.com>
  <9f4e33d5-9cb3-4079-b764-87a15265fd52@suse.com>
  <2365af70-d36f-4663-b819-59d886936ef5@zytor.com>
  <8a82946a-6c3e-41d1-b3bd-be164dc6eeba@suse.com>
+ <0c2dab1d-9b5c-4d34-af0e-8a14907d7335@zytor.com>
 Content-Language: en-US
-From: Xin Li <xin@zytor.com>
-Autocrypt: addr=xin@zytor.com; keydata=
- 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
- l75w1xInsg==
-In-Reply-To: <8a82946a-6c3e-41d1-b3bd-be164dc6eeba@suse.com>
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <0c2dab1d-9b5c-4d34-af0e-8a14907d7335@zytor.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------STIfmqOdBFBaxqvTwNHJSgls"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------STIfmqOdBFBaxqvTwNHJSgls
+Content-Type: multipart/mixed; boundary="------------tCGUA4CXW29PV7rMp3vv2bed";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Xin Li <xin@zytor.com>, linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev
+Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner
+ <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Andrew Cooper <andrew.cooper3@citrix.com>
+Message-ID: <bd565df5-b87c-42b1-a717-9ed1267df0c2@suse.com>
+Subject: Re: [PATCH 5/6] x86/paravirt: Switch MSR access pv_ops functions to
+ instruction interfaces
+References: <20250506092015.1849-1-jgross@suse.com>
+ <20250506092015.1849-6-jgross@suse.com>
+ <722f5b30-20e9-4540-98e4-d211d7c44cbe@zytor.com>
+ <9f4e33d5-9cb3-4079-b764-87a15265fd52@suse.com>
+ <2365af70-d36f-4663-b819-59d886936ef5@zytor.com>
+ <8a82946a-6c3e-41d1-b3bd-be164dc6eeba@suse.com>
+ <0c2dab1d-9b5c-4d34-af0e-8a14907d7335@zytor.com>
+In-Reply-To: <0c2dab1d-9b5c-4d34-af0e-8a14907d7335@zytor.com>
+
+--------------tCGUA4CXW29PV7rMp3vv2bed
+Content-Type: multipart/mixed; boundary="------------5Uu5knDZMhxHDHh1wwEwuctw"
+
+--------------5Uu5knDZMhxHDHh1wwEwuctw
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: base64
 
-On 6/11/2025 5:58 AM, Juergen Gross wrote:
->> Here is a patch I cooked.  I added an ALTERNATIVE() hack because the 
->> new instructions can't be more than 6 bytes long.  But with the patch you
->> just sent, it shouldn't be needed.
-> 
-> I have meanwhile dropped the patch copying the original indirect call.
-> 
-> Reason is that I'm seeing a potential risk with current alternative
-> patching when using ALTERNATIVE_[23](): depending on the tested features
-> it might happen that an instruction sequence not suitable for the current
-> runtime environment is patched in as an intermediate step. In case there
-> is an interrupt happening just then AND the handling of the interrupt is
-> using the patch site, this could result in crashes or undefined behavior.
+T24gMTMuMDYuMjUgMDk6MzEsIFhpbiBMaSB3cm90ZToNCj4gT24gNi8xMS8yMDI1IDU6NTgg
+QU0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+Pj4gSGVyZSBpcyBhIHBhdGNoIEkgY29va2Vk
+LsKgIEkgYWRkZWQgYW4gQUxURVJOQVRJVkUoKSBoYWNrIGJlY2F1c2UgdGhlIG5ldyANCj4+
+PiBpbnN0cnVjdGlvbnMgY2FuJ3QgYmUgbW9yZSB0aGFuIDYgYnl0ZXMgbG9uZy7CoCBCdXQg
+d2l0aCB0aGUgcGF0Y2ggeW91DQo+Pj4ganVzdCBzZW50LCBpdCBzaG91bGRuJ3QgYmUgbmVl
+ZGVkLg0KPj4NCj4+IEkgaGF2ZSBtZWFud2hpbGUgZHJvcHBlZCB0aGUgcGF0Y2ggY29weWlu
+ZyB0aGUgb3JpZ2luYWwgaW5kaXJlY3QgY2FsbC4NCj4+DQo+PiBSZWFzb24gaXMgdGhhdCBJ
+J20gc2VlaW5nIGEgcG90ZW50aWFsIHJpc2sgd2l0aCBjdXJyZW50IGFsdGVybmF0aXZlDQo+
+PiBwYXRjaGluZyB3aGVuIHVzaW5nIEFMVEVSTkFUSVZFX1syM10oKTogZGVwZW5kaW5nIG9u
+IHRoZSB0ZXN0ZWQgZmVhdHVyZXMNCj4+IGl0IG1pZ2h0IGhhcHBlbiB0aGF0IGFuIGluc3Ry
+dWN0aW9uIHNlcXVlbmNlIG5vdCBzdWl0YWJsZSBmb3IgdGhlIGN1cnJlbnQNCj4+IHJ1bnRp
+bWUgZW52aXJvbm1lbnQgaXMgcGF0Y2hlZCBpbiBhcyBhbiBpbnRlcm1lZGlhdGUgc3RlcC4g
+SW4gY2FzZSB0aGVyZQ0KPj4gaXMgYW4gaW50ZXJydXB0IGhhcHBlbmluZyBqdXN0IHRoZW4g
+QU5EIHRoZSBoYW5kbGluZyBvZiB0aGUgaW50ZXJydXB0IGlzDQo+PiB1c2luZyB0aGUgcGF0
+Y2ggc2l0ZSwgdGhpcyBjb3VsZCByZXN1bHQgaW4gY3Jhc2hlcyBvciB1bmRlZmluZWQgYmVo
+YXZpb3IuDQo+IA0KPiBPaCwgSSBoYWQgYXNzdW1lZCB0aGF0IExpbnV4IGRpc2FibGVzIGlu
+dGVycnVwdHMgZHVyaW5nIHRoZSBwYXRjaGluZw0KPiBwcm9jZXNzLiBKdXN0IG91dCBvZiBj
+dXJpb3NpdHksIHdoeSBhcmUgaW50ZXJydXB0cyBhbGxvd2VkIGluIHRoaXMgY2FzZT8NCg0K
+SW50ZXJydXB0cyBhcmUgZGlzYWJsZWQgd2l0aGluIHRleHRfcG9rZV9lYXJseSgpIHdoaWxl
+IHBhdGNoaW5nIGEgc2luZ2xlDQppbnN0YW5jZS4NCg0KSSBndWVzcyBrZWVwaW5nIGludGVy
+cnVwdHMgZGlzYWJsZWQgZHVyaW5nIHRoZSBjb21wbGV0ZSBhcHBseV9hbHRlcm5hdGl2ZXMo
+KQ0KaGFuZGxpbmcgd291bGQgcG90ZW50aWFsbHkgcmVzdWx0IGluIGEgdG9vIGxvbmcgcGVy
+aW9kIHdpdGhvdXQgaGFuZGxpbmcgYW55DQppbnRlcnJ1cHRzLg0KDQoNCkp1ZXJnZW4NCg==
 
-Oh, I had assumed that Linux disables interrupts during the patching
-process. Just out of curiosity, why are interrupts allowed in this case?
+--------------5Uu5knDZMhxHDHh1wwEwuctw
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> I have meanwhile a set of 3 patches fixing that problem by merging all
-> alternative patching of a patch site in the local buffer and only then
-> patching the code at the target site with the final result.
-> 
-> The same problem arises with your code below, but this time it isn't
-> fixed by my patches: the two ALTERNATIVE() instances in the asm() construct
-> would need to be patched in a single atomic operation to be consistent.
-> Otherwise you could end up e.g. on bare metal with paravirt_read_msr()
-> having replaced the indirect call with "rdmsr", but not yet having added
-> the code to merge %rdx into %rax.
-> 
-> I'm just doing a V2 of my series, but this time including the additional
-> support of the non-serializing and immediate forms. Lets see how this will
-> look like. I will drop using the EAX_EDX_* macros, but due to the reason
-> mentioned above I won't switch to your variant completely.
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-Great!
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
-Thanks!
-     Xin
+--------------5Uu5knDZMhxHDHh1wwEwuctw--
+
+--------------tCGUA4CXW29PV7rMp3vv2bed--
+
+--------------STIfmqOdBFBaxqvTwNHJSgls
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmhL2sUFAwAAAAAACgkQsN6d1ii/Ey8T
+6wf+Lx95IbfTTKOQJFyx7WrMg/Jq+6GRUWowQjPiHr/aJ2NgIXbtQnBkykc8J89EMOvdqAW8C0Cc
+bd5sVr161doZhvg+ZCIT6a65ziNnm559DTq1iXGc5k9VtqKRaooC7JJ8qvvVdAGBeCYBCTC/2UXc
+MfiH8EaqL3YxPMhmEKEi5LU7LN6Ylfw93GkrpTbNu/lAMrGytCb4/rKcBMrT+steHNkWmcDqi1XB
+xew917zFd74V70INHfo0/vp+Lic341GI4JJOSi1UzZ2a38QQNV8dOMG4DWvN62EipkMCNu8EkVWC
+lQriuZk/bV7jOnAacKD6QzbwJVQIn9650sn/u5gBQQ==
+=g6uR
+-----END PGP SIGNATURE-----
+
+--------------STIfmqOdBFBaxqvTwNHJSgls--
