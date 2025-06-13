@@ -1,286 +1,305 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 169681FFC5D
-	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 15:59:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C08AA1E51F6;
+	Fri, 13 Jun 2025 17:08:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749830346; cv=none; b=D4gZjykLzkhGS5BJKiCU5nL4iyn8sIJJ1dc0fg4+8qcqcqesct/01iBnz/UkVzwBuw1880tL5A4WLqCJdc8v4WN5mtHafbLdhKrLKhsOh/fdwkLlAa6JrpD95WQBrZc/l+WgTOLFtBgAivzI9qiTL4YNPTY7lL8q0yg4Lsx/kqs=
+	t=1749834499; cv=none; b=R58uHtDg23SkwYygOrNhUu8Joez2bha5xcjGORg4bUWG2bGdz7Qkb6go1sYqHSTbQqRezdrl3t8SS+DGywt2CEZuzg8cDWsv7/HWirSu2ZzlZlkSF8/O4S5p2LpdJTAGftWU5Ki51UYmz9EsoGHt56sU0teS5zgvee3OVm0ilug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749830346; c=relaxed/simple;
-	bh=089E9zzYEf4HWcrTHbQ4OnUMHP87EOWqgFH1D8nIBBo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=KpYLfDdoLv+3+Z9jZQhf1v4znEZH7tUmGoE/+jrR+MHFILYVASp4LYdxJBb8X60YvO5yTrl2xlCOcrbduexzVOeGi9Ozi1Y2PvQxUHcvDiineAHYMAALbIeNJzE74/wc7cqNYaVQORAFWWBTfhrLkYhAGVkBXC0e6fSII3vPgVg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a/Vt6Af1; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1749834499; c=relaxed/simple;
+	bh=SxQ5aZRaKr7SJ2Edr9xzhyEiJCBIH1xQJ6Kp0pb7UYc=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type; b=KZ/45QE46aosvO01rVoYcn+x2HFl+ujEXJAiJ1QY/o05myAt8E0Lb0MHdGKGPZe9FWxj1bzGo+Benq4WqI0Vw+INNjOPwjE8PkfMGa1gNnYDYhRgFzquMPyLzdVzisaKxKfGcNMjpWyRsdov+NQX5/CZVRuu0b8Vpe9p8keNF6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EfGaN7vk; arc=none smtp.client-ip=209.85.222.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a/Vt6Af1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749830343;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vXd2E9l4gQdhkRDehHJQuHc3ndERcngM1dXOR6Z8sV4=;
-	b=a/Vt6Af14ujzYhlUzEupdbxyyCgsLOcmbcyYMZFR54IY2XKpw/XJFZQDZYmXwNj2TSb07u
-	cEYx2FhmD+Seije61Zv1fmaiSB34EOWfkD3T70UJzqwea29irMQulU0MxbEBUvG7NRZ5TF
-	dr+XvRWvMoLprJehv4P2jxF1seYqnOE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-637-X2yL_LRLNm6FX007fGo0HA-1; Fri, 13 Jun 2025 11:59:01 -0400
-X-MC-Unique: X2yL_LRLNm6FX007fGo0HA-1
-X-Mimecast-MFC-AGG-ID: X2yL_LRLNm6FX007fGo0HA_1749830341
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a4f6ba526eso1460196f8f.1
-        for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 08:59:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EfGaN7vk"
+Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-7d0a0bcd3f3so260743185a.1;
+        Fri, 13 Jun 2025 10:08:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1749834494; x=1750439294; darn=lists.linux.dev;
+        h=autocrypt:content-language:to:subject:from:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=jjngTerNTsAqM+UqVKPsC1zJPqVupaFyU1HBX+QwTvg=;
+        b=EfGaN7vkTz4gfeA2iiJrd4C6S9q3lW3wGS8hPKrv5DWlF7FULTVoSeKKhb0cDz/17q
+         xBafuXpk4Xu9LzDv8X0+prohL7tlYRUbxdwnex0YEQ/K6PBuhA0/Y+G/Bi1pQBZzkqSh
+         LSlLbA70mDfpaYHBBWVZSa03WvcBkKG48yxkoVKYOQ4atLurnsyWxg08ZuNokACc6b0M
+         45lF7Q1rSwcYK40lKfK5HfAhZv8eXofXjDU9uT2a5ZGsvKYo2ZjdTzxQHtdB6del544U
+         PZ7PhfYB/Hwfs7tZzfwX0X1EScqKNrlLJz/2okoV/dSVL4CRBFwNBj4R4CIcf65HxYcX
+         wzPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749830341; x=1750435141;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1749834494; x=1750439294;
+        h=autocrypt:content-language:to:subject:from:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vXd2E9l4gQdhkRDehHJQuHc3ndERcngM1dXOR6Z8sV4=;
-        b=XqcaXfD56m/UhxzGWLvj9uPoVIc2gaSqZLYDHyCSzqQr4XgmnxBEyGZpm/vYx9gLOr
-         IbKTg5czsM7aet063ZLqeqPHhqYq6Y5r/U0mvQGRggPTsehJ+r8ca+Vrv95iDiaRX3q6
-         dStL6RDTTFzt6ATHAe7XpbKgL+qfXENJR5VHX8JSp1/WXrsljnWaWUFkDmjBsxOjUnfc
-         3Q+9DQAQwq5tuwpMkF3QMC9XhccUEF2JysKx492+nhZ03UKEl6Hb5eZMwgVzW5/InF/y
-         lHL4MsTdZ0SGR8oOM7t1ojXoL9N/Ug2dveXcmZlJRpMpedj9da1Gb6fV5Ui3hw1ACQE+
-         XFZg==
-X-Forwarded-Encrypted: i=1; AJvYcCWzZ66Zx1+zCLnEYdgX61U16SdKNNJUDk6ezQ6Ib48oXCkHLh68nQDU+Ok1IFjZvmeikyqFv25e44PeByVDuw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwhHa3PHgJdjPex7duAX3f2KQC4CN5Sxgjlpa66styr5+NkX7OJ
-	XNYiGnLTGnAsuQ/mPa7Ke8tpV800BSeRQTpp7qD6FhrUAYwbZwIbsfeYRLjLyjexV8blhmQtuDt
-	L2GeHP8Phf3YNe4fMDHeFTFVOENS23/OKs3MosQz+fDEsNU+P2a0zmjpi5ObaOCjNXSr/
-X-Gm-Gg: ASbGncttTa1RwV1VQFTy9Ak7fWlfH9KvuY5C79cWrLMw/V6O4weQEZLkqt16Dn4XBsk
-	Y8elrrlqlRrNVvuh02za6+k+4gGkGQXTGmtaB/l7Rem109kYP1w9iE51MpdY5JOdCTYWjOY4P0R
-	31IEX8r2Wpu7+C7rSOfxqgvYtCsNRVxzb4GWRaFFkOiAT/PE1EHExIgXoP3szeQ/CzYUoru7A5A
-	yA5bITXe1rhGPzyntdnSlVlES5cXA5wquCdJ7p/EcEEHhFYbgBVAo5XSZiU8G1kBj6J/2XJ15LD
-	Gfmw3FF6+MdSzIGbrNIKM+pJ9TI=
-X-Received: by 2002:a05:6000:250c:b0:399:6dd9:9f40 with SMTP id ffacd0b85a97d-3a5723678b8mr327529f8f.9.1749830340624;
-        Fri, 13 Jun 2025 08:59:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGDe3Os6nXZXseBeVEvQKPiGia/OhIl4+MhQzdYYyR491IpRR8nlQFkCg6z9FLG8MlcAN9QNw==
-X-Received: by 2002:a05:6000:250c:b0:399:6dd9:9f40 with SMTP id ffacd0b85a97d-3a5723678b8mr327494f8f.9.1749830340098;
-        Fri, 13 Jun 2025 08:59:00 -0700 (PDT)
-Received: from leonardi-redhat ([176.206.17.146])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a568a54d1fsm2716266f8f.2.2025.06.13.08.58.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Jun 2025 08:58:59 -0700 (PDT)
-Date: Fri, 13 Jun 2025 17:58:57 +0200
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v3 2/3] vsock/test: Introduce get_transports()
-Message-ID: <axujhror2lskp3bxfslursibmlo6qwuzhc2tgfb4jea7progc3@4op6ajqu35c2>
-References: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
- <20250611-vsock-test-inc-cov-v3-2-5834060d9c20@rbox.co>
+        bh=jjngTerNTsAqM+UqVKPsC1zJPqVupaFyU1HBX+QwTvg=;
+        b=rU8Bin6ZA6EMtdy0z4oZsGUG7NUMZoROwn2jxgolTg+A2zPIKMmIU6FUP2mtFqKmq0
+         UaedMs2ut8vTI7lnu54V97D0gRunewfS+hfNAx2Y1HhmMh6Hzfw5Ux9D3BwX5IND+ASp
+         lK76BhW9RaLqikQnJp+K5gzF7JexBkLT6pX9MxfDOhXNeAkLhvcxNcjVp0UQTIW0LVc5
+         DaCFNbhhkdUWUxR4/qWgruGGzo+NMLG3k+XEaphG1nJ6GMsgcix1rvKqHMOEKxaQGLFq
+         WX+U7pzcVtvQ7XLboGfqDoWvrJmYQyE4F06UlqPpHNp57JMf/W8H8ZNiD2zIIzq9ZImi
+         Cr9w==
+X-Forwarded-Encrypted: i=1; AJvYcCWVEk4c2T1/O+sr9RsRSv3Mof4zKIZOqZYqsSyENwFHCYMNmcrEA6TQFMmguO7nwnNOP9DTJMf7CFkEzX8uxRE=@lists.linux.dev, AJvYcCWa97s6XnRd5jOTRpCLzrUQHksTflmC4XEjUCMO1inx4IaxGQfRs+t8K3PvPHzfZU8w4X3RVA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx2FaPn4rRRR2ZC0IhiKqeEBIsKBbY8asUqA4gAkjl1dVDoZvQA
+	nJQBRA9yP3ld6D7mOKwruUEofcSdn0blYnQZdN0axKFiUo0uBKAQA3rM
+X-Gm-Gg: ASbGncsuUuntSCea9IF1tZ06erEfgYFnKg1eXnzXlewpL+I4qSxjEmFwTPYaeUy6lTA
+	qAM8q3ar5h47Q8mMMiG5P0md1QMM4GWPnF3Vaafcv+PSJfpsvnx8PPWQR4m3MadWuOBMIJcFtQU
+	vA13j4FDdRJlO5NN4lHeS4WDpX+/fjMLkBDoRx6/h9H7f10k8mF2zuXFEqZzl84AWzR39e5/Ct9
+	wpVMqtCbMP9EhX8qnoL7cejA5JtqUigvQQm6UuRjNTbZ0HpiOb1JAuZxGWqZA5PvHVDM508DGzC
+	WSaFhc2B7LM9fA+abiIxMw/+1FF1yMDf1Jb9xd3BuW5EIXgei7x6Unix70KHIrxbut4=
+X-Google-Smtp-Source: AGHT+IGowXIyHTcjgqxOWc2ZqJB+betqeFmao3qtrPWupF3wMV+jTXKbGOTiQU8PspgXONx/ztVdfw==
+X-Received: by 2002:a05:620a:839b:b0:7c2:f39d:d0e0 with SMTP id af79cd13be357-7d3c512541emr251248085a.3.1749834494513;
+        Fri, 13 Jun 2025 10:08:14 -0700 (PDT)
+Received: from [10.138.10.6] ([89.187.178.201])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3c6854291sm14358685a.44.2025.06.13.10.08.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 13 Jun 2025 10:08:13 -0700 (PDT)
+Message-ID: <c40da5dc-44c0-454e-8b1d-d3f42c299592@gmail.com>
+Date: Fri, 13 Jun 2025 13:08:07 -0400
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250611-vsock-test-inc-cov-v3-2-5834060d9c20@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nf7DsrNNUpoXoNIRfZtOzUxA5wp7ji7zv05MZywK_pY_1749830341
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+From: Demi Marie Obenour <demiobenour@gmail.com>
+Subject: Virtio interrupt remapping
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
+ iommu@lists.linux.dev, linux-kernel@vger.kernel.org, devel@spectrum-os.org,
+ Alyssa Ross <hi@alyssa.is>
+Content-Language: en-US
+Autocrypt: addr=demiobenour@gmail.com; keydata=
+ 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
+ +MYSfkEjBz0E8CLOcAw7JIwAaeBT
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------qWdLxZS1h0FGtlEsS2x3lgPK"
 
-Hi Michal,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------qWdLxZS1h0FGtlEsS2x3lgPK
+Content-Type: multipart/mixed; boundary="------------Dh7fd73oXB3UU1mv5H6g5rH7";
+ protected-headers="v1"
+From: Demi Marie Obenour <demiobenour@gmail.com>
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
+ iommu@lists.linux.dev, linux-kernel@vger.kernel.org, devel@spectrum-os.org,
+ Alyssa Ross <hi@alyssa.is>
+Message-ID: <c40da5dc-44c0-454e-8b1d-d3f42c299592@gmail.com>
+Subject: Virtio interrupt remapping
 
-On Wed, Jun 11, 2025 at 09:56:51PM +0200, Michal Luczaj wrote:
->Return a bitmap of registered vsock transports. As guesstimated by 
->grepping
->/proc/kallsyms (CONFIG_KALLSYMS=y) for known symbols of type `struct
->vsock_transport`, or `struct virtio_transport` in case the 
->vsock_transport
->is embedded within.
->
->Note that the way `enum transport` and `transport_ksyms[]` are defined
->triggers checkpatch.pl:
->
->util.h:11: ERROR: Macros with complex values should be enclosed in 
->parentheses
->util.h:20: ERROR: Macros with complex values should be enclosed in 
->parentheses
->util.h:20: WARNING: Argument 'symbol' is not used in function-like 
->macro
->util.h:28: WARNING: Argument 'name' is not used in function-like macro
->
->While commit 15d4734c7a58 ("checkpatch: qualify do-while-0 advice")
->suggests it is known that the ERRORs heuristics are insufficient, I can 
->not
->find many other places where preprocessor is used in this
->checkpatch-unhappy fashion. Notable exception being bcachefs, e.g.
->fs/bcachefs/alloc_background_format.h. WARNINGs regarding unused macro
->arguments seem more common, e.g. __ASM_SEL in 
->arch/x86/include/asm/asm.h.
->
->In other words, this might be unnecessarily complex. The same can be
->achieved by just telling human to keep the order:
->
->enum transport {
->	TRANSPORT_LOOPBACK = BIT(0),
->	TRANSPORT_VIRTIO = BIT(1),
->	TRANSPORT_VHOST = BIT(2),
->	TRANSPORT_VMCI = BIT(3),
->	TRANSPORT_HYPERV = BIT(4),
->	TRANSPORT_NUM = 5,
->};
->
-> #define KSYM_ENTRY(sym) "d " sym "_transport"
->
->/* Keep `enum transport` order */
->static const char * const transport_ksyms[] = {
->	KSYM_ENTRY("loopback"),
->	KSYM_ENTRY("virtio"),
->	KSYM_ENTRY("vhost"),
->	KSYM_ENTRY("vmci"),
->	KSYM_ENTRY("vhs"),
->};
->
->Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->Signed-off-by: Michal Luczaj <mhal@rbox.co>
->---
-> tools/testing/vsock/util.c | 56 ++++++++++++++++++++++++++++++++++++++++++++++
-> tools/testing/vsock/util.h | 29 ++++++++++++++++++++++++
-> 2 files changed, 85 insertions(+)
->
->diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
->index b7b3fb2221c1682ecde58cf12e2f0b0ded1cff39..803f1e075b62228c25f9dffa1eff131b8072a06a 100644
->--- a/tools/testing/vsock/util.c
->+++ b/tools/testing/vsock/util.c
->@@ -7,6 +7,7 @@
->  * Author: Stefan Hajnoczi <stefanha@redhat.com>
->  */
->
->+#include <ctype.h>
-> #include <errno.h>
-> #include <stdio.h>
-> #include <stdint.h>
->@@ -23,6 +24,9 @@
-> #include "control.h"
-> #include "util.h"
->
->+#define KALLSYMS_PATH		"/proc/kallsyms"
->+#define KALLSYMS_LINE_LEN	512
->+
-> /* Install signal handlers */
-> void init_signals(void)
-> {
->@@ -854,3 +858,55 @@ void enable_so_linger(int fd, int timeout)
-> 		exit(EXIT_FAILURE);
-> 	}
-> }
->+
->+static int __get_transports(void)
->+{
->+	char buf[KALLSYMS_LINE_LEN];
->+	const char *ksym;
->+	int ret = 0;
->+	FILE *f;
->+
->+	f = fopen(KALLSYMS_PATH, "r");
->+	if (!f) {
->+		perror("Can't open " KALLSYMS_PATH);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	while (fgets(buf, sizeof(buf), f)) {
->+		char *match;
->+		int i;
->+
->+		assert(buf[strlen(buf) - 1] == '\n');
->+
->+		for (i = 0; i < TRANSPORT_NUM; ++i) {
->+			if (ret & BIT(i))
->+				continue;
->+
->+			/* Match should be followed by '\t' or '\n'.
->+			 * See kallsyms.c:s_show().
->+			 */
->+			ksym = transport_ksyms[i];
->+			match = strstr(buf, ksym);
->+			if (match && isspace(match[strlen(ksym)])) {
->+				ret |= BIT(i);
->+				break;
->+			}
->+		}
->+	}
->+
->+	fclose(f);
->+	return ret;
->+}
->+
->+/* Return integer with TRANSPORT_* bit set for every (known) registered vsock
->+ * transport.
->+ */
->+int get_transports(void)
->+{
->+	static int tr = -1;
->+
->+	if (tr == -1)
->+		tr = __get_transports();
->+
->+	return tr;
->+}
->diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
->index 0afe7cbae12e5194172c639ccfbeb8b81f7c25ac..71895192cc02313bf52784e2f77aa3b0c28a0c94 100644
->--- a/tools/testing/vsock/util.h
->+++ b/tools/testing/vsock/util.h
->@@ -3,8 +3,36 @@
-> #define UTIL_H
->
-> #include <sys/socket.h>
->+#include <linux/bitops.h>
->+#include <linux/kernel.h>
-> #include <linux/vm_sockets.h>
->
->+/* All known vsock transports, see callers of vsock_core_register() */
->+#define KNOWN_TRANSPORTS(x)		\
->+	x(LOOPBACK, "loopback")		\
->+	x(VIRTIO, "virtio")		\
->+	x(VHOST, "vhost")		\
->+	x(VMCI, "vmci")			\
->+	x(HYPERV, "hvs")
->+
->+enum transport {
->+	TRANSPORT_COUNTER_BASE = __COUNTER__ + 1,
->+	#define x(name, symbol)		\
->+		TRANSPORT_##name = BIT(__COUNTER__ - TRANSPORT_COUNTER_BASE),
->+	KNOWN_TRANSPORTS(x)
->+	TRANSPORT_NUM = __COUNTER__ - TRANSPORT_COUNTER_BASE,
->+	#undef x
->+};
->+
->+static const char * const transport_ksyms[] = {
->+	#define x(name, symbol) "d " symbol "_transport",
->+	KNOWN_TRANSPORTS(x)
->+	#undef x
->+};
->+
->+static_assert(ARRAY_SIZE(transport_ksyms) == TRANSPORT_NUM);
->+static_assert(BITS_PER_TYPE(int) >= TRANSPORT_NUM);
->+
-> /* Tests can either run as the client or the server */
-> enum test_mode {
-> 	TEST_MODE_UNSET,
->@@ -82,4 +110,5 @@ void setsockopt_timeval_check(int fd, int level, int optname,
-> 			      struct timeval val, char const *errmsg);
-> void enable_so_zerocopy_check(int fd);
-> void enable_so_linger(int fd, int timeout);
->+int get_transports(void);
-> #endif /* UTIL_H */
->
->-- 
->2.49.0
->
+--------------Dh7fd73oXB3UU1mv5H6g5rH7
+Content-Type: multipart/mixed; boundary="------------gg0sHYbzU92ER616eRh0Jlk4"
 
-Checked the code and tested `get_transports()`. It works as expected!
-I'm not sure about the `checkpatch.pl` errors, but code LGTM to me.
+--------------gg0sHYbzU92ER616eRh0Jlk4
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Tested-by: Luigi Leonardi <leonardi@redhat.com>
-Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
+I=E2=80=99m working on virtio-IOMMU interrupt remapping for Spectrum OS [=
+1],
+and am running into a problem.  All of the current interrupt remapping
+drivers use __init code during initialization, and I=E2=80=99m not sure h=
+ow to
+plumb the struct virtio_device * into the IOMMU initialization code.
 
-Thanks!
-Luigi
+What is the proper way to do this, where =E2=80=9Cproper=E2=80=9D means t=
+hat it doesn=E2=80=99t
+do something disgusting like =E2=80=9Cstuff the virtio device in a global=
 
+variable=E2=80=9D?
+--=20
+Sincerely,
+Demi Marie Obenour (she/her/hers)
+
+
+--------------gg0sHYbzU92ER616eRh0Jlk4
+Content-Type: application/pgp-keys; name="OpenPGP_0xB288B55FFF9C22C1.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB288B55FFF9C22C1.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsFNBFp+A0oBEADffj6anl9/BHhUSxGTICeVl2tob7hPDdhHNgPR4C8xlYt5q49y
+B+l2nipdaq+4Gk6FZfqC825TKl7eRpUjMriwle4r3R0ydSIGcy4M6eb0IcxmuPYf
+bWpr/si88QKgyGSVZ7GeNW1UnzTdhYHuFlk8dBSmB1fzhEYEk0RcJqg4AKoq6/3/
+UorR+FaSuVwT7rqzGrTlscnTDlPWgRzrQ3jssesI7sZLm82E3pJSgaUoCdCOlL7M
+MPCJwI8JpPlBedRpe9tfVyfu3euTPLPxwcV3L/cfWPGSL4PofBtB8NUU6QwYiQ9H
+zx4xOyn67zW73/G0Q2vPPRst8LBDqlxLjbtx/WLR6h3nBc3eyuZ+q62HS1pJ5EvU
+T1vjyJ1ySrqtUXWQ4XlZyoEFUfpJxJoN0A9HCxmHGVckzTRl5FMWo8TCniHynNXs
+BtDQbabt7aNEOaAJdE7to0AH3T/Bvwzcp0ZJtBk0EM6YeMLtotUut7h2Bkg1b//r
+6bTBswMBXVJ5H44Qf0+eKeUg7whSC9qpYOzzrm7+0r9F5u3qF8ZTx55TJc2g656C
+9a1P1MYVysLvkLvS4H+crmxA/i08Tc1h+x9RRvqba4lSzZ6/Tmt60DPM5Sc4R0nS
+m9BBff0Nm0bSNRS8InXdO1Aq3362QKX2NOwcL5YaStwODNyZUqF7izjK4QARAQAB
+zTxEZW1pIE9iZW5vdXIgKElUTCBFbWFpbCBLZXkpIDxhdGhlbmFAaW52aXNpYmxl
+dGhpbmdzbGFiLmNvbT7CwY4EEwEIADgWIQR2h02fEza6IlkHHHGyiLVf/5wiwQUC
+X6YJvQIbAwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAKCRCyiLVf/5wiwWRhD/0Y
+R+YYC5Kduv/2LBgQJIygMsFiRHbR4+tWXuTFqgrxxFSlMktZ6gQrQCWe38WnOXkB
+oY6n/5lSJdfnuGd2UagZ/9dkaGMUkqt+5WshLFly4BnP7pSsWReKgMP7etRTwn3S
+zk1OwFx2lzY1EnnconPLfPBc6rWG2moA6l0WX+3WNR1B1ndqpl2hPSjT2jUCBWDV
+rGOUSX7r5f1WgtBeNYnEXPBCUUM51pFGESmfHIXQrqFDA7nBNiIVFDJTmQzuEqIy
+Jl67pKNgooij5mKzRhFKHfjLRAH4mmWZlB9UjDStAfFBAoDFHwd1HL5VQCNQdqEc
+/9lZDApqWuCPadZN+pGouqLysesIYsNxUhJ7dtWOWHl0vs7/3qkWmWun/2uOJMQh
+ra2u8nA9g91FbOobWqjrDd6x3ZJoGQf4zLqjmn/P514gb697788e573WN/MpQ5XI
+Fl7aM2d6/GJiq6LC9T2gSUW4rbPBiqOCeiUx7Kd/sVm41p9TOA7fEG4bYddCfDsN
+xaQJH6VRK3NOuBUGeL+iQEVF5Xs6Yp+U+jwvv2M5Lel3EqAYo5xXTx4ls0xaxDCu
+fudcAh8CMMqx3fguSb7Mi31WlnZpk0fDuWQVNKyDP7lYpwc4nCCGNKCj622ZSocH
+AcQmX28L8pJdLYacv9pU3jPy4fHcQYvmTavTqowGnM08RGVtaSBNYXJpZSBPYmVu
+b3VyIChsb3ZlciBvZiBjb2RpbmcpIDxkZW1pb2Jlbm91ckBnbWFpbC5jb20+wsF4
+BBMBAgAiBQJafgNKAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRCyiLVf
+/5wiwYa/EACv8a2+MMou9cSCNoZBQaU+fTmyzft9hUE+0d5W2UY1RY3OsjFIzm9R
+/4SVccfsqOYLEo+S0vQMIIIqFEq3FCpXXwPzyimotps05VA8U3Bd7yseojFygOgK
+sAMOAee2RCaDDOnoJue01dfZMzzHPO/TVdp3OvnpWipfv5G1Xg96rwbhMLE3tg6N
+xwAHa31Bv4/Xq8CJOoIWvx6fcmZQpz01/lSvsYn0KrfEbTKkuUf0vM9JrCTCP2oz
+VNN5BYzqaq2M4r+jmSyeXLim922VOWqGkUEQ85BSEemqrRS06IU6NtEMsF8EWt/b
+hWjk/9GDKTcnpdJHTrMxTspExBiNrvpI2t+YPU5B/dJJAUxvmhFrbSIbdB8umBZs
+I3AMYrEmpAbh5x7jEjoskUC7uN3o9vpg1oCLS2ePDLtAtyBtbHnkA4xGD7ar8mem
+xpH9lY/i+sC6CyyIUWcUDnnagKyJP0m9ks0GLsTeOCA0bft2XA6rD6aaCnMUsndT
+ctrab42CV5XypjmC4U1rPJ8JQJUh1/3P48/8sMH+3krxpJ06KNWNFaUbaMTGiltZ
+7x9DngklSYrX0T+2G4kVXNmjaljwkoLahwLla2gUWwBSyofXdqyhQdwZsp01KXNQ
+UCyT/Pg+aDcm/E7OMV3d4lf7g/CSxiX2GSEe6BlhSz+Lmd7ZJ3g32M1ARGVtaSBN
+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
+EtJuZYM5blWncBOJCoWMnBEcTEo/viU3GgcVRw=3D=3D
+=3Dx94R
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------gg0sHYbzU92ER616eRh0Jlk4--
+
+--------------Dh7fd73oXB3UU1mv5H6g5rH7--
+
+--------------qWdLxZS1h0FGtlEsS2x3lgPK
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEopQtqVJW1aeuo9/sszaHOrMp8lMFAmhMWvgACgkQszaHOrMp
+8lNYSxAAhuw4UdhuQeIBsxzM6h2WpmaBGQaz59tAJju4sICY6JUnm2Gn6avqpQ7o
+ZNGRTqH2qv/LMphsC7jn0sxs5GdaH0x8QfqcO8aDaYgP7E9eTURcmKdOtdxtASus
+pKdGpaSwzvASF4ZNwFJcwECKuMXJEjOLCWsZ6jVXVh7C2Tc/kMZSeNa3ZjfLuhJk
+T/OPnxgDdtj4KdMmT/ooK5pNHc/mUAci7GN/jZJtqpzRsG5d3PocK+qVpgtandDO
+S5bBJZ3xOS8f0DO4gAqkV+873QYq7ASTuqn/jFPepyQTfmFrskVg3k6KFjriG7S3
+NJrMyD5MNM6DR1U4tq/0vVN4Wnh3lD3nGMwF8bV60UMFOK3q32A76jIJnNYkh1Ga
+cTdg1hPMH+cGeBJPIVfnItiDdsYSt0o25ir4AZZto+LtythNadhhw5K2VUq/J8zN
+MI+GKN5/KQh/0os33K6KLug2gWxB/LjzDZTQQU40e2If4sOsLCAQGf0oJX2+ARzv
+AwOvWJzFZnh0wpPzU78k9W5SBQbf6v1fQyJ69Fb07VSiqpHAle6HUj8sYh6NMVAk
+VQQPpyOIVmV9ufhBVGduoGvVFzb4uspIEMishnO0wpn4elZL9hzoC7gFLatDN82q
+eN1701e9bJe2PWEOhNmj8C3xUYy4ea1Y7d/hu1Vc9UzzJ58PWow=
+=/hC5
+-----END PGP SIGNATURE-----
+
+--------------qWdLxZS1h0FGtlEsS2x3lgPK--
