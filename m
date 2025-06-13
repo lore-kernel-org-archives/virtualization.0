@@ -1,141 +1,286 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0714319E7E2
-	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 15:58:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 169681FFC5D
+	for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 15:59:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749830328; cv=none; b=UKKruulFq1WTRNwyc4Tg5AOfFglKVctJ1l2j/oxyJsRYeFA0oka/KGTFZBbhebyW+udXsnlI+PcNP1rr+nqNFFvnlGk79fF523xr/2eIKMZe9zW2YgZDTBiegMkx5bWRmIL7mJ2uFUNXICsX7vslh20ajIHzBAJP/N5OcoXupzc=
+	t=1749830346; cv=none; b=D4gZjykLzkhGS5BJKiCU5nL4iyn8sIJJ1dc0fg4+8qcqcqesct/01iBnz/UkVzwBuw1880tL5A4WLqCJdc8v4WN5mtHafbLdhKrLKhsOh/fdwkLlAa6JrpD95WQBrZc/l+WgTOLFtBgAivzI9qiTL4YNPTY7lL8q0yg4Lsx/kqs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749830328; c=relaxed/simple;
-	bh=jHspmyvQYxNtlI9sxlSzz47M3IR/Dsvnejhvt4pQ7kY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MvG3TzwaGfJMouHlNBAgUEmfUY72w0wH8fNUfU8vSO3PNofDsN4EHHqkjLc/MqJ4fNhCw0DkzrMWtsxur0LNAzOOl/hgYmpzXI4BNfDINbgr8oynS9+ZYdAth99ri+STUC3u/2I4GUlu03OR9V4jSgFELDQ+z/ESUR7laccpdUQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XUpZ0ybE; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1749830346; c=relaxed/simple;
+	bh=089E9zzYEf4HWcrTHbQ4OnUMHP87EOWqgFH1D8nIBBo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=KpYLfDdoLv+3+Z9jZQhf1v4znEZH7tUmGoE/+jrR+MHFILYVASp4LYdxJBb8X60YvO5yTrl2xlCOcrbduexzVOeGi9Ozi1Y2PvQxUHcvDiineAHYMAALbIeNJzE74/wc7cqNYaVQORAFWWBTfhrLkYhAGVkBXC0e6fSII3vPgVg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a/Vt6Af1; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XUpZ0ybE"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2350fc2591dso22533645ad.1
-        for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 08:58:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749830326; x=1750435126; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=QN6pByW5k+1ZTsCPCBrvGzfPYIjlhF9IzLERSPXHg6s=;
-        b=XUpZ0ybEf8RjsEd9+syDRcJMaut4X0fDd/i9kE9J3Nz3lBERO/3ofZQkhy8W1dK8z+
-         kXJKzI5DcxxStghTQmyT/Q8o8LbYEEFmMIE3loQT6+voxfvkA2SzJNUriYCGIgFmJYgj
-         VDhpwV5qKtWMU2gxKuUcaGkgy+Hw7mbAWyM1JAoekzBIrfl77Q1YucJ2UDplNqyAHXpL
-         f5/lOdS8u0hz2PYuG7Cp/yHMK6udvU8qGT/apSST+vkyo9Wds3ePUpr1MW/lp1DgSFiL
-         8kg7UxOa5cyCQBKVhSspEyFPN3Mt9TT+1uLkddPTfgIWg2wiZ9gJwRKeUQ7VyYi+RcsK
-         uyXg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a/Vt6Af1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749830343;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vXd2E9l4gQdhkRDehHJQuHc3ndERcngM1dXOR6Z8sV4=;
+	b=a/Vt6Af14ujzYhlUzEupdbxyyCgsLOcmbcyYMZFR54IY2XKpw/XJFZQDZYmXwNj2TSb07u
+	cEYx2FhmD+Seije61Zv1fmaiSB34EOWfkD3T70UJzqwea29irMQulU0MxbEBUvG7NRZ5TF
+	dr+XvRWvMoLprJehv4P2jxF1seYqnOE=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-637-X2yL_LRLNm6FX007fGo0HA-1; Fri, 13 Jun 2025 11:59:01 -0400
+X-MC-Unique: X2yL_LRLNm6FX007fGo0HA-1
+X-Mimecast-MFC-AGG-ID: X2yL_LRLNm6FX007fGo0HA_1749830341
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a4f6ba526eso1460196f8f.1
+        for <virtualization@lists.linux.dev>; Fri, 13 Jun 2025 08:59:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749830326; x=1750435126;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QN6pByW5k+1ZTsCPCBrvGzfPYIjlhF9IzLERSPXHg6s=;
-        b=qTTtyS1FATANuZjUVSHnqcUZiCwSmkI6oYlBUVddFv7VeJuc4t5qiyev1EXiDbd4A5
-         uIcALHuNoff+8+sXW8vvSCOp9ktShLCEAs6abPp4swx3S0yapVQmy1TOEoeWq76BmldA
-         CcqN90tHbPGkJl4i0pnCsLkYa98srOk6njquFvxcfEAlAmjhzJB8X1TtNsWbJKBZTOJ1
-         ASa8j1njM67nE/vSu1d4k7XC1/+mpshrEujfVynsI2sbJZmvAA8WGQk083tpnUcFrqhW
-         AzJTVykB2Lx5MjYQbcR1NwJJUK02Dxw4FOYmMiP62rs6bVgryQSsakcGvVSsQjgl2xu0
-         vG3A==
-X-Forwarded-Encrypted: i=1; AJvYcCU3YgHSHeCEjbKdFgUO7j630d+mDZar9FXXU3qhIW+V5DVJPC3TazJPBtOpQitz9n2E8odov30qVD2T+9ZTRg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YweXgkYlefGWD6vztuovp6rE/T+m42szZQL14tHtan4slIyYalh
-	33kDB/32gh/IK+GsUfQ9UuZVURqRaH+8l5jOs7LKGvBbCzJxe7czLCLA
-X-Gm-Gg: ASbGncsmUNYLL83R5nvZ0u8Wr0jrTh04DqmdgkMrjNVvElBhi3sI1xlnlcji4hd/DCa
-	fFdmpBM4cWRR2E/VhR+j9Rt7tov87A8CXTGZUyF3xPzv//Ee1qKTOKk7yJvRsqyr5oybvVl3mPc
-	NGXyZenRe+SPWJhTr+1He8VDLGA7Jm+A2/KvvSla3YHBn4jOxGQz1tgv9spZOCWTBj7QcILtQoI
-	RMOGub2kyTz+hypdhKEbG4GBJqt3N6PHrTajvvvfnYym85TpZsQan8EuX4w3XwvFzazQEOYz1/j
-	/Wh3BhyDrpD2HCrviyQVuej0nFruf5QISwlYb7OSEU8lR28qd2fXTTlOq2VERp+inqMInqnpoIQ
-	h3i+t1xzkvsv+Kw0k+Da1Mu0MXR2lxMdhwM/ow4lN
-X-Google-Smtp-Source: AGHT+IE49Pb69AIw0IS9/8YqLJ7V6KI3z9sFVxvTeTw1vDhGs4tCHtUAJ+SZdvTjEVwhLWGuNznZpQ==
-X-Received: by 2002:a17:903:320b:b0:231:ad5a:fe9c with SMTP id d9443c01a7336-2366ae41407mr2879835ad.15.1749830326267;
-        Fri, 13 Jun 2025 08:58:46 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:4f0e:fb30:3762:5a1d:19b5:ad26? ([2001:ee0:4f0e:fb30:3762:5a1d:19b5:ad26])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2365de78176sm15999775ad.96.2025.06.13.08.58.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 13 Jun 2025 08:58:45 -0700 (PDT)
-Message-ID: <9dd17a20-b5b8-4385-9a61-d9647da337a9@gmail.com>
-Date: Fri, 13 Jun 2025 22:58:38 +0700
+        d=1e100.net; s=20230601; t=1749830341; x=1750435141;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vXd2E9l4gQdhkRDehHJQuHc3ndERcngM1dXOR6Z8sV4=;
+        b=XqcaXfD56m/UhxzGWLvj9uPoVIc2gaSqZLYDHyCSzqQr4XgmnxBEyGZpm/vYx9gLOr
+         IbKTg5czsM7aet063ZLqeqPHhqYq6Y5r/U0mvQGRggPTsehJ+r8ca+Vrv95iDiaRX3q6
+         dStL6RDTTFzt6ATHAe7XpbKgL+qfXENJR5VHX8JSp1/WXrsljnWaWUFkDmjBsxOjUnfc
+         3Q+9DQAQwq5tuwpMkF3QMC9XhccUEF2JysKx492+nhZ03UKEl6Hb5eZMwgVzW5/InF/y
+         lHL4MsTdZ0SGR8oOM7t1ojXoL9N/Ug2dveXcmZlJRpMpedj9da1Gb6fV5Ui3hw1ACQE+
+         XFZg==
+X-Forwarded-Encrypted: i=1; AJvYcCWzZ66Zx1+zCLnEYdgX61U16SdKNNJUDk6ezQ6Ib48oXCkHLh68nQDU+Ok1IFjZvmeikyqFv25e44PeByVDuw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwhHa3PHgJdjPex7duAX3f2KQC4CN5Sxgjlpa66styr5+NkX7OJ
+	XNYiGnLTGnAsuQ/mPa7Ke8tpV800BSeRQTpp7qD6FhrUAYwbZwIbsfeYRLjLyjexV8blhmQtuDt
+	L2GeHP8Phf3YNe4fMDHeFTFVOENS23/OKs3MosQz+fDEsNU+P2a0zmjpi5ObaOCjNXSr/
+X-Gm-Gg: ASbGncttTa1RwV1VQFTy9Ak7fWlfH9KvuY5C79cWrLMw/V6O4weQEZLkqt16Dn4XBsk
+	Y8elrrlqlRrNVvuh02za6+k+4gGkGQXTGmtaB/l7Rem109kYP1w9iE51MpdY5JOdCTYWjOY4P0R
+	31IEX8r2Wpu7+C7rSOfxqgvYtCsNRVxzb4GWRaFFkOiAT/PE1EHExIgXoP3szeQ/CzYUoru7A5A
+	yA5bITXe1rhGPzyntdnSlVlES5cXA5wquCdJ7p/EcEEHhFYbgBVAo5XSZiU8G1kBj6J/2XJ15LD
+	Gfmw3FF6+MdSzIGbrNIKM+pJ9TI=
+X-Received: by 2002:a05:6000:250c:b0:399:6dd9:9f40 with SMTP id ffacd0b85a97d-3a5723678b8mr327529f8f.9.1749830340624;
+        Fri, 13 Jun 2025 08:59:00 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGDe3Os6nXZXseBeVEvQKPiGia/OhIl4+MhQzdYYyR491IpRR8nlQFkCg6z9FLG8MlcAN9QNw==
+X-Received: by 2002:a05:6000:250c:b0:399:6dd9:9f40 with SMTP id ffacd0b85a97d-3a5723678b8mr327494f8f.9.1749830340098;
+        Fri, 13 Jun 2025 08:59:00 -0700 (PDT)
+Received: from leonardi-redhat ([176.206.17.146])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a568a54d1fsm2716266f8f.2.2025.06.13.08.58.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Jun 2025 08:58:59 -0700 (PDT)
+Date: Fri, 13 Jun 2025 17:58:57 +0200
+From: Luigi Leonardi <leonardi@redhat.com>
+To: Michal Luczaj <mhal@rbox.co>
+Cc: Stefano Garzarella <sgarzare@redhat.com>, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v3 2/3] vsock/test: Introduce get_transports()
+Message-ID: <axujhror2lskp3bxfslursibmlo6qwuzhc2tgfb4jea7progc3@4op6ajqu35c2>
+References: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
+ <20250611-vsock-test-inc-cov-v3-2-5834060d9c20@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] virtio-net: drop the multi-buffer XDP packet in
- zerocopy
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
-References: <20250603150613.83802-1-minhquangbui99@gmail.com>
- <dd087fdf-5d6c-4015-bed3-29760002f859@redhat.com>
- <f6d7610b-abfe-415d-adf8-08ce791e4e72@gmail.com>
- <20250605074810.2b3b2637@kernel.org>
- <f073b150-b2e9-43db-aa61-87eee4755a2f@gmail.com>
- <20250609095824.414cffa1@kernel.org>
- <e2de0cd8-6ee2-4dab-9d41-cfe5e85d796d@gmail.com>
- <20250610133750.7c43e634@kernel.org>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <20250610133750.7c43e634@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250611-vsock-test-inc-cov-v3-2-5834060d9c20@rbox.co>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: nf7DsrNNUpoXoNIRfZtOzUxA5wp7ji7zv05MZywK_pY_1749830341
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 6/11/25 03:37, Jakub Kicinski wrote:
-> On Tue, 10 Jun 2025 22:18:32 +0700 Bui Quang Minh wrote:
->>>> Furthermore, we are in the zerocopy so we cannot linearize by
->>>> allocating a large enough buffer to cover the whole frame then copy the
->>>> frame data to it. That's not zerocopy anymore. Also, XDP socket zerocopy
->>>> receive has assumption that the packet it receives must from the umem
->>>> pool. AFAIK, the generic XDP path is for copy mode only.
->>> Generic XDP == do_xdp_generic(), here I think you mean the normal XDP
->>> patch in the virtio driver? If so then no, XDP is very much not
->>> expected to copy each frame before processing.
->> Yes, I mean generic XDP = do_xdp_generic(). I mean that we can linearize
->> the frame if needed (like in netif_skb_check_for_xdp()) in copy mode for
->> XDP socket but not in zerocopy mode.
-> Okay, I meant the copies in the driver - virtio calls
-> xdp_linearize_page() in a few places, for normal XDP.
+Hi Michal,
+
+On Wed, Jun 11, 2025 at 09:56:51PM +0200, Michal Luczaj wrote:
+>Return a bitmap of registered vsock transports. As guesstimated by 
+>grepping
+>/proc/kallsyms (CONFIG_KALLSYMS=y) for known symbols of type `struct
+>vsock_transport`, or `struct virtio_transport` in case the 
+>vsock_transport
+>is embedded within.
 >
->>> This is only slightly related to you patch but while we talk about
->>> multi-buf - in the netdev CI the test which sends ping while XDP
->>> multi-buf program is attached is really flaky :(
->>> https://netdev.bots.linux.dev/contest.html?executor=vmksft-drv-hw&test=ping-py.ping-test-xdp-native-mb&ld-cases=1
->> metal-drv-hw means the NETIF is the real NIC, right?
-> The "metal" in the name refers to the AWS instance type that hosts
-> the runner. The test runs in a VM over virtio, more details:
-> https://github.com/linux-netdev/nipa/wiki/Running-driver-tests-on-virtio
+>Note that the way `enum transport` and `transport_ksyms[]` are defined
+>triggers checkpatch.pl:
+>
+>util.h:11: ERROR: Macros with complex values should be enclosed in 
+>parentheses
+>util.h:20: ERROR: Macros with complex values should be enclosed in 
+>parentheses
+>util.h:20: WARNING: Argument 'symbol' is not used in function-like 
+>macro
+>util.h:28: WARNING: Argument 'name' is not used in function-like macro
+>
+>While commit 15d4734c7a58 ("checkpatch: qualify do-while-0 advice")
+>suggests it is known that the ERRORs heuristics are insufficient, I can 
+>not
+>find many other places where preprocessor is used in this
+>checkpatch-unhappy fashion. Notable exception being bcachefs, e.g.
+>fs/bcachefs/alloc_background_format.h. WARNINGs regarding unused macro
+>arguments seem more common, e.g. __ASM_SEL in 
+>arch/x86/include/asm/asm.h.
+>
+>In other words, this might be unnecessarily complex. The same can be
+>achieved by just telling human to keep the order:
+>
+>enum transport {
+>	TRANSPORT_LOOPBACK = BIT(0),
+>	TRANSPORT_VIRTIO = BIT(1),
+>	TRANSPORT_VHOST = BIT(2),
+>	TRANSPORT_VMCI = BIT(3),
+>	TRANSPORT_HYPERV = BIT(4),
+>	TRANSPORT_NUM = 5,
+>};
+>
+> #define KSYM_ENTRY(sym) "d " sym "_transport"
+>
+>/* Keep `enum transport` order */
+>static const char * const transport_ksyms[] = {
+>	KSYM_ENTRY("loopback"),
+>	KSYM_ENTRY("virtio"),
+>	KSYM_ENTRY("vhost"),
+>	KSYM_ENTRY("vmci"),
+>	KSYM_ENTRY("vhs"),
+>};
+>
+>Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+>Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>---
+> tools/testing/vsock/util.c | 56 ++++++++++++++++++++++++++++++++++++++++++++++
+> tools/testing/vsock/util.h | 29 ++++++++++++++++++++++++
+> 2 files changed, 85 insertions(+)
+>
+>diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+>index b7b3fb2221c1682ecde58cf12e2f0b0ded1cff39..803f1e075b62228c25f9dffa1eff131b8072a06a 100644
+>--- a/tools/testing/vsock/util.c
+>+++ b/tools/testing/vsock/util.c
+>@@ -7,6 +7,7 @@
+>  * Author: Stefan Hajnoczi <stefanha@redhat.com>
+>  */
+>
+>+#include <ctype.h>
+> #include <errno.h>
+> #include <stdio.h>
+> #include <stdint.h>
+>@@ -23,6 +24,9 @@
+> #include "control.h"
+> #include "util.h"
+>
+>+#define KALLSYMS_PATH		"/proc/kallsyms"
+>+#define KALLSYMS_LINE_LEN	512
+>+
+> /* Install signal handlers */
+> void init_signals(void)
+> {
+>@@ -854,3 +858,55 @@ void enable_so_linger(int fd, int timeout)
+> 		exit(EXIT_FAILURE);
+> 	}
+> }
+>+
+>+static int __get_transports(void)
+>+{
+>+	char buf[KALLSYMS_LINE_LEN];
+>+	const char *ksym;
+>+	int ret = 0;
+>+	FILE *f;
+>+
+>+	f = fopen(KALLSYMS_PATH, "r");
+>+	if (!f) {
+>+		perror("Can't open " KALLSYMS_PATH);
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	while (fgets(buf, sizeof(buf), f)) {
+>+		char *match;
+>+		int i;
+>+
+>+		assert(buf[strlen(buf) - 1] == '\n');
+>+
+>+		for (i = 0; i < TRANSPORT_NUM; ++i) {
+>+			if (ret & BIT(i))
+>+				continue;
+>+
+>+			/* Match should be followed by '\t' or '\n'.
+>+			 * See kallsyms.c:s_show().
+>+			 */
+>+			ksym = transport_ksyms[i];
+>+			match = strstr(buf, ksym);
+>+			if (match && isspace(match[strlen(ksym)])) {
+>+				ret |= BIT(i);
+>+				break;
+>+			}
+>+		}
+>+	}
+>+
+>+	fclose(f);
+>+	return ret;
+>+}
+>+
+>+/* Return integer with TRANSPORT_* bit set for every (known) registered vsock
+>+ * transport.
+>+ */
+>+int get_transports(void)
+>+{
+>+	static int tr = -1;
+>+
+>+	if (tr == -1)
+>+		tr = __get_transports();
+>+
+>+	return tr;
+>+}
+>diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+>index 0afe7cbae12e5194172c639ccfbeb8b81f7c25ac..71895192cc02313bf52784e2f77aa3b0c28a0c94 100644
+>--- a/tools/testing/vsock/util.h
+>+++ b/tools/testing/vsock/util.h
+>@@ -3,8 +3,36 @@
+> #define UTIL_H
+>
+> #include <sys/socket.h>
+>+#include <linux/bitops.h>
+>+#include <linux/kernel.h>
+> #include <linux/vm_sockets.h>
+>
+>+/* All known vsock transports, see callers of vsock_core_register() */
+>+#define KNOWN_TRANSPORTS(x)		\
+>+	x(LOOPBACK, "loopback")		\
+>+	x(VIRTIO, "virtio")		\
+>+	x(VHOST, "vhost")		\
+>+	x(VMCI, "vmci")			\
+>+	x(HYPERV, "hvs")
+>+
+>+enum transport {
+>+	TRANSPORT_COUNTER_BASE = __COUNTER__ + 1,
+>+	#define x(name, symbol)		\
+>+		TRANSPORT_##name = BIT(__COUNTER__ - TRANSPORT_COUNTER_BASE),
+>+	KNOWN_TRANSPORTS(x)
+>+	TRANSPORT_NUM = __COUNTER__ - TRANSPORT_COUNTER_BASE,
+>+	#undef x
+>+};
+>+
+>+static const char * const transport_ksyms[] = {
+>+	#define x(name, symbol) "d " symbol "_transport",
+>+	KNOWN_TRANSPORTS(x)
+>+	#undef x
+>+};
+>+
+>+static_assert(ARRAY_SIZE(transport_ksyms) == TRANSPORT_NUM);
+>+static_assert(BITS_PER_TYPE(int) >= TRANSPORT_NUM);
+>+
+> /* Tests can either run as the client or the server */
+> enum test_mode {
+> 	TEST_MODE_UNSET,
+>@@ -82,4 +110,5 @@ void setsockopt_timeval_check(int fd, int level, int optname,
+> 			      struct timeval val, char const *errmsg);
+> void enable_so_zerocopy_check(int fd);
+> void enable_so_linger(int fd, int timeout);
+>+int get_transports(void);
+> #endif /* UTIL_H */
+>
+>-- 
+>2.49.0
+>
 
-I've figured out the problem. When the test fails, in mergeable_xdp_get_buf
+Checked the code and tested `get_transports()`. It works as expected!
+I'm not sure about the `checkpatch.pl` errors, but code LGTM to me.
 
-         xdp_room = SKB_DATA_ALIGN(XDP_PACKET_HEADROOM +
-                       sizeof(struct skb_shared_info));
-         if (*len + xdp_room > PAGE_SIZE)
-             return NULL;
+Tested-by: Luigi Leonardi <leonardi@redhat.com>
+Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
 
-*len + xdp_room > PAGE_SIZE and NULL is returned, so the packet is 
-dropped. This case happens when add_recvbuf_mergeable is called when XDP 
-program is not loaded, so it does not reserve space for 
-XDP_PACKET_HEADROOM and struct skb_shared_info. But when the vhost uses 
-that buffer and send back to virtio-net, XDP program is loaded. The code 
-has the assumption that XDP frag cannot exceed PAGE_SIZE which I think 
-is not correct anymore. Due to that assumption, when the frame data + 
-XDP_PACKET_HEADROOM + sizeof(struct skb_shared_info) > PAGE_SIZE, the 
-code does not build xdp_buff but drops the frame. xdp_linearize_page has 
-the same assumption. As I don't think the assumption is correct anymore, 
-the fix might be allocating a big enough buffer to build xdp_buff.
+Thanks!
+Luigi
 
-Thanks,
-Quang Minh.
