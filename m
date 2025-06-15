@@ -1,201 +1,116 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3692E265603
-	for <virtualization@lists.linux-foundation.org>; Sun, 15 Jun 2025 14:08:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB2D926ACB
+	for <virtualization@lists.linux.dev>; Sun, 15 Jun 2025 15:14:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749996498; cv=none; b=cDC7CXr3uYoPwMG65KXVQSxlJgEBqaeV6z0dVE3a4tgD2YO3qlAgAWvCkoPASLE1V4n8TCl8pQ5pZGquD4BClPnXEk9rivOZq0S8/vQBKziHMCKDHd6sLZIwu8n3CK/4LRbDiSS++w2SMx6G5fRyYM3h4Zs1X4WrIJzf7jSw+gU=
+	t=1750000466; cv=none; b=LTpA0Nav4f4JOZgxbxuaEyzBH/YXWQJdFQ+hb6D8/nQ7/RWlKGT5jyBofQbd2avG7VhygHyxa1Q6kLJnbHl22JxQHHjBw4HD92UbzD/dTlDHvfgms/tMfEE9igF4FiA7mgXdI/I480hPMIWw9RIIX+3WNNrUZcNhSMpuNSU7xA0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749996498; c=relaxed/simple;
-	bh=ZMkuY8utSlgX4E1TJgbabBifoab9L056uppzdIxIscI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EcED/lUpCkku7hpzeBLbImEc2N0YJUKlCKICKbrr7rppbYVCT1FKpbcB4x5jWIuHhPKWmo3rKmAtnIcbabYLc8cod6wGWFzJDL3Ln+ywIbwRz1hbeB8FWmOb67o5mAMJWfqHgqkHr/PSz0EAB3mpFgUe+1qemoU3g0YJ3LjNWtU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V48fO4Qf; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1750000466; c=relaxed/simple;
+	bh=JXYf5ZbXaxd+pTT//xI/FT14s6VC8aqe+LnXcuWiUc8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=c0oEZM7rfZ6Q9g1mqHQHaCXz7Xb8HYDL02q+nu6f5ZYsOm0oprcpkufTtvGTiuz/5ECzPG2aFyr0ELzbsZoI7ROZOeLQMrNmdNsN7+ZUGlSYIHYZQZWA0trV3p/mk+PCSFeGFNoV0yBQJsOp/Nq4KaA4JiLR9aCt9oUTkZre4Is=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VocLRuc9; arc=none smtp.client-ip=209.85.210.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V48fO4Qf"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BA1B740109
-	for <virtualization@lists.linux-foundation.org>; Sun, 15 Jun 2025 14:08:15 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 7rYd6DXTOyzr for <virtualization@lists.linux-foundation.org>;
- Sun, 15 Jun 2025 14:08:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org EBDDD400AE
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EBDDD400AE
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V48fO4Qf
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EBDDD400AE
-	for <virtualization@lists.linux-foundation.org>; Sun, 15 Jun 2025 14:08:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749996493;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=x5F9RD1nifDmIVXEq5JzNevYty30dQQi6BLivh0kLXI=;
-	b=V48fO4QfWtcUvSEhdmitTSvVSNskna/VkYzmUAWjEe7y8XvHRpDplaMkhBNA9AzIKUEHK4
-	XORtwIBlWRwr1aKu4ooRiw4T59yWWPFPIq3AYqsk9HfARNbAKQmVnucM5tCyUzWSP6Q032
-	srbhV3YS2SbrhSZDcstIz9Rq5iXDgys=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-460-CCwlqNUVMku2h6Shj4W4tA-1; Sun, 15 Jun 2025 10:08:12 -0400
-X-MC-Unique: CCwlqNUVMku2h6Shj4W4tA-1
-X-Mimecast-MFC-AGG-ID: CCwlqNUVMku2h6Shj4W4tA_1749996492
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-7c7c30d8986so1292800185a.2
-        for <virtualization@lists.linux-foundation.org>; Sun, 15 Jun 2025 07:08:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VocLRuc9"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-74849e33349so3319896b3a.3
+        for <virtualization@lists.linux.dev>; Sun, 15 Jun 2025 08:14:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1750000464; x=1750605264; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xeCjzQfkB1+ovbUpzeze8a4duFJQQau/6t5f8myV+mM=;
+        b=VocLRuc9BcrhM/otkbVIvdjnA4WlooN0pEnPOs2F6VgXIbydwj5+v3VUVrrXMk4HUB
+         cTwb0N5L3qHGCsUFmS+jItVAAG8HZTmM0ldS3pdY/ufBOoDCGmHMlXQWfGIbJOQvRTfB
+         a9nccxShjx/SM6YENdARbHcjYjIlHFadWnDn4cQIaOtqn9vTLgcRh4ittHyvIcHDf8iD
+         9hJOyl3kksW1qiQGNKehAczWYjVuQbYBnrUEjPGjxnjYYCJ6dG5OAWOQK5YUbMjLmEv8
+         TCFw9AvR5FIgwYzQXOysKjXjssWTWUA1IEGb6yucGCAZ7hOE4C4/cJnlPwKqrRTJxehR
+         Z1Ew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749996492; x=1750601292;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=x5F9RD1nifDmIVXEq5JzNevYty30dQQi6BLivh0kLXI=;
-        b=J7ZW6loXd92VKFSpEzd0PXMouupqKZE/PLfkfk4hMMtz0rPViUarLWTNNmdmUZwJIr
-         nMFBFzyxkv54LGUdkSFMN+AOqtuwS/zAlwyXbINYc5+UovOzuIW9mFeQ498NE3INq7sg
-         gRkrvVvl8SVz5fD6COiBiCkevdpPgMJUKKl0AWFNE++02r8xwrdbwZt2qQSTJm4YimdI
-         dkuxD9fwI6NOukfgTG/Ohzr6947m881j2K4EZ/rUZX+R+uZEzlZJgPUzGL030LcPDKNG
-         ySnGqZnThHWnL9uRzpfAihN4oBe9oxPi+iS55TI5F9TUjYrUAFmPNCyNbg3+k2/YAuEL
-         R9nQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWejNq8OTz1r5DzLurVloPC0+fgwUK9fHLyGlC5b0z/OrokTaAvUsnqKHsCw95f2TMxXYoCw+1MiH/4pXaKoQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxhSAwyk+apQJYfypmc0mqQ8rjxNT/dFBtItW1Uy/h8ufcFia9C
-	a/mB4WCDxfaujEB5LBTUJNPl8npRT/xpWn8CWHDqD/+FrjqIqpiPBHMqxofvdwiFQR4PihvplcA
-	oT9F3dhvE/awvbIAsydo8q56oTAwJFShuLj0dCYQxY1AsZU3T/fr+oCaW5stCfq+cIX8mUegeGS
-	YIPWUePZXm2VbTyCMU/x5qQPWmK9jWjG0slF0M7pg8jgjMisio6QOuZtFV4A==
-X-Gm-Gg: ASbGncv1E0MDopLZFz+0KNd1JA76A+jLEQeSdc8IC+JV4wRm5YHechni7SF12bm0Pe6
-	Ytbi+Gr1yNGgaP7uGepIKsPDLEiNydIWRq8bzIIXW3Yu05E21mKz1gw2qlISQpj7CzxeXDe54z+
-	sqFoo0
-X-Received: by 2002:a05:620a:424b:b0:7c5:562d:ccf4 with SMTP id af79cd13be357-7d3c6c04a42mr976767585a.4.1749996491841;
-        Sun, 15 Jun 2025 07:08:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGx0K+fxFSP4BqeDRz0y+o/8CQcKF4SvXSEuhhUCRwUNvz+In8dyZXZqILXiqwaViRTlSKW5mWNGj/EecyaUpU=
-X-Received: by 2002:a05:620a:424b:b0:7c5:562d:ccf4 with SMTP id
- af79cd13be357-7d3c6c04a42mr976764285a.4.1749996491522; Sun, 15 Jun 2025
- 07:08:11 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1750000464; x=1750605264;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xeCjzQfkB1+ovbUpzeze8a4duFJQQau/6t5f8myV+mM=;
+        b=Ni+2r3/3hmqMsiXGsCiU0qSW32bKu0v5z5Aw22Y107vbpi+vZfYVf6n/L2I6/t0GS2
+         ZglF34Knd2I3VpcPiQyEDxHWoNay3qWXKyu+xAjrmgVDHwuJAygHPxfS68zdA2/CnSYn
+         G4WXyBCXcdHJIUb1IVh52TXFObaAIhnsyd0iebNywnZ/jJkxnUvmHSYPvz6gVqakbgiC
+         RSDex14a0z+yE9/v2xgpeMtE0Qp/UYKr6C7XsB8yJS2hQ8ad0RyOrD/9KVWLNfEHUyok
+         MPgtuOOw7KiL1N6LqNkmdKo0sacPMlrB2vpVFXlT6QtgFlgZJ7L6LxTykKLmC7q6OeO6
+         WB3g==
+X-Forwarded-Encrypted: i=1; AJvYcCVvW7QKcYFxGy4m5zYM8J4uFXXOs2Ifg4WrQVLKY4G/JTt8IWZmUC1e9CNJvn+j+FDH89ID7OofsRC1KCGKqg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzgSNyw6cmzhjEcwUL0TA9pB/eXK095KSqh03PG91BWx3Y87GYv
+	w9iLrM286y7vo85kOTgzJcMUKqiV63AyBFnmjVVGBdWdWOpPKdm7S0on
+X-Gm-Gg: ASbGncvgEqRbGJHABVQ7XF2gxztZASMp/wsqnmJ0zhWbzagHJVSK+COTb84u80NngrV
+	sTIionm75RRnzN8bZfiaI0sJfC7yKXP3YzZc7F7r2RE+WA5faySMq3SWgskxHv0yoW79nocp9a5
+	IzGGpFE7tgIQOcHh1/QDIcNIIfKTwD3bFpGrjPA7IqwE2T4maPma9lf0pZp1vnMzidQdfnOrTNq
+	BJfYrWYQeMemVmCFMxcTZUAbbvPByl2uWqBN51jXYtEYvo+dh/tUMb0uZKjqplSS1sFGjTBmXUy
+	FxRFwbdqu5j2qHT63t2Ogvl8hxzhB9w6fgB3lNcabpGt6fV62bbM6Z6k+3Hl6uP8vCh8oA/Phev
+	oQw==
+X-Google-Smtp-Source: AGHT+IE+Dh7qkuSto2XPVBxAku93xQd1vexdTf/BYTpDRoQLi3HYEYrUq311ENiBH5Hu3V/gp727VQ==
+X-Received: by 2002:a05:6a00:99c:b0:73d:b1ff:c758 with SMTP id d2e1a72fcca58-7489d02e3bfmr8658913b3a.18.1750000463919;
+        Sun, 15 Jun 2025 08:14:23 -0700 (PDT)
+Received: from minh.192.168.1.1 ([2001:ee0:4f0e:fb30:482b:a929:1381:df12])
+        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-748900b219csm4950022b3a.129.2025.06.15.08.14.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Jun 2025 08:14:23 -0700 (PDT)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH net 0/2] virtio-net: xsk: rx: fix the frame's length check
+Date: Sun, 15 Jun 2025 22:13:31 +0700
+Message-ID: <20250615151333.10644-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250609073430.442159-1-lulu@redhat.com> <20250612022012-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250612022012-mutt-send-email-mst@kernel.org>
-From: Cindy Lu <lulu@redhat.com>
-Date: Sun, 15 Jun 2025 22:07:34 +0800
-X-Gm-Features: AX0GCFswiCco_DauL--0e2ckwRlj1O7zbAgJChjHQQatloXrMYTxWULtZX6JYno
-Message-ID: <CACLfguVOmz5dzvX+08X_0bBQP1iEoxjX=eh=id3mWGtjSodSrQ@mail.gmail.com>
-Subject: Re: [PATCH v11 0/3] vhost: Add support of kthread API
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jasowang@redhat.com, michael.christie@oracle.com, sgarzare@redhat.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eUbz8dg475h8BLJc2WmlGIVBOpvyzZodg3_fV7ATd94_1749996492
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jun 12, 2025 at 2:20=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Mon, Jun 09, 2025 at 03:33:06PM +0800, Cindy Lu wrote:
-> > In this series, a new UAPI is implemented to allow
-> > userspace applications to configure their thread mode.
->
->
-> > Changelog v2:
-> >  1. Change the module_param's name to enforce_inherit_owner, and the de=
-fault value is true.
-> >  2. Change the UAPI's name to VHOST_SET_INHERIT_FROM_OWNER.
-> >
-> > Changelog v3:
-> >  1. Change the module_param's name to inherit_owner_default, and the de=
-fault value is true.
-> >  2. Add a structure for task function; the worker will select a differe=
-nt mode based on the value inherit_owner.
-> >  3. device will have their own inherit_owner in struct vhost_dev
-> >  4. Address other comments
-> >
-> > Changelog v4:
-> >  1. remove the module_param, only keep the UAPI
-> >  2. remove the structure for task function; change to use the function =
-pointer in vhost_worker
-> >  3. fix the issue in vhost_worker_create and vhost_dev_ioctl
-> >  4. Address other comments
-> >
-> > Changelog v5:
-> >  1. Change wakeup and stop function pointers in struct vhost_worker to =
-void.
-> >  2. merging patches 4, 5, 6 in a single patch
-> >  3. Fix spelling issues and address other comments.
-> >
-> > Changelog v6:
-> >  1. move the check of VHOST_NEW_WORKER from vhost_scsi to vhost
-> >  2. Change the ioctl name VHOST_SET_INHERIT_FROM_OWNER to VHOST_FORK_FR=
-OM_OWNER
-> >  3. reuse the function __vhost_worker_flush
-> >  4. use a ops sturct to support worker relates function
-> >  5. reset the value of inherit_owner in vhost_dev_reset_owner.
-> >
-> > Changelog v7:
-> >  1. add a KConfig knob to disable legacy app support
-> >  2. Split the changes into two patches to separately introduce the ops =
-and add kthread support.
-> >  3. Utilized INX_MAX to avoid modifications in __vhost_worker_flush
-> >  4. Rebased on the latest kernel
-> >  5. Address other comments
-> >
-> > Changelog v8:
-> >  1. Rebased on the latest kernel
-> >  2. Address some other comments
-> >
-> > Changelog v9:
-> >  1. Rebased on the latest kernel.
-> >  2. Squashed patches 6=E2=80=917.
-> >  3. Squashed patches 2=E2=80=914.
-> >  4. Minor fixes in commit log
-> >
-> > Changelog v10:
-> >  1.Add support for the module_param.
-> >  2.Squash patches 3 and 4.
-> >  3.Make minor fixes in the commit log.
-> >  4.Fix the mismatched tabs in Kconfig.
-> >  5.Rebase on the latest kernel.
-> >
-> > Changelog v11:
-> >  1.make the module_param under Kconfig
-> >  2.Make minor fixes in the commit log.
-> >  3.change the name inherit_owner to fork_owner
-> >  4.add NEW ioctl VHOST_GET_FORK_FROM_OWNER
-> >  5.Rebase on the latest kernel
-> >
-> > Tested with QEMU with kthread mode/task mode/kthread+task mode
-> >
-> > Cindy Lu (3):
-> >   vhost: Add a new parameter in vhost_dev to allow user select kthread
-> >   vhost: Reintroduce kthread mode support in vhost
-> >   vhost: Add configuration controls for vhost worker's mode
->
->
-> All of this should be squashed in a single patch.
->
-Sure will do
-Thanks
-cindy
-> >
-> >  drivers/vhost/Kconfig      |  17 +++
-> >  drivers/vhost/vhost.c      | 234 ++++++++++++++++++++++++++++++++++---
-> >  drivers/vhost/vhost.h      |  22 ++++
-> >  include/uapi/linux/vhost.h |  25 ++++
-> >  4 files changed, 280 insertions(+), 18 deletions(-)
-> >
-> > --
-> > 2.45.0
->
+Hi everyone,
+
+This series contains 2 patches for the zerocopy XDP receive path in virtio
+net
+- Patch 1: there is a difference between first buffer and the following
+buffers in this receive path. While the first buffer contains virtio
+header, the following ones do not. So the length of the remaining region
+for frame data is also different in 2 cases. The current maximum frame's
+length check is only correct for the following buffers not the first one.
+- Patch 2: no functional change. The tricky xdp->data adjustment due to
+the above difference is moved to buf_to_xdp() so that this helper contains
+all logic to build xdp_buff and the tricky adjustment does not scatter
+over different functions.
+
+Thanks,
+Quang Minh.
+
+Bui Quang Minh (2):
+  virtio-net: xsk: rx: fix the frame's length check
+  virtio-net: xsk: rx: move the xdp->data adjustment to buf_to_xdp()
+
+ drivers/net/virtio_net.c | 46 ++++++++++++++++++++++++++++++++++------
+ 1 file changed, 40 insertions(+), 6 deletions(-)
+
+-- 
+2.43.0
 
