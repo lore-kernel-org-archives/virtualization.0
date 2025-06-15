@@ -1,151 +1,339 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f48.google.com (mail-vs1-f48.google.com [209.85.217.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 563AF1DA21
-	for <virtualization@lists.linux.dev>; Sun, 15 Jun 2025 17:39:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED1D413B5B3;
+	Sun, 15 Jun 2025 18:47:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750009181; cv=none; b=cqL7nBNVn52o+NY/N978ZUiw/NEYGyi+1F04XvgHpFF4In5OoGpDt7f0MN+ZI11V7Kf6u8a+pPpiYF/lCHjJVPJYd3SH3Xg1DVPLlQ8h0f4mRXYCmlN8HqYC86BqSuR1PCtBWL0BgXiP6Gl+KNKrLgLdgngAM0Wm+V5OssKRdRY=
+	t=1750013245; cv=none; b=UknPRwENsD63NPDtOcuSXdn0hw1B8x4Zg9VuY8qL9ZBwS2tw01NW2zbfFBpeL7dFHkvip5XWrRTzGuXetbq61holWcqERP0CM03zpc6iD5O5FWW69SAl1VcpPd9b9HYG23D8QIPANjEEMmlbieiF8LM2YcnKg2AM0SHG4BXY1lw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750009181; c=relaxed/simple;
-	bh=UBe7ZI2S/I2GLHGBNylfL8K9GtWYxlCEE1bt1BngSGY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bGUSvhRIE9mTgRGSsPw1WrDs3y/286eIgoGlnd/FPgXyooGJAIqhqm2e1OWNYNSklpXBuK4LVU5B9orlvUaS49x0kNQoy/MgQvLUk8uzxu8qXXXPGlImxmkZ7Et4ntusDT16Br3E2F27q+sPFkDsVBeax7lJD0L97+TmWR+jsN8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=kXqGAMrZ; arc=none smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	s=arc-20240116; t=1750013245; c=relaxed/simple;
+	bh=Q2Vt2Hdj66syF9Q8Z+IZjPEuHQcEclSEE1fNmLuJ2eI=;
+	h=Message-ID:Date:MIME-Version:From:References:To:Cc:Subject:
+	 In-Reply-To:Content-Type; b=bTlv6NVvyf/WcLITqLPIGq2yeFt+zyZ6DkxVlPyWCYIY6lRYpFB1NJJHde+UQhVuetQblFVZ22TjUxagywpWOJpXuAU68wwNE1ifXpzgovZneBpJSgfsXMVZ1Rv7UnwZ/kYLsLhFJjJp/HbRIbARK3qztHlPJYjlLdnVv6oDPZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bWNumuTG; arc=none smtp.client-ip=209.85.217.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="kXqGAMrZ"
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55FFF1Tr010054;
-	Sun, 15 Jun 2025 17:39:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=corp-2025-04-25; bh=NCs7c1l7MM/8D4zXiWpe0mT4C5cvI
-	JZJSbDPhF+plTs=; b=kXqGAMrZ6uFDmlCdCrnm8vRzXVT3oRQYvtbKH8N2+h1km
-	U3ckhJ2PVzqbmAokxLt7tEfTtgc2184I/SvwlEJl7iwQv5Bm0oVGVpk8khEBqKvt
-	K+529QwQ7CdEwzQd/fPHxLFxltxa5Y4ZKpW66KrMHEUNqpalU8FU9gWzHgzLY15a
-	mrdwb7CZejHUb2dXzQ4k1GsvSXNbhPBsJHTojlCsolY3Ofc1sUFLDaKz/bUduC1h
-	MP0o5kUkUyj9msIwxauuB+I1/5AarqyfExpuOWW9rjOBxuqGMuNCupWRQSud4MbQ
-	GiosvyOAcRhN/Nr3EiuyI+tnV6mFYFIOU9a+e85Tw==
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 47900es9bt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sun, 15 Jun 2025 17:39:38 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 55FBhFpM036275;
-	Sun, 15 Jun 2025 17:39:36 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 478yhdn9uy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sun, 15 Jun 2025 17:39:36 +0000
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 55FHdZpL026728;
-	Sun, 15 Jun 2025 17:39:36 GMT
-Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.129.136.47])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 478yhdn9un-1;
-	Sun, 15 Jun 2025 17:39:35 +0000
-From: Alok Tiwari <alok.a.tiwari@oracle.com>
-To: mst@redhat.com, jasowang@redhat.com, eperezma@redhat.com,
-        kvm@vger.kernel.org, virtualization@lists.linux.dev
-Cc: alok.a.tiwari@oracle.com, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH] vhost: Fix typos in comments and clarity on alignof usage
-Date: Sun, 15 Jun 2025 10:39:11 -0700
-Message-ID: <20250615173933.1610324-1-alok.a.tiwari@oracle.com>
-X-Mailer: git-send-email 2.47.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bWNumuTG"
+Received: by mail-vs1-f48.google.com with SMTP id ada2fe7eead31-4c4fa0bfca2so1194962137.0;
+        Sun, 15 Jun 2025 11:47:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1750013243; x=1750618043; darn=lists.linux.dev;
+        h=in-reply-to:subject:autocrypt:cc:to:content-language:references
+         :from:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=5+l0itBG691qS6FRPHB1psrUrZWbc9GKA7sonaWP9+k=;
+        b=bWNumuTGTrSshuifK56dBRAyktBNbS45pt5zIpcHO2f1KV0PJNyPQpb7HEnxfNZco0
+         aPAtItNDv0vNN7gDLqEbjy/i50O46Vuj0ALTJLAFoC9XjFRQbPMhrVgALHxLqhVmOaEr
+         IpVbxL3GNrxgE+YCtme9Y0RTSax+H1FS3bIVax2B7nOOK86FTIfeGBitBTEoo7dAl9MX
+         1FuqUQnoY1KvkSv463PRWRoNhpy9CfSUH9aBCYXOX7zZZ+AzaBXkf497oJvDcMC5wQcu
+         UoOrp+QU4uytxRYfmeAQf9L8cSF3DtS11hCuk3osIEG2n3rFQh4EfurKA3gWynadsmab
+         tKPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750013243; x=1750618043;
+        h=in-reply-to:subject:autocrypt:cc:to:content-language:references
+         :from:user-agent:mime-version:date:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=5+l0itBG691qS6FRPHB1psrUrZWbc9GKA7sonaWP9+k=;
+        b=I2h6Wc7/745lzjzR5fuLTdLC3xPYdjJfCwtgrO79kfHBJhtqmwXvAkpxfyYvrrux0e
+         d77JpB++7rxbmSF5LDXNYXCfoIs92h6UtVo1ZDuqyPYp6Kf0X6pnrfW/Ukd+yQJn+F3M
+         kMX0ju1wWJiXu0nE/nOA4MlPvbAZ0bcNOWCq0CVPSvaHP4HOUM/nMarxgbbGTg9ULzPk
+         8spmwsZrx8RUdxu6rU03gHb+DQfv90ZajDbtvq+nXQuNVczxus/hxrt4YbP4BHmAS8EE
+         PlFKApNZ1Y4tSPg6DLekx+VhC95PvOYAWDXC8XtNhoBsmhuToKw5xp0Tuc2Me4QLg6Ke
+         cajQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUveiSihrDlgqDZckiZ0Cn0cJPtkcNpgT9Ef7GFbutjZV0OjNnDtSevSO2fT5XsJy9SJPs0kw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyOdYOZuUvQMOzCa0nwO2a/KksvJC2JrjkjQQAidaOkVC0UBpDp
+	+Hm1U3PzdFjaPFDHV5HjKRy4vpYxcsoW9rll2O0ekNMmRK9ng0WVAPke
+X-Gm-Gg: ASbGncu+avgcGWOj9qe1NrTmWIgMTc2yTyjBySPkosoim/Gxx3nl7zADh3NEZrMHZVe
+	aatDN0xLO1GkVKWiYymEWAPTHRZwP/RBKMZqcgRt/w6C5SX25XLDRRHciPenK3YsaJwwZNWbk9/
+	7u3aJg0LmwjnhkguC/DPeNX+Uryy+d3No7gzYhK1/uFU408VCJ7OZtHrUjc0wcArREge1tF9huq
+	UjJXztLHUk0PZ5Ka9GfYn4SXGZCFC8rehD6izBllN0mVhnlMgd8noo7ft1jHVUFDuYJ6y2zLsN9
+	NlNVYyeByibMF42FOOgvPy5VSIqwIOgZSX9NeE+X0FDNkS2AARCUbtbysD+8TJtHoiIbcj+gtit
+	jTw==
+X-Google-Smtp-Source: AGHT+IFMUzoRtMRcfQ1Nxbp+1vt+THXRXJLfLiRMnYuWlkeH9dYO5OehCtA+wXVKixWlqh6b6FSNnA==
+X-Received: by 2002:a05:6102:5092:b0:4e5:9380:9c25 with SMTP id ada2fe7eead31-4e7f60edf6bmr4749850137.3.1750013242648;
+        Sun, 15 Jun 2025 11:47:22 -0700 (PDT)
+Received: from [10.138.10.6] ([89.187.178.201])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-87f2dc92c44sm227211241.9.2025.06.15.11.47.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 15 Jun 2025 11:47:21 -0700 (PDT)
+Message-ID: <a65d955c-192b-4e79-ab11-8e2af78b62af@gmail.com>
+Date: Sun, 15 Jun 2025 14:47:15 -0400
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-06-15_08,2025-06-13_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 bulkscore=0
- phishscore=0 spamscore=0 suspectscore=0 malwarescore=0 mlxscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2505160000 definitions=main-2506150131
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjE1MDEzMSBTYWx0ZWRfXyrsi7S/cKvRM IDSDCgDoI3blZmJq84JL229WHFtuhtXw9eq+39qRkUF0/KShdU3yBrPVx3ycVSTKsN0gf1ejVyS Xc7Dt4q+txWjoBz3ZAK++vjGOickbGKLS7DHZEUCRW46OsK2GWecUvvwSfoSdULCI5SN60Uwh6A
- Eo+tRsmZXXGKQWHdtXANP6ZBXbsR1lDPWtmrjNbOVsCZMY62A7R6qtEBmgUuly8LLPPqtJCKccH GLVdMpwLwDJBlokr/64iTrg4F7yqvHid4DMz08zEuwscfhmkykTh+NR7alFOoUFPuO2xe4Jfnhn yJ2jTkYL/61njwlUuVvAa0weQscdTi2CREiOMmmFKwYudT/sSiYjMPAcfrCegZvV/rt7Frbvzr4
- SI3gLDEMaxg3vzUXrrSV4gvT3vp1cndyGAycQeVG9rtxlrrFqvjq0g2kcneMsfAnOVDRxTYS
-X-Proofpoint-ORIG-GUID: 2C7unwbj5qbUvxCBi2komyuRMmOih1Jf
-X-Authority-Analysis: v=2.4 cv=X/5SKHTe c=1 sm=1 tr=0 ts=684f055a b=1 cx=c_pps a=e1sVV491RgrpLwSTMOnk8w==:117 a=e1sVV491RgrpLwSTMOnk8w==:17 a=6IFa9wvqVegA:10 a=yPCof4ZbAAAA:8 a=yfRN1CPU6vwYn5W2bpUA:9 cc=ntf awl=host:14714
-X-Proofpoint-GUID: 2C7unwbj5qbUvxCBi2komyuRMmOih1Jf
+User-Agent: Mozilla Thunderbird
+From: Demi Marie Obenour <demiobenour@gmail.com>
+References: <>
+Content-Language: en-US
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Len Brown <lenb@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, Alyssa Ross <hi@alyssa.is>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-acpi@vger.kernel.org, iommu@lists.linux.dev, x86@kernel.org,
+ Spectrum OS Development <devel@spectrum-os.org>
+Autocrypt: addr=demiobenour@gmail.com; keydata=
+ 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
+ +MYSfkEjBz0E8CLOcAw7JIwAaeBT
+Subject: Virtio-IOMMU interrupt remapping design
+In-Reply-To: <>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------5SMC2h7y6rFFUG3nPqobAw8H"
 
-This patch fixes multiple typos and improves comment clarity across
-vhost.c.
-- Correct spelling errors: "thead" -> "thread", "RUNNUNG" -> "RUNNING"
-  and "available".
-- Improve comment by replacing informal comment ("Supersize me!")
-  with a clear description.
-- Use __alignof__ correctly on dereferenced pointer types for better
-  readability and alignment with kernel documentation.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------5SMC2h7y6rFFUG3nPqobAw8H
+Content-Type: multipart/mixed; boundary="------------mr4YQ5TDAwPhFQbkDB8G6j66";
+ protected-headers="v1"
+From: Demi Marie Obenour <demiobenour@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Len Brown <lenb@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, Alyssa Ross <hi@alyssa.is>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-acpi@vger.kernel.org, iommu@lists.linux.dev, x86@kernel.org,
+ Spectrum OS Development <devel@spectrum-os.org>
+Message-ID: <a65d955c-192b-4e79-ab11-8e2af78b62af@gmail.com>
+Subject: Virtio-IOMMU interrupt remapping design
+References: <>
+In-Reply-To: <>
 
-These changes enhance code readability and maintainability.
+--------------mr4YQ5TDAwPhFQbkDB8G6j66
+Content-Type: multipart/mixed; boundary="------------zjM7BlQoiUmj9kKo5UuQNHEb"
 
-Signed-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>
----
- drivers/vhost/vhost.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+--------------zjM7BlQoiUmj9kKo5UuQNHEb
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 3a5ebb973dba..0227c123c0e0 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -594,10 +594,10 @@ static void vhost_attach_mm(struct vhost_dev *dev)
- 	if (dev->use_worker) {
- 		dev->mm = get_task_mm(current);
- 	} else {
--		/* vDPA device does not use worker thead, so there's
--		 * no need to hold the address space for mm. This help
-+		/* vDPA device does not use worker thread, so there's
-+		 * no need to hold the address space for mm. This helps
- 		 * to avoid deadlock in the case of mmap() which may
--		 * held the refcnt of the file and depends on release
-+		 * hold the refcnt of the file and depends on release
- 		 * method to remove vma.
- 		 */
- 		dev->mm = current->mm;
-@@ -731,7 +731,7 @@ static void __vhost_vq_attach_worker(struct vhost_virtqueue *vq,
- 	 * We don't want to call synchronize_rcu for every vq during setup
- 	 * because it will slow down VM startup. If we haven't done
- 	 * VHOST_SET_VRING_KICK and not done the driver specific
--	 * SET_ENDPOINT/RUNNUNG then we can skip the sync since there will
-+	 * SET_ENDPOINT/RUNNING then we can skip the sync since there will
- 	 * not be any works queued for scsi and net.
- 	 */
- 	mutex_lock(&vq->mutex);
-@@ -1898,8 +1898,8 @@ static long vhost_vring_set_addr(struct vhost_dev *d,
- 		return -EFAULT;
- 
- 	/* Make sure it's safe to cast pointers to vring types. */
--	BUILD_BUG_ON(__alignof__ *vq->avail > VRING_AVAIL_ALIGN_SIZE);
--	BUILD_BUG_ON(__alignof__ *vq->used > VRING_USED_ALIGN_SIZE);
-+	BUILD_BUG_ON(__alignof__(*vq->avail) > VRING_AVAIL_ALIGN_SIZE);
-+	BUILD_BUG_ON(__alignof__(*vq->used) > VRING_USED_ALIGN_SIZE);
- 	if ((a.avail_user_addr & (VRING_AVAIL_ALIGN_SIZE - 1)) ||
- 	    (a.used_user_addr & (VRING_USED_ALIGN_SIZE - 1)) ||
- 	    (a.log_guest_addr & (VRING_USED_ALIGN_SIZE - 1)))
-@@ -2840,7 +2840,7 @@ void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- }
- EXPORT_SYMBOL_GPL(vhost_signal);
- 
--/* And here's the combo meal deal.  Supersize me! */
-+/* Add to used ring and signal guest. */
- void vhost_add_used_and_signal(struct vhost_dev *dev,
- 			       struct vhost_virtqueue *vq,
- 			       unsigned int head, int len)
-@@ -2860,7 +2860,7 @@ void vhost_add_used_and_signal_n(struct vhost_dev *dev,
- }
- EXPORT_SYMBOL_GPL(vhost_add_used_and_signal_n);
- 
--/* return true if we're sure that avaiable ring is empty */
-+/* return true if we're sure that available ring is empty */
- bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
- 	int r;
--- 
-2.47.1
+Virtio-IOMMU interrupt remapping turned out to be much harder than I
+realized.  The main problem is that interrupt remapping is set up
+very early in boot.  In fact, Linux calls the interrupt remapping probe
+function from the APIC initialization code: x86_64_probe_apic ->
+enable_IR_x2apic -> irq_remapping_prepare().  This is almost certainly
+much before PCI has been initialized.  Also, the order in which devices
+will be initialized is not something Linux guarantees at all, which is a
+problem because interrupt remapping must be initialized before drivers
+start setting up interrupts.  Otherwise, the interrupt remapping table
+won't include entries for already-existing interrupts, and things will
+either break badly, not get the benefit of interrupt remapping
+security-wise, or both.
 
+The reason I expect this doesn't cause problems for address translation
+is that the IOMMU probably starts in bypass mode by default, meaning
+that all DMA is permitted.  If the IOMMU is only used by VFIO or
+IOMMUFD, it will not be needed until userspace starts up, which is after
+the IOMMU has been initialized.  This isn't ideal, though, as it means
+that kernel drivers operate without DMA protection.
+
+Is a paravirtualized IOMMU with interrupt remapping something that makes
+sense?  Absolutely!  However, the IOMMU should be considered a platform
+device that must be initialized very early in boot.  Using virtio-IOMMU
+with MMIO transport as the interface might be a reasonable option, but
+the IOMMU needs to be enumerated via ACPI, device tree, or kernel
+command line argument.  This allows it to be brought up before anything
+capable of DMA is initialized.
+
+Is this the right path to go down?  What do others think about this?
+--=20
+Sincerely,
+Demi Marie Obenour (she/her/hers)
+--------------zjM7BlQoiUmj9kKo5UuQNHEb
+Content-Type: application/pgp-keys; name="OpenPGP_0xB288B55FFF9C22C1.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB288B55FFF9C22C1.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsFNBFp+A0oBEADffj6anl9/BHhUSxGTICeVl2tob7hPDdhHNgPR4C8xlYt5q49y
+B+l2nipdaq+4Gk6FZfqC825TKl7eRpUjMriwle4r3R0ydSIGcy4M6eb0IcxmuPYf
+bWpr/si88QKgyGSVZ7GeNW1UnzTdhYHuFlk8dBSmB1fzhEYEk0RcJqg4AKoq6/3/
+UorR+FaSuVwT7rqzGrTlscnTDlPWgRzrQ3jssesI7sZLm82E3pJSgaUoCdCOlL7M
+MPCJwI8JpPlBedRpe9tfVyfu3euTPLPxwcV3L/cfWPGSL4PofBtB8NUU6QwYiQ9H
+zx4xOyn67zW73/G0Q2vPPRst8LBDqlxLjbtx/WLR6h3nBc3eyuZ+q62HS1pJ5EvU
+T1vjyJ1ySrqtUXWQ4XlZyoEFUfpJxJoN0A9HCxmHGVckzTRl5FMWo8TCniHynNXs
+BtDQbabt7aNEOaAJdE7to0AH3T/Bvwzcp0ZJtBk0EM6YeMLtotUut7h2Bkg1b//r
+6bTBswMBXVJ5H44Qf0+eKeUg7whSC9qpYOzzrm7+0r9F5u3qF8ZTx55TJc2g656C
+9a1P1MYVysLvkLvS4H+crmxA/i08Tc1h+x9RRvqba4lSzZ6/Tmt60DPM5Sc4R0nS
+m9BBff0Nm0bSNRS8InXdO1Aq3362QKX2NOwcL5YaStwODNyZUqF7izjK4QARAQAB
+zTxEZW1pIE9iZW5vdXIgKElUTCBFbWFpbCBLZXkpIDxhdGhlbmFAaW52aXNpYmxl
+dGhpbmdzbGFiLmNvbT7CwY4EEwEIADgWIQR2h02fEza6IlkHHHGyiLVf/5wiwQUC
+X6YJvQIbAwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAKCRCyiLVf/5wiwWRhD/0Y
+R+YYC5Kduv/2LBgQJIygMsFiRHbR4+tWXuTFqgrxxFSlMktZ6gQrQCWe38WnOXkB
+oY6n/5lSJdfnuGd2UagZ/9dkaGMUkqt+5WshLFly4BnP7pSsWReKgMP7etRTwn3S
+zk1OwFx2lzY1EnnconPLfPBc6rWG2moA6l0WX+3WNR1B1ndqpl2hPSjT2jUCBWDV
+rGOUSX7r5f1WgtBeNYnEXPBCUUM51pFGESmfHIXQrqFDA7nBNiIVFDJTmQzuEqIy
+Jl67pKNgooij5mKzRhFKHfjLRAH4mmWZlB9UjDStAfFBAoDFHwd1HL5VQCNQdqEc
+/9lZDApqWuCPadZN+pGouqLysesIYsNxUhJ7dtWOWHl0vs7/3qkWmWun/2uOJMQh
+ra2u8nA9g91FbOobWqjrDd6x3ZJoGQf4zLqjmn/P514gb697788e573WN/MpQ5XI
+Fl7aM2d6/GJiq6LC9T2gSUW4rbPBiqOCeiUx7Kd/sVm41p9TOA7fEG4bYddCfDsN
+xaQJH6VRK3NOuBUGeL+iQEVF5Xs6Yp+U+jwvv2M5Lel3EqAYo5xXTx4ls0xaxDCu
+fudcAh8CMMqx3fguSb7Mi31WlnZpk0fDuWQVNKyDP7lYpwc4nCCGNKCj622ZSocH
+AcQmX28L8pJdLYacv9pU3jPy4fHcQYvmTavTqowGnM08RGVtaSBNYXJpZSBPYmVu
+b3VyIChsb3ZlciBvZiBjb2RpbmcpIDxkZW1pb2Jlbm91ckBnbWFpbC5jb20+wsF4
+BBMBAgAiBQJafgNKAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRCyiLVf
+/5wiwYa/EACv8a2+MMou9cSCNoZBQaU+fTmyzft9hUE+0d5W2UY1RY3OsjFIzm9R
+/4SVccfsqOYLEo+S0vQMIIIqFEq3FCpXXwPzyimotps05VA8U3Bd7yseojFygOgK
+sAMOAee2RCaDDOnoJue01dfZMzzHPO/TVdp3OvnpWipfv5G1Xg96rwbhMLE3tg6N
+xwAHa31Bv4/Xq8CJOoIWvx6fcmZQpz01/lSvsYn0KrfEbTKkuUf0vM9JrCTCP2oz
+VNN5BYzqaq2M4r+jmSyeXLim922VOWqGkUEQ85BSEemqrRS06IU6NtEMsF8EWt/b
+hWjk/9GDKTcnpdJHTrMxTspExBiNrvpI2t+YPU5B/dJJAUxvmhFrbSIbdB8umBZs
+I3AMYrEmpAbh5x7jEjoskUC7uN3o9vpg1oCLS2ePDLtAtyBtbHnkA4xGD7ar8mem
+xpH9lY/i+sC6CyyIUWcUDnnagKyJP0m9ks0GLsTeOCA0bft2XA6rD6aaCnMUsndT
+ctrab42CV5XypjmC4U1rPJ8JQJUh1/3P48/8sMH+3krxpJ06KNWNFaUbaMTGiltZ
+7x9DngklSYrX0T+2G4kVXNmjaljwkoLahwLla2gUWwBSyofXdqyhQdwZsp01KXNQ
+UCyT/Pg+aDcm/E7OMV3d4lf7g/CSxiX2GSEe6BlhSz+Lmd7ZJ3g32M1ARGVtaSBN
+YXJpZSBPYmVub3VyIChJVEwgRW1haWwgS2V5KSA8ZGVtaUBpbnZpc2libGV0aGlu
+Z3NsYWIuY29tPsLBjgQTAQgAOBYhBHaHTZ8TNroiWQcccbKItV//nCLBBQJgOEV+
+AhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJELKItV//nCLBKwoP/1WSnFdv
+SAD0g7fD0WlF+oi7ISFT7oqJnchFLOwVHK4Jg0e4hGn1ekWsF3Ha5tFLh4V/7UUu
+obYJpTfBAA2CckspYBqLtKGjFxcaqjjpO1I2W/jeNELVtSYuCOZICjdNGw2Hl9yH
+KRZiBkqc9u8lQcHDZKq4LIpVJj6ZQV/nxttDX90ax2No1nLLQXFbr5wb465LAPpU
+lXwunYDij7xJGye+VUASQh9datye6orZYuJvNo8Tr3mAQxxkfR46LzWgxFCPEAZJ
+5P56Nc0IMHdJZj0Uc9+1jxERhOGppp5jlLgYGK7faGB/jTV6LaRQ4Ad+xiqokDWp
+mUOZsmA+bMbtPfYjDZBz5mlyHcIRKIFpE1l3Y8F7PhJuzzMUKkJi90CYakCV4x/a
+Zs4pzk5E96c2VQx01RIEJ7fzHF7lwFdtfTS4YsLtAbQFsKayqwkGcVv2B1AHeqdo
+TMX+cgDvjd1ZganGlWA8Sv9RkNSMchn1hMuTwERTyFTr2dKPnQdA1F480+jUap41
+ClXgn227WkCIMrNhQGNyJsnwyzi5wS8rBVRQ3BOTMyvGM07j3axUOYaejEpg7wKi
+wTPZGLGH1sz5GljD/916v5+v2xLbOo5606j9dWf5/tAhbPuqrQgWv41wuKDi+dDD
+EKkODF7DHes8No+QcHTDyETMn1RYm7t0RKR4zsFNBFp+A0oBEAC9ynZI9LU+uJkM
+eEJeJyQ/8VFkCJQPQZEsIGzOTlPnwvVna0AS86n2Z+rK7R/usYs5iJCZ55/JISWd
+8xD57ue0eB47bcJvVqGlObI2DEG8TwaW0O0duRhDgzMEL4t1KdRAepIESBEA/iPp
+I4gfUbVEIEQuqdqQyO4GAe+MkD0Hy5JH/0qgFmbaSegNTdQg5iqYjRZ3ttiswalq
+l1/iSyv1WYeC1OAs+2BLOAT2NEggSiVOtxEfgewsQtCWi8H1SoirakIfo45Hz0tk
+/Ad9ZWh2PvOGt97Ka85o4TLJxgJJqGEnqcFUZnJJriwoaRIS8N2C8/nEM53jb1sH
+0gYddMU3QxY7dYNLIUrRKQeNkF30dK7V6JRH7pleRlf+wQcNfRAIUrNlatj9Txwi
+vQrKnC9aIFFHEy/0mAgtrQShcMRmMgVlRoOA5B8RTulRLCmkafvwuhs6dCxN0GNA
+ORIVVFxjx9Vn7OqYPgwiofZ6SbEl0hgPyWBQvE85klFLZLoj7p+joDY1XNQztmfA
+rnJ9x+YV4igjWImINAZSlmEcYtd+xy3Li/8oeYDAqrsnrOjb+WvGhCykJk4urBog
+2LNtcyCjkTs7F+WeXGUo0NDhbd3Z6AyFfqeF7uJ3D5hlpX2nI9no/ugPrrTVoVZA
+grrnNz0iZG2DVx46x913pVKHl5mlYQARAQABwsFfBBgBAgAJBQJafgNKAhsMAAoJ
+ELKItV//nCLBwNIP/AiIHE8boIqReFQyaMzxq6lE4YZCZNj65B/nkDOvodSiwfwj
+jVVE2V3iEzxMHbgyTCGA67+Bo/d5aQGjgn0TPtsGzelyQHipaUzEyrsceUGWYoKX
+YyVWKEfyh0cDfnd9diAm3VeNqchtcMpoehETH8frRHnJdBcjf112PzQSdKC6kqU0
+Q196c4Vp5HDOQfNiDnTf7gZSj0BraHOByy9LEDCLhQiCmr+2E0rW4tBtDAn2HkT9
+uf32ZGqJCn1O+2uVfFhGu6vPE5qkqrbSE8TG+03H8ecU2q50zgHWPdHMOBvy3Ehz
+fAh2VmOSTcRK+tSUe/u3wdLRDPwv/DTzGI36Kgky9MsDC5gpIwNbOJP2G/q1wT1o
+Gkw4IXfWv2ufWiXqJ+k7HEi2N1sree7Dy9KBCqb+ca1vFhYPDJfhP75I/VnzHVss
+Z/rYZ9+51yDoUABoNdJNSGUYl+Yh9Pw9pE3Kt4EFzUlFZWbE4xKL/NPno+z4J9aW
+emLLszcYz/u3XnbOvUSQHSrmfOzX3cV4yfmjM5lewgSstoxGyTx2M8enslgdXhPt
+hZlDnTnOT+C+OTsh8+m5tos8HQjaPM01MKBiAqdPgksm1wu2DrrwUi6ChRVTUBcj
+6+/9IJ81H2P2gJk3Ls3AVIxIffLoY34E+MYSfkEjBz0E8CLOcAw7JIwAaeBTzsFN
+BGbyLVgBEACqClxh50hmBepTSVlan6EBq3OAoxhrAhWZYEwN78k+ENhK68KhqC5R
+IsHzlL7QHW1gmfVBQZ63GnWiraM6wOJqFTL4ZWvRslga9u28FJ5XyK860mZLgYhK
+9BzoUk4s+dat9jVUbq6LpQ1Ot5I9vrdzo2p1jtQ8h9WCIiFxSYy8s8pZ3hHh5T64
+GIj1m/kY7lG3VIdUgoNiREGf/iOMjUFjwwE9ZoJ26j9p7p1U+TkKeF6wgswEB1T3
+J8KCAtvmRtqJDq558IU5jhg5fgN+xHB8cgvUWulgK9FIF9oFxcuxtaf/juhHWKMO
+RtL0bHfNdXoBdpUDZE+mLBUAxF6KSsRrvx6AQyJs7VjgXJDtQVWvH0PUmTrEswgb
+49nNU+dLLZQAZagxqnZ9Dp5l6GqaGZCHERJcLmdY/EmMzSf5YazJ6c0vO8rdW27M
+kn73qcWAplQn5mOXaqbfzWkAUPyUXppuRHfrjxTDz3GyJJVOeMmMrTxH4uCaGpOX
+Z8tN6829J1roGw4oKDRUQsaBAeEDqizXMPRc+6U9vI5FXzbAsb+8lKW65G7JWHym
+YPOGUt2hK4DdTA1PmVo0DxH00eWWeKxqvmGyX+Dhcg+5e191rPsMRGsDlH6KihI6
++3JIuc0y6ngdjcp6aalbuvPIGFrCRx3tnRtNc7He6cBWQoH9RPwluwARAQABwsOs
+BBgBCgAgFiEEdodNnxM2uiJZBxxxsoi1X/+cIsEFAmbyLVgCGwICQAkQsoi1X/+c
+IsHBdCAEGQEKAB0WIQSilC2pUlbVp66j3+yzNoc6synyUwUCZvItWAAKCRCzNoc6
+synyU85gD/0T1QDtPhovkGwoqv4jUbEMMvpeYQf+oWgm/TjWPeLwdjl7AtY0G9Ml
+ZoyGniYkoHi37Gnn/ShLT3B5vtyI58ap2+SSa8SnGftdAKRLiWFWCiAEklm9FRk8
+N3hwxhmSFF1KR/AIDS4g+HIsZn7YEMubBSgLlZZ9zHl4O4vwuXlREBEW97iL/FSt
+VownU2V39t7PtFvGZNk+DJH7eLO3jmNRYB0PL4JOyyda3NH/J92iwrFmjFWWmmWb
+/Xz8l9DIs+Z59pRCVTTwbBEZhcUc7rVMCcIYL+q1WxBG2e6lMn15OQJ5WfiE6E0I
+sGirAEDnXWx92JNGx5l+mMpdpsWhBZ5iGTtttZesibNkQfd48/eCgFi4cxJUC4PT
+UQwfD9AMgzwSTGJrkI5XGy+XqxwOjL8UA0iIrtTpMh49zw46uV6kwFQCgkf32jZM
+OLwLTNSzclbnA7GRd8tKwezQ/XqeK3dal2n+cOr+o+Eka7yGmGWNUqFbIe8cjj9T
+JeF3mgOCmZOwMI+wIcQYRSf+e5VTMO6TNWH5BI3vqeHSt7HkYuPlHT0pGum88d4a
+pWqhulH4rUhEMtirX1hYx8Q4HlUOQqLtxzmwOYWkhl1C+yPObAvUDNiHCLf9w28n
+uihgEkzHt9J4VKYulyJM9fe3ENcyU6rpXD7iANQqcr87ogKXFxknZ97uEACvSucc
+RbnnAgRqZ7GDzgoBerJ2zrmhLkeREZ08iz1zze1JgyW3HEwdr2UbyAuqvSADCSUU
+GN0vtQHsPzWl8onRc7lOPqPDF8OO+UfN9NAfA4wl3QyChD1GXl9rwKQOkbvdlYFV
+UFx9u86LNi4ssTmU8p9NtHIGpz1SYMVYNoYy9NU7EVqypGMguDCL7gJt6GUmA0sw
+p+YCroXiwL2BJ7RwRqTpgQuFL1gShkA17D5jK4mDPEetq1d8kz9rQYvAR/sTKBsR
+ImC3xSfn8zpWoNTTB6lnwyP5Ng1bu6esS7+SpYprFTe7ZqGZF6xhvBPf1Ldi9UAm
+U2xPN1/eeWxEa2kusidmFKPmN8lcT4miiAvwGxEnY7Oww9CgZlUB+LP4dl5VPjEt
+sFeAhrgxLdpVTjPRRwTd9VQF3/XYl83j5wySIQKIPXgT3sG3ngAhDhC8I8GpM36r
+8WJJ3x2yVzyJUbBPO0GBhWE2xPNIfhxVoU4cGGhpFqz7dPKSTRDGq++MrFgKKGpI
+ZwT3CPTSSKc7ySndEXWkOYArDIdtyxdE1p5/c3aoz4utzUU7NDHQ+vVIwlnZSMiZ
+jek2IJP3SZ+COOIHCVxpUaZ4lnzWT4eDqABhMLpIzw6NmGfg+kLBJhouqz81WITr
+EtJuZYM5blWncBOJCoWMnBEcTEo/viU3GgcVRw=3D=3D
+=3Dx94R
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------zjM7BlQoiUmj9kKo5UuQNHEb--
+
+--------------mr4YQ5TDAwPhFQbkDB8G6j66--
+
+--------------5SMC2h7y6rFFUG3nPqobAw8H
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEopQtqVJW1aeuo9/sszaHOrMp8lMFAmhPFTQACgkQszaHOrMp
+8lPT0w/+J5acttAYyAu4+Mn1/Wy4jKy9e1bZxj5lJDhvL4UYRE9Sr1tIrTzdLC1W
+SlPNG6yNU89SVZ4KqB4NjThuTKmx69DyV03Oodm8uwqGy09/B9R0YJtazexdGWY1
+uuyM190R59XIZXJW2DrJXbeGnVtgFeWmNrq+QZKErN+rriljzXmDk+5Hsm4B8byM
+9pdYLgOmq7qn22TFKskvjAlJZ2zPmbj2Vgwu2Q4aAIZ6ukUYEYR1mxGpSWB3iKiv
+BQ6iTjJ+k+L/lm74yvp6KllpoTl/Q0OBEY/W//vAkW7WKMSn7tZd2bLIUA/Nk2Rr
+N7WYhggXWwnzd90l96WIvotS1vN8cPJ3LgiePKBK8lfgkeEerlXhItornjF2O2r1
+l+QH0radAlc5WCPNsxI8dBsnMGrOMplBbc4bug3r5/3zxEKziNqnBdF/23+Vycrw
+byhyK6zpH0CrXNjlK86BWnCgAg5jfI0P7Kq38DciOJ2ZZ7ozDmZL+2H90LMZnNDy
+0l6GdrG4UIgbLX2f5G7XPBNkEO393xR6cz3PUaXnCDVebsN0lEEje4QW05x5CxE8
+RxVGgpiStiOKnVYOfd/07piXjLjeNRWruSEAODygFyrurwNmGysCufUi3k4j6scn
+n7NuyW8gzdU79uzmqKshDOKmNUfs1N+4GnSTsEGsRSM6fn7pHoY=
+=b3nF
+-----END PGP SIGNATURE-----
+
+--------------5SMC2h7y6rFFUG3nPqobAw8H--
