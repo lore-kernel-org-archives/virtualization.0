@@ -1,50 +1,79 @@
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 894051DE3DB;
-	Mon, 16 Jun 2025 15:14:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5B43286420
+	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 16:07:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750086849; cv=none; b=Hc21zb7xYvTSGRweeyQzOL0pFDSmniciBZrHlXgL8D78HfcGxNB6GOE0+EnXGqm0mndcp8hP3IqW1sw2x7f8YJwS8aM0al5NYd60SqeiCS06KnjNvSmYgSqQ2l5Tmca3KR7lbjh9F9WTjbci2Ud35lsImoPG9bD1qNX22J65v+Y=
+	t=1750090074; cv=none; b=ej+rGRnwOZ/ExKlcdjAcJ/P3kJcuTbUL5DzD6nKT2Xa9bQcNNFyHUsn85IsEibOMuayasMp3CZm3MaEVTcCLV+gT0rzV2pCT9VXIa0HpkakftzsqudOMX7G/xm3tgqFskagL+DYfKl0Rq1iqbAaSz53NDWa7YgpKnQN9jFB29V0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750086849; c=relaxed/simple;
-	bh=aNDbKOOjHpsSVm/u+QK5zaGokrrj0d/sOrb/9/P49gE=;
+	s=arc-20240116; t=1750090074; c=relaxed/simple;
+	bh=ZA6S9shc1QEX3PEyqUllB6Vi85lndLEG0kzkNo7/Ypk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rSRwcog2hxUkTSo9hk79Kgx7LWVgXEn+tRy9NxmfreksQ+Nf6jWR34U2uCdeDwxAyzhx2R8T4VGAppbWb8NnvlilNxDKJXgLPMH4X9Ht9gF/R2PToNNtw+wkKLxlqKSLjhmAfT5k5voos3wV2QL4ps/JPudbr2vs4Y+i3IIoyzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=QM67Xzx9; arc=none smtp.client-ip=213.167.242.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=cIZ2f202gf6lsiy7zi67+fhOg2x7BHYZdegv01v1tx9glE6shVLHGdFGopjKn06l0c3Po++SicNBugab1eIllf2N+P3gYlZ5AaxkJdwKmW3/GJSEouGBgO6xhWC+VpRcq7X/4WM7iF1pTt9yDPt0WBDHgz6mzectv4KgejN0Bp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=QGeKWQby; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="QM67Xzx9"
-Received: from pendragon.ideasonboard.com (81-175-209-231.bb.dnainternet.fi [81.175.209.231])
-	by perceval.ideasonboard.com (Postfix) with ESMTPSA id 55562346;
-	Mon, 16 Jun 2025 17:13:54 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-	s=mail; t=1750086834;
-	bh=aNDbKOOjHpsSVm/u+QK5zaGokrrj0d/sOrb/9/P49gE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=QM67Xzx99jtSxFtbVWkxi9ny3lkeshszCYykwUWs4y08YnSKdKJ/O207ngwOCheOQ
-	 TcS9TWQkg/ZF3B5IT/PRnJdD6ZeF54pordOC63Upxph3fPlOeSwafp7l71BiZ0xPAD
-	 TAv/k4j+OiUsCXXAJRp6zom83aLOsyaQGJY4FajI=
-Date: Mon, 16 Jun 2025 18:13:50 +0300
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com, geert@linux-m68k.org,
-	tomi.valkeinen@ideasonboard.com, dri-devel@lists.freedesktop.org,
-	linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org, imx@lists.linux.dev,
-	linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org,
-	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
-	linux-renesas-soc@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
-	intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
-	Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Subject: Re: [PATCH v5 17/25] drm/renesas/rcar-du: Compute dumb-buffer sizes
- with drm_mode_size_dumb()
-Message-ID: <20250616151350.GG10542@pendragon.ideasonboard.com>
-References: <20250613090431.127087-1-tzimmermann@suse.de>
- <20250613090431.127087-18-tzimmermann@suse.de>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="QGeKWQby"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-450dd065828so38052335e9.2
+        for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 09:07:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1750090071; x=1750694871; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=66enaQYzVszRsP2d3FubStZt1y7rSXnP5cI/cUMaHAc=;
+        b=QGeKWQbyU/SAfHAoO6GtXFXbt3ijSPkUCkuIpKwP475P1jv9cg04C4+4CY478Ua/Su
+         sw59k7B/vygjwPNoIltycCd+zYK/LQQVNq/3Wjw72nb71PpAiEDEg9bWDt6vOXOfx30y
+         wjafkVSXbXIO0425pCy+Jy7zPDXKOEw7K+JJw68mp0jdbVR8Sh/V80mQx1RBSgylhA0H
+         ThVphK6MGTcoM+Gw6nMcI8sSxxn8KHY7rWhs7FBXIQ2yvk+AAcKCgoYSbycR8nPr1TsK
+         dfutK5JSBnAAhefmT8munEEBGhJElOCzCxeAhccfj0JV+nk2VaZTt0+TXvVe6yVfDH4H
+         qfzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750090071; x=1750694871;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=66enaQYzVszRsP2d3FubStZt1y7rSXnP5cI/cUMaHAc=;
+        b=q08RfEc1jMVS/OcIhJPtL6HgFs4s4+n/sfFFpvb9C8epsMSfJFBd6SIVlYG2i5ztKM
+         KLk9khdZgdhjxLVYYgIXUCHCvkUwTx4LudjY8A2kjGRmofKIuP6gWWimjp3hyAQ/xMd0
+         Y/rYMh8StTVDgbYR7HJcMxTN8deTqOXJNv7JRq7kWCsyFxwkxT531o2qnICAX7tVubnM
+         Nw1ff0NdryYdYqafSxZT72dU3S9YHvdyByBNBc7F0w03OYkZepycsAq5v2NgTHHXU/+s
+         39WLtWCIkL7LXKX2MN6SkIpr2iZnFNWtkbaNkez71tZ/kqXaTJQA9cB5+JpphDtJ6v4n
+         a2AQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWCY2JE7XPTVvJSIbew3P469tn8xAeLsD8cL6r57nf0Ti9ee7VzODMJeDG3Fh2GgIdl76BTWS12B20qXsMTtA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw5nY/jnKGBCrXa/x8DS/prGKLRfk8Qbv85qCyxMeWpP8p2NA+y
+	BEqnMcrGBMAiQUK6IghAtvI1HQ39x+z3OqTKbJrXDeKvEnMLUtMOp24LjXbGnZm3KX0=
+X-Gm-Gg: ASbGncvj18JaXb07uLgL4Yih7SIGWaTuNu7NNCsu++ezOgVHQCgOSosegsxc8JEPZ4E
+	L8Uo1XHihywjImzqQwiuPBJZJlLzyhx8lX5BMVBUe0sDTC9dhtjnOak+ErZwzXzHmNe1qxDoILS
+	pFdWfs3XY/n4Iuu4NJH1LZHBSXu15q4zAOZkBBHrqflR0MD7/LlkAtrpikKDMH+SzgdXB5phXNx
+	xr0PNhaHNkYklmqkv3oQlNl3LTHXJHpOumNnp8jqyWyfIawHl84glO+EQEP2Wun4xjwuBe/wZeE
+	cTjQA5zAnI+0Hcwgh01R6wDHSLLcc7ZCszsYcxipM/An0I8+/s0x3gsdXnmxoLniVkUbXIFDVoS
+	zMXHlnKMvfgqIMQ==
+X-Google-Smtp-Source: AGHT+IFm2XOGvEu+c2Vt4oKDTOhDYuX0Zc67/qbAzwRfpRIo4JlzBUdpBKcXvIOmlDkGO4s2VlIKAQ==
+X-Received: by 2002:a05:600c:3ba2:b0:442:dc6f:7a21 with SMTP id 5b1f17b1804b1-4533ca79d19mr100567515e9.3.1750090071100;
+        Mon, 16 Jun 2025 09:07:51 -0700 (PDT)
+Received: from myrica (92.40.185.180.threembb.co.uk. [92.40.185.180])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a568b19b32sm11602270f8f.67.2025.06.16.09.07.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Jun 2025 09:07:50 -0700 (PDT)
+Date: Mon, 16 Jun 2025 17:07:52 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Alyssa Ross <hi@alyssa.is>
+Cc: Demi Marie Obenour <demiobenour@gmail.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
+	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+	devel@spectrum-os.org, Thomas Gleixner <tglx@linutronix.de>,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	eric.auger@redhat.com
+Subject: Re: Virtio interrupt remapping
+Message-ID: <20250616160735.GA5171@myrica>
+References: <c40da5dc-44c0-454e-8b1d-d3f42c299592@gmail.com>
+ <20250613181345.GA1350149@myrica>
+ <6b661c62-c322-4f2b-8e4a-da1d5c5e48a1@gmail.com>
+ <877c1ed9o7.fsf@alyssa.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -53,61 +82,97 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20250613090431.127087-18-tzimmermann@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <877c1ed9o7.fsf@alyssa.is>
 
-Hi Thomas,
+[+Eric]
 
-Thank you for the patch.
-
-On Fri, Jun 13, 2025 at 11:00:36AM +0200, Thomas Zimmermann wrote:
-> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and
-> buffer size. Align the pitch according to hardware requirements.
+On Sat, Jun 14, 2025 at 10:11:52AM +0200, Alyssa Ross wrote:
+> Demi Marie Obenour <demiobenour@gmail.com> writes:
 > 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Cc: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+> > On 6/13/25 14:13, Jean-Philippe Brucker wrote:
+> >> Hi,
+> >> 
+> >> On Fri, Jun 13, 2025 at 01:08:07PM -0400, Demi Marie Obenour wrote:
+> >>> I’m working on virtio-IOMMU interrupt remapping for Spectrum OS [1],
+> >>> and am running into a problem.  All of the current interrupt remapping
+> >>> drivers use __init code during initialization, and I’m not sure how to
+> >>> plumb the struct virtio_device * into the IOMMU initialization code.
+> >>>
+> >>> What is the proper way to do this, where “proper” means that it doesn’t
+> >>> do something disgusting like “stuff the virtio device in a global
+> >>> variable”?
+> >> 
+> >> I'm not familiar at all with interrupt remapping, but I suspect a major
+> >> hurdle will be device probing order: the PCI subsystem probes the
+> >> virtio-pci transport device relatively late during boot, and the virtio
+> >> driver probes the virtio-iommu device afterwards, at which point we can
+> >> call viommu_probe() and inspect the device features and config.  This can
+> >> be quite late in userspace if virtio and virtio-iommu get loaded as
+> >> modules (which distros tend to do).> 
+> >> The way we know to hold off initializing dependent devices before the
+> >> IOMMU is ready is by reading the firmware tables. In devicetree the
+> >> "msi-parent" and "msi-map" properties point to the interrupt remapping
+> >> device, so by reading those Linux knows to wait for the probe of the
+> >> remapping device before setting up those endpoints. The ACPI VIOT
+> >> describes this topology as well, although at the moment it does not have
+> >> separate graphs for MMU and interrupts, like devicetree does (could
+> >> probably be added to the spec if needed, but I'm guessing the topologies
+> >> may be the same for a VM).  If the interrupt infrastructure supports
+> >> probe deferral, then that's probably the way to go.
+> >
+> > I don't see any examples of probe deferral in the codebase.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+I think the flow with VIOT is roughly:
 
-> ---
->  drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
+ // Scan an endpoint
+ pci_bus_add_device()
+  device_attach()
+   driver_probe_device()
+    really_probe()
+     dev->bus->dma_configure()
+      pci_dma_configure()
+       acpi_dma_configure()
+        acpi_iommu_configure_id()
+         viot_iommu_configure()
+	  viot_dev_iommu_init()
+	   acpi_iommu_fwspec_init()
+	    iommu_fwspec_init()
+	     driver_deferred_probe_check_state()
+	     iommu ready ? 0 : -EPROBE_DEFER
+
+So if the IOMMU isn't available at this point, base/dd.c adds the device
+to the deferred probe list, to be retried later. Later:
+
+ // Scan the IOMMU
+ ...
+  virtio_dev_probe()
+   viommu_probe()
+    iommu_device_register()
+     add to iommu_device_list
+     iommu->ready = true
+
+I believe after this probe completes, base/dd.c checks if dependent
+devices can now be probed:
+
+ driver_bound()
+  driver_deferred_probe_trigger()
+
+That should all be working and you don't need to add anything. The
+question is whether the interrupt core supports starting the setup of
+interrupt remapping in viommu_probe(), or if it needs to know of the
+IOMMU's config and features earlier during boot. Even if the viommu driver
+is builtin, those info may not be available early enough since they
+require PCI and virtio probe.
+
+> > Would it instead be possible to require virtio-iommu (and thus virtio)
+> > to be built-in rather than modules?
 > 
-> diff --git a/drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c b/drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c
-> index 4c8fe83dd610..dd353fb858ef 100644
-> --- a/drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c
-> +++ b/drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c
-> @@ -11,6 +11,7 @@
->  #include <drm/drm_atomic_helper.h>
->  #include <drm/drm_crtc.h>
->  #include <drm/drm_device.h>
-> +#include <drm/drm_dumb_buffers.h>
->  #include <drm/drm_framebuffer.h>
->  #include <drm/drm_gem_dma_helper.h>
->  #include <drm/drm_gem_framebuffer_helper.h>
-> @@ -407,8 +408,8 @@ int rcar_du_dumb_create(struct drm_file *file, struct drm_device *dev,
->  			struct drm_mode_create_dumb *args)
->  {
->  	struct rcar_du_device *rcdu = to_rcar_du_device(dev);
-> -	unsigned int min_pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
->  	unsigned int align;
-> +	int ret;
->  
->  	/*
->  	 * The R8A7779 DU requires a 16 pixels pitch alignment as documented,
-> @@ -419,7 +420,9 @@ int rcar_du_dumb_create(struct drm_file *file, struct drm_device *dev,
->  	else
->  		align = 16 * args->bpp / 8;
->  
-> -	args->pitch = roundup(min_pitch, align);
-> +	ret = drm_mode_size_dumb(dev, args, align, 0);
-> +	if (ret)
-> +		return ret;
->  
->  	return drm_gem_dma_dumb_create_internal(file, dev, args);
->  }
+> It's certainly possible to have an optional feature in the kernel that
+> depends on a module being built in where it otherwise wouldn't have to be.
 
--- 
-Regards,
+Agree, no problem requiring this as a first step, but the IOMMU probe
+might still not be early enough. 
 
-Laurent Pinchart
+Thanks,
+Jean
