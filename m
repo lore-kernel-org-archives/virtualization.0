@@ -1,172 +1,188 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 432811BC3F
-	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 14:42:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 067DF13B58D
+	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 14:51:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750084933; cv=none; b=rQbaK86H/0IEkIpjSQj4ll5QplfUUnkEASb2iOrYaQthLzrs3eZe8UqP1LJBvC/AuFzRyGTSYI2oLdBxZNRMijrge+g9EQTmI8vbTsQo9vk+yDOZG2N79fyyJDO9oqcjD5R0sqzGXXc0JrQAl9WlGHzbP32AiPM2S1xLKYhXBcc=
+	t=1750085510; cv=none; b=XGnviPK/PFEF1cL3O9GAd9MnaW8v1JO18hMW15vxVIUsiPAQ8UzFLWwWpIhPNJx6OloO9UDUCM3q+9IZ12x1Qhl+SmcmrAMS68GO0ydjwBktVpuNvNW64T3Pojnr94f7Zr+zzjDP/JpD97Qm3NTfLZqfbsIWc1OfU1VEkD7ZE0s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750084933; c=relaxed/simple;
-	bh=pK0+u7cNcOH3UoJCPFzMHWZ+PCQvSBPMj8pEU5KTMIU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=bIdd4CkTaNz3zdt/Xya3T1cM6NWhHEWHyUZpBR/avM8/dsUPZX8vobeLGKeGtNsv5Zfg5+9E8arUU1W+28SMAmlIh+X+JCi7w5qag8zOSJset5ZJwb/V8OyaOcaIiaL7OfyLx4IPkVhMxXVud+Aw8BxEmyZYjMfdOMcp5/7Oxy4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mNAohZUj; arc=none smtp.client-ip=209.85.210.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750085510; c=relaxed/simple;
+	bh=fM5dEQqwAiXD+1IrxGX1Pq9Lhfoon8UuGqtgWNQuMLc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UcCFqxWfAgahCkRijAE90+EmKB5j+xv4NITJellFUcyeouohV2bahr2Bp16g188GZWS0dqki2BT+gk5h1n4EgfKj/9ubRi8c3KHumMKhZbVxttaaFnpwHAyP42vXFITQoxRHxEwg9ed4Gexa5Ic+B8FBj6X7td08XKnAzB67nzU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XK/oEMMB; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mNAohZUj"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-747fc77bb2aso3402327b3a.3
-        for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 07:42:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750084932; x=1750689732; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Tv34W5VjxfJqW+QLhtik14kbds+hW6UbOSuF3KILzuY=;
-        b=mNAohZUj08nnIEYLwMqOM814m1MgLC9eaZh87UIMo8fU8+T9NW0+WSHILF6tyIl0tD
-         8pWKM6OpHe0OLW5QohwO9nQ0wR8+rUgue+b6vsTx60ZZOjcyHj4Y+JbX2WbkYhJBSKUG
-         3JuzcWuAGaqYPPQVpn59DQKyrIhyx5V8uxyGMtiawz1PJ/4zXVzCGvnC+cy9EIvJmiTs
-         tkc1H4DAnHFjsGHJ9QlcKn0uJSOUbkhUR6QG8fjfAD9OPAeerXsKgBkDG/7PzdkK9nbS
-         MTnBM7Z5iRqLY1BiscmKe+5dlh2IpFLhdcAorPJzwJSU1tH9m7qKaeUlUmm5HraklH4+
-         tVgA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XK/oEMMB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1750085508;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zB0/juvTmsIMPjbtAoDAeMzCmECBZlu9WLKm2WtRE4E=;
+	b=XK/oEMMBmbaz/mYjqx9h2zUs2WXiwxfZb1QVfCE8XsJpk9oa+U66ctrGRSmRJjYgxYTfuC
+	yq6x5Zq5X3e2bfQMChvX8ve1YjHOEcVEDQnChSJEnxVGRzG12DoDOlkHFQwzXUv5tn9dn0
+	RYrFcYZWjqcEXo/YJ4HA/kEmsmxSGGU=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-636-W9QstfGrMvuj8ZUHlDVBxg-1; Mon, 16 Jun 2025 10:51:47 -0400
+X-MC-Unique: W9QstfGrMvuj8ZUHlDVBxg-1
+X-Mimecast-MFC-AGG-ID: W9QstfGrMvuj8ZUHlDVBxg_1750085506
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-70e43123ec6so57056587b3.3
+        for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 07:51:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750084932; x=1750689732;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Tv34W5VjxfJqW+QLhtik14kbds+hW6UbOSuF3KILzuY=;
-        b=Mqfnd9VMG2ba2ELqu++Hv1ckS3IDN/vpkXUs0LBLFEDxjz5VitI25I3ccL3tNcD6D/
-         NLKrYK9mE+3Nal/fMItYiIwRv+Mir0YuXKZp4iaYVFvIiRvlCv9juMugRNCmVklIobNZ
-         ZZUGx9lVBFf2zuMNyqZZQDTiVhp8qzduDkbDdg71FV2ykEN0tDNwfbncoPTkMvzyfaLD
-         5Z/k+x44rwDYamTXcN/WRA0wliEwZiHzpI+oBvdZI39YOOZVdKQq1pCmPFz6g83dySfU
-         ohJfaPyKdxqNfdYObSTuwbEb3IfS/fCSEkBKAsA8AAoTm5gd8ObPvWIm5DAhXN2bWYGa
-         DfTQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUIdahqga69NHBRmmbktyw8O993MKlYDxqmNJKeo3nXgSPDDfuw8kKS1mlTVqG27AAhZ9HUuOqE23gFNjd1eg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YznL+5v4Jj7Ew6oChvbAQV36yxRU/uSmkaAHD+D8hs6Tr8SaVAK
-	gCjzNFvrqDGYw72vugMsErGVRLwXDPYLVlLw9gNd7sfnc6KZsjLJ9IPHIUt48AfAAoh0u+Pb
-X-Gm-Gg: ASbGncsRD7VF9t8Z2szUMar0G7qHtOeiqIRoz7PSVg7wQYe4mmfAwH8pY999XWx1jRN
-	vJpY7PgeIb26oWc5d7bcbspy2i+nusv41OzfrMtupXO4O5UkUbM6z1A1AoRPQSiPWzH96VGsD/a
-	wGJ0JjtHUlSnLHZ1sOUPcXG/wYInuFi2wRmsQqMq6kk0MBmdANg4bhs9ukf5dRTfhHEwo+yHsFG
-	1Zrn8Bo2k/EzLZPYoZrLwdx4gXZzHpA9jXLGFkVdx1afX1jUcLaIhkoba7Sa4iI5W0aXfQBrfa0
-	AGE78nlQoeKl2glnbZCWcoCqfZEWgOjzpXqUhKrggiSjWfp778XfZoE3qIPvvYE78Qt7wNRqugX
-	NZflulwJI
-X-Google-Smtp-Source: AGHT+IHEPg4+O4ApNZgch6q2sKZcGIKUpH2RyzdU/+t4+DW38f/ZmE8sPSN34Sk/ocqhx4evU3kalg==
-X-Received: by 2002:a05:6a00:398b:b0:730:9946:5973 with SMTP id d2e1a72fcca58-7489ce012bdmr12266799b3a.5.1750084931399;
-        Mon, 16 Jun 2025 07:42:11 -0700 (PDT)
-Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-748900b374csm7104331b3a.137.2025.06.16.07.42.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Jun 2025 07:42:11 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-To: leonardi@redhat.com
-Cc: davem@davemloft.net,
-	fupan.lfp@antgroup.com,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	niuxuewei.nxw@antgroup.com,
-	niuxuewei97@gmail.com,
-	pabeni@redhat.com,
-	sgarzare@redhat.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH net-next v2 1/3] vsock: Add support for SIOCINQ ioctl
-Date: Mon, 16 Jun 2025 22:42:00 +0800
-Message-Id: <20250616144200.1187793-1-niuxuewei.nxw@antgroup.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <mrib74zhrw47v4juifp67phnm6tffb7qgfm3xmtcuw5maminlv@4i7z36hg3554>
-References: <mrib74zhrw47v4juifp67phnm6tffb7qgfm3xmtcuw5maminlv@4i7z36hg3554>
+        d=1e100.net; s=20230601; t=1750085506; x=1750690306;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zB0/juvTmsIMPjbtAoDAeMzCmECBZlu9WLKm2WtRE4E=;
+        b=N3SVAHfmpKwH1Kt1AudVQmu/3s5Ab8dzdIkuEF/GCSCbGchNd/jNDBNcRZdpmuZQxR
+         DWqbxYcuxLHNMvy7EkY03gEjpgZc+7hoX7aBXFOHj+WVTTXBZBb7GtlpVq4p2SBbrnhp
+         bU/ZbrGxXAtzH4a2Dp7qB2cTu++N66gDXNyUHsAzqWZtaDwpzvvZEjHISlPhUPFp8C/G
+         9mm24TrKHKPCFWVriWSCvAS8BPe2IA5EJII4KBc20Z3/8i5OJzZF2VT8b5So3ooT8H8l
+         APJiUZK1holXI8yutV97sxpdDLw7RqKSLn6YL/qYlcDatsgSHIFzNBrRtnJAmOJMElHB
+         ahTg==
+X-Forwarded-Encrypted: i=1; AJvYcCWStiB4SgZdRkA5SV1pEmsiL4JJ9kCmzFkVmAu/risFXbXoIfZKNazQa7mFIc4XSVubA72O/fyffssLeRRkgw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy4BJBWC5nMal8awoqKqluRYSJNq3nTFzAOMsw6fVPaIHoiZqax
+	TcVT7b0BFSCFDIITWljU5WLUz0xz9TuOk8fMjLIuewlWnj1Iuu6QQGFllIZNchz+JoOLd2T+dHE
+	T/JMTbKYEl4FBCEqJ6OwqmOy0KNshETYsrlg06xCt7iMuwt+dU/QUfQI6Og4VhJpDz5PsCKZmcx
+	OF7Rv1DjnOvmunlY62w/jRst1C7FITOlUiEz2fTyBIf/c=
+X-Gm-Gg: ASbGncstn74Jfl7Fs5df5s/wylLtJBn8yMo7BYdfo3WMiHKULeJoHUIzXkhPLqpvf7c
+	xpwNwGhwMUi6ptoVP7OM3PCOxhzvbTwL62F08qhilQ19wMw3ZHAXeBpkvCr2mARmlDkQQRbOhRE
+	2uzj6C
+X-Received: by 2002:a05:690c:c1d:b0:70f:9fcd:2075 with SMTP id 00721157ae682-7117536cfa2mr129054707b3.3.1750085506487;
+        Mon, 16 Jun 2025 07:51:46 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFYU9W5CA6OGz5GV8F5Kca6HL2nfxx98+wK9SD5MXInZikANAipuJ04VBv4A8FLyyEMPh5RPv6YlqBYjCJXTy0=
+X-Received: by 2002:a05:690c:c1d:b0:70f:9fcd:2075 with SMTP id
+ 00721157ae682-7117536cfa2mr129054157b3.3.1750085506091; Mon, 16 Jun 2025
+ 07:51:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <2oxz7toygswngn7kfmsrbmpikk5qggwbvk3oxb5ucrbq3pcfff@azc54m4hwlfb> <20250616143901.1187273-1-niuxuewei.nxw@antgroup.com>
+In-Reply-To: <20250616143901.1187273-1-niuxuewei.nxw@antgroup.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Mon, 16 Jun 2025 16:51:34 +0200
+X-Gm-Features: AX0GCFtzcxtqSQms8qF31ded0ASL17rZKHWqGZvF6K-bj9-TCcblqN-BEMBZdqc
+Message-ID: <CAGxU2F6FtJT1fyZQ9JTExYF6OsJ6J8HRiOetX09JB6rTzVtVcQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 3/3] test/vsock: Add ioctl SIOCINQ tests
+To: Xuewei Niu <niuxuewei97@gmail.com>
+Cc: davem@davemloft.net, fupan.lfp@antgroup.com, jasowang@redhat.com, 
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, 
+	netdev@vger.kernel.org, niuxuewei.nxw@antgroup.com, pabeni@redhat.com, 
+	stefanha@redhat.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: okWI-ZM2krZL3jR4DVhPfJRoF0pfsQj12VxIueqmK70_1750085506
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 
-> On Mon, Jun 16, 2025 at 03:42:53PM +0200, Luigi Leonardi wrote:
-> >On Fri, Jun 13, 2025 at 11:11:50AM +0800, Xuewei Niu wrote:
-> >>This patch adds support for SIOCINQ ioctl, which returns the number of
-> >>bytes unread in the socket.
-> >>
-> >>Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-> >>---
-> >>include/net/af_vsock.h   |  2 ++
-> >>net/vmw_vsock/af_vsock.c | 22 ++++++++++++++++++++++
-> >>2 files changed, 24 insertions(+)
-> >>
-> >>diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> >>index d56e6e135158..723a886253ba 100644
-> >>--- a/include/net/af_vsock.h
-> >>+++ b/include/net/af_vsock.h
-> >>@@ -171,6 +171,8 @@ struct vsock_transport {
-> >>
-> >>	/* SIOCOUTQ ioctl */
-> >>	ssize_t (*unsent_bytes)(struct vsock_sock *vsk);
-> >>+	/* SIOCINQ ioctl */
-> >>+	ssize_t (*unread_bytes)(struct vsock_sock *vsk);
-> >>
-> >>	/* Shutdown. */
-> >>	int (*shutdown)(struct vsock_sock *, int);
-> >>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> >>index 2e7a3034e965..466b1ebadbbc 100644
-> >>--- a/net/vmw_vsock/af_vsock.c
-> >>+++ b/net/vmw_vsock/af_vsock.c
-> >>@@ -1389,6 +1389,28 @@ static int vsock_do_ioctl(struct socket *sock, unsigned int cmd,
-> >>	vsk = vsock_sk(sk);
-> >>
-> >>	switch (cmd) {
-> >>+	case SIOCINQ: {
-> >>+		ssize_t n_bytes;
-> >>+
-> >>+		if (!vsk->transport || !vsk->transport->unread_bytes) {
-> >>+			ret = -EOPNOTSUPP;
-> >>+			break;
-> >>+		}
-> >>+
-> >>+		if (sock_type_connectible(sk->sk_type) &&
-> >>+		    sk->sk_state == TCP_LISTEN) {
-> >>+			ret = -EINVAL;
-> >>+			break;
-> >>+		}
-> >>+
-> >>+		n_bytes = vsk->transport->unread_bytes(vsk);
-> >>+		if (n_bytes < 0) {
-> >>+			ret = n_bytes;
-> >>+			break;
-> >>+		}
-> >>+		ret = put_user(n_bytes, arg);
-> >>+		break;
-> >>+	}
-> >>	case SIOCOUTQ: {
-> >>		ssize_t n_bytes;
-> >>
-> >>-- 
-> >>2.34.1
-> >>
+On Mon, 16 Jun 2025 at 16:39, Xuewei Niu <niuxuewei97@gmail.com> wrote:
+>
+> > On Fri, Jun 13, 2025 at 11:11:52AM +0800, Xuewei Niu wrote:
+> > >This patch adds SIOCINQ ioctl tests for both SOCK_STREAM and
+> > >SOCK_SEQPACKET.
+> > >
+> > >The client waits for the server to send data, and checks if the SIOCINQ
+> > >ioctl value matches the data size. After consuming the data, the client
+> > >checks if the SIOCINQ value is 0.
+> > >
+> > >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+> > >---
+> > > tools/testing/vsock/util.c       | 36 ++++++++++----
+> > > tools/testing/vsock/util.h       |  2 +
+> > > tools/testing/vsock/vsock_test.c | 83 +++++++++++++++++++++++++++++++-
+> > > 3 files changed, 111 insertions(+), 10 deletions(-)
+> > >
+> > >diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+> > >index 0c7e9cbcbc85..472246198966 100644
+> > >--- a/tools/testing/vsock/util.c
+> > >+++ b/tools/testing/vsock/util.c
+> > >@@ -97,28 +97,46 @@ void vsock_wait_remote_close(int fd)
+> > >     close(epollfd);
+> > > }
+> > >
+> > >-/* Wait until transport reports no data left to be sent.
+> > >- * Return false if transport does not implement the unsent_bytes() callback.
+> > >+/* Wait until ioctl gives an expected int value.
+> > >+ * Return a negative value if the op is not supported.
+> > >  */
+> > >-bool vsock_wait_sent(int fd)
+> > >+int ioctl_int(int fd, unsigned long op, int *actual, int expected)
+> > > {
+> > >-    int ret, sock_bytes_unsent;
+> > >+    int ret;
+> > >+    char name[32];
+> > >+
+> > >+    if (!actual) {
+> > >+            fprintf(stderr, "%s requires a non-null pointer\n", __func__);
+> > >+            exit(EXIT_FAILURE);
+> > >+    }
+> > >+
+> > >+    snprintf(name, sizeof(name), "ioctl(%lu)", op);
+> > >
+> > >     timeout_begin(TIMEOUT);
+> > >     do {
+> > >-            ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
+> > >+            ret = ioctl(fd, op, actual);
+> > >             if (ret < 0) {
+> > >                     if (errno == EOPNOTSUPP)
+> > >                             break;
+> > >
+> > >-                    perror("ioctl(SIOCOUTQ)");
+> > >+                    perror(name);
+> > >                     exit(EXIT_FAILURE);
+> > >             }
+> > >-            timeout_check("SIOCOUTQ");
+> > >-    } while (sock_bytes_unsent != 0);
+> > >+            timeout_check(name);
+> > >+    } while (*actual != expected);
+> > >     timeout_end();
+> > >
+> > >-    return !ret;
+> > >+    return ret;
+> > >+}
+> > >+
+> > >+/* Wait until transport reports no data left to be sent.
+> > >+ * Return false if transport does not implement the unsent_bytes() callback.
+> > >+ */
+> > >+bool vsock_wait_sent(int fd)
+> > >+{
+> > >+    int sock_bytes_unsent;
+> > >+
+> > >+    return !(ioctl_int(fd, SIOCOUTQ, &sock_bytes_unsent, 0));
+> > > }
 > >
-> >Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
-> 
-> Stefano is totally right, reusing `virtio_transport_unread_bytes` is a 
-> good idea.
-> 
-> nit: commit message should use 'imperative' language [1]. "This patch 
-> adds" should be avoided.
-> 
-> Sorry for the confusion.
-> 
-> Thanks,
-> Luigi
-> 
-> [1]https://www.kernel.org/doc/html/latest/process/submitting-patches.html#describe-your-changes
+> > Please split this patch in 2, one where you do the refactoring in
+> > util.c/h and one for the new test.
+>
+> Will do.
+>
+> > > /* Create socket <type>, bind to <cid, port> and return the file descriptor. */
+> > >diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+> > >index 5e2db67072d5..945c85ff8d22 100644
+> > >--- a/tools/testing/vsock/util.h
+> > >+++ b/tools/testing/vsock/util.h
+> > >@@ -3,6 +3,7 @@
+> > > #define UTIL_H
+> > >
+> > > #include <sys/socket.h>
+> > >+#include <sys/ioctl.h>
+> >
+> > Why we need this in util.h?
+>
+> We call `ioctl()` in the util.c. And we use `TIOCINQ` in the vsock_test.c,
+> where includes "util.h". So including `sys/ioctl.h` in util.h is needed.
 
-Thanks for pointing out. I'll update the commit message following the
-guidelines.
+But we are not using anything in util.c from sys/ioctl.h IIUC, in that
+case please move it in util.c where actually is needed.
 
 Thanks,
-Xuewei
+Stefano
+
