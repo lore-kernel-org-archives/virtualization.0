@@ -1,188 +1,106 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 067DF13B58D
-	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 14:51:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 509221B4231;
+	Mon, 16 Jun 2025 15:13:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750085510; cv=none; b=XGnviPK/PFEF1cL3O9GAd9MnaW8v1JO18hMW15vxVIUsiPAQ8UzFLWwWpIhPNJx6OloO9UDUCM3q+9IZ12x1Qhl+SmcmrAMS68GO0ydjwBktVpuNvNW64T3Pojnr94f7Zr+zzjDP/JpD97Qm3NTfLZqfbsIWc1OfU1VEkD7ZE0s=
+	t=1750086809; cv=none; b=qQMH/MyTb7C94CJc5uDDcZ6R4t9OU1nbwto6rNcgtcNiPO0P8yYKvoI9DQfHNX4qEt1NxZmAVC7EPQO9qkB+/vtGAMOQpfBT4ce+1SAx2eGpdFn4GCO+JrAwPx86blAyO2Mg3IHXW9jq+rpzrbmEtsGM+ZiXsTZmBv5ycX9g1is=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750085510; c=relaxed/simple;
-	bh=fM5dEQqwAiXD+1IrxGX1Pq9Lhfoon8UuGqtgWNQuMLc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UcCFqxWfAgahCkRijAE90+EmKB5j+xv4NITJellFUcyeouohV2bahr2Bp16g188GZWS0dqki2BT+gk5h1n4EgfKj/9ubRi8c3KHumMKhZbVxttaaFnpwHAyP42vXFITQoxRHxEwg9ed4Gexa5Ic+B8FBj6X7td08XKnAzB67nzU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XK/oEMMB; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1750086809; c=relaxed/simple;
+	bh=0HNCExAqJ+LaxU1ueCxhXgS3CX0/GTT4qiqhOCeleZE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=urExBnYpaCnDvqiwbtk3w8nTzAFeFheKvaQP7cpj4JjGm3EYIfENAP+WyqwsTfKFgcKjZ7ZFg4xBjr7sVOZMJV4WNVTqkgwCKrvhGtQzMzOneYcicOw4zu8hJxaNu3P0ZqgvSbdaQZsYvICQMpaPSYpjilUtF8/JU+Kaa4QnuXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=cd+rEl4L; arc=none smtp.client-ip=213.167.242.64
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XK/oEMMB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750085508;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=zB0/juvTmsIMPjbtAoDAeMzCmECBZlu9WLKm2WtRE4E=;
-	b=XK/oEMMBmbaz/mYjqx9h2zUs2WXiwxfZb1QVfCE8XsJpk9oa+U66ctrGRSmRJjYgxYTfuC
-	yq6x5Zq5X3e2bfQMChvX8ve1YjHOEcVEDQnChSJEnxVGRzG12DoDOlkHFQwzXUv5tn9dn0
-	RYrFcYZWjqcEXo/YJ4HA/kEmsmxSGGU=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-636-W9QstfGrMvuj8ZUHlDVBxg-1; Mon, 16 Jun 2025 10:51:47 -0400
-X-MC-Unique: W9QstfGrMvuj8ZUHlDVBxg-1
-X-Mimecast-MFC-AGG-ID: W9QstfGrMvuj8ZUHlDVBxg_1750085506
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-70e43123ec6so57056587b3.3
-        for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 07:51:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750085506; x=1750690306;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=zB0/juvTmsIMPjbtAoDAeMzCmECBZlu9WLKm2WtRE4E=;
-        b=N3SVAHfmpKwH1Kt1AudVQmu/3s5Ab8dzdIkuEF/GCSCbGchNd/jNDBNcRZdpmuZQxR
-         DWqbxYcuxLHNMvy7EkY03gEjpgZc+7hoX7aBXFOHj+WVTTXBZBb7GtlpVq4p2SBbrnhp
-         bU/ZbrGxXAtzH4a2Dp7qB2cTu++N66gDXNyUHsAzqWZtaDwpzvvZEjHISlPhUPFp8C/G
-         9mm24TrKHKPCFWVriWSCvAS8BPe2IA5EJII4KBc20Z3/8i5OJzZF2VT8b5So3ooT8H8l
-         APJiUZK1holXI8yutV97sxpdDLw7RqKSLn6YL/qYlcDatsgSHIFzNBrRtnJAmOJMElHB
-         ahTg==
-X-Forwarded-Encrypted: i=1; AJvYcCWStiB4SgZdRkA5SV1pEmsiL4JJ9kCmzFkVmAu/risFXbXoIfZKNazQa7mFIc4XSVubA72O/fyffssLeRRkgw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy4BJBWC5nMal8awoqKqluRYSJNq3nTFzAOMsw6fVPaIHoiZqax
-	TcVT7b0BFSCFDIITWljU5WLUz0xz9TuOk8fMjLIuewlWnj1Iuu6QQGFllIZNchz+JoOLd2T+dHE
-	T/JMTbKYEl4FBCEqJ6OwqmOy0KNshETYsrlg06xCt7iMuwt+dU/QUfQI6Og4VhJpDz5PsCKZmcx
-	OF7Rv1DjnOvmunlY62w/jRst1C7FITOlUiEz2fTyBIf/c=
-X-Gm-Gg: ASbGncstn74Jfl7Fs5df5s/wylLtJBn8yMo7BYdfo3WMiHKULeJoHUIzXkhPLqpvf7c
-	xpwNwGhwMUi6ptoVP7OM3PCOxhzvbTwL62F08qhilQ19wMw3ZHAXeBpkvCr2mARmlDkQQRbOhRE
-	2uzj6C
-X-Received: by 2002:a05:690c:c1d:b0:70f:9fcd:2075 with SMTP id 00721157ae682-7117536cfa2mr129054707b3.3.1750085506487;
-        Mon, 16 Jun 2025 07:51:46 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFYU9W5CA6OGz5GV8F5Kca6HL2nfxx98+wK9SD5MXInZikANAipuJ04VBv4A8FLyyEMPh5RPv6YlqBYjCJXTy0=
-X-Received: by 2002:a05:690c:c1d:b0:70f:9fcd:2075 with SMTP id
- 00721157ae682-7117536cfa2mr129054157b3.3.1750085506091; Mon, 16 Jun 2025
- 07:51:46 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="cd+rEl4L"
+Received: from pendragon.ideasonboard.com (81-175-209-231.bb.dnainternet.fi [81.175.209.231])
+	by perceval.ideasonboard.com (Postfix) with ESMTPSA id 357B7346;
+	Mon, 16 Jun 2025 17:13:13 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+	s=mail; t=1750086793;
+	bh=0HNCExAqJ+LaxU1ueCxhXgS3CX0/GTT4qiqhOCeleZE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=cd+rEl4LeP/ZHIM4gWEMYhjqXD0/rin9VjD52OOHdZvIkqhRoZaWZn00QN6bJnKA6
+	 pVExi1IbQLR4xfrlBC/dpwg8ODX0SRU7pxY8ZM2CFH8LzJOKfAccxMJQ+5H54VHgVS
+	 rCMxoyNkNFjfyxiC7+vvZacma5jP5aesiq8AWwhs=
+Date: Mon, 16 Jun 2025 18:13:09 +0300
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com, geert@linux-m68k.org,
+	tomi.valkeinen@ideasonboard.com, dri-devel@lists.freedesktop.org,
+	linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org, imx@lists.linux.dev,
+	linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org,
+	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+	intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v5 25/25] drm/xlnx: Compute dumb-buffer sizes with
+ drm_mode_size_dumb()
+Message-ID: <20250616151309.GF10542@pendragon.ideasonboard.com>
+References: <20250613090431.127087-1-tzimmermann@suse.de>
+ <20250613090431.127087-26-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <2oxz7toygswngn7kfmsrbmpikk5qggwbvk3oxb5ucrbq3pcfff@azc54m4hwlfb> <20250616143901.1187273-1-niuxuewei.nxw@antgroup.com>
-In-Reply-To: <20250616143901.1187273-1-niuxuewei.nxw@antgroup.com>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Mon, 16 Jun 2025 16:51:34 +0200
-X-Gm-Features: AX0GCFtzcxtqSQms8qF31ded0ASL17rZKHWqGZvF6K-bj9-TCcblqN-BEMBZdqc
-Message-ID: <CAGxU2F6FtJT1fyZQ9JTExYF6OsJ6J8HRiOetX09JB6rTzVtVcQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 3/3] test/vsock: Add ioctl SIOCINQ tests
-To: Xuewei Niu <niuxuewei97@gmail.com>
-Cc: davem@davemloft.net, fupan.lfp@antgroup.com, jasowang@redhat.com, 
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, 
-	netdev@vger.kernel.org, niuxuewei.nxw@antgroup.com, pabeni@redhat.com, 
-	stefanha@redhat.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: okWI-ZM2krZL3jR4DVhPfJRoF0pfsQj12VxIueqmK70_1750085506
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20250613090431.127087-26-tzimmermann@suse.de>
 
-On Mon, 16 Jun 2025 at 16:39, Xuewei Niu <niuxuewei97@gmail.com> wrote:
->
-> > On Fri, Jun 13, 2025 at 11:11:52AM +0800, Xuewei Niu wrote:
-> > >This patch adds SIOCINQ ioctl tests for both SOCK_STREAM and
-> > >SOCK_SEQPACKET.
-> > >
-> > >The client waits for the server to send data, and checks if the SIOCINQ
-> > >ioctl value matches the data size. After consuming the data, the client
-> > >checks if the SIOCINQ value is 0.
-> > >
-> > >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-> > >---
-> > > tools/testing/vsock/util.c       | 36 ++++++++++----
-> > > tools/testing/vsock/util.h       |  2 +
-> > > tools/testing/vsock/vsock_test.c | 83 +++++++++++++++++++++++++++++++-
-> > > 3 files changed, 111 insertions(+), 10 deletions(-)
-> > >
-> > >diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-> > >index 0c7e9cbcbc85..472246198966 100644
-> > >--- a/tools/testing/vsock/util.c
-> > >+++ b/tools/testing/vsock/util.c
-> > >@@ -97,28 +97,46 @@ void vsock_wait_remote_close(int fd)
-> > >     close(epollfd);
-> > > }
-> > >
-> > >-/* Wait until transport reports no data left to be sent.
-> > >- * Return false if transport does not implement the unsent_bytes() callback.
-> > >+/* Wait until ioctl gives an expected int value.
-> > >+ * Return a negative value if the op is not supported.
-> > >  */
-> > >-bool vsock_wait_sent(int fd)
-> > >+int ioctl_int(int fd, unsigned long op, int *actual, int expected)
-> > > {
-> > >-    int ret, sock_bytes_unsent;
-> > >+    int ret;
-> > >+    char name[32];
-> > >+
-> > >+    if (!actual) {
-> > >+            fprintf(stderr, "%s requires a non-null pointer\n", __func__);
-> > >+            exit(EXIT_FAILURE);
-> > >+    }
-> > >+
-> > >+    snprintf(name, sizeof(name), "ioctl(%lu)", op);
-> > >
-> > >     timeout_begin(TIMEOUT);
-> > >     do {
-> > >-            ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
-> > >+            ret = ioctl(fd, op, actual);
-> > >             if (ret < 0) {
-> > >                     if (errno == EOPNOTSUPP)
-> > >                             break;
-> > >
-> > >-                    perror("ioctl(SIOCOUTQ)");
-> > >+                    perror(name);
-> > >                     exit(EXIT_FAILURE);
-> > >             }
-> > >-            timeout_check("SIOCOUTQ");
-> > >-    } while (sock_bytes_unsent != 0);
-> > >+            timeout_check(name);
-> > >+    } while (*actual != expected);
-> > >     timeout_end();
-> > >
-> > >-    return !ret;
-> > >+    return ret;
-> > >+}
-> > >+
-> > >+/* Wait until transport reports no data left to be sent.
-> > >+ * Return false if transport does not implement the unsent_bytes() callback.
-> > >+ */
-> > >+bool vsock_wait_sent(int fd)
-> > >+{
-> > >+    int sock_bytes_unsent;
-> > >+
-> > >+    return !(ioctl_int(fd, SIOCOUTQ, &sock_bytes_unsent, 0));
-> > > }
-> >
-> > Please split this patch in 2, one where you do the refactoring in
-> > util.c/h and one for the new test.
->
-> Will do.
->
-> > > /* Create socket <type>, bind to <cid, port> and return the file descriptor. */
-> > >diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-> > >index 5e2db67072d5..945c85ff8d22 100644
-> > >--- a/tools/testing/vsock/util.h
-> > >+++ b/tools/testing/vsock/util.h
-> > >@@ -3,6 +3,7 @@
-> > > #define UTIL_H
-> > >
-> > > #include <sys/socket.h>
-> > >+#include <sys/ioctl.h>
-> >
-> > Why we need this in util.h?
->
-> We call `ioctl()` in the util.c. And we use `TIOCINQ` in the vsock_test.c,
-> where includes "util.h". So including `sys/ioctl.h` in util.h is needed.
+Hi Thomas,
 
-But we are not using anything in util.c from sys/ioctl.h IIUC, in that
-case please move it in util.c where actually is needed.
+Thank you for the patch.
 
-Thanks,
-Stefano
+On Fri, Jun 13, 2025 at 11:00:44AM +0200, Thomas Zimmermann wrote:
+> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and
+> buffer size. Align the pitch according to hardware requirements.
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+> ---
+>  drivers/gpu/drm/xlnx/zynqmp_kms.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/xlnx/zynqmp_kms.c b/drivers/gpu/drm/xlnx/zynqmp_kms.c
+> index b47463473472..7ea0cd4f71d3 100644
+> --- a/drivers/gpu/drm/xlnx/zynqmp_kms.c
+> +++ b/drivers/gpu/drm/xlnx/zynqmp_kms.c
+> @@ -19,6 +19,7 @@
+>  #include <drm/drm_crtc.h>
+>  #include <drm/drm_device.h>
+>  #include <drm/drm_drv.h>
+> +#include <drm/drm_dumb_buffers.h>
+>  #include <drm/drm_encoder.h>
+>  #include <drm/drm_fbdev_dma.h>
+>  #include <drm/drm_fourcc.h>
+> @@ -363,10 +364,12 @@ static int zynqmp_dpsub_dumb_create(struct drm_file *file_priv,
+>  				    struct drm_mode_create_dumb *args)
+>  {
+>  	struct zynqmp_dpsub *dpsub = to_zynqmp_dpsub(drm);
+> -	unsigned int pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
+> +	int ret;
+>  
+>  	/* Enforce the alignment constraints of the DMA engine. */
+> -	args->pitch = ALIGN(pitch, dpsub->dma_align);
+> +	ret = drm_mode_size_dumb(drm, args, dpsub->dma_align, 0);
+> +	if (ret)
+> +		return ret;
+>  
+>  	return drm_gem_dma_dumb_create_internal(file_priv, drm, args);
+>  }
+
+-- 
+Regards,
+
+Laurent Pinchart
