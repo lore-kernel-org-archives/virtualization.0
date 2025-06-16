@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5278F26E17A
-	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 08:26:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEB5A2701BD
+	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 08:26:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750062365; cv=none; b=QtXwjnIs05LFchheR9Y58sxXX4Gj33YFbWAhhsplMu2H+Qg+Xno3eumH23bvakJVpYJnjQqZbtMJvT7RPwesPbvz2a9375klsP9TuxK9bqGpxxebGkEblaj55XhFxdrjopN/gh7fP17Cx18TVED3kzsxP7VYr/Oahhj1795egO0=
+	t=1750062373; cv=none; b=Tp9bZfAPJA12lM+bKOFZqzubhcDWUPgED3TIj16DN+umBnmyYKj2v7iCCU61vTC7FWrqi1Skwa5UdCnkfXMkfwuNMxsElZCvdscD1iXbA6xu76D++dLbHYBm3M7FfHNVMNlnBF4yXyZqFCkaypBTD+OgNd2SY8nWlYkp/SfCh1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750062365; c=relaxed/simple;
-	bh=u1xTQqhC8xumQrThpUKU3cx+qP8/giKcy8EzKKSLLpQ=;
+	s=arc-20240116; t=1750062373; c=relaxed/simple;
+	bh=nIFwCL3LvvMf1hnbugVDczRpMa79tK9rhUWMUPxuzCg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gUDSXDF+/H2ysFWaZ4lqwgehVcBTJ4lYEvN0zn/KyF5K8vaGtNdJQKo7Jx/vc3wbkXTSttdXpjj5LF2ebCjtMG7cF5pQ0bBByBgYA/nReoNnuF9MIVLs4OQ1kJonXz9Sydw1IAmlyCOwui+94xI5IVUdEPXLDl4tbXYAnyF0+DE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XzJbuTxx; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=Nu23ranZ/x46W1USc1HlT+OCYb+Q9ljRBFd+hIcF2mjI0j5VH56XWBgjsUznaDoTbhZTcamA0McOohKn8lKn58TgnqrFOH/e3f4aASQJjOWTvN/FSpvvaoqIO6OL2rj3HfeH2FqifbMgyq1Wnl4zUBkJfQ60AO+4DG/WlDGv28w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f/5oNPPh; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XzJbuTxx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f/5oNPPh"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750062362;
+	s=mimecast20190719; t=1750062369;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=yQmbPB9KOXUudyA4Np5TsxEyOaQPjCMAjSAANoPhTis=;
-	b=XzJbuTxx0e7Rs+yWBx2V1y18/WB2trhHJdkZmQm8UtCz30zMGY8KY3R10lsAzxn5f3LCfe
-	5AWkOizpqlOWsyRbHXV5yoXSL1Vp7Lyst4zdmlCgkHmsVbl+zM9jmSrhuRQBBcdEXLimbN
-	d2znDSX42/Gdn+mKQ3D46aYoCrbLjJo=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=JxybsHFSbwGIVra5UuwiFVDVlrGXPEIskHhrIt4Gepc=;
+	b=f/5oNPPh87UgU61lK8WcXaj2+EwpuBNfQX2wSXJuQx6ValWZA2BbyuZT2F5XkJj+XKRAEx
+	K2ZR/E7tCweErl16vdLKiCW4KMRYi1O/46rU4Z5s3rPYXrC99hrcRJqbpHDhQNxxCfCsFR
+	JZm3woud0SvtTTlL0atFliqm/OKlzm0=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-684-MS0jTb7jMamvxWN6UXUCDQ-1; Mon,
- 16 Jun 2025 04:25:59 -0400
-X-MC-Unique: MS0jTb7jMamvxWN6UXUCDQ-1
-X-Mimecast-MFC-AGG-ID: MS0jTb7jMamvxWN6UXUCDQ_1750062358
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-467-OiTGQ_V9O5KXnL9I-ppH4g-1; Mon,
+ 16 Jun 2025 04:26:03 -0400
+X-MC-Unique: OiTGQ_V9O5KXnL9I-ppH4g-1
+X-Mimecast-MFC-AGG-ID: OiTGQ_V9O5KXnL9I-ppH4g_1750062362
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 05C991956095;
-	Mon, 16 Jun 2025 08:25:58 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 172B81809C80;
+	Mon, 16 Jun 2025 08:26:02 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.112.72])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id EA9FA180045C;
-	Mon, 16 Jun 2025 08:25:54 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 025C218003FC;
+	Mon, 16 Jun 2025 08:25:58 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com
@@ -49,9 +49,9 @@ Cc: xuanzhuo@linux.alibaba.com,
 	eperezma@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH V3 08/19] virtio_ring: switch to use vring_virtqueue for enable_cb_prepare variants
-Date: Mon, 16 Jun 2025 16:25:06 +0800
-Message-ID: <20250616082518.10411-9-jasowang@redhat.com>
+Subject: [PATCH V3 09/19] virtio_ring: use vring_virtqueue for enable_cb_delayed variants
+Date: Mon, 16 Jun 2025 16:25:07 +0800
+Message-ID: <20250616082518.10411-10-jasowang@redhat.com>
 In-Reply-To: <20250616082518.10411-1-jasowang@redhat.com>
 References: <20250616082518.10411-1-jasowang@redhat.com>
 Precedence: bulk
@@ -70,25 +70,25 @@ virtqueue helpers.
 Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ drivers/virtio/virtio_ring.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 4e70b7eb127f..8c18f3edda00 100644
+index 8c18f3edda00..a85db8c8cb24 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -893,9 +893,8 @@ static void virtqueue_disable_cb_split(struct virtqueue *_vq)
- 	}
+@@ -917,9 +917,8 @@ static unsigned int virtqueue_enable_cb_prepare_split(struct vring_virtqueue *vq
+ 	return last_used_idx;
  }
  
--static unsigned int virtqueue_enable_cb_prepare_split(struct virtqueue *_vq)
-+static unsigned int virtqueue_enable_cb_prepare_split(struct vring_virtqueue *vq)
+-static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
++static bool virtqueue_enable_cb_delayed_split(struct vring_virtqueue *vq)
  {
 -	struct vring_virtqueue *vq = to_vvq(_vq);
- 	u16 last_used_idx;
+ 	u16 bufs;
  
  	START_USE(vq);
-@@ -909,10 +908,10 @@ static unsigned int virtqueue_enable_cb_prepare_split(struct virtqueue *_vq)
+@@ -933,7 +932,7 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
  		vq->split.avail_flags_shadow &= ~VRING_AVAIL_F_NO_INTERRUPT;
  		if (!vq->event)
  			vq->split.vring.avail->flags =
@@ -96,33 +96,40 @@ index 4e70b7eb127f..8c18f3edda00 100644
 +				cpu_to_virtio16(vq->vq.vdev,
  						vq->split.avail_flags_shadow);
  	}
--	vring_used_event(&vq->split.vring) = cpu_to_virtio16(_vq->vdev,
-+	vring_used_event(&vq->split.vring) = cpu_to_virtio16(vq->vq.vdev,
- 			last_used_idx = vq->last_used_idx);
- 	END_USE(vq);
- 	return last_used_idx;
-@@ -1807,10 +1806,8 @@ static void virtqueue_disable_cb_packed(struct virtqueue *_vq)
- 	}
+ 	/* TODO: tune this threshold */
+@@ -941,9 +940,9 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+ 
+ 	virtio_store_mb(vq->weak_barriers,
+ 			&vring_used_event(&vq->split.vring),
+-			cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs));
++			cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx + bufs));
+ 
+-	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->split.vring.used->idx)
++	if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev, vq->split.vring.used->idx)
+ 					- vq->last_used_idx) > bufs)) {
+ 		END_USE(vq);
+ 		return false;
+@@ -1837,9 +1836,8 @@ static unsigned int virtqueue_enable_cb_prepare_packed(struct vring_virtqueue *v
+ 	return vq->last_used_idx;
  }
  
--static unsigned int virtqueue_enable_cb_prepare_packed(struct virtqueue *_vq)
-+static unsigned int virtqueue_enable_cb_prepare_packed(struct vring_virtqueue *vq)
+-static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
++static bool virtqueue_enable_cb_delayed_packed(struct vring_virtqueue *vq)
  {
 -	struct vring_virtqueue *vq = to_vvq(_vq);
--
- 	START_USE(vq);
+ 	u16 used_idx, wrap_counter, last_used_idx;
+ 	u16 bufs;
  
- 	/*
-@@ -2568,8 +2565,8 @@ unsigned int virtqueue_enable_cb_prepare(struct virtqueue *_vq)
+@@ -2631,8 +2629,8 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
  	if (vq->event_triggered)
- 		vq->event_triggered = false;
+ 		data_race(vq->event_triggered = false);
  
--	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(_vq) :
--				 virtqueue_enable_cb_prepare_split(_vq);
-+	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(vq) :
-+				 virtqueue_enable_cb_prepare_split(vq);
+-	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
+-				 virtqueue_enable_cb_delayed_split(_vq);
++	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(vq) :
++				 virtqueue_enable_cb_delayed_split(vq);
  }
- EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
+ EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
  
 -- 
 2.34.1
