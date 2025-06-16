@@ -1,587 +1,117 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5FEE1DF265
-	for <virtualization@lists.linux-foundation.org>; Mon, 16 Jun 2025 06:29:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B75001E5201
+	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 08:25:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750055385; cv=none; b=rxhBivoMFA6Qy4b4DQ42Jzq8thdZjQdTcpB8B5wCDAfeF2r3AYyeN6U03F51zVGMD8Eep2gj7nKLsyMylu4Xor3Hsx7RconjbqvIAFu5Cqn8t8Lyw2F1tEGuv+6c8Utlasf6rhBxzHtPYD4LLfOsvR4W8IfI+id5nMGK/u0Iioc=
+	t=1750062332; cv=none; b=myd3OxPAmFJxTbVUYi82bcS9h2rT1ZR6ARQ88+Ky7sfEouZ/VBt8JrMYl/3XMjHxkqraDgRVDkEclmh/6JZijGbImmnxPbuQNAx4JRpBYVdKNAp0ImlTFIp+OXEMIuWxmxpnArJSacEXdHIfL/Qc8DV4gmaI+f/c4/cpAv1lNGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750055385; c=relaxed/simple;
-	bh=MRiH+2QXABNppur1WKgwtvhShzyJKwl/ffPfSML+840=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Ho/eryjbQt1JFucOu8WSc5EQjNrMjNo8qg/ML9Wh3TBHKx9LzN4PX1f2XShCf+MXqpTcPAgMWmlxnWRZCFbZljT+kcGWy5JNGQUdodKNfSuLyKiJamf1iQ8H26ahZNss2FZtvWPkbTs5lgyHObUvlB4UzMZe38eXdS6nWjelp24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=faOpggbu; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1750062332; c=relaxed/simple;
+	bh=yk59vr5RLB1RScFT2EiC7kkHJEyAXkx7Rk6wmGXmEAg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UaqQp0zZIYkOVqCX5aET9E6CGMjEbV+n00RIw8yhQGuFG6/ZyEgwWO5MvP/TmO+ktrqaISs+lr3XlSJD5YiMfN1FVPMkkc3CSHRMdxI4FZagC5ihadCPvHWt+rnXE11o2Pqih01QTT9KDqxgnkIgUtaERG5NZXLHETnX9fYrC9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LCBJMLBO; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="faOpggbu"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3859D40540
-	for <virtualization@lists.linux-foundation.org>; Mon, 16 Jun 2025 06:29:43 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id PUFTJ1ajPAqF for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jun 2025 06:29:42 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 2EC5140519
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2EC5140519
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=faOpggbu
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2EC5140519
-	for <virtualization@lists.linux-foundation.org>; Mon, 16 Jun 2025 06:29:41 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LCBJMLBO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750055381;
+	s=mimecast20190719; t=1750062329;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5j8SRyWZ7Oklp16sDmt+SppBJMkGPvvN/Xj4RgTDpPQ=;
-	b=faOpggbu74fe5CsKKcDAgiXruLovNcs3b1UeGR79CziHq1l6LcwCyKzi/Hf1/HhyivNG4G
-	QuP/59af3lsssECdrgqzFmYo5rtZjFaGuWrQh9AAQstQNsSBZvXttFFbzFAhcV52tQKnuM
-	Q5tGfIFZZFkSM5VGePoColGpOwZYrtY=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=ARUl9HRdCC74hdwvbgCBDHJ3gsOkqhi27NOZxm0AX2w=;
+	b=LCBJMLBOj6VJpMc1pLhV/4DMFEetYTqA9RKaD4UAJ129wlpMUMPw12nTTLLTxRwTd2UOS+
+	egppGDttUvs8tfhGL3oOV+fIzxkZmdgaQuSLvDHsUHcSaFMag5groJPlkKRMuyBi+89wGw
+	i4qgqzdngoTGK0vklTJvV37y2/6rn5g=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-145-LuJ-coVMOpC4kSZz6saW9Q-1; Mon,
- 16 Jun 2025 02:29:39 -0400
-X-MC-Unique: LuJ-coVMOpC4kSZz6saW9Q-1
-X-Mimecast-MFC-AGG-ID: LuJ-coVMOpC4kSZz6saW9Q_1750055378
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-553-Mmt7RFPgOpmg2MUuJNTHMg-1; Mon,
+ 16 Jun 2025 04:25:26 -0400
+X-MC-Unique: Mmt7RFPgOpmg2MUuJNTHMg-1
+X-Mimecast-MFC-AGG-ID: Mmt7RFPgOpmg2MUuJNTHMg_1750062325
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 562FC1808993;
-	Mon, 16 Jun 2025 06:29:38 +0000 (UTC)
-Received: from server.redhat.com (unknown [10.72.112.46])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 723B719560AB;
-	Mon, 16 Jun 2025 06:29:34 +0000 (UTC)
-From: Cindy Lu <lulu@redhat.com>
-To: lulu@redhat.com,
-	jasowang@redhat.com,
-	mst@redhat.com,
-	michael.christie@oracle.com,
-	sgarzare@redhat.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org
-Subject: [PATCH v12 1/1] vhost: Reintroduces support of kthread API and adds mode selection
-Date: Mon, 16 Jun 2025 14:28:19 +0800
-Message-ID: <20250616062922.682558-2-lulu@redhat.com>
-In-Reply-To: <20250616062922.682558-1-lulu@redhat.com>
-References: <20250616062922.682558-1-lulu@redhat.com>
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9174B18002A1;
+	Mon, 16 Jun 2025 08:25:25 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.72])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 09623180045B;
+	Mon, 16 Jun 2025 08:25:21 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH V3 00/19] virtio_ring in order support
+Date: Mon, 16 Jun 2025 16:24:58 +0800
+Message-ID: <20250616082518.10411-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-This patch reintroduces kthread mode for vhost workers and provides
-configuration to select between kthread and task worker.
+Hello all:
 
-- Add 'fork_owner' parameter to vhost_dev to let users select kthread
-  or task mode. Default mode is task mode(VHOST_FORK_OWNER_TASK).
+This sereis tries to implement the VIRTIO_F_IN_ORDER to
+virtio_ring. This is done by introducing virtqueue ops so we can
+implement separate helpers for different virtqueue layout/features
+then the in-order were implemented on top.
 
-- Reintroduce kthread mode support:
-  * Bring back the original vhost_worker() implementation,
-    and renamed to vhost_run_work_kthread_list().
-  * Add cgroup support for the kthread
-  * Introduce struct vhost_worker_ops:
-    - Encapsulates create / stop / wake‑up callbacks.
-    - vhost_worker_create() selects the proper ops according to
-      inherit_owner.
+Tests shows 3%-5% imporvment with packed virtqueue PPS with KVM guest
+testpmd on the host.
 
-- Userspace configuration interface:
-  * New IOCTLs:
-      - VHOST_SET_FORK_FROM_OWNER lets userspace select task mode
-        (VHOST_FORK_OWNER_TASK) or kthread mode (VHOST_FORK_OWNER_KTHREAD)
-      - VHOST_GET_FORK_FROM_OWNER reads the current worker mode
-  * Expose module parameter 'fork_from_owner_default' to allow system
-    administrators to configure the default mode for vhost workers
-  * Kconfig option CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL controls whether
-    these IOCTLs and the parameter are available (for distros that may
-    want to disable them)
+Changes since V2:
 
-- The VHOST_NEW_WORKER functionality requires fork_owner to be set
-  to true, with validation added to ensure proper configuration
+- Fix build warning when DEBUG is enabled
 
-This partially reverts or improves upon:
-  commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
-  commit 1cdaafa1b8b4 ("vhost: replace single worker pointer with xarray")
+Changes since V1:
 
-Signed-off-by: Cindy Lu <lulu@redhat.com>
----
- drivers/vhost/Kconfig      |  17 +++
- drivers/vhost/vhost.c      | 244 ++++++++++++++++++++++++++++++++++---
- drivers/vhost/vhost.h      |  22 ++++
- include/uapi/linux/vhost.h |  29 +++++
- 4 files changed, 294 insertions(+), 18 deletions(-)
+- use const global array of function pointers to avoid indirect
+  branches to eliminate retpoline when mitigation is enabled
+- fix used length calculation when processing used ids in a batch
+- fix sparse warnings
 
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index 020d4fbb947c..1b3602b1f8e2 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -95,4 +95,21 @@ config VHOST_CROSS_ENDIAN_LEGACY
- 
- 	  If unsure, say "N".
- 
-+config VHOST_ENABLE_FORK_OWNER_CONTROL
-+	bool "Enable VHOST_ENABLE_FORK_OWNER_CONTROL"
-+	default n
-+	help
-+	  This option enables two IOCTLs: VHOST_SET_FORK_FROM_OWNER and
-+	  VHOST_GET_FORK_FROM_OWNER. These allow userspace applications
-+	  to modify the vhost worker mode for vhost devices.
-+
-+	  Also expose module parameter 'fork_from_owner_default' to allow users
-+	  to configure the default mode for vhost workers.
-+
-+	  By default, `VHOST_ENABLE_FORK_OWNER_CONTROL` is set to `n`,
-+	  which disables the IOCTLs and parameter.
-+	  When enabled (y), users can change the worker thread mode as needed.
-+
-+	  If unsure, say "N".
-+
- endif
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 3a5ebb973dba..84c9bdf9aedd 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -22,6 +22,7 @@
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/kthread.h>
-+#include <linux/cgroup.h>
- #include <linux/module.h>
- #include <linux/sort.h>
- #include <linux/sched/mm.h>
-@@ -41,6 +42,13 @@ static int max_iotlb_entries = 2048;
- module_param(max_iotlb_entries, int, 0444);
- MODULE_PARM_DESC(max_iotlb_entries,
- 	"Maximum number of iotlb entries. (default: 2048)");
-+static bool fork_from_owner_default = VHOST_FORK_OWNER_TASK;
-+
-+#ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL
-+module_param(fork_from_owner_default, bool, 0444);
-+MODULE_PARM_DESC(fork_from_owner_default,
-+		 "Set task mode as the default(default: Y)");
-+#endif
- 
- enum {
- 	VHOST_MEMORY_F_LOG = 0x1,
-@@ -242,7 +250,7 @@ static void vhost_worker_queue(struct vhost_worker *worker,
- 		 * test_and_set_bit() implies a memory barrier.
- 		 */
- 		llist_add(&work->node, &worker->work_list);
--		vhost_task_wake(worker->vtsk);
-+		worker->ops->wakeup(worker);
- 	}
- }
- 
-@@ -388,6 +396,44 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	__vhost_vq_meta_reset(vq);
- }
- 
-+static int vhost_run_work_kthread_list(void *data)
-+{
-+	struct vhost_worker *worker = data;
-+	struct vhost_work *work, *work_next;
-+	struct vhost_dev *dev = worker->dev;
-+	struct llist_node *node;
-+
-+	kthread_use_mm(dev->mm);
-+
-+	for (;;) {
-+		/* mb paired w/ kthread_stop */
-+		set_current_state(TASK_INTERRUPTIBLE);
-+
-+		if (kthread_should_stop()) {
-+			__set_current_state(TASK_RUNNING);
-+			break;
-+		}
-+		node = llist_del_all(&worker->work_list);
-+		if (!node)
-+			schedule();
-+
-+		node = llist_reverse_order(node);
-+		/* make sure flag is seen after deletion */
-+		smp_wmb();
-+		llist_for_each_entry_safe(work, work_next, node, node) {
-+			clear_bit(VHOST_WORK_QUEUED, &work->flags);
-+			__set_current_state(TASK_RUNNING);
-+			kcov_remote_start_common(worker->kcov_handle);
-+			work->fn(work);
-+			kcov_remote_stop();
-+			cond_resched();
-+		}
-+	}
-+	kthread_unuse_mm(dev->mm);
-+
-+	return 0;
-+}
-+
- static bool vhost_run_work_list(void *data)
- {
- 	struct vhost_worker *worker = data;
-@@ -552,6 +598,7 @@ void vhost_dev_init(struct vhost_dev *dev,
- 	dev->byte_weight = byte_weight;
- 	dev->use_worker = use_worker;
- 	dev->msg_handler = msg_handler;
-+	dev->fork_owner = fork_from_owner_default;
- 	init_waitqueue_head(&dev->wait);
- 	INIT_LIST_HEAD(&dev->read_list);
- 	INIT_LIST_HEAD(&dev->pending_list);
-@@ -581,6 +628,46 @@ long vhost_dev_check_owner(struct vhost_dev *dev)
- }
- EXPORT_SYMBOL_GPL(vhost_dev_check_owner);
- 
-+struct vhost_attach_cgroups_struct {
-+	struct vhost_work work;
-+	struct task_struct *owner;
-+	int ret;
-+};
-+
-+static void vhost_attach_cgroups_work(struct vhost_work *work)
-+{
-+	struct vhost_attach_cgroups_struct *s;
-+
-+	s = container_of(work, struct vhost_attach_cgroups_struct, work);
-+	s->ret = cgroup_attach_task_all(s->owner, current);
-+}
-+
-+static int vhost_attach_task_to_cgroups(struct vhost_worker *worker)
-+{
-+	struct vhost_attach_cgroups_struct attach;
-+	int saved_cnt;
-+
-+	attach.owner = current;
-+
-+	vhost_work_init(&attach.work, vhost_attach_cgroups_work);
-+	vhost_worker_queue(worker, &attach.work);
-+
-+	mutex_lock(&worker->mutex);
-+
-+	/*
-+	 * Bypass attachment_cnt check in __vhost_worker_flush:
-+	 * Temporarily change it to INT_MAX to bypass the check
-+	 */
-+	saved_cnt = worker->attachment_cnt;
-+	worker->attachment_cnt = INT_MAX;
-+	__vhost_worker_flush(worker);
-+	worker->attachment_cnt = saved_cnt;
-+
-+	mutex_unlock(&worker->mutex);
-+
-+	return attach.ret;
-+}
-+
- /* Caller should have device mutex */
- bool vhost_dev_has_owner(struct vhost_dev *dev)
- {
-@@ -626,7 +713,7 @@ static void vhost_worker_destroy(struct vhost_dev *dev,
- 
- 	WARN_ON(!llist_empty(&worker->work_list));
- 	xa_erase(&dev->worker_xa, worker->id);
--	vhost_task_stop(worker->vtsk);
-+	worker->ops->stop(worker);
- 	kfree(worker);
- }
- 
-@@ -649,42 +736,115 @@ static void vhost_workers_free(struct vhost_dev *dev)
- 	xa_destroy(&dev->worker_xa);
- }
- 
-+static void vhost_task_wakeup(struct vhost_worker *worker)
-+{
-+	return vhost_task_wake(worker->vtsk);
-+}
-+
-+static void vhost_kthread_wakeup(struct vhost_worker *worker)
-+{
-+	wake_up_process(worker->kthread_task);
-+}
-+
-+static void vhost_task_do_stop(struct vhost_worker *worker)
-+{
-+	return vhost_task_stop(worker->vtsk);
-+}
-+
-+static void vhost_kthread_do_stop(struct vhost_worker *worker)
-+{
-+	kthread_stop(worker->kthread_task);
-+}
-+
-+static int vhost_task_worker_create(struct vhost_worker *worker,
-+				    struct vhost_dev *dev, const char *name)
-+{
-+	struct vhost_task *vtsk;
-+	u32 id;
-+	int ret;
-+
-+	vtsk = vhost_task_create(vhost_run_work_list, vhost_worker_killed,
-+				 worker, name);
-+	if (IS_ERR(vtsk))
-+		return PTR_ERR(vtsk);
-+
-+	worker->vtsk = vtsk;
-+	vhost_task_start(vtsk);
-+	ret = xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GFP_KERNEL);
-+	if (ret < 0) {
-+		vhost_task_do_stop(worker);
-+		return ret;
-+	}
-+	worker->id = id;
-+	return 0;
-+}
-+
-+static int vhost_kthread_worker_create(struct vhost_worker *worker,
-+				       struct vhost_dev *dev, const char *name)
-+{
-+	struct task_struct *task;
-+	u32 id;
-+	int ret;
-+
-+	task = kthread_create(vhost_run_work_kthread_list, worker, "%s", name);
-+	if (IS_ERR(task))
-+		return PTR_ERR(task);
-+
-+	worker->kthread_task = task;
-+	wake_up_process(task);
-+	ret = xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GFP_KERNEL);
-+	if (ret < 0)
-+		goto stop_worker;
-+
-+	ret = vhost_attach_task_to_cgroups(worker);
-+	if (ret)
-+		goto stop_worker;
-+
-+	worker->id = id;
-+	return 0;
-+
-+stop_worker:
-+	vhost_kthread_do_stop(worker);
-+	return ret;
-+}
-+
-+static const struct vhost_worker_ops kthread_ops = {
-+	.create = vhost_kthread_worker_create,
-+	.stop = vhost_kthread_do_stop,
-+	.wakeup = vhost_kthread_wakeup,
-+};
-+
-+static const struct vhost_worker_ops vhost_task_ops = {
-+	.create = vhost_task_worker_create,
-+	.stop = vhost_task_do_stop,
-+	.wakeup = vhost_task_wakeup,
-+};
-+
- static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
- {
- 	struct vhost_worker *worker;
--	struct vhost_task *vtsk;
- 	char name[TASK_COMM_LEN];
- 	int ret;
--	u32 id;
-+	const struct vhost_worker_ops *ops = dev->fork_owner ? &vhost_task_ops :
-+							       &kthread_ops;
- 
- 	worker = kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
- 	if (!worker)
- 		return NULL;
- 
- 	worker->dev = dev;
-+	worker->ops = ops;
- 	snprintf(name, sizeof(name), "vhost-%d", current->pid);
- 
--	vtsk = vhost_task_create(vhost_run_work_list, vhost_worker_killed,
--				 worker, name);
--	if (IS_ERR(vtsk))
--		goto free_worker;
--
- 	mutex_init(&worker->mutex);
- 	init_llist_head(&worker->work_list);
- 	worker->kcov_handle = kcov_common_handle();
--	worker->vtsk = vtsk;
--
--	vhost_task_start(vtsk);
--
--	ret = xa_alloc(&dev->worker_xa, &id, worker, xa_limit_32b, GFP_KERNEL);
-+	ret = ops->create(worker, dev, name);
- 	if (ret < 0)
--		goto stop_worker;
--	worker->id = id;
-+		goto free_worker;
- 
- 	return worker;
- 
--stop_worker:
--	vhost_task_stop(vtsk);
- free_worker:
- 	kfree(worker);
- 	return NULL;
-@@ -865,6 +1025,14 @@ long vhost_worker_ioctl(struct vhost_dev *dev, unsigned int ioctl,
- 	switch (ioctl) {
- 	/* dev worker ioctls */
- 	case VHOST_NEW_WORKER:
-+		/*
-+		 * vhost_tasks will account for worker threads under the parent's
-+		 * NPROC value but kthreads do not. To avoid userspace overflowing
-+		 * the system with worker threads fork_owner must be true.
-+		 */
-+		if (!dev->fork_owner)
-+			return -EFAULT;
-+
- 		ret = vhost_new_worker(dev, &state);
- 		if (!ret && copy_to_user(argp, &state, sizeof(state)))
- 			ret = -EFAULT;
-@@ -982,6 +1150,7 @@ void vhost_dev_reset_owner(struct vhost_dev *dev, struct vhost_iotlb *umem)
- 
- 	vhost_dev_cleanup(dev);
- 
-+	dev->fork_owner = fork_from_owner_default;
- 	dev->umem = umem;
- 	/* We don't need VQ locks below since vhost_dev_cleanup makes sure
- 	 * VQs aren't running.
-@@ -2135,6 +2304,45 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
- 		goto done;
- 	}
- 
-+#ifdef CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL
-+	if (ioctl == VHOST_SET_FORK_FROM_OWNER) {
-+		/* Only allow modification before owner is set */
-+		if (vhost_dev_has_owner(d)) {
-+			r = -EBUSY;
-+			goto done;
-+		}
-+		u8 fork_owner_val;
-+
-+		if (get_user(fork_owner_val, (u8 __user *)argp)) {
-+			r = -EFAULT;
-+			goto done;
-+		}
-+		if (fork_owner_val != VHOST_FORK_OWNER_TASK &&
-+		    fork_owner_val != VHOST_FORK_OWNER_KTHREAD) {
-+			r = -EINVAL;
-+			goto done;
-+		}
-+		d->fork_owner = !!fork_owner_val;
-+		r = 0;
-+		goto done;
-+	}
-+	if (ioctl == VHOST_GET_FORK_FROM_OWNER) {
-+		u8 fork_owner_val = d->fork_owner;
-+
-+		if (fork_owner_val != VHOST_FORK_OWNER_TASK &&
-+		    fork_owner_val != VHOST_FORK_OWNER_KTHREAD) {
-+			r = -EINVAL;
-+			goto done;
-+		}
-+		if (put_user(fork_owner_val, (u8 __user *)argp)) {
-+			r = -EFAULT;
-+			goto done;
-+		}
-+		r = 0;
-+		goto done;
-+	}
-+#endif
-+
- 	/* You must be the owner to do anything else */
- 	r = vhost_dev_check_owner(d);
- 	if (r)
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index bb75a292d50c..ab704d84fb34 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -26,7 +26,18 @@ struct vhost_work {
- 	unsigned long		flags;
- };
- 
-+struct vhost_worker;
-+struct vhost_dev;
-+
-+struct vhost_worker_ops {
-+	int (*create)(struct vhost_worker *worker, struct vhost_dev *dev,
-+		      const char *name);
-+	void (*stop)(struct vhost_worker *worker);
-+	void (*wakeup)(struct vhost_worker *worker);
-+};
-+
- struct vhost_worker {
-+	struct task_struct *kthread_task;
- 	struct vhost_task	*vtsk;
- 	struct vhost_dev	*dev;
- 	/* Used to serialize device wide flushing with worker swapping. */
-@@ -36,6 +47,7 @@ struct vhost_worker {
- 	u32			id;
- 	int			attachment_cnt;
- 	bool			killed;
-+	const struct vhost_worker_ops *ops;
- };
- 
- /* Poll a file (eventfd or socket) */
-@@ -176,6 +188,16 @@ struct vhost_dev {
- 	int byte_weight;
- 	struct xarray worker_xa;
- 	bool use_worker;
-+	/*
-+	 * If fork_owner is true we use vhost_tasks to create
-+	 * the worker so all settings/limits like cgroups, NPROC,
-+	 * scheduler, etc are inherited from the owner. If false,
-+	 * we use kthreads and only attach to the same cgroups
-+	 * as the owner for compat with older kernels.
-+	 * here we use true as default value.
-+	 * The default value is set by fork_from_owner_default
-+	 */
-+	bool fork_owner;
- 	int (*msg_handler)(struct vhost_dev *dev, u32 asid,
- 			   struct vhost_iotlb_msg *msg);
- };
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index d4b3e2ae1314..e72f2655459e 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -235,4 +235,33 @@
-  */
- #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
- 					      struct vhost_vring_state)
-+
-+/* fork_owner values for vhost */
-+#define VHOST_FORK_OWNER_KTHREAD 0
-+#define VHOST_FORK_OWNER_TASK 1
-+
-+/**
-+ * VHOST_SET_FORK_FROM_OWNER - Set the fork_owner flag for the vhost device,
-+ * This ioctl must called before VHOST_SET_OWNER.
-+ * Only available when CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL=y
-+ *
-+ * @param fork_owner: An 8-bit value that determines the vhost thread mode
-+ *
-+ * When fork_owner is set to VHOST_FORK_OWNER_TASK(default value):
-+ *   - Vhost will create vhost worker as tasks forked from the owner,
-+ *     inheriting all of the owner's attributes.
-+ *
-+ * When fork_owner is set to VHOST_FORK_OWNER_KTHREAD:
-+ *   - Vhost will create vhost workers as kernel threads.
-+ */
-+#define VHOST_SET_FORK_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, __u8)
-+
-+/**
-+ * VHOST_GET_FORK_OWNER - Get the current fork_owner flag for the vhost device.
-+ * Only available when CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL=y
-+ *
-+ * @return: An 8-bit value indicating the current thread mode.
-+ */
-+#define VHOST_GET_FORK_FROM_OWNER _IOR(VHOST_VIRTIO, 0x84, __u8)
-+
- #endif
+Please review.
+
+Thanks
+
+Jason Wang (19):
+  virtio_ring: rename virtqueue_reinit_xxx to virtqueue_reset_xxx()
+  virtio_ring: switch to use vring_virtqueue in virtqueue_poll variants
+  virtio_ring: unify logic of virtqueue_poll() and more_used()
+  virtio_ring: switch to use vring_virtqueue for virtqueue resize
+    variants
+  virtio_ring: switch to use vring_virtqueue for virtqueue_kick_prepare
+    variants
+  virtio_ring: switch to use vring_virtqueue for virtqueue_add variants
+  virtio: switch to use vring_virtqueue for virtqueue_add variants
+  virtio_ring: switch to use vring_virtqueue for enable_cb_prepare
+    variants
+  virtio_ring: use vring_virtqueue for enable_cb_delayed variants
+  virtio_ring: switch to use vring_virtqueue for disable_cb variants
+  virtio_ring: switch to use vring_virtqueue for detach_unused_buf
+    variants
+  virtio_ring: use u16 for last_used_idx in virtqueue_poll_split()
+  virtio_ring: introduce virtqueue ops
+  virtio_ring: determine descriptor flags at one time
+  virtio_ring: factor out core logic of buffer detaching
+  virtio_ring: factor out core logic for updating last_used_idx
+  virtio_ring: factor out split indirect detaching logic
+  virtio_ring: factor out split detaching logic
+  virtio_ring: add in order support
+
+ drivers/virtio/virtio_ring.c | 896 ++++++++++++++++++++++++++---------
+ 1 file changed, 684 insertions(+), 212 deletions(-)
+
 -- 
-2.45.0
+2.34.1
 
