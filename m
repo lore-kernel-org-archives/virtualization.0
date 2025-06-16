@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48F7226E706
-	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 08:25:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CF0D26F453
+	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 08:25:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750062350; cv=none; b=mNQigiq+xAlrxrvUveRig4i5kqw3Ztztk3UfjqBSa+Z4T04QVLheRGkHhiSLyJnycefubCFB/M3/gdHBb4Y8v4NcQMWwL9MmVTHvyoF2l1dUfSuDKIrgG3dr7qD2vOd7mcwgbFIccjcC7dBa3j5vg8lJ/o5AI+HOEVlx+TVQkV0=
+	t=1750062354; cv=none; b=CVQhIo00JennzGd66fyFaR2Ixekj+ra1utndP1KTYcxe3MpODUbCJ7dy4V6vQGxGG/+ZM22j+KYI0MtotM5iBvZN64aFt2SW8YSGyZXgo6qeIR2NQCg0WJBIK7dDSlnSRsGAlzH5tH0o/Twq9x7ko8IJZxYIQo5poM+ffGm1Myo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750062350; c=relaxed/simple;
-	bh=btrWKaG8/rzeBsz6IdVxk16L4Rb/ZH0842aOqeUc3vs=;
+	s=arc-20240116; t=1750062354; c=relaxed/simple;
+	bh=R2g4TwySJDJJocU4xK4nOTDTSRAr1GmJ2/lN3ltr1qg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=giJJZHlPhXfX/8lujt0dQaUKzkJyYgbPPShle2zvzYIaXwTH6uty5Bs7ihkA1TpOSqL085EsSrTiKZ1YKIrtwfX+O8GD0ekAGCKGRHDINK8gufp2YkB5sA81kPJ6wgAJhYCGNG6AjOHqWJvTC1V0S97QvdL5J0Z/O7djZnr6hjQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J1kjU5sp; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=gdahV4XI2DLBz9lwatu5hpbUgi3nEtWHr9Yy0+A5RH/YhdBDcRxnJx0aNghojyKHEc6TMvBtusY1XVEshZ+Nmgbn8LpAszVuDKy5RovXSkzRA1xo+Wt/C/QIhF6zA88FdRVy9V4Dz1C/pPTXvafesSTYmoFVWBw/CBKME9qlPQ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T1gbwGQP; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J1kjU5sp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T1gbwGQP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750062347;
+	s=mimecast20190719; t=1750062351;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=iPs4Pk+ZGeTi5sQMll9sHQqrUEkat8mM6CgdpH2mZwY=;
-	b=J1kjU5spUWBkd5rBWZG6T7ZxxdCdOtK72okpWvLs53TIHr3mkNBF7V62HUJbdP8srmxlrC
-	t1yMHXgj6WXcioscTW8kJXXOqoNKEvnZJQxtiHuUmToReevjwExh3vRA0KKLufZil5CWNN
-	Qzbdfsy2H8aqfyFe4JK6sRKDYHnleTc=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=5oGRzY001stMjDiZhS80KlkkuWn5cfO4rLHANW0IMQ4=;
+	b=T1gbwGQP0/Je6i8edgMxdgtwtUFaqFjgy/i8skwuk7aF2+Iazb3Pqf6gbAF88x1m5vJMm2
+	fk8ZuUgtT4Pue5U+vlLxXC1bDP14W+ywUDIY6a3VIG8Flfq8+9aoHBIxg78CdcwSgQ1up0
+	tb2/PwXTrAKUaVrhK0zB3A7EttgVgJI=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-522-9Ak6MBoBNBeMEk4WGFebNA-1; Mon,
- 16 Jun 2025 04:25:43 -0400
-X-MC-Unique: 9Ak6MBoBNBeMEk4WGFebNA-1
-X-Mimecast-MFC-AGG-ID: 9Ak6MBoBNBeMEk4WGFebNA_1750062342
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-131-QXeykfAKOvCloURUsEpyzw-1; Mon,
+ 16 Jun 2025 04:25:47 -0400
+X-MC-Unique: QXeykfAKOvCloURUsEpyzw-1
+X-Mimecast-MFC-AGG-ID: QXeykfAKOvCloURUsEpyzw_1750062346
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 76F661800282;
-	Mon, 16 Jun 2025 08:25:42 +0000 (UTC)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5F555195608D;
+	Mon, 16 Jun 2025 08:25:46 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.112.72])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5411818003FC;
-	Mon, 16 Jun 2025 08:25:38 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 379C9180045B;
+	Mon, 16 Jun 2025 08:25:42 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com
@@ -49,9 +49,9 @@ Cc: xuanzhuo@linux.alibaba.com,
 	eperezma@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH V3 04/19] virtio_ring: switch to use vring_virtqueue for virtqueue resize variants
-Date: Mon, 16 Jun 2025 16:25:02 +0800
-Message-ID: <20250616082518.10411-5-jasowang@redhat.com>
+Subject: [PATCH V3 05/19] virtio_ring: switch to use vring_virtqueue for virtqueue_kick_prepare variants
+Date: Mon, 16 Jun 2025 16:25:03 +0800
+Message-ID: <20250616082518.10411-6-jasowang@redhat.com>
 In-Reply-To: <20250616082518.10411-1-jasowang@redhat.com>
 References: <20250616082518.10411-1-jasowang@redhat.com>
 Precedence: bulk
@@ -74,49 +74,57 @@ Signed-off-by: Jason Wang <jasowang@redhat.com>
  1 file changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 633379b2dc42..e7be480bee67 100644
+index e7be480bee67..8ee5393803f0 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -1216,11 +1216,10 @@ static struct virtqueue *vring_create_virtqueue_split(
- 	return vq;
+@@ -713,9 +713,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 	return -ENOMEM;
  }
  
--static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
-+static int virtqueue_resize_split(struct vring_virtqueue *vq, u32 num)
+-static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
++static bool virtqueue_kick_prepare_split(struct vring_virtqueue *vq)
  {
- 	struct vring_virtqueue_split vring_split = {};
 -	struct vring_virtqueue *vq = to_vvq(_vq);
--	struct virtio_device *vdev = _vq->vdev;
-+	struct virtio_device *vdev = vq->vq.vdev;
- 	int err;
+ 	u16 new, old;
+ 	bool needs_kick;
  
- 	err = vring_alloc_queue_split(&vring_split, vdev, num,
-@@ -2183,11 +2182,10 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	return vq;
+@@ -732,12 +731,12 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+ 	LAST_ADD_TIME_INVALID(vq);
+ 
+ 	if (vq->event) {
+-		needs_kick = vring_need_event(virtio16_to_cpu(_vq->vdev,
++		needs_kick = vring_need_event(virtio16_to_cpu(vq->vq.vdev,
+ 					vring_avail_event(&vq->split.vring)),
+ 					      new, old);
+ 	} else {
+ 		needs_kick = !(vq->split.vring.used->flags &
+-					cpu_to_virtio16(_vq->vdev,
++					cpu_to_virtio16(vq->vq.vdev,
+ 						VRING_USED_F_NO_NOTIFY));
+ 	}
+ 	END_USE(vq);
+@@ -1597,9 +1596,8 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+ 	return -EIO;
  }
  
--static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
-+static int virtqueue_resize_packed(struct vring_virtqueue *vq, u32 num)
+-static bool virtqueue_kick_prepare_packed(struct virtqueue *_vq)
++static bool virtqueue_kick_prepare_packed(struct vring_virtqueue *vq)
  {
- 	struct vring_virtqueue_packed vring_packed = {};
 -	struct vring_virtqueue *vq = to_vvq(_vq);
--	struct virtio_device *vdev = _vq->vdev;
-+	struct virtio_device *vdev = vq->vq.vdev;
- 	int err;
+ 	u16 new, old, off_wrap, flags, wrap_counter, event_idx;
+ 	bool needs_kick;
+ 	union {
+@@ -2454,8 +2452,8 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
  
- 	if (vring_alloc_queue_packed(&vring_packed, vdev, num, vring_dma_dev(vq)))
-@@ -2805,9 +2803,9 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
- 		recycle_done(_vq);
- 
- 	if (vq->packed_ring)
--		err = virtqueue_resize_packed(_vq, num);
-+		err = virtqueue_resize_packed(vq, num);
- 	else
--		err = virtqueue_resize_split(_vq, num);
-+		err = virtqueue_resize_split(vq, num);
- 
- 	return virtqueue_enable_after_reset(_vq);
+-	return vq->packed_ring ? virtqueue_kick_prepare_packed(_vq) :
+-				 virtqueue_kick_prepare_split(_vq);
++	return vq->packed_ring ? virtqueue_kick_prepare_packed(vq) :
++				 virtqueue_kick_prepare_split(vq);
  }
+ EXPORT_SYMBOL_GPL(virtqueue_kick_prepare);
+ 
 -- 
 2.34.1
 
