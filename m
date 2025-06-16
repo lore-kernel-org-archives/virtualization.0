@@ -1,42 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ADB92E06EE;
-	Mon, 16 Jun 2025 13:16:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EBB51DA60F
+	for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 13:20:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750079774; cv=none; b=HXxmhtr3x/4Aj2OupQ3JIi8P5NwwNXpupSM5gRHv+m7aFRVKIvpQegAimW4e0fiy1ng6Z+gspUY4NVwv8wgZ/iivA8kBOPgonI6vupb5lqv15GxAcSD+CJxthfMmmuE2UvI5tc1NpMWFP6jO90mVF03u7ZFxayO9YfKY3Q2Voo4=
+	t=1750080035; cv=none; b=uqj6pWyjbhx2akE8lFQ9zX8uo5Dkv5fppYJQgJToFw/OmFaF4BxxTS4PnBTDsqhreOy2BqGBtohLCEEClAyKD6EFni3DJEERMOx9jVlW2vMJ9nPykd9o36zOd6qW/H3ZTjebTunsox9Ptdj0icq7lmgGChf1RThFwS+8xfg6WGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750079774; c=relaxed/simple;
-	bh=ijos+ZXc+kb+My9+MNdhO2s8PVtsN3Qz0nVOwY+r3rY=;
+	s=arc-20240116; t=1750080035; c=relaxed/simple;
+	bh=KsZELZeWpT03UnkqhlfBW9r1APWyBQkH9RXynD91+cs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rMPCmM32ye0CGw79HQQ4a7t2v2fhbM/Vh1E+lOOlRb0RnvUGMK0dk7DmrICzbmqCwJuSGK4jw1xbPiUyccR2lIPGzvvhC8ayZNf9Hbl2yY+wf02vU2yFlOuGTm33ujkKdCo92ntdFaCTz7RSNikUo+tUEZZ6p0qRFgc7wGnLagA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hrDQxP9M; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=OnACLZ1UR8/+0vQf7R1NJE1cfFXd2TqJaX2HEB0T4oWZDjINqVz08eZPBCY3f1EhEmBmR1US8FiJs33ujVNtj3A8JQ2M7sGUbAvQo2zQsRtivjfklv54Ba+COhoIGlCScqfCpdKluFKoXR7/54xTCveo1elwCf93Dg2C4J293XI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=XCsTH8Vb; arc=none smtp.client-ip=209.85.219.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hrDQxP9M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E48B1C4CEEA;
-	Mon, 16 Jun 2025 13:16:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1750079773;
-	bh=ijos+ZXc+kb+My9+MNdhO2s8PVtsN3Qz0nVOwY+r3rY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=hrDQxP9MmH8s6HR9OXT17iQAC8iM272kzT96lZl6NZElnNtIVMIRMPVMk8ekuxz/n
-	 8oamRo930IM0NQuz2qze3J/IhhQ2SU3glyw7mk2zjfaiLdxkPPP4PzjaNwsC4MgwWs
-	 5pzQS3Sa1thr1vPK8WWx6pts5q0hv0ucB1eNjYq0M0qPkgpTfPs9GsF+u4u+FF3IrG
-	 c6chvBW+YT96A5Z55M6J+IlFMABwieid72nBmZvKJVuNn8hi4+vi5yLTXEm3oinqtg
-	 8PuwVqO7djWQesvBq/1JgFAPtSJHbCInUc5AWdB7E64nfNDgYZshB52b+k9hLusW+k
-	 gTel9JlWE7MOA==
-Date: Mon, 16 Jun 2025 14:16:09 +0100
-From: Simon Horman <horms@kernel.org>
-To: linux@treblig.org
-Cc: mst@redhat.com, jasowang@redhat.com, eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] vhost: vringh: Remove unused iotlb functions
-Message-ID: <20250616131609.GC4750@horms.kernel.org>
-References: <20250613230731.573512-1-linux@treblig.org>
- <20250613230731.573512-2-linux@treblig.org>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="XCsTH8Vb"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-6fae04a3795so47947686d6.3
+        for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 06:20:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1750080033; x=1750684833; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=KsZELZeWpT03UnkqhlfBW9r1APWyBQkH9RXynD91+cs=;
+        b=XCsTH8Vbats0KJVFUSQc0pik/RaLoOYVb09XtWQosb+p98oE6cVJ8tsL2g7n/rwHQx
+         4BxZcOOl2sRcRFHDjo1PEV9XyLf/5NdMjPn4uzDx81RUGVaX0TO3opPuzyjQNgLa2jjw
+         FZ7hkYXc2i/DlTS/oUxi9PQTI7yWeCrDCYdFM3wHmOtsLJdGMnd/kS8s93PwJJhpU67H
+         WKNvQYqsBfbS7QTK5hZ+7I+IMCDumuvGgxOAldzATxegdSSaWefELIpQ/4bGhClxaWLe
+         hBdZF4Cen+glypTZ+MjNtfdL8mUoEcg4XI3bn7SYYX61EzVH5tdBsa9DBp9sVIWljvyE
+         Yvcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750080033; x=1750684833;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KsZELZeWpT03UnkqhlfBW9r1APWyBQkH9RXynD91+cs=;
+        b=uAvC4uy5o2Z7NkzJqkHO2jhl8XEp2VnvdEvavA/LHaRleNvHt2617r5KdFhuy8Q0vf
+         7pDnzFUr76DY/rT3AHHnqJZBHCzcDl5Gbw3Q8Hnr/Y4sZHpkHQdYiFtat0wzsR6BR3Zu
+         c/ugPAqP/VX2K1kj0nADwYBTUFLHIEvkHetc4PEsrGCgYeQjhy3iSwtwoB0/vOqFDx3c
+         kRyFiuXmtVmBkJzSuU6+NsWOEx5X4LUQK0SpdisfvOrs3xB3YX7BXHXCEWJlLa54tpbC
+         PzEDkzFgElzrJG7J63aV3PFUy6w823wG04EQpn8YTd1rV2JiWohRdyBHzXNDAF0nk0rF
+         iNCA==
+X-Forwarded-Encrypted: i=1; AJvYcCVJDAQmwodScG/WM5BHRcZGCXPoa+RAaO/VBsre4xoWTeRJoY9Rg/HOzC71KJl0RNxTiymAi3hUoEWi0ekZhg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwTFgdXaeM7oNda7YINuF6mlpZ71oaDeG3Y2UdV1A3JPbzVUtbJ
+	SPVuP11UF4p/eP33jUs3Gpqha1cCruLMs9DTbmG3UApQLZHVSXNSj/T5VCZTH750aBo=
+X-Gm-Gg: ASbGncuvZ/fbMF90wOr1kjzAUgpKZ0NttOeGENkslQighg+KOXdLyf8y3UWcB/hNvnA
+	8fwHN/EoEEsRWfaKAWd7+JdZ/5epX+tO4e7fYrcEBJRfC9kZvJEjOO6Qe5Wimgm4PlRn4w93YWS
+	yZy1owndG8ArOuZYQvlF9HhLwzlwtBjXTElnmJ5BBn0IgRTGBzFPit1hbbc4OtNJV+757022gS6
+	XPnoeDU516o0FAX8aRJ+zF4hUAuonaVf09NvgCg2dkk6Cc6m2QTI9eHS9BUTTpmGS01qvJqVll0
+	ANkBiDxI5lJ3HFKQoB7XjkfbJtmM29pYf1q6xjXfR/YUFfCoVmAMzhEs3Zm4IVl/qd0YvcNHIIW
+	Z6p15zNwLsm5Xuzr32+JiIZECfmQ6VLcyg6v2OA==
+X-Google-Smtp-Source: AGHT+IE1qGI9XHVDxJuyvFi/df2zVObBdJYoDm6YGOjnmbu+H4OWYnM+uHkjohkUfAcq9uWzh1e/Fw==
+X-Received: by 2002:ad4:5c6b:0:b0:6fa:c99a:b5e1 with SMTP id 6a1803df08f44-6fb47725fb8mr166833186d6.17.1750080032894;
+        Mon, 16 Jun 2025 06:20:32 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-167-56-70.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.167.56.70])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6fb35c84148sm50822446d6.109.2025.06.16.06.20.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Jun 2025 06:20:32 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1uR9lH-00000005gVt-3sIA;
+	Mon, 16 Jun 2025 10:20:31 -0300
+Date: Mon, 16 Jun 2025 10:20:31 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Demi Marie Obenour <demiobenour@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Len Brown <lenb@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Alyssa Ross <hi@alyssa.is>, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+	iommu@lists.linux.dev, x86@kernel.org,
+	Spectrum OS Development <devel@spectrum-os.org>
+Subject: Re: Virtio-IOMMU interrupt remapping design
+Message-ID: <20250616132031.GB1354058@ziepe.ca>
+References: <>
+ <a65d955c-192b-4e79-ab11-8e2af78b62af@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,23 +89,24 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250613230731.573512-2-linux@treblig.org>
+In-Reply-To: <a65d955c-192b-4e79-ab11-8e2af78b62af@gmail.com>
 
-On Sat, Jun 14, 2025 at 12:07:30AM +0100, linux@treblig.org wrote:
-> From: "Dr. David Alan Gilbert" <linux@treblig.org>
-> 
-> The functions:
->   vringh_abandon_iotlb()
->   vringh_notify_disable_iotlb() and
->   vringh_notify_enable_iotlb()
-> 
-> were added in 2020 by
-> commit 9ad9c49cfe97 ("vringh: IOTLB support")
-> but have remained unused.
-> 
-> Remove them.
-> 
-> Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
+On Sun, Jun 15, 2025 at 02:47:15PM -0400, Demi Marie Obenour wrote:
 
-Reviewed-by: Simon Horman <horms@kernel.org>
+> Is a paravirtualized IOMMU with interrupt remapping something that makes
+> sense?
 
+IMHO linking interrupt remapping to the iommu is a poor design,
+interrupt routing belongs in the irq subsystem, not in the iommu.
+
+The fact AMD and Intel both coupled their interrupt routing to their
+iommu hardware is just a weird design decision. ARM didn't do this,
+for instance.
+
+So I would not try to do this at all, you should have a
+para-virtualized IRQ interface, not an extension to virtio-iommu
+adding interrupt handling. :\
+
+AFAIK hyperv shows how to build something like this.
+
+Jason
