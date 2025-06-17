@@ -1,145 +1,108 @@
-Received: from mail-vk1-f176.google.com (mail-vk1-f176.google.com [209.85.221.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E88028C039;
-	Tue, 17 Jun 2025 12:59:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FCAF2C08B8;
+	Tue, 17 Jun 2025 13:43:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750165188; cv=none; b=FNUQx6r2eZRg3K6jeBnSf2J97bHSgZDRLX5bK5YMrwbeJ/AeTzd5xAYKRRYePpNMvvOaNyT6/QwsCU3D+y4j/m5JXHVKKMy88NlXFYkHNTfVL2Gr+CyPVaMt6rJXcyfJhIh3OqCQONNudjI/ijjGShY1NZExkdzsqIF6iP62TZE=
+	t=1750167810; cv=none; b=ZKHcMvTO7ZNyyakWgbjpERQY2GJGNpaTYuRAWsBQLOTslfNw/NnVkdPRfB3Ua+Bi/HH25UZ3eP6MeHPX8eBY/EgFxjzys6ntZlBGzcuEfx2X+OZDmLCe+0KDBnp/6YxqzPz/yS7r0o1m4HVfkMttM+ejTV5yKDrKyVOUqFCEfpw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750165188; c=relaxed/simple;
-	bh=oYOeIAfsmU4t9r2TCrVIZpfx7hejLpjjsg6BpCI0j9g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=URfdkGoc7al0TQIDd//bPkWjpWzu16JWqQCFrAkqCBj6q01oFQgSoSEkbvLNoy+4WypTDTIiown+KJzcttNU4uyYxtiNekZaszp0fCHx64scaVFenFoFieYRmQ66JYdV6VGx1nb3Lb/nXJgsUH7wSgKvQGbEc8hIrE7n07dUBJ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=feHrvWfX; arc=none smtp.client-ip=209.85.221.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750167810; c=relaxed/simple;
+	bh=Tq5rUOpjXriBkipN8jcjoOeGSv4ICYoTA0fxuVN9H94=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=VSTv3D0YOrjjGVNYqblO3AMZxhvT25Q/pLiaZDpP6TpS/gYR2ODLeyvMamxDBhqlezpdHuYoYZ8tJzPBNhy45naX+LXCctdvoRCLHnGUc5Qqu5N0yW2POEpNcxcEkNjcYeQ4bqqw45DzwLPh4Ame0ntSG1SpBBi78h78Ld4+WvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H2VMXZuy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="feHrvWfX"
-Received: by mail-vk1-f176.google.com with SMTP id 71dfb90a1353d-525b44b7720so1330719e0c.0;
-        Tue, 17 Jun 2025 05:59:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750165186; x=1750769986; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=IJGnTu2P8k2zWLpKT9gQ0C6Ynav6qAdbDTnXBuG6SzE=;
-        b=feHrvWfXnsv5o6FcagI10RufqIfcu3SAAcrDseaBMHq/1OkGHZeGCynOmpOJe82ON2
-         SCVLyhehjlstzUsPt3ioJ4IQhLkW5l3GNTh3ocaYmGSauQElRPFU14b/b7rtUdG1sC+X
-         MfYyaVtAQ8LtSHRq5C2tXLfDVFfoR5u7SKbZZr9VIOld179LDV4sXRn/BP3pPdGFGNAl
-         oBNqvq84q3w0ssBrNsxlLqhCnuzcdSqbePfyqJ5EhcelOJAQWw3yixaHaA5w2x1uBv9W
-         Z7jVm0CjmUhaZrKOfQqJjI9x3LYyxVmOVy9lNlEngfyfJYDd+g7gQQ+3BZFJtdeX89C0
-         DB0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750165186; x=1750769986;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=IJGnTu2P8k2zWLpKT9gQ0C6Ynav6qAdbDTnXBuG6SzE=;
-        b=ZvykPzPnWEeaCkB/8qqvStEWYytyeARILF0J391V4e5h7qAc3JfwV/SIHOhdXJPlO4
-         b8NngvTzvPmfv30fdISKpur20QVgcaz/3ucaREc7hDQi8xX1CnxHfnHep7BLLjxRp+e5
-         udvDe4zTfsfpElngGa7YLmnUSaePQ+mlxecgi1CSMBe7xjYVkIMwiZIoI3dxQQfFuIyp
-         10lG4uGepFOsR0g3KwiWWYpNdfoHZcvindb/qwUjsqfYVm7+2eFaKCtHODKUdjimQ8JR
-         IfV2ihOSHPJFDT6VJavaXBI3q6Zn1dg4RGUm0foMxleoHuYR5QJqDaMzEgaGkRgoXuAX
-         kRng==
-X-Forwarded-Encrypted: i=1; AJvYcCUV8MqLO3Z01D4gfEZn250L/NOMrQgu6/wsgfmk7eLJnn/qCE169drCgWjZNas8nhxUjao=@lists.linux.dev, AJvYcCXXP39hfI8FdayUY0H65DM9yz9/S6nRBjEn3gCksWCQoQDsiFPZqDfHpdwGtqwQALG7YvAzum23Ju6zR/NsCeQ=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwpZ2CaNX21bNwTzrAT2WDQHRDzr3MvAD47YERQiKmFLrGy0WHL
-	EdipTtG/hc1Fbx7sgmKj6bItsCWOLpnWBF1qWW3uve/vaS1jUYLh2Dv+ZjRFwSHLMGGkfFJwIlT
-	EjY4Dqqexf4CzF2cYE4Yucs4doyXyJ4o=
-X-Gm-Gg: ASbGncu75sO4gR0s4agy8jZ73QGllWgCDcEchtXM8u3V4z5tSu2yZf1CHJS4OGHbnmq
-	OkEnbPNAOx7n6PM7JPmgtRCR0S96Hzj4E6KafWIn0T24H22tO+KQWfZHwcRWlk69Va/mVIQQTuE
-	j69ZEW3U+kMVX977Ljn9GntwvOAj0ApsRfA2M+3PJFBA==
-X-Google-Smtp-Source: AGHT+IFyDxk9ofOoSE1jUdDwuXC6uj68bPw86gFHeN0xbFulbam2J1M/auQRgbuNa5uXdcywAXE8tSUc/+x2hYqgo2M=
-X-Received: by 2002:a05:6122:4586:b0:52f:47de:3700 with SMTP id
- 71dfb90a1353d-53149677e4amr8402312e0c.5.1750165185838; Tue, 17 Jun 2025
- 05:59:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H2VMXZuy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A4E8C4CEE3;
+	Tue, 17 Jun 2025 13:43:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1750167809;
+	bh=Tq5rUOpjXriBkipN8jcjoOeGSv4ICYoTA0fxuVN9H94=;
+	h=From:Subject:Date:To:Cc:From;
+	b=H2VMXZuyU6kbuxsnxDZ0TmEkSbKr3URfhjt3ZDdyNXdL6ivkgmgNDPNrOX9KpE8un
+	 67xPRwP+Ax/wzJc2Ag4PN0uQU0cP705b5qy8C4qngTFaBEQa1rH+Kzsv8IM6Vn+LEz
+	 8CSQ9N0XBnKfvE5wmCJA7G0B8JA8f1RlR0EFVTmL5PUsJkpbPJXpnRcihFHL4WjTOf
+	 sh6EN8lf7ZZku7gd9SslC/G2sikDNq5IMhqoNJJBKGmx43LT1noz6/VO4ojstrL4Vc
+	 y/uoWybaf86e/LHNiEjgDrNXwLqD6NK2POmZIlEW+001ads1kk7oiwhiuB9jH9oZFZ
+	 SdYtNHiRhxS/Q==
+From: Daniel Wagner <wagi@kernel.org>
+Subject: [PATCH 0/5] blk: introduce block layer helpers to calculate num of
+ queues
+Date: Tue, 17 Jun 2025 15:43:22 +0200
+Message-Id: <20250617-isolcpus-queue-counters-v1-0-13923686b54b@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250613090431.127087-1-tzimmermann@suse.de> <20250613090431.127087-8-tzimmermann@suse.de>
-In-Reply-To: <20250613090431.127087-8-tzimmermann@suse.de>
-From: Inki Dae <daeinki@gmail.com>
-Date: Tue, 17 Jun 2025 21:59:08 +0900
-X-Gm-Features: Ac12FXy1YqAOwtksyoMPU_mcRXzK8GOxRWP5F_To6gWRQ1V5y95DviShSwJIG6g
-Message-ID: <CAAQKjZOiz3Z42N_GEPzqU=CCfim+Z7oCuyxuji6Guj_dKYsimw@mail.gmail.com>
-Subject: Re: [PATCH v5 07/25] drm/exynos: Compute dumb-buffer sizes with drm_mode_size_dumb()
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org, 
-	maarten.lankhorst@linux.intel.com, geert@linux-m68k.org, 
-	tomi.valkeinen@ideasonboard.com, dri-devel@lists.freedesktop.org, 
-	linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org, 
-	linux-arm-msm@vger.kernel.org, imx@lists.linux.dev, 
-	linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org, 
-	linux-renesas-soc@vger.kernel.org, linux-rockchip@lists.infradead.org, 
-	linux-tegra@vger.kernel.org, intel-xe@lists.freedesktop.org, 
-	xen-devel@lists.xenproject.org, Seung-Woo Kim <sw0312.kim@samsung.com>, 
-	Kyungmin Park <kyungmin.park@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
-	Alim Akhtar <alim.akhtar@samsung.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAPpwUWgC/x3MQQrCMBBG4auUWTuQxGpor1Jc1PirA5KkmUaE0
+ rs3uPwW722kKAKlsduo4CsqKTbYU0fhPccXWB7N5Iy7mKv1LJo+IVflpaKCQ6pxRVHu3X02gPf
+ nwVCrc8FTfv/zdNv3A/LaqlZpAAAA
+X-Change-ID: 20250617-isolcpus-queue-counters-42ba0ee77390
+To: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>
+Cc: Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ Thomas Gleixner <tglx@linutronix.de>, 
+ Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
+ Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, 
+ Ming Lei <ming.lei@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, 
+ Hannes Reinecke <hare@suse.de>, linux-kernel@vger.kernel.org, 
+ linux-block@vger.kernel.org, linux-nvme@lists.infradead.org, 
+ megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
+ storagedev@microchip.com, virtualization@lists.linux.dev, 
+ GR-QLogic-Storage-Upstream@marvell.com, Daniel Wagner <wagi@kernel.org>
+X-Mailer: b4 0.14.2
 
-2025=EB=85=84 6=EC=9B=94 13=EC=9D=BC (=EA=B8=88) =EC=98=A4=ED=9B=84 6:05, T=
-homas Zimmermann <tzimmermann@suse.de>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1=
-:
->
-> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and
-> buffer size. No alignment required.
->
+I am still working on the change request for the "blk: honor isolcpus
+configuration" series [1]. Teaching group_cpus_evenly to use the
+housekeeping mask depending on the context is not a trivial change.
 
-Acked-by : Inki Dae <inki.dae@samsung.com>
+The first part of the series has already been reviewed and doesn't
+contain any controversial changes, so let's get them processed
+independely.
 
-Thanks,
-Inki Dae
+[1] https://patch.msgid.link/20250424-isolcpus-io-queues-v6-0-9a53a870ca1f@kernel.org
 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Inki Dae <inki.dae@samsung.com>
-> Cc: Seung-Woo Kim <sw0312.kim@samsung.com>
-> Cc: Kyungmin Park <kyungmin.park@samsung.com>
-> Cc: Krzysztof Kozlowski <krzk@kernel.org>
-> Cc: Alim Akhtar <alim.akhtar@samsung.com>
-> ---
->  drivers/gpu/drm/exynos/exynos_drm_gem.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_gem.c b/drivers/gpu/drm/ex=
-ynos/exynos_drm_gem.c
-> index 4787fee4696f..ffa1c02b4b1e 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_gem.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_gem.c
-> @@ -11,6 +11,7 @@
->  #include <linux/shmem_fs.h>
->  #include <linux/module.h>
->
-> +#include <drm/drm_dumb_buffers.h>
->  #include <drm/drm_prime.h>
->  #include <drm/drm_vma_manager.h>
->  #include <drm/exynos_drm.h>
-> @@ -330,15 +331,16 @@ int exynos_drm_gem_dumb_create(struct drm_file *fil=
-e_priv,
->         unsigned int flags;
->         int ret;
->
-> +       ret =3D drm_mode_size_dumb(dev, args, 0, 0);
-> +       if (ret)
-> +               return ret;
-> +
->         /*
->          * allocate memory to be used for framebuffer.
->          * - this callback would be called by user application
->          *      with DRM_IOCTL_MODE_CREATE_DUMB command.
->          */
->
-> -       args->pitch =3D args->width * ((args->bpp + 7) / 8);
-> -       args->size =3D args->pitch * args->height;
-> -
->         if (is_drm_iommu_supported(dev))
->                 flags =3D EXYNOS_BO_NONCONTIG | EXYNOS_BO_WC;
->         else
-> --
-> 2.49.0
->
->
+Signed-off-by: Daniel Wagner <wagi@kernel.org>
+---
+Changes in from https://patch.msgid.link/20250424-isolcpus-io-queues-v6-0-9a53a870ca1f@kernel.org
+- limit number of allocated masks to the max allocated number of masks
+- commit message improvements
+- typo fixes
+- formatting fixed
+- collected tags
+
+---
+Daniel Wagner (5):
+      lib/group_cpus: Let group_cpu_evenly() return the number of initialized masks
+      blk-mq: add number of queue calc helper
+      nvme-pci: use block layer helpers to calculate num of queues
+      scsi: use block layer helpers to calculate num of queues
+      virtio: blk/scsi: use block layer helpers to calculate num of queues
+
+ block/blk-mq-cpumap.c                     | 46 +++++++++++++++++++++++++++++--
+ drivers/block/virtio_blk.c                |  5 ++--
+ drivers/nvme/host/pci.c                   |  5 ++--
+ drivers/scsi/megaraid/megaraid_sas_base.c | 15 ++++++----
+ drivers/scsi/qla2xxx/qla_isr.c            | 10 +++----
+ drivers/scsi/smartpqi/smartpqi_init.c     |  5 ++--
+ drivers/scsi/virtio_scsi.c                |  1 +
+ drivers/virtio/virtio_vdpa.c              |  9 +++---
+ fs/fuse/virtio_fs.c                       |  6 ++--
+ include/linux/blk-mq.h                    |  2 ++
+ include/linux/group_cpus.h                |  2 +-
+ kernel/irq/affinity.c                     | 11 ++++----
+ lib/group_cpus.c                          | 16 +++++------
+ 13 files changed, 89 insertions(+), 44 deletions(-)
+---
+base-commit: e04c78d86a9699d136910cfc0bdcf01087e3267e
+change-id: 20250617-isolcpus-queue-counters-42ba0ee77390
+
+Best regards,
+-- 
+Daniel Wagner <wagi@kernel.org>
+
