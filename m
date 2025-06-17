@@ -1,210 +1,105 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43C6F248897
-	for <virtualization@lists.linux.dev>; Tue, 17 Jun 2025 04:54:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ED31211711
+	for <virtualization@lists.linux.dev>; Tue, 17 Jun 2025 08:25:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750136054; cv=none; b=jG8GERVJ/b+Xrvz+bzKuaOueeBgH1YhnGBdeBE3Hat7YzWGB9pMnSsCL+h/cuJnoXoe/jtAflZdhcLPzHxGltIGoZSKV5Wl0GERKxAJ+DZLZFvj+v0+UvdzsupcpSmcSC0Tvp4fyXvIvOt73zsFKGx35xQCFgiYZ5j9M966UfNk=
+	t=1750148741; cv=none; b=hPJ2ZA9La6ETXMGC5nx3ZUclFHhxUeYsf6MNZZblSkbOljYMvenEcNbL8EcOyAXhnfLVsgMGS2VZ9qFe+4e0G6NERBjktHdlNKl9ro8cnQIUaopkQ5pCjJvNnWANQK8mWwnIJ3/736oBJKt++c+8kbr3F5y0kGSihRn6razNIkg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750136054; c=relaxed/simple;
-	bh=hgFFSeG/Y3hy3TRLWUuF2/wDRWFdJSGr2WyqIM1rJ5E=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=JVz1Zg96P+H9MyIA7J4yGqoEE8JT4rxxLjGZFlAV5tvWadHwO1g8jU3kKiY2EvzOKS0/IdQM1TmfEK2QSYG8QIsvQ24Rk0oEDJJ/H4HFW7ShkBTWxdU90yuAV3Hq8vyHTues7qS8PjauihpUv02bPDZsauSw48G2M3m+VZfqnE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NPYJOXSG; arc=none smtp.client-ip=209.85.215.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750148741; c=relaxed/simple;
+	bh=2L5aR0c2GcBaUNPGmIPtfmh8S5kkoZdASScGp1O5Jmw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=sqX7I1jFo4QRaoGE10xxtw/CUg3URY5z4gxxfeONdBO/gJDldx5khCu2INCh3jT6Mz25XUenv8FHsOSLbheSce9sGn/5AvlccnQvCwLN3GVRDAqYvuNSaiPjcirjVRzszKtDcGsLCxxvOKUpJ0/SzPAmyzINIxDTrFO2yuB1zbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cBE7qqyV; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NPYJOXSG"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-b26f5f47ba1so4312729a12.1
-        for <virtualization@lists.linux.dev>; Mon, 16 Jun 2025 21:54:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750136052; x=1750740852; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=n8zzLDE6njEpryzHGmq8M68mZjr/gPDq07PO+JYQaTc=;
-        b=NPYJOXSGDLUyPf+GNgM51V5n6NpsrzjijQ4MFZB2TeBp6Q5D/AgpLqeloGfPy3QfaH
-         fBoXSoWTjt4PLzxZTBZvGBWt16nleGQmUh1jseYVw7O6Mnz4YkwKMjp9xVQgT1T5U4nA
-         C/yGC8u54IKmTt1FlIQRCyS71KrLqhtvzqQab0Ph1WHEb3bSNYDXCV/Oqb+6XQqqHJiH
-         NJLTOgplqP54LwXJpg2AdRu4J/LYXgMYho2WR1go/EBlX+nlMKeN991pD4nvS8ms5vnP
-         9LUmbYcHVsrm0F6OEmjIJKzBb+02ufXeCdmULZBPsslC6vz8bk2+51O2sJSg+zFu2+xZ
-         HqqQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cBE7qqyV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1750148738;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bm5aTFTS9Qh17d2Pxd5wPdYdMyLTNdjwRqtuRVZzJA8=;
+	b=cBE7qqyVQ6kNtz7Kn6jn/eIH7AuKPwwcJKIa8CKBU5Y3YdySm2APEF8m1OuN0tDBkftf+v
+	2sgjSZr56JDN8g3hW79zmSyn0IYE/ngAdOkFH5kfPowH8Xjlnm3qAi5Nxta4GvCNdRjT0x
+	BJJviWABa38EzHxGS5iaHpGqpmxlobA=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-119-uNxrtYBQOsuaorA9j0ZQEA-1; Tue, 17 Jun 2025 04:25:36 -0400
+X-MC-Unique: uNxrtYBQOsuaorA9j0ZQEA-1
+X-Mimecast-MFC-AGG-ID: uNxrtYBQOsuaorA9j0ZQEA_1750148736
+Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6fb4eed1914so51951786d6.0
+        for <virtualization@lists.linux.dev>; Tue, 17 Jun 2025 01:25:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750136052; x=1750740852;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=n8zzLDE6njEpryzHGmq8M68mZjr/gPDq07PO+JYQaTc=;
-        b=VwN3z16w7ubQscctPvsCVeMuwM9tvZJ8YZdr3ZX3FlESKlcAe9PXLFySq797P+Fako
-         SGL7QZeBLtAFRURA1oh7cUdKUU8X1A29lygMWVP/m4odg3+DyMIxBem1V+KeTsknMAr7
-         W66womlT3RU7EwveJ10uRvEG40Du2j0brjVx8wZMbhH4FlFssT3NHcP01XXYZATo9bkr
-         u1prHO8Sow6C0Cmb2uv2tG3L45SHIcm9de3lE6n3qZ+6yrZ3nujsnMnBCZwpoWXMCihj
-         zfi0dvc6X9zG65mROZf1UgXBQ7KmxUd+eXvUSd2R6NOjLk8dn7czll/KXSZk3odbZPuQ
-         E/fw==
-X-Gm-Message-State: AOJu0Yw7QP8VkckM9lm567ppE01EyteorZz6ZSGwPNfuSRy2xXAo5/qr
-	FfpErILuO60KiCf1ziearbGlu2O9Rnnse88expbxezOheoP4mKjqeMUg
-X-Gm-Gg: ASbGncstb34hScA4GBAjDMGBvuIGGKMG0JJ8PbAC9ftGTBFgUEOrVMWNblVlEwEY8NP
-	x32zXz7xcPm6DDIgZj5jf7A6kWTFxgbET2CfIQtLS6pfxGYC8UQ6qMOzSmxklpbv5NgQla6e/1O
-	/vRS+2vVstGJa84e8daAneEUSP2nyu2EOaT5HjS2IBmKkOQTDeRPOAUSPjaGXMHZJzyVcJv6JM9
-	qBI+7SISeu2kbAA7qZ981k+jcrgYkkWpz3c2mTdytArRlaTuDZxhJU29IVDXf7teITgfpzfpU6m
-	5HMF07QfV72s2j9p5F5X9/boHgd0+jqCnvIOOsfq6nPjFOlIPv82Sldiw/HVDf6V0nIkix0+Vfn
-	js6bJpPzW
-X-Google-Smtp-Source: AGHT+IHnBLa7t0ubsYSeKkayXhW4mKBqb1+QAMW9EvWq+u4JW6gRZtgfqBWqro4ZYC+uYeX68JLHRA==
-X-Received: by 2002:a05:6a21:6005:b0:21a:e090:7b88 with SMTP id adf61e73a8af0-21fbd55a108mr18242268637.21.1750136052423;
-        Mon, 16 Jun 2025 21:54:12 -0700 (PDT)
-Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74890005f47sm8132852b3a.51.2025.06.16.21.54.08
+        d=1e100.net; s=20230601; t=1750148736; x=1750753536;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bm5aTFTS9Qh17d2Pxd5wPdYdMyLTNdjwRqtuRVZzJA8=;
+        b=i39/P21K7vH+cA7JDEqAXkbrbEb4PfBZQb4j3RZIO5t3vPjblqOE4LA78Y+ncOTA3Y
+         ILFp3re0ahN64QjfIpPeCRohh/LrkkmktKhmjCO6P2fe5DEwgOmqVSTFfLa7+KXCQ2Wi
+         U2O5+QAD8JBn8FY4edB5BIKSbtNp7RJdg/8VV2bFVT6jtDrMBmaVynCii2eB1E1Ji1AC
+         vIdVWnrzROkUFakH58q4XwEnkvTIWh2UUx/mDegPyfxlWFbwpH6YAmLMQvYGyJG3+GFb
+         W3P2Wh55Awedqgg0k8+Xf1yslio5ju94AAd2D7qD5i3Ol+ysKHPsyaLHNHa8vnRt87/1
+         Pd5A==
+X-Forwarded-Encrypted: i=1; AJvYcCXxZcaIBtEHqi5dvgnd92FV8gQobwzR5hYwQs7Q9nVLc5ex0ECBD4JUV4o9KATUDuTk5DciW96VuKUDJxf2nQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzBSPC+klIvjCJSNTw78FZbS3NCza3S9p+LjpetYs1kfYf8vRIO
+	9DAhmnQJoVdaoHTvdfEfU99WoXvpns6XU3nxTV6lqNvs15Ng8BmnNvgcOdxVaalI0aqSsOEyYpM
+	gfEqtw1IC5RYAMD5Ddki1KrnhclHQvtqV6UDpj9YcyIvtV+YyWq9wIraoZW8CAK6Cziqp
+X-Gm-Gg: ASbGncstflw/bHGPaRcvCRgXsGicJguMtgAvPhGufBmEqRYvJzbkkSE+41RNpTm8t/J
+	pCSGQuxZGZSGB5qgETs4KGfRsQe2wkpY0Rt/i3dMX5jStQ6VxRayrbnbdGwEe9z/UrTbTMxFn/A
+	LJeGPdDGEuZfPgozvGb+QjBnJP1kqaIUtMU9VXaLxw41niDUZ/ErmZNFbA0mCbcKReZoq7R+lJ1
+	JRR/zOm5wLxGPjsSBud3XWdBbvp50m3y5LSSXLCDv9/csobJPknpzL95OEkN9PXOOyrOGEO6+aY
+	Xz5sG7wUoHU7+yqpMqc6S2GJ5fk=
+X-Received: by 2002:a05:6214:3d9c:b0:6fb:3e3e:89da with SMTP id 6a1803df08f44-6fb4776e0e4mr194710696d6.25.1750148736376;
+        Tue, 17 Jun 2025 01:25:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGLRf4zLAmzAVq4IjIYsGrQ8BUWjxhlo96YjZ+1KTdj83hkddJi7LyOWjuyU1fI+YDVS19qGQ==
+X-Received: by 2002:a05:6214:3d9c:b0:6fb:3e3e:89da with SMTP id 6a1803df08f44-6fb4776e0e4mr194710466d6.25.1750148736042;
+        Tue, 17 Jun 2025 01:25:36 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.161.98])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6fb58e7687dsm12877366d6.115.2025.06.17.01.25.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Jun 2025 21:54:12 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-To: sgarzare@redhat.com,
-	mst@redhat.com,
-	pabeni@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	stefanha@redhat.com,
-	leonardi@redhat.com
-Cc: virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	fupan.lfp@antgroup.com,
-	Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Subject: [PATCH net-next v3 3/3] test/vsock: Add ioctl SIOCINQ tests
-Date: Tue, 17 Jun 2025 12:53:46 +0800
-Message-Id: <20250617045347.1233128-4-niuxuewei.nxw@antgroup.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20250617045347.1233128-1-niuxuewei.nxw@antgroup.com>
-References: <20250617045347.1233128-1-niuxuewei.nxw@antgroup.com>
+        Tue, 17 Jun 2025 01:25:35 -0700 (PDT)
+Date: Tue, 17 Jun 2025 10:25:23 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v3 0/3] vsock/test: Improve transport_uaf test
+Message-ID: <fy5xo2kzx36ukxxutwzrqslvic7jdv5yaj3247hbzsza3ae4pd@hr5ijeldvcam>
+References: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
+ <20250616145729.1a16afdc@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250616145729.1a16afdc@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 9bhX0ZM1LNsjjAviYzwykTERh_kS_tzOwmXEVPpqwFo_1750148736
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Add SIOCINQ ioctl tests for both SOCK_STREAM and SOCK_SEQPACKET.
+On Mon, Jun 16, 2025 at 02:57:29PM -0700, Jakub Kicinski wrote:
+>On Wed, 11 Jun 2025 21:56:49 +0200 Michal Luczaj wrote:
+>> Increase the coverage of a test implemented in commit 301a62dfb0d0
+>> ("vsock/test: Add test for UAF due to socket unbinding"). Take this
+>> opportunity to factor out some utility code, drop a redundant sync between
+>> client and server, and introduce a /proc/kallsyms harvesting logic for
+>> auto-detecting registered vsock transports.
+>
+>Hi Stefano! Sorry to ping, are these on your radar?
+>I'm wondering if the delay is because of devconf.cz or you consider
+>the Suggested-by tags a strong enough indication of support :)
+>
 
-The client waits for the server to send data, and checks if the SIOCINQ
-ioctl value matches the data size. After consuming the data, the client
-checks if the SIOCINQ value is 0.
+Yeah, it's because devconf.cz. I'm going to review today, thanks for the 
+reminder :-)
 
-Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
----
- tools/testing/vsock/vsock_test.c | 82 ++++++++++++++++++++++++++++++++
- 1 file changed, 82 insertions(+)
-
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index f669baaa0dca..66bb9fde7eca 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -1305,6 +1305,58 @@ static void test_unsent_bytes_client(const struct test_opts *opts, int type)
- 	close(fd);
- }
- 
-+static void test_unread_bytes_server(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int client_fd;
-+
-+	client_fd = vsock_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
-+	if (client_fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	for (int i = 0; i < sizeof(buf); i++)
-+		buf[i] = rand() & 0xFF;
-+
-+	send_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_writeln("SENT");
-+	control_expectln("RECEIVED");
-+
-+	close(client_fd);
-+}
-+
-+static void test_unread_bytes_client(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int ret, fd;
-+	int sock_bytes_unread;
-+
-+	fd = vsock_connect(opts->peer_cid, opts->peer_port, type);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_expectln("SENT");
-+	/* The data has arrived but has not been read. The expected is
-+	 * MSG_BUF_IOCTL_LEN.
-+	 */
-+	ret = ioctl_int(fd, TIOCINQ, &sock_bytes_unread, MSG_BUF_IOCTL_LEN);
-+	if (ret) {
-+		fprintf(stderr, "Test skipped, TIOCINQ not supported.\n");
-+		goto out;
-+	}
-+
-+	recv_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-+	// All date has been consumed, so the expected is 0.
-+	ioctl_int(fd, TIOCINQ, &sock_bytes_unread, 0);
-+	control_writeln("RECEIVED");
-+
-+out:
-+	close(fd);
-+}
-+
- static void test_stream_unsent_bytes_client(const struct test_opts *opts)
- {
- 	test_unsent_bytes_client(opts, SOCK_STREAM);
-@@ -1325,6 +1377,26 @@ static void test_seqpacket_unsent_bytes_server(const struct test_opts *opts)
- 	test_unsent_bytes_server(opts, SOCK_SEQPACKET);
- }
- 
-+static void test_stream_unread_bytes_client(const struct test_opts *opts)
-+{
-+	test_unread_bytes_client(opts, SOCK_STREAM);
-+}
-+
-+static void test_stream_unread_bytes_server(const struct test_opts *opts)
-+{
-+	test_unread_bytes_server(opts, SOCK_STREAM);
-+}
-+
-+static void test_seqpacket_unread_bytes_client(const struct test_opts *opts)
-+{
-+	test_unread_bytes_client(opts, SOCK_SEQPACKET);
-+}
-+
-+static void test_seqpacket_unread_bytes_server(const struct test_opts *opts)
-+{
-+	test_unread_bytes_server(opts, SOCK_SEQPACKET);
-+}
-+
- #define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
- /* This define is the same as in 'include/linux/virtio_vsock.h':
-  * it is used to decide when to send credit update message during
-@@ -2051,6 +2123,16 @@ static struct test_case test_cases[] = {
- 		.run_client = test_stream_nolinger_client,
- 		.run_server = test_stream_nolinger_server,
- 	},
-+	{
-+		.name = "SOCK_STREAM ioctl(SIOCINQ) functionality",
-+		.run_client = test_stream_unread_bytes_client,
-+		.run_server = test_stream_unread_bytes_server,
-+	},
-+	{
-+		.name = "SOCK_SEQPACKET ioctl(SIOCINQ) functionality",
-+		.run_client = test_seqpacket_unread_bytes_client,
-+		.run_server = test_seqpacket_unread_bytes_server,
-+	},
- 	{},
- };
- 
--- 
-2.34.1
+Stefano
 
