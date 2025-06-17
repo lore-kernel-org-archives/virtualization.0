@@ -1,57 +1,76 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx.treblig.org (mx.treblig.org [46.235.229.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C72DB1E231E;
-	Mon, 16 Jun 2025 21:57:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93898EEDE;
+	Tue, 17 Jun 2025 00:19:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.229.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750111050; cv=none; b=CJydTQmFyC2Hl1oc7RgLadRx2n2nsCmOKOQtpX1JpiqcmTHVNUoOQ46w4I6HqkJvG3vcb/gvXOheN6V51/EA07sFJzaPLaPtD3l7mJHFudMoVzm3Dwh3Q5rxbjEny+I74G61lii8yhJRPZ4f7jX9z7zsOesB5hRVMl/pHyLj/UM=
+	t=1750119542; cv=none; b=K7wdxpLzZZAR3mFhZURl9Y0FyS6h43HbjuTzTTSmaoXGB67+k27qtHgMvgEX9YgfrsPL5fwEhISWGQAokvakpZb4mouJ4SoOBmerYjmy06npjzPR582xR1K+M447aBU8R3C4zj2s074jFfr/aDFzT+x7OUEXG/5z/KaOQJhKp/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750111050; c=relaxed/simple;
-	bh=eyc/gswzHPtBA6IU4zbzxIAE72gnf9Pb80P53cBpKZo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Aex1dE8QU+u2f6YnwHtVe1OPFEKG5o631D2Vp+iZ7J54EnInob/8dHQQmMTbzxXkMiRmYc3ksruk02663EwEotZBB793vfRHxgsZEQeWmqh5v1hRRik791nrgvs23VuBFtoU0Ef5EsPy4+BT3jIA4U+tiKMzBJPxjwmYH40Gb24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D5ZFIR8I; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1750119542; c=relaxed/simple;
+	bh=wHwubcvxWKQy0krfNlspd/TVMyE2xEDWaDT/14aJ0xs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=A0X/q7g7WPhNKKhqsYQL/GUv0D8H39ohO7LzSwg4tkoGFrBAdBkKVfyZ+xxlqVO79/VTJ7jaZk4LKnObD1MeG4+jZPbt4aqjJy1eW7r1D/Bki0XbNuVQcGJUvy7bJq781TeUNZ6yh61dhAx0x1DGiQg4yfcAE4zOioYptisuk/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org; spf=pass smtp.mailfrom=treblig.org; dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b=seeF3m3y; arc=none smtp.client-ip=46.235.229.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=treblig.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D5ZFIR8I"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D213C4CEEE;
-	Mon, 16 Jun 2025 21:57:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1750111050;
-	bh=eyc/gswzHPtBA6IU4zbzxIAE72gnf9Pb80P53cBpKZo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=D5ZFIR8IhcbWH9fc4y5RPfd+OmRo0zDNYPDVBezcZjWENLoOdvTtzknfH3jdBS9+i
-	 /255zhjcbWhwVsvUyspw97hyRF46AGRst1pcnerNVdHo0wD7c8y9bOBlP+aF6ej2//
-	 5KDYfmDLT/UJ4F8wLYot9ru/ufoDD8VDkJ8Os88yTkgINpye0sQoR7uCq+/WNcQjf4
-	 lz132eii7I9rRYYBjTuO6j5Fp7lfI2AOj32W0q5yx2nXolTlRMKyn/aepwchgpijuy
-	 jobsTsGgra3MJVrTHInWnsFNKcCaNn6dr+XU+WGiM06/Yn4nhtYQgxcWT2oRcNrPA4
-	 gkV7EcMhOVIuQ==
-Date: Mon, 16 Jun 2025 14:57:29 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v3 0/3] vsock/test: Improve transport_uaf test
-Message-ID: <20250616145729.1a16afdc@kernel.org>
-In-Reply-To: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
-References: <20250611-vsock-test-inc-cov-v3-0-5834060d9c20@rbox.co>
+	dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="seeF3m3y"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=treblig.org
+	; s=bytemarkmx; h=MIME-Version:Message-ID:Date:Subject:From:Content-Type:From
+	:Subject; bh=WGpF7Rn+xW3Vt3nzVj7bA/d7EoN0EMp0OrH8gZw+CFM=; b=seeF3m3yWmcYzDjs
+	izx9zkvDCXZNyIdQJGBF1BLlJRLksjywcsFU4z4CpY4UA26elhhOODlX7NFQIHruzl0rTgdxEthNU
+	XTGa5Aetx5ceYwiEALJ6a2a26tFZapluGah6fLlOFL5xiCst08ffuuHKY8Vv3viFnsOr+Gz/2xvpo
+	7i+Bujcfyt3u8e65PYMJFBU0MrSaXGXqwdWJ1w9UBs0H3y3XafNxzXkS7Qw6OAc9bF1xgRlREw/u/
+	UURkXM3OPmIWFt4INbs9OLtnz1xmiK1kVS0rwotWLb7LbX5mO4s9XV2RJYCEICdYvk69etMUdwghr
+	MNAw/hfpNikpD72xgQ==;
+Received: from localhost ([127.0.0.1] helo=dalek.home.treblig.org)
+	by mx.treblig.org with esmtp (Exim 4.96)
+	(envelope-from <linux@treblig.org>)
+	id 1uRK2L-009znJ-0d;
+	Tue, 17 Jun 2025 00:18:49 +0000
+From: linux@treblig.org
+To: mst@redhat.com,
+	horms@kernel.org,
+	jasowang@redhat.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Cc: kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	"Dr. David Alan Gilbert" <linux@treblig.org>
+Subject: [PATCH v2 0/2] vringh small unused functions
+Date: Tue, 17 Jun 2025 01:18:35 +0100
+Message-ID: <20250617001838.114457-1-linux@treblig.org>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Wed, 11 Jun 2025 21:56:49 +0200 Michal Luczaj wrote:
-> Increase the coverage of a test implemented in commit 301a62dfb0d0
-> ("vsock/test: Add test for UAF due to socket unbinding"). Take this
-> opportunity to factor out some utility code, drop a redundant sync between
-> client and server, and introduce a /proc/kallsyms harvesting logic for
-> auto-detecting registered vsock transports.
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
 
-Hi Stefano! Sorry to ping, are these on your radar?
-I'm wondering if the delay is because of devconf.cz or you consider 
-the Suggested-by tags a strong enough indication of support :)
+Hi,
+  The following pair of patches remove a bunch of small functions
+that have been unused for a long time.
+
+Dave
+
+v2
+  Remove the xfer_kern() and kern_xfer() helpers that are now
+  unused. (As spotted by Simon's review)
+
+Dr. David Alan Gilbert (2):
+  vhost: vringh: Remove unused iotlb functions
+  vhost: vringh: Remove unused functions
+
+ drivers/vhost/vringh.c | 118 -----------------------------------------
+ include/linux/vringh.h |  12 -----
+ 2 files changed, 130 deletions(-)
+
+-- 
+2.49.0
+
