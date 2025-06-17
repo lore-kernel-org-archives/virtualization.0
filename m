@@ -1,208 +1,198 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 876272EB5A7
-	for <virtualization@lists.linux.dev>; Tue, 17 Jun 2025 15:24:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D85CD293443
+	for <virtualization@lists.linux.dev>; Tue, 17 Jun 2025 15:24:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750173860; cv=none; b=MxP863v/C705B1X4s/e4ZUpwRmjOZFyLfCRxUvnXagArUC6ZEzl88hedFDiIiyMAv3sRwU/d6xMJoWyI3ddK3FZLomWJqZaR+1YfG3Bmj6uBBzqpGWxqvAcL5LEUI3DxAQSem/Rm/su8/sWMyuD3seO2/4MxwOA1xo1dvlKl/kE=
+	t=1750173890; cv=none; b=emXFFkzv72a3mSdMst4WH0IWisA4hzyH0FM3PZgrY/MH002CIdk0mh8V1Z4oV2L/VEXEFWYh5REO/9FCYnteVzVGuXY7sbXn+GnE+2XN1bZ9A5qqPiwkO+0jVkGKk47WuHFi0QUb9OmhH+PndjEI3djiRaDoDBIAMyxYbc2DxNI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750173860; c=relaxed/simple;
-	bh=Ff9lS1Yd/+nqGtnrmnMrj8V8fDZxSoDHmktWe2ibSwA=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Z9nxSLeDP0hV0xVAoUNdB1JMz4Cty7ONmGEn4n9+W9Ip7KENfnZtW68z/ibTXzogmP4UhpXJowjaeHvAkUSXjIpe18pZJCiDgrJD79bQTfe5YBF2CvfiZkg/NTHvEV25zh4E3TDbxI7j2Oiz/Vn6TDMZUDTu67OuZofm6mCvxEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z+vf/OsC; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750173890; c=relaxed/simple;
+	bh=Y8gxeEKFkYw0UIV/IY7FhDkAqzZ2xhiVyi4v6GxhZx0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Ux5l2ahEF7tIVNZfYJa/Nbdw2xvOmUVaB4RPy10HjGB6y7sooDu+DMfvc2CoERM3iXTPchLkSN4agpwgOL5z54pNrEWxopWu7B0l96pzxDNCH7YmnQLvdbKrt5MQHBHbMpLLNUe78rOjsOw4xzsRHqVWey3maf5tAC3saeCYYIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aSZiIOGW; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z+vf/OsC"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-313eeb77b1fso3366783a91.1
-        for <virtualization@lists.linux.dev>; Tue, 17 Jun 2025 08:24:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750173858; x=1750778658; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+jbR+py3WXxAosAVt09Fd+QIJmRYUlK/h5DTO/DPsSM=;
-        b=Z+vf/OsCEAFAFHkYpeMO+oHNvN01l9pTUcp8XxiDd/HH2prfng0xDey+j3yKdxZm9r
-         g659dVX4R5aHzHnMRMg5Ng8KKwG36MQ69d2AGJE3eporECx7qfT4pYCCxTe32V0KbJhG
-         GhLckGSnbAi8zZmDUWdX8JVUEkScu67M4Y+KmcAL0NI0CdnKrthFOJyDGjLJgfNMV86I
-         JifqPizEZrMmAh3UiQsaMUW6cBGDv4xyZXfjsF9JCTn4cB1QDB8PcWOBmstShb0abHCl
-         f64XeHjw383f2HnOmRUtXiQjnwi3i90jEQgk5sWePslZfKLJx5QxdsYPea2rO/99xClH
-         RBUA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aSZiIOGW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1750173888;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=H7t/M+XkM4gCOEnwp8IXnN3sMzd4/YJo/8sq4GFgliY=;
+	b=aSZiIOGWwYcXGZ1zK9ihIkDE/h8fofdl+a+ynYHMM9GOvLnWCikeKqFFxrkbc7Zg3bEiGe
+	mXn/mfz0mHuEjzm7tGeB5bgVkN3r7MFVlYjP+ynEw9IU1YAKfZ9W2llp1eJclrLZakSR0T
+	HozqA4LWB4hDXEdLwoFFWpL7v2vBp1M=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-553-WZfCZ8suPnCdpJNzmC_MOQ-1; Tue, 17 Jun 2025 11:24:46 -0400
+X-MC-Unique: WZfCZ8suPnCdpJNzmC_MOQ-1
+X-Mimecast-MFC-AGG-ID: WZfCZ8suPnCdpJNzmC_MOQ_1750173885
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-450eaae2934so48264195e9.2
+        for <virtualization@lists.linux.dev>; Tue, 17 Jun 2025 08:24:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750173858; x=1750778658;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+jbR+py3WXxAosAVt09Fd+QIJmRYUlK/h5DTO/DPsSM=;
-        b=pNudIqnQ9kGWS8RLPevWaBpR+SNrkWiPnSmD0lkbZJWSQU9r7GDMzxqWnynzqzYRef
-         ZABigFGNvmZa5LBcICbOVDlTpIiuOXlu9tz52+0QeUC9VEzL1iZWbKXvU7qp5UR/xsV2
-         pSa+qWmdV+1HzV0QSpjtI574qiJ7bXENlO+DMlO5JNHLQ3KYF2UoQRQyOpBbW23tU4QK
-         dhIrp/6N6tRYQ/EquCFWrCbBmEk+kEWYeQa89vyoWagS1bAhN2Vz/VVO0a23Ew2tvOIr
-         MFqW559l3eXYjH36qbd7khddkrHtxvEpHRjk3mb3koFou0ntnzuro/mzalsm8N1rJPXS
-         IYTg==
-X-Forwarded-Encrypted: i=1; AJvYcCXzYtG9Fo1o3Svrgphh5+/Uc74Qfp2RfD60lvo+jAInwKtiUmaAF9rnxKHvyONtnRt2jNpKivCAXdBlZm4dPw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YziqImzUXMSSXiBnfnXVkFE7eWcgdvDUASWKHZ7gz9CNCWRrKj/
-	Xv1XBU20CvzPxsEfke55GKsAskeitOkZPk9U0Lp78o3q7Z1bXRzgrAOd
-X-Gm-Gg: ASbGnct6F++g5cH2yRzS0pLozgeJCQYBHPPDXtcNvXR/2quuIRhie+FXkGbDLP+Jr9L
-	NkNpbEfpECk2XvmLd4kAxwrUqQ834ZDkvuAEjmPe9oh2FM5SfXyQLJDyR3HsmFNMG+E5Tgt7bdh
-	a6mCuiA5hz2ooDONamO9BRFGh+Ktv/kd7QxfOoR2kT0H8WGEADrhcSdzLwP6vJgEtajQxFcGAjv
-	lBhJdD+ySs+mkzginSSsQ/biIly77assyd/EcBhmse8bUbbfQLrQRAL1PqpibOZWg/xnBFp7+2o
-	iyv197CvNqu9R/Yu71nQIKZs/GA81ApYG0d1UFqS6v+o9tAaYQ3l5zGkBWOSqGhZVRPjruCKYQM
-	U9IahGbYJ
-X-Google-Smtp-Source: AGHT+IH5MD2+jZvIUtC67uk+pIfR42yS9eI+xyYHXF0u5t7e1n8p6rWyAE/h3yACBAbGGBO+BxREIQ==
-X-Received: by 2002:a17:90b:1807:b0:312:e9d:4002 with SMTP id 98e67ed59e1d1-313f1d9bd7cmr21120975a91.28.1750173857515;
-        Tue, 17 Jun 2025 08:24:17 -0700 (PDT)
-Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-313c19d0e36sm10806236a91.15.2025.06.17.08.24.13
+        d=1e100.net; s=20230601; t=1750173885; x=1750778685;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=H7t/M+XkM4gCOEnwp8IXnN3sMzd4/YJo/8sq4GFgliY=;
+        b=BD9oE2K7rih0HLz3J3ti2Pf4ikX0/RSmFwKZ+pED1p+xQXmyQgel1tKZn+gzU5PmkO
+         tzO22VwjQODPWzPClGQbtUerAgLpY6CJMLvtTY0IyiAuQrea397THYhjvNmyWgjHHZnN
+         93Di7Hgu+vOoreVk4c+oTBUIykS2wWYQhf5gHL9Y/T/QePokJH3nsF6kF9PEdEeH3Fgc
+         j77/zMjR+7OGXZLBwrqeW2JcV/uQA/bWsPiuxGaSejNdvfBo5SEL/yGMSCCCimQmH7ik
+         SzIDDVZtG7QX0/6IvgFsOp4wPjXYrYP7nJtWz7HiiqYdOdaFr0nIDqaxJ1rni2AcYIxz
+         /fFA==
+X-Forwarded-Encrypted: i=1; AJvYcCWgpk5XoiFe30ZOn/5PIIY6fxRKkOuJZQS+vm3lvYdXSZTHaLrknVACs6kIosi2L13XOZ7dtchvAif+PIvNww==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywqfv+D2rewjop24Qizbdqq+cq2Z9vgkDuklDY9el906wdFngFx
+	ezxBEBNN/p3hm//pZWTx+N0bsbIFBCAkRGHpV9A3dUxyKOJz4LpeKdzrdqG+PcxBkxJ+7sARpq3
+	stsiG6ypxXCh4EUSluexASfGMXM6/qItf6AbEyuzlpRAVfdd+716olbMvGnODPXR8tqgI
+X-Gm-Gg: ASbGncvx/mBDjZMGzj4c2vNgc8Ncv7IZo9ojQFKRCwK4k/UL3r09A8JKmW8wwTP67Vo
+	oW/NiI2ScXAzi0utypG4X5QP0iAdUfUpu6v6Ur7x/cjd3U1qe1e+mfDe05/LPMuSH4yne++82gU
+	zA4+vwhcysF/gUopYRdBbza0xxaX3YRL2vvqumCkCuEjK90vkVnwZ+8V2toaR9O8KuQ7RBpsfWo
+	g8wkJuHIddzVFPJUwAU6F9E3hdyt3pvPSgEBMaDD55qM/5GaZIR5OQ1JILQlGOrMTR8Uooup/Ov
+	oELNx/GS84a9n2H5ccLY6Ih6brGa
+X-Received: by 2002:a05:600c:8b01:b0:441:d437:e3b8 with SMTP id 5b1f17b1804b1-4533cac9179mr118928625e9.23.1750173885154;
+        Tue, 17 Jun 2025 08:24:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFsm6jVbEl2m7WR2NEEu2J8dhq+GSg2FL6XFR2OWFKAilrHXhJdlDK5TX0Ng08O9R8MuoDrjg==
+X-Received: by 2002:a05:600c:8b01:b0:441:d437:e3b8 with SMTP id 5b1f17b1804b1-4533cac9179mr118928105e9.23.1750173884572;
+        Tue, 17 Jun 2025 08:24:44 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.200.233])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a568b089b5sm14100994f8f.48.2025.06.17.08.24.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Jun 2025 08:24:17 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-To: sgarzare@redhat.com
-Cc: davem@davemloft.net,
-	fupan.lfp@antgroup.com,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	leonardi@redhat.com,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	niuxuewei.nxw@antgroup.com,
-	niuxuewei97@gmail.com,
-	pabeni@redhat.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH net-next v3 2/3] test/vsock: Add retry mechanism to ioctl wrapper
-Date: Tue, 17 Jun 2025 23:23:48 +0800
-Message-Id: <20250617152348.1346298-1-niuxuewei.nxw@antgroup.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <uqpldq5hhpmmgayozfh62wiloggk7rsih6n5lzby75cgxvhbiq@fspi6ik7lbp6>
-References: <uqpldq5hhpmmgayozfh62wiloggk7rsih6n5lzby75cgxvhbiq@fspi6ik7lbp6>
+        Tue, 17 Jun 2025 08:24:43 -0700 (PDT)
+Date: Tue, 17 Jun 2025 17:24:36 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>, berrange@redhat.com
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH RFC net-next v4 00/11] vsock: add namespace support to
+ vhost-vsock
+Message-ID: <bgntskdmtb3usi6izcxywuhpvyldnoaxnomub4t7vfclv3xqhx@gjcs5ay4mkyt>
+References: <20250616-vsock-vmtest-v4-0-bdd1659c33fb@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250616-vsock-vmtest-v4-0-bdd1659c33fb@meta.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: LphJlZQClTD8BTh5y6aZHA9-0BhZPA6M6G_khkqTO74_1750173885
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-> On Tue, Jun 17, 2025 at 12:53:45PM +0800, Xuewei Niu wrote:
-> >Wrap the ioctl in `ioctl_int()`, which takes a pointer to the actual
-> >int value and an expected int value. The function will not return until
-> >either the ioctl returns the expected value or a timeout occurs, thus
-> >avoiding immediate failure.
-> >
-> >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-> >---
-> > tools/testing/vsock/util.c | 37 ++++++++++++++++++++++++++++---------
-> > tools/testing/vsock/util.h |  1 +
-> > 2 files changed, 29 insertions(+), 9 deletions(-)
-> >
-> >diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-> >index 0c7e9cbcbc85..ecfbe52efca2 100644
-> >--- a/tools/testing/vsock/util.c
-> >+++ b/tools/testing/vsock/util.c
-> >@@ -16,6 +16,7 @@
-> > #include <unistd.h>
-> > #include <assert.h>
-> > #include <sys/epoll.h>
-> >+#include <sys/ioctl.h>
-> > #include <sys/mman.h>
-> > #include <linux/sockios.h>
-> >
-> >@@ -97,28 +98,46 @@ void vsock_wait_remote_close(int fd)
-> > 	close(epollfd);
-> > }
-> >
-> >-/* Wait until transport reports no data left to be sent.
-> >- * Return false if transport does not implement the unsent_bytes() callback.
-> >+/* Wait until ioctl gives an expected int value.
-> >+ * Return a negative value if the op is not supported.
-> >  */
-> >-bool vsock_wait_sent(int fd)
-> >+int ioctl_int(int fd, unsigned long op, int *actual, int expected)
-> > {
-> >-	int ret, sock_bytes_unsent;
-> >+	int ret;
-> >+	char name[32];
-> >+
-> >+	if (!actual) {
-> >+		fprintf(stderr, "%s requires a non-null pointer\n", __func__);
-> >+		exit(EXIT_FAILURE);
-> >+	}
-> 
-> I think we can skip this kind of validation in a test, it will crash 
-> anyway and we don't have in other places.
+CCing Daniel who commented v2.
 
-Will do.
+On Mon, Jun 16, 2025 at 09:32:49PM -0700, Bobby Eshleman wrote:
+>This series adds namespace support to vhost-vsock. It does not add
+>namespaces to any of the guest transports (virtio-vsock, hyperv, or
+>vmci).
+>
+>The current revision only supports two modes: local or global. Local
+>mode is complete isolation of namespaces, while global mode is complete
+>sharing between namespaces of CIDs (the original behavior).
+>
+>If it is deemed necessary to add mixed mode up front, it is doable but
+>at the cost of more complexity than local and global modes. Mixed will
+>require adding the notion of allocation to the socket lookup functions
+>(like vhost_vsock_get()) and also more logic will be necessary for
+>controlling or using lookups differently based on mixed-to-global or
+>global-to-mixed scenarios.
+>
+>The current implementation takes into consideration the future need for mixed
+>mode and makes sure it is possible by making vsock_ns_mode per-namespace, as for
+>mixed mode we need at least one "global" namespace and one "mixed"
+>namespace for it to work. Is it feasible to support local and global
+>modes only initially?
+>
+>I've demoted this series to RFC, as I haven't been able to re-run the
+>tests after rebasing onto the upstreamed vmtest.sh, some of the code is
+>still pretty messy, there are still some TODOs, stale comments, and
+>other work to do. I thought reviewers might want to see the current
+>state even though unfinished, since I'll be OoO until the second week of
+>July and that just feels like a long time of silence given we've already
+>all done work on this together.
+>
+>Thanks again for everyone's help and reviews!
+>
+>Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+>---
+>Changes in v3:
+>- add notion of "modes"
+>- add procfs /proc/net/vsock_ns_mode
+>- local and global modes only
+>- no /dev/vhost-vsock-netns
+>- vmtest.sh already merged, so new patch just adds new tests for NS
+>- Link to v2:
+>  https://lore.kernel.org/kvm/20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com
 
-> >+	snprintf(name, sizeof(name), "ioctl(%lu)", op);
-> >
-> > 	timeout_begin(TIMEOUT);
-> > 	do {
-> >-		ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
-> >+		ret = ioctl(fd, op, actual);
-> > 		if (ret < 0) {
-> > 			if (errno == EOPNOTSUPP)
-> > 				break;
-> >
-> >-			perror("ioctl(SIOCOUTQ)");
-> >+			perror(name);
-> > 			exit(EXIT_FAILURE);
-> > 		}
-> >-		timeout_check("SIOCOUTQ");
-> >-	} while (sock_bytes_unsent != 0);
-> >+		timeout_check(name);
-> >+	} while (*actual != expected);
-> > 	timeout_end();
-> >
-> >-	return !ret;
-> >+	return ret;
-> >+}
-> >+
-> >+/* Wait until transport reports no data left to be sent.
-> >+ * Return false if transport does not implement the unsent_bytes() callback.
-> >+ */
-> >+bool vsock_wait_sent(int fd)
-> >+{
-> >+	int sock_bytes_unsent;
-> >+
-> >+	return !(ioctl_int(fd, SIOCOUTQ, &sock_bytes_unsent, 0));
-> > }
-> >
-> > /* Create socket <type>, bind to <cid, port> and return the file descriptor. */
-> >diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-> >index 5e2db67072d5..f3fe725cdeab 100644
-> >--- a/tools/testing/vsock/util.h
-> >+++ b/tools/testing/vsock/util.h
-> >@@ -54,6 +54,7 @@ int vsock_stream_listen(unsigned int cid, unsigned int port);
-> > int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
-> > 			   struct sockaddr_vm *clientaddrp);
-> > void vsock_wait_remote_close(int fd);
-> >+int ioctl_int(int fd, unsigned long op, int *actual, int expected);
-> 
-> what about using vsock_* prefix?
-> nit: if not, please move after the vsock_* functions.
-
-My first thought was that `ioctl_int()` doesn't take any arguments related
-to vsock (e.g. cid).
-
-I am fine with the prefix, and will add it back.
+Thanks for this!
+FYI I'll be off for the next days, I hope to comment next week.
 
 Thanks,
-Xuewei
+Stefano
 
-> The rest LGTM!
-> 
-> Thanks,
-> Stefano
-> 
-> > bool vsock_wait_sent(int fd);
-> > void send_buf(int fd, const void *buf, size_t len, int flags,
-> > 	      ssize_t expected_ret);
-> >-- 
-> >2.34.1
-> >
+>
+>Changes in v2:
+>- only support vhost-vsock namespaces
+>- all g2h namespaces retain old behavior, only common API changes
+>  impacted by vhost-vsock changes
+>- add /dev/vhost-vsock-netns for "opt-in"
+>- leave /dev/vhost-vsock to old behavior
+>- removed netns module param
+>- Link to v1:
+>  https://lore.kernel.org/r/20200116172428.311437-1-sgarzare@redhat.com
+>
+>Changes in v1:
+>- added 'netns' module param to vsock.ko to enable the
+>  network namespace support (disabled by default)
+>- added 'vsock_net_eq()' to check the "net" assigned to a socket
+>  only when 'netns' support is enabled
+>- Link to RFC: https://patchwork.ozlabs.org/cover/1202235/
+>
+>---
+>Bobby Eshleman (11):
+>      selftests/vsock: add NS tests to vmtest.sh
+>      vsock: a per-net vsock NS mode state
+>      vsock: add vsock net ns helpers
+>      vsock: add net to vsock skb cb
+>      vsock: add common code for vsock NS support
+>      virtio-vsock: add netns to common code
+>      vhost/vsock: add netns support
+>      vsock/virtio: add netns hooks
+>      hv_sock: add netns hooks
+>      vsock/vmci: add netns hooks
+>      vsock/loopback: add netns support
+>
+> MAINTAINERS                             |   1 +
+> drivers/vhost/vsock.c                   |  48 ++-
+> include/linux/virtio_vsock.h            |  12 +
+> include/net/af_vsock.h                  |  53 ++-
+> include/net/net_namespace.h             |   4 +
+> include/net/netns/vsock.h               |  19 ++
+> net/vmw_vsock/af_vsock.c                | 203 +++++++++++-
+> net/vmw_vsock/hyperv_transport.c        |   2 +-
+> net/vmw_vsock/virtio_transport.c        |   5 +-
+> net/vmw_vsock/virtio_transport_common.c |  14 +-
+> net/vmw_vsock/vmci_transport.c          |   4 +-
+> net/vmw_vsock/vsock_loopback.c          |   4 +-
+> tools/testing/selftests/vsock/vmtest.sh | 555 +++++++++++++++++++++++++++++---
+> 13 files changed, 843 insertions(+), 81 deletions(-)
+>---
+>base-commit: 8909f5f4ecd551c2299b28e05254b77424c8c7dc
+>change-id: 20250325-vsock-vmtest-b3a21d2102c2
+>
+>Best regards,
+>-- 
+>Bobby Eshleman <bobbyeshleman@meta.com>
+>
+>
+
