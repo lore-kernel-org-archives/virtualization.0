@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9276285C8E;
-	Wed, 18 Jun 2025 14:40:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 549F9191F91;
+	Wed, 18 Jun 2025 15:05:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750257611; cv=none; b=MMTRkXoZ9axzi/AbTsUafHvLov+qKC1McFhv+3EkmOzAzVQdGR7Xp3FISXKAbBRkH7ixFDUvrZ9GJ5WBdyUSSUxjN0uxU7Jws2hIU99fPIs1jpJRm7CiZTBgbGU7ipt+2EBTTHguCGMIU4QmjjCv6fFM7IGoWUZ1En1ishobxoA=
+	t=1750259108; cv=none; b=kt7+2c+G0zZPH1bvXaRrNG7jXrr1l3Qu+dQ5rwoNe0rvT6CRFwt4FKMhQIh6XPXxtBbpG+ckLQV1eX9/whGOMldZHAzuO8V2vuuhLeNVoEP/TWVhFQCTiAwOPt6lyawa2zDEOJZP4PMuEesQVnzUXaHYrxVSFNJX99dMSupFngo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750257611; c=relaxed/simple;
-	bh=Hvjt5mvmBXT7F/XR96SVx2NWm++TIC0IAHqhT8Dl+DU=;
+	s=arc-20240116; t=1750259108; c=relaxed/simple;
+	bh=VtnJIaye9QWf6eeuqfTnhsu07/8qvnT9KCncjjEmYjA=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=u8HLzRkJa94LmhSJhd5gOPUfzNyN3jo7Bz+JAsVZnkGqbSgbWSaFC8Aawp1/8eUvjVe+Hkfkj2vpUGlME7OgOuBgcgvZcDTv6rLhIRc5/C0a0HNF+7VYGLk6CNlOgpk2ffJ2KF7uEKuReLQj9QxDNizTHWb7lZLgaWCMOnp9NIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a+4tQe71; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=WuBsYl6HKX7WeLJVxufvP7W1oALU27ByJqEYyAWtNrkYhKJStaydEq3OwtrwNJ08RIdTAAhYq4yTLDLu1kFLKo+GtnB0kpsS4UlsEKWetEn0ZKRF59TFCNSTXSefnJaTv+qkp61i1cb740MYyaUnh241qWjxgicJqTByaJv3320=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=giiLXpEG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a+4tQe71"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF497C4CEE7;
-	Wed, 18 Jun 2025 14:40:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="giiLXpEG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17CB0C4CEE7;
+	Wed, 18 Jun 2025 15:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1750257610;
-	bh=Hvjt5mvmBXT7F/XR96SVx2NWm++TIC0IAHqhT8Dl+DU=;
+	s=k20201202; t=1750259107;
+	bh=VtnJIaye9QWf6eeuqfTnhsu07/8qvnT9KCncjjEmYjA=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=a+4tQe71pzIVfYwLGd/4H7AlntOQ3YgtfA3mtG/ffElIWzdvfR1Pfl20EgsW0ewjD
-	 bfAoS9+/xZgP23hFLRu82thEbLjC/p/Vh5Nm03knKRjv6SLOHhcgri3Y2DKhdvOH/S
-	 eRIepCF8P5HwdZFISKsyiQ1YVB6b7733nGnKFB3i2O5aBRzRUmZCwBUesmtqJZ/5/W
-	 6vyZbJeA1By88Zx6pt1Yiz3EXIvNq+L25kQvRp1QbxbCJIchbKw1YFVlAG2zwgW+Lq
-	 h6me0sUSklS4XyBNwiBiMVeTGmigxl+rIeDouLYX+ZAoSLmbXRyf9adG3r+Ba3/VM3
-	 Tg9yK1F2stvfA==
-Date: Wed, 18 Jun 2025 16:40:02 +0200
+	b=giiLXpEGziW0Txa2s8skcjTpwLMgLTP22ItcbaGtflq+let6aaoXQ/KmS2kuoEMRQ
+	 Tc//v6IJ3cwK2zqh9yK8NWUSsJ6pfYguqhR31SBVDHepwBIFBPYao53JZ6JwXI2bl4
+	 64632URanrjYlyAvceyJikaBaOItbh4nCNUkxRdmtCr7T8bp2b7hprBNYU5F9linKx
+	 wxdJS3CjBCDzNKwo1GVxBfw6ClK1LeyvqgdNS9wMBr2abZMeE8Y+v0Ak+qk6T361QR
+	 FwGk3hE4GMzc7QbI392hO2kOogNrWjpqTRQpTpw1gzPyHwgfxg4el4AHPtwM64gX1W
+	 ioE1C1tTliGdQ==
+Date: Wed, 18 Jun 2025 17:05:00 +0200
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 To: "Alexandre Courbot" <gnurou@gmail.com>
 Cc: "Albert Esteve" <aesteve@redhat.com>, "Michael S. Tsirkin"
@@ -39,8 +39,8 @@ Cc: "Albert Esteve" <aesteve@redhat.com>, "Michael S. Tsirkin"
  <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
  <virtualization@lists.linux.dev>
 Subject: Re: [PATCH v3] media: add virtio-media driver
-Message-ID: <20250618164002.10220d81@sal.lan>
-In-Reply-To: <DAPQ1LPH05P4.HLIMQEJCRHLX@gmail.com>
+Message-ID: <20250618170500.1e60aacf@sal.lan>
+In-Reply-To: <DAPQ9L3FCLIF.24FIDLQST2S1O@gmail.com>
 References: <20250412-virtio-media-v3-1-97dc94c18398@gmail.com>
 	<20250526141316.7e907032@foz.lan>
 	<DA6Q0LZPGS2D.2QCV889PQL2A7@gmail.com>
@@ -49,7 +49,9 @@ References: <20250412-virtio-media-v3-1-97dc94c18398@gmail.com>
 	<20250527153547.6603eaf4@sal.lan>
 	<CAAVeFuJtp=UEEULeMSVpmYDmH81Y6OQgj6NCeuPUhabSRHw4dA@mail.gmail.com>
 	<20250617104938.09d21b7c@foz.lan>
-	<DAPQ1LPH05P4.HLIMQEJCRHLX@gmail.com>
+	<20250617110318.7c89d999@foz.lan>
+	<20250617122034.3e570b4e@foz.lan>
+	<DAPQ9L3FCLIF.24FIDLQST2S1O@gmail.com>
 X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -60,160 +62,213 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Em Wed, 18 Jun 2025 23:16:47 +0900
+Em Wed, 18 Jun 2025 23:27:13 +0900
 "Alexandre Courbot" <gnurou@gmail.com> escreveu:
 
-> Hi Mauro,
-> 
-> On Tue Jun 17, 2025 at 5:49 PM JST, Mauro Carvalho Chehab wrote:
-> > Hi Alex,
-> >
-> > Em Tue, 27 May 2025 23:03:39 +0900
-> > Alexandre Courbot <gnurou@gmail.com> escreveu:
+> On Tue Jun 17, 2025 at 7:20 PM JST, Mauro Carvalho Chehab wrote:
+> > Em Tue, 17 Jun 2025 11:03:18 +0200
+> > Mauro Carvalho Chehab <mchehab+huawei@kernel.org> escreveu:
 > >  
-> >> > > > Btw, I was looking at:
+> >> Em Tue, 17 Jun 2025 10:49:38 +0200
+> >> Mauro Carvalho Chehab <mchehab+huawei@kernel.org> escreveu:
+> >>   
+> >> > Hi Alex,
+> >> > 
+> >> > Em Tue, 27 May 2025 23:03:39 +0900
+> >> > Alexandre Courbot <gnurou@gmail.com> escreveu:
+> >> >     
+> >> > > > > > Btw, I was looking at:
+> >> > > > > >
+> >> > > > > >         https://github.com/chromeos/virtio-media
+> >> > > > > >
+> >> > > > > > (I'm assuming that this is the QEMU counterpart, right?)        
+> >> > > > >
+> >> > > > > crosvm actually, but QEMU support is also being worked on.        
 > >> > > >
-> >> > > >         https://github.com/chromeos/virtio-media
-> >> > > >
-> >> > > > (I'm assuming that this is the QEMU counterpart, right?)    
-> >> > >
-> >> > > crosvm actually, but QEMU support is also being worked on.    
-> >> >
-> >> > Do you have already QEMU patches? The best is to have the Kernel driver
-> >> > submitted altogether with QEMU, as Kernel developers need it to do the
-> >> > tests. In my case, I never use crosvm, and I don't have any Chromebook
-> >> > anymore.    
-> >> 
-> >> IIRC Albert Esteve was working on this, maybe he can share the current status.  
+> >> > > > Do you have already QEMU patches? The best is to have the Kernel driver
+> >> > > > submitted altogether with QEMU, as Kernel developers need it to do the
+> >> > > > tests. In my case, I never use crosvm, and I don't have any Chromebook
+> >> > > > anymore.        
+> >> > > 
+> >> > > IIRC Albert Esteve was working on this, maybe he can share the current status.      
+> >> > 
+> >> > Any news regards to it?
+> >> >     
+> >> > > Note that crosvm does not require a Chromebook, you can build and run
+> >> > > it pretty easily on a regular PC. I have put together a document to
+> >> > > help with that:
+> >> > > 
+> >> > > https://github.com/chromeos/virtio-media/blob/main/TRY_IT_OUT.md      
+> >> > 
+> >> > I started looking on it today. Already installed crossvm (I had to
+> >> > install libcap-devel to build it). Still, I'm not familiar with
+> >> > crossvm, which is a little be painful. In particular, how can I
+> >> > enable network on it and speedup it? With suggested parameters,
+> >> > it picked only one CPU, and very few memory on it:
+> >> > 
+> >> > 	# cat /proc/cpuinfo|grep processor
+> >> > 	processor       : 0
+> >> > 
+> >> > 	# free
+> >> >                total        used        free      shared  buff/cache   available
+> >> > 	Mem:          221876       34780      139712         272       56096      187096
+> >> > 	Swap:              0           0           0
+> >> > 
+> >> > I'd like to be able to compile things on it and use ssh/scp. So,
+> >> > the VM needs more CPUs, more memory, more network and GPU.  
 > >
-> > Any news regards to it?  
+> > Found how to setup cpus and memory, but didn't find a way to setup
+> > network without running it as root. The gpu parameter has several
+> > options. Not sure what backend works well for media apps like qv4l2,
+> > camorama, X11, ...  
 > 
-> Albert shared the latest status. There is one in-flight patch series
-> required in qemu [1], and then this branch of vhost-device should
-> contain the necessary support [2]. Albert is waiting for the virtio spec
-> to get merged before sending a pull request IIUC.
-> 
-> [1] https://patchew.org/QEMU/20250217164012.246727-1-aesteve@redhat.com/
-> [2] https://github.com/aesteve-rh/vhost-device/tree/virtio-media
-> 
-> >  
-> >> Note that crosvm does not require a Chromebook, you can build and run
-> >> it pretty easily on a regular PC. I have put together a document to
-> >> help with that:
+> I'm afraid getting GPU and graphics in general to work is more involved
+> and tricky on a regular Linux setup (crosvm was primarily designed for
+> ChromeOS). If you really need it I can do some more research; most of my
+> tests have been done using v4l2-ctl or ffmpeg and saving the output on
+> disk for later inspection.
+
+It was actually easier than what I expected, but it had to run
+as root. Due to that, I had to move it to a test machine that I
+use just for such kind of tests. I updated it to the Ubuntu 
+version 24.10, but crossvm refused to build even. I end needing
+to install rust via rustup, as only version 1.81.0 had what it is
+required to run with the needed features (network, media and gpu).
+
+> >> > Btw, on a quick test with v4l2-compliance, something looks weird:
+> >> > I started a camera application at the host. Still, v4l2-compliance
+> >> > said successfully excecuted mmap:
+> >> > 
+> >> > Streaming ioctls:
+> >> >         test read/write: OK (Not Supported)
+> >> >         test blocking wait: OK
+> >> >         test MMAP (no poll): OK                           
+> >> >         test MMAP (select): OK                            
+> >> >         Vide[2025-06-17T08:44:49.177972817+00:00 ERROR virtio_media::ioctl] VIDIOC_REQBUFS: memory type DmaBuf is currently unsupported
+> >> > [2025-06-17T08:44:49.178164554+00:00 ERROR virtio_media::ioctl] VIDIOC_REQBUFS: memory type DmaBuf is currently unsupported
+> >> > o Capturtest MMAP (epoll): OK                             
+> >> >         test USERPTR (no poll): OK (Not Supported)
+> >> >         test USERPTR (select): OK (Not Supported)
+> >> >         test DMABUF (no poll): OK (Not Supported)
+> >> >         test DMABUF (select): OK (Not Supported)
+> >> > 
+> >> > Which doesn't make any sense, as the host OS should not allow access
+> >> > to mmap while streaming.    
 > >> 
-> >> https://github.com/chromeos/virtio-media/blob/main/TRY_IT_OUT.md  
-> >
-> > I started looking on it today. Already installed crossvm (I had to
-> > install libcap-devel to build it). Still, I'm not familiar with
-> > crossvm, which is a little be painful. In particular, how can I
-> > enable network on it and speedup it?  
+> >> Ah, this was with the "simple" device, not with the proxy one.
+> >> With the proxy one, I'm getting:
+> >> 
+> >> # v4l2-ctl --all
+> >> Driver Info:
+> >>         Driver name      : virtio-media
+> >>         Card type        : usb video: usb video
+> >>         Bus info         : platform:virtio-media
+> >>         Driver version   : 6.15.0
+> >>         Capabilities     : 0x84200001
+> >>                 Video Capture
+> >>                 Streaming
+> >>                 Extended Pix Format
+> >>                 Device Capabilities
+> >>         Device Caps      : 0x04200001
+> >>                 Video Capture
+> >>                 Streaming
+> >>                 Extended Pix Format
+> >> Priority: 2
+> >> Video input : 0 (Camera 1: ok)
+> >> Format Video Capture:
+> >>         Width/Height      : 1280/720
+> >>         Pixel Format      : 'MJPG' (Motion-JPEG)
+> >>         Field             : None
+> >>         Bytes per Line    : 0
+> >>         Size Image        : 1843200
+> >>         Colorspace        : sRGB
+> >>         Transfer Function : Rec. 709
+> >>         YCbCr/HSV Encoding: ITU-R 601
+> >>         Quantization      : Default (maps to Full Range)
+> >>         Flags             : 
+> >> Crop Capability Video Capture:
+> >>         Bounds      : Left 0, Top 0, Width 1280, Height 720
+> >>         Default     : Left 0, Top 0, Width 1280, Height 720
+> >>         Pixel Aspect: 1/1
+> >> Selection Video Capture: crop_default, Left 0, Top 0, Width 1280, Height 720, Flags: 
+> >> Selection Video Capture: crop_bounds, Left 0, Top 0, Width 1280, Height 720, Flags: 
+> >> Streaming Parameters Video Capture:
+> >>         Capabilities     : timeperframe
+> >>         Frames per second: 30.000 (30/1)
+> >>         Read buffers     : 0
+> >> 
+> >> User Controls
+> >> 
+> >>                      brightness 0x00980900 (int)    : min=-128 max=127 step=1 default=-11 value=-11
+> >>                        contrast 0x00980901 (int)    : min=0 max=255 step=1 default=148 value=148
+> >>                      saturation 0x00980902 (int)    : min=0 max=255 step=1 default=180 value=180
+> >>                             hue 0x00980903 (int)    : min=-128 max=127 step=1 default=0 value=0
+> >> 
+> >> # v4l2-compliance -d0 -s
+> >> 
+> >> Streaming ioctls:
+> >>         test read/write: OK (Not Supported)
+> >>         test blocking wait: OK
+> >>                 fail: v4l2-test-buffers.cpp(1345): node->streamon(q.g_type()) != EINVAL
+> >>         test MMAP (no poll): FAIL
+> >>                 fail: v4l2-test-buffers.cpp(1345): node->streamon(q.g_type()) != EINVAL
+> >>         test MMAP (select): FAIL
+> >>                 fail: v4l2-test-buffers.cpp(1345): node->streamon(q.g_type()) != EINVAL
+> >>         test MMAP (epoll): FAIL
+> >>         test USERPTR (no poll): OK (Not Supported)
+> >>         test USERPTR (select): OK (Not Supported)
+> >> [2025-06-17T08:55:20.768760714+00:00 ERROR virtio_media::ioctl] VIDIOC_REQBUFS: memory type DmaBuf is currently unsupported
+> >>         test DMABUF (no poll): OK (Not Supported)
+> >> [2025-06-17T08:55:20.769745707+00:00 ERROR virtio_media::ioctl] VIDIOC_REQBUFS: memory type DmaBuf is currently unsupported
+> >>         test DMABUF (select): OK (Not Supported)
+> >> 
+> >> At the host, I'm getting:
+> >> 
+> >> Streaming ioctls:
+> >>         test read/write: OK (Not Supported)
+> >>         test blocking wait: OK
+> >>                 fail: ../utils/v4l2-compliance/v4l2-test-buffers.cpp(1346): node->streamon(q.g_type()) != EINVAL
+> >>         test MMAP (no poll): FAIL
+> >>                 fail: ../utils/v4l2-compliance/v4l2-test-buffers.cpp(1346): node->streamon(q.g_type()) != EINVAL
+> >>         test MMAP (select): FAIL
+> >>                 fail: ../utils/v4l2-compliance/v4l2-test-buffers.cpp(1346): node->streamon(q.g_type()) != EINVAL
+> >>         test MMAP (epoll): FAIL
+> >>         test USERPTR (no poll): OK                        
+> >>         test USERPTR (select): OK                         
+> >>         test DMABUF: Cannot test, specify --expbuf-device  
 > 
-> There is a "./tools/examples/setup_network" in the crosvm repository that
-> will setup a TAP device. Once this is done, you can pass the "--net
-> tap-name=crosvm_tap" argument to crosvm, and the network device should
-> be visible and usable.
-> 
-> Let me reply to the rest of your questions in your latest mail, with the
-> most recent logs.
+> These logs look ok to me: the MMAP tests are failing on the host, so
+> they are also expected to fail on the guest (still I expect regular
+> streaming to work on both). USERPTR is not supported on the guest, as
+> per your request to not support this memory type in new drivers. DMABUF
+> is not supported at all at the moment.
 
-Heh, I just managed to get it work maybe 10 minutes before your e-mail...
+In the specific case of a virtio driver, while it is OK for the first
+versions to support MMAP only, USERPTR support could make sense, as 
+this is not a real driver for a certain hardware, but instead it is
+replicating at the guest whatever the host driver has, which may or
+may not have MMAP.
 
-I'm building crossvm with:
+That's said, I don't recall any driver with USERPTR and without MMAP
+those days. I did a quick check: VB2 devices always seem to have MMAP.
 
-	cargo build --release --features  "gpu,media,virgl_renderer,x"
+-
 
-To also have GPU working.
+There is one case where only read ioctl is supported: pvrusb2, which
+is probably not interesting enough those days, but IMHO, for the few
+cases where a device can't be used at the guest due to the lack of a 
+compatible streaming API, virtio-media should not expose it to the
+guest and/or issue an error or warning.
 
-Network setup required a rather complex script to set it up without
-breaking my ssh section with the machine where I'm running crossvm.
+> If the host cannot pass compliance, the guest will inevitably suffer
+> from the same shortcomings. :) But at least on the devices I tested I
+> was still able to stream something onto the disk and the result was
+> correct.
 
-In case you need, I'm enclosing it.
+Makes sense.
 
-Now, I need to allocate another time slot for tests and review.
+I'll do some tests later and check how it works with
+a GUI app and some real devices.
 
----
-
-#!/bin/bash
-
-PHY=enp0s25
-BRIDGE=crossvm_br
-TAP=crossvm_tap
-
-IP_MASK=$(ip -br addr show $PHY | awk '{print $3}' | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+')
-if [ -z "$IP_MASK" ]; then
-  echo "Failed to detect IP address on $PHY. Exiting."
-  exit 1
-fi
-
-GW=$(ip -br route show default dev $PHY | awk '{print $3}')
-if [ -z "$GW" ]; then
-  echo "Failed to detect default gateway on $PHY. Exiting."
-  exit 1
-fi
-
-restore_network() {
-  echo "Restoring original network config on $PHY..."
-  sudo ip link set dev $BRIDGE down || true
-  sudo ip link del $BRIDGE || true
-  sudo ip link set dev $TAP down || true
-  sudo ip tuntap del dev $TAP mode tap || true
-
-  sudo ip addr flush dev $PHY
-  sudo ip addr add ${IP_MASK} dev $PHY
-  sudo ip link set dev $PHY up
-  sudo ip route add default via $GW
-}
-
-if ! lsmod | grep -q '^bridge'; then
-    sudo modprobe bridge
-fi
-
-trap 'catch $LINENO "$BASH_COMMAND"' ERR
-
-catch() {
-    echo "Error on line $1: $2"
-    restore_network
-    exit 1
-}
-
-if ip link show $TAP &>/dev/null; then
-  echo "Removing existing tap $TAP"
-  sudo ip link set dev $TAP down
-  sudo ip tuntap del dev $TAP mode tap
-fi
-
-if ip link show $BRIDGE &>/dev/null; then
-  echo "Removing existing bridge $BRIDGE"
-  sudo ip link set dev $BRIDGE down
-  sudo ip link del $BRIDGE
-fi
-
-# Create bridge device
-sudo ip link add name $BRIDGE type bridge
-sudo ip link set dev $BRIDGE up
-sudo ip link set dev $BRIDGE type bridge forward_delay 0
-
-# Add physical interface to bridge
-sudo ip link set dev $PHY master $BRIDGE
-
-# Create tap device
-sudo ip tuntap add dev $TAP mode tap
-sudo ip link set dev $TAP up
-
-# Add tap to bridge
-sudo ip link set dev $TAP master $BRIDGE
-
-# Get an address to the bridge
-sudo dhclient $BRIDGE
-
-# Start crossvm
-
-sudo ./crosvm/target/release/crosvm run \
-  linux/arch/x86/boot/bzImage \
-  -c 4 -m size=4096 \
-  --disable-sandbox \
-  --block debian-12.img \
-  -p "root=/dev/vda1" \
-  --v4l2-proxy /dev/video0 \
-  --gpu backend=virglrenderer \
-  --net tap-name=crossvm_tap,vhost-net
+Regards,
+Mauro
