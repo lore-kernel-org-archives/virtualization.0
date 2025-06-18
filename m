@@ -1,68 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 283E82F3628
-	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:40:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43E3C2F4A09
+	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:40:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750268425; cv=none; b=Pqpf0M7r8RZ/TrYsTsjtnUIyIs2TJ68BMJ28eMhqaWSGMRQKQYLSpvzRhG+NWa1fhNWMNcFayq/X0CySVnit2Ft/lzGlj9Dvy0YLWVwcpIcmyVpaszuvE6RO20Nf9dIAYfhXZsENqViQt/DrrIYXIWoGn9KRNvDV12w/iSMzAMc=
+	t=1750268428; cv=none; b=L062bTMompApo/vx70KtufNpxLsReJocM05bzRzusaY2Id9DD1CDMoqMyrQgU2xxiMzVIJLEuLAkvk136JRLJ4NZUNWVbcKX/q1mPIykkk/+gCG0NwvWxYNrSuhQ2aMPN+lb79Wd8nmfvPLp1s3sIAoyeQpx2buc12raPdyx0Lg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750268425; c=relaxed/simple;
-	bh=wZPj40i4K0nP1rLk9miNRYxiRA1RvKM5Mt/qKLAFa8U=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=KroVp1vx//3ayKPIK9AC4RiYpP6nrqnh1dBglpqyaYytDkiTMXDwRxEavw/KZZan1NGxCE+ymWvNOGzgsBXF0gBL30M3A2l+5fFvbBwLqBVol8z+mebiZNJJDh75sNFokj3qvarw5ai1Ot9uwDmYbjNsXt6I3hXLSv0sPVSkefE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZoUPmrG+; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1750268428; c=relaxed/simple;
+	bh=HoU6IkwEzSx0bRpH46YFQR6C5ixdQUXKWK5iDFNMOt0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:content-type; b=fZijgoWG5vTG7lq+O5va5GY+C01v9tXnYB30prAq3VpStES6MRYprZ/aE1ow7RI3afOU/hJcjpb8g8D+0hNLLxAlnuaNrxdEMfAx8APzaeKpnh3Wvl3TyzDXi3SH5AhxN7cib+0c69w0zupzrGb1M6uRCLoMmECHyfwxI8R4lsw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LtO0rv1k; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZoUPmrG+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LtO0rv1k"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750268420;
+	s=mimecast20190719; t=1750268425;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=kAt9cuNNODAnXK/nmmtOZ1rnZLVGre0BG0UABQvpVBg=;
-	b=ZoUPmrG+/R0WOLmpIjvXJsAmpaOm3iQrbJPNfkW3qoBewGK2cBdbHILPpK5zZP3gd31+wO
-	YFKajkWJXXL+iqEMfWC96l6xB3BgHaTqtUE5ZTe6x97/RiItDhG/Z+ixAGo4jmRip3ob8f
-	WwhJHzc/tAaqQd2z3NxiBQNbo7KxZIo=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=hwmXAEBDYo8DkjDdp6VkbgoCuZIqYMKAJtJSkdjCkPU=;
+	b=LtO0rv1kmmtMQysEqiTi2wckTA+8gI/KcHuPyKUTc0+0ZqMrgYeFgovTza3YI05YdqDAgC
+	h18zd2v89szmURdQ0EaJYlJyidN20OJejvRsRpNKzMFnYpr7aYNfq9bUVTgQd84XheGQtz
+	4k7poyKdP7zb5A/CkafM+frvB1UndBo=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-591-WjDuCl3UOq2X9OVBViX1CA-1; Wed, 18 Jun 2025 13:40:18 -0400
-X-MC-Unique: WjDuCl3UOq2X9OVBViX1CA-1
-X-Mimecast-MFC-AGG-ID: WjDuCl3UOq2X9OVBViX1CA_1750268418
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4532ff43376so56383525e9.3
-        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:40:18 -0700 (PDT)
+ us-mta-601-o72ZK9CHPcmAK5I-LhluVA-1; Wed, 18 Jun 2025 13:40:24 -0400
+X-MC-Unique: o72ZK9CHPcmAK5I-LhluVA-1
+X-Mimecast-MFC-AGG-ID: o72ZK9CHPcmAK5I-LhluVA_1750268423
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-45311704cdbso37816155e9.1
+        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:40:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750268417; x=1750873217;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kAt9cuNNODAnXK/nmmtOZ1rnZLVGre0BG0UABQvpVBg=;
-        b=rfWMKwjQuNr91XGRkvGgHJq/Tpmx1jcoiMBFmzT4KovtR7AIzdl0v9gz1WPd0a5l0z
-         aO+zqMXuzGrp3mQRFSmMOSLdxTDG75kOwef9+00S4kMmWQL2is0YCeRdQ5JeKGlavS3N
-         ZDPPVy1VibEYWm+6tX90NhuE8YKCtDq5aTrmG3XNYGZ91a1FjTA+mxgrIS8AfiTMEYJT
-         9iAHjEPXbsZAMYi6WYqHaZZhZGV6gbpgN1OAiyZrCuVifolLTpnp/0SVx+oTrMDFRJpb
-         /HlcltFpBeKszbU3UrdOSmcMyVtJp0kPWSOubD4AJ2J/Ez3fS0+3rRoYiuvnJCr0Xmuo
-         FcVA==
-X-Forwarded-Encrypted: i=1; AJvYcCVdn4mBY77grxYUVH74k7yXXelDo+d7ebBIBKO+8UjiMatQftMPLu9yG7FIFHBaHd9dQuMDUpA05KfF2Ka24A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxCZWYl3lQIkd0xQOw8HhYRIZQ8wDReuG/5cyL+kBF8zeF5FuBF
-	DtwBGHWNvXA35aQenDWHDQ5W38coZ45wWksSr+RFhk1lJsK5UrKjiP6Si+tibDwufwiCfSSxmOQ
-	1GevRXBfOd8c9gAHFyKBXO+WBd739kiiejcDTnfbuYLDFplvv2bD1lVERfkv1nQFQBptJ
-X-Gm-Gg: ASbGncusVpl5XvGLrZYZwSfxSqPIw/geK7TY1FgFLlsdnIQ7iBaKa0fMhfkCr8TUWL1
-	OAdwTZj55E+79lvo2LHImxBF2er6WqJD/ya+/rA0NPHcBglEjgDDh9MUgOAwnOR0nAcOzZ4dX4f
-	Lh7AxBJzOyzRvP60ti5rlzmfd59wLts3Q4AmlmACsIMh+Ojr4bVarjFXneq1OB3KxEBsdtPr7Ue
-	Nz48urUVL2QayGREUarAuVqff3ArW/Io/th2NohLtSFi2Ma+EX5VLUfPS3CEf3zI5KxMaCeEQmY
-	Upu9x3yJnt2KFKSgSkpt8ZgJTgVKHuvz+LbeYO+R+o+M8ZA5AtVrAC33inHppHWio65jPRjBGQO
-	LuWcifw==
-X-Received: by 2002:a05:600c:c117:b0:450:d4ad:b7de with SMTP id 5b1f17b1804b1-4533cc69257mr159131855e9.3.1750268417465;
-        Wed, 18 Jun 2025 10:40:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEK6CJuAqwp4upaUAFmgBr8NRJjk1YOp/gZr+QzQDI0/4bBlZLAGc6Vo1CG+p/mbQiC9c5VzA==
-X-Received: by 2002:a05:600c:c117:b0:450:d4ad:b7de with SMTP id 5b1f17b1804b1-4533cc69257mr159131415e9.3.1750268417023;
-        Wed, 18 Jun 2025 10:40:17 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1750268423; x=1750873223;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=hwmXAEBDYo8DkjDdp6VkbgoCuZIqYMKAJtJSkdjCkPU=;
+        b=UqRrXnhPAmX8/CO4jKMLgXqwlx+VG7kpsRAe7bHwT70XmgdiDGigM+APPid0NzHEyQ
+         8sGyY8HvdcV50zL/4FEUrb/Oj18wF8Ym8txG8SCzlJp6G582JpPiIXZuoiGf3VcpNm3Y
+         yRr4tyks1Z4xZxf3S8SzPWvetfkbOSY92BVQrKwFq6ump1oV4bK3oik3r+BDyIX7iaNd
+         wOzYEusFfMw/8MiYpGP68dBEqc/QTOq/3gT3GeFzGh6bhBlcbfWyiiRATD7hs+ohMg80
+         lZzvqDlBCVQpZ7Gx/Oy73dq4QWcgS93b/9UOmR+MzJ7W2g/u8RUkAZ6E/bf2SY9d+hzr
+         QIaQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUlAS1ipBUpy5gaxFSz1n6i0E+NyBv0uuhvRtGGjdjgj05mWB3xLPAL1kip+I/ioGCMA3qTNmwrIF1zjLB76w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzbkMmDbx9Rj5GATzatHpfEoiQx2E3zFVrA3YMRyKkFIdu6laS5
+	6ndiAkcs/3+HjlR7QMbbi//DzBwq2W5lTLogZ+H4ut16Ft64Qb/qwRlxjxwUO/LCdIKJ/EpEAeX
+	0jl/HDOZOzJ//FG4Mk0c/d2nX4AP8wg4VkUrh/0bf4JylXQ/qWBFBBTM0+mefkcVdLZKC
+X-Gm-Gg: ASbGnctXpEZP6C3elK4UxwdDACg5g5iC2JvxvYa2iEapw2CGBzvBr5C4j5wieO3P7gw
+	xW/Ecw91LAFFgUp0yQ0l9mXfhzHFPPGelXfKLt7KH3L6d9A1XpqJhNsSB02LscTKPBCx/EwpMXG
+	wW8fIhPQZoZ5t8XpB8LYguizdxRNAgueUBLtaZRq3fcWdgDAmlKEMdO3fGHIQ9sPTPg9Ryoosf0
+	hiYqyFPSVxvyhk+7r8IwbJFBAXF3DguKxFjyMvNHRcLFpTbpaNa3POvLQ3dtKIqNGli4oSIjDIo
+	2+Xyt6iJnYElX0eypp7TsfCOr1UKrKaJsDOZRj+2dnG7s33N72z5gMureH/HNbBPOzUa4WIhcBd
+	jJR8qLQ==
+X-Received: by 2002:a05:600c:1d8c:b0:43c:e70d:44f0 with SMTP id 5b1f17b1804b1-4533caad0aemr171055425e9.19.1750268422792;
+        Wed, 18 Jun 2025 10:40:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFFNY4J8Mn4IFBBexw6iB/8oHFBQjZ0Pcfadu7y3OlxCDXC24glKPTWmaukP08KWSs+L7QyIw==
+X-Received: by 2002:a05:600c:1d8c:b0:43c:e70d:44f0 with SMTP id 5b1f17b1804b1-4533caad0aemr171055095e9.19.1750268422300;
+        Wed, 18 Jun 2025 10:40:22 -0700 (PDT)
 Received: from localhost (p200300d82f2d2400405203b5fff94ed0.dip0.t-ipconnect.de. [2003:d8:2f2d:2400:4052:3b5:fff9:4ed0])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4535ead2a84sm3430235e9.32.2025.06.18.10.40.14
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4535ebcecdcsm3339075e9.36.2025.06.18.10.40.20
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Jun 2025 10:40:16 -0700 (PDT)
+        Wed, 18 Jun 2025 10:40:21 -0700 (PDT)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -118,10 +120,12 @@ Cc: linux-mm@kvack.org,
 	Harry Yoo <harry.yoo@oracle.com>,
 	Qi Zheng <zhengqi.arch@bytedance.com>,
 	Shakeel Butt <shakeel.butt@linux.dev>
-Subject: [PATCH RFC 00/29] mm/migration: rework movable_ops page migration (part 1)
-Date: Wed, 18 Jun 2025 19:39:43 +0200
-Message-ID: <20250618174014.1168640-1-david@redhat.com>
+Subject: [PATCH RFC 02/29] mm/balloon_compaction: convert balloon_page_delete() to balloon_page_finalize()
+Date: Wed, 18 Jun 2025 19:39:45 +0200
+Message-ID: <20250618174014.1168640-3-david@redhat.com>
 X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250618174014.1168640-1-david@redhat.com>
+References: <20250618174014.1168640-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -129,151 +133,172 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: q-EvXG6Q7b3V82-Yxb-LUzlAYoU0JAYShxHfH4Utuas_1750268418
+X-Mimecast-MFC-PROC-ID: fGs8iY4bIO4QLiw5MHDwdz4tTsgTGfeZJIHgBjFkQD4_1750268423
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Based on mm/mm-new.
+Let's move the removal of the page from the balloon list into the single
+caller, to remove the dependency on the PG_isolated flag and clarify
+locking requirements.
 
-In the future, as we decouple "struct page" from "struct folio", pages
-that support "non-lru page migration" -- movable_ops page migration
-such as memory balloons and zsmalloc -- will no longer be folios. They
-will not have ->mapping, ->lru, and likely no refcount and no
-page lock. But they will have flags :)
+We'll shuffle the operations a bit such that they logically make more sense
+(e.g., remove from the list before clearing flags).
 
-This is the first part (other parts not written yet) of decoupling
-movable_ops page migration from folio migration.
+In balloon migration functions we can now move the balloon_page_finalize()
+out of the balloon lock and perform the finalization just before dropping
+the balloon reference.
 
-In this series, we get rid of the ->mapping usage, and start cleaning up
-the code + separating it from folio migration.
+Document that the page lock is currently required when modifying the
+movability aspects of a page; hopefully we can soon decouple this from the
+page lock.
 
-Migration core will have to be further reworked to not treat movable_ops
-pages like folios. This is the first step into that direction.
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ arch/powerpc/platforms/pseries/cmm.c |  2 +-
+ drivers/misc/vmw_balloon.c           |  3 +-
+ drivers/virtio/virtio_balloon.c      |  4 +--
+ include/linux/balloon_compaction.h   | 43 +++++++++++-----------------
+ mm/balloon_compaction.c              |  3 +-
+ 5 files changed, 21 insertions(+), 34 deletions(-)
 
-RFC because I only did some light testing with virtio-balloon + zsmalloc
-page migration, and have to polish some patch descriptions.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Jerrin Shaji George <jerrin.shaji-george@broadcom.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: "Eugenio Pérez" <eperezma@redhat.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Matthew Brost <matthew.brost@intel.com>
-Cc: Joshua Hahn <joshua.hahnjy@gmail.com>
-Cc: Rakie Kim <rakie.kim@sk.com>
-Cc: Byungchul Park <byungchul@sk.com>
-Cc: Gregory Price <gourry@gourry.net>
-Cc: Ying Huang <ying.huang@linux.alibaba.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Brendan Jackman <jackmanb@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Xu Xin <xu.xin16@zte.com.cn>
-Cc: Chengming Zhou <chengming.zhou@linux.dev>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Naoya Horiguchi <nao.horiguchi@gmail.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Harry Yoo <harry.yoo@oracle.com>
-Cc: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: Shakeel Butt <shakeel.butt@linux.dev>
-
-
-David Hildenbrand (29):
-  mm/balloon_compaction: we cannot have isolated pages in the balloon
-    list
-  mm/balloon_compaction: convert balloon_page_delete() to
-    balloon_page_finalize()
-  mm/zsmalloc: drop PageIsolated() related VM_BUG_ONs
-  mm/page_alloc: allow for making page types sticky until freed
-  mm/balloon_compaction: make PageOffline sticky
-  mm/zsmalloc: make PageZsmalloc() sticky
-  mm/migrate: rename isolate_movable_page() to
-    isolate_movable_ops_page()
-  mm/migrate: rename putback_movable_folio() to
-    putback_movable_ops_page()
-  mm/migrate: factor out movable_ops page handling into
-    migrate_movable_ops_page()
-  mm/migrate: remove folio_test_movable() and folio_movable_ops()
-  mm/migrate: move movable_ops page handling out of move_to_new_folio()
-  mm/zsmalloc: stop using __ClearPageMovable()
-  mm/balloon_compaction: stop using __ClearPageMovable()
-  mm/migrate: remove __ClearPageMovable()
-  mm/migration: remove PageMovable()
-  mm: rename __PageMovable() to page_has_movable_ops()
-  mm/page_isolation: drop __folio_test_movable() check for large folios
-  mm: remove __folio_test_movable()
-  mm: stop storing migration_ops in page->mapping
-  mm: convert "movable" flag in page->mapping to a page flag
-  mm: rename PG_isolated to PG_movable_ops_isolated
-  mm/page-flags: rename PAGE_MAPPING_MOVABLE to PAGE_MAPPING_ANON_KSM
-  mm/page-alloc: remove PageMappingFlags()
-  mm/page-flags: remove folio_mapping_flags()
-  mm: simplify folio_expected_ref_count()
-  mm: rename PAGE_MAPPING_* to FOLIO_MAPPING_*
-  docs/mm: convert from "Non-LRU page migration" to "movable_ops page
-    migration"
-  mm/balloon_compaction: "movable_ops" doc updates
-  mm/balloon_compaction: provide single balloon_page_insert() and
-    balloon_mapping_gfp_mask()
-
- Documentation/mm/page_migration.rst  |  39 ++--
- arch/powerpc/platforms/pseries/cmm.c |   2 +-
- drivers/misc/vmw_balloon.c           |   3 +-
- drivers/virtio/virtio_balloon.c      |   4 +-
- fs/proc/page.c                       |   4 +-
- include/linux/balloon_compaction.h   |  90 ++++-----
- include/linux/fs.h                   |   2 +-
- include/linux/migrate.h              |  42 +----
- include/linux/mm.h                   |   4 +-
- include/linux/mm_types.h             |   1 -
- include/linux/page-flags.h           | 104 +++++++----
- include/linux/pagemap.h              |   2 +-
- include/linux/zsmalloc.h             |   2 +
- mm/balloon_compaction.c              |  21 ++-
- mm/compaction.c                      |  44 +----
- mm/gup.c                             |   4 +-
- mm/internal.h                        |   2 +-
- mm/ksm.c                             |   4 +-
- mm/memory-failure.c                  |   4 +-
- mm/memory_hotplug.c                  |   8 +-
- mm/migrate.c                         | 269 +++++++++++++++------------
- mm/page_alloc.c                      |  12 +-
- mm/page_isolation.c                  |  12 +-
- mm/rmap.c                            |  16 +-
- mm/util.c                            |   6 +-
- mm/vmscan.c                          |   6 +-
- mm/zpdesc.h                          |  15 +-
- mm/zsmalloc.c                        |  29 ++-
- 28 files changed, 361 insertions(+), 390 deletions(-)
-
-
-base-commit: 21f39cc0346ea2081a83f0469995144d75d23075
+diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
+index 5f4037c1d7fe8..5e0a718d1be7b 100644
+--- a/arch/powerpc/platforms/pseries/cmm.c
++++ b/arch/powerpc/platforms/pseries/cmm.c
+@@ -532,7 +532,6 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+ 
+ 	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+ 	balloon_page_insert(b_dev_info, newpage);
+-	balloon_page_delete(page);
+ 	b_dev_info->isolated_pages--;
+ 	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+ 
+@@ -542,6 +541,7 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+ 	 */
+ 	plpar_page_set_active(page);
+ 
++	balloon_page_finalize(page);
+ 	/* balloon page list reference */
+ 	put_page(page);
+ 
+diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+index c817d8c216413..6653fc53c951c 100644
+--- a/drivers/misc/vmw_balloon.c
++++ b/drivers/misc/vmw_balloon.c
+@@ -1778,8 +1778,7 @@ static int vmballoon_migratepage(struct balloon_dev_info *b_dev_info,
+ 	 * @pages_lock . We keep holding @comm_lock since we will need it in a
+ 	 * second.
+ 	 */
+-	balloon_page_delete(page);
+-
++	balloon_page_finalize(page);
+ 	put_page(page);
+ 
+ 	/* Inflate */
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 89da052f4f687..e299e18346a30 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -866,15 +866,13 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ 	tell_host(vb, vb->inflate_vq);
+ 
+ 	/* balloon's page migration 2nd step -- deflate "page" */
+-	spin_lock_irqsave(&vb_dev_info->pages_lock, flags);
+-	balloon_page_delete(page);
+-	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
+ 	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 	set_page_pfns(vb, vb->pfns, page);
+ 	tell_host(vb, vb->deflate_vq);
+ 
+ 	mutex_unlock(&vb->balloon_lock);
+ 
++	balloon_page_finalize(page);
+ 	put_page(page); /* balloon reference */
+ 
+ 	return MIGRATEPAGE_SUCCESS;
+diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
+index 5ca2d56996201..b9f19da37b089 100644
+--- a/include/linux/balloon_compaction.h
++++ b/include/linux/balloon_compaction.h
+@@ -97,27 +97,6 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+ 	list_add(&page->lru, &balloon->pages);
+ }
+ 
+-/*
+- * balloon_page_delete - delete a page from balloon's page list and clear
+- *			 the page->private assignement accordingly.
+- * @page    : page to be released from balloon's page list
+- *
+- * Caller must ensure the page is locked and the spin_lock protecting balloon
+- * pages list is held before deleting a page from the balloon device.
+- */
+-static inline void balloon_page_delete(struct page *page)
+-{
+-	__ClearPageOffline(page);
+-	__ClearPageMovable(page);
+-	set_page_private(page, 0);
+-	/*
+-	 * No touch page.lru field once @page has been isolated
+-	 * because VM is using the field.
+-	 */
+-	if (!PageIsolated(page))
+-		list_del(&page->lru);
+-}
+-
+ /*
+  * balloon_page_device - get the b_dev_info descriptor for the balloon device
+  *			 that enqueues the given page.
+@@ -141,12 +120,6 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+ 	list_add(&page->lru, &balloon->pages);
+ }
+ 
+-static inline void balloon_page_delete(struct page *page)
+-{
+-	__ClearPageOffline(page);
+-	list_del(&page->lru);
+-}
+-
+ static inline gfp_t balloon_mapping_gfp_mask(void)
+ {
+ 	return GFP_HIGHUSER;
+@@ -154,6 +127,22 @@ static inline gfp_t balloon_mapping_gfp_mask(void)
+ 
+ #endif /* CONFIG_BALLOON_COMPACTION */
+ 
++/*
++ * balloon_page_finalize - prepare a balloon page that was removed from the
++ *			   balloon list for release to the page allocator
++ * @page: page to be released to the page allocator
++ *
++ * Caller must ensure that the page is locked.
++ */
++static inline void balloon_page_finalize(struct page *page)
++{
++	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION)) {
++		__ClearPageMovable(page);
++		set_page_private(page, 0);
++	}
++	__ClearPageOffline(page);
++}
++
+ /*
+  * balloon_page_push - insert a page into a page list.
+  * @head : pointer to list
+diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+index fcb60233aa35d..ec176bdb8a78b 100644
+--- a/mm/balloon_compaction.c
++++ b/mm/balloon_compaction.c
+@@ -94,7 +94,8 @@ size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
+ 		if (!trylock_page(page))
+ 			continue;
+ 
+-		balloon_page_delete(page);
++		list_del(&page->lru);
++		balloon_page_finalize(page);
+ 		__count_vm_event(BALLOON_DEFLATE);
+ 		list_add(&page->lru, pages);
+ 		unlock_page(page);
 -- 
 2.49.0
 
