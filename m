@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A8322F546B
-	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:40:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B52D92F49E3
+	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:40:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750268433; cv=none; b=SRsallKatkBAos1xhWgo/wA+SlUluObkj869/IOFE/tNwUAWGZ6pWGx2nxVkEplgyzE1FfcK4gcalbBMh+Z45WyRhjFCEcdVBJok6jFF6iHyCuKJeoT9PGbLfIY81w8E4mQeWAaNb+vYuNlKzT1g9TvYYHCgkofPQLfKKlqqIdU=
+	t=1750268435; cv=none; b=XprkyfTR3/6p7J/jAMReqOBkc+nAEo/JU7o3yA7lc+fZtIvCIqoN9A6J/CmcOAHTLzg/OtnyHfh4FTPBmXeFO6ZJQPxy7RQIhcjGy2o75J4JeviS5Z/RX1xNL1YMyaLugeew4UhfEdKYfJ1MQPbTdNG9TY2oBX/REnyUKvR4eNk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750268433; c=relaxed/simple;
-	bh=LfUaIY7XKmkW22E2CA7zcjn2zCtCLb3wGZMadkbbvUs=;
+	s=arc-20240116; t=1750268435; c=relaxed/simple;
+	bh=LoSKhKhxUdNaBIY5unlgO/URzAbM3vnT3E6jz3vT77c=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=cYRBpfVwcnyUsEMjZ9NVAv83ogDtxmPjMWhoTYoZvUPrykX5lCb3Cyim/+Pv5pw72oB9zUVjZcqZH3Lny6jNp4E+v2/Ib4K0uSQaN8mpEtGfxgFV3Mu9Sqg644MICPWU/uSUSu2Owbllr/0rUMVK8M0CgvROVl/NJZ4HULMrbxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A7zeA9na; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:content-type; b=ahTQMch4AudQamhspLWBuUPU1jiVTUkKFyCDwlBb4dQIkxydh+RHku01y6OijHM/sjYzF+JeKoZnylShdBm54KmZA/NGBZbYbHjTBto/4DYAMpSIwGpFjFjQEMk+S487fvp/aB61vMCvP8SqavGB601mBu2rZz2r+SWH4ARI6yA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hAoFe5SW; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A7zeA9na"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hAoFe5SW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750268422;
+	s=mimecast20190719; t=1750268429;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ztkVXhL49uhBZn35+Dz91j/1BkEFGTeWr88qG2zBn1I=;
-	b=A7zeA9nayFIPuyR+a2hQ0HDl/NMWD30aGpXQ5P49dghledM57aJrJR548gXJ8GBH/OVDxs
-	uslNK1mqJNaRvGgA2CB6AO9Trz6BLlinoYglJSrLwmoizClZ3s+bgvyvA5JJq/S0c8F+Qm
-	jGDruWHxEHivVIF94kcOuyu7+Ee2HEk=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=S7FgUVlGmmQh/Fden7VOoWF093l0D6F2nUhdFZr7YaQ=;
+	b=hAoFe5SWRuTwdmsgRTJ4buscK3J1gocVvf0qxLPtKqKgVaJdOKNCBWpDWrTOSI3bs/S2v+
+	L31OMyEiw/9kx4cO469q+WBBaDy7GhiVU/zx8VWup7GtVNlBsEI4S2BY7P36vt4rxOOzBG
+	baZc/mQxib3Zb65l0kg2W6hnQhK/GNQ=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-562-uuBqEVPyNeWPOaw9gM7N5w-1; Wed, 18 Jun 2025 13:40:21 -0400
-X-MC-Unique: uuBqEVPyNeWPOaw9gM7N5w-1
-X-Mimecast-MFC-AGG-ID: uuBqEVPyNeWPOaw9gM7N5w_1750268420
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a56b3dee17so508810f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:40:21 -0700 (PDT)
+ us-mta-264-_Ctd-LmBMuyn7DjfplwKqQ-1; Wed, 18 Jun 2025 13:40:26 -0400
+X-MC-Unique: _Ctd-LmBMuyn7DjfplwKqQ-1
+X-Mimecast-MFC-AGG-ID: _Ctd-LmBMuyn7DjfplwKqQ_1750268425
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a4f8192e2cso3544946f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:40:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750268420; x=1750873220;
+        d=1e100.net; s=20230601; t=1750268425; x=1750873225;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ztkVXhL49uhBZn35+Dz91j/1BkEFGTeWr88qG2zBn1I=;
-        b=A2poC+vY/0Y/erLglodQrt7kYjuzzssfqJ+c1sFAx5LoC1MjuHj0gt6vWV/rQFA14G
-         TRgE+1MiOWI3kZOaUH1+VnFYnVNxzs0bgg14IIdTGfOhGI6ixIyFLAjHtRiMnIbycOqe
-         jhSx6IasJNCPGQIqUKDmQKfedN1M9SA6gJji9T4LrLdcQW+yx9FrYC5Dm3J9cr3GBDwS
-         gec2GXwQ9dAKLzbXVwECsG7c9IqyXY1rqjZhZWPwLoV1iwh4er4J/dtQ/7tu2rCNY/tB
-         RUuWjVRAqI+3ZRUX4VdW8p6+uNa9K+KKgfi+NGu+GKT3wOZRJtxKr0NA5kLBRMSh+Vav
-         /O6A==
-X-Forwarded-Encrypted: i=1; AJvYcCUKBYJVLik1Hj/k1cqKhA+mG60yb4IQRnQnUirHRPxI0b3rdFmnZe1BJLNU4H9nFSiCB1CHDdwZXO2Kbl07Xw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwZgkFUZeFuq4bof9DqEXxC+1hpRkvwHhugnBx0IZKJEz3Wm1Bz
-	yM3llNtHA6N1byV+I4PAB8eYi6mHPBv/L0tV1VEhS3nsT+MkMhVhC5W3vBD6YvPssOHNsfZWZAx
-	1/iC585shpovBd/herlBd7iPBfcgIJvQH1L17qYuypEjeQnxLb5IHtaKg/c9TP6UpIh7U
-X-Gm-Gg: ASbGncsD/kb/9oKcxV21BELWV0J/pMLtEBHaQVJ9/ngGCnPdh/Jh9XaCTGBHJbrqfrS
-	1WPjaw5vnFymA9n4beLfvjG0J+yb4+dBbShN3fBeLJTIOQVieA/GaOdkf5zB8NOUDFn6aPhzBkA
-	WI2Ff0Ss5DsftrJKFn2+uRoIXXWC0Q/IfEXWMwRXgbWOe6uO8+b4kcMBo3Vltg8diOkTp875Gct
-	ZHoIMZkZR72Q3+37nms+pzAy7aqvxWuJv99Cs1HLn12k7j6LyBTq/Q/AJktH3bpBUkyLRL8mLnL
-	YG4Dw3UN6amRCcIxzmScNFhz8tbf8r8Fo/t9ovHyeRlIpYXe0QYvPxKwAEvvCcuM0sveyaskE/z
-	ulGj6cw==
-X-Received: by 2002:a05:6000:22c1:b0:3a4:f7dd:6fad with SMTP id ffacd0b85a97d-3a6c96bde70mr478044f8f.14.1750268420148;
-        Wed, 18 Jun 2025 10:40:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGdKc/sogX7P8eUPuNrS35oj8SOpb+inlndXsECh3VUw/sMAlaRsKTNBWIAReSnT0M7eOt7jg==
-X-Received: by 2002:a05:6000:22c1:b0:3a4:f7dd:6fad with SMTP id ffacd0b85a97d-3a6c96bde70mr477976f8f.14.1750268419626;
-        Wed, 18 Jun 2025 10:40:19 -0700 (PDT)
+        bh=S7FgUVlGmmQh/Fden7VOoWF093l0D6F2nUhdFZr7YaQ=;
+        b=QW6wvsfCiKeAKbx8wg25032w/bKo2cDWGspD0eSyZxrAayaOzUuQFjjfGYAOu1qWk9
+         Os6/X/YXIxpDH2ZzkCXlDYNOq10Mp9JnsV23TzX51iPJu39HYQQgSUMclo4A4B4zoGZc
+         Pmc9Rez1pc4OnMrVrLw9DZI/2kvsrRrYJSuZYtRrahCgkHxX4Q2BP7kIieGUUM72SfrB
+         bIYtq3UgVhIKZ0ViHSJZmdkILGcXvoW1sTWfA+Cxq1Nj9s/4iyvHt0+IkFET/G0Mu075
+         +2Po/Tun9Dejn13wNfyKCM5i7miouc8PcpsXnKwpHhr9hwZPubhLkIxmWIgUHyWX/zNW
+         K8kQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUUJgtTZpu4F7/0MR62jPUbRnRq+R8doXVeLZ4XyfWSYSrZURORumHg2te6VfcykdMneWmxrsZHebi5aCfnAA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwStRLpXoO3qPy1yQLBqCxGvMCwCoTGwi1u2u2oM6j1wTT+Xdup
+	RJEpusYmZbEn5jO6P5SQygNHjcmb2Onsu0JkJsRxOBnXwHeWvr1OyN07URZ/Rn78BdtfQUNii9i
+	KzuHtESlhqxkUXoNJUr1KHqNFIfO/H3/+wirPIN7d168inVJtOVJX7r6lauhJSb+OA+xC
+X-Gm-Gg: ASbGncsFvHCd8s+HtuwXBw2ndDE9GqWSjBjFj1GgiZ6JaOFFDa6vm1IutHWqHodWsyh
+	VT/FqnikRxO1vbWVhgH3Gxo0BR1Z+zdjC1TBMlJUS41brSISB1hPseQORU8U8msBMhyjW0kDnAL
+	ILzF1JM+EG/XruV0ShrfQ2w5I08D4DXU/bSW0F9yDjM3rcI+gTQYPD1jBE0StLRcIMZKCAvohhr
+	hs+BiVPMDiXrY7y261yGzJjx70e16wc70ivEPdyfMRoWmmrd53nOrw4Zv4yrJF/Wyt0k7Sf5udu
+	bQsST0vAL9WQmdLI3nU78TNRGEMQW4N1uM3H0GwgjpPN3iBONOkqDn3MUCS2uIWfyVikl3ejlEI
+	knozaWA==
+X-Received: by 2002:a05:6000:2c0f:b0:3a4:ed2f:e80c with SMTP id ffacd0b85a97d-3a5723a3f92mr15706280f8f.31.1750268425297;
+        Wed, 18 Jun 2025 10:40:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEayKPP2LeH5F/Ng3XTSzlfhGIAIvFkyNEolXxAmF4Ok7MzyUOG21uTMpu2qvZTdT619UlY2Q==
+X-Received: by 2002:a05:6000:2c0f:b0:3a4:ed2f:e80c with SMTP id ffacd0b85a97d-3a5723a3f92mr15706239f8f.31.1750268424824;
+        Wed, 18 Jun 2025 10:40:24 -0700 (PDT)
 Received: from localhost (p200300d82f2d2400405203b5fff94ed0.dip0.t-ipconnect.de. [2003:d8:2f2d:2400:4052:3b5:fff9:4ed0])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3a568b0898fsm17901600f8f.54.2025.06.18.10.40.17
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3a568a547ecsm17734777f8f.17.2025.06.18.10.40.23
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Jun 2025 10:40:19 -0700 (PDT)
+        Wed, 18 Jun 2025 10:40:24 -0700 (PDT)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -120,9 +120,9 @@ Cc: linux-mm@kvack.org,
 	Harry Yoo <harry.yoo@oracle.com>,
 	Qi Zheng <zhengqi.arch@bytedance.com>,
 	Shakeel Butt <shakeel.butt@linux.dev>
-Subject: [PATCH RFC 01/29] mm/balloon_compaction: we cannot have isolated pages in the balloon list
-Date: Wed, 18 Jun 2025 19:39:44 +0200
-Message-ID: <20250618174014.1168640-2-david@redhat.com>
+Subject: [PATCH RFC 03/29] mm/zsmalloc: drop PageIsolated() related VM_BUG_ONs
+Date: Wed, 18 Jun 2025 19:39:46 +0200
+Message-ID: <20250618174014.1168640-4-david@redhat.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250618174014.1168640-1-david@redhat.com>
 References: <20250618174014.1168640-1-david@redhat.com>
@@ -133,39 +133,66 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -0X_-BVsCJ7pz3fWxo1WoNQ783iajPrxjBXVdkdOn_E_1750268420
+X-Mimecast-MFC-PROC-ID: Eg5t6B5ITmFsRDpLwwKOSOVMF32O-OqTfxqeq0a4Elw_1750268425
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-The core will set PG_isolated only after mops->isolate_page() was
-called. In case of the balloon, that is where we will remove it from
-the balloon list. So we cannot have isolated pages in the balloon list.
-
-Let's drop this unnecessary check.
+Let's drop these checks; these are conditions the core migration code
+must make sure will hold either way, no need to double check.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/balloon_compaction.c | 6 ------
- 1 file changed, 6 deletions(-)
+ mm/zpdesc.h   | 5 -----
+ mm/zsmalloc.c | 5 -----
+ 2 files changed, 10 deletions(-)
 
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index d3e00731e2628..fcb60233aa35d 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -94,12 +94,6 @@ size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
- 		if (!trylock_page(page))
- 			continue;
+diff --git a/mm/zpdesc.h b/mm/zpdesc.h
+index d3df316e5bb7b..5cb7e3de43952 100644
+--- a/mm/zpdesc.h
++++ b/mm/zpdesc.h
+@@ -168,11 +168,6 @@ static inline void __zpdesc_clear_zsmalloc(struct zpdesc *zpdesc)
+ 	__ClearPageZsmalloc(zpdesc_page(zpdesc));
+ }
  
--		if (IS_ENABLED(CONFIG_BALLOON_COMPACTION) &&
--		    PageIsolated(page)) {
--			/* raced with isolation */
--			unlock_page(page);
--			continue;
--		}
- 		balloon_page_delete(page);
- 		__count_vm_event(BALLOON_DEFLATE);
- 		list_add(&page->lru, pages);
+-static inline bool zpdesc_is_isolated(struct zpdesc *zpdesc)
+-{
+-	return PageIsolated(zpdesc_page(zpdesc));
+-}
+-
+ static inline struct zone *zpdesc_zone(struct zpdesc *zpdesc)
+ {
+ 	return page_zone(zpdesc_page(zpdesc));
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index 999b513c7fdff..7f1431f2be98f 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1719,8 +1719,6 @@ static bool zs_page_isolate(struct page *page, isolate_mode_t mode)
+ 	 * Page is locked so zspage couldn't be destroyed. For detail, look at
+ 	 * lock_zspage in free_zspage.
+ 	 */
+-	VM_BUG_ON_PAGE(PageIsolated(page), page);
+-
+ 	return true;
+ }
+ 
+@@ -1739,8 +1737,6 @@ static int zs_page_migrate(struct page *newpage, struct page *page,
+ 	unsigned long old_obj, new_obj;
+ 	unsigned int obj_idx;
+ 
+-	VM_BUG_ON_PAGE(!zpdesc_is_isolated(zpdesc), zpdesc_page(zpdesc));
+-
+ 	/* The page is locked, so this pointer must remain valid */
+ 	zspage = get_zspage(zpdesc);
+ 	pool = zspage->pool;
+@@ -1811,7 +1807,6 @@ static int zs_page_migrate(struct page *newpage, struct page *page,
+ 
+ static void zs_page_putback(struct page *page)
+ {
+-	VM_BUG_ON_PAGE(!PageIsolated(page), page);
+ }
+ 
+ static const struct movable_operations zsmalloc_mops = {
 -- 
 2.49.0
 
