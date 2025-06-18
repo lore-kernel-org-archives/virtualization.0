@@ -1,70 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A1A32F4A1A
-	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:40:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E3D73DAC02
+	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:40:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750268450; cv=none; b=q07jBkTEQNoz8MgHBiS859lZctQJh8WzuV/ffoCTQ15Fo87czNGJTQI4LvYM6D6hlHtrj5498Bxk2RmwPC/C5+TSRZJ3NKMm9tAv/qefMq8mAy1QCgYTJWUWuTcZcE/EoqxbdRX12EceolLWty4y85lLdCv0jf5Z5s14J1CcM9A=
+	t=1750268452; cv=none; b=WWK1rMP/OPxkS094KyPKTHgJJC/pU66Ea+gtelRbC3wf4b6rPZvq6djlDD2fO7WU4QNPNeZu90ZgRMMd8w9v9GXSGNRH9vO5CcNvJSZjq2G1UGkcWvtj5cIZpPULodGUdKcxqVyrLNA5HYK6JcGGryPNf02JwVSgR90gwtVOvYc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750268450; c=relaxed/simple;
-	bh=zbcjdtHnZ1BcawVRomdGBMsau7cooieEoCmjNLCJMWQ=;
+	s=arc-20240116; t=1750268452; c=relaxed/simple;
+	bh=4i7IUlR1GYEmR6zjKB+4nkWLQlvD9f6ku5JrjlUDoK4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=mwzbR6dWWukIP74DbgbtiLcx4jayo0E4Yi6XiZsXp5NgcVYLYNCPG6fVhx+eg/7dfpJEjtwh0/WH/CA+9evkFMYu45TfO6xeYsmJOVkvX7snQ9Bpg4CmMCGner6+4IZkS32UhW97kVYdTmrpCneFhvO18/uHjSWeFzF9N15NdLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CppTbSKY; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:content-type; b=etq0I8OwFjm0OZ/hABfZQxyNfsv0VDGc3fTRAYmrT9uybhYSRJrOzZjqUBzNhdq0b9eeeQALuswbfx5S6Mr5TJyjMlVZL6p+DkZMfDXbTiXWz84Dhv5j/skSl/5+w4dJEYsMGmC1v4ebPLc101d5rMZ0rslSzcMsn4Rgb8gs+lo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e7Nm/RUU; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CppTbSKY"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e7Nm/RUU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750268442;
+	s=mimecast20190719; t=1750268446;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5rGfc3zUjh7F4hWUWCipVozVPKyNvGr3sO3WbBx9inE=;
-	b=CppTbSKYVFMZK6SzpRCHx9gHLIcl3rKVYYRRy29CCXG+WCYSW5NTWcwzHF8GOzQ4cvTrLW
-	dJ60VNXYu0fNoLowV7RlrD4VimYYO2GbQkqbgXYc/Qt3lmhGCoQA2GnHc4iSWh4UjIoUSL
-	AOU46I5Dr6B9pLQGHmSJyw/jg5dQcbI=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=fwm1uiBUBcXGnja63XmY2QjIjVtNliVfN8dAKrOXwFc=;
+	b=e7Nm/RUUh/I5QNx4/SMJ/Qfr2Ibc0hi9S9YC9aeNNmpf4kSMNR67pdnxRaNlw4O3PvZfHB
+	t5SbIljRlC3af4jJM0U8jgqmS5HNasPJ23MT12I3l3RIx8BRGNx1SM4pnMVVQN5jJ21BJL
+	k+Yq2MgVkhAYvX6RnNVK+OTK7QTsmJE=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-252-tHi0BQoAND-kHafg6xXBOA-1; Wed, 18 Jun 2025 13:40:40 -0400
-X-MC-Unique: tHi0BQoAND-kHafg6xXBOA-1
-X-Mimecast-MFC-AGG-ID: tHi0BQoAND-kHafg6xXBOA_1750268439
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a4eec544c6so2846370f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:40:39 -0700 (PDT)
+ us-mta-641-Sl5YEEYtPceVv84MWj1TAg-1; Wed, 18 Jun 2025 13:40:44 -0400
+X-MC-Unique: Sl5YEEYtPceVv84MWj1TAg-1
+X-Mimecast-MFC-AGG-ID: Sl5YEEYtPceVv84MWj1TAg_1750268444
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3a4eb6fcd88so4232727f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:40:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750268439; x=1750873239;
+        d=1e100.net; s=20230601; t=1750268444; x=1750873244;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5rGfc3zUjh7F4hWUWCipVozVPKyNvGr3sO3WbBx9inE=;
-        b=e9x8GGy2AGkjy++dYO86Sq7beG5t23UVC5+C98S/EwrCVWrAIMZN6vPCM1L2h2fkIX
-         N4OQ7asIYSFXdW+K2ptrZYu0JwDrHDdPCFDgy4qNoEGgM9tSVKwXnJBIULL+S2mOHvfN
-         MUz5/N8ndKMISLqDsa399+D7Gq1YDGWJRQgLs6sajgx4yelotw8f06A+L2agjYhhDv9q
-         exHWNphxeDoL+ipkLBz1H/2Ly608xoPkGbK5mByRUDs9JetwtFsJOnwiksGPOnC3ty+L
-         60wt+KDxxDQCkOZkpfGZBoCXN7ZLnFu3vugMdhIziobb6QtDe+T6PWeu30opH7hNTacs
-         RXJg==
-X-Forwarded-Encrypted: i=1; AJvYcCXPJWSO0SMjFsZ1N/Du3bR9iwOU0vZSMskqOlDbwaBOOpuO0TWx7nluIU6R7fh5exlEYz8+KfUo5DsfZn2qYg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxFtlhggRw9nFUKSPLfNsWPmk9C71DoD2pGaSy4+NLg6zYTs7Uy
-	b/z7mm9UGmPgtfp+OOwros7RCbXvA+GxD4EfUXPXY+PxPNRZGtLkjZgS+a8+9jAklc4znQMH015
-	C5wmvpxO4iHi3jhiLei0J/N/+6GrXDZ7fn5be6Q00o313FA4hplwnRp/CE8focTa4jFeR
-X-Gm-Gg: ASbGncudTGCauaLft3RJ0206TOZ3qFvajBOqnWAJhFhirwTA0qNA3DjMuZ+4ujDc7L+
-	3W+xFwsJiEaTmfivid0veC4mKBjrfQHkQAqpidLzvrbjs6wiWFu/42EqruucGOaDAsu+OwaqrEw
-	LaBE92nJwUsaUySkHrsiS1IN0FcLtEW3R2dAIX6FWGoQ9CNH9uQ+ofbs6WcxX1idOKfCwOeAfuO
-	GUEKR45IGRdcHU9/F7l47hOXZq3kBt9sGIX1ys+Khn50ONtRAL/MLF4HK3L5OfpqK/IgLAxP9e7
-	8ZZ487MJPaHytxzeEEmFFZuwupfdDfK6lzwRYPg6uQOAA3sIejW1+MAmjx1ckW4F50vU44okevB
-	o883ElQ==
-X-Received: by 2002:a05:6000:144f:b0:3a3:7ba5:93a5 with SMTP id ffacd0b85a97d-3a57237c9a7mr17230279f8f.26.1750268438540;
-        Wed, 18 Jun 2025 10:40:38 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGk4wH3M6h2T58ReQA5DPEIh/WOsy58XEgAZ0LBQTHsCj9tNbupSQVC4fwDx3ff0ep2cpGgew==
-X-Received: by 2002:a05:6000:144f:b0:3a3:7ba5:93a5 with SMTP id ffacd0b85a97d-3a57237c9a7mr17230239f8f.26.1750268438093;
-        Wed, 18 Jun 2025 10:40:38 -0700 (PDT)
+        bh=fwm1uiBUBcXGnja63XmY2QjIjVtNliVfN8dAKrOXwFc=;
+        b=tfkf+kEaYH7zVyvdxhU2Tbe1XwQkv808dAvrhT2UoA/vB4X7vTEdk/JDO46zVNJJ32
+         Z5U1qtfK+VU30LWqDyOO8iIceUVyxMibkOxvhjHi1diRiFY2XzH9IjeFJgVDHHS6GPmr
+         /HgE1k5x17aujx4VhMs5WUdg8VQWpX5aDC+NUYEAc7afJ1PuPovG2hvYe3fUXITqXAgU
+         s6Kl/l9//6cKrXyNLe1d11ZqCAUEs5YvxlmLPKZpI6cQPC+VCn+OHLaxINuk8CpxatM3
+         wC7QLPZ2UBviq/lgh3GQQhD6rlMSUVLJgTzZ2BegjBNHb1h6uBv7pK7epWTOTJXwyBMv
+         o97w==
+X-Forwarded-Encrypted: i=1; AJvYcCUtK9joSRJptTccAINeIy+GpAtPztHYs8E8/DN7ikVWQRbY9K9FX57BOfQ1mLuUJWUBbPSJvhbSyMisZCMIlA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwFb/1Xgu72/fl3dc/cl4TlzhyevgLk5LSVWGuT/G5wVfjiea9e
+	b6cu/3tBx+hLUQn0n3yr9ndGuTOr4kA8sTMNhZVYFqBsd8gB6UlbtEFy5LKlsqfPFbISYHKgg5S
+	L0vxyl7l+HOILslu/wr6Iu4MEJ1cWpXZuC5mAx2C2r0LHXK7qp92tqMs9l0I9C0vF4ErT
+X-Gm-Gg: ASbGncuEtShy+X3MO0LnlxNe4PSC1qlp27SHvUbDzFp1hHto/PGuZOtNY50G0BxbYmW
+	nYCRXOY95yUiySUgIMP7qxT8M09yA15MdgML4gYsmh8lhpGggu9V/tziSb1et+s3K6AEYuQ212B
+	5mvqfr0FRTCbnaPl42rpcIPiaA2g9Fmb+HKjxBupwcW8reAbsWg/J7oIlRTyai726CJn58yBape
+	/ejbBravgfRXHuPUCajsJncYRDPJIgyH9GelzuHKyYbvPOloIxJk7gYtokx+ExuIFKFotEoK3rh
+	1bneA17UuPasrde/fVZWLwuAiuM3QHyadUzCyVARJ10WhgTKcZ/pQN47IeGoSla7pH9hoe6lbYw
+	SNVCGqQ==
+X-Received: by 2002:a05:6000:71c:b0:3a4:cfbf:51ae with SMTP id ffacd0b85a97d-3a572367afbmr15684691f8f.4.1750268443738;
+        Wed, 18 Jun 2025 10:40:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEywSnKMkZlpTz2OAMYD8vOZkvPdDtLDDWrsPSDJX8ViTkX0laZRXIHvaFqn8ElXQBewjN+xg==
+X-Received: by 2002:a05:6000:71c:b0:3a4:cfbf:51ae with SMTP id ffacd0b85a97d-3a572367afbmr15684628f8f.4.1750268443292;
+        Wed, 18 Jun 2025 10:40:43 -0700 (PDT)
 Received: from localhost (p200300d82f2d2400405203b5fff94ed0.dip0.t-ipconnect.de. [2003:d8:2f2d:2400:4052:3b5:fff9:4ed0])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3a568a800d9sm17307416f8f.45.2025.06.18.10.40.36
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3a568a54b7asm17688084f8f.16.2025.06.18.10.40.41
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Jun 2025 10:40:37 -0700 (PDT)
+        Wed, 18 Jun 2025 10:40:42 -0700 (PDT)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -120,9 +120,9 @@ Cc: linux-mm@kvack.org,
 	Harry Yoo <harry.yoo@oracle.com>,
 	Qi Zheng <zhengqi.arch@bytedance.com>,
 	Shakeel Butt <shakeel.butt@linux.dev>
-Subject: [PATCH RFC 08/29] mm/migrate: rename putback_movable_folio() to putback_movable_ops_page()
-Date: Wed, 18 Jun 2025 19:39:51 +0200
-Message-ID: <20250618174014.1168640-9-david@redhat.com>
+Subject: [PATCH RFC 10/29] mm/migrate: remove folio_test_movable() and folio_movable_ops()
+Date: Wed, 18 Jun 2025 19:39:53 +0200
+Message-ID: <20250618174014.1168640-11-david@redhat.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250618174014.1168640-1-david@redhat.com>
 References: <20250618174014.1168640-1-david@redhat.com>
@@ -133,77 +133,44 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _R22_IlkodI3_mFRDz9tSQuHYsQPrXxz9-YBrGH8GpM_1750268439
+X-Mimecast-MFC-PROC-ID: asETs_uDD_Tb86PaCcostfD6v52t00pR4D9gwnKe6P8_1750268444
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-... and factor the complete handling of movable_ops pages out.
-Convert it similar to isolate_movable_ops_page().
-
-While at it, convert the VM_BUG_ON_FOLIO() into a VM_WARN_ON_PAGE().
+Folios will have nothing to do with movable_ops page migration. These
+functions are now unused, so let's remove them.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/migrate.c | 37 ++++++++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 13 deletions(-)
+ include/linux/migrate.h | 14 --------------
+ 1 file changed, 14 deletions(-)
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 6bbb455f8b593..32e77898f7d6c 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -133,12 +133,30 @@ bool isolate_movable_ops_page(struct page *page, isolate_mode_t mode)
- 	return false;
+diff --git a/include/linux/migrate.h b/include/linux/migrate.h
+index c0ec7422837bd..c99a00d4ca27d 100644
+--- a/include/linux/migrate.h
++++ b/include/linux/migrate.h
+@@ -118,20 +118,6 @@ static inline void __ClearPageMovable(struct page *page)
  }
+ #endif
  
--static void putback_movable_folio(struct folio *folio)
-+/**
-+ * putback_movable_ops_page - putback an isolated movable_ops page
-+ * @page: The isolated page.
-+ *
-+ * Putback an isolated movable_ops page.
-+ *
-+ * After the page was putback, it might get freed instantly.
-+ */
-+static void putback_movable_ops_page(struct page *page)
- {
--	const struct movable_operations *mops = folio_movable_ops(folio);
+-static inline bool folio_test_movable(struct folio *folio)
+-{
+-	return PageMovable(&folio->page);
+-}
 -
--	mops->putback_page(&folio->page);
--	folio_clear_isolated(folio);
-+	/*
-+	 * TODO: these pages will not be folios in the future. All
-+	 * folio dependencies will have to be removed.
-+	 */
-+	struct folio *folio = page_folio(page);
-+
-+	VM_WARN_ON_ONCE_PAGE(!PageIsolated(page), page);
-+	folio_lock(folio);
-+	/* If the page was released by it's owner, there is nothing to do. */
-+	if (PageMovable(page))
-+		page_movable_ops(page)->putback_page(page);
-+	ClearPageIsolated(page);
-+	folio_unlock(folio);
-+	folio_put(folio);
- }
- 
- /*
-@@ -166,14 +184,7 @@ void putback_movable_pages(struct list_head *l)
- 		 * have PAGE_MAPPING_MOVABLE.
- 		 */
- 		if (unlikely(__folio_test_movable(folio))) {
--			VM_BUG_ON_FOLIO(!folio_test_isolated(folio), folio);
--			folio_lock(folio);
--			if (folio_test_movable(folio))
--				putback_movable_folio(folio);
--			else
--				folio_clear_isolated(folio);
--			folio_unlock(folio);
--			folio_put(folio);
-+			putback_movable_ops_page(&folio->page);
- 		} else {
- 			node_stat_mod_folio(folio, NR_ISOLATED_ANON +
- 					folio_is_file_lru(folio), -folio_nr_pages(folio));
+-static inline
+-const struct movable_operations *folio_movable_ops(struct folio *folio)
+-{
+-	VM_BUG_ON(!__folio_test_movable(folio));
+-
+-	return (const struct movable_operations *)
+-		((unsigned long)folio->mapping - PAGE_MAPPING_MOVABLE);
+-}
+-
+ static inline
+ const struct movable_operations *page_movable_ops(struct page *page)
+ {
 -- 
 2.49.0
 
