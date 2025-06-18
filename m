@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE02D305528
-	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:41:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70C2F306107
+	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:41:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750268499; cv=none; b=FA4cRXcicDFFGwTqNMmqOTiRyV/xKA6yNdYXFTO775Doltodj6G1NNyx5B08xvP/vFlGCGvImD4ZYcZqenFZ8LuWoNzxFTkayGYVlaapRQdC24ETXbeyf/8csA+4lfnfShysGSrTkM/OZldRaDc3CqZ4azTv1TL00pKwa/UavuE=
+	t=1750268503; cv=none; b=WmK/6DoIDMMzoQW/DqMJMKWSoxN2JWzc8SVahcQZqHcblgVo/lG0E8y3r8yVczHX5Lix85y68SnFHx0ypAS49tIGZbjNEi4Ot12Pa26sZ0juhuy3jLpKkzLL6d8BL8nwwnXpcxJ707jKdPpxGm96WOcZduzuPOsn67PnhXL6qjc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750268499; c=relaxed/simple;
-	bh=xmAX6FaG7PwzByxdVNWIboeTPGW5tjq2c62uEFet5m4=;
+	s=arc-20240116; t=1750268503; c=relaxed/simple;
+	bh=VLtr/75+OgLg5UKJqAhr4SPpTHq3QNsAl+8ocPk3Nhw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=sHDKxGlcmPHGypwNSCzLebo02yYhvJBsx0+GDPQ3wQ8DgAL2bh7klNwgOIi0wXE88gJiOPEFqzDgqtx6U5+VWcNOqlk5W7fdBQqPJOq4ff06keK401fq41Km3wxZuv4ghLdAva/X+aRP8XKJDOdMSz4pbl+dave+Rh1JR6GPPgU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UWfD8hTU; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:content-type; b=JaQ/BvnUK/BDQAoOrFktnjihRBwyeZiuSqt1MCb3VtUjcs8rn761QJr+8TgPfd9/zb27WcAUcxrsPmHwcGIHIx6YCNMaYtfyF9qQiYUxwcWKmowYhmjr+NVNGl4XblK1Hno90nuvxgPnW13pvupxLSPT1dWtD/Fsa5SUtpdKgcI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ORQqGOTJ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UWfD8hTU"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ORQqGOTJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750268496;
+	s=mimecast20190719; t=1750268500;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=EpLhIwgxSmOTAUjcHZTQRVGXB1xFFa6Mgym/mVDU2pw=;
-	b=UWfD8hTUsa0oM0FL6Hf4Y7TQHmJL54mykDcfurG0ecQ/jvfv5N3FS+PIpn8400yu4wYTIU
-	j1Txo6wmxQ9MEQ4/b0VUtnW7GirM1ufxmIPRPUGzeqM42qdDp8iMgec7QSOblQ2QGygPHT
-	WIyyQIZYal/GaktRmu0cUshAFG60HHE=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=cBlqU3v31THD5gXpB9nn15wD9nofG3PBMtxlPOPDIeI=;
+	b=ORQqGOTJcHS3YtHnoIs6b20qDNjnzwdED7T30fJoZqqyrzwAFvz4DmKzUH26CTL04yxHcA
+	HSuNgJB6FFYdhRy02hOK2QzpJh7ILANb8KbdZ2bBH3xc8liq8xpsu7K6fIysZrwX7kjtrn
+	zJ/8poY7UsESlEDwEYkb9mxT4wsbSIw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-638-8sy2pylrNL6bF55OhxBF1A-1; Wed, 18 Jun 2025 13:41:34 -0400
-X-MC-Unique: 8sy2pylrNL6bF55OhxBF1A-1
-X-Mimecast-MFC-AGG-ID: 8sy2pylrNL6bF55OhxBF1A_1750268493
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a50816cc58so2470563f8f.3
-        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:41:34 -0700 (PDT)
+ us-mta-610-vyCo9jAfP1auLd1BQiritA-1; Wed, 18 Jun 2025 13:41:37 -0400
+X-MC-Unique: vyCo9jAfP1auLd1BQiritA-1
+X-Mimecast-MFC-AGG-ID: vyCo9jAfP1auLd1BQiritA_1750268496
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-451d2037f1eso43922495e9.0
+        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:41:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750268493; x=1750873293;
+        d=1e100.net; s=20230601; t=1750268496; x=1750873296;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=EpLhIwgxSmOTAUjcHZTQRVGXB1xFFa6Mgym/mVDU2pw=;
-        b=km86qY4V9KUds2PQiTCZz0geDiXrDBlcmAZVgmtApgn6GcvOtpQ3WPVQCsVMOF3jaG
-         UOELAJebZDaJ0IBuHh2YoJJvQWpIr6hjN/3G90F1ggHVC2dXxRlKoSHaSY7Y6ij2k5WL
-         uUJ9UhMIJbkmEwfHutM3IKub6CbQekzfYJUYUO6KRiChvDapUrKYvb7/UQgJyIBNOD91
-         sszcPiX3VrSe9rfYBYk9KjP7nV1ig7hymo9/om0MB7VzJ/tVleC1kqvyYj27QGj6Zb1r
-         42VD+h3I1MjJEbNRtAPJL4/y/InZqNQb0jxXjjnnSGyCHPJnkvcHtkdRHMcGLXPzOY5E
-         3Gmw==
-X-Forwarded-Encrypted: i=1; AJvYcCWLUV3u/It8YWB9M88B4uo07gqqrgBPclf38YDphbN082ARoM+7DpCfciHNeFr+TDYzZcuDxThWrFJY/sIFTw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxmF+lVyen5OmVBCAPyVHjuJzzHABXOyDGqBo3aeFlEbho9jj/f
-	726O9vnKCqgomglVNvIOE1QlQ2yjcfjMoz4ZGEqfsZQ3VdWtk5bQiZxzN73JRgcZ328urpymrTL
-	7NHbtF9XC7HzpN55nsyxIx6tCMbJYbUCKFlbAdUfmd3L5A+Kk9xJ3TG59u0GtRgqrkWNX
-X-Gm-Gg: ASbGncsvTbBEWs23x4aaBSr1oHuVRBa5S02AMyf7jk1vz0O8+BAqP8iZ+C6bNoMpE+G
-	zlh5BtZBV0Z9+3ssxqqBDNsgfCnvJnmBSq1B02XCkUMuX0J+7dFE6CZEGwfAl+YjrwNbAOIBk3b
-	RT4qoSHk3oaygPO4pQB0F+7lkgMoPsWD/OqhLpgDpVQUTspWSamEwIwpsKBBpNs8UxAohJbRhzu
-	FnUpOgwIfxZHPAKcxJAbNusWRT0YhtFYEi5Bgv4a9mSeeo6WjmYQJfGn4MEDxqaiQLlyod646Wd
-	xT6Qer+9ick/gYlHbGHXzt4jD0gG9AmcSRAF7d+VStIKue+xrtE7R9oYERCq+eQTUK4VnxUNpDm
-	gB2rUkA==
-X-Received: by 2002:a05:6000:708:b0:3a5:5278:e635 with SMTP id ffacd0b85a97d-3a572367577mr14018450f8f.3.1750268493467;
-        Wed, 18 Jun 2025 10:41:33 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGIdYJ4byKGNqSckw7stdQWmP9a+mk+8zzlUOQQiezgX3FefY2T8iN/DegCcyfhV4fwKQhI6A==
-X-Received: by 2002:a05:6000:708:b0:3a5:5278:e635 with SMTP id ffacd0b85a97d-3a572367577mr14018429f8f.3.1750268493058;
-        Wed, 18 Jun 2025 10:41:33 -0700 (PDT)
+        bh=cBlqU3v31THD5gXpB9nn15wD9nofG3PBMtxlPOPDIeI=;
+        b=I0qGj2QFAOHZ956/f71LrQkx4rHY5trUWqPwPRUmbzbuwiAAQqMeqUdePNjBtkvrIf
+         qK+pBHvkUlNU6zx6Heixb99zCDM00LLhRjtMJoheREwh4AyJQRpwMBgkM3u4GMA2IfBR
+         bd2wWbZr5KoUWgTkFI7/665fG2Mqwp3GNrf1f33yKOFmbnUkMm+PMv9nVGfTSKXHQwmF
+         5PvGJEDxxlZ+S0MKQDm4XIPMKr7An5MpLC0d41C0LRw4GDQtd9Gpc+o141vcebDDrcf4
+         ig7NoBL3RO8hj7/UrD1yaIvOPKqidloGFHgIrrtbWzNyu4NKFvdFf+UpPIsF6y+NZXLE
+         SSLg==
+X-Forwarded-Encrypted: i=1; AJvYcCUVeUbVvg6alLmrjHdEKMbZ6yaoT1uUolVJXn4OtxFaNrBEhLa9+yPmCPhv5sms0rDQfPsFGJrR2UwBvPMOMQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy1yp8t9lR3QIeOsjw6flLIJeGR8zLr/kn4Sc984dzpw78qEf+6
+	wFAdyz3BMpUo7XXon23bRY24laxcT3dyvO+Oz1GMxQeiko9KxbdvlPTrcvl4MUQmmzHTobTe8Nn
+	Gan/gW+T3IRjryEw/g8yxhGw6QgdHy19+j1zq+8qEvJXU3tFZQ+iZwRfg/cyktaMlUHRT
+X-Gm-Gg: ASbGnct9W5PVaXtro2V4yEIgLXH0G4ioKWqynDVXAkZbXKB644qaOB+fJPNQwnG+gXc
+	7fKTPN5TtmKD5c1H83nm4ZMCEBJVGvsnxJJw0gp4z3nzAsst3hPZK1l+w8OIv5MgAFyQhpdkXM3
+	JwIrIepD3bZXgQ9VBjR3yAaw29YFC42b5r+Dd8HX8MLki4FHV0loXfZBPCtdMIETfOEkDdNYNVg
+	NO+T/YK/rbxfg7zfPDGKLsJKyBuH8l5pgIzCsT1QZztg0zLpmHwOXo9qcIo4uiU12tgZw9tHBCP
+	2eWBRD4+6zS7PJiFtpsS3xvlvW1bOujXHGVJnNzSZVRa3NGxaUmpl5a6gr1n4C7h7VotMQfy3CV
+	JU1P7Xg==
+X-Received: by 2002:a05:600c:5253:b0:453:66f:b96e with SMTP id 5b1f17b1804b1-4534219a64fmr154424455e9.11.1750268496138;
+        Wed, 18 Jun 2025 10:41:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFQJSoFqz4Qx4eaIpu3abT7lqqTMcn+cWB1r/wxQDnmsMcckQg5l2MzM3eBNzoSDxLAyECFAg==
+X-Received: by 2002:a05:600c:5253:b0:453:66f:b96e with SMTP id 5b1f17b1804b1-4534219a64fmr154423805e9.11.1750268495716;
+        Wed, 18 Jun 2025 10:41:35 -0700 (PDT)
 Received: from localhost (p200300d82f2d2400405203b5fff94ed0.dip0.t-ipconnect.de. [2003:d8:2f2d:2400:4052:3b5:fff9:4ed0])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3a568b5bfefsm17100889f8f.88.2025.06.18.10.41.31
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4535eac8edbsm3459385e9.24.2025.06.18.10.41.33
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Jun 2025 10:41:32 -0700 (PDT)
+        Wed, 18 Jun 2025 10:41:35 -0700 (PDT)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -120,9 +120,9 @@ Cc: linux-mm@kvack.org,
 	Harry Yoo <harry.yoo@oracle.com>,
 	Qi Zheng <zhengqi.arch@bytedance.com>,
 	Shakeel Butt <shakeel.butt@linux.dev>
-Subject: [PATCH RFC 28/29] mm/balloon_compaction: "movable_ops" doc updates
-Date: Wed, 18 Jun 2025 19:40:11 +0200
-Message-ID: <20250618174014.1168640-29-david@redhat.com>
+Subject: [PATCH RFC 29/29] mm/balloon_compaction: provide single balloon_page_insert() and balloon_mapping_gfp_mask()
+Date: Wed, 18 Jun 2025 19:40:12 +0200
+Message-ID: <20250618174014.1168640-30-david@redhat.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250618174014.1168640-1-david@redhat.com>
 References: <20250618174014.1168640-1-david@redhat.com>
@@ -133,59 +133,87 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: CQsMH4CaIIQwP0VoLNJKrxE1qWh6wpquYrZ173vMtF4_1750268493
+X-Mimecast-MFC-PROC-ID: 6iBK8pnET5hXILCwJ6pvmXKngwIerQOorRE_XdiT2Ek_1750268496
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Let's bring the docs up-to-date. Setting PG_movable_ops + page->private
-very likely still requires to be performed under documented locks:
-it's complicated.
-
-We will rework this in the future, as we will try avoiding using the
-page lock.
+Let's just special-case based on IS_ENABLED(CONFIG_BALLOON_COMPACTION
+like we did for balloon_page_finalize().
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- include/linux/balloon_compaction.h | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ include/linux/balloon_compaction.h | 42 +++++++++++-------------------
+ 1 file changed, 15 insertions(+), 27 deletions(-)
 
 diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-index b222b0737c466..2fecfead91d26 100644
+index 2fecfead91d26..7cfe48769239e 100644
 --- a/include/linux/balloon_compaction.h
 +++ b/include/linux/balloon_compaction.h
-@@ -4,12 +4,13 @@
-  *
-  * Common interface definitions for making balloon pages movable by compaction.
-  *
-- * Balloon page migration makes use of the general non-lru movable page
-+ * Balloon page migration makes use of the general "movable_ops page migration"
-  * feature.
-  *
-  * page->private is used to reference the responsible balloon device.
-- * page->mapping is used in context of non-lru page migration to reference
-- * the address space operations for page isolation/migration/compaction.
-+ * That these pages have movable_ops, and which movable_ops apply,
-+ * is derived from the page type (PageOffline()) combined with the
-+ * PG_movable_ops flag (PageMovableOps()).
-  *
-  * As the page isolation scanning step a compaction thread does is a lockless
-  * procedure (from a page standpoint), it might bring some racy situations while
-@@ -17,12 +18,10 @@
-  * and safely perform balloon's page compaction and migration we must, always,
-  * ensure following these simple rules:
-  *
-- *   i. when updating a balloon's page ->mapping element, strictly do it under
-- *      the following lock order, independently of the far superior
-- *      locking scheme (lru_lock, balloon_lock):
-+ *   i. Setting the PG_movable_ops flag and page->private with the following
-+ *	lock order
-  *	    +-page_lock(page);
-  *	      +--spin_lock_irq(&b_dev_info->pages_lock);
-- *	            ... page->mapping updates here ...
-  *
-  *  ii. isolation or dequeueing procedure must remove the page from balloon
-  *      device page list under b_dev_info->pages_lock.
+@@ -77,6 +77,15 @@ static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
+ 
+ #ifdef CONFIG_BALLOON_COMPACTION
+ extern const struct movable_operations balloon_mops;
++/*
++ * balloon_page_device - get the b_dev_info descriptor for the balloon device
++ *			 that enqueues the given page.
++ */
++static inline struct balloon_dev_info *balloon_page_device(struct page *page)
++{
++	return (struct balloon_dev_info *)page_private(page);
++}
++#endif /* CONFIG_BALLOON_COMPACTION */
+ 
+ /*
+  * balloon_page_insert - insert a page into the balloon's page list and make
+@@ -91,41 +100,20 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+ 				       struct page *page)
+ {
+ 	__SetPageOffline(page);
+-	SetPageMovableOps(page);
+-	set_page_private(page, (unsigned long)balloon);
+-	list_add(&page->lru, &balloon->pages);
+-}
+-
+-/*
+- * balloon_page_device - get the b_dev_info descriptor for the balloon device
+- *			 that enqueues the given page.
+- */
+-static inline struct balloon_dev_info *balloon_page_device(struct page *page)
+-{
+-	return (struct balloon_dev_info *)page_private(page);
+-}
+-
+-static inline gfp_t balloon_mapping_gfp_mask(void)
+-{
+-	return GFP_HIGHUSER_MOVABLE;
+-}
+-
+-#else /* !CONFIG_BALLOON_COMPACTION */
+-
+-static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+-				       struct page *page)
+-{
+-	__SetPageOffline(page);
++	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION)) {
++		SetPageMovableOps(page);
++		set_page_private(page, (unsigned long)balloon);
++	}
+ 	list_add(&page->lru, &balloon->pages);
+ }
+ 
+ static inline gfp_t balloon_mapping_gfp_mask(void)
+ {
++	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
++		return GFP_HIGHUSER_MOVABLE;
+ 	return GFP_HIGHUSER;
+ }
+ 
+-#endif /* CONFIG_BALLOON_COMPACTION */
+-
+ /*
+  * balloon_page_finalize - prepare a balloon page that was removed from the
+  *			   balloon list for release to the page allocator
 -- 
 2.49.0
 
