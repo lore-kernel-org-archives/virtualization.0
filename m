@@ -1,70 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 787DA2FC003
-	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:41:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CAD12FC001
+	for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 17:41:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750268494; cv=none; b=MjRJwWTEggfQOgb6E5h8xJ8fxnvL2+AmpNjb3QILrZS/mhiANNj0YsreCsm/SzpkJfWysae4jasiNKmdRVzvlvkIOViL+aDv2GjLUPsQwf6AWyfPk529LTGu2mhM+ezAL6sPRSTE0BThN8poZH27PbPl4RwmriU5lW3wosGTaLE=
+	t=1750268497; cv=none; b=oV7Dc0kDsvNNali1NvMU0K4yFdZ70X6X8Im1WNzphT6QvPmWCTeSW0RebhAtBiYqDo/yA3GefHGd8SnNdnXdQ/iaQGdns7s3fTMfWS1qVjIKJ7esw3RMSesyLZ7c0UvWgB3dDXaXNtnMH2RbkL2XdBdTXfEifehhd0Jh28Tkwes=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750268494; c=relaxed/simple;
-	bh=4TlSSp/B7+/N/ILiDxGnb+tpfbPIQ9nea0SrUYxJmrE=;
+	s=arc-20240116; t=1750268497; c=relaxed/simple;
+	bh=qANw5s/Bw3QCvq7BlzvxZffSRQGWJpFueQvB/Dfqsvw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=QgRc3/R59nFzGZ/DuQaCdZpW9RIUYnQsSWhHMVKNrZmGCWfS/qsPM07kTzatNbPJcbAq/IlstqvodkkhzaUZSBRL1lxiULmUWxJi7FPQseYRHpE4LN1Ctn8JtowolUs5amg8bUJHE6VQgHRNm/5GUS1bPtZl4yw3ba/LePK8qRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gy7zW7u7; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:content-type; b=jqD5vqXwnP2xejBEw4FB+aUwEnnh4T35mhbPd90SLmO3W0DvO+7vuW9ADlnTF/fAJBIW58IdUJM/X2Al+Le3Wn/YDJUPOPDRULq6FPDMx5WlX02jNYN06Or3pFu85tYyZorv/Bw8pT4bNSgs95dgnFskcKpUGMlU00fe2XHeIxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=blULzw/Y; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gy7zW7u7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="blULzw/Y"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750268491;
+	s=mimecast20190719; t=1750268493;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=iWRDBtzd4nIP01/duk3xBYsYZViv9Z7E8J4LCipKpgg=;
-	b=gy7zW7u7FMl6dub02UpCAEsf14AgWKNzT0+Sn94XU1uj77jxqxXJwknb05ClA+LTSzygkO
-	zRBYxhnRA72finxbHva+Dzq6RND6NanyOQRcM4L7rbcC8j6/bkZoHoWVSGuZGQbjhum2FC
-	PiPLl5IoKDodUHUr+Bo0A9Q/9s8dutc=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=OmfdwaP0f5XUY3WcVBI8N3swmSiQtYBlwUFmuX0ZYxw=;
+	b=blULzw/YuzhtMaq/MzAOwHI00YuPbBMeXOUAO/2a0f/5vp8pl1Q6TleaTPJ9/clGwv+R7Q
+	pFqwGFPrA+jlzbpDao+tFbtH/xg7RQKiZvwxNIi1knbbAdCCiWmd4WXyfm6ww56aWJiEqd
+	SmGzMHmXebCRT3R8Dhaf6dG6oC9Lkeg=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-61-zPEfaWSpN-meVXcFQQwBpQ-1; Wed, 18 Jun 2025 13:41:29 -0400
-X-MC-Unique: zPEfaWSpN-meVXcFQQwBpQ-1
-X-Mimecast-MFC-AGG-ID: zPEfaWSpN-meVXcFQQwBpQ_1750268488
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a50049f8eeso3019066f8f.3
-        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:41:29 -0700 (PDT)
+ us-mta-462-oQts-OVxOBCyIb5ThtpVvw-1; Wed, 18 Jun 2025 13:41:32 -0400
+X-MC-Unique: oQts-OVxOBCyIb5ThtpVvw-1
+X-Mimecast-MFC-AGG-ID: oQts-OVxOBCyIb5ThtpVvw_1750268491
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3a4f7f1b932so4391475f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 10:41:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750268488; x=1750873288;
+        d=1e100.net; s=20230601; t=1750268491; x=1750873291;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iWRDBtzd4nIP01/duk3xBYsYZViv9Z7E8J4LCipKpgg=;
-        b=bmmdfU40cTY5bN2T7nd/c5kdRa6kle8IOFwzPO1h4JpCnvQgctZFMctaw09fBT6g4A
-         Sl8Zf2zgJ1+L9iJ7UFvqUJr8msMv86vBRflKmqRE/+0wRozVeaoUzuDntAOl+tvBbEQZ
-         cIOixIhwDU7Wi2AhlIrH2qsWyc7qVNzV+DkhxJaccp2p9opNpCLys7to3l2qSV6XiK7P
-         CwcCITZbpEMLpON33Iv8JKkf1tz6+COI0MsvfFt4okWBkR10qB6+N9Pa2fEOwzaeSJbO
-         dltqjyZVoAakWQNJ1WaeoeyM5xxgHCQOKABWh3Csk8pGIa65q+8NFN6gYYGJkgEughOF
-         mU7Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVNY6DPBHPBUEYkFSGBjfANX79hOD/lWBYSM4mz7LDxiVH+9yw6w3W0Sf6yzdh63jJZ4Du9LGJ4w6eIzunlIg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwUdsoKNnJesHQ1bUqBnxIgSYz53jYY1Bz7+YYi/jWZTqp+7/lp
-	0m+qf5RlGYO3ONTuH2LfvYjhwqkkMQXmTFS7TlVILPihExhPGXJ2DTYqSRhJStV7ApzE9+six0k
-	Bax2eBtAOgUWlI0yPP5dv93XNI6MhSfrcBJEclx6QFCCwe6eWYKuZd+py/Da3xI2CTJq2
-X-Gm-Gg: ASbGnctu90g5xAcrdI9HOgXf941MxAHWgCJ6Tdck7vSqzwqKG7aQzJ4hGnYah5/3tp1
-	o+jaV4eBB6Gp0zzLeOCmvkrOqyRobFMW5fujhWcxlQyCSyDb8Kj+I3igc2/BGqSIOglBcdb5sVi
-	vjN9OBxXLKTAl+YUnOrRV3Rr0fBCOr7kOOTIeFz5eEUzgruBz96wRzrVmVIZmGPcv6vWm5dYlj3
-	kSGAh8tUXqRXSheEJVutd2FTSzeZoumBeVwMNmqtDE7SNYO97zjZvArKCEP2L29o1rWT5OjBBPp
-	B1SmYMwV8Vg0Xl2ag29C9A2ZuEBV0OsqodiMqfbwzU8N8uxVD3t3ehf2Kxr6dBVjSLcyXlbrat2
-	BQWqGIA==
-X-Received: by 2002:a5d:5f4b:0:b0:3a4:e5ea:1ac0 with SMTP id ffacd0b85a97d-3a57239782fmr14644105f8f.5.1750268488151;
-        Wed, 18 Jun 2025 10:41:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHe8UrsZSiMxiNmESOiojos47BRrZtzx99uy76zavyI6JTu09cx8RaDL9RnhQyywn3/qc/sHg==
-X-Received: by 2002:a5d:5f4b:0:b0:3a4:e5ea:1ac0 with SMTP id ffacd0b85a97d-3a57239782fmr14644032f8f.5.1750268487539;
-        Wed, 18 Jun 2025 10:41:27 -0700 (PDT)
+        bh=OmfdwaP0f5XUY3WcVBI8N3swmSiQtYBlwUFmuX0ZYxw=;
+        b=VG4WJBLG+tsfwNlyAA4OAmvrA94mF66/mcrxATV1zhSGvVTHlF+k+VfQLGXIjQMYAH
+         PsOdjHyP5nlCB4ZjJPvLkahb9slsDuwRMMCLNlFglHNLPpP6yE6B0xxcLvh9GOKHaHwd
+         KG3f5So0uIE5QWnRtQC7AawzMgYPVO3IdvEnGspOkNv2H2gATNU/X4/dFsXNwYfaAn0H
+         fSMjRPUK8+jR7z1scb7EJdjlb5I16L+ocbXOjaORgaryUByDaGghWSRJPHGElp1gul0e
+         aVByRJr8uYOQw3N9pZnfPZMiVt6nsTa4EtY123JpMMVWKk0b30G5jFj3L4fOec3vG8lr
+         zs/g==
+X-Forwarded-Encrypted: i=1; AJvYcCWHqnfRjcABVUj75Hn9zsXKfUY/0Nl7ZkfTT8w0jZMUKDitM0fVP5sWaYpxfDfVfzjR1lDrgf7dcGIpP1cc4w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx9VfPIp+oijJLE5HmIMJBrML+7S43sYjApX0SpDOvoegB7/Sip
+	0hQEfY2coBqrgPQtqWR1Drps55XocPVdsJG64Eu+CeLvNFg0Sj3HtEDfyOtl+dIyv+LaoVpSUAP
+	yQ8Y3T7zfigZUNLuVxbnRF9DHbChMjHDjR4RVTsxikeSNDYv0+xPQ4Jc050Fsb+bihgAC
+X-Gm-Gg: ASbGnctZ0Ma2fEDFMr2p6ViYCfM45zu28unopXzba2UeBFCYBTbS+lO08DZQWkUUgHN
+	i8Tw5VpfPLziuQ6GBvw4mred2imgVx8/hIGaf3nOtNRw2BCwstFLgx2HvDYQyBQNKqbOYcOVcNY
+	EC0Epryi4+9nObzwCx9T4v/FAIBPGOutKldy475LTOLG45wtf4wy5jOK7Bomnqs31eAjAsHGaHj
+	FB7lqljHwAQZbygPipjIjdgqZTSJdqxCb6uNCiGtjehRoYXr3Gx3OCRU+HRSS7/xcr6q9lpF5sD
+	JFOX4OUlHjKWAn/9WHQqQ1/E0mQgje4rgXLszA1PcFlQ0Ad3ietkKISdBb5eCocNy5bjEKHali5
+	8o+swng==
+X-Received: by 2002:a05:6000:178b:b0:3a5:21c8:af31 with SMTP id ffacd0b85a97d-3a5723721bdmr15240242f8f.16.1750268490830;
+        Wed, 18 Jun 2025 10:41:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHAZhpZh4slqbXf6Y+7KOO1SPenqI87LsZpqVnArN4AUioCPUgU259IOTbkkNjhv6BPhqHLFQ==
+X-Received: by 2002:a05:6000:178b:b0:3a5:21c8:af31 with SMTP id ffacd0b85a97d-3a5723721bdmr15240182f8f.16.1750268490320;
+        Wed, 18 Jun 2025 10:41:30 -0700 (PDT)
 Received: from localhost (p200300d82f2d2400405203b5fff94ed0.dip0.t-ipconnect.de. [2003:d8:2f2d:2400:4052:3b5:fff9:4ed0])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3a568b48564sm17230726f8f.82.2025.06.18.10.41.25
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3a568b2f80asm17518051f8f.78.2025.06.18.10.41.28
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Jun 2025 10:41:27 -0700 (PDT)
+        Wed, 18 Jun 2025 10:41:29 -0700 (PDT)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -120,9 +120,9 @@ Cc: linux-mm@kvack.org,
 	Harry Yoo <harry.yoo@oracle.com>,
 	Qi Zheng <zhengqi.arch@bytedance.com>,
 	Shakeel Butt <shakeel.butt@linux.dev>
-Subject: [PATCH RFC 26/29] mm: rename PAGE_MAPPING_* to FOLIO_MAPPING_*
-Date: Wed, 18 Jun 2025 19:40:09 +0200
-Message-ID: <20250618174014.1168640-27-david@redhat.com>
+Subject: [PATCH RFC 27/29] docs/mm: convert from "Non-LRU page migration" to "movable_ops page migration"
+Date: Wed, 18 Jun 2025 19:40:10 +0200
+Message-ID: <20250618174014.1168640-28-david@redhat.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250618174014.1168640-1-david@redhat.com>
 References: <20250618174014.1168640-1-david@redhat.com>
@@ -133,279 +133,68 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: r_0x3GTtjcYB2Nk6Vz9vRydFyt_Xoe_cGSmAZ5rFcAE_1750268488
+X-Mimecast-MFC-PROC-ID: nw9Qlt4xZ44uVTDFrIPXd9P7u9dYxWLRzbJmCh3fDhc_1750268491
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Now that the mapping flags are only used for folios, let's rename the
-defines.
+Let's bring the docs up-to-date.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- fs/proc/page.c             |  4 ++--
- include/linux/fs.h         |  2 +-
- include/linux/mm_types.h   |  1 -
- include/linux/page-flags.h | 20 ++++++++++----------
- include/linux/pagemap.h    |  2 +-
- mm/gup.c                   |  4 ++--
- mm/internal.h              |  2 +-
- mm/ksm.c                   |  4 ++--
- mm/rmap.c                  | 16 ++++++++--------
- mm/util.c                  |  6 +++---
- 10 files changed, 30 insertions(+), 31 deletions(-)
+ Documentation/mm/page_migration.rst | 39 ++++++++++++++++++++---------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/fs/proc/page.c b/fs/proc/page.c
-index 999af26c72985..0cdc78c0d23fa 100644
---- a/fs/proc/page.c
-+++ b/fs/proc/page.c
-@@ -149,7 +149,7 @@ u64 stable_page_flags(const struct page *page)
+diff --git a/Documentation/mm/page_migration.rst b/Documentation/mm/page_migration.rst
+index 519b35a4caf5b..a448e95e0a98e 100644
+--- a/Documentation/mm/page_migration.rst
++++ b/Documentation/mm/page_migration.rst
+@@ -146,18 +146,33 @@ Steps:
+ 18. The new page is moved to the LRU and can be scanned by the swapper,
+     etc. again.
  
- 	k = folio->flags;
- 	mapping = (unsigned long)folio->mapping;
--	is_anon = mapping & PAGE_MAPPING_ANON;
-+	is_anon = mapping & FOLIO_MAPPING_ANON;
+-Non-LRU page migration
+-======================
+-
+-Although migration originally aimed for reducing the latency of memory
+-accesses for NUMA, compaction also uses migration to create high-order
+-pages.  For compaction purposes, it is also useful to be able to move
+-non-LRU pages, such as zsmalloc and virtio-balloon pages.
+-
+-If a driver wants to make its pages movable, it should define a struct
+-movable_operations.  It then needs to call __SetPageMovable() on each
+-page that it may be able to move.  This uses the ``page->mapping`` field,
+-so this field is not available for the driver to use for other purposes.
++movable_ops page migration
++==========================
++
++Selected typed, non-folio pages (e.g., pages inflated in a memory balloon,
++zsmalloc pages) can be migrated using the movable_ops migration framework.
++
++The "struct movable_operations" provide callbacks specific to a page type
++for isolating, migrating and un-isolating (putback) these pages.
++
++Once a page is indicated as having movable_ops, that condition must not
++change until the page was freed back to the buddy. This includes not
++changing/clearing the page type and not changing/clearing the
++PG_movable_ops page flag.
++
++Arbitrary drivers cannot currently make use of this framework, as it
++requires:
++
++(a) a page type
++(b) indicating them as possibly having movable_ops in page_has_movable_ops()
++    based on the page type
++(c) returning the movable_ops from page_has_movable_ops() based on the page
++    type
++(d) not reusing the PG_movable_ops and PG_movable_ops_isolated page flags
++    for other purposes
++
++For example, balloon drivers can make use of this framework through the
++balloon-compaction framework residing in the core kernel.
  
- 	/*
- 	 * pseudo flags for the well known (anonymous) memory mapped pages
-@@ -158,7 +158,7 @@ u64 stable_page_flags(const struct page *page)
- 		u |= 1 << KPF_MMAP;
- 	if (is_anon) {
- 		u |= 1 << KPF_ANON;
--		if (mapping & PAGE_MAPPING_KSM)
-+		if (mapping & FOLIO_MAPPING_KSM)
- 			u |= 1 << KPF_KSM;
- 	}
- 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 93ee0d2d6f1ad..f00a073c35c45 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -524,7 +524,7 @@ struct address_space {
- 	/*
- 	 * On most architectures that alignment is already the case; but
- 	 * must be enforced here for CRIS, to let the least significant bit
--	 * of struct page's "mapping" pointer be used for PAGE_MAPPING_ANON.
-+	 * of struct folio's "mapping" pointer be used for FOLIO_MAPPING_ANON.
- 	 */
- 
- /* XArray tags, for tagging dirty and writeback pages in the pagecache. */
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index d6b91e8a66d6d..f139f47696f63 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -105,7 +105,6 @@ struct page {
- 					unsigned int order;
- 				};
- 			};
--			/* See page-flags.h for PAGE_MAPPING_FLAGS */
- 			struct address_space *mapping;
- 			union {
- 				pgoff_t __folio_index;		/* Our offset within mapping. */
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index b42986a578b71..23b1e458dfeda 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -695,10 +695,10 @@ PAGEFLAG_FALSE(VmemmapSelfHosted, vmemmap_self_hosted)
- /*
-  * On an anonymous folio mapped into a user virtual memory area,
-  * folio->mapping points to its anon_vma, not to a struct address_space;
-- * with the PAGE_MAPPING_ANON bit set to distinguish it.  See rmap.h.
-+ * with the FOLIO_MAPPING_ANON bit set to distinguish it.  See rmap.h.
-  *
-  * On an anonymous folio in a VM_MERGEABLE area, if CONFIG_KSM is enabled,
-- * the PAGE_MAPPING_ANON_KSM bit may be set along with the PAGE_MAPPING_ANON
-+ * the FOLIO_MAPPING_ANON_KSM bit may be set along with the FOLIO_MAPPING_ANON
-  * bit; and then folio->mapping points, not to an anon_vma, but to a private
-  * structure which KSM associates with that merged folio.  See ksm.h.
-  *
-@@ -713,21 +713,21 @@ PAGEFLAG_FALSE(VmemmapSelfHosted, vmemmap_self_hosted)
-  * false before calling the following functions (e.g., folio_test_anon).
-  * See mm/slab.h.
-  */
--#define PAGE_MAPPING_ANON	0x1
--#define PAGE_MAPPING_ANON_KSM	0x2
--#define PAGE_MAPPING_KSM	(PAGE_MAPPING_ANON | PAGE_MAPPING_ANON_KSM)
--#define PAGE_MAPPING_FLAGS	(PAGE_MAPPING_ANON | PAGE_MAPPING_ANON_KSM)
-+#define FOLIO_MAPPING_ANON	0x1
-+#define FOLIO_MAPPING_ANON_KSM	0x2
-+#define FOLIO_MAPPING_KSM	(FOLIO_MAPPING_ANON | FOLIO_MAPPING_ANON_KSM)
-+#define FOLIO_MAPPING_FLAGS	(FOLIO_MAPPING_ANON | FOLIO_MAPPING_ANON_KSM)
- 
- static __always_inline bool folio_test_anon(const struct folio *folio)
- {
--	return ((unsigned long)folio->mapping & PAGE_MAPPING_ANON) != 0;
-+	return ((unsigned long)folio->mapping & FOLIO_MAPPING_ANON) != 0;
- }
- 
- static __always_inline bool PageAnonNotKsm(const struct page *page)
- {
- 	unsigned long flags = (unsigned long)page_folio(page)->mapping;
- 
--	return (flags & PAGE_MAPPING_FLAGS) == PAGE_MAPPING_ANON;
-+	return (flags & FOLIO_MAPPING_FLAGS) == FOLIO_MAPPING_ANON;
- }
- 
- static __always_inline bool PageAnon(const struct page *page)
-@@ -743,8 +743,8 @@ static __always_inline bool PageAnon(const struct page *page)
-  */
- static __always_inline bool folio_test_ksm(const struct folio *folio)
- {
--	return ((unsigned long)folio->mapping & PAGE_MAPPING_FLAGS) ==
--				PAGE_MAPPING_KSM;
-+	return ((unsigned long)folio->mapping & FOLIO_MAPPING_FLAGS) ==
-+				FOLIO_MAPPING_KSM;
- }
- #else
- FOLIO_TEST_FLAG_FALSE(ksm)
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index e63fbfbd5b0f3..10a222e68b851 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -502,7 +502,7 @@ static inline pgoff_t mapping_align_index(struct address_space *mapping,
- static inline bool mapping_large_folio_support(struct address_space *mapping)
- {
- 	/* AS_FOLIO_ORDER is only reasonable for pagecache folios */
--	VM_WARN_ONCE((unsigned long)mapping & PAGE_MAPPING_ANON,
-+	VM_WARN_ONCE((unsigned long)mapping & FOLIO_MAPPING_ANON,
- 			"Anonymous mapping always supports large folio");
- 
- 	return mapping_max_folio_order(mapping) > 0;
-diff --git a/mm/gup.c b/mm/gup.c
-index 6888e871a74a9..76ef1839a126a 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2804,9 +2804,9 @@ static bool gup_fast_folio_allowed(struct folio *folio, unsigned int flags)
- 		return false;
- 
- 	/* Anonymous folios pose no problem. */
--	mapping_flags = (unsigned long)mapping & PAGE_MAPPING_FLAGS;
-+	mapping_flags = (unsigned long)mapping & FOLIO_MAPPING_FLAGS;
- 	if (mapping_flags)
--		return mapping_flags & PAGE_MAPPING_ANON;
-+		return mapping_flags & FOLIO_MAPPING_ANON;
- 
- 	/*
- 	 * At this point, we know the mapping is non-null and points to an
-diff --git a/mm/internal.h b/mm/internal.h
-index feda91c9b3f4e..ef11d341e3915 100644
---- a/mm/internal.h
-+++ b/mm/internal.h
-@@ -150,7 +150,7 @@ static inline void *folio_raw_mapping(const struct folio *folio)
- {
- 	unsigned long mapping = (unsigned long)folio->mapping;
- 
--	return (void *)(mapping & ~PAGE_MAPPING_FLAGS);
-+	return (void *)(mapping & ~FOLIO_MAPPING_FLAGS);
- }
- 
- /*
-diff --git a/mm/ksm.c b/mm/ksm.c
-index 18b3690bb69ad..660a94964438f 100644
---- a/mm/ksm.c
-+++ b/mm/ksm.c
-@@ -893,7 +893,7 @@ static struct folio *ksm_get_folio(struct ksm_stable_node *stable_node,
- 	unsigned long kpfn;
- 
- 	expected_mapping = (void *)((unsigned long)stable_node |
--					PAGE_MAPPING_KSM);
-+					FOLIO_MAPPING_KSM);
- again:
- 	kpfn = READ_ONCE(stable_node->kpfn); /* Address dependency. */
- 	folio = pfn_folio(kpfn);
-@@ -1070,7 +1070,7 @@ static inline void folio_set_stable_node(struct folio *folio,
- 					 struct ksm_stable_node *stable_node)
- {
- 	VM_WARN_ON_FOLIO(folio_test_anon(folio) && PageAnonExclusive(&folio->page), folio);
--	folio->mapping = (void *)((unsigned long)stable_node | PAGE_MAPPING_KSM);
-+	folio->mapping = (void *)((unsigned long)stable_node | FOLIO_MAPPING_KSM);
- }
- 
- #ifdef CONFIG_SYSFS
-diff --git a/mm/rmap.c b/mm/rmap.c
-index fd160ddaa9807..c8610ea772683 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -503,12 +503,12 @@ struct anon_vma *folio_get_anon_vma(const struct folio *folio)
- 
- 	rcu_read_lock();
- 	anon_mapping = (unsigned long)READ_ONCE(folio->mapping);
--	if ((anon_mapping & PAGE_MAPPING_FLAGS) != PAGE_MAPPING_ANON)
-+	if ((anon_mapping & FOLIO_MAPPING_FLAGS) != FOLIO_MAPPING_ANON)
- 		goto out;
- 	if (!folio_mapped(folio))
- 		goto out;
- 
--	anon_vma = (struct anon_vma *) (anon_mapping - PAGE_MAPPING_ANON);
-+	anon_vma = (struct anon_vma *) (anon_mapping - FOLIO_MAPPING_ANON);
- 	if (!atomic_inc_not_zero(&anon_vma->refcount)) {
- 		anon_vma = NULL;
- 		goto out;
-@@ -550,12 +550,12 @@ struct anon_vma *folio_lock_anon_vma_read(const struct folio *folio,
- retry:
- 	rcu_read_lock();
- 	anon_mapping = (unsigned long)READ_ONCE(folio->mapping);
--	if ((anon_mapping & PAGE_MAPPING_FLAGS) != PAGE_MAPPING_ANON)
-+	if ((anon_mapping & FOLIO_MAPPING_FLAGS) != FOLIO_MAPPING_ANON)
- 		goto out;
- 	if (!folio_mapped(folio))
- 		goto out;
- 
--	anon_vma = (struct anon_vma *) (anon_mapping - PAGE_MAPPING_ANON);
-+	anon_vma = (struct anon_vma *) (anon_mapping - FOLIO_MAPPING_ANON);
- 	root_anon_vma = READ_ONCE(anon_vma->root);
- 	if (down_read_trylock(&root_anon_vma->rwsem)) {
- 		/*
-@@ -1334,9 +1334,9 @@ void folio_move_anon_rmap(struct folio *folio, struct vm_area_struct *vma)
- 	VM_BUG_ON_FOLIO(!folio_test_locked(folio), folio);
- 	VM_BUG_ON_VMA(!anon_vma, vma);
- 
--	anon_vma += PAGE_MAPPING_ANON;
-+	anon_vma += FOLIO_MAPPING_ANON;
- 	/*
--	 * Ensure that anon_vma and the PAGE_MAPPING_ANON bit are written
-+	 * Ensure that anon_vma and the FOLIO_MAPPING_ANON bit are written
- 	 * simultaneously, so a concurrent reader (eg folio_referenced()'s
- 	 * folio_test_anon()) will not see one without the other.
- 	 */
-@@ -1367,10 +1367,10 @@ static void __folio_set_anon(struct folio *folio, struct vm_area_struct *vma,
- 	/*
- 	 * page_idle does a lockless/optimistic rmap scan on folio->mapping.
- 	 * Make sure the compiler doesn't split the stores of anon_vma and
--	 * the PAGE_MAPPING_ANON type identifier, otherwise the rmap code
-+	 * the FOLIO_MAPPING_ANON type identifier, otherwise the rmap code
- 	 * could mistake the mapping for a struct address_space and crash.
- 	 */
--	anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
-+	anon_vma = (void *) anon_vma + FOLIO_MAPPING_ANON;
- 	WRITE_ONCE(folio->mapping, (struct address_space *) anon_vma);
- 	folio->index = linear_page_index(vma, address);
- }
-diff --git a/mm/util.c b/mm/util.c
-index 0b270c43d7d12..20bbfe4ce1b8b 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -670,9 +670,9 @@ struct anon_vma *folio_anon_vma(const struct folio *folio)
- {
- 	unsigned long mapping = (unsigned long)folio->mapping;
- 
--	if ((mapping & PAGE_MAPPING_FLAGS) != PAGE_MAPPING_ANON)
-+	if ((mapping & FOLIO_MAPPING_FLAGS) != FOLIO_MAPPING_ANON)
- 		return NULL;
--	return (void *)(mapping - PAGE_MAPPING_ANON);
-+	return (void *)(mapping - FOLIO_MAPPING_ANON);
- }
- 
- /**
-@@ -699,7 +699,7 @@ struct address_space *folio_mapping(struct folio *folio)
- 		return swap_address_space(folio->swap);
- 
- 	mapping = folio->mapping;
--	if ((unsigned long)mapping & PAGE_MAPPING_FLAGS)
-+	if ((unsigned long)mapping & FOLIO_MAPPING_FLAGS)
- 		return NULL;
- 
- 	return mapping;
+ Monitoring Migration
+ =====================
 -- 
 2.49.0
 
