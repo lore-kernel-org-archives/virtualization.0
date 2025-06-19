@@ -1,59 +1,59 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB781B6CFE
-	for <virtualization@lists.linux.dev>; Thu, 19 Jun 2025 02:44:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 148DC2AF11
+	for <virtualization@lists.linux.dev>; Thu, 19 Jun 2025 02:45:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750301094; cv=none; b=ffzrK6fKyoSLdCwtegQYN8EmQc1iWKopCJ76x2E9vb2FyNOuhtuEpH2AmDToHHmET4N1k7rnJcOMEjpXq1TaLJ4Ntr9LADeQ77eilTF1wkyFVuO44OsHuDZJxGPnJNSLZcj/iSmgmXAhzy8Ar1FxCHfA3syYkvh8xW9LNX4ZfSY=
+	t=1750301143; cv=none; b=nQAfKJeulUiBNEt6gL3j+lKwCrEM/HH9fKJa2fSvqWWeuMkTttRcXijYAZkxoWSV+Sch1giT/HAESiULsrurkE6NggTu3z8U/ZgjfPN4vJVrjE3m8tk4jIeWccV30+0xObyXBBs2vCb9l5TNAzdjZYqm6wpM75at7xLkHLnarz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750301094; c=relaxed/simple;
-	bh=qoyTG+y8tPin1lSTQeGsP+HTVOL7kT5xddmxzpFuYF0=;
+	s=arc-20240116; t=1750301143; c=relaxed/simple;
+	bh=yN5IRTf2bp0DFPhQIni3wnaPsQ3d+S++8/d0mRCJUJw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cONuwD6phM3mnXxYJcrdHl/PrXwEXp3EqQwxJOwBg6Q8jDaWeEH4ZLdbDeBCdD7o8TgVgfRp1Fver0OpT8VsmTb45FXCGgya0/PJawsyVi40Evh9h+aI069bdDMMxMKQDY+Wk+D6BHujsLraTr5KIcXmQ/w/qwVLencasbI+HGk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=U2L1O6k7; arc=none smtp.client-ip=209.85.210.182
+	 Content-Type:Content-Disposition:In-Reply-To; b=AAHtDrT/BAxLxuethEf6FZ+Vw/kEQFm+fEQ6oKV2XR7TWVFb7nL5wBqwf9xnbQRTwgpnEPg4GnsklAZvaXZ0c8pFyQ4PIvOgzyskefEMZM0GmTYZN9FlozQNtQkL/xBl/5HZT8YqNGy7nNMexQHD5rmI/o+HNBfu8NPFm9LTyjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=YgPhGSzS; arc=none smtp.client-ip=209.85.215.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="U2L1O6k7"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-742c7a52e97so194616b3a.3
-        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 19:44:52 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="YgPhGSzS"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-b31cd61b2a9so235510a12.3
+        for <virtualization@lists.linux.dev>; Wed, 18 Jun 2025 19:45:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1750301092; x=1750905892; darn=lists.linux.dev;
+        d=chromium.org; s=google; t=1750301141; x=1750905941; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=NGiV4ZITlSkGta2ar3rISknYHCyA9ON09GdNG8pubLA=;
-        b=U2L1O6k7LwCAzL3tM1lFFpUO6QJxc4AwwAHoGo8SDV1wdbq0aLAqJmcrsN6LifYLnd
-         MMBM34tzf00VqbaAhFZR/4SyVr60E/+USeIS+4VBx/87X41FiHr+ywOtxGbyPbX2RanJ
-         n8ye51zrDdcAgqXDbREtRvXoVwXkS3WLtecZs=
+        bh=qVwsh/DCfF7Xz7iwx0RMWfoA+1QEfSvNmteXgwq8Uto=;
+        b=YgPhGSzSRDuFxMCoQr9vvXd6vEnO0dBl67DtAp8qTsJ0lVcraCjQhmeesD9FEK6vXB
+         hIVG6B9wiMefRsBVSRCEfXRbe+0isUZqKR8le3juMAoygnzTxuHrCaoC9abshjBg7XZV
+         NyuBewt+qvpuYaYMIjOo2bX4L1uDmmWguOH6Q=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750301092; x=1750905892;
+        d=1e100.net; s=20230601; t=1750301141; x=1750905941;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=NGiV4ZITlSkGta2ar3rISknYHCyA9ON09GdNG8pubLA=;
-        b=qmuksUnn7BO85cnHC60MTbsHuzUy3p1e/D6vVBGXE8cCifj8WE64pzMZXIaQdO/x9V
-         bPI0GOU+Ga7O6mxopTQ2hTm9Ucjau/3W96keb1f4I8uhqwZpZFjKmLe0c1hfqWc+ldLL
-         uVyDr0ZTAcnsyaHOBzmUnNTyDOAakvIBnu/zbFrgxZpKrQzsHIm9YaLTfetrZF0HYREI
-         w1Zc2+kmnevQYzWF/4g1RRaMdA8KME6I1t4L/+x+9vQxjhIlT9GfjBuF9T0YdrJIXBfZ
-         15SZdi8BQ11nFabGr4zJ5lXIVoe2Q1SqUhAkK4WQMlCsLAYnps81nnGDFJSGmfiA30z+
-         bXig==
-X-Forwarded-Encrypted: i=1; AJvYcCWyWylofuIK69tawcvLEFTejez8jzi30m8OJPlJFuSbUSr095IeXcTEB++rzvD0f5XyvPpDiuNLA/kttGCQtA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwDtgKNcWKILtZKG7GwzwR7eOI0pfqqobM0o3pRstZ7UwFdg4Gh
-	FGggfKf8TUM389y0GLENDDHmHLfkeof2tc2r0SEFI5/OSkLaF/9/f+Fq5cMcRU8WDQ==
-X-Gm-Gg: ASbGncsb3o6pAv/W59OV3YWq7ZRT5IHfx+10nxLA6AyNDWRWfeiP9H6xb9gXLV5ljog
-	zGSIgeEWPIUnI4iqoKUDRA+H0T+EYVDTKlbO+m/jI659eR9yAcrQ9UdXQaEIrfjOwicQhaPB9jP
-	Z0pV1Nwr5AJrYiAXa9m3D9Y91ZgNZiDUQD6xSmrdsOsXtRuvx7o+ATMz1zOIIedV9axxPeNhvBN
-	yaKx0BBR/9AviUomhspUc1Q6byQ1VorWNCo9SOQQPM92xmBi1fy67bYk2mdMLRMSL5HDJZPFTbj
-	n9DjJ0gtpPLwf+To+nJTQc7p8ImeoV7ikIMBWMeNtItuz050zUuPFldYNqzZCHVaeg==
-X-Google-Smtp-Source: AGHT+IG6keXC3NsOp2Ins+/oPh724/MxHSdE1WbIS33oc9s9zagcbgJChxdFiOB1royOBlBoftNKog==
-X-Received: by 2002:a05:6a00:1d15:b0:748:e4f6:ff31 with SMTP id d2e1a72fcca58-748e4f7091emr9593788b3a.8.1750301091998;
-        Wed, 18 Jun 2025 19:44:51 -0700 (PDT)
+        bh=qVwsh/DCfF7Xz7iwx0RMWfoA+1QEfSvNmteXgwq8Uto=;
+        b=C+oQ3nsDRGytmR+sutkQ5BTK+v+d3BJoQxVnIrpHoi7oV9R2zKiqQKYh1GoUPTnC6U
+         iskhxeZOij9F3S8eFHHM9GrJOKErw0inbTH29LF8bNiSYV23wO8Fvz5Mo6/Vep9R+D6j
+         PtIYFglGotqX4lfuCVY2vqwETDEIIg/7QJS+wUb/fE53sPIeB9OacXtK0oBYa3RekwQn
+         WoXMsjuJ2eP9wY/aHgddOW+FiWEqSrvv0o5FCYNXeqcxEAcEAY5MQ/O8pBYShHOFz84a
+         y7IItJ9wdnVdwdN/0ZkCFnRuxvJuX/TV9a9viLn035wC8ICiq9S3xU1pu+Zv+X6fFOy/
+         KXOg==
+X-Forwarded-Encrypted: i=1; AJvYcCV2KD8+rHXZ8dhrNWOLNCyyCnvbq9qtjF3zsP/3+Qz7shirszNbVifbNNOUNEq0ewJxKYzof2iOof97/KKf/g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwFLsPVrsd1v7nFNz1TY66MJbMt9OdqgzWreOuubDKYj2QaqkmQ
+	f3icFbLWrmCFkRJlYkCF8cvcHVQCun9kQIlyxlsSJ1J1AVcEXAoy6xeVoyssMVfm1g==
+X-Gm-Gg: ASbGncshz6hYadd297QIDjxNQ9PnZbhFY2lS0ELqTzvzL2oQHXdR95DvT+J3GNI7G09
+	D4ErQNwrtalN56dRXN6uVsUFscoojTUr6ueiSic3nWBa1kYPAtbwB1bgdbawuULISMpdFcuA5aX
+	iTJJ4WhaHc8/KflDgfpm/XKf41fMVkatwfVir8qxy4Lm3V6aYmrVc21Md0F+gAC1YXhlfULwVLd
+	6S+By5j2UasMKVigOAeZV99alATHMtpLIxFN1kquwdFf6CSvMyde/px2Raw9klkGxfIsvv9aWEf
+	gq564xFLoeYrrMRPRASUfCJeABJMmT6NkcvtsdalnDuOrvdin5bARTiLtApJlb/yKQ==
+X-Google-Smtp-Source: AGHT+IEIhSKyAh/a5UXDnIfIZx40q+8DWj3yxUrqA8zj6603W5pJSAuRQjAc6FIffxONFpmzBXMSlQ==
+X-Received: by 2002:a17:902:e747:b0:234:d292:be8f with SMTP id d9443c01a7336-2366b32e55bmr310856115ad.1.1750301141373;
+        Wed, 18 Jun 2025 19:45:41 -0700 (PDT)
 Received: from google.com ([2401:fa00:8f:203:7cb6:ce70:9b77:ed3b])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-748ff646231sm44607b3a.146.2025.06.18.19.44.42
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3158a226ddcsm876010a91.1.2025.06.18.19.45.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Jun 2025 19:44:51 -0700 (PDT)
-Date: Thu, 19 Jun 2025 11:44:40 +0900
+        Wed, 18 Jun 2025 19:45:41 -0700 (PDT)
+Date: Thu, 19 Jun 2025 11:45:29 +0900
 From: Sergey Senozhatsky <senozhatsky@chromium.org>
 To: David Hildenbrand <david@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
@@ -81,11 +81,10 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
 	Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>, 
 	Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>, 
 	Shakeel Butt <shakeel.butt@linux.dev>
-Subject: Re: [PATCH RFC 03/29] mm/zsmalloc: drop PageIsolated() related
- VM_BUG_ONs
-Message-ID: <ved33aqy5rlayhagg3x6xcry3cyadw6eponaj6dfwkt7xmbep6@dpcvwrfgrjxx>
+Subject: Re: [PATCH RFC 06/29] mm/zsmalloc: make PageZsmalloc() sticky
+Message-ID: <5qkfuuar3csonfv3a6nj5ikl3ghebqassnnfw24xj7rjwx77fg@cglr2plhwvfs>
 References: <20250618174014.1168640-1-david@redhat.com>
- <20250618174014.1168640-4-david@redhat.com>
+ <20250618174014.1168640-7-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -94,12 +93,12 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250618174014.1168640-4-david@redhat.com>
+In-Reply-To: <20250618174014.1168640-7-david@redhat.com>
 
 On (25/06/18 19:39), David Hildenbrand wrote:
-> Let's drop these checks; these are conditions the core migration code
-> must make sure will hold either way, no need to double check.
+> Let the buddy handle clearing the type.
 > 
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
+FWIW,
 Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
