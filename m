@@ -1,157 +1,204 @@
 Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CA2222577C;
-	Fri, 20 Jun 2025 19:53:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 284C022B8BE
+	for <virtualization@lists.linux.dev>; Fri, 20 Jun 2025 19:58:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750449201; cv=none; b=jJyBYjGdPpawRzxwoGdhyEl7GNs4xjw2IFNxZK+19AtqxYbs7O2dek+5D3WCeQWLmmbzjyLWzI4m6qLegEMcaKHLxxW4mH0efcpxPFK93dSBA8xciEskM7KpO+G5MdhZcE5NFQ71ZIaSg2QYbLnsW8RglsT2xwyHPkykZ/E/FII=
+	t=1750449488; cv=none; b=mlBVfYGnePf8D/llulOLycq05TbRrZwLkrdFY7Xgknl2mRwRSna7uX3tO6+s74Xn6AMmjp3Gd35Cpoc5U9hXlt320f3wsOAkzOvnAaRpj36tNLp8Tm7Z2c4bA54o+WHDPCLhDar4hSXdGS3UJZep1jr/gZArbtWjz35C1XVhqrw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750449201; c=relaxed/simple;
-	bh=qXzQaYDyZ22wVOw3OB4twS41M4U5ybMKs8ALKHqH37A=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=jGiPjTjV0+ufDf7Hdncy2d1iJOrUnfzplRPqUUrx9C1PEh9BjKFxQROlgSAVFq7HdbykgFHEk/Iw8cpeiunAbQi3wbokzDAUOiiS8Q2rceZDjuPuMEgfGQU3kO9H7IoP+o9PMP/M7ZBpKUcKuSK2ATzURl/fQgHq1Q8u9OyewU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=vAM2/3RR; arc=none smtp.client-ip=185.226.149.37
+	s=arc-20240116; t=1750449488; c=relaxed/simple;
+	bh=qD7QOF0Eu3kbnHtl32Gda5bek7meSJSxrmTH5Gei8i8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KZY+4DA9tUDkVCGZKlAPBaYvP/0fTpW0Fm+7GOyAX/9hfsQf189YHclFEy43HPvG6IsMIotcU844EFCTXum2t6Lo/Yx7SAFHcYVHHVvbVuI3mdG/qJaDyGwp0OldIaMFjgE/yB6fBV8ac4mFpGt8hEPG1Y8WUigwCQzdkw8swXs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=v3EALXau; arc=none smtp.client-ip=185.226.149.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="vAM2/3RR"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="v3EALXau"
 Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
 	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1uShnZ-000fBs-F7; Fri, 20 Jun 2025 21:53:17 +0200
+	id 1uShs7-000fjV-GN; Fri, 20 Jun 2025 21:57:59 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=lfAYRwZDSdZ+Y8WOrfpvUOazYa4OR/cUBrBuUO7BMjs=; b=vAM2/3RRZazC/b2aX7VWvbZ/df
-	4QEKIhNKUIQ4CCmnOSX2KWt4KJPDU0YxCf2idnRPKpGoezBi0+6Uhvf3FXrd9Ku3nyDMJBWiLkOAP
-	nQK5MS2MLkpXuhIgGoZeZQTHSGaShh6K7ehSgsApavPlqK2J6Pbba8bhrJdZxbP/ha1d0xIpguEWE
-	xORwdOxdXrr/PRui9kV7mbV7TocmPIC5VLL1k8XRRniUL+rARSufeMe0lM4sdGF3deHmAL8KL8l97
-	TvGBrmV8nEpPnNIWiVFB5F5uqHXqKDb+P7QiBskRYCca3kS/b37yT87BfzsjxDypXjZpAxt3NUQWr
-	viPsLQqQ==;
-Received: from [10.9.9.73] (helo=submission02.runbox)
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=vckMvA6jWBSBfECI0pQWoIeT/beoNl3jiVpNm9w7QOU=; b=v3EALXauZCD/fezkh9p8YZEVyV
+	7pReDOY3G6YsYt0yWKrufLOu3MgvjZd4ElvASaHFJWXxkG+yR0DdQdajYx0WMv8/MmXzwcGZBTnYb
+	njKy5NQpqFSICnPoQQt2Ah3bvyp4i5YapnANmBuhteTe7I+uJ4V0hu1qCLzaQwNCS/IFJf7MjwIwa
+	sAx6BtbatjUfuErgB0zQyfirBQ+RtR+9w9q02otKoB1Ru0dKljoI7PRGzNm4lMfxGdTHCGV0sbFGp
+	VYZKW+jNY7tm3a3YHRLRG0mO/Uv1S/DBMMQEngz9jHDGyRAXESNMlxeD9Ssql/zKyTHzmsqptaXOy
+	4lxOYanA==;
+Received: from [10.9.9.72] (helo=submission01.runbox)
 	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1uShnZ-0003iV-2s; Fri, 20 Jun 2025 21:53:17 +0200
-Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	id 1uShs6-00044Z-Od; Fri, 20 Jun 2025 21:57:58 +0200
+Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1uShnD-00CRMQ-En; Fri, 20 Jun 2025 21:52:55 +0200
-From: Michal Luczaj <mhal@rbox.co>
-Date: Fri, 20 Jun 2025 21:52:44 +0200
-Subject: [PATCH RFC net v2 2/3] vsock: Fix transport_* TOCTOU
+	id 1uShrm-009FAR-5z; Fri, 20 Jun 2025 21:57:38 +0200
+Message-ID: <fbbbb112-e529-43a7-97a7-ca031a1fc448@rbox.co>
+Date: Fri, 20 Jun 2025 21:57:36 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 1/3] vsock: Fix transport_{h2g,g2h} TOCTOU
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20250618-vsock-transports-toctou-v1-0-dd2d2ede9052@rbox.co>
+ <20250618-vsock-transports-toctou-v1-1-dd2d2ede9052@rbox.co>
+ <r2ms45yka7e2ont3zi5t3oqyuextkwuapixlxskoeclt2uaum2@3zzo5mqd56fs>
+ <fd2923f1-b242-42c2-8493-201901df1706@rbox.co>
+ <cg25zc7ktl6glh5r7mfxjvbjqguq2s2rj6vk24ful7zg6ydwuz@tjtvbrmemtpw>
+ <4f0e2cc5-f3a0-4458-9954-438911e7d104@rbox.co>
+ <CAGxU2F65bh=jU6MVnhh=EzP19iayWATEezDFDd+c9o+K3Bf6YQ@mail.gmail.com>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <CAGxU2F65bh=jU6MVnhh=EzP19iayWATEezDFDd+c9o+K3Bf6YQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250620-vsock-transports-toctou-v2-2-02ebd20b1d03@rbox.co>
-References: <20250620-vsock-transports-toctou-v2-0-02ebd20b1d03@rbox.co>
-In-Reply-To: <20250620-vsock-transports-toctou-v2-0-02ebd20b1d03@rbox.co>
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.2
 
-Transport assignment may race with module unload. Protect new_transport
-from becoming a stale pointer.
+On 6/20/25 16:43, Stefano Garzarella wrote:
+> On Fri, 20 Jun 2025 at 16:23, Michal Luczaj <mhal@rbox.co> wrote:
+>>
+>> On 6/20/25 15:20, Stefano Garzarella wrote:
+>>> On Fri, Jun 20, 2025 at 02:58:49PM +0200, Michal Luczaj wrote:
+>>>> On 6/20/25 10:32, Stefano Garzarella wrote:
+>>>>> On Wed, Jun 18, 2025 at 02:34:00PM +0200, Michal Luczaj wrote:
+>>>>>> Checking transport_{h2g,g2h} != NULL may race with vsock_core_unregister().
+>>>>>> Make sure pointers remain valid.
+>>>>>>
+>>>>>> KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
+>>>>>> RIP: 0010:vsock_dev_do_ioctl.isra.0+0x58/0xf0
+>>>>>> Call Trace:
+>>>>>> __x64_sys_ioctl+0x12d/0x190
+>>>>>> do_syscall_64+0x92/0x1c0
+>>>>>> entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>>>>>>
+>>>>>> Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+>>>>>> Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>>>>>> ---
+>>>>>> net/vmw_vsock/af_vsock.c | 4 ++++
+>>>>>> 1 file changed, 4 insertions(+)
+>>>>>>
+>>>>>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>>>>>> index 2e7a3034e965db30b6ee295370d866e6d8b1c341..047d1bc773fab9c315a6ccd383a451fa11fb703e 100644
+>>>>>> --- a/net/vmw_vsock/af_vsock.c
+>>>>>> +++ b/net/vmw_vsock/af_vsock.c
+>>>>>> @@ -2541,6 +2541,8 @@ static long vsock_dev_do_ioctl(struct file *filp,
+>>>>>>
+>>>>>>    switch (cmd) {
+>>>>>>    case IOCTL_VM_SOCKETS_GET_LOCAL_CID:
+>>>>>> +          mutex_lock(&vsock_register_mutex);
+>>>>>> +
+>>>>>>            /* To be compatible with the VMCI behavior, we prioritize the
+>>>>>>             * guest CID instead of well-know host CID (VMADDR_CID_HOST).
+>>>>>>             */
+>>>>>> @@ -2549,6 +2551,8 @@ static long vsock_dev_do_ioctl(struct file *filp,
+>>>>>>            else if (transport_h2g)
+>>>>>>                    cid = transport_h2g->get_local_cid();
+>>>>>>
+>>>>>> +          mutex_unlock(&vsock_register_mutex);
+>>>>>
+>>>>>
+>>>>> What about if we introduce a new `vsock_get_local_cid`:
+>>>>>
+>>>>> u32 vsock_get_local_cid() {
+>>>>>     u32 cid = VMADDR_CID_ANY;
+>>>>>
+>>>>>     mutex_lock(&vsock_register_mutex);
+>>>>>     /* To be compatible with the VMCI behavior, we prioritize the
+>>>>>      * guest CID instead of well-know host CID (VMADDR_CID_HOST).
+>>>>>      */
+>>>>>     if (transport_g2h)
+>>>>>             cid = transport_g2h->get_local_cid();
+>>>>>     else if (transport_h2g)
+>>>>>             cid = transport_h2g->get_local_cid();
+>>>>>     mutex_lock(&vsock_register_mutex);
+>>>>>
+>>>>>     return cid;
+>>>>> }
+>>>>>
+>>>>>
+>>>>> And we use it here, and in the place fixed by next patch?
+>>>>>
+>>>>> I think we can fix all in a single patch, the problem here is to call
+>>>>> transport_*->get_local_cid() without the lock IIUC.
+>>>>
+>>>> Do you mean:
+>>>>
+>>>> bool vsock_find_cid(unsigned int cid)
+>>>> {
+>>>> -       if (transport_g2h && cid == transport_g2h->get_local_cid())
+>>>> +       if (transport_g2h && cid == vsock_get_local_cid())
+>>>>                return true;
+>>>>
+>>>> ?
+>>>
+>>> Nope, I meant:
+>>>
+>>>   bool vsock_find_cid(unsigned int cid)
+>>>   {
+>>> -       if (transport_g2h && cid == transport_g2h->get_local_cid())
+>>> -               return true;
+>>> -
+>>> -       if (transport_h2g && cid == VMADDR_CID_HOST)
+>>> +       if (cid == vsock_get_local_cid())
+>>>                  return true;
+>>>
+>>>          if (transport_local && cid == VMADDR_CID_LOCAL)
+>>
+>> But it does change the behaviour, doesn't it? With this patch, (with g2h
+>> loaded) if cid fails to match g2h->get_local_cid(), we don't fall back to
+>> h2g case any more, i.e. no more comparing cid with VMADDR_CID_HOST.
+> 
+> It's friday... yep, you're right!
+> 
+>>
+>>> But now I'm thinking if we should also include `transport_local` in the
+>>> new `vsock_get_local_cid()`.
+>>>
+>>> I think that will fix an issue when calling
+>>> IOCTL_VM_SOCKETS_GET_LOCAL_CID and only vsock-loopback kernel module is
+>>> loaded, so maybe we can do 2 patches:
+>>>
+>>> 1. fix IOCTL_VM_SOCKETS_GET_LOCAL_CID to check also `transport_local`
+>>>     Fixes: 0e12190578d0 ("vsock: add local transport support in the vsock core")
+>>
+>> What would be the transport priority with transport_local thrown in? E.g.
+>> if we have both local and g2h, ioctl should return VMADDR_CID_LOCAL or
+>> transport_g2h->get_local_cid()?
+> 
+> Should return the G2H, LOCAL is more for debug/test, so I'd return it
+> only if anything else is loaded.
+>>>> 2. move that code in vsock_get_local_cid() with proper locking and use
+>>> it also in vsock_find_cid()
+>>>
+>>> WDYT?
+>>
+>> Yeah, sure about 1, I'll add it to the series. I'm just still not certain
+>> how useful vsock_get_local_cid() would be for vsock_find_cid().
+>>
+> 
+> Feel free to drop 1 too, we can send it later if it's not really
+> related to this issue.
 
-This also takes care of an insecure call in vsock_use_local_transport();
-add a lockdep assert.
+I've added it to the end of this series (and marked the series as RFC), for
+ease of discussion.
 
-BUG: unable to handle page fault for address: fffffbfff8056000
-Oops: Oops: 0000 [#1] SMP KASAN
-RIP: 0010:vsock_assign_transport+0x366/0x600
-Call Trace:
- vsock_connect+0x59c/0xc40
- __sys_connect+0xe8/0x100
- __x64_sys_connect+0x6e/0xc0
- do_syscall_64+0x92/0x1c0
- entry_SYSCALL_64_after_hwframe+0x4b/0x53
+> About the series, maybe it is better to have a single patch that fixes
+> the access to ->get_local_cid() with proper locking.
+> But I don't have a strong opinion on that. I see it like a single
+> problem to fix, but up to you.
 
-Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
----
- net/vmw_vsock/af_vsock.c | 28 +++++++++++++++++++++++-----
- 1 file changed, 23 insertions(+), 5 deletions(-)
-
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 63a920af5bfe6960306a3e5eeae0cbf30648985e..a1b1073a2c89f865fcdb58b38d8e7feffcf1544f 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -407,6 +407,8 @@ EXPORT_SYMBOL_GPL(vsock_enqueue_accept);
- 
- static bool vsock_use_local_transport(unsigned int remote_cid)
- {
-+	lockdep_assert_held(&vsock_register_mutex);
-+
- 	if (!transport_local)
- 		return false;
- 
-@@ -464,6 +466,8 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- 
- 	remote_flags = vsk->remote_addr.svm_flags;
- 
-+	mutex_lock(&vsock_register_mutex);
-+
- 	switch (sk->sk_type) {
- 	case SOCK_DGRAM:
- 		new_transport = transport_dgram;
-@@ -479,12 +483,15 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- 			new_transport = transport_h2g;
- 		break;
- 	default:
--		return -ESOCKTNOSUPPORT;
-+		ret = -ESOCKTNOSUPPORT;
-+		goto err;
- 	}
- 
- 	if (vsk->transport) {
--		if (vsk->transport == new_transport)
--			return 0;
-+		if (vsk->transport == new_transport) {
-+			ret = 0;
-+			goto err;
-+		}
- 
- 		/* transport->release() must be called with sock lock acquired.
- 		 * This path can only be taken during vsock_connect(), where we
-@@ -508,8 +515,16 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- 	/* We increase the module refcnt to prevent the transport unloading
- 	 * while there are open sockets assigned to it.
- 	 */
--	if (!new_transport || !try_module_get(new_transport->module))
--		return -ENODEV;
-+	if (!new_transport || !try_module_get(new_transport->module)) {
-+		ret = -ENODEV;
-+		goto err;
-+	}
-+
-+	/* It's safe to release the mutex after a successful try_module_get().
-+	 * Whichever transport `new_transport` points at, it won't go await
-+	 * until the last module_put() below or in vsock_deassign_transport().
-+	 */
-+	mutex_unlock(&vsock_register_mutex);
- 
- 	if (sk->sk_type == SOCK_SEQPACKET) {
- 		if (!new_transport->seqpacket_allow ||
-@@ -528,6 +543,9 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- 	vsk->transport = new_transport;
- 
- 	return 0;
-+err:
-+	mutex_unlock(&vsock_register_mutex);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(vsock_assign_transport);
- 
-
--- 
-2.49.0
+Yeah, I get your point. So I've tried something similar in v2:
+https://lore.kernel.org/netdev/20250620-vsock-transports-toctou-v2-0-02ebd20b1d03@rbox.co/
 
