@@ -1,169 +1,125 @@
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9ECE5CDF1
-	for <virtualization@lists.linux.dev>; Sun, 22 Jun 2025 13:59:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4955A1F4C8A
+	for <virtualization@lists.linux-foundation.org>; Sun, 22 Jun 2025 17:40:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750600765; cv=none; b=MAhWEWQ/Rshh8dByeOh5VD8nKYmIS4nS4RYiSXevDvy+K1e1SjkrR/4fWzg0aF9K2QFF5YRATeH45sJRXkRGHZn9T3Q3FqSTTFVRyryUUz19uHIEs8e5jc3fJ0A96u5JrwkZKMTfzOS0aLT6KG5xGgRQAqa/AO7tg8p6ltaXDis=
+	t=1750614018; cv=none; b=j/YoiFyv7MRk5sSqyuYYQp9BvUrZoSzVyyf638/ILy0CaRB4NEhwgX/+UYPvSZKWl1vky9DOc+maobtjjy5OpF6J7K3SmLbsX1iy5xUysnd0g2MljO8ZvCoV6WFy4lE7cP4kYu8nQ9XBoTUry7/eUEXop0BBB1WWHduY93v88vI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750600765; c=relaxed/simple;
-	bh=UxKMEiEskUPW9t0F65Rgb1ZCmJRY9zGpr+eirXMl1cs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=KrXEThxb+JFmD0ZwAfWaHYg2qgS567xI+LmQ8gOef/jso4uwI/AIVHstpRZyMlfjeDkciCE/QrOSkfZ8/4e0bgZoYEjXmICV7B2WKN8iTWRag4clsAEDEygRCVeqJsWnkN5ijqm7j90XjoyA6wA6VQGsl0pyZGNvKT/E2yai+Xc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B2IKs60B; arc=none smtp.client-ip=209.85.210.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750614018; c=relaxed/simple;
+	bh=JBS6katIuy9abXAwM/EgfQ0vNXuWJoKtGDCgsMvppwk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Mwgqy/3UuR8diMO6jcQdHB1CiKiTNtONA53g6Q5a0FxfZY1LmHzwOowyHhIOonvKo4MV22qKjbtIeTtXZC5HAbItArJSbyhl3fNqxDnSWuEgqe27clIEzRAApWMEH4h1S4jmYImqHUvKtmru7u28f5iTzescdIG9BpunFpYEVKY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=G7b4y+7s; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B2IKs60B"
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-748fe69a7baso2926228b3a.3
-        for <virtualization@lists.linux.dev>; Sun, 22 Jun 2025 06:59:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="G7b4y+7s"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id EEE5740676
+	for <virtualization@lists.linux-foundation.org>; Sun, 22 Jun 2025 17:40:16 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 45Q4_J9JKV1A for <virtualization@lists.linux-foundation.org>;
+ Sun, 22 Jun 2025 17:40:15 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::831; helo=mail-qt1-x831.google.com; envelope-from=yuri.benditovich@daynix.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org EF9154066B
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EF9154066B
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=G7b4y+7s
+Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id EF9154066B
+	for <virtualization@lists.linux-foundation.org>; Sun, 22 Jun 2025 17:40:14 +0000 (UTC)
+Received: by mail-qt1-x831.google.com with SMTP id d75a77b69052e-4a58c2430edso38608681cf.1
+        for <virtualization@lists.linux-foundation.org>; Sun, 22 Jun 2025 10:40:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750600763; x=1751205563; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9CctixpwR27qpFLNeLtbKOjrAbCl9MvTJF19ZD0qLuo=;
-        b=B2IKs60BO4tJdoDRu0tf9lMMoevbQu6GLj58278fFGZEjZcg+M0/bmLcULdv6tJeSf
-         vEqbZQBZLkQy7nRT+73jizlYb0hu8R6/2tA1FviswaDexqTht7k4mtJ5mPBZoW73jmg2
-         AqyE4bJTOUzAzL+C0CXKzt0w3BXnlr5Du4eF5xmtxMh2U3T87+7IR73TFFjyllBIyfFT
-         1+Oh0D/TKRsVI2S7P51uNzL8EvfY0ano3NV28/uxVDcHiMVmSNDEYK9y+/gYGizR2TuB
-         xAJl5V+/7GdwChOgotPxBr/Kd0HWSpGXiB6Pgy+KCsplCpeavvGXbu4sfXvtQobdPP0y
-         +XQQ==
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1750614013; x=1751218813; darn=lists.linux-foundation.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=JBS6katIuy9abXAwM/EgfQ0vNXuWJoKtGDCgsMvppwk=;
+        b=G7b4y+7silqmBkirS2E4Gw3DeGUl7wKO8Vi42yUhPhai6mKjdejfLO6mhy9t359rRL
+         sV9AKds4amv5OKVkh1OHa46f4R9yNBq7NBUyGmJSVA6H0LQQPu/nYlluw4lUQqVYlynd
+         XXf2H0YZmR9t1M5JsPZIunq6SxTLg0rqJ4H0gw7C8CvqqLZUPMyvOTOSVLPlbaR4a5aO
+         ungCcn05mk7QekW1L7AUGALvHxTviEXdA6DdSwhsILXn+X5Lb6YS/2337tO7+G+lk7FR
+         lUDQN4FJrnZd7H0TwD5NSZY+eq3ZIJ2+jPXc6AuJtPoeTYp+oLhWNYkImkNAyc26C2OM
+         qsMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750600763; x=1751205563;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9CctixpwR27qpFLNeLtbKOjrAbCl9MvTJF19ZD0qLuo=;
-        b=uoMFuu8JceujoaaJiOrtaER6Gx6DYKqvLPIZwNnSlDbr9ilUVFKVOvnF5psDhBj5Mb
-         MJxL9nxo1b0lyXm+MpJ/Ii7mGbl9vCAmTUZ+UAE00VA9vkMmvb5Kup0Lm+sH1UCCQd94
-         ORwneFNLxWeOosROxFVjrdClMyyviVSPhrStBpajpzAIm4g5/qUTKxq1vqozAVkHjdGq
-         XOteq8d8v80sKsMtxYA+ASBd0fXHnFkTqh9KYXvbEvXzap8/uIFS13HX2Ga52PnBM6ZT
-         /kNu2lAMcZiERX1tDTvN7DnxGYAJxvDQRMiK6QciYjCU4L1tLP7NIDFwvkSRKohUoroh
-         cGnA==
-X-Forwarded-Encrypted: i=1; AJvYcCW0lLaaLsNF7y/uUxjpYFBg1SK3fVQMltd/DFLxBwVOPYx8GJxJTDlteFLA+xr+vfeNVY7KKyLKXi6pURoOeg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx6/SKw6ea4g9qUkrHQjcwCy1i2U/S+19wNphjyQwVqM11TVQhs
-	uSXXRb0Xi7pyfkUSPa8srxs3kKZSHurDPNhTrwSREIGvTF44O7zUT1W+
-X-Gm-Gg: ASbGncujKERJmMrV/StQWNEwmNpwbC2V8rDIZflBdPFMOBJnZARaw/WPrB6W/47xx3I
-	vzpbm6VrNW9DPaMBTaeKu9kHmBRGtGVfFxkUUBhTTczeKLGHOpDBz5mj9EqvdIm06pRa4Ch+yRl
-	M1zASFXMkNr/Y3mTJCSK3G2uF9Hs9/robMsmM7xyPT6Sf5JP2dhsfsxGdvLZVI7quDe+nhSnnuM
-	JJ7z4flTYzuOv1bBbnv4u4+pTnztLeE1UGL+n3C4CEdhr2jtMbf0DG2KfzKeUoeR3HK48av344G
-	CWB7SJROv6O+bb1V4LeFPayUdrOfN29UTGn2klQQXVQWdLlYGUWTx+L3uuvmpCiSNxJE5/7czaU
-	Lw9XG0mQ4
-X-Google-Smtp-Source: AGHT+IGGPVZOhGf33+4x/8I48rOosb9DE+Jlj5P0FJFQOP/wdva4gvlvzXjTkAkxs7+rDh5CXvmoLQ==
-X-Received: by 2002:a05:6a20:9187:b0:21f:5598:4c2c with SMTP id adf61e73a8af0-22026d8d928mr13077235637.13.1750600762962;
-        Sun, 22 Jun 2025 06:59:22 -0700 (PDT)
-Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7490a46b497sm6004931b3a.6.2025.06.22.06.59.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Jun 2025 06:59:22 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-To: sgarzare@redhat.com
-Cc: davem@davemloft.net,
-	decui@microsoft.com,
-	fupan.lfp@antgroup.com,
-	haiyangz@microsoft.com,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	kys@microsoft.com,
-	leonardi@redhat.com,
-	linux-hyperv@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	niuxuewei.nxw@antgroup.com,
-	niuxuewei97@gmail.com,
-	pabeni@redhat.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev,
-	wei.liu@kernel.org,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH net-next v3 1/3] vsock: Add support for SIOCINQ ioctl
-Date: Sun, 22 Jun 2025 21:59:10 +0800
-Message-Id: <20250622135910.1555285-1-niuxuewei.nxw@antgroup.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <y465uw5phymt3gbgdxsxlopeyhcbbherjri6b6etl64qhsc4ud@vc2c45mo5zxw>
-References: <y465uw5phymt3gbgdxsxlopeyhcbbherjri6b6etl64qhsc4ud@vc2c45mo5zxw>
+        d=1e100.net; s=20230601; t=1750614013; x=1751218813;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JBS6katIuy9abXAwM/EgfQ0vNXuWJoKtGDCgsMvppwk=;
+        b=FSZ7xFShVxkbamR7om134JbZL25P6wlwDW0Ykkrrbywz14AwoRoknCaxr/qBo/CUif
+         iiJWaQOUdrvnv2nKb1nOwsMAZNOkv37F0K+PhlooBWdQhp7kxAhqLem3DB/uCPw27PmM
+         WqiHijdc1RqjMXKxvg81xW79rrdx/TV33ZYvX9GqiBOn6QTQUD+hJhftTJjxkxK3hiLw
+         J2nXk4xUEvl/j4pOonRWmE80tB58AuIYbdxd+XiSqbTDS57RMVUv1EvmtMZdgMuRjl/Q
+         N8tY3G0ohBc/icxGH/V/ySDV32ImI2nAX8h4mbUgwNZ7rhvON8UByszQLhsvqIFJ/VOJ
+         cQaQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX+gY9ZnlGcazYDFO4yOGgMxLIgpAbsYKYJGm1/lqkZ1mh6mPJHTj3sFIA6v8hbph9dgOKckgeREDsDPMAXcw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxRpAHPi+Ha9wkGuo2BtOPEH/JU1E37HxlPdkW4owWNO4Bo96EK
+	CK++UvpoASA6ekTf0o2gQQ87G6JXXG7hztTiWiHtiN6ryCMDK6veYT7mpZKRG2MUS9hujcats14
+	teGaoYEqPb6w5yZ+bx5r7k9Zaa2/0zFTjsUPmdso2zg==
+X-Gm-Gg: ASbGncsdxU3AbvbAfMNhR1TLpNALqiUe5SyuLpWJ7hYn+3gXJgtzlDHum8cNubktSso
+	co+S5xlVA2WVDaBrp3AQBIA45K6XP+8rtWmWcT4hWodIL8W7mfbLm0s3Xt75hpQ8ZCWkQjWnoxn
+	9X8Kot30Vts5bnechHiLXmmbwcgrc+ToeJnnou4lbBtyuhcuXa7u+VyHl5YsSmPmknHs01eOFP4
+	HLfvdEILjQAR7IM
+X-Google-Smtp-Source: AGHT+IGAQVA4j9B6bOXEQavSPQk4pUsTIQfktiOkSDRcEtYWtj2nMKnJm6GAf6TwLLKYEA7597CW46OoVjUcTVc0rKg=
+X-Received: by 2002:ac8:5707:0:b0:494:b247:4ddb with SMTP id
+ d75a77b69052e-4a77c2d6173mr135279261cf.4.1750614013493; Sun, 22 Jun 2025
+ 10:40:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250530-rss-v12-0-95d8b348de91@daynix.com> <20250530-rss-v12-1-95d8b348de91@daynix.com>
+ <CACGkMEufffSj1GQMqwf598__-JgNtXRpyvsLtjSbr3angLmJXg@mail.gmail.com>
+ <95cb2640-570d-4f51-8775-af5248c6bc5a@daynix.com> <CACGkMEu6fZaErFEu7_UFsykXRL7Z+CwmkcxmvJHC+eN_j0pQvg@mail.gmail.com>
+ <4eaa7aaa-f677-4a31-bcc2-badcb5e2b9f6@daynix.com> <CACGkMEu3QH+VdHqQEePYz_z+_bNYswpA-KNxzz0edEOSSkJtWw@mail.gmail.com>
+ <75ef190e-49fc-48aa-abf2-579ea31e4d15@daynix.com> <CACGkMEu2n-O0UtVEmcPkELcg9gpML=m5W=qYPjeEjp3ba73Eiw@mail.gmail.com>
+ <760e9154-3440-464f-9b82-5a0c66f482ee@daynix.com> <CACGkMEtCr65RFB0jeprX3iQ3ke997AWF0FGH6JW_zuJOLqS5uw@mail.gmail.com>
+In-Reply-To: <CACGkMEtCr65RFB0jeprX3iQ3ke997AWF0FGH6JW_zuJOLqS5uw@mail.gmail.com>
+From: Yuri Benditovich <yuri.benditovich@daynix.com>
+Date: Sun, 22 Jun 2025 20:40:02 +0300
+X-Gm-Features: AX0GCFu7f7UEMKygSwaRuFS-QXgCw4dhQ6kVLLsvANPI-_VjCLQSaQpxwUYjwO8
+Message-ID: <CAOEp5OcybMttzRam+RKQHv4KA-zLnxGrL+UApc5KrAG+op9LKg@mail.gmail.com>
+Subject: Re: [PATCH net-next v12 01/10] virtio_net: Add functions for hashing
+To: Jason Wang <jasowang@redhat.com>
+Cc: Akihiko Odaki <akihiko.odaki@daynix.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
+	Andrew Melnychenko <andrew@daynix.com>, Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
+	Lei Yang <leiyang@redhat.com>, Simon Horman <horms@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-> ACCin hyper-v maintainers and list since I have a question about hyperv 
-> transport.
-> 
-> On Tue, Jun 17, 2025 at 12:53:44PM +0800, Xuewei Niu wrote:
-> >Add support for SIOCINQ ioctl, indicating the length of bytes unread in the
-> >socket. The value is obtained from `vsock_stream_has_data()`.
-> >
-> >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-> >---
-> > net/vmw_vsock/af_vsock.c | 22 ++++++++++++++++++++++
-> > 1 file changed, 22 insertions(+)
-> >
-> >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> >index 2e7a3034e965..bae6b89bb5fb 100644
-> >--- a/net/vmw_vsock/af_vsock.c
-> >+++ b/net/vmw_vsock/af_vsock.c
-> >@@ -1389,6 +1389,28 @@ static int vsock_do_ioctl(struct socket *sock, unsigned int cmd,
-> > 	vsk = vsock_sk(sk);
-> >
-> > 	switch (cmd) {
-> >+	case SIOCINQ: {
-> >+		ssize_t n_bytes;
-> >+
-> >+		if (!vsk->transport) {
-> >+			ret = -EOPNOTSUPP;
-> >+			break;
-> >+		}
-> >+
-> >+		if (sock_type_connectible(sk->sk_type) &&
-> >+		    sk->sk_state == TCP_LISTEN) {
-> >+			ret = -EINVAL;
-> >+			break;
-> >+		}
-> >+
-> >+		n_bytes = vsock_stream_has_data(vsk);
-> 
-> Now looks better to me, I just checked transports: vmci and virtio/vhost 
-> returns what we want, but for hyperv we have:
-> 
-> 	static s64 hvs_stream_has_data(struct vsock_sock *vsk)
-> 	{
-> 		struct hvsock *hvs = vsk->trans;
-> 		s64 ret;
-> 
-> 		if (hvs->recv_data_len > 0)
-> 			return 1;
-> 
-> @Hyper-v maintainers: do you know why we don't return `recv_data_len`?
-> Do you think we can do that to support this new feature?
+> Yuri, can you help to clarify this?
 
-Hi Hyper-v maintainers, could you please take a look at this?
+I see here several questions:
+1. Whether it is ok for the device not to indicate support for XXX_EX hash type?
+- I think, yes (strictly speaking, it was better to test that before
+submitting the patches )
+2. Is it possible that the guest will enable some XXX_EX hash type if
+the device does not indicate that it is supported?
+- No (I think this is part of the spec)
+3. What to do if we migrate between systems with different
+capabilities of hash support/reporting/whatever
+- IMO, at this moment such case should be excluded and only mechanism
+we have for that is the compatible machine version
+- in some future the change of device capabilities can be communicated
+to the driver and _probably_ the driver might be able to communicate
+the change of device capabilities to the OS
+4. Does it make sense to have fine configuration of hash types mask
+via command-line?
+- IMO, no. This would require the user to have too much knowledge
+about RSS internals
 
-Hi Stefano, if no response, can I fix this issue in the next version?
-
-Thanks,
-Xuewei
- 
-> Thanks,
-> Stefano
-> 
-> >+		if (n_bytes < 0) {
-> >+			ret = n_bytes;
-> >+			break;
-> >+		}
-> >+		ret = put_user(n_bytes, arg);
-> >+		break;
-> >+	}
-> > 	case SIOCOUTQ: {
-> > 		ssize_t n_bytes;
-> >
-> >-- 
-> >2.34.1
-> >
+Please let me know if I missed something.
