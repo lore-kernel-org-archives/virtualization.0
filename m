@@ -1,156 +1,77 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7945C2036FA
-	for <virtualization@lists.linux-foundation.org>; Mon, 23 Jun 2025 08:07:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAA5119F40F;
+	Mon, 23 Jun 2025 09:21:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750666038; cv=none; b=Fdm2lLHc/+fd5GPSvE3avbJvsiW1RYRNIMnjEaXSe2CXK1yMJ4WWfQ1TxeRc7KYzlV+KwrC2H1vndGoDJThDmiwETyQ52FOgfK8bVfFHy1Z9nvtMmhaLVLFEx+9ablsifLTjI7I28brzUPVraUL4FDjgkDG6b6tW7Atf0bHxnrk=
+	t=1750670472; cv=none; b=gr36ckNd5q6+JTCow9vwA7B7s6D/MV9sGbaXGPNxDIqeGIYowZ/aq8/OSUAIO5N8VN81KLG+Ug1EzFbFmQGk3kv9Z++TH8e5FEEWA5+MkYP80yOyy5zk+pYcEFZFSk4FTEMPyo8Fos+jY7xsnakNekcaJJPakAbq8Qqz2+hDve8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750666038; c=relaxed/simple;
-	bh=dhmcYeHsQsigeZcrHk+M4JmzBnlMYZpMRTtb2dRaBIo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bf0zBmdQd/QVaEoCy+0AiY7yGn5bwUcO22GaUThhme+i0wsOzfMIUWiVqeeAUhL9hW9FXuL/peYarGrs9sHrrnHMgP/LXexd5s+tR6InjkTY43GegALv5BDjrUoIs386rFQvyVG8XkwzRg7ouhFMHQTQdzsB0PO8/9HFF3kdNNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RcY2WHNS; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1750670472; c=relaxed/simple;
+	bh=xB38TcCLu3+82uTnlKr9eJXWn6quvpnALLWg8EhWsvE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TTSDYZtzcEGtEQNnJm7zGYHJewHaGDF7tQGwydbbNXxCGEHFd59P7ysZiJIukJ+tAJE0TITEsVUVsZtrlPzhD7BKgRs//HnZoCjQ8Mf67R9lrqSRFlxirTd/rcXXl83OlJAHZp8qzPU3m+gZDqjTfMC7aPjb/DcvUDUulaWLtCQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=ZJYwCt/1; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RcY2WHNS"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 14C22400BB
-	for <virtualization@lists.linux-foundation.org>; Mon, 23 Jun 2025 08:07:17 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id bPnvZ7XCHnis for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Jun 2025 08:07:16 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 3FCD1400A2
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3FCD1400A2
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RcY2WHNS
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 3FCD1400A2
-	for <virtualization@lists.linux-foundation.org>; Mon, 23 Jun 2025 08:07:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750666034;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=dhmcYeHsQsigeZcrHk+M4JmzBnlMYZpMRTtb2dRaBIo=;
-	b=RcY2WHNSiDo2HhsIMDVKPuNauhTHbM7AfvkR9kZSo1acGTzV7E1vYVK4plGfaIjYx7FjUA
-	Oze7uAKV5iSAHbw245SjNI01o3V4J2xUiHB3Zcf8ufXatk4zWlSkhufhkiiLDDzZ3q3TmI
-	wr1k709bcP8Wp2V9t3p6MumAa4tJemw=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-398-oZ1yXNDQNPWBY_hDzEfuQg-1; Mon, 23 Jun 2025 04:07:13 -0400
-X-MC-Unique: oZ1yXNDQNPWBY_hDzEfuQg-1
-X-Mimecast-MFC-AGG-ID: oZ1yXNDQNPWBY_hDzEfuQg_1750666032
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-31366819969so3640583a91.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 23 Jun 2025 01:07:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750666032; x=1751270832;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dhmcYeHsQsigeZcrHk+M4JmzBnlMYZpMRTtb2dRaBIo=;
-        b=IuOSCZJHVcst3W/Rd88DNj5RJA6Bgk1+qIwxCYSv+v4kB0ZNGwYVYMPhUGG06Ep40D
-         1FMCA9iC8/fhC3PNxYJNDcawGj4XmlV0Ug57foOo4P8/7C1Hpy0SxdpEz5REngy52CMj
-         +LugpGIWmoy3sYby08M5AbFeb6xqrCxaxzbdAdqrksCR9ZmoQao/20CrR3xLpuwy1W8F
-         KtkD0fAzpiXM/fN19OeIFnUBziK+oQU5wO94RgDMSEXRjGlUxZcRzesCIl0G80HEHmD+
-         A3G3JAOOlLmltY6hToDRuhlWj/qtqnv1T8bgQR53Gw9wHk+KvJ7EMnyA2rRPq+KpbOTm
-         CaxA==
-X-Forwarded-Encrypted: i=1; AJvYcCWVwimRro/L6/GVUI0yIoZIiLhyGkWR1FTl/paMN9YdwkhsFh09juNctbak5VSHO52isl7KbBwjrV4cXf7cEQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyN9p29SbQwnyb3sXJVTIuCnP5hGD97d073FroAOqMuLFPqmr5F
-	eTrtU6eCWlP47BhoTnXyCWmHoXOHULvxxEn0E065qIljpXdsUjWQ9qGz6wzXaVQNjU0NbX/biHk
-	z5wdhWbQd/o0970jn6/DftdoQHK8uB+SPQiUP6Inug7CwGi1Iv9MEL74k98VQ02s3/KtZM0XALw
-	zx96uUi2M/xzMUl/e8wPKWEg4wbyGK5XhsDpdmQA88XRxKEmI9lDUOS4qihA==
-X-Gm-Gg: ASbGncuhQhy2j4KTID/cYX6KByrZnydu3PP7JU5Qvpwxq4Dt2ydMvl5X3bzkOFKNpRu
-	tpY/M2MfT6F896a/7BLUSo61h8nYeBybgwkqXeJUUfA5+l1mPNluHSDQ3x5Qh0fEpF+oWWpHM7D
-	Os3Izw
-X-Received: by 2002:a17:90b:5444:b0:30e:9349:2da2 with SMTP id 98e67ed59e1d1-3159d628b59mr18126488a91.4.1750666031652;
-        Mon, 23 Jun 2025 01:07:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHVQTOppEHtAfsayyJvo34GLVedX6rLC/x06Rbxlu1q0T6P50V9CQroeozuTXZMW8lnTkCwwxrOBTsZCaXXqkM=
-X-Received: by 2002:a17:90b:5444:b0:30e:9349:2da2 with SMTP id
- 98e67ed59e1d1-3159d628b59mr18126445a91.4.1750666031289; Mon, 23 Jun 2025
- 01:07:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="ZJYwCt/1"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=rrj7xmeWsaYEs+b59Xu6ZhIhwnsn9oGNVVzm3qZFXi0=; b=ZJYwCt/1YSfPxxVhxjKWB5BxOO
+	ZAY7XWLF8weWu3UurufpNuaixzvetK4o0XWh7va0R8iMcPAZSyOlxqfJCZdOAT62qt+mAQunHTizW
+	y/+D7kFK7guYgtJB4AfxwGRyNtDEAV376su7sXi8gt2L4aGMLuRCEdWC13p+1irpsPaB1bONFJjXq
+	Lkm1hKS+drGd7lZvgsM4zmcaSHMhBqnb+OybTs/MA/TN7MO40Pjs0r0nd9wNISca9IKNH8gaGGxw2
+	BhHijgJARQmkI+aVisswgpr6ozSdO9P/eRKZ5O427pnL4rOumoxAGlRpnreoAgAsoxawYN72LZCcx
+	lRkbnyVA==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1uTd6d-000FYl-1G;
+	Mon, 23 Jun 2025 17:20:44 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Mon, 23 Jun 2025 17:20:43 +0800
+Date: Mon, 23 Jun 2025 17:20:43 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: linux@treblig.org
+Cc: arei.gonglei@huawei.com, mst@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	davem@davemloft.net, virtualization@lists.linux.dev,
+	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] virtio-crypto: Remove unused virtcrypto functions
+Message-ID: <aFkcawtiloUrjm3I@gondor.apana.org.au>
+References: <20250614000505.596563-1-linux@treblig.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250530-rss-v12-0-95d8b348de91@daynix.com> <20250530-rss-v12-1-95d8b348de91@daynix.com>
- <CACGkMEufffSj1GQMqwf598__-JgNtXRpyvsLtjSbr3angLmJXg@mail.gmail.com>
- <95cb2640-570d-4f51-8775-af5248c6bc5a@daynix.com> <CACGkMEu6fZaErFEu7_UFsykXRL7Z+CwmkcxmvJHC+eN_j0pQvg@mail.gmail.com>
- <4eaa7aaa-f677-4a31-bcc2-badcb5e2b9f6@daynix.com> <CACGkMEu3QH+VdHqQEePYz_z+_bNYswpA-KNxzz0edEOSSkJtWw@mail.gmail.com>
- <75ef190e-49fc-48aa-abf2-579ea31e4d15@daynix.com> <CACGkMEu2n-O0UtVEmcPkELcg9gpML=m5W=qYPjeEjp3ba73Eiw@mail.gmail.com>
- <760e9154-3440-464f-9b82-5a0c66f482ee@daynix.com> <CACGkMEtCr65RFB0jeprX3iQ3ke997AWF0FGH6JW_zuJOLqS5uw@mail.gmail.com>
- <CAOEp5OcybMttzRam+RKQHv4KA-zLnxGrL+UApc5KrAG+op9LKg@mail.gmail.com>
-In-Reply-To: <CAOEp5OcybMttzRam+RKQHv4KA-zLnxGrL+UApc5KrAG+op9LKg@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 23 Jun 2025 16:07:00 +0800
-X-Gm-Features: AX0GCFtKGLSh9bwOyNMqm1wsTSYXIq66dXiloWDLmA7vjP1FAzXUnFKbCzTNLUI
-Message-ID: <CACGkMEsfxXtHce2HeYwYxmhB0e5cOjn17qM6zFEt75bQhbtrDw@mail.gmail.com>
-Subject: Re: [PATCH net-next v12 01/10] virtio_net: Add functions for hashing
-To: Yuri Benditovich <yuri.benditovich@daynix.com>
-Cc: Akihiko Odaki <akihiko.odaki@daynix.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
-	Andrew Melnychenko <andrew@daynix.com>, Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
-	Lei Yang <leiyang@redhat.com>, Simon Horman <horms@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 9tC2iM5WsHkJ5AX2Fc_wg8Jpppqvug0DRLFMdlb4KI8_1750666032
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250614000505.596563-1-linux@treblig.org>
 
-On Mon, Jun 23, 2025 at 1:40=E2=80=AFAM Yuri Benditovich
-<yuri.benditovich@daynix.com> wrote:
->
-> > Yuri, can you help to clarify this?
->
-> I see here several questions:
-> 1. Whether it is ok for the device not to indicate support for XXX_EX has=
-h type?
-> - I think, yes (strictly speaking, it was better to test that before
-> submitting the patches )
-> 2. Is it possible that the guest will enable some XXX_EX hash type if
-> the device does not indicate that it is supported?
-> - No (I think this is part of the spec)
+On Sat, Jun 14, 2025 at 01:05:05AM +0100, linux@treblig.org wrote:
+> From: "Dr. David Alan Gilbert" <linux@treblig.org>
+> 
+> virtcrypto_devmgr_get_first() and virtcrypto_dev_in_use() were added in
+> 2016 by
+> commit dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+> 
+> but have remained unused.
+> 
+> Remove them.
+> 
+> Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
+> ---
+>  drivers/crypto/virtio/virtio_crypto_common.h |  2 --
+>  drivers/crypto/virtio/virtio_crypto_mgr.c    | 36 --------------------
+>  2 files changed, 38 deletions(-)
 
-There's another question, is the device allowed to fallback to
-VIRTIO_NET_HASH_TYPE_IPv6 if it fails to parse extensions?
-
-> 3. What to do if we migrate between systems with different
-> capabilities of hash support/reporting/whatever
-> - IMO, at this moment such case should be excluded and only mechanism
-> we have for that is the compatible machine version
-> - in some future the change of device capabilities can be communicated
-> to the driver and _probably_ the driver might be able to communicate
-> the change of device capabilities to the OS
-
-Are you suggesting implementing all hash types? Note that Akihiko
-raises the issue that in the actual implementation there should be a
-limitation of the maximum number of options. If such a limitation is
-different between src and dst, the difference could be noticed by the
-guest.
-
-> 4. Does it make sense to have fine configuration of hash types mask
-> via command-line?
-> - IMO, no. This would require the user to have too much knowledge
-> about RSS internals
->
-> Please let me know if I missed something.
->
-
-Thanks
-
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
