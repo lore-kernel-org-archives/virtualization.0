@@ -1,135 +1,153 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7697233D8E
-	for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 10:01:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C1E2238C1A
+	for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 10:12:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750672869; cv=none; b=S1tByhv+bBen5lWqMJNGvT7L7qi76eJc3O2BnK4ePrGai3UFjK2QQXiS1qJV99oawydc5VbxpLeA7yxWxpgyarRHe3zAmPU1+OXoIc440czF9rs3bRupWzeeY7YvA5BeIuFmBfUuv5TeyyyRP/S0ZfJvZBgaYAgUdvK3aPHmbyA=
+	t=1750673532; cv=none; b=K5aCzz2gtqEkV9+kvGz/t2bXma+msVrg3g9R61MnFl9UUbSBYA1Vjj2X+2dlJOI9BvJCULtBrdbtxkt4qsGdDU/EHvpuk+Dq+rsIi9Af0cNw+8p+yhAZuwHPU7zN6m1Ia9rHwdyONmc8FWj3mADe4yhuxnSjBPsiqd/B/gMC0Ck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750672869; c=relaxed/simple;
-	bh=Q5iqcjL9Nx3GILkRpH3081upzUIxlt4JKXojGl4BQ/s=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ECn1bQxQbfsHM2PfpavJ4CGZpVe9QCNawTSc+qUGDrL5Nm7pDq74rrG/kSpRg1iPRX2tV4s1LiDSj06o5JL7E9OVBmw2j0xf66HM4uR8E8bIKO2mC1Y0SXCmGB60lyJeB+lNvTqQJz6x297l8/PO66IgtGvP7b8x+DGmWk7tLIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ChFbGFRK; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1750673532; c=relaxed/simple;
+	bh=ZyqSs9lshWYc06L8xxKgqIUaV+hzxhbDO1cuH0KIYa4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fvRY9o/sbm/xN/TcAwgYNzNOo2ix0mAU12tiR/+vjENOm/cbC9tbBjuqDwcsamr6OIsba0HiWXzT67av+3CUw6u8bXJVcoeorP2vsQk9HSuiHKWGNAEGkXe7EhboqOVh6Y6ZlcJJVKivUpQ6FromzO+5zz3RjlBBE6klJqTbiUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L+xW7cbi; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ChFbGFRK"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L+xW7cbi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750672866;
+	s=mimecast20190719; t=1750673530;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=Cg11dcRkqMpCTj1960kW5hmHn/C5yTPB14wnt8MXdok=;
-	b=ChFbGFRKaOJJHVYPTldcf9QV5yPUJV1hOkDhmnXaM976yQHmkzc2tfwNL0jIvdg0w8a3MD
-	b7B9/hM6O+MSsaQ1FAme/mMGI1tXkJ2/BgubQiPUOSIFvmIdiWZmEDmbkZ3wFD/rHMcWO4
-	naBtwzrpyPhNgj0HGyH+DCnj7yx9AiY=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ZYLo8wP+y+o3VIS7TqC+HJOW2Pflfi59Nw4T7VkfABc=;
+	b=L+xW7cbiEVwgHhnlqtRl7ZD0ifcEaWRFz3ELbvvswsP+BPSOr8AC+nakdSj/+2KRiZBmy6
+	f2KzySFER/T7xNxwceo7L9PuSyC0+jgVvfGEWzhXEjPZeaLE1T/CaLCoo/0BSwhPzEdeTy
+	TeccD01NzBqnxhOan07whQR1mSS246o=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-417-Dv5gtbE_OtKEGgPMltbZew-1; Mon, 23 Jun 2025 06:01:05 -0400
-X-MC-Unique: Dv5gtbE_OtKEGgPMltbZew-1
-X-Mimecast-MFC-AGG-ID: Dv5gtbE_OtKEGgPMltbZew_1750672865
-Received: by mail-qt1-f198.google.com with SMTP id d75a77b69052e-4a716cf4345so138779391cf.2
-        for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 03:01:05 -0700 (PDT)
+ us-mta-687-qItyNqVGMqqxKoHuO_ZunA-1; Mon, 23 Jun 2025 06:12:09 -0400
+X-MC-Unique: qItyNqVGMqqxKoHuO_ZunA-1
+X-Mimecast-MFC-AGG-ID: qItyNqVGMqqxKoHuO_ZunA_1750673528
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3a579058758so1680151f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 03:12:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750672865; x=1751277665;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Cg11dcRkqMpCTj1960kW5hmHn/C5yTPB14wnt8MXdok=;
-        b=w8c5qubGBGo8WuJeqKlLMh3qaYtmMH54Kg6lLsn7dW2b0PTs7GG524XWunrXkbJ/8d
-         kVMOIsLeR4axqH0SHDpnrOdUieshLnY0wuDOBscIoaISSXbk/g1JgPn3v39f5i2BdjzH
-         +u9bZbU3b5jpoq2dBAtSZE1gRuvsDBrlv8Rb9Iq6wTx4+BTZiSDs2EXYMMCH54/J8G/i
-         y0gB1M2XI48yrHySBSlZKau42i65xEIAdM6zwtFdyeU2i1OmXnOAT6+o1ZeD4i2pDJ+O
-         I8wt9TBTSUDY3PdjheIG9qpuhNl0cPSyvgGo43GgiHmqprQnCF9MvtHo2luW2jt46Tpf
-         YGNA==
-X-Forwarded-Encrypted: i=1; AJvYcCX5dGqtfpAuJbQay11LBBfSO/sbyxSq5JSYdip1oWTGPD8NDZCvd02TAw/W6bsFi6HaPgThxn1JXQ/Rbte76Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzVwlqGBmr+E0Ylqds8QYfcBYcxgP7pccyaSqV7W88Ajd1tjjsO
-	nEQ0EM29tlycUwfW1PNMNjSmObLH23q8XdGgxPZsjUOvWy0MnOR+l3IZPg7xT/+qrg8DT9zao4u
-	oeaGcA2VdR4/UZ2IBK2SCF9i/vt6TJ/UDIYUbvbdPyaL0LbNSxHCNnd8HqF8xO9mSEtAE
-X-Gm-Gg: ASbGncu4WD9sgqzX4GILuB0TWGSEN47YXiePz1v//RNqBdP4EvuD0uitwI97AndLAvO
-	+dNeDwwk8Vef5bl7qTBGH7DMM3gyWuI97NZ5JkfF5O9S16bnasmtFIpL0OGUKCP7CvjeCv+OHqX
-	zrGxVBenvgJbJwk0nC/iC9M+Jd3kue7ecFeqSBIcBbadAwmggC3FW2uLb5sjlzEWkul9oCQzeMM
-	NISuIQEtt6s71aiAvIgDcMkmAygICb+biJvauELy01y5juD43BhGIAKrYxMib5SYpo+YIL95qyz
-	lUI32YQLXzrN/oiTPgB27Y5VpgUo
-X-Received: by 2002:ac8:5903:0:b0:4a7:693a:6ae8 with SMTP id d75a77b69052e-4a77a25763fmr190862241cf.52.1750672864585;
-        Mon, 23 Jun 2025 03:01:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGXzLpFhw4QDvJz+bsfP+zBCHk665drBIUKJoN12gXU74K8bXpg+kpWK89icqArO8RccMpeNw==
-X-Received: by 2002:ac8:5903:0:b0:4a7:693a:6ae8 with SMTP id d75a77b69052e-4a77a25763fmr190861721cf.52.1750672864007;
-        Mon, 23 Jun 2025 03:01:04 -0700 (PDT)
-Received: from stex1.redhat.com ([193.207.202.87])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4a779d4e5d5sm36886681cf.7.2025.06.23.03.00.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Jun 2025 03:01:02 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: netdev@vger.kernel.org
-Cc: Andy King <acking@vmware.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	George Zhang <georgezhang@vmware.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>,
-	Simon Horman <horms@kernel.org>,
-	virtualization@lists.linux.dev,
-	Paolo Abeni <pabeni@redhat.com>,
-	Dmitry Torokhov <dtor@vmware.com>,
-	linux-kernel@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Daan De Meyer <daan.j.demeyer@gmail.com>
-Subject: [PATCH net] vsock/uapi: fix linux/vm_sockets.h userspace compilation errors
-Date: Mon, 23 Jun 2025 12:00:53 +0200
-Message-ID: <20250623100053.40979-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.49.0
+        d=1e100.net; s=20230601; t=1750673528; x=1751278328;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZYLo8wP+y+o3VIS7TqC+HJOW2Pflfi59Nw4T7VkfABc=;
+        b=iLuvKYdAzoe98QCtf4fblw72jbfe9TZaT1idV9HluT4ON5MHEu9UBeMxGITPP+5LlV
+         UaKFY55a1i55vjZ7HiyTTCgzyZjL9J1ZRdvBcUpwoZYb++34MWWRhHeJZM1gUEE/4z89
+         P+kt78nqd/qu0iawK42b0Z3acrMLFdSz11zHjURLnpCliuwBeAzWZJAotPRQhOKt+H3a
+         8PppAoKclmp+1P9Ybx1i1TOOh2wxzxUrii2JzlpF0ND3ySYKaqaqflNp0+odVGnihsqN
+         zEI9/VazvxJGjYQoTH7E+2hrsExwUiFL8wAsp1sgqwv5kTfNSidiwde3sJUjhxRF7ZNd
+         MQfg==
+X-Gm-Message-State: AOJu0YyAkXH7hyT9FRtZ5jMgSsRgVpR70f+Od5JIZAPTcnQjA1za3gLW
+	9D6f891EtaWjVRhQjx8BPGG5Ee/FVBDwFoKCyCjmt1lhgZmCCDelpIt1bCih5sjnOJU/+6tUn9e
+	SjfHG3vYtjazhjyXvDv6VIOcXFQcrmCKavZj//qr/+3/rknypH8Y5jwf4sEQS+uOfdeO1
+X-Gm-Gg: ASbGncuEH5gYX5j4W3P+JWCZfsey0A9SDftYb82j9urOkjCLWganMfFMOKMbSxjZM+1
+	F5jWz6BKVECi175lqZI+e8tIoUkkIUY364uxgYwhB042uJ1F8vjNLn0eN+C9r+iTxF2sQX12htF
+	KAWABdMo1aTqqOtaWIMV/s+oEgjsi1M66ypZC0Hb/KpCTMbC2yrIgJtOVEJrRToxhU0qxI9gcq/
+	Fprtiqndq3rs4gcYv5Nqv9GSya78nc8g+74sG4WZVLa+3nQgFq/lGIH4oarwR8DvcfGUDIs4AL/
+	Dcl1iHaNfs5YTsZpD8+h40NRpAKe7jiWlSdDp6XiEGHYviBlag/GGAm/VisNjw==
+X-Received: by 2002:a5d:64c4:0:b0:3a5:2b75:56cc with SMTP id ffacd0b85a97d-3a6d12a595emr9714563f8f.23.1750673527770;
+        Mon, 23 Jun 2025 03:12:07 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHCL4na2uglOQFNEUAANK+zA52+SQuukZvQq//WUH0f114XAeIMlx0mcV3sqHLNJE6Ahlk+RQ==
+X-Received: by 2002:a5d:64c4:0:b0:3a5:2b75:56cc with SMTP id ffacd0b85a97d-3a6d12a595emr9714535f8f.23.1750673527348;
+        Mon, 23 Jun 2025 03:12:07 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:c:37e0:8998:e0cf:68cc:1b62? ([2a01:e0a:c:37e0:8998:e0cf:68cc:1b62])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a6d2236452sm8895293f8f.59.2025.06.23.03.12.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 Jun 2025 03:12:06 -0700 (PDT)
+Message-ID: <acbb1b02-593f-4a46-b4cb-99781d595e33@redhat.com>
+Date: Mon, 23 Jun 2025 12:12:05 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH drm-next] drm/bochs: Add support for drm_panic
+To: Ryosuke Yasuoka <ryasuoka@redhat.com>, kraxel@redhat.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
+ airlied@gmail.com, simona@ffwll.ch
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org
+References: <20250613132023.106946-1-ryasuoka@redhat.com>
+From: Jocelyn Falempe <jfalempe@redhat.com>
+In-Reply-To: <20250613132023.106946-1-ryasuoka@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: w_LFe4emLrM4PqczBTH9xQSJJmNKqVXh4BjWB3anvCI_1750672865
+X-Mimecast-MFC-PROC-ID: D5uQxNYdlIcD5420pqJZ8HlPlCGK3Ra-SYBGRIIaTBs_1750673528
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Language: en-US, fr
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+On 13/06/2025 15:20, Ryosuke Yasuoka wrote:
+> Add drm_panic moudle for bochs drm so that panic screen can be displayed
+> on panic.
 
-If a userspace application just include <linux/vm_sockets.h> will fail
-to build with the following errors:
+I just pushed it to drm-misc-next, with the typo in the commit message 
+fixed.
 
-    /usr/include/linux/vm_sockets.h:182:39: error: invalid application of ‘sizeof’ to incomplete type ‘struct sockaddr’
-      182 |         unsigned char svm_zero[sizeof(struct sockaddr) -
-          |                                       ^~~~~~
-    /usr/include/linux/vm_sockets.h:183:39: error: ‘sa_family_t’ undeclared here (not in a function)
-      183 |                                sizeof(sa_family_t) -
-          |
+Thanks,
 
-Include <sys/socket.h> for userspace (guarded by ifndef __KERNEL__)
-where `struct sockaddr` and `sa_family_t` are defined.
-We already do something similar in <linux/mptcp.h> and <linux/if.h>.
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Reported-by: Daan De Meyer <daan.j.demeyer@gmail.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- include/uapi/linux/vm_sockets.h | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/include/uapi/linux/vm_sockets.h b/include/uapi/linux/vm_sockets.h
-index ed07181d4eff..e05280e41522 100644
---- a/include/uapi/linux/vm_sockets.h
-+++ b/include/uapi/linux/vm_sockets.h
-@@ -17,6 +17,10 @@
- #ifndef _UAPI_VM_SOCKETS_H
- #define _UAPI_VM_SOCKETS_H
- 
-+#ifndef __KERNEL__
-+#include <sys/socket.h>        /* for struct sockaddr and sa_family_t */
-+#endif
-+
- #include <linux/socket.h>
- #include <linux/types.h>
- 
 -- 
-2.49.0
+
+Jocelyn
+
+> 
+> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+> ---
+>   drivers/gpu/drm/tiny/bochs.c | 19 +++++++++++++++++++
+>   1 file changed, 19 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+> index 8706763af8fb..ed42ad5c4927 100644
+> --- a/drivers/gpu/drm/tiny/bochs.c
+> +++ b/drivers/gpu/drm/tiny/bochs.c
+> @@ -19,6 +19,7 @@
+>   #include <drm/drm_gem_shmem_helper.h>
+>   #include <drm/drm_managed.h>
+>   #include <drm/drm_module.h>
+> +#include <drm/drm_panic.h>
+>   #include <drm/drm_plane_helper.h>
+>   #include <drm/drm_probe_helper.h>
+>   
+> @@ -469,10 +470,28 @@ static void bochs_primary_plane_helper_atomic_update(struct drm_plane *plane,
+>   	bochs_hw_setformat(bochs, fb->format);
+>   }
+>   
+> +static int bochs_primary_plane_helper_get_scanout_buffer(struct drm_plane *plane,
+> +							  struct drm_scanout_buffer *sb)
+> +{
+> +	struct bochs_device *bochs = to_bochs_device(plane->dev);
+> +	struct iosys_map map = IOSYS_MAP_INIT_VADDR_IOMEM(bochs->fb_map);
+> +
+> +	if (plane->state && plane->state->fb) {
+> +		sb->format = plane->state->fb->format;
+> +		sb->width = plane->state->fb->width;
+> +		sb->height = plane->state->fb->height;
+> +		sb->pitch[0] = plane->state->fb->pitches[0];
+> +		sb->map[0] = map;
+> +		return 0;
+> +	}
+> +	return -ENODEV;
+> +}
+> +
+>   static const struct drm_plane_helper_funcs bochs_primary_plane_helper_funcs = {
+>   	DRM_GEM_SHADOW_PLANE_HELPER_FUNCS,
+>   	.atomic_check = bochs_primary_plane_helper_atomic_check,
+>   	.atomic_update = bochs_primary_plane_helper_atomic_update,
+> +	.get_scanout_buffer = bochs_primary_plane_helper_get_scanout_buffer,
+>   };
+>   
+>   static const struct drm_plane_funcs bochs_primary_plane_funcs = {
+> 
+> base-commit: 19272b37aa4f83ca52bdf9c16d5d81bdd1354494
 
