@@ -1,153 +1,264 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2079.outbound.protection.outlook.com [40.107.243.79])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C1E2238C1A
-	for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 10:12:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750673532; cv=none; b=K5aCzz2gtqEkV9+kvGz/t2bXma+msVrg3g9R61MnFl9UUbSBYA1Vjj2X+2dlJOI9BvJCULtBrdbtxkt4qsGdDU/EHvpuk+Dq+rsIi9Af0cNw+8p+yhAZuwHPU7zN6m1Ia9rHwdyONmc8FWj3mADe4yhuxnSjBPsiqd/B/gMC0Ck=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750673532; c=relaxed/simple;
-	bh=ZyqSs9lshWYc06L8xxKgqIUaV+hzxhbDO1cuH0KIYa4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fvRY9o/sbm/xN/TcAwgYNzNOo2ix0mAU12tiR/+vjENOm/cbC9tbBjuqDwcsamr6OIsba0HiWXzT67av+3CUw6u8bXJVcoeorP2vsQk9HSuiHKWGNAEGkXe7EhboqOVh6Y6ZlcJJVKivUpQ6FromzO+5zz3RjlBBE6klJqTbiUE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L+xW7cbi; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C35B257AF9
+	for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 14:14:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.243.79
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1750688065; cv=fail; b=HvXNoiU6MUYFNzRaDaBex8m0IMZOYUHydMr8Ji22k4fk5X+MvKeQczXKmVPG5ZY0FuSM7Sgexhhjg9uyePDX18M8JGPwcE6bD36oNDVpStIjEIGKrrlhTBwhWLnPxqEFR9woWGEnYYqD0KoeoAzdXN6/uYgW8u4P1VOXpuTOpGg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1750688065; c=relaxed/simple;
+	bh=LBB8+gwmtqpAAOOyFxKMZD79cXmSRZpRoN5H2ZVXV1c=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=ALfMBZ6H97R99kPvl8QBbQl9hufLyCqYi3H/rjvcjvsFJ8yCvi+K3IPaG1qUWCs3Jx1uFUOd0K82AIvERa3dduTcXLTG+wjlG7mh1bkBuruYEv8PwSeVlOJlRLI9O5ciCMrEGRW1AuKo0WXvKpK4r7TynalucVWnQwUmu/6r1aE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=poiZtFAJ; arc=fail smtp.client-ip=40.107.243.79
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L+xW7cbi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750673530;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ZYLo8wP+y+o3VIS7TqC+HJOW2Pflfi59Nw4T7VkfABc=;
-	b=L+xW7cbiEVwgHhnlqtRl7ZD0ifcEaWRFz3ELbvvswsP+BPSOr8AC+nakdSj/+2KRiZBmy6
-	f2KzySFER/T7xNxwceo7L9PuSyC0+jgVvfGEWzhXEjPZeaLE1T/CaLCoo/0BSwhPzEdeTy
-	TeccD01NzBqnxhOan07whQR1mSS246o=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-687-qItyNqVGMqqxKoHuO_ZunA-1; Mon, 23 Jun 2025 06:12:09 -0400
-X-MC-Unique: qItyNqVGMqqxKoHuO_ZunA-1
-X-Mimecast-MFC-AGG-ID: qItyNqVGMqqxKoHuO_ZunA_1750673528
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3a579058758so1680151f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 03:12:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750673528; x=1751278328;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZYLo8wP+y+o3VIS7TqC+HJOW2Pflfi59Nw4T7VkfABc=;
-        b=iLuvKYdAzoe98QCtf4fblw72jbfe9TZaT1idV9HluT4ON5MHEu9UBeMxGITPP+5LlV
-         UaKFY55a1i55vjZ7HiyTTCgzyZjL9J1ZRdvBcUpwoZYb++34MWWRhHeJZM1gUEE/4z89
-         P+kt78nqd/qu0iawK42b0Z3acrMLFdSz11zHjURLnpCliuwBeAzWZJAotPRQhOKt+H3a
-         8PppAoKclmp+1P9Ybx1i1TOOh2wxzxUrii2JzlpF0ND3ySYKaqaqflNp0+odVGnihsqN
-         zEI9/VazvxJGjYQoTH7E+2hrsExwUiFL8wAsp1sgqwv5kTfNSidiwde3sJUjhxRF7ZNd
-         MQfg==
-X-Gm-Message-State: AOJu0YyAkXH7hyT9FRtZ5jMgSsRgVpR70f+Od5JIZAPTcnQjA1za3gLW
-	9D6f891EtaWjVRhQjx8BPGG5Ee/FVBDwFoKCyCjmt1lhgZmCCDelpIt1bCih5sjnOJU/+6tUn9e
-	SjfHG3vYtjazhjyXvDv6VIOcXFQcrmCKavZj//qr/+3/rknypH8Y5jwf4sEQS+uOfdeO1
-X-Gm-Gg: ASbGncuEH5gYX5j4W3P+JWCZfsey0A9SDftYb82j9urOkjCLWganMfFMOKMbSxjZM+1
-	F5jWz6BKVECi175lqZI+e8tIoUkkIUY364uxgYwhB042uJ1F8vjNLn0eN+C9r+iTxF2sQX12htF
-	KAWABdMo1aTqqOtaWIMV/s+oEgjsi1M66ypZC0Hb/KpCTMbC2yrIgJtOVEJrRToxhU0qxI9gcq/
-	Fprtiqndq3rs4gcYv5Nqv9GSya78nc8g+74sG4WZVLa+3nQgFq/lGIH4oarwR8DvcfGUDIs4AL/
-	Dcl1iHaNfs5YTsZpD8+h40NRpAKe7jiWlSdDp6XiEGHYviBlag/GGAm/VisNjw==
-X-Received: by 2002:a5d:64c4:0:b0:3a5:2b75:56cc with SMTP id ffacd0b85a97d-3a6d12a595emr9714563f8f.23.1750673527770;
-        Mon, 23 Jun 2025 03:12:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHCL4na2uglOQFNEUAANK+zA52+SQuukZvQq//WUH0f114XAeIMlx0mcV3sqHLNJE6Ahlk+RQ==
-X-Received: by 2002:a5d:64c4:0:b0:3a5:2b75:56cc with SMTP id ffacd0b85a97d-3a6d12a595emr9714535f8f.23.1750673527348;
-        Mon, 23 Jun 2025 03:12:07 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:c:37e0:8998:e0cf:68cc:1b62? ([2a01:e0a:c:37e0:8998:e0cf:68cc:1b62])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a6d2236452sm8895293f8f.59.2025.06.23.03.12.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Jun 2025 03:12:06 -0700 (PDT)
-Message-ID: <acbb1b02-593f-4a46-b4cb-99781d595e33@redhat.com>
-Date: Mon, 23 Jun 2025 12:12:05 +0200
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="poiZtFAJ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Rh94NNDmsGNCwBHDIBVxK7j/X3vkCNLw99Vm2CGOdIJiuqs1i23xpweg+hFrIa6PapZ/VUZcZSrg3Tuw7dIElDJc4ZgSclvwv4KMNkknWwXUexIrQTtS1sUUd576PPQ444J8TXM4q+tNtFQ1miTH/L+xg9Ps3UeGsUVGKGIR1o4UFX5C713Zh45UlU1b+uKjaSDJg/ULhN24TqH/Eeifw/0WsFrNHPlprca7b8y2rXJQgBTXXTzPlMEbf7cYh/cENE7c47KJv4S0/K5RouXgaFVT30ggB2WLXa21xN7L3rci0JworWIj6nsl0/8LXqDAYAu5URogs+MZNEKbidx7uw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lHbd8KdKQ8/qaS5r8HU31huX0qN4EDkxFrBmHxEDKCk=;
+ b=W3d71nnmtcgAXZHooMEdSY3WQSd78g7/GMsHVmRATTwSYBu94QDJ52tRVz/6m8QgFggizbsLl+KaCeX9KG6JrsP4hVxGI+dW1oBUM8YuQrRfdBTYAC1NN8vIxk+ido/38V9muQ72tTuOK6O96EdOmSYsNX8mFETFoPNx6P+zn4sFvPwKXKA9ndFETv+7JiIx3E4BhZ2oFU94f1UR1G19/Xy4R+BcnotwijGkc65vCF8pG9i2axvP3GeI/XOuD63JhROjxpOqELDwMsfsuwmceOgyIjS43SXJTDIT0jf3D0UjUBfRDh9BT+GlB0xjqYdj+MYoPaEKUd7YgiFa6EM5qw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lHbd8KdKQ8/qaS5r8HU31huX0qN4EDkxFrBmHxEDKCk=;
+ b=poiZtFAJ9KXMRsuxxHzE+e1J4XBhUFyRRJ2NE6fZ27MIZtdNjaIFF5sEbiHb/ER3SJjMcDvJoHNAhd7ExKLrTgs57ekecV/iwRC/0tpsIB4E8VgztRklzAsq3NbD7KjJXXlUzGiOIDA//tiwKmOxrlRArwJwqeRHeNxGk+cC16Tp/NwkX+80g44WpOVIcZgLGQl8KakQLwI3tQAjd4x6YdaHoZOktjeLl2ygPKPmh+q5v+EBTnMEgWbS5u7m9v5p8HsPOwDNGBv25d7BHqCqe4gVFBbsGBLnwrwpRHFhRcUIyA8fBQa0E1LJdJj8UgmzxqYYiu2WszYShXCQrZkNnw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DS7PR12MB9473.namprd12.prod.outlook.com (2603:10b6:8:252::5) by
+ DS5PPFEC0C6BDA1.namprd12.prod.outlook.com (2603:10b6:f:fc00::668) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8835.28; Mon, 23 Jun
+ 2025 14:14:21 +0000
+Received: from DS7PR12MB9473.namprd12.prod.outlook.com
+ ([fe80::5189:ecec:d84a:133a]) by DS7PR12MB9473.namprd12.prod.outlook.com
+ ([fe80::5189:ecec:d84a:133a%5]) with mapi id 15.20.8835.037; Mon, 23 Jun 2025
+ 14:14:20 +0000
+From: Zi Yan <ziy@nvidia.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Minchan Kim <minchan@kernel.org>,
+ Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>,
+ Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin <linmiaohe@huawei.com>,
+ Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
+ Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
+ Shakeel Butt <shakeel.butt@linux.dev>
+Subject: Re: [PATCH RFC 20/29] mm: convert "movable" flag in page->mapping to
+ a page flag
+Date: Mon, 23 Jun 2025 10:14:16 -0400
+X-Mailer: MailMate (2.0r6265)
+Message-ID: <2EE119E0-C71C-43C6-A445-E9CB8AAA86E6@nvidia.com>
+In-Reply-To: <20250618174014.1168640-21-david@redhat.com>
+References: <20250618174014.1168640-1-david@redhat.com>
+ <20250618174014.1168640-21-david@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-ClientProxiedBy: BN0PR04CA0126.namprd04.prod.outlook.com
+ (2603:10b6:408:ed::11) To DS7PR12MB9473.namprd12.prod.outlook.com
+ (2603:10b6:8:252::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH drm-next] drm/bochs: Add support for drm_panic
-To: Ryosuke Yasuoka <ryasuoka@redhat.com>, kraxel@redhat.com,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
- airlied@gmail.com, simona@ffwll.ch
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org
-References: <20250613132023.106946-1-ryasuoka@redhat.com>
-From: Jocelyn Falempe <jfalempe@redhat.com>
-In-Reply-To: <20250613132023.106946-1-ryasuoka@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: D5uQxNYdlIcD5420pqJZ8HlPlCGK3Ra-SYBGRIIaTBs_1750673528
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US, fr
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS7PR12MB9473:EE_|DS5PPFEC0C6BDA1:EE_
+X-MS-Office365-Filtering-Correlation-Id: e4dcef0d-7532-4537-a80a-08ddb2603f48
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|1800799024|366016|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?OeuK5CxGCS0SmRlo47x29J0CUcs9iryRDVy/g4U29B69DKo5NDf32ja50W2O?=
+ =?us-ascii?Q?WJ8k6FZ19jlvjuPh0faQTTbi2MglxfW8g7wlmwjBqTMc58UJVsgzC7Q8Id9h?=
+ =?us-ascii?Q?JdtVJLYyZfhAI/7SjscHuclyuoOS+DioS5fBrCu/8h3VQdp4KvAAl7/vEK+Y?=
+ =?us-ascii?Q?QsZxclOTg3rfhryeHzUqfzHBHKXkMcL2X0bmgFiC1cFBRAIVunyz5LEpF9Qr?=
+ =?us-ascii?Q?0lvGiC3rJszNOT9arRwsXmFJMeg9ilSmbt2uiriKrfIXAFJMrNLbgM4+Gok7?=
+ =?us-ascii?Q?tQaEQ+gvg8XP/gdzehxDqTa32xpFYZU8IDOzOSGKfuay/t51TE5gx293JWfO?=
+ =?us-ascii?Q?x11Aw4AoBxc3VrKvkbryjto0+aZx7WJQ8hxLD13MXuu1cKtSG6nRBrlOXLRn?=
+ =?us-ascii?Q?0/sKZ7JUlYqAL/jgY8djN2xc8Gfj59XH9pQA5ENpbY0yFw3zCsFQAL05IK9b?=
+ =?us-ascii?Q?fuPLaccW9KrI4y/nJVPjza77cgn8sZEHPhTNVcTJhL2Ry9xFXC6/rKvteSTo?=
+ =?us-ascii?Q?HmY0j2y1kvwMPN/dRCOh0hj9fiqQl8Eodcdnkvboup8gO9MY3r3NZ4KsfkFM?=
+ =?us-ascii?Q?xWMWjTOXWM7wO4y3glh7kFeJ4UGHdm0GolcSEsPCpumDTz3OWNiArv5+Egba?=
+ =?us-ascii?Q?mkB1+kXPhx/Idr5v0Oj8AbDfeVl4SQy4quQPKd3+mxs6boaGOqQ8zJ2CRvgQ?=
+ =?us-ascii?Q?+avFYO2hNnSwB6ssSG8AKpBT39kKtcBXYblzmbg6P4DBksqu+DQ/PMg2Eb6l?=
+ =?us-ascii?Q?/hERJe4Ou8vOANKMTRlK6NbitkhD2viTZK84BRo8qKO5HEowpAteWzmOFK6O?=
+ =?us-ascii?Q?o396PkgwurDS7XLyZPxX8MRRYMZwlX9z9UjWftKXDPrC/WFIzQ+YpMzFiHOq?=
+ =?us-ascii?Q?RJDl5oC2WwE1+eXEEAdl4Ve5/VFQ1puhGJ7wm4y5cscXPy5C+JzwVieqeq2i?=
+ =?us-ascii?Q?g0M+Nh9o0DCPznqhTHNT4FO3yEuV1G5M6k9spLRSNrz+BhWZ6Tncqs2690rw?=
+ =?us-ascii?Q?ZCPvyxBi+OlqChjixhun6xk+IJAmPqNrylIwu8kascWH7ol2h+rwlxbgZK/s?=
+ =?us-ascii?Q?MsLpih/vLADsQ1I3SHH3bKn9rUVBNd4f7wpqMuBaz9f/ZbOCqp+7lr47PBXv?=
+ =?us-ascii?Q?NtRpwjeG5syjsChXoUEoSMZP4pri3f5u13P+iKtuiDW82iiuzblYX/M/lV8z?=
+ =?us-ascii?Q?2goZmWiAzgdCPsNzWPc778zDpsw2g5uzcaGl69K9m/wnmidx5TOmPAK7CwUl?=
+ =?us-ascii?Q?6TbqEa+K1w+EKXJxcX+EOy/8zsp1BRsNxa0x0WQ2qv3oS/bWfGovaXEL3XFH?=
+ =?us-ascii?Q?lqvOEad9r92OBaSZLD7XbDBp3FC5GvAifbN5/iH6SKajqaCO1jSP41m8H+m9?=
+ =?us-ascii?Q?5OEyxbtunPjeWrlePr1TYe6A72a/OIeG3pc4h1JzlRvsO+6a2JpTfItOzrpB?=
+ =?us-ascii?Q?LmFhueMxzsg=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR12MB9473.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?/DrhCG3zFY9eKlmusRpkpE7Oe5Y2TYwH3CtHC8VpgIaFFmRUJJ/x2GmvXQyB?=
+ =?us-ascii?Q?SJHzTLMtyaZ6s3z35pNSMwemjV2duADzCuc4RVqdL5RB9+NeXc4Twy1fDzXV?=
+ =?us-ascii?Q?tMHe28kij10phgCs8EYxN0p5kAjJ2UQWk9kIUvDKyVlr61jccJx0O0kvKYMr?=
+ =?us-ascii?Q?6hZqfmb2NQzsGkn9Q4oRQwr4ANnmBnNy/jpoJIvlkjAKlIby0XM9NlqZXPwM?=
+ =?us-ascii?Q?SJrBHah9pelolMFhq1fPxRAJ6RE7TfCHeLhTd2ekJzMU4a9HbUyE6FtAJ2NS?=
+ =?us-ascii?Q?tQ84M9rUH/uTqdjedvGdSea6ob4+w1+uy6fbx0xp+VO5zeeHmWd62xdCEiiA?=
+ =?us-ascii?Q?VgHX4GFsw6rJ2sOX+oOsBdCCAnTyMnW/RHxZuGCSQfjETKVYSAdkdswXwMo2?=
+ =?us-ascii?Q?KZAfFLp83VP1+c1YNY2kAVgRFVKu9MTkwucRlQz04H3XNqhgc7/x3FH7XYvq?=
+ =?us-ascii?Q?2kIIQB362j5MKAZMoCnpLtQinWM+wVbrTNzE2e9Lav3KDkr8iMoD0vWCL5Jj?=
+ =?us-ascii?Q?HBAeMlUyV+o3l+f0HSbYds9csELjzcmIibeOml9XHEdlIPNCkemoHNAnrnT/?=
+ =?us-ascii?Q?ao8sTzvsnuFwc1GD4z20XswLl/EvcNQ9166uBTJOgE8omtizrJYyzEu2kL4s?=
+ =?us-ascii?Q?wj/uM2Eaeuad1CAZ7rMLKrYaJ6+SKwiy1DQfeX/My34ftEM7t3GXTJUtcsDI?=
+ =?us-ascii?Q?UNqnk0jyJqsC+c7V4pvxfAU7licTjfGwWc+4wIAFez7zRWHcQnrRmhp9cAer?=
+ =?us-ascii?Q?71sIek25weJXnZp9Lfxe1I+tGC09Jt7izOqgGS2mgsHOzk1mOfa+Ke1GrP26?=
+ =?us-ascii?Q?XLOiTmUxm/8qM1BNxLkqgZYWdZQDRBwqaQq8SdlHPfCZzhhBgJj+DNuvL4mP?=
+ =?us-ascii?Q?XDweCr4nUYtanlD9mKWryv5m+fL/ncrxo629BzKrRJg0Y/TXfqKWUpHwh6f+?=
+ =?us-ascii?Q?Z0zkdIdBnY0XnX2rJ2dv53XDK+Tj9Zo8EwRzZtdKgYfFJojLAuEufYSHHSt1?=
+ =?us-ascii?Q?tb+gWciSuJUjQEv2J7UKdQ/cgC4iBc7jpO8pkSyBIB/YA5h0vhDWOLuwP439?=
+ =?us-ascii?Q?8MiMYk/6xA1TTOuvosRO3JUpMeT2J8RTVhFbdu/2CWW8CMBcz683UNMhRiqH?=
+ =?us-ascii?Q?sGHjSzQ3tzgyOw0kDdie2xbb1E+1I8zQLCA63+7Kyj06k5IoHDazmHHO4HhT?=
+ =?us-ascii?Q?trGs+CoUmBa56BchF0tJ/A2+dP/VBpJ9lA9qwplZP8yuAHhzackVbOsFIVQK?=
+ =?us-ascii?Q?EodjvDho+jt+dC20BJoDW4lEG+hSKCs1rvDRoRVRXs1lUrUndLAjvq66TG39?=
+ =?us-ascii?Q?2hpQTNf4whKQYNNGj/a0A7aDVLJ3NdRvB5ZPcpoxzVvXWfXdLu+913gxnPo6?=
+ =?us-ascii?Q?wd98o/kXhu8CzGto6qKPfff0IS9w2nz3Ct9uCN+BvZncmlR+YeNZWdBr1RA4?=
+ =?us-ascii?Q?NYzNoKNX9WrCCu++TcvLKAhU0+B05eLEm105vywFs7u4a5RyPf63OXq33lCn?=
+ =?us-ascii?Q?hvy+4SbgemOyADFE/GxzW3+uzucO4C97RaFSrWAA11bxiMPHFA7Yy9wfY/5N?=
+ =?us-ascii?Q?KJd2thJ+RV5as7tMMhCdG6Qq4ds+lOm/AI8mW/Ae?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e4dcef0d-7532-4537-a80a-08ddb2603f48
+X-MS-Exchange-CrossTenant-AuthSource: DS7PR12MB9473.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jun 2025 14:14:20.8301
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 5Z26UFedS3bI8tbdQxjvQSFjpTlxi7gCTxBAQnTFXbOIy4WSz0ziUAED1COsZlpK
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS5PPFEC0C6BDA1
 
-On 13/06/2025 15:20, Ryosuke Yasuoka wrote:
-> Add drm_panic moudle for bochs drm so that panic screen can be displayed
-> on panic.
+On 18 Jun 2025, at 13:40, David Hildenbrand wrote:
 
-I just pushed it to drm-misc-next, with the typo in the commit message 
-fixed.
-
-Thanks,
-
--- 
-
-Jocelyn
-
-> 
-> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+> Instead, let's use a page flag. As the page flag can result in
+> false-positives, glue it to the page types for which we
+> support/implement movable_ops page migration.
+>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 > ---
->   drivers/gpu/drm/tiny/bochs.c | 19 +++++++++++++++++++
->   1 file changed, 19 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-> index 8706763af8fb..ed42ad5c4927 100644
-> --- a/drivers/gpu/drm/tiny/bochs.c
-> +++ b/drivers/gpu/drm/tiny/bochs.c
-> @@ -19,6 +19,7 @@
->   #include <drm/drm_gem_shmem_helper.h>
->   #include <drm/drm_managed.h>
->   #include <drm/drm_module.h>
-> +#include <drm/drm_panic.h>
->   #include <drm/drm_plane_helper.h>
->   #include <drm/drm_probe_helper.h>
->   
-> @@ -469,10 +470,28 @@ static void bochs_primary_plane_helper_atomic_update(struct drm_plane *plane,
->   	bochs_hw_setformat(bochs, fb->format);
->   }
->   
-> +static int bochs_primary_plane_helper_get_scanout_buffer(struct drm_plane *plane,
-> +							  struct drm_scanout_buffer *sb)
-> +{
-> +	struct bochs_device *bochs = to_bochs_device(plane->dev);
-> +	struct iosys_map map = IOSYS_MAP_INIT_VADDR_IOMEM(bochs->fb_map);
+>  include/linux/balloon_compaction.h |  2 +-
+>  include/linux/migrate.h            |  8 -----
+>  include/linux/page-flags.h         | 52 ++++++++++++++++++++++++------=
+
+>  mm/compaction.c                    |  6 ----
+>  mm/zpdesc.h                        |  2 +-
+>  5 files changed, 44 insertions(+), 26 deletions(-)
+>
+
+<snip>
+
 > +
-> +	if (plane->state && plane->state->fb) {
-> +		sb->format = plane->state->fb->format;
-> +		sb->width = plane->state->fb->width;
-> +		sb->height = plane->state->fb->height;
-> +		sb->pitch[0] = plane->state->fb->pitches[0];
-> +		sb->map[0] = map;
-> +		return 0;
-> +	}
-> +	return -ENODEV;
+> +/**
+> + * page_has_movable_ops - test for a movable_ops page
+> + * @page The page to test.
+> + *
+> + * Test whether this is a movable_ops page. Such pages will stay that
+> + * way until freed.
+> + *
+> + * Returns true if this is a movable_ops page, otherwise false.
+> + */
+> +static inline bool page_has_movable_ops(const struct page *page)
+> +{
+> +	return PageMovableOps(page) &&
+> +	       (PageOffline(page) || PageZsmalloc(page));
 > +}
 > +
->   static const struct drm_plane_helper_funcs bochs_primary_plane_helper_funcs = {
->   	DRM_GEM_SHADOW_PLANE_HELPER_FUNCS,
->   	.atomic_check = bochs_primary_plane_helper_atomic_check,
->   	.atomic_update = bochs_primary_plane_helper_atomic_update,
-> +	.get_scanout_buffer = bochs_primary_plane_helper_get_scanout_buffer,
->   };
->   
->   static const struct drm_plane_funcs bochs_primary_plane_funcs = {
-> 
-> base-commit: 19272b37aa4f83ca52bdf9c16d5d81bdd1354494
 
+Should we do the code below in case PageMovableOps is set on pages
+other than PageOffline and PageZsmalloc?
+
+return PageMovableOps(page) &&
+	   !VM_WARN_ON_ONCE_PAGE(!(PageOffline(page) || PageZsmalloc(page)),
+							 page);
+
+>  static __always_inline int PageAnonExclusive(const struct page *page)
+>  {
+>  	VM_BUG_ON_PGFLAGS(!PageAnon(page), page);
+> diff --git a/mm/compaction.c b/mm/compaction.c
+> index a10f23df9396e..86d671a520e91 100644
+> --- a/mm/compaction.c
+> +++ b/mm/compaction.c
+> @@ -114,12 +114,6 @@ static unsigned long release_free_list(struct list=
+_head *freepages)
+>  }
+>
+>  #ifdef CONFIG_COMPACTION
+> -void __SetPageMovable(struct page *page)
+> -{
+> -	VM_BUG_ON_PAGE(!PageLocked(page), page);
+> -	page->mapping =3D (void *)(PAGE_MAPPING_MOVABLE);
+> -}
+> -EXPORT_SYMBOL(__SetPageMovable);
+>
+>  /* Do not skip compaction more than 64 times */
+>  #define COMPACT_MAX_DEFER_SHIFT 6
+> diff --git a/mm/zpdesc.h b/mm/zpdesc.h
+> index 6855d9e2732d8..25bf5ea0beb83 100644
+> --- a/mm/zpdesc.h
+> +++ b/mm/zpdesc.h
+> @@ -154,7 +154,7 @@ static inline struct zpdesc *pfn_zpdesc(unsigned lo=
+ng pfn)
+>
+>  static inline void __zpdesc_set_movable(struct zpdesc *zpdesc)
+>  {
+> -	__SetPageMovable(zpdesc_page(zpdesc));
+> +	SetPageMovableOps(zpdesc_page(zpdesc));
+>  }
+>
+>  static inline void __zpdesc_set_zsmalloc(struct zpdesc *zpdesc)
+> -- =
+
+> 2.49.0
+
+Otherwise, LGTM. Reviewed-by: Zi Yan <ziy@nvidia.com>
+
+
+--
+Best Regards,
+Yan, Zi
