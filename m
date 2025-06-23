@@ -1,157 +1,254 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF039254873
-	for <virtualization@lists.linux-foundation.org>; Mon, 23 Jun 2025 14:28:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 514DE2153E7
+	for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 15:26:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750688932; cv=none; b=bJTSPpx0Ev139XgJBW8ZHUE3VNsEUA53+lKIanlYJeUTQ0xXAltr8V3T/p86RyNbW+6tqktM+JWeQQgHZZaGr2jpmnLyj2Ucujza0e5qop93GFCdOftL7HLVmLtKWlyzogVBPX5sAlcntWZKOOe7Umaid0+g6ustSOLR9zmEyQk=
+	t=1750692375; cv=none; b=ZP6qE2jXtPiGA22zoGL9mmAmhDHlDJwXZ+fcfPc5oZVXvsp6uIrdsRSSvFxSF6msVyoaeP3O8ChkOu7KPuF9BsK+cEGMHnXU7Lc33VxhLNat+cNmmiAZFWVVVAhH6FKNsSfZ4NsmxNYQ1C8fOOwASoi7KqGWjJ5whtQSmlIkedI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750688932; c=relaxed/simple;
-	bh=/14cwYyKwKubJFvYMHEKWQA22KWCV38zKaWXVdcaG2g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PMUnU0fE3Uclabxg4Af0lDOX1D30Kexls65MAOD9EFnADMbm70/SIE90Fu3AAsB427n/AqWKcmE2GJAgx8TTCcim7RrbHC1u6qpmLOdq4yX0ZDDN/zz+u+hKuGEnsKwIu/WTeqpZtsTHWU8aF4mN38hiPba8qZC5IqXxrg6wKFk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=u4glv3HP; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1750692375; c=relaxed/simple;
+	bh=9WkkSDw8tmOek/IeGfBmFEWN9Dq+68hL6BqxWrW4HDA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VWb7eWGytU9wSuNehyWVO6VACyspLpVqcejMzvO759ETmzL/fgDGtSOYrkeopWd8zb5+HT5FYdvKQkaqw61HL7gXr05e8WusxcTL7NyLRxEgxRcEHP6rOq0OjJE5INhPFVc9xT9gbkja6ns50Fu55u5Ahr6E7v3Kd76AvYvcv3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=euleBV4G; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="u4glv3HP"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6E9324021D
-	for <virtualization@lists.linux-foundation.org>; Mon, 23 Jun 2025 14:28:50 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: 0.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id QQaiOqbJhAVD for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Jun 2025 14:28:49 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::831; helo=mail-qt1-x831.google.com; envelope-from=yuri.benditovich@daynix.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 199E840090
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=daynix.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 199E840090
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=u4glv3HP
-Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 199E840090
-	for <virtualization@lists.linux-foundation.org>; Mon, 23 Jun 2025 14:28:48 +0000 (UTC)
-Received: by mail-qt1-x831.google.com with SMTP id d75a77b69052e-4a4323fe8caso25470521cf.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 23 Jun 2025 07:28:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1750688928; x=1751293728; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/14cwYyKwKubJFvYMHEKWQA22KWCV38zKaWXVdcaG2g=;
-        b=u4glv3HPQJ4OW+0Ldcwr51deLAvsssv/I8D1GQLEIquLSQFIhAyQ9yONiHlDr95g4J
-         VjiUpAU7el24/ffmHRxxlYVmnizYDU1UrJIb/hpqYD0oH1tFvyaTxa9pMRJmbsf+DxKf
-         TAvaI7BD9yGghY1TRnP4DSDRPxzNR2tVRM7CkuU+i5DFf+ula0PPYDgLwbQdrdRZ7srh
-         H/kiZBhCKutlk8aFJrTMkamZTLCSo22Ns6W+a6lE+l1Ii95UPcx2K7IA5GL/yj6oc8+K
-         Kpx+GemTcTQj4h5wxvCLSil+sPdt0JpQJuJLMHPSGqsNHDoTgkWqVqXy5tOl2mzjGvJu
-         BwSQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="euleBV4G"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1750692372;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=LfnsJNwnopUCMOcQWvVWb39kYZClfhVnA47NiR2APjM=;
+	b=euleBV4G5ElbE5it8UQoxawprLlwn6RTMT22fnXyqL8tdeQcuervdLEWzTDIGwbL1kMjyQ
+	JNey9regQpRRDRN0TlWBvwkYZGuuF5MteWmJ1jRN7JSxn+Prgs4a0YS/AYyKdvIcm+JIcY
+	GO5VRQgt2j/hBFHnrSA6l3UvJlsDDs0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-20-pijdqNhlMXK55LQIg8J8pw-1; Mon, 23 Jun 2025 11:26:11 -0400
+X-MC-Unique: pijdqNhlMXK55LQIg8J8pw-1
+X-Mimecast-MFC-AGG-ID: pijdqNhlMXK55LQIg8J8pw_1750692370
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-450eaae2934so37279575e9.2
+        for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 08:26:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750688928; x=1751293728;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/14cwYyKwKubJFvYMHEKWQA22KWCV38zKaWXVdcaG2g=;
-        b=waPe3Jzd1T7KM8dJ38eREzv06Yj3CPbwf7jpJFbwAr5GHv5pST7NhsRokK+ovP33bH
-         4al8HBrRoEEeGKK3vyRPXvrUgo7fjNUbSMdNFNJzqqGpB5AyhAKK/E2aEtPjaajT/L+z
-         8eBZnj5Dyovvye6aEu6CS1B5TX52xdJsvhqV5esPIYuizcd0lcMw1QpCZYV9Eq+B7Dee
-         b+XB1HW8X0mrICOkJsDA9qtyxSqfIg/CYqRR0xCioqVpMfWJpIfW+5rCADHtybEIuzwn
-         k5ZfF1UiPFzSoSMcxql1lbOol9CsuH7HWI8wsBEbWVR8J/3h2GOfGSwewpmbdlfeaZ7m
-         QHoA==
-X-Forwarded-Encrypted: i=1; AJvYcCXTBMhdlIghawN9hsKmdGEA5wIJCOtoPghSGYcxDlDCfZxyVKmNBVhzvUCT1X7jlVEO9aW7PnnBj7Bj2l8UFw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yzl0eofxJVcXAPwVtX3t/0a+gARxCNdsEIVL/TBuby6MnndiGvm
-	yTuhV4WOflcbvCbPdlmuwhrZyjwypbd+bmSklsPtfXZdB3mbx4GDREsfdlyA6As8Uaj6gkL2xr9
-	4F4oxjZMbtqNiDYOlNksSIT/GVJZVBJn/epbDVNKN5A==
-X-Gm-Gg: ASbGncs0yM7tl1QLmLm0woN5a18Cm5AcsjhjuP4ph3bpI8CvJ9Qh34XSmuk8OPD/XpG
-	oK47wFQht0ZJtaZXIEn594TnK9X4VXP+H1hbpupVgdLY6Z7tCgt+ZtEfJkhiZ+bfR8s5Bw8dKj1
-	KIa4xHfz0GKSXr4JdjbIo37ZRakthg475REGRF7ObXzd4VUfIq8ZDbNWO+nW5q2C1F0y/dDQPqL
-	9QfCA==
-X-Google-Smtp-Source: AGHT+IGAEU79vWFsEbGN71mgZpuPejwVzDs9CuFGRu/kIPPECPSaBJWX6S8IOXgJzNmRFrQ3GoKYDSjB9QaqmPokmug=
-X-Received: by 2002:a05:622a:50f:b0:4a7:146b:c5e5 with SMTP id
- d75a77b69052e-4a77a20840emr222574351cf.21.1750688927718; Mon, 23 Jun 2025
- 07:28:47 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1750692370; x=1751297170;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=LfnsJNwnopUCMOcQWvVWb39kYZClfhVnA47NiR2APjM=;
+        b=lwP9AVBxglpqagO3x/Ybu+BcAU2oQQLe0wKjdZFRLxvNxa1tCKnKrBCcfoatLIX8h3
+         Jx2OUiEmJnJ9yBoNWBpVCnPuoQE1P2JeGEu8+1Vy0ioBIPTu8h3n3mpjLsh1VNMWELJW
+         4EGWCRFK8YKllZSy2t60WfNcv/oUCVZLDZ/6K7lO+sfRqXv9YJHov5sgVFeT9bmvpqtN
+         f99z4At3Y+FAunn4tAf/F6oMnADIE/jD2PpEE9hreN+AhNDYlD+vNiFlKcODS06U2tz5
+         qxdPP8SV8H3Sy+RAu8WHAdghoPIQC9G2WNJQ2eoyqSZ4hsIOOdWGC0Nq1WoNWk/564a+
+         ZyAw==
+X-Forwarded-Encrypted: i=1; AJvYcCX6PUDysIQumVetDbwopbHIQ/U42+AniPhsJCu5bbOBJNl6/t/MTKQeV4qp+XlCbaAKH+rz20WOWGOuYIUw9A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzACLoIBQ2WLwDwNV5umqzY1Njjp10yiEGVsltpfUTekpxXaTYg
+	ks36C9Fb5kv1R5LBgMusMf4o1Mwqc9vqWgthaAiJGJncnxk9nbwiNHibBkQEv1YCIuCaBq6q/Jl
+	r67bkemLF0peoFLfrBEw85yuOB7bOCVAUyQoeLkYmKZzc2O5SV8h6JohnJe0V1gbB0Kq7
+X-Gm-Gg: ASbGncslcWyvddc8CCLJcoRtCvpSgzu1wOa2klTlyli5D8NlalwOWWHTLvA76K1Ct0C
+	CNcmQAngPxTusR5TihG34hWNJ+ufKDCMcf8JoORuAP+mHrhb5pB/lAG8i5j8wV/DygzpfNCD+qe
+	kez/VCUy9ZF6ZemBDVP5SFmx5ZvHoWio8QP8cx2XMhhT+ORtnYyCGgmwRpdIf1iiL/YisA5GDGl
+	3+H8jzsrwkhrM/Sh7tOL6svofBgqIgN77MZOLSjXd57r17PSfyNWNr6XoOlJrLl4+Qdbk0jtqAl
+	oUaGI83mZHwDWnffZwKiHx0o1PwronqW9JztsXebLPNF3n8jiHi6DS9pVxNPXDEO9/xLX+hQB+Y
+	O3/Grhf3RZPCc7vN4CajUl5Pj+WOTJPH8bBJXhkX1fEDNyO5KBg==
+X-Received: by 2002:a05:600c:c48e:b0:453:8a6:d8de with SMTP id 5b1f17b1804b1-453659c483emr103725785e9.1.1750692369605;
+        Mon, 23 Jun 2025 08:26:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGNRVVyXINDL7jZY1JkLGKvD6g8kads4JqMObyTsbdAPuaz4KvSAWgxOrlnqAthyUwCZZZneA==
+X-Received: by 2002:a05:600c:c48e:b0:453:8a6:d8de with SMTP id 5b1f17b1804b1-453659c483emr103725115e9.1.1750692369103;
+        Mon, 23 Jun 2025 08:26:09 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f4e:fd00:8e13:e3b5:90c8:1159? (p200300d82f4efd008e13e3b590c81159.dip0.t-ipconnect.de. [2003:d8:2f4e:fd00:8e13:e3b5:90c8:1159])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4536470826fsm112280375e9.36.2025.06.23.08.26.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 Jun 2025 08:26:08 -0700 (PDT)
+Message-ID: <18ef9192-168f-4d07-a29a-952f2ce3a4f0@redhat.com>
+Date: Mon, 23 Jun 2025 17:26:05 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250530-rss-v12-0-95d8b348de91@daynix.com> <20250530-rss-v12-1-95d8b348de91@daynix.com>
- <CACGkMEufffSj1GQMqwf598__-JgNtXRpyvsLtjSbr3angLmJXg@mail.gmail.com>
- <95cb2640-570d-4f51-8775-af5248c6bc5a@daynix.com> <CACGkMEu6fZaErFEu7_UFsykXRL7Z+CwmkcxmvJHC+eN_j0pQvg@mail.gmail.com>
- <4eaa7aaa-f677-4a31-bcc2-badcb5e2b9f6@daynix.com> <CACGkMEu3QH+VdHqQEePYz_z+_bNYswpA-KNxzz0edEOSSkJtWw@mail.gmail.com>
- <75ef190e-49fc-48aa-abf2-579ea31e4d15@daynix.com> <CACGkMEu2n-O0UtVEmcPkELcg9gpML=m5W=qYPjeEjp3ba73Eiw@mail.gmail.com>
- <760e9154-3440-464f-9b82-5a0c66f482ee@daynix.com> <CACGkMEtCr65RFB0jeprX3iQ3ke997AWF0FGH6JW_zuJOLqS5uw@mail.gmail.com>
- <CAOEp5OcybMttzRam+RKQHv4KA-zLnxGrL+UApc5KrAG+op9LKg@mail.gmail.com> <CACGkMEsfxXtHce2HeYwYxmhB0e5cOjn17qM6zFEt75bQhbtrDw@mail.gmail.com>
-In-Reply-To: <CACGkMEsfxXtHce2HeYwYxmhB0e5cOjn17qM6zFEt75bQhbtrDw@mail.gmail.com>
-From: Yuri Benditovich <yuri.benditovich@daynix.com>
-Date: Mon, 23 Jun 2025 17:28:36 +0300
-X-Gm-Features: AX0GCFu3hePJcE8mBSHlKXkSVpPD8N_41tEP_O5fU60lBvVDsaWZNc7CeBwagRc
-Message-ID: <CAOEp5Oet1P2EWTwLJnMYY4CVAzDWgdM8wbvV3+BH6aY0kE+O8g@mail.gmail.com>
-Subject: Re: [PATCH net-next v12 01/10] virtio_net: Add functions for hashing
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, linux-kselftest@vger.kernel.org, 
-	Andrew Melnychenko <andrew@daynix.com>, Stephen Hemminger <stephen@networkplumber.org>, gur.stavi@huawei.com, 
-	Lei Yang <leiyang@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 04/29] mm/page_alloc: allow for making page types
+ sticky until freed
+To: Zi Yan <ziy@nvidia.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Minchan Kim <minchan@kernel.org>,
+ Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>,
+ Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin
+ <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
+ Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
+ Shakeel Butt <shakeel.butt@linux.dev>
+References: <20250618174014.1168640-1-david@redhat.com>
+ <20250618174014.1168640-5-david@redhat.com>
+ <D80D504B-20FC-4C2B-98EB-7694E9BAD64C@nvidia.com>
+ <D718A3EA-89E2-4AD8-A663-2DDA129600C4@nvidia.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
+ ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
+ AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
+ 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
+ rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
+ wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
+ 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
+ pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
+ KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
+ BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
+ 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
+ 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
+ M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
+ Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
+ T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
+ 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
+ CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
+ NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
+ 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
+ 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
+ lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
+ AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
+ N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
+ AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
+ boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
+ 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
+ XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
+ a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
+ Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
+ 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
+ kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
+ th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
+ jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <D718A3EA-89E2-4AD8-A663-2DDA129600C4@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: CuglJzdXjTStCRblXcQA6jV774A3C-xnwER4RUvYfpU_1750692370
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jun 23, 2025 at 11:07=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
->
-> On Mon, Jun 23, 2025 at 1:40=E2=80=AFAM Yuri Benditovich
-> <yuri.benditovich@daynix.com> wrote:
-> >
-> > > Yuri, can you help to clarify this?
-> >
-> > I see here several questions:
-> > 1. Whether it is ok for the device not to indicate support for XXX_EX h=
-ash type?
-> > - I think, yes (strictly speaking, it was better to test that before
-> > submitting the patches )
-> > 2. Is it possible that the guest will enable some XXX_EX hash type if
-> > the device does not indicate that it is supported?
-> > - No (I think this is part of the spec)
->
-> There's another question, is the device allowed to fallback to
-> VIRTIO_NET_HASH_TYPE_IPv6 if it fails to parse extensions?
-MSFT expectations for that are at
-https://learn.microsoft.com/en-us/windows-hardware/drivers/network/rss-hash=
-ing-types
-If I read them correctly, the answer is "no"
-BTW, my personal opinion is that placing all these things with hash
-calculations into kernel instead of ebpf does not make too much sense.
+On 18.06.25 20:08, Zi Yan wrote:
+> On 18 Jun 2025, at 14:04, Zi Yan wrote:
+> 
+>> On 18 Jun 2025, at 13:39, David Hildenbrand wrote:
+>>
+>>> Let's allow for not clearing a page type before freeing a page to the
+>>> buddy.
+>>>
+>>> We'll focus on having a type set on the first page of a larger
+>>> allocation only.
+>>>
+>>> With this change, we can reliably identify typed folios even though
+>>> they might be in the process of getting freed, which will come in handy
+>>> in migration code (at least in the transition phase).
+>>>
+>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>> ---
+>>>   mm/page_alloc.c | 3 +++
+>>>   1 file changed, 3 insertions(+)
+>>>
+>>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+>>> index 858bc17653af9..44e56d31cfeb1 100644
+>>> --- a/mm/page_alloc.c
+>>> +++ b/mm/page_alloc.c
+>>> @@ -1380,6 +1380,9 @@ __always_inline bool free_pages_prepare(struct page *page,
+>>>   			mod_mthp_stat(order, MTHP_STAT_NR_ANON, -1);
+>>>   		page->mapping = NULL;
+>>>   	}
+>>> +	if (unlikely(page_has_type(page)))
+>>> +		page->page_type = UINT_MAX;
+>>> +
+>>>   	if (is_check_pages_enabled()) {
+>>>   		if (free_page_is_bad(page))
+>>>   			bad++;
+>>> -- 
+>>> 2.49.0
+>>
+>> How does this preserve page type? Isn’t page->page_type = UINT_MAX clearing
+>> page_type?
+> 
+> OK, next patch explains it. free_pages_prepare() clears page_type,
+> so that caller does not need to.
+> 
+> I think the message is better to be
+> 
+> mm/page_alloc: clear page_type at page free time
+> 
+> page_type is no longer needed to be cleared before a page is freed, as
+> page free code does that.
+> 
+> With this change, we can reliably identify typed folios even though
+> they might be in the process of getting freed, which will come in handy
+> in migration code (at least in the transition phase).
 
->
-> > 3. What to do if we migrate between systems with different
-> > capabilities of hash support/reporting/whatever
-> > - IMO, at this moment such case should be excluded and only mechanism
-> > we have for that is the compatible machine version
-> > - in some future the change of device capabilities can be communicated
-> > to the driver and _probably_ the driver might be able to communicate
-> > the change of device capabilities to the OS
->
-> Are you suggesting implementing all hash types? Note that Akihiko
-> raises the issue that in the actual implementation there should be a
-> limitation of the maximum number of options. If such a limitation is
-> different between src and dst, the difference could be noticed by the
-> guest.
->
-> > 4. Does it make sense to have fine configuration of hash types mask
-> > via command-line?
-> > - IMO, no. This would require the user to have too much knowledge
-> > about RSS internals
-> >
-> > Please let me know if I missed something.
-> >
->
-> Thanks
->
+
+I'll change it to
+
+     mm/page_alloc: let page freeing clear any set page type
+     
+     Currently, any user of page types must clear that type before freeing
+     a page back to the buddy, otherwise we'll run into mapcount related
+     sanity checks (because the page type currently overlays the page
+     mapcount).
+     
+     Let's allow for not clearing the page type by page type users by letting
+     the buddy handle it instead.
+     
+     We'll focus on having a page type set on the first page of a larger
+     allocation only.
+     
+     With this change, we can reliably identify typed folios even though
+     they might be in the process of getting freed, which will come in handy
+     in migration code (at least in the transition phase).
+     
+
+
+
+-- 
+Cheers,
+
+David / dhildenb
+
