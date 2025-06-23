@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D18A529B77B
-	for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 15:50:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29E4C26FA5E
+	for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 15:53:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750693829; cv=none; b=m7VYe3OPXTvB3okoWnjGWvzXGmKkoacZKxa75pr/VoWy4/6gW0Xr2MBBd3h7UUCcSZne3pLCzt4ORrGj16ewoG2BtpE6I/agJ42j6QOphtpTE1F8dg6zDqvGjmI88+94radp0R4Fu1J4//AkcE8YP5KI87m/jQBsMIOUDDGSAoQ=
+	t=1750694034; cv=none; b=ukCxf1VeBzD2MZk1vfEpDVL+kCgCXf5EyJpvC8NneCG/HvZNCYRjTRJBCWhoacdVH/BST8KbrKqKZCLKzfCTM2M2/9p+FaenJIv6hCN01cTgXmpmGs/GXaPOAm+zOF2eEra5vafJvwcz7m+tZgvbCVsUQ/VqYW3hanrH8HiryrE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750693829; c=relaxed/simple;
-	bh=puUb/0dcRLlTNVtu0br3LcKN4RWlOBVw1X786J6bLZw=;
+	s=arc-20240116; t=1750694034; c=relaxed/simple;
+	bh=L5ZyfNncg4FSIUqVC6DCRfTvnr0Ro/a0zsavgyY4EDo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tMIOs4t8/j0RwBG9eXpqzwCHN5FSrXZxC1Wp5Lr39eJqgvngL3xDroxGXUVH6TqyO5G24vJP6V/FeTHTudZ1sD+R0qgYnXbbUTCJMu3ViiI+9p7quWHzZzzX3OJw+Fd8YjjodjFkMEHIGVdvn1xDkdsU4D9OieNr+u2XavXfs3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q0VOMCxt; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=YNBKBX4/cwzCwF5KBGMQnuOkBGp5lWAt+uST23ASDp6gb4ncg4qdujBGMaHN1yTT09apSmI4BXI3Iv8RgQOyyyuPW/D5Lj67pFHlr6cRIuGrwsqECWfVFbKZYEMxRZor7x7gGCaicBP3kQN0gryJfYJ+56kcjk+/SPA7cQJGheY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CsiyDAjO; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q0VOMCxt"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CsiyDAjO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750693825;
+	s=mimecast20190719; t=1750694032;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=yRC43xoNyhfCsplc/KR++YxoYFjBMRcRCyrGGtLCdu4=;
-	b=Q0VOMCxt0DLtWHcd3My6phT9bxvygRCRCxbsirW1TKJxyz+OTpUk/SQADXQKKCOD4oDxmq
-	v+v6WA2LozNxco47bffe/7rIhA9dBKODfKRAW1Os5u6Tw0t0PEtaUY1ChT1o0VIaBZW3Jp
-	Zd1g75EEN1VabpvxVU2QNvvznNwJR94=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=X8qCzEjS8nA9NJsMXte4WyKdsfhgHPUhKDBSVhbgMFU=;
+	b=CsiyDAjOh+S/fVZZqJZnMtpWs5d2eE1R2Bv0FSDKyWJ/WAzgrVc+XUwbMLiX+7jP/3psrx
+	aG3JKTvtkCmOp42jxjb0t4hWETQV2gdzFgZQwVfLqHA8JESyKtMoG6neGF2Bo1Tx/ERQ/e
+	F75D1mLI8X1KFiuooOm9DaFEuaSP6Ng=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-349-aLLI9tXFPI-HGyuU-Hryyg-1; Mon, 23 Jun 2025 11:50:24 -0400
-X-MC-Unique: aLLI9tXFPI-HGyuU-Hryyg-1
-X-Mimecast-MFC-AGG-ID: aLLI9tXFPI-HGyuU-Hryyg_1750693823
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a4eec544c6so2174997f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 08:50:24 -0700 (PDT)
+ us-mta-116-hUyXeoffNXa3appZ-cLMXg-1; Mon, 23 Jun 2025 11:53:50 -0400
+X-MC-Unique: hUyXeoffNXa3appZ-cLMXg-1
+X-Mimecast-MFC-AGG-ID: hUyXeoffNXa3appZ-cLMXg_1750694029
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a579058758so1857656f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 08:53:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750693823; x=1751298623;
+        d=1e100.net; s=20230601; t=1750694029; x=1751298829;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=yRC43xoNyhfCsplc/KR++YxoYFjBMRcRCyrGGtLCdu4=;
-        b=TIw30FUf9yHnF2a/3XRmNTiOsrLV5+3ckzJy4wDmND55FIYdSTlNLJVqdpyrnS4b1x
-         Jn2Jw57UEUlVp84WbWYXIL+ZAjXDT9QcG8eIS3D13ADO+azEJPcOIvpDrW9UE0ft2z1r
-         /XeQzqEvTtTbaA1i14wxLAnTT9+yhF31XL9HfFuFCiU3hrMdjMoPgNkY6M5lVSHA+uQg
-         SHIYjlfaJXCU87gTk7EnNu7kbGBzH0zql5LZYs9VbfEERLiizTh8IDDtORtLYhc2u0at
-         iQ/B1mDUIu39tpiHi4DBeV8oI0PCsPohI6gVPxiKXVg5rIpSbuIRBufgxKMy+HHHpCI8
-         IjeQ==
-X-Forwarded-Encrypted: i=1; AJvYcCURL/7sAJIhR/07EaA/FPjHmE2euwdtz9wYW/76uVBwt3l4+QYrXZ1TIYZm+8+i53ZB2rOHsPozrvLHspIy4A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzHEunZn+vS91HlF6+6+BCStWWtx8pvKMEXuiB1lm20fVMBpV8M
-	sxz5F2Dw05j5eKIVVStEe1KAaKdFvrYxE3xscdhfkqv6yu/wOT4/wgdH7SPAw5Sr2nQ5vNWqyMR
-	s3A0aPYDCPp7LZdP87mUXhaQm4StOChGNgg9i3+oTjEcvPhU2hx7n/+LSFquOrc71aOnJ
-X-Gm-Gg: ASbGncu8I8GJkwLQ4xGyH6yY0qf/ClwzKp9pDrfY778QUTwhp5LVLiV99TW/+R8W6Sx
-	19ZkKo9OaEaB4m8xJY/vFKcjXVOPWCqbIRSyMYOGsuPfr0Vmpcl/NqSfHE/OP+7gOmryH1up8YA
-	zl/+SUepABh1dM2cGqIQ7GchqO4iDuSkeaCs1w6UphhG2m2GqaQKXUpTZVEpaNv6St/JBLeVBhO
-	YRmQY4Jhur+RPx+cUGUrx4nTc0hm3DUC8ivz/vKDQM+ZYDVlWZsqV/D27MufsVLROQcAWK1xZlM
-	E+4KQ89ZuEGeXjtYZL4WbGy7HBdFHrqkqi6kZXK2wZfp7r2Qz3CqXlAtzF4vi/EDlkebW2dUtej
-	enqJ39GpaSuAtBizbGFmSVzVVwsAFUPA/CrSI34zMEds0wKxbNQ==
-X-Received: by 2002:a05:6000:2412:b0:3a6:c923:bc5f with SMTP id ffacd0b85a97d-3a6d13019e7mr9836606f8f.17.1750693823131;
-        Mon, 23 Jun 2025 08:50:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG7nWn2XFwK6TT8ZAkqrEp9zhAtjyd7MNgn344l/d1NlIJSnSP6B7frYWb4hjnDR6A7h3gMKg==
-X-Received: by 2002:a05:6000:2412:b0:3a6:c923:bc5f with SMTP id ffacd0b85a97d-3a6d13019e7mr9836566f8f.17.1750693822675;
-        Mon, 23 Jun 2025 08:50:22 -0700 (PDT)
+        bh=X8qCzEjS8nA9NJsMXte4WyKdsfhgHPUhKDBSVhbgMFU=;
+        b=FE0JZQSTLsfo8gZERc1kwmKPfRqxTCJd3CCTTmCdfWh5UWEF3azO9Qd1FKbEDTo5/t
+         2G/dLBiw0pZ0vc3A5tzmsJqZjwwzNKhq+FOQ2BBr+nFUMOTKn0ErVcD7SYq6Mp3thzpd
+         D7rOY0CVvSua1IgF/2nXJuhFAzf2Cn3NJfz5p5GMuutzqb89a1HmJpTEIEhraNv3uOO1
+         ZZET6x+I33Fa1OCO1Z3/kxdgz8DLHbnjsS/dV6kh3NRDeKu02C71kBPpXLW9yxvFOGfe
+         TkGfK/0Jutm3PdHruJ3LinS3xmnT5J/BYiMFQH4osEprKbJ6zyRAtdMlrrPU6CjMzgJ8
+         eTHw==
+X-Forwarded-Encrypted: i=1; AJvYcCUxsFcWAa/PFmP8fhoSoZcgymYJfIzVtcfX6SMuO80DcvaQ0sLfHzdUU5rK04e/H4tzKdzcaNm2yEDvdxulFg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz+ueL7jlQI79DF5i6fbGJye1yXMQWZsUHJTHhGI6IWXHHlZwqO
+	8ZM43SYCAEMj9uEQ55WMnNENnu1KPS1zN8GyJDxaGY5Wxv/Nlmfo5IJjCOicy94fFTIPGWPzwqa
+	rOak3Qlwa1CtGpIipCNnmY5XztuDcglKcURjmnO16cgCc+wlld9t9yri+Lv+gLP1fjw5I
+X-Gm-Gg: ASbGncuRQbm9FW9RyRXBwlg5ETiwAkcwo8WQRmzY9yh/Nw1Q6RPjViGut7bMGzjzgju
+	Ell+wZIxPNcMCpyr9wOROBXukDk0d1Za0gisgdsObIJJvFyUlTYXOE8VXUh5Fcg8yl1E1ydLK/K
+	vvVGHlZCANM/0SSZLAtPI3afXYAL/f4FCG7UCxDa6EdrqAGEVu27htkuMe75GvNTBEnF+S6T9Wq
+	qiapMOfInBGN8GwXJOi/hQ/SCO21uz/UTkL8QgV+VNEhdo7FZ5Cp8hkqUrC+dB6J5X8tTNv2PBZ
+	viSTwQ3Pqpm8xfZZNF0ihOCeHncxW90Vdvy1JJxATxixtS6JIcXEXMVCZ55L5FBaBvLSX6jWL+M
+	p/B9VC1gU+IFoAwoxI0DYbvSHjYRPgzqRks78S2WshZYTJ3FN5g==
+X-Received: by 2002:a05:6000:20c1:b0:3a6:d93e:5282 with SMTP id ffacd0b85a97d-3a6d93e56fdmr4631724f8f.59.1750694029390;
+        Mon, 23 Jun 2025 08:53:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGA1KvuWMUKN9KvaBuLXR047CctA8x5Deyzs96cGxifQWvv9nqh0pubra4q6mzKwy1TzfQHsg==
+X-Received: by 2002:a05:6000:20c1:b0:3a6:d93e:5282 with SMTP id ffacd0b85a97d-3a6d93e56fdmr4631669f8f.59.1750694028940;
+        Mon, 23 Jun 2025 08:53:48 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f4e:fd00:8e13:e3b5:90c8:1159? (p200300d82f4efd008e13e3b590c81159.dip0.t-ipconnect.de. [2003:d8:2f4e:fd00:8e13:e3b5:90c8:1159])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45365af83easm108398715e9.25.2025.06.23.08.50.19
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a6d1188094sm9767260f8f.74.2025.06.23.08.53.46
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Jun 2025 08:50:21 -0700 (PDT)
-Message-ID: <b45e3332-e962-4c8d-9399-f3ec48c3c7c1@redhat.com>
-Date: Mon, 23 Jun 2025 17:50:18 +0200
+        Mon, 23 Jun 2025 08:53:48 -0700 (PDT)
+Message-ID: <c3cb8f4f-e343-4109-b679-a6b37e18dd30@redhat.com>
+Date: Mon, 23 Jun 2025 17:53:46 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,14 +75,14 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 20/29] mm: convert "movable" flag in page->mapping to
- a page flag
+Subject: Re: [PATCH RFC 07/29] mm/migrate: rename isolate_movable_page() to
+ isolate_movable_ops_page()
 To: Zi Yan <ziy@nvidia.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
+Cc: Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, linux-doc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
  Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
  Christophe Leroy <christophe.leroy@csgroup.eu>,
  Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
@@ -101,7 +101,6 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
  <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
  Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
  Minchan Kim <minchan@kernel.org>,
  Sergey Senozhatsky <senozhatsky@chromium.org>,
  Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
@@ -113,8 +112,12 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
  Shakeel Butt <shakeel.butt@linux.dev>
 References: <20250618174014.1168640-1-david@redhat.com>
- <20250618174014.1168640-21-david@redhat.com>
- <2EE119E0-C71C-43C6-A445-E9CB8AAA86E6@nvidia.com>
+ <20250618174014.1168640-8-david@redhat.com>
+ <9F76592E-BB0E-4136-BDBA-195CC6FF3B03@nvidia.com>
+ <aFMH0TmoPylhkSjZ@casper.infradead.org>
+ <4D6D7321-CAEC-4D82-9354-4B9786C4D05E@nvidia.com>
+ <bef13481-5218-4732-831d-fe22d95184c1@redhat.com>
+ <8FE2EDF1-DF20-4DC4-A179-83E598508748@nvidia.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -161,60 +164,65 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <2EE119E0-C71C-43C6-A445-E9CB8AAA86E6@nvidia.com>
+In-Reply-To: <8FE2EDF1-DF20-4DC4-A179-83E598508748@nvidia.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: sq6t6Pmmjq8Av4sLrSD7zsCTAO7ELiWzj12MB1l1Njs_1750693823
+X-Mimecast-MFC-PROC-ID: LnU2JLBOkPHgJWztUJ3Bm9xRu6eLvy_vbsE6JuycmAM_1750694029
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 23.06.25 16:14, Zi Yan wrote:
-> On 18 Jun 2025, at 13:40, David Hildenbrand wrote:
+On 23.06.25 17:42, Zi Yan wrote:
+> On 23 Jun 2025, at 11:33, David Hildenbrand wrote:
 > 
->> Instead, let's use a page flag. As the page flag can result in
->> false-positives, glue it to the page types for which we
->> support/implement movable_ops page migration.
+>> On 18.06.25 20:48, Zi Yan wrote:
+>>> On 18 Jun 2025, at 14:39, Matthew Wilcox wrote:
+>>>
+>>>> On Wed, Jun 18, 2025 at 02:14:15PM -0400, Zi Yan wrote:
+>>>>> On 18 Jun 2025, at 13:39, David Hildenbrand wrote:
+>>>>>
+>>>>>> ... and start moving back to per-page things that will absolutely not be
+>>>>>> folio things in the future. Add documentation and a comment that the
+>>>>>> remaining folio stuff (lock, refcount) will have to be reworked as well.
+>>>>>>
+>>>>>> While at it, convert the VM_BUG_ON() into a WARN_ON_ONCE() and handle
+>>>>>> it gracefully (relevant with further changes), and convert a
+>>>>>> WARN_ON_ONCE() into a VM_WARN_ON_ONCE_PAGE().
+>>>>>
+>>>>> The reason is that there is no upstream code, which use movable_ops for
+>>>>> folios? Is there any fundamental reason preventing movable_ops from
+>>>>> being used on folios?
+>>>>
+>>>> folios either belong to a filesystem or they are anonymous memory, and
+>>>> so either the filesystem knows how to migrate them (through its a_ops)
+>>>> or the migration code knows how to handle anon folios directly.
 >>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>   include/linux/balloon_compaction.h |  2 +-
->>   include/linux/migrate.h            |  8 -----
->>   include/linux/page-flags.h         | 52 ++++++++++++++++++++++++------
->>   mm/compaction.c                    |  6 ----
->>   mm/zpdesc.h                        |  2 +-
->>   5 files changed, 44 insertions(+), 26 deletions(-)
+>> Right, migration of folios will be handled by migration core.
 >>
+>>>
+>>> for device private pages, to support migrating >0 order anon or fs folios
+>>> to device, how should we represent them for devices? if you think folio is
+>>> only for anon and fs.
+>>
+>> I assume they are proper folios, so yes. Just like they are handled today (-> folios)
+>>
+>> I was asking a related question at LSF/MM in Alistair's session: are we sure these things will be folios even before they are assigned to a filesystem? I recall the answer was "yes".
+>>
+>> So we don't (and will not) support movable_ops for folios.
 > 
-> <snip>
-> 
->> +
->> +/**
->> + * page_has_movable_ops - test for a movable_ops page
->> + * @page The page to test.
->> + *
->> + * Test whether this is a movable_ops page. Such pages will stay that
->> + * way until freed.
->> + *
->> + * Returns true if this is a movable_ops page, otherwise false.
->> + */
->> +static inline bool page_has_movable_ops(const struct page *page)
->> +{
->> +	return PageMovableOps(page) &&
->> +	       (PageOffline(page) || PageZsmalloc(page));
->> +}
->> +
-> 
-> Should we do the code below in case PageMovableOps is set on pages
-> other than PageOffline and PageZsmalloc?
-> 
-> return PageMovableOps(page) &&
-> 	   !VM_WARN_ON_ONCE_PAGE(!(PageOffline(page) || PageZsmalloc(page)),
-> 							 page);
+> Got it. (I was abusing it to help develop alloc_contig_range() at pageblock
+> granularity, since it was easy to write a driver to allocate a compound page
+> at a specific PFN and claim the page is movable, then do page online/offline
+> the range containing the PFNs. :) )
 
-I think this could trigger in some corner when other pages (esp. 
-folios?) reuse the flag and we run into some weird races while we don't 
-hold any reference on the page.
+Oh, interesting :)
+
+Yeah, with a folio that will be a bit harder ...
+
+> 
+> For the patch, Reviewed-by: Zi Yan <ziy@nvidia.com>
+
+Thanks!
 
 -- 
 Cheers,
