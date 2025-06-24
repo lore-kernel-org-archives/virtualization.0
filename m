@@ -1,176 +1,127 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE7BF25F785
-	for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 17:01:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF7B5130E58
+	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 00:41:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750698121; cv=none; b=C1jhLDmAaqrkNJXlHmHgRZAr7cFoaZ7jt9uO2bUqRXUVwqHQpEIqt53uRDsvXYK/l+2bCr8xRTLJdjsm6VaN/l98RGM1xzV3msTJWwyVldTnIFjvGYB7DhZ5HiDI6/AlH7Z1eIKtWp5Q1iiBEKZfZcmNSZwmwih5WI5Yu1Kpsfg=
+	t=1750725685; cv=none; b=bo4RJnfixTb3N2YgDHtaHQ6+AaleYITWhYcdE9mvnWg+KexNvC+vZ1pK/y6XQnCJ4LuCD2lBYvyDu2+ynV0cVmuStQmf94+hl/M6+FkBonKt41UPSPr8SvWyyojJ35CIviC/rDbZBe36+Ym9plZIVhr+E8PIw+HQefBXQtJ5ZJw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750698121; c=relaxed/simple;
-	bh=taqM6M2yCTAkigZXwCzc8+OLPoroFfNThxW7WCtpr+Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=YWkVOKFjpw9muYbJ1ZLo+ZmVEJQ4sFyjFkCZg8UFr1itG9c0YyypWSUw9h4Xs5an04m5VX5KmfbBCXQd5k3Nz/W5wyhxZMuBR5XyRyMl2j/zBf7ehyY3Fp4i2i7rSL67ViUCbM+wP/wTOyBWWAOGtfp5O4A0Ofy14KDiA+kzLRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i9rsixuM; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1750725685; c=relaxed/simple;
+	bh=GvGEMD4Kki46f9H9uX0qMuel22O0AXwTFQlVMCNPfGo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ghVvHls1NPpQ6jIxeb1473Ku1qv6+wuXp6QusKPJ3T/kLnZmP1H0v6Kw0HVNuvzj27jVA8D0woi+utn1kNS+biP1n+Cb1Xn+brR4LJ6N91STwirOvQqtWHaqTiFJSC0n5u7AwfKRTN5JJsFrXBqp1z2Z5gA0sJXZU2A7DrOojmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b9a0SJj7; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i9rsixuM"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b9a0SJj7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750698119;
+	s=mimecast20190719; t=1750725681;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Jq5JtTNSTi3UbB2t2zf1v906mYuPWMRbjCVCINzsyvo=;
-	b=i9rsixuMtn6d1NBMY5QUQvZu4B0D2Fp+aNwhbcrqIUIO2FVnAdmSzM346S6cOm+x/sG5bn
-	wbODPe8kQVU7xe8lgKqASZfKq5sDS4Izl0OxTOJwpAL9uioMD83rYNaP1qrIegeXuvwCFJ
-	wMeuHpctX7RGsQAv1obAHZfLEWD28ZE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=xbnuXzX6Ua5JYwe0HLbF3e8hcisCc2OGbdItWwpjUDE=;
+	b=b9a0SJj7PVtvbOUg/PCn3ZutknpJiyNfwBHXJ+DewYkXdF28SZjgAG9q95hkKrrsrjSJhH
+	jUMu8IRNF30P+p7BJ9l2FOM5CpVeZ9/B+KArWhz52YCJap3vl0bCiyB/YC3Cwsa5HDZh7T
+	/dDKqsN+TCjjaNUxojLMpJ4nXBCqs2o=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-13-P_qRHCj7MIehJv3iYgQx7w-1; Mon, 23 Jun 2025 13:01:57 -0400
-X-MC-Unique: P_qRHCj7MIehJv3iYgQx7w-1
-X-Mimecast-MFC-AGG-ID: P_qRHCj7MIehJv3iYgQx7w_1750698115
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a50816ccc6so2757387f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 10:01:56 -0700 (PDT)
+ us-mta-62-xsi6kRmsM9-pSAc-jwsE2g-1; Mon, 23 Jun 2025 20:41:20 -0400
+X-MC-Unique: xsi6kRmsM9-pSAc-jwsE2g-1
+X-Mimecast-MFC-AGG-ID: xsi6kRmsM9-pSAc-jwsE2g_1750725680
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-311e7337f26so3995995a91.3
+        for <virtualization@lists.linux.dev>; Mon, 23 Jun 2025 17:41:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750698115; x=1751302915;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Jq5JtTNSTi3UbB2t2zf1v906mYuPWMRbjCVCINzsyvo=;
-        b=aU3J+5vpqtSTWBcPV4NJ4RSoixNPKdX12KUFQPiNkt0cV1uKxn6xPWg2JGAZ25Zs+c
-         +j+khemjllkgC7WB9mRumtkz9DsCFKpQGkABA7uFIhOy7JfDFA6ViwaTjm6fwVqhxO8n
-         5kaAz1ZYG8Kf7BhLdO33/RQN5eLYFOiz52q3OyiWSDE5cX2FL1REPWsKQ++WY3rz5JUh
-         yYCyeQNLr4pSMIcUSlLWdhYZIYhmFt6qjqfKBaXeVbjYBNGSB+4X88LCmA7LkOfKD57s
-         G7o6Q/7jG2oUVbG//t1ljGtp2FZDXHVZKRwHj4KhuIHp9qT2NlZuHxYfULW6mbzv63+H
-         DFag==
-X-Forwarded-Encrypted: i=1; AJvYcCX/EvTZE3vB3tqRjzIhHAlWHm73lhV+vlxQanw+KCtztx3ITL9ARnbF1ISsKclY7ZMOUQof1ERLiuwofyMftw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyhkoE5dbsxmPurh2PTxDA71VrdIHX7UjnpJbvBAKKD3C9RzWmr
-	NZab9Wvk5TemGKJEkhepHx9Xb3cCrqVsdmSTkmeNPoO1GIBKYE8EC/BPwUYSiupIf/7yNpZx0N+
-	j9mynBe9zjuMMlujhbs6/WsfrxxoWVJChZezHx9eLhYCeGXTAa9GNgfw/I5SLl+Vw8kPd
-X-Gm-Gg: ASbGncvDk/v5Mbi/KCGZLWUnNy5JqHE9zRWgyl2em/U4iqS8PpaQPOYofRyfyugUM/M
-	F/C1Y/cw2eljHE1Pb5GAD3RxQo6MuTgo0ZGCx6KPJPAPcOXZVyxpCfESUJaQP2JKqo3xlpMqy8Z
-	7FBfa06xAAjRu29LijNPSeRgnNH3/4cfNtoMslGvpzQJ4dunj7cRsb0dwDMpWL39omtJJbQXfle
-	0EoreJBqXL5ZMpZRwc5/82gB1HNkntb4MsPVd/fjNEKQtU/zAFCUFk/1+LVsciWPkDL9NIwmRbU
-	VhBft5LuNM9OA8YgwrlWoAHgYvo=
-X-Received: by 2002:a05:6000:288d:b0:3a5:8905:2dd9 with SMTP id ffacd0b85a97d-3a6d1331316mr11150048f8f.51.1750698114874;
-        Mon, 23 Jun 2025 10:01:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFgLc1G5fHA+5OCdohy+RX20t3SZJ3zi/U76KcD2RoeCTL1jtFDfjcLkndhINDFJCXPqEyFPQ==
-X-Received: by 2002:a05:6000:288d:b0:3a5:8905:2dd9 with SMTP id ffacd0b85a97d-3a6d1331316mr11149981f8f.51.1750698114073;
-        Mon, 23 Jun 2025 10:01:54 -0700 (PDT)
-Received: from sgarzare-redhat ([193.207.144.60])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a6d0f10411sm9667235f8f.1.2025.06.23.10.01.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Jun 2025 10:01:53 -0700 (PDT)
-Date: Mon, 23 Jun 2025 19:01:44 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Xuewei Niu <niuxuewei97@gmail.com>
-Cc: davem@davemloft.net, decui@microsoft.com, fupan.lfp@antgroup.com, 
-	haiyangz@microsoft.com, jasowang@redhat.com, kvm@vger.kernel.org, kys@microsoft.com, 
-	leonardi@redhat.com, linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	mst@redhat.com, netdev@vger.kernel.org, niuxuewei.nxw@antgroup.com, 
-	pabeni@redhat.com, stefanha@redhat.com, virtualization@lists.linux.dev, 
-	wei.liu@kernel.org, xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH net-next v3 1/3] vsock: Add support for SIOCINQ ioctl
-Message-ID: <opt6smgzc7evwrme7mulwyqute6enx2hq2vjfjksroz2gzzeir@sy6be73mwnsu>
-References: <y465uw5phymt3gbgdxsxlopeyhcbbherjri6b6etl64qhsc4ud@vc2c45mo5zxw>
- <20250622135910.1555285-1-niuxuewei.nxw@antgroup.com>
+        d=1e100.net; s=20230601; t=1750725679; x=1751330479;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xbnuXzX6Ua5JYwe0HLbF3e8hcisCc2OGbdItWwpjUDE=;
+        b=OOm8Ssa1baKmb/8ueBZPx/94USHcTe/i/r/0jSwrXsZ/3byH7GSDbBDjQi989lEKaY
+         BzjGwRE2P6ECkaozqEkzjoOpf1p7+HlXFQcPcjl3pSV74fqHKmCeOXxo0gA+qgh1n7p2
+         ajX2r3kjSK0taS6CTT7sfS2M21/nTKO+Z4v/SmbbjkS/YE5m6lGH1YNRU2VH4RtqMMmU
+         jlK0vkj1dLictM9SBIRSXot6voYUN6n/Q03kyvzeTn+oGT0XvyF24/gPrAc+Tn7r/s6o
+         lYK8sf3XR9rxhUVvMMHUbmy51crlUtTbI1OQ78qO1sVsSsnDxfAYbpvOqR1T1riw/aBb
+         IxWw==
+X-Forwarded-Encrypted: i=1; AJvYcCV9jcBe6ilgJWxX0uRXTApvUOy/VNUrzlBUfZ360CeB7FGH0YgBctXmlBDrQ5l5SOj4PxIUBF6mcpJJ7tZVPA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwHi1U9oI/fDiA+ZoA6cRAsroajmVgFUA19osg/7FyTuFTsrwib
+	E9eApBM1TgJMlvOv95KMZhQmE5IE12eCPFA6m3ZgQAaxjeWaNFhLdEaNHk0b5Z75UCnzmqTjW4J
+	SfS9n1wsZXC4idGzm9Ma9MRyBaCSw/NcN/pDu2sSq69SSql3OHNzDYtFb1gU4LdYbvycvCDUISx
+	6g5koLhzzswoQpIP4iqibWyfTEE6tKD3UvPc1mRWfTtCM=
+X-Gm-Gg: ASbGncuGXndD1diT1advdLAGveqXVNyNAgKTn0FRNEnEQKLv2YI8zTqWRqljVxM9kQC
+	eX6iNL3OKW4TklMUobCHc9QloHBO+w2pfxdsvHYAnZp5VKI8tx+QAYQXucbeuI6qDYqMcs6b+h2
+	Vww0lR
+X-Received: by 2002:a17:90b:1b11:b0:313:f775:d381 with SMTP id 98e67ed59e1d1-3159d8c6018mr24356837a91.18.1750725679505;
+        Mon, 23 Jun 2025 17:41:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF6dEmVr9JtJH1QXjsGmq2JCy5G9t+XM+PlD3FqtiyHroh5fjeISWvwEljOQeseXbYcTgWgJVagbODZoUulpeM=
+X-Received: by 2002:a17:90b:1b11:b0:313:f775:d381 with SMTP id
+ 98e67ed59e1d1-3159d8c6018mr24356808a91.18.1750725679038; Mon, 23 Jun 2025
+ 17:41:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250622135910.1555285-1-niuxuewei.nxw@antgroup.com>
+References: <241C7118259DA110+20250623065210.270237-1-wangyuli@uniontech.com>
+In-Reply-To: <241C7118259DA110+20250623065210.270237-1-wangyuli@uniontech.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 24 Jun 2025 08:41:06 +0800
+X-Gm-Features: AX0GCFvlNF7ePY8RpTN4tJmMih3I4v5pSV8-lai00J0trBY4VR8RP0Arg9mHNag
+Message-ID: <CACGkMEvwV3em-7kca9JnTmWCgtWJUrVdOXU9om8Mjcfa9pic=w@mail.gmail.com>
+Subject: Re: [PATCH] virtio: virtio_dma_buf: fix missing parameter documentation
+To: WangYuli <wangyuli@uniontech.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	zhanjun@uniontech.com, niecheng1@uniontech.com, guanwentao@uniontech.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: tcEpJNSCVGE-4o9t3lXqWPh6Eh6hq-lY3Uhfgn_00Nw_1750698115
+X-Mimecast-MFC-PROC-ID: r87qDxITg8mbHexpnqoksgewraQf3hyVK2Vgtlr8Qcs_1750725680
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jun 22, 2025 at 09:59:10PM +0800, Xuewei Niu wrote:
->> ACCin hyper-v maintainers and list since I have a question about hyperv
->> transport.
->>
->> On Tue, Jun 17, 2025 at 12:53:44PM +0800, Xuewei Niu wrote:
->> >Add support for SIOCINQ ioctl, indicating the length of bytes unread in the
->> >socket. The value is obtained from `vsock_stream_has_data()`.
->> >
->> >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
->> >---
->> > net/vmw_vsock/af_vsock.c | 22 ++++++++++++++++++++++
->> > 1 file changed, 22 insertions(+)
->> >
->> >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->> >index 2e7a3034e965..bae6b89bb5fb 100644
->> >--- a/net/vmw_vsock/af_vsock.c
->> >+++ b/net/vmw_vsock/af_vsock.c
->> >@@ -1389,6 +1389,28 @@ static int vsock_do_ioctl(struct socket *sock, unsigned int cmd,
->> > 	vsk = vsock_sk(sk);
->> >
->> > 	switch (cmd) {
->> >+	case SIOCINQ: {
->> >+		ssize_t n_bytes;
->> >+
->> >+		if (!vsk->transport) {
->> >+			ret = -EOPNOTSUPP;
->> >+			break;
->> >+		}
->> >+
->> >+		if (sock_type_connectible(sk->sk_type) &&
->> >+		    sk->sk_state == TCP_LISTEN) {
->> >+			ret = -EINVAL;
->> >+			break;
->> >+		}
->> >+
->> >+		n_bytes = vsock_stream_has_data(vsk);
->>
->> Now looks better to me, I just checked transports: vmci and virtio/vhost
->> returns what we want, but for hyperv we have:
->>
->> 	static s64 hvs_stream_has_data(struct vsock_sock *vsk)
->> 	{
->> 		struct hvsock *hvs = vsk->trans;
->> 		s64 ret;
->>
->> 		if (hvs->recv_data_len > 0)
->> 			return 1;
->>
->> @Hyper-v maintainers: do you know why we don't return `recv_data_len`?
->> Do you think we can do that to support this new feature?
+On Mon, Jun 23, 2025 at 2:55=E2=80=AFPM WangYuli <wangyuli@uniontech.com> w=
+rote:
 >
->Hi Hyper-v maintainers, could you please take a look at this?
+> Add missing parameter documentation for virtio_dma_buf_attach()
+> function to fix kernel-doc warnings:
 >
->Hi Stefano, if no response, can I fix this issue in the next version?
+> Warning: drivers/virtio/virtio_dma_buf.c:41 function parameter 'dma_buf' =
+not described in 'virtio_dma_buf_attach'
+> Warning: drivers/virtio/virtio_dma_buf.c:41 function parameter 'attach' n=
+ot described in 'virtio_dma_buf_attach'
+>
+> The function documentation was missing descriptions for both the
+> 'dma_buf' and 'attach' parameters. Add proper parameter documentation
+> following kernel-doc format.
+>
+> Signed-off-by: WangYuli <wangyuli@uniontech.com>
+> ---
+>  drivers/virtio/virtio_dma_buf.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_=
+buf.c
+> index 3fe1d03b0645..95c10632f84a 100644
+> --- a/drivers/virtio/virtio_dma_buf.c
+> +++ b/drivers/virtio/virtio_dma_buf.c
+> @@ -36,6 +36,8 @@ EXPORT_SYMBOL(virtio_dma_buf_export);
+>
+>  /**
+>   * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
+> + * @dma_buf: [in] buffer to attach
+> + * @attach: [in] attachment structure
+>   */
+>  int virtio_dma_buf_attach(struct dma_buf *dma_buf,
+>                           struct dma_buf_attachment *attach)
+> --
+> 2.50.0
+>
 
-Yep, but let's wait a little bit more.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-In that case, please do it in a separate patch (same series is fine) 
-that we can easily revert/fix if they will find issues later.
-
-Thanks,
-Stefano
-
->
->Thanks,
->Xuewei
->
->> Thanks,
->> Stefano
->>
->> >+		if (n_bytes < 0) {
->> >+			ret = n_bytes;
->> >+			break;
->> >+		}
->> >+		ret = put_user(n_bytes, arg);
->> >+		break;
->> >+	}
->> > 	case SIOCOUTQ: {
->> > 		ssize_t n_bytes;
->> >
->> >--
->> >2.34.1
->> >
->
+Thanks
 
