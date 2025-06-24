@@ -1,163 +1,173 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D60E27F170
-	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 10:36:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB66A2D2385
+	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 14:05:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750761364; cv=none; b=otHClDEsj+BxqkWCe5bY5Z3eYpycq+RVT2ORsVM26q7KkOSruIO+u1nzED9ZctjreRBulQFJLAPQ5oIyfLFtWFuDRH8NGO8rjpCU/b61rMzQOWQvQ4Jt6tSHVl/U9t/eoR4hxWQEt82oc97tfDMcdHBNnDTeFS6vUThTzLHmoCE=
+	t=1750773957; cv=none; b=P+bdBnW7so5cQ+Tw2HXVMSC/9CyT5RmT4h2fdgBy9Jm5dw7+hrrKA889khktRyD1HfG1q/ZWE0PGzXOzUmnAP9Cu/Eis28ppzeJ6cjGEmi6lXLfg/kQ6Suxb4NTT0HcMWWaWD8Ht9yiD7/NZ5ZZGWdQtDt5pgoilZh8YBQDv/T8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750761364; c=relaxed/simple;
-	bh=6CViWuPX00eU2i8EAuavfyf3Zqe6PhQ83HuHdPBTl2A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kseKSvfWwEeYJD8SAlAnybpHSzxM2fkxyFFhrOJkyMjJXkFUAT90JyJ7HCug6CnB7W3YfuydzlmNC4DbUgx0dMMFM2cjsJeWczUKnBHPZkyuxWHsF8X14mbyC4CG1oSUp2UvZrzF/sLK1xzUqtwi/lU24b2OCGS2JrSYGm7N4ZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BpwRZ/VL; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1750773957; c=relaxed/simple;
+	bh=ShTqc7z0FpK2/U8YVqk2gMmafxHT4PEfEtsONZW/Zjs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FxevnNFhblvzl26T4MoSXxMgxnbxv3Vg0kxRvudtaLvGxBG79OBzn5ErOUJN0AsmF7OdZs1rA2QGkUEALnap+QnSDuibr/UDp7UpEzlvs+RmLx/elyru8ihjY4TD7Z52U1QNW4f59Fd/mqlEulh7lbWrQDlQ8c3bIFYnb8PLWnk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iuu6XwFK; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BpwRZ/VL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iuu6XwFK"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750761361;
+	s=mimecast20190719; t=1750773955;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=P3LLsiuFWfA6idjZrblBAge6t85zqJ/pmKfL0AuNa2U=;
-	b=BpwRZ/VL9y2ge4CfELYO/Ge7hFRAl4GGjG/FtrIVVXMOdtEV8eRRN5uWWaFUA08TNcBgme
-	qBcNGz2yrLeMrQZ9h2SUv9mZXYB3p40+3yT7aiVizQSA565vz2KMiBNZP/bhWPwqiBLoPJ
-	Cb6yj91i921e8HF05q7cg/fd4F482zA=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=D+TKbeGRcKoBZxXH6jFI/Y3rhb44odXuWUwrtNDdL2o=;
+	b=iuu6XwFK5XRPtolXrw/zEBwH2sjm8eMB66GaVGqoieBz163O2kVme3gGvZLMeIpQgHGta4
+	VpWrIjLcQlU5nQwpMoXmIFE5QBWc+KfUm94eahWAJWnOQxLRkTczVBTqEZ4DFtsXGnPUEq
+	AhsgxpeL3BMkXsrojiEKzPixxPeKb8s=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-681-mLHZ_zWPP8KToYljYzFo7A-1; Tue, 24 Jun 2025 06:35:57 -0400
-X-MC-Unique: mLHZ_zWPP8KToYljYzFo7A-1
-X-Mimecast-MFC-AGG-ID: mLHZ_zWPP8KToYljYzFo7A_1750761357
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-addfe17eb89so34701466b.3
-        for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 03:35:57 -0700 (PDT)
+ us-mta-538-xANIqCCDMGS2IF7kDEH2SQ-1; Tue, 24 Jun 2025 10:05:53 -0400
+X-MC-Unique: xANIqCCDMGS2IF7kDEH2SQ-1
+X-Mimecast-MFC-AGG-ID: xANIqCCDMGS2IF7kDEH2SQ_1750773952
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a4eec544c6so277099f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 07:05:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750761357; x=1751366157;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=P3LLsiuFWfA6idjZrblBAge6t85zqJ/pmKfL0AuNa2U=;
-        b=HFzbLNpWoiSz9XhLxQr+s2pQ+eshBhnDfx3XlHrAQHU5BzupxVWE/GgIds50nTVl9h
-         6h0JJaCAUkosGfgs0vlAvEqn92TqDwjdsTOKNls4nnsO9iwOtPQxW0KC8/x8DKVM8qRI
-         Lma3E/28RTty2o/zy1QqWkioelp4aL5TBeXVwnEDtXP+6cKSFlcROsIcK08madm2Q8Ix
-         5QlJb9XzzqOM4vX/3RSVJnsBAvz14ALuLLZRBp4V6HbIVSI356ml5NCy9EeJQs11Pa2G
-         7l3DXTKi5rAurCNViRXJdOPuVE+95O2qkt9/EUoIXDhHZsjSNFpLPaVa+obYygiaT+IW
-         RbQg==
-X-Forwarded-Encrypted: i=1; AJvYcCV0fMiSf7KQsgEae99go+oww87S1/i261pW+2M3pqA6sGYi8TLjfyzZPNMWciYZqkGqtpeDSflf4MzqTlf/qQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxQjaopUiwSWtbQGyYSoXb9ITyn6qMX37d5Bl/iXYAqcmiN/yvZ
-	0UuzZWyR8+U0lrIoHdDlm411a0DKGESBPFgtG3tWxSIsSdOt9dPLEPrDrX/RsPf8RYDynLXEtGY
-	BmqXUhynfav/zwuhZLp0KQajDWBvYLAttWQPAr/aqzzBPAizu27bpzCNCGLUUE3Pj4xLkIeI4so
-	sSN0KJAQJ7H2nbqiJlU9xjnjCw000Wmu+6m42mosz8T6I=
-X-Gm-Gg: ASbGncs6h+ZNMGHgRfXrCZzvcofMeTxgA7vpI30Q+MMxxQ/YbYepqTOWIIHSky+1Tw1
-	oeLUtJma8FC2YOQxQNdtY36yuVBbQ1bsCWyVnQq5gYY85NZ2A7sqfMXfT/je/tU2EyUD6PUyUnF
-	yVUCGH
-X-Received: by 2002:a17:906:6a05:b0:ace:cc7f:8abe with SMTP id a640c23a62f3a-ae057b39bdfmr1751261466b.31.1750761356630;
-        Tue, 24 Jun 2025 03:35:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG945gyIWXiR+ffSgL3olytMGzXmaQ3MYtuPPSyPyclXoNDFXHfuOBd36+G6jQmYhGmRc0OV6LyDDHJ4f9ky0E=
-X-Received: by 2002:a17:906:6a05:b0:ace:cc7f:8abe with SMTP id
- a640c23a62f3a-ae057b39bdfmr1751259566b.31.1750761356252; Tue, 24 Jun 2025
- 03:35:56 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1750773952; x=1751378752;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=D+TKbeGRcKoBZxXH6jFI/Y3rhb44odXuWUwrtNDdL2o=;
+        b=W0H2f+jpoTHnNV49mRT0q+gLLpOm+J49d8z/6MZFffLZqOHAXo5tEC1zKKw6srdOP7
+         Bp7Aho/7J5LeNqHC3BgQ+YDbACUyhkkP4vLU17xsEHNQ1F+ZJUhXTAg2fXET/daoYi66
+         RG/yh0IXX58XF3OtCCAzRt5pB/99/QXjxNKwkAfSkZmswYB/Ifap0Qz10pdmAUBeDfwD
+         vFga1w+64ukAYtS+HlIRm7DiAMY4RASLlbMPkjy8aIXokh+2J4n1LSMz42eXF4uIJqQ1
+         U590V7OBx7Ax4O3qwlLOYR63e7JvBZbmBRLCgf2031aFHeuNePXD5kxQoG7ndTH7Loi1
+         r8Yw==
+X-Forwarded-Encrypted: i=1; AJvYcCXn+gsARKlfUs0whIIEJFOuur9Y7EUf7XuGOK8blCY/iQASOjyauXnL16mQGQ+wGhnsucOaeX7G7fyKKJ+fpA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy7hGc0ltnhKw5c99ZBYecXLNm5UOc7UUOyRlTuQk5CPuO4bEOj
+	T1uuKaGqNFP7RK56rIYx1EpMr4z5t5EUkl3aN9IKl7QIRzXGA+cHdvHIX0md1Mgtf/ExGEm1tza
+	9vPApfef+3QUxleZdrj9POfbO0PzT9ooBEEyc2SC9iGHIVE8AN1g9GguvqX/PcNkyYqV1
+X-Gm-Gg: ASbGncsfcmYtAbP6vnthRVIIXEgifdsMr3eIKM+1m2UuJKaGhX8ZVm03NK99aAUEA06
+	JjWdIVmIkuNWwkBqT+V2CsO4UfuB07JMmS7H4aQVsBn+iyx6zhVW48xcNw1LuKd6Eps1GCIfWTV
+	No8fZ1C9Iy67Ba8YLGr7Eaz6T2rOalLBkIbdd1Hq8tyYHf+4ItlgKqyEy6wLRiBAEpIUWxlevKz
+	f/guaJp1Q/aiTD1wfjYGHspcepYxMgczmL1VAJgU88CQqE0OL5gL7OmZ5IlXG2xMrZDsJos/Wp/
+	6njEKDvyeCNu0ktUZ3KmZMr6pTr5Hg==
+X-Received: by 2002:a05:6000:144e:b0:3a4:f520:8bfc with SMTP id ffacd0b85a97d-3a6d1322c05mr14142483f8f.36.1750773945814;
+        Tue, 24 Jun 2025 07:05:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IErDuslqfWPmZ/xGGypV3ktOS9Nn3dYluWljaHpFoweUHaB+FTxcneVu21gRhwulUWipnA3OA==
+X-Received: by 2002:a05:6000:144e:b0:3a4:f520:8bfc with SMTP id ffacd0b85a97d-3a6d1322c05mr14142006f8f.36.1750773940575;
+        Tue, 24 Jun 2025 07:05:40 -0700 (PDT)
+Received: from ?IPV6:2a0d:3344:2445:d510::f39? ([2a0d:3344:2445:d510::f39])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a6e8106a69sm2015375f8f.79.2025.06.24.07.05.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 24 Jun 2025 07:05:40 -0700 (PDT)
+Message-ID: <6ebf5a0a-f13a-43c4-8e42-ba4743e7e417@redhat.com>
+Date: Tue, 24 Jun 2025 16:05:38 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250616082518.10411-1-jasowang@redhat.com> <20250616082518.10411-2-jasowang@redhat.com>
-In-Reply-To: <20250616082518.10411-2-jasowang@redhat.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Tue, 24 Jun 2025 18:35:18 +0800
-X-Gm-Features: Ac12FXyfv18Bnl6zW9gEC4TfyPem9I0gsnQH2c14IyIgNpT2vz0N9HVKpPOYF10
-Message-ID: <CAPpAL=wHn_Ak+5qNwqv6rEv=ROQPzra2nJuLD0HxOpZfjsEjVA@mail.gmail.com>
-Subject: Re: [PATCH V3 01/19] virtio_ring: rename virtqueue_reinit_xxx to virtqueue_reset_xxx()
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 2/2] vhost-net: reduce one userspace copy when
+ building XDP buff
+To: Jason Wang <jasowang@redhat.com>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: mst@redhat.com, eperezma@redhat.com, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org, davem@davemloft.net,
+ andrew+netdev@lunn.ch, edumazet@google.com, kuba@kernel.org
+References: <20250612083213.2704-1-jasowang@redhat.com>
+ <20250612083213.2704-2-jasowang@redhat.com>
+ <684b89de38e3_dcc452944e@willemb.c.googlers.com.notmuch>
+ <CACGkMEsKTLfD1nz-CQdn5+ZmxyWdVDwhBOAcB9fO4TUcwzuLPA@mail.gmail.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <CACGkMEsKTLfD1nz-CQdn5+ZmxyWdVDwhBOAcB9fO4TUcwzuLPA@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: d1GlwiX9YQZ5om9tOyOawAW4z7BdmM0h7VEXpZoJYMQ_1750761357
+X-Mimecast-MFC-PROC-ID: ubICmUf8YeFqA3hLXBRQY6eUvMcOD4zX6xBDVBwiIOI_1750773952
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-I used the "virtio-net-pci,...,in_order=3Don" to test this series of
-patches v3 with regression tests, everything works fine.
+On 6/16/25 5:01 AM, Jason Wang wrote:
+> On Fri, Jun 13, 2025 at 10:16 AM Willem de Bruijn
+> <willemdebruijn.kernel@gmail.com> wrote:
+>>
+>> Jason Wang wrote:
+>>> We used to do twice copy_from_iter() to copy virtio-net and packet
+>>> separately. This introduce overheads for userspace access hardening as
+>>> well as SMAP (for x86 it's stac/clac). So this patch tries to use one
+>>> copy_from_iter() to copy them once and move the virtio-net header
+>>> afterwards to reduce overheads.
+>>>
+>>> Testpmd + vhost_net shows 10% improvement from 5.45Mpps to 6.0Mpps.
+>>>
+>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>>
+>> Acked-by: Willem de Bruijn <willemb@google.com>
+>>
+>>> ---
+>>>  drivers/vhost/net.c | 13 ++++---------
+>>>  1 file changed, 4 insertions(+), 9 deletions(-)
+>>>
+>>> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+>>> index 777eb6193985..2845e0a473ea 100644
+>>> --- a/drivers/vhost/net.c
+>>> +++ b/drivers/vhost/net.c
+>>> @@ -690,13 +690,13 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+>>>       if (unlikely(!buf))
+>>>               return -ENOMEM;
+>>>
+>>> -     copied = copy_from_iter(buf, sock_hlen, from);
+>>> -     if (copied != sock_hlen) {
+>>> +     copied = copy_from_iter(buf + pad - sock_hlen, len, from);
+>>> +     if (copied != len) {
+>>>               ret = -EFAULT;
+>>>               goto err;
+>>>       }
+>>>
+>>> -     gso = buf;
+>>> +     gso = buf + pad - sock_hlen;
+>>>
+>>>       if (!sock_hlen)
+>>>               memset(buf, 0, pad);
+>>> @@ -715,12 +715,7 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+>>>               }
+>>>       }
+>>>
+>>> -     len -= sock_hlen;
+>>> -     copied = copy_from_iter(buf + pad, len, from);
+>>> -     if (copied != len) {
+>>> -             ret = -EFAULT;
+>>> -             goto err;
+>>> -     }
+>>> +     memcpy(buf, buf + pad - sock_hlen, sock_hlen);
+>>
+>> It's not trivial to see that the dst and src do not overlap, and does
+>> does not need memmove.
+>>
+>> Minimal pad that I can find is 32B and and maximal sock_hlen is 12B.
+>>
+>> So this is safe. But not obviously so. Unfortunately, these offsets
+>> are not all known at compile time, so a BUILD_BUG_ON is not possible.
+> 
+> We had this:
+> 
+> int pad = SKB_DATA_ALIGN(VHOST_NET_RX_PAD + headroom + nvq->sock_hlen);
+> int sock_hlen = nvq->sock_hlen;
+> 
+> So pad - sock_len is guaranteed to be greater than zero.
+> 
+> If this is not obvious, I can add a comment in the next version.
 
-Tested-by: Lei Yang <leiyang@redhat.com>
+The relevant initializations are not visible in the patch itself, so I
+think either a comment in the code or in the commit message would be useful.
 
-On Mon, Jun 16, 2025 at 4:27=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> To be consistent with virtqueue_reset().
->
-> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index b784aab66867..afdd51fc3c9c 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1005,7 +1005,7 @@ static void virtqueue_vring_init_split(struct vring=
-_virtqueue_split *vring_split
->         }
->  }
->
-> -static void virtqueue_reinit_split(struct vring_virtqueue *vq)
-> +static void virtqueue_reset_split(struct vring_virtqueue *vq)
->  {
->         int num;
->
-> @@ -1248,7 +1248,7 @@ static int virtqueue_resize_split(struct virtqueue =
-*_vq, u32 num)
->  err_state_extra:
->         vring_free_split(&vring_split, vdev, vring_dma_dev(vq));
->  err:
-> -       virtqueue_reinit_split(vq);
-> +       virtqueue_reset_split(vq);
->         return -ENOMEM;
->  }
->
-> @@ -2092,7 +2092,7 @@ static void virtqueue_vring_attach_packed(struct vr=
-ing_virtqueue *vq,
->         vq->free_head =3D 0;
->  }
->
-> -static void virtqueue_reinit_packed(struct vring_virtqueue *vq)
-> +static void virtqueue_reset_packed(struct vring_virtqueue *vq)
->  {
->         memset(vq->packed.vring.device, 0, vq->packed.event_size_in_bytes=
-);
->         memset(vq->packed.vring.driver, 0, vq->packed.event_size_in_bytes=
-);
-> @@ -2219,7 +2219,7 @@ static int virtqueue_resize_packed(struct virtqueue=
- *_vq, u32 num)
->  err_state_extra:
->         vring_free_packed(&vring_packed, vdev, vring_dma_dev(vq));
->  err_ring:
-> -       virtqueue_reinit_packed(vq);
-> +       virtqueue_reset_packed(vq);
->         return -ENOMEM;
->  }
->
-> @@ -2852,9 +2852,9 @@ int virtqueue_reset(struct virtqueue *_vq,
->                 recycle_done(_vq);
->
->         if (vq->packed_ring)
-> -               virtqueue_reinit_packed(vq);
-> +               virtqueue_reset_packed(vq);
->         else
-> -               virtqueue_reinit_split(vq);
-> +               virtqueue_reset_split(vq);
->
->         return virtqueue_enable_after_reset(_vq);
->  }
-> --
-> 2.34.1
->
->
+Thanks,
+
+Paolo
 
