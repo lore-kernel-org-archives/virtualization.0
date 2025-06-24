@@ -1,341 +1,494 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA48D288C8D
-	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 19:54:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CA0A2D3237
+	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 20:06:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750794858; cv=none; b=LCrht/28hHVlnjaVf/dnlpgAk2CxdlU1RAZ5tgdT0kDyXkdHgk+R0nPorvnzxINfOt29M0EJ4MqCDX/uogcCVslBVyq9jC/76FYk11pKOMHCQPkQICMglOrtBepjIwrfds/Qh6fsN/Jl2/9yYM2eAtfV+7KX8OSFwpiWzdf+Q9U=
+	t=1750795576; cv=none; b=mRWTAe87gfdcY/L4c72PoyF+pJsMc4/yoM+OPrb6bGeE+tXHDXK+7n18EU6dcYHMiAGhrbZXwvY0n9uzU+O51dSsxGBgX6ltDGSvQAriF6iE7+f2hsJjtYomgcgQch8FP4Sk2yX8hFku1wOfjd1UDKibgA61SEl4ny2Q4AuY76k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750794858; c=relaxed/simple;
-	bh=5voiYQ6IXhiiDEBU+Ft4xXIa5YgPiztfOrRs7eOjhjc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=WMH+BVNFL4puUA9FzztNgqMdf44svR4/xb1c3JVIx8wFxcQNahQtz7OFxjB4cIf44TSOKSi5yxGQrSwJWyXL2vjp1egAuqX+rFiRubFv+/4xDsjKX9rbArRPtXFkw7NiYpDNshnWvI4rrPGP/dIWkL8O8rRceLlFP7QpIAt7PR0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OhxtiRio; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1750795576; c=relaxed/simple;
+	bh=KDrvqOW3L4yftEFBZKbv6/w4xpRthChiqDVc7McsUTk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=N0I6JaN19GpoZzIkRfrDL4eK8fNgxcDlVlMo5zHQFaej/gOxLB6nqzOJ3CRqHmPWx0bUDzFejKqxHGO8VhhOZX7nAoku0lF/r2SHq9FglobDTvBPDntNQxDgfAfu094FR1Mph3MDEZtCj2DtYPqvqDvEKlQe8Tqr84r51s+T+8k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hwRoqr/B; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OhxtiRio"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hwRoqr/B"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750794855;
+	s=mimecast20190719; t=1750795573;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=862lJ2mGggB0Qigd+WuoZWEZoGGMhi3QRbnwVZtJ23Q=;
-	b=OhxtiRioWTjm7ehRymJn07JPKE2S/+uAcrzfYuuessrC2YedTjcl8HviVvWFxiNJn0DvP/
-	i9SKeQDn/VRbbXCZe/wLQyK8e1+sgq2g9865QxLC5zER22HdROsNmxhZJD67AV6bDjjwhH
-	KYJHOq2e9ZziVhDeCAUnys2kiDe7Mj0=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=wwshu8J2HemBLlh99Bx8YqtEUNbGJCb7Izdla+gfURA=;
+	b=hwRoqr/BrWhRN87LzqbVg6pyDudwPeqLF8Vdz7LlPvqn/J7OhhUjjMSAp/flW+HYICYoB+
+	tpR2m+aHCuvfP+dPOZHWw7aZXquRmWCjnM2D1v6FA3xQHujgfnBvt2u7xKX6eabT0mEfzf
+	skLfzrzgntIPAmpPbhRjO2C7rgHGN2c=
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
+ [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-632-2iSdYCqyN8egIvw3jCZ_Tg-1; Tue, 24 Jun 2025 15:54:14 -0400
-X-MC-Unique: 2iSdYCqyN8egIvw3jCZ_Tg-1
-X-Mimecast-MFC-AGG-ID: 2iSdYCqyN8egIvw3jCZ_Tg_1750794853
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-607206f0d57so4895594a12.2
-        for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 12:54:14 -0700 (PDT)
+ us-mta-673-gXoPJRsGNNC6cm9sb5VXUA-1; Tue, 24 Jun 2025 16:06:10 -0400
+X-MC-Unique: gXoPJRsGNNC6cm9sb5VXUA-1
+X-Mimecast-MFC-AGG-ID: gXoPJRsGNNC6cm9sb5VXUA_1750795570
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-3df1b73db74so3513305ab.2
+        for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 13:06:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750794853; x=1751399653;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=862lJ2mGggB0Qigd+WuoZWEZoGGMhi3QRbnwVZtJ23Q=;
-        b=lO7AVrDOozE5bh3OP2D7QczSqFjYPGbarocPu1KTRQfC09/KsfzCdlbty2ZRyXE07M
-         TDcTvXrBoQ9c+e6ped6L/QmX0Vzr6tv4ud5gcq740gZ3LXggg79spq9g/UALUqtiMcDh
-         3VeQdiFraxPvyIeR8Dv4Zpbq3qCSnXZixjYjWSB9l2yhXkQ2b8+I7eAhH8Z6SHfdZPyP
-         Oy2/AM8v6bXJE1jIvG6uCSLrNSaGxqaXJTemxzy4D/0VTIA2d+9c4cIcJLQP35I77TVt
-         2ry1+E8NIn8ZffUHCUK9czQ6vuL5bU1DK+2SF+rvw6oFT0UOcvKOrFDj8F7NXadwLwm6
-         Sa3w==
-X-Forwarded-Encrypted: i=1; AJvYcCXI27R/uA97xrJzqcSAONPzOvsBapx5eLzb9TxkQQQ3ySVRQ7wef2pjr6IiGslEm8b9dNNPMygrGfM+uRz62g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxfWE+s04s0uwRd+410bPELxrXllJczwiAUYHTQyanfgfPEDSEn
-	DBnE9YDJPS7sa5nYrsHFqOePuGHdKdhVrCnv1GAXLoUEJ1LPzay5/3uiJ6eolFP2VE7tBCgAIEx
-	qgL4McydRfd/ETEbHVUXBjSoEjfiC+S2U0avh2SjBLWfWAVFT814boj84ZLxMaY07/MYe
-X-Gm-Gg: ASbGncsxYyST39krWM/D/e19xjkixfk1Dyt5sjhE5SKbhP8FBtEzQy7aT46Hem7yjOg
-	hYe/mg53cbhaXfCYngxEkiexhXTvjK1LS/kyR2rwLPeJmOiMeI/UBhYIADYmbGeAUIFIHqhnppx
-	bqkf16HzUBaLkfDP3lWCvEu+nJ0k580EE3y92ujHztH9iw4yEKc66aI6IT7VvL6fTqLlZjel5xX
-	vUt/GizhQjcXPxPlIHN6AgQKpgaVxS/sxlB1Q3GAUNTu4y1TPahWolBZeZqZocvnksx2BuraLMG
-	x8rTgfC1p9Y=
-X-Received: by 2002:a05:6402:1ece:b0:607:16b1:7489 with SMTP id 4fb4d7f45d1cf-60c4dd008e6mr42316a12.20.1750794852711;
-        Tue, 24 Jun 2025 12:54:12 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFp3ZsQXe9e/SW8y0LzVBwS7X9v2rhRSVk2KrgPmbWnEn1ARP7AmHQUbtflDiGUCZbtClOTvA==
-X-Received: by 2002:a05:6402:1ece:b0:607:16b1:7489 with SMTP id 4fb4d7f45d1cf-60c4dd008e6mr42301a12.20.1750794852239;
-        Tue, 24 Jun 2025 12:54:12 -0700 (PDT)
-Received: from redhat.com ([31.187.78.68])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-60c2f196e13sm1448397a12.11.2025.06.24.12.54.10
+        d=1e100.net; s=20230601; t=1750795570; x=1751400370;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wwshu8J2HemBLlh99Bx8YqtEUNbGJCb7Izdla+gfURA=;
+        b=rNMNaom+UELkQdn/tzLIGfE04NqX+iUF0yLGEtn0xzpuykweZQeVT4M8Sf2eWkimZq
+         3Vy552TUJEFNwAemxza+Y6D5nt297F17waBvXKTitMmiw715bskUXDiTfQxwnrAwMQYy
+         4daZJC0psbLxL/OfqAlkykvCLR43SSwDlD4AcQcfeapO0QKD32SalH8AmtD2Tg221E5N
+         +c+mhZDDmJMQkpb4+Q0NGy0jju8vs4NE29dV/LYvO/p8ju08LQSH36ql/Bkfy6jK0lyW
+         EmwPxutODbAcEn0mCu5YeX+1X1x2iWnsDQ3sKe105kFgM11Ps/cxovlEGhRqjyCEV6p8
+         tSmg==
+X-Forwarded-Encrypted: i=1; AJvYcCUpJaHXiZSCGoCpj1Ori8/zwjYEjFPvufLjDUVgCC+nAA5tEtQdGSx5d4r1GdlwEcudmPTQfXYtVDmLud2R+g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwQKjVJo3wNkULNBAnJalX4Y5McQs/uu0idaAfnmcuMuqrQ0+3v
+	B7g7DUeTgDoLRbrmie0Ur2OfSUhVMHzD3Wl/Lij9ZVkGrCBD9qa1QvLvHqTZBA2aOlmLqoeDW+6
+	JONPZyo/GpHOaUlLT+KBnJzdGmaiUR8V87C99fM1AsgXd+yPw0cDuW2BJGw7jmf8tafOd
+X-Gm-Gg: ASbGncsBVDdyBxeftgc7E5cXd+yp1HqIVz9BkTTcSj6sxlFKkGuIu6J1reF+66+C95W
+	+Aqzw1hkUUr0NwDpZoVhbObnKe+W5Yu/amUowK4gtWZQ0IYwHjbAZ+iwHElHuhJyUd7Nhx3vSr8
+	esXK1N7FR8ub4vH/dTvmqiW9j7iKlYECorXBuevX9P1+EbeofSieXZm4rY07Ajw5wmow+HOzKUa
+	K/SKO3whDZeoYw9eiAcHyVvwlPIDXbMQQ+uEUYf0KEhKuvWpQVW8NBokQvYP/KAQIMxGeLTmyab
+	H777st/nRP69O5QCUuBSlM54sw==
+X-Received: by 2002:a05:6602:1643:b0:875:9e30:c7db with SMTP id ca18e2360f4ac-8766b9e6577mr30042939f.4.1750795569633;
+        Tue, 24 Jun 2025 13:06:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGZcYJwFe9VTa0ekuu92qj5ASFTMJEjfhl8uRTFJZhRD9S4l7IuFfWRjhBHiQlwKvh2nYiM8A==
+X-Received: by 2002:a05:6602:1643:b0:875:9e30:c7db with SMTP id ca18e2360f4ac-8766b9e6577mr30040039f.4.1750795568885;
+        Tue, 24 Jun 2025 13:06:08 -0700 (PDT)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-501ae5b16b8sm1925485173.3.2025.06.24.13.06.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Jun 2025 12:54:11 -0700 (PDT)
-Date: Tue, 24 Jun 2025 15:54:08 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>,
-	"axboe@kernel.dk" <axboe@kernel.dk>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-	"stable@vger.kernel.org" <stable@vger.kernel.org>,
-	"NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>,
-	Chaitanya Kulkarni <chaitanyak@nvidia.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"pbonzini@redhat.com" <pbonzini@redhat.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	"alok.a.tiwari@oracle.com" <alok.a.tiwari@oracle.com>,
-	Max Gurtovoy <mgurtovoy@nvidia.com>,
-	Israel Rukshin <israelr@nvidia.com>
-Subject: Re: [PATCH v5] virtio_blk: Fix disk deletion hang on device surprise
- removal
-Message-ID: <20250624155157-mutt-send-email-mst@kernel.org>
-References: <20250602024358.57114-1-parav@nvidia.com>
- <20250624185622.GB5519@fedora>
- <CY8PR12MB719579F7DAD8B0C0A98CBC7FDC78A@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250624150635-mutt-send-email-mst@kernel.org>
- <CY8PR12MB71953552AE196A592A1892DDDC78A@CY8PR12MB7195.namprd12.prod.outlook.com>
+        Tue, 24 Jun 2025 13:06:07 -0700 (PDT)
+Date: Tue, 24 Jun 2025 14:06:04 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Ankit Agrawal <ankita@nvidia.com>, Brett Creeley
+ <brett.creeley@amd.com>, Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+ Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org, Longfang Liu
+ <liulongfang@huawei.com>, qat-linux@intel.com,
+ virtualization@lists.linux.dev, Xin Zeng <xin.zeng@intel.com>, Yishai Hadas
+ <yishaih@nvidia.com>, Matthew Rosato <mjrosato@linux.ibm.com>, Nicolin Chen
+ <nicolinc@nvidia.com>, patches@lists.linux.dev, Shameer Kolothum
+ <shameerali.kolothum.thodi@huawei.com>, Terrence Xu
+ <terrence.xu@intel.com>, Yanting Jiang <yanting.jiang@intel.com>, Yi Liu
+ <yi.l.liu@intel.com>, Zhenzhong Duan <zhenzhong.duan@intel.com>
+Subject: Re: [PATCH] vfio/pci: Do vf_token checks for
+ VFIO_DEVICE_BIND_IOMMUFD
+Message-ID: <20250624140604.6330c656.alex.williamson@redhat.com>
+In-Reply-To: <0-v1-8639f9aed215+853-vfio_token_jgg@nvidia.com>
+References: <0-v1-8639f9aed215+853-vfio_token_jgg@nvidia.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CY8PR12MB71953552AE196A592A1892DDDC78A@CY8PR12MB7195.namprd12.prod.outlook.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: A9vyjodJ-hIm02hm93pidBzGCdutDb2-MpSE8FxxnnQ_1750794853
+X-Mimecast-MFC-PROC-ID: PIXRdHjXc5sNvoR02HYPJZsot-ssaVsiFdQjAMsAdRQ_1750795570
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jun 24, 2025 at 07:11:29PM +0000, Parav Pandit wrote:
+On Tue, 24 Jun 2025 15:34:40 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
+
+> This was missed during the initial implementation. The VFIO PCI encodes
+> the vf_token inside the device name when opening the device from the group
+> FD, something like:
 > 
+>   "0000:04:10.0 vf_token=bd8d9d2b-5a5f-4f5a-a211-f591514ba1f3"
 > 
-> > From: Michael S. Tsirkin <mst@redhat.com>
-> > Sent: 25 June 2025 12:37 AM
-> > 
-> > On Tue, Jun 24, 2025 at 07:01:44PM +0000, Parav Pandit wrote:
-> > >
-> > >
-> > > > From: Stefan Hajnoczi <stefanha@redhat.com>
-> > > > Sent: 25 June 2025 12:26 AM
-> > > >
-> > > > On Mon, Jun 02, 2025 at 02:44:33AM +0000, Parav Pandit wrote:
-> > > > > When the PCI device is surprise removed, requests may not complete
-> > > > > the device as the VQ is marked as broken. Due to this, the disk
-> > > > > deletion hangs.
-> > > >
-> > > > There are loops in the core virtio driver code that expect device
-> > > > register reads to eventually return 0:
-> > > > drivers/virtio/virtio_pci_modern.c:vp_reset()
-> > > > drivers/virtio/virtio_pci_modern_dev.c:vp_modern_set_queue_reset()
-> > > >
-> > > > Is there a hang if these loops are hit when a device has been
-> > > > surprise removed? I'm trying to understand whether surprise removal
-> > > > is fully supported or whether this patch is one step in that direction.
-> > > >
-> > > In one of the previous replies I answered to Michael, but don't have the link
-> > handy.
-> > > It is not fully supported by this patch. It will hang.
-> > >
-> > > This patch restores driver back to the same state what it was before the fixes
-> > tag patch.
-> > > The virtio stack level work is needed to support surprise removal, including
-> > the reset flow you rightly pointed.
-> > 
-> > Have plans to do that?
-> >
-> Didn't give enough thoughts on it yet.
+> This is used to control access to a VF unless there is co-ordination with
+> the owner of the PF.
+> 
+> Since we no longer have a device name pass the token directly though
 
-This one is kind of pointless then? It just fixes the specific race window
-that your test harness happens to hit?
+s/name pass/name, pass/ s/though/through/
 
-Maybe it's better to wait until someone does a comprehensive fix..
+> VFIO_DEVICE_BIND_IOMMUFD with an optional field indicated by
+> VFIO_DEVICE_BIND_TOKEN. Only users using a PCI SRIOV VF will need to
+> provide this. This is done in the usual backwards compatible way.
+> 
+> Fixes: 5fcc26969a16 ("vfio: Add VFIO_DEVICE_BIND_IOMMUFD")
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/vfio/device_cdev.c                    | 38 +++++++++++++++++--
+>  .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  1 +
+>  drivers/vfio/pci/mlx5/main.c                  |  1 +
+>  drivers/vfio/pci/nvgrace-gpu/main.c           |  2 +
+>  drivers/vfio/pci/pds/vfio_dev.c               |  1 +
+>  drivers/vfio/pci/qat/main.c                   |  1 +
+>  drivers/vfio/pci/vfio_pci.c                   |  1 +
+>  drivers/vfio/pci/vfio_pci_core.c              | 22 +++++++----
+>  drivers/vfio/pci/virtio/main.c                |  3 ++
+>  include/linux/vfio.h                          |  1 +
+>  include/linux/vfio_pci_core.h                 |  2 +
+>  include/uapi/linux/vfio.h                     | 13 ++++++-
+>  12 files changed, 74 insertions(+), 12 deletions(-)
+> 
+> I wrote this quickly and don't have an environment available to check it out
+> on.. Since it feels like a significant miss I felt we should start looking at
+> it.
+> 
+> diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
+> index 281a8dc3ed4974..c5d74c7e71f585 100644
+> --- a/drivers/vfio/device_cdev.c
+> +++ b/drivers/vfio/device_cdev.c
+> @@ -60,22 +60,50 @@ static void vfio_df_get_kvm_safe(struct vfio_device_file *df)
+>  	spin_unlock(&df->kvm_ref_lock);
+>  }
+>  
+> +static int vfio_df_check_token(struct vfio_device *device,
+> +			       const struct vfio_device_bind_iommufd *bind)
+> +{
+> +	uuid_t uuid;
+> +
+> +	if (!device->ops->match_token_uuid) {
+> +		if (bind->flags & VFIO_DEVICE_BIND_TOKEN)
+> +			return -EINVAL;
+> +		return 0;
+> +	}
+> +
+> +	if (!(bind->flags & VFIO_DEVICE_BIND_TOKEN))
+> +		return device->ops->match_token_uuid(device, NULL);
+> +
+> +	if (copy_from_user(&uuid, u64_to_user_ptr(bind->token_uuid_ptr),
+> +			   sizeof(uuid)))
+> +		return -EFAULT;
+> +	return device->ops->match_token_uuid(device, &uuid);
+> +}
+> +
+>  long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
+>  				struct vfio_device_bind_iommufd __user *arg)
+>  {
+> +	const u32 VALID_FLAGS = VFIO_DEVICE_BIND_TOKEN;
+>  	struct vfio_device *device = df->device;
+>  	struct vfio_device_bind_iommufd bind;
+>  	unsigned long minsz;
+> +	u32 user_size;
+>  	int ret;
+>  
+>  	static_assert(__same_type(arg->out_devid, df->devid));
+>  
+>  	minsz = offsetofend(struct vfio_device_bind_iommufd, out_devid);
+>  
+> -	if (copy_from_user(&bind, arg, minsz))
+> -		return -EFAULT;
+> +	ret = get_user(user_size, &arg->argsz);
+> +	if (ret)
+> +		return ret;
+> +	if (bind.argsz < minsz)
+> +		return -EINVAL;
+> +	ret = copy_struct_from_user(&bind, minsz, arg, user_size);
+> +	if (ret)
+> +		return ret;
+>  
+> -	if (bind.argsz < minsz || bind.flags || bind.iommufd < 0)
+> +	if (bind.iommufd < 0 || bind.flags & ~VALID_FLAGS)
+>  		return -EINVAL;
+>  
+>  	/* BIND_IOMMUFD only allowed for cdev fds */
+> @@ -93,6 +121,10 @@ long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
+>  		goto out_unlock;
+>  	}
+>  
+> +	ret = vfio_df_check_token(device, &bind);
+> +	if (ret)
+> +		return ret;
+> +
+>  	df->iommufd = iommufd_ctx_from_fd(bind.iommufd);
+>  	if (IS_ERR(df->iommufd)) {
+>  		ret = PTR_ERR(df->iommufd);
+> diff --git a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+> index 2149f49aeec7f8..397f5e44513639 100644
+> --- a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+> +++ b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+> @@ -1583,6 +1583,7 @@ static const struct vfio_device_ops hisi_acc_vfio_pci_ops = {
+>  	.mmap = vfio_pci_core_mmap,
+>  	.request = vfio_pci_core_request,
+>  	.match = vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd = vfio_iommufd_physical_bind,
+>  	.unbind_iommufd = vfio_iommufd_physical_unbind,
+>  	.attach_ioas = vfio_iommufd_physical_attach_ioas,
+> diff --git a/drivers/vfio/pci/mlx5/main.c b/drivers/vfio/pci/mlx5/main.c
+> index 93f894fe60d221..7ec47e736a8e5a 100644
+> --- a/drivers/vfio/pci/mlx5/main.c
+> +++ b/drivers/vfio/pci/mlx5/main.c
+> @@ -1372,6 +1372,7 @@ static const struct vfio_device_ops mlx5vf_pci_ops = {
+>  	.mmap = vfio_pci_core_mmap,
+>  	.request = vfio_pci_core_request,
+>  	.match = vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd = vfio_iommufd_physical_bind,
+>  	.unbind_iommufd = vfio_iommufd_physical_unbind,
+>  	.attach_ioas = vfio_iommufd_physical_attach_ioas,
+> diff --git a/drivers/vfio/pci/nvgrace-gpu/main.c b/drivers/vfio/pci/nvgrace-gpu/main.c
+> index e5ac39c4cc6b6f..d95761dcdd58c4 100644
+> --- a/drivers/vfio/pci/nvgrace-gpu/main.c
+> +++ b/drivers/vfio/pci/nvgrace-gpu/main.c
+> @@ -696,6 +696,7 @@ static const struct vfio_device_ops nvgrace_gpu_pci_ops = {
+>  	.mmap		= nvgrace_gpu_mmap,
+>  	.request	= vfio_pci_core_request,
+>  	.match		= vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd	= vfio_iommufd_physical_bind,
+>  	.unbind_iommufd	= vfio_iommufd_physical_unbind,
+>  	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
+> @@ -715,6 +716,7 @@ static const struct vfio_device_ops nvgrace_gpu_pci_core_ops = {
+>  	.mmap		= vfio_pci_core_mmap,
+>  	.request	= vfio_pci_core_request,
+>  	.match		= vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd	= vfio_iommufd_physical_bind,
+>  	.unbind_iommufd	= vfio_iommufd_physical_unbind,
+>  	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
+> diff --git a/drivers/vfio/pci/pds/vfio_dev.c b/drivers/vfio/pci/pds/vfio_dev.c
+> index 76a80ae7087b51..5731e6856deaf1 100644
+> --- a/drivers/vfio/pci/pds/vfio_dev.c
+> +++ b/drivers/vfio/pci/pds/vfio_dev.c
+> @@ -201,6 +201,7 @@ static const struct vfio_device_ops pds_vfio_ops = {
+>  	.mmap = vfio_pci_core_mmap,
+>  	.request = vfio_pci_core_request,
+>  	.match = vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd = vfio_iommufd_physical_bind,
+>  	.unbind_iommufd = vfio_iommufd_physical_unbind,
+>  	.attach_ioas = vfio_iommufd_physical_attach_ioas,
+> diff --git a/drivers/vfio/pci/qat/main.c b/drivers/vfio/pci/qat/main.c
+> index 845ed15b67718c..5cce6b0b8d2f3e 100644
+> --- a/drivers/vfio/pci/qat/main.c
+> +++ b/drivers/vfio/pci/qat/main.c
+> @@ -614,6 +614,7 @@ static const struct vfio_device_ops qat_vf_pci_ops = {
+>  	.mmap = vfio_pci_core_mmap,
+>  	.request = vfio_pci_core_request,
+>  	.match = vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd = vfio_iommufd_physical_bind,
+>  	.unbind_iommufd = vfio_iommufd_physical_unbind,
+>  	.attach_ioas = vfio_iommufd_physical_attach_ioas,
+> diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+> index 5ba39f7623bb76..ac10f14417f2f3 100644
+> --- a/drivers/vfio/pci/vfio_pci.c
+> +++ b/drivers/vfio/pci/vfio_pci.c
+> @@ -138,6 +138,7 @@ static const struct vfio_device_ops vfio_pci_ops = {
+>  	.mmap		= vfio_pci_core_mmap,
+>  	.request	= vfio_pci_core_request,
+>  	.match		= vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd	= vfio_iommufd_physical_bind,
+>  	.unbind_iommufd	= vfio_iommufd_physical_unbind,
+>  	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index 6328c3a05bcdd4..086aa37a60a2b5 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -1821,9 +1821,13 @@ void vfio_pci_core_request(struct vfio_device *core_vdev, unsigned int count)
+>  }
+>  EXPORT_SYMBOL_GPL(vfio_pci_core_request);
+>  
+> -static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
+> -				      bool vf_token, uuid_t *uuid)
+> +int vfio_pci_core_match_token_uuid(struct vfio_device *core_vdev,
+> +				   const uuid_t *uuid)
+> +
+>  {
+> +	struct vfio_pci_core_device *vdev =
+> +		container_of(core_vdev, struct vfio_pci_core_device, vdev);
+> +
+>  	/*
+>  	 * There's always some degree of trust or collaboration between SR-IOV
+>  	 * PF and VFs, even if just that the PF hosts the SR-IOV capability and
+> @@ -1854,7 +1858,7 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
+>  		bool match;
+>  
+>  		if (!pf_vdev) {
+> -			if (!vf_token)
+> +			if (!uuid)
+>  				return 0; /* PF is not vfio-pci, no VF token */
+>  
+>  			pci_info_ratelimited(vdev->pdev,
+> @@ -1862,7 +1866,7 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
+>  			return -EINVAL;
+>  		}
+>  
+> -		if (!vf_token) {
+> +		if (!uuid) {
+>  			pci_info_ratelimited(vdev->pdev,
+>  				"VF token required to access device\n");
+>  			return -EACCES;
+> @@ -1880,7 +1884,7 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
+>  	} else if (vdev->vf_token) {
+>  		mutex_lock(&vdev->vf_token->lock);
+>  		if (vdev->vf_token->users) {
+> -			if (!vf_token) {
+> +			if (!uuid) {
+>  				mutex_unlock(&vdev->vf_token->lock);
+>  				pci_info_ratelimited(vdev->pdev,
+>  					"VF token required to access device\n");
+> @@ -1893,12 +1897,12 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
+>  					"Incorrect VF token provided for device\n");
+>  				return -EACCES;
+>  			}
+> -		} else if (vf_token) {
+> +		} else if (uuid) {
+>  			uuid_copy(&vdev->vf_token->uuid, uuid);
+>  		}
+>  
+>  		mutex_unlock(&vdev->vf_token->lock);
+> -	} else if (vf_token) {
+> +	} else if (uuid) {
+>  		pci_info_ratelimited(vdev->pdev,
+>  			"VF token incorrectly provided, not a PF or VF\n");
+>  		return -EINVAL;
+> @@ -1906,6 +1910,7 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
+>  
+>  	return 0;
+>  }
+> +EXPORT_SYMBOL_GPL(vfio_pci_core_match_token_uuid);
+>  
+>  #define VF_TOKEN_ARG "vf_token="
+>  
+> @@ -1952,7 +1957,8 @@ int vfio_pci_core_match(struct vfio_device *core_vdev, char *buf)
+>  		}
+>  	}
+>  
+> -	ret = vfio_pci_validate_vf_token(vdev, vf_token, &uuid);
+> +	ret = vfio_pci_core_match_token_uuid(core_vdev,
+> +					     vf_token ? &uuid : NULL);
 
+For consistency shouldn't this call core_vdev->ops->match_token_uuid?
 
-> > > > Apart from that, I'm happy with the virtio_blk.c aspects of the patch:
-> > > > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > > >
-> > > Thanks.
-> > >
-> > > > >
-> > > > > Fix it by aborting the requests when the VQ is broken.
-> > > > >
-> > > > > With this fix now fio completes swiftly.
-> > > > > An alternative of IO timeout has been considered, however when the
-> > > > > driver knows about unresponsive block device, swiftly clearing
-> > > > > them enables users and upper layers to react quickly.
-> > > > >
-> > > > > Verified with multiple device unplug iterations with pending
-> > > > > requests in virtio used ring and some pending with the device.
-> > > > >
-> > > > > Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of
-> > > > > virtio pci device")
-> > > > > Cc: stable@vger.kernel.org
-> > > > > Reported-by: Li RongQing <lirongqing@baidu.com>
-> > > > > Closes:
-> > > > > https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9
-> > > > > b474
-> > > > > 1@baidu.com/
-> > > > > Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > > > Reviewed-by: Israel Rukshin <israelr@nvidia.com>
-> > > > > Signed-off-by: Parav Pandit <parav@nvidia.com>
-> > > > >
-> > > > > ---
-> > > > > v4->v5:
-> > > > > - fixed comment style where comment to start with one empty line
-> > > > > at start
-> > > > > - Addressed comments from Alok
-> > > > > - fixed typo in broken vq check
-> > > > > v3->v4:
-> > > > > - Addressed comments from Michael
-> > > > > - renamed virtblk_request_cancel() to
-> > > > >   virtblk_complete_request_with_ioerr()
-> > > > > - Added comments for virtblk_complete_request_with_ioerr()
-> > > > > - Renamed virtblk_broken_device_cleanup() to
-> > > > >   virtblk_cleanup_broken_device()
-> > > > > - Added comments for virtblk_cleanup_broken_device()
-> > > > > - Moved the broken vq check in virtblk_remove()
-> > > > > - Fixed comment style to have first empty line
-> > > > > - replaced freezed to frozen
-> > > > > - Fixed comments rephrased
-> > > > >
-> > > > > v2->v3:
-> > > > > - Addressed comments from Michael
-> > > > > - updated comment for synchronizing with callbacks
-> > > > >
-> > > > > v1->v2:
-> > > > > - Addressed comments from Stephan
-> > > > > - fixed spelling to 'waiting'
-> > > > > - Addressed comments from Michael
-> > > > > - Dropped checking broken vq from queue_rq() and queue_rqs()
-> > > > >   because it is checked in lower layer routines in virtio core
-> > > > >
-> > > > > v0->v1:
-> > > > > - Fixed comments from Stefan to rename a cleanup function
-> > > > > - Improved logic for handling any outstanding requests
-> > > > >   in bio layer
-> > > > > - improved cancel callback to sync with ongoing done()
-> > > > > ---
-> > > > >  drivers/block/virtio_blk.c | 95
-> > > > > ++++++++++++++++++++++++++++++++++++++
-> > > > >  1 file changed, 95 insertions(+)
-> > > > >
-> > > > > diff --git a/drivers/block/virtio_blk.c
-> > > > > b/drivers/block/virtio_blk.c index 7cffea01d868..c5e383c0ac48
-> > > > > 100644
-> > > > > --- a/drivers/block/virtio_blk.c
-> > > > > +++ b/drivers/block/virtio_blk.c
-> > > > > @@ -1554,6 +1554,98 @@ static int virtblk_probe(struct
-> > > > > virtio_device
-> > > > *vdev)
-> > > > >  	return err;
-> > > > >  }
-> > > > >
-> > > > > +/*
-> > > > > + * If the vq is broken, device will not complete requests.
-> > > > > + * So we do it for the device.
-> > > > > + */
-> > > > > +static bool virtblk_complete_request_with_ioerr(struct request
-> > > > > +*rq, void *data) {
-> > > > > +	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
-> > > > > +	struct virtio_blk *vblk = data;
-> > > > > +	struct virtio_blk_vq *vq;
-> > > > > +	unsigned long flags;
-> > > > > +
-> > > > > +	vq = &vblk->vqs[rq->mq_hctx->queue_num];
-> > > > > +
-> > > > > +	spin_lock_irqsave(&vq->lock, flags);
-> > > > > +
-> > > > > +	vbr->in_hdr.status = VIRTIO_BLK_S_IOERR;
-> > > > > +	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
-> > > > > +		blk_mq_complete_request(rq);
-> > > > > +
-> > > > > +	spin_unlock_irqrestore(&vq->lock, flags);
-> > > > > +	return true;
-> > > > > +}
-> > > > > +
-> > > > > +/*
-> > > > > + * If the device is broken, it will not use any buffers and
-> > > > > +waiting
-> > > > > + * for that to happen is pointless. We'll do the cleanup in the
-> > > > > +driver,
-> > > > > + * completing all requests for the device.
-> > > > > + */
-> > > > > +static void virtblk_cleanup_broken_device(struct virtio_blk *vblk) {
-> > > > > +	struct request_queue *q = vblk->disk->queue;
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * Start freezing the queue, so that new requests keeps waiting at the
-> > > > > +	 * door of bio_queue_enter(). We cannot fully freeze the queue
-> > > > because
-> > > > > +	 * frozen queue is an empty queue and there are pending requests, so
-> > > > > +	 * only start freezing it.
-> > > > > +	 */
-> > > > > +	blk_freeze_queue_start(q);
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * When quiescing completes, all ongoing dispatches have completed
-> > > > > +	 * and no new dispatch will happen towards the driver.
-> > > > > +	 */
-> > > > > +	blk_mq_quiesce_queue(q);
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * Synchronize with any ongoing VQ callbacks that may have started
-> > > > > +	 * before the VQs were marked as broken. Any outstanding requests
-> > > > > +	 * will be completed by virtblk_complete_request_with_ioerr().
-> > > > > +	 */
-> > > > > +	virtio_synchronize_cbs(vblk->vdev);
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * At this point, no new requests can enter the queue_rq() and
-> > > > > +	 * completion routine will not complete any new requests either
-> > > > > +for
-> > > > the
-> > > > > +	 * broken vq. Hence, it is safe to cancel all requests which are
-> > > > > +	 * started.
-> > > > > +	 */
-> > > > > +	blk_mq_tagset_busy_iter(&vblk->tag_set,
-> > > > > +				virtblk_complete_request_with_ioerr, vblk);
-> > > > > +	blk_mq_tagset_wait_completed_request(&vblk->tag_set);
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * All pending requests are cleaned up. Time to resume so that disk
-> > > > > +	 * deletion can be smooth. Start the HW queues so that when
-> > > > > +queue
-> > > > is
-> > > > > +	 * unquiesced requests can again enter the driver.
-> > > > > +	 */
-> > > > > +	blk_mq_start_stopped_hw_queues(q, true);
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * Unquiescing will trigger dispatching any pending requests to the
-> > > > > +	 * driver which has crossed bio_queue_enter() to the driver.
-> > > > > +	 */
-> > > > > +	blk_mq_unquiesce_queue(q);
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * Wait for all pending dispatches to terminate which may have been
-> > > > > +	 * initiated after unquiescing.
-> > > > > +	 */
-> > > > > +	blk_mq_freeze_queue_wait(q);
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * Mark the disk dead so that once we unfreeze the queue, requests
-> > > > > +	 * waiting at the door of bio_queue_enter() can be aborted right
-> > > > away.
-> > > > > +	 */
-> > > > > +	blk_mark_disk_dead(vblk->disk);
-> > > > > +
-> > > > > +	/* Unfreeze the queue so that any waiting requests will be aborted. */
-> > > > > +	blk_mq_unfreeze_queue_nomemrestore(q);
-> > > > > +}
-> > > > > +
-> > > > >  static void virtblk_remove(struct virtio_device *vdev)  {
-> > > > >  	struct virtio_blk *vblk = vdev->priv; @@ -1561,6 +1653,9 @@
-> > > > > static void virtblk_remove(struct virtio_device *vdev)
-> > > > >  	/* Make sure no work handler is accessing the device. */
-> > > > >  	flush_work(&vblk->config_work);
-> > > > >
-> > > > > +	if (virtqueue_is_broken(vblk->vqs[0].vq))
-> > > > > +		virtblk_cleanup_broken_device(vblk);
-> > > > > +
-> > > > >  	del_gendisk(vblk->disk);
-> > > > >  	blk_mq_free_tag_set(&vblk->tag_set);
-> > > > >
-> > > > > --
-> > > > > 2.34.1
-> > > > >
+>  	if (ret)
+>  		return ret;
+>  
+> diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
+> index 515fe1b9f94d80..8084f3e36a9f70 100644
+> --- a/drivers/vfio/pci/virtio/main.c
+> +++ b/drivers/vfio/pci/virtio/main.c
+> @@ -94,6 +94,7 @@ static const struct vfio_device_ops virtiovf_vfio_pci_lm_ops = {
+>  	.mmap = vfio_pci_core_mmap,
+>  	.request = vfio_pci_core_request,
+>  	.match = vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd = vfio_iommufd_physical_bind,
+>  	.unbind_iommufd = vfio_iommufd_physical_unbind,
+>  	.attach_ioas = vfio_iommufd_physical_attach_ioas,
+> @@ -114,6 +115,7 @@ static const struct vfio_device_ops virtiovf_vfio_pci_tran_lm_ops = {
+>  	.mmap = vfio_pci_core_mmap,
+>  	.request = vfio_pci_core_request,
+>  	.match = vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd = vfio_iommufd_physical_bind,
+>  	.unbind_iommufd = vfio_iommufd_physical_unbind,
+>  	.attach_ioas = vfio_iommufd_physical_attach_ioas,
+> @@ -134,6 +136,7 @@ static const struct vfio_device_ops virtiovf_vfio_pci_ops = {
+>  	.mmap = vfio_pci_core_mmap,
+>  	.request = vfio_pci_core_request,
+>  	.match = vfio_pci_core_match,
+> +	.match_token_uuid = vfio_pci_core_match_token_uuid,
+>  	.bind_iommufd = vfio_iommufd_physical_bind,
+>  	.unbind_iommufd = vfio_iommufd_physical_unbind,
+>  	.attach_ioas = vfio_iommufd_physical_attach_ioas,
+> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+> index 707b00772ce1ff..b2cca540a6b4bf 100644
+> --- a/include/linux/vfio.h
+> +++ b/include/linux/vfio.h
+> @@ -132,6 +132,7 @@ struct vfio_device_ops {
+>  	int	(*mmap)(struct vfio_device *vdev, struct vm_area_struct *vma);
+>  	void	(*request)(struct vfio_device *vdev, unsigned int count);
+>  	int	(*match)(struct vfio_device *vdev, char *buf);
+> +	int	(*match_token_uuid)(struct vfio_device *vdev, const uuid_t *uuid);
+>  	void	(*dma_unmap)(struct vfio_device *vdev, u64 iova, u64 length);
+>  	int	(*device_feature)(struct vfio_device *device, u32 flags,
+>  				  void __user *arg, size_t argsz);
+
+Update the structure comments.
+
+> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+> index fbb472dd99b361..f541044e42a2ad 100644
+> --- a/include/linux/vfio_pci_core.h
+> +++ b/include/linux/vfio_pci_core.h
+> @@ -122,6 +122,8 @@ ssize_t vfio_pci_core_write(struct vfio_device *core_vdev, const char __user *bu
+>  int vfio_pci_core_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma);
+>  void vfio_pci_core_request(struct vfio_device *core_vdev, unsigned int count);
+>  int vfio_pci_core_match(struct vfio_device *core_vdev, char *buf);
+> +int vfio_pci_core_match_token_uuid(struct vfio_device *core_vdev,
+> +				   const uuid_t *uuid);
+>  int vfio_pci_core_enable(struct vfio_pci_core_device *vdev);
+>  void vfio_pci_core_disable(struct vfio_pci_core_device *vdev);
+>  void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev);
+> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> index 5764f315137f99..48233ec4daf7b4 100644
+> --- a/include/uapi/linux/vfio.h
+> +++ b/include/uapi/linux/vfio.h
+> @@ -901,14 +901,18 @@ struct vfio_device_feature {
+>  
+>  #define VFIO_DEVICE_FEATURE		_IO(VFIO_TYPE, VFIO_BASE + 17)
+>  
+> +#define VFIO_DEVICE_BIND_TOKEN (1 << 0)
+
+We tend to define ioctl flags within the ioctl data structure and
+include "_FLAG_" in the name.
+
+> +
+>  /*
+>   * VFIO_DEVICE_BIND_IOMMUFD - _IOR(VFIO_TYPE, VFIO_BASE + 18,
+>   *				   struct vfio_device_bind_iommufd)
+>   * @argsz:	 User filled size of this data.
+> - * @flags:	 Must be 0.
+> + * @flags:	 Must be 0 or a bit flags of VFIO_DEVICE_BIND_*
+>   * @iommufd:	 iommufd to bind.
+>   * @out_devid:	 The device id generated by this bind. devid is a handle for
+>   *		 this device/iommufd bond and can be used in IOMMUFD commands.
+> + * @token_uuid_ptr: Valid if VFIO_DEVICE_BIND_TOKEN. Points to a 16 byte UUID
+> + *                  in the same format as VFIO_DEVICE_FEATURE_PCI_VF_TOKEN.
+>   *
+>   * Bind a vfio_device to the specified iommufd.
+>   *
+> @@ -917,6 +921,12 @@ struct vfio_device_feature {
+>   *
+>   * Unbind is automatically conducted when device fd is closed.
+>   *
+> + * A token is sometimes required to open the device, unless this is known to be
+> + * needed VFIO_DEVICE_BIND_TOKEN should not be set and token_uuid_ptr is
+> + * ignored. The only case today is a PF/VF relationship where the VF bind must
+> + * be provided the same token as VFIO_DEVICE_FEATURE_PCI_VF_TOKEN provided to
+> + * the PF.
+> + *
+>   * Return: 0 on success, -errno on failure.
+>   */
+>  struct vfio_device_bind_iommufd {
+> @@ -924,6 +934,7 @@ struct vfio_device_bind_iommufd {
+>  	__u32		flags;
+>  	__s32		iommufd;
+>  	__u32		out_devid;
+> +	__aligned_u64	token_uuid_ptr;
+>  };
+
+So we're expecting in the general case, old code doesn't set the flag,
+doesn't need a token, continues to work.  There's potentially a narrow
+case of old code that should have required a token, which now
+intentionally breaks.  We're not offering an introspection mechanism
+here, but doing so also doesn't add a lot of value.  Userspace needs to
+know the token to pass anyway.  Is that how you see it?
+
+Do note that QEMU already has support for this in the legacy interface
+and should just need to reparse the token from the name provided
+through the attach_device callback and pass it through to the
+iommufd_cdev_connect_and_bind() function.
+
+Thanks for jumping on this,
+Alex
+
+>  
+>  #define VFIO_DEVICE_BIND_IOMMUFD	_IO(VFIO_TYPE, VFIO_BASE + 18)
+> 
+> base-commit: 3e2a9811f6a9cefd310cc33cab73d5435b4a4caa
 
