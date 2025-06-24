@@ -1,71 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB66A2D2385
-	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 14:05:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9D932D4B54
+	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 14:36:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750773957; cv=none; b=P+bdBnW7so5cQ+Tw2HXVMSC/9CyT5RmT4h2fdgBy9Jm5dw7+hrrKA889khktRyD1HfG1q/ZWE0PGzXOzUmnAP9Cu/Eis28ppzeJ6cjGEmi6lXLfg/kQ6Suxb4NTT0HcMWWaWD8Ht9yiD7/NZ5ZZGWdQtDt5pgoilZh8YBQDv/T8=
+	t=1750775803; cv=none; b=EFEa/UesF6s9zXYwhqg+eNEeztaZ4nik0n+ArAAOTDDdDYz5x27z3KGTkDT31qIcDLdDsqozFVUUnT1QPSiDStPRxLd3FaxFbPexFvjmNdEu9BBXg+vTxCcTfkkv7NRPmlrwA5wBPOWpHq6UEKz/q4ZswhAS+xaxN914T4QzpZk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750773957; c=relaxed/simple;
-	bh=ShTqc7z0FpK2/U8YVqk2gMmafxHT4PEfEtsONZW/Zjs=;
+	s=arc-20240116; t=1750775803; c=relaxed/simple;
+	bh=cGvID7iNjFw3hCX2Q3UbTMYpmXpoJ9L97AGMCmURFBM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FxevnNFhblvzl26T4MoSXxMgxnbxv3Vg0kxRvudtaLvGxBG79OBzn5ErOUJN0AsmF7OdZs1rA2QGkUEALnap+QnSDuibr/UDp7UpEzlvs+RmLx/elyru8ihjY4TD7Z52U1QNW4f59Fd/mqlEulh7lbWrQDlQ8c3bIFYnb8PLWnk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iuu6XwFK; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=PUyO20NSCzRya7/C9wlbrMz32GUpa2CAVfsFFAwOY+i4OFSsZitGUPsVjemlIFtaeMJAqjhxdEVKuO1VtIFi0SfYzxop8HrODsyRDm91/NDAo+4Kv+PtQv/0xGviYGC/mpwgXeOVeAur7uhLiCFhGm1JYJNM5wURYHgfdgD0ujg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZAVWCa/1; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iuu6XwFK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750773955;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=D+TKbeGRcKoBZxXH6jFI/Y3rhb44odXuWUwrtNDdL2o=;
-	b=iuu6XwFK5XRPtolXrw/zEBwH2sjm8eMB66GaVGqoieBz163O2kVme3gGvZLMeIpQgHGta4
-	VpWrIjLcQlU5nQwpMoXmIFE5QBWc+KfUm94eahWAJWnOQxLRkTczVBTqEZ4DFtsXGnPUEq
-	AhsgxpeL3BMkXsrojiEKzPixxPeKb8s=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-538-xANIqCCDMGS2IF7kDEH2SQ-1; Tue, 24 Jun 2025 10:05:53 -0400
-X-MC-Unique: xANIqCCDMGS2IF7kDEH2SQ-1
-X-Mimecast-MFC-AGG-ID: xANIqCCDMGS2IF7kDEH2SQ_1750773952
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a4eec544c6so277099f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 07:05:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZAVWCa/1"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-3121aed2435so634676a91.2
+        for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 07:36:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1750775801; x=1751380601; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=KTVh9NYfR7GuqBMwngWQvuBj18Bm8G+r3At4Sh1jKm4=;
+        b=ZAVWCa/1Q8F6Vnx74OGAb7qNwUMdVpTPcPKCO5K312XFt52GVPEAxaRi6XYCEZe2uY
+         nrRRIOmx12QhCABSbeCCSSffkrJvFHLcGu66QSQ/VrWYrPvDpsGHWZmUEithqRt9h1/y
+         u7172yDw9U1xDCLkJixRvrAMJ+XFj4vDMGhZZtG7FLgm60n5eBj/OdKRJS91Z0BjuQnr
+         SEpl3QYmS5I9ibWar+4+4ZObV7h9/sUPDkOUozHTU5ZkcPCGVAzm/MkKzMVm+Be0BylU
+         Ylbn3yIrHHBbdbpG4zQH9NmlOrvi6EkhzkKg43uWUfsMWJGhM08W13c46vBweWETO7XG
+         Xy+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750773952; x=1751378752;
+        d=1e100.net; s=20230601; t=1750775801; x=1751380601;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=D+TKbeGRcKoBZxXH6jFI/Y3rhb44odXuWUwrtNDdL2o=;
-        b=W0H2f+jpoTHnNV49mRT0q+gLLpOm+J49d8z/6MZFffLZqOHAXo5tEC1zKKw6srdOP7
-         Bp7Aho/7J5LeNqHC3BgQ+YDbACUyhkkP4vLU17xsEHNQ1F+ZJUhXTAg2fXET/daoYi66
-         RG/yh0IXX58XF3OtCCAzRt5pB/99/QXjxNKwkAfSkZmswYB/Ifap0Qz10pdmAUBeDfwD
-         vFga1w+64ukAYtS+HlIRm7DiAMY4RASLlbMPkjy8aIXokh+2J4n1LSMz42eXF4uIJqQ1
-         U590V7OBx7Ax4O3qwlLOYR63e7JvBZbmBRLCgf2031aFHeuNePXD5kxQoG7ndTH7Loi1
-         r8Yw==
-X-Forwarded-Encrypted: i=1; AJvYcCXn+gsARKlfUs0whIIEJFOuur9Y7EUf7XuGOK8blCY/iQASOjyauXnL16mQGQ+wGhnsucOaeX7G7fyKKJ+fpA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy7hGc0ltnhKw5c99ZBYecXLNm5UOc7UUOyRlTuQk5CPuO4bEOj
-	T1uuKaGqNFP7RK56rIYx1EpMr4z5t5EUkl3aN9IKl7QIRzXGA+cHdvHIX0md1Mgtf/ExGEm1tza
-	9vPApfef+3QUxleZdrj9POfbO0PzT9ooBEEyc2SC9iGHIVE8AN1g9GguvqX/PcNkyYqV1
-X-Gm-Gg: ASbGncsfcmYtAbP6vnthRVIIXEgifdsMr3eIKM+1m2UuJKaGhX8ZVm03NK99aAUEA06
-	JjWdIVmIkuNWwkBqT+V2CsO4UfuB07JMmS7H4aQVsBn+iyx6zhVW48xcNw1LuKd6Eps1GCIfWTV
-	No8fZ1C9Iy67Ba8YLGr7Eaz6T2rOalLBkIbdd1Hq8tyYHf+4ItlgKqyEy6wLRiBAEpIUWxlevKz
-	f/guaJp1Q/aiTD1wfjYGHspcepYxMgczmL1VAJgU88CQqE0OL5gL7OmZ5IlXG2xMrZDsJos/Wp/
-	6njEKDvyeCNu0ktUZ3KmZMr6pTr5Hg==
-X-Received: by 2002:a05:6000:144e:b0:3a4:f520:8bfc with SMTP id ffacd0b85a97d-3a6d1322c05mr14142483f8f.36.1750773945814;
-        Tue, 24 Jun 2025 07:05:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IErDuslqfWPmZ/xGGypV3ktOS9Nn3dYluWljaHpFoweUHaB+FTxcneVu21gRhwulUWipnA3OA==
-X-Received: by 2002:a05:6000:144e:b0:3a4:f520:8bfc with SMTP id ffacd0b85a97d-3a6d1322c05mr14142006f8f.36.1750773940575;
-        Tue, 24 Jun 2025 07:05:40 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:2445:d510::f39? ([2a0d:3344:2445:d510::f39])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a6e8106a69sm2015375f8f.79.2025.06.24.07.05.39
+        bh=KTVh9NYfR7GuqBMwngWQvuBj18Bm8G+r3At4Sh1jKm4=;
+        b=I8lWn5hEQV/0e94WfinvAFtWDg/iBcwsmWaO3RQNlpPieI0YIQ3feVwbxpystwnVQy
+         dXTpHrhZM9LxXrlok40JTGrlFqgl4UEAtuCLqEwQU+GDlBhRqGnNVklntw+R3jYIAxki
+         pDyARqjAoJ+4lxiUVuK0RuToIQc0bdEZvCVVeWZlUE46rJkHxLvle8J55J6daTo9iUUE
+         cLy6/hTY9jugmjjsls5f28YzIfndc4bFscVjUCt4StsZ6t+3kQI2YCEeuZt5KG2yWp9p
+         d2KcykK9ln7+V9QLY80njM4Tnrv7STw2dcM8E9U5OkKpSgTR3sV6tuHaXyQ7MWIYD+AF
+         HLzw==
+X-Forwarded-Encrypted: i=1; AJvYcCX0lHdVn3cI53a9F1GJnygsC2ys0p1eIG9C6SttKQOCheYGLr/IsI6m59KBMLzQtuSQaSw0+XOO6/U5MQdl2g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YygquKlPZ1itJRmfT1qDZSP4DSbL7ziIJmcOfnTUR+swVjXagAS
+	3mcFzq6/N1+Yyn4G2BfOJUiP5Zfeg0YHL9kr3nYIlgYoKE/wTSukLHv9
+X-Gm-Gg: ASbGncuejSLNx7XFxs8QOypUnTK4xA9LcTEtwsn5OK5p6zrN/trv3j9HKmUl8OgpILN
+	BiDl48DC/2nQl8RfX/MSTyF07lW3udEqo5PLTcZXqp43eDvQNpcKfDgsH2UxFzppJPkB286TN9G
+	aMbSL8XciDZEBUGZYqrpyTtiCFDOzirqRuuzI2rqN8nxu+++HOmqL8GGKJ5tWyTqJ7gA+BUSqd7
+	xoE/ZjeS2zv2M2s9VW3B/FlGiWrmt0aTRYkmiI6SDMMkBgNhkQ1/GJI9+DVfFxRKwu69JijVccO
+	qaLxbnUng4lySCjpap5Jb/xNiZTHx3dCsaqYc1wA/jnF6o9oUMXSmo3zI1fZo0VkCUULWjLcKPm
+	0KjH2sbEpVOXUiE9RxtAW/xjoveXZvZeKtj3VeiNr
+X-Google-Smtp-Source: AGHT+IHS9vDnuU2WNVX8FwC7SNF+yJeYaFCaub11naFV+gQ6pgp9/gLGfgnq2n1F7kLFckIWmcXERw==
+X-Received: by 2002:a17:90b:4a86:b0:313:1e60:584d with SMTP id 98e67ed59e1d1-3159d636181mr26151303a91.11.1750775801107;
+        Tue, 24 Jun 2025 07:36:41 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0e:fb30:1f60:cc25:9268:94fb? ([2001:ee0:4f0e:fb30:1f60:cc25:9268:94fb])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3159e07cedbsm11714380a91.42.2025.06.24.07.36.34
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 24 Jun 2025 07:05:40 -0700 (PDT)
-Message-ID: <6ebf5a0a-f13a-43c4-8e42-ba4743e7e417@redhat.com>
-Date: Tue, 24 Jun 2025 16:05:38 +0200
+        Tue, 24 Jun 2025 07:36:40 -0700 (PDT)
+Message-ID: <88387a67-98a4-4179-b685-18c2098fcdda@gmail.com>
+Date: Tue, 24 Jun 2025 21:36:32 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -73,101 +67,66 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 2/2] vhost-net: reduce one userspace copy when
- building XDP buff
-To: Jason Wang <jasowang@redhat.com>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: mst@redhat.com, eperezma@redhat.com, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org, davem@davemloft.net,
- andrew+netdev@lunn.ch, edumazet@google.com, kuba@kernel.org
-References: <20250612083213.2704-1-jasowang@redhat.com>
- <20250612083213.2704-2-jasowang@redhat.com>
- <684b89de38e3_dcc452944e@willemb.c.googlers.com.notmuch>
- <CACGkMEsKTLfD1nz-CQdn5+ZmxyWdVDwhBOAcB9fO4TUcwzuLPA@mail.gmail.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <CACGkMEsKTLfD1nz-CQdn5+ZmxyWdVDwhBOAcB9fO4TUcwzuLPA@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ubICmUf8YeFqA3hLXBRQY6eUvMcOD4zX6xBDVBwiIOI_1750773952
-X-Mimecast-Originator: redhat.com
+Subject: Re: [PATCH net v2 1/2] virtio-net: xsk: rx: fix the frame's length
+ check
+To: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20250621144952.32469-1-minhquangbui99@gmail.com>
+ <20250621144952.32469-2-minhquangbui99@gmail.com>
+ <5fb3c0e4-759c-4f56-8a78-e599c891f618@redhat.com>
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <5fb3c0e4-759c-4f56-8a78-e599c891f618@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 6/16/25 5:01 AM, Jason Wang wrote:
-> On Fri, Jun 13, 2025 at 10:16 AM Willem de Bruijn
-> <willemdebruijn.kernel@gmail.com> wrote:
+On 6/24/25 17:02, Paolo Abeni wrote:
+> On 6/21/25 4:49 PM, Bui Quang Minh wrote:
+>> When calling buf_to_xdp, the len argument is the frame data's length
+>> without virtio header's length (vi->hdr_len). We check that len with
 >>
->> Jason Wang wrote:
->>> We used to do twice copy_from_iter() to copy virtio-net and packet
->>> separately. This introduce overheads for userspace access hardening as
->>> well as SMAP (for x86 it's stac/clac). So this patch tries to use one
->>> copy_from_iter() to copy them once and move the virtio-net header
->>> afterwards to reduce overheads.
->>>
->>> Testpmd + vhost_net shows 10% improvement from 5.45Mpps to 6.0Mpps.
->>>
->>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>> 	xsk_pool_get_rx_frame_size() + vi->hdr_len
 >>
->> Acked-by: Willem de Bruijn <willemb@google.com>
+>> to ensure the provided len does not larger than the allocated chunk
+>> size. The additional vi->hdr_len is because in virtnet_add_recvbuf_xsk,
+>> we use part of XDP_PACKET_HEADROOM for virtio header and ask the vhost
+>> to start placing data from
 >>
->>> ---
->>>  drivers/vhost/net.c | 13 ++++---------
->>>  1 file changed, 4 insertions(+), 9 deletions(-)
->>>
->>> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
->>> index 777eb6193985..2845e0a473ea 100644
->>> --- a/drivers/vhost/net.c
->>> +++ b/drivers/vhost/net.c
->>> @@ -690,13 +690,13 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
->>>       if (unlikely(!buf))
->>>               return -ENOMEM;
->>>
->>> -     copied = copy_from_iter(buf, sock_hlen, from);
->>> -     if (copied != sock_hlen) {
->>> +     copied = copy_from_iter(buf + pad - sock_hlen, len, from);
->>> +     if (copied != len) {
->>>               ret = -EFAULT;
->>>               goto err;
->>>       }
->>>
->>> -     gso = buf;
->>> +     gso = buf + pad - sock_hlen;
->>>
->>>       if (!sock_hlen)
->>>               memset(buf, 0, pad);
->>> @@ -715,12 +715,7 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
->>>               }
->>>       }
->>>
->>> -     len -= sock_hlen;
->>> -     copied = copy_from_iter(buf + pad, len, from);
->>> -     if (copied != len) {
->>> -             ret = -EFAULT;
->>> -             goto err;
->>> -     }
->>> +     memcpy(buf, buf + pad - sock_hlen, sock_hlen);
+>> 	hard_start + XDP_PACKET_HEADROOM - vi->hdr_len
+>> not
+>> 	hard_start + XDP_PACKET_HEADROOM
 >>
->> It's not trivial to see that the dst and src do not overlap, and does
->> does not need memmove.
+>> But the first buffer has virtio_header, so the maximum frame's length in
+>> the first buffer can only be
 >>
->> Minimal pad that I can find is 32B and and maximal sock_hlen is 12B.
+>> 	xsk_pool_get_rx_frame_size()
+>> not
+>> 	xsk_pool_get_rx_frame_size() + vi->hdr_len
 >>
->> So this is safe. But not obviously so. Unfortunately, these offsets
->> are not all known at compile time, so a BUILD_BUG_ON is not possible.
-> 
-> We had this:
-> 
-> int pad = SKB_DATA_ALIGN(VHOST_NET_RX_PAD + headroom + nvq->sock_hlen);
-> int sock_hlen = nvq->sock_hlen;
-> 
-> So pad - sock_len is guaranteed to be greater than zero.
-> 
-> If this is not obvious, I can add a comment in the next version.
+>> like in the current check.
+>>
+>> This commit adds an additional argument to buf_to_xdp differentiate
+>> between the first buffer and other ones to correctly calculate the maximum
+>> frame's length.
+>>
+>> Fixes: a4e7ba702701 ("virtio_net: xsk: rx: support recv small mode")
+> It looks like the checks in the blamed commit above are correct and the
+> bug has been added with commit 99c861b44eb1f ("virtio_net: xsk: rx:
+> support recv merge mode")???
 
-The relevant initializations are not visible in the patch itself, so I
-think either a comment in the code or in the commit message would be useful.
+AFAICS, the small mode has only 1 buffer per frame and that buffer is 
+quite the same as first buffer in mergeable mode. That buffer still has 
+virtio header (though it's smaller than in mergeable case), so the 
+remaining space for data is only xsk_pool_get_rx_frame_size() not 
+xsk_pool_get_rx_frame_size() + vi->hdr_len.
 
 Thanks,
-
-Paolo
-
+Quang Minh.
