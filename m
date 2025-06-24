@@ -1,31 +1,31 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB72D25C837
-	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 08:27:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F34423BCFF
+	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 08:27:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750753625; cv=none; b=IlAjUODKDsNNQ0ILG0HYEHYIxdtAfy106rXHVx7MuEBzfZnVD4H76f0uIdg53xsqsrIzqgOkrCGRPO2Xlj10StqYlgw62nVsesYm1xz2MxXfa8zDJFMErsak5GD2ermxf5iXZtZYrXm7ZTQCfvINPMqU1KqqWwS2U7+6SgKlpeM=
+	t=1750753637; cv=none; b=pEmZ+Cx7EDiZYheznXXaGOvbQL1+zoFjs55uOBkoX1m4V+8/6bE04pN3TpzfYkOqUc68yMtI/res9X7TGVx7V5fSHHmhoko7aysKB+4cryD0hpRX4B6yCjjQT54lD3E4c8+5fKcMDpOJOmGq93QNt+GShISZsXK5P1idz0fkd1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750753625; c=relaxed/simple;
-	bh=MkhaNNhb/Nnu9+FEGNMen7PIoUiQXmzj3D47cfEMJU4=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=dFust071WIIEnwO0K0YCi3Xr8XGWF0sO7f282XJs+Fj+RnQi9+q2Ltp4x34kM6BW+UG4b1LWr2FawpL0QdvzNYVix/NWaZWy8n1xq7wo9cd5SzYtbXBXiVAIs+GdAFJfDlMpFgNAqETPZNm13EeD2zu/qlKN+b6JkH5IwNQNAqQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MNtZQFKi; arc=none smtp.client-ip=115.124.30.119
+	s=arc-20240116; t=1750753637; c=relaxed/simple;
+	bh=IP9zZ6vX1r03ltWl8w9ViI+/XIllLTAlSCc4K5E75r8=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=jb/RoJGqf3gSB/TBHiRMiC6Z3UXmjbKtETLAFUDUy0nXmv06yYe2p0ShNAMN7qFl7pezBM138GoqveQeMdlaDmYJU9oa9aJnSQzGtjyJnJetRM1o0j7PkwXRArL6wbYKi6ENGP13Rt/g4vuIBOi4BC3bv5SeA7X6YxV291V/ZCg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=i/8+Xitu; arc=none smtp.client-ip=115.124.30.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MNtZQFKi"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="i/8+Xitu"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1750753615; h=Message-ID:Subject:Date:From:To;
-	bh=IH71r0a24x4p09xci6xK0RIn16ZYIq9aUYduNMvc6Vc=;
-	b=MNtZQFKi96X4+NCXZ+zAUIcw3kfotjZ9xKPZcTxGHotnziCmn7U/13XWQVy1+9VpXS8Da8bE63MmEidF2hHa97nYEzQ3ZiuqdCfK0xNYiPEMgE+LKYQdJ2/mSFvwo4YpmW78GTvRSagWELD8lC56QqgWhrYMeNPHevWVfSdKtcI=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Weg--9u_1750753614 cluster:ay36)
+	t=1750753632; h=Message-ID:Subject:Date:From:To;
+	bh=xto8ohKa0ryNBVBrFTAZ50J9YmnkUMJE78zO1Eob+DM=;
+	b=i/8+XituebggDz3LQBZl5B+k0RLDgie3MFN8Q22jn4wcfxNetb6WjvlVUzkf3iTUshCF2ZYRy4EFn4yZ9FKPL/OjtnzA1n9+Yifqgulw3SOseW65c6eGDrRagsyJElV1SCcqEOXHDyLTow0ChdGdnWeAKWNCvcaDaSm9I7p0nzk=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WegCBpn_1750753630 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 24 Jun 2025 16:26:55 +0800
-Message-ID: <1750753610.4544265-4-xuanzhuo@linux.alibaba.com>
+          Tue, 24 Jun 2025 16:27:11 +0800
+Message-ID: <1750753624.9023402-5-xuanzhuo@linux.alibaba.com>
 Subject: Re: [PATCH net v2 2/2] virtio-net: xsk: rx: move the xdp->data adjustment to buf_to_xdp()
-Date: Tue, 24 Jun 2025 16:26:50 +0800
+Date: Tue, 24 Jun 2025 16:27:04 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Bui Quang Minh <minhquangbui99@gmail.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -61,7 +61,7 @@ On Sat, 21 Jun 2025 21:49:52 +0700, Bui Quang Minh <minhquangbui99@gmail.com> wr
 >
 > Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 
-
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
 > ---
 >  drivers/net/virtio_net.c | 16 ++++++++++++++--
