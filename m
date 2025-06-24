@@ -1,82 +1,150 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75B2722069F
-	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 08:05:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 539AA221739
+	for <virtualization@lists.linux.dev>; Tue, 24 Jun 2025 08:26:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750752341; cv=none; b=nGs3s/j5JgnAA3dkaPT5KZUI/fjkoqd1ukbCN/8oseTvcC0zPAuRKFMqZATFRmVwRwfg9fGNyllx1VWnqemYOmo7otT/s3N4XMmxzpEkxpCWW8YKBIMCNv6IWWx0b4BEZrFyJce8bFIWt1VgEa3fL468EjvmTOBSTGn3XuggAfY=
+	t=1750753615; cv=none; b=j4Ks2xycqH9+0e7cInvE9JzOHfNafBzCf9KpNWGiJ9bDb/nrgl9RdYa/HVTH4oj/2PAgnmUCy6w16GU0hx9zsPafqRcpsyTvw8C1O1g6SAP5XnTfow5h3He7Cr49bS5vTYBQAxuI+AVWcDdC84mfme4USsgiRAstQ0/6feDSGrA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750752341; c=relaxed/simple;
-	bh=OOHl80Amv7LsMw/nLpiLiGVcG1W77N8pyOuxxY52d2c=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=N7rHTrOnBopHNLEpI6S+iMau5aHbOUVkSmrb9wcgGh7E7/7nBFQas5BpqUwbrTIanIOSDc9zSHurK6fjT1dYrRU9na8N5jy2JF9dWPFObCgq2sPN97VY3lMOwoshLlNG2vUqn6Po1+QSeDsQL6h9H0zqrCrfx5ftQrQRkFHwZD4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=hoyNEHoY; arc=none smtp.client-ip=115.124.30.100
+	s=arc-20240116; t=1750753615; c=relaxed/simple;
+	bh=sGsf4i3YBdkKLiqYjEz90SpoxBUWvcqZ/WqYvmvx/Fg=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=YVAxleDqv8fQCFgJc0kh2Qiioofij6pgAUZlsCIlnLg1KkhHLmfMWfUxf+PNXRHVCiSeoS6KlM25v7GsHpikTdTUBqPta4bV9knV71zk8IuhRPPpATf2eczmRdLm63EFZwqV8ZMNtbh1L9Brpgxq0v9L01KjG8YVLeZyXOx8f4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ujVRhJ/1; arc=none smtp.client-ip=115.124.30.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="hoyNEHoY"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ujVRhJ/1"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1750752333; h=Message-ID:Subject:Date:From:To;
-	bh=c4oc/DhyhfboKsUraQ8BYgRzmZfqoCc+i4h7UMv5VHY=;
-	b=hoyNEHoYRNJ6rjldCgPCsJifjEs8qQr5B/k2KI11Y1RJzHAvMTRjacqEfNVhU9wgZ34Qrh1xAJqae5mTGEQ3J6+6xeWkLi1aCwUvHbAA5TgoUAABxnHwwPP4EabPvEq7b/yN8n0FZs7ZxNdk0lVtgknqBN9IIx/RkjAJt21TTQA=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Wefzrg-_1750752332 cluster:ay36)
+	t=1750753608; h=Message-ID:Subject:Date:From:To;
+	bh=qETiyRDq01cZyiTdnYUireDBSsJWh8qcYkIgG1vIyng=;
+	b=ujVRhJ/1RHQmVe4L951esCsAwgP9/uobeCc35icCbcyyE7IHViEIqnJJBqoWbcSZjxfqleFLQfDFErtxnRE3msPHwWxlVf4yffjfsf+OaMzCOL8YAwRU8E3sjSLGS0UFjuniY7ZgQBWXPB/NltFvrggRU5UNwCkbiIGLJ65D2xU=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Weg0EcI_1750753606 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 24 Jun 2025 16:05:33 +0800
-Message-ID: <1750752321.449211-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH] virtio: virtio_dma_buf: fix missing parameter documentation
-Date: Tue, 24 Jun 2025 16:05:21 +0800
+          Tue, 24 Jun 2025 16:26:46 +0800
+Message-ID: <1750753518.4877846-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net v2 1/2] virtio-net: xsk: rx: fix the frame's length check
+Date: Tue, 24 Jun 2025 16:25:18 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: WangYuli <wangyuli@uniontech.com>
-Cc: virtualization@lists.linux.dev,
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux.dev,
  linux-kernel@vger.kernel.org,
- zhanjun@uniontech.com,
- niecheng1@uniontech.com,
- guanwentao@uniontech.com,
- WangYuli <wangyuli@uniontech.com>,
- mst@redhat.com,
- jasowang@redhat.com,
- eperezma@redhat.com
-References: <241C7118259DA110+20250623065210.270237-1-wangyuli@uniontech.com>
-In-Reply-To: <241C7118259DA110+20250623065210.270237-1-wangyuli@uniontech.com>
+ bpf@vger.kernel.org,
+ Bui Quang Minh <minhquangbui99@gmail.com>,
+ netdev@vger.kernel.org
+References: <20250621144952.32469-1-minhquangbui99@gmail.com>
+ <20250621144952.32469-2-minhquangbui99@gmail.com>
+In-Reply-To: <20250621144952.32469-2-minhquangbui99@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Mon, 23 Jun 2025 14:52:10 +0800, WangYuli <wangyuli@uniontech.com> wrote:
-> Add missing parameter documentation for virtio_dma_buf_attach()
-> function to fix kernel-doc warnings:
+On Sat, 21 Jun 2025 21:49:51 +0700, Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+> When calling buf_to_xdp, the len argument is the frame data's length
+> without virtio header's length (vi->hdr_len). We check that len with
 >
-> Warning: drivers/virtio/virtio_dma_buf.c:41 function parameter 'dma_buf' not described in 'virtio_dma_buf_attach'
-> Warning: drivers/virtio/virtio_dma_buf.c:41 function parameter 'attach' not described in 'virtio_dma_buf_attach'
+> 	xsk_pool_get_rx_frame_size() + vi->hdr_len
 >
-> The function documentation was missing descriptions for both the
-> 'dma_buf' and 'attach' parameters. Add proper parameter documentation
-> following kernel-doc format.
+> to ensure the provided len does not larger than the allocated chunk
+> size. The additional vi->hdr_len is because in virtnet_add_recvbuf_xsk,
+> we use part of XDP_PACKET_HEADROOM for virtio header and ask the vhost
+> to start placing data from
 >
-> Signed-off-by: WangYuli <wangyuli@uniontech.com>
+> 	hard_start + XDP_PACKET_HEADROOM - vi->hdr_len
+> not
+> 	hard_start + XDP_PACKET_HEADROOM
+>
+> But the first buffer has virtio_header, so the maximum frame's length in
+> the first buffer can only be
+>
+> 	xsk_pool_get_rx_frame_size()
+> not
+> 	xsk_pool_get_rx_frame_size() + vi->hdr_len
+>
+> like in the current check.
+>
+> This commit adds an additional argument to buf_to_xdp differentiate
+> between the first buffer and other ones to correctly calculate the maximum
+> frame's length.
+>
+> Fixes: a4e7ba702701 ("virtio_net: xsk: rx: support recv small mode")
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 
 Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
 > ---
->  drivers/virtio/virtio_dma_buf.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/net/virtio_net.c | 22 ++++++++++++++++++----
+>  1 file changed, 18 insertions(+), 4 deletions(-)
 >
-> diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
-> index 3fe1d03b0645..95c10632f84a 100644
-> --- a/drivers/virtio/virtio_dma_buf.c
-> +++ b/drivers/virtio/virtio_dma_buf.c
-> @@ -36,6 +36,8 @@ EXPORT_SYMBOL(virtio_dma_buf_export);
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index e53ba600605a..1eb237cd5d0b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1127,15 +1127,29 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+>  	}
+>  }
 >
->  /**
->   * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
-> + * @dma_buf: [in] buffer to attach
-> + * @attach: [in] attachment structure
->   */
->  int virtio_dma_buf_attach(struct dma_buf *dma_buf,
->  			  struct dma_buf_attachment *attach)
+> +/* Note that @len is the length of received data without virtio header */
+>  static struct xdp_buff *buf_to_xdp(struct virtnet_info *vi,
+> -				   struct receive_queue *rq, void *buf, u32 len)
+> +				   struct receive_queue *rq, void *buf,
+> +				   u32 len, bool first_buf)
+>  {
+>  	struct xdp_buff *xdp;
+>  	u32 bufsize;
+>
+>  	xdp = (struct xdp_buff *)buf;
+>
+> -	bufsize = xsk_pool_get_rx_frame_size(rq->xsk_pool) + vi->hdr_len;
+> +	/* In virtnet_add_recvbuf_xsk, we use part of XDP_PACKET_HEADROOM for
+> +	 * virtio header and ask the vhost to fill data from
+> +	 *         hard_start + XDP_PACKET_HEADROOM - vi->hdr_len
+> +	 * The first buffer has virtio header so the remaining region for frame
+> +	 * data is
+> +	 *         xsk_pool_get_rx_frame_size()
+> +	 * While other buffers than the first one do not have virtio header, so
+> +	 * the maximum frame data's length can be
+> +	 *         xsk_pool_get_rx_frame_size() + vi->hdr_len
+> +	 */
+> +	bufsize = xsk_pool_get_rx_frame_size(rq->xsk_pool);
+> +	if (!first_buf)
+> +		bufsize += vi->hdr_len;
+>
+>  	if (unlikely(len > bufsize)) {
+>  		pr_debug("%s: rx error: len %u exceeds truesize %u\n",
+> @@ -1260,7 +1274,7 @@ static int xsk_append_merge_buffer(struct virtnet_info *vi,
+>
+>  		u64_stats_add(&stats->bytes, len);
+>
+> -		xdp = buf_to_xdp(vi, rq, buf, len);
+> +		xdp = buf_to_xdp(vi, rq, buf, len, false);
+>  		if (!xdp)
+>  			goto err;
+>
+> @@ -1358,7 +1372,7 @@ static void virtnet_receive_xsk_buf(struct virtnet_info *vi, struct receive_queu
+>
+>  	u64_stats_add(&stats->bytes, len);
+>
+> -	xdp = buf_to_xdp(vi, rq, buf, len);
+> +	xdp = buf_to_xdp(vi, rq, buf, len, true);
+>  	if (!xdp)
+>  		return;
+>
 > --
-> 2.50.0
+> 2.43.0
 >
