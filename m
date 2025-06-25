@@ -1,165 +1,123 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A3591DEFE9
-	for <virtualization@lists.linux.dev>; Wed, 25 Jun 2025 12:39:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92616262FD3;
+	Wed, 25 Jun 2025 13:15:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750855156; cv=none; b=YpNnDFXlHkqFtDXhUNrzWmkBnbtsALY8Ilp42j7N3Qxg9bau2sgLRYip5d698X/ppOZFx6TEHFW/L/QbvyUjen91FquYUeiPRMDk/cOPNIKGvqvjpVkQOim1ynBMPQyF1OEFewOPZtjjRmuRgoylnSHU3vMpQaUgTPFVdmWWiGE=
+	t=1750857351; cv=none; b=hyqGNdcUUdlTj0x2VNY23NAV0+LD389TmhBjhXYO7dbsuejL75IV02WvMmdhU83zsH7XPwM6E2uNATfMd/x36QqRyQpeqwTz+ipZwyZnMMfjKsbN4ep7ouuHStpqLMGHcxQekxDz/zfwzNO96NLTr4hECsJqNyjfcUsi7n5DI7E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750855156; c=relaxed/simple;
-	bh=+4o3PIxGblecPLXQPo7HXJT+oP1v6Y4BbGilVIDxAXc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ce0Z+JbaweZit4yxjfbHiysPsNLSvnCIoKiRkHRE5Un4M85y28zgUtLrwMO12sJF3J64vfyd8nOk4/B4CO92vJHcf6wuopdfWa8AaR3F/3lw1AfUY7yppzbjof1hw2d042eLDMeeiXvfh39RG4kk5ev1HlQAh3HRUesqoWg5I3U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XJ0Qnyf8; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1750857351; c=relaxed/simple;
+	bh=QT4Ls4Wox6hJ1R8TPcQdFcVFzO8CzbDCEi/cBTj/91g=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=jkNElPX5atiSoOPx9/ngHujGAwl2HSESsdRrXTdWyu67pRnF0tix/E9sBaV9c1TRo8nwWey84CJPpVCFlTz83U9MxcSzCN5aaEzMIG0neBPk2ezCXlKYm9P+D8IaOW7eurvFabE8drg275swA5rNGcbghYNxbEfdnwoyZ3nGEV0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JMQlUKrK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XJ0Qnyf8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750855153;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=e4bNJPQhEh1mvM7sPpimO979n6aXsflGYx498uhPxi4=;
-	b=XJ0Qnyf8JVbPesJi41ksOa848ESwycYDqnj3XI2ox/0PK+V2jTV12AKtBaI/BnXi6jADHV
-	XK8uxqIbBW+3hvWt/BLHEVYWMvNzs09RwV1I5QgaAUCigDO9hMomTr8A5rgY7QYZolgOMK
-	mbl6Xa/RRbdTCG4YLGFfeCNEhxRYPbY=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-26-GlU-j-n3P_q2baELAu_p5w-1; Wed, 25 Jun 2025 08:39:12 -0400
-X-MC-Unique: GlU-j-n3P_q2baELAu_p5w-1
-X-Mimecast-MFC-AGG-ID: GlU-j-n3P_q2baELAu_p5w_1750855151
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a503f28b09so512344f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 25 Jun 2025 05:39:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750855151; x=1751459951;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=e4bNJPQhEh1mvM7sPpimO979n6aXsflGYx498uhPxi4=;
-        b=CgFOFmlbl9rBFIU3ah7LDRDhCHB0cANvcM46pLd8fnDZ3OFnR08jVYmtQLaxJbG0nq
-         MOczIAqyKgnhba9uBH3IJZzXyCmMswBh0BU9rnpzXEyDOZwhL1UwvZFWphcKX2f2K87L
-         rs2RUDSTqblP3ajHNew5GqAE8gw+dREhFOK5On9WeQoBYcKAqKdgCPPqmHczKh+NxZfI
-         6a+7DcODWuUmpwIu1lQQqRukiIYZH7bGhpJ+BWHOzprby3ZFAmHsGhSeZbQRsaicJ5IN
-         ZoawFy5sfNQr/cCh0p6BFvnW++zoqhjK1uxETHhSqhvzHsWFsPaB9nLsDkcTiTEDE2/u
-         IzlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWRp7o8XYMuMBHZ9F0bIEGa5JdZ29igDdqbGuc2uKSgVZNzH26tYdOSrjQM1IuOYpdJsm08Ori0Cq0nVwqUUQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwqLqNY8BgejXTYkJYlqoRKLA/XtuQ4zRQxSP+rHEoN8x8Wloef
-	nnVu35heH4hFLMJcYFq9nqj5L/0RnQugq6qBAWZZ/PnhZKadPtKx5FlDPXT7CWKERG8h0+5D89h
-	GUrcA+nvWo5s8uPIk9rcyZRO7yXxqC2VAVH6Lk976Y8fSS9dB4NQp0tMOLLM+TAWPwTNI
-X-Gm-Gg: ASbGnctLHNhPeOsV6jE5+QdFl9Er2Xm0wiNLiXlGRmaTjcUYRcZgvizqS/CXJbduIPQ
-	22Q+EYqh4bvmNKxxNaH78lUP1XNLIVUtBYvAsG9jO6m1stfh9ZP0YwQg+ZC7B04/xeEJwrJguhC
-	SOwbFwiDzptTQnt1JbC/2+ku3ZnIyJOtnYaFIr/a1W/JiaN5N7ElNHo1WDc39z1wmeQ/Tk5mmm8
-	FtidewSqafxKdbx0t9jfJUuaRNP98srzx6toz3OuNjeObzuWQ3U6TNQY02kpj2O35DBIrNEMATo
-	lcZgUNV+dgvuREI/
-X-Received: by 2002:a5d:588d:0:b0:3a4:edf5:8a41 with SMTP id ffacd0b85a97d-3a6e71b86f6mr6479133f8f.4.1750855151341;
-        Wed, 25 Jun 2025 05:39:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGoof/kcQj6EiHD8phskEoSt5Jd80UBJdNlsfnTMCY5+ROTqwx0M7qzM/M2LNKp+Y8Bpd1tLg==
-X-Received: by 2002:a5d:588d:0:b0:3a4:edf5:8a41 with SMTP id ffacd0b85a97d-3a6e71b86f6mr6479099f8f.4.1750855150779;
-        Wed, 25 Jun 2025 05:39:10 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73ea:4300:f7cc:3f8:48e8:2142])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823671cbsm18931125e9.29.2025.06.25.05.39.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Jun 2025 05:39:10 -0700 (PDT)
-Date: Wed, 25 Jun 2025 08:39:07 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Parav Pandit <parav@nvidia.com>, axboe@kernel.dk,
-	virtualization@lists.linux.dev, linux-block@vger.kernel.org,
-	stable@vger.kernel.org, lirongqing@baidu.com, kch@nvidia.com,
-	xuanzhuo@linux.alibaba.com, pbonzini@redhat.com,
-	jasowang@redhat.com, alok.a.tiwari@oracle.com,
-	Max Gurtovoy <mgurtovoy@nvidia.com>,
-	Israel Rukshin <israelr@nvidia.com>
-Subject: Re: [PATCH v5] virtio_blk: Fix disk deletion hang on device surprise
- removal
-Message-ID: <20250625083746-mutt-send-email-mst@kernel.org>
-References: <20250602024358.57114-1-parav@nvidia.com>
- <20250624185622.GB5519@fedora>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JMQlUKrK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4A0CC4CEEA;
+	Wed, 25 Jun 2025 13:15:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1750857351;
+	bh=QT4Ls4Wox6hJ1R8TPcQdFcVFzO8CzbDCEi/cBTj/91g=;
+	h=From:To:Cc:Subject:Date:From;
+	b=JMQlUKrK1jWsbryOHxePSEPvlIqL/2M4lOGuf8p6kfgSgiubupWLBwnd/8ucRJB2M
+	 tnr3oO9W9gktF4txRMrp6FmTvAzJtt5IP49tObBfJlujbCRZJV/9PAULHULn9Nk2Nj
+	 sldeH+VKMjCAGpu2KN7ElGFJjCwhCR5+3AJXp1MIu1YH9rlRS7OkUeAUlLA0waVqaD
+	 tYCIBdpdoXs6Wmi0OXycazK9Yh5WT+QvGGhOghjnWNYzX2+rlGb0tY2thhW2OMEFSI
+	 GN/cQDjrroJL0EkNMlO381we5zQuKhuEq2Q/wEHJlHC5/tdzAABYToEOe4SH/41NyQ
+	 Af9ZRUsT30nfA==
+From: Will Deacon <will@kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Will Deacon <will@kernel.org>,
+	Keir Fraser <keirf@google.com>,
+	Steven Moreland <smoreland@google.com>,
+	Frederick Mayle <fmayle@google.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH 0/5] vsock/virtio: SKB allocation improvements
+Date: Wed, 25 Jun 2025 14:15:38 +0100
+Message-Id: <20250625131543.5155-1-will@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250624185622.GB5519@fedora>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6SdKkvCCryF9tGwAjNnLIv5WT4Z6fEurNv5oWa-s9TE_1750855151
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 24, 2025 at 02:56:22PM -0400, Stefan Hajnoczi wrote:
-> On Mon, Jun 02, 2025 at 02:44:33AM +0000, Parav Pandit wrote:
-> > When the PCI device is surprise removed, requests may not complete
-> > the device as the VQ is marked as broken. Due to this, the disk
-> > deletion hangs.
-> 
-> There are loops in the core virtio driver code that expect device
-> register reads to eventually return 0:
-> drivers/virtio/virtio_pci_modern.c:vp_reset()
-> drivers/virtio/virtio_pci_modern_dev.c:vp_modern_set_queue_reset()
-> 
-> Is there a hang if these loops are hit when a device has been surprise
-> removed? I'm trying to understand whether surprise removal is fully
-> supported or whether this patch is one step in that direction.
-> 
-> Apart from that, I'm happy with the virtio_blk.c aspects of the patch:
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Hi folks,
 
-Is this as simple as this?
+We're using vsock extensively in Android as a channel over which we can
+route binder transactions to/from virtual machines managed by the
+Android Virtualisation Framework. However, we have been observing some
+issues in production builds when using vsock in a low-memory environment
+(on the host and the guest) such as:
 
--->
+  * The host receive path hanging forever, despite the guest performing
+    a successful write to the socket.
 
+  * Page allocation failures in the vhost receive path (this is a likely
+    contributor to the above)
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+  * -ENOMEM coming back from sendmsg()
 
----
+This series aims to improve the vsock SKB allocation for both the host
+(vhost) and the guest when using the virtio transport to help mitigate
+these issues. Specifically:
 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 7182f43ed055..df983fa9046a 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -555,8 +555,12 @@ static void vp_reset(struct virtio_device *vdev)
- 	 * This will flush out the status write, and flush in device writes,
- 	 * including MSI-X interrupts, if any.
- 	 */
--	while (vp_modern_get_status(mdev))
-+	while (vp_modern_get_status(mdev)) {
-+		/* If device is removed meanwhile, it will never respond. */
-+		if (!pci_device_is_present(vp_dev->pci_dev))
-+			break;
- 		msleep(1);
-+	}
- 
- 	vp_modern_avq_cleanup(vdev);
- 
-diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-index 0d3dbfaf4b23..7177ce0d63be 100644
---- a/drivers/virtio/virtio_pci_modern_dev.c
-+++ b/drivers/virtio/virtio_pci_modern_dev.c
-@@ -523,11 +523,19 @@ void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
- 	vp_iowrite16(index, &cfg->cfg.queue_select);
- 	vp_iowrite16(1, &cfg->queue_reset);
- 
--	while (vp_ioread16(&cfg->queue_reset))
-+	while (vp_ioread16(&cfg->queue_reset)) {
-+		/* If device is removed meanwhile, it will never respond. */
-+		if (!pci_device_is_present(vp_dev->pci_dev))
-+			break;
- 		msleep(1);
-+	}
- 
--	while (vp_ioread16(&cfg->cfg.queue_enable))
-+	while (vp_ioread16(&cfg->cfg.queue_enable)) {
-+		/* If device is removed meanwhile, it will never respond. */
-+		if (!pci_device_is_present(vp_dev->pci_dev))
-+			break;
- 		msleep(1);
-+	}
- }
- EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
- 
+  - Avoid single allocations of order > PAGE_ALLOC_COSTLY_ORDER
+
+  - Use non-linear SKBs for the transmit and vhost receive paths
+
+  - Reduce the guest RX buffers to a single page
+
+There are more details in the individual commit messages but overall
+this results in less wasted memory and puts less pressure on the
+allocator.
+
+This is my first time looking at this stuff, so all feedback is welcome.
+
+Patches based on v6.16-rc3.
+
+Cheers,
+
+Will
+
+Cc: Keir Fraser <keirf@google.com>
+Cc: Steven Moreland <smoreland@google.com>
+Cc: Frederick Mayle <fmayle@google.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: "Eugenio Pérez" <eperezma@redhat.com>
+Cc: netdev@vger.kernel.org 
+Cc: virtualization@lists.linux.dev
+
+--->8
+
+Will Deacon (5):
+  vhost/vsock: Avoid allocating arbitrarily-sized SKBs
+  vsock/virtio: Resize receive buffers so that each SKB fits in a page
+  vhost/vsock: Allocate nonlinear SKBs for handling large receive
+    buffers
+  vsock/virtio: Rename virtio_vsock_skb_rx_put() to
+    virtio_vsock_skb_put()
+  vhost/vsock: Allocate nonlinear SKBs for handling large transmit
+    buffers
+
+ drivers/vhost/vsock.c                   | 21 +++++++++------
+ include/linux/virtio_vsock.h            | 36 +++++++++++++++++++------
+ net/vmw_vsock/virtio_transport.c        |  2 +-
+ net/vmw_vsock/virtio_transport_common.c |  9 +++++--
+ 4 files changed, 49 insertions(+), 19 deletions(-)
+
+-- 
+2.50.0.714.g196bf9f422-goog
 
