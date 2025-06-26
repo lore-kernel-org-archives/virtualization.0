@@ -1,78 +1,79 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 768AA20C497
-	for <virtualization@lists.linux.dev>; Thu, 26 Jun 2025 02:37:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E6A221323C
+	for <virtualization@lists.linux.dev>; Thu, 26 Jun 2025 02:39:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750905440; cv=none; b=NeHRa1/5tQHevZBZHB2pXzYGLEfKolcIGw/+XBwst9A0VbKMA2e+UFeQ/qUDWnDlOZFcn0eGB9oA+YqWVxRXoXvWBa3uyV6Ysjmqfm3r0jZe5fG3aXEGByV0SNRwNR7q6mb3F7A3sK05B+GiOcy2+KfS2oU6xEJVx6FYcnLx3zE=
+	t=1750905546; cv=none; b=h4UwAJedRApyef/AynqIjcCH6EV78d7n2r6fkmdZl3/m2FzcHvT4NtcQ5lIm+VF0wDZNaetQy8Gez9RNIkel1bM2ToIMuvqmaI7U7JrWFBDi9pOQ9ehFQJ8ejXUN8ABa5P3AyzN9FfHCDu/8eb7ruDsUbzdpac+uLuWuaeififM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750905440; c=relaxed/simple;
-	bh=e5C9qrU3fsOpfaDgADgkrynMWd5GzhKtqGQzdriNJ3U=;
+	s=arc-20240116; t=1750905546; c=relaxed/simple;
+	bh=PtV+hGmWzCGGAq8XJTGqpjrx3hzHcShvqveug29QiX8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CARtKwND4al3DEkPi/fm28CVbXcK4OI35aY7Ln3WlJGZBXypJRO0cDx7VlQMyfZ/HkMY0am3WeWVPNtaHUK8EcP8BNGV4pIv9mree0a0IlfXyEJe+ulUd68xSO7WzoDSAwajkBMUmjPsdfw4UA0ZlUWGzIEBqv9KSkRu9QRrWeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L+0itSvi; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=DjNOBZQ09MTaLa9507/XTPXxJmVB4ihTKYQa8rr/0t/n6lNlGLzCp9adHwVOk5uDn6NuPFFA/8QflwfO33nTShaj6VLT0nB+Uyc59w6IcD6CWJ8WFNz7o11bzPS9yOgNZNtKRn6oPXiXot0PJTdAl5sfE6+n+X0SOrLIR3ycwAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Quuhnzce; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L+0itSvi"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Quuhnzce"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750905437;
+	s=mimecast20190719; t=1750905543;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=EW+I1QQIKlTT7W9a4yuMAmimMoHXfs6dlaepoS7uBM4=;
-	b=L+0itSvi7S7RE2UyumHfj9k9c+e6ns43ANlRJb43K9G8m7BWEbPa0KNkk5Mky63WrEfNO6
-	p7hc/i10cJJY3C9hhNAN5qnrA/ftV6J6yBkmw5CUsfwGnjCSP1aitRTFktHpHGWSVXEeTj
-	YsdLNYMAA2yoAWIZyBsAA+cyorm1svU=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=PtV+hGmWzCGGAq8XJTGqpjrx3hzHcShvqveug29QiX8=;
+	b=QuuhnzcesbXO3X29s5PtuCbOegS1Sq7uZoJgCF6rkb3ph/KkDaHMl0dDQ3ZKNgat4OBIiU
+	cPp59V45l1IPiGQoUgzbGzIGclDeEb/x4IZXP0/n1rJEuW+zRHsFjWoGFtZMRxiOKqlGCj
+	OJPHucUbmNhSLli4FKuDwXc+Zd2W6TE=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-596-TkAIVZfNP3mFAgiJjOkimA-1; Wed, 25 Jun 2025 22:37:15 -0400
-X-MC-Unique: TkAIVZfNP3mFAgiJjOkimA-1
-X-Mimecast-MFC-AGG-ID: TkAIVZfNP3mFAgiJjOkimA_1750905434
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-313c3915345so673246a91.3
-        for <virtualization@lists.linux.dev>; Wed, 25 Jun 2025 19:37:14 -0700 (PDT)
+ us-mta-491-B7_J-GT4NXifLgof9KTsVQ-1; Wed, 25 Jun 2025 22:39:02 -0400
+X-MC-Unique: B7_J-GT4NXifLgof9KTsVQ-1
+X-Mimecast-MFC-AGG-ID: B7_J-GT4NXifLgof9KTsVQ_1750905541
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-b31ff60558eso1259150a12.1
+        for <virtualization@lists.linux.dev>; Wed, 25 Jun 2025 19:39:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750905434; x=1751510234;
+        d=1e100.net; s=20230601; t=1750905541; x=1751510341;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=EW+I1QQIKlTT7W9a4yuMAmimMoHXfs6dlaepoS7uBM4=;
-        b=l8qoj4oaZMkT2P38qlDHi6JW112YsGAdbCViRGSTgfc4bQLwIdNGr3zpmq8eAL1pgW
-         pCbqvigj8uC8QHc0Sc9k5K9C1qlmpvJXQNC2GwSdd2LkzTnJO8YRXoFI2OuAZEjvLSMp
-         CtucG1V3ZxQmSK6p72U8+FzuXwYq64QJgxn/t/+tAproSG8eGBROS8/zC23xXCqit/uf
-         CqopuvUYejWCKPiZOWwBjc17sOvWAv4x0DKIOrYBzG+qNLd/CsH972aoAlcYj4JVYPkL
-         QQIkqhgcM4WdVTnL0bp1x8O1sFon3K4lUysIx3Aq/kCx07qRlzU/OM1sNJplNODRshtm
-         Nbqg==
-X-Forwarded-Encrypted: i=1; AJvYcCXFzUz0mVkqc6e46PVY1qAFnPYLHP7annLMLKAZdJRavHbS9V+7SKe+c+PeHzFB7RioGFgI8BspscgaV7qzOA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwEL4nunKp28uK2wUAiBwwm+4XIweiHUxLwHphtuv1Vk4UnI4rI
-	GZwmrFtkUlYJmi4dRxNiMSnQ9jWZTEg265CHwRqZ5tdE1JmOAgM4CMwOxLvvrdTwe2zFQcceXU0
-	EN3mPI6eoOZMPDCLvEJhFYTjv8XsBZN0QF0WXgiikYlxyYdvTpCKfNmQ0PKdY9b/E8PD9sDZoEa
-	JMNWWNE8TU3d67hX3nC782p5uJwcYK8rU3Ff+rGv9Irq0=
-X-Gm-Gg: ASbGncsOXTwqZpEiQaRkR0O0QRIXktuU9lGjlk57A+ecbE5MF4knJimqkrxe3VW70Ml
-	tmJfTutBY54pThoNG+hxgtFzH5Dc3PcqlJRy8Fs5hC0Th7d1Fuj/daJQu8jatWiNlsTzWsxJx4Q
-	zRUVeE
-X-Received: by 2002:a17:90b:2b4c:b0:313:fb08:4261 with SMTP id 98e67ed59e1d1-315f269fa56mr6541988a91.32.1750905434005;
-        Wed, 25 Jun 2025 19:37:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGnFq27uptoJBVoGMseNGObxmjNsAzQWtsl9oanE1SD186q54jLA9zURCaRw/XaQvClcZpVeAk2VlfUN6l6Dn8=
-X-Received: by 2002:a17:90b:2b4c:b0:313:fb08:4261 with SMTP id
- 98e67ed59e1d1-315f269fa56mr6541958a91.32.1750905433553; Wed, 25 Jun 2025
- 19:37:13 -0700 (PDT)
+        bh=PtV+hGmWzCGGAq8XJTGqpjrx3hzHcShvqveug29QiX8=;
+        b=Q9hnEo6zSyNl5jS52ZOB2sswef74t3S1JFyML2o+Z0OMj/MzVuzkNRss8QeJKDJ4HQ
+         wdrELoyjTG8NqGxhK0ULIREYo/6rP3lX+Ji2zQ3c2wG+yT52NXvpsXqO1II0Pn7j8l8G
+         wOpdeOXqQEt5JMlKoslAEcx9kWN1frb4lkJkoEuzaS0RN9dqF5Oo7D5VTUl11GYPTqXp
+         Qfpz1TbvTygVmrxudTXdy/GKqkqg+cQc0YCrgAdkir9Mw6xqW4BckyENUcdhqjBhY47k
+         2/UjZMbkLHVITJTl4uYYDRSgkwr3WRL+XHkE4bDx8HUeXmbAsUp9xK6Q0nLhknfc8BoV
+         V2uA==
+X-Forwarded-Encrypted: i=1; AJvYcCXZK6E3PJKVdNdEZ69qCMeGKOVNocssN+ens5DEFxn+Lq2ZAzBidgT7Wl7Eij50ssXTeZNTvjVaPi6CndXkOQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy+rNAkyO+Lfc+pMk4MBvKp9En5BF1Y7lwDSnZaF3DCdiiTTdhZ
+	HCeCREvPa9xrTFLCgF13P4kN9vxhDYsNKDFnkYWJGxPC6bUESyRahnO3SP6EnjyjMOXGgxSjs9j
+	OJix+1SH4iyMs8yZhCkMOWJkKIh5n5WzQCo2QQ3fyavAosfsCtdtaojnH2xIC6H12NLyud/gVO0
+	11ZGolAIttuBUfrleKulgoDFfTkvJJzS2rGNm6b5an4gs=
+X-Gm-Gg: ASbGncv1HWEOn24qjddNTIAl/5ckdE1+Z9rIdyP25gzL11jK7avMRO/VmyhifAvQWWM
+	rGojv9Rsc07KWt8MqkkIhP2vc/OPiwTB20z4hGEIYtCi4tHMlB9cFy3+RJt0+VRQwPDmnXlN8xN
+	Rs+sFN
+X-Received: by 2002:a17:903:3c6b:b0:237:f757:9ad8 with SMTP id d9443c01a7336-238e9e06b68mr26265555ad.1.1750905540955;
+        Wed, 25 Jun 2025 19:39:00 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEeb7cSsXZgQCsbZuX3BxI9ea2eoF1dmzDHFHzV2vn7oWQ24AkuEOzAXNT7eLnpup8aMyphvstnn6ceEBYA5HM=
+X-Received: by 2002:a17:903:3c6b:b0:237:f757:9ad8 with SMTP id
+ d9443c01a7336-238e9e06b68mr26264205ad.1.1750905538830; Wed, 25 Jun 2025
+ 19:38:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250625160849.61344-1-minhquangbui99@gmail.com> <20250625160849.61344-3-minhquangbui99@gmail.com>
-In-Reply-To: <20250625160849.61344-3-minhquangbui99@gmail.com>
+References: <20250625160849.61344-1-minhquangbui99@gmail.com> <20250625160849.61344-4-minhquangbui99@gmail.com>
+In-Reply-To: <20250625160849.61344-4-minhquangbui99@gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 26 Jun 2025 10:37:01 +0800
-X-Gm-Features: Ac12FXzafcvLIIRlWLmpr_5VBnu8UJoZzPPLlWXuQNGXda7Uc4uun2EikZbgBz8
-Message-ID: <CACGkMEuZTP+xPCWuSGwiApWEj_PuOxb5yOeR3t-Bga1t+svawQ@mail.gmail.com>
-Subject: Re: [PATCH net 2/4] virtio-net: remove redundant truesize check with PAGE_SIZE
+Date: Thu, 26 Jun 2025 10:38:47 +0800
+X-Gm-Features: Ac12FXzGBspfM0xNLFV6s_nJRqcVgjaFcF2_Hcvm4OR2ygauzrYWua0l6j8T7wo
+Message-ID: <CACGkMEvY9pvvfq3Ok=55O1t3+689RCfqQJqaWjLcduHJ79CDWA@mail.gmail.com>
+Subject: Re: [PATCH net 3/4] virtio-net: create a helper to check received
+ mergeable buffer's length
 To: Bui Quang Minh <minhquangbui99@gmail.com>
 Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
@@ -83,7 +84,7 @@ Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
 	Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev, 
 	linux-kernel@vger.kernel.org, bpf@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1njkbalR3DgRGmXEI8MOkKl5jY4RF2R9lH98XnMJtMc_1750905434
+X-Mimecast-MFC-PROC-ID: nbWo9ixf7LyAV7SsYXI7iZ9qAUaC4FWq_nex5A93EMI_1750905541
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -91,58 +92,16 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Jun 26, 2025 at 12:10=E2=80=AFAM Bui Quang Minh
 <minhquangbui99@gmail.com> wrote:
 >
-> The truesize is guaranteed not to exceed PAGE_SIZE in
-> get_mergeable_buf_len(). It is saved in mergeable context, which is not
-> changeable by the host side,
-
-This really depends on the security model.
-
-> so the check in receive path is quite
-> redundant.
+> Currently, we have repeated code to check the received mergeable buffer's
+> length with allocated size. This commit creates a helper to do that and
+> converts current code to use it.
 >
 > Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
->  drivers/net/virtio_net.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 2a130a3e50ac..6f9fedad4a5e 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2144,9 +2144,9 @@ static int virtnet_build_xdp_buff_mrg(struct net_de=
-vice *dev,
->  {
->         struct virtio_net_hdr_mrg_rxbuf *hdr =3D buf;
->         unsigned int headroom, tailroom, room;
-> -       unsigned int truesize, cur_frag_size;
->         struct skb_shared_info *shinfo;
->         unsigned int xdp_frags_truesz =3D 0;
-> +       unsigned int truesize;
->         struct page *page;
->         skb_frag_t *frag;
->         int offset;
-> @@ -2194,9 +2194,8 @@ static int virtnet_build_xdp_buff_mrg(struct net_de=
-vice *dev,
->                 tailroom =3D headroom ? sizeof(struct skb_shared_info) : =
-0;
->                 room =3D SKB_DATA_ALIGN(headroom + tailroom);
->
-> -               cur_frag_size =3D truesize;
-> -               xdp_frags_truesz +=3D cur_frag_size;
-> -               if (unlikely(len > truesize - room || cur_frag_size > PAG=
-E_SIZE)) {
-> +               xdp_frags_truesz +=3D truesize;
-> +               if (unlikely(len > truesize - room)) {
->                         put_page(page);
->                         pr_debug("%s: rx error: len %u exceeds truesize %=
-lu\n",
->                                  dev->name, len, (unsigned long)(truesize=
- - room));
-> --
-> 2.43.0
->
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+I think it would be better to introduce this as patch 1, so a
+mergeable XDP path can use that directly.
+
+This will have a smaller changeset.
 
 Thanks
 
