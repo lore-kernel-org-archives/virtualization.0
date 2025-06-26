@@ -1,111 +1,116 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2DDD1B4231
-	for <virtualization@lists.linux.dev>; Thu, 26 Jun 2025 15:37:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C5A7202C50
+	for <virtualization@lists.linux.dev>; Thu, 26 Jun 2025 17:43:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750952268; cv=none; b=lGeY6UJAphZY7cGUdSDTxTtL95OC4QpAnLRa5xWdrrPgoPC8TwldFjlvMVfJ3K0MECTLU/YtaCpLRHrGXfmNei21NEWk4ICUmgUIXpt3hoz+2uqAYPw5/0mDKm1hXTRjJrNQqLQCcblN2Yc8ktJa7E3bTsMMS0lL+iYmuYlJfUs=
+	t=1750959826; cv=none; b=lWWubNoIxr7HfqzuvXQp8t+P5IAqgbmXvefHFDU8ICNYefvL1kcdE6cRvOM5PzncPADbP74CqCPaXDFVWu1OAdJyWCyZziJeMKMiLS1z6WO7FtvPSjiechFXvm8tfjOuP10r3FwcNFLHpwHHPV3ksUBDwvhXqugR+VhHUkC760Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750952268; c=relaxed/simple;
-	bh=1kTchX7hydmdDHaIeR4b7vCB4DidJo22IPgQr6l+BIw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hkys7LPlGDpx/Kj7YQnebrw+0wEu/f2b+frm4MtXL+0+P6Rt+OvdTYDKU27XBs1Y5CS/OSD3LJg52atnaHJH4dKU8umbV20Tlrw+OUOeJlgUtdlrJkyjVuHZUKH0DlH0ai5RtvcGIeaYE2i684dakld6om6EL9VVadulilV/jsI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c1AfhhQ6; arc=none smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750959826; c=relaxed/simple;
+	bh=wzwuJqhyKPA6pFtaKqL29WQiBrCe4P+CAFqirUycMO4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gJJTeXMh1edqDs1enOVFvBLDeRJUZFddmCKbiwNqia1HA5gefFh7k1rb5oNnbAIyAmEwDRK6u44bPLKwYI4qJabQ0OQTD23e3hofDveHtCryqNZy01/jQNIcHXfzb3leWYKns91DPuhtlF6bgoKQwYS8VNYIhVtWOWjLHbOiS80=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OAq7RRnU; arc=none smtp.client-ip=209.85.219.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c1AfhhQ6"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-23508d30142so17937275ad.0
-        for <virtualization@lists.linux.dev>; Thu, 26 Jun 2025 08:37:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OAq7RRnU"
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-6fada2dd785so17002126d6.2
+        for <virtualization@lists.linux.dev>; Thu, 26 Jun 2025 10:43:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750952266; x=1751557066; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=WBS6+tGrLYEgP8XOrgQa7cC9L5XmsRCAXvGJg8Wcsyc=;
-        b=c1AfhhQ6rbMvgRo1xCyNrqatYHfl/9gSrMRs6zhjhaJJoi8HYvUzHE7YZlcC1R7Izc
-         jF5eS5txU/hcgzPZtzwmDxUa3xEzkkGPfr8E4JoK0381+Vif35DG+jUpgmKTnSiXCZJX
-         jMZtV2S5F79Cmn+SNheF0XSQgow3WG9rTMlq+sCJ+YGYE2ww7IpEpkZA9QrH4L4joUJw
-         te7N7PEuYVkjN3MXmFrHUaRhFk/OMFFuBX64Ly6LsezB1zkLJDjXc4p9M1edCJ7LSB5B
-         Y7qdk9r+DR5J48bV/Ixfd2yHeeed0ejz3D92YBOD+QU1VT/FXbQWCzxeA4muDpvwRXOu
-         MVSQ==
+        d=google.com; s=20230601; t=1750959823; x=1751564623; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wzwuJqhyKPA6pFtaKqL29WQiBrCe4P+CAFqirUycMO4=;
+        b=OAq7RRnUKyM4VvqIGsoONSDEFNrTYZnveYXQQQT3bsr1yOx7/nBFxfDdVzDJbmCMyo
+         458xIG6QKUjqRgQhLxgcy6FMKdZ80HGMaXXqOfx5jy4k4WUuP+tPyyptP0GXUHi328sL
+         i70OxzENjYGOKoP5BJcoz1B6fRe1mz8BJURXQMssHrYnNMimqoPZFuLNlj4HzJYMQNX9
+         Sub2ngupBjaGWZ9i5aW55zddx+ZXsZngJ68Eg5EWwT+y/PStYR8+y3PR12+v9XHOaSdd
+         fCOD5CFDcCAvTapyN5PdVdD1E3WFppmP/h612kR8LWnv2BXOnr1g5c2VoM+m6gLbEvly
+         jpOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750952266; x=1751557066;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=WBS6+tGrLYEgP8XOrgQa7cC9L5XmsRCAXvGJg8Wcsyc=;
-        b=YoOOE1V7T9qp6hHKYBg9sBApIUAM2wAm3y0NaqYi16Ap/Oh6SxB7mifzYDqgOSvVSB
-         h1buRRgVB4TBO8dZqBqekmxEDd1h+6+7ww/pKB6tQlxmzXdjWLO6a1914iiZhduxjZ6r
-         8VF9LfD7DE25ukYY2ork2tMiGIqWw68XOiB3CXmsNsvi0JALTpP7IRaE/Nxh4Z/U888t
-         Aw/lyhGNb2Vg3SVAgAHwLHnZAO2hF9Ydqrpq8KW/x2lMiAttmyEKa4g5/xi02WUE266J
-         AslySjPDmRVKeVm/Vjb+MBghwExbrCBda+dhYARaPGM63OkS7ipOgVtAgyR2n+m1UBm0
-         vDgw==
-X-Forwarded-Encrypted: i=1; AJvYcCWX1HEr22ajt65DFXvEXqLRXeoUMiSxiTsk90rte57xEKzDwg1bcQjE3fwabI26jo3kOMcIy+VIZyNKOsL/2A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyWICkxOkPc14h3chmF18xCFrxarwpVvFZfPwCAWQ/wqeYdTBOU
-	+H/x42u77lg2eDkAtKIP0L/Nvy9oZTPZdeDj7/+5SAXhF16/YLVg2Uiz
-X-Gm-Gg: ASbGnctLRqSZZxuCVgq/Ik9FMw9OYUvgkJ1eUohdFyldkp8Ff97JpYncuCG88WzpKn1
-	msR9FiOx9GeE4BP3Riio0L32MHCaHlO2kNto3RRyhnzsYjWLdZMB3EE/L7QfNbbL1Vm3aiMCbTX
-	wgri58AzVoSdwGDRXGhmLohzKPMcHyvFSu3z7yTutA2KFYLpYCiB2z6jwCPlbQzWuRPHrifII98
-	LhIYznzZCIBQUWMX4LGjBQiMWCmHW5CxonO/DWAT8MtetiCbzTPU8GalRt7GgYGZt/BvTDEFlmI
-	qGjLFwUxx9I5KbylmM9pMIhkKAzBdmbQGrg/xVE4eMBXZiiavtqDjcrdJO1TFnrWlb8OOWB08gv
-	DhKdClEHslu3PMTMblMy1IqRQ244uvQdI6rtgnXk=
-X-Google-Smtp-Source: AGHT+IE9HZQVIg9J0bGTauaoFxunVzdT6LAv+3ddjqizR0AY608ymj/oowE40lSal+PsH63zgCKDHQ==
-X-Received: by 2002:a17:903:2a87:b0:235:711:f810 with SMTP id d9443c01a7336-23823fe4dd9mr121698455ad.23.1750952266162;
-        Thu, 26 Jun 2025 08:37:46 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:4f0e:fb30:2b9f:aa14:497d:25f1? ([2001:ee0:4f0e:fb30:2b9f:aa14:497d:25f1])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23abe329d23sm1164745ad.54.2025.06.26.08.37.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Jun 2025 08:37:45 -0700 (PDT)
-Message-ID: <8f0927bf-dc2f-4a20-887a-6d8529623dd7@gmail.com>
-Date: Thu, 26 Jun 2025 22:37:38 +0700
+        d=1e100.net; s=20230601; t=1750959823; x=1751564623;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wzwuJqhyKPA6pFtaKqL29WQiBrCe4P+CAFqirUycMO4=;
+        b=vCX4y32OedOoHWBsHEq94LyhZllGKrm2SUFElp0VLUSYz4V91wYfxXOD/bbAiwP6+/
+         eCcucd/2pQRfu83ytr1olSl0s5nHzi2WHH+UnKJ3vdQKAmSUsaWGa39co2FMBe7ub//n
+         ch5qLj4oIpaG/Jqv8Homx5oYb3CAY3BNgPNnRg5uY1BT/u6NSQfiVtXhFsdAa0pailHp
+         cwngvDBhI1JpQlyepOfzgd587KYaCjQlN88ynsgUml1g4DySGsmO4j++qQqi4uCDkQL8
+         bLC5DscDF6X0UUXvcL8uF34wG0ffShjvH3Pmg/6Evk4diV5s5CBwsftAy9lbIrD1JmiT
+         xANw==
+X-Forwarded-Encrypted: i=1; AJvYcCWgBTA+Ja/oKBSgvU48Qh2ifzQOaLO8Z5QOPYp38sz0typ1VAnHFB54sX2RJUCvFh2x5IMuO9T+mp2/pLVaCQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzTEGa7YnYwSNK5DgGxa66tE7n5U5HeB9x7j7uoWTmnpIenJcj/
+	CoW0Uwy0UXB4YZI+w/vznwDhBOJzXt416ezmDPvUAWW2mFq4MTi/l80rm5JyfXh4U+ZeDhe1XEn
+	YOEcZtO6EtBZKbVWFVxHQhR2godJaENdUgPhv91qd
+X-Gm-Gg: ASbGncvibe6xtdDhdvM02WTDz8PYS0lQfdGYPkZKBeBasU/SJ+zUtvGzKGQQ7UKwrxD
+	glYM9rrhCwz5o9BN2A3cTd0Z1CQkXrEFgp6xmihfN2ZICIZSyeGQaHLm3T7McEIQAzTAjSZ6Pur
+	mrPH/A9mepiZiWCyzcbrXT7EZ9HthxKbIV/NqJ6YSA9zEL0hmcP5gybwWOu6Pn7EmIMeyzTxf7+
+	A==
+X-Google-Smtp-Source: AGHT+IGdh/IJuNTnlJ5wP1tLYohn6WiFRhrAxLVoOATEeK6niUOWXM6UN14DbuitTFowPzRbNWX5WutFoxjvCZRzqB8=
+X-Received: by 2002:a05:6214:2aa1:b0:6fb:5f1d:bf8c with SMTP id
+ 6a1803df08f44-6fffdcff5c9mr6100526d6.11.1750959822639; Thu, 26 Jun 2025
+ 10:43:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 3/4] virtio-net: create a helper to check received
- mergeable buffer's length
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-References: <20250625160849.61344-1-minhquangbui99@gmail.com>
- <20250625160849.61344-4-minhquangbui99@gmail.com>
- <CACGkMEvY9pvvfq3Ok=55O1t3+689RCfqQJqaWjLcduHJ79CDWA@mail.gmail.com>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <CACGkMEvY9pvvfq3Ok=55O1t3+689RCfqQJqaWjLcduHJ79CDWA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <cover.1750854543.git.leon@kernel.org> <cabe5b75fe1201baa6ecd209546c1f0913fc02ef.1750854543.git.leon@kernel.org>
+In-Reply-To: <cabe5b75fe1201baa6ecd209546c1f0913fc02ef.1750854543.git.leon@kernel.org>
+From: Alexander Potapenko <glider@google.com>
+Date: Thu, 26 Jun 2025 19:43:06 +0200
+X-Gm-Features: Ac12FXyaDZROOxurpvkcs9ZXthsb5DglqUebhn0NTWwPhDYnIEGQjkQ7oqhUUFw
+Message-ID: <CAG_fn=XWP-rpV-D2nV-a3wMbzqLn2T-43tyGnoS2AhVGU8oZMw@mail.gmail.com>
+Subject: Re: [PATCH 5/8] kmsan: convert kmsan_handle_dma to use physical addresses
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Leon Romanovsky <leonro@nvidia.com>, 
+	Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Robin Murphy <robin.murphy@arm.com>, 
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+	=?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	iommu@lists.linux.dev, virtualization@lists.linux.dev, 
+	kasan-dev@googlegroups.com, linux-trace-kernel@vger.kernel.org, 
+	linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 6/26/25 09:38, Jason Wang wrote:
-> On Thu, Jun 26, 2025 at 12:10 AM Bui Quang Minh
-> <minhquangbui99@gmail.com> wrote:
->> Currently, we have repeated code to check the received mergeable buffer's
->> length with allocated size. This commit creates a helper to do that and
->> converts current code to use it.
->>
->> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> I think it would be better to introduce this as patch 1, so a
-> mergeable XDP path can use that directly.
+On Wed, Jun 25, 2025 at 3:19=E2=80=AFPM Leon Romanovsky <leon@kernel.org> w=
+rote:
 >
-> This will have a smaller changeset.
+> From: Leon Romanovsky <leonro@nvidia.com>
 
-I'm just concerned that it might make backporting the fix harder because 
-the fix depends on this refactor and this refactor touches some function 
-that may create conflict.
+Hi Leon,
 
-Thanks,
-Quang Minh.
+>
+> Convert the KMSAN DMA handling function from page-based to physical
+> address-based interface.
+>
+> The refactoring renames kmsan_handle_dma() parameters from accepting
+> (struct page *page, size_t offset, size_t size) to (phys_addr_t phys,
+> size_t size).
 
+Could you please elaborate a bit why this is needed? Are you fixing
+some particular issue?
+
+> A PFN_VALID check is added to prevent KMSAN operations
+> on non-page memory, preventing from non struct page backed address,
+>
+> As part of this change, support for highmem addresses is implemented
+> using kmap_local_page() to handle both lowmem and highmem regions
+> properly. All callers throughout the codebase are updated to use the
+> new phys_addr_t based interface.
+
+KMSAN only works on 64-bit systems, do we actually have highmem on any of t=
+hese?
