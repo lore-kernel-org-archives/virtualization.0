@@ -1,124 +1,165 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A85B129E115
-	for <virtualization@lists.linux.dev>; Fri, 27 Jun 2025 11:42:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9728617C21C
+	for <virtualization@lists.linux.dev>; Fri, 27 Jun 2025 12:21:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751024563; cv=none; b=V+zRxkTk+nCWqOZsoJ9TAGRx38fUvLTdvhqRZ/VPQJIZZaFAUgaw4viqPmno5EULJ8nsZhtDh0ryALmZiLjACqxtpdemORrDiV3s7crX5n23SOkIGFxbwOgbhbt4ZSFesOmjZ94hYrn5XuW45ZHKvCJ+x3TzSxQY1Ng9yeRIWIk=
+	t=1751026885; cv=none; b=HLEHazHYbm5Z5h+NhsH3Lx5XFP56sliLtjC3ZIsIEXkTWZ1GtrYdHyv8JePX7anvKUv7pmw5qWPB/u1fwXarbiwV5SXMYzoLfwitM3nVM9ulfLsVEqOgD+/mEoVzRf7OHsBdnL2r/9Z4AizIU3Iav1Mcqn7Vw53td+ttLIMXPyE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751024563; c=relaxed/simple;
-	bh=iVuGRVgsqGxyCMlQcTQPYJM2XPrRXIKXOv3tNp4GTIA=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=VjIDNq6/y30tBz2sAqKBmz4wZ6DKxCpxYjSZ9VQb6hDTa4uiKXoHrCdvpX4TUDGa7N8d7E+uKA3Uv+OnvzKFlV2m+GOQLDDCgkHIhW39On4YrZPvZWjqsO8xZuQdghO2md5rXnTpaxTwz9fIUX63POTY9fIYG04vbHyTmuLVpAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RLyVJbz/; arc=none smtp.client-ip=209.85.210.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751026885; c=relaxed/simple;
+	bh=+5aEYy8/LHHi4FXnbdS5ukMXKdh3+6yLZdvJXSlBL9Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=BtRw8Y/10mhpISYQ19yT7SAx795yZWC5Yr510dQrPBo9owUf1o/OUz4Mwzb2gmLOUray7l5FXWSWw0CIcyP69b/mIr57H9r4Pa+bp3QAgUXjt+y21TN0BWutxoLMMQflOLOm3Ke2dbeRYiQttT9H5rtyxxw0nCymz2mq0C+IFrk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Bh/WqrKd; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RLyVJbz/"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-747fc77bb2aso2007847b3a.3
-        for <virtualization@lists.linux.dev>; Fri, 27 Jun 2025 04:42:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751024561; x=1751629361; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=r9YtTg1t58ZELtcEG/y0IgZZ/473yKqIjgodQWzu/94=;
-        b=RLyVJbz/Ndcpj5/jBTQae4m1ew5479RjjtyyDecwJGP1fYXHpYU7vr0DxqZgWvSmZX
-         ZUNGZ1E+NNrlM9PYGinvZhRTDrasjMYBGqLtcCN4YTIkxXCyEeqgnVoNSxuhZRTar0ow
-         /OmOMat6/uduLjncHXTUpQWSru9FrG1TYjrXwBihvMvCTK02456Wqhqb2W7d/HnYnNdG
-         +YyVVRUpqPp5kLL1Cv6JpwwjHfCr4LiP3lBhZRIfgIKaiBTnm2UfHKC+Mb9ECH+R7dnc
-         XCK5mNmwjNMOJDuAiX/BCFPPvrXeQgEYa+0IPcNS222iaH2pE1byDnHLsubG2sETeXfG
-         3ZQg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bh/WqrKd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751026882;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tJSFEuy9I5CCg7RQrigp77Ej+GXF1LquTOkHLyT7czY=;
+	b=Bh/WqrKdTOXrScNAQ0DDWUDQXZoHKMbHSZR7cQgRZH8v/XVMdh0YOkIGc41BfGDTAKlgQq
+	YdIM5Je9QBz2lQh/K8WKc29AgoZf7oHfUMQTuuUp0eKn0Xc05iTMSEj0zG7EDhp2gFpWXR
+	xw7F43BlBkbnMpBdnoNV55+fFnool6E=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-610-FL-0shklMrC6CZ3gEsdLKQ-1; Fri, 27 Jun 2025 08:21:21 -0400
+X-MC-Unique: FL-0shklMrC6CZ3gEsdLKQ-1
+X-Mimecast-MFC-AGG-ID: FL-0shklMrC6CZ3gEsdLKQ_1751026880
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-451ac1b43c4so10938265e9.0
+        for <virtualization@lists.linux.dev>; Fri, 27 Jun 2025 05:21:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751024561; x=1751629361;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=r9YtTg1t58ZELtcEG/y0IgZZ/473yKqIjgodQWzu/94=;
-        b=OC/wxaTGKxsjgjYDNG9CiITUHG4tV7Ubs4gpeT4/JTf0yBXj6AK6HlkOOo1PIsHxko
-         vj1moff9dFx2dc1gjnu3m8Eg+tUSqU6Bh0dixAtwt2l0XcxZKya2nnbYq5oatb7aF+dC
-         VqhQ5BrQDC5xYaB9y706V2B6QJjRpHBD8Ka2k/w6e7JEmBPDMOCKPqA1TDGVFajC2Vv4
-         Zdt2n5YVX6R4b2MR9F/pTuCCJ0/zxjGCBS08X95PKOfznA+ne2vqrjVTRkWlMYiZmLgE
-         MAlXOxdvDMIB5vh6c+oYW/XXHEypVGaynw1c/kTuUoG7rLnYGz2sVZn/Bp+ZmVoqQsiP
-         TGIA==
-X-Forwarded-Encrypted: i=1; AJvYcCV81u5P1GL9cLLG4LWRpZ9S9UtWBodihp8kAsDahv6IoYPK6/wd0gWlr05pKsMu3lMDdxcF4awbQaWxZOhbpQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzu5/8k5tcN6o55RguB0Eee9KfrjCN4jEkQaTay0Gr0YMeeMvds
-	TC3E6+Z8movu8jMvPOaYYRuTq3dDNQAha0i9ChEQRKFZg6eafqWzmVfG
-X-Gm-Gg: ASbGncu/p27TiTBP80FTOEw7PxgLEcnZlwU+mZjgKC1i5TEGm6rEFJUZS0IiaBFciX1
-	l3V2HKMwdaDoNxWlDU/nVsJ80QjUnfjTbxL8Qd5f81LJAtO+FI34MlwcMfS/J3Tnucc4kvCzjrL
-	Zrd37c+0OZHdhpGrRoVu/gO1pssBNDXVUEB7ZE6QU2AIVbaJSyVZ3xFnHfxDvHp86d9YUmo4T4O
-	3J347Uro5caCaqasi3XA+9O/Swligq/v9eDCZ6wK+dw7eXN4gPr00BVF/6EbkGThBU/nw9JCb8v
-	3xfaS0bQir3FgAv1GiDSgQtltEhgYyTrpwWeI1rBK23MFrUkG5wdFA5y6CRtxb1LeV2Yvy1ueTg
-	cfw7E3air
-X-Google-Smtp-Source: AGHT+IG3MYN2lSqPm1Q2L10kPTc5dlCvyMRnUX5hH47bSaJ12kP6xa/9UdmlnUhiVnL19oXKhjcflg==
-X-Received: by 2002:a05:6a20:748f:b0:215:f656:6632 with SMTP id adf61e73a8af0-220a180a309mr4517364637.29.1751024560724;
-        Fri, 27 Jun 2025 04:42:40 -0700 (PDT)
-Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74af5421c59sm2083067b3a.48.2025.06.27.04.42.36
+        d=1e100.net; s=20230601; t=1751026880; x=1751631680;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tJSFEuy9I5CCg7RQrigp77Ej+GXF1LquTOkHLyT7czY=;
+        b=R38+dJwhveGb47T7mZgB8pBC9SnCism5bbpQJ/dFIL9zUdKJyZXn+wFPXIP+zQ5OtO
+         pXvhQruQ79siESVNYjrPmIcSO/hf49iK4IuaAZnDcmQmehsnTFrCB2PRnmwujwitYCIb
+         nMR9pRLP7X3nN5RtOLU+I5MW7+weCCl2rpP+unK828QuEcrWVbJhrp0aiqyYwC1xVNR6
+         OrLjRVR9bfLMOOzKdUYzZ8T0zxDRej7qJdNABKWMqaQtpkefhnQP4UZitdMj/5Ujo/Me
+         qk/U3TqaiRGWFCI8WIJL36c9DCowJh4J6ExX3OSmCO0S39ZoNakLljNAtNcMie3pfnCF
+         7DOg==
+X-Forwarded-Encrypted: i=1; AJvYcCW0q9YwbtBpooI3jlbd/fARXUnPEBblQ22vay4bnFJECAnCZbsuYS0ILC6gz9rbFea5wcm1TlR2PYUr4STVbw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwdqElP3T8G0+9v2PTkev5MS2dtbpdy6T/v7j3hz9z2w4IuQ8Or
+	y+MQWcqntY3daIo7qzMfN7SEFrkd3Rvu4hRPGeA9LzuHZ6C8rsx7nAEKwc0xFdrSwOsXaSDdhZW
+	xW6WAx6o1htMZgax8Uay3K2eNYe3+eMmWfrj3nidDRo02R+3SP/mO3tazm91T+ZDCbLBu
+X-Gm-Gg: ASbGnctvCgmJesw74KQfrG/zNrO30xb9f+jAsZ5p/rog00v9hq0itsSZkLxDIkXFWGi
+	xh+FlHcYXWpO1eC/lggKACfOwL85974zpoUFxQ9/odIlSUIZqA91WMuGOYl6+gbI6kVPXJAVwg/
+	muIZT8p1MX9gu1kiQtpXYp+Wmb+TOiUreC68luxepCQQ6DYvuyRChh73oOmNJnU7+uvnbqSkTIU
+	FYfNjvOWWkE1OIQlEp6fuZVbNKqg7vQEPGb+iNS/Fc7NW7WG+RuAbYz9Ec9fAlwEgStkxu3Wsqs
+	BJSX+WL7Tqf7x9b8
+X-Received: by 2002:a05:600c:1c1b:b0:442:dc6f:7a21 with SMTP id 5b1f17b1804b1-4538f376511mr31929625e9.3.1751026880163;
+        Fri, 27 Jun 2025 05:21:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHPFIKbNJqoUHfjnJfvtoip1KeoRTxGz5M9CfWv8c4GpayUIF3Rky7v6/Rn9JzNgvu+kOV4tg==
+X-Received: by 2002:a05:600c:1c1b:b0:442:dc6f:7a21 with SMTP id 5b1f17b1804b1-4538f376511mr31929215e9.3.1751026879698;
+        Fri, 27 Jun 2025 05:21:19 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:152e:1400:856d:9957:3ec3:1ddc])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45380fd167bsm58441225e9.0.2025.06.27.05.21.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Jun 2025 04:42:40 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-To: decui@microsoft.com
-Cc: davem@davemloft.net,
-	fupan.lfp@antgroup.com,
-	haiyangz@microsoft.com,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	kys@microsoft.com,
-	leonardi@redhat.com,
-	linux-hyperv@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	niuxuewei.nxw@antgroup.com,
-	niuxuewei97@gmail.com,
-	pabeni@redhat.com,
-	sgarzare@redhat.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev,
-	wei.liu@kernel.org,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH net-next v3 1/3] vsock: Add support for SIOCINQ ioctl
-Date: Fri, 27 Jun 2025 19:42:29 +0800
-Message-Id: <20250627114229.96566-1-niuxuewei.nxw@antgroup.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <BL1PR21MB3115D30477067C46F5AC86C3BF45A@BL1PR21MB3115.namprd21.prod.outlook.com>
-References: <BL1PR21MB3115D30477067C46F5AC86C3BF45A@BL1PR21MB3115.namprd21.prod.outlook.com>
+        Fri, 27 Jun 2025 05:21:19 -0700 (PDT)
+Date: Fri, 27 Jun 2025 08:21:16 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>,
+	"axboe@kernel.dk" <axboe@kernel.dk>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>,
+	"NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>,
+	Chaitanya Kulkarni <chaitanyak@nvidia.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"pbonzini@redhat.com" <pbonzini@redhat.com>,
+	"jasowang@redhat.com" <jasowang@redhat.com>,
+	"alok.a.tiwari@oracle.com" <alok.a.tiwari@oracle.com>,
+	Max Gurtovoy <mgurtovoy@nvidia.com>,
+	Israel Rukshin <israelr@nvidia.com>
+Subject: Re: [PATCH v5] virtio_blk: Fix disk deletion hang on device surprise
+ removal
+Message-ID: <20250627082048-mutt-send-email-mst@kernel.org>
+References: <20250625070228-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195AF9E34DF2A4821F590A8DC7BA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250625074112-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB719531F26136254CC4764CD4DC7BA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250625151732-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195D92360146FFE1A59941CDC7AA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250626020230-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195435970A9B3F64E45825ADC7AA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250626023324-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB71958505493CE570B5C519A0DC7AA@CY8PR12MB7195.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CY8PR12MB71958505493CE570B5C519A0DC7AA@CY8PR12MB7195.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: aQWWtriGrw2wVAiDUcsHnuQUj5VAPmhZiGfuUD3YRcE_1751026880
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > From: Xuewei Niu <niuxuewei97@gmail.com>
-> > Sent: Wednesday, June 25, 2025 10:02 PM
-> > > ...
-> > > Maybe when you have it tested, post it here as proper patch, and Xuewei
-> > > can include it in the next version of this series (of course with you as
-> > > author, etc.). In this way will be easy to test/merge, since they are
-> > > related.
+On Thu, Jun 26, 2025 at 09:19:49AM +0000, Parav Pandit wrote:
+> 
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> > Sent: 26 June 2025 12:04 PM
+> > To: Parav Pandit <parav@nvidia.com>
+> > Cc: Stefan Hajnoczi <stefanha@redhat.com>; axboe@kernel.dk;
+> > virtualization@lists.linux.dev; linux-block@vger.kernel.org;
+> > stable@vger.kernel.org; NBU-Contact-Li Rongqing (EXTERNAL)
+> > <lirongqing@baidu.com>; Chaitanya Kulkarni <chaitanyak@nvidia.com>;
+> > xuanzhuo@linux.alibaba.com; pbonzini@redhat.com;
+> > jasowang@redhat.com; alok.a.tiwari@oracle.com; Max Gurtovoy
+> > <mgurtovoy@nvidia.com>; Israel Rukshin <israelr@nvidia.com>
+> > Subject: Re: [PATCH v5] virtio_blk: Fix disk deletion hang on device surprise
+> > removal
+> > 
+> > On Thu, Jun 26, 2025 at 06:29:09AM +0000, Parav Pandit wrote:
+> > > > > > yes however this is not at all different that hotunplug right after reset.
+> > > > > >
+> > > > > For hotunplug after reset, we likely need a timeout handler.
+> > > > > Because block driver running inside the remove() callback waiting
+> > > > > for the IO,
+> > > > may not get notified from driver core to synchronize ongoing remove().
+> > > >
+> > > >
+> > > > Notified of what?
+> > > Notification that surprise-removal occurred.
 > > >
-> > > @Xuewei @Dexuan Is it okay for you?
+> > > > So is the scenario that graceful remove starts, and meanwhile a
+> > > > surprise removal happens?
+> > > >
+> > > Right.
 > > 
-> > Yeah, sounds good to me!
 > > 
-> > Thanks,
-> > Xuewei
+> > where is it stuck then? can you explain?
 > 
-> Hi Xuewei, Stefano, I posted the patch here:
-> https://lore.kernel.org/virtualization/1751013889-4951-1-git-send-email-decui@microsoft.com/T/#u
+> I am not sure I understood the question.
 > 
-> Xuewei, please help to re-post this patch with the next version of your patchset.
-> Feel free to add your Signed-off-by, if you need. 
+> Let me try:
+> Following scenario will hang even with the current fix:
+> 
+> Say, 
+> 1. the graceful removal is ongoing in the remove() callback, where disk deletion del_gendisk() is ongoing, which waits for the requests to complete,
+> 
+> 2. Now few requests are yet to complete, and surprise removal started.
+> 
+> At this point, virtio block driver will not get notified by the driver core layer, because it is likely serializing remove() happening by user/driver unload and PCI hotplug driver-initiated device removal.
+> So vblk driver doesn't know that device is removed, block layer is waiting for requests completions to arrive which it never gets.
+> So del_gendisk() gets stuck.
+> 
+> This needs some kind of timeout handling to improve the situation to make removal more robust.
+> 
+> Did I answer or I didn't understand the question?
 
-I'll update my patchset and send it out. Thanks for your work!
+You did, thanks! How do other drivers handle this? The issue seems generic.
 
-Thanks,
-Xuewei
+-- 
+MST
 
-> Thanks,
-> Dexuan
