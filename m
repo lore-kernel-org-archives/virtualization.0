@@ -1,83 +1,116 @@
-Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 73B312A8D0;
-	Fri, 27 Jun 2025 08:28:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.250.239
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 88E1923B60B
+	for <virtualization@lists.linux.dev>; Fri, 27 Jun 2025 08:44:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751012913; cv=none; b=jvJcpJEUMSu4Bta0txEUuYKCETGtrA1b6D/AvZNYEbakFMOhRewlrzn78MEdaO/zNy+6vGp7kjlMo3BJYi1PDgWZXO/6n5yyg848J05DVtswCD22OvtI9kCB+0DdGtclSF2GmirOg0kTyo7LRo29qYhvFDQ18JqP7rriX7FtmtU=
+	t=1751013896; cv=none; b=WO5QVqyOuEv2lQ2iK0yaLymAzLz97xL5mKedTEkxnO5N4zK4L/OhikP0fqpdK02zoZmvPM3n3h1t/p/gDtkhqvk6uuy+MvJIT0ICoirDKegn/H0SqXpkrMffo4gm5MOI7nabV4xG09aN7OMT+4ir3Z2TE6WMMQPkuyuXfW2iPD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751012913; c=relaxed/simple;
-	bh=spP82C2j5HjhFI0G1+bra4EcZ2gIWe3Xap3JvO6Y+tY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ugvhp0FkpKRopHS8nBH1OvaoeHUn2om7q/7taQTFpNBSkRZr3qTQdcCI1HuBNI/n4c7uDpqixOoPdwl/bq7B0ZVnoWZhgJ7WnpxOBApgxmYvb1/xyMSqoSFbGTO/+2CSOly0Os6h0bcE+zSXg6jUjGxryfKddMaSbOpwB7ZOyL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org; spf=pass smtp.mailfrom=8bytes.org; dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b=ruBmO6pE; arc=none smtp.client-ip=85.214.250.239
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b="ruBmO6pE"
-Received: from 8bytes.org (p4ffe03ae.dip0.t-ipconnect.de [79.254.3.174])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.8bytes.org (Postfix) with ESMTPSA id AFEEC4CD24;
-	Fri, 27 Jun 2025 10:28:29 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-	s=default; t=1751012910;
-	bh=spP82C2j5HjhFI0G1+bra4EcZ2gIWe3Xap3JvO6Y+tY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ruBmO6pEKxHw+iozycJ13LII2JRcnlvNJbdkcSPtOvF+7GcYHHzQ8rIwQsDyGYdm4
-	 WJoGBf2xPamc7hgsjAF1E+f1v20tTwnCyok8JG8vLlQJJLSj4ROIDyejWb6Q5Gu157
-	 blQjCKlEmYkU5eFyu3Zr/8IYwouNWYpdl74bpyomnipeY0J6lDTGjOrT9p1pBhlPec
-	 eKZkDo2TECJdKfSKqfRMI8vxpVjNmEzyMlfWU2TLjQ/XuPehgEnYJHJNJtMEbqyKdH
-	 tQmL3gD1g1KD8+Sfs25b06SXqogj0/2g+e263Fp0JteVfDPr+VYn/CLyNUsnc+j+we
-	 MqcTPrBaNcFRg==
-Date: Fri, 27 Jun 2025 10:28:28 +0200
-From: Joerg Roedel <joro@8bytes.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexandre Ghiti <alex@ghiti.fr>, Alim Akhtar <alim.akhtar@samsung.com>, 
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, David Woodhouse <dwmw2@infradead.org>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev, 
-	Janne Grunau <j@jannau.net>, Jean-Philippe Brucker <jean-philippe@linaro.org>, 
-	Jernej Skrabec <jernej.skrabec@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
-	Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org, 
-	linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, 
-	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	Matthew Rosato <mjrosato@linux.ibm.com>, Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Rob Clark <robin.clark@oss.qualcomm.com>, Robin Murphy <robin.murphy@arm.com>, 
-	Samuel Holland <samuel@sholland.org>, Sven Peter <sven@kernel.org>, 
-	Thierry Reding <thierry.reding@gmail.com>, Krishna Reddy <vdumpa@nvidia.com>, 
-	virtualization@lists.linux.dev, Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>, 
-	Yong Wu <yong.wu@mediatek.com>, Chunyan Zhang <zhang.lyra@gmail.com>, 
-	Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>, patches@lists.linux.dev, 
-	Niklas Schnelle <schnelle@linux.ibm.com>, Sven Peter <sven@svenpeter.dev>, 
-	Tomasz Jeznach <tjeznach@rivosinc.com>
-Subject: Re: [PATCH v2 7/7] iommu: Remove ops->pgsize_bitmap
-Message-ID: <r55jzziwjtb37qufil4zgj22zqbmu7gpjs7gciib66ix564baz@juuhk6bqoj2j>
-References: <0-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
- <7-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
+	s=arc-20240116; t=1751013896; c=relaxed/simple;
+	bh=8ESayO/o4fZLFo6BTDMsLxcg6Akk7tZYwJwweA8EbdQ=;
+	h=From:To:Subject:Date:Message-Id; b=AsSMXq5XCFSzDcl4/q9fqv8gH7+eCtqdwQTgfIEpVpdO9dAc50AeqApxC8lLu4pPwNwGUgRNBLSi+uARQhgkjvk4Qr+5rozRfzQn8gqkSMMiMmkvw2wtlJgpIY9Kc+Zr590B4LXQkpEuTmGBvRhdnOuQY9NjV8pjnI0iMIYftq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+Received: by linux.microsoft.com (Postfix, from userid 1009)
+	id 01BAA204159D; Fri, 27 Jun 2025 01:44:54 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 01BAA204159D
+From: Dexuan Cui <decui@microsoft.com>
+To: niuxuewei97@gmail.com,
+	kys@microsoft.com,
+	haiyangz@microsoft.com,
+	wei.liu@kernel.org,
+	decui@microsoft.com,
+	sgarzare@redhat.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	linux-hyperv@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] hv_sock: Return the readable bytes in hvs_stream_has_data()
+Date: Fri, 27 Jun 2025 01:44:49 -0700
+Message-Id: <1751013889-4951-1-git-send-email-decui@microsoft.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
 
-Hi Jason,
+When hv_sock was originally added, __vsock_stream_recvmsg() and
+vsock_stream_has_data() actually only needed to know whether there
+is any readable data or not, so hvs_stream_has_data() was written to
+return 1 or 0 for simplicity.
 
-On Mon, Jun 09, 2025 at 05:41:31PM -0300, Jason Gunthorpe wrote:
-> No driver uses it now, remove the core code.
+However, now hvs_stream_has_data() should return the readable bytes
+because vsock_data_ready() -> vsock_stream_has_data() needs to know the
+actual bytes rather than a boolean value of 1 or 0.
 
-That is actually not true, the MSM driver still uses it, and this patch breaks
-my arm32 compile tests. Please send a fix for this driver so that I can put it
-on-top.
+The SIOCINQ ioctl support also needs hvs_stream_has_data() to return
+the readable bytes.
 
-Regards,
+Let hvs_stream_has_data() return the readable bytes of the payload in
+the next host-to-guest VMBus hv_sock packet.
 
-	Joerg
+Note: there may be multpile incoming hv_sock packets pending in the
+VMBus channel's ringbuffer, but so far there is not a VMBus API that
+allows us to know all the readable bytes in total without reading and
+caching the payload of the multiple packets, so let's just return the
+readable bytes of the next single packet. In the future, we'll either
+add a VMBus API that allows us to know the total readable bytes without
+touching the data in the ringbuffer, or the hv_sock driver needs to
+understand the VMBus packet format and parse the packets directly.
+
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+---
+
+Hi maintainers, please don't take the patch for now.
+
+Hi Xuewei Niu, please help to re-post this patch with the next version
+of your patchset "vsock: Introduce SIOCINQ ioctl support". See
+https://lore.kernel.org/virtualization/BL1PR21MB3115F69C544B0FAA145FA4EABF7BA@BL1PR21MB3115.namprd21.prod.outlook.com/#t
+https://lore.kernel.org/virtualization/20250626050219.1847316-1-niuxuewei.nxw@antgroup.com/
+Feel free to add your Signed-off-by, if you need.
+
+ net/vmw_vsock/hyperv_transport.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 31342ab502b4..64f1290a9ae7 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -694,15 +694,25 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
+ static s64 hvs_stream_has_data(struct vsock_sock *vsk)
+ {
+ 	struct hvsock *hvs = vsk->trans;
++	bool need_refill = !hvs->recv_desc;
+ 	s64 ret;
+ 
+ 	if (hvs->recv_data_len > 0)
+-		return 1;
++		return hvs->recv_data_len;
+ 
+ 	switch (hvs_channel_readable_payload(hvs->chan)) {
+ 	case 1:
+-		ret = 1;
+-		break;
++		if (!need_refill)
++			return -EIO;
++
++		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
++		if (!hvs->recv_desc)
++			return -ENOBUFS;
++
++		ret = hvs_update_recv_data(hvs);
++		if (ret)
++			return ret;
++		return hvs->recv_data_len;
+ 	case 0:
+ 		vsk->peer_shutdown |= SEND_SHUTDOWN;
+ 		ret = 0;
+-- 
+2.49.0
+
