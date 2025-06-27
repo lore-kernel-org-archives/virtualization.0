@@ -1,191 +1,106 @@
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2082.outbound.protection.outlook.com [40.107.220.82])
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6F6F2D4B47;
-	Fri, 27 Jun 2025 12:59:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.82
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751029168; cv=fail; b=pjfHatvAqVTtJjrkEjZ5d2b6Uo4DpFei38lLI+cj43KtycO2Q51cBDY5jJ8w1C7GzXnH9LsGGh0U61nYbxAHLFuuoMvZWhPStygU76AO6JU73yzJ65/0m57w63PgrN0bt37c7HHmIncFS1Ifo2irOCw4wcAFa8yTCWEvJ/6DF/g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751029168; c=relaxed/simple;
-	bh=4L0QQKPjbv+8UyX/UP1w5Ekq9yKOdXgCN4kWU3XyG2k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=XCtdaG1dC1V5XxiZSR6cWAP+ncwV2zjrXN1NQthJi/ZPBtty8GantECkjGbsskzC+YTl0T7paZ7E7Y3q/N4B2O/o18oCi/h2cHxAEoOw9MTbC9Unqo345LOqZEQdY+MropbZI5yqzqb3n8hiNjZPy9F6mMDNaU7YNUNcdnC7bdk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=WIpr1jcB; arc=fail smtp.client-ip=40.107.220.82
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B2AB2DCBEB
+	for <virtualization@lists.linux.dev>; Fri, 27 Jun 2025 13:44:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1751031861; cv=none; b=MtRroTqcKnxpKYJN92Z6SET92UOZlYSRfOnyCBCCQ7/JNLNnNV71jKLhOjx9wducH9don+pQwkPF1oPQrGbH8YDdvtE3v85z3HwpOB0x3ilAkcFaOMB3cxxKN2tqe7nJ9WNVet5EjCOVSAwvf4tKNGOTG3yXN7Tqw9sgUJLjs1g=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1751031861; c=relaxed/simple;
+	bh=5rws0OIbeHe2CRb1G1qFVEHOO3Qznulp1JmZYPqVS5A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=ev8WnZ2aCz0AOotOqlLsOlqs7fE/dMnpwXLnyE6uLA+HNzH6sdYP+xBWe0/iunTRZl97OVWHPJkOmaXdsek8QsUxd+tJl0xn0Cx1VOM4UqQr4ld5Ln2Skw5Eq2+VI/S1sYZMuUqDWbOKPqB0PNl1RvNrHNfjv0OG9kEeGvAmp1w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=WhvmDKIT; arc=none smtp.client-ip=210.118.77.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="WIpr1jcB"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=xbUb0u+FJH97hi7VS5SfPpxxDiorxHQXXazn1RR7oakmrhBswBwjUEaaNTV4/duDfqPgvpoPsF27mKzVlfPQroxFylkcIeYIWgT9BO9DvI/bMmDmmOUAciIOtb+SMJp92tpKVyqXClhCqXXdZMqDnb5sLJkIe2uOnMwJKzZTzEvs23kfvpgOHfa8aaM1pdJmx9anqUajSa+L1/bcpud/xTj2gUMiAY9y/xpLqBFYfMlR0FKbBQdujYdCIrmn9EU5rlEeYf6FVTuKPKoZuTmh8bAA+kyqThN8eBwtRUWsU5uCS9ALkinByJyK51nBbGP4rGcKz0yrgMX5IsGHAEYuNw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ZEiHc3+VZ1RnbpvVuwZTc2NF/A6cvx11jxuij/Mbaq4=;
- b=uVdvYISrsjz6/+ISh7ny+nPSzSXTzPHj6nmKufqKd4tzT2JdduDDUZO18a9t1X/HVKhzDtApHrwQZBLF5zRMuo3X+UscEXN+q+J3ZVgNvP+zLiDWtcqAsyiEsbur695Pu8RhuxaTtzPma8BDi9USiVwoWMTWhjI88imBEAB8088j/9zB41s1ndKozXMHau++FxidhzbHip32MaEcLdL9CRd0xrNKdOQFbRMTElJksHT11LehXKCk1nJeyDCpGfbjv0VConNFoA5UJJ46bH3TuYxS3q0ozLhZ36B1Xbz0TrjRwIF8CCLrTu17Ypi+HQmIgdyu7SaPibltNuPBLSG9/Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ZEiHc3+VZ1RnbpvVuwZTc2NF/A6cvx11jxuij/Mbaq4=;
- b=WIpr1jcBz/YWO4eyDzalfj2A5N6vybPlVTTRi7Hxrxr8Vg1lJv0S7RPIE/p0z5sbn7FxoducnqkG8PqBEN8lxz4v/Dvpx9qI1Cd07OcNnzjoKoo1ol2bWgYzrQK4824XNP62HpYJJ/1STsM31Htp7jo/8rq2gQx5a4sahkEraL+DxPQ+sPTO2ldud8RUKmvU5zRO5N20KHEx1PLLQNkSSGj342c5oGteqdAM6aFjgK1Psmsr1/G5P/pG58Bwdpm8tdv6w31Nym5RInODJ+QZQGt7Gu5+jq3peAFpgXgYwlCg86x4XeGrjrEjNShJ1Uza/kOlVhhN62cmG72KMNl3Cg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
- by LV8PR12MB9359.namprd12.prod.outlook.com (2603:10b6:408:1fe::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8880.21; Fri, 27 Jun
- 2025 12:59:23 +0000
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732%7]) with mapi id 15.20.8835.027; Fri, 27 Jun 2025
- 12:59:23 +0000
-Date: Fri, 27 Jun 2025 09:59:21 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Alexandre Ghiti <alex@ghiti.fr>, Alim Akhtar <alim.akhtar@samsung.com>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-	Janne Grunau <j@jannau.net>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Rob Clark <robin.clark@oss.qualcomm.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Samuel Holland <samuel@sholland.org>, Sven Peter <sven@kernel.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Krishna Reddy <vdumpa@nvidia.com>, virtualization@lists.linux.dev,
-	Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-	Yong Wu <yong.wu@mediatek.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Kevin Tian <kevin.tian@intel.com>, patches@lists.linux.dev,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Sven Peter <sven@svenpeter.dev>,
-	Tomasz Jeznach <tjeznach@rivosinc.com>
-Subject: Re: [PATCH v2 7/7] iommu: Remove ops->pgsize_bitmap
-Message-ID: <20250627125921.GP167785@nvidia.com>
-References: <0-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
- <7-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
- <r55jzziwjtb37qufil4zgj22zqbmu7gpjs7gciib66ix564baz@juuhk6bqoj2j>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <r55jzziwjtb37qufil4zgj22zqbmu7gpjs7gciib66ix564baz@juuhk6bqoj2j>
-X-ClientProxiedBy: BL1PR13CA0262.namprd13.prod.outlook.com
- (2603:10b6:208:2ba::27) To CH3PR12MB8659.namprd12.prod.outlook.com
- (2603:10b6:610:17c::13)
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="WhvmDKIT"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20250627134412euoutp022e0410b873d5f15db65e9aa0719f6f3b~M6jFZ4ebb2625726257euoutp02J
+	for <virtualization@lists.linux.dev>; Fri, 27 Jun 2025 13:44:12 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20250627134412euoutp022e0410b873d5f15db65e9aa0719f6f3b~M6jFZ4ebb2625726257euoutp02J
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1751031852;
+	bh=XkLT3H6zpZxdqKr2mL/WBFZuhTWHNBcRcJJv1Mo/N0Y=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=WhvmDKITyLEkhw3MRTwTgoaWKOjFTMjKnV8wJOos+T/cXs8qV0a45KyYKjjHHphNR
+	 ejlC6A7c/3G9ZGM0g5x9rtRdfSUOXwvaNPvqe2cEjseVkiFdxFjJMEeYZdJBH545i+
+	 hY7QPcy7sQUOkaipwLKySn5wWBeenoGfWxQTqISc=
+Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20250627134412eucas1p153bc3e4a1c0897bca604e6864667b66d~M6jEutC8v1155611556eucas1p1O;
+	Fri, 27 Jun 2025 13:44:12 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20250627134410eusmtip109d5d74275daabf2f21b42eb7440b88b~M6jDFXzcn2675526755eusmtip1I;
+	Fri, 27 Jun 2025 13:44:10 +0000 (GMT)
+Message-ID: <35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
+Date: Fri, 27 Jun 2025 15:44:10 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|LV8PR12MB9359:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2e663b90-f052-4bec-7ba3-08ddb57a7030
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014|7416014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?s+xDcooquslvQCNDqyWgLaIdrQhCelnqLaQH7NhGegJUhyrV5/s+IHcCeTHF?=
- =?us-ascii?Q?eLwkrppNtpGIX/D5Jw/oQUutVqEmq20m/iBc4Ny5kGh5oslJxG5Apw3G0H6D?=
- =?us-ascii?Q?E8w7u/jWDw8sjT5q3TMp3lIltIvVZIn9NC7YfIqgPZ51DfjyZwm1fzLrUMiY?=
- =?us-ascii?Q?8dw2Ef+LAy474CLqfGeLFnSAUV4XWnVBc9nE961zdZXKe/GwR9fFiq1vQfAv?=
- =?us-ascii?Q?Hotnd4LB/r3AkIhAJFPNHjPLY4Z3hHPnFpOAmCVXEHhM2nnm8vIpvOBwcEeB?=
- =?us-ascii?Q?s/mCl65WtrztNj8nxdQT0Y4H/8R2GCjs5aEUYDDIKis8KL1K2L7eEwRlMPir?=
- =?us-ascii?Q?bqFAdEOSM9Vs34gw3EE2xtbJnZI4RLXdb0gvS4T7XvwS/brIeaN5pmR+Cjgi?=
- =?us-ascii?Q?bJ8FWZijGXCZRKHvnR+UlP5vgHP5uRp87Xh4U0fzC9cAzxOkUc7Fhjx66XSj?=
- =?us-ascii?Q?wvXemE9JGDnoZ1RZ592XNOXqkd5d7zJg/we3UzaZZ/UmxpM5sCNdDIJ0/P1h?=
- =?us-ascii?Q?GNRlSPOgcDjm2EYkKnNyyjDVQXcSpvuD5vi/QrEUfIagkQGww+sAlzxjRyB0?=
- =?us-ascii?Q?lc0AciGjd7kjTmABDNWw2Aq2uaVYZe07f7Lx4ZmqcLuN2YPxZEydIJHj/EbC?=
- =?us-ascii?Q?/CVjky7ypX4zsAC0TSbNwbfIwpsRlX6xoc4oBCumR7QPukXOnQ6FhrX/XX4W?=
- =?us-ascii?Q?sK2Ek2lgRzcIwV8HWx/rIGLpnYI+zsaT7oqVcIxg/85DkS1I440ttdWAafAK?=
- =?us-ascii?Q?LBmPz4PHdTnsLgUSGw426YnwhqPc8zhVqRHMIXTqcXu4+REgrBrjoSFMFr5D?=
- =?us-ascii?Q?g/PIAbuTZ0fP6gpb7Y25d9p6jrF7OEa/i1iwlaNcwLsv0+wMeCJ0wDkZH8eT?=
- =?us-ascii?Q?hkPF9uLlYfhXHW95f0v9bqw+cbl4nKEvYN2OmQM6b76P8jZbSu927gemS/Wb?=
- =?us-ascii?Q?4GQ2TF2K+g0PgFQpotbHrfyTSKIyaqR5nsWGpYz1f+0sp4Lou3sAz+Od5CA7?=
- =?us-ascii?Q?C5zrvGQ+r9ZC9ilX+CwsP2RMh0GpN8AbfabuaT/tGzdJIV8InOkh899CC4nF?=
- =?us-ascii?Q?Oj2o2CZotSvCTr0chn3WBOWgzqdse7J7Pxn8DHLNL5IQ7zczfzdCza/6xgh/?=
- =?us-ascii?Q?NeBTd6se/AFIGqn/yiFNzQACkS2bOPE6ZrA4R0HrsVY1m6vZMSs6RGplXClo?=
- =?us-ascii?Q?9aXF037OIz5ADCfh7ZhYWm1SxNamWPKe+ou1pBdTru+R+BaFx8yxuA/n3q4y?=
- =?us-ascii?Q?oQxlCp2DeVX8G6OfusGQ0hp2yubCGNTPDCVhQUZX79GX819vSi7THADpybwv?=
- =?us-ascii?Q?QBmN3lCinQxfaaXkAHkf5QHAHGNr8JA3uZhpmx0uHz2QpQXYo6pva7/0hs/E?=
- =?us-ascii?Q?98fl2r5ufmHz3YtnaXw9Nqdd1gGzc2t9caTKnemlgubt4LUAKKOCdFJPeRig?=
- =?us-ascii?Q?KBwCsY62gE0=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?BZgLO/MGUPpMaPcj3ojiWhee6X4Km103RFqfXRxJpT8BrAdsVgMKRyzw7HCJ?=
- =?us-ascii?Q?lijUhSKJYZ+TdoSpduJhcCtHBWf7Y5XocRjKcPbJwmWkVjr4P5tjyU/v0UNP?=
- =?us-ascii?Q?z0GVKbIPW+AYohQTc2N/Waqdx8iI3Ce43OMCbkcAythLlZvEy2zz8XPS86p5?=
- =?us-ascii?Q?qzw+nosU2TfFV/JK9WVoMnzFu9bbV5KVjnyfg7cNYdGqcGIsT+iND1+BrEHS?=
- =?us-ascii?Q?mHN1LpuPV47bmZpy5ZGgzu0WREuF1DXU0pTKMCa8x6E1MC0Df7HdZyRXbMPJ?=
- =?us-ascii?Q?5CqywxEAT9wuEbkQYUYCJ7vSUhPLTwkwgAp8sXALpfgbNldSCIQGLAq9Jvc8?=
- =?us-ascii?Q?yTOL10fb7tH5edjwCyzq0FaSTCNyGauAkKutFipK8BBqXBj3al/ieX03mgFA?=
- =?us-ascii?Q?dkJdU5yPgbJntHpwbJNqRHHDt+aqPSZbwofkICXq9jqOIoRnXbZoRoimwsCQ?=
- =?us-ascii?Q?SNaBTP+DYnqOEOU9vOQTH1wg/E91kiA8Ebv19xRVk/Mo7FA/MiRTPMseWawI?=
- =?us-ascii?Q?gBOS7UkLh5ssNLUdli3jLAWPjLPPMN/YR6gJDUL5r8IpaBIrWh9FLTXHv2Qh?=
- =?us-ascii?Q?oM2lK4Uxgkrqp8WWC9rPerY0/OEu9CCMfghhf9Wck/+cmlUoNhV8h6jjrDD8?=
- =?us-ascii?Q?HoFE/gdiRxNYghyiK1AhsnfT2fGAVluNDPsf/Pqo0CmyHIqiZJeRdw6qJ1lE?=
- =?us-ascii?Q?ArCK/FvNXYTbdtflVRrfynLne71lFI45wjw8xLBJeoObn3xkRorGA4cjF4iE?=
- =?us-ascii?Q?3gu9ovbqbtzROQR4jcQuUwbPscgpZWKpKa3FtIXaEvNq90g9yG8w3eEhBFRq?=
- =?us-ascii?Q?aNGewLyZ5N/o7XBIPKu9OnCTK2gsts/yQFMXe8H8tWLX2V0W0mhvFxDxPTgF?=
- =?us-ascii?Q?bR+Bt7RFP85SWJQYp26s1lUILr0032rzF2Y3Q/8FF9wS+gx/Ih20VPLXhV6u?=
- =?us-ascii?Q?WnZxxEPq7g1sH7FA2x9ibl+za13BzBw84YcvXIs7nzL3fb5vDOgOYQt0A3Gj?=
- =?us-ascii?Q?3x/ub3fHqJJhsmtp+B9kLLf7Kj0ZTdCa+HccWEmO82bhWOI6QhnhrJkYSzdY?=
- =?us-ascii?Q?6+3e4UXbT0LLa7caauvjgTq90lZIskeMhHUiKZVajMEDu0DWJn+vOqZA5PDj?=
- =?us-ascii?Q?r2S39aj6FGjbeZnGPwZ4+pndumoOsyfgpcBFRVL1wEWskoD3UWymJXQqQryE?=
- =?us-ascii?Q?BKSJ2ssBCzXegVCZW7IZ8NXRtdCk1wTvt7l4ZkusyPxMLuku2o0xZtuP09fI?=
- =?us-ascii?Q?HtXsF5kE0gGBSaI1cpHKuQgmO9j2CEMv2hE8wammLKWvaNe6bv3Ljb6bi8VF?=
- =?us-ascii?Q?QqDSrLLzX4rgJCbkGgtX4hahO65O7lreL6avi93ySU+qwEdRJMevFSy/pBOg?=
- =?us-ascii?Q?tHYdj97PtYBqh+gMGtrVae17QwXzC4rdrnuhamFOdPMvo4JaNvDpUXZtkZeu?=
- =?us-ascii?Q?gZo1e4Mo5UCG7KJc93fQrJeL+1YPRDjnNhVMxWighGOOiLOXQ99tchHsfNoh?=
- =?us-ascii?Q?33soNT45eMuWyNrHAWtLqqrP+rLeLJ13YUBUU5BMaiR/kSqtestgb4qtVFuV?=
- =?us-ascii?Q?0pB/vlAxWa4Xf+vGchiz1CbTavnKRBYleY28AoEw?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2e663b90-f052-4bec-7ba3-08ddb57a7030
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Jun 2025 12:59:23.5409
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: EBm74RvudluDkjHnhyFIsq6Ty58kKS2nw0WJv7/bwI4Z/f6pOELr1yulZay6wk4H
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR12MB9359
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
+	<mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
+	<christophe.leroy@csgroup.eu>, Robin Murphy <robin.murphy@arm.com>, Joerg
+	Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, "Michael S.
+	Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Alexander Potapenko <glider@google.com>, Marco Elver
+ <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Andrew Morton
+ <akpm@linux-foundation.org>, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ iommu@lists.linux.dev, virtualization@lists.linux.dev,
+ kasan-dev@googlegroups.com, linux-trace-kernel@vger.kernel.org,
+ linux-mm@kvack.org, Jason Gunthorpe <jgg@ziepe.ca>
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <cover.1750854543.git.leon@kernel.org>
+Content-Transfer-Encoding: 7bit
+X-CMS-MailID: 20250627134412eucas1p153bc3e4a1c0897bca604e6864667b66d
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
+X-EPHeader: CA
+X-CMS-RootMailID: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
+References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
+	<cover.1750854543.git.leon@kernel.org>
 
-On Fri, Jun 27, 2025 at 10:28:28AM +0200, Joerg Roedel wrote:
-> Hi Jason,
-> 
-> On Mon, Jun 09, 2025 at 05:41:31PM -0300, Jason Gunthorpe wrote:
-> > No driver uses it now, remove the core code.
-> 
-> That is actually not true, the MSM driver still uses it, and this patch breaks
-> my arm32 compile tests. Please send a fix for this driver so that I can put it
-> on-top.
+On 25.06.2025 15:18, Leon Romanovsky wrote:
+> This series refactors the DMA mapping to use physical addresses
+> as the primary interface instead of page+offset parameters. This
+> change aligns the DMA API with the underlying hardware reality where
+> DMA operations work with physical addresses, not page structures.
+>
+> The series consists of 8 patches that progressively convert the DMA
+> mapping infrastructure from page-based to physical address-based APIs:
+>
+> The series maintains backward compatibility by keeping the old
+> page-based API as wrapper functions around the new physical
+> address-based implementations.
 
-I'm really surprised the build bot didn't catch this, I'm sure it ran
-on this series. I notice msm is not in the arm32 defconfig, maybe that
-is why.
+Thanks for this rework! I assume that the next step is to add map_phys 
+callback also to the dma_map_ops and teach various dma-mapping providers 
+to use it to avoid more phys-to-page-to-phys conversions.
 
-Jason
+I only wonder if this newly introduced dma_map_phys()/dma_unmap_phys() 
+API is also suitable for the recently discussed PCI P2P DMA? While 
+adding a new API maybe we should take this into account? My main concern 
+is the lack of the source phys addr passed to the dma_unmap_phys() 
+function and I'm aware that this might complicate a bit code conversion 
+from old dma_map/unmap_page() API.
+
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
+
