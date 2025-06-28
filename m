@@ -1,110 +1,156 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83931C8626
-	for <virtualization@lists.linux.dev>; Sat, 28 Jun 2025 18:34:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.177.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB2A678F2E
+	for <virtualization@lists.linux.dev>; Sat, 28 Jun 2025 18:58:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751135653; cv=none; b=YBwifRtkWnSCxOj8VG08vWjRrk5w5Tlc39fbXiSy3l0bEhs2Z13OIcqp3dX9BipoU7+6NJ7hnYD8zDyIEzNeB7q8N6T1gFiHiBjW3VYwPdmAxC4xUO30sxSGcHcrLkHxAzvbKJF98+4qvKAA0qy/07mXfalwS1NYgSXyGcQ//vU=
+	t=1751137137; cv=none; b=nDuYhdvpKUDvD/i/MDCWMmm2se/DRbcdHEOFmfF/pOqIXfzD3XVWlTYzy1UX3gdlpwRKBjJQa36G05ivc7DYQZ/svxvvSB2MxFmy1NbskEcFh9B7jQjUEzIMQ5cOJLXzIYoXR9detw81ULQxxWEPxQtcDHTKSEp8rvdO/IJK0AU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751135653; c=relaxed/simple;
-	bh=w8jYnIjaUFwlYoBv8vq/TaGytJQbaOCBQSQujAsVOjU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fmb1HVVFhuaB4Su5ho1kWbQNJknmovRO5QNDq+aOWlN1ij49JSSlJ+RuQJyQuGMPwmIc60HpKUxK8hDlj2W6a7/5ZISx1TM8cFpEzi0z/UMudbIWoB1qxgsd76h4j9aOmCGatCnVDRftZsv8kxW/en+Y5q7BraghAm2fsDrc2mg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=Y6jULMqz; arc=none smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	s=arc-20240116; t=1751137137; c=relaxed/simple;
+	bh=ztg5EsMbdjxvKumjrsUF9Vbhn9ZJVkNBuY302Z6WDro=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=sRoVXMS87FJF0KbtKx/WsPB6KKWMB0+t+9BhnVm8roXeyDAHUJjISVUdGhHqu5lyYYb8ZhfzimSrQLj1EN0wyNMCAw3Z0H6PbbEil++zgGQ3rUqVe2E17qoYhIahn3NBufPJjrbR+oy7e4jkzNG1DBLl8+eyecYmdohW5TD+37w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JPTAdUp7; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Y6jULMqz"
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55SIMucv028453;
-	Sat, 28 Jun 2025 18:34:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=corp-2025-04-25; bh=SwGkhS6oU7gBULo49D78+Thb7S/MP
-	pWv2fV2FOTEQw4=; b=Y6jULMqz7yLkO3VSer/QgePL9a1WlJRM4NqBma112Sq1T
-	KP7DSrT7s/L7pWfP4nJl8zUMo0zpqqP4uzNh3ttFapKE8+r0Orh2TjfK524lEPjv
-	Y+HwvSXyTlOrJd/Hh2Fm2AwUZg/qwb/1dF3Ul9UyPjpVDJOHRaJLHNdnZVibRcpD
-	pkgZ1ViQzD7mNeuae5DZ5YTW4/O1OvyyHSBJ8m2M/TdwVtO08VokOhfVZnufERdj
-	G3+ym/TnoQi4m6b3ohn9bhbNGnZdYDpYUp5e7rAh5OLCByMhPPV+bHAk8k3bVLU0
-	5RquboZN9oc+Poupoarinl+oKMThskagX2YUeCcnQ==
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 47j80w0ej3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 28 Jun 2025 18:34:10 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 55SHMKxc014097;
-	Sat, 28 Jun 2025 18:34:08 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 47j6u702ja-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 28 Jun 2025 18:34:08 +0000
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 55SIY8E1017095;
-	Sat, 28 Jun 2025 18:34:08 GMT
-Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.129.136.47])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 47j6u702hw-1;
-	Sat, 28 Jun 2025 18:34:08 +0000
-From: Alok Tiwari <alok.a.tiwari@oracle.com>
-To: mst@redhat.com, jasowang@redhat.com, michael.christie@oracle.com,
-        pbonzini@redhat.com, stefanha@redhat.com,
-        virtualization@lists.linux.dev
-Cc: alok.a.tiwari@oracle.com, darren.kenny@oracle.com,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH RESEND] vhost-scsi: Fix check for inline_sg_cnt exceeding preallocated limit
-Date: Sat, 28 Jun 2025 11:33:53 -0700
-Message-ID: <20250628183405.3979538-1-alok.a.tiwari@oracle.com>
-X-Mailer: git-send-email 2.47.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JPTAdUp7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751137134;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=D2jr+MLExuQlTYBzZJpvrbRyvQXC+JLX+EMkY/N8xKM=;
+	b=JPTAdUp70S6iO5nsqJJDpRVMUCI4NhwYCN0K1f0ZF3CZNkN6hKUkvfuG+GNFAM7bjwQm5L
+	ZHpfhfCSJ2r6KaZ85xC6HpRfUkgT2ojn5wcmPZN7CVukhh2lqFBo4LwAb7OiokpPh5mhf2
+	kP7nUFSO646k6/BMgUiebCFshhcCk58=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-107-dPM3H-nqNAKWYNNVTPYzWw-1; Sat, 28 Jun 2025 14:58:53 -0400
+X-MC-Unique: dPM3H-nqNAKWYNNVTPYzWw-1
+X-Mimecast-MFC-AGG-ID: dPM3H-nqNAKWYNNVTPYzWw_1751137132
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a5780e8137so2014208f8f.1
+        for <virtualization@lists.linux.dev>; Sat, 28 Jun 2025 11:58:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751137132; x=1751741932;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=D2jr+MLExuQlTYBzZJpvrbRyvQXC+JLX+EMkY/N8xKM=;
+        b=Ro6oeVgr8Bj15rImE+BE2hcFEN9VvOrsyGrea9hWJ05CcZnzye27CdDVT8cbiSK24f
+         kEN/rrt7yaYERO/m0XHovicmTZ9VaUHbvfvwoANL6EyDwGyI3MC4BDDNzr5mCi0C95Dj
+         Ri3rfGkX55j1uMT8cyonSOBYLKYeyCnkd1dErZoDDy1nefVp2sfcb3olUYUrRwYFXA+q
+         dE3KYmB3p3VN2cLcqxGZRrgZMsD+14x9X3PUHyImXv4S+TGO7lb48Ok3hLHr0KQAweAS
+         T3V0OryMdsFf+/dr15EIJS5ucpm5qTBGhX+1DTuohHAEKqM2w/gUaQ4bgWhKY9/9HzA7
+         Ie0g==
+X-Forwarded-Encrypted: i=1; AJvYcCUegPQoGFcPnm4qptrxOAjjOMO7lM3tR8uILZ3edr97DVzQhUz9GI+7Ssr2+lHVhwIvsh85qcs1fqwDVwy+Qw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw85EQOcNgXqy0ucU7vf8CzRNVXBaySFd4OqUwipzPtGy6as1j3
+	wAOB403oYk+T7kP117Ji5BK+e+7S514YB3Id7v51TQxyPU4s7qLzQLKAppgQ0COpq77pFWQOr54
+	nPxzwPuzkGca/RP9yspX222250N/dgfB7Z/7gyymXl2wGZCSuoxYZw3Ye2bjrisMtVDJB
+X-Gm-Gg: ASbGncuDw4kcp+6x/AOOUXOub5ej9O3Ta/EO9zT1koieC0M5p0krfNdpFZbuV4vNIF7
+	++bThrTm2l/Rxc/cVD/aHN8JscAXp3qYx8IVb0lRdVAdsYczN7YmcB8xivTrg1eeKAGZ2BeTwHh
+	5n4IQ4AKJIMbg9LGYYosVGluRx7gCAKMS4KrzLV0q9HlEkUsJcgiYKzDXlg7CEuH2bG1+I3i7sW
+	DyPZfSAHkHTonwpQR9ieTnq8YVwAx41OBudiKXa5+6Alf8TFLD9SpTTt3p+qP57QPrH0NCyKjT6
+	6Hx73tjnnFs8n8PZ
+X-Received: by 2002:a05:6000:2d82:b0:3a4:eb7a:2ccb with SMTP id ffacd0b85a97d-3a6f312dca2mr7141645f8f.16.1751137132108;
+        Sat, 28 Jun 2025 11:58:52 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFBJMUvsuhSV4mrdNlnlvt4UgUb//QS8f+KlaM7+aGDdwZ8OM/DCTqh3V0G1zt1cycebQnDQg==
+X-Received: by 2002:a05:6000:2d82:b0:3a4:eb7a:2ccb with SMTP id ffacd0b85a97d-3a6f312dca2mr7141634f8f.16.1751137131628;
+        Sat, 28 Jun 2025 11:58:51 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:152e:1400:856d:9957:3ec3:1ddc])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823b6e9esm118646395e9.28.2025.06.28.11.58.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 28 Jun 2025 11:58:51 -0700 (PDT)
+Date: Sat, 28 Jun 2025 14:58:49 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
+	stefanha@redhat.com, alok.a.tiwari@oracle.com
+Subject: [PATCH RFC] pci: report surprise removal events
+Message-ID: <11cfcb55b5302999b0e58b94018f92a379196698.1751136072.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-06-27_05,2025-06-27_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 suspectscore=0
- phishscore=0 mlxlogscore=999 mlxscore=0 adultscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2505160000
- definitions=main-2506280156
-X-Proofpoint-GUID: 1QAJbHjjGQ0clRYnLvVijptxGqammU92
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI4MDE1NSBTYWx0ZWRfX5dgC6S8BhIpe 0spaA5wkFe3suwBjGQr30+0Qxek3KiEL6ZLIx5w5Z8UlTVS+PR1rhTCslOX4CVutKUADM64qppx e70GPA1UuSSBJhg3BN1LYfpWjj/uUebPzxwD0Cbo9l07RbGbqWJ+zT5XTZbWX01PsqaRsPjJQzV
- 0ig9DL5L2RQKDhTb+m2XZf0wO1VSG+nOqjmaVva4fCYWiyPPsQKIZlSzUSdlf1XoyXxTlJWMOBz lOUp03bLMuTmHfFhZrMwAyLWOZI1N73G16Pzk/QwzUFApyWC+xPguNrCWOIJNVga8XLT1OtGiiI MeLzIhA31/NHbyEZ0gEFCXOP67OtNDFjAi2t9s6nGyzN1fJxmvnI0jrN6mKtDBZER5UJLqT5DZI
- E8gzwIu55XuJ21Lsk/BC4Xu24gqdD4wVjU+fy8eI3aM8T7PhjnTjR/f5+ZZXobNnrxNIPkHM
-X-Authority-Analysis: v=2.4 cv=D6hHKuRj c=1 sm=1 tr=0 ts=686035a2 b=1 cx=c_pps a=e1sVV491RgrpLwSTMOnk8w==:117 a=e1sVV491RgrpLwSTMOnk8w==:17 a=6IFa9wvqVegA:10 a=yPCof4ZbAAAA:8 a=20KFwNOVAAAA:8 a=n7_sAU11hH57P2nxMxEA:9 cc=ntf awl=host:14723
-X-Proofpoint-ORIG-GUID: 1QAJbHjjGQ0clRYnLvVijptxGqammU92
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ioiMVuaJhblnJWBCWkzYPs6ZnNZqb7Ad_ddPnB7dqCc_1751137132
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The condition comparing ret to VHOST_SCSI_PREALLOC_SGLS was incorrect,
-as ret holds the result of kstrtouint() (typically 0 on success),
-not the parsed value. Update the check to use cnt, which contains the
-actual user-provided value.
+At the moment, in case of a surprise removal, the regular
+remove callback is invoked, exclusively.
+This works well, because mostly, the cleanup would be the same.
 
-prevents silently accepting values exceeding the maximum inline_sg_cnt.
+However, there's a race: imagine device removal was initiated by a user
+action, such as driver unbind, and it in turn initiated some cleanup and
+is now waiting for an interrupt from the device. If the device is now
+surprise-removed, that never arrives and the remove callback hangs
+forever.
 
-Fixes: bca939d5bcd0 ("vhost-scsi: Dynamically allocate scatterlists")
-Signed-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Drivers can artificially add timeouts to handle that, but it can be
+flaky.
+
+Instead, let's add a way for the driver to be notified about the
+disconnect. It can then do any necessary cleanup, knowing that the
+device is inactive.
+
+Given this is by design kind of asynchronous with normal probe/remove
+callbacks, I added it in the pci_error_handlers callback.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
-added Reviewed-by Mike Christie and Stefan
----
- drivers/vhost/scsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index c12a0d4e6386..8d655b2d15d9 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -71,7 +71,7 @@ static int vhost_scsi_set_inline_sg_cnt(const char *buf,
- 	if (ret)
- 		return ret;
+Warning: build-tested only at this point.
+
+Posting for early flames/feedback.
+
+Cc a bunch of people who discussed this problem specifically in the
+virtio blk driver.
+
+ drivers/pci/pci.h   | 9 +++++++++
+ include/linux/pci.h | 3 +++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index b81e99cd4b62..78b064be10d5 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -549,6 +549,15 @@ static inline int pci_dev_set_disconnected(struct pci_dev *dev, void *unused)
+ 	pci_dev_set_io_state(dev, pci_channel_io_perm_failure);
+ 	pci_doe_disconnected(dev);
  
--	if (ret > VHOST_SCSI_PREALLOC_SGLS) {
-+	if (cnt > VHOST_SCSI_PREALLOC_SGLS) {
- 		pr_err("Max inline_sg_cnt is %u\n", VHOST_SCSI_PREALLOC_SGLS);
- 		return -EINVAL;
- 	}
++	/* Notify driver of surprise removal */
++	device_lock(&dev->dev);
++
++	if (dev->driver && dev->driver->err_handler &&
++	    dev->driver->err_handler->disconnect)
++		dev->driver->err_handler->disconnect(dev);
++
++	device_unlock(&dev->dev);
++
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 51e2bd6405cd..30a8c7ee09f6 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -878,6 +878,9 @@ struct pci_error_handlers {
+ 	/* PCI slot has been reset */
+ 	pci_ers_result_t (*slot_reset)(struct pci_dev *dev);
+ 
++	/* PCI slot has been disconnected */
++        void (*disconnect)(struct pci_dev *dev);
++
+ 	/* PCI function reset prepare or completed */
+ 	void (*reset_prepare)(struct pci_dev *dev);
+ 	void (*reset_done)(struct pci_dev *dev);
 -- 
-2.47.1
+MST
 
