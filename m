@@ -1,172 +1,226 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 487BC28FD
-	for <virtualization@lists.linux.dev>; Sun, 29 Jun 2025 17:28:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A03E91C863B;
+	Sun, 29 Jun 2025 21:26:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751218098; cv=none; b=XZLpmlAPVq568OMhdVctcIGqnDaZCgHj8qK/quIwUw0c4h+qYJZPHWbt5DTkI9ui3YqrBIJ/JunBjX366Ae+LaX0qYPmIQEyyTBXP9ms6egmucZLst2jMdZzmgAethGI3YSQxkIfo2w8lXbjAl2ol5NmqOu2X0OuXe20A/g+Wts=
+	t=1751232395; cv=none; b=Bof6J9SZZZ1iMEL9Ag4MTJBumoYdZbJsLneg3cBX08OBn2FM64rD1Fswe4WAFdE9F4QswGC/Us+v94lhMAC11zggpJ75ZJ3iubIpXO8nHqGA6zq4uk+cJXF68GEjahT4YDG3rmzwq2DQvvE6juYduDRoQ+ZrZZsExyuX0X5liMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751218098; c=relaxed/simple;
-	bh=J9YDXD4duvC3Wk7QUO6r6W8l64XMHZU2uOpTsU+NisY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gP6mR3++35SusQWwSl0LqRvSDCiYnIRHELU6/VzavCBdpXViVVYXeovswZBBVtpfPiJPagJPuD14lMJRU97AhXYoguGa/bUIvFdkpnv0SraAviBePuPdm8c1qS6ohENOMqbeVrBVIK6ulnywrokt6Y9dEavhhMY+gXP7BkUlOAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R+Bv1vDT; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751232395; c=relaxed/simple;
+	bh=r/4CbGX4CPcaoOJYcVGJevC/eJ5UYCOm6KPvHK3tnkU=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=Y7JXktem0f9/kn492PMsdkRH8PTpvlkQlUOZPbAFxACR98c2o6VXr4Kc4y12sRYjc5r9csYIyc+t1POpje0x9NZuQolK/M8UTiXpg7/Rc7JMvdB0jMJVs1JDA7oBBssqnj1+yuFcN8E/gCsjlnRYA9Db3VHNNUoyddEpKuqcG5M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=cAgghi3q; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R+Bv1vDT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751218095;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=uGHkUjNmjIIMPgTkRg7VREABnqYi+wWbJyf4AWH8+h8=;
-	b=R+Bv1vDT+AUEJpcGcfqk+fS/E5i1npJihQoy0USLkBM/6uKWC69SDk1poRYSAX1B1BNGys
-	tRj4bQDx0Cpcs+RV5AL5NZJQFMkrikPqbHKYSHiXicLIZpUtmPogxcAUa2p16Tu64lrDp7
-	igwDSSQTSE5/57Lonc42jwplefjerCc=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-433-lZUvi4wEOreqInK1iCAKUA-1; Sun, 29 Jun 2025 13:28:13 -0400
-X-MC-Unique: lZUvi4wEOreqInK1iCAKUA-1
-X-Mimecast-MFC-AGG-ID: lZUvi4wEOreqInK1iCAKUA_1751218093
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45359bfe631so16836295e9.0
-        for <virtualization@lists.linux.dev>; Sun, 29 Jun 2025 10:28:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751218092; x=1751822892;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uGHkUjNmjIIMPgTkRg7VREABnqYi+wWbJyf4AWH8+h8=;
-        b=JgFLV9F8csRILslSBfyYuXAm6gTHANMDvr0pRhba/ftUXcSGAowMRusjhOoRIOkCHz
-         Z6s8LWiIPcdIaplQv2DBwG0lyUT7+OvIY5m3m7JtqcBQynvgHQssh/FKTQc98eB0gwty
-         mPeXzb2LoVbchGwd/SVU4H9NmC9jDV6bgGJ5lvqCAzqQQrDCnOybpg9LzzdBjEh+ma10
-         mH6MZCXSCP9qghDwX44GSHlBLr1juRvz8wCqpUJhFzjumvl+DoRjLTlHm+bhkifiIWpm
-         0JOp33bXZL6uO7GWWyQDbH0ftco4DTIeVlXJM1JNix7HjJyRh9qcQy8Gf7/qeqbElmtN
-         NbMQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUayi+YtKgP06Bi2FOOUgLPsoe7I0BK0O4v+jQf8L5xELZ+48TG8M1++fkqO2ETOaxiVMIStugT0jAXKTLSSg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx4g2/W9+dOL4VIX+MRbjac4CmUmPkh6Cgvc+4NcrUujAVzV+5z
-	J//v0vkc/uBNzzsWNNYWW9kawzEB/f/YrnCxs9laxBQDJKjvxv8fJ0IapGKo4nHNgE91jewqwJF
-	haCTBt/o8Zxkuspt/AdE+mLatYENSkbtTsQd6TeXAOQb5fDlANF98nwcJfe2FRxG6EEGp
-X-Gm-Gg: ASbGncuOve8NK/6RMCHfoqHDrH9jPYRg151dQE6P8ZMDkPFDzNMyvuZ/iT68IV/iSPH
-	A299qB/gLBzMOzJiQTyNZ6OwIZdFgIfsOVBRRJjMmXGsp0EvZ5o5e6bSIS0+D97ynxBeNkv/M3L
-	pmB2uNd8Esdv7ajHDafvyUBaCwu7ae1TF6qN8DslapzGJWRsbZ4yTkfgvgagLqoLLfSQN8WR0zj
-	gMwLtVWgmgkaW55LR9BYTvT+A9VGMrXcagCpXIAuYen5+s+ZduNnemZtcA7LffcrfQ6lEIV33pM
-	B/iRzciYT5b5eIlG
-X-Received: by 2002:a05:600c:6095:b0:43c:f0ae:da7 with SMTP id 5b1f17b1804b1-4538ee504demr102969625e9.7.1751218092527;
-        Sun, 29 Jun 2025 10:28:12 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE9HJ2OfndwPMREYIRxXW8JXGourHIYbXzVyfj8L8gZMgZLg5HRsqQ4PckajVtmi25Hd1plTA==
-X-Received: by 2002:a05:600c:6095:b0:43c:f0ae:da7 with SMTP id 5b1f17b1804b1-4538ee504demr102969455e9.7.1751218092114;
-        Sun, 29 Jun 2025 10:28:12 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:152e:1400:856d:9957:3ec3:1ddc])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a892e59736sm8185715f8f.74.2025.06.29.10.28.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Jun 2025 10:28:11 -0700 (PDT)
-Date: Sun, 29 Jun 2025 13:28:08 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Lukas Wunner <lukas@wunner.de>
-Cc: linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-	linux-pci@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-	virtualization@lists.linux.dev, stefanha@redhat.com,
-	alok.a.tiwari@oracle.com
-Subject: Re: [PATCH RFC] pci: report surprise removal events
-Message-ID: <20250629132113-mutt-send-email-mst@kernel.org>
-References: <11cfcb55b5302999b0e58b94018f92a379196698.1751136072.git.mst@redhat.com>
- <aGFBW7wet9V4WENC@wunner.de>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="cAgghi3q"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1uVzXW-008qOB-QC; Sun, 29 Jun 2025 23:26:18 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
+	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
+	bh=9h+y5ih8KWltTHxtpALgezfUxXbLX+28n5btYOMA+tk=; b=cAgghi3qclZQVDYVwcdRFd+Kq9
+	yzo4R5snUPfoUKfSInAlC5YTVKDxWPzMACX2WB3hefYfIYUN2Exxzh7F9qElnTOpPbbMWlxJlBNEa
+	Rptv/9E0RGdUHfxB50G4XKly1fyRYffJ7q1PAWl96WW0TDDNVKSYEgE7vWk4TnQlaGJ9G6GIid+1P
+	b7EWe+7+4tQJhq8d+f9+/2vJ0PL35c57jwK6XKozTiUCGowaW/wQXN+QPg0mr6XVOYZMbTba2JPc5
+	t88bTjMFQGGsNBcfushS+Y8OA7lC1SdnCW5wqwuF1W8YZQviixhmLxkUbyipmaeTj6raKLPRFtlQn
+	MAiwx42A==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1uVzXV-0000HV-UZ; Sun, 29 Jun 2025 23:26:18 +0200
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1uVzXR-00BySK-G0; Sun, 29 Jun 2025 23:26:13 +0200
+Message-ID: <e97b5cae-f6ef-4221-98e1-6efd7fdc6676@rbox.co>
+Date: Sun, 29 Jun 2025 23:26:12 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aGFBW7wet9V4WENC@wunner.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 89UyiFDe7N2vB4z50RfMuWqLKLE21W1bVkXV0rM7sk4_1751218093
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+From: Michal Luczaj <mhal@rbox.co>
+Subject: Re: [PATCH RFC net v2 1/3] vsock: Fix transport_{g2h,h2g} TOCTOU
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20250620-vsock-transports-toctou-v2-0-02ebd20b1d03@rbox.co>
+ <20250620-vsock-transports-toctou-v2-1-02ebd20b1d03@rbox.co>
+ <zdiqu6pszqwb4y5o7oqzdovfvzkbrvc6ijuxoef2iloklahyoy@njsnvn7hfwye>
+ <d8d4edb2-bf14-42b2-8592-79d7b014e1a7@rbox.co>
+ <owafhdinyjdnol4zwpcdqsz26nfndawl53wnosdhhgmfz6t25n@2dualdqgpq3q>
+Content-Language: pl-PL, en-GB
+In-Reply-To: <owafhdinyjdnol4zwpcdqsz26nfndawl53wnosdhhgmfz6t25n@2dualdqgpq3q>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Sun, Jun 29, 2025 at 03:36:27PM +0200, Lukas Wunner wrote:
-> On Sat, Jun 28, 2025 at 02:58:49PM -0400, Michael S. Tsirkin wrote:
-> > At the moment, in case of a surprise removal, the regular
-> > remove callback is invoked, exclusively.
-> > This works well, because mostly, the cleanup would be the same.
-> > 
-> > However, there's a race: imagine device removal was initiated by a user
-> > action, such as driver unbind, and it in turn initiated some cleanup and
-> > is now waiting for an interrupt from the device. If the device is now
-> > surprise-removed, that never arrives and the remove callback hangs
-> > forever.
-> > 
-> > Drivers can artificially add timeouts to handle that, but it can be
-> > flaky.
-> > 
-> > Instead, let's add a way for the driver to be notified about the
-> > disconnect. It can then do any necessary cleanup, knowing that the
-> > device is inactive.
-> [...]
-> > --- a/drivers/pci/pci.h
-> > +++ b/drivers/pci/pci.h
-> > @@ -549,6 +549,15 @@ static inline int pci_dev_set_disconnected(struct pci_dev *dev, void *unused)
-> >  	pci_dev_set_io_state(dev, pci_channel_io_perm_failure);
-> >  	pci_doe_disconnected(dev);
-> >  
-> > +	/* Notify driver of surprise removal */
-> > +	device_lock(&dev->dev);
-> > +
-> > +	if (dev->driver && dev->driver->err_handler &&
-> > +	    dev->driver->err_handler->disconnect)
-> > +		dev->driver->err_handler->disconnect(dev);
-> > +
-> > +	device_unlock(&dev->dev);
-> > +
-> >  	return 0;
-> >  }
-
-thanks for the feedback. Would appreciate a couple more hints:
-
-> No, that's not good:
+On 6/27/25 10:02, Stefano Garzarella wrote:
+> On Wed, Jun 25, 2025 at 11:23:30PM +0200, Michal Luczaj wrote:
+>> On 6/25/25 10:43, Stefano Garzarella wrote:
+>>> On Fri, Jun 20, 2025 at 09:52:43PM +0200, Michal Luczaj wrote:
+>>>> vsock_find_cid() and vsock_dev_do_ioctl() may race with module unload.
+>>>> transport_{g2h,h2g} may become NULL after the NULL check.
+>>>>
+>>>> Introduce vsock_transport_local_cid() to protect from a potential
+>>>> null-ptr-deref.
+>>>>
+>>>> KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
+>>>> RIP: 0010:vsock_find_cid+0x47/0x90
+>>>> Call Trace:
+>>>> __vsock_bind+0x4b2/0x720
+>>>> vsock_bind+0x90/0xe0
+>>>> __sys_bind+0x14d/0x1e0
+>>>> __x64_sys_bind+0x6e/0xc0
+>>>> do_syscall_64+0x92/0x1c0
+>>>> entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>>>>
+>>>> KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
+>>>> RIP: 0010:vsock_dev_do_ioctl.isra.0+0x58/0xf0
+>>>> Call Trace:
+>>>> __x64_sys_ioctl+0x12d/0x190
+>>>> do_syscall_64+0x92/0x1c0
+>>>> entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>>>>
+>>>> Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+>>>> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+>>>> Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>>>> ---
+>>>> net/vmw_vsock/af_vsock.c | 23 +++++++++++++++++------
+>>>> 1 file changed, 17 insertions(+), 6 deletions(-)
+>>>>
+>>>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>>>> index 2e7a3034e965db30b6ee295370d866e6d8b1c341..63a920af5bfe6960306a3e5eeae0cbf30648985e 100644
+>>>> --- a/net/vmw_vsock/af_vsock.c
+>>>> +++ b/net/vmw_vsock/af_vsock.c
+>>>> @@ -531,9 +531,21 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+>>>> }
+>>>> EXPORT_SYMBOL_GPL(vsock_assign_transport);
+>>>>
+>>>> +static u32 vsock_transport_local_cid(const struct vsock_transport **transport)
+>>>
+>>> Why we need double pointer?
+>>
+>> Because of a possible race. If @transport is `struct vsock_transport*` and
+>> we pass `transport_g2h`, the passed non-NULL pointer value may immediately
+>> become stale (due to module unload). But if it's `vsock_transport**` and we
+>> pass `&transport_g2h`, then we can take the mutex, check `*transport` for
+>> NULL and safely go ahead.
+>>
+>> Or are you saying this could be simplified?
 > 
-> 1/ The device_lock() will reintroduce the issues solved by 74ff8864cc84.
-
-I see. What other way is there to prevent dev->driver from going away,
-though? I guess I can add a new spinlock and take it both here and when
-dev->driver changes? Acceptable?
-
-> 2/ pci_dev_set_disconnected() needs to be fast so that devices are marked
->    unplugged as quickly as possible.  We want to minimize the time window
->    where MMIO and Config Space reads already return "all ones" and writes
->    go to nirvana, but pci_dev_is_disconnected() still returns false.
->    Hence invoking some driver callback which may take arbitrarily long or
->    even sleeps is not an option.
-
-Well, there's no plan to do that there - just to wake up some wq so
-things can be completed. I can add code comments.
-
-> The driver is already notified of removal through invocation of the
-> ->remove() callback.  The use case you're describing is arguably
-> a corner case.  I do think that a timeout is a better approach
-> than the one proposed here.  How long does it take for the interrupt
-> to arrive?
-
-It's a virtual device - kind of unpredictable.
-
->  If it's not just a few msec, consider polling the device
-> and breaking out of the pool loop as soon as pci_dev_is_disconnected()
-> returns true (or the MMIO read returns PCI_POSSIBLE_ERROR()).
-
-Yes but with no callback, we don't know when to do it.
-The config reads in pci_dev_is_disconnected are also expensive
-on VMs...
-
-> If/when respinning, please explain the use case in more detail,
-> i.e. which driver, which device, pointers to code...
+> Nope, you're right! I was still thinking about my old version where we 
+> had the switch inside...
 > 
-> Thanks!
+> BTW I'd like to change the name, `vsock_transport_local` prefix is 
+> confusing IMO, since it seems related only to the `transport_local`.
 > 
-> Lukas
+> Another thing I'm worried about is that we'll then start using it on 
+> `vsk->transport` when this is only to be used on registered transports 
+> (i.e. `static ...`), though, I don't think there's a way to force type 
+> checking from the compiler (unless you wrap it in a struct). (...)
 
+I've found (on SO[1]) this somewhat hackish compile-time `static`-checking:
 
-It's virtio-blk. 
+static u32 __vsock_registered_transport_cid(const struct vsock_transport
+**transport)
+{
+	u32 cid = VMADDR_CID_ANY;
 
+	mutex_lock(&vsock_register_mutex);
+	if (*transport)
+		cid = (*transport)->get_local_cid();
+	mutex_unlock(&vsock_register_mutex);
+
+	return cid;
+}
+
+#define ASSERT_REGISTERED_TRANSPORT(t)					\
+	__always_unused static void *__UNIQUE_ID(vsock) = (t)
+
+#define vsock_registered_transport_cid(transport)			\
+({									\
+	ASSERT_REGISTERED_TRANSPORT(transport);				\
+	__vsock_registered_transport_cid(transport);			\
+})
+
+It does the trick, compilation fails on
+vsock_registered_transport_cid(&vsk->transport):
+
+net/vmw_vsock/af_vsock.c: In function ‘vsock_send_shutdown’:
+net/vmw_vsock/af_vsock.c:565:59: error: initializer element is not constant
+  565 |         __always_unused static void *__UNIQUE_ID(vsock) = (t)
+      |                                                           ^
+net/vmw_vsock/af_vsock.c:569:9: note: in expansion of macro
+‘ASSERT_REGISTERED_TRANSPORT’
+  569 |         ASSERT_REGISTERED_TRANSPORT(transport);
+    \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+net/vmw_vsock/af_vsock.c:626:9: note: in expansion of macro
+‘vsock_registered_transport_cid’
+  626 |         vsock_registered_transport_cid(&vsk->transport);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+But perhaps adding a comment wouldn't hurt either, e.g.
+
+/* Provide safe access to static transport_{h2g,g2h,dgram,local} callbacks.
+ * Otherwise we may race with module removal. Do not use on
+ * `vsk->transport`.
+ */
+
+? ...which begs another question: do we stick to the netdev special comment
+style? See commit 82b8000c28b5 ("net: drop special comment style").
+
+Oh, and come to think of it, we don't really need that (easily contended?)
+mutex here. Same can be done with RCU. Which should speed up vsock_bind()
+-> __vsock_bind() -> vsock_find_cid(), right? This is what I mean, roughly:
+
++static u32 vsock_registered_transport_cid(const struct vsock_transport
+__rcu **trans_ptr)
++{
++	const struct vsock_transport *transport;
++	u32 cid = VMADDR_CID_ANY;
++
++	rcu_read_lock();
++	transport = rcu_dereference(*trans_ptr);
++	if (transport)
++		cid = transport->get_local_cid();
++	rcu_read_unlock();
++
++	return cid;
++}
+...
+@@ -2713,6 +2726,7 @@ void vsock_core_unregister(const struct
+vsock_transport *t)
+ 		transport_local = NULL;
+
+ 	mutex_unlock(&vsock_register_mutex);
++	synchronize_rcu();
+ }
+
+I've realized I'm throwing multiple unrelated ideas/questions, so let me
+summarise:
+1. Hackish macro can be used to guard against calling
+vsock_registered_transport_cid() on a non-static variable.
+2. We can comment the function to add some context and avoid confusion.
+3. Instead of taking mutex in vsock_registered_transport_cid() we can use RCU.
+
+> So, if we can't do much, I'd add a comment and make the function name 
+> more clear. e.g. vsock_registered_transport_cid() ? or something 
+> similar.
+
+Sure, will do.
+
+Thanks!
+
+[1]:
+https://stackoverflow.com/questions/5645695/how-can-i-add-a-static-assert-to-check-if-a-variable-is-static/5672637#5672637
