@@ -1,156 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB2A678F2E
-	for <virtualization@lists.linux.dev>; Sat, 28 Jun 2025 18:58:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84B8924B29
+	for <virtualization@lists.linux.dev>; Sun, 29 Jun 2025 05:31:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751137137; cv=none; b=nDuYhdvpKUDvD/i/MDCWMmm2se/DRbcdHEOFmfF/pOqIXfzD3XVWlTYzy1UX3gdlpwRKBjJQa36G05ivc7DYQZ/svxvvSB2MxFmy1NbskEcFh9B7jQjUEzIMQ5cOJLXzIYoXR9detw81ULQxxWEPxQtcDHTKSEp8rvdO/IJK0AU=
+	t=1751175076; cv=none; b=QdpC/FoqU13hp/tCURhnD0JjbpBDvCiPNB5q3B9BocbNNdub+5FILkVh51urZvNFbkYKYCYxI9wA1jipmE2+Tao4fDXbqmXkN8fAeO0tTqnSF9JY/0yL4pVjRROB4grW8yiQvJZjN6zDxsG134Z2oeCHJLAjfaODxp7s/b7Q3yw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751137137; c=relaxed/simple;
-	bh=ztg5EsMbdjxvKumjrsUF9Vbhn9ZJVkNBuY302Z6WDro=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=sRoVXMS87FJF0KbtKx/WsPB6KKWMB0+t+9BhnVm8roXeyDAHUJjISVUdGhHqu5lyYYb8ZhfzimSrQLj1EN0wyNMCAw3Z0H6PbbEil++zgGQ3rUqVe2E17qoYhIahn3NBufPJjrbR+oy7e4jkzNG1DBLl8+eyecYmdohW5TD+37w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JPTAdUp7; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751175076; c=relaxed/simple;
+	bh=ETOpPQhKUGbb3m1DQNXZ9d1API2efLKRSgFfw3wjXYA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mf/dSZ+v24WWdVoelqtZoaMNXC+UOr3z8wEuGzc0lX0xGxhBy/nLDKoMTeDc+Yhei5ufL796Q+azp0HMv8Br8bhjStk++8yykz4FI8Vy5fCVu6SRoYd48oH3ggTvERRRUeYEZAGXgcSGM/ZwyrNbTaHE1CUPf4TBma3tH6D7wy0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LtM+BW/y; arc=none smtp.client-ip=209.85.215.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JPTAdUp7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751137134;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=D2jr+MLExuQlTYBzZJpvrbRyvQXC+JLX+EMkY/N8xKM=;
-	b=JPTAdUp70S6iO5nsqJJDpRVMUCI4NhwYCN0K1f0ZF3CZNkN6hKUkvfuG+GNFAM7bjwQm5L
-	ZHpfhfCSJ2r6KaZ85xC6HpRfUkgT2ojn5wcmPZN7CVukhh2lqFBo4LwAb7OiokpPh5mhf2
-	kP7nUFSO646k6/BMgUiebCFshhcCk58=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-107-dPM3H-nqNAKWYNNVTPYzWw-1; Sat, 28 Jun 2025 14:58:53 -0400
-X-MC-Unique: dPM3H-nqNAKWYNNVTPYzWw-1
-X-Mimecast-MFC-AGG-ID: dPM3H-nqNAKWYNNVTPYzWw_1751137132
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a5780e8137so2014208f8f.1
-        for <virtualization@lists.linux.dev>; Sat, 28 Jun 2025 11:58:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LtM+BW/y"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-af51596da56so1219018a12.0
+        for <virtualization@lists.linux.dev>; Sat, 28 Jun 2025 22:31:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1751175074; x=1751779874; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=4KxQw+8wrv6WHqC8EiMCQt88wHvecAR5EAJYKEAI9aQ=;
+        b=LtM+BW/y6oyiKZF/OYmGEzwYJdhb4GVbwygPNdHQPZqB9NUg7YQtUHS0b0884IAelZ
+         tsC0TdyzJrzofkRd552MEYbSshyKfEaR/fi3IYbwF+51l2rNO31MndSkJqlZlFd/OQ2V
+         HpggMigS/BQS8PArquoM6NMIjHNZo5JBK1bL4s5fKfoEOCbPWB2dWmBC0owDsccXTM5R
+         eXDkEgNNOzY+3wACiKwD5TSf1Poi7FMBjLrEdK6O++MOjX990iWI3QMEed8o4nu3Pi8f
+         yOfaN0BeDCPUFpzXWKFJbnzUwZ0bFcBrG3Yam9Ex2rUrGDoX8Aurcj95K9NcIaldDoSv
+         ZCsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751137132; x=1751741932;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+        d=1e100.net; s=20230601; t=1751175074; x=1751779874;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=D2jr+MLExuQlTYBzZJpvrbRyvQXC+JLX+EMkY/N8xKM=;
-        b=Ro6oeVgr8Bj15rImE+BE2hcFEN9VvOrsyGrea9hWJ05CcZnzye27CdDVT8cbiSK24f
-         kEN/rrt7yaYERO/m0XHovicmTZ9VaUHbvfvwoANL6EyDwGyI3MC4BDDNzr5mCi0C95Dj
-         Ri3rfGkX55j1uMT8cyonSOBYLKYeyCnkd1dErZoDDy1nefVp2sfcb3olUYUrRwYFXA+q
-         dE3KYmB3p3VN2cLcqxGZRrgZMsD+14x9X3PUHyImXv4S+TGO7lb48Ok3hLHr0KQAweAS
-         T3V0OryMdsFf+/dr15EIJS5ucpm5qTBGhX+1DTuohHAEKqM2w/gUaQ4bgWhKY9/9HzA7
-         Ie0g==
-X-Forwarded-Encrypted: i=1; AJvYcCUegPQoGFcPnm4qptrxOAjjOMO7lM3tR8uILZ3edr97DVzQhUz9GI+7Ssr2+lHVhwIvsh85qcs1fqwDVwy+Qw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw85EQOcNgXqy0ucU7vf8CzRNVXBaySFd4OqUwipzPtGy6as1j3
-	wAOB403oYk+T7kP117Ji5BK+e+7S514YB3Id7v51TQxyPU4s7qLzQLKAppgQ0COpq77pFWQOr54
-	nPxzwPuzkGca/RP9yspX222250N/dgfB7Z/7gyymXl2wGZCSuoxYZw3Ye2bjrisMtVDJB
-X-Gm-Gg: ASbGncuDw4kcp+6x/AOOUXOub5ej9O3Ta/EO9zT1koieC0M5p0krfNdpFZbuV4vNIF7
-	++bThrTm2l/Rxc/cVD/aHN8JscAXp3qYx8IVb0lRdVAdsYczN7YmcB8xivTrg1eeKAGZ2BeTwHh
-	5n4IQ4AKJIMbg9LGYYosVGluRx7gCAKMS4KrzLV0q9HlEkUsJcgiYKzDXlg7CEuH2bG1+I3i7sW
-	DyPZfSAHkHTonwpQR9ieTnq8YVwAx41OBudiKXa5+6Alf8TFLD9SpTTt3p+qP57QPrH0NCyKjT6
-	6Hx73tjnnFs8n8PZ
-X-Received: by 2002:a05:6000:2d82:b0:3a4:eb7a:2ccb with SMTP id ffacd0b85a97d-3a6f312dca2mr7141645f8f.16.1751137132108;
-        Sat, 28 Jun 2025 11:58:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFBJMUvsuhSV4mrdNlnlvt4UgUb//QS8f+KlaM7+aGDdwZ8OM/DCTqh3V0G1zt1cycebQnDQg==
-X-Received: by 2002:a05:6000:2d82:b0:3a4:eb7a:2ccb with SMTP id ffacd0b85a97d-3a6f312dca2mr7141634f8f.16.1751137131628;
-        Sat, 28 Jun 2025 11:58:51 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:152e:1400:856d:9957:3ec3:1ddc])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823b6e9esm118646395e9.28.2025.06.28.11.58.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Jun 2025 11:58:51 -0700 (PDT)
-Date: Sat, 28 Jun 2025 14:58:49 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-	Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
-	stefanha@redhat.com, alok.a.tiwari@oracle.com
-Subject: [PATCH RFC] pci: report surprise removal events
-Message-ID: <11cfcb55b5302999b0e58b94018f92a379196698.1751136072.git.mst@redhat.com>
+        bh=4KxQw+8wrv6WHqC8EiMCQt88wHvecAR5EAJYKEAI9aQ=;
+        b=Zs0YLLNd/F0e/9UxSTXpFq1QiZb4Z/gyAvIjQHKn+V7i/vZ2GwhMjZ12Y0wuDzwg49
+         R/vLhT0MqeylKUN3blmc5pZuDS6ScSwZckQTP4IfWK+tlQm2buCVKdftEQItQuTt1jYJ
+         yuU/u6hlbTukn4rq9qvy8mUXSYyjo2KsCqRl3f6vEkbVPO+ZSMefbF9kRIx8GrArTmjd
+         T4t2UwG9TSJMhVK4Dmca7VIfQsijw05aKwlkpPKbjSMJnryt0kC6MLAHBnnZNUdLJ2yD
+         zNu+58MaoVC+BZ6uy5UtK89DH4ksOAkU9OeG2wTlXlb2LkfFdvBFfMUtEoU6jYH4pnFS
+         CDpQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWt/h2vcDXiGLudLEPkW4vUW9ebTvr1qxefN2Sr6hicZ/4Ibdag3T/AmdaS5vf8qD/qJzUuczNmq9jgs+7rzA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx/7aGydquG/mIxZZkXj2+3ahW/GAFxiYrafMKphGDOmPeL+lRG
+	6EH7wz5JIlHErT+Wo15UoOcmiBgUl3XjdlSd509IH2DaJq5vpu8W1fCS
+X-Gm-Gg: ASbGnct9efnutKygUmBMrM9n64lf3AuiQFt2Bgdxt6zm2+FUPAdbphQWOVOxtkGEW51
+	Nt06p187avwn9WTnWITjKjMLZf8gTO5sJe+I3QbUClczvjDC2QrveNUUR+Uv/v64yq9i4dVVyK+
+	mYFXUI1e/KxaYd/v9mjTnQJ+ff+0eGK2KO3pEwEZ0wzPttAj8bhqh/Q896ZjBpFjyM89UHrhlIZ
+	Mo0l1LzSklW4LEzF0lIBnitCxcvGR/Y3RH0DpCAMfaNwGmpU3zRLp2qzoRQjCY/0VOl0fd4lJC1
+	lVOE6fOOpbrjzLfleuW2vriNbZOsnED9KRy+V3hvB2fHbFWVNxv5ioYXC3NpgEo9eoZIPeIGCDP
+	d5pwfPLwvhda5WFwoqipp5Yn+2gExAuRrj7RhXnD8
+X-Google-Smtp-Source: AGHT+IEVZEItwhAmpQ7qT5rj0OSH/4b+v0bHuKzDVzS/4Qq/q+fKX3xbk/96CMChuM4cXxPSEAR6mA==
+X-Received: by 2002:a17:90b:4c89:b0:312:29e:9ec9 with SMTP id 98e67ed59e1d1-318c92ee68dmr14182999a91.24.1751175073661;
+        Sat, 28 Jun 2025 22:31:13 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0e:fb30:6051:fd69:c29f:10f6? ([2001:ee0:4f0e:fb30:6051:fd69:c29f:10f6])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-315f54414acsm10901024a91.47.2025.06.28.22.31.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 28 Jun 2025 22:31:13 -0700 (PDT)
+Message-ID: <c207a343-7e08-4a2f-9163-2d64dd47d906@gmail.com>
+Date: Sun, 29 Jun 2025 12:31:07 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ioiMVuaJhblnJWBCWkzYPs6ZnNZqb7Ad_ddPnB7dqCc_1751137132
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2 2/2] virtio-net: xsk: rx: move the xdp->data
+ adjustment to buf_to_xdp()
+To: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20250621144952.32469-1-minhquangbui99@gmail.com>
+ <20250621144952.32469-3-minhquangbui99@gmail.com>
+ <e6654755-3aa1-4f4b-a6ab-c7568d8a5d4e@redhat.com>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <e6654755-3aa1-4f4b-a6ab-c7568d8a5d4e@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-At the moment, in case of a surprise removal, the regular
-remove callback is invoked, exclusively.
-This works well, because mostly, the cleanup would be the same.
+On 6/24/25 17:17, Paolo Abeni wrote:
+> On 6/21/25 4:49 PM, Bui Quang Minh wrote:
+>> This commit does not do any functional changes. It moves xdp->data
+>> adjustment for buffer other than first buffer to buf_to_xdp() helper so
+>> that the xdp_buff adjustment does not scatter over different functions.
+>>
+>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+>> ---
+>>   drivers/net/virtio_net.c | 16 ++++++++++++++--
+>>   1 file changed, 14 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 1eb237cd5d0b..4e942ea1bfa3 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -1159,7 +1159,19 @@ static struct xdp_buff *buf_to_xdp(struct virtnet_info *vi,
+>>   		return NULL;
+>>   	}
+>>   
+>> -	xsk_buff_set_size(xdp, len);
+>> +	if (first_buf) {
+>> +		xsk_buff_set_size(xdp, len);
+>> +	} else {
+>> +		/* This is the same as xsk_buff_set_size but with the adjusted
+>> +		 * xdp->data.
+>> +		 */
+>> +		xdp->data = xdp->data_hard_start + XDP_PACKET_HEADROOM;
+>> +		xdp->data -= vi->hdr_len;
+>> +		xdp->data_meta = xdp->data;
+>> +		xdp->data_end = xdp->data + len;
+>> +		xdp->flags = 0;
+>> +	}
+>> +
+>>   	xsk_buff_dma_sync_for_cpu(xdp);
+>>   
+>>   	return xdp;
+>> @@ -1284,7 +1296,7 @@ static int xsk_append_merge_buffer(struct virtnet_info *vi,
+>>   			goto err;
+>>   		}
+>>   
+>> -		memcpy(buf, xdp->data - vi->hdr_len, len);
+>> +		memcpy(buf, xdp->data, len);
+>>   
+>>   		xsk_buff_free(xdp);
+>>   
+> I'm unsure if this change is in the right direction because it almost
+> open-code the existing xsk_buff_set_size() helper - any changes there
+> should be reflected here, too.
 
-However, there's a race: imagine device removal was initiated by a user
-action, such as driver unbind, and it in turn initiated some cleanup and
-is now waiting for an interrupt from the device. If the device is now
-surprise-removed, that never arrives and the remove callback hangs
-forever.
+I've found out that there is xdp_prepare_buff helper which gives more 
+control over the headroom so it can be used here. I'll update in the 
+next version.
 
-Drivers can artificially add timeouts to handle that, but it can be
-flaky.
-
-Instead, let's add a way for the driver to be notified about the
-disconnect. It can then do any necessary cleanup, knowing that the
-device is inactive.
-
-Given this is by design kind of asynchronous with normal probe/remove
-callbacks, I added it in the pci_error_handlers callback.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-Warning: build-tested only at this point.
-
-Posting for early flames/feedback.
-
-Cc a bunch of people who discussed this problem specifically in the
-virtio blk driver.
-
- drivers/pci/pci.h   | 9 +++++++++
- include/linux/pci.h | 3 +++
- 2 files changed, 12 insertions(+)
-
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index b81e99cd4b62..78b064be10d5 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -549,6 +549,15 @@ static inline int pci_dev_set_disconnected(struct pci_dev *dev, void *unused)
- 	pci_dev_set_io_state(dev, pci_channel_io_perm_failure);
- 	pci_doe_disconnected(dev);
- 
-+	/* Notify driver of surprise removal */
-+	device_lock(&dev->dev);
-+
-+	if (dev->driver && dev->driver->err_handler &&
-+	    dev->driver->err_handler->disconnect)
-+		dev->driver->err_handler->disconnect(dev);
-+
-+	device_unlock(&dev->dev);
-+
- 	return 0;
- }
- 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 51e2bd6405cd..30a8c7ee09f6 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -878,6 +878,9 @@ struct pci_error_handlers {
- 	/* PCI slot has been reset */
- 	pci_ers_result_t (*slot_reset)(struct pci_dev *dev);
- 
-+	/* PCI slot has been disconnected */
-+        void (*disconnect)(struct pci_dev *dev);
-+
- 	/* PCI function reset prepare or completed */
- 	void (*reset_prepare)(struct pci_dev *dev);
- 	void (*reset_done)(struct pci_dev *dev);
--- 
-MST
+Thanks,
+Quang Minh.
 
