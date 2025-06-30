@@ -1,117 +1,347 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7CD7291C13
-	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 16:33:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0ED929824B
+	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 16:33:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751301198; cv=none; b=bODvZFYVbHcl6YJ1hLgEvxUqlCnEX1LBrIQWMjCg9PDFlqk8fXtwSy2qI/pj7COmd8HzZVrqt9KtepJgppRvuwEQWY8HhrR5iow90k2IU7smNa3aEWyTNKjHBbtywfcdxzOK/TEEiCQ7wAH5RqJgGn8N9oZNrFZpk+tQc9rng3g=
+	t=1751301200; cv=none; b=uFDGwpDlONQEgvff3prCcbTHCALmttFOXodpOjePea6rd6+khedLuVTKNCLnQL5cRocUgyS+wrqGoPl0KAynhoR2gSdW0t6F9ewtSstrSxuM4BDkRhl8lHJAXCcg9o6ZNDqJ1B6wT0aVsmZpdpMx/UZW15B3clCQoEnZiH17Tk8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751301198; c=relaxed/simple;
-	bh=/1mZkg9E1CztpAIZTDXcSM72W7GdGrTSeNoLQv6fDzM=;
+	s=arc-20240116; t=1751301200; c=relaxed/simple;
+	bh=55nBQP4aQogOiNPUuY3xmiEkkmF8mXTJvQsg6cuG+mo=;
 	h=From:Date:Subject:MIME-Version:Message-Id:References:In-Reply-To:
-	 To:Cc:Content-Type; b=kA0uFxqyfjLqISKCiPDXtfEC+YehGZL34EgtJUmT0v+525DAPzKQljv+qlue76hWqjHx7twvPCweKDi3/Wnz0GE8bnYrNGD26tEPtm3rA+nziqY6C/WiWu0NwsWhY85ZdXwaheLF7NRTxP7IBfHcliQHExAtrzZ1own9ULGy8rw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fSmdwLcj; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=lpY5ouo3kl0VoXMei/5osFdp1NoEcFd6CcjL8NAXu6j4LBv+mPzJrMb/Gxz5Op8ta+VgwXZgCT39gD4znhVZpe9WRyumZvJ272uiToDEliJnt90wuxT2jj5st5Vym6Kd7t7Nl2AVMcMJPQF0qinF1j7dgt0MxPtgkEkv/WHWk4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CN277Nal; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fSmdwLcj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CN277Nal"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751301194;
+	s=mimecast20190719; t=1751301197;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=tTsSQg95XhUJtNWRtD1zSv7COm3LSbhhvPf6ApdLYIE=;
-	b=fSmdwLcj0yJfO93cIIgVYx6paZ05ALpsHnRQj8+27JnyNLQjGAnDR0wa+Wf1euxl+8bw35
-	dGuem3+CTTRQyu3jKKRSYcyJnFPiVDxeN9l7ye19IT91vm6QYKEC+3T2E9XB6FzWCAStp3
-	63BSwLcrmxceECpnMnn3XtKbQ3me2vM=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Jp6vU3a/maHYin/wHunAio05ZqjI5MWCleh0lULp+Ic=;
+	b=CN277NalE5rIWXNIqCYdTrInGD5UtcV4wIVMYwxGoPM0Q2t8Pq8tKy9Iqm4Bw0dGGSPm12
+	K0vgUiNUhVPc4VXQ5MyuVoc20BcBkWKnpbrhIZ65FwW2v2pCAwSG0H+zMv+ruyelXcdpYM
+	aFy+2QiygKIkdEr777y+3zp65i8zrDE=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-284-8ybWAFjfM8mNh8XfQ4-3lg-1; Mon, 30 Jun 2025 12:33:12 -0400
-X-MC-Unique: 8ybWAFjfM8mNh8XfQ4-3lg-1
-X-Mimecast-MFC-AGG-ID: 8ybWAFjfM8mNh8XfQ4-3lg_1751301191
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45311704d22so16660855e9.2
-        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 09:33:12 -0700 (PDT)
+ us-mta-421-5iW8TqmqMDS66zhMuBHvEA-1; Mon, 30 Jun 2025 12:33:14 -0400
+X-MC-Unique: 5iW8TqmqMDS66zhMuBHvEA-1
+X-Mimecast-MFC-AGG-ID: 5iW8TqmqMDS66zhMuBHvEA_1751301193
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a4f8fd1847so2062078f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 09:33:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751301191; x=1751905991;
+        d=1e100.net; s=20230601; t=1751301193; x=1751905993;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tTsSQg95XhUJtNWRtD1zSv7COm3LSbhhvPf6ApdLYIE=;
-        b=mwBOq94Za0WFSDky3VI5EJOFFLT8nR9+Dth7F5rHs+M+nIU8n32pDwOCd4afX8vqcJ
-         BY06wkeMCI6KAdoVDCKPhPjA2N0KN09aFcOm9ESNyJ8iC/e5Lf+RDvttL8EdfKeWsEli
-         ApO+9Qp/QPKW1NFR99izSLZ/U0WEsAyhVo1/e7kxVwltkzM2sqZFJNvTNzB7vtLVLP5k
-         hAbYmeZzNvr1zPhNS2oHBi1T3BnPZkQ8khm2NZrEt88hWMr+2R8BPR8EJN4/s/c4gFuP
-         R36pnRVKsVJpFqE+PkNjhxZwDD9OicWjC6SmnrTwldgXjJjYRjPd235vA3+NS0zg6t5a
-         QrUQ==
-X-Gm-Message-State: AOJu0YxswcLziRLczQ/eIn6ie0mFq2ptrIqeFPqdZMIBoW16zWnLixaK
-	5BVgyKf/OQ0FQAynmTixaSFvaFG4T2M5vLXPmsVgX1cKFqFizlHXs6vh18xhEwC6YTkvEELPRmZ
-	PVKTUMyWVXb1NYm/S5fo2pUwacW2xbrFUFQ7fW30j6exnckPjRtF/rxDw90fxqcCmMJQM
-X-Gm-Gg: ASbGncu17sDlOzDzJ8QZekJKBgTibDuWpUuFjNracAAAy5kflbPRn+kyNaVRWTWdarw
-	WAzQbQkcLmkunS0+aB8mXwVMQBZtsodgCgnVkBHzw2DJRJ0/+++qWnAke4b6V7+g+qVGAxySxKZ
-	WVDyifaG0T6s+lNa3MpvCKVT14QmP+FW/J/r08CkoMfvWBvoaLu5DwllSjwUrN2nDycUCvvODDn
-	qY/PxgqGhOcJXyE5SruKYZ61YW++F7NBlSkhx4Q63oDiDUIbDjrAuF81mKCVCrtxNOVaB7OMXkY
-	JDUFIz9VuZQUKzvMvVvcnjulkz0ISXhyIUGU12gJae2psfbQL6PusA==
-X-Received: by 2002:a05:600c:5298:b0:440:68db:9fef with SMTP id 5b1f17b1804b1-4538ee61e72mr107704335e9.20.1751301191458;
-        Mon, 30 Jun 2025 09:33:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFfyROXvO4meZTA+eBrF6ZQx2AlPL1v9K81ASsw27IwZVehxZ2JH+GDPwndnAfiwnao4RKYTA==
-X-Received: by 2002:a05:600c:5298:b0:440:68db:9fef with SMTP id 5b1f17b1804b1-4538ee61e72mr107704055e9.20.1751301191020;
+        bh=Jp6vU3a/maHYin/wHunAio05ZqjI5MWCleh0lULp+Ic=;
+        b=j60H+xDorPnPex6jr1Bz0pNE74lgLpyDJHeSIMHgw4i00fFzJKrkUikvOxOGWHpOCN
+         b1nTSM1+Q2ywFG7hYlxluGN+uz4ZwR1vqLT0w7tplsxMsVjFZXzLuEgnXf5JJh5I0fnI
+         wd6Aj28tt9Lxo6jt5hPs/ux9uP62NIMCxlt8/U6jdDFOq+vGpjlxIyHFAfx/u5oi5QcX
+         xH+W4bHzujhYMcSu+9Uz7RyhhJeCrioILNPdMgDfEJqg88JzKZso0YQkJWLnGfVJjQCN
+         uy/KNr/xzwx6Scks/s6a5Q/2oxdS73GoJRGHGw3IxTKSpMe4nL+NSRm8mMGaoTUdCpdA
+         D4pg==
+X-Gm-Message-State: AOJu0YwaKwo546NljtFyx+uhQDwvD3Vc6pLe3AG6hVVJDNdLhHCbr544
+	gso/N3Lx6aSfeh+axCUo6Vp+GYlw0QYkAw1mci5Nlip/h7oNgfuCL+mfRvmCflrAn0Zup7RPNZH
+	v0wN8Kr5jcLk9bBmRYAFUWx53dCjE5axYNYEAM4ovg8C2nC4PO9NK0n5HjzlQmB3aXaLblYcgAP
+	Ex3D8=
+X-Gm-Gg: ASbGncvRhL05IGvQxnJHIVpFWu2MqvHNi1hoOBIoCGsfslYKGYfQ221ApaUYWge//TC
+	tsXfbzrs/f5DwiTDaWaJygJJsH7OlzR4473d9ysH3nsXzPecCeC835o/nEOu5n+KVtmPWZlA5Wo
+	hbiH0E4RHN4puhP9lJvVn1GIKujUMdpPUBE9EMacdDihR9R+mJBfWkDxqlF0nCqki1f0yy3bx6S
+	Hs/t3+9BZz1cBbGttLbD0qDNIb+M1Z1S4K/L7dvtMEigLEdVEQ71fcVFC2lME9ZBO7tH6HknwGX
+	OMpk0tPvpAXRLOwRS9dpLkdZSSGlC2jsiqsmu/mPALc3IKQWSti9ig==
+X-Received: by 2002:a05:600c:1c87:b0:442:c993:6f94 with SMTP id 5b1f17b1804b1-4538ee59148mr145794855e9.12.1751301192508;
+        Mon, 30 Jun 2025 09:33:12 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IESUYnLV9mLJES+dnzLMWgW+EAj5nFEgfcZV4b9wyuk6B2naT7aQ30uKx8PgEkOAfEg+Z1Jlw==
+X-Received: by 2002:a05:600c:1c87:b0:442:c993:6f94 with SMTP id 5b1f17b1804b1-4538ee59148mr145794525e9.12.1751301191977;
         Mon, 30 Jun 2025 09:33:11 -0700 (PDT)
 Received: from lleonard-thinkpadp16vgen1.rmtit.csb ([176.206.17.146])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538a406ab6sm142554375e9.30.2025.06.30.09.33.10
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538a406ab6sm142554375e9.30.2025.06.30.09.33.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Jun 2025 09:33:10 -0700 (PDT)
+        Mon, 30 Jun 2025 09:33:11 -0700 (PDT)
 From: Luigi Leonardi <leonardi@redhat.com>
-Date: Mon, 30 Jun 2025 18:33:03 +0200
-Subject: [PATCH net-next v5 1/2] vsock/test: Add macros to identify
- transports
+Date: Mon, 30 Jun 2025 18:33:04 +0200
+Subject: [PATCH net-next v5 2/2] vsock/test: Add test for null ptr deref
+ when transport changes
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-Id: <20250630-test_vsock-v5-1-2492e141e80b@redhat.com>
+Message-Id: <20250630-test_vsock-v5-2-2492e141e80b@redhat.com>
 References: <20250630-test_vsock-v5-0-2492e141e80b@redhat.com>
 In-Reply-To: <20250630-test_vsock-v5-0-2492e141e80b@redhat.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, Michal Luczaj <mhal@rbox.co>
 Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Luigi Leonardi <leonardi@redhat.com>
+ linux-kernel@vger.kernel.org, Luigi Leonardi <leonardi@redhat.com>, 
+ Hyunwoo Kim <v4bel@theori.io>
 X-Mailer: b4 0.14.2
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: puR4RQRw-xa_Jt44ZI3WbL-wE1RZ-RINzksIVkG5zI0_1751301191
+X-Mimecast-MFC-PROC-ID: sdM_dfQ62lYLkl6kZ3fQ58H-a_3eFSdVyT14AnZ_2H0_1751301193
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 
-Add three new macros: TRANSPORTS_G2H, TRANSPORTS_H2G and
-TRANSPORTS_LOCAL.
-They can be used to identify the type of the transport(s) loaded when
-using the `get_transports()` function.
+Add a new test to ensure that when the transport changes a null pointer
+dereference does not occur. The bug was reported upstream [1] and fixed
+with commit 2cb7c756f605 ("vsock/virtio: discard packets if the
+transport changes").
 
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+KASAN: null-ptr-deref in range [0x0000000000000060-0x0000000000000067]
+CPU: 2 UID: 0 PID: 463 Comm: kworker/2:3 Not tainted
+Workqueue: vsock-loopback vsock_loopback_work
+RIP: 0010:vsock_stream_has_data+0x44/0x70
+Call Trace:
+ virtio_transport_do_close+0x68/0x1a0
+ virtio_transport_recv_pkt+0x1045/0x2ae4
+ vsock_loopback_work+0x27d/0x3f0
+ process_one_work+0x846/0x1420
+ worker_thread+0x5b3/0xf80
+ kthread+0x35a/0x700
+ ret_from_fork+0x2d/0x70
+ ret_from_fork_asm+0x1a/0x30
+
+Note that this test may not fail in a kernel without the fix, but it may
+hang on the client side if it triggers a kernel oops.
+
+This works by creating a socket, trying to connect to a server, and then
+executing a second connect operation on the same socket but to a
+different CID (0). This triggers a transport change. If the connect
+operation is interrupted by a signal, this could cause a null-ptr-deref.
+
+Since this bug is non-deterministic, we need to try several times. It
+is reasonable to assume that the bug will show up within the timeout
+period.
+
+If there is a G2H transport loaded in the system, the bug is not
+triggered and this test will always pass. This is because
+`vsock_assign_transport`, when using CID 0, like in this case, sets
+vsk->transport to `transport_g2h` that is not NULL if a G2H transport is
+available.
+
+[1]https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
+
+Suggested-by: Hyunwoo Kim <v4bel@theori.io>
+Suggested-by: Michal Luczaj <mhal@rbox.co>
 Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
 ---
- tools/testing/vsock/util.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/testing/vsock/Makefile     |   1 +
+ tools/testing/vsock/vsock_test.c | 170 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 171 insertions(+)
 
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index 71895192cc02313bf52784e2f77aa3b0c28a0c94..fdd4649fe2d49f57c93c4aa5dfbb37b710c65918 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -33,6 +33,10 @@ static const char * const transport_ksyms[] = {
- static_assert(ARRAY_SIZE(transport_ksyms) == TRANSPORT_NUM);
- static_assert(BITS_PER_TYPE(int) >= TRANSPORT_NUM);
+diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+index 6e0b4e95e230500f99bb9c74350701a037ecd198..88211fd132d23ecdfd56ab0815580a237889e7f2 100644
+--- a/tools/testing/vsock/Makefile
++++ b/tools/testing/vsock/Makefile
+@@ -5,6 +5,7 @@ vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o util.o msg_ze
+ vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
+ vsock_perf: vsock_perf.o msg_zerocopy_common.o
  
-+#define TRANSPORTS_G2H   (TRANSPORT_VIRTIO | TRANSPORT_VMCI | TRANSPORT_HYPERV)
-+#define TRANSPORTS_H2G   (TRANSPORT_VHOST | TRANSPORT_VMCI)
-+#define TRANSPORTS_LOCAL (TRANSPORT_LOOPBACK)
++vsock_test: LDLIBS = -lpthread
+ vsock_uring_test: LDLIBS = -luring
+ vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o msg_zerocopy_common.o
+ 
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index eb6f54378667ac7ed324f4823e988ec9846e41a3..be6ce764f69480c0f9c3e2288fc19cd2e74be148 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -22,6 +22,8 @@
+ #include <signal.h>
+ #include <sys/ioctl.h>
+ #include <linux/time64.h>
++#include <pthread.h>
++#include <fcntl.h>
+ 
+ #include "vsock_test_zerocopy.h"
+ #include "timeout.h"
+@@ -1867,6 +1869,169 @@ static void test_stream_connect_retry_server(const struct test_opts *opts)
+ 	close(fd);
+ }
+ 
++#define TRANSPORT_CHANGE_TIMEOUT 2 /* seconds */
 +
- /* Tests can either run as the client or the server */
- enum test_mode {
- 	TEST_MODE_UNSET,
++static void *test_stream_transport_change_thread(void *vargp)
++{
++	pid_t *pid = (pid_t *)vargp;
++	int ret;
++
++	ret = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
++	if (ret) {
++		fprintf(stderr, "pthread_setcanceltype: %d\n", ret);
++		exit(EXIT_FAILURE);
++	}
++
++	while (true) {
++		if (kill(*pid, SIGUSR1) < 0) {
++			perror("kill");
++			exit(EXIT_FAILURE);
++		}
++	}
++	return NULL;
++}
++
++static void test_transport_change_signal_handler(int signal)
++{
++	/* We need a custom handler for SIGUSR1 as the default one terminates the process. */
++}
++
++static void test_stream_transport_change_client(const struct test_opts *opts)
++{
++	__sighandler_t old_handler;
++	pid_t pid = getpid();
++	pthread_t thread_id;
++	time_t tout;
++	int ret, tr;
++
++	tr = get_transports();
++
++	/* Print a warning if there is a G2H transport loaded.
++	 * This is on a best effort basis because VMCI can be either G2H and H2G, and there is
++	 * no easy way to understand it.
++	 * The bug we are testing only appears when G2H transports are not loaded.
++	 * This is because `vsock_assign_transport`, when using CID 0, assigns a G2H transport
++	 * to vsk->transport. If none is available it is set to NULL, causing the null-ptr-deref.
++	 */
++	if (tr & TRANSPORTS_G2H)
++		fprintf(stderr, "G2H Transport detected. This test will not fail.\n");
++
++	old_handler = signal(SIGUSR1, test_transport_change_signal_handler);
++	if (old_handler == SIG_ERR) {
++		perror("signal");
++		exit(EXIT_FAILURE);
++	}
++
++	ret = pthread_create(&thread_id, NULL, test_stream_transport_change_thread, &pid);
++	if (ret) {
++		fprintf(stderr, "pthread_create: %d\n", ret);
++		exit(EXIT_FAILURE);
++	}
++
++	control_expectln("LISTENING");
++
++	tout = current_nsec() + TRANSPORT_CHANGE_TIMEOUT * NSEC_PER_SEC;
++	do {
++		struct sockaddr_vm sa = {
++			.svm_family = AF_VSOCK,
++			.svm_cid = opts->peer_cid,
++			.svm_port = opts->peer_port,
++		};
++		int s;
++
++		s = socket(AF_VSOCK, SOCK_STREAM, 0);
++		if (s < 0) {
++			perror("socket");
++			exit(EXIT_FAILURE);
++		}
++
++		ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
++		/* The connect can fail due to signals coming from the thread,
++		 * or because the receiver connection queue is full.
++		 * Ignoring also the latter case because there is no way
++		 * of synchronizing client's connect and server's accept when
++		 * connect(s) are constantly being interrupted by signals.
++		 */
++		if (ret == -1 && (errno != EINTR && errno != ECONNRESET)) {
++			perror("connect");
++			exit(EXIT_FAILURE);
++		}
++
++		/* Set CID to 0 cause a transport change. */
++		sa.svm_cid = 0;
++
++		/* Ignore return value since it can fail or not.
++		 * If the previous connect is interrupted while the
++		 * connection request is already sent, the second
++		 * connect() will wait for the response.
++		 */
++		connect(s, (struct sockaddr *)&sa, sizeof(sa));
++
++		close(s);
++
++		control_writeulong(CONTROL_CONTINUE);
++
++	} while (current_nsec() < tout);
++
++	control_writeulong(CONTROL_DONE);
++
++	ret = pthread_cancel(thread_id);
++	if (ret) {
++		fprintf(stderr, "pthread_cancel: %d\n", ret);
++		exit(EXIT_FAILURE);
++	}
++
++	ret = pthread_join(thread_id, NULL);
++	if (ret) {
++		fprintf(stderr, "pthread_join: %d\n", ret);
++		exit(EXIT_FAILURE);
++	}
++
++	if (signal(SIGUSR1, old_handler) == SIG_ERR) {
++		perror("signal");
++		exit(EXIT_FAILURE);
++	}
++}
++
++static void test_stream_transport_change_server(const struct test_opts *opts)
++{
++	int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
++
++	/* Set the socket to be nonblocking because connects that have been interrupted
++	 * (EINTR) can fill the receiver's accept queue anyway, leading to connect failure.
++	 * As of today (6.15) in such situation there is no way to understand, from the
++	 * client side, if the connection has been queued in the server or not.
++	 */
++	if (fcntl(s, F_SETFL, fcntl(s, F_GETFL, 0) | O_NONBLOCK) < 0) {
++		perror("fcntl");
++		exit(EXIT_FAILURE);
++	}
++	control_writeln("LISTENING");
++
++	while (control_readulong() == CONTROL_CONTINUE) {
++		/* Must accept the connection, otherwise the `listen`
++		 * queue will fill up and new connections will fail.
++		 * There can be more than one queued connection,
++		 * clear them all.
++		 */
++		while (true) {
++			int client = accept(s, NULL, NULL);
++
++			if (client < 0) {
++				if (errno == EAGAIN)
++					break;
++
++				perror("accept");
++				exit(EXIT_FAILURE);
++			}
++
++			close(client);
++		}
++	}
++
++	close(s);
++}
++
+ static void test_stream_linger_client(const struct test_opts *opts)
+ {
+ 	int fd;
+@@ -2106,6 +2271,11 @@ static struct test_case test_cases[] = {
+ 		.run_client = test_stream_nolinger_client,
+ 		.run_server = test_stream_nolinger_server,
+ 	},
++	{
++		.name = "SOCK_STREAM transport change null-ptr-deref",
++		.run_client = test_stream_transport_change_client,
++		.run_server = test_stream_transport_change_server,
++	},
+ 	{},
+ };
+ 
 
 -- 
 2.50.0
