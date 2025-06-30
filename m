@@ -1,40 +1,73 @@
-Received: from mout.web.de (mout.web.de [212.227.17.12])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DB42221726
-	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 10:01:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BB6C5336D
+	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 10:38:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751277673; cv=none; b=bIfHnjlLzqPxgGJLLVlDs0Mp2Bmnrn6a6eyEVllRGmM2gYVI8Z2IFOhKXmdVW61nB/T1oJWPhZZJ4pmk22JSnAX1t8ttjQk1GeMiJRFZTkRdmuKaZ70CRrb0KO3UhQs3WIjpVBPxZr9w8mHxXn8n2V4ElFVVq/siP/A9t/sRADQ=
+	t=1751279929; cv=none; b=ImCHUJl0Wc4MaC4ahU1Dix38ae8M8RaBePdUP26iZIwuHL6dcp8w5h6R2fCAphD3lHpKrL83NFfrRgklNlAsE0NmLrq79IeLRxxtx90gNw+9MJ7y3PAeKw8SxUpYNG5iG945BFGUQJhr7IIAdDqvHOwY1L2N2WxUX71gjLgrwvs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751277673; c=relaxed/simple;
-	bh=eP/79sG5uEeC7F5/Gqfpy1aZG6Wrq0Aun6AllwdWNPg=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=nSsrDJURnKF3lQlbEVNLV9sFCLsqpbVpD6OTF0fJI8i/a53ZLC7Vja1/gCAbw6etqfqgMB4MoV3qk9qytZboIvXxwUYubzseOm1ytA3kT38VFpOmIXyK4Qe6vU8KEA2eoXcNfDfCXETotxl7QxWFU5yt1CQAClUCi4rpoD02Ncc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=FKxpCMPY; arc=none smtp.client-ip=212.227.17.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1751279929; c=relaxed/simple;
+	bh=KI5H1B3obLGclGzIVYoqT657wg5uoacHX0Rz1Qbk5U4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=f4cqfZXojCMaRb77XF/RMsJ3nlfkVAJchicL6r0WziLdSuOernbTyfWBFQv0nV90kLltHdLkVlV7Vsbnw1jNcbODNeIyZMXY1rlWOSmVcvHBJixJGM1DAmT9fY74bbx3zFVe0f3zaLuApR9vnNUY+R25LbvDr18kz9MT1lhCJlM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q0VsK1hv; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="FKxpCMPY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1751277641; x=1751882441; i=markus.elfring@web.de;
-	bh=kugrVosBTJwA6XoBbQtPkhNHnaFGI7cyFhg63KcNtLY=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=FKxpCMPYoVdYh3eaHxD/Ry/7xAZ3bWzRAVqgm7uAziKtEjZj1c8jqKYysasM9cxx
-	 5EazAQBtCzavGtQ70VkHs1jdSExG4RdwGIYQcGug8OR9l61BtCc/AnaaPAmVMnrmQ
-	 gDCbXrff617fZAYnCAOa/wWUeEQkbm/0JcWazDveWMnIFBqPfmD19PKYdxDleNSUv
-	 7WK6aqjFzZ5WlwPwkV7qoJCap7M24d+59pNr0JgAcvozoHEcx2X/IyM/q8tzG/b9H
-	 uGa0g/w6f7N2YnkVSBX8RQNVZOXK54Ca8ZwvF5CVRjI2aGL6S3y8X8MXEAlJMevVW
-	 Ba6BlPeaE9D1oCAQ9w==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.29] ([94.31.69.202]) by smtp.web.de (mrweb105
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1MXoYQ-1uDPSH1Pfo-00OyE9; Mon, 30
- Jun 2025 12:00:41 +0200
-Message-ID: <c148ac93-2284-4591-a3a2-3df0e42a6cb1@web.de>
-Date: Mon, 30 Jun 2025 12:00:39 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q0VsK1hv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751279925;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=67aFXQrWHbpI4Fyl5DLESwSzgu+5w69Ws3Jiartc4Ao=;
+	b=Q0VsK1hvvSJkjpUc1Nvlx+8/uSxI0xPJCV/jfkiOJs1Lz+uzn99T85qJT3+HmqOam42DMQ
+	rdsYNnC52JcPeT66haR2V1l+3YzPFNHJAUXF/pMEUmG28jo0+v5aRxDYdNc1nWVkpQhVMN
+	Jz8Fe77Mb1SDnn+d/WwLMeBjvTD0nXc=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-547-DI1Zaj4rP8GPNfvI7zPT3g-1; Mon, 30 Jun 2025 06:38:44 -0400
+X-MC-Unique: DI1Zaj4rP8GPNfvI7zPT3g-1
+X-Mimecast-MFC-AGG-ID: DI1Zaj4rP8GPNfvI7zPT3g_1751279923
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-450d6768d4dso12601455e9.2
+        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 03:38:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751279923; x=1751884723;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=67aFXQrWHbpI4Fyl5DLESwSzgu+5w69Ws3Jiartc4Ao=;
+        b=woN32iVhIshXRX1aGVSzwBv7N0dYCf72eTIniNPIt0F0RBEYLbWrFzHLWofE40X439
+         PJfw84D39ZFTuIPMqIyRETPyUduR3HI1Dif/8+U4sOJo2TlyuopowUO6Mz7/6c3a5aOp
+         DZwBZUc3YAAC8PbMeGfaDlJSmoSEQREBlFhnzUjNBNTj3pGMnQtJuPx8D8U6SOV9Yj/Y
+         7M4xD/8jbwxqg8qRnLwvVZ8Yfb4pj6DpjQpFoAoxQYFbR552qx22E/dUE0IQSFfvChGw
+         FWdqCF6tegWXsD2yfUTvnJlGF7GHcfhHfep+l6CCqp4ni4ZP42TtqbgrVi+t7ZD02ZSM
+         oOSw==
+X-Forwarded-Encrypted: i=1; AJvYcCWnrZrNLulsJA4vRbTYaNwrIlC19itdnKhI0zcsWVe0N3ACDljdbT4jwgIQmt/C6V0ddwRVYch3p9TaJfQMug==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyCCJ+xYSO/91nOKSNW8HHRlFFVq0yN/C2xa05OMhutG3JuLz4F
+	+vY8vi2KF14k+A+7iOgSXdwQ9CFOhtuk/OKwzYsN2Jil5RgboMIlDiUziOgPAnlq9UE2s0zeMYu
+	4kFJqgg71yDIx8Dv9kdK4WeIelyJdxBFlT9sAqUGXA2XHxPzKYjNf4QUN93lGCzvNy/fB
+X-Gm-Gg: ASbGncuWbWHYe8G/sNSPLLcCgPlUlGWmK+dmikZTJc1F+jAfP4DwUPokiNSDTRH5rKX
+	bi/3RAvAUO4/S16S6EPFSkurAVGMhXU1YX8fWAQypInElb923B/TgHYymIFoh08a2vFfQoFm/bF
+	ha/HpoEgzAqFwXLX+gR1wEZKPv1GkrCOBspgH3In0WUjgZm7CZU2G9CAjjs2yJXNjdtYtigFFit
+	LkqvsPvVU3vz82kHuFGG02S6btlbL5Mt/oloMqQGRiC5FdH4vm7HuinCDPNszcgK8niPJ81FBoy
+	iyqA87M/TzPAidNtcuXK2iMUk0j8J4pBHB62IHvlaQDMrhizn7uO4jL8NWSmNVE8Vl3rdcaUwnB
+	NkKdRz0Cq8wh9mNMAWNmZ/gygno3fLMDFgJ9ez2Ok0uTNe/EDRA==
+X-Received: by 2002:a05:600c:1d18:b0:450:d07e:ee14 with SMTP id 5b1f17b1804b1-4538ee60815mr148032065e9.17.1751279922776;
+        Mon, 30 Jun 2025 03:38:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFbR0EXwYLOIn4B0J77nh6IYL3kQZ2rdcN1jUT78ZTpALrM9RwX6OgAGv5YOD7axO14le8E/Q==
+X-Received: by 2002:a05:600c:1d18:b0:450:d07e:ee14 with SMTP id 5b1f17b1804b1-4538ee60815mr148031685e9.17.1751279922315;
+        Mon, 30 Jun 2025 03:38:42 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f40:b300:53f7:d260:aff4:7256? (p200300d82f40b30053f7d260aff47256.dip0.t-ipconnect.de. [2003:d8:2f40:b300:53f7:d260:aff4:7256])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538a406ab6sm132793025e9.30.2025.06.30.03.38.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 30 Jun 2025 03:38:41 -0700 (PDT)
+Message-ID: <d2a304a0-767f-41b9-b040-a43ce58bdff7@redhat.com>
+Date: Mon, 30 Jun 2025 12:38:39 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -42,80 +75,124 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-To: Zigit Zo <zuozhijie@bytedance.com>, netdev@vger.kernel.org,
- virtualization@lists.linux.dev
-Cc: LKML <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Jason Wang <jasowang@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20250630095109.214013-1-zuozhijie@bytedance.com>
-Subject: Re: [PATCH net] virtio-net: fix a rtnl_lock() deadlock during probing
-Content-Language: en-GB, de-DE
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20250630095109.214013-1-zuozhijie@bytedance.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:NoTe6grqiAkLrY2As2V9hJ3vMVujTWuhDeyBsjG/3NHc0o+qYAD
- tvt12aMGG94pIq7eBBaome4fDZV5YsDiqfdnXplMYWMthkxDwTkjKA0aFP4gvlQZX1BXbHo
- ZzJ9+IrdyCK9Fb2oaoCs+9XBcGYjaN5A+NIsKDB5B1dZakHaJIgIrTO5oDwyo4kmeAYSkkA
- k9hety3U+Bsf69QoiUBcg==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:D7CBCqAQhuk=;3lU83Jvu8zxuMefB5ECwufMxEvk
- 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
- US/f6XmHLczXYB7SWSvtMK0=
+Subject: Re: [PATCH RFC 18/29] mm: remove __folio_test_movable()
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Minchan Kim <minchan@kernel.org>,
+ Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>,
+ Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin
+ <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
+ Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
+ Shakeel Butt <shakeel.butt@linux.dev>
+References: <20250618174014.1168640-1-david@redhat.com>
+ <20250618174014.1168640-19-david@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20250618174014.1168640-19-david@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: DuHI8-bc0CHBveXvsB0XKWBVZfclOWjqYAnDYbefY80_1751279923
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-=E2=80=A6
-> Fix it by skip acking the annouce in virtnet_config_changed_work() when
-=E2=80=A6
+> @@ -1164,7 +1148,6 @@ static int migrate_folio_unmap(new_folio_t get_new_folio,
+>   	int rc = -EAGAIN;
+>   	int old_page_state = 0;
+>   	struct anon_vma *anon_vma = NULL;
+> -	bool is_lru = data_race(!__folio_test_movable(src));
+>   	bool locked = false;
+>   	bool dst_locked = false;
+>   
+> @@ -1265,7 +1248,7 @@ static int migrate_folio_unmap(new_folio_t get_new_folio,
+>   		goto out;
+>   	dst_locked = true;
+>   
+> -	if (unlikely(!is_lru)) {
+> +	if (unlikely(page_has_movable_ops(&dst->page))) {
 
-                            announce?
+While doing more testing, I found a weird bug where we end up having 
+balloon pages isolated forever, and never putback/migrated. So neither 
+the balloon can deflate them nor the migration migrate them.
 
-Regards,
-Markus
+This line here must be
+
+if (unlikely(page_has_movable_ops(&src->page))) {
+
+But I am not sure yet if that's the issue I am chasing :)
+
+-- 
+Cheers,
+
+David / dhildenb
+
