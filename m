@@ -1,187 +1,121 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.web.de (mout.web.de [212.227.17.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4965A247280
-	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 09:51:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DB42221726
+	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 10:01:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751277082; cv=none; b=UeTYwJ5o0C9xFt5hcqHpblKaWLvMJ3cVg33HKnAemUmrjtAGwh4QBd+NNlB/4kVLz54pbXacuLdNrTvV9m8/PT25qvZ8WZHfkoqWXpn25bpI8rPgfhsuUriFE0iYF1BgUzyjuZ+f6RcJlOKCS+U+jngsesN+5CaU3G1RkJFuIfE=
+	t=1751277673; cv=none; b=bIfHnjlLzqPxgGJLLVlDs0Mp2Bmnrn6a6eyEVllRGmM2gYVI8Z2IFOhKXmdVW61nB/T1oJWPhZZJ4pmk22JSnAX1t8ttjQk1GeMiJRFZTkRdmuKaZ70CRrb0KO3UhQs3WIjpVBPxZr9w8mHxXn8n2V4ElFVVq/siP/A9t/sRADQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751277082; c=relaxed/simple;
-	bh=iqcbsqqx91hRFW3nOeQh2fCgpjZp4yNOzZLmUmGbW98=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dAUW/EvM2PEKDaeBwCc9B4oFe8eplzApDWiL+IIdrfg1oHAPIwxoLbIxc9xZsnQ97bo9h1rfYit95Hfe0OV4zMbfvPdA5HrWU/4ZjQzGSKjVZnSFBTrFMyj/EWtcAxuU1iGb8WIW8On0fHrJWXsUsAYynl6XdNqXiYyl/ulVX/U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=T1HCxY0y; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	s=arc-20240116; t=1751277673; c=relaxed/simple;
+	bh=eP/79sG5uEeC7F5/Gqfpy1aZG6Wrq0Aun6AllwdWNPg=;
+	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
+	 In-Reply-To:Content-Type; b=nSsrDJURnKF3lQlbEVNLV9sFCLsqpbVpD6OTF0fJI8i/a53ZLC7Vja1/gCAbw6etqfqgMB4MoV3qk9qytZboIvXxwUYubzseOm1ytA3kT38VFpOmIXyK4Qe6vU8KEA2eoXcNfDfCXETotxl7QxWFU5yt1CQAClUCi4rpoD02Ncc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=FKxpCMPY; arc=none smtp.client-ip=212.227.17.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="T1HCxY0y"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-311ef4fb43dso1414212a91.3
-        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 02:51:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1751277077; x=1751881877; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=1axG9UN4guwGf2MhIje1rzGErylNfM2qtIpn5Wq0YrA=;
-        b=T1HCxY0yuwxM4FN8JQ+66qXoAOWBRx13vF2vOvMX3sLjVlA/QB3AtbDUaqbKL0zH97
-         ScnTUkFrEAedn917goj2T/aWXkyQEo6rkl8Pr4KXO0lhMvj4MheGeSA+HhLVMi/a5kN2
-         +eqdL2VK7ld6YjHqKeOITFh5f0yKnWQLIWVhY2gRWFbh7PmcuAjc5VXAbrRm1nBEYawU
-         4YPAt5wY/k6+4FU47kHf3YgfvP11HWlpNeixMbEMG+FeE4WEz6qlDkj05iJjROW92ApZ
-         4CQatIDDInL7kxfQFRvCU2rIYZuo6O9WUlv7q/WSESBu+x6vNbeNCH6f4fDZGbrRZ8Z+
-         b7wA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751277077; x=1751881877;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1axG9UN4guwGf2MhIje1rzGErylNfM2qtIpn5Wq0YrA=;
-        b=eEZ8eydF1FkHukzGE4nmAUSZL2F85TtunQ1AO449ykZrkbXwjHzH7TdmL3DkJJLfSA
-         Smc5mR9mmjFB54N4Yk+m+G160/r7cIZAnBbcAQr1TMh8Ip+3IjZqbdRL7axH97qPolts
-         zycZxvtMmritsY5vGJ3XU1eyU9MpchuTh/xP2Paco8mturZ8CESbPsPNRh2EqJXKJ527
-         j37ormZXPNhu6Oe4NTAimP/FbiVlmqL/iDBO0RpGmEnIC97cGw3Ffu2xXjo/orBNsG3h
-         eNojT7j3cuGpfS3mzpRhubNX2fow6DE2QD/CLwDyntYeNxucFt7mjo5VJs+jRoCjr9l0
-         kd5g==
-X-Forwarded-Encrypted: i=1; AJvYcCU0oHeqS4/Zlc1woyuWkjZ/MFDoGD7xIdouhhOrI+21+rzK7hIoQVKy45dWxJhDn4AGZRG7uZvTTDBSM0RqHA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YywPq05g3WU+OmmAkSwUh3QXb5IV4ZUhhJ7h07ivgVl/5dFapK1
-	2CWIQeqcq2QZx2Bji3BhGScMDfTkg+8+YBgCc8j6NMAOjYJ6hS1WIN9I+JChB8bb14g=
-X-Gm-Gg: ASbGncvjCDbiYgbXyvpNIDhX5I5lR80h+5nHJ5neP16Zmi3EBL3D5R8JkQOJgyMDNrK
-	DOd7zxO3Cn8NhUASOy+Xo7FxzHcwa9XQLhgHIefZuLow1T4yWN68Cw7lswLGaaxPVbKk3vmE29W
-	Npa6BIIT5TqwGmuyBBl8hPiu116H1KtEpEL6zhbw4ZaoMoulsySI6+ynIIrTaU9P5lGFIB7Sslz
-	FNSWKNDcLsKC1ASbPr/wO6oRmlrYMpaB9MmrCmJDV3JofPxcGQFeqZxQ4vz8+cClUE2PveaRF6l
-	n3T6bbkUVKXbfYCk8OhuGcysI8vCfBuqits1co1S01WclBdlT9NMUNSx4ouvqNkLc826yCpk
-X-Google-Smtp-Source: AGHT+IHPgTj4lH/A7AaOqx4zS1bLYGSTxDSUFaa71SvEDg6oNnPYe86WGVy9RGJSkXmiLAkS60LykA==
-X-Received: by 2002:a17:90b:35ce:b0:312:db8:dbdd with SMTP id 98e67ed59e1d1-318c925a50fmr17658008a91.28.1751277077433;
-        Mon, 30 Jun 2025 02:51:17 -0700 (PDT)
-Received: from vexas.. ([203.208.189.7])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-318c14e18bbsm8409468a91.23.2025.06.30.02.51.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Jun 2025 02:51:17 -0700 (PDT)
-From: Zigit Zo <zuozhijie@bytedance.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com
-Cc: zuozhijie@bytedance.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net] virtio-net: fix a rtnl_lock() deadlock during probing
-Date: Mon, 30 Jun 2025 17:51:09 +0800
-Message-ID: <20250630095109.214013-1-zuozhijie@bytedance.com>
-X-Mailer: git-send-email 2.49.0
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="FKxpCMPY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1751277641; x=1751882441; i=markus.elfring@web.de;
+	bh=kugrVosBTJwA6XoBbQtPkhNHnaFGI7cyFhg63KcNtLY=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
+	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
+	 cc:content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=FKxpCMPYoVdYh3eaHxD/Ry/7xAZ3bWzRAVqgm7uAziKtEjZj1c8jqKYysasM9cxx
+	 5EazAQBtCzavGtQ70VkHs1jdSExG4RdwGIYQcGug8OR9l61BtCc/AnaaPAmVMnrmQ
+	 gDCbXrff617fZAYnCAOa/wWUeEQkbm/0JcWazDveWMnIFBqPfmD19PKYdxDleNSUv
+	 7WK6aqjFzZ5WlwPwkV7qoJCap7M24d+59pNr0JgAcvozoHEcx2X/IyM/q8tzG/b9H
+	 uGa0g/w6f7N2YnkVSBX8RQNVZOXK54Ca8ZwvF5CVRjI2aGL6S3y8X8MXEAlJMevVW
+	 Ba6BlPeaE9D1oCAQ9w==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.29] ([94.31.69.202]) by smtp.web.de (mrweb105
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1MXoYQ-1uDPSH1Pfo-00OyE9; Mon, 30
+ Jun 2025 12:00:41 +0200
+Message-ID: <c148ac93-2284-4591-a3a2-3df0e42a6cb1@web.de>
+Date: Mon, 30 Jun 2025 12:00:39 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+To: Zigit Zo <zuozhijie@bytedance.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev
+Cc: LKML <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20250630095109.214013-1-zuozhijie@bytedance.com>
+Subject: Re: [PATCH net] virtio-net: fix a rtnl_lock() deadlock during probing
+Content-Language: en-GB, de-DE
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20250630095109.214013-1-zuozhijie@bytedance.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:NoTe6grqiAkLrY2As2V9hJ3vMVujTWuhDeyBsjG/3NHc0o+qYAD
+ tvt12aMGG94pIq7eBBaome4fDZV5YsDiqfdnXplMYWMthkxDwTkjKA0aFP4gvlQZX1BXbHo
+ ZzJ9+IrdyCK9Fb2oaoCs+9XBcGYjaN5A+NIsKDB5B1dZakHaJIgIrTO5oDwyo4kmeAYSkkA
+ k9hety3U+Bsf69QoiUBcg==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:D7CBCqAQhuk=;3lU83Jvu8zxuMefB5ECwufMxEvk
+ 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
+ US/f6XmHLczXYB7SWSvtMK0=
 
-This bug happens if the VMM sends a VIRTIO_NET_S_ANNOUNCE request while
-the virtio-net driver is still probing with rtnl_lock() hold, this will
-cause a recursive mutex in netdev_notify_peers().
+=E2=80=A6
+> Fix it by skip acking the annouce in virtnet_config_changed_work() when
+=E2=80=A6
 
-Fix it by skip acking the annouce in virtnet_config_changed_work() when
-probing. The annouce will still get done when ndo_open() enables the
-virtio_config_driver_enable().
+                            announce?
 
-We've observed a softlockup with Ubuntu 24.04, and can be reproduced with
-QEMU sending the announce_self rapidly while booting.
-
-[  494.167473] INFO: task swapper/0:1 blocked for more than 368 seconds.
-[  494.167667]       Not tainted 6.8.0-57-generic #59-Ubuntu
-[  494.167810] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[  494.168015] task:swapper/0       state:D stack:0     pid:1     tgid:1     ppid:0      flags:0x00004000
-[  494.168260] Call Trace:
-[  494.168329]  <TASK>
-[  494.168389]  __schedule+0x27c/0x6b0
-[  494.168495]  schedule+0x33/0x110
-[  494.168585]  schedule_preempt_disabled+0x15/0x30
-[  494.168709]  __mutex_lock.constprop.0+0x42f/0x740
-[  494.168835]  __mutex_lock_slowpath+0x13/0x20
-[  494.168949]  mutex_lock+0x3c/0x50
-[  494.169039]  rtnl_lock+0x15/0x20
-[  494.169128]  netdev_notify_peers+0x12/0x30
-[  494.169240]  virtnet_config_changed_work+0x152/0x1a0
-[  494.169377]  virtnet_probe+0xa48/0xe00
-[  494.169484]  ? vp_get+0x4d/0x100
-[  494.169574]  virtio_dev_probe+0x1e9/0x310
-[  494.169682]  really_probe+0x1c7/0x410
-[  494.169783]  __driver_probe_device+0x8c/0x180
-[  494.169901]  driver_probe_device+0x24/0xd0
-[  494.170011]  __driver_attach+0x10b/0x210
-[  494.170117]  ? __pfx___driver_attach+0x10/0x10
-[  494.170237]  bus_for_each_dev+0x8d/0xf0
-[  494.170341]  driver_attach+0x1e/0x30
-[  494.170440]  bus_add_driver+0x14e/0x290
-[  494.170548]  driver_register+0x5e/0x130
-[  494.170651]  ? __pfx_virtio_net_driver_init+0x10/0x10
-[  494.170788]  register_virtio_driver+0x20/0x40
-[  494.170905]  virtio_net_driver_init+0x97/0xb0
-[  494.171022]  do_one_initcall+0x5e/0x340
-[  494.171128]  do_initcalls+0x107/0x230
-[  494.171228]  ? __pfx_kernel_init+0x10/0x10
-[  494.171340]  kernel_init_freeable+0x134/0x210
-[  494.171462]  kernel_init+0x1b/0x200
-[  494.171560]  ret_from_fork+0x47/0x70
-[  494.171659]  ? __pfx_kernel_init+0x10/0x10
-[  494.171769]  ret_from_fork_asm+0x1b/0x30
-[  494.171875]  </TASK>
-
-Fixes: df28de7b0050 ("virtio-net: synchronize operstate with admin state on up/down")
-Signed-off-by: Zigit Zo <zuozhijie@bytedance.com>
----
- drivers/net/virtio_net.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e53ba600605a..0290d289ebee 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -6211,7 +6211,8 @@ static const struct net_device_ops virtnet_netdev = {
- 	.ndo_tx_timeout		= virtnet_tx_timeout,
- };
- 
--static void virtnet_config_changed_work(struct work_struct *work)
-+static void __virtnet_config_changed_work(struct work_struct *work,
-+					  bool check_announce)
- {
- 	struct virtnet_info *vi =
- 		container_of(work, struct virtnet_info, config_work);
-@@ -6221,7 +6222,7 @@ static void virtnet_config_changed_work(struct work_struct *work)
- 				 struct virtio_net_config, status, &v) < 0)
- 		return;
- 
--	if (v & VIRTIO_NET_S_ANNOUNCE) {
-+	if (check_announce && (v & VIRTIO_NET_S_ANNOUNCE)) {
- 		netdev_notify_peers(vi->dev);
- 		virtnet_ack_link_announce(vi);
- 	}
-@@ -6244,6 +6245,11 @@ static void virtnet_config_changed_work(struct work_struct *work)
- 	}
- }
- 
-+static void virtnet_config_changed_work(struct work_struct *work)
-+{
-+	__virtnet_config_changed_work(work, true);
-+}
-+
- static void virtnet_config_changed(struct virtio_device *vdev)
- {
- 	struct virtnet_info *vi = vdev->priv;
-@@ -7030,7 +7036,10 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	   otherwise get link status from config. */
- 	netif_carrier_off(dev);
- 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
--		virtnet_config_changed_work(&vi->config_work);
-+		/* The check_annouce work will get scheduled when ndo_open()
-+		 * doing the virtio_config_driver_enable().
-+		 */
-+		__virtnet_config_changed_work(&vi->config_work, false);
- 	} else {
- 		vi->status = VIRTIO_NET_S_LINK_UP;
- 		virtnet_update_settings(vi);
-
-base-commit: 2def09ead4ad5907988b655d1e1454003aaf8297
--- 
-2.49.0
-
+Regards,
+Markus
