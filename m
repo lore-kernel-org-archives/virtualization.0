@@ -1,62 +1,62 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D38D422FDF2
-	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 07:38:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB59E2367CB
+	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 07:38:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751269136; cv=none; b=VKanu2io0YrWUNviuX1hUjabbaHTrdgSys54A3dylAJUvuPwHgIdlisVqDQEwm8ua9j6+zDtmhpBspByY6nase0Bt7WiUOlANNzEm6bC0TX8LcGp2daYyUn0AtyE/52T5ON3a3MN6H64f2zL60spNvJyjBqedVBsPzYiRyrP25Y=
+	t=1751269140; cv=none; b=kU0cNpiqehErvfDRVBEXz6mWvAk/m6RUSSHiHzCpwFqGCTQpjw2QAww6DqV9fpWb2eB00L3lDGcviLRXYwp55+47Wk3PvWa4Kb4/pElMNdfpjETnbJMKYNOS2Pu/MuFD1p00HE51MJiBX1WkI/iXkhdnl747SMwOa7UXXybHeqs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751269136; c=relaxed/simple;
-	bh=8zHWFlCigM4oKQM+XUD7NX3O01Q7p6W6jnTQzPT3UPw=;
+	s=arc-20240116; t=1751269140; c=relaxed/simple;
+	bh=6e8nhq3wAutajxTDZ1caB5Wt0cNk1tW6jl9nRmn/iB0=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ElCGyiJJ6s853L6GOSDVnPs5uyYqvR7t34eiln6/6TMv8pi9Ncn5/NcSDqhKq8Vd0VOhKXhX5YDLGm23scO8M5/exTglSy23j+9nJHlKwUc/K3HprLsvACsEESpm57sH/3aDXPuQ3svlk86fOTsmU0sx8roIM1wPntZBK1nJYVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R7fdHeFn; arc=none smtp.client-ip=209.85.215.170
+	 MIME-Version; b=aFfOGjnG/MMaYIXbWMeJyiLVI/Ul8LmZAuHTVcxr0kpg586Avwo6VSBuG3tjiIwOslhDvcH/U0lhh51zRzB3cKrCJ5h+iABSCeaJAumZwKkHjbWDSMg7ukwiA1ey/KoPmc5pHoJF4FU8o4chNBwNoUg+jMWKcQZQ54ZgR77LBc4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KBTpgngn; arc=none smtp.client-ip=209.85.210.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R7fdHeFn"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-b31c6c9959cso2312137a12.1
-        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 00:38:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KBTpgngn"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-74924255af4so1622313b3a.1
+        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 00:38:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751269134; x=1751873934; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1751269138; x=1751873938; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Zxu7ig/S9LCUmwMcMSykN7rd/mLUHqPQuKn7T6xu2vY=;
-        b=R7fdHeFnXdj644tT4076+CHa5SqDxx91Bx5e68WX6PcJzFQ5XC29t144qDFniI2tIj
-         V5DsYZd1c5xTdD5BR+k1RYd2pwsU7MHjvjGY4SqVfHh2BCppwGC9OcVf60fJg38EDfR4
-         o1OIbneJtpcOlIb6Y5CWzaEn3WcQoDiGE9ryjEMJaTC8Z+LxM4k04QqFZNkzCyLG2Sg0
-         dTnJ1Jgjp2V44ZUpU7ndgx8z1950eIK3ZbPXpWkq60ECX0ZzS1PtMOZj7EDcGREw/cP+
-         MUdtddYav8Gt1MqOmvtvtdKkctAprW02Myzb/vTdtzXyCF5m2nNc5AtNSWyBKePAoWy4
-         kEjQ==
+        bh=JCu94amvUYw2PYDfqBO7v4QOw2C4FxuMQOpeOs/4SKI=;
+        b=KBTpgngnks/qc02mLkNzKx5H014j5p8z0qNBtsHPVh6qRIlmMYxt/gfNlaUmJAJka+
+         z+Iai7fHGI4u94Q544rYCHKDgRJ6Qo8uct3OyZDN9Iu4e66IPUrSpeK0XnHandZpGgIO
+         KBg/4waY9vectcqlh/hs8/YLMp23J567Gx5CcvU98k2VRU40sKL0kCM+DHhUq6D+QszV
+         31L6GgQkvKxqn5MknDN/alDW9J84M2blhANlbJQr4wwIyzYZhegZ4uzBuLWrDo2erh2Q
+         3SnhZiktfJSFK9SWhy8w33zmauzikicKKvXpzD1EotnIw7yN22UNLnqF1roY1C32+hvz
+         J4tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751269134; x=1751873934;
+        d=1e100.net; s=20230601; t=1751269138; x=1751873938;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Zxu7ig/S9LCUmwMcMSykN7rd/mLUHqPQuKn7T6xu2vY=;
-        b=aQGrX1YNeHA87RIkQVhGM0z1C/egsNpg7lIooM3OyFABw3enLXwb3vo8hKNNM1BqKx
-         3rCo2vLMc4o+ZbY/zTpGY2KJgZSf+Fk6gxJS3/Kjb3e8sPGFJK9Zm6B4AtAm7EL68cNZ
-         es//hZxqT/6xYrppaNbH5e10aVKGU4LZVDBMDturEnnceKEjl5ecK8Uhelii9VF3YZTy
-         vfJhpPrrx4rHHYXWNL0N44XacY6dGszFIVldRSRcFEmB5CLLzPhAo6EcLvA9yVYlDxMx
-         oQZp/xSbWR9hgAkNwAjZrHiILSzm68EQf0GVtNJ5p6vDJuHn+v1M/hYwMKGHzNsfKWzq
-         FoHA==
-X-Gm-Message-State: AOJu0Yz4pfsxhKtecXmiPiQLFcqFl3viAPa7dlFAiWHX1DJCayI9O5iS
-	lSezEQUiZUYBLRNsGlm5KdQwsd0p281wBc8COLWdYfu6I+UEgv/Movks
-X-Gm-Gg: ASbGncs8FMAD5Wj4UZg/3SFIe7ziacgdWxYKJJZJ5RY1uwcpYIU7lTY1J3qpklfuebq
-	WpwC+e738QnaypCt//C8BTi7MNatKFGdfLTqrj/B1BS7SlipNRB7tjq3/OTgK8lvopEXMcVw9m3
-	zTgMP53bPi0w4smLshy0ZnkhwE5TofXaafRLPoy/BBH5hMD1TiuhduQnnSL5MBH9E0BZvGrW/8m
-	U/dy7puZ6Hz5fYtT2ZWW1LLrq+zfddVNCUuTxxYThIyzFCoXcOuNRfQRF0isYpAzpdVuD3rGZe0
-	PQgnl6VWeirDefi3qFyqrVy4nkLuhbbohhcE9e44tNtQl772230EzIsXVebDb7JNIPuAZToSs75
-	RKIcCQ9lg
-X-Google-Smtp-Source: AGHT+IE1QdmSYxev8iN4dxDowA6la8V3gpzolPl3kw80LV0ejyoAdzLd6I54yNlIqSmD3I5yGH7Rww==
-X-Received: by 2002:a05:6a20:c704:b0:220:63bd:2bdb with SMTP id adf61e73a8af0-220a16ca7famr20405202637.40.1751269134043;
-        Mon, 30 Jun 2025 00:38:54 -0700 (PDT)
+        bh=JCu94amvUYw2PYDfqBO7v4QOw2C4FxuMQOpeOs/4SKI=;
+        b=A7YWC07O+/V4lex83Jsomnq6Oz4bI8Ush4CfL804AtOJzyJC4tZfK+h7gPje6qLSHs
+         mKo/qpLZI2faLm2j2z94bnldEUXS2Em5ABgFEyzitW21KFl+D8TQryxc/EQpDikgIB0X
+         hN3US9p6cV1A9eynxJWKIoluuOTO5uGC58nn09Q8etQ3DyEBxYkkv/hNd9SPyPgZOD8g
+         rnb5JDfxekqLYHAo1HtkkeH6drL5vCGrbjenFGiNpyozaLzAvLOCK16tCx0HEbypbQKd
+         bUoSto8TfUjpfKh6xApPrB8LWlOqpOxMMWpukrsxhSECyOYeY8vOhXxwjiwcnwUhrAMs
+         NXeg==
+X-Gm-Message-State: AOJu0Yy78iuWo9fYwVnFTx7FjQoNHzbjvNDWqmWRodr8+Q/be0eun8NU
+	ENd8WcGlrDHmJGN58OZOSmGWH7zbk4+4BQnrhQk4jILMK1WL9T6L587j
+X-Gm-Gg: ASbGncv+tgxqFOp6WsJZu4VvXx4JogrDxyiFbm5hh2CCyMgUIYeD1YO23FS1QJz5pfm
+	xcPrkwRFd6VTu+JjxLWa3O6MP4rS9GHyifPN62Ts8ojeJNiMUtNLf8J9UTdH7oVWWwOMI7Rxn0n
+	5QXsTJhLoqj/NDz4nMVtPnkLRyshnRpfAZNPRYk5CvxGDRzlmUgLIwSmhbXMRLzStCMshvPAtJb
+	PqU6mIHgoPCM+fKeCnXPqxxZRQfXhHx6ZQ1MtI/WaHv6MAef+d9JZqIhJXkLOOOsngyCwvDTe6u
+	3jytnIZx9dWaP2R6PIcGYOagN467EPjTT34KxE/CqLLlIFceiyogAtRVYRLwrdGTBePX5o/uZ1t
+	8m3q4SKBo
+X-Google-Smtp-Source: AGHT+IG/jR+dNY+ztEgPJIk4JDK34oOEoYzWT7UbmazWLOyYpCAQk+M2Lag6gLOzU5qTgSOklpp6uA==
+X-Received: by 2002:a05:6a00:b8e:b0:742:b3a6:db16 with SMTP id d2e1a72fcca58-74af6f6d21amr19468497b3a.20.1751269138035;
+        Mon, 30 Jun 2025 00:38:58 -0700 (PDT)
 Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74af55c8437sm8075175b3a.115.2025.06.30.00.38.50
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74af55c8437sm8075175b3a.115.2025.06.30.00.38.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Jun 2025 00:38:53 -0700 (PDT)
+        Mon, 30 Jun 2025 00:38:57 -0700 (PDT)
 From: Xuewei Niu <niuxuewei97@gmail.com>
 X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
 To: sgarzare@redhat.com,
@@ -74,9 +74,9 @@ Cc: virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	fupan.lfp@antgroup.com,
 	Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Subject: [PATCH net-next v4 1/3] hv_sock: Return the readable bytes in hvs_stream_has_data()
-Date: Mon, 30 Jun 2025 15:38:25 +0800
-Message-Id: <20250630073827.208576-2-niuxuewei.nxw@antgroup.com>
+Subject: [PATCH net-next v4 2/3] test/vsock: Add retry mechanism to ioctl wrapper
+Date: Mon, 30 Jun 2025 15:38:26 +0800
+Message-Id: <20250630073827.208576-3-niuxuewei.nxw@antgroup.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250630073827.208576-1-niuxuewei.nxw@antgroup.com>
 References: <20250630073827.208576-1-niuxuewei.nxw@antgroup.com>
@@ -88,69 +88,92 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When hv_sock was originally added, __vsock_stream_recvmsg() and
-vsock_stream_has_data() actually only needed to know whether there
-is any readable data or not, so hvs_stream_has_data() was written to
-return 1 or 0 for simplicity.
+Wrap the ioctl in `ioctl_int()`, which takes a pointer to the actual
+int value and an expected int value. The function will not return until
+either the ioctl returns the expected value or a timeout occurs, thus
+avoiding immediate failure.
 
-However, now hvs_stream_has_data() should return the readable bytes
-because vsock_data_ready() -> vsock_stream_has_data() needs to know the
-actual bytes rather than a boolean value of 1 or 0.
-
-The SIOCINQ ioctl support also needs hvs_stream_has_data() to return
-the readable bytes.
-
-Let hvs_stream_has_data() return the readable bytes of the payload in
-the next host-to-guest VMBus hv_sock packet.
-
-Note: there may be multpile incoming hv_sock packets pending in the
-VMBus channel's ringbuffer, but so far there is not a VMBus API that
-allows us to know all the readable bytes in total without reading and
-caching the payload of the multiple packets, so let's just return the
-readable bytes of the next single packet. In the future, we'll either
-add a VMBus API that allows us to know the total readable bytes without
-touching the data in the ringbuffer, or the hv_sock driver needs to
-understand the VMBus packet format and parse the packets directly.
-
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
 Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
 ---
- net/vmw_vsock/hyperv_transport.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ tools/testing/vsock/util.c | 32 +++++++++++++++++++++++---------
+ tools/testing/vsock/util.h |  1 +
+ 2 files changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 31342ab502b4..64f1290a9ae7 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -694,15 +694,25 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
- static s64 hvs_stream_has_data(struct vsock_sock *vsk)
+diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+index 0c7e9cbcbc85..481c395227e4 100644
+--- a/tools/testing/vsock/util.c
++++ b/tools/testing/vsock/util.c
+@@ -16,6 +16,7 @@
+ #include <unistd.h>
+ #include <assert.h>
+ #include <sys/epoll.h>
++#include <sys/ioctl.h>
+ #include <sys/mman.h>
+ #include <linux/sockios.h>
+ 
+@@ -97,28 +98,41 @@ void vsock_wait_remote_close(int fd)
+ 	close(epollfd);
+ }
+ 
+-/* Wait until transport reports no data left to be sent.
+- * Return false if transport does not implement the unsent_bytes() callback.
++/* Wait until ioctl gives an expected int value.
++ * Return false if the op is not supported.
+  */
+-bool vsock_wait_sent(int fd)
++bool vsock_ioctl_int(int fd, unsigned long op, int *actual, int expected)
  {
- 	struct hvsock *hvs = vsk->trans;
-+	bool need_refill = !hvs->recv_desc;
- 	s64 ret;
- 
- 	if (hvs->recv_data_len > 0)
--		return 1;
-+		return hvs->recv_data_len;
- 
- 	switch (hvs_channel_readable_payload(hvs->chan)) {
- 	case 1:
--		ret = 1;
--		break;
-+		if (!need_refill)
-+			return -EIO;
+-	int ret, sock_bytes_unsent;
++	int ret;
++	char name[32];
 +
-+		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
-+		if (!hvs->recv_desc)
-+			return -ENOBUFS;
++	snprintf(name, sizeof(name), "ioctl(%lu)", op);
+ 
+ 	timeout_begin(TIMEOUT);
+ 	do {
+-		ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
++		ret = ioctl(fd, op, actual);
+ 		if (ret < 0) {
+ 			if (errno == EOPNOTSUPP)
+ 				break;
+ 
+-			perror("ioctl(SIOCOUTQ)");
++			perror(name);
+ 			exit(EXIT_FAILURE);
+ 		}
+-		timeout_check("SIOCOUTQ");
+-	} while (sock_bytes_unsent != 0);
++		timeout_check(name);
++	} while (*actual != expected);
+ 	timeout_end();
+ 
+-	return !ret;
++	return ret >= 0;
++}
 +
-+		ret = hvs_update_recv_data(hvs);
-+		if (ret)
-+			return ret;
-+		return hvs->recv_data_len;
- 	case 0:
- 		vsk->peer_shutdown |= SEND_SHUTDOWN;
- 		ret = 0;
++/* Wait until transport reports no data left to be sent.
++ * Return false if transport does not implement the unsent_bytes() callback.
++ */
++bool vsock_wait_sent(int fd)
++{
++	int sock_bytes_unsent;
++
++	return vsock_ioctl_int(fd, SIOCOUTQ, &sock_bytes_unsent, 0);
+ }
+ 
+ /* Create socket <type>, bind to <cid, port> and return the file descriptor. */
+diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+index 5e2db67072d5..d59581f68d61 100644
+--- a/tools/testing/vsock/util.h
++++ b/tools/testing/vsock/util.h
+@@ -54,6 +54,7 @@ int vsock_stream_listen(unsigned int cid, unsigned int port);
+ int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
+ 			   struct sockaddr_vm *clientaddrp);
+ void vsock_wait_remote_close(int fd);
++bool vsock_ioctl_int(int fd, unsigned long op, int *actual, int expected);
+ bool vsock_wait_sent(int fd);
+ void send_buf(int fd, const void *buf, size_t len, int flags,
+ 	      ssize_t expected_ret);
 -- 
 2.34.1
 
