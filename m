@@ -1,63 +1,63 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D82B28D8F7
-	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 14:42:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46BA028DB6D
+	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 14:43:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751294577; cv=none; b=WTI5aHTna377OVlG3p/gc1+vccYU2VUw7SyMTtMAciK/CruGsmwwVtJYXM3vCBe44y52XLN1flQ9upylLJpx4IOdZdQqXPgDpk0jiMT8FEYAXfkIQy5ZOzSmsWiv54mTS9CTZqLYl0z3eEhLI9SYRNhFcaiMc5Z3w6U6zinL7/0=
+	t=1751294584; cv=none; b=YOuJZjaPA8H6N1kZsUhDZeZaamO37+UYC4TF1E9yrQTJvm54gG0QmbzZ53hekO+1CAxNoLQOPQJkHQZYtd7eMRWT7NY36pZYAsagmJqFut7HGOouKwOVYKL8lX3f2ojbA5D2tf1KaqHcy6trQsiHdUBOOMLBTBbRPmET9H15JBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751294577; c=relaxed/simple;
-	bh=BSZ5vT3FSMrvM5IrsoJDnsX7sNGVr+Y34WTBiYQdwUs=;
+	s=arc-20240116; t=1751294584; c=relaxed/simple;
+	bh=aJBZLRK2AtKTR7exY7C4jH9FsFz8pTE7CY5s0ADk6xI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cMCh9K9/oAHz34wf3/CVvGmT0ktzi+tAbj8vc6DDoqBiTIF3awf5+yyggEJPe5sYg+I3DQcOMojxk2Uxb4rV3CrCmMxmDq/SAYAqmzs+phSfxMkAttmPE3wAeHGZrF7gVSYuIkS1cQa0LU8FDbagRsSWeQQEdPyqani1D+tj0cs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HMdTbNeG; arc=none smtp.client-ip=209.85.215.175
+	 MIME-Version; b=GVSFf/CsGYW0noZomjaj7Ph4nfSsAJGMFR2+5D+Prf2W2Sim4J9L+eFtYBBsi3Milaz552oXQGEpOizO/k0ZauMCVSCkO5offfisTgdihs0S/6w+ZRckdgQvCI/Xlw4ya7Vgn7gaVRo1xAmJN9HACUCup+wXO2ox5BL0coRbeoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dTzfs28w; arc=none smtp.client-ip=209.85.216.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HMdTbNeG"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-b1fd59851baso1757101a12.0
-        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 07:42:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dTzfs28w"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-312e747d2d8so4504571a91.0
+        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 07:43:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751294575; x=1751899375; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1751294582; x=1751899382; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YLmL/hbSV60WQ5txcK/zp8yoe+ubCK5iYtglAmsrLSE=;
-        b=HMdTbNeGg1v3RW4Rt8GmSl6qT9+YxkhzjNwTf/jCe60B/ZnWfFtiqNE8OLsOIXnmN/
-         GsvNVl4WVrIMV3uoSsku1bxZSXjt2xZ2U1mu9MpWvgt6W4fakQ8/F43QqVEdRgi1veJD
-         xTc4lzCqPwFi2v5dJK7ugW/AG4AlL3yCayNsumV0VcxrOMLBjoDvKbtNraaIqpKcL/2E
-         cc/8GqEGY7Bnhcx44ZFxDoCgX64vfyyxMFYhhC+OnGBwRFm9K1Tnh5AzSajg9BEdqV+f
-         sIFJlaKFRk1efmBTFQ2jlcMzFgQvE9Z6Rto4wbQA05DooGgAKc/QYREUA5oVFI27qRvy
-         vofg==
+        bh=n69gDXxPGfgIU+wPEIeigImTRma77DzYZ7Ve67R5PNg=;
+        b=dTzfs28wxoNfyLkOTRGts/m30ZwdDpKT5g9k32cU6i2Gh59AuAJoOoscfopz0Kq1rC
+         pH+ZzJRyHjYAayuFuoEwU/s57cKqwRTYkfS9HcaeK5//kJkOM4RqD3eTI+u6GA1CQyDE
+         t3ueM9LCnFEwrzJ/EItEIRx4C6OyyoVV+pUWA8GwiQwvkbOSjnfrHkCczivqDBJWq472
+         kKeZt7KSLJTo+LqKDnkud3etN7xPOKdPPCVDpLXzOd8xYq+w8iLIrvL6ilAY1lT3HRI9
+         Rqoq0CGG4NBPPhZCloSPP9lZzPhB3Hu9F7lEIVEGNbseNHbVLm6dJwI1OD2vpw9Ip2nb
+         +w/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751294575; x=1751899375;
+        d=1e100.net; s=20230601; t=1751294582; x=1751899382;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=YLmL/hbSV60WQ5txcK/zp8yoe+ubCK5iYtglAmsrLSE=;
-        b=mT3nMsp13xtvUdTOMx83LaD2JpEGZPGC2Zua1Y/7CWBS7SqTgAhc6TYL4aRbtf4xGj
-         zTroGLXcmAJJuh6lB+Ie4ApqTPin/BSbqfRUvcj31OpS2rWPtARzfsq5009duGqV2p+b
-         o+TrKQKmuCxcWsgpEOJlCkR486CqFDEI/Vm/o9+Ds2MLqvCYthqiMm5ePjeOnkIWMl+b
-         rvH6Ym0nmDVONn7fYmNvovvSFkpH2M/FdfRcYQe0V/iTtBNKm4wMcCU6CL41QAJDLHV2
-         ITEAvuWE0kjNizf0n/LE9qEXIiZhLHXozAp6SnsIKJej+6SZ4ZjFtSfYGJf0I3cpq9HA
-         K5Uw==
-X-Forwarded-Encrypted: i=1; AJvYcCXc1ktYxkB4sDeNB6whIkZU9OXDlecMg/zc6woxyB6Rbg0aPBpE5RYlHri1cmLQf8E4KBhzFLhANkl2WYnHkA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzeVDsqHBKi1YrIuJgKAazA0ME6C8gzDcD8VNDoEfoEt78FuvYr
-	bN6xcmthEzV/L5sgdmY1/rUe+7g3HfQ7uEH9Gg1GZaO8EsyCA09Dycg8
-X-Gm-Gg: ASbGncshL3wp6t7RhpRQjifUpZtHKSvOv7LP9rP4F4qmHNnZg3rXhcgV6huDb4UtWFq
-	xAHlBsT1kF5vbVMn6o7LRgsNzcS4ZGgyO/6ddzvHFZVr3aDSbfLAUX5A2t1CRisKJul0/xRVQXG
-	kvNAyHD3XU/9zVITZvmVZqsu3MS3pL+r2FwkUdFMu9bBOxOIhHEkrq6PlnLujWCXdsuKEvW2iBG
-	k/+qKq8ZEgV5zaiVITWrJGboIveHOBy7S9Sd18DOlYwsKWERGDmF+bjhR8sN75f+drYlhY0EjXv
-	9yIjhO2DwS96nubO2PnYqaRseV76aLdyHjYr09LnBVNTGjOwvc+GV+tOLpKNwm7PaYQEEilW2oS
-	q
-X-Google-Smtp-Source: AGHT+IFYuZr8i/s3T0h77aKO3ys5BfKYJLS5aKf0P+CB6IP+gtk0942n8ugs4IGHLFscQ/B6DDNpGw==
-X-Received: by 2002:a17:90b:3b82:b0:315:c77b:37d6 with SMTP id 98e67ed59e1d1-318c92ef8e1mr17269051a91.23.1751294575415;
-        Mon, 30 Jun 2025 07:42:55 -0700 (PDT)
+        bh=n69gDXxPGfgIU+wPEIeigImTRma77DzYZ7Ve67R5PNg=;
+        b=RK5Irr651ueliY5pS0izfpLRmi1/kWhYxLjU4y5yi3mPcFVRz+0Tfnc9Ke/HGPmJb4
+         HeeUz9jH0AE4EoP4mWqE+We5oLOhWUadHEP2eyrqqi0hMGvcItMORiiFUpyiAKrt0tC6
+         TmCyosVvW0M3Q5bk3YdMGPuO6EdzeBuAVgabyk+EgY3jbGa3xQfxVwLQV+nLN0Up8yIL
+         K1E3rTmlhTb19DxpAtKZtG3tAROq6FLZz9d0YXCsbeq2Zi/+rYNY/JEB0xyCvSqhrOda
+         Ixm+aojsxkccKbx6jyP+SBRwWsGCnBfDME2T5vgQIY4Su99DE01yNu4MkHBVVBdH58K9
+         n4sA==
+X-Forwarded-Encrypted: i=1; AJvYcCWj14YJwRdATkHBLk6mf8WxbpwtjLWW9AY+FhyYAgfeW1no/NY1Y4PjEs6/+IfAeVJFuYp7ik10av7OjWSyGA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxBO96n3Alv1hYBW7MNQASl+uaJaeUC9ZPUz5XW5umf6hv+x8mT
+	kh6n7NmaAN41UP/6gtGVyjzDM2wSBzJOohT7WatfHt25n4cpN4BQ6XSp
+X-Gm-Gg: ASbGncu2me/USeOHPC7g11sW5yMStzkZ9G/DhFHms8gr48N+zuVAjg1iyuvayDrBNcT
+	wY7E5xKU4YMU0EXspLiI5FIITqz7kp5M+u7HDMV6CAHGjC9An7xXpjDBogfjZNQsnGBelwjSqmi
+	90PLey/VqMzqHAIw1AVsKThf9nAkMoUxyLn5q9ID9SmlJx1fFUWUqWtkn5/3sc6fhhr/a7D2eu+
+	v8cEZ4d4Bbiz5Pgq4FwDRY+DF2fcmixcswWi13qjdrDTbWyWASKpdHLu1/KyFaCgJB69dDzTABw
+	WyNN7Uj2UEMcBCO4Cjjdoi3tJZ8eM0poGV49iNI2sc5EhrcCiWH7GbdWJ9QfAk7zQ1TOhK4oD2W
+	4
+X-Google-Smtp-Source: AGHT+IEBKjYr3kuohCQjY0CglzvBmQzIq01EIwspNpePjbfFFbP1AgODBoDwnck1jrdGsXqUo51EbA==
+X-Received: by 2002:a17:90b:1b0c:b0:30e:3737:7c87 with SMTP id 98e67ed59e1d1-318c91117a0mr17987244a91.5.1751294582368;
+        Mon, 30 Jun 2025 07:43:02 -0700 (PDT)
 Received: from minh.192.168.1.1 ([2001:ee0:4f0e:fb30:2f51:de71:60e:eca9])
-        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-318c13a270csm9170017a91.16.2025.06.30.07.42.50
+        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-318c13a270csm9170017a91.16.2025.06.30.07.42.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Jun 2025 07:42:55 -0700 (PDT)
+        Mon, 30 Jun 2025 07:43:01 -0700 (PDT)
 From: Bui Quang Minh <minhquangbui99@gmail.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -78,9 +78,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	linux-kernel@vger.kernel.org,
 	bpf@vger.kernel.org,
 	Bui Quang Minh <minhquangbui99@gmail.com>
-Subject: [PATCH net v2 2/3] virtio-net: remove redundant truesize check with PAGE_SIZE
-Date: Mon, 30 Jun 2025 21:42:11 +0700
-Message-ID: <20250630144212.48471-3-minhquangbui99@gmail.com>
+Subject: [PATCH net v2 3/3] virtio-net: use the check_mergeable_len helper
+Date: Mon, 30 Jun 2025 21:42:12 +0700
+Message-ID: <20250630144212.48471-4-minhquangbui99@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20250630144212.48471-1-minhquangbui99@gmail.com>
 References: <20250630144212.48471-1-minhquangbui99@gmail.com>
@@ -92,44 +92,91 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The truesize is guaranteed not to exceed PAGE_SIZE in
-get_mergeable_buf_len(). It is saved in mergeable context, which is not
-changeable by the host side, so the check in receive path is quite
-redundant.
+Replace the current repeated code to check received length in mergeable
+mode with the new check_mergeable_len helper.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 ---
- drivers/net/virtio_net.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/net/virtio_net.c | 34 +++++++---------------------------
+ 1 file changed, 7 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 31661bcb3932..535a4534c27f 100644
+index 535a4534c27f..ecd3f46deb5d 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -2157,9 +2157,9 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+@@ -2156,7 +2156,6 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+ 				      struct virtnet_rq_stats *stats)
  {
  	struct virtio_net_hdr_mrg_rxbuf *hdr = buf;
- 	unsigned int headroom, tailroom, room;
--	unsigned int truesize, cur_frag_size;
+-	unsigned int headroom, tailroom, room;
  	struct skb_shared_info *shinfo;
  	unsigned int xdp_frags_truesz = 0;
-+	unsigned int truesize;
- 	struct page *page;
- 	skb_frag_t *frag;
- 	int offset;
-@@ -2207,9 +2207,8 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
- 		tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
- 		room = SKB_DATA_ALIGN(headroom + tailroom);
+ 	unsigned int truesize;
+@@ -2202,20 +2201,14 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+ 		page = virt_to_head_page(buf);
+ 		offset = buf - page_address(page);
  
--		cur_frag_size = truesize;
--		xdp_frags_truesz += cur_frag_size;
--		if (unlikely(len > truesize - room || cur_frag_size > PAGE_SIZE)) {
-+		xdp_frags_truesz += truesize;
-+		if (unlikely(len > truesize - room)) {
+-		truesize = mergeable_ctx_to_truesize(ctx);
+-		headroom = mergeable_ctx_to_headroom(ctx);
+-		tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
+-		room = SKB_DATA_ALIGN(headroom + tailroom);
+-
+-		xdp_frags_truesz += truesize;
+-		if (unlikely(len > truesize - room)) {
++		if (check_mergeable_len(dev, ctx, len)) {
  			put_page(page);
- 			pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
- 				 dev->name, len, (unsigned long)(truesize - room));
+-			pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
+-				 dev->name, len, (unsigned long)(truesize - room));
+-			DEV_STATS_INC(dev, rx_length_errors);
+ 			goto err;
+ 		}
+ 
++		truesize = mergeable_ctx_to_truesize(ctx);
++		xdp_frags_truesz += truesize;
++
+ 		frag = &shinfo->frags[shinfo->nr_frags++];
+ 		skb_frag_fill_page_desc(frag, page, offset, len);
+ 		if (page_is_pfmemalloc(page))
+@@ -2429,18 +2422,12 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 	struct sk_buff *head_skb, *curr_skb;
+ 	unsigned int truesize = mergeable_ctx_to_truesize(ctx);
+ 	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
+-	unsigned int tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
+-	unsigned int room = SKB_DATA_ALIGN(headroom + tailroom);
+ 
+ 	head_skb = NULL;
+ 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
+ 
+-	if (unlikely(len > truesize - room)) {
+-		pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
+-			 dev->name, len, (unsigned long)(truesize - room));
+-		DEV_STATS_INC(dev, rx_length_errors);
++	if (check_mergeable_len(dev, ctx, len))
+ 		goto err_skb;
+-	}
+ 
+ 	if (unlikely(vi->xdp_enabled)) {
+ 		struct bpf_prog *xdp_prog;
+@@ -2475,17 +2462,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 		u64_stats_add(&stats->bytes, len);
+ 		page = virt_to_head_page(buf);
+ 
+-		truesize = mergeable_ctx_to_truesize(ctx);
+-		headroom = mergeable_ctx_to_headroom(ctx);
+-		tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
+-		room = SKB_DATA_ALIGN(headroom + tailroom);
+-		if (unlikely(len > truesize - room)) {
+-			pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
+-				 dev->name, len, (unsigned long)(truesize - room));
+-			DEV_STATS_INC(dev, rx_length_errors);
++		if (check_mergeable_len(dev, ctx, len))
+ 			goto err_skb;
+-		}
+ 
++		truesize = mergeable_ctx_to_truesize(ctx);
+ 		curr_skb  = virtnet_skb_append_frag(head_skb, curr_skb, page,
+ 						    buf, len, truesize);
+ 		if (!curr_skb)
 -- 
 2.43.0
 
