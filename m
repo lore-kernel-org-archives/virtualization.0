@@ -1,181 +1,187 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0F2023AB8D
-	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 09:47:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4965A247280
+	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 09:51:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751276843; cv=none; b=ZOQy1dEeKmxkLrAwwZBuTJwdy7MPf+mcnjl4vvTbDLYCMeHH7LZYbd9pfab7Z/5uOXhHozKmpNDWJtXmnrVpEKDQrVBoFt04EHv95HqD57cCe645OO8nHFG01mINMnpAheunkguAIAUx5oF3Mfo4j1ZYtxXhebHSTBpTlu7Pe0s=
+	t=1751277082; cv=none; b=UeTYwJ5o0C9xFt5hcqHpblKaWLvMJ3cVg33HKnAemUmrjtAGwh4QBd+NNlB/4kVLz54pbXacuLdNrTvV9m8/PT25qvZ8WZHfkoqWXpn25bpI8rPgfhsuUriFE0iYF1BgUzyjuZ+f6RcJlOKCS+U+jngsesN+5CaU3G1RkJFuIfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751276843; c=relaxed/simple;
-	bh=u2PQA0S/gy/0ITz+24bqC/IeF/VMz3qlCfRMUN/YZwo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=T2lERD/yLYwQ5SkvjHreArzfO50V6j8UA3Zr+37QDc+kAFmLKO4T0Atpke4jtBMrp0vL9uDghFjhd94m0XxfkX3VCva59Ul5Q0OVPSLp72dNSiBw/OByOM4qy6iGkSFr1MiKkZq8p2lDdfQIN2+mfr0G7818JU1meMHVNkY1CKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JfXGDTFQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751277082; c=relaxed/simple;
+	bh=iqcbsqqx91hRFW3nOeQh2fCgpjZp4yNOzZLmUmGbW98=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dAUW/EvM2PEKDaeBwCc9B4oFe8eplzApDWiL+IIdrfg1oHAPIwxoLbIxc9xZsnQ97bo9h1rfYit95Hfe0OV4zMbfvPdA5HrWU/4ZjQzGSKjVZnSFBTrFMyj/EWtcAxuU1iGb8WIW8On0fHrJWXsUsAYynl6XdNqXiYyl/ulVX/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=T1HCxY0y; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JfXGDTFQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751276840;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=cYM+l9u3eA7xXNWMmpxmynV8BtHDfFyAj+GAIS/oRBQ=;
-	b=JfXGDTFQa6yza4qj+KUlJIe0PtWk4QsT2pHehgzo7m3OqzityhY0wLaMvIu8EewDuqUfzK
-	S0KlkfeL9nqd26TFyEpyEHq6qYMPCZsQHzQHduugJ2MHOTXcfBUSo6ugay7O+ac5NVDFQt
-	3Dsc01IRBpenSnUefb1KLpgyO98ehTY=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-257-MpTqhLAQNcqgGSp66D8N4w-1; Mon, 30 Jun 2025 05:47:16 -0400
-X-MC-Unique: MpTqhLAQNcqgGSp66D8N4w-1
-X-Mimecast-MFC-AGG-ID: MpTqhLAQNcqgGSp66D8N4w_1751276836
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4535ee06160so14627185e9.3
-        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 02:47:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="T1HCxY0y"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-311ef4fb43dso1414212a91.3
+        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 02:51:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1751277077; x=1751881877; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=1axG9UN4guwGf2MhIje1rzGErylNfM2qtIpn5Wq0YrA=;
+        b=T1HCxY0yuwxM4FN8JQ+66qXoAOWBRx13vF2vOvMX3sLjVlA/QB3AtbDUaqbKL0zH97
+         ScnTUkFrEAedn917goj2T/aWXkyQEo6rkl8Pr4KXO0lhMvj4MheGeSA+HhLVMi/a5kN2
+         +eqdL2VK7ld6YjHqKeOITFh5f0yKnWQLIWVhY2gRWFbh7PmcuAjc5VXAbrRm1nBEYawU
+         4YPAt5wY/k6+4FU47kHf3YgfvP11HWlpNeixMbEMG+FeE4WEz6qlDkj05iJjROW92ApZ
+         4CQatIDDInL7kxfQFRvCU2rIYZuo6O9WUlv7q/WSESBu+x6vNbeNCH6f4fDZGbrRZ8Z+
+         b7wA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751276835; x=1751881635;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cYM+l9u3eA7xXNWMmpxmynV8BtHDfFyAj+GAIS/oRBQ=;
-        b=cyWga6EqsIA1TIcGJwKFaiuAmRNUf8DHAdRfHYjVV5kEJmuPAMzTqpAnJNH0MIO11/
-         lHJCgoNxq3YTuYuCXg2M86DXpL3R1C3TbtLFcleVZoIlv6hJC9sYlQanwiHfKApnPCeN
-         CEdNkWpff2/uZCO7Wk4wDCCWmFDIN2gO8jXEKmMp/etOLfQXFvFB70IKd0Rr3c1lH4GH
-         JLoeynaJ3cGRK4Du8ezgArDiwTWgJ0mKMcf106zSyfWexYz5snBtseqP+pp4OCpaJb9t
-         ve3QIXQcl8G297gmF32yw/qPPe/hHfjc+Lb4iLE2B/THHkdgZJHLtyO6gf5xnOQlBNuv
-         iFLA==
-X-Forwarded-Encrypted: i=1; AJvYcCXga/TZf3y+WsoL3tYOCC08EjBH1+hCpVHinb7ZH/u2+F5zd+aKPjoGklAUMLF7MOxRscFNl4zOFTPXvU+70g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyVOJH0EyKiPenjV4A0ZVEc3zhQsh1fjHqMJDg5+Ln4+qN/hfFn
-	JVvX+63MVU1wygw5dhr4Ckmmwcs+dTiRqJPBhFSvaYpnvV4TV509ZcJHZ4nZaI7xBS3AUj7f12g
-	47bTannQM24PpwlrWCqsIJ/n2SK+BXSNps6IKeE3HQYD0U9mGt8LVlkwQMoo2rbALJQWr
-X-Gm-Gg: ASbGncuGVTMPViLOn9BfrR9FWsJns9KIdFJOUaXUh9iu7QFlUR3nRSsbr4sRJf0dJBu
-	0kO6LxFIrv3k+NgwztQk4Qwyn0qy2S2Po/E9QzNjJQ/0JWKKsQhyFnFmTLBzSNYhmTpH7kG3u/J
-	A/ILfViNkFLbdHwEtmsktS7r6d9E49nbos+Y2tWpcV7mBnQAwPgaJBq5xXBtxvbfS5/13SOHyps
-	gkx6yKKBr/5z9qABS8uTNwciah02yHaqSzQklF61QP24MVdOxx/QZOvPMkwJRpA/lWKPwBG0AI0
-	p6IyuC/aG6sDDGb05dZXB3uoJKV4
-X-Received: by 2002:a05:600c:4ed3:b0:43d:45a:8fc1 with SMTP id 5b1f17b1804b1-4538f244121mr129104915e9.4.1751276835603;
-        Mon, 30 Jun 2025 02:47:15 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFCsgQCAMCNSYIs4yUUiqL9XaX4IgpvXxCsiWAizlF8onAmxWpgouuXgVa8Tozt+Jbmj2XBUw==
-X-Received: by 2002:a05:600c:4ed3:b0:43d:45a:8fc1 with SMTP id 5b1f17b1804b1-4538f244121mr129104465e9.4.1751276835016;
-        Mon, 30 Jun 2025 02:47:15 -0700 (PDT)
-Received: from sgarzare-redhat ([193.207.177.127])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a87e947431sm9969199f8f.0.2025.06.30.02.47.13
+        d=1e100.net; s=20230601; t=1751277077; x=1751881877;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1axG9UN4guwGf2MhIje1rzGErylNfM2qtIpn5Wq0YrA=;
+        b=eEZ8eydF1FkHukzGE4nmAUSZL2F85TtunQ1AO449ykZrkbXwjHzH7TdmL3DkJJLfSA
+         Smc5mR9mmjFB54N4Yk+m+G160/r7cIZAnBbcAQr1TMh8Ip+3IjZqbdRL7axH97qPolts
+         zycZxvtMmritsY5vGJ3XU1eyU9MpchuTh/xP2Paco8mturZ8CESbPsPNRh2EqJXKJ527
+         j37ormZXPNhu6Oe4NTAimP/FbiVlmqL/iDBO0RpGmEnIC97cGw3Ffu2xXjo/orBNsG3h
+         eNojT7j3cuGpfS3mzpRhubNX2fow6DE2QD/CLwDyntYeNxucFt7mjo5VJs+jRoCjr9l0
+         kd5g==
+X-Forwarded-Encrypted: i=1; AJvYcCU0oHeqS4/Zlc1woyuWkjZ/MFDoGD7xIdouhhOrI+21+rzK7hIoQVKy45dWxJhDn4AGZRG7uZvTTDBSM0RqHA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YywPq05g3WU+OmmAkSwUh3QXb5IV4ZUhhJ7h07ivgVl/5dFapK1
+	2CWIQeqcq2QZx2Bji3BhGScMDfTkg+8+YBgCc8j6NMAOjYJ6hS1WIN9I+JChB8bb14g=
+X-Gm-Gg: ASbGncvjCDbiYgbXyvpNIDhX5I5lR80h+5nHJ5neP16Zmi3EBL3D5R8JkQOJgyMDNrK
+	DOd7zxO3Cn8NhUASOy+Xo7FxzHcwa9XQLhgHIefZuLow1T4yWN68Cw7lswLGaaxPVbKk3vmE29W
+	Npa6BIIT5TqwGmuyBBl8hPiu116H1KtEpEL6zhbw4ZaoMoulsySI6+ynIIrTaU9P5lGFIB7Sslz
+	FNSWKNDcLsKC1ASbPr/wO6oRmlrYMpaB9MmrCmJDV3JofPxcGQFeqZxQ4vz8+cClUE2PveaRF6l
+	n3T6bbkUVKXbfYCk8OhuGcysI8vCfBuqits1co1S01WclBdlT9NMUNSx4ouvqNkLc826yCpk
+X-Google-Smtp-Source: AGHT+IHPgTj4lH/A7AaOqx4zS1bLYGSTxDSUFaa71SvEDg6oNnPYe86WGVy9RGJSkXmiLAkS60LykA==
+X-Received: by 2002:a17:90b:35ce:b0:312:db8:dbdd with SMTP id 98e67ed59e1d1-318c925a50fmr17658008a91.28.1751277077433;
+        Mon, 30 Jun 2025 02:51:17 -0700 (PDT)
+Received: from vexas.. ([203.208.189.7])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-318c14e18bbsm8409468a91.23.2025.06.30.02.51.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Jun 2025 02:47:14 -0700 (PDT)
-Date: Mon, 30 Jun 2025 11:47:08 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+        Mon, 30 Jun 2025 02:51:17 -0700 (PDT)
+From: Zigit Zo <zuozhijie@bytedance.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com
+Cc: zuozhijie@bytedance.com,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC net v2 2/3] vsock: Fix transport_* TOCTOU
-Message-ID: <o2erk5qbypfrla2afvlswzp7al43xulrucdo7b7wvnhsytjchm@jh6spvmgfo2c>
-References: <20250620-vsock-transports-toctou-v2-0-02ebd20b1d03@rbox.co>
- <20250620-vsock-transports-toctou-v2-2-02ebd20b1d03@rbox.co>
- <l6yqfwqjzygrs74shfsiptexwqydw3ts2eiuet2te3b7sseelo@ygussce5st4h>
- <b0b49299-6373-4fea-914b-271f6451e27b@rbox.co>
+Subject: [PATCH net] virtio-net: fix a rtnl_lock() deadlock during probing
+Date: Mon, 30 Jun 2025 17:51:09 +0800
+Message-ID: <20250630095109.214013-1-zuozhijie@bytedance.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <b0b49299-6373-4fea-914b-271f6451e27b@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: luyJDQuY3bBvkVec8eX6GA35gk7Z4S8P5EqnwU-ntws_1751276836
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Sun, Jun 29, 2025 at 11:26:25PM +0200, Michal Luczaj wrote:
->On 6/27/25 10:08, Stefano Garzarella wrote:
->> On Fri, Jun 20, 2025 at 09:52:44PM +0200, Michal Luczaj wrote:
->>> Transport assignment may race with module unload. Protect new_transport
->>>from becoming a stale pointer.
->>>
->>> This also takes care of an insecure call in vsock_use_local_transport();
->>> add a lockdep assert.
->>>
->>> BUG: unable to handle page fault for address: fffffbfff8056000
->>> Oops: Oops: 0000 [#1] SMP KASAN
->>> RIP: 0010:vsock_assign_transport+0x366/0x600
->>> Call Trace:
->>> vsock_connect+0x59c/0xc40
->>> __sys_connect+0xe8/0x100
->>> __x64_sys_connect+0x6e/0xc0
->>> do_syscall_64+0x92/0x1c0
->>> entry_SYSCALL_64_after_hwframe+0x4b/0x53
->>>
->>> Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
->>> Signed-off-by: Michal Luczaj <mhal@rbox.co>
->>> ---
->>> net/vmw_vsock/af_vsock.c | 28 +++++++++++++++++++++++-----
->>> 1 file changed, 23 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->>> index 63a920af5bfe6960306a3e5eeae0cbf30648985e..a1b1073a2c89f865fcdb58b38d8e7feffcf1544f 100644
->>> --- a/net/vmw_vsock/af_vsock.c
->>> +++ b/net/vmw_vsock/af_vsock.c
->>> @@ -407,6 +407,8 @@ EXPORT_SYMBOL_GPL(vsock_enqueue_accept);
->>>
->>> static bool vsock_use_local_transport(unsigned int remote_cid)
->>> {
->>> +	lockdep_assert_held(&vsock_register_mutex);
->>> +
->>> 	if (!transport_local)
->>> 		return false;
->>>
->>> @@ -464,6 +466,8 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
->>>
->>> 	remote_flags = vsk->remote_addr.svm_flags;
->>>
->>> +	mutex_lock(&vsock_register_mutex);
->>> +
->>> 	switch (sk->sk_type) {
->>> 	case SOCK_DGRAM:
->>> 		new_transport = transport_dgram;
->>> @@ -479,12 +483,15 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
->>> 			new_transport = transport_h2g;
->>> 		break;
->>> 	default:
->>> -		return -ESOCKTNOSUPPORT;
->>> +		ret = -ESOCKTNOSUPPORT;
->>> +		goto err;
->>> 	}
->>>
->>> 	if (vsk->transport) {
->>> -		if (vsk->transport == new_transport)
->>> -			return 0;
->>> +		if (vsk->transport == new_transport) {
->>> +			ret = 0;
->>> +			goto err;
->>> +		}
->>
->> 		/* transport->release() must be called with sock lock acquired.
->> 		 * This path can only be taken during vsock_connect(), where we
->> 		 * have already held the sock lock. In the other cases, this
->> 		 * function is called on a new socket which is not assigned to
->> 		 * any transport.
->> 		 */
->> 		vsk->transport->release(vsk);
->> 		vsock_deassign_transport(vsk);
->>
->> Thinking back to this patch, could there be a deadlock between call
->> vsock_deassign_transport(), which call module_put(), now with the
->> `vsock_register_mutex` held, and the call to vsock_core_unregister()
->> usually made by modules in the exit function?
->
->I think we're good. module_put() does not call the module cleanup function
->(kernel/module/main.c:delete_module() syscall does that), so
->vsock_core_unregister() won't happen in this path here. Have I missed
->anything else?
->
+This bug happens if the VMM sends a VIRTIO_NET_S_ANNOUNCE request while
+the virtio-net driver is still probing with rtnl_lock() hold, this will
+cause a recursive mutex in netdev_notify_peers().
 
-Nope, I reached the same conclusion!
+Fix it by skip acking the annouce in virtnet_config_changed_work() when
+probing. The annouce will still get done when ndo_open() enables the
+virtio_config_driver_enable().
 
-Thanks,
-Stefano
+We've observed a softlockup with Ubuntu 24.04, and can be reproduced with
+QEMU sending the announce_self rapidly while booting.
+
+[  494.167473] INFO: task swapper/0:1 blocked for more than 368 seconds.
+[  494.167667]       Not tainted 6.8.0-57-generic #59-Ubuntu
+[  494.167810] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[  494.168015] task:swapper/0       state:D stack:0     pid:1     tgid:1     ppid:0      flags:0x00004000
+[  494.168260] Call Trace:
+[  494.168329]  <TASK>
+[  494.168389]  __schedule+0x27c/0x6b0
+[  494.168495]  schedule+0x33/0x110
+[  494.168585]  schedule_preempt_disabled+0x15/0x30
+[  494.168709]  __mutex_lock.constprop.0+0x42f/0x740
+[  494.168835]  __mutex_lock_slowpath+0x13/0x20
+[  494.168949]  mutex_lock+0x3c/0x50
+[  494.169039]  rtnl_lock+0x15/0x20
+[  494.169128]  netdev_notify_peers+0x12/0x30
+[  494.169240]  virtnet_config_changed_work+0x152/0x1a0
+[  494.169377]  virtnet_probe+0xa48/0xe00
+[  494.169484]  ? vp_get+0x4d/0x100
+[  494.169574]  virtio_dev_probe+0x1e9/0x310
+[  494.169682]  really_probe+0x1c7/0x410
+[  494.169783]  __driver_probe_device+0x8c/0x180
+[  494.169901]  driver_probe_device+0x24/0xd0
+[  494.170011]  __driver_attach+0x10b/0x210
+[  494.170117]  ? __pfx___driver_attach+0x10/0x10
+[  494.170237]  bus_for_each_dev+0x8d/0xf0
+[  494.170341]  driver_attach+0x1e/0x30
+[  494.170440]  bus_add_driver+0x14e/0x290
+[  494.170548]  driver_register+0x5e/0x130
+[  494.170651]  ? __pfx_virtio_net_driver_init+0x10/0x10
+[  494.170788]  register_virtio_driver+0x20/0x40
+[  494.170905]  virtio_net_driver_init+0x97/0xb0
+[  494.171022]  do_one_initcall+0x5e/0x340
+[  494.171128]  do_initcalls+0x107/0x230
+[  494.171228]  ? __pfx_kernel_init+0x10/0x10
+[  494.171340]  kernel_init_freeable+0x134/0x210
+[  494.171462]  kernel_init+0x1b/0x200
+[  494.171560]  ret_from_fork+0x47/0x70
+[  494.171659]  ? __pfx_kernel_init+0x10/0x10
+[  494.171769]  ret_from_fork_asm+0x1b/0x30
+[  494.171875]  </TASK>
+
+Fixes: df28de7b0050 ("virtio-net: synchronize operstate with admin state on up/down")
+Signed-off-by: Zigit Zo <zuozhijie@bytedance.com>
+---
+ drivers/net/virtio_net.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e53ba600605a..0290d289ebee 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -6211,7 +6211,8 @@ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_tx_timeout		= virtnet_tx_timeout,
+ };
+ 
+-static void virtnet_config_changed_work(struct work_struct *work)
++static void __virtnet_config_changed_work(struct work_struct *work,
++					  bool check_announce)
+ {
+ 	struct virtnet_info *vi =
+ 		container_of(work, struct virtnet_info, config_work);
+@@ -6221,7 +6222,7 @@ static void virtnet_config_changed_work(struct work_struct *work)
+ 				 struct virtio_net_config, status, &v) < 0)
+ 		return;
+ 
+-	if (v & VIRTIO_NET_S_ANNOUNCE) {
++	if (check_announce && (v & VIRTIO_NET_S_ANNOUNCE)) {
+ 		netdev_notify_peers(vi->dev);
+ 		virtnet_ack_link_announce(vi);
+ 	}
+@@ -6244,6 +6245,11 @@ static void virtnet_config_changed_work(struct work_struct *work)
+ 	}
+ }
+ 
++static void virtnet_config_changed_work(struct work_struct *work)
++{
++	__virtnet_config_changed_work(work, true);
++}
++
+ static void virtnet_config_changed(struct virtio_device *vdev)
+ {
+ 	struct virtnet_info *vi = vdev->priv;
+@@ -7030,7 +7036,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	   otherwise get link status from config. */
+ 	netif_carrier_off(dev);
+ 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+-		virtnet_config_changed_work(&vi->config_work);
++		/* The check_annouce work will get scheduled when ndo_open()
++		 * doing the virtio_config_driver_enable().
++		 */
++		__virtnet_config_changed_work(&vi->config_work, false);
+ 	} else {
+ 		vi->status = VIRTIO_NET_S_LINK_UP;
+ 		virtnet_update_settings(vi);
+
+base-commit: 2def09ead4ad5907988b655d1e1454003aaf8297
+-- 
+2.49.0
 
