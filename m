@@ -1,63 +1,63 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28B5528DB58
-	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 15:13:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFF1A28DB5D
+	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 15:13:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751296424; cv=none; b=nZQHhafTAsvKmQcAlc9a9UKQSHQoO6ryJ7iNJeK2vUTG/F5B8a041zcOktoYnkWFWIl/pl+wobn278zPNbtKYkurnayt298FawcMryELz42BsXkVMvTpUifFuNFzOgHkr30jGB6OhQVvh5BAmccQJzeuGfebWCkycTyHJBXdtLA=
+	t=1751296430; cv=none; b=hw1vhzGXINyIFd/8nUlznud4z+XoONnKaYre2z+t2/rG7qeNFRfuof5kqV5CJ4BWzE40Tws4sMei+jzK1rz9yY9hJeMv3eclU08pYQLybo+/plfyETgNWVjqm5AQZ8S89xbLpdocXl+NW+iHyLfiPfG5LzaCyDLUav+d2vEfjgg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751296424; c=relaxed/simple;
-	bh=QgfXPfEJ1ko6gJfEVqi+dqAvLBbkYxXvmPhxmO6U4cs=;
+	s=arc-20240116; t=1751296430; c=relaxed/simple;
+	bh=5mv+oGmYUQBg1ezZ8QQ1je1GKPmssv38hlgDpbVe09k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cHfCS/v4BTV+jgWHX+Z8ntxtXNyKiiZfjMB5tUYNPSLD5PXxM5BizXtcpQCpVLkWd1zsilpnl8MDa5QygpZ45Z8gPo7Y0g8cS+VBGAhkVu2TBVOSjUmhqcv7BXbQX2XmkLHIvG+vXDmeJAJiTYRc/kgx6q4bieCoKDCEHadrHfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QMRIIwWf; arc=none smtp.client-ip=209.85.210.174
+	 MIME-Version; b=PXwI1IwCEH60WYScMXI489ZeVKkRCa2vFfhOS1WhfcmtM082Snie6tgmJWseLdZYdwaVc28+aDWWFi4pBoCGv9WUiRdIW3y2//icj+nhI1KST9KgB0KBx2Vmvb/Unvk6vg7Z3dGRodFm1omtCp/gsMhs2VxKJzQZG/SuiX1er14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LMvUg5QA; arc=none smtp.client-ip=209.85.215.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QMRIIwWf"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-74af4af04fdso3287699b3a.1
-        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 08:13:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LMvUg5QA"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-b3508961d43so1071419a12.3
+        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 08:13:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751296422; x=1751901222; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1751296428; x=1751901228; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zgTzel6BYyrjmaJOOevkqrQDDDC9SFFWPVaFYPAwVp0=;
-        b=QMRIIwWf+O+7lWDaZycbV/+hEdF/f5Y/UOiKeDwjScWjTnrbdhZRNQiZclI+Bl7KC1
-         NHcILhsMWdWaDeDgq7VIpLjyReCr1VCKTWtC2i5S7iTe18LiyoAwd1/FfEYfxfrG1t7O
-         JFVmm/RtEFjOnzJO/3rdbfPwQVXhG2blmudOE/oGSJ+h+kyR76DhiCRenJ5i17TO+/ZF
-         MqPVZWEilY4+wJNWP+NA4fUfiNGa2Jz+U+3eq8o3QwsnikFQbAWa72++QWD+O7wJAG4/
-         j4Mizlsci0WtOVq0Zj5id0uwduJLAngnLGCFIN08oTm9Qnt2pDB1K8LCOrrZGrn6kI74
-         y4rw==
+        bh=pBu2Oaefb1JPmcr5RSg3Hzf1URtJFkgOjV7eKQ6deWg=;
+        b=LMvUg5QA/MGSUYJFrY2HJup25u+lLYCMaUkDIuA3nQ1r+3UAqKyJW+LLPa2ZTIuT1e
+         hOgvyYyR7AaVT3HeBVtzJCrXzoaR7jtAEgnlZNrxG85BtPp7Oj/d1e6oW/kqdqUoc/io
+         RDDt+wpOpbFNjfETDJwmhnyVMJSDQ5xLqzBzie9FckqZxmY5Tf4pWyw8xY0Cekp0uf5b
+         LlOL2VuuAC0jYDarC01YD9gHWerpsLks4OKAEurxG4Csjbsy2u6VofBbjt4pTnHySYg1
+         Sl4Ff0jAhrIykk0EnKD8fJik8aM1TovOoICeqeoc5Xw5XbdOR7XXGIgX2wjth1SFG318
+         gr3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751296422; x=1751901222;
+        d=1e100.net; s=20230601; t=1751296428; x=1751901228;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=zgTzel6BYyrjmaJOOevkqrQDDDC9SFFWPVaFYPAwVp0=;
-        b=XsolhRw6S8a6E9XIp/665CbroZkC5Mm6ZyEvrmI2l6c5rJ8g1FcMnVN07ujKT72BbY
-         Cv0IW+hs3CAj48rdfWBsvSrw9xpb3o/JE/y0P5hxQFKOQaOYdeGgqGlmY+FfQ+Lr0Ait
-         k5wOylRdz7x3I5w9d258H1Vnc6Nt/e64joL8X/GCRWeYk1PKYXQisYf3zpF1qCV1eFqA
-         M1CsQmw8c+eR/SV7/Lx1zrFaTMG5WTYwrFOtjy3f7jkIYLDpQuxPKD7p5TCRYQQpitlu
-         7i5hyjcJc1XyOBElx+phIW1KKcRSwJ9F5EaZs5PRwZ8rBjUFvHkjAKW985HPsuWZYccJ
-         mhsQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWPPm0AacS27EPtFP8ehPEU7TOVJy8XVC4gJ4PONRXxfJGjkN3RaXIiGLuC6iXQo45uCfbSkZTne0CBQsCjOQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwXSfWaTdcwKBUIZpyyFbcdjxflPnRGJ7OAQP/BpCaBhTVP+8qG
-	KzNpZzeIoDy0I/qPTLE+yt3+/9wafcPx2yj7a2KyPg4waSGOXQjGViZS
-X-Gm-Gg: ASbGncsR6gjerg6Jc+XrKs7Moa2VqdHTRAS01EgjwbztmaChKuh8TCq65vk+JgPAIG+
-	lK7tNQcjDC1xMT2l8CG12FJeKXlZ1/biiBaRczVe7F1suBOH6qHO/ZHFTjWpWDL87aw+LmbNkko
-	Vb+sTr1PE9Z6yU80DUGdrqrdnfYNK/2bAN0WbNl/4psyNT9/o4eq2hwZiAWH6mOVN5QQjIkMWJm
-	g9kFvWxlYKRODxDqxb+In7PNk0Ltd8pimcxLLEOhmzzOwujbeJ1nE+byD0OK2VpQ6W+aJ1DwMlQ
-	8qAymqO+3XFxpJMILCiwUAuWDF1TfKWrzWE3+xm3B/IIdfWAsa/4gQn/Daq9OFtdoMS9PX82Ppj
-	s
-X-Google-Smtp-Source: AGHT+IEsch+5tINjufS1E+TUAD5+k5BuyuOB3ndZxmFnJHJrghU2JPMJl3gnOuaCh+K3vDh16HFMEA==
-X-Received: by 2002:a05:6a21:6e03:b0:21e:2b2c:8f4f with SMTP id adf61e73a8af0-2208d067850mr31572821637.7.1751296422446;
-        Mon, 30 Jun 2025 08:13:42 -0700 (PDT)
+        bh=pBu2Oaefb1JPmcr5RSg3Hzf1URtJFkgOjV7eKQ6deWg=;
+        b=jM8txq65Gm+W/QRrK53CKgfUIh9IAibZBiMHlTJDj+biNy3y9axi1iNkV6BxWfuI7N
+         c3gQVnbIKtDOKcH9xAKaYiBxy4MyDI8ThhSXZLRxFRvRhDD74fKsBjrs7JmWpkFyFu6A
+         6aVGG3dYkiJPohj5WK6Z9i1d+9jjUD5rXT5cmHWjnpgDlmqoPx83PGOmv12eOQEymAMA
+         p7VlOqhHRce+/ochJ9dkQVRiqeUuarJRjJ6W/A+yhL563vzniWjAUg0NDlGvRNpXtz0A
+         idGL73VkJxUQ3ALLX4gaWL672CLzmJ8RgfVdI/mnSv2v7H2EmV9aURiHi3j6kw+kwpTp
+         I9eA==
+X-Forwarded-Encrypted: i=1; AJvYcCVsoMcbpFCkHctYxcIATyJMxSwIkQl8SOqYTzR20erFFzT7EN/L7ROpY9BwnS4aOcaylq9SVym18J9pXQ6Pjg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzaBEY/NII1z07ZpE/jyHT5Eaw9mNisgBQKYof20zJlmjcJQZT2
+	hA8LV5sKEWUuTomHuiR5lB8GD2Z9wxnEJPfEJ3lhS2y6h291Ai2GgJrT
+X-Gm-Gg: ASbGnctlw3+auZJdFovJY9C4uUhPEKGlgkqjtT3kqTxxSWZA8yIbS1XOVNptZio0CfJ
+	Pfq7w6qLXpVDSDFjBeFxLszM/S/oYB8M5cVChoJu5oWmk86KVs/CA/TgviWM11qOXzOc6rMj5b5
+	nrz+JjFvI1IgiOMvaQ7FTfwqDiFCFdjGIURvYq9m4fKqd7rQJ5HHL1eODfbJjosekDZ5SAT8p7k
+	CKmstek4l4jmxbhHz3SY+lUb/97KXn9Hfw/ZgivSeKoD8je/MPLVU0/HhQpTNLJwPP8BGzFbz3F
+	LfbjdUoTGQXGpMZj4y7aaBWZT5vTld758niLUVleMTGuzl9bLFu1l5mYGhKkQdwY8Jx8bcDNKOs
+	r
+X-Google-Smtp-Source: AGHT+IFwWEbLrxuNpGb6xkKNMp0XC0hNjgZ5eIlHaLzs3SUtzwOhDuKMakpxMq7cSzD+BMZJOw3BQw==
+X-Received: by 2002:a05:6a21:393:b0:21f:39c9:2122 with SMTP id adf61e73a8af0-220a12a6789mr23026011637.2.1751296428201;
+        Mon, 30 Jun 2025 08:13:48 -0700 (PDT)
 Received: from minh.192.168.1.1 ([2001:ee0:4f0e:fb30:2f51:de71:60e:eca9])
-        by smtp.googlemail.com with ESMTPSA id 41be03b00d2f7-b34e31bea17sm8323340a12.46.2025.06.30.08.13.36
+        by smtp.googlemail.com with ESMTPSA id 41be03b00d2f7-b34e31bea17sm8323340a12.46.2025.06.30.08.13.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Jun 2025 08:13:42 -0700 (PDT)
+        Mon, 30 Jun 2025 08:13:47 -0700 (PDT)
 From: Bui Quang Minh <minhquangbui99@gmail.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -77,11 +77,10 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	bpf@vger.kernel.org,
-	Bui Quang Minh <minhquangbui99@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH net v3 1/2] virtio-net: xsk: rx: fix the frame's length check
-Date: Mon, 30 Jun 2025 22:13:14 +0700
-Message-ID: <20250630151315.86722-2-minhquangbui99@gmail.com>
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH net v3 2/2] virtio-net: xsk: rx: move the xdp->data adjustment to buf_to_xdp()
+Date: Mon, 30 Jun 2025 22:13:15 +0700
+Message-ID: <20250630151315.86722-3-minhquangbui99@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20250630151315.86722-1-minhquangbui99@gmail.com>
 References: <20250630151315.86722-1-minhquangbui99@gmail.com>
@@ -93,94 +92,43 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When calling buf_to_xdp, the len argument is the frame data's length
-without virtio header's length (vi->hdr_len). We check that len with
+This commit does not do any functional changes. It moves xdp->data
+adjustment for buffer other than first buffer to buf_to_xdp() helper so
+that the xdp_buff adjustment does not scatter over different functions.
 
-	xsk_pool_get_rx_frame_size() + vi->hdr_len
-
-to ensure the provided len does not larger than the allocated chunk
-size. The additional vi->hdr_len is because in virtnet_add_recvbuf_xsk,
-we use part of XDP_PACKET_HEADROOM for virtio header and ask the vhost
-to start placing data from
-
-	hard_start + XDP_PACKET_HEADROOM - vi->hdr_len
-not
-	hard_start + XDP_PACKET_HEADROOM
-
-But the first buffer has virtio_header, so the maximum frame's length in
-the first buffer can only be
-
-	xsk_pool_get_rx_frame_size()
-not
-	xsk_pool_get_rx_frame_size() + vi->hdr_len
-
-like in the current check.
-
-This commit adds an additional argument to buf_to_xdp differentiate
-between the first buffer and other ones to correctly calculate the maximum
-frame's length.
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Fixes: a4e7ba702701 ("virtio_net: xsk: rx: support recv small mode")
 Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 ---
- drivers/net/virtio_net.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/net/virtio_net.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e53ba600605a..1eb237cd5d0b 100644
+index 1eb237cd5d0b..58876d1e1344 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -1127,15 +1127,29 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+@@ -1159,7 +1159,14 @@ static struct xdp_buff *buf_to_xdp(struct virtnet_info *vi,
+ 		return NULL;
  	}
- }
  
-+/* Note that @len is the length of received data without virtio header */
- static struct xdp_buff *buf_to_xdp(struct virtnet_info *vi,
--				   struct receive_queue *rq, void *buf, u32 len)
-+				   struct receive_queue *rq, void *buf,
-+				   u32 len, bool first_buf)
- {
- 	struct xdp_buff *xdp;
- 	u32 bufsize;
+-	xsk_buff_set_size(xdp, len);
++	if (first_buf) {
++		xsk_buff_set_size(xdp, len);
++	} else {
++		xdp_prepare_buff(xdp, xdp->data_hard_start,
++				 XDP_PACKET_HEADROOM - vi->hdr_len, len, 1);
++		xdp->flags = 0;
++	}
++
+ 	xsk_buff_dma_sync_for_cpu(xdp);
  
- 	xdp = (struct xdp_buff *)buf;
- 
--	bufsize = xsk_pool_get_rx_frame_size(rq->xsk_pool) + vi->hdr_len;
-+	/* In virtnet_add_recvbuf_xsk, we use part of XDP_PACKET_HEADROOM for
-+	 * virtio header and ask the vhost to fill data from
-+	 *         hard_start + XDP_PACKET_HEADROOM - vi->hdr_len
-+	 * The first buffer has virtio header so the remaining region for frame
-+	 * data is
-+	 *         xsk_pool_get_rx_frame_size()
-+	 * While other buffers than the first one do not have virtio header, so
-+	 * the maximum frame data's length can be
-+	 *         xsk_pool_get_rx_frame_size() + vi->hdr_len
-+	 */
-+	bufsize = xsk_pool_get_rx_frame_size(rq->xsk_pool);
-+	if (!first_buf)
-+		bufsize += vi->hdr_len;
- 
- 	if (unlikely(len > bufsize)) {
- 		pr_debug("%s: rx error: len %u exceeds truesize %u\n",
-@@ -1260,7 +1274,7 @@ static int xsk_append_merge_buffer(struct virtnet_info *vi,
- 
- 		u64_stats_add(&stats->bytes, len);
- 
--		xdp = buf_to_xdp(vi, rq, buf, len);
-+		xdp = buf_to_xdp(vi, rq, buf, len, false);
- 		if (!xdp)
+ 	return xdp;
+@@ -1284,7 +1291,7 @@ static int xsk_append_merge_buffer(struct virtnet_info *vi,
  			goto err;
+ 		}
  
-@@ -1358,7 +1372,7 @@ static void virtnet_receive_xsk_buf(struct virtnet_info *vi, struct receive_queu
+-		memcpy(buf, xdp->data - vi->hdr_len, len);
++		memcpy(buf, xdp->data, len);
  
- 	u64_stats_add(&stats->bytes, len);
- 
--	xdp = buf_to_xdp(vi, rq, buf, len);
-+	xdp = buf_to_xdp(vi, rq, buf, len, true);
- 	if (!xdp)
- 		return;
+ 		xsk_buff_free(xdp);
  
 -- 
 2.43.0
