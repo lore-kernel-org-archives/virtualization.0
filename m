@@ -1,50 +1,48 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C263286D7C;
-	Mon, 30 Jun 2025 13:38:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47A7B2BB04;
+	Mon, 30 Jun 2025 13:44:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751290726; cv=none; b=dtBpYqOJlpRFx5PR4xCHWeVJN5/np+vQQc2XxwjstExsgsGeQ5Hv314/wyMASDu82CTgpJtTOnpARtzvY9TDvGxd43OFG+YuZTdoQjYGQlbi3C2uMz0I0yJVf+kT9NQw9ABDaK3XocGK4uoRtryBskJFq2iBnzYlh7TknkW6MwU=
+	t=1751291053; cv=none; b=GYAxq/s1x80meOa6WTcUQ0HiAIQmSOlTfmV0SyUFbY2mQijP5UoMIsyFvAjhiuA6LaD5wemS9F6C1zFXtlEW6mmOEybj8SHHVY29npLlr2PPQ18L8UBS/TK971qAM3+NdkWIKvafRrcQrsw4Rop2xAy+YvAq4F8pNPF0nemP4ZM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751290726; c=relaxed/simple;
-	bh=LZiG3HgLUNmpOImgoNORgqbqT6uE7HpQAw31fKnOkVE=;
+	s=arc-20240116; t=1751291053; c=relaxed/simple;
+	bh=Yg/KzCdtEpJxguCdji3ntihiUuCF+1elyJ/tBmEWpsw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZXDcJ+sP0+vx0O8PGhWfen0TUSYPKbQE0dMAamp4SmBX1qjW/vYa/n+qsB5dgL5SG3Gmu72PmVkCPHvE67YePyVptg1+WBFe0/S/wrbe4qn2YMlZFsDKzEdVr+wPextp7NR9izwXquJuno/8ZaGKRPCWyVWIHqqMp99skPOukH0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id BF34B227A88; Mon, 30 Jun 2025 15:38:39 +0200 (CEST)
-Date: Mon, 30 Jun 2025 15:38:39 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
-	Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Alexander Potapenko <glider@google.com>,
-	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	=?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, iommu@lists.linux.dev,
-	virtualization@lists.linux.dev, kasan-dev@googlegroups.com,
-	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org,
-	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
-Message-ID: <20250630133839.GA26981@lst.de>
-References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com> <cover.1750854543.git.leon@kernel.org> <35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com> <20250627170213.GL17401@unreal>
+	 Content-Type:Content-Disposition:In-Reply-To; b=KMgcKapIYPo76t059h+XbSQUFQMvRA6t+/OfRcv+QhcalUV5a56ldIDbK5myUCYZC2G2atEC4eMtiSu2qEoo9H8tPa5+tKUqoFCAiyq7daFY8hrPd50kqL/suFJ6Gkm2bLSiwg/I4ZRvmaY0rj3UAnogIgfriq2EZuv1BUTfq+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=giL3aaWb; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="giL3aaWb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1AEAC4CEEF;
+	Mon, 30 Jun 2025 13:44:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751291053;
+	bh=Yg/KzCdtEpJxguCdji3ntihiUuCF+1elyJ/tBmEWpsw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=giL3aaWbgZ9UXVdtQe1qiWlJZKz4q5AI/YQDq1MSSkyFRZk25JFcWsl8DAUdjvAKY
+	 ma/qsIxsIOWoJfc1FXaYCZT6zrJe0YDwdOw8ajtBsKzrqi4kedmAmeZgSjmm4kodaN
+	 eG3h+USe2KiWp0MpuV7P4ZV4HWXh8IsVCcQCZV4Jn14/E8W02vZdzOp8/7FI+T20QA
+	 WKSZCXMMR9oT9Jmkxb9dTmacyD+DCV4f/UORqkBNChnYZmJkucPKZ/O2BTki7WcBLV
+	 CQ4EFJREtiF1FEPmNrGZZ2RSp+8638ggGZuzZmJfFT+eflxXGlv+rkpy1O9jG09nTg
+	 dFmoxb42felwg==
+Date: Mon, 30 Jun 2025 07:44:10 -0600
+From: Keith Busch <kbusch@kernel.org>
+To: Parav Pandit <parav@nvidia.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Lukas Wunner <lukas@wunner.de>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"stefanha@redhat.com" <stefanha@redhat.com>,
+	"alok.a.tiwari@oracle.com" <alok.a.tiwari@oracle.com>
+Subject: Re: [PATCH RFC] pci: report surprise removal events
+Message-ID: <aGKUqsudjfk8wCHI@kbusch-mbp>
+References: <11cfcb55b5302999b0e58b94018f92a379196698.1751136072.git.mst@redhat.com>
+ <aGFBW7wet9V4WENC@wunner.de>
+ <20250629132113-mutt-send-email-mst@kernel.org>
+ <aGHOzj3_MQ3x7hAD@kbusch-mbp>
+ <CY8PR12MB7195F2F2900BAEA69F5431E9DC46A@CY8PR12MB7195.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -53,19 +51,41 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250627170213.GL17401@unreal>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+In-Reply-To: <CY8PR12MB7195F2F2900BAEA69F5431E9DC46A@CY8PR12MB7195.namprd12.prod.outlook.com>
 
-On Fri, Jun 27, 2025 at 08:02:13PM +0300, Leon Romanovsky wrote:
-> > Thanks for this rework! I assume that the next step is to add map_phys 
-> > callback also to the dma_map_ops and teach various dma-mapping providers 
-> > to use it to avoid more phys-to-page-to-phys conversions.
+On Mon, Jun 30, 2025 at 04:07:55AM +0000, Parav Pandit wrote:
 > 
-> Probably Christoph will say yes, however I personally don't see any
-> benefit in this. Maybe I wrong here, but all existing .map_page()
-> implementation platforms don't support p2p anyway. They won't benefit
-> from this such conversion.
+> > From: Keith Busch <kbusch@kernel.org>
+> > Sent: 30 June 2025 05:10 AM
+> > 
+> > On Sun, Jun 29, 2025 at 01:28:08PM -0400, Michael S. Tsirkin wrote:
+> > > On Sun, Jun 29, 2025 at 03:36:27PM +0200, Lukas Wunner wrote:
+> > > > On Sat, Jun 28, 2025 at 02:58:49PM -0400, Michael S. Tsirkin wrote:
+> > > >
+> > > > 1/ The device_lock() will reintroduce the issues solved by 74ff8864cc84.
+> > >
+> > > I see. What other way is there to prevent dev->driver from going away,
+> > > though? I guess I can add a new spinlock and take it both here and
+> > > when
+> > > dev->driver changes? Acceptable?
+> > 
+> > You're already holding the pci_bus_sem here, so the final device 'put'
+> > can't have been called yet, so the device is valid and thread safe in this
+> > context. I think maintaining the desired lifetime of the instantiated driver is
+> > just a matter of reference counting within your driver.
+> > 
+> > Just a thought on your patch, instead of introducing a new callback, you could
+> > call the existing '->error_detected()' callback with the previously set
+> > 'pci_channel_io_perm_failure' status. That would totally work for nvme to
+> > kick its cleanup much quicker than the blk_mq timeout handling we currently
+> > rely on for this scenario.
+> 
+> error_detected() callback is also called while holding the device_lock() by report_error_detected().
+> So when remove() callback is ongoing for graceful removal and driver is waiting for the request completions,
+> 
+> If the error_detected() will be stuck on device lock.
 
-I think that conversion should eventually happen, and rather sooner than
-later.
-
+But I didn't suggest calling error_detected from report_error_detected.
+Just call it directly without device_lock. It's not very feasible to
+enforce a non-blocking callback, though, if speed is really a concern
+here.
