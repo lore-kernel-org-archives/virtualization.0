@@ -1,174 +1,143 @@
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11022143.outbound.protection.outlook.com [52.101.43.143])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17E9123BF96
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 18:37:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.143
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751395026; cv=fail; b=IHsuZF5AaVVTMCmlgnZGdi4gEiMGxbNzcmSgV82RiloDdBBCjoZ0P5Eva0Jy8zrPU8vHc2GHuZvxRMFchieMg/3oIP02DOS0uTW+aEjMRlTwGJDQIlHnR2mke/iHQt91gjrjsg/ro8NSUG1oeip1bYbfUYg33TM6OVRm26qBPK4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751395026; c=relaxed/simple;
-	bh=CtGGhMGXh3KAiKuST2Y+KaVZqHANIFQai2vDLLEvWvA=;
-	h=From:To:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Q6tQEL+xPNG6SRrgHqqx4bfQFewaAyRd9U15QYTXKVnLA0IMLEWfTJvpf1fEpzsNYr8RiarTizl0X0LkvX9VMvsBU6UJ3a5XAwUxA35Cr3DZROc1jYBNpLG0gifwIbPD00HqDHhxMy1304+iV1HjH3wNJfU2bqlXpyIOADpSDNk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com; spf=pass smtp.mailfrom=microsoft.com; dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b=ABBoQ4B3; arc=fail smtp.client-ip=52.101.43.143
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microsoft.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 768FB1946AA
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 19:14:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1751397246; cv=none; b=oX8nSetabe5jK/PFcy/LI+DzWmInAdpB8427iJ3/jHh0gZTCY2c+e6gBQDi6rIsv2DK8j/UWmhUYO9nYPdDCfgXoMmSqfw+rHP5zcAmtQdaOySae8igzEci8nq6oA91BIIuKvreg2rKk7s3xlPFvKgNII0MById622DZBMFW0e0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1751397246; c=relaxed/simple;
+	bh=4Rr5RDJD2k8VW/HH+xcrwUxWOxdEDKOztvVdojYX7xs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=QSRn+zjbhSovRfscyNMbhPeOS1uvVfjH9eMdbx4C2tPZF0YD9udqXbu68L+ghS9zCgxPUp6+bq/WcK/3LqvQbAvW46CfYD7/it0Ni4QnFHn78gcEe+HZAVCrM2XulfAsJjfKFrXFMAJaiCmCnI0vG/zUm3wcFwaNuq7SJ9V4ipU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ldrpjwhq; arc=none smtp.client-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b="ABBoQ4B3"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=umF+JJGHkFbFZfrETG7b86jhyivXQHwrZHWsNrHoLZimi/TaLB4DQoYCDA4cnvn2SOR4vJAVsILcbu2F8YsoI3qMM+1tWtRyqB2SuNIHGYPKLydAVrpKHb/oNcRl/dZ/mHB7ipip3f9+uI1asX2XtTsqU32Mh3cbo9fQDE+PgzUz/YNG/RRASi0MT/5p3Lq+Dk3ktGgtnkFfe2IquS06wKnbmuqj8UFSHzTcWnTHT2L7/r1iIKOAYnhe3rhcwkTnrkjioAyxEIF6jOvQfDQOskY5VHA423+esrvf+FxLheRW07tSk4tlHVdpGrhsn9zsJcHsl87SJDMM0xGA0iDANA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NxixAyFsi21344bZ3phQTbZNxHkjxkBn/tY12g6ZGyY=;
- b=dZSdu/ui7JM5gVBjzZ1WbvvwnncV+fAXl+Sd2DYdnWrKud0tfy4omTx960C276r2eRbUo7KGNKKS/BoN8I6Lr8BBJ5vYeTFAeYgXLWIDwVdj98UbedfAj0N8IcfUoDxNR/zCZXvA3KD+pnsmEjk/B8u+LNMK0QWJspvkO1wNVDnUQJEzP01aN5kaiYpTQPZedUeTW+9r0RAK0UkxGNYH2LJ0jUqdVWxRx6xpSulB75tDX2sZVSWJepKFXENIoKjna73y+kiTsRIyIR75fYIWNGg7tn5HAxK3ijDy4rZxWcklsasj/F3PyBonwv8caKTR5LmPps9cwO25mWxi4hlxBw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NxixAyFsi21344bZ3phQTbZNxHkjxkBn/tY12g6ZGyY=;
- b=ABBoQ4B3QckB+B90aCjJ9K1yQSNfQ+N7PQ+cgTBAu/U5QwIVrxRm2NJBjMU9lrdpUuRjvUKDXg9iXBX+tlhZS0zjJJNgGLZZhww+8COv0FQvo6cMW2z+S2ZEM7yTe9M+B06WtYxUPtTYQOAB7Hp9IDBhGq3YJ07hFieKEl1mUig=
-Received: from BL1PR21MB3115.namprd21.prod.outlook.com (2603:10b6:208:393::15)
- by IA4PR21MB4738.namprd21.prod.outlook.com (2603:10b6:208:5d0::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8922.11; Tue, 1 Jul
- 2025 18:37:01 +0000
-Received: from BL1PR21MB3115.namprd21.prod.outlook.com
- ([fe80::7a38:17a2:3054:8d79]) by BL1PR21MB3115.namprd21.prod.outlook.com
- ([fe80::7a38:17a2:3054:8d79%3]) with mapi id 15.20.8901.009; Tue, 1 Jul 2025
- 18:37:01 +0000
-From: Dexuan Cui <decui@microsoft.com>
-To: Paolo Abeni <pabeni@redhat.com>, "niuxuewei97@gmail.com"
-	<niuxuewei97@gmail.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang
-	<haiyangz@microsoft.com>, "wei.liu@kernel.org" <wei.liu@kernel.org>,
-	"sgarzare@redhat.com" <sgarzare@redhat.com>, "davem@davemloft.net"
-	<davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
-	"kuba@kernel.org" <kuba@kernel.org>, "horms@kernel.org" <horms@kernel.org>,
-	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [EXTERNAL] Re: [PATCH] hv_sock: Return the readable bytes in
- hvs_stream_has_data()
-Thread-Topic: [EXTERNAL] Re: [PATCH] hv_sock: Return the readable bytes in
- hvs_stream_has_data()
-Thread-Index: AQHb6oi+hMA/ue5ibE+V/ntK7sbHS7QdmPeA
-Date: Tue, 1 Jul 2025 18:37:00 +0000
-Message-ID:
- <BL1PR21MB31150AFC712FD1B83F41C207BF41A@BL1PR21MB3115.namprd21.prod.outlook.com>
-References: <1751013889-4951-1-git-send-email-decui@microsoft.com>
- <346e4b8a-2e62-420b-9816-6a35b8b63da1@redhat.com>
-In-Reply-To: <346e4b8a-2e62-420b-9816-6a35b8b63da1@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=7cc13f30-b476-4a7a-9b3a-e56379814f75;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2025-07-01T18:36:10Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Tag=10,
- 3, 0, 1;
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BL1PR21MB3115:EE_|IA4PR21MB4738:EE_
-x-ms-office365-filtering-correlation-id: 2ec99d64-efe0-4c8b-35fe-08ddb8ce44a8
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|1800799024|366016|7416014|376014|921020|38070700018;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?NJtq+16nmyLutJn3rpW/bz+mT3cIUZsQ9iY17frsIfNVO9DlaQSzix6RMi98?=
- =?us-ascii?Q?lxqGiioAlNLY53yhwLqM8+ecLJyryTxB5fCsiFJSWFgnaUJdsD8CD/9kegL3?=
- =?us-ascii?Q?f4Y690h133Iy8gsPk88/aN2V7O6pylEja+bxdlBncjEg1V2rGw3IW8+PdGjy?=
- =?us-ascii?Q?nWhi6LTs0JQL5H1yv5Mn18dWT92VsNxJsGRNFxcLifwvaWz0BoxjyEzWrDwY?=
- =?us-ascii?Q?Vu7T7WEODin73Xr0OUfCT5hptuSk6cOKBeba0jjRVpt1okm9E0HZNxTvxU01?=
- =?us-ascii?Q?ngacpdqQTB5cNQ3y82tAhBEFFaLXWZ0DjnGXYg27/juk2S0MU5FjVsw6NIc0?=
- =?us-ascii?Q?5ePeuqLCBRlcankDRIDVR5RZx2w8fpY5cioz5YYg/4xBSaFMrjGuV0JDN2Kf?=
- =?us-ascii?Q?m7x1C5yeZQmGahgMq6QV7g+vGgtlOmOdIPopD7DInvcVeb4p2yIUubaOGV/4?=
- =?us-ascii?Q?oPCTNhHzXNHNhrhgMQDzGtPRMbXHGAaMlkxxpE7DKZ4KTX5l7ZXb0jNphDEh?=
- =?us-ascii?Q?RNogqpEFCt2J57cANGUUE5VOFnjztgApkwnNiOQvEccorjvbWivtt63sGDFk?=
- =?us-ascii?Q?dv1hVwzN323Rvg2gQq0+NnmoPwdHuLZPcWcdgEq4tnBUxbl/5rwFZ+BtZCZp?=
- =?us-ascii?Q?X5yvJt2GPw2WtF5zg7n98gGZAIeDjwEBRHVIrtDwXyOR/7CrTwLYc9IZIHdM?=
- =?us-ascii?Q?N1190XFm3eL25Pp5rMZUacgS4M7iTQH0Ofzgnun7FrmS66Kiw795FjG+7WZ9?=
- =?us-ascii?Q?9ql87QDM94CcrALl6l8sTIpx8EKf3ldjOUUT4hn68n5OLVRsL5mgzp4Glagf?=
- =?us-ascii?Q?xTLS7BBZoMl3cJDnUVlPxfaRnETQC3gCWqiLk9e7DZADY2vDdo8M0qD/PRMk?=
- =?us-ascii?Q?/1zG9n6avxMC7nc9fQ/WdCipHzFt1e/o6XlLNpTLo7neYNCfUzPFDgOykYNt?=
- =?us-ascii?Q?Mef2BD2sIksam1hcf3es36oQRnuXdAUbxLKkEFv0VEazYeJyFif62yixY6NR?=
- =?us-ascii?Q?rbq636yc+OPnX0T4W6lSG5oqAkdKbn6+z+0MI4Aqn8MgEIUcvDIFt1s/zv54?=
- =?us-ascii?Q?HTYOG/aUpXDhY0bbOD/3BB3GwVFIzR30iFw90ULuG97Kea4OSaFQwCSW3B0w?=
- =?us-ascii?Q?Kf4poZ0FGY0paHGBh2DN90GZueB2hP4tzSWZxwovbNRPBlANgzsK4PAYQSBb?=
- =?us-ascii?Q?/xcd7+DPcQF+1Lv85isRv9qEgaOdqR5Beb0W/XzMquJ/ZLE6heRj3r/6t7sw?=
- =?us-ascii?Q?e8iXR3LuL9ePg9TopTRis1OcCAWoHFeoMcFId+NP1MRaCqzVr3pP4K+jhw7A?=
- =?us-ascii?Q?9LEIgnLtSCdpl8taHRBzLdks38YtDwUPfpNXmOqJYdZ/8Tnmpf/fp5WtkvkQ?=
- =?us-ascii?Q?nrWQggBDfsd81q08b9OJLkGJjZ/UxaIOZAmTksEn8A77n0kKm7VWlV4AGmIU?=
- =?us-ascii?Q?iI83ymh0Q8tOVGtcv8FVfW/UCZkccf87g6ZtWqCeJYYSCGZsAHRjDuJVknX3?=
- =?us-ascii?Q?sueVMMrNfz8now0=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PR21MB3115.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(921020)(38070700018);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?1k5XE8Q5M6h3oiFtLp0PkCwH3EUVdhg6aEvhgofWsGoG5PvmB52fAQ0DfZ4U?=
- =?us-ascii?Q?tNoNEaeCzVagPmYaoBpQLCm3hPSilgw/RFReXRvGOjkqnt8+TACC6XiiaaEd?=
- =?us-ascii?Q?j6fGq/210rBzO6KfqkjoAqiZFowVMIYddTCXvkfMfN6Lq+59zzuM5r6jHX9x?=
- =?us-ascii?Q?HJjdIsu8RzHweHjSUTfiJGNyo4Z6FnaZIb+6PJ5ZtQJywajpq9/hKMhQSgVH?=
- =?us-ascii?Q?17OzJ/3TVMylu2QuxfFpGJmKqnjLjyoQ8njbGi9gZ8ysP5q/QGxrfhUQrXE4?=
- =?us-ascii?Q?h9XWftjAf6QAdVau83SSeCDOY04F2FuhSvSGFz+xybODgMJYbaCmAxkVh+Q0?=
- =?us-ascii?Q?SzIZ+jGwYZ/uv787yf4P93d/VbcJsECFq6pc44BSoTID9nuBdxXbHI7NFrEQ?=
- =?us-ascii?Q?acac8U4P1GWiSnpWNxdjJJeJwJqkN8y8DfRLF2KYLpLc3YkVl4jE72aIGqtn?=
- =?us-ascii?Q?Kw75R0QdgQADCjlLKa9tYaMtj7nLsGMa0QEFKHQMBvG7N/LEm1hG9TQy42Zc?=
- =?us-ascii?Q?oYqXGkVakgZiKYaJqNrTLS/HxdVoMnj9tva5HDyaRSjPOdKaoC3zimcqfKKQ?=
- =?us-ascii?Q?BONjxzEXaLX2sb8umwtQKYkZJ6Hj96QgSia0vOV1prTKlTSIvbgfFfUwhqMO?=
- =?us-ascii?Q?lEVmr/d0ZKC+jxnTDpv8jdtUBAvQfH8ooZI7WNVYyXYuwRBlt5SBNIVYiI6Z?=
- =?us-ascii?Q?P2rUohtqhmOcqWMh+eokS5ZvUBZDZhOoIsFqOWpW4UBeSaz+VmtCNCWVIVbA?=
- =?us-ascii?Q?K7Ziln55omyXAAwMnM3k7oWAFwZUwe7UxLLmhAHwEbMKRZy2H5AsxOvDSGIu?=
- =?us-ascii?Q?aMAApjhzpZCNLp6FyJvxDLh+cFWYgw2FubhNh0vTaoE/ak5tCWNVhTfnuFbn?=
- =?us-ascii?Q?JmALS8FN580Hk4LlC9tvrLHmLu23IpvoPmiclM8E9jA/3eCBiYL6OH/RzDj0?=
- =?us-ascii?Q?m4AkjgbiSxZ67ajWToplR7wE177i/L7W1SjDe1OPN8u1fLZjrffsY3qjrSNE?=
- =?us-ascii?Q?WIBefjKxpxSJSQqezj3YQPpyza+6jXNKFAM3fq0GX230T4qwiIPwOwOr84+V?=
- =?us-ascii?Q?cw2fDBAE/fWVCnEPF7TafZ2YnJd+saRBELpfGWKiBXOnH4wuyBenxtcuPeF7?=
- =?us-ascii?Q?1xRlpjdPySHt7TTKJTJ6JM1tE0jKLOl1r3quC46nDtV6QIzfuCGXEqJdd+Vi?=
- =?us-ascii?Q?kcZHk1XUpSx4XerLRjlvVLt7c6lEutJf+nfePfPLMEhL3N3cDvov7Kd+osU5?=
- =?us-ascii?Q?xAsgXs9vtoHRUf/3PSFd/tHa6/2t9lhOeSDaJ7idMLHJvpZm/ZA5dUIVKnA8?=
- =?us-ascii?Q?0PMyiO6g71USPueuHfHuCpHs/VviJ0Cd7sPZ2HLlQTWl8ZGZlvBjFq2FYB7m?=
- =?us-ascii?Q?gM4DVljxnhG96H+wzLhCYQbtAfQU2fnQ9j9TZbDb9mATNAkqBbOXxIEP0mRg?=
- =?us-ascii?Q?MI/K0AKhLWJ1ObPw/REKH2qouo8Ub9ebq9ovlA7Yo5UTJVGdiaxZpZD12/cd?=
- =?us-ascii?Q?I52qgI2DH+bT9I3eSggs7sy/nOmDvE7VvbmEmGfw/tjmTiDX2M1yvXFkicTi?=
- =?us-ascii?Q?2mYa8vaU+ypubJ5hWjOxH3K5fS3ogMJbPVIoQptw?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ldrpjwhq"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-3a575a988f9so3977231f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 12:14:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1751397243; x=1752002043; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GRAT6iMVdZZIF+G8MBWdHZBgavvJ5RJLj6iKsHMAdfE=;
+        b=ldrpjwhq028xkFXpul5+5YCpXeF4mxpR7Jl/rP7QlnnGAPsB96TuVVytPYfnvcevsY
+         O2WIwHBhnyWQr1GIaKFonJgsd+f54zZtBAxpiIfGq8OHrYefOGy3VGoJ1T0YDDMdnEq/
+         O9euXLHj6egLHq9k/5tWefmHknD6FU7gmE8NENFc3Ua13BD7c8yMkcSxlOlCIzXmxAui
+         iW7+0zVPmgqgU9jetd868HOGiib/uWxVMtnjXp0C2w3z37ZCeevvW0f14a3IEavq94Dc
+         1DwuEvXO3MDdFynoe2y2c03viPbBqwSgnc/XjZQRSiIU6EEJDZH96iHShqio+R45RZYO
+         Gc7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751397243; x=1752002043;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GRAT6iMVdZZIF+G8MBWdHZBgavvJ5RJLj6iKsHMAdfE=;
+        b=ULQkUmjqw2QRKlZyZ4CEfcevX4OBcZ3Kc1CVAFqzpjJwp1bjjckkR48bV2emUKbJNA
+         B21e9IS1ERe+tgCSHu7bDeIiwNteqkIPzkoXoumNte1NyFkKPdcFgCMubIkqC2ibR2Uk
+         AmPulfuNpoo0Q6AjpSlHANM7mA89/GumtIODV5cGOgaEDKWSCJut9HrreJ8gk/YFe2tK
+         dtpdeb+7NVS+gE9G7Ktr4zArX1EIm0L7VZYlAdre18upwQCPkOj1/8A2aWfQKhtuNB2u
+         dH9kyj8g6hDWVYfE33n20Hb6OoGYOpD4Hll2PCzp+MWnoh1f2kHSoQ+c8ZliigBf0irw
+         XONA==
+X-Forwarded-Encrypted: i=1; AJvYcCUaVWNEe8lIzgvzCSYWn6tq1ZfouJaiR076d3pySe/MOs7UqoYuIkgiKtGvedt2q2dzqXNMszS7vRKYO7rZhQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw2s7XYn+FozcLE5Xl/jxiFeEe1fsI2VxFlxxOvDiqAnOSJ5R6R
+	oC2ZlWFHTqFEYW7WiHyrHn2Ini+wmHkEZiBUq94R7HBHGE1Y4EzjCS7t
+X-Gm-Gg: ASbGncsBNYDg6wNIRPkG+h0LbqZu2oQ93sau7j7dF8wdeXKTQ8WTf6KFlNLzeDx5lFt
+	BNUJz3YBJgJRYTecqWrwXsAEvmG5iLfBqsTwWmOPyRiPnpvXW34OyteGYrbnFlR7Uxt16bd+GSd
+	Xbkzqlnw/g1VGsXwEkhFInX6nXVNOe93WhRRrhrWLDl1SJjNoQeVTn6+UNkERLhjoQt+jdEZxQT
+	QRPQ/1PnhT+ns9WiAV5G7tZMCQVF/Q4T0lg7QVhR9QVOQJz47COKFbm+7qGsWkoh0rM83Yq9H7y
+	vhx6G5RHbW8KqEga6oQmLJut1M9frYdhgTRIGp5J1c2SfVApzjtVSAzBtGBH2AiBFiRlEht5LEX
+	t7hDGoaT6QC9n19/ZAw==
+X-Google-Smtp-Source: AGHT+IEKI/YCYtufBuGYyN654gnbiKtO4OJiT+a1rYiFQFL//Efs4Zhe4rDt90TqgDTijo7rz+z8LA==
+X-Received: by 2002:a5d:5f4b:0:b0:3a5:2848:2e78 with SMTP id ffacd0b85a97d-3a8ffbd4cffmr17167671f8f.28.1751397242504;
+        Tue, 01 Jul 2025 12:14:02 -0700 (PDT)
+Received: from pumpkin (host-92-21-58-28.as13285.net. [92.21.58.28])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823ad20bsm204864645e9.20.2025.07.01.12.14.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Jul 2025 12:14:02 -0700 (PDT)
+Date: Tue, 1 Jul 2025 20:14:00 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Will Deacon <will@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Keir Fraser <keirf@google.com>, Steven
+ Moreland <smoreland@google.com>, Frederick Mayle <fmayle@google.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+ <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, Eugenio =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+ netdev@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH v2 4/8] vsock/virtio: Resize receive buffers so that
+ each SKB fits in a page
+Message-ID: <20250701201400.52442b0e@pumpkin>
+In-Reply-To: <20250701164507.14883-5-will@kernel.org>
+References: <20250701164507.14883-1-will@kernel.org>
+	<20250701164507.14883-5-will@kernel.org>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BL1PR21MB3115.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2ec99d64-efe0-4c8b-35fe-08ddb8ce44a8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Jul 2025 18:37:01.0331
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: VVwKrEsZcOKutFeDp0L0JRZ0ERRes3lgGpFlKi/ltHwSlwjqq8DJsVHZi0njCxj3F3yKDGLhNwKjpzyEG7RYbg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA4PR21MB4738
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> From: Paolo Abeni <pabeni@redhat.com>
-> Sent: Tuesday, July 1, 2025 6:05 AM
-> ...
-> >  static s64 hvs_stream_has_data(struct vsock_sock *vsk)
-> >  {
-> >  	struct hvsock *hvs =3D vsk->trans;
-> > +	bool need_refill =3D !hvs->recv_desc;
-> >  	s64 ret;
->=20
-> Minor nit: when reposting please respect the reverse christmas tree
-> order above moving 'need_refill' initialization after the following 'if'
-> statement.
->=20
-> /P
+On Tue,  1 Jul 2025 17:45:03 +0100
+Will Deacon <will@kernel.org> wrote:
 
-Thanks! Will do.
+> When allocating receive buffers for the vsock virtio RX virtqueue, an
+> SKB is allocated with a 4140 data payload (the 44-byte packet header +
+> VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE). Even when factoring in the SKB
+> overhead, the resulting 8KiB allocation thanks to the rounding in
+> kmalloc_reserve() is wasteful (~3700 unusable bytes) and results in a
+> higher-order page allocation for the sake of a few hundred bytes of
+> packet data.
+> 
+> Limit the vsock virtio RX buffers to a page per SKB, resulting in much
+> better memory utilisation and removing the need to allocate higher-order
+> pages entirely.
+> 
+> Signed-off-by: Will Deacon <will@kernel.org>
+> ---
+>  include/linux/virtio_vsock.h     | 1 -
+>  net/vmw_vsock/virtio_transport.c | 7 ++++++-
+>  2 files changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+> index eb6980aa19fd..1b5731186095 100644
+> --- a/include/linux/virtio_vsock.h
+> +++ b/include/linux/virtio_vsock.h
+> @@ -109,7 +109,6 @@ static inline size_t virtio_vsock_skb_len(struct sk_buff *skb)
+>  	return (size_t)(skb_end_pointer(skb) - skb->head);
+>  }
+>  
+> -#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
+>  #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
+>  #define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
+>  
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index 488e6ddc6ffa..3daba06ed499 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -307,7 +307,12 @@ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
+>  
+>  static void virtio_vsock_rx_fill(struct virtio_vsock *vsock)
+>  {
+> -	int total_len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE + VIRTIO_VSOCK_SKB_HEADROOM;
+> +	/* Dimension the SKB so that the entire thing fits exactly into
+> +	 * a single page. This avoids wasting memory due to alloc_skb()
+> +	 * rounding up to the next page order and also means that we
+> +	 * don't leave higher-order pages sitting around in the RX queue.
+> +	 */
+> +	int total_len = SKB_WITH_OVERHEAD(PAGE_SIZE);
+
+Should that be an explicit 4096?
+Otherwise it is very wasteful of memory on systems with large pages.
+
+	David
+
+>  	struct scatterlist pkt, *p;
+>  	struct virtqueue *vq;
+>  	struct sk_buff *skb;
+
