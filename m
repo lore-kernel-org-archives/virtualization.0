@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B655826CE10
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 12:33:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 061681EE033
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 12:36:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751373186; cv=none; b=hSiDjN+dd2ARf6Q1MkIFRPLVUZP4tcDvUcKEM7dwzjE2O8fkGAU9l3mE9cmN6tqQnbYxOys3SJRXcQg9dRQOtyIAOX7o+pNVEEUyh6aoDS33wxg9SlRBiGv+4lFcwlBapAZn9yvJ9XZVYTQuN+mLEtLqwEZNCAcnuZoTWO0FPsE=
+	t=1751373386; cv=none; b=PobrnyuEByACLc6IOiZv5gDM7qp/0iLyI2H2IvEBbRDmV2rF7HYdEFWMgEIBD4LOvsFihgja9wa2VzFy6mmsaMVHJFRfrE5qOEaWhDb2UyKA3mEVJhTvUJfLCF1cCABbKgrIdaNoRbCWxX0Ct16LvIdhUuFK0kVHR7igf1mAm6A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751373186; c=relaxed/simple;
-	bh=tYS24wJ/ZygJypnRqai0RUZfkPVzuZV7u2V1HBFArdk=;
+	s=arc-20240116; t=1751373386; c=relaxed/simple;
+	bh=RSqTIjrct88sR7CZzH6GZUrUHcWswrjRQM40/qiNezA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=C9qXQOw6t/qZ3iHtsBdISRzZKMZ9y5fXGD2Bp3Z+JbZBzoKKeSJmnVaU3dkSDc7sHMkdYV9+3tF9C8EqZq6HkADrahDFVGxGwIDnRJ0SIz9/Gp5nbOJapGpMBRlxAiEkpO2alWIpCwOXRQVgrqge3De84IcwXHPH6b3bCZTeSTI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UdrzATyv; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=OjsXmsJ0yawGsH8GzSh++MRzK9D5HvHiPus0nRfsMx4K8Is/kV8KaMLAx8vBAtguU5Gir+RMDM3Zd4gi7J1fcWOQ/o/Xs3pmRMeppdujvJ/63R8VX8gK4zHAA2MarmQDXRXREgF+VcRJqxnisLC4BC7XAaO6qmz9CP5+zL/mou8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eOsvUrpJ; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UdrzATyv"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eOsvUrpJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751373180;
+	s=mimecast20190719; t=1751373384;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=OR91mEGkMa2yCFrvAiHztYA9Wztvn1Uq6wRsfBUeFUM=;
-	b=UdrzATyvB7ckg4OZ5tby8Y6A1Jo2k0mqtg2sybWcx57z6OPyWRhVmIot1zY2rg3Mkm6FC5
-	tzlRjg5DeXhY75rw0H7JcN7GKXaCeI+ilgfx5FrjvbClxF/AGNmfV5/xQoq7eT8MKYXQnM
-	QSalyrSxoLS94iK0WiER3wkc6SnZEp4=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=BWUS58/xuFehV84IBP/7jugiRMD3VIiL2+WOvgSmr/U=;
+	b=eOsvUrpJ0LOALtwLN0WKD0VCHfgjZuKZDMRrr3VNyIeZz9lNb9PT1kY6KBkExBHb9PlTsS
+	kxfvU9XEbT87u5GwdNoCuosF7MSLTuLeDFTfhfG6qDKBOKqghg5QasveGGUHEne5Ry6Tvo
+	cE5NwaBY1GJ5AMXNXYv5L5qsufDvEcU=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-223-h-5jEH5yOjiKuYncGUBtSw-1; Tue, 01 Jul 2025 08:32:59 -0400
-X-MC-Unique: h-5jEH5yOjiKuYncGUBtSw-1
-X-Mimecast-MFC-AGG-ID: h-5jEH5yOjiKuYncGUBtSw_1751373178
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a4fac7fa27so1124826f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 05:32:59 -0700 (PDT)
+ us-mta-171-TGs92L9JP9C79qoGSK-tjA-1; Tue, 01 Jul 2025 08:36:22 -0400
+X-MC-Unique: TGs92L9JP9C79qoGSK-tjA-1
+X-Mimecast-MFC-AGG-ID: TGs92L9JP9C79qoGSK-tjA_1751373382
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a50816ccc6so2255728f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 05:36:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751373178; x=1751977978;
+        d=1e100.net; s=20230601; t=1751373381; x=1751978181;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=OR91mEGkMa2yCFrvAiHztYA9Wztvn1Uq6wRsfBUeFUM=;
-        b=EHOOfODXFTP/OnMQ2GdIf3JZah3wJwTZN/zvR8ajH9A6OXSoPErYQqzBLVTQkrWbuV
-         3oN9UpDWkJl4PpA5Uj0c+arcTExoJVNzABA1Zya50e1yPCXE/DBe3zNYBbiTuuzoXD2s
-         uzbC9pypi94UuAsnHOE2MxIDrokdcg/0I2B5BkoF8sJm4nsJ5sjG+KdpWVoOD4hGAwko
-         rxMeNTcHIfRSHzypKTKhcsdiGtPwO4nJX/+MpMCf1bXgAPKJDXJijLwE2YgddbpGRyrf
-         nOE5mhpq5VPqyXBmL6jdmmBkSOhr7fIJ4cG3lRSaX/Ip5fL3vxqJhozz/oVcVgAeFTp+
-         jiHA==
-X-Forwarded-Encrypted: i=1; AJvYcCUv4xff70Zn6csDaEhpKIYvNRCW3VuhMnsw+6RddF2iI9TsughOeLEkTHuyPCKGCm7jaDHIFnkjEgfTiRgvHQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwWQ2N6KlXi1WmhZivTxoVP/ERpAGmgyRRth2+aaBb0u9bObyMs
-	2M8FNPapoDqG37R7wBzfnDdDaZKaLbSZyq5UZbGCszUW04yjZSjhN2977GNS/mFq9kqqLXsA/Kk
-	4gsXPFDMXCDtXldfDbZsrbt2lkKkK0qTACPkEIQ4Xu95M6RDWRMLCzzAPB+96y69O14C7
-X-Gm-Gg: ASbGncszD3WMEqaLGcMHNNVMDgdFUFZoLrJKL3dvqVhj3bLwNH/aLkE58jUVqi40U5W
-	SVGqtNRxx8vShZLAF6YnOmx0N/JjvBhExuizhamNkLzWvNGs8KcNXPsFawzy+eS+gAc01We2kAp
-	Xr9ZIS9IQdVKyNVdVBB3ioNR6FAM1kJ08arPd+ARJA1XiwYw04xnCtPMn0R2UPnmAgi8J6aYrEM
-	qMRnbtySb19At47yvSL4Tl1ebFrvYjKCCE1s+hvdj3a/MI/+niLMKv9xa+yExMPwTDoyy4rmAQ1
-	fYoZP26p3M7zg9uiqNcFWp//slZSFkOaL1pl4wa//UKuE5bmV3T29cjRT9WKkFI2xq+YxbIO05d
-	9zTqoTMq8IfYoU4uP2Lz6/lbJ6AFgkRVqx9osoVWgrv6zlfa/ag==
-X-Received: by 2002:a05:6000:290d:b0:3a4:e6d7:6160 with SMTP id ffacd0b85a97d-3a8f577fcbfmr16647748f8f.6.1751373178199;
-        Tue, 01 Jul 2025 05:32:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFC873mhnHelwGYjy/m3rNK9Ibu2sC1O12YJHOM/HlS1eRR+SrB1I6GI5EE27+IZq8Evrx0mQ==
-X-Received: by 2002:a05:6000:290d:b0:3a4:e6d7:6160 with SMTP id ffacd0b85a97d-3a8f577fcbfmr16647677f8f.6.1751373177623;
-        Tue, 01 Jul 2025 05:32:57 -0700 (PDT)
+        bh=BWUS58/xuFehV84IBP/7jugiRMD3VIiL2+WOvgSmr/U=;
+        b=tiBdBUgwEiLGPjEpJ6rCae3N9eV3SW2Q2eb88X/ERLxwK9gvVcdLexYZigAIdj6y1y
+         o933vzu5ApeV8tpHqs+UfJif81HybevmFFYj/mVJa6/odthfiR5ukWRu6l+Hd6bTff0V
+         eFSelievpuV72w12GDmRufNPawFFySi/WZWqjnTTtFrL66iSCi44iIAKUBui7aTqRxHc
+         oHE8hpw52+qJxnYgayVlw+Wplj+M/hMwhwrmYbXPoay/IkNjy7pL6pHFHWLsFJgJD+4t
+         UrWyvgYyzkkFwPV7aCjfuLgYpBd3vHof61ko324dnF0DslcuI3OElAxM9oY9xlKwbCj1
+         9OYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU93e0RsdHfw+42F1Rby3xk2SJik6uS5feMoUrHv+zA2Xs9z2kyshq8ZgL8pU5fnllIQjkUf9nq5CVpMCG++A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YypjR4S2c8soOoOzMbuWXPKqOs3mqiQMy39GxgTMLSM13kcoH92
+	JhGkHBVs/sGIMdUv2DD48PpK024Pyl/DLYBq3U6ux+YueEMOvsYHrnsq14RIYgG27cc1N/3gMa9
+	7booL1s10+JILzmQspsyO9a6KZ1zvVcGdbyFi6CYYlBrygG+vcmL6mTzI+tNG5K4fLuHc
+X-Gm-Gg: ASbGncsVTPYmO+bd8DgN5Fnldc19L7NvEVOrB9kidrv4BeQIaUwmZ9V1GImbJC754fW
+	U7nQQK/z5YPQAOYrgX+FWduFlpD7XhZfquAZzxSgFhl8fV5TiTydtiFpPPP3vlY/HNfYBwenc7V
+	u8QVi5fpjlajhnLwQNgu2pEk5NBN2xIHpA6in7hlgeFieSXunRxjrCZMLVfpQ9Sm/uta/9/8j+3
+	/P1L0tzQ+cHKfl8dJu5Yka0ke2YKNAjYI8/7SytJsK1XVWgHa7RThUrSd8OBJ34t9bJ9bE3rRui
+	BY1X5uJQ59+MBqmS0xGeqwNlk2UMFa+xrpeFxwLomchQUjIhmQeN6gRhcfmHZZVPmSGWf6BTSzo
+	9yiW/BVbYsKqzUdiU+DCwCVZcxSvaprwdZLzVgVcldzKtBurhGg==
+X-Received: by 2002:adf:a21a:0:b0:3a5:88cf:479e with SMTP id ffacd0b85a97d-3a8fe79c8e3mr10444925f8f.48.1751373381283;
+        Tue, 01 Jul 2025 05:36:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEqIR1BDJyK8ZRp8F0lL2pM8FI7W8fcFCGvncPeyeTD2kfxRgbkByPh+KE/B8iSSRVeA4M/aQ==
+X-Received: by 2002:adf:a21a:0:b0:3a5:88cf:479e with SMTP id ffacd0b85a97d-3a8fe79c8e3mr10444867f8f.48.1751373380689;
+        Tue, 01 Jul 2025 05:36:20 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f18:7500:202e:b0f1:76d6:f9af? (p200300d82f187500202eb0f176d6f9af.dip0.t-ipconnect.de. [2003:d8:2f18:7500:202e:b0f1:76d6:f9af])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a88c80b5aesm12986831f8f.44.2025.07.01.05.32.54
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a87e947431sm13174236f8f.0.2025.07.01.05.36.17
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Jul 2025 05:32:57 -0700 (PDT)
-Message-ID: <d9761308-8a8d-438a-b4c7-7ca3295fa0a4@redhat.com>
-Date: Tue, 1 Jul 2025 14:32:54 +0200
+        Tue, 01 Jul 2025 05:36:20 -0700 (PDT)
+Message-ID: <9af55241-8348-46a1-8f72-5ad7e61bcd84@redhat.com>
+Date: Tue, 1 Jul 2025 14:36:17 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,8 +75,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 17/29] mm/page_isolation: drop __folio_test_movable()
- check for large folios
+Subject: Re: [PATCH v1 18/29] mm: remove __folio_test_movable()
 To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
@@ -112,8 +111,8 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
  Shakeel Butt <shakeel.butt@linux.dev>
 References: <20250630130011.330477-1-david@redhat.com>
- <20250630130011.330477-18-david@redhat.com>
- <58b36226-59ff-4d8b-a1f3-71170b42b795@lucifer.local>
+ <20250630130011.330477-19-david@redhat.com>
+ <6e067746-9d18-4d04-a60a-536d5fee6b87@lucifer.local>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -160,33 +159,87 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <58b36226-59ff-4d8b-a1f3-71170b42b795@lucifer.local>
+In-Reply-To: <6e067746-9d18-4d04-a60a-536d5fee6b87@lucifer.local>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 23D8f_DNAp-KFn_hbD-yWD224347BYq1JC8rM5MfhRM_1751373178
+X-Mimecast-MFC-PROC-ID: Uq80YAYT-ReAy-ROj9lu0PYgYwQJk1E3nk9PdgbVQVc_1751373382
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 01.07.25 13:03, Lorenzo Stoakes wrote:
-> On Mon, Jun 30, 2025 at 02:59:58PM +0200, David Hildenbrand wrote:
->> Currently, we only support migration of individual movable_ops pages, so
->> we can not run into that.
+>> ---
+>>   include/linux/page-flags.h |  6 ------
+>>   mm/migrate.c               | 43 ++++++++++++--------------------------
+>>   mm/vmscan.c                |  6 ++++--
+>>   3 files changed, 17 insertions(+), 38 deletions(-)
 >>
->> Reviewed-by: Zi Yan <ziy@nvidia.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+>> index c67163b73c5ec..4c27ebb689e3c 100644
+>> --- a/include/linux/page-flags.h
+>> +++ b/include/linux/page-flags.h
+>> @@ -744,12 +744,6 @@ static __always_inline bool PageAnon(const struct page *page)
+>>   	return folio_test_anon(page_folio(page));
+>>   }
+>>
+>> -static __always_inline bool __folio_test_movable(const struct folio *folio)
+>> -{
+>> -	return ((unsigned long)folio->mapping & PAGE_MAPPING_FLAGS) ==
+>> -			PAGE_MAPPING_MOVABLE;
+>> -}
+>> -
 > 
-> Seems sensible, so:
-> 
-> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> 
-> Maybe worth adding a VM_WARN_ON_ONCE() just in case? Or do you think not worth it?
+> Woah, wait, does this mean we can remove PAGE_MAPPING_MOVABLE??
 
-Not for now I think. Whoever wants to support compound pages has to 
-fixup a bunch of other stuff first, before running into that one here.
+Jup :)
 
-So a full audit of all paths that handle page_has_movable_ops() is 
-required either way.
+> 
+> Nice!
+> 
+>>   static __always_inline bool page_has_movable_ops(const struct page *page)
+>>   {
+>>   	return ((unsigned long)page->mapping & PAGE_MAPPING_FLAGS) ==
+>> diff --git a/mm/migrate.c b/mm/migrate.c
+>> index 587af35b7390d..15d3c1031530c 100644
+>> --- a/mm/migrate.c
+>> +++ b/mm/migrate.c
+>> @@ -219,12 +219,7 @@ void putback_movable_pages(struct list_head *l)
+>>   			continue;
+>>   		}
+>>   		list_del(&folio->lru);
+>> -		/*
+>> -		 * We isolated non-lru movable folio so here we can use
+>> -		 * __folio_test_movable because LRU folio's mapping cannot
+>> -		 * have PAGE_MAPPING_MOVABLE.
+>> -		 */
+> 
+> So hate these references to 'LRU' as in meaning 'pages that could be on the
+> LRU'.
+
+Yeah, it's a historical thing.
+
+But for anything we isolated, it had to be an LRU folio (PageLRU) 
+because that's how we were even able to isolate it ... from the LRU.
+
+[...]
+
+>> diff --git a/mm/vmscan.c b/mm/vmscan.c
+>> index 098bcc821fc74..103dfc729a823 100644
+>> --- a/mm/vmscan.c
+>> +++ b/mm/vmscan.c
+>> @@ -1658,9 +1658,11 @@ unsigned int reclaim_clean_pages_from_list(struct zone *zone,
+>>   	unsigned int noreclaim_flag;
+>>
+>>   	list_for_each_entry_safe(folio, next, folio_list, lru) {
+>> +		/* TODO: these pages should not even appear in this list. */
+>> +		if (page_has_movable_ops(&folio->page))
+> 
+> VM_WARN_ON_ONCE()?
+
+Well, no, it can currently still happen. But really, movable_ops pages 
+are not folios that could ever be reclaimed that way.
+
+So the TODO highlights that movable_ops pages should never even be put 
+in a list (page->lru will go away).
 
 -- 
 Cheers,
