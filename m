@@ -1,79 +1,78 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 491381442E8
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 02:20:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A4A11917ED
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 02:20:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751336411; cv=none; b=YN5wozBRC9/NSTxHFh7rGi+xhorbhgDZ9vHfVYRlBQT8bQIuHOCdsVBgvhODKIB/jNOzEl1bXWTF4QLdTc/ML2RuSMfbllUa0Mo1NitN9JuJeDtjaq7rMU+c9oPZ/kaANC3eVv0NvZd2F5M+Hv9jlzQZ+GsVgWrK3vIbc/cqz8g=
+	t=1751336425; cv=none; b=Ye2zTPcKQysVN5ax4pQManRpeqHo4vonlLKLUHR25MKrABfqm6zdI7SeyLL2FNa5i4IfvRvMzUwUSjhSmsnNgfpaAiEtukCwvv4uQgBjdl+Gius0TuVFUZ3cbRe8mnkvXV9PY8LIGgeMZoQMmfLFPBvn97qbio5lMzYRSMPEhWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751336411; c=relaxed/simple;
-	bh=Bz/86j3mpJf6RZwOMLVBi8P/cdclQpstyJilpZn/LWw=;
+	s=arc-20240116; t=1751336425; c=relaxed/simple;
+	bh=WRkNpi1+u755d+RTOomAEvo4QL0439YSaBkjP0jh4c0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ixLf0RWleMvf4xhRfEyheaF+qj/dFJZ0EzR2Vqx51G6qydV1mCh9uuZCZL4gglRK4jxs+cZb+m8BH7PYMgTvwsFCugZyjuT1VuWStRc279o2de2fYUIgHpXHeRMfDMO5bNfoiiXVMIQiUCso9um6lF0OOkfQ0QkMT1OW7/Ya+nY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XitJT7rM; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=F3CWLlHjvp8RfYVcSIHD691WaVS24HxNDM4RU2P3lefeq3V/guJD0T8z3Eih9xaYs7+O95gsfpfotAGai1HPSd/HiyIUWXbOtsx6hmzVLmlTbZeiI0Df8Kg5FvHPRikY3uGSlZ6ceNw/yOOW6Ot1VBuSBBHo8EBx8cIj0BiwwiA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TqFxtGTT; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XitJT7rM"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TqFxtGTT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751336408;
+	s=mimecast20190719; t=1751336423;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Bz/86j3mpJf6RZwOMLVBi8P/cdclQpstyJilpZn/LWw=;
-	b=XitJT7rMcVfVnvFvEtiTtsObSRPFK+a70L5scblewEeMF8TbMA+mhgVzETLB0tobE4VrZA
-	mbEOHWZYl9pEa70KxAP314mQdty7ITBqKYq2cbRKGpJHzIlaokjTde4rr7YypwAxWMJRI+
-	ffhw6htbZjLLQUaMAjYEafXX3btQSdE=
-Received: from mail-vs1-f71.google.com (mail-vs1-f71.google.com
- [209.85.217.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=WRkNpi1+u755d+RTOomAEvo4QL0439YSaBkjP0jh4c0=;
+	b=TqFxtGTT+Xl6hV9PvImmZ8naU+2SeXAa0BWxPSkCSB+6r4gn7fpPTwDH6kTP2OaIeVFz0X
+	DRpzfvBALO1PAj3rd/IZFhbpWJh5U4rbrXDpKFJF1eXD9i7RxIlE69VxNeuJbRh5RN3ANI
+	d0JluGzzKDA0nb8/CrFblcdiQCjYYzo=
+Received: from mail-vk1-f200.google.com (mail-vk1-f200.google.com
+ [209.85.221.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-30-NP0KwsNTN3u1KWAckntmMQ-1; Mon, 30 Jun 2025 22:20:06 -0400
-X-MC-Unique: NP0KwsNTN3u1KWAckntmMQ-1
-X-Mimecast-MFC-AGG-ID: NP0KwsNTN3u1KWAckntmMQ_1751336406
-Received: by mail-vs1-f71.google.com with SMTP id ada2fe7eead31-4e75a8ac11eso433886137.0
-        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 19:20:06 -0700 (PDT)
+ us-mta-484-a5WlQKBTNYSxg47NNuD6QQ-1; Mon, 30 Jun 2025 22:20:21 -0400
+X-MC-Unique: a5WlQKBTNYSxg47NNuD6QQ-1
+X-Mimecast-MFC-AGG-ID: a5WlQKBTNYSxg47NNuD6QQ_1751336421
+Received: by mail-vk1-f200.google.com with SMTP id 71dfb90a1353d-5316d00ecfcso870458e0c.0
+        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 19:20:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751336406; x=1751941206;
+        d=1e100.net; s=20230601; t=1751336421; x=1751941221;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Bz/86j3mpJf6RZwOMLVBi8P/cdclQpstyJilpZn/LWw=;
-        b=Jq6R0xyMGN3Z4Kcqfd/090btiyD2obj4VZ8K0COXGYC0DhDy5hcB0L1rYYovqaJ+DO
-         kiSK+VfM6exjS99FjKk+V05U+NVZteRkb/ROdundnfhf6RK5GtuVnukG9qlNkMjr0N9w
-         lfJy3MbuX8G6ObBzSu4NqXbvW3sSq+YbnRuSqulmT3Oz38VyrxDmhFZc0F+hU68eVYSl
-         jJSbv8C5MUY+8IRuMrJkqgi9K10CsXJ4etqJFcZc3W+PLeNqcbDzRBJVWrHn0amgceQ6
-         XB2BGS/1C+TBMMsTFMgDecWMzhfplqBFVCGXfsFGDKYOTstV7bPLhIafz29GRlmXGEA1
-         o9Sg==
-X-Forwarded-Encrypted: i=1; AJvYcCWCSz0xKNZVngbAWpHab5gu6GOBE+U1EGgx7sNdmQ0xFMl2XjIsbZPeTC5y0/vRZVDkKGt2165N3H4ldTg2pA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyQs5lhNeGgEewRs3AvVAc/9FvfDe2VfQL5iYEG1h4LwpfYdNqh
-	lI3MUcNduDGrdTSWz0iaeGu+Ip0k9TDJbU2IAJyUa0xdY/28C0X0uTxAv+S5pvrJZll4dCDEimm
-	3U2ARJOu+zmBTTQnk84bqrf597m5jjPU58xxzLpKhPbPJ5vn8z0rWFNApR5UlOfBudKP+i5APWQ
-	zcqcSn2dMdTvQU/ydshoa+CGM/EZWpYI91fitPYJsSr1A=
-X-Gm-Gg: ASbGnct2odPetk4gwQ16mQfdlSMDvorQzzopd7c5fu5pPG1FDpOg3ICIo2PR7C0gMJP
-	Eio6D/b14Pu4UApaHB5CDRqphOBWMmQQ4niJU8OaFMqghRvbl9odarbVU2S5cH4GfMcNUptDA+q
-	RE
-X-Received: by 2002:a05:6102:b0f:b0:4e7:db51:ea5d with SMTP id ada2fe7eead31-4ee4f57b220mr9035430137.6.1751336405877;
-        Mon, 30 Jun 2025 19:20:05 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFfwt0IUN9XzbcPTMYkve3OC1WK/0fpTeOcXovTvrlwz1DP2O24mIjCZg0vVcRzjUe2M01DvNuq273bCwcQw/Y=
-X-Received: by 2002:a05:6102:b0f:b0:4e7:db51:ea5d with SMTP id
- ada2fe7eead31-4ee4f57b220mr9035421137.6.1751336405513; Mon, 30 Jun 2025
- 19:20:05 -0700 (PDT)
+        bh=WRkNpi1+u755d+RTOomAEvo4QL0439YSaBkjP0jh4c0=;
+        b=P81PsMxEVPSEi5CCy1xiMe8MnwAMu6u2X8zLsu7dEWwsDhO807ky+jCYsWM+tPbGwM
+         tD1r3D8766UGjtiPhxd6oQqz4WzwgBGx+KvIvP0ZXmZlgbxbemJOue5MVuLvo07l/o6B
+         EWfn2rT0/GAXjVv/oo3a2PQzPnkb/mYekgANvAkNB8ELsHAQZqje4nuzKr/pUfq2CU/1
+         F9y6U/JCRY91jiSzqQ0LmQqvGyfXkOk12pOTsrNOwmx1qZAc7ZcEyijPsCbSt0s+AMgP
+         Mus5XYTki8QQb+aJxzXAF81iVIn0ppjsol1lSFawD9XEJdFPxxoz7J3mtjNuyvpX6Ftc
+         SXKg==
+X-Forwarded-Encrypted: i=1; AJvYcCUELLa4+tJ8+jMhRfNNY/1KofSftOmAzI8/GX9NBRng3gU6w/kiWIVQ2pm/tOqTaBzpUtYhPmGlBJJ05NMsNg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwEePw03uZEjSP6M9ov+4zuyYrPCallpRqwXI2WuMv8fa8icAj5
+	JnBo4Vj/EMWw+JJMB7nbeCmK4VQg939WNrAy9B+amW3jDJ7UgGvkvCrcZZ9Y9FfbU8Y3utN3sWx
+	imGJ/LsZvDg3qTZJbFMkV7WzfvBXuSEb+V47g5lobxIZhMzAPLTNglWTRGm46+V0nil2qqLQh4h
+	aiLd98+TKYAlNC7Qrp1WkDC7k6+D9QPyxxiCjQJ/WvgoM=
+X-Gm-Gg: ASbGncseFrrGwU7My/HtHTs1Zo6TooCTGO1f4FRpWf46IyMA3IVKTWm5mjMQdgORvtA
+	j79PQCT4sJ/WNc/jXAW+Uz9tPm1WrxRrti1TOQVRnw7oXvObAVi7IjlCHxUl94m4+Bk7h7wCO1/
+	cL
+X-Received: by 2002:a05:6102:2c05:b0:4e5:abd3:626e with SMTP id ada2fe7eead31-4ee4f9e6313mr10405282137.24.1751336421325;
+        Mon, 30 Jun 2025 19:20:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGcgqA4GY5HeNzIXNDy3m2/0QUTCkMPWazV2oM4SlXLsY44Iog87PMmTUv3dD5hme1ectzbCFF6OxMHcOYRnvk=
+X-Received: by 2002:a05:6102:2c05:b0:4e5:abd3:626e with SMTP id
+ ada2fe7eead31-4ee4f9e6313mr10405270137.24.1751336420966; Mon, 30 Jun 2025
+ 19:20:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250630144212.48471-1-minhquangbui99@gmail.com> <20250630144212.48471-2-minhquangbui99@gmail.com>
-In-Reply-To: <20250630144212.48471-2-minhquangbui99@gmail.com>
+References: <20250630144212.48471-1-minhquangbui99@gmail.com> <20250630144212.48471-4-minhquangbui99@gmail.com>
+In-Reply-To: <20250630144212.48471-4-minhquangbui99@gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 1 Jul 2025 10:19:53 +0800
-X-Gm-Features: Ac12FXwg9udMXpdfqk8skCNczA1b4cFLqKAJ_PlRVtyvo3Mi9xA6wAsp9nIVFQs
-Message-ID: <CACGkMEuJk=PF2aGQj4FNhSv=VvOTzruK6PMpEykB9MVHwU4nDw@mail.gmail.com>
-Subject: Re: [PATCH net v2 1/3] virtio-net: ensure the received length does
- not exceed allocated size
+Date: Tue, 1 Jul 2025 10:20:08 +0800
+X-Gm-Features: Ac12FXzTGbPc8d1stXK-UyjLYhm6Mh_lf0LlWolyX6yBYCOFZ2SRlUxOM8CEHbs
+Message-ID: <CACGkMEt9za5v2tWDBOs_1d8nCk20CC4XyadszKB7ezKRz=sBmg@mail.gmail.com>
+Subject: Re: [PATCH net v2 3/3] virtio-net: use the check_mergeable_len helper
 To: Bui Quang Minh <minhquangbui99@gmail.com>
 Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
@@ -82,23 +81,21 @@ Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
 	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
 	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
 	Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
+	linux-kernel@vger.kernel.org, bpf@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: flYrWEw-HQLrMneY__yaIak9B6JLoKfOVG7LvKSSOsY_1751336406
+X-Mimecast-MFC-PROC-ID: Q36sdBIoXirKe8H3ab1jSQ7-5ljHjGvJHlxkbB-IA0Q_1751336421
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 30, 2025 at 10:42=E2=80=AFPM Bui Quang Minh
+On Mon, Jun 30, 2025 at 10:43=E2=80=AFPM Bui Quang Minh
 <minhquangbui99@gmail.com> wrote:
 >
-> In xdp_linearize_page, when reading the following buffers from the ring,
-> we forget to check the received length with the true allocate size. This
-> can lead to an out-of-bound read. This commit adds that missing check.
+> Replace the current repeated code to check received length in mergeable
+> mode with the new check_mergeable_len helper.
 >
-> Cc: <stable@vger.kernel.org>
-> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
 > Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> ---
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
