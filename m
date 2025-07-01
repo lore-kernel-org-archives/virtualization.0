@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F077627587E
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 12:25:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88899273819
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 12:27:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751372734; cv=none; b=KlemMNQ29MY815ryfhXrBVGs8jbrkD43VKPByMcft+gsboR0qHthNB6hpYExIyaewH6YMAoa8I8g0aNXhtS1haJqdvNNGlwDVtpntCfsk3X2qAsj1YUA5kNlHz9HAndaRmGS3qSoZkQmpQC3hbOp6V7lVkvDQ6EdKEwQxdvaBB0=
+	t=1751372835; cv=none; b=VmSvbhSFo0527Crab7unYTSXZiK4MGrPoYMdBZvv8UtkikCRZvrsMvxSImfM5lInnTwHt7m/j23KvE2/C6AFSfWRBW9H5iYE23qZZEdYjsWp1fhYhMUFV/6k6w/boTuQsy9QvCpIt1PKr0ERenEGWMPHvEdtdFb60nC5b8vg2Sw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751372734; c=relaxed/simple;
-	bh=z/CCrJhSfJ+0N7wRoqbjcqIKdxPJ8urhIm9XK/idS34=;
+	s=arc-20240116; t=1751372835; c=relaxed/simple;
+	bh=j8plwK2r2sG78eupDPTV2+LjtVXteF6QvQSBw1+y/1g=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jgauAgYQUAA/8NfBQHKlKil5LPmX0tvJa3CrXlzcz/RSAqWQkYU0YGx5VSOqLqNpjNVdJmYR5PW2QBxxj+J82qK5LTBpcF27p0frA/hR4dW6M09tCd89UClCcdTl+HNxWxoAoZLYMc9S2K2Y0QQD7PxYc8cT3aRxRKlyUS1uZI4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GVLmhLt2; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=BNm22/YuSIV3gshx8OnArcBvPM588oadwMhOFX+9nmTS4qCOyCvgvOWMcih9qPaEGSIq/q3dMefBNtGhv6c0WJ0xJoncMeqqQLF1KoCslIh+xyyG4I3oq1GvTywhfq4fd1N2TW3XeFlSwrpQNpOts0HNnBtGo7bpzCK+kDDuhcI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DZSM1svf; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GVLmhLt2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DZSM1svf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751372731;
+	s=mimecast20190719; t=1751372832;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=tj8pB/rMHLZ+6PtFNz+xS6WiL3VVVwDceOqfATE3uy4=;
-	b=GVLmhLt2ND81pJwEeduRSxyYVT/62meUT3WJudyzuE7ts6SoiwqeN32Wre7bF8xXalPD+f
-	IaQGKTDLRBhNKE1O6v1yMOg+QVCKmgk0H4JdCQaPbtIuhZA8qDs95GN+a3Kept5ZOxZtHI
-	z6Ftgl61sPRaveDk3rJbB4CCtQ7PMtA=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=FEHfRalLuIEVVtsEsS9C6ifi6aMXwZRzg5zr/B5tJXU=;
+	b=DZSM1svfSDVH1GmauixsmIG71lO3i9URo3C2PtO/2xD41hxo++zlPvnRdCAWLtpQId8/zb
+	Okei86u1S+UnQonOYimGPNMhrbB5sxjd0VnzDQM+x4GFQbVPFMu7VgRIow+F0BN9nLh6fG
+	ts+bLM0HEYs86Da9tPjSu1GT81V4+mQ=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-153-hy3HWGFVPnyO67CHkO5ajA-1; Tue, 01 Jul 2025 08:25:29 -0400
-X-MC-Unique: hy3HWGFVPnyO67CHkO5ajA-1
-X-Mimecast-MFC-AGG-ID: hy3HWGFVPnyO67CHkO5ajA_1751372727
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45359bfe631so26802635e9.0
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 05:25:28 -0700 (PDT)
+ us-mta-127-HhxgghLCMES3vkdlgSUmEA-1; Tue, 01 Jul 2025 08:27:11 -0400
+X-MC-Unique: HhxgghLCMES3vkdlgSUmEA-1
+X-Mimecast-MFC-AGG-ID: HhxgghLCMES3vkdlgSUmEA_1751372830
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-451ecc3be97so25214425e9.0
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 05:27:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751372726; x=1751977526;
+        d=1e100.net; s=20230601; t=1751372830; x=1751977630;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=tj8pB/rMHLZ+6PtFNz+xS6WiL3VVVwDceOqfATE3uy4=;
-        b=HCAsplAeOv4oblZ1ITLqGSm/1k9iYNMEtS/VWX77NAPXB+zh6Kcqm7xzvZuYJOp7BL
-         gG7CYf21bE9nMYXeKYzsv+DexC2Cck8x9mdmDTPMImwKHDxhnta8wznB8N6t7WP3eNW4
-         zbP0Y/pJ1cztJmFYuXA9FmiQ9NFhAD8T0GMKP1gj5lix7DBubnrCTqzJoeJ3ANBbPyqM
-         R+As1gL5ZugfH9sOThl3iN1sEGj76Be9yXRETeRocOfcpIqrYz8XznGxe22bte52yqjM
-         zij5ESSCCtwsfDhqFcdet5Ha4C05ic+k2RhanQ6yYUsQHpUb19jRKtcoTRb7oPvzROYh
-         eSKg==
-X-Forwarded-Encrypted: i=1; AJvYcCVclheaCrBYo2BlIRBKxQQt4E+1548sFvnaI70KaufEVes9f7hZUwx8gQiwq/02bCe9rKzzFZn9zfQcUCNYGA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxEVIL/wAUBg42k0XQq1ta/9pGmdjE+GE5PqocEp289c020ygwa
-	JELOCf5YjhKFBt/Yd9m1VjD+2F7oJ0+8E/dFqX+kCGN4nya2bsSd8fFmzkbad/jVV38SH9Y4HnG
-	/zs1Xdh92I4wrr1DiZbdTvMe3HUZXvmIIUPPnI4XIBmXXyzWFo0TFWwnQrF74wOYqh6le
-X-Gm-Gg: ASbGncuezff59yMamlDD/D67mnKvhEkHcmSvIPPenrOfVRdBAIMBuwMstcSvbg0QFec
-	5R9SaOwv5TTIaujEoSoWgjSGl0efFkuynaNo9fj2SMx2oOC8ODCpxMEQQLu6SFzWajlItDzmgIH
-	s3PbDbdQEDCo4RA2AH+IKduMAv2U33koGEJYt+7wN2Izzb3dJilmB0FvCRgZ62JTI/pPtm5/mzx
-	MRR3ZfpiB939V6HG8i8aJkVHX9KUniZnCnQHAa4XcZx/SNtSzqR8WqHxcekVO+0NWmK8lCgbzrP
-	aO50MrGc4OLM997Y0tWXgikv5BqTix2XUUovJ1yRYkuCbiFtjYgbgFWZ6GqpTb9G5jvWkmnVNjW
-	vDzw4wv8gP4Pq74fcbOQSDQYve64lcrn7V24jFPNH7wuMY5vMIQ==
-X-Received: by 2002:a05:600c:198a:b0:442:ccf9:e6f2 with SMTP id 5b1f17b1804b1-4538ee7df15mr201513325e9.16.1751372726394;
-        Tue, 01 Jul 2025 05:25:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGtxNR73SFMqIoSFe5cIm5GNMerZkIb6R08bnmv81T1e6WZOFEwjwh+c20OjBL0zx8GNPpXsA==
-X-Received: by 2002:a05:600c:198a:b0:442:ccf9:e6f2 with SMTP id 5b1f17b1804b1-4538ee7df15mr201512785e9.16.1751372725799;
-        Tue, 01 Jul 2025 05:25:25 -0700 (PDT)
+        bh=FEHfRalLuIEVVtsEsS9C6ifi6aMXwZRzg5zr/B5tJXU=;
+        b=KBMaxqyQHzEIjwfIAfbwQ6yGz/9VqZDwpQ5yLxnuzrvskL7kp9UTbhamxUus+JfA9B
+         uqCrM/l4r62LCpGVeOLtBRWKQ2iLQ8m6X6K4Lt7sJf+J3zbj80ksSXbnbQ9ZQX3pl/ZY
+         kRpq6PkZJOqe+fUjk0uZqxuUpohr+GzU4FMHvKNGZBUx80rSuZ2U/VObTo3tCxAoqyl/
+         inv3NxieZl3jotNlkHDKj1sL8IX/JKojgrvH7dmqXd89U64gHh/MDq1fTKGrjzm8XXzH
+         hnjbcg0xerAufItEwIoh07EUNf7HaK4BOEj+aMmq7lD5faudUrqgwsR+z1JCYT/oyDkw
+         V9Sg==
+X-Forwarded-Encrypted: i=1; AJvYcCXsV5IcXMFkHcahLKLHkKMQM4LR3dFNMscIultyUF1IC9bCqYQqqc3SU5HSwU3z/gsHAc9t8wJsECkfCcQW0g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxmZZB98asTUTjA6E9+m4oZB0Ni9zlOJjd4ovCN4fnwfyj7Ol0u
+	JyArmB49MdxF3HK0nBuGtQFVZNh0ghkiK5qMc+tJYvYS9qatYbQST898TvMD5cxfqhBmpqkmzm7
+	1FQw9LPIgdLAiMWFRdCpCTHIuqpRhffvqOzNTMagV4GMjXj21m2g6/THx3Jf6bXxZmoIt
+X-Gm-Gg: ASbGncsGQrqA/gUVDjY/cL9SpjmO2iZBkW/bxOc/JqRyATRO1iXUGgIm1UUVcNxT9Ps
+	dp3lhdcrulFSe/gvJxuByl9NKFE4ceahcl2TRKnckFbwNryNUyXur0G6fYei3t06UH1BXgg7A7F
+	dh0pcO51KKnMB9Ll6sWCk51v1gjl7Ug1Q7J/yMgbhBZQjiqCIWUlvThiOz2QyPXy5uzaHzuoGvd
+	0ybRhZUOpzgSFmJgBvNmEXP6jg4jEDv0y+C6JgKqp4URMUbzINHCm50O28GXsLTYHflwW50Yo6H
+	RmvmvSMufIFcsF9mwCFcG3OQi0p50kjmniJMLNtRR/AD02nXSqdaNspoKUBu6dIvTz9Be9bHVW8
+	QcIFxQ5zPxfHwOGOw9i7oZnPv0Ut7+tJwjbJzqaTGJbErMty+Hg==
+X-Received: by 2002:a05:600c:4fce:b0:442:f4a3:b5f2 with SMTP id 5b1f17b1804b1-45390259d15mr148237425e9.6.1751372830024;
+        Tue, 01 Jul 2025 05:27:10 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGSJU2Sf5R53h48rrobFaZHNRWjQKFRP9ItDNhMojifotwoNth3ly8lc9eWoZidBApRccIuBQ==
+X-Received: by 2002:a05:600c:4fce:b0:442:f4a3:b5f2 with SMTP id 5b1f17b1804b1-45390259d15mr148236605e9.6.1751372829433;
+        Tue, 01 Jul 2025 05:27:09 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f18:7500:202e:b0f1:76d6:f9af? (p200300d82f187500202eb0f176d6f9af.dip0.t-ipconnect.de. [2003:d8:2f18:7500:202e:b0f1:76d6:f9af])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538a43325asm162371015e9.16.2025.07.01.05.25.23
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538a421434sm166408505e9.37.2025.07.01.05.27.07
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Jul 2025 05:25:25 -0700 (PDT)
-Message-ID: <e29af2bf-34c7-4d26-a5d7-f061d2642bd5@redhat.com>
-Date: Tue, 1 Jul 2025 14:25:22 +0200
+        Tue, 01 Jul 2025 05:27:08 -0700 (PDT)
+Message-ID: <04e99b47-055f-4555-be11-76afb2065b0c@redhat.com>
+Date: Tue, 1 Jul 2025 14:27:06 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,7 +75,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 14/29] mm/migrate: remove __ClearPageMovable()
+Subject: Re: [PATCH v1 15/29] mm/migration: remove PageMovable()
 To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
@@ -111,8 +111,8 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
  Shakeel Butt <shakeel.butt@linux.dev>
 References: <20250630130011.330477-1-david@redhat.com>
- <20250630130011.330477-15-david@redhat.com>
- <24d2b984-857d-4a11-b016-dc0227d81c88@lucifer.local>
+ <20250630130011.330477-16-david@redhat.com>
+ <38e19e3a-e46b-4a50-8a34-dc04fc4a3c3c@lucifer.local>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -159,27 +159,28 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <24d2b984-857d-4a11-b016-dc0227d81c88@lucifer.local>
+In-Reply-To: <38e19e3a-e46b-4a50-8a34-dc04fc4a3c3c@lucifer.local>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: QTjhrPdKSPGryc8D2h_XeDRro6TGxLOi8BkUPztV5SM_1751372727
+X-Mimecast-MFC-PROC-ID: 4oZ3bs8qdyR5eeboEkanByT4hPlFx51kaTLoaIShzuQ_1751372830
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 01.07.25 12:43, Lorenzo Stoakes wrote:
-> On Mon, Jun 30, 2025 at 02:59:55PM +0200, David Hildenbrand wrote:
->> Unused, let's remove it.
->>
->> The Chinese docs in Documentation/translations/zh_CN/mm/page_migration.rst
->> still mention it, but that whole docs is destined to get outdated and
->> updated by somebody that actually speaks that language.
+On 01.07.25 12:50, Lorenzo Stoakes wrote:
+> On Mon, Jun 30, 2025 at 02:59:56PM +0200, David Hildenbrand wrote:
+>> As __ClearPageMovable() is gone that would have only made
+>> PageMovable()==false but still __PageMovable()==true, now
+>> PageMovable() == __PageMovable().
 > 
-> Yeah I've noticed these getting out of sync before, perhaps somebody fluent in
-> Simplified Chinese can assist at some point :) mine is rather rusty...
+> I think this could be rephrased to be clearer, something like:
+> 
+> 	Previously, if __ClearPageMovable() were invoked on a page, this would
+> 	cause __PageMovable() to return false, but due to the continued
+> 	existance of page movable ops, PageMovable() would have returned true.
+> 
 
-I already saw doc updates for this. Obviously, I can't review them in 
-any way, but people seem to be active updating them.
+"existence", yes will use that, thanks!
 
 -- 
 Cheers,
