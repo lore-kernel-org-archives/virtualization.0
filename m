@@ -1,187 +1,126 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1D3525A33A
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 10:34:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC2DD21771F
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 10:37:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751366082; cv=none; b=t+Jw+s4GHuHquukgGgY8IVFEkFdMftYg/It76LsQYZQwu/UgmME1lhBQNGSw0VKp1pRIQINUdRsfD2DvXT1HCZLF0cvKVG660ZEPF8n7vDBAuNRLazb2ET8pOr7ZRq7i4an/PDZOVjNd9ZrBjUWUXOZePzeGxwPyJK+ARvcC+cI=
+	t=1751366252; cv=none; b=Ff+Tx5OvG4S5htV8n9WiXp1IoSjOtoOXP7336Y/eUKVh9UcJbEoQqSansiSNTaO6R80GoLXhXmsG32q535DAgQvQoIWnh5C5NHiv5ItfGmrTgCEpE9QmKaV8JILadhUAof3IYoT5wKdtB66dWApg/UayV3x8tugPwW9vThKeN00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751366082; c=relaxed/simple;
-	bh=Mb60PZKCxPrLuQXD+nGMXcS0bI1nvcxKixTXpIJ6UOs=;
+	s=arc-20240116; t=1751366252; c=relaxed/simple;
+	bh=heXSovKMp8WMZ4/NmKFQEomaA05X7Vw0t+hCl43nhvk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=D5aK6ZqLsJGp7X/7G2hxnpFY5TEscHCb4L1yL3UjuFKzT5luGZYaQxvwPwC5euICsAUbiazlUGbbWBtis5LONTtHKT4goCjES7l/fwf0qQmNPMKeuIxNXYUR1fjgJGYpyPzcmGebZryOXItPxkIBqilCWMI7XlsOnA6Ims2fY9w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hbzf7Hh/; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=rMVzNsv0Cp0PtJHaQWrkZtYz3odCWur0ZfEdmqkMUR6d3MEU7y3q2l5/+ecrLqkTG/njT5jETMydts/1+3SXOXqOCF7YVdbcNUaGRn4gGfZMnwbfbkkN5LOs04GLtfeG8Z9QdIMm72sIKOTyDHUU56p3XItWZDasGUQpz86NwbU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Bg3kZWqr; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hbzf7Hh/"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bg3kZWqr"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751366079;
+	s=mimecast20190719; t=1751366249;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UpDQ5tS+XCWfCgRZS/6IKZjsLJANA+xHzrICS0TndYM=;
-	b=Hbzf7Hh/t++fOQQ1P+QTIyNSBusoq8vwWSGR3BCwL+n70V2LZLT+mCiY9Awv7aegVlt/MP
-	cHZyArezIGGFb2SipYsC1J081ZHAFO7g3vvT3Ew4D8HE+ikmtWsX/DnAZNdcF2dpy9bg6x
-	wgKP6NyouKAViI9ddCFd4gz460RABSU=
-Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
- [209.85.161.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=n2ir46AUDqqNyeG2en8npeW9OEH0djU5Wi0RBd8xUlA=;
+	b=Bg3kZWqrGMOkDohS2MVzZHxtsKyyqExL6zEhzvzELiCI+wUmUWsRqFqVGGG9lWMdm1Si6S
+	Vqzb+N7/MuVWfBe5WTyimxIoMkzW7O0tHflqmj265QfhOVnr4SPOCs3gZqeSjcfCKlub6k
+	yPC8ARjVy5+OzjPJLWTogNak1AmTeQA=
+Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
+ [209.85.161.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-201-5ORzQo8qPiS4NJdwuLruMQ-1; Tue, 01 Jul 2025 06:34:36 -0400
-X-MC-Unique: 5ORzQo8qPiS4NJdwuLruMQ-1
-X-Mimecast-MFC-AGG-ID: 5ORzQo8qPiS4NJdwuLruMQ_1751366076
-Received: by mail-oo1-f69.google.com with SMTP id 006d021491bc7-611956658aaso4291673eaf.2
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 03:34:36 -0700 (PDT)
+ us-mta-628-Mvzakr1NPbq2vaVVxWIpEQ-1; Tue, 01 Jul 2025 06:37:28 -0400
+X-MC-Unique: Mvzakr1NPbq2vaVVxWIpEQ-1
+X-Mimecast-MFC-AGG-ID: Mvzakr1NPbq2vaVVxWIpEQ_1751366248
+Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-611d5826d59so1396575eaf.0
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 03:37:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751366076; x=1751970876;
+        d=1e100.net; s=20230601; t=1751366248; x=1751971048;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UpDQ5tS+XCWfCgRZS/6IKZjsLJANA+xHzrICS0TndYM=;
-        b=dA5mmUNG89wBjJGwfT4ULm+thgekMbuAkpKE3u3t+kvg8XTeclfzgHZZz+/ccRBrdS
-         gt/0uUZJfQOl185cLwk6PSpUm6M16kCwFaUjxpzlG/dfwZchIvwv9+V59H7mnR9JdSe4
-         2E3DaSb+uY1ecYXMxmCg73Ys8DLLYRLkitXbZXw9RmFVjapeBMHOkuRZRI7FIHEjd4KL
-         Sldhwq3cM1mPc5xCsBFeprhztfIOTDdslFn8JxXwZ0Y2P7UhCeWvyKkyJRr8OlMkaPQO
-         kRrxJ672NMMkfG7cR+ZKnVTjpMwY4av4aJPLnEHONN0J7z6B/DGtWjsAY2l9Pkkn8Avk
-         JR2Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUw9ZmJzH5dCOlZ7iq+L7a77ExPVH6VDBx/tCy6tshdK8VbMec2Jwpm6O0evARUTjZ8ae/8wQI6jVtAR9j52g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwngGKJ9XqTx2iQ9g6AWdjvMFcwfa8j4JQqbqVQLNpRMZ/4H6F8
-	qvun1zfYWd5flwlDcczTBhNxCDMsTst16CaVYasLOiqtSkSwbifyXJf7z7csE9zufNm+rftW/7Y
-	9E8LBIwKhDH9f54VP2tg+E3sk7qSmKNWYfR7lQO6s/7KdZ4Z7BUHgtHdRavhbTF7Ge08k
-X-Gm-Gg: ASbGncv3smO//UbSV2B/KPapZFDnnM+HxRTY87cqQO7OfW6kB5dgffstYA8bRwnzcM/
-	KChkPfQng+PzBne96gr7WJN7dyXZUTAO+nsTqdlDTCvw0+tUpoMsU6S+1JNyGKUA24q05FhnIEF
-	QFSEt9YXDh7gzJGpEX8wssw3Vy9PXFAKwljx9GY0TLdb9s+T5UgZcz1tQG4UX1MOjQiYzrL+Ab6
-	vAd5v3soYIKX8tCqmvabNeg/8CvFaQeott5DsP3zG8E+X8K/RzQo04IzQChhrjicQId601Jg30l
-	LdQEG+JfWZuuA/qbv6sDsI7BP/3g
-X-Received: by 2002:a05:6820:994:b0:611:aabf:2b7d with SMTP id 006d021491bc7-611b91b8ba5mr12929320eaf.7.1751366075932;
-        Tue, 01 Jul 2025 03:34:35 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEvOyh3XEeOqocDMGLPkqu+zdtIY+/LP4pPv1rkoavjsw1qeTINbjxyfJNBqMBK5Rn7C+6dEQ==
-X-Received: by 2002:a05:6820:994:b0:611:aabf:2b7d with SMTP id 006d021491bc7-611b91b8ba5mr12929286eaf.7.1751366075453;
-        Tue, 01 Jul 2025 03:34:35 -0700 (PDT)
+        bh=n2ir46AUDqqNyeG2en8npeW9OEH0djU5Wi0RBd8xUlA=;
+        b=KMaii1SvMg85WiR2no7mS3AY9vKlZyYuL3RQC1E4W1qPJeQQLjEImxGp8lS+LI1Ocq
+         nS97MkBEkk7Qa+D1zkxIuFmvr+/BXXo6N2cK+7tRb6Q8k9O8mEUXHZ7tBxOss7MzzLnW
+         j27Djuoh864GEx4ziu3kUMNX4G516LJBhvFTgZzW3hkyhT+Ee79h+l3K57knv66P2sta
+         Bfb+sE/ol+MDbMGYFdLuKVtIovM9yin90hgYZvkwHQvEu4lRTDYlOGLdaG3iUXhLEOSp
+         D6SHh/Ns/4A5Y0QUuLNXnoUPd2BlQetvLZo9oOjB7FM8BDpmZvL2hVQinXXIaNsMut0g
+         Dl6g==
+X-Forwarded-Encrypted: i=1; AJvYcCU5IgWQnQoX0Ob5MT1euvoZl25jsznP97V4YQqWGims05SLxqH6VKDkHFAjmpTzHgSuH6Q73Ab8WuKYbT6xJQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyM4cXtUEOzalUONrpTH7xwgkG2B2JbGtP5APLoMA7KqOcii8QT
+	j9oNTH0C8jPoNFQ+i3zyyf98hjegZUUUL5RcqSNTbncuek6Agkeattj538jBypqd9tO7Jl+39Zp
+	mPLi7J/I3HhT2Vu232S8E2dPgJwToajR1F+/VRIpy5rln1zW4NoQu31tQ38utjdE/9j+h
+X-Gm-Gg: ASbGnctDOipsT0Neez57D85O23bNosjk8FoklDN60YwKkwpa+QYdF0ZbCVe6KoCBiBu
+	FrlX89WVN/yw0faaLCY+tfuxj8/VLmREs3flcrCrxQlkck8vpCegSS1k/dTG8qcKLGXM4Ib1BWk
+	EAe/ZMUhcuhTY/0gEl15P/bBhSVW7N+XDko7cgHNmzrkZ8PFqhQ1yEH+wCnJXnwEcQ8Uj9TorG2
+	qTcrlWvXc9MfMPYaW4XOokQR8lPfj8RQsZ/5C/SPh+aMgabndGQoE39EpRFvU+8OZzRRg1uugd/
+	MS6JYXnH8uMsTT2LXGyuL5syVp1Z
+X-Received: by 2002:a05:6830:4d87:b0:731:cac7:364e with SMTP id 46e09a7af769-73afc63c25dmr9915285a34.22.1751366247281;
+        Tue, 01 Jul 2025 03:37:27 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHyVKJMDrLHZZIEx6Kk38/Nas6gM9Ud+smX4Ebygc9Zz6lBqLLrkX5YBPiqMFvYh1w2+bHAbw==
+X-Received: by 2002:a05:6830:4d87:b0:731:cac7:364e with SMTP id 46e09a7af769-73afc63c25dmr9915263a34.22.1751366246892;
+        Tue, 01 Jul 2025 03:37:26 -0700 (PDT)
 Received: from sgarzare-redhat ([193.207.144.202])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-611b8474da2sm1366811eaf.6.2025.07.01.03.34.31
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-73afb107871sm2055408a34.58.2025.07.01.03.37.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Jul 2025 03:34:35 -0700 (PDT)
-Date: Tue, 1 Jul 2025 12:34:23 +0200
+        Tue, 01 Jul 2025 03:37:26 -0700 (PDT)
+Date: Tue, 1 Jul 2025 12:37:13 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC net v2 1/3] vsock: Fix transport_{g2h,h2g} TOCTOU
-Message-ID: <fruzxj3ju4nmm3uipuqq3gcn3jh5et4qpnldzsdahfdcachtyl@o3k7lo2gxzyb>
-References: <20250620-vsock-transports-toctou-v2-0-02ebd20b1d03@rbox.co>
- <20250620-vsock-transports-toctou-v2-1-02ebd20b1d03@rbox.co>
- <zdiqu6pszqwb4y5o7oqzdovfvzkbrvc6ijuxoef2iloklahyoy@njsnvn7hfwye>
- <d8d4edb2-bf14-42b2-8592-79d7b014e1a7@rbox.co>
- <owafhdinyjdnol4zwpcdqsz26nfndawl53wnosdhhgmfz6t25n@2dualdqgpq3q>
- <e97b5cae-f6ef-4221-98e1-6efd7fdc6676@rbox.co>
- <4vsrtxs3uttx6w2zyk6rxescpwvrikypiw6tvjheplht6yzonc@ch6k3xlftikw>
- <c39f22fd-9ede-4cdd-956b-29856e9db20a@rbox.co>
+To: Will Deacon <will@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Keir Fraser <keirf@google.com>, 
+	Steven Moreland <smoreland@google.com>, Frederick Mayle <fmayle@google.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	netdev@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH 1/5] vhost/vsock: Avoid allocating arbitrarily-sized SKBs
+Message-ID: <njwfflmq7swifmc5gwbovtju4bg2zg4cibpichtjhlkqkprvtb@5r5giy2irbzd>
+References: <20250625131543.5155-1-will@kernel.org>
+ <20250625131543.5155-2-will@kernel.org>
+ <7byn5byoqlpcebhahnkpln3o2w2es2ae3jpzocffkni3mfhcd5@b5hfo66jn64o>
+ <aGKIO8yqBSxXZrE2@willie-the-truck>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <c39f22fd-9ede-4cdd-956b-29856e9db20a@rbox.co>
+In-Reply-To: <aGKIO8yqBSxXZrE2@willie-the-truck>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: w0L-S-byzyqXI3VAc-AEs_Bu0VwVxKPovR2AgApZVTM_1751366076
+X-Mimecast-MFC-PROC-ID: rW4FeZtfhvZJw0NhjPuobAc0Uy2DkWd-tWNXpDg8GFY_1751366248
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Mon, Jun 30, 2025 at 01:02:26PM +0200, Michal Luczaj wrote:
->On 6/30/25 11:05, Stefano Garzarella wrote:
->> On Sun, Jun 29, 2025 at 11:26:12PM +0200, Michal Luczaj wrote:
->>> On 6/27/25 10:02, Stefano Garzarella wrote:
->>>> On Wed, Jun 25, 2025 at 11:23:30PM +0200, Michal Luczaj wrote:
->>>>> On 6/25/25 10:43, Stefano Garzarella wrote:
->>>>>> On Fri, Jun 20, 2025 at 09:52:43PM +0200, Michal Luczaj wrote:
->>>>>>> vsock_find_cid() and vsock_dev_do_ioctl() may race with module unload.
->>>>>>> transport_{g2h,h2g} may become NULL after the NULL check.
->>>>>>>
->>>>>>> Introduce vsock_transport_local_cid() to protect from a potential
->>>>>>> null-ptr-deref.
->>>>>>>
->>>>>>> KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
->>>>>>> RIP: 0010:vsock_find_cid+0x47/0x90
->>>>>>> Call Trace:
->>>>>>> __vsock_bind+0x4b2/0x720
->>>>>>> vsock_bind+0x90/0xe0
->>>>>>> __sys_bind+0x14d/0x1e0
->>>>>>> __x64_sys_bind+0x6e/0xc0
->>>>>>> do_syscall_64+0x92/0x1c0
->>>>>>> entry_SYSCALL_64_after_hwframe+0x4b/0x53
->>>>>>>
->>>>>>> KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
->>>>>>> RIP: 0010:vsock_dev_do_ioctl.isra.0+0x58/0xf0
->>>>>>> Call Trace:
->>>>>>> __x64_sys_ioctl+0x12d/0x190
->>>>>>> do_syscall_64+0x92/0x1c0
->>>>>>> entry_SYSCALL_64_after_hwframe+0x4b/0x53
->>>>>>>
->>>>>>> Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
->>>>>>> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->>>>>>> Signed-off-by: Michal Luczaj <mhal@rbox.co>
->...
->>> Oh, and come to think of it, we don't really need that (easily contended?)
->>> mutex here. Same can be done with RCU. Which should speed up vsock_bind()
->>> -> __vsock_bind() -> vsock_find_cid(), right? This is what I mean, roughly:
->>>
->>> +static u32 vsock_registered_transport_cid(const struct vsock_transport
->>> __rcu **trans_ptr)
->>> +{
->>> +	const struct vsock_transport *transport;
->>> +	u32 cid = VMADDR_CID_ANY;
->>> +
->>> +	rcu_read_lock();
->>> +	transport = rcu_dereference(*trans_ptr);
->>> +	if (transport)
->>> +		cid = transport->get_local_cid();
->>> +	rcu_read_unlock();
->>> +
->>> +	return cid;
->>> +}
->>> ...
->>> @@ -2713,6 +2726,7 @@ void vsock_core_unregister(const struct
->>> vsock_transport *t)
->>> 		transport_local = NULL;
->>>
->>> 	mutex_unlock(&vsock_register_mutex);
->>> +	synchronize_rcu();
->>> }
->>>
->>> I've realized I'm throwing multiple unrelated ideas/questions, so let me
->>> summarise:
->>> 1. Hackish macro can be used to guard against calling
->>> vsock_registered_transport_cid() on a non-static variable.
->>> 2. We can comment the function to add some context and avoid confusion.
+On Mon, Jun 30, 2025 at 01:51:07PM +0100, Will Deacon wrote:
+>On Fri, Jun 27, 2025 at 12:36:46PM +0200, Stefano Garzarella wrote:
+>> On Wed, Jun 25, 2025 at 02:15:39PM +0100, Will Deacon wrote:
+>> > vhost_vsock_alloc_skb() returns NULL for packets advertising a length
+>> > larger than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE in the packet header. However,
+>> > this is only checked once the SKB has been allocated and, if the length
+>> > in the packet header is zero, the SKB may not be freed immediately.
+>> >
+>> > Hoist the size check before the SKB allocation so that an iovec larger
+>> > than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE + the header size is rejected
+>> > outright. The subsequent check on the length field in the header can
+>> > then simply check that the allocated SKB is indeed large enough to hold
+>> > the packet.
 >>
->> I'd go with 2.
+>> LGTM, but should we consider this as stable material adding a Fixes tag?
 >
->All right, will do.
->
->>> 3. Instead of taking mutex in vsock_registered_transport_cid() we can use RCU.
->>
->> Since the vsock_bind() is not in the hot path, maybe a mutex is fine.
->> WDYT?
->
->I wrote a benchmark that attempts (and fails due to a non-existing CID) to
->bind() 100s of vsocks in multiple threads. `perf lock con` shows that this
->mutex is contended, and things are slowed down by 100+% compared with RCU
->approach. Which makes sense: every explicit vsock bind() across the whole
->system would need to acquire the mutex. And now we're also taking the same
->mutex in vsock_assign_transport(), i.e. during connect(). But maybe such
->stress testing is just unrealistic, I really don't know.
->
+>Yup, absolutely. I put it first so that it can be backported easily but,
+>for some reason, I thought networking didn't CC stable. I have no idea
+>_why_ I thought that, so I'll add it (and a Fixes: line) for v2!
 
-I still don't think it's a hot path to optimize, but I'm not totally 
-against it. If you want to do it though, I would say do it in a separate 
-patch.
+yeah, this was the case till last year IIRC, but we always used Fixes 
+tag, also if we didn't cc stable.
+
+>
+>That seems to be:
+>
+>  Fixes: 71dc9ec9ac7d ("virtio/vsock: replace virtio_vsock_pkt with sk_buff")
+>
+>from what I can tell.
+
+I think so!
 
 Thanks,
 Stefano
