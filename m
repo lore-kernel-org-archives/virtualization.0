@@ -1,310 +1,204 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAAC8264F8A
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 08:11:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA23F269B01
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 08:12:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751357509; cv=none; b=S9gsR9cDhTIR6Y2giXOBKQeL6HQNL80WZivt5eOZebJlL6AQRbOYjchGd8MoLHJ26ECjAAWBXo0RsPRS+bCAXb3MGr04qqwlOfOv2Qj1KP1n8aZkljVzfxY7eGSMSCLxcg4RmQnYaqMnymAmHt9EZSf7cKT6ZeJkMF1SYs3Ph34=
+	t=1751357536; cv=none; b=cnz2N0y7A3yl4onTdVpHtjLEHZS+gdhIBLE95+TiZg1bG6lWIhIiRRg629WNCVVZa2LOG4z5hSF56aVbDa3OgUa8pp9uie2VWVdefobmM+G6HwC0UN/Rw+cyhF4Y5sI/Jrb3LoZMQyYe7gKizH3/kMPgVKvhkNrNHAT6/YqSDHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751357509; c=relaxed/simple;
-	bh=Pwgdi2CvewwnEKgFZOz2o74hYongJz6uGVGt3vJGt30=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=d/zngMfytylEG1h0JTXS9G5k+nVIHiKQBEiySywm72lidDilEDnSayTt1HOHxAqtjW5gaKV5sQ5homG/XSX8eHgZ1DLwB/y+7diUfgvPEW12o1X+CUfON1NgsRnbRAkQR2b7bEsQMRmjgdjXkeuZHtbhAp2orScS906kCNKJAZ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CEnwQynG; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1751357536; c=relaxed/simple;
+	bh=yUjs3NOjuhn6AHevTobhSBg7O8IgpKcVFKAos0UsDnI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Pt/BvCktRlkw80lDSXuMehYfYetJ8jkAUqfk2yuUzoCo98ZNRjTkexauHIwl9j9QB4z3x7LJCIYts+k+fdGiUigGMKOAEvi94VEwcJPNHxKemKJNE9lSvE49jq8EKV+KeQShVdBFRkeqI3O0mNp8JbCHsjiuBs0uWEdht4w3tyg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eDdzgHnC; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CEnwQynG"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eDdzgHnC"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751357506;
+	s=mimecast20190719; t=1751357532;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4tzUe65NdcyoaFKff3kl/phF45No3Ud2Gm+SIFnV3G8=;
-	b=CEnwQynGAf/bkodRYfn72whG/PUXrYQy91I83UcpZcRGup862viIJY4/JSn0IrJP64D94b
-	vKAKi0F8UUlgj9l5t3QFYMFeRi1x0Y9irv2tU187v08YQ0iut9pEQVFvAlI8lZumlP1MRt
-	zOLtS2YkmGRsVtJrUzRmJsJ0LdfG6PM=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=XUVH4Y+OJJh1QuOp42YVy3obAL+tMMI3FUFoTmbRvmc=;
+	b=eDdzgHnCGS3S5B3r2yDIE2zsmc8b7L0BHUYbycxk1TorBIu9M+M0v9y/1DIDfVnU3etaoO
+	E9Wt4nPF9KYeLMxyPE3Z8StLGiSh/XS+MvF6JQq79qZHPl9avpev005nUOCDL5gzQdJabz
+	0w5Hlfl3JLTtoEIkRBQxa5T2pA+PrSM=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-460-SZ1tWnrHNB2N7cpZxGMtoA-1; Tue, 01 Jul 2025 04:11:45 -0400
-X-MC-Unique: SZ1tWnrHNB2N7cpZxGMtoA-1
-X-Mimecast-MFC-AGG-ID: SZ1tWnrHNB2N7cpZxGMtoA_1751357504
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3138e65efe2so4705379a91.1
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 01:11:45 -0700 (PDT)
+ us-mta-142-6z0crichOAq5VY2Uog0Bug-1; Tue, 01 Jul 2025 04:12:11 -0400
+X-MC-Unique: 6z0crichOAq5VY2Uog0Bug-1
+X-Mimecast-MFC-AGG-ID: 6z0crichOAq5VY2Uog0Bug_1751357530
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4538f375e86so27584695e9.3
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 01:12:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751357503; x=1751962303;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4tzUe65NdcyoaFKff3kl/phF45No3Ud2Gm+SIFnV3G8=;
-        b=ctSo7d8MuYLYEyJrAp4Pq9eQvJ+Jb4bk6/Ob1yXd2UtWGownENRLZMQ9t+NLRFzuy2
-         w3jz4KM8sE5R36gmFr7MQGcBAyXo+QhFC8PX7HKEzFYVxBkydPbR+UtWr0Qs2gVoXxpg
-         iX94xYcaurh+5XMuySNUddxZ+CVlCdUZDUp1Sb8noMwh6RnoFXhsxjpkkrUCHBbiPUwg
-         UjS59XWWBufPbEoPRgUdU0xV+dQDHfQIEpE6wg8KiTtjQf6vOOHIxw2tF78YXWLHxNPk
-         CBYpFww966qmuk8Z1KxKM3wzxI81SIW8m0AGalu9Qitv444NYtgYVrdpYpOnU5W52YOl
-         s7Xw==
-X-Forwarded-Encrypted: i=1; AJvYcCVdGLL1Wh0/ErP9b0BmSqjHC3IIguxN+C/nErtl9JU9OoRyHMj0QnCoODcbm4WshHKZ+pMh3tY5GBzD45D1tQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz5StqONMLNrnq7pr1x0Xrp99b58EuY1fktwvNdLOdErH5pWhb/
-	YHeRY46yCmvNYTJddLLjEdB0yQc7aCk9U2CnyME6QF0OI56lausneyhSFOdmQaqXeCzpdiJsxbO
-	1xNWScR3ZWgA1qX0iVgxlpk+RhCpBye5jhEDpAV9DCjnWd7SZz0E+MC17H2lM3EC0vM/fUF/0XY
-	AlL//7HG3OFjCLC6w9eSPJSZ3ynC/k23/bmKp2U04oA+c=
-X-Gm-Gg: ASbGncv28qs5x7VttZQtkAvBZN27dnMwKrdICkMXvAe0fJ/QDk57ste0//l8VwV1sza
-	/v7qzHGbFbFjyXAUPLXmuRgWDteDXHh9gmH0jUc9vQnnael0A2wfk+jpJwm5T76QYuSZyxBBG49
-	FD
-X-Received: by 2002:a17:90b:3c06:b0:312:e9bd:5d37 with SMTP id 98e67ed59e1d1-318c9106946mr22510156a91.6.1751357502428;
-        Tue, 01 Jul 2025 01:11:42 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGpJTtJ3cO2SOiD5qr9TT09fbndyZp4u8KjU6x0emgonO+tUZ0YiHzbsC1YylxU+ge1nnS6RXzqUmlF4Nt+jeg=
-X-Received: by 2002:a17:90b:3c06:b0:312:e9bd:5d37 with SMTP id
- 98e67ed59e1d1-318c9106946mr22510106a91.6.1751357501802; Tue, 01 Jul 2025
- 01:11:41 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1751357530; x=1751962330;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=XUVH4Y+OJJh1QuOp42YVy3obAL+tMMI3FUFoTmbRvmc=;
+        b=ulmgSQNUxeu0Nn1bHW9aVCIakIGcG6onMzcWP367cARAI+0Ax0t4B7uhxtFAd2RDx0
+         IREFffltvC0IAVzCaD4FsxgfRO8ZuWA6J86iNmi7WtwW2X5awVFajNGSNmZmUqNiNxy2
+         Yh4vl8Jufd/kQsPNVLPa1DARe5Tfv1il6WpJ/B+GG30OaHFTUSbhbeeaUbk8p/MNFPVB
+         Gdbxqu+RkcTpUPp6xGX4XFgDU8ICsOBq2aMPX7c5RI6pyXtDXCQjplueMEn/cIz2UtW9
+         joFvZqVMxbyWWSBiadMxMgwpIbiULLyfPEanVIiK1cB+NwQhN4q9OXDMkhLp63Hke1lI
+         iJdQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVY4kX1Di9U70l79R0cv19vWz39ROy7e1CvoHF6AYaEe5kRkETNDFvhz2EQbC55YbBXo7JG2hzW0CxUuxNMUA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyGq6XXzUMU7ILDgOT+T2chnbrCIBG+3ElGqhEOBG5EV32acxq3
+	WpHgsCvxHjint0hVbvJbCx9OL/LuRoYpWCFALx7YDVdi2wRGEtnvmZUiJX+LZedRIrz1Ox8/7Xm
+	gvjC6hYeOn7YTy8I1nMmlsLUK+9HVRDdpL1mukGD+tFCxObrSI65s2HFcWT3ChXeEGfXS
+X-Gm-Gg: ASbGncvE4JTxje7YLmJ4dgwH2sRxvx7lb+r+IFPc7W5vts8TDK/jK3phres4TTuj8AD
+	HmIKfb6/Bv0BWL45yZLmjj3xNokUVhNgPJfzn0+0404fKoC0tRHuBTqGMGeYa9i1LpY8mkeyZBd
+	7mqLh/mDlVEN/Yr8wBSEZEaiDhhroI6xWXK2oJ+B5S8Bqp6PQ+HB3e6Nnozz2OCHmlCI/ymmD3r
+	W9uBbxgP0sbsPpJkyFBV5SLlPgrocENrPwMjD2PCylkp/DScYo1kEF/thEKaV8jiVSaCBwXOtVy
+	/zwieggSR6JjB7tVCDi3+CPpQlL9CQbWKSvISKz64Rw0K4AIwJi4zcgSent0qxvnB2sL0S57nY8
+	jPacff7J3BVhwNDaAa683nDBy4QdjAjh5zmyu3l42PYMFe7557A==
+X-Received: by 2002:a05:6000:104e:b0:3a4:f513:7f03 with SMTP id ffacd0b85a97d-3a917bc827cmr11229496f8f.44.1751357529787;
+        Tue, 01 Jul 2025 01:12:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFsHgnnUEFpXSYw4p3OElnQrmUS9uew02TXhj0OkRpaoY11Ud7n6qleNpZ0nt8POoq3yWyxJA==
+X-Received: by 2002:a05:6000:104e:b0:3a4:f513:7f03 with SMTP id ffacd0b85a97d-3a917bc827cmr11229429f8f.44.1751357529270;
+        Tue, 01 Jul 2025 01:12:09 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f18:7500:202e:b0f1:76d6:f9af? (p200300d82f187500202eb0f176d6f9af.dip0.t-ipconnect.de. [2003:d8:2f18:7500:202e:b0f1:76d6:f9af])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a88c7fab15sm12666380f8f.33.2025.07.01.01.12.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Jul 2025 01:12:08 -0700 (PDT)
+Message-ID: <1618bfb3-fbc2-46c4-954b-f042803cace2@redhat.com>
+Date: Tue, 1 Jul 2025 10:12:06 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250701011401.74851-1-jasowang@redhat.com> <20250701011401.74851-10-jasowang@redhat.com>
- <20250701034754-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250701034754-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 1 Jul 2025 16:11:29 +0800
-X-Gm-Features: Ac12FXxba2GAg1rPYB--ydU2eP87EwqN6UIFRq9hSMO-3XBfVhHBu1N5p0_hvt4
-Message-ID: <CACGkMEv2OUBgrawUv-mPMV6=soV4CE+QM7VqEsnUjxdnEiySCg@mail.gmail.com>
-Subject: Re: [PATCH 9/9] vduse: switch to use virtio map API instead of DMA API
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	hch@infradead.org, xieyongji@bytedance.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 05/29] mm/balloon_compaction: make PageOffline sticky
+ until the page is freed
+To: Zi Yan <ziy@nvidia.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Minchan Kim <minchan@kernel.org>,
+ Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>,
+ Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin
+ <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
+ Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
+ Shakeel Butt <shakeel.butt@linux.dev>
+References: <20250630130011.330477-1-david@redhat.com>
+ <20250630130011.330477-6-david@redhat.com>
+ <6a6cde69-23de-4727-abd7-bae4c0918643@lucifer.local>
+ <595C96DA-C652-455F-91DB-F7893B95124B@nvidia.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <595C96DA-C652-455F-91DB-F7893B95124B@nvidia.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: p-nuLRvhYnW7lmw6_qQqB31jjnJVGhGvGU1aH4nmido_1751357504
+X-Mimecast-MFC-PROC-ID: ql42zQT_q97LU-zLwVvwCJCu3gonZt9ow5SayD6Tjq4_1751357530
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jul 1, 2025 at 3:50=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
-wrote:
->
-> On Tue, Jul 01, 2025 at 09:14:01AM +0800, Jason Wang wrote:
-> > Lacking the support of device specific mapping supported in virtio,
-> > VDUSE must trick the DMA API in order to make virtio-vdpa transport
-> > work. This is done by advertising vDPA device as dma device with a
-> > VDUSE specific dma_ops even if it doesn't do DMA at all.
-> >
-> > This will be fixed by this patch. Thanks to the new mapping operations
-> > support by virtio and vDPA. VDUSE can simply switch to advertise its
-> > specific mappings operations to virtio via virtio-vdpa then DMA API is
-> > not needed for VDUSE any more.
-> >
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
->
-> so what exactly is the issue fixed by all this pile of code?
+On 30.06.25 18:14, Zi Yan wrote:
+> On 30 Jun 2025, at 12:01, Lorenzo Stoakes wrote:
+> 
+>> On Mon, Jun 30, 2025 at 02:59:46PM +0200, David Hildenbrand wrote:
+>>> Let the page freeing code handle clearing the page type.
+>>
+>> Why is this advantageous? We want to keep the page marked offline for longer?
+>>
+>>>
+>>> Acked-by: Zi Yan <ziy@nvidia.com>
+>>> Acked-by: Harry Yoo <harry.yoo@oracle.com>
+>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>
+>> On assumption this UINT_MAX stuff is sane :)) I mean this is straightforward I
+>> guess:
+> 
+> This is how page type is cleared.
+> See: https://elixir.bootlin.com/linux/v6.15.4/source/include/linux/page-flags.h#L1013.
+> 
+> I agree with you that patch 4 should have a comment in free_pages_prepare()
+> about what the code is for and why UINT_MAX is used.
 
-Avoiding using DMA API for VDUSE.
+I can add a comment
 
-> I just don't really see it. yes the existing thing is a hack
-> but at least it is isolated within vduse which let's be
-> frank is not it's only issue.
+/* Reset the page_type -> _mapcount to -1 */
 
-Christoph shows concerns when Eugenio is trying to extend VDUSE for
-multiple AS support:
+To patch #4.
 
-https://lists.openwall.net/linux-kernel/2025/06/23/133
+-- 
+Cheers,
 
-I think we need to reach some agreement here. I'm fine to leave the
-current code as is.
-
-But we may have a problem:
-
-Technically, we want the ability of allowing control virtqueue to be
-backed by an isolated iova domain in order to make shadow virtqueue
-work. Though this might be only useful for vhost-vdpa, technically we
-should allow virtio-vdpa to work in this case as well. This means cvq
-should have its own dma device which might be tricky to VDUSE to
-implement (for example it needs a hack on top of the existing hack,
-e.g creating a child device to that which looks more like an
-overkill).
-
-Thanks
-
->
->
-> > ---
-> >  drivers/vdpa/vdpa_user/iova_domain.c |  2 +-
-> >  drivers/vdpa/vdpa_user/iova_domain.h |  2 +-
-> >  drivers/vdpa/vdpa_user/vduse_dev.c   | 31 ++++++++++++++++------------
-> >  3 files changed, 20 insertions(+), 15 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_u=
-ser/iova_domain.c
-> > index 019f3305c0ac..8ea311692545 100644
-> > --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> > @@ -447,7 +447,7 @@ void vduse_domain_unmap_page(struct vduse_iova_doma=
-in *domain,
-> >
-> >  void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
-> >                                 size_t size, dma_addr_t *dma_addr,
-> > -                               gfp_t flag, unsigned long attrs)
-> > +                               gfp_t flag)
-> >  {
-> >       struct iova_domain *iovad =3D &domain->consistent_iovad;
-> >       unsigned long limit =3D domain->iova_limit;
-> > diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_u=
-ser/iova_domain.h
-> > index 846572b95c23..a2316571671f 100644
-> > --- a/drivers/vdpa/vdpa_user/iova_domain.h
-> > +++ b/drivers/vdpa/vdpa_user/iova_domain.h
-> > @@ -64,7 +64,7 @@ void vduse_domain_unmap_page(struct vduse_iova_domain=
- *domain,
-> >
-> >  void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
-> >                                 size_t size, dma_addr_t *dma_addr,
-> > -                               gfp_t flag, unsigned long attrs);
-> > +                               gfp_t flag);
-> >
-> >  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size=
-_t size,
-> >                               void *vaddr, dma_addr_t dma_addr,
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
-r/vduse_dev.c
-> > index 64bc39722007..f86d7111e103 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -814,51 +814,55 @@ static const struct vdpa_config_ops vduse_vdpa_co=
-nfig_ops =3D {
-> >       .free                   =3D vduse_vdpa_free,
-> >  };
-> >
-> > -static void vduse_dev_sync_single_for_device(struct device *dev,
-> > +static void vduse_dev_sync_single_for_device(void *token,
-> >                                            dma_addr_t dma_addr, size_t =
-size,
-> >                                            enum dma_data_direction dir)
-> >  {
-> > +     struct device *dev =3D token;
-> >       struct vduse_dev *vdev =3D dev_to_vduse(dev);
-> >       struct vduse_iova_domain *domain =3D vdev->domain;
-> >
-> >       vduse_domain_sync_single_for_device(domain, dma_addr, size, dir);
-> >  }
-> >
-> > -static void vduse_dev_sync_single_for_cpu(struct device *dev,
-> > +static void vduse_dev_sync_single_for_cpu(void *token,
-> >                                            dma_addr_t dma_addr, size_t =
-size,
-> >                                            enum dma_data_direction dir)
-> >  {
-> > +     struct device *dev =3D token;
-> >       struct vduse_dev *vdev =3D dev_to_vduse(dev);
-> >       struct vduse_iova_domain *domain =3D vdev->domain;
-> >
-> >       vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir);
-> >  }
-> >
-> > -static dma_addr_t vduse_dev_map_page(struct device *dev, struct page *=
-page,
-> > +static dma_addr_t vduse_dev_map_page(void *token, struct page *page,
-> >                                    unsigned long offset, size_t size,
-> >                                    enum dma_data_direction dir,
-> >                                    unsigned long attrs)
-> >  {
-> > +     struct device *dev =3D token;
-> >       struct vduse_dev *vdev =3D dev_to_vduse(dev);
-> >       struct vduse_iova_domain *domain =3D vdev->domain;
-> >
-> >       return vduse_domain_map_page(domain, page, offset, size, dir, att=
-rs);
-> >  }
-> >
-> > -static void vduse_dev_unmap_page(struct device *dev, dma_addr_t dma_ad=
-dr,
-> > +static void vduse_dev_unmap_page(void *token, dma_addr_t dma_addr,
-> >                               size_t size, enum dma_data_direction dir,
-> >                               unsigned long attrs)
-> >  {
-> > +     struct device *dev =3D token;
-> >       struct vduse_dev *vdev =3D dev_to_vduse(dev);
-> >       struct vduse_iova_domain *domain =3D vdev->domain;
-> >
-> >       return vduse_domain_unmap_page(domain, dma_addr, size, dir, attrs=
-);
-> >  }
-> >
-> > -static void *vduse_dev_alloc_coherent(struct device *dev, size_t size,
-> > -                                     dma_addr_t *dma_addr, gfp_t flag,
-> > -                                     unsigned long attrs)
-> > +static void *vduse_dev_alloc_coherent(void *token, size_t size,
-> > +                                   dma_addr_t *dma_addr, gfp_t flag)
-> >  {
-> > +     struct device *dev =3D token;
-> >       struct vduse_dev *vdev =3D dev_to_vduse(dev);
-> >       struct vduse_iova_domain *domain =3D vdev->domain;
-> >       unsigned long iova;
-> > @@ -866,7 +870,7 @@ static void *vduse_dev_alloc_coherent(struct device=
- *dev, size_t size,
-> >
-> >       *dma_addr =3D DMA_MAPPING_ERROR;
-> >       addr =3D vduse_domain_alloc_coherent(domain, size,
-> > -                             (dma_addr_t *)&iova, flag, attrs);
-> > +                                        (dma_addr_t *)&iova, flag);
-> >       if (!addr)
-> >               return NULL;
-> >
-> > @@ -875,25 +879,27 @@ static void *vduse_dev_alloc_coherent(struct devi=
-ce *dev, size_t size,
-> >       return addr;
-> >  }
-> >
-> > -static void vduse_dev_free_coherent(struct device *dev, size_t size,
-> > +static void vduse_dev_free_coherent(void *token, size_t size,
-> >                                       void *vaddr, dma_addr_t dma_addr,
-> >                                       unsigned long attrs)
-> >  {
-> > +     struct device *dev =3D token;
-> >       struct vduse_dev *vdev =3D dev_to_vduse(dev);
-> >       struct vduse_iova_domain *domain =3D vdev->domain;
-> >
-> >       vduse_domain_free_coherent(domain, size, vaddr, dma_addr, attrs);
-> >  }
-> >
-> > -static size_t vduse_dev_max_mapping_size(struct device *dev)
-> > +static size_t vduse_dev_max_mapping_size(void *token)
-> >  {
-> > +     struct device *dev =3D token;
-> >       struct vduse_dev *vdev =3D dev_to_vduse(dev);
-> >       struct vduse_iova_domain *domain =3D vdev->domain;
-> >
-> >       return domain->bounce_size;
-> >  }
-> >
-> > -static const struct dma_map_ops vduse_dev_dma_ops =3D {
-> > +static const struct virtio_map_ops vduse_map_ops =3D {
-> >       .sync_single_for_device =3D vduse_dev_sync_single_for_device,
-> >       .sync_single_for_cpu =3D vduse_dev_sync_single_for_cpu,
-> >       .map_page =3D vduse_dev_map_page,
-> > @@ -2009,7 +2015,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *=
-dev, const char *name)
-> >               return -EEXIST;
-> >
-> >       vdev =3D vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
-> > -                              &vduse_vdpa_config_ops, NULL,
-> > +                              &vduse_vdpa_config_ops, &vduse_map_ops,
-> >                                1, 1, name, true);
-> >       if (IS_ERR(vdev))
-> >               return PTR_ERR(vdev);
-> > @@ -2022,7 +2028,6 @@ static int vduse_dev_init_vdpa(struct vduse_dev *=
-dev, const char *name)
-> >               put_device(&vdev->vdpa.dev);
-> >               return ret;
-> >       }
-> > -     set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
-> >       vdev->vdpa.map_token =3D &vdev->vdpa.dev;
-> >       vdev->vdpa.mdev =3D &vduse_mgmt->mgmt_dev;
-> >
-> > --
-> > 2.34.1
->
+David / dhildenb
 
