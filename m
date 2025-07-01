@@ -1,203 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E5AA280337
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 19:38:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48CEF1C84C5;
+	Tue,  1 Jul 2025 21:26:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751398728; cv=none; b=aABXzBAJ228A8JMwcpa4QPCUwkb3U+C9zqYAXYNC4t2a7Lcps8uqFLYzkCj4EbQ7L1fJ5NP2VmrGbeKYPhsf3e9xLZeQeqvhVSBf10JDnTVzzg3FS44VVjOC2clVFX8uaPta9/bI9oAIt1KMvah8tZJg1G7/Dci3IdlaUC9oZgA=
+	t=1751405186; cv=none; b=Cu2RpPcOZQgICsvDZQLdZ6xiNtcqyUrf5F7W3ECasfM343fdVq+4x5Xh6RVlbJRTklFRDyNGcjoYeAlPXfl9aY/ckv0m+FLCaSHzUkVdDqcXI+fIbG4z/HO6dQ0ZVOm+u4zWMkDyGmazx986A8tYHHJhkKVZxU6E9cozdZfgo+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751398728; c=relaxed/simple;
-	bh=/gDBtxT109hf9ai3868bZtZVWwsPmd555OsHp/op8gU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gR/jpTuhRo7iPE/5EX5ZTxUHWEBFj7X4iZU70RxwI7/rR5GiYPJrYluF6sMtPyi2L72TJyjhb0U51P7tirSSHOJOEGzkZbZ5CknLLpV8Lvw73XXGpOaGVU1eP4EUvE+ODExNX79Yxw21C98nrlGDnfdWm88Jn9oWGntXTBEIIc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Mbm+FGYc; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751405186; c=relaxed/simple;
+	bh=R8n6arEGcVswxLhU83lkKsbJgDWgzGUs6I6rRw/rX1c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Xa5Tq7TRbbhellPimYdd/MEGasrGJ8K0zv1PGJAn/pgURo6qFniDYsXpsILkyUH0rf4Ze/c9uYW+fwoDuzN5ksG/HQHJBnydqBFQMdtbm3IyLWdLncrAl8rBb9vDRGSiW2qnAoG/93mkFUpiD3AmQ0f74aPelgNoLUJb/fgX6b4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eCqWnndB; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Mbm+FGYc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751398723;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=lElXDuIbz+447o51stvN3qhEUqBMiy6QYykeUTYpuzk=;
-	b=Mbm+FGYcQxsNXjNqKfW9xD609kiFwGkS5Ik+QXPEVdEDqQUejhCXKSfUAI2kFkHAi5D1JV
-	src3mENW5fFJL8vkceOLGDiFecxiQDMTHFacEhpjyynqDorPI8hbBJca3MyMtAZmr9u1mM
-	CN5yq991zukcDi1zg3wAiSxnDPdgmdA=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-690-l7GqPvKSNim1Brp91l31Gg-1; Tue, 01 Jul 2025 15:38:40 -0400
-X-MC-Unique: l7GqPvKSNim1Brp91l31Gg-1
-X-Mimecast-MFC-AGG-ID: l7GqPvKSNim1Brp91l31Gg_1751398719
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a3696a0d3aso1719326f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 12:38:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751398719; x=1752003519;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=lElXDuIbz+447o51stvN3qhEUqBMiy6QYykeUTYpuzk=;
-        b=lSLZQFyAc5hwULjHPh9fQrgvO1mJqnh43EgPN64ZbSAstE20FpTJzIbFwoUHQD9VPW
-         9pVVMvgUq6ec3Jw6z0Cne5Y5GdpANa1D2SMcr36Amu3RxNH83oJFcskzzJJq9R+zsFdL
-         4bo3Pw0Kjmg02GGpUV7dRxKTRxL8tgSfJ4CEAS219ck65WvJz8V0pnCaUEiAQ+bpJIYk
-         5JnOJttJwlqszNPbsUOYK/00VFKY7zJmlIzMxxUJlemsm1V0ONR4rC6eDIUNuPdwQksD
-         xr+Z0z7seLT/+1JVWBOzln8laaK08JTpVPY5WHT4oByk6SRl2sus98a9ARyMlA63RUmh
-         lkKQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUnKaqpK35LI+DGVTTQzme3x1NxNTOQRE01G4pEbvUFbBXAmm+mjOs1Py7x8Kuj24vrBsHllH3lDoWO+e7Khw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxf9iwTruKaQSdDridJKI2z5p/SF3WyAXJKk8WoyZQiOdSZNBFL
-	8Tw6lOfo3DwCEGG8wm6yi5rdY25Ux34SfFoDJXp8bCjkwoTbzuvU/X90z/yhlyyNTMQEx+iOl6s
-	fIQcJmOjEchnUjwHCPe3Is3PV2lZcpaUkhhAWA/Wnd8iHMpQiWwr7tpIP5rH3gd96F2dD
-X-Gm-Gg: ASbGncstskPOEPiBRPmNtsI+8iaMimE+jIQILFRaxVYv3E59Jj9pg4wBcCXEUQyNwbu
-	wJXtMO1YtvUin3QH4FtT0oauYU2kG4uLVWWhdEWIGgl7vbfC2dIEeXGQMnVz/XKt8ZQy+uFcVgM
-	NBaAJ3G2i+x0URaStdZDF1q0KVbEZWuzqNzS75JyEos8llAtNY8EqkED2hiOB7n3Vdpjmu4Pjhi
-	+wFMHWjWeN1IRUjO8t4x1TgOmzqev2r4KLjxABnZOzhpczQ5ruRcjMdRcV5Snpv7v9FlrTGKUwe
-	Rx+EOboFlTgiBBeY+YtLbS2YTZfNpWCatxdBuQ/B8A9S6HYV0oFmj5psuaicH1lRD+QBWEyrPN8
-	AjEGQx06yH5tcYABCooJWY5ywmNRL7A3zkrTS5K/BBTJHlhkghg==
-X-Received: by 2002:adf:9d87:0:b0:3a4:f7af:b41 with SMTP id ffacd0b85a97d-3a8f4a15c99mr14175381f8f.15.1751398718879;
-        Tue, 01 Jul 2025 12:38:38 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGLFyo8RcgMuSgcAM1cNXXfDuXZjnZVKPC4QmHAvknSOXyWUZGyTCuS2ZP2Izn55tZDj/Vv7w==
-X-Received: by 2002:adf:9d87:0:b0:3a4:f7af:b41 with SMTP id ffacd0b85a97d-3a8f4a15c99mr14175369f8f.15.1751398718397;
-        Tue, 01 Jul 2025 12:38:38 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f18:7500:202e:b0f1:76d6:f9af? (p200300d82f187500202eb0f176d6f9af.dip0.t-ipconnect.de. [2003:d8:2f18:7500:202e:b0f1:76d6:f9af])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a892e52a5asm14214194f8f.54.2025.07.01.12.38.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Jul 2025 12:38:37 -0700 (PDT)
-Message-ID: <bf300002-7020-44c2-bda8-e4fa718832bf@redhat.com>
-Date: Tue, 1 Jul 2025 21:38:35 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eCqWnndB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1751405185; x=1782941185;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=R8n6arEGcVswxLhU83lkKsbJgDWgzGUs6I6rRw/rX1c=;
+  b=eCqWnndBCxk5fw9dghWBt8CbY4x+Mls8sZO5QtfGtIqYSBn20yrSz5NK
+   L1J/IGU3pX5xxC621ffReXlfzUocIginTi7GF7vOMsSIpyvtHITaoAY4o
+   44FjGVWqBAUiOx11s8b/2FZSFHoKL0EMQuF+IQJ/RJQNaNmdY2T8O8WSQ
+   eesbrZ0poXHz06jkwD0PBugNiM3c/cFL75iN74Dsn0iL7XxaUdWQPHQqn
+   PThFu8acQ+v7T5UuOqxyN4Fth6qP2n0KTFhCGJyMTDfvO25+mu9JcM++f
+   MzFLhPWF1XXysF/75SeyPZBGfudAsf1m9agqQgks8toBFJyedVUNI224M
+   Q==;
+X-CSE-ConnectionGUID: RYK8z/KeRXmnAx0HKnBYLw==
+X-CSE-MsgGUID: qT9v7+UGSwuRib5Kpi88Rg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11481"; a="57365413"
+X-IronPort-AV: E=Sophos;i="6.16,279,1744095600"; 
+   d="scan'208";a="57365413"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2025 14:26:24 -0700
+X-CSE-ConnectionGUID: p8Re8qrHSWKaLTO/ZB8WAQ==
+X-CSE-MsgGUID: U3wKPwmWSaeo1juvCZWoCA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.16,279,1744095600"; 
+   d="scan'208";a="153982061"
+Received: from lkp-server01.sh.intel.com (HELO e8142ee1dce2) ([10.239.97.150])
+  by fmviesa006.fm.intel.com with ESMTP; 01 Jul 2025 14:26:21 -0700
+Received: from kbuild by e8142ee1dce2 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uWiUd-000afq-0u;
+	Tue, 01 Jul 2025 21:26:19 +0000
+Date: Wed, 2 Jul 2025 05:25:35 +0800
+From: kernel test robot <lkp@intel.com>
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com
+Cc: oe-kbuild-all@lists.linux.dev, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, hch@infradead.org,
+	xieyongji@bytedance.com
+Subject: Re: [PATCH 7/9] vdpa: rename dma_dev to map_token
+Message-ID: <202507020521.PEt0EuaY-lkp@intel.com>
+References: <20250701011401.74851-8-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 00/29] mm/migration: rework movable_ops page migration
- (part 1)
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
- Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
- Ying Huang <ying.huang@linux.alibaba.com>,
- Alistair Popple <apopple@nvidia.com>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
- <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Minchan Kim <minchan@kernel.org>,
- Sergey Senozhatsky <senozhatsky@chromium.org>,
- Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
- Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>,
- Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin
- <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
- Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
- Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
- Shakeel Butt <shakeel.butt@linux.dev>
-References: <20250630130011.330477-1-david@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20250630130011.330477-1-david@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vtdnzg1TRc_JsM5W0HFXjnNO1-ylDaluAXuIKF1dm_A_1751398719
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250701011401.74851-8-jasowang@redhat.com>
 
-On 30.06.25 14:59, David Hildenbrand wrote:
-> Based on mm/mm-new.
-> 
-> In the future, as we decouple "struct page" from "struct folio", pages
-> that support "non-lru page migration" -- movable_ops page migration
-> such as memory balloons and zsmalloc -- will no longer be folios. They
-> will not have ->mapping, ->lru, and likely no refcount and no
-> page lock. But they will have a type and flags :)
-> 
-> This is the first part (other parts not written yet) of decoupling
-> movable_ops page migration from folio migration.
-> 
-> In this series, we get rid of the ->mapping usage, and start cleaning up
-> the code + separating it from folio migration.
-> 
-> Migration core will have to be further reworked to not treat movable_ops
-> pages like folios. This is the first step into that direction.
-> 
-> Heavily tested with virtio-balloon and lightly tested with zsmalloc
-> on x86-64. Cross-compile-tested.
+Hi Jason,
 
-Thanks everybody for the review!
+kernel test robot noticed the following build errors:
 
-I'm planning on sending v2 probably later tomorrow, so we can get it 
-into mm-new.
+[auto build test ERROR on mst-vhost/linux-next]
+[also build test ERROR on linus/master v6.16-rc4 next-20250701]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-So if someone wants to review parts of this series either (a) do it 
-until tomorrow; or (b) scream STOP and I'll wait with v2 a bit longer; 
-or (c) wait until v2.
+url:    https://github.com/intel-lab-lkp/linux/commits/Jason-Wang/virtio_ring-constify-virtqueue-pointer-for-DMA-helpers/20250701-091746
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+patch link:    https://lore.kernel.org/r/20250701011401.74851-8-jasowang%40redhat.com
+patch subject: [PATCH 7/9] vdpa: rename dma_dev to map_token
+config: i386-allmodconfig (https://download.01.org/0day-ci/archive/20250702/202507020521.PEt0EuaY-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14+deb12u1) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250702/202507020521.PEt0EuaY-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202507020521.PEt0EuaY-lkp@intel.com/
+
+All error/warnings (new ones prefixed by >>):
+
+   drivers/vdpa/mlx5/net/mlx5_vnet.c: In function 'mlx5_get_vq_dma_dev':
+   drivers/vdpa/mlx5/net/mlx5_vnet.c:3405:28: error: 'struct vdpa_device' has no member named 'dma_dev'; did you mean 'mdev'?
+    3405 |         return mvdev->vdev.dma_dev;
+         |                            ^~~~~~~
+         |                            mdev
+   drivers/vdpa/mlx5/net/mlx5_vnet.c: At top level:
+   drivers/vdpa/mlx5/net/mlx5_vnet.c:3687:10: error: 'const struct vdpa_config_ops' has no member named 'get_vq_dma_dev'; did you mean 'get_vq_ready'?
+    3687 |         .get_vq_dma_dev = mlx5_get_vq_dma_dev,
+         |          ^~~~~~~~~~~~~~
+         |          get_vq_ready
+>> drivers/vdpa/mlx5/net/mlx5_vnet.c:3687:27: error: positional initialization of field in 'struct' declared with 'designated_init' attribute [-Werror=designated-init]
+    3687 |         .get_vq_dma_dev = mlx5_get_vq_dma_dev,
+         |                           ^~~~~~~~~~~~~~~~~~~
+   drivers/vdpa/mlx5/net/mlx5_vnet.c:3687:27: note: (near initialization for 'mlx5_vdpa_ops')
+   drivers/vdpa/mlx5/net/mlx5_vnet.c:3687:27: error: initialization of 'void (*)(struct vdpa_device *)' from incompatible pointer type 'struct device * (*)(struct vdpa_device *, u16)' {aka 'struct device * (*)(struct vdpa_device *, short unsigned int)'} [-Werror=incompatible-pointer-types]
+   drivers/vdpa/mlx5/net/mlx5_vnet.c:3687:27: note: (near initialization for 'mlx5_vdpa_ops.unbind_mm')
+   drivers/vdpa/mlx5/net/mlx5_vnet.c: In function 'mlx5_vdpa_dev_add':
+   drivers/vdpa/mlx5/net/mlx5_vnet.c:3966:21: error: 'struct vdpa_device' has no member named 'dma_dev'; did you mean 'mdev'?
+    3966 |         mvdev->vdev.dma_dev = &mdev->pdev->dev;
+         |                     ^~~~~~~
+         |                     mdev
+   drivers/vdpa/mlx5/net/mlx5_vnet.c: In function 'mlx5_get_vq_dma_dev':
+>> drivers/vdpa/mlx5/net/mlx5_vnet.c:3406:1: warning: control reaches end of non-void function [-Wreturn-type]
+    3406 | }
+         | ^
+   cc1: some warnings being treated as errors
+
+
+vim +3687 drivers/vdpa/mlx5/net/mlx5_vnet.c
+
+8fcd20c307042b Eli Cohen          2022-07-14  3652  
+1a86b377aa2147 Eli Cohen          2020-08-04  3653  static const struct vdpa_config_ops mlx5_vdpa_ops = {
+1a86b377aa2147 Eli Cohen          2020-08-04  3654  	.set_vq_address = mlx5_vdpa_set_vq_address,
+1a86b377aa2147 Eli Cohen          2020-08-04  3655  	.set_vq_num = mlx5_vdpa_set_vq_num,
+1a86b377aa2147 Eli Cohen          2020-08-04  3656  	.kick_vq = mlx5_vdpa_kick_vq,
+1a86b377aa2147 Eli Cohen          2020-08-04  3657  	.set_vq_cb = mlx5_vdpa_set_vq_cb,
+1a86b377aa2147 Eli Cohen          2020-08-04  3658  	.set_vq_ready = mlx5_vdpa_set_vq_ready,
+1a86b377aa2147 Eli Cohen          2020-08-04  3659  	.get_vq_ready = mlx5_vdpa_get_vq_ready,
+1a86b377aa2147 Eli Cohen          2020-08-04  3660  	.set_vq_state = mlx5_vdpa_set_vq_state,
+1a86b377aa2147 Eli Cohen          2020-08-04  3661  	.get_vq_state = mlx5_vdpa_get_vq_state,
+1892a3d425bf52 Eli Cohen          2022-05-18  3662  	.get_vendor_vq_stats = mlx5_vdpa_get_vendor_vq_stats,
+1a86b377aa2147 Eli Cohen          2020-08-04  3663  	.get_vq_notification = mlx5_get_vq_notification,
+1a86b377aa2147 Eli Cohen          2020-08-04  3664  	.get_vq_irq = mlx5_get_vq_irq,
+1a86b377aa2147 Eli Cohen          2020-08-04  3665  	.get_vq_align = mlx5_vdpa_get_vq_align,
+d4821902e43453 Gautam Dawar       2022-03-30  3666  	.get_vq_group = mlx5_vdpa_get_vq_group,
+03dd63c8fae459 Dragos Tatulea     2023-10-18  3667  	.get_vq_desc_group = mlx5_vdpa_get_vq_desc_group, /* Op disabled if not supported. */
+a64917bc2e9b1e Eli Cohen          2022-01-05  3668  	.get_device_features = mlx5_vdpa_get_device_features,
+c695964474f3a8 Eugenio Pérez      2023-07-03  3669  	.get_backend_features = mlx5_vdpa_get_backend_features,
+a64917bc2e9b1e Eli Cohen          2022-01-05  3670  	.set_driver_features = mlx5_vdpa_set_driver_features,
+a64917bc2e9b1e Eli Cohen          2022-01-05  3671  	.get_driver_features = mlx5_vdpa_get_driver_features,
+1a86b377aa2147 Eli Cohen          2020-08-04  3672  	.set_config_cb = mlx5_vdpa_set_config_cb,
+1a86b377aa2147 Eli Cohen          2020-08-04  3673  	.get_vq_num_max = mlx5_vdpa_get_vq_num_max,
+1a86b377aa2147 Eli Cohen          2020-08-04  3674  	.get_device_id = mlx5_vdpa_get_device_id,
+1a86b377aa2147 Eli Cohen          2020-08-04  3675  	.get_vendor_id = mlx5_vdpa_get_vendor_id,
+1a86b377aa2147 Eli Cohen          2020-08-04  3676  	.get_status = mlx5_vdpa_get_status,
+1a86b377aa2147 Eli Cohen          2020-08-04  3677  	.set_status = mlx5_vdpa_set_status,
+0686082dbf7a20 Xie Yongji         2021-08-31  3678  	.reset = mlx5_vdpa_reset,
+2eacf4b5e3ebe7 Si-Wei Liu         2023-10-21  3679  	.compat_reset = mlx5_vdpa_compat_reset,
+442706f9f94d28 Stefano Garzarella 2021-03-15  3680  	.get_config_size = mlx5_vdpa_get_config_size,
+1a86b377aa2147 Eli Cohen          2020-08-04  3681  	.get_config = mlx5_vdpa_get_config,
+1a86b377aa2147 Eli Cohen          2020-08-04  3682  	.set_config = mlx5_vdpa_set_config,
+1a86b377aa2147 Eli Cohen          2020-08-04  3683  	.get_generation = mlx5_vdpa_get_generation,
+1a86b377aa2147 Eli Cohen          2020-08-04  3684  	.set_map = mlx5_vdpa_set_map,
+2eacf4b5e3ebe7 Si-Wei Liu         2023-10-21  3685  	.reset_map = mlx5_vdpa_reset_map,
+8fcd20c307042b Eli Cohen          2022-07-14  3686  	.set_group_asid = mlx5_set_group_asid,
+36871fb92b7059 Jason Wang         2023-01-19 @3687  	.get_vq_dma_dev = mlx5_get_vq_dma_dev,
+1a86b377aa2147 Eli Cohen          2020-08-04  3688  	.free = mlx5_vdpa_free,
+cae15c2ed8e6e0 Eli Cohen          2022-07-14  3689  	.suspend = mlx5_vdpa_suspend,
+145096937b8a6a Dragos Tatulea     2023-12-25  3690  	.resume = mlx5_vdpa_resume, /* Op disabled if not supported. */
+1a86b377aa2147 Eli Cohen          2020-08-04  3691  };
+1a86b377aa2147 Eli Cohen          2020-08-04  3692  
 
 -- 
-Cheers,
-
-David / dhildenb
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
