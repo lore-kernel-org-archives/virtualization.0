@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4582274FCB
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 12:24:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F077627587E
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 12:25:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751372666; cv=none; b=Cpl+tJEf+tT2lDuvFe0EEfzJGaaOt+fIh3i/7ORni9JZR24dCLdx10G2YZiVcPpV4xU2K+990gWH/29kfJLpzKHHPxDFgyEwS9ToJF22I7Vp3rt7b+usV/4VFLxToDNIaI06/Lj2r6mk6toxHgl2GOTgjOM50qlmRIEfrwYCRpQ=
+	t=1751372734; cv=none; b=KlemMNQ29MY815ryfhXrBVGs8jbrkD43VKPByMcft+gsboR0qHthNB6hpYExIyaewH6YMAoa8I8g0aNXhtS1haJqdvNNGlwDVtpntCfsk3X2qAsj1YUA5kNlHz9HAndaRmGS3qSoZkQmpQC3hbOp6V7lVkvDQ6EdKEwQxdvaBB0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751372666; c=relaxed/simple;
-	bh=mJDe2P2PEm8RQgbD+K+iqN6Z01/60G9GraL4XRuTDXk=;
+	s=arc-20240116; t=1751372734; c=relaxed/simple;
+	bh=z/CCrJhSfJ+0N7wRoqbjcqIKdxPJ8urhIm9XK/idS34=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Lifv8r1ULP0LbD2soH72C2w8CN2Gkbx9DNwk/NChAIREFnQforsqr0ubjLxE3LvvP5ZbMNyKl4SqvzcS5GUwzo90YxqCWXeUPg1SJodmkLpvlcuGuLOvAudVmbdbzLUTnjpBtAvD7U7Mv/IyQ0uqr+HlzI9v2hxMvluUBYqXU8s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cSspd3/1; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=jgauAgYQUAA/8NfBQHKlKil5LPmX0tvJa3CrXlzcz/RSAqWQkYU0YGx5VSOqLqNpjNVdJmYR5PW2QBxxj+J82qK5LTBpcF27p0frA/hR4dW6M09tCd89UClCcdTl+HNxWxoAoZLYMc9S2K2Y0QQD7PxYc8cT3aRxRKlyUS1uZI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GVLmhLt2; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cSspd3/1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GVLmhLt2"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751372663;
+	s=mimecast20190719; t=1751372731;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=5dMJcBXdQ77pxzaJeebTFi4ceGva0cqGC9EQBAzQ3z4=;
-	b=cSspd3/1v+9jmlWwADDMDYebO5uuIT1H51iqtDTSGDR2RfmvzBgMxWxznf1PJ8V0An9FG3
-	0KBtqcCLOJnfjcXDquYwoiiwH2Iaoslb7LvOh8BXWjDmzUU7mE/jtN6lrHORUHr06Ppqe2
-	9gbVc+4047YiF4tAPBDXW3Z1aNX15a4=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=tj8pB/rMHLZ+6PtFNz+xS6WiL3VVVwDceOqfATE3uy4=;
+	b=GVLmhLt2ND81pJwEeduRSxyYVT/62meUT3WJudyzuE7ts6SoiwqeN32Wre7bF8xXalPD+f
+	IaQGKTDLRBhNKE1O6v1yMOg+QVCKmgk0H4JdCQaPbtIuhZA8qDs95GN+a3Kept5ZOxZtHI
+	z6Ftgl61sPRaveDk3rJbB4CCtQ7PMtA=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-517-YqDQmo37N26iSL1Mnd0L3g-1; Tue, 01 Jul 2025 08:24:22 -0400
-X-MC-Unique: YqDQmo37N26iSL1Mnd0L3g-1
-X-Mimecast-MFC-AGG-ID: YqDQmo37N26iSL1Mnd0L3g_1751372661
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-453817323afso33537265e9.1
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 05:24:22 -0700 (PDT)
+ us-mta-153-hy3HWGFVPnyO67CHkO5ajA-1; Tue, 01 Jul 2025 08:25:29 -0400
+X-MC-Unique: hy3HWGFVPnyO67CHkO5ajA-1
+X-Mimecast-MFC-AGG-ID: hy3HWGFVPnyO67CHkO5ajA_1751372727
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45359bfe631so26802635e9.0
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 05:25:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751372661; x=1751977461;
+        d=1e100.net; s=20230601; t=1751372726; x=1751977526;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=5dMJcBXdQ77pxzaJeebTFi4ceGva0cqGC9EQBAzQ3z4=;
-        b=d2xWHizvL5Ngi5+5pTKIe78OljbQPyB0KrHgvQfgn8I15IeoPEMPyyo+m+k2bx+yVr
-         mSviwmI2qnQ40Kq0plGj4HDJVTflS2F85+cIeZMLh1TEN99FXqGJS95ije3n7U1oZaTv
-         7Sq2FEfNvXqakyQV96iCNcdKJt0KQEaTDgxF9MdadxvFaENntaQdG+ObQrWEC8cKBMAw
-         rBcbnGqGx1WHk/7i+19b6Xh8kNQ8mOLxrX6EOr7jBjzQgY6B9etSeQ1IG0G4Oqy2jOve
-         e/rFx+QBhwjHm/tVKGBEb4ZX1nYkgGVg8f8BMk3O8ajzGEbq9RLuDNcFjDEadagd0L7X
-         CXhw==
-X-Forwarded-Encrypted: i=1; AJvYcCXk186o3+v6Qjo3uWm/0BScZl9L5/qYjIhRmpsVjT1nkY8ht5VwMq1vtMwnedZtPloUskULqfhPkaqI0Zl0hA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwZ354Mme+YpoIMLZFuIb42w7+uvxc7N7LKU5nPP4Cor6WPxFbP
-	5DU2yM16+PUq58xA6BgYFH6OjXv4Vg6oa3ulPkCA97Fwif9cPp60OcvEB2/l6X/l0oLppvfieWM
-	fCb87Q+eS95PIWvqITtT5rlheCnZ2iKxuosmJny1/hDAdZgeSTpVqGI9ulmBzGkk1fF6M
-X-Gm-Gg: ASbGncuUVVdk/f1uIS/m+O6h7Cbz1r5COxnu3sQNIF2L/rPDVbgoSYstKLDtBhE1/kt
-	rc8E93+nSo/p+V6bfySJInsFjR52cKL2s3n813TKRDuaoq2ShzBbdUYCCkKUBZgvutle0CTK+jj
-	6iSQpnS0QdcQBeynP58V3885Uz8U5V+0nY508yVcyLGUW+0wdNJTJco+0mb9wTD+4ofLkt6MMNR
-	gwRQ1VHJB7eyRi5QRVmzmXUPy8Sc6nGX6QFO7i83TBcGQ+RKqfQlLqtr7CzhKydV/V5opE/Lqfd
-	V1U/Y5EEJXcwZkyna+WLfeobx0gSzW7Bj4/tLhYrwv1PeviTHKngpzaCehX/+LnRh+/VylxShej
-	spdGnPqeOwRrxbqt4j38doSthOZ6qVceDTF+i5xD8p/tiGOxUMA==
-X-Received: by 2002:a05:600c:458b:b0:450:b9c0:c7d2 with SMTP id 5b1f17b1804b1-45391b6b96dmr142402255e9.11.1751372661134;
-        Tue, 01 Jul 2025 05:24:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFpzHsO7mLLjpgLiPRtxtYPNX8uoCOnkHlcMoEUMymXcRW48dybZJfjs9S76N4KxHcaVdQlIA==
-X-Received: by 2002:a05:600c:458b:b0:450:b9c0:c7d2 with SMTP id 5b1f17b1804b1-45391b6b96dmr142401905e9.11.1751372660588;
-        Tue, 01 Jul 2025 05:24:20 -0700 (PDT)
+        bh=tj8pB/rMHLZ+6PtFNz+xS6WiL3VVVwDceOqfATE3uy4=;
+        b=HCAsplAeOv4oblZ1ITLqGSm/1k9iYNMEtS/VWX77NAPXB+zh6Kcqm7xzvZuYJOp7BL
+         gG7CYf21bE9nMYXeKYzsv+DexC2Cck8x9mdmDTPMImwKHDxhnta8wznB8N6t7WP3eNW4
+         zbP0Y/pJ1cztJmFYuXA9FmiQ9NFhAD8T0GMKP1gj5lix7DBubnrCTqzJoeJ3ANBbPyqM
+         R+As1gL5ZugfH9sOThl3iN1sEGj76Be9yXRETeRocOfcpIqrYz8XznGxe22bte52yqjM
+         zij5ESSCCtwsfDhqFcdet5Ha4C05ic+k2RhanQ6yYUsQHpUb19jRKtcoTRb7oPvzROYh
+         eSKg==
+X-Forwarded-Encrypted: i=1; AJvYcCVclheaCrBYo2BlIRBKxQQt4E+1548sFvnaI70KaufEVes9f7hZUwx8gQiwq/02bCe9rKzzFZn9zfQcUCNYGA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxEVIL/wAUBg42k0XQq1ta/9pGmdjE+GE5PqocEp289c020ygwa
+	JELOCf5YjhKFBt/Yd9m1VjD+2F7oJ0+8E/dFqX+kCGN4nya2bsSd8fFmzkbad/jVV38SH9Y4HnG
+	/zs1Xdh92I4wrr1DiZbdTvMe3HUZXvmIIUPPnI4XIBmXXyzWFo0TFWwnQrF74wOYqh6le
+X-Gm-Gg: ASbGncuezff59yMamlDD/D67mnKvhEkHcmSvIPPenrOfVRdBAIMBuwMstcSvbg0QFec
+	5R9SaOwv5TTIaujEoSoWgjSGl0efFkuynaNo9fj2SMx2oOC8ODCpxMEQQLu6SFzWajlItDzmgIH
+	s3PbDbdQEDCo4RA2AH+IKduMAv2U33koGEJYt+7wN2Izzb3dJilmB0FvCRgZ62JTI/pPtm5/mzx
+	MRR3ZfpiB939V6HG8i8aJkVHX9KUniZnCnQHAa4XcZx/SNtSzqR8WqHxcekVO+0NWmK8lCgbzrP
+	aO50MrGc4OLM997Y0tWXgikv5BqTix2XUUovJ1yRYkuCbiFtjYgbgFWZ6GqpTb9G5jvWkmnVNjW
+	vDzw4wv8gP4Pq74fcbOQSDQYve64lcrn7V24jFPNH7wuMY5vMIQ==
+X-Received: by 2002:a05:600c:198a:b0:442:ccf9:e6f2 with SMTP id 5b1f17b1804b1-4538ee7df15mr201513325e9.16.1751372726394;
+        Tue, 01 Jul 2025 05:25:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGtxNR73SFMqIoSFe5cIm5GNMerZkIb6R08bnmv81T1e6WZOFEwjwh+c20OjBL0zx8GNPpXsA==
+X-Received: by 2002:a05:600c:198a:b0:442:ccf9:e6f2 with SMTP id 5b1f17b1804b1-4538ee7df15mr201512785e9.16.1751372725799;
+        Tue, 01 Jul 2025 05:25:25 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f18:7500:202e:b0f1:76d6:f9af? (p200300d82f187500202eb0f176d6f9af.dip0.t-ipconnect.de. [2003:d8:2f18:7500:202e:b0f1:76d6:f9af])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538a4213f0sm165518105e9.36.2025.07.01.05.24.17
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538a43325asm162371015e9.16.2025.07.01.05.25.23
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Jul 2025 05:24:19 -0700 (PDT)
-Message-ID: <ec23fcb2-a1f5-4da3-a2fc-09abe317f17d@redhat.com>
-Date: Tue, 1 Jul 2025 14:24:16 +0200
+        Tue, 01 Jul 2025 05:25:25 -0700 (PDT)
+Message-ID: <e29af2bf-34c7-4d26-a5d7-f061d2642bd5@redhat.com>
+Date: Tue, 1 Jul 2025 14:25:22 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,8 +75,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 13/29] mm/balloon_compaction: stop using
- __ClearPageMovable()
+Subject: Re: [PATCH v1 14/29] mm/migrate: remove __ClearPageMovable()
 To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
@@ -112,10 +111,8 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
  Shakeel Butt <shakeel.butt@linux.dev>
 References: <20250630130011.330477-1-david@redhat.com>
- <20250630130011.330477-14-david@redhat.com>
- <65804db3-71c0-47ff-8189-6a1587d4a0cc@lucifer.local>
- <94333692-0093-4351-a081-13e202dd2322@redhat.com>
- <4d1d7aa7-15c7-4c2c-8cd7-0853dcde7940@lucifer.local>
+ <20250630130011.330477-15-david@redhat.com>
+ <24d2b984-857d-4a11-b016-dc0227d81c88@lucifer.local>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -162,25 +159,27 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <4d1d7aa7-15c7-4c2c-8cd7-0853dcde7940@lucifer.local>
+In-Reply-To: <24d2b984-857d-4a11-b016-dc0227d81c88@lucifer.local>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wp9hyO-NYvtwzZAwZG8pfHurZxlvT4cJW-UbrniYiEc_1751372661
+X-Mimecast-MFC-PROC-ID: QTjhrPdKSPGryc8D2h_XeDRro6TGxLOi8BkUPztV5SM_1751372727
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-> OK I guess this is fine... :)
+On 01.07.25 12:43, Lorenzo Stoakes wrote:
+> On Mon, Jun 30, 2025 at 02:59:55PM +0200, David Hildenbrand wrote:
+>> Unused, let's remove it.
+>>
+>> The Chinese docs in Documentation/translations/zh_CN/mm/page_migration.rst
+>> still mention it, but that whole docs is destined to get outdated and
+>> updated by somebody that actually speaks that language.
 > 
-> An aside, unrelated tot his series: it'd be nice to use 'deflate' consistently
-> in this code. We do __count_vm_event(BALLOON_DEFLATE) in
-> balloon_page_list_dequeue() but say 'deflate' nowhere else... well before this
-> patch :)
+> Yeah I've noticed these getting out of sync before, perhaps somebody fluent in
+> Simplified Chinese can assist at some point :) mine is rather rusty...
 
-Right, dequeue is actually deflate, because one couldn't use that 
-function for anything else as it stands.
-
-TODO list ... :)
+I already saw doc updates for this. Obviously, I can't review them in 
+any way, but people seem to be active updating them.
 
 -- 
 Cheers,
