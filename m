@@ -1,174 +1,358 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E7025FA00
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 07:52:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83E1C1F4634
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 07:58:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751356369; cv=none; b=g0IQfJgLn7hzdtyZgDQmciE2TbXTdLhx50NNacJz5FTM6zw4KmA2RnF17V+BAPvEsEdd+ndVfPjzVPNCBdnWzX8U/nvG8kCQnYQfiD4QqaSOQRkqb9Bfb+3zu1radgNiMJD0YJWDkskc6yFaf4ynYw/Yh9wVi5/+z2MKE50nU3M=
+	t=1751356698; cv=none; b=UzzCHOdnlY9NxpK83Vgmq7gd2VndOMQE4dDUYy2GLEEqKlYVteuJz6EwXYGM6WGgeq9Suy2VuuqOOxkZ3fFL/qfZMQyl8vzqy5aC+ruhIznpqqOGsCO0qALUJTBbrupOjTzGMmJ44AhSeewqDxdurQWCqrlssunzVHbZXjDuno0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751356369; c=relaxed/simple;
-	bh=iqtTO7BdgSOS0hugcE5p2vfRNGvtKPLOW4//tI8bFOo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=kBFKrl/4GVlL177cDjD2RrQ6rGKKbBGOVhQFidmCGiFyJZ/FL7wk5isrZsvYZVpKdNRO7IlBqvA/sAPXaR5neI3Nc1huFbt1yt5BM3AuSfovMzV2SbSppDOodHWP66m7La7qfgN9a7qGWhKjOoZPDm+Dqs+MzxwUUfI2K2L4B7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RS3a9aUY; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1751356698; c=relaxed/simple;
+	bh=EkxLnWK+KNQPvO+XPa/qISs0wqev8VlQsQoVXc69XRA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FxoDvvyEVHvgJMUI0qe9Fj33/K9KM68hPH5bmT0ZjDbrHOADg4dm8SPkx3AuG/i78lTaljL8GoYCtxm0BpSRdU0qwMpnL7wjzuyrJjGU/m0ZeK9MMwLTrOiUXaAYnj2MJitsuLOJ6qpklqeIqXahptqMeXJS6goeri+B3/2oM2I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Tvp18pRn; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RS3a9aUY"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tvp18pRn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751356366;
+	s=mimecast20190719; t=1751356695;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5W4qfJP5trIgKgYi+NpmwjcNUOZanDpnOGZEn8fp13E=;
-	b=RS3a9aUYB+ijGanu5LQ3UWpdEQ9RpQfBIYeCSNYyoL5ji4Sk7pB5r/SvghNHo6o9e35BM9
-	IZCT8j/bOBV4ir01Oj2sMlA97tCAqTKqaRvK3GQ6qi9QJ8dUO0lKBfz2XN8rk8vQ2EDXYU
-	l7k+Wes8PXQH/yfwG7oHfnBS8ktihpQ=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/Feq4JYZa9imSCNgZMBn1vPhrRu0fqByvVFyCsbFbfo=;
+	b=Tvp18pRnrfrSiRzNfZY2JgzOhWD4f4I9MS20zJ0FzVOOPWoXG1aDk7mkWfgg2qiDJ5KZkv
+	yaSHQQCvo5Nx7z7z9t8Cc28R++wH974c7XRTXd8/g3NyOwp8GrkSScA2nTKD7h/YhIGnER
+	12kccKaHYw1oFGhJYghMXwfltuRymAw=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-178-ujJYzWO8MdatwuipYvemUQ-1; Tue, 01 Jul 2025 03:52:45 -0400
-X-MC-Unique: ujJYzWO8MdatwuipYvemUQ-1
-X-Mimecast-MFC-AGG-ID: ujJYzWO8MdatwuipYvemUQ_1751356364
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a3696a0d3aso1316887f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 00:52:45 -0700 (PDT)
+ us-mta-599-iqerZjLbPY61Dt7yamXo1g-1; Tue, 01 Jul 2025 03:58:14 -0400
+X-MC-Unique: iqerZjLbPY61Dt7yamXo1g-1
+X-Mimecast-MFC-AGG-ID: iqerZjLbPY61Dt7yamXo1g_1751356693
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a4f7f1b932so1782655f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 00:58:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751356364; x=1751961164;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5W4qfJP5trIgKgYi+NpmwjcNUOZanDpnOGZEn8fp13E=;
-        b=tnQvGkhRVkbQXEcj2BOhWloU8Huja6oNojf74wcZYM8Oc7MloEm+6HnTc3WXIw234f
-         1D0+rzK9asy5+b7rZUCIbtOmCysj+rVI9pV5xHbvBIWOx50YixeN19JqkRhwKi590bx0
-         nCj0AEGJpVvSyj6DUNGKqtTdySSyAuOQimrXsDQXwGpYiwceUj167AWDxKnlEUhPltNX
-         nL24huaTL2PEyyXm15x3u5wX1pE0KS8mPKmpp/nj4E1/aXX8GCfBBZczvVu+SQXBuBC5
-         Nsr3ZYZs01FxhoxDgOeGxIuKg293c8GYvpTPV8/YgEHjHMUXigI3/HGCWJzJBCg/IG17
-         bUbg==
-X-Forwarded-Encrypted: i=1; AJvYcCU8wJP7At2nEFHGsrwJ7g898r56zQUVyrD45oBIncsXI8ssYgf5P32EGwWsP0YhRFiph/0PJe3Pzmn+2h+2Gw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwhwrLORFJPjnUkWdXXwhE1aUdUW8vCcpCCP3O/eQbVAaUqUmQI
-	nFG++Fpsl6i0j1ODVB0n8q4sXmp+sJYkBW+AjNGUdtuFAd2ooEfmURRWopju1kBsGBpC5rhC51f
-	CMHFtkWR2TtuBaUMPnIikei6RJJGeFxU1LXJtkXMaR6S0YBoVwEyQsy//aaAd9Ht/GHFW
-X-Gm-Gg: ASbGncuchLGOhCJZz0mlhStvEhp45wP75QsFXLCQMf7shsUw0m79HOhoTMfYSS9bpLR
-	rnUGtwQb8fvlSVVJsfcFmBkaW+TOr/DP9BBY36hAoZgmeRNzmKs95p+aR2puzqImTdW6dbO0wZ6
-	gruwT4Ht1bWARx4u+IK9vfYSEDomnkvAHXD0X25x9/BSUpAvo/Et/5NBeyUpaHVgnIJb1ERfXpT
-	GkRq8iO3cIOrvsxbbncct6h0PPI66dxjAJcERnd4wUVDBh1+BokIqU7doJpPKs8NNAZAny2M9Hx
-	5Qjchuf/nQKuIqSe
-X-Received: by 2002:a05:6000:25ca:b0:3a4:ed2f:e82d with SMTP id ffacd0b85a97d-3a8f51c1a81mr12478142f8f.22.1751356364392;
-        Tue, 01 Jul 2025 00:52:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFXOoMiKZEJq6ceWK4Q10DrkD7JlKwDdbKrLj6V8anCMySNXNp0lfxDJ0dXtxq9+6g1HirIxw==
-X-Received: by 2002:a05:6000:25ca:b0:3a4:ed2f:e82d with SMTP id ffacd0b85a97d-3a8f51c1a81mr12478113f8f.22.1751356363901;
-        Tue, 01 Jul 2025 00:52:43 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:152e:1400:856d:9957:3ec3:1ddc])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a892e52a5asm12587008f8f.54.2025.07.01.00.52.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Jul 2025 00:52:43 -0700 (PDT)
-Date: Tue, 1 Jul 2025 03:52:40 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Zigit Zo <zuozhijie@bytedance.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [External] Re: [PATCH net] virtio-net: fix a rtnl_lock()
- deadlock during probing
-Message-ID: <20250701035110-mutt-send-email-mst@kernel.org>
-References: <20250630095109.214013-1-zuozhijie@bytedance.com>
- <20250630103240-mutt-send-email-mst@kernel.org>
- <20250630105328-mutt-send-email-mst@kernel.org>
- <f1f68fbd-e2cf-40c5-a6b8-533cb3ec798f@bytedance.com>
+        d=1e100.net; s=20230601; t=1751356693; x=1751961493;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=/Feq4JYZa9imSCNgZMBn1vPhrRu0fqByvVFyCsbFbfo=;
+        b=JIDb8sS8W0jV0tgdRyUf0kRidf3J7M3NK7Ii+2LDscfGi9XUczEQ9ef413WL8ciFwu
+         aZhpsLQlCs6Iq46qgmU0Bp0ElRWIm44lNuvQJj1fKQdBymycP+N+ezou/v6yYTuGiith
+         pG8QfvITzSU30utjvgUcjXKmzd0tt+lcYta+L3WCCNQ8VD0q0EDGICQg3m0JK2D9XYj+
+         Ltr3YHvdCAEgKkzfcpHYmATRuAuhPUUCWIBju0AJ0XQF37fjXbkR/ATmrwLT6KvsGs50
+         zrUBaMk+OG6zHaajWeoUHOk61kYvPOYp4LuUSAOHH9wTMW/GDaRnVMJ/R+uzFtGsoHle
+         Fd+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCW7uKtLbSXb0xHwZfmWtQb+Yb0Z7RY27iqWnjee26IeFRtNQJNsDQYVehw283jploZHOSbMRVuO/xmIGainRQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzPKXFPh0anGwPbXFx9j53PjUoD4cyMwEiCC6SUKRVl/iynDLxo
+	no7OQSJzDmD7QaaWSk8KDWO3t41+/BPLU/JYq0HsKAIU2j33/G011AJaKuwI6uhHSaKs8iVMBkq
+	SERP43erZ/FK+0eKh6/8ffLOG1s52egXIbcyab+SrNHAm7ZiZVpHHUcHLrMD1cJfqubcg
+X-Gm-Gg: ASbGnctJXPPXvZMZLD4zlXu7KeegYr7lZPHL/5vdELvhjUjVxBmMVu7JvaWPkFRwz+Z
+	wlcIs/kUp+gzq0cvUIss4xD76uNfLwLwWSOA+Q6mNydnN1ybBmUCm+fxvA+O+OSCc/5IWyO58xp
+	K42yUoC9vOuUhmecqhZfDCCn2DNyFBoJCGW+hp3DPHpLf1YNFWIY+3pDxm8+HDejR4xP9RpgbGa
+	g+4KRjsb1fOV2nyCkIAliLds9fWvTZsrV2qM0yDVpcr+JE5ev8pTwmu20G3aED3gTOL184sc9Cn
+	L18rlmqv83YTZy5wYYI/nkdcYULLYSa2DRcJJyMYQUWfjH9I+nPn6oNWpnY7q1kinI0OHAkrC9Q
+	YjCfn3DphaThXfk7Zwx/Hl56up+stCqnTUH35s7OxRGOdegXAKg==
+X-Received: by 2002:a05:6000:64b:b0:3a6:d5fd:4687 with SMTP id ffacd0b85a97d-3a8f482bd31mr13154684f8f.18.1751356693272;
+        Tue, 01 Jul 2025 00:58:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGjMbemhkIZeoSup+OwONMSvz50yZg2K0dN6tNDQHYUqndeAp7nP+ltTQxgNLFcEg/amFhAAA==
+X-Received: by 2002:a05:6000:64b:b0:3a6:d5fd:4687 with SMTP id ffacd0b85a97d-3a8f482bd31mr13154650f8f.18.1751356692689;
+        Tue, 01 Jul 2025 00:58:12 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f18:7500:202e:b0f1:76d6:f9af? (p200300d82f187500202eb0f176d6f9af.dip0.t-ipconnect.de. [2003:d8:2f18:7500:202e:b0f1:76d6:f9af])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a88c7e72c1sm12366971f8f.1.2025.07.01.00.58.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Jul 2025 00:58:11 -0700 (PDT)
+Message-ID: <277e094d-b159-411f-940d-13b62493f6c5@redhat.com>
+Date: Tue, 1 Jul 2025 09:58:09 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <f1f68fbd-e2cf-40c5-a6b8-533cb3ec798f@bytedance.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 02/29] mm/balloon_compaction: convert
+ balloon_page_delete() to balloon_page_finalize()
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Minchan Kim <minchan@kernel.org>,
+ Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>,
+ Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin
+ <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
+ Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
+ Shakeel Butt <shakeel.butt@linux.dev>
+References: <20250630130011.330477-1-david@redhat.com>
+ <20250630130011.330477-3-david@redhat.com>
+ <f9cb1865-aa9d-409f-bce5-7051480c1a71@lucifer.local>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <f9cb1865-aa9d-409f-bce5-7051480c1a71@lucifer.local>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Xo4DB9ahiwWql0yxVvyges1I0Sob5WhieKaxnaDVsao_1751356364
+X-Mimecast-MFC-PROC-ID: vQydta_vzEr9sAobFP1IfwXVJlTcIHvcKahrIEspInI_1751356693
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jul 01, 2025 at 03:48:41PM +0800, Zigit Zo wrote:
-> On 6/30/25 10:54 PM, Michael S. Tsirkin wrote:
-> > On Mon, Jun 30, 2025 at 10:50:55AM -0400, Michael S. Tsirkin wrote:
-> >> On Mon, Jun 30, 2025 at 05:51:09PM +0800, Zigit Zo wrote:
-> >>> This bug happens if the VMM sends a VIRTIO_NET_S_ANNOUNCE request while
-> >>> the virtio-net driver is still probing with rtnl_lock() hold, this will
-> >>> cause a recursive mutex in netdev_notify_peers().
-> >>>
-> >>> Fix it by skip acking the annouce in virtnet_config_changed_work() when
-> >>> probing. The annouce will still get done when ndo_open() enables the
-> >>> virtio_config_driver_enable().
-> >>
-> >> I am not so sure it will be - while driver is not loaded, device does
-> >> not have to send interrupts, and there's no rule I'm aware of that says
-> >> we'll get one after DRIVER_OK.
+On 30.06.25 17:15, Lorenzo Stoakes wrote:
+> On Mon, Jun 30, 2025 at 02:59:43PM +0200, David Hildenbrand wrote:
+>> Let's move the removal of the page from the balloon list into the single
+>> caller, to remove the dependency on the PG_isolated flag and clarify
+>> locking requirements.
+>>
+>> We'll shuffle the operations a bit such that they logically make more sense
+>> (e.g., remove from the list before clearing flags).
+>>
+>> In balloon migration functions we can now move the balloon_page_finalize()
+>> out of the balloon lock and perform the finalization just before dropping
+>> the balloon reference.
+>>
+>> Document that the page lock is currently required when modifying the
+>> movability aspects of a page; hopefully we can soon decouple this from the
+>> page lock.
+>>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   arch/powerpc/platforms/pseries/cmm.c |  2 +-
+>>   drivers/misc/vmw_balloon.c           |  3 +-
+>>   drivers/virtio/virtio_balloon.c      |  4 +--
+>>   include/linux/balloon_compaction.h   | 43 +++++++++++-----------------
+>>   mm/balloon_compaction.c              |  3 +-
+>>   5 files changed, 21 insertions(+), 34 deletions(-)
+>>
+>> diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
+>> index 5f4037c1d7fe8..5e0a718d1be7b 100644
+>> --- a/arch/powerpc/platforms/pseries/cmm.c
+>> +++ b/arch/powerpc/platforms/pseries/cmm.c
+>> @@ -532,7 +532,6 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+>>
+>>   	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+>>   	balloon_page_insert(b_dev_info, newpage);
+>> -	balloon_page_delete(page);
 > 
-> Yep, at first we're thinking that when the VIRTIO_NET_S_ANNOUNCE flag set,
-> we can always assure an interrupt has fired by VMM, to notify the driver
-> to do the announcement.
-> 
-> But later we realized that the S_ANNOUNCE flag can be sent before the
-> driver's probing, and for QEMU seems to set the status flag regardless of
-> whether driver is ready, so the problem you're talking still may happens.
-> >> How about, we instead just schedule the work to do it later?I'm not sure if scheduling the work later will break df28de7b0050, the work
-> was being scheduled before that commit, and we have no much idea of why that
-> commit removes the schedule_work, we just keep it for safe...
 
-Well managing async things is always tricky. Direct call is safer.
-If you reintroduce it, you need to audit all call paths for safely.
+Hi Lorenzo,
+
+as always, thanks for the detailed review!
+
+> We seem to just be removing this and not replacing with finalize, is this right?
+
+See below.
+
+> 
+>>   	b_dev_info->isolated_pages--;
+>>   	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+>>
+>> @@ -542,6 +541,7 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+>>   	 */
+>>   	plpar_page_set_active(page);
+>>
+>> +	balloon_page_finalize(page);
+
+^ here it is, next to the put_page() just like for the other cases.
+
+Or did you mean something else?
+
+>>   	/* balloon page list reference */
+>>   	put_page(page);
+>>
+>> diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+>> index c817d8c216413..6653fc53c951c 100644
+>> --- a/drivers/misc/vmw_balloon.c
+>> +++ b/drivers/misc/vmw_balloon.c
+>> @@ -1778,8 +1778,7 @@ static int vmballoon_migratepage(struct balloon_dev_info *b_dev_info,
+>>   	 * @pages_lock . We keep holding @comm_lock since we will need it in a
+>>   	 * second.
+>>   	 */
+>> -	balloon_page_delete(page);
+>> -
+>> +	balloon_page_finalize(page);
+>>   	put_page(page);
+>>
 
 
-> Then, for plan A, we change the check_announce to schedule_announce, and if
-> that's true, we do another schedule_work to call virtnet_config_changed_work
-> again to finish the announcement, like
+[...]
+
+>> -/*
+>> - * balloon_page_delete - delete a page from balloon's page list and clear
+>> - *			 the page->private assignement accordingly.
+>> - * @page    : page to be released from balloon's page list
+>> - *
+>> - * Caller must ensure the page is locked and the spin_lock protecting balloon
+>> - * pages list is held before deleting a page from the balloon device.
+>> - */
+>> -static inline void balloon_page_delete(struct page *page)
+>> -{
+>> -	__ClearPageOffline(page);
+>> -	__ClearPageMovable(page);
+>> -	set_page_private(page, 0);
+>> -	/*
+>> -	 * No touch page.lru field once @page has been isolated
+>> -	 * because VM is using the field.
+>> -	 */
+>> -	if (!PageIsolated(page))
+>> -		list_del(&page->lru);
 > 
-> 	if (v & VIRTIO_NET_S_ANNOUNCE) {
-> 		if (unlikely(schedule_announce))
-> 			schedule_work(&vi->config_work);
-> 		else {
-> 			netdev_notify_peers(vi->dev);
-> 			virtnet_ack_link_announce(vi);
-> 		}
-> 	}
+> I don't see this check elsewhere, is it because, as per the 1/xx of this series,
+> because by the time we do the finalize
+
+balloon_page_delete() was used on two paths
+
+1) Removing a page from the balloon for deflation through 
+balloon_page_list_dequeue()
+
+2) Removing an isolated page from the balloon for migration in the 
+per-driver migration handlers. Isolated pages were already removed from 
+the balloon list during ... isolation.
+
+With this change, 1) does the list_del(&page->lru) manually and 2) only 
+calls balloon_page_finalize().
+
+During 1) the same reasoning as in 1/xx applies: isolated pages cannot 
+be in the balloon list.
+
 > 
-> >>
-> >> Also, there is another bug here.
-> >> If ndo_open did not run, we actually should not send any announcements.
-> >>
-> >> Do we care if carrier on is set on probe or on open?
-> >> If not, let's just defer this to ndo_open?
-> > 
-> > Hmm yes I think we do, device is visible to userspace is it not?
-> > 
-> > Hmm.  We can keep the announce bit set in vi->status and on open, check
-> > it and then schedule a work to do the announcement.
+>> -}
+>> -
+>>   /*
+>>    * balloon_page_device - get the b_dev_info descriptor for the balloon device
+>>    *			 that enqueues the given page.
+>> @@ -141,12 +120,6 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+>>   	list_add(&page->lru, &balloon->pages);
+>>   }
+>>
+>> -static inline void balloon_page_delete(struct page *page)
+>> -{
+>> -	__ClearPageOffline(page);
+>> -	list_del(&page->lru);
+>> -}
+>> -
+>>   static inline gfp_t balloon_mapping_gfp_mask(void)
+>>   {
+>>   	return GFP_HIGHUSER;
+>> @@ -154,6 +127,22 @@ static inline gfp_t balloon_mapping_gfp_mask(void)
+>>
+>>   #endif /* CONFIG_BALLOON_COMPACTION */
+>>
+>> +/*
+>> + * balloon_page_finalize - prepare a balloon page that was removed from the
+>> + *			   balloon list for release to the page allocator
+>> + * @page: page to be released to the page allocator
+>> + *
+>> + * Caller must ensure that the page is locked.
 > 
-> Okay, so there's a plan B, we save the bit and re-check it in ndo_open, like
+> Can we assert this?
+
+We could, but I'm planning on removing the page lock next (see patch 
+description), so not too keen to create more code around that.
+
+Maybe mention that the balloon lock should not be held?
+
+Not a limitation. It could be called with it, just not a requirement today.
+
+I suspect that once we remove the page lock, that we might use the 
+balloon lock and rework balloon_page_migrate() to take the lock. TBD.
+
+ > >> + */
+>> +static inline void balloon_page_finalize(struct page *page)
+>> +{
+>> +	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION)) {
+>> +		__ClearPageMovable(page);
+>> +		set_page_private(page, 0);
+>> +	}
 > 
-> 	/* __virtnet_config_changed_work() */
-> 	if (v & VIRTIO_NET_S_ANNOUNCE) {
-> 		vi->status |= VIRTIO_NET_S_ANNOUNCE;
-> 		if (unlikely(!check_announce))
-> 			goto check_link;
-> 
-> 		netdev_notify_peers(vi->dev);
-> 		virtnet_ack_link_announce(vi);
-> 		vi->status &= ~VIRTIO_NET_S_ANNOUNCE;
-> 	}
-> 
-> 	/* virtnet_open() */
-> 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-> 		if (vi->status & VIRTIO_NET_S_LINK_UP)
-> 			netif_carrier_on(vi->dev);
-> 		if
-> 		if (vi->status & VIRTIO_NET_S_ANNOUNCE)
-> 			schedule_work(&vi->config_work);
-> 		virtio_config_driver_enable(vi->vdev);
-> 	}
-> 
-> This is a dirty demo, any ideas are welcomed :)
-> 
-> (I think in virtnet_open() we can make the S_LINK_UP being scheduled as well?)
+> Why do we check this? Is this function called from anywhere where that config won't be set?
+
+Sure. balloon_page_list_dequeue() is called from balloon_page_dequeue(), 
+which resides outside the CONFIG_BALLOON_COMPACTION ifdef in 
+mm/balloon_compaction.c.
+
+At some point (not in this series) we should probably rename
+
+balloon_compaction.c -> balloon.c
+
+To match CONFIG_MEMORY_BALLOON.
+
+Because the compaction part is just one extra bit in there. (an 
+important one, but still, you can use the balloon infrastructure without 
+compaction/page migration)
+
+-- 
+Cheers,
+
+David / dhildenb
 
