@@ -1,143 +1,254 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 768FB1946AA
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 19:14:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4039A17BD3
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 19:21:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751397246; cv=none; b=oX8nSetabe5jK/PFcy/LI+DzWmInAdpB8427iJ3/jHh0gZTCY2c+e6gBQDi6rIsv2DK8j/UWmhUYO9nYPdDCfgXoMmSqfw+rHP5zcAmtQdaOySae8igzEci8nq6oA91BIIuKvreg2rKk7s3xlPFvKgNII0MById622DZBMFW0e0=
+	t=1751397666; cv=none; b=Kr55wVesTZJbvRyVbdofhK9ZBnvUgErCIeAN38mEnaP83ZOl12yF53DEVexwk14P3pyQcJ6EuKdmym73qLLU+TmLz5nJEiekAI3zYBXTkq8QRr2VdMeDPnR1883iuZ5TbddqSSoReLv2shpeeNtXRI59rXsi8Oy/UZrnui4KGXU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751397246; c=relaxed/simple;
-	bh=4Rr5RDJD2k8VW/HH+xcrwUxWOxdEDKOztvVdojYX7xs=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=QSRn+zjbhSovRfscyNMbhPeOS1uvVfjH9eMdbx4C2tPZF0YD9udqXbu68L+ghS9zCgxPUp6+bq/WcK/3LqvQbAvW46CfYD7/it0Ni4QnFHn78gcEe+HZAVCrM2XulfAsJjfKFrXFMAJaiCmCnI0vG/zUm3wcFwaNuq7SJ9V4ipU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ldrpjwhq; arc=none smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751397666; c=relaxed/simple;
+	bh=7v+aPLcSt17X4u2LNmWrGBlNpKMSI1a1PMj7/xXhurY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jGgG/BssV+tC409ZR9CqjjYVD0IoNHIR3V8k0M2YkIM5aRVusIiGbns96gmlpNNhoGKCryhYbN1KUdRTKPoDGE6jrro+/Q5b6rPi+3pjR42iQkvmbqxXCnl0ovy/hZ1LCX3IZuo9+Ma/f5UsD/OvCOuoZFPBsCKc54U8vPB25RA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=dXme7YXs; arc=none smtp.client-ip=213.167.242.64
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ldrpjwhq"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-3a575a988f9so3977231f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 12:14:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751397243; x=1752002043; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GRAT6iMVdZZIF+G8MBWdHZBgavvJ5RJLj6iKsHMAdfE=;
-        b=ldrpjwhq028xkFXpul5+5YCpXeF4mxpR7Jl/rP7QlnnGAPsB96TuVVytPYfnvcevsY
-         O2WIwHBhnyWQr1GIaKFonJgsd+f54zZtBAxpiIfGq8OHrYefOGy3VGoJ1T0YDDMdnEq/
-         O9euXLHj6egLHq9k/5tWefmHknD6FU7gmE8NENFc3Ua13BD7c8yMkcSxlOlCIzXmxAui
-         iW7+0zVPmgqgU9jetd868HOGiib/uWxVMtnjXp0C2w3z37ZCeevvW0f14a3IEavq94Dc
-         1DwuEvXO3MDdFynoe2y2c03viPbBqwSgnc/XjZQRSiIU6EEJDZH96iHShqio+R45RZYO
-         Gc7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751397243; x=1752002043;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GRAT6iMVdZZIF+G8MBWdHZBgavvJ5RJLj6iKsHMAdfE=;
-        b=ULQkUmjqw2QRKlZyZ4CEfcevX4OBcZ3Kc1CVAFqzpjJwp1bjjckkR48bV2emUKbJNA
-         B21e9IS1ERe+tgCSHu7bDeIiwNteqkIPzkoXoumNte1NyFkKPdcFgCMubIkqC2ibR2Uk
-         AmPulfuNpoo0Q6AjpSlHANM7mA89/GumtIODV5cGOgaEDKWSCJut9HrreJ8gk/YFe2tK
-         dtpdeb+7NVS+gE9G7Ktr4zArX1EIm0L7VZYlAdre18upwQCPkOj1/8A2aWfQKhtuNB2u
-         dH9kyj8g6hDWVYfE33n20Hb6OoGYOpD4Hll2PCzp+MWnoh1f2kHSoQ+c8ZliigBf0irw
-         XONA==
-X-Forwarded-Encrypted: i=1; AJvYcCUaVWNEe8lIzgvzCSYWn6tq1ZfouJaiR076d3pySe/MOs7UqoYuIkgiKtGvedt2q2dzqXNMszS7vRKYO7rZhQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw2s7XYn+FozcLE5Xl/jxiFeEe1fsI2VxFlxxOvDiqAnOSJ5R6R
-	oC2ZlWFHTqFEYW7WiHyrHn2Ini+wmHkEZiBUq94R7HBHGE1Y4EzjCS7t
-X-Gm-Gg: ASbGncsBNYDg6wNIRPkG+h0LbqZu2oQ93sau7j7dF8wdeXKTQ8WTf6KFlNLzeDx5lFt
-	BNUJz3YBJgJRYTecqWrwXsAEvmG5iLfBqsTwWmOPyRiPnpvXW34OyteGYrbnFlR7Uxt16bd+GSd
-	Xbkzqlnw/g1VGsXwEkhFInX6nXVNOe93WhRRrhrWLDl1SJjNoQeVTn6+UNkERLhjoQt+jdEZxQT
-	QRPQ/1PnhT+ns9WiAV5G7tZMCQVF/Q4T0lg7QVhR9QVOQJz47COKFbm+7qGsWkoh0rM83Yq9H7y
-	vhx6G5RHbW8KqEga6oQmLJut1M9frYdhgTRIGp5J1c2SfVApzjtVSAzBtGBH2AiBFiRlEht5LEX
-	t7hDGoaT6QC9n19/ZAw==
-X-Google-Smtp-Source: AGHT+IEKI/YCYtufBuGYyN654gnbiKtO4OJiT+a1rYiFQFL//Efs4Zhe4rDt90TqgDTijo7rz+z8LA==
-X-Received: by 2002:a5d:5f4b:0:b0:3a5:2848:2e78 with SMTP id ffacd0b85a97d-3a8ffbd4cffmr17167671f8f.28.1751397242504;
-        Tue, 01 Jul 2025 12:14:02 -0700 (PDT)
-Received: from pumpkin (host-92-21-58-28.as13285.net. [92.21.58.28])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823ad20bsm204864645e9.20.2025.07.01.12.14.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Jul 2025 12:14:02 -0700 (PDT)
-Date: Tue, 1 Jul 2025 20:14:00 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Will Deacon <will@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Keir Fraser <keirf@google.com>, Steven
- Moreland <smoreland@google.com>, Frederick Mayle <fmayle@google.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
- <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
- <jasowang@redhat.com>, Eugenio =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>,
- netdev@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH v2 4/8] vsock/virtio: Resize receive buffers so that
- each SKB fits in a page
-Message-ID: <20250701201400.52442b0e@pumpkin>
-In-Reply-To: <20250701164507.14883-5-will@kernel.org>
-References: <20250701164507.14883-1-will@kernel.org>
-	<20250701164507.14883-5-will@kernel.org>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="dXme7YXs"
+Received: from pendragon.ideasonboard.com (81-175-209-231.bb.dnainternet.fi [81.175.209.231])
+	by perceval.ideasonboard.com (Postfix) with UTF8SMTPSA id 5074C778;
+	Tue,  1 Jul 2025 21:20:39 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+	s=mail; t=1751397639;
+	bh=7v+aPLcSt17X4u2LNmWrGBlNpKMSI1a1PMj7/xXhurY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=dXme7YXsJxn+GUVHRLDTNqA6HkmazAmGRVa00oenY/lbM2R4Oih8FdjKYayzQj5Bb
+	 iNMm0C4WSEfQqYQxVgd14bnhxfkE0V/BGwor4+QdsQXqCAEB2vyFk2HtiT4ZB9INR7
+	 oB5HUAz4aJHtZmnMWtsM1Sx627pqgZctgxr+CYGk=
+Date: Tue, 1 Jul 2025 22:20:35 +0300
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To: Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc: dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>, Sandy Huang <hjc@rock-chips.com>,
+	Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>,
+	Andy Yan <andy.yan@rock-chips.com>,
+	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH v2 07/19] drm/gem: Pass along the format info from
+ .fb_create() to drm_helper_mode_fill_fb_struct()
+Message-ID: <20250701192035.GB17819@pendragon.ideasonboard.com>
+References: <20250701090722.13645-1-ville.syrjala@linux.intel.com>
+ <20250701090722.13645-8-ville.syrjala@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250701090722.13645-8-ville.syrjala@linux.intel.com>
 
-On Tue,  1 Jul 2025 17:45:03 +0100
-Will Deacon <will@kernel.org> wrote:
+On Tue, Jul 01, 2025 at 12:07:10PM +0300, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> 
+> Pass along the format info from .fb_create() to aliminate the
 
-> When allocating receive buffers for the vsock virtio RX virtqueue, an
-> SKB is allocated with a 4140 data payload (the 44-byte packet header +
-> VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE). Even when factoring in the SKB
-> overhead, the resulting 8KiB allocation thanks to the rounding in
-> kmalloc_reserve() is wasteful (~3700 unusable bytes) and results in a
-> higher-order page allocation for the sake of a few hundred bytes of
-> packet data.
+s/aliminate/eliminate/
+
+> redundant drm_get_format_info() calls from the gem fb code.
 > 
-> Limit the vsock virtio RX buffers to a page per SKB, resulting in much
-> better memory utilisation and removing the need to allocate higher-order
-> pages entirely.
+> v2: Fix kernel docs (Laurent)
 > 
-> Signed-off-by: Will Deacon <will@kernel.org>
+> Cc: Dave Airlie <airlied@redhat.com>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: Sandy Huang <hjc@rock-chips.com>
+> Cc: "Heiko Stübner" <heiko@sntech.de>
+> Cc: Andy Yan <andy.yan@rock-chips.com>
+> Cc: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> Cc: virtualization@lists.linux.dev
+> Cc: spice-devel@lists.freedesktop.org
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+
+Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+
 > ---
->  include/linux/virtio_vsock.h     | 1 -
->  net/vmw_vsock/virtio_transport.c | 7 ++++++-
->  2 files changed, 6 insertions(+), 2 deletions(-)
+>  drivers/gpu/drm/drm_gem_framebuffer_helper.c | 23 +++++++++-----------
+>  drivers/gpu/drm/qxl/qxl_display.c            |  2 +-
+>  drivers/gpu/drm/rockchip/rockchip_drm_fb.c   |  3 ++-
+>  drivers/gpu/drm/xen/xen_drm_front_kms.c      |  2 +-
+>  include/drm/drm_gem_framebuffer_helper.h     |  2 ++
+>  5 files changed, 16 insertions(+), 16 deletions(-)
 > 
-> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-> index eb6980aa19fd..1b5731186095 100644
-> --- a/include/linux/virtio_vsock.h
-> +++ b/include/linux/virtio_vsock.h
-> @@ -109,7 +109,6 @@ static inline size_t virtio_vsock_skb_len(struct sk_buff *skb)
->  	return (size_t)(skb_end_pointer(skb) - skb->head);
+> diff --git a/drivers/gpu/drm/drm_gem_framebuffer_helper.c b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+> index 6fe4094bd0fe..1d58b0259df4 100644
+> --- a/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+> @@ -68,6 +68,7 @@ EXPORT_SYMBOL_GPL(drm_gem_fb_get_obj);
+>  static int
+>  drm_gem_fb_init(struct drm_device *dev,
+>  		 struct drm_framebuffer *fb,
+> +		 const struct drm_format_info *info,
+>  		 const struct drm_mode_fb_cmd2 *mode_cmd,
+>  		 struct drm_gem_object **obj, unsigned int num_planes,
+>  		 const struct drm_framebuffer_funcs *funcs)
+> @@ -75,7 +76,7 @@ drm_gem_fb_init(struct drm_device *dev,
+>  	unsigned int i;
+>  	int ret;
+>  
+> -	drm_helper_mode_fill_fb_struct(dev, fb, NULL, mode_cmd);
+> +	drm_helper_mode_fill_fb_struct(dev, fb, info, mode_cmd);
+>  
+>  	for (i = 0; i < num_planes; i++)
+>  		fb->obj[i] = obj[i];
+> @@ -136,6 +137,7 @@ EXPORT_SYMBOL(drm_gem_fb_create_handle);
+>   * @dev: DRM device
+>   * @fb: framebuffer object
+>   * @file: DRM file that holds the GEM handle(s) backing the framebuffer
+> + * @info: pixel format information
+>   * @mode_cmd: Metadata from the userspace framebuffer creation request
+>   * @funcs: vtable to be used for the new framebuffer object
+>   *
+> @@ -152,21 +154,14 @@ EXPORT_SYMBOL(drm_gem_fb_create_handle);
+>  int drm_gem_fb_init_with_funcs(struct drm_device *dev,
+>  			       struct drm_framebuffer *fb,
+>  			       struct drm_file *file,
+> +			       const struct drm_format_info *info,
+>  			       const struct drm_mode_fb_cmd2 *mode_cmd,
+>  			       const struct drm_framebuffer_funcs *funcs)
+>  {
+> -	const struct drm_format_info *info;
+>  	struct drm_gem_object *objs[DRM_FORMAT_MAX_PLANES];
+>  	unsigned int i;
+>  	int ret;
+>  
+> -	info = drm_get_format_info(dev, mode_cmd->pixel_format,
+> -				   mode_cmd->modifier[0]);
+> -	if (!info) {
+> -		drm_dbg_kms(dev, "Failed to get FB format info\n");
+> -		return -EINVAL;
+> -	}
+> -
+>  	if (drm_drv_uses_atomic_modeset(dev) &&
+>  	    !drm_any_plane_has_format(dev, mode_cmd->pixel_format,
+>  				      mode_cmd->modifier[0])) {
+> @@ -201,7 +196,7 @@ int drm_gem_fb_init_with_funcs(struct drm_device *dev,
+>  		}
+>  	}
+>  
+> -	ret = drm_gem_fb_init(dev, fb, mode_cmd, objs, i, funcs);
+> +	ret = drm_gem_fb_init(dev, fb, info, mode_cmd, objs, i, funcs);
+>  	if (ret)
+>  		goto err_gem_object_put;
+>  
+> @@ -222,6 +217,7 @@ EXPORT_SYMBOL_GPL(drm_gem_fb_init_with_funcs);
+>   *                                  callback
+>   * @dev: DRM device
+>   * @file: DRM file that holds the GEM handle(s) backing the framebuffer
+> + * @info: pixel format information
+>   * @mode_cmd: Metadata from the userspace framebuffer creation request
+>   * @funcs: vtable to be used for the new framebuffer object
+>   *
+> @@ -234,6 +230,7 @@ EXPORT_SYMBOL_GPL(drm_gem_fb_init_with_funcs);
+>   */
+>  struct drm_framebuffer *
+>  drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
+> +			     const struct drm_format_info *info,
+>  			     const struct drm_mode_fb_cmd2 *mode_cmd,
+>  			     const struct drm_framebuffer_funcs *funcs)
+>  {
+> @@ -244,7 +241,7 @@ drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
+>  	if (!fb)
+>  		return ERR_PTR(-ENOMEM);
+>  
+> -	ret = drm_gem_fb_init_with_funcs(dev, fb, file, mode_cmd, funcs);
+> +	ret = drm_gem_fb_init_with_funcs(dev, fb, file, info, mode_cmd, funcs);
+>  	if (ret) {
+>  		kfree(fb);
+>  		return ERR_PTR(ret);
+> @@ -287,7 +284,7 @@ drm_gem_fb_create(struct drm_device *dev, struct drm_file *file,
+>  		  const struct drm_format_info *info,
+>  		  const struct drm_mode_fb_cmd2 *mode_cmd)
+>  {
+> -	return drm_gem_fb_create_with_funcs(dev, file, mode_cmd,
+> +	return drm_gem_fb_create_with_funcs(dev, file, info, mode_cmd,
+>  					    &drm_gem_fb_funcs);
+>  }
+>  EXPORT_SYMBOL_GPL(drm_gem_fb_create);
+> @@ -327,7 +324,7 @@ drm_gem_fb_create_with_dirty(struct drm_device *dev, struct drm_file *file,
+>  			     const struct drm_format_info *info,
+>  			     const struct drm_mode_fb_cmd2 *mode_cmd)
+>  {
+> -	return drm_gem_fb_create_with_funcs(dev, file, mode_cmd,
+> +	return drm_gem_fb_create_with_funcs(dev, file, info, mode_cmd,
+>  					    &drm_gem_fb_funcs_dirtyfb);
+>  }
+>  EXPORT_SYMBOL_GPL(drm_gem_fb_create_with_dirty);
+> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+> index f7bc83f2d489..ae7e572b1b4a 100644
+> --- a/drivers/gpu/drm/qxl/qxl_display.c
+> +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> @@ -1179,7 +1179,7 @@ qxl_user_framebuffer_create(struct drm_device *dev,
+>  			    const struct drm_format_info *info,
+>  			    const struct drm_mode_fb_cmd2 *mode_cmd)
+>  {
+> -	return drm_gem_fb_create_with_funcs(dev, file_priv, mode_cmd,
+> +	return drm_gem_fb_create_with_funcs(dev, file_priv, info, mode_cmd,
+>  					    &qxl_fb_funcs);
 >  }
 >  
-> -#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
->  #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
->  #define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
+> diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
+> index f19113e5ae8f..d496ac0feb08 100644
+> --- a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
+> +++ b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
+> @@ -40,7 +40,8 @@ rockchip_fb_create(struct drm_device *dev, struct drm_file *file,
+>  	if (!afbc_fb)
+>  		return ERR_PTR(-ENOMEM);
 >  
-> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-> index 488e6ddc6ffa..3daba06ed499 100644
-> --- a/net/vmw_vsock/virtio_transport.c
-> +++ b/net/vmw_vsock/virtio_transport.c
-> @@ -307,7 +307,12 @@ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
+> -	ret = drm_gem_fb_init_with_funcs(dev, &afbc_fb->base, file, mode_cmd,
+> +	ret = drm_gem_fb_init_with_funcs(dev, &afbc_fb->base,
+> +					 file, info, mode_cmd,
+>  					 &rockchip_drm_fb_funcs);
+>  	if (ret) {
+>  		kfree(afbc_fb);
+> diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+> index a360003bee47..806ec66ee7f7 100644
+> --- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
+> +++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+> @@ -62,7 +62,7 @@ fb_create(struct drm_device *dev, struct drm_file *filp,
+>  	struct drm_gem_object *gem_obj;
+>  	int ret;
 >  
->  static void virtio_vsock_rx_fill(struct virtio_vsock *vsock)
->  {
-> -	int total_len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE + VIRTIO_VSOCK_SKB_HEADROOM;
-> +	/* Dimension the SKB so that the entire thing fits exactly into
-> +	 * a single page. This avoids wasting memory due to alloc_skb()
-> +	 * rounding up to the next page order and also means that we
-> +	 * don't leave higher-order pages sitting around in the RX queue.
-> +	 */
-> +	int total_len = SKB_WITH_OVERHEAD(PAGE_SIZE);
+> -	fb = drm_gem_fb_create_with_funcs(dev, filp, mode_cmd, &fb_funcs);
+> +	fb = drm_gem_fb_create_with_funcs(dev, filp, info, mode_cmd, &fb_funcs);
+>  	if (IS_ERR(fb))
+>  		return fb;
+>  
+> diff --git a/include/drm/drm_gem_framebuffer_helper.h b/include/drm/drm_gem_framebuffer_helper.h
+> index 4fdf9d3d1863..971d266ab1ba 100644
+> --- a/include/drm/drm_gem_framebuffer_helper.h
+> +++ b/include/drm/drm_gem_framebuffer_helper.h
+> @@ -25,10 +25,12 @@ int drm_gem_fb_create_handle(struct drm_framebuffer *fb, struct drm_file *file,
+>  int drm_gem_fb_init_with_funcs(struct drm_device *dev,
+>  			       struct drm_framebuffer *fb,
+>  			       struct drm_file *file,
+> +			       const struct drm_format_info *info,
+>  			       const struct drm_mode_fb_cmd2 *mode_cmd,
+>  			       const struct drm_framebuffer_funcs *funcs);
+>  struct drm_framebuffer *
+>  drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
+> +			     const struct drm_format_info *info,
+>  			     const struct drm_mode_fb_cmd2 *mode_cmd,
+>  			     const struct drm_framebuffer_funcs *funcs);
+>  struct drm_framebuffer *
 
-Should that be an explicit 4096?
-Otherwise it is very wasteful of memory on systems with large pages.
+-- 
+Regards,
 
-	David
-
->  	struct scatterlist pkt, *p;
->  	struct virtqueue *vq;
->  	struct sk_buff *skb;
-
+Laurent Pinchart
