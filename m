@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9133D274643
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 19:32:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 323E0274643
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 19:34:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751398326; cv=none; b=cd5cZbHOZA+6ccb41c2PN1FGM0iQw873JJqbq+8wyrNyJoW4nNPEGghR8TddlI7T/ntaN8+K2957dWYmeHM1+pKjpB97yanHYBGFJViO0e0SIXVOHN+qECSzn823NZ4oBEB5cI/MSt5tMwa0JVg9+okhlZ44N6FF7LQXURFmVow=
+	t=1751398491; cv=none; b=iQQWF58QShv0bmBZDez5+XSzVS8DpCGHoaTqJjpWsu2F6m6egpyBRR0sHL/AVnybmykO9ssEGXZEvMP+olaLzz//PiKGiQ4h/QyCUktgt8kf5n02cPpVgBHrqSp02yZcVUOKB7RP6DQ63Kvnqownjfsi70qJYWd0HSk3XKv5LrQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751398326; c=relaxed/simple;
-	bh=kXopyC6c5M9a9rWPFBYHZbv8zu6NBxoYlUYtgbPR6Dc=;
+	s=arc-20240116; t=1751398491; c=relaxed/simple;
+	bh=IfIn2pV/T5GS2KsTCh7WHgYSdR9NjRHjEuLtW5Bc96A=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CJf5c0njXnCBnKCt+20pPOB8/LVWnKu9merx7Nn1HSdPVzMwbsc/nTJRpo34TrT1EuNck7X9ATFS2y/OslWoJJXC/fL3OFtuaqhy3yviZ26zi5pk5pth2bPCJYaHeDY0bASWJHUEeda77Xl0Tl3sPWGsoQl30yD3/XsuODPnSfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K0Hs+WKx; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=YiYq9Uy72Ku/95N/SWj65Ah5zvLOsKU7cU/O6KpNw9E+lQMXVXTDlVGIiMvTtese4er42kaOQCNKS+uSihtY304h3pPtt+/mOjoZVsMX+oaz+yExaydJAQGjZ+3xsh3WGaKyjrHux7ssKhSKKeMsx3N6EGHvfbY5Vr+A5TaIdI0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fMMs7P47; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K0Hs+WKx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fMMs7P47"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751398323;
+	s=mimecast20190719; t=1751398488;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=pan++p2TzQShdGmkALz5U+1UZhqUiE8i0SNRToHfyJg=;
-	b=K0Hs+WKxKgxT7Hhfk6Xy57k/UoW+84fT0uJ/Q5gbrpT/gUDMGJ/fLvZpKdNMIdV9TDBQSU
-	aNWOd1GdRL70/cZ1zwJPzKS3hcRQIH1bPXMGY15Hj0eFTBgrDLRzfvhAmIGKh6SJ3bDhrz
-	KXrOGQTlWt7zjG/TCr+aafFc8qOnUYM=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=gw1ZFU7fseKrRoTgl7UAAoDGCdFd91K7Vdf4y+yHx50=;
+	b=fMMs7P47Kf+15xnAbaFPRW79Dkjfiz/TqMXDJqJ+oD1qitaega8a81aiotapjiEF6HN+0B
+	s4i7JcQ777y65VOoj2xGz58bM40fsx3zNtUhDpW4pcgPWiCdzBxZew8dOD2g6gWxksiyN3
+	E/5b4IvNXtyGtjRibx3o9Spr8aqH9BY=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-518-3ye5Xw6YMTaVs6woPdVspw-1; Tue, 01 Jul 2025 15:32:02 -0400
-X-MC-Unique: 3ye5Xw6YMTaVs6woPdVspw-1
-X-Mimecast-MFC-AGG-ID: 3ye5Xw6YMTaVs6woPdVspw_1751398321
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-450de98b28eso33068985e9.0
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 12:32:02 -0700 (PDT)
+ us-mta-648-DjS0m-ulO6G0tGn9iFGJAg-1; Tue, 01 Jul 2025 15:34:46 -0400
+X-MC-Unique: DjS0m-ulO6G0tGn9iFGJAg-1
+X-Mimecast-MFC-AGG-ID: DjS0m-ulO6G0tGn9iFGJAg_1751398486
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-453a5d50b81so13938345e9.1
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 12:34:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751398321; x=1752003121;
+        d=1e100.net; s=20230601; t=1751398485; x=1752003285;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=pan++p2TzQShdGmkALz5U+1UZhqUiE8i0SNRToHfyJg=;
-        b=FebQvLD/md8yvjVaaxBeKcwzskGuDPEpJEXt7GlnvwhP5eeFk3rvTD/iXKq6q7sy9p
-         rqemV0PMScpDb4jI6WkU2otn6CzBY8hQjCLt43LSVgu+yvmXopApuCPc661Cu0GjkdSi
-         NTBix+SQrScPbOc+R5foYbQ1CxmV5WXvMXOE/rWXM5qeUdnW6NQdIhdPtvXGaWz27ROD
-         w5nqNVBOuYse5r1oKZuaxV4/9zQxrFQjfdhGW2jjQkruQ2WckcDquLf5zQWRNALiFRnf
-         c1zbS/zUrD9ZOZ+bkM+LeYEgZDJIhMn/FzXDYZHTfcAeibr/0+kgDbmhUG7kPU122MIJ
-         LQPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV3+492M/ijuhGAkqlBxPAvww0nAQLOSq0qJkG5JLOiSy83FTKWkATBJwY4G2cbET+S4xbd/TaUT41Za2lvig==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxoAaeGTCVuiKgzdQWqoO5cK6gQropAhWyjpdpmcfCVFTqBFBIS
-	O5XvQ8OwyxSuXvX7Ju2mKBMl2eWmGDqdXPiAO53Xi5S99+SvJlfs417KtvtUy+H7W3qouvY8Dz+
-	MPXlF9kw+MDcTHTZk5sa5bUf7KYVXXoOaUioMCBlBVuKNOIfeXtjpquTJq1tbvLb/qy10
-X-Gm-Gg: ASbGncvAJw978Gism8P+sWBBoG4lbt6SvSONBTrbK97jTm2sGTDpwfCVzPurkD0qouU
-	dKQQfcE1plyGIdEZqNBFPBYaqa+i1QK/a8hLg6HCEtfWNpDmkKAfyw8N8l/zko3yaUTO/50k4E+
-	Xjbxp7zauyxiEj/PlKb+P4AS+YYcvTT9Go79tCxx4qIyeCYXNpq0oYbxkiefV0OBuIbMZWA+AV3
-	pcX7pLGEmg/plIUIZ2T4wjO+ZqqnZGD2qeeZgu6iUXfN0x9Pg5nZ8gZiGig1XWnLZ+CEDUTpINN
-	qMayGbzajb4mOWofaBYgr7br3Fh9O1TO3tD13UJl0EGLPEYqJV5NedhsVQQlZ1hRXIfjdbmidwO
-	/qMMfADq43JIGLZ0K/GPiItRDgJC8RYJS10n6+IE0XFIKrg9Zlw==
-X-Received: by 2002:a05:600c:8211:b0:43b:c857:e9d7 with SMTP id 5b1f17b1804b1-454a36e495amr3357255e9.5.1751398320069;
-        Tue, 01 Jul 2025 12:32:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG5TyN7r+4oBk64JocA+5QoglGL345dK2Fcu0b1IazgnSHOIgn7V2SOlRTU0EkUwtcUGQo9tg==
-X-Received: by 2002:a05:600c:8211:b0:43b:c857:e9d7 with SMTP id 5b1f17b1804b1-454a36e495amr3356625e9.5.1751398319493;
-        Tue, 01 Jul 2025 12:31:59 -0700 (PDT)
+        bh=gw1ZFU7fseKrRoTgl7UAAoDGCdFd91K7Vdf4y+yHx50=;
+        b=c7Slau6DhgHUt0TE0gmp0GWqVICYhz1Hgvl2me3IO4aMQSCGp45D2I4Op+KSqZUAdo
+         i8WoiaKR0N1IkwCD2kfPYP314mGEaTcLoyxJGqsy+OUW5/6irdpjPs/dtzq3SbGolyS+
+         4/uEkbJ0wG8SxoRkckjbqs3XwAowCuCLiKev7aexaa2Ks4gDTPVfVi0lJ6rjYt84AEqg
+         HX3CtnzOq7PD+oYr1rMCGYpX4QWcI04KJ05dvKqfCcau4I4sO2X7i3tWxg0LDb66wNs2
+         VoshACKU0hkWH51gDg301qZffx51kbJZ2TXDCAxNon+wugBmZdZCPGujD9XzN0/up09o
+         Whgw==
+X-Forwarded-Encrypted: i=1; AJvYcCWQXOwRfqCkPLmsFYaCIwPZAoJhENP9jFlZvgrfcX4L3avzSyxP4Y9Y7jLiqNgVFQNqZ4oNYdrR2qirYvmnmQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YykTyVihcjB10LdBn+22V/n5mbAgXv5VYt8RU2+xLjNmOdOcdRU
+	BSxJnfiQurLEa5ngVWdFk+Hh4MK14CSpYK12UbqyNBb9Fy4JRUz/EI/4cXkv3A5LRwMsprqfQKQ
+	qWPgGvgcaz7d5kvLmfaKJPoIQBjdlUY4p12AtJhF9yHAWHCXfrYrHlzXc4EhJ+xuvaJKn
+X-Gm-Gg: ASbGncvXt4tDLUA7M4MQBZYXRolTWe//pUjv4UdFE+Nyq+2Z4a2/MA5SqKvnnWjQ+kD
+	66fdedDX6uyn2z2/5BcEIeJUzrsdp7veVESKAx/y2WGGYRg7OGTg2KBOEj4GqR+Rs+xqJUhIgMd
+	1zkKTakKUSwWjx4yXFLZUu7izXLdaAgLyOFRvbY18ZOful71RVJ6j1zX2yJT83JCVgWibO+ujyg
+	133WQSjr7a8Noys9dhYAEqBVA/g9O2NI7PcKh9bqlnwkVtfMRiIJPjixjqrG0c7xWi/0qEt75KU
+	9bWJir8ytuZFLPJdMwh9YM+dx/u4jP+ktYBpGq408IEfn9YKwWkDSjQtnISTbP2O1Y6tto792ns
+	kGhhumboDoz5DUBGS/s4Xa4yX6n/PD2EwlrRMeonPk1UlOieilg==
+X-Received: by 2002:a05:600c:1549:b0:453:6146:1172 with SMTP id 5b1f17b1804b1-454a36d8d1amr4351405e9.3.1751398485595;
+        Tue, 01 Jul 2025 12:34:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGhEuTg4M0PQbefUA1jZ0F5TAuHLHbTJ/BFBL6Gk20G74uE8iX4U0pj6is7luyXAnqTfNAkbQ==
+X-Received: by 2002:a05:600c:1549:b0:453:6146:1172 with SMTP id 5b1f17b1804b1-454a36d8d1amr4351025e9.3.1751398485099;
+        Tue, 01 Jul 2025 12:34:45 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f18:7500:202e:b0f1:76d6:f9af? (p200300d82f187500202eb0f176d6f9af.dip0.t-ipconnect.de. [2003:d8:2f18:7500:202e:b0f1:76d6:f9af])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823ad01csm206159325e9.22.2025.07.01.12.31.56
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823c57d7sm215278035e9.40.2025.07.01.12.34.42
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Jul 2025 12:31:59 -0700 (PDT)
-Message-ID: <48e9a5de-3131-4e36-8a21-5f77669116a9@redhat.com>
-Date: Tue, 1 Jul 2025 21:31:56 +0200
+        Tue, 01 Jul 2025 12:34:44 -0700 (PDT)
+Message-ID: <ac8f80bb-3aec-491c-a39c-3aecb6e219b2@redhat.com>
+Date: Tue, 1 Jul 2025 21:34:41 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,8 +75,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 22/29] mm/page-flags: rename PAGE_MAPPING_MOVABLE to
- PAGE_MAPPING_ANON_KSM
+Subject: Re: [PATCH v1 23/29] mm/page-alloc: remove PageMappingFlags()
 To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
@@ -112,8 +111,8 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
  Shakeel Butt <shakeel.butt@linux.dev>
 References: <20250630130011.330477-1-david@redhat.com>
- <20250630130011.330477-23-david@redhat.com>
- <5357d4d9-d817-4351-9927-bcd03794964c@lucifer.local>
+ <20250630130011.330477-24-david@redhat.com>
+ <8ff24777-988a-4d1d-be97-e7184abfa998@lucifer.local>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -160,40 +159,38 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <5357d4d9-d817-4351-9927-bcd03794964c@lucifer.local>
+In-Reply-To: <8ff24777-988a-4d1d-be97-e7184abfa998@lucifer.local>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nsUr17oG1f7gEEImKYY6C_aAXkNrtRCk2cpFYAOoOMw_1751398321
+X-Mimecast-MFC-PROC-ID: wbQrjjguVaMPj0UV6ReBtKPKoG1oUIsFi18jzwWDxSk_1751398486
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 01.07.25 14:54, Lorenzo Stoakes wrote:
-> On Mon, Jun 30, 2025 at 03:00:03PM +0200, David Hildenbrand wrote:
->> KSM is the only remaining user, let's rename the flag. While at it,
->> adjust to remaining page -> folio in the doc.
+On 01.07.25 15:02, Lorenzo Stoakes wrote:
+> On Mon, Jun 30, 2025 at 03:00:04PM +0200, David Hildenbrand wrote:
+>> We can now simply check for PageAnon() and remove PageMappingFlags().
+>>
+>> ... and while at it, use the folio instead and operate on
+>> folio->mapping.
 > 
-> Hm I wonder if we could just ideally have this be a separate flag rather than a
-> bitwise combination, however I bet there's code that does somehow rely on this.
+> Probably worth mentioning to be super crystal clear that this is because
+> now it's either an anon folio or a KSM folio, both of which set the
+> FOLIO_MAPPING_ANON flag.
 
-Well, KSM folios are anon folios, so that must hold.
+"As PageMappingFlags() now only indicates anon (incl. ksm) folios, we 
+can now simply check for PageAnon() and remove PageMappingFlags()."
 
-Of course, now you could make folio_test_anon() test both bits, and have 
-KSM folios only set a PAGE_MAPPING_KSM bit.
-
-That should be possible on top of this change, but not sure if that's 
-really what we want. After all, KSM folios are special ANON folios.
-
-> 
-> I know for sure there's code that has to do a folio_test_ksm() on something
-> folio_test_anon()'d because the latter isn't sufficient.
- > > But this is one for the future I guess :)
-
-Yes :)
 
 > 
-> Nice: re change to folio, that is a nice cleanup based on fact you've now made
-> the per-page mapping op stuff not be part of this.
+> I wonder if there's other places that could be fixed up similarly that do
+> folio_test_anon() || folio_test_ksm() or equivalent?
+
+I think you spotted the one in patch #25 :)
+
+I looked for others while crafting this patch, but there might be more 
+hiding that I didn't catch.
+
 > 
 >>
 >> Reviewed-by: Zi Yan <ziy@nvidia.com>
@@ -202,9 +199,9 @@ Yes :)
 > LGTM, so:
 > 
 > Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+> 
 
 Thanks!
-
 
 -- 
 Cheers,
