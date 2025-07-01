@@ -1,360 +1,190 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FA9E274677
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 12:41:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE2B0274658
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 12:42:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751373674; cv=none; b=oGEXt7CZSfAu21uppHSrB7ARNYXhqJXwP+gCMsF35UiAcS/jAL3oEVG5C6pgaO0jedC/uIR5B4nC9CaOVhMZbvqEM442s7PR5M8hrJQpNc+jNctCF14JHscsTVaT15NEQyCFytZpczUA3tWSTg+HuuUC7ZYFVhV1xgzNgVZZPKU=
+	t=1751373747; cv=none; b=o3hWAVJ+WcAoI24Xh3Rpmh452fuKiYDtV/1B5Q5cNfCTXB1n/wUA78FciFGBclAuSmp6ErvRL7UuQKK3XHo1JI6/mQSaV3FwPxZBYAJLyxSxy3gmc2qQkl49TQTmWmpcdvUslxvJOt7Uzjk4m9Tz+U7NT1AAebsNEJOtISV4/+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751373674; c=relaxed/simple;
-	bh=RWoHsMqJRYZy6NXt8PDpEqOoOqztHO28cg5z+Sojd2A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ICZHM5Hud60sD9RzIlmAzbuMB/gy3+nrrV1gHlbk2K7aE11LOAcbdlY6icFU3Pe/CccgU6QcpoA7t2iNaNNL95ofyg/9YvkL2pXv5GUFW4isT/x0JJQCSAe7XlVx1B72jtlHmbix6oGAYbdIflu10/WuccybfJz0Kt/VSk1XsS8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BomEYV4U; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1751373747; c=relaxed/simple;
+	bh=aibM3CEN4GlDaN5Q5oUKGzqAOrx2WCfZHlJS67dPa24=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=rgespwRdrAyrKPePsljSFwhXwNsvcPU0SdnIQwTt+0dubs54E0p4xBH7upTSNPj7TiAJ6/uDAu7KlTxwUPRdkvTH51W11tEjShIm4If690OsjP6J5xxdGrICR3j5T0QbRdhvUoTL7sNwVvqmOvhEl8XfHW5212/fliyi7Ec0qbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iQ7BIhnh; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BomEYV4U"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iQ7BIhnh"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751373671;
+	s=mimecast20190719; t=1751373745;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Oze5knNhHgerWyspgYSAhDKX+wWribF6uN8V8VOABbQ=;
-	b=BomEYV4UEi9/1+yE7uAq9jljctE72CE9KVRRTD6F2+2jWfyJj1U+2xIkeId9FtRQ8are/J
-	F1OgoJHkZ2fDfTycRYk7TWiGb0xaqsmv5gZ1ORpR73HPDbOYdczRuU4kKmMBBAMhoNDzUG
-	0K4xRxe+TtGa2M9N6tO46//zAIRhkJs=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references;
+	bh=5eb0wjmxKgoQIQfwLxvEHu9pE8U4ib0H+OzhXzeaAk0=;
+	b=iQ7BIhnhg3V52nORuCY/hhO54i1Fph1Afz6Vo3WvnPgrcvam5tC1MzhP17OqqRjSw8hRUl
+	jhxVbtNDxeJB2+qsmGFTXsXjSJ+UUXus23qcqg9UrRsoym2WjKAQQmC4q131gHpMeeiH4o
+	oTx4sW+8VLaSCU2TTNGzMPgwfT9u1lU=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-98-NuHC1hfrO82h5tHbc5Bo7w-1; Tue, 01 Jul 2025 08:41:10 -0400
-X-MC-Unique: NuHC1hfrO82h5tHbc5Bo7w-1
-X-Mimecast-MFC-AGG-ID: NuHC1hfrO82h5tHbc5Bo7w_1751373668
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a523ce0bb2so1778105f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 05:41:09 -0700 (PDT)
+ us-mta-140-LaCN_sc6PxSLfa4wa0iAQA-1; Tue, 01 Jul 2025 08:42:24 -0400
+X-MC-Unique: LaCN_sc6PxSLfa4wa0iAQA-1
+X-Mimecast-MFC-AGG-ID: LaCN_sc6PxSLfa4wa0iAQA_1751373743
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-7d460764849so288406385a.1
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 05:42:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751373668; x=1751978468;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=Oze5knNhHgerWyspgYSAhDKX+wWribF6uN8V8VOABbQ=;
-        b=n0WWKv4dUIYsUMkl6YYpidb3vhlQbzyfRL/xOD3L0n3gI7PPI/PrREz3/JwWDfQYax
-         ZlYC63e0sX5ixev43LwLXebFKW/xsRwCpXxxMAdU7mwd62MX7Lu8VIXNWh+OtPY9N/xX
-         GobevFHrzMWiXFcEPKsMxLOJ18rPkYlDyr3sM+7R+wrofTtTHeQUrcuoexsJWeF3KrYm
-         WDOKDF2pg4P5J/+ChQeSZff6IXjMZioajLAt1t1COF6iTWPCdbkqr+Bs4BNz2EKdmqRh
-         xWtsiyODouevgkH/uwS5tUqCHUixCxqL5sNkJ749IPhFbaujkhnaCds9qjanEtDbVnnl
-         na6g==
-X-Forwarded-Encrypted: i=1; AJvYcCWjflB50+zyey9jjQ2Gt4cqXF+i+tvHju0shC2b8YEMegBc/WYEHoeeqYJZJAUCwcuu839ipy2a8py2iaemOQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx96WM3sWPI7NzQqn6187+E/2iCvx1FGKa05oI/mGMAmAwIy5I9
-	LqbeMteWLaPtgPAS1IF/OYL0K2WpoLL8gMNCcCOwuncyYeLE4j6gtBSuEx35vOKOpOz6S1HvAEs
-	hvJQB1q7zdS4Wj++0sl1byUk3NFmgJ2Y7EK7X87yO64XWlMIlgxnBCZqIGMUOj6MhQFTW
-X-Gm-Gg: ASbGnct7sMrOdMgKg8t4Nr0h3aEB/XkE8PqY4fYdmoLKW7Jjyl6O1h6edPmrNoSUm3t
-	FS39wgIY4ng8hQHDTFBFgK9LfLSzhQUix8r4WmaDbpoUfpmimKT/abmd8A3u3Lyr+IEDTiK8x13
-	i12yNgKAK0iK9CMlTEvo1WalGAQ26ypOzRXagSEmPbWJNL7DoOhRMq7705Mak9eXRNgioliAgqd
-	EE99+61w8JI/kmloVnm69s9t+NnXsnlhAYiEZAH9VrXxReKvPEszkw4OqrLp6D31vooiGz4pmQ/
-	9SRJXHF0BLrvRQxyDJaPV/WvnUFeUjYFUxPD6Bx9T9BsumVzvmg6p8E2B/UfTCHkTYHi/cTrPgT
-	TH566rMrFHwknvErfGZ3Q0ekUiyMLOB5/N4h3wdY/345bhQ7SMA==
-X-Received: by 2002:a05:6000:643:b0:3a6:c7f6:3c56 with SMTP id ffacd0b85a97d-3a8f435e45fmr11503412f8f.11.1751373667898;
-        Tue, 01 Jul 2025 05:41:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEoCHt09MvkW9qgMnvENnZnK57arLhcDT0RB6QnVv3xUTfSdMsPnxZEnoOc3CnsnDJ2z4ma6g==
-X-Received: by 2002:a05:6000:643:b0:3a6:c7f6:3c56 with SMTP id ffacd0b85a97d-3a8f435e45fmr11503351f8f.11.1751373667368;
-        Tue, 01 Jul 2025 05:41:07 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f18:7500:202e:b0f1:76d6:f9af? (p200300d82f187500202eb0f176d6f9af.dip0.t-ipconnect.de. [2003:d8:2f18:7500:202e:b0f1:76d6:f9af])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823b913esm191229535e9.33.2025.07.01.05.41.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Jul 2025 05:41:06 -0700 (PDT)
-Message-ID: <bdef3652-53b5-4b2c-a544-85b2de00b177@redhat.com>
-Date: Tue, 1 Jul 2025 14:41:03 +0200
+        d=1e100.net; s=20230601; t=1751373743; x=1751978543;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5eb0wjmxKgoQIQfwLxvEHu9pE8U4ib0H+OzhXzeaAk0=;
+        b=PxjRTY1pUBJIGKJO2f69G1FWOVsUay1RT+h1oeozylMjfAiMb59n2SOTlvfSjF85ID
+         pv2/I/nAF+9BgN2F+pWsPk/9vOJG3BgT+7V4TgpMgp25kj16IcdWb/oPmRZq1wr1OAIG
+         E3Gtyl8IKIxi0vfxgk+O4sbqS8Axtht6kB2YoAi5QB9it0bbE8AH7/PsQcUBZpPf4fzX
+         yPrBpR/PgVu1WEhYqzFpplyULbZ4N7Oz/4gd12T3LNBG5wOkyDii4vq4/d3U3gpioR1+
+         CmOgjsOYIckH/IrWBUpD1y2MN31tBmQ3+QmgbNr8vYHC+UFH0Ndm7rgH1SH9qoVTII8/
+         F8qw==
+X-Forwarded-Encrypted: i=1; AJvYcCW6Ccz2pZ488osVOjHMnGAm+y4IMaRnnLYYFfUmJLyjoPs3e6m+34ed/5kuHBBvarGDxUR47FRUA4xjFPypnA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyYmNVHeSACP1s/HigMtbDnylbaEV6AvAaLen+oMTNFLDuXqTYE
+	luLaK/3oCD5vngJupYU/l9+H0C8biGByR2zbYfUJNefOrEKL3FumCMy50vf2BlHCumRLQ2Vv2AT
+	GQl6Yjkxc1bzjP+aWy5SeRvbKZgSv90wtJvMaMuVrd7DTiCSLTa8uCW1JoDZi2gtRTkmr
+X-Gm-Gg: ASbGnctNb1ogD2+zmYipRubpaJQG+uLEg0vNbYcKSN4wkbrP5FCxH0fpeC8rNxYFtLO
+	jBYhDMP9EV+naHAL7utrJYLlJ3/9Vujken6f0FMujKYSeHlKr7VK7N0WcnpBRgmHLO9WAjcmvdJ
+	uhmB2Nj9nHeMI/klmajbQzNQgFRUeDbUn4ANpMdYQ27sxxYOGaxpJb4vcxqKMSUBqPi7yEyGkhY
+	B0UYSyg0wqtdEbWtiMECyTNmP6XKIiHqs575pIWh6/eouN2+48bDNOr1gyOkyLa9wABgxQtvvb8
+	0TRL6GLY3GR9KPaCpVh1cFmyFhTD
+X-Received: by 2002:a05:620a:2b8a:b0:7d4:61a4:dea with SMTP id af79cd13be357-7d466d304bfmr486922485a.7.1751373743358;
+        Tue, 01 Jul 2025 05:42:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGvA9cqKiGyYmMspm7UQcXD+JNKsXtSkygKVN8QiyRw0x71aIOnzq9VTSOJAu5f4SJwOywqbA==
+X-Received: by 2002:a05:620a:2b8a:b0:7d4:61a4:dea with SMTP id af79cd13be357-7d466d304bfmr486915985a.7.1751373742656;
+        Tue, 01 Jul 2025 05:42:22 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.144.202])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d44313689fsm766012285a.16.2025.07.01.05.42.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Jul 2025 05:42:22 -0700 (PDT)
+Date: Tue, 1 Jul 2025 14:42:10 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	HarshaVardhana S A <harshavardhana.sa@broadcom.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
+	Vishnu Dasa <vishnu.dasa@broadcom.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev, 
+	stable <stable@kernel.org>
+Subject: Re: [PATCH net] vsock/vmci: Clear the vmci transport packet properly
+ when initializing it
+Message-ID: <37t6cnaqt2g7dyl6lauf7tccm5yzpv3dvxbngv7f7omiah35rr@nl35itdnhuda>
+References: <20250701122254.2397440-1-gregkh@linuxfoundation.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 19/29] mm: stop storing migration_ops in page->mapping
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
- Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
- Ying Huang <ying.huang@linux.alibaba.com>,
- Alistair Popple <apopple@nvidia.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
- <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Minchan Kim <minchan@kernel.org>,
- Sergey Senozhatsky <senozhatsky@chromium.org>,
- Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
- Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>,
- Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin
- <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
- Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
- Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
- Shakeel Butt <shakeel.butt@linux.dev>
-References: <20250630130011.330477-1-david@redhat.com>
- <20250630130011.330477-20-david@redhat.com>
- <cf92e5be-d9ef-4998-8cfe-023221bb9d5f@lucifer.local>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <cf92e5be-d9ef-4998-8cfe-023221bb9d5f@lucifer.local>
+In-Reply-To: <20250701122254.2397440-1-gregkh@linuxfoundation.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: qDcCbygxBaMbF57UiPFwsSXGsjVB_EStUTC5AXR6PdY_1751373668
+X-Mimecast-MFC-PROC-ID: LsyCHJ64Ab8n-R6dDN-fHTVkI2sJsteMouxm7NzWyks_1751373743
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 01.07.25 14:12, Lorenzo Stoakes wrote:
-> On Mon, Jun 30, 2025 at 03:00:00PM +0200, David Hildenbrand wrote:
->> ... instead, look them up statically based on the page type. Maybe in the
->> future we want a registration interface? At least for now, it can be
->> easily handled using the two page types that actually support page
->> migration.
->>
->> The remaining usage of page->mapping is to flag such pages as actually
->> being movable (having movable_ops), which we will change next.
->>
->> Reviewed-by: Zi Yan <ziy@nvidia.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
-> 
-> See comment below, this feels iffy in the long run but ok as an interim measure.
-> 
-> So:
-> 
-> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> 
->> ---
->>   include/linux/balloon_compaction.h |  2 +-
->>   include/linux/migrate.h            | 14 ++------------
->>   include/linux/zsmalloc.h           |  2 ++
->>   mm/balloon_compaction.c            |  1 -
->>   mm/compaction.c                    |  5 ++---
->>   mm/migrate.c                       | 23 +++++++++++++++++++++++
->>   mm/zpdesc.h                        |  5 ++---
->>   mm/zsmalloc.c                      |  8 +++-----
->>   8 files changed, 35 insertions(+), 25 deletions(-)
->>
->> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
->> index 9bce8e9f5018c..a8a1706cc56f3 100644
->> --- a/include/linux/balloon_compaction.h
->> +++ b/include/linux/balloon_compaction.h
->> @@ -92,7 +92,7 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
->>   				       struct page *page)
->>   {
->>   	__SetPageOffline(page);
->> -	__SetPageMovable(page, &balloon_mops);
->> +	__SetPageMovable(page);
->>   	set_page_private(page, (unsigned long)balloon);
->>   	list_add(&page->lru, &balloon->pages);
->>   }
->> diff --git a/include/linux/migrate.h b/include/linux/migrate.h
->> index e04035f70e36f..6aece3f3c8be8 100644
->> --- a/include/linux/migrate.h
->> +++ b/include/linux/migrate.h
->> @@ -104,23 +104,13 @@ static inline int migrate_huge_page_move_mapping(struct address_space *mapping,
->>   #endif /* CONFIG_MIGRATION */
->>
->>   #ifdef CONFIG_COMPACTION
->> -void __SetPageMovable(struct page *page, const struct movable_operations *ops);
->> +void __SetPageMovable(struct page *page);
->>   #else
->> -static inline void __SetPageMovable(struct page *page,
->> -		const struct movable_operations *ops)
->> +static inline void __SetPageMovable(struct page *page)
->>   {
->>   }
->>   #endif
->>
->> -static inline
->> -const struct movable_operations *page_movable_ops(struct page *page)
->> -{
->> -	VM_WARN_ON_ONCE_PAGE(!page_has_movable_ops(page), page);
->> -
->> -	return (const struct movable_operations *)
->> -		((unsigned long)page->mapping - PAGE_MAPPING_MOVABLE);
->> -}
->> -
->>   #ifdef CONFIG_NUMA_BALANCING
->>   int migrate_misplaced_folio_prepare(struct folio *folio,
->>   		struct vm_area_struct *vma, int node);
->> diff --git a/include/linux/zsmalloc.h b/include/linux/zsmalloc.h
->> index 13e9cc5490f71..f3ccff2d966cd 100644
->> --- a/include/linux/zsmalloc.h
->> +++ b/include/linux/zsmalloc.h
->> @@ -46,4 +46,6 @@ void zs_obj_read_end(struct zs_pool *pool, unsigned long handle,
->>   void zs_obj_write(struct zs_pool *pool, unsigned long handle,
->>   		  void *handle_mem, size_t mem_len);
->>
->> +extern const struct movable_operations zsmalloc_mops;
->> +
->>   #endif
->> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
->> index e4f1a122d786b..2a4a649805c11 100644
->> --- a/mm/balloon_compaction.c
->> +++ b/mm/balloon_compaction.c
->> @@ -253,6 +253,5 @@ const struct movable_operations balloon_mops = {
->>   	.isolate_page = balloon_page_isolate,
->>   	.putback_page = balloon_page_putback,
->>   };
->> -EXPORT_SYMBOL_GPL(balloon_mops);
->>
->>   #endif /* CONFIG_BALLOON_COMPACTION */
->> diff --git a/mm/compaction.c b/mm/compaction.c
->> index 41fd6a1fe9a33..348eb754cb227 100644
->> --- a/mm/compaction.c
->> +++ b/mm/compaction.c
->> @@ -114,11 +114,10 @@ static unsigned long release_free_list(struct list_head *freepages)
->>   }
->>
->>   #ifdef CONFIG_COMPACTION
->> -void __SetPageMovable(struct page *page, const struct movable_operations *mops)
->> +void __SetPageMovable(struct page *page)
->>   {
->>   	VM_BUG_ON_PAGE(!PageLocked(page), page);
->> -	VM_BUG_ON_PAGE((unsigned long)mops & PAGE_MAPPING_MOVABLE, page);
->> -	page->mapping = (void *)((unsigned long)mops | PAGE_MAPPING_MOVABLE);
->> +	page->mapping = (void *)(PAGE_MAPPING_MOVABLE);
->>   }
->>   EXPORT_SYMBOL(__SetPageMovable);
->>
->> diff --git a/mm/migrate.c b/mm/migrate.c
->> index 15d3c1031530c..c6c9998014ec8 100644
->> --- a/mm/migrate.c
->> +++ b/mm/migrate.c
->> @@ -43,6 +43,8 @@
->>   #include <linux/sched/sysctl.h>
->>   #include <linux/memory-tiers.h>
->>   #include <linux/pagewalk.h>
->> +#include <linux/balloon_compaction.h>
->> +#include <linux/zsmalloc.h>
->>
->>   #include <asm/tlbflush.h>
->>
->> @@ -51,6 +53,27 @@
->>   #include "internal.h"
->>   #include "swap.h"
->>
->> +static const struct movable_operations *page_movable_ops(struct page *page)
->> +{
->> +	VM_WARN_ON_ONCE_PAGE(!page_has_movable_ops(page), page);
->> +
->> +	/*
->> +	 * If we enable page migration for a page of a certain type by marking
->> +	 * it as movable, the page type must be sticky until the page gets freed
->> +	 * back to the buddy.
->> +	 */
-> 
-> Ah now this makes more sense...
-> 
->> +#ifdef CONFIG_BALLOON_COMPACTION
->> +	if (PageOffline(page))
->> +		/* Only balloon compaction sets PageOffline pages movable. */
->> +		return &balloon_mops;
-> 
-> So it's certain that if we try to invoke movable ops, and it's the balloon
-> compaction case, the page will be offline?
+On Tue, Jul 01, 2025 at 02:22:54PM +0200, Greg Kroah-Hartman wrote:
+>From: HarshaVardhana S A <harshavardhana.sa@broadcom.com>
+>
+>In vmci_transport_packet_init memset the vmci_transport_packet before
+>populating the fields to avoid any uninitialised data being left in the
+>structure.
 
-Yes. The page must be marked as having movable_ops by the user. The next 
-patch reworks that as well.
+Usually I would suggest inserting a Fixes tag, but if you didn't put it, 
+there's probably a reason :-)
 
-A PageOffline page without movable_ops will never end up here 
-(page_has_movable_ops() == false).
+If we are going to add it, I think it should be:
 
-> 
->> +#endif /* CONFIG_BALLOON_COMPACTION */
->> +#if defined(CONFIG_ZSMALLOC) && defined(CONFIG_COMPACTION)
->> +	if (PageZsmalloc(page))
-> 
-> And same question only for ZS malloc.
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
 
-Same thing.
+>
+>Cc: Bryan Tan <bryan-bt.tan@broadcom.com>
+>Cc: Vishnu Dasa <vishnu.dasa@broadcom.com>
+>Cc: Broadcom internal kernel review list
+>Cc: Stefano Garzarella <sgarzare@redhat.com>
+>Cc: "David S. Miller" <davem@davemloft.net>
+>Cc: Eric Dumazet <edumazet@google.com>
+>Cc: Jakub Kicinski <kuba@kernel.org>
+>Cc: Paolo Abeni <pabeni@redhat.com>
+>Cc: Simon Horman <horms@kernel.org>
+>Cc: virtualization@lists.linux.dev
+>Cc: netdev@vger.kernel.org
+>Cc: stable <stable@kernel.org>
+>Signed-off-by: HarshaVardhana S A <harshavardhana.sa@broadcom.com>
+>Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>---
+>Tweaked from original version by rewording the text and adding a blank
+>line and correctly sending it to the proper people for inclusion in net.
+>
+> net/vmw_vsock/vmci_transport.c | 4 ++--
+> 1 file changed, 2 insertions(+), 2 deletions(-)
+>
+>diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+>index b370070194fa..7eccd6708d66 100644
+>--- a/net/vmw_vsock/vmci_transport.c
+>+++ b/net/vmw_vsock/vmci_transport.c
+>@@ -119,6 +119,8 @@ vmci_transport_packet_init(struct vmci_transport_packet *pkt,
+> 			   u16 proto,
+> 			   struct vmci_handle handle)
+> {
+>+	memset(pkt, 0, sizeof(*pkt));
+>+
+> 	/* We register the stream control handler as an any cid handle so we
+> 	 * must always send from a source address of VMADDR_CID_ANY
+> 	 */
+>@@ -131,8 +133,6 @@ vmci_transport_packet_init(struct vmci_transport_packet *pkt,
+> 	pkt->type = type;
+> 	pkt->src_port = src->svm_port;
+> 	pkt->dst_port = dst->svm_port;
+>-	memset(&pkt->proto, 0, sizeof(pkt->proto));
+>-	memset(&pkt->_reserved2, 0, sizeof(pkt->_reserved2));
 
-> 
->> +		return &zsmalloc_mops;
->> +#endif /* defined(CONFIG_ZSMALLOC) && defined(CONFIG_COMPACTION) */
->> +	return NULL;
->> +}
-> 
-> This is kind of sketchy as it's baking in assumptions implicitly, so I hope we
-> can find an improved way of doing this later, even if it's about providing
-> e.g. is_ballon_movable_ops_page() and is_zsmalloc_movable_ops_page() predicates
-> that abstract this code + placing them in the relevant code so it's at least
-> obvious to people working on this stuff that this needs to be considered.
-> 
-> But ok as a means of getting away from having to have the hook object encoded.
+Should we also remove some `case`s in the following switch?
+I mean something like this:
 
-Yeah, not sure yet how to clean that up in the future. As I stated 
-somewhere, maybe we just want a registration interface to handle a 
-specific page type. But for handling the two known in-tree users, this 
-should get us going.
+diff --git a/net/vmw_vsock/vmci_transport.c 
+b/net/vmw_vsock/vmci_transport.c
+index b370070194fa..d821ddcc62d8 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -135,10 +135,6 @@ vmci_transport_packet_init(struct vmci_transport_packet *pkt,
+         memset(&pkt->_reserved2, 0, sizeof(pkt->_reserved2));
 
-Thanks!
+         switch (pkt->type) {
+-       case VMCI_TRANSPORT_PACKET_TYPE_INVALID:
+-               pkt->u.size = 0;
+-               break;
+-
+         case VMCI_TRANSPORT_PACKET_TYPE_REQUEST:
+         case VMCI_TRANSPORT_PACKET_TYPE_NEGOTIATE:
+                 pkt->u.size = size;
+@@ -149,12 +145,6 @@ vmci_transport_packet_init(struct vmci_transport_packet *pkt,
+                 pkt->u.handle = handle;
+                 break;
 
--- 
-Cheers,
+-       case VMCI_TRANSPORT_PACKET_TYPE_WROTE:
+-       case VMCI_TRANSPORT_PACKET_TYPE_READ:
+-       case VMCI_TRANSPORT_PACKET_TYPE_RST:
+-               pkt->u.size = 0;
+-               break;
+-
+         case VMCI_TRANSPORT_PACKET_TYPE_SHUTDOWN:
+                 pkt->u.mode = mode;
+                 break;
 
-David / dhildenb
+Thanks,
+Stefano
+
+>
+> 	switch (pkt->type) {
+> 	case VMCI_TRANSPORT_PACKET_TYPE_INVALID:
+>-- 
+>2.50.0
+>
 
