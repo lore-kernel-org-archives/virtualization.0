@@ -1,47 +1,47 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FDEB1CDFD5
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 01:15:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40E781D5154
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 01:15:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751332502; cv=none; b=UeuugoU4UKIiUcaMdZWcO0+w007dbN+5Vz3f+z9Kz8ElDSv7Ea+yhCRdnXxtd/riJgcd2XCU+ZjzNYYLJQhKMIZ+VrwK74uQN9vyLsq6yhoOOPURZaENZho3OkZOfdPTUqI6ognJbhgWDz6BlUaiqiz+aI+v+2qAT8uNFPY9fog=
+	t=1751332510; cv=none; b=fMI0UE0VCS/Z939dzKbURsOxVvrbB51KKP9RkQRSh7UycqnOOcaAyTh1nwjdpep1vN1ftXWs/bgs3RMAx9qv3QbVTe7gcvgykSLOZqBInrQTzKx/TTSk6ajIxpBMnHdgQIvV6HSkCUT7yvQCnQftk384RV/N6STICnGLZhahYR4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751332502; c=relaxed/simple;
-	bh=w8Q7p2/jymUTLxEN4p15BtUVOFpy1++JTaS420OfFYI=;
+	s=arc-20240116; t=1751332510; c=relaxed/simple;
+	bh=55/NSFXrWdEpV1D/v39C2nQXFEA1ZVHNlRY+nPen2Bc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mUqHHU6F4P7IaeJTI+mDCi9fBB2wWXKstyl+gj+vlEaUui0DOsKmzfJbOD24ymsrs7TGsBKWYUFRAocKgN8WN/qjoGl/hqWRrwx2ly25An6C9lj3pwCFLxVpEXvp+5IuY/4rLsh+RIdO5QKiwubPuKkqUAGBcjTHUSFuKE3gfjQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KdrV7/qb; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=ZNkPBHpmIWMcPFRcaN5dN0R0muqywors4P+d/31t879D/sljKogxJC8hO7poXMiZrfCPdoHvcti0xjxqR1v2+wAzOv+lH2vDfPSRZwbib9ctsNkMjctHMUB9lbd10xmwAozJGmiYThXwXbZURW/lQnLylv1pYOEr1geyjKexbb4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZbdUYO6L; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KdrV7/qb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZbdUYO6L"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751332499;
+	s=mimecast20190719; t=1751332507;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=kYAOcmbEwBg2VfBZu4DP5Zw8EdQwqNIx4zWCkiCTB04=;
-	b=KdrV7/qbBvuanNgc5RR0WCsS7joIGtOEv1wAnNG0evFvkCpnAUL6KHSY94zN82A8nqTKQA
-	YrGvF3khD7kIIbCYeIPJ9VLSn45yr5acYz4YKfUSzQTWhQ1GZQs2fOc1dqrNlzLFse2hCb
-	OXfZAKTiID6MwlDNoR1LxkzZjsCoj34=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+	bh=je3b8PIs0E6FvZBuxFcoFdovw4S2zeNhIppefR0E2Og=;
+	b=ZbdUYO6LYn9MAvdbQRYzQqi/N8v8abcXe2ZN+FI2zxA3zHQD4HEl9ctQXTc5ZnlKWU8n+v
+	ezrynJuCvXeqTcEQGnASsnxhcjBsRSllCSF/VxwNJzdNRkIyyJZmNcWMzyi6/JpbjXJV6O
+	Hz+4OQ/fQxuCOSs6en5U38862hkCAHE=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-382-WB4pCMVaMCaIy3CFLrfxMw-1; Mon,
- 30 Jun 2025 21:14:55 -0400
-X-MC-Unique: WB4pCMVaMCaIy3CFLrfxMw-1
-X-Mimecast-MFC-AGG-ID: WB4pCMVaMCaIy3CFLrfxMw_1751332494
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-592-58y2rdvZP9enLAN_heBbAQ-1; Mon,
+ 30 Jun 2025 21:15:01 -0400
+X-MC-Unique: 58y2rdvZP9enLAN_heBbAQ-1
+X-Mimecast-MFC-AGG-ID: 58y2rdvZP9enLAN_heBbAQ_1751332500
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3F38C18DA5CB;
-	Tue,  1 Jul 2025 01:14:54 +0000 (UTC)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 935DF19560A2;
+	Tue,  1 Jul 2025 01:15:00 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.112.134])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F04E330001B1;
-	Tue,  1 Jul 2025 01:14:48 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 866EE30001B5;
+	Tue,  1 Jul 2025 01:14:54 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com,
@@ -51,9 +51,9 @@ Cc: virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	hch@infradead.org,
 	xieyongji@bytedance.com
-Subject: [PATCH 7/9] vdpa: rename dma_dev to map_token
-Date: Tue,  1 Jul 2025 09:13:59 +0800
-Message-ID: <20250701011401.74851-8-jasowang@redhat.com>
+Subject: [PATCH 8/9] vdpa: introduce map ops
+Date: Tue,  1 Jul 2025 09:14:00 +0800
+Message-ID: <20250701011401.74851-9-jasowang@redhat.com>
 In-Reply-To: <20250701011401.74851-1-jasowang@redhat.com>
 References: <20250701011401.74851-1-jasowang@redhat.com>
 Precedence: bulk
@@ -65,235 +65,289 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Virtio core switches from DMA device to mapping token, let's do that
-as well for vDPA.
+Virtio core allows the transport to provide device or transport
+specific mapping functions. This patch adds this support to vDPA. We
+can simply do this by allowing the vDPA parent to register a
+virtio_map_ops.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vdpa/alibaba/eni_vdpa.c          |  2 +-
- drivers/vdpa/ifcvf/ifcvf_main.c          |  2 +-
- drivers/vdpa/octeon_ep/octep_vdpa_main.c |  2 +-
- drivers/vdpa/vdpa.c                      |  2 +-
+ drivers/vdpa/alibaba/eni_vdpa.c          |  3 ++-
+ drivers/vdpa/ifcvf/ifcvf_main.c          |  3 ++-
+ drivers/vdpa/octeon_ep/octep_vdpa_main.c |  4 ++--
+ drivers/vdpa/pds/vdpa_dev.c              |  3 ++-
+ drivers/vdpa/solidrun/snet_main.c        |  4 ++--
+ drivers/vdpa/vdpa.c                      |  3 +++
  drivers/vdpa/vdpa_sim/vdpa_sim.c         |  2 +-
- drivers/vdpa/vdpa_user/vduse_dev.c       |  2 +-
- drivers/vdpa/virtio_pci/vp_vdpa.c        |  2 +-
- drivers/vhost/vdpa.c                     |  4 ++--
- drivers/virtio/virtio_vdpa.c             | 12 ++++++------
- include/linux/vdpa.h                     | 12 ++++++------
- 10 files changed, 21 insertions(+), 21 deletions(-)
+ drivers/vdpa/vdpa_user/iova_domain.c     |  6 ++++++
+ drivers/vdpa/vdpa_user/iova_domain.h     |  3 +++
+ drivers/vdpa/vdpa_user/vduse_dev.c       |  3 ++-
+ drivers/vdpa/virtio_pci/vp_vdpa.c        |  3 ++-
+ drivers/vhost/vdpa.c                     |  9 ++++++++-
+ drivers/virtio/virtio_vdpa.c             |  1 +
+ include/linux/vdpa.h                     | 10 +++++++---
+ 14 files changed, 43 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/alibaba/eni_vdpa.c
-index ad7f3447fe90..34bf726dc660 100644
+index 34bf726dc660..4ddf23065087 100644
 --- a/drivers/vdpa/alibaba/eni_vdpa.c
 +++ b/drivers/vdpa/alibaba/eni_vdpa.c
-@@ -496,7 +496,7 @@ static int eni_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	pci_set_master(pdev);
- 	pci_set_drvdata(pdev, eni_vdpa);
+@@ -478,7 +478,8 @@ static int eni_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		return ret;
  
--	eni_vdpa->vdpa.dma_dev = &pdev->dev;
-+	eni_vdpa->vdpa.map_token = &pdev->dev;
- 	eni_vdpa->queues = eni_vdpa_get_num_queues(eni_vdpa);
- 
- 	eni_vdpa->vring = devm_kcalloc(&pdev->dev, eni_vdpa->queues,
+ 	eni_vdpa = vdpa_alloc_device(struct eni_vdpa, vdpa,
+-				     dev, &eni_vdpa_ops, 1, 1, NULL, false);
++				     dev, &eni_vdpa_ops, NULL,
++				     1, 1, NULL, false);
+ 	if (IS_ERR(eni_vdpa)) {
+ 		ENI_ERR(pdev, "failed to allocate vDPA structure\n");
+ 		return PTR_ERR(eni_vdpa);
 diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index ccf64d7bbfaa..64d28ec97136 100644
+index 64d28ec97136..1bc22020d0cc 100644
 --- a/drivers/vdpa/ifcvf/ifcvf_main.c
 +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -713,7 +713,7 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
- 
- 	ifcvf_mgmt_dev->adapter = adapter;
- 	adapter->pdev = pdev;
--	adapter->vdpa.dma_dev = &pdev->dev;
-+	adapter->vdpa.map_token = &pdev->dev;
- 	adapter->vdpa.mdev = mdev;
- 	adapter->vf = vf;
- 	vdpa_dev = &adapter->vdpa;
+@@ -705,7 +705,8 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 	vf = &ifcvf_mgmt_dev->vf;
+ 	pdev = vf->pdev;
+ 	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
+-				    &pdev->dev, &ifc_vdpa_ops, 1, 1, NULL, false);
++				    &pdev->dev, &ifc_vdpa_ops,
++				    NULL, 1, 1, NULL, false);
+ 	if (IS_ERR(adapter)) {
+ 		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
+ 		return PTR_ERR(adapter);
 diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-index 9b49efd24391..42a4df4613dd 100644
+index 42a4df4613dd..bb4a68b6cce5 100644
 --- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
 +++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-@@ -516,7 +516,7 @@ static int octep_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+@@ -508,8 +508,8 @@ static int octep_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 	u64 device_features;
+ 	int ret;
+ 
+-	oct_vdpa = vdpa_alloc_device(struct octep_vdpa, vdpa, &pdev->dev, &octep_vdpa_ops, 1, 1,
+-				     NULL, false);
++	oct_vdpa = vdpa_alloc_device(struct octep_vdpa, vdpa, &pdev->dev, &octep_vdpa_ops,
++				     NULL, 1, 1, NULL, false);
+ 	if (IS_ERR(oct_vdpa)) {
+ 		dev_err(&pdev->dev, "Failed to allocate vDPA structure for octep vdpa device");
+ 		return PTR_ERR(oct_vdpa);
+diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
+index 301d95e08596..d2a017697827 100644
+--- a/drivers/vdpa/pds/vdpa_dev.c
++++ b/drivers/vdpa/pds/vdpa_dev.c
+@@ -632,7 +632,8 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
  	}
  
- 	oct_vdpa->pdev = pdev;
--	oct_vdpa->vdpa.dma_dev = &pdev->dev;
-+	oct_vdpa->vdpa.map_token = &pdev->dev;
- 	oct_vdpa->vdpa.mdev = mdev;
- 	oct_vdpa->oct_hw = oct_hw;
- 	vdpa_dev = &oct_vdpa->vdpa;
+ 	pdsv = vdpa_alloc_device(struct pds_vdpa_device, vdpa_dev,
+-				 dev, &pds_vdpa_ops, 1, 1, name, false);
++				 dev, &pds_vdpa_ops, NULL,
++				 1, 1, name, false);
+ 	if (IS_ERR(pdsv)) {
+ 		dev_err(dev, "Failed to allocate vDPA structure: %pe\n", pdsv);
+ 		return PTR_ERR(pdsv);
+diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
+index 55ec51c17ab3..46f1743eb9f5 100644
+--- a/drivers/vdpa/solidrun/snet_main.c
++++ b/drivers/vdpa/solidrun/snet_main.c
+@@ -1008,8 +1008,8 @@ static int snet_vdpa_probe_vf(struct pci_dev *pdev)
+ 	}
+ 
+ 	/* Allocate vdpa device */
+-	snet = vdpa_alloc_device(struct snet, vdpa, &pdev->dev, &snet_config_ops, 1, 1, NULL,
+-				 false);
++	snet = vdpa_alloc_device(struct snet, vdpa, &pdev->dev, &snet_config_ops,
++				 NULL, 1, 1, NULL, false);
+ 	if (!snet) {
+ 		SNET_ERR(pdev, "Failed to allocate a vdpa device\n");
+ 		ret = -ENOMEM;
 diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index 8a372b51c21a..1cc4285ebd67 100644
+index 1cc4285ebd67..2715ffcda585 100644
 --- a/drivers/vdpa/vdpa.c
 +++ b/drivers/vdpa/vdpa.c
-@@ -151,7 +151,7 @@ static void vdpa_release_dev(struct device *d)
-  * Driver should use vdpa_alloc_device() wrapper macro instead of
-  * using this directly.
-  *
-- * Return: Returns an error when parent/config/dma_dev is not set or fail to get
-+ * Return: Returns an error when parent/config/map_token is not set or fail to get
-  *	   ida.
+@@ -142,6 +142,7 @@ static void vdpa_release_dev(struct device *d)
+  * initialized but before registered.
+  * @parent: the parent device
+  * @config: the bus operations that is supported by this device
++ * @map: the map opeartions that is supported by this device
+  * @ngroups: number of groups supported by this device
+  * @nas: number of address spaces supported by this device
+  * @size: size of the parent structure that contains private data
+@@ -156,6 +157,7 @@ static void vdpa_release_dev(struct device *d)
   */
  struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 					const struct vdpa_config_ops *config,
++					const struct virtio_map_ops *map,
+ 					unsigned int ngroups, unsigned int nas,
+ 					size_t size, const char *name,
+ 					bool use_va)
+@@ -187,6 +189,7 @@ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 	vdev->dev.release = vdpa_release_dev;
+ 	vdev->index = err;
+ 	vdev->config = config;
++	vdev->map = map;
+ 	vdev->features_valid = false;
+ 	vdev->use_va = use_va;
+ 	vdev->ngroups = ngroups;
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index c204fc8e471a..7c8e468f2f8c 100644
+index 7c8e468f2f8c..89a795e2a44b 100644
 --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -272,7 +272,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
- 		vringh_set_iotlb(&vdpasim->vqs[i].vring, &vdpasim->iommu[0],
- 				 &vdpasim->iommu_lock);
+@@ -215,7 +215,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
+ 	else
+ 		ops = &vdpasim_config_ops;
  
--	vdpasim->vdpa.dma_dev = dev;
-+	vdpasim->vdpa.map_token = dev;
+-	vdpa = __vdpa_alloc_device(NULL, ops,
++	vdpa = __vdpa_alloc_device(NULL, ops, NULL,
+ 				   dev_attr->ngroups, dev_attr->nas,
+ 				   dev_attr->alloc_size,
+ 				   dev_attr->name, use_va);
+diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
+index 58116f89d8da..019f3305c0ac 100644
+--- a/drivers/vdpa/vdpa_user/iova_domain.c
++++ b/drivers/vdpa/vdpa_user/iova_domain.c
+@@ -506,6 +506,12 @@ void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size_t size,
+ 	free_pages_exact(phys_to_virt(pa), size);
+ }
  
- 	return vdpasim;
++bool vduse_domain_need_sync(struct vduse_iova_domain *domain,
++			    dma_addr_t dma_addr)
++{
++	return dma_addr < domain->bounce_size;
++}
++
+ static vm_fault_t vduse_domain_mmap_fault(struct vm_fault *vmf)
+ {
+ 	struct vduse_iova_domain *domain = vmf->vma->vm_private_data;
+diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_user/iova_domain.h
+index 7f3f0928ec78..846572b95c23 100644
+--- a/drivers/vdpa/vdpa_user/iova_domain.h
++++ b/drivers/vdpa/vdpa_user/iova_domain.h
+@@ -70,6 +70,9 @@ void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size_t size,
+ 				void *vaddr, dma_addr_t dma_addr,
+ 				unsigned long attrs);
  
++bool vduse_domain_need_sync(struct vduse_iova_domain *domain,
++			    dma_addr_t dma_addr);
++
+ void vduse_domain_reset_bounce_map(struct vduse_iova_domain *domain);
+ 
+ int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
 diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 6a9a37351310..7420e90488ef 100644
+index 7420e90488ef..64bc39722007 100644
 --- a/drivers/vdpa/vdpa_user/vduse_dev.c
 +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -2022,7 +2022,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- 		return ret;
- 	}
- 	set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
--	vdev->vdpa.dma_dev = &vdev->vdpa.dev;
-+	vdev->vdpa.map_token = &vdev->vdpa.dev;
- 	vdev->vdpa.mdev = &vduse_mgmt->mgmt_dev;
+@@ -2009,7 +2009,8 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
+ 		return -EEXIST;
  
- 	return 0;
+ 	vdev = vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
+-				 &vduse_vdpa_config_ops, 1, 1, name, true);
++				 &vduse_vdpa_config_ops, NULL,
++				 1, 1, name, true);
+ 	if (IS_ERR(vdev))
+ 		return PTR_ERR(vdev);
+ 
 diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-index 8787407f75b0..6e22e95245fa 100644
+index 6e22e95245fa..395996ec4608 100644
 --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
 +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-@@ -520,7 +520,7 @@ static int vp_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+@@ -511,7 +511,8 @@ static int vp_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+ 	int ret, i;
  
- 	vp_vdpa_mgtdev->vp_vdpa = vp_vdpa;
+ 	vp_vdpa = vdpa_alloc_device(struct vp_vdpa, vdpa,
+-				    dev, &vp_vdpa_ops, 1, 1, name, false);
++				    dev, &vp_vdpa_ops, NULL,
++				    1, 1, name, false);
  
--	vp_vdpa->vdpa.dma_dev = &pdev->dev;
-+	vp_vdpa->vdpa.map_token = &pdev->dev;
- 	vp_vdpa->queues = vp_modern_get_num_queues(mdev);
- 	vp_vdpa->mdev = mdev;
- 
+ 	if (IS_ERR(vp_vdpa)) {
+ 		dev_err(dev, "vp_vdpa: Failed to allocate vDPA structure\n");
 diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 5a49b5a6d496..732ed118c138 100644
+index 732ed118c138..4932271899ea 100644
 --- a/drivers/vhost/vdpa.c
 +++ b/drivers/vhost/vdpa.c
-@@ -1320,7 +1320,7 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
+@@ -1320,13 +1320,20 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
  {
  	struct vdpa_device *vdpa = v->vdpa;
  	const struct vdpa_config_ops *ops = vdpa->config;
--	struct device *dma_dev = vdpa_get_dma_dev(vdpa);
-+	struct device *dma_dev = vdpa_get_map_token(vdpa);
+-	struct device *dma_dev = vdpa_get_map_token(vdpa);
++	const struct virtio_map_ops *map = vdpa->map;
++	struct device *dma_dev;
  	int ret;
  
  	/* Device want to do DMA by itself */
-@@ -1355,7 +1355,7 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
- static void vhost_vdpa_free_domain(struct vhost_vdpa *v)
- {
- 	struct vdpa_device *vdpa = v->vdpa;
--	struct device *dma_dev = vdpa_get_dma_dev(vdpa);
-+	struct device *dma_dev = vdpa_get_map_token(vdpa);
+ 	if (ops->set_map || ops->dma_map)
+ 		return 0;
  
- 	if (v->domain) {
- 		iommu_detach_device(v->domain, dma_dev);
++	if (map) {
++		dev_warn(&v->dev, "Can't allocate a domian, device use vendor specific mappings\n");
++		return -EINVAL;
++	}
++
++	dma_dev = vdpa_get_map_token(vdpa);
+ 	if (!device_iommu_capable(dma_dev, IOMMU_CAP_CACHE_COHERENCY)) {
+ 		dev_warn_once(&v->dev,
+ 			      "Failed to allocate domain, device is not IOMMU cache coherent capable\n");
 diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index 59b53032f1e2..cb68458cd809 100644
+index cb68458cd809..286b60ce3637 100644
 --- a/drivers/virtio/virtio_vdpa.c
 +++ b/drivers/virtio/virtio_vdpa.c
-@@ -147,7 +147,6 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- {
- 	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
- 	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
--	struct device *dma_dev;
- 	const struct vdpa_config_ops *ops = vdpa->config;
- 	struct virtio_vdpa_vq_info *info;
- 	bool (*notify)(struct virtqueue *vq) = virtio_vdpa_notify;
-@@ -159,6 +158,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 	unsigned long flags;
- 	u32 align, max_num, min_num = 1;
- 	bool may_reduce_num = true;
-+	void *map_token;
- 	int err;
- 
- 	if (!name)
-@@ -201,13 +201,13 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 	/* Create the vring */
- 	align = ops->get_vq_align(vdpa);
- 
--	if (ops->get_vq_dma_dev)
--		dma_dev = ops->get_vq_dma_dev(vdpa, index);
-+	if (ops->get_vq_map_token)
-+		map_token = ops->get_vq_map_token(vdpa, index);
- 	else
--		dma_dev = vdpa_get_dma_dev(vdpa);
-+		map_token = vdpa_get_map_token(vdpa);
- 	vq = vring_create_virtqueue_map(index, max_num, align, vdev,
- 					true, may_reduce_num, ctx,
--					notify, callback, name, dma_dev);
-+					notify, callback, name, map_token);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto error_new_virtqueue;
-@@ -497,7 +497,7 @@ static int virtio_vdpa_probe(struct vdpa_device *vdpa)
- 	if (!vd_dev)
- 		return -ENOMEM;
- 
--	vd_dev->vdev.dev.parent = vdpa_get_dma_dev(vdpa);
-+	vd_dev->vdev.dev.parent = vdpa_get_map_token(vdpa);
+@@ -500,6 +500,7 @@ static int virtio_vdpa_probe(struct vdpa_device *vdpa)
+ 	vd_dev->vdev.dev.parent = vdpa_get_map_token(vdpa);
  	vd_dev->vdev.dev.release = virtio_vdpa_release_dev;
  	vd_dev->vdev.config = &virtio_vdpa_config_ops;
++	vd_dev->vdev.map = vdpa->map;
  	vd_dev->vdpa = vdpa;
+ 	INIT_LIST_HEAD(&vd_dev->virtqueues);
+ 	spin_lock_init(&vd_dev->lock);
 diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-index 2e7a30fe6b92..352ca5609c9a 100644
+index 352ca5609c9a..cb51b7e2e569 100644
 --- a/include/linux/vdpa.h
 +++ b/include/linux/vdpa.h
-@@ -70,7 +70,7 @@ struct vdpa_mgmt_dev;
- /**
-  * struct vdpa_device - representation of a vDPA device
-  * @dev: underlying device
-- * @dma_dev: the actual device that is performing DMA
-+ * @map_token: the token passed to upper layer to be used for mappping
-  * @driver_override: driver name to force a match; do not set directly,
+@@ -75,6 +75,7 @@ struct vdpa_mgmt_dev;
   *                   because core frees it; use driver_set_override() to
   *                   set or clear it.
-@@ -87,7 +87,7 @@ struct vdpa_mgmt_dev;
-  */
- struct vdpa_device {
- 	struct device dev;
--	struct device *dma_dev;
-+	void *map_token;
+  * @config: the configuration ops for this device.
++ * @map: the map ops for this device
+  * @cf_lock: Protects get and set access to configuration layout.
+  * @index: device index
+  * @features_valid: were features initialized? for legacy guests
+@@ -90,6 +91,7 @@ struct vdpa_device {
+ 	void *map_token;
  	const char *driver_override;
  	const struct vdpa_config_ops *config;
++	const struct virtio_map_ops *map;
  	struct rw_semaphore cf_lock; /* Protects get/set config */
-@@ -352,7 +352,7 @@ struct vdpa_map_file {
-  *				@vdev: vdpa device
-  *				@asid: address space identifier
-  *				Returns integer: success (0) or error (< 0)
-- * @get_vq_dma_dev:		Get the dma device for a specific
-+ * @get_vq_map_token:		Get the map token for a specific
-  *				virtqueue (optional)
-  *				@vdev: vdpa device
-  *				@idx: virtqueue index
-@@ -436,7 +436,7 @@ struct vdpa_config_ops {
- 	int (*reset_map)(struct vdpa_device *vdev, unsigned int asid);
- 	int (*set_group_asid)(struct vdpa_device *vdev, unsigned int group,
- 			      unsigned int asid);
--	struct device *(*get_vq_dma_dev)(struct vdpa_device *vdev, u16 idx);
-+	struct device *(*get_vq_map_token)(struct vdpa_device *vdev, u16 idx);
- 	int (*bind_mm)(struct vdpa_device *vdev, struct mm_struct *mm);
- 	void (*unbind_mm)(struct vdpa_device *vdev);
+ 	unsigned int index;
+ 	bool features_valid;
+@@ -446,6 +448,7 @@ struct vdpa_config_ops {
  
-@@ -520,9 +520,9 @@ static inline void vdpa_set_drvdata(struct vdpa_device *vdev, void *data)
- 	dev_set_drvdata(&vdev->dev, data);
- }
- 
--static inline struct device *vdpa_get_dma_dev(struct vdpa_device *vdev)
-+static inline void *vdpa_get_map_token(struct vdpa_device *vdev)
- {
--	return vdev->dma_dev;
-+	return vdev->map_token;
- }
- 
- static inline int vdpa_reset(struct vdpa_device *vdev, u32 flags)
+ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 					const struct vdpa_config_ops *config,
++					const struct virtio_map_ops *map,
+ 					unsigned int ngroups, unsigned int nas,
+ 					size_t size, const char *name,
+ 					bool use_va);
+@@ -457,6 +460,7 @@ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+  * @member: the name of struct vdpa_device within the @dev_struct
+  * @parent: the parent device
+  * @config: the bus operations that is supported by this device
++ * @map: the map operations that is supported by this device
+  * @ngroups: the number of virtqueue groups supported by this device
+  * @nas: the number of address spaces
+  * @name: name of the vdpa device
+@@ -464,10 +468,10 @@ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+  *
+  * Return allocated data structure or ERR_PTR upon error
+  */
+-#define vdpa_alloc_device(dev_struct, member, parent, config, ngroups, nas, \
+-			  name, use_va) \
++#define vdpa_alloc_device(dev_struct, member, parent, config, map, \
++	                  ngroups, nas, name, use_va) \
+ 			  container_of((__vdpa_alloc_device( \
+-				       parent, config, ngroups, nas, \
++				       parent, config, map, ngroups, nas, \
+ 				       (sizeof(dev_struct) + \
+ 				       BUILD_BUG_ON_ZERO(offsetof( \
+ 				       dev_struct, member))), name, use_va)), \
 -- 
 2.34.1
 
