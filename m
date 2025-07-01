@@ -1,427 +1,933 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9225122259D
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 09:02:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751360568; cv=fail; b=th3EJ7+f9ZOTS0cXOOQlJuogB5zkUJj4VKOYRmMZoKsucSWch693H++7qTSA1zIAdvB7Z7nmyJjasls4CCuIK0UmjQaVOoN080JnQIiECbMmpE7U7l3E+IfuT4BNJXOrnD78RG323ZsWe7BySH0WDuWxiHxrJuk2rMYAzbxaWSA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751360568; c=relaxed/simple;
-	bh=oTVFu1X7YglIdBybfTvKsvDvqin1ii1ZDW/x8/TjM3s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=pNcaVMXSI5Q9oQN/ybMz7U1eJyycYmoL/7OygBlzi3asAYR16Z48pytsWQSFn4YbB/91N2lBtosb1ALfhq83Mn2Qwq2QrvKb/sf6mQ/AKHAKCDkJ+aulhTyHXR3eO5eLlvNtjUisvESLZF3WyvaDZSfsdu1Wbhl8FAfpV1THh5w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=TXav9aXE; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=aCulqfep; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 730C822618F
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 09:08:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1751360883; cv=none; b=QDJJOIhbezmDkOn6yNOu/+jyTASOqn6E4EFQ6LojC7wmT0M+RZ371306FpyE6my5ygCEbAAKFBVN84vPWrOGndRJ5u5PmSsE6eCUADD6mtndfB2mRqEL8ZrggZrzvvOQv3g16X6HUKtipcrxAos1f61wFtF2aw/8KFcJm5ZM+Ts=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1751360883; c=relaxed/simple;
+	bh=o199w96ohM3+4VdIPYszkOUZkP/EUOjqggEXz9s7gG4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=pxOQCEb6Fsrnm4ABqIUDkz4x9EhbS4JnLjtMsy0M9I1od5yG2yR8NZDMThkK63VkMDUWMcygDkPv74z1vfa6W7yaLwZpGQJH/g1zhzNHJ5Nc9QSWIqUdCmPHc1HoP9dF4/+VvOMHT4ptTpyjuOUjp85xhPjBU1m1ZRfBqoNuAi8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LxhgIsGG; arc=none smtp.client-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="TXav9aXE";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="aCulqfep"
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5611Mwdq008527;
-	Tue, 1 Jul 2025 09:01:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=corp-2025-04-25; bh=FoQ2aLYBja0Vjo39mj
-	E13MGX3mPx9DU2ghID3c9esg8=; b=TXav9aXErk7+xWPXuNjOZfKzvHCggywPYo
-	0RYMaPacPafZjFGXb/JoKdZaC9z2tTf1JdeWVMHnayxBqhQmfcfk1X76YUVKAzHz
-	9C1XtJTSExVpVu0JQo8KlUkDy8oEtgECQlSqD6A/MZMvd+6E8l4qNX67eEZvWWXf
-	gqBLffkjM7hRg5bOYmLw4DCIC/WA9PF47Tob8ORK+HbqZqzWw8rzAjEoQQwOgOnT
-	sNwblAe88Ne1X49thcECMyjw9RbCYDEGzL0JY/23R7H8r8Gy6dmTcHBo1XllEmt2
-	X2bhLaBIoM6BEIOh4QWfB79xSHnHneY/HQce5Tglczym+nhxESuA==
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 47j766cb8c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 01 Jul 2025 09:01:12 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 5617FTRu005783;
-	Tue, 1 Jul 2025 09:01:12 GMT
-Received: from nam02-sn1-obe.outbound.protection.outlook.com (mail-sn1nam02on2067.outbound.protection.outlook.com [40.107.96.67])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 47j6ugqq51-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 01 Jul 2025 09:01:12 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=r18RbbyrgBCspBHITZ4V0g+bQfVhxdpAy1NwOGV4WxMuoCxai/4c66tqFZqZYsyd38W62AQigaKGZb7YW8v7W/86EFAkTS4V+kNc2WzUz/3eS+hWQTnpIWyi6nmQc1QFYPlmHBk0IuDctf47Csd3xh40c+2Ix8KHX3iC57W2uFsXe1ZZOeUrVl5Fy81qC9bYDNK+QH9zriNbLmBexp506K8oVEneGfkKE8TgXTqEIcbY7vu/dUlFZu+jTeS/F6JHT3y5SsDVG2mxPUvyCrz6630kKe7+pNRph7EEMFdjykKwmj8w6sqkCa9653Ct/tqL0XC2PQL3Qd8c9BY48HIwbQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FoQ2aLYBja0Vjo39mjE13MGX3mPx9DU2ghID3c9esg8=;
- b=uKWg/L5RKbaQ7sAy3Vb+DMXUqMWApFFZf8YlfpuAKbpEcH+rDvCmBC+06bnDd0iBfTo6aYfV7n3jPiZ+2aIk23BebiTskX12w9XEBioatXzPPhu4VLq3BiMRo4SRAUbqRXgOWm3Gd/cGDlzTqKR+vWiqiMSDy+mtAUHbZXgpmV/50QZLmwpjeFnB1onAoXMXmQDEkWlj8/Qe3EFGZL97BWAaJJJfgYS3L/ARyKNbSlWPqhbTnUHholLrpX857Jeb8nlTfNkBGMwMmuJrZpri4LTzbqdeYw0AAVQQbVtxFwMY9fguf3xx8p1X7KWiEsrbklxajafepCpmRKgKWLwJeA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FoQ2aLYBja0Vjo39mjE13MGX3mPx9DU2ghID3c9esg8=;
- b=aCulqfepYwrCxaF7W3tsy8oixO/mxnarO5IbFMxjfPc2ATRcfpuRom7bqdtvv5+4XHFOsy8IKMOnsitsY7i/C92ZqMq0sbSkX0cTZm0NBiENAVm01PgC7N2uk6+2Ah/AbrpAFb1NALnLblJsg401Oj0MOPaF7lVcOsf70snyZJ8=
-Received: from DM4PR10MB8218.namprd10.prod.outlook.com (2603:10b6:8:1cc::16)
- by SJ0PR10MB5720.namprd10.prod.outlook.com (2603:10b6:a03:3ef::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8857.26; Tue, 1 Jul
- 2025 09:01:08 +0000
-Received: from DM4PR10MB8218.namprd10.prod.outlook.com
- ([fe80::2650:55cf:2816:5f2]) by DM4PR10MB8218.namprd10.prod.outlook.com
- ([fe80::2650:55cf:2816:5f2%6]) with mapi id 15.20.8880.027; Tue, 1 Jul 2025
- 09:01:08 +0000
-Date: Tue, 1 Jul 2025 10:01:06 +0100
-From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-        Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>,
-        Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-        Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
-        Ying Huang <ying.huang@linux.alibaba.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Brendan Jackman <jackmanb@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>,
-        Xu Xin <xu.xin16@zte.com.cn>,
-        Chengming Zhou <chengming.zhou@linux.dev>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Naoya Horiguchi <nao.horiguchi@gmail.com>,
-        Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
-        Harry Yoo <harry.yoo@oracle.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Shakeel Butt <shakeel.butt@linux.dev>
-Subject: Re: [PATCH v1 02/29] mm/balloon_compaction: convert
- balloon_page_delete() to balloon_page_finalize()
-Message-ID: <7b8a62f1-3e81-4012-8b44-219498f37152@lucifer.local>
-References: <20250630130011.330477-1-david@redhat.com>
- <20250630130011.330477-3-david@redhat.com>
- <f9cb1865-aa9d-409f-bce5-7051480c1a71@lucifer.local>
- <277e094d-b159-411f-940d-13b62493f6c5@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <277e094d-b159-411f-940d-13b62493f6c5@redhat.com>
-X-ClientProxiedBy: LO6P123CA0041.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:2fe::12) To DM4PR10MB8218.namprd10.prod.outlook.com
- (2603:10b6:8:1cc::16)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LxhgIsGG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1751360881; x=1782896881;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=o199w96ohM3+4VdIPYszkOUZkP/EUOjqggEXz9s7gG4=;
+  b=LxhgIsGGtLHimeLhYBqowPNWKMDjuXJSnKd+qtMcFo7Z2Y504qgcmuoF
+   9qbyTkurEDoZLVhfRvyNKNCVXk19gXAe3EnzXQ4U0ZIYfXSKDLCstuhzu
+   F8kxrMAe11oWCg4TPswzBQTBRigEluQ/f2/IcVJqpB+HdRxk1PemwXzOH
+   bz5835k3uoEzIgnBvUzx6Qp0yBIdK5ZGoibjy17YTr4oZuMBgvQE+4BJb
+   6EVWdIyP7SdF0Q2CaEIdH6BsEhPwvmKJOtMTahTxmuG5PDITyuSEKKEJr
+   Y2JqoD7IF8gbEbToUXDDIQk+TfzgVfFhb4DeCdW3RnurTYlNs505TOzmf
+   A==;
+X-CSE-ConnectionGUID: o+TZmk78ThmFjxYbst8FUA==
+X-CSE-MsgGUID: y8/hYirpRNWK2P8Wwbzn4Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11480"; a="64218350"
+X-IronPort-AV: E=Sophos;i="6.16,279,1744095600"; 
+   d="scan'208";a="64218350"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2025 02:07:59 -0700
+X-CSE-ConnectionGUID: F1Mthv0KQyuMBfwFRNDXFA==
+X-CSE-MsgGUID: B+uIT/9US/myF2kG2vmHRQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.16,279,1744095600"; 
+   d="scan'208";a="159426908"
+Received: from zzombora-mobl1.ger.corp.intel.com (HELO stinkbox) ([10.245.245.11])
+  by orviesa005.jf.intel.com with SMTP; 01 Jul 2025 02:07:46 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Tue, 01 Jul 2025 12:07:44 +0300
+From: Ville Syrjala <ville.syrjala@linux.intel.com>
+To: dri-devel@lists.freedesktop.org
+Cc: intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Liviu Dudau <liviu.dudau@arm.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Inki Dae <inki.dae@samsung.com>,
+	Seung-Woo Kim <sw0312.kim@samsung.com>,
+	Kyungmin Park <kyungmin.park@samsung.com>,
+	Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+	Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Rob Clark <robdclark@gmail.com>,
+	Abhinav Kumar <quic_abhinavk@quicinc.com>,
+	Dmitry Baryshkov <lumag@kernel.org>,
+	Sean Paul <sean@poorly.run>,
+	Marijn Suijten <marijn.suijten@somainline.org>,
+	Marek Vasut <marex@denx.de>,
+	Stefan Agner <stefan@agner.ch>,
+	Lyude Paul <lyude@redhat.com>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+	Dave Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+	Biju Das <biju.das.jz@bp.renesas.com>,
+	Sandy Huang <hjc@rock-chips.com>,
+	=?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>,
+	Andy Yan <andy.yan@rock-chips.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Mikko Perttunen <mperttunen@nvidia.com>,
+	Dave Stevenson <dave.stevenson@raspberrypi.com>,
+	=?UTF-8?q?Ma=C3=ADra=20Canal?= <mcanal@igalia.com>,
+	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Zack Rusin <zack.rusin@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+	amd-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	freedreno@lists.freedesktop.org,
+	nouveau@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-tegra@vger.kernel.org,
+	Laurent Pinchart <la
+Subject: [PATCH v2 04/19] drm: Pass the format info to .fb_create()
+Date: Tue,  1 Jul 2025 12:07:07 +0300
+Message-ID: <20250701090722.13645-5-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250701090722.13645-1-ville.syrjala@linux.intel.com>
+References: <20250701090722.13645-1-ville.syrjala@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM4PR10MB8218:EE_|SJ0PR10MB5720:EE_
-X-MS-Office365-Filtering-Correlation-Id: d2bc15be-f13e-4e6a-aaa6-08ddb87dd15f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|1800799024|366016|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?q8Ctwm8I4BYMenW82DT2zu9oHrvvFJYrsEjRPhTQU7TnXj/eIYfdXP4kULBr?=
- =?us-ascii?Q?bH6HrnOZzhatN4k9enjSnqUUyUmyM0+tuhbHuBrotZ8nx/MKCeAOLYWrPyEz?=
- =?us-ascii?Q?Mwm7zKQ4ZCR1Fj21Dax4m7uhES2+VyGT4P6ECuKq9fs0rgASoK2AnWH8R/Hz?=
- =?us-ascii?Q?imYfsjVzDGPpyLm/dEvUxcq5GzIXYMsjeRO3+jNNfcuqQINOS/KdRh8TaVr5?=
- =?us-ascii?Q?dF6KygEec/kpGQJ1QyGIvzLb8A3qeTAUHH8/9bSs3U9CL+iN9c64lWeuxvyE?=
- =?us-ascii?Q?t6NvKPw2fe+1F5ln8wnyYE9A7epOwqX4Ll36m0CqoCT9RB5Vp7+bymvsmCHB?=
- =?us-ascii?Q?0SKznxiwP8F/EqFUzdMbraKqTTA2qmZGeC38QQFhN1rBtabqUNvAaDRfhChd?=
- =?us-ascii?Q?dONzQHL1vTmbAHUDgCqTNu7qZubppmDf11DplGW8koHs/T7DW+uwqJbGEqNC?=
- =?us-ascii?Q?kCg0LvwykFgkWVEWHtH9A7cGQWavqRQ5pJ+7JbUk59joKQJl0YHZzSGZ8LbA?=
- =?us-ascii?Q?+rJfYfO1KnGCUkfQG2gHWH57zsIezzqjb/Lh0UwrL7Q7bhOPculP1/iZMHaT?=
- =?us-ascii?Q?h+nwmJPR8ZlB+m5+/0vsjazKVqFOwt9NVFEsbXuOcPW6JQT2CCZi21J/yAh1?=
- =?us-ascii?Q?xeKcn/Ve7Rs5pV1lRzb5pMy40bhie0uRNnaAnWt7D1suKmdCdMKzjMUoYyZv?=
- =?us-ascii?Q?t4pPqBjQyLTNB4jRUG22rly7csUG0b/QzW2RMfkDKKbONDzxAM+dJGVQemI/?=
- =?us-ascii?Q?2M80IuvnCta3dYMhWUSotAn8LmUyvS8X8T32gnsLLleg2TsuIszoVz2AuoKM?=
- =?us-ascii?Q?CfoKeDMNGzR0PiHKsAE3LKO/FnYaREnL8WFKw9taNFj+wcS+4gm2xrymy+Vt?=
- =?us-ascii?Q?FqGueGlQ/ei3v0isDf5Bf5rJUtk/nt6cjb33x2DdKy+qOzJVCxiCZH179UFf?=
- =?us-ascii?Q?qECVFKokAKsHj1C1gVscMokD++NV+1pjgnmTURlZQkAVOE/uNBoVF/XWmMzF?=
- =?us-ascii?Q?sAfo1zvOQZTMWaQ16/iF6vRWh1T3YgxgvTmoUigiO7KE08fJu7t2peKLlxcr?=
- =?us-ascii?Q?h2zPEBCGtq6RelsXQWUAKrhGjm7Qy1rDkcfqFt7pL4LrckZ2pNlkV5n0WFE2?=
- =?us-ascii?Q?WcLpzugC/KeMtg5VAW0BKK4ig+lmd60EHiScAaEutT4Tt08ydNGN1BBF2QIl?=
- =?us-ascii?Q?qpMUmhyXsyfwm2Ix9D6jNqV9mGIgKDQNVU0aWwqxifEbGL1FdZiyLaQnGasL?=
- =?us-ascii?Q?JeZ5n9Q45UAc29GCqpMrmA1s+uh/LAK7YD+AnxM1EAaLre8/JgUsTMucqTWi?=
- =?us-ascii?Q?y4DBE9JRgq9F34coMc1h+J6hgHgoLJNP+KLZKMlD9dgjMZ3WWrNj69p0Acbq?=
- =?us-ascii?Q?4xM8jSidJqtuy1d79B3nXRlR0glR7DB6Vn7zoER8Xf5eL/tR6oxDEOGv2i7B?=
- =?us-ascii?Q?Etwd7UqyoHc=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR10MB8218.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?VG5lg0ayNHGOqpHfdfrkhAmte7sNxVGWHqrX6dm5nJu6SpmtYrvRB8aYkO4P?=
- =?us-ascii?Q?Z1Nzeev13Tw8gB9Xtfrgztc3mB8jCx56t93GtqT+gt9BJzXIOpLBtPyUxjZP?=
- =?us-ascii?Q?KpW6JDi+OAUtLd0APki/egE7grsYKVDyRiJHrv3VMZ6ll+wbtU3xB/adCU1p?=
- =?us-ascii?Q?wDhuknZZ+QIFgBUxKAEW20mL55Y1gRX1QSUj765tR2P2lU3O9N5xpPOpYcwZ?=
- =?us-ascii?Q?jjgORzgQwWqMlLz1LTRx5Vwon8RsT8bzybYfIWgei8KV7+DmBlL7g9Zt39NS?=
- =?us-ascii?Q?BttnMWZcVLVg3lSUrPLKpOm+1d4lJp+BimqBFvwvZ4EWvUiwzogUS0g8nIwo?=
- =?us-ascii?Q?4bl8mqmxhcKqg0+PAY+OW9tTqAu4yJcu6DjvbIuevJsCw7PTWXnaMrJVJr6o?=
- =?us-ascii?Q?4OBz1+wHU+1/nHJkKzDdpqHZN6rXMEpsoC2IThIKotVM7/1JdXfcVHPQwMnX?=
- =?us-ascii?Q?T82BoOFggd+tgefjv0Q2TWdOj/nGg0tSmEo3B3WHEKA/VjlkH/kgeGemzojU?=
- =?us-ascii?Q?2bvKUM3ajAt9R/6Vxrvv02HJEUhVBiZ/51Rurn3wzGo+la06HxyX9qtDRGo2?=
- =?us-ascii?Q?oE75wcmr08MdydILkOc3nYkHYUjRRWHM/ln8etpXPYX6BFYC/Wl2fKoB5BC1?=
- =?us-ascii?Q?KHyskaNwRnSHi9a4kM4s/hcGON4JawF6TzsQSavhBh+rDnIvZI0n1e4poHGY?=
- =?us-ascii?Q?uTfAMK1aS1yeWinIfNYAJ5QRFuXoSE+/PbUBMJy5igraP8QwuAjzF22FraIk?=
- =?us-ascii?Q?Dly+wsX1yKdQxuKwQhUyTqpFDAj3JRQMNUE7CVMtfYCAU2Ff20izEYixlEyz?=
- =?us-ascii?Q?HxjAZjQ/0cFMNK2JKmMlEucCvxkowORgb/fOsGMcprxr323Pl0zZfXQhJwkc?=
- =?us-ascii?Q?fQTulPTsGbkSooiy0gjEe3Wozk+kQMbLrFpW5KMFtDqlBHGS7gWs23g28dO0?=
- =?us-ascii?Q?cREC6IeVhcvfw8tk9GiDtUpxZXJqIdCTHPxHPa3iTupIq13dKew4UG3J5GDd?=
- =?us-ascii?Q?uSyxWjBPd7yooHl5Yw0WKzTtvz/uwHt2ddpuJO8beOfV1UGB8NaupY3qv/8F?=
- =?us-ascii?Q?37hOmzCeaklkBzxadX40VNN8R0PnIb8wS54lnvcQHXiho1oKe8EGfTfjCK80?=
- =?us-ascii?Q?NaQ98p62E37962mx3JKMiRTn3AWGPLSPFka/8jXFnG2mDod82pPKkiqhJM56?=
- =?us-ascii?Q?L2eILej7+T59XHK8CTuJdJS6Wn9YhbrJPNdTpv+oGHr14h4Nr2RY3DJH7TMi?=
- =?us-ascii?Q?rRhmU7Im4ArNmrls7J1QD9jV06PNMmOMqXGChz5xt6m1UDizWGflGGRmSVBF?=
- =?us-ascii?Q?Mo2Mnui6dnMP5Le0nQL3VN+HTuyLaXWMDHQu/UJbiCOJAZ+Wvldx8V9jwfFx?=
- =?us-ascii?Q?wPV58Fg5myg1vi304fDcz7bw3xh007LaYCpkdBWsBhnZWit2p8aZ4zC+K8Ui?=
- =?us-ascii?Q?BXrUl/+KHMYcEtLFc60sbeTudv62TveWjiH33s0yyoXH/erO7Uf/p4nVx7vH?=
- =?us-ascii?Q?P0mGKvBO9n//OeH5WZELCv+LhzG0y7OJkxcM0C0+VxouERpxOf5BoUb0c2Tk?=
- =?us-ascii?Q?KtS80YP95YpZhUwSJLjjD0xaS7ilUBybXVmCvn1owjxiymDWV5UlwD6phqEY?=
- =?us-ascii?Q?Kw=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	uUk3QQJfXTZUjCNaL2U3WMvrwfYvMb5X6+Sukq9vjKYI91gx5XMIHR7E4o4ltJyZvXZ0gnqxHTdKciv5jvCWreDmVYfEf0n4Qofmzzomjqy3fEqdktWloozIuF2KJ8r2doTVNt0AscdZoEDxvKB93vJlBi3ii453yHhaWKOdWTahrNc/htLL+ZYtGXwCucxTn6O2+IBS9/lupwMRDgIrWZfliZAJoxhWGx3n7GpWXLgd21VgCzCa6URfwhG7zgNMO3rAqvsNIESshBUhsm33rdJf6SBKf7Rhbh9FhxuztsDoz8XrqnoMSZ9fvb/77Qb6NUt0Ry4bMRw2rC7Q7wUTtCSEl5Kf1YfBSHa+czDlXDu5AFVOS3+Bjk7DEIssPF+zO6hF4Ny3V3344P0Gw0DfOseP83G5ztNLKamef/1Ds81IY/VNqqN3vEfunmfTe/6eR6KglM5vFCnNvODsfcWalqpywiWLpulIMQw0frdK/FiupvZoPi1Lpuv7dT4inYrjEvSn6HWiK/eNmisf4D7SxghmYIrlnj1zEVsFIIKj/oLHhclf8EJnanxWzVIA94Hn5VrSj9MevOz6akoGSJNN6ngFKrWvJ6JVvVYK4/Jo9t0=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d2bc15be-f13e-4e6a-aaa6-08ddb87dd15f
-X-MS-Exchange-CrossTenant-AuthSource: DM4PR10MB8218.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Jul 2025 09:01:08.0396
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 9jNvYeKK0fd0y24wQRCpUxtUMMs3rqnf4qOOgJn3ypQ9OWpyHUo7AWb0pHOeEZ7wENIr3e2qZXaJ360aW2PlT+PozKkbhpvE0AypnNmiF1s=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB5720
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-07-01_01,2025-06-27_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 adultscore=0
- bulkscore=0 malwarescore=0 spamscore=0 phishscore=0 suspectscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2505160000 definitions=main-2507010052
-X-Proofpoint-GUID: w_j8vXpVEzlj7oQZmXuMmq4WS_4h93mg
-X-Proofpoint-ORIG-GUID: w_j8vXpVEzlj7oQZmXuMmq4WS_4h93mg
-X-Authority-Analysis: v=2.4 cv=b82y4sGx c=1 sm=1 tr=0 ts=6863a3d8 b=1 cx=c_pps a=zPCbziy225d3KhSqZt3L1A==:117 a=zPCbziy225d3KhSqZt3L1A==:17 a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19
- a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10 a=Wb1JkmetP80A:10 a=GoEa3M9JfhUA:10 a=20KFwNOVAAAA:8 a=yPCof4ZbAAAA:8 a=yyffBvel1Gi8w3360QYA:9 a=CjuIK1q_8ugA:10 cc=ntf awl=host:13215
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzAxMDA1MyBTYWx0ZWRfXxgISnpAIuZhz 96sFVz5WHOwPbdYcEl0XMHd3/1/mXTFd9DbfUPnEHS6wzmilrGtmyewCPV7yIqXJOGiDKtJSsm0 4jbcm0Jb15R3IuJ9usG/xNof1uxpA3SdQOnxWYS+dJam+XQlCtP7TLwlzcPpEDzMnfF0Lrt22N1
- bTXr5DNKWcAGCXfABK5F5me0PjDpDqYHptt8TmYJlHFh2LzNtSC0L5276DKb1Cex7rvamGsLXw+ 1HJN6JV3w/9owawlCDlXgp60hyg4ggowUcLO2jBm/Vl2BcGxZcKkUmUdOHWdmLZR133bv/t/KdW 5Wax4+6MWie8U7Ulw3gGO3ej+FX75LtIBPp7R5T5naW/3I3OdSuRWV9ksKTfVU2Pl/HY2BE7n1s
- fNQuRMd51J/v2qTgjFY3KD0T5wN362mwvqGV9dgnldJyzickur9Ykc+TIFr87nPSWU5VSvfM
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 01, 2025 at 09:58:09AM +0200, David Hildenbrand wrote:
-> On 30.06.25 17:15, Lorenzo Stoakes wrote:
-> > On Mon, Jun 30, 2025 at 02:59:43PM +0200, David Hildenbrand wrote:
-> > > Let's move the removal of the page from the balloon list into the single
-> > > caller, to remove the dependency on the PG_isolated flag and clarify
-> > > locking requirements.
-> > >
-> > > We'll shuffle the operations a bit such that they logically make more sense
-> > > (e.g., remove from the list before clearing flags).
-> > >
-> > > In balloon migration functions we can now move the balloon_page_finalize()
-> > > out of the balloon lock and perform the finalization just before dropping
-> > > the balloon reference.
-> > >
-> > > Document that the page lock is currently required when modifying the
-> > > movability aspects of a page; hopefully we can soon decouple this from the
-> > > page lock.
-> > >
-> > > Signed-off-by: David Hildenbrand <david@redhat.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Based on below this LGTM, so:
+Pass along the format information from the top to .fb_create()
+so that we can avoid redundant (and somewhat expensive) lookups
+in the drivers.
 
-Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Done with cocci (with some manual fixups):
+@@
+identifier func =~ ".*create.*";
+identifier dev, file, mode_cmd;
+@@
+struct drm_framebuffer *func(
+       struct drm_device *dev,
+       struct drm_file *file,
++      const struct drm_format_info *info,
+       const struct drm_mode_fb_cmd2 *mode_cmd)
+{
+...
+(
+- const struct drm_format_info *info = drm_get_format_info(...);
+|
+- const struct drm_format_info *info;
+...
+- info = drm_get_format_info(...);
+)
+<...
+- if (!info)
+-    return ...;
+...>
+}
 
-> > > ---
-> > >   arch/powerpc/platforms/pseries/cmm.c |  2 +-
-> > >   drivers/misc/vmw_balloon.c           |  3 +-
-> > >   drivers/virtio/virtio_balloon.c      |  4 +--
-> > >   include/linux/balloon_compaction.h   | 43 +++++++++++-----------------
-> > >   mm/balloon_compaction.c              |  3 +-
-> > >   5 files changed, 21 insertions(+), 34 deletions(-)
-> > >
-> > > diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
-> > > index 5f4037c1d7fe8..5e0a718d1be7b 100644
-> > > --- a/arch/powerpc/platforms/pseries/cmm.c
-> > > +++ b/arch/powerpc/platforms/pseries/cmm.c
-> > > @@ -532,7 +532,6 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
-> > >
-> > >   	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-> > >   	balloon_page_insert(b_dev_info, newpage);
-> > > -	balloon_page_delete(page);
-> >
->
-> Hi Lorenzo,
->
-> as always, thanks for the detailed review!
+@@
+identifier func =~ ".*create.*";
+identifier dev, file, mode_cmd;
+@@
+struct drm_framebuffer *func(
+       struct drm_device *dev,
+       struct drm_file *file,
++      const struct drm_format_info *info,
+       const struct drm_mode_fb_cmd2 *mode_cmd)
+{
+...
+}
 
-You're welcome :>)
+@find@
+identifier fb_create_func =~ ".*create.*";
+identifier dev, file, mode_cmd;
+@@
+struct drm_framebuffer *fb_create_func(
+       struct drm_device *dev,
+       struct drm_file *file,
++      const struct drm_format_info *info,
+       const struct drm_mode_fb_cmd2 *mode_cmd);
 
->
-> > We seem to just be removing this and not replacing with finalize, is this right?
->
-> See below.
->
-> >
-> > >   	b_dev_info->isolated_pages--;
-> > >   	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
-> > >
-> > > @@ -542,6 +541,7 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
-> > >   	 */
-> > >   	plpar_page_set_active(page);
-> > >
-> > > +	balloon_page_finalize(page);
->
-> ^ here it is, next to the put_page() just like for the other cases.
+@@
+identifier find.fb_create_func;
+expression dev, file, mode_cmd;
+@@
+fb_create_func(dev, file
++	       ,info
+	       ,mode_cmd)
 
-OK so it's just moved to a different place for consistency.
+@@
+expression dev, file, mode_cmd;
+@@
+drm_gem_fb_create(dev, file
++	       ,info
+	       ,mode_cmd)
 
->
-> Or did you mean something else?
+@@
+expression dev, file, mode_cmd;
+@@
+drm_gem_fb_create_with_dirty(dev, file
++	       ,info
+	       ,mode_cmd)
 
-No this is what I meant :)
+@@
+expression dev, file_priv, mode_cmd;
+identifier info, fb;
+@@
+info = drm_get_format_info(...);
+...
+fb = dev->mode_config.funcs->fb_create(dev, file_priv
++                                      ,info
+                                       ,mode_cmd);
 
->
-> > >   	/* balloon page list reference */
-> > >   	put_page(page);
-> > >
-> > > diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
-> > > index c817d8c216413..6653fc53c951c 100644
-> > > --- a/drivers/misc/vmw_balloon.c
-> > > +++ b/drivers/misc/vmw_balloon.c
-> > > @@ -1778,8 +1778,7 @@ static int vmballoon_migratepage(struct balloon_dev_info *b_dev_info,
-> > >   	 * @pages_lock . We keep holding @comm_lock since we will need it in a
-> > >   	 * second.
-> > >   	 */
-> > > -	balloon_page_delete(page);
-> > > -
-> > > +	balloon_page_finalize(page);
-> > >   	put_page(page);
-> > >
->
->
-> [...]
->
-> > > -/*
-> > > - * balloon_page_delete - delete a page from balloon's page list and clear
-> > > - *			 the page->private assignement accordingly.
-> > > - * @page    : page to be released from balloon's page list
-> > > - *
-> > > - * Caller must ensure the page is locked and the spin_lock protecting balloon
-> > > - * pages list is held before deleting a page from the balloon device.
-> > > - */
-> > > -static inline void balloon_page_delete(struct page *page)
-> > > -{
-> > > -	__ClearPageOffline(page);
-> > > -	__ClearPageMovable(page);
-> > > -	set_page_private(page, 0);
-> > > -	/*
-> > > -	 * No touch page.lru field once @page has been isolated
-> > > -	 * because VM is using the field.
-> > > -	 */
-> > > -	if (!PageIsolated(page))
-> > > -		list_del(&page->lru);
-> >
-> > I don't see this check elsewhere, is it because, as per the 1/xx of this series,
-> > because by the time we do the finalize
->
-> balloon_page_delete() was used on two paths
->
-> 1) Removing a page from the balloon for deflation through
-> balloon_page_list_dequeue()
->
-> 2) Removing an isolated page from the balloon for migration in the
-> per-driver migration handlers. Isolated pages were already removed from the
-> balloon list during ... isolation.
->
-> With this change, 1) does the list_del(&page->lru) manually and 2) only
-> calls balloon_page_finalize().
->
-> During 1) the same reasoning as in 1/xx applies: isolated pages cannot be in
-> the balloon list.
+@@
+identifier dev, file_priv, mode_cmd;
+@@
+struct drm_mode_config_funcs {
+...
+struct drm_framebuffer *(*fb_create)(struct drm_device *dev,
+                                     struct drm_file *file_priv,
++                                     const struct drm_format_info *info,
+                                     const struct drm_mode_fb_cmd2 *mode_cmd);
+...
+};
 
-Right yeah this is what I thought, thanks!
+v2: Fix kernel docs (Laurent)
+    Fix commit msg (Geert)
 
->
-> >
-> > > -}
-> > > -
-> > >   /*
-> > >    * balloon_page_device - get the b_dev_info descriptor for the balloon device
-> > >    *			 that enqueues the given page.
-> > > @@ -141,12 +120,6 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
-> > >   	list_add(&page->lru, &balloon->pages);
-> > >   }
-> > >
-> > > -static inline void balloon_page_delete(struct page *page)
-> > > -{
-> > > -	__ClearPageOffline(page);
-> > > -	list_del(&page->lru);
-> > > -}
-> > > -
-> > >   static inline gfp_t balloon_mapping_gfp_mask(void)
-> > >   {
-> > >   	return GFP_HIGHUSER;
-> > > @@ -154,6 +127,22 @@ static inline gfp_t balloon_mapping_gfp_mask(void)
-> > >
-> > >   #endif /* CONFIG_BALLOON_COMPACTION */
-> > >
-> > > +/*
-> > > + * balloon_page_finalize - prepare a balloon page that was removed from the
-> > > + *			   balloon list for release to the page allocator
-> > > + * @page: page to be released to the page allocator
-> > > + *
-> > > + * Caller must ensure that the page is locked.
-> >
-> > Can we assert this?
->
-> We could, but I'm planning on removing the page lock next (see patch
-> description), so not too keen to create more code around that.
->
-> Maybe mention that the balloon lock should not be held?
->
-> Not a limitation. It could be called with it, just not a requirement today.
->
-> I suspect that once we remove the page lock, that we might use the balloon
-> lock and rework balloon_page_migrate() to take the lock. TBD.
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Inki Dae <inki.dae@samsung.com>
+Cc: Seung-Woo Kim <sw0312.kim@samsung.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Cc: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: Rob Clark <robdclark@gmail.com>
+Cc: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Cc: Dmitry Baryshkov <lumag@kernel.org>
+Cc: Sean Paul <sean@poorly.run>
+Cc: Marijn Suijten <marijn.suijten@somainline.org>
+Cc: Marek Vasut <marex@denx.de>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Danilo Krummrich <dakr@kernel.org>
+Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Cc: Biju Das <biju.das.jz@bp.renesas.com>
+Cc: Sandy Huang <hjc@rock-chips.com>
+Cc: "Heiko Stübner" <heiko@sntech.de>
+Cc: Andy Yan <andy.yan@rock-chips.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Mikko Perttunen <mperttunen@nvidia.com>
+Cc: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Cc: "Maíra Canal" <mcanal@igalia.com>
+Cc: Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>
+Cc: Chia-I Wu <olvaffe@gmail.com>
+Cc: Zack Rusin <zack.rusin@broadcom.com>
+Cc: Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Cc: amd-gfx@lists.freedesktop.org
+Cc: linux-arm-msm@vger.kernel.org
+Cc: freedreno@lists.freedesktop.org
+Cc: nouveau@lists.freedesktop.org
+Cc: virtualization@lists.linux.dev
+Cc: spice-devel@lists.freedesktop.org
+Cc: linux-renesas-soc@vger.kernel.org
+Cc: linux-tegra@vger.kernel.org
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c            |  1 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.h            |  1 +
+ .../gpu/drm/arm/display/komeda/komeda_framebuffer.c    |  1 +
+ .../gpu/drm/arm/display/komeda/komeda_framebuffer.h    |  1 +
+ drivers/gpu/drm/arm/malidp_drv.c                       |  3 ++-
+ drivers/gpu/drm/armada/armada_fb.c                     |  6 ++----
+ drivers/gpu/drm/armada/armada_fb.h                     |  3 ++-
+ drivers/gpu/drm/drm_framebuffer.c                      |  2 +-
+ drivers/gpu/drm/drm_gem_framebuffer_helper.c           |  4 ++++
+ drivers/gpu/drm/exynos/exynos_drm_fb.c                 |  4 +---
+ drivers/gpu/drm/gma500/framebuffer.c                   |  1 +
+ drivers/gpu/drm/i915/display/intel_fb.c                |  1 +
+ drivers/gpu/drm/i915/display/intel_fb.h                |  1 +
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c              |  5 +++--
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c                 |  7 ++-----
+ drivers/gpu/drm/msm/msm_drv.h                          |  3 ++-
+ drivers/gpu/drm/msm/msm_fb.c                           |  6 ++----
+ drivers/gpu/drm/mxsfb/mxsfb_drv.c                      | 10 ++--------
+ drivers/gpu/drm/nouveau/nouveau_display.c              |  1 +
+ drivers/gpu/drm/nouveau/nouveau_display.h              |  1 +
+ drivers/gpu/drm/omapdrm/omap_fb.c                      |  6 ++----
+ drivers/gpu/drm/omapdrm/omap_fb.h                      |  3 ++-
+ drivers/gpu/drm/qxl/qxl_display.c                      |  1 +
+ drivers/gpu/drm/radeon/radeon_display.c                |  1 +
+ drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c          |  3 ++-
+ drivers/gpu/drm/renesas/rz-du/rzg2l_du_kms.c           |  3 ++-
+ drivers/gpu/drm/renesas/shmobile/shmob_drm_kms.c       |  3 ++-
+ drivers/gpu/drm/rockchip/rockchip_drm_fb.c             |  7 +------
+ drivers/gpu/drm/tegra/drm.h                            |  1 +
+ drivers/gpu/drm/tegra/fb.c                             |  4 +---
+ drivers/gpu/drm/tests/drm_framebuffer_test.c           |  1 +
+ drivers/gpu/drm/vc4/vc4_kms.c                          |  3 ++-
+ drivers/gpu/drm/virtio/virtgpu_display.c               |  1 +
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c                    |  1 +
+ drivers/gpu/drm/xen/xen_drm_front_kms.c                |  1 +
+ drivers/gpu/drm/xlnx/zynqmp_kms.c                      |  3 ++-
+ include/drm/drm_gem_framebuffer_helper.h               |  3 +++
+ include/drm/drm_mode_config.h                          |  1 +
+ 38 files changed, 59 insertions(+), 49 deletions(-)
 
-OK fair enough!
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+index 35c778426a7c..10c57ded0e3e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+@@ -1297,6 +1297,7 @@ static int amdgpu_display_framebuffer_init(struct drm_device *dev,
+ struct drm_framebuffer *
+ amdgpu_display_user_framebuffer_create(struct drm_device *dev,
+ 				       struct drm_file *file_priv,
++				       const struct drm_format_info *info,
+ 				       const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct amdgpu_framebuffer *amdgpu_fb;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.h
+index dfa0d642ac16..930c171473b4 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.h
+@@ -44,6 +44,7 @@ uint32_t amdgpu_display_supported_domains(struct amdgpu_device *adev,
+ struct drm_framebuffer *
+ amdgpu_display_user_framebuffer_create(struct drm_device *dev,
+ 				       struct drm_file *file_priv,
++				       const struct drm_format_info *info,
+ 				       const struct drm_mode_fb_cmd2 *mode_cmd);
+ const struct drm_format_info *
+ amdgpu_lookup_format_info(u32 format, uint64_t modifier);
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_framebuffer.c b/drivers/gpu/drm/arm/display/komeda/komeda_framebuffer.c
+index df5da5a44755..29b05482f713 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_framebuffer.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_framebuffer.c
+@@ -157,6 +157,7 @@ komeda_fb_none_afbc_size_check(struct komeda_dev *mdev, struct komeda_fb *kfb,
+ 
+ struct drm_framebuffer *
+ komeda_fb_create(struct drm_device *dev, struct drm_file *file,
++		 const struct drm_format_info *info,
+ 		 const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct komeda_dev *mdev = dev->dev_private;
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_framebuffer.h b/drivers/gpu/drm/arm/display/komeda/komeda_framebuffer.h
+index c61ca98a3a63..02b2b8ae482a 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_framebuffer.h
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_framebuffer.h
+@@ -37,6 +37,7 @@ struct komeda_fb {
+ 
+ struct drm_framebuffer *
+ komeda_fb_create(struct drm_device *dev, struct drm_file *file,
++		const struct drm_format_info *info,
+ 		const struct drm_mode_fb_cmd2 *mode_cmd);
+ int komeda_fb_check_src_coords(const struct komeda_fb *kfb,
+ 			       u32 src_x, u32 src_y, u32 src_w, u32 src_h);
+diff --git a/drivers/gpu/drm/arm/malidp_drv.c b/drivers/gpu/drm/arm/malidp_drv.c
+index 558e44a7e627..8b920566f2e8 100644
+--- a/drivers/gpu/drm/arm/malidp_drv.c
++++ b/drivers/gpu/drm/arm/malidp_drv.c
+@@ -377,6 +377,7 @@ malidp_verify_afbc_framebuffer(struct drm_device *dev, struct drm_file *file,
+ 
+ static struct drm_framebuffer *
+ malidp_fb_create(struct drm_device *dev, struct drm_file *file,
++		 const struct drm_format_info *info,
+ 		 const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	if (mode_cmd->modifier[0]) {
+@@ -384,7 +385,7 @@ malidp_fb_create(struct drm_device *dev, struct drm_file *file,
+ 			return ERR_PTR(-EINVAL);
+ 	}
+ 
+-	return drm_gem_fb_create(dev, file, mode_cmd);
++	return drm_gem_fb_create(dev, file, info, mode_cmd);
+ }
+ 
+ static const struct drm_mode_config_funcs malidp_mode_config_funcs = {
+diff --git a/drivers/gpu/drm/armada/armada_fb.c b/drivers/gpu/drm/armada/armada_fb.c
+index 85fc2cb50544..597720e229c2 100644
+--- a/drivers/gpu/drm/armada/armada_fb.c
++++ b/drivers/gpu/drm/armada/armada_fb.c
+@@ -84,11 +84,9 @@ struct armada_framebuffer *armada_framebuffer_create(struct drm_device *dev,
+ }
+ 
+ struct drm_framebuffer *armada_fb_create(struct drm_device *dev,
+-	struct drm_file *dfile, const struct drm_mode_fb_cmd2 *mode)
++	struct drm_file *dfile, const struct drm_format_info *info,
++	const struct drm_mode_fb_cmd2 *mode)
+ {
+-	const struct drm_format_info *info = drm_get_format_info(dev,
+-								 mode->pixel_format,
+-								 mode->modifier[0]);
+ 	struct armada_gem_object *obj;
+ 	struct armada_framebuffer *dfb;
+ 	int ret;
+diff --git a/drivers/gpu/drm/armada/armada_fb.h b/drivers/gpu/drm/armada/armada_fb.h
+index c5bc53d7e0c4..41ba76dd80d6 100644
+--- a/drivers/gpu/drm/armada/armada_fb.h
++++ b/drivers/gpu/drm/armada/armada_fb.h
+@@ -19,5 +19,6 @@ struct armada_framebuffer {
+ struct armada_framebuffer *armada_framebuffer_create(struct drm_device *,
+ 	const struct drm_mode_fb_cmd2 *, struct armada_gem_object *);
+ struct drm_framebuffer *armada_fb_create(struct drm_device *dev,
+-	struct drm_file *dfile, const struct drm_mode_fb_cmd2 *mode);
++	struct drm_file *dfile, const struct drm_format_info *info,
++	const struct drm_mode_fb_cmd2 *mode);
+ #endif
+diff --git a/drivers/gpu/drm/drm_framebuffer.c b/drivers/gpu/drm/drm_framebuffer.c
+index ae09ef6977b2..61a7213f2389 100644
+--- a/drivers/gpu/drm/drm_framebuffer.c
++++ b/drivers/gpu/drm/drm_framebuffer.c
+@@ -302,7 +302,7 @@ drm_internal_framebuffer_create(struct drm_device *dev,
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
+-	fb = dev->mode_config.funcs->fb_create(dev, file_priv, r);
++	fb = dev->mode_config.funcs->fb_create(dev, file_priv, info, r);
+ 	if (IS_ERR(fb)) {
+ 		drm_dbg_kms(dev, "could not create framebuffer\n");
+ 		return fb;
+diff --git a/drivers/gpu/drm/drm_gem_framebuffer_helper.c b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+index 62eec0fddc3e..7c0d2174dbc9 100644
+--- a/drivers/gpu/drm/drm_gem_framebuffer_helper.c
++++ b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+@@ -264,6 +264,7 @@ static const struct drm_framebuffer_funcs drm_gem_fb_funcs = {
+  *                       &drm_mode_config_funcs.fb_create callback
+  * @dev: DRM device
+  * @file: DRM file that holds the GEM handle(s) backing the framebuffer
++ * @info: pixel format information
+  * @mode_cmd: Metadata from the userspace framebuffer creation request
+  *
+  * This function creates a new framebuffer object described by
+@@ -283,6 +284,7 @@ static const struct drm_framebuffer_funcs drm_gem_fb_funcs = {
+  */
+ struct drm_framebuffer *
+ drm_gem_fb_create(struct drm_device *dev, struct drm_file *file,
++		  const struct drm_format_info *info,
+ 		  const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	return drm_gem_fb_create_with_funcs(dev, file, mode_cmd,
+@@ -301,6 +303,7 @@ static const struct drm_framebuffer_funcs drm_gem_fb_funcs_dirtyfb = {
+  *                       &drm_mode_config_funcs.fb_create callback
+  * @dev: DRM device
+  * @file: DRM file that holds the GEM handle(s) backing the framebuffer
++ * @info: pixel format information
+  * @mode_cmd: Metadata from the userspace framebuffer creation request
+  *
+  * This function creates a new framebuffer object described by
+@@ -321,6 +324,7 @@ static const struct drm_framebuffer_funcs drm_gem_fb_funcs_dirtyfb = {
+  */
+ struct drm_framebuffer *
+ drm_gem_fb_create_with_dirty(struct drm_device *dev, struct drm_file *file,
++			     const struct drm_format_info *info,
+ 			     const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	return drm_gem_fb_create_with_funcs(dev, file, mode_cmd,
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_fb.c b/drivers/gpu/drm/exynos/exynos_drm_fb.c
+index bcf7b534d1f7..9ae526825726 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_fb.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_fb.c
+@@ -94,11 +94,9 @@ exynos_drm_framebuffer_init(struct drm_device *dev,
+ 
+ static struct drm_framebuffer *
+ exynos_user_fb_create(struct drm_device *dev, struct drm_file *file_priv,
++		      const struct drm_format_info *info,
+ 		      const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+-	const struct drm_format_info *info = drm_get_format_info(dev,
+-								 mode_cmd->pixel_format,
+-								 mode_cmd->modifier[0]);
+ 	struct exynos_drm_gem *exynos_gem[MAX_FB_BUFFER];
+ 	struct drm_framebuffer *fb;
+ 	int i;
+diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
+index c82e623a2071..a4a18ec2dd56 100644
+--- a/drivers/gpu/drm/gma500/framebuffer.c
++++ b/drivers/gpu/drm/gma500/framebuffer.c
+@@ -97,6 +97,7 @@ struct drm_framebuffer *psb_framebuffer_create(struct drm_device *dev,
+  */
+ static struct drm_framebuffer *psb_user_framebuffer_create
+ 			(struct drm_device *dev, struct drm_file *filp,
++			 const struct drm_format_info *info,
+ 			 const struct drm_mode_fb_cmd2 *cmd)
+ {
+ 	struct drm_gem_object *obj;
+diff --git a/drivers/gpu/drm/i915/display/intel_fb.c b/drivers/gpu/drm/i915/display/intel_fb.c
+index 52c4901dc072..571d2720575b 100644
+--- a/drivers/gpu/drm/i915/display/intel_fb.c
++++ b/drivers/gpu/drm/i915/display/intel_fb.c
+@@ -2324,6 +2324,7 @@ int intel_framebuffer_init(struct intel_framebuffer *intel_fb,
+ struct drm_framebuffer *
+ intel_user_framebuffer_create(struct drm_device *dev,
+ 			      struct drm_file *filp,
++			      const struct drm_format_info *info,
+ 			      const struct drm_mode_fb_cmd2 *user_mode_cmd)
+ {
+ 	struct drm_framebuffer *fb;
+diff --git a/drivers/gpu/drm/i915/display/intel_fb.h b/drivers/gpu/drm/i915/display/intel_fb.h
+index 7d1267fbeee2..00181c4a67dc 100644
+--- a/drivers/gpu/drm/i915/display/intel_fb.h
++++ b/drivers/gpu/drm/i915/display/intel_fb.h
+@@ -109,6 +109,7 @@ intel_framebuffer_create(struct drm_gem_object *obj,
+ struct drm_framebuffer *
+ intel_user_framebuffer_create(struct drm_device *dev,
+ 			      struct drm_file *filp,
++			      const struct drm_format_info *info,
+ 			      const struct drm_mode_fb_cmd2 *user_mode_cmd);
+ 
+ bool intel_fb_modifier_uses_dpt(struct intel_display *display, u64 modifier);
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+index f851e9ffdb28..9db1ceaed518 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -901,14 +901,15 @@ static void ingenic_drm_disable_vblank(struct drm_crtc *crtc)
+ 
+ static struct drm_framebuffer *
+ ingenic_drm_gem_fb_create(struct drm_device *drm, struct drm_file *file,
++			  const struct drm_format_info *info,
+ 			  const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct ingenic_drm *priv = drm_device_get_priv(drm);
+ 
+ 	if (priv->soc_info->map_noncoherent)
+-		return drm_gem_fb_create_with_dirty(drm, file, mode_cmd);
++		return drm_gem_fb_create_with_dirty(drm, file, info, mode_cmd);
+ 
+-	return drm_gem_fb_create(drm, file, mode_cmd);
++	return drm_gem_fb_create(drm, file, info, mode_cmd);
+ }
+ 
+ static struct drm_gem_object *
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+index 0ebcfcbc258b..d5e6bab36414 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+@@ -43,16 +43,13 @@ static const struct drm_mode_config_helper_funcs mtk_drm_mode_config_helpers = {
+ static struct drm_framebuffer *
+ mtk_drm_mode_fb_create(struct drm_device *dev,
+ 		       struct drm_file *file,
++		       const struct drm_format_info *info,
+ 		       const struct drm_mode_fb_cmd2 *cmd)
+ {
+-	const struct drm_format_info *info = drm_get_format_info(dev,
+-								 cmd->pixel_format,
+-								 cmd->modifier[0]);
+-
+ 	if (info->num_planes != 1)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	return drm_gem_fb_create(dev, file, cmd);
++	return drm_gem_fb_create(dev, file, info, cmd);
+ }
+ 
+ static const struct drm_mode_config_funcs mtk_drm_mode_config_funcs = {
+diff --git a/drivers/gpu/drm/msm/msm_drv.h b/drivers/gpu/drm/msm/msm_drv.h
+index c8afb1ea6040..76f3841db2d7 100644
+--- a/drivers/gpu/drm/msm/msm_drv.h
++++ b/drivers/gpu/drm/msm/msm_drv.h
+@@ -294,7 +294,8 @@ uint32_t msm_framebuffer_iova(struct drm_framebuffer *fb,
+ struct drm_gem_object *msm_framebuffer_bo(struct drm_framebuffer *fb, int plane);
+ const struct msm_format *msm_framebuffer_format(struct drm_framebuffer *fb);
+ struct drm_framebuffer *msm_framebuffer_create(struct drm_device *dev,
+-		struct drm_file *file, const struct drm_mode_fb_cmd2 *mode_cmd);
++		struct drm_file *file, const struct drm_format_info *info,
++		const struct drm_mode_fb_cmd2 *mode_cmd);
+ struct drm_framebuffer * msm_alloc_stolen_fb(struct drm_device *dev,
+ 		int w, int h, int p, uint32_t format);
+ 
+diff --git a/drivers/gpu/drm/msm/msm_fb.c b/drivers/gpu/drm/msm/msm_fb.c
+index df2f85c44d55..4aef51cef3d5 100644
+--- a/drivers/gpu/drm/msm/msm_fb.c
++++ b/drivers/gpu/drm/msm/msm_fb.c
+@@ -134,11 +134,9 @@ const struct msm_format *msm_framebuffer_format(struct drm_framebuffer *fb)
+ }
+ 
+ struct drm_framebuffer *msm_framebuffer_create(struct drm_device *dev,
+-		struct drm_file *file, const struct drm_mode_fb_cmd2 *mode_cmd)
++		struct drm_file *file, const struct drm_format_info *info,
++		const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+-	const struct drm_format_info *info = drm_get_format_info(dev,
+-								 mode_cmd->pixel_format,
+-								 mode_cmd->modifier[0]);
+ 	struct drm_gem_object *bos[4] = {0};
+ 	struct drm_framebuffer *fb;
+ 	int ret, i, n = info->num_planes;
+diff --git a/drivers/gpu/drm/mxsfb/mxsfb_drv.c b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+index 09329af9b01e..0b756da2fec2 100644
+--- a/drivers/gpu/drm/mxsfb/mxsfb_drv.c
++++ b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+@@ -91,21 +91,15 @@ void mxsfb_disable_axi_clk(struct mxsfb_drm_private *mxsfb)
+ 
+ static struct drm_framebuffer *
+ mxsfb_fb_create(struct drm_device *dev, struct drm_file *file_priv,
++		const struct drm_format_info *info,
+ 		const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+-	const struct drm_format_info *info;
+-
+-	info = drm_get_format_info(dev, mode_cmd->pixel_format,
+-				   mode_cmd->modifier[0]);
+-	if (!info)
+-		return ERR_PTR(-EINVAL);
+-
+ 	if (mode_cmd->width * info->cpp[0] != mode_cmd->pitches[0]) {
+ 		dev_dbg(dev->dev, "Invalid pitch: fb width must match pitch\n");
+ 		return ERR_PTR(-EINVAL);
+ 	}
+ 
+-	return drm_gem_fb_create(dev, file_priv, mode_cmd);
++	return drm_gem_fb_create(dev, file_priv, info, mode_cmd);
+ }
+ 
+ static const struct drm_mode_config_funcs mxsfb_mode_config_funcs = {
+diff --git a/drivers/gpu/drm/nouveau/nouveau_display.c b/drivers/gpu/drm/nouveau/nouveau_display.c
+index bd9a85f4b4fc..1ddd92901526 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_display.c
++++ b/drivers/gpu/drm/nouveau/nouveau_display.c
+@@ -333,6 +333,7 @@ nouveau_framebuffer_new(struct drm_device *dev,
+ struct drm_framebuffer *
+ nouveau_user_framebuffer_create(struct drm_device *dev,
+ 				struct drm_file *file_priv,
++				const struct drm_format_info *info,
+ 				const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct drm_framebuffer *fb;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_display.h b/drivers/gpu/drm/nouveau/nouveau_display.h
+index 1f506f8b289c..e45f211501f6 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_display.h
++++ b/drivers/gpu/drm/nouveau/nouveau_display.h
+@@ -67,5 +67,6 @@ nouveau_framebuffer_get_layout(struct drm_framebuffer *fb, uint32_t *tile_mode,
+ 
+ struct drm_framebuffer *
+ nouveau_user_framebuffer_create(struct drm_device *, struct drm_file *,
++				const struct drm_format_info *,
+ 				const struct drm_mode_fb_cmd2 *);
+ #endif
+diff --git a/drivers/gpu/drm/omapdrm/omap_fb.c b/drivers/gpu/drm/omapdrm/omap_fb.c
+index e18878068c57..36afcd1c1fd7 100644
+--- a/drivers/gpu/drm/omapdrm/omap_fb.c
++++ b/drivers/gpu/drm/omapdrm/omap_fb.c
+@@ -335,11 +335,9 @@ void omap_framebuffer_describe(struct drm_framebuffer *fb, struct seq_file *m)
+ #endif
+ 
+ struct drm_framebuffer *omap_framebuffer_create(struct drm_device *dev,
+-		struct drm_file *file, const struct drm_mode_fb_cmd2 *mode_cmd)
++		struct drm_file *file, const struct drm_format_info *info,
++		const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+-	const struct drm_format_info *info = drm_get_format_info(dev,
+-								 mode_cmd->pixel_format,
+-								 mode_cmd->modifier[0]);
+ 	unsigned int num_planes = info->num_planes;
+ 	struct drm_gem_object *bos[4];
+ 	struct drm_framebuffer *fb;
+diff --git a/drivers/gpu/drm/omapdrm/omap_fb.h b/drivers/gpu/drm/omapdrm/omap_fb.h
+index b75f0b5ef1d8..0873f953cf1d 100644
+--- a/drivers/gpu/drm/omapdrm/omap_fb.h
++++ b/drivers/gpu/drm/omapdrm/omap_fb.h
+@@ -20,7 +20,8 @@ struct omap_overlay_info;
+ struct seq_file;
+ 
+ struct drm_framebuffer *omap_framebuffer_create(struct drm_device *dev,
+-		struct drm_file *file, const struct drm_mode_fb_cmd2 *mode_cmd);
++		struct drm_file *file, const struct drm_format_info *info,
++		const struct drm_mode_fb_cmd2 *mode_cmd);
+ struct drm_framebuffer *omap_framebuffer_init(struct drm_device *dev,
+ 		const struct drm_mode_fb_cmd2 *mode_cmd, struct drm_gem_object **bos);
+ int omap_framebuffer_pin(struct drm_framebuffer *fb);
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 70aff64ced87..f7bc83f2d489 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -1176,6 +1176,7 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
+ static struct drm_framebuffer *
+ qxl_user_framebuffer_create(struct drm_device *dev,
+ 			    struct drm_file *file_priv,
++			    const struct drm_format_info *info,
+ 			    const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	return drm_gem_fb_create_with_funcs(dev, file_priv, mode_cmd,
+diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
+index 8f5f8abcb1b4..85b714ac9882 100644
+--- a/drivers/gpu/drm/radeon/radeon_display.c
++++ b/drivers/gpu/drm/radeon/radeon_display.c
+@@ -1314,6 +1314,7 @@ radeon_framebuffer_init(struct drm_device *dev,
+ static struct drm_framebuffer *
+ radeon_user_framebuffer_create(struct drm_device *dev,
+ 			       struct drm_file *file_priv,
++			       const struct drm_format_info *info,
+ 			       const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct drm_gem_object *obj;
+diff --git a/drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c b/drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c
+index 4c8fe83dd610..216219accfd9 100644
+--- a/drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c
++++ b/drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c
+@@ -426,6 +426,7 @@ int rcar_du_dumb_create(struct drm_file *file, struct drm_device *dev,
+ 
+ static struct drm_framebuffer *
+ rcar_du_fb_create(struct drm_device *dev, struct drm_file *file_priv,
++		  const struct drm_format_info *info,
+ 		  const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct rcar_du_device *rcdu = to_rcar_du_device(dev);
+@@ -490,7 +491,7 @@ rcar_du_fb_create(struct drm_device *dev, struct drm_file *file_priv,
+ 		}
+ 	}
+ 
+-	return drm_gem_fb_create(dev, file_priv, mode_cmd);
++	return drm_gem_fb_create(dev, file_priv, info, mode_cmd);
+ }
+ 
+ /* -----------------------------------------------------------------------------
+diff --git a/drivers/gpu/drm/renesas/rz-du/rzg2l_du_kms.c b/drivers/gpu/drm/renesas/rz-du/rzg2l_du_kms.c
+index 55a97691e9b2..87f171145a23 100644
+--- a/drivers/gpu/drm/renesas/rz-du/rzg2l_du_kms.c
++++ b/drivers/gpu/drm/renesas/rz-du/rzg2l_du_kms.c
+@@ -191,6 +191,7 @@ int rzg2l_du_dumb_create(struct drm_file *file, struct drm_device *dev,
+ 
+ static struct drm_framebuffer *
+ rzg2l_du_fb_create(struct drm_device *dev, struct drm_file *file_priv,
++		   const struct drm_format_info *info,
+ 		   const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	const struct rzg2l_du_format_info *format;
+@@ -214,7 +215,7 @@ rzg2l_du_fb_create(struct drm_device *dev, struct drm_file *file_priv,
+ 		return ERR_PTR(-EINVAL);
+ 	}
+ 
+-	return drm_gem_fb_create(dev, file_priv, mode_cmd);
++	return drm_gem_fb_create(dev, file_priv, info, mode_cmd);
+ }
+ 
+ /* -----------------------------------------------------------------------------
+diff --git a/drivers/gpu/drm/renesas/shmobile/shmob_drm_kms.c b/drivers/gpu/drm/renesas/shmobile/shmob_drm_kms.c
+index 4202ab00fb0c..fd9460da1789 100644
+--- a/drivers/gpu/drm/renesas/shmobile/shmob_drm_kms.c
++++ b/drivers/gpu/drm/renesas/shmobile/shmob_drm_kms.c
+@@ -117,6 +117,7 @@ const struct shmob_drm_format_info *shmob_drm_format_info(u32 fourcc)
+ 
+ static struct drm_framebuffer *
+ shmob_drm_fb_create(struct drm_device *dev, struct drm_file *file_priv,
++		    const struct drm_format_info *info,
+ 		    const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	const struct shmob_drm_format_info *format;
+@@ -144,7 +145,7 @@ shmob_drm_fb_create(struct drm_device *dev, struct drm_file *file_priv,
+ 		}
+ 	}
+ 
+-	return drm_gem_fb_create(dev, file_priv, mode_cmd);
++	return drm_gem_fb_create(dev, file_priv, info, mode_cmd);
+ }
+ 
+ static const struct drm_mode_config_funcs shmob_drm_mode_config_funcs = {
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
+index 66762ca54a98..f19113e5ae8f 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
+@@ -30,17 +30,12 @@ static const struct drm_mode_config_helper_funcs rockchip_mode_config_helpers =
+ 
+ static struct drm_framebuffer *
+ rockchip_fb_create(struct drm_device *dev, struct drm_file *file,
++		   const struct drm_format_info *info,
+ 		   const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct drm_afbc_framebuffer *afbc_fb;
+-	const struct drm_format_info *info;
+ 	int ret;
+ 
+-	info = drm_get_format_info(dev, mode_cmd->pixel_format,
+-				   mode_cmd->modifier[0]);
+-	if (!info)
+-		return ERR_PTR(-ENOMEM);
+-
+ 	afbc_fb = kzalloc(sizeof(*afbc_fb), GFP_KERNEL);
+ 	if (!afbc_fb)
+ 		return ERR_PTR(-ENOMEM);
+diff --git a/drivers/gpu/drm/tegra/drm.h b/drivers/gpu/drm/tegra/drm.h
+index 0b65e69f3a8a..77e520c43f72 100644
+--- a/drivers/gpu/drm/tegra/drm.h
++++ b/drivers/gpu/drm/tegra/drm.h
+@@ -190,6 +190,7 @@ struct drm_framebuffer *tegra_fb_alloc(struct drm_device *drm,
+ 				       unsigned int num_planes);
+ struct drm_framebuffer *tegra_fb_create(struct drm_device *drm,
+ 					struct drm_file *file,
++					const struct drm_format_info *info,
+ 					const struct drm_mode_fb_cmd2 *cmd);
+ 
+ #ifdef CONFIG_DRM_FBDEV_EMULATION
+diff --git a/drivers/gpu/drm/tegra/fb.c b/drivers/gpu/drm/tegra/fb.c
+index 634c6346d947..24907573e758 100644
+--- a/drivers/gpu/drm/tegra/fb.c
++++ b/drivers/gpu/drm/tegra/fb.c
+@@ -132,11 +132,9 @@ struct drm_framebuffer *tegra_fb_alloc(struct drm_device *drm,
+ 
+ struct drm_framebuffer *tegra_fb_create(struct drm_device *drm,
+ 					struct drm_file *file,
++					const struct drm_format_info *info,
+ 					const struct drm_mode_fb_cmd2 *cmd)
+ {
+-	const struct drm_format_info *info = drm_get_format_info(drm,
+-								 cmd->pixel_format,
+-								 cmd->modifier[0]);
+ 	struct tegra_bo *planes[4];
+ 	struct drm_gem_object *gem;
+ 	struct drm_framebuffer *fb;
+diff --git a/drivers/gpu/drm/tests/drm_framebuffer_test.c b/drivers/gpu/drm/tests/drm_framebuffer_test.c
+index 6ea04cc8f324..9b8e01e8cd91 100644
+--- a/drivers/gpu/drm/tests/drm_framebuffer_test.c
++++ b/drivers/gpu/drm/tests/drm_framebuffer_test.c
+@@ -363,6 +363,7 @@ struct drm_framebuffer_test_priv {
+ 
+ static struct drm_framebuffer *fb_create_mock(struct drm_device *dev,
+ 					      struct drm_file *file_priv,
++					      const struct drm_format_info *info,
+ 					      const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct drm_framebuffer_test_priv *priv = container_of(dev, typeof(*priv), dev);
+diff --git a/drivers/gpu/drm/vc4/vc4_kms.c b/drivers/gpu/drm/vc4/vc4_kms.c
+index f5b167417428..8f983edb81ff 100644
+--- a/drivers/gpu/drm/vc4/vc4_kms.c
++++ b/drivers/gpu/drm/vc4/vc4_kms.c
+@@ -530,6 +530,7 @@ static int vc4_atomic_commit_setup(struct drm_atomic_state *state)
+ 
+ static struct drm_framebuffer *vc4_fb_create(struct drm_device *dev,
+ 					     struct drm_file *file_priv,
++					     const struct drm_format_info *info,
+ 					     const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+@@ -568,7 +569,7 @@ static struct drm_framebuffer *vc4_fb_create(struct drm_device *dev,
+ 		mode_cmd = &mode_cmd_local;
+ 	}
+ 
+-	return drm_gem_fb_create(dev, file_priv, mode_cmd);
++	return drm_gem_fb_create(dev, file_priv, info, mode_cmd);
+ }
+ 
+ /* Our CTM has some peculiar limitations: we can only enable it for one CRTC
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 59a45e74a641..f9a98fbbabd1 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -293,6 +293,7 @@ static int vgdev_output_init(struct virtio_gpu_device *vgdev, int index)
+ static struct drm_framebuffer *
+ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+ 				   struct drm_file *file_priv,
++				   const struct drm_format_info *info,
+ 				   const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct drm_gem_object *obj = NULL;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+index 05b1c54a070c..2d48a28cda9c 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+@@ -712,6 +712,7 @@ vmw_kms_new_framebuffer(struct vmw_private *dev_priv,
+ 
+ static struct drm_framebuffer *vmw_kms_fb_create(struct drm_device *dev,
+ 						 struct drm_file *file_priv,
++						 const struct drm_format_info *info,
+ 						 const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct vmw_private *dev_priv = vmw_priv(dev);
+diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+index dfa78a49a6d9..a360003bee47 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
++++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+@@ -54,6 +54,7 @@ static const struct drm_framebuffer_funcs fb_funcs = {
+ 
+ static struct drm_framebuffer *
+ fb_create(struct drm_device *dev, struct drm_file *filp,
++	  const struct drm_format_info *info,
+ 	  const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct xen_drm_front_drm_info *drm_info = dev->dev_private;
+diff --git a/drivers/gpu/drm/xlnx/zynqmp_kms.c b/drivers/gpu/drm/xlnx/zynqmp_kms.c
+index b47463473472..2bee0a2275ed 100644
+--- a/drivers/gpu/drm/xlnx/zynqmp_kms.c
++++ b/drivers/gpu/drm/xlnx/zynqmp_kms.c
+@@ -373,6 +373,7 @@ static int zynqmp_dpsub_dumb_create(struct drm_file *file_priv,
+ 
+ static struct drm_framebuffer *
+ zynqmp_dpsub_fb_create(struct drm_device *drm, struct drm_file *file_priv,
++		       const struct drm_format_info *info,
+ 		       const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
+ 	struct zynqmp_dpsub *dpsub = to_zynqmp_dpsub(drm);
+@@ -383,7 +384,7 @@ zynqmp_dpsub_fb_create(struct drm_device *drm, struct drm_file *file_priv,
+ 	for (i = 0; i < ARRAY_SIZE(cmd.pitches); ++i)
+ 		cmd.pitches[i] = ALIGN(cmd.pitches[i], dpsub->dma_align);
+ 
+-	return drm_gem_fb_create(drm, file_priv, &cmd);
++	return drm_gem_fb_create(drm, file_priv, info, &cmd);
+ }
+ 
+ static const struct drm_mode_config_funcs zynqmp_dpsub_mode_config_funcs = {
+diff --git a/include/drm/drm_gem_framebuffer_helper.h b/include/drm/drm_gem_framebuffer_helper.h
+index d302521f3dd4..4fdf9d3d1863 100644
+--- a/include/drm/drm_gem_framebuffer_helper.h
++++ b/include/drm/drm_gem_framebuffer_helper.h
+@@ -8,6 +8,7 @@ struct drm_afbc_framebuffer;
+ struct drm_device;
+ struct drm_fb_helper_surface_size;
+ struct drm_file;
++struct drm_format_info;
+ struct drm_framebuffer;
+ struct drm_framebuffer_funcs;
+ struct drm_gem_object;
+@@ -32,9 +33,11 @@ drm_gem_fb_create_with_funcs(struct drm_device *dev, struct drm_file *file,
+ 			     const struct drm_framebuffer_funcs *funcs);
+ struct drm_framebuffer *
+ drm_gem_fb_create(struct drm_device *dev, struct drm_file *file,
++		  const struct drm_format_info *info,
+ 		  const struct drm_mode_fb_cmd2 *mode_cmd);
+ struct drm_framebuffer *
+ drm_gem_fb_create_with_dirty(struct drm_device *dev, struct drm_file *file,
++			     const struct drm_format_info *info,
+ 			     const struct drm_mode_fb_cmd2 *mode_cmd);
+ 
+ int drm_gem_fb_vmap(struct drm_framebuffer *fb, struct iosys_map *map,
+diff --git a/include/drm/drm_mode_config.h b/include/drm/drm_mode_config.h
+index e971e1b8a850..2e848b816218 100644
+--- a/include/drm/drm_mode_config.h
++++ b/include/drm/drm_mode_config.h
+@@ -82,6 +82,7 @@ struct drm_mode_config_funcs {
+ 	 */
+ 	struct drm_framebuffer *(*fb_create)(struct drm_device *dev,
+ 					     struct drm_file *file_priv,
++					     const struct drm_format_info *info,
+ 					     const struct drm_mode_fb_cmd2 *mode_cmd);
+ 
+ 	/**
+-- 
+2.49.0
 
->
-> > >> + */
-> > > +static inline void balloon_page_finalize(struct page *page)
-> > > +{
-> > > +	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION)) {
-> > > +		__ClearPageMovable(page);
-> > > +		set_page_private(page, 0);
-> > > +	}
-> >
-> > Why do we check this? Is this function called from anywhere where that config won't be set?
->
-> Sure. balloon_page_list_dequeue() is called from balloon_page_dequeue(),
-> which resides outside the CONFIG_BALLOON_COMPACTION ifdef in
-> mm/balloon_compaction.c.
->
-> At some point (not in this series) we should probably rename
->
-> balloon_compaction.c -> balloon.c
->
-> To match CONFIG_MEMORY_BALLOON.
->
-> Because the compaction part is just one extra bit in there. (an important
-> one, but still, you can use the balloon infrastructure without
-> compaction/page migration)
-
-Yeah this would be nice!
