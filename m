@@ -1,99 +1,174 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11022143.outbound.protection.outlook.com [52.101.43.143])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46B501F428F;
-	Tue,  1 Jul 2025 16:45:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751388337; cv=none; b=k/jN6hw/BSQHNKX6SzfQ64/HlwpRYQVQNGCi2s1Vq3dDxOITewe3LF8kekG24nQhe9IZJGXbKRCzdyM0E1O+vYS1cjugrRlArM3jQ0scJfsvxt7SagQY+uTNNwur67XDvOYFkY5DVqkgsPHwZR78WsnIWxb9GJVpyboHo9fN6Sg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751388337; c=relaxed/simple;
-	bh=rxWh8Ki7CjYyO7eLldQromF2K92SNjwMD3JOw4J+aS8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=raL2s83e0URX9cx5aoVzIahOrHjMuKbIvqKpqEHrvGZRIgy/f7EItclu4MMmeMEj1adMUWQ6K7VkBeMxFyGpveEGt+QKHUnNzCYimP+rlG/HKzqEAPb5NOQ5HrDXSjTb8pdhzL6HdHnYBUF84dlbPBenqfqfistUCaYnNat1Tzk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eR9QmGzH; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17E9123BF96
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 18:37:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.143
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1751395026; cv=fail; b=IHsuZF5AaVVTMCmlgnZGdi4gEiMGxbNzcmSgV82RiloDdBBCjoZ0P5Eva0Jy8zrPU8vHc2GHuZvxRMFchieMg/3oIP02DOS0uTW+aEjMRlTwGJDQIlHnR2mke/iHQt91gjrjsg/ro8NSUG1oeip1bYbfUYg33TM6OVRm26qBPK4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1751395026; c=relaxed/simple;
+	bh=CtGGhMGXh3KAiKuST2Y+KaVZqHANIFQai2vDLLEvWvA=;
+	h=From:To:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=Q6tQEL+xPNG6SRrgHqqx4bfQFewaAyRd9U15QYTXKVnLA0IMLEWfTJvpf1fEpzsNYr8RiarTizl0X0LkvX9VMvsBU6UJ3a5XAwUxA35Cr3DZROc1jYBNpLG0gifwIbPD00HqDHhxMy1304+iV1HjH3wNJfU2bqlXpyIOADpSDNk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com; spf=pass smtp.mailfrom=microsoft.com; dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b=ABBoQ4B3; arc=fail smtp.client-ip=52.101.43.143
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eR9QmGzH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E886CC4CEEB;
-	Tue,  1 Jul 2025 16:45:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751388337;
-	bh=rxWh8Ki7CjYyO7eLldQromF2K92SNjwMD3JOw4J+aS8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=eR9QmGzHQTPJOUXHscZaXBiFkTMBbyTzR7G/sBld7Ic9V60jXRqf0m5M5vMZ7wnKU
-	 cGnWMNe+NAuvcs/Xk4dPNlNxSMBH3BBY6cXSO+ztptHOI/AsT9DSr4gJoHjC3wMhir
-	 2uaEB2a2bLz6mV6zgTIDZ3pw2vIIv6qKD5oQynQ3S10ZaACE8f92q/ulo0Sd06tT9k
-	 SXMkoKdYpgENjdYG+qf2++gTzhJDr5lvHbFli5S/CY4yOZvuRF5Ri2kb8EhxdW2aYu
-	 Zc+a9cnrZl0qcGQ5/FXC4PTEFttpitUVXiV/QT5tVh/P2frGhVHvT65AWOfKc3sFG2
-	 qOifKOFuNz3ng==
-From: Will Deacon <will@kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Will Deacon <will@kernel.org>,
-	Keir Fraser <keirf@google.com>,
-	Steven Moreland <smoreland@google.com>,
-	Frederick Mayle <fmayle@google.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH v2 8/8] vsock/virtio: Allocate nonlinear SKBs for handling large transmit buffers
-Date: Tue,  1 Jul 2025 17:45:07 +0100
-Message-Id: <20250701164507.14883-9-will@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250701164507.14883-1-will@kernel.org>
-References: <20250701164507.14883-1-will@kernel.org>
+	dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b="ABBoQ4B3"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=umF+JJGHkFbFZfrETG7b86jhyivXQHwrZHWsNrHoLZimi/TaLB4DQoYCDA4cnvn2SOR4vJAVsILcbu2F8YsoI3qMM+1tWtRyqB2SuNIHGYPKLydAVrpKHb/oNcRl/dZ/mHB7ipip3f9+uI1asX2XtTsqU32Mh3cbo9fQDE+PgzUz/YNG/RRASi0MT/5p3Lq+Dk3ktGgtnkFfe2IquS06wKnbmuqj8UFSHzTcWnTHT2L7/r1iIKOAYnhe3rhcwkTnrkjioAyxEIF6jOvQfDQOskY5VHA423+esrvf+FxLheRW07tSk4tlHVdpGrhsn9zsJcHsl87SJDMM0xGA0iDANA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=NxixAyFsi21344bZ3phQTbZNxHkjxkBn/tY12g6ZGyY=;
+ b=dZSdu/ui7JM5gVBjzZ1WbvvwnncV+fAXl+Sd2DYdnWrKud0tfy4omTx960C276r2eRbUo7KGNKKS/BoN8I6Lr8BBJ5vYeTFAeYgXLWIDwVdj98UbedfAj0N8IcfUoDxNR/zCZXvA3KD+pnsmEjk/B8u+LNMK0QWJspvkO1wNVDnUQJEzP01aN5kaiYpTQPZedUeTW+9r0RAK0UkxGNYH2LJ0jUqdVWxRx6xpSulB75tDX2sZVSWJepKFXENIoKjna73y+kiTsRIyIR75fYIWNGg7tn5HAxK3ijDy4rZxWcklsasj/F3PyBonwv8caKTR5LmPps9cwO25mWxi4hlxBw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=NxixAyFsi21344bZ3phQTbZNxHkjxkBn/tY12g6ZGyY=;
+ b=ABBoQ4B3QckB+B90aCjJ9K1yQSNfQ+N7PQ+cgTBAu/U5QwIVrxRm2NJBjMU9lrdpUuRjvUKDXg9iXBX+tlhZS0zjJJNgGLZZhww+8COv0FQvo6cMW2z+S2ZEM7yTe9M+B06WtYxUPtTYQOAB7Hp9IDBhGq3YJ07hFieKEl1mUig=
+Received: from BL1PR21MB3115.namprd21.prod.outlook.com (2603:10b6:208:393::15)
+ by IA4PR21MB4738.namprd21.prod.outlook.com (2603:10b6:208:5d0::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8922.11; Tue, 1 Jul
+ 2025 18:37:01 +0000
+Received: from BL1PR21MB3115.namprd21.prod.outlook.com
+ ([fe80::7a38:17a2:3054:8d79]) by BL1PR21MB3115.namprd21.prod.outlook.com
+ ([fe80::7a38:17a2:3054:8d79%3]) with mapi id 15.20.8901.009; Tue, 1 Jul 2025
+ 18:37:01 +0000
+From: Dexuan Cui <decui@microsoft.com>
+To: Paolo Abeni <pabeni@redhat.com>, "niuxuewei97@gmail.com"
+	<niuxuewei97@gmail.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang
+	<haiyangz@microsoft.com>, "wei.liu@kernel.org" <wei.liu@kernel.org>,
+	"sgarzare@redhat.com" <sgarzare@redhat.com>, "davem@davemloft.net"
+	<davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
+	"kuba@kernel.org" <kuba@kernel.org>, "horms@kernel.org" <horms@kernel.org>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [EXTERNAL] Re: [PATCH] hv_sock: Return the readable bytes in
+ hvs_stream_has_data()
+Thread-Topic: [EXTERNAL] Re: [PATCH] hv_sock: Return the readable bytes in
+ hvs_stream_has_data()
+Thread-Index: AQHb6oi+hMA/ue5ibE+V/ntK7sbHS7QdmPeA
+Date: Tue, 1 Jul 2025 18:37:00 +0000
+Message-ID:
+ <BL1PR21MB31150AFC712FD1B83F41C207BF41A@BL1PR21MB3115.namprd21.prod.outlook.com>
+References: <1751013889-4951-1-git-send-email-decui@microsoft.com>
+ <346e4b8a-2e62-420b-9816-6a35b8b63da1@redhat.com>
+In-Reply-To: <346e4b8a-2e62-420b-9816-6a35b8b63da1@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=7cc13f30-b476-4a7a-9b3a-e56379814f75;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2025-07-01T18:36:10Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Tag=10,
+ 3, 0, 1;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BL1PR21MB3115:EE_|IA4PR21MB4738:EE_
+x-ms-office365-filtering-correlation-id: 2ec99d64-efe0-4c8b-35fe-08ddb8ce44a8
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|366016|7416014|376014|921020|38070700018;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?NJtq+16nmyLutJn3rpW/bz+mT3cIUZsQ9iY17frsIfNVO9DlaQSzix6RMi98?=
+ =?us-ascii?Q?lxqGiioAlNLY53yhwLqM8+ecLJyryTxB5fCsiFJSWFgnaUJdsD8CD/9kegL3?=
+ =?us-ascii?Q?f4Y690h133Iy8gsPk88/aN2V7O6pylEja+bxdlBncjEg1V2rGw3IW8+PdGjy?=
+ =?us-ascii?Q?nWhi6LTs0JQL5H1yv5Mn18dWT92VsNxJsGRNFxcLifwvaWz0BoxjyEzWrDwY?=
+ =?us-ascii?Q?Vu7T7WEODin73Xr0OUfCT5hptuSk6cOKBeba0jjRVpt1okm9E0HZNxTvxU01?=
+ =?us-ascii?Q?ngacpdqQTB5cNQ3y82tAhBEFFaLXWZ0DjnGXYg27/juk2S0MU5FjVsw6NIc0?=
+ =?us-ascii?Q?5ePeuqLCBRlcankDRIDVR5RZx2w8fpY5cioz5YYg/4xBSaFMrjGuV0JDN2Kf?=
+ =?us-ascii?Q?m7x1C5yeZQmGahgMq6QV7g+vGgtlOmOdIPopD7DInvcVeb4p2yIUubaOGV/4?=
+ =?us-ascii?Q?oPCTNhHzXNHNhrhgMQDzGtPRMbXHGAaMlkxxpE7DKZ4KTX5l7ZXb0jNphDEh?=
+ =?us-ascii?Q?RNogqpEFCt2J57cANGUUE5VOFnjztgApkwnNiOQvEccorjvbWivtt63sGDFk?=
+ =?us-ascii?Q?dv1hVwzN323Rvg2gQq0+NnmoPwdHuLZPcWcdgEq4tnBUxbl/5rwFZ+BtZCZp?=
+ =?us-ascii?Q?X5yvJt2GPw2WtF5zg7n98gGZAIeDjwEBRHVIrtDwXyOR/7CrTwLYc9IZIHdM?=
+ =?us-ascii?Q?N1190XFm3eL25Pp5rMZUacgS4M7iTQH0Ofzgnun7FrmS66Kiw795FjG+7WZ9?=
+ =?us-ascii?Q?9ql87QDM94CcrALl6l8sTIpx8EKf3ldjOUUT4hn68n5OLVRsL5mgzp4Glagf?=
+ =?us-ascii?Q?xTLS7BBZoMl3cJDnUVlPxfaRnETQC3gCWqiLk9e7DZADY2vDdo8M0qD/PRMk?=
+ =?us-ascii?Q?/1zG9n6avxMC7nc9fQ/WdCipHzFt1e/o6XlLNpTLo7neYNCfUzPFDgOykYNt?=
+ =?us-ascii?Q?Mef2BD2sIksam1hcf3es36oQRnuXdAUbxLKkEFv0VEazYeJyFif62yixY6NR?=
+ =?us-ascii?Q?rbq636yc+OPnX0T4W6lSG5oqAkdKbn6+z+0MI4Aqn8MgEIUcvDIFt1s/zv54?=
+ =?us-ascii?Q?HTYOG/aUpXDhY0bbOD/3BB3GwVFIzR30iFw90ULuG97Kea4OSaFQwCSW3B0w?=
+ =?us-ascii?Q?Kf4poZ0FGY0paHGBh2DN90GZueB2hP4tzSWZxwovbNRPBlANgzsK4PAYQSBb?=
+ =?us-ascii?Q?/xcd7+DPcQF+1Lv85isRv9qEgaOdqR5Beb0W/XzMquJ/ZLE6heRj3r/6t7sw?=
+ =?us-ascii?Q?e8iXR3LuL9ePg9TopTRis1OcCAWoHFeoMcFId+NP1MRaCqzVr3pP4K+jhw7A?=
+ =?us-ascii?Q?9LEIgnLtSCdpl8taHRBzLdks38YtDwUPfpNXmOqJYdZ/8Tnmpf/fp5WtkvkQ?=
+ =?us-ascii?Q?nrWQggBDfsd81q08b9OJLkGJjZ/UxaIOZAmTksEn8A77n0kKm7VWlV4AGmIU?=
+ =?us-ascii?Q?iI83ymh0Q8tOVGtcv8FVfW/UCZkccf87g6ZtWqCeJYYSCGZsAHRjDuJVknX3?=
+ =?us-ascii?Q?sueVMMrNfz8now0=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PR21MB3115.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(921020)(38070700018);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?1k5XE8Q5M6h3oiFtLp0PkCwH3EUVdhg6aEvhgofWsGoG5PvmB52fAQ0DfZ4U?=
+ =?us-ascii?Q?tNoNEaeCzVagPmYaoBpQLCm3hPSilgw/RFReXRvGOjkqnt8+TACC6XiiaaEd?=
+ =?us-ascii?Q?j6fGq/210rBzO6KfqkjoAqiZFowVMIYddTCXvkfMfN6Lq+59zzuM5r6jHX9x?=
+ =?us-ascii?Q?HJjdIsu8RzHweHjSUTfiJGNyo4Z6FnaZIb+6PJ5ZtQJywajpq9/hKMhQSgVH?=
+ =?us-ascii?Q?17OzJ/3TVMylu2QuxfFpGJmKqnjLjyoQ8njbGi9gZ8ysP5q/QGxrfhUQrXE4?=
+ =?us-ascii?Q?h9XWftjAf6QAdVau83SSeCDOY04F2FuhSvSGFz+xybODgMJYbaCmAxkVh+Q0?=
+ =?us-ascii?Q?SzIZ+jGwYZ/uv787yf4P93d/VbcJsECFq6pc44BSoTID9nuBdxXbHI7NFrEQ?=
+ =?us-ascii?Q?acac8U4P1GWiSnpWNxdjJJeJwJqkN8y8DfRLF2KYLpLc3YkVl4jE72aIGqtn?=
+ =?us-ascii?Q?Kw75R0QdgQADCjlLKa9tYaMtj7nLsGMa0QEFKHQMBvG7N/LEm1hG9TQy42Zc?=
+ =?us-ascii?Q?oYqXGkVakgZiKYaJqNrTLS/HxdVoMnj9tva5HDyaRSjPOdKaoC3zimcqfKKQ?=
+ =?us-ascii?Q?BONjxzEXaLX2sb8umwtQKYkZJ6Hj96QgSia0vOV1prTKlTSIvbgfFfUwhqMO?=
+ =?us-ascii?Q?lEVmr/d0ZKC+jxnTDpv8jdtUBAvQfH8ooZI7WNVYyXYuwRBlt5SBNIVYiI6Z?=
+ =?us-ascii?Q?P2rUohtqhmOcqWMh+eokS5ZvUBZDZhOoIsFqOWpW4UBeSaz+VmtCNCWVIVbA?=
+ =?us-ascii?Q?K7Ziln55omyXAAwMnM3k7oWAFwZUwe7UxLLmhAHwEbMKRZy2H5AsxOvDSGIu?=
+ =?us-ascii?Q?aMAApjhzpZCNLp6FyJvxDLh+cFWYgw2FubhNh0vTaoE/ak5tCWNVhTfnuFbn?=
+ =?us-ascii?Q?JmALS8FN580Hk4LlC9tvrLHmLu23IpvoPmiclM8E9jA/3eCBiYL6OH/RzDj0?=
+ =?us-ascii?Q?m4AkjgbiSxZ67ajWToplR7wE177i/L7W1SjDe1OPN8u1fLZjrffsY3qjrSNE?=
+ =?us-ascii?Q?WIBefjKxpxSJSQqezj3YQPpyza+6jXNKFAM3fq0GX230T4qwiIPwOwOr84+V?=
+ =?us-ascii?Q?cw2fDBAE/fWVCnEPF7TafZ2YnJd+saRBELpfGWKiBXOnH4wuyBenxtcuPeF7?=
+ =?us-ascii?Q?1xRlpjdPySHt7TTKJTJ6JM1tE0jKLOl1r3quC46nDtV6QIzfuCGXEqJdd+Vi?=
+ =?us-ascii?Q?kcZHk1XUpSx4XerLRjlvVLt7c6lEutJf+nfePfPLMEhL3N3cDvov7Kd+osU5?=
+ =?us-ascii?Q?xAsgXs9vtoHRUf/3PSFd/tHa6/2t9lhOeSDaJ7idMLHJvpZm/ZA5dUIVKnA8?=
+ =?us-ascii?Q?0PMyiO6g71USPueuHfHuCpHs/VviJ0Cd7sPZ2HLlQTWl8ZGZlvBjFq2FYB7m?=
+ =?us-ascii?Q?gM4DVljxnhG96H+wzLhCYQbtAfQU2fnQ9j9TZbDb9mATNAkqBbOXxIEP0mRg?=
+ =?us-ascii?Q?MI/K0AKhLWJ1ObPw/REKH2qouo8Ub9ebq9ovlA7Yo5UTJVGdiaxZpZD12/cd?=
+ =?us-ascii?Q?I52qgI2DH+bT9I3eSggs7sy/nOmDvE7VvbmEmGfw/tjmTiDX2M1yvXFkicTi?=
+ =?us-ascii?Q?2mYa8vaU+ypubJ5hWjOxH3K5fS3ogMJbPVIoQptw?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BL1PR21MB3115.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2ec99d64-efe0-4c8b-35fe-08ddb8ce44a8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Jul 2025 18:37:01.0331
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: VVwKrEsZcOKutFeDp0L0JRZ0ERRes3lgGpFlKi/ltHwSlwjqq8DJsVHZi0njCxj3F3yKDGLhNwKjpzyEG7RYbg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA4PR21MB4738
 
-When transmitting a vsock packet, virtio_transport_send_pkt_info() calls
-virtio_transport_alloc_linear_skb() to allocate and fill SKBs with the
-transmit data. Unfortunately, these are always linear allocations and
-can therefore result in significant pressure on kmalloc() considering
-that the maximum packet size (VIRTIO_VSOCK_MAX_PKT_BUF_SIZE +
-VIRTIO_VSOCK_SKB_HEADROOM) is a little over 64KiB, resulting in a 128KiB
-allocation for each packet.
+> From: Paolo Abeni <pabeni@redhat.com>
+> Sent: Tuesday, July 1, 2025 6:05 AM
+> ...
+> >  static s64 hvs_stream_has_data(struct vsock_sock *vsk)
+> >  {
+> >  	struct hvsock *hvs =3D vsk->trans;
+> > +	bool need_refill =3D !hvs->recv_desc;
+> >  	s64 ret;
+>=20
+> Minor nit: when reposting please respect the reverse christmas tree
+> order above moving 'need_refill' initialization after the following 'if'
+> statement.
+>=20
+> /P
 
-Rework the vsock SKB allocation so that, for sizes with page order
-greater than PAGE_ALLOC_COSTLY_ORDER, a nonlinear SKB is allocated
-instead with the packet header in the SKB and the transmit data in the
-fragments. No that this affects both the vhost and virtio transports.
-
-Signed-off-by: Will Deacon <will@kernel.org>
----
- net/vmw_vsock/virtio_transport_common.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index c9eb7f7ac00d..f74677c3511e 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -109,7 +109,8 @@ static int virtio_transport_fill_skb(struct sk_buff *skb,
- 		return __zerocopy_sg_from_iter(info->msg, NULL, skb,
- 					       &info->msg->msg_iter, len, NULL);
- 
--	return memcpy_from_msg(skb_put(skb, len), info->msg, len);
-+	virtio_vsock_skb_put(skb);
-+	return skb_copy_datagram_from_iter(skb, 0, &info->msg->msg_iter, len);
- }
- 
- static void virtio_transport_init_hdr(struct sk_buff *skb,
-@@ -261,7 +262,7 @@ static struct sk_buff *virtio_transport_alloc_skb(struct virtio_vsock_pkt_info *
- 	if (!zcopy)
- 		skb_len += payload_len;
- 
--	skb = virtio_vsock_alloc_linear_skb(skb_len, GFP_KERNEL);
-+	skb = virtio_vsock_alloc_skb(skb_len, GFP_KERNEL);
- 	if (!skb)
- 		return NULL;
- 
--- 
-2.50.0.727.gbf7dc18ff4-goog
-
+Thanks! Will do.
