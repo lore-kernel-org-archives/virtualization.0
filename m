@@ -1,118 +1,176 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA94A299952
-	for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 17:26:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C19D78F43
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 01:04:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751304363; cv=none; b=j6cCEiwgMJjWZVEEkb8jPLl7I9t+ret4vUGu0xNybm3x/uHw3z3AXBCLajVLhf4gdc8cVfx5At4Y9ZwoyIIl8unudlD1OEDIp5etS+294Xh71Q0XHgEt9CS4w4l7oSXE/Y4b8V4HeSpeurAj1wF5j3pEeFgw+I0nxn/knd1Jrlw=
+	t=1751331851; cv=none; b=s+1WjJQw2c3d/NHYrR+OBFdRTBaXPktKaGYbrIPZ84EKf+pZFB0u+x91+RnJyGuBqbyx3bFrGj7CWmC2R/7blrzCC2m5K2pm3NYSIjslGzd+KY3ziEeQl0ZOVnF60xwCE9hm/8RwmWjQ9EMwDZJYQvlDl3SsiSOFoJKEIaNut94=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751304363; c=relaxed/simple;
-	bh=/ed1E/z18Xh1fVpk+ZX4y+GGRM+8GW66EdG4YQHARuI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=uFIrWf3EDcw4tq2+fIJLE/Ap1gT6il8Oz6K/T0OuF/RGNtfCcecPeaaUcAfvpX29iLZbMZIKIFWXqbZQe/OuKXueIBw39+UBnc5VBVeH5Rnl097YXyZ+y1BCTNlby/PnelqkhMl4BsM2HhBbLvPBeroqlPtqf7iS+mxUUjFWX64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bShMX1zV; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1751331851; c=relaxed/simple;
+	bh=6iYqwF9X96MHxRdDZpSpOo/+4Mc6oLjjuGizrHod4WA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qOWur3O4gvj69SxycovT/POrWtJtkaskIK1nZOuK4V58HFg03zfDiK1jyWINmkTVnP8kVf0VusNzPQFTX7IttwaOsS3c20mb51+ewIPKgsb3y3YJyXGmfq8QYZfEak/jBkX9Kv1UK7K4fh/tza4Pyrj6KKn8F5ZF+SrY+4u4xkI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Qwl+kYap; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bShMX1zV"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Qwl+kYap"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751304361;
+	s=mimecast20190719; t=1751331849;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DirzX1KCKtv521PxYtm6kg9uFvxjRQhuzEiLEHXJyMU=;
-	b=bShMX1zVTSZB2mWfzaDhM/r8zA0d1amoo7TUlFAOC87Vemw6kBOO7RhWR7wgUIkzGgD6JO
-	nK/jiA9cs0WvVcvFjymCQhJUxYWghAvbC5aSEczyzHAqePXR+1EyliFNFy3sjvJAVB7WVe
-	sJBjBXkUPr4/xLoPLZSpV5vjJUMbQWU=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-677-_Ku1lNhQMmCgXqBKfIGLHw-1; Mon, 30 Jun 2025 13:25:59 -0400
-X-MC-Unique: _Ku1lNhQMmCgXqBKfIGLHw-1
-X-Mimecast-MFC-AGG-ID: _Ku1lNhQMmCgXqBKfIGLHw_1751304358
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3a58939191eso807686f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 30 Jun 2025 10:25:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751304358; x=1751909158;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DirzX1KCKtv521PxYtm6kg9uFvxjRQhuzEiLEHXJyMU=;
-        b=LdkrybDA482WmD15ZxEXH8TyJlYyvuC6Uihu15iAFgDVYyvKTdRs3zBo/Z1WMRH7hL
-         PiIHjKcCXYs6Rd3LbySDX1de+fekDYcr/nfed7Tm2EKmQihW4XLFJwT9mIemohfZXaTk
-         OLZ57hcIOx/6DSeQ1itu3iA/Wp/fsuzJAh8D/e1TMX/SGmg4gOyq5IX2nqLEco6tkF4L
-         HCONstUQyZ8/L0ZQpFS/vmcyXDAz19PNRzAlMP0HUsqvLpq1GG+yjy6I/Fnn0KET3BQq
-         JgtnBfYfxb2szKDbrX2DovtkNaKTNur2m8H2BGHpKbfJJIPfMzXVzTgLIBHOZ8p3MKJW
-         ftYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV6r6bRdLCymvME9EJlsGomZgMc9//A6eXs9kYSnOQbaXW9z5F2MIFxD2o72D1kGwxPTCceC5TdCE7TKPEUTA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxqvegwTT9PK7pZNxXLSgUxUAcgLMeihEdooToZVbP+vtrtfOp1
-	Oe6kx20VCqDqPe9Xshr04dmO8aTmjC29E0SrvJ/gKPwk3yO+u9lxVYqyeDa3y3h6KagLFNu08oP
-	xY1vW/bydzdTVArDPtu4uC7RZ1avQhjBgDhiGrwq5hEd9kB7XW19cznMvzF8XBfhuqsKA
-X-Gm-Gg: ASbGncuSA+yBW03yS+tHSALLsaCBRHITYS8obL39xTrONORuCmnmvMlFbkKBRd5k+6l
-	xNWTZxawY10swYcipU2dGoqK1Va049sQJHJ8isNV1kcSXTiInxMB9UyYbzhNcimTAwYkjCR67ab
-	NbnYW2VPQm0T3i4hILr8zFY0fSE5w9Fxx5grVvvh2lMNYVVOVdZGVlCGjD/AR6mV+/xMneCGVI4
-	Sg59jWFzLrdlj5pw4r2UFd/Nlw4xhbdNB29KCOJdyJ14jkORaWVTRTlZ40+PeJMwFKWt6Q7cnon
-	mFWjsVlUTY3FjcZD
-X-Received: by 2002:a05:6000:710:b0:3aa:c9a8:a387 with SMTP id ffacd0b85a97d-3aac9a8a39cmr8482272f8f.0.1751304358220;
-        Mon, 30 Jun 2025 10:25:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGxJNxP8kFLxbkJcu5vn1wYxIzXeajCRrSl1+SZhoLGhSVkUygc5Y6gw3Iwu1mrPLUoBFlNVA==
-X-Received: by 2002:a05:6000:710:b0:3aa:c9a8:a387 with SMTP id ffacd0b85a97d-3aac9a8a39cmr8482242f8f.0.1751304357754;
-        Mon, 30 Jun 2025 10:25:57 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:152e:1400:856d:9957:3ec3:1ddc])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45388888533sm152948825e9.21.2025.06.30.10.25.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Jun 2025 10:25:57 -0700 (PDT)
-Date: Mon, 30 Jun 2025 13:25:54 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Keith Busch <kbusch@kernel.org>
-Cc: Parav Pandit <parav@nvidia.com>, Lukas Wunner <lukas@wunner.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"stefanha@redhat.com" <stefanha@redhat.com>,
-	"alok.a.tiwari@oracle.com" <alok.a.tiwari@oracle.com>
-Subject: Re: [PATCH RFC] pci: report surprise removal events
-Message-ID: <20250630132444-mutt-send-email-mst@kernel.org>
-References: <11cfcb55b5302999b0e58b94018f92a379196698.1751136072.git.mst@redhat.com>
- <aGFBW7wet9V4WENC@wunner.de>
- <20250629132113-mutt-send-email-mst@kernel.org>
- <aGHOzj3_MQ3x7hAD@kbusch-mbp>
- <CY8PR12MB7195F2F2900BAEA69F5431E9DC46A@CY8PR12MB7195.namprd12.prod.outlook.com>
- <aGKUqsudjfk8wCHI@kbusch-mbp>
- <CY8PR12MB7195583E429203129577B51ADC46A@CY8PR12MB7195.namprd12.prod.outlook.com>
- <aGLB_8SFF1Cw95MZ@kbusch-mbp>
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=/2NKQ3CqFIITeYZPqoYmcZLIRzlMcydotc+VS4n7FN8=;
+	b=Qwl+kYapoQRWl21EUCT3QRpdGRJ+TijHbPi3b9Arcjf0L94t48QilL4VFKhjKPO5JBYspn
+	8S0k1idD21QXIWOJYoEJdsToddMNlf2GN9cmYc8XQY65SF94id/lyDpq8b72JVujx1C0gX
+	Rwk3dnlgRgDaQ8HvS09mYThjelhyY7A=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-54-uI15N1NzOK2UOC32b9Rq9g-1; Mon,
+ 30 Jun 2025 21:04:05 -0400
+X-MC-Unique: uI15N1NzOK2UOC32b9Rq9g-1
+X-Mimecast-MFC-AGG-ID: uI15N1NzOK2UOC32b9Rq9g_1751331843
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 30811180120B;
+	Tue,  1 Jul 2025 01:04:03 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.134])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 01655180045B;
+	Tue,  1 Jul 2025 01:03:55 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: willemdebruijn.kernel@gmail.com,
+	jasowang@redhat.com,
+	andrew+netdev@lunn.ch,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	mst@redhat.com,
+	eperezma@redhat.com
+Cc: netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	Willem de Bruijn <willemb@google.com>
+Subject: [PATCH net-next V3 1/2] tun: remove unnecessary tun_xdp_hdr structure
+Date: Tue,  1 Jul 2025 09:03:51 +0800
+Message-ID: <20250701010352.74515-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aGLB_8SFF1Cw95MZ@kbusch-mbp>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -KvqSd_QphT5JvZZ3jngzLLeTSWARLhi_ZMReQRzyag_1751304358
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Mon, Jun 30, 2025 at 10:57:35AM -0600, Keith Busch wrote:
-> On Mon, Jun 30, 2025 at 01:52:26PM +0000, Parav Pandit wrote:
-> > > 
-> > > But I didn't suggest calling error_detected from report_error_detected.
-> > > Just call it directly without device_lock. It's not very feasible to enforce a non-
-> > > blocking callback, though, if speed is really a concern here.
-> > Yeah, it would better to either always call a callback with or without the lock.
-> > In some flows with lock and in some flows without lock would likely be
-> > very bad as one cannot establish a sane locking order.
-> 
-> On closer look, my suggestion without the device_lock may be racy, but
-> using the device_lock prevents the notification that needs to happen.
-> Hm, not as easy as I thought. :(
+With f95f0f95cfb7("net, xdp: Introduce xdp_init_buff utility routine"),
+buffer length could be stored as frame size so there's no need to have
+a dedicated tun_xdp_hdr structure. We can simply store virtio net
+header instead.
 
-I think I will just add a work_struct and a flag that the driver can set
-to schedule it on surprise removal then. Hmm?
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/tap.c      | 5 ++---
+ drivers/net/tun.c      | 5 ++---
+ drivers/vhost/net.c    | 8 ++------
+ include/linux/if_tun.h | 5 -----
+ 4 files changed, 6 insertions(+), 17 deletions(-)
 
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index bdf0788d8e66..d82eb7276a8b 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -1044,9 +1044,8 @@ static const struct file_operations tap_fops = {
+ 
+ static int tap_get_user_xdp(struct tap_queue *q, struct xdp_buff *xdp)
+ {
+-	struct tun_xdp_hdr *hdr = xdp->data_hard_start;
+-	struct virtio_net_hdr *gso = &hdr->gso;
+-	int buflen = hdr->buflen;
++	struct virtio_net_hdr *gso = xdp->data_hard_start;
++	int buflen = xdp->frame_sz;
+ 	int vnet_hdr_len = 0;
+ 	struct tap_dev *tap;
+ 	struct sk_buff *skb;
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index f8c5e2fd04df..447c37959504 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -2356,13 +2356,12 @@ static int tun_xdp_one(struct tun_struct *tun,
+ 		       struct tun_page *tpage)
+ {
+ 	unsigned int datasize = xdp->data_end - xdp->data;
+-	struct tun_xdp_hdr *hdr = xdp->data_hard_start;
+-	struct virtio_net_hdr *gso = &hdr->gso;
++	struct virtio_net_hdr *gso = xdp->data_hard_start;
+ 	struct bpf_prog *xdp_prog;
+ 	struct sk_buff *skb = NULL;
+ 	struct sk_buff_head *queue;
+ 	u32 rxhash = 0, act;
+-	int buflen = hdr->buflen;
++	int buflen = xdp->frame_sz;
+ 	int metasize = 0;
+ 	int ret = 0;
+ 	bool skb_xdp = false;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 7cbfc7d718b3..777eb6193985 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -668,7 +668,6 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+ 	struct socket *sock = vhost_vq_get_backend(vq);
+ 	struct virtio_net_hdr *gso;
+ 	struct xdp_buff *xdp = &nvq->xdp[nvq->batched_xdp];
+-	struct tun_xdp_hdr *hdr;
+ 	size_t len = iov_iter_count(from);
+ 	int headroom = vhost_sock_xdp(sock) ? XDP_PACKET_HEADROOM : 0;
+ 	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+@@ -691,15 +690,13 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
+ 
+-	copied = copy_from_iter(buf + offsetof(struct tun_xdp_hdr, gso),
+-				sock_hlen, from);
++	copied = copy_from_iter(buf, sock_hlen, from);
+ 	if (copied != sock_hlen) {
+ 		ret = -EFAULT;
+ 		goto err;
+ 	}
+ 
+-	hdr = buf;
+-	gso = &hdr->gso;
++	gso = buf;
+ 
+ 	if (!sock_hlen)
+ 		memset(buf, 0, pad);
+@@ -727,7 +724,6 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+ 
+ 	xdp_init_buff(xdp, buflen, NULL);
+ 	xdp_prepare_buff(xdp, buf, pad, len, true);
+-	hdr->buflen = buflen;
+ 
+ 	++nvq->batched_xdp;
+ 
+diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
+index 043d442994b0..80166eb62f41 100644
+--- a/include/linux/if_tun.h
++++ b/include/linux/if_tun.h
+@@ -19,11 +19,6 @@ struct tun_msg_ctl {
+ 	void *ptr;
+ };
+ 
+-struct tun_xdp_hdr {
+-	int buflen;
+-	struct virtio_net_hdr gso;
+-};
+-
+ #if defined(CONFIG_TUN) || defined(CONFIG_TUN_MODULE)
+ struct socket *tun_get_socket(struct file *);
+ struct ptr_ring *tun_get_tx_ring(struct file *file);
 -- 
-MST
+2.34.1
 
