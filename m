@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0244513AD26
-	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 08:04:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 949E825B2FA
+	for <virtualization@lists.linux.dev>; Tue,  1 Jul 2025 08:11:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751357047; cv=none; b=ADGQfUWQWLw98okYupcvKhIz8zGukw4UiAl+wcgz4jJJsmVHZOO9/NCAWCpWrRkYGInT63eI8aCXL+LYAZoATA8Ob8Xfld3YutjHiSvApP8xeJZrkjcK8REmKfSYafrRmffl5BbuNM1qnhR9sYw69mm8DCqGoX8EN8/6UPPfV3M=
+	t=1751357479; cv=none; b=pAsyCBxjai2W3Q5mDx08KhE/dZ4QJPJOC4AgKAD1MyVjOhYFJ+jSQA8mSWZavcaosgiP1iUBR5pWpS7oMk1AgbXBG7bnx4Tt4H9zPNB5Fvo7oVf8jYGdTFyg5wA/sZgUW2TO2AXN8/rHzO8ybd5r6HsM28Yb3HTziMtNApTdhlo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751357047; c=relaxed/simple;
-	bh=ZtIGBD2+g8T5YgNHrFs6+HwZ/kfDfPpPyWcD9GIgXbQ=;
+	s=arc-20240116; t=1751357479; c=relaxed/simple;
+	bh=xlvxWap5VmqOuFD+5gWUxQuiw4f6r8mbXdJEkaDMaUA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=meiKW4u3TxSUfqkcEH6dv4zWcqjA/tIuswHkumXeXwr4qkRDM4d1Yl855gWbgXJuY9FVY5/AvGsQ4LWcNSBtMPM6RjdP8O1yu4ph/tz4AqWxmBJwngKoc20BBMjkmeCF50TVSsib9clcP8vJjcaxwP9nhYeA+u+eYQ+ReQlOy3M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ta5oHIlP; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=I4/BLRAuJ3vZ4Q4G5ujB0Kcf7TPzA18u59PV7EHLMxeZ7Z7/zMN4ihS/sRyBmyt188HYC7xlzGUDfis1wIiLy+QgXbICl2bhKVDwWn9sC9kskhQP41D6v4mMVAbPTh55PL3YvY8wk3U0V1L2fDmnAK+fkhWMLixOg2bixrchcuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VSvhskD3; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ta5oHIlP"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VSvhskD3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751357044;
+	s=mimecast20190719; t=1751357476;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=pUfxa+nNjdWULRVVJvn16LKseq+jCWAXhMIO+TN4r9c=;
-	b=Ta5oHIlPNOiMjKpBO28OYZSC8J69mm+5phRdv+/aOcl4NriOkVVgZGACgGr8AKYkqv/qLl
-	5LsJnXtJdtX9gN9NYyagw3XdBljKMV/ae9BcRzm9+L3FTM7Y5aSajxZYt6hqpi/xNgkx/R
-	ckLZerUjgdZftNZ9fILJ/FSxDOzCCCg=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=YrqKfOfhORr/5vproY5ovuBEQCam7Cslax8BPi13vvQ=;
+	b=VSvhskD3ixSpAjRFM02YDXA5fQr7by/BiCvONyik4YO5M+obxsQBND9uN9d0R1rrJhpZR6
+	/LsVoWojvody9M/fg7mx/Ok03WDxOF6/UN0V2cQ1v0/egGuIiAlA/8THcjJInABZ+PeK5E
+	nm5xFMGVqILktuw7Uh0NTNVwiWWeqHY=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-678-9v-XcOkFOtuOjGpaH2ZqBw-1; Tue, 01 Jul 2025 04:04:03 -0400
-X-MC-Unique: 9v-XcOkFOtuOjGpaH2ZqBw-1
-X-Mimecast-MFC-AGG-ID: 9v-XcOkFOtuOjGpaH2ZqBw_1751357042
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45311704d22so20966815e9.2
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 01:04:02 -0700 (PDT)
+ us-mta-153-hkFjCylZM5qooXXhcKILfA-1; Tue, 01 Jul 2025 04:11:15 -0400
+X-MC-Unique: hkFjCylZM5qooXXhcKILfA-1
+X-Mimecast-MFC-AGG-ID: hkFjCylZM5qooXXhcKILfA_1751357474
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a4edf5bb4dso3519317f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 01:11:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751357042; x=1751961842;
+        d=1e100.net; s=20230601; t=1751357474; x=1751962274;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=pUfxa+nNjdWULRVVJvn16LKseq+jCWAXhMIO+TN4r9c=;
-        b=iDwbZ8U2b1SNGxc5gBV1fnIxxtq4oGBWaw43EjoXItn7FNA6zjesFjAn56/dzdavbN
-         A2mRjGH0s00TGsDlXIGXKpB4S10gx9DW7kPFWIx7dYF0WH4vzsLo+xG9zdAOf0Sl0NfE
-         FNdQalJu5CFpI/nsSgljmHMCOrnITxG8hc2qDZaczcdc8eGeVDgzFFNTQj5po3Afo2BB
-         GFOaYsn40AKWL7bnmgpLrctufz7ZQVKuSs8cLSB3LFEvdcO4eoqfj8riDIrMOQEUPCYV
-         7Jag6s0Z7q717DwYKU7p6KVCuE5jdPJjpy8ath4XJKwwVgXX5khzE4Z4mb8HK2x2ZbuU
-         topg==
-X-Forwarded-Encrypted: i=1; AJvYcCWLQg9o4elg2Fg9oRdOK84z7rqTRGhU+zUKi9qg0KPayr3nzqyDDodSlxin71hmEQGGBtTPZwWBV1n2uJVnjQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyOsGoSdi8HOpYW5r7o6ocQckKIZwvFwZGd3eIIpZqQ5XgU5uJ5
-	sQrrSGBrDQV9Agg0y3ryg+KY4lzzIO1cGh3KvWjcCujDsR03PsvOjM8NQe1x76XNO3Fqb11jY8/
-	mUgdGNQL+G8Yoarvq5dAWnBARWnXbnbdS6WT+Jqs2RxcjbDSzD09laTrYXs1VKPqel4fz
-X-Gm-Gg: ASbGncu12fiKfhAiSCOSCeLUrmDCTSJ55mgEb8Jyo+hd8uAsrfW9DvJegZrpJIU7zo/
-	/o22EFe4BJGSvFxQRLt8oACDJe8g3kqy6fBXAVKGpORWkjCzGFjzR4QKHUCLcF1rRgayL0hZK7c
-	ZAho+4tttzwQqkPU4ACWr7qS2xIIVJWiPX+4XyoO/dxwhxkCG4Vs6/2+Bel2sBok5955goNNZfu
-	UkXqKuAypGtUI41BG/VA/9dU19eXJ/FVKIb5obUyy2mR+HGUZHDHsIeAilGvQ9k96pC6dCmcTLy
-	LZkxerH1tCnL7tEi1tcks8zXStOCp3C9QrcnBD1TroPjfRW/f+1PhL2V9XdUnix41Ed5ocLVggU
-	iXqgANZX82xmZWMeSBYHo2+tXVG9bgJwkeQ2yXDK3GYad3t9N/A==
-X-Received: by 2002:a05:600c:348b:b0:43c:f8fc:f697 with SMTP id 5b1f17b1804b1-453929a6d39mr150001545e9.9.1751357041444;
-        Tue, 01 Jul 2025 01:04:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGm6r359RgTt8m7jA8PuYlLgOkMn1+oAKNYFF6zANtJXeownWBFwaSRu8IR5EUD4wI8vxIgKQ==
-X-Received: by 2002:a05:600c:348b:b0:43c:f8fc:f697 with SMTP id 5b1f17b1804b1-453929a6d39mr150000635e9.9.1751357040906;
-        Tue, 01 Jul 2025 01:04:00 -0700 (PDT)
+        bh=YrqKfOfhORr/5vproY5ovuBEQCam7Cslax8BPi13vvQ=;
+        b=uWMXst3hHO1N9oDVugVjZsu+/iSUGpLitIKHeIxPnZ73WtuKGKmsCFcYjSZs/k5dey
+         0TAZkOAdByQ1w3V4+8A8J/P15c/gP4y0NpETdRQf+Rnmf5Mk75oaNM4fMUb4gc/fEk7c
+         rvV98lrTCzYGne2ElQiDfWr59zueEBA1lb5uz3GddLponfvD0UuoiOPelaWDMBetxrDI
+         Pnvy/+o1ASfaMEjMTvHHjUeyVJeMhtN9GLfc48hPE8QKDzOowvfW/G7mJnmnpE+HeOZP
+         S9VqxFDYDumqf6Hdh80xaz3uG/ddnP4nzhpLH5c3BTyNhYzdrF/GAlAcVioZxvFVIvuq
+         eh+g==
+X-Forwarded-Encrypted: i=1; AJvYcCUyGHt5vTJmjza3maXxPP2GLEU2wWcp84Gn7DrdK+uOaf3mRjXOBQQeD3YthBZehKPEQRNRoef7QyuRjrJfRA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxXD7EW+DW0YUAAJBPsVLmbkf0XeTwkscvTFfvtlBT07ZknaYPA
+	Ja3kMEOHyQtXhYyFw5A2DJ6WsO76pPnui5qJojHGXFu9tZQP5tUYcz8/orvyQCvoGr5hl+n0I5D
+	xzc+tsyD6mgEfkKhVMO2SyW+8trTe5ih8bCJQyky3MEUPfxhYnJymSvRn1ENQCAmONZtr
+X-Gm-Gg: ASbGncudSGClMiElKjv6AxLXO8Ut0IB4CWPqZg9bHxQKasPN1PAydl9zGei3AMI2j3j
+	1bXk3dWpyeA67FCryKgHnL0yGYlR+m9gEJyw9eoKfw+BYPqysJU3yXWgHzfnrQNTN3ZKqfTGC4O
+	I0dd6XV/5lAKAkMf97BKPdR6TdHSBHlyvaace1KWtIKv0IkzwBJCm/bfcI1Wb7p4qpaBr6mn1Ld
+	gxg/Pif+88rcXFhSmPqpfCV4WDjHSoQBz5t7jw7J20QgXJdVlLnzca6Finr8ZvMSKhqPjP3aljO
+	15MySNvQV5d2SPFitWGg6Bg3eZFsiCbQ0cuMGTMdUtusL390xO+oqIg8wnB+Myxof7n2b2lio/P
+	oSY7Gavg6+1iu4jUzHq0r42xowntxTO7E0yRKX4nN69ahCyBm8Q==
+X-Received: by 2002:adf:fdca:0:b0:3a4:e4ee:4c7b with SMTP id ffacd0b85a97d-3a90d5a7cfemr12842288f8f.15.1751357473984;
+        Tue, 01 Jul 2025 01:11:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFPya9SzQYm2Gmxkryry4rcIJONguISr6QtHQb7EIzTCLPQ+9unHQuu9F1m9XhBP7UVfQjAGg==
+X-Received: by 2002:adf:fdca:0:b0:3a4:e4ee:4c7b with SMTP id ffacd0b85a97d-3a90d5a7cfemr12842232f8f.15.1751357473490;
+        Tue, 01 Jul 2025 01:11:13 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f18:7500:202e:b0f1:76d6:f9af? (p200300d82f187500202eb0f176d6f9af.dip0.t-ipconnect.de. [2003:d8:2f18:7500:202e:b0f1:76d6:f9af])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823c463asm186965025e9.39.2025.07.01.01.03.58
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a892e52bb3sm12734059f8f.56.2025.07.01.01.11.11
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Jul 2025 01:04:00 -0700 (PDT)
-Message-ID: <411b94bb-4662-4357-86a3-05478f2f8c8f@redhat.com>
-Date: Tue, 1 Jul 2025 10:03:57 +0200
+        Tue, 01 Jul 2025 01:11:12 -0700 (PDT)
+Message-ID: <bac3664f-a961-48bd-b642-368b128bb174@redhat.com>
+Date: Tue, 1 Jul 2025 10:11:10 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,14 +75,14 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 03/29] mm/zsmalloc: drop PageIsolated() related
- VM_BUG_ONs
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
+Subject: Re: [PATCH v1 05/29] mm/balloon_compaction: make PageOffline sticky
+ until the page is freed
+To: Harry Yoo <harry.yoo@oracle.com>, Zi Yan <ziy@nvidia.com>
+Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-doc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
  Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
  Christophe Leroy <christophe.leroy@csgroup.eu>,
  Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
@@ -92,7 +92,7 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
  <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
  Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>,
+ Matthew Brost <matthew.brost@intel.com>,
  Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
  Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
  Ying Huang <ying.huang@linux.alibaba.com>,
@@ -109,11 +109,11 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin
  <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
  Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
- Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
- Shakeel Butt <shakeel.butt@linux.dev>
+ Qi Zheng <zhengqi.arch@bytedance.com>, Shakeel Butt <shakeel.butt@linux.dev>
 References: <20250630130011.330477-1-david@redhat.com>
- <20250630130011.330477-4-david@redhat.com>
- <ccc333aa-46c2-49ae-8d0f-ffbde95cb22d@lucifer.local>
+ <20250630130011.330477-6-david@redhat.com>
+ <6a6cde69-23de-4727-abd7-bae4c0918643@lucifer.local>
+ <595C96DA-C652-455F-91DB-F7893B95124B@nvidia.com> <aGN8l3-a7GeFhFlz@hyeyoo>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -160,90 +160,57 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <ccc333aa-46c2-49ae-8d0f-ffbde95cb22d@lucifer.local>
+In-Reply-To: <aGN8l3-a7GeFhFlz@hyeyoo>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OmWIJI68cGi21F6l_Waqr3OOpmyQ9_RyPo-0DiBs7wc_1751357042
+X-Mimecast-MFC-PROC-ID: D4VGzyiJrlDaAkbYj86r6e66k9SFp6wS-YXZX0T1mCA_1751357474
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 30.06.25 17:17, Lorenzo Stoakes wrote:
-> On Mon, Jun 30, 2025 at 02:59:44PM +0200, David Hildenbrand wrote:
->> Let's drop these checks; these are conditions the core migration code
->> must make sure will hold either way, no need to double check.
+On 01.07.25 08:13, Harry Yoo wrote:
+> On Mon, Jun 30, 2025 at 12:14:01PM -0400, Zi Yan wrote:
+>> On 30 Jun 2025, at 12:01, Lorenzo Stoakes wrote:
 >>
->> Acked-by: Zi Yan <ziy@nvidia.com>
->> Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
->> Acked-by: Harry Yoo <harry.yoo@oracle.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>> On Mon, Jun 30, 2025 at 02:59:46PM +0200, David Hildenbrand wrote:
+>>>> Let the page freeing code handle clearing the page type.
+>>>
+>>> Why is this advantageous? We want to keep the page marked offline for longer?
+>>>
+>>>>
+>>>> Acked-by: Zi Yan <ziy@nvidia.com>
+>>>> Acked-by: Harry Yoo <harry.yoo@oracle.com>
+>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>
+>>> On assumption this UINT_MAX stuff is sane :)) I mean this is straightforward I
+>>> guess:
+>>
+>> This is how page type is cleared.
+>> See: https://elixir.bootlin.com/linux/v6.15.4/source/include/linux/page-flags.h#L1013.
+>>
+>> I agree with you that patch 4 should have a comment in free_pages_prepare()
+>> about what the code is for and why UINT_MAX is used.
 > 
-> LGTM, one comment below.
+> Or instead of comment, maybe something like this:
 > 
-> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+> /* Clear any page type */
+> static __always_inline void __ClearPageType(struct page *page)
+> {
+> 	VM_WARN_ON_ONCE_PAGE(!page_has_type(page), page);
+> 	page->page_type = UINT_MAX;
+> }
+> 
+> in patch 4:
+> 
+> if (unlikely(page_has_type(page)))
+> 	__ClearPageType(page);
 > 
 
-Thanks!
+I don't think we should do that. It's very specialized code that nobody 
+should be reusing.
 
->> ---
->>   mm/zpdesc.h   | 5 -----
->>   mm/zsmalloc.c | 5 -----
->>   2 files changed, 10 deletions(-)
->>
->> diff --git a/mm/zpdesc.h b/mm/zpdesc.h
->> index d3df316e5bb7b..5cb7e3de43952 100644
->> --- a/mm/zpdesc.h
->> +++ b/mm/zpdesc.h
->> @@ -168,11 +168,6 @@ static inline void __zpdesc_clear_zsmalloc(struct zpdesc *zpdesc)
->>   	__ClearPageZsmalloc(zpdesc_page(zpdesc));
->>   }
->>
->> -static inline bool zpdesc_is_isolated(struct zpdesc *zpdesc)
->> -{
->> -	return PageIsolated(zpdesc_page(zpdesc));
->> -}
->> -
->>   static inline struct zone *zpdesc_zone(struct zpdesc *zpdesc)
->>   {
->>   	return page_zone(zpdesc_page(zpdesc));
->> diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
->> index 999b513c7fdff..7f1431f2be98f 100644
->> --- a/mm/zsmalloc.c
->> +++ b/mm/zsmalloc.c
->> @@ -1719,8 +1719,6 @@ static bool zs_page_isolate(struct page *page, isolate_mode_t mode)
->>   	 * Page is locked so zspage couldn't be destroyed. For detail, look at
->>   	 * lock_zspage in free_zspage.
->>   	 */
->> -	VM_BUG_ON_PAGE(PageIsolated(page), page);
->> -
->>   	return true;
->>   }
->>
->> @@ -1739,8 +1737,6 @@ static int zs_page_migrate(struct page *newpage, struct page *page,
->>   	unsigned long old_obj, new_obj;
->>   	unsigned int obj_idx;
->>
->> -	VM_BUG_ON_PAGE(!zpdesc_is_isolated(zpdesc), zpdesc_page(zpdesc));
->> -
->>   	/* The page is locked, so this pointer must remain valid */
->>   	zspage = get_zspage(zpdesc);
->>   	pool = zspage->pool;
->> @@ -1811,7 +1807,6 @@ static int zs_page_migrate(struct page *newpage, struct page *page,
->>
->>   static void zs_page_putback(struct page *page)
->>   {
->> -	VM_BUG_ON_PAGE(!PageIsolated(page), page);
->>   }
-> 
-> Can we just drop zs_page_putback from movable_operations() now this is empty?
-
-Common code expects there to be a callback, and I don't want to change 
-that. Long-term I assume it will rather indicate a BUG if there is no 
-putback handler, not something we want to encourage.
-
-Likely, once we rework that isolated pages cannot get freed here, we'd 
-have to handle stuff on the putback path (realize that the page can be 
-freed and free it) -- TODO for that is added in #12.
+And it will all change once Willy reworks the page_type vs. _mapcount 
+overlay.
 
 -- 
 Cheers,
