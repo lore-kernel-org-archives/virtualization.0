@@ -1,217 +1,117 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A28491624D5
-	for <virtualization@lists.linux-foundation.org>; Wed,  2 Jul 2025 01:41:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751420513; cv=fail; b=tn5LrqWhNoO9lfMLWvUXXiMBv+cXUzSiWjlF12XizoiIThthSbMfRhcR7BctVsAM3gjl2eE5qJHqK9icbTTG68kXoV9RHwxapky9oN8WaAcRPROP5HlvCrd5B4O9smKjKANrgzOEj5saGpQ6sO0WNiGv0pvedFGgGVMGiowN+tQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751420513; c=relaxed/simple;
-	bh=AIzfzcVKGOnAW0Nzltwd9gM3GyivVQunp7CYq94VOfk=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=QfTHbTRa+Qp3L/9CZgqjnlRb4Qd39jlMjHz3QEkV/GrFlREuSLKuNtQ8nKBqCeYdP+U8Dvc3lLYcoMy2JHTECe8JcLhIXYtK3+MpYeIAd8m6MoGauWSgK8oESX1yrunSPpgZdivXXT1stwiGs0qXOZhanm2gYP0WQYNJwIYbjPg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=q4mTX8ly; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C86772770B
+	for <virtualization@lists.linux.dev>; Wed,  2 Jul 2025 02:15:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1751422533; cv=none; b=eYfjHST8RRrXihwtluVELD5s0iIp/SAxcbv9VLpQDDAvSNcGnGavy2WdwiZQxZBFw4Z1m6ycuvVOHI70h7626491JPukz6J5A83KVB/D68UXSviOyKwmwp/U3hFLhaHoyJf0/G8jYU6OUK0+lhgfzCNSUneDIcmPKIou8MnP2i8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1751422533; c=relaxed/simple;
+	bh=mf227kKncoURIdLp1KReMZcMntXVrdskgCzq2WR7B3Q=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=LgslTRGhABJBIKRFyTcjMdI5Ive2XZwg81oYeeKwXNO8MT8zE4gjshlYaQOl/W1p+OkZGm/F6aYFJVyyssUx7icWrIeZ9UM5GtjTp5P+eSUFYrDZT34wjGqPcnTa6OjSsMmEkPXr0fWpIOyypayX1iOPGr4vofzRQfMjKHEHyr4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NlT4kJje; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="q4mTX8ly"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3828D607C8
-	for <virtualization@lists.linux-foundation.org>; Wed,  2 Jul 2025 01:41:51 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.102
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 8xx0sw9hK0Yx for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jul 2025 01:41:50 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c405::5; helo=typpr03cu001.outbound.protection.outlook.com; envelope-from=liming.wu@jaguarmicro.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org C929C6062E
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C929C6062E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.a=rsa-sha256 header.s=selector2 header.b=q4mTX8ly
-Received: from TYPPR03CU001.outbound.protection.outlook.com (mail-japaneastazlp170120005.outbound.protection.outlook.com [IPv6:2a01:111:f403:c405::5])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C929C6062E
-	for <virtualization@lists.linux-foundation.org>; Wed,  2 Jul 2025 01:41:48 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=C19ktOOE5nVAEP9oy5yuUxGAb0ZYyZ1MYbChXdpQQG8172d1ilY2iIWD4Wf8SNOrouemK57BkWand2UIOiRjzkYXClsgcGcLrTDV2bpfLWF3E6QXMrRR76v0N+bEHCN6dKuVNK5enTuNpHrU7EFJTNgLcVLcOMvraZlywKnG+sm0XVNa6VUQTqUiE2uDrlkWK6ttEFP1hL8BCdClxPp1Y/BjXQMx2hEbHP5vnAGlLRnN3luMcQ+L2k9QUVnH6pEb1ax96pHOCoa9snrLSOpqeXMQfe7HlF76cnHpsQfN6RAoCWBGTWVaGa0E3mLceUxwMOyIoozzpTWLQG2I9Bx6rg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UBUh2HsGey91x4EekImtKLc6Qx+qit68hRcBI278qaM=;
- b=Q7qlsFnKz9lfm8G4NLyUnsXqPL/n4HYbPcndIQtYGvVZBnIatzyjy/aqWe5rW3tLbBOMNQ4n/67+21KR0hwJ6Pv20XWE+Zeb1iW7aCWEIH7F77APzc/te1yV8VvuVmGzzXEVq/H9LcxhZw1OufxvdpWfvEj5LIgXom6ydGZNPmrfg9yD7K4arN2r0e5i2iVdsNMw30JksROzuppIsLOALgKkXxEjLNCsBuKE3KNsGQ0asWtq/R9bQ9rThGTqqOsOOSHYeiHiHMrXB5HIWGCbqXfBsgyK59Y8PXDBdjPsNpgVl1HZlULoZR9VPL9GtCIKi08VFXRKvnb8ahlQ56xjtw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
- header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UBUh2HsGey91x4EekImtKLc6Qx+qit68hRcBI278qaM=;
- b=q4mTX8lyrjMqW1JrMthQ7PjX+eKhUOLtoG6cbtb+DTWCRgdEQjUCsyAzZ1vFACq+bUCRTdJOKriXw5KOtWiYKHZDos+1fNcR+oZu+vtc6D84y+yBYw9RaqxDDgqnYgH7mwH/PLCpx2pz2AS1cCjBrmtmMJ5X0K7arjFkQvyloqKU8t2UfKF55mTIqBzFrQEMgGJIGzo4ZtRL3Qct24CrRN6misgvaooFCtzLz7xA3RNA8J7R+StPhep8jMVUwY+HsVM8C/R7zDcQB/++gbxTwSKWhSp18qEFK2o7ChKqKftje6Fs9djZdYrOwx78MHvVPKu+aVAbTLouEuVd4iE2Uw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
-Received: from PSAPR06MB3942.apcprd06.prod.outlook.com (2603:1096:301:2b::5)
- by TYUPR06MB6077.apcprd06.prod.outlook.com (2603:1096:400:353::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8857.30; Wed, 2 Jul
- 2025 01:41:39 +0000
-Received: from PSAPR06MB3942.apcprd06.prod.outlook.com
- ([fe80::9b95:32e5:8e63:7881]) by PSAPR06MB3942.apcprd06.prod.outlook.com
- ([fe80::9b95:32e5:8e63:7881%3]) with mapi id 15.20.8901.018; Wed, 2 Jul 2025
- 01:41:39 +0000
-From: liming.wu@jaguarmicro.com
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	angus.chen@jaguarmicro.com,
-	Liming Wu <liming.wu@jaguarmicro.com>
-Subject: [PATCH] virtio_net: simplify tx queue wake condition check
-Date: Wed,  2 Jul 2025 09:41:39 +0800
-Message-ID: <20250702014139.721-1-liming.wu@jaguarmicro.com>
-X-Mailer: git-send-email 2.49.0.windows.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: TPYP295CA0044.TWNP295.PROD.OUTLOOK.COM
- (2603:1096:7d0:7::18) To PSAPR06MB3942.apcprd06.prod.outlook.com
- (2603:1096:301:2b::5)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NlT4kJje"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-237311f5a54so35545715ad.2
+        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 19:15:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1751422531; x=1752027331; darn=lists.linux.dev;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=g31GsV5you24XaAPrCY89ZjlDVNyI0JUrwAbjHIC07c=;
+        b=NlT4kJjeSpDPQQ/CP2A1JY/O/PqevoqdK7f6FObMzvfVZSN3B3FL8dQcOtcNm9V0sI
+         aIrqL59IQl34JofBpAL0fVyzQIBbWjmhdBYj2YJK0IwscrIxwNZRxLwdfpUrhYnwzhRE
+         AIb0BS+Fg9Ru0M4h1Vm/SPhFjQltmnbpjbEIW1q+u27W1jjR0dCEr173IoN2Jq0yUwuL
+         uL1Z4xipIwESvXlGaqwpV8577UwV6YTC8qtz43qzb3+1kA0m2OtQ2bsSMqig3uPG4Il8
+         ofb3bNVu0Nd2kSsadzA1wLN/X36bOmR7nyyQgh9H795ogfPR2kszwx4krriCWVML+Um4
+         1gHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751422531; x=1752027331;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=g31GsV5you24XaAPrCY89ZjlDVNyI0JUrwAbjHIC07c=;
+        b=tBWkHofKWz2qBlUCrH4siXWBWtZ3Gq631BTewFQ+otlnhrwYz+8Zxkpmou03CZ/E9W
+         brFblsVoT9zRSxEJmt4iA7zIMvXiqKGqncBbwvlQHm7DycpoA45XT2h7yjUHuF7CaNzn
+         SvmO0xIOST1Ndap3aaCQ67Oy7Ou/DEqZL5NRC0/Z05wJzwMt9RwbQaYENxUecnIFB004
+         xZg41Zu/lsxDyQq1H6VoWS9O86qssdMwwu70qCTY24xo9kG9cu2UfiVRJSib66WK4WfO
+         DxDieAb5eIgr6ekksh6adFVMdKtM2mdkx2XlcoE6xQtpZAlbxN0ftYtZlmO/GW2GaQ06
+         20vg==
+X-Forwarded-Encrypted: i=1; AJvYcCVAcALlz1BfEXLRFukto6sR8PJ4L4D4VA56I7MWwahOabvPYJV4A4z7PuIoaNkkcxpjrDYxMTfo70NV3LSEMQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx3FKOvTEFN3IxEK6mu5k5vnvmuWHoHqPzh4bhRVU5UXaAJudI3
+	AjRFmei/5VXv7CZyQpC+cmarYkdexLyaRdua8yCoLMrnt/Age8lgp6/B
+X-Gm-Gg: ASbGncvNPK1vksW9YF78D6w8seUorMwD7NLPrFxSRDOFvUZGYBSSBrOeH3mvLpmi/dV
+	CRbUudDc4Q2Zrc4vcZd/fdGWW5C6d1FStMJy0qfOVepfA7FNI3DjVMcU1SK56TpIloZUhw71MPA
+	AG2GS3Ilk0JXdHnz5AglAzew/ezfhWM2YY359LXBP5hZEGR9P9BnRzMypv0gUsP0kc3Y428v+y1
+	9qkA2oyFTzm1hA8mwYLeNde3KXadGJZmvKBJGKmzCDcDrm/IEiz4toRD+0SlF33yHG10fgxWZ1R
+	6M1yYu51CxwU2ezhsu8QUwNJXs3FWTJAp20VW6mfidGG2YtqVXG5G61NN4SFYVlFP+YhbKw=
+X-Google-Smtp-Source: AGHT+IFU7cSFIO4KkQO2gT16lJGhF5dZmQEW6QhVLm1Oe+2lHVb75yDHEuhj6lpjbfnNle+xNLPuDA==
+X-Received: by 2002:a17:903:2341:b0:234:9375:e081 with SMTP id d9443c01a7336-23c6e5c8868mr13451135ad.42.1751422530838;
+        Tue, 01 Jul 2025 19:15:30 -0700 (PDT)
+Received: from smtpclient.apple ([23.132.124.130])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b34e31da818sm10336762a12.61.2025.07.01.19.15.26
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 01 Jul 2025 19:15:30 -0700 (PDT)
+Content-Type: text/plain;
+	charset=us-ascii
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PSAPR06MB3942:EE_|TYUPR06MB6077:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7c806100-5476-4b89-8748-08ddb90996cc
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|52116014|376014|1800799024|366016|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?eIdiwgFjv8Vf/ZMpT+1x993lKGa5vDDwuHZa3AKUfhjIyrEnSZKmj4cVX9ag?=
- =?us-ascii?Q?zr+Xf+mUIO/bOmH/Mhr1w6tn3NLLSW7AT9vGtdy9XkrlwqRWUpDhhSg4+hHp?=
- =?us-ascii?Q?zUht4nFjC7mJiM8rUQvtveQAxCEIk0ay0/y6Z70fp1aGUzSXOncfuVZhgpln?=
- =?us-ascii?Q?3aSPLHanhMdXa038z6ZZ4BEcfK0E/gu+chjWCF0npbXLaF/mpKo+ZC/TXn/H?=
- =?us-ascii?Q?Lr01R28vzIOzMqfxOxkXEe67MxgoBIMwwws3lgJ5nL/Q9/4MHgFAgg6dXkuP?=
- =?us-ascii?Q?pLO4AX2ZVcoMf7qCzOpr3dG4QxI0zoNwlqpalBvSLFetDQwt0y0P1XNNXj+Z?=
- =?us-ascii?Q?ufmu3tANGh6BGqJtXN3JVNfDZlFD+bZBppKN65Q2BLmJipDXyOyoiLLLDnas?=
- =?us-ascii?Q?vJ71NsTLjbGb//RRPd3RZSZyzIgR4xsRn8XUKP3tMAcoe8qLK1fbB0lM1z8Z?=
- =?us-ascii?Q?HmGS4R3/UZL8YIv0jF2t3gBR/sJs/NHuXYn+BXO6imEvSVt3J316+YfKcULd?=
- =?us-ascii?Q?GjfxSPTVjs63ZvSs/ydK06n2azjdfYpFj/o8jzRsNchKkdT8mBLQP/Fmgoq4?=
- =?us-ascii?Q?CBVzS0u+OR7W1gEVdTn5SrSOjBEat9hDEN0zibnSuplZYu2DgfxUwp+okFhh?=
- =?us-ascii?Q?ZFxEgGyTc9m0cBchVHoN+pqoMlbD6fPGhhSyXeoyv4HGiqZQTBbXQez0sp2z?=
- =?us-ascii?Q?Wd+tNjohjnx8iFtR7vh1K9/NbYGQkZG+MKvsnpUor/CYt/MuUGhNmN0i/910?=
- =?us-ascii?Q?rnZXei0ytYVw3L2jnhY3IDsIFHsJ7BUw/mTlcAnEAcJ9EV1QvZVvEjy32JeL?=
- =?us-ascii?Q?lMH/o6S8nDBGXgx2KZT8OIKjz6sKzqYDH+10AmQVYrEtO1sStuVaqo1+DEvR?=
- =?us-ascii?Q?TAoGBYovo9tPfwV+xU3GFJRXil8Nwb/yP37GdK3c/deyVWtqC5XbPG1VH3dh?=
- =?us-ascii?Q?DKQb1sLkeVL0UXfWoXx9+0QLfLn1RmhxxFcXq9SLTKIgQGRfwiDMJGRIiWAg?=
- =?us-ascii?Q?Mzbp3+v3k+ZFgZkybsT+ZPe/vr634zkxlIkAMZo4+xSl50PrSm+1/TW8x8y5?=
- =?us-ascii?Q?bZcfN1qbT7eELNNmQCyumJOtWHIjAqQ63xhFWeaOdnl2XNmoPik/LZpm8Uy5?=
- =?us-ascii?Q?1OtOSiWJ9LE3UN/bqkt1xILjYm0HvWoxzhF1cWpFpmH2P2tKlYh74ScwKFNU?=
- =?us-ascii?Q?L43Y5q0KrWxVqCWTTebpwwUWzRbu6QLQITAvHqazu5LdxbOe6Juk39iFhiLU?=
- =?us-ascii?Q?k0j+PcLS5VydfJXuzx18uhYwloYvyqYoa3VGYHqLXErtydfvnKc755i28QyX?=
- =?us-ascii?Q?2VeexG8veOwLwFThwrrikV9xkiSbM4re7XKlYbJuDYEZThuNL65VRGaYojQg?=
- =?us-ascii?Q?2PUiFLnuOL3YD/uzV/bb1mr48055FRQfntbbc6mzYO/3hNIH9L54WxL40LGG?=
- =?us-ascii?Q?TMc48R3At6Cfru0KHRhf+0aVf0PdOptMHZf+14p8Krpw0RMTHPuUAw=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PSAPR06MB3942.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(52116014)(376014)(1800799024)(366016)(38350700014);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?BDDNgadBZwxx998xyAsIOZo8f/4eRblsCgTMJPsUVRHFG0JgNGZe4xMLwegj?=
- =?us-ascii?Q?YueQM16jBvVZEUu38BlW505ZK2TxlTDaI9Pi1gx0kJ4l/c1xe8yzMDRk9CJa?=
- =?us-ascii?Q?DpuFlKvYKTI8dZhfQY30W+FRZg+gdRFxOBkZeOlAfNW/45Gw6pg++/TDgLH+?=
- =?us-ascii?Q?uuUhhXpzX5nL/3QxagzrLwXZXQXnqjf+2BwWVDJ0EpUNcvuy1DVn3zYI40li?=
- =?us-ascii?Q?YcN3E2AV07VI+UNpNEZcJkUUkxKEbk6j5lwrty8DTckEOLKpWDwspq0ZzHja?=
- =?us-ascii?Q?mw4lsQqJvHlV1qNbXfCCPfL4NgOz48ACdv4hgJAKQNg2K5ysGDp+kyFUSboa?=
- =?us-ascii?Q?Nw8sz8tsxfnnd6JB7TqGehrPvy7GgSMUlryV8zqvXch1SfNqR5qbRp4rh9gl?=
- =?us-ascii?Q?68ZE5FRXGFcVrNl6oA+R9gJ8SG4jAF5hg45lsePxgSyXUUjwNkJ3oL5Y8XTq?=
- =?us-ascii?Q?WQFfggHXSdTbR49UGWK2kjfnths9hs/IVxDa5yH4u0NDhbsDgyxUFfFeWe4q?=
- =?us-ascii?Q?uJ8e+MjDBsJROfP2DNMQaJ0aNbVTdW2T+7B19WOqI8aiERUpVHgGNmPAN62A?=
- =?us-ascii?Q?1eZKe37NwjsCDcYH9J8jHIEWdMT4OzkH/F1AC/XvimTkiSm59u0JC6vsOq3T?=
- =?us-ascii?Q?BjsH/gGNe/IDAnO+gPJctuYs191jzbE+AISw7R7pCpwsiPs3Cc9zxjui/jeN?=
- =?us-ascii?Q?NCk424St7njNCYAueuceMxPWv2bkfXzYWhn+JLTLNRpMMSaxdZDdmJyNMwmP?=
- =?us-ascii?Q?5dyLOv5xPssjCaNr4SghEtSOC/UdqPv4Rqp9Pr1snWw2PSAGjQOJD5K7Fqna?=
- =?us-ascii?Q?zb0iRU8KHZUsPGlHtA9iAVYCzHv7gPL4PUrEm3tQkZUnfwHEUySyyzHBMJ70?=
- =?us-ascii?Q?jDznQ99iFc/+peHpmTN599n/jDQqoS1hXRCCnmIny91y9CBYlIETkxSLgotr?=
- =?us-ascii?Q?JNFggmNpiNwCj6mDRTvHBd2SGrGLYd77+/1KbKECSF4gkMQ1W8+v30pcsVNt?=
- =?us-ascii?Q?Sig3dyuH6ywMyS+BAmbWAxndTLX+4G1AvprDRIlSKqi363wRu5D7Wum1+8d2?=
- =?us-ascii?Q?32cE8p/eEv1vItZQtZmu+2rCeRwj4KPvUFhYUXwQbwwgRpiGUaZNPElWV8OF?=
- =?us-ascii?Q?CKrtQP000ehqfXg3XGXwo1Bs0QRjxzMUiEZBkwGynZLnXf5idMcAiXTsh/WP?=
- =?us-ascii?Q?AzGmyvNNRxOPp09+RjFBTzSbkKUvkPRMwJ9ibNYZU04HIqsI8RIifQGyJ9rh?=
- =?us-ascii?Q?L1EOFBTUqz8eMfjIx+yMyo/XJvuAViKeu1n9CRGGbD7OPdFI5QhGFNFIuSZb?=
- =?us-ascii?Q?M6+KMEmqagMAa9RDzV5iUO/TM+ZxIEcZ68AVWNXprnTonBavyfxHUEKLger2?=
- =?us-ascii?Q?UpV9VEid+UmGXEducjSfnxsiPayBSPD2LK9869tBZgfDiN59z4YeHnPGPYEw?=
- =?us-ascii?Q?lK9ckceGwjR/B9x4QXzd7an6v7OPxOPzbm3DkyAvg9ATER4Bq0m6dT/ktCw6?=
- =?us-ascii?Q?1fzUdKXkgo3HCxUcoJH7UFtriT7h6DdV997a7BHa1HAZgGSlcg7zjYm6kjG2?=
- =?us-ascii?Q?KRpZQ+MjQmne76AVoeYB7RMXbrh/IHmwcSotcraQmBzxv+XP+fjoBHxASEfn?=
- =?us-ascii?Q?vg=3D=3D?=
-X-OriginatorOrg: jaguarmicro.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7c806100-5476-4b89-8748-08ddb90996cc
-X-MS-Exchange-CrossTenant-AuthSource: PSAPR06MB3942.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Jul 2025 01:41:39.4514
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: V7rizxYHPmJwUfn1wusl2WCtO4I+S3ZbqEzmdAGhK6I/U2twUjCbf11s3c4c0ld0yvX3PUdLPWPL2JskP4YFpvNGFPS50oj3gubDOLqLILs=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYUPR06MB6077
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.600.51.1.1\))
+Subject: Re: [RESEND PATCH net-next v4 0/4] vsock: Introduce SIOCINQ ioctl
+ support
+From: Xuewei Niu <niuxuewei97@gmail.com>
+In-Reply-To: <20250701180927.2cafbb5c@kernel.org>
+Date: Wed, 2 Jul 2025 10:15:14 +0800
+Cc: sgarzare@redhat.com,
+ mst@redhat.com,
+ pabeni@redhat.com,
+ jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com,
+ davem@davemloft.net,
+ netdev@vger.kernel.org,
+ stefanha@redhat.com,
+ leonardi@redhat.com,
+ decui@microsoft.com,
+ virtualization@lists.linux.dev,
+ kvm@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ fupan.lfp@antgroup.com,
+ Xuewei Niu <niuxuewei.nxw@antgroup.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E6A8AF53-7AB0-46C1-AE41-FAB5F443911C@gmail.com>
+References: <20250630075727.210462-1-niuxuewei.nxw@antgroup.com>
+ <20250701180927.2cafbb5c@kernel.org>
+To: Jakub Kicinski <kuba@kernel.org>
+X-Mailer: Apple Mail (2.3826.600.51.1.1)
 
-From: Liming Wu <liming.wu@jaguarmicro.com>
 
-Consolidate the two nested if conditions for checking tx queue wake
-conditions into a single combined condition. This improves code
-readability without changing functionality. And move netif_tx_wake_queue
-into if condition to reduce unnecessary checks for queue stops.
+> On Jul 2, 2025, at 09:09, Jakub Kicinski <kuba@kernel.org> wrote:
+> 
+> On Mon, 30 Jun 2025 15:57:23 +0800 Xuewei Niu wrote:
+>> Introduce SIOCINQ ioctl support for vsock, indicating the length of unread
+>> bytes.
+>> 
+>> Similar with SIOCOUTQ ioctl, the information is transport-dependent.
+> 
+> This series does not apply cleanly on current net-next.
+> Please rebase & repost.
+> Please note that we request that repost do not happen more often than
+> 24 hours apart:
+> https://www.kernel.org/doc/html/next/process/maintainer-netdev.html
 
-Signed-off-by: Liming Wu <liming.wu@jaguarmicro.com>
----
- drivers/net/virtio_net.c | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+I'll rebase, and send out v5 in a few days, in order to have more comments.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e53ba600605a..6f3d69feb427 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2998,12 +2998,11 @@ static void virtnet_poll_cleantx(struct receive_queue *rq, int budget)
- 			free_old_xmit(sq, txq, !!budget);
- 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
- 
--		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
--			if (netif_tx_queue_stopped(txq)) {
--				u64_stats_update_begin(&sq->stats.syncp);
--				u64_stats_inc(&sq->stats.wake);
--				u64_stats_update_end(&sq->stats.syncp);
--			}
-+		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS &&
-+		    netif_tx_queue_stopped(txq)) {
-+			u64_stats_update_begin(&sq->stats.syncp);
-+			u64_stats_inc(&sq->stats.wake);
-+			u64_stats_update_end(&sq->stats.syncp);
- 			netif_tx_wake_queue(txq);
- 		}
- 
-@@ -3195,12 +3194,11 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	else
- 		free_old_xmit(sq, txq, !!budget);
- 
--	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
--		if (netif_tx_queue_stopped(txq)) {
--			u64_stats_update_begin(&sq->stats.syncp);
--			u64_stats_inc(&sq->stats.wake);
--			u64_stats_update_end(&sq->stats.syncp);
--		}
-+	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS &&
-+	    netif_tx_queue_stopped(txq)) {
-+		u64_stats_update_begin(&sq->stats.syncp);
-+		u64_stats_inc(&sq->stats.wake);
-+		u64_stats_update_end(&sq->stats.syncp);
- 		netif_tx_wake_queue(txq);
- 	}
- 
--- 
-2.34.1
+Thanks,
+Xuewei
+
+> -- 
+> pw-bot: cr
 
