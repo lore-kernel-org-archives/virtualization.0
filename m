@@ -1,45 +1,46 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C292280A52;
-	Wed,  2 Jul 2025 13:38:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66F79288CA1;
+	Wed,  2 Jul 2025 13:38:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751463536; cv=none; b=tb08KVuy8LvysCtZBjOm3ps7Qd0lT/ruCAJIa5CrUutjwW8n1lLx8ZBURFQb8W/Yg3Tsqz5KWpvTuZwOfKVZzwsW7BL0MSsltAcoYVqRC8dHI9x8YcPhZLiUniMbU65JAZw2CVQMTlLmqqucp1y8Au5AxBMH790D65RGLoEX04U=
+	t=1751463536; cv=none; b=FcXG08QmKe+7NDpV/gE8icR+GQVtnYUKmernI7VpZkrwdtmaW5sHqzmiBuL6IzwF6IUIYjXWgXxUXRBjb8w0u8XC18jJzQpuuuo5J0djyoa9nC/RBcdLql4uzWIKto9f4/ffrR0rzkz2TPxh4tqELcu11AViY9bIEs1MuWNMCgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1751463536; c=relaxed/simple;
-	bh=jdFrNC6NiwknkJyl69b6rDUa9Yoz8gcCJi1eybxIXcc=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=cw/7Jvrv/J9l2P0iTkMUwxgx/Ziw6GeMMbyNnjpW/HlCiJHgUhufemgUTk2ztRxtxOOkvBtXN0ML4hnTCNyvEn1eFFaJlSQvDvFgVD9VlASgjajxdPL8fbJOsIMYS1MOUOXJn9MhEw/ZbfymlaIzqz51fAn4KqIoqrDDjyyKmY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=XQ/KeHj+; arc=none smtp.client-ip=185.226.149.37
+	bh=ajLG02yi+ttHchLtbL7gZ22RqiGskqK0Alx3czSX0yg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=oevCNWOWArd6RD4USlhP19KIHK1YqcLHyUackfksOy4Wc0b2iw8XtJvUPkX1Ecj6bGJMMJBCGPoy+tzRhfXOzMiP8ti4/MxgYzXC19EBEGlYEc7yNRRt2mVU51+GJA4WJoP4EQpGXlfP28fSNgsCeMx97ELe/p4QCK5q2SzAWuQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=llNjzvhM; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="XQ/KeHj+"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="llNjzvhM"
 Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1uWxfo-00GcMN-K4; Wed, 02 Jul 2025 15:38:52 +0200
+	id 1uWxfp-00GxRq-FT; Wed, 02 Jul 2025 15:38:53 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
-	Message-Id:Date:Subject:From; bh=6ZRtUO3nIsi2U4OeyB53Qpuv1fm+SVSeTb2FbQzXyDI=
-	; b=XQ/KeHj+hAsqPPd4QOSYrC3UmojqOdFrkrbQ+Nj1d52YZJequSvlSHitllhkS2LRquDzCK5LQ
-	D2bhYa+hQ/PusniCmJPRCNHJ41BmjhQQlWPoElAMxA3sGaEnPtFtkSHx46x5YsBPyYcPb5fWJLgqO
-	UNkr48pO2+/tLGlcVYMleFCWLCy3TiytANrILB83kdtr2gxaId5b38oorz2znYDfG87vuq6PcVY10
-	nfO39erBpskye2lcvsmpZTcCN6v5i9GY3Y/uARNmR8dwHCALuPBZLo/IggyvmfZA2bhg1aQfrU9wz
-	yiWZAdgdn9qOFsuO1ACvbbZhSi1Ct5WyiyWQig==;
+	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
+	bh=32SZ/8kTDsVrpAS16u/KNOvN+G7U0kqiaAdXc6L1eMA=; b=llNjzvhMtz51MMP245f7eRuKxH
+	0rxItQGcu31Efb0pxWL5cmGh2Zh6Z4vYHXFuoMGSbZoOII42lgLFxCiyhKaxQLLyRvD2+yF/KJDel
+	9+AHduuAce8VIR41AQGTEQrSgEeJd+Lwxb0fwFbOaAxBxxJuQ//6qiI4dRzLhndiL7U/FCuecPBR9
+	F6SnUokZCBApdWFpNbNAblwk1Bvhyz9luqWGkZyZIAEEfOahFXwwSEm8snd5f5tPBradc9uSTV3sG
+	Tva01zYEPjVidyMLsKlLim/rHNBbiAvOY2la7nFIY/0LMOp6Smae1JSXJco1iktls+2tsyYyjGnmB
+	Zq2fCCjQ==;
 Received: from [10.9.9.73] (helo=submission02.runbox)
 	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1uWxfo-0005HR-1s; Wed, 02 Jul 2025 15:38:52 +0200
+	id 1uWxfp-0005HX-2e; Wed, 02 Jul 2025 15:38:53 +0200
 Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1uWxfl-009LQl-Jp; Wed, 02 Jul 2025 15:38:49 +0200
+	id 1uWxfn-009LQl-Aj; Wed, 02 Jul 2025 15:38:51 +0200
 From: Michal Luczaj <mhal@rbox.co>
-Subject: [PATCH net v3 0/3] vsock: Fix transport_{h2g,g2h,dgram,local}
- TOCTOU issues
-Date: Wed, 02 Jul 2025 15:38:42 +0200
-Message-Id: <20250702-vsock-transports-toctou-v3-0-0a7e2e692987@rbox.co>
+Date: Wed, 02 Jul 2025 15:38:45 +0200
+Subject: [PATCH net v3 3/3] vsock: Fix IOCTL_VM_SOCKETS_GET_LOCAL_CID to
+ check also `transport_local`
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,11 +49,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAGI2ZWgC/3XOwQ7CIAwG4FcxPYuBTnTz5HsYD4NWR0zGAkhml
- r27hItedvzb/F+7QOTgOMJlt0Dg7KLzYwnNfgd26McnC0clA0rUUmMjcvT2JVLoxzj5kKJI3ib
- /Fkdz1tRZ7FupobSnwA83V/kGIye4l+HgYvLhU69lVVcVPql2E85KSEGEhEzclR+uwfj5YH0VM
- /4pKLcVLIpENoTSKJLNT1nX9QtCDdMMBwEAAA==
-X-Change-ID: 20250523-vsock-transports-toctou-4b75d9c2a805
+Message-Id: <20250702-vsock-transports-toctou-v3-3-0a7e2e692987@rbox.co>
+References: <20250702-vsock-transports-toctou-v3-0-0a7e2e692987@rbox.co>
+In-Reply-To: <20250702-vsock-transports-toctou-v3-0-0a7e2e692987@rbox.co>
 To: Stefano Garzarella <sgarzare@redhat.com>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -61,38 +60,30 @@ Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.2
 
-transport_{h2g,g2h,dgram,local} may become NULL on vsock_core_unregister().
-Make sure a poorly timed `rmmod transport` won't lead to a NULL/stale
-pointer dereference.
+Support returning VMADDR_CID_LOCAL in case no other vsock transport is
+available.
 
-Note that these oopses are pretty unlikely to happen in the wild. Splats
-were collected after sprinkling kernel with mdelay()s.
-
+Fixes: 0e12190578d0 ("vsock: add local transport support in the vsock core")
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
-Changes in v3:
-- Static transport_* CID getter rename and comment [Stefano]
-- Link to v2: https://lore.kernel.org/r/20250620-vsock-transports-toctou-v2-0-02ebd20b1d03@rbox.co
+ net/vmw_vsock/af_vsock.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Changes in v2:
-- Introduce a helper function to get local CIDs safely [Stefano]
-- Rename goto label to indicate an error path, explain why releasing
-  vsock_register_mutex after try_module_get() is safe [Stefano]
-- Link to v1: https://lore.kernel.org/r/20250618-vsock-transports-toctou-v1-0-dd2d2ede9052@rbox.co
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 9b2af5c63f7c2ae575c160415bd77208a3980835..c8398f9cec5296e07395df8e7ad0f52b8ceb65d5 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2581,6 +2581,8 @@ static long vsock_dev_do_ioctl(struct file *filp,
+ 		cid = vsock_registered_transport_cid(&transport_g2h);
+ 		if (cid == VMADDR_CID_ANY)
+ 			cid = vsock_registered_transport_cid(&transport_h2g);
++		if (cid == VMADDR_CID_ANY)
++			cid = vsock_registered_transport_cid(&transport_local);
+ 
+ 		if (put_user(cid, p) != 0)
+ 			retval = -EFAULT;
 
----
-Michal Luczaj (3):
-      vsock: Fix transport_{g2h,h2g} TOCTOU
-      vsock: Fix transport_* TOCTOU
-      vsock: Fix IOCTL_VM_SOCKETS_GET_LOCAL_CID to check also `transport_local`
-
- net/vmw_vsock/af_vsock.c | 57 ++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 46 insertions(+), 11 deletions(-)
----
-base-commit: 561aa0e22b70a5e7246b73d62a824b3aef3fc375
-change-id: 20250523-vsock-transports-toctou-4b75d9c2a805
-
-Best regards,
 -- 
-Michal Luczaj <mhal@rbox.co>
+2.49.0
 
