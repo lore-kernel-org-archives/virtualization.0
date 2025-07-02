@@ -1,354 +1,286 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1A10264A97
-	for <virtualization@lists.linux.dev>; Wed,  2 Jul 2025 11:17:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751455076; cv=none; b=ug6Hr+WRfX6nCcj8vn9v3y/zQVr1asGjTA1LEkKr/Uz/ziDU7RzTU7BRD27NViF0sCtKuju63vWxNkCYmxaMOYFZpiBTSf45vzsQ7KFQCXkH2zySxEy4CgUlF+1di5urfAmFJY8y//Syh2te+NXU/Mw4gkhGrxh7FPVpZEkVwRc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751455076; c=relaxed/simple;
-	bh=sx6ZXPAv0DNYijJIpFX2qRRFSX+O86QuQitiC9rw1ZI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=kv/KhZ3IzEBXie1yxz8Pqpz72gc6GC7rR99YqxvPbgrQVfgbQ2dad5Ctx98XKrVzvQsUFI7vX2hKjw+BZovnhXIzcxO2txNhfeEc98s0RneEKTFX4nVGruy0U40Ii2rIUdI3uBUydaWWqh7rYYPSVeOBTTkf2PE1pzW5AVRIOu0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MzGPaqFN; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B494F229B13
+	for <virtualization@lists.linux.dev>; Wed,  2 Jul 2025 11:44:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1751456667; cv=fail; b=r8WtE1oVKgZ999zWhaypy3Pf10dNEL4H9RBBnqi3ajReu7cd0boh9yQI68UTZWehIoI9VK4tvRNwBD5Rz2S83diquzvZ2EFK3VDrSO4gKNaFJtmg3W5ShmHqD8RBKhhgQkDxzSGk83UDZxCw+BqxX/diUfu/mcM+Fgg+FWp5uIk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1751456667; c=relaxed/simple;
+	bh=a/72zccoYgGDJdjPQUhXn2tYCL3K8dQY8WBjiH7GSPQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=CuHNoAf9tKeNbi3phHkFq+pyAFoW6UN8PLlrieTUNROCTzMRL4eY270W/jngMMgGfQKg/zZ7PrlofCimk78644FAyyN1EobaNaeaf/zMKwEwEEfQtSiYWwAivPXFs7mfHt7LFzY3fCYOLiXQQLbWgZ3lC7gXXXXMo2UqrEoQKAU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=pDLCKQ5u; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=RQxVCE3M; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MzGPaqFN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751455073;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P+6hlIeCKXcjgCGE6QPvE3NZnk0CNW/XPA78sK/38pY=;
-	b=MzGPaqFN+v5hYirplLbwri9H9P+OAgn4JHUMtZsKnDNtdpw8Cu2Q9ru4/G4Co5eLnt3YG2
-	64A3ezdDyFnVs00+Bp0dHxO1NGcW9mRVIXW8VNxBd4E6REMh0A1htsz+EmL6j4MjVXekZ4
-	+6t7gJK9uJa9cP0bZVD9UJVqy1cqP3o=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-653-6U8_DiSBMr23DqM4fpFPrg-1; Wed, 02 Jul 2025 07:17:50 -0400
-X-MC-Unique: 6U8_DiSBMr23DqM4fpFPrg-1
-X-Mimecast-MFC-AGG-ID: 6U8_DiSBMr23DqM4fpFPrg_1751455070
-Received: by mail-qt1-f198.google.com with SMTP id d75a77b69052e-4a9783eabc0so13466611cf.0
-        for <virtualization@lists.linux.dev>; Wed, 02 Jul 2025 04:17:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751455070; x=1752059870;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=P+6hlIeCKXcjgCGE6QPvE3NZnk0CNW/XPA78sK/38pY=;
-        b=qF7VzO6ZS42IYbYnDTnosrjBVmekUkKurnpS0F7fpdToFeVnawFcZY0FbHbP3rn3AG
-         PEk+s/C4ayIQuAptl0ZRPdnm1BK8ZPz0o9Lav2AjCWsWrRNU5Hq/yXMcX4QUIiXLJphx
-         u6e5TAcK1hIbyh+eP1k6TDBPJDmJTVZvaALldByW5/eIQvoaWpjfq65NrZ6sTMZsWojp
-         5ep2YubA8YMKD6+5P/cWpQ2jThINSPPIsNatvfurM2s2A3NTbqkLX4N5qu7NN9q2ll3x
-         9nOa4qQbcFkBZM3WEA5uTb+4gqPA/FcZCqXyS+wYJrTQPlgz2RbB+LxkkiAZHZoL75oR
-         94IA==
-X-Forwarded-Encrypted: i=1; AJvYcCUXhSdG0kXlP1SPVjxbSah0VSm1BwrEJ/Sednaj49InjpM+yLCDPgC49X3QLJvmDOUdR6hBMnVjJ43gfQrKJw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyEZnux9BCoceaIZ6nwB0YTANmPiME+YUcXRP5njz822ldHRULp
-	/TaS/QJz7TXvzIlDEfrGc/pwxzmPYvZqjSNKDaK0LFvvnXMU6O6dqhzsBKMopqVmMJd+zzPj+Il
-	YskJo5fNRelZLEZro3Pt/p5Fy45V3DekiXwtluLF0Jv26mfztU61vliuGyY/MnHcHv/jI
-X-Gm-Gg: ASbGnctdQdUpEauIrLnYUkFI6p+Dyd9iUpKzpMd1WRGEBaRJ2TWgP0m2ci558X7hdPp
-	3DKzSe6R496ZuhCZxtGnixhvBK02AK+RDQTxIHUcpW3CF9ZUq8as5Pk3YGXzvOJG6LusS/Zov3T
-	Z58Mb5JKwEyaiR/vkkA7h4bAW63UcXdT6yfO6pdXXdXiOi1BcazbkoFPMkZwz1WVLmI46rFHEd9
-	ctrjblB+lCpWQYEF4MiVpja+9LQ7WwB9pdYAE6KoqDM0IJpQb/7J+7RSYM938lHMjIzK51KU4JI
-	zpZaxmhQoh9OZ9nJPLf0sZZ0nymF
-X-Received: by 2002:ac8:7f0f:0:b0:4a4:3fb2:113c with SMTP id d75a77b69052e-4a976a28ce1mr33172941cf.45.1751455069569;
-        Wed, 02 Jul 2025 04:17:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE5cBcz69WvcBm+o8cUuKL9tkLTgDyjUl7ykW1r2X7ywl3Jjzt418LNl2PWk5uGV4HOxkqbIg==
-X-Received: by 2002:ac8:7f0f:0:b0:4a4:3fb2:113c with SMTP id d75a77b69052e-4a976a28ce1mr33172511cf.45.1751455068861;
-        Wed, 02 Jul 2025 04:17:48 -0700 (PDT)
-Received: from sgarzare-redhat ([193.207.164.126])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4a97c5826b7sm5693821cf.81.2025.07.02.04.17.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Jul 2025 04:17:48 -0700 (PDT)
-Date: Wed, 2 Jul 2025 13:17:44 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Luigi Leonardi <leonardi@redhat.com>
-Cc: Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Hyunwoo Kim <v4bel@theori.io>
-Subject: Re: [PATCH net-next v5 2/2] vsock/test: Add test for null ptr deref
- when transport changes
-Message-ID: <bmldzyieflxolpa3gttr6txbolva5wqgkqshar2t2l34i2e6it@hspfuah5b6vl>
-References: <20250630-test_vsock-v5-0-2492e141e80b@redhat.com>
- <20250630-test_vsock-v5-2-2492e141e80b@redhat.com>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="pDLCKQ5u";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="RQxVCE3M"
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5627MeZN021797;
+	Wed, 2 Jul 2025 11:43:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=corp-2025-04-25; bh=xpVGnI1cn5NTq7zOYk
+	2QId3NYMtBz0oXD55l5FuhgXc=; b=pDLCKQ5uCnBKkTDldWpVKg6qvi+zgJzak3
+	pNZnh3yv4W60VUmiUbpVhb6B9yFUWmk15oyAaW6NoH5sputIrhYS5cSePvVISG6d
+	vIlFAQ2iwfagqpnL4GtsCh4P5aCmRpqqYhofnB76YhVJFkXzSxBy2kArHkGIBO+6
+	vOZrek30BVfZclHkaCWyDjbvnCkg60677lCZERbFSXxmSCheGk+S33YyX/1+/kkm
+	he8NTsc0qVc5LeYQppWcFfTiRPNUhCEHbqbksTOvi1mO66RRwFyKtW2JV4EiCybO
+	wSjP4WnUmw20KiQCwo2O+yIFONAro3MlacsAGdVCqobv3HbkbYFQ==
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 47j704esmq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 02 Jul 2025 11:43:35 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 562A9Ptm025044;
+	Wed, 2 Jul 2025 11:43:33 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11on2062.outbound.protection.outlook.com [40.107.220.62])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 47j6ujbut0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 02 Jul 2025 11:43:33 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=oPZe6xk80Kj7zMijnXVdYxvmUzjfKtFHlU1Evx1jBYrtWvFQWdZKvxeSHu5Pv7IRmk31vOGGfrMSNEJiARfD70Xy1T1VKmKNEyMqoldW7JjSStHKzmtsl5VvnIrwQqbNf6AZPsAXis/6Rdu/XkWbXx4y11zRhXJ7gXxy6b+MD++P2FTpDwyGRCDVy58lGtNwtRusa8Xt//5mpN19misX8ZrIa+PY1JZmR0plyuy4zAF+ttlCTr6lcDsLBong5Amb11nS7pLe3ZzVMxYJDtuJow54HjjRl6JcAK7sNhUPqs9hM+Jf/uA8TN9rZhO0/G1w28402F4kqZvmdexY6fARxA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=xpVGnI1cn5NTq7zOYk2QId3NYMtBz0oXD55l5FuhgXc=;
+ b=cPEEEJFBqLYpvdZWuUurFIvSM19dKp2dQuaxhy83NfI7/EKUBp4QcQNEzpINDgHbBdTYVsOv23YF7ZKmRSZ9yqfyDgcMUrijOGaon2Dy3WMJKWPHSPc/s7xO8gsqes+K3dtHpvRnFWQU+G3uFrVEFouEAnkFKbUeNBu9QoEKNDH3MFhOJu+QPA4TtAnFjRUAnJFxeWz/Mz5NsdN70R5CFytaZCPfGKOyoOFLGZSwRix8q6kDHfYvsbbkzmoU2+vmmIltbMQ+Rn8ZTbhh6kgIBib4bdryxzeH5NJE3Z51vmCF+uk2ZO3iVlwC+9B3Xn0LuKW2HscYW3yEuK1zUrTGAw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=xpVGnI1cn5NTq7zOYk2QId3NYMtBz0oXD55l5FuhgXc=;
+ b=RQxVCE3M9TZxgHs5D8ELGSqeEo6Ha/VSSBPsRdxOU8jLl+b06lkhSrsFHEOwwY6sXCIiwxjTwcEvJJbsLqHZr8cJNw05nLJCON9f7pbJsmOU04buBpLzFo9GFjd2bxkqPqikefYrB1Lr9mH9QBiPgxt04PT7o5hi2B5SPczEzN4=
+Received: from CH3PR10MB7329.namprd10.prod.outlook.com (2603:10b6:610:12c::16)
+ by LV8PR10MB7968.namprd10.prod.outlook.com (2603:10b6:408:200::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8880.27; Wed, 2 Jul
+ 2025 11:43:30 +0000
+Received: from CH3PR10MB7329.namprd10.prod.outlook.com
+ ([fe80::c2a4:fdda:f0c2:6f71]) by CH3PR10MB7329.namprd10.prod.outlook.com
+ ([fe80::c2a4:fdda:f0c2:6f71%6]) with mapi id 15.20.8880.029; Wed, 2 Jul 2025
+ 11:43:29 +0000
+Date: Wed, 2 Jul 2025 20:43:11 +0900
+From: Harry Yoo <harry.yoo@oracle.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+        Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>,
+        Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+        Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+        Ying Huang <ying.huang@linux.alibaba.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Brendan Jackman <jackmanb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>, Jason Gunthorpe <jgg@ziepe.ca>,
+        John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>,
+        Xu Xin <xu.xin16@zte.com.cn>,
+        Chengming Zhou <chengming.zhou@linux.dev>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Naoya Horiguchi <nao.horiguchi@gmail.com>,
+        Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Shakeel Butt <shakeel.butt@linux.dev>
+Subject: Re: [PATCH v1 19/29] mm: stop storing migration_ops in page->mapping
+Message-ID: <aGUbIB34G7pLWKbX@hyeyoo>
+References: <20250630130011.330477-1-david@redhat.com>
+ <20250630130011.330477-20-david@redhat.com>
+ <aGULHOwAfVItRNr6@hyeyoo>
+ <819b61fb-ebb0-4ded-a104-01ab133b6a41@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <819b61fb-ebb0-4ded-a104-01ab133b6a41@redhat.com>
+X-ClientProxiedBy: SE2P216CA0189.KORP216.PROD.OUTLOOK.COM
+ (2603:1096:101:2c5::13) To CH3PR10MB7329.namprd10.prod.outlook.com
+ (2603:10b6:610:12c::16)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250630-test_vsock-v5-2-2492e141e80b@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: KEVC8pwdxgwi0dc5Jf_AFXXkudg3WSdqZ2ZMU01Bmi4_1751455070
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH3PR10MB7329:EE_|LV8PR10MB7968:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2345c685-3298-43ae-93ed-08ddb95daa21
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?/q02dWw3LeVssfSJsnnDWbNv2fFbVgTAoabYIH52Ao2oQZ/ZbzRpFKdgPUr4?=
+ =?us-ascii?Q?QB4KlTP8nxJVPBrJ/A/Y3YMqHa7fjZCQXea8FjSwQ3VKfduOtzRoOHEw/XoE?=
+ =?us-ascii?Q?qGR34DiE6g4y38+qTegEcr7W5aFTssXga3BotqqhwMdJ0IlvB/sNEPX0FcU0?=
+ =?us-ascii?Q?2LNEykPPBYDth0LPGK22HvjrkL34VXMvW6+uhwhFwnayru3qKsGAToCh0e5J?=
+ =?us-ascii?Q?/36upaOiGFDOsABa8r74ujautHIiNXf3u0cVmWT2nnVUujL9U07nu1IV9F1O?=
+ =?us-ascii?Q?rOR73c6rkJXqbjoizjkbFgtIHBz0LuystUU/enPho5OiJr1sfhzr182qz5d2?=
+ =?us-ascii?Q?s99sNArqfjY4gC5BjwbgS+eZdYwRMv53ULMuSqVB0CGQVU4phJDW8DESzHll?=
+ =?us-ascii?Q?y31Hnd3m2A0Bc750c1T/2KcJ+o3IjDXWePueFDXH623yJ4CZcCdLNoLZHwSz?=
+ =?us-ascii?Q?Ld1TA0t0mkzsV0uPwVMZoXAXRTGzJT7lkQn0NRe+SaYIigmUdncBmU9p8tB/?=
+ =?us-ascii?Q?+hqBlbpUhBrVfexhgnq1pW9XHFgRsIOSyWaqzhAfUnv0oYl/oJt33qIsQ84g?=
+ =?us-ascii?Q?U2ZbRLAfDP2/lx3Wt9Au8Ei2BsAPDKWVwqvX2nsvO+DvaqGJVTyadmbuScYU?=
+ =?us-ascii?Q?wPjj/Op/ztPXTxP2hMXNN3EMsw5khh2EDqdUi8tbqMtd6tjsAuE4zn9uGHqT?=
+ =?us-ascii?Q?+rZX/bCabcx2IS1gb7JioQHKJMXU2CIAWO5P33/Z5/VVNnxDlaQApt8VCVav?=
+ =?us-ascii?Q?iD/qCuRJZil+VkGIELkgyHToSmM7PBeJRAzGqo8YwtndiUIV9c8FM4Cxsl0Z?=
+ =?us-ascii?Q?N7/y5Jj48lNdtUZImyH1ME7JXh7NkWonCOi9YyU1TVIVCO6qlIaDMYUeKOLN?=
+ =?us-ascii?Q?mviQTZ5lAhdNTgVl/4lLUfRHyRAH3RE/oVwYJVqt2h+y9yTXYWXuHX8P8KjZ?=
+ =?us-ascii?Q?BB3V237V0Y9hWhocLJ3uodvgI9V7n44cMFgzdfE4rn/q5+Ioex0wKWOVio8e?=
+ =?us-ascii?Q?i+SyUyz7ts8XAmGjqmaXSLdJvbBMZmfk2LDwiX91StwxB+BXwq/MlSazoiaK?=
+ =?us-ascii?Q?XCQFGC1+PjKYYp8aQdZ0MNjE8YA5gMnK0kRamQ9U/GYHXUZydGC0B2GxwBje?=
+ =?us-ascii?Q?245pSVh8YJoXaa6d6MyyqNir/TjtT/V+o5zJB9eVHG80KPPOwEy0X2HaqMrs?=
+ =?us-ascii?Q?71B2F2QXm3n5leeQT0pKgUx4eoXSmRuqhEDEpsvr8Hh/EAxj9jUuIRB6bFob?=
+ =?us-ascii?Q?RUqSXlb48kDCwEayO8kNAJcFVkxp70o51AHUe/DOm1jIqnETeJwTGdP08M1Q?=
+ =?us-ascii?Q?mbBEw3NOMBDOTOgl27ot8icSICJVTK25ssDXk4GQrlJMSsa5LPSBgwH4LNOQ?=
+ =?us-ascii?Q?T2lBXlqScOUTCoiscO/fJjTFhoK+brB8NOO5vt86utCmC708eG2M4M0s+2g1?=
+ =?us-ascii?Q?H5NTS1cG87c=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR10MB7329.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?/Kv5ZJtTgwa1ELJ0DB/pFCDmQM2gPLeF4AveSSIINGVJh4jI87+IGurYquRD?=
+ =?us-ascii?Q?ZRh3B1joH9/6geeSe7GSJLCarww5UUJ8B/gTsQYkgvPieB+nTPrzGP113Ooa?=
+ =?us-ascii?Q?KR+9gGrEGXRrJ2CoC9hH0bbXGGIIHXkBaNQOGx0ahk1Xeb3zEYecYesWJkgc?=
+ =?us-ascii?Q?Os2twnxw15BDE8IAgsb1u+GHDuu78I5ocN7jtqAq4BjrKRtWj3/HZF93pMqB?=
+ =?us-ascii?Q?bhbHvkGZd4yk+tseHMXOvoRTXxQ3V+nTRiLMyKeL7rqoo13+4syBUdFntglP?=
+ =?us-ascii?Q?7ywDDAvjkJyN3iGTodlC9gbztfJSpMOSYiOgbvr1VO7NL13LsXkDz7PCmaSq?=
+ =?us-ascii?Q?Zzs681u5dD7bPgiJ3hWThH+jidU98AERiU8pXYQnFD5lTufYIi6OMP5O+dD0?=
+ =?us-ascii?Q?cAagvTeIVC01a966VU0C9w4Gt84DeM3vaBEnHWazea/fItB6mnUMwGVtbLRe?=
+ =?us-ascii?Q?kHO3f1pdOo5cLpkXb1KRu3D6KdEcjG7domJYusV9Ixfify4Vz39xUOC4p1ns?=
+ =?us-ascii?Q?mNB+wj+/3tNwiE/Tqk6OY75m6IspSboueUbjLlM4nVHZrXiI+szvzu+JL6NR?=
+ =?us-ascii?Q?XqybaAKhPyXfS+6SnhTfOy7enut+ZWt9FRmbIBXapcni2QO6fB5F/iguWqo4?=
+ =?us-ascii?Q?YjTTIPQOCjwq7Te9SipHxo3q4ELsT3SLU+kQF/WG9U+q2gFbnwLCatlgzChW?=
+ =?us-ascii?Q?zlQkU7UNZgk3ZQCj4YrC6t7ppsd+HeXyBfO+hOrJLtJkJ9hmQ20hoBjaHISA?=
+ =?us-ascii?Q?Ebt2SDo+Nr/We3CXYm3quCLPAXVnnafRSLllpaXWxgPpzwgcqMtArOOB3fds?=
+ =?us-ascii?Q?wedsdVAwrvrd4QeKjzXJcxdGKs00T0ZlBqOdEMjDKw0JfeLnBZ74+nGaQy8E?=
+ =?us-ascii?Q?dOTUIyaFPvmHZSUi6fR/8krlRcuc3ubvP4nVStUF5Sht27spr5LkOG+ZUsxJ?=
+ =?us-ascii?Q?z68wwYn6wntnQmcpDvrNgKtNtC3s9Xo+Qle5vTTumzRTgvdOYqA/OS0igacm?=
+ =?us-ascii?Q?jFW1Horv+FPNn67MxKme+YCYdFoYLiiPf857VPLV6e9YbZGI9AyRtSMrK8Ig?=
+ =?us-ascii?Q?9aCUT1JSQyp0uz+7Rh/9CqMGs6dbrV5D9gqm4k3rHxKtkx5OLNZin4Ps3iqJ?=
+ =?us-ascii?Q?zkICpa37LAgqSjUykTVsVrF00S8/HGaqP3CtvFB/bm++Yu2RyvHX5lFf1v27?=
+ =?us-ascii?Q?GJO2pRqpTbfUgBkJOznjqmQe5TnBNsFfsX9778+mtwWQggk0VB1sl8QHbTer?=
+ =?us-ascii?Q?q2hcBom8aHgI7G0OP7jFC7xs/hE/cIWegh7dUENKlj8I3+phi3w1dvhSa9IV?=
+ =?us-ascii?Q?wrAZFLWKQy6eucNcdWhDVPiJ7SZDWLTTLfUsyou18dks0/e8xg/HQtM1ljSf?=
+ =?us-ascii?Q?nn0VB1gOvGLlw+40v965AEC/uQHjflX6R/bvs4b4kWAkWMlofuVfiPQ8GvX4?=
+ =?us-ascii?Q?VH6X9FXeZc6qKNmKGj5EukyaG6o3R8kun8FnXjq8Jr8tDaHOlp6xmAh1a7as?=
+ =?us-ascii?Q?hOacXwQYVwWAl8AjpjUBQoLs2prw9bfQz+SzgLcFhoOuTILRKi7qL5FD1tzl?=
+ =?us-ascii?Q?1cAYDaxVmmP1fDQWk+hTeM/6KK0M/a9o3ZwcKeRj?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	Qa7GNYCx1kz5e4n1l2+DV7LhJqzEAue9orp56vJgciaQdM06BJIwhDkV/aZoNO/QuhTYVpCnNr+XtNJ/S2qj8IpyU6Mp3/NW3RL4Zv2rfg8isVS/292uY769t+yUyAGnO0mt6JPVHowYnHye4UaooTt5sDFBDFxqTp/OIu19Z2uPZrJ2uBv1UKsXsP8qpvcy4uHmP76jebQjB0HnNQ5wcCoB0+WJbbkDMGkNQe+XRMUohyzYP5qEEmFjjjXUXdhcQO7xe1StGRs3kG3m7RasVIoQNY0sXri/XvtuR3YHctxi1dprVzWnQoiwaAO56J2UwTilSIr74FUHgLXuZHb4QZn+3Cb8j7R6fuBlQftOdFjSKIgf1tXNVP2jzwFF9oJOC07Xm4/Rg9EqOCUPuxRE0/V3pEx9szmXZ6a799wK7EiOdZmKdqH7XgP4O97/hS/7jZiP7iDEslOFwF7PRa32nWzLRGZ9NyudJkGxpETBx448CXiZvH7gxFpCspkwJbHL1UbMUjoathywjA3PgVoKBqOX3g9EIJRCHPYfd3q0XAkKXGk7hvyrMNsvCGOuya5ZWadCxv6dvrmTDtbv9CaCQkwe7SUct+QRvkQCOpIP6tk=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2345c685-3298-43ae-93ed-08ddb95daa21
+X-MS-Exchange-CrossTenant-AuthSource: CH3PR10MB7329.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Jul 2025 11:43:29.6687
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2oQe8kZVDQtMF6dtG4+oVCDj8yz9PARA4sxVsNep2Iv2SsSN7dWj2fu3JRjfR1WMVs2eDrys+HwHNm8lK1g2tg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR10MB7968
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-07-02_01,2025-06-27_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 adultscore=0
+ bulkscore=0 malwarescore=0 spamscore=0 phishscore=0 suspectscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2505160000 definitions=main-2507020095
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzAyMDA5NSBTYWx0ZWRfXy4s2r5HAIYPd 6dUTvJbuqiMIZapXYFWkiF+nVAWmnjp3NrlNJ2wJkhmmxUHjVA9ZMYXZgTL/dyW4v+5U8YZgAZU ir00lBP/O8VCODfWhrXB8OuhYVKJrpKpTOjqPj+qv43Te9fXpjKNYHbNv6fBltGNHa5kcHRP8Qe
+ JzISYCRP7omxQGIlfkwL4/kay3OQKoyuRdWTHhHkSeTtjVWwxlbsQBUCbD24ono+XehsC/s4chZ jHDezvuvYOHWmeShZCR2Z2mEY9XWP9jIX0masFPDoRErfmhbXaM3KtlgRHTPVtcf5+61XP6G0gJ 6pif7r6AsQFw5vzEwiyTGGA2aTy8GtTkF1hdq8COqrZwwG62v5sHqcWvjN5czI5DqviB0HwOa19
+ /ALHSM/0shCl8MpHnjMQWwYAOR+U8Eb2Q2G4pBvrn6EA98Z5/tCHa+G0WLghBCqOpEWyX2J8
+X-Authority-Analysis: v=2.4 cv=LcU86ifi c=1 sm=1 tr=0 ts=68651b67 b=1 cx=c_pps a=zPCbziy225d3KhSqZt3L1A==:117 a=zPCbziy225d3KhSqZt3L1A==:17 a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19
+ a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10 a=Wb1JkmetP80A:10 a=GoEa3M9JfhUA:10 a=Ikd4Dj_1AAAA:8 a=20KFwNOVAAAA:8 a=yPCof4ZbAAAA:8 a=GFP-k6jHgeBuU4vpYHoA:9 a=CjuIK1q_8ugA:10 cc=ntf awl=host:13215
+X-Proofpoint-GUID: ffaf_ML0qi7eiq-spMTL6LudEpcLd_v9
+X-Proofpoint-ORIG-GUID: ffaf_ML0qi7eiq-spMTL6LudEpcLd_v9
 
-On Mon, Jun 30, 2025 at 06:33:04PM +0200, Luigi Leonardi wrote:
->Add a new test to ensure that when the transport changes a null pointer
->dereference does not occur. The bug was reported upstream [1] and fixed
->with commit 2cb7c756f605 ("vsock/virtio: discard packets if the
->transport changes").
->
->KASAN: null-ptr-deref in range [0x0000000000000060-0x0000000000000067]
->CPU: 2 UID: 0 PID: 463 Comm: kworker/2:3 Not tainted
->Workqueue: vsock-loopback vsock_loopback_work
->RIP: 0010:vsock_stream_has_data+0x44/0x70
->Call Trace:
-> virtio_transport_do_close+0x68/0x1a0
-> virtio_transport_recv_pkt+0x1045/0x2ae4
-> vsock_loopback_work+0x27d/0x3f0
-> process_one_work+0x846/0x1420
-> worker_thread+0x5b3/0xf80
-> kthread+0x35a/0x700
-> ret_from_fork+0x2d/0x70
-> ret_from_fork_asm+0x1a/0x30
->
->Note that this test may not fail in a kernel without the fix, but it may
->hang on the client side if it triggers a kernel oops.
->
->This works by creating a socket, trying to connect to a server, and then
->executing a second connect operation on the same socket but to a
->different CID (0). This triggers a transport change. If the connect
->operation is interrupted by a signal, this could cause a null-ptr-deref.
->
->Since this bug is non-deterministic, we need to try several times. It
->is reasonable to assume that the bug will show up within the timeout
->period.
->
->If there is a G2H transport loaded in the system, the bug is not
->triggered and this test will always pass. This is because
->`vsock_assign_transport`, when using CID 0, like in this case, sets
->vsk->transport to `transport_g2h` that is not NULL if a G2H transport is
->available.
->
->[1]https://lore.kernel.org/netdev/Z2LvdTTQR7dBmPb5@v4bel-B760M-AORUS-ELITE-AX/
->
->Suggested-by: Hyunwoo Kim <v4bel@theori.io>
->Suggested-by: Michal Luczaj <mhal@rbox.co>
->Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
->---
-> tools/testing/vsock/Makefile     |   1 +
-> tools/testing/vsock/vsock_test.c | 170 +++++++++++++++++++++++++++++++++++++++
-> 2 files changed, 171 insertions(+)
+On Wed, Jul 02, 2025 at 01:04:05PM +0200, David Hildenbrand wrote:
+> On 02.07.25 12:34, Harry Yoo wrote:
+> > On Mon, Jun 30, 2025 at 03:00:00PM +0200, David Hildenbrand wrote:
+> > > ... instead, look them up statically based on the page type. Maybe in the
+> > > future we want a registration interface? At least for now, it can be
+> > > easily handled using the two page types that actually support page
+> > > migration.
+> > > 
+> > > The remaining usage of page->mapping is to flag such pages as actually
+> > > being movable (having movable_ops), which we will change next.
+> > > 
+> > > Reviewed-by: Zi Yan <ziy@nvidia.com>
+> > > Signed-off-by: David Hildenbrand <david@redhat.com>
+> > > ---
+> > 
+> > > +static const struct movable_operations *page_movable_ops(struct page *page)
+> > > +{
+> > > +	VM_WARN_ON_ONCE_PAGE(!page_has_movable_ops(page), page);
+> > > +
+> > > +	/*
+> > > +	 * If we enable page migration for a page of a certain type by marking
+> > > +	 * it as movable, the page type must be sticky until the page gets freed
+> > > +	 * back to the buddy.
+> > > +	 */
+> > > +#ifdef CONFIG_BALLOON_COMPACTION
+> > > +	if (PageOffline(page))
+> > > +		/* Only balloon compaction sets PageOffline pages movable. */
+> > > +		return &balloon_mops;
+> > > +#endif /* CONFIG_BALLOON_COMPACTION */
+> > > +#if defined(CONFIG_ZSMALLOC) && defined(CONFIG_COMPACTION)
+> > > +	if (PageZsmalloc(page))
+> > > +		return &zsmalloc_mops;
+> > > +#endif /* defined(CONFIG_ZSMALLOC) && defined(CONFIG_COMPACTION) */
+> > 
+> > What happens if:
+> >    CONFIG_ZSMALLOC=y
+> >    CONFIG_TRANSPARENT_HUGEPAGE=n
+> >    CONFIG_COMPACTION=n
+> >    CONFIG_MIGRATION=y
+> 
+> Pages are never allocated from ZONE_MOVABLE/CMA and
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+I don't understand how that's true, neither zram nor zsmalloc clears
+__GFP_MOVABLE when CONFIG_COMPACTION=n?
 
-Thanks,
-Stefano
+...Or perhaps I'm still missing some pieces ;)
+ 
+> are not marked as having movable_ops, so we never end up in this function.
 
->
->diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
->index 6e0b4e95e230500f99bb9c74350701a037ecd198..88211fd132d23ecdfd56ab0815580a237889e7f2 100644
->--- a/tools/testing/vsock/Makefile
->+++ b/tools/testing/vsock/Makefile
->@@ -5,6 +5,7 @@ vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o util.o msg_ze
-> vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
-> vsock_perf: vsock_perf.o msg_zerocopy_common.o
->
->+vsock_test: LDLIBS = -lpthread
-> vsock_uring_test: LDLIBS = -luring
-> vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o msg_zerocopy_common.o
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index eb6f54378667ac7ed324f4823e988ec9846e41a3..be6ce764f69480c0f9c3e2288fc19cd2e74be148 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -22,6 +22,8 @@
-> #include <signal.h>
-> #include <sys/ioctl.h>
-> #include <linux/time64.h>
->+#include <pthread.h>
->+#include <fcntl.h>
->
-> #include "vsock_test_zerocopy.h"
-> #include "timeout.h"
->@@ -1867,6 +1869,169 @@ static void test_stream_connect_retry_server(const struct test_opts *opts)
-> 	close(fd);
-> }
->
->+#define TRANSPORT_CHANGE_TIMEOUT 2 /* seconds */
->+
->+static void *test_stream_transport_change_thread(void *vargp)
->+{
->+	pid_t *pid = (pid_t *)vargp;
->+	int ret;
->+
->+	ret = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
->+	if (ret) {
->+		fprintf(stderr, "pthread_setcanceltype: %d\n", ret);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	while (true) {
->+		if (kill(*pid, SIGUSR1) < 0) {
->+			perror("kill");
->+			exit(EXIT_FAILURE);
->+		}
->+	}
->+	return NULL;
->+}
->+
->+static void test_transport_change_signal_handler(int signal)
->+{
->+	/* We need a custom handler for SIGUSR1 as the default one terminates the process. */
->+}
->+
->+static void test_stream_transport_change_client(const struct test_opts *opts)
->+{
->+	__sighandler_t old_handler;
->+	pid_t pid = getpid();
->+	pthread_t thread_id;
->+	time_t tout;
->+	int ret, tr;
->+
->+	tr = get_transports();
->+
->+	/* Print a warning if there is a G2H transport loaded.
->+	 * This is on a best effort basis because VMCI can be either G2H and H2G, and there is
->+	 * no easy way to understand it.
->+	 * The bug we are testing only appears when G2H transports are not loaded.
->+	 * This is because `vsock_assign_transport`, when using CID 0, assigns a G2H transport
->+	 * to vsk->transport. If none is available it is set to NULL, causing the null-ptr-deref.
->+	 */
->+	if (tr & TRANSPORTS_G2H)
->+		fprintf(stderr, "G2H Transport detected. This test will not fail.\n");
->+
->+	old_handler = signal(SIGUSR1, test_transport_change_signal_handler);
->+	if (old_handler == SIG_ERR) {
->+		perror("signal");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	ret = pthread_create(&thread_id, NULL, test_stream_transport_change_thread, &pid);
->+	if (ret) {
->+		fprintf(stderr, "pthread_create: %d\n", ret);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	control_expectln("LISTENING");
->+
->+	tout = current_nsec() + TRANSPORT_CHANGE_TIMEOUT * NSEC_PER_SEC;
->+	do {
->+		struct sockaddr_vm sa = {
->+			.svm_family = AF_VSOCK,
->+			.svm_cid = opts->peer_cid,
->+			.svm_port = opts->peer_port,
->+		};
->+		int s;
->+
->+		s = socket(AF_VSOCK, SOCK_STREAM, 0);
->+		if (s < 0) {
->+			perror("socket");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
->+		/* The connect can fail due to signals coming from the thread,
->+		 * or because the receiver connection queue is full.
->+		 * Ignoring also the latter case because there is no way
->+		 * of synchronizing client's connect and server's accept when
->+		 * connect(s) are constantly being interrupted by signals.
->+		 */
->+		if (ret == -1 && (errno != EINTR && errno != ECONNRESET)) {
->+			perror("connect");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		/* Set CID to 0 cause a transport change. */
->+		sa.svm_cid = 0;
->+
->+		/* Ignore return value since it can fail or not.
->+		 * If the previous connect is interrupted while the
->+		 * connection request is already sent, the second
->+		 * connect() will wait for the response.
->+		 */
->+		connect(s, (struct sockaddr *)&sa, sizeof(sa));
->+
->+		close(s);
->+
->+		control_writeulong(CONTROL_CONTINUE);
->+
->+	} while (current_nsec() < tout);
->+
->+	control_writeulong(CONTROL_DONE);
->+
->+	ret = pthread_cancel(thread_id);
->+	if (ret) {
->+		fprintf(stderr, "pthread_cancel: %d\n", ret);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	ret = pthread_join(thread_id, NULL);
->+	if (ret) {
->+		fprintf(stderr, "pthread_join: %d\n", ret);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (signal(SIGUSR1, old_handler) == SIG_ERR) {
->+		perror("signal");
->+		exit(EXIT_FAILURE);
->+	}
->+}
->+
->+static void test_stream_transport_change_server(const struct test_opts *opts)
->+{
->+	int s = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
->+
->+	/* Set the socket to be nonblocking because connects that have been interrupted
->+	 * (EINTR) can fill the receiver's accept queue anyway, leading to connect failure.
->+	 * As of today (6.15) in such situation there is no way to understand, from the
->+	 * client side, if the connection has been queued in the server or not.
->+	 */
->+	if (fcntl(s, F_SETFL, fcntl(s, F_GETFL, 0) | O_NONBLOCK) < 0) {
->+		perror("fcntl");
->+		exit(EXIT_FAILURE);
->+	}
->+	control_writeln("LISTENING");
->+
->+	while (control_readulong() == CONTROL_CONTINUE) {
->+		/* Must accept the connection, otherwise the `listen`
->+		 * queue will fill up and new connections will fail.
->+		 * There can be more than one queued connection,
->+		 * clear them all.
->+		 */
->+		while (true) {
->+			int client = accept(s, NULL, NULL);
->+
->+			if (client < 0) {
->+				if (errno == EAGAIN)
->+					break;
->+
->+				perror("accept");
->+				exit(EXIT_FAILURE);
->+			}
->+
->+			close(client);
->+		}
->+	}
->+
->+	close(s);
->+}
->+
-> static void test_stream_linger_client(const struct test_opts *opts)
-> {
-> 	int fd;
->@@ -2106,6 +2271,11 @@ static struct test_case test_cases[] = {
-> 		.run_client = test_stream_nolinger_client,
-> 		.run_server = test_stream_nolinger_server,
-> 	},
->+	{
->+		.name = "SOCK_STREAM transport change null-ptr-deref",
->+		.run_client = test_stream_transport_change_client,
->+		.run_server = test_stream_transport_change_server,
->+	},
-> 	{},
-> };
->
->
->-- 
->2.50.0
->
+Right.
 
+> See how zsmalloc.c deals with CONFIG_COMPACTION, especially how
+> SetZsPageMovable() is a NOP without it.
+
+Right.
+
+Now I see what I was missing in the previous reply.
+Thanks!
+
+Please feel free to add:
+
+Reviewed-by: Harry Yoo <harry.yoo@oracle.com>
+
+-- 
+Cheers,
+Harry / Hyeonggon
