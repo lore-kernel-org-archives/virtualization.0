@@ -1,133 +1,110 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F69D221F37
-	for <virtualization@lists.linux.dev>; Wed,  2 Jul 2025 06:59:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BC32235C1E
+	for <virtualization@lists.linux.dev>; Wed,  2 Jul 2025 08:11:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751439580; cv=none; b=uvyGNYdpMHWeNiorVogP+Ak2a/JE3Q29Sl9mwgFgWDxfjdV/B5Jh/uu+fsC+o5sCpkJ55LINxCyx06YWpNUiO8mxinBvQBHIWoZDaGp2TRJO+GG+LepTxDSoe0IrY0XFM61Y1WK76xxQTnkSWKxQbZlcpv0KfREdyCQcwSkmE8Y=
+	t=1751443912; cv=none; b=rSjXKYdk2R1ZUBoXYwsWMm0/ubi1XZFPLPzLPOhCyE9kN0LwSvl0oBw0SucrV64Tjq0mvC4l2xo4qP8OaJ+DbPCW6z6FfsnY/hR6qU2TXzvrIhuMXzmC2Z4bSUVxWqwBhfJltPtrvntT4Sniut+LUbECFjNvJx/RI1YbF8CiYN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751439580; c=relaxed/simple;
-	bh=FuVYA1DBsUs8nHuz1QNLYEtINvz/XpKrOjhWBEaED8w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eBynpx2c4KcIJIBgcxxQNfY+xpV0+E+k8JlxNE6QaC5tCk8uo4uEBWEEUDy7U1XjX7Yc0qVCk0fP1g7Tp0lYrGDP5rtE2jhwFxCYP5jD7i+ANY/H8s4Mc88UhuulRuB4GmmR89HlBgel1mAbIbzhlr4H+Ond7nxN6HakX/Pkr+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XEqnz72S; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751443912; c=relaxed/simple;
+	bh=QG1iZiP+R2rzXaTe56gOjHC0fYF3d/JOXWrEX8czvSw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JzKULMpIbkB/2mx/pi/vwn35G3PqxlsHh7h0ouUjFFidVCkWg9p3vqPx/ORPGuP9Xv0z6pTOxGqRaebriapYwrxkAuOXlOqyr254e9DkoncyYI0FpLlcwhDjqq4LUPlLKXjC5JnSzr1MXzW/zD1d0ENxavK3WfwJXKF6Ui2288s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=gZZGigR/; arc=none smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XEqnz72S"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751439577;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9oktXAsQiQp5i7sShP6Y80qG42xcBA2kpSrzl21Pw1E=;
-	b=XEqnz72SmnVD4BbsnT0PEkgzUfohFQtMpE+5fgfAWcUG1SGNNsJd+UtVQ2yR1w/hyp+mBg
-	/8qTE8DY0phVQU52pJrywTr6/leCUyR7IuWk8uLPY4+O5bXGvEG5kZw1yX9+mGqhJ7wjfs
-	n5wBgxnf24dL6rYBc7FAqx/M4wnUkc4=
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
- [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-178--NvCJLuTM_KhMdZnylYW3Q-1; Wed, 02 Jul 2025 02:59:36 -0400
-X-MC-Unique: -NvCJLuTM_KhMdZnylYW3Q-1
-X-Mimecast-MFC-AGG-ID: -NvCJLuTM_KhMdZnylYW3Q_1751439575
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-748e6457567so5976963b3a.1
-        for <virtualization@lists.linux.dev>; Tue, 01 Jul 2025 23:59:35 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="gZZGigR/"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-235ef62066eso82086775ad.3
+        for <virtualization@lists.linux.dev>; Wed, 02 Jul 2025 01:11:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1751443910; x=1752048710; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ndb+JaIMrjzxA+tCLX6/GeFttkCVzpWqjwe11W0C+PU=;
+        b=gZZGigR/L4YS36C6dnYAxIgmLnuLEwkU9eK26VRbe3oUthtQq+qjJfO94720YT76Jo
+         iDvSAkbjQJu6431bZLf5a5Xm77JR65t7uciZQ4aL/f6rr78iy6eVOPOe84RonBXVD0os
+         8g2XwrhDNWq6zKq/tLZenW+KfLECaSa+WDjbQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751439575; x=1752044375;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9oktXAsQiQp5i7sShP6Y80qG42xcBA2kpSrzl21Pw1E=;
-        b=dxkIzUXaNZI3Dc+GpcGVnUAEH3AO2JGX1rOjHifm3YHPP1YJ0tY7fTwYzdBhp70MiL
-         jH1JZZvIlnkkQdC+62Bo1PP50n1ouwekaBvP/ZsUkOgc6eDalOjM1nBbhMIsJGhiX8ei
-         rQOOK61wctdqOAV/ghVUXywjsVk+046xVlGYgxA4koAB9MNTkw2GrhGrs6Qve+WLTkU8
-         +k40g1DQ8oZNEvUGcTURW/SrADqu7hWPzd37ly9+To1NGdJNPMsnteLyKOU4St5Pa1pf
-         5gCGfRAmQ1v8c6nyJ/YFtfbrKwDwUdd2/SjWftpTPTGXu/zOIcTXQKPPIC08ZrwNiiMN
-         z9pQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWUKdq4s/k727yNahf8C8HdtSCdoPoFf/rS08M+aQPMcub8SXBbsBnYezTZB+egvT1pqZb4v290Y69lXK1zdQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyuINoG8mF9xRxaThAlfpzrS5czdo6TEX5+knoEMocOImz6qUvG
-	Z/liZFxq1JArNi1nu7ZtB+DdjfXdWW43yE2avDJamNHFCRcVKpNFehwLNIwApxbFUcz+q2InQIP
-	jmqiNLk+hwJhhC3kGa5xumVfzREqNOmNGf0BmhcKLb75gaK7xIj78L9KxQpnCzFqmkBT8VCMeW7
-	ms1WusF05lPtG1y9w3Svrx5r4u6SVf+trE1MDPtnKwnxU=
-X-Gm-Gg: ASbGncvBWUhvbgmncu2GK0RZ0zDHTYOF5fJxols05Bq30qVOgO1gtvGcCbVAu4cjbzt
-	X8hrpCY9pV86bXAYFV//zDHnKeQVI/DTlUDcyTR+3aL826hglMUlWtCf64FGHVzbN4UONHwGQOH
-	Ey
-X-Received: by 2002:a05:6a00:18a8:b0:746:25d1:b712 with SMTP id d2e1a72fcca58-74b520c7795mr2076712b3a.7.1751439574919;
-        Tue, 01 Jul 2025 23:59:34 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFs7ktrYM9fwj/23hUCctOhF9JiJbm2p5i56/LZ5EavRIaEm0fNI4z9W3n/6Xdc5OGC8rN13n7jqzjq8exUvhQ=
-X-Received: by 2002:a05:6a00:18a8:b0:746:25d1:b712 with SMTP id
- d2e1a72fcca58-74b520c7795mr2076679b3a.7.1751439574437; Tue, 01 Jul 2025
- 23:59:34 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1751443910; x=1752048710;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ndb+JaIMrjzxA+tCLX6/GeFttkCVzpWqjwe11W0C+PU=;
+        b=t+O8o2tEYFZTkNI1R+48xTCjMWI69DII5QhewV55ffyCIKwTlZi5XAl3rujNCpeoql
+         E3sEwsnNwjDYFue8KstKrFyZRaXguD1clyXi/jO6P+vIaqeFcWhLnBEuI+o+kIDPYSz3
+         S5gymDl7ftJ40R2FJZISLKSJu/h/FBtK5JOgzGpJ4MjRu3lto1SMh4gS7P0pUq1KaPzT
+         qgeGuTcoEME+GWrhCnObVyrJZua42LnMeh5nLGMu8w2L2oQuzPPf8EctmckFg86J614F
+         LD1+zNhDX9+txCt24QK6bLwFUzORGdvqMxgU2xZ0LRa9+MHqw4hFmiMYmfXJPS57Gcol
+         QwcA==
+X-Forwarded-Encrypted: i=1; AJvYcCUiJA1ZT9C9HMdX5M8ocNVdnh5Kj5L8Q0nVglukpmUlEGOZYrKveQdsCurbDBTCCWiuJrI/rsSd5gbn5ZNIhA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwcUPAGhb01+o+zcStdOI1rP07mRBlTE2zpYs0exzX7/aQce4X2
+	f31lUu24OOiiw3HYP7B5RO/thaZ1Io1EnLb7tjpTktWSqgQ5JWsrNpzH9YG0iJBkFw==
+X-Gm-Gg: ASbGncsCY3eyxJM9MjIfrM6BhOvDZpQUyFBnjuYluIoBgD/SXQHu3mw6pi+GgjELVye
+	QRvpLTx7AOFYlb5O7QdaszLR8Zr9ZI76k9g91ukaSVyDe3pBjf8htUV2erDdbe/vcCTjsKpBywS
+	N0EeVEsJHc9+aKxmKXagABAX3ZIPX0W8tltdDXA3VDOgUAo5tPNlxpg0IsguWAI72cGpU0S4GUA
+	B7Img1sutjLvlfJ5DZT4Oc9AflVIOS2B9N7+9FgjwkZJDEaslyrl42begNBuVm/PRgR+1TrTGHx
+	TI7xhJoAJHvaVcjGVnfVDUqv10qnpsoESZQK4FgpDQxE4VhgeHvqmCmZ4kCjUwYH1Q==
+X-Google-Smtp-Source: AGHT+IFyaxLPiNw4RnMZfl9Tf3kKU0bVL2nwN672ya66HP6pYgxM8O8hDYVQs76FVVGhmt0dmGwu+w==
+X-Received: by 2002:a17:903:320b:b0:234:f1ac:c036 with SMTP id d9443c01a7336-23c6e5e23d7mr21917615ad.50.1751443910448;
+        Wed, 02 Jul 2025 01:11:50 -0700 (PDT)
+Received: from google.com ([2401:fa00:8f:203:8825:8cdb:cb6b:8e71])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b34e3013d7csm12080632a12.11.2025.07.02.01.11.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Jul 2025 01:11:49 -0700 (PDT)
+Date: Wed, 2 Jul 2025 17:11:38 +0900
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
+	linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev, 
+	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Jerrin Shaji George <jerrin.shaji-george@broadcom.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
+	Minchan Kim <minchan@kernel.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
+	Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>, 
+	Miaohe Lin <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>, 
+	Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>, 
+	Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>, 
+	Shakeel Butt <shakeel.butt@linux.dev>
+Subject: Re: [PATCH v1 12/29] mm/zsmalloc: stop using __ClearPageMovable()
+Message-ID: <zmsay3nrpmjec5n7v44svfa7iwl6vklqan4dgjn4wpvsr5hqt7@cqfwdvhncgrg>
+References: <20250630130011.330477-1-david@redhat.com>
+ <20250630130011.330477-13-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250701011401.74851-9-jasowang@redhat.com> <202507021212.rhQmuuvi-lkp@intel.com>
-In-Reply-To: <202507021212.rhQmuuvi-lkp@intel.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 2 Jul 2025 14:59:20 +0800
-X-Gm-Features: Ac12FXxiZW_D57LUa3xpUl0ycvSaJSDuvuQ1l02cBG4QNnzDlhokAJCadnvHiDk
-Message-ID: <CACGkMEuu=qw4GMzM9x=WdYEaVBxQEvEq2mYKtQZiQFYocgmgWQ@mail.gmail.com>
-Subject: Re: [PATCH 8/9] vdpa: introduce map ops
-To: kernel test robot <lkp@intel.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	hch@infradead.org, xieyongji@bytedance.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: My374MHS027WZm4Z5rEcgOeLOLtk2F-o1-rbbb1LlxM_1751439575
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250630130011.330477-13-david@redhat.com>
 
-On Wed, Jul 2, 2025 at 1:21=E2=80=AFPM kernel test robot <lkp@intel.com> wr=
-ote:
->
-> Hi Jason,
->
-> kernel test robot noticed the following build errors:
->
-> [auto build test ERROR on mst-vhost/linux-next]
-> [also build test ERROR on linus/master v6.16-rc4 next-20250701]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch#_base_tree_information]
->
-> url:    https://github.com/intel-lab-lkp/linux/commits/Jason-Wang/virtio_=
-ring-constify-virtqueue-pointer-for-DMA-helpers/20250701-091746
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git lin=
-ux-next
-> patch link:    https://lore.kernel.org/r/20250701011401.74851-9-jasowang%=
-40redhat.com
-> patch subject: [PATCH 8/9] vdpa: introduce map ops
-> config: x86_64-randconfig-073-20250702 (https://download.01.org/0day-ci/a=
-rchive/20250702/202507021212.rhQmuuvi-lkp@intel.com/config)
-> compiler: clang version 20.1.7 (https://github.com/llvm/llvm-project 6146=
-a88f60492b520a36f8f8f3231e15f3cc6082)
-> rustc: rustc 1.78.0 (9b00956e5 2024-04-29)
-> reproduce (this is a W=3D1 build): (https://download.01.org/0day-ci/archi=
-ve/20250702/202507021212.rhQmuuvi-lkp@intel.com/reproduce)
->
-> If you fix the issue in a separate patch/commit (i.e. not just a new vers=
-ion of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202507021212.rhQmuuvi-lkp=
-@intel.com/
->
-> All errors (new ones prefixed by >>):
->
->    drivers/vdpa/mlx5/net/mlx5_vnet.c:3405:21: error: no member named 'dma=
-_dev' in 'struct vdpa_device'
->     3405 |         return mvdev->vdev.dma_dev;
->          |                ~~~~~~~~~~~ ^
+On (25/06/30 14:59), David Hildenbrand wrote:
+[..]
+>  static int zs_page_migrate(struct page *newpage, struct page *page,
+> @@ -1736,6 +1736,13 @@ static int zs_page_migrate(struct page *newpage, struct page *page,
+>  	unsigned long old_obj, new_obj;
+>  	unsigned int obj_idx;
+>  
+> +	/*
+> +	 * TODO: nothing prevents a zspage from getting destroyed while
+> +	 * isolated: we should disallow that and defer it.
+> +	 */
 
-It seems I forgot to convert mlx5 divers. Will do that in the next
-version (if we agree this is the right direction).
-
-Thanks
-
+Can you elaborate?
