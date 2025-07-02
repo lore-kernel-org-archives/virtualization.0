@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65CC01F76A5;
-	Wed,  2 Jul 2025 22:09:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D352727E0;
+	Wed,  2 Jul 2025 22:50:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751494194; cv=none; b=VUcVcoOl9q1TC4OPaB3EPgY9WXfrRqthphUwUeyx9Zhap90fq2TAFP7sRAcvcN+453TIyMA9acKe7iA1gXk0eZWTlgJdx+lS2sx4WczUbEyTVIqqwOLXLYKASFB29nfzDqH43WZUyGo9qqhWIb6BXoqggMp9n52kA5mX5JiZEF8=
+	t=1751496604; cv=none; b=J6asYMo25fWIXgyUoqw0V6+NmKtdzzxc6sveJlLbHP7EtH3Eyff7DCU7/LtdHPTOSnRqTwn0FuMtGnqGDSn8bW88FAEJ4vnyG9OSqU56//4a1346WW1qX7iQSUBxtud7w8uCOsdbwDp5v2a6x181kXO8ap/RjjES8ilMWFijNc0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751494194; c=relaxed/simple;
-	bh=S+mVh0bj4xRGO/SKkld2QAdLfGU7FAOgEqQ3/sOe1VE=;
+	s=arc-20240116; t=1751496604; c=relaxed/simple;
+	bh=nvl1bDqpj1Z2UVFPCbzHZAWIxNl+Kv9fy6TqHKapdE0=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=TwP4KCeXIbueGIHkIwocAgia5siNuonLMTKzZcUvZGKvG/pEzh8fhWyMxm1nw12rvnR5gh4yeDyDJHuZ5A6Ev/f08qM4IZA2sxnPvOaRmwPDrrAhP0J1vFEAy64/kG1HhB0DyQv7VVQmWabqrlcprmTrlPl6OrCmCClTNyQxwRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=isB7Ti9N; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=VR8OB/Rp3IPfqwHof7CCHM063c46DpklMhDI48eFdPvWrSnzdDfsryswnZ8opxnn5W+v3CkF45vsL6aWcr+FyifH7yF3C4FtXqrhcrn9gdAvv+I57dsoMpojNunp75B4y3jK1jE4xmu3lBaYLXt/FviejnTQ2FapUf/hEw3xam8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SFAK2wl/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="isB7Ti9N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45ED3C4CEE7;
-	Wed,  2 Jul 2025 22:09:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SFAK2wl/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 424E2C4CEE7;
+	Wed,  2 Jul 2025 22:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751494194;
-	bh=S+mVh0bj4xRGO/SKkld2QAdLfGU7FAOgEqQ3/sOe1VE=;
+	s=k20201202; t=1751496604;
+	bh=nvl1bDqpj1Z2UVFPCbzHZAWIxNl+Kv9fy6TqHKapdE0=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=isB7Ti9NPoLARYVTCcNjHqXt8FVSiChiTjmZ7v6EDU0S/aSvzMhndChWzv6EiGo8/
-	 D/q9bmhPkZ0vuuV2j9lC2GEXQScOhC3N0qnG+Z86OFx0ixuGXhy/JY7/4jvxW1nSin
-	 Vm6GiKKzkdEMuFwpHX0FooPzUyW2yca6MYMjqgXslUMi1zCT3pS6go/jHUqbloTEg4
-	 llyf9GhuFVpNJkGBpchrvQ1aTvsTapUU5S/qOAEgTIn/nmZWUnYam7/jheM18XIIEq
-	 /mHpgIN6U1w8nsikmGoAFAdhB6+8O7FDMUuwB8P/S4lSPa4+toOgTrW4fcRvB/ueUi
-	 RTKGjIEGMReMQ==
+	b=SFAK2wl/srK1bQZwhg3G3Ns6fvdzfQ4vevBIixC98/LsMk++bQuN3vkl4lGvxkol5
+	 XYHQd2FNJn2mAxfKd9ICH8b5YGvvmpHfBnGn63ilY28sD310feJFDowJALnwUNI5/O
+	 QKmj2vdC/2Wpv1rckVV23wsQ4KG6O8KUre6ogZ9ogs16EURbz0uhk2zijlwnPk48xu
+	 vL95M0PUcV94zSxq5B+HXQN34f8SScvfB0QCVJo1vhSLvLTLrGc5s9M20btBpbwzfe
+	 jbgIOOpTf7gr7jB95wHcd6bAQKFdD0KUE7oOROAbL2xcW4sFqt+nLYQRjS/Qz54yXE
+	 0fRU9hugnpXsg==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAEFD383B273;
-	Wed,  2 Jul 2025 22:10:19 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70CC2383B273;
+	Wed,  2 Jul 2025 22:50:28 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -37,39 +37,42 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v5 0/2] vsock/test: check for null-ptr-deref when
- transport changes
+Subject: Re: [PATCH net-next V3 1/2] tun: remove unnecessary tun_xdp_hdr
+ structure
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <175149421852.880958.2267233099494206987.git-patchwork-notify@kernel.org>
-Date: Wed, 02 Jul 2025 22:10:18 +0000
-References: <20250630-test_vsock-v5-0-2492e141e80b@redhat.com>
-In-Reply-To: <20250630-test_vsock-v5-0-2492e141e80b@redhat.com>
-To: Luigi Leonardi <leonardi@redhat.com>
-Cc: sgarzare@redhat.com, mhal@rbox.co, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, v4bel@theori.io
+ <175149662701.890932.18390688649373807942.git-patchwork-notify@kernel.org>
+Date: Wed, 02 Jul 2025 22:50:27 +0000
+References: <20250701010352.74515-1-jasowang@redhat.com>
+In-Reply-To: <20250701010352.74515-1-jasowang@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ mst@redhat.com, eperezma@redhat.com, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, willemb@google.com
 
 Hello:
 
 This series was applied to netdev/net-next.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Mon, 30 Jun 2025 18:33:02 +0200 you wrote:
-> This series introduces a new test that checks for a null pointer
-> dereference that may happen when there is a transport change[1]. This
-> bug was fixed in [2].
+On Tue,  1 Jul 2025 09:03:51 +0800 you wrote:
+> With f95f0f95cfb7("net, xdp: Introduce xdp_init_buff utility routine"),
+> buffer length could be stored as frame size so there's no need to have
+> a dedicated tun_xdp_hdr structure. We can simply store virtio net
+> header instead.
 > 
-> Note that this test *cannot* fail, it hangs if it triggers a kernel
-> oops. The intended use-case is to run it and then check if there is any
-> oops in the dmesg.
+> Acked-by: Willem de Bruijn <willemb@google.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 > 
 > [...]
 
 Here is the summary with links:
-  - [net-next,v5,1/2] vsock/test: Add macros to identify transports
-    https://git.kernel.org/netdev/net-next/c/e84b20b25d37
-  - [net-next,v5,2/2] vsock/test: Add test for null ptr deref when transport changes
-    https://git.kernel.org/netdev/net-next/c/3a764d93385c
+  - [net-next,V3,1/2] tun: remove unnecessary tun_xdp_hdr structure
+    https://git.kernel.org/netdev/net-next/c/4d313f2bd222
+  - [net-next,V3,2/2] vhost-net: reduce one userspace copy when building XDP buff
+    https://git.kernel.org/netdev/net-next/c/97b2409f28e0
 
 You are awesome, thank you!
 -- 
