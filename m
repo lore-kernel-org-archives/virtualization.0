@@ -1,373 +1,135 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC8ED182D2
-	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 03:20:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9EB3158535
+	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 03:22:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751512854; cv=none; b=NkdrzCToCvXUeNeFPzItrlKg89tZ6WHp3bepr7rNDCK34wynuEM+bFybMELqrDieGca958f48L+Idw8dw/7ocjZtW58ZOAT0syP8RfCT2UMOCgXH2n/pQMjHBPghRC5yj9PqAYU71FIP3z8AaP7iuthA3NTpj7QDPQWco9fGev0=
+	t=1751512959; cv=none; b=XcofePW5kMcpUmljKe5G6hqLI5wKywmHzKltFomijWmWBwkE0c29JITZREFwAaSUXyK8qdcEo0W8gYxRztGygQMnjVeTYLIVTyiCWXGyYjD1iolluQPSn1RJwMQjTPOT82At2FGldkL0BaxfYd/FonktnVsdtygoptoTxZhz0P8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751512854; c=relaxed/simple;
-	bh=02SyrTxhDxefPxQZdDhWhN7sw/GWdpZGjBC12Qoo6tE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=En6vj/fUCE4GaDfCwNqaGXxhS7vP/2heOwULoNKBc9iIDWM8a0vBQ3miy6kRWD1Ip/w77s4rDXrbMxnYzKKuqyDYv+a7A26Y4zvMvVUrL5pPouaDPDYUaTT6l/YOoTGxjTy5Bzq9huE+etn4vCrTJtqxkdt0o6A+GZ5YD65WHUQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LwuIaWXD; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751512959; c=relaxed/simple;
+	bh=jRAp1AVjN+o0z0U9utUV1cQ17XRWoHhVViGsl36T9Fs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JI6GCYOBrg99uEAGgA6CfzZShbUPHR6uDNvo0YM5E45dGa+sqRTxScJzFtYpce5VC7raP8YBayIOTyOvNVCQ16M8ORqUU7/BszI+2Lvt0qPhQCgh8cDchmAqIY3IJo4P7Jhv13eO/80vfM8w/B0z6Aa7eT1JF8My4VPmdhsP5Kk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=luV3DwvX; arc=none smtp.client-ip=209.85.215.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LwuIaWXD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751512851;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9v7tJEEgqy6VJZUTuanr/kpPOrF6V1sH7tRmF54BHwM=;
-	b=LwuIaWXD6LFzjbLgq8mptIBaf9zFOP23pPfPCBTwdDi7OlhohoHUTb6vn52tmmOCLAKQji
-	4nUdnnGxXpvnIWNox7jcpddPfeMEK6hkrt8loEwqD81x8lhmepVe6cUYfhXRB53Xd9MS0R
-	Yns2vRzQp9R3ajmdkMC+NNxAWCTTtE0=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-671-nJfyWk2ZPmScRrzaByuwug-1; Wed, 02 Jul 2025 23:20:50 -0400
-X-MC-Unique: nJfyWk2ZPmScRrzaByuwug-1
-X-Mimecast-MFC-AGG-ID: nJfyWk2ZPmScRrzaByuwug_1751512849
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2365ab89b52so58167855ad.2
-        for <virtualization@lists.linux.dev>; Wed, 02 Jul 2025 20:20:50 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="luV3DwvX"
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-b34a78bb6e7so3866570a12.3
+        for <virtualization@lists.linux.dev>; Wed, 02 Jul 2025 20:22:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1751512956; x=1752117756; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=u3/FURbw0Qjice8ym2SrrqkCxrOCjqZwE+s45rYEO0E=;
+        b=luV3DwvX00K+i3unH4+g5m8CQBjW6TS/qVluWKQ1aGVku4W85Z9KmmFuQaJeKjN7k2
+         b5xpiN8rDKaIimyU4Um0iLNmL/IzBLZRgLPZiUhiAiokS7Zc8TQjruhA3cao+2B1RaGo
+         88b4VaqnbiFA0CcWxmey6wJT5MeN7jRoO2yOM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751512849; x=1752117649;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9v7tJEEgqy6VJZUTuanr/kpPOrF6V1sH7tRmF54BHwM=;
-        b=IvWPEVpdruH1te4pW37uWOaUi/zcGznwGqtfuY3f/iC6QPUzibCyhDyCY7M5NbIURX
-         150jB4qorhptLNI++0UMDTu2nmJw97cDBarP9XwYw52zaIDDnr4oBXR5LEo6WFGlvs/b
-         sQGIq1Oyary3qrTCWJoWJUEiYpbC8DkFBJniJE+wa8svjumCwyyuNTzelax4Q1mXYY4e
-         KRXkY/8vRvv5mFY7jrAnvG6WPQ6Pyzgoz+OLsOsENGPllLX2Bws88UUkGJaEsw8xiIjG
-         ORyBJM8Rj/7SZLoEIFKx1uFzoLxbVm162YAaJ9GVBK2HqFsqrEJ3esaFEpKPGNpbdECL
-         J6JA==
-X-Forwarded-Encrypted: i=1; AJvYcCWhGq3ROxxJsH0Qa5yw+ulQCv9enS0zrIM0w22deUTUS/C5pJvuEy6sna07ywf2Hpsdz5MYC83TzI0Io1f9Hg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzCGqV49M8qhIY5oAcqh82OBVCzBT81kzHhkhsCwPp0Iuiq9vnI
-	RrYfjCHBLlXlA4S1GvoSqYzZE5fqBaYmfjKOBMsUzXva/fQD+GfvxJycunIdE8e82tGDvGVT+NR
-	vQDM1pEosSsvnV82WcgAvERhIr5oitD7PcFwmx+ifCzhWGq/ydfbw2rAMaQE6k9EeIyx6nt3iHh
-	OuAy3idWLVVa6E90tXTFs0XhVZCPiBr6NNsb2d0NETDCxgXlWpf2uV7//1
-X-Gm-Gg: ASbGncvdGwZh+AwAVmqA05V49PRlrC06CkXpiaCQGbj7i1kV7XmU1VDK/v9VOiV/xjY
-	Ut2g0OVG+kYvO24t/5g2oFVDUseofeU9wrVC8h1/mGtaF2aIoCotfhQN2nX1WffOuqHTmvQPAs1
-	y0iQeD
-X-Received: by 2002:a17:902:da91:b0:234:bfcb:5c21 with SMTP id d9443c01a7336-23c797b28efmr26082265ad.19.1751512849107;
-        Wed, 02 Jul 2025 20:20:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEg2pIZBjOK/FqaU85rpiYhc/c8RAys2kXuUcQ4lOX92J/XbhJ0fdtIc+TGgTNJfl5liSoKWQbXchamvBGnT8I=
-X-Received: by 2002:a17:902:da91:b0:234:bfcb:5c21 with SMTP id
- d9443c01a7336-23c797b28efmr26081905ad.19.1751512848627; Wed, 02 Jul 2025
- 20:20:48 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1751512956; x=1752117756;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=u3/FURbw0Qjice8ym2SrrqkCxrOCjqZwE+s45rYEO0E=;
+        b=HsXFYVxLumoCKi2AMGtrV22BzabIa7/c1dJBuD82DRCAcAHHeNLiqnxpszo+jqWZzr
+         aMOOurIqnqRNnHYs4cx5oMhzGn0CgGEC2p+CC56S0TPN8Gy3ZfVkoYgPEfy2vTlIKrtT
+         cA5ajxFufMvgPkBZdv8re9XVmmRxx0RdJ9zufMzpdm7iMTiHkG7CcsWMai1ANEV+5h9K
+         p/fpK/SICzo/ozUj53n/HJwI8FFqMe+0ZI5/2r8lVAsaFq71EyiwSgXeW48N+NDMq7FK
+         dwkPqw1k2p1Ye9tM/37zKTnKB61g9FncAjpQvOey1wGaJVheQfRC6OiuATtdMtIpHGYP
+         3sog==
+X-Forwarded-Encrypted: i=1; AJvYcCV3ZFGdBSo2xyq2qx+rjNLlyhR2ZACzS5qpOqVHtGEOyvzXOO2+Gc+4txKiAOlnpiGW8Dz0Um/sLvokQYr+xQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzznwpVU7b6OZ3cD5Q1HGBub6MtbBOm3h8AYeW2/k+vV5PJTB5o
+	DjsU8K9T6AVgPG3ByDQPkIcTSaER0YM6ViW7uPIZHrjWHPWqDsGyM9mB24qEw0zMsw==
+X-Gm-Gg: ASbGncvx/ddPI506eTrxlLODwixNmPrBoPFt3nZ2TK1BWNHIls2UcmFe85EH2k/5WX/
+	RN7w2m6NLjJAZzl+tIPglNu9GRhvQMabZQPvmVGQD+WaU+pIsen5QzlIIgb24u2DL6/O0BqsPEQ
+	nxTEoGMRU3W25/Hv65obXMP/Iokr+MiCJog50B75aPO1P2n55Y8ZzMOvKQoRe6FmVklrUf1QpbJ
+	39YPRsO6sepmu0m+p4rgqiWXRz62cKHzQKLanGkFZC9IU6Q490sTyI64eu9a5f2koRfxy3XW/B0
+	ffCXr2vaWMLlzKhjrHrOinbzh2nsjq8gFpoWchWzvsJMsY9+YUPPkcxdgc0wbiLfLmW4hVwjV4u
+	U
+X-Google-Smtp-Source: AGHT+IEAy0Xvd7q1RC5hmp7SawamH/oI/muiFAFExRx9I64wiUZ1PQhrNgi3qS6Dq4f35q/YwfITMQ==
+X-Received: by 2002:a17:90b:3946:b0:311:e8cc:4264 with SMTP id 98e67ed59e1d1-31a9d545d21mr2763491a91.12.1751512955991;
+        Wed, 02 Jul 2025 20:22:35 -0700 (PDT)
+Received: from google.com ([2401:fa00:8f:203:8e3f:7c33:158f:349b])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-31a9cc5204bsm1117959a91.8.2025.07.02.20.22.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Jul 2025 20:22:35 -0700 (PDT)
+Date: Thu, 3 Jul 2025 12:22:23 +0900
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
+	linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev, 
+	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Jerrin Shaji George <jerrin.shaji-george@broadcom.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
+	Minchan Kim <minchan@kernel.org>, Brendan Jackman <jackmanb@google.com>, 
+	Johannes Weiner <hannes@cmpxchg.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
+	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin <linmiaohe@huawei.com>, 
+	Naoya Horiguchi <nao.horiguchi@gmail.com>, Oscar Salvador <osalvador@suse.de>, 
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>, 
+	Qi Zheng <zhengqi.arch@bytedance.com>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Sergey Senozhatsky <senozhatsky@chromium.org>
+Subject: Re: [PATCH v1 12/29] mm/zsmalloc: stop using __ClearPageMovable()
+Message-ID: <vscedd6m3cq73c5ggjjz6ndordivgeh4dmvzeok222bnderr5c@dujm4ndthtxb>
+References: <20250630130011.330477-1-david@redhat.com>
+ <20250630130011.330477-13-david@redhat.com>
+ <zmsay3nrpmjec5n7v44svfa7iwl6vklqan4dgjn4wpvsr5hqt7@cqfwdvhncgrg>
+ <757cf6b9-730b-4b12-9a3d-27699e20e3ac@redhat.com>
+ <ugm7j66msq2w2hd3jg3thsxd2mv7vudozal3nblnfemclvut64@yp7d6vgesath>
+ <11de6ae0-d4ec-43d5-a82e-146d82f17fff@redhat.com>
+ <5thkl2h5qan5gm7putqd4o6yn5ht2c5zeei5qbjoni677xr7po@kbfokuekiubj>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250616082518.10411-1-jasowang@redhat.com> <20250616082518.10411-14-jasowang@redhat.com>
- <20250701021229-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250701021229-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 3 Jul 2025 11:20:37 +0800
-X-Gm-Features: Ac12FXxbljZdRCM4OW6C1KgmjHwBFTe8wRkTLkKm8PQXcJtS6sc3GylASsGsIvI
-Message-ID: <CACGkMEvXTBNK2wxaxw3nDLBrA47WToPkpLLgVXxA7d=X8C6O-w@mail.gmail.com>
-Subject: Re: [PATCH V3 13/19] virtio_ring: introduce virtqueue ops
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: NVWd7HtXqIhNgsfZO7Df6xR3yGazeDXZLBfAb7IBBRg_1751512849
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5thkl2h5qan5gm7putqd4o6yn5ht2c5zeei5qbjoni677xr7po@kbfokuekiubj>
 
-On Tue, Jul 1, 2025 at 2:29=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
-wrote:
->
-> On Mon, Jun 16, 2025 at 04:25:11PM +0800, Jason Wang wrote:
-> > This patch introduces virtqueue ops which is a set of the callbacks
-> > that will be called for different queue layout or features. This would
-> > help to avoid branches for split/packed and will ease the future
-> > implementation like in order.
-> >
-> > Note that in order to eliminate the indirect calls this patch uses
-> > global array of const ops to allow compiler to avoid indirect
-> > branches.
-> >
-> > Tested with CONFIG_MITIGATION_RETPOLINE, no performance differences
-> > were noticed.
-> >
-> > Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c | 172 ++++++++++++++++++++++++++---------
-> >  1 file changed, 129 insertions(+), 43 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.=
-c
-> > index b14bbb4d6713..af32d1a1a1db 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -67,6 +67,12 @@
-> >  #define LAST_ADD_TIME_INVALID(vq)
-> >  #endif
-> >
-> > +enum vq_layout {
-> > +     SPLIT =3D 0,
-> > +     PACKED,
-> > +     VQ_TYPE_MAX,
-> > +};
-> > +
-> >  struct vring_desc_state_split {
-> >       void *data;                     /* Data for callback. */
-> >
-> > @@ -159,12 +165,28 @@ struct vring_virtqueue_packed {
-> >       size_t event_size_in_bytes;
-> >  };
-> >
-> > +struct vring_virtqueue;
-> > +
-> > +struct virtqueue_ops {
-> > +     int (*add)(struct vring_virtqueue *_vq, struct scatterlist *sgs[]=
-,
-> > +                unsigned int total_sg, unsigned int out_sgs,
-> > +                unsigned int in_sgs, void *data,
-> > +                void *ctx, bool premapped, gfp_t gfp);
-> > +     void *(*get)(struct vring_virtqueue *vq, unsigned int *len, void =
-**ctx);
-> > +     bool (*kick_prepare)(struct vring_virtqueue *vq);
-> > +     void (*disable_cb)(struct vring_virtqueue *vq);
-> > +     bool (*enable_cb_delayed)(struct vring_virtqueue *vq);
-> > +     unsigned int (*enable_cb_prepare)(struct vring_virtqueue *vq);
-> > +     bool (*poll)(const struct vring_virtqueue *vq, u16 last_used_idx)=
-;
-> > +     void *(*detach_unused_buf)(struct vring_virtqueue *vq);
-> > +     bool (*more_used)(const struct vring_virtqueue *vq);
-> > +     int (*resize)(struct vring_virtqueue *vq, u32 num);
-> > +     void (*reset)(struct vring_virtqueue *vq);
-> > +};
-> > +
-> >  struct vring_virtqueue {
-> >       struct virtqueue vq;
-> >
-> > -     /* Is this a packed ring? */
-> > -     bool packed_ring;
-> > -
-> >       /* Is DMA API used? */
-> >       bool use_dma_api;
-> >
-> > @@ -180,6 +202,8 @@ struct vring_virtqueue {
-> >       /* Host publishes avail event idx */
-> >       bool event;
-> >
-> > +     enum vq_layout layout;
-> > +
-> >       /* Head of free buffer list. */
-> >       unsigned int free_head;
-> >       /* Number we've added since last sync. */
-> > @@ -232,6 +256,12 @@ static void vring_free(struct virtqueue *_vq);
-> >
-> >  #define to_vvq(_vq) container_of_const(_vq, struct vring_virtqueue, vq=
-)
-> >
-> > +
->
-> Why two empty lines?
+On (25/07/03 11:28), Sergey Senozhatsky wrote:
+> > > > > >    static int zs_page_migrate(struct page *newpage, struct page *page,
+> > > > > > @@ -1736,6 +1736,13 @@ static int zs_page_migrate(struct page *newpage, struct page *page,
+> > > > > >    	unsigned long old_obj, new_obj;
+> > > > > >    	unsigned int obj_idx;
+> > > > > > +	/*
+> > > > > > +	 * TODO: nothing prevents a zspage from getting destroyed while
+> > > > > > +	 * isolated: we should disallow that and defer it.
+> > > > > > +	 */
+> > > > > 
+> > > > > Can you elaborate?
+> > > > 
+> > > > We can only free a zspage in free_zspage() while the page is locked.
+> > > > 
+> > > > After we isolated a zspage page for migration (under page lock!), we drop
+> > >                        ^^ a physical page? (IOW zspage chain page?)
+> > > 
+> > > > the lock again, to retake the lock when trying to migrate it.
+> > > > 
+> > > > That means, there is a window where a zspage can be freed although the page
+> > > > is isolated for migration.
+> > > 
+> > > I see, thanks.  Looks somewhat fragile.  Is this a new thing?
+> > 
+> > No, it's been like that forever. And I was surprised that only zsmalloc
+> > behaves that way
+> 
+> Oh, that makes two of us.
 
-Let me fix that.
-
->
-> > +static inline bool virtqueue_is_packed(const struct vring_virtqueue *v=
-q)
-> > +{
-> > +     return vq->layout =3D=3D PACKED;
-> > +}
-> > +
->
-> So why still have this?
-> Let's replace all uses with a per layout
-> callback. None of them seem to be on the data path.
-> Well, with one exception - there is
-
-I actually start with that but the problem is a lot of codes could be
-duplicated that needs more refactoring which will end up with a pretty
-giant series:
-
-+static const struct virtqueue_ops split_in_order_ops =3D {
-+       .add =3D virtqueue_add_split,
-+       .get =3D virtqueue_get_buf_ctx_split_in_order,
-+       .kick_prepare =3D virtqueue_kick_prepare_split,
-+       .disable_cb =3D virtqueue_disable_cb_split,
-+       .enable_cb_delayed =3D virtqueue_enable_cb_delayed_split,
-+       .enable_cb_prepare =3D virtqueue_enable_cb_prepare_split,
-+       .poll =3D virtqueue_poll_split,
-+       .detach_unused_buf =3D virtqueue_detach_unused_buf_split,
-+       .more_used =3D more_used_split_in_order,
-+       .resize =3D virtqueue_resize_split,
-+       .reset =3D virtqueue_reset_split,
-+};
-
-So I start with the function that has sufficient difference:
-
-virtqueue_get_buf_ctx_split_in_order
-more_used_split_in_order
-
-And leave the rest for the future if we can see performance improvement.
-
-
->         > @@ -2921,7 +3006,7 @@ u32 vring_notification_data(struct virtqu=
-eue *_vq)
->         >       struct vring_virtqueue *vq =3D to_vvq(_vq);
->         >       u16 next;
->         >
->         > -     if (vq->packed_ring)
->         > +     if (virtqueue_is_packed(vq))
->         >               next =3D (vq->packed.next_avail_idx &
->         >                               ~(-(1 << VRING_PACKED_EVENT_F_WRA=
-P_CTR))) |
->         >                       vq->packed.avail_wrap_counter <<
->
-> I think it's the only one? Are we trying to save a function call there?
-> I am fine to keep it as in this patch, or if we do change it,
-> maybe with a separate patch, so if there is a regression we can bisect
-> more easily.
->
-
-Yes.
-
->
->
->
-> For example, for the chunk below, we could have:
->         .init_last_used
->
-> having said that, this patchset is already big, so let us do it with a se=
-parate patch -
-> but if so, the way to split would be in patch 1 to just leave vq->packed_=
-ring
-> in place, gradually replace call sites, and in patch N drop
-> vq->packed_ring.
-
-Ok, let me do that.
-
->
->
-> >  static bool virtqueue_use_indirect(const struct vring_virtqueue *vq,
-> >                                  unsigned int total_sg)
-> >  {
-> > @@ -422,7 +452,7 @@ static void virtqueue_init(struct vring_virtqueue *=
-vq, u32 num)
-> >  {
-> >       vq->vq.num_free =3D num;
-> >
-> > -     if (vq->packed_ring)
-> > +     if (virtqueue_is_packed(vq))
-> >               vq->last_used_idx =3D 0 | (1 << VRING_PACKED_EVENT_F_WRAP=
-_CTR);
-> >       else
-> >               vq->last_used_idx =3D 0;
-> > @@ -1116,6 +1146,8 @@ static int vring_alloc_queue_split(struct vring_v=
-irtqueue_split *vring_split,
-> >       return 0;
-> >  }
-> >
-> > +static const struct virtqueue_ops split_ops;
-> > +
-> >  static struct virtqueue *__vring_new_virtqueue_split(unsigned int inde=
-x,
-> >                                              struct vring_virtqueue_spl=
-it *vring_split,
-> >                                              struct virtio_device *vdev=
-,
-> > @@ -1133,7 +1165,7 @@ static struct virtqueue *__vring_new_virtqueue_sp=
-lit(unsigned int index,
-> >       if (!vq)
-> >               return NULL;
-> >
-> > -     vq->packed_ring =3D false;
-> > +     vq->layout =3D SPLIT;
-> >       vq->vq.callback =3D callback;
-> >       vq->vq.vdev =3D vdev;
-> >       vq->vq.name =3D name;
-> > @@ -2076,6 +2108,8 @@ static void virtqueue_reset_packed(struct vring_v=
-irtqueue *vq)
-> >       virtqueue_vring_init_packed(&vq->packed, !!vq->vq.callback);
-> >  }
-> >
-> > +static const struct virtqueue_ops packed_ops;
-> > +
-> >  static struct virtqueue *__vring_new_virtqueue_packed(unsigned int ind=
-ex,
-> >                                              struct vring_virtqueue_pac=
-ked *vring_packed,
-> >                                              struct virtio_device *vdev=
-,
-> > @@ -2106,7 +2140,7 @@ static struct virtqueue *__vring_new_virtqueue_pa=
-cked(unsigned int index,
-> >  #else
-> >       vq->broken =3D false;
-> >  #endif
-> > -     vq->packed_ring =3D true;
-> > +     vq->layout =3D PACKED;
-> >       vq->dma_dev =3D dma_dev;
-> >       vq->use_dma_api =3D vring_use_dma_api(vdev);
-> >
-> > @@ -2194,6 +2228,39 @@ static int virtqueue_resize_packed(struct vring_=
-virtqueue *vq, u32 num)
-> >       return -ENOMEM;
-> >  }
-> >
-> > +static const struct virtqueue_ops split_ops =3D {
-> > +     .add =3D virtqueue_add_split,
-> > +     .get =3D virtqueue_get_buf_ctx_split,
-> > +     .kick_prepare =3D virtqueue_kick_prepare_split,
-> > +     .disable_cb =3D virtqueue_disable_cb_split,
-> > +     .enable_cb_delayed =3D virtqueue_enable_cb_delayed_split,
-> > +     .enable_cb_prepare =3D virtqueue_enable_cb_prepare_split,
-> > +     .poll =3D virtqueue_poll_split,
-> > +     .detach_unused_buf =3D virtqueue_detach_unused_buf_split,
-> > +     .more_used =3D more_used_split,
-> > +     .resize =3D virtqueue_resize_split,
-> > +     .reset =3D virtqueue_reset_split,
-> > +};
-> > +
-> > +static const struct virtqueue_ops packed_ops =3D {
-> > +     .add =3D virtqueue_add_packed,
-> > +     .get =3D virtqueue_get_buf_ctx_packed,
-> > +     .kick_prepare =3D virtqueue_kick_prepare_packed,
-> > +     .disable_cb =3D virtqueue_disable_cb_packed,
-> > +     .enable_cb_delayed =3D virtqueue_enable_cb_delayed_packed,
-> > +     .enable_cb_prepare =3D virtqueue_enable_cb_prepare_packed,
-> > +     .poll =3D virtqueue_poll_packed,
-> > +     .detach_unused_buf =3D virtqueue_detach_unused_buf_packed,
-> > +     .more_used =3D more_used_packed,
-> > +     .resize =3D virtqueue_resize_packed,
-> > +     .reset =3D virtqueue_reset_packed,
-> > +};
-> > +
-> > +static const struct virtqueue_ops *const all_ops[VQ_TYPE_MAX] =3D {
-> > +     [SPLIT] =3D &split_ops,
-> > +     [PACKED] =3D &packed_ops
-> > +};
-> > +
-> >  static int virtqueue_disable_and_recycle(struct virtqueue *_vq,
-> >                                        void (*recycle)(struct virtqueue=
- *vq, void *buf))
-> >  {
-> > @@ -2236,6 +2303,38 @@ static int virtqueue_enable_after_reset(struct v=
-irtqueue *_vq)
-> >   * Generic functions and exported symbols.
-> >   */
-> >
-> > +#define VIRTQUEUE_CALL(vq, op, ...)                                  \
-> > +     ({                                                              \
-> > +     typeof(all_ops[SPLIT]->op(vq, ##__VA_ARGS__)) ret;              \
->
-> we need an empty line here, after the declaration.
-
-Ok.
-
-Thanks
-
+I sort of wonder if zs_page_migrate() VM_BUG_ON_PAGE() removal and
+zspage check addition need to be landed outside of this series, as
+a zsmalloc fixup.
