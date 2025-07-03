@@ -1,110 +1,211 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF2EB298259
-	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 07:49:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B266299A8A
+	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 07:53:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751528992; cv=none; b=NQWwaQuqLP/EMBW8j6/DF8aHKrI2JPdgibKaAv0CNk8Eku1C1TpDJB/YJxdfPlWLXoBq81KSPNNJL9bLBdKIBSan/ACEHWegiQXb1RIODPsTSthRvG4BSuM2OrCGydMDdMHusZlXzmjz7L4KW4fEkhN9pVeyP8Hrbg0kT0l7EoI=
+	t=1751529227; cv=none; b=Y4LPmjBYTNylg/iEBv8INF7g9RbkFfBvmZ4vrDJ+nEKPYI3/0WIbUi/ci6kWIOhWzhapXSBoRIjVGNJ3EOd9xhNv1neW9go/csw2eB5KVEU1GpzhBWMRvB2dBT4iXdqDnWcJ4S7QkAk8tf7HPPzcbQWnyIcg+dXrL2951TUDCIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751528992; c=relaxed/simple;
-	bh=4rdlP0nTwM1j9GZkgPlLuvN9K1I59CDnggPz0pqAh0M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZfupSitd7WXNYu+hkWmiBFDgygTgJjUWPz03JPKgKbZRLSh3IJ7RRapFXBzWC3tJAVlZ5g8yYDLpOHqRUBqByfD8R3V3XxXFfAzb38CRkmE9bgwRIYfBSY4DHXE0SmITJseBC1xh+il3pTiJNVHdCT4xV1YSObDjHg05nKsxxRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=AqyY3b0T; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1751529227; c=relaxed/simple;
+	bh=EAO/alnjYPf1u5+DtQLR/0pbf21VfVmpJZWS6+1VGvA=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=knaBHDuAbduU4efoUZFWGKTQ65IciP+xyPYvsO9OD60XBPqHwhgmOc/QVla6KfIwGPcbBhnhl1RQnhK26pC7lG+LZ5q1dytb8aoxD4UVV03GCNV5sTyDzOWE37iZphRXL2f8cnGwrZ48urTZC1ZHJ7A0DXnfM2ZF9Y89ZOXhF2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X+0/MOgf; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="AqyY3b0T"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-234f17910d8so75289705ad.3
-        for <virtualization@lists.linux.dev>; Thu, 03 Jul 2025 00:49:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X+0/MOgf"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-b31d489a76dso4786836a12.1
+        for <virtualization@lists.linux.dev>; Thu, 03 Jul 2025 00:53:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1751528990; x=1752133790; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4rdlP0nTwM1j9GZkgPlLuvN9K1I59CDnggPz0pqAh0M=;
-        b=AqyY3b0TW+zQZtio60N32rV5o/Un7ntPA3KtpQYUBs6VXFbmzJ2UL/Dmx9h05iRwzs
-         awnEp6XyhEri2MACssjeUBb60WipOk5VT3n6Hztv5/mtTjef3xS0ndpsHjDtrV2XXV8J
-         8VEXtvfS+ZESaWULI0uSNwb92ncYpoX9Vx0nQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751528990; x=1752133790;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1751529225; x=1752134025; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4rdlP0nTwM1j9GZkgPlLuvN9K1I59CDnggPz0pqAh0M=;
-        b=IpY9F/2k+n4StBZOHXAG2eVmtKnlmi8QGaB7VNiAprsmORjPwGFyD/xrOoA5uBd86G
-         2g5GjmtWAiQTifJB2JZ0NJVjFnb4+tzI25uAcw5TvE1feUKB2RobH0RaLfB5GcjanS1C
-         ccTPV99B3lwVZBMOMcJxyV6UpUC1pvlcZlgMzAYxPoTNe5BsE2oxuEtLu9xLo6hSRLTQ
-         mOHAzDSJ095HojrBF0SRaEiRFz9hWTOBhV5nIQ18E/orp0dYfqVxrTy3Z3qzRTZDkrtI
-         uLHlqFeL5F+WqHjOsXBAIcHodnyUbzRl6mSGrQDhPmQu4jcct6JSAMsXVFB+ijfDiMZ3
-         qgqg==
-X-Forwarded-Encrypted: i=1; AJvYcCWv5bk5Vjs3i3Rs4gSsbZ/0kxauQYiOqL7wVzWsb1A/ZXMzLcFIAKm5Y5Eu8YJtXhEFiekpD2BGu9JWcig9Kg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzJdMb0a4FuXdFNhn51J9+cpCuh19MfBRy2OykfbbPUMVKgLgpb
-	sjj+7czLrYeaaAnxzVZXKmT/t5XNZmdMOUIiJQ3h1/qKS07rG1MRirA0Y8WlzY8udQ==
-X-Gm-Gg: ASbGncuy3mG4lYJK3mGgECqioYI/N3/TMAZTZOxKj/Kcr3Ja2EpFpLmS+vd+DnfsX5r
-	IgHdLFn0igFSsSti0TpPraKp3OZxqc34q3sRLjaaJTrbmeSL31uqp+oUj2Az53hiLlGZOfOjT5x
-	iAWlQzY80471jeKoi4sFtZXGecW+7aZtTX0c7oKSp7Fnpc7NQO136i0dJ/X0ZbTa737kwQVdn/c
-	b8RK00H9cgCKASNErSP/BwGw96/72PxSxYk6cITf/D/p1/olj2hk+s3FL3AV8x0d1fbW9L3UVGT
-	L0Al265okly2+G0Bz2K1mqvW6k0gMV85DKK2LDkwVOWax9hSJAOFb0fYhYG1ArmoMg==
-X-Google-Smtp-Source: AGHT+IEKxYsiAxh8kaPSjnmxQLTx3GgbE7KRESYB7LYtUj4r49YBA8q40hB+RM5u8/Kf7sPDiMHXFw==
-X-Received: by 2002:a17:903:1b65:b0:235:f2d7:375e with SMTP id d9443c01a7336-23c79842f5cmr39376735ad.52.1751528990271;
-        Thu, 03 Jul 2025 00:49:50 -0700 (PDT)
-Received: from google.com ([2401:fa00:8f:203:8e3f:7c33:158f:349b])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23acb39ba83sm144377755ad.89.2025.07.03.00.49.40
+        bh=o5Z3Ibg5dI0YI2U0Q0aEUI660v44K9U+DyvKSIB5G4w=;
+        b=X+0/MOgfvUZ4Aw2m70AOLfeH/ZjhFzruu2YOJgE/oO1cHTgAmutrHai2Lw4uGCLpO/
+         7EKGA2LnWtwTd4r1FNi0pBnSSwM/DUQfLrHZJ+sNxPst8yb0bfcAOlVnEWZ61RoT+FnD
+         0SpSzHD+U5+U6CqXTYA67b4zCFAcEFoY0fPh5fyYIrZNnpAgFJgA9EBqJbj1I5WfXXwS
+         yf90sCYNZcRCgGYOhc/uV8pQObWN3Lb/QptebyZ9CAnDUKU/7MnsEDnOQkAJtEj7Uun4
+         a67pu+ySxFxKGlJ74z15dL/dgqtdc40CxocgOGGmm6kx34pdJBk1VyjQ+Rw7nTKn/vFa
+         +WRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751529225; x=1752134025;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=o5Z3Ibg5dI0YI2U0Q0aEUI660v44K9U+DyvKSIB5G4w=;
+        b=qm2OG8oLPLH7zDGVoHIbBgmd1X2V5OaxQbixR4oXOObzVCYxtugHBV/GtdrcGB9MaA
+         ai+DouMdLWSca+wtNjRFSJ4pcHUnVPsJr0VYvu46n7nfDR+XzgybaIQAIcnkljsD9gE5
+         7kuTu51ega5KYEZaZxIqk/tNdfA5+zyRuRIF3tDA/0YwklMEauehp1h+tD+MiWsHU/hx
+         uJ6gAqpI8AbDCW7znNPLinbTS0Iak09HZp8nyIsHv2tRdPIdu6izhstWYtK8J6W7O5wh
+         /PCWKlfeY1DWrwH5dn/5ejzgAX+XEnUqparpEtFThnni7QueRpqe9fqwAUBw8pKGFl2+
+         LzTA==
+X-Forwarded-Encrypted: i=1; AJvYcCWphBVsHySapvxAdZXCt3bNxQlABhj61vlgelRQJLdB7b4cMoi2Axpu2FdUICnm6+vI1Su0VUZSzVs8kKl/SQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxBIXgFpK6dba4pOfjAiGGTAQmgXS+GIB+KBjwnBaMtfyyC5Lyf
+	NDgAVz43e0I/MCK1tEwwdSxec1xueJwBA2WcB7fAeMm/E79uU6Wk9WEz
+X-Gm-Gg: ASbGncuodstmN9G3QC6l4s4ti9vhzFdmUGfMGrtaJ7UOBBoK7CzrGo4w4XEEVPHRPFd
+	YUJ9qWclTjmVl258u/pt1Bf3f0LkcTWYrde2vHqEv0PJu+Ap6cIBWSTtqPCQvb2Boe3a1qjTp5L
+	fpT6iAgLdJrNZdiql4tr/Hc45+2OW+6+KYIx9oF0OSVCyKUP9b5yrc224mC2WvC9m7jLKtt3vEn
+	jd4lQOqIsf4IJultxdIDThfFCuOJjXe9mCl8mkU2aFi8GVZ9MDO2EMTmr9/p4lnBFgPCWmZDVrR
+	qT4WjYNbhhpj4JM+Z/DvvIau9PL1duZk6/ycV1nu0Hef3CgVokbsBSN2umDoKLZxnexmx5x/OOc
+	pqzZAbU3WAbra6Yp8DBE=
+X-Google-Smtp-Source: AGHT+IG5wCaASyniAIni8ifVqNeDb2b7kJdZU/BUNxpaGI75twsZCp3n4qDX+fcy/2jRkP4DZDxYgw==
+X-Received: by 2002:a17:90b:4c84:b0:312:1ae9:153a with SMTP id 98e67ed59e1d1-31a90bef1a8mr8956064a91.25.1751529224280;
+        Thu, 03 Jul 2025 00:53:44 -0700 (PDT)
+Received: from devant.antgroup-inc.local ([47.89.83.0])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-31a9cc5a266sm1788596a91.12.2025.07.03.00.53.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Jul 2025 00:49:49 -0700 (PDT)
-Date: Thu, 3 Jul 2025 16:49:37 +0900
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-doc@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org, 
-	Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Jerrin Shaji George <jerrin.shaji-george@broadcom.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Zi Yan <ziy@nvidia.com>, 
-	Matthew Brost <matthew.brost@intel.com>, Joshua Hahn <joshua.hahnjy@gmail.com>, 
-	Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
-	Minchan Kim <minchan@kernel.org>, Brendan Jackman <jackmanb@google.com>, 
-	Johannes Weiner <hannes@cmpxchg.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
-	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin <linmiaohe@huawei.com>, 
-	Naoya Horiguchi <nao.horiguchi@gmail.com>, Oscar Salvador <osalvador@suse.de>, 
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry.yoo@oracle.com>, 
-	Qi Zheng <zhengqi.arch@bytedance.com>, Shakeel Butt <shakeel.butt@linux.dev>
-Subject: Re: [PATCH v1 12/29] mm/zsmalloc: stop using __ClearPageMovable()
-Message-ID: <w2hhkx6nwgtk22bcyqm7drvozddwiumj6glixpyrrub7f4ivvf@3as22jquijyu>
-References: <20250630130011.330477-1-david@redhat.com>
- <20250630130011.330477-13-david@redhat.com>
- <zmsay3nrpmjec5n7v44svfa7iwl6vklqan4dgjn4wpvsr5hqt7@cqfwdvhncgrg>
- <757cf6b9-730b-4b12-9a3d-27699e20e3ac@redhat.com>
- <ugm7j66msq2w2hd3jg3thsxd2mv7vudozal3nblnfemclvut64@yp7d6vgesath>
- <11de6ae0-d4ec-43d5-a82e-146d82f17fff@redhat.com>
- <5thkl2h5qan5gm7putqd4o6yn5ht2c5zeei5qbjoni677xr7po@kbfokuekiubj>
- <vscedd6m3cq73c5ggjjz6ndordivgeh4dmvzeok222bnderr5c@dujm4ndthtxb>
- <6a83e3e1-ab1d-409b-8395-df363321cade@redhat.com>
+        Thu, 03 Jul 2025 00:53:43 -0700 (PDT)
+From: Xuewei Niu <niuxuewei97@gmail.com>
+X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+To: sgarzare@redhat.com
+Cc: davem@davemloft.net,
+	decui@microsoft.com,
+	fupan.lfp@antgroup.com,
+	jasowang@redhat.com,
+	kvm@vger.kernel.org,
+	leonardi@redhat.com,
+	linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	netdev@vger.kernel.org,
+	niuxuewei.nxw@antgroup.com,
+	niuxuewei97@gmail.com,
+	pabeni@redhat.com,
+	stefanha@redhat.com,
+	virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [RESEND PATCH net-next v4 3/4] test/vsock: Add retry mechanism to ioctl wrapper
+Date: Thu,  3 Jul 2025 15:53:28 +0800
+Message-Id: <20250703075328.1004942-1-niuxuewei.nxw@antgroup.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <ceulzs7srd77t57ozaauveim4dlp6stqmbvvjh5dketapmjzhv@nu6gruoyidze>
+References: <ceulzs7srd77t57ozaauveim4dlp6stqmbvvjh5dketapmjzhv@nu6gruoyidze>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6a83e3e1-ab1d-409b-8395-df363321cade@redhat.com>
+Content-Transfer-Encoding: 8bit
 
-On (25/07/03 09:45), David Hildenbrand wrote:
-> Not sure if there is real value for that; given the review status, I assume
-> this series won't take too long to be ready for upstream. Of course, if that
-> is not the case we could try pulling them out.
+> On Thu, Jul 03, 2025 at 11:05:14AM +0800, Xuewei Niu wrote:
+> >Resend: the previous message was rejected due to HTML
+> >Resend: forgot to reply all...
+> >
+> >> On Mon, Jun 30, 2025 at 03:57:26PM +0800, Xuewei Niu wrote:
+> >> >Wrap the ioctl in `ioctl_int()`, which takes a pointer to the actual
+> >> >int value and an expected int value. The function will not return until
+> >> >either the ioctl returns the expected value or a timeout occurs, thus
+> >> >avoiding immediate failure.
+> >> >
+> >> >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+> >> >---
+> >> > tools/testing/vsock/util.c | 32 +++++++++++++++++++++++---------
+> >> > tools/testing/vsock/util.h |  1 +
+> >> > 2 files changed, 24 insertions(+), 9 deletions(-)
+> >> >
+> >> >diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+> >> >index 0c7e9cbcbc85..481c395227e4 100644
+> >> >--- a/tools/testing/vsock/util.c
+> >> >+++ b/tools/testing/vsock/util.c
+> >> >@@ -16,6 +16,7 @@
+> >> > #include <unistd.h>
+> >> > #include <assert.h>
+> >> > #include <sys/epoll.h>
+> >> >+#include <sys/ioctl.h>
+> >> > #include <sys/mman.h>
+> >> > #include <linux/sockios.h>
+> >> >
+> >> >@@ -97,28 +98,41 @@ void vsock_wait_remote_close(int fd)
+> >> > 	close(epollfd);
+> >> > }
+> >> >
+> >> >-/* Wait until transport reports no data left to be sent.
+> >> >- * Return false if transport does not implement the unsent_bytes()
+> >> >callback.
+> >> >+/* Wait until ioctl gives an expected int value.
+> >> >+ * Return false if the op is not supported.
+> >> >  */
+> >> >-bool vsock_wait_sent(int fd)
+> >> >+bool vsock_ioctl_int(int fd, unsigned long op, int *actual, int expected)
+> >>
+> >> Why we need the `actual` parameter?
+> >
+> >We can exit early `if (*actual == expected)`, and the `expected` can be any integer.
+> >I also make it to be a pointer, because the caller might need to have the actual value.
+> 
+> IIUC this function return true if `*actual == expected` or false if 
+> there was an error, so I don't see the point of aving `actual`, since it 
+> can only be equal to `expected` if it returns true, or invalid if it 
+> returs false.
 
-Sounds good to me.
+Nice catch! I'll remove it in v5.
+
+Thanks,
+Xuewei
+
+> Thanks,
+> Stefano
+> 
+> >
+> >Thanks,
+> >Xuewei
+> >
+> >> > {
+> >> >-	int ret, sock_bytes_unsent;
+> >> >+	int ret;
+> >> >+	char name[32];
+> >> >+
+> >> >+	snprintf(name, sizeof(name), "ioctl(%lu)", op);
+> >> >
+> >> > 	timeout_begin(TIMEOUT);
+> >> > 	do {
+> >> >-		ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
+> >> >+		ret = ioctl(fd, op, actual);
+> >> > 		if (ret < 0) {
+> >> > 			if (errno == EOPNOTSUPP)
+> >> > 				break;
+> >> >
+> >> >-			perror("ioctl(SIOCOUTQ)");
+> >> >+			perror(name);
+> >> > 			exit(EXIT_FAILURE);
+> >> > 		}
+> >> >-		timeout_check("SIOCOUTQ");
+> >> >-	} while (sock_bytes_unsent != 0);
+> >> >+		timeout_check(name);
+> >> >+	} while (*actual != expected);
+> >> > 	timeout_end();
+> >> >
+> >> >-	return !ret;
+> >> >+	return ret >= 0;
+> >> >+}
+> >> >+
+> >> >+/* Wait until transport reports no data left to be sent.
+> >> >+ * Return false if transport does not implement the unsent_bytes() callback.
+> >> >+ */
+> >> >+bool vsock_wait_sent(int fd)
+> >> >+{
+> >> >+	int sock_bytes_unsent;
+> >> >+
+> >> >+	return vsock_ioctl_int(fd, SIOCOUTQ, &sock_bytes_unsent, 0);
+> >> > }
+> >> >
+> >> > /* Create socket <type>, bind to <cid, port> and return the file descriptor. */
+> >> >diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+> >> >index 5e2db67072d5..d59581f68d61 100644
+> >> >--- a/tools/testing/vsock/util.h
+> >> >+++ b/tools/testing/vsock/util.h
+> >> >@@ -54,6 +54,7 @@ int vsock_stream_listen(unsigned int cid, unsigned int port);
+> >> > int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
+> >> > 			   struct sockaddr_vm *clientaddrp);
+> >> > void vsock_wait_remote_close(int fd);
+> >> >+bool vsock_ioctl_int(int fd, unsigned long op, int *actual, int expected);
+> >> > bool vsock_wait_sent(int fd);
+> >> > void send_buf(int fd, const void *buf, size_t len, int flags,
+> >> > 	      ssize_t expected_ret);
+> >> >--
+> >> >2.34.1
+> >> >
+> >
