@@ -1,318 +1,268 @@
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2065.outbound.protection.outlook.com [40.107.236.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 196FA42A87
-	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 05:02:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.236.65
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751518943; cv=fail; b=OK7hco/Dt0auUrsqh5TrdMuSMiwcaj3TgFIVFF7+bsHC4nzasflm3gsaqfw/MPDB+UVOpIawlkXUCWuZvODtsyUFWZ5CSjj9gx6BePH7n4GxLPhJvCo07UisNIZCDHzq25DpK3lMpvWl4QXwddIjWIsOpGhqFLXEg4c18GPxlQg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751518943; c=relaxed/simple;
-	bh=/Wjid3penuhZIvFjtfz44WUqEC+Zzmgy5dlHdXPPeFw=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=IQpTLJF5+C2AgmEUYIs8DKivUDGCZ+/6G7urlNXmbL+duCqOWGzdrSLi4MLM7WZ8qg8d7lDtXEvMs2NUxJ2JNcGLELpCX86r2wrp0r90zFI9g22UG0uoaoIgtYsQOqrVvNdN4M864DlzqbZqvJqQtNbNCi2VXUoNd0MYWAOC6gc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=FMzM40Bk; arc=fail smtp.client-ip=40.107.236.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 794C728935E
+	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 06:18:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1751523541; cv=none; b=X07p1Wzlc5UneMhJzqY1oeoPnq+FYzGJn9YF2vePM1+D69I1Dz3ww80H2AX5DBNrdI4ZPcGTAtk8VgQrvfgz4pnOq16vok2lC6EeAAdjFiLRbZb4S3j0H1l+/vAjHYQ1zv+IodpY4rEmKNmH8b01Ul/x6oeSQeyPtKZ6sHFbpbg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1751523541; c=relaxed/simple;
+	bh=IuSe0+IF6k6hjIa925nr5aocivWfI9xJ/qQAJST0PBI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=opaLuGhILRKA/eq1O6F7RbrFrg6Et5g+JmMMpjC6+xblzu3fUxGBtTT64M6rioCCn0Dz19OE1m5OrvsnNKWWq+fCB8y9I1MP+UN+feHGL6FTyNXU6mqdqlnTVz2OmcoG91L3FuyzBw8Y5gwILFnXoUBFhIBlxVT4uEUUWNTfC9I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Ngz79uYZ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=rQpKV1LN; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Ngz79uYZ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=rQpKV1LN; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="FMzM40Bk"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=JK5Db8uroA7zu4dbuVC1as8eV0Cs+PU3tCxnEu8GJWtRtY6Rlt9+EbmsC9NJ1ARtFhAM9T6zM139gQFmFOuZUonW2eVYJg7pNnwmDlZ/CNZKO5c1QPLE+zjSY9/AxnDMzxvIyoVOEpUG5AxqTLxB/bpPz7164mApe/k95A2VkzczgtrD51O0nyOpR+sHjJIL1CMr9G2okkI66xckDqvFC3fv/qKzVnegk8RgLwK3xVAvaPJtf8kzCvzFUxNkMkLwM9aCiS4ulqhiialmIJVCK/I9QqhGQ34NEIBrxOERLjPOkqFsYt51Va7cOJMY1mqZaR6biPigiQ08f8rO5VLH9g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=og56++tqdztXclDkomzANBIW9vaOSteA8ymL9t7tp84=;
- b=gYwGBlH4d6QV2et3JGg4/2mRovxlhIE3rUMxH7AUSd8nBSkx8EZlprEf/f4x//Xjck+fuEzlaKnzOK21Zg0ziIZyYGWmmrn/UiiRKaDYQE0twksBZsy9RjgVEGN4mOdqGc5VA6Esbg5SnMTYmDnZN0qNbC7yWHbiENIThowfKrwiC9sDIiZgwpmtvfi7Uco1Yx2ZAn9VkYwtOI2YqdmTlrZTPrwwN+bYtFbr8SOXciXsLqXDrRWAtbb2jl/negWpqLLKL9+JqA6Q1t0SVoKvJUqGEd2G3j/ulm4cNOW4XHyesGAnKioE41z0xvbRdJ1O3wgA+4Lvr3Bf1rftrFg4ZQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=og56++tqdztXclDkomzANBIW9vaOSteA8ymL9t7tp84=;
- b=FMzM40BkeFqYLobpohlPqqZwfPRu1QrGFSGBS0fZAEJyAm5fcUpS9lNEORymmIGiP80TVpa45b+LVbDsFWa5EL3soncOKELdrmAbNCFGYMLy5Q7gAf3C5Q5fBA0IB940aumzwk389fwb4XAbXeVx8EZtx7Szq6JNrQvdKRuq/EWqZiws/y6kG1uDSeZeXOfXDW/85YWc4Y5N1hZwQxNG9tyYyYafcpJkkrQS4b59Tmtv22p2GxYdbw/Kfq6lHTdBnM5Z1nf4y8/DfATwGLqukZmXHCRWaxXipjAyx1Jr5nD3hJ1M2O/ObnviSSrQErIRnwvVs3fT8fSjYbI8t80tJQ==
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
- by PH7PR12MB6833.namprd12.prod.outlook.com (2603:10b6:510:1af::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8880.33; Thu, 3 Jul
- 2025 05:02:13 +0000
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::e571:5f76:2b46:e0f8]) by CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::e571:5f76:2b46:e0f8%4]) with mapi id 15.20.8880.029; Thu, 3 Jul 2025
- 05:02:13 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-CC: Bjorn Helgaas <bhelgaas@google.com>, "linux-pci@vger.kernel.org"
-	<linux-pci@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>,
-	"alok.a.tiwari@oracle.com" <alok.a.tiwari@oracle.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-Subject: RE: [PATCH RFC v3] pci: report surprise removal event
-Thread-Topic: [PATCH RFC v3] pci: report surprise removal event
-Thread-Index: AQHb63Ya2qJTaIlBG0ygpVTJgWwo57Qf1MEg
-Date: Thu, 3 Jul 2025 05:02:13 +0000
-Message-ID:
- <CY8PR12MB719502AAF4847610CD9C7286DC43A@CY8PR12MB7195.namprd12.prod.outlook.com>
-References:
- <1eac13450ade12cc98b15c5864e5bcd57f9e9882.1751440755.git.mst@redhat.com>
- <20250702132314-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250702132314-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|PH7PR12MB6833:EE_
-x-ms-office365-filtering-correlation-id: e5d08de3-c968-4d3f-22e6-08ddb9eec63e
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700018;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?C0qKlreaoB0cGu1w0snGZlenB/ponkU2Q4rNPDxfzWqGikKcfJYACMd6mreL?=
- =?us-ascii?Q?JO89xM6Et0w+iWXSaUqD4C/niR2vxDe2eM1iYtf5PizLb86nrHrpXXI0zi2M?=
- =?us-ascii?Q?icq0BdTgS2M2tSfXCLX/gQb6Eqh9ZOQnxy6r7IOHbzr2oZ/bbq1rPFx1KMCM?=
- =?us-ascii?Q?u6Yh+SouI+wRU3sibh6gBYEMMdA6qasL29Sdi75C9ldbrT+oQAFLMd95wrEh?=
- =?us-ascii?Q?1JUAViMTzBRG9ZUUSHDAdZ5tB4T/3el2JBMgSKC3Gz/uuj3rimgEYV0Kf68K?=
- =?us-ascii?Q?25LFm88gNJF52AcYIwzvGlWznytvigBzBR0GB2DyrMu3xzUXgrKxAqKHucWr?=
- =?us-ascii?Q?nsdpm9ZgLB7J1QX4NIlBl1XJdriQjYt90wiLt4Wd+GqwvITZpgwtcmUQOxbe?=
- =?us-ascii?Q?4lQCd8nDVSKViz628QJyNWJbYDYfkGGMXpsTCdi9IMUYnRMtpY/L4S9FAiFm?=
- =?us-ascii?Q?P5UXSckDs9+IqfP51KekzB+oJ/XzHIc4FHGlYxykrb6jCJo/nmnqZECu64Eq?=
- =?us-ascii?Q?LfbMV492WXw/fJdHjv7zIorDQY3jwJgVUgTDssDNehg1960A6BeNBdCQt3Cn?=
- =?us-ascii?Q?eh8/O92FDa+OEQ68z9wQ5XWXX8Xb9Vs6ymRx/5YeQlCG7lspBeSYmO6q6m5w?=
- =?us-ascii?Q?VGjcOcF2NKoNFRg/Id5fIpicVMdOVTCOr01s8RR/0/XBIZbJtBKm70avCsBC?=
- =?us-ascii?Q?y5Em2lS8f13L6OdcO7tXBtdE86JZlOR05+XuohwzmBj1OqNIduNdmY3nNakn?=
- =?us-ascii?Q?Fq0R+ULocT4mAmEkH8Rtyu9GOQQLh5+oibA4W8Y36MIQ1Cevh3JCHXht8tn6?=
- =?us-ascii?Q?q6XX6LSD8f5h2OW5pDiUIQqYh+m516LJfANuEsYa0jVXp878zjFpyajPtOue?=
- =?us-ascii?Q?gCctBUOcpo98dzzkUGBjkh9yp05+fbCZ5iuM1ZlWGwIxJuKxv8NPdMSUQNDE?=
- =?us-ascii?Q?EjKSRLY1YQafPPDbelBi86MF0zc43RwxyHVn/L0kstmD1hmT1rXPgbiIHcVt?=
- =?us-ascii?Q?Di0OEpMimv9KHHss5yURsRAnj+WTlSgVH/vLNR025t6XOrgWX0Sob4hQAX1w?=
- =?us-ascii?Q?677szHq2j4zwQ7uhxvRUZulGVcuYJdCSJdnNqMYdeozbx42W/IkI8UONC7hr?=
- =?us-ascii?Q?6JV+J0zsgrtKF66nDIlK4KnWJQREmTOQnXCNczNp+sB79J4grz0IechvvJpA?=
- =?us-ascii?Q?r3mfkrFuMWdrx8jMrUvRJ20xI9OGFQyzrg0mKg7QS5/XJFucIBixa5K8Fszc?=
- =?us-ascii?Q?esnzrRXmwJL29uogMov/wi+xdsoZNvTibUqOz6FLFDMvKTI61/2Cg0gdv9il?=
- =?us-ascii?Q?egLihoICCXwDx8hLjP9+YRO3rciO17b/yDNohVWzNOlI5W4hBjTsF6Gmi14R?=
- =?us-ascii?Q?HxjqtsEKNauwN9+X+tWikzZiSmsGWFUdvQu8BLnbhxrVRnJQIF5uQ86DeyJl?=
- =?us-ascii?Q?0vjUQNNRzL9L555uu6prIf9Ks0l7PNcq1y0sdKBoqKYU5FcYHRyIWCcaQH22?=
- =?us-ascii?Q?5jdlz1EbVqCfy+A=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?lQexSonU+t77LuPr1yD8aa5PSbg+yT0pMMjV8eA/i3DKWREIBgvD9+6fySC1?=
- =?us-ascii?Q?qekNPn3aAyPbbktz1cWTXguxlfCSa37tunTzsCH25SzrXFs7zsedvxo479pJ?=
- =?us-ascii?Q?ddroydfjjBbQRYI8D/AEmia/gYeUq6Mqyc4lnlunDfYvZBy5N2zOV1y9iToL?=
- =?us-ascii?Q?70bH7rNcDq+uWh6mr1dQmm+8u/ZvYsEvddEZUVOYHPDMyh5eqxqkp9amRC7P?=
- =?us-ascii?Q?QWKsf4rvsMXp8Spn47AYOEXkZymwrDW884yQarBdrEQkikg+pFWKSg0wclAc?=
- =?us-ascii?Q?mGcgRXEkCa/jAyhq3SRnADKTUkV+cJelQxFl3JyZWqs9CuyelYkjmBgvaQKa?=
- =?us-ascii?Q?NSYr3bDANRMaF6hZjC8ihUJ100rlE4/13/3qURPxsDDBOMnkIJ5N3pE4xBDC?=
- =?us-ascii?Q?AFKzW76MwCpoUAEvM9/4gQhZHITJBv22Yrdj08HTzLaGYgVr3gezd8k3/9gf?=
- =?us-ascii?Q?nqPh6YKnPtADF65He6XJv+V6oRmx8wSOI068Ia34ivrHcd7HZA/WHjZxQc8s?=
- =?us-ascii?Q?J4ft8bgfV3lu7V8SIqXy+rQUVnSA247cOr19N93qnOepXTRZBtCJwwmWPpKm?=
- =?us-ascii?Q?0c3DLANDGeb1DGX+PP0K+mXpBKGEXFTPm+iIeJZZsLTMeGLE9zgDnGvuXqpl?=
- =?us-ascii?Q?YEpdlEweDzLxGjcm4Riy+KXUKzsRQKdyPpgx566x7l9DDHh1RyGyFr1mx8NK?=
- =?us-ascii?Q?ENug6PbGUZV7vAjxEadoitPGKziaOYGGMFna7uyYOrrMuYmLXPsdR56eAkNs?=
- =?us-ascii?Q?kTUsiG6N75tfOdCIQxWmPfjy9sZQDeQvIR5BVbpoqtbHxQVH8jeZH6F+WYE1?=
- =?us-ascii?Q?PyibtHSdsY7aU/7XDza+MnYtc9dRg6sm6kPrAK0u7LBnibcZehWYSPJAqMd6?=
- =?us-ascii?Q?GwBZzGk+cWNoB1Jwr1BVNaZdHAeD9E0nopMnct8INwmvkIAuRV/Vsq9iEsBi?=
- =?us-ascii?Q?FxTFYDfQ6uhgBNYBnPA56CvOYewrr/1KPPrx/aKLnoFEQQXA2DeYatEyHO+/?=
- =?us-ascii?Q?EuEOFcbLAqwa9kLWV+omE337ZdhtDdHBhA0/uMAO6qrh2j+K385fa+Dwz51j?=
- =?us-ascii?Q?dErUPtj6t+RD6WdhYFeRcrUz3yEHT/1CoI5khfhBcAzprmrUjAt7w39vuXGM?=
- =?us-ascii?Q?qwSZe3gvglR7w519r3iTmz5SEtD9KGDeUZaZz0GN8jZyDro+mmZ0Wq++XqSU?=
- =?us-ascii?Q?uns0jahT7///HUBcF2VHmW8h1doXKqslGAMTepAbpEReRhO7rBhlqQmtvivq?=
- =?us-ascii?Q?1EWWqd5ZTsCzYZTh3fhCwsweHR99LHAChGlVfe2HTMK+EjOJRYyKfWLTdsSH?=
- =?us-ascii?Q?RX5kOdGuHNkict7rE2zuOKkYKDxW9WSeee0YTeOiFaYOYOTVJ6+TjxEiwArf?=
- =?us-ascii?Q?MP17zv6TQOYXM1pbnhQW9dibTcRFZGH/waJbwa2TSdWJ/KqiYlQaCUmbMpzF?=
- =?us-ascii?Q?IeCiMYh5acz9D6gpj3Q4cZZ0NaA1qvmm/7YRUKiqiZy79Or9qUxwBZLSlJ5d?=
- =?us-ascii?Q?IO4Bj/r06KGOVeC8GiWvOajw8VxBAUVC9960AaK+vWS9n8QMN+SUGsn9yQ22?=
- =?us-ascii?Q?lud7T4suujqJxNMstvQ=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Ngz79uYZ";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="rQpKV1LN";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Ngz79uYZ";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="rQpKV1LN"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 1E0CE21191;
+	Thu,  3 Jul 2025 06:18:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1751523532; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xVQJP7K1t29zHa2r0HLkS0OKCgM09HDXXHqWgIEtN7Y=;
+	b=Ngz79uYZJvypcya60eO+P/eNuXb2eLxhes1l3+MtucZ6LAIvZ/mnWKs1SllR6CpEmeggUt
+	ESr9GThS2WlmtI7J76jCZZ95XXHQUX8+z3sqZRawiy70zDd5F3PPMmGd1OsvRQp6eRVn4N
+	kE3/g6XAw6ah9nzVbWB7kPC/+VLPMns=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1751523532;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xVQJP7K1t29zHa2r0HLkS0OKCgM09HDXXHqWgIEtN7Y=;
+	b=rQpKV1LNj8tlfdKU7ItEYWjCTowFNr3xPad5FEeNvEcGrJDpF9YKS64idblUnAOPs0eUip
+	7j5FWDlY938gEGDg==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=Ngz79uYZ;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=rQpKV1LN
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1751523532; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xVQJP7K1t29zHa2r0HLkS0OKCgM09HDXXHqWgIEtN7Y=;
+	b=Ngz79uYZJvypcya60eO+P/eNuXb2eLxhes1l3+MtucZ6LAIvZ/mnWKs1SllR6CpEmeggUt
+	ESr9GThS2WlmtI7J76jCZZ95XXHQUX8+z3sqZRawiy70zDd5F3PPMmGd1OsvRQp6eRVn4N
+	kE3/g6XAw6ah9nzVbWB7kPC/+VLPMns=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1751523532;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xVQJP7K1t29zHa2r0HLkS0OKCgM09HDXXHqWgIEtN7Y=;
+	b=rQpKV1LNj8tlfdKU7ItEYWjCTowFNr3xPad5FEeNvEcGrJDpF9YKS64idblUnAOPs0eUip
+	7j5FWDlY938gEGDg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2B5951368E;
+	Thu,  3 Jul 2025 06:18:51 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id AvWRB8sgZmj+RQAAD6G6ig
+	(envelope-from <hare@suse.de>); Thu, 03 Jul 2025 06:18:51 +0000
+Message-ID: <db0cbbe2-792c-4263-8be9-14b76eb0f7e6@suse.de>
+Date: Thu, 3 Jul 2025 08:18:50 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e5d08de3-c968-4d3f-22e6-08ddb9eec63e
-X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Jul 2025 05:02:13.5660
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Kl3VD8lnymAjcpKKnblJWPr/MtD+QPU9bH0n1jWD6gIAuaWkQfuEkhG5TP8WyPlxvHSolXqvmn3rrPsCwc5bIw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6833
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 01/10] lib/group_cpus: Add group_masks_cpus_evenly()
+To: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+ Sagi Grimberg <sagi@grimberg.me>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Aaron Tomlin <atomlin@atomlin.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Costa Shulyupin
+ <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
+ Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>,
+ Ming Lei <ming.lei@redhat.com>, Frederic Weisbecker <frederic@kernel.org>,
+ Mel Gorman <mgorman@suse.de>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+ linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com,
+ linux-scsi@vger.kernel.org, storagedev@microchip.com,
+ virtualization@lists.linux.dev, GR-QLogic-Storage-Upstream@marvell.com
+References: <20250702-isolcpus-io-queues-v7-0-557aa7eacce4@kernel.org>
+ <20250702-isolcpus-io-queues-v7-1-557aa7eacce4@kernel.org>
+Content-Language: en-US
+From: Hannes Reinecke <hare@suse.de>
+In-Reply-To: <20250702-isolcpus-io-queues-v7-1-557aa7eacce4@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[25];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: 1E0CE21191
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Score: -4.51
 
+On 7/2/25 18:33, Daniel Wagner wrote:
+> group_mask_cpus_evenly() allows the caller to pass in a CPU mask that
+> should be evenly distributed. This new function is a more generic
+> version of the existing group_cpus_evenly(), which always distributes
+> all present CPUs into groups.
+> 
+> Signed-off-by: Daniel Wagner <wagi@kernel.org>
+> ---
+>   include/linux/group_cpus.h |  3 +++
+>   lib/group_cpus.c           | 64 +++++++++++++++++++++++++++++++++++++++++++++-
+>   2 files changed, 66 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/group_cpus.h b/include/linux/group_cpus.h
+> index 9d4e5ab6c314b31c09fda82c3f6ac18f77e9de36..d4604dce1316a08400e982039006331f34c18ee8 100644
+> --- a/include/linux/group_cpus.h
+> +++ b/include/linux/group_cpus.h
+> @@ -10,5 +10,8 @@
+>   #include <linux/cpu.h>
+>   
+>   struct cpumask *group_cpus_evenly(unsigned int numgrps, unsigned int *nummasks);
+> +struct cpumask *group_mask_cpus_evenly(unsigned int numgrps,
+> +				       const struct cpumask *cpu_mask,
+> +				       unsigned int *nummasks);
+>   
+>   #endif
+> diff --git a/lib/group_cpus.c b/lib/group_cpus.c
+> index 6d08ac05f371bf880571507d935d9eb501616a84..00c9b7a10c8acd29239fe20d2a30fdae22ef74a5 100644
+> --- a/lib/group_cpus.c
+> +++ b/lib/group_cpus.c
+> @@ -8,6 +8,7 @@
+>   #include <linux/cpu.h>
+>   #include <linux/sort.h>
+>   #include <linux/group_cpus.h>
+> +#include <linux/sched/isolation.h>
+>   
+>   #ifdef CONFIG_SMP
+>   
+> @@ -425,6 +426,59 @@ struct cpumask *group_cpus_evenly(unsigned int numgrps, unsigned int *nummasks)
+>   	*nummasks = min(nr_present + nr_others, numgrps);
+>   	return masks;
+>   }
+> +EXPORT_SYMBOL_GPL(group_cpus_evenly);
+> +
+> +/**
+> + * group_mask_cpus_evenly - Group all CPUs evenly per NUMA/CPU locality
+> + * @numgrps: number of groups
+> + * @cpu_mask: CPU to consider for the grouping
+> + * @nummasks: number of initialized cpusmasks
+> + *
+> + * Return: cpumask array if successful, NULL otherwise. And each element
+> + * includes CPUs assigned to this group.
+> + *
+> + * Try to put close CPUs from viewpoint of CPU and NUMA locality into
+> + * same group. Allocate present CPUs on these groups evenly.
+> + */
 
-> From: Michael S. Tsirkin <mst@redhat.com>
-> Sent: 02 July 2025 10:54 PM
->=20
-> On Wed, Jul 02, 2025 at 03:20:52AM -0400, Michael S. Tsirkin wrote:
-> > At the moment, in case of a surprise removal, the regular remove
-> > callback is invoked, exclusively.  This works well, because mostly,
-> > the cleanup would be the same.
-> >
-> > However, there's a race: imagine device removal was initiated by a
-> > user action, such as driver unbind, and it in turn initiated some
-> > cleanup and is now waiting for an interrupt from the device. If the
-> > device is now surprise-removed, that never arrives and the remove
-> > callback hangs forever.
-> >
-> > For example, this was reported for virtio-blk:
-> >
-> > 	1. the graceful removal is ongoing in the remove() callback, where dis=
-k
-> > 	   deletion del_gendisk() is ongoing, which waits for the requests +to
-> > 	   complete,
-> >
-> > 	2. Now few requests are yet to complete, and surprise removal started.
-> >
-> > 	At this point, virtio block driver will not get notified by the driver
-> > 	core layer, because it is likely serializing remove() happening by
-> > 	+user/driver unload and PCI hotplug driver-initiated device removal.
-> So
-> > 	vblk driver doesn't know that device is removed, block layer is waitin=
-g
-> > 	for requests completions to arrive which it never gets.  So
-> > 	del_gendisk() gets stuck.
-> >
-> > Drivers can artificially add timeouts to handle that, but it can be
-> > flaky.
-> >
-> > Instead, let's add a way for the driver to be notified about the
-> > disconnect. It can then do any necessary cleanup, knowing that the
-> > device is inactive.
-> >
-> > Since cleanups can take a long time, this takes an approach of a work
-> > struct that the driver initiates and enables on probe, and tears down
-> > on remove.
-> >
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >
->=20
-> Parav what do you think of this patch?=20
-The async notification part without holding the device lock is good part of=
- this patch.
+Description could be improved. Point is that you do not do any
+calculation here, you just call __group_cpus_evenly() with
+a different mask.
 
-However, large part of the systems and use cases does not involve pci hot p=
-lug removal.
-An average system that I came across using has 150+ pci devices, and none o=
-f them uses hotplug.
+> +struct cpumask *group_mask_cpus_evenly(unsigned int numgrps,
+> +				       const struct cpumask *cpu_mask,
+> +				       unsigned int *nummasks)
+> +{
+> +	cpumask_var_t *node_to_cpumask;
+> +	cpumask_var_t nmsk;
+> +	int ret = -ENOMEM;
+> +	struct cpumask *masks = NULL;
+> +
+> +	if (!zalloc_cpumask_var(&nmsk, GFP_KERNEL))
+> +		return NULL;
+> +
+> +	node_to_cpumask = alloc_node_to_cpumask();
+> +	if (!node_to_cpumask)
+> +		goto fail_nmsk;
+> +
+> +	masks = kcalloc(numgrps, sizeof(*masks), GFP_KERNEL);
+> +	if (!masks)
+> +		goto fail_node_to_cpumask;
+> +
+> +	build_node_to_cpumask(node_to_cpumask);
+> +
+> +	ret = __group_cpus_evenly(0, numgrps, node_to_cpumask, cpu_mask, nmsk,
+> +				  masks);
+> +
+> +fail_node_to_cpumask:
+> +	free_node_to_cpumask(node_to_cpumask);
+> +
+> +fail_nmsk:
+> +	free_cpumask_var(nmsk);
+> +	if (ret < 0) {
+> +		kfree(masks);
+> +		return NULL;
+> +	}
+> +	*nummasks = ret;
+> +	return masks;
+> +}
+> +EXPORT_SYMBOL_GPL(group_mask_cpus_evenly);
+> +
+>   #else /* CONFIG_SMP */
+>   struct cpumask *group_cpus_evenly(unsigned int numgrps, unsigned int *nummasks)
+>   {
+> @@ -442,5 +496,13 @@ struct cpumask *group_cpus_evenly(unsigned int numgrps, unsigned int *nummasks)
+>   	*nummasks = 1;
+>   	return masks;
+>   }
+> -#endif /* CONFIG_SMP */
+>   EXPORT_SYMBOL_GPL(group_cpus_evenly);
+> +
+> +struct cpumask *group_mask_cpus_evenly(unsigned int numgrps,
+> +				       const struct cpumask *cpu_mask,
+> +				       unsigned int *nummasks)
+> +{
+> +	return group_cpus_evenly(numgrps, nummasks);
+> +}
+> +EXPORT_SYMBOL_GPL(group_mask_cpus_evenly);
+> +#endif /* CONFIG_SMP */
+> 
 
-So increasing pci dev struct for rare hot unplug, that too for the race con=
-dition does not look the best option.
+Otherwise:
+Reviewed-by: Hannes Reinecke <hare@suse.de.
 
-I believe the intent of async notification without device lock can be achie=
-ved by adding a non-blocking async notifier callback.
-This can go in the pci ops struct.
+Cheers,
 
-Such callback scale far better being part of the ops struct instead of pci_=
-dev struct.
-
-> This you can try using this in virtio blk to
-> address the hang you reported?
->
-The hang I reported was not the race condition between remove() and hotunpl=
-ug during remove.
-It was the simple remove() as hot-unplug issue due to commit 43bb40c5b926.
-
-The race condition hang is hard to reproduce as_is.
-I can try to reproduce by adding extra sleep() etc code in remove() with v4=
- of this version with ops callback.
-
-However, that requires lot more code to be developed on top of current prop=
-osed fix [1].
-
-[1] https://lore.kernel.org/linux-block/20250624185622.GB5519@fedora/
-
-I need to re-arrange the hardware with hotplug resources. Will try to arran=
-ge on v4.
-
-> > Compile tested only.
-> >
-> > Note: this minimizes core code. I considered a more elaborate API that
-> > would be easier to use, but decided to be conservative until there are
-> > multiple users.
-> >
-> > changes from v2
-> > 	v2 was corrupted, fat fingers :(
-> >
-> > changes from v1:
-> >         switched to a WQ, with APIs to enable/disable
-> >         added motivation
-> >
-> >
-> >  drivers/pci/pci.h   |  6 ++++++
-> >  include/linux/pci.h | 27 +++++++++++++++++++++++++++
-> >  2 files changed, 33 insertions(+)
-> >
-> > diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h index
-> > b81e99cd4b62..208b4cab534b 100644
-> > --- a/drivers/pci/pci.h
-> > +++ b/drivers/pci/pci.h
-> > @@ -549,6 +549,12 @@ static inline int pci_dev_set_disconnected(struct
-> pci_dev *dev, void *unused)
-> >  	pci_dev_set_io_state(dev, pci_channel_io_perm_failure);
-> >  	pci_doe_disconnected(dev);
-> >
-> > +	if (READ_ONCE(dev->disconnect_work_enable)) {
-> > +		/* Make sure work is up to date. */
-> > +		smp_rmb();
-> > +		schedule_work(&dev->disconnect_work);
-> > +	}
-> > +
-> >  	return 0;
-> >  }
-> >
-> > diff --git a/include/linux/pci.h b/include/linux/pci.h index
-> > 51e2bd6405cd..b2168c5d0679 100644
-> > --- a/include/linux/pci.h
-> > +++ b/include/linux/pci.h
-> > @@ -550,6 +550,10 @@ struct pci_dev {
-> >  	/* These methods index pci_reset_fn_methods[] */
-> >  	u8 reset_methods[PCI_NUM_RESET_METHODS]; /* In priority order */
-> >
-> > +	/* Report disconnect events */
-> > +	u8 disconnect_work_enable;
-> > +	struct work_struct disconnect_work;
-> > +
-
-> >  #ifdef CONFIG_PCIE_TPH
-> >  	u16		tph_cap;	/* TPH capability offset */
-> >  	u8		tph_mode;	/* TPH mode */
-> > @@ -2657,6 +2661,29 @@ static inline bool pci_is_dev_assigned(struct
-> pci_dev *pdev)
-> >  	return (pdev->dev_flags & PCI_DEV_FLAGS_ASSIGNED) =3D=3D
-> > PCI_DEV_FLAGS_ASSIGNED;  }
-> >
-> > +/*
-> > + * Caller must initialize @pdev->disconnect_work before invoking this.
-> > + * Caller also must check pci_device_is_present afterwards, since
-> > + * if device is already gone when this is called, work will not run.
-> > + */
-> > +static inline void pci_set_disconnect_work(struct pci_dev *pdev) {
-> > +	/* Make sure WQ has been initialized already */
-> > +	smp_wmb();
-> > +
-> > +	WRITE_ONCE(pdev->disconnect_work_enable, 0x1); }
-> > +
-> > +static inline void pci_clear_disconnect_work(struct pci_dev *pdev) {
-> > +	WRITE_ONCE(pdev->disconnect_work_enable, 0x0);
-> > +
-> > +	/* Make sure to stop using work from now on. */
-> > +	smp_wmb();
-> > +
-> > +	cancel_work_sync(&pdev->disconnect_work);
-> > +}
-> > +
-> >  /**
-> >   * pci_ari_enabled - query ARI forwarding status
-> >   * @bus: the PCI bus
-> > --
-> > MST
-
+Hannes
+-- 
+Dr. Hannes Reinecke                  Kernel Storage Architect
+hare@suse.de                                +49 911 74053 688
+SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
+HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
