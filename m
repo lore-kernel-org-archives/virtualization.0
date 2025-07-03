@@ -1,68 +1,87 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68E5D2DE719
-	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 09:02:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2DBA2D4B57;
+	Thu,  3 Jul 2025 09:09:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751533326; cv=none; b=Iz9yUThGQXdJPJqt2PN5U9sFUOHW7G6adZapc7o28RT6AknyYmIh9gpkoa5QiHIRnzRDRh+GQrpHyH69CLzthhp+Po1JPw4GxG8SrDuFNo4OTTFn5kLQDAf7LsGXnHRBTYeWqNH0nfruoo2qGCd3T+grsiJ3wLYShB2XILhUx7A=
+	t=1751533786; cv=none; b=dkD/svZFEOXkD3YWsgowr3bE/v+Fjg95D54zXBvMrezIGpIWXVZGfA+zUK3uc6lY6u3RMmyPvnm8G5C0lbODgPHEI3IbqfQ9pZvsIR12b9b08zrtg+p+Doy30MlhE6W4tudsS0iaEi1r3zcaqIoUliaUkFmP2uPwlglRRzcbzAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751533326; c=relaxed/simple;
-	bh=Z/vGvgrrbVAMLzRiS2g0fkIcUa1mFzXAS23RSaYh68I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kdUqe7jFtPQ0X/FEDtvrbEBhMKAOydm99QJsD+vTklE4LM+Ryho6aoJolocGzSqdPVxOQ7WzTfVoC4U70nR3WYzZuNgCTjBLcTGkQW0AnDr1J8Sh4WNWGBu2GNevzzohu0JY+1kaBwVFjhI6wSjH8jj0Sw9xl7sq5dOpupc4lMA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id CD66168B05; Thu,  3 Jul 2025 11:01:58 +0200 (CEST)
-Date: Thu, 3 Jul 2025 11:01:58 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Daniel Wagner <wagi@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
-	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Aaron Tomlin <atomlin@atomlin.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Costa Shulyupin <costa.shul@redhat.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com,
-	linux-scsi@vger.kernel.org, storagedev@microchip.com,
-	virtualization@lists.linux.dev,
-	GR-QLogic-Storage-Upstream@marvell.com
-Subject: Re: [PATCH v7 08/10] blk-mq: use hk cpus only when
- isolcpus=io_queue is enabled
-Message-ID: <20250703090158.GA4757@lst.de>
-References: <20250702-isolcpus-io-queues-v7-0-557aa7eacce4@kernel.org> <20250702-isolcpus-io-queues-v7-8-557aa7eacce4@kernel.org>
+	s=arc-20240116; t=1751533786; c=relaxed/simple;
+	bh=Pg/UwjFOcZzuqyjOTqG0yIOy7JK3IesDORgQKCAf2ZQ=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=AN3yaDeJyoygRLRg4pw2V8jBiLPLP5skpEmn7DfT3GKeXdDc3K/t3KyZFUBiqKDVShtbGTKU5VXeW3At4E5lnAAu6skQha5I04UN8EBpT0V21b56BSunstF4PiWcXc5MI71C9IgpdkuPqJeGeBRKPdb9zF7e8s7GxpVFHROg0Y0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bSweQX75; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bSweQX75"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 245BBC4CEE3;
+	Thu,  3 Jul 2025 09:09:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751533786;
+	bh=Pg/UwjFOcZzuqyjOTqG0yIOy7JK3IesDORgQKCAf2ZQ=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=bSweQX75kAK9tCjdGOTMlv6rGVagwP2XSnsw0lGHOoPFAjo3pcmuA1hgooocTHAt5
+	 6LVqV9vCdR5yJ52Wy4wLk3EjralBAFl1Dmy0OviFMrqMehIGa91ND41yThVJsgUzZW
+	 DdoZUzq+iE9y6QmlUqyeRvw1VbDF2tx7nqaBuXidJ5/o9eY4/s81GkhOlVbdaNYIb7
+	 CG1SNAirLUSKNRHbHCMOSSHNguiEWwtel5eBlVpLB5K8N21JhcdzWOhD9VaxRYnLsJ
+	 Qc+rpzC50AWonr9gmsdRqZnKZPNie6VhMpXVLUg+EXrWntP22NLhXOjlziA66eAzlM
+	 qjS+NCAGgDTdQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id AE269383B273;
+	Thu,  3 Jul 2025 09:10:11 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250702-isolcpus-io-queues-v7-8-557aa7eacce4@kernel.org>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2 0/3] virtio-net: fixes for mergeable XDP receive
+ path
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175153381052.1020232.17030043875291925197.git-patchwork-notify@kernel.org>
+Date: Thu, 03 Jul 2025 09:10:10 +0000
+References: <20250630144212.48471-1-minhquangbui99@gmail.com>
+In-Reply-To: <20250630144212.48471-1-minhquangbui99@gmail.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, eperezma@redhat.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+ john.fastabend@gmail.com, sdf@fomichev.me, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
 
-On Wed, Jul 02, 2025 at 06:33:58PM +0200, Daniel Wagner wrote:
->  const struct cpumask *blk_mq_possible_queue_affinity(void)
->  {
-> +	if (housekeeping_enabled(HK_TYPE_IO_QUEUE))
-> +		return housekeeping_cpumask(HK_TYPE_IO_QUEUE);
-> +
->  	return cpu_possible_mask;
->  }
+Hello:
 
-I'm no expert on the housekeeping stuff, but why isn't the
-housekeeping_enabled check done in housekeeping_cpumask directly so
-that the drivers could use housekeeping_cpumask without a blk-mq
-wrapper?
+This series was applied to netdev/net.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
+
+On Mon, 30 Jun 2025 21:42:09 +0700 you wrote:
+> Hi everyone,
+> 
+> This series contains fixes for XDP receive path in virtio-net
+> - Patch 1: add a missing check for the received data length with our
+> allocated buffer size in mergeable mode.
+> - Patch 2: remove a redundant truesize check with PAGE_SIZE in mergeable
+> mode
+> - Patch 3: make the current repeated code use the check_mergeable_len to
+> check for received data length in mergeable mode
+> 
+> [...]
+
+Here is the summary with links:
+  - [net,v2,1/3] virtio-net: ensure the received length does not exceed allocated size
+    https://git.kernel.org/netdev/net/c/315dbdd7cdf6
+  - [net,v2,2/3] virtio-net: remove redundant truesize check with PAGE_SIZE
+    https://git.kernel.org/netdev/net/c/4be2193b3393
+  - [net,v2,3/3] virtio-net: use the check_mergeable_len helper
+    https://git.kernel.org/netdev/net/c/7d4a119e4582
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
