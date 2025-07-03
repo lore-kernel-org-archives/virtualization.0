@@ -1,162 +1,257 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9329228D8F5
-	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 06:19:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C7B028F51E
+	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 06:24:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751523591; cv=none; b=pRZj+eR2SkwoYFO7rECF3Jw2hJ00wG1nT6dO2hwcNflKtxiwc7o5/4dE5bWHQf2BFK8cCHHtWfcohcA/wDNZU6tC/fvzs+3G+XNZ1PyLA+4pru6vLvs/rmHAzV4+gpGUueC822v21JOhMw6wEUwyY2OwO0+YQdDHxhGuAbuN0wk=
+	t=1751523859; cv=none; b=c/oLAHDhuqzKGv4lkLV1ll2/E9ds5xxNCrx+r3TXYy0cXJzWr55EnOw9fi3TuMIVLVbIaiucRV+ATOSCsswKvx3jq5ts3f+euoxYHWSgA9Qk9wAooxExqKSjl8ZRUWRAeOYJ4lw6jfk/in5FR5ZTCtGIHVnIxWNaEeHXG93t/N0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751523591; c=relaxed/simple;
-	bh=bnRLGPo7uTXckbWJF4fZ3k2DHsWuhvAUBbsAXUkwySo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BHGBOWipV7BjcjIZG479NJBok+nSVi3ZvZ7s35qfXbYWwK8iJLjYDcBNUdtS/tjrD4t/V2MI4lnhm2N07IymgVOyHnae9l2AMHAMOryVDjucWZBL5C0NJa2eygbNiYSGRv5kOLSWlqULrnrbIOLNS60NRb2aazkRjP5r9annqOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=2VWvod62; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=yZ7/bd4p; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=2VWvod62; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=yZ7/bd4p; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1751523859; c=relaxed/simple;
+	bh=dao9nTpC5C1q0JJDCBYH/D3fgkfHONt6s1hu70kqblQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=sZcCmxwlalzKBC7KttcpGh9yXtaDdhKM1ECuohulOaga1ouSqCQVsK1aCxgCCUe3kRJ3UTrAVr+ifzg0e6eOBTIHXrfpzHGjUsXIVRVhYJ8s7tWa3qGKiWX/eHZZbrHocamA4skhQwdFg3x6n4zk6pQFLSYARu+v7LoVrHTEQJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OwccRZ4V; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="2VWvod62";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="yZ7/bd4p";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="2VWvod62";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="yZ7/bd4p"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 5E0D91F38D;
-	Thu,  3 Jul 2025 06:19:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1751523581; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OwccRZ4V"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751523856;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ohV0h+/at6s8qhvJO3e6EntcK+gCsiWXFp09ll+hPYY=;
-	b=2VWvod62vCm9Hz7UlC9/Y0GGgwIai2bGXmyRhNz3r6p46dWFHZHDWY3ac/tbabjsiLuCDK
-	stHMSVVU4UAaz9VMOlh+e4olCBzZOnXBSf/0bp59yA6zg5A0FYIoTbZ4A7izhZTYPmYzui
-	b7o64TJ0sZWTN9QPJQJbczZk5Qw/9Kw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1751523581;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ohV0h+/at6s8qhvJO3e6EntcK+gCsiWXFp09ll+hPYY=;
-	b=yZ7/bd4pV5+WVZBt2lQ7otvpAa8smuyu3SzsXqMqKO1WEadpZ7JamTU12JEVFGTQuTeaPO
-	0Irq/m6uVOghHaCA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=2VWvod62;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="yZ7/bd4p"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1751523581; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ohV0h+/at6s8qhvJO3e6EntcK+gCsiWXFp09ll+hPYY=;
-	b=2VWvod62vCm9Hz7UlC9/Y0GGgwIai2bGXmyRhNz3r6p46dWFHZHDWY3ac/tbabjsiLuCDK
-	stHMSVVU4UAaz9VMOlh+e4olCBzZOnXBSf/0bp59yA6zg5A0FYIoTbZ4A7izhZTYPmYzui
-	b7o64TJ0sZWTN9QPJQJbczZk5Qw/9Kw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1751523581;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ohV0h+/at6s8qhvJO3e6EntcK+gCsiWXFp09ll+hPYY=;
-	b=yZ7/bd4pV5+WVZBt2lQ7otvpAa8smuyu3SzsXqMqKO1WEadpZ7JamTU12JEVFGTQuTeaPO
-	0Irq/m6uVOghHaCA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 17F711368E;
-	Thu,  3 Jul 2025 06:19:40 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id I3a9A/wgZmhZRgAAD6G6ig
-	(envelope-from <hare@suse.de>); Thu, 03 Jul 2025 06:19:40 +0000
-Message-ID: <1ec7dfeb-b5d6-4aac-9567-db1ab7f9531d@suse.de>
-Date: Thu, 3 Jul 2025 08:19:39 +0200
+	bh=oNnWJxGDTYj2oLSlWuvTf5AvF7vq7QQGZ22ViGGEQZQ=;
+	b=OwccRZ4Vxh5DvST4BMUgW1HUdqLBFGQUQZM8IJemps9xeyNn+i1bjIyLLHzIkfgc+knLrx
+	oq2I4EKT2fXGv38kcl7Iz15z3f/WDdfYF+D3jpJYaA3cBq3X//p5ODYZmnqgNQRfZhlqeu
+	GBDw58dC/CblSeyCbj+vA78Wr2TVVDE=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-82-gOKLg_X1MjKHs_sGVoLOuQ-1; Thu, 03 Jul 2025 02:24:14 -0400
+X-MC-Unique: gOKLg_X1MjKHs_sGVoLOuQ-1
+X-Mimecast-MFC-AGG-ID: gOKLg_X1MjKHs_sGVoLOuQ_1751523853
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a6d1394b07so5009221f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 02 Jul 2025 23:24:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751523853; x=1752128653;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oNnWJxGDTYj2oLSlWuvTf5AvF7vq7QQGZ22ViGGEQZQ=;
+        b=PV3TT9rDf00wEcyn5wr8va1Qu2aKnZdQSDOsAXlFVrFAYveLYcJtzdYE40E5a5F8qq
+         vTDtIoL7y59t82405nPG9CNFxkttSF9NcF7CV0re9kUv4o1jEh5kFT4GaOyE5bP/hCie
+         zA7K9DfjI2iFA3M1cDrxURDCTkgKuh1447YSaUa+srbLKK4twAjR9oz6FlD6UYJiIdwF
+         CiM0bC9T4LkNPar/k3Djk5klw/ew+xP22L139GmepR+MD7rtI8s/9NoZOSSoeqsbaiwz
+         Wz/VxkGPpPC2ESVijTaVhCpdvwcCeS4ppBw3akMrQIM3S3ILBMWPl+TXbE5vMW+AOkuq
+         Zm5g==
+X-Forwarded-Encrypted: i=1; AJvYcCWtOWsYPns9h3GRjUKrxMPLhGzdFGcsfwGjw+jMzrhbNo5yonzUx+GxxBc7h9E2j6Sp8J/GlAq2bFdtGzNWJQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxRNhMPyI+HFlg1zEtASE2YAdHnJGitI4+afyCTloob41oCwggJ
+	5QKYbpzL13f2ikbW1YULytk6ElMgmgv7YjzbaTxYjcTfXBPsawGqMACrn44UCfNUerd7W8o7YXg
+	jatebqQ9KsKb600OLuARID0hFrfXXe/ze69T29GU/SjYI++I93daoXzT9+tYYBdKUufZB
+X-Gm-Gg: ASbGncvrTYyLhsgH1gzmeTmN1+0crtRG1C2l0ZLBhzMLHIjbQdTg0tVsKMqh0tvs4Zm
+	SGYn/Y2iHtRl3+XW5I4eEXChu6FVPcy70rzR63YMmiSShVHJK/+PBr5XBSi1N6QwUU8TP/eCGsq
+	/16tGpkvzKjD/QopcGxn1B+ufRXoeY0tTO9gQ1b5zPscttC+24+eNYIsvgAPKdIRj7QsFkoUz4E
+	TbDfQdVMppC4NDs38AKk5A6BD/3rSEwXyW7OIlKqTNxnv50EGdWXOj/k/S61GfPUxwIBRXNJCEW
+	cCqSjhToGn3TmTPk
+X-Received: by 2002:a05:6000:490a:b0:3b1:8db7:d1fc with SMTP id ffacd0b85a97d-3b1fe5c07d4mr4360122f8f.21.1751523853191;
+        Wed, 02 Jul 2025 23:24:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGGxmSX9oSYQVzW9zlIGbTQXs8hI4c+MXz2QtluF728gF5D2N2yEQOE0oBdUYHzNVwqbLlzgg==
+X-Received: by 2002:a05:6000:490a:b0:3b1:8db7:d1fc with SMTP id ffacd0b85a97d-3b1fe5c07d4mr4360105f8f.21.1751523852675;
+        Wed, 02 Jul 2025 23:24:12 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:152e:1400:856d:9957:3ec3:1ddc])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a88c7fb20esm18034642f8f.36.2025.07.02.23.24.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Jul 2025 23:24:12 -0700 (PDT)
+Date: Thu, 3 Jul 2025 02:24:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+	"stefanha@redhat.com" <stefanha@redhat.com>,
+	"alok.a.tiwari@oracle.com" <alok.a.tiwari@oracle.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Subject: Re: [PATCH RFC v3] pci: report surprise removal event
+Message-ID: <20250703022224-mutt-send-email-mst@kernel.org>
+References: <1eac13450ade12cc98b15c5864e5bcd57f9e9882.1751440755.git.mst@redhat.com>
+ <20250702132314-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB719502AAF4847610CD9C7286DC43A@CY8PR12MB7195.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 02/10] genirq/affinity: Add cpumask to struct
- irq_affinity
-To: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
- Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
- Sagi Grimberg <sagi@grimberg.me>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Aaron Tomlin <atomlin@atomlin.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Thomas Gleixner <tglx@linutronix.de>, Costa Shulyupin
- <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
- Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>,
- Ming Lei <ming.lei@redhat.com>, Frederic Weisbecker <frederic@kernel.org>,
- Mel Gorman <mgorman@suse.de>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
- linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com,
- linux-scsi@vger.kernel.org, storagedev@microchip.com,
- virtualization@lists.linux.dev, GR-QLogic-Storage-Upstream@marvell.com
-References: <20250702-isolcpus-io-queues-v7-0-557aa7eacce4@kernel.org>
- <20250702-isolcpus-io-queues-v7-2-557aa7eacce4@kernel.org>
-Content-Language: en-US
-From: Hannes Reinecke <hare@suse.de>
-In-Reply-To: <20250702-isolcpus-io-queues-v7-2-557aa7eacce4@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[25];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLdd7zpc331qgmz6gw8s9zsqsb)];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received,2a07:de40:b281:104:10:150:64:97:from];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: 5E0D91F38D
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Score: -4.51
+In-Reply-To: <CY8PR12MB719502AAF4847610CD9C7286DC43A@CY8PR12MB7195.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: J70U1yKU9idGN06pJY-u0-EcubSp8DLUnQ7HqR0SJIE_1751523853
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 7/2/25 18:33, Daniel Wagner wrote:
-> Pass a cpumask to irq_create_affinity_masks as an additional constraint
-> to consider when creating the affinity masks. This allows the caller to
-> exclude specific CPUs, e.g., isolated CPUs (see the 'isolcpus' kernel
-> command-line parameter).
+On Thu, Jul 03, 2025 at 05:02:13AM +0000, Parav Pandit wrote:
 > 
-> Signed-off-by: Daniel Wagner <wagi@kernel.org>
-> ---
->   include/linux/interrupt.h | 16 ++++++++++------
->   kernel/irq/affinity.c     | 12 ++++++++++--
->   2 files changed, 20 insertions(+), 8 deletions(-)
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> > Sent: 02 July 2025 10:54 PM
+> > 
+> > On Wed, Jul 02, 2025 at 03:20:52AM -0400, Michael S. Tsirkin wrote:
+> > > At the moment, in case of a surprise removal, the regular remove
+> > > callback is invoked, exclusively.  This works well, because mostly,
+> > > the cleanup would be the same.
+> > >
+> > > However, there's a race: imagine device removal was initiated by a
+> > > user action, such as driver unbind, and it in turn initiated some
+> > > cleanup and is now waiting for an interrupt from the device. If the
+> > > device is now surprise-removed, that never arrives and the remove
+> > > callback hangs forever.
+> > >
+> > > For example, this was reported for virtio-blk:
+> > >
+> > > 	1. the graceful removal is ongoing in the remove() callback, where disk
+> > > 	   deletion del_gendisk() is ongoing, which waits for the requests +to
+> > > 	   complete,
+> > >
+> > > 	2. Now few requests are yet to complete, and surprise removal started.
+> > >
+> > > 	At this point, virtio block driver will not get notified by the driver
+> > > 	core layer, because it is likely serializing remove() happening by
+> > > 	+user/driver unload and PCI hotplug driver-initiated device removal.
+> > So
+> > > 	vblk driver doesn't know that device is removed, block layer is waiting
+> > > 	for requests completions to arrive which it never gets.  So
+> > > 	del_gendisk() gets stuck.
+> > >
+> > > Drivers can artificially add timeouts to handle that, but it can be
+> > > flaky.
+> > >
+> > > Instead, let's add a way for the driver to be notified about the
+> > > disconnect. It can then do any necessary cleanup, knowing that the
+> > > device is inactive.
+> > >
+> > > Since cleanups can take a long time, this takes an approach of a work
+> > > struct that the driver initiates and enables on probe, and tears down
+> > > on remove.
+> > >
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > ---
+> > >
+> > 
+> > Parav what do you think of this patch? 
+> The async notification part without holding the device lock is good part of this patch.
 > 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+> However, large part of the systems and use cases does not involve pci hot plug removal.
+> An average system that I came across using has 150+ pci devices, and none of them uses hotplug.
+> 
+> So increasing pci dev struct for rare hot unplug, that too for the race condition does not look the best option.
+> 
+> I believe the intent of async notification without device lock can be achieved by adding a non-blocking async notifier callback.
+> This can go in the pci ops struct.
+> 
+> Such callback scale far better being part of the ops struct instead of pci_dev struct.
 
-Cheers,
+Sorry, I don't see a way to achieve that, as the driver can go away
+while hotunplug happens.
 
-Hannes
--- 
-Dr. Hannes Reinecke                  Kernel Storage Architect
-hare@suse.de                                +49 911 74053 688
-SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
-HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
+You would be welcome to try but you mentioned you have no plans to do so.
+
+
+
+> > This you can try using this in virtio blk to
+> > address the hang you reported?
+> >
+> The hang I reported was not the race condition between remove() and hotunplug during remove.
+> It was the simple remove() as hot-unplug issue due to commit 43bb40c5b926.
+> 
+> The race condition hang is hard to reproduce as_is.
+> I can try to reproduce by adding extra sleep() etc code in remove() with v4 of this version with ops callback.
+> 
+> However, that requires lot more code to be developed on top of current proposed fix [1].
+> 
+> [1] https://lore.kernel.org/linux-block/20250624185622.GB5519@fedora/
+> 
+> I need to re-arrange the hardware with hotplug resources. Will try to arrange on v4.
+> 
+> > > Compile tested only.
+> > >
+> > > Note: this minimizes core code. I considered a more elaborate API that
+> > > would be easier to use, but decided to be conservative until there are
+> > > multiple users.
+> > >
+> > > changes from v2
+> > > 	v2 was corrupted, fat fingers :(
+> > >
+> > > changes from v1:
+> > >         switched to a WQ, with APIs to enable/disable
+> > >         added motivation
+> > >
+> > >
+> > >  drivers/pci/pci.h   |  6 ++++++
+> > >  include/linux/pci.h | 27 +++++++++++++++++++++++++++
+> > >  2 files changed, 33 insertions(+)
+> > >
+> > > diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h index
+> > > b81e99cd4b62..208b4cab534b 100644
+> > > --- a/drivers/pci/pci.h
+> > > +++ b/drivers/pci/pci.h
+> > > @@ -549,6 +549,12 @@ static inline int pci_dev_set_disconnected(struct
+> > pci_dev *dev, void *unused)
+> > >  	pci_dev_set_io_state(dev, pci_channel_io_perm_failure);
+> > >  	pci_doe_disconnected(dev);
+> > >
+> > > +	if (READ_ONCE(dev->disconnect_work_enable)) {
+> > > +		/* Make sure work is up to date. */
+> > > +		smp_rmb();
+> > > +		schedule_work(&dev->disconnect_work);
+> > > +	}
+> > > +
+> > >  	return 0;
+> > >  }
+> > >
+> > > diff --git a/include/linux/pci.h b/include/linux/pci.h index
+> > > 51e2bd6405cd..b2168c5d0679 100644
+> > > --- a/include/linux/pci.h
+> > > +++ b/include/linux/pci.h
+> > > @@ -550,6 +550,10 @@ struct pci_dev {
+> > >  	/* These methods index pci_reset_fn_methods[] */
+> > >  	u8 reset_methods[PCI_NUM_RESET_METHODS]; /* In priority order */
+> > >
+> > > +	/* Report disconnect events */
+> > > +	u8 disconnect_work_enable;
+> > > +	struct work_struct disconnect_work;
+> > > +
+> 
+> > >  #ifdef CONFIG_PCIE_TPH
+> > >  	u16		tph_cap;	/* TPH capability offset */
+> > >  	u8		tph_mode;	/* TPH mode */
+> > > @@ -2657,6 +2661,29 @@ static inline bool pci_is_dev_assigned(struct
+> > pci_dev *pdev)
+> > >  	return (pdev->dev_flags & PCI_DEV_FLAGS_ASSIGNED) ==
+> > > PCI_DEV_FLAGS_ASSIGNED;  }
+> > >
+> > > +/*
+> > > + * Caller must initialize @pdev->disconnect_work before invoking this.
+> > > + * Caller also must check pci_device_is_present afterwards, since
+> > > + * if device is already gone when this is called, work will not run.
+> > > + */
+> > > +static inline void pci_set_disconnect_work(struct pci_dev *pdev) {
+> > > +	/* Make sure WQ has been initialized already */
+> > > +	smp_wmb();
+> > > +
+> > > +	WRITE_ONCE(pdev->disconnect_work_enable, 0x1); }
+> > > +
+> > > +static inline void pci_clear_disconnect_work(struct pci_dev *pdev) {
+> > > +	WRITE_ONCE(pdev->disconnect_work_enable, 0x0);
+> > > +
+> > > +	/* Make sure to stop using work from now on. */
+> > > +	smp_wmb();
+> > > +
+> > > +	cancel_work_sync(&pdev->disconnect_work);
+> > > +}
+> > > +
+> > >  /**
+> > >   * pci_ari_enabled - query ARI forwarding status
+> > >   * @bus: the PCI bus
+> > > --
+> > > MST
+
