@@ -1,186 +1,102 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D5662EAB70;
-	Thu,  3 Jul 2025 14:47:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 231D329827E
+	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 15:19:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751554054; cv=none; b=m5H1SSwHLaBtmmewguWOuyarfutKzRA+DWvjFYaijgvDXB+bHaryuZELCNnrxyoCofEjZrVi8vdfiFLRe3ezasenJ9qYuTWr5Do8kjN+rmktaX8atVt2SMCWVP3xp/YFq57OFj3HWnW14OP1Xt/aLnsIET1YpyDjFU8G36kOFpA=
+	t=1751556006; cv=none; b=AVucoqLiEyu/qFVphEt+TWMMUahNC29f/WPWvT4TE/LB6jfctP8SWkPSTO6TjaQZMTxbUAtD2+YJPuO11DLzDjHfZ1zcCg0MwsBhWlUsDUHOSEcLRCdii9dYmB9hku2I07380YTgfod8Y8lWPBVRPPqOz+eDsaHoij2zovzYbyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751554054; c=relaxed/simple;
-	bh=rK9CghBMfaxHWwZL0Y+AWxw/v++vtFMy/hmsv9qL7LI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nW343Kq5i/vgA7j8/rkYGen3c+Cgw8NBNNbsc1Z3ymHvtIjVFzHRzUzTk+nTn3qV3eIkHV/6wuiqylBcHfG2b5LHgFqSqVH7mGh5rEd7ffz59/dnZCT75VvWJvS8p8PCSerKpXZSvMvPmLafvLbOqiVicRyEnADqaM3A0Dpmep0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=It7wBhko; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1751556006; c=relaxed/simple;
+	bh=WXDTGdP8LV2OdLBV2fawDgbjiGfDbWOsOGS4OT5h28k=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=W+NVclPDrAA9PNpK1lLw8KFZGjaAtr40pChlBYBObvB9ZM2qkC2LkiZDw/8chtQ3paeLJ4xCo6PB+8OhHjTEUPp/xq1o2RclhkKXtk527z8xyWwz0psPNHivkwsVhRh8HMNM8B+8S9FnWTGW/TDSpN2xIuLfYeZKudED1IPWvv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=0OrHD9pb; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="It7wBhko"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1751554053; x=1783090053;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=rK9CghBMfaxHWwZL0Y+AWxw/v++vtFMy/hmsv9qL7LI=;
-  b=It7wBhkoXbeUeVmIgfZ0I1bfGgljmEjoQUdNQb1CS5n9OmKbkxxGvkXe
-   NUoZfr7n4pXA8QEd8W4thetbKa/L5v+jW1Z9n2Ll1RDVDHFio+AGsVvGy
-   p4ro+TwrOGWEl/nVG3pBmeOf5ZSEDCPpFXjivd5XKFP0ovgM/LwWTt5Tr
-   h+VgbinTNVIsTZKYxp4/2K7g1TpHDL71xTehAUdG8kw04C/EEhtxSz0kt
-   I7X7ZZozW5TiPaZO/m5+4mU3MX3ru7ANIsSaHbcLfXHxPkH1K130mnLt6
-   5vmYXXmlM/dySa4q7tQWogWAvmc6j1i0lnge3h0gFXrb6vy+yysXGPdYJ
-   w==;
-X-CSE-ConnectionGUID: oZnzIBpZTPyOeGFlQH4KAw==
-X-CSE-MsgGUID: /bexWeymSUyjsX+oeYFCCg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11483"; a="53851725"
-X-IronPort-AV: E=Sophos;i="6.16,284,1744095600"; 
-   d="scan'208";a="53851725"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2025 07:47:30 -0700
-X-CSE-ConnectionGUID: do+iUI8IT32SBrmjq0xoyg==
-X-CSE-MsgGUID: kIJe5JEsQwmuIcgjNo0AQA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.16,284,1744095600"; 
-   d="scan'208";a="153800515"
-Received: from lkp-server01.sh.intel.com (HELO 0b2900756c14) ([10.239.97.150])
-  by orviesa010.jf.intel.com with ESMTP; 03 Jul 2025 07:47:17 -0700
-Received: from kbuild by 0b2900756c14 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1uXLDT-0001vf-31;
-	Thu, 03 Jul 2025 14:47:11 +0000
-Date: Thu, 3 Jul 2025 22:47:01 +0800
-From: kernel test robot <lkp@intel.com>
-To: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	"Michael S. Tsirkin" <mst@redhat.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Aaron Tomlin <atomlin@atomlin.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Costa Shulyupin <costa.shul@redhat.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com,
-	linux-scsi@vger.kernel.org, storagedev@microchip.com,
-	virtualization@lists.linux.dev,
-	GR-QLogic-Storage-Upstream@marvell.com,
-	Daniel Wagner <wagi@kernel.org>
-Subject: Re: [PATCH v7 08/10] blk-mq: use hk cpus only when isolcpus=io_queue
- is enabled
-Message-ID: <202507032238.AoTmQnGP-lkp@intel.com>
-References: <20250702-isolcpus-io-queues-v7-8-557aa7eacce4@kernel.org>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="0OrHD9pb"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1uXLj5-000o6v-R8; Thu, 03 Jul 2025 17:19:51 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From; bh=EJBbOdRMlb7fC04E5yAV9/cTzwhdRgdAxVTABcEKhoI=
+	; b=0OrHD9pbLQMTK3Q1IdxasyAVmmsHYMxjvtibfxnAvmqXTk+NSVm3uKb7LcGQYYD3czSMXUh35
+	0zU1Dt3feILpaShKmrdTHHAfzbH1gbiCkiEObEQPY3cbVGuy797LLTdIoj45n1SdjNEKLZouwcYGd
+	ZcHzK5kfrr8AJgsRYD3GnZp+NbYb0vdUIQQ3oPvCegdv3cb2UMkePLbSjI5vps20ZVPQdGZ4uWLeK
+	jeGtupEF5JJNvuNeJHOlxvo+V4R7EL+Mfk5hoc93UHcJeojYdMKpkpgMAEgw173T0b5CQ1yY9sQFO
+	vcg66Ai9Pu4pfxBMvQwUI232QO8VGTAuAUvAxw==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1uXLiz-0006bx-MI; Thu, 03 Jul 2025 17:19:45 +0200
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1uXLhj-001WIY-Gy; Thu, 03 Jul 2025 17:18:27 +0200
+From: Michal Luczaj <mhal@rbox.co>
+Subject: [PATCH net v4 0/3] vsock: Fix transport_{h2g,g2h,dgram,local}
+ TOCTOU issues
+Date: Thu, 03 Jul 2025 17:18:17 +0200
+Message-Id: <20250703-vsock-transports-toctou-v4-0-98f0eb530747@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250702-isolcpus-io-queues-v7-8-557aa7eacce4@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIADmfZmgC/3XOTQ7CIBAF4KsY1mKm09IfV97DuCgwWmJSGkBS0
+ /TuIpvqoss3k/fNLMyTM+TZ+bAwR9F4Y8cUquOBqaEfH8SNTpkhoACBJY/eqicPrh/9ZF3wPFg
+ V7ItXshG6U9i3IFhqT47uZs7ylY0U2C0NB+ODde98LRZ5leG6aHfhWHDgWqNG0tSlHy5O2vmkb
+ BYj/igI+womBZCkRpCFhvJfKTelAdxXyq/SN4RUd9i1zaas6/oBWIA8yk0BAAA=
+X-Change-ID: 20250523-vsock-transports-toctou-4b75d9c2a805
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
+X-Mailer: b4 0.14.2
 
-Hi Daniel,
+transport_{h2g,g2h,dgram,local} may become NULL on vsock_core_unregister().
+Make sure a poorly timed `rmmod transport` won't lead to a NULL/stale
+pointer dereference.
 
-kernel test robot noticed the following build errors:
+Note that these oopses are pretty unlikely to happen in the wild. Splats
+were collected after sprinkling kernel with mdelay()s.
 
-[auto build test ERROR on 32f85e8468ce081d8e73ca3f0d588f1004013037]
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+---
+Changes in v4:
+- Fix a typo in a comment [Stefano]
+- Link to v3: https://lore.kernel.org/r/20250702-vsock-transports-toctou-v3-0-0a7e2e692987@rbox.co
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Wagner/lib-group_cpus-Add-group_masks_cpus_evenly/20250703-003811
-base:   32f85e8468ce081d8e73ca3f0d588f1004013037
-patch link:    https://lore.kernel.org/r/20250702-isolcpus-io-queues-v7-8-557aa7eacce4%40kernel.org
-patch subject: [PATCH v7 08/10] blk-mq: use hk cpus only when isolcpus=io_queue is enabled
-config: arm-allnoconfig (https://download.01.org/0day-ci/archive/20250703/202507032238.AoTmQnGP-lkp@intel.com/config)
-compiler: clang version 21.0.0git (https://github.com/llvm/llvm-project f1a4bb62452d88a0edd9340b3ca7c9b11ad9193f)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250703/202507032238.AoTmQnGP-lkp@intel.com/reproduce)
+Changes in v3:
+- Static transport_* CID getter rename and comment [Stefano]
+- Link to v2: https://lore.kernel.org/r/20250620-vsock-transports-toctou-v2-0-02ebd20b1d03@rbox.co
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202507032238.AoTmQnGP-lkp@intel.com/
+Changes in v2:
+- Introduce a helper function to get local CIDs safely [Stefano]
+- Rename goto label to indicate an error path, explain why releasing
+  vsock_register_mutex after try_module_get() is safe [Stefano]
+- Link to v1: https://lore.kernel.org/r/20250618-vsock-transports-toctou-v1-0-dd2d2ede9052@rbox.co
 
-All errors (new ones prefixed by >>):
+---
+Michal Luczaj (3):
+      vsock: Fix transport_{g2h,h2g} TOCTOU
+      vsock: Fix transport_* TOCTOU
+      vsock: Fix IOCTL_VM_SOCKETS_GET_LOCAL_CID to check also `transport_local`
 
->> block/blk-mq-cpumap.c:155:16: error: array initializer must be an initializer list
-     155 |         cpumask_var_t active_hctx __free(free_cpumask_var) = NULL;
-         |                       ^
-   block/blk-mq-cpumap.c:219:16: error: array initializer must be an initializer list
-     219 |         cpumask_var_t active_hctx __free(free_cpumask_var) = NULL;
-         |                       ^
-   block/blk-mq-cpumap.c:220:16: error: array initializer must be an initializer list
-     220 |         cpumask_var_t mask __free(free_cpumask_var) = NULL;
-         |                       ^
-   3 errors generated.
+ net/vmw_vsock/af_vsock.c | 57 ++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 46 insertions(+), 11 deletions(-)
+---
+base-commit: 223e2288f4b8c262a864e2c03964ffac91744cd5
+change-id: 20250523-vsock-transports-toctou-4b75d9c2a805
 
-
-vim +155 block/blk-mq-cpumap.c
-
-   144	
-   145	/*
-   146	 * blk_mq_map_hk_queues - Create housekeeping CPU to
-   147	 *                        hardware queue mapping
-   148	 * @qmap:	CPU to hardware queue map
-   149	 *
-   150	 * Create a housekeeping CPU to hardware queue mapping in @qmap. @qmap
-   151	 * contains a valid configuration honoring the isolcpus configuration.
-   152	 */
-   153	static void blk_mq_map_hk_queues(struct blk_mq_queue_map *qmap)
-   154	{
- > 155		cpumask_var_t active_hctx __free(free_cpumask_var) = NULL;
-   156		struct cpumask *hk_masks __free(kfree) = NULL;
-   157		const struct cpumask *mask;
-   158		unsigned int queue, cpu, nr_masks;
-   159	
-   160		if (housekeeping_enabled(HK_TYPE_IO_QUEUE))
-   161			mask = housekeeping_cpumask(HK_TYPE_IO_QUEUE);
-   162		else
-   163			goto fallback;
-   164	
-   165		if (!zalloc_cpumask_var(&active_hctx, GFP_KERNEL))
-   166			goto fallback;
-   167	
-   168		/* Map housekeeping CPUs to a hctx */
-   169		hk_masks = group_mask_cpus_evenly(qmap->nr_queues, mask, &nr_masks);
-   170		if (!hk_masks)
-   171			goto fallback;
-   172	
-   173		for (queue = 0; queue < qmap->nr_queues; queue++) {
-   174			unsigned int idx = (qmap->queue_offset + queue) % nr_masks;
-   175	
-   176			for_each_cpu(cpu, &hk_masks[idx]) {
-   177				qmap->mq_map[cpu] = idx;
-   178	
-   179				if (cpu_online(cpu))
-   180					cpumask_set_cpu(qmap->mq_map[cpu], active_hctx);
-   181			}
-   182		}
-   183	
-   184		/* Map isolcpus to hardware context */
-   185		queue = cpumask_first(active_hctx);
-   186		for_each_cpu_andnot(cpu, cpu_possible_mask, mask) {
-   187			qmap->mq_map[cpu] = (qmap->queue_offset + queue) % nr_masks;
-   188			queue = cpumask_next_wrap(queue, active_hctx);
-   189		}
-   190	
-   191		if (!blk_mq_hk_validate(qmap, active_hctx))
-   192			goto fallback;
-   193	
-   194		return;
-   195	
-   196	fallback:
-   197		/*
-   198		 * Map all CPUs to the first hctx to ensure at least one online
-   199		 * housekeeping CPU is serving it.
-   200		 */
-   201		for_each_possible_cpu(cpu)
-   202			qmap->mq_map[cpu] = 0;
-   203	}
-   204	
-
+Best regards,
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Michal Luczaj <mhal@rbox.co>
+
