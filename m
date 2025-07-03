@@ -1,195 +1,396 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B87E20E005
-	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 03:06:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65BEB227BB5
+	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 03:14:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751512005; cv=none; b=VUZEpsDsZpyIjssvibjn6UaSzKOReVv9u0uoOO1ITZFeHzK4ts06P3IMyUyBPuw5zJBXvb2PLbiLNr4e0fgX9XOxlh+/TF76ct7zqG/7CXUgOCHV7ouYp/d2uCmZch+mF8dODUhNxGHwB63qEXrQ3QU8d2J6kywZ1N4mmE5xd4M=
+	t=1751512454; cv=none; b=OaylU4Vwx9fz72AcuYtIUzJ1SUXJ+IP8naXF8CeiadGZyhoAZVO39W7x2UajAQDhRbLA7GYYgtlZSMVB2R1dj1bcJJoHdBWWshuJxlHLCUqEWwOAYDoVJMu/UIdLnQWs6vHIMc2EJEUQclUtUAb3tS4fbn/SCmFxn4CB7UUoNKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751512005; c=relaxed/simple;
-	bh=g0goUqpz0H5nqzeA/3fuXMeQmy/4V6hWpW6/CbP1VvE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=l5TFl84bpBDACE9sqF1cQ1Wl2i28AEFzKb+Gunskc/SxFXtvSGyIPJQapND/CSyzVifl0Fl1kg8H+2VNYzafeAAXybcHOuXuv2dBMCtpwVH08o5dJmXJUkuPGDyJw3CBDCypn7+2zf3UkssiPCoDPR7lK/zllqCrwHli4DEjjEg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VKq2F6RF; arc=none smtp.client-ip=209.85.210.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751512454; c=relaxed/simple;
+	bh=pMOSR+Ba6+A9Eh401EjLUYOiCvMDSPaRSBZH2LjAYGM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dar/aJOoXYu7cP1KR3a4kHq+JVNnpowjkQ2ZaVen3EWjUP1SuNuTZkx6SXSwc9GmMaXi2YFoyMset/1jHggSLQzFmVb3XPncuHmXIItV1zRS+/l6WFIOooXD1jQ6QIWYq3Rq3ltZ6lZJ8P8sC2VHOoVZzr39Xmfp6APqjueXRN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fGSNxtzI; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VKq2F6RF"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-74801bc6dc5so435573b3a.1
-        for <virtualization@lists.linux.dev>; Wed, 02 Jul 2025 20:06:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751512003; x=1752116803; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NUDKiPyVRQeazWkY4m2jYwgTMEJufvXw/+pCwXThNj0=;
-        b=VKq2F6RFrvc5qpzLbCZWBlRuZFkosSVdnyuQ+iSl3voOd63vJbl6pyPumLjE5oTN6W
-         7Z2P/1rXpkGGBzLoNH94YdJ1fk2EDeBTVUjeoU0+W5On9Wb6wBfYxcoq/1JFuC6mPk/g
-         dgcD6cz4EEU+2TJOgdZcDhDoQp2LACiOuaPqCxFk06Fr7fyCGm6rgdAi+u84im/KXDBE
-         MkgusENbuLRj8NUVK6x5KAiiVixd7w4yVOvD9kpf27e43/BnI2pjS6Si6aFDvPhRDR3Z
-         OdwfShcuhoSBero7XX4nSxN3rnGz8fKGghg8UT8avftZACX8hI3B16S56geI0EY43Pgd
-         dI9Q==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fGSNxtzI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751512451;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gRIW5pbrJtZ6KIhhLr9tLMcbjMGeAtZxWrxYegWLOvk=;
+	b=fGSNxtzIVFXQ52MCQk4aTIPsnkFpp0TTEg4kDpaGnXcGqmP1rkkLkgOZ8+pYyQ/9swaYbv
+	oTGzmG11Pv8WZ41Vu3xdtvcbDK/m8SFIg6FYjgmZRYEZnUxoDbxBQMNJvg3/FDokpLV33I
+	4BOAdTjkIGFQKwYIr6evzXIxgGEzKxs=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-424-l9fbS-CZORyXqb-wExgBuw-1; Wed, 02 Jul 2025 23:14:08 -0400
+X-MC-Unique: l9fbS-CZORyXqb-wExgBuw-1
+X-Mimecast-MFC-AGG-ID: l9fbS-CZORyXqb-wExgBuw_1751512447
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3138e65efe2so6494109a91.1
+        for <virtualization@lists.linux.dev>; Wed, 02 Jul 2025 20:14:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751512003; x=1752116803;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1751512447; x=1752117247;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=NUDKiPyVRQeazWkY4m2jYwgTMEJufvXw/+pCwXThNj0=;
-        b=OcFhib8LZBUThdjaKIm7gEmV79QU8I6G5qyFUNGhBZxrdJdHQTrMcjz0ycKGn/fs73
-         9tRmObo5ls5w7cCHahi9psjM3qK86fAQmKZXRbKVW6CUfdXZUwTbYn6SdlcFKpSB8rLC
-         r6RezkQeA0kTdvEAvxxv17Gp6yng7Z4swZZ5TT6V9mATpN+dhqW9rwCWQAc2QnOFWZEo
-         BqYFc62mSgerhSI5AEsdFooPzD5eThE5z8LmQ87vjhYrZX7SMhgu3dMAcF3Qp9OuZ0X9
-         yR9b0xglj458Z2z1UaZmWp6uBgyW0t0tSbx6AHhhZiXuM9tv+RAtC/QMkAuBBnrTEHu3
-         oonw==
-X-Forwarded-Encrypted: i=1; AJvYcCXT9sJ0qX+0HFudq7s1mEJ655oCXiE0u6GXKxb9snwDVnQmN3u3I66UZzmycI083Ve4fVEJYNO2ys3JPsV96A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzZYIfR2RzzQAT5eppQC7b6p02hLJT9/C+QKlKqaAqTp8rErh7/
-	Wtx+IgPgQZlw/ihiqffmlPGIkd2Mz3NRKsbpztROVzxX2fEN8h9pZlCu
-X-Gm-Gg: ASbGnctg4ttOKDJ+IxTzrdvhB7paYx3GsCAqJPIeDtZMQQNoNrJtZ6eP65aZNKwUMnf
-	ksrnj9TlpGo0Bx4jHjFP6jQZh6P7EdZPtSXq6LCPIUdOveAAr8VX491eOuwMmRuG1NNIT8i62Vz
-	0KrEUYkGfk4Wcm9RsM/grXaCGimJYDQuOPf5l64sEJwf51GirNdXGNUsd3ce3X091UNKF2gumxY
-	A6ICMOP8PMUM9juMIcJuB9qsiURxY2hsLXmipGkDxHNHE4QhwVRwu8zM+mWS0DjnCldxQRzwOFn
-	Js3PNiexOOrYfmZLyntaYAiXjEjVugjtzoISQFpH0xEH/h5DUpCe5/jO2a4cVY6csOuwrTQrbqy
-	6HYgTA17L
-X-Google-Smtp-Source: AGHT+IFz7kt0Nb7vZz+tzUh5I+gOTwteT4lcjZk9zNPo6PfyuL6H+Px1Zb73lqI3Wo071I67AWpnGQ==
-X-Received: by 2002:a05:6a00:2d94:b0:736:9f2e:1357 with SMTP id d2e1a72fcca58-74cd5b575bdmr707117b3a.12.1751512002612;
-        Wed, 02 Jul 2025 20:06:42 -0700 (PDT)
-Received: from devant.antgroup-inc.local ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74af541d9a5sm16108617b3a.62.2025.07.02.20.06.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Jul 2025 20:06:42 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-To: sgarzare@redhat.com
-Cc: davem@davemloft.net,
-	decui@microsoft.com,
-	fupan.lfp@antgroup.com,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	leonardi@redhat.com,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	niuxuewei.nxw@antgroup.com,
-	niuxuewei97@gmail.com,
-	pabeni@redhat.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [RESEND PATCH net-next v4 3/4] test/vsock: Add retry mechanism to ioctl wrapper
-Date: Thu,  3 Jul 2025 11:05:14 +0800
-Message-Id: <20250703030514.845623-1-niuxuewei.nxw@antgroup.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <2cpqw23kr4qiatpzcty6wve4qdyut5su7g7fr4kg52dx33ikdu@ljicf6mktu5z>
-References: <2cpqw23kr4qiatpzcty6wve4qdyut5su7g7fr4kg52dx33ikdu@ljicf6mktu5z>
+        bh=gRIW5pbrJtZ6KIhhLr9tLMcbjMGeAtZxWrxYegWLOvk=;
+        b=AyHBYOL8WuHY6LDdizB5sQnhIqgJSzvvx4zh5L7/QEEV9A0VZs4KMJ5rizcgMEZjTi
+         bYyI1qK/4Bp//PMP3xJ7g9LXQxwXRDLNOeZeJsiWYT5mN7PQSqIh3kAGDsbzX7o6WIct
+         hfJkwDyqh1QshISJ3sRfINT9L7SXIV/VQ+fZaYvXXF+xwQBJZHWgEUs9bO6yGzfLwe2K
+         ksgx7S7f3yP9s3tOUBzmFBh2gSJkLtBzPBpYvfAdmYIo81SItherIE9wpDvIm9niN+g7
+         x+ZJjOWVn9sT1XA0eDLfhMmENkl5KPuLN1CdiZ+hApRRBwc2a7kyNig97i8aibtMC2Z5
+         ZsOQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU4htEGb1S4Zpc9yDY4z05HJvpSYW5Hu6UoH4zX6Z4wqnqBGo9udlr3QJX2lELMXL4W6rgAov+aKgnojyEeug==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzUYNm8aBrSyLaJDq9m5HPNLfWW7GWcWWsoeI+7HuOWW2wwtSa7
+	3wZz5858o1HTM7SCKzRXNqdczuHXCIXUr2So68zFvjfcgF5b7BwuMclXCmedZlhUPXwr9Vgz8Ft
+	YWtNsfwfi/I3Q/05aA1rFlftuWDcrArFTtvM5UqgZsJNUR7Tb3O22YfXOv3jTx2nMR719g+HySl
+	0ckGHlBBsiV9HGG4uvlfp3T67nabBZCe/6NKfNFE53wVc=
+X-Gm-Gg: ASbGncuTOMbJFQVB0Z+Jcg53OLBVsaO34sOFFvLr2aOCZdVskqqrJiEKtLIVu6Rwr3w
+	2WLRE33RO+htP6a+jMC2fbExh101sSZIqpSinMzgDHfFl6/3tlQigI3AG5QQenBxjONYxZ5HKB2
+	KaDgbs
+X-Received: by 2002:a17:90b:4b11:b0:311:fde5:c4c2 with SMTP id 98e67ed59e1d1-31a9d57d983mr2241299a91.1.1751512446730;
+        Wed, 02 Jul 2025 20:14:06 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFNPprkHjmFCaG5ZezUgnHfsLYn1qY2/eNgQxJTgFAdsg1SexMlL8reb1Iy78Be/MZbDT3KSwi9g4t5kGsHosI=
+X-Received: by 2002:a17:90b:4b11:b0:311:fde5:c4c2 with SMTP id
+ 98e67ed59e1d1-31a9d57d983mr2241252a91.1.1751512446185; Wed, 02 Jul 2025
+ 20:14:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250616082518.10411-1-jasowang@redhat.com> <20250616082518.10411-20-jasowang@redhat.com>
+ <20250701024602-mutt-send-email-mst@kernel.org> <CACGkMEuzTYPcDMamptLMQpSZu3gWxYx1Sr2nJef+pyuo2m35XQ@mail.gmail.com>
+ <20250702064413-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250702064413-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 3 Jul 2025 11:13:54 +0800
+X-Gm-Features: Ac12FXwdZitM7cr8QECMFGaDxCYqGvGIjQXb0mGKXn4BjTMZqkxnxiDHrz98zA0
+Message-ID: <CACGkMEs0-FiRbUVTbtVyqPh=A8ufdW-Mh1XnR9hf8XQ7_Qf9sg@mail.gmail.com>
+Subject: Re: [PATCH V3 19/19] virtio_ring: add in order support
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	Jonah Palmer <jonah.palmer@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 6l-Al5ZIjtjvOIOpfsL-6E1Cq0HZpjMjwNeLmd1v3C4_1751512447
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Resend: the previous message was rejected due to HTML
-Resend: forgot to reply all...
+On Wed, Jul 2, 2025 at 6:57=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
+wrote:
+>
+> On Wed, Jul 02, 2025 at 05:29:18PM +0800, Jason Wang wrote:
+> > On Tue, Jul 1, 2025 at 2:57=E2=80=AFPM Michael S. Tsirkin <mst@redhat.c=
+om> wrote:
+> > >
+> > > On Mon, Jun 16, 2025 at 04:25:17PM +0800, Jason Wang wrote:
+> > > > This patch implements in order support for both split virtqueue and
+> > > > packed virtqueue.
+> > >
+> > > I'd like to see more motivation for this work, documented.
+> > > It's not really performance, not as it stands, see below:
+> > >
+> > > >
+> > > > Benchmark with KVM guest + testpmd on the host shows:
+> > > >
+> > > > For split virtqueue: no obvious differences were noticed
+> > > >
+> > > > For packed virtqueue:
+> > > >
+> > > > 1) RX gets 3.1% PPS improvements from 6.3 Mpps to 6.5 Mpps
+> > > > 2) TX gets 4.6% PPS improvements from 8.6 Mpps to 9.0 Mpps
+> > > >
+> > >
+> > > That's a very modest improvement for a lot of code.
+> > > I also note you put in some batching just for in-order.
+> > > Which could also explain the gains maybe?
+> > > What if you just put in a simple implementation with no
+> > > batching tricks? do you still see a gain?
+> >
+> > It is used to implement the batch used updating.
+> >
+> > """
+> > Some devices always use descriptors in the same order in which they
+> > have been made available. These devices can offer the
+> > VIRTIO_F_IN_ORDER feature. If negotiated, this knowledge allows
+> > devices to notify the use of a batch of buffers to the driver by only
+> > writing out a single used ring entry with the id corresponding to the
+> > head entry of the descriptor chain describing the last buffer in the
+> > batch.
+> > """
+> >
+> > DPDK implements this behavior, so it's a must for the virtio driver.
+> >
+> > > Does any hardware implement this? Maybe that can demonstrate
+> > > bigger gains.
+> >
+> > Maybe but I don't have one in my hand.
+> >
+> > For performance, I think it should be sufficient as a starter. I can
+> > say in the next version something like "more optimizations could be
+> > done on top"
+>
+> What are some optimizations you have in mind?
 
-> On Mon, Jun 30, 2025 at 03:57:26PM +0800, Xuewei Niu wrote:
-> >Wrap the ioctl in `ioctl_int()`, which takes a pointer to the actual
-> >int value and an expected int value. The function will not return until
-> >either the ioctl returns the expected value or a timeout occurs, thus
-> >avoiding immediate failure.
-> >
-> >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-> >---
-> > tools/testing/vsock/util.c | 32 +++++++++++++++++++++++---------
-> > tools/testing/vsock/util.h |  1 +
-> > 2 files changed, 24 insertions(+), 9 deletions(-)
-> >
-> >diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-> >index 0c7e9cbcbc85..481c395227e4 100644
-> >--- a/tools/testing/vsock/util.c
-> >+++ b/tools/testing/vsock/util.c
-> >@@ -16,6 +16,7 @@
-> > #include <unistd.h>
-> > #include <assert.h>
-> > #include <sys/epoll.h>
-> >+#include <sys/ioctl.h>
-> > #include <sys/mman.h>
-> > #include <linux/sockios.h>
-> >
-> >@@ -97,28 +98,41 @@ void vsock_wait_remote_close(int fd)
-> > 	close(epollfd);
-> > }
-> >
-> >-/* Wait until transport reports no data left to be sent.
-> >- * Return false if transport does not implement the unsent_bytes() 
-> >callback.
-> >+/* Wait until ioctl gives an expected int value.
-> >+ * Return false if the op is not supported.
-> >  */
-> >-bool vsock_wait_sent(int fd)
-> >+bool vsock_ioctl_int(int fd, unsigned long op, int *actual, int expected)
-> 
-> Why we need the `actual` parameter?
+One thing in my mind, spec currently said:
 
-We can exit early `if (*actual == expected)`, and the `expected` can be any integer.
-I also make it to be a pointer, because the caller might need to have the actual value.
+"""
+ If negotiated, this knowledge allows devices to notify the use of a
+batch of buffers to the driver by only writing out a single used
+descriptor with the Buffer ID corresponding to the last descriptor in
+the batch.
+"""
 
-Thanks,
-Xuewei
- 
-> > {
-> >-	int ret, sock_bytes_unsent;
-> >+	int ret;
-> >+	char name[32];
-> >+
-> >+	snprintf(name, sizeof(name), "ioctl(%lu)", op);
+If the device writes the last descriptor ID instead of the buffer ID
+and skip the number of descriptors in the used ring. For split
+virtqueue, the avail ring is not needed anymore. Device knows the
+availability of buffers via avail_idx. In this way, we completely
+eliminate the access of the available ring. This reduces the memory
+access which is expensive for both:
+
+1) kernel vhost-net where small user space memory access is expensive
+2) hardware PCI transactions
+
+Does this make sense?
+
+>
+>
+>
+> > Note that the patch that introduces packed virtqueue, there's not even
+> > any numbers:
 > >
-> > 	timeout_begin(TIMEOUT);
-> > 	do {
-> >-		ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
-> >+		ret = ioctl(fd, op, actual);
-> > 		if (ret < 0) {
-> > 			if (errno == EOPNOTSUPP)
-> > 				break;
+> > commit 1ce9e6055fa0a9043405c5604cf19169ec5379ff
+> > Author: Tiwei Bie <tiwei.bie@intel.com>
+> > Date:   Wed Nov 21 18:03:27 2018 +0800
 > >
-> >-			perror("ioctl(SIOCOUTQ)");
-> >+			perror(name);
-> > 			exit(EXIT_FAILURE);
-> > 		}
-> >-		timeout_check("SIOCOUTQ");
-> >-	} while (sock_bytes_unsent != 0);
-> >+		timeout_check(name);
-> >+	} while (*actual != expected);
-> > 	timeout_end();
+> >     virtio_ring: introduce packed ring support
 > >
-> >-	return !ret;
-> >+	return ret >= 0;
-> >+}
-> >+
-> >+/* Wait until transport reports no data left to be sent.
-> >+ * Return false if transport does not implement the unsent_bytes() callback.
-> >+ */
-> >+bool vsock_wait_sent(int fd)
-> >+{
-> >+	int sock_bytes_unsent;
-> >+
-> >+	return vsock_ioctl_int(fd, SIOCOUTQ, &sock_bytes_unsent, 0);
-> > }
+> >     Introduce the packed ring support. Packed ring can only be
+> >     created by vring_create_virtqueue() and each chunk of packed
+> >     ring will be allocated individually. Packed ring can not be
+> >     created on preallocated memory by vring_new_virtqueue() or
+> >     the likes currently.
 > >
-> > /* Create socket <type>, bind to <cid, port> and return the file descriptor. */
-> >diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-> >index 5e2db67072d5..d59581f68d61 100644
-> >--- a/tools/testing/vsock/util.h
-> >+++ b/tools/testing/vsock/util.h
-> >@@ -54,6 +54,7 @@ int vsock_stream_listen(unsigned int cid, unsigned int port);
-> > int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
-> > 			   struct sockaddr_vm *clientaddrp);
-> > void vsock_wait_remote_close(int fd);
-> >+bool vsock_ioctl_int(int fd, unsigned long op, int *actual, int expected);
-> > bool vsock_wait_sent(int fd);
-> > void send_buf(int fd, const void *buf, size_t len, int flags,
-> > 	      ssize_t expected_ret);
-> >-- 
-> >2.34.1
+> >     Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> >     Signed-off-by: David S. Miller <davem@davemloft.net>
+>
+>
+> I think the assumption there was that intel has hardware that
+> requires packed. That's why Dave merged this.
+
+I think it should according to Qemu patch:
+
+commit c03213fdc9d7b680cc575cd1e725750702a10b09
+Author: Jonah Palmer <jonah.palmer@oracle.com>
+Date:   Wed Jul 10 08:55:18 2024 -0400
+
+    vhost,vhost-user: Add VIRTIO_F_IN_ORDER to vhost feature bits
+
+    Add support for the VIRTIO_F_IN_ORDER feature across a variety of vhost
+    devices.
+
+    The inclusion of VIRTIO_F_IN_ORDER in the feature bits arrays for these
+    devices ensures that the backend is capable of offering and providing
+    support for this feature, and that it can be disabled if the backend
+    does not support it.
+
+    Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+    Signed-off-by: Jonah Palmer <jonah.palmer@oracle.com>
+    Message-Id: <20240710125522.4168043-6-jonah.palmer@oracle.com>
+    Reviewed-by: Michael S. Tsirkin <mst@redhat.com>
+    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Adding Jonah for more thought here.
+
+>
+> > >
+> > >
+> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > > ---
+> > > >  drivers/virtio/virtio_ring.c | 423 +++++++++++++++++++++++++++++++=
+++--
+> > > >  1 file changed, 402 insertions(+), 21 deletions(-)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_r=
+ing.c
+> > > > index 27a9459a0555..21d456392ba0 100644
+> > > > --- a/drivers/virtio/virtio_ring.c
+> > > > +++ b/drivers/virtio/virtio_ring.c
+> > > > @@ -70,11 +70,14 @@
+> > > >  enum vq_layout {
+> > > >       SPLIT =3D 0,
+> > > >       PACKED,
+> > > > +     SPLIT_IN_ORDER,
+> > > > +     PACKED_IN_ORDER,
+> > > >       VQ_TYPE_MAX,
+> > > >  };
+> > > >
+> > > >  struct vring_desc_state_split {
+> > > >       void *data;                     /* Data for callback. */
+> > > > +     u32 total_len;                  /* Buffer Length */
+> > > >
+> > > >       /* Indirect desc table and extra table, if any. These two wil=
+l be
+> > > >        * allocated together. So we won't stress more to the memory =
+allocator.
+> > > > @@ -84,6 +87,7 @@ struct vring_desc_state_split {
+> > > >
+> > > >  struct vring_desc_state_packed {
+> > > >       void *data;                     /* Data for callback. */
+> > > > +     u32 total_len;                  /* Buffer Length */
+> > > >
+> > > >       /* Indirect desc table and extra table, if any. These two wil=
+l be
+> > > >        * allocated together. So we won't stress more to the memory =
+allocator.
+> > >
+> > > We are bloating up the cache footprint for everyone,
+> > > so there's a chance of regressions.
+> > > Pls include benchmark for in order off, to make sure we
+> > > are not regressing.
 > >
+> > Ok.
+> >
+> > > How big was the ring?
+> >
+> > 256.
+>
+> that is very modest, you want to fill at least one cache way,
+> preferably more.
+
+I can test larger queue sizes.
+
+>
+> > > Worth trying with a biggish one, where there is more cache
+> > > pressure.
+> >
+> > Ok.
+> >
+> > >
+> > >
+> > > Why not have a separate state for in-order?
+> >
+> > It can work.
+> >
+> > >
+> > >
+> > >
+> > > > @@ -206,6 +210,12 @@ struct vring_virtqueue {
+> > > >
+> > > >       /* Head of free buffer list. */
+> > > >       unsigned int free_head;
+> > > > +
+> > > > +     /* Head of the batched used buffers, vq->num means no batchin=
+g */
+> > > > +     unsigned int batch_head;
+> > > > +
+> > > > +     unsigned int batch_len;
+> > > > +
+> > >
+> > > Are these two only used for in-order? Please document that.
+> >
+> > Yes, I will do that.
+> >
+> > > I also want some documentation about the batching trickery
+> > > used please.
+> > > What is batched, when, how is batching flushed, why are we
+> > > only batching in-order ...
+> >
+> > I'm not sure I get things like this, what you want seems to be the
+> > behaviour of the device which has been stated by the spec or I may
+> > miss something here.
+>
+> "a single used ring entry with the id corresponding to the
+>  head entry of the descriptor chain describing the last buffer in the
+>  batch"
+> ?
+
+Exactly.
+
+>
+> so together they form this used ring entry describing the last buffer?
+> "head" is the id and "len" the length?
+
+Yes.
+
+>
+> maybe
+>
+>         /*
+>          * With IN_ORDER, devices write a single used ring entry with
+>          * the id corresponding to the head entry of the descriptor chain
+>          * describing the last buffer in the batch
+>          */
+>         struct used_entry {
+>                 u32 id;
+>                 u32 len;
+>         } batch_last;
+>
+> ?
+
+This should be fine.
+
+>
+>
+>
+>
+> > >
+> > >
+> > >
+> > >
+> > > >       /* Number we've added since last sync. */
+> > > >       unsigned int num_added;
+> > > >
+> > > > @@ -256,10 +266,14 @@ static void vring_free(struct virtqueue *_vq)=
+;
+> > > >
+> > > >  #define to_vvq(_vq) container_of_const(_vq, struct vring_virtqueue=
+, vq)
+> > > >
+> > > > -
+> > > >  static inline bool virtqueue_is_packed(const struct vring_virtqueu=
+e *vq)
+> > > >  {
+> > > > -     return vq->layout =3D=3D PACKED;
+> > > > +     return vq->layout =3D=3D PACKED || vq->layout =3D=3D PACKED_I=
+N_ORDER;
+> > > > +}
+> > > > +
+> > > > +static inline bool virtqueue_is_in_order(const struct vring_virtqu=
+eue *vq)
+> > > > +{
+> > > > +     return vq->layout =3D=3D SPLIT_IN_ORDER || vq->layout =3D=3D =
+PACKED_IN_ORDER;
+> > > >  }
+> > > >
+> > > >  static bool virtqueue_use_indirect(const struct vring_virtqueue *v=
+q,
+> > > > @@ -570,7 +584,7 @@ static inline int virtqueue_add_split(struct vr=
+ing_virtqueue *vq,
+> > > >       struct vring_desc_extra *extra;
+> > > >       struct scatterlist *sg;
+> > > >       struct vring_desc *desc;
+> > > > -     unsigned int i, n, c, avail, descs_used, err_idx;
+> > > > +     unsigned int i, n, c, avail, descs_used, err_idx, total_len =
+=3D 0;
+> > >
+> > >
+> > > I would add a comment here:
+> > >
+> > > /* Total length for in-order */
+> > > unsigned int total_len =3D 0;
+> >
+> > Ok.
+> >
+> > Thanks
+>
+
