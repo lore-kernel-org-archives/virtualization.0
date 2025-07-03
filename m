@@ -1,46 +1,46 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62C402D29C8;
-	Thu,  3 Jul 2025 08:57:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68E5D2DE719
+	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 09:02:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751533030; cv=none; b=l53SyF1ULEbyaLOF0qEm3ODNaL3dNT7ZAtGoapiWPWn7EkXxMFPOILidAkASf7fOTonlqaGF4tEnQDA1WznIF0ODFvgvs4ViJ60rbXNqX1Yr4FdCkiLjy/24xmh5nMkUu4HaM+GeWaBnXg/V+irCC6wUFtyQniBDgsNH9hyR11c=
+	t=1751533326; cv=none; b=Iz9yUThGQXdJPJqt2PN5U9sFUOHW7G6adZapc7o28RT6AknyYmIh9gpkoa5QiHIRnzRDRh+GQrpHyH69CLzthhp+Po1JPw4GxG8SrDuFNo4OTTFn5kLQDAf7LsGXnHRBTYeWqNH0nfruoo2qGCd3T+grsiJ3wLYShB2XILhUx7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751533030; c=relaxed/simple;
-	bh=NFW2YyTqEtJaZEFW122fYjnxT1eH+RBQ4tejPPFMRCo=;
+	s=arc-20240116; t=1751533326; c=relaxed/simple;
+	bh=Z/vGvgrrbVAMLzRiS2g0fkIcUa1mFzXAS23RSaYh68I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R2QhSo/hhX/2msagvFZaCeM7FHWqznVef/worDkW+TjFoB4jf/sp5iAccsbzxyGLCA//JHgTPEkb+surAuZl+c6MuVnZpV1GtHhebmTn+TSJi2pjMdRlIl9aQB9WIQNTVWzmZdmeMVhc33Ex7cts56LLOZ/FQ5hoW9livwTV6pg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=mBrdP+dT; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="mBrdP+dT"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=7v+FVph2p3AjKUXXMP962eD76NtSca8p122IP5PfJck=; b=mBrdP+dTWCx2IeD12Mcjc459U7
-	StfEKWNoxulXdMYk5WiKT5+w1eKkPakUmCOz6ef/r/TTPSPeCbaan+lpZv6L8rD4y5Esz+1LdDfhC
-	ocgQo/0dF+d7PCZC+PbbGiuiCOB9hmOz90fnW6eZUr6Fwnf+Uw0yrXPt3hGq6AsDyN9NOjMlNAVOk
-	gAs/NiZ7QrQfDCKl2/3oDSRFW4zxx7Q+o+zLTAcGbrSxcIMfinYM6wFn3wCioRIQzc7GqPmbxycdM
-	D5dq/e/VaLMiYUa6RUr9veQIwIeQXu8vQymBGLzH6YSB8lbG29oV6WxPvRxt5QdrDn7Ir7i9ikRXZ
-	Kxz5ROqw==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uXFkh-0000000AkgY-3XwQ;
-	Thu, 03 Jul 2025 08:57:07 +0000
-Date: Thu, 3 Jul 2025 01:57:07 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, hch@infradead.org,
-	xieyongji@bytedance.com
-Subject: Re: [PATCH 0/9] Refine virtio mapping API
-Message-ID: <aGZF4025JPO3wgnm@infradead.org>
-References: <20250701011401.74851-1-jasowang@redhat.com>
- <20250701030150-mutt-send-email-mst@kernel.org>
- <CACGkMEtr+Rwu+imU1rLtLLQxY50sNzCC8gi8sE4xVhCoDphJwg@mail.gmail.com>
+	 Content-Type:Content-Disposition:In-Reply-To; b=kdUqe7jFtPQ0X/FEDtvrbEBhMKAOydm99QJsD+vTklE4LM+Ryho6aoJolocGzSqdPVxOQ7WzTfVoC4U70nR3WYzZuNgCTjBLcTGkQW0AnDr1J8Sh4WNWGBu2GNevzzohu0JY+1kaBwVFjhI6wSjH8jj0Sw9xl7sq5dOpupc4lMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id CD66168B05; Thu,  3 Jul 2025 11:01:58 +0200 (CEST)
+Date: Thu, 3 Jul 2025 11:01:58 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Daniel Wagner <wagi@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>,
+	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Aaron Tomlin <atomlin@atomlin.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Costa Shulyupin <costa.shul@redhat.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com,
+	linux-scsi@vger.kernel.org, storagedev@microchip.com,
+	virtualization@lists.linux.dev,
+	GR-QLogic-Storage-Upstream@marvell.com
+Subject: Re: [PATCH v7 08/10] blk-mq: use hk cpus only when
+ isolcpus=io_queue is enabled
+Message-ID: <20250703090158.GA4757@lst.de>
+References: <20250702-isolcpus-io-queues-v7-0-557aa7eacce4@kernel.org> <20250702-isolcpus-io-queues-v7-8-557aa7eacce4@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,30 +49,20 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CACGkMEtr+Rwu+imU1rLtLLQxY50sNzCC8gi8sE4xVhCoDphJwg@mail.gmail.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <20250702-isolcpus-io-queues-v7-8-557aa7eacce4@kernel.org>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On Tue, Jul 01, 2025 at 04:00:31PM +0800, Jason Wang wrote:
-> Actually not, it doesn't change how things work for the device that
-> does DMA already like:
-> 
-> If device has its specific mapping ops
->         go for device specific mapping ops
-> else
->         go for DMA API
-> 
-> VDUSE is the only user now, and extra indirection has been used for
-> VDUSE even without this series (via abusing DMA API). This series
-> switch from:
-> 
-> virtio core -> DMA API -> VDUSE DMA API -> iova domain ops
-> 
-> to
-> 
-> virtio core -> virtio map ops -> VDUSE map ops -> iova domain ops
+On Wed, Jul 02, 2025 at 06:33:58PM +0200, Daniel Wagner wrote:
+>  const struct cpumask *blk_mq_possible_queue_affinity(void)
+>  {
+> +	if (housekeeping_enabled(HK_TYPE_IO_QUEUE))
+> +		return housekeeping_cpumask(HK_TYPE_IO_QUEUE);
+> +
+>  	return cpu_possible_mask;
+>  }
 
-And that's exaxctly how it should be done.
-
-Thanks for doing the work!  I'll go through if I find some nitpicks,
-but the concept is the only right one here.
+I'm no expert on the housekeeping stuff, but why isn't the
+housekeeping_enabled check done in housekeeping_cpumask directly so
+that the drivers could use housekeeping_cpumask without a blk-mq
+wrapper?
 
