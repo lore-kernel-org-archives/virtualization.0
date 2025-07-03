@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEE4E1F1906
-	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 10:50:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC2892DE6E2
+	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 10:51:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751539836; cv=none; b=iUgrw56Q2lNtRP9datnymaBJI7jAaBHFDAqmX6UJXJumK5VrBgJp6ehWgMqMctlqiTV7zAhKDxZRDKFYlpO4GNA7J0dWUg2HsAWcvSDU97+ud309Xz6XRWQthzBKTLV930aw37VtwtPlqlXd6DC+jw6m3A5V6TSN9JwRha0KRbc=
+	t=1751539898; cv=none; b=OMWUO+NzE0e+5fOK+cfErNSYbSjgfa/yKHFU4ZuyiZjPG4rPcS03YiqfIh6b0eeSzFuO09/7Aog0LE2Gf4dZB0JFlOCmUhrdY/jDvTkoz9euuxPNWHQT7O3dLCaCjCAJBpOHbaS+oZuF0VlFjR5+j3l9dN+erxb1PcG1flopV3Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751539836; c=relaxed/simple;
-	bh=hq2wU4Thxvj9W5q0QQZu8ghuyXx+360IX+pAXabRItI=;
+	s=arc-20240116; t=1751539898; c=relaxed/simple;
+	bh=OqvSnj012lk+x7sxrjtbztoI/YmrJYSA0WWNrX5Fpj8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TMXKk2woYzoacJXtupDsGuvvnL2GEkPfqBp3BCNhcFNdGXThUBCwxu/ohP5vJ+7YLDratmetFxkLWo8+kwoxljqPhrbFZpZjRafDc+C86LKMQ9Gg6JrayMCL5WJ9UafGusKYevy7x0qKO0TzwgSMnKJw7hCpOW6Q/FBOvIXMlNA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XtEzED7h; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=izTdBnntTc0GfqqJIGgufXoruao5f32LVadM85OMM1YseE8S2CsR30tor7+4TujfvDQLkBKxSjmV2oYTvFDRkdgNUitJcwtYsacebLFIdOajVJzJlD7lik2J7tvy8m6ixExvBrs3YyLx1+WzDaLk+RIMpPJyvk7YflA1j9LF28Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H3N5BSfF; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XtEzED7h"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H3N5BSfF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751539833;
+	s=mimecast20190719; t=1751539895;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=hq2wU4Thxvj9W5q0QQZu8ghuyXx+360IX+pAXabRItI=;
-	b=XtEzED7hY0MYhstpM5HMP7Y+LMnV1q0ieKB+NauZUMgROZuWaDOF/IbQhT4ZoPCnkB/gUd
-	Nsn8L3Tnx+8qUe79sbyeNC4NoH8SufwKXLltR3BdTm3JPT/PD1NFzdpxvGTWtUisHXyQS3
-	K1+TQY/AEmxT+t7N0gIAH/557y0J+jI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=PTP2cROOIMAlCq/5T6gTKModShdkxtZnGGTA7OvrtwI=;
+	b=H3N5BSfFWDrDRV95R4aNyBp5ThsfEFj0ZFfB5N4BWe0DoBQDyFqXGqxUA2iiMrflhrngaI
+	tqOuScSSAMqeuWdoypEPKy+oITZSNvdDc65GjFNU9Ma9TKW/8r9m/ouFLgJQmKDwpSXugy
+	s4MJFShFlRIz4oCl2Fkjg5jZU9aLGMw=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-262-wvwYIPYoNVG8lTapJi1bqg-1; Thu, 03 Jul 2025 06:50:32 -0400
-X-MC-Unique: wvwYIPYoNVG8lTapJi1bqg-1
-X-Mimecast-MFC-AGG-ID: wvwYIPYoNVG8lTapJi1bqg_1751539831
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-451d7de4ae3so38850095e9.2
-        for <virtualization@lists.linux.dev>; Thu, 03 Jul 2025 03:50:32 -0700 (PDT)
+ us-mta-360-LS3EAyETNCmI23KLxCzXcw-1; Thu, 03 Jul 2025 06:51:34 -0400
+X-MC-Unique: LS3EAyETNCmI23KLxCzXcw-1
+X-Mimecast-MFC-AGG-ID: LS3EAyETNCmI23KLxCzXcw_1751539893
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a4f85f31d9so3323420f8f.1
+        for <virtualization@lists.linux.dev>; Thu, 03 Jul 2025 03:51:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751539831; x=1752144631;
+        d=1e100.net; s=20230601; t=1751539893; x=1752144693;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=hq2wU4Thxvj9W5q0QQZu8ghuyXx+360IX+pAXabRItI=;
-        b=hhTfvKcktUe234ZZFLxw26J0f30GG1S2Y+PEefugCvFVS/Arxsrr9NqKopSCZgMbs1
-         dOu5rEebDxS1WURUfrCr14gr0IgXNP8BwEebpFFGZige/puMeHzf/1iafWaFCllnCeX1
-         8JhqWBPwS6dGq0gBJnMzRa2xX+64RI7nbYCA97vR99oG7YvjRKHAhOscdaxqV7mp1/uI
-         zTdzBy7ydliNv+ZWpccnggq14FneFtiDQvikpedOHfQc2n1/4rSWcIarueHtWuxv5dgc
-         B7L8Dx3hu1EgNZR30N2jgd6jFxqiC0CjlCsIaN6TgOPew85upalaivMrywGa7JN0mvZp
-         Dghg==
-X-Forwarded-Encrypted: i=1; AJvYcCVkzTEfogtjd2DnsD5kS9RvbYuqx/0uy27Hmavguy7xECSX5XhBeC9YAOsY1ZvrB6LyrKl+WganqrhRZ/BlFw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyijhxAr90mL0v6A8FXMOY0Qtn0Px8eOsXDkMrCI0keIC9UeZiV
-	dQILV5b1xXWYLyPU/qP/ByXfJ+udKK+j0PpYyZrMyTUc5Yhbx2Z9A0cdTG8Fg0blc0u1jg1I5Fd
-	hG3HHh717gPV5ycqL/r9m0TPiL1gfQ7OgbvzvdHd+FrPSo67jUZdtHynjbTSkPRj+L4ae
-X-Gm-Gg: ASbGnctxG4xxdFUvTOCEsUDLFweimPyXuk702b0NtOpPEQDBMtPUMbsinHl2Ag0oiK3
-	sNKnc4kk+kTILH2AET1gicD0kUh5/eMmwRI3FdAPFrcQX9AaCt4V4YUktcseX26rYauHF8dmpew
-	wdlSX3WoJ0LHgGoNRJ4UZM5kIW0G0wtLpdAS4OUMYvAjHJ3sr7gVJC3M+Zpu0ILxqd1Iywf7O6e
-	7Pib+WR9jHLr7mAxn0gxUAOVakX6gYqJHA6ogzrtaFjlMfMMfgGjU3APLijyWfOBdRaMZscEtUe
-	I5krf/CEL8kE3t1MwVgMrDq5oM+a
-X-Received: by 2002:a05:600c:8b77:b0:453:c39:d0a7 with SMTP id 5b1f17b1804b1-454a9c8b237mr29470885e9.5.1751539831098;
-        Thu, 03 Jul 2025 03:50:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGzDX+vbYuYqXz4dknV8AbAZbalPiUFcm+rHJ2WbwReCp9n7u2EYHmOh5K438umgtQEGSI9Og==
-X-Received: by 2002:a05:600c:8b77:b0:453:c39:d0a7 with SMTP id 5b1f17b1804b1-454a9c8b237mr29470635e9.5.1751539830522;
-        Thu, 03 Jul 2025 03:50:30 -0700 (PDT)
+        bh=PTP2cROOIMAlCq/5T6gTKModShdkxtZnGGTA7OvrtwI=;
+        b=vLGUMFWMRydIcKHuRDaMAKdl+rfzKF3SNE1tqyEpZNpF1CNUGT0f4oRY/GFK4vxZ7G
+         rvSc/X+rvOB4PSnqGl9/IgMtfsBMd1y6XPVuHaCQ1eoDrFXTjkU3A9DBJ9ngPlvmoa4L
+         edDHujsAcEcMr0NXoJFiHIo+STajF4hcAhrp16dlGPx2DGvtt+LwFjdnBvH8XvisA7e3
+         0WC4SeQ/vFO6kdLjSKAv15YKxCu62b4rbNnoWhdELYzkPT6UAVEbU3UO7ckiTHIP6Do2
+         sO0gpHImTDFQI/sFY2hcRKcSwOrYWAqFz8jNqg3ASR8i1fm2/5Qr2A2eUD9s07p2V/lh
+         BrgQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUM/We00PdAYvMyoaLYhxIy1c3ZTfUKV3kpdRBbv+FN9ywBK6XkP9icxWaMIjxAX7WT6yCMrfHkeRv9YtHz9Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzB09v+PrJWdUKtvDmc/FJErV2FhEyCHakIMKi3d1DTFHAyZaED
+	LLzAE1O6kTY+1UQhwHIrSoUrnKvkVDdgqdqFW5mGtrA+uTCDeoJpBzUBZ22qoZaDuJQ8ghurlFY
+	R0Q8PmjGMrdb2fqIZODeEDU0jizKdptEIbTyS9fV7ahi4wPPQhJIsbyAG1V0jvZ3lCM08
+X-Gm-Gg: ASbGnctWgTPpCKQI8fDPMG4LTw/pkKwh1bjbS68s1Y4Ez5lJ9i6UuP+zFCfghI+tJFp
+	R65vWWC2wLuBLgntUJZxfJKkhFqKXibXFL+Jj+ksPmww9SSNVzE9E0/UdiFmqbMQcWO9F4bnIcy
+	WGMZOzzgv3M0Pyu1Uu18CB+yJGO+RCVMj4vA+8wyr+0VvPqqCNFQ0fWZ8nuQziE8eBkyEn+x3j7
+	VGUEMW9ZNKVDsTCCjuHnZmXnEcpvdU2w+0ciaJwKitZcvfCvdxvy4/4KudADsqZFlAoUwWzN9Xo
+	iW0vPjcAzBIoH3noKN1pSL+p8/UM
+X-Received: by 2002:a05:6000:98a:b0:3a0:aed9:e34 with SMTP id ffacd0b85a97d-3b32fa3aaa1mr2092531f8f.48.1751539893410;
+        Thu, 03 Jul 2025 03:51:33 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHaIrtPC6+L1M9apwjRSTfcpVN1M7WJhIIwoutF3s+xjdaNvBgiwXew6JQLCZDeO5sbSJK9KA==
+X-Received: by 2002:a05:6000:98a:b0:3a0:aed9:e34 with SMTP id ffacd0b85a97d-3b32fa3aaa1mr2092503f8f.48.1751539892823;
+        Thu, 03 Jul 2025 03:51:32 -0700 (PDT)
 Received: from sgarzare-redhat ([193.207.161.238])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-454a997e24bsm23279805e9.16.2025.07.03.03.50.28
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a892e62144sm18619571f8f.92.2025.07.03.03.51.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Jul 2025 03:50:29 -0700 (PDT)
-Date: Thu, 3 Jul 2025 12:50:21 +0200
+        Thu, 03 Jul 2025 03:51:32 -0700 (PDT)
+Date: Thu, 3 Jul 2025 12:51:25 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
@@ -74,43 +74,79 @@ Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 	stable <stable@kernel.org>
 Subject: Re: [PATCH net] vsock/vmci: Clear the vmci transport packet properly
  when initializing it
-Message-ID: <756ms3h6ayqohczk3426xnzoby65luxzrbxblqvgl4ezlcqgph@xjz5m5qf5jew>
+Message-ID: <ktxstfr4rxrvk4pvdreumdch55ieexfclozovszm24o6xmb7zd@nmo2w2ffu2kw>
 References: <20250701122254.2397440-1-gregkh@linuxfoundation.org>
- <37t6cnaqt2g7dyl6lauf7tccm5yzpv3dvxbngv7f7omiah35rr@nl35itdnhuda>
- <2025070144-brussels-revisit-9aa3@gregkh>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2025070144-brussels-revisit-9aa3@gregkh>
+In-Reply-To: <20250701122254.2397440-1-gregkh@linuxfoundation.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 73v79alJaTn3AVq3o_CdP5KVROKOVtnItxELkVmZ05I_1751539831
+X-Mimecast-MFC-PROC-ID: atys_VCjRaywB437o8nCWVs7wY3pNkM3RvZ7YCAH188_1751539893
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Tue, Jul 01, 2025 at 02:56:14PM +0200, Greg Kroah-Hartman wrote:
->On Tue, Jul 01, 2025 at 02:42:10PM +0200, Stefano Garzarella wrote:
->> On Tue, Jul 01, 2025 at 02:22:54PM +0200, Greg Kroah-Hartman wrote:
->> > From: HarshaVardhana S A <harshavardhana.sa@broadcom.com>
->> >
->> > In vmci_transport_packet_init memset the vmci_transport_packet before
->> > populating the fields to avoid any uninitialised data being left in the
->> > structure.
->>
->> Usually I would suggest inserting a Fixes tag, but if you didn't put it,
->> there's probably a reason :-)
->>
->> If we are going to add it, I think it should be:
->>
->> Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+On Tue, Jul 01, 2025 at 02:22:54PM +0200, Greg Kroah-Hartman wrote:
+>From: HarshaVardhana S A <harshavardhana.sa@broadcom.com>
 >
->Yeah, I didn't think it was needed as this is obviously a "ever since
->this file has been there" type of thing, so it will be backported
->everywhere once it hits Linus's tree.
+>In vmci_transport_packet_init memset the vmci_transport_packet before
+>populating the fields to avoid any uninitialised data being left in the
+>structure.
+>
+>Cc: Bryan Tan <bryan-bt.tan@broadcom.com>
+>Cc: Vishnu Dasa <vishnu.dasa@broadcom.com>
+>Cc: Broadcom internal kernel review list
+>Cc: Stefano Garzarella <sgarzare@redhat.com>
+>Cc: "David S. Miller" <davem@davemloft.net>
+>Cc: Eric Dumazet <edumazet@google.com>
+>Cc: Jakub Kicinski <kuba@kernel.org>
+>Cc: Paolo Abeni <pabeni@redhat.com>
+>Cc: Simon Horman <horms@kernel.org>
+>Cc: virtualization@lists.linux.dev
+>Cc: netdev@vger.kernel.org
+>Cc: stable <stable@kernel.org>
+>Signed-off-by: HarshaVardhana S A <harshavardhana.sa@broadcom.com>
+>Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>---
+>Tweaked from original version by rewording the text and adding a blank
+>line and correctly sending it to the proper people for inclusion in net.
+>
+> net/vmw_vsock/vmci_transport.c | 4 ++--
+> 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I see, thanks!
+Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+
+Patch LGTM, we can fix the switch later.
+
 Stefano
+
+>
+>diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+>index b370070194fa..7eccd6708d66 100644
+>--- a/net/vmw_vsock/vmci_transport.c
+>+++ b/net/vmw_vsock/vmci_transport.c
+>@@ -119,6 +119,8 @@ vmci_transport_packet_init(struct vmci_transport_packet *pkt,
+> 			   u16 proto,
+> 			   struct vmci_handle handle)
+> {
+>+	memset(pkt, 0, sizeof(*pkt));
+>+
+> 	/* We register the stream control handler as an any cid handle so we
+> 	 * must always send from a source address of VMADDR_CID_ANY
+> 	 */
+>@@ -131,8 +133,6 @@ vmci_transport_packet_init(struct vmci_transport_packet *pkt,
+> 	pkt->type = type;
+> 	pkt->src_port = src->svm_port;
+> 	pkt->dst_port = dst->svm_port;
+>-	memset(&pkt->proto, 0, sizeof(pkt->proto));
+>-	memset(&pkt->_reserved2, 0, sizeof(pkt->_reserved2));
+>
+> 	switch (pkt->type) {
+> 	case VMCI_TRANSPORT_PACKET_TYPE_INVALID:
+>-- 
+>2.50.0
+>
 
