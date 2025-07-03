@@ -1,204 +1,186 @@
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2045.outbound.protection.outlook.com [40.107.236.45])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63A852E9EB0
-	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 14:17:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.236.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751552251; cv=fail; b=V7xfDvUvZ94S7rN1ipXEmBHJdYIGcHCKzmUVhYkwIKnCB8ShDm7fzS1b8ADbCnH9pQiswZDlWPJLUiAMf76j9tF7i6hTKkzzc5j45/491eM+7wh+pAbkcFjF04g1IHpEUo9T5dtepea4dYAZHElpUvZzKMuA3x5g4INpr5dcVmw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751552251; c=relaxed/simple;
-	bh=y5oL0+f45c5Dm5SVYjN63Ryz17eou44j+mTcvSmyJ0A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=EB5VqEeTOkAT8Mc4gh6f57ND2AmmVCQ1RpcmtHgr0RSuOdmoHv3Lw7hQoEF9UoZx8rwGW2V0A2mZslA7jFIS5IBeONxrnzHRZKTxu3Yv9VMelOAq6fwXnrUZjlW0zctewiHU7WKL9im4w7JqxeliYB0VmUwU3Y/pYtcZ/AJaU4E=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=fail (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=TtuisTyS reason="signature verification failed"; arc=fail smtp.client-ip=40.107.236.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D5662EAB70;
+	Thu,  3 Jul 2025 14:47:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1751554054; cv=none; b=m5H1SSwHLaBtmmewguWOuyarfutKzRA+DWvjFYaijgvDXB+bHaryuZELCNnrxyoCofEjZrVi8vdfiFLRe3ezasenJ9qYuTWr5Do8kjN+rmktaX8atVt2SMCWVP3xp/YFq57OFj3HWnW14OP1Xt/aLnsIET1YpyDjFU8G36kOFpA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1751554054; c=relaxed/simple;
+	bh=rK9CghBMfaxHWwZL0Y+AWxw/v++vtFMy/hmsv9qL7LI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nW343Kq5i/vgA7j8/rkYGen3c+Cgw8NBNNbsc1Z3ymHvtIjVFzHRzUzTk+nTn3qV3eIkHV/6wuiqylBcHfG2b5LHgFqSqVH7mGh5rEd7ffz59/dnZCT75VvWJvS8p8PCSerKpXZSvMvPmLafvLbOqiVicRyEnADqaM3A0Dpmep0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=It7wBhko; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="TtuisTyS"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=vh8E05OSoz7z0a6GlYfurES8EyXtP2irXuA/UAnghuOyP0NMb9NTJakrYy9SPhOmDAxsK28lFxws/Kp/e+1RDyrxh/5LkuwUQLTG7MKPX0R3BtnkIjDz4z/jN4iEUPcFLwgKF3HA7achJEFr7sH/HnGc7/93tg2Z1L4jqnaq6m6RjISYhhLOIlAreNXU66bF16+S2Qdl+Dxgy6h/5/K/h7yh8nLYa7gBm60tvK5nHx4L9ZrFnQQDuNq/KopLIpL9oRw14esGF45n6za9MLcvGunsxK47UijbaPAhjWvWlbbwcLAe8RiEE31BN9oPP1+7yehlQMyqGiFwB4TFzFL7KA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GnUt2FyN0tx3IrQhxdmdL2AhEarXDQ/5q4EEgWHvT20=;
- b=lNSrkxUgSCxucFsRjOmDb7mFmzzoRrHTPN3vJBvHvt3YeiJpT9KS7lL2mgNtFTCm65QL9OFbMkqEo+38DIynl3F5pJl7cKmyqTK+rgGZZY6z6FL2rfJw38w80d0Siige3SBTLRquqIHDUOU5+ds60nkpoP5jUdsPLze7oMFLEAsWeVEbtshJfDi/wPEDUgGc2pciLCHcVd4OszCzvNK8h4JkJdo7Rh1kd2ssUd79ZMZft3n0rjRKSc2OU7JTjoZcjXTveXQ9ivLPciuarcIwXY7x45aNKgZTFdDVdBOajv2tNEKfCu+Td5UC8swG/Ncm36Q6ak+7ZWd+rkWNsty5UA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GnUt2FyN0tx3IrQhxdmdL2AhEarXDQ/5q4EEgWHvT20=;
- b=TtuisTySMQXZIoLEc/wesdoTNmWUYT33TxsYFqtiBxOzitSqq5BGn484moQZ0oDU26pWTJ64QndiXg9roxsontZKsBfvFuuxP8bZ5B9iFfwmBMGOz5gWxP6TsQ4gpi1g6RfciIk0HSRNO7IhMRw6Dbo7AM8PqtEEP/SiSfAEe4P9XH5nHZWRrbMlAEM4gdMRfOnvr1OEPNBNLHf28cHPEln4WiAvM1sgahxy1LykKoQJoiIw44hPWvdW9CxBOcaw60TqzqGba8Ohpw13VPuiGp+kSJllZ4WZNeCq7K+PxpdI+B2LkhzRLDx48DXoRQgj+ukee4aeFoXqxhg9wUjtfQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from IA1PR12MB9031.namprd12.prod.outlook.com (2603:10b6:208:3f9::19)
- by DM6PR12MB4354.namprd12.prod.outlook.com (2603:10b6:5:28f::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8901.19; Thu, 3 Jul
- 2025 14:17:27 +0000
-Received: from IA1PR12MB9031.namprd12.prod.outlook.com
- ([fe80::1fb7:5076:77b5:559c]) by IA1PR12MB9031.namprd12.prod.outlook.com
- ([fe80::1fb7:5076:77b5:559c%5]) with mapi id 15.20.8835.027; Thu, 3 Jul 2025
- 14:17:27 +0000
-Date: Thu, 3 Jul 2025 14:17:04 +0000
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Wenli Quan <wquan@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	virtualization@lists.linux.dev
-Subject: Re: Host Crash When creating a vDPA Device with device_features
-Message-ID: <s27ex7wujgm7bn74aktkulumskjv7cxrk2ucpvqiixl6qhumko@vrajokbnb4r3>
-References: <CADZSLS0r78HhZAStBaN1evCSoPqRJU95Lt8AqZNJ6+wwYQ6vPQ@mail.gmail.com>
- <20250703024601-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250703024601-mutt-send-email-mst@kernel.org>
-X-ClientProxiedBy: TL2P290CA0002.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:2::12) To IA1PR12MB9031.namprd12.prod.outlook.com
- (2603:10b6:208:3f9::19)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="It7wBhko"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1751554053; x=1783090053;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=rK9CghBMfaxHWwZL0Y+AWxw/v++vtFMy/hmsv9qL7LI=;
+  b=It7wBhkoXbeUeVmIgfZ0I1bfGgljmEjoQUdNQb1CS5n9OmKbkxxGvkXe
+   NUoZfr7n4pXA8QEd8W4thetbKa/L5v+jW1Z9n2Ll1RDVDHFio+AGsVvGy
+   p4ro+TwrOGWEl/nVG3pBmeOf5ZSEDCPpFXjivd5XKFP0ovgM/LwWTt5Tr
+   h+VgbinTNVIsTZKYxp4/2K7g1TpHDL71xTehAUdG8kw04C/EEhtxSz0kt
+   I7X7ZZozW5TiPaZO/m5+4mU3MX3ru7ANIsSaHbcLfXHxPkH1K130mnLt6
+   5vmYXXmlM/dySa4q7tQWogWAvmc6j1i0lnge3h0gFXrb6vy+yysXGPdYJ
+   w==;
+X-CSE-ConnectionGUID: oZnzIBpZTPyOeGFlQH4KAw==
+X-CSE-MsgGUID: /bexWeymSUyjsX+oeYFCCg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11483"; a="53851725"
+X-IronPort-AV: E=Sophos;i="6.16,284,1744095600"; 
+   d="scan'208";a="53851725"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2025 07:47:30 -0700
+X-CSE-ConnectionGUID: do+iUI8IT32SBrmjq0xoyg==
+X-CSE-MsgGUID: kIJe5JEsQwmuIcgjNo0AQA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.16,284,1744095600"; 
+   d="scan'208";a="153800515"
+Received: from lkp-server01.sh.intel.com (HELO 0b2900756c14) ([10.239.97.150])
+  by orviesa010.jf.intel.com with ESMTP; 03 Jul 2025 07:47:17 -0700
+Received: from kbuild by 0b2900756c14 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uXLDT-0001vf-31;
+	Thu, 03 Jul 2025 14:47:11 +0000
+Date: Thu, 3 Jul 2025 22:47:01 +0800
+From: kernel test robot <lkp@intel.com>
+To: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	"Michael S. Tsirkin" <mst@redhat.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Aaron Tomlin <atomlin@atomlin.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Costa Shulyupin <costa.shul@redhat.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com,
+	linux-scsi@vger.kernel.org, storagedev@microchip.com,
+	virtualization@lists.linux.dev,
+	GR-QLogic-Storage-Upstream@marvell.com,
+	Daniel Wagner <wagi@kernel.org>
+Subject: Re: [PATCH v7 08/10] blk-mq: use hk cpus only when isolcpus=io_queue
+ is enabled
+Message-ID: <202507032238.AoTmQnGP-lkp@intel.com>
+References: <20250702-isolcpus-io-queues-v7-8-557aa7eacce4@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA1PR12MB9031:EE_|DM6PR12MB4354:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1ed77b12-4500-4ab3-241f-08ddba3c567f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?iso-8859-1?Q?sIyBQ7wfJeoxtHJCfp36Ox8hyRM22ohnz9jP3PgclEHjslFjpqTKW2GbRP?=
- =?iso-8859-1?Q?LSwbJHfmMISvv1NubbS6Y5VCmoQSjHU9sXBqBkcAghXUstSsgo6k95GlIf?=
- =?iso-8859-1?Q?B+MaGlKjy3bKmHdFDYgnN+CrVPaCfxF5KS5FjI85u0A6QTyjbY+qtrXH5I?=
- =?iso-8859-1?Q?2sinDd5/wA0WyTbeRP2dDVaZ7YQZNe0eMMtOTFEm7/wxv1MKKiGAI2Wjiw?=
- =?iso-8859-1?Q?mf85cdEv3ICAUOv0QiqAJbwvu7nYWa1rL93dGYM5RY7kIFGECCe7gYGHDu?=
- =?iso-8859-1?Q?IeoPuA/k1GkPj8EUP7B9ALhvrpITUQriZj1GqOQHs9iLACMwfkPA5kSoH6?=
- =?iso-8859-1?Q?dMvsrzutt8lUsnV5vNS5baqtkXrDPEnrU5cV3XNLu3rN2njJAHK9vXJ1O5?=
- =?iso-8859-1?Q?/tc9+i7fAomTB2hbb90VeAzF7BprLuKfmDsCRsixZGaiYNOrAHQC9chA2n?=
- =?iso-8859-1?Q?NVahFVLKUxXGkvgm45LGT4dSMmm15hBLxpl63gXgJ+PeZKJZANcAFruraW?=
- =?iso-8859-1?Q?lP0dwpuWCxp3MAv3oDGlkPNjA9+kBTPBNVYyIkS3hDd/v1kDTiw+uA6V9a?=
- =?iso-8859-1?Q?geI3DttdxWOc8EZCAn3gYMWR/mkTrvhlrui8Mw41TnrjzeP841/GgHIs3M?=
- =?iso-8859-1?Q?q/raLI5mKlqOOx7ns6zZPWgC/ydfyFWK620xWbMW+XzzNaKct7LzKgZuOs?=
- =?iso-8859-1?Q?xDv/78UxKHFkiNCqp8fY9HgcaYDBgfZvJ053FdyMKHpCvTcfQFkNYaNa/G?=
- =?iso-8859-1?Q?Nbl/gese0yZ1KcNboDk34MnVHkK9lU9gaBn9c/KRgW8erfRFaXHvHFJCnx?=
- =?iso-8859-1?Q?NEQGVf1nUKkXC0Nhs6dNl1Nm3XM+XS+H/UesPRv+GBTKjreEfHX6PV5s2S?=
- =?iso-8859-1?Q?Xfdn+2uBYc2kNi1oS9hOA1y42n6Wrfrot92NfdgiVWX+QO1dmCoVUM5Hyz?=
- =?iso-8859-1?Q?SlRI9nC4NrEN427htcSqgGgNHJAPzqa9TFmiyqfT+nCSK43ALAiHw3Gw05?=
- =?iso-8859-1?Q?jQehm55YQeB9nyuxUviiBmhnIT+wpb/QWz8+nAcS0TfIIXA4k7euz4+YEa?=
- =?iso-8859-1?Q?0ZApd7OR/XLeHyTw1TUC98EvkdzsY6N7ndkt7x18MQ7knaOeoDO1aUhAVe?=
- =?iso-8859-1?Q?goYUS7OymRxZ8DIzn3ttavSE98YBDkK7DyHWmK50P5ulUKLWYAZtJt+lvO?=
- =?iso-8859-1?Q?hUvV0erGa866yWoODOtqWLVDH12k2y+3rh4FNKwOWwrPe1bNvE3UZXRHIb?=
- =?iso-8859-1?Q?sIYYs7cq29HpPsjsOVOmM76hkKk0VmWgtjik0vGBk16zevNNlk0DVdDk3j?=
- =?iso-8859-1?Q?hqBJbbjArRXg6cpHutvOylY2W19knJD5onvnq233OcjqrIzXkqBAZ9rSg3?=
- =?iso-8859-1?Q?vA/vKmDVufRg/XQVv3VsUOQyOrEqcd3MuG+ZnJw4kUchYqNYNIx/AXB5Kz?=
- =?iso-8859-1?Q?+6E2RO0L/TDaOgUG40QyJPs/Syi8EDoNYCVsLg=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB9031.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?iso-8859-1?Q?l3+k5fWmdvtEJrEuI/R8qacq9EaD1f/+03KNny/VnaUggBzVYwtAi4PATg?=
- =?iso-8859-1?Q?E35D0oaaocn7i2g+6yzqOYoqdytHDgM+36/78hb9lgEL32aPu2/sec9ANk?=
- =?iso-8859-1?Q?6sZZrnIENHaUvakpG4bh/bsspqLhHPTHZm+Qe7n5oAcxFBltH410ygyU0X?=
- =?iso-8859-1?Q?ss7EgdLsJQbof9CPPndOblYl7qWQM2RzQUh4yEXEluC6aP/FOlxnwmYxQH?=
- =?iso-8859-1?Q?9BFaBc2kiPN7Ml5RDsx0v/7pskNDSM/t6BTJAcW3d5OPdveEcMlu561mBo?=
- =?iso-8859-1?Q?AfXkcHt+huT2ET5YJhAFUhVfYjvt2lKp/ooPpj+tvSJ2bLVuwStc/txdJL?=
- =?iso-8859-1?Q?vUwJPRjm8I/P6t9ZnwpUdJKVaaQN+ebcJmEdscWSkd51PLBSkbHEWcAblS?=
- =?iso-8859-1?Q?N10QSLz0BPhJKGlaKfm8zwKHXzvpZboCzZ5xsflF8uF+PwtRl0gSPOO2WT?=
- =?iso-8859-1?Q?mqsL0zbX0kdTVTPkbVn7u9+4SvR2EV6QcCRUTVYGSd4qcSYTDVPoVDFnO8?=
- =?iso-8859-1?Q?CZ02NoSjI21IJHyvoVbLFGlGTAjDV8z9+lINDY8+OQySAlDpram1zlpncK?=
- =?iso-8859-1?Q?wEbknVAvMRjs1GCNRGED+J/cRjopzcTYLBn4QHV3jrnQilLeQQQNUH8Gx6?=
- =?iso-8859-1?Q?TG2OLWxXJvhZq89KhCLnfDhFWaf8iMq31Ley85LL4y0SCKkaIyxjhRU1/+?=
- =?iso-8859-1?Q?9Ecz2i85Z9XLdE7hdHfMwK5UNtWt39iaVOSFVQkJCBrUlTAejt7h03raG9?=
- =?iso-8859-1?Q?Eo+xwseJYyOvpEkWGvxQoqwHVkqHpIw6oQSQdLk7RF6f50SHgYGGlzS2jw?=
- =?iso-8859-1?Q?rwOJ87TAld4RNXbuifZ9KbDCKDyMCXkyd20hrAVJzA1qEIyO7tsRrQcSrS?=
- =?iso-8859-1?Q?y91R6BK+bCe37Jzo4zKYP6jS64rp7mQnR0Gt2EfzmCZEmNKp12xM9C1+zS?=
- =?iso-8859-1?Q?1+Hpfy6cD6sJnZC7isQmBt83bL5uCZ518sDPcqeMTn+S5qeWemxisz4lBw?=
- =?iso-8859-1?Q?FjOzOQfUgwX8/WtAuG9R4Y91fAkX+lgteJmiU/g8OKuqmTZI5OLJT0m97D?=
- =?iso-8859-1?Q?fuBhx4K01IgAMzvGa+Ltm6LYECc3c2EmobRix95Tu/y6Orfd6bPdzemOXv?=
- =?iso-8859-1?Q?poig2Kapo2jyIfzekUXdWyPdHqiJPQXcZghrgbi0l/e0Ewrfo8uhWVQjWM?=
- =?iso-8859-1?Q?LHMucNFMaEICXVWQ8zyfsepRDhgLWM4s7FT2LGPZasVN6A6EGuSBPoZYBB?=
- =?iso-8859-1?Q?tC9xyE/EnZzD7tzetYima1sWX+cdx2dlzOon8EO3DePYiiX2jxHL/3Qgj6?=
- =?iso-8859-1?Q?Np7BavFSmLW2y0f0xsipasssxin4piENb1IV/1cIEzoZrdfQ260zj04gvr?=
- =?iso-8859-1?Q?eazSYeAIaDc3Rg9xkMk9HUY2iFVQTf/vwTUAY7VfJF/pnkEImd/tKvlhdA?=
- =?iso-8859-1?Q?ea1SGAV0prBRzablH7OU0wOAPKYKAncTIymZqbZk/bHqhQOcB5RFxzcAis?=
- =?iso-8859-1?Q?YDdWQlHYvmTTKEXJMVyxPVdwao+vKHMyuGpPO+JzQHgYv0eoiPFt3bleZ3?=
- =?iso-8859-1?Q?00NaHogkNNHVeT8Hogi/Dx43V4V/PAvURsQKtmP/tz9ul+H4TIhCLPVGRQ?=
- =?iso-8859-1?Q?7pVu+TPOTf4x5GQ74LBoeqDYzzN03GFb7A?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1ed77b12-4500-4ab3-241f-08ddba3c567f
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB9031.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Jul 2025 14:17:27.0869
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: umiNdszI3ammQsGYYUygObMJYE6GoNoC4x078j2FQO6wtES+HExdncIuXhM2Fp8wsgZPOnj74HQ0+LeLLph9Dw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4354
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250702-isolcpus-io-queues-v7-8-557aa7eacce4@kernel.org>
 
-On Thu, Jul 03, 2025 at 02:47:09AM -0400, Michael S. Tsirkin wrote:
-> On Thu, Jul 03, 2025 at 11:58:26AM +0800, Wenli Quan wrote:
-> > Hello all:
-> > 
-> > I am reporting a issue where the host system crashed when attempting to add a
-> > vDPA device using the command:
-> > 
-> > # uname -r
-> > 
-> > 6.16.0-rc2
-> > 
-> > # modprobe vdpa
-> > 
-> > # modprobe vhost-vdpa
-> > 
-> > # modprobe mlx5-vdpa
-> > 
-> > # echo 1 > /sys/class/net/ens7f1np1/device/sriov_numvfs
-> > 
-> > # lspci |grep -i Mell
-> > 
-> > 61:00.0 Ethernet controller: Mellanox Technologies MT43244 BlueField-3
-> > integrated ConnectX-7 network controller (rev 01)
-> > 
-> > 61:00.1 Ethernet controller: Mellanox Technologies MT43244 BlueField-3
-> > integrated ConnectX-7 network controller (rev 01)
-> > 
-> > 61:00.2 DMA controller: Mellanox Technologies MT43244 BlueField-3 SoC
-> > Management Interface (rev 01)
-> > 
-> > b5:00.0 Ethernet controller: Mellanox Technologies MT2892 Family [ConnectX-6
-> > Dx]
-> > 
-> > b5:00.1 Ethernet controller: Mellanox Technologies MT2892 Family [ConnectX-6
-> > Dx]
-> > 
-> > b5:03.2 Ethernet controller: Mellanox Technologies ConnectX Family mlx5Gen
-> > Virtual Function
-> > 
-> > #vdpa dev add name vdpa0 mgmtdev pci/0000:b5:03.2 device_features 0x300c31829
-> > 
-> > 
-> > Then the host creatshed, please check the crash dump in attachment.
-> > 
-Thanks for the report Wenli. I was able to reproduce this. I will
-prepare a fix.
+Hi Daniel,
 
-Is this a new test BTW?
+kernel test robot noticed the following build errors:
 
-> 
-> 
-> ....
-> 
-> Thanks a lot for the report! How reproducible is this? Bisectable to
-> a specific commit?
->
-This probably comes from my pre-create VQ series. I'll work with
-internal verification to improve coverage here.
+[auto build test ERROR on 32f85e8468ce081d8e73ca3f0d588f1004013037]
 
-Thanks,
-Dragos
+url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Wagner/lib-group_cpus-Add-group_masks_cpus_evenly/20250703-003811
+base:   32f85e8468ce081d8e73ca3f0d588f1004013037
+patch link:    https://lore.kernel.org/r/20250702-isolcpus-io-queues-v7-8-557aa7eacce4%40kernel.org
+patch subject: [PATCH v7 08/10] blk-mq: use hk cpus only when isolcpus=io_queue is enabled
+config: arm-allnoconfig (https://download.01.org/0day-ci/archive/20250703/202507032238.AoTmQnGP-lkp@intel.com/config)
+compiler: clang version 21.0.0git (https://github.com/llvm/llvm-project f1a4bb62452d88a0edd9340b3ca7c9b11ad9193f)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250703/202507032238.AoTmQnGP-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202507032238.AoTmQnGP-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> block/blk-mq-cpumap.c:155:16: error: array initializer must be an initializer list
+     155 |         cpumask_var_t active_hctx __free(free_cpumask_var) = NULL;
+         |                       ^
+   block/blk-mq-cpumap.c:219:16: error: array initializer must be an initializer list
+     219 |         cpumask_var_t active_hctx __free(free_cpumask_var) = NULL;
+         |                       ^
+   block/blk-mq-cpumap.c:220:16: error: array initializer must be an initializer list
+     220 |         cpumask_var_t mask __free(free_cpumask_var) = NULL;
+         |                       ^
+   3 errors generated.
+
+
+vim +155 block/blk-mq-cpumap.c
+
+   144	
+   145	/*
+   146	 * blk_mq_map_hk_queues - Create housekeeping CPU to
+   147	 *                        hardware queue mapping
+   148	 * @qmap:	CPU to hardware queue map
+   149	 *
+   150	 * Create a housekeeping CPU to hardware queue mapping in @qmap. @qmap
+   151	 * contains a valid configuration honoring the isolcpus configuration.
+   152	 */
+   153	static void blk_mq_map_hk_queues(struct blk_mq_queue_map *qmap)
+   154	{
+ > 155		cpumask_var_t active_hctx __free(free_cpumask_var) = NULL;
+   156		struct cpumask *hk_masks __free(kfree) = NULL;
+   157		const struct cpumask *mask;
+   158		unsigned int queue, cpu, nr_masks;
+   159	
+   160		if (housekeeping_enabled(HK_TYPE_IO_QUEUE))
+   161			mask = housekeeping_cpumask(HK_TYPE_IO_QUEUE);
+   162		else
+   163			goto fallback;
+   164	
+   165		if (!zalloc_cpumask_var(&active_hctx, GFP_KERNEL))
+   166			goto fallback;
+   167	
+   168		/* Map housekeeping CPUs to a hctx */
+   169		hk_masks = group_mask_cpus_evenly(qmap->nr_queues, mask, &nr_masks);
+   170		if (!hk_masks)
+   171			goto fallback;
+   172	
+   173		for (queue = 0; queue < qmap->nr_queues; queue++) {
+   174			unsigned int idx = (qmap->queue_offset + queue) % nr_masks;
+   175	
+   176			for_each_cpu(cpu, &hk_masks[idx]) {
+   177				qmap->mq_map[cpu] = idx;
+   178	
+   179				if (cpu_online(cpu))
+   180					cpumask_set_cpu(qmap->mq_map[cpu], active_hctx);
+   181			}
+   182		}
+   183	
+   184		/* Map isolcpus to hardware context */
+   185		queue = cpumask_first(active_hctx);
+   186		for_each_cpu_andnot(cpu, cpu_possible_mask, mask) {
+   187			qmap->mq_map[cpu] = (qmap->queue_offset + queue) % nr_masks;
+   188			queue = cpumask_next_wrap(queue, active_hctx);
+   189		}
+   190	
+   191		if (!blk_mq_hk_validate(qmap, active_hctx))
+   192			goto fallback;
+   193	
+   194		return;
+   195	
+   196	fallback:
+   197		/*
+   198		 * Map all CPUs to the first hctx to ensure at least one online
+   199		 * housekeeping CPU is serving it.
+   200		 */
+   201		for_each_possible_cpu(cpu)
+   202			qmap->mq_map[cpu] = 0;
+   203	}
+   204	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
