@@ -1,396 +1,373 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65BEB227BB5
-	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 03:14:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC8ED182D2
+	for <virtualization@lists.linux.dev>; Thu,  3 Jul 2025 03:20:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751512454; cv=none; b=OaylU4Vwx9fz72AcuYtIUzJ1SUXJ+IP8naXF8CeiadGZyhoAZVO39W7x2UajAQDhRbLA7GYYgtlZSMVB2R1dj1bcJJoHdBWWshuJxlHLCUqEWwOAYDoVJMu/UIdLnQWs6vHIMc2EJEUQclUtUAb3tS4fbn/SCmFxn4CB7UUoNKg=
+	t=1751512854; cv=none; b=NkdrzCToCvXUeNeFPzItrlKg89tZ6WHp3bepr7rNDCK34wynuEM+bFybMELqrDieGca958f48L+Idw8dw/7ocjZtW58ZOAT0syP8RfCT2UMOCgXH2n/pQMjHBPghRC5yj9PqAYU71FIP3z8AaP7iuthA3NTpj7QDPQWco9fGev0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751512454; c=relaxed/simple;
-	bh=pMOSR+Ba6+A9Eh401EjLUYOiCvMDSPaRSBZH2LjAYGM=;
+	s=arc-20240116; t=1751512854; c=relaxed/simple;
+	bh=02SyrTxhDxefPxQZdDhWhN7sw/GWdpZGjBC12Qoo6tE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dar/aJOoXYu7cP1KR3a4kHq+JVNnpowjkQ2ZaVen3EWjUP1SuNuTZkx6SXSwc9GmMaXi2YFoyMset/1jHggSLQzFmVb3XPncuHmXIItV1zRS+/l6WFIOooXD1jQ6QIWYq3Rq3ltZ6lZJ8P8sC2VHOoVZzr39Xmfp6APqjueXRN4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fGSNxtzI; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=En6vj/fUCE4GaDfCwNqaGXxhS7vP/2heOwULoNKBc9iIDWM8a0vBQ3miy6kRWD1Ip/w77s4rDXrbMxnYzKKuqyDYv+a7A26Y4zvMvVUrL5pPouaDPDYUaTT6l/YOoTGxjTy5Bzq9huE+etn4vCrTJtqxkdt0o6A+GZ5YD65WHUQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LwuIaWXD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fGSNxtzI"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LwuIaWXD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751512451;
+	s=mimecast20190719; t=1751512851;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=gRIW5pbrJtZ6KIhhLr9tLMcbjMGeAtZxWrxYegWLOvk=;
-	b=fGSNxtzIVFXQ52MCQk4aTIPsnkFpp0TTEg4kDpaGnXcGqmP1rkkLkgOZ8+pYyQ/9swaYbv
-	oTGzmG11Pv8WZ41Vu3xdtvcbDK/m8SFIg6FYjgmZRYEZnUxoDbxBQMNJvg3/FDokpLV33I
-	4BOAdTjkIGFQKwYIr6evzXIxgGEzKxs=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=9v7tJEEgqy6VJZUTuanr/kpPOrF6V1sH7tRmF54BHwM=;
+	b=LwuIaWXD6LFzjbLgq8mptIBaf9zFOP23pPfPCBTwdDi7OlhohoHUTb6vn52tmmOCLAKQji
+	4nUdnnGxXpvnIWNox7jcpddPfeMEK6hkrt8loEwqD81x8lhmepVe6cUYfhXRB53Xd9MS0R
+	Yns2vRzQp9R3ajmdkMC+NNxAWCTTtE0=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-424-l9fbS-CZORyXqb-wExgBuw-1; Wed, 02 Jul 2025 23:14:08 -0400
-X-MC-Unique: l9fbS-CZORyXqb-wExgBuw-1
-X-Mimecast-MFC-AGG-ID: l9fbS-CZORyXqb-wExgBuw_1751512447
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3138e65efe2so6494109a91.1
-        for <virtualization@lists.linux.dev>; Wed, 02 Jul 2025 20:14:07 -0700 (PDT)
+ us-mta-671-nJfyWk2ZPmScRrzaByuwug-1; Wed, 02 Jul 2025 23:20:50 -0400
+X-MC-Unique: nJfyWk2ZPmScRrzaByuwug-1
+X-Mimecast-MFC-AGG-ID: nJfyWk2ZPmScRrzaByuwug_1751512849
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2365ab89b52so58167855ad.2
+        for <virtualization@lists.linux.dev>; Wed, 02 Jul 2025 20:20:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751512447; x=1752117247;
+        d=1e100.net; s=20230601; t=1751512849; x=1752117649;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gRIW5pbrJtZ6KIhhLr9tLMcbjMGeAtZxWrxYegWLOvk=;
-        b=AyHBYOL8WuHY6LDdizB5sQnhIqgJSzvvx4zh5L7/QEEV9A0VZs4KMJ5rizcgMEZjTi
-         bYyI1qK/4Bp//PMP3xJ7g9LXQxwXRDLNOeZeJsiWYT5mN7PQSqIh3kAGDsbzX7o6WIct
-         hfJkwDyqh1QshISJ3sRfINT9L7SXIV/VQ+fZaYvXXF+xwQBJZHWgEUs9bO6yGzfLwe2K
-         ksgx7S7f3yP9s3tOUBzmFBh2gSJkLtBzPBpYvfAdmYIo81SItherIE9wpDvIm9niN+g7
-         x+ZJjOWVn9sT1XA0eDLfhMmENkl5KPuLN1CdiZ+hApRRBwc2a7kyNig97i8aibtMC2Z5
-         ZsOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU4htEGb1S4Zpc9yDY4z05HJvpSYW5Hu6UoH4zX6Z4wqnqBGo9udlr3QJX2lELMXL4W6rgAov+aKgnojyEeug==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzUYNm8aBrSyLaJDq9m5HPNLfWW7GWcWWsoeI+7HuOWW2wwtSa7
-	3wZz5858o1HTM7SCKzRXNqdczuHXCIXUr2So68zFvjfcgF5b7BwuMclXCmedZlhUPXwr9Vgz8Ft
-	YWtNsfwfi/I3Q/05aA1rFlftuWDcrArFTtvM5UqgZsJNUR7Tb3O22YfXOv3jTx2nMR719g+HySl
-	0ckGHlBBsiV9HGG4uvlfp3T67nabBZCe/6NKfNFE53wVc=
-X-Gm-Gg: ASbGncuTOMbJFQVB0Z+Jcg53OLBVsaO34sOFFvLr2aOCZdVskqqrJiEKtLIVu6Rwr3w
-	2WLRE33RO+htP6a+jMC2fbExh101sSZIqpSinMzgDHfFl6/3tlQigI3AG5QQenBxjONYxZ5HKB2
-	KaDgbs
-X-Received: by 2002:a17:90b:4b11:b0:311:fde5:c4c2 with SMTP id 98e67ed59e1d1-31a9d57d983mr2241299a91.1.1751512446730;
-        Wed, 02 Jul 2025 20:14:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFNPprkHjmFCaG5ZezUgnHfsLYn1qY2/eNgQxJTgFAdsg1SexMlL8reb1Iy78Be/MZbDT3KSwi9g4t5kGsHosI=
-X-Received: by 2002:a17:90b:4b11:b0:311:fde5:c4c2 with SMTP id
- 98e67ed59e1d1-31a9d57d983mr2241252a91.1.1751512446185; Wed, 02 Jul 2025
- 20:14:06 -0700 (PDT)
+        bh=9v7tJEEgqy6VJZUTuanr/kpPOrF6V1sH7tRmF54BHwM=;
+        b=IvWPEVpdruH1te4pW37uWOaUi/zcGznwGqtfuY3f/iC6QPUzibCyhDyCY7M5NbIURX
+         150jB4qorhptLNI++0UMDTu2nmJw97cDBarP9XwYw52zaIDDnr4oBXR5LEo6WFGlvs/b
+         sQGIq1Oyary3qrTCWJoWJUEiYpbC8DkFBJniJE+wa8svjumCwyyuNTzelax4Q1mXYY4e
+         KRXkY/8vRvv5mFY7jrAnvG6WPQ6Pyzgoz+OLsOsENGPllLX2Bws88UUkGJaEsw8xiIjG
+         ORyBJM8Rj/7SZLoEIFKx1uFzoLxbVm162YAaJ9GVBK2HqFsqrEJ3esaFEpKPGNpbdECL
+         J6JA==
+X-Forwarded-Encrypted: i=1; AJvYcCWhGq3ROxxJsH0Qa5yw+ulQCv9enS0zrIM0w22deUTUS/C5pJvuEy6sna07ywf2Hpsdz5MYC83TzI0Io1f9Hg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzCGqV49M8qhIY5oAcqh82OBVCzBT81kzHhkhsCwPp0Iuiq9vnI
+	RrYfjCHBLlXlA4S1GvoSqYzZE5fqBaYmfjKOBMsUzXva/fQD+GfvxJycunIdE8e82tGDvGVT+NR
+	vQDM1pEosSsvnV82WcgAvERhIr5oitD7PcFwmx+ifCzhWGq/ydfbw2rAMaQE6k9EeIyx6nt3iHh
+	OuAy3idWLVVa6E90tXTFs0XhVZCPiBr6NNsb2d0NETDCxgXlWpf2uV7//1
+X-Gm-Gg: ASbGncvdGwZh+AwAVmqA05V49PRlrC06CkXpiaCQGbj7i1kV7XmU1VDK/v9VOiV/xjY
+	Ut2g0OVG+kYvO24t/5g2oFVDUseofeU9wrVC8h1/mGtaF2aIoCotfhQN2nX1WffOuqHTmvQPAs1
+	y0iQeD
+X-Received: by 2002:a17:902:da91:b0:234:bfcb:5c21 with SMTP id d9443c01a7336-23c797b28efmr26082265ad.19.1751512849107;
+        Wed, 02 Jul 2025 20:20:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEg2pIZBjOK/FqaU85rpiYhc/c8RAys2kXuUcQ4lOX92J/XbhJ0fdtIc+TGgTNJfl5liSoKWQbXchamvBGnT8I=
+X-Received: by 2002:a17:902:da91:b0:234:bfcb:5c21 with SMTP id
+ d9443c01a7336-23c797b28efmr26081905ad.19.1751512848627; Wed, 02 Jul 2025
+ 20:20:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250616082518.10411-1-jasowang@redhat.com> <20250616082518.10411-20-jasowang@redhat.com>
- <20250701024602-mutt-send-email-mst@kernel.org> <CACGkMEuzTYPcDMamptLMQpSZu3gWxYx1Sr2nJef+pyuo2m35XQ@mail.gmail.com>
- <20250702064413-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250702064413-mutt-send-email-mst@kernel.org>
+References: <20250616082518.10411-1-jasowang@redhat.com> <20250616082518.10411-14-jasowang@redhat.com>
+ <20250701021229-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250701021229-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 3 Jul 2025 11:13:54 +0800
-X-Gm-Features: Ac12FXwdZitM7cr8QECMFGaDxCYqGvGIjQXb0mGKXn4BjTMZqkxnxiDHrz98zA0
-Message-ID: <CACGkMEs0-FiRbUVTbtVyqPh=A8ufdW-Mh1XnR9hf8XQ7_Qf9sg@mail.gmail.com>
-Subject: Re: [PATCH V3 19/19] virtio_ring: add in order support
+Date: Thu, 3 Jul 2025 11:20:37 +0800
+X-Gm-Features: Ac12FXxbljZdRCM4OW6C1KgmjHwBFTe8wRkTLkKm8PQXcJtS6sc3GylASsGsIvI
+Message-ID: <CACGkMEvXTBNK2wxaxw3nDLBrA47WToPkpLLgVXxA7d=X8C6O-w@mail.gmail.com>
+Subject: Re: [PATCH V3 13/19] virtio_ring: introduce virtqueue ops
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	Jonah Palmer <jonah.palmer@oracle.com>
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6l-Al5ZIjtjvOIOpfsL-6E1Cq0HZpjMjwNeLmd1v3C4_1751512447
+X-Mimecast-MFC-PROC-ID: NVWd7HtXqIhNgsfZO7Df6xR3yGazeDXZLBfAb7IBBRg_1751512849
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 2, 2025 at 6:57=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
+On Tue, Jul 1, 2025 at 2:29=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
 wrote:
 >
-> On Wed, Jul 02, 2025 at 05:29:18PM +0800, Jason Wang wrote:
-> > On Tue, Jul 1, 2025 at 2:57=E2=80=AFPM Michael S. Tsirkin <mst@redhat.c=
-om> wrote:
-> > >
-> > > On Mon, Jun 16, 2025 at 04:25:17PM +0800, Jason Wang wrote:
-> > > > This patch implements in order support for both split virtqueue and
-> > > > packed virtqueue.
-> > >
-> > > I'd like to see more motivation for this work, documented.
-> > > It's not really performance, not as it stands, see below:
-> > >
-> > > >
-> > > > Benchmark with KVM guest + testpmd on the host shows:
-> > > >
-> > > > For split virtqueue: no obvious differences were noticed
-> > > >
-> > > > For packed virtqueue:
-> > > >
-> > > > 1) RX gets 3.1% PPS improvements from 6.3 Mpps to 6.5 Mpps
-> > > > 2) TX gets 4.6% PPS improvements from 8.6 Mpps to 9.0 Mpps
-> > > >
-> > >
-> > > That's a very modest improvement for a lot of code.
-> > > I also note you put in some batching just for in-order.
-> > > Which could also explain the gains maybe?
-> > > What if you just put in a simple implementation with no
-> > > batching tricks? do you still see a gain?
+> On Mon, Jun 16, 2025 at 04:25:11PM +0800, Jason Wang wrote:
+> > This patch introduces virtqueue ops which is a set of the callbacks
+> > that will be called for different queue layout or features. This would
+> > help to avoid branches for split/packed and will ease the future
+> > implementation like in order.
 > >
-> > It is used to implement the batch used updating.
+> > Note that in order to eliminate the indirect calls this patch uses
+> > global array of const ops to allow compiler to avoid indirect
+> > branches.
 > >
-> > """
-> > Some devices always use descriptors in the same order in which they
-> > have been made available. These devices can offer the
-> > VIRTIO_F_IN_ORDER feature. If negotiated, this knowledge allows
-> > devices to notify the use of a batch of buffers to the driver by only
-> > writing out a single used ring entry with the id corresponding to the
-> > head entry of the descriptor chain describing the last buffer in the
-> > batch.
-> > """
+> > Tested with CONFIG_MITIGATION_RETPOLINE, no performance differences
+> > were noticed.
 > >
-> > DPDK implements this behavior, so it's a must for the virtio driver.
+> > Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/virtio/virtio_ring.c | 172 ++++++++++++++++++++++++++---------
+> >  1 file changed, 129 insertions(+), 43 deletions(-)
 > >
-> > > Does any hardware implement this? Maybe that can demonstrate
-> > > bigger gains.
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.=
+c
+> > index b14bbb4d6713..af32d1a1a1db 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -67,6 +67,12 @@
+> >  #define LAST_ADD_TIME_INVALID(vq)
+> >  #endif
 > >
-> > Maybe but I don't have one in my hand.
+> > +enum vq_layout {
+> > +     SPLIT =3D 0,
+> > +     PACKED,
+> > +     VQ_TYPE_MAX,
+> > +};
+> > +
+> >  struct vring_desc_state_split {
+> >       void *data;                     /* Data for callback. */
 > >
-> > For performance, I think it should be sufficient as a starter. I can
-> > say in the next version something like "more optimizations could be
-> > done on top"
+> > @@ -159,12 +165,28 @@ struct vring_virtqueue_packed {
+> >       size_t event_size_in_bytes;
+> >  };
+> >
+> > +struct vring_virtqueue;
+> > +
+> > +struct virtqueue_ops {
+> > +     int (*add)(struct vring_virtqueue *_vq, struct scatterlist *sgs[]=
+,
+> > +                unsigned int total_sg, unsigned int out_sgs,
+> > +                unsigned int in_sgs, void *data,
+> > +                void *ctx, bool premapped, gfp_t gfp);
+> > +     void *(*get)(struct vring_virtqueue *vq, unsigned int *len, void =
+**ctx);
+> > +     bool (*kick_prepare)(struct vring_virtqueue *vq);
+> > +     void (*disable_cb)(struct vring_virtqueue *vq);
+> > +     bool (*enable_cb_delayed)(struct vring_virtqueue *vq);
+> > +     unsigned int (*enable_cb_prepare)(struct vring_virtqueue *vq);
+> > +     bool (*poll)(const struct vring_virtqueue *vq, u16 last_used_idx)=
+;
+> > +     void *(*detach_unused_buf)(struct vring_virtqueue *vq);
+> > +     bool (*more_used)(const struct vring_virtqueue *vq);
+> > +     int (*resize)(struct vring_virtqueue *vq, u32 num);
+> > +     void (*reset)(struct vring_virtqueue *vq);
+> > +};
+> > +
+> >  struct vring_virtqueue {
+> >       struct virtqueue vq;
+> >
+> > -     /* Is this a packed ring? */
+> > -     bool packed_ring;
+> > -
+> >       /* Is DMA API used? */
+> >       bool use_dma_api;
+> >
+> > @@ -180,6 +202,8 @@ struct vring_virtqueue {
+> >       /* Host publishes avail event idx */
+> >       bool event;
+> >
+> > +     enum vq_layout layout;
+> > +
+> >       /* Head of free buffer list. */
+> >       unsigned int free_head;
+> >       /* Number we've added since last sync. */
+> > @@ -232,6 +256,12 @@ static void vring_free(struct virtqueue *_vq);
+> >
+> >  #define to_vvq(_vq) container_of_const(_vq, struct vring_virtqueue, vq=
+)
+> >
+> > +
 >
-> What are some optimizations you have in mind?
+> Why two empty lines?
 
-One thing in my mind, spec currently said:
-
-"""
- If negotiated, this knowledge allows devices to notify the use of a
-batch of buffers to the driver by only writing out a single used
-descriptor with the Buffer ID corresponding to the last descriptor in
-the batch.
-"""
-
-If the device writes the last descriptor ID instead of the buffer ID
-and skip the number of descriptors in the used ring. For split
-virtqueue, the avail ring is not needed anymore. Device knows the
-availability of buffers via avail_idx. In this way, we completely
-eliminate the access of the available ring. This reduces the memory
-access which is expensive for both:
-
-1) kernel vhost-net where small user space memory access is expensive
-2) hardware PCI transactions
-
-Does this make sense?
-
->
->
->
-> > Note that the patch that introduces packed virtqueue, there's not even
-> > any numbers:
-> >
-> > commit 1ce9e6055fa0a9043405c5604cf19169ec5379ff
-> > Author: Tiwei Bie <tiwei.bie@intel.com>
-> > Date:   Wed Nov 21 18:03:27 2018 +0800
-> >
-> >     virtio_ring: introduce packed ring support
-> >
-> >     Introduce the packed ring support. Packed ring can only be
-> >     created by vring_create_virtqueue() and each chunk of packed
-> >     ring will be allocated individually. Packed ring can not be
-> >     created on preallocated memory by vring_new_virtqueue() or
-> >     the likes currently.
-> >
-> >     Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> >     Signed-off-by: David S. Miller <davem@davemloft.net>
->
->
-> I think the assumption there was that intel has hardware that
-> requires packed. That's why Dave merged this.
-
-I think it should according to Qemu patch:
-
-commit c03213fdc9d7b680cc575cd1e725750702a10b09
-Author: Jonah Palmer <jonah.palmer@oracle.com>
-Date:   Wed Jul 10 08:55:18 2024 -0400
-
-    vhost,vhost-user: Add VIRTIO_F_IN_ORDER to vhost feature bits
-
-    Add support for the VIRTIO_F_IN_ORDER feature across a variety of vhost
-    devices.
-
-    The inclusion of VIRTIO_F_IN_ORDER in the feature bits arrays for these
-    devices ensures that the backend is capable of offering and providing
-    support for this feature, and that it can be disabled if the backend
-    does not support it.
-
-    Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-    Signed-off-by: Jonah Palmer <jonah.palmer@oracle.com>
-    Message-Id: <20240710125522.4168043-6-jonah.palmer@oracle.com>
-    Reviewed-by: Michael S. Tsirkin <mst@redhat.com>
-    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-Adding Jonah for more thought here.
+Let me fix that.
 
 >
-> > >
-> > >
-> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > ---
-> > > >  drivers/virtio/virtio_ring.c | 423 +++++++++++++++++++++++++++++++=
-++--
-> > > >  1 file changed, 402 insertions(+), 21 deletions(-)
-> > > >
-> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_r=
-ing.c
-> > > > index 27a9459a0555..21d456392ba0 100644
-> > > > --- a/drivers/virtio/virtio_ring.c
-> > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > @@ -70,11 +70,14 @@
-> > > >  enum vq_layout {
-> > > >       SPLIT =3D 0,
-> > > >       PACKED,
-> > > > +     SPLIT_IN_ORDER,
-> > > > +     PACKED_IN_ORDER,
-> > > >       VQ_TYPE_MAX,
-> > > >  };
-> > > >
-> > > >  struct vring_desc_state_split {
-> > > >       void *data;                     /* Data for callback. */
-> > > > +     u32 total_len;                  /* Buffer Length */
-> > > >
-> > > >       /* Indirect desc table and extra table, if any. These two wil=
-l be
-> > > >        * allocated together. So we won't stress more to the memory =
-allocator.
-> > > > @@ -84,6 +87,7 @@ struct vring_desc_state_split {
-> > > >
-> > > >  struct vring_desc_state_packed {
-> > > >       void *data;                     /* Data for callback. */
-> > > > +     u32 total_len;                  /* Buffer Length */
-> > > >
-> > > >       /* Indirect desc table and extra table, if any. These two wil=
-l be
-> > > >        * allocated together. So we won't stress more to the memory =
-allocator.
-> > >
-> > > We are bloating up the cache footprint for everyone,
-> > > so there's a chance of regressions.
-> > > Pls include benchmark for in order off, to make sure we
-> > > are not regressing.
-> >
-> > Ok.
-> >
-> > > How big was the ring?
-> >
-> > 256.
+> > +static inline bool virtqueue_is_packed(const struct vring_virtqueue *v=
+q)
+> > +{
+> > +     return vq->layout =3D=3D PACKED;
+> > +}
+> > +
 >
-> that is very modest, you want to fill at least one cache way,
-> preferably more.
+> So why still have this?
+> Let's replace all uses with a per layout
+> callback. None of them seem to be on the data path.
+> Well, with one exception - there is
 
-I can test larger queue sizes.
+I actually start with that but the problem is a lot of codes could be
+duplicated that needs more refactoring which will end up with a pretty
+giant series:
 
++static const struct virtqueue_ops split_in_order_ops =3D {
++       .add =3D virtqueue_add_split,
++       .get =3D virtqueue_get_buf_ctx_split_in_order,
++       .kick_prepare =3D virtqueue_kick_prepare_split,
++       .disable_cb =3D virtqueue_disable_cb_split,
++       .enable_cb_delayed =3D virtqueue_enable_cb_delayed_split,
++       .enable_cb_prepare =3D virtqueue_enable_cb_prepare_split,
++       .poll =3D virtqueue_poll_split,
++       .detach_unused_buf =3D virtqueue_detach_unused_buf_split,
++       .more_used =3D more_used_split_in_order,
++       .resize =3D virtqueue_resize_split,
++       .reset =3D virtqueue_reset_split,
++};
+
+So I start with the function that has sufficient difference:
+
+virtqueue_get_buf_ctx_split_in_order
+more_used_split_in_order
+
+And leave the rest for the future if we can see performance improvement.
+
+
+>         > @@ -2921,7 +3006,7 @@ u32 vring_notification_data(struct virtqu=
+eue *_vq)
+>         >       struct vring_virtqueue *vq =3D to_vvq(_vq);
+>         >       u16 next;
+>         >
+>         > -     if (vq->packed_ring)
+>         > +     if (virtqueue_is_packed(vq))
+>         >               next =3D (vq->packed.next_avail_idx &
+>         >                               ~(-(1 << VRING_PACKED_EVENT_F_WRA=
+P_CTR))) |
+>         >                       vq->packed.avail_wrap_counter <<
 >
-> > > Worth trying with a biggish one, where there is more cache
-> > > pressure.
-> >
-> > Ok.
-> >
-> > >
-> > >
-> > > Why not have a separate state for in-order?
-> >
-> > It can work.
-> >
-> > >
-> > >
-> > >
-> > > > @@ -206,6 +210,12 @@ struct vring_virtqueue {
-> > > >
-> > > >       /* Head of free buffer list. */
-> > > >       unsigned int free_head;
-> > > > +
-> > > > +     /* Head of the batched used buffers, vq->num means no batchin=
-g */
-> > > > +     unsigned int batch_head;
-> > > > +
-> > > > +     unsigned int batch_len;
-> > > > +
-> > >
-> > > Are these two only used for in-order? Please document that.
-> >
-> > Yes, I will do that.
-> >
-> > > I also want some documentation about the batching trickery
-> > > used please.
-> > > What is batched, when, how is batching flushed, why are we
-> > > only batching in-order ...
-> >
-> > I'm not sure I get things like this, what you want seems to be the
-> > behaviour of the device which has been stated by the spec or I may
-> > miss something here.
+> I think it's the only one? Are we trying to save a function call there?
+> I am fine to keep it as in this patch, or if we do change it,
+> maybe with a separate patch, so if there is a regression we can bisect
+> more easily.
 >
-> "a single used ring entry with the id corresponding to the
->  head entry of the descriptor chain describing the last buffer in the
->  batch"
-> ?
-
-Exactly.
-
->
-> so together they form this used ring entry describing the last buffer?
-> "head" is the id and "len" the length?
 
 Yes.
 
 >
-> maybe
 >
->         /*
->          * With IN_ORDER, devices write a single used ring entry with
->          * the id corresponding to the head entry of the descriptor chain
->          * describing the last buffer in the batch
->          */
->         struct used_entry {
->                 u32 id;
->                 u32 len;
->         } batch_last;
 >
-> ?
+> For example, for the chunk below, we could have:
+>         .init_last_used
+>
+> having said that, this patchset is already big, so let us do it with a se=
+parate patch -
+> but if so, the way to split would be in patch 1 to just leave vq->packed_=
+ring
+> in place, gradually replace call sites, and in patch N drop
+> vq->packed_ring.
 
-This should be fine.
+Ok, let me do that.
 
 >
 >
->
->
-> > >
-> > >
-> > >
-> > >
-> > > >       /* Number we've added since last sync. */
-> > > >       unsigned int num_added;
-> > > >
-> > > > @@ -256,10 +266,14 @@ static void vring_free(struct virtqueue *_vq)=
-;
-> > > >
-> > > >  #define to_vvq(_vq) container_of_const(_vq, struct vring_virtqueue=
-, vq)
-> > > >
-> > > > -
-> > > >  static inline bool virtqueue_is_packed(const struct vring_virtqueu=
-e *vq)
-> > > >  {
-> > > > -     return vq->layout =3D=3D PACKED;
-> > > > +     return vq->layout =3D=3D PACKED || vq->layout =3D=3D PACKED_I=
-N_ORDER;
-> > > > +}
-> > > > +
-> > > > +static inline bool virtqueue_is_in_order(const struct vring_virtqu=
-eue *vq)
-> > > > +{
-> > > > +     return vq->layout =3D=3D SPLIT_IN_ORDER || vq->layout =3D=3D =
-PACKED_IN_ORDER;
-> > > >  }
-> > > >
-> > > >  static bool virtqueue_use_indirect(const struct vring_virtqueue *v=
-q,
-> > > > @@ -570,7 +584,7 @@ static inline int virtqueue_add_split(struct vr=
-ing_virtqueue *vq,
-> > > >       struct vring_desc_extra *extra;
-> > > >       struct scatterlist *sg;
-> > > >       struct vring_desc *desc;
-> > > > -     unsigned int i, n, c, avail, descs_used, err_idx;
-> > > > +     unsigned int i, n, c, avail, descs_used, err_idx, total_len =
-=3D 0;
-> > >
-> > >
-> > > I would add a comment here:
-> > >
-> > > /* Total length for in-order */
-> > > unsigned int total_len =3D 0;
+> >  static bool virtqueue_use_indirect(const struct vring_virtqueue *vq,
+> >                                  unsigned int total_sg)
+> >  {
+> > @@ -422,7 +452,7 @@ static void virtqueue_init(struct vring_virtqueue *=
+vq, u32 num)
+> >  {
+> >       vq->vq.num_free =3D num;
 > >
-> > Ok.
+> > -     if (vq->packed_ring)
+> > +     if (virtqueue_is_packed(vq))
+> >               vq->last_used_idx =3D 0 | (1 << VRING_PACKED_EVENT_F_WRAP=
+_CTR);
+> >       else
+> >               vq->last_used_idx =3D 0;
+> > @@ -1116,6 +1146,8 @@ static int vring_alloc_queue_split(struct vring_v=
+irtqueue_split *vring_split,
+> >       return 0;
+> >  }
 > >
-> > Thanks
+> > +static const struct virtqueue_ops split_ops;
+> > +
+> >  static struct virtqueue *__vring_new_virtqueue_split(unsigned int inde=
+x,
+> >                                              struct vring_virtqueue_spl=
+it *vring_split,
+> >                                              struct virtio_device *vdev=
+,
+> > @@ -1133,7 +1165,7 @@ static struct virtqueue *__vring_new_virtqueue_sp=
+lit(unsigned int index,
+> >       if (!vq)
+> >               return NULL;
+> >
+> > -     vq->packed_ring =3D false;
+> > +     vq->layout =3D SPLIT;
+> >       vq->vq.callback =3D callback;
+> >       vq->vq.vdev =3D vdev;
+> >       vq->vq.name =3D name;
+> > @@ -2076,6 +2108,8 @@ static void virtqueue_reset_packed(struct vring_v=
+irtqueue *vq)
+> >       virtqueue_vring_init_packed(&vq->packed, !!vq->vq.callback);
+> >  }
+> >
+> > +static const struct virtqueue_ops packed_ops;
+> > +
+> >  static struct virtqueue *__vring_new_virtqueue_packed(unsigned int ind=
+ex,
+> >                                              struct vring_virtqueue_pac=
+ked *vring_packed,
+> >                                              struct virtio_device *vdev=
+,
+> > @@ -2106,7 +2140,7 @@ static struct virtqueue *__vring_new_virtqueue_pa=
+cked(unsigned int index,
+> >  #else
+> >       vq->broken =3D false;
+> >  #endif
+> > -     vq->packed_ring =3D true;
+> > +     vq->layout =3D PACKED;
+> >       vq->dma_dev =3D dma_dev;
+> >       vq->use_dma_api =3D vring_use_dma_api(vdev);
+> >
+> > @@ -2194,6 +2228,39 @@ static int virtqueue_resize_packed(struct vring_=
+virtqueue *vq, u32 num)
+> >       return -ENOMEM;
+> >  }
+> >
+> > +static const struct virtqueue_ops split_ops =3D {
+> > +     .add =3D virtqueue_add_split,
+> > +     .get =3D virtqueue_get_buf_ctx_split,
+> > +     .kick_prepare =3D virtqueue_kick_prepare_split,
+> > +     .disable_cb =3D virtqueue_disable_cb_split,
+> > +     .enable_cb_delayed =3D virtqueue_enable_cb_delayed_split,
+> > +     .enable_cb_prepare =3D virtqueue_enable_cb_prepare_split,
+> > +     .poll =3D virtqueue_poll_split,
+> > +     .detach_unused_buf =3D virtqueue_detach_unused_buf_split,
+> > +     .more_used =3D more_used_split,
+> > +     .resize =3D virtqueue_resize_split,
+> > +     .reset =3D virtqueue_reset_split,
+> > +};
+> > +
+> > +static const struct virtqueue_ops packed_ops =3D {
+> > +     .add =3D virtqueue_add_packed,
+> > +     .get =3D virtqueue_get_buf_ctx_packed,
+> > +     .kick_prepare =3D virtqueue_kick_prepare_packed,
+> > +     .disable_cb =3D virtqueue_disable_cb_packed,
+> > +     .enable_cb_delayed =3D virtqueue_enable_cb_delayed_packed,
+> > +     .enable_cb_prepare =3D virtqueue_enable_cb_prepare_packed,
+> > +     .poll =3D virtqueue_poll_packed,
+> > +     .detach_unused_buf =3D virtqueue_detach_unused_buf_packed,
+> > +     .more_used =3D more_used_packed,
+> > +     .resize =3D virtqueue_resize_packed,
+> > +     .reset =3D virtqueue_reset_packed,
+> > +};
+> > +
+> > +static const struct virtqueue_ops *const all_ops[VQ_TYPE_MAX] =3D {
+> > +     [SPLIT] =3D &split_ops,
+> > +     [PACKED] =3D &packed_ops
+> > +};
+> > +
+> >  static int virtqueue_disable_and_recycle(struct virtqueue *_vq,
+> >                                        void (*recycle)(struct virtqueue=
+ *vq, void *buf))
+> >  {
+> > @@ -2236,6 +2303,38 @@ static int virtqueue_enable_after_reset(struct v=
+irtqueue *_vq)
+> >   * Generic functions and exported symbols.
+> >   */
+> >
+> > +#define VIRTQUEUE_CALL(vq, op, ...)                                  \
+> > +     ({                                                              \
+> > +     typeof(all_ops[SPLIT]->op(vq, ##__VA_ARGS__)) ret;              \
 >
+> we need an empty line here, after the declaration.
+
+Ok.
+
+Thanks
 
