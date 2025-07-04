@@ -1,114 +1,133 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2234328C2B3
-	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 12:53:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFFFD273F9;
+	Fri,  4 Jul 2025 15:19:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751633624; cv=none; b=dcDH6us/GMGpk14rWZ6g+r/oI/8NCCPjMqkS4tyR+PEQDsUmA0yssdq+Das4tRAuSZl3XYldzxsxHfgYaLXPeN63KqRGHePcoaYap2z18KDQap61aCI58l9NAZQrANlztJ88PFIoaqvfbcJe9tsML5ToFD081/358HobteHTtFA=
+	t=1751642394; cv=none; b=IUlBKPF9pfAIKw5Nv7R380mMJZ7bUQDaPkq+ubxJ80qHN6QFDVvS8UNZ0TVkxZCvgYuJl3NIQ/P79Zgzm6YvQG1yAZ/P5HGvgzwX1UbO0dC4Vc+bSTxnkHD2qd85Step9ctuRu1Tzg2VEe4JQQwQp/fP1ZJ99ZFcE5CWjHbbxs0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751633624; c=relaxed/simple;
-	bh=gQW1V9m71ryrxmlD4mF7lowP8cVRVurHwVgZWNpXS00=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=k5r9N8Fjp4WJPv54/VklN4gTieHpOH2a2R5EpQptnkmULl2E4V7B5KH6Humt++dZC7J3KbOhdagoaxlCICJm32ZrCzK7l6bC8ueD0Eu+xM7PX6oBxa2rCwcdvScu8+OUI554Yqx1H8y2baP837OJXhuObuX274kC4fV+leJ0jog=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=Q3VM8cMJ; arc=none smtp.client-ip=209.85.208.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1751642394; c=relaxed/simple;
+	bh=/ew8MS09xmL3iUz0ZzBhcbPd2CRWVgMKzYHPaMgmnZw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Z1U+nkSHtt0mt+7qWiqexn+MimXgKu9vRipmht428N2AjYcM4JsHLBXFrtARTQAfj4IMPJJuEhTFQeopLH8KD3A9S2evJPDyXIujTMG8DWqsYNi/88mQW0u+eOj+fhZQw/29n4sEIVWYpuoLVZjoUAUqazd3UnRF5KZsbDPe1JE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A2B07ix0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Q3VM8cMJ"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-32b4c37ebf3so2140711fa.3
-        for <virtualization@lists.linux.dev>; Fri, 04 Jul 2025 05:53:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1751633620; x=1752238420; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=C5irpwJohjmYuveaRSftdub5qXB+Y6zVr7PqlDralMk=;
-        b=Q3VM8cMJU8ewNlxQ7TamZlloFJEPPRsRY5Uer164KciqR/MOwP9vGUEYaP4IJTMstb
-         yTNZVdlU6G+fQpK8fJltqecMIAHovnrJpAU8Nw+RXMHryrvTxejJ5/QWBOzV/9XBpFxl
-         r/JBlKm0sy/tBVClREhTRVl6a2HfZW3gaGbAjcGyEMWTWSP2zyVLHQmftBrUjxi7YhYZ
-         6VPbTyJBFbQK/O9+J/NLYJoWh7ljAHawJKijc77ASWE5Q9N4udlxWwdHzNqNksQqKf2F
-         UZxk2HW3ff/yb/EwiQsUnXKRgZQDRAZHxRGNhZHijOjhjkmjR1Pwn69SYi+t31J0iefu
-         Bkug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751633620; x=1752238420;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=C5irpwJohjmYuveaRSftdub5qXB+Y6zVr7PqlDralMk=;
-        b=l16DhYisxZ4SAJlV4ZgV9bzW/Gw4kA8odN6BbaE/Bi5WF3G9zriZOA6g/sBnuKVI2x
-         cQGKsQDdu7WRssVIUSfHDZFF0eEAQs2S7+p0TnzZGew/+8vEK1QoiaH5tmguuJHfMdYe
-         0bC/M7OfpvqNbRBzGkk6Bfpy79JCTEYBQiJVpnIhSaIGT34zZntr7Z2C5bj9MYQz3ayV
-         rytjaLODKZPCN2IjVK3+EUD6dYcIYT/1yaaC6LkHgIeXSz8jPzNi/DS1w/rb7BW3ohlk
-         isnkn/ZDkm/MwmHqRpKA7c0mF5bIgmnnKGYiZu/s7BBL7GYjVEHFC8xkG6yWIJ0ECFUD
-         2Z4w==
-X-Gm-Message-State: AOJu0YxsNC+nhg8Tx7yYbcFyaBKFHeqmnTALHSEOZFGALAruOrI/iI9Z
-	Ye8uXikCSZ27XH80UtVOztaq+crgqA8R5XAsh2lTy7nHzo716KH65RCLi4fsNu1WUlU=
-X-Gm-Gg: ASbGnctN0jpPsUaLhaHOQrIfQSLmJNOplM174z6TCgn6ClxXYP20TUIBsgAYJvIxB2H
-	g8fgvNE1taVXlQE6a/inzQBIucHCydjcYgNwzPhHJdTZuT52Zib33N4w2X9e1+TkE5Kxlxv7EAe
-	v3if6AYQKbtCohOWTalVXPhctaHH0aumR0lEFAl/liLPBaD2n22hEI+ig+s7/5GDO/dep6K3cPW
-	y2a07BlO9aCOHNHyU+gqSSmENLAxdLLuAC4JT7q+cTUzaPJ3gv3uB2qbSsRJxMn1Z2j5StM238v
-	7C1NaAYKTmTj4RAd0t4zY6Upxs9XTIFsk+S9Z14eDJvJ/T+F7P3y0UZYN8M+V28zsOYptmkvRDs
-	OQDyZaFScoTrWcbvCS6rTbg==
-X-Google-Smtp-Source: AGHT+IEQlE2inVcPa3XqH6/JYvapWfOKX27mQ8m7//vg+Z9RExKQrvITesM045aa9ircpVQ2pBhElg==
-X-Received: by 2002:a05:6512:3d0a:b0:54f:c1ab:2cc8 with SMTP id 2adb3069b0e04-556e71185fcmr232528e87.10.1751633620006;
-        Fri, 04 Jul 2025 05:53:40 -0700 (PDT)
-Received: from localhost (c-85-229-7-191.bbcust.telenor.se. [85.229.7.191])
-        by smtp.gmail.com with UTF8SMTPSA id 2adb3069b0e04-556384d57a9sm241167e87.257.2025.07.04.05.53.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Jul 2025 05:53:39 -0700 (PDT)
-From: Anders Roxell <anders.roxell@linaro.org>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	arnd@arndb.de,
-	Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH] vdpa: Fix IDR memory leak in VDUSE module exit
-Date: Fri,  4 Jul 2025 14:53:35 +0200
-Message-ID: <20250704125335.1084649-1-anders.roxell@linaro.org>
-X-Mailer: git-send-email 2.47.2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A2B07ix0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECA64C4CEE3;
+	Fri,  4 Jul 2025 15:19:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751642394;
+	bh=/ew8MS09xmL3iUz0ZzBhcbPd2CRWVgMKzYHPaMgmnZw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=A2B07ix0OA27DrqIeFKXIbrYFiuNNYfzmRMHpf7hkTFpC+hob+oIF9tWG4XmAXVat
+	 Nwj9fwQiU8vJHuCeJTU1dQMaNKZc5vybp0GzyFspI1feNLD9VfaNUmMUEtH2gSLNWV
+	 j01zjK/Z/4FguO3enRnXNErzj1+fXNc3hIQSCChG1cIrAxzekp1FC/JV2lS7xAD0An
+	 qR7Bl+YY7JyvjpEYkEjGDAswbpY8SuZ+ZREXzQCxiBrnRQzVi1d7rnAusXeqFLMtYA
+	 0ZPUOrb2NikR/Pokw4E1VmG+HzOnTd6Y5wcEzFGvXNHMAd0Wwcrf+IA0gXj423pi6M
+	 PwLtSJXOohqrg==
+Message-ID: <879d1fa7-04a5-403c-8d23-76631a67f560@kernel.org>
+Date: Fri, 4 Jul 2025 17:19:49 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio: Add missing kerneldoc for virtio_dma_buf_attach
+To: jiang.peng9@zte.com.cn, jasowang@redhat.com, xuanzhuo@linux.alibaba.com
+Cc: mst@redhat.com, eperezma@redhat.com, sumit.semwal@linaro.org,
+ christian.koenig@amd.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+ xu.xin16@zte.com.cn, yang.yang29@zte.com.cn
+References: <20250704152047205U11FdEih1MxrmcmAz0Xpp@zte.com.cn>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <20250704152047205U11FdEih1MxrmcmAz0Xpp@zte.com.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Add missing idr_destroy() call in vduse_exit() to properly free the
-vduse_idr radix tree nodes. Without this, module load/unload cycles leak
-576-byte radix tree node allocations, detectable by kmemleak as:
+On 04/07/2025 09:20, jiang.peng9@zte.com.cn wrote:
+> From: Peng Jiang <jiang.peng9@zte.com.cn>
+> 
+> Add kerneldoc for 'virtio_dma_buf_attach' function to fix W=1 warnings:
+> 
+> drivers/virtio/virtio_dma_buf.c:41 function parameter 'dma_buf' not described in 'virtio_dma_buf_attach'
+> drivers/virtio/virtio_dma_buf.c:41 function parameter 'attach' not described in 'virtio_dma_buf_attach'
+> 
+> Signed-off-by: Peng Jiang <jiang.peng9@zte.com.cn>
+> ---
+>  drivers/virtio/virtio_dma_buf.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
+> index 3fe1d03b0645..18d261ba5197 100644
+> --- a/drivers/virtio/virtio_dma_buf.c
+> +++ b/drivers/virtio/virtio_dma_buf.c
+> @@ -35,7 +35,16 @@ struct dma_buf *virtio_dma_buf_export
+>  EXPORT_SYMBOL(virtio_dma_buf_export);
+> 
+>  /**
+> - * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
+> + * virtio_dma_buf_attach - Mandatory attach callback for virtio dma-bufs
 
-unreferenced object (size 576):
-  backtrace:
-    [<ffffffff81234567>] radix_tree_node_alloc+0xa0/0xf0
-    [<ffffffff81234568>] idr_get_free+0x128/0x280
+Read kernel-doc.rst. Missing ()
 
-The vduse_idr is initialized via DEFINE_IDR() at line 136 and used throughout
-the VDUSE (vDPA Device in Userspace) driver for device ID management. The fix
-follows the documented pattern in lib/idr.c and matches the cleanup approach
-used by other drivers.
+> + * @dma_buf: Pointer to the shared dma-buf structure
+> + * @attach: Pointer to the newly created attachment metadata
+> + *
+> + * Description: Implements the standard dma-buf attach operation for virtio devices.
 
-This leak was discovered through comprehensive module testing with cumulative
-kmemleak detection across 10 load/unload iterations per module.
+That's not kerneldoc. Which part of kernel-doc document documents such
+syntax?
 
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
----
- drivers/vdpa/vdpa_user/vduse_dev.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 6a9a37351310..04620bb77203 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -2216,6 +2216,7 @@ static void vduse_exit(void)
- 	cdev_del(&vduse_ctrl_cdev);
- 	unregister_chrdev_region(vduse_major, VDUSE_DEV_MAX);
- 	class_unregister(&vduse_class);
-+	idr_destroy(&vduse_idr);
- }
- module_exit(vduse_exit);
- 
--- 
-2.47.2
-
+> + *              Retrieves virtio-specific operations through container_of macro,
+> + *              then invokes device-specific attach callback if present.
+Best regards,
+Krzysztof
