@@ -1,153 +1,160 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5645A2E7F07
-	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 09:37:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33F2B2C3264
+	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 09:50:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751621837; cv=none; b=EBAgbZtArzOXEKTitlAqmfWKik2Kr4sJ22TAnekKXMzxrMxpmARpgQZTO/ZbopIxjtcjcCJpuAht1jj1B9J0tYrvA6R0BK+iUqBuBtAF2pU5H8OYu1CD9iCv9H8aR4Pjq1xMeweM7cMdosNWEqFP43/OQPlgpZj4kCRZiq6rmGU=
+	t=1751622662; cv=none; b=TEMO6s9qow2wedYysIB1ziVHEu28rU7a3kmHmvaxEfnx2aQHWM1AjCd6EsZUNprPQQPMMHhmUiShBmb+nY+w8e3xKRLG07zCZkPbIUdm5p6Fj1SU4QKO7tmJ/2sM+zx8zanYldKSFGlJPYb+Btz4FYzJ8qdRtQvnpwnPfpCXBeQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751621837; c=relaxed/simple;
-	bh=ekBlNVVd5BWSYFIgjqQoE6SrY7z90AKUGm9nA4AlaBA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=d0VArnjBd+XWx0JFxCcLh4fDqZYliYLXDccxBGCiRvZcE0+e+ryKaEgC1ZIyWec+/5HNqj4KsYrvD7dSHv6zQ/lHbmR/1HJIW0popJEgejEamyXd9jXWJ2301Y+Uu2y/+cwVthVUad7/T9K80OoD0WBJjAfZ7WATKnioww69ClI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=d7LLuBoz; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=uwbLtNAp; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=d7LLuBoz; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=uwbLtNAp; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1751622662; c=relaxed/simple;
+	bh=Zec5aAtgje1saqg3959mi64eaXHhk/cKgvNvFwImF30=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FAGUTPI+o+w/fVDK9MdJtK7uUQLBx+F/Nvqy2IBvr46m8b0e4k8lPIhfg12H1IxpwPq65ACukCM/8gDBH0P3SwNkEJ7EiDv5Mhq8huTsB+FiwIwvFvaHmqbhFQr1MU8+dC22YKDxxs3wyBOMn+B/dadAt7m6N9Wu+pjaNZW9Ye4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MteaW23Q; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="d7LLuBoz";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="uwbLtNAp";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="d7LLuBoz";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="uwbLtNAp"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 68FFD1F38A;
-	Fri,  4 Jul 2025 09:37:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1751621834; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MteaW23Q"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751622659;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ekBlNVVd5BWSYFIgjqQoE6SrY7z90AKUGm9nA4AlaBA=;
-	b=d7LLuBozyvt0UmZ/0dHI6gw2gLOxlUtxZK1CHleSZohhSwLM32fbGWYIIRIgIrMXIv/+Z3
-	1pbzaEv1Ux4CL+vE1V1VWrvc/5XK7z01AdkMMd1VaD46Sak3aIAW0QJZ0SMmAD+6iRn/sg
-	HqoAqhAunfgAS6ir47eRXPzzeofRz+o=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1751621834;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ekBlNVVd5BWSYFIgjqQoE6SrY7z90AKUGm9nA4AlaBA=;
-	b=uwbLtNAp0WDeizI4MkZOTyJ6ajYGyMwu4acyMYvelEpxTNHKp0Oe8+GLl+3vcYBifXFrGk
-	NWyFzdl7LcM75JDg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1751621834; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ekBlNVVd5BWSYFIgjqQoE6SrY7z90AKUGm9nA4AlaBA=;
-	b=d7LLuBozyvt0UmZ/0dHI6gw2gLOxlUtxZK1CHleSZohhSwLM32fbGWYIIRIgIrMXIv/+Z3
-	1pbzaEv1Ux4CL+vE1V1VWrvc/5XK7z01AdkMMd1VaD46Sak3aIAW0QJZ0SMmAD+6iRn/sg
-	HqoAqhAunfgAS6ir47eRXPzzeofRz+o=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1751621834;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ekBlNVVd5BWSYFIgjqQoE6SrY7z90AKUGm9nA4AlaBA=;
-	b=uwbLtNAp0WDeizI4MkZOTyJ6ajYGyMwu4acyMYvelEpxTNHKp0Oe8+GLl+3vcYBifXFrGk
-	NWyFzdl7LcM75JDg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4018213757;
-	Fri,  4 Jul 2025 09:37:14 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id KFlRD8qgZ2jZKAAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Fri, 04 Jul 2025 09:37:14 +0000
-Date: Fri, 4 Jul 2025 11:37:09 +0200
-From: Daniel Wagner <dwagner@suse.de>
-To: Hannes Reinecke <hare@suse.de>
-Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Aaron Tomlin <atomlin@atomlin.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, 
-	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>, 
-	Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
-	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
-	storagedev@microchip.com, virtualization@lists.linux.dev, 
-	GR-QLogic-Storage-Upstream@marvell.com
-Subject: Re: [PATCH v7 05/10] scsi: Use block layer helpers to constrain
- queue affinity
-Message-ID: <2e7576e4-442f-4000-817d-6253374f5818@flourine.local>
-References: <20250702-isolcpus-io-queues-v7-0-557aa7eacce4@kernel.org>
- <20250702-isolcpus-io-queues-v7-5-557aa7eacce4@kernel.org>
- <d95de280-8cd7-4697-933a-37dc53f4c552@suse.de>
+	bh=tTdyBwlWGAyaHdEmFmxeJ+/oXgj79IJdQhxBgmlSUqU=;
+	b=MteaW23QLCwuvX6r1l+zVyDlSR37I73uhKa8e/I7EHlDfYoN0CUIK4hEfbYCJMn5+4Gwdm
+	E6t/2g6/iT3u9DN9U8n40+kwp/JlOSrvOvPiXguMbuCeOVjum0X0tXdx6RcOkWSz7EVz36
+	rxjd3qZIp/JjiGofpVQIXlZOhCasMkc=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-286-QvFI82IaOluXPfk4OcZB6w-1; Fri, 04 Jul 2025 05:50:55 -0400
+X-MC-Unique: QvFI82IaOluXPfk4OcZB6w-1
+X-Mimecast-MFC-AGG-ID: QvFI82IaOluXPfk4OcZB6w_1751622655
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-adb33457610so73135166b.3
+        for <virtualization@lists.linux.dev>; Fri, 04 Jul 2025 02:50:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751622654; x=1752227454;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tTdyBwlWGAyaHdEmFmxeJ+/oXgj79IJdQhxBgmlSUqU=;
+        b=PyUbf/SWuLShvCRyIrPm/+9EFMymZym1j8EmXwjJU44DOMH+dsWX5+NfyMVMnMcxBp
+         rR7PMZCzBeQAjs89Cz5fQ90U6eUYNa+3AcxXMKRQplpPX9dAzX/1qFKtS774a3JdUFYy
+         mvD/27TLoP0ln56gm7CZaiaq3npkcqtz7JPUmRm4wxHw6pRw7koGZxWhIU9Gyt4FkR38
+         HZwhYBwrVdHXbM+Xg1Si/KI/Fl2Uiin+eZOzp60eAH8E58Ng3tAVVkJiAL3FGGbaxbTc
+         CvfmElIKFO5VKPxgRjX/Ylqb+j2Wh/i5wEsimcG9WChOQKFeEsvS/xLvfFLL1C+ngN66
+         pdBw==
+X-Forwarded-Encrypted: i=1; AJvYcCVQuBfBgVDrjGnkwtvfYxz5zYWgV+Hd0dHRL02/fDyv0zjjCOIMUVUJS8U2puk6t8+l9baKl4f3xXWFJvdxWQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywu1BngGGOxEQ9/thKJ2uUsU821T7NFAkBzZtUr9KuS/Qzpg/Uh
+	iWPgcpXcxGUcveT74LkQdIh9jO+ubRS2FQoRaU1CA868gBkoS6pDdL7xDjBsvqs3/WogRbYad0u
+	+eFF4xblFBjnDtjMwoEstiVyocW4qPhW1SnTPz5LqrRJLGP2SBSkDwwPQdxZiLVop8vhybRy+Qv
+	Uzm5EhYmdtI00bXJyzowpSxidObQhIVv7hwkb6W8iDScM=
+X-Gm-Gg: ASbGncu8jM5j6X/+xQz6a0yvcVkVp1DI9Jacs+VmDhlCC4MkJcmUXjQhh/A2fHZnqS0
+	105UwrWADPpf8Jw9oyvS7hSWpAHqsm6JtRsC7TH8VIut1L7sU0k2Sr081KAQsZvUJcjhddDaYK4
+	bcT4An
+X-Received: by 2002:a17:907:d0b:b0:ade:9b52:4da0 with SMTP id a640c23a62f3a-ae3fe791341mr118180266b.60.1751622654594;
+        Fri, 04 Jul 2025 02:50:54 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEZ6rmo441u00rCw39ALIYLXhXjrSJGPTmWEcD7E0TeZdIInSkqrp6WRoYHqk0yeiuf4JW6qAtpz5TNgnRXERw=
+X-Received: by 2002:a17:907:d0b:b0:ade:9b52:4da0 with SMTP id
+ a640c23a62f3a-ae3fe791341mr118177466b.60.1751622654163; Fri, 04 Jul 2025
+ 02:50:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d95de280-8cd7-4697-933a-37dc53f4c552@suse.de>
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[26];
-	FROM_HAS_DN(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RL67935bhfdkbndpbo95z3ogoo)];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,flourine.local:mid]
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Spam-Score: -4.30
+References: <20250701164507.14883-1-will@kernel.org>
+In-Reply-To: <20250701164507.14883-1-will@kernel.org>
+From: Lei Yang <leiyang@redhat.com>
+Date: Fri, 4 Jul 2025 17:50:16 +0800
+X-Gm-Features: Ac12FXwqxd82V3LOjpodDJwMF_q2dHh_J7JtDHMWUmQsDfy8ZtrC-XST6Mt-11Y
+Message-ID: <CAPpAL=zBxWBTQ8s-DGG-NywoE2+rDJQ4=9XGGn-YZSFH3R_mZg@mail.gmail.com>
+Subject: Re: [PATCH v2 0/8] vsock/virtio: SKB allocation improvements
+To: Will Deacon <will@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Keir Fraser <keirf@google.com>, 
+	Steven Moreland <smoreland@google.com>, Frederick Mayle <fmayle@google.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: RjgMhwwwIS2WGV0Q5O-C38FQ6drvQ-XwMeS2tL4NQ48_1751622655
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 03, 2025 at 08:43:01AM +0200, Hannes Reinecke wrote:
-> All of these drivers are not aware of CPU hotplug, and as such
-> will not be notified when the number of CPUs changes.
+I tested this series of patches with virtio-net regression tests,
+everything works fine.
 
-Ah, this explains this part.
+Tested-by: Lei Yang <leiyang@redhat.com>
 
-> But you use 'blk_mq_online_queue_affinity()' for all of these
-> drivers.
+On Wed, Jul 2, 2025 at 12:48=E2=80=AFAM Will Deacon <will@kernel.org> wrote=
+:
+>
+> Hello again,
+>
+> Here is version two of the patches I previously posted here:
+>
+>   https://lore.kernel.org/r/20250625131543.5155-1-will@kernel.org
+>
+> Changes since v1 include:
+>
+>   * Remove virtio_vsock_alloc_skb_with_frags() and instead push decision
+>     to allocate nonlinear SKBs into virtio_vsock_alloc_skb()
+>
+>   * Remove VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE and inline its definition
+>     along with a comment
+>
+>   * Validate the length advertised by the packet header on the guest
+>     receive path
+>
+>   * Minor tweaks to the commit messages and addition of stable tags
+>
+> Thanks to Stefano for all the review feedback so far.
+>
+> Cheers,
+>
+> Will
+>
+> Cc: Keir Fraser <keirf@google.com>
+> Cc: Steven Moreland <smoreland@google.com>
+> Cc: Frederick Mayle <fmayle@google.com>
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Cc: Stefano Garzarella <sgarzare@redhat.com>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: "Eugenio P=C3=A9rez" <eperezma@redhat.com>
+> Cc: linux-kernel@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: virtualization@lists.linux.dev
+>
+> --->8
+>
+> Will Deacon (8):
+>   vhost/vsock: Avoid allocating arbitrarily-sized SKBs
+>   vsock/virtio: Validate length in packet header before skb_put()
+>   vsock/virtio: Move length check to callers of
+>     virtio_vsock_skb_rx_put()
+>   vsock/virtio: Resize receive buffers so that each SKB fits in a page
+>   vsock/virtio: Add vsock helper for linear SKB allocation
+>   vhost/vsock: Allocate nonlinear SKBs for handling large receive
+>     buffers
+>   vsock/virtio: Rename virtio_vsock_skb_rx_put() to
+>     virtio_vsock_skb_put()
+>   vsock/virtio: Allocate nonlinear SKBs for handling large transmit
+>     buffers
+>
+>  drivers/vhost/vsock.c                   | 15 +++++-----
+>  include/linux/virtio_vsock.h            | 37 +++++++++++++++++++------
+>  net/vmw_vsock/virtio_transport.c        | 25 +++++++++++++----
+>  net/vmw_vsock/virtio_transport_common.c |  3 +-
+>  4 files changed, 59 insertions(+), 21 deletions(-)
+>
+> --
+> 2.50.0.727.gbf7dc18ff4-goog
+>
+>
 
-All these drivers are also using blk_mq_num_online_queue. When I only
-used cpu_possible_mask the resulting mapping was not usable.
-
-> Wouldn't 'blk_mq_possible_queue_affinit()' a better choice here
-> to insulate against CPU hotplug effects?
-
-With this mask the queues will be distributed to all possible CPUs and
-some of the hardware queues could be assigned to offline CPUs. I think
-this would work but the question is, is this okay to leave some of the
-perfomance on the road?
-
-I am not against this, just saying it would change the existing
-behavior.
-
-> Also some drivers which are using irq affinity (eg aacraid, lpfc) are
-> missing from these conversions. Why?
-
-I was not aware of aacraid. I started to work on lpfc and well let's put
-it this way, it's complicated. lpfc needs a lot of work to make it
-isolcpus aware.
