@@ -1,133 +1,95 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFFFD273F9;
-	Fri,  4 Jul 2025 15:19:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D0E6A2D;
+	Fri,  4 Jul 2025 21:06:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751642394; cv=none; b=IUlBKPF9pfAIKw5Nv7R380mMJZ7bUQDaPkq+ubxJ80qHN6QFDVvS8UNZ0TVkxZCvgYuJl3NIQ/P79Zgzm6YvQG1yAZ/P5HGvgzwX1UbO0dC4Vc+bSTxnkHD2qd85Step9ctuRu1Tzg2VEe4JQQwQp/fP1ZJ99ZFcE5CWjHbbxs0=
+	t=1751663186; cv=none; b=bbwX0oW82X3pOn0ZRXyXd7uYnu6tUzuac9oZZsdpwYAcsXjUt56eK9BJrZs5iLGFbXttsm73qPdefg9yejDsVSOlVaxRU1HnNYz4o3agk7lv5GjgHymA/gBvyrPzG/MJoM/yrl4hjIkBasSOLrJ65c9Rl1qhD6roZsm/wbKMU9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751642394; c=relaxed/simple;
-	bh=/ew8MS09xmL3iUz0ZzBhcbPd2CRWVgMKzYHPaMgmnZw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Z1U+nkSHtt0mt+7qWiqexn+MimXgKu9vRipmht428N2AjYcM4JsHLBXFrtARTQAfj4IMPJJuEhTFQeopLH8KD3A9S2evJPDyXIujTMG8DWqsYNi/88mQW0u+eOj+fhZQw/29n4sEIVWYpuoLVZjoUAUqazd3UnRF5KZsbDPe1JE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A2B07ix0; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1751663186; c=relaxed/simple;
+	bh=f1hFiasjHfmlcHU6lmk4NYAher/zzJdd1u4QQBrYVJ8=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=NBocScyDG87bjOlrMQLdM5GxNZKcLEgdftYuhIT3kOnTeeqzR9ScxrO5Ltg35qceY/7AKBkuSHzRIJ7AOHhq5N5CqoHgd+YlD2CYQfwH948BCb639qaf8AXic9Mm8cHwigv2uxRbDYAUtxjBUHlrhQq6abC1ABhB5pncGaVFmiw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=y88kB/pc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A2B07ix0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECA64C4CEE3;
-	Fri,  4 Jul 2025 15:19:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751642394;
-	bh=/ew8MS09xmL3iUz0ZzBhcbPd2CRWVgMKzYHPaMgmnZw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=A2B07ix0OA27DrqIeFKXIbrYFiuNNYfzmRMHpf7hkTFpC+hob+oIF9tWG4XmAXVat
-	 Nwj9fwQiU8vJHuCeJTU1dQMaNKZc5vybp0GzyFspI1feNLD9VfaNUmMUEtH2gSLNWV
-	 j01zjK/Z/4FguO3enRnXNErzj1+fXNc3hIQSCChG1cIrAxzekp1FC/JV2lS7xAD0An
-	 qR7Bl+YY7JyvjpEYkEjGDAswbpY8SuZ+ZREXzQCxiBrnRQzVi1d7rnAusXeqFLMtYA
-	 0ZPUOrb2NikR/Pokw4E1VmG+HzOnTd6Y5wcEzFGvXNHMAd0Wwcrf+IA0gXj423pi6M
-	 PwLtSJXOohqrg==
-Message-ID: <879d1fa7-04a5-403c-8d23-76631a67f560@kernel.org>
-Date: Fri, 4 Jul 2025 17:19:49 +0200
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="y88kB/pc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27406C4CEE3;
+	Fri,  4 Jul 2025 21:06:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1751663185;
+	bh=f1hFiasjHfmlcHU6lmk4NYAher/zzJdd1u4QQBrYVJ8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=y88kB/pcD4E4EqtT4CkMHjZGaNV/MSL+BfunpDneJYf0u7QKpcXsSW9s14r8BkNmx
+	 WaI24KqTkwL1L2kVQDd0U0gUqzKoB3oOSJKBdiYtW2qefak2kybpZOsGNd5sTK4MTP
+	 njKj4JxNYga3WE9rzmNqEaH7gILlxUtdajr7p1I8=
+Date: Fri, 4 Jul 2025 14:06:23 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org, Jonathan
+ Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
+ Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>, Jerrin Shaji George
+ <jerrin.shaji-george@broadcom.com>, Arnd Bergmann <arnd@arndb.de>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Christian
+ Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Zi Yan
+ <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>, Joshua Hahn
+ <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park
+ <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, Ying Huang
+ <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R. Howlett"
+ <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport
+ <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko
+ <mhocko@suse.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, Minchan
+ Kim <minchan@kernel.org>, Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Brendan Jackman <jackmanb@google.com>, Johannes Weiner
+ <hannes@cmpxchg.org>, Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard
+ <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, Xu Xin
+ <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>, Miaohe
+ Lin <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>, Harry
+ Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>, Shakeel
+ Butt <shakeel.butt@linux.dev>
+Subject: Re: [PATCH v2 00/29] mm/migration: rework movable_ops page
+ migration (part 1)
+Message-Id: <20250704140623.d6b9a013984bc2a109dd4dc9@linux-foundation.org>
+In-Reply-To: <20250704102524.326966-1-david@redhat.com>
+References: <20250704102524.326966-1-david@redhat.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio: Add missing kerneldoc for virtio_dma_buf_attach
-To: jiang.peng9@zte.com.cn, jasowang@redhat.com, xuanzhuo@linux.alibaba.com
-Cc: mst@redhat.com, eperezma@redhat.com, sumit.semwal@linaro.org,
- christian.koenig@amd.com, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
- xu.xin16@zte.com.cn, yang.yang29@zte.com.cn
-References: <20250704152047205U11FdEih1MxrmcmAz0Xpp@zte.com.cn>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20250704152047205U11FdEih1MxrmcmAz0Xpp@zte.com.cn>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 04/07/2025 09:20, jiang.peng9@zte.com.cn wrote:
-> From: Peng Jiang <jiang.peng9@zte.com.cn>
+On Fri,  4 Jul 2025 12:24:54 +0200 David Hildenbrand <david@redhat.com> wrote:
+
+> In the future, as we decouple "struct page" from "struct folio", pages
+> that support "non-lru page migration" -- movable_ops page migration
+> such as memory balloons and zsmalloc -- will no longer be folios. They
+> will not have ->mapping, ->lru, and likely no refcount and no
+> page lock. But they will have a type and flags 🙂
 > 
-> Add kerneldoc for 'virtio_dma_buf_attach' function to fix W=1 warnings:
+> This is the first part (other parts not written yet) of decoupling
+> movable_ops page migration from folio migration.
 > 
-> drivers/virtio/virtio_dma_buf.c:41 function parameter 'dma_buf' not described in 'virtio_dma_buf_attach'
-> drivers/virtio/virtio_dma_buf.c:41 function parameter 'attach' not described in 'virtio_dma_buf_attach'
+> In this series, we get rid of the ->mapping usage, and start cleaning up
+> the code + separating it from folio migration.
 > 
-> Signed-off-by: Peng Jiang <jiang.peng9@zte.com.cn>
-> ---
->  drivers/virtio/virtio_dma_buf.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
+> Migration core will have to be further reworked to not treat movable_ops
+> pages like folios. This is the first step into that direction.
 > 
-> diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
-> index 3fe1d03b0645..18d261ba5197 100644
-> --- a/drivers/virtio/virtio_dma_buf.c
-> +++ b/drivers/virtio/virtio_dma_buf.c
-> @@ -35,7 +35,16 @@ struct dma_buf *virtio_dma_buf_export
->  EXPORT_SYMBOL(virtio_dma_buf_export);
-> 
->  /**
-> - * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
-> + * virtio_dma_buf_attach - Mandatory attach callback for virtio dma-bufs
+> Heavily tested with virtio-balloon and lightly tested with zsmalloc
+> on x86-64. Cross-compile-tested.
 
-Read kernel-doc.rst. Missing ()
+Thanks, I added this to mm-new.  I suppressed the 1363 mm-commits
+emails to avoid breaking the internet.
 
-> + * @dma_buf: Pointer to the shared dma-buf structure
-> + * @attach: Pointer to the newly created attachment metadata
-> + *
-> + * Description: Implements the standard dma-buf attach operation for virtio devices.
-
-That's not kerneldoc. Which part of kernel-doc document documents such
-syntax?
-
-
-> + *              Retrieves virtio-specific operations through container_of macro,
-> + *              then invokes device-specific attach callback if present.
-Best regards,
-Krzysztof
