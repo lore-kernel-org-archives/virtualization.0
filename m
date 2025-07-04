@@ -1,150 +1,97 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from mxct.zte.com.cn (mxct.zte.com.cn [58.251.27.85])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB2D62EE281;
-	Thu,  3 Jul 2025 15:21:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C985327F183
+	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 07:27:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=58.251.27.85
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751556071; cv=none; b=hBTARoLmHsGSdE02uvKr5bDiu/16eIbA68Z6salj2MM+xwEc4EW5k/5/OEOUpbIawdTeutgNpuvWkyzIz47W2EwIzzsaOh7ZypYmvd3vwkCe7x36AH0RlWt4vpWTFYQKsePnMQCH28pGHehaFKomMl6rRGfMoNcuy5ThLq88exU=
+	t=1751614060; cv=none; b=GAXxL0ctHx2PHn+yLwuizc3M8gAmBQF4TXIe+TkXAs8JXP0vZYf5Naog4TlGm87Did6JZN9mxbUiykZOhg4RoMEG4OxThjK9Z2cdYyWDJ/EoToYWZyzpRukG3/n/iPB56SsHMyuzqI3N+mbGowxIp3MmlslzDwacA+MBIIDpMNk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751556071; c=relaxed/simple;
-	bh=hBOjDSwGx90752+i75SFg7/y1LdtNNRnQlOYZjf+drw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ZylxN+WcFrLbPPMAvWeFR1p9BPsP0K0PeUDO0jcPHvN0nHyuS/iU63ITYq+e2BjUY3x2i/be+eaY2vge/szD2MHspION83ONA5ynDaxaQBTEAwYfc+GKt89/WsmLhFGkGAq2sMVZ8TpPYk8C3PnOQy9cnaLwPkKPisuOl8CwZJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=tmxjEfL1; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="tmxjEfL1"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1uXLkJ-000pPR-12; Thu, 03 Jul 2025 17:21:07 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=MkdFfVXMd0aCG4G4mL1YFCJ5oJWifxxM7Y3tJ/QI2Ls=; b=tmxjEfL1vL+EPyPNtv8WIY+giM
-	1GzC5eiTx1FwVh+6qgx7vW45NAaSQR6yH2ztL8FqMr28IKfsMdRKXi+EwTEiz8ZzpIyibHXIwP6k4
-	stWXtftCpWycW4JAafohnl5dutrvRTdWcKay+tVuHySnx7fStOjdlRfIeIVaDFKJORbRGrxWxOVAw
-	0g/599mw4bfvHR7IARP5fg/Fi4WTT4EAk5v3wSnQFpeYdV6eIyLED6LB753sfUFK4Nrcv7F5QhCA9
-	ReLbcAo385bp0HDalkP8maJ3RQw+m6cm13PisvjNewXoZYxMWegWQ5Gq3XQ3BlUJTpp7wusX3WYZx
-	SCziwRDQ==;
-Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1uXLk9-0006p7-K8; Thu, 03 Jul 2025 17:20:57 +0200
-Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1uXLhk-001WIY-1J; Thu, 03 Jul 2025 17:18:28 +0200
-From: Michal Luczaj <mhal@rbox.co>
-Date: Thu, 03 Jul 2025 17:18:18 +0200
-Subject: [PATCH net v4 1/3] vsock: Fix transport_{g2h,h2g} TOCTOU
+	s=arc-20240116; t=1751614060; c=relaxed/simple;
+	bh=yVFYo6Kk/6Zc9eHOlHEVJQtvOkaea4d9X8jdBYc1rs8=;
+	h=Date:Message-ID:Mime-Version:From:To:Cc:Subject:Content-Type; b=L4ZoSy53TGDlCftFz9M2HyjuUOGjHKfmUJuv7TXcatxSf+ukjcwqKoAQ02NSNVnCWeAurW7nZgUNwl1y6UeNkIO8J0pSstUqFFQjTGTbtkrC/ZJflp6v9jgMAl/mSDTtXP6ph7kQDDhUv4whj4Lb5LNcfTfoEfSPGUKLB8DfvwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn; spf=pass smtp.mailfrom=zte.com.cn; arc=none smtp.client-ip=58.251.27.85
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zte.com.cn
+Received: from mxde.zte.com.cn (unknown [10.35.20.165])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mxct.zte.com.cn (FangMail) with ESMTPS id 4bYQ6S48nTzCh0y
+	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 15:21:20 +0800 (CST)
+Received: from mxhk.zte.com.cn (unknown [192.168.250.137])
+	(using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mxde.zte.com.cn (FangMail) with ESMTPS id 4bYQ6J6dJtz4xD51
+	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 15:21:12 +0800 (CST)
+Received: from mse-fl1.zte.com.cn (unknown [10.5.228.132])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mxhk.zte.com.cn (FangMail) with ESMTPS id 4bYQ644Mftz8R044;
+	Fri,  4 Jul 2025 15:21:00 +0800 (CST)
+Received: from xaxapp04.zte.com.cn ([10.99.98.157])
+	by mse-fl1.zte.com.cn with SMTP id 5647KiW8090359;
+	Fri, 4 Jul 2025 15:20:44 +0800 (+08)
+	(envelope-from jiang.peng9@zte.com.cn)
+Received: from mapi (xaxapp01[null])
+	by mapi (Zmail) with MAPI id mid31;
+	Fri, 4 Jul 2025 15:20:47 +0800 (CST)
+Date: Fri, 4 Jul 2025 15:20:47 +0800 (CST)
+X-Zmail-TransId: 2af9686780cf5ce-2beb8
+X-Mailer: Zmail v1.0
+Message-ID: <20250704152047205U11FdEih1MxrmcmAz0Xpp@zte.com.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250703-vsock-transports-toctou-v4-1-98f0eb530747@rbox.co>
-References: <20250703-vsock-transports-toctou-v4-0-98f0eb530747@rbox.co>
-In-Reply-To: <20250703-vsock-transports-toctou-v4-0-98f0eb530747@rbox.co>
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.2
+Mime-Version: 1.0
+From: <jiang.peng9@zte.com.cn>
+To: <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>
+Cc: <mst@redhat.com>, <eperezma@redhat.com>, <sumit.semwal@linaro.org>,
+        <christian.koenig@amd.com>, <virtualization@lists.linux.dev>,
+        <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
+        <dri-devel@lists.freedesktop.org>, <linaro-mm-sig@lists.linaro.org>,
+        <xu.xin16@zte.com.cn>, <yang.yang29@zte.com.cn>
+Subject: =?UTF-8?B?W1BBVENIXSB2aXJ0aW86IEFkZCBtaXNzaW5nIGtlcm5lbGRvYyBmb3IgdmlydGlvX2RtYV9idWZfYXR0YWNo?=
+Content-Type: text/plain;
+	charset="UTF-8"
+X-MAIL:mse-fl1.zte.com.cn 5647KiW8090359
+X-Fangmail-Anti-Spam-Filtered: true
+X-Fangmail-MID-QID: 686780EF.000/4bYQ6S48nTzCh0y
 
-vsock_find_cid() and vsock_dev_do_ioctl() may race with module unload.
-transport_{g2h,h2g} may become NULL after the NULL check.
+From: Peng Jiang <jiang.peng9@zte.com.cn>
 
-Introduce vsock_transport_local_cid() to protect from a potential
-null-ptr-deref.
+Add kerneldoc for 'virtio_dma_buf_attach' function to fix W=1 warnings:
 
-KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
-RIP: 0010:vsock_find_cid+0x47/0x90
-Call Trace:
- __vsock_bind+0x4b2/0x720
- vsock_bind+0x90/0xe0
- __sys_bind+0x14d/0x1e0
- __x64_sys_bind+0x6e/0xc0
- do_syscall_64+0x92/0x1c0
- entry_SYSCALL_64_after_hwframe+0x4b/0x53
+drivers/virtio/virtio_dma_buf.c:41 function parameter 'dma_buf' not described in 'virtio_dma_buf_attach'
+drivers/virtio/virtio_dma_buf.c:41 function parameter 'attach' not described in 'virtio_dma_buf_attach'
 
-KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
-RIP: 0010:vsock_dev_do_ioctl.isra.0+0x58/0xf0
-Call Trace:
- __x64_sys_ioctl+0x12d/0x190
- do_syscall_64+0x92/0x1c0
- entry_SYSCALL_64_after_hwframe+0x4b/0x53
-
-Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
+Signed-off-by: Peng Jiang <jiang.peng9@zte.com.cn>
 ---
- net/vmw_vsock/af_vsock.c | 27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+ drivers/virtio/virtio_dma_buf.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 2e7a3034e965db30b6ee295370d866e6d8b1c341..39473b9e0829f240045262aef00cbae82a425dcc 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -531,9 +531,25 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- }
- EXPORT_SYMBOL_GPL(vsock_assign_transport);
- 
-+/*
-+ * Provide safe access to static transport_{h2g,g2h,dgram,local} callbacks.
-+ * Otherwise we may race with module removal. Do not use on `vsk->transport`.
-+ */
-+static u32 vsock_registered_transport_cid(const struct vsock_transport **transport)
-+{
-+	u32 cid = VMADDR_CID_ANY;
-+
-+	mutex_lock(&vsock_register_mutex);
-+	if (*transport)
-+		cid = (*transport)->get_local_cid();
-+	mutex_unlock(&vsock_register_mutex);
-+
-+	return cid;
-+}
-+
- bool vsock_find_cid(unsigned int cid)
- {
--	if (transport_g2h && cid == transport_g2h->get_local_cid())
-+	if (cid == vsock_registered_transport_cid(&transport_g2h))
- 		return true;
- 
- 	if (transport_h2g && cid == VMADDR_CID_HOST)
-@@ -2536,18 +2552,17 @@ static long vsock_dev_do_ioctl(struct file *filp,
- 			       unsigned int cmd, void __user *ptr)
- {
- 	u32 __user *p = ptr;
--	u32 cid = VMADDR_CID_ANY;
- 	int retval = 0;
-+	u32 cid;
- 
- 	switch (cmd) {
- 	case IOCTL_VM_SOCKETS_GET_LOCAL_CID:
- 		/* To be compatible with the VMCI behavior, we prioritize the
- 		 * guest CID instead of well-know host CID (VMADDR_CID_HOST).
- 		 */
--		if (transport_g2h)
--			cid = transport_g2h->get_local_cid();
--		else if (transport_h2g)
--			cid = transport_h2g->get_local_cid();
-+		cid = vsock_registered_transport_cid(&transport_g2h);
-+		if (cid == VMADDR_CID_ANY)
-+			cid = vsock_registered_transport_cid(&transport_h2g);
- 
- 		if (put_user(cid, p) != 0)
- 			retval = -EFAULT;
+diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
+index 3fe1d03b0645..18d261ba5197 100644
+--- a/drivers/virtio/virtio_dma_buf.c
++++ b/drivers/virtio/virtio_dma_buf.c
+@@ -35,7 +35,16 @@ struct dma_buf *virtio_dma_buf_export
+ EXPORT_SYMBOL(virtio_dma_buf_export);
 
+ /**
+- * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
++ * virtio_dma_buf_attach - Mandatory attach callback for virtio dma-bufs
++ * @dma_buf: Pointer to the shared dma-buf structure
++ * @attach: Pointer to the newly created attachment metadata
++ *
++ * Description: Implements the standard dma-buf attach operation for virtio devices.
++ *              Retrieves virtio-specific operations through container_of macro,
++ *              then invokes device-specific attach callback if present.
++ *              This enables virtio devices to participate in dma-buf sharing.
++ *
++ * Return: 0 on success, error code on failure
+  */
+ int virtio_dma_buf_attach(struct dma_buf *dma_buf,
+                          struct dma_buf_attachment *attach)
 -- 
-2.50.0
-
+2.25.1
