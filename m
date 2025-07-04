@@ -1,97 +1,150 @@
-Received: from mxct.zte.com.cn (mxct.zte.com.cn [58.251.27.85])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C985327F183
-	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 07:27:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=58.251.27.85
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 158D22E7F07
+	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 09:00:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751614060; cv=none; b=GAXxL0ctHx2PHn+yLwuizc3M8gAmBQF4TXIe+TkXAs8JXP0vZYf5Naog4TlGm87Did6JZN9mxbUiykZOhg4RoMEG4OxThjK9Z2cdYyWDJ/EoToYWZyzpRukG3/n/iPB56SsHMyuzqI3N+mbGowxIp3MmlslzDwacA+MBIIDpMNk=
+	t=1751619660; cv=none; b=XfBEHD1e2EhWoFNFT9gW8ci6wpMtTeABH9DiN4mGW2n2UMLTQSEmWlWdp8TmWhdLIOFdMtOUxJPr+EwPNvsIDspymXxmBAQoaqThM3ygsgOddRTJwieYbHpajws0/lwJoUrzd2WyK3gUYejx1qm7KU74bqXici/6VhjHS4XlIG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751614060; c=relaxed/simple;
-	bh=yVFYo6Kk/6Zc9eHOlHEVJQtvOkaea4d9X8jdBYc1rs8=;
-	h=Date:Message-ID:Mime-Version:From:To:Cc:Subject:Content-Type; b=L4ZoSy53TGDlCftFz9M2HyjuUOGjHKfmUJuv7TXcatxSf+ukjcwqKoAQ02NSNVnCWeAurW7nZgUNwl1y6UeNkIO8J0pSstUqFFQjTGTbtkrC/ZJflp6v9jgMAl/mSDTtXP6ph7kQDDhUv4whj4Lb5LNcfTfoEfSPGUKLB8DfvwU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn; spf=pass smtp.mailfrom=zte.com.cn; arc=none smtp.client-ip=58.251.27.85
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zte.com.cn
-Received: from mxde.zte.com.cn (unknown [10.35.20.165])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	s=arc-20240116; t=1751619660; c=relaxed/simple;
+	bh=MMnTcJHh2YsAwogfNwsy9ZiBRqSAqI/yxQAcExaX3RA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=obGQylxmr1R42yWhPVfkSo6Hbpj1Hi5I0Eq27USn9Du140B/0U/pUxxqM7OvR4duVoIJ9LGhXdoLPtHHdxTboObEgtQgDZ+iFiMrXmEJSK19Ler25nQZ/M5NKAkixM1GgIiHfs4Qa/EKGaevzQLdoPpVG4wTz3WEXmFedsjQBek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ojI/Zgdl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=fV3mnSpf; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ojI/Zgdl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=fV3mnSpf; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ojI/Zgdl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="fV3mnSpf";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ojI/Zgdl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="fV3mnSpf"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mxct.zte.com.cn (FangMail) with ESMTPS id 4bYQ6S48nTzCh0y
-	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 15:21:20 +0800 (CST)
-Received: from mxhk.zte.com.cn (unknown [192.168.250.137])
-	(using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 4E30621194;
+	Fri,  4 Jul 2025 09:00:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1751619657; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=U8DGv5s4oBbf5Xmo9N6DSZCMc93Z976dlHWpEdg22kI=;
+	b=ojI/ZgdlMnbHGxydH02at11LU07EryvjEUTW7WVdoAjLRhMLAokRomxzvHEJXtOdQVawX6
+	VDIbitatw5Ywe1F4boG0x0rUykXpoytb4PwfTuEEgLmMAhHmSON49CSuq8TJIS1Z/tSIOf
+	RK+NY1xW4KHOrzYcLNqbNsg0mBFN5FE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1751619657;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=U8DGv5s4oBbf5Xmo9N6DSZCMc93Z976dlHWpEdg22kI=;
+	b=fV3mnSpfrnCpASP7NvSx894BJkuq1cbiSAOYFl4lMPqMSsRn+OyInOp1SEJEAK5kxGaTp4
+	1EQNt2jmjNN+LiBA==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1751619657; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=U8DGv5s4oBbf5Xmo9N6DSZCMc93Z976dlHWpEdg22kI=;
+	b=ojI/ZgdlMnbHGxydH02at11LU07EryvjEUTW7WVdoAjLRhMLAokRomxzvHEJXtOdQVawX6
+	VDIbitatw5Ywe1F4boG0x0rUykXpoytb4PwfTuEEgLmMAhHmSON49CSuq8TJIS1Z/tSIOf
+	RK+NY1xW4KHOrzYcLNqbNsg0mBFN5FE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1751619657;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=U8DGv5s4oBbf5Xmo9N6DSZCMc93Z976dlHWpEdg22kI=;
+	b=fV3mnSpfrnCpASP7NvSx894BJkuq1cbiSAOYFl4lMPqMSsRn+OyInOp1SEJEAK5kxGaTp4
+	1EQNt2jmjNN+LiBA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mxde.zte.com.cn (FangMail) with ESMTPS id 4bYQ6J6dJtz4xD51
-	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 15:21:12 +0800 (CST)
-Received: from mse-fl1.zte.com.cn (unknown [10.5.228.132])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mxhk.zte.com.cn (FangMail) with ESMTPS id 4bYQ644Mftz8R044;
-	Fri,  4 Jul 2025 15:21:00 +0800 (CST)
-Received: from xaxapp04.zte.com.cn ([10.99.98.157])
-	by mse-fl1.zte.com.cn with SMTP id 5647KiW8090359;
-	Fri, 4 Jul 2025 15:20:44 +0800 (+08)
-	(envelope-from jiang.peng9@zte.com.cn)
-Received: from mapi (xaxapp01[null])
-	by mapi (Zmail) with MAPI id mid31;
-	Fri, 4 Jul 2025 15:20:47 +0800 (CST)
-Date: Fri, 4 Jul 2025 15:20:47 +0800 (CST)
-X-Zmail-TransId: 2af9686780cf5ce-2beb8
-X-Mailer: Zmail v1.0
-Message-ID: <20250704152047205U11FdEih1MxrmcmAz0Xpp@zte.com.cn>
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 299B013757;
+	Fri,  4 Jul 2025 09:00:57 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id COEjCkmYZ2ibHQAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Fri, 04 Jul 2025 09:00:57 +0000
+Date: Fri, 4 Jul 2025 11:00:56 +0200
+From: Daniel Wagner <dwagner@suse.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
+	Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Aaron Tomlin <atomlin@atomlin.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, 
+	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
+	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>, 
+	Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
+	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
+	storagedev@microchip.com, virtualization@lists.linux.dev, 
+	GR-QLogic-Storage-Upstream@marvell.com
+Subject: Re: [PATCH v7 08/10] blk-mq: use hk cpus only when isolcpus=io_queue
+ is enabled
+Message-ID: <75aafd33-0aff-4cf7-872f-f110ed896213@flourine.local>
+References: <20250702-isolcpus-io-queues-v7-0-557aa7eacce4@kernel.org>
+ <20250702-isolcpus-io-queues-v7-8-557aa7eacce4@kernel.org>
+ <20250703090158.GA4757@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-From: <jiang.peng9@zte.com.cn>
-To: <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>
-Cc: <mst@redhat.com>, <eperezma@redhat.com>, <sumit.semwal@linaro.org>,
-        <christian.koenig@amd.com>, <virtualization@lists.linux.dev>,
-        <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
-        <dri-devel@lists.freedesktop.org>, <linaro-mm-sig@lists.linaro.org>,
-        <xu.xin16@zte.com.cn>, <yang.yang29@zte.com.cn>
-Subject: =?UTF-8?B?W1BBVENIXSB2aXJ0aW86IEFkZCBtaXNzaW5nIGtlcm5lbGRvYyBmb3IgdmlydGlvX2RtYV9idWZfYXR0YWNo?=
-Content-Type: text/plain;
-	charset="UTF-8"
-X-MAIL:mse-fl1.zte.com.cn 5647KiW8090359
-X-Fangmail-Anti-Spam-Filtered: true
-X-Fangmail-MID-QID: 686780EF.000/4bYQ6S48nTzCh0y
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250703090158.GA4757@lst.de>
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[26];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RL67935bhfdkbndpbo95z3ogoo)];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	MISSING_XM_UA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Spam-Score: -4.30
 
-From: Peng Jiang <jiang.peng9@zte.com.cn>
+On Thu, Jul 03, 2025 at 11:01:58AM +0200, Christoph Hellwig wrote:
+> On Wed, Jul 02, 2025 at 06:33:58PM +0200, Daniel Wagner wrote:
+> >  const struct cpumask *blk_mq_possible_queue_affinity(void)
+> >  {
+> > +	if (housekeeping_enabled(HK_TYPE_IO_QUEUE))
+> > +		return housekeeping_cpumask(HK_TYPE_IO_QUEUE);
+> > +
+> >  	return cpu_possible_mask;
+> >  }
+> 
+> I'm no expert on the housekeeping stuff, but why isn't the
+> housekeeping_enabled check done in housekeeping_cpumask directly so
+> that the drivers could use housekeeping_cpumask without a blk-mq
+> wrapper?
 
-Add kerneldoc for 'virtio_dma_buf_attach' function to fix W=1 warnings:
+Yes, housekeeping_cpumask will return cpu_possible_mask when housekeping
+is disabled. Though some drivers want cpu_online_mask instead. If all
+drivers would agree on one version of the mask it should allow to drop
+to these helpers (maybe we the houskeeping API needs to be extended then
+though)
 
-drivers/virtio/virtio_dma_buf.c:41 function parameter 'dma_buf' not described in 'virtio_dma_buf_attach'
-drivers/virtio/virtio_dma_buf.c:41 function parameter 'attach' not described in 'virtio_dma_buf_attach'
-
-Signed-off-by: Peng Jiang <jiang.peng9@zte.com.cn>
----
- drivers/virtio/virtio_dma_buf.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
-index 3fe1d03b0645..18d261ba5197 100644
---- a/drivers/virtio/virtio_dma_buf.c
-+++ b/drivers/virtio/virtio_dma_buf.c
-@@ -35,7 +35,16 @@ struct dma_buf *virtio_dma_buf_export
- EXPORT_SYMBOL(virtio_dma_buf_export);
-
- /**
-- * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
-+ * virtio_dma_buf_attach - Mandatory attach callback for virtio dma-bufs
-+ * @dma_buf: Pointer to the shared dma-buf structure
-+ * @attach: Pointer to the newly created attachment metadata
-+ *
-+ * Description: Implements the standard dma-buf attach operation for virtio devices.
-+ *              Retrieves virtio-specific operations through container_of macro,
-+ *              then invokes device-specific attach callback if present.
-+ *              This enables virtio devices to participate in dma-buf sharing.
-+ *
-+ * Return: 0 on success, error code on failure
-  */
- int virtio_dma_buf_attach(struct dma_buf *dma_buf,
-                          struct dma_buf_attachment *attach)
--- 
-2.25.1
+This is also what Hannes brought up. If the number of supported hardware
+queues for a device is less than cpu_possible_mask, it really makes
+sense to distribute the hardware queues only between the online cpus. I
+think the only two drivers which are interested in the cpu_possible_mask
+are nvme-pci and virtio.
