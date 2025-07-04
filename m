@@ -1,169 +1,318 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 966852900AA
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Jul 2025 10:04:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D79AD2EA48C
+	for <virtualization@lists.linux.dev>; Fri,  4 Jul 2025 10:25:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751623447; cv=none; b=a0JG8SNFP/jI/bYV6p0I2Ud6IEWr14R7rIJINUMtFq2GqhtKB/wFFa801DJ1vVg/4BfuQyOZ/lN0YN7xgv7tIGEHku3Ug+Wr7JDnb9XBoLFfERNqHOTkeVbp3ZGvo7ZHAx6j35t+yxnnNLBR1q/sQhqa67kmVX4oMdhUUgfVoEw=
+	t=1751624734; cv=none; b=X4U2eQKie+YfejGfmbhyyFMSnJ5+PW/oHl27tcod+0VmIvS2mWy3fGvnMEfoTGp68g5O+8xEdXLBpY8iRMWu4fnaCCbWZnVb3QKiOzi8Db5VCFQctwpTQGXRVP5TnRldieGDPNkzfq1wLOux4DOe2R8HmX/99yQWPht3bfprfew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751623447; c=relaxed/simple;
-	bh=B7aUvk/jHjdAbP1Txi087l61k45RNX1ZWe+SIygilVA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Q/41xOsmWBQupqHHnHib5ANiZFSc5bVy2Ve34NFCoHNdzLy6kG864DI72xPoqqo6k94HB42hjJNUP1uUip58Bfqhz+tkrG465yPXF+A5zYMB8J1T8aZqlkcG9sqHJKHaKRD1k8lj/ldg9YHg/Klf2eA5iQkPls8Q9p28ru3T2Qk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UJnu80K5; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1751624734; c=relaxed/simple;
+	bh=pEUtySM2KTJFulIMAqjkelFZDkcz60ibvb+CB6Fbeyo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=fgRgKazgXgGg9LhOfGc1ZYlSLO4Lp/7Shqit254F4XJYWs2wbyHqFbSjiy3MwsuvLngC7cyLtzWAqnmPoI5+L1DmsoTRu3H6yVdQpHIePCLAqYiBcEY3Y5WDrCJp3iXJGu5DMW5Oj58GhiHWlDiWJG09KExqd0EobexskcgmGq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hkA8riY7; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UJnu80K5"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2C66460B86
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Jul 2025 10:04:05 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id FKsogQEWmaiQ for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Jul 2025 10:04:04 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 5DD586075D
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5DD586075D
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UJnu80K5
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5DD586075D
-	for <virtualization@lists.linux-foundation.org>; Fri,  4 Jul 2025 10:04:03 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hkA8riY7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751623442;
+	s=mimecast20190719; t=1751624730;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rWi88a+JkVfvhFesKDsYwPcS3Up3wpcEEvDnhl9YEKo=;
-	b=UJnu80K5FfXIcTUpsh0CkcpNPZnGSZ0u2illoO2/caqzWH3NvBO7eprHjWYS7TWoKpQhvj
-	m15ViQNmfDSEUk/rHj48kJqOBaAFylOHi73lVP9X/z7JGCA91zlsgkJ4JJ8lt0gItZI3l6
-	s5Vc0r6TExzAwTFfSFn3PL6t598J8ns=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Sro688HYIitAmPcvBgChCRtb9/I9qH1hXgFepSE52NI=;
+	b=hkA8riY7B5nxfOljOaW5musyCa2F/SmSOcFAgDFOv34DvmOcH/eUK2xcUolqr7huvvenjq
+	LBY8bAdXl9uIPuxyljuM+dpsa8LjOGkg7y6xC/9pf65DIrJr0UzDzFz/jvtIvof45JDXWy
+	zxzcy32OoBgP3FbhhM4R8i0T4iW0SIk=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-248-jJZUgmJ-PGm9umtZWfDU2w-1; Fri, 04 Jul 2025 06:04:01 -0400
-X-MC-Unique: jJZUgmJ-PGm9umtZWfDU2w-1
-X-Mimecast-MFC-AGG-ID: jJZUgmJ-PGm9umtZWfDU2w_1751623440
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ae371f9e3f5so185958566b.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 04 Jul 2025 03:04:01 -0700 (PDT)
+ us-mta-122-wIM638R0OGujUv6lidBkOQ-1; Fri, 04 Jul 2025 06:25:29 -0400
+X-MC-Unique: wIM638R0OGujUv6lidBkOQ-1
+X-Mimecast-MFC-AGG-ID: wIM638R0OGujUv6lidBkOQ_1751624728
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a4eeed54c2so459033f8f.3
+        for <virtualization@lists.linux.dev>; Fri, 04 Jul 2025 03:25:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751623439; x=1752228239;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=rWi88a+JkVfvhFesKDsYwPcS3Up3wpcEEvDnhl9YEKo=;
-        b=wqqo1QIvbDbxItCdUPqOnLnHUQbz/IdzZDe2WiyjB5QSCUSzk1W8EAkJy6aCnCcYGb
-         8VAoW2LS02ul5qqVFjDQQnO9Eps5B0A/g6C2TLLf5NYumj3iYw/SVcUAIzCqtpIW/fT5
-         WTGrIvtY9HnXicPWHAxgG2+CT1mM5RW0AR0xV6j4r9V/eRd+kc7lXKJc1lkSTLRndVN2
-         xaAs8fayzTg3YRt0XT5s5fSojkyc9XQ6tvgX63aUomjzExOszASCwlri+SGUWSHhUYPH
-         y66iMEUPtYGJqOWByVxRI6pKbRLnX9Fif1g7i9iq6e0gRlFqwEl6YpaPJwU/rimUsBr4
-         AuHw==
-X-Forwarded-Encrypted: i=1; AJvYcCWp9JI1q6VDFiaP7jaxAQb/wIUU/rrRSMOoK/CKPPDuJQ+OXeAZJWOmXG3u4Ynu+Z9/p/788wcGv74wwe+VKw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yz75UwTKYF8pVoI1E0y+MJbssmXuTMo4NrNDNjtBBKzBAONOlUi
-	IUjgKKDY4Ej6kIZufrOIXHsKWd+5JqtvDdWOv4YjJ9ZMueYGfUd+ZlsX2ig+EJGKdg+w5TtkpX1
-	39jnwbq0aYCghHOE94drtRBEzgzj90xKMxqR8r8jcY2O9C7icuiSbruni+t7CUV0xZJeGX8PDdu
-	nplEkn/kp1hAE+BRsD+so/LIbw5DZ2OlRVHr/uycXq+dyuxaYvtY6674boZuz1HLGoWA==
-X-Gm-Gg: ASbGncsWHoA0mz2rWBeUmm5DOA/+aBhPY8+D7I0N6m/mtHOXHCf3h0iJwfWshD7OTpl
-	7idos8XF41P7MZ5eBZMh7W5a6FveER9HItkodF2v2cg2Mr7yqmvnuuqakeDTiXvtZYWGr5Lipzv
-	VH6Gd/
-X-Received: by 2002:a17:907:1b28:b0:ae3:6038:ad6f with SMTP id a640c23a62f3a-ae3f801ffffmr257590366b.3.1751623439430;
-        Fri, 04 Jul 2025 03:03:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHS9N1eCIk/WZ0O55TJaTXfCqhycvxAdX3gpiv7v0S1xEAaaTDokoaZNHnw35/eNshgWtKvOMMHV8DKBFb9MEc=
-X-Received: by 2002:a17:907:1b28:b0:ae3:6038:ad6f with SMTP id
- a640c23a62f3a-ae3f801ffffmr257584266b.3.1751623438615; Fri, 04 Jul 2025
- 03:03:58 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1751624728; x=1752229528;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Sro688HYIitAmPcvBgChCRtb9/I9qH1hXgFepSE52NI=;
+        b=hN3ljnLhQ6tV7OO3jeClw1LfZobiivwtmB1KpBvuUL7sBGbpKu1sCk/WbB3tV+Dudn
+         O6Sb7DjWBJcR2NuLSDK229A2r45G+Nqa3Bok3RyRA28azH+moXfq9p0XDTnrwe8k3X+1
+         MzRaft4RzxVTiB1vF4MraTEpfJDYBYBTPkXQlEkgZK5WDBCrtUdwkAJAbD8Zlkd0VKsc
+         GUI5zHcHBWYxhin1pRYgxDAmY3be3PBMsFrfh82f7L6qA0dOHnLsgjjx9gvazEU4AAI+
+         SLfeHshUkSCoxZ34F4FVt3DGxgik25GAUHieLjXNk4uU+HqBsKPAMxu+sMN/nv4AdXjU
+         6AVQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWAuHdXeuC1uEZWA30MaeC/H5Rud9C5x6JSKPoyxXyIRVXjyfkBVaY4Mh+2+kq5nYPxu1prtTRBky7fhBoxog==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz+YPjiOW8u7ZFQSXgpqr508XS/o7XYu7inl60kZmGTNai/qk0J
+	cePBaZxoGRDKcLRzBvldg9uEsynHqffahW9GExeGSyClMa7K4p3UxJhqCnG4q5VuGRO7pzbPTKP
+	QAwn6wr0NDLABPd53N4eWOwdtJ2hxzvGr/fxpuaNjXJqeNeK/so9CR2rj3MsGPzvPC9YAvwZB81
+	V8
+X-Gm-Gg: ASbGncsxtk6HGiB0YfAsVM6Ch0X6Xb2u5r0SNRfWwO9+OfDW4+J8e65LHeLdceD7PCm
+	T9VZgzjIn2aKpH6aA2IuP8RYzU/bxpqaMN4czp30xFiqMe7Fi2GvwXsbHYj2h7QnYaMK3Ux3pUf
+	m+1cqfyFQbJcCPwYeIItz8COEmvsXjYl02zltXOcZ80Wz//fNqnY02EMemdap5+8bM3+7X2ndJP
+	Sb9HueBBUhdHPezv/5Y+vNmxXTL2Joeo+UTL6ShzmkAEYNUO++0ugDBXqYBEfkKCJZCrbj6P1k6
+	sMLgF7TrMdGRDCnYYOJDNUL4hOZc8zYwFkLayBgcISVbSEQjlHgq3Cd8zjTF/hqNL9v1EKJhEEE
+	Ji/RsnA==
+X-Received: by 2002:a05:6000:2dc7:b0:3a5:75a6:73b9 with SMTP id ffacd0b85a97d-3b4964f4d95mr1608818f8f.11.1751624728230;
+        Fri, 04 Jul 2025 03:25:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHCjrfOCujVRy/tLPuq2vX5bnaQezkrR11WICwCcdt0ejgdnjfY6QZ4FsoDRZ4Yte6IkVy/1Q==
+X-Received: by 2002:a05:6000:2dc7:b0:3a5:75a6:73b9 with SMTP id ffacd0b85a97d-3b4964f4d95mr1608748f8f.11.1751624727474;
+        Fri, 04 Jul 2025 03:25:27 -0700 (PDT)
+Received: from localhost (p200300d82f2c5500098823f9faa07232.dip0.t-ipconnect.de. [2003:d8:2f2c:5500:988:23f9:faa0:7232])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3b4708d094csm2102185f8f.28.2025.07.04.03.25.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Jul 2025 03:25:26 -0700 (PDT)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org,
+	linux-doc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	virtualization@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	David Hildenbrand <david@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Zi Yan <ziy@nvidia.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>,
+	Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Gregory Price <gourry@gourry.net>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
+	Minchan Kim <minchan@kernel.org>,
+	Sergey Senozhatsky <senozhatsky@chromium.org>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	John Hubbard <jhubbard@nvidia.com>,
+	Peter Xu <peterx@redhat.com>,
+	Xu Xin <xu.xin16@zte.com.cn>,
+	Chengming Zhou <chengming.zhou@linux.dev>,
+	Miaohe Lin <linmiaohe@huawei.com>,
+	Naoya Horiguchi <nao.horiguchi@gmail.com>,
+	Oscar Salvador <osalvador@suse.de>,
+	Rik van Riel <riel@surriel.com>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Qi Zheng <zhengqi.arch@bytedance.com>,
+	Shakeel Butt <shakeel.butt@linux.dev>
+Subject: [PATCH v2 00/29] mm/migration: rework movable_ops page migration (part 1)
+Date: Fri,  4 Jul 2025 12:24:54 +0200
+Message-ID: <20250704102524.326966-1-david@redhat.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250702014139.721-1-liming.wu@jaguarmicro.com>
-In-Reply-To: <20250702014139.721-1-liming.wu@jaguarmicro.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Fri, 4 Jul 2025 18:03:21 +0800
-X-Gm-Features: Ac12FXx2LPRflMaDOhrK2WN9s4Zkqha02pwAGwf7MkpIy2PH8obbz9l4skjV1c8
-Message-ID: <CAPpAL=wY_JU7r8oWgcF_keq+rbpGdkhS5KF0K67g=rbX7_nwng@mail.gmail.com>
-Subject: Re: [PATCH] virtio_net: simplify tx queue wake condition check
-To: liming.wu@jaguarmicro.com
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, angus.chen@jaguarmicro.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 481OxLQjma_LKU6o7ogksqWo1FuxAB_G0ETOwpxqea0_1751623440
+X-Mimecast-MFC-PROC-ID: -mqntl72DT_uxaTLn0P-QZOxFPiDKi1q8im4cJG8hmg_1751624728
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-I tested this patch with virito-net regression tests, everything works fine=
-.
+Based on mm/mm-new.
 
-Tested-by: Lei Yang <leiyang@redhat.com>
+In the future, as we decouple "struct page" from "struct folio", pages
+that support "non-lru page migration" -- movable_ops page migration
+such as memory balloons and zsmalloc -- will no longer be folios. They
+will not have ->mapping, ->lru, and likely no refcount and no
+page lock. But they will have a type and flags 🙂
 
-On Wed, Jul 2, 2025 at 9:42=E2=80=AFAM <liming.wu@jaguarmicro.com> wrote:
->
-> From: Liming Wu <liming.wu@jaguarmicro.com>
->
-> Consolidate the two nested if conditions for checking tx queue wake
-> conditions into a single combined condition. This improves code
-> readability without changing functionality. And move netif_tx_wake_queue
-> into if condition to reduce unnecessary checks for queue stops.
->
-> Signed-off-by: Liming Wu <liming.wu@jaguarmicro.com>
-> ---
->  drivers/net/virtio_net.c | 22 ++++++++++------------
->  1 file changed, 10 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index e53ba600605a..6f3d69feb427 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2998,12 +2998,11 @@ static void virtnet_poll_cleantx(struct receive_q=
-ueue *rq, int budget)
->                         free_old_xmit(sq, txq, !!budget);
->                 } while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
->
-> -               if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS) {
-> -                       if (netif_tx_queue_stopped(txq)) {
-> -                               u64_stats_update_begin(&sq->stats.syncp);
-> -                               u64_stats_inc(&sq->stats.wake);
-> -                               u64_stats_update_end(&sq->stats.syncp);
-> -                       }
-> +               if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS &&
-> +                   netif_tx_queue_stopped(txq)) {
-> +                       u64_stats_update_begin(&sq->stats.syncp);
-> +                       u64_stats_inc(&sq->stats.wake);
-> +                       u64_stats_update_end(&sq->stats.syncp);
->                         netif_tx_wake_queue(txq);
->                 }
->
-> @@ -3195,12 +3194,11 @@ static int virtnet_poll_tx(struct napi_struct *na=
-pi, int budget)
->         else
->                 free_old_xmit(sq, txq, !!budget);
->
-> -       if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS) {
-> -               if (netif_tx_queue_stopped(txq)) {
-> -                       u64_stats_update_begin(&sq->stats.syncp);
-> -                       u64_stats_inc(&sq->stats.wake);
-> -                       u64_stats_update_end(&sq->stats.syncp);
-> -               }
-> +       if (sq->vq->num_free >=3D 2 + MAX_SKB_FRAGS &&
-> +           netif_tx_queue_stopped(txq)) {
-> +               u64_stats_update_begin(&sq->stats.syncp);
-> +               u64_stats_inc(&sq->stats.wake);
-> +               u64_stats_update_end(&sq->stats.syncp);
->                 netif_tx_wake_queue(txq);
->         }
->
-> --
-> 2.34.1
->
->
+This is the first part (other parts not written yet) of decoupling
+movable_ops page migration from folio migration.
+
+In this series, we get rid of the ->mapping usage, and start cleaning up
+the code + separating it from folio migration.
+
+Migration core will have to be further reworked to not treat movable_ops
+pages like folios. This is the first step into that direction.
+
+Heavily tested with virtio-balloon and lightly tested with zsmalloc
+on x86-64. Cross-compile-tested.
+
+v1 -> v2:
+* "mm/balloon_compaction: convert balloon_page_delete() to
+   balloon_page_finalize()"
+ -> Extended patch description
+* "mm/page_alloc: let page freeing clear any set page type"
+ -> Add comment
+* "mm/zsmalloc: make PageZsmalloc() sticky until the page is freed"
+ -> Add comment
+* "mm/migrate: factor out movable_ops page handling into
+   migrate_movable_ops_page()"
+ -> Extended patch description
+* "mm/migrate: remove folio_test_movable() and folio_movable_ops()"
+ -> Extended patch description
+* "mm/zsmalloc: stop using __ClearPageMovable()"
+ -> Clarify+extend comment
+* "mm/migration: remove PageMovable()"
+ -> Adjust patch description
+* "mm: rename __PageMovable() to page_has_movable_ops()"
+ -> Update comment in scan_movable_pages()
+* "mm: convert "movable" flag in page->mapping to a page flag"
+ -> Updated+extended patch description
+ -> Use TESTPAGEFLAG+SETPAGEFLAG only
+ -> Adjust comments for #else + #endif
+* "mm/page-alloc: remove PageMappingFlags()"
+ -> Extend patch description
+* "docs/mm: convert from "Non-LRU page migration" to "movable_ops page
+   migration""
+ -> Fixup usage of page_movable_ops()
+* Smaller patch description changes
+* Collect RBs+Acks (thanks everybody!)
+
+RFC -> v1:
+* Some smaller fixups + comment changes + subject/description updates
+* Added ACKs/RBs (hope I didn't miss any)
+* "mm/migrate: move movable_ops page handling out of move_to_new_folio()"
+ -> Fix goto out; vs goto out_unlock_both;
+* "mm: remove __folio_test_movable()"
+ -> Fix page_has_movable_ops() checking wrong page
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Jerrin Shaji George <jerrin.shaji-george@broadcom.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Eugenio Pérez" <eperezma@redhat.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Matthew Brost <matthew.brost@intel.com>
+Cc: Joshua Hahn <joshua.hahnjy@gmail.com>
+Cc: Rakie Kim <rakie.kim@sk.com>
+Cc: Byungchul Park <byungchul@sk.com>
+Cc: Gregory Price <gourry@gourry.net>
+Cc: Ying Huang <ying.huang@linux.alibaba.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Brendan Jackman <jackmanb@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Xu Xin <xu.xin16@zte.com.cn>
+Cc: Chengming Zhou <chengming.zhou@linux.dev>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Naoya Horiguchi <nao.horiguchi@gmail.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Harry Yoo <harry.yoo@oracle.com>
+Cc: Qi Zheng <zhengqi.arch@bytedance.com>
+Cc: Shakeel Butt <shakeel.butt@linux.dev>
+
+David Hildenbrand (29):
+  mm/balloon_compaction: we cannot have isolated pages in the balloon
+    list
+  mm/balloon_compaction: convert balloon_page_delete() to
+    balloon_page_finalize()
+  mm/zsmalloc: drop PageIsolated() related VM_BUG_ONs
+  mm/page_alloc: let page freeing clear any set page type
+  mm/balloon_compaction: make PageOffline sticky until the page is freed
+  mm/zsmalloc: make PageZsmalloc() sticky until the page is freed
+  mm/migrate: rename isolate_movable_page() to
+    isolate_movable_ops_page()
+  mm/migrate: rename putback_movable_folio() to
+    putback_movable_ops_page()
+  mm/migrate: factor out movable_ops page handling into
+    migrate_movable_ops_page()
+  mm/migrate: remove folio_test_movable() and folio_movable_ops()
+  mm/migrate: move movable_ops page handling out of move_to_new_folio()
+  mm/zsmalloc: stop using __ClearPageMovable()
+  mm/balloon_compaction: stop using __ClearPageMovable()
+  mm/migrate: remove __ClearPageMovable()
+  mm/migration: remove PageMovable()
+  mm: rename __PageMovable() to page_has_movable_ops()
+  mm/page_isolation: drop __folio_test_movable() check for large folios
+  mm: remove __folio_test_movable()
+  mm: stop storing migration_ops in page->mapping
+  mm: convert "movable" flag in page->mapping to a page flag
+  mm: rename PG_isolated to PG_movable_ops_isolated
+  mm/page-flags: rename PAGE_MAPPING_MOVABLE to PAGE_MAPPING_ANON_KSM
+  mm/page-alloc: remove PageMappingFlags()
+  mm/page-flags: remove folio_mapping_flags()
+  mm: simplify folio_expected_ref_count()
+  mm: rename PAGE_MAPPING_* to FOLIO_MAPPING_*
+  docs/mm: convert from "Non-LRU page migration" to "movable_ops page
+    migration"
+  mm/balloon_compaction: "movable_ops" doc updates
+  mm/balloon_compaction: provide single balloon_page_insert() and
+    balloon_mapping_gfp_mask()
+
+ Documentation/mm/page_migration.rst  |  39 ++--
+ arch/powerpc/platforms/pseries/cmm.c |   2 +-
+ drivers/misc/vmw_balloon.c           |   3 +-
+ drivers/virtio/virtio_balloon.c      |   4 +-
+ fs/proc/page.c                       |   4 +-
+ include/linux/balloon_compaction.h   |  90 ++++-----
+ include/linux/fs.h                   |   2 +-
+ include/linux/migrate.h              |  46 +----
+ include/linux/mm.h                   |   4 +-
+ include/linux/mm_types.h             |   1 -
+ include/linux/page-flags.h           | 106 +++++++----
+ include/linux/pagemap.h              |   2 +-
+ include/linux/zsmalloc.h             |   2 +
+ mm/balloon_compaction.c              |  21 ++-
+ mm/compaction.c                      |  44 +----
+ mm/gup.c                             |   4 +-
+ mm/internal.h                        |   2 +-
+ mm/ksm.c                             |   4 +-
+ mm/memory-failure.c                  |   4 +-
+ mm/memory_hotplug.c                  |  10 +-
+ mm/migrate.c                         | 271 ++++++++++++++++-----------
+ mm/page_alloc.c                      |  13 +-
+ mm/page_isolation.c                  |  12 +-
+ mm/rmap.c                            |  16 +-
+ mm/util.c                            |   6 +-
+ mm/vmscan.c                          |   6 +-
+ mm/zpdesc.h                          |  15 +-
+ mm/zsmalloc.c                        |  33 ++--
+ 28 files changed, 373 insertions(+), 393 deletions(-)
+
+
+base-commit: 31a2460cb90e6ac3604c72fb54e936b8129fec05
+-- 
+2.49.0
 
