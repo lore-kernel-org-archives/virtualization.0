@@ -1,37 +1,34 @@
 Received: from mxct.zte.com.cn (mxct.zte.com.cn [183.62.165.209])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D964E26C389
-	for <virtualization@lists.linux.dev>; Sat,  5 Jul 2025 02:15:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A10523BCFF
+	for <virtualization@lists.linux.dev>; Sat,  5 Jul 2025 02:58:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=183.62.165.209
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751681704; cv=none; b=ZCj+OLbN1SI6wI6uE5O7WZIaTqeo5CPxtDtyHJ1NDG+XvkjYFSeoKnIJQkAgFxR0rtxn5nntMyiIV/ows8TFnXKray2kd+ZclV3yCypKGbho8jZFXs9esg3B+0lwLrJ/HHdxoM9P09aGnYd95CHjlbFQhCajOTnMGvvYrX/ca4M=
+	t=1751684293; cv=none; b=LRQXvF2bUDKd3ieON/bLLhGJYgkcDe/AjCculiOLuF8ZW8K02S0CAB0e9q3mdqB+pQJyD8rcfNuQ0FFFMfBA3MAXvGwwR039UhepJ6LAbm6WiZXSW3Ih9io+q8V+FfCwiGRt8wndz5ke4VbNWcL1mKuqkcKBhSoCV1CMSo5Ly8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751681704; c=relaxed/simple;
-	bh=MoeOv5EYR7ND7dvTc6nQZXoheLui3KxYD5UFmlAelPs=;
-	h=Date:Message-ID:In-Reply-To:References:Mime-Version:From:To:Cc:
-	 Subject:Content-Type; b=l66lg7PAEX3cIARXOq4TSO0Kmi3yGyAA+6c3p8ZByV6N9Yq05QSDLXf+ye2cCnXK86QXb3tVYrronXqD7mZS4RFYHeZmklviBdvtppxUY8pmzTY1LURTwyY1ZhG7PW3oKCiB/IJGJOOa69TwOr0L3sXf0zPWmGlzQvKU418Mzvk=
+	s=arc-20240116; t=1751684293; c=relaxed/simple;
+	bh=78fy2wfFeqd1krWXatNtcMeKFMx8B0CgbxmWaUNUd7g=;
+	h=Date:Message-ID:Mime-Version:From:To:Cc:Subject:Content-Type; b=PbxfRZiRGGYZc7rwLIaNoGDcukRurSwGrDx6rcVdjygADsib3Tc4T0I/XiGA80HHCFOxMleCZgYbGbC9nXSBdG36dhVt0Bw9KmRj5GUxhdXyukn7AGPog17nCJdSUFdLm4KM2zfvaLnnWziUIeiwyxKmuLQQ0rVzNjdmkc7nLdc=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn; spf=pass smtp.mailfrom=zte.com.cn; arc=none smtp.client-ip=183.62.165.209
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zte.com.cn
-Received: from mse-fl2.zte.com.cn (unknown [10.5.228.133])
+Received: from mse-fl1.zte.com.cn (unknown [10.5.228.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mxct.zte.com.cn (FangMail) with ESMTPS id 4bYvGS6g6rz4x5ql;
-	Sat,  5 Jul 2025 10:14:56 +0800 (CST)
-Received: from xaxapp01.zte.com.cn ([10.88.99.176])
-	by mse-fl2.zte.com.cn with SMTP id 5652Esw6038063;
-	Sat, 5 Jul 2025 10:14:54 +0800 (+08)
+	by mxct.zte.com.cn (FangMail) with ESMTPS id 4bYwDF6VDQz4xPS0;
+	Sat,  5 Jul 2025 10:58:05 +0800 (CST)
+Received: from xaxapp02.zte.com.cn ([10.88.97.241])
+	by mse-fl1.zte.com.cn with SMTP id 5652w1Rf039931;
+	Sat, 5 Jul 2025 10:58:01 +0800 (+08)
 	(envelope-from jiang.peng9@zte.com.cn)
 Received: from mapi (xaxapp05[null])
 	by mapi (Zmail) with MAPI id mid31;
-	Sat, 5 Jul 2025 10:14:55 +0800 (CST)
-Date: Sat, 5 Jul 2025 10:14:55 +0800 (CST)
-X-Zmail-TransId: 2afc68688a9f1d0-59690
+	Sat, 5 Jul 2025 10:58:03 +0800 (CST)
+Date: Sat, 5 Jul 2025 10:58:03 +0800 (CST)
+X-Zmail-TransId: 2afc686894bb614-86aa7
 X-Mailer: Zmail v1.0
-Message-ID: <20250705101455762ft5u2uZEb7wz0TROzD52R@zte.com.cn>
-In-Reply-To: <879d1fa7-04a5-403c-8d23-76631a67f560@kernel.org>
-References: 20250704152047205U11FdEih1MxrmcmAz0Xpp@zte.com.cn,879d1fa7-04a5-403c-8d23-76631a67f560@kernel.org
+Message-ID: <20250705105803198ff11jYCkg1TxntcCEb00R@zte.com.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -39,47 +36,98 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 From: <jiang.peng9@zte.com.cn>
-To: <krzk@kernel.org>
-Cc: <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>, <mst@redhat.com>,
-        <eperezma@redhat.com>, <sumit.semwal@linaro.org>,
-        <christian.koenig@amd.com>, <virtualization@lists.linux.dev>,
-        <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
-        <dri-devel@lists.freedesktop.org>, <linaro-mm-sig@lists.linaro.org>,
+To: <jasowang@redhat.com>, <krzk@kernel.org>
+Cc: <mst@redhat.com>, <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
+        <sumit.semwal@linaro.org>, <christian.koenig@amd.com>,
+        <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+        <linux-media@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
         <xu.xin16@zte.com.cn>, <yang.yang29@zte.com.cn>
-Subject: =?UTF-8?B?UmU6IFtQQVRDSF0gdmlydGlvOiBBZGQgbWlzc2luZyBrZXJuZWxkb2MgZm9yIHZpcnRpb19kbWFfYnVmX2F0dGFjaA==?=
+Subject: =?UTF-8?B?W1BBVENIIHYyXSB2aXJ0aW86IFVwZGF0ZSBrZXJuZWxkb2MgaW4gZHJpdmVycy92aXJ0aW8vdmlydGlvX2RtYV9idWYuYw==?=
 Content-Type: text/plain;
 	charset="UTF-8"
-X-MAIL:mse-fl2.zte.com.cn 5652Esw6038063
+X-MAIL:mse-fl1.zte.com.cn 5652w1Rf039931
 X-Fangmail-Anti-Spam-Filtered: true
-X-Fangmail-MID-QID: 68688AA0.001/4bYvGS6g6rz4x5ql
+X-Fangmail-MID-QID: 686894BD.000/4bYwDF6VDQz4xPS0
 
-> > diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/> virtio_dma_buf.c
-> > index 3fe1d03b0645..18d261ba5197 100644
-> > --- a/drivers/virtio/virtio_dma_buf.c
-> > +++ b/drivers/virtio/virtio_dma_buf.c
-> > @@ -35,7 +35,16 @@ struct dma_buf *virtio_dma_buf_export
-> >  EXPORT_SYMBOL(virtio_dma_buf_export);
-> >
-> >  /**
-> > - * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
-> > + * virtio_dma_buf_attach - Mandatory attach callback for virtio dma-bufs
->
-> Read kernel-doc.rst. Missing ()
->
-> > + * @dma_buf: Pointer to the shared dma-buf structure
-> > + * @attach: Pointer to the newly created attachment metadata
-> > + *
-> > + * Description: Implements the standard dma-buf attach operation for > virtio devices.
->
-> That's not kerneldoc. Which part of kernel-doc document documents such
-> syntax?
+From: Peng Jiang <jiang.peng9@zte.com.cn>
 
-Thanks so much for your time and feedback! I’ve made two specific fixes based on your notes:  
+Fix kernel-doc descriptions in virtio_dma_buf.c to fix W=1 warnings:
 
-Added () to the function name in the kerneldoc comment (e.g., virtio_dma_buf_attach() instead of virtio_dma_buf_attach).
-Removed the redundant "Description:" label and simplified the explanation. 
+drivers/virtio/virtio_dma_buf.c:41 function parameter 'dma_buf' not described in 'virtio_dma_buf_attach'
+drivers/virtio/virtio_dma_buf.c:41 function parameter 'attach' not described in 'virtio_dma_buf_attach'
 
-Let me know if you need anything else in the meantime!  
+Signed-off-by: Peng Jiang <jiang.peng9@zte.com.cn>
+---
+ drivers/virtio/virtio_dma_buf.c | 30 +++++++++++++++++++++++++-----
+ 1 file changed, 25 insertions(+), 5 deletions(-)
 
-Best regards,
-Peng
+diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
+index 3fe1d03b0645..0b39b1b209ee 100644
+--- a/drivers/virtio/virtio_dma_buf.c
++++ b/drivers/virtio/virtio_dma_buf.c
+@@ -9,13 +9,20 @@
+ #include <linux/virtio_dma_buf.h>
+
+ /**
+- * virtio_dma_buf_export - Creates a new dma-buf for a virtio exported object
++ * virtio_dma_buf_export() - Creates a new dma-buf for a virtio exported object
+  * @exp_info: [in] see dma_buf_export(). ops MUST refer to a dma_buf_ops
+  *     struct embedded in a virtio_dma_buf_ops.
+  *
+  * This wraps dma_buf_export() to allow virtio drivers to create a dma-buf
+  * for an virtio exported object that can be queried by other virtio drivers
+  * for the object's UUID.
++ *
++ * Returns:
++ *   - Valid struct dma_buf pointer on success
++ *   - ERR_PTR(-EINVAL) if:
++ *     - exp_info->ops is NULL
++ *     - attach callback isn't virtio_dma_buf_attach()
++ *     - virtio_ops->get_uuid() is not implemented
+  */
+ struct dma_buf *virtio_dma_buf_export
+        (const struct dma_buf_export_info *exp_info)
+@@ -35,7 +42,16 @@ struct dma_buf *virtio_dma_buf_export
+ EXPORT_SYMBOL(virtio_dma_buf_export);
+
+ /**
+- * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
++ * virtio_dma_buf_attach() - Mandatory attach callback for virtio dma-bufs
++ * @dma_buf: Pointer to the shared dma-buf structure
++ * @attach: Pointer to the newly created attachment metadata
++ *
++ * Implements the standard dma-buf attach operation for virtio devices.
++ * Retrieves virtio-specific operations through container_of macro,
++ * then invokes device-specific attach callback if present.
++ * This enables virtio devices to participate in dma-buf sharing.
++ *
++ * Return: 0 on success, error code on failure
+  */
+ int virtio_dma_buf_attach(struct dma_buf *dma_buf,
+                          struct dma_buf_attachment *attach)
+@@ -55,8 +71,12 @@ int virtio_dma_buf_attach(struct dma_buf *dma_buf,
+ EXPORT_SYMBOL(virtio_dma_buf_attach);
+
+ /**
+- * is_virtio_dma_buf - returns true if the given dma-buf is a virtio dma-buf
+- * @dma_buf: buffer to query
++ * is_virtio_dma_buf() - Check if a dma-buf was created by virtio DMA framework
++ * @dma_buf: [in] buffer to query
++ *
++ * Returns:
++ *   - true  if the dma-buf uses virtio_dma_buf_attach() as its attach callback
++ *   - false otherwise
+  */
+ bool is_virtio_dma_buf(struct dma_buf *dma_buf)
+ {
+@@ -65,7 +85,7 @@ bool is_virtio_dma_buf(struct dma_buf *dma_buf)
+ EXPORT_SYMBOL(is_virtio_dma_buf);
+
+ /**
+- * virtio_dma_buf_get_uuid - gets a virtio dma-buf's exported object's uuid
++ * virtio_dma_buf_get_uuid() - gets a virtio dma-buf's exported object's uuid
+  * @dma_buf: [in] buffer to query
+  * @uuid: [out] the uuid
+  *
+-- 
+2.25.1
