@@ -1,211 +1,180 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A70DA19F10A
-	for <virtualization@lists.linux.dev>; Sun,  6 Jul 2025 04:37:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B9161A76D0;
+	Sun,  6 Jul 2025 06:00:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751776645; cv=none; b=uJHAxvy2T1hpmMRbHb5SkpGbwFYwq/fSdXUtLZrWJtwqE/utxIUrW5Nr/+XR8015vseuucSJZ/TDQaXVNdet9++3Px5Vvv5Gf6OZa3hv5Dtq7bd7ANxmpzPx0vjxltsbBhbWBp4hVSG89akgYxPjKrtsXLSsSTW/CbdIKsiXBc0=
+	t=1751781612; cv=none; b=BqcFkGGakU/+PaE+ZDIX/B/q2KSypGvY8oy50cK7PGYhdCZt9I/MHAYf1HYptDDQZK1Uwa2m9wTw2EmRXguEQeND9U4ndc7HvmEraIAt9C5rdO+8VbEDsZ8rSrM+ELk7rL6v7br22nw8Gipoi76JyE6LdA+0TII2OzVf4iPVL1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751776645; c=relaxed/simple;
-	bh=Doct89OeyNO072Y2Ys7bCVOd+ekwZZ2v2r0ziNK3ALY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cSOt3BHB03+Kx+IY4l/XAWDYn4Vkfz96lnq6MeJf9Bnsvts2hPaZIt/r2siM4gSBnSKyGX5i0Coc+kRzAGyLfaLeg8Zt37VK7Qa28OXRbDEy+R51RlmZd+AyyeCK/bLPfXhGpAuy+KUBfKjNZIF6ECAPz377AEbFzT2fSFcT2rQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C8fMmxAE; arc=none smtp.client-ip=209.85.210.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751781612; c=relaxed/simple;
+	bh=6LXeYQHiR9KdMFnH25UR1nczxh0conAegX4pfPWuIkE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LfF7Ojq6JMMoeGp3+1XvJgtAiYWus88dik8LjqM40mYsZDb25TlXUhFJKBHjlPNvIdo3QUyKMQTbbqA7/eifHfYJE9oRi48ozewy5DvjVWe2C0IJiok1eIkDuIdcT1rN4bSmz0w4fXoQx4eNHoTKet7deThGOPUiNYWYdOevdp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rGudv65b; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C8fMmxAE"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-74801bc6dc5so1580279b3a.1
-        for <virtualization@lists.linux.dev>; Sat, 05 Jul 2025 21:37:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751776643; x=1752381443; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=78u4kXViM2gstT6OJkwZc50WiKMJcTjBxWIBBOazpAI=;
-        b=C8fMmxAEn/DkNpOP4idJPpDFFXcuIV4wiAU8KViVkrm1utvLgeJQxX4BNuC1Sx4txp
-         3KaJtah5IL5xiYo9oTYV0I7TluLiHRQPV0ysJ0Zj0ilTyZOtpiSzciJLKgK6u/tlcZkj
-         JAqjjfOdYh8+q/u1T2hzW4OjMYXFpxg1wzhtJ6TxfVaeaDrUSxeoTJOEM88sTuDZ0t66
-         eifZJbXwHSCYpHk0DkyR40JxfLocyAIoEEBsLlc3mZOvIukVHAze55yHpHA/X/+Lha9f
-         Vj18ptlRzAhh26T5vqX6I7J81o/6E9/Hi0TwXGb5P+k4c4sW5a2WrTKrAOvLJNFYCtK5
-         j7AQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751776643; x=1752381443;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=78u4kXViM2gstT6OJkwZc50WiKMJcTjBxWIBBOazpAI=;
-        b=NxYmnINGLc6UPm6496z4ASlwFr+5OBcMFbyCcgCw98ZKLM05BlYUciT0+cAAzrZ1LR
-         7TJYq63TFt9nYc97Eq2VcfPH88qgQsifqnW57aTmUihATzIiITJqgOyiAwFbdo6fyxmR
-         mDsHvrVVRtnEjVT1UR2/UUyaEauqwgS/5nX58GCFhLQVOWIFMyZUzWoRb13X1vgFU1lw
-         +7aMvRlkKmabasllUyquMU2E++Mm3rG2zEaGo64j4hh8wwPt5L3ipSlsm4l9u37inHvG
-         EFH0dTvvPK8Q38fo8nLVy3fq5PnLGSE/bWbmaalADDs7rjUaSH51e/6vXt+RHounVU0w
-         sHwA==
-X-Forwarded-Encrypted: i=1; AJvYcCXDWyC+tIOwyezcuzeqZUlbbCxGXobIM6HmrAgczT1NOCjPiMd2hGInGSBYTPjFuGBLb1d3hbNCYWKGftOxdA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwCKzVKzUp1bH7c6PsWwNj5kFNP5HHCT1RLVx+i+3WdQ7bkK7hU
-	Hv0637MH9RGjH8YKptJn30SQKg70hcMEtbUUhwc0RIw4CHtl+NFs1nba
-X-Gm-Gg: ASbGncvLIGtEFHjXtvN98yU0PJMVoF5lW1MKLLGu8XxC51SVsr4Jh0TmK/664VpS9yf
-	u8HcD5fXKhrsnPFZIuu0m9a5rJ8rnjksKQsyeLEYHBACgh9w/kWX4thnj1FHDZK/xHaWgppe2YN
-	aNA9Rtz5RBxXd2Rrl8CviNzsQvkiNTWCkjQAX5/8TA/IesNOR9Ltvx/iR/e+1nINoJe5kdVsgtp
-	z6yaaJcqgp9XoeYCVKKGmr5O2ir1lYxFsUCNxrWXPG8u8C8PKZhuTfcdPnboLYQCtWMLK4vH9x9
-	tP6QKzbX8i7p29iOesKKG1h/eQiTuTRelCOm6esnuLMmPQQO4AwZ3pDavMvruKF+bg==
-X-Google-Smtp-Source: AGHT+IH2y2QqKJnnc+SmoDKhK3pmoL1e3dI0WHkyQabKVkG03aZHUFCwpTWKs/9Ba4zbMfwP3glYUw==
-X-Received: by 2002:a05:6a00:1a93:b0:744:a240:fb1b with SMTP id d2e1a72fcca58-74ce5f5f908mr12036995b3a.5.1751776642904;
-        Sat, 05 Jul 2025 21:37:22 -0700 (PDT)
-Received: from [127.0.0.1] ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74ce35cc2cesm6105137b3a.59.2025.07.05.21.37.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Jul 2025 21:37:22 -0700 (PDT)
-From: Xuewei Niu <niuxuewei97@gmail.com>
-X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Date: Sun, 06 Jul 2025 12:36:32 +0800
-Subject: [PATCH net-next v5 4/4] test/vsock: Add ioctl SIOCINQ tests
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rGudv65b"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5853DC4CEED;
+	Sun,  6 Jul 2025 06:00:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751781612;
+	bh=6LXeYQHiR9KdMFnH25UR1nczxh0conAegX4pfPWuIkE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=rGudv65bW/I8lfKVqqK+2DB/GumrSqAs4KGqsf9lwb5vIM0lf5rqwLOiBIWp47ysv
+	 4r0WG7tURWg1tGnjjq79aeVVQsZyXGj8cR1nXlmSb/tIyQdxWa5jBPwYgk4Ibn8/K9
+	 8aclrjMylHDqCzPAf4qXddw9XneKJKYKYM0CiGX5G6xkO/XRKoQ3qrE6gYkXOWmNgu
+	 3ThVFn2essmngu1U6ie6u/JjbUhg1oKvSHUs8gt+5x+lYChW6F8Iwx5TWrOW2nYZQ7
+	 U+zyKgjP6FtLwjG/hLHgAU67WZV0PzQ/Jx8mTjGv1yy23vzA7uiG8kCNLs0kGzeagw
+	 h+sF92nUwh5Nw==
+Date: Sun, 6 Jul 2025 09:00:07 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Alexander Potapenko <glider@google.com>,
+	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	=?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, iommu@lists.linux.dev,
+	virtualization@lists.linux.dev, kasan-dev@googlegroups.com,
+	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org,
+	Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
+Message-ID: <20250706060007.GP6278@unreal>
+References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
+ <cover.1750854543.git.leon@kernel.org>
+ <35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
+ <20250627170213.GL17401@unreal>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250706-siocinq-v5-4-8d0b96a87465@antgroup.com>
-References: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
-In-Reply-To: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
-To: "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>
-Cc: linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Xuewei Niu <niuxuewei.nxw@antgroup.com>, fupan.lfp@antgroup.com
-X-Mailer: b4 0.14.2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250627170213.GL17401@unreal>
 
-Add SIOCINQ ioctl tests for both SOCK_STREAM and SOCK_SEQPACKET.
+On Fri, Jun 27, 2025 at 08:02:13PM +0300, Leon Romanovsky wrote:
+> On Fri, Jun 27, 2025 at 03:44:10PM +0200, Marek Szyprowski wrote:
+> > On 25.06.2025 15:18, Leon Romanovsky wrote:
+> > > This series refactors the DMA mapping to use physical addresses
+> > > as the primary interface instead of page+offset parameters. This
+> > > change aligns the DMA API with the underlying hardware reality where
+> > > DMA operations work with physical addresses, not page structures.
+> > >
+> > > The series consists of 8 patches that progressively convert the DMA
+> > > mapping infrastructure from page-based to physical address-based APIs:
+> > >
+> > > The series maintains backward compatibility by keeping the old
+> > > page-based API as wrapper functions around the new physical
+> > > address-based implementations.
+> > 
+> > Thanks for this rework! I assume that the next step is to add map_phys 
+> > callback also to the dma_map_ops and teach various dma-mapping providers 
+> > to use it to avoid more phys-to-page-to-phys conversions.
+> 
+> Probably Christoph will say yes, however I personally don't see any
+> benefit in this. Maybe I wrong here, but all existing .map_page()
+> implementation platforms don't support p2p anyway. They won't benefit
+> from this such conversion.
+> 
+> > 
+> > I only wonder if this newly introduced dma_map_phys()/dma_unmap_phys() 
+> > API is also suitable for the recently discussed PCI P2P DMA? While 
+> > adding a new API maybe we should take this into account?
+> 
+> First, immediate user (not related to p2p) is blk layer:
+> https://lore.kernel.org/linux-nvme/bcdcb5eb-17ed-412f-bf5c-303079798fe2@nvidia.com/T/#m7e715697d4b2e3997622a3400243477c75cab406
+> 
+> +static bool blk_dma_map_direct(struct request *req, struct device *dma_dev,
+> +		struct blk_dma_iter *iter, struct phys_vec *vec)
+> +{
+> +	iter->addr = dma_map_page(dma_dev, phys_to_page(vec->paddr),
+> +			offset_in_page(vec->paddr), vec->len, rq_dma_dir(req));
+> +	if (dma_mapping_error(dma_dev, iter->addr)) {
+> +		iter->status = BLK_STS_RESOURCE;
+> +		return false;
+> +	}
+> +	iter->len = vec->len;
+> +	return true;
+> +}
+> 
+> Block layer started to store phys addresses instead of struct pages and
+> this phys_to_page() conversion in data-path will be avoided.
 
-The client waits for the server to send data, and checks if the SIOCINQ
-ioctl value matches the data size. After consuming the data, the client
-checks if the SIOCINQ value is 0.
+I almost completed main user of this dma_map_phys() callback. It is
+rewrite of this patch [PATCH v3 3/3] vfio/pci: Allow MMIO regions to be exported through dma-buf
+https://lore.kernel.org/all/20250307052248.405803-4-vivek.kasireddy@intel.com/
 
-Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
----
- tools/testing/vsock/vsock_test.c | 79 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
+Whole populate_sgt()->dma_map_resource() block looks differently now and
+it is relying on dma_map_phys() as we are exporting memory without
+struct pages. It will be something like this:
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index be6ce764f69480c0f9c3e2288fc19cd2e74be148..a66d2360133dd0e36940a5907679aeacc8af7714 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -24,6 +24,7 @@
- #include <linux/time64.h>
- #include <pthread.h>
- #include <fcntl.h>
-+#include <linux/sockios.h>
- 
- #include "vsock_test_zerocopy.h"
- #include "timeout.h"
-@@ -1307,6 +1308,54 @@ static void test_unsent_bytes_client(const struct test_opts *opts, int type)
- 	close(fd);
- }
- 
-+static void test_unread_bytes_server(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int client_fd;
-+
-+	client_fd = vsock_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
-+	if (client_fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	for (int i = 0; i < sizeof(buf); i++)
-+		buf[i] = rand() & 0xFF;
-+
-+	send_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_writeln("SENT");
-+
-+	close(client_fd);
-+}
-+
-+static void test_unread_bytes_client(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int fd;
-+
-+	fd = vsock_connect(opts->peer_cid, opts->peer_port, type);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_expectln("SENT");
-+	/* The data has arrived but has not been read. The expected is
-+	 * MSG_BUF_IOCTL_LEN.
-+	 */
-+	if (!vsock_ioctl_int(fd, SIOCINQ, MSG_BUF_IOCTL_LEN)) {
-+		fprintf(stderr, "Test skipped, SIOCINQ not supported.\n");
-+		goto out;
-+	}
-+
-+	recv_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-+	/* All data has been consumed, so the expected is 0. */
-+	vsock_ioctl_int(fd, SIOCINQ, 0);
-+
-+out:
-+	close(fd);
-+}
-+
- static void test_stream_unsent_bytes_client(const struct test_opts *opts)
- {
- 	test_unsent_bytes_client(opts, SOCK_STREAM);
-@@ -1327,6 +1376,26 @@ static void test_seqpacket_unsent_bytes_server(const struct test_opts *opts)
- 	test_unsent_bytes_server(opts, SOCK_SEQPACKET);
- }
- 
-+static void test_stream_unread_bytes_client(const struct test_opts *opts)
-+{
-+	test_unread_bytes_client(opts, SOCK_STREAM);
-+}
-+
-+static void test_stream_unread_bytes_server(const struct test_opts *opts)
-+{
-+	test_unread_bytes_server(opts, SOCK_STREAM);
-+}
-+
-+static void test_seqpacket_unread_bytes_client(const struct test_opts *opts)
-+{
-+	test_unread_bytes_client(opts, SOCK_SEQPACKET);
-+}
-+
-+static void test_seqpacket_unread_bytes_server(const struct test_opts *opts)
-+{
-+	test_unread_bytes_server(opts, SOCK_SEQPACKET);
-+}
-+
- #define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
- /* This define is the same as in 'include/linux/virtio_vsock.h':
-  * it is used to decide when to send credit update message during
-@@ -2276,6 +2345,16 @@ static struct test_case test_cases[] = {
- 		.run_client = test_stream_transport_change_client,
- 		.run_server = test_stream_transport_change_server,
- 	},
-+	{
-+		.name = "SOCK_STREAM ioctl(SIOCINQ) functionality",
-+		.run_client = test_stream_unread_bytes_client,
-+		.run_server = test_stream_unread_bytes_server,
-+	},
-+	{
-+		.name = "SOCK_SEQPACKET ioctl(SIOCINQ) functionality",
-+		.run_client = test_seqpacket_unread_bytes_client,
-+		.run_server = test_seqpacket_unread_bytes_server,
-+	},
- 	{},
- };
- 
+   89         for (i = 0; i < priv->nr_ranges; i++) {
+   90                 phys = pci_resource_start(priv->vdev->pdev,
+   91                                           dma_ranges[i].region_index);
+   92                 phys += dma_ranges[i].offset;
+   93
+   94                 if (priv->bus_addr) {
+   95                         addr = pci_p2pdma_bus_addr_map(&p2pdma_state, phys);
+   96                         fill_sg_entry(sgl, dma_ranges[i].length, addr);
+   97                         sgl = sg_next(sgl);
+   98                 } else if (dma_use_iova(&priv->state)) {
+   99                         ret = dma_iova_link(attachment->dev, &priv->state, phys,
+  100                                             priv->mapped_len,
+  101                                             dma_ranges[i].length, dir, attrs);
+  102                         if (ret)
+  103                                 goto err_unmap_dma;
+  104
+  105                         priv->mapped_len += dma_ranges[i].length;
+  106                 } else {
+  107                         addr = dma_map_phys(attachment->dev, phys, 0,
+  108                                             dma_ranges[i].length, dir, attrs);
+  109                         ret = dma_mapping_error(attachment->dev, addr);
+  110                         if (ret)
+  111                                 goto unmap_dma_buf;
+  112
+  113                         fill_sg_entry(sgl, dma_ranges[i].length, addr);
+  114                         sgl = sg_next(sgl);
+  115                 }
+  116         }
+  117
+  118         if (dma_use_iova(&priv->state) && !priv->bus_addr) {
+  119                 ret = dma_iova_sync(attachment->dev, &pri->state, 0,
+  120                                     priv->mapped_len);
+  121                 if (ret)
+  122                         goto err_unmap_dma;
+  123
+  124                 fill_sg_entry(sgl, priv->mapped_len, priv->state.addr);
+  125         }
 
--- 
-2.34.1
+> 
+> > My main concern is the lack of the source phys addr passed to the dma_unmap_phys() 
+> > function and I'm aware that this might complicate a bit code conversion 
+> > from old dma_map/unmap_page() API.
 
+It is not needed for now, all p2p logic is external to DMA API.
+
+Thanks
+
+> > 
+> > Best regards
+> > -- 
+> > Marek Szyprowski, PhD
+> > Samsung R&D Institute Poland
+> > 
+> > 
+> 
