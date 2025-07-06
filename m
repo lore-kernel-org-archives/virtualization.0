@@ -1,118 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04EC8212F98;
-	Sun,  6 Jul 2025 11:58:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF33E17BA5
+	for <virtualization@lists.linux.dev>; Sun,  6 Jul 2025 14:12:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751803126; cv=none; b=QxJUQm4JDNZZHVBqT+0Tn3sHLHkYz8jEEhEXNtylvfZ7q98grxVdSe+zsdhLJmx7hWqKDoQQMhZ9GYTcWMDGpN50qF7iknmwY/L/GWAqfhQcuTWz41HCqP8VGkFiMq9Q1Y2b6X2uqsL5adA4znhLiRMRj32Hh43unPbE9xWERCc=
+	t=1751811146; cv=none; b=lrQRYLy/RDzLG/ECUjJxOOpMYsWVXBNqCB45lm1eOTqEP0YbG/vSDBPrUFG2ezsER8fiFIjG4yzgeuoMa9FUkPgLA1rD7Q6FurX1jYVXr/82Nkiqrmc+prQ2mvYzWDzjjV+oIlW+7tIdvw5ALbu3Nbxt73C257bQtQZo3althZ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751803126; c=relaxed/simple;
-	bh=1OIA8CfMZJSrYoOdycxC5OZvTCoK8Dtc65mqmi2WNEs=;
-	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=U8OJuNFCIJ1OW+5fTUc7IW1uUwnAwuWbk18KDoiqDIYFt3AJ8VgInylmZmk+Jbb9xm8cA0OacuPbCmQGXkOX4N4onF2jSRAcBlQYwJupPbf/n3Tx2id93IzKYXttbNKZx8b0Ho1/soA78a4efNwMFekCS0x1MDyYiZeAl5uxVZ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=hHaErVbI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1751811146; c=relaxed/simple;
+	bh=YMQPaIuYUDFDFSVv86DN3Q/5Wjot7/hA7gBZ/qS/vLQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qpsQZuHPhUjWQPM1ws66p7Qz4iw4vH/1YItfGwttSN+MsQud03acLV/mMULDEJnyyMnEwWcmqQmi3QROhAcLBHfdrLRIfM6GDXyRQwtFJyCDz2RbgHGF5gc1gY5DIan0dusO6TS+YwkqEw8uSAROxdo6ZlYb7G51GTUWslaE5Qc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ls3NVSA5; arc=none smtp.client-ip=209.85.215.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="hHaErVbI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DD3CC4CEED;
-	Sun,  6 Jul 2025 11:58:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1751803125;
-	bh=1OIA8CfMZJSrYoOdycxC5OZvTCoK8Dtc65mqmi2WNEs=;
-	h=Subject:To:Cc:From:Date:From;
-	b=hHaErVbINzzwEB8ikKwgdIBL7VDw6HVjChT0aiWDBhsbI+y5eilBzjQMbdK9Env0g
-	 hEt09R8BHkr8aagwejtgVMvdiBq/reuMUQo/608B0kzP49acgmFOZKGSYsrrAPWSiF
-	 HKXEDPsb9Bj1YDX70KWcDGUnctvdVCBT9P7o88Wg=
-Subject: Patch "vsock/vmci: Clear the vmci transport packet properly when initializing it" has been added to the 6.15-stable tree
-To: bryan-bt.tan@broadcom.com,davem@davemloft.net,edumazet@google.com,gregkh@linuxfoundation.org,harshavardhana.sa@broadcom.com,horms@kernel.org,kuba@kernel.org,pabeni@redhat.com,sgarzare@redhat.com,stable@kernel.org,virtualization@lists.linux.dev,vishnu.dasa@broadcom.com
-Cc: <stable-commits@vger.kernel.org>
-From: <gregkh@linuxfoundation.org>
-Date: Sun, 06 Jul 2025 13:55:19 +0200
-Message-ID: <2025070619-audibly-renovator-cf4f@gregkh>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ls3NVSA5"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-b34a8f69862so1733228a12.2
+        for <virtualization@lists.linux.dev>; Sun, 06 Jul 2025 07:12:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1751811144; x=1752415944; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=pmty3UwjQYxMt9/q+nVVzFNRCrwm25KzPNS6GD2HyFE=;
+        b=Ls3NVSA5p5+SsPrXcrK913KGQEQaZnd+BiPCtL48FoNU0Lpm4p6I738UgW2ZhmLUc9
+         mw2sNRvl4bhd7b8rQrDREbIlaRCpG0qoqoIMrvshye+Fd2KUN0Lsci+rG8JjCp0oAqU5
+         kn23Xsrl8EbMBXmsx2MgAqtyFzzXll5/LoeKqhKuybUFxDNFP+94NnvRTMhRIcK4YDxn
+         TLKdfbrxvCzYFYYzxdfNQ35Ht0gJ45y7Yp+LLIXlxDqAeaLFT0XUHa32tpZs0Qbf0nJE
+         2zlXYbO+kq59t4EsBEwsK6TW7r+FPCMyJo6ttSuoHdzzOrY/7Llce2DlcZcbFnSmS458
+         Ddxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751811144; x=1752415944;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=pmty3UwjQYxMt9/q+nVVzFNRCrwm25KzPNS6GD2HyFE=;
+        b=CB22txRGbelwf+rBXj5iVMJp/R64ZQ6xl0rGfYh721+gz45QqL9plWIE/3DjizDf0e
+         3tmaLzXJrCuDfGX/pd0MljwPS2pk9OzkPNuafoC8TdqY69/7GFQShROCU8qDjlZfHzDR
+         fhoeTxXn5h7Nr1JoQ9S+egXUhbNKxZk81ixCvmEnnlI8SgxLhivwfHCo4519d+mLxyXH
+         Nf2kaIzVsG/gQp+fA9AUu99LEBHTUaLRBJJCCGA3TKPgUS8+WpGUT1/pfx5UnAO4/zj8
+         63ehRbbQ4SVnBoHVzVtPbZb5NnGMcWrW2VZeueOHizluwd5RxyGjdhceqHavMaMxuxCV
+         c6fg==
+X-Forwarded-Encrypted: i=1; AJvYcCX1O8/TsQb5yS/9/vpdylrtxZHHZv3RCGAXdydJOAUYCoMP09fzfwC/9AGxFxygF23E8MuHZ2cWB6uUf/eV2A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzK3G9qSvhdc3TLmAouzmisF1oMGMCqRKLHRwUFkGQWwQ82GHce
+	Au9+Qnr+Icgsz5qZj53xPSCXLN+sRNuNCcy6qwxznEQdLa5mhAw9zMqS
+X-Gm-Gg: ASbGnctyBC+qh6MAW3h8HB/jaXR9dB54HsPdF/X1KrPXHk5N2vqVVBKY6OnLWsNm+qq
+	lBp2wpFAudQdFUgSfHgFps2tBKHDm4YmPRDxTdfYiGBN/nJ94T0yYJPwKCMR77K8zjw4cirlbhS
+	rZtBtUSRsRwp3qddlUhz8ynqnN479QwuZvYgtlvPJV2fvJ6IeSD5rfpNcycixamBncHJH4vxEaT
+	WzWVV/nz5KgNkJPGeLeMMj+/fshXFhyhvjkaKstuOVyFWZWLdpuzqgPXNOrzwORjaXqYgXlJAN9
+	kwFzDS204By6Ri94+U52W8fkq38Y+O2V8Y34aQFSeZIT4D0jImVUncqRXt+JAlT05QDqH6YDu/b
+	BtveRSK8g/0c=
+X-Google-Smtp-Source: AGHT+IHkMY/lRn+VrFKknoTqwsdTVy0zZpH8pPEV8VEaNmKPItjhky43HQDZRy1FJjpVkZPUnxbrIQ==
+X-Received: by 2002:a17:90a:d64c:b0:312:def0:e2dc with SMTP id 98e67ed59e1d1-31aadcf9664mr14554793a91.7.1751811144042;
+        Sun, 06 Jul 2025 07:12:24 -0700 (PDT)
+Received: from minh.192.168.1.1 ([2001:ee0:4f0e:fb30:4ccf:d06a:bc2:ae04])
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-23c8457e6d8sm66407425ad.155.2025.07.06.07.12.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Jul 2025 07:12:23 -0700 (PDT)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Gavin Li <gavinl@nvidia.com>,
+	Gavi Teitz <gavi@nvidia.com>,
+	Parav Pandit <parav@nvidia.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH net] virtio-net: fix received length check in big packets
+Date: Sun,  6 Jul 2025 21:11:50 +0700
+Message-ID: <20250706141150.25344-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-stable: commit
-X-Patchwork-Hint: ignore
 
+Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
+for big packets"), the allocated size for big packets is not
+MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on negotiated MTU. The
+number of allocated frags for big packets is stored in
+vi->big_packets_num_skbfrags. This commit fixes the received length
+check corresponding to that change. The current incorrect check can lead
+to NULL page pointer dereference in the below while loop when erroneous
+length is received.
 
-This is a note to let you know that I've just added the patch titled
-
-    vsock/vmci: Clear the vmci transport packet properly when initializing it
-
-to the 6.15-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     vsock-vmci-clear-the-vmci-transport-packet-properly-when-initializing-it.patch
-and it can be found in the queue-6.15 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From 223e2288f4b8c262a864e2c03964ffac91744cd5 Mon Sep 17 00:00:00 2001
-From: HarshaVardhana S A <harshavardhana.sa@broadcom.com>
-Date: Tue, 1 Jul 2025 14:22:54 +0200
-Subject: vsock/vmci: Clear the vmci transport packet properly when initializing it
-
-From: HarshaVardhana S A <harshavardhana.sa@broadcom.com>
-
-commit 223e2288f4b8c262a864e2c03964ffac91744cd5 upstream.
-
-In vmci_transport_packet_init memset the vmci_transport_packet before
-populating the fields to avoid any uninitialised data being left in the
-structure.
-
-Cc: Bryan Tan <bryan-bt.tan@broadcom.com>
-Cc: Vishnu Dasa <vishnu.dasa@broadcom.com>
-Cc: Broadcom internal kernel review list
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Simon Horman <horms@kernel.org>
-Cc: virtualization@lists.linux.dev
-Cc: netdev@vger.kernel.org
-Cc: stable <stable@kernel.org>
-Signed-off-by: HarshaVardhana S A <harshavardhana.sa@broadcom.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://patch.msgid.link/20250701122254.2397440-1-gregkh@linuxfoundation.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 ---
- net/vmw_vsock/vmci_transport.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/virtio_net.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -119,6 +119,8 @@ vmci_transport_packet_init(struct vmci_t
- 			   u16 proto,
- 			   struct vmci_handle handle)
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 5d674eb9a0f2..ead1cd2fb8af 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -823,7 +823,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
  {
-+	memset(pkt, 0, sizeof(*pkt));
-+
- 	/* We register the stream control handler as an any cid handle so we
- 	 * must always send from a source address of VMADDR_CID_ANY
+ 	struct sk_buff *skb;
+ 	struct virtio_net_common_hdr *hdr;
+-	unsigned int copy, hdr_len, hdr_padded_len;
++	unsigned int copy, hdr_len, hdr_padded_len, max_remaining_len;
+ 	struct page *page_to_free = NULL;
+ 	int tailroom, shinfo_size;
+ 	char *p, *hdr_p, *buf;
+@@ -887,12 +887,16 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ 	 * tries to receive more than is possible. This is usually
+ 	 * the case of a broken device.
  	 */
-@@ -131,8 +133,6 @@ vmci_transport_packet_init(struct vmci_t
- 	pkt->type = type;
- 	pkt->src_port = src->svm_port;
- 	pkt->dst_port = dst->svm_port;
--	memset(&pkt->proto, 0, sizeof(pkt->proto));
--	memset(&pkt->_reserved2, 0, sizeof(pkt->_reserved2));
- 
- 	switch (pkt->type) {
- 	case VMCI_TRANSPORT_PACKET_TYPE_INVALID:
+-	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
++	BUG_ON(offset >= PAGE_SIZE);
++	max_remaining_len = (unsigned int)PAGE_SIZE - offset;
++	max_remaining_len += vi->big_packets_num_skbfrags * PAGE_SIZE;
++	if (unlikely(len > max_remaining_len)) {
+ 		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
+ 		dev_kfree_skb(skb);
++		give_pages(rq, page);
+ 		return NULL;
+ 	}
+-	BUG_ON(offset >= PAGE_SIZE);
++
+ 	while (len) {
+ 		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
+ 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset,
+-- 
+2.43.0
 
-
-Patches currently in stable-queue which might be from harshavardhana.sa@broadcom.com are
-
-queue-6.15/vsock-vmci-clear-the-vmci-transport-packet-properly-when-initializing-it.patch
