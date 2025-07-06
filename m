@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8B221A9B3D;
-	Sun,  6 Jul 2025 11:54:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 566D91A9B3D;
+	Sun,  6 Jul 2025 11:54:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751802858; cv=none; b=fZhes2B0gMNAp+iqSanM4P1OF9/LMGRGTSLG22aqFXMl+L8dooA02sDnsJ0OQ8y7+D0UNOwjw+xmczly0SGG7YtDATc0gYFJjdaCWnL0PYQkglcNyGAKm93wNu/XTYqLHsbwuKQKiIEgWnGG0IE37nA3OSShAOborqrKJU76+0Y=
+	t=1751802893; cv=none; b=pWT96dSovGTBWVwPRxH469K3jkiZQ/WHSNXroY/cZRgsv1URtNGSdL1L1KnH6Ln41q99/9AjYpxga/InoejLwUUTdB05zkymwFXUVE9GTY7SjurZfoCgLmjK46MFHWrIlFJrHAhVjoBKdwMzaXweukkpx0Ra0TPkR5TDy1mvq/Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751802858; c=relaxed/simple;
-	bh=/Rk9sfLfT+CrTTGA7nes1n4QUGawwUqe9ECurv5LKRQ=;
-	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=irtnD3PuYmpWjOsUVdQ+PnrnHa3oK84SD182TJBELzjw6U1Ec52iCb3G3iNx6NBjqIYF+Ja4kvJn5/Ej6IK5SGOBzBqiJOr4dbT6zoPi/oLiBykeljrlxEW0KwJltTAOJsYy5TXujb2aMjadaYm9iRXmYuh8VSinEq5/s3/YCF0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=O87PtNPn; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1751802893; c=relaxed/simple;
+	bh=SPvc0Gg9JBc6QNuHQkLZL5zu7Rjosnn7svEd2viLK9s=;
+	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=GNC5UHgTZMSeKfeGLdHA9TD0FAdIfQN7fG2xFT3jd38+out8H4OYqst6Zv4yhRuUhMWEUQlMx6J2TnaYaC2/aC1Ye37KCkWkI2GbwE1mj0V1oN3U9qNTk0/azZ7kJD4Mk86smGpTdpWuFn4/4q1NW5Q+uQPZCZvvNTk+BwE9mq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=NitheQ0n; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="O87PtNPn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D66D3C4CEED;
-	Sun,  6 Jul 2025 11:54:17 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="NitheQ0n"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86C6EC4CEED;
+	Sun,  6 Jul 2025 11:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1751802858;
-	bh=/Rk9sfLfT+CrTTGA7nes1n4QUGawwUqe9ECurv5LKRQ=;
+	s=korg; t=1751802892;
+	bh=SPvc0Gg9JBc6QNuHQkLZL5zu7Rjosnn7svEd2viLK9s=;
 	h=Subject:To:Cc:From:Date:From;
-	b=O87PtNPnhNjhSq/tQnciEk6FytUh2O6gvBa6YVshIWa1Z4xokmO8/Rr9S+wVoBYVn
-	 4ve/g4bDu8wqKypNdmqdQ1xE+yDZwMSH/dq+/nogjq90PZRtCGttJ7id48RZwCHejD
-	 tr2bWUV/AE3Y8+zJNOL5ACCDjc6mfsVXDeiiMjKs=
-Subject: Patch "vsock/vmci: Clear the vmci transport packet properly when initializing it" has been added to the 5.4-stable tree
+	b=NitheQ0nz+6keaeTvoaFWK23VZUo/M9SuYyM/+J76skioTJFQuU3JYh3KGubWT65a
+	 PdeGt/5BtDM9ZDThBN1DMDDUZ6ad3OZL6iVVRRQPckf8tEuAVCPbJN5p6eZHQCuInU
+	 UhZw6MvFKgU7hnqFPyN4B3jK6HEFdWarY/tvgZdI=
+Subject: Patch "vsock/vmci: Clear the vmci transport packet properly when initializing it" has been added to the 5.10-stable tree
 To: bryan-bt.tan@broadcom.com,davem@davemloft.net,edumazet@google.com,gregkh@linuxfoundation.org,harshavardhana.sa@broadcom.com,horms@kernel.org,kuba@kernel.org,pabeni@redhat.com,sgarzare@redhat.com,stable@kernel.org,virtualization@lists.linux.dev,vishnu.dasa@broadcom.com
 Cc: <stable-commits@vger.kernel.org>
 From: <gregkh@linuxfoundation.org>
-Date: Sun, 06 Jul 2025 13:53:59 +0200
-Message-ID: <2025070659-data-finer-380f@gregkh>
+Date: Sun, 06 Jul 2025 13:54:34 +0200
+Message-ID: <2025070634-snore-harmful-2266@gregkh>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -44,12 +44,12 @@ This is a note to let you know that I've just added the patch titled
 
     vsock/vmci: Clear the vmci transport packet properly when initializing it
 
-to the 5.4-stable tree which can be found at:
+to the 5.10-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      vsock-vmci-clear-the-vmci-transport-packet-properly-when-initializing-it.patch
-and it can be found in the queue-5.4 subdirectory.
+and it can be found in the queue-5.10 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -93,7 +93,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/vmw_vsock/vmci_transport.c
 +++ b/net/vmw_vsock/vmci_transport.c
-@@ -125,6 +125,8 @@ vmci_transport_packet_init(struct vmci_t
+@@ -119,6 +119,8 @@ vmci_transport_packet_init(struct vmci_t
  			   u16 proto,
  			   struct vmci_handle handle)
  {
@@ -102,7 +102,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	/* We register the stream control handler as an any cid handle so we
  	 * must always send from a source address of VMADDR_CID_ANY
  	 */
-@@ -137,8 +139,6 @@ vmci_transport_packet_init(struct vmci_t
+@@ -131,8 +133,6 @@ vmci_transport_packet_init(struct vmci_t
  	pkt->type = type;
  	pkt->src_port = src->svm_port;
  	pkt->dst_port = dst->svm_port;
@@ -115,4 +115,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from harshavardhana.sa@broadcom.com are
 
-queue-5.4/vsock-vmci-clear-the-vmci-transport-packet-properly-when-initializing-it.patch
+queue-5.10/vsock-vmci-clear-the-vmci-transport-packet-properly-when-initializing-it.patch
