@@ -1,67 +1,66 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C84781A2398
-	for <virtualization@lists.linux.dev>; Sun,  6 Jul 2025 04:37:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B12811ACEDC
+	for <virtualization@lists.linux.dev>; Sun,  6 Jul 2025 04:37:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751776633; cv=none; b=MXL1EyAdAnViDMuN5gbiUVlskHHlMZyHHQCicNHr9oXDx/wIadw1xbv0zEtL6kwJVFynHBaSuOsyWRw8pQVVT8TdurcE4m1jMx867gQpzM4mRQbZmuFxt8zOLCRSPp+4Po8/DA1nhZG9owmgK58zN8iL9ETmg5Fz1FI1hyQrplc=
+	t=1751776637; cv=none; b=Xg8ihA76wNnh+NeCOmnYh2ppx9NBu1C7+OXfK4V5AUXmlwWGy5SOR4Gx1FtqKsBBxesnMd+yZPJE7rwvqlAfQgW/v9//vWK0Cuw9hwsWlRf4lqU/DBShqt4OlKLma+sLgfmVF8I/AzmeKvr/VGvplIxd/70rH5otgMFdF8TbUsA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751776633; c=relaxed/simple;
-	bh=n9Q2c70s99hykiVWRTO0HNEhldxVXbUo16t8vijIGOk=;
+	s=arc-20240116; t=1751776637; c=relaxed/simple;
+	bh=lrNsByWI4+JZUOhPSorgBp0TBt5xNkaU5kzScC5uvPo=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cOQ+3x4OZl/CMEwktiMQfC8Yzfq5J6AwmcTzli7Pe8HmTXKP97owo+gR/CnRlCs8hkYPpHR2k/07Fg+BEy9uTriyOmhGUyaUm4YZuthwl62bXlZQyVqPR+wJQtJ28oSlRdqAoO8ppPTm1R7Pm+gUyKe3ezRAVzR7t6xlMNQiFH0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cDtf7rw6; arc=none smtp.client-ip=209.85.210.173
+	 In-Reply-To:To:Cc; b=jalav3xev9ou6O6pHN3/mbdE1vqcHB8eEK2qAHCpvusHVLro/ZI4LCZtr4gCdfUIPUoz2kncKUgk3SUb4A6UGVwQEhhayB9laVCfk1o4s8zDwqoqdDrKeTRmvUmcH35W9HW8v3J0v5faC0+Zp8kKO9Kx1KqvsIBsGBDHsUbNYwA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cBKSi1F9; arc=none smtp.client-ip=209.85.210.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cDtf7rw6"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-747e41d5469so2383163b3a.3
-        for <virtualization@lists.linux.dev>; Sat, 05 Jul 2025 21:37:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cBKSi1F9"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-74931666cbcso1799488b3a.0
+        for <virtualization@lists.linux.dev>; Sat, 05 Jul 2025 21:37:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751776631; x=1752381431; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1751776635; x=1752381435; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=IkHPe6LE8OXWdD0I5CLih7m7+WFtKYT46OEMON9KnWQ=;
-        b=cDtf7rw6XLbjY1l3jF3KYxujrIaCaEuEJysROG3XM5EUf4fSImufv2J9rF3wkJ6t3i
-         nkp+iasbRJo91AXpUOz73DFyO161ET5TG/4v3Y11E4CDPRgymZct9xCXNIGHJQh8llc1
-         wpwmyKeXOBd90wrB9Ls3qe9EWCCQ3x8cPWUNuBJyxn4BsMo2McET/hMNRZXy8ckv6+k2
-         ssCtmOi+aso4winzqw9SmSas0u791dHFee+a7PfrTyVnFdJe/0Rdj6o+8wtcNg6dwsEl
-         Xnh0NPgg0CMR3aNZTy2tIV5xeNPMvHyp9v2Ht4qytfsbY/q8c2YCTSPwSBRPK8iN/OeJ
-         gd8g==
+        bh=enAMJL6mb/z9WNfWVziA8KCdR5RF2FfP9GwDXl38f/E=;
+        b=cBKSi1F9ubCdEq1781LjLT/bmKq6iEFMC8rvjeIw0kM1q8aFyQBpeIw0AnvPNTyP7Q
+         c1cFEw8Ks/CKVhiXq9cAECNT5E93JaXo64yBx1sywqfmjyvi/FXD4CLGGRcVsk+nTnLI
+         NF3S+wxgIu5Fwb+xkZcQK5qc0HovnVsJvVHwv6/2af01uVWOaS53C6sN+3GIyEJ6K0KF
+         X/w74Iv1RTOpL2rNf7oxl1H2M6kGx32elceXgNVBLNR9zbidALK+fcyua4SRfYbLllWa
+         rGNYX7dmMn3+x+RGCIppWjUZmiH1MKP7cEC+PKXxgCLvrQ35jJzR58A9Du9797twjSwU
+         Q6Gw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751776631; x=1752381431;
+        d=1e100.net; s=20230601; t=1751776635; x=1752381435;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IkHPe6LE8OXWdD0I5CLih7m7+WFtKYT46OEMON9KnWQ=;
-        b=diMlDakBoRpPlvgZby1bA8V+pr+nO5G8Fjpvu9OKTdxGxlSs8esuY2YJ5AWOBY8dLd
-         HSYwqRxqfCrzbWE+Xj6sufmogmmtX/g7XwoCP2GE4q3X+EzuSfHL6fJ4nHWCjg5TAaOa
-         aohGJrhNYZcGRPQAdouJ0/KlZCk9YbxohlUgy/Ah7ibv/1Ot5HdY9iPIoMmoXQF0eLc0
-         3/PjT5c/ihlnYByghuwA7uaTskKAjsMZJXiKQu+QhmrCp+Nrk9wys0zMylhN0TbeMWUZ
-         npNeI8zcB//J7FJzlapq9nLqrLJQ+3+OPpVjPmH/oBcO5b1aA6TKoEDEyQGHO1pbq31s
-         nVkQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVZwK+HJL0blTrYTwe1jrAzL75IKnk/IXrg5i3cUPBP80IaKpfK/BYzf1/ETZei9oG3Wl4EkHAbjutezvut8A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy1QZC//WRGaP3H4y+1UChHh4r5mphcaQq/K53eAGJoRT2eh1rk
-	bwHKVlJRoiXcKPUXws0NwciwPCImJ0MFbh7laCjpXjC7Aug/cvE677Uj
-X-Gm-Gg: ASbGncs7UMlqtYyumMJmRHVhb0f1Lx8iTDGxbJYt86boc7OucZDtqk8LDZZqH8xNdsp
-	oVR7+3700Vth/S6KHZkHBUYPgNr9kaNk5rOoIIcR6M0ifytL19RNUBm/nGItxAGruje0N3Cgp+k
-	o/+XDQAWjpxJ65r6FEdBVk8QSV1j7hE2e24D2yb0He1G2QWLJ51/vf0SlGu+F1NepKWVly9Pb58
-	faBuQ/qg+wHfwRLHkLLPBPHn4BwF1SSZp/5eJiBXOX4goMMnRQjYLhcaevhvwAB3Ei+FjjiXtBr
-	aDL5cO+CvgWzdsiICGXrVXfbwcW/tGo6iHvPcIVajXSQTP9ZkO1rRWGRpnmQjv+83g==
-X-Google-Smtp-Source: AGHT+IHGk8AFJbLfLq2JPJAq88rU8JLJAkLvo3fQgqjmGI7NA8C+iaMBGdiCICDxGFishDdjSB5qyg==
-X-Received: by 2002:a05:6a00:3e21:b0:748:f365:bedd with SMTP id d2e1a72fcca58-74ce8ad63cdmr10121558b3a.17.1751776630879;
-        Sat, 05 Jul 2025 21:37:10 -0700 (PDT)
+        bh=enAMJL6mb/z9WNfWVziA8KCdR5RF2FfP9GwDXl38f/E=;
+        b=dP1t4BY6zIsZvfGrBnmCyx3p9bYe+MrVIx2iC3zGQh5sAMze3xbbNWVCSdEApY5llI
+         ojGukTtY3PzL4dw1PljIcuaXaqQNknej0GpKFgnq6nzP3lZZv8AmOYCLb3o+VEdY/5bC
+         jG8CgvP1i9yYJvaAlvTWlC55n/oce/YBbQnAQ1t/NMLMzprlGtZXcOwLcLNiYG1Yce6g
+         kU3vkmPISaWM11kw9G9S/9IYOlAUT3kzXQEMchnSv10JTK1dJBsPB/cE6xuIzWGXU667
+         KXjI6MyU6WeMVSp8nXCI4hiBnpbIvDq4EYsWWRpTjUoNGJcCq4BfCPrw5zN6lJU6WLHi
+         KzJA==
+X-Forwarded-Encrypted: i=1; AJvYcCWt14nSVINuF2xVt0kPwj8PHbOkVsEji0BCSCiuD416YoPp39mmMt61usq9NTnyrBjAc30x5+VJaOlafzOgBA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyf/mTj0Yc6BQQmSIyfnYEA8X0S+TuOQCLs9slojQOQlQ/R/IvZ
+	O1ubbYxriHaIQgchES9vynYNQ9JZIoKOth7AWzU7+/J7h/RijcWiaYlv
+X-Gm-Gg: ASbGnctTSWul6xCNqrhSmgLJafJZF09IRiMDcGtS5FFfCNVdVEfHiej9uoa3a0aSmw1
+	doawOQOFsuJW0I97UC8hXQKGtPw3W7W5VLKsTgT0bwn351R9w7pKzEZJrURaqkMId/8jINxO/wA
+	NQ7gy43OUMmsx3cM8nCOvDwSmGMHhgk13XK3DD0c6iVkSbWu96BmFXKx/usXLceu2OSiDXzCk7C
+	H13E+o20gqrxjMwdlHBUmOI+vTWhTk0Qsd6lsecD/vZLGuCnGoySfLiD4khI00n40f27pi9NfkU
+	JeUy9pgDsi58jZzcphq6qwAO8Nav2AO0ltPS5eLwMf1dvD5XmIQvTRXEQ7dnHk4Ylg==
+X-Google-Smtp-Source: AGHT+IHQIGrgZb4Ga8DvGclOdGTppLhL3WybIIS3/IKCgYv4g44bAwZQzlV18+HfQ/D8ucanu+qLQQ==
+X-Received: by 2002:a05:6a00:4b10:b0:748:f1ba:9aff with SMTP id d2e1a72fcca58-74cf6ef79aemr5032449b3a.5.1751776634875;
+        Sat, 05 Jul 2025 21:37:14 -0700 (PDT)
 Received: from [127.0.0.1] ([47.89.83.0])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74ce35cc2cesm6105137b3a.59.2025.07.05.21.37.07
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74ce35cc2cesm6105137b3a.59.2025.07.05.21.37.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Jul 2025 21:37:10 -0700 (PDT)
+        Sat, 05 Jul 2025 21:37:14 -0700 (PDT)
 From: Xuewei Niu <niuxuewei97@gmail.com>
 X-Google-Original-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Date: Sun, 06 Jul 2025 12:36:29 +0800
-Subject: [PATCH net-next v5 1/4] hv_sock: Return the readable bytes in
- hvs_stream_has_data()
+Date: Sun, 06 Jul 2025 12:36:30 +0800
+Subject: [PATCH net-next v5 2/4] vsock: Add support for SIOCINQ ioctl
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,7 +69,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250706-siocinq-v5-1-8d0b96a87465@antgroup.com>
+Message-Id: <20250706-siocinq-v5-2-8d0b96a87465@antgroup.com>
 References: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
 In-Reply-To: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
 To: "K. Y. Srinivasan" <kys@microsoft.com>, 
@@ -84,69 +83,47 @@ Cc: linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
  Xuewei Niu <niuxuewei.nxw@antgroup.com>, fupan.lfp@antgroup.com
 X-Mailer: b4 0.14.2
 
-When hv_sock was originally added, __vsock_stream_recvmsg() and
-vsock_stream_has_data() actually only needed to know whether there
-is any readable data or not, so hvs_stream_has_data() was written to
-return 1 or 0 for simplicity.
+Add support for SIOCINQ ioctl, indicating the length of bytes unread in the
+socket. The value is obtained from `vsock_stream_has_data()`.
 
-However, now hvs_stream_has_data() should return the readable bytes
-because vsock_data_ready() -> vsock_stream_has_data() needs to know the
-actual bytes rather than a boolean value of 1 or 0.
-
-The SIOCINQ ioctl support also needs hvs_stream_has_data() to return
-the readable bytes.
-
-Let hvs_stream_has_data() return the readable bytes of the payload in
-the next host-to-guest VMBus hv_sock packet.
-
-Note: there may be multpile incoming hv_sock packets pending in the
-VMBus channel's ringbuffer, but so far there is not a VMBus API that
-allows us to know all the readable bytes in total without reading and
-caching the payload of the multiple packets, so let's just return the
-readable bytes of the next single packet. In the future, we'll either
-add a VMBus API that allows us to know the total readable bytes without
-touching the data in the ringbuffer, or the hv_sock driver needs to
-understand the VMBus packet format and parse the packets directly.
-
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
 ---
- net/vmw_vsock/hyperv_transport.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ net/vmw_vsock/af_vsock.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 31342ab502b4fc35feb812d2c94e0e35ded73771..432fcbbd14d4f44bd2550be8376e42ce65122758 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -694,15 +694,26 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
- static s64 hvs_stream_has_data(struct vsock_sock *vsk)
- {
- 	struct hvsock *hvs = vsk->trans;
-+	bool need_refill;
- 	s64 ret;
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 2e7a3034e965db30b6ee295370d866e6d8b1c341..bae6b89bb5fb7dd7a3a378f92097561a98a0c814 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1389,6 +1389,28 @@ static int vsock_do_ioctl(struct socket *sock, unsigned int cmd,
+ 	vsk = vsock_sk(sk);
  
- 	if (hvs->recv_data_len > 0)
--		return 1;
-+		return hvs->recv_data_len;
+ 	switch (cmd) {
++	case SIOCINQ: {
++		ssize_t n_bytes;
++
++		if (!vsk->transport) {
++			ret = -EOPNOTSUPP;
++			break;
++		}
++
++		if (sock_type_connectible(sk->sk_type) &&
++		    sk->sk_state == TCP_LISTEN) {
++			ret = -EINVAL;
++			break;
++		}
++
++		n_bytes = vsock_stream_has_data(vsk);
++		if (n_bytes < 0) {
++			ret = n_bytes;
++			break;
++		}
++		ret = put_user(n_bytes, arg);
++		break;
++	}
+ 	case SIOCOUTQ: {
+ 		ssize_t n_bytes;
  
- 	switch (hvs_channel_readable_payload(hvs->chan)) {
- 	case 1:
--		ret = 1;
--		break;
-+		need_refill = !hvs->recv_desc;
-+		if (!need_refill)
-+			return -EIO;
-+
-+		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
-+		if (!hvs->recv_desc)
-+			return -ENOBUFS;
-+
-+		ret = hvs_update_recv_data(hvs);
-+		if (ret)
-+			return ret;
-+		return hvs->recv_data_len;
- 	case 0:
- 		vsk->peer_shutdown |= SEND_SHUTDOWN;
- 		ret = 0;
 
 -- 
 2.34.1
