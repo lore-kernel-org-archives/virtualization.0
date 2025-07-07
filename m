@@ -1,151 +1,183 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D21B194124
-	for <virtualization@lists.linux.dev>; Mon,  7 Jul 2025 13:36:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E14A229B78F
+	for <virtualization@lists.linux.dev>; Mon,  7 Jul 2025 13:40:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751895374; cv=none; b=iQhwX6Jp+JHimoXJn4xZmLkA/+M+s9ieKYfUyDwoZtwas2GCtaZSx1i+HAF6rAhWEgkhkiUCqwYNNqs7iZXyvkiDO8xdvpv2qBlOxdF7eF0OikTMNxacavck3DcUTUKE28KIb4epkOAR4UnZcxsHcvxH3YhD577NNTcAa7uW88E=
+	t=1751895646; cv=none; b=a5NAuyKj/pM0X47H3mZqO+1O1Q1a00+O5FOK7VtMGo0W+VdB0gv8EZsCoPi6hjAWv7gxE64Uf+jRqlbScqqp97o5tertwhajJhKxNHljB47Ak6T2SY2FMqJu3kK1mwuUXBUFOlPMTw6skrS3PhS0vvE44JW4NiZeo8p2jQdm//A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751895374; c=relaxed/simple;
-	bh=O377eaO+Jlj86ZSB2RpCzQcB8R9z4Xe0q5jCGof+Qtk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rR6TrOD5QMBG62B5+w0TVDPhVdiakKBs3YgR+xwbQ6RUkMi32dkTOJhYdNWMXE+jg9BL6F/cY+lW67tFcYNDnf7R4VUaZstpOskNzFjmrXVcIiODv9IR7J3FNZUyzH6YX2sNlePwdVg3IKP3y1unKf630tDNF1IF10yQyw8o188=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ceRzMAHM; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751895646; c=relaxed/simple;
+	bh=ul3tvYiiYuyxmNUs6c6tGf8iXCr1hDf1jpTi6pw0cEE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=mKHOzBIQY8VKZ08AN3bJ5XAkNGvm432qCbfYukbNlpCNQjTrf/RRRke66uGE1lk63Lp2RIT4wkpirTtBZ0JiPpLZrRuUd7+7cZ2uD/1L29w2uxz3JcWI0j0G6ro+T/C88ws1e9rX/4S0ikGC2sB0eqBDjV66BdAZk7k+whcmhiA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TyOkhIep; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ceRzMAHM"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-60c9d8a16e5so5730446a12.0
-        for <virtualization@lists.linux.dev>; Mon, 07 Jul 2025 06:36:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751895371; x=1752500171; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=B67QLvyHZDkG3dCW4xDkICWa2oqhwCHUYXHYCu0rbCU=;
-        b=ceRzMAHMobf6aDsoulKQ4oPvh/aM1Izq1HluhfXSnnVS5ApwW6rJa/TC8RNELfxcNc
-         +13oyAgRN/GOHaAbcqFsP+8BEc5XpvBsHF960Mg7rz+MXbrVdRUCdHY1eWfb8NxVnhlZ
-         PgJHaW6l20GGXragUMz7oxmE0DCbCah4XFWETvw/us02KTa9mQ735SyFJ9u+JDoW0KHr
-         LgJW/DvC3GvyHgkxeekF0tsK3fq3taHzZ1JiI5T+rSXRJB17RjkHBkCXTATHyMwyb1KF
-         IAQOerPb+cv6hxq6XeUxcLEug02XJaAfOgV4Nlf2q7bvNgstAufN70bwaM41j17wBVW2
-         hQtQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TyOkhIep"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751895643;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=W2KJ06Vv9jNgPK/f5x2D67o6F5iefXJHvVBymbKYkgw=;
+	b=TyOkhIepXfcr+KziT/ZMJwROkrJCWuUX5xkVBr9K7ClIQfqY3gnfSdEIGTJawIqeVIrdnn
+	Hurin1Wi/d5Ib8xw4TaJeMYKTnB2ST8zyk4dXb56EUQWhVAZgvsmYNHz8BjnnMEmfy3RXO
+	BhWqeCez4wmLsLNBQC3c6d2mxoSknas=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-502-caF2HwfTORm4riFwH8BcCw-1; Mon, 07 Jul 2025 09:40:42 -0400
+X-MC-Unique: caF2HwfTORm4riFwH8BcCw-1
+X-Mimecast-MFC-AGG-ID: caF2HwfTORm4riFwH8BcCw_1751895642
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4536962204aso13149325e9.3
+        for <virtualization@lists.linux.dev>; Mon, 07 Jul 2025 06:40:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751895371; x=1752500171;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=B67QLvyHZDkG3dCW4xDkICWa2oqhwCHUYXHYCu0rbCU=;
-        b=PNB3z5tLsfcdvXgqSPUhSP6EWPqf0tWatwQcjvTteGoKfib0orQ95wZrvRfyvtM47A
-         EQ4jG5Iq8alubYLBug2P+I8FtjV/sybbwVdFQpCrvU1vPTFgx1NXCOYDNLkOc8GfHCMA
-         kd/sEgDwlUPtoO5HjCMO6rrTSPjMtGu+S2yZtVcebW2eJvpO2Ax4ilT4dqPgscoGVtcV
-         2ORQ4MmGyFz5BRYkSs7dmf/1UIXNqgYl3lpx8sZQOlsg/lmIq0NxvwzjAyBmffx6F+aI
-         aGKjPGBJ5zAE3IkWC3R8A+UvQfvnkWVayx9bsggcvjS4ayuCWROzAX4rsWxxdmMEEwJN
-         MCoQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUeZz1jajsQxtNpyqCEYNlt7g35ymHmxH+0yYpzcJam4UcH8lT3L0rMQbDMyEzIycgWa7nVuZ83NjCJnDJxbA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyHwCSP6yDNdNeY2nm770A4Z8yyAkcEYYqazIIrD6i4Rd4KeaJP
-	gdIRn2bQOab4vQlgS4+9W7VkYsl4j5NrHorp/wHyAwFJZPVmxGyXnIJA5GlyLCEBsxc8quUGUAg
-	oliXCkYZIRNfpDfalOcN19WgJCt7ZM6U=
-X-Gm-Gg: ASbGncsTUOQdbPYmazy5zuBoD519Ng4EO2D6Q+hYDj+tm6lycZDhbXog/ub2dZoxv5Y
-	I675XzSNl4OvFoY/Bwf800cNS1mfHx9H7FYfJNln0NIznUY8w3KoRZA9ka7BID9MPBuKd1eIwA4
-	uVT+T/OSL/iKjwj2XvdQAuegzAMkzXgUxOTKS0ArBCovYX7KjJ/XuklNVzPfIV88cYHPio/8OWK
-	RziKspiYdkV
-X-Google-Smtp-Source: AGHT+IE3xKDRxiceWfgDhOqdfWXtjxPAUKmvoHmxd7No4ahz6Uels53hHP1g6tE+28lVM037geC6nzs3mFbTA+YYN6U=
-X-Received: by 2002:a05:6402:280d:b0:607:19a6:9f1d with SMTP id
- 4fb4d7f45d1cf-60ff388d517mr7405843a12.14.1751895371254; Mon, 07 Jul 2025
- 06:36:11 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1751895641; x=1752500441;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=W2KJ06Vv9jNgPK/f5x2D67o6F5iefXJHvVBymbKYkgw=;
+        b=s7P1w+n3yUmroMZeV2/evCndI+X/d9Xe7ldEOQOWxPsF+vd3a14urYF3amzo/6kTH5
+         Dpu9B2Tk/Vcv13cRQjY09Byjmj+/XMRvGLRol7pzdYgm3oF9dGXuAF5k0AsabMBuOd5J
+         lJ/McXfGFYArnX8W8A+T8t44A2kpjxFUGchnLTWxr6soamcRuGyql3rb9GufDguRcaHH
+         tI/74rekVB8DZ9iVVgnUSqf1M69/3OANwIJ0ST/XSi0sFpCF3O4HlhfYtZtHILPAq/t3
+         OiHPDKe58ZQ1gfnJjmON1Q2OX7FVZfDlxn9H8G2iQERQCOJjr2LOTA+Fiwd6GizppHOr
+         KXIA==
+X-Forwarded-Encrypted: i=1; AJvYcCWADrQeSq38OL0/4r0cwvHFusOFkL7CMj+MtP7xIy2mj13kYCI97LbbyfvfiyotzKfanj0hclMzXLMSPzkJng==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwAi9ag3EkNmxzJ4E8CyNA+/Ka6+o9LJA57CAZVguVzq5mNzXjI
+	2YbrtYfJY97DXDSBLkIl4C+AYs9lUxAu9agcpF+nQ5PLEByprQeKXS1r1IgMDySyW4o+VHYmVz/
+	k1syxpHClg0L/0KGn/nmbM11dnj7vJsndqDfO1bCx5w77WdDmT6vSX+gqnh+d21IZ8xyM
+X-Gm-Gg: ASbGncvQFX1gE4Mnms6g9DWr4rc7jc883NjQA5idD4wvhx9lHJ5OjzsmFxgi4CBxLfe
+	//8muqIFhyG32cvanfidBBAYXcVRPMrJPF3V7Zs+ncAas2xaF9HVbePW+RzHM93Y+rmcKr9slaj
+	86SujAIRPTHhYasdnlqEZPhzEVP0jlzRyAAzkv+yjF1WjLiBRSksFS7a58ouQk/oAcpyl/YM4ho
+	hK7CmHfvaREjrcFwUFzS4I8zX9YHg42cn/rHVt6luv0YBgJv47TLcXZgRWQd7K3SnlCf6gou3ov
+	FOH8J83FbAiOfw62CZsTZcH+nxbN
+X-Received: by 2002:a05:600c:8214:b0:450:d568:909b with SMTP id 5b1f17b1804b1-454b4e74957mr117204135e9.14.1751895641294;
+        Mon, 07 Jul 2025 06:40:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGZ3sl8II9VgNMv0Hs+oc26TdXSoZydYWxbok3SEgKNUWhqxxpymtncK0H5qwe1x6+STsNFHw==
+X-Received: by 2002:a05:600c:8214:b0:450:d568:909b with SMTP id 5b1f17b1804b1-454b4e74957mr117203465e9.14.1751895640329;
+        Mon, 07 Jul 2025 06:40:40 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.144.135])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b47285c9f9sm10339166f8f.93.2025.07.07.06.40.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Jul 2025 06:40:39 -0700 (PDT)
+Date: Mon, 7 Jul 2025 15:40:31 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Xuewei Niu <niuxuewei97@gmail.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Xuewei Niu <niuxuewei.nxw@antgroup.com>, fupan.lfp@antgroup.com
+Subject: Re: [PATCH net-next v5 1/4] hv_sock: Return the readable bytes in
+ hvs_stream_has_data()
+Message-ID: <xhzslzuxrhdoixffmzwprn254ctolimj7giuxj4nfrfg23eesy@ycpe6kma5vih>
+References: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
+ <20250706-siocinq-v5-1-8d0b96a87465@antgroup.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250703064738.2631-1-lirongqing@baidu.com>
-In-Reply-To: <20250703064738.2631-1-lirongqing@baidu.com>
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Date: Mon, 7 Jul 2025 09:35:58 -0400
-X-Gm-Features: Ac12FXwqf0z-MDIQB81h2vm6zchf-sItAwZG0CkAA6vlslCY0d5FQLuB129JRRE
-Message-ID: <CAJSP0QUcOr=1SZiMSaFXP=kh5RpAYjduy6D73QEQu9JnV1ua+Q@mail.gmail.com>
-Subject: Re: [PATCH] virtio_fs: fix the hash table using in virtio_fs_enqueue_req()
-To: lirongqing <lirongqing@baidu.com>
-Cc: vgoyal@redhat.com, stefanha@redhat.com, miklos@szeredi.hu, 
-	eperezma@redhat.com, virtualization@lists.linux.dev, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Fushuai Wang <wangfushuai@baidu.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20250706-siocinq-v5-1-8d0b96a87465@antgroup.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Q-Rn2TrtWMHmZpR7lpv8Yc4Gw8ZHYZKVsubSYBcP46I_1751895642
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Thu, Jul 3, 2025 at 2:48=E2=80=AFAM lirongqing <lirongqing@baidu.com> wr=
-ote:
->
-> From: Li RongQing <lirongqing@baidu.com>
->
-> The original commit be2ff42c5d6e ("fuse: Use hash table to link
-> processing request") converted fuse_pqueue->processing to a hash table,
-> but virtio_fs_enqueue_req() was not updated to use it correctly.
-> So use fuse_pqueue->processing as a hash table, this make the code
-> more coherent
->
-> Co-developed-by: Fushuai Wang <wangfushuai@baidu.com>
-> Signed-off-by: Fushuai Wang <wangfushuai@baidu.com>
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
-> ---
->  fs/fuse/dev.c       | 1 +
->  fs/fuse/virtio_fs.c | 6 ++++--
->  2 files changed, 5 insertions(+), 2 deletions(-)
+On Sun, Jul 06, 2025 at 12:36:29PM +0800, Xuewei Niu wrote:
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Again, this patch should have `From: Dexuan Cui <decui@microsoft.com>` 
+on first line, and this is done automatically by `git format-patch` (or 
+others tools) if the author is the right one in your branch.
+I'm not sure what is going on on your side, but you should avoid to 
+reset the original author.
+Applying this patch we will have:
 
+     commit ed36075e04ecbb1dd02a3d8eba5bfac6469d73e4
+     Author: Xuewei Niu <niuxuewei97@gmail.com>
+     Date:   Sun Jul 6 12:36:29 2025 +0800
+
+         hv_sock: Return the readable bytes in hvs_stream_has_data()
+
+This is not what we want, right?
+
+>When hv_sock was originally added, __vsock_stream_recvmsg() and
+>vsock_stream_has_data() actually only needed to know whether there
+>is any readable data or not, so hvs_stream_has_data() was written to
+>return 1 or 0 for simplicity.
 >
-> diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-> index e80cd8f..4659bc8 100644
-> --- a/fs/fuse/dev.c
-> +++ b/fs/fuse/dev.c
-> @@ -322,6 +322,7 @@ unsigned int fuse_req_hash(u64 unique)
->  {
->         return hash_long(unique & ~FUSE_INT_REQ_BIT, FUSE_PQ_HASH_BITS);
->  }
-> +EXPORT_SYMBOL_GPL(fuse_req_hash);
+>However, now hvs_stream_has_data() should return the readable bytes
+>because vsock_data_ready() -> vsock_stream_has_data() needs to know the
+>actual bytes rather than a boolean value of 1 or 0.
 >
->  /*
->   * A new request is available, wake fiq->waitq
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index b8a99d3..d050470 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -21,6 +21,7 @@
->  #include <linux/cleanup.h>
->  #include <linux/uio.h>
->  #include "fuse_i.h"
-> +#include "fuse_dev_i.h"
+>The SIOCINQ ioctl support also needs hvs_stream_has_data() to return
+>the readable bytes.
 >
->  /* Used to help calculate the FUSE connection's max_pages limit for a re=
-quest's
->   * size. Parts of the struct fuse_req are sliced into scattergather list=
-s in
-> @@ -1382,7 +1383,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_v=
-q *fsvq,
->         unsigned int out_sgs =3D 0;
->         unsigned int in_sgs =3D 0;
->         unsigned int total_sgs;
-> -       unsigned int i;
-> +       unsigned int i, hash;
->         int ret;
->         bool notify;
->         struct fuse_pqueue *fpq;
-> @@ -1442,8 +1443,9 @@ static int virtio_fs_enqueue_req(struct virtio_fs_v=
-q *fsvq,
+>Let hvs_stream_has_data() return the readable bytes of the payload in
+>the next host-to-guest VMBus hv_sock packet.
 >
->         /* Request successfully sent. */
->         fpq =3D &fsvq->fud->pq;
-> +       hash =3D fuse_req_hash(req->in.h.unique);
->         spin_lock(&fpq->lock);
-> -       list_add_tail(&req->list, fpq->processing);
-> +       list_add_tail(&req->list, &fpq->processing[hash]);
->         spin_unlock(&fpq->lock);
->         set_bit(FR_SENT, &req->flags);
->         /* matches barrier in request_wait_answer() */
-> --
-> 2.9.4
+>Note: there may be multpile incoming hv_sock packets pending in the
+>VMBus channel's ringbuffer, but so far there is not a VMBus API that
+>allows us to know all the readable bytes in total without reading and
+>caching the payload of the multiple packets, so let's just return the
+>readable bytes of the next single packet. In the future, we'll either
+>add a VMBus API that allows us to know the total readable bytes without
+>touching the data in the ringbuffer, or the hv_sock driver needs to
+>understand the VMBus packet format and parse the packets directly.
 >
+>Signed-off-by: Dexuan Cui <decui@microsoft.com>
+
+Your S-o-b was fine here, I was talking about the author.
+
+Thanks,
+Stefano
+
+>---
+> net/vmw_vsock/hyperv_transport.c | 17 ++++++++++++++---
+> 1 file changed, 14 insertions(+), 3 deletions(-)
 >
+>diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+>index 31342ab502b4fc35feb812d2c94e0e35ded73771..432fcbbd14d4f44bd2550be8376e42ce65122758 100644
+>--- a/net/vmw_vsock/hyperv_transport.c
+>+++ b/net/vmw_vsock/hyperv_transport.c
+>@@ -694,15 +694,26 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
+> static s64 hvs_stream_has_data(struct vsock_sock *vsk)
+> {
+> 	struct hvsock *hvs = vsk->trans;
+>+	bool need_refill;
+> 	s64 ret;
+>
+> 	if (hvs->recv_data_len > 0)
+>-		return 1;
+>+		return hvs->recv_data_len;
+>
+> 	switch (hvs_channel_readable_payload(hvs->chan)) {
+> 	case 1:
+>-		ret = 1;
+>-		break;
+>+		need_refill = !hvs->recv_desc;
+>+		if (!need_refill)
+>+			return -EIO;
+>+
+>+		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
+>+		if (!hvs->recv_desc)
+>+			return -ENOBUFS;
+>+
+>+		ret = hvs_update_recv_data(hvs);
+>+		if (ret)
+>+			return ret;
+>+		return hvs->recv_data_len;
+> 	case 0:
+> 		vsk->peer_shutdown |= SEND_SHUTDOWN;
+> 		ret = 0;
+>
+>-- 
+>2.34.1
+>
+
