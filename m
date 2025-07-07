@@ -1,118 +1,153 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CD1625A2B5
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Jul 2025 03:39:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DBEB2566DF
+	for <virtualization@lists.linux.dev>; Mon,  7 Jul 2025 03:48:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751859545; cv=none; b=DBjtPQpxFMBlChqZO6s/ysxVA2yoStKJhMQkA9ezPgmGtVDQp28EiKuXdnoFbdneINkrbOBe/Tj9hcYerAmsmgCqJPL9CaTiLOVSbPnrWcYf9X21GrHudvfC2LynV8NhehJy9aZDZ0/Fj5H3Fu9RORuFqJVr1HXTyJHrrLEufFE=
+	t=1751860115; cv=none; b=E1vrUdPC3Ie+oQwKlCExop0VDlrIxVwi5uEQqYZiQjR7ibikG/hSfKLpHto7ZnqrklwCOKZmVWrLkEUOUZWDOjTZ4wAkRjA3rMB3QtnCW1Gx88BgHkbycuCZiebcpKNisbqe9/rOJL2wRURCzWi+2k7eZLKF7lH4ABL+Qhjt4Mg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751859545; c=relaxed/simple;
-	bh=cToKybjXtrPshKXsvriTLIFQT34mAn7DrvDWsf8sYmc=;
+	s=arc-20240116; t=1751860115; c=relaxed/simple;
+	bh=hUgXGL6XScPWELGspZVQ6oo3NDlNSw5oN4mTr0d1/Gw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aTo9wqUm/ahLvGljUhTmPNwa3l9RGY5V3geL/4w2zZWscwYaDcmQ/TZ6AY7Gp9uPpF7JOZVWu0BStmN+9bHETMvMj6vwjF3034NHIz3qnW90jcYNWd1qgaD6GBdRRqRByMGZbHdwnzwV3jfp3zCERYMc4rjn2lpixsNBQY4Fscg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F+hz+iNq; arc=none smtp.client-ip=140.211.166.133
+	 To:Cc:Content-Type; b=jndrqSOLYIS0BMkWG1ANsgPWSL8pSwGiL1xllRTT1ddxYzo5g8kdwDLkkHjwj2aFPFMjvyfmBXnbqeGXGp5crhMssSKavSkPl1dZeZxEzUTzQY1lCCxN4zW3MnJtPN8lSondYrzf/m1L58M9VlATElIr5cP6qUuj1wqQ22DLzBE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dUVGZlOg; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F+hz+iNq"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1F09F40053
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Jul 2025 03:39:04 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.79
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id SCvn7lqxEOxN for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Jul 2025 03:39:03 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 546CE40182
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 546CE40182
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=F+hz+iNq
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 546CE40182
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Jul 2025 03:39:02 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dUVGZlOg"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751859541;
+	s=mimecast20190719; t=1751860113;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=cToKybjXtrPshKXsvriTLIFQT34mAn7DrvDWsf8sYmc=;
-	b=F+hz+iNqpFR5zX+hdW73Rq2Gwj3fxSQZJQZJvCrL+isfNclNnQZzXwWy3FNURADIUE+EsY
-	UefGbU0+1OJml6CGotDFumULj6ImhDiUapE5VbndRmlwWycbpL7JGth53xhb+NIdAguV7t
-	4Kp2YW/xOzKDcoZY/13LpZjbuj9R64c=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=EW/dDjcSXDhHVRdF+Q/wfrSLxpfj5IbBx6F7oYcVw2A=;
+	b=dUVGZlOg9hQTsKlox8JcYsfkZB3+IzMEIxy04zuhC9qQVst9J+VWgRbCvBDUqyOubrPV5r
+	wBHNDeZlx3EawRMVmRcclswRvMsMzeYYFQ/2UwnIIZB0pNPKw5t6b5ZrPMjAnZe4TUg0yj
+	ulCRHR2KUKSFBobXYbDoTLTIJ3iIxSA=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-98-ya1cVJ96OLqjb8ixWBHYVw-1; Sun, 06 Jul 2025 23:38:59 -0400
-X-MC-Unique: ya1cVJ96OLqjb8ixWBHYVw-1
-X-Mimecast-MFC-AGG-ID: ya1cVJ96OLqjb8ixWBHYVw_1751859539
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-b31c38d4063so1659000a12.3
-        for <virtualization@lists.linux-foundation.org>; Sun, 06 Jul 2025 20:38:59 -0700 (PDT)
+ us-mta-230-gpgJiSdoP7irYTklunir9Q-1; Sun, 06 Jul 2025 23:48:29 -0400
+X-MC-Unique: gpgJiSdoP7irYTklunir9Q-1
+X-Mimecast-MFC-AGG-ID: gpgJiSdoP7irYTklunir9Q_1751860109
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-31220ecc586so2446736a91.2
+        for <virtualization@lists.linux.dev>; Sun, 06 Jul 2025 20:48:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751859539; x=1752464339;
+        d=1e100.net; s=20230601; t=1751860108; x=1752464908;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=cToKybjXtrPshKXsvriTLIFQT34mAn7DrvDWsf8sYmc=;
-        b=emtfA1SxhZPy/Cv3JMZI1jEosJX27sdcUjvtDm1lukr/nk2aw1xz2nne9MLbekDBuA
-         IEKTq2SwsWUxdyOj2Xjt5BtJH8zGgDzG7aqRUn1IFYHG4x+W1Xqo6x9BjuNtHb/FNJOD
-         ulHe5dMcOnM0A1GijXANJC5zfp6D5PQ1gW/QSCFZ3tozbWLIQhL4k9kgC4d/GfdJdlzk
-         IkHF+n7UEuR1z3i2By+QjyvykmBDjr9+7DQrTXHwBsIeH/kdZ8Th3B9WPxTdvt20/2iZ
-         ObxKr1zwC0iERXm6DKlSSGe11zwiJ8unJsZq/UVn2zaOFXVdQaNknxfMpcnzLRbawkGl
-         jHFA==
-X-Forwarded-Encrypted: i=1; AJvYcCUc3fq0qwhcFF9m+jOXT0tOsd0ZRQLRZwipkiHo30Kt0zCd1ibS2V6G3P7K6SYV/BfknvJdmAsXV3rsusScoQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxM6ZDVFf6Ss4zr93DXc2YaIVsz0taQAmR47/YEUihY9RCHTDRr
-	D28NmHiyOq6fh+eN9Zvjcm7satqVABYOQ1yV3oh3XeiBHBzTxZ2YyxPmjUjI4swQmGEyghNexLv
-	Nmtk3K9IYGQuq27lboCpXK+G9zO8YoeW50hCOnYBj2Gfo9BHumni46QIdUZ0fBRUYROzZ277Rq9
-	asI3z2RclLzFhAX7qbGjDgG9fPB4blVdJ1/Gjz71V7M2zwRntZvBYgpYOTQg==
-X-Gm-Gg: ASbGncvwjcvWDNaNSJzht/kpakGFMSwvbuVmvfwFLssYyCSr8V9mldUgYZfHTQbpLpw
-	3Pb6WaBwhszWS0mHpM/aGH627x7CQDWZxAV2EI0PqH0nR177gkgdjF0OFXEtHLpebvP8u2Igr1G
-	KzqJZc
-X-Received: by 2002:a17:90b:55cb:b0:31c:15da:2175 with SMTP id 98e67ed59e1d1-31c15da23cemr1276675a91.9.1751859538650;
-        Sun, 06 Jul 2025 20:38:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE/OScOfzxvN6ffL+e+JM/H+J3/JdD4csUZUpOcHgC06UuyYVCjZh3kPiyRl4cX84Tq+BwKAeQqS9ePIWOt/tw=
-X-Received: by 2002:a17:90b:55cb:b0:31c:15da:2175 with SMTP id
- 98e67ed59e1d1-31c15da23cemr1276643a91.9.1751859538244; Sun, 06 Jul 2025
- 20:38:58 -0700 (PDT)
+        bh=EW/dDjcSXDhHVRdF+Q/wfrSLxpfj5IbBx6F7oYcVw2A=;
+        b=h+GFbIJmAvHTD0whNvu/wjZTG54e2u1vYmIhz8pz6R/xduTaCs6nFTdJQVOYvYc5NW
+         TH4D38KaQBLvCg5rWywLNA2MfCXuxIFwAUNU2+SjWOZGWt/GpNc4Vmgus1HVQEc/dEdv
+         M65i+SbdA94TNrGdF/hqJZq2hq5sDu4oTnA+6fMWKNZnZT62v93djfuPzKo7+RjKHp+x
+         MPyMcAZEctlpHrY2V4A52LoCBxKWsCZTsaOWmWW6qixzIGlnezRzbbZhw5Jhdcnk73OY
+         iJS4awGTQuIrCdbFDuMa/cBdHEcFmV3ILymv+8Ve1BbfXj2PGh5LlwBnf2p+urBXiMlW
+         U4Nw==
+X-Forwarded-Encrypted: i=1; AJvYcCVHUZDxF6nXDoJPpJ0BxzDxozqFd0+pfXX9zFuXD22vXPopqw/+rUkXOFuMEQW1/JbNxu+/ioJ8bFcf6QXC/Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxSg7fOfYeqpECSA4amFJiNnV7+fKVVsVKfzA8wlGYFkcbgkj7O
+	Hl3EXlfOHlEPqbZx/fe3kTXZe7wPouEIS4fOtXoo2mznd/QkGdRZ4n3WJ66l9bxvJ9+Cc/TaZKD
+	rxlG2ZT+WI6aZ6H07dmK7+HXJhmFCOKwvCV+TyYGEvLwFu+po4xZ2uG/bvZjjCUO/StHoyH27TV
+	UpZjkpj+RzKUOTDavjo4HcLUF9N+1R8nv0e3Fpsz0oe4E=
+X-Gm-Gg: ASbGnctyfd66MMlK3Ov6uCOA7CbR6Lr7CM+1IrUt5Deu6TH6Yqd44dlKdeEXq/deynH
+	oaAymqr3/olK9s0ekJqNtLY0I7y6DUcnOlTCUn3aNytErCrP/y8U0BnrFB0kozpRb9BDclAxgg5
+	4cOpkH
+X-Received: by 2002:a17:90b:274c:b0:31c:15d9:8ae with SMTP id 98e67ed59e1d1-31c15d9099amr1263946a91.33.1751860108577;
+        Sun, 06 Jul 2025 20:48:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGjLb5nG3GcvhfATU5YJqipasKEl1n2CvdNYfWsQeu5NtxG78x5LGLp605MHradsamcw9tKsvLkrHk8wmRzWvI=
+X-Received: by 2002:a17:90b:274c:b0:31c:15d9:8ae with SMTP id
+ 98e67ed59e1d1-31c15d9099amr1263906a91.33.1751860108149; Sun, 06 Jul 2025
+ 20:48:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250702014139.721-1-liming.wu@jaguarmicro.com>
-In-Reply-To: <20250702014139.721-1-liming.wu@jaguarmicro.com>
+References: <20250706141150.25344-1-minhquangbui99@gmail.com>
+In-Reply-To: <20250706141150.25344-1-minhquangbui99@gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 7 Jul 2025 11:38:46 +0800
-X-Gm-Features: Ac12FXzRSQJDauDNVYKvCZUnjp7a1__tIs86dizLjOKq_h5WbWMweaIbaRJmiis
-Message-ID: <CACGkMEuxSsJVkvNnGGZtrK=MOyzc1ajW+SNR-xP_XzO5=R25jA@mail.gmail.com>
-Subject: Re: [PATCH] virtio_net: simplify tx queue wake condition check
-To: liming.wu@jaguarmicro.com
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, angus.chen@jaguarmicro.com
+Date: Mon, 7 Jul 2025 11:48:16 +0800
+X-Gm-Features: Ac12FXxSGGJmrV5EcaTZUCctsvVfb41fa-ZbkWFbatrKcNL0Fp0w8Ch0gj5Rdr8
+Message-ID: <CACGkMEvCZ1D7k+=V-Ta9hXpdW4ofnbXfQ4JcADXabC13CA884A@mail.gmail.com>
+Subject: Re: [PATCH net] virtio-net: fix received length check in big packets
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Gavin Li <gavinl@nvidia.com>, Gavi Teitz <gavi@nvidia.com>, Parav Pandit <parav@nvidia.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ujkwsCvfb9F9mhj_YDiT7IVEcE0NjCfHl07gJnhZTjY_1751859539
+X-Mimecast-MFC-PROC-ID: N2zTAmxbHIrJPBN5H8pUmhQNiSbgPWXmDoiU6G8XGZA_1751860109
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 2, 2025 at 9:41=E2=80=AFAM <liming.wu@jaguarmicro.com> wrote:
+On Sun, Jul 6, 2025 at 10:12=E2=80=AFPM Bui Quang Minh <minhquangbui99@gmai=
+l.com> wrote:
 >
-> From: Liming Wu <liming.wu@jaguarmicro.com>
+> Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
+> for big packets"), the allocated size for big packets is not
+> MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on negotiated MTU. The
+> number of allocated frags for big packets is stored in
+> vi->big_packets_num_skbfrags. This commit fixes the received length
+> check corresponding to that change. The current incorrect check can lead
+> to NULL page pointer dereference in the below while loop when erroneous
+> length is received.
 >
-> Consolidate the two nested if conditions for checking tx queue wake
-> conditions into a single combined condition. This improves code
-> readability without changing functionality. And move netif_tx_wake_queue
-> into if condition to reduce unnecessary checks for queue stops.
+> Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big p=
+ackets")
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> ---
+>  drivers/net/virtio_net.c | 10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
 >
-> Signed-off-by: Liming Wu <liming.wu@jaguarmicro.com>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 5d674eb9a0f2..ead1cd2fb8af 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -823,7 +823,7 @@ static struct sk_buff *page_to_skb(struct virtnet_inf=
+o *vi,
+>  {
+>         struct sk_buff *skb;
+>         struct virtio_net_common_hdr *hdr;
+> -       unsigned int copy, hdr_len, hdr_padded_len;
+> +       unsigned int copy, hdr_len, hdr_padded_len, max_remaining_len;
+>         struct page *page_to_free =3D NULL;
+>         int tailroom, shinfo_size;
+>         char *p, *hdr_p, *buf;
+> @@ -887,12 +887,16 @@ static struct sk_buff *page_to_skb(struct virtnet_i=
+nfo *vi,
+>          * tries to receive more than is possible. This is usually
+>          * the case of a broken device.
+>          */
+> -       if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
+> +       BUG_ON(offset >=3D PAGE_SIZE);
+> +       max_remaining_len =3D (unsigned int)PAGE_SIZE - offset;
+> +       max_remaining_len +=3D vi->big_packets_num_skbfrags * PAGE_SIZE;
+> +       if (unlikely(len > max_remaining_len)) {
+>                 net_dbg_ratelimited("%s: too much data\n", skb->dev->name=
+);
+>                 dev_kfree_skb(skb);
+> +               give_pages(rq, page);
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Should this be an independent fix?
+
+>                 return NULL;
+>         }
+> -       BUG_ON(offset >=3D PAGE_SIZE);
+> +
+>         while (len) {
+>                 unsigned int frag_size =3D min((unsigned)PAGE_SIZE - offs=
+et, len);
+>                 skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, off=
+set,
+> --
+> 2.43.0
+>
 
 Thanks
 
