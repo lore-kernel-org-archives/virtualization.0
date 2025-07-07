@@ -1,69 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E14A229B78F
-	for <virtualization@lists.linux.dev>; Mon,  7 Jul 2025 13:40:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D759D2BD5BB
+	for <virtualization@lists.linux.dev>; Mon,  7 Jul 2025 13:42:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751895646; cv=none; b=a5NAuyKj/pM0X47H3mZqO+1O1Q1a00+O5FOK7VtMGo0W+VdB0gv8EZsCoPi6hjAWv7gxE64Uf+jRqlbScqqp97o5tertwhajJhKxNHljB47Ak6T2SY2FMqJu3kK1mwuUXBUFOlPMTw6skrS3PhS0vvE44JW4NiZeo8p2jQdm//A=
+	t=1751895778; cv=none; b=Ekd47jfr7a4YigSTLyNVQcqq3cWIObq1Oahgl/11BvNEwKNFqBH3GKVNAbs8kd5tMU66xGyQj6hSe8s8sImcPPdtD7SvJVKJij2LrGSnFDj3iBeF0gRbE11O08qVNZbD8m41OCRM/50WlCFUGf6jBdhE8XgRkbYYTPhfTWCi/UI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751895646; c=relaxed/simple;
-	bh=ul3tvYiiYuyxmNUs6c6tGf8iXCr1hDf1jpTi6pw0cEE=;
+	s=arc-20240116; t=1751895778; c=relaxed/simple;
+	bh=xltTqBYmsiirVvBdNqG5/Fyy6AbHsBrBr+WSXMtuttA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mKHOzBIQY8VKZ08AN3bJ5XAkNGvm432qCbfYukbNlpCNQjTrf/RRRke66uGE1lk63Lp2RIT4wkpirTtBZ0JiPpLZrRuUd7+7cZ2uD/1L29w2uxz3JcWI0j0G6ro+T/C88ws1e9rX/4S0ikGC2sB0eqBDjV66BdAZk7k+whcmhiA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TyOkhIep; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=flulFbpQXBiokAqTVkcwZb4tXksyfQydiiyde2jObroDZAqvnFOX0xq2Hzphn7+C7Idcz1594zSO55zkalOKajCAAyCy35ZiI4vbp6ltHcE6O/gK1R/uk+LzPUSvVmovNyycnefm4eBmMY23EaPlTdD1yVpC+yM08QCAvmOCwjY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EfWPSwXp; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TyOkhIep"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EfWPSwXp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751895643;
+	s=mimecast20190719; t=1751895775;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=W2KJ06Vv9jNgPK/f5x2D67o6F5iefXJHvVBymbKYkgw=;
-	b=TyOkhIepXfcr+KziT/ZMJwROkrJCWuUX5xkVBr9K7ClIQfqY3gnfSdEIGTJawIqeVIrdnn
-	Hurin1Wi/d5Ib8xw4TaJeMYKTnB2ST8zyk4dXb56EUQWhVAZgvsmYNHz8BjnnMEmfy3RXO
-	BhWqeCez4wmLsLNBQC3c6d2mxoSknas=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=VsmgUKFf5I0+AJIsgxdkjg4irOxBPoSgMLTf3OScQaQ=;
+	b=EfWPSwXp05NXrm2v/aYMfa1IuuwV1PXaIoxucJqf6VrhpnkC/4Qic/Kra0y7szowIhsKUS
+	NHOXG8fTtFo6IgjYg0KAEJLW7Ig85doQZYQCgleHFkAnrodB5wFzYNTTZvnAHFsTUkvsYL
+	4ba2LUUV8G8aYL5Qqnr2JZ4RgS8Q05k=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-502-caF2HwfTORm4riFwH8BcCw-1; Mon, 07 Jul 2025 09:40:42 -0400
-X-MC-Unique: caF2HwfTORm4riFwH8BcCw-1
-X-Mimecast-MFC-AGG-ID: caF2HwfTORm4riFwH8BcCw_1751895642
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4536962204aso13149325e9.3
-        for <virtualization@lists.linux.dev>; Mon, 07 Jul 2025 06:40:42 -0700 (PDT)
+ us-mta-77-UClvJlm_MpC852MJShSiIw-1; Mon, 07 Jul 2025 09:42:54 -0400
+X-MC-Unique: UClvJlm_MpC852MJShSiIw-1
+X-Mimecast-MFC-AGG-ID: UClvJlm_MpC852MJShSiIw_1751895774
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a50049f8eeso1436350f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 07 Jul 2025 06:42:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751895641; x=1752500441;
+        d=1e100.net; s=20230601; t=1751895773; x=1752500573;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=W2KJ06Vv9jNgPK/f5x2D67o6F5iefXJHvVBymbKYkgw=;
-        b=s7P1w+n3yUmroMZeV2/evCndI+X/d9Xe7ldEOQOWxPsF+vd3a14urYF3amzo/6kTH5
-         Dpu9B2Tk/Vcv13cRQjY09Byjmj+/XMRvGLRol7pzdYgm3oF9dGXuAF5k0AsabMBuOd5J
-         lJ/McXfGFYArnX8W8A+T8t44A2kpjxFUGchnLTWxr6soamcRuGyql3rb9GufDguRcaHH
-         tI/74rekVB8DZ9iVVgnUSqf1M69/3OANwIJ0ST/XSi0sFpCF3O4HlhfYtZtHILPAq/t3
-         OiHPDKe58ZQ1gfnJjmON1Q2OX7FVZfDlxn9H8G2iQERQCOJjr2LOTA+Fiwd6GizppHOr
-         KXIA==
-X-Forwarded-Encrypted: i=1; AJvYcCWADrQeSq38OL0/4r0cwvHFusOFkL7CMj+MtP7xIy2mj13kYCI97LbbyfvfiyotzKfanj0hclMzXLMSPzkJng==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwAi9ag3EkNmxzJ4E8CyNA+/Ka6+o9LJA57CAZVguVzq5mNzXjI
-	2YbrtYfJY97DXDSBLkIl4C+AYs9lUxAu9agcpF+nQ5PLEByprQeKXS1r1IgMDySyW4o+VHYmVz/
-	k1syxpHClg0L/0KGn/nmbM11dnj7vJsndqDfO1bCx5w77WdDmT6vSX+gqnh+d21IZ8xyM
-X-Gm-Gg: ASbGncvQFX1gE4Mnms6g9DWr4rc7jc883NjQA5idD4wvhx9lHJ5OjzsmFxgi4CBxLfe
-	//8muqIFhyG32cvanfidBBAYXcVRPMrJPF3V7Zs+ncAas2xaF9HVbePW+RzHM93Y+rmcKr9slaj
-	86SujAIRPTHhYasdnlqEZPhzEVP0jlzRyAAzkv+yjF1WjLiBRSksFS7a58ouQk/oAcpyl/YM4ho
-	hK7CmHfvaREjrcFwUFzS4I8zX9YHg42cn/rHVt6luv0YBgJv47TLcXZgRWQd7K3SnlCf6gou3ov
-	FOH8J83FbAiOfw62CZsTZcH+nxbN
-X-Received: by 2002:a05:600c:8214:b0:450:d568:909b with SMTP id 5b1f17b1804b1-454b4e74957mr117204135e9.14.1751895641294;
-        Mon, 07 Jul 2025 06:40:41 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGZ3sl8II9VgNMv0Hs+oc26TdXSoZydYWxbok3SEgKNUWhqxxpymtncK0H5qwe1x6+STsNFHw==
-X-Received: by 2002:a05:600c:8214:b0:450:d568:909b with SMTP id 5b1f17b1804b1-454b4e74957mr117203465e9.14.1751895640329;
-        Mon, 07 Jul 2025 06:40:40 -0700 (PDT)
+        bh=VsmgUKFf5I0+AJIsgxdkjg4irOxBPoSgMLTf3OScQaQ=;
+        b=NW7mVYoIik05o7xXKM5NzywiLKZsV1tIS9Pvnz9k0RpU4JVWJEQhFBaPB1H1FFlw1D
+         0rTNX39cvhIuBYslXOvri/rsBvwV0x6SiUFjewgYQJga/8BuPTHSG/RGpGyNjl8mY3Hh
+         zvvm+z74CBLdJSMAz7G7eWQ2I5jLoVFKpUErzXOAa+2LU/+2Gr5OY8voUKVFZecF4wls
+         wezu//b2/PZXFe3ayE0TsCK0sh3EU7ZuyLb/JLOcYZopYfX8zBRYss/toxluhu3LVxpt
+         NORgoZQGuQ6NQ5PzGrURInXbaG2wKSju7DcYHzVgG2n1225X/gJKz8eN4+OIepbVVcWt
+         IQXg==
+X-Forwarded-Encrypted: i=1; AJvYcCUtLsH1dCVM2lWToywjVxBhbr0X0n9E42w8/1XN/qJgdyhwj4IjJIoloUcO1ix5kuj1z18pfg/9J4bRwstGpQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz10EiuqCfamFvMwz70uuFiBzhdC1Zp14ls8+10F++XiGj9LLPM
+	Hc94Zfh/rjmAZIRftaHGEWk0r3ZQJrp8DeLW+FhQ3oZZDsr0//sTevTwR5XM65JdpHN0ewsDpLB
+	6c3527baiRcdmWFxdyfDdbcG4gl1QNxjCOZY2EeuZ6hJ/4wtFanARZoAQJh6n4SYKacMt
+X-Gm-Gg: ASbGncu2sZbz2sVYFrZOXdpbWPsGkLbASdnOvuiWmP3Hw7YBjmB6pE1BfrlGMqpD094
+	4O9ctCxNRT1kXkL5PLx95YJC3xKOKKm9uqCsRCUpQhQ4y/Sg3UDQFVboOUvIlJGXHhHo5pZcj8o
+	zw3j/wvKyrw3ISowQRP9Aq8n0zhh7IfIQPkUAbODg0HNnJjFiSQvZD9uek9CBqXgE2rW/YZFYAE
+	ioqIX7hNrMfRRj0LxPIfES2MWOx/9kyD29sJhF+3YXPawI1jMyjbp4TxFwjPOv65pDXeu1HO4os
+	nk+pa6z09nfks8q+akMYVZX/u9IM
+X-Received: by 2002:a05:6000:400b:b0:3a5:1cc5:4a17 with SMTP id ffacd0b85a97d-3b49aa7d51dmr6564060f8f.42.1751895773414;
+        Mon, 07 Jul 2025 06:42:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFY8SiQF+6f5+bf4//S2AtBghoAdxNERSqvvMXKZJvwoNLtCvWhRhxkkv/MOEbunhybnSwajg==
+X-Received: by 2002:a05:6000:400b:b0:3a5:1cc5:4a17 with SMTP id ffacd0b85a97d-3b49aa7d51dmr6564020f8f.42.1751895772808;
+        Mon, 07 Jul 2025 06:42:52 -0700 (PDT)
 Received: from sgarzare-redhat ([193.207.144.135])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b47285c9f9sm10339166f8f.93.2025.07.07.06.40.37
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-454a997b492sm140318785e9.13.2025.07.07.06.42.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Jul 2025 06:40:39 -0700 (PDT)
-Date: Mon, 7 Jul 2025 15:40:31 +0200
+        Mon, 07 Jul 2025 06:42:52 -0700 (PDT)
+Date: Mon, 7 Jul 2025 15:42:45 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Xuewei Niu <niuxuewei97@gmail.com>
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, 
@@ -74,7 +74,7 @@ Cc: "K. Y. Srinivasan" <kys@microsoft.com>,
 	linux-kernel@vger.kernel.org, Xuewei Niu <niuxuewei.nxw@antgroup.com>, fupan.lfp@antgroup.com
 Subject: Re: [PATCH net-next v5 1/4] hv_sock: Return the readable bytes in
  hvs_stream_has_data()
-Message-ID: <xhzslzuxrhdoixffmzwprn254ctolimj7giuxj4nfrfg23eesy@ycpe6kma5vih>
+Message-ID: <xphwpqqi42w5b3jug3vfooybrlft3z5ewravl7jvzci7ogs3nh@5i7yi66dg7fa>
 References: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
  <20250706-siocinq-v5-1-8d0b96a87465@antgroup.com>
 Precedence: bulk
@@ -85,28 +85,12 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20250706-siocinq-v5-1-8d0b96a87465@antgroup.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Q-Rn2TrtWMHmZpR7lpv8Yc4Gw8ZHYZKVsubSYBcP46I_1751895642
+X-Mimecast-MFC-PROC-ID: 3-7Yt4LJHV77DqN1MImc3jaFRNR4IX5Kv4qIbXdyffo_1751895774
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
 On Sun, Jul 06, 2025 at 12:36:29PM +0800, Xuewei Niu wrote:
-
-Again, this patch should have `From: Dexuan Cui <decui@microsoft.com>` 
-on first line, and this is done automatically by `git format-patch` (or 
-others tools) if the author is the right one in your branch.
-I'm not sure what is going on on your side, but you should avoid to 
-reset the original author.
-Applying this patch we will have:
-
-     commit ed36075e04ecbb1dd02a3d8eba5bfac6469d73e4
-     Author: Xuewei Niu <niuxuewei97@gmail.com>
-     Date:   Sun Jul 6 12:36:29 2025 +0800
-
-         hv_sock: Return the readable bytes in hvs_stream_has_data()
-
-This is not what we want, right?
-
 >When hv_sock was originally added, __vsock_stream_recvmsg() and
 >vsock_stream_has_data() actually only needed to know whether there
 >is any readable data or not, so hvs_stream_has_data() was written to
@@ -123,6 +107,9 @@ This is not what we want, right?
 >the next host-to-guest VMBus hv_sock packet.
 >
 >Note: there may be multpile incoming hv_sock packets pending in the
+
+s/multpile/multiple
+
 >VMBus channel's ringbuffer, but so far there is not a VMBus API that
 >allows us to know all the readable bytes in total without reading and
 >caching the payload of the multiple packets, so let's just return the
@@ -132,12 +119,6 @@ This is not what we want, right?
 >understand the VMBus packet format and parse the packets directly.
 >
 >Signed-off-by: Dexuan Cui <decui@microsoft.com>
-
-Your S-o-b was fine here, I was talking about the author.
-
-Thanks,
-Stefano
-
 >---
 > net/vmw_vsock/hyperv_transport.c | 17 ++++++++++++++---
 > 1 file changed, 14 insertions(+), 3 deletions(-)
