@@ -1,100 +1,143 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45C4E78F2F
-	for <virtualization@lists.linux.dev>; Mon,  7 Jul 2025 08:29:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBCAC28C5D2
+	for <virtualization@lists.linux.dev>; Mon,  7 Jul 2025 12:32:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.104.207.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751876975; cv=none; b=hvRkV2crIwdGHUKAOGmjKHFq0+urXuF3T+1k95bzUk9Pnj1oy4CpeFiaJq6M5SUWSU5Ugjhx5RAFAUY5ins5cwse4Hb7pAyo/zIOx5J+TPl/ya7vBM9XiaUVszbsJvGU/Q7RNn12/Z72OQuZd1NIykQ7N1byN0L8PoAPLNRacoQ=
+	t=1751891581; cv=none; b=KE+DrVG0VfywLtlPpQjziAjEH+6G34MIrJjxCVLxS6ZwJDkeitI3ktLebI2Ee5ggufqG8LLMaDyOiCoiTbA77cCJarPDZCTLWj3xQVrfIrV1Z/XQ+N8OFSbOKxXrlrRKMVfL5aHORgZNv4HNqR+1zVuEJ7YjddgkkEAVwYjWlg0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751876975; c=relaxed/simple;
-	bh=ZmuwxEwRz9hvR9dPQVP2ysixcdlQYWY+Fgsp2U0+Nu4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BvhhIMQmKoiFyq6rmMF+P5bNh/Pn208LIju5ba908LCbr4Yv16U8dPyFTwkaMBdqrEI6UwU88olLX2uiJIeciB9SiiRj5iASD12vJUUhjYpS9VWNqSEoBALE/yMT5zv1wyEnRGT32FnEbn/7l6xpYjmqKmyWxOWJE8SUKDTSqHw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=t/Laf1FG; arc=none smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1751891581; c=relaxed/simple;
+	bh=ZB4ZKNTjoCRoFxY1M7eYuv9YSVyVx5y1dI8rUYVH3BA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=IAEA8ygpN5DzMC6a6LXLdd7hhrhnC41BDcdNtSYHRJa6AJLIUbXlODamqZKvxLRwSDavm89lRKli0Gg29z0/ke+2975E/4N1KzFspFy0qst2lCyRElec1UjkFQUP7qHJ0ClqopAuTINDRcDaI0SMiSxbv5S3TuyIe0ygHRKa4GQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=tq-group.com header.i=@tq-group.com header.b=lONy7aFw; dkim=fail (0-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=a4QFFm5G reason="key not found in DNS"; arc=none smtp.client-ip=93.104.207.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ew.tq-group.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="t/Laf1FG"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2353a2bc210so25139115ad.2
-        for <virtualization@lists.linux.dev>; Mon, 07 Jul 2025 01:29:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=tq-group.com header.i=@tq-group.com header.b="lONy7aFw";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="a4QFFm5G"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1751876973; x=1752481773; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=WktzVbMCOuSz2XCDiNHlBWqihhwDZRtZkZ7oMJdFGs8=;
-        b=t/Laf1FGq3U3CFhfstH5LQ4zIiFfVsibydH7tkJSAKguL7yoWVv5rf7h9yynfKWdX3
-         oIkR7tK/+glKUjMit0I4W0yPelmY6XYnQMjHAeeYS6j+l9BOdRT5DIm2fWowcnRTEjMx
-         PzddKxH985w0xT3SyyPzkv05YSKgkZVQg+/VEhHGCLm+My6qokgXEbaj9+91z2MhUEDO
-         ZGbsU5DsQ4/mySa9p02cRrxXuGmr4qKgI3UrzMO5T5byVrKGymlvgIWcH/ByZ7b6pNqG
-         Q26ZoEH3U7DV9TzTIA95NGr9ORSHesmZz0vszQTkkgCzRsbSyV9EtQbinbhrMhlL/oH7
-         B9MA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751876973; x=1752481773;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WktzVbMCOuSz2XCDiNHlBWqihhwDZRtZkZ7oMJdFGs8=;
-        b=kTdp7edXok2qO48CCp7bNa907rtyVw+LBt/+9wEXDPz5maxm3dqtRnKJSYgZJtoiAD
-         or8xg1Oi4J2BQraFe5gZ7+XvpszMomUpNF1e6d0WrnVtRi6RVn0ZZFbqzygWpXhICKSH
-         wzr5N7P3x89MZ6oMVEKO3G+G+w3JkTcV82sYwMMS/WdD3dez+UNDq0P/k/oWUC1N0Q4c
-         n/uz9+bXqxkiO6VWpJgoreC7Ztn5jrizFVmGnbdYs23jNJ4XqY2s1jXVewgka2xTkfzR
-         Q4PMYTMwOlwVGU29ikF+V+WW5lPVPPbUfuA8Imft50wa1+hjDSuLCmeIpEkzYDZOuy9N
-         zupg==
-X-Forwarded-Encrypted: i=1; AJvYcCVEmSHMWuMsP2xyiIETOH0nqW5o8OIlizmi8V6bR5jCp7GcMdXlapzh+WuUnQSga7VZNCcONYrRWY6IteXCPw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzaZPvBXyRR51IjBScEx5TzaWmXar80L+EpX31FlS1bNF/N5AWf
-	17gk0ptZuPWRRupu9tyEanfPYGXo57j6f/b3hQ5r8ElP6Ol7I8/XtXu/aWKALgM7TKM=
-X-Gm-Gg: ASbGncuplDJ63cy0KJZJDuciRxutAzYQWcYz5c0FRRJBOBPnGJ2MQ0Tj6K2kl6iQFEN
-	RjP54oPuBJS+E4g8ZsG67p2p9cGc6q8wZlfEufOs2LV2j34TFcwe6kKLeXsYnnQJvw6FWakLSk1
-	VQL7+hw4YZUTz3Vu927eNfZkLfWFAEoytvW1IUKppVPaF1u4iaFdgI880ITcUXnx9EjviPR9/nH
-	xcw5/XBBzpraBeC+ZPt4TPW0dCXpB7TQfBs4DZHgf7mZV317s4Z/daLN9CiMdd5yw8UC5HbSUAj
-	j6qVsf+5EXJqfpw9mfJAA35Q8UsQLwLoFE6zg/GeAdtFNXwL/4Wku7XqD6dNlDo=
-X-Google-Smtp-Source: AGHT+IEzG4PTUXHjQ19lS5u/nsqPLFIxy4HYD8J7svSUDedR3HYEqjepBCTrT6erZSMiBmj/Gzsypw==
-X-Received: by 2002:a17:903:198c:b0:235:7c6:ebd2 with SMTP id d9443c01a7336-23c85e745b6mr148490455ad.31.1751876973579;
-        Mon, 07 Jul 2025 01:29:33 -0700 (PDT)
-Received: from localhost ([122.172.81.72])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23c845894a3sm80048605ad.187.2025.07.07.01.29.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Jul 2025 01:29:33 -0700 (PDT)
-Date: Mon, 7 Jul 2025 13:59:30 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Viresh Kumar <vireshk@kernel.org>, linux-gpio@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux@ew.tq-group.com,
-	linux-arm-kernel@lists.infradead.org,
-	virtualization@lists.linux.dev,
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Subject: Re: [PATCH 12/12] gpio: virtio: use new GPIO line value setter
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1751891578; x=1783427578;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=3EFoMtLUWx6MbDX6P0aC3dbBN3HKxOB4zApNaP2oCeA=;
+  b=lONy7aFwBeCnNHUAS2+dsJt99x0sJcIeqb/7u5hzwcg+D8m67LooMGDx
+   0zbP0zg7F/5H+2R2a/ggCS4JUbwcDmDpvjYyAtrue3a2zvopLU/qgAnd9
+   XIsONLSGaDZv1DrVmrrdpNYjZcDwa6clOtXhfP8K734uMFB0/SkFJ71Av
+   ylRT4hUQpqdKaymHCRUjs5kiWqsw14yBOzlqm7pZBqNC5VfkSSxNuFvKb
+   G4G4lhxPS3dHfjmMbvNtX1rPwsvmjzDpCVV53YDQE3n/hyHe9zMHO02vk
+   VCG+CzinZ+Xq78Klzpm3KVIDiw2fn2mR+msrdSnLY2k3+X894V+u/NBVw
+   g==;
+X-CSE-ConnectionGUID: dwPCq672SsOplsYjP+AsxA==
+X-CSE-MsgGUID: ayOzl+24QC2/dpqRYojkJA==
+X-IronPort-AV: E=Sophos;i="6.16,294,1744063200"; 
+   d="scan'208";a="45062521"
+Received: from vmailcow01.tq-net.de ([10.150.86.48])
+  by mx1.tq-group.com with ESMTP; 07 Jul 2025 14:32:55 +0200
+X-CheckPoint: {686BBE77-11-4C91DA42-F9D38293}
+X-MAIL-CPID: ECC4F355EFDBBE1EB90FE1E99CCFC922_5
+X-Control-Analysis: str=0001.0A006397.686BBE89.0055,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 6A300164D01;
+	Mon,  7 Jul 2025 14:32:49 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ew.tq-group.com;
+	s=dkim; t=1751891571;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3EFoMtLUWx6MbDX6P0aC3dbBN3HKxOB4zApNaP2oCeA=;
+	b=a4QFFm5GESvBpUD4d2yaaa+l+TsYTB46OOtPgJPHFCHRMDRwCRlHRJUtJph6HveriV4d8+
+	47P2d1fiec1o2zISgVTJj5dFnFHmsLuRN2qvmdg5/Do9VDOzmOraA4zSCI3XpigixMTVys
+	xcVwWkfRu7qmDXw3gA8itDCsqFvM/egOYYEoZd9H7mh82YyDTdhdKxaCgck4I1i9lfkq61
+	eF/L6/WnJ3oxeBTQvyTBjW+lV+AuRfV+/8YpHjYPmCIy7pbA0nNFdInIHxxWM5Xi3pp5TV
+	N6GkhxoaG+IPSArJUJPcy+Z6BJJzF5obbNnA+jv5AaueT2wjSPLliQQFCdrUiQ==
+Message-ID: <bf08cf4f890060d2d32d365abfb49d1c708a7fad.camel@ew.tq-group.com>
+Subject: Re: [PATCH 05/12] gpio: tqmx86: use new GPIO line value setter
  callbacks
-Message-ID: <20250707082930.boxyt5lrfmmxjrmk@vireshk-i7>
-References: <20250707-gpiochip-set-rv-gpio-round4-v1-0-35668aaaf6d2@linaro.org>
- <20250707-gpiochip-set-rv-gpio-round4-v1-12-35668aaaf6d2@linaro.org>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux@ew.tq-group.com, linux-arm-kernel@lists.infradead.org, 
+ virtualization@lists.linux.dev, Bartosz Golaszewski
+ <bartosz.golaszewski@linaro.org>, Linus Walleij <linus.walleij@linaro.org>,
+  Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Viresh Kumar <vireshk@kernel.org>
+Date: Mon, 07 Jul 2025 14:32:48 +0200
+In-Reply-To: <20250707-gpiochip-set-rv-gpio-round4-v1-5-35668aaaf6d2@linaro.org>
+References: 
+	<20250707-gpiochip-set-rv-gpio-round4-v1-0-35668aaaf6d2@linaro.org>
+	 <20250707-gpiochip-set-rv-gpio-round4-v1-5-35668aaaf6d2@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.3-0ubuntu1 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250707-gpiochip-set-rv-gpio-round4-v1-12-35668aaaf6d2@linaro.org>
+X-Last-TLS-Session-Version: TLSv1.3
 
-On 07-07-25, 09:50, Bartosz Golaszewski wrote:
+On Mon, 2025-07-07 at 09:50 +0200, Bartosz Golaszewski wrote:
+>=20
 > From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-> 
+>=20
 > struct gpio_chip now has callbacks for setting line values that return
 > an integer, allowing to indicate failures. Convert the driver to using
 > them.
-> 
+>=20
 > Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+
+Acked-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+
 > ---
->  drivers/gpio/gpio-virtio.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
+>  drivers/gpio/gpio-tqmx86.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/gpio/gpio-tqmx86.c b/drivers/gpio/gpio-tqmx86.c
+> index 18f523a15b3c03e083b363a026e751f7367fb080..056799ecce6a256f3438d9fd8=
+1ee4677cdd20125 100644
+> --- a/drivers/gpio/gpio-tqmx86.c
+> +++ b/drivers/gpio/gpio-tqmx86.c
+> @@ -93,14 +93,16 @@ static void _tqmx86_gpio_set(struct tqmx86_gpio_data =
+*gpio, unsigned int offset,
+>  	tqmx86_gpio_write(gpio, bitmap_get_value8(gpio->output, 0), TQMX86_GPIO=
+D);
+>  }
+> =20
+> -static void tqmx86_gpio_set(struct gpio_chip *chip, unsigned int offset,
+> -			    int value)
+> +static int tqmx86_gpio_set(struct gpio_chip *chip, unsigned int offset,
+> +			   int value)
+>  {
+>  	struct tqmx86_gpio_data *gpio =3D gpiochip_get_data(chip);
+> =20
+>  	guard(raw_spinlock_irqsave)(&gpio->spinlock);
+> =20
+>  	_tqmx86_gpio_set(gpio, offset, value);
+> +
+> +	return 0;
+>  }
+> =20
+>  static int tqmx86_gpio_direction_input(struct gpio_chip *chip,
+> @@ -368,7 +370,7 @@ static int tqmx86_gpio_probe(struct platform_device *=
+pdev)
+>  	chip->direction_output =3D tqmx86_gpio_direction_output;
+>  	chip->get_direction =3D tqmx86_gpio_get_direction;
+>  	chip->get =3D tqmx86_gpio_get;
+> -	chip->set =3D tqmx86_gpio_set;
+> +	chip->set_rv =3D tqmx86_gpio_set;
+>  	chip->ngpio =3D TQMX86_NGPIO;
+>  	chip->parent =3D pdev->dev.parent;
+> =20
+>=20
 
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-
--- 
-viresh
+--=20
+TQ-Systems GmbH | M=C3=BChlstra=C3=9Fe 2, Gut Delling | 82229 Seefeld, Germ=
+any
+Amtsgericht M=C3=BCnchen, HRB 105018
+Gesch=C3=A4ftsf=C3=BChrer: Detlef Schneider, R=C3=BCdiger Stahl, Stefan Sch=
+neider
+https://www.tq-group.com/
