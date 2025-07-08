@@ -1,31 +1,31 @@
-Received: from out198-28.us.a.mail.aliyun.com (out198-28.us.a.mail.aliyun.com [47.90.198.28])
+Received: from out28-218.mail.aliyun.com (out28-218.mail.aliyun.com [115.124.28.218])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9A3B5383
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 05:05:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.198.28
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A40637464
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 05:22:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.28.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751951137; cv=none; b=a7WmmuYgz74ZI0H2q4MEr6Ts5gAYDgdXJF/sEShcutBOxwb3NAkduYDZlSzZ2DkRVXpmWBHDhQh7NObmmRI8C3p2LfweWiIeIQ1ryjpjQXBLnsDUPZUY+pz7RknLqtNpge0b3ZX/zIri59Y4DsStaL84OJhOR3vyEbEJBcHZWac=
+	t=1751952181; cv=none; b=ixk3JXdC8/7vw17mGZ6Lv6q/uABDljCC5A8kauyYIgq1N+mt0SdiWFZdIE9ysKhhviDo5OKoLxz1XO2aCxpU0X/cGOf8uBEkS3C26ZVLxguf7BX+2nTWfOX6e06aN/m7n4q/yorrrnJo2pm6hthg2Y5mUzZzAQNqonlsTH6zXWM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751951137; c=relaxed/simple;
-	bh=mIOs9ZQv+Dge62egFi7/FYpUbNceMjDUj5FMhCzPzvQ=;
+	s=arc-20240116; t=1751952181; c=relaxed/simple;
+	bh=59y7qEw4GpHqR9V5yVAvN9k1VJ4Mks0dolgkvU2v08Q=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ntvlt/0E0LRovXp7W8f8gyfsFwLvD14Ovzi7YKtY1QUGu9XOUX9PlnsgG3s/2D+D0u76Dzrab2qhR3DFcnie5+X72zAadwejGSGeUbAgwqcBqaReIXipe7hmsOKsCa295sAhytxGihOv27aTfV3aBjkx+ocEzCLQOhGioG/vfOA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com; spf=pass smtp.mailfrom=antgroup.com; dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b=LchJtMna; arc=none smtp.client-ip=47.90.198.28
+	 In-Reply-To:Content-Type; b=bshH5zXmpv/3yX/qN/Nw6GfEVYbyFxHgchf6JF15x+6edgvDiq+yMJjzZOnGy+08zDvIvWhsiS+IdB/0FaXOZccN61Pq+LU0AwTknBwE5mAPh3lYOTqzC7I9Oe7nGs67Nebqh6Xp2OBaSQtrIy5bz66wzjy3d3C47tnQOUDJ2vw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com; spf=pass smtp.mailfrom=antgroup.com; dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b=dsfWW8/W; arc=none smtp.client-ip=115.124.28.218
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antgroup.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b="LchJtMna"
+	dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b="dsfWW8/W"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=antgroup.com; s=default;
-	t=1751951114; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=5JEqIO5uBY95Voa4tTrXdXEV+OOCe7hAnim8ZON5228=;
-	b=LchJtMnaV1nQJieOyM0RqQ98OvLYL87+9U7WhpO39Ho41YOel4wLVobESfpRzggMkpD/PYpngYJ29j1Jh+5VuB8glm+Lv8FiKkuPVQ9RRYDPjl+E06z4wFfITxNjCuj7UsFBa7elicrAh7vTGnHJ4BgSZ9LfD6hlOZRraQGb+KM=
-Received: from 30.172.244.77(mailfrom:niuxuewei.nxw@antgroup.com fp:SMTPD_---.dhEfNgk_1751951111 cluster:ay29)
+	t=1751952175; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=ll42IxvjGlWNCvhre5iXoxCnMkwXG5zTYn4NRTnJbTc=;
+	b=dsfWW8/W5EFm0gDkfae9TGsvjo1pKgx3rmjdDgg2KWMz5ESMw1dPCYMFhyG5GVESJ61F5roB+kBAmHpyGguBv6AMEt/2SDxfmlcRgW/IRfZ2D3FvOoUIYh6AModU8ZPkdxJZme//0U/mv/KiP1rfSaI7ItC6iHvJXDIIrICRd4Q=
+Received: from 30.172.244.77(mailfrom:niuxuewei.nxw@antgroup.com fp:SMTPD_---.dhG9apK_1751951856 cluster:ay29)
           by smtp.aliyun-inc.com;
-          Tue, 08 Jul 2025 13:05:12 +0800
-Message-ID: <0a969517-ba41-4aa9-8f1b-471422cc2593@antgroup.com>
-Date: Tue, 8 Jul 2025 13:05:10 +0800
+          Tue, 08 Jul 2025 13:17:37 +0800
+Message-ID: <aaac1fda-7365-4643-b8df-df6412a42891@antgroup.com>
+Date: Tue, 8 Jul 2025 13:17:36 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,30 +46,17 @@ Cc: "K. Y. Srinivasan" <kys@microsoft.com>,
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org, fupan.lfp@antgroup.com
 References: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
  <20250706-siocinq-v5-1-8d0b96a87465@antgroup.com>
- <xhzslzuxrhdoixffmzwprn254ctolimj7giuxj4nfrfg23eesy@ycpe6kma5vih>
+ <xphwpqqi42w5b3jug3vfooybrlft3z5ewravl7jvzci7ogs3nh@5i7yi66dg7fa>
 Content-Language: en-US
 From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-In-Reply-To: <xhzslzuxrhdoixffmzwprn254ctolimj7giuxj4nfrfg23eesy@ycpe6kma5vih>
+In-Reply-To: <xphwpqqi42w5b3jug3vfooybrlft3z5ewravl7jvzci7ogs3nh@5i7yi66dg7fa>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 
 
-On 2025/7/7 21:40, Stefano Garzarella wrote:
+On 2025/7/7 21:42, Stefano Garzarella wrote:
 > On Sun, Jul 06, 2025 at 12:36:29PM +0800, Xuewei Niu wrote:
-> 
-> Again, this patch should have `From: Dexuan Cui <decui@microsoft.com>` on first line, and this is done automatically by `git format-patch` (or others tools) if the author is the right one in your branch.
-> I'm not sure what is going on on your side, but you should avoid to reset the original author.
-> Applying this patch we will have:
-> 
->     commit ed36075e04ecbb1dd02a3d8eba5bfac6469d73e4
->     Author: Xuewei Niu <niuxuewei97@gmail.com>
->     Date:   Sun Jul 6 12:36:29 2025 +0800
-> 
->         hv_sock: Return the readable bytes in hvs_stream_has_data()
-> 
-> This is not what we want, right?
-> 
 >> When hv_sock was originally added, __vsock_stream_recvmsg() and
 >> vsock_stream_has_data() actually only needed to know whether there
 >> is any readable data or not, so hvs_stream_has_data() was written to
@@ -86,6 +73,14 @@ On 2025/7/7 21:40, Stefano Garzarella wrote:
 >> the next host-to-guest VMBus hv_sock packet.
 >>
 >> Note: there may be multpile incoming hv_sock packets pending in the
+> 
+> s/multpile/multiple
+
+Will do.
+
+Thanks,
+Xuewei
+
 >> VMBus channel's ringbuffer, but so far there is not a VMBus API that
 >> allows us to know all the readable bytes in total without reading and
 >> caching the payload of the multiple packets, so let's just return the
@@ -95,18 +90,6 @@ On 2025/7/7 21:40, Stefano Garzarella wrote:
 >> understand the VMBus packet format and parse the packets directly.
 >>
 >> Signed-off-by: Dexuan Cui <decui@microsoft.com>
-> 
-> Your S-o-b was fine here, I was talking about the author.
-
-I misunderstood the meaning of author. Sorry about that.
-
-Will update this in v6.
-
-Thanks,
-Xuewei 
-> Thanks,
-> Stefano
-> 
 >> ---
 >> net/vmw_vsock/hyperv_transport.c | 17 ++++++++++++++---
 >> 1 file changed, 14 insertions(+), 3 deletions(-)
@@ -149,7 +132,4 @@ Xuewei
 >> -- 
 >> 2.34.1
 >>
-
-
-
 
