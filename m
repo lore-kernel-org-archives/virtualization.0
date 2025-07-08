@@ -1,28 +1,28 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36FB21C6FEC;
-	Tue,  8 Jul 2025 16:30:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C7012E0411;
+	Tue,  8 Jul 2025 16:37:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751992202; cv=none; b=Asn/5vzJ5QxhyUS2Cw02A70JSrV029INI/Zz4IO7qEzkeRcp6dUu9+EA019w3siGxmTC358qFhbNt7dTJur/Bwsjycd4IdPJTtw5n7huZViPA8mxFuV2UsNEwYXnuAKI3DvbmuDzmAUxQv+kDjVvT87NTIdRbIKA86qPFKPqN1I=
+	t=1751992647; cv=none; b=kXCsIk6rIizxdXUUbeS+kI0yF8BEMMb4Bm10qjACzO7qHFpB95VrLTjz+a2Vabx597eM3UyMF7aU8vcejIb0X1APAbf7H9E5dzVokQDyTpgEn5npyEQXncP74Hev/nO6zu94Uodz6QVKSTxvIo5ml6xHvPb/qyYH7Z40r7Kjoqc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751992202; c=relaxed/simple;
-	bh=un9sD9x7n5QQzIwLfSUYN/9O4+kXaOErfTahqv0rHAs=;
+	s=arc-20240116; t=1751992647; c=relaxed/simple;
+	bh=ey2gRT+nNqNh6DaJHBCCJnjpGjMJ4gvEsOCzNO8okFM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YAr8DgXfWb0j80eeMngMnzdn+rCC+ft5AukaDKmAzOd0rfWfoc0p9Jip1xtBxhkH8pUuOubSUpq6nKpmoa7MVP97xB3CBVtPJhGLjBsxnG4R3bBHKoVMXy1P9LT81fnGwRpb9DAwzecRdXKUeob1y9S5z72uTA9w25IYBXC2Wck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=xTmIym+B; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=IcAmlFRzVRS+2iUMXrJ6sZP6eN++wOdbW/y2U1vhMTi8CKwCDJEUo9SSXlXl0V70Y9FPQAFKWTsZRjlQPMTIfPjWx5kPJVBxHjXcsgRISXplqDs6YQ5U9VoLUjTapjCNsZJUAmLOSy7TZaPQZAIwGWxUfAT2yXXKCnoba6pOk6Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=iKq5Fng5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="xTmIym+B"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CF85C4CEED;
-	Tue,  8 Jul 2025 16:30:01 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="iKq5Fng5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B88F6C4CEED;
+	Tue,  8 Jul 2025 16:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1751992202;
-	bh=un9sD9x7n5QQzIwLfSUYN/9O4+kXaOErfTahqv0rHAs=;
+	s=korg; t=1751992647;
+	bh=ey2gRT+nNqNh6DaJHBCCJnjpGjMJ4gvEsOCzNO8okFM=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=xTmIym+BoZCzuQZZ1OlLMkBF/Qcvave7I8EhZkXVqas0Bl2YU57UfV0FhsUCu4srX
-	 01miA3+zeuMLuD5XQltrBAp9qQukXnF9EtZezHDEjaqnxb+jcQrPlYxMmze2nYNgG4
-	 EmTevgauSBr6d6LX/nm+LCFP9E2h6XlpNaLgoCAQ=
+	b=iKq5Fng5thLk290JYAJ+gkkp/23mF6PP04cHfA0+DcL8yJNYs1f1KsigVYut+7uth
+	 UPgPxHs82VHI9ulo+S6W2M1To8/9R8+lmc3xaUv83DZ8PrG3nzT1h73cv9FQvEPMMa
+	 IgQs/muatbIR0KnWeQRdi/FF+ThzQxFJMTjoBkSs=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -39,12 +39,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	netdev@vger.kernel.org,
 	stable <stable@kernel.org>,
 	HarshaVardhana S A <harshavardhana.sa@broadcom.com>
-Subject: [PATCH 6.6 006/132] vsock/vmci: Clear the vmci transport packet properly when initializing it
-Date: Tue,  8 Jul 2025 18:21:57 +0200
-Message-ID: <20250708162230.951045547@linuxfoundation.org>
+Subject: [PATCH 6.12 009/232] vsock/vmci: Clear the vmci transport packet properly when initializing it
+Date: Tue,  8 Jul 2025 18:20:05 +0200
+Message-ID: <20250708162241.675908657@linuxfoundation.org>
 X-Mailer: git-send-email 2.50.0
-In-Reply-To: <20250708162230.765762963@linuxfoundation.org>
-References: <20250708162230.765762963@linuxfoundation.org>
+In-Reply-To: <20250708162241.426806072@linuxfoundation.org>
+References: <20250708162241.426806072@linuxfoundation.org>
 User-Agent: quilt/0.68
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -56,7 +56,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-6.6-stable review patch.  If anyone has any objections, please let me know.
+6.12-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
