@@ -1,42 +1,65 @@
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 793D8221D87
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 12:56:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6C55256C8D
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 14:26:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751979391; cv=none; b=tvVgBxFs+FuBZ3nRk0ut2GNCmmMWZ10QDpME/XzX+DAYJ+L2yaK9RaHxvCWCKedoWmdWgTje1mqiZPBMYBbwAVgTJNZ3X2Wzw/bUPTE4EosMg8lTuAXyRU3wFLcJ0XVvFYxr0Cb7WbzgCg0P860dXeuTuQf2itqy93aCPqlwM/U=
+	t=1751984807; cv=none; b=tgC5FFlCoC/Z4rhkmI9voIy+K+68bDYV0zW6QA/wL2WFozKZPh4SmxeNejtHr2gNseR0dMTMUSG3BqT2JgBpDkiFQY7Eez3b/ME5k6FZH9nM1snXdSd4RGPCe36TS4oVI/LAcdmSwDlX/e9YuP3011rxEUFVDOe9W07anY1hfu0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751979391; c=relaxed/simple;
-	bh=tJRA7m1/e900tlxVd4Za+3wH7OTzUtyyJem1XRv1vJ8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=DlUGzEzlxPAbeKiBHzYuqc2bQkc93BH0U/tItI9iNxTV2rByoBj29FG5K65YCyHc9WiTlpGn+9BsHSvIGxk4WjVePj68v2qdaJiSXCY4NTxOx2dn+DXLiXOevZ6/0XZWNp+2xyxFHxIA222iQf5wwksBh12rb/8leNjk1EcxFOI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=rUMpLiKt; arc=none smtp.client-ip=210.118.77.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1751984807; c=relaxed/simple;
+	bh=FnMJBbKPiDFO1AIn7dnhFfO7zlcFSBcjt9eAlqWtieI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=By4x28ThHl4zFJONwu6iN1Qi8pR7tMuAxRb9WQZXXe0j8gxM+RqOyrA+DQ2qvkZSwIkAA4NsCag3hLUbdHLXCrTJw0Y1xQY9pjMA4T8qhfE52AQpuMmYKy3WT9gQMPt2wdBNvlin92e8U4OA7s0uTV9TMPDg2uDVkrLL+YE/lPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gXJIgmm4; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="rUMpLiKt"
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20250708125626euoutp01481090aca999c360f1cc421345410614~QR-hIpaRH1038310383euoutp01B
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 12:56:26 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20250708125626euoutp01481090aca999c360f1cc421345410614~QR-hIpaRH1038310383euoutp01B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1751979386;
-	bh=7/XLYR0OqGT6q8wsQL9awTM8RahowyCK2kF3Lml5n78=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=rUMpLiKtylansmwZEOTSLIDw3e88apapi9cZUeM+VwB6dnZwW74YiawcqeB7aNHsz
-	 phmldqGZGmgcE5mbHZFMvy+/ua/qmdnZrQIXXdjq/6DIcaz3yi5eWLpP0dS+1ew2NU
-	 O2DMyf6ZjkU0E5KGbps8p5YBy+HTdwiEMA3XvUgM=
-Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20250708125626eucas1p10fea4e2440d7273510ca606b8c879240~QR-go19vo0583905839eucas1p1z;
-	Tue,  8 Jul 2025 12:56:26 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20250708125622eusmtip2e8d499202aebc1a18605d526cd72bbdc~QR-dBQdu70489204892eusmtip2-;
-	Tue,  8 Jul 2025 12:56:22 +0000 (GMT)
-Message-ID: <39d43309-9f34-48bc-a9ad-108c607ba175@samsung.com>
-Date: Tue, 8 Jul 2025 14:56:21 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gXJIgmm4"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-73972a54919so3968966b3a.3
+        for <virtualization@lists.linux.dev>; Tue, 08 Jul 2025 07:26:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1751984805; x=1752589605; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=M+V/4hzINiNtnwUKYapOA6OBBGlFzgjmnEijOcNgHxw=;
+        b=gXJIgmm4VIX+9JyLszDo+HU2uHZbE6aGWsYyRT9u9UM+KbN4fb4yL16MZV0FNDyBBR
+         WL5ZMeeC4UZeUR0SSvdohOr3QsKr5fQt4PBOAOwD83q4ltM9DSxcv63ksLbrRUSLIJSM
+         TqO0d0RRE2xvvgodssWn//PWWddzdkoVS1zih1jw/8CPW+ncAj9sFCGdlRfdHjV3s6a3
+         JYEfwAc3MP3E7K6bfBgDwMNCeEpjSX3FWbpLkV5Zg+XjJFJ9rexOLVF1qEE9+x/In0Z5
+         lxy+HhWCcxCH3Z9/vWroW07ojb54fR5dGx6WiJZVmK7UNGt+Zby2EAAf391pqfX8pSis
+         sB6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751984805; x=1752589605;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=M+V/4hzINiNtnwUKYapOA6OBBGlFzgjmnEijOcNgHxw=;
+        b=idFM++ucgljWgD9q/NPEdqsx4PQLKXNicQ/LWx2uw7yBfaeIMo0C+YEjbYk8QwuaL/
+         LiZ16bSVV2JNrZoc3GdRgAyz4OFj5gOuz984BVJfD7rorUft+IgGtKKQBBz/P6XnYuL5
+         kLw2UAmBeHmLlvHpCRs7ud9A+e4tqzyK4xfgzErt+CUzK5zQnFM6BHUXvORhQScDCyBF
+         aowR0e9+oQf89YmKY61XMxlzljsuMIFTFYXIqarEqPAlyQvD8GIxc6c9M875T3wSJ0nQ
+         r1mNFvpTQpQ7vCZdd1s7TxoC9jq5Gmb2tRy+c/ZOCsd3JuwZGmVlWZ2h8VBigESr1qGB
+         wiXg==
+X-Forwarded-Encrypted: i=1; AJvYcCVBBGIMZRNXHhCWDK9en6JALopJscCJzLIb7r50JBiRqM+1dVqJ89p+JPnzT2vCx6FWmTX+oJkpzIohX2SPVg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwnIFken/Ei66XSbYVQ+CLppFdnprdyB/4BaOB3DPxUzDrSLRpE
+	bqoZT+ZGjW/6T8e8X7PTw6TjtwmYfAATuK5XF4QkRtyQhJav+zcdfhdj
+X-Gm-Gg: ASbGncvoT87+eEPxZfyPUApAlrQfve607wEIMO5MuNNoIVvsHMR8VCIGYa8LGsHGW4V
+	Mnph5utU/EU4i2hCCaWiSAZt6sGpNB7L7ePIxQa+UtyUO2R7OOS8M4ZhRJVW8uG7c+ZqvzSCYpd
+	44UWwyiUDe7GiiXoW1natZ+NfnNG1cL4uLNM46giYJLdg7dMiGHdm0nCT9y8Deb2WE+xrNpMbbe
+	cc2XlQPmwEPWTuV8GkPmYeCqbeX/Jg+wu2CB0FkMZDnv3MvCEwrddbnkWdIEFYLuGpaT3xYC19b
+	yI3OippNRTgyF4hkWCbyeXqoPslN8Fik88XwXslVn4O57LK53pDnCjtA+8tkhCHHxNTJ8FmcQjX
+	6GXnZUe2Jak6Zcm/k2avr+eb5+Sx12VW+Fm6v3VcL
+X-Google-Smtp-Source: AGHT+IGM8VTrVWuRijpvW/6zRn7zP7Y3/ODvDnK8T/rQZXTP+qzbmuc4pfDOBx/ywvZQREAbUs9kHQ==
+X-Received: by 2002:a05:6a00:3c92:b0:73f:f623:55f8 with SMTP id d2e1a72fcca58-74ce88249b6mr19245771b3a.5.1751984804772;
+        Tue, 08 Jul 2025 07:26:44 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0e:fb30:37c0:6356:b7b4:119a? ([2001:ee0:4f0e:fb30:37c0:6356:b7b4:119a])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74ce4299c3dsm11944325b3a.116.2025.07.08.07.26.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Jul 2025 07:26:44 -0700 (PDT)
+Message-ID: <9fa577cf-0999-431c-bfc9-e7911601543c@gmail.com>
+Date: Tue, 8 Jul 2025 21:26:36 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -44,91 +67,85 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
-	<mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
-	<christophe.leroy@csgroup.eu>, Robin Murphy <robin.murphy@arm.com>, Joerg
-	Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, "Michael S.
-	Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Alexander Potapenko <glider@google.com>, Marco Elver
- <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>, Masami Hiramatsu
- <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Andrew Morton
- <akpm@linux-foundation.org>, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- iommu@lists.linux.dev, virtualization@lists.linux.dev,
- kasan-dev@googlegroups.com, linux-trace-kernel@vger.kernel.org,
- linux-mm@kvack.org, Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH net] virtio-net: fix received length check in big packets
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Gavin Li <gavinl@nvidia.com>, Gavi Teitz <gavi@nvidia.com>,
+ Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20250706141150.25344-1-minhquangbui99@gmail.com>
+ <CACGkMEvCZ1D7k+=V-Ta9hXpdW4ofnbXfQ4JcADXabC13CA884A@mail.gmail.com>
 Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <20250708120647.GG592765@unreal>
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <CACGkMEvCZ1D7k+=V-Ta9hXpdW4ofnbXfQ4JcADXabC13CA884A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20250708125626eucas1p10fea4e2440d7273510ca606b8c879240
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
-X-EPHeader: CA
-X-CMS-RootMailID: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
-References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
-	<cover.1750854543.git.leon@kernel.org>
-	<35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
-	<20250627170213.GL17401@unreal> <20250630133839.GA26981@lst.de>
-	<69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
-	<20250708110007.GF592765@unreal>
-	<261f2417-78a9-45b8-bcec-7e36421a243c@samsung.com>
-	<20250708120647.GG592765@unreal>
 
-On 08.07.2025 14:06, Leon Romanovsky wrote:
-> On Tue, Jul 08, 2025 at 01:45:20PM +0200, Marek Szyprowski wrote:
->> On 08.07.2025 13:00, Leon Romanovsky wrote:
->>> On Tue, Jul 08, 2025 at 12:27:09PM +0200, Marek Szyprowski wrote:
->>>> On 30.06.2025 15:38, Christoph Hellwig wrote:
->>>>> On Fri, Jun 27, 2025 at 08:02:13PM +0300, Leon Romanovsky wrote:
->>>>>>> Thanks for this rework! I assume that the next step is to add map_phys
->>>>>>> callback also to the dma_map_ops and teach various dma-mapping providers
->>>>>>> to use it to avoid more phys-to-page-to-phys conversions.
->>>>>> Probably Christoph will say yes, however I personally don't see any
->>>>>> benefit in this. Maybe I wrong here, but all existing .map_page()
->>>>>> implementation platforms don't support p2p anyway. They won't benefit
->>>>>> from this such conversion.
->>>>> I think that conversion should eventually happen, and rather sooner than
->>>>> later.
->>>> Agreed.
->>>>
->>>> Applied patches 1-7 to my dma-mapping-next branch. Let me know if one
->>>> needs a stable branch with it.
->>> Thanks a lot, I don't think that stable branch is needed. Realistically
->>> speaking, my VFIO DMA work won't be merged this cycle, We are in -rc5,
->>> it is complete rewrite from RFC version and touches pci-p2p code (to
->>> remove dependency on struct page) in addition to VFIO, so it will take
->>> time.
->>>
->>> Regarding, last patch (hmm), it will be great if you can take it.
->>> We didn't touch anything in hmm.c this cycle and have no plans to send PR.
->>> It can safely go through your tree.
->> Okay, then I would like to get an explicit ack from Jérôme for this.
-> Jerome is not active in HMM world for a long time already.
-> HMM tree is managed by us (RDMA) https://git.kernel.org/pub/scm/linux/kernel/git/rdma/rdma.git/log/?h=hmm
-> ➜  kernel git:(m/dmabuf-vfio) git log --merges mm/hmm.c
-> ...
-> Pull HMM updates from Jason Gunthorpe:
-> ...
+On 7/7/25 10:48, Jason Wang wrote:
+> On Sun, Jul 6, 2025 at 10:12 PM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>> Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
+>> for big packets"), the allocated size for big packets is not
+>> MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on negotiated MTU. The
+>> number of allocated frags for big packets is stored in
+>> vi->big_packets_num_skbfrags. This commit fixes the received length
+>> check corresponding to that change. The current incorrect check can lead
+>> to NULL page pointer dereference in the below while loop when erroneous
+>> length is received.
+>>
+>> Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
+>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+>> ---
+>>   drivers/net/virtio_net.c | 10 +++++++---
+>>   1 file changed, 7 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 5d674eb9a0f2..ead1cd2fb8af 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -823,7 +823,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>>   {
+>>          struct sk_buff *skb;
+>>          struct virtio_net_common_hdr *hdr;
+>> -       unsigned int copy, hdr_len, hdr_padded_len;
+>> +       unsigned int copy, hdr_len, hdr_padded_len, max_remaining_len;
+>>          struct page *page_to_free = NULL;
+>>          int tailroom, shinfo_size;
+>>          char *p, *hdr_p, *buf;
+>> @@ -887,12 +887,16 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>>           * tries to receive more than is possible. This is usually
+>>           * the case of a broken device.
+>>           */
+>> -       if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
+>> +       BUG_ON(offset >= PAGE_SIZE);
+>> +       max_remaining_len = (unsigned int)PAGE_SIZE - offset;
+>> +       max_remaining_len += vi->big_packets_num_skbfrags * PAGE_SIZE;
+>> +       if (unlikely(len > max_remaining_len)) {
+>>                  net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
+>>                  dev_kfree_skb(skb);
+>> +               give_pages(rq, page);
+> Should this be an independent fix?
+
+I've realized this is not needed. In receive_big(), if page_to_skb() 
+returns NULL then give_pages() is called. I'll remove this in next version.
+
+Thanks,
+Quang Minh.
+
 >
-> https://web.git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=58ba80c4740212c29a1cf9b48f588e60a7612209
-> +hmm		git	git://git.kernel.org/pub/scm/linux/kernel/git/rdma/rdma.git#hmm
+>>                  return NULL;
+>>          }
+>> -       BUG_ON(offset >= PAGE_SIZE);
+>> +
+>>          while (len) {
+>>                  unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
+>>                  skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset,
+>> --
+>> 2.43.0
+>>
+> Thanks
 >
-> We just never bothered to reflect current situation in MAINTAINERS file.
-
-Maybe this is the time to update it :)
-
-I was just a bit confused that no-one commented the HMM patch, but if 
-You maintain it, then this is okay.
-
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
 
