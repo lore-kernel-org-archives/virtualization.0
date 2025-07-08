@@ -1,334 +1,188 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out198-19.us.a.mail.aliyun.com (out198-19.us.a.mail.aliyun.com [47.90.198.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2234922A4E8
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 06:48:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D7DD2248AC
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 06:49:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.198.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751957323; cv=none; b=STaOmeHrVwXN8J08RbOnWPZfqJxIDTF1BS/jbAV9EJWvsBTYlbfRhaYE/TeisUACquQhpoFmZKKuWQ+CiM43dAcvANSLq0qGAh7Qihmh22+zs1vu8jq6ssX6KgZEMSDTvDxNz+7aS+x1nYYNbp37JUjF5YIlw7f+/dbLgG4zFoI=
+	t=1751957358; cv=none; b=QcIIM+AMlYwg+lxts1bjGPjNpjBVc7PENNjReLAQw90IWT/m8Pq5xyvIzD8TEjWQXvGQ1PP9pmuLsUIRGgFK3oTXX8c1mpjp1ZYyGFJL1U5wMOvVEASki3k98zxAaQCvTn9T+9dKP2/Ch24nd/Yv1cNXe5zerE7wm0jtznRMTCQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751957323; c=relaxed/simple;
-	bh=MY8vMj70pEwa4XHTdydkUlnbuShmK/xDyh6QSW3qoUA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=O3OV9pmHr70D7AbrHNBOBecWyG4VOh9x87p8X5UezEI22Yt/SkutxMPI/9q9MKBlaKyTUJxROLdt82WYLEBf954Ct1ouZLxOP2Y3zz5sHVx/1SBHdFLb3cb2X01LeUjuKb3rS1oh1QuSsliCB5zhmV4aaZGt3u1xcA8I2VpPMXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OCjxkihk; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751957358; c=relaxed/simple;
+	bh=thPndo6dlWTfZeTyIzp/4+EhMFDLJTB+q35Ha5618eE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sAaj3hRPQXW8mTNdgT0FsQRqpYV+81hmTZImWAzxN5OtZg/1RhdUoYkhIRcOVUohG0wIRv+hKLTRIlHyxZ1ezVi6e/g8F/lb+mAMFYq3PYZVHReIMQrSiaT+550LjkVOlB6gGYBGIWNGewcGDzVvZM96CeJ3ytst5KPqcISujFo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com; spf=pass smtp.mailfrom=antgroup.com; dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b=JcRbYmWO; arc=none smtp.client-ip=47.90.198.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antgroup.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OCjxkihk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751957321;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=teTwZIaIdHF2W5KWCPjBDcr/Vz6B+2AKBnkMWIsMlmo=;
-	b=OCjxkihku7K6wxLUp+Oz/AW2V8jRvU0CexW7Ldc2goPaFhD/BQYzFUx+p5Dhe3zTc9S3T+
-	HD4IoLXzCcR86GNhYGjPycEv2J/JG/6tXIz9wJQEbVigZvGz5lJUEkxZTL+LMXYCtqBI4H
-	ne09oA624cLTnX0OtVL5R6jLxNLhCnI=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-462-3UxcNv81M0GM_cSvbteMdw-1; Tue,
- 08 Jul 2025 02:48:39 -0400
-X-MC-Unique: 3UxcNv81M0GM_cSvbteMdw-1
-X-Mimecast-MFC-AGG-ID: 3UxcNv81M0GM_cSvbteMdw_1751957318
-Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 303C3180029F;
-	Tue,  8 Jul 2025 06:48:38 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.72.112.173])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2E0B419560B2;
-	Tue,  8 Jul 2025 06:48:33 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	eperezma@redhat.com
-Cc: kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	jonah.palmer@oracle.com
-Subject: [PATCH net-next 2/2] vhost_net: basic in_order support
-Date: Tue,  8 Jul 2025 14:48:19 +0800
-Message-ID: <20250708064819.35282-3-jasowang@redhat.com>
-In-Reply-To: <20250708064819.35282-1-jasowang@redhat.com>
-References: <20250708064819.35282-1-jasowang@redhat.com>
+	dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b="JcRbYmWO"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=antgroup.com; s=default;
+	t=1751957341; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=cMZqnaTHDwkxEpl+JaYOXi3Kcl7BjC2nVgGg3nctPaY=;
+	b=JcRbYmWOsDLSCcAtz0ebL0b626lFsCCUuMhVo3NxcfjLd2ydyEsvalEQmaXSiK5yFcBG9TEyQ0IAJVSK+8WCwQbxba6e0qoy7ka3CwzhN+TTzRMla5RLFs1NMfOCDp+fgMxtSlS8e/iUY4NHoBz1LXnr/xCjtMFSshRUkuwt7/8=
+Received: from 30.172.244.77(mailfrom:niuxuewei.nxw@antgroup.com fp:SMTPD_---.dhHy2Tm_1751952194 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Tue, 08 Jul 2025 13:23:15 +0800
+Message-ID: <9d9adafc-71d8-4e24-b5a0-7acd1b538ae7@antgroup.com>
+Date: Tue, 8 Jul 2025 13:23:13 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v5 0/4] vsock: Introduce SIOCINQ ioctl support
+To: Stefano Garzarella <sgarzare@redhat.com>,
+ Xuewei Niu <niuxuewei97@gmail.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, fupan.lfp@antgroup.com
+References: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
+ <yx44jpqxyi5yujwgdvyzajsjyf6rjqht5ypvp7q72imc6cfs2e@7yzhohzyilpq>
+Content-Language: en-US
+From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+In-Reply-To: <yx44jpqxyi5yujwgdvyzajsjyf6rjqht5ypvp7q72imc6cfs2e@7yzhohzyilpq>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-This patch introduces basic in-order support for vhost-net. By
-recording the number of batched buffers in an array when calling
-`vhost_add_used_and_signal_n()`, we can reduce the number of userspace
-accesses. Note that the vhost-net batching logic is kept as we still
-count the number of buffers there.
 
-Testing Results:
 
-With testpmd:
+On 2025/7/7 21:44, Stefano Garzarella wrote:
+> On Sun, Jul 06, 2025 at 12:36:28PM +0800, Xuewei Niu wrote:
+>> Introduce SIOCINQ ioctl support for vsock, indicating the length of unread
+>> bytes.
+>>
+>> Similar with SIOCOUTQ ioctl, the information is transport-dependent.
+>>
+>> The first patch adds SIOCINQ ioctl support in AF_VSOCK.
+>>
+>> Thanks to @dexuan, the second patch is to fix the issue where hyper-v
+>> `hvs_stream_has_data()` doesn't return the readable bytes.
+>>
+>> The third patch wraps the ioctl into `ioctl_int()`, which implements a
+>> retry mechanism to prevent immediate failure.
+>>
+>> The last one adds two test cases to check the functionality. The changes
+>> have been tested, and the results are as expected.
+>>
+>> Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+>>
+>> -- 
+>>
+>> v1->v2:
+>> https://lore.kernel.org/lkml/20250519070649.3063874-1-niuxuewei.nxw@antgroup.com/
+>> - Use net-next tree.
+>> - Reuse `rx_bytes` to count unread bytes.
+>> - Wrap ioctl syscall with an int pointer argument to implement a retry
+>>  mechanism.
+>>
+>> v2->v3:
+>> https://lore.kernel.org/netdev/20250613031152.1076725-1-niuxuewei.nxw@antgroup.com/
+>> - Update commit messages following the guidelines
+>> - Remove `unread_bytes` callback and reuse `vsock_stream_has_data()`
+>> - Move the tests to the end of array
+>> - Split the refactoring patch
+>> - Include <sys/ioctl.h> in the util.c
+>>
+>> v3->v4:
+>> https://lore.kernel.org/netdev/20250617045347.1233128-1-niuxuewei.nxw@antgroup.com/
+>> - Hyper-v `hvs_stream_has_data()` returns the readable bytes
+>> - Skip testing the null value for `actual` (int pointer)
+>> - Rename `ioctl_int()` to `vsock_ioctl_int()`
+>> - Fix a typo and a format issue in comments
+>> - Remove the `RECEIVED` barrier.
+>> - The return type of `vsock_ioctl_int()` has been changed to bool
+>>
+>> v4->v5:
+>> https://lore.kernel.org/netdev/20250630075727.210462-1-niuxuewei.nxw@antgroup.com/
+>> - Put the hyper-v fix before the SIOCINQ ioctl implementation.
+>> - Remove my SOB from the hyper-v fix patch.
+> 
+> Has I mentioned, that was not the issue, but the wrong Author.
 
-- TX: txonly mode + vhost_net with XDP_DROP on TAP shows a 17.5%
-  improvement, from 4.75 Mpps to 5.35 Mpps.
-- RX: No obvious improvements were observed.
+I see it now. I'll update the author in v6. 
+> There are also other issue, not sure how you're sending them, but I guess there are some issues with you `git format-patch` configuration:
 
-With virtio-ring in-order experimental code in the guest:
+I was using my personal email. I have changed to the right email now.
 
-- TX: pktgen in the guest + XDP_DROP on  TAP shows a 19% improvement,
-  from 5.2 Mpps to 6.2 Mpps.
-- RX: pktgen on TAP with vhost_net + XDP_DROP in the guest achieves a
-  6.1% improvement, from 3.47 Mpps to 3.61 Mpps.
+Hope everything goes fine with the next version.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c | 86 ++++++++++++++++++++++++++++++++-------------
- 1 file changed, 61 insertions(+), 25 deletions(-)
+Thanks,
+Xuewei
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 4f9c67f17b49..8ac994b3228a 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -74,7 +74,8 @@ enum {
- 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
- 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
- 			 (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
--			 (1ULL << VIRTIO_F_RING_RESET)
-+			 (1ULL << VIRTIO_F_RING_RESET) |
-+			 (1ULL << VIRTIO_F_IN_ORDER)
- };
- 
- enum {
-@@ -450,7 +451,8 @@ static int vhost_net_enable_vq(struct vhost_net *n,
- 	return vhost_poll_start(poll, sock->file);
- }
- 
--static void vhost_net_signal_used(struct vhost_net_virtqueue *nvq)
-+static void vhost_net_signal_used(struct vhost_net_virtqueue *nvq,
-+				  unsigned int count)
- {
- 	struct vhost_virtqueue *vq = &nvq->vq;
- 	struct vhost_dev *dev = vq->dev;
-@@ -458,8 +460,8 @@ static void vhost_net_signal_used(struct vhost_net_virtqueue *nvq)
- 	if (!nvq->done_idx)
- 		return;
- 
--	vhost_add_used_and_signal_n(dev, vq, vq->heads, NULL,
--				    nvq->done_idx);
-+	vhost_add_used_and_signal_n(dev, vq, vq->heads,
-+				    vq->nheads, count);
- 	nvq->done_idx = 0;
- }
- 
-@@ -468,6 +470,8 @@ static void vhost_tx_batch(struct vhost_net *net,
- 			   struct socket *sock,
- 			   struct msghdr *msghdr)
- {
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+	bool in_order = vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
- 	struct tun_msg_ctl ctl = {
- 		.type = TUN_MSG_PTR,
- 		.num = nvq->batched_xdp,
-@@ -475,6 +479,11 @@ static void vhost_tx_batch(struct vhost_net *net,
- 	};
- 	int i, err;
- 
-+	if (in_order) {
-+		vq->heads[0].len = 0;
-+		vq->nheads[0] = nvq->done_idx;
-+	}
-+
- 	if (nvq->batched_xdp == 0)
- 		goto signal_used;
- 
-@@ -496,7 +505,7 @@ static void vhost_tx_batch(struct vhost_net *net,
- 	}
- 
- signal_used:
--	vhost_net_signal_used(nvq);
-+	vhost_net_signal_used(nvq, in_order ? 1 : nvq->done_idx);
- 	nvq->batched_xdp = 0;
- }
- 
-@@ -758,6 +767,7 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
- 	int sent_pkts = 0;
- 	bool sock_can_batch = (sock->sk->sk_sndbuf == INT_MAX);
- 	bool busyloop_intr;
-+	bool in_order = vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
- 
- 	do {
- 		busyloop_intr = false;
-@@ -794,11 +804,13 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
- 				break;
- 			}
- 
--			/* We can't build XDP buff, go for single
--			 * packet path but let's flush batched
--			 * packets.
--			 */
--			vhost_tx_batch(net, nvq, sock, &msg);
-+			if (nvq->batched_xdp) {
-+				/* We can't build XDP buff, go for single
-+				 * packet path but let's flush batched
-+				 * packets.
-+				 */
-+				vhost_tx_batch(net, nvq, sock, &msg);
-+			}
- 			msg.msg_control = NULL;
- 		} else {
- 			if (tx_can_batch(vq, total_len))
-@@ -819,8 +831,12 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
- 			pr_debug("Truncated TX packet: len %d != %zd\n",
- 				 err, len);
- done:
--		vq->heads[nvq->done_idx].id = cpu_to_vhost32(vq, head);
--		vq->heads[nvq->done_idx].len = 0;
-+		if (in_order) {
-+			vq->heads[0].id = cpu_to_vhost32(vq, head);
-+		} else {
-+			vq->heads[nvq->done_idx].id = cpu_to_vhost32(vq, head);
-+			vq->heads[nvq->done_idx].len = 0;
-+		}
- 		++nvq->done_idx;
- 	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
- 
-@@ -999,7 +1015,7 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
- }
- 
- static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
--				      bool *busyloop_intr)
-+				      bool *busyloop_intr, unsigned int count)
- {
- 	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
- 	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
-@@ -1009,7 +1025,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
- 
- 	if (!len && rvq->busyloop_timeout) {
- 		/* Flush batched heads first */
--		vhost_net_signal_used(rnvq);
-+		vhost_net_signal_used(rnvq, count);
- 		/* Both tx vq and rx socket were polled here */
- 		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, true);
- 
-@@ -1021,7 +1037,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
- 
- /* This is a multi-buffer version of vhost_get_desc, that works if
-  *	vq has read descriptors only.
-- * @vq		- the relevant virtqueue
-+ * @nvq		- the relevant vhost_net virtqueue
-  * @datalen	- data length we'll be reading
-  * @iovcount	- returned count of io vectors we fill
-  * @log		- vhost log
-@@ -1029,14 +1045,17 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
-  * @quota       - headcount quota, 1 for big buffer
-  *	returns number of buffer heads allocated, negative on error
-  */
--static int get_rx_bufs(struct vhost_virtqueue *vq,
-+static int get_rx_bufs(struct vhost_net_virtqueue *nvq,
- 		       struct vring_used_elem *heads,
-+		       u16 *nheads,
- 		       int datalen,
- 		       unsigned *iovcount,
- 		       struct vhost_log *log,
- 		       unsigned *log_num,
- 		       unsigned int quota)
- {
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+	bool in_order = vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
- 	unsigned int out, in;
- 	int seg = 0;
- 	int headcount = 0;
-@@ -1073,14 +1092,16 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			nlogs += *log_num;
- 			log += *log_num;
- 		}
--		heads[headcount].id = cpu_to_vhost32(vq, d);
- 		len = iov_length(vq->iov + seg, in);
--		heads[headcount].len = cpu_to_vhost32(vq, len);
--		datalen -= len;
-+		if (!in_order) {
-+			heads[headcount].id = cpu_to_vhost32(vq, d);
-+			heads[headcount].len = cpu_to_vhost32(vq, len);
-+		}
- 		++headcount;
-+		datalen -= len;
- 		seg += in;
- 	}
--	heads[headcount - 1].len = cpu_to_vhost32(vq, len + datalen);
-+
- 	*iovcount = seg;
- 	if (unlikely(log))
- 		*log_num = nlogs;
-@@ -1090,6 +1111,15 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 		r = UIO_MAXIOV + 1;
- 		goto err;
- 	}
-+
-+	if (!in_order)
-+		heads[headcount - 1].len = cpu_to_vhost32(vq, len + datalen);
-+	else {
-+		heads[0].len = cpu_to_vhost32(vq, len + datalen);
-+		heads[0].id = cpu_to_vhost32(vq, d);
-+		nheads[0] = headcount;
-+	}
-+
- 	return headcount;
- err:
- 	vhost_discard_vq_desc(vq, headcount);
-@@ -1102,6 +1132,8 @@ static void handle_rx(struct vhost_net *net)
- {
- 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_RX];
- 	struct vhost_virtqueue *vq = &nvq->vq;
-+	bool in_order = vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
-+	unsigned int count = 0;
- 	unsigned in, log;
- 	struct vhost_log *vq_log;
- 	struct msghdr msg = {
-@@ -1149,12 +1181,13 @@ static void handle_rx(struct vhost_net *net)
- 
- 	do {
- 		sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
--						      &busyloop_intr);
-+						      &busyloop_intr, count);
- 		if (!sock_len)
- 			break;
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
--		headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
-+		headcount = get_rx_bufs(nvq, vq->heads + count,
-+					vq->nheads + count,
- 					vhost_len, &in, vq_log, &log,
- 					likely(mergeable) ? UIO_MAXIOV : 1);
- 		/* On error, stop handling until the next kick. */
-@@ -1230,8 +1263,11 @@ static void handle_rx(struct vhost_net *net)
- 			goto out;
- 		}
- 		nvq->done_idx += headcount;
--		if (nvq->done_idx > VHOST_NET_BATCH)
--			vhost_net_signal_used(nvq);
-+		count += in_order ? 1 : headcount;
-+		if (nvq->done_idx > VHOST_NET_BATCH) {
-+			vhost_net_signal_used(nvq, count);
-+			count = 0;
-+		}
- 		if (unlikely(vq_log))
- 			vhost_log_write(vq, vq_log, log, vhost_len,
- 					vq->iov, in);
-@@ -1243,7 +1279,7 @@ static void handle_rx(struct vhost_net *net)
- 	else if (!sock_len)
- 		vhost_net_enable_vq(net, vq);
- out:
--	vhost_net_signal_used(nvq);
-+	vhost_net_signal_used(nvq, count);
- 	mutex_unlock(&vq->mutex);
- }
- 
--- 
-2.31.1
+> 
+> $ ./scripts/checkpatch.pl -g net-next..HEAD --codespell
+> -----------------------------------------------------------------------------------
+> Commit ed36075e04ec ("hv_sock: Return the readable bytes in hvs_stream_has_data()")
+> -----------------------------------------------------------------------------------
+> WARNING: 'multpile' may be misspelled - perhaps 'multiple'?
+> #23:
+> Note: there may be multpile incoming hv_sock packets pending in the
+>                    ^^^^^^^^
+> 
+> ERROR: Missing Signed-off-by: line by nominal patch author 'Xuewei Niu <niuxuewei97@gmail.com>'
+> 
+> total: 1 errors, 1 warnings, 0 checks, 29 lines checked
+> 
+> NOTE: For some of the reported defects, checkpatch may be able to
+>       mechanically convert to the typical style using --fix or --fix-inplace.
+> 
+> Commit ed36075e04ec ("hv_sock: Return the readable bytes in hvs_stream_has_data()") has style problems, please review.
+> ------------------------------------------------------------
+> Commit 4e5c39e373fa ("vsock: Add support for SIOCINQ ioctl")
+> ------------------------------------------------------------
+> WARNING: From:/Signed-off-by: email address mismatch: 'From: Xuewei Niu <niuxuewei97@gmail.com>' != 'Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>'
+> 
+> total: 0 errors, 1 warnings, 0 checks, 28 lines checked
+> 
+> NOTE: For some of the reported defects, checkpatch may be able to
+>       mechanically convert to the typical style using --fix or --fix-inplace.
+> 
+> Commit 4e5c39e373fa ("vsock: Add support for SIOCINQ ioctl") has style problems, please review.
+> ------------------------------------------------------------------------
+> Commit 3eb323b2d9f4 ("test/vsock: Add retry mechanism to ioctl wrapper")
+> ------------------------------------------------------------------------
+> WARNING: From:/Signed-off-by: email address mismatch: 'From: Xuewei Niu <niuxuewei97@gmail.com>' != 'Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>'
+> 
+> total: 0 errors, 1 warnings, 62 lines checked
+> 
+> NOTE: For some of the reported defects, checkpatch may be able to
+>       mechanically convert to the typical style using --fix or --fix-inplace.
+> 
+> Commit 3eb323b2d9f4 ("test/vsock: Add retry mechanism to ioctl wrapper") has style problems, please review.
+> 
+> NOTE: If any of the errors are false positives, please report
+>       them to the maintainer, see CHECKPATCH in MAINTAINERS.
+> 
+>> - Move the `need_refill` initialization into the `case 1` block.
+>> - Remove the `actual` argument from `vsock_ioctl_int()`.
+>> - Replace `TIOCINQ` with `SIOCINQ`.
+>>
+>> ---
+>> Xuewei Niu (4):
+>>      hv_sock: Return the readable bytes in hvs_stream_has_data()
+>>      vsock: Add support for SIOCINQ ioctl
+>>      test/vsock: Add retry mechanism to ioctl wrapper
+>>      test/vsock: Add ioctl SIOCINQ tests
+>>
+>> net/vmw_vsock/af_vsock.c         | 22 +++++++++++
+>> net/vmw_vsock/hyperv_transport.c | 17 +++++++--
+>> tools/testing/vsock/util.c       | 30 ++++++++++-----
+>> tools/testing/vsock/util.h       |  1 +
+>> tools/testing/vsock/vsock_test.c | 79 ++++++++++++++++++++++++++++++++++++++++
+>> 5 files changed, 137 insertions(+), 12 deletions(-)
+>> ---
+>> base-commit: 5f712c3877f99d5b5e4d011955c6467ae0e535a6
+>> change-id: 20250703-siocinq-9e2907939806
+>>
+>> Best regards,
+>> -- 
+>> Xuewei Niu <niuxuewei.nxw@antgroup.com>
+>>
 
