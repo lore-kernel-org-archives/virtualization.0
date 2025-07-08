@@ -1,54 +1,54 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08671136351
-	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AD021714B7
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751932961; cv=none; b=E4pVUYcLP0aMIbo7S7GscY8m8uXQ0o0vPEfm/KzssUfhO7fcrp9D8ClrrIKLLG02hi/0F3GvFLWNgg9SfaSw/fvKBv7IsLPGNAHT+CeQQNMQNahx5LyLqjuEfzZFp8C5Eo3HiD5REhnyLrYsmmg/o64einFrG8XpQY/QABd9HB8=
+	t=1751932968; cv=none; b=ETSwi8W8zBuEl/h8fqtwvQS4+FG626NNE7rAoO4km+OFpS7w30SuR3GFbpocXtjCi2k9Tpa8aWwbSp8Lfh9Lt+TNXekCWN4UveB39nZeyDrtgFkskZFRqTnGaiclxDE8NPhoHREQSWZgudm6XPjr8h5TCLWR46hefAe1CacNbRo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751932961; c=relaxed/simple;
-	bh=2a9hDKsHy31E1vQnnQE8Z70lFs//x+5n4TmhNrq285s=;
+	s=arc-20240116; t=1751932968; c=relaxed/simple;
+	bh=5NgoAFqm+T9LCk+9loFlldkh/Tg26UH3q61evtLs1K8=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=VUrclFUojQxv2Sao9uPTMmzQiWND8joMmgxD5F7u2V+dhS2yAnnjW+DLLoNQ15cmhFwciZJKpH2Hgfzm+6c7l554pa4s+N9YkfpAzSrTsaA+xc0QjAXDvYPFgKkH6fo7ZqA7I/Vl8DbiJ1Nqd3Ni6SyGo/kRwzXRtxMPm8jKgkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o/y6Px3W; arc=none smtp.client-ip=140.211.166.136
+	 MIME-Version; b=IWXJOn/7ng8oDNTesxKYvQ6RE2oSV9UFrbV1jf54+hw+eDGVifjZEjoXI+4w4RG1QvBVhwEkPyYZJfDiB06JRuVF5FXmRodrfErC53iQtuEUlnVYEHbQ2TNEkO++TqmZ4DF1phM14nHSCFKctLQdcQ4nBT+UN64+udf1wVpI5XQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZYCMuDAK; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o/y6Px3W"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZYCMuDAK"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A676C606A5
-	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:39 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E8B41408ED
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:46 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -5.792
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id zuRER1R4vJB5 for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jul 2025 00:02:38 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:45d1:ec00::3; helo=nyc.source.kernel.org; envelope-from=sashal@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org A980360662
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A980360662
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=o/y6Px3W
-Received: from nyc.source.kernel.org (nyc.source.kernel.org [IPv6:2604:1380:45d1:ec00::3])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A980360662
-	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:38 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id qP7bEUB3Wmcc for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Jul 2025 00:02:46 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=sashal@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 102E740832
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 102E740832
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ZYCMuDAK
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 102E740832
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:45 +0000 (UTC)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by nyc.source.kernel.org (Postfix) with ESMTP id 00949A53374;
-	Tue,  8 Jul 2025 00:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A0A5C4CEE3;
-	Tue,  8 Jul 2025 00:02:35 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id 7FECC461E6;
+	Tue,  8 Jul 2025 00:02:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45AE3C4CEF1;
+	Tue,  8 Jul 2025 00:02:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751932956;
-	bh=2a9hDKsHy31E1vQnnQE8Z70lFs//x+5n4TmhNrq285s=;
+	s=k20201202; t=1751932965;
+	bh=5NgoAFqm+T9LCk+9loFlldkh/Tg26UH3q61evtLs1K8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=o/y6Px3WBrqFXDL+p1vhihekV8Rk6dgf2ui/VZIOY6GblcJAfkBAshIG6zx8bEzgh
-	 vCzPd/oPAEIr8qg5kf5oseBSPxTAfeg2mLAMrhU9nRV9cJ0DPR9JLjYJBanmNMwdND
-	 jxUKacYk8DlGTKr5k1Ej8fW3boGkuC/GX16WDys63F6Q1srQADIpKUjMVQaoJkmGdn
-	 v6hidt7QNMSwiPn8CnhoXNhOVEv5+ZlMvHh4WzPkmCf/+si3Zo180EO2lAylZkPwRK
-	 ysfK6GrC3oj/q0+FhpF+mqYD3LIgsKT2IX/oWG1Ic7jCbhEqlfbELgzFuKtJUaOjJ2
-	 WJ9GApB4mJNCQ==
+	b=ZYCMuDAKNe4GQIa5EBy0MNX79NqAr6qol1EMtOb8rCLiI3RruLvPQui3oUM4L/07h
+	 UtMGWQnBzbRaAB7nks92Sk/xlxTzh62DyoUM11UmCYbIk2FPbd4QEBDWzmbYvif0Kw
+	 +p12YU7iVVwLJk95zBsUg6reDf0ITjI8XUs/zK2XIEuhJiUi7dsCQR3c+0/kklqH+Q
+	 SBpgSw6VYkz4ipPdalCPnwpRkZ1PQZqoPdgBrJuTwA2mXtyos/wtyFjG78DYUbAECt
+	 oo54xPtoIWrZsMU8iWH0IXU9Ut3+ZkmLwawjdUVWgSAfF2ZmwZEP2IbpeD23XLXKS6
+	 ZuurHWtX0GrUw==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
@@ -60,12 +60,12 @@ Cc: Laurent Vivier <lvivier@redhat.com>,
 	Paolo Abeni <pabeni@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
 	virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 6.12 3/6] virtio_ring: Fix error reporting in virtqueue_resize
-Date: Mon,  7 Jul 2025 20:02:27 -0400
-Message-Id: <20250708000230.793347-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 2/4] virtio_ring: Fix error reporting in virtqueue_resize
+Date: Mon,  7 Jul 2025 20:02:39 -0400
+Message-Id: <20250708000241.793498-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250708000230.793347-1-sashal@kernel.org>
-References: <20250708000230.793347-1-sashal@kernel.org>
+In-Reply-To: <20250708000241.793498-1-sashal@kernel.org>
+References: <20250708000241.793498-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -74,7 +74,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.12.36
+X-stable-base: Linux 6.6.96
 Content-Transfer-Encoding: 8bit
 
 From: Laurent Vivier <lvivier@redhat.com>
@@ -195,11 +195,11 @@ recovery in virtio drivers that use queue resizing functionality.
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 147926c8bae09..c0276979675df 100644
+index c5f04234d9511..db4582687b958 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -2741,7 +2741,7 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
- 		     void (*recycle_done)(struct virtqueue *vq))
+@@ -2739,7 +2739,7 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
+ 		     void (*recycle)(struct virtqueue *vq, void *buf))
  {
  	struct vring_virtqueue *vq = to_vvq(_vq);
 -	int err;
@@ -207,7 +207,7 @@ index 147926c8bae09..c0276979675df 100644
  
  	if (num > vq->vq.num_max)
  		return -E2BIG;
-@@ -2763,7 +2763,11 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
+@@ -2759,7 +2759,11 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
  	else
  		err = virtqueue_resize_split(_vq, num);
  
