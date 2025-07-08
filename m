@@ -1,117 +1,171 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4856801;
-	Tue,  8 Jul 2025 12:06:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E91E121639B
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 12:16:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751976414; cv=none; b=JcDMSwa2X93EMu/uX4v49TWSRaqzzHWtvX4MG+AefqrssbC7r6OCfqRgL6d9ZnNeWwcf/02szdnBBxRws7Ip4W/mmdDXmwtNLewTfh15ON9p4heF65TM37X0xw45HUDh7WEbwCNdV4z545bYxe5LzjdOuNcXSDOxygrEOrxgtK4=
+	t=1751976967; cv=none; b=tNd3RUjTLMqiJb7SeyVWNaN9+0iT7QbSIq9IMaEA/N4F2S+nkNOlPR55sotPbaZbBASX1pIRm4VQQ600xC24QUsFCZl3bQ9yI3ZHejqTOOvV5Et1kdGFsAF3X4bnAOe8jwRajy9foz7Kr3+PsUGpdKR9byVQ1/xiP0vp3ExfUxc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751976414; c=relaxed/simple;
-	bh=Kp+7+tPAvccy71FanvJSzbOLd0z4kN89DqWYezw1OYU=;
+	s=arc-20240116; t=1751976967; c=relaxed/simple;
+	bh=mMvwMZD9hLg9tRND9y9AFG++SVAM192V2riYe9IuSMs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L+Pklfw6CURlFJVa0qebXMuEKLNZCq7/6j2mYp+H2XGX4kTCdXCEyNy2eyDK2HswW5B6i14m0dQNKBhfFy77/qXrsvpPzZTv7gAuK02Y9lWjCbSGVnsz1lnoSP5pirzJcdn7yLGtmwY8PasmiRxeaSJsB5Un6TsXo2/UBcaA+QA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s4Ol3iwJ; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type:Content-Disposition; b=nGIffIboOIttfFJmmOTItMxEaivC6QSJcZ2yld/+71iMBMA37K7aBhndCLvDUFK0RQpTtxwp+Ksg6et+05Bid0p5Cp0pFg3IuNtU0pW9+eMXsPIAzp9VtsryRX6Z4Evd2cY2G3/t1egAUKi5SYggr57GS/aUa/bnFggApNKBCtg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MJCJhGu6; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s4Ol3iwJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BD93C4CEED;
-	Tue,  8 Jul 2025 12:06:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751976413;
-	bh=Kp+7+tPAvccy71FanvJSzbOLd0z4kN89DqWYezw1OYU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=s4Ol3iwJuZ3bPifC90ngIr53J9DwqfI6SbJ5ng6mhsvmmhKJUSP01KISqF+xudx5r
-	 OwNqQVnrJ4kgc1lmi+fQdvA0puZRnmrNIscNKhk5x+qQ848zPKeKACjmQZlA8St0fV
-	 Wh5vNh7wUnm4qxPx7+pAli1/51YHFmtJSZMusuSZuTl+gmd4JhiDkCdnWCI/H5I1ks
-	 daIfLQQN7QeyVcgmSHDG4twzeXB/Ep5gXJRK1YtdaaDN50mReflr3MzMrYthKL7TRa
-	 VEK8qO2fuRa1AUaPB9bVOUF38SjH0Q+6EnxeFRNWiQ3OyIyapOpfsk4PRDL5JY2WCt
-	 ethkWrczJo/aQ==
-Date: Tue, 8 Jul 2025 15:06:47 +0300
-From: Leon Romanovsky <leon@kernel.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Alexander Potapenko <glider@google.com>,
-	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	=?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, iommu@lists.linux.dev,
-	virtualization@lists.linux.dev, kasan-dev@googlegroups.com,
-	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org,
-	Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
-Message-ID: <20250708120647.GG592765@unreal>
-References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
- <cover.1750854543.git.leon@kernel.org>
- <35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
- <20250627170213.GL17401@unreal>
- <20250630133839.GA26981@lst.de>
- <69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
- <20250708110007.GF592765@unreal>
- <261f2417-78a9-45b8-bcec-7e36421a243c@samsung.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MJCJhGu6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751976963;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XZQq54vH7L1wrrcZbYcmRkAtOhIXsJTAbiqEq5oFXQM=;
+	b=MJCJhGu61XrCOZ1XZ6QdudkpYAdpQ0MTcubVe3cQFu2wRcocLDqTR8KJawcpRBS88Kvd0B
+	mDwx7ZrPOWhE4JSs25cG6mvOdR/DYAO90IRG+gkM8p5AZTAPbAgow0f48yC6MpJt1S0j2f
+	U6hgEBNvEuPkJ5maVS0Af6WRGxqBceY=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-331-cdxKlWYdP7-fcAovngG05w-1; Tue, 08 Jul 2025 08:16:02 -0400
+X-MC-Unique: cdxKlWYdP7-fcAovngG05w-1
+X-Mimecast-MFC-AGG-ID: cdxKlWYdP7-fcAovngG05w_1751976962
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-7d3f0958112so628398085a.0
+        for <virtualization@lists.linux.dev>; Tue, 08 Jul 2025 05:16:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751976962; x=1752581762;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XZQq54vH7L1wrrcZbYcmRkAtOhIXsJTAbiqEq5oFXQM=;
+        b=aS0I5yGus0oSLqNT5dfpMLGwTwtu82VEbpycWEZf2j1ka/AuD4aI82oWgw9ITYm3Nk
+         QD1A3ygok9G6c7qp66fsBXqWZ3OCUm1fXwV0esyzynoHwJuEg2uFdEoyXmtXbjbdAgu/
+         Q4VGjHDwSL2KrmvPSTO7LUda10/LeFrFr6jXPisrBzo8xJygqM0Xfe9hVow8BvIuKiaM
+         h+1KAE1KrCDeCGJ7PLHzXvZq+6SPcNiLZqwlmJSFe5Igjhm48x8+rE8rX6aUNXaG9duH
+         cVJsyGUQ6hR/fCtvBOHvTE4/AgE0sN3eIAWr6O4N6MDp/xg5xFNebrGeMtEI+PVTp6F5
+         dbLg==
+X-Forwarded-Encrypted: i=1; AJvYcCU1Cm9efRLj3CaSTOjZkuA/NDQ2T+D6kb1jYTsOCkUklbcf5wqC9+8a5s7hgj0qDfxJT3u9gSqxAf8wHSQhVw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzRualOesjTnoJqmF4aS5kCd3lqe6h2UMdXxGtr5ijSrLQm8JQ2
+	DEjnDdgnEWV7J4aKtZyhuQwOjgsSaramthAenNA5Bw56Stekq5pFxVLlsW77WW+xcVRUdUaFONY
+	tLJ6I5L2SaTMhRIkeEkqEfgzbJoYWSIiiQwVSToDir6FO+6UBKWE67wRc8grzQSEcc94UHPcKSy
+	7NVV0=
+X-Gm-Gg: ASbGncuinKqQDtGgt+54Zy8IC+GmFiORMPFmZJzeJJFvlUu/zgh+IOyjk4GyLHtQ+L5
+	FMCM/4Yyegnjy+pFP4fhXer4dMPz9egcosE2ZVAiUuv6+CIHOKjvU32TK4YedUQozqqrQTaXsT1
+	Qm2jATkV3CDxuZ20sVWt88PIDSh7MXaG1/D5YHH9LCk86M/1gcP0H/rpDzVLupj8hPxdF0Km281
+	wK8qgvnpqAcY/I/vG16MoQc0qHMS8WUgHDIn56fpipWjrk45y9GOUpUnDNOGJyRmZtPh6w73mUL
+	/uHV2ocuUFYkLF7oBM7KT3Ce2vU=
+X-Received: by 2002:a05:620a:1789:b0:7d4:5854:32ab with SMTP id af79cd13be357-7da034a52bfmr499248285a.36.1751976962014;
+        Tue, 08 Jul 2025 05:16:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFp808SkN2VjVP2MnyxHqj6j8BNYJYFMs1ro4neDCuuVkG+IqYJqwBjuFfETrwpfdtLPBIpUA==
+X-Received: by 2002:a05:620a:1789:b0:7d4:5854:32ab with SMTP id af79cd13be357-7da034a52bfmr499245485a.36.1751976961632;
+        Tue, 08 Jul 2025 05:16:01 -0700 (PDT)
+Received: from leonardi-redhat ([176.206.17.146])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d5dbdbb957sm769232885a.37.2025.07.08.05.16.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Jul 2025 05:16:01 -0700 (PDT)
+Date: Tue, 8 Jul 2025 14:15:58 +0200
+From: Luigi Leonardi <leonardi@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next] vsock/test: fix test for null ptr deref when
+ transport changes
+Message-ID: <2bqmwv7oyo4zs2fszonhkt5vup5zhbuai4p6ylevkwktihm6au@kokjoj5dgnbb>
+References: <20250708111701.129585-1-sgarzare@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20250708111701.129585-1-sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: G-s-C9R1V9RPwoIl8Q6mFWg3rvSRA4lLPtJo0ST7OBM_1751976962
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <261f2417-78a9-45b8-bcec-7e36421a243c@samsung.com>
 
-On Tue, Jul 08, 2025 at 01:45:20PM +0200, Marek Szyprowski wrote:
-> On 08.07.2025 13:00, Leon Romanovsky wrote:
-> > On Tue, Jul 08, 2025 at 12:27:09PM +0200, Marek Szyprowski wrote:
-> >> On 30.06.2025 15:38, Christoph Hellwig wrote:
-> >>> On Fri, Jun 27, 2025 at 08:02:13PM +0300, Leon Romanovsky wrote:
-> >>>>> Thanks for this rework! I assume that the next step is to add map_phys
-> >>>>> callback also to the dma_map_ops and teach various dma-mapping providers
-> >>>>> to use it to avoid more phys-to-page-to-phys conversions.
-> >>>> Probably Christoph will say yes, however I personally don't see any
-> >>>> benefit in this. Maybe I wrong here, but all existing .map_page()
-> >>>> implementation platforms don't support p2p anyway. They won't benefit
-> >>>> from this such conversion.
-> >>> I think that conversion should eventually happen, and rather sooner than
-> >>> later.
-> >> Agreed.
-> >>
-> >> Applied patches 1-7 to my dma-mapping-next branch. Let me know if one
-> >> needs a stable branch with it.
-> > Thanks a lot, I don't think that stable branch is needed. Realistically
-> > speaking, my VFIO DMA work won't be merged this cycle, We are in -rc5,
-> > it is complete rewrite from RFC version and touches pci-p2p code (to
-> > remove dependency on struct page) in addition to VFIO, so it will take
-> > time.
-> >
-> > Regarding, last patch (hmm), it will be great if you can take it.
-> > We didn't touch anything in hmm.c this cycle and have no plans to send PR.
-> > It can safely go through your tree.
-> 
-> Okay, then I would like to get an explicit ack from Jérôme for this.
+On Tue, Jul 08, 2025 at 01:17:01PM +0200, Stefano Garzarella wrote:
+>From: Stefano Garzarella <sgarzare@redhat.com>
+>
+>In test_stream_transport_change_client(), the client sends CONTROL_CONTINUE
+>on each iteration, even when connect() is unsuccessful. This causes a flood
+>of control messages in the server that hangs around for more than 10
+>seconds after the test finishes, triggering several timeouts and causing
+>subsequent tests to fail. This was discovered in testing a newly proposed
+>test that failed in this way on the client side:
+>    ...
+>    33 - SOCK_STREAM transport change null-ptr-deref...ok
+>    34 - SOCK_STREAM ioctl(SIOCINQ) functionality...recv timed out
+>
+>The CONTROL_CONTINUE message is used only to tell to the server to call
+>accept() to consume successful connections, so that subsequent connect()
+>will not fail for finding the queue full.
+>
+>Send CONTROL_CONTINUE message only when the connect() has succeeded, or
+>found the queue full. Note that the second connect() can also succeed if
+>the first one was interrupted after sending the request.
+>
+>Fixes: 3a764d93385c ("vsock/test: Add test for null ptr deref when transport changes")
+>Cc: leonardi@redhat.com
+>Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>---
+> tools/testing/vsock/vsock_test.c | 21 ++++++++++++++++-----
+> 1 file changed, 16 insertions(+), 5 deletions(-)
+>
+>diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>index be6ce764f694..630110ee31df 100644
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -1937,6 +1937,7 @@ static void test_stream_transport_change_client(const struct test_opts *opts)
+> 			.svm_cid = opts->peer_cid,
+> 			.svm_port = opts->peer_port,
+> 		};
+>+		bool send_control = false;
+> 		int s;
+>
+> 		s = socket(AF_VSOCK, SOCK_STREAM, 0);
+>@@ -1957,19 +1958,29 @@ static void test_stream_transport_change_client(const struct test_opts *opts)
+> 			exit(EXIT_FAILURE);
+> 		}
+>
+>+		/* Notify the server if the connect() is successful or the
+>+		 * receiver connection queue is full, so it will do accept()
+>+		 * to drain it.
+>+		 */
+>+		if (!ret || errno == ECONNRESET)
+>+			send_control = true;
+>+
+> 		/* Set CID to 0 cause a transport change. */
+> 		sa.svm_cid = 0;
+>
+>-		/* Ignore return value since it can fail or not.
+>-		 * If the previous connect is interrupted while the
+>-		 * connection request is already sent, the second
+>+		/* There is a case where this will not fail:
+>+		 * if the previous connect() is interrupted while the
+>+		 * connection request is already sent, this second
+> 		 * connect() will wait for the response.
+> 		 */
+>-		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>+		ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>+		if (!ret || errno == ECONNRESET)
+>+			send_control = true;
+>
+> 		close(s);
+>
+>-		control_writeulong(CONTROL_CONTINUE);
+>+		if (send_control)
+>+			control_writeulong(CONTROL_CONTINUE);
+>
+> 	} while (current_nsec() < tout);
+>
+>-- 2.50.0
+>
 
-Jerome is not active in HMM world for a long time already.
-HMM tree is managed by us (RDMA) https://git.kernel.org/pub/scm/linux/kernel/git/rdma/rdma.git/log/?h=hmm
-➜  kernel git:(m/dmabuf-vfio) git log --merges mm/hmm.c
-...
-Pull HMM updates from Jason Gunthorpe:
-...
+LGTM!
+Thanks for the fix!
 
-https://web.git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=58ba80c4740212c29a1cf9b48f588e60a7612209
-+hmm		git	git://git.kernel.org/pub/scm/linux/kernel/git/rdma/rdma.git#hmm
+Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
 
-We just never bothered to reflect current situation in MAINTAINERS file.
-
-Thanks
