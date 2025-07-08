@@ -1,149 +1,82 @@
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A44052E2650
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 15:57:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BAAF2E0B58;
+	Tue,  8 Jul 2025 15:59:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751990259; cv=none; b=E2USmZR76HofcPNVwWclChWvjzRKw5+4/zZkKMYjMZLuqjNPXoqx8xPSRLN4BiJuFlj+cWWJHiBmvJLq7kuqYyOYasYYbmZM+l38bKpjVZZA/0ZkHWmHdsfGsCfyuYt3sUrzpe1la+ZriIDjDbjfjlPEbBgOTHND4lyN/dnveS4=
+	t=1751990388; cv=none; b=Ns0ENhaue0VyzqIG6f3aQNe9cukwrjokkrAw88E8Fc/CxyJh3QfnKARqykPo4hUXIy4nHRQ64LSAFptbC7p+9MdpVd+wPP9veaJzCQv76WWkjgx6VgNxwCTJ9iKmmhttqz4fvY9H/Oc+Zeza8LSxllQ4K6DATI+x+OvKI5ZV70E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751990259; c=relaxed/simple;
-	bh=CkzfE94IorgBBRqnMAAmMmq24EJdqyfxe6lmBjXxP6U=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:In-Reply-To:
-	 Content-Type:References; b=WArnoqqiATX6rfs/1pmBdLw90bS1Ft1OR/ImjBksq3FhEUzz88N9O/nZlaiwrztve5oCTZpdR8QpDfbgKqNq/wNTpnchNulhcpvLLqoyZGqcEtwuNGkAoxS6DxztvZYkPh52dj3iO10jiOvaf+NUvd+x7QOQfpAadLi58XBHJmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=PAX9aPjm; arc=none smtp.client-ip=210.118.77.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1751990388; c=relaxed/simple;
+	bh=ZW6qYS+Al3lRmdQ1niU7FInxgnj6XAnZwHrqWAeO6iM=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=qnpDBZtxgNYysGfI0+aGzNHKXsH/vns5K0yDWoMliH/SIA7Uh97iTOsJ51ioIYgj+o30ofeh98mlmBRSsRabGSzdmRnEFdp82AQfXQfzop2bLJTB7qAPBFCFqHs3/SICfDVEDZlVz1wf7XR1lLXD/UB4YlQ/HxhD79e5QxndjLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PkIMF0lX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="PAX9aPjm"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20250708155734euoutp012049a883e5a7a0aa8a02e54e1bd57dbc~QUdqxhtxi2034620346euoutp01N
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 15:57:34 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20250708155734euoutp012049a883e5a7a0aa8a02e54e1bd57dbc~QUdqxhtxi2034620346euoutp01N
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1751990254;
-	bh=uyab8dr49wEubYW85hrXKyGCcYl1OC56FE0kAT8DEIc=;
-	h=Date:Subject:From:To:Cc:In-Reply-To:References:From;
-	b=PAX9aPjmQKMw6GLmeGQtiXElLQtSpy3YzZ/VZyQdgAMom5kiPE/FjvCg3WC/1+nPy
-	 10u5WabCCNOfLJhq7QAU3B1PpRxFQR3S//A+2qstDRiCAC24ehoVJf28O8MpDNi/Zp
-	 1CxnqxNQY3PzCfWVombnnMFfy4sDHCYVZ/YIErc0=
-Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20250708155734eucas1p1407185657d9833058c6b35d11e1d0b01~QUdqUADk60849108491eucas1p1v;
-	Tue,  8 Jul 2025 15:57:34 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20250708155731eusmtip2162f9813a1cd05daa31b4d62d2bead82~QUdnRS2nc2073620736eusmtip2d;
-	Tue,  8 Jul 2025 15:57:30 +0000 (GMT)
-Message-ID: <b542bfa3-d680-4952-98fe-0a44ae3bddd7@samsung.com>
-Date: Tue, 8 Jul 2025 17:57:30 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PkIMF0lX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BCC6C4CEED;
+	Tue,  8 Jul 2025 15:59:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751990388;
+	bh=ZW6qYS+Al3lRmdQ1niU7FInxgnj6XAnZwHrqWAeO6iM=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=PkIMF0lXUU8ezPYgLNmJOrJWlC9o3VRIw5z6XAkvITcA8Y/fLJW3y/wvD5xHb5NXq
+	 H3nhnbzXQWfGJw6wcm4reb5YHnu8EcJqtCzqCHsIWl7MnAelQvCBieOJ9SFHZ3SzNl
+	 1x8pPDERkuipE43vZRFNLAuyKJ80kSNb1jdEDngjVjNqAVPdTd1pexGUh4Ec1H3PiI
+	 Ml5OmtVsm8AiMKhUa4ikPemOwDke/qKfiV/dfrdGKmsQoEqXhCoIMvGKoV8Ph6t25n
+	 8JXEBXNTJY42AxqbFasztHQSxc7oK4sVSo9/KRbFEf2ua74XU3jnHGTHOVqWW6bJZT
+	 jGRvfrnt3ee8w==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70F42380DBEE;
+	Tue,  8 Jul 2025 16:00:12 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
-	<mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
-	<christophe.leroy@csgroup.eu>, Robin Murphy <robin.murphy@arm.com>, Joerg
-	Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, "Michael S.
-	Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Alexander Potapenko <glider@google.com>, Marco Elver
- <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>, Masami Hiramatsu
- <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Andrew Morton
- <akpm@linux-foundation.org>, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- iommu@lists.linux.dev, virtualization@lists.linux.dev,
- kasan-dev@googlegroups.com, linux-trace-kernel@vger.kernel.org,
- linux-mm@kvack.org, Jason Gunthorpe <jgg@ziepe.ca>
-Content-Language: en-US
-In-Reply-To: <39d43309-9f34-48bc-a9ad-108c607ba175@samsung.com>
 Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20250708155734eucas1p1407185657d9833058c6b35d11e1d0b01
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
-X-EPHeader: CA
-X-CMS-RootMailID: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
-References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
-	<cover.1750854543.git.leon@kernel.org>
-	<35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
-	<20250627170213.GL17401@unreal> <20250630133839.GA26981@lst.de>
-	<69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
-	<20250708110007.GF592765@unreal>
-	<261f2417-78a9-45b8-bcec-7e36421a243c@samsung.com>
-	<20250708120647.GG592765@unreal>
-	<39d43309-9f34-48bc-a9ad-108c607ba175@samsung.com>
+Subject: Re: [PATCH net v4 0/3] vsock: Fix transport_{h2g,g2h,dgram,local}
+ TOCTOU issues
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175199041100.4117860.14540554652345521469.git-patchwork-notify@kernel.org>
+Date: Tue, 08 Jul 2025 16:00:11 +0000
+References: <20250703-vsock-transports-toctou-v4-0-98f0eb530747@rbox.co>
+In-Reply-To: <20250703-vsock-transports-toctou-v4-0-98f0eb530747@rbox.co>
+To: Michal Luczaj <mhal@rbox.co>
+Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, stefanha@redhat.com,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 
-On 08.07.2025 14:56, Marek Szyprowski wrote:
-> On 08.07.2025 14:06, Leon Romanovsky wrote:
->> On Tue, Jul 08, 2025 at 01:45:20PM +0200, Marek Szyprowski wrote:
->>> On 08.07.2025 13:00, Leon Romanovsky wrote:
->>>> On Tue, Jul 08, 2025 at 12:27:09PM +0200, Marek Szyprowski wrote:
->>>>> On 30.06.2025 15:38, Christoph Hellwig wrote:
->>>>>> On Fri, Jun 27, 2025 at 08:02:13PM +0300, Leon Romanovsky wrote:
->>>>>>>> Thanks for this rework! I assume that the next step is to add 
->>>>>>>> map_phys
->>>>>>>> callback also to the dma_map_ops and teach various dma-mapping 
->>>>>>>> providers
->>>>>>>> to use it to avoid more phys-to-page-to-phys conversions.
->>>>>>> Probably Christoph will say yes, however I personally don't see any
->>>>>>> benefit in this. Maybe I wrong here, but all existing .map_page()
->>>>>>> implementation platforms don't support p2p anyway. They won't 
->>>>>>> benefit
->>>>>>> from this such conversion.
->>>>>> I think that conversion should eventually happen, and rather 
->>>>>> sooner than
->>>>>> later.
->>>>> Agreed.
->>>>>
->>>>> Applied patches 1-7 to my dma-mapping-next branch. Let me know if one
->>>>> needs a stable branch with it.
->>>> Thanks a lot, I don't think that stable branch is needed. 
->>>> Realistically
->>>> speaking, my VFIO DMA work won't be merged this cycle, We are in -rc5,
->>>> it is complete rewrite from RFC version and touches pci-p2p code (to
->>>> remove dependency on struct page) in addition to VFIO, so it will take
->>>> time.
->>>>
->>>> Regarding, last patch (hmm), it will be great if you can take it.
->>>> We didn't touch anything in hmm.c this cycle and have no plans to 
->>>> send PR.
->>>> It can safely go through your tree.
->>> Okay, then I would like to get an explicit ack from Jérôme for this.
->> Jerome is not active in HMM world for a long time already.
->> HMM tree is managed by us (RDMA) 
->> https://git.kernel.org/pub/scm/linux/kernel/git/rdma/rdma.git/log/?h=hmm
->> ➜  kernel git:(m/dmabuf-vfio) git log --merges mm/hmm.c
->> ...
->> Pull HMM updates from Jason Gunthorpe:
->> ...
->>
->> https://web.git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=58ba80c4740212c29a1cf9b48f588e60a7612209 
->>
->> +hmm        git 
->> git://git.kernel.org/pub/scm/linux/kernel/git/rdma/rdma.git#hmm
->>
->> We just never bothered to reflect current situation in MAINTAINERS file.
->
-> Maybe this is the time to update it :)
->
-> I was just a bit confused that no-one commented the HMM patch, but if 
-> You maintain it, then this is okay.
+Hello:
 
+This series was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-I've applied the last patch to dma-mapping-for-next branch.
+On Thu, 03 Jul 2025 17:18:17 +0200 you wrote:
+> transport_{h2g,g2h,dgram,local} may become NULL on vsock_core_unregister().
+> Make sure a poorly timed `rmmod transport` won't lead to a NULL/stale
+> pointer dereference.
+> 
+> Note that these oopses are pretty unlikely to happen in the wild. Splats
+> were collected after sprinkling kernel with mdelay()s.
+> 
+> [...]
 
+Here is the summary with links:
+  - [net,v4,1/3] vsock: Fix transport_{g2h,h2g} TOCTOU
+    https://git.kernel.org/netdev/net/c/209fd720838a
+  - [net,v4,2/3] vsock: Fix transport_* TOCTOU
+    https://git.kernel.org/netdev/net/c/687aa0c5581b
+  - [net,v4,3/3] vsock: Fix IOCTL_VM_SOCKETS_GET_LOCAL_CID to check also `transport_local`
+    https://git.kernel.org/netdev/net/c/1e7d9df379a0
 
-Best regards
+You are awesome, thank you!
 -- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
