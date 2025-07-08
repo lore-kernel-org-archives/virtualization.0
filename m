@@ -1,214 +1,215 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3529D1E5213
-	for <virtualization@lists.linux.dev>; Mon,  7 Jul 2025 13:45:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0124CBA36
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751895907; cv=none; b=XzoE4aE4QOT0WAU3NfyhEJd95NTPos7XEu4zIQLQcw5b07bKggy/0+47TSDNmpxm91RDthTu3OHLnnhOwKS0b+1k7FmdqkoLI4ipe33aWfko2m+HYAyWxJpL6NXQkWq3B2+qIGVpHsMm2nlYwRi9MC/suDKheWeIJ/AuvGDvCh8=
+	t=1751932944; cv=none; b=RVtDdwlWo8CyrK3BB/SGmKYpiB7gu/FGtw38zF5/qj1AZhY3riP6cGvTqi/QtfTb3a3SVozibpfG3kD9/fnIrMva9kqSUEVIn1b+5+pig3gWwefyRbKE2T1B8kKjVs/aPEmTjk1AW2Ct/1/4bHfVuOUXWtshICQ7GwcrLc8Jiws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751895907; c=relaxed/simple;
-	bh=4nWoZbXOa3P4G9LNEOg28qNQ+DH/iPMz3tL8J2Ld194=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=uvqVJ1vDSIz6jQ4PQj5t8zfArzt37OI9X+t4RMkzFYyuqtCeUI4ogaHlJqe4RsEQ0j/xo1lSWepjkmwmAXRyoj+nEn2kvhFDBcCmW3e52Brl/QZJG5TmgzHhNl9UMUWi14gcri0LiFrZKhbw8MwSwFexB8GZAYP83daJo030u2Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Dl1wiALK; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751932944; c=relaxed/simple;
+	bh=t5zmAG5UEvVd4XtHi1/WfmDFoTa8UUYg8Lwk7/npk3w=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=PIjaOZUgw4BS/GpqDiUaU/iIQnK+aXhSXJ76Eayh6UhNUROuSkTYHXMp91Kx88+iOAfaD27n3L9DULdJ0o+xFAFDRws404jVlO5xKo2O9Z5GAsb6TM1XEAUfIFzUm5tKen/Djj9qj0tFpAvx7cdG0o8FBlJ9AtZ76I48YURHnxY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pNGAtzut; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dl1wiALK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751895904;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tvcFV1GeeG+eHTh3R+owfSySEvVbzEe5U4S54265WlQ=;
-	b=Dl1wiALK5DKszWr5C+7k25yDQ84fbd7xRjvLOZxFyGbXK3Drk6+YFBwLRwOVkSHZsAUHf2
-	/U/PfTwm2ErKShYnrrkgVxvTYHG/oPaPGaMHKV96z2fY3ExRCmm+LpqW3rhF3cFJTgxQ3r
-	Ux6Hm341auugWLboH1Wq49QrhbgREJA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-662-2y-1PIwFOS6Y8j2TooCBNg-1; Mon, 07 Jul 2025 09:45:02 -0400
-X-MC-Unique: 2y-1PIwFOS6Y8j2TooCBNg-1
-X-Mimecast-MFC-AGG-ID: 2y-1PIwFOS6Y8j2TooCBNg_1751895902
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4535ee06160so27415155e9.3
-        for <virtualization@lists.linux.dev>; Mon, 07 Jul 2025 06:45:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751895901; x=1752500701;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tvcFV1GeeG+eHTh3R+owfSySEvVbzEe5U4S54265WlQ=;
-        b=ZedHJSQTVRwOfPeGt326AirTvzcO2cbBcgi8q2c45PWESarjfSs2GluEHJP0UQm/TJ
-         gMSL8oMbmkdM1bmBH0LYcp89G5u7OrXxo2eXEAWxdkBOeE+aA7M+0NmsWuRjOlFt0KkY
-         n9Rn9G610hvZDfDy5quoof0V6wOel7UE6GOjS0OsmYsCSzU9j+nYBwuRkWOTZEKEqhLL
-         8akWDCMW3FyZyylJWs93gMBAXs+uIAaz5NeaC3Kaac07lXQw4ygMyP2Bc0EovD4PDiy0
-         F8+UofFrKpbcsiMI8VJjyZ1fOIgYhcFzH59zAjHsvbgPdg/wVKvk9Q1Eev0QAYRbfm9+
-         KLYA==
-X-Forwarded-Encrypted: i=1; AJvYcCVxdmQd1q1AzArdA6egLJ8Tw3czJUm8j5pLsLXjaE9o+BeanjD9FY4hMUqGX+sN+uWi9e4p7wT6/gtyb+BD9w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyNx7OUsxmhicowZGNvlHOjUS9PaPHvmaHROWuW1cgn7ghnrnOU
-	ozvrVtiFYrLutXhPy06AcG4gjYvOYtVlCQCTB42h6RE49znJHW/Dln0Rn/U0oJyXGIFX32NDlKT
-	nXHUk23GbLogC1WCK0/cccoK3O5lQNcqIx5yZgzK7CI5QUgnoWYw0B4jOEfrtC+IXQmQn
-X-Gm-Gg: ASbGnctZKr0o5lIFNouDCiSgv5ANKrQeoTTcXIAhyS8VmRqrp5zXBKwVDEjZZOx0dDV
-	TRGHpy4AuQyiYuIposstwa1FkYMMYZurrR65O7nKrh05+RbRBRnPOFt35NYVnICYsfjFHqIg3V7
-	pqkCZV3Bb8qEHPjccgfogqWF0d59g7VIlEqDOXWZgOcUZmelMKwB5jfeVo8kYkuq4X5ePv168nt
-	euTO3OkkF1gFw4EPkcKDCXzdztOnQuf2+z1C9RcSv5aicvO6u0bx5h9EGg9bnlg/I0srRTCiWKZ
-	vImCGjKo5e2jOf3wqXGfzKgz5qEP
-X-Received: by 2002:a05:6000:2dc7:b0:3a4:ed62:c7e1 with SMTP id ffacd0b85a97d-3b4964f4d29mr11481324f8f.12.1751895901423;
-        Mon, 07 Jul 2025 06:45:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEiCATki+fxjScyrWgdR20S4tEFICHWDwdGQaRK/ERz5vFB0AIkRXK12Rj52ppnflqLQWuEzA==
-X-Received: by 2002:a05:6000:2dc7:b0:3a4:ed62:c7e1 with SMTP id ffacd0b85a97d-3b4964f4d29mr11481287f8f.12.1751895900730;
-        Mon, 07 Jul 2025 06:45:00 -0700 (PDT)
-Received: from sgarzare-redhat ([193.207.144.135])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b47030b9desm10348678f8f.19.2025.07.07.06.44.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Jul 2025 06:45:00 -0700 (PDT)
-Date: Mon, 7 Jul 2025 15:44:49 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Xuewei Niu <niuxuewei97@gmail.com>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Xuewei Niu <niuxuewei.nxw@antgroup.com>, fupan.lfp@antgroup.com
-Subject: Re: [PATCH net-next v5 0/4] vsock: Introduce SIOCINQ ioctl support
-Message-ID: <yx44jpqxyi5yujwgdvyzajsjyf6rjqht5ypvp7q72imc6cfs2e@7yzhohzyilpq>
-References: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pNGAtzut"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 914598416F
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:22 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id AhYKTf4jbtUe for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Jul 2025 00:02:21 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=sashal@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A41CC8416C
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A41CC8416C
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=pNGAtzut
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A41CC8416C
+	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:21 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by tor.source.kernel.org (Postfix) with ESMTP id 1BB9C61120;
+	Tue,  8 Jul 2025 00:02:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46B14C4CEF1;
+	Tue,  8 Jul 2025 00:02:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751932939;
+	bh=t5zmAG5UEvVd4XtHi1/WfmDFoTa8UUYg8Lwk7/npk3w=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=pNGAtzutSGSI+5bIJhYypmZDUmt9LdZkF5xEV5qZNofmWNSepe44I5Dn69u8Uzhdh
+	 C9sKubCf6ph512z8wQTMmI4UFeGEhpdZQpuENi2DhRtvSVOA+QoBw55820BCSBZ0VB
+	 JfwtmcSigjz1QeIk7HH1Mq2TxrqsqNj/K+ZgYSlxIT2dHo0zE1LQQA2rykfAsjWA4I
+	 tryCMH98jAg5OZ8aSpKgEGofXo+BRbbssF2rtlRrQXBYHVPl/xxwdyd5Yenm3frJiF
+	 a69nsERhDd3DzoXaIvTgwok1yJ7BtO28c81dFpomJFa51R2iGnXXHJLQtvdHABayJN
+	 emUf0wW1PVuTA==
+From: Sasha Levin <sashal@kernel.org>
+To: patches@lists.linux.dev,
+	stable@vger.kernel.org
+Cc: Laurent Vivier <lvivier@redhat.com>,
+	Lei Yang <leiyang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Sasha Levin <sashal@kernel.org>,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.15 2/8] virtio_net: Enforce minimum TX ring size for reliability
+Date: Mon,  7 Jul 2025 20:02:09 -0400
+Message-Id: <20250708000215.793090-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20250708000215.793090-1-sashal@kernel.org>
+References: <20250708000215.793090-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: CtB_8Y5j0PaR4yu65XAxNBYa5-w3MUKyxrN5LLrAOIQ_1751895902
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.15.5
+Content-Transfer-Encoding: 8bit
 
-On Sun, Jul 06, 2025 at 12:36:28PM +0800, Xuewei Niu wrote:
->Introduce SIOCINQ ioctl support for vsock, indicating the length of unread
->bytes.
->
->Similar with SIOCOUTQ ioctl, the information is transport-dependent.
->
->The first patch adds SIOCINQ ioctl support in AF_VSOCK.
->
->Thanks to @dexuan, the second patch is to fix the issue where hyper-v
->`hvs_stream_has_data()` doesn't return the readable bytes.
->
->The third patch wraps the ioctl into `ioctl_int()`, which implements a
->retry mechanism to prevent immediate failure.
->
->The last one adds two test cases to check the functionality. The changes
->have been tested, and the results are as expected.
->
->Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
->
->--
->
->v1->v2:
->https://lore.kernel.org/lkml/20250519070649.3063874-1-niuxuewei.nxw@antgroup.com/
->- Use net-next tree.
->- Reuse `rx_bytes` to count unread bytes.
->- Wrap ioctl syscall with an int pointer argument to implement a retry
->  mechanism.
->
->v2->v3:
->https://lore.kernel.org/netdev/20250613031152.1076725-1-niuxuewei.nxw@antgroup.com/
->- Update commit messages following the guidelines
->- Remove `unread_bytes` callback and reuse `vsock_stream_has_data()`
->- Move the tests to the end of array
->- Split the refactoring patch
->- Include <sys/ioctl.h> in the util.c
->
->v3->v4:
->https://lore.kernel.org/netdev/20250617045347.1233128-1-niuxuewei.nxw@antgroup.com/
->- Hyper-v `hvs_stream_has_data()` returns the readable bytes
->- Skip testing the null value for `actual` (int pointer)
->- Rename `ioctl_int()` to `vsock_ioctl_int()`
->- Fix a typo and a format issue in comments
->- Remove the `RECEIVED` barrier.
->- The return type of `vsock_ioctl_int()` has been changed to bool
->
->v4->v5:
->https://lore.kernel.org/netdev/20250630075727.210462-1-niuxuewei.nxw@antgroup.com/
->- Put the hyper-v fix before the SIOCINQ ioctl implementation.
->- Remove my SOB from the hyper-v fix patch.
+From: Laurent Vivier <lvivier@redhat.com>
 
-Has I mentioned, that was not the issue, but the wrong Author.
+[ Upstream commit 24b2f5df86aaebbe7bac40304eaf5a146c02367c ]
 
-There are also other issue, not sure how you're sending them, but I 
-guess there are some issues with you `git format-patch` configuration:
+The `tx_may_stop()` logic stops TX queues if free descriptors
+(`sq->vq->num_free`) fall below the threshold of (`MAX_SKB_FRAGS` + 2).
+If the total ring size (`ring_num`) is not strictly greater than this
+value, queues can become persistently stopped or stop after minimal
+use, severely degrading performance.
 
-$ ./scripts/checkpatch.pl -g net-next..HEAD --codespell
------------------------------------------------------------------------------------
-Commit ed36075e04ec ("hv_sock: Return the readable bytes in hvs_stream_has_data()")
------------------------------------------------------------------------------------
-WARNING: 'multpile' may be misspelled - perhaps 'multiple'?
-#23:
-Note: there may be multpile incoming hv_sock packets pending in the
-                    ^^^^^^^^
+A single sk_buff transmission typically requires descriptors for:
+- The virtio_net_hdr (1 descriptor)
+- The sk_buff's linear data (head) (1 descriptor)
+- Paged fragments (up to MAX_SKB_FRAGS descriptors)
 
-ERROR: Missing Signed-off-by: line by nominal patch author 'Xuewei Niu <niuxuewei97@gmail.com>'
+This patch enforces that the TX ring size ('ring_num') must be strictly
+greater than (MAX_SKB_FRAGS + 2). This ensures that the ring is
+always large enough to hold at least one maximally-fragmented packet
+plus at least one additional slot.
 
-total: 1 errors, 1 warnings, 0 checks, 29 lines checked
+Reported-by: Lei Yang <leiyang@redhat.com>
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://patch.msgid.link/20250521092236.661410-4-lvivier@redhat.com
+Tested-by: Lei Yang <leiyang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
 
-NOTE: For some of the reported defects, checkpatch may be able to
-       mechanically convert to the typical style using --fix or --fix-inplace.
+**YES**
 
-Commit ed36075e04ec ("hv_sock: Return the readable bytes in hvs_stream_has_data()") has style problems, please review.
-------------------------------------------------------------
-Commit 4e5c39e373fa ("vsock: Add support for SIOCINQ ioctl")
-------------------------------------------------------------
-WARNING: From:/Signed-off-by: email address mismatch: 'From: Xuewei Niu <niuxuewei97@gmail.com>' != 'Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>'
+This commit should be backported to stable kernel trees. Here's my
+extensive analysis:
 
-total: 0 errors, 1 warnings, 0 checks, 28 lines checked
+## 1. **Critical Bug Fix**
+The commit fixes a severe bug where TX queues can become permanently
+stopped, causing complete network transmission failure. Looking at the
+code change, it adds a crucial validation in `virtnet_tx_resize()`:
 
-NOTE: For some of the reported defects, checkpatch may be able to
-       mechanically convert to the typical style using --fix or --fix-inplace.
+```c
+if (ring_num <= MAX_SKB_FRAGS + 2) {
+    netdev_err(vi->dev, "tx size (%d) cannot be smaller than %d\n",
+               ring_num, MAX_SKB_FRAGS + 2);
+    return -EINVAL;
+}
+```
 
-Commit 4e5c39e373fa ("vsock: Add support for SIOCINQ ioctl") has style problems, please review.
-------------------------------------------------------------------------
-Commit 3eb323b2d9f4 ("test/vsock: Add retry mechanism to ioctl wrapper")
-------------------------------------------------------------------------
-WARNING: From:/Signed-off-by: email address mismatch: 'From: Xuewei Niu <niuxuewei97@gmail.com>' != 'Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>'
+This prevents a configuration that would make the network interface
+essentially unusable.
 
-total: 0 errors, 1 warnings, 62 lines checked
+## 2. **Root Cause Analysis**
+The bug occurs because the `tx_may_stop()` logic (used throughout
+virtio_net for flow control) stops the TX queue when free descriptors
+fall below `MAX_SKB_FRAGS + 2`. If the total ring size is not strictly
+greater than this threshold, the queue can:
+- Stop after transmitting just one packet
+- Never have enough free slots to wake up again
+- Result in a permanently stalled TX queue
 
-NOTE: For some of the reported defects, checkpatch may be able to
-       mechanically convert to the typical style using --fix or --fix-inplace.
+## 3. **User Impact**
+This affects real users who:
+- Use virtio_net in virtualized environments (very common in cloud/VM
+  deployments)
+- Configure TX ring sizes via ethtool or other management tools
+- May unknowingly set ring sizes that trigger this bug
 
-Commit 3eb323b2d9f4 ("test/vsock: Add retry mechanism to ioctl wrapper") has style problems, please review.
+The commit message explicitly mentions a report from Lei Yang at Red
+Hat, indicating this was discovered through real-world usage.
 
-NOTE: If any of the errors are false positives, please report
-       them to the maintainer, see CHECKPATCH in MAINTAINERS.
+## 4. **Minimal and Safe Fix**
+The fix is:
+- **Small**: Only 6 lines of code added
+- **Contained**: Only affects ring resize operations
+- **Safe**: Adds validation without changing existing behavior for valid
+  configurations
+- **Clear**: Returns -EINVAL with a descriptive error message
 
->- Move the `need_refill` initialization into the `case 1` block.
->- Remove the `actual` argument from `vsock_ioctl_int()`.
->- Replace `TIOCINQ` with `SIOCINQ`.
->
->---
->Xuewei Niu (4):
->      hv_sock: Return the readable bytes in hvs_stream_has_data()
->      vsock: Add support for SIOCINQ ioctl
->      test/vsock: Add retry mechanism to ioctl wrapper
->      test/vsock: Add ioctl SIOCINQ tests
->
-> net/vmw_vsock/af_vsock.c         | 22 +++++++++++
-> net/vmw_vsock/hyperv_transport.c | 17 +++++++--
-> tools/testing/vsock/util.c       | 30 ++++++++++-----
-> tools/testing/vsock/util.h       |  1 +
-> tools/testing/vsock/vsock_test.c | 79 ++++++++++++++++++++++++++++++++++++++++
-> 5 files changed, 137 insertions(+), 12 deletions(-)
->---
->base-commit: 5f712c3877f99d5b5e4d011955c6467ae0e535a6
->change-id: 20250703-siocinq-9e2907939806
->
->Best regards,
->-- 
->Xuewei Niu <niuxuewei.nxw@antgroup.com>
->
+## 5. **Meets Stable Criteria**
+According to stable kernel rules, this commit qualifies because it:
+- Fixes a bug that affects users (network stalls)
+- Is relatively small and contained
+- Has no major side effects
+- Doesn't introduce new features
+- Has been tested (by Lei Yang) and reviewed by maintainers (Jason Wang,
+  Michael S. Tsirkin)
+
+## 6. **Comparison with Similar Commits**
+Looking at the historical commits:
+- Similar commit #3 (virtio_net: ensure netdev_tx_reset_queue) was
+  backported because it fixed TX queue handling issues
+- This commit is even more critical as it prevents complete TX failure
+- The fix is simpler than commit #3 (just validation vs. callback
+  handling)
+
+## 7. **No Architectural Changes**
+Unlike commits #1 and #2 which made architectural changes to ring
+sizing, this commit:
+- Only adds input validation
+- Doesn't change data structures
+- Doesn't modify existing workflows
+- Simply prevents an invalid configuration
+
+The fact that experienced maintainers like Jason Wang and Michael S.
+Tsirkin acked this change further supports its importance for stable
+backporting. This is a textbook example of a fix that should go to
+stable: it addresses a real bug with minimal risk.
+
+ drivers/net/virtio_net.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e53ba600605a5..3054b2b4f6a0c 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3481,6 +3481,12 @@ static int virtnet_tx_resize(struct virtnet_info *vi, struct send_queue *sq,
+ {
+ 	int qindex, err;
+ 
++	if (ring_num <= MAX_SKB_FRAGS + 2) {
++		netdev_err(vi->dev, "tx size (%d) cannot be smaller than %d\n",
++			   ring_num, MAX_SKB_FRAGS + 2);
++		return -EINVAL;
++	}
++
+ 	qindex = sq - vi->sq;
+ 
+ 	virtnet_tx_pause(vi, sq);
+-- 
+2.39.5
 
