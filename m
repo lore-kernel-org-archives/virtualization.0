@@ -1,122 +1,85 @@
-Received: from out198-19.us.a.mail.aliyun.com (out198-19.us.a.mail.aliyun.com [47.90.198.19])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0B52221579
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 06:37:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.198.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CC8A215F5C
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 06:48:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751956622; cv=none; b=oYEVCfJxw4mFJERkcXV7pIyQwM5j6LBCvUAQh8dEoA6pwY1ZDcnv6lFKkSvPvfw6QoMjf6m4vOUz84Y2rGpNIuFb1+IHoSuLdOuEu1jjO+FU5jVSRD0rpaKan8JzuA1wfGse54buwq6gA5ORmmnbemO3Dl5niCWAPPXDThZUdB8=
+	t=1751957314; cv=none; b=Fxo79SI57rYymr+MpLEBGkq2Ppa6LppJg8Cc3L1w+7i6agruzYE7vtXTFCmFjUBWQ+xE20pesCls3hbmDp6I7EZ/KvTviN5pJkmTHkOF/xZlPk97t4mJKZdhk6h9g+zBbUtGclQ2vrfY8qaqn16tJoUT5k4nfa+i88Y8cpFfWck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751956622; c=relaxed/simple;
-	bh=/smSTVBOTYXd206lVwYMeJLOzk2Z6oW8Q2vy5QxlzrA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=tRV7WsUiGkYNXRiZLO7CJOGFLbCrB11iiUjDogb48vde1Db9SuEPpYQvqPT9dWLTUrJjGswNdQmTx0catJ7sv30beHd8UB78DkyMgpEFYVPApv+TOlUk5v3B+hDRoorWyv+tabP4bMHZegLyh2BzPufMGF9hkAT0vC/bubbmiUE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com; spf=pass smtp.mailfrom=antgroup.com; dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b=guoOpJ+E; arc=none smtp.client-ip=47.90.198.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antgroup.com
+	s=arc-20240116; t=1751957314; c=relaxed/simple;
+	bh=yGVJxfUZE1KtHEBfNS5jt0mdIntrUHouPZnqSr2FpaU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ucVi2qNTrRq5Tpxb6fiLDE/b9d8dibL7Nri8TFiY99M7unAvB7UdyqTRMqsPygbk1jMK1/TXKhw7JhomHURrg3jtLGvwR9jJjdCyzWh0YZTjAQPlAsE3WpsMWftC8HskU6aXZ450C6zgp+XCyVsvyr5U30+md5+eFnTCIjOmFF0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QU1XO8ax; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b="guoOpJ+E"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=antgroup.com; s=default;
-	t=1751956604; h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To;
-	bh=BWrbRfuOAO4JIUdkE1HlpoBHmDvPPs8uqWlIP2joYso=;
-	b=guoOpJ+ELHA0nPxwtZ74iLNr6a3ep+YWvz1mG44SRsqiKm/XRZungaRdd1BuEP0gqugrhpQae16LbgcT1vr/n2/99LcTMJW9s9gApYlbmtuXD+a3jtGNzoNVVYQWUDItleuJuXDyqJpSjEeu1KQjF8FbG9bQVfZjAv/X5xswjjY=
-Received: from 127.0.0.1(mailfrom:niuxuewei.nxw@antgroup.com fp:SMTPD_---.dhGPAbr_1751956601 cluster:ay29)
-          by smtp.aliyun-inc.com;
-          Tue, 08 Jul 2025 14:36:43 +0800
-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Date: Tue, 08 Jul 2025 14:36:11 +0800
-Subject: [PATCH net-next v6 1/4] hv_sock: Return the readable bytes in
- hvs_stream_has_data()
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QU1XO8ax"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751957311;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=tsum3ML/FjoVgbok+3MjXVB4I8gHTKKd+8yAm4t36GE=;
+	b=QU1XO8ax5nFZlH2bgYXAjp/KGy2LG0heHWsPiVJxcn5raWjFTP7dPYjz5v0MnNjUbtR8Jc
+	YyYn4psHzuRLMFcvnhH0m7v8HqUpX4QKT7VN0AeB4TTr0ysN4VN2QCk3IMXkow2w9vX6dy
+	pxQlNGPmj8X/YwsjrfFM03PtLEOwtig=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-539-4pB-6n1FMB-tQg3X6MkRvw-1; Tue,
+ 08 Jul 2025 02:48:29 -0400
+X-MC-Unique: 4pB-6n1FMB-tQg3X6MkRvw-1
+X-Mimecast-MFC-AGG-ID: 4pB-6n1FMB-tQg3X6MkRvw_1751957308
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 740891944AAD;
+	Tue,  8 Jul 2025 06:48:28 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.173])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F218219560AB;
+	Tue,  8 Jul 2025 06:48:23 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	eperezma@redhat.com
+Cc: kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	jonah.palmer@oracle.com
+Subject: [PATCH net-next 0/2] in order support for vhost-net
+Date: Tue,  8 Jul 2025 14:48:17 +0800
+Message-ID: <20250708064819.35282-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250708-siocinq-v6-1-3775f9a9e359@antgroup.com>
-References: <20250708-siocinq-v6-0-3775f9a9e359@antgroup.com>
-In-Reply-To: <20250708-siocinq-v6-0-3775f9a9e359@antgroup.com>
-To: "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>
-Cc: linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Xuewei Niu <niuxuewei.nxw@antgroup.com>, niuxuewei97@gmail.com
-X-Mailer: b4 0.14.2
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-From: Dexuan Cui <decui@microsoft.com>
+Hi all,
 
-When hv_sock was originally added, __vsock_stream_recvmsg() and
-vsock_stream_has_data() actually only needed to know whether there
-is any readable data or not, so hvs_stream_has_data() was written to
-return 1 or 0 for simplicity.
+This series implements VIRTIO_F_IN_ORDER support for vhost-net. This
+feature is designed to improve the performance of the virtio ring by
+optimizing descriptor processing.
 
-However, now hvs_stream_has_data() should return the readable bytes
-because vsock_data_ready() -> vsock_stream_has_data() needs to know the
-actual bytes rather than a boolean value of 1 or 0.
+Benchmarks show a notable improvement. Please see patch 2 for details.
 
-The SIOCINQ ioctl support also needs hvs_stream_has_data() to return
-the readable bytes.
+Thanks
 
-Let hvs_stream_has_data() return the readable bytes of the payload in
-the next host-to-guest VMBus hv_sock packet.
+Jason Wang (2):
+  vhost: basic in order support
+  vhost_net: basic in_order support
 
-Note: there may be multiple incoming hv_sock packets pending in the
-VMBus channel's ringbuffer, but so far there is not a VMBus API that
-allows us to know all the readable bytes in total without reading and
-caching the payload of the multiple packets, so let's just return the
-readable bytes of the next single packet. In the future, we'll either
-add a VMBus API that allows us to know the total readable bytes without
-touching the data in the ringbuffer, or the hv_sock driver needs to
-understand the VMBus packet format and parse the packets directly.
-
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
----
- net/vmw_vsock/hyperv_transport.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
-
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 31342ab502b4fc35feb812d2c94e0e35ded73771..432fcbbd14d4f44bd2550be8376e42ce65122758 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -694,15 +694,26 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
- static s64 hvs_stream_has_data(struct vsock_sock *vsk)
- {
- 	struct hvsock *hvs = vsk->trans;
-+	bool need_refill;
- 	s64 ret;
- 
- 	if (hvs->recv_data_len > 0)
--		return 1;
-+		return hvs->recv_data_len;
- 
- 	switch (hvs_channel_readable_payload(hvs->chan)) {
- 	case 1:
--		ret = 1;
--		break;
-+		need_refill = !hvs->recv_desc;
-+		if (!need_refill)
-+			return -EIO;
-+
-+		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
-+		if (!hvs->recv_desc)
-+			return -ENOBUFS;
-+
-+		ret = hvs_update_recv_data(hvs);
-+		if (ret)
-+			return ret;
-+		return hvs->recv_data_len;
- 	case 0:
- 		vsk->peer_shutdown |= SEND_SHUTDOWN;
- 		ret = 0;
+ drivers/vhost/net.c   |  88 +++++++++++++++++++++---------
+ drivers/vhost/vhost.c | 121 +++++++++++++++++++++++++++++++++++-------
+ drivers/vhost/vhost.h |   8 ++-
+ 3 files changed, 170 insertions(+), 47 deletions(-)
 
 -- 
-2.34.1
+2.31.1
 
