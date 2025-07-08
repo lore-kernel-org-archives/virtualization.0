@@ -1,163 +1,123 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0C6B230BF2
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 11:17:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B5EB21CFF4
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 11:45:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751973434; cv=none; b=Q8J/kgW16XFXEG+j4WQsvbJ4akWhrs/R/q8oNlikD+gomM+0lkcssV0f4F7Z9lh+uKC8iQrM2s+K0Pu6YGPFsxZliqYh2cej+/hJtpv6LGT0SrKfeBxt8ZxHOlvFccfFkjEeGx9fMmJtVKl1WUY46IpxPmbi9+IjTuQ0HxmNYRw=
+	t=1751975128; cv=none; b=hM7vmASWw0NofnLgzFirLApRkicDonUjrTAxgK+KIzwwE6ThKkGnAVRrrIDrEZSKlHNLk9ZuXAx4ftVgARNUTX9DipcbqVAMN8VFKWaf84iBonJiEXlUpOrxLu554ivFoKw4vT89aujmDlRIFAh4XI6FphXdl85NV5I9nH5b2r4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751973434; c=relaxed/simple;
-	bh=SW4IfHix+f4Je4esfBdglGbT4aI4+HKwBw41uiZTcKM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=mPCHJmeYAV0vRkvmxmSskCt026RPKN9HLkyi4ewUsYjE1mPtjhG6ZaYDphWdVXCKQzHSxffyJW5fj1eAVLNxS5L9/wC782yanpX3MdJy3rSqOXVlJMNg23pW9OE2jGyNju7KDRf9Y8yiz95TXgl1XRcJdvUOXDpYOhpByE/baTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YwLymmjy; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751975128; c=relaxed/simple;
+	bh=dDGmDdXbAVgOpktFUq0Y8CUWVS+LmZQ4NuInAHKnznw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=nA6kVgAfIUgSGS+5Vq4hfKfTWPAsZ1WQgOvSrkgh71KlT8Z9ivgE9O5JUsgs5WXKyrhBkNwL7mH/z4RCVLYb39etZF6i7fMpmBxqzs394S/hultxsF6Tv4YWA7HD9FXFTFyMN0mCmHWVlVkAWWkZsP9dQvclrea1pjPtNYaxLKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=hTSmuD7o; arc=none smtp.client-ip=210.118.77.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YwLymmjy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751973430;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=hLJpDQTyK8jsS2YvDzZqaAeQiFLy072zwpHz83Qr2vg=;
-	b=YwLymmjy7ZZat8ggC+aZPcZOi5UPbPzn2Xvim0WS12SwxHfNH75NQs2oH1+aXvsXky6KcO
-	9Y4Xc3yeo0x/66uGWCnojwmBwYsr4VRzt0ZH5fRMf8PGn58zMLCMAQGGzhEXBoobjZZAAD
-	rI2VYQeeOZaXlOriwcjd3U+15FXwzHA=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-636-oqB1VFmVPymZKiEAHg_Mig-1; Tue, 08 Jul 2025 07:17:09 -0400
-X-MC-Unique: oqB1VFmVPymZKiEAHg_Mig-1
-X-Mimecast-MFC-AGG-ID: oqB1VFmVPymZKiEAHg_Mig_1751973429
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6fb3bb94b5cso73777506d6.2
-        for <virtualization@lists.linux.dev>; Tue, 08 Jul 2025 04:17:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751973429; x=1752578229;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hLJpDQTyK8jsS2YvDzZqaAeQiFLy072zwpHz83Qr2vg=;
-        b=NyQxFcwcatKsWENEDpC5rJKGNNN0sKOs4i+3Uze7jCRypTzD+kUKp0QD7y5qwtnmiZ
-         sKWXfHfO/65gIEk4eQTQ++SucGPKnt8YoP8xr8n3Ka68yogY0rdIC2KOK5iYorwN+bEA
-         lN6ddkTcmMzfWgFmYop+3uCEAsxbn268ZI6mLqsRKzKWNFe9WaTP298DS839N/Cxo3H2
-         Oy6GsmrThiREywo8jGNfsM6RioSzbWFbWEdhIAY5kItjKxS3g+U2Jmx/1t1dRjiZkmgR
-         6KY5sgo0AIQcYPCSh3HPllmmZ8sKyfG0wJ2N0+2I1RGzmA+grTNwW1ZQhUMGPL0VNGGF
-         Y5PQ==
-X-Gm-Message-State: AOJu0YwJsv1Vdx+P/0/pYilbBSj0UucikUvfXQALy0COFbfEt/WikV9K
-	9d7ONDtfTPCj0AjSGV6wi6H5IbVFIcFJQC/hMhVIY0B2jUmqziyfEb8TYMYWQoy//QruDiDKJkD
-	moC1uuHWxohxF5j8hrIoSBW3UcqGiwYWjhZF/boNO8/BGKTv21eIOwp1AxEG1kt3FEiya
-X-Gm-Gg: ASbGncutnmvtrkOdVW4vkq6N8UmwpwJVJT7C0IaN+GGQjtpPGOtfqanh1kBSYAZcWUn
-	700fXa2gzXR+gjiqSevJrXo40zZW+YV1yQYloA9S0o3WK8/loC3ro47ciiCvJJgWYbnluOWCNhs
-	aLP3s51MjbyVH2RTnUYOwMQIjk2FGSPk3qsKRCefRZfYkTl3qZ+yn9/96IihjRs3iWbtiDgAA70
-	Z0VIn3Jt2uF6HhfGa1+FPgf7dDezWw1JGG5grJRU+dkjQv06al1Iew/Nfm5LDfm91GpQY9MrHG7
-	Im8ERPyCNo6Y2FYpf0KrX2xqZfi65g==
-X-Received: by 2002:a05:6214:1c49:b0:702:d9d7:b6e2 with SMTP id 6a1803df08f44-7047daea654mr37844136d6.34.1751973428728;
-        Tue, 08 Jul 2025 04:17:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHmdZdg7FkyHCs2tm7yZmuVxog/GLdnlBjbdngjYdDrQNIKIT5juBSVSyb2m4opt+Qg+0n1ew==
-X-Received: by 2002:a05:6214:1c49:b0:702:d9d7:b6e2 with SMTP id 6a1803df08f44-7047daea654mr37843036d6.34.1751973427927;
-        Tue, 08 Jul 2025 04:17:07 -0700 (PDT)
-Received: from stex1.redhat.com ([193.207.147.103])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-702c4d5ac2csm74424756d6.95.2025.07.08.04.17.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Jul 2025 04:17:07 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: netdev@vger.kernel.org
-Cc: virtualization@lists.linux.dev,
-	Jakub Kicinski <kuba@kernel.org>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	linux-kernel@vger.kernel.org,
-	Luigi Leonardi <leonardi@redhat.com>
-Subject: [PATCH net-next] vsock/test: fix test for null ptr deref when transport changes
-Date: Tue,  8 Jul 2025 13:17:01 +0200
-Message-ID: <20250708111701.129585-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.50.0
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="hTSmuD7o"
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20250708114524euoutp02874ae2a8147f7166e165411c840cc85c~QRBfdOzRL1897018970euoutp02n
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 11:45:24 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20250708114524euoutp02874ae2a8147f7166e165411c840cc85c~QRBfdOzRL1897018970euoutp02n
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1751975124;
+	bh=1ym+ZPwSAJBlUJTRBRpHOrnxcWfoWCspHKNp3aF96Zc=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=hTSmuD7oMDEzit2qwO94PA3KuPM3t2VfPla+ZeQLlhsNzfaZcuY74yloqGgMlREzO
+	 CsGI/sYzA9Yc1mk5B7u3++o5ws1E5d1puriNBi3OjaJXBAd0aHxnL7ewrUPjNlgXd6
+	 LV3oL4gOBjFPocvDRFQB7NcOwi5rH+2xd/RpiYis=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20250708114523eucas1p2d8771c6a0d017b9bb67a6528e7582617~QRBe5i9Re1494914949eucas1p2S;
+	Tue,  8 Jul 2025 11:45:23 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20250708114521eusmtip2651e660db53304d0ed855a7d7f6ea665~QRBcy78Hv2034520345eusmtip2O;
+	Tue,  8 Jul 2025 11:45:21 +0000 (GMT)
+Message-ID: <261f2417-78a9-45b8-bcec-7e36421a243c@samsung.com>
+Date: Tue, 8 Jul 2025 13:45:20 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 8prGgkhAvV1S3ecXR4Unio6_2SxxGEiDN8eTQbRWg9g_1751973429
-X-Mimecast-Originator: redhat.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
+	<mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
+	<christophe.leroy@csgroup.eu>, Robin Murphy <robin.murphy@arm.com>, Joerg
+	Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, "Michael S.
+	Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Alexander Potapenko <glider@google.com>, Marco Elver
+ <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Andrew Morton
+ <akpm@linux-foundation.org>, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ iommu@lists.linux.dev, virtualization@lists.linux.dev,
+ kasan-dev@googlegroups.com, linux-trace-kernel@vger.kernel.org,
+ linux-mm@kvack.org, Jason Gunthorpe <jgg@ziepe.ca>
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <20250708110007.GF592765@unreal>
 Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
+X-CMS-MailID: 20250708114523eucas1p2d8771c6a0d017b9bb67a6528e7582617
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
+X-EPHeader: CA
+X-CMS-RootMailID: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
+References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
+	<cover.1750854543.git.leon@kernel.org>
+	<35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
+	<20250627170213.GL17401@unreal> <20250630133839.GA26981@lst.de>
+	<69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
+	<20250708110007.GF592765@unreal>
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+On 08.07.2025 13:00, Leon Romanovsky wrote:
+> On Tue, Jul 08, 2025 at 12:27:09PM +0200, Marek Szyprowski wrote:
+>> On 30.06.2025 15:38, Christoph Hellwig wrote:
+>>> On Fri, Jun 27, 2025 at 08:02:13PM +0300, Leon Romanovsky wrote:
+>>>>> Thanks for this rework! I assume that the next step is to add map_phys
+>>>>> callback also to the dma_map_ops and teach various dma-mapping providers
+>>>>> to use it to avoid more phys-to-page-to-phys conversions.
+>>>> Probably Christoph will say yes, however I personally don't see any
+>>>> benefit in this. Maybe I wrong here, but all existing .map_page()
+>>>> implementation platforms don't support p2p anyway. They won't benefit
+>>>> from this such conversion.
+>>> I think that conversion should eventually happen, and rather sooner than
+>>> later.
+>> Agreed.
+>>
+>> Applied patches 1-7 to my dma-mapping-next branch. Let me know if one
+>> needs a stable branch with it.
+> Thanks a lot, I don't think that stable branch is needed. Realistically
+> speaking, my VFIO DMA work won't be merged this cycle, We are in -rc5,
+> it is complete rewrite from RFC version and touches pci-p2p code (to
+> remove dependency on struct page) in addition to VFIO, so it will take
+> time.
+>
+> Regarding, last patch (hmm), it will be great if you can take it.
+> We didn't touch anything in hmm.c this cycle and have no plans to send PR.
+> It can safely go through your tree.
 
-In test_stream_transport_change_client(), the client sends CONTROL_CONTINUE
-on each iteration, even when connect() is unsuccessful. This causes a flood
-of control messages in the server that hangs around for more than 10
-seconds after the test finishes, triggering several timeouts and causing
-subsequent tests to fail. This was discovered in testing a newly proposed
-test that failed in this way on the client side:
-    ...
-    33 - SOCK_STREAM transport change null-ptr-deref...ok
-    34 - SOCK_STREAM ioctl(SIOCINQ) functionality...recv timed out
+Okay, then I would like to get an explicit ack from Jérôme for this.
 
-The CONTROL_CONTINUE message is used only to tell to the server to call
-accept() to consume successful connections, so that subsequent connect()
-will not fail for finding the queue full.
+>> Leon, it would be great if You could also prepare an incremental patch
+>> adding map_phys callback to the dma_maps_ops, so the individual
+>> arch-specific dma-mapping providers can be then converted (or simplified
+>> in many cases) too.
+> Sure, will do.
 
-Send CONTROL_CONTINUE message only when the connect() has succeeded, or
-found the queue full. Note that the second connect() can also succeed if
-the first one was interrupted after sending the request.
+Thanks!
 
-Fixes: 3a764d93385c ("vsock/test: Add test for null ptr deref when transport changes")
-Cc: leonardi@redhat.com
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- tools/testing/vsock/vsock_test.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
-
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index be6ce764f694..630110ee31df 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -1937,6 +1937,7 @@ static void test_stream_transport_change_client(const struct test_opts *opts)
- 			.svm_cid = opts->peer_cid,
- 			.svm_port = opts->peer_port,
- 		};
-+		bool send_control = false;
- 		int s;
- 
- 		s = socket(AF_VSOCK, SOCK_STREAM, 0);
-@@ -1957,19 +1958,29 @@ static void test_stream_transport_change_client(const struct test_opts *opts)
- 			exit(EXIT_FAILURE);
- 		}
- 
-+		/* Notify the server if the connect() is successful or the
-+		 * receiver connection queue is full, so it will do accept()
-+		 * to drain it.
-+		 */
-+		if (!ret || errno == ECONNRESET)
-+			send_control = true;
-+
- 		/* Set CID to 0 cause a transport change. */
- 		sa.svm_cid = 0;
- 
--		/* Ignore return value since it can fail or not.
--		 * If the previous connect is interrupted while the
--		 * connection request is already sent, the second
-+		/* There is a case where this will not fail:
-+		 * if the previous connect() is interrupted while the
-+		 * connection request is already sent, this second
- 		 * connect() will wait for the response.
- 		 */
--		connect(s, (struct sockaddr *)&sa, sizeof(sa));
-+		ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
-+		if (!ret || errno == ECONNRESET)
-+			send_control = true;
- 
- 		close(s);
- 
--		control_writeulong(CONTROL_CONTINUE);
-+		if (send_control)
-+			control_writeulong(CONTROL_CONTINUE);
- 
- 	} while (current_nsec() < tout);
- 
+Best regards
 -- 
-2.50.0
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
