@@ -1,31 +1,42 @@
-Received: from out198-19.us.a.mail.aliyun.com (out198-19.us.a.mail.aliyun.com [47.90.198.19])
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D7DD2248AC
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 06:49:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.198.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97F7A2836B5
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 10:27:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751957358; cv=none; b=QcIIM+AMlYwg+lxts1bjGPjNpjBVc7PENNjReLAQw90IWT/m8Pq5xyvIzD8TEjWQXvGQ1PP9pmuLsUIRGgFK3oTXX8c1mpjp1ZYyGFJL1U5wMOvVEASki3k98zxAaQCvTn9T+9dKP2/Ch24nd/Yv1cNXe5zerE7wm0jtznRMTCQ=
+	t=1751970443; cv=none; b=r9DosdnVTBmth9i0PU6Wyts/tQzWJ9XmtdKRSvfB1JuEsgaFFfbPOVG1xgSvmCBeZz7ch4TDh0a0fJ0wSe0Zo0ksxz36kKFumXJi6wDCvEzQ+lx9JYkacQbM8DczxFEJFzU1CMK5sJANjEIzVJEfIcRTMBEQVdShXVmZ308wML8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751957358; c=relaxed/simple;
-	bh=thPndo6dlWTfZeTyIzp/4+EhMFDLJTB+q35Ha5618eE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sAaj3hRPQXW8mTNdgT0FsQRqpYV+81hmTZImWAzxN5OtZg/1RhdUoYkhIRcOVUohG0wIRv+hKLTRIlHyxZ1ezVi6e/g8F/lb+mAMFYq3PYZVHReIMQrSiaT+550LjkVOlB6gGYBGIWNGewcGDzVvZM96CeJ3ytst5KPqcISujFo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com; spf=pass smtp.mailfrom=antgroup.com; dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b=JcRbYmWO; arc=none smtp.client-ip=47.90.198.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antgroup.com
+	s=arc-20240116; t=1751970443; c=relaxed/simple;
+	bh=14manGusg8Qgqx1rKMesK88ejf15XhHcScCCmKXCkgk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=FPaMU4tvx7mxXany6DyzXVHtrgGbio0/Uqey3ff6eBthYUHyL6OelCH6t3ykoaYqM2v6LHhpE+bmoEg82EtktVrYX1S9rfzc0ALnNIRQGB5KRXIBQO6tigNOoD/7qQfujTXvGKaBwzDgJ05JIGsCQrz2IGRMra4GHlm7Wq+jBsk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=F008LidY; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b="JcRbYmWO"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=antgroup.com; s=default;
-	t=1751957341; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=cMZqnaTHDwkxEpl+JaYOXi3Kcl7BjC2nVgGg3nctPaY=;
-	b=JcRbYmWOsDLSCcAtz0ebL0b626lFsCCUuMhVo3NxcfjLd2ydyEsvalEQmaXSiK5yFcBG9TEyQ0IAJVSK+8WCwQbxba6e0qoy7ka3CwzhN+TTzRMla5RLFs1NMfOCDp+fgMxtSlS8e/iUY4NHoBz1LXnr/xCjtMFSshRUkuwt7/8=
-Received: from 30.172.244.77(mailfrom:niuxuewei.nxw@antgroup.com fp:SMTPD_---.dhHy2Tm_1751952194 cluster:ay29)
-          by smtp.aliyun-inc.com;
-          Tue, 08 Jul 2025 13:23:15 +0800
-Message-ID: <9d9adafc-71d8-4e24-b5a0-7acd1b538ae7@antgroup.com>
-Date: Tue, 8 Jul 2025 13:23:13 +0800
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="F008LidY"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20250708102712euoutp01f528973a4c78bda2a0ba279450904eb6~QP9ONuIwy2622426224euoutp01b
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 10:27:12 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20250708102712euoutp01f528973a4c78bda2a0ba279450904eb6~QP9ONuIwy2622426224euoutp01b
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1751970432;
+	bh=CvHwMYp2XIGbJnf/9QWS8C8NtBZtZV/va6aW8p1Pd0k=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=F008LidYzvfh2j0RaYHTMgLK3oM6mF0Yc30pV8DYIYJ63cif9vHmCcNRRBaOZXuE5
+	 bNk24ajaoAplrZQOsXjt1dEV2BYlfoenSYAE1z/tvVb0mjKVzlBGiCFN/CP6TshfXE
+	 SMyPamwp2HmagXjrE5FMphrgU3Cfd7ZXMqQ0EBV8=
+Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20250708102712eucas1p1199b906d3c40b7ff5066a92aacd7b14c~QP9NsRWhM2715427154eucas1p1l;
+	Tue,  8 Jul 2025 10:27:12 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20250708102710eusmtip12ad336592b93f91919ed398faf3d4122~QP9LytFDz1124711247eusmtip1B;
+	Tue,  8 Jul 2025 10:27:10 +0000 (GMT)
+Message-ID: <69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
+Date: Tue, 8 Jul 2025 12:27:09 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -33,156 +44,63 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5 0/4] vsock: Introduce SIOCINQ ioctl support
-To: Stefano Garzarella <sgarzare@redhat.com>,
- Xuewei Niu <niuxuewei97@gmail.com>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, fupan.lfp@antgroup.com
-References: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
- <yx44jpqxyi5yujwgdvyzajsjyf6rjqht5ypvp7q72imc6cfs2e@7yzhohzyilpq>
+Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
+To: Christoph Hellwig <hch@lst.de>, Leon Romanovsky <leon@kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan
+	<maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
+	Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, Will
+	Deacon <will@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Alexander Potapenko
+	<glider@google.com>, Marco Elver <elver@google.com>, Dmitry Vyukov
+	<dvyukov@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mathieu
+	Desnoyers <mathieu.desnoyers@efficios.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?=
+	<jglisse@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, iommu@lists.linux.dev,
+	virtualization@lists.linux.dev, kasan-dev@googlegroups.com,
+	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org, Jason Gunthorpe
+	<jgg@ziepe.ca>
 Content-Language: en-US
-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-In-Reply-To: <yx44jpqxyi5yujwgdvyzajsjyf6rjqht5ypvp7q72imc6cfs2e@7yzhohzyilpq>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <20250630133839.GA26981@lst.de>
+Content-Transfer-Encoding: 7bit
+X-CMS-MailID: 20250708102712eucas1p1199b906d3c40b7ff5066a92aacd7b14c
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
+X-EPHeader: CA
+X-CMS-RootMailID: 20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf
+References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
+	<cover.1750854543.git.leon@kernel.org>
+	<35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
+	<20250627170213.GL17401@unreal> <20250630133839.GA26981@lst.de>
 
+On 30.06.2025 15:38, Christoph Hellwig wrote:
+> On Fri, Jun 27, 2025 at 08:02:13PM +0300, Leon Romanovsky wrote:
+>>> Thanks for this rework! I assume that the next step is to add map_phys
+>>> callback also to the dma_map_ops and teach various dma-mapping providers
+>>> to use it to avoid more phys-to-page-to-phys conversions.
+>> Probably Christoph will say yes, however I personally don't see any
+>> benefit in this. Maybe I wrong here, but all existing .map_page()
+>> implementation platforms don't support p2p anyway. They won't benefit
+>> from this such conversion.
+> I think that conversion should eventually happen, and rather sooner than
+> later.
 
+Agreed.
 
-On 2025/7/7 21:44, Stefano Garzarella wrote:
-> On Sun, Jul 06, 2025 at 12:36:28PM +0800, Xuewei Niu wrote:
->> Introduce SIOCINQ ioctl support for vsock, indicating the length of unread
->> bytes.
->>
->> Similar with SIOCOUTQ ioctl, the information is transport-dependent.
->>
->> The first patch adds SIOCINQ ioctl support in AF_VSOCK.
->>
->> Thanks to @dexuan, the second patch is to fix the issue where hyper-v
->> `hvs_stream_has_data()` doesn't return the readable bytes.
->>
->> The third patch wraps the ioctl into `ioctl_int()`, which implements a
->> retry mechanism to prevent immediate failure.
->>
->> The last one adds two test cases to check the functionality. The changes
->> have been tested, and the results are as expected.
->>
->> Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
->>
->> -- 
->>
->> v1->v2:
->> https://lore.kernel.org/lkml/20250519070649.3063874-1-niuxuewei.nxw@antgroup.com/
->> - Use net-next tree.
->> - Reuse `rx_bytes` to count unread bytes.
->> - Wrap ioctl syscall with an int pointer argument to implement a retry
->>  mechanism.
->>
->> v2->v3:
->> https://lore.kernel.org/netdev/20250613031152.1076725-1-niuxuewei.nxw@antgroup.com/
->> - Update commit messages following the guidelines
->> - Remove `unread_bytes` callback and reuse `vsock_stream_has_data()`
->> - Move the tests to the end of array
->> - Split the refactoring patch
->> - Include <sys/ioctl.h> in the util.c
->>
->> v3->v4:
->> https://lore.kernel.org/netdev/20250617045347.1233128-1-niuxuewei.nxw@antgroup.com/
->> - Hyper-v `hvs_stream_has_data()` returns the readable bytes
->> - Skip testing the null value for `actual` (int pointer)
->> - Rename `ioctl_int()` to `vsock_ioctl_int()`
->> - Fix a typo and a format issue in comments
->> - Remove the `RECEIVED` barrier.
->> - The return type of `vsock_ioctl_int()` has been changed to bool
->>
->> v4->v5:
->> https://lore.kernel.org/netdev/20250630075727.210462-1-niuxuewei.nxw@antgroup.com/
->> - Put the hyper-v fix before the SIOCINQ ioctl implementation.
->> - Remove my SOB from the hyper-v fix patch.
-> 
-> Has I mentioned, that was not the issue, but the wrong Author.
+Applied patches 1-7 to my dma-mapping-next branch. Let me know if one 
+needs a stable branch with it.
 
-I see it now. I'll update the author in v6. 
-> There are also other issue, not sure how you're sending them, but I guess there are some issues with you `git format-patch` configuration:
+Leon, it would be great if You could also prepare an incremental patch 
+adding map_phys callback to the dma_maps_ops, so the individual 
+arch-specific dma-mapping providers can be then converted (or simplified 
+in many cases) too.
 
-I was using my personal email. I have changed to the right email now.
-
-Hope everything goes fine with the next version.
-
-Thanks,
-Xuewei
-
-> 
-> $ ./scripts/checkpatch.pl -g net-next..HEAD --codespell
-> -----------------------------------------------------------------------------------
-> Commit ed36075e04ec ("hv_sock: Return the readable bytes in hvs_stream_has_data()")
-> -----------------------------------------------------------------------------------
-> WARNING: 'multpile' may be misspelled - perhaps 'multiple'?
-> #23:
-> Note: there may be multpile incoming hv_sock packets pending in the
->                    ^^^^^^^^
-> 
-> ERROR: Missing Signed-off-by: line by nominal patch author 'Xuewei Niu <niuxuewei97@gmail.com>'
-> 
-> total: 1 errors, 1 warnings, 0 checks, 29 lines checked
-> 
-> NOTE: For some of the reported defects, checkpatch may be able to
->       mechanically convert to the typical style using --fix or --fix-inplace.
-> 
-> Commit ed36075e04ec ("hv_sock: Return the readable bytes in hvs_stream_has_data()") has style problems, please review.
-> ------------------------------------------------------------
-> Commit 4e5c39e373fa ("vsock: Add support for SIOCINQ ioctl")
-> ------------------------------------------------------------
-> WARNING: From:/Signed-off-by: email address mismatch: 'From: Xuewei Niu <niuxuewei97@gmail.com>' != 'Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>'
-> 
-> total: 0 errors, 1 warnings, 0 checks, 28 lines checked
-> 
-> NOTE: For some of the reported defects, checkpatch may be able to
->       mechanically convert to the typical style using --fix or --fix-inplace.
-> 
-> Commit 4e5c39e373fa ("vsock: Add support for SIOCINQ ioctl") has style problems, please review.
-> ------------------------------------------------------------------------
-> Commit 3eb323b2d9f4 ("test/vsock: Add retry mechanism to ioctl wrapper")
-> ------------------------------------------------------------------------
-> WARNING: From:/Signed-off-by: email address mismatch: 'From: Xuewei Niu <niuxuewei97@gmail.com>' != 'Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>'
-> 
-> total: 0 errors, 1 warnings, 62 lines checked
-> 
-> NOTE: For some of the reported defects, checkpatch may be able to
->       mechanically convert to the typical style using --fix or --fix-inplace.
-> 
-> Commit 3eb323b2d9f4 ("test/vsock: Add retry mechanism to ioctl wrapper") has style problems, please review.
-> 
-> NOTE: If any of the errors are false positives, please report
->       them to the maintainer, see CHECKPATCH in MAINTAINERS.
-> 
->> - Move the `need_refill` initialization into the `case 1` block.
->> - Remove the `actual` argument from `vsock_ioctl_int()`.
->> - Replace `TIOCINQ` with `SIOCINQ`.
->>
->> ---
->> Xuewei Niu (4):
->>      hv_sock: Return the readable bytes in hvs_stream_has_data()
->>      vsock: Add support for SIOCINQ ioctl
->>      test/vsock: Add retry mechanism to ioctl wrapper
->>      test/vsock: Add ioctl SIOCINQ tests
->>
->> net/vmw_vsock/af_vsock.c         | 22 +++++++++++
->> net/vmw_vsock/hyperv_transport.c | 17 +++++++--
->> tools/testing/vsock/util.c       | 30 ++++++++++-----
->> tools/testing/vsock/util.h       |  1 +
->> tools/testing/vsock/vsock_test.c | 79 ++++++++++++++++++++++++++++++++++++++++
->> 5 files changed, 137 insertions(+), 12 deletions(-)
->> ---
->> base-commit: 5f712c3877f99d5b5e4d011955c6467ae0e535a6
->> change-id: 20250703-siocinq-9e2907939806
->>
->> Best regards,
->> -- 
->> Xuewei Niu <niuxuewei.nxw@antgroup.com>
->>
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
