@@ -1,225 +1,71 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AD021714B7
-	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+Received: from mx.socionext.com (mx.socionext.com [202.248.49.38])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id A5AB51401B
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 00:32:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.248.49.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751932968; cv=none; b=ETSwi8W8zBuEl/h8fqtwvQS4+FG626NNE7rAoO4km+OFpS7w30SuR3GFbpocXtjCi2k9Tpa8aWwbSp8Lfh9Lt+TNXekCWN4UveB39nZeyDrtgFkskZFRqTnGaiclxDE8NPhoHREQSWZgudm6XPjr8h5TCLWR46hefAe1CacNbRo=
+	t=1751934733; cv=none; b=ZTDiF0AiaSi0QXuSSmd2+C4dJrWNpM3NrZhsn/korJHXJJvnJOIFqQ+X1+ivbz8LIBeJvB9g6Y9Pf401g8bMUgERdBsCvlGy+/O9hgzzmAnhu4G+YGa3jx3wHwEwgptExMKvQhLj6o+L/WdWQoHUQ+t17a7vwURFWcWNLw5fzG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751932968; c=relaxed/simple;
-	bh=5NgoAFqm+T9LCk+9loFlldkh/Tg26UH3q61evtLs1K8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=IWXJOn/7ng8oDNTesxKYvQ6RE2oSV9UFrbV1jf54+hw+eDGVifjZEjoXI+4w4RG1QvBVhwEkPyYZJfDiB06JRuVF5FXmRodrfErC53iQtuEUlnVYEHbQ2TNEkO++TqmZ4DF1phM14nHSCFKctLQdcQ4nBT+UN64+udf1wVpI5XQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZYCMuDAK; arc=none smtp.client-ip=140.211.166.137
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZYCMuDAK"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E8B41408ED
-	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:46 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id qP7bEUB3Wmcc for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jul 2025 00:02:46 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=sashal@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 102E740832
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 102E740832
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ZYCMuDAK
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 102E740832
-	for <virtualization@lists.linux-foundation.org>; Tue,  8 Jul 2025 00:02:45 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id 7FECC461E6;
-	Tue,  8 Jul 2025 00:02:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45AE3C4CEF1;
-	Tue,  8 Jul 2025 00:02:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751932965;
-	bh=5NgoAFqm+T9LCk+9loFlldkh/Tg26UH3q61evtLs1K8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ZYCMuDAKNe4GQIa5EBy0MNX79NqAr6qol1EMtOb8rCLiI3RruLvPQui3oUM4L/07h
-	 UtMGWQnBzbRaAB7nks92Sk/xlxTzh62DyoUM11UmCYbIk2FPbd4QEBDWzmbYvif0Kw
-	 +p12YU7iVVwLJk95zBsUg6reDf0ITjI8XUs/zK2XIEuhJiUi7dsCQR3c+0/kklqH+Q
-	 SBpgSw6VYkz4ipPdalCPnwpRkZ1PQZqoPdgBrJuTwA2mXtyos/wtyFjG78DYUbAECt
-	 oo54xPtoIWrZsMU8iWH0IXU9Ut3+ZkmLwawjdUVWgSAfF2ZmwZEP2IbpeD23XLXKS6
-	 ZuurHWtX0GrUw==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Laurent Vivier <lvivier@redhat.com>,
-	xuanzhuo@linux.alibaba.com,
-	Jason Wang <jasowang@redhat.com>,
-	Lei Yang <leiyang@redhat.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Sasha Levin <sashal@kernel.org>,
-	virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 6.6 2/4] virtio_ring: Fix error reporting in virtqueue_resize
-Date: Mon,  7 Jul 2025 20:02:39 -0400
-Message-Id: <20250708000241.793498-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250708000241.793498-1-sashal@kernel.org>
-References: <20250708000241.793498-1-sashal@kernel.org>
+	s=arc-20240116; t=1751934733; c=relaxed/simple;
+	bh=lpBAjx+9OIWwohLyRF71S4GHKzadfqw3ME6fZ9/uARg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YjgRhsDywaHXQ6qNkLrNu2eq6DX6390CaSd3pWK+IEI0kr5fQCledY80t7ituIy4v+VMuWZft1kdw+X3X+SuZ2AYFrQmrsCDe1It9huaH2iKspPmbb7I1Z12DpmLg57NZe/i6Pq3VhKrqGga5+9i76qVUqOy7xyW9CCrUHttb5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=socionext.com; spf=pass smtp.mailfrom=socionext.com; arc=none smtp.client-ip=202.248.49.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=socionext.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=socionext.com
+Received: from unknown (HELO kinkan3-ex.css.socionext.com) ([172.31.9.52])
+  by mx.socionext.com with ESMTP; 08 Jul 2025 09:31:00 +0900
+Received: from mail.mfilter.local (mail-arc02.css.socionext.com [10.213.46.40])
+	by kinkan3-ex.css.socionext.com (Postfix) with ESMTP id 34C662069FF1;
+	Tue,  8 Jul 2025 09:31:00 +0900 (JST)
+Received: from iyokan3.css.socionext.com ([172.31.9.53]) by m-FILTER with ESMTP; Tue, 8 Jul 2025 09:31:00 +0900
+Received: from [10.212.247.77] (unknown [10.212.247.77])
+	by iyokan3.css.socionext.com (Postfix) with ESMTP id 3CC7B10D84B;
+	Tue,  8 Jul 2025 09:30:59 +0900 (JST)
+Message-ID: <c300d168-797e-4812-b957-1b761e40ea44@socionext.com>
+Date: Tue, 8 Jul 2025 09:30:57 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.6.96
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 10/12] gpio: uniphier: use new GPIO line value setter
+ callbacks
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+ Viresh Kumar <vireshk@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
+ linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux@ew.tq-group.com, linux-arm-kernel@lists.infradead.org,
+ virtualization@lists.linux.dev
+References: <20250707-gpiochip-set-rv-gpio-round4-v1-0-35668aaaf6d2@linaro.org>
+ <20250707-gpiochip-set-rv-gpio-round4-v1-10-35668aaaf6d2@linaro.org>
+Content-Language: en-US
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+In-Reply-To: <20250707-gpiochip-set-rv-gpio-round4-v1-10-35668aaaf6d2@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Laurent Vivier <lvivier@redhat.com>
+Hi Bartosz,
 
-[ Upstream commit 45ebc7e6c125ce93d2ddf82cd5bea20121bb0258 ]
+On 2025/07/07 16:50, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+> 
+> struct gpio_chip now has callbacks for setting line values that return
+> an integer, allowing to indicate failures. Convert the driver to using
+> them.
+> 
+> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+> ---
+>   drivers/gpio/gpio-uniphier.c | 16 ++++++++++------
+>   1 file changed, 10 insertions(+), 6 deletions(-)
 
-The virtqueue_resize() function was not correctly propagating error codes
-from its internal resize helper functions, specifically
-virtqueue_resize_packet() and virtqueue_resize_split(). If these helpers
-returned an error, but the subsequent call to virtqueue_enable_after_reset()
-succeeded, the original error from the resize operation would be masked.
-Consequently, virtqueue_resize() could incorrectly report success to its
-caller despite an underlying resize failure.
+Looks good to me.
 
-This change restores the original code behavior:
+Acked-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-       if (vdev->config->enable_vq_after_reset(_vq))
-               return -EBUSY;
+Thank you,
 
-       return err;
-
-Fix: commit ad48d53b5b3f ("virtio_ring: separate the logic of reset/enable from virtqueue_resize")
-Cc: xuanzhuo@linux.alibaba.com
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://patch.msgid.link/20250521092236.661410-2-lvivier@redhat.com
-Tested-by: Lei Yang <leiyang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-
-## Analysis Summary
-
-**YES**, this commit should be backported to stable kernel trees.
-
-Here's my extensive analysis:
-
-### 1. **This is a clear bug fix for incorrect error reporting**
-
-The commit fixes a critical error handling bug in `virtqueue_resize()`
-where error codes from the resize operation (`virtqueue_resize_packed()`
-or `virtqueue_resize_split()`) were being masked if
-`virtqueue_enable_after_reset()` succeeded.
-
-The specific bug pattern:
-```c
-// Before fix (buggy code):
-err = virtqueue_resize_packed/_split(_vq, num);  // May return error
-return virtqueue_enable_after_reset(_vq);        // Returns 0 on
-success, masking 'err'
-
-// After fix (correct code):
-err = virtqueue_resize_packed/_split(_vq, num);
-err_reset = virtqueue_enable_after_reset(_vq);
-if (err_reset)
-    return err_reset;
-return err;  // Correctly returns the resize error
-```
-
-### 2. **The bug affects users and can cause silent failures**
-
-According to the function documentation at lines 2787-2788, when
-`-ENOMEM` is returned from resize, "vq can still work normally" with the
-original ring size. However, with the bug, the caller would receive
-success (0) instead of `-ENOMEM`, leading them to incorrectly believe
-the resize succeeded when it actually failed. This could cause:
-- Incorrect assumptions about queue capacity
-- Performance issues if the application expected a different queue size
-- Potential resource allocation mismatches
-
-### 3. **The fix is small, contained, and low-risk**
-
-The change is minimal - only 6 lines of code:
-- Introduces a new local variable `err_reset`
-- Properly preserves and returns the original error code
-- No architectural changes or new features
-- Only affects error propagation logic
-
-### 4. **The bug exists in stable kernels**
-
-- Bug introduced in v6.6-rc1 (commit ad48d53b5b3f)
-- The feature (virtqueue_resize) exists since v6.0-rc1
-- Therefore, stable kernels 6.6.x and later contain this bug
-
-### 5. **Clear regression from refactoring**
-
-The commit message explicitly states this "restores the original code
-behavior" and includes a "Fix:" tag pointing to the commit that
-introduced the regression. The original correct pattern was:
-```c
-if (vdev->config->enable_vq_after_reset(_vq))
-    return -EBUSY;
-return err;
-```
-
-### 6. **Meets stable kernel criteria**
-
-Per stable kernel rules, this fix:
-- Fixes a real bug that affects users (incorrect error reporting)
-- Is already in Linus' tree (merged by Paolo Abeni)
-- Is small and easily reviewable
-- Has been tested (Tested-by: Lei Yang)
-- Has multiple maintainer acks (Jason Wang, Michael S. Tsirkin)
-- Does not add new features or make risky changes
-
-### 7. **Similar commits context**
-
-While the similar commits shown are feature additions (introducing
-virtqueue_resize functionality), this commit is fundamentally different
-- it's a bug fix for error handling, not a feature addition.
-
-The fix ensures that callers of `virtqueue_resize()` receive accurate
-error information, which is critical for proper error handling and
-recovery in virtio drivers that use queue resizing functionality.
-
- drivers/virtio/virtio_ring.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index c5f04234d9511..db4582687b958 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2739,7 +2739,7 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
- 		     void (*recycle)(struct virtqueue *vq, void *buf))
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
--	int err;
-+	int err, err_reset;
- 
- 	if (num > vq->vq.num_max)
- 		return -E2BIG;
-@@ -2759,7 +2759,11 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
- 	else
- 		err = virtqueue_resize_split(_vq, num);
- 
--	return virtqueue_enable_after_reset(_vq);
-+	err_reset = virtqueue_enable_after_reset(_vq);
-+	if (err_reset)
-+		return err_reset;
-+
-+	return err;
- }
- EXPORT_SYMBOL_GPL(virtqueue_resize);
- 
--- 
-2.39.5
-
+Best Regards
+Kunihiko Hayashi
