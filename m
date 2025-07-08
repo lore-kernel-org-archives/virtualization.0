@@ -1,32 +1,33 @@
-Received: from out28-4.mail.aliyun.com (out28-4.mail.aliyun.com [115.124.28.4])
+Received: from out198-19.us.a.mail.aliyun.com (out198-19.us.a.mail.aliyun.com [47.90.198.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5BC1224AEB
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 06:36:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.28.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0B52221579
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 06:37:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.198.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751956619; cv=none; b=XS+f26j9HJfoZ0tg1pfDKVVhz3vFW3O7+fR7PiM56oSg3sPCIFrMurIfjPCjNX9+CpAND74qDNZ2xHuFIOAvox5lmN9G1AN0ASK5k39sCm8+byDXferFIhIBntlEA9szf1ogQfSB/WNqmT/KTzOjQESa+jdO9CYLSbts6tx0DxI=
+	t=1751956622; cv=none; b=oYEVCfJxw4mFJERkcXV7pIyQwM5j6LBCvUAQh8dEoA6pwY1ZDcnv6lFKkSvPvfw6QoMjf6m4vOUz84Y2rGpNIuFb1+IHoSuLdOuEu1jjO+FU5jVSRD0rpaKan8JzuA1wfGse54buwq6gA5ORmmnbemO3Dl5niCWAPPXDThZUdB8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751956619; c=relaxed/simple;
-	bh=Doct89OeyNO072Y2Ys7bCVOd+ekwZZ2v2r0ziNK3ALY=;
+	s=arc-20240116; t=1751956622; c=relaxed/simple;
+	bh=/smSTVBOTYXd206lVwYMeJLOzk2Z6oW8Q2vy5QxlzrA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Oe5M/SCq6syc3P+WZLkAhDKXlrUT3ROMz/gItFWZqLSGnsHGxDPJZuXirH80bHn7Hw80NOxuTdHlFUX/s/fWnsAIOKo7N86h3gE1tcDeCDauFhNmwJl/j7uDNYHTbm2YkQ/xm87WZecjbgKIfQi7s8/qk3ukPZsSiUTbkmAvnXc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com; spf=pass smtp.mailfrom=antgroup.com; dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b=Bds2doH7; arc=none smtp.client-ip=115.124.28.4
+	 In-Reply-To:To:Cc; b=tRV7WsUiGkYNXRiZLO7CJOGFLbCrB11iiUjDogb48vde1Db9SuEPpYQvqPT9dWLTUrJjGswNdQmTx0catJ7sv30beHd8UB78DkyMgpEFYVPApv+TOlUk5v3B+hDRoorWyv+tabP4bMHZegLyh2BzPufMGF9hkAT0vC/bubbmiUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com; spf=pass smtp.mailfrom=antgroup.com; dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b=guoOpJ+E; arc=none smtp.client-ip=47.90.198.19
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antgroup.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b="Bds2doH7"
+	dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b="guoOpJ+E"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=antgroup.com; s=default;
-	t=1751956609; h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To;
-	bh=78u4kXViM2gstT6OJkwZc50WiKMJcTjBxWIBBOazpAI=;
-	b=Bds2doH7BZpp6my+ApqRwfxjNT3Bzs086oxibgo4VdO/YuvgrLn0Yv567zpSReijBiMVixYXj4ZU1V58GWDqPFrN+j2Hc4qxn3VrzJfbu/WuR0FAJgEo8WZLr+eVPSTIf9oWgP2rbQ44b7hR20BqY5Ly9PphpQ0S4NuVRZKC184=
-Received: from 127.0.0.1(mailfrom:niuxuewei.nxw@antgroup.com fp:SMTPD_---.dhGPAi9_1751956606 cluster:ay29)
+	t=1751956604; h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To;
+	bh=BWrbRfuOAO4JIUdkE1HlpoBHmDvPPs8uqWlIP2joYso=;
+	b=guoOpJ+ELHA0nPxwtZ74iLNr6a3ep+YWvz1mG44SRsqiKm/XRZungaRdd1BuEP0gqugrhpQae16LbgcT1vr/n2/99LcTMJW9s9gApYlbmtuXD+a3jtGNzoNVVYQWUDItleuJuXDyqJpSjEeu1KQjF8FbG9bQVfZjAv/X5xswjjY=
+Received: from 127.0.0.1(mailfrom:niuxuewei.nxw@antgroup.com fp:SMTPD_---.dhGPAbr_1751956601 cluster:ay29)
           by smtp.aliyun-inc.com;
-          Tue, 08 Jul 2025 14:36:48 +0800
+          Tue, 08 Jul 2025 14:36:43 +0800
 From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Date: Tue, 08 Jul 2025 14:36:14 +0800
-Subject: [PATCH net-next v6 4/4] test/vsock: Add ioctl SIOCINQ tests
+Date: Tue, 08 Jul 2025 14:36:11 +0800
+Subject: [PATCH net-next v6 1/4] hv_sock: Return the readable bytes in
+ hvs_stream_has_data()
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,7 +36,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250708-siocinq-v6-4-3775f9a9e359@antgroup.com>
+Message-Id: <20250708-siocinq-v6-1-3775f9a9e359@antgroup.com>
 References: <20250708-siocinq-v6-0-3775f9a9e359@antgroup.com>
 In-Reply-To: <20250708-siocinq-v6-0-3775f9a9e359@antgroup.com>
 To: "K. Y. Srinivasan" <kys@microsoft.com>, 
@@ -49,128 +50,72 @@ Cc: linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
  Xuewei Niu <niuxuewei.nxw@antgroup.com>, niuxuewei97@gmail.com
 X-Mailer: b4 0.14.2
 
-Add SIOCINQ ioctl tests for both SOCK_STREAM and SOCK_SEQPACKET.
+From: Dexuan Cui <decui@microsoft.com>
 
-The client waits for the server to send data, and checks if the SIOCINQ
-ioctl value matches the data size. After consuming the data, the client
-checks if the SIOCINQ value is 0.
+When hv_sock was originally added, __vsock_stream_recvmsg() and
+vsock_stream_has_data() actually only needed to know whether there
+is any readable data or not, so hvs_stream_has_data() was written to
+return 1 or 0 for simplicity.
 
+However, now hvs_stream_has_data() should return the readable bytes
+because vsock_data_ready() -> vsock_stream_has_data() needs to know the
+actual bytes rather than a boolean value of 1 or 0.
+
+The SIOCINQ ioctl support also needs hvs_stream_has_data() to return
+the readable bytes.
+
+Let hvs_stream_has_data() return the readable bytes of the payload in
+the next host-to-guest VMBus hv_sock packet.
+
+Note: there may be multiple incoming hv_sock packets pending in the
+VMBus channel's ringbuffer, but so far there is not a VMBus API that
+allows us to know all the readable bytes in total without reading and
+caching the payload of the multiple packets, so let's just return the
+readable bytes of the next single packet. In the future, we'll either
+add a VMBus API that allows us to know the total readable bytes without
+touching the data in the ringbuffer, or the hv_sock driver needs to
+understand the VMBus packet format and parse the packets directly.
+
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
 Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
 ---
- tools/testing/vsock/vsock_test.c | 79 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
+ net/vmw_vsock/hyperv_transport.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index be6ce764f69480c0f9c3e2288fc19cd2e74be148..a66d2360133dd0e36940a5907679aeacc8af7714 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -24,6 +24,7 @@
- #include <linux/time64.h>
- #include <pthread.h>
- #include <fcntl.h>
-+#include <linux/sockios.h>
- 
- #include "vsock_test_zerocopy.h"
- #include "timeout.h"
-@@ -1307,6 +1308,54 @@ static void test_unsent_bytes_client(const struct test_opts *opts, int type)
- 	close(fd);
- }
- 
-+static void test_unread_bytes_server(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int client_fd;
-+
-+	client_fd = vsock_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
-+	if (client_fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	for (int i = 0; i < sizeof(buf); i++)
-+		buf[i] = rand() & 0xFF;
-+
-+	send_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_writeln("SENT");
-+
-+	close(client_fd);
-+}
-+
-+static void test_unread_bytes_client(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int fd;
-+
-+	fd = vsock_connect(opts->peer_cid, opts->peer_port, type);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_expectln("SENT");
-+	/* The data has arrived but has not been read. The expected is
-+	 * MSG_BUF_IOCTL_LEN.
-+	 */
-+	if (!vsock_ioctl_int(fd, SIOCINQ, MSG_BUF_IOCTL_LEN)) {
-+		fprintf(stderr, "Test skipped, SIOCINQ not supported.\n");
-+		goto out;
-+	}
-+
-+	recv_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-+	/* All data has been consumed, so the expected is 0. */
-+	vsock_ioctl_int(fd, SIOCINQ, 0);
-+
-+out:
-+	close(fd);
-+}
-+
- static void test_stream_unsent_bytes_client(const struct test_opts *opts)
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 31342ab502b4fc35feb812d2c94e0e35ded73771..432fcbbd14d4f44bd2550be8376e42ce65122758 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -694,15 +694,26 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
+ static s64 hvs_stream_has_data(struct vsock_sock *vsk)
  {
- 	test_unsent_bytes_client(opts, SOCK_STREAM);
-@@ -1327,6 +1376,26 @@ static void test_seqpacket_unsent_bytes_server(const struct test_opts *opts)
- 	test_unsent_bytes_server(opts, SOCK_SEQPACKET);
- }
+ 	struct hvsock *hvs = vsk->trans;
++	bool need_refill;
+ 	s64 ret;
  
-+static void test_stream_unread_bytes_client(const struct test_opts *opts)
-+{
-+	test_unread_bytes_client(opts, SOCK_STREAM);
-+}
-+
-+static void test_stream_unread_bytes_server(const struct test_opts *opts)
-+{
-+	test_unread_bytes_server(opts, SOCK_STREAM);
-+}
-+
-+static void test_seqpacket_unread_bytes_client(const struct test_opts *opts)
-+{
-+	test_unread_bytes_client(opts, SOCK_SEQPACKET);
-+}
-+
-+static void test_seqpacket_unread_bytes_server(const struct test_opts *opts)
-+{
-+	test_unread_bytes_server(opts, SOCK_SEQPACKET);
-+}
-+
- #define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
- /* This define is the same as in 'include/linux/virtio_vsock.h':
-  * it is used to decide when to send credit update message during
-@@ -2276,6 +2345,16 @@ static struct test_case test_cases[] = {
- 		.run_client = test_stream_transport_change_client,
- 		.run_server = test_stream_transport_change_server,
- 	},
-+	{
-+		.name = "SOCK_STREAM ioctl(SIOCINQ) functionality",
-+		.run_client = test_stream_unread_bytes_client,
-+		.run_server = test_stream_unread_bytes_server,
-+	},
-+	{
-+		.name = "SOCK_SEQPACKET ioctl(SIOCINQ) functionality",
-+		.run_client = test_seqpacket_unread_bytes_client,
-+		.run_server = test_seqpacket_unread_bytes_server,
-+	},
- 	{},
- };
+ 	if (hvs->recv_data_len > 0)
+-		return 1;
++		return hvs->recv_data_len;
  
+ 	switch (hvs_channel_readable_payload(hvs->chan)) {
+ 	case 1:
+-		ret = 1;
+-		break;
++		need_refill = !hvs->recv_desc;
++		if (!need_refill)
++			return -EIO;
++
++		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
++		if (!hvs->recv_desc)
++			return -ENOBUFS;
++
++		ret = hvs_update_recv_data(hvs);
++		if (ret)
++			return ret;
++		return hvs->recv_data_len;
+ 	case 0:
+ 		vsk->peer_shutdown |= SEND_SHUTDOWN;
+ 		ret = 0;
 
 -- 
 2.34.1
