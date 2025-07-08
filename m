@@ -1,225 +1,113 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FAF3267B94
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 10:57:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19930215F48;
+	Tue,  8 Jul 2025 11:00:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751972271; cv=none; b=KWJN0jwIL4pXv+sfD1RTAgZV5d5/FHNL4b7SI62v511eOU4XG8NUrch76G8zMPquEM3emBc3CmBNnYlGOekfKQ0XFBFQId0pVN+h2MZNV+wSi1340gYlCCbdt3KmYY30/aCGdma/JD5KNo/+vfLxNjbxAdFrZI7u4lgjm0/sk48=
+	t=1751972412; cv=none; b=I3B+4++N+s5RcXUBQCcxH/xVvMOcHQf0RaeE3YoEcaVsWZoAZNeAuSDl+H9fodGUdIurTaCx7nXS6ExsbulBnTKb9Xr67Vc0eVPUymHpaH9Rocng3xYWI8haJT94yZejYqEyg/JgY5NOxHfOFF2RVEZaQroTYRRVn71F6ZHNt1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751972271; c=relaxed/simple;
-	bh=0P756gIlMCljTwX29Aq9/86jpCbNsX2kUDsw0YsiQvU=;
+	s=arc-20240116; t=1751972412; c=relaxed/simple;
+	bh=5KL6rrIwnrg38ZqhQ6AB+QdSfe6gyMAir5Sbq2Mfv3w=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=U/35iyHXDyR/P3OmnmzGnfhQ0gZFO95bHuQ18/PfKR4hlJpV+N3K9MKyiH55Ef7l0I6l/Lh4mpo8qr0UBbunG3zbJTmqJ2BJSOu3tmVMeyG+9cQDQuQkdZ3I3qHG6oarQ0V3wM7m3OkT/C3DmhpnNqQJggLDMBRLcXDhhU83coA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WZiyAORT; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=PbDGJleet/NgmFPzduxvuc47+X+wYR1zagYThzM7WNI3gFzoyU0Mt5VjcfyxNuGjLxpHui/+JWDd1mqfXoheF6Joa/oVBJauNo2YzQXCRtKBJk1zEppkycZIISuzOVcgFiR3i8qr4CgVtRDx+QJF3fjPS6LFSJ5O+QMfjPekpoA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uN8tyuqT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WZiyAORT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751972268;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2DQ/E/9WOO/fmQutLMz6YjEgOHHLMdYMOPe5H/Qd8q0=;
-	b=WZiyAORTA0elSs+D1QS6CAaRW00IEeLNlcVONMX2yALuBLlEGAsrr5FuWreBVbWH4tieqi
-	RrK8nfmufy7NPH9pM1Dl0/ZVhjjIcNi3wlHsVqG1EFmEFsmWkt7RdW4ny0yuqvBLyXDhlx
-	rH2w03SLI3G19oGBRt5sE+vbk4dHke0=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-467-Hi5bXhuFO3q60MzicqH0vQ-1; Tue, 08 Jul 2025 06:57:47 -0400
-X-MC-Unique: Hi5bXhuFO3q60MzicqH0vQ-1
-X-Mimecast-MFC-AGG-ID: Hi5bXhuFO3q60MzicqH0vQ_1751972267
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-7d4576e83cdso1171940185a.1
-        for <virtualization@lists.linux.dev>; Tue, 08 Jul 2025 03:57:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751972267; x=1752577067;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2DQ/E/9WOO/fmQutLMz6YjEgOHHLMdYMOPe5H/Qd8q0=;
-        b=RbEkSpHzPuA+cSBvaM9iOGyqXjQIXZmRAdtErx5fr7BPr7YCnCSc7YODui3KNVd/cM
-         4aIMwHsHVjNo0R+23SCfoqqjOCZ9TrdsmV4aK07C8Q5PSJs2tuszLW8OqFiSGoYm4Y5v
-         BDJWUBIhunQhF0hHyX0wFTgJIL4Wsg/XS6b07RwS2MPTDy5xp17MzN2723aMQwe3C4PL
-         lMNBcYECGtH9iVZcaUJkNEIWPP23tnktqAlK80vzZ9ES2mPS9fDAlEr4F7dtIkuBTuaY
-         IocLChkJI96pjcEJI0A9A93FifrWAGngkKL55rPszmRXHjLLA8wXpwpjWCZ5Q1ztkjXC
-         FkKg==
-X-Forwarded-Encrypted: i=1; AJvYcCVX4FWCx7UnvGziJ+AkyBAUbYmMBQYvTBdCP7xHaomGgmzxWmZIORHPGS931SGPAtEJPk60rIOpEKaivMlPcQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyPDLhfxu2htGoa3o+M/FcxrZoa9diV1SfVoPFKs9vBh/aAcoxA
-	oUXojFdI4W85cWr8nxacJOJLDK9FIgedhVoZQaO9ZhSQVkwtnH3GYtoB5wJbOIDYilz6mbMdghD
-	Y5ZAp7iZI5ysUKg00/CzXhidMviEPFUHgTCbs2QsItzqfGPKd1laqHJZ9lgJyA45XtOHD
-X-Gm-Gg: ASbGncsSpwwn6xOeBCKlkbVf9RHDNadP/sVhiFN8iLl+iCoGD/RDGGveH9L+oZgEfsJ
-	ZITotIG+RX3aZKUMpHO785GSIqu53hhy8RzgggtAcUEm7J0Fq7CtrJAvJ92bFhBDJo5t427qs3i
-	cYLPC40H8J/fh64RV2ThqtqZRlzgLgJrLzr5Nli66C1SiLHebkp7qjuVs181FkUWRWxbogqOTIX
-	Kr/JsH/zRbV3/6ryqreCJFtFF4pwfRApkKH1JLokWZn86u8TJOdgfMk3L+vmmf683m5P1U+aVl3
-	o5KjJNZnHVFWvJvXJ8U3WKk2bhVt
-X-Received: by 2002:a05:620a:ab04:b0:7d4:5361:bb7e with SMTP id af79cd13be357-7d9e98ce5damr393765085a.8.1751972267025;
-        Tue, 08 Jul 2025 03:57:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHjTh5AgM/mq1omdv2dUvDUu+a8oWKonU9fOdeKahIeI71KEtsWGSzhCFti0y7wkoZ1vg/4dA==
-X-Received: by 2002:a05:620a:ab04:b0:7d4:5361:bb7e with SMTP id af79cd13be357-7d9e98ce5damr393760385a.8.1751972266509;
-        Tue, 08 Jul 2025 03:57:46 -0700 (PDT)
-Received: from sgarzare-redhat ([193.207.147.103])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-702c4d5ad73sm73432866d6.92.2025.07.08.03.57.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Jul 2025 03:57:46 -0700 (PDT)
-Date: Tue, 8 Jul 2025 12:57:35 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, niuxuewei97@gmail.com
-Subject: Re: [PATCH net-next v6 4/4] test/vsock: Add ioctl SIOCINQ tests
-Message-ID: <uvoupm7je52ak5hwtumeyhrpou7xj6hhipktodun2xsq3t5ktb@w5iv4jsacxl6>
-References: <20250708-siocinq-v6-0-3775f9a9e359@antgroup.com>
- <20250708-siocinq-v6-4-3775f9a9e359@antgroup.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uN8tyuqT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91044C4CEED;
+	Tue,  8 Jul 2025 11:00:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751972411;
+	bh=5KL6rrIwnrg38ZqhQ6AB+QdSfe6gyMAir5Sbq2Mfv3w=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=uN8tyuqTvou8o+R/mOO7Yg6n7PNJtUdZ+ZUyob65HmWP0T0yfwWgfI24HMU0r7HN3
+	 Iv/9p5Qz7yq0z6SfYzlZ8O2jah6vPR/66HY1GS8sn0oA5aCV40mCMlXhKGhFKpd9Gw
+	 Yph0pSgvARTjakjLBRtoXJw/nf2FE8wmvZmAoLV7nUPfAwX721yMnt+1OjeZvHyC1T
+	 bIwx5u1WR+ImqC7oRVd+WsK/GJVIJvuKAO2RfbXeHnmDDi/HpwuTz/p5FXQ0xPx0Ct
+	 90/w7Kne0qNm0Sy8IV//jt9S9XVQk4W6wzdF4ltAHTLfCKmlrEIN9liVg613NYj5yK
+	 29yiJVGsn+RvQ==
+Date: Tue, 8 Jul 2025 14:00:07 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Alexander Potapenko <glider@google.com>,
+	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	=?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, iommu@lists.linux.dev,
+	virtualization@lists.linux.dev, kasan-dev@googlegroups.com,
+	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org,
+	Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
+Message-ID: <20250708110007.GF592765@unreal>
+References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
+ <cover.1750854543.git.leon@kernel.org>
+ <35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
+ <20250627170213.GL17401@unreal>
+ <20250630133839.GA26981@lst.de>
+ <69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250708-siocinq-v6-4-3775f9a9e359@antgroup.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: aIV942PerbRsD52UWGdY8iZAmZypS8wDwA7fiLNHtAk_1751972267
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
 
-On Tue, Jul 08, 2025 at 02:36:14PM +0800, Xuewei Niu wrote:
->Add SIOCINQ ioctl tests for both SOCK_STREAM and SOCK_SEQPACKET.
->
->The client waits for the server to send data, and checks if the SIOCINQ
->ioctl value matches the data size. After consuming the data, the client
->checks if the SIOCINQ value is 0.
->
->Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
->---
-> tools/testing/vsock/vsock_test.c | 79 ++++++++++++++++++++++++++++++++++++++++
-> 1 file changed, 79 insertions(+)
+On Tue, Jul 08, 2025 at 12:27:09PM +0200, Marek Szyprowski wrote:
+> On 30.06.2025 15:38, Christoph Hellwig wrote:
+> > On Fri, Jun 27, 2025 at 08:02:13PM +0300, Leon Romanovsky wrote:
+> >>> Thanks for this rework! I assume that the next step is to add map_phys
+> >>> callback also to the dma_map_ops and teach various dma-mapping providers
+> >>> to use it to avoid more phys-to-page-to-phys conversions.
+> >> Probably Christoph will say yes, however I personally don't see any
+> >> benefit in this. Maybe I wrong here, but all existing .map_page()
+> >> implementation platforms don't support p2p anyway. They won't benefit
+> >> from this such conversion.
+> > I think that conversion should eventually happen, and rather sooner than
+> > later.
+> 
+> Agreed.
+> 
+> Applied patches 1-7 to my dma-mapping-next branch. Let me know if one 
+> needs a stable branch with it.
 
-While testing this, I found an issue with the previous test.
-I'll send a patch to fix that, but skipping that test, this run well:
+Thanks a lot, I don't think that stable branch is needed. Realistically
+speaking, my VFIO DMA work won't be merged this cycle, We are in -rc5,
+it is complete rewrite from RFC version and touches pci-p2p code (to
+remove dependency on struct page) in addition to VFIO, so it will take
+time.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Regarding, last patch (hmm), it will be great if you can take it.
+We didn't touch anything in hmm.c this cycle and have no plans to send PR.
+It can safely go through your tree.
 
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index be6ce764f69480c0f9c3e2288fc19cd2e74be148..a66d2360133dd0e36940a5907679aeacc8af7714 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -24,6 +24,7 @@
-> #include <linux/time64.h>
-> #include <pthread.h>
-> #include <fcntl.h>
->+#include <linux/sockios.h>
->
-> #include "vsock_test_zerocopy.h"
-> #include "timeout.h"
->@@ -1307,6 +1308,54 @@ static void test_unsent_bytes_client(const struct test_opts *opts, int type)
-> 	close(fd);
-> }
->
->+static void test_unread_bytes_server(const struct test_opts *opts, int type)
->+{
->+	unsigned char buf[MSG_BUF_IOCTL_LEN];
->+	int client_fd;
->+
->+	client_fd = vsock_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
->+	if (client_fd < 0) {
->+		perror("accept");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	for (int i = 0; i < sizeof(buf); i++)
->+		buf[i] = rand() & 0xFF;
->+
->+	send_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
->+	control_writeln("SENT");
->+
->+	close(client_fd);
->+}
->+
->+static void test_unread_bytes_client(const struct test_opts *opts, int type)
->+{
->+	unsigned char buf[MSG_BUF_IOCTL_LEN];
->+	int fd;
->+
->+	fd = vsock_connect(opts->peer_cid, opts->peer_port, type);
->+	if (fd < 0) {
->+		perror("connect");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	control_expectln("SENT");
->+	/* The data has arrived but has not been read. The expected is
->+	 * MSG_BUF_IOCTL_LEN.
->+	 */
->+	if (!vsock_ioctl_int(fd, SIOCINQ, MSG_BUF_IOCTL_LEN)) {
->+		fprintf(stderr, "Test skipped, SIOCINQ not supported.\n");
->+		goto out;
->+	}
->+
->+	recv_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
->+	/* All data has been consumed, so the expected is 0. */
->+	vsock_ioctl_int(fd, SIOCINQ, 0);
->+
->+out:
->+	close(fd);
->+}
->+
-> static void test_stream_unsent_bytes_client(const struct test_opts *opts)
-> {
-> 	test_unsent_bytes_client(opts, SOCK_STREAM);
->@@ -1327,6 +1376,26 @@ static void test_seqpacket_unsent_bytes_server(const struct test_opts *opts)
-> 	test_unsent_bytes_server(opts, SOCK_SEQPACKET);
-> }
->
->+static void test_stream_unread_bytes_client(const struct test_opts *opts)
->+{
->+	test_unread_bytes_client(opts, SOCK_STREAM);
->+}
->+
->+static void test_stream_unread_bytes_server(const struct test_opts *opts)
->+{
->+	test_unread_bytes_server(opts, SOCK_STREAM);
->+}
->+
->+static void test_seqpacket_unread_bytes_client(const struct test_opts *opts)
->+{
->+	test_unread_bytes_client(opts, SOCK_SEQPACKET);
->+}
->+
->+static void test_seqpacket_unread_bytes_server(const struct test_opts *opts)
->+{
->+	test_unread_bytes_server(opts, SOCK_SEQPACKET);
->+}
->+
-> #define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
-> /* This define is the same as in 'include/linux/virtio_vsock.h':
->  * it is used to decide when to send credit update message during
->@@ -2276,6 +2345,16 @@ static struct test_case test_cases[] = {
-> 		.run_client = test_stream_transport_change_client,
-> 		.run_server = test_stream_transport_change_server,
-> 	},
->+	{
->+		.name = "SOCK_STREAM ioctl(SIOCINQ) functionality",
->+		.run_client = test_stream_unread_bytes_client,
->+		.run_server = test_stream_unread_bytes_server,
->+	},
->+	{
->+		.name = "SOCK_SEQPACKET ioctl(SIOCINQ) functionality",
->+		.run_client = test_seqpacket_unread_bytes_client,
->+		.run_server = test_seqpacket_unread_bytes_server,
->+	},
-> 	{},
-> };
->
->
->-- 
->2.34.1
->
+> 
+> Leon, it would be great if You could also prepare an incremental patch 
+> adding map_phys callback to the dma_maps_ops, so the individual 
+> arch-specific dma-mapping providers can be then converted (or simplified 
+> in many cases) too.
 
+Sure, will do.
+
+> 
+> Best regards
+> -- 
+> Marek Szyprowski, PhD
+> Samsung R&D Institute Poland
+> 
