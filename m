@@ -1,69 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C0CD2C3769
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 10:49:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 648382D9EC9
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 10:53:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751971790; cv=none; b=fObuYBZQ1EUArMCVOwy8Xh6vZuXwlKsJ6G1OZ2ntTdU/mXipLTVOQRMm0XXcNj9BEcSkB/2SMuEQ873Kd3ttEW8EScN8PQ7CAKJLGhECwrc3Y8TkE88CS3bMUEXbdRQcHNyDw5ZLNwynWD+ExpU5EFjciYWL1QdXKBHAvAYp8Kg=
+	t=1751971984; cv=none; b=NDe6bt5EnAVxBr36eQ0lgjowbKb6wwXV08fGNOHOTu2kMh1oc41+m9Q6o9EVBNDpqYYqHuQgwdH02mta5iRN2TvbqFjWe/PPUnygC52uuFLQwFrzO3ZPZriX0DL7WdXpn75On3NOSdaGUDo3Os4ts4bcv4G263CaTLol/zr0WBY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751971790; c=relaxed/simple;
-	bh=O7wwD7eSFM539CC00ixDKAsR7sbvVfXkvwV0BcTBHvA=;
+	s=arc-20240116; t=1751971984; c=relaxed/simple;
+	bh=1un7ouFwyBTSYIMY4zpatIXNYHrEz24iVPhqyQXJbbc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=iNxyBPk/ABJgKp1Gn9S5I0idlPTMSD7WgT6lIJFyCmLXIRGU/3vSC1y6vpNN2iwy81IYi0bQMucs0t8JeFotDeL6DRMZ/B2Q0ZxL+mbADjp0ztkBG5BQu6Mv/yJdBoNJizZDPuSjhWdHxkK0ptd3LoXyCkKX3HQqow/OHSopvhk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BWg6xLdo; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=iKYJ3659N6uRjnt4NEA7RbEr7/4WHGJtTE2TxGUMcp/rVLDyLLgI/AHcYBW0J7DPiZzBYcy+mqNsjuHT5o1LzEDnpCZ66XggF6uZrWzae6+S4joxeT2sK6SUzXSvWCzU1a+klkKl7FxGP+XLWyPRKccyhfa2J2hZgKoKoxPKauY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XGyi8GX/; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BWg6xLdo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XGyi8GX/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751971787;
+	s=mimecast20190719; t=1751971981;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5iL4j1/i/5cwMCBnyJHYMariApq+4KsGPMs67Fmf6qo=;
-	b=BWg6xLdoRbxP4T3tJhhEp46STTZMqBYI/kuPElw5vu1e5Q8f45HcRfffvVXmJxo7GJ+6tE
-	wyOfMHdGsdOFn+ru36ViKjE2qzXYeBnZEFSg2IXuRXT36x19r2rgt77VGE/DgJlV9wAtJ0
-	YfO1reIm7XQciw4/CU+pSCPbrOQL3Vw=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=315fIenJWHN1D0z1wGXcALO7wPGrPSPVrNC7//PcDEU=;
+	b=XGyi8GX/BAF+tOmfHqd+RUxlCdsxzRVbD05HGxZ4kjHqn77OVe3cH1oDFRK3iEp19O6miC
+	2iYcWQ5gEJbkXmhZcZg5rxFWU3tGzHXpC+KHzOz5S7HI46bCAzBuyNEOWIDBOcmME0ehI0
+	4hpTPjKK1AOxhEM86Axbj1IeOsakvVs=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-653-S3GL9xFhOkKBjufaFkifXA-1; Tue, 08 Jul 2025 06:49:46 -0400
-X-MC-Unique: S3GL9xFhOkKBjufaFkifXA-1
-X-Mimecast-MFC-AGG-ID: S3GL9xFhOkKBjufaFkifXA_1751971786
-Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-6faf265c3c5so67298536d6.2
-        for <virtualization@lists.linux.dev>; Tue, 08 Jul 2025 03:49:46 -0700 (PDT)
+ us-mta-316-f36WKUNNO2yQHcfHjkFTMQ-1; Tue, 08 Jul 2025 06:53:00 -0400
+X-MC-Unique: f36WKUNNO2yQHcfHjkFTMQ-1
+X-Mimecast-MFC-AGG-ID: f36WKUNNO2yQHcfHjkFTMQ_1751971980
+Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-4a58f455cdbso56592221cf.3
+        for <virtualization@lists.linux.dev>; Tue, 08 Jul 2025 03:53:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751971786; x=1752576586;
+        d=1e100.net; s=20230601; t=1751971980; x=1752576780;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5iL4j1/i/5cwMCBnyJHYMariApq+4KsGPMs67Fmf6qo=;
-        b=byNESEtfdLoX7we++0etBg71/IEdlVsSMVcQoGVz6aVqin6+qr3dbvlgWraKyFVhhe
-         tele158aIjQ2kywszsZgLfXHHJZroIGF3SRwXkLKA8VxFMaHcH7qHCy5Hvs0FbUpmc2x
-         6kxxNIIvKJSbzFeRGAg+wMA5qgu1Agri2iXei5DZCpT3DBQ6U8XNVsK62Bqa5VfBaKGM
-         3FulvUmkAHrDbiDuJSEXjeWsueiLefvpZIavjq4fwEJ/wbpvixmYbr1RSQot67PICy7Q
-         11ysnEKjIyB1YyVP2M1cnIJe2+i/N6aBcJDLpbh1n29esGEUHqWqFjF/+94wr1SdbkfW
-         pysQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUTRyE+qS2lHFPtDxDrr0k2LFuK1nOURG+Fj7XR9dB1A6Yy51mFLAjMdD20huVdj37NGYPolFIxIDtGuMSWtg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw2ZyE/llbe6U+AjsoayHEHBBXSMs3tT7UywW81OmFFNwArtt7a
-	nczXvxHQZVtnNzObQQ4MZZXRTuaeaUON9xC0eEtcOgOVl714gi40RaOhiuF8w1cA/IlQgYCL44R
-	slCE3TyiZr/6+Rd616rR8fz1SUPQXVFPUN/VMoYFiZSfTZjrjEPaaZaK3ZZfL6JZo4RFa
-X-Gm-Gg: ASbGncux9xResAEmMFsExI51k6Jq7CKwcNepB+b/HwpOqgzHQU6itkPP1hLWS4y/Vnq
-	eHh13sCSA4CwDPY+cx0XrBI7+sUGpnoCm6QLQdhjYcWumwqLAgtbkWcw7BAzwOq8NwKGFLE80Yn
-	toUGwAxPkACNyt87D5P3gFSxniHVtzHSrmy/CJ4+l0zlHIY4Wn5sUYoSxwRKPNoElseL4P6tpHk
-	52WcUZCRelRdGtndSEUmnSM/njKAJNr9PP2TClpJCJuWy08eH+QQ4Ugi0L8C0eh1iFknJ7Oi7Lf
-	2roH0eyjynLrOchFq9ZSbiSqsbay
-X-Received: by 2002:a05:622a:d07:b0:4a7:6e08:6294 with SMTP id d75a77b69052e-4a9cdeeddf0mr40374181cf.19.1751971785762;
-        Tue, 08 Jul 2025 03:49:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEhYlU0uqUvfcleoNVAAhyRWfQZX9q6ookm+/i8X2MtWsxRCFgVRxkOKlEb0p2JpI6O3Qdagg==
-X-Received: by 2002:a05:622a:d07:b0:4a7:6e08:6294 with SMTP id d75a77b69052e-4a9cdeeddf0mr40373621cf.19.1751971785234;
-        Tue, 08 Jul 2025 03:49:45 -0700 (PDT)
+        bh=315fIenJWHN1D0z1wGXcALO7wPGrPSPVrNC7//PcDEU=;
+        b=hTfOyT5pV/Uhf2VezExfXCN4vUg+Phuvh2cdonVuiIuf9JJmGFgBOeKJm7+BCOokar
+         c3eVitn1lM+/hQRZRubGo5qMnr5oDTRUf9BQlvJwWUkbJs6sgO1PjOS2/oTugOXpdAZl
+         8J0RWwCvOCyFOZIRFBAdbmACnFH1e7jPoevhHAliJwxNhvXYEcJkXAK9Q30aQKBNW/1w
+         iFg2BnoHmK67L/evxLShBeKNNWnwvdqbHmYFkoj6xy4Wa1ki7iVEoW8F2MqEYGQnwX8G
+         nNZZiAdgM/zatcZch4KIUvzX+TxkkipdLhF4YEvHmZnY9lh7lFANRs/X8Rp5pL0kvBI9
+         VNQA==
+X-Forwarded-Encrypted: i=1; AJvYcCUzZWFZ7zqa6my5aeq2RklEVff/8ELx7nCh6lhQNGYd7cH3JomlKXWbz9hFCtHL8ilkETVaJ7QgGZiJcVZ0cg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxF2cqg2GiUOmk9qiZ9//l7TqWmh8DYBOqyRmVOMxlwKt4vVT+x
+	HxDtNNYnYe5CdzSemxMokzlIbzC6+stPsyM6PkRGQBselgCRNhPvlnD+gU6MCT025hP6jAT8UEg
+	dJyHmzLn0nyyTSardPjGMk9jjfmS3HuXK5mDcWTaKzLYqEMxTxtbb8O/s8pUQ2F4trvfY
+X-Gm-Gg: ASbGncvEkmx8LO2SvwghIuFFrLHZ5ezh6zGQS4v0F8z5uWEjCCBM8BVqxJgYFDVfunG
+	YQYYD7Ed1Q1EaUa8sk/MqYE+oSN8BuYF2zD8WKxAv9oQ1P+SPwbDgu1UBaOG2XwRZbY7re5dwYj
+	xQ4ENborQyCASsbPeULUccKsP/yQEXFSAeVMRD7huvZkse5WjpzelrlZVkQVWT+ipDaIqYoPgKs
+	OrUO27pD0z2I+eFG1P5wowNzwPmj2ltENSdg+krYa9YB/R3jriw/wu1rq6A/LsLhxOaMZ9pHYD/
+	u1MoC0v3UEG7cWD0O8VlrG7GUYAq
+X-Received: by 2002:ac8:7f95:0:b0:4a9:ae5a:e8a6 with SMTP id d75a77b69052e-4a9ae5afc23mr175966971cf.47.1751971979602;
+        Tue, 08 Jul 2025 03:52:59 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFzvc7u8j+WEd/fQJxoq873TigcJMGy49ozcWVyaqRVCjfg4qBqi9tMZtBOChGJAAMzAMDFrQ==
+X-Received: by 2002:ac8:7f95:0:b0:4a9:ae5a:e8a6 with SMTP id d75a77b69052e-4a9ae5afc23mr175966551cf.47.1751971979134;
+        Tue, 08 Jul 2025 03:52:59 -0700 (PDT)
 Received: from sgarzare-redhat ([193.207.147.103])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4a994a8e527sm78690641cf.67.2025.07.08.03.49.40
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4a994aa85edsm77449631cf.74.2025.07.08.03.52.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Jul 2025 03:49:44 -0700 (PDT)
-Date: Tue, 8 Jul 2025 12:49:37 +0200
+        Tue, 08 Jul 2025 03:52:58 -0700 (PDT)
+Date: Tue, 8 Jul 2025 12:52:51 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Xuewei Niu <niuxuewei.nxw@antgroup.com>
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, 
@@ -72,94 +72,68 @@ Cc: "K. Y. Srinivasan" <kys@microsoft.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
 	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
 	linux-kernel@vger.kernel.org, niuxuewei97@gmail.com
-Subject: Re: [PATCH net-next v6 1/4] hv_sock: Return the readable bytes in
- hvs_stream_has_data()
-Message-ID: <o2u6lj6m7ro73vmza4zlrwwlvonjzkgdtd4xxrjn57xpa2lmpb@yik2rrzp2sos>
+Subject: Re: [PATCH net-next v6 2/4] vsock: Add support for SIOCINQ ioctl
+Message-ID: <lh5vti5lmcxddhnfsz5pjhu7oepcbxcflqkyhlpwnwqzbe7tku@yw7bwfgafcby>
 References: <20250708-siocinq-v6-0-3775f9a9e359@antgroup.com>
- <20250708-siocinq-v6-1-3775f9a9e359@antgroup.com>
+ <20250708-siocinq-v6-2-3775f9a9e359@antgroup.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250708-siocinq-v6-1-3775f9a9e359@antgroup.com>
+In-Reply-To: <20250708-siocinq-v6-2-3775f9a9e359@antgroup.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: G2GQiBMViJzEjR7er8u56zINdw96lo356ujhUcquaXU_1751971786
+X-Mimecast-MFC-PROC-ID: _rSerVU07QGofQrSimCwjDU6l99LJwy-HJRl0Cau-vw_1751971980
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Tue, Jul 08, 2025 at 02:36:11PM +0800, Xuewei Niu wrote:
->From: Dexuan Cui <decui@microsoft.com>
+On Tue, Jul 08, 2025 at 02:36:12PM +0800, Xuewei Niu wrote:
+>Add support for SIOCINQ ioctl, indicating the length of bytes unread in the
+>socket. The value is obtained from `vsock_stream_has_data()`.
 >
->When hv_sock was originally added, __vsock_stream_recvmsg() and
->vsock_stream_has_data() actually only needed to know whether there
->is any readable data or not, so hvs_stream_has_data() was written to
->return 1 or 0 for simplicity.
->
->However, now hvs_stream_has_data() should return the readable bytes
->because vsock_data_ready() -> vsock_stream_has_data() needs to know the
->actual bytes rather than a boolean value of 1 or 0.
->
->The SIOCINQ ioctl support also needs hvs_stream_has_data() to return
->the readable bytes.
->
->Let hvs_stream_has_data() return the readable bytes of the payload in
->the next host-to-guest VMBus hv_sock packet.
->
->Note: there may be multiple incoming hv_sock packets pending in the
->VMBus channel's ringbuffer, but so far there is not a VMBus API that
->allows us to know all the readable bytes in total without reading and
->caching the payload of the multiple packets, so let's just return the
->readable bytes of the next single packet. In the future, we'll either
->add a VMBus API that allows us to know the total readable bytes without
->touching the data in the ringbuffer, or the hv_sock driver needs to
->understand the VMBus packet format and parse the packets directly.
->
->Signed-off-by: Dexuan Cui <decui@microsoft.com>
 >Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
 >---
-> net/vmw_vsock/hyperv_transport.c | 17 ++++++++++++++---
-> 1 file changed, 14 insertions(+), 3 deletions(-)
+> net/vmw_vsock/af_vsock.c | 22 ++++++++++++++++++++++
+> 1 file changed, 22 insertions(+)
 
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 >
->diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
->index 31342ab502b4fc35feb812d2c94e0e35ded73771..432fcbbd14d4f44bd2550be8376e42ce65122758 100644
->--- a/net/vmw_vsock/hyperv_transport.c
->+++ b/net/vmw_vsock/hyperv_transport.c
->@@ -694,15 +694,26 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
-> static s64 hvs_stream_has_data(struct vsock_sock *vsk)
-> {
-> 	struct hvsock *hvs = vsk->trans;
->+	bool need_refill;
-> 	s64 ret;
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index 2e7a3034e965db30b6ee295370d866e6d8b1c341..bae6b89bb5fb7dd7a3a378f92097561a98a0c814 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -1389,6 +1389,28 @@ static int vsock_do_ioctl(struct socket *sock, unsigned int cmd,
+> 	vsk = vsock_sk(sk);
 >
-> 	if (hvs->recv_data_len > 0)
->-		return 1;
->+		return hvs->recv_data_len;
+> 	switch (cmd) {
+>+	case SIOCINQ: {
+>+		ssize_t n_bytes;
+>+
+>+		if (!vsk->transport) {
+>+			ret = -EOPNOTSUPP;
+>+			break;
+>+		}
+>+
+>+		if (sock_type_connectible(sk->sk_type) &&
+>+		    sk->sk_state == TCP_LISTEN) {
+>+			ret = -EINVAL;
+>+			break;
+>+		}
+>+
+>+		n_bytes = vsock_stream_has_data(vsk);
+>+		if (n_bytes < 0) {
+>+			ret = n_bytes;
+>+			break;
+>+		}
+>+		ret = put_user(n_bytes, arg);
+>+		break;
+>+	}
+> 	case SIOCOUTQ: {
+> 		ssize_t n_bytes;
 >
-> 	switch (hvs_channel_readable_payload(hvs->chan)) {
-> 	case 1:
->-		ret = 1;
->-		break;
->+		need_refill = !hvs->recv_desc;
->+		if (!need_refill)
->+			return -EIO;
->+
->+		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
->+		if (!hvs->recv_desc)
->+			return -ENOBUFS;
->+
->+		ret = hvs_update_recv_data(hvs);
->+		if (ret)
->+			return ret;
->+		return hvs->recv_data_len;
-> 	case 0:
-> 		vsk->peer_shutdown |= SEND_SHUTDOWN;
-> 		ret = 0;
 >
 >-- 
 >2.34.1
