@@ -1,135 +1,133 @@
-Received: from out28-218.mail.aliyun.com (out28-218.mail.aliyun.com [115.124.28.218])
+Received: from out28-196.mail.aliyun.com (out28-196.mail.aliyun.com [115.124.28.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A40637464
-	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 05:22:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.28.218
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7DE9381BA
+	for <virtualization@lists.linux.dev>; Tue,  8 Jul 2025 06:36:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.28.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751952181; cv=none; b=ixk3JXdC8/7vw17mGZ6Lv6q/uABDljCC5A8kauyYIgq1N+mt0SdiWFZdIE9ysKhhviDo5OKoLxz1XO2aCxpU0X/cGOf8uBEkS3C26ZVLxguf7BX+2nTWfOX6e06aN/m7n4q/yorrrnJo2pm6hthg2Y5mUzZzAQNqonlsTH6zXWM=
+	t=1751956611; cv=none; b=sM362F5cM85Xi80cKOxA827banHgDLupG84W2lWEzxqOy6EjmRw3GPzs+XQ+WoiVZfZIobPYV/8xPUQ2exqDtVHq1ewA3/EJY8Aqqgzto3RnjdDmfX6YoMC491ZLr9BV6XILKsN76mELZVU+SgU4EZaRXTVqkUJdinzJiini3wg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751952181; c=relaxed/simple;
-	bh=59y7qEw4GpHqR9V5yVAvN9k1VJ4Mks0dolgkvU2v08Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bshH5zXmpv/3yX/qN/Nw6GfEVYbyFxHgchf6JF15x+6edgvDiq+yMJjzZOnGy+08zDvIvWhsiS+IdB/0FaXOZccN61Pq+LU0AwTknBwE5mAPh3lYOTqzC7I9Oe7nGs67Nebqh6Xp2OBaSQtrIy5bz66wzjy3d3C47tnQOUDJ2vw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com; spf=pass smtp.mailfrom=antgroup.com; dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b=dsfWW8/W; arc=none smtp.client-ip=115.124.28.218
+	s=arc-20240116; t=1751956611; c=relaxed/simple;
+	bh=Wv2kT9Ln8pLYeJZZzZEW3fma7QpVSKp+868WRyuBk30=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=D320qzQGbAzWG9ylcz6vDAIGfh7GT4V826VMTvNrqW/NC7INExsgtZwbpvGZxlKRVyuo/Sskx8OJaI0g5VHwbiQlGK3+YOHavJaEONZLPBc8SPca2ehqiRNjiUnznhNh+34Z4pLD7JpguZpAjiKhFdafhjn5Tl4VwW+hh8lzmrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com; spf=pass smtp.mailfrom=antgroup.com; dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b=huxvKL5E; arc=none smtp.client-ip=115.124.28.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=antgroup.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antgroup.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b="dsfWW8/W"
+	dkim=pass (1024-bit key) header.d=antgroup.com header.i=@antgroup.com header.b="huxvKL5E"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=antgroup.com; s=default;
-	t=1751952175; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=ll42IxvjGlWNCvhre5iXoxCnMkwXG5zTYn4NRTnJbTc=;
-	b=dsfWW8/W5EFm0gDkfae9TGsvjo1pKgx3rmjdDgg2KWMz5ESMw1dPCYMFhyG5GVESJ61F5roB+kBAmHpyGguBv6AMEt/2SDxfmlcRgW/IRfZ2D3FvOoUIYh6AModU8ZPkdxJZme//0U/mv/KiP1rfSaI7ItC6iHvJXDIIrICRd4Q=
-Received: from 30.172.244.77(mailfrom:niuxuewei.nxw@antgroup.com fp:SMTPD_---.dhG9apK_1751951856 cluster:ay29)
+	t=1751956603; h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To;
+	bh=aKt2ISTj4W3hvabaV4qI8Q34/Ft6hEq9xsElq9goj8M=;
+	b=huxvKL5Es8NgkJ1zzlWpO6zkREKCZN7SUQrd2XTVP8sqVp2wZAe7NJXjS5vBSJC8cyjWJj2nsPpCWPl2tJi8iAfXN6rNvuoxtLuiun7C8RFvSeITGmBTJokzkPeaO7mhOnWUQ5huWUoDi37/e4NqMqzDlCYG0ckOwfwkyOCBsmk=
+Received: from 127.0.0.1(mailfrom:niuxuewei.nxw@antgroup.com fp:SMTPD_---.dhGPAOy_1751956592 cluster:ay29)
           by smtp.aliyun-inc.com;
-          Tue, 08 Jul 2025 13:17:37 +0800
-Message-ID: <aaac1fda-7365-4643-b8df-df6412a42891@antgroup.com>
-Date: Tue, 8 Jul 2025 13:17:36 +0800
+          Tue, 08 Jul 2025 14:36:41 +0800
+From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+Subject: [PATCH net-next v6 0/4] vsock: Introduce SIOCINQ ioctl support
+Date: Tue, 08 Jul 2025 14:36:10 +0800
+Message-Id: <20250708-siocinq-v6-0-3775f9a9e359@antgroup.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5 1/4] hv_sock: Return the readable bytes in
- hvs_stream_has_data()
-To: Stefano Garzarella <sgarzare@redhat.com>,
- Xuewei Niu <niuxuewei97@gmail.com>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, fupan.lfp@antgroup.com
-References: <20250706-siocinq-v5-0-8d0b96a87465@antgroup.com>
- <20250706-siocinq-v5-1-8d0b96a87465@antgroup.com>
- <xphwpqqi42w5b3jug3vfooybrlft3z5ewravl7jvzci7ogs3nh@5i7yi66dg7fa>
-Content-Language: en-US
-From: Xuewei Niu <niuxuewei.nxw@antgroup.com>
-In-Reply-To: <xphwpqqi42w5b3jug3vfooybrlft3z5ewravl7jvzci7ogs3nh@5i7yi66dg7fa>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAFq8bGgC/z2NQQ6CMBBFr0Jmbc0EbKGuvIdhgWWEWdhCWxsM6
+ d1tiHH58l/e3yGQZwpwrXbwlDiwswXUqQIzD3YiwWNhqLGW2GIjimDYrkJTrbHVje5QQbEXT0/
+ ejtIdLEVhaYvQl2XmEJ3/HBdJHvuvpv61JAWKbsSHVkPXXpS8DTZO3r2Xs3Ev6HPOX+D/ni6rA
+ AAA
+X-Change-ID: 20250703-siocinq-9e2907939806
+To: "K. Y. Srinivasan" <kys@microsoft.com>, 
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+ Dexuan Cui <decui@microsoft.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>
+Cc: linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Xuewei Niu <niuxuewei.nxw@antgroup.com>, niuxuewei97@gmail.com
+X-Mailer: b4 0.14.2
 
+Introduce SIOCINQ ioctl support for vsock, indicating the length of unread
+bytes.
 
+Similar with SIOCOUTQ ioctl, the information is transport-dependent.
 
-On 2025/7/7 21:42, Stefano Garzarella wrote:
-> On Sun, Jul 06, 2025 at 12:36:29PM +0800, Xuewei Niu wrote:
->> When hv_sock was originally added, __vsock_stream_recvmsg() and
->> vsock_stream_has_data() actually only needed to know whether there
->> is any readable data or not, so hvs_stream_has_data() was written to
->> return 1 or 0 for simplicity.
->>
->> However, now hvs_stream_has_data() should return the readable bytes
->> because vsock_data_ready() -> vsock_stream_has_data() needs to know the
->> actual bytes rather than a boolean value of 1 or 0.
->>
->> The SIOCINQ ioctl support also needs hvs_stream_has_data() to return
->> the readable bytes.
->>
->> Let hvs_stream_has_data() return the readable bytes of the payload in
->> the next host-to-guest VMBus hv_sock packet.
->>
->> Note: there may be multpile incoming hv_sock packets pending in the
-> 
-> s/multpile/multiple
+The first patch adds SIOCINQ ioctl support in AF_VSOCK.
 
-Will do.
+Thanks to @dexuan, the second patch is to fix the issue where hyper-v
+`hvs_stream_has_data()` doesn't return the readable bytes.
 
-Thanks,
-Xuewei
+The third patch wraps the ioctl into `ioctl_int()`, which implements a
+retry mechanism to prevent immediate failure.
 
->> VMBus channel's ringbuffer, but so far there is not a VMBus API that
->> allows us to know all the readable bytes in total without reading and
->> caching the payload of the multiple packets, so let's just return the
->> readable bytes of the next single packet. In the future, we'll either
->> add a VMBus API that allows us to know the total readable bytes without
->> touching the data in the ringbuffer, or the hv_sock driver needs to
->> understand the VMBus packet format and parse the packets directly.
->>
->> Signed-off-by: Dexuan Cui <decui@microsoft.com>
->> ---
->> net/vmw_vsock/hyperv_transport.c | 17 ++++++++++++++---
->> 1 file changed, 14 insertions(+), 3 deletions(-)
->>
->> diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
->> index 31342ab502b4fc35feb812d2c94e0e35ded73771..432fcbbd14d4f44bd2550be8376e42ce65122758 100644
->> --- a/net/vmw_vsock/hyperv_transport.c
->> +++ b/net/vmw_vsock/hyperv_transport.c
->> @@ -694,15 +694,26 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
->> static s64 hvs_stream_has_data(struct vsock_sock *vsk)
->> {
->>     struct hvsock *hvs = vsk->trans;
->> +    bool need_refill;
->>     s64 ret;
->>
->>     if (hvs->recv_data_len > 0)
->> -        return 1;
->> +        return hvs->recv_data_len;
->>
->>     switch (hvs_channel_readable_payload(hvs->chan)) {
->>     case 1:
->> -        ret = 1;
->> -        break;
->> +        need_refill = !hvs->recv_desc;
->> +        if (!need_refill)
->> +            return -EIO;
->> +
->> +        hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
->> +        if (!hvs->recv_desc)
->> +            return -ENOBUFS;
->> +
->> +        ret = hvs_update_recv_data(hvs);
->> +        if (ret)
->> +            return ret;
->> +        return hvs->recv_data_len;
->>     case 0:
->>         vsk->peer_shutdown |= SEND_SHUTDOWN;
->>         ret = 0;
->>
->> -- 
->> 2.34.1
->>
+The last one adds two test cases to check the functionality. The changes
+have been tested, and the results are as expected.
+
+Signed-off-by: Xuewei Niu <niuxuewei.nxw@antgroup.com>
+
+--
+
+v1->v2:
+https://lore.kernel.org/lkml/20250519070649.3063874-1-niuxuewei.nxw@antgroup.com/
+- Use net-next tree.
+- Reuse `rx_bytes` to count unread bytes.
+- Wrap ioctl syscall with an int pointer argument to implement a retry
+  mechanism.
+
+v2->v3:
+https://lore.kernel.org/netdev/20250613031152.1076725-1-niuxuewei.nxw@antgroup.com/
+- Update commit messages following the guidelines
+- Remove `unread_bytes` callback and reuse `vsock_stream_has_data()`
+- Move the tests to the end of array
+- Split the refactoring patch
+- Include <sys/ioctl.h> in the util.c
+
+v3->v4:
+https://lore.kernel.org/netdev/20250617045347.1233128-1-niuxuewei.nxw@antgroup.com/
+- Hyper-v `hvs_stream_has_data()` returns the readable bytes
+- Skip testing the null value for `actual` (int pointer)
+- Rename `ioctl_int()` to `vsock_ioctl_int()`
+- Fix a typo and a format issue in comments
+- Remove the `RECEIVED` barrier.
+- The return type of `vsock_ioctl_int()` has been changed to bool
+
+v4->v5:
+https://lore.kernel.org/netdev/20250630075727.210462-1-niuxuewei.nxw@antgroup.com/
+- Put the hyper-v fix before the SIOCINQ ioctl implementation.
+- Remove my SOB from the hyper-v fix patch.
+- Move the `need_refill` initialization into the `case 1` block.
+- Remove the `actual` argument from `vsock_ioctl_int()`.
+- Replace `TIOCINQ` with `SIOCINQ`.
+
+v5->v6:
+https://lore.kernel.org/netdev/20250706-siocinq-v5-0-8d0b96a87465@antgroup.com/
+- Correct the author
+- Fix a typo in hyper-v fix
+
+---
+Dexuan Cui (1):
+      hv_sock: Return the readable bytes in hvs_stream_has_data()
+
+Xuewei Niu (3):
+      vsock: Add support for SIOCINQ ioctl
+      test/vsock: Add retry mechanism to ioctl wrapper
+      test/vsock: Add ioctl SIOCINQ tests
+
+ net/vmw_vsock/af_vsock.c         | 22 +++++++++++
+ net/vmw_vsock/hyperv_transport.c | 17 +++++++--
+ tools/testing/vsock/util.c       | 30 ++++++++++-----
+ tools/testing/vsock/util.h       |  1 +
+ tools/testing/vsock/vsock_test.c | 79 ++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 137 insertions(+), 12 deletions(-)
+---
+base-commit: 5f712c3877f99d5b5e4d011955c6467ae0e535a6
+change-id: 20250703-siocinq-9e2907939806
+
+Best regards,
+-- 
+Xuewei Niu <niuxuewei.nxw@antgroup.com>
 
