@@ -1,125 +1,188 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F47723F40F
-	for <virtualization@lists.linux.dev>; Wed,  9 Jul 2025 19:03:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A046523185D
+	for <virtualization@lists.linux.dev>; Wed,  9 Jul 2025 20:55:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752087788; cv=none; b=Irp52h++mtZnUNSBgAZLLKUZwjPy3e3N/d8qmHmZxU475zF2VJ43uZWrPBtrnDWoruy9RyUt8EhyVdI1TeHDgfGoDFUsTLo+eQ4ewlURsUE8IaQiNoxY9yzxEYKeEs/Z11bHM8m9eidS699sEe/lUbehuLf7oibLDy7TDvyTG40=
+	t=1752094532; cv=none; b=m8QdLoPc9qq75hCw9BPiAlvaHrFJwhTVNgK+wuficseqlnCqRnRX/IBtL1k3rW1vW0SvjTTAZz7yBItY1XllKJ+1ZgON6zOmD3HUaMt+YVkSmU9TKdDvHoLCWw2RXyStTLOBgDnBEK5rHiJ1zr+nkMbKAWS51JG7C5H6mNr/4DY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752087788; c=relaxed/simple;
-	bh=w33Yy1b2aTYcQmR5hFPvM8miDleChN70erjham5PHCM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IzTQ45BgUs2ZPlkN3VECOSU03nVesAEUtWZoCRPoZC1QfQoq35nBJuo+t5Qum2FlT9ziEIESuZoZvR2dTNhouAHGy1fmUvghIhnAedxNfNFpA+NwfRcsNY58kM2X8a0zEgs8VbiYZ/qG0Y7ZR9YoTZ63pODkCYfEq6nx6HAul/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=O20vyTVm; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1752094532; c=relaxed/simple;
+	bh=JTJVkmOLnRfILK5ufjbxQjP514STuLltf2LGrFdAEPA=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=oT2SZo7NkS1/vYUZXC0nqfc6tVVlLNnIppk4j8pGXcLt13xc73K63lBhHdsouHG0WlA3s+ctbSMnB9eYGDeZwS9GE6/oV/FM76y99AvVZ462gl4inh8AXz7I7T4Pf5cJr7h1mqE+D4tj+YRlFoqclqEd/EUbUXl0FTgH1LySJf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=el53lsXC; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="O20vyTVm"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 569F2Quu006870;
-	Wed, 9 Jul 2025 19:03:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ifBq+E
-	R6NWxi5h+0YyMfp5vKAFMEsKXlgVcLfp9LX/Y=; b=O20vyTVmt7UI03X1PUbP6v
-	gLNn75TGOtHlui9nIWXXF4dW1KRgIQwUcvR8gZdpWNKXBv7cetag6bVmxkFJMYvi
-	9pwLjNfrRT4RBU+rR+wWDgiXGwnpAvWzdeH/ZjTH78cdOeUgqvlDGxTfCcPDX+nT
-	oFZEFOHFLNh7RCEBP/U+UToxyFDnDLOSzSlzFKZP1VwpuiSi4Rg2TjGn5GNtCBVg
-	aU4EbP1QFaoGRd1Og0KyfJ/689L2OzYMcM4ojNdQr1+1uG+2AazxaWMea7nP6YaA
-	OU54E3u/lsieh0Ee1gdDZnUFcrqxCS7VJLJM3wwwYmxSV3kXlpzBvRuozU68/1Kw
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47pur787jc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Jul 2025 19:03:06 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 569I7DMs021519;
-	Wed, 9 Jul 2025 19:03:05 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 47qectsvqs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Jul 2025 19:03:05 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 569J349930081604
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 9 Jul 2025 19:03:04 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5E15358043;
-	Wed,  9 Jul 2025 19:03:04 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E9B6E58059;
-	Wed,  9 Jul 2025 19:03:03 +0000 (GMT)
-Received: from [9.41.105.251] (unknown [9.41.105.251])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  9 Jul 2025 19:03:03 +0000 (GMT)
-Message-ID: <1915e11f-9513-4d9a-a46a-3f97ac152a3b@linux.ibm.com>
-Date: Wed, 9 Jul 2025 14:03:02 -0500
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="el53lsXC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752094529;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=1eeG0+aNHKSbFK7ky8dnoR90LoNUZNKrOGjsnQWQ9MY=;
+	b=el53lsXCiHq/Fp6+66xdDJWwmexqekfw9UKaflj581MhE+eEWKlMNFfoh1B/pMLM/E7j2G
+	UfFHwJ1erjaWMgNHeJvz4MBmaBU1cEp8gd1n0VHqlqDeCNhFQ7X1hoeeDxsiuC9JrulQLN
+	bSq9z1aluh8nfwrwNNNGHD6i9E1SxG8=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-616-s_R8DsB4MwW-LvphDLwF9g-1; Wed, 09 Jul 2025 16:55:28 -0400
+X-MC-Unique: s_R8DsB4MwW-LvphDLwF9g-1
+X-Mimecast-MFC-AGG-ID: s_R8DsB4MwW-LvphDLwF9g_1752094527
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3a4f6ba526eso170445f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 09 Jul 2025 13:55:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752094527; x=1752699327;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=1eeG0+aNHKSbFK7ky8dnoR90LoNUZNKrOGjsnQWQ9MY=;
+        b=Kekvr+D9olWMGRRBe2cJymW0Gnm/nD7YgyXBKRSrA4Vii4t5oVDyfD4//8buwurmiu
+         9yIXJmbwVZTApltY8qMwVwPW1E2+7lVZY72NYIDbtb+bYnj8+94T2JJMQdrgz934KB5e
+         AAWYiyb5Z6HzxG343Ptw9KyZuL0tX/7Sf3EzxNMnjbh8Lff8HsaQ7kP4KV5zLLDW5Yuz
+         RS7k8GwxFMIaP5E9yJJoaKsbJv7pXdKmvueaOredXEPwOVikmiVMnvagNqUSY2Q8MKaM
+         93Pb/nZxWf8qFXM6pGxoeAWmlsstBy+67UdqOAe6rRm5HHq3R07o5j3D1xcfjo9dVZIK
+         3oBQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUlgwnOYzsAsmJJMsHZfDlToQzBocRK60cLxHLbRhfdvuI6WllvY3+r5u8qj+Synp2lG9bLawVkfzCqOSPxew==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx+UL7DlNAcHIBb5dLDbKTwJUBoBvnFwJTd0dVUFl8VLUC41p1+
+	DVNtx+BiElyozIKFbu9Sa53AWFblqS3+aEJyv58B81hQ7jtf4/hUWTwGb7JIEramIbKxmoi5PkU
+	1YAvkyZrMopJEm9FWkG3YxrcJJOVp8tgJ9dvApsQWUx7UhAIssSBLAEAgMdjs08lT+Jid
+X-Gm-Gg: ASbGnct/kT20OGRo2TTm1b4BlZwxLGdM4uXfql6R1Mk6dtPp1dg+VSTGwFZQBtWhf5F
+	9ywkOUVMWLD8hjWWQy+SI+uBEaBaqueiX5c7aHz1vHua8itAUK7Mcm8zxmkG8hDWUDt3R82ZFsx
+	fQ7tZw6JVGWM+lZV6c4iELibkNFxHxYZ1mCts6KKf2WLGjC6onkn/G8PSmLPG6RQN4zO+m3GF0C
+	6JZ1TbYkbsmJ6FwowlHgnz8PPsIhsF1/gOxxnyuAovalzzmjo1VAVXGn5SbeOH02AhWZJ94TmBk
+	p4ZSI2Sx6HEEvRk=
+X-Received: by 2002:a05:6000:2913:b0:3a4:efbb:6df3 with SMTP id ffacd0b85a97d-3b5e788d2c4mr1319062f8f.10.1752094526795;
+        Wed, 09 Jul 2025 13:55:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IENLpfIvJB+dmyEoPgLHpsVWD6fbGIZAwezKmU2P9msQM/dbc5vXYMGNyI9NmDpA09Z2FQx2w==
+X-Received: by 2002:a05:6000:2913:b0:3a4:efbb:6df3 with SMTP id ffacd0b85a97d-3b5e788d2c4mr1319054f8f.10.1752094526364;
+        Wed, 09 Jul 2025 13:55:26 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-454d50516f1sm35729015e9.16.2025.07.09.13.55.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Jul 2025 13:55:25 -0700 (PDT)
+Date: Wed, 9 Jul 2025 16:55:24 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Lukas Wunner <lukas@wunner.de>, Keith Busch <kbusch@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
+	stefanha@redhat.com, alok.a.tiwari@oracle.com
+Subject: [PATCH RFC v5 0/5] pci,virtio: report surprise removal event
+Message-ID: <cover.1752094439.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v4] vsock/test: Add test for null ptr deref when
- transport changes
-Content-Language: en-US
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: mhal@rbox.co, virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, v4bel@theori.io, leonardi@redhat.com
-References: <472a5d43-4905-4fa4-8750-733bb848410d@linux.ibm.com>
- <CAGxU2F7bV7feiZs6FmdWkA7v9nxojuDbeSHyWoASS36fr1pSgw@mail.gmail.com>
- <CAGxU2F4GbeCJDYrs8Usd8JJcTrp99gyn3c_zXqpnz+UH2NNBGw@mail.gmail.com>
-From: Konstantin Shkolnyy <kshk@linux.ibm.com>
-In-Reply-To: <CAGxU2F4GbeCJDYrs8Usd8JJcTrp99gyn3c_zXqpnz+UH2NNBGw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzA5MDE2OCBTYWx0ZWRfX3evddJ+8NLPa A+2M9HsTl5MiPujeHMFFR02XW0fE5ucHEGxkMPVMHjjdakA2qSTgz9gupgEQbxxuqsuTW91FV1B +fS00PioldEa7EgKcIG2FQuq4JUnRq0AlmDkzuUOmTOcOn2ihxKM2Wnx0Jp+dBKl7O2AXU0XQV7
- PNfStIz7IyyIsvq77z9t4qWHipEzNmKjKubcrdV/t0R2hkSGvxGIFwH0Rt+PiK6Gzt3vBYMZWGp JAsei8gc/RGSlWcVoF65dZ3DIojsGgoiug5vtDPcXo4r3v912fVWeXFmoi4uJdqTeNnNQwhUqcQ MI3wEBEvh9UmniMQTuZzQxDikketwAF3jCVv6Ch+pyWnT4PMFMyByJFY5S2WY84/He7M15l/MM1
- OeBfiJrtau0nC2T+6Jsqhg2W4zMm9TU9Vn/OVnbSzBs6czQova9jCw/FD8F6To4pRj2dBSbz
-X-Proofpoint-GUID: EcdP8gGMadH59a8D28cOtQinDaUFNt6X
-X-Proofpoint-ORIG-GUID: EcdP8gGMadH59a8D28cOtQinDaUFNt6X
-X-Authority-Analysis: v=2.4 cv=W/M4VQWk c=1 sm=1 tr=0 ts=686ebcea cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=yc8Tnp-ilgVpimbPip8A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-07-09_04,2025-07-09_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- mlxscore=0 priorityscore=1501 adultscore=0 clxscore=1015 suspectscore=0
- spamscore=0 lowpriorityscore=0 mlxlogscore=999 bulkscore=0 impostorscore=0
- classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507090168
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: wetQVAcndtMgO1xt2d7bER67lFHI4X4jFsxwLYivbQs_1752094527
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 09-Jul-25 10:41, Stefano Garzarella wrote:
-> On Wed, 9 Jul 2025 at 17:26, Stefano Garzarella <sgarzare@redhat.com> wrote:
->>
->> On Wed, 9 Jul 2025 at 16:54, Konstantin Shkolnyy <kshk@linux.ibm.com> wrote:
->>>
->>> I'm seeing a problem on s390 with the new "SOCK_STREAM transport change
->>> null-ptr-deref" test. Here is how it appears to happen:
->>>
->>> test_stream_transport_change_client() spins for 2s and sends 70K+
->>> CONTROL_CONTINUE messages to the "control" socket.
->>>
->>> test_stream_transport_change_server() spins calling accept() because it
->>> keeps receiving CONTROL_CONTINUE.
->>>
->>> When the client exits, the server has received just under 1K of those
->>> 70K CONTROL_CONTINUE, so it calls accept() again but the client has
->>> exited, so accept() never returns and the server never exits.
-> 
-> Just to be clear, I was seeing something a bit different.
-> The accept() in the server is no-blocking, since we set O_NONBLOCK on
-> the socket, so I see the server looping around a failing accept()
-> (errno == EAGAIN) while dequeueing the CONTROL_CONTINUE messages, so
-> after 10/15 seconds the server ends on my case.
-> 
-> It seems strange that in your case it blocks, since it should be a
-> no-blocking call.
 
-It was my mistake. The accept() doesn't block. I've retested it more 
-carefully and it keeps returning and the loop eventually consumes all 
-queued CONTROL_CONTINUE messages and quits, as you described.
+Lukas, Keith, Bjorn, others, would very much appreciate your comments
+on whether the pci core changes are acceptable.
+
+
+Parav, I expect this to be integrated into your work on fixing surprise
+removal. As such, I am not queueing these patches yet - please include with your
+other patches fixing these issues.
+
+==========
+
+This is an attempt to fix the following race in virtio:
+
+when device removal is initiated by a user
+action, such as driver unbind, it in turn initiates driver cleanup and
+is then waiting for an interrupt from the device. If the device is now
+surprise-removed, that interrupt never arrives and the remove callback hangs
+forever.
+
+For example, this was reported for virtio-blk:
+
+        1. the graceful removal is ongoing in the remove() callback, where disk
+           deletion del_gendisk() is ongoing, which waits for the requests +to
+           complete,
+
+        2. Now few requests are yet to complete, and surprise removal started.
+
+        At this point, virtio block driver will not get notified by the driver
+        core layer, because it is likely serializing remove() happening by
+        +user/driver unload and PCI hotplug driver-initiated device removal.  So
+        vblk driver doesn't know that device is removed, block layer is waiting
+        for requests completions to arrive which it never gets.  So
+        del_gendisk() gets stuck.
+
+We could add timeouts to handle that, but given virtio blk devices are
+implemented in userspace, this makes the device flaky.
+
+Instead, this adds pci core infrastructure, and virtio core
+infrastructure, for drivers to be notified of device disconnect.
+
+Actual cleanup in virtio-blk is still TBD.
+Compile-tested only.
+
+==========
+
+Notes on the design:
+
+Care was taken to avoid re-introducing the bug fixed by
+
+commit 74ff8864cc84 ("PCI: hotplug: Allow marking devices as disconnected during bind/unbind")
+
+To avoid taking locks on removal path, and to avoid invoking callback
+with unpredictable latency, the event is reported through a WQ.
+
+Adding APIs to enable/disable the reporting on probe/remove, helps make
+sure the driver won't go away in the middle of the handling, all
+without taking any locks.
+
+The benefit is that the resulting API is harder than a callback to
+misuse, adding unpredictable latencies to unplug. The WQ can simply do
+the cleanup directly, taking any locks it needs for that.  The cost is
+several extra bytes per device, which seems modest.
+
+
+Previous discussion:
+https://lore.kernel.org/all/11cfcb55b5302999b0e58b94018f92a379196698.1751136072.git.mst@redhat.com
+
+Changes from v4:
+	fix !CONFIG_PCI, reported by Stephen
+Changes from v3:
+	added documentation to address comments by Parav
+	support in virtio core
+Changes from v2:
+        v2 was corrupted, fat fingers :(
+Changes from v1:
+         switched to a WQ, with APIs to enable/disable
+         added motivation
+
+==========
+
+
+Michael S. Tsirkin (5):
+  pci: report surprise removal event
+  virtio: fix comments, readability
+  virtio: pack config changed flags
+  virtio: allow transports to suppress config change
+  virtio: support device disconnect
+
+ drivers/pci/pci.h                  |  6 ++++
+ drivers/virtio/virtio.c            | 23 +++++++++++++--
+ drivers/virtio/virtio_pci_common.c | 45 ++++++++++++++++++++++++++++++
+ drivers/virtio/virtio_pci_common.h |  3 ++
+ drivers/virtio/virtio_pci_legacy.c |  2 ++
+ drivers/virtio/virtio_pci_modern.c |  2 ++
+ include/linux/pci.h                | 45 ++++++++++++++++++++++++++++++
+ include/linux/virtio.h             | 11 ++++++--
+ include/linux/virtio_config.h      | 32 +++++++++++++++++++++
+ 9 files changed, 163 insertions(+), 6 deletions(-)
+
+-- 
+MST
 
