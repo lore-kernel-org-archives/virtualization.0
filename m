@@ -1,48 +1,79 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B613258CE5;
-	Tue,  8 Jul 2025 22:17:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BA0620010C
+	for <virtualization@lists.linux-foundation.org>; Wed,  9 Jul 2025 08:07:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752013065; cv=none; b=A1bDerasWNiVnhGqnRlGQj5Gwpxnx21Qw18crhdQIQdzcmSIj5TQV+L6laaGsncitVsRAuVGYJuBQCUantz1v+hqxS68irNKlo3Wik+V19JOyI40maROxfeyrQAR3wmkCqhNYbrEwWpE6O/IIdPvdXp89PMFmiCWkzY6vGk7LEo=
+	t=1752048427; cv=none; b=C5D1UwLIgVs/cZIrMVivOVAvwHYZspdaYqwNaDd5PxqPK84gaIIeQSA+7y6Wd1+ZuZe0LD/bAbfhzh0c84foZ8wcK9w6PGbyOa2WSO5U9JK0M9GS8gTynPmP+2AVIrvi+KNSdj/7AsvnuxtIzDOwhop1wSuBwi3gOVOz1z5NnXM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752013065; c=relaxed/simple;
-	bh=UnhukZ2YtMp4btbXj3uJao6sn+kZTAOJccb/Lr/x/nY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=l1RKcoDTm31Qeg48wubIuezYaUDk6Vlyqf/jsLIt/ZKFk+CP1oWmwOPSr+Ok1gV1OoDnIjBNCqsV/ztLIa926VOI7gsMu6XPtTfLDY0Wo5S4JDuDEqo8HY7CwYFcPZCCEXkZs3UzRq2tq6slvW3070Bl88HT+U7/PNClNi08nSQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L1dDNcpH; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1752048427; c=relaxed/simple;
+	bh=qHFlp0Eymzpq0DGn/ABKDHy5ssBB/JtPZafxiGG8/jk=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=OEaWST7rf4g8o+dyR90V8KSWSKFWTc6PLn3QovRJmztDkEgYOv++jp1jTKlrrB/GPFs0+YKjaaboCbuJUnoc4+PBPyVWd8uiZyhn91CZEOKP4QluoNnWgpdq+ZY5PRxEitQ5UshVj/9SU8G+Dem42Epl8V9ttgo/PGNL0CEYaXw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Nkqy0ca3; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L1dDNcpH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 842E6C4CEED;
-	Tue,  8 Jul 2025 22:17:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752013064;
-	bh=UnhukZ2YtMp4btbXj3uJao6sn+kZTAOJccb/Lr/x/nY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=L1dDNcpHDcp4F8/mto6moccsYo9Xlh2jxhB9b5sbCf2GmlRISDjVMejqGqz7guwlA
-	 m5xnBVzQ5Fa3ZDkl0LSBPlp/5HSHaSpI1ZVkTRtSv+cBPDsR2/B2O467dDRutGn7lz
-	 w5R+P0wKtTp+R8h6jQEgn3SFC38FuUl9DgWo6hA9sd43x9PnJVB71EHdmreIAFzcit
-	 Jg3wjJ8lqrf5oWnTH8ucrLrfVvHEAkdKjeJSN06YmzqxWnIxqc0NbMX467yNS58col
-	 kNuHwxV7UaiyceGzeV4kX4L/ii7LjCRErmLX3YpZ3fkoegZyl2lrlTQxF0yP9mprF6
-	 ARHEXTfl5ybEg==
-Date: Tue, 8 Jul 2025 16:17:42 -0600
-From: Keith Busch <kbusch@kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Sean Christopherson <seanjc@google.com>, Lei Yang <leiyang@redhat.com>,
-	Keith Busch <kbusch@meta.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, x86@kernel.org,
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Nkqy0ca3"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id A75CE4043F
+	for <virtualization@lists.linux-foundation.org>; Wed,  9 Jul 2025 08:07:05 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.092
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 6z26iMqu6Fja for <virtualization@lists.linux-foundation.org>;
+ Wed,  9 Jul 2025 08:07:05 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.12; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2F90340426
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2F90340426
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Nkqy0ca3
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2F90340426
+	for <virtualization@lists.linux-foundation.org>; Wed,  9 Jul 2025 08:07:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1752048424; x=1783584424;
+  h=date:from:to:cc:subject:message-id:mime-version;
+  bh=qHFlp0Eymzpq0DGn/ABKDHy5ssBB/JtPZafxiGG8/jk=;
+  b=Nkqy0ca389o/3xPbpObuwTOMe5XL9ffzUW6BjxTtMaW8A3Co4Qk3XLsY
+   IhaMRalx1GV6y1YeJte4jH5+A/B6IK7t6i0KpCpfqXMJWskVhykA+pcFy
+   uxTGSSbG5GK8WDe4RTqnmHqL6WDvsZGpzdOfryNeQwVFQg+MfSM/ujATo
+   MsK4qTqUbMSc2TmQuww+k8Cy4dPwzwxMcXDDFDItsQr4khQVV3LDNqXol
+   JazGkWQLI2V/2hNL2ot+0ncwfJxCwK56UvMqmcq+WWXZvnl/UEe48PO1l
+   rqbi0in2zBBgAgoVWBSNMMgaZb3i/c9mHGnjgM/EGHBQ5+GPblmr+xcT+
+   Q==;
+X-CSE-ConnectionGUID: k8ZOMDGbSgW8l3cYoBb7Qg==
+X-CSE-MsgGUID: EDbmH+mISiSKWcPrBpNJdg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11487"; a="58106221"
+X-IronPort-AV: E=Sophos;i="6.16,298,1744095600"; 
+   d="scan'208";a="58106221"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jul 2025 01:07:03 -0700
+X-CSE-ConnectionGUID: nKnaAaCNQLKlfhQL+i2/ag==
+X-CSE-MsgGUID: itnNVE9jRp+vu1HGp5yBlA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.16,298,1744095600"; 
+   d="scan'208";a="156043916"
+Received: from lkp-server01.sh.intel.com (HELO 9ee84586c615) ([10.239.97.150])
+  by fmviesa009.fm.intel.com with ESMTP; 09 Jul 2025 01:07:01 -0700
+Received: from kbuild by 9ee84586c615 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uZPpT-0003HZ-00;
+	Wed, 09 Jul 2025 08:06:59 +0000
+Date: Wed, 9 Jul 2025 16:06:50 +0800
+From: kernel test robot <lkp@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
-Subject: Re: [PATCHv3 0/2]
-Message-ID: <aG2ZBrRIpGMZFB6R@kbusch-mbp>
-References: <20250227230631.303431-1-kbusch@meta.com>
- <CAPpAL=zmMXRLDSqe6cPSHoe51=R5GdY0vLJHHuXLarcFqsUHMQ@mail.gmail.com>
- <Z8HE-Ou-_9dTlGqf@google.com>
- <Z8HJD3m6YyCPrFMR@google.com>
- <Z8HPENTMF5xZikVd@kbusch-mbp>
- <Z8HWab5J5O29xsJj@google.com>
- <Z8HYAtCxKD8-tfAP@kbusch-mbp>
- <3b1046fb-962c-4c15-9c4e-9356171532a0@redhat.com>
+Subject: [mst-vhost:vhost 4/8] include/linux/pci.h:2738:7: error: call to
+ undeclared function 'pci_device_is_present'; ISO C99 and later do not
+ support implicit function declarations
+Message-ID: <202507091645.aPGUJH6X-lkp@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -51,10 +82,62 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3b1046fb-962c-4c15-9c4e-9356171532a0@redhat.com>
 
-On Fri, Feb 28, 2025 at 05:43:43PM +0100, Paolo Bonzini wrote:
-> (Keith, I haven't forgotten about AVX by the way).
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
+head:   97d5f469f45a2312a124376fd6fa368ef8419dff
+commit: b7468115b6045e555aa8a8f2fa327c1c073fc6df [4/8] pci: report surprise removal event
+config: x86_64-allnoconfig (https://download.01.org/0day-ci/archive/20250709/202507091645.aPGUJH6X-lkp@intel.com/config)
+compiler: clang version 20.1.7 (https://github.com/llvm/llvm-project 6146a88f60492b520a36f8f8f3231e15f3cc6082)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250709/202507091645.aPGUJH6X-lkp@intel.com/reproduce)
 
-Hey, how's that going by the way? :) Just checking in as I'm still
-having to carrying this part out of tree.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202507091645.aPGUJH6X-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   In file included from kernel/dma/direct.c:16:
+   In file included from include/linux/pci-p2pdma.h:14:
+>> include/linux/pci.h:2738:7: error: call to undeclared function 'pci_device_is_present'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    2738 |         if (!pci_device_is_present(pdev))
+         |              ^
+   include/linux/pci.h:2738:7: note: did you mean 'pci_dev_present'?
+   include/linux/pci.h:2042:19: note: 'pci_dev_present' declared here
+    2042 | static inline int pci_dev_present(const struct pci_device_id *ids)
+         |                   ^
+   kernel/dma/direct.c:148:20: warning: shift count >= width of type [-Wshift-count-overflow]
+     148 |                     phys_limit < DMA_BIT_MASK(64) &&
+         |                                  ^~~~~~~~~~~~~~~~
+   include/linux/dma-mapping.h:73:54: note: expanded from macro 'DMA_BIT_MASK'
+      73 | #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
+         |                                                      ^ ~~~
+   1 warning and 1 error generated.
+
+
+vim +/pci_device_is_present +2738 include/linux/pci.h
+
+  2722	
+  2723	/*
+  2724	 * Caller must initialize @pdev->disconnect_work before invoking this.
+  2725	 * The work function must run and check pci_test_and_clear_disconnect_enable.
+  2726	 * Note that device can go away right after this call.
+  2727	 */
+  2728	static inline void pci_set_disconnect_work(struct pci_dev *pdev)
+  2729	{
+  2730		/* Make sure WQ has been initialized already */
+  2731		smp_wmb();
+  2732	
+  2733		WRITE_ONCE(pdev->disconnect_work_enable, 0x1);
+  2734	
+  2735		/* check the device did not go away meanwhile. */
+  2736		mb();
+  2737	
+> 2738		if (!pci_device_is_present(pdev))
+  2739			schedule_work(&pdev->disconnect_work);
+  2740	}
+  2741	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
