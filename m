@@ -1,101 +1,114 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4351E2E5439
-	for <virtualization@lists.linux.dev>; Wed,  9 Jul 2025 14:54:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9017E2E764B
+	for <virtualization@lists.linux.dev>; Wed,  9 Jul 2025 14:57:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752072847; cv=none; b=n9KYffscgLvFdd57ZT3amD4nfYlTfVKxkhmWr+g2KDFDFlvqqA3UUFLBDUpS1xHDm0QkZFucKgtAQ7hXFkcA2FQhqem1h1acWz9kZ/xSpTGYCHcQ9ejQa89dOyQOy5tGrg7zi2L1+PTUbF5Rv5iB/q+wUksjhO+Ds5oz7pdwD1Y=
+	t=1752073038; cv=none; b=QPzu9B6JAi53DMqN10ctgNmf0Dysa6xjbNgXzN4a/3AUW5LtLW1Ynn6cZyauF8rSvHODHyFWlrqC2o0Phw3X25pZ+ANc+HNm6QSFh9wJcSUwnvOl7C9Q27Nz/QRDt1f2n5NxQntUwcR2jFYJ6dGxjsqNfFm62k5U4dytOCy6ayE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752072847; c=relaxed/simple;
-	bh=dNLzjC5cbAtc+WGHoz2N9GM8DGnG4GAdrFbTM0MLisk=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:Content-Type; b=dC2hsSltSB2f9ea8WS9VwXnI6XXtzqCE6u5rbNYMKUaGaMEodlh29Gp0t8BlQXr0HCCKCt2xbS8fwk+rWY9H5KzzxxuoAJeYqW6kvlUaotU968mKeStvUjh/iXGq0BekD3JKl7w696MYpmRAbPXBJsK2BycWqsK7TrTSKG4fFEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sL9AKewi; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1752073038; c=relaxed/simple;
+	bh=z0KeUw8GcTcwQDMmgIgnjnCbBlIeSkXI6NxiN+WQ2ng=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=kZeBUiOz3BBhsWa46FoU/PpcP/dLspGC9Fgt/jfqWc5OjeoWOxUvVV/LF93a8NwTHsmEpYBU7eyPTd9uOeLIF2FjsDqGSvk1/YmTv4pwTuQBcAC+TvfwSegJNyco+BDscDp/Oerbl9GZKJdsecoB+IJiN60pz3oChqm0x4fnEFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QDdDW2s6; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sL9AKewi"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 569EibIG002270;
-	Wed, 9 Jul 2025 14:54:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=prlAiOpLaURH0Js5JeA28ZU+M2LH
-	gadfDLjNoT5X4Iw=; b=sL9AKewi7GvexNKYRtU8mynQ8lRMcNUsw4hBgkAUkZtw
-	XQZayr5WaSMJG63vem7J9G+ozQ0AaDaQGHzg6ODOaiHZTKYV/bnNr9896Rvj/OAk
-	T9XAXhZhYKofixWn7OqMdE/9hPMypuOIjgFDaCjLXK7LwwRbdkchYND1jPo/K0Uj
-	qa+sBx0LBX24vTpeDMw0QZ6XiF5eXTrL1UKcR2mFPxYHICTKaEZpBbBkX+YBR8Mn
-	OIQVT0oD9lzZ8W9BptvxAOO5sYrz0hZqXS9l8mDCTRF7QEdHNcOnLnRI1dL1+1rW
-	jWSMmNfXr/wsiXFuIprShDqQ12hDpohBYc/rkWBgZQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47pur76xad-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Jul 2025 14:54:05 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 569C50fc024353;
-	Wed, 9 Jul 2025 14:54:04 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 47qh32gcj4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Jul 2025 14:54:04 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 569Es3wX23528096
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 9 Jul 2025 14:54:04 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DCDDF58058;
-	Wed,  9 Jul 2025 14:54:03 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B0B3058057;
-	Wed,  9 Jul 2025 14:54:03 +0000 (GMT)
-Received: from [9.41.105.251] (unknown [9.41.105.251])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  9 Jul 2025 14:54:03 +0000 (GMT)
-Message-ID: <472a5d43-4905-4fa4-8750-733bb848410d@linux.ibm.com>
-Date: Wed, 9 Jul 2025 09:54:03 -0500
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QDdDW2s6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752073035;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TsDh3n8LHJ/HdhnBV4kSQtvnM5Eyl5B2MMoNaxxIWlI=;
+	b=QDdDW2s65GzkmW4uEFB+St4/qf6wH3NbFKUhpyDJN30Ekt9bBhijahimUc2EONMPG9n9j8
+	kUllBslv7i/Tou3zjUyjfqQr9HeOkthaQyQg3nyu2Cq1TXhLzBoPyvgOfLjAixBxCoWSOG
+	9bP77/1lqOYix6oNHFYnC+0s/hx3hPk=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-495-g4dlmSg6P5W9o3YJ4_5OOA-1; Wed, 09 Jul 2025 10:57:14 -0400
+X-MC-Unique: g4dlmSg6P5W9o3YJ4_5OOA-1
+X-Mimecast-MFC-AGG-ID: g4dlmSg6P5W9o3YJ4_5OOA_1752073033
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a4f6ff23ccso6815f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 09 Jul 2025 07:57:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752073033; x=1752677833;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TsDh3n8LHJ/HdhnBV4kSQtvnM5Eyl5B2MMoNaxxIWlI=;
+        b=Fue4/UE8Ap4e7FLGyEvpBxhf+yS8IWtjSLT3nA1Dh2GnEcSm8Fdqa1GwUwOXyQdxbs
+         6TUGgU0qctTgT6Y71cBpuogDFw7GdEucl8JZWDfwbN4eNQoCkbkwqXAWxw9vvCFAOZCT
+         1CtW/HjC4Zcf8kveD2MyrLDj+H0ouqJqh5r6Sw1+eWO65BG0AjohYIpKXHFeWBcfvvhq
+         4yxlnFbAqahAGtm6ffv48s4QQnNpGYJ822IhOpj8iN1QKOanOCo/ue70u3k9+DhB8zBg
+         jV1AnAs+eektJtDQsiq3IYRxwnPHBKBPtHWPphJ1s1AqAELdATT0rNun4PLWHeey0Ydd
+         Oe+A==
+X-Forwarded-Encrypted: i=1; AJvYcCVXEXY/qI1RLGn3Ow8V6pLRP+kLeTWnw1/iW0Eg63AZy6FGfV+ueAAnGj9h8lRo4IQoDijV7dzyP0PBcTIfAA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywq5ru5dA4JCC3T5BrzanZyABywaYUgUkGIqb2wYEBtxzPc25TU
+	RhQmjYNhb6/lzX0XObbu9VvzhrFpzGR3CwsICGB4rtgXeFubQqTcYs11Meb7dSS48fyHd06vz50
+	YSE3gOPDGGVXBB8QsYXD01yRTqQp7Bc1Qui8OuS4v9ez0qTi5b84GCwNQp9xhWpprtbLr
+X-Gm-Gg: ASbGnct9o2JC1uI1hagSd2WWMt4MdgBTQHiLB/5NBHe+seAggkbhLm7KAJ2s2PwAqZa
+	kxxv8KMX8lvVUmD54e6o+fDQP7yA1BA1JLyVI0SY5JFVcOfnwRFGK0uI9Xr2GPCieq5ugVkVDbO
+	r6y1AM68Chf6SHHjBiwhCogBUVeMGhfU+8/8acNBGSHgIRJgTjXW4tcXInRos5bN4JIq+e9aGC9
+	QEqwkyFEauiG8jqDvx0IqRNfvwDKWrxtU9ylCbOrjRQ/fzZiBk1DHIL8Fk276oRgXfq6Sm6D8MF
+	VR1bPhPa0tE6dUoY4yQ5IDV5PeI=
+X-Received: by 2002:a05:6000:2f8a:b0:3b1:8db7:d1fc with SMTP id ffacd0b85a97d-3b5e44e60f9mr2545136f8f.21.1752073032700;
+        Wed, 09 Jul 2025 07:57:12 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHIDgDZ3ueCPe4xupCxLJP+j8s5t9RvUgCvtE3idf3c2mnCCVDXZoHffqrFFHgTqOqncfSl2Q==
+X-Received: by 2002:a05:6000:2f8a:b0:3b1:8db7:d1fc with SMTP id ffacd0b85a97d-3b5e44e60f9mr2545109f8f.21.1752073032312;
+        Wed, 09 Jul 2025 07:57:12 -0700 (PDT)
+Received: from leonardi-redhat ([176.206.17.146])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b471b975efsm15802090f8f.46.2025.07.09.07.57.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Jul 2025 07:57:11 -0700 (PDT)
+Date: Wed, 9 Jul 2025 16:57:09 +0200
+From: Luigi Leonardi <leonardi@redhat.com>
+To: Konstantin Shkolnyy <kshk@linux.ibm.com>
+Cc: mhal@rbox.co, sgarzare@redhat.com, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, v4bel@theori.io
+Subject: Re: [PATCH net-next v4] vsock/test: Add test for null ptr deref when
+ transport changes
+Message-ID: <brnvavvmkbxcvzy6ahwyissqnmjl7db2w6yfk5pmipuhuvsdu4@qwoeyioaues6>
+References: <472a5d43-4905-4fa4-8750-733bb848410d@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-From: Konstantin Shkolnyy <kshk@linux.ibm.com>
-Subject: RE: [PATCH net-next v4] vsock/test: Add test for null ptr deref when
- transport changes
-To: mhal@rbox.co, sgarzare@redhat.com
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, v4bel@theori.io, leonardi@redhat.com
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzA5MDEzMyBTYWx0ZWRfX53N/PUiiBrFU MaQgG2KYArLUO/pTwJVwCcpcxwFX40XiQkl5qcyc54T1nPARhzyQlL6XPtMOdF9BC2NY7iXJWUJ euYTfsfufS4/JT6464Ws5ppuUjIqlvx20vkjA+SOwvHc944xh3oIEWkOxVWL4d8sVBCtQ6bFrjb
- hWVtaIK1QCk7ZiV/4pIuepwDYnyqDR7XdYZ8JA76jzSP2AGQXg0ImXkbDXijKJHgYC012O3ksHX SYjFMGrVAYR9uoD3lAcHFAuHJZssiCyuKwdy1vX0UEDrlNABePoeoxG+bKIlTO0a+5fVh8z7MTb fydCQzgq+7jBEGw8VeN6a6Qt0++LL4CjHGEviV6JBuJ9rMC6OaZEJtOxW5npf47uj2uCbedVPxi
- 2U4OZSsowXe3kxp7pj2jFdcqQ4yuoOybvI3x9174e2u12S4k7HwvPkW/nghQIbhGBY8qFHp5
-X-Proofpoint-GUID: kpQOMYYazyKyewxIir8QAhgrx-roNt3U
-X-Proofpoint-ORIG-GUID: kpQOMYYazyKyewxIir8QAhgrx-roNt3U
-X-Authority-Analysis: v=2.4 cv=W/M4VQWk c=1 sm=1 tr=0 ts=686e828d cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=hBMHHm5UMeqtWk0fnh8A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-07-09_03,2025-07-08_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- mlxscore=0 priorityscore=1501 adultscore=0 clxscore=1011 suspectscore=0
- spamscore=0 lowpriorityscore=0 mlxlogscore=754 bulkscore=0 impostorscore=0
- classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507090133
+In-Reply-To: <472a5d43-4905-4fa4-8750-733bb848410d@linux.ibm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: lzTI7KXHxqLXuto2UrcDxdh9bNDJVOmLC4BUwDpX0bM_1752073033
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-I'm seeing a problem on s390 with the new "SOCK_STREAM transport change 
-null-ptr-deref" test. Here is how it appears to happen:
+Hi Konstantin,
 
-test_stream_transport_change_client() spins for 2s and sends 70K+ 
-CONTROL_CONTINUE messages to the "control" socket.
+On Wed, Jul 09, 2025 at 09:54:03AM -0500, Konstantin Shkolnyy wrote:
+>I'm seeing a problem on s390 with the new "SOCK_STREAM transport 
+>change null-ptr-deref" test. Here is how it appears to happen:
+>
+>test_stream_transport_change_client() spins for 2s and sends 70K+ 
+>CONTROL_CONTINUE messages to the "control" socket.
+>
+>test_stream_transport_change_server() spins calling accept() because 
+>it keeps receiving CONTROL_CONTINUE.
+>
+>When the client exits, the server has received just under 1K of those 
+>70K CONTROL_CONTINUE, so it calls accept() again but the client has 
+>exited, so accept() never returns and the server never exits.
+>
 
-test_stream_transport_change_server() spins calling accept() because it 
-keeps receiving CONTROL_CONTINUE.
+Thanks for pointing this out!
+I had an offline discussion with Stefano about this issue.
+This patch[1] should address it.
+Please let us know if it works on s390 too.
 
-When the client exits, the server has received just under 1K of those 
-70K CONTROL_CONTINUE, so it calls accept() again but the client has 
-exited, so accept() never returns and the server never exits.
+Cheers,
+Luigi
+
+[1]https://lore.kernel.org/netdev/20250708111701.129585-1-sgarzare@redhat.com/
 
