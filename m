@@ -1,205 +1,216 @@
-Received: from sender4-pp-o95.zoho.com (sender4-pp-o95.zoho.com [136.143.188.95])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7ED62F3E;
-	Thu, 10 Jul 2025 04:21:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.95
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 574B3224B14;
+	Thu, 10 Jul 2025 08:30:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.19
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752121293; cv=pass; b=rrXXboI0cPWgZ4dJONvsTTA8PIBpzyEeDZ2w6iFNbyTWA3wJrmQK0wJO4m5uFnPwOGpwcKoi9XuucOqGG89pZm8lpyy8ZGKzh2voJjoWnI/emDrkPR2UsKKxsCHpm7x6IkyuDNCLkaCNVM3YBuH6ItRmLZOb9vJURsfI4Q7Gavc=
+	t=1752136220; cv=fail; b=tAIYS6TJdhKw2lGv7J3VKW/19/UEG2xBxsao4BV7rKsu8zG2LdWFRQbYuUQFXz5OzEDKkCIpnvM6ArnK+Az6uFj0HDXM/948WL8Wk2j1OnwB14d5xYDZZeHYEkK+psyneTqMCZXjgOLZZ80YtDsWLhwvI3jLmdU7PSprheAp9dM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752121293; c=relaxed/simple;
-	bh=2VbC2+PHxu7MfeflJa6IM8C0NP5yvx9ELdjXHHwMqB0=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:Subject:MIME-Version:
-	 Content-Type; b=jpDnOGgJjH6gOjsTOWbHce8cI9S7/LAuFyQ/wEdeGXH+IxVymi+xMQZTYgZa0swOw/6tLmrQ6ZvbPrN3icusmvGCqGU5nNPDah8XWWSxD7UXKMOAI2zZOIqAYElgqgqJCU2m66YmL7Z15CrrxCY6HZMcDE+mFfC4M1tqILL+7Us=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zohomail.com; spf=pass smtp.mailfrom=zohomail.com; dkim=pass (1024-bit key) header.d=zohomail.com header.i=safinaskar@zohomail.com header.b=ZuvkDFZw; arc=pass smtp.client-ip=136.143.188.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zohomail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zohomail.com
+	s=arc-20240116; t=1752136220; c=relaxed/simple;
+	bh=vP129UArb0BJ+g5YU8sr1KnpjT1EE0c6Pf2NaKM3Y+Y=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=FTHQR1FCOuEXT9ec/pPvf54ToeRV01iLt1a3io6Cma/EIRCv+xiuLIwvWVhotNepjPMyUgxQHAxxTtCb1x3pD6aq/CZ5eRXSTuwTY6lEzH9hM2zRsyeVT/N/Ov4L9A28ju+fg0o/HtfVTU2m3bTo9rrYdKEmRe9sa+bRiIUlsDk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JJkn4VUW; arc=fail smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=zohomail.com header.i=safinaskar@zohomail.com header.b="ZuvkDFZw"
-ARC-Seal: i=1; a=rsa-sha256; t=1752121274; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=jGi44jQwA7tguYk5YZjML2i+Nulyuo9Ynfuhu1ecDj5pcnzZ2W72tZXT6aTn0TLFWhGI+r9LdE7yIStE7CKwyGJnixDvsd5QaecrxTTMFfrQKvWt/By93jWfMpiK9IL2/ByRdu4YhNlkhJAYOlJq7VZFzQTapSMRMX56GEjZ8jQ=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1752121274; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=na0G9oSIayf8FlikNV7gtwZPYaQOEoLGKYXdYzgdS9k=; 
-	b=a+V65wFS5esFJUWEc13f9P+NNakTyfo7t82YJPu/is0v64yVcN6PGls9ClCrdUa+oAnan7wcsxQsqsN4dsrDmIudiwOAe+R02gQd15ddOH+BoaIbFMf339RCgdaAoHXK6XKLJfyrxW0tFSXeikRUpBs9Km6jTpFAsF4wO5wj5sk=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=zohomail.com;
-	spf=pass  smtp.mailfrom=safinaskar@zohomail.com;
-	dmarc=pass header.from=<safinaskar@zohomail.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1752121274;
-	s=zm2022; d=zohomail.com; i=safinaskar@zohomail.com;
-	h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Feedback-ID:Message-Id:Reply-To;
-	bh=na0G9oSIayf8FlikNV7gtwZPYaQOEoLGKYXdYzgdS9k=;
-	b=ZuvkDFZwQeBjmWLmCjVbIgizfhlqTLDV+tQhbMRxfgBVsD+wKYwvJoUny/SsQEIS
-	Nxl5gw2CetJSJdrH0U74VEvSSy8Kd/dGrqkuu/0uISWuSsjaFN0VILY6TOnlq1fThk7
-	l9P8PaB+MqnaS5+BlzYj2w7D8/V1V8DiAW7jYvW4=
-Received: from mail.zoho.com by mx.zohomail.com
-	with SMTP id 1752121271070711.9049000586574; Wed, 9 Jul 2025 21:21:11 -0700 (PDT)
-Received: from  [212.73.77.104] by mail.zoho.com
-	with HTTP;Wed, 9 Jul 2025 21:21:11 -0700 (PDT)
-Date: Thu, 10 Jul 2025 08:21:11 +0400
-From: Askar Safin <safinaskar@zohomail.com>
-To: "Thomas Zimmermann" <tzimmermann@suse.de>
-Cc: "Gerd Hoffmann" <kraxel@redhat.com>,
-	=?UTF-8?Q?=22Noralf_Tr=C3=B8nnes=22?= <noralf@tronnes.org>,
-	"Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
-	"Maxime Ripard" <mripard@kernel.org>,
-	"virtualization" <virtualization@lists.linux.dev>,
-	"ryasuoka" <ryasuoka@redhat.com>,
-	"dri-devel" <dri-devel@lists.freedesktop.org>,
-	"qemu-devel" <qemu-devel@nongnu.org>,
-	"regressions" <regressions@lists.linux.dev>,
-	"Ben Hutchings" <benh@debian.org>
-Message-ID: <197f290e30b.eaadc7bc7913.7315623184036672946@zohomail.com>
-In-Reply-To: 
-Subject: [REGRESSION][BISECTED] kernel panic is not displayed correctly in
- qemu (CONFIG_DRM_BOCHS)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JJkn4VUW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1752136218; x=1783672218;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=vP129UArb0BJ+g5YU8sr1KnpjT1EE0c6Pf2NaKM3Y+Y=;
+  b=JJkn4VUWemKdDOUkjdWW9qnQJWNOlooz8znn3NY+3fm5XHqw6LOw+XvB
+   zFsmUqR5gmkPZQMkDUzEaypvMwr0bRai7fsGFDPd2sjb2/i/YxwvysCmm
+   r6xOxvfDKcO0vtl3HlS1PyJlJ8bmjxvUWBgnzt/wQVpOeZFOA9zJ0+k3f
+   FcFIRXFd9bjkkDAC2f8fcTDX+BlxEGuc7PyRNak/7tyJTTWLcf7Ce2y2O
+   3w0KDZ6Uq+zwcUe+xyvTz+/Ep5knUoAbyimJilvD2Hf8XmxBGSMK0nwjg
+   qSmZYryarMlZMwzN0hIaCRNY/Wq3YBIjZ8/9t/ygHUYOea34fcb0DlrD1
+   A==;
+X-CSE-ConnectionGUID: CNHS5nMrRWG9NZHejWnK9Q==
+X-CSE-MsgGUID: xUPSFaetT/WGYWrnAhvJdQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11489"; a="53521602"
+X-IronPort-AV: E=Sophos;i="6.16,300,1744095600"; 
+   d="scan'208";a="53521602"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2025 01:30:18 -0700
+X-CSE-ConnectionGUID: OuPznLLTSyOvv9R5ib1a8A==
+X-CSE-MsgGUID: 03/b3+guQFiHYLveJb51Rg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.16,300,1744095600"; 
+   d="scan'208";a="156564101"
+Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
+  by fmviesa008.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2025 01:30:17 -0700
+Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Thu, 10 Jul 2025 01:30:16 -0700
+Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25 via Frontend Transport; Thu, 10 Jul 2025 01:30:16 -0700
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (40.107.223.52)
+ by edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Thu, 10 Jul 2025 01:30:16 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=UmSB0dbitdm2Ruvpyxutl9UlS4bsBScFLM9COOrQjX/7ivnfxeWIfIpANUB8CYiI+owqb6oKuubg2OuSq9dDKkQVfw3MqvZjp07/kSj9PYSpdfH9Tvnw6ATo0xbPkJM52eMnrlNqRsFm5oY1wYHvVHQeLR/Le3uVTtOsTW1svEFx6oPQWWG+kJ22Y0hIsoyB1Kk3nZkNLrOLHtZMy+hkIv6pePxo59oWgV7IuUjhBZnWy7UVin7ZEJJmArv/Sx2nhREuu/cprbBNhFEnvjIJTrBa6WIGAhxitxUQiXsfCMDW+G560GfhWJb1N9gR4jqSEImBhupgb6ozKZbecQmJ0Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7BcQ2AxEmLyfM5tsVlJszOT1MXAkDzYA37nqK5sNnig=;
+ b=dmYc2XkPz60AkaOa42DQurLfpHJiv/KmupvHuTQnfLntt2CspGcAl20Jftb/KY5EY52mw038yoLfTH0Hnoj5BziU97LLEhyaaC4RZ5auInErtojFLnfOUVjLaVNFFkIdio4Yx3q/QbHVU1evcXjkLqf8ZzTg0TzL1bezE1XzmF92cmbPmTlfjNTEZZNmTxF41myXHNy/6SILOkpmU2E56FIFJjok9aqavH7eGwqWsESw19UoEAH6VVlIacxqYhBmZN5+t980H0PDOS082aqdFAV6wDzu0IfJndwSQYftScLHLopIdjjvI/DMKSVBdqVk1oppBMo7g0Eq8nXhJriS+w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by BY1PR11MB8005.namprd11.prod.outlook.com (2603:10b6:a03:523::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8901.26; Thu, 10 Jul
+ 2025 08:29:59 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1%4]) with mapi id 15.20.8901.024; Thu, 10 Jul 2025
+ 08:29:59 +0000
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+CC: Ankit Agrawal <ankita@nvidia.com>, Brett Creeley <brett.creeley@amd.com>,
+	"Cabiddu, Giovanni" <giovanni.cabiddu@intel.com>, "kvm@vger.kernel.org"
+	<kvm@vger.kernel.org>, Longfang Liu <liulongfang@huawei.com>, qat-linux
+	<qat-linux@intel.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "Zeng, Xin" <xin.zeng@intel.com>, "Yishai
+ Hadas" <yishaih@nvidia.com>, Alex Williamson <alex.williamson@redhat.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>, Nicolin Chen <nicolinc@nvidia.com>,
+	"patches@lists.linux.dev" <patches@lists.linux.dev>, Shameer Kolothum
+	<shameerali.kolothum.thodi@huawei.com>, "Xu, Terrence"
+	<terrence.xu@intel.com>, "Jiang, Yanting" <yanting.jiang@intel.com>, "Liu, Yi
+ L" <yi.l.liu@intel.com>, "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: RE: [PATCH] vfio/pci: Do vf_token checks for VFIO_DEVICE_BIND_IOMMUFD
+Thread-Topic: [PATCH] vfio/pci: Do vf_token checks for
+ VFIO_DEVICE_BIND_IOMMUFD
+Thread-Index: AQHb5Ta1f4N3tNOt70+6wANikunSFrQf/pyAgAB3MgCACqlK0A==
+Date: Thu, 10 Jul 2025 08:29:59 +0000
+Message-ID: <BN9PR11MB5276F298FC5FF30D1D0FFC6C8C48A@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <0-v1-8639f9aed215+853-vfio_token_jgg@nvidia.com>
+ <BN9PR11MB5276CD6181F932C70CBC800E8C43A@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <20250703134102.GD1209783@nvidia.com>
+In-Reply-To: <20250703134102.GD1209783@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|BY1PR11MB8005:EE_
+x-ms-office365-filtering-correlation-id: 3f597495-ce4a-43e6-9f4d-08ddbf8bf546
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|7416014|376014|1800799024|38070700018;
+x-microsoft-antispam-message-info: =?us-ascii?Q?YS2MmTaFGAXaIsflAO3k+g2HRSDlQ1YkbBHQn6kszI+7AAtUjVvghhuSf10t?=
+ =?us-ascii?Q?H2jp+vktv7ohqVBrvTmhyFmmNxqhxBvMMcB6mxnCc4N7v+nZvnP1eVEMwzBD?=
+ =?us-ascii?Q?5avZ5UjqBeBmruw+kbiw/qFRCZvEAHTXuqDinG+8M6WO1a42PVNHMBxXZqeg?=
+ =?us-ascii?Q?970e7i6uweQeZWSVqrmSKj19kj/KqZvLRdUIE63srfyaiBPd+wOePJ2YSpMI?=
+ =?us-ascii?Q?3tOKapf9cKuidKF3byaDm8tqz6+45mkwBqOZ7vaywkQvBDN1l5ylocI88hNd?=
+ =?us-ascii?Q?8c/S5gAych3+0p8OWKJRUjHe6cxX7nYKuFMHuo46znFCYFw7r0aF306kGitI?=
+ =?us-ascii?Q?94xrGTNVS3jKcNFAYiXw0jcjk1Pur89Py8Od3YhE+K994Q2w4iZM9TdDiOnD?=
+ =?us-ascii?Q?Bgh1+ZLbA8PJ2VYaTMwF00eNMMpdxh4FR8zyNnm7D8mCaFlx6lnMPfD+qZCn?=
+ =?us-ascii?Q?eQQQRZKXFn4dFdxY/PbLYS4NUUIi6HMKTkOLRYIi2272mkEV8w7i8gWQE4Wd?=
+ =?us-ascii?Q?h8Ru9n/kIkRsFJ6Y/yrc+CLFmoM09NYWFHD4yDTmM7ABXvYYo8DEDuYMKSbx?=
+ =?us-ascii?Q?HxQX8wSG4FTRaPJYXj/t5gXpBDsCbFo/fgZgchtOmxObdrPfxcxduRuK/JSE?=
+ =?us-ascii?Q?FHyzHJqsXF8e+9RVsuovbNIHTEMncjnLzG3F5IqWu5GPsjAgiZefuwAS0CRQ?=
+ =?us-ascii?Q?B3bzwK0g5LPjI5JFRrQy38z3XhxwHOX4yTLqOieM3rhtqm+EwGcvkOmjIggK?=
+ =?us-ascii?Q?zyI64yjK43hyok8kmy6Uq21kCLtQ3jr2WnrCyT75GgTP5Ymzz3re9ovBA3EH?=
+ =?us-ascii?Q?HHXEw3BJtQz/r97MV+SeeXT69gZEAtS2/HNUKdd2fioM3RbPT9edofJ+bE2I?=
+ =?us-ascii?Q?0KIXwsrEC1SYIkWk+yUimwDC4PM5ezGKh6mQvwE5+l2s7QQx7rHOCVQskNKF?=
+ =?us-ascii?Q?iKbvtuhDml89uDC/31KeuYeMVlTKqVT3VvdCeJNxy5b8IxjeAymagtr0vBaa?=
+ =?us-ascii?Q?GKgvCuisinsIUyNZjNBw4Nniq9+VXsDQsRKaaDo9aOzyKco6vuK/GAdcySyN?=
+ =?us-ascii?Q?voiattZqsAn/CUv6N2pETkd6izws3Juq1/N9RovD3jKH2grcbSLXE0eQxukV?=
+ =?us-ascii?Q?fYkENotur3hPpboFpQYgQU0T9/sysRKjReteteZFrUEY3kCs5q/42OXYzdM6?=
+ =?us-ascii?Q?8EyaZJE5ITSdwo8O6sqceyES5rlPEYQfYSezZ4xwS85V2JWR0r8AWmdwXOlz?=
+ =?us-ascii?Q?rTZvME8teXc3Q5sqbwJ5LBnXhJUV3hfxEVHwiZDdbanpIXq0ube7EfdQ++hR?=
+ =?us-ascii?Q?8tQgER4cjZYni0Za5CVCzwXeUmu7eXuh3zSCg9oApN50m9sCrgtWpBPhxZZw?=
+ =?us-ascii?Q?zh1/hfCQ7qw5rhaZKwPegc67lUeFeI+8bVMRnDZYfD6h3CgE9tc00lxFc3kt?=
+ =?us-ascii?Q?f0srJtYMmCPPlsxKmZj5ZwFfYmnXkC6XGxpPFPJSMMcXkSn+Rs0d3w=3D=3D?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?Fx8mec7KY0c5jboF/Y/SA4qAZ6MsEfvnI3f4a1KJO6WYk3eAGQN48gFxbw53?=
+ =?us-ascii?Q?FmFxB1cWCC7hZJcEJknsqVxtGlH+/3mvn72/fkJj3wEJLvnjl+XdndxZkvay?=
+ =?us-ascii?Q?YgxGgEWBSr2QNSPYlwzoj2D5TRWeJvKh7UIhVRmyxtgWzkE+IGzNx7ipvsgN?=
+ =?us-ascii?Q?a15VGnUOrH+PVHoogu50Yb9Wo41PlZPpslXiQb6l3PX4vmljiXh3P5yTdf06?=
+ =?us-ascii?Q?7070WjEWh9KxmDthGC/UMHrp3R0XX22EFCe4fXsTjo36guRuGQb69JOO9NkA?=
+ =?us-ascii?Q?8RVfh8UD88JTsZnqdIyntmyHWoLCFHJGIeb2szgL3AETKijg355yxzoXJSBW?=
+ =?us-ascii?Q?AlHbfXfCQadUj3gwD35hDRXSCqnz853j1hJVSNZjZ5NtJ7nd5k+0aI3a86BA?=
+ =?us-ascii?Q?+7MNKh1XZ/pTP0vRQzVvxxSmYlwWw84JnMBU0/xfEAQPYVW+Qcg2xY8o4dPv?=
+ =?us-ascii?Q?gvEugdKFHgtiuCuzjUeErVcD/09eNno4tTXpFkzXBKfjbfCSQI+TXWjnUxoT?=
+ =?us-ascii?Q?+m7aIMp0R4zuykw1HRwQawOpuUhWMHqXpF1nvjuJQpd/1r9NekC5RMTwjlZp?=
+ =?us-ascii?Q?NA2Yhq8Qbkxa9HDuIKoBves01peqxVjH+JnykwdoitN3oeO4SBC4GpT+sZyC?=
+ =?us-ascii?Q?L0QCXkYNN5AygwsII3EybmGtKoxuOJFRJwISREAk6qvt8PVPp7q6A9MGSqgS?=
+ =?us-ascii?Q?O3fR6krRFL4dpQ1YVTv0HIdxsR0ztxhXYtBeHHgrFRifpkevwMJi3R4ifoFJ?=
+ =?us-ascii?Q?TDZsZBdiojn0KI8wofCHdw5XTXzX78FAGqwfLnHJlSl1B7YSWSPleFod54Kp?=
+ =?us-ascii?Q?hvHlKv4e3JHsu/8GjunPXRJBTTKyNB2JUvnv0WSbT7uCFPnPCWxSmkoFlUjn?=
+ =?us-ascii?Q?pJ8ecbKK0DHCRxvwX/4cGN7UTQV8lcm+E3asd65Y72Uu1IfxzVELmoSFOMyZ?=
+ =?us-ascii?Q?DNUwYbiLr8s0+Ctgx7ZbZT9i43VqTC7hTRFW0ehHbCZ+gMvjAP8HDrF1xQ8X?=
+ =?us-ascii?Q?/9c9pBXZz6CyL6UwhTny64pgyGVKuWhQ1MEtCrzPqWV7ijUCajpPGXTXlZ3J?=
+ =?us-ascii?Q?NuYQltOxIfBAvKrPamUKG6HdRiKfBPTidC6uitBLU9VxhZOrFtmgukfiljTf?=
+ =?us-ascii?Q?pJNBTlm1d0aNgJDIF86fGVepriOjaBaD8rnavYk9E6EF6p+rZvUjUGeXpg47?=
+ =?us-ascii?Q?yBOOC0hDItNfNWbOt4IRIER8HajYG4Wy2K3NZcBW0t6IphSeNt3NwrFgkhU9?=
+ =?us-ascii?Q?YsPosVdAGSr6OhtlDndCMpa2dj+O4GpE6JSxwy/tOU357KVOicqvY6eKwkpL?=
+ =?us-ascii?Q?tzI2iIXRX+IKjt/QP9AUFdxjUFyLNZrHtMmq76yHmA65mamcnTcVD3L5xhus?=
+ =?us-ascii?Q?XTR3ozjS6/Rw8n2QRx9WWtXoUe1MvNDN+KdGAuzC3tflTEjGrv47zkjVI2+V?=
+ =?us-ascii?Q?8825m5MLCMfJskc73RyUgKUR8fGb+BiT7AqF5E2hsbFa0VinOQho9jEI4wfN?=
+ =?us-ascii?Q?tWTc0n3mVeZTz/hsxdT5OmPUFNlPvsUgS7bXGH4d97NAWveLHvEdAjOqDpbL?=
+ =?us-ascii?Q?cCGUiBFf5auqn+/pmBFI8FfY889FEGeZC+j+7vPC?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Importance: Medium
-User-Agent: Zoho Mail
-X-Mailer: Zoho Mail
-Feedback-ID: rr0801122790668314d3e7598558fab2f00000b21b3131e1cba2be67469372c133335d571ffc8e519baac7e9:zu08011227d7920ca060ce8fe32fd401540000013924a5d43a3055ccb51e43fa56fe3fe68126103551561102:rf0801122c2ab99bbc73d925393f3821570000c3b2a3c5e818d6fc6d6488d74d56ca5edd8f3ed2b5cf3f3cc4cb6569b782:ZohoMail
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3f597495-ce4a-43e6-9f4d-08ddbf8bf546
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jul 2025 08:29:59.2401
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: CbDRKFOmrgH7q5C6P5ViMJvETpdSNusA/Bn1UTMwMcdbwG2QM4WiXAZDTB1roVae0qwxmyg+T0C80OdpJqSuCA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY1PR11MB8005
+X-OriginatorOrg: intel.com
 
-Steps to reproduce:
+> From: Jason Gunthorpe <jgg@nvidia.com>
+> Sent: Thursday, July 3, 2025 9:41 PM
+>=20
+> On Thu, Jul 03, 2025 at 06:40:48AM +0000, Tian, Kevin wrote:
+> > > From: Jason Gunthorpe <jgg@nvidia.com>
+> > > Sent: Wednesday, June 25, 2025 2:35 AM
+> > >
+> > > @@ -1583,6 +1583,7 @@ static const struct vfio_device_ops
+> > > hisi_acc_vfio_pci_ops =3D {
+> > >  	.mmap =3D vfio_pci_core_mmap,
+> > >  	.request =3D vfio_pci_core_request,
+> > >  	.match =3D vfio_pci_core_match,
+> > > +	.match_token_uuid =3D vfio_pci_core_match_token_uuid,
+> >
+> > this matters only when the driver supports SR-IOV. currently only
+> > vfio-pci does.
+>=20
+> Hmm, sriov_pf_core_dev requires sriov_config, but the normal vf_token
+> happens for all vfs and there is a little debugging related to it:
+>=20
+> 			pci_info_ratelimited(vdev->pdev,
+> 				"VF token incorrectly provided, PF not bound
+> to vfio-pci\n");
+>=20
+> So maybe we want to keep it. Otherwise it sounds like you are
+> proposing to remove match from most of the drivers since they don't
+> support sriov_configure? Which ever direction I think match and
+> match_token_uuid should be together.
+>=20
 
-- Build Linux v6.16-rc5 so:
-
-$ cat mini
-CONFIG_64BIT=3Dy
-
-CONFIG_EXPERT=3Dy
-CONFIG_EMBEDDED=3Dy
-
-CONFIG_PRINTK=3Dy
-CONFIG_PRINTK_TIME=3Dy
-
-CONFIG_PCI=3Dy
-
-CONFIG_TTY=3Dy
-CONFIG_VT=3Dy
-CONFIG_VT_CONSOLE=3Dy
-CONFIG_DRM=3Dy
-CONFIG_DRM_FBDEV_EMULATION=3Dy
-CONFIG_DRM_BOCHS=3Dy
-CONFIG_FRAMEBUFFER_CONSOLE=3Dy
-CONFIG_PROC_FS=3Dy
-$ make KCONFIG_ALLCONFIG=3Dmini allnoconfig
-$ make
-
-- Then boot this Linux image in Qemu so:
-
-$ qemu-system-x86_64 -enable-kvm -m 1024 -daemonize -kernel arch/x86_64/boo=
-t/bzImage
-
-Kernel will (predictably) panic (because it has no initramfs, nor real disk=
-), but actual panic message will not be shown!
-
-Last shown line is "Run /bin/sh as init process"
-
-My host OS is Debian Trixie. "uname -a":
-
-Linux receipt 6.12.33+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.33-1 (=
-2025-06-19) x86_64 GNU/Linux
-
-Qemu version is:
-
-QEMU emulator version 10.0.2 (Debian 1:10.0.2+ds-1)
-
-Guest kernel is v6.16-rc5 x86_64.
-
-The problem doesn't reproduce on old guest kernels. I. e. old guest kernels=
- actually show panic message.
-
-I did bisect, and bisect showed the following two commits:
-
-=3D=3D=3D
-
-commit a6c3464f69cf5a8a31eb31cc436e7dbd325b8ff9
-Author: Thomas Zimmermann <tzimmermann@suse.de>
-Date:   Thu Jun 13 09:30:33 2019 +0200
-
-    drm/gem-vram: Support pinning buffers to current location
-   =20
-    Pinning a buffer prevents it from being moved to a different memory
-    location. For some operations, such as buffer updates, it is not
-    important where the buffer is located. Setting the pin function's
-    pl_flag argument to 0 will pin the buffer to whereever it is stored.
-   =20
-    v2:
-            * document pin flags in PRIME pin helper
-   =20
-    Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-    Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-    Link: https://patchwork.freedesktop.org/patch/msgid/20190613073041.2935=
-0-2-tzimmermann@suse.de
-
-commit 58540594570778fd149cd8c9b2bff61f2cefa8c9
-Author: Thomas Zimmermann <tzimmermann@suse.de>
-Date:   Wed Jul 3 09:58:34 2019 +0200
-
-    drm/bochs: Use shadow buffer for bochs framebuffer console
-   =20
-    The bochs driver (and virtual hardware) requires buffer objects to
-    reside in video ram to display them to the screen. So it can not
-    display the framebuffer console because the respective buffer object
-    is permanently pinned in system memory.
-   =20
-    Using a shadow buffer for the console solves this problem. The console
-    emulation will pin the buffer object only during updates from the shado=
-w
-    buffer. Otherwise, the bochs driver can freely relocated the buffer
-    between system memory and video ram.
-   =20
-    v2:
-            * select shadow FB via struct drm_mode_config.prefer_shadow_fbd=
-ev
-   =20
-    Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-    Acked-by: Noralf Tr=C3=B8nnes <noralf@tronnes.org>
-    Link: https://patchwork.freedesktop.org/patch/315833/
-    Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-
-=3D=3D=3D
-
-Commit a6c3464f69cf5a8a31e changed good behavior to absolutely wrong: after=
- a6c3464f69cf5a8a31e I see just black screen.
-Then (after many commits) 58540594570778fd149 made screen working again, bu=
-t now panics are not shown.
-
-So, result: all commits in range a6c3464f69cf5a8a31e .. 58540594570778fd149=
- are not testable (black screen), all commits before a6c3464f69cf5a8a31e
-are "good" (panic is shown) and all commits after 58540594570778fd149 (incl=
-usive) (including v6.16-rc5) are "bad" (panic is not shown).
-
-The next commit after 58540594570778fd149 is 5fd5d2b7c53de5a1290d82, thus c=
-orrect regzbot instruction is:
-
-#regzbot introduced: a6c3464f69cf5a8a31e..5fd5d2b7c53de5a1290d82
-
-Config above is not special. It is result of minimizing standard Debian con=
-fig.
-
-The bug is reproducible with standard Debian kernels (if we use them as gue=
-sts).
-
-Reproduction steps are so:
-- Install Debian Trixie to Qemu VM
-- Boot it with "init=3D/bin/true" added (to cause kernel panic)
-
-You will not see panic message.
-
-I minimized this Debian bug to small config shown in the beginning of this =
-letter.
-
---
-Askar Safin
-https://types.pl/@safinaskar
-
+Okay that makes sense.
