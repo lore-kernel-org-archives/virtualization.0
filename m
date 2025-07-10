@@ -1,169 +1,149 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C5D2AEF1
-	for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 10:18:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 923CA1FC109
+	for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 10:44:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752142737; cv=none; b=vGYnPAmzY5IqLXcunUhk5KIHWUPgwsXVtl8xKOXyNQL/vmtlMErwDdcq4CEFDEA2cJ6hDkeI/srVl3LTaN4YJiTyZkKp3NF8gV25MDagt2nknAZkmOdQ9HB/8hn1jOFZWgmeRVrJLNpXiJaOqUA3Tui9D5cii7iXO9znrziGWCw=
+	t=1752144260; cv=none; b=acDgUxeJpI/Lu+IICLpu6UHO5nStd+MKMmD0oTi0Cw59XFiMK5KjAmyKvD0K8Br8cmuLW0f0WnWW743NjWeILRDAWMUGtEohn56sn81JIxpWipnbNK03zrn4Siq078IbGCERUGwynKLkCav3TiQex9I/WSi3Falt00MHsRW83eI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752142737; c=relaxed/simple;
-	bh=d9WqkjzWFXGo0+Zam2d4Rcbwx9CE+ZmBSaMqy+wYQHo=;
+	s=arc-20240116; t=1752144260; c=relaxed/simple;
+	bh=eT95pxhU8RtV8vghCj7CgQHgVurXwFlZ6cSoxK076RE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SrtpFzFQlErefir+WjFoXpdE8WoQrGiqDxYHqXLaABEYcsNmD4cdcFPDJvBoWc+ds64hrh0clsQ14kDR3zjxtj0Le6jzHCgL/ySIxo34Z8FYncpNl1HD+QY8Cbq68cBFK/LxNwG+84Rg1k0zddNNlHG9CuqwEXD7gk/kL0JC+6M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CHfYCat+; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=VQgY5x9xj5SvfFDZyqyHXx25hjfacXb8WxL1rwT0cw3L/amvaKoqsrQu0FvoTQVvf1aPV1r16l0UasCjVu9/f7T5jSuocJsFKgx+oTxunVFb0Gl7ybv14eSeo2TbthlpqUiRoHcTl50EyQzZa/cA8kN+EFXIHQTDcGHOa+MiAPI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N1vOlFVJ; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CHfYCat+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N1vOlFVJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752142733;
+	s=mimecast20190719; t=1752144257;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=XGrExRtD0wHnwLmIoNNRTlxChH0WdSJdSSnw3pnVID0=;
-	b=CHfYCat+37+l7K91cCWla31wWWPOpaqeUjPMTTWk/b/3aPZvliZNEnej9WVE/TsXemovbl
-	bJwD478AuSLqYZfCkhBcTX1RFUEoDQ61AI/KCiN591fuIjYPujriIGxRCyJYhk7gatFw4e
-	3cG6Kt3dKTWZ4BH+cszYFdrBGkS8pIM=
-Received: from mail-vk1-f198.google.com (mail-vk1-f198.google.com
- [209.85.221.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=8CuYLuo/2Mbdt10kaLMIma7+VZaAp4h5ieIlEmZoMkg=;
+	b=N1vOlFVJYJNoZ2wuls9oMYn2YLPvdYkxRqmITIH03uQSy8d6txO2AyHeukh72ftS4y0CMs
+	ffBO14oHkI064yuLAqdQmte58oHG3EH5lLNqRzS/Ukz9Oy1olcHhx+7eKZV/dvqSV3qkSL
+	8p99EvdNbx5k6YnhBmkTnVrgVlgO0s8=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-84-5WBzpxRHPamReurb1Tb8Rw-1; Thu, 10 Jul 2025 06:18:52 -0400
-X-MC-Unique: 5WBzpxRHPamReurb1Tb8Rw-1
-X-Mimecast-MFC-AGG-ID: 5WBzpxRHPamReurb1Tb8Rw_1752142731
-Received: by mail-vk1-f198.google.com with SMTP id 71dfb90a1353d-5315999c994so274200e0c.2
-        for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 03:18:52 -0700 (PDT)
+ us-mta-437-Tcv7H3vwOUC7YlYLaU6-eQ-1; Thu, 10 Jul 2025 06:44:16 -0400
+X-MC-Unique: Tcv7H3vwOUC7YlYLaU6-eQ-1
+X-Mimecast-MFC-AGG-ID: Tcv7H3vwOUC7YlYLaU6-eQ_1752144255
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-311a6b43ed7so960076a91.1
+        for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 03:44:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752142731; x=1752747531;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=XGrExRtD0wHnwLmIoNNRTlxChH0WdSJdSSnw3pnVID0=;
-        b=BW/Q+LM6wYcU106IinzjF0ObaRSrfXq3NxJ2zvSVsLdCaj7SbdqEGb4rKlKCJLcx/g
-         7tmcZ6+sh1VeC0caGYJr46UEXhFz0t64oWzdYLUaP1m/oc2d5WgSNjkeqqWJZP8fjW+o
-         FLZEnCUQ7DAuyUA5N2pRso26pSfyXeXCqoh4xkgOhjRYKfnNvth7QSS3zy2lJ9Sdjnkh
-         nvj2N2QS62HU8om64scTRpMjM52jaJuIqbtLYIeAuw9Z8V6E0/VSSom7mxDWBTmk780B
-         IcmcgxsAaomdE1hc889BlMT/DerfkdTKZwKiVBdulQViutRqk0v1Gmw5XdDIVAZoVr6e
-         wavA==
-X-Forwarded-Encrypted: i=1; AJvYcCUAfQAqeaUVjmHfMmHH4Ilw8rC5T2RqTRNed4hFOYDNisS4gZp5VHVvT3iChHSTrAI/63S0AZEnUvnLblAfkw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyXvG3exb10CwOVDAYzMa8YhxRb8+75AV4ElnCptyBbd5xM9atc
-	HldAm7afL/BjgL9AYtccsx9VGgZwnMef413fNTJd35RnkbH3AkTr8CU3Kk/hoesltobUDTgXKSo
-	qZMQi+WNiIKPvvo/OJMoyC+Cd6JjkTnf5MOjzDJ/6rtXpi7m9mp7wTf2D8k+n50mgvOM+bjwhMT
-	7+3AzOGiV1f5h6dG9spsC1FanKyF+c85tdHyJ3CIHBMyY=
-X-Gm-Gg: ASbGncsUS2+x+C1W/MaPLxUOcnObIsA0UaDhIhNzN2ftr8TvIKsUEHJErtHm9mOc6Ng
-	xrxYDx0MZScwllDb0yBIW5YdZf6rCR8NmuRVA6OTkExnu0P9Yo6WtccLZtjeBAHnsVUIZkPYnkW
-	numw==
-X-Received: by 2002:a05:6102:688a:b0:4e5:a6ad:8fee with SMTP id ada2fe7eead31-4f629819e22mr2236345137.19.1752142731561;
-        Thu, 10 Jul 2025 03:18:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG1si9u2HqZPDMoVj4UwvUmvaBMS+8dRnoff24ukunRs3GkVyOQwWq8rfsrm1m+/OZ1aMB4vr87zGtlilEf50k=
-X-Received: by 2002:a05:6102:688a:b0:4e5:a6ad:8fee with SMTP id
- ada2fe7eead31-4f629819e22mr2236336137.19.1752142731168; Thu, 10 Jul 2025
- 03:18:51 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1752144255; x=1752749055;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8CuYLuo/2Mbdt10kaLMIma7+VZaAp4h5ieIlEmZoMkg=;
+        b=FA2Dup9IZzpJZsd4aW9pnJPSUBtW3U5bEjlg6xr2hsw7hMUR+uNHWfOkukL3gp5s8K
+         g5IjZzuzQNJ/y2TymcuSoq64wsvipndzfaQB4sKbDKNYpkQu/kdlbpjsE9jbMn/uu3Q5
+         SjamEjQYLmrCvnwjZj3wv6SHP0kalPQggx5ps83FYRAsD5mYVBEFa9iAXPfVlwYXxL38
+         lH9xfttU1lYZn7Ikm4Vy1dIf0MZWJ9ABI5uSv6bE9UZduupkheqUXtI2X5LizE9VpKqX
+         FPwC7qArXL4UIEmBvFKAhMfs4+rHoh3CjWOoSQasGlFEqFS7T6B8lXEgEl1Gi+Kg+hme
+         AD0A==
+X-Forwarded-Encrypted: i=1; AJvYcCUJkcVa0bUNs7g26PfbAKAd03WyRzTYAbEj69JTJ9YjRSRioaWnnQnU9xaCVvSSRSG9/8VrAeVwHnFh4DuiaA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwjD0fAPDlgLDbvWtTYg3sl7J5965EWc3fnp4OaF9XbtfItObOC
+	i21U1SYTJh3tj5xYAvK0kzJUiqh25vDZpRIjmyQkqPqGu8YTT+4mUutyWGzedtF514x9M0tiVXh
+	JcSx3glc9GwrViptxkx0f+9BWtDHrKyz05G/5CRYRXTMpSGx9eSTQNDnJubuENPe+yf00ic7D01
+	VZiagGFn17dXK7ZrnkHpRgkWY4BPdr9mxJ/WBu4hZ9CnU=
+X-Gm-Gg: ASbGnctV+vfKb+di2gcelzfBAL3zskX//ZWWBIXvxJnmBr8UA1WAUHPRemSPRomZfPM
+	VR/YMhUiAnMTKOUA5K9WFKa0HLIePsNBWsbNgLYU7PnDVYoG607TWRvzbpZsvh3ZxWJH/3DpYiH
+	bqG8PU
+X-Received: by 2002:a17:90b:2d8d:b0:314:2bae:97d7 with SMTP id 98e67ed59e1d1-31c3ef8f4d2mr3609361a91.15.1752144255287;
+        Thu, 10 Jul 2025 03:44:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFFwezNPSDR0OY8bEu9AM3jw2WPYc03gF+OPZi3VVVXopaM3IyuhrTf09fnMSDK2SfqLHqjjnRxLMCIC+bfanw=
+X-Received: by 2002:a17:90b:2d8d:b0:314:2bae:97d7 with SMTP id
+ 98e67ed59e1d1-31c3ef8f4d2mr3609334a91.15.1752144254874; Thu, 10 Jul 2025
+ 03:44:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CADZSLS0zp9rqP2=vCh8eHVH_U+g+k_8pitV939u9Ls8ZPEMfJQ@mail.gmail.com>
- <zfddiyxykxaoev4wbaxh6ml6czew44k5mt4jsxylpbybnqbs6y@rcfi5dpy5qv4>
- <CADZSLS1KPX6rgCkdDPqqyYC-R3oBWDGb8o26QQXaG5U4R=8zzA@mail.gmail.com> <w5oshdtp3wdhydjmh6htwtgb6keyml2teft7ihu277tbktzbp6@mweh7pyfwlrl>
-In-Reply-To: <w5oshdtp3wdhydjmh6htwtgb6keyml2teft7ihu277tbktzbp6@mweh7pyfwlrl>
-From: Wenli Quan <wquan@redhat.com>
-Date: Thu, 10 Jul 2025 18:18:39 +0800
-X-Gm-Features: Ac12FXx3G1j8fQnFlnswaF5T1xofdsFi0PRayiJtK5R6lclhme7jJZjkDw3ERwg
-Message-ID: <CADZSLS0A_EEi46U_zF+ssfgXWqg_YwekwOsCiNTbbKg3ueNhRQ@mail.gmail.com>
-Subject: Re: Host Crash when re-running vDPA device creation script after interruption
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	virtualization@lists.linux.dev
+References: <20250708144206.95091-1-minhquangbui99@gmail.com> <d808395d-2aad-47a3-a43a-cf2138d1d2b1@redhat.com>
+In-Reply-To: <d808395d-2aad-47a3-a43a-cf2138d1d2b1@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 10 Jul 2025 18:44:03 +0800
+X-Gm-Features: Ac12FXxPNEYS_Ei4p2IcT1GM3jGceeSfmUh4auJlrYXPw23N2AtGMVltUTswdZo
+Message-ID: <CACGkMEs01gmjEa+WyWZ+MspuRBjGcj8N+4ZQs5XCp+rYqZqB6Q@mail.gmail.com>
+Subject: Re: [PATCH net v2] virtio-net: fix received length check in big packets
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Bui Quang Minh <minhquangbui99@gmail.com>, netdev@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Gavin Li <gavinl@nvidia.com>, 
+	Gavi Teitz <gavi@nvidia.com>, Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: bfrXhMGfQ7aZA1haxzL4FVDrpIyLeyZ0rBIY53KHO4A_1752142731
+X-Mimecast-MFC-PROC-ID: j61s8LnR0RHwmO4p8zC4DXPc7hmeclkivPw_ZjthrSE_1752144255
 X-Mimecast-Originator: redhat.com
-Content-Type: multipart/mixed; boundary="00000000000016bc870639908546"
-
---00000000000016bc870639908546
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 9, 2025 at 9:08=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com>=
- wrote:
+On Thu, Jul 10, 2025 at 5:57=E2=80=AFPM Paolo Abeni <pabeni@redhat.com> wro=
+te:
 >
-> On Wed, Jul 09, 2025 at 08:59:13PM +0800, Wenli Quan wrote:
-> > On Wed, Jul 9, 2025 at 6:38=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.=
-com> wrote:
-> > >
-> > > On Wed, Jul 09, 2025 at 05:36:04PM +0800, Wenli Quan wrote:
-> > > > I am reporting an issue where the host system crashes when re-runni=
-ng
-> > > > a script that creates a vDPA device after interrupting its previous
-> > > > execution. I am attaching the script for your analysis, as I am uns=
-ure
-> > > > of the exact step causing the crash.
-> > > >
-> > > Thanks for catching this Wenli. We'll look into it.
-> > >
-> > > > # uname -r
-> > > > 6.16.0-rc2
-> > > > # sh vdpa-setup.sh  0000:b5:00.1 1
-> > > > interrupted by pressing Ctrl+C
-> > > Could you specify during which stage of the script do you interrupt i=
-t?
+> On 7/8/25 4:42 PM, Bui Quang Minh wrote:
+> > Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
+> > for big packets"), the allocated size for big packets is not
+> > MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on negotiated MTU. The
+> > number of allocated frags for big packets is stored in
+> > vi->big_packets_num_skbfrags. This commit fixes the received length
+> > check corresponding to that change. The current incorrect check can lea=
+d
+> > to NULL page pointer dereference in the below while loop when erroneous
+> > length is received.
 > >
-> > Interrupted after running for a few seconds.
+> > Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big=
+ packets")
+> > Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> > ---
+> > Changes in v2:
+> > - Remove incorrect give_pages call
+> > ---
+> >  drivers/net/virtio_net.c | 9 ++++++---
+> >  1 file changed, 6 insertions(+), 3 deletions(-)
 > >
-> I was not yet able to reproduce the issue.
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 5d674eb9a0f2..3a7f435c95ae 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -823,7 +823,7 @@ static struct sk_buff *page_to_skb(struct virtnet_i=
+nfo *vi,
+> >  {
+> >       struct sk_buff *skb;
+> >       struct virtio_net_common_hdr *hdr;
+> > -     unsigned int copy, hdr_len, hdr_padded_len;
+> > +     unsigned int copy, hdr_len, hdr_padded_len, max_remaining_len;
+> >       struct page *page_to_free =3D NULL;
+> >       int tailroom, shinfo_size;
+> >       char *p, *hdr_p, *buf;
+> > @@ -887,12 +887,15 @@ static struct sk_buff *page_to_skb(struct virtnet=
+_info *vi,
+> >        * tries to receive more than is possible. This is usually
+> >        * the case of a broken device.
+> >        */
+> > -     if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
+> > +     BUG_ON(offset >=3D PAGE_SIZE);
 >
-> Could you print out the commands of the debug script so that we can see
-> where it was interrupted? set -x should be enough.
-
-I tried again many times, just to reproduce once. the following script
-for your inference. but it doesn=E2=80=99t cause a crash every time.
-
-sh test-vdpa-crash.sh
-=3D=3D=3D=3D [TEST] Kill after 0.1s =3D=3D=3D=3D
-[INFO] Running vdpa-setup.sh in background...
-[INFO] Script PID: 2646
-[INFO] Re-running script after termination
-Then the host crashes.
-
-Best Regards,
-wenli
+> Minor nit (not intended to block this patch): since you are touching
+> this, you could consider replacing the BUG_ON() with a:
 >
-> > I encountered the same crash on both the 6.16.0-rc2 kernel and the one
-> > with the "[PATCH vhost] vdpa/mlx5: Fix release of uninitialized
-> > resources on error path" applied.
-> >
-> Right. This is another issue that is coming from mlx5_core.
->
-> Thanks,
-> Dragos
->
->
+>  if (WARN_ON_ONCE()) <goto error path>.
 
---00000000000016bc870639908546
-Content-Type: text/x-sh; charset="US-ASCII"; name="test-vdpa-crash.sh"
-Content-Disposition: attachment; filename="test-vdpa-crash.sh"
-Content-Transfer-Encoding: base64
-Content-ID: <f_mcx8hdvu0>
-X-Attachment-Id: f_mcx8hdvu0
+I'm not sure I get this, but using BUG_ON() can help to prevent bugs
+from being explored.
 
-IyEvYmluL2Jhc2gKCkRFVklDRT0iMDAwMDpiNTowMC4xIgpBUkcyPTEKU0NSSVBUPSIuL3ZkcGEt
-c2V0dXAuc2giCgpLSUxMX1RJTUVTPSgkKHNlcSAwLjEgMC4xIDEzLjApKQoKbWtkaXIgLXAgb3V0
-cHV0Cgpmb3IgVElNRSBpbiAiJHtLSUxMX1RJTUVTW0BdfSI7IGRvCiAgICBlY2hvICI9PT09IFtU
-RVNUXSBLaWxsIGFmdGVyICR7VElNRX1zID09PT0iCiAgICBMT0dGSUxFPSJvdXRwdXQvdGVzdF9r
-aWxsXyR7VElNRX0ubG9nIgoKICAgIGVjaG8gIltJTkZPXSBSdW5uaW5nIHZkcGEtc2V0dXAuc2gg
-aW4gYmFja2dyb3VuZC4uLiIgfCB0ZWUgIiRMT0dGSUxFIgogICAgc2ggLXggIiRTQ1JJUFQiICIk
-REVWSUNFIiAiJEFSRzIiID4+IiRMT0dGSUxFIiAyPiYxICYKICAgIFNDUklQVF9QSUQ9JCEKCiAg
-ICBlY2hvICJbSU5GT10gU2NyaXB0IFBJRDogJFNDUklQVF9QSUQiIHwgdGVlIC1hICIkTE9HRklM
-RSIKICAgIAogICAgKHNsZWVwICIkVElNRSIgJiYgZWNobyAiW0lORk9dIEtpbGxpbmcgJFNDUklQ
-VF9QSUQgYWZ0ZXIgJFRJTUUgcyIgPj4iJExPR0ZJTEUiICYmIGtpbGwgLVRFUk0gIiRTQ1JJUFRf
-UElEIikgJgoKICAgIHdhaXQgJFNDUklQVF9QSUQKCiAgICBlY2hvICJbSU5GT10gUmUtcnVubmlu
-ZyBzY3JpcHQgYWZ0ZXIgdGVybWluYXRpb24iIHwgdGVlIC1hICIkTE9HRklMRSIKICAgIHNoICIk
-U0NSSVBUIiAiJERFVklDRSIgIiRBUkcyIiA+PiIkTE9HRklMRSIgMj4mMQoKICAgIGVjaG8gIltE
-T05FXSBLaWxsIGFmdGVyICR7VElNRX1zIiB8IHRlZSAtYSAiJExPR0ZJTEUiCiAgICBlY2hvCmRv
-bmUKCmVjaG8gIj09PT09IEFsbCB0ZXN0cyBmaW5pc2hlZC4gTG9ncyBzYXZlZCBpbiAuL291dHB1
-dCA9PT09PSIKCg==
---00000000000016bc870639908546--
+Thanks
+
+>
+> /P
+>
 
