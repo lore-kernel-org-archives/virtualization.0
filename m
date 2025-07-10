@@ -1,81 +1,205 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from sender4-pp-o95.zoho.com (sender4-pp-o95.zoho.com [136.143.188.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50ED2283138;
-	Thu, 10 Jul 2025 03:00:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752116406; cv=none; b=kxgsU9D+kP3HPatOxwQoLsIKHceX7hBoA7Q6J1MAEYD1SEhT6KyYVUuJVwFQC5TPpz0OuU0KvSrztxXj9pDmdegkSMOLfjY6fI2cPg/DcMFhGwo/Gq12w5Gjd1yevHugpfhPrYCmGin5owq0R0YJhmZk2eGRcvGF6oNlZrgzrMU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752116406; c=relaxed/simple;
-	bh=RxpYBJJ435isBTg3hu4FPIq4wwase/mh5cxZ2TvpAkU=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=RgjwHGiCx45Et1Q+2DoEFfLcGHeMw7OAFmttGxjvqi/jRg9FJsPMJJ4LNvQ1mtebe9yzfMaJWfaE64pMQmAIrDisZqe2nmWWrHqLf/kc2dYNi80ScT3U7C2L4M1j8F8puuUpDL/ZqHVEZyJsml4S+JtOHyV0De4vyPyMghsragM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tQq73ks6; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7ED62F3E;
+	Thu, 10 Jul 2025 04:21:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.95
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752121293; cv=pass; b=rrXXboI0cPWgZ4dJONvsTTA8PIBpzyEeDZ2w6iFNbyTWA3wJrmQK0wJO4m5uFnPwOGpwcKoi9XuucOqGG89pZm8lpyy8ZGKzh2voJjoWnI/emDrkPR2UsKKxsCHpm7x6IkyuDNCLkaCNVM3YBuH6ItRmLZOb9vJURsfI4Q7Gavc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752121293; c=relaxed/simple;
+	bh=2VbC2+PHxu7MfeflJa6IM8C0NP5yvx9ELdjXHHwMqB0=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:Subject:MIME-Version:
+	 Content-Type; b=jpDnOGgJjH6gOjsTOWbHce8cI9S7/LAuFyQ/wEdeGXH+IxVymi+xMQZTYgZa0swOw/6tLmrQ6ZvbPrN3icusmvGCqGU5nNPDah8XWWSxD7UXKMOAI2zZOIqAYElgqgqJCU2m66YmL7Z15CrrxCY6HZMcDE+mFfC4M1tqILL+7Us=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zohomail.com; spf=pass smtp.mailfrom=zohomail.com; dkim=pass (1024-bit key) header.d=zohomail.com header.i=safinaskar@zohomail.com header.b=ZuvkDFZw; arc=pass smtp.client-ip=136.143.188.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zohomail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zohomail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tQq73ks6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCB3BC4CEF0;
-	Thu, 10 Jul 2025 03:00:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752116405;
-	bh=RxpYBJJ435isBTg3hu4FPIq4wwase/mh5cxZ2TvpAkU=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=tQq73ks6qKi1yWqD4ReU3Xo2CtJ0aJGXMQ8nhlCh4AeaOQhN2LPWEPBjz5JaktJS6
-	 mNlnTXEOMJnzw5P44nsfH98Z9LAiAQWxAt+gM2E3zb8gWrJjfdbN9xg1YHSv8SvSYa
-	 dM22B6VEJT1BnJ9rhg1IcLmeyEMEM8P4d1qFXOGSzV70kkx22Lh82qXf2pPE6n5BTC
-	 7gsvBD72dOjzEjIfzyRYoDd7SW+uBim5sIVqidHTrFYB63fVulvyi/nEEypCFZuoNz
-	 4CWQemytHzuukSkuQ0G2jFgrC7s1o1E+OPeNHzaNX/Q3IUIhyREhVbOj+wll/Mmwb1
-	 JfuSv0ZofXh4w==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70E00383B261;
-	Thu, 10 Jul 2025 03:00:29 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=zohomail.com header.i=safinaskar@zohomail.com header.b="ZuvkDFZw"
+ARC-Seal: i=1; a=rsa-sha256; t=1752121274; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=jGi44jQwA7tguYk5YZjML2i+Nulyuo9Ynfuhu1ecDj5pcnzZ2W72tZXT6aTn0TLFWhGI+r9LdE7yIStE7CKwyGJnixDvsd5QaecrxTTMFfrQKvWt/By93jWfMpiK9IL2/ByRdu4YhNlkhJAYOlJq7VZFzQTapSMRMX56GEjZ8jQ=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1752121274; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=na0G9oSIayf8FlikNV7gtwZPYaQOEoLGKYXdYzgdS9k=; 
+	b=a+V65wFS5esFJUWEc13f9P+NNakTyfo7t82YJPu/is0v64yVcN6PGls9ClCrdUa+oAnan7wcsxQsqsN4dsrDmIudiwOAe+R02gQd15ddOH+BoaIbFMf339RCgdaAoHXK6XKLJfyrxW0tFSXeikRUpBs9Km6jTpFAsF4wO5wj5sk=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=zohomail.com;
+	spf=pass  smtp.mailfrom=safinaskar@zohomail.com;
+	dmarc=pass header.from=<safinaskar@zohomail.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1752121274;
+	s=zm2022; d=zohomail.com; i=safinaskar@zohomail.com;
+	h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Feedback-ID:Message-Id:Reply-To;
+	bh=na0G9oSIayf8FlikNV7gtwZPYaQOEoLGKYXdYzgdS9k=;
+	b=ZuvkDFZwQeBjmWLmCjVbIgizfhlqTLDV+tQhbMRxfgBVsD+wKYwvJoUny/SsQEIS
+	Nxl5gw2CetJSJdrH0U74VEvSSy8Kd/dGrqkuu/0uISWuSsjaFN0VILY6TOnlq1fThk7
+	l9P8PaB+MqnaS5+BlzYj2w7D8/V1V8DiAW7jYvW4=
+Received: from mail.zoho.com by mx.zohomail.com
+	with SMTP id 1752121271070711.9049000586574; Wed, 9 Jul 2025 21:21:11 -0700 (PDT)
+Received: from  [212.73.77.104] by mail.zoho.com
+	with HTTP;Wed, 9 Jul 2025 21:21:11 -0700 (PDT)
+Date: Thu, 10 Jul 2025 08:21:11 +0400
+From: Askar Safin <safinaskar@zohomail.com>
+To: "Thomas Zimmermann" <tzimmermann@suse.de>
+Cc: "Gerd Hoffmann" <kraxel@redhat.com>,
+	=?UTF-8?Q?=22Noralf_Tr=C3=B8nnes=22?= <noralf@tronnes.org>,
+	"Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
+	"Maxime Ripard" <mripard@kernel.org>,
+	"virtualization" <virtualization@lists.linux.dev>,
+	"ryasuoka" <ryasuoka@redhat.com>,
+	"dri-devel" <dri-devel@lists.freedesktop.org>,
+	"qemu-devel" <qemu-devel@nongnu.org>,
+	"regressions" <regressions@lists.linux.dev>,
+	"Ben Hutchings" <benh@debian.org>
+Message-ID: <197f290e30b.eaadc7bc7913.7315623184036672946@zohomail.com>
+In-Reply-To: 
+Subject: [REGRESSION][BISECTED] kernel panic is not displayed correctly in
+ qemu (CONFIG_DRM_BOCHS)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] vsock/test: fix test for null ptr deref when
- transport changes
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175211642825.969691.15727844419964289216.git-patchwork-notify@kernel.org>
-Date: Thu, 10 Jul 2025 03:00:28 +0000
-References: <20250708111701.129585-1-sgarzare@redhat.com>
-In-Reply-To: <20250708111701.129585-1-sgarzare@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, kuba@kernel.org,
- linux-kernel@vger.kernel.org, leonardi@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Importance: Medium
+User-Agent: Zoho Mail
+X-Mailer: Zoho Mail
+Feedback-ID: rr0801122790668314d3e7598558fab2f00000b21b3131e1cba2be67469372c133335d571ffc8e519baac7e9:zu08011227d7920ca060ce8fe32fd401540000013924a5d43a3055ccb51e43fa56fe3fe68126103551561102:rf0801122c2ab99bbc73d925393f3821570000c3b2a3c5e818d6fc6d6488d74d56ca5edd8f3ed2b5cf3f3cc4cb6569b782:ZohoMail
 
-Hello:
+Steps to reproduce:
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+- Build Linux v6.16-rc5 so:
 
-On Tue,  8 Jul 2025 13:17:01 +0200 you wrote:
-> From: Stefano Garzarella <sgarzare@redhat.com>
-> 
-> In test_stream_transport_change_client(), the client sends CONTROL_CONTINUE
-> on each iteration, even when connect() is unsuccessful. This causes a flood
-> of control messages in the server that hangs around for more than 10
-> seconds after the test finishes, triggering several timeouts and causing
-> subsequent tests to fail. This was discovered in testing a newly proposed
-> test that failed in this way on the client side:
->     ...
->     33 - SOCK_STREAM transport change null-ptr-deref...ok
->     34 - SOCK_STREAM ioctl(SIOCINQ) functionality...recv timed out
-> 
-> [...]
+$ cat mini
+CONFIG_64BIT=3Dy
 
-Here is the summary with links:
-  - [net-next] vsock/test: fix test for null ptr deref when transport changes
-    https://git.kernel.org/netdev/net-next/c/5d6fc6b4d0b2
+CONFIG_EXPERT=3Dy
+CONFIG_EMBEDDED=3Dy
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+CONFIG_PRINTK=3Dy
+CONFIG_PRINTK_TIME=3Dy
 
+CONFIG_PCI=3Dy
+
+CONFIG_TTY=3Dy
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_DRM=3Dy
+CONFIG_DRM_FBDEV_EMULATION=3Dy
+CONFIG_DRM_BOCHS=3Dy
+CONFIG_FRAMEBUFFER_CONSOLE=3Dy
+CONFIG_PROC_FS=3Dy
+$ make KCONFIG_ALLCONFIG=3Dmini allnoconfig
+$ make
+
+- Then boot this Linux image in Qemu so:
+
+$ qemu-system-x86_64 -enable-kvm -m 1024 -daemonize -kernel arch/x86_64/boo=
+t/bzImage
+
+Kernel will (predictably) panic (because it has no initramfs, nor real disk=
+), but actual panic message will not be shown!
+
+Last shown line is "Run /bin/sh as init process"
+
+My host OS is Debian Trixie. "uname -a":
+
+Linux receipt 6.12.33+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.33-1 (=
+2025-06-19) x86_64 GNU/Linux
+
+Qemu version is:
+
+QEMU emulator version 10.0.2 (Debian 1:10.0.2+ds-1)
+
+Guest kernel is v6.16-rc5 x86_64.
+
+The problem doesn't reproduce on old guest kernels. I. e. old guest kernels=
+ actually show panic message.
+
+I did bisect, and bisect showed the following two commits:
+
+=3D=3D=3D
+
+commit a6c3464f69cf5a8a31eb31cc436e7dbd325b8ff9
+Author: Thomas Zimmermann <tzimmermann@suse.de>
+Date:   Thu Jun 13 09:30:33 2019 +0200
+
+    drm/gem-vram: Support pinning buffers to current location
+   =20
+    Pinning a buffer prevents it from being moved to a different memory
+    location. For some operations, such as buffer updates, it is not
+    important where the buffer is located. Setting the pin function's
+    pl_flag argument to 0 will pin the buffer to whereever it is stored.
+   =20
+    v2:
+            * document pin flags in PRIME pin helper
+   =20
+    Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+    Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+    Link: https://patchwork.freedesktop.org/patch/msgid/20190613073041.2935=
+0-2-tzimmermann@suse.de
+
+commit 58540594570778fd149cd8c9b2bff61f2cefa8c9
+Author: Thomas Zimmermann <tzimmermann@suse.de>
+Date:   Wed Jul 3 09:58:34 2019 +0200
+
+    drm/bochs: Use shadow buffer for bochs framebuffer console
+   =20
+    The bochs driver (and virtual hardware) requires buffer objects to
+    reside in video ram to display them to the screen. So it can not
+    display the framebuffer console because the respective buffer object
+    is permanently pinned in system memory.
+   =20
+    Using a shadow buffer for the console solves this problem. The console
+    emulation will pin the buffer object only during updates from the shado=
+w
+    buffer. Otherwise, the bochs driver can freely relocated the buffer
+    between system memory and video ram.
+   =20
+    v2:
+            * select shadow FB via struct drm_mode_config.prefer_shadow_fbd=
+ev
+   =20
+    Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+    Acked-by: Noralf Tr=C3=B8nnes <noralf@tronnes.org>
+    Link: https://patchwork.freedesktop.org/patch/315833/
+    Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+
+=3D=3D=3D
+
+Commit a6c3464f69cf5a8a31e changed good behavior to absolutely wrong: after=
+ a6c3464f69cf5a8a31e I see just black screen.
+Then (after many commits) 58540594570778fd149 made screen working again, bu=
+t now panics are not shown.
+
+So, result: all commits in range a6c3464f69cf5a8a31e .. 58540594570778fd149=
+ are not testable (black screen), all commits before a6c3464f69cf5a8a31e
+are "good" (panic is shown) and all commits after 58540594570778fd149 (incl=
+usive) (including v6.16-rc5) are "bad" (panic is not shown).
+
+The next commit after 58540594570778fd149 is 5fd5d2b7c53de5a1290d82, thus c=
+orrect regzbot instruction is:
+
+#regzbot introduced: a6c3464f69cf5a8a31e..5fd5d2b7c53de5a1290d82
+
+Config above is not special. It is result of minimizing standard Debian con=
+fig.
+
+The bug is reproducible with standard Debian kernels (if we use them as gue=
+sts).
+
+Reproduction steps are so:
+- Install Debian Trixie to Qemu VM
+- Boot it with "init=3D/bin/true" added (to cause kernel panic)
+
+You will not see panic message.
+
+I minimized this Debian bug to small config shown in the beginning of this =
+letter.
+
+--
+Askar Safin
+https://types.pl/@safinaskar
 
