@@ -1,216 +1,154 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 574B3224B14;
-	Thu, 10 Jul 2025 08:30:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.19
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752136220; cv=fail; b=tAIYS6TJdhKw2lGv7J3VKW/19/UEG2xBxsao4BV7rKsu8zG2LdWFRQbYuUQFXz5OzEDKkCIpnvM6ArnK+Az6uFj0HDXM/948WL8Wk2j1OnwB14d5xYDZZeHYEkK+psyneTqMCZXjgOLZZ80YtDsWLhwvI3jLmdU7PSprheAp9dM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752136220; c=relaxed/simple;
-	bh=vP129UArb0BJ+g5YU8sr1KnpjT1EE0c6Pf2NaKM3Y+Y=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=FTHQR1FCOuEXT9ec/pPvf54ToeRV01iLt1a3io6Cma/EIRCv+xiuLIwvWVhotNepjPMyUgxQHAxxTtCb1x3pD6aq/CZ5eRXSTuwTY6lEzH9hM2zRsyeVT/N/Ov4L9A28ju+fg0o/HtfVTU2m3bTo9rrYdKEmRe9sa+bRiIUlsDk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JJkn4VUW; arc=fail smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA0B61E0E0B
+	for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 08:30:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752136257; cv=none; b=M/9uFQvSa8cHhfXd7748kus+oHETC6i+f7NN8TofhD3XCfACWyx8kkhlBlJO10ZhNJ3wUWJzRQGqQOA2ZFbHcJjtjevMM7yYtyhTw9nLqHtyE26Soul4mpOdw04SWZYfMoVtcXlzoKW2KxbNx56TxPiCWP7nmyv3lgaWZfpyoJc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752136257; c=relaxed/simple;
+	bh=MGRu2+QngwLs5uFhX6yStKHd0N3yjjMo437iKPhLRpQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IYSQXWeJLXz/Yk1ACVkD85anVmDODi6lvkKRKx4UXHV4RRvVao3tH/1tqxxkjgPisRFMR2GHfEBsxe6hzK+ZuJec4qYbelL+P9Hjh+pEbEHQxVhFjE0OOajv5fCH2hV8ZUd11X3PpI3VESKH1vDKpf6bndBMb5QefHFTlglmyUU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NRIlT+Cb; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JJkn4VUW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1752136218; x=1783672218;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=vP129UArb0BJ+g5YU8sr1KnpjT1EE0c6Pf2NaKM3Y+Y=;
-  b=JJkn4VUWemKdDOUkjdWW9qnQJWNOlooz8znn3NY+3fm5XHqw6LOw+XvB
-   zFsmUqR5gmkPZQMkDUzEaypvMwr0bRai7fsGFDPd2sjb2/i/YxwvysCmm
-   r6xOxvfDKcO0vtl3HlS1PyJlJ8bmjxvUWBgnzt/wQVpOeZFOA9zJ0+k3f
-   FcFIRXFd9bjkkDAC2f8fcTDX+BlxEGuc7PyRNak/7tyJTTWLcf7Ce2y2O
-   3w0KDZ6Uq+zwcUe+xyvTz+/Ep5knUoAbyimJilvD2Hf8XmxBGSMK0nwjg
-   qSmZYryarMlZMwzN0hIaCRNY/Wq3YBIjZ8/9t/ygHUYOea34fcb0DlrD1
-   A==;
-X-CSE-ConnectionGUID: CNHS5nMrRWG9NZHejWnK9Q==
-X-CSE-MsgGUID: xUPSFaetT/WGYWrnAhvJdQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11489"; a="53521602"
-X-IronPort-AV: E=Sophos;i="6.16,300,1744095600"; 
-   d="scan'208";a="53521602"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2025 01:30:18 -0700
-X-CSE-ConnectionGUID: OuPznLLTSyOvv9R5ib1a8A==
-X-CSE-MsgGUID: 03/b3+guQFiHYLveJb51Rg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.16,300,1744095600"; 
-   d="scan'208";a="156564101"
-Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
-  by fmviesa008.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2025 01:30:17 -0700
-Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Thu, 10 Jul 2025 01:30:16 -0700
-Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
- ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25 via Frontend Transport; Thu, 10 Jul 2025 01:30:16 -0700
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (40.107.223.52)
- by edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Thu, 10 Jul 2025 01:30:16 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=UmSB0dbitdm2Ruvpyxutl9UlS4bsBScFLM9COOrQjX/7ivnfxeWIfIpANUB8CYiI+owqb6oKuubg2OuSq9dDKkQVfw3MqvZjp07/kSj9PYSpdfH9Tvnw6ATo0xbPkJM52eMnrlNqRsFm5oY1wYHvVHQeLR/Le3uVTtOsTW1svEFx6oPQWWG+kJ22Y0hIsoyB1Kk3nZkNLrOLHtZMy+hkIv6pePxo59oWgV7IuUjhBZnWy7UVin7ZEJJmArv/Sx2nhREuu/cprbBNhFEnvjIJTrBa6WIGAhxitxUQiXsfCMDW+G560GfhWJb1N9gR4jqSEImBhupgb6ozKZbecQmJ0Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7BcQ2AxEmLyfM5tsVlJszOT1MXAkDzYA37nqK5sNnig=;
- b=dmYc2XkPz60AkaOa42DQurLfpHJiv/KmupvHuTQnfLntt2CspGcAl20Jftb/KY5EY52mw038yoLfTH0Hnoj5BziU97LLEhyaaC4RZ5auInErtojFLnfOUVjLaVNFFkIdio4Yx3q/QbHVU1evcXjkLqf8ZzTg0TzL1bezE1XzmF92cmbPmTlfjNTEZZNmTxF41myXHNy/6SILOkpmU2E56FIFJjok9aqavH7eGwqWsESw19UoEAH6VVlIacxqYhBmZN5+t980H0PDOS082aqdFAV6wDzu0IfJndwSQYftScLHLopIdjjvI/DMKSVBdqVk1oppBMo7g0Eq8nXhJriS+w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by BY1PR11MB8005.namprd11.prod.outlook.com (2603:10b6:a03:523::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8901.26; Thu, 10 Jul
- 2025 08:29:59 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1%4]) with mapi id 15.20.8901.024; Thu, 10 Jul 2025
- 08:29:59 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-CC: Ankit Agrawal <ankita@nvidia.com>, Brett Creeley <brett.creeley@amd.com>,
-	"Cabiddu, Giovanni" <giovanni.cabiddu@intel.com>, "kvm@vger.kernel.org"
-	<kvm@vger.kernel.org>, Longfang Liu <liulongfang@huawei.com>, qat-linux
-	<qat-linux@intel.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "Zeng, Xin" <xin.zeng@intel.com>, "Yishai
- Hadas" <yishaih@nvidia.com>, Alex Williamson <alex.williamson@redhat.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>, Nicolin Chen <nicolinc@nvidia.com>,
-	"patches@lists.linux.dev" <patches@lists.linux.dev>, Shameer Kolothum
-	<shameerali.kolothum.thodi@huawei.com>, "Xu, Terrence"
-	<terrence.xu@intel.com>, "Jiang, Yanting" <yanting.jiang@intel.com>, "Liu, Yi
- L" <yi.l.liu@intel.com>, "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
-Subject: RE: [PATCH] vfio/pci: Do vf_token checks for VFIO_DEVICE_BIND_IOMMUFD
-Thread-Topic: [PATCH] vfio/pci: Do vf_token checks for
- VFIO_DEVICE_BIND_IOMMUFD
-Thread-Index: AQHb5Ta1f4N3tNOt70+6wANikunSFrQf/pyAgAB3MgCACqlK0A==
-Date: Thu, 10 Jul 2025 08:29:59 +0000
-Message-ID: <BN9PR11MB5276F298FC5FF30D1D0FFC6C8C48A@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <0-v1-8639f9aed215+853-vfio_token_jgg@nvidia.com>
- <BN9PR11MB5276CD6181F932C70CBC800E8C43A@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20250703134102.GD1209783@nvidia.com>
-In-Reply-To: <20250703134102.GD1209783@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|BY1PR11MB8005:EE_
-x-ms-office365-filtering-correlation-id: 3f597495-ce4a-43e6-9f4d-08ddbf8bf546
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|7416014|376014|1800799024|38070700018;
-x-microsoft-antispam-message-info: =?us-ascii?Q?YS2MmTaFGAXaIsflAO3k+g2HRSDlQ1YkbBHQn6kszI+7AAtUjVvghhuSf10t?=
- =?us-ascii?Q?H2jp+vktv7ohqVBrvTmhyFmmNxqhxBvMMcB6mxnCc4N7v+nZvnP1eVEMwzBD?=
- =?us-ascii?Q?5avZ5UjqBeBmruw+kbiw/qFRCZvEAHTXuqDinG+8M6WO1a42PVNHMBxXZqeg?=
- =?us-ascii?Q?970e7i6uweQeZWSVqrmSKj19kj/KqZvLRdUIE63srfyaiBPd+wOePJ2YSpMI?=
- =?us-ascii?Q?3tOKapf9cKuidKF3byaDm8tqz6+45mkwBqOZ7vaywkQvBDN1l5ylocI88hNd?=
- =?us-ascii?Q?8c/S5gAych3+0p8OWKJRUjHe6cxX7nYKuFMHuo46znFCYFw7r0aF306kGitI?=
- =?us-ascii?Q?94xrGTNVS3jKcNFAYiXw0jcjk1Pur89Py8Od3YhE+K994Q2w4iZM9TdDiOnD?=
- =?us-ascii?Q?Bgh1+ZLbA8PJ2VYaTMwF00eNMMpdxh4FR8zyNnm7D8mCaFlx6lnMPfD+qZCn?=
- =?us-ascii?Q?eQQQRZKXFn4dFdxY/PbLYS4NUUIi6HMKTkOLRYIi2272mkEV8w7i8gWQE4Wd?=
- =?us-ascii?Q?h8Ru9n/kIkRsFJ6Y/yrc+CLFmoM09NYWFHD4yDTmM7ABXvYYo8DEDuYMKSbx?=
- =?us-ascii?Q?HxQX8wSG4FTRaPJYXj/t5gXpBDsCbFo/fgZgchtOmxObdrPfxcxduRuK/JSE?=
- =?us-ascii?Q?FHyzHJqsXF8e+9RVsuovbNIHTEMncjnLzG3F5IqWu5GPsjAgiZefuwAS0CRQ?=
- =?us-ascii?Q?B3bzwK0g5LPjI5JFRrQy38z3XhxwHOX4yTLqOieM3rhtqm+EwGcvkOmjIggK?=
- =?us-ascii?Q?zyI64yjK43hyok8kmy6Uq21kCLtQ3jr2WnrCyT75GgTP5Ymzz3re9ovBA3EH?=
- =?us-ascii?Q?HHXEw3BJtQz/r97MV+SeeXT69gZEAtS2/HNUKdd2fioM3RbPT9edofJ+bE2I?=
- =?us-ascii?Q?0KIXwsrEC1SYIkWk+yUimwDC4PM5ezGKh6mQvwE5+l2s7QQx7rHOCVQskNKF?=
- =?us-ascii?Q?iKbvtuhDml89uDC/31KeuYeMVlTKqVT3VvdCeJNxy5b8IxjeAymagtr0vBaa?=
- =?us-ascii?Q?GKgvCuisinsIUyNZjNBw4Nniq9+VXsDQsRKaaDo9aOzyKco6vuK/GAdcySyN?=
- =?us-ascii?Q?voiattZqsAn/CUv6N2pETkd6izws3Juq1/N9RovD3jKH2grcbSLXE0eQxukV?=
- =?us-ascii?Q?fYkENotur3hPpboFpQYgQU0T9/sysRKjReteteZFrUEY3kCs5q/42OXYzdM6?=
- =?us-ascii?Q?8EyaZJE5ITSdwo8O6sqceyES5rlPEYQfYSezZ4xwS85V2JWR0r8AWmdwXOlz?=
- =?us-ascii?Q?rTZvME8teXc3Q5sqbwJ5LBnXhJUV3hfxEVHwiZDdbanpIXq0ube7EfdQ++hR?=
- =?us-ascii?Q?8tQgER4cjZYni0Za5CVCzwXeUmu7eXuh3zSCg9oApN50m9sCrgtWpBPhxZZw?=
- =?us-ascii?Q?zh1/hfCQ7qw5rhaZKwPegc67lUeFeI+8bVMRnDZYfD6h3CgE9tc00lxFc3kt?=
- =?us-ascii?Q?f0srJtYMmCPPlsxKmZj5ZwFfYmnXkC6XGxpPFPJSMMcXkSn+Rs0d3w=3D=3D?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?Fx8mec7KY0c5jboF/Y/SA4qAZ6MsEfvnI3f4a1KJO6WYk3eAGQN48gFxbw53?=
- =?us-ascii?Q?FmFxB1cWCC7hZJcEJknsqVxtGlH+/3mvn72/fkJj3wEJLvnjl+XdndxZkvay?=
- =?us-ascii?Q?YgxGgEWBSr2QNSPYlwzoj2D5TRWeJvKh7UIhVRmyxtgWzkE+IGzNx7ipvsgN?=
- =?us-ascii?Q?a15VGnUOrH+PVHoogu50Yb9Wo41PlZPpslXiQb6l3PX4vmljiXh3P5yTdf06?=
- =?us-ascii?Q?7070WjEWh9KxmDthGC/UMHrp3R0XX22EFCe4fXsTjo36guRuGQb69JOO9NkA?=
- =?us-ascii?Q?8RVfh8UD88JTsZnqdIyntmyHWoLCFHJGIeb2szgL3AETKijg355yxzoXJSBW?=
- =?us-ascii?Q?AlHbfXfCQadUj3gwD35hDRXSCqnz853j1hJVSNZjZ5NtJ7nd5k+0aI3a86BA?=
- =?us-ascii?Q?+7MNKh1XZ/pTP0vRQzVvxxSmYlwWw84JnMBU0/xfEAQPYVW+Qcg2xY8o4dPv?=
- =?us-ascii?Q?gvEugdKFHgtiuCuzjUeErVcD/09eNno4tTXpFkzXBKfjbfCSQI+TXWjnUxoT?=
- =?us-ascii?Q?+m7aIMp0R4zuykw1HRwQawOpuUhWMHqXpF1nvjuJQpd/1r9NekC5RMTwjlZp?=
- =?us-ascii?Q?NA2Yhq8Qbkxa9HDuIKoBves01peqxVjH+JnykwdoitN3oeO4SBC4GpT+sZyC?=
- =?us-ascii?Q?L0QCXkYNN5AygwsII3EybmGtKoxuOJFRJwISREAk6qvt8PVPp7q6A9MGSqgS?=
- =?us-ascii?Q?O3fR6krRFL4dpQ1YVTv0HIdxsR0ztxhXYtBeHHgrFRifpkevwMJi3R4ifoFJ?=
- =?us-ascii?Q?TDZsZBdiojn0KI8wofCHdw5XTXzX78FAGqwfLnHJlSl1B7YSWSPleFod54Kp?=
- =?us-ascii?Q?hvHlKv4e3JHsu/8GjunPXRJBTTKyNB2JUvnv0WSbT7uCFPnPCWxSmkoFlUjn?=
- =?us-ascii?Q?pJ8ecbKK0DHCRxvwX/4cGN7UTQV8lcm+E3asd65Y72Uu1IfxzVELmoSFOMyZ?=
- =?us-ascii?Q?DNUwYbiLr8s0+Ctgx7ZbZT9i43VqTC7hTRFW0ehHbCZ+gMvjAP8HDrF1xQ8X?=
- =?us-ascii?Q?/9c9pBXZz6CyL6UwhTny64pgyGVKuWhQ1MEtCrzPqWV7ijUCajpPGXTXlZ3J?=
- =?us-ascii?Q?NuYQltOxIfBAvKrPamUKG6HdRiKfBPTidC6uitBLU9VxhZOrFtmgukfiljTf?=
- =?us-ascii?Q?pJNBTlm1d0aNgJDIF86fGVepriOjaBaD8rnavYk9E6EF6p+rZvUjUGeXpg47?=
- =?us-ascii?Q?yBOOC0hDItNfNWbOt4IRIER8HajYG4Wy2K3NZcBW0t6IphSeNt3NwrFgkhU9?=
- =?us-ascii?Q?YsPosVdAGSr6OhtlDndCMpa2dj+O4GpE6JSxwy/tOU357KVOicqvY6eKwkpL?=
- =?us-ascii?Q?tzI2iIXRX+IKjt/QP9AUFdxjUFyLNZrHtMmq76yHmA65mamcnTcVD3L5xhus?=
- =?us-ascii?Q?XTR3ozjS6/Rw8n2QRx9WWtXoUe1MvNDN+KdGAuzC3tflTEjGrv47zkjVI2+V?=
- =?us-ascii?Q?8825m5MLCMfJskc73RyUgKUR8fGb+BiT7AqF5E2hsbFa0VinOQho9jEI4wfN?=
- =?us-ascii?Q?tWTc0n3mVeZTz/hsxdT5OmPUFNlPvsUgS7bXGH4d97NAWveLHvEdAjOqDpbL?=
- =?us-ascii?Q?cCGUiBFf5auqn+/pmBFI8FfY889FEGeZC+j+7vPC?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NRIlT+Cb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752136254;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2K9+/07FmEiqTT+1vCXL7HOUD62rjsYkPTRRSfZI4VU=;
+	b=NRIlT+CbGGVaYyexX0vkbYkewFW/E7XXzLlpR2zHfjyIbUEJJsLqCuwDfWm4Uwlt51jF9W
+	opnDmDftScG0nF256W1q4LIiRAJfiWjU5BpD4KVHn6TspzCr+8atCXKDf8GllJPMHAnJkY
+	cZ/w8Wq6J3Xb7lc2dKY+TWL86J1+s1A=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-195-8xbSUK8wM3utLR_g8_AuSw-1; Thu, 10 Jul 2025 04:30:53 -0400
+X-MC-Unique: 8xbSUK8wM3utLR_g8_AuSw-1
+X-Mimecast-MFC-AGG-ID: 8xbSUK8wM3utLR_g8_AuSw_1752136252
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-451deff247cso8574555e9.1
+        for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 01:30:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752136252; x=1752741052;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2K9+/07FmEiqTT+1vCXL7HOUD62rjsYkPTRRSfZI4VU=;
+        b=NP8r/HNkrh4ib/2odkBsI/44U+7HCwSCHTYIBuINKoBcJvd1zc/l8zZekPBYQEB9HB
+         HOIPUfwvbrzzhZy9MQcI5lHnXA9UmuH4pNrrtaIpsnURw9tXDp+Zn4ayBtRwbDK4Rxok
+         wia2S8JJJE0FH2gHKG60+D170wqbyswCtdLUIIWC3tDw2nu0TEgFBseIfyIeIZBw4vky
+         JKwSrk6xLDq5WHwvrIZvRqnaUh+/HFd7OeGUCS2H3v7sMEQuAR39qVLz2R4T86p/b6x0
+         W5kiyGSjubXmhTvN8K8w37sbwG7cRczYz+Yud+JHl97DOxJSDkmfC/o3YG+fvF3uPzva
+         ONwQ==
+X-Gm-Message-State: AOJu0YyWkd1Ck3sp+DdmL/tK6WNh9eDlzHcHPzyL/fIY8fQx0IXgHqrA
+	LOytZJ2mofej3X+1aJxsuypmxPbtR6je1CpE6OCSO6koyyRhFTtyddrZp75/9L7rIG74jsUmD3/
+	l4Vvm6EwPsIK7Y/XvTNkYX1hBVXSCGZXSJ5NdokzVBNeRYnUDTPgdOSu2bEatF+TGADs4
+X-Gm-Gg: ASbGnctMsCqskdStGlF9V8QcU1zKnIJkqjIX33I5dOcTUOwPq1y54eN7f1clsyKyJO/
+	Rw9UNSxQv5+/c+FDcV+TmczCUkrOCY9Rg2zUrK1b4RofqPa8gjtYmrJI+G2z3oqwjkWpwsXKSDL
+	SfBgya/RRyq/y9DFJ17p19o1vbWcUqIEfrQOQXmXyXHr6B9VM2G7CsREIzeiVYKER6kxX76wAJd
+	H3zwQq2q5AXsG4OH6arGcEN178020iwxmI+C/Joc3MQ7AUGi4sLQWOG84/1Yzvv7/y5PxIfL2pr
+	WNhRpJ2OiPiqnxdIQpvYsYh1sJDTypIJcX86O09X/C9uzAvumQxW4WfXgNLJ8tJ1KF+kzA==
+X-Received: by 2002:a05:600c:4746:b0:453:84a:e8d6 with SMTP id 5b1f17b1804b1-454db8815a6mr26571245e9.1.1752136251816;
+        Thu, 10 Jul 2025 01:30:51 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEfmngUjFtTpgc3VNRVQxUoFiGh7p4WIxZ5kf23OkSlRKWn+OvYDDDdXEdex3RWzzxe0vUghw==
+X-Received: by 2002:a05:600c:4746:b0:453:84a:e8d6 with SMTP id 5b1f17b1804b1-454db8815a6mr26570895e9.1.1752136251383;
+        Thu, 10 Jul 2025 01:30:51 -0700 (PDT)
+Received: from ?IPV6:2a0d:3344:271f:bc10:144e:d87a:be22:d005? ([2a0d:3344:271f:bc10:144e:d87a:be22:d005])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-454d575cbbfsm47859325e9.32.2025.07.10.01.30.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Jul 2025 01:30:50 -0700 (PDT)
+Message-ID: <d86d4ca3-5d3e-461f-ac8a-9d8715413dcf@redhat.com>
+Date: Thu, 10 Jul 2025 10:30:49 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3f597495-ce4a-43e6-9f4d-08ddbf8bf546
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jul 2025 08:29:59.2401
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: CbDRKFOmrgH7q5C6P5ViMJvETpdSNusA/Bn1UTMwMcdbwG2QM4WiXAZDTB1roVae0qwxmyg+T0C80OdpJqSuCA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY1PR11MB8005
-X-OriginatorOrg: intel.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2] virtio-net: fix a rtnl_lock() deadlock during
+ probing
+To: Zigit Zo <zuozhijie@bytedance.com>, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, eperezma@redhat.com
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20250702103722.576219-1-zuozhijie@bytedance.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20250702103722.576219-1-zuozhijie@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: VeJuqSEkTSBeQM4DDojcXdqHt7KTIQ1uPb6nobBYEbM_1752136252
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Thursday, July 3, 2025 9:41 PM
->=20
-> On Thu, Jul 03, 2025 at 06:40:48AM +0000, Tian, Kevin wrote:
-> > > From: Jason Gunthorpe <jgg@nvidia.com>
-> > > Sent: Wednesday, June 25, 2025 2:35 AM
-> > >
-> > > @@ -1583,6 +1583,7 @@ static const struct vfio_device_ops
-> > > hisi_acc_vfio_pci_ops =3D {
-> > >  	.mmap =3D vfio_pci_core_mmap,
-> > >  	.request =3D vfio_pci_core_request,
-> > >  	.match =3D vfio_pci_core_match,
-> > > +	.match_token_uuid =3D vfio_pci_core_match_token_uuid,
-> >
-> > this matters only when the driver supports SR-IOV. currently only
-> > vfio-pci does.
->=20
-> Hmm, sriov_pf_core_dev requires sriov_config, but the normal vf_token
-> happens for all vfs and there is a little debugging related to it:
->=20
-> 			pci_info_ratelimited(vdev->pdev,
-> 				"VF token incorrectly provided, PF not bound
-> to vfio-pci\n");
->=20
-> So maybe we want to keep it. Otherwise it sounds like you are
-> proposing to remove match from most of the drivers since they don't
-> support sriov_configure? Which ever direction I think match and
-> match_token_uuid should be together.
->=20
+On 7/2/25 12:37 PM, Zigit Zo wrote:
+> This bug happens if the VMM sends a VIRTIO_NET_S_ANNOUNCE request while
+> the virtio-net driver is still probing with rtnl_lock() hold, this will
+> cause a recursive mutex in netdev_notify_peers().
+> 
+> Fix it by temporarily save the announce status while probing, and then in
+> virtnet_open(), if it sees a delayed announce work is there, it starts to
+> schedule the virtnet_config_changed_work().
+> 
+> Another possible solution is to directly check whether rtnl_is_locked()
+> and call __netdev_notify_peers(), but in that way means we need to relies
+> on netdev_queue to schedule the arp packets after ndo_open(), which we
+> thought is not very intuitive.
+> 
+> We've observed a softlockup with Ubuntu 24.04, and can be reproduced with
+> QEMU sending the announce_self rapidly while booting.
+> 
+> [  494.167473] INFO: task swapper/0:1 blocked for more than 368 seconds.
+> [  494.167667]       Not tainted 6.8.0-57-generic #59-Ubuntu
+> [  494.167810] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+> [  494.168015] task:swapper/0       state:D stack:0     pid:1     tgid:1     ppid:0      flags:0x00004000
+> [  494.168260] Call Trace:
+> [  494.168329]  <TASK>
+> [  494.168389]  __schedule+0x27c/0x6b0
+> [  494.168495]  schedule+0x33/0x110
+> [  494.168585]  schedule_preempt_disabled+0x15/0x30
+> [  494.168709]  __mutex_lock.constprop.0+0x42f/0x740
+> [  494.168835]  __mutex_lock_slowpath+0x13/0x20
+> [  494.168949]  mutex_lock+0x3c/0x50
+> [  494.169039]  rtnl_lock+0x15/0x20
+> [  494.169128]  netdev_notify_peers+0x12/0x30
+> [  494.169240]  virtnet_config_changed_work+0x152/0x1a0
+> [  494.169377]  virtnet_probe+0xa48/0xe00
+> [  494.169484]  ? vp_get+0x4d/0x100
+> [  494.169574]  virtio_dev_probe+0x1e9/0x310
+> [  494.169682]  really_probe+0x1c7/0x410
+> [  494.169783]  __driver_probe_device+0x8c/0x180
+> [  494.169901]  driver_probe_device+0x24/0xd0
+> [  494.170011]  __driver_attach+0x10b/0x210
+> [  494.170117]  ? __pfx___driver_attach+0x10/0x10
+> [  494.170237]  bus_for_each_dev+0x8d/0xf0
+> [  494.170341]  driver_attach+0x1e/0x30
+> [  494.170440]  bus_add_driver+0x14e/0x290
+> [  494.170548]  driver_register+0x5e/0x130
+> [  494.170651]  ? __pfx_virtio_net_driver_init+0x10/0x10
+> [  494.170788]  register_virtio_driver+0x20/0x40
+> [  494.170905]  virtio_net_driver_init+0x97/0xb0
+> [  494.171022]  do_one_initcall+0x5e/0x340
+> [  494.171128]  do_initcalls+0x107/0x230
+> [  494.171228]  ? __pfx_kernel_init+0x10/0x10
+> [  494.171340]  kernel_init_freeable+0x134/0x210
+> [  494.171462]  kernel_init+0x1b/0x200
+> [  494.171560]  ret_from_fork+0x47/0x70
+> [  494.171659]  ? __pfx_kernel_init+0x10/0x10
+> [  494.171769]  ret_from_fork_asm+0x1b/0x30
+> [  494.171875]  </TASK>
+> 
+> Fixes: df28de7b0050 ("virtio-net: synchronize operstate with admin state on up/down")
+> Signed-off-by: Zigit Zo <zuozhijie@bytedance.com>
 
-Okay that makes sense.
+@Micheal: I think this addresses your concerns on v1, WDYT?
+
+/P
+
