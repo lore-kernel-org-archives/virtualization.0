@@ -1,154 +1,467 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA0B61E0E0B
-	for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 08:30:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6225428D8F4
+	for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 09:05:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752136257; cv=none; b=M/9uFQvSa8cHhfXd7748kus+oHETC6i+f7NN8TofhD3XCfACWyx8kkhlBlJO10ZhNJ3wUWJzRQGqQOA2ZFbHcJjtjevMM7yYtyhTw9nLqHtyE26Soul4mpOdw04SWZYfMoVtcXlzoKW2KxbNx56TxPiCWP7nmyv3lgaWZfpyoJc=
+	t=1752138341; cv=none; b=uOhsl4OwIjgaGb507w4KOGoRY3uAe1OKuO/tWZRZRfdC/h6m2n+hKuFLOZ2OrxN11y2CxaHGCNbHpAdKK/PMlD3CejMI6ZQ466xZUj5OP4ziZM8/Rv3s9CJ7QDq5mPKDapLclr/MlfTuFNs+v2PtA0eD3HU8M75wF0gbQgCi/Ac=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752136257; c=relaxed/simple;
-	bh=MGRu2+QngwLs5uFhX6yStKHd0N3yjjMo437iKPhLRpQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IYSQXWeJLXz/Yk1ACVkD85anVmDODi6lvkKRKx4UXHV4RRvVao3tH/1tqxxkjgPisRFMR2GHfEBsxe6hzK+ZuJec4qYbelL+P9Hjh+pEbEHQxVhFjE0OOajv5fCH2hV8ZUd11X3PpI3VESKH1vDKpf6bndBMb5QefHFTlglmyUU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NRIlT+Cb; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1752138341; c=relaxed/simple;
+	bh=j0Z0zRrr3ssYNkM66fAa2HOWOC26bsaeF2oqhFM4/BA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=r45VgooFSZ6gVqqNw9RkAEyDX0bfag2viZCCw7jWVzlLUF9wWBaSJe9uaPSN/39dome1mk73SKtxazEPx/HGTsxVLTbTBhS3pAZtiJnN0kWCdasMjlPRs1xfWmGk4+2svdLi+YKcRz6h4GZprbK0WSnQXmmHx+NrD5S+7JJlmXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S9wIYlbh; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NRIlT+Cb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S9wIYlbh"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752136254;
+	s=mimecast20190719; t=1752138338;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=2K9+/07FmEiqTT+1vCXL7HOUD62rjsYkPTRRSfZI4VU=;
-	b=NRIlT+CbGGVaYyexX0vkbYkewFW/E7XXzLlpR2zHfjyIbUEJJsLqCuwDfWm4Uwlt51jF9W
-	opnDmDftScG0nF256W1q4LIiRAJfiWjU5BpD4KVHn6TspzCr+8atCXKDf8GllJPMHAnJkY
-	cZ/w8Wq6J3Xb7lc2dKY+TWL86J1+s1A=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ELPN7dWyCZLdlcwfXSAJnmpH83GKTbo95QXWYshsc1c=;
+	b=S9wIYlbhRoE24xwAR9OEOxBpKSRES8QL4oIPK8G6bTa9NdaO1Ke5TJcZkepkRmkvASiALj
+	fmP5MkWnZ7G+s6JGN1+D8WyKF7U693DJPzxZZSvUYIpg5ZMl4XbF3eMDI9h/UjXATg2HAZ
+	Sa27SE4hLo4Cp0LrN4Eu69mGxaduEGQ=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-195-8xbSUK8wM3utLR_g8_AuSw-1; Thu, 10 Jul 2025 04:30:53 -0400
-X-MC-Unique: 8xbSUK8wM3utLR_g8_AuSw-1
-X-Mimecast-MFC-AGG-ID: 8xbSUK8wM3utLR_g8_AuSw_1752136252
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-451deff247cso8574555e9.1
-        for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 01:30:52 -0700 (PDT)
+ us-mta-396-SyMaC8ZANdS_VHdXluj8MA-1; Thu, 10 Jul 2025 05:05:37 -0400
+X-MC-Unique: SyMaC8ZANdS_VHdXluj8MA-1
+X-Mimecast-MFC-AGG-ID: SyMaC8ZANdS_VHdXluj8MA_1752138336
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-23632fd6248so8417235ad.3
+        for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 02:05:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752136252; x=1752741052;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=2K9+/07FmEiqTT+1vCXL7HOUD62rjsYkPTRRSfZI4VU=;
-        b=NP8r/HNkrh4ib/2odkBsI/44U+7HCwSCHTYIBuINKoBcJvd1zc/l8zZekPBYQEB9HB
-         HOIPUfwvbrzzhZy9MQcI5lHnXA9UmuH4pNrrtaIpsnURw9tXDp+Zn4ayBtRwbDK4Rxok
-         wia2S8JJJE0FH2gHKG60+D170wqbyswCtdLUIIWC3tDw2nu0TEgFBseIfyIeIZBw4vky
-         JKwSrk6xLDq5WHwvrIZvRqnaUh+/HFd7OeGUCS2H3v7sMEQuAR39qVLz2R4T86p/b6x0
-         W5kiyGSjubXmhTvN8K8w37sbwG7cRczYz+Yud+JHl97DOxJSDkmfC/o3YG+fvF3uPzva
-         ONwQ==
-X-Gm-Message-State: AOJu0YyWkd1Ck3sp+DdmL/tK6WNh9eDlzHcHPzyL/fIY8fQx0IXgHqrA
-	LOytZJ2mofej3X+1aJxsuypmxPbtR6je1CpE6OCSO6koyyRhFTtyddrZp75/9L7rIG74jsUmD3/
-	l4Vvm6EwPsIK7Y/XvTNkYX1hBVXSCGZXSJ5NdokzVBNeRYnUDTPgdOSu2bEatF+TGADs4
-X-Gm-Gg: ASbGnctMsCqskdStGlF9V8QcU1zKnIJkqjIX33I5dOcTUOwPq1y54eN7f1clsyKyJO/
-	Rw9UNSxQv5+/c+FDcV+TmczCUkrOCY9Rg2zUrK1b4RofqPa8gjtYmrJI+G2z3oqwjkWpwsXKSDL
-	SfBgya/RRyq/y9DFJ17p19o1vbWcUqIEfrQOQXmXyXHr6B9VM2G7CsREIzeiVYKER6kxX76wAJd
-	H3zwQq2q5AXsG4OH6arGcEN178020iwxmI+C/Joc3MQ7AUGi4sLQWOG84/1Yzvv7/y5PxIfL2pr
-	WNhRpJ2OiPiqnxdIQpvYsYh1sJDTypIJcX86O09X/C9uzAvumQxW4WfXgNLJ8tJ1KF+kzA==
-X-Received: by 2002:a05:600c:4746:b0:453:84a:e8d6 with SMTP id 5b1f17b1804b1-454db8815a6mr26571245e9.1.1752136251816;
-        Thu, 10 Jul 2025 01:30:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEfmngUjFtTpgc3VNRVQxUoFiGh7p4WIxZ5kf23OkSlRKWn+OvYDDDdXEdex3RWzzxe0vUghw==
-X-Received: by 2002:a05:600c:4746:b0:453:84a:e8d6 with SMTP id 5b1f17b1804b1-454db8815a6mr26570895e9.1.1752136251383;
-        Thu, 10 Jul 2025 01:30:51 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:271f:bc10:144e:d87a:be22:d005? ([2a0d:3344:271f:bc10:144e:d87a:be22:d005])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-454d575cbbfsm47859325e9.32.2025.07.10.01.30.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Jul 2025 01:30:50 -0700 (PDT)
-Message-ID: <d86d4ca3-5d3e-461f-ac8a-9d8715413dcf@redhat.com>
-Date: Thu, 10 Jul 2025 10:30:49 +0200
+        d=1e100.net; s=20230601; t=1752138335; x=1752743135;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ELPN7dWyCZLdlcwfXSAJnmpH83GKTbo95QXWYshsc1c=;
+        b=O1SK6FWN4Z096CRafpuO52SwN63O15AHIhRV01ReU23MCMQ0bQPOduNzULaFbi58K0
+         Z2ptyqPP30hA28bMMxmxu1eivxWYgkMW6atwCtXp5+5RDkkWYXy7BHYUczu6amtFYlHk
+         HARheJG2vjqae1F9NgED+WQTBp0N+DJzjYBWNM1SpCIdhgpovk06SafQsU65aC0MelsV
+         YtERzmlG49JDUgCZvwgW9eY5IkjGaqJkCeiwN9mbT4+zMf+HqclolkpuEzeyOktqd9Lc
+         4+POngsKF76M49mQtA/VKOcUnkOgdnTi8m4/gHrm6B+vFdgLMI/3xLi/Qe+waiS7kCC0
+         8Bpw==
+X-Forwarded-Encrypted: i=1; AJvYcCWq/4yiPT6UqBISN0tsjpErzEgbGmVgYxeH36qfkezOgccWStQAG4k8sm4e+VVRLmXfMv43LTq0Gb6R+MEiyg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzcNcRYCzwvk9u26WP1MG4t1uRUILehd+Y5+zBb6ecytFnsr6Qi
+	Knjbfh81vvgOWSEqBuhtjCCQ8KKL9bPGPlhQtWqLYWE+U/9dgpZgppt61o1Q5OjiE5OHj7a5rwd
+	vB/zPuqobPy0Jgl2NizH008m01kwtEKwtIGe0XWYYd0e7x5/ID36vAAPV8xHH38JInI1DSbSkAt
+	gft/GC8b3yKYEOenfbmAqFOQq8smXtYCPtdQsIoUD6RvV8MUgMqRZDfA==
+X-Gm-Gg: ASbGncv/xPpEOFvcmKDhu4MvXD8D8RopkXsotLjMPDMI67Q+gXjNNSY1T9MAc6DFOpR
+	saKk7ODseEB4WxYMSJTPhMEoaNsPLWn8banUU6EGSzYOn6VpvYs9vxpjZE6wZy1bmaVJiAJ2m8O
+	UDJQ==
+X-Received: by 2002:a17:903:987:b0:235:27b6:a897 with SMTP id d9443c01a7336-23de24d9427mr45542175ad.34.1752138335287;
+        Thu, 10 Jul 2025 02:05:35 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFYgwDFL37wizCbgFvblhzCZLAftrZzVUBJsvql0aQJ1N+J4r7URnw4pwnQac/9iQ+fy9xkqMqFeZaVAg94jj8=
+X-Received: by 2002:a17:903:987:b0:235:27b6:a897 with SMTP id
+ d9443c01a7336-23de24d9427mr45541675ad.34.1752138334753; Thu, 10 Jul 2025
+ 02:05:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2] virtio-net: fix a rtnl_lock() deadlock during
- probing
-To: Zigit Zo <zuozhijie@bytedance.com>, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20250702103722.576219-1-zuozhijie@bytedance.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20250702103722.576219-1-zuozhijie@bytedance.com>
+References: <20250708064819.35282-1-jasowang@redhat.com> <20250708064819.35282-2-jasowang@redhat.com>
+In-Reply-To: <20250708064819.35282-2-jasowang@redhat.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 10 Jul 2025 11:04:57 +0200
+X-Gm-Features: Ac12FXyHZjv6bYmUmFfIrKVLig19wL7u-dIRFQ5H8_6poP2Jx517nMSHjWYxzk4
+Message-ID: <CAJaqyWd4K7tHHg+GCCN9+q3HdhkRdQ0R4iW+RXTP_6=xrP53VA@mail.gmail.com>
+Subject: Re: [PATCH net-next 1/2] vhost: basic in order support
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jonah.palmer@oracle.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VeJuqSEkTSBeQM4DDojcXdqHt7KTIQ1uPb6nobBYEbM_1752136252
+X-Mimecast-MFC-PROC-ID: 1pgtBoNNynVtZNOdRGy4L5vgzITnuPQOgzxvoOmHiac_1752138336
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 7/2/25 12:37 PM, Zigit Zo wrote:
-> This bug happens if the VMM sends a VIRTIO_NET_S_ANNOUNCE request while
-> the virtio-net driver is still probing with rtnl_lock() hold, this will
-> cause a recursive mutex in netdev_notify_peers().
-> 
-> Fix it by temporarily save the announce status while probing, and then in
-> virtnet_open(), if it sees a delayed announce work is there, it starts to
-> schedule the virtnet_config_changed_work().
-> 
-> Another possible solution is to directly check whether rtnl_is_locked()
-> and call __netdev_notify_peers(), but in that way means we need to relies
-> on netdev_queue to schedule the arp packets after ndo_open(), which we
-> thought is not very intuitive.
-> 
-> We've observed a softlockup with Ubuntu 24.04, and can be reproduced with
-> QEMU sending the announce_self rapidly while booting.
-> 
-> [  494.167473] INFO: task swapper/0:1 blocked for more than 368 seconds.
-> [  494.167667]       Not tainted 6.8.0-57-generic #59-Ubuntu
-> [  494.167810] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-> [  494.168015] task:swapper/0       state:D stack:0     pid:1     tgid:1     ppid:0      flags:0x00004000
-> [  494.168260] Call Trace:
-> [  494.168329]  <TASK>
-> [  494.168389]  __schedule+0x27c/0x6b0
-> [  494.168495]  schedule+0x33/0x110
-> [  494.168585]  schedule_preempt_disabled+0x15/0x30
-> [  494.168709]  __mutex_lock.constprop.0+0x42f/0x740
-> [  494.168835]  __mutex_lock_slowpath+0x13/0x20
-> [  494.168949]  mutex_lock+0x3c/0x50
-> [  494.169039]  rtnl_lock+0x15/0x20
-> [  494.169128]  netdev_notify_peers+0x12/0x30
-> [  494.169240]  virtnet_config_changed_work+0x152/0x1a0
-> [  494.169377]  virtnet_probe+0xa48/0xe00
-> [  494.169484]  ? vp_get+0x4d/0x100
-> [  494.169574]  virtio_dev_probe+0x1e9/0x310
-> [  494.169682]  really_probe+0x1c7/0x410
-> [  494.169783]  __driver_probe_device+0x8c/0x180
-> [  494.169901]  driver_probe_device+0x24/0xd0
-> [  494.170011]  __driver_attach+0x10b/0x210
-> [  494.170117]  ? __pfx___driver_attach+0x10/0x10
-> [  494.170237]  bus_for_each_dev+0x8d/0xf0
-> [  494.170341]  driver_attach+0x1e/0x30
-> [  494.170440]  bus_add_driver+0x14e/0x290
-> [  494.170548]  driver_register+0x5e/0x130
-> [  494.170651]  ? __pfx_virtio_net_driver_init+0x10/0x10
-> [  494.170788]  register_virtio_driver+0x20/0x40
-> [  494.170905]  virtio_net_driver_init+0x97/0xb0
-> [  494.171022]  do_one_initcall+0x5e/0x340
-> [  494.171128]  do_initcalls+0x107/0x230
-> [  494.171228]  ? __pfx_kernel_init+0x10/0x10
-> [  494.171340]  kernel_init_freeable+0x134/0x210
-> [  494.171462]  kernel_init+0x1b/0x200
-> [  494.171560]  ret_from_fork+0x47/0x70
-> [  494.171659]  ? __pfx_kernel_init+0x10/0x10
-> [  494.171769]  ret_from_fork_asm+0x1b/0x30
-> [  494.171875]  </TASK>
-> 
-> Fixes: df28de7b0050 ("virtio-net: synchronize operstate with admin state on up/down")
-> Signed-off-by: Zigit Zo <zuozhijie@bytedance.com>
+On Tue, Jul 8, 2025 at 8:48=E2=80=AFAM Jason Wang <jasowang@redhat.com> wro=
+te:
+>
+> This patch adds basic in order support for vhost. Two optimizations
+> are implemented in this patch:
+>
+> 1) Since driver uses descriptor in order, vhost can deduce the next
+>    avail ring head by counting the number of descriptors that has been
+>    used in next_avail_head. This eliminate the need to access the
+>    available ring in vhost.
+>
+> 2) vhost_add_used_and_singal_n() is extended to accept the number of
+>    batched buffers per used elem. While this increases the times of
+>    usersapce memory access but it helps to reduce the chance of
 
-@Micheal: I think this addresses your concerns on v1, WDYT?
+s/usersapce/userspace/
 
-/P
+>    used ring access of both the driver and vhost.
+>
+> Vhost-net will be the first user for this.
+>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/net.c   |   6 ++-
+>  drivers/vhost/vhost.c | 121 +++++++++++++++++++++++++++++++++++-------
+>  drivers/vhost/vhost.h |   8 ++-
+>  3 files changed, 111 insertions(+), 24 deletions(-)
+>
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 7cbfc7d718b3..4f9c67f17b49 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -374,7 +374,8 @@ static void vhost_zerocopy_signal_used(struct vhost_n=
+et *net,
+>         while (j) {
+>                 add =3D min(UIO_MAXIOV - nvq->done_idx, j);
+>                 vhost_add_used_and_signal_n(vq->dev, vq,
+> -                                           &vq->heads[nvq->done_idx], ad=
+d);
+> +                                           &vq->heads[nvq->done_idx],
+> +                                           NULL, add);
+>                 nvq->done_idx =3D (nvq->done_idx + add) % UIO_MAXIOV;
+>                 j -=3D add;
+>         }
+> @@ -457,7 +458,8 @@ static void vhost_net_signal_used(struct vhost_net_vi=
+rtqueue *nvq)
+>         if (!nvq->done_idx)
+>                 return;
+>
+> -       vhost_add_used_and_signal_n(dev, vq, vq->heads, nvq->done_idx);
+> +       vhost_add_used_and_signal_n(dev, vq, vq->heads, NULL,
+> +                                   nvq->done_idx);
+>         nvq->done_idx =3D 0;
+>  }
+>
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 3a5ebb973dba..c7ed069fc49e 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -364,6 +364,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+>         vq->avail =3D NULL;
+>         vq->used =3D NULL;
+>         vq->last_avail_idx =3D 0;
+> +       vq->next_avail_head =3D 0;
+>         vq->avail_idx =3D 0;
+>         vq->last_used_idx =3D 0;
+>         vq->signalled_used =3D 0;
+> @@ -455,6 +456,8 @@ static void vhost_vq_free_iovecs(struct vhost_virtque=
+ue *vq)
+>         vq->log =3D NULL;
+>         kfree(vq->heads);
+>         vq->heads =3D NULL;
+> +       kfree(vq->nheads);
+> +       vq->nheads =3D NULL;
+>  }
+>
+>  /* Helper to allocate iovec buffers for all vqs. */
+> @@ -472,7 +475,9 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *=
+dev)
+>                                         GFP_KERNEL);
+>                 vq->heads =3D kmalloc_array(dev->iov_limit, sizeof(*vq->h=
+eads),
+>                                           GFP_KERNEL);
+> -               if (!vq->indirect || !vq->log || !vq->heads)
+> +               vq->nheads =3D kmalloc_array(dev->iov_limit, sizeof(*vq->=
+nheads),
+> +                                          GFP_KERNEL);
+> +               if (!vq->indirect || !vq->log || !vq->heads || !vq->nhead=
+s)
+>                         goto err_nomem;
+>         }
+>         return 0;
+> @@ -1990,14 +1995,15 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsig=
+ned int ioctl, void __user *arg
+>                         break;
+>                 }
+>                 if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
+> -                       vq->last_avail_idx =3D s.num & 0xffff;
+> +                       vq->next_avail_head =3D vq->last_avail_idx =3D
+> +                                             s.num & 0xffff;
+>                         vq->last_used_idx =3D (s.num >> 16) & 0xffff;
+>                 } else {
+>                         if (s.num > 0xffff) {
+>                                 r =3D -EINVAL;
+>                                 break;
+>                         }
+> -                       vq->last_avail_idx =3D s.num;
+> +                       vq->next_avail_head =3D vq->last_avail_idx =3D s.=
+num;
+
+Why not just reuse last_avail_idx instead of creating next_avail_head?
+
+At first glance it seemed to me that it was done this way to support
+rewinding, but in_order path will happily reuse next_avail_head
+without checking for last_avail_idx except for checking if the ring is
+empty. Am I missing something?
+
+>                 }
+>                 /* Forget the cached index value. */
+>                 vq->avail_idx =3D vq->last_avail_idx;
+> @@ -2590,11 +2596,12 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+>                       unsigned int *out_num, unsigned int *in_num,
+>                       struct vhost_log *log, unsigned int *log_num)
+>  {
+> +       bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
+>         struct vring_desc desc;
+>         unsigned int i, head, found =3D 0;
+>         u16 last_avail_idx =3D vq->last_avail_idx;
+>         __virtio16 ring_head;
+> -       int ret, access;
+> +       int ret, access, c =3D 0;
+>
+>         if (vq->avail_idx =3D=3D vq->last_avail_idx) {
+>                 ret =3D vhost_get_avail_idx(vq);
+> @@ -2605,17 +2612,21 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+>                         return vq->num;
+>         }
+>
+> -       /* Grab the next descriptor number they're advertising, and incre=
+ment
+> -        * the index we've seen. */
+> -       if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_idx)=
+)) {
+> -               vq_err(vq, "Failed to read head: idx %d address %p\n",
+> -                      last_avail_idx,
+> -                      &vq->avail->ring[last_avail_idx % vq->num]);
+> -               return -EFAULT;
+> +       if (in_order)
+> +               head =3D vq->next_avail_head & (vq->num - 1);
+> +       else {
+> +               /* Grab the next descriptor number they're
+> +                * advertising, and increment the index we've seen. */
+> +               if (unlikely(vhost_get_avail_head(vq, &ring_head,
+> +                                                 last_avail_idx))) {
+> +                       vq_err(vq, "Failed to read head: idx %d address %=
+p\n",
+> +                               last_avail_idx,
+> +                               &vq->avail->ring[last_avail_idx % vq->num=
+]);
+> +                       return -EFAULT;
+> +               }
+> +               head =3D vhost16_to_cpu(vq, ring_head);
+>         }
+>
+> -       head =3D vhost16_to_cpu(vq, ring_head);
+> -
+>         /* If their number is silly, that's an error. */
+>         if (unlikely(head >=3D vq->num)) {
+>                 vq_err(vq, "Guest says index %u > %u is available",
+> @@ -2658,6 +2669,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+>                                                 "in indirect descriptor a=
+t idx %d\n", i);
+>                                 return ret;
+>                         }
+> +                       ++c;
+>                         continue;
+>                 }
+>
+> @@ -2693,10 +2705,12 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+>                         }
+>                         *out_num +=3D ret;
+>                 }
+> +               ++c;
+>         } while ((i =3D next_desc(vq, &desc)) !=3D -1);
+>
+>         /* On success, increment avail index. */
+>         vq->last_avail_idx++;
+> +       vq->next_avail_head +=3D c;
+>
+>         /* Assume notifications from guest are disabled at this point,
+>          * if they aren't we would need to update avail_event index. */
+> @@ -2720,8 +2734,9 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsi=
+gned int head, int len)
+>                 cpu_to_vhost32(vq, head),
+>                 cpu_to_vhost32(vq, len)
+>         };
+> +       u16 nheads =3D 1;
+>
+> -       return vhost_add_used_n(vq, &heads, 1);
+> +       return vhost_add_used_n(vq, &heads, &nheads, 1);
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_add_used);
+>
+> @@ -2757,10 +2772,10 @@ static int __vhost_add_used_n(struct vhost_virtqu=
+eue *vq,
+>         return 0;
+>  }
+>
+> -/* After we've used one of their buffers, we tell them about it.  We'll =
+then
+> - * want to notify the guest, using eventfd. */
+> -int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem =
+*heads,
+> -                    unsigned count)
+> +static int vhost_add_used_n_ooo(struct vhost_virtqueue *vq,
+> +                               struct vring_used_elem *heads,
+> +                               u16 *nheads,
+> +                               unsigned count)
+
+nheads is not used in this function and it is checked to be NULL in
+the caller, should we remove it from the parameter list?
+
+>  {
+>         int start, n, r;
+>
+> @@ -2775,6 +2790,70 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, s=
+truct vring_used_elem *heads,
+>         }
+>         r =3D __vhost_add_used_n(vq, heads, count);
+>
+> +       return r;
+
+Nit: We can merge with the previous statement and do "return
+__vhost_add_used_n(vq, heads, count);"
+
+> +}
+> +
+> +static int vhost_add_used_n_in_order(struct vhost_virtqueue *vq,
+> +                                    struct vring_used_elem *heads,
+> +                                    u16 *nheads,
+
+Nit: we can const-ify nheads, and do the same for _in_order variant
+and vhost_add_used_n. Actually we can do it with heads too but it
+requires more changes to existing code. I think it would be nice to
+constify *nheads if you need to respin.
+
+> +                                    unsigned count)
+> +{
+> +       vring_used_elem_t __user *used;
+> +       u16 old, new =3D vq->last_used_idx;
+> +       int start, i;
+> +
+> +       if (!nheads)
+> +               return -EINVAL;
+> +
+> +       start =3D vq->last_used_idx & (vq->num - 1);
+> +       used =3D vq->used->ring + start;
+> +
+> +       for (i =3D 0; i < count; i++) {
+> +               if (vhost_put_used(vq, &heads[i], start, 1)) {
+> +                       vq_err(vq, "Failed to write used");
+> +                       return -EFAULT;
+> +               }
+> +               start +=3D nheads[i];
+> +               new +=3D nheads[i];
+> +               if (start >=3D vq->num)
+> +                       start -=3D vq->num;
+> +       }
+> +
+> +       if (unlikely(vq->log_used)) {
+> +               /* Make sure data is seen before log. */
+> +               smp_wmb();
+> +               /* Log used ring entry write. */
+> +               log_used(vq, ((void __user *)used - (void __user *)vq->us=
+ed),
+> +                        (vq->num - start) * sizeof *used);
+> +               if (start + count > vq->num)
+> +                       log_used(vq, 0,
+> +                                (start + count - vq->num) * sizeof *used=
+);
+> +       }
+> +
+> +       old =3D vq->last_used_idx;
+> +       vq->last_used_idx =3D new;
+> +       /* If the driver never bothers to signal in a very long while,
+> +        * used index might wrap around. If that happens, invalidate
+> +        * signalled_used index we stored. TODO: make sure driver
+> +        * signals at least once in 2^16 and remove this. */
+> +       if (unlikely((u16)(new - vq->signalled_used) < (u16)(new - old)))
+> +               vq->signalled_used_valid =3D false;
+> +       return 0;
+> +}
+> +
+> +/* After we've used one of their buffers, we tell them about it.  We'll =
+then
+> + * want to notify the guest, using eventfd. */
+> +int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem =
+*heads,
+> +                    u16 *nheads, unsigned count)
+> +{
+> +       bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
+> +       int r;
+> +
+> +       if (!in_order || !nheads)
+> +               r =3D vhost_add_used_n_ooo(vq, heads, nheads, count);
+> +       else
+> +               r =3D vhost_add_used_n_in_order(vq, heads, nheads, count)=
+;
+> +
+
+I just realized the original code didn't do it either, but we should
+return if r < 0 here. Otherwise, used->ring[] has a random value and
+used->idx is incremented covering these values. This should be
+triggable in a guest that set used->idx valid but used->ring[]
+invalid, for example.
+
+>         /* Make sure buffer is written before we update index. */
+>         smp_wmb();
+>         if (vhost_put_used_idx(vq)) {
+> @@ -2853,9 +2932,11 @@ EXPORT_SYMBOL_GPL(vhost_add_used_and_signal);
+>  /* multi-buffer version of vhost_add_used_and_signal */
+>  void vhost_add_used_and_signal_n(struct vhost_dev *dev,
+>                                  struct vhost_virtqueue *vq,
+> -                                struct vring_used_elem *heads, unsigned =
+count)
+> +                                struct vring_used_elem *heads,
+> +                                u16 *nheads,
+> +                                unsigned count)
+>  {
+> -       vhost_add_used_n(vq, heads, count);
+> +       vhost_add_used_n(vq, heads, nheads, count);
+>         vhost_signal(dev, vq);
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_add_used_and_signal_n);
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index bb75a292d50c..dca9f309d396 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -103,6 +103,8 @@ struct vhost_virtqueue {
+>          * Values are limited to 0x7fff, and the high bit is used as
+>          * a wrap counter when using VIRTIO_F_RING_PACKED. */
+>         u16 last_avail_idx;
+> +       /* Next avail ring head when VIRTIO_F_IN_ORDER is neogitated */
+
+s/neogitated/negotiated/
+
+> +       u16 next_avail_head;
+>
+>         /* Caches available index value from user. */
+>         u16 avail_idx;
+> @@ -129,6 +131,7 @@ struct vhost_virtqueue {
+>         struct iovec iotlb_iov[64];
+>         struct iovec *indirect;
+>         struct vring_used_elem *heads;
+> +       u16 *nheads;
+>         /* Protected by virtqueue mutex. */
+>         struct vhost_iotlb *umem;
+>         struct vhost_iotlb *iotlb;
+> @@ -213,11 +216,12 @@ bool vhost_vq_is_setup(struct vhost_virtqueue *vq);
+>  int vhost_vq_init_access(struct vhost_virtqueue *);
+>  int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len)=
+;
+>  int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *h=
+eads,
+> -                    unsigned count);
+> +                    u16 *nheads, unsigned count);
+>  void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueu=
+e *,
+>                                unsigned int id, int len);
+>  void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqu=
+eue *,
+> -                              struct vring_used_elem *heads, unsigned co=
+unt);
+> +                                struct vring_used_elem *heads, u16 *nhea=
+ds,
+> +                                unsigned count);
+>  void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+>  void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+>  bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
+> --
+> 2.31.1
+>
 
