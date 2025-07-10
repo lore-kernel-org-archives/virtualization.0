@@ -1,73 +1,81 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AF62801;
-	Wed,  9 Jul 2025 23:55:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA80542AB4;
+	Thu, 10 Jul 2025 01:59:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752105320; cv=none; b=TIS1HhYtoE91EsFAxw4fIvrkuaqBGp4nnNaj49+8ropj7y4vENHxGUioffFqDv4t5GDYrDLoMMl1r8KUaWFLFpb0vhvctyrUIk17/lt1w36eb9m1SMDjOKe/nNPSfzeTdsaF2D0g7Gog+9NNjGCi4Ls3Q/mDeJJo4JTUyrjSrNw=
+	t=1752112784; cv=none; b=GtBI5cmcxZkK6+rVFGHIuVln5zQibIysRLKXfhAzS+h6Dq0M+2nf3MB12sxpkoUiEZ5ayqhMOyu9RbKpq/H6C8E/13trPiFLSYxjSYx9JJfBkoba+NSI/mOHZRwdnxfCXShH0wQtlmBXioOIJzuJPpbldwgPnvXyl44tLDEiwkY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752105320; c=relaxed/simple;
-	bh=Tg/uaUSbdhhsjN8ABejUuKaFMtIV+RRGPTHEHVkkBcg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=thx0GUtWNPT0sspWqp6nKSNazfE/sVgR38DqJuJz6tqMLk73RISrsZfY7MFsYWGWtNQpqip0Pn2A3p4RDpAaXSJCY/JBdoOCh6aCJHW8YzGiURVaoNwhdjRSCsfqwtksoXinYojkJzxJq9sEXk5xEysaNWKrlfivwdHA7oFQX+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bpgH1djA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1752112784; c=relaxed/simple;
+	bh=O1GCpSX4Cy7TfdvPuHa0WAkHsRBKX3c4B8Ue3NoFr0A=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=RvlFoLq9iID4GSyayxUG+eBhaRIVLabiFWZrId46pEbbCN3E0scvEl9cyWC383ngMKrBoSOb/sDRAt/l04TdjqJ4CiygIiHZlVweJlHR6/itnfXW8DLqOAfM1u30S73ELXOkNdL/+82yn62QR8RCXsdCXyyb174/S1Q+Y4lbqeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nr0CpFpE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bpgH1djA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499A5C4CEEF;
-	Wed,  9 Jul 2025 23:55:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nr0CpFpE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 487C2C4CEEF;
+	Thu, 10 Jul 2025 01:59:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752105319;
-	bh=Tg/uaUSbdhhsjN8ABejUuKaFMtIV+RRGPTHEHVkkBcg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=bpgH1djAzaHEkHohw7OchdX2XAma7Y8j3n4PHtCL6gJvqyYOLJaSfVXBaLG/7kgXk
-	 HZOms9QJkhLeK2uNOk4RGktI7nVe6djTkMwI9t1Xl+YJct8cgsiDnufHqB535XjVEB
-	 JEdV8wkgJsjWmEuVwYhWGliy43AMPLXzsb0hRd2CDfhLuMF9JWpe8FJwiGkMG/BB2A
-	 pS43u9EPMPii/sRVmOhPuMZ0ESEEAxXBOOP7M2ewpLf60u/QLJH7BEdPc6klyFW/VR
-	 NSl7qmFbw4MPyy1Ye+lShaPP9WLK6kZz6Jf8XmORzfaQCga5df8euyHlp07qeOWT2q
-	 gnHuYroau22Xw==
-Date: Wed, 9 Jul 2025 17:55:17 -0600
-From: Keith Busch <kbusch@kernel.org>
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
-	Lukas Wunner <lukas@wunner.de>, Bjorn Helgaas <bhelgaas@google.com>,
-	Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
-	stefanha@redhat.com, alok.a.tiwari@oracle.com,
-	linux-pci@vger.kernel.org
-Subject: Re: [PATCH RFC v5 1/5] pci: report surprise removal event
-Message-ID: <aG8BZcQZlbNsnrzt@kbusch-mbp>
-References: <fba3d235e38c1c6fcef2a30ed083ad9e25b20fa3.1752094439.git.mst@redhat.com>
- <20250709233820.GA2212185@bhelgaas>
+	s=k20201202; t=1752112784;
+	bh=O1GCpSX4Cy7TfdvPuHa0WAkHsRBKX3c4B8Ue3NoFr0A=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=Nr0CpFpE8GCvAnhxFtSjNe3bTavh40kVkR48wpHR/4H5OtN2opcLyzC8VnqlZ1jpo
+	 Gz55DJyDS6oESF7vZiO2UIE7ytMKPNw5k5lf/oeqRqTChHaE2zYmj3vEhcMh3jpczV
+	 swNwK9KRgG8Dc/wska3rxMlwJIXbWQb9qXHi8bKT7816PvMNHNPm/hTSxZco1kDaxw
+	 PrK5/dfqkxiwGImCNPs8BKNNu7U25eISF7awQg7ckKOYpkrVeWScHD5IOtmiVSek3S
+	 uRo6PsBAYa6nSdlALWKd0HATCyID2ECs3LUafwt0OPKFvu1OBHB+kUgHgo8VayAAfM
+	 50X5TU1zQat8Q==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id DEC94383B261;
+	Thu, 10 Jul 2025 02:00:07 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250709233820.GA2212185@bhelgaas>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next] virtio-net: xsk: rx: move the xdp->data
+ adjustment
+ to buf_to_xdp()
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175211280676.957497.383613725548170335.git-patchwork-notify@kernel.org>
+Date: Thu, 10 Jul 2025 02:00:06 +0000
+References: <20250705075515.34260-1-minhquangbui99@gmail.com>
+In-Reply-To: <20250705075515.34260-1-minhquangbui99@gmail.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, eperezma@redhat.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+ john.fastabend@gmail.com, sdf@fomichev.me, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
 
-On Wed, Jul 09, 2025 at 06:38:20PM -0500, Bjorn Helgaas wrote:
-> This relies on somebody (typically pciehp, I guess) calling
-> pci_dev_set_disconnected() when a surprise remove happens.
+Hello:
+
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Sat,  5 Jul 2025 14:55:14 +0700 you wrote:
+> This commit does not do any functional changes. It moves xdp->data
+> adjustment for buffer other than first buffer to buf_to_xdp() helper so
+> that the xdp_buff adjustment does not scatter over different functions.
 > 
-> Do you think it would be practical for the driver's .remove() method
-> to recognize that the device may stop responding at any point, even if
-> no hotplug driver is present to call pci_dev_set_disconnected()?
-> 
-> Waiting forever for an interrupt seems kind of vulnerable in general.
-> Maybe "artificially adding timeouts" is alluding to *not* waiting
-> forever for interrupts?  That doesn't seem artificial to me because
-> it's just a fact of life that devices can disappear at arbitrary
-> times.
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> ---
+>  drivers/net/virtio_net.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
 
-I totally agree here. Every driver's .remove() should be able to
-guarantee forward progress some way. I put some work in blk-mq and nvme
-to ensure that happens for those devices at least.
+Here is the summary with links:
+  - [net-next] virtio-net: xsk: rx: move the xdp->data adjustment to buf_to_xdp()
+    https://git.kernel.org/netdev/net-next/c/f47e8f618c7d
 
-That "forward progress" can come slow though, maybe minutes, so we do
-have opprotunisitic short cuts sprinkled about the driver. There are
-still gaps when waiting for interrupt driven IO that need the longer
-timeouts to trigger. It'd be cool if there was a mechansim to kick in
-quicker, but this is still an uncommon exceptional condition, right?
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
