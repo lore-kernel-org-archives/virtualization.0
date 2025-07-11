@@ -1,37 +1,78 @@
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B29A627AC43
-	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 09:41:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23CDA1F4282
+	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 09:41:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752226880; cv=none; b=d5TqTZbFGp+3Q7FKRjqtDQlzvZRr19X8dxYzHwsDpVEUvgrMIWyIERTwdySCEO2g4F8JYpTv7pneIiYxu2kUUGap4gNPh0pzxOXo5c1iwT9MEUCxhYyTLdVg+O2wEua8LPUfbWKe36MHHRGduuWBdW5RT7hCFflAgxwpLweXI54=
+	t=1752226886; cv=none; b=JQsPLcFV5QAlbQV34HIgtSYF9biTtCiR3mc+UywNjSnJjfFdZoCOQSWnyKEUmmzPKRiYYeAxSVA2TdyJt8d33UIRVWZVVtmSferULXi17qkeahFy6hwJEbymqjiWjdcz6jZSvOk0TNvKMvJ2iq3SmD405nA3yw/cyp87CZOSX0c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752226880; c=relaxed/simple;
-	bh=wcxOD/SPrOvfBawtyDi+/i/Wa3u6V3exgFyj0wVEqWA=;
+	s=arc-20240116; t=1752226886; c=relaxed/simple;
+	bh=YX7wfQZaygKCeFRdB/Wy0hnDUwGkiVikzrOqizqqx4w=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GCRLJJbVMskT7k2cN97ZBSi/Ce7/0Qonrx9ySdb5PWXtU9Pw5x++857Ln9qIC/kbm0em5kHlb0Xnzgb06e36gPY3hW/eMmwK1CCKSW2lgF87R43xJfhIvSFKnVM486N+nKO3jWTi8Lxan4SZJ5E0NkmBJxnBOeI/M4ffqlJdenk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=jnUKmgLG7S+sY9RtH62Rye4iWmnOyTZ5nEdG9tevdkzU1+8bqfhAJZG6rDwoABX17IOYCQpTpMljoN5Lf8Cq2EsW9Kh26lii8nL4tRzUabwWQJ27jfxtFo4JNfnJvKAi/xm5ntrdQyvPaDFqOeEifiHFuQRXvzoxEkWzaHQoZg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rgatOvOD; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=92fwqp2B; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rgatOvOD; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=92fwqp2B; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rgatOvOD";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="92fwqp2B";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rgatOvOD";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="92fwqp2B"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 6B9FC1F790;
-	Fri, 11 Jul 2025 09:40:57 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 7D0911F795;
+	Fri, 11 Jul 2025 09:40:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1752226858; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VfRO2uKxAwKeYhyO5cooTycRKCPHTm+Wa5F9EX1ON3Y=;
+	b=rgatOvODV0wdocxWsbKg3wCQsjq7DbQ4NnWATwHGivq/9SbWo+Tl9bqMbk7i97vCLcn0P8
+	b11nLC0S+IElVZ7Oqz06Gd8A2qZLtXI8+Y4BwEC1xUJHq7KrsJ/Di/dmkOlfHhV5aLedqd
+	lPrVt8O3CRf7dimhvYshDy2Haaz8AVA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1752226858;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VfRO2uKxAwKeYhyO5cooTycRKCPHTm+Wa5F9EX1ON3Y=;
+	b=92fwqp2BVbNQuejesWc4KKh8lAb9HfRCkgaWCw07D1TnKY6DwyTm3d+qB/xFEmJPCqUvNg
+	3dMLvnZI6JcFllBQ==
 Authentication-Results: smtp-out2.suse.de;
 	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1752226858; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VfRO2uKxAwKeYhyO5cooTycRKCPHTm+Wa5F9EX1ON3Y=;
+	b=rgatOvODV0wdocxWsbKg3wCQsjq7DbQ4NnWATwHGivq/9SbWo+Tl9bqMbk7i97vCLcn0P8
+	b11nLC0S+IElVZ7Oqz06Gd8A2qZLtXI8+Y4BwEC1xUJHq7KrsJ/Di/dmkOlfHhV5aLedqd
+	lPrVt8O3CRf7dimhvYshDy2Haaz8AVA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1752226858;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VfRO2uKxAwKeYhyO5cooTycRKCPHTm+Wa5F9EX1ON3Y=;
+	b=92fwqp2BVbNQuejesWc4KKh8lAb9HfRCkgaWCw07D1TnKY6DwyTm3d+qB/xFEmJPCqUvNg
+	3dMLvnZI6JcFllBQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E028513918;
-	Fri, 11 Jul 2025 09:40:56 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id F1A5013918;
+	Fri, 11 Jul 2025 09:40:57 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id UBl/NSjccGjbcAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 11 Jul 2025 09:40:56 +0000
+	id UBu6OSnccGjbcAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 11 Jul 2025 09:40:57 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: simona@ffwll.ch,
 	airlied@gmail.com,
@@ -53,9 +94,9 @@ Cc: bcm-kernel-feedback-list@broadcom.com,
 	virtualization@lists.linux.dev,
 	intel-gfx@lists.freedesktop.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 3/9] Revert "drm/virtio: Use dma_buf from GEM object instance"
-Date: Fri, 11 Jul 2025 11:35:18 +0200
-Message-ID: <20250711093744.120962-4-tzimmermann@suse.de>
+Subject: [PATCH 5/9] Revert "drm/etnaviv: Use dma_buf from GEM object instance"
+Date: Fri, 11 Jul 2025 11:35:20 +0200
+Message-ID: <20250711093744.120962-6-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.50.0
 In-Reply-To: <20250711093744.120962-1-tzimmermann@suse.de>
 References: <20250711093744.120962-1-tzimmermann@suse.de>
@@ -66,54 +107,67 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
 X-Spam-Level: 
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.00 / 50.00];
+X-Spamd-Result: default: False [-5.30 / 50.00];
 	REPLY(-4.00)[];
-	TAGGED_RCPT(0.00)[etnaviv]
-X-Rspamd-Queue-Id: 6B9FC1F790
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Action: no action
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[20];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	TAGGED_RCPT(0.00)[etnaviv];
+	FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,amd.com,linux-foundation.org,linux.intel.com,kernel.org,pengutronix.de,armlinux.org.uk,redhat.com,collabora.com,chromium.org,broadcom.com];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:helo];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	R_RATELIMIT(0.00)[to_ip_from(RLk1j8fm6pferx3phn9ndszqb3)];
+	FROM_EQ_ENVFROM(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
 X-Spam-Flag: NO
-X-Spam-Score: -4.00
+X-Spam-Score: -5.30
 
-This reverts commit 415cb45895f43015515473fbc40563ca5eec9a7c.
+This reverts commit e91eb3ae415472b28211d7fed07fa283845b311e.
 
 Reverting because the fix-up commits are suspected to cause regressions.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/virtio/virtgpu_prime.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-index 722cde5e2d86..97aaee26cb02 100644
---- a/drivers/gpu/drm/virtio/virtgpu_prime.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-@@ -204,15 +204,16 @@ static void virtgpu_dma_buf_free_obj(struct drm_gem_object *obj)
- {
- 	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
- 	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
-+	struct dma_buf_attachment *attach = obj->import_attach;
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
+index 917ad527c961..40a50c60dfff 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
+@@ -65,7 +65,7 @@ static void etnaviv_gem_prime_release(struct etnaviv_gem_object *etnaviv_obj)
+ 	struct iosys_map map = IOSYS_MAP_INIT_VADDR(etnaviv_obj->vaddr);
  
- 	if (drm_gem_is_imported(obj)) {
--		struct dma_buf *dmabuf = bo->dma_buf;
-+		struct dma_buf *dmabuf = attach->dmabuf;
+ 	if (etnaviv_obj->vaddr)
+-		dma_buf_vunmap_unlocked(etnaviv_obj->base.dma_buf, &map);
++		dma_buf_vunmap_unlocked(etnaviv_obj->base.import_attach->dmabuf, &map);
  
- 		dma_resv_lock(dmabuf->resv, NULL);
- 		virtgpu_dma_buf_unmap(bo);
- 		dma_resv_unlock(dmabuf->resv);
+ 	/* Don't drop the pages for imported dmabuf, as they are not
+ 	 * ours, just free the array we allocated:
+@@ -82,7 +82,7 @@ static void *etnaviv_gem_prime_vmap_impl(struct etnaviv_gem_object *etnaviv_obj)
  
--		dma_buf_detach(dmabuf, obj->import_attach);
-+		dma_buf_detach(dmabuf, attach);
- 		dma_buf_put(dmabuf);
- 	}
+ 	lockdep_assert_held(&etnaviv_obj->lock);
  
+-	ret = dma_buf_vmap(etnaviv_obj->base.dma_buf, &map);
++	ret = dma_buf_vmap(etnaviv_obj->base.import_attach->dmabuf, &map);
+ 	if (ret)
+ 		return NULL;
+ 	return map.vaddr;
 -- 
 2.50.0
 
