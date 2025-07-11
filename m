@@ -1,526 +1,500 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2078.outbound.protection.outlook.com [40.107.223.78])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5690F2749C3;
-	Thu, 10 Jul 2025 15:30:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.78
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752161437; cv=fail; b=c0ryHE2l3klUmA2AaclNDf1+0fg6NnUyftv+1ACZesWh8ODpTYIlsM52fJdpU4CuflyalcBtR+M6uuroJKqaw1aqVc+GWNzL25vHLesdrT3ubLxnQ9PqsoFXg+u9mvyhXESPjhsGFYt2lcICVe0nQaeTq6nvRj29hcTsm4YNTfw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752161437; c=relaxed/simple;
-	bh=LY5nV7buFzCYz5uBr8KM+NPvdQOGFKPB5UlIM6DIPbM=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=Kymt4W2lQityGNY7C1WBJG0YRAln0FEwaf4cs+kHUovDHI5U756P1rD7gStl29EcwxnEbf+O246OLa4n9KUxOOwYtDcAmGHj7ScnNbEV2VjJn4kAYO9HoVQRd2ZejejNjf3L+eaQCbo5vNI4g3XS0kFY/zhydQToBOTZ/VJc/n8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=AcHw7KCX; arc=fail smtp.client-ip=40.107.223.78
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E3321A29A
+	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 01:44:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752198268; cv=none; b=GpGO/ZichHVvTpvipgQntmttPEMn5iyuYHUrMxCBnwlWoJ6FYKOuwpAFkvP8yL7lz8bHaKRwiBunjeIYU669kA8HuFv9Zj7LRt0jV/I8hVCsIhbYGPV3+uYCsko8ChEi2c2dHN5BGF1CuVKH1rOrAn+Zn3hjhJWX+RMbeB0lXm0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752198268; c=relaxed/simple;
+	bh=wjSWkTPeBXW2tx1Qqi01hbov7H8psV4kqgnpKsfLW5k=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Te6A72JcCp/GS79FwTKOVxjdxS4LuLXs+8RyY0Ba5u4tq0b2Q5rsrfJ+4HrGokmD79GM//ZUGxjpn0cTPuXHVQBhVT9mnBEuRdpmFN9gQn7CSFn2O62yqwy5s+m8YLCsZ3RFilTSHbEBuiO7zQT747cHOylLeSyicwhZyXYmFk8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HWQdNZfB; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="AcHw7KCX"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=IzQXKrUajii9H31DI3kJos1OWw4Io4GgpT8ZSrFaEaIh88XO/K+2EU9AsBwxUpVwdM5W49R9hDfSwgkrzVccqSXnpGTUXRGLLQ+4i5lEMABl0CpToKwrs74PtnFTYsrNEMvdlIenOhVYrtrzCwIyYHYgDN0PhBwpYG6AMSq/GG0+S1RVAabUnz7DFbTA+DxpGpjc8Msb1TvG6Cgx+vs2CBCfMl1OtVb2r5qFq/dQOkSRfdt9Yr5nZQPBiJucSDbFfJrCxN2qU3pjHUFTMtS6cFgNzkDcc+6TSUhljEovxNRqkmckZJt2Org4yW/OIUqsmrPvIEhO+c2OlarDWkEBhg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IseRY/K5/+6ODt/WfdMvZR00wTSTSFUN89leb3eLCI8=;
- b=wwzlq2mhkYbt2ueQ4+Y+JqdTOi6Qdy3CJluWoJt9VvQ324pEY1km1hyriAuG0SseG5NkCJdu7z7HrRWJq21xM3yBEOR5oLviz0esar4GD2FsM0+yHxbP3fdd0soNYLiRZ5/nVjzahfgy7sRuW1bBs5wf5GeBB917yd0M8Ge4BlEiDh475bfA3NNBm+tPv86TbT118HQbeThfp+jQF/b/vhoPGImqgSARRJplJwb/fiuPtfCi/UKZP9kFjGyG+PzNCGd5lRvuFKWGuVmBBeMQin2+ORSmgPn8Cmnnx7ZC6HANsmbc5C2sHXsq7MAcuayKQ10ur6M+r2bHCH/4s8JFUQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IseRY/K5/+6ODt/WfdMvZR00wTSTSFUN89leb3eLCI8=;
- b=AcHw7KCX00jf9FBJZsorYSzivyYW6BqJlG4Q3KYFDlVm3oZJpIdQARjY7KFD2CW0GCpRCa+8esB6MFNChMkz2uATYIcm/bJDVB4/HF2VxnEz4AirUU8HtkEkR6fPssgpfqoHf/CDKrUo92KYgmAnWNsG4VIvADGhyuEG3MMddmcT7naSy35ouHzEbk6UaIiU8ZbOmfN5VMPu8UAlH85en6YnVZZYe0QYA7UMVa3V8WKj9XkIkMPL3VQpiEIln/puiFcpcbgFi08cPCtVk1GK42ZGm0WmuDe8c2wdk4O42AJlaS1MLMUYlXfYfGwJhm79+3iRqaoq1Zw02ZDakeBcNA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
- by CY5PR12MB6058.namprd12.prod.outlook.com (2603:10b6:930:2d::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8901.32; Thu, 10 Jul
- 2025 15:30:28 +0000
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732%7]) with mapi id 15.20.8901.024; Thu, 10 Jul 2025
- 15:30:27 +0000
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Ankit Agrawal <ankita@nvidia.com>,
-	Brett Creeley <brett.creeley@amd.com>,
-	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-	Kevin Tian <kevin.tian@intel.com>,
-	kvm@vger.kernel.org,
-	Longfang Liu <liulongfang@huawei.com>,
-	qat-linux@intel.com,
-	virtualization@lists.linux.dev,
-	Xin Zeng <xin.zeng@intel.com>,
-	Yishai Hadas <yishaih@nvidia.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Nicolin Chen <nicolinc@nvidia.com>,
-	patches@lists.linux.dev,
-	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-	Terrence Xu <terrence.xu@intel.com>,
-	Yanting Jiang <yanting.jiang@intel.com>,
-	Yi Liu <yi.l.liu@intel.com>,
-	Zhenzhong Duan <zhenzhong.duan@intel.com>
-Subject: [PATCH v2] vfio/pci: Do vf_token checks for VFIO_DEVICE_BIND_IOMMUFD
-Date: Thu, 10 Jul 2025 12:30:24 -0300
-Message-ID: <0-v2-470f044801ef+a887e-vfio_token_jgg@nvidia.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SJ0PR05CA0045.namprd05.prod.outlook.com
- (2603:10b6:a03:33f::20) To CH3PR12MB8659.namprd12.prod.outlook.com
- (2603:10b6:610:17c::13)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HWQdNZfB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752198265;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Zt3KlbbLlIb9ntQo8ZxiuXNPWEVPbSNN/c/T7N+f2kQ=;
+	b=HWQdNZfBkxcWqoDAtxO9LtnSgmWtPLrRl2wQ8eJHvGG4yedcDhr3SYNzWRxG1gxFrcGIPw
+	GLLcM1Mh972OSxiAKyG2hFaAc38fA8WPe2hMJAw++QIpd6pT4Bh4hsJgFT2UP32oAwz+xl
+	ZhYZSqIl6IUFR5zumdYdcibR5BGTP0c=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-630-8LCsZkAbMGWqWPaX8IHypw-1; Thu, 10 Jul 2025 21:44:23 -0400
+X-MC-Unique: 8LCsZkAbMGWqWPaX8IHypw-1
+X-Mimecast-MFC-AGG-ID: 8LCsZkAbMGWqWPaX8IHypw_1752198262
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-312df02acf5so2192122a91.1
+        for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 18:44:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752198262; x=1752803062;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Zt3KlbbLlIb9ntQo8ZxiuXNPWEVPbSNN/c/T7N+f2kQ=;
+        b=t38JN7OW6d5xX1UDggYng3BODtGWm27swdPi1E8dduF46wLQyIhrFCXw6SSoP+UsIi
+         DBI/Jr/xRZzENOQyTUZK7GfMh9sWMtktyQfFAvzml3vDVWAdMMg4+k6X9FmMxSrnff3A
+         VOPAueGKRee3UCQgKnEnt676ecr0VEubgEloJ3HNCGmvhl8dhL7oUHtp1lK7QjTHX16o
+         034hyc6DRdhUB6feSEnstu0jW+1qiFf7FYZ4qIGZquevn6BKssbXtCVhw3tXLWHnPuq1
+         rwJZ5YWnym945k/q+FddTNYpQtaam8Bv529gTXQx5YNA7SYYQG2i/Ddokqa7TXA15Epi
+         tVsg==
+X-Forwarded-Encrypted: i=1; AJvYcCW/z/m9eWr/joy5Bp7aSFXI0JIFFWu/Kzkithd4uufc/aSIcfFAIJfaRyjiFb5+ECwdIGUpBRAxJ3WjJg4vxw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyekRHlXyV9PcZ9D8ZBnTJXNHs5XM9voo+PWAanLtgockPVM11Y
+	RlgizMyBm3G1rHPQkdWJPH7GxVIVlev4s6sxXgPoFxT95DiYcpXr6TTWlHCi5h/ALNylpBAXYxQ
+	DSKnmTJANEClY1DSIpanwe8qnjD3rV8v5pXEO977K6c3GqcZawghUlJ06wikqf8OAZzws3YlPBl
+	FdotejSNEGKJRXibu8IJ90o7ItDGFtPstxfSna13LDH2g=
+X-Gm-Gg: ASbGncuI+0g18X+GrAfXhi4+aYc8hWoqBC4iLeWKEoG/i5ZMDY299e+peeVxOO97PbW
+	mAlVYnTFzpddBuRKzBoTjIIml8wLMu7x6KiN2Ztm6vR2KunBqgRi2k0WC6iYj5G/pmPUj8C2EuH
+	WB7pjX/W4aCptZjYXNqzi1Qg==
+X-Received: by 2002:a17:90b:2b50:b0:30e:6a9d:d78b with SMTP id 98e67ed59e1d1-31c4d4d0740mr1758423a91.12.1752198262143;
+        Thu, 10 Jul 2025 18:44:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHL234yEKg6y0H6Ijdjo4ts3kRRF1EGyNEU+iyI8kqrhvv7V667xAFdlSjti5l3dkuKayZfNJBLadnJF0UJNi0=
+X-Received: by 2002:a17:90b:2b50:b0:30e:6a9d:d78b with SMTP id
+ 98e67ed59e1d1-31c4d4d0740mr1758370a91.12.1752198261372; Thu, 10 Jul 2025
+ 18:44:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|CY5PR12MB6058:EE_
-X-MS-Office365-Filtering-Correlation-Id: ff416f52-6678-48f9-b8de-08ddbfc6b22a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?yQ+uhmAZ9pvk+UCfeVRVmoPAfTBW2DH19Qbbyu5gNacEUjPI3tzYQ8/fZ0oG?=
- =?us-ascii?Q?45gWxRqZQLYgwbFyvsSUjmBFN/4wbWKPI3h4Y/MzHJRI4Ys/DHTPf+2rqT6d?=
- =?us-ascii?Q?CRzqEcm4sNi1Aj4x4GkWuVQpBn/Yd8rN4+UPuibhJfvCsTS+Xu7o9t855M5l?=
- =?us-ascii?Q?ooLesne7iBS5kdi7uVvyecv7HZJ0aOtPzBPmblCPQM5XYyS4D4GeO9nOSIvy?=
- =?us-ascii?Q?U2pTvNzlPiKn0lBupQMLsvLjgSfxrWcDBrMlty5Uw9LY/2iU+ktT+P31BQrY?=
- =?us-ascii?Q?QExo6fnAbPWcmHdomfpCsJ+wmM18TbO99jl/FmFdKeMge2Hgthgi02VehP+R?=
- =?us-ascii?Q?WnrUjaswzISlUMVGmaOODHQdiEQaeaCWq1bQWb3j8zKjK/GeqIpXdo/f607t?=
- =?us-ascii?Q?i4zEXkEq1Ev2OzqxsxWBo4iffSEhMVFoU0b4KSgZHO5bFB/ap8YdUFM1Xgs/?=
- =?us-ascii?Q?eyLLd5KTd2Pvfeib6rnFes+6YA+KfSKbLoH3ZZgCPuE+5agrQf3Hi6ag+OsX?=
- =?us-ascii?Q?4FnCge3nMi2H6dn06gw/klGTfBcqGxCnxjihcNpALLCm05tIGRwoH8PVdJuP?=
- =?us-ascii?Q?nxJbqZBWJXeVUbUyNbH+4wqc8IcGZMfs9oKCE13V6w49av50SgJIpeyre34K?=
- =?us-ascii?Q?3/kkw7RpVpB0P1jR/pinYJyjzAPbPvKXokeBt1Jz3YSyvutziNFI39rECWpy?=
- =?us-ascii?Q?hrsQHEsASa8KgqFnkJ0mE2ikK0vsp3knQsK+mwa8/rEv2XKzLcSD8/f8/Eke?=
- =?us-ascii?Q?ufDQOMAnJ+K74kUYNWbdEjEgpkNTnTp/+YtN8APKRqY3dRvog+sa1yGlMiJs?=
- =?us-ascii?Q?Odqivf52EHRyLRYRAO1OA+cGPxKzycHyBjRT7CMJPRLyS8Y4eg0jU8C156nE?=
- =?us-ascii?Q?CSPeYld4IRiodnP8Nv8G0c4k8YKL5nem9BjeuT5D4xRlM3awhfkVaS7WasJf?=
- =?us-ascii?Q?iyJ2vW6KVxeeOKjTp4V4wosrA4yn0Fldzc58hKCxh+6/RRF0emqwzxHaTFYJ?=
- =?us-ascii?Q?dYW30r0St72tx9aEqDRxtSsoCPFCltbg5Fvpv4ZBkTSkwVOdYZwVfz9A7IbJ?=
- =?us-ascii?Q?+eer/NYKXt+qsYVS137mxdwtesNhD1wk7U9qO0rAubvudzTNaK8s7UYB9apT?=
- =?us-ascii?Q?9lS7Pcw8rnbx2Fkc9EtAHBakrBThpJJaxHM+mRub5QNRRKhbDTLBUyxWmQSa?=
- =?us-ascii?Q?1oyvdo3/W1+Ja679L9/gDZsw/G28CU5BJSy5GC4wVgDMkluCR9/iCXc1W2yz?=
- =?us-ascii?Q?dtURIF7+TFiWhkqIhUZFAP1vuvRtSVMRMAPjOda5npJ9mFbXENBdvrUh9Yb+?=
- =?us-ascii?Q?650U8DYQg6wzz/yTz16X+0RK7EVfaTsn/IVUcBbFqNeuM2eOkQfx6xrUfYCl?=
- =?us-ascii?Q?hVLFjSIuhUnwEsCNLSlMQQ+ioaKLcOzSdz2vZ3gBfnf3/kK/O2DV91E4dCbU?=
- =?us-ascii?Q?rOCjRDnDaEgjUZH5R3T4brho1vbOYjs2AOVf+qATmBdKa6ID7tXYXQ=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?SrwtBCne3UWdG6GBwh51TTHcxiq7dCEeBm03ngkmJ4qHPvByWu1aARDBphiP?=
- =?us-ascii?Q?nkBdKDV9omOz9AlM4hYp/7Gqt91UNJ/GS9zUBla9uKfFoxZSf1G7+8SforIw?=
- =?us-ascii?Q?ZCCjf0+HNGism2BXCMRzfJjJ2OhtHautIbZDnbgKoHv4dItytdAsXqOO2zQ6?=
- =?us-ascii?Q?wbjm30qVxO8cKtSRoCoJZe/zQpH527J7cdzSKKSHHYQXW7ZHXw+pl8o2V1ui?=
- =?us-ascii?Q?Kt0J1UKqgdoE6bVm/C53Gtd9NqFRgDsBowrQdGP4IEUUbDTXTcZzoT+27Z9i?=
- =?us-ascii?Q?lq92eBvA55IYSW+OQo4+UTVmVtpxRvr4V8Dbo9rmguDsVLWOEfiKpX3RW+k2?=
- =?us-ascii?Q?yBIz4e3N0GTMZ/X1KdxkxqamLBFxy6jYjc7XOEqhXMAyGnE47O8tzEk8oFBW?=
- =?us-ascii?Q?JSPt3a7gEOYtQoUv+dYTlDT/ZT/gDegO9+HbltizC1aONECwzmriZ21HEm+u?=
- =?us-ascii?Q?8Ov9O5UEomygZDoNnjIMAzGiy4RnFSxMlUusIZXvssadzbD0mSABQGn55MvJ?=
- =?us-ascii?Q?aw8VfdHKyj//vsI/zNWTCANdN/ez/CHvKb4p5G7j5KEiiSp9cbhFGfDoH5Kx?=
- =?us-ascii?Q?bZBans3QMsHQMuUdlAv8mEmY6nc6TNGVkxeUh9dkse7gFUOfPoVbhJaALJ5L?=
- =?us-ascii?Q?GDb8x17RyCy74LR1ujVK3kuI4+yUWKKk3BEyJvl89tNgqoHtvHAmegLpJ3Cu?=
- =?us-ascii?Q?iaAcPL2inb5eXcD5xv+O75SwrkgrGKCDVBgHX5su+LSR6yef7Q29BEGotnC3?=
- =?us-ascii?Q?Y3OTMeIt78p+R41VIqSfwSd+njgMRgX+Ip9rlAlDZ4LVYZMOd+KtPJV6v8J1?=
- =?us-ascii?Q?AYVEW+fv8ncfSqSAGJtARNqBF8paSByNOeUkO+ItgLQUQGbGcE1VzjFHNnQB?=
- =?us-ascii?Q?sjZCXJDcf7/rRfUxS5zD6u1UqeX9ifOSlbXbQe47i8FzQY2XIwq0bw+zSrcF?=
- =?us-ascii?Q?Z+v5CTappu1Ovx36Hur5/ia8XGKB3vYX+2g1akI7sbwv8WzpCiWXfhPpJZ6t?=
- =?us-ascii?Q?VHSudHEXP6Y68FRTp7OQcO1G8xLWZLijIW62hC+CwaLCgUOjwQkYO7e8zID2?=
- =?us-ascii?Q?r5ZhBjn2T3sgGlB5WAabquOSGak3Nvih+gjQv/1fTFQTbs66RRQKc7syk5Zl?=
- =?us-ascii?Q?wjRVSGxeCWEV2om6TG46cOCOS85XAczEFO9KPMrE47gQDDR97v/0ghnzC7q8?=
- =?us-ascii?Q?euFQC6KDghYMQOHPN3Q2rppVud1YK8tb9jwXDyWTkB0O2VnVPhOsXWAqO4Mp?=
- =?us-ascii?Q?SZOe3mnqcFguHI0xjzUtjLeZXLe0wsTBARUvHDeWC7qPGRmrvnkq2FHToNW2?=
- =?us-ascii?Q?lAvEiPzdQzqMdzh9bjES+BYdg1LxaTHwWBkBDDAgvbGrI33s8CkW3tfY1/gI?=
- =?us-ascii?Q?LfPBv2vL7HpA3lNJIAxR+EtlL3OCIH3QSULThZWFS2fTcJC7JPdpA7KQKFqZ?=
- =?us-ascii?Q?9HTjKnTeA7p64/LAzgqPC7JgDtfpABjiCAojS9X+0wN85eT7RlO7hcRBNU3r?=
- =?us-ascii?Q?/s+8WPH4GYWGgqM1t2Ueo0nTapXY9eJqCTxx6vmSLIwjlKfPD5oWJSB1kNF1?=
- =?us-ascii?Q?IvuGVqn2WZsCFbaqXUxkkpf63FgEj5Gvg/BZ6rlp?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ff416f52-6678-48f9-b8de-08ddbfc6b22a
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jul 2025 15:30:27.4772
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: EgT84tQDnaWg02WB/PLOlUH3GA8gDkKBzeDMi6/y9ijIjKlPlzdPZyS397I9MHi9
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6058
+References: <20250708064819.35282-1-jasowang@redhat.com> <20250708064819.35282-2-jasowang@redhat.com>
+ <CAJaqyWd4K7tHHg+GCCN9+q3HdhkRdQ0R4iW+RXTP_6=xrP53VA@mail.gmail.com>
+In-Reply-To: <CAJaqyWd4K7tHHg+GCCN9+q3HdhkRdQ0R4iW+RXTP_6=xrP53VA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 11 Jul 2025 09:44:10 +0800
+X-Gm-Features: Ac12FXzCFXEOlFdgCE9DKyHNbB7BgzuEFmQmUph58wsDb-dgqx-v3RY_-YznhXs
+Message-ID: <CACGkMEuL4YGa+d7yjopv1nchwdqU4BCP9_-8Ur1L4CKU+8R5Wg@mail.gmail.com>
+Subject: Re: [PATCH net-next 1/2] vhost: basic in order support
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jonah.palmer@oracle.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: VhtmmedyWp5CI2bHM3SZeWCnjfYi-NS4GOWUVntyZOc_1752198262
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This was missed during the initial implementation. The VFIO PCI encodes
-the vf_token inside the device name when opening the device from the group
-FD, something like:
+On Thu, Jul 10, 2025 at 5:05=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Tue, Jul 8, 2025 at 8:48=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
+rote:
+> >
+> > This patch adds basic in order support for vhost. Two optimizations
+> > are implemented in this patch:
+> >
+> > 1) Since driver uses descriptor in order, vhost can deduce the next
+> >    avail ring head by counting the number of descriptors that has been
+> >    used in next_avail_head. This eliminate the need to access the
+> >    available ring in vhost.
+> >
+> > 2) vhost_add_used_and_singal_n() is extended to accept the number of
+> >    batched buffers per used elem. While this increases the times of
+> >    usersapce memory access but it helps to reduce the chance of
+>
+> s/usersapce/userspace/
+>
+> >    used ring access of both the driver and vhost.
+> >
+> > Vhost-net will be the first user for this.
+> >
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/vhost/net.c   |   6 ++-
+> >  drivers/vhost/vhost.c | 121 +++++++++++++++++++++++++++++++++++-------
+> >  drivers/vhost/vhost.h |   8 ++-
+> >  3 files changed, 111 insertions(+), 24 deletions(-)
+> >
+> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> > index 7cbfc7d718b3..4f9c67f17b49 100644
+> > --- a/drivers/vhost/net.c
+> > +++ b/drivers/vhost/net.c
+> > @@ -374,7 +374,8 @@ static void vhost_zerocopy_signal_used(struct vhost=
+_net *net,
+> >         while (j) {
+> >                 add =3D min(UIO_MAXIOV - nvq->done_idx, j);
+> >                 vhost_add_used_and_signal_n(vq->dev, vq,
+> > -                                           &vq->heads[nvq->done_idx], =
+add);
+> > +                                           &vq->heads[nvq->done_idx],
+> > +                                           NULL, add);
+> >                 nvq->done_idx =3D (nvq->done_idx + add) % UIO_MAXIOV;
+> >                 j -=3D add;
+> >         }
+> > @@ -457,7 +458,8 @@ static void vhost_net_signal_used(struct vhost_net_=
+virtqueue *nvq)
+> >         if (!nvq->done_idx)
+> >                 return;
+> >
+> > -       vhost_add_used_and_signal_n(dev, vq, vq->heads, nvq->done_idx);
+> > +       vhost_add_used_and_signal_n(dev, vq, vq->heads, NULL,
+> > +                                   nvq->done_idx);
+> >         nvq->done_idx =3D 0;
+> >  }
+> >
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index 3a5ebb973dba..c7ed069fc49e 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -364,6 +364,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+> >         vq->avail =3D NULL;
+> >         vq->used =3D NULL;
+> >         vq->last_avail_idx =3D 0;
+> > +       vq->next_avail_head =3D 0;
+> >         vq->avail_idx =3D 0;
+> >         vq->last_used_idx =3D 0;
+> >         vq->signalled_used =3D 0;
+> > @@ -455,6 +456,8 @@ static void vhost_vq_free_iovecs(struct vhost_virtq=
+ueue *vq)
+> >         vq->log =3D NULL;
+> >         kfree(vq->heads);
+> >         vq->heads =3D NULL;
+> > +       kfree(vq->nheads);
+> > +       vq->nheads =3D NULL;
+> >  }
+> >
+> >  /* Helper to allocate iovec buffers for all vqs. */
+> > @@ -472,7 +475,9 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev=
+ *dev)
+> >                                         GFP_KERNEL);
+> >                 vq->heads =3D kmalloc_array(dev->iov_limit, sizeof(*vq-=
+>heads),
+> >                                           GFP_KERNEL);
+> > -               if (!vq->indirect || !vq->log || !vq->heads)
+> > +               vq->nheads =3D kmalloc_array(dev->iov_limit, sizeof(*vq=
+->nheads),
+> > +                                          GFP_KERNEL);
+> > +               if (!vq->indirect || !vq->log || !vq->heads || !vq->nhe=
+ads)
+> >                         goto err_nomem;
+> >         }
+> >         return 0;
+> > @@ -1990,14 +1995,15 @@ long vhost_vring_ioctl(struct vhost_dev *d, uns=
+igned int ioctl, void __user *arg
+> >                         break;
+> >                 }
+> >                 if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
+> > -                       vq->last_avail_idx =3D s.num & 0xffff;
+> > +                       vq->next_avail_head =3D vq->last_avail_idx =3D
+> > +                                             s.num & 0xffff;
+> >                         vq->last_used_idx =3D (s.num >> 16) & 0xffff;
+> >                 } else {
+> >                         if (s.num > 0xffff) {
+> >                                 r =3D -EINVAL;
+> >                                 break;
+> >                         }
+> > -                       vq->last_avail_idx =3D s.num;
+> > +                       vq->next_avail_head =3D vq->last_avail_idx =3D =
+s.num;
+>
+> Why not just reuse last_avail_idx instead of creating next_avail_head?
+>
+> At first glance it seemed to me that it was done this way to support
+> rewinding, but in_order path will happily reuse next_avail_head
+> without checking for last_avail_idx except for checking if the ring is
+> empty. Am I missing something?
 
-  "0000:04:10.0 vf_token=bd8d9d2b-5a5f-4f5a-a211-f591514ba1f3"
+Because the driver can submit a batch of available buffers so
+last_avail_idx is not necessarily equal to next_avail_head.
 
-This is used to control access to a VF unless there is co-ordination with
-the owner of the PF.
+>
+> >                 }
+> >                 /* Forget the cached index value. */
+> >                 vq->avail_idx =3D vq->last_avail_idx;
+> > @@ -2590,11 +2596,12 @@ int vhost_get_vq_desc(struct vhost_virtqueue *v=
+q,
+> >                       unsigned int *out_num, unsigned int *in_num,
+> >                       struct vhost_log *log, unsigned int *log_num)
+> >  {
+> > +       bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
+> >         struct vring_desc desc;
+> >         unsigned int i, head, found =3D 0;
+> >         u16 last_avail_idx =3D vq->last_avail_idx;
+> >         __virtio16 ring_head;
+> > -       int ret, access;
+> > +       int ret, access, c =3D 0;
+> >
+> >         if (vq->avail_idx =3D=3D vq->last_avail_idx) {
+> >                 ret =3D vhost_get_avail_idx(vq);
+> > @@ -2605,17 +2612,21 @@ int vhost_get_vq_desc(struct vhost_virtqueue *v=
+q,
+> >                         return vq->num;
+> >         }
+> >
+> > -       /* Grab the next descriptor number they're advertising, and inc=
+rement
+> > -        * the index we've seen. */
+> > -       if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_id=
+x))) {
+> > -               vq_err(vq, "Failed to read head: idx %d address %p\n",
+> > -                      last_avail_idx,
+> > -                      &vq->avail->ring[last_avail_idx % vq->num]);
+> > -               return -EFAULT;
+> > +       if (in_order)
+> > +               head =3D vq->next_avail_head & (vq->num - 1);
+> > +       else {
+> > +               /* Grab the next descriptor number they're
+> > +                * advertising, and increment the index we've seen. */
+> > +               if (unlikely(vhost_get_avail_head(vq, &ring_head,
+> > +                                                 last_avail_idx))) {
+> > +                       vq_err(vq, "Failed to read head: idx %d address=
+ %p\n",
+> > +                               last_avail_idx,
+> > +                               &vq->avail->ring[last_avail_idx % vq->n=
+um]);
+> > +                       return -EFAULT;
+> > +               }
+> > +               head =3D vhost16_to_cpu(vq, ring_head);
+> >         }
+> >
+> > -       head =3D vhost16_to_cpu(vq, ring_head);
+> > -
+> >         /* If their number is silly, that's an error. */
+> >         if (unlikely(head >=3D vq->num)) {
+> >                 vq_err(vq, "Guest says index %u > %u is available",
+> > @@ -2658,6 +2669,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> >                                                 "in indirect descriptor=
+ at idx %d\n", i);
+> >                                 return ret;
+> >                         }
+> > +                       ++c;
+> >                         continue;
+> >                 }
+> >
+> > @@ -2693,10 +2705,12 @@ int vhost_get_vq_desc(struct vhost_virtqueue *v=
+q,
+> >                         }
+> >                         *out_num +=3D ret;
+> >                 }
+> > +               ++c;
+> >         } while ((i =3D next_desc(vq, &desc)) !=3D -1);
+> >
+> >         /* On success, increment avail index. */
+> >         vq->last_avail_idx++;
+> > +       vq->next_avail_head +=3D c;
+> >
+> >         /* Assume notifications from guest are disabled at this point,
+> >          * if they aren't we would need to update avail_event index. */
+> > @@ -2720,8 +2734,9 @@ int vhost_add_used(struct vhost_virtqueue *vq, un=
+signed int head, int len)
+> >                 cpu_to_vhost32(vq, head),
+> >                 cpu_to_vhost32(vq, len)
+> >         };
+> > +       u16 nheads =3D 1;
+> >
+> > -       return vhost_add_used_n(vq, &heads, 1);
+> > +       return vhost_add_used_n(vq, &heads, &nheads, 1);
+> >  }
+> >  EXPORT_SYMBOL_GPL(vhost_add_used);
+> >
+> > @@ -2757,10 +2772,10 @@ static int __vhost_add_used_n(struct vhost_virt=
+queue *vq,
+> >         return 0;
+> >  }
+> >
+> > -/* After we've used one of their buffers, we tell them about it.  We'l=
+l then
+> > - * want to notify the guest, using eventfd. */
+> > -int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_ele=
+m *heads,
+> > -                    unsigned count)
+> > +static int vhost_add_used_n_ooo(struct vhost_virtqueue *vq,
+> > +                               struct vring_used_elem *heads,
+> > +                               u16 *nheads,
+> > +                               unsigned count)
+>
+> nheads is not used in this function and it is checked to be NULL in
+> the caller, should we remove it from the parameter list?
 
-Since we no longer have a device name, pass the token directly through
-VFIO_DEVICE_BIND_IOMMUFD using an optional field indicated by
-VFIO_DEVICE_BIND_TOKEN.
+Exactly.
 
-Fixes: 5fcc26969a16 ("vfio: Add VFIO_DEVICE_BIND_IOMMUFD")
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/vfio/device_cdev.c                    | 38 +++++++++++++++++--
- .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  1 +
- drivers/vfio/pci/mlx5/main.c                  |  1 +
- drivers/vfio/pci/nvgrace-gpu/main.c           |  2 +
- drivers/vfio/pci/pds/vfio_dev.c               |  1 +
- drivers/vfio/pci/qat/main.c                   |  1 +
- drivers/vfio/pci/vfio_pci.c                   |  1 +
- drivers/vfio/pci/vfio_pci_core.c              | 22 +++++++----
- drivers/vfio/pci/virtio/main.c                |  3 ++
- include/linux/vfio.h                          |  4 ++
- include/linux/vfio_pci_core.h                 |  2 +
- include/uapi/linux/vfio.h                     | 12 +++++-
- 12 files changed, 76 insertions(+), 12 deletions(-)
+>
+> >  {
+> >         int start, n, r;
+> >
+> > @@ -2775,6 +2790,70 @@ int vhost_add_used_n(struct vhost_virtqueue *vq,=
+ struct vring_used_elem *heads,
+> >         }
+> >         r =3D __vhost_add_used_n(vq, heads, count);
+> >
+> > +       return r;
+>
+> Nit: We can merge with the previous statement and do "return
+> __vhost_add_used_n(vq, heads, count);"
 
-v2:
- - Revise VFIO_DEVICE_BIND_TOKEN -> VFIO_DEVICE_BIND_FLAG_TOKEN
- - Call the match_token_uuid through ops instead of directly
- - update comments/style
-v1: https://patch.msgid.link/r/0-v1-8639f9aed215+853-vfio_token_jgg@nvidia.com
+Right.
 
-diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
-index 281a8dc3ed4974..1c96d3627be24b 100644
---- a/drivers/vfio/device_cdev.c
-+++ b/drivers/vfio/device_cdev.c
-@@ -60,22 +60,50 @@ static void vfio_df_get_kvm_safe(struct vfio_device_file *df)
- 	spin_unlock(&df->kvm_ref_lock);
- }
- 
-+static int vfio_df_check_token(struct vfio_device *device,
-+			       const struct vfio_device_bind_iommufd *bind)
-+{
-+	uuid_t uuid;
-+
-+	if (!device->ops->match_token_uuid) {
-+		if (bind->flags & VFIO_DEVICE_BIND_FLAG_TOKEN)
-+			return -EINVAL;
-+		return 0;
-+	}
-+
-+	if (!(bind->flags & VFIO_DEVICE_BIND_FLAG_TOKEN))
-+		return device->ops->match_token_uuid(device, NULL);
-+
-+	if (copy_from_user(&uuid, u64_to_user_ptr(bind->token_uuid_ptr),
-+			   sizeof(uuid)))
-+		return -EFAULT;
-+	return device->ops->match_token_uuid(device, &uuid);
-+}
-+
- long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
- 				struct vfio_device_bind_iommufd __user *arg)
- {
-+	const u32 VALID_FLAGS = VFIO_DEVICE_BIND_FLAG_TOKEN;
- 	struct vfio_device *device = df->device;
- 	struct vfio_device_bind_iommufd bind;
- 	unsigned long minsz;
-+	u32 user_size;
- 	int ret;
- 
- 	static_assert(__same_type(arg->out_devid, df->devid));
- 
- 	minsz = offsetofend(struct vfio_device_bind_iommufd, out_devid);
- 
--	if (copy_from_user(&bind, arg, minsz))
--		return -EFAULT;
-+	ret = get_user(user_size, &arg->argsz);
-+	if (ret)
-+		return ret;
-+	if (bind.argsz < minsz)
-+		return -EINVAL;
-+	ret = copy_struct_from_user(&bind, minsz, arg, user_size);
-+	if (ret)
-+		return ret;
- 
--	if (bind.argsz < minsz || bind.flags || bind.iommufd < 0)
-+	if (bind.iommufd < 0 || bind.flags & ~VALID_FLAGS)
- 		return -EINVAL;
- 
- 	/* BIND_IOMMUFD only allowed for cdev fds */
-@@ -93,6 +121,10 @@ long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
- 		goto out_unlock;
- 	}
- 
-+	ret = vfio_df_check_token(device, &bind);
-+	if (ret)
-+		return ret;
-+
- 	df->iommufd = iommufd_ctx_from_fd(bind.iommufd);
- 	if (IS_ERR(df->iommufd)) {
- 		ret = PTR_ERR(df->iommufd);
-diff --git a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-index 2149f49aeec7f8..397f5e44513639 100644
---- a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-+++ b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-@@ -1583,6 +1583,7 @@ static const struct vfio_device_ops hisi_acc_vfio_pci_ops = {
- 	.mmap = vfio_pci_core_mmap,
- 	.request = vfio_pci_core_request,
- 	.match = vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd = vfio_iommufd_physical_bind,
- 	.unbind_iommufd = vfio_iommufd_physical_unbind,
- 	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-diff --git a/drivers/vfio/pci/mlx5/main.c b/drivers/vfio/pci/mlx5/main.c
-index 93f894fe60d221..7ec47e736a8e5a 100644
---- a/drivers/vfio/pci/mlx5/main.c
-+++ b/drivers/vfio/pci/mlx5/main.c
-@@ -1372,6 +1372,7 @@ static const struct vfio_device_ops mlx5vf_pci_ops = {
- 	.mmap = vfio_pci_core_mmap,
- 	.request = vfio_pci_core_request,
- 	.match = vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd = vfio_iommufd_physical_bind,
- 	.unbind_iommufd = vfio_iommufd_physical_unbind,
- 	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-diff --git a/drivers/vfio/pci/nvgrace-gpu/main.c b/drivers/vfio/pci/nvgrace-gpu/main.c
-index e5ac39c4cc6b6f..d95761dcdd58c4 100644
---- a/drivers/vfio/pci/nvgrace-gpu/main.c
-+++ b/drivers/vfio/pci/nvgrace-gpu/main.c
-@@ -696,6 +696,7 @@ static const struct vfio_device_ops nvgrace_gpu_pci_ops = {
- 	.mmap		= nvgrace_gpu_mmap,
- 	.request	= vfio_pci_core_request,
- 	.match		= vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd	= vfio_iommufd_physical_bind,
- 	.unbind_iommufd	= vfio_iommufd_physical_unbind,
- 	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
-@@ -715,6 +716,7 @@ static const struct vfio_device_ops nvgrace_gpu_pci_core_ops = {
- 	.mmap		= vfio_pci_core_mmap,
- 	.request	= vfio_pci_core_request,
- 	.match		= vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd	= vfio_iommufd_physical_bind,
- 	.unbind_iommufd	= vfio_iommufd_physical_unbind,
- 	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
-diff --git a/drivers/vfio/pci/pds/vfio_dev.c b/drivers/vfio/pci/pds/vfio_dev.c
-index 76a80ae7087b51..5731e6856deaf1 100644
---- a/drivers/vfio/pci/pds/vfio_dev.c
-+++ b/drivers/vfio/pci/pds/vfio_dev.c
-@@ -201,6 +201,7 @@ static const struct vfio_device_ops pds_vfio_ops = {
- 	.mmap = vfio_pci_core_mmap,
- 	.request = vfio_pci_core_request,
- 	.match = vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd = vfio_iommufd_physical_bind,
- 	.unbind_iommufd = vfio_iommufd_physical_unbind,
- 	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-diff --git a/drivers/vfio/pci/qat/main.c b/drivers/vfio/pci/qat/main.c
-index 845ed15b67718c..5cce6b0b8d2f3e 100644
---- a/drivers/vfio/pci/qat/main.c
-+++ b/drivers/vfio/pci/qat/main.c
-@@ -614,6 +614,7 @@ static const struct vfio_device_ops qat_vf_pci_ops = {
- 	.mmap = vfio_pci_core_mmap,
- 	.request = vfio_pci_core_request,
- 	.match = vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd = vfio_iommufd_physical_bind,
- 	.unbind_iommufd = vfio_iommufd_physical_unbind,
- 	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 5ba39f7623bb76..ac10f14417f2f3 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -138,6 +138,7 @@ static const struct vfio_device_ops vfio_pci_ops = {
- 	.mmap		= vfio_pci_core_mmap,
- 	.request	= vfio_pci_core_request,
- 	.match		= vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd	= vfio_iommufd_physical_bind,
- 	.unbind_iommufd	= vfio_iommufd_physical_unbind,
- 	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 6328c3a05bcdd4..d39b0201d910fd 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -1821,9 +1821,13 @@ void vfio_pci_core_request(struct vfio_device *core_vdev, unsigned int count)
- }
- EXPORT_SYMBOL_GPL(vfio_pci_core_request);
- 
--static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
--				      bool vf_token, uuid_t *uuid)
-+int vfio_pci_core_match_token_uuid(struct vfio_device *core_vdev,
-+				   const uuid_t *uuid)
-+
- {
-+	struct vfio_pci_core_device *vdev =
-+		container_of(core_vdev, struct vfio_pci_core_device, vdev);
-+
- 	/*
- 	 * There's always some degree of trust or collaboration between SR-IOV
- 	 * PF and VFs, even if just that the PF hosts the SR-IOV capability and
-@@ -1854,7 +1858,7 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
- 		bool match;
- 
- 		if (!pf_vdev) {
--			if (!vf_token)
-+			if (!uuid)
- 				return 0; /* PF is not vfio-pci, no VF token */
- 
- 			pci_info_ratelimited(vdev->pdev,
-@@ -1862,7 +1866,7 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
- 			return -EINVAL;
- 		}
- 
--		if (!vf_token) {
-+		if (!uuid) {
- 			pci_info_ratelimited(vdev->pdev,
- 				"VF token required to access device\n");
- 			return -EACCES;
-@@ -1880,7 +1884,7 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
- 	} else if (vdev->vf_token) {
- 		mutex_lock(&vdev->vf_token->lock);
- 		if (vdev->vf_token->users) {
--			if (!vf_token) {
-+			if (!uuid) {
- 				mutex_unlock(&vdev->vf_token->lock);
- 				pci_info_ratelimited(vdev->pdev,
- 					"VF token required to access device\n");
-@@ -1893,12 +1897,12 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
- 					"Incorrect VF token provided for device\n");
- 				return -EACCES;
- 			}
--		} else if (vf_token) {
-+		} else if (uuid) {
- 			uuid_copy(&vdev->vf_token->uuid, uuid);
- 		}
- 
- 		mutex_unlock(&vdev->vf_token->lock);
--	} else if (vf_token) {
-+	} else if (uuid) {
- 		pci_info_ratelimited(vdev->pdev,
- 			"VF token incorrectly provided, not a PF or VF\n");
- 		return -EINVAL;
-@@ -1906,6 +1910,7 @@ static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_match_token_uuid);
- 
- #define VF_TOKEN_ARG "vf_token="
- 
-@@ -1952,7 +1957,8 @@ int vfio_pci_core_match(struct vfio_device *core_vdev, char *buf)
- 		}
- 	}
- 
--	ret = vfio_pci_validate_vf_token(vdev, vf_token, &uuid);
-+	ret = core_vdev->ops->match_token_uuid(core_vdev,
-+					       vf_token ? &uuid : NULL);
- 	if (ret)
- 		return ret;
- 
-diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
-index 515fe1b9f94d80..8084f3e36a9f70 100644
---- a/drivers/vfio/pci/virtio/main.c
-+++ b/drivers/vfio/pci/virtio/main.c
-@@ -94,6 +94,7 @@ static const struct vfio_device_ops virtiovf_vfio_pci_lm_ops = {
- 	.mmap = vfio_pci_core_mmap,
- 	.request = vfio_pci_core_request,
- 	.match = vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd = vfio_iommufd_physical_bind,
- 	.unbind_iommufd = vfio_iommufd_physical_unbind,
- 	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-@@ -114,6 +115,7 @@ static const struct vfio_device_ops virtiovf_vfio_pci_tran_lm_ops = {
- 	.mmap = vfio_pci_core_mmap,
- 	.request = vfio_pci_core_request,
- 	.match = vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd = vfio_iommufd_physical_bind,
- 	.unbind_iommufd = vfio_iommufd_physical_unbind,
- 	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-@@ -134,6 +136,7 @@ static const struct vfio_device_ops virtiovf_vfio_pci_ops = {
- 	.mmap = vfio_pci_core_mmap,
- 	.request = vfio_pci_core_request,
- 	.match = vfio_pci_core_match,
-+	.match_token_uuid = vfio_pci_core_match_token_uuid,
- 	.bind_iommufd = vfio_iommufd_physical_bind,
- 	.unbind_iommufd = vfio_iommufd_physical_unbind,
- 	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 707b00772ce1ff..eb563f538dee51 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -105,6 +105,9 @@ struct vfio_device {
-  * @match: Optional device name match callback (return: 0 for no-match, >0 for
-  *         match, -errno for abort (ex. match with insufficient or incorrect
-  *         additional args)
-+ * @match_token_uuid: Optional device token match/validation. Return 0
-+ *         if the uuid is valid for the device, -errno otherwise. uuid is NULL
-+ *         if none was provided.
-  * @dma_unmap: Called when userspace unmaps IOVA from the container
-  *             this device is attached to.
-  * @device_feature: Optional, fill in the VFIO_DEVICE_FEATURE ioctl
-@@ -132,6 +135,7 @@ struct vfio_device_ops {
- 	int	(*mmap)(struct vfio_device *vdev, struct vm_area_struct *vma);
- 	void	(*request)(struct vfio_device *vdev, unsigned int count);
- 	int	(*match)(struct vfio_device *vdev, char *buf);
-+	int	(*match_token_uuid)(struct vfio_device *vdev, const uuid_t *uuid);
- 	void	(*dma_unmap)(struct vfio_device *vdev, u64 iova, u64 length);
- 	int	(*device_feature)(struct vfio_device *device, u32 flags,
- 				  void __user *arg, size_t argsz);
-diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-index fbb472dd99b361..f541044e42a2ad 100644
---- a/include/linux/vfio_pci_core.h
-+++ b/include/linux/vfio_pci_core.h
-@@ -122,6 +122,8 @@ ssize_t vfio_pci_core_write(struct vfio_device *core_vdev, const char __user *bu
- int vfio_pci_core_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma);
- void vfio_pci_core_request(struct vfio_device *core_vdev, unsigned int count);
- int vfio_pci_core_match(struct vfio_device *core_vdev, char *buf);
-+int vfio_pci_core_match_token_uuid(struct vfio_device *core_vdev,
-+				   const uuid_t *uuid);
- int vfio_pci_core_enable(struct vfio_pci_core_device *vdev);
- void vfio_pci_core_disable(struct vfio_pci_core_device *vdev);
- void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev);
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 5764f315137f99..75100bf009baf5 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -905,10 +905,12 @@ struct vfio_device_feature {
-  * VFIO_DEVICE_BIND_IOMMUFD - _IOR(VFIO_TYPE, VFIO_BASE + 18,
-  *				   struct vfio_device_bind_iommufd)
-  * @argsz:	 User filled size of this data.
-- * @flags:	 Must be 0.
-+ * @flags:	 Must be 0 or a bit flags of VFIO_DEVICE_BIND_*
-  * @iommufd:	 iommufd to bind.
-  * @out_devid:	 The device id generated by this bind. devid is a handle for
-  *		 this device/iommufd bond and can be used in IOMMUFD commands.
-+ * @token_uuid_ptr: Valid if VFIO_DEVICE_BIND_FLAG_TOKEN. Points to a 16 byte
-+ *                  UUID in the same format as VFIO_DEVICE_FEATURE_PCI_VF_TOKEN.
-  *
-  * Bind a vfio_device to the specified iommufd.
-  *
-@@ -917,13 +919,21 @@ struct vfio_device_feature {
-  *
-  * Unbind is automatically conducted when device fd is closed.
-  *
-+ * A token is sometimes required to open the device, unless this is known to be
-+ * needed VFIO_DEVICE_BIND_FLAG_TOKEN should not be set and token_uuid_ptr is
-+ * ignored. The only case today is a PF/VF relationship where the VF bind must
-+ * be provided the same token as VFIO_DEVICE_FEATURE_PCI_VF_TOKEN provided to
-+ * the PF.
-+ *
-  * Return: 0 on success, -errno on failure.
-  */
- struct vfio_device_bind_iommufd {
- 	__u32		argsz;
- 	__u32		flags;
-+#define VFIO_DEVICE_BIND_FLAG_TOKEN (1 << 0)
- 	__s32		iommufd;
- 	__u32		out_devid;
-+	__aligned_u64	token_uuid_ptr;
- };
- 
- #define VFIO_DEVICE_BIND_IOMMUFD	_IO(VFIO_TYPE, VFIO_BASE + 18)
+>
+> > +}
+> > +
+> > +static int vhost_add_used_n_in_order(struct vhost_virtqueue *vq,
+> > +                                    struct vring_used_elem *heads,
+> > +                                    u16 *nheads,
+>
+> Nit: we can const-ify nheads, and do the same for _in_order variant
+> and vhost_add_used_n. Actually we can do it with heads too but it
+> requires more changes to existing code. I think it would be nice to
+> constify *nheads if you need to respin.
 
-base-commit: 3e2a9811f6a9cefd310cc33cab73d5435b4a4caa
--- 
-2.43.0
+Let me do that.
+
+>
+> > +                                    unsigned count)
+> > +{
+> > +       vring_used_elem_t __user *used;
+> > +       u16 old, new =3D vq->last_used_idx;
+> > +       int start, i;
+> > +
+> > +       if (!nheads)
+> > +               return -EINVAL;
+> > +
+> > +       start =3D vq->last_used_idx & (vq->num - 1);
+> > +       used =3D vq->used->ring + start;
+> > +
+> > +       for (i =3D 0; i < count; i++) {
+> > +               if (vhost_put_used(vq, &heads[i], start, 1)) {
+> > +                       vq_err(vq, "Failed to write used");
+> > +                       return -EFAULT;
+> > +               }
+> > +               start +=3D nheads[i];
+> > +               new +=3D nheads[i];
+> > +               if (start >=3D vq->num)
+> > +                       start -=3D vq->num;
+> > +       }
+> > +
+> > +       if (unlikely(vq->log_used)) {
+> > +               /* Make sure data is seen before log. */
+> > +               smp_wmb();
+> > +               /* Log used ring entry write. */
+> > +               log_used(vq, ((void __user *)used - (void __user *)vq->=
+used),
+> > +                        (vq->num - start) * sizeof *used);
+> > +               if (start + count > vq->num)
+> > +                       log_used(vq, 0,
+> > +                                (start + count - vq->num) * sizeof *us=
+ed);
+> > +       }
+> > +
+> > +       old =3D vq->last_used_idx;
+> > +       vq->last_used_idx =3D new;
+> > +       /* If the driver never bothers to signal in a very long while,
+> > +        * used index might wrap around. If that happens, invalidate
+> > +        * signalled_used index we stored. TODO: make sure driver
+> > +        * signals at least once in 2^16 and remove this. */
+> > +       if (unlikely((u16)(new - vq->signalled_used) < (u16)(new - old)=
+))
+> > +               vq->signalled_used_valid =3D false;
+> > +       return 0;
+> > +}
+> > +
+> > +/* After we've used one of their buffers, we tell them about it.  We'l=
+l then
+> > + * want to notify the guest, using eventfd. */
+> > +int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_ele=
+m *heads,
+> > +                    u16 *nheads, unsigned count)
+> > +{
+> > +       bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
+> > +       int r;
+> > +
+> > +       if (!in_order || !nheads)
+> > +               r =3D vhost_add_used_n_ooo(vq, heads, nheads, count);
+> > +       else
+> > +               r =3D vhost_add_used_n_in_order(vq, heads, nheads, coun=
+t);
+> > +
+>
+> I just realized the original code didn't do it either, but we should
+> return if r < 0 here. Otherwise, used->ring[] has a random value and
+> used->idx is incremented covering these values. This should be
+> triggable in a guest that set used->idx valid but used->ring[]
+> invalid, for example.
+
+This looks like a bug, I will send an independent fix.
+
+>
+> >         /* Make sure buffer is written before we update index. */
+> >         smp_wmb();
+> >         if (vhost_put_used_idx(vq)) {
+> > @@ -2853,9 +2932,11 @@ EXPORT_SYMBOL_GPL(vhost_add_used_and_signal);
+> >  /* multi-buffer version of vhost_add_used_and_signal */
+> >  void vhost_add_used_and_signal_n(struct vhost_dev *dev,
+> >                                  struct vhost_virtqueue *vq,
+> > -                                struct vring_used_elem *heads, unsigne=
+d count)
+> > +                                struct vring_used_elem *heads,
+> > +                                u16 *nheads,
+> > +                                unsigned count)
+> >  {
+> > -       vhost_add_used_n(vq, heads, count);
+> > +       vhost_add_used_n(vq, heads, nheads, count);
+> >         vhost_signal(dev, vq);
+> >  }
+> >  EXPORT_SYMBOL_GPL(vhost_add_used_and_signal_n);
+> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> > index bb75a292d50c..dca9f309d396 100644
+> > --- a/drivers/vhost/vhost.h
+> > +++ b/drivers/vhost/vhost.h
+> > @@ -103,6 +103,8 @@ struct vhost_virtqueue {
+> >          * Values are limited to 0x7fff, and the high bit is used as
+> >          * a wrap counter when using VIRTIO_F_RING_PACKED. */
+> >         u16 last_avail_idx;
+> > +       /* Next avail ring head when VIRTIO_F_IN_ORDER is neogitated */
+>
+> s/neogitated/negotiated/
+
+Will fix it.
+
+>
+> > +       u16 next_avail_head;
+> >
+> >         /* Caches available index value from user. */
+> >         u16 avail_idx;
+> > @@ -129,6 +131,7 @@ struct vhost_virtqueue {
+> >         struct iovec iotlb_iov[64];
+> >         struct iovec *indirect;
+> >         struct vring_used_elem *heads;
+> > +       u16 *nheads;
+> >         /* Protected by virtqueue mutex. */
+> >         struct vhost_iotlb *umem;
+> >         struct vhost_iotlb *iotlb;
+> > @@ -213,11 +216,12 @@ bool vhost_vq_is_setup(struct vhost_virtqueue *vq=
+);
+> >  int vhost_vq_init_access(struct vhost_virtqueue *);
+> >  int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int le=
+n);
+> >  int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem =
+*heads,
+> > -                    unsigned count);
+> > +                    u16 *nheads, unsigned count);
+> >  void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqu=
+eue *,
+> >                                unsigned int id, int len);
+> >  void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virt=
+queue *,
+> > -                              struct vring_used_elem *heads, unsigned =
+count);
+> > +                                struct vring_used_elem *heads, u16 *nh=
+eads,
+> > +                                unsigned count);
+> >  void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+> >  void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *=
+);
+> >  bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *=
+);
+> > --
+> > 2.31.1
+> >
+>
+
+Thanks
 
