@@ -1,206 +1,184 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BC282AD04;
-	Fri, 11 Jul 2025 03:16:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.16
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752203780; cv=fail; b=ruDIQ0JleHmRvNPtOpDbAM94E1/cU0eFrNQFl/O3Bh7N/qqlPBja4Xfo7NP09kcPaLgURGqQDdQ3pWdeRHQKjshqbZgFhlgES2LwJvNzoAezd6gt52rU3WzIJCAu2IrlwLfFTAge7E4Hj2Kqd9JoxXsw32OujuTU/vdR1d0mV3w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752203780; c=relaxed/simple;
-	bh=dEq43tsJvaIgQgG+23C59AnTjsF52YSylu/XhNod+3Q=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=GKFFf4jhqsAPE/AD6o2mxanI5XzfXb//Iydat5CxV/b6P4xy/s4rgM+p03Wf9uhmHGQxDXfT3DFJeTTlEpCEp4Xm4lkaq+lifpbbEO14vWpbDcqnM7Q/jhCJYtMfWn5QM3ayPvE9wvPnhYgil8YbTjWVBATsDYe5Qu5dgLe21Z8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Cn8TDnpG; arc=fail smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8612D1DED5B
+	for <virtualization@lists.linux-foundation.org>; Fri, 11 Jul 2025 06:49:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752216571; cv=none; b=qpJ6zKV9SA9iAfajeElN6Tuvs9RUueL1mheEkgQWbzEU0FkmGqIQLPd5TSBZ9AKn8tubBnBi16y6+cgM12ChzZ23GoYbYxl8CJHjLcjoGuOlJ0T2wmIc9I9Lq0W6Fwyy8tC8FL1LpJvXBGw5syBwIyrCF67NlHVoAG+jX7y1Ut0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752216571; c=relaxed/simple;
+	bh=8WjKZo/Tzc+89ScV1HU0cXSdTevhkck7mFPn4y7/ZAA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iAvhEEHxHHlQSUW/G+W0GFhA1dJLaH7Xmzkhe0hmSbVx1bKolbASiUdY0c4BjOPv0hGen4isV+NrVoCb/Bb8yEJGxIzIMluNfW1mOAiOhjf8NxWHpCNXnbQCCnjzvnhZtjVOplTHw/cx3c3CHzYuOph4750U6IhdsZwCVYbYRx8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eVwHIZcs; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Cn8TDnpG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1752203778; x=1783739778;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=dEq43tsJvaIgQgG+23C59AnTjsF52YSylu/XhNod+3Q=;
-  b=Cn8TDnpGg9tlNlyxTxPBUowdh0jWrW5L2TH6+a1gj/yzP8V0IlYyHIsU
-   adE2q/ht4IYa3X/5w24eEOn12UOuC0sGH+EUnDVWW4mPcm6hzkRctcpSY
-   asRcA4hI9WqAPfZFqoCODcSQmpWmPPK3NVVD3M1NO+viCYv+0pD9hUqZM
-   3GbAGdVl0tXXcay5uSA4Rjz5wj1KL0DmUvqZhXprDMppAgcR3MtVH14N4
-   T5ESI4GmHDPJkVK/A+GDf63je2MiXrc1nHaLG+7BneaDdsZsRI7Hi9Y9w
-   3CRKNT3UiMjgYl4gejZjLEiaJ/RcMMG04e2uASby1vZZ0/SwM5pFsmtt6
-   A==;
-X-CSE-ConnectionGUID: CSh8p86BSr2h1ovtH5yeEQ==
-X-CSE-MsgGUID: rN2vef9/TGuGAxzJ3UZ0Yw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11490"; a="42129899"
-X-IronPort-AV: E=Sophos;i="6.16,302,1744095600"; 
-   d="scan'208";a="42129899"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2025 20:16:14 -0700
-X-CSE-ConnectionGUID: GmLUNB/NTf+rZtdlRFBFyg==
-X-CSE-MsgGUID: IBH1+AW4RaydFxMXgwS1Nw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.16,302,1744095600"; 
-   d="scan'208";a="155676153"
-Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
-  by orviesa006.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2025 20:16:14 -0700
-Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Thu, 10 Jul 2025 20:16:13 -0700
-Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25 via Frontend Transport; Thu, 10 Jul 2025 20:16:13 -0700
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (40.107.94.69) by
- edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Thu, 10 Jul 2025 20:16:11 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=iEgFXS7+1AxeHn8nJ1rs9q3ldAtcO/vg6clRiW8HuFfX4ghewRO0jOhKF33pybMMegELgZfViy6n5UEDnsDp6ukPn6B/bXgp9DoanTfhcNWpuvI4CXtttu4l2EJw8jeIrCs3GjJ8VhqPTl6LCn6Ya0PC4Uzvzysn8fbfs0OTJJO/s6ilq3OEEscLt3UgXZgm+jZ2seJh4xx/Wuh2CFQ4eiD2xhq16i/ZkXZeuoI3bE5LDay5HGReUopU+hYXPivIVO12mtsfMP9PMJraJLWv5hkFZ2MLk+XeTSiEyE0D+XkSz47H1XKjTtoc0/m4Ky5CQAtepVEthOBSK6v2aLs4hw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5ZQ3a4wPrZlWRN0bKk9QuYPjfS2lj9/O+qUUeqTpCgc=;
- b=aoOBW2cZlqTMptUwyJWTXdsr+W7l5FyqA648msLeyANxI1RH2HiQeQZvcrJbjnxthlpTK4rXQ0mivrrat94V2uEZbpzsvh2qCbUehph/Yb9MP9glzw2+Az2zF0V0heSpA0QxCDpWNYqjaIG5SGZpKw4zMn86ADDjmWY8d6TvQ6RuOiqPHxMDLAqycG5Q3HXWi/wfcYYfh0Y/uhyj9NKJU2zkSAT3rB/2kTiCY0+lRn3cs4w+u0ONWv78k5wQlpHi2pNqoDrnBxG2tYVRtIZS7FHXLzL2g7P0whEA019vX7vslHGplBYrRcrE0cYPELtazP8yRZehf3IP5JhgLCHUGA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by SJ2PR11MB7715.namprd11.prod.outlook.com (2603:10b6:a03:4f4::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8901.26; Fri, 11 Jul
- 2025 03:15:29 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1%4]) with mapi id 15.20.8901.024; Fri, 11 Jul 2025
- 03:15:28 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Jason Gunthorpe <jgg@nvidia.com>, Ankit Agrawal <ankita@nvidia.com>, Brett
- Creeley <brett.creeley@amd.com>, "Cabiddu, Giovanni"
-	<giovanni.cabiddu@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	Longfang Liu <liulongfang@huawei.com>, qat-linux <qat-linux@intel.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, "Zeng,
- Xin" <xin.zeng@intel.com>, Yishai Hadas <yishaih@nvidia.com>
-CC: Alex Williamson <alex.williamson@redhat.com>, Matthew Rosato
-	<mjrosato@linux.ibm.com>, Nicolin Chen <nicolinc@nvidia.com>,
-	"patches@lists.linux.dev" <patches@lists.linux.dev>, Shameer Kolothum
-	<shameerali.kolothum.thodi@huawei.com>, "Xu, Terrence"
-	<terrence.xu@intel.com>, "Jiang, Yanting" <yanting.jiang@intel.com>, "Liu, Yi
- L" <yi.l.liu@intel.com>, "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
-Subject: RE: [PATCH v2] vfio/pci: Do vf_token checks for
- VFIO_DEVICE_BIND_IOMMUFD
-Thread-Topic: [PATCH v2] vfio/pci: Do vf_token checks for
- VFIO_DEVICE_BIND_IOMMUFD
-Thread-Index: AQHb8a+qjHF+d/C0QkaqfUj98TUuWLQsQJww
-Date: Fri, 11 Jul 2025 03:15:28 +0000
-Message-ID: <BN9PR11MB5276AA956A0674CD8C708CD08C4BA@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <0-v2-470f044801ef+a887e-vfio_token_jgg@nvidia.com>
-In-Reply-To: <0-v2-470f044801ef+a887e-vfio_token_jgg@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|SJ2PR11MB7715:EE_
-x-ms-office365-filtering-correlation-id: b7feaa23-2f36-4aae-1592-08ddc0292ff7
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|366016|376014|7416014|921020|38070700018;
-x-microsoft-antispam-message-info: =?us-ascii?Q?jbu3oSYoKzqLXVjGvf/d6VrqiPNBNH//dUGg3j6VgCmR4U8HUv7o1Ma3+ztK?=
- =?us-ascii?Q?wdCeCk5EeJFClpVa7vh63ZDsKTowTf04IeL5+mu47sJ7xwMvLODOi3KOnHM3?=
- =?us-ascii?Q?M8eyXHi6ZIVcJ6bcRDy3iP02zPyuzS017fD16CW+X9vgT+jVsa5VJhfSIn3X?=
- =?us-ascii?Q?s8DNgMXOtHhviBPUmWkYrMKYQ7zlBWGH48tD4o2oFd/sBISdKDfh7IZOgvg0?=
- =?us-ascii?Q?g1jElpcjhfj61Z2WlNo3DMQ1z/se7LOMilR6zp6X9HrbwYGE7Us6TT8JT/fC?=
- =?us-ascii?Q?GYyCYLae/Sc5QC+McRozBTn4VfX4K1EKKTO531kEsXsZhyKB4gppEJ+uGX8y?=
- =?us-ascii?Q?Yc0AXtL1EldBCoUDFia5nGsU7vT/iTpsa98sAnln1Ul5IK03zJEHzK4ygim0?=
- =?us-ascii?Q?MvV5bzncbthbCI8s/e1YgayMWlIzXOOtYjx9qkO8nlaEqgXcp9gm7KcapI4V?=
- =?us-ascii?Q?n0hOYtjIUl9rWPI6AKcZpFCjVtBhRLPg+VwJlw6juuYNouizLBFszp9WXP2Z?=
- =?us-ascii?Q?4hkZzeH9dAsNgbch1hV6KhxPhMTFuqsRDpQdtGY0f7mbId6DKB99XviK9gRY?=
- =?us-ascii?Q?HxCwIPbr/4GBijf3gwo10jcndkr/fy6yT0TbfzlyI6nfDj7iXKnAGFAzf1k4?=
- =?us-ascii?Q?89CArZ27Qql/MCaQHQ8aNcj3FQnZU9qzDI7utAWelTcabMfwiE/k7Xmvmpab?=
- =?us-ascii?Q?KvJk6cZW6ijpoQfwocimnh1T5QWDvGCrnHIAXkKp8MXnPXIvDO4gGye04fPZ?=
- =?us-ascii?Q?8bRHOWV1r1iHJ4ILeUgUSoR4RUIdx5HTbB9ryTSQ38dE/FZ4R1j/S6SygrSP?=
- =?us-ascii?Q?I/qohuKo7sn3zYF0+AokkKU5MiQdmdqJG4y/nQI4D2HlnYe5F4n2S3XdY/7o?=
- =?us-ascii?Q?06Flbm1FAprm2O6H1cSFmlEDOiVohUOnDElcVHvuIzSLIAIPsO5d4LSKp4j5?=
- =?us-ascii?Q?QZGmUJqlSZcvXI8VFbzeyAAVdRjS8pabWfPYmvdGL4g/sZycjQgFDajfd7p3?=
- =?us-ascii?Q?zTZdiCIKKpSCwvgFq0PvCD8h87LLuVCcsP5kGfBTeEmBVdOs3tcRk1nFwx5j?=
- =?us-ascii?Q?QUXMSdgT5VaQ8ElqDz4UIXaOhgV7X8xFhWlDcq/clElOqRQgbMQM63Yi/WhY?=
- =?us-ascii?Q?2C1mDveu4+0KIbVi//7mX45bivaxcA9GLFUykc0aTXDtEJBzIm81EgJPYHky?=
- =?us-ascii?Q?QastkYxurG4YikSPlRLptHGsZh484a2F64PQC7IMzONT7W8M0NWQShpUx1v2?=
- =?us-ascii?Q?pIu0F8t6jM5kM+4fbrZ04GKoec2jMD52mTZlq8VPp6w5GagYk06a6dxp4uAV?=
- =?us-ascii?Q?vs1j1AeQGWolbKL3Try46QIQtVygr8/RUEARF7/KVYwrAV0Vxm1+xwTtFZWZ?=
- =?us-ascii?Q?dui+tEvitpXKXnV/uvVOaLEO8FK1wlBb+0aaIuHJeLb1e2chxAgXiFF1F8h4?=
- =?us-ascii?Q?OFvvT7XWT1570vDnGYykkaMzsUOdBOBDV07hJc188iYjxLKjW4vZQmznS1sU?=
- =?us-ascii?Q?sB/Z4qXQJlvUmgE=3D?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(921020)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?G/YPcQYqbPJjeHF81J2TGleM9ZeICqUOYC4NyOSmMKvl6Oe4npGZoz/ecSzh?=
- =?us-ascii?Q?VGyv04K8fD6QZtx0TtXVBvdi3X+2HkajF0AURhwq2Low5b6S5kXf1c0aHznh?=
- =?us-ascii?Q?PebzITJQ7F9Hk6wplVz+lsjzdT/NpyjlnFCXWK5xQT46ScmHdq1Dw0/Ch6R2?=
- =?us-ascii?Q?S2qHiXnnTdFyzYNiptzHfugS8Fpp2eQ0jwco91PxLIMwk+a9XERMuo1ZbEAX?=
- =?us-ascii?Q?qhvTRjJUxULWjrqnmKPjCJtxUimDXZrw0LmgPAXGQr3dg3qSjbbJv4PkJ1aI?=
- =?us-ascii?Q?2bkujeiY+WBEYe8aveqtUJ9YYvtQsit4HzhWfQZQkj7ZzPVZrbBEkwKjjZ9C?=
- =?us-ascii?Q?/cARfQgbzft9kCoXl+myfGRcV5Djb6/0lzcl1gdcYh+rVtNlin1+BJPrfyly?=
- =?us-ascii?Q?a34MrWMYK+DkTe3fMuXJEu0elP/Mdy66W3hCUgzIlaZFh9Ms1RLpbfFrlHSV?=
- =?us-ascii?Q?LFP9MpCGFAw0xCIqzWRRDjgsq3/URYYmO5b8HC7X6AUkdkmuZUULkb1LOg3t?=
- =?us-ascii?Q?CvCKHhtaPVs1oEoPtxdZsziZPmpJOZqeTUcl5KVGY4O8PtmDBBsqvymOhF6G?=
- =?us-ascii?Q?kjEPFoClaIjn6I8bFK7lKg1Krp7ttsnxws+eWhmHeMd8Sh21Os8DJF/rTt+u?=
- =?us-ascii?Q?2n3aWh6Z5nYjd6xOplL6c4wv6G4S11pPqjaUKd2SfxhQW/RUg6KskES7gGt8?=
- =?us-ascii?Q?Eyt081/R8H/xBGMPjYINAnOlpXN4IocD+6XfAGfvuRLtH4Z97+m2Eex3IV0o?=
- =?us-ascii?Q?Zf+e8xy8ZiFrs3/dhPKZkpKI5hpLonb+qXLEUKiMkca5dCnl0hPPL61HDA6M?=
- =?us-ascii?Q?l3MLhNcB9tr/YUgmKrZW+brLHWXR2EXlaI7RJly64f6cw41ZygPb20mLtGJl?=
- =?us-ascii?Q?shYrzRXtKusSovZwfM+AGPMzytTHtMY58ub1gXw8fS2u9m82DR9llbgy+aEb?=
- =?us-ascii?Q?hepwydEeuMP8SI4ST1Xnr7l06RFxSpFr0uFeKmcvyxJq27uMUxJ7TSxLSm/L?=
- =?us-ascii?Q?XhDyMqc1GdBNNgcK7q0V4bupZiEWA31On2ZY4V4SKng555ASBD47jgZ/dpAT?=
- =?us-ascii?Q?DUXlGbySxK0niC1c/pXYXDPN2rSOIC23tlV87Io+G7F3ws7am0zKQyS4Xx5h?=
- =?us-ascii?Q?CsfDgFg4xXDURutYhakWDzrS9gSf7eqjHWfyMMaeJXOGlWZ/bvTDyvUnLKIj?=
- =?us-ascii?Q?DFcFEu8oinSGuPbl6HPHLmTcJ/dG7V9OiJsG3mjIVdQXivT4VqpIyp2Pqjo5?=
- =?us-ascii?Q?TGi6D/N7Bsl+Fd0qBAvzu/Lqvk8fGaGTJe2fuYjn3wlW6fd/sxUbvL2ifkHG?=
- =?us-ascii?Q?7j8yCmCckeJvZ+0XA/dj5ZXEHEpOiv3d6JI6L+sJz47szZHWs3HDMjX92sD2?=
- =?us-ascii?Q?zS/Jg188cEbxnt4JtjqooeVJ4w5ZiEPkehSW9e9xDOrbiViyzji9qi4m3Vzs?=
- =?us-ascii?Q?ftl7MwFf3MCLoictfP7fzOWXKwdr/U7y0t+WldvYMBh5BDT0cmoBbh2K/vBV?=
- =?us-ascii?Q?HMVjOSEdM7gY8J7sluBptUdr7l3RR71/n5PbIGdRAqnyhCogBvO+AiG/r+rv?=
- =?us-ascii?Q?nQ/d6WHPFAi0YLcsPWEZXRSjmQm1SrZGAIrRZTWX?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eVwHIZcs"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 340CC61423
+	for <virtualization@lists.linux-foundation.org>; Fri, 11 Jul 2025 06:49:30 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.79
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id YZOUaJhqBuXz for <virtualization@lists.linux-foundation.org>;
+ Fri, 11 Jul 2025 06:49:29 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 79A8B610A8
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 79A8B610A8
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eVwHIZcs
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 79A8B610A8
+	for <virtualization@lists.linux-foundation.org>; Fri, 11 Jul 2025 06:49:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752216568;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BxbG4JFSAtZVQEjQXI+wWXnxQA/cXn+OA4Z+OMpKyu4=;
+	b=eVwHIZcs41r3nSKwXtY2urVZWC32sMykNziXDwhZMqgd62IfG57Gb7yDAfaVUdu015kJG2
+	uizJr+mQMhlJ24nlXXDQduN2RspglplpGWmLV9CkRmPy37xnQl3DXwz+ka9rlm/SYaLUdY
+	/wd3xHGwIkkGLSvbPg/jYmBpmuhLym8=
+Received: from mail-vk1-f198.google.com (mail-vk1-f198.google.com
+ [209.85.221.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-144-i74RjoRJPcajskJT8pO1JQ-1; Fri, 11 Jul 2025 02:49:27 -0400
+X-MC-Unique: i74RjoRJPcajskJT8pO1JQ-1
+X-Mimecast-MFC-AGG-ID: i74RjoRJPcajskJT8pO1JQ_1752216566
+Received: by mail-vk1-f198.google.com with SMTP id 71dfb90a1353d-5315999c994so615691e0c.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 10 Jul 2025 23:49:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752216566; x=1752821366;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BxbG4JFSAtZVQEjQXI+wWXnxQA/cXn+OA4Z+OMpKyu4=;
+        b=w4Nn4Ftw+E9g5et8Ij72HoUhF4mM0MO8gVJKnH7APOQz6M+gHXw8LZ6AkbZSD+HyLY
+         DsuuxhjwGc+OfjWAT56ap4EI8cHJDwV9aQ7tJyI3iYsEiTmag/ryo3vwo3JoAtwN67PR
+         Wi0qCkOav0iYFrHRs3N7X+Ydh8pNOSQH2+YnAPCsWunv1/7YVq/KxbRrg/mCuEK0c05I
+         CHxuxiuRXsZ+s4PTiux7sSFJpEZeCXzMrqWeVIO5bRbRgV+EfsuLEsoaZxwQQd5wDGiV
+         Yb5MX60Y3jr6LPdWqnQ0DRrctN06+5lF+NUaVPzLCvy1sio1NcSWsJS2DH0WUxgsiShP
+         zEKA==
+X-Forwarded-Encrypted: i=1; AJvYcCVjwRQCpWHXIzhg4Wn429rufMyx257tAWG8TbDP5QRi9Rb32B8x4zUl4RiwG0S7xJCFExD4R/egmUXzrJvQ9w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxJpnnIhC+JVJEo1GcoevWbFl3quB/Rvz5MAUl9r7hJsCA+Vd/P
+	Z/inMDgW6MENwJw5HUPym44P9qEwapjIPVFTFnmVz2I3Y4sYaZycZt0JuG5Zwx+PEJxnhfxPCT8
+	8Ic4O3jdLWwC6qv0REO8h5IXGtQDS/ULobEBqhrVVrxH2CTLpkaJ+PN7cSJCdrV00BJ+o6tKkZE
+	Xqerm5frOP4YFoq0pG9hBqPfCDPN9RGFDO3Yy4nA/fDEDfhyiOxLGojE0ouQ==
+X-Gm-Gg: ASbGncuVo9z4Fs2umhqXvYTqIVRr6XkMA7C81NibZ5MjjsbMgsKCNTg27BQAhvNNZJY
+	+O/Q4CKx3t2wwc3NthcHMbukpz2zbhNKKQZL0+kON55hwahDyOHMTEvWn5IbgCC5d23L7/Q+sP4
+	k0h1IS7sfj5FbfTtDCBkgwaA==
+X-Received: by 2002:a05:6102:dca:b0:4e9:c773:dca1 with SMTP id ada2fe7eead31-4f6411e36c2mr1621590137.11.1752216566330;
+        Thu, 10 Jul 2025 23:49:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH8pdr64dQhCGFiGndp3QqJ4OXoQVOVXjcmO3HV7h3AAPJDmNsRuoLhWIcxZByOZsvaufxvkGWZod21F8kL+T8=
+X-Received: by 2002:a05:6102:dca:b0:4e9:c773:dca1 with SMTP id
+ ada2fe7eead31-4f6411e36c2mr1621586137.11.1752216565960; Thu, 10 Jul 2025
+ 23:49:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b7feaa23-2f36-4aae-1592-08ddc0292ff7
-X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Jul 2025 03:15:28.6796
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: iWik2smMliLdrZagwqDeqhKi5G9/vIkj+d3vEhIxTPDRqHARN5VLKtnqTToeq88hYEFwL8eDPfVtVgWESvGPMg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR11MB7715
-X-OriginatorOrg: intel.com
+References: <20250616062922.682558-1-lulu@redhat.com> <20250616062922.682558-2-lulu@redhat.com>
+ <6107dcb2-51a3-42f8-b856-f443c0e2a60d@6wind.com> <CACGkMEsJdfeNuHdKu0OH=sT4RYhN3d_VOnDcu4_-FquRXo24Xw@mail.gmail.com>
+In-Reply-To: <CACGkMEsJdfeNuHdKu0OH=sT4RYhN3d_VOnDcu4_-FquRXo24Xw@mail.gmail.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Fri, 11 Jul 2025 14:48:12 +0800
+X-Gm-Features: Ac12FXxIsX9kCA8tu7rmOHAy5cYEuocqulMU9XdacIEoFSZMPVCORVJXY4Z54Eo
+Message-ID: <CACLfguWqF62MMY3Y45GCRnh=5J75q6ebAqhFgOmhsAAsoyYXew@mail.gmail.com>
+Subject: Re: [PATCH v12 1/1] vhost: Reintroduces support of kthread API and
+ adds mode selection
+To: Jason Wang <jasowang@redhat.com>
+Cc: nicolas.dichtel@6wind.com, mst@redhat.com, michael.christie@oracle.com, 
+	sgarzare@redhat.com, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Qp65SrTHtpsO-T-tbfWDftOCZOIAXz7Z2MuCcTiLh78_1752216566
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Thursday, July 10, 2025 11:30 PM
->=20
-> This was missed during the initial implementation. The VFIO PCI encodes
-> the vf_token inside the device name when opening the device from the
-> group
-> FD, something like:
->=20
->   "0000:04:10.0 vf_token=3Dbd8d9d2b-5a5f-4f5a-a211-f591514ba1f3"
->=20
-> This is used to control access to a VF unless there is co-ordination with
-> the owner of the PF.
->=20
-> Since we no longer have a device name, pass the token directly through
-> VFIO_DEVICE_BIND_IOMMUFD using an optional field indicated by
-> VFIO_DEVICE_BIND_TOKEN.
->=20
-> Fixes: 5fcc26969a16 ("vfio: Add VFIO_DEVICE_BIND_IOMMUFD")
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+On Thu, Jun 19, 2025 at 9:02=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Wed, Jun 18, 2025 at 8:06=E2=80=AFPM Nicolas Dichtel
+> <nicolas.dichtel@6wind.com> wrote:
+> >
+> > Le 16/06/2025 =C3=A0 08:28, Cindy Lu a =C3=A9crit :
+> > > This patch reintroduces kthread mode for vhost workers and provides
+> > > configuration to select between kthread and task worker.
+> > >
+> > > - Add 'fork_owner' parameter to vhost_dev to let users select kthread
+> > >   or task mode. Default mode is task mode(VHOST_FORK_OWNER_TASK).
+> > >
+> > > - Reintroduce kthread mode support:
+> > >   * Bring back the original vhost_worker() implementation,
+> > >     and renamed to vhost_run_work_kthread_list().
+> > >   * Add cgroup support for the kthread
+> > >   * Introduce struct vhost_worker_ops:
+> > >     - Encapsulates create / stop / wake=E2=80=91up callbacks.
+> > >     - vhost_worker_create() selects the proper ops according to
+> > >       inherit_owner.
+> > >
+> > > - Userspace configuration interface:
+> > >   * New IOCTLs:
+> > >       - VHOST_SET_FORK_FROM_OWNER lets userspace select task mode
+> > >         (VHOST_FORK_OWNER_TASK) or kthread mode (VHOST_FORK_OWNER_KTH=
+READ)
+> > >       - VHOST_GET_FORK_FROM_OWNER reads the current worker mode
+> > >   * Expose module parameter 'fork_from_owner_default' to allow system
+> > >     administrators to configure the default mode for vhost workers
+> > >   * Kconfig option CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL controls wh=
+ether
+> > >     these IOCTLs and the parameter are available (for distros that ma=
+y
+> > >     want to disable them)
+> > >
+> > > - The VHOST_NEW_WORKER functionality requires fork_owner to be set
+> > >   to true, with validation added to ensure proper configuration
+> > >
+> > > This partially reverts or improves upon:
+> > >   commit 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
+> > >   commit 1cdaafa1b8b4 ("vhost: replace single worker pointer with xar=
+ray")
+> > >
+> > > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > > ---
+> > >  drivers/vhost/Kconfig      |  17 +++
+> > >  drivers/vhost/vhost.c      | 244 ++++++++++++++++++++++++++++++++++-=
+--
+> > >  drivers/vhost/vhost.h      |  22 ++++
+> > >  include/uapi/linux/vhost.h |  29 +++++
+> > >  4 files changed, 294 insertions(+), 18 deletions(-)
+> > >
+> > > diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> > > index 020d4fbb947c..1b3602b1f8e2 100644
+> > > --- a/drivers/vhost/Kconfig
+> > > +++ b/drivers/vhost/Kconfig
+> > > @@ -95,4 +95,21 @@ config VHOST_CROSS_ENDIAN_LEGACY
+> > >
+> > >         If unsure, say "N".
+> > >
+> > > +config VHOST_ENABLE_FORK_OWNER_CONTROL
+> > > +     bool "Enable VHOST_ENABLE_FORK_OWNER_CONTROL"
+> > > +     default n
+> > Why disabling this option by default?
+>
+> I think we should enable this by default.
+>
+> Thanks
+>
+Thanks jason,  I will send  a new version
+Thanks
+cindy
+> >
+> > Regards,
+> > Nicolas
+> >
+>
 
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
