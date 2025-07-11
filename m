@@ -1,500 +1,206 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E3321A29A
-	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 01:44:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752198268; cv=none; b=GpGO/ZichHVvTpvipgQntmttPEMn5iyuYHUrMxCBnwlWoJ6FYKOuwpAFkvP8yL7lz8bHaKRwiBunjeIYU669kA8HuFv9Zj7LRt0jV/I8hVCsIhbYGPV3+uYCsko8ChEi2c2dHN5BGF1CuVKH1rOrAn+Zn3hjhJWX+RMbeB0lXm0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752198268; c=relaxed/simple;
-	bh=wjSWkTPeBXW2tx1Qqi01hbov7H8psV4kqgnpKsfLW5k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Te6A72JcCp/GS79FwTKOVxjdxS4LuLXs+8RyY0Ba5u4tq0b2Q5rsrfJ+4HrGokmD79GM//ZUGxjpn0cTPuXHVQBhVT9mnBEuRdpmFN9gQn7CSFn2O62yqwy5s+m8YLCsZ3RFilTSHbEBuiO7zQT747cHOylLeSyicwhZyXYmFk8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HWQdNZfB; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BC282AD04;
+	Fri, 11 Jul 2025 03:16:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.16
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752203780; cv=fail; b=ruDIQ0JleHmRvNPtOpDbAM94E1/cU0eFrNQFl/O3Bh7N/qqlPBja4Xfo7NP09kcPaLgURGqQDdQ3pWdeRHQKjshqbZgFhlgES2LwJvNzoAezd6gt52rU3WzIJCAu2IrlwLfFTAge7E4Hj2Kqd9JoxXsw32OujuTU/vdR1d0mV3w=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752203780; c=relaxed/simple;
+	bh=dEq43tsJvaIgQgG+23C59AnTjsF52YSylu/XhNod+3Q=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=GKFFf4jhqsAPE/AD6o2mxanI5XzfXb//Iydat5CxV/b6P4xy/s4rgM+p03Wf9uhmHGQxDXfT3DFJeTTlEpCEp4Xm4lkaq+lifpbbEO14vWpbDcqnM7Q/jhCJYtMfWn5QM3ayPvE9wvPnhYgil8YbTjWVBATsDYe5Qu5dgLe21Z8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Cn8TDnpG; arc=fail smtp.client-ip=192.198.163.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HWQdNZfB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752198265;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Zt3KlbbLlIb9ntQo8ZxiuXNPWEVPbSNN/c/T7N+f2kQ=;
-	b=HWQdNZfBkxcWqoDAtxO9LtnSgmWtPLrRl2wQ8eJHvGG4yedcDhr3SYNzWRxG1gxFrcGIPw
-	GLLcM1Mh972OSxiAKyG2hFaAc38fA8WPe2hMJAw++QIpd6pT4Bh4hsJgFT2UP32oAwz+xl
-	ZhYZSqIl6IUFR5zumdYdcibR5BGTP0c=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-630-8LCsZkAbMGWqWPaX8IHypw-1; Thu, 10 Jul 2025 21:44:23 -0400
-X-MC-Unique: 8LCsZkAbMGWqWPaX8IHypw-1
-X-Mimecast-MFC-AGG-ID: 8LCsZkAbMGWqWPaX8IHypw_1752198262
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-312df02acf5so2192122a91.1
-        for <virtualization@lists.linux.dev>; Thu, 10 Jul 2025 18:44:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752198262; x=1752803062;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Zt3KlbbLlIb9ntQo8ZxiuXNPWEVPbSNN/c/T7N+f2kQ=;
-        b=t38JN7OW6d5xX1UDggYng3BODtGWm27swdPi1E8dduF46wLQyIhrFCXw6SSoP+UsIi
-         DBI/Jr/xRZzENOQyTUZK7GfMh9sWMtktyQfFAvzml3vDVWAdMMg4+k6X9FmMxSrnff3A
-         VOPAueGKRee3UCQgKnEnt676ecr0VEubgEloJ3HNCGmvhl8dhL7oUHtp1lK7QjTHX16o
-         034hyc6DRdhUB6feSEnstu0jW+1qiFf7FYZ4qIGZquevn6BKssbXtCVhw3tXLWHnPuq1
-         rwJZ5YWnym945k/q+FddTNYpQtaam8Bv529gTXQx5YNA7SYYQG2i/Ddokqa7TXA15Epi
-         tVsg==
-X-Forwarded-Encrypted: i=1; AJvYcCW/z/m9eWr/joy5Bp7aSFXI0JIFFWu/Kzkithd4uufc/aSIcfFAIJfaRyjiFb5+ECwdIGUpBRAxJ3WjJg4vxw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyekRHlXyV9PcZ9D8ZBnTJXNHs5XM9voo+PWAanLtgockPVM11Y
-	RlgizMyBm3G1rHPQkdWJPH7GxVIVlev4s6sxXgPoFxT95DiYcpXr6TTWlHCi5h/ALNylpBAXYxQ
-	DSKnmTJANEClY1DSIpanwe8qnjD3rV8v5pXEO977K6c3GqcZawghUlJ06wikqf8OAZzws3YlPBl
-	FdotejSNEGKJRXibu8IJ90o7ItDGFtPstxfSna13LDH2g=
-X-Gm-Gg: ASbGncuI+0g18X+GrAfXhi4+aYc8hWoqBC4iLeWKEoG/i5ZMDY299e+peeVxOO97PbW
-	mAlVYnTFzpddBuRKzBoTjIIml8wLMu7x6KiN2Ztm6vR2KunBqgRi2k0WC6iYj5G/pmPUj8C2EuH
-	WB7pjX/W4aCptZjYXNqzi1Qg==
-X-Received: by 2002:a17:90b:2b50:b0:30e:6a9d:d78b with SMTP id 98e67ed59e1d1-31c4d4d0740mr1758423a91.12.1752198262143;
-        Thu, 10 Jul 2025 18:44:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHL234yEKg6y0H6Ijdjo4ts3kRRF1EGyNEU+iyI8kqrhvv7V667xAFdlSjti5l3dkuKayZfNJBLadnJF0UJNi0=
-X-Received: by 2002:a17:90b:2b50:b0:30e:6a9d:d78b with SMTP id
- 98e67ed59e1d1-31c4d4d0740mr1758370a91.12.1752198261372; Thu, 10 Jul 2025
- 18:44:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Cn8TDnpG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1752203778; x=1783739778;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=dEq43tsJvaIgQgG+23C59AnTjsF52YSylu/XhNod+3Q=;
+  b=Cn8TDnpGg9tlNlyxTxPBUowdh0jWrW5L2TH6+a1gj/yzP8V0IlYyHIsU
+   adE2q/ht4IYa3X/5w24eEOn12UOuC0sGH+EUnDVWW4mPcm6hzkRctcpSY
+   asRcA4hI9WqAPfZFqoCODcSQmpWmPPK3NVVD3M1NO+viCYv+0pD9hUqZM
+   3GbAGdVl0tXXcay5uSA4Rjz5wj1KL0DmUvqZhXprDMppAgcR3MtVH14N4
+   T5ESI4GmHDPJkVK/A+GDf63je2MiXrc1nHaLG+7BneaDdsZsRI7Hi9Y9w
+   3CRKNT3UiMjgYl4gejZjLEiaJ/RcMMG04e2uASby1vZZ0/SwM5pFsmtt6
+   A==;
+X-CSE-ConnectionGUID: CSh8p86BSr2h1ovtH5yeEQ==
+X-CSE-MsgGUID: rN2vef9/TGuGAxzJ3UZ0Yw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11490"; a="42129899"
+X-IronPort-AV: E=Sophos;i="6.16,302,1744095600"; 
+   d="scan'208";a="42129899"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2025 20:16:14 -0700
+X-CSE-ConnectionGUID: GmLUNB/NTf+rZtdlRFBFyg==
+X-CSE-MsgGUID: IBH1+AW4RaydFxMXgwS1Nw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.16,302,1744095600"; 
+   d="scan'208";a="155676153"
+Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
+  by orviesa006.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2025 20:16:14 -0700
+Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Thu, 10 Jul 2025 20:16:13 -0700
+Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25 via Frontend Transport; Thu, 10 Jul 2025 20:16:13 -0700
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (40.107.94.69) by
+ edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Thu, 10 Jul 2025 20:16:11 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=iEgFXS7+1AxeHn8nJ1rs9q3ldAtcO/vg6clRiW8HuFfX4ghewRO0jOhKF33pybMMegELgZfViy6n5UEDnsDp6ukPn6B/bXgp9DoanTfhcNWpuvI4CXtttu4l2EJw8jeIrCs3GjJ8VhqPTl6LCn6Ya0PC4Uzvzysn8fbfs0OTJJO/s6ilq3OEEscLt3UgXZgm+jZ2seJh4xx/Wuh2CFQ4eiD2xhq16i/ZkXZeuoI3bE5LDay5HGReUopU+hYXPivIVO12mtsfMP9PMJraJLWv5hkFZ2MLk+XeTSiEyE0D+XkSz47H1XKjTtoc0/m4Ky5CQAtepVEthOBSK6v2aLs4hw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5ZQ3a4wPrZlWRN0bKk9QuYPjfS2lj9/O+qUUeqTpCgc=;
+ b=aoOBW2cZlqTMptUwyJWTXdsr+W7l5FyqA648msLeyANxI1RH2HiQeQZvcrJbjnxthlpTK4rXQ0mivrrat94V2uEZbpzsvh2qCbUehph/Yb9MP9glzw2+Az2zF0V0heSpA0QxCDpWNYqjaIG5SGZpKw4zMn86ADDjmWY8d6TvQ6RuOiqPHxMDLAqycG5Q3HXWi/wfcYYfh0Y/uhyj9NKJU2zkSAT3rB/2kTiCY0+lRn3cs4w+u0ONWv78k5wQlpHi2pNqoDrnBxG2tYVRtIZS7FHXLzL2g7P0whEA019vX7vslHGplBYrRcrE0cYPELtazP8yRZehf3IP5JhgLCHUGA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by SJ2PR11MB7715.namprd11.prod.outlook.com (2603:10b6:a03:4f4::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8901.26; Fri, 11 Jul
+ 2025 03:15:29 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::b576:d3bd:c8e0:4bc1%4]) with mapi id 15.20.8901.024; Fri, 11 Jul 2025
+ 03:15:28 +0000
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: Jason Gunthorpe <jgg@nvidia.com>, Ankit Agrawal <ankita@nvidia.com>, Brett
+ Creeley <brett.creeley@amd.com>, "Cabiddu, Giovanni"
+	<giovanni.cabiddu@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	Longfang Liu <liulongfang@huawei.com>, qat-linux <qat-linux@intel.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, "Zeng,
+ Xin" <xin.zeng@intel.com>, Yishai Hadas <yishaih@nvidia.com>
+CC: Alex Williamson <alex.williamson@redhat.com>, Matthew Rosato
+	<mjrosato@linux.ibm.com>, Nicolin Chen <nicolinc@nvidia.com>,
+	"patches@lists.linux.dev" <patches@lists.linux.dev>, Shameer Kolothum
+	<shameerali.kolothum.thodi@huawei.com>, "Xu, Terrence"
+	<terrence.xu@intel.com>, "Jiang, Yanting" <yanting.jiang@intel.com>, "Liu, Yi
+ L" <yi.l.liu@intel.com>, "Duan, Zhenzhong" <zhenzhong.duan@intel.com>
+Subject: RE: [PATCH v2] vfio/pci: Do vf_token checks for
+ VFIO_DEVICE_BIND_IOMMUFD
+Thread-Topic: [PATCH v2] vfio/pci: Do vf_token checks for
+ VFIO_DEVICE_BIND_IOMMUFD
+Thread-Index: AQHb8a+qjHF+d/C0QkaqfUj98TUuWLQsQJww
+Date: Fri, 11 Jul 2025 03:15:28 +0000
+Message-ID: <BN9PR11MB5276AA956A0674CD8C708CD08C4BA@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <0-v2-470f044801ef+a887e-vfio_token_jgg@nvidia.com>
+In-Reply-To: <0-v2-470f044801ef+a887e-vfio_token_jgg@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|SJ2PR11MB7715:EE_
+x-ms-office365-filtering-correlation-id: b7feaa23-2f36-4aae-1592-08ddc0292ff7
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|366016|376014|7416014|921020|38070700018;
+x-microsoft-antispam-message-info: =?us-ascii?Q?jbu3oSYoKzqLXVjGvf/d6VrqiPNBNH//dUGg3j6VgCmR4U8HUv7o1Ma3+ztK?=
+ =?us-ascii?Q?wdCeCk5EeJFClpVa7vh63ZDsKTowTf04IeL5+mu47sJ7xwMvLODOi3KOnHM3?=
+ =?us-ascii?Q?M8eyXHi6ZIVcJ6bcRDy3iP02zPyuzS017fD16CW+X9vgT+jVsa5VJhfSIn3X?=
+ =?us-ascii?Q?s8DNgMXOtHhviBPUmWkYrMKYQ7zlBWGH48tD4o2oFd/sBISdKDfh7IZOgvg0?=
+ =?us-ascii?Q?g1jElpcjhfj61Z2WlNo3DMQ1z/se7LOMilR6zp6X9HrbwYGE7Us6TT8JT/fC?=
+ =?us-ascii?Q?GYyCYLae/Sc5QC+McRozBTn4VfX4K1EKKTO531kEsXsZhyKB4gppEJ+uGX8y?=
+ =?us-ascii?Q?Yc0AXtL1EldBCoUDFia5nGsU7vT/iTpsa98sAnln1Ul5IK03zJEHzK4ygim0?=
+ =?us-ascii?Q?MvV5bzncbthbCI8s/e1YgayMWlIzXOOtYjx9qkO8nlaEqgXcp9gm7KcapI4V?=
+ =?us-ascii?Q?n0hOYtjIUl9rWPI6AKcZpFCjVtBhRLPg+VwJlw6juuYNouizLBFszp9WXP2Z?=
+ =?us-ascii?Q?4hkZzeH9dAsNgbch1hV6KhxPhMTFuqsRDpQdtGY0f7mbId6DKB99XviK9gRY?=
+ =?us-ascii?Q?HxCwIPbr/4GBijf3gwo10jcndkr/fy6yT0TbfzlyI6nfDj7iXKnAGFAzf1k4?=
+ =?us-ascii?Q?89CArZ27Qql/MCaQHQ8aNcj3FQnZU9qzDI7utAWelTcabMfwiE/k7Xmvmpab?=
+ =?us-ascii?Q?KvJk6cZW6ijpoQfwocimnh1T5QWDvGCrnHIAXkKp8MXnPXIvDO4gGye04fPZ?=
+ =?us-ascii?Q?8bRHOWV1r1iHJ4ILeUgUSoR4RUIdx5HTbB9ryTSQ38dE/FZ4R1j/S6SygrSP?=
+ =?us-ascii?Q?I/qohuKo7sn3zYF0+AokkKU5MiQdmdqJG4y/nQI4D2HlnYe5F4n2S3XdY/7o?=
+ =?us-ascii?Q?06Flbm1FAprm2O6H1cSFmlEDOiVohUOnDElcVHvuIzSLIAIPsO5d4LSKp4j5?=
+ =?us-ascii?Q?QZGmUJqlSZcvXI8VFbzeyAAVdRjS8pabWfPYmvdGL4g/sZycjQgFDajfd7p3?=
+ =?us-ascii?Q?zTZdiCIKKpSCwvgFq0PvCD8h87LLuVCcsP5kGfBTeEmBVdOs3tcRk1nFwx5j?=
+ =?us-ascii?Q?QUXMSdgT5VaQ8ElqDz4UIXaOhgV7X8xFhWlDcq/clElOqRQgbMQM63Yi/WhY?=
+ =?us-ascii?Q?2C1mDveu4+0KIbVi//7mX45bivaxcA9GLFUykc0aTXDtEJBzIm81EgJPYHky?=
+ =?us-ascii?Q?QastkYxurG4YikSPlRLptHGsZh484a2F64PQC7IMzONT7W8M0NWQShpUx1v2?=
+ =?us-ascii?Q?pIu0F8t6jM5kM+4fbrZ04GKoec2jMD52mTZlq8VPp6w5GagYk06a6dxp4uAV?=
+ =?us-ascii?Q?vs1j1AeQGWolbKL3Try46QIQtVygr8/RUEARF7/KVYwrAV0Vxm1+xwTtFZWZ?=
+ =?us-ascii?Q?dui+tEvitpXKXnV/uvVOaLEO8FK1wlBb+0aaIuHJeLb1e2chxAgXiFF1F8h4?=
+ =?us-ascii?Q?OFvvT7XWT1570vDnGYykkaMzsUOdBOBDV07hJc188iYjxLKjW4vZQmznS1sU?=
+ =?us-ascii?Q?sB/Z4qXQJlvUmgE=3D?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(921020)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?G/YPcQYqbPJjeHF81J2TGleM9ZeICqUOYC4NyOSmMKvl6Oe4npGZoz/ecSzh?=
+ =?us-ascii?Q?VGyv04K8fD6QZtx0TtXVBvdi3X+2HkajF0AURhwq2Low5b6S5kXf1c0aHznh?=
+ =?us-ascii?Q?PebzITJQ7F9Hk6wplVz+lsjzdT/NpyjlnFCXWK5xQT46ScmHdq1Dw0/Ch6R2?=
+ =?us-ascii?Q?S2qHiXnnTdFyzYNiptzHfugS8Fpp2eQ0jwco91PxLIMwk+a9XERMuo1ZbEAX?=
+ =?us-ascii?Q?qhvTRjJUxULWjrqnmKPjCJtxUimDXZrw0LmgPAXGQr3dg3qSjbbJv4PkJ1aI?=
+ =?us-ascii?Q?2bkujeiY+WBEYe8aveqtUJ9YYvtQsit4HzhWfQZQkj7ZzPVZrbBEkwKjjZ9C?=
+ =?us-ascii?Q?/cARfQgbzft9kCoXl+myfGRcV5Djb6/0lzcl1gdcYh+rVtNlin1+BJPrfyly?=
+ =?us-ascii?Q?a34MrWMYK+DkTe3fMuXJEu0elP/Mdy66W3hCUgzIlaZFh9Ms1RLpbfFrlHSV?=
+ =?us-ascii?Q?LFP9MpCGFAw0xCIqzWRRDjgsq3/URYYmO5b8HC7X6AUkdkmuZUULkb1LOg3t?=
+ =?us-ascii?Q?CvCKHhtaPVs1oEoPtxdZsziZPmpJOZqeTUcl5KVGY4O8PtmDBBsqvymOhF6G?=
+ =?us-ascii?Q?kjEPFoClaIjn6I8bFK7lKg1Krp7ttsnxws+eWhmHeMd8Sh21Os8DJF/rTt+u?=
+ =?us-ascii?Q?2n3aWh6Z5nYjd6xOplL6c4wv6G4S11pPqjaUKd2SfxhQW/RUg6KskES7gGt8?=
+ =?us-ascii?Q?Eyt081/R8H/xBGMPjYINAnOlpXN4IocD+6XfAGfvuRLtH4Z97+m2Eex3IV0o?=
+ =?us-ascii?Q?Zf+e8xy8ZiFrs3/dhPKZkpKI5hpLonb+qXLEUKiMkca5dCnl0hPPL61HDA6M?=
+ =?us-ascii?Q?l3MLhNcB9tr/YUgmKrZW+brLHWXR2EXlaI7RJly64f6cw41ZygPb20mLtGJl?=
+ =?us-ascii?Q?shYrzRXtKusSovZwfM+AGPMzytTHtMY58ub1gXw8fS2u9m82DR9llbgy+aEb?=
+ =?us-ascii?Q?hepwydEeuMP8SI4ST1Xnr7l06RFxSpFr0uFeKmcvyxJq27uMUxJ7TSxLSm/L?=
+ =?us-ascii?Q?XhDyMqc1GdBNNgcK7q0V4bupZiEWA31On2ZY4V4SKng555ASBD47jgZ/dpAT?=
+ =?us-ascii?Q?DUXlGbySxK0niC1c/pXYXDPN2rSOIC23tlV87Io+G7F3ws7am0zKQyS4Xx5h?=
+ =?us-ascii?Q?CsfDgFg4xXDURutYhakWDzrS9gSf7eqjHWfyMMaeJXOGlWZ/bvTDyvUnLKIj?=
+ =?us-ascii?Q?DFcFEu8oinSGuPbl6HPHLmTcJ/dG7V9OiJsG3mjIVdQXivT4VqpIyp2Pqjo5?=
+ =?us-ascii?Q?TGi6D/N7Bsl+Fd0qBAvzu/Lqvk8fGaGTJe2fuYjn3wlW6fd/sxUbvL2ifkHG?=
+ =?us-ascii?Q?7j8yCmCckeJvZ+0XA/dj5ZXEHEpOiv3d6JI6L+sJz47szZHWs3HDMjX92sD2?=
+ =?us-ascii?Q?zS/Jg188cEbxnt4JtjqooeVJ4w5ZiEPkehSW9e9xDOrbiViyzji9qi4m3Vzs?=
+ =?us-ascii?Q?ftl7MwFf3MCLoictfP7fzOWXKwdr/U7y0t+WldvYMBh5BDT0cmoBbh2K/vBV?=
+ =?us-ascii?Q?HMVjOSEdM7gY8J7sluBptUdr7l3RR71/n5PbIGdRAqnyhCogBvO+AiG/r+rv?=
+ =?us-ascii?Q?nQ/d6WHPFAi0YLcsPWEZXRSjmQm1SrZGAIrRZTWX?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250708064819.35282-1-jasowang@redhat.com> <20250708064819.35282-2-jasowang@redhat.com>
- <CAJaqyWd4K7tHHg+GCCN9+q3HdhkRdQ0R4iW+RXTP_6=xrP53VA@mail.gmail.com>
-In-Reply-To: <CAJaqyWd4K7tHHg+GCCN9+q3HdhkRdQ0R4iW+RXTP_6=xrP53VA@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 11 Jul 2025 09:44:10 +0800
-X-Gm-Features: Ac12FXzCFXEOlFdgCE9DKyHNbB7BgzuEFmQmUph58wsDb-dgqx-v3RY_-YznhXs
-Message-ID: <CACGkMEuL4YGa+d7yjopv1nchwdqU4BCP9_-8Ur1L4CKU+8R5Wg@mail.gmail.com>
-Subject: Re: [PATCH net-next 1/2] vhost: basic in order support
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jonah.palmer@oracle.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VhtmmedyWp5CI2bHM3SZeWCnjfYi-NS4GOWUVntyZOc_1752198262
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b7feaa23-2f36-4aae-1592-08ddc0292ff7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Jul 2025 03:15:28.6796
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: iWik2smMliLdrZagwqDeqhKi5G9/vIkj+d3vEhIxTPDRqHARN5VLKtnqTToeq88hYEFwL8eDPfVtVgWESvGPMg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR11MB7715
+X-OriginatorOrg: intel.com
 
-On Thu, Jul 10, 2025 at 5:05=E2=80=AFPM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Tue, Jul 8, 2025 at 8:48=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
-> >
-> > This patch adds basic in order support for vhost. Two optimizations
-> > are implemented in this patch:
-> >
-> > 1) Since driver uses descriptor in order, vhost can deduce the next
-> >    avail ring head by counting the number of descriptors that has been
-> >    used in next_avail_head. This eliminate the need to access the
-> >    available ring in vhost.
-> >
-> > 2) vhost_add_used_and_singal_n() is extended to accept the number of
-> >    batched buffers per used elem. While this increases the times of
-> >    usersapce memory access but it helps to reduce the chance of
->
-> s/usersapce/userspace/
->
-> >    used ring access of both the driver and vhost.
-> >
-> > Vhost-net will be the first user for this.
-> >
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/vhost/net.c   |   6 ++-
-> >  drivers/vhost/vhost.c | 121 +++++++++++++++++++++++++++++++++++-------
-> >  drivers/vhost/vhost.h |   8 ++-
-> >  3 files changed, 111 insertions(+), 24 deletions(-)
-> >
-> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > index 7cbfc7d718b3..4f9c67f17b49 100644
-> > --- a/drivers/vhost/net.c
-> > +++ b/drivers/vhost/net.c
-> > @@ -374,7 +374,8 @@ static void vhost_zerocopy_signal_used(struct vhost=
-_net *net,
-> >         while (j) {
-> >                 add =3D min(UIO_MAXIOV - nvq->done_idx, j);
-> >                 vhost_add_used_and_signal_n(vq->dev, vq,
-> > -                                           &vq->heads[nvq->done_idx], =
-add);
-> > +                                           &vq->heads[nvq->done_idx],
-> > +                                           NULL, add);
-> >                 nvq->done_idx =3D (nvq->done_idx + add) % UIO_MAXIOV;
-> >                 j -=3D add;
-> >         }
-> > @@ -457,7 +458,8 @@ static void vhost_net_signal_used(struct vhost_net_=
-virtqueue *nvq)
-> >         if (!nvq->done_idx)
-> >                 return;
-> >
-> > -       vhost_add_used_and_signal_n(dev, vq, vq->heads, nvq->done_idx);
-> > +       vhost_add_used_and_signal_n(dev, vq, vq->heads, NULL,
-> > +                                   nvq->done_idx);
-> >         nvq->done_idx =3D 0;
-> >  }
-> >
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index 3a5ebb973dba..c7ed069fc49e 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -364,6 +364,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
-> >         vq->avail =3D NULL;
-> >         vq->used =3D NULL;
-> >         vq->last_avail_idx =3D 0;
-> > +       vq->next_avail_head =3D 0;
-> >         vq->avail_idx =3D 0;
-> >         vq->last_used_idx =3D 0;
-> >         vq->signalled_used =3D 0;
-> > @@ -455,6 +456,8 @@ static void vhost_vq_free_iovecs(struct vhost_virtq=
-ueue *vq)
-> >         vq->log =3D NULL;
-> >         kfree(vq->heads);
-> >         vq->heads =3D NULL;
-> > +       kfree(vq->nheads);
-> > +       vq->nheads =3D NULL;
-> >  }
-> >
-> >  /* Helper to allocate iovec buffers for all vqs. */
-> > @@ -472,7 +475,9 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev=
- *dev)
-> >                                         GFP_KERNEL);
-> >                 vq->heads =3D kmalloc_array(dev->iov_limit, sizeof(*vq-=
->heads),
-> >                                           GFP_KERNEL);
-> > -               if (!vq->indirect || !vq->log || !vq->heads)
-> > +               vq->nheads =3D kmalloc_array(dev->iov_limit, sizeof(*vq=
-->nheads),
-> > +                                          GFP_KERNEL);
-> > +               if (!vq->indirect || !vq->log || !vq->heads || !vq->nhe=
-ads)
-> >                         goto err_nomem;
-> >         }
-> >         return 0;
-> > @@ -1990,14 +1995,15 @@ long vhost_vring_ioctl(struct vhost_dev *d, uns=
-igned int ioctl, void __user *arg
-> >                         break;
-> >                 }
-> >                 if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
-> > -                       vq->last_avail_idx =3D s.num & 0xffff;
-> > +                       vq->next_avail_head =3D vq->last_avail_idx =3D
-> > +                                             s.num & 0xffff;
-> >                         vq->last_used_idx =3D (s.num >> 16) & 0xffff;
-> >                 } else {
-> >                         if (s.num > 0xffff) {
-> >                                 r =3D -EINVAL;
-> >                                 break;
-> >                         }
-> > -                       vq->last_avail_idx =3D s.num;
-> > +                       vq->next_avail_head =3D vq->last_avail_idx =3D =
-s.num;
->
-> Why not just reuse last_avail_idx instead of creating next_avail_head?
->
-> At first glance it seemed to me that it was done this way to support
-> rewinding, but in_order path will happily reuse next_avail_head
-> without checking for last_avail_idx except for checking if the ring is
-> empty. Am I missing something?
+> From: Jason Gunthorpe <jgg@nvidia.com>
+> Sent: Thursday, July 10, 2025 11:30 PM
+>=20
+> This was missed during the initial implementation. The VFIO PCI encodes
+> the vf_token inside the device name when opening the device from the
+> group
+> FD, something like:
+>=20
+>   "0000:04:10.0 vf_token=3Dbd8d9d2b-5a5f-4f5a-a211-f591514ba1f3"
+>=20
+> This is used to control access to a VF unless there is co-ordination with
+> the owner of the PF.
+>=20
+> Since we no longer have a device name, pass the token directly through
+> VFIO_DEVICE_BIND_IOMMUFD using an optional field indicated by
+> VFIO_DEVICE_BIND_TOKEN.
+>=20
+> Fixes: 5fcc26969a16 ("vfio: Add VFIO_DEVICE_BIND_IOMMUFD")
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Because the driver can submit a batch of available buffers so
-last_avail_idx is not necessarily equal to next_avail_head.
-
->
-> >                 }
-> >                 /* Forget the cached index value. */
-> >                 vq->avail_idx =3D vq->last_avail_idx;
-> > @@ -2590,11 +2596,12 @@ int vhost_get_vq_desc(struct vhost_virtqueue *v=
-q,
-> >                       unsigned int *out_num, unsigned int *in_num,
-> >                       struct vhost_log *log, unsigned int *log_num)
-> >  {
-> > +       bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
-> >         struct vring_desc desc;
-> >         unsigned int i, head, found =3D 0;
-> >         u16 last_avail_idx =3D vq->last_avail_idx;
-> >         __virtio16 ring_head;
-> > -       int ret, access;
-> > +       int ret, access, c =3D 0;
-> >
-> >         if (vq->avail_idx =3D=3D vq->last_avail_idx) {
-> >                 ret =3D vhost_get_avail_idx(vq);
-> > @@ -2605,17 +2612,21 @@ int vhost_get_vq_desc(struct vhost_virtqueue *v=
-q,
-> >                         return vq->num;
-> >         }
-> >
-> > -       /* Grab the next descriptor number they're advertising, and inc=
-rement
-> > -        * the index we've seen. */
-> > -       if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_id=
-x))) {
-> > -               vq_err(vq, "Failed to read head: idx %d address %p\n",
-> > -                      last_avail_idx,
-> > -                      &vq->avail->ring[last_avail_idx % vq->num]);
-> > -               return -EFAULT;
-> > +       if (in_order)
-> > +               head =3D vq->next_avail_head & (vq->num - 1);
-> > +       else {
-> > +               /* Grab the next descriptor number they're
-> > +                * advertising, and increment the index we've seen. */
-> > +               if (unlikely(vhost_get_avail_head(vq, &ring_head,
-> > +                                                 last_avail_idx))) {
-> > +                       vq_err(vq, "Failed to read head: idx %d address=
- %p\n",
-> > +                               last_avail_idx,
-> > +                               &vq->avail->ring[last_avail_idx % vq->n=
-um]);
-> > +                       return -EFAULT;
-> > +               }
-> > +               head =3D vhost16_to_cpu(vq, ring_head);
-> >         }
-> >
-> > -       head =3D vhost16_to_cpu(vq, ring_head);
-> > -
-> >         /* If their number is silly, that's an error. */
-> >         if (unlikely(head >=3D vq->num)) {
-> >                 vq_err(vq, "Guest says index %u > %u is available",
-> > @@ -2658,6 +2669,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
-> >                                                 "in indirect descriptor=
- at idx %d\n", i);
-> >                                 return ret;
-> >                         }
-> > +                       ++c;
-> >                         continue;
-> >                 }
-> >
-> > @@ -2693,10 +2705,12 @@ int vhost_get_vq_desc(struct vhost_virtqueue *v=
-q,
-> >                         }
-> >                         *out_num +=3D ret;
-> >                 }
-> > +               ++c;
-> >         } while ((i =3D next_desc(vq, &desc)) !=3D -1);
-> >
-> >         /* On success, increment avail index. */
-> >         vq->last_avail_idx++;
-> > +       vq->next_avail_head +=3D c;
-> >
-> >         /* Assume notifications from guest are disabled at this point,
-> >          * if they aren't we would need to update avail_event index. */
-> > @@ -2720,8 +2734,9 @@ int vhost_add_used(struct vhost_virtqueue *vq, un=
-signed int head, int len)
-> >                 cpu_to_vhost32(vq, head),
-> >                 cpu_to_vhost32(vq, len)
-> >         };
-> > +       u16 nheads =3D 1;
-> >
-> > -       return vhost_add_used_n(vq, &heads, 1);
-> > +       return vhost_add_used_n(vq, &heads, &nheads, 1);
-> >  }
-> >  EXPORT_SYMBOL_GPL(vhost_add_used);
-> >
-> > @@ -2757,10 +2772,10 @@ static int __vhost_add_used_n(struct vhost_virt=
-queue *vq,
-> >         return 0;
-> >  }
-> >
-> > -/* After we've used one of their buffers, we tell them about it.  We'l=
-l then
-> > - * want to notify the guest, using eventfd. */
-> > -int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_ele=
-m *heads,
-> > -                    unsigned count)
-> > +static int vhost_add_used_n_ooo(struct vhost_virtqueue *vq,
-> > +                               struct vring_used_elem *heads,
-> > +                               u16 *nheads,
-> > +                               unsigned count)
->
-> nheads is not used in this function and it is checked to be NULL in
-> the caller, should we remove it from the parameter list?
-
-Exactly.
-
->
-> >  {
-> >         int start, n, r;
-> >
-> > @@ -2775,6 +2790,70 @@ int vhost_add_used_n(struct vhost_virtqueue *vq,=
- struct vring_used_elem *heads,
-> >         }
-> >         r =3D __vhost_add_used_n(vq, heads, count);
-> >
-> > +       return r;
->
-> Nit: We can merge with the previous statement and do "return
-> __vhost_add_used_n(vq, heads, count);"
-
-Right.
-
->
-> > +}
-> > +
-> > +static int vhost_add_used_n_in_order(struct vhost_virtqueue *vq,
-> > +                                    struct vring_used_elem *heads,
-> > +                                    u16 *nheads,
->
-> Nit: we can const-ify nheads, and do the same for _in_order variant
-> and vhost_add_used_n. Actually we can do it with heads too but it
-> requires more changes to existing code. I think it would be nice to
-> constify *nheads if you need to respin.
-
-Let me do that.
-
->
-> > +                                    unsigned count)
-> > +{
-> > +       vring_used_elem_t __user *used;
-> > +       u16 old, new =3D vq->last_used_idx;
-> > +       int start, i;
-> > +
-> > +       if (!nheads)
-> > +               return -EINVAL;
-> > +
-> > +       start =3D vq->last_used_idx & (vq->num - 1);
-> > +       used =3D vq->used->ring + start;
-> > +
-> > +       for (i =3D 0; i < count; i++) {
-> > +               if (vhost_put_used(vq, &heads[i], start, 1)) {
-> > +                       vq_err(vq, "Failed to write used");
-> > +                       return -EFAULT;
-> > +               }
-> > +               start +=3D nheads[i];
-> > +               new +=3D nheads[i];
-> > +               if (start >=3D vq->num)
-> > +                       start -=3D vq->num;
-> > +       }
-> > +
-> > +       if (unlikely(vq->log_used)) {
-> > +               /* Make sure data is seen before log. */
-> > +               smp_wmb();
-> > +               /* Log used ring entry write. */
-> > +               log_used(vq, ((void __user *)used - (void __user *)vq->=
-used),
-> > +                        (vq->num - start) * sizeof *used);
-> > +               if (start + count > vq->num)
-> > +                       log_used(vq, 0,
-> > +                                (start + count - vq->num) * sizeof *us=
-ed);
-> > +       }
-> > +
-> > +       old =3D vq->last_used_idx;
-> > +       vq->last_used_idx =3D new;
-> > +       /* If the driver never bothers to signal in a very long while,
-> > +        * used index might wrap around. If that happens, invalidate
-> > +        * signalled_used index we stored. TODO: make sure driver
-> > +        * signals at least once in 2^16 and remove this. */
-> > +       if (unlikely((u16)(new - vq->signalled_used) < (u16)(new - old)=
-))
-> > +               vq->signalled_used_valid =3D false;
-> > +       return 0;
-> > +}
-> > +
-> > +/* After we've used one of their buffers, we tell them about it.  We'l=
-l then
-> > + * want to notify the guest, using eventfd. */
-> > +int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_ele=
-m *heads,
-> > +                    u16 *nheads, unsigned count)
-> > +{
-> > +       bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
-> > +       int r;
-> > +
-> > +       if (!in_order || !nheads)
-> > +               r =3D vhost_add_used_n_ooo(vq, heads, nheads, count);
-> > +       else
-> > +               r =3D vhost_add_used_n_in_order(vq, heads, nheads, coun=
-t);
-> > +
->
-> I just realized the original code didn't do it either, but we should
-> return if r < 0 here. Otherwise, used->ring[] has a random value and
-> used->idx is incremented covering these values. This should be
-> triggable in a guest that set used->idx valid but used->ring[]
-> invalid, for example.
-
-This looks like a bug, I will send an independent fix.
-
->
-> >         /* Make sure buffer is written before we update index. */
-> >         smp_wmb();
-> >         if (vhost_put_used_idx(vq)) {
-> > @@ -2853,9 +2932,11 @@ EXPORT_SYMBOL_GPL(vhost_add_used_and_signal);
-> >  /* multi-buffer version of vhost_add_used_and_signal */
-> >  void vhost_add_used_and_signal_n(struct vhost_dev *dev,
-> >                                  struct vhost_virtqueue *vq,
-> > -                                struct vring_used_elem *heads, unsigne=
-d count)
-> > +                                struct vring_used_elem *heads,
-> > +                                u16 *nheads,
-> > +                                unsigned count)
-> >  {
-> > -       vhost_add_used_n(vq, heads, count);
-> > +       vhost_add_used_n(vq, heads, nheads, count);
-> >         vhost_signal(dev, vq);
-> >  }
-> >  EXPORT_SYMBOL_GPL(vhost_add_used_and_signal_n);
-> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > index bb75a292d50c..dca9f309d396 100644
-> > --- a/drivers/vhost/vhost.h
-> > +++ b/drivers/vhost/vhost.h
-> > @@ -103,6 +103,8 @@ struct vhost_virtqueue {
-> >          * Values are limited to 0x7fff, and the high bit is used as
-> >          * a wrap counter when using VIRTIO_F_RING_PACKED. */
-> >         u16 last_avail_idx;
-> > +       /* Next avail ring head when VIRTIO_F_IN_ORDER is neogitated */
->
-> s/neogitated/negotiated/
-
-Will fix it.
-
->
-> > +       u16 next_avail_head;
-> >
-> >         /* Caches available index value from user. */
-> >         u16 avail_idx;
-> > @@ -129,6 +131,7 @@ struct vhost_virtqueue {
-> >         struct iovec iotlb_iov[64];
-> >         struct iovec *indirect;
-> >         struct vring_used_elem *heads;
-> > +       u16 *nheads;
-> >         /* Protected by virtqueue mutex. */
-> >         struct vhost_iotlb *umem;
-> >         struct vhost_iotlb *iotlb;
-> > @@ -213,11 +216,12 @@ bool vhost_vq_is_setup(struct vhost_virtqueue *vq=
-);
-> >  int vhost_vq_init_access(struct vhost_virtqueue *);
-> >  int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int le=
-n);
-> >  int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem =
-*heads,
-> > -                    unsigned count);
-> > +                    u16 *nheads, unsigned count);
-> >  void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqu=
-eue *,
-> >                                unsigned int id, int len);
-> >  void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virt=
-queue *,
-> > -                              struct vring_used_elem *heads, unsigned =
-count);
-> > +                                struct vring_used_elem *heads, u16 *nh=
-eads,
-> > +                                unsigned count);
-> >  void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
-> >  void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *=
-);
-> >  bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *=
-);
-> > --
-> > 2.31.1
-> >
->
-
-Thanks
-
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
