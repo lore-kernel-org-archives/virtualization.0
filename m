@@ -1,352 +1,276 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE5F521CA1F
-	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 09:58:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D1211A5BA4
+	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 10:08:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752227932; cv=none; b=PVj+Ax+uEEM1xxanLmHsNWCzLkaZSfoR2x2ZRsdh6gZoetQfNL9AF5y62z2INX3LXm2z+4JAehyFVMqUwawutpRanC+GV3wcQUdd8wOY+2CPt95UEFuYqpRnOZro+OWswMussDL0iJjSQhWNcNq7i6gc/hEe7Dubcf9pqHHm8H4=
+	t=1752228511; cv=none; b=UEkfgUR4UeayDlTRRqGz+F6uc1Rs5eEeqtJ8uayHiyPPnClR29qa1+P6dnpTGWyI2jEYzlgpz/98TbWKvMx43waP2rurw5bnpFRzJFmgVijcSD9IQ3h5uUNA6St4s4OaMRjTlPSdRwWIBeKBCHQJDrYcX5RHZ2ct6Lf6OKNv3bo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752227932; c=relaxed/simple;
-	bh=jcwl1hcgxkhkVpibJEUIfNE7pqlQzKHmndBpD3OyFLw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H/hnMoBR+Nq5E05hMHNZW11tntAE8VfKkm2B5iLVEP/k6QjT+qmCnXUWQ3MMwuxoWdc33NnUQRj2a3l4WToijhN1uzhhW0Tie8g+6lQXiYOQPkWoYINP/2V6eIOFs166hVIwdpsYRvHGefCBAXh0jOn/s0CKv/m0dD9yiBrC158=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jDMX0wtt; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1752228511; c=relaxed/simple;
+	bh=69xOFdWDwCk4S0gIn5uUtYXZXgrNc0zyjeE8VJoT9yE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gc+VhKDE5uUX3A0E/CvHXufaSpzdWU+fCF6WTxQe+8Ms1eKWlR2kSb48XJf0I9xX+Y0NXuQeS6nUY63hWFkaoYXSCQ3R4vb+ajIsfzm2fRMLudq6/ploDvK7pHAt9aCdC0oHGhS9/iU7z7+aWm7pNP4h1Y0lvMS6fJHEFGAEn7I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch; spf=none smtp.mailfrom=ffwll.ch; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=Ni1oiZSY; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ffwll.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jDMX0wtt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752227929;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=+UKKl1tl/4X4RmJ4nRhAivPInQxndntWwMlFBpiS/So=;
-	b=jDMX0wtt701pngElWf2VLp/KYvU+HYVtV6LTQIr5Zk4SRfrAB8N15usJ/mJ/qvi5HWP3kn
-	7ONCPJDkTt1dQTFui6EtsZ5jq2IRgL2Z1c3mzfCaXOcAjoNXBQlsJviRS9/yYrQCWjahnD
-	rmVMEmQoKT1UnBP3qBqMWkzrO2IVVy8=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-642-vvtRYclQOKesFNleb_vC6w-1; Fri, 11 Jul 2025 05:58:48 -0400
-X-MC-Unique: vvtRYclQOKesFNleb_vC6w-1
-X-Mimecast-MFC-AGG-ID: vvtRYclQOKesFNleb_vC6w_1752227927
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-455eda09c57so1537425e9.2
-        for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 02:58:48 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="Ni1oiZSY"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-451e2f0d9c2so17005965e9.1
+        for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 03:08:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google; t=1752228508; x=1752833308; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=tgqCaEUcHReYwP1+eVs6TgGyIVC7fVlC12ysVvFBg1c=;
+        b=Ni1oiZSY3XWolAhbKP+iqCIX7ORw1+y66/JEcyjmnv6AI9eoSHFYlr/KGbV0AAOTmf
+         1is6Zq20qAXeI3qysHJB7fQWpUhOpNUV7CoO2S8pWlRnu7Z81gHtOKicGrg6YoL31bSm
+         sTT5fKU1iQRFq0j38jWqa2aSv0m/fBoauD2Cw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752227927; x=1752832727;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=+UKKl1tl/4X4RmJ4nRhAivPInQxndntWwMlFBpiS/So=;
-        b=vXahu01JvVdHxcyXfgxl+ZiWbYBnZ8olAcgCU68HnX7iI+vSNnfv7NEz6vxSANLkq6
-         yt2rHrT0BJ23ST5Tp90RqLz6u5ng8GdU+cIh0C0pp9fnuRZGi0j38NsNt4S+VqVqYBVL
-         wO1hOjuTr56g1QYujHHUluLTU4Z5kyMUEHmBF17/6Qw+64f9lUwZYam7uUeuRnIx38dM
-         +7ag/vkJJNehmx37cgubxQo0N1UzMxmqajzvnSKGRmskrypbM7tPUrX3J7j+7Wwd2h8c
-         Z2CScyZEiDUGKpnWL7yeIWj1OF3nkR1UgiE5Th74y5jQsEWVdt6QSza6I1DFTQ7Sj+cJ
-         MINg==
-X-Forwarded-Encrypted: i=1; AJvYcCV0RcoNAqElPDfm7oOP+ZrSZvrluNzE7LobwF/EjBZN+O+d0UP67M4i1Lke+ORT6Ms3Za+1dM8mVgaW/Voecg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx1xPNO28fOlvJqu0nRfozYu6K635Gtw40JdQP/VrcCZXu+JxOC
-	o3dGH9NzCPxnIrwr+ore8/RvenmjbYHZkX7NfM9iW1fJrQJw3flKAJ8j/3l0axDjaDJH4W/qN7g
-	fVE9I5fSzAvnVkfZlwHdcoIGFIjSZ2xO91ovek1+l+oC6zVx/ezJkUaRh3TbA1cpGqeX7
-X-Gm-Gg: ASbGnctbxiU4ja+EE3F4nkCTCXML7fybDyUPdc8d6cbn2Ij5ZOkrQYnfs/a0ElgjSQ6
-	10PvJoHEbRyhDYvybUzDXKp0a7Skyqzen2Lmx/22UiwbNt2STL0hqCrc67yfuaFwYcf7yGlNhTr
-	wjmi7mbws7Gv4cimx/lQyJs4G3O0qlW2DgHV2mbU3IDqx9l//+NtFZkvtUDSy0AaIovLdDd8F5c
-	Z3/qII/raReZmKULAA1URt6XwH1pMzP4VPSs3JJxVkxDhmRm/e6wlgTwTQcPmpIhl5ajlGeZl6w
-	BlYULZWfuGEtFEKQYfIVsmGmbrYtpib+OCEKTusR7xmL34ngbZ4KB6El/JI8YXVxDQXWNaUMpNL
-	tvW2u1jVa7LRxhPpxb2nTWs9JWOJX9hN9mP54d62lRYCOGIN34+iCBWaibZHMwQWEz0E=
-X-Received: by 2002:a5d:648d:0:b0:3a6:d255:7eda with SMTP id ffacd0b85a97d-3b5f2dfd1b8mr1404519f8f.28.1752227927120;
-        Fri, 11 Jul 2025 02:58:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFBZmauJhH+3iF5EU/3X92DU30FEe2aNm1uPMNqVM2/Rpwxm5AE5/oI+EKrP1imiuyTuELdjg==
-X-Received: by 2002:a5d:648d:0:b0:3a6:d255:7eda with SMTP id ffacd0b85a97d-3b5f2dfd1b8mr1404495f8f.28.1752227926612;
-        Fri, 11 Jul 2025 02:58:46 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f3c:3a00:5662:26b3:3e5d:438e? (p200300d82f3c3a00566226b33e5d438e.dip0.t-ipconnect.de. [2003:d8:2f3c:3a00:5662:26b3:3e5d:438e])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b5e8e0d727sm4072600f8f.51.2025.07.11.02.58.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 11 Jul 2025 02:58:46 -0700 (PDT)
-Message-ID: <65601756-e9ae-4a26-acd4-2dcfe58a7f7f@redhat.com>
-Date: Fri, 11 Jul 2025 11:58:43 +0200
+        d=1e100.net; s=20230601; t=1752228508; x=1752833308;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tgqCaEUcHReYwP1+eVs6TgGyIVC7fVlC12ysVvFBg1c=;
+        b=PP7D7wjJhYmVINrCvXpDDfbIWsBCyz1MRf0OSZx9Si4dGkbOtSXl2/6FjgqGCVrR6c
+         FDXBEoRWu4XvJnuupx56aUucvkcnOJFkFWkJgHQJOqOPhYoSvKupYn3llLYRXz6vZ/WR
+         5bYzE21+ctWwy1R2PXPrtuv/PMuCdfnVmjQKs3UVCw8Owe2W2G4vOMF/Sdm291SxoVqD
+         DqZ3Js6A6mJdj9lNSKthR9xnKu6hvLqHPPm948op0IcH93B5c5RTzC8x3wjFipaIu3hx
+         81nzLpI1lkvKgdD7Cg2j868UGvxVHdyXgYa4FQd0wywF+wxMjYs4UrF+Ndm/r8qlE5gL
+         YPPw==
+X-Forwarded-Encrypted: i=1; AJvYcCUQYNSLtNfnSp5qtQIcXhjFSvZvoEICMdn2NJC0WZ8kgTbUJ1kT8aNzqeV216zECnBGagUC/AbNU9gkBzgngg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxnC1jKEQRQQBfh11pW0ufUjcTXlFM4psXATCTzHR2yPebfwAX8
+	K8hJO1mIz52zzPrcyH9WoK2DrKI/ewYLfHnex21nvRI5nhXmiXwGMii/gm49lTdePyI=
+X-Gm-Gg: ASbGncsp15PpcUnPlqAUU9bjRij70Rn8Dph/KgSCk5CCvc/hn9r6wvIOymYEvTEUE4T
+	yKo1ZD5Tqt5Ew35BMsDPngJaFJvT3eqS+Pso6m1ChEkVBoqo+/o4k/q71gV2RD8YJmwjjnQ9Vmn
+	7JE/uqoMGZYPSE3BLqJlZWo85hXmoHIgTvFWSiN97GWiPyNbixSppZLpTPvidNEqfHIEzeR2p9T
+	WEZUzSw22pOpxtk4I3pK6HLMCmCCEoh/Md2FfLGpOkaKNgWCCzR4KA8E6gM/UkmjwWSVrAH2VFo
+	6fJ6N5QPIsREUFQzyamEvCXgZ+O3uxh5oBneO4wxdAgOmz6Vcqyad5/KUZXQ4DcrF+jm8d6VR1d
+	SsexGrxQmTWP5YZZ9cVd2Mw/gwIVGVyC2iw==
+X-Google-Smtp-Source: AGHT+IFhCZJ47IcyOYT/ucI3ECEF+Ab1sZvRV6pgr8844GO4AhYos7iyzZjZjDJLFfEkY94fWChkcA==
+X-Received: by 2002:a05:600c:a31b:b0:455:efd7:17dc with SMTP id 5b1f17b1804b1-455efd7194cmr5606095e9.11.1752228507556;
+        Fri, 11 Jul 2025 03:08:27 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:5485:d4b2:c087:b497])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b5f32ed100sm1238699f8f.0.2025.07.11.03.08.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Jul 2025 03:08:27 -0700 (PDT)
+Date: Fri, 11 Jul 2025 12:08:25 +0200
+From: Simona Vetter <simona.vetter@ffwll.ch>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: simona@ffwll.ch, airlied@gmail.com, christian.koenig@amd.com,
+	torvalds@linux-foundation.org, maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org, l.stach@pengutronix.de,
+	linux+etnaviv@armlinux.org.uk, kraxel@redhat.com,
+	christian.gmeiner@gmail.com, dmitry.osipenko@collabora.com,
+	gurchetansingh@chromium.org, olvaffe@gmail.com,
+	zack.rusin@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+	dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+	virtualization@lists.linux.dev, intel-gfx@lists.freedesktop.org
+Subject: Re: [PATCH 2/9] Revert "drm/gem: Acquire references on GEM handles
+ for framebuffers"
+Message-ID: <aHDimRgOz3VPMw0I@phenom.ffwll.local>
+References: <20250711093744.120962-1-tzimmermann@suse.de>
+ <20250711093744.120962-3-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 20/29] mm: convert "movable" flag in page->mapping to a
- page flag
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
- Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Zi Yan <ziy@nvidia.com>, Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
- Ying Huang <ying.huang@linux.alibaba.com>,
- Alistair Popple <apopple@nvidia.com>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
- <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Minchan Kim <minchan@kernel.org>,
- Sergey Senozhatsky <senozhatsky@chromium.org>,
- Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
- Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>,
- Chengming Zhou <chengming.zhou@linux.dev>, Miaohe Lin
- <linmiaohe@huawei.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
- Oscar Salvador <osalvador@suse.de>, Rik van Riel <riel@surriel.com>,
- Harry Yoo <harry.yoo@oracle.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
- Shakeel Butt <shakeel.butt@linux.dev>
-References: <20250704102524.326966-1-david@redhat.com>
- <20250704102524.326966-21-david@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20250704102524.326966-21-david@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5hCfjqvtpuOcRmExJACLi4MQCVkfNeJXrvY2FHtXrSw_1752227927
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250711093744.120962-3-tzimmermann@suse.de>
+X-Operating-System: Linux phenom 6.12.30-amd64 
 
-On 04.07.25 12:25, David Hildenbrand wrote:
-> Instead, let's use a page flag. As the page flag can result in
-> false-positives, glue it to the page types for which we
-> support/implement movable_ops page migration.
+On Fri, Jul 11, 2025 at 11:35:17AM +0200, Thomas Zimmermann wrote:
+> This reverts commit 5307dce878d4126e1b375587318955bd019c3741.
 > 
-> We are reusing PG_uptodate, that is for example used to track file
-> system state and does not apply to movable_ops pages. So
-> warning in case it is set in page_has_movable_ops() on other page types
-> could result in false-positive warnings.
-> 
-> Likely we could set the bit using a non-atomic update: in contrast to
-> page->mapping, we could have others trying to update the flags
-> concurrently when trying to lock the folio. In
-> isolate_movable_ops_page(), we already take care of that by checking if
-> the page has movable_ops before locking it. Let's start with the atomic
-> variant, we could later switch to the non-atomic variant once we are
-> sure other cases are similarly fine. Once we perform the switch, we'll
-> have to introduce __SETPAGEFLAG_NOOP().
-> 
-> Reviewed-by: Zi Yan <ziy@nvidia.com>
-> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+> We're going to revert the dma-buf handle back to separating dma_buf
+> and import_attach->dmabuf in struct drm_gem_object. Hence revert this
+> fix for it.
+
+I think we should add my reasons from the private thread here why I think
+this is conceptually wrong:
+
+handle_count is an uapi reference, and should have nothing to do with the
+lifetime and consistency of the underlying gem_bo. And for imported bo the
+link to the dma-buf really should be invariant, and hence
+drm_gem_object_get/put() enough. The fact that this patch seems to have
+helped at least in some cases indicates that our assumption that we can
+replace gem_bo->import_attach.dmabuf with gem_bo->dma_buf was wrong,
+because pretty obviously the latter can become NULL while the gem_bo is
+still alive. Which means this was conceptually wrong and at best helped
+hide a race condition somewhere.
+
+This means that unlike the claim in the reverted commit that 1a148af06000
+("drm/gem-shmem: Use dma_buf from GEM object instance") started triggering
+an existing condition the much more likely explanation is that it
+introduced the regression itself. And hence we need to revert this entire
+chain of commits.
+
+I'll also add all the Fixes: lines as needed when merging these to
+drm-fixes, since some of the patches reverted in this series have landed
+in 6.15 already.
+
+I plan to merge them all to drm-fixes once intel-gfx-ci has approved it
+all.
+
+Thanks, Sima
+
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
->   include/linux/balloon_compaction.h |  2 +-
->   include/linux/migrate.h            |  8 -----
->   include/linux/page-flags.h         | 54 ++++++++++++++++++++++++------
->   mm/compaction.c                    |  6 ----
->   mm/zpdesc.h                        |  2 +-
->   5 files changed, 46 insertions(+), 26 deletions(-)
+>  drivers/gpu/drm/drm_gem.c                    | 44 ++------------------
+>  drivers/gpu/drm/drm_gem_framebuffer_helper.c | 16 ++++---
+>  drivers/gpu/drm/drm_internal.h               |  2 -
+>  3 files changed, 11 insertions(+), 51 deletions(-)
 > 
-> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-> index a8a1706cc56f3..b222b0737c466 100644
-> --- a/include/linux/balloon_compaction.h
-> +++ b/include/linux/balloon_compaction.h
-> @@ -92,7 +92,7 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
->   				       struct page *page)
->   {
->   	__SetPageOffline(page);
-> -	__SetPageMovable(page);
-> +	SetPageMovableOps(page);
->   	set_page_private(page, (unsigned long)balloon);
->   	list_add(&page->lru, &balloon->pages);
->   }
-> diff --git a/include/linux/migrate.h b/include/linux/migrate.h
-> index 6aece3f3c8be8..acadd41e0b5cf 100644
-> --- a/include/linux/migrate.h
-> +++ b/include/linux/migrate.h
-> @@ -103,14 +103,6 @@ static inline int migrate_huge_page_move_mapping(struct address_space *mapping,
->   
->   #endif /* CONFIG_MIGRATION */
->   
-> -#ifdef CONFIG_COMPACTION
-> -void __SetPageMovable(struct page *page);
-> -#else
-> -static inline void __SetPageMovable(struct page *page)
+> diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+> index 3a99e4a5d303..db44c40e307f 100644
+> --- a/drivers/gpu/drm/drm_gem.c
+> +++ b/drivers/gpu/drm/drm_gem.c
+> @@ -213,35 +213,6 @@ void drm_gem_private_object_fini(struct drm_gem_object *obj)
+>  }
+>  EXPORT_SYMBOL(drm_gem_private_object_fini);
+>  
+> -static void drm_gem_object_handle_get(struct drm_gem_object *obj)
 > -{
-> -}
-> -#endif
+> -	struct drm_device *dev = obj->dev;
 > -
->   #ifdef CONFIG_NUMA_BALANCING
->   int migrate_misplaced_folio_prepare(struct folio *folio,
->   		struct vm_area_struct *vma, int node);
-> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-> index 4c27ebb689e3c..5f2b570735852 100644
-> --- a/include/linux/page-flags.h
-> +++ b/include/linux/page-flags.h
-> @@ -170,6 +170,11 @@ enum pageflags {
->   	/* non-lru isolated movable page */
->   	PG_isolated = PG_reclaim,
->   
-> +#ifdef CONFIG_MIGRATION
-> +	/* this is a movable_ops page (for selected typed pages only) */
-> +	PG_movable_ops = PG_uptodate,
-> +#endif
-> +
->   	/* Only valid for buddy pages. Used to track pages that are reported */
->   	PG_reported = PG_uptodate,
->   
-> @@ -698,9 +703,6 @@ PAGEFLAG_FALSE(VmemmapSelfHosted, vmemmap_self_hosted)
->    * bit; and then folio->mapping points, not to an anon_vma, but to a private
->    * structure which KSM associates with that merged page.  See ksm.h.
->    *
-> - * PAGE_MAPPING_KSM without PAGE_MAPPING_ANON is used for non-lru movable
-> - * page and then folio->mapping points to a struct movable_operations.
+> -	drm_WARN_ON(dev, !mutex_is_locked(&dev->object_name_lock));
+> -
+> -	if (obj->handle_count++ == 0)
+> -		drm_gem_object_get(obj);
+> -}
+> -
+> -/**
+> - * drm_gem_object_handle_get_unlocked - acquire reference on user-space handles
+> - * @obj: GEM object
 > - *
->    * Please note that, confusingly, "folio_mapping" refers to the inode
->    * address_space which maps the folio from disk; whereas "folio_mapped"
->    * refers to user virtual address space into which the folio is mapped.
-> @@ -743,13 +745,6 @@ static __always_inline bool PageAnon(const struct page *page)
->   {
->   	return folio_test_anon(page_folio(page));
->   }
-> -
-> -static __always_inline bool page_has_movable_ops(const struct page *page)
+> - * Acquires a reference on the GEM buffer object's handle. Required
+> - * to keep the GEM object alive. Call drm_gem_object_handle_put_unlocked()
+> - * to release the reference.
+> - */
+> -void drm_gem_object_handle_get_unlocked(struct drm_gem_object *obj)
 > -{
-> -	return ((unsigned long)page->mapping & PAGE_MAPPING_FLAGS) ==
-> -				PAGE_MAPPING_MOVABLE;
-> -}
+> -	struct drm_device *dev = obj->dev;
 > -
->   #ifdef CONFIG_KSM
->   /*
->    * A KSM page is one of those write-protected "shared pages" or "merged pages"
-> @@ -1133,6 +1128,45 @@ bool is_free_buddy_page(const struct page *page);
->   
->   PAGEFLAG(Isolated, isolated, PF_ANY);
->   
-> +#ifdef CONFIG_MIGRATION
-> +/*
-> + * This page is migratable through movable_ops (for selected typed pages
-> + * only).
-> + *
-> + * Page migration of such pages might fail, for example, if the page is
-> + * already isolated by somebody else, or if the page is about to get freed.
-> + *
-> + * While a subsystem might set selected typed pages that support page migration
-> + * as being movable through movable_ops, it must never clear this flag.
-> + *
-> + * This flag is only cleared when the page is freed back to the buddy.
-> + *
-> + * Only selected page types support this flag (see page_movable_ops()) and
-> + * the flag might be used in other context for other pages. Always use
-> + * page_has_movable_ops() instead.
-> + */
-> +TESTPAGEFLAG(MovableOps, movable_ops, PF_NO_TAIL);
-> +SETPAGEFLAG(MovableOps, movable_ops, PF_NO_TAIL);
-> +#else /* !CONFIG_MIGRATION */
-> +TESTPAGEFLAG_FALSE(MovableOps, movable_ops);
-> +SETPAGEFLAG_NOOP(MovableOps, movable_ops);
-> +#endif /* CONFIG_MIGRATION */
-> +
-> +/**
-> + * page_has_movable_ops - test for a movable_ops page
-> + * @page The page to test.
-> + *
-> + * Test whether this is a movable_ops page. Such pages will stay that
-> + * way until freed.
-> + *
-> + * Returns true if this is a movable_ops page, otherwise false.
-> + */
-> +static inline bool page_has_movable_ops(const struct page *page)
-> +{
-> +	return PageMovableOps(page) &&
-> +	       (PageOffline(page) || PageZsmalloc(page));
-> +}
-> +
+> -	guard(mutex)(&dev->object_name_lock);
+> -
+> -	drm_WARN_ON(dev, !obj->handle_count); /* first ref taken in create-tail helper */
+> -	drm_gem_object_handle_get(obj);
+> -}
+> -EXPORT_SYMBOL(drm_gem_object_handle_get_unlocked);
+> -
+>  /**
+>   * drm_gem_object_handle_free - release resources bound to userspace handles
+>   * @obj: GEM object to clean up.
+> @@ -272,14 +243,8 @@ static void drm_gem_object_exported_dma_buf_free(struct drm_gem_object *obj)
+>  	}
+>  }
+>  
+> -/**
+> - * drm_gem_object_handle_put_unlocked - releases reference on user-space handles
+> - * @obj: GEM object
+> - *
+> - * Releases a reference on the GEM buffer object's handle. Possibly releases
+> - * the GEM buffer object and associated dma-buf objects.
+> - */
+> -void drm_gem_object_handle_put_unlocked(struct drm_gem_object *obj)
+> +static void
+> +drm_gem_object_handle_put_unlocked(struct drm_gem_object *obj)
+>  {
+>  	struct drm_device *dev = obj->dev;
+>  	bool final = false;
+> @@ -304,7 +269,6 @@ void drm_gem_object_handle_put_unlocked(struct drm_gem_object *obj)
+>  	if (final)
+>  		drm_gem_object_put(obj);
+>  }
+> -EXPORT_SYMBOL(drm_gem_object_handle_put_unlocked);
+>  
+>  /*
+>   * Called at device or object close to release the file's
+> @@ -429,8 +393,8 @@ drm_gem_handle_create_tail(struct drm_file *file_priv,
+>  	int ret;
+>  
+>  	WARN_ON(!mutex_is_locked(&dev->object_name_lock));
+> -
+> -	drm_gem_object_handle_get(obj);
+> +	if (obj->handle_count++ == 0)
+> +		drm_gem_object_get(obj);
+>  
+>  	/*
+>  	 * Get the user-visible handle using idr.  Preload and perform
+> diff --git a/drivers/gpu/drm/drm_gem_framebuffer_helper.c b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+> index c60d0044d036..618ce725cd75 100644
+> --- a/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+> @@ -100,7 +100,7 @@ void drm_gem_fb_destroy(struct drm_framebuffer *fb)
+>  	unsigned int i;
+>  
+>  	for (i = 0; i < fb->format->num_planes; i++)
+> -		drm_gem_object_handle_put_unlocked(fb->obj[i]);
+> +		drm_gem_object_put(fb->obj[i]);
+>  
+>  	drm_framebuffer_cleanup(fb);
+>  	kfree(fb);
+> @@ -183,10 +183,8 @@ int drm_gem_fb_init_with_funcs(struct drm_device *dev,
+>  		if (!objs[i]) {
+>  			drm_dbg_kms(dev, "Failed to lookup GEM object\n");
+>  			ret = -ENOENT;
+> -			goto err_gem_object_handle_put_unlocked;
+> +			goto err_gem_object_put;
+>  		}
+> -		drm_gem_object_handle_get_unlocked(objs[i]);
+> -		drm_gem_object_put(objs[i]);
+>  
+>  		min_size = (height - 1) * mode_cmd->pitches[i]
+>  			 + drm_format_info_min_pitch(info, i, width)
+> @@ -196,22 +194,22 @@ int drm_gem_fb_init_with_funcs(struct drm_device *dev,
+>  			drm_dbg_kms(dev,
+>  				    "GEM object size (%zu) smaller than minimum size (%u) for plane %d\n",
+>  				    objs[i]->size, min_size, i);
+> -			drm_gem_object_handle_put_unlocked(objs[i]);
+> +			drm_gem_object_put(objs[i]);
+>  			ret = -EINVAL;
+> -			goto err_gem_object_handle_put_unlocked;
+> +			goto err_gem_object_put;
+>  		}
+>  	}
+>  
+>  	ret = drm_gem_fb_init(dev, fb, mode_cmd, objs, i, funcs);
+>  	if (ret)
+> -		goto err_gem_object_handle_put_unlocked;
+> +		goto err_gem_object_put;
+>  
+>  	return 0;
+>  
+> -err_gem_object_handle_put_unlocked:
+> +err_gem_object_put:
+>  	while (i > 0) {
+>  		--i;
+> -		drm_gem_object_handle_put_unlocked(objs[i]);
+> +		drm_gem_object_put(objs[i]);
+>  	}
+>  	return ret;
+>  }
+> diff --git a/drivers/gpu/drm/drm_internal.h b/drivers/gpu/drm/drm_internal.h
+> index f921cc73f8b8..9078504e789c 100644
+> --- a/drivers/gpu/drm/drm_internal.h
+> +++ b/drivers/gpu/drm/drm_internal.h
+> @@ -161,8 +161,6 @@ void drm_sysfs_lease_event(struct drm_device *dev);
+>  
+>  /* drm_gem.c */
+>  int drm_gem_init(struct drm_device *dev);
+> -void drm_gem_object_handle_get_unlocked(struct drm_gem_object *obj);
+> -void drm_gem_object_handle_put_unlocked(struct drm_gem_object *obj);
+>  int drm_gem_handle_create_tail(struct drm_file *file_priv,
+>  			       struct drm_gem_object *obj,
+>  			       u32 *handlep);
+> -- 
+> 2.50.0
+> 
 
-The following fixup on top:
-
- From 3a52911a299d3328d9fa2aeba00170240795702d Mon Sep 17 00:00:00 2001
-From: David Hildenbrand <david@redhat.com>
-Date: Fri, 11 Jul 2025 11:57:43 +0200
-Subject: [PATCH] fixup: "mm: convert "movable" flag in page->mapping to a page
-  flag"
-
-We're missing a ":".
-
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
-  include/linux/page-flags.h | 2 +-
-  1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index 970600d79daca..8e4d6eda8a8d6 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -1150,7 +1150,7 @@ PAGEFLAG_FALSE(MovableOpsIsolated, movable_ops_isolated);
-  
-  /**
-   * page_has_movable_ops - test for a movable_ops page
-- * @page The page to test.
-+ * @page: The page to test.
-   *
-   * Test whether this is a movable_ops page. Such pages will stay that
-   * way until freed.
 -- 
-2.50.1
-
-
--- 
-Cheers,
-
-David / dhildenb
-
+Simona Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
