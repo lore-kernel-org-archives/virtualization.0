@@ -1,65 +1,81 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E75B11FBEB9
-	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 16:11:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42AC92EF654
+	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 16:41:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752250292; cv=none; b=hAdAhcQ8dOsYwSKkyLOaa8Z37KT9sIVC3zif5yHTgkbXMXfca/N4vBs8NjWeU6LI1lEOswyoSIM6nXa8EQm5n9wgZMpsGWZGwmft4XUA4NA8LLETfQVCu5XD2pbsATEju4uQtWqmOajp9M0sYPtI7LNXv9ln22p/QiKdLHdyjEY=
+	t=1752252084; cv=none; b=NB5czpHW1rKsrekUcfunTDRs3MPuuxrv4XJ5TLMtD6VeMVwPvzxlrrQnTXk3ELAWdSl8R3bzKJ00efLpLLPVHbm6ftT+TX1XXeX6n3z3MOMDgt4Un7OGxJ+esVvnQkg+bRYMyh+i1fKKNDiN6goqqf2vJPiohBWtMOncJ9MOdeA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752250292; c=relaxed/simple;
-	bh=nkrxf08I7nRFTSLKc8Jm815R2OjRlj+FsR6McPBmq3I=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:Content-Type; b=Jm+txQ3W1zSESImWC6yuXgLO2eG3WQd2MYY1JlQTpPdS4v8flG94HKI3TCu2t+e4GhIcC4rEuwKLG4BJNnVMLyZycv5T/HUa/XOKNQwumOA8Cki04Pfq2dPVDlb8kjN3HSz+6oANERX18+phDqo3XeVa3X7yA9mNjawkF/+Tn74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V6i6FOZF; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1752252084; c=relaxed/simple;
+	bh=83a+qkVVFtjDrE2rjjSjKmmH1oeXMcngWe65iBJRpsU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LTYPeisHX6SLXe3LNcJVhEjjcPXXwNuQ3zkIS0UXLegbMjvPcS1kdzSca5aaI2A2ZnCB9avE9MwEMYwPedrRr+FgpKyGp7qGL4NlLBeF21UXsaPkoWcZO49hnr+evfC1FJ7QaLSuVmL+hgzxglZcxy7R90PaRl5PTFDdowa+gzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=N7CWrBwg; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=jHQQnQa6; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ho03RwIG; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7LfuAxbR; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V6i6FOZF"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56B7pdwj006954;
-	Fri, 11 Jul 2025 16:11:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=T6IktpHr9DsoaaxAZsNCDnaMO+Fn
-	bKM67VcAl+2LBDc=; b=V6i6FOZFtK45mUQ6Tr7FFfa5FhwCLQP5HYas0PLCrU2A
-	RehT2ffHz0JU+B+8VpzGB1MNofEs/yQmjG/rJ1c5ZaWVWjHPxUswZ9HuxXvtV2Yv
-	6aUxkN/Bsd59e/NpAwQ5QJequd88mhBPi5Pt57c8+kt3h/Cg92WOyEIiWdyn945S
-	e9ifsZKhJiq4Fc9Hkr/U4rYD8WnaJJPFUJkR/Q+HAqbntnbkJ4cNjt66VPXpfDDv
-	jej7Z3dAQg1Xr+wkAw2UX7eNthfRHe7fzJj/uypady56BfBjmqNdfdATFR79Yhnk
-	78bYJ2FVWU/ELTIIr6G5+mqfbqjWPcqzIWqQs7nUtQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47puqntpc9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 11 Jul 2025 16:11:23 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 56BGBNiQ027708;
-	Fri, 11 Jul 2025 16:11:23 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47puqntpc6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 11 Jul 2025 16:11:23 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56BD8GXM024284;
-	Fri, 11 Jul 2025 16:11:22 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 47qh32u6kq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 11 Jul 2025 16:11:22 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56BGBLGc22414048
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 11 Jul 2025 16:11:22 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B5A5858045;
-	Fri, 11 Jul 2025 16:11:21 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4C31058050;
-	Fri, 11 Jul 2025 16:11:21 +0000 (GMT)
-Received: from [9.61.245.203] (unknown [9.61.245.203])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 11 Jul 2025 16:11:21 +0000 (GMT)
-Message-ID: <2be77146-dcbe-4370-b5e3-dfec9f4cf335@linux.ibm.com>
-Date: Fri, 11 Jul 2025 11:11:21 -0500
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="N7CWrBwg";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="jHQQnQa6";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ho03RwIG";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7LfuAxbR"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id D954E211CF;
+	Fri, 11 Jul 2025 16:41:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1752252080; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=1RhXmdbKRtb6tK75W8mZRMZoC3jD2VYqcN+k6JSKMsM=;
+	b=N7CWrBwgCvuFv9ibuR/IgWsTEyk9PAesa8R23dOghyXTicGRw9jnGjptFMVampqPJULSza
+	HmuKMSnurzHOMiJVWjvffin1dlzKFVd8Obkoscwd78fp/OPWM/U6Lh+YffKlV2n0CNLK7L
+	znMbMXgwCVod4CHNJ5GJpqoXGyH6WkU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1752252080;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=1RhXmdbKRtb6tK75W8mZRMZoC3jD2VYqcN+k6JSKMsM=;
+	b=jHQQnQa6sSKulA+TsxSLZZVOQAa0Me4T6JzUHtxNhY8JKCIfKCRMXL7GBcNAewFxy9NiYt
+	C/6AieIzGt7s9hAw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=ho03RwIG;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=7LfuAxbR
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1752252078; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=1RhXmdbKRtb6tK75W8mZRMZoC3jD2VYqcN+k6JSKMsM=;
+	b=ho03RwIGinLI3CdnpKfO/V2iVuyVSxT6pOAFaXVtijG/215dLEvrQNrBpdz3Iu36a68LPp
+	8c9ewuT0utjL15JnVK8jpQOpE1AJXZixsaNVi4nAHQN6G+HG8lURvx124dovIMpcOyTZMt
+	xHOSyt6p+HNmvhH297gGgH6thE5OglY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1752252078;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=1RhXmdbKRtb6tK75W8mZRMZoC3jD2VYqcN+k6JSKMsM=;
+	b=7LfuAxbR3UGwAVkicCU5lsoh9bL4ZAsYUzK9ziO0GZ/Z5s/GypvTKzKww75B21PqJrfIXB
+	zhAAMKStajuFL7CQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 5E98C13918;
+	Fri, 11 Jul 2025 16:41:18 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id WTFBFa4+cWhVfAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 11 Jul 2025 16:41:18 +0000
+Message-ID: <1c7cab1d-e1cf-4a87-9bdf-d65eb6d7f4c3@suse.de>
+Date: Fri, 11 Jul 2025 18:41:17 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,92 +83,145 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/9] drm: Revert general use of struct
+ drm_gem_object.dma_buf
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: simona@ffwll.ch, airlied@gmail.com, christian.koenig@amd.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+ l.stach@pengutronix.de, linux+etnaviv@armlinux.org.uk, kraxel@redhat.com,
+ christian.gmeiner@gmail.com, dmitry.osipenko@collabora.com,
+ gurchetansingh@chromium.org, olvaffe@gmail.com, zack.rusin@broadcom.com,
+ bcm-kernel-feedback-list@broadcom.com, dri-devel@lists.freedesktop.org,
+ etnaviv@lists.freedesktop.org, virtualization@lists.linux.dev,
+ intel-gfx@lists.freedesktop.org
+References: <20250711093744.120962-1-tzimmermann@suse.de>
+ <CAHk-=whnUp7M-RZ6yzOyF6bzA4cmbckaH4ii_+6nBm0PqKOaQg@mail.gmail.com>
 Content-Language: en-US
-From: Konstantin Shkolnyy <kshk@linux.ibm.com>
-Subject: virtio_net: Incorrect VLAN filter configuration on boot
-To: yin31149@gmail.com, odaki@rsg.ci.i.u-tokyo.ac.jp
-Cc: eperezma@redhat.com, mst@redhat.com, jasowang@redhat.com,
-        virtualization@lists.linux.dev
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <CAHk-=whnUp7M-RZ6yzOyF6bzA4cmbckaH4ii_+6nBm0PqKOaQg@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=FZ43xI+6 c=1 sm=1 tr=0 ts=687137ab cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=pGLkceISAAAA:8 a=dqG4mEvGk3G7bCWfLwAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: K0ELwPjappaJk4p36q88__HHcEJY5VO7
-X-Proofpoint-ORIG-GUID: rx3981iNKR_-DXTJUCfdkDTyxKICH6WV
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzExMDExNCBTYWx0ZWRfX6otN2iqhknIZ kUWsQep4o7bZ6Hi4t0ehO/s/fCCnWi0kmR4ydj4tUE6REX4ajbIDmpTT8iLyG2nQ27eF45S3LcT nozCN5msFWm9IGV3QV1TKhl5LL4zI7kydN8M2WvHDs9+PgE4P33GR6vN1VbIRaWIz4OpXHvU1+i
- faeedONnBqRK26ocRTKVDKDqtR1/AzSQOd0g9D4jCuAR9vDtxT9drMDXIZtpy7zJ2YHs9PakugP JJ7sFyplZnKo9rl/zHKWkEFTZ4thC71D6ZzmM6NQEDC5M3M1L/jOLi9icxko74pX0Ux3WjbSBoF 74h+a/Ybcu7mugD5J96vQIkTNIunrbfmtcLe5odkeKKQN1pg9mQe52x59qUrU4cXMFllK2a1GDv
- jx83amspo/Etwo/I2h0x0gU9mTPsYjsPdVtZfMe3M7wjxDz28Ax2YLOxKHH4TEOmmdCzJQ9v
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-07-11_04,2025-07-09_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
- priorityscore=1501 malwarescore=0 mlxlogscore=999 clxscore=1011
- spamscore=0 bulkscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0
- adultscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507110114
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: D954E211CF
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[19];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[ffwll.ch,gmail.com,amd.com,linux.intel.com,kernel.org,pengutronix.de,armlinux.org.uk,redhat.com,collabora.com,chromium.org,broadcom.com,lists.freedesktop.org,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	TAGGED_RCPT(0.00)[etnaviv];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:dkim,suse.de:mid,suse.de:email]
+X-Spam-Score: -3.01
 
-Symptom:
-On boot, if VIRTIO_NET_F_CTRL_VLAN is negotiated, QEMU adds all 4096 
-VLANs to the VLAN filter table. But, according to the virtio spec, the 
-table should be empty in this case. (Observed when using VDPA.)
+Hi
 
-Investigation:
-------------
-commit 06b636a1e2ad12ab130edcbb0ccf995118440706
-Author: Hawkins Jiawei <yin31149@gmail.com>
-Date:   Sun Jul 23 20:09:11 2023 +0800
+Am 11.07.25 um 17:48 schrieb Linus Torvalds:
+> On Fri, 11 Jul 2025 at 02:40, Thomas Zimmermann <tzimmermann@suse.de> wrote:
+>> Reverting the whole thing is the only sensible action here.
+> I'm assuming this is against some current drm tree, not mine, because
+> it doesn't apply here.
 
-     virtio-net: do not reset vlan filtering at set_features
+Yes, it's against drm-misc-fixes, which requires an additional revert of 
+the extra fix from this week.
 
-     This function is called after virtio_load, so all vlan configuration is
-     lost in migration case.
+>
+> I'll try the smaller set of reverts that Simona suggested for my
+> testing, and will get back to you on that.
 
-     Just allow all the vlan-tagged packets if vlan is not configured, and
-     trust device reset to clear all filtered vlans.
+The list of patches I sent earlier are from v6.15-rc5 and should be the 
+ones you need. You will get the revert patch set as part of a DRM PR soon.
 
-@@ -1029,9 +1029,7 @@ static void virtio_net_set_features(VirtIODevice 
-*vdev, uint64_t features)
+Best regards
+Thomas
 
--    if (virtio_has_feature(features, VIRTIO_NET_F_CTRL_VLAN)) {
--        memset(n->vlans, 0, MAX_VLAN >> 3);
--    } else {
-+    if (!virtio_has_feature(features, VIRTIO_NET_F_CTRL_VLAN)) {
-          memset(n->vlans, 0xff, MAX_VLAN >> 3);
-      }
-------------
-After the above commit, virtio_net_set_features() can only set all bits 
-in vlans[], but never clear them.
-It expects virtio_net_reset() to clear the bits. I guess, this worked at 
-the time because "set features" and "reset" were called in a favorable 
-order. However, then this changed:
-------------
-commit 0caed25cd171c611781589b5402161d27d57229c
-Author: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-Date:   Mon Apr 21 21:17:20 2025 +0900
+>
+> Background for others: current -git ends up having odd hangs when
+> Xwayland starts for me (not at boot, but when I log in). It seems to
+> be very timing-dependent, so presumably I'm just unlucky with my
+> hardware.
+>
+> The timing-dependence has made my attempts to bisect it very
+> frustrating and non-conclusive, but reverting 5307dce878d4 ("drm/gem:
+> Acquire references on GEM handles for framebuffers") made things work
+> _better_, to the point where I thought it was fixed.
+>
+> Until the hang came back.
+>
+> The "hang" is not some kind of kernel hang, it seems to be user-space
+> getting confused by the changes. Because I can still switch back to a
+> text VT, and there are no messages in the kernel logs. And the system
+> "recovers", in that after a 30-second timeout (it feels like a minute,
+> but logs seem to imply it really is just half a minute), I get
+>
+>     gnome-session-manager@gnome.service: start operation timed out. Terminating.
+>     gnome-session-manager@gnome.service: Failed with result 'timeout'.
+>
+> and it restarts, and things work fine on the second try. Except when
+> they don't - on one reboot it went through this twice, and
+>
+> Now, because it's obviously timing-sensitive, it might be something
+> entirely different going on and I have no guarantees, but it does seem
+> to be related to that commit 5307dce878d4.
+>
+> And I only see this on one of my machines. Again, might be timing, but
+> might also be that it only shows up on certain hardware (in my case:
+> Radeon RX 580).
+>
+>             Linus
 
-     virtio: Call set_features during reset
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
-     virtio-net expects set_features() will be called when the feature set
-     used by the guest changes to update the number of virtqueues but it is
-     not called during reset, which will clear all features, leaving the
-     queues added for VIRTIO_NET_F_MQ or VIRTIO_NET_F_RSS. Not only these
-     extra queues are visible to the guest, they will cause segmentation
-     fault during migration.
-
-     Call set_features() during reset to remove those queues for virtio-net
-     as we call set_status(). It will also prevent similar bugs for
-     virtio-net and other devices in the future.
-
-@@ -2350,7 +2352,7 @@ void virtio_reset(void *opaque)
-      vdev->broken = false;
--    vdev->guest_features = 0;
-+    virtio_set_features_nocheck(vdev, 0);
-      vdev->queue_sel = 0;
-------------
-Now virtio_reset() first clears all bits in vlans[], and then calls 
-virtio_net_set_features(0) which sets all bits in vlans[]. And that 
-causes all VLANs to be added to the filter table on boot.
-
-I'm not sure how to fix this correctly. The QEMU boot is complex - the 
-"clear vlans[], set vlans[]" sequence is repeated 5 times during the boot...
