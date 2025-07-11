@@ -1,170 +1,113 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C92428725E
-	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 11:26:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752233202; cv=none; b=LZNu4nXs3PN2RBmvvgZUCKaFeHqKAfJArTT0FrWJnieo6mioHtmUAvyGQZzbZWFeQRpE7s6FHulSQNcUGqD3SkPV2m0qptJzcd5cm5xXpA5w5CN9zeWkppFD6TuR2FG/aQTmLL6Bk7XwMgBC1laMiD8UEl6K6+DvOYi1WkKsL6w=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752233202; c=relaxed/simple;
-	bh=FD8akNhVCFE9rvl/IJgfqw/cZ2FtCXuUIv3/TN6KnGE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Cu7YJ9cVm4bnTIfdwCh274vcPkAfX1F720sOT1Zco/2c4ys/ANtBaXxGglIRahJYjfmzvvm0APGfUlDX2hhHSaBCbGS8cI7tCOlto5YQm6h6OM6FLOlv0l7dTud5KVGbizB/Gv9WKqVGhtmuZdnBcc96YOp6uO3NfpPjpKZ5UCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch; spf=none smtp.mailfrom=ffwll.ch; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=edWqK9fX; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ffwll.ch
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1434528B4E2
+	for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 11:29:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752233379; cv=pass; b=r9icvHAzKDswT7DxGiwM6FRNQ/ntlMyW8tnuykBKiy5j9TwdAfSPjVnU5ZZJmqaPFUy0c0Di71Uz8IEZwaZE1kLEYWIBJ17dl2Dbp6uyO3nidloOkGlnX39tzExJjGPpYYKmatUb1ZlOPQ+UBK82Z4W9EW3nxpOuQOi8R7dGAf4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752233379; c=relaxed/simple;
+	bh=t4t+U+argQzQNvxeeHPnLjdVg4t+Csf/xsVitVR8yek=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=R6NR9MiFhg5lE5Do4PJiT5292OttUYL15EsWSHBNO3VEqHPHaRjuHppksQYEIy9hJHdJzSzB8+NGTETaWc1BNZj/iXpBqYUZCvDV0phs/4HR4uSyH3cVhch8xBFfJjSzMMYB2loVNevPLLChM76kxUuJmuD8MP3EbaYgNyxW47Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=FQW26C9s; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="edWqK9fX"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4537fdec39fso6245375e9.0
-        for <virtualization@lists.linux.dev>; Fri, 11 Jul 2025 04:26:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google; t=1752233199; x=1752837999; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=N2PVAjumjM6QBebDLC5QW4Rc7DpYox7DcXnPsrpWBK0=;
-        b=edWqK9fX356rqn8qm/WSsjgal56PcRNCOahwB4upBDOOGyewSEau92lKjOugAghno6
-         e8v/gqDL0foW0lnnyLFF1Or3RVnPzjMNlerNsbwbo/hNWUmlW+Yz3s/l8AZ9cnDzPsg8
-         rpSrzhLhC3xd59VzPDMSHOwU+AQBOqsHAtHkA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752233199; x=1752837999;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=N2PVAjumjM6QBebDLC5QW4Rc7DpYox7DcXnPsrpWBK0=;
-        b=CNLYLKjWipSpXnHySKvAggXd31V++2uRZ9TacNEWp1WSIhHsSOZSw5ALQPVFNTi0Cg
-         E8HEtcuDwh7LOBjlqbSujg60bF+eY0bYvD7VmjAT+j1mFdC1mfs16OVf1LqD/1CHC7D/
-         52Xmh9qnNKbmjELBe/SJc8ydbh80F4iGi5IKOmj1WtEqCpmJBWl60AwKcioK8lM6jGfV
-         vdMRnigMXN+pdYcIByAfQQHMjwAMeY1Wp/IP6kAFFcr6l9lyQptt7S91dhzt+3hFaVbn
-         unhuzWgxUtLIhILgStX/ygV66pxdZVW5kX3J4+nghMEwQbHTH+/wfOp82U5+WsG4ixaR
-         a/iw==
-X-Forwarded-Encrypted: i=1; AJvYcCUZLwvTv5HKG3uUjH/jFxJL5T8+oXlTlk+8QgfKBZ2ngkLYjEB6ronQpxqzLjWIYGikvHoZK8cPgeCuCR0k7g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwewFTsNM4QOJK7uh+hizGNMSWDb0YurfG0uHHHquJiBY/VN5Ot
-	pQ8N23MJ3shrN9fYZM+ir4K4NRKC83nDQEfoS+yhtXWEaFm8PURYfMex0QAKHq1Ay0s=
-X-Gm-Gg: ASbGncu1wnyxLV2TY8J5PWBagFLcHiz7tVTKGk3BQe8tgFLUnZoZoqq2Pba4UtxXML3
-	VA/wvf2fkHgMvdV1FOm3XHy/YUHoYBdsDOTE4UHm5WWKKro9o/Ur7WlrX4m0GArf24Hp1nf7pnl
-	Ug/+bqT6gXDNEDUTP+EhXjc5kKPFKSfCPClM8xe4AshcarKBb7SPdEbrEQ51UfzPhS7zm+n/O5l
-	PqDxrXlw9/RDHinwhknb6ag9lhHgE4eNx+9dFu3H+CfErbeFa+YHjtA7vmQoFdwrDQjJo+KGxML
-	y/mPMv3K+tV04tuxVA4Qcb9NG9BVCIwGQNsoe71MYXG5WhskACkpSSQHVbuysPEpD8jGngXzBvC
-	z5DXHWLnfmGt09auHc0Iow2st+HPXWDwGhkFzWyb0fcB/
-X-Google-Smtp-Source: AGHT+IFVi7nm2kebBAJ8+93+5amqUpcfmZWMLm3ginfXIg49P5tt280hta+taQINrMUsHsBQFiNG1w==
-X-Received: by 2002:a05:600c:6295:b0:43b:ca39:6c7d with SMTP id 5b1f17b1804b1-455ebce3f18mr16886065e9.3.1752233198798;
-        Fri, 11 Jul 2025 04:26:38 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:5485:d4b2:c087:b497])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b5e8dc2464sm4296653f8f.38.2025.07.11.04.26.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Jul 2025 04:26:38 -0700 (PDT)
-Date: Fri, 11 Jul 2025 13:26:36 +0200
-From: Simona Vetter <simona.vetter@ffwll.ch>
-To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>, simona@ffwll.ch,
-	airlied@gmail.com, torvalds@linux-foundation.org,
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-	l.stach@pengutronix.de, linux+etnaviv@armlinux.org.uk,
-	kraxel@redhat.com, christian.gmeiner@gmail.com,
-	dmitry.osipenko@collabora.com, gurchetansingh@chromium.org,
-	olvaffe@gmail.com, zack.rusin@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
-	virtualization@lists.linux.dev, intel-gfx@lists.freedesktop.org
-Subject: Re: [PATCH 0/9] drm: Revert general use of struct
- drm_gem_object.dma_buf
-Message-ID: <aHD07IF9Y7lntOLo@phenom.ffwll.local>
-References: <20250711093744.120962-1-tzimmermann@suse.de>
- <bd14fdec-7e75-477c-a241-bac67f93d210@amd.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="FQW26C9s"
+ARC-Seal: i=1; a=rsa-sha256; t=1752233352; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=iYyOIYVrZatS2CofuSFt90KU4RwZD9SQ1eI5fyB+ErNyv84hzcMlpjz9dDzxOOd2x+RjlIoyY21EJUoL0oQY+wvNacgiEx3Z1vfPkDqi0O2ksM2jpTaHXuiFGotvjVILPjo/Xs1aTTpc89YJDEX3OGMxTnOZhxLIjPv4fi0YnA4=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1752233352; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=57gYkWOIodci/rzLMJRT5FjRo8be6KH1VRtkOEb22+Y=; 
+	b=NGC7YphbvyX9Q7d1nX56g2VfMyTeTRf4CeFaMLtcEA6tKy7xplAEJJZIpW90mgJdBbL8AmgVoE/47Zhbmq/KBE6WN+HNDpatEyJl/p23niVWxtjsqmNItYuqe13Gn/8JL4qNYYPksNP1peJ8xr+bpxH8loHv4AskaGNPx4FJJIo=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1752233352;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=57gYkWOIodci/rzLMJRT5FjRo8be6KH1VRtkOEb22+Y=;
+	b=FQW26C9sjtEapx3TPrIk8nySMknK3rIc4ti5fluXZRNsbOmW9Y51spt5UeG0Ejr6
+	2AVT1piXGFOwBeYIugodpQ/ifVm1Q2ipp/eNB2K3SD6GnWgkqlo1dYo/Cyg9g0928cE
+	o9PWqX+SKiMB4teDHZjqZ77b41UGvGPsT/vaSuQ0=
+Received: by mx.zohomail.com with SMTPS id 1752233350071649.1816103321455;
+	Fri, 11 Jul 2025 04:29:10 -0700 (PDT)
+Message-ID: <9058368a-0e5b-4cb5-a04f-6feaa80329a0@collabora.com>
+Date: Fri, 11 Jul 2025 14:29:04 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <bd14fdec-7e75-477c-a241-bac67f93d210@amd.com>
-X-Operating-System: Linux phenom 6.12.30-amd64 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/9] Revert "drm/virtio: Use dma_buf from GEM object
+ instance"
+To: Thomas Zimmermann <tzimmermann@suse.de>, simona@ffwll.ch,
+ airlied@gmail.com, christian.koenig@amd.com, torvalds@linux-foundation.org,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+ l.stach@pengutronix.de, linux+etnaviv@armlinux.org.uk, kraxel@redhat.com,
+ christian.gmeiner@gmail.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
+ zack.rusin@broadcom.com
+Cc: bcm-kernel-feedback-list@broadcom.com, dri-devel@lists.freedesktop.org,
+ etnaviv@lists.freedesktop.org, virtualization@lists.linux.dev,
+ intel-gfx@lists.freedesktop.org
+References: <20250711093744.120962-1-tzimmermann@suse.de>
+ <20250711093744.120962-4-tzimmermann@suse.de>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20250711093744.120962-4-tzimmermann@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On Fri, Jul 11, 2025 at 12:32:02PM +0200, Christian König wrote:
-> On 11.07.25 11:35, Thomas Zimmermann wrote:
-> > Revert the use of drm_gem_object.dma_buf back to .import_attach->dmabuf
-> > in the affected places. Also revert any fixes on top. Separates references
-> > to imported and exported DMA bufs within a GEM object; as before.
-> > 
-> > Using the dma_buf as the one authoritative field for the DMA buf turns
-> > out to be fragile. The GEM object's dma_buf pointer can be NULL if
-> > userspace releases the GEM handle too early. Sima mentioned that the fix
-> > in commit 5307dce878d4 ("drm/gem: Acquire references on GEM handles for
-> > framebuffers") is conceptionally broken. Linus still notices boot-up
-> > hangs that might be related.
+On 7/11/25 12:35, Thomas Zimmermann wrote:
+> This reverts commit 415cb45895f43015515473fbc40563ca5eec9a7c.
 > 
-> Did I missed that response? What exactly is the issue?
-
-Sorry, private thread from Linus that he's hit the regression, applied the
-fix, which was apparently not enough. Then applied the revert of "drm/gem:
-Acquire references on GEM handles for framebuffers", which worked better,
-but still resulted in not-before-seen issues somehow. At that point I
-figured it's best we backtrack because we seem to have a history of not
-really understanding this anymore collectively. Thomas also found yet
-another related regression around drm_prime in -next, so this looks way
-too messy to me for late -rc.
-
-The regressions left over after the bugfix from Thomas that's in
-drm-misc-fixes is some silent hangs at login, without any traces anywhere
-what got stuck.
-
-We don't yet have feedback from Linus whether the revert more approach
-here helps.
-
-> > Reverting the whole thing is the only sensible action here.
+> Reverting because the fix-up commits are suspected to cause regressions.
 > 
-> Feel free to add Acked-by: Christian König <christian.koenig@amd.com> to the entire series.
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-Thanks, I'll apply it to drm-fixes directly assuming intel-gfx-ci
-approves.
+Are the fixes and stable tags missing in the patches? AFAICT, the intent
+is to fix stable 6.15 kernel regression.
 
-Note that I'm not fundamentally opposed to the concepts here, at least the
-usage count extensions of handle_count seems not entirely off. But it does
-look very questionable to fix the patches that switched from
-->import_attach.dmabuf to ->dma_buf, and it's simply too late in the -rc
-for more big games.
-
-Cheers, Sima
-
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_prime.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> Regards,
-> Christian.
-> 
-> > 
-> > Tested on virtio; and amdgpu, simpledrm plus udl for dma-buf sharing.
-> > 
-> > Thomas Zimmermann (9):
-> >   Revert "drm/framebuffer: Acquire internal references on GEM handles"
-> >   Revert "drm/gem: Acquire references on GEM handles for framebuffers"
-> >   Revert "drm/virtio: Use dma_buf from GEM object instance"
-> >   Revert "drm/vmwgfx: Use dma_buf from GEM object instance"
-> >   Revert "drm/etnaviv: Use dma_buf from GEM object instance"
-> >   Revert "drm/prime: Use dma_buf from GEM object instance"
-> >   Revert "drm/gem-framebuffer: Use dma_buf from GEM object instance"
-> >   Revert "drm/gem-shmem: Use dma_buf from GEM object instance"
-> >   Revert "drm/gem-dma: Use dma_buf from GEM object instance"
-> > 
-> >  drivers/gpu/drm/drm_framebuffer.c            | 31 +---------
-> >  drivers/gpu/drm/drm_gem.c                    | 64 +++-----------------
-> >  drivers/gpu/drm/drm_gem_dma_helper.c         |  2 +-
-> >  drivers/gpu/drm/drm_gem_framebuffer_helper.c |  8 ++-
-> >  drivers/gpu/drm/drm_gem_shmem_helper.c       |  4 +-
-> >  drivers/gpu/drm/drm_internal.h               |  2 -
-> >  drivers/gpu/drm/drm_prime.c                  |  8 ++-
-> >  drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c  |  4 +-
-> >  drivers/gpu/drm/virtio/virtgpu_prime.c       |  5 +-
-> >  drivers/gpu/drm/vmwgfx/vmwgfx_gem.c          |  6 +-
-> >  include/drm/drm_framebuffer.h                |  7 ---
-> >  11 files changed, 35 insertions(+), 106 deletions(-)
-> > 
-> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+> index 722cde5e2d86..97aaee26cb02 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_prime.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+> @@ -204,15 +204,16 @@ static void virtgpu_dma_buf_free_obj(struct drm_gem_object *obj)
+>  {
+>  	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+>  	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
+> +	struct dma_buf_attachment *attach = obj->import_attach;
+>  
+>  	if (drm_gem_is_imported(obj)) {
+> -		struct dma_buf *dmabuf = bo->dma_buf;
+> +		struct dma_buf *dmabuf = attach->dmabuf;
+
+Nit: I'd write this as `dmabuf = obj->import_attach->dmabuf` for more
+consistency with drm_gem_is_imported()
+
+>  		dma_resv_lock(dmabuf->resv, NULL);
+>  		virtgpu_dma_buf_unmap(bo);
+>  		dma_resv_unlock(dmabuf->resv);
+>  
+> -		dma_buf_detach(dmabuf, obj->import_attach);
+> +		dma_buf_detach(dmabuf, attach);
+>  		dma_buf_put(dmabuf);
+>  	}
+>  
+
+Acked-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
 -- 
-Simona Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Best regards,
+Dmitry
