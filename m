@@ -1,47 +1,48 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE6AF51C5A;
-	Sun, 13 Jul 2025 20:18:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9244F69D2B;
+	Sun, 13 Jul 2025 21:26:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752437896; cv=none; b=pYcYOgezu0YF/CRUwP1tHad4mqJrtED926KE1OU06WWI2XguZeu18qxHIXdh9HvM/pU0j2Fps/HL9iZ+k0CUxnKffRa1YXEQP9ZacYk2psQ6rl3XvU5KklTlZ5ftih4BQJ+JeXHWqsD6280x/pStEDp1xilHEW4gSzl8ZqoVl1o=
+	t=1752441974; cv=none; b=uMSo8AGvAlFaohARI6M/qqZZbN9l1HQD/lDMNKnUChmEjV1c6QJsMTB2L9jQIIn50UW7xz/CNUCHenkeUmKD4kn7rw00wGa49VAvDede7PF76HrTP89nWPkaJvOZOdFJd0mzrz/QILInY3MHsLfsuPBn/phTwaCGe9q4gRWKQRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752437896; c=relaxed/simple;
-	bh=z7p4KwkBk4NY89HWdCsRxmsgX8iUNRQ1eqdg5NIgzk8=;
+	s=arc-20240116; t=1752441974; c=relaxed/simple;
+	bh=DUf5G+GEAuuhATewQdhh9QQLQTnqgEAR2HH06ANZ3Vo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Vwv4amWT9sqbTZ6q73mUmc1FpqXeTxHwAG/8Po+sWSI356dgNuVx9opX1c7VJ+9M1wBokRjOLbWEJHu+Ian0Ai0SaZEq1nfreunRNpHVeYYQnYsJJ8mDYs+BcNUdP6Vwio8EgFnDmbzBdMKmS1xLAO0G2Zepxtu84hgFr1hZAdM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kW0No6dM; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=Oe5X/qxxU0+RmbrjMw/0eLvKbaAUlWvWKIfTtVz+I1HCy2B+193Bmzxn04IVM4i+75vKBtO3NVXm9jEDLJyA5lrTiDIrDfAJ81iQl3SB/GxwI3u3qcpWqqb4shMe+/RFX/kZZQJfVeVnYBEL6CQ758xvMv949mpGhmbWkIt+3u0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JK3hjQdu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kW0No6dM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4223CC4CEE3;
-	Sun, 13 Jul 2025 20:18:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JK3hjQdu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36DC9C4CEE3;
+	Sun, 13 Jul 2025 21:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752437896;
-	bh=z7p4KwkBk4NY89HWdCsRxmsgX8iUNRQ1eqdg5NIgzk8=;
+	s=k20201202; t=1752441974;
+	bh=DUf5G+GEAuuhATewQdhh9QQLQTnqgEAR2HH06ANZ3Vo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=kW0No6dMzF8fTDn+PoEaSz/eEoJWAW1AhAszDD4U1QtpkKEp+P7d5p/XH5nWxsTtc
-	 mHnW4oHCuPwQ0iAA9JXP+rPAzgLnPY9ctueiezhir5lqNCxJyZ9GmBTf8l+QYzsjbc
-	 AwC3ITLEg/gF2aje74Fe5IWQhX/7eaCe6hdYJprlU/HT8T9Mb0BuI/4CaidaRvBgp7
-	 93Ntibd/e1AbuLB+FcizJHOBFEXE5qQWTpcnO1zfmO8oC73UXj+fA7rmhcPMJ5JG0M
-	 hWrfREJvRopNEOVItshen3xODE9HCE9MEhOL7AZVcG2SARcRZ3t2RZx9gZbzXxVN9P
-	 cxKlErVMYwjbw==
-Date: Sun, 13 Jul 2025 21:18:11 +0100
+	b=JK3hjQdu6ULKf9UE+7yxxof9iM0/uZ4p7hu4Aza4QLYsbvYIGYXAJJSGOufNhoxe+
+	 85X89vo+y9hhw8zjNmb7vJYwiIu7IvRkaJeSVAZEgoFguFrphIfh8SuwRbXH/Ta7HY
+	 +5JfBeHy/o+ZJ/3v/gO79vtPdwQuCqYIPtRxShx4C2F8fXBww7JN89IJsfa4zirYi1
+	 5IXCs0x3GYWxVbYtMAzRkiT3cbtJJXeq8xu/A2bJNH0USvwEpqDGZRwBJLWsla81ZQ
+	 1/vvYGmubh/MfBvjN5NGkouS/+xxSOBfYuwMbGeL4rigQ6qYPYNcOiJifKMctbcBhR
+	 Wb9VRbLv5bgGg==
+Date: Sun, 13 Jul 2025 22:26:08 +0100
 From: Will Deacon <will@kernel.org>
-To: Lei Yang <leiyang@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Keir Fraser <keirf@google.com>,
 	Steven Moreland <smoreland@google.com>,
 	Frederick Mayle <fmayle@google.com>,
 	Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
 	netdev@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH v2 0/8] vsock/virtio: SKB allocation improvements
-Message-ID: <aHQUg5-lIXq3jAG5@willie-the-truck>
+Subject: Re: [PATCH v2 3/8] vsock/virtio: Move length check to callers of
+ virtio_vsock_skb_rx_put()
+Message-ID: <aHQkcBiO_1Xg33Bo@willie-the-truck>
 References: <20250701164507.14883-1-will@kernel.org>
- <CAPpAL=zBxWBTQ8s-DGG-NywoE2+rDJQ4=9XGGn-YZSFH3R_mZg@mail.gmail.com>
+ <20250701164507.14883-4-will@kernel.org>
+ <g3h6k6vqfxwqsvojptaqy63qsn2vwo7i45segjgwjgmotysmwr@dmgbwacytag7>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -50,18 +51,47 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAPpAL=zBxWBTQ8s-DGG-NywoE2+rDJQ4=9XGGn-YZSFH3R_mZg@mail.gmail.com>
+In-Reply-To: <g3h6k6vqfxwqsvojptaqy63qsn2vwo7i45segjgwjgmotysmwr@dmgbwacytag7>
 
-On Fri, Jul 04, 2025 at 05:50:16PM +0800, Lei Yang wrote:
-> I tested this series of patches with virtio-net regression tests,
-> everything works fine.
+On Wed, Jul 02, 2025 at 06:28:37PM +0200, Stefano Garzarella wrote:
+> On Tue, Jul 01, 2025 at 05:45:02PM +0100, Will Deacon wrote:
+> > virtio_vsock_skb_rx_put() only calls skb_put() if the length in the
+> > packet header is not zero even though skb_put() handles this case
+> > gracefully.
+> > 
+> > Remove the functionally redundant check from virtio_vsock_skb_rx_put()
+> > and, on the assumption that this is a worthwhile optimisation for
+> > handling credit messages, augment the existing length checks in
+> > virtio_transport_rx_work() to elide the call for zero-length payloads.
+> > Note that the vhost code already has similar logic in
+> > vhost_vsock_alloc_skb().
+> > 
+> > Signed-off-by: Will Deacon <will@kernel.org>
+> > ---
+> > include/linux/virtio_vsock.h     | 4 +---
+> > net/vmw_vsock/virtio_transport.c | 4 +++-
+> > 2 files changed, 4 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+> > index 36fb3edfa403..eb6980aa19fd 100644
+> > --- a/include/linux/virtio_vsock.h
+> > +++ b/include/linux/virtio_vsock.h
+> > @@ -52,9 +52,7 @@ static inline void virtio_vsock_skb_rx_put(struct sk_buff *skb)
+> > 	u32 len;
+> > 
+> > 	len = le32_to_cpu(virtio_vsock_hdr(skb)->len);
+> > -
+> > -	if (len > 0)
+> > -		skb_put(skb, len);
+> > +	skb_put(skb, len);
 > 
-> Tested-by: Lei Yang <leiyang@redhat.com>
+> Since the caller is supposed to check the len, can we just pass it as
+> parameter?
+> 
+> So we can avoid the `le32_to_cpu(virtio_vsock_hdr(skb)->len)` here.
 
-Thanks, but this series doesn't touch virtio-net: it's purely about
-the virtio transport for vsock. Do the virtio-net regression tests
-exercise that?
-
-Cheers,
+Sure, I'll do that. It means that virtio_vsock_skb_rx_put() will briefly
+be a simple wrapper around skb_put() but once the non-linear handling
+comes in then it becomes useful again.
 
 Will
