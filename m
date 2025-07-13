@@ -1,81 +1,40 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0B151F5851
-	for <virtualization@lists.linux.dev>; Sun, 13 Jul 2025 08:45:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A70E514F121
+	for <virtualization@lists.linux.dev>; Sun, 13 Jul 2025 11:53:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752396326; cv=none; b=oLdUbnChvwDM0mAfEmnZaUuyYV3684yKLvJWyjH3lu+Sl9+hq7Cx80ljnPEDQCrD9Ik/0DN7nwj2w+0hwtWTCk4TJNV5xvMOckw+wL64mfW12vZJo7NYBv/zR+Oyz2imnBIpeSmeaaMTRU9qiG/5xBqcq4w/6eQ/Tt6o6xVvFEs=
+	t=1752407598; cv=none; b=Ea8F1PzljJhDVtIa/ClEbhJTV7g9dWrgNavFmZTfCE7Fg6Cpej3Oz5NgeIDV8EdTBJ0Ku6CsU14540edu/JpRknCxuGb4JQhGe1yulDA5nb/x98vOxgnGnjQ4sREopvbIetoZQXIuEyfaye+LjPf2ca0Iz5bLg/O/fvbhyirVys=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752396326; c=relaxed/simple;
-	bh=lusFvrluC0wYhKdUfx8ugv5q6txV7qMpLVOYfgxd9LA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=QdiLPiIzGW0In++y3gYNYhfsu5gj6HaB8vaZqsRlKYhJI8QBK5fKKWjkH2m0NHjWFfb+0OyxTa7KdDRAgEHcODBe7ndxZSK6mcLZWutpxMg/bswO9RJElKDutiwAwfQV7PkQ21XjQ5GaNOz1hd708d7833F68v7h2j57Ydj8LBc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl; spf=none smtp.mailfrom=bgdev.pl; dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b=CmPuZPGV; arc=none smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bgdev.pl
+	s=arc-20240116; t=1752407598; c=relaxed/simple;
+	bh=EjZMixSMyf/+k9Uf+UuW37lD8CUY2HbzyZPnbpa64xI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=X93sSNUNNnRHTDJ90lV/R6xujbITrYx/aZUeXINpCdba9K+XFIrhPgahGXXSuKVPnAgDb+0S4qlHWSVU322ghaBoVK+0z0V9qV0IPYdZnx8UTM5cM6FcGMYPcdKLqS2ATHtGZQHnc24Rv8MVcDhH7M+FOLujPc+/LYDoM7mIDLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=fail (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=cWHWVf/E reason="key not found in DNS"; arc=none smtp.client-ip=49.212.243.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b="CmPuZPGV"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-3a531fcaa05so1949818f8f.3
-        for <virtualization@lists.linux.dev>; Sun, 13 Jul 2025 01:45:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20230601.gappssmtp.com; s=20230601; t=1752396323; x=1753001123; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pOOUWMIdhHkQ+tRZU4YDol3EV+jZsKR5HFpybqxFDYA=;
-        b=CmPuZPGVpJz8DHR9jJF1AtKiPAcTgvkypxWiWhzAyGTL3X3FHbPwSQ1Ns80mmVP4Xl
-         rfrlGSj1zCFeh6NhPsSqKz7M4m/28W3l3HC6N8lFdKEIsv0Gl38+dYDJATqiI2aGQ0VX
-         /e3EFG1cmNuNmC5wB194FZ37V5G157i7oXs90Dp4LvbetX7Qbt+hxnWQE7QaWKUkIT7/
-         dQKf3k9eT5asgYkn0+4DHcuOm5zPgWAYNJIMtysdr6OCNHJZgMPNw6VHlV/Np0vjmiJN
-         YNGcmAC5qxq4gLuJ7J2PG9ojLxEYclekEpZL+lQtsh+Pi34avXFPpBWtLrYgrUOhV8kU
-         9Pbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752396323; x=1753001123;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pOOUWMIdhHkQ+tRZU4YDol3EV+jZsKR5HFpybqxFDYA=;
-        b=hYH8hQ8CC/sfHTfK+JvUgh6R1AaJ9tsn6yBHQlhAhWxA9QVCBnPGU3cpdmPoN/JlX8
-         k8flJl6H3On6pfC5zbt3PlkTSMv4GWq09dU6KqAr5iZgLQnDZI2rgwGUa5FcQLFOMuJH
-         h3DYUxLCuXcyxJaUJ9WBPtVvJC3jnzkW2WIwIemUhBxdZNYSfsqS6xU6LLcR3wrJfND2
-         ks+qxrOkwvQoTa5nFR0GMptI2udJ9BBlcHxlNGh6UIPHkxzla/vCmbWQW4WzCGMgqbC7
-         dvvE0HaKfxASIFjr2ZLr9gCXrYqnOdQ6gvL076kjJp3uQk9Nmwd9jBNSC+491RI2TPVD
-         jTKA==
-X-Forwarded-Encrypted: i=1; AJvYcCW8MryPx5IuvICLCX4fRd0fb8IVINNsCpuvVQAE4axhZSmk42vb2/H30H0KDAktAoZnNiXtfV+7Jsy1dVC6kw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzXItCo0DQScxIG0DPuEmmoyA0pjuSd5JNbHrpGwhTKDFb7tNOc
-	NzgUxO1iYJV4hEBkA4ig5Nv9dwLs5jEErFA8KtfA8MwFnZc7kcTGw+WS36MdFGeAt2A=
-X-Gm-Gg: ASbGncsDJtQXYI8o3YpaC2P8cWlvn/K6v2hldLdFC/FcnAh4MguxD8JVc8wVCXY74Um
-	vz3btT+psSxOUDxN6WehHI5Mev2AFyCqaK0+sef/Eh8mPpNDMCxa/ApxqQIAtRXBDncvXL4taeb
-	Yq8/GhBBg7w4DHojSR7uv39jXPPmd7ikMRIDMyW1S4vV2lzt6fR3GfIp5qScL+ToiE2mhH3K6+a
-	rEKptPz2EKMYIw7VVcXCYk57UlAp/faJ5IVxP4uqftSZRO/7Bj05z9QUbyGKYP7066K6oPcY9Uv
-	EIDD0ZIuXS35wZGNjVLl+gkVWQlzMZGWUAB+aSyO0QHHyir3ByKSRvdCQ3ummMFRYfAEb2Y24Cu
-	xRWdKaL9o3QsdN18vpS4gEf8=
-X-Google-Smtp-Source: AGHT+IFA2prv4K400SGiTJz+5nwQs90KuarJOb9H+jJVA2bKFFKRJN7i5BSkPopM07i32Va/RQqyOA==
-X-Received: by 2002:adf:e18c:0:b0:3a5:2cb5:642f with SMTP id ffacd0b85a97d-3b5f18dc494mr8398012f8f.34.1752396322894;
-        Sun, 13 Jul 2025 01:45:22 -0700 (PDT)
-Received: from brgl-uxlite.home ([2a01:cb1d:dc:7e00:f695:8645:1433:4418])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-454d50ded8csm134569945e9.20.2025.07.13.01.45.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Jul 2025 01:45:22 -0700 (PDT)
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-To: Linus Walleij <linus.walleij@linaro.org>,
-	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Viresh Kumar <vireshk@kernel.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-	linux-gpio@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux@ew.tq-group.com,
-	linux-arm-kernel@lists.infradead.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 00/12] gpio: use new GPIO line value setter callbacks
-Date: Sun, 13 Jul 2025 10:45:21 +0200
-Message-ID: <175239631858.6478.15774208043366926710.b4-ty@linaro.org>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250707-gpiochip-set-rv-gpio-round4-v1-0-35668aaaf6d2@linaro.org>
-References: <20250707-gpiochip-set-rv-gpio-round4-v1-0-35668aaaf6d2@linaro.org>
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="cWHWVf/E"
+Received: from [157.82.206.39] ([157.82.206.39])
+	(authenticated bits=0)
+	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 56DBqs5v008236
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+	Sun, 13 Jul 2025 20:53:04 +0900 (JST)
+	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
+DKIM-Signature: a=rsa-sha256; bh=6Nu6gtWRB9pwKQY119OYVqFA5/pvFCpiOh/jk2M0fIE=;
+        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
+        h=From:Date:Subject:Message-Id:To;
+        s=rs20250326; t=1752407584; v=1;
+        b=cWHWVf/ESado64JOp+fYKbSzSSwxxp9MHbTcrchhqqhZvf3kFibUEOCXZZmHwW/e
+         +mvWv7dKBziRCundYD+lAndaMTYn1ZXfcBbYybGtFGojWqCJaEfDUj4qqnFqwN7q
+         aX17Mh8KNK1XY2cL+YCzvggu9fqauxhgT3b/tDNT0/4aDKrNXMZRJeRmVXYFET5b
+         jGMcDVgECWNn5n01zAQyzavza4N2Mqk49dMkw1USyvSOKCW/EdyxbmzgpCm+xHSD
+         u6D8d7tUiJzhRlXlYIGvkjaO8/v4qUjqvpbG24uUSoX3Z4LRp/pF4Msy0x7o/Dch
+         dxOWKA700bt9bQsboRSOOA==
+From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+Date: Sun, 13 Jul 2025 20:52:43 +0900
+Subject: [PATCH RFC] virtio-net: Fix VLAN filter table initialization
+ timing
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,49 +42,108 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250713-vlan-v1-1-a3cf0bcfa644@rsg.ci.i.u-tokyo.ac.jp>
+X-B4-Tracking: v=1; b=H4sIAAqec2gC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDI1MDc0Nj3bKcxDxdi2RDA/NEM9PEFEtDJaDSgqLUtMwKsDHRSkFuzkqxtbU
+ AE16dolsAAAA=
+X-Change-ID: 20250713-vlan-8c107a65ad91
+To: Konstantin Shkolnyy <kshk@linux.ibm.com>, qemu-devel@nongnu.org
+Cc: yin31149@gmail.com, eperezma@redhat.com, mst@redhat.com,
+        jasowang@redhat.com, virtualization@lists.linux.dev,
+        Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+X-Mailer: b4 0.14.2
 
-From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+The VLAN filter table was not being properly initialized when the driver
+sets the DRIVER_OK status bit, causing incorrect VLAN filtering behavior
+that could allow unintended VLAN packets to pass through. Correct the
+table initialization timing to fix the issue.
 
+Problem
+-------
 
-On Mon, 07 Jul 2025 09:50:13 +0200, Bartosz Golaszewski wrote:
-> Commit 98ce1eb1fd87e ("gpiolib: introduce gpio_chip setters that return
-> values") added new line setter callbacks to struct gpio_chip. They allow
-> to indicate failures to callers. We're in the process of converting all
-> GPIO controllers to using them before removing the old ones. This series
-> converts another round of GPIO drivers.
-> 
-> To:
-> 
-> [...]
+The expected initial state of the table depends on feature negotiation:
 
-Applied, thanks!
+With VIRTIO_NET_F_CTRL_VLAN:
+  The table must be empty in accordance with the specification.
+Without VIRTIO_NET_F_CTRL_VLAN:
+  The table should be filled to permit all VLAN traffic.
 
-[01/12] gpio: tps65910: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/3e498b3c7b96a17037b5777c56ccff33d3bfbca5
-[02/12] gpio: tps65912: check the return value of regmap_update_bits()
-        https://git.kernel.org/brgl/linux/c/a0b2a6bbff8c26aafdecd320f38f52c341d5cafa
-[03/12] gpio: tps65912: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/22cbcfe36e9724fda06ca873e20777d863445ab8
-[04/12] gpio: tps68470: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/e41e51f07b1c8a642fed121d01da37c1c2994f89
-[05/12] gpio: tqmx86: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/9ade48906b62fc7c5b999422891408a4f02c255a
-[06/12] gpio: ts4900: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/ed8497dc6683cd285ef4335a315d398524c4af52
-[07/12] gpio: twl4030: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/0446ce284bebe192be6e0da6e969379dc3dac587
-[08/12] gpio: twl6040: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/77ba4640cc1564f29b280040b312688b79039c4c
-[09/12] gpio: twl6040: set line value in .direction_out()
-        https://git.kernel.org/brgl/linux/c/79880eba2c0feed895e6d2aa8f7e5489d113d653
-[10/12] gpio: uniphier: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/42fbbe31634d116a7f6bee75c0ae455bf10a7737
-[11/12] gpio: viperboard: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/55e2d1eec110f1278324882714b64465e4e58ced
-[12/12] gpio: virtio: use new GPIO line value setter callbacks
-        https://git.kernel.org/brgl/linux/c/e502df58b5e3767c00e887744b6eff43b7fde3ea
+Prior to commit  ("virtio-net: do not reset vlan filtering at
+set_features"), virtio_net_set_features() always initialized the VLAN
+table. That commit changed the behavior to skip initialization when
+VIRTIO_NET_F_CTRL_VLAN was negotiated, assuming the table would be
+properly cleared during reset and remain stable.
+
+However, this assumption breaks when a driver renegotiates features:
+1. Initial negotiation without VIRTIO_NET_F_CTRL_VLAN (table filled)
+2. Renegotiation with VIRTIO_NET_F_CTRL_VLAN (table will not be cleared)
+
+The problem was exacerbated by commit 0caed25cd171 ("virtio: Call
+set_features during reset"), which triggered virtio_net_set_features()
+during reset, exposing the bug whenever VIRTIO_NET_F_CTRL_VLAN was
+negotiated after a reset.
+
+Solution
+--------
+
+Fix by moving VLAN table initialization to virtio_net_set_status(),
+which sets the DRIVER_OK status bit. This ensures proper table
+initialization regardless of feature negotiation sequence.
+
+Fixes: 06b636a1e2ad ("virtio-net: do not reset vlan filtering at set_features")
+Reported-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
+Signed-off-by: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+---
+Not tested.
+
+Konstantin, please see if this patch fixes your workload.
+---
+ hw/net/virtio-net.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+index 221252e00a50a46033d7ec8d18936e7c8196a6ca..6d2a67471e570e1e9b4b4fb5338d87c30e23ae36 100644
+--- a/hw/net/virtio-net.c
++++ b/hw/net/virtio-net.c
+@@ -389,6 +389,12 @@ static int virtio_net_set_status(struct VirtIODevice *vdev, uint8_t status)
+     int i;
+     uint8_t queue_status;
+ 
++    if ((status & VIRTIO_CONFIG_S_DRIVER_OK) &&
++        !(vdev->status & VIRTIO_CONFIG_S_DRIVER_OK)) {
++        bool vlan = virtio_vdev_has_feature(vdev, VIRTIO_NET_F_CTRL_VLAN);
++        memset(n->vlans, vlan ? 0 : 0xff, MAX_VLAN >> 3);
++    }
++
+     virtio_net_vnet_endian_status(n, status);
+     virtio_net_vhost_status(n, status);
+ 
+@@ -998,10 +1004,6 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint64_t features)
+         vhost_net_save_acked_features(nc->peer);
+     }
+ 
+-    if (!virtio_has_feature(features, VIRTIO_NET_F_CTRL_VLAN)) {
+-        memset(n->vlans, 0xff, MAX_VLAN >> 3);
+-    }
+-
+     if (virtio_has_feature(features, VIRTIO_NET_F_STANDBY)) {
+         qapi_event_send_failover_negotiated(n->netclient_name);
+         qatomic_set(&n->failover_primary_hidden, false);
+@@ -3990,7 +3992,6 @@ static void virtio_net_reset(VirtIODevice *vdev)
+     memset(n->mac_table.macs, 0, MAC_TABLE_ENTRIES * ETH_ALEN);
+     memcpy(&n->mac[0], &n->nic->conf->macaddr, sizeof(n->mac));
+     qemu_format_nic_info_str(qemu_get_queue(n->nic), n->mac);
+-    memset(n->vlans, 0, MAX_VLAN >> 3);
+ 
+     /* Flush any async TX */
+     for (i = 0;  i < n->max_queue_pairs; i++) {
+
+---
+base-commit: f0737158b483e7ec2b2512145aeab888b85cc1f7
+change-id: 20250713-vlan-8c107a65ad91
 
 Best regards,
 -- 
-Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+
