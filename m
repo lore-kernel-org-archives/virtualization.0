@@ -1,78 +1,101 @@
-Received: from sender4-pp-o95.zoho.com (sender4-pp-o95.zoho.com [136.143.188.95])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76F4B184
-	for <virtualization@lists.linux.dev>; Mon, 14 Jul 2025 00:05:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.95
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752451520; cv=pass; b=BHzWVU6thXnD9XbQOFGbPCmVF5xvOTJjvOoQPd9f1Mch5dshQv1EqgScpYPTnhNDM3BYbRZK8OoS+qa4NZcHL/Yw7AJTlzumyAXB4Xr2CEiFkWgiDzqehJ/6P7ptDD/duX51hXkuFcfeCuTu4MvqNqxgsr1bvdl/gQ2EMgV0ykU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752451520; c=relaxed/simple;
-	bh=oyVaRut4FAEfUhD4YEWwvSHGtQCo0FrwoB/Rz8rlK4c=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=q1eK+rBF60P8wNH26mle24ul+NFQaEfDXYwaTetdDNe97Xu3oCG82qIId2J2iwLH2EnDUWaqdUt/jOt/0muUXo3LMUSD8BvmhQjLK9iqvKm/AXmwqqFKWgNJHA6G5+eY47NE/c2EBhiXz3T8i+r24w1A+OgMjaAsWcDc8jkfKmk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zohomail.com; spf=pass smtp.mailfrom=zohomail.com; dkim=pass (1024-bit key) header.d=zohomail.com header.i=safinaskar@zohomail.com header.b=GumDboUH; arc=pass smtp.client-ip=136.143.188.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zohomail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zohomail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 939EE78F26
+	for <virtualization@lists.linux.dev>; Mon, 14 Jul 2025 03:39:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752464369; cv=none; b=h/q6f6dHuKTXKGK790LGChrF+yDkcNMgRuAi635P/Bsa3zhuOUvubZgSbg+SdfLwMydFkI1wZGOh/+zp1+SXxdiYrt6yKwuA4O2CWHYTKS6eU84g6c2sx4ML+FH45ZN7LVZ5wJy+yxSICEwJiDOSD0NMx2MZUhGvudikM6zqdGs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752464369; c=relaxed/simple;
+	bh=9yw1cM1JJ8Ap1pjgj+U/AwSkrqjRXzvfTo4MgmXrsx4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MzIg+wVJpkrn/xwq46VjiTX5HczxsxGm8KnH1dN1CGx1bGh/zccFGZfZUjL/Sn/TtKpm+D/3Clddx+gYUMrA2Tt5EFqLFwWA8xiG/xPy62hJNe7dAOKKgPbRYbbiEBX5a8eKYlHMvlV82G1bkEXdMDDE+kcp6zGUvOleRWFYUow=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=QiQnqxJD; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=zohomail.com header.i=safinaskar@zohomail.com header.b="GumDboUH"
-ARC-Seal: i=1; a=rsa-sha256; t=1752451508; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=ZeWnGQ+sl/JpsDcV6E7PdRa+4zMlRZnmUCJNz3FxQM3v4oAndbLfbe9ke9Hmm7qssrC8wXM2nF6zEIPZp2YZNOAJvXXBJiqPbzNOYRPNdbQoQgkRO8SjpAltq3sxDrQy3vcdohpJFzTsgVb06XHPynwz3pGmRc9VgDbGc7qM9JQ=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1752451508; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=oyVaRut4FAEfUhD4YEWwvSHGtQCo0FrwoB/Rz8rlK4c=; 
-	b=YsUttEttI0R314edaRHwKY6Aqclsasl3BpdVWSifaOQ+jI/jmwe2AKBIQA7c7GjGDoo8qRwWPTe/uHkcvUtutWdcDnUZXjwynP4hZSeZqN05XrAedXVmA3AIKyNXADBGZuB7TAjuwiZb9OKerIwD0X9IfKfxNDVP79slI8NS8Ho=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=zohomail.com;
-	spf=pass  smtp.mailfrom=safinaskar@zohomail.com;
-	dmarc=pass header.from=<safinaskar@zohomail.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1752451508;
-	s=zm2022; d=zohomail.com; i=safinaskar@zohomail.com;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-Id:Message-Id:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Feedback-ID:Reply-To;
-	bh=oyVaRut4FAEfUhD4YEWwvSHGtQCo0FrwoB/Rz8rlK4c=;
-	b=GumDboUHwBbQoS1/lksEgDwPc8nwK2ic/TtfRQvxeoHmImkWM5Ycd94BLn1eKrOA
-	GIUn/C+YvuP0iM3G6BoJdWx22a8PLZVsUfdAF4D/aRZQdV7UXzayETqZjUtG3ZJLV2a
-	Vb6n3rp64GVwC1IprGiIqVXC2vcUAIgDdGzFODRI=
-Received: by mx.zohomail.com with SMTPS id 1752451505632151.41518657558117;
-	Sun, 13 Jul 2025 17:05:05 -0700 (PDT)
-From: Askar Safin <safinaskar@zohomail.com>
-To: ryasuoka@redhat.com
-Cc: airlied@gmail.com,
-	dri-devel@lists.freedesktop.org,
-	jfalempe@redhat.com,
-	kraxel@redhat.com,
-	linux-kernel@vger.kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	simona@ffwll.ch,
-	tzimmermann@suse.de,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH drm-next] drm/bochs: Add support for drm_panic
-Date: Mon, 14 Jul 2025 03:04:56 +0300
-Message-Id: <20250714000456.14-1-safinaskar@zohomail.com>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250613132023.106946-1-ryasuoka@redhat.com>
-References: <20250613132023.106946-1-ryasuoka@redhat.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="QiQnqxJD"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-234d3261631so29863875ad.1
+        for <virtualization@lists.linux.dev>; Sun, 13 Jul 2025 20:39:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1752464367; x=1753069167; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Q+6/k62UI4QDNnsPMaNZviv8mxGlHDTuu2KNG71R0NE=;
+        b=QiQnqxJDEdo5c/2nWJ1p2AyxDcboG4e6P4iuq/rURxK6vi0WnwqhS8IyeALybaWOAs
+         K7m/ShV4pTXhuj7+gdV1341lKP92YUIqvXebe0xKUwyiBzoKN1P26fyLasHqtimPJtQN
+         4EFO+kYu3f90FPnaACY8HiYlQHeLad5ey54aR56U97K02Ud9QRsCecrs4xF+Uid2ocBy
+         0Y79eMfK2Qh+dG4OAVSAh5ELgG0g4aAkTjYVPc5YHaZ++Mv1Q8ecehK4zUq0IblymQ/x
+         XkA2N/zUADqTc/nv4f/AYlkYKN1100Fr24iHhCg2tLD/b6MvA0cRnLZ01T/zwIw0BrhA
+         oDuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752464367; x=1753069167;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Q+6/k62UI4QDNnsPMaNZviv8mxGlHDTuu2KNG71R0NE=;
+        b=DqFDLQ1mtTI9fSe2n8e6sFWQn5eYpjQY3dP7eHfceclQA8Pj+2rmHcfdRcqjFIVnBh
+         CGpLDqtHpvuLGrapjWAvK9VjXPqyWQKlXQqQcsDXOAKxxCFHjVdREohmyQBI97mF/0HS
+         NAYYxnoqHeZokmUwaMMfW2HSV6O6cwfpvLdfWzKoypz9SbqCMEk2H6nSlS10VOFNqOSP
+         VUWgTPr7pzKunRF4xzsOTOj+clmaWaw0CGPFLEvZ+2lswn0MzvY2Kky1l30oNIAPysIG
+         ANpZWh9bJXTcGVbBSRbwWCnO5kkerjL5j8ljSxl+QASmVi93QihfdPj6bRWO9rFGQUGX
+         /Ccw==
+X-Forwarded-Encrypted: i=1; AJvYcCU0jgl6OvqyNxZ3udAHELhiRzqhfUp10yD9iAmLsS3AIoBEu7t2eUccAbfmFstAdxl5HLdQeHyDyURf7ObwNw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy9SC6N3REJNTVbPct+QgyN6qSSMjObhE+GPKAyqFEr6xufovxQ
+	2sbNObmUPdV+Y1p26jD1rJo8btvh+ZPyfL6Y4E1wiE1eTFVfeWqbbsowETIS5ykVf6k=
+X-Gm-Gg: ASbGncu8RFlHszVWdV1cSpQ4rwhbvY46yTVDWDar54SRaKb6ukn4z92gTQifLhYg4ac
+	gosz+qmnLVmRgYP4eHkdIDTKfgl/aH1C3nKvF+3HoSByUE+j8yqq0WAPRXZeMHDpf6qGSBK7LVE
+	rP3jHVaXUOyg5yKUphOgoLuX7BrT4omEY/3KgbmZlsCj/kJRDwRy8mG91nT0PdQAXe3POf4z2gK
+	AThDN/9H/+u+goQolaRDaLFsxYR1Qt5y8DLKnee19B9kWE2LQJivRi+UOOUKud88oHqLptF69Hm
+	XKBS7Pe6Q+nTQnWpP6RJJ5UvnHBJOns7I0Aph6uCjIjMq3LdKSJDJ/4xNKvUjxwMBgxT2LpQ9Om
+	JX/XzhPE5ns2CRIpN4jlDnXw=
+X-Google-Smtp-Source: AGHT+IH2g5qmc9RE+Cl3rwDnpBl4jF0vwTsbg5rxmEj55bIQb34Hr8YQz/Yx4gWK6dStNBp+qFIREw==
+X-Received: by 2002:a17:903:a86:b0:235:91a:4d with SMTP id d9443c01a7336-23dede58855mr153362665ad.23.1752464366767;
+        Sun, 13 Jul 2025 20:39:26 -0700 (PDT)
+Received: from localhost ([122.172.81.72])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23de42b0e04sm81449905ad.84.2025.07.13.20.39.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 13 Jul 2025 20:39:26 -0700 (PDT)
+Date: Mon, 14 Jul 2025 09:09:23 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: "Chen, Jian Jun" <jian.jun.chen@intel.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	linux-i2c@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: virtio: Avoid hang by using interruptible
+ completion wait
+Message-ID: <20250714033923.uoyehav3sbcb3rqn@vireshk-i7>
+References: <b8944e9cab8eb959d888ae80add6f2a686159ba2.1751541962.git.viresh.kumar@linaro.org>
+ <pvjv6gn6ylnpncdp5xdzt5wdnzc2tuuww3ihed46q76vm6qwly@7smel4x243a3>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Feedback-ID: rr08011227cae78222e5608424e7d23a7a0000ee312201a42be3a6c8c301f2cc67bdd579d09386f1395f25bb:zu080112272569fa9f85039b91f1d6e4ad00009739d396ded1a8e780e7fc362b6b8e7de17c082c4128df7ac0:rf0801122cde5ec2bf4f8a7fcaa033275600007851220b8154e5f9651282473cb1276cc830cf9885e60d8a8ecbbc4b3e19:ZohoMail
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pvjv6gn6ylnpncdp5xdzt5wdnzc2tuuww3ihed46q76vm6qwly@7smel4x243a3>
 
-Are normal panics (i. e. not drm panics) still supposed to work with bochs?
+On 11-07-25, 16:51, Andi Shyti wrote:
+> Hi Viresh,
+> 
+> On Thu, Jul 03, 2025 at 05:01:02PM +0530, Viresh Kumar wrote:
+> > The current implementation uses wait_for_completion(), which can cause
+> > the caller to hang indefinitely if the transfer never completes.
+> > 
+> > Switch to wait_for_completion_interruptible() so that the operation can
+> > be interrupted by signals.
+> > 
+> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> 
+> Do we need the Fixes tag here?
 
-If yes, then I want to point out that they, in fact, don't work since 2019.
-I. e. panics are not shown in Qemu if:
-1) bochs is used
-2) we use "normal" panics (not drm panics)
+Maybe we can add:
 
-I already reported this here: https://lore.kernel.org/regressions/197f290e30b.eaadc7bc7913.7315623184036672946@zohomail.com/T/#u ,
-but nobody answered.
+Fixes: 84e1d0bf1d71 ("i2c: virtio: disable timeout handling")
 
---
-Askar Safin
+-- 
+viresh
