@@ -1,118 +1,174 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A014C2459DC
-	for <virtualization@lists.linux-foundation.org>; Mon, 14 Jul 2025 09:42:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0D8E225771
+	for <virtualization@lists.linux.dev>; Mon, 14 Jul 2025 12:39:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752486140; cv=none; b=fgXuhkBDHCYTRmliCHIzuk8/HNZpu/iFMq7lFwFmtp2Y2uTimI95mh+PQ5hPcnS+VC5LttRK0fvezpyY0WANQIe/XZDlLtQmTo4ROBllvFTUt0yACdbr+LoAswMNciQlyb9fwKklvVuDPuFpe5r3zlYhNCzQGbcFht5WQYfhzMQ=
+	t=1752496785; cv=none; b=dJ4tDaDcouNRVMcyLrJGRXAspOc+I1SZj9BPxsUUdTALqFVdL3yn6WNuFN0Ur7EslTak7p/t7DVH9G5cYqQsVew7vMPfxsmP0/DOmih1NW2H1B2qn5xqre5N8sp2Wu0VYfjaK2MU0ljgNBC4tKS34HIYNeLkBgizELIyTwDR1PE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752486140; c=relaxed/simple;
-	bh=NtkYmkh+MWKkc3tiz4++RahH7N+j3NrwtINdVItqgGc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=DSR7Ir+dhxBjmMjzcuhCPeQb+bcwAaPOhnUoW5/Sd1e5V9LdNfgbWTOaWhGI7bSfHOn1WnKx9yEzzKaOwDghjjjOwkzz9Ps+UCeg5/MEdkUcQelXLSaoZ9dgDBwRR8/lm6cWEHGWYblvdZggY3iOG2l4wqFnJJLCEmWxNq2oujc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 364CD40A96
-	for <virtualization@lists.linux-foundation.org>; Mon, 14 Jul 2025 09:42:18 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -7.891
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id uZtdMo_5igFZ for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Jul 2025 09:42:17 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=45.249.212.32; helo=szxga06-in.huawei.com; envelope-from=zhengxinyu6@huawei.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 0070440A86
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0070440A86
-Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0070440A86
-	for <virtualization@lists.linux-foundation.org>; Mon, 14 Jul 2025 09:42:15 +0000 (UTC)
-Received: from mail.maildlp.com (unknown [172.19.88.234])
-	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4bgcnS34D0z2YPrJ;
-	Mon, 14 Jul 2025 17:43:08 +0800 (CST)
-Received: from kwepemo200008.china.huawei.com (unknown [7.202.195.61])
-	by mail.maildlp.com (Postfix) with ESMTPS id C6F441400FD;
-	Mon, 14 Jul 2025 17:42:09 +0800 (CST)
-Received: from [10.67.110.83] (10.67.110.83) by kwepemo200008.china.huawei.com
- (7.202.195.61) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 14 Jul
- 2025 17:42:09 +0800
-Message-ID: <10baccb6-f00e-4911-a3ec-8d28aec67b13@huawei.com>
-Date: Mon, 14 Jul 2025 17:42:08 +0800
+	s=arc-20240116; t=1752496785; c=relaxed/simple;
+	bh=Rv8v8bZp5vd+y6BD4PenY5xcThbuV69ONSekjNmZAEs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DJX3YCeiZ0ck7c7ogWc9H2PA4KGGKJJX7vyDodbG8Bd7VueK8ejQxuzOXY9kEARsIi9b6nRS9rMoQ7W5gmnzj6961mabW2S4Oi20IKVzzUQfWppoyJmWpsD1ReFewRb8Nobf7i/Z8QVuIkkIbBv4agStwI5zfjcGTIPL09oi9hk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch; spf=none smtp.mailfrom=ffwll.ch; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=GLeRCNpJ; arc=none smtp.client-ip=209.85.221.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ffwll.ch
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="GLeRCNpJ"
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-3a6d77b43c9so3813180f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 14 Jul 2025 05:39:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google; t=1752496782; x=1753101582; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=XErAJu/6i7g4EFf9vKNbP+OcUQZQKENL92ttAjzjYEU=;
+        b=GLeRCNpJnXHtRm/1+ZqUx7OD3ophChIoo8BU+QoR4Mea28ptzwOLr2ucbggCxaAfeO
+         iYPPWRjPKgRZKZIKmqciNo4eVjQ3SmrPTYyP2VBicrSWUXLX9yTyftqklvnsPvJeZI10
+         +97VXNSitv1d+aRr3vIA3omFNvbHW7ll3K5Ak=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752496782; x=1753101582;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=XErAJu/6i7g4EFf9vKNbP+OcUQZQKENL92ttAjzjYEU=;
+        b=RGeBFOZfGyRo49OYldTlixE3HUg+VwyS1Av8yzMyJvrlqvheHESDXfAvhVPthtI9Uz
+         GnfRourFsv6x6fYhz1meJw8lrXaSwT8k3G6RNwGpPG4u3/gClhNts88x38q19c8qY5C/
+         +u+dvfx9exDho+R/wUC2YAgwXCNSGjyNSQ8v4oCKvLB/UVO4yy0JqSYA00EFEOKtPP/q
+         c4lfRtCYXYyaHIYstWonOC7z4tGP9HW02LQWlJNbzy1MIKLiTQvVfdos8aH2IJUR2BmS
+         0vsJJXRdKvL6gNW/uNeIkQq+A3GfH75XrjWRryhy9Xio2LiaLubhtPLQd955dXbkqcfH
+         xZlA==
+X-Forwarded-Encrypted: i=1; AJvYcCUGLPpafN6HkZ12nDHu45SYnM2Z8QwOO4eRPbAWvrOm1wRKPJOM05ke3xrqF83JCOsRlWLAAZ0hUcpMwY03hw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzGZPnMSGSqc0wP707McFor9ga6dOHBSjp9f7K2daMTXqO4qFEe
+	RA01I6p648FFQFhxFu78mzmA9a2e2i3vbuUTwDBt3vg2+L8eRdt+6k44hAfsDYnIBMw=
+X-Gm-Gg: ASbGncvXnEAcGd6KPBYb0MX3g4Q9uRGNrtxDORvf6ZtFKWrRiyE/6E6/UoQSg5OQwiK
+	2DdWuZOPoVW7vqma4p38TZZ2E5PHu0OVanrZeebzXWDKnSqq9+GUbmQjaMdy6W1JEvFBM04nbnf
+	zVvHSKHqkA9afS4kHWKLYGR2bHKK4qRBLd+9tgOGumqvGHQuI2tHq4DyWI9p/UQCxrQLktvPAxv
+	DvdXg5ma4tEd09xKe5Gt2vKdM41XDeoQ7wJJhorDq197vlJRA3MHxLPr0eipnH80+ox5kvoAhjb
+	yTVXk2ZA40g3EsHr/HH0hYP6arMuNted9awjjXyh1sNBTLmhCNydDs7lDN7TiW3VXBOgncJyUwD
+	lZGjqn3EGjA8sXAd6Po7L33insgnENBz86nSwT8aQnez3
+X-Google-Smtp-Source: AGHT+IG6tSn1rFwzUvQrU3dFhdLGnz5/j4mh9qiCr0au1QUPGoiO9awMtbUHlEtASqVdx2HXNSxeBQ==
+X-Received: by 2002:a05:6000:25f6:b0:3a5:2875:f985 with SMTP id ffacd0b85a97d-3b5f18ffd7bmr10766504f8f.59.1752496781706;
+        Mon, 14 Jul 2025 05:39:41 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:5485:d4b2:c087:b497])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b5e8e26938sm12188789f8f.89.2025.07.14.05.39.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Jul 2025 05:39:41 -0700 (PDT)
+Date: Mon, 14 Jul 2025 14:39:39 +0200
+From: Simona Vetter <simona.vetter@ffwll.ch>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: simona@ffwll.ch, airlied@gmail.com, christian.koenig@amd.com,
+	torvalds@linux-foundation.org, maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org, l.stach@pengutronix.de,
+	linux+etnaviv@armlinux.org.uk, kraxel@redhat.com,
+	christian.gmeiner@gmail.com, dmitry.osipenko@collabora.com,
+	gurchetansingh@chromium.org, olvaffe@gmail.com,
+	zack.rusin@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+	dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+	virtualization@lists.linux.dev, intel-gfx@lists.freedesktop.org
+Subject: Re: [PATCH 0/9] drm: Revert general use of struct
+ drm_gem_object.dma_buf
+Message-ID: <aHT6i723ffg2_m2v@phenom.ffwll.local>
+References: <20250711093744.120962-1-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5.10] vhost-scsi: protect vq->log_used with vq->mutex
-To: Greg KH <gregkh@linuxfoundation.org>
-CC: <mst@redhat.com>, <jasowang@redhat.com>, <pbonzini@redhat.com>,
-	<stefanha@redhat.com>, <virtualization@lists.linux-foundation.org>,
-	<kvm@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20250702082945.4164475-1-zhengxinyu6@huawei.com>
- <2025071002-festive-outcast-7edd@gregkh>
-From: "zhengxinyu (E)" <zhengxinyu6@huawei.com>
-In-Reply-To: <2025071002-festive-outcast-7edd@gregkh>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
- kwepemo200008.china.huawei.com (7.202.195.61)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250711093744.120962-1-tzimmermann@suse.de>
+X-Operating-System: Linux phenom 6.12.30-amd64 
 
-
-
-On 7/10/2025 9:41 PM, Greg KH wrote:
-> On Wed, Jul 02, 2025 at 08:29:45AM +0000, Xinyu Zheng wrote:
->> From: Dongli Zhang <dongli.zhang@oracle.com>
->>
->> [ Upstream commit f591cf9fce724e5075cc67488c43c6e39e8cbe27 ]
->>
->> The vhost-scsi completion path may access vq->log_base when vq->log_used is
->> already set to false.
->>
->>      vhost-thread                       QEMU-thread
->>
->> vhost_scsi_complete_cmd_work()
->> -> vhost_add_used()
->>     -> vhost_add_used_n()
->>        if (unlikely(vq->log_used))
->>                                        QEMU disables vq->log_used
->>                                        via VHOST_SET_VRING_ADDR.
->>                                        mutex_lock(&vq->mutex);
->>                                        vq->log_used = false now!
->>                                        mutex_unlock(&vq->mutex);
->>
->> 				      QEMU gfree(vq->log_base)
->>          log_used()
->>          -> log_write(vq->log_base)
->>
->> Assuming the VMM is QEMU. The vq->log_base is from QEMU userpace and can be
->> reclaimed via gfree(). As a result, this causes invalid memory writes to
->> QEMU userspace.
->>
->> The control queue path has the same issue.
->>
->> CVE-2025-38074
+On Fri, Jul 11, 2025 at 11:35:15AM +0200, Thomas Zimmermann wrote:
+> Revert the use of drm_gem_object.dma_buf back to .import_attach->dmabuf
+> in the affected places. Also revert any fixes on top. Separates references
+> to imported and exported DMA bufs within a GEM object; as before.
 > 
-> This is not needed.
+> Using the dma_buf as the one authoritative field for the DMA buf turns
+> out to be fragile. The GEM object's dma_buf pointer can be NULL if
+> userspace releases the GEM handle too early. Sima mentioned that the fix
+> in commit 5307dce878d4 ("drm/gem: Acquire references on GEM handles for
+> framebuffers") is conceptionally broken. Linus still notices boot-up
+> hangs that might be related.
 > 
->> Cc: stable@vger.kernel.org#5.10.x
+> Reverting the whole thing is the only sensible action here.
 > 
-> What about 5.15.y and 6.1.y?  We can't take a patch just for 5.10 as
-> that would cause regressions, right?
+> Tested on virtio; and amdgpu, simpledrm plus udl for dma-buf sharing.
 > 
-> Please provide all relevant backports and I will be glad to queue them
-> up then.  I'll drop this from my queue for now, thanks.
-> 
-> greg k-h
+> Thomas Zimmermann (9):
+>   Revert "drm/framebuffer: Acquire internal references on GEM handles"
+>   Revert "drm/gem: Acquire references on GEM handles for framebuffers"
 
-Sorry for forgetting the 5.15.y and 6.1.y patches. I will resend it as 
-soon as possible. Thanks for pointing out my patch format error.
+Ok, I think all the below we should still apply for -fixes, because
+fundamentally gem_bo->dma_buf is not invariant over the lifetime of the
+buffer, while gem_bo->import_attach.dmabuf is. And so we blow up.
 
-Xinyu Zheng
+For display drivers the handle_count reference mostly papers over the
+issues, but even display drivers are allowed to keep internal references
+to the underlying gem bo for longer. So there could be a bunch of really
+tricky bugs lurking.
 
+For render drivers it's even clearer, they don't have framebuffers as
+objects, so there the fb handle_count references does not help.
+
+I'm not opposed to trying to unify these fields for imported dma_buf, but
+currently they're just not. Hence all the reverts.
+
+The patches also need Fixes: and as needed, cc: stable added for merging.
+With that and the above text as additional justification added:
+
+Reviewed-by: Simona Vetter <simona.vetter@ffwll.ch>
+
+Also we'd need to chase down any addiotional conversions that have only
+landed in -next meanwhile of course.
+
+₣or the handle_count patches I'm less sure. I don't think they're
+justified for fixing the gem_bo->dma_buf NULL pointer issues, but they do
+probably help with the GETFB/2 confusion Christian has pointed out.
+Personally my preference is:
+1. Apply the two reverts.
+2. Create an igt testcase for the GETFB confusion
+3. Figure out what the right fix for that is, which might or might not be
+the handle_count reference of drm_fb.
+
+But with my maintainer hat on I don't mind about the exact path, as long
+as we get there somehow. If you decide to do land the reverts, they also
+have my:
+
+Reviewed-by: Simona Vetter <simona.vetter@ffwll.ch>
+
+Cheers, Sima
+
+>   Revert "drm/virtio: Use dma_buf from GEM object instance"
+>   Revert "drm/vmwgfx: Use dma_buf from GEM object instance"
+>   Revert "drm/etnaviv: Use dma_buf from GEM object instance"
+>   Revert "drm/prime: Use dma_buf from GEM object instance"
+>   Revert "drm/gem-framebuffer: Use dma_buf from GEM object instance"
+>   Revert "drm/gem-shmem: Use dma_buf from GEM object instance"
+>   Revert "drm/gem-dma: Use dma_buf from GEM object instance"
+> 
+>  drivers/gpu/drm/drm_framebuffer.c            | 31 +---------
+>  drivers/gpu/drm/drm_gem.c                    | 64 +++-----------------
+>  drivers/gpu/drm/drm_gem_dma_helper.c         |  2 +-
+>  drivers/gpu/drm/drm_gem_framebuffer_helper.c |  8 ++-
+>  drivers/gpu/drm/drm_gem_shmem_helper.c       |  4 +-
+>  drivers/gpu/drm/drm_internal.h               |  2 -
+>  drivers/gpu/drm/drm_prime.c                  |  8 ++-
+>  drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c  |  4 +-
+>  drivers/gpu/drm/virtio/virtgpu_prime.c       |  5 +-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_gem.c          |  6 +-
+>  include/drm/drm_framebuffer.h                |  7 ---
+>  11 files changed, 35 insertions(+), 106 deletions(-)
+> 
+> -- 
+> 2.50.0
+> 
+
+-- 
+Simona Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
