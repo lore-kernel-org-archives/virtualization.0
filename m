@@ -1,101 +1,95 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E83721858E
-	for <virtualization@lists.linux.dev>; Mon, 14 Jul 2025 06:26:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C353BE65
+	for <virtualization@lists.linux.dev>; Mon, 14 Jul 2025 06:55:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752474390; cv=none; b=CMIouVu9ELbeJihx3ZeuXXIgO6TN6JKdAAQZFnmR1ZqPaW9Fv6MAI7BZP0a9yGTodrjvXQA4ZwoTsQ5oC6nXIVLaSvWSx14MSyZq+CRV6yDNPJDrZb61EflU7dBnsNNI3xk66UCJnzaMih7k0u5Dgnk/D9hkVsbgjo+ZMoxZIiM=
+	t=1752476104; cv=none; b=aurEAU+6FEiPNX+zvIu0lKYBl+0FBvklAooLGg8lfQTPILh9dkhMCkgzp6THlCG83/CxxS4v4eHnqd47yW3xSRQkcekR1XRBMBEjWgVhVIl37X1VvlmWeiJSD0V9fxVq0OiEgfLutHQHJtT/7161vOl+Ys0fNMNKFBb2smZPxsw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752474390; c=relaxed/simple;
-	bh=V+rwqecoT1VhxamTibKGXUp9Ch6sXkjq18TS0k6o+3w=;
+	s=arc-20240116; t=1752476104; c=relaxed/simple;
+	bh=UGs/+B32gn3cy1d8qhjGPSwAy5GCOeHq/3OLNLkco8o=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=KLPhxde26SyiQtqkczPSHHC83bQ+kKMQQD1sIelqaPUAo0MO3pekWL3iXr9LhGE8k2siHg9//pZHCgrB1va0Ss+Fp+zxziLLX9wFIuzQp4JcfiMGGB1FJpkxI8yCv8bs+nFicLARq+Glf2zsYjCp6qldc3IslZRrr4fBS2f1GD4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bked8GzR; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=GSWoj7z3gK/fgPqfuCIHUeTuL+WX6KGBTQOdU36wlbq4TQ7ITlxWLeTddR/ZX71Agujnr9Go3hkuZXvTerrzOoR2bg3uRI9E/TlMSQSsQ7UXfGqIK/qVg5Si00JSUjuRshlhX9H5Y7m/i7sCeYhBkp5xpePkM1wmJ1d6nhei86A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Il16xPEm; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bked8GzR"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Il16xPEm"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752474387;
+	s=mimecast20190719; t=1752476100;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=GP3d6FIZxQyy9y5NBWhl92sLho5OkS4ILaOBC7b/EwA=;
-	b=bked8GzRCDxy2YzCiIhfQ6Fn6lnKYxm85hBjwbeMfHJI9gDU5pPFqKK/zyI71lCCLbW4+S
-	W3XrfqvtbzjrK37swr+5uL2dQIrkvz4gRC1TkM5Mc2/eq7OUvpLozqsenUHFHKmdIQj79b
-	YKq17wNXh4foPHiAxghw/Oc7rM7HznE=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=sPMw9tnfPBR1vsdCImTl+h1akpJagNiW0hA8bPj+ieE=;
+	b=Il16xPEmlJN4ebqeQRYH0wDxWSXzdhB8xkTsvGiE9ryzliixlkOUAF8K64EJigfRxzT3i9
+	DzMXt3Cl4/RiCnJAupCBglwhqgeTfKF6VXirpImDsADRojHyPK08f76GvN623AGcC+aZ7X
+	3/y/czG55KDDvAmWXN+h5cCU3jtiwaA=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-190-HV_cNxMsO_yypusF2Jr1QQ-1; Mon, 14 Jul 2025 02:26:24 -0400
-X-MC-Unique: HV_cNxMsO_yypusF2Jr1QQ-1
-X-Mimecast-MFC-AGG-ID: HV_cNxMsO_yypusF2Jr1QQ_1752474384
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a5780e8137so2636433f8f.1
-        for <virtualization@lists.linux.dev>; Sun, 13 Jul 2025 23:26:24 -0700 (PDT)
+ us-mta-228-Mp02fRW9Mx6jGfylAttQyw-1; Mon, 14 Jul 2025 02:54:58 -0400
+X-MC-Unique: Mp02fRW9Mx6jGfylAttQyw-1
+X-Mimecast-MFC-AGG-ID: Mp02fRW9Mx6jGfylAttQyw_1752476097
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-453a5d50b81so28525585e9.1
+        for <virtualization@lists.linux.dev>; Sun, 13 Jul 2025 23:54:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752474384; x=1753079184;
+        d=1e100.net; s=20230601; t=1752476097; x=1753080897;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=GP3d6FIZxQyy9y5NBWhl92sLho5OkS4ILaOBC7b/EwA=;
-        b=PRRkvka5ipnpFoG7eNOG2zuXkI8d2OVmxL7K02N2/ytrpoFdlLx1Z14QpM8o77/kdw
-         fDxW+d+vhJDxBNLZDPYz5CgcMduqWVfk9U47cVrusrx3IVNhs19d3GvkLjVvbKAA6A6Z
-         3YVAYNGYHk55YIy5K5YFU4JXt/0zzhB/+LR6x1Ybwjf1kGa7CVwzXjZsvD5uCWakj34Q
-         J+MP/a3atBOzR9/i8jvWoaZ+XItSHabHxVr/sBrE6G0cW3Zhggmdk4Fuz8mpxL0Yx2Nx
-         54YZWGFC1lNucgs1sz/Xvhmlmxfea9h1TuAvYFrflS+akzu3bBeLi1Fy6cV2w2XaITFn
-         kkLA==
-X-Forwarded-Encrypted: i=1; AJvYcCUTWKWRnBXCFTddiPzYgmPM8yPwEcFTIyhuHhJ5Klc4nnjmcLvfkfyJ97/8lyd2bi1sj36SYb+iQWXt0EO72g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxgo+6ZiGUAxsC/p6iJIuNU+lKnHu66KUcNLG7ciJkoKrvuT1yV
-	I2LT26y/EJ7RkfAkIiwFd1ILZ5J0OOs5Vz8ji9kAywpsVgdSVS3uPqp0yzJ7ehejsOrlVDLKytw
-	MNQ7nxgSpAiX5nPE/vC1ktjH4KH12gBA37oaOcMLnf0G0LZf3iSPaGEKvm5hJGZzVdiHy
-X-Gm-Gg: ASbGnctwN5sCJ8K9PQZUQTVQxo+5+qmXrjNsE3oJ34M4nRyr/upqLLLtiA1B96giYq/
-	ZA6xsiaCMOCZCtLcUXPB6yKlyCk4mCDT+fUPuzHNRInM2+AmpTOAeAVgr4wlIqMC1Eyb/we0R7x
-	4RbgKsUud1Os9vE84AjFUOJGyT1xVnHI1q+t3zlNeX/OcDwBTaWmSukZWjLsksnCObWVbWvejOJ
-	ICXqKbvPd2AgwtRPSX2xKbqJ1cdAICooleNy7zm/1awl9McZXAHiCJ2FnqqZTlDTdM0uegNGHHa
-	SddBwh7FPZNdecfUo6J8IGR9RwveF/Lh
-X-Received: by 2002:a05:6000:2002:b0:3a5:270e:7d3 with SMTP id ffacd0b85a97d-3b5e7f2e936mr12714221f8f.13.1752474383484;
-        Sun, 13 Jul 2025 23:26:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE4nz+poUSNP2O8nttlooup0rJFpjoBiN8YSGlh9OAtjw4BvhaB9VzDWvT6aKNBMRIRnogc5g==
-X-Received: by 2002:a05:6000:2002:b0:3a5:270e:7d3 with SMTP id ffacd0b85a97d-3b5e7f2e936mr12714190f8f.13.1752474382970;
-        Sun, 13 Jul 2025 23:26:22 -0700 (PDT)
+        bh=sPMw9tnfPBR1vsdCImTl+h1akpJagNiW0hA8bPj+ieE=;
+        b=Oc/ndH6U1rUIDb7erwg9ChaGmQ7nxfDscJou29HJAWO+/hhkzUAvmVaWfON70koPrR
+         rfpcmXKG9mS1zMOnFw4ITPvW5McwWjIuzoi8RWcQJXxqyTevrTubazRYiYoosiR1M9x0
+         kfTRyicmiqrW24K6fsatZ9CIE1RgKi2DxKpDfyvDPO/W6hLYDqgaRLBUplawmD+uwpgF
+         TsYDtkqy7f3QfALm77N5VZDvCzkoR7a+HQoAmJFba/6L2aqXccQZrAw6jfsujkrnbh/d
+         A/CUp9BSyoU0NVm7UkKGohSVPtXT20JguInfSkteisdawsqWQqGvKYkfLHTLOkweI52B
+         uqJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVnvdqSK9oRyCLWiI+X0HwODHFvtrYl+KnWdlN/kSHS4OA5Bl3ZnlMeJu4xMZBK7KBZ2XcJy9FfjApdCqWEuw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzffd7PIpEpSfZEOhfho+raW2v4TDkL1/9of0mjWnSn04dxiHZs
+	cwT90RRZXoD3bO1sF3vQCedgRM8xS4fp9cPA8UcHuC3jre0dFDnH1w8RyEbW+03BL0LK4p7MDI/
+	c/WAzdFQacrpAa7s6b8UTxONxwTvzi+jheU5Xp++7m0ZDEzdEyyzBFbRPa4c4yWk/P4PX
+X-Gm-Gg: ASbGncsAShZhp9tXSJZhlRPnXWigWSnj/luSKgGECXqj3rXnAat6mgrvXjkrHLt+mIC
+	4Ds99eLjivuzz7uoWToqUMe8EUQtvWGFoWi/aBrAd/HyPOxoNpz6Xjk8ht01cmd1YZ0OZ4hIb68
+	l0TLsB44MyD/6hG9j6nOexwoDnY9lmbCqMG9/sbbO/REy2gOAGxJqJHUGZgmiodW6Zt9gK4qLU9
+	2jp9XGeWEPZ3PU9agCfyxQesKCVlY2aoeWK+Ah1AqGf5tjNbLrsE3ipX2O8+sCEQ2UjDKUq7JQL
+	exVwCmfDEmafj348JtBugeUQ18QGGHUx
+X-Received: by 2002:a05:600c:5024:b0:456:1611:cea5 with SMTP id 5b1f17b1804b1-4561611d3d6mr30785815e9.18.1752476096935;
+        Sun, 13 Jul 2025 23:54:56 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEE022c2VHr8WA+kO3hbXoaSxylmvCVJc9OW9gVm8pRiIUhm71J57/fOnW6tWgm61Q3Ykw7IA==
+X-Received: by 2002:a05:600c:5024:b0:456:1611:cea5 with SMTP id 5b1f17b1804b1-4561611d3d6mr30785655e9.18.1752476096517;
+        Sun, 13 Jul 2025 23:54:56 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4561323a488sm40074555e9.1.2025.07.13.23.26.21
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45610c518e9sm46492725e9.17.2025.07.13.23.54.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Jul 2025 23:26:21 -0700 (PDT)
-Date: Mon, 14 Jul 2025 02:26:19 -0400
+        Sun, 13 Jul 2025 23:54:56 -0700 (PDT)
+Date: Mon, 14 Jul 2025 02:54:53 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-	Keith Busch <kbusch@kernel.org>,
+To: Lukas Wunner <lukas@wunner.de>
+Cc: linux-kernel@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
 	Bjorn Helgaas <bhelgaas@google.com>,
 	Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
 	stefanha@redhat.com, alok.a.tiwari@oracle.com,
 	linux-pci@vger.kernel.org
 Subject: Re: [PATCH RFC v5 1/5] pci: report surprise removal event
-Message-ID: <20250714022128-mutt-send-email-mst@kernel.org>
-References: <fba3d235e38c1c6fcef2a30ed083ad9e25b20fa3.1752094439.git.mst@redhat.com>
- <20250709233820.GA2212185@bhelgaas>
+Message-ID: <20250714025357-mutt-send-email-mst@kernel.org>
+References: <cover.1752094439.git.mst@redhat.com>
+ <fba3d235e38c1c6fcef2a30ed083ad9e25b20fa3.1752094439.git.mst@redhat.com>
+ <aHSfeNhpocI4nmQk@wunner.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250709233820.GA2212185@bhelgaas>
+In-Reply-To: <aHSfeNhpocI4nmQk@wunner.de>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ntXtjSQyMXpbnhyy3gyTEOCnaspgwyC6pEQkjlL5Etg_1752474384
+X-Mimecast-MFC-PROC-ID: rLl63-jpxxnkw-BaAkgU07J9cjCfCFPQ2l-afjaU1Xw_1752476097
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, Jul 09, 2025 at 06:38:20PM -0500, Bjorn Helgaas wrote:
-> Housekeeping: Note subject line convention. Indent with spaces in
-> commit log.  Remove spurious plus signs.
-
-
-Thanks!
-
+On Mon, Jul 14, 2025 at 08:11:04AM +0200, Lukas Wunner wrote:
 > On Wed, Jul 09, 2025 at 04:55:26PM -0400, Michael S. Tsirkin wrote:
 > > At the moment, in case of a surprise removal, the regular remove
 > > callback is invoked, exclusively.  This works well, because mostly, the
@@ -106,78 +100,23 @@ Thanks!
 > > is now waiting for an interrupt from the device. If the device is now
 > > surprise-removed, that never arrives and the remove callback hangs
 > > forever.
-> > 
-> > For example, this was reported for virtio-blk:
-> > 
-> > 	1. the graceful removal is ongoing in the remove() callback, where disk
-> > 	   deletion del_gendisk() is ongoing, which waits for the requests +to
-> > 	   complete,
-> > 
-> > 	2. Now few requests are yet to complete, and surprise removal started.
-> > 
-> > 	At this point, virtio block driver will not get notified by the driver
-> > 	core layer, because it is likely serializing remove() happening by
-> > 	+user/driver unload and PCI hotplug driver-initiated device removal.  So
-> > 	vblk driver doesn't know that device is removed, block layer is waiting
-> > 	for requests completions to arrive which it never gets.  So
-> > 	del_gendisk() gets stuck.
-> > 
-> > Drivers can artificially add timeouts to handle that, but it can be
-> > flaky.
-> > 
-> > Instead, let's add a way for the driver to be notified about the
-> > disconnect. It can then do any necessary cleanup, knowing that the
-> > device is inactive.
 > 
-> This relies on somebody (typically pciehp, I guess) calling
-> pci_dev_set_disconnected() when a surprise remove happens.
+> For PCI devices in a hotplug slot, user space can initiate "safe removal"
+> by writing "0" to the hotplug slot's "power" file in sysfs.
 > 
-> Do you think it would be practical for the driver's .remove() method
-> to recognize that the device may stop responding at any point, even if
-> no hotplug driver is present to call pci_dev_set_disconnected()?
+> If the PCI device is yanked from the slot while safe removal is ongoing,
+> there is likewise no way for the driver to know that the device is
+> suddenly gone.  That's because pciehp_unconfigure_device() only calls
+> pci_dev_set_disconnected() in the surprise removal case, not for
+> safe removal.
 > 
-> Waiting forever for an interrupt seems kind of vulnerable in general.
-> Maybe "artificially adding timeouts" is alluding to *not* waiting
-> forever for interrupts?  That doesn't seem artificial to me because
-> it's just a fact of life that devices can disappear at arbitrary
-> times.
-> 
-> It seems a little fragile to me to depend on some other part of the
-> system to notice the surprise removal and tell you about it or
-> schedule your work function.  I think it would be more robust for the
-> driver to check directly, i.e., assume writes to the device may be
-> lost, check for PCI_POSSIBLE_ERROR() after reads from the device, and
-> never wait for an interrupt without a timeout.
-
-virtio is ... kind of special, in that users already take it for
-granted that having a device as long as they want to respond
-still does not lead to errors and data loss.
-
-Makes it a bit harder as our timeout would have to
-check for presence and retry, we can't just fail as a
-normal hardware device does.
-
-And there's the overhead thing - poking at the device a lot
-puts a high load on the host.
-
-So I can imagine a very long timeout (minutes?), and then something like
-the WQ I am trying to propose here as a shortcut.
+> The solution proposed here is thus not a complete one:  It may work
+> if user space initiated *driver* removal, but not if it initiated *safe*
+> removal of the entire device.  For virtio, that may be sufficient.
 
 
+No, I just missed this corner case.
 
-> > Since cleanups can take a long time, this takes an approach
-> > of a work struct that the driver initiates and enables
-> > on probe, and tears down on remove.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  drivers/pci/pci.h   |  6 ++++++
-> >  include/linux/pci.h | 45 +++++++++++++++++++++++++++++++++++++++++++++
-> >  2 files changed, 51 insertions(+)
-> > 
-> > diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-> > index 12215ee72afb..3ca4ebfd46be 100644
-> > --- a/drivers/pci/pci.h
 > > +++ b/drivers/pci/pci.h
 > > @@ -553,6 +553,12 @@ static inline int pci_dev_set_disconnected(struct pci_dev *dev, void *unused)
 > >  	pci_dev_set_io_state(dev, pci_channel_io_perm_failure);
@@ -191,71 +130,45 @@ the WQ I am trying to propose here as a shortcut.
 > > +
 > >  	return 0;
 > >  }
-> >  
-> > diff --git a/include/linux/pci.h b/include/linux/pci.h
-> > index 05e68f35f392..723b17145b62 100644
-> > --- a/include/linux/pci.h
-> > +++ b/include/linux/pci.h
-> > @@ -548,6 +548,10 @@ struct pci_dev {
-> >  	/* These methods index pci_reset_fn_methods[] */
-> >  	u8 reset_methods[PCI_NUM_RESET_METHODS]; /* In priority order */
-> >  
-> > +	/* Report disconnect events. 0x0 - disable, 0x1 - enable */
-> > +	u8 disconnect_work_enable;
-> > +	struct work_struct disconnect_work;
-> > +
-> >  #ifdef CONFIG_PCIE_TPH
-> >  	u16		tph_cap;	/* TPH capability offset */
-> >  	u8		tph_mode;	/* TPH mode */
-> > @@ -1993,6 +1997,47 @@ pci_release_mem_regions(struct pci_dev *pdev)
-> >  			    pci_select_bars(pdev, IORESOURCE_MEM));
-> >  }
-> >  
-> > +/*
-> > + * Run this first thing after getting a disconnect work, to prevent it from
-> > + * running multiple times.
-> > + * Returns: true if disconnect was enabled, proceed. false if disabled, abort.
-> > + */
-> > +static inline bool pci_test_and_clear_disconnect_enable(struct pci_dev *pdev)
-> > +{
-> > +	u8 enable = 0x1;
-> > +	u8 disable = 0x0;
-> > +	return try_cmpxchg(&pdev->disconnect_work_enable, &enable, disable);
-> > +}
-> > +
-> > +/*
-> > + * Caller must initialize @pdev->disconnect_work before invoking this.
-> > + * The work function must run and check pci_test_and_clear_disconnect_enable.
-> > + * Note that device can go away right after this call.
-> > + */
-> > +static inline void pci_set_disconnect_work(struct pci_dev *pdev)
-> > +{
-> > +	/* Make sure WQ has been initialized already */
-> > +	smp_wmb();
-> > +
-> > +	WRITE_ONCE(pdev->disconnect_work_enable, 0x1);
-> > +
-> > +	/* check the device did not go away meanwhile. */
-> > +	mb();
-> > +
-> > +	if (!pci_device_is_present(pdev))
-> > +		schedule_work(&pdev->disconnect_work);
-> > +}
-> > +
-> > +static inline void pci_clear_disconnect_work(struct pci_dev *pdev)
-> > +{
-> > +	WRITE_ONCE(pdev->disconnect_work_enable, 0x0);
-> > +
-> > +	/* Make sure to stop using work from now on. */
-> > +	smp_wmb();
-> > +
-> > +	cancel_work_sync(&pdev->disconnect_work);
-> > +}
-> > +
-> >  #else /* CONFIG_PCI is not enabled */
-> >  
-> >  static inline void pci_set_flags(int flags) { }
-> > -- 
-> > MST
-> > 
+> 
+> Going through all the callers of pci_dev_set_disconnected(),
+> I suppose the (only) one you're interested in is
+> pciehp_unconfigure_device().
+> 
+> The other callers are related to runtime resume, resume from
+> system sleep and ACPI slots.
+> 
+> Instead of amending pci_dev_set_disconnected(), I'd prefer
+> an approach where pciehp_unconfigure_device() first marks
+> all devices disconnected, then wakes up some global waitqueue, e.g.:
+> 
+> -	if (!presence)
+> +	if (!presence) {
+> 		pci_walk_bus(parent, pci_dev_set_disconnected, NULL);
+> +		wake_up_all(&pci_disconnected_wq);
+> +	}
+> 
+> The benefit is that there's no delay when marking devices disconnected.
+> (Granted, the delay is small for smp_rmb() + schedule_work().)
+> And just having a global waitqueue is simpler and may be useful
+> for other use cases.
+> 
+> So instead of adding timeouts when waiting for interrupts, drivers would
+> be woken via the waitqueue.
+> 
+> But again, it's not a complete solution as it doesn't cover the
+> "surprise removal during safe removal" case.
+> 
+> I also agree with Bjorn's and Keith's comments that the driver should
+> use timeouts for robustness,
+
+Yes - we can consider this an optimization, as robust timeouts
+are by necessity minutes.
+
+> but still wanted to provide additional
+> (hopefully constructive) thoughts.
+> 
+> Thanks!
+> 
+> Lukas
 
