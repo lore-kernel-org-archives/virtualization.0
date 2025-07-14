@@ -1,173 +1,118 @@
-Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 034002E3718
-	for <virtualization@lists.linux.dev>; Mon, 14 Jul 2025 09:32:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A014C2459DC
+	for <virtualization@lists.linux-foundation.org>; Mon, 14 Jul 2025 09:42:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752485526; cv=none; b=lTOppmmoSEd1ETvkVtL3k6fPqT8sfH6jGsGzBCCWPTkzX3rfgvZV9kHzgW13WNVFA6EeqdyaAA3NTAxL0k0lFfcpLto3vi8OoTIdO42R1wrBRSCANp+2pzJfjb0cDZQDsM4KTNHfKtDSfXjE2spavQ3tfWI5qLMkQhXcuiWGJCs=
+	t=1752486140; cv=none; b=fgXuhkBDHCYTRmliCHIzuk8/HNZpu/iFMq7lFwFmtp2Y2uTimI95mh+PQ5hPcnS+VC5LttRK0fvezpyY0WANQIe/XZDlLtQmTo4ROBllvFTUt0yACdbr+LoAswMNciQlyb9fwKklvVuDPuFpe5r3zlYhNCzQGbcFht5WQYfhzMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752485526; c=relaxed/simple;
-	bh=0xLUay+zqVzSSxgOHZ9QKM5GVub9jYMOsrtJ0OmHY18=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=KzPKxHczqFpTxHsvgEbiOxalRLCY7KObgafw5mluGHUwHt4CTEszEarIrFzfiyd1U2wFccnN94QQH+zaf3PfW7ySaHKaZJtWH8Z6+8yMDWzGHaFlCOpXjVhGlfzvcl7uRZz8QUy0el1GjVCZJe6OVP9gyIusR8P88cRkrpfDw0o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=fail (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=qpJEdJQ4 reason="key not found in DNS"; arc=none smtp.client-ip=49.212.243.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="qpJEdJQ4"
-Received: from [157.82.206.39] ([157.82.206.39])
-	(authenticated bits=0)
-	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 56E9Viad087593
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Mon, 14 Jul 2025 18:31:57 +0900 (JST)
-	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
-DKIM-Signature: a=rsa-sha256; bh=+8HGDbhAn09FdTQ9BmyGXXC74ug6db6ifTOWovIuvN8=;
-        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
-        h=From:Date:Subject:Message-Id:To;
-        s=rs20250326; t=1752485517; v=1;
-        b=qpJEdJQ48ygDI4blgZL1+UNUvswKQ3BMii/HDNjNOZsk8W4idsl6Pd6Yw01J3Ahm
-         Y4CtDP3THnS10zQqYPYCjqvmmf6xiSJzTuTAMgSGrMMaxbOEK6GDw9cUDKGHwJfJ
-         gBUEn7BObvQMJ/wtSNDF6PclILy1Bz+SkwdwG9rqhZm8sTP3ad7YcloRRBvna+PY
-         p4B11ad06DZ1SJKIMhFo/3lZarYCwJ4+1sU6JP3yxFuPYihwe1MxtfLKJLVhvWrQ
-         a2YzpfsNbudM6cQbzXDm6YGa5cBhTj1k/3/ANwft7pgxiVsyh9aHBY4z/HsEg2az
-         kKGimGjvFxvESvipG/sfEA==
-From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-Date: Mon, 14 Jul 2025 18:31:41 +0900
-Subject: [PATCH RFC v2] virtio-net: Fix VLAN filter table reset timing
+	s=arc-20240116; t=1752486140; c=relaxed/simple;
+	bh=NtkYmkh+MWKkc3tiz4++RahH7N+j3NrwtINdVItqgGc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=DSR7Ir+dhxBjmMjzcuhCPeQb+bcwAaPOhnUoW5/Sd1e5V9LdNfgbWTOaWhGI7bSfHOn1WnKx9yEzzKaOwDghjjjOwkzz9Ps+UCeg5/MEdkUcQelXLSaoZ9dgDBwRR8/lm6cWEHGWYblvdZggY3iOG2l4wqFnJJLCEmWxNq2oujc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 364CD40A96
+	for <virtualization@lists.linux-foundation.org>; Mon, 14 Jul 2025 09:42:18 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -7.891
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id uZtdMo_5igFZ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Jul 2025 09:42:17 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=45.249.212.32; helo=szxga06-in.huawei.com; envelope-from=zhengxinyu6@huawei.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 0070440A86
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0070440A86
+Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0070440A86
+	for <virtualization@lists.linux-foundation.org>; Mon, 14 Jul 2025 09:42:15 +0000 (UTC)
+Received: from mail.maildlp.com (unknown [172.19.88.234])
+	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4bgcnS34D0z2YPrJ;
+	Mon, 14 Jul 2025 17:43:08 +0800 (CST)
+Received: from kwepemo200008.china.huawei.com (unknown [7.202.195.61])
+	by mail.maildlp.com (Postfix) with ESMTPS id C6F441400FD;
+	Mon, 14 Jul 2025 17:42:09 +0800 (CST)
+Received: from [10.67.110.83] (10.67.110.83) by kwepemo200008.china.huawei.com
+ (7.202.195.61) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 14 Jul
+ 2025 17:42:09 +0800
+Message-ID: <10baccb6-f00e-4911-a3ec-8d28aec67b13@huawei.com>
+Date: Mon, 14 Jul 2025 17:42:08 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5.10] vhost-scsi: protect vq->log_used with vq->mutex
+To: Greg KH <gregkh@linuxfoundation.org>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <pbonzini@redhat.com>,
+	<stefanha@redhat.com>, <virtualization@lists.linux-foundation.org>,
+	<kvm@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20250702082945.4164475-1-zhengxinyu6@huawei.com>
+ <2025071002-festive-outcast-7edd@gregkh>
+From: "zhengxinyu (E)" <zhengxinyu6@huawei.com>
+In-Reply-To: <2025071002-festive-outcast-7edd@gregkh>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250714-vlan-v2-1-2d589ba4dcd3@rsg.ci.i.u-tokyo.ac.jp>
-X-B4-Tracking: v=1; b=H4sIAHzOdGgC/1WMywrCMBBFf6XM2oSkT3UlCH6AW+liTNN2qiQlq
- cFS8u+G7lyeew9nA68daQ/nbAOnA3myJkF+yECNaAbNqEsMucgr0ciChTcadlRSNFhX2J0kJHV
- 2uqfvnnnA/XaFNo0j+cW6dU8HuV//lSCZZFioXjxVj3VZXpwfuCJO/MMW+1otR8WnGdoY4w9iO
- 4RMqgAAAA==
-X-Change-ID: 20250713-vlan-8c107a65ad91
-To: Konstantin Shkolnyy <kshk@linux.ibm.com>, qemu-devel@nongnu.org
-Cc: yin31149@gmail.com, eperezma@redhat.com, mst@redhat.com,
-        jasowang@redhat.com, virtualization@lists.linux.dev,
-        qemu-stable@nongnu.org, Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-X-Mailer: b4 0.14.2
+X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
+ kwepemo200008.china.huawei.com (7.202.195.61)
 
-Problem
--------
 
-The expected initial state of the table depends on feature negotiation:
 
-With VIRTIO_NET_F_CTRL_VLAN:
-  The table must be empty in accordance with the specification.
-Without VIRTIO_NET_F_CTRL_VLAN:
-  The table must be filled to permit all VLAN traffic.
+On 7/10/2025 9:41 PM, Greg KH wrote:
+> On Wed, Jul 02, 2025 at 08:29:45AM +0000, Xinyu Zheng wrote:
+>> From: Dongli Zhang <dongli.zhang@oracle.com>
+>>
+>> [ Upstream commit f591cf9fce724e5075cc67488c43c6e39e8cbe27 ]
+>>
+>> The vhost-scsi completion path may access vq->log_base when vq->log_used is
+>> already set to false.
+>>
+>>      vhost-thread                       QEMU-thread
+>>
+>> vhost_scsi_complete_cmd_work()
+>> -> vhost_add_used()
+>>     -> vhost_add_used_n()
+>>        if (unlikely(vq->log_used))
+>>                                        QEMU disables vq->log_used
+>>                                        via VHOST_SET_VRING_ADDR.
+>>                                        mutex_lock(&vq->mutex);
+>>                                        vq->log_used = false now!
+>>                                        mutex_unlock(&vq->mutex);
+>>
+>> 				      QEMU gfree(vq->log_base)
+>>          log_used()
+>>          -> log_write(vq->log_base)
+>>
+>> Assuming the VMM is QEMU. The vq->log_base is from QEMU userpace and can be
+>> reclaimed via gfree(). As a result, this causes invalid memory writes to
+>> QEMU userspace.
+>>
+>> The control queue path has the same issue.
+>>
+>> CVE-2025-38074
+> 
+> This is not needed.
+> 
+>> Cc: stable@vger.kernel.org#5.10.x
+> 
+> What about 5.15.y and 6.1.y?  We can't take a patch just for 5.10 as
+> that would cause regressions, right?
+> 
+> Please provide all relevant backports and I will be glad to queue them
+> up then.  I'll drop this from my queue for now, thanks.
+> 
+> greg k-h
 
-Prior to commit 06b636a1e2ad ("virtio-net: do not reset vlan filtering
-at set_features"), virtio_net_set_features() always reset the VLAN
-table. That commit changed the behavior to skip table reset when
-VIRTIO_NET_F_CTRL_VLAN was negotiated, assuming the table would be
-properly cleared during device reset and remain stable.
+Sorry for forgetting the 5.15.y and 6.1.y patches. I will resend it as 
+soon as possible. Thanks for pointing out my patch format error.
 
-However, this assumption breaks when a driver renegotiates features:
-1. Initial negotiation without VIRTIO_NET_F_CTRL_VLAN (table filled)
-2. Renegotiation with VIRTIO_NET_F_CTRL_VLAN (table will not be cleared)
-
-The problem was exacerbated by commit 0caed25cd171 ("virtio: Call
-set_features during reset"), which triggered virtio_net_set_features()
-during device reset, exposing the bug whenever VIRTIO_NET_F_CTRL_VLAN
-was negotiated after a device reset.
-
-Solution
---------
-
-Fix the issue by initializing the table when virtio_net_set_features()
-is called to change the VIRTIO_NET_F_CTRL_VLAN bit of
-vdev->guest_features.
-
-This approach ensures the correct table state regardless of feature
-negotiation sequence by performing initialization in
-virtio_net_set_features() as QEMU did prior to commit 06b636a1e2ad
-("virtio-net: do not reset vlan filtering at set_features").
-
-This change still preserves the goal of the commit, which was to avoid
-resetting the table during migration, by checking whether the
-VIRTIO_NET_F_CTRL_VLAN bit of vdev->guest_features is being changed;
-vdev->guest_features is set before virtio_net_set_features() gets called
-during migration.
-
-It also avoids resetting the table when the driver sets a feature
-bitmask with no change for the VIRTIO_NET_F_CTRL_VLAN bit, which makes
-the operation idempotent and its semantics cleaner.
-
-Additionally, this change ensures the table is initialized after
-feature negotiation and before the DRIVER_OK status bit being set for
-compatibility with the Linux driver before commit 50c0ada627f5
-("virtio-net: fix race between ndo_open() and virtio_device_ready()"),
-which did not ensure to set the DRIVER_OK status bit before modifying
-the table.
-
-Fixes: 06b636a1e2ad ("virtio-net: do not reset vlan filtering at set_features")
-Cc: qemu-stable@nongnu.org
-Reported-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
-Signed-off-by: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
----
-Not tested.
-
-Konstantin, I would also want you to test this new version. Please also
-give it Tested-by, and, if possible, Reviewed-by.
----
-Changes in v2:
-- Addressed a concern with old drivers that do not properly set
-  DRIVER_OK (pointed out by Michael S. Tsirkin).
-- Noted that this change does not simply revert commit 06b636a1e2ad
-  ("virtio-net: do not reset vlan filtering at set_features") but
-  preserves its goal.
-- Added Cc: qemu-stable@nongnu.org.
-- Link to v1: https://lore.kernel.org/qemu-devel/20250713-vlan-v1-1-a3cf0bcfa644@rsg.ci.i.u-tokyo.ac.jp
----
- hw/net/virtio-net.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index 221252e00a50a46033d7ec8d18936e7c8196a6ca..623c11b82e0a7fe1ae0095bf23a285f66322b948 100644
---- a/hw/net/virtio-net.c
-+++ b/hw/net/virtio-net.c
-@@ -998,8 +998,9 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint64_t features)
-         vhost_net_save_acked_features(nc->peer);
-     }
- 
--    if (!virtio_has_feature(features, VIRTIO_NET_F_CTRL_VLAN)) {
--        memset(n->vlans, 0xff, MAX_VLAN >> 3);
-+    if (virtio_has_feature(vdev->guest_features ^ features, VIRTIO_NET_F_CTRL_VLAN)) {
-+        bool vlan = virtio_has_feature(features, VIRTIO_NET_F_CTRL_VLAN);
-+        memset(n->vlans, vlan ? 0 : 0xff, MAX_VLAN >> 3);
-     }
- 
-     if (virtio_has_feature(features, VIRTIO_NET_F_STANDBY)) {
-@@ -3900,6 +3901,7 @@ static void virtio_net_device_realize(DeviceState *dev, Error **errp)
-     n->mac_table.macs = g_malloc0(MAC_TABLE_ENTRIES * ETH_ALEN);
- 
-     n->vlans = g_malloc0(MAX_VLAN >> 3);
-+    memset(n->vlans, 0xff, MAX_VLAN >> 3);
- 
-     nc = qemu_get_queue(n->nic);
-     nc->rxfilter_notify_enabled = 1;
-@@ -3990,7 +3992,6 @@ static void virtio_net_reset(VirtIODevice *vdev)
-     memset(n->mac_table.macs, 0, MAC_TABLE_ENTRIES * ETH_ALEN);
-     memcpy(&n->mac[0], &n->nic->conf->macaddr, sizeof(n->mac));
-     qemu_format_nic_info_str(qemu_get_queue(n->nic), n->mac);
--    memset(n->vlans, 0, MAX_VLAN >> 3);
- 
-     /* Flush any async TX */
-     for (i = 0;  i < n->max_queue_pairs; i++) {
-
----
-base-commit: f0737158b483e7ec2b2512145aeab888b85cc1f7
-change-id: 20250713-vlan-8c107a65ad91
-
-Best regards,
--- 
-Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+Xinyu Zheng
 
