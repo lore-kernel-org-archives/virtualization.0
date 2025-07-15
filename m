@@ -1,171 +1,100 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC9DD24BBEE
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Jul 2025 15:32:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9BEA1DF99C
+	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 15:46:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752593545; cv=none; b=q8sgMOEyNCY7VYf5klBAC8Gu4C3GhGkQLBMGtcbZTEH167SKy2kSoZU8bCANXRKGG/D4RhOPfG0J2vHTCtP2BuJJUUBtfmV2sCz5IMRxc8XtDbJolbqR9zOL0FvceBv7URg0Z0bGbO6YxdCn8xNx4hT7stIA6Gmdw4HyHTrhrow=
+	t=1752594383; cv=none; b=Hu3rvSr9LllNzK/Ck7iPNVtI2GgBmnU4clnsv4spv4GD2BtspCSFg/J06v1CuZUGH5ziv2phmRM9mq6Kr0KIQXGS3MxpYY3r7NPKqod7rhE8b2fpb/lD06/Jbx4D+71fh1QlGrMmR64WFBk7+pU3sV4WQwsj9LjViQ/1sEHrTKU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752593545; c=relaxed/simple;
-	bh=5rdRvK0/wv3rgyzsgXz0n1m+AdOdwgEE5BaXSVwhhTU=;
+	s=arc-20240116; t=1752594383; c=relaxed/simple;
+	bh=YeKZ0KmVhAbqsdVN0qJho6dSv0EDr6zEMDxOmyQv/m4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=M5cJcjBh8k8eKHL7VAwknmiZGzn0C9etz+Dmed19jgwTpY4tPqVP3HgTTbAJHu5opXcOTaO32UhuEeTjnKMYc4gC+KL3BqmGbHC8i5Es8WvGoXmZ/MXLZkTEYM3sKhw1hdVtvOamn1h2spPXpNwFR6CNIXKr9v1aTrrAI8ZqcpI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WkPjtxJS; arc=none smtp.client-ip=140.211.166.136
+	 To:Cc:Content-Type; b=P1Zk7coeIbFbOu8zfz0Sl6qbl1WYKfX7nxlrFTh2hZP5WbGTNu9tsAMnvESF0qw0PKZPRvrTG5CV+jSnTtxaK+REk7LY3kfB33FT4nt3hrXjODdmzar2LzF/xuN84hGuECkQV9f+B4PH/D6wW7QgK4Eur80IhUgXOu/wtxg4pMo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hy+LaJ24; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WkPjtxJS"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4EFBB610C0
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Jul 2025 15:32:19 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 7wKkxMCADq2Q for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Jul 2025 15:32:18 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 9E8816066A
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E8816066A
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WkPjtxJS
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9E8816066A
-	for <virtualization@lists.linux-foundation.org>; Tue, 15 Jul 2025 15:32:17 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hy+LaJ24"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752593536;
+	s=mimecast20190719; t=1752594380;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Wnh22gI/k+OIEWCf+4ySowORAdVnUSIEoD4hbUCmi1M=;
-	b=WkPjtxJSVWQMk2C5as1nCxaCE1ldStlV+zztTaJRs7GiSv4gaCccbRPDfShBs/+COQ/E3i
-	clxEm0/cYWCMzkJ5NxM31s5LY/Rxk9cmiMnjOdONXfsEOSFQjM18pjsO9GZkB7wQuKqHGF
-	qXGj8KZvoy/qV55Tc7Z+vDaXz39JwTE=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=YeKZ0KmVhAbqsdVN0qJho6dSv0EDr6zEMDxOmyQv/m4=;
+	b=hy+LaJ24EHpp/397fZwYDdUDXM/BhQvgEevqyGq9lUx2rNdhIv/HUmoR8AKPDSNHeRkHIh
+	N5oKCycO43Qkmo0la88sDdpSOfU50fFGtX6Gz52LbbnGIwUTpHZ68I5H4tu0k8LDXFN726
+	QJmXOyypkx1Lf5qBT7TL0NiD68BKIYE=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-501-pc7ICZ8KOk-C-Dk56Ae5Zg-1; Tue, 15 Jul 2025 11:32:14 -0400
-X-MC-Unique: pc7ICZ8KOk-C-Dk56Ae5Zg-1
-X-Mimecast-MFC-AGG-ID: pc7ICZ8KOk-C-Dk56Ae5Zg_1752593533
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-ae0aec611beso404392866b.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 15 Jul 2025 08:32:14 -0700 (PDT)
+ us-mta-120-ij3QKvlMOguJc7i96oWuZQ-1; Tue, 15 Jul 2025 11:46:19 -0400
+X-MC-Unique: ij3QKvlMOguJc7i96oWuZQ-1
+X-Mimecast-MFC-AGG-ID: ij3QKvlMOguJc7i96oWuZQ_1752594378
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-ae3b2630529so473660466b.1
+        for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 08:46:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752593533; x=1753198333;
+        d=1e100.net; s=20230601; t=1752594378; x=1753199178;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Wnh22gI/k+OIEWCf+4ySowORAdVnUSIEoD4hbUCmi1M=;
-        b=KnH1uiJMMsyRzCGqWieReQ8/nFcwIP2LQVJMONs4lje6YSuoPh6g8JpSSP58GbuOah
-         UDongdTXV+wCCsQVsVqcsj8ZOQcxGuI0kGbz0piuflfMNu50GFSSVKiqSStC+iEk65Ry
-         j08msVBws+ar9Nkk6NSwFBs1x/cVYbLKsSb+lRfOvmJziKODlaOoqdENxf2VqNPKqQVj
-         DN4L4aN9wTlxSR7HHoaekg9+YhIItkIV4dwwzYEZyL43LUSKEhO40MQbpFKcPFHrT0Pe
-         zcNqJYuHvMlqUGFYiyxU84ey/LjZnnEZVskkbLwXKzThCl8EJsXloiDk4AoGvWJ5k86P
-         Agzw==
-X-Forwarded-Encrypted: i=1; AJvYcCWWQ7jcoaauF8iCnlMBzc/3qvq0C34LLADLq5Yxw/Swvn7W3echebXVk4Uomkk3bBvo6jdTshLtj1uAVyeMxA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwzV3O7II3PM/IceBOJA6gGdHnGuOZM+sTUt9IsKYza/935rbBk
-	ucy0ew5ZOyKuNu7vWxZ+hAszDf9A0Cj9TZ2uRgLy7b5m4mKTeJD4cOessCwuBi1hguMoRerpSFh
-	wDHjStWV0KZbklZY324IFAxAYbBRQzaEMjkifeWUBXLgqCUtLzfyAqVW9QJeFl5vMayqqK79mB6
-	IswcxcPqFFKLLL0bgeshoy3yXDRGL2mWbOFXjcF5o1lHG1YLC17tWqYgxCiA==
-X-Gm-Gg: ASbGncuk0tnqs3IM/L4zq8L6qn3DY0EwKoBDpYoCLHZi6dShIAg/AiHCL4Y+ZHl0htE
-	VpN0E35K5979sb18uo1t6crDkZhA8+/+5NWRR0xR5nnqoiDG7PZsAoNJf3knDgbuhR3OB7PowX5
-	PWj/B/wh2B6rEOz+yA9PCK6Q==
-X-Received: by 2002:a17:907:cf93:b0:ae3:cf41:b93b with SMTP id a640c23a62f3a-ae6fc0a7f90mr1582699266b.41.1752593533371;
-        Tue, 15 Jul 2025 08:32:13 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHOIuENMcFdE7XVF/eBak/JoBXEh87UvUrI/EctpEOdONudRuCPXduAkkRmy07jHtjgT20K0pXxQIEZJ9U0ySo=
-X-Received: by 2002:a17:907:cf93:b0:ae3:cf41:b93b with SMTP id
- a640c23a62f3a-ae6fc0a7f90mr1582696366b.41.1752593532954; Tue, 15 Jul 2025
- 08:32:12 -0700 (PDT)
+        bh=YeKZ0KmVhAbqsdVN0qJho6dSv0EDr6zEMDxOmyQv/m4=;
+        b=t6e2ZemFH7Xx1xR56b19ek3RULvzhMqyZiLdonfssl/V0fzw2wPVvSadjCHpJesZSc
+         2XKtDJk7WsvTvTgEgbbSMWtafJrv4xM6e25xzP+dI3iGCq+gHEVSQnkc7G0DXEfUOs0w
+         zHnwJbWZJOMczV6LzFB7pmHL8h1QsIr35FQHiTXN7jOCGPK6XSunabDc26rsQGMWhpsh
+         PcH8kVUyn0oh+HgrSpurhxhU0rlZx/sLFm9xCB6WR9JK40UEZnwi9070GRl49PzwXFf3
+         7/FMo1WtIJzBgYoi8q9msP+s7bOZNhb3l75hIBkxUAbWTL5ixkZPsuJC1y76nN9qIqnv
+         QpIg==
+X-Forwarded-Encrypted: i=1; AJvYcCUNTl6vyY9KyPeML9Am7ice//LVY3SBF+cGWyGvH1brFWrw+GJOx+RGttDZCll5aPha2Q0efQg0bI2J+wUdvQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yymc50EXGM1iADM8fS4lnXxbBQIqvNPBxiVUmqSxS7Dsyzw/v4C
+	K8wloXHYuHHCKd7HA4dHE//u4q0sGvtVLoO0VX6wU0rtQ/fKI7OqjKg/rHWEJ9+XktZGNKRcuj2
+	YZpZNcyo/SHWI9cfHIMbfaOfzY7gUXHm4rd1BKx+yaCDJTIe2qYnhrwsNaJ75qOfKqdgpvhCpEk
+	vrmHsm934S9HvrFmpES7ezi4/4OhLgYV7y6eS1OMfG48Q=
+X-Gm-Gg: ASbGncsQ6jBXqa8JM6AOZLAKRF+uLfFifPLTP1+37NB/fUju9KHdCONGyYUWvGWehrR
+	ea+Zw8dPC0keXTocvJm8wxZFSPlDnWTS0xPUmGMy0vf7hikHNrOccB3WYMEfur3dUaDSFEzflA2
+	zz6MLhBtsjpBqkMVLfO2ZluA==
+X-Received: by 2002:a17:907:962a:b0:ae0:3f20:68f8 with SMTP id a640c23a62f3a-ae6fcbc2c32mr1887245166b.39.1752594378044;
+        Tue, 15 Jul 2025 08:46:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFlCyXikNssAjjTBsAdIH0MIVmRcQfeT4dCIv8bEKRZETD1LqB+ZQ3r062eu/OZ/7fnE746+1I/QZe0sQ3hiM4=
+X-Received: by 2002:a17:907:962a:b0:ae0:3f20:68f8 with SMTP id
+ a640c23a62f3a-ae6fcbc2c32mr1887243166b.39.1752594377707; Tue, 15 Jul 2025
+ 08:46:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250710023208.846-1-liming.wu@jaguarmicro.com>
-In-Reply-To: <20250710023208.846-1-liming.wu@jaguarmicro.com>
+References: <20250713-vlan-v1-1-a3cf0bcfa644@rsg.ci.i.u-tokyo.ac.jp> <ae225e65-0a13-47a8-9bfc-0f8497af2e58@linux.ibm.com>
+In-Reply-To: <ae225e65-0a13-47a8-9bfc-0f8497af2e58@linux.ibm.com>
 From: Lei Yang <leiyang@redhat.com>
-Date: Tue, 15 Jul 2025 23:31:35 +0800
-X-Gm-Features: Ac12FXx0K4HuoaUKypyFETVzBZg3F6wzzVt1s3aBwTTAZbrGnPQbtaOUcuDFRP8
-Message-ID: <CAPpAL=wvL2LfRV5BFgLVG69hUoO5fYVx6WEK-PimjoQpy1S7ZA@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio_net: simplify tx queue wake condition check
-To: liming.wu@jaguarmicro.com
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, angus.chen@jaguarmicro.com
+Date: Tue, 15 Jul 2025 23:45:41 +0800
+X-Gm-Features: Ac12FXxAVi3H2kkwLzNgapGt3HL99l3IuWXYcy9Tgg-NKyIA1vi-6LvLTL1aVjA
+Message-ID: <CAPpAL=wxV0RmFq+nwSjsYbmYpBkaXE3TPLrxNfrjYrr0hCjkjQ@mail.gmail.com>
+Subject: Re: [PATCH RFC] virtio-net: Fix VLAN filter table initialization timing
+To: Konstantin Shkolnyy <kshk@linux.ibm.com>
+Cc: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>, qemu-devel@nongnu.org, yin31149@gmail.com, 
+	eperezma@redhat.com, mst@redhat.com, jasowang@redhat.com, 
+	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 28_WzazNBxQrBf1qlybnlBkgnIAZlnFXJN4nLhbYr_E_1752593533
+X-Mimecast-MFC-PROC-ID: GQvc8DmH1w8PCUKaU-JKYUb9CTAcUTOJtOxinSnZS0Q_1752594378
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Tested this series of patches v2 with virtio-net regression tests,
-everything works fine.
+Tested this patch with virtio-net regression tests, everything works fine.
 
 Tested-by: Lei Yang <leiyang@redhat.com>
 
-On Thu, Jul 10, 2025 at 10:32=E2=80=AFAM <liming.wu@jaguarmicro.com> wrote:
+On Mon, Jul 14, 2025 at 5:34=E2=80=AFAM Konstantin Shkolnyy <kshk@linux.ibm=
+.com> wrote:
 >
-> From: Liming Wu <liming.wu@jaguarmicro.com>
+> On 13-Jul-25 06:52, Akihiko Odaki wrote:
+> > Konstantin, please see if this patch fixes your workload.
+> Yes, it does. It delays vlans[] initialization until
+> virtio_net_set_status(0xf) which later also calls vhost_net_start()
+> which is where the NIC is actually programmed.
 >
-> Consolidate the two nested if conditions for checking tx queue wake
-> conditions into a single combined condition. This improves code
-> readability without changing functionality. And move netif_tx_wake_queue
-> into if condition to reduce unnecessary checks for queue stops.
->
-> Signed-off-by: Liming Wu <liming.wu@jaguarmicro.com>
-> Tested-by: Lei Yang <leiyang@redhat.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/net/virtio_net.c | 22 ++++++++++------------
->  1 file changed, 10 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 5d674eb9a0f2..07a378220643 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3021,12 +3021,11 @@ static void virtnet_poll_cleantx(struct receive_q=
-ueue *rq, int budget)
->                         free_old_xmit(sq, txq, !!budget);
->                 } while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
->
-> -               if (sq->vq->num_free >=3D MAX_SKB_FRAGS + 2) {
-> -                       if (netif_tx_queue_stopped(txq)) {
-> -                               u64_stats_update_begin(&sq->stats.syncp);
-> -                               u64_stats_inc(&sq->stats.wake);
-> -                               u64_stats_update_end(&sq->stats.syncp);
-> -                       }
-> +               if (sq->vq->num_free >=3D MAX_SKB_FRAGS + 2 &&
-> +                   netif_tx_queue_stopped(txq)) {
-> +                       u64_stats_update_begin(&sq->stats.syncp);
-> +                       u64_stats_inc(&sq->stats.wake);
-> +                       u64_stats_update_end(&sq->stats.syncp);
->                         netif_tx_wake_queue(txq);
->                 }
->
-> @@ -3218,12 +3217,11 @@ static int virtnet_poll_tx(struct napi_struct *na=
-pi, int budget)
->         else
->                 free_old_xmit(sq, txq, !!budget);
->
-> -       if (sq->vq->num_free >=3D MAX_SKB_FRAGS + 2) {
-> -               if (netif_tx_queue_stopped(txq)) {
-> -                       u64_stats_update_begin(&sq->stats.syncp);
-> -                       u64_stats_inc(&sq->stats.wake);
-> -                       u64_stats_update_end(&sq->stats.syncp);
-> -               }
-> +       if (sq->vq->num_free >=3D MAX_SKB_FRAGS + 2 &&
-> +           netif_tx_queue_stopped(txq)) {
-> +               u64_stats_update_begin(&sq->stats.syncp);
-> +               u64_stats_inc(&sq->stats.wake);
-> +               u64_stats_update_end(&sq->stats.syncp);
->                 netif_tx_wake_queue(txq);
->         }
->
-> --
-> 2.34.1
 >
 
