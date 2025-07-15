@@ -1,108 +1,183 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C72015624D
-	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 16:01:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67A171EA7D2
+	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 16:02:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752595300; cv=none; b=uUcwQa6TeVfIJn8Ax9cdbnnpqOkVE4nw9neWhdTyvvyqdt6pJN3OV4HnlFBUZTPWEANWZ1tikyulhG7PxNxvurDnn97X/3iGML70FL4oFPFZkmpxOYNcqs60429bgPfNUFBEXNBsrBYh9BhxuRJfM5wQi1q1jpYYUhnoNjc3ugs=
+	t=1752595368; cv=none; b=HKjCUBSANonc5tPNvijRnIyjhNHizUccvfrIiVsJk/0bC/le5SCdjRmy4bxCePl59c6VJVsuLaETa7vCV6F/BR2/SvncMFVyXYTtXo3ze3tEYqlcq8tQSzkFkk9rTucl2uSestPxDwavhHhRgOMpPm76wcyXDTFqSXDTWjMhiYo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752595300; c=relaxed/simple;
-	bh=ZQ0j1/DqwHYNjpT8525Bm0Q0Yv2cqtqle57qb7lTBDY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=u7XXW2cAoTC1ygot60rgnBLvgEHOeG1cHemDH3K+mMJZYViuzivczN+7sdmg6f/Ov3Kh7713XYfxKiWP9IgGW7FrGBenbK9mWtMac6wqUZ7rMfi1c/5Flqmao+yWvAhQ2NIKO7mXFYWwU/zgWZg1kW45HW8UCaCnXPrMB4S8nPg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PS/aUEdm; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1752595368; c=relaxed/simple;
+	bh=BXolIaZzkxjNAH9dKlkf3DwegLsaGaxqsn3rQc4M2UU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=FWZdHb5JEvBhSGGONxo3R7ONEamNuenWYjjBeN0ykHvU5KAvQstQ5Ifq8bBTG6WT5HH2Qpo3MeU/HVubzdNsjx49TPQ0NaHvM7BXFdMgVTQrqqhdrUFgJV2yXr0mnp1TfFVfPqmie4+zU7KTi8Vrznw5IkRJtA2YODVoujnT0rA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Cdl/J5Jk; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=B+FimyoM; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Cdl/J5Jk; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=B+FimyoM; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PS/aUEdm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752595298;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ZQ0j1/DqwHYNjpT8525Bm0Q0Yv2cqtqle57qb7lTBDY=;
-	b=PS/aUEdmtbQv9GHcebWWbONkQ18hxrx9uCoApobFg/BzjhMtuxGs9PAdpVbr40TzVUxRsR
-	4RVfJ3j5KAqvZMaioKtgRFDheZierI+VhecOZvmBNjEtQlWGtYQP4ONQGHoxKXM1FvZH6O
-	G0HvgHfLw5XYKtSADXMMVpddCG7sxTM=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-118-nO_UUTn9OrODob-ngkqn7A-1; Tue, 15 Jul 2025 12:01:34 -0400
-X-MC-Unique: nO_UUTn9OrODob-ngkqn7A-1
-X-Mimecast-MFC-AGG-ID: nO_UUTn9OrODob-ngkqn7A_1752595294
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-ae371f9e3f5so1444266b.1
-        for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 09:01:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752595294; x=1753200094;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZQ0j1/DqwHYNjpT8525Bm0Q0Yv2cqtqle57qb7lTBDY=;
-        b=gBta9O4nmWYyWkZ6Yzj6JyTFywyjH9iiFZRxCt68p/AJtle5nTQa3nMi5E86jBRKVO
-         pJyix2QyG47zGyrUyJP3ObXXEGgWXpe6N3eCMq2I3KfsYA1xMlN/W/heMdqj9vCC3ikY
-         aX+2/7NagDG9misueakRHaUi6T12uqmIcLoaABKPAIp1zfmyudoUN/1E9HUG5Tk90Gin
-         4RqTQJvGJNtg581sTyXZj3wrx9aCE4+deggQWUpPLQIZwTRx6bMHIBWLVjupEv7Q1jwQ
-         fSRDyFfrvkpe9JVC2SlQNiipyJjcA5Wfexpbki2dYhFXTKhMxiTmA7nJmUVV77L0jQgJ
-         mRgA==
-X-Forwarded-Encrypted: i=1; AJvYcCUnekpiGsoA93/D63kaeQ6L8EaRBT4TjesjCezeNE32313Aqzss1tU9pNA4a5PPojQUBlY/oaCNU1XRwanh4g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwLPiimPWrPWliHkxdudlbSYmYrjD+61zPoeT36RebbYBYbm0SZ
-	zS4vnzxBGj7ke9huIcwiYFsMXUKxpssQkmNyjhVc1feQHtKEWmMZH+Vot74xyp8gmZpbpewjGKQ
-	oZjqu2VwKhWKFyYQ+iV302LcRFRrwRJL8hEZ4ZKpA7Vh0f5HwPM/uYR9SZE+uTFE+pt5RoSiioy
-	PO4GHbPCEodcizNCeskloU0QEGZFylMwNTz0oItQvgP4E=
-X-Gm-Gg: ASbGncvYnySWtQ6s7Vv4Da2J72g4Lmmf1mkniCgM4kzQ4b0Q4pbpU1u2vcdULGSks1Y
-	Y3kXIGdFiNcrB6nXqgIr36NJWXr1stiMv6FIdvT6vkee0/ylUaGt/7diZegpKrZM2O7VElDcOUD
-	iGme2caY4pVjeQGRi8a9VfVg==
-X-Received: by 2002:a17:907:6d10:b0:ae6:f7b5:70b4 with SMTP id a640c23a62f3a-ae9b5d3255cmr491382366b.16.1752595292027;
-        Tue, 15 Jul 2025 09:01:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHBNkiu+KQ5oFA0wwnTagSgW/CRAwhWpJ4c1BHoReinXdEEf7eauOJVlEwHLa0R5HQVe1DaLCb/j1PYAiAn6ZY=
-X-Received: by 2002:a17:907:6d10:b0:ae6:f7b5:70b4 with SMTP id
- a640c23a62f3a-ae9b5d3255cmr491368266b.16.1752595291206; Tue, 15 Jul 2025
- 09:01:31 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Cdl/J5Jk";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="B+FimyoM";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Cdl/J5Jk";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="B+FimyoM"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 7D4F91F38F;
+	Tue, 15 Jul 2025 16:02:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1752595364; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=oNw5Zr1eUbBlwuW6n1ILvUUBx/oISYy00mV8hA19ikg=;
+	b=Cdl/J5JkX921IOFowBEFvGA8dehDrIceDL1igBu44DydV1w+BDWARcjXZw0xXT5VQvt1rC
+	FEXiEHEDGaj5YEHTc9XELopddlH03ZmUeWSyujLlHTIJiSFMqhrKhMcZRAn5sf/UV7T30t
+	tgO3mI9jpkZNhiI1vGOBhfGFVF0riXc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1752595364;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=oNw5Zr1eUbBlwuW6n1ILvUUBx/oISYy00mV8hA19ikg=;
+	b=B+FimyoMayGBcL+YkhsNiECub1YVunmv2EqahiMVP3kaPjlmo2CkYk8pzkp0jyloWuIuUD
+	/kx2vHDrvzs03xAw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="Cdl/J5Jk";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=B+FimyoM
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1752595364; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=oNw5Zr1eUbBlwuW6n1ILvUUBx/oISYy00mV8hA19ikg=;
+	b=Cdl/J5JkX921IOFowBEFvGA8dehDrIceDL1igBu44DydV1w+BDWARcjXZw0xXT5VQvt1rC
+	FEXiEHEDGaj5YEHTc9XELopddlH03ZmUeWSyujLlHTIJiSFMqhrKhMcZRAn5sf/UV7T30t
+	tgO3mI9jpkZNhiI1vGOBhfGFVF0riXc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1752595364;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=oNw5Zr1eUbBlwuW6n1ILvUUBx/oISYy00mV8hA19ikg=;
+	b=B+FimyoMayGBcL+YkhsNiECub1YVunmv2EqahiMVP3kaPjlmo2CkYk8pzkp0jyloWuIuUD
+	/kx2vHDrvzs03xAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id EA57313A68;
+	Tue, 15 Jul 2025 16:02:43 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id fCxrN6N7dmiFaQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 15 Jul 2025 16:02:43 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: simona@ffwll.ch,
+	airlied@gmail.com,
+	christian.koenig@amd.com,
+	torvalds@linux-foundation.org,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	l.stach@pengutronix.de,
+	linux+etnaviv@armlinux.org.uk,
+	kraxel@redhat.com,
+	christian.gmeiner@gmail.com,
+	dmitry.osipenko@collabora.com,
+	gurchetansingh@chromium.org,
+	olvaffe@gmail.com,
+	zack.rusin@broadcom.com
+Cc: bcm-kernel-feedback-list@broadcom.com,
+	dri-devel@lists.freedesktop.org,
+	etnaviv@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	intel-gfx@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v3 0/7] drm: Revert general use of struct drm_gem_object.dma_buf
+Date: Tue, 15 Jul 2025 17:58:10 +0200
+Message-ID: <20250715155934.150656-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.50.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250714-vlan-v2-1-2d589ba4dcd3@rsg.ci.i.u-tokyo.ac.jp> <e0d7a518-7736-4de1-814c-578f14e591f2@linux.ibm.com>
-In-Reply-To: <e0d7a518-7736-4de1-814c-578f14e591f2@linux.ibm.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Wed, 16 Jul 2025 00:00:54 +0800
-X-Gm-Features: Ac12FXwbzANFFYILs9MpijrHBLLCk_jwZgVFJCwhCCMj8OCKSYeIH2n0WXXELOI
-Message-ID: <CAPpAL=wXjo7tBzZAcNV01Lm3nZBx6+O2KqaN4JgGaP6WyPNaXQ@mail.gmail.com>
-Subject: Re: [PATCH RFC v2] virtio-net: Fix VLAN filter table reset timing
-To: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-Cc: qemu-devel@nongnu.org, yin31149@gmail.com, 
-	Konstantin Shkolnyy <kshk@linux.ibm.com>, eperezma@redhat.com, mst@redhat.com, 
-	jasowang@redhat.com, virtualization@lists.linux.dev, qemu-stable@nongnu.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: UKaQruGHKUJbxSgiCvu7aPOrJH6AyTAMe3RKyhf4JIk_1752595294
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-2.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,amd.com,linux-foundation.org,linux.intel.com,kernel.org,pengutronix.de,armlinux.org.uk,redhat.com,collabora.com,chromium.org,broadcom.com];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[20];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	MIME_TRACE(0.00)[0:+];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TAGGED_RCPT(0.00)[etnaviv];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 7D4F91F38F
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -2.01
 
-Tested v2 again with virtio-net regression tests, everything works fine.
+Revert the use of drm_gem_object.dma_buf back to .import_attach->dmabuf
+in the affected places. Separates references to imported and exported DMA
+bufs within a GEM object; as before.
 
-Tested-by: Lei Yang <leiyang@redhat.com>
+The dma_buf field in struct drm_gem_object is not stable over the object
+instance's lifetime. The field becomes NULL when user space releases the
+final GEM handle on the buffer object. This resulted in a NULL-pointer
+deref.
 
-On Mon, Jul 14, 2025 at 10:28=E2=80=AFPM Konstantin Shkolnyy <kshk@linux.ib=
-m.com> wrote:
->
-> On 14-Jul-25 04:31, Akihiko Odaki wrote:
-> > Konstantin, I would also want you to test this new version. Please also
-> > give it Tested-by, and, if possible, Reviewed-by.
->
-> It works as expected during the boot. All bits in vlans[] remain set
-> until virtio_pci_common_write(VIRTIO_PCI_GUEST_FEATURES) comes with
-> VIRTIO_NET_F_CTRL_VLAN set, and clears vlans[]. Then I see
-> virtio_net_set_status(0xb) and virtio_net_set_status(0xf).
->
-> I can't test migration because currently it's not supported on s390 for
-> PCI devices.
->
-> Tested-by: Konstantin Shkolnyy <kshk@linux.ibm.com>
->
->
+Workarounds in commit 5307dce878d4 ("drm/gem: Acquire references on GEM
+handles for framebuffers") and commit f6bfc9afc751 ("drm/framebuffer:
+Acquire internal references on GEM handles") only solved the problem
+partially. They especially don't work for buffer objects without a DRM
+framebuffer associated.
+
+v3:
+- cc stable where necessary
+v2:
+- extended commit messages (Sima)
+- drop the GEM-handle changes to be resolved separately
+
+Thomas Zimmermann (7):
+  Revert "drm/virtio: Use dma_buf from GEM object instance"
+  Revert "drm/vmwgfx: Use dma_buf from GEM object instance"
+  Revert "drm/etnaviv: Use dma_buf from GEM object instance"
+  Revert "drm/prime: Use dma_buf from GEM object instance"
+  Revert "drm/gem-framebuffer: Use dma_buf from GEM object instance"
+  Revert "drm/gem-shmem: Use dma_buf from GEM object instance"
+  Revert "drm/gem-dma: Use dma_buf from GEM object instance"
+
+ drivers/gpu/drm/drm_gem_dma_helper.c         | 2 +-
+ drivers/gpu/drm/drm_gem_framebuffer_helper.c | 8 ++++++--
+ drivers/gpu/drm/drm_gem_shmem_helper.c       | 4 ++--
+ drivers/gpu/drm/drm_prime.c                  | 8 +++++++-
+ drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c  | 4 ++--
+ drivers/gpu/drm/virtio/virtgpu_prime.c       | 5 +++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_gem.c          | 6 +++---
+ 7 files changed, 24 insertions(+), 13 deletions(-)
+
+-- 
+2.50.0
 
