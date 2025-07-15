@@ -1,358 +1,277 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE592272E6D
-	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 07:17:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63FB026CE18
+	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 07:41:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752563827; cv=none; b=b+U5ku8LVvlGqxHL8L5YGoMtLQ/IcWqXxm0zDQ69BYxk1dinz5l+gIoG5SKRzebRRSLQBBs+TTt5tWBKESHh2QXcbmvHUhrirsQ/WorJF+qUxPkU4FsSnhmE7ke7TKIInFxO4Ym6I/RC+67eBDtbL/TfXmqVW6ptPmGHlhYC5qE=
+	t=1752565278; cv=none; b=KuLP/fUYCj3qSt5qKT517SQIrRDUuY/XbTKPL3hL4m+N5pEuFNhikwd9PlzThxQ3dSWkNo/d2NPO++dAEquzW4iaQcSVEj9/gwhqkTQrvSmIy5x/uGXOItdUdHYsELQxaQTJSfF7qKVEFZHTB0SsZrzxM5Hdr7bt2cgryHOXmJQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752563827; c=relaxed/simple;
-	bh=WHA0VpXzSGOolrl+wggcC6MDGIqm0z+7tKKnSgdUZhE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N+I0bMzl5K/8YgV1fRFaJaBTWw6vxKDTV/DixLgAhcuWDCm6+AF+BjfHvtZEo0z6e5Pmg+EXKxTpj4t4N5tE5WhJ4pwR4hXStahWEXs5PC83jIYeqQXSVt9aa/MwJg4/ub79M2hh+T38n5mYfvscpoyvSDTupM/5HL+34ifVK3U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G/RDSGWj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1752565278; c=relaxed/simple;
+	bh=/AtXz07f778JQ+3YX35x7TaJFTmfO5U5Hxj/7FCvoIM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=m/UjP95BMkgHPYzuLRlMrgvrFRJz4g8Sytt87ekJCctcCDoyneaE236B/zvpgDiZYl7QzX6l2LPlaKwua5G30ijqG5yZvW1kPERoDJtVbKHKc2hMuzx15U0pKurSntcCBIfvBp7AExQiDvErlR9hAlQzcUM21BdxC7REkl5EWFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=y8Vww33Q; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VqIdmu5i; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=y8Vww33Q; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VqIdmu5i; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G/RDSGWj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752563825;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="y8Vww33Q";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VqIdmu5i";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="y8Vww33Q";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VqIdmu5i"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 532771F38F;
+	Tue, 15 Jul 2025 07:41:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1752565273; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FvARQ/IVJlUuE140vbQxIqMKihpIljfx9fzMw6VAuJA=;
-	b=G/RDSGWjkX5AlSDRVhDX+XrxiJ5USK6nJ9+N59rdGKlAhtvatrshMntAiDNXPoC0oNzkjo
-	WUkAvPP/s1FQ/UzgGqXioGOruaBakZccGAb7G+lnDlzb9yhcCsjo+EXJy3wsX1HEQ5rEaP
-	LsRAgImdAAlG+CTHx1zIRTGJzCtkae4=
-Received: from mail-ua1-f69.google.com (mail-ua1-f69.google.com
- [209.85.222.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-517-ZHj1iis1NSCDaT1q2GPweA-1; Tue, 15 Jul 2025 03:17:01 -0400
-X-MC-Unique: ZHj1iis1NSCDaT1q2GPweA-1
-X-Mimecast-MFC-AGG-ID: ZHj1iis1NSCDaT1q2GPweA_1752563821
-Received: by mail-ua1-f69.google.com with SMTP id a1e0cc1a2514c-886dbed0cddso5493286241.3
-        for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 00:17:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752563821; x=1753168621;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=FvARQ/IVJlUuE140vbQxIqMKihpIljfx9fzMw6VAuJA=;
-        b=ddDLYwazCDQrNZUUbWSCxcfSnX7eMKlzBj6kLTKSwh++JkwGiN6E68LcJDsdQKQ04t
-         6Ia1lNZ3ILvVEd6xRMAyylWwqZFGUgXMU4HNYPkhCjY7rLC2g1N/uH7z4dY1mh6Ij9Wf
-         rRj//zST43zVKhKWEJVoTjT6VB/xFy9G0pbw2JWHG5XL7xcHKE6YW+CGqIZcZ0eHzEn9
-         k7SWGe6UfDC4QUpDpaGZZ6j34X+uykh4SBue0vW++59/057uxndsLZBE7EgiKoKREffQ
-         TIc9BpLzSgsDq94NOWkJctt86YONl/BpCEc0MFhCrWliJdDbWbTuEYbSbEGJau8fC2HG
-         0e1g==
-X-Forwarded-Encrypted: i=1; AJvYcCUqM39+kJIdkYYRnLFIvxGjqbpPjZkMRWAv5Wie6CasIJ4qM409rlO+z7iFUaGzYFaSOPEOQtwc3zUydzQpzQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy2do+aj8koL5pusd4qONCqhgfOu9Q4o3pFagzn1muiPzaFlmj0
-	OFtNONowGAhwXjDLfw3DoJ+sCJsTp7G6CzRAo22jinGShLU7SZYQo4B+UQxfq2i1lGtmffeZkkN
-	6N+uYhXcxVmcQvSLOjCt75FrSSziTCtPhow4R3cfUCKJiE2ZSKBBlA82Mak1hQYlpCTXzVYJ3U2
-	cvcCXq4sG/59Jz6BRZt9lbXbR9FugLdHKOtSOGgyHDh6k=
-X-Gm-Gg: ASbGnctTICoe2SPcUAAJpc6ru/sDF2jNpVN41bk1W8oSJvyG61KtSQOEeBl5P7f1xUm
-	zBO6nIXaESP8F2YLt+dqRFqRUe01LKZ0OplJLH+ySf/uYnAqiwCHC8rNRZM2ExwAgQyEbtgtLAj
-	Rdk4S/enMt78jUAnrNKhY=
-X-Received: by 2002:a05:6102:160d:b0:4e9:ba27:2c94 with SMTP id ada2fe7eead31-4f6423e5cefmr9245848137.6.1752563820846;
-        Tue, 15 Jul 2025 00:17:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHoSxFu9uxHmv3MCTjxWwpIt9fiCWsp1IwlZqcD1EnmPRlbONrAyNVfcoKV7YpKz3ABuXqq0CAI5qMfX5oiijk=
-X-Received: by 2002:a05:6102:160d:b0:4e9:ba27:2c94 with SMTP id
- ada2fe7eead31-4f6423e5cefmr9245838137.6.1752563820386; Tue, 15 Jul 2025
- 00:17:00 -0700 (PDT)
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6Gk7G2jSEd+3kfJ8oGcpG/kwUEn5RkJvPAvLlM1rLHY=;
+	b=y8Vww33QSPmXlKS1Ib8f1qcdoxDDWJ32ccV7Kurs1g2MFhyhYzqtO2nkrBLlEcvBDO+MAT
+	7ZYjDImaywGjjSM9+KxSSYyYXBPuljzLMJ8wuZMR8LBhwVOKanrm3Y0MVfH3WqXNrDXMQP
+	zqFtVwZsR+aEZlqVwgiUlan7W1fGBDM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1752565273;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6Gk7G2jSEd+3kfJ8oGcpG/kwUEn5RkJvPAvLlM1rLHY=;
+	b=VqIdmu5iTxQV1Zz3TR3niskdIO4FmU+zu2Eklz8Hc6eQUZ5wnk61CukM+9hBxNn+rM8MIM
+	6SToD1o5u3DAXGBw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=y8Vww33Q;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=VqIdmu5i
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1752565273; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6Gk7G2jSEd+3kfJ8oGcpG/kwUEn5RkJvPAvLlM1rLHY=;
+	b=y8Vww33QSPmXlKS1Ib8f1qcdoxDDWJ32ccV7Kurs1g2MFhyhYzqtO2nkrBLlEcvBDO+MAT
+	7ZYjDImaywGjjSM9+KxSSYyYXBPuljzLMJ8wuZMR8LBhwVOKanrm3Y0MVfH3WqXNrDXMQP
+	zqFtVwZsR+aEZlqVwgiUlan7W1fGBDM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1752565273;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6Gk7G2jSEd+3kfJ8oGcpG/kwUEn5RkJvPAvLlM1rLHY=;
+	b=VqIdmu5iTxQV1Zz3TR3niskdIO4FmU+zu2Eklz8Hc6eQUZ5wnk61CukM+9hBxNn+rM8MIM
+	6SToD1o5u3DAXGBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C9D6113A68;
+	Tue, 15 Jul 2025 07:41:12 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id h+LILxgGdmhVRQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 15 Jul 2025 07:41:12 +0000
+Message-ID: <7053d7c9-62c1-480c-bca6-ca8ad6ca49a0@suse.de>
+Date: Tue, 15 Jul 2025 09:41:12 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CADZSLS3WYUHJFhQx786Fbxz=8JredK+XxtZAeLzp3XWaOGnZRw@mail.gmail.com>
- <CACGkMEtza2ey3JJhFcq4p6cJ-O4CPA9sC8mK0Twv25F-6eWGNQ@mail.gmail.com> <CACLfguXzJM+TB_fm=BmK9kphsg_OdRpmmreeyFuo62Bjp4wQFg@mail.gmail.com>
-In-Reply-To: <CACLfguXzJM+TB_fm=BmK9kphsg_OdRpmmreeyFuo62Bjp4wQFg@mail.gmail.com>
-From: Wenli Quan <wquan@redhat.com>
-Date: Tue, 15 Jul 2025 15:16:47 +0800
-X-Gm-Features: Ac12FXwpLH1lFStuB-vxeGAQiEK1mPHeQCNpxy0gwGNtY72oQqyv2ix8eFqWri4
-Message-ID: <CADZSLS3Wm08UZuScuJ1Pa4vLQ+6bzk73NQaVt-ALjen1pvSJtQ@mail.gmail.com>
-Subject: Re: Failure to create vp_vdpa device with enabled feature provisioning
-To: Cindy Lu <lulu@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, "S. Tsirkin, Michael" <mst@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio Perez Martin <eperezma@redhat.com>, 
-	virtualization@lists.linux.dev, Dragos Tatulea <dtatulea@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1cZ5FMEzr99pc475eYjEa8Bv3h5OLodK_w11iQQr8ZQ_1752563821
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/9] drm: Revert general use of struct
+ drm_gem_object.dma_buf
+To: Simona Vetter <simona.vetter@ffwll.ch>
+Cc: simona@ffwll.ch, airlied@gmail.com, christian.koenig@amd.com,
+ torvalds@linux-foundation.org, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org, l.stach@pengutronix.de, linux+etnaviv@armlinux.org.uk,
+ kraxel@redhat.com, christian.gmeiner@gmail.com,
+ dmitry.osipenko@collabora.com, gurchetansingh@chromium.org,
+ olvaffe@gmail.com, zack.rusin@broadcom.com,
+ bcm-kernel-feedback-list@broadcom.com, dri-devel@lists.freedesktop.org,
+ etnaviv@lists.freedesktop.org, virtualization@lists.linux.dev,
+ intel-gfx@lists.freedesktop.org
+References: <20250711093744.120962-1-tzimmermann@suse.de>
+ <aHT6i723ffg2_m2v@phenom.ffwll.local>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <aHT6i723ffg2_m2v@phenom.ffwll.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_TWELVE(0.00)[20];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[ffwll.ch,gmail.com,amd.com,linux-foundation.org,linux.intel.com,kernel.org,pengutronix.de,armlinux.org.uk,redhat.com,collabora.com,chromium.org,broadcom.com,lists.freedesktop.org,lists.linux.dev];
+	MID_RHS_MATCH_FROM(0.00)[];
+	TAGGED_RCPT(0.00)[etnaviv];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 532771F38F
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -3.01
 
-On Tue, Jul 15, 2025 at 9:35=E2=80=AFAM Cindy Lu <lulu@redhat.com> wrote:
+Hi
+
+Am 14.07.25 um 14:39 schrieb Simona Vetter:
+> On Fri, Jul 11, 2025 at 11:35:15AM +0200, Thomas Zimmermann wrote:
+>> Revert the use of drm_gem_object.dma_buf back to .import_attach->dmabuf
+>> in the affected places. Also revert any fixes on top. Separates references
+>> to imported and exported DMA bufs within a GEM object; as before.
+>>
+>> Using the dma_buf as the one authoritative field for the DMA buf turns
+>> out to be fragile. The GEM object's dma_buf pointer can be NULL if
+>> userspace releases the GEM handle too early. Sima mentioned that the fix
+>> in commit 5307dce878d4 ("drm/gem: Acquire references on GEM handles for
+>> framebuffers") is conceptionally broken. Linus still notices boot-up
+>> hangs that might be related.
+>>
+>> Reverting the whole thing is the only sensible action here.
+>>
+>> Tested on virtio; and amdgpu, simpledrm plus udl for dma-buf sharing.
+>>
+>> Thomas Zimmermann (9):
+>>    Revert "drm/framebuffer: Acquire internal references on GEM handles"
+>>    Revert "drm/gem: Acquire references on GEM handles for framebuffers"
+> Ok, I think all the below we should still apply for -fixes, because
+> fundamentally gem_bo->dma_buf is not invariant over the lifetime of the
+> buffer, while gem_bo->import_attach.dmabuf is. And so we blow up.
 >
-> Hi Wenli,
+> For display drivers the handle_count reference mostly papers over the
+> issues, but even display drivers are allowed to keep internal references
+> to the underlying gem bo for longer. So there could be a bunch of really
+> tricky bugs lurking.
 >
-> Could you please provide more details regarding the following:
+> For render drivers it's even clearer, they don't have framebuffers as
+> objects, so there the fb handle_count references does not help.
 >
-> > \[ 84.703574\] vp-vdpa 0000:01:00.0: Failed to register to vdpa bus
-> >
-> > kernel answers: File exists
-> >
-> > # vdpa dev del vdpa0
+> I'm not opposed to trying to unify these fields for imported dma_buf, but
+> currently they're just not. Hence all the reverts.
+
+Thanks for the write up.
+
 >
-> I suspect the device wasn't created successfully. Could it be that a
-> vdpa0 already existed before you tried to create one?
-
-It existed vdpa0 before being removed. btw, to reproduce it, it's
-needed to operate twice for creating the vdpa0 device, then to remove
-it.
-
-# vdpa -jp dev config show vdpa0
-{
-Error: vdpa: device not found.
-kernel answers: No such device
-    "config": {}
-}
-
-After first creating the vdpa0.
-#  vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features
-0x1
-#  vdpa -jp dev config show vdpa0
-{
-    "config": {
-        "vdpa0": {}
-    }
-}
-# vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features 0x1
-[  188.690040] vp-vdpa 0000:01:00.0: Failed to register to vdpa bus
-kernel answers: File exists
-# vdpa dev del vdpa0
-
-Then Call Trace happened.
-
-Best Regards, wenli
-
-> Thanks,
-> Cindy
+> The patches also need Fixes: and as needed, cc: stable added for merging.
+> With that and the above text as additional justification added:
 >
-> On Tue, Jul 15, 2025 at 9:19=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
-wrote:
-> >
-> > Adding Cindy for help here.
-> >
-> > On Mon, Jul 14, 2025 at 9:18=E2=80=AFPM Wenli Quan <wquan@redhat.com> w=
-rote:
-> > >
-> > > Hello all:
-> > >
-> > > I am encountering an issue when creating a vp_vdpa device with featur=
-e provisioning enabled.
-> > >
-> > > In the vm:
-> > >
-> > > # uname -r
-> > > 6.16.0-rc2+
-> > >
-> > > # cd /sys/bus/pci/drivers/virtio-pci/
-> > >
-> > > # echo 0000:01:00.0 > unbind
-> > >
-> > > # modprobe vp_vdpa
-> > >
-> > > # cd ../vp-vdpa/
-> > >
-> > > # echo "1af4 1041" > new_id
-> > >
-> > > # vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features 0x=
-1
-> > >
-> > > # vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features 0x=
-1
-> > >
-> > > [   84.703574] vp-vdpa 0000:01:00.0: Failed to register to vdpa bus
-> > >
-> > > kernel answers: File exists
-> > >
-> > > # vdpa dev del vdpa0
-> > >
-> > >
-> > > [  194.055148] BUG: kernel NULL pointer dereference, address: 0000000=
-0000000d0
-> > >
-> > > [  194.055698] #PF: supervisor read access in kernel mode
-> > >
-> > > [  194.056100] #PF: error_code(0x0000) - not-present page
-> > >
-> > > [  194.056497] PGD 7c7e067 P4D 0
-> > >
-> > > [  194.056739] Oops: Oops: 0000 [#1] SMP
-> > >
-> > > [  194.057040] CPU: 0 UID: 0 PID: 13582 Comm: vdpa Not tainted 6.16.0=
--rc2+ #6 PREEMPT(voluntary)
-> > >
-> > > [  194.057697] Hardware name: Red Hat KVM/RHEL, BIOS edk2-20241117-2.=
-el9_6.1 11/17/2024
-> > >
-> > > [  194.058299] RIP: 0010:device_del+0x40/0x480
-> > >
-> > > [  194.058623] Code: 00 00 55 48 89 fd 53 48 83 ec 20 4c 8b 7f 40 4c =
-89 e7 65 48 8b 05 10 bf 73 01 48 89 44 24 18 31 c0 e8 b4 2f 63 00 48 8b 55 =
-48 <0f> b6 82 d0 00 00 00 a8 01 75 09 83 c8 01 88 82 d0 00 00 00 4c 89
-> > >
-> > > [  194.060031] RSP: 0018:ffa00000004dba90 EFLAGS: 00010246
-> > >
-> > > [  194.060436] RAX: 0000000000000000 RBX: ff110000089f1720 RCX: fffff=
-fffa05f2200
-> > >
-> > > [  194.060976] RDX: 0000000000000000 RSI: ff11000018296800 RDI: ff110=
-00018297080
-> > >
-> > > [  194.061510] RBP: ff11000018297000 R08: ff1100000a3ea048 R09: ffa00=
-000004dbc50
-> > >
-> > > [  194.062051] R10: ff11000006abae00 R11: 0000000000000026 R12: ff110=
-00018297080
-> > >
-> > > [  194.062586] R13: ff1100000571c300 R14: ffa00000004dbc50 R15: 00000=
-00000000000
-> > >
-> > > [  194.063132] FS:  00007f03a6a95740(0000) GS:ff110000d8597000(0000) =
-knlGS:0000000000000000
-> > >
-> > > [  194.063748] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > >
-> > > [  194.064189] CR2: 00000000000000d0 CR3: 0000000007830004 CR4: 00000=
-00000773ef0
-> > >
-> > > [  194.064722] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 00000=
-00000000000
-> > >
-> > > [  194.065258] DR3: 0000000000000000 DR6: 00000000ffff07f0 DR7: 00000=
-00000000400
-> > >
-> > > [  194.065813] PKRU: 55555554
-> > >
-> > > [  194.066022] Call Trace:
-> > >
-> > > [  194.066240]  <TASK>
-> > >
-> > > [  194.066418]  device_unregister+0x12/0x30
-> > >
-> > > [  194.066724]  vp_vdpa_dev_del+0x16/0x20 [vp_vdpa]
-> > >
-> > > [  194.067078]  vdpa_nl_cmd_dev_del_set_doit+0x67/0xe0 [vdpa]
-> > >
-> > > [  194.067497]  genl_family_rcv_msg_doit+0xd2/0x120
-> > >
-> > > [  194.067863]  genl_rcv_msg+0x182/0x2b0
-> > >
-> > > [  194.068160]  ? vdpa_nl_cmd_dev_get_dumpit+0xa0/0xa0 [vdpa]
-> > >
-> > > [  194.068594]  ? genl_family_rcv_msg_dumpit+0xf0/0xf0
-> > >
-> > > [  194.068971]  netlink_rcv_skb+0x57/0x100
-> > >
-> > > [  194.069270]  genl_rcv+0x28/0x40
-> > >
-> > > [  194.069515]  netlink_unicast+0x278/0x3a0
-> > >
-> > > [  194.069828]  netlink_sendmsg+0x1e7/0x420
-> > >
-> > > [  194.070134]  __sock_sendmsg+0x38/0x60
-> > >
-> > > [  194.070414]  ? move_addr_to_kernel.part.0+0x1b/0x60
-> > >
-> > > [  194.070794]  __sys_sendto+0x115/0x170
-> > >
-> > > [  194.071086]  ? __sys_recvmsg+0x6a/0xc0
-> > >
-> > > [  194.071378]  __x64_sys_sendto+0x24/0x30
-> > >
-> > > [  194.071674]  do_syscall_64+0x59/0x1f0
-> > >
-> > > [  194.071963]  entry_SYSCALL_64_after_hwframe+0x4b/0x53
-> > >
-> > > [  194.072347] RIP: 0033:0x7f03a6ba7dea
-> > >
-> > > [  194.072625] Code: d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 =
-f3 0f 1e fa 41 89 ca 64 8b 04 25 18 00 00 00 85 c0 75 15 b8 2c 00 00 00 0f =
-05 <48> 3d 00 f0 ff ff 77 7e c3 0f 1f 44 00 00 41 54 48 83 ec 30 44 89
-> > >
-> > > [  194.074021] RSP: 002b:00007ffceb0ebeb8 EFLAGS: 00000246 ORIG_RAX: =
-000000000000002c
-> > >
-> > > [  194.074610] RAX: ffffffffffffffda RBX: 00005646e0680350 RCX: 00007=
-f03a6ba7dea
-> > >
-> > > [  194.075154] RDX: 0000000000000020 RSI: 00005646e0680350 RDI: 00000=
-00000000003
-> > >
-> > > [  194.075699] RBP: 00005646e06802a0 R08: 00007f03a6cae200 R09: 00000=
-0000000000c
-> > >
-> > > [  194.076455] R10: 0000000000000000 R11: 0000000000000246 R12: 00000=
-00000000000
-> > >
-> > > [  194.077197] R13: 0000000000000000 R14: 00007ffceb0ec75d R15: 00000=
-00000000064
-> > >
-> > > [  194.077944]  </TASK>
-> > >
-> > > [  194.078321] Modules linked in: vp_vdpa vdpa kvm_intel kvm irqbypas=
-s fuse configfs xfs virtio_net net_failover failover virtio_pci virtio_pci_=
-legacy_dev virtio_pci_modern_dev be2iscsi cxgb3i cxgb3 mdio libcxgbi libcxg=
-b iscsi_tcp libiscsi_tcp libiscsi scsi_transport_iscsi autofs4
-> > >
-> > > [  194.080556] CR2: 00000000000000d0
-> > >
-> > > [  194.081040] ---[ end trace 0000000000000000 ]---
-> > >
-> > > [  194.660537] RIP: 0010:device_del+0x40/0x480
-> > >
-> > > [  194.662514] Code: 00 00 55 48 89 fd 53 48 83 ec 20 4c 8b 7f 40 4c =
-89 e7 65 48 8b 05 10 bf 73 01 48 89 44 24 18 31 c0 e8 b4 2f 63 00 48 8b 55 =
-48 <0f> b6 82 d0 00 00 00 a8 01 75 09 83 c8 01 88 82 d0 00 00 00 4c 89
-> > >
-> > > [  194.664367] RSP: 0018:ffa00000004dba90 EFLAGS: 00010246
-> > >
-> > > [  194.664996] RAX: 0000000000000000 RBX: ff110000089f1720 RCX: fffff=
-fffa05f2200
-> > >
-> > > [  194.665760] RDX: 0000000000000000 RSI: ff11000018296800 RDI: ff110=
-00018297080
-> > >
-> > > [  194.666527] RBP: ff11000018297000 R08: ff1100000a3ea048 R09: ffa00=
-000004dbc50
-> > >
-> > > [  194.667300] R10: ff11000006abae00 R11: 0000000000000026 R12: ff110=
-00018297080
-> > >
-> > > [  194.668066] R13: ff1100000571c300 R14: ffa00000004dbc50 R15: 00000=
-00000000000
-> > >
-> > > [  194.668823] FS:  00007f03a6a95740(0000) GS:ff110000d8597000(0000) =
-knlGS:0000000000000000
-> > >
-> > > [  194.669653] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > >
-> > > [  194.670322] CR2: 00000000000000d0 CR3: 0000000007830004 CR4: 00000=
-00000773ef0
-> > >
-> > > [  194.671083] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 00000=
-00000000000
-> > >
-> > > [  194.671845] DR3: 0000000000000000 DR6: 00000000ffff07f0 DR7: 00000=
-00000000400
-> > >
-> > > [  194.672607] PKRU: 55555554
-> > >
-> > > [  194.673042] note: vdpa[13582] exited with irqs disabled
-> > >
-> > > Killed
-> > >
-> > >
-> > > Best Regards,
-> > >
-> > >
-> > > wenli
-> >
-> > Thanks
-> >
+> Reviewed-by: Simona Vetter <simona.vetter@ffwll.ch>
 >
+> Also we'd need to chase down any addiotional conversions that have only
+> landed in -next meanwhile of course.
+>
+> ₣or the handle_count patches I'm less sure. I don't think they're
+> justified for fixing the gem_bo->dma_buf NULL pointer issues, but they do
+> probably help with the GETFB/2 confusion Christian has pointed out.
+> Personally my preference is:
+> 1. Apply the two reverts.
+> 2. Create an igt testcase for the GETFB confusion
+> 3. Figure out what the right fix for that is, which might or might not be
+> the handle_count reference of drm_fb.
+>
+> But with my maintainer hat on I don't mind about the exact path, as long
+> as we get there somehow. If you decide to do land the reverts, they also
+> have my:
+>
+> Reviewed-by: Simona Vetter <simona.vetter@ffwll.ch>
+
+Let's first revert all the dma_buf switching in drm-misc and other 
+trees. They should
+be easy. If we revert the framebuffer-related A changes first, we might 
+end up with
+these intermediate errors again.
+
+There's no hurry with the framebuffer changes. We can address them after 
+upstream
+picked up the dma-buf reverts.
+
+Best regards
+Thomas
+
+>
+> Cheers, Sima
+>
+>>    Revert "drm/virtio: Use dma_buf from GEM object instance"
+>>    Revert "drm/vmwgfx: Use dma_buf from GEM object instance"
+>>    Revert "drm/etnaviv: Use dma_buf from GEM object instance"
+>>    Revert "drm/prime: Use dma_buf from GEM object instance"
+>>    Revert "drm/gem-framebuffer: Use dma_buf from GEM object instance"
+>>    Revert "drm/gem-shmem: Use dma_buf from GEM object instance"
+>>    Revert "drm/gem-dma: Use dma_buf from GEM object instance"
+>>
+>>   drivers/gpu/drm/drm_framebuffer.c            | 31 +---------
+>>   drivers/gpu/drm/drm_gem.c                    | 64 +++-----------------
+>>   drivers/gpu/drm/drm_gem_dma_helper.c         |  2 +-
+>>   drivers/gpu/drm/drm_gem_framebuffer_helper.c |  8 ++-
+>>   drivers/gpu/drm/drm_gem_shmem_helper.c       |  4 +-
+>>   drivers/gpu/drm/drm_internal.h               |  2 -
+>>   drivers/gpu/drm/drm_prime.c                  |  8 ++-
+>>   drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c  |  4 +-
+>>   drivers/gpu/drm/virtio/virtgpu_prime.c       |  5 +-
+>>   drivers/gpu/drm/vmwgfx/vmwgfx_gem.c          |  6 +-
+>>   include/drm/drm_framebuffer.h                |  7 ---
+>>   11 files changed, 35 insertions(+), 106 deletions(-)
+>>
+>> -- 
+>> 2.50.0
+>>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
