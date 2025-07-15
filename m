@@ -1,28 +1,28 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3E5A23ABAF;
-	Tue, 15 Jul 2025 13:33:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A4852EBBA2;
+	Tue, 15 Jul 2025 13:53:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752586414; cv=none; b=YlROnNoUXDAs1cgOToMlbT5Lto8Km1CrZyHkWrYhj1CuCITsUvmlkSsqk8h6pmvlilh3PFp6dE502V9tE8D3F7UXm9mdDo8jRZ4StzpMBkI4w/4ppgt9YOncSMyPwnpD3utHTtqlkaBtmKQFMVzgMPfpEEf/KcXL0tJ5XdzBMpI=
+	t=1752587607; cv=none; b=WhvSJHCJXfr1NQkHPL6B/RpmdXyuVHZygVo17+nHuhnv7lDR48yjPblOUNnM1e+q+P8Gzs91doGcIf6yIIcY0pNPrhLCgRDo9EG681WZSt+evUuZBu8S5HhmRmWO4UZ5T+e5z9GfcWWONFbm2GiTf7tGmSEflpqTKI54Q78AS3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752586414; c=relaxed/simple;
-	bh=A0n45aCAYENGKTPc0rVKpxjNVt2sDNmDLFNX44jv9NU=;
+	s=arc-20240116; t=1752587607; c=relaxed/simple;
+	bh=2WPMFMyikH/G6/16u51IVbRdVX9Mzx6gAQHNVq6vYjo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LwLcXst5T+RkmxDGvdRquELtB1oPOa7Z93VdMGLPVEtIql0+fj93V8/F24ZtYH7JlFpOFO14yHFsvnl2Wis3ExTBYxFX9CYyRMpqBoRCrLj7OdWbFXiMsRmf5zL68nQw53gC8IBgSnVuXT+vyy85ib1/Gc5I1rOT8jJgiPe8GkA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=HT++DPDA; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=U/CKbQ4xU6q4fcfm9FPxNRn3owQoJpoD0Oj1kYqJLQwatoX0IFWr2cr0Z8BsF88a00CrbDQuqwOr0e4ZTlY4JY8rqYR7WXUT7SukQNvZrka32NCSrIwJ+D4vRyDZrgKkTxgWBD+akXJR32i73OupXlc85fM95QKVljHSwLpfHn0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=o+xt6hlu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="HT++DPDA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EEFEC4CEE3;
-	Tue, 15 Jul 2025 13:33:34 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="o+xt6hlu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA20AC4CEE3;
+	Tue, 15 Jul 2025 13:53:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1752586414;
-	bh=A0n45aCAYENGKTPc0rVKpxjNVt2sDNmDLFNX44jv9NU=;
+	s=korg; t=1752587607;
+	bh=2WPMFMyikH/G6/16u51IVbRdVX9Mzx6gAQHNVq6vYjo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=HT++DPDAdOpUA0mrp3JJZl9qkGRHaJhlcVlyUMiZRdYrXm8iILJ7uPYTTFQsMX4k1
-	 42X9UG8pCrpScs415t5+bT45q1zhoxYrDuw6D4qn6eFgvFGkVRVsRUw9EdU192swEM
-	 Y9/zH9qeRkR4J9TgwiAO5JRwWoJflayD3Ah3SMyQ=
+	b=o+xt6hlu2zvPTa/1Izyq1xRBoA6dJZy7gjp381ieNBYWR8qVWU0GKwfqirmiYwNJa
+	 hk/ygK+Eb+/0BtgBhAPRzCBz5CjWuqlFyy+N9ak0zCz19EgLN6dkRU4NWDg8/PD1j+
+	 ugOAw7jlUhpGhFmMROy9eRAmG8W0lovavcF1Fn8Q=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -39,12 +39,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	netdev@vger.kernel.org,
 	stable <stable@kernel.org>,
 	HarshaVardhana S A <harshavardhana.sa@broadcom.com>
-Subject: [PATCH 5.4 056/148] vsock/vmci: Clear the vmci transport packet properly when initializing it
-Date: Tue, 15 Jul 2025 15:12:58 +0200
-Message-ID: <20250715130802.571401214@linuxfoundation.org>
+Subject: [PATCH 5.10 076/208] vsock/vmci: Clear the vmci transport packet properly when initializing it
+Date: Tue, 15 Jul 2025 15:13:05 +0200
+Message-ID: <20250715130813.988873492@linuxfoundation.org>
 X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250715130800.293690950@linuxfoundation.org>
-References: <20250715130800.293690950@linuxfoundation.org>
+In-Reply-To: <20250715130810.830580412@linuxfoundation.org>
+References: <20250715130810.830580412@linuxfoundation.org>
 User-Agent: quilt/0.68
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -56,7 +56,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-5.4-stable review patch.  If anyone has any objections, please let me know.
+5.10-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -93,7 +93,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/vmw_vsock/vmci_transport.c
 +++ b/net/vmw_vsock/vmci_transport.c
-@@ -125,6 +125,8 @@ vmci_transport_packet_init(struct vmci_t
+@@ -119,6 +119,8 @@ vmci_transport_packet_init(struct vmci_t
  			   u16 proto,
  			   struct vmci_handle handle)
  {
@@ -102,7 +102,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	/* We register the stream control handler as an any cid handle so we
  	 * must always send from a source address of VMADDR_CID_ANY
  	 */
-@@ -137,8 +139,6 @@ vmci_transport_packet_init(struct vmci_t
+@@ -131,8 +133,6 @@ vmci_transport_packet_init(struct vmci_t
  	pkt->type = type;
  	pkt->src_port = src->svm_port;
  	pkt->dst_port = dst->svm_port;
