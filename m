@@ -1,196 +1,358 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 994D227A124
-	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 06:28:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE592272E6D
+	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 07:17:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752560909; cv=none; b=r7IffBl1qxB3CBBRw1n6Ypej+3TLjWHQYVophQZQXymXCXGcWAqju7+aDocVsptMxMET1mi3/LhWERJdf99mC3dj/SEo2BhtZXZ08WaIzcaef0cN51g1qUkBB61BPHpW9jYJcg5ocIC2j91RG4uGZDAvpobDhDXIr4smUfhLm5U=
+	t=1752563827; cv=none; b=b+U5ku8LVvlGqxHL8L5YGoMtLQ/IcWqXxm0zDQ69BYxk1dinz5l+gIoG5SKRzebRRSLQBBs+TTt5tWBKESHh2QXcbmvHUhrirsQ/WorJF+qUxPkU4FsSnhmE7ke7TKIInFxO4Ym6I/RC+67eBDtbL/TfXmqVW6ptPmGHlhYC5qE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752560909; c=relaxed/simple;
-	bh=HVLAmUFsd4ca7eAhdSj+4cz9K9308blq9ThuJgyfyLg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=C+h9/WqNLPlNe2JKIDxdxo6LfsKe4KlqIr//oEhjw4GI2A0VkPMD+muKB+KIokU8CtQ5igXF2bum9lHAcbQpaUE4Xwmbe3UYhg2wQUk5bQv4Q5Rb5MKoPHNjRgVdjfRnKvSzagmhVuKSMjmaiEoriXNR3eJF9DZghgMLWwrMaF8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bp1nZMiS; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1752563827; c=relaxed/simple;
+	bh=WHA0VpXzSGOolrl+wggcC6MDGIqm0z+7tKKnSgdUZhE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=N+I0bMzl5K/8YgV1fRFaJaBTWw6vxKDTV/DixLgAhcuWDCm6+AF+BjfHvtZEo0z6e5Pmg+EXKxTpj4t4N5tE5WhJ4pwR4hXStahWEXs5PC83jIYeqQXSVt9aa/MwJg4/ub79M2hh+T38n5mYfvscpoyvSDTupM/5HL+34ifVK3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G/RDSGWj; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bp1nZMiS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G/RDSGWj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752560906;
+	s=mimecast20190719; t=1752563825;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/E7fOgA7iMeC5HFW7xX5wxlga24gy2xi6vLJ/NZf2b8=;
-	b=bp1nZMiSQxlLNVZgaFk49pdfdsyQdDoDQKwVZroqSYzWIlQM9QeoqiBqXlbdydqW6rMcII
-	B66kGq0bpvTATpT50JOkbv9jDmZ0PhWpZeRYp9CSXZFpqskadcIiQ2zCnE+6qXB+VcQmfO
-	3vV55iLVX4V7xw/UyvMVWy1oM/8XVAI=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=FvARQ/IVJlUuE140vbQxIqMKihpIljfx9fzMw6VAuJA=;
+	b=G/RDSGWjkX5AlSDRVhDX+XrxiJ5USK6nJ9+N59rdGKlAhtvatrshMntAiDNXPoC0oNzkjo
+	WUkAvPP/s1FQ/UzgGqXioGOruaBakZccGAb7G+lnDlzb9yhcCsjo+EXJy3wsX1HEQ5rEaP
+	LsRAgImdAAlG+CTHx1zIRTGJzCtkae4=
+Received: from mail-ua1-f69.google.com (mail-ua1-f69.google.com
+ [209.85.222.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-84-mV0xX0sqNK-8G5rNM06xdQ-1; Tue, 15 Jul 2025 02:28:24 -0400
-X-MC-Unique: mV0xX0sqNK-8G5rNM06xdQ-1
-X-Mimecast-MFC-AGG-ID: mV0xX0sqNK-8G5rNM06xdQ_1752560904
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-455e9e09afeso17689735e9.2
-        for <virtualization@lists.linux.dev>; Mon, 14 Jul 2025 23:28:24 -0700 (PDT)
+ us-mta-517-ZHj1iis1NSCDaT1q2GPweA-1; Tue, 15 Jul 2025 03:17:01 -0400
+X-MC-Unique: ZHj1iis1NSCDaT1q2GPweA-1
+X-Mimecast-MFC-AGG-ID: ZHj1iis1NSCDaT1q2GPweA_1752563821
+Received: by mail-ua1-f69.google.com with SMTP id a1e0cc1a2514c-886dbed0cddso5493286241.3
+        for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 00:17:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752560903; x=1753165703;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/E7fOgA7iMeC5HFW7xX5wxlga24gy2xi6vLJ/NZf2b8=;
-        b=GNXgrx9hx7NtIGueECCfp3CcJRGWOZij+NIgGiRDZuvGT8SGMbvFTJL/h6nEDVqzxE
-         abyvZCWQSB3F1FWsvEzl/JOwiH6kYeq4pRm3gYQPRN7A5xz0PTJ5VKkN4wqztPAP99ht
-         NR3wPFpn1vL7TuwmakG8bv8ocd9GA7qpt50YIxjAwcI5410v9x4Udd0BOs8vhr+YfUjv
-         izrYgDUeT+tsJc7YW0RGF/5n6HBWf1LYkQy4cgxWZYK+h3bcOEC6pK53Hfll19YGPHfJ
-         DI90LykXZ+4xCmcel8/VHwUQUUgQV/26xqnRtwFSx5OToRkE2Ar8A1fMsBSwURmcG+Kv
-         RzyQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWCn6+MUiAZjrbJZwUeXBu3gWV7kvyz/D3R+7UeT+aKdhLpF4WDFI75KHSR0sQmemD9OhaKyZsoaEsJ6Ym5EA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwksfyXKCPPmLLVC8kajJ5U0pR8IbMYHXffYCK6wvhQXK6DG6e6
-	VSfRuYLkFfYtnWZ0EwYlh8bu9fbWsXOsR0CKRgLglLzjlJIaP20ca+3SS+9UOTsMm9DPhfk6Ts+
-	VTYOlLkH5LfjMQTSYyhjxEVZWgJBLcqaBH/u6zh1F6QksKettwgdEYleR+0AX2beyRbvL
-X-Gm-Gg: ASbGncsweZ7laHvj5T/yz9SIkGWBYvOFFVnW9M5/Ip9dJNX1DTg2ushJE9zqOfreI7H
-	iPwYH58wNvrQJrzsGGDL90ssIbbreoXRAbsUdapxInMOiPM7RTCyScVo8nSpQCVFZwidH8ktvRR
-	t8/QN/VmXa92TN/7HNFik5pRhoQg5GupkAWdQpncYGFeqfAKo/gwXc5iTHYId35KcjShvYGaMsi
-	MAfxXWRuaKYUWtccbVfU/50201usWiSK8CQ2xoYsEEMqDsLLoJrO8m+SteRaRYEp4Sx2HYmMeGV
-	S6f8+4uhz4F0PRCjeJS1cONLbqGfOcaY
-X-Received: by 2002:a05:600c:1c22:b0:43c:ea1a:720a with SMTP id 5b1f17b1804b1-455f7ed2251mr109812125e9.1.1752560903492;
-        Mon, 14 Jul 2025 23:28:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHTxMXA6Nga+O7JNp1+JY5l+SoLtPNLGpK6hDkd5gu/u+c6TcVIx2N2jg4H0LoQJuHrnJIB9Q==
-X-Received: by 2002:a05:600c:1c22:b0:43c:ea1a:720a with SMTP id 5b1f17b1804b1-455f7ed2251mr109811855e9.1.1752560903057;
-        Mon, 14 Jul 2025 23:28:23 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45614aeba29sm66298845e9.11.2025.07.14.23.28.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Jul 2025 23:28:22 -0700 (PDT)
-Date: Tue, 15 Jul 2025 02:28:20 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-	Keith Busch <kbusch@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
-	stefanha@redhat.com, alok.a.tiwari@oracle.com,
-	linux-pci@vger.kernel.org
-Subject: Re: [PATCH RFC v5 1/5] pci: report surprise removal event
-Message-ID: <20250715022111-mutt-send-email-mst@kernel.org>
-References: <20250714022128-mutt-send-email-mst@kernel.org>
- <20250714211351.GA2418892@bhelgaas>
+        d=1e100.net; s=20230601; t=1752563821; x=1753168621;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FvARQ/IVJlUuE140vbQxIqMKihpIljfx9fzMw6VAuJA=;
+        b=ddDLYwazCDQrNZUUbWSCxcfSnX7eMKlzBj6kLTKSwh++JkwGiN6E68LcJDsdQKQ04t
+         6Ia1lNZ3ILvVEd6xRMAyylWwqZFGUgXMU4HNYPkhCjY7rLC2g1N/uH7z4dY1mh6Ij9Wf
+         rRj//zST43zVKhKWEJVoTjT6VB/xFy9G0pbw2JWHG5XL7xcHKE6YW+CGqIZcZ0eHzEn9
+         k7SWGe6UfDC4QUpDpaGZZ6j34X+uykh4SBue0vW++59/057uxndsLZBE7EgiKoKREffQ
+         TIc9BpLzSgsDq94NOWkJctt86YONl/BpCEc0MFhCrWliJdDbWbTuEYbSbEGJau8fC2HG
+         0e1g==
+X-Forwarded-Encrypted: i=1; AJvYcCUqM39+kJIdkYYRnLFIvxGjqbpPjZkMRWAv5Wie6CasIJ4qM409rlO+z7iFUaGzYFaSOPEOQtwc3zUydzQpzQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy2do+aj8koL5pusd4qONCqhgfOu9Q4o3pFagzn1muiPzaFlmj0
+	OFtNONowGAhwXjDLfw3DoJ+sCJsTp7G6CzRAo22jinGShLU7SZYQo4B+UQxfq2i1lGtmffeZkkN
+	6N+uYhXcxVmcQvSLOjCt75FrSSziTCtPhow4R3cfUCKJiE2ZSKBBlA82Mak1hQYlpCTXzVYJ3U2
+	cvcCXq4sG/59Jz6BRZt9lbXbR9FugLdHKOtSOGgyHDh6k=
+X-Gm-Gg: ASbGnctTICoe2SPcUAAJpc6ru/sDF2jNpVN41bk1W8oSJvyG61KtSQOEeBl5P7f1xUm
+	zBO6nIXaESP8F2YLt+dqRFqRUe01LKZ0OplJLH+ySf/uYnAqiwCHC8rNRZM2ExwAgQyEbtgtLAj
+	Rdk4S/enMt78jUAnrNKhY=
+X-Received: by 2002:a05:6102:160d:b0:4e9:ba27:2c94 with SMTP id ada2fe7eead31-4f6423e5cefmr9245848137.6.1752563820846;
+        Tue, 15 Jul 2025 00:17:00 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHoSxFu9uxHmv3MCTjxWwpIt9fiCWsp1IwlZqcD1EnmPRlbONrAyNVfcoKV7YpKz3ABuXqq0CAI5qMfX5oiijk=
+X-Received: by 2002:a05:6102:160d:b0:4e9:ba27:2c94 with SMTP id
+ ada2fe7eead31-4f6423e5cefmr9245838137.6.1752563820386; Tue, 15 Jul 2025
+ 00:17:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250714211351.GA2418892@bhelgaas>
+References: <CADZSLS3WYUHJFhQx786Fbxz=8JredK+XxtZAeLzp3XWaOGnZRw@mail.gmail.com>
+ <CACGkMEtza2ey3JJhFcq4p6cJ-O4CPA9sC8mK0Twv25F-6eWGNQ@mail.gmail.com> <CACLfguXzJM+TB_fm=BmK9kphsg_OdRpmmreeyFuo62Bjp4wQFg@mail.gmail.com>
+In-Reply-To: <CACLfguXzJM+TB_fm=BmK9kphsg_OdRpmmreeyFuo62Bjp4wQFg@mail.gmail.com>
+From: Wenli Quan <wquan@redhat.com>
+Date: Tue, 15 Jul 2025 15:16:47 +0800
+X-Gm-Features: Ac12FXwpLH1lFStuB-vxeGAQiEK1mPHeQCNpxy0gwGNtY72oQqyv2ix8eFqWri4
+Message-ID: <CADZSLS3Wm08UZuScuJ1Pa4vLQ+6bzk73NQaVt-ALjen1pvSJtQ@mail.gmail.com>
+Subject: Re: Failure to create vp_vdpa device with enabled feature provisioning
+To: Cindy Lu <lulu@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, "S. Tsirkin, Michael" <mst@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio Perez Martin <eperezma@redhat.com>, 
+	virtualization@lists.linux.dev, Dragos Tatulea <dtatulea@nvidia.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 9V0XtS8YxXtsHIUxl-uUV3APHcgBAN7A-z79q4HdII0_1752560904
+X-Mimecast-MFC-PROC-ID: 1cZ5FMEzr99pc475eYjEa8Bv3h5OLodK_w11iQQr8ZQ_1752563821
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 14, 2025 at 04:13:51PM -0500, Bjorn Helgaas wrote:
-> On Mon, Jul 14, 2025 at 02:26:19AM -0400, Michael S. Tsirkin wrote:
-> > On Wed, Jul 09, 2025 at 06:38:20PM -0500, Bjorn Helgaas wrote:
-> > > On Wed, Jul 09, 2025 at 04:55:26PM -0400, Michael S. Tsirkin wrote:
-> > > > At the moment, in case of a surprise removal, the regular remove
-> > > > callback is invoked, exclusively.  This works well, because mostly, the
-> > > > cleanup would be the same.
-> > > > 
-> > > > However, there's a race: imagine device removal was initiated by a user
-> > > > action, such as driver unbind, and it in turn initiated some cleanup and
-> > > > is now waiting for an interrupt from the device. If the device is now
-> > > > surprise-removed, that never arrives and the remove callback hangs
-> > > > forever.
-> > > > 
-> > > > For example, this was reported for virtio-blk:
-> > > > 
-> > > > 	1. the graceful removal is ongoing in the remove() callback, where disk
-> > > > 	   deletion del_gendisk() is ongoing, which waits for the requests +to
-> > > > 	   complete,
-> > > > 
-> > > > 	2. Now few requests are yet to complete, and surprise removal started.
-> > > > 
-> > > > 	At this point, virtio block driver will not get notified by the driver
-> > > > 	core layer, because it is likely serializing remove() happening by
-> > > > 	+user/driver unload and PCI hotplug driver-initiated device removal.  So
-> > > > 	vblk driver doesn't know that device is removed, block layer is waiting
-> > > > 	for requests completions to arrive which it never gets.  So
-> > > > 	del_gendisk() gets stuck.
-> > > > 
-> > > > Drivers can artificially add timeouts to handle that, but it can be
-> > > > flaky.
-> > > > 
-> > > > Instead, let's add a way for the driver to be notified about the
-> > > > disconnect. It can then do any necessary cleanup, knowing that the
-> > > > device is inactive.
-> > > 
-> > > This relies on somebody (typically pciehp, I guess) calling
-> > > pci_dev_set_disconnected() when a surprise remove happens.
-> > > 
-> > > Do you think it would be practical for the driver's .remove() method
-> > > to recognize that the device may stop responding at any point, even if
-> > > no hotplug driver is present to call pci_dev_set_disconnected()?
-> > > 
-> > > Waiting forever for an interrupt seems kind of vulnerable in general.
-> > > Maybe "artificially adding timeouts" is alluding to *not* waiting
-> > > forever for interrupts?  That doesn't seem artificial to me because
-> > > it's just a fact of life that devices can disappear at arbitrary
-> > > times.
-> > > 
-> > > It seems a little fragile to me to depend on some other part of the
-> > > system to notice the surprise removal and tell you about it or
-> > > schedule your work function.  I think it would be more robust for the
-> > > driver to check directly, i.e., assume writes to the device may be
-> > > lost, check for PCI_POSSIBLE_ERROR() after reads from the device, and
-> > > never wait for an interrupt without a timeout.
-> > 
-> > virtio is ... kind of special, in that users already take it for
-> > granted that having a device as long as they want to respond
-> > still does not lead to errors and data loss.
-> > 
-> > Makes it a bit harder as our timeout would have to
-> > check for presence and retry, we can't just fail as a
-> > normal hardware device does.
-> 
-> Sorry, I don't know enough about virtio to follow what you said about 
-> "having a device as long as they want to respond".
-> 
-> We started with a graceful remove.  That must mean the user no longer
-> needs the device.
+On Tue, Jul 15, 2025 at 9:35=E2=80=AFAM Cindy Lu <lulu@redhat.com> wrote:
+>
+> Hi Wenli,
+>
+> Could you please provide more details regarding the following:
+>
+> > \[ 84.703574\] vp-vdpa 0000:01:00.0: Failed to register to vdpa bus
+> >
+> > kernel answers: File exists
+> >
+> > # vdpa dev del vdpa0
+>
+> I suspect the device wasn't created successfully. Could it be that a
+> vdpa0 already existed before you tried to create one?
 
-I'll try to clarify:
+It existed vdpa0 before being removed. btw, to reproduce it, it's
+needed to operate twice for creating the vdpa0 device, then to remove
+it.
 
-Indeed, the user will not submit new requests,
-but users might also not know that there are some old requests
-being in progress of being processed by the device.
-The driver, currently, waits for that processsing to be complete.
-Cancelling that with a reset on a timeout might be a regression,
-unless the timeout is very long.
+# vdpa -jp dev config show vdpa0
+{
+Error: vdpa: device not found.
+kernel answers: No such device
+    "config": {}
+}
 
-Hope this makes it clear.
+After first creating the vdpa0.
+#  vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features
+0x1
+#  vdpa -jp dev config show vdpa0
+{
+    "config": {
+        "vdpa0": {}
+    }
+}
+# vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features 0x1
+[  188.690040] vp-vdpa 0000:01:00.0: Failed to register to vdpa bus
+kernel answers: File exists
+# vdpa dev del vdpa0
 
-> > And there's the overhead thing - poking at the device a lot
-> > puts a high load on the host.
-> 
-> Checking for PCI_POSSIBLE_ERROR() doesn't touch the device.  If you
-> did a config read already, and the result happened to be ~0, *then* we
-> have the problem of figuring out whether the actual data from the
-> device was ~0, or if the read failed and the Root Complex synthesized
-> the ~0.  In many cases a driver knows that ~0 is not a possible
-> register value.  Otherwise it might have to read another register that
-> is known not to be ~0.
-> 
-> Bjorn
+Then Call Trace happened.
 
-To clarify, virtio generally is designed to operate solely
-by means of DMA and interrupt, completely avoiding any PCI
-reads. This, due to PCI reads being very expensive in virtualized
-scenarios.
+Best Regards, wenli
 
-The extra overhead I refer to is exactly initiating such a read
-where there would not be one in normal operation.
-
--- 
-MST
+> Thanks,
+> Cindy
+>
+> On Tue, Jul 15, 2025 at 9:19=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > Adding Cindy for help here.
+> >
+> > On Mon, Jul 14, 2025 at 9:18=E2=80=AFPM Wenli Quan <wquan@redhat.com> w=
+rote:
+> > >
+> > > Hello all:
+> > >
+> > > I am encountering an issue when creating a vp_vdpa device with featur=
+e provisioning enabled.
+> > >
+> > > In the vm:
+> > >
+> > > # uname -r
+> > > 6.16.0-rc2+
+> > >
+> > > # cd /sys/bus/pci/drivers/virtio-pci/
+> > >
+> > > # echo 0000:01:00.0 > unbind
+> > >
+> > > # modprobe vp_vdpa
+> > >
+> > > # cd ../vp-vdpa/
+> > >
+> > > # echo "1af4 1041" > new_id
+> > >
+> > > # vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features 0x=
+1
+> > >
+> > > # vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features 0x=
+1
+> > >
+> > > [   84.703574] vp-vdpa 0000:01:00.0: Failed to register to vdpa bus
+> > >
+> > > kernel answers: File exists
+> > >
+> > > # vdpa dev del vdpa0
+> > >
+> > >
+> > > [  194.055148] BUG: kernel NULL pointer dereference, address: 0000000=
+0000000d0
+> > >
+> > > [  194.055698] #PF: supervisor read access in kernel mode
+> > >
+> > > [  194.056100] #PF: error_code(0x0000) - not-present page
+> > >
+> > > [  194.056497] PGD 7c7e067 P4D 0
+> > >
+> > > [  194.056739] Oops: Oops: 0000 [#1] SMP
+> > >
+> > > [  194.057040] CPU: 0 UID: 0 PID: 13582 Comm: vdpa Not tainted 6.16.0=
+-rc2+ #6 PREEMPT(voluntary)
+> > >
+> > > [  194.057697] Hardware name: Red Hat KVM/RHEL, BIOS edk2-20241117-2.=
+el9_6.1 11/17/2024
+> > >
+> > > [  194.058299] RIP: 0010:device_del+0x40/0x480
+> > >
+> > > [  194.058623] Code: 00 00 55 48 89 fd 53 48 83 ec 20 4c 8b 7f 40 4c =
+89 e7 65 48 8b 05 10 bf 73 01 48 89 44 24 18 31 c0 e8 b4 2f 63 00 48 8b 55 =
+48 <0f> b6 82 d0 00 00 00 a8 01 75 09 83 c8 01 88 82 d0 00 00 00 4c 89
+> > >
+> > > [  194.060031] RSP: 0018:ffa00000004dba90 EFLAGS: 00010246
+> > >
+> > > [  194.060436] RAX: 0000000000000000 RBX: ff110000089f1720 RCX: fffff=
+fffa05f2200
+> > >
+> > > [  194.060976] RDX: 0000000000000000 RSI: ff11000018296800 RDI: ff110=
+00018297080
+> > >
+> > > [  194.061510] RBP: ff11000018297000 R08: ff1100000a3ea048 R09: ffa00=
+000004dbc50
+> > >
+> > > [  194.062051] R10: ff11000006abae00 R11: 0000000000000026 R12: ff110=
+00018297080
+> > >
+> > > [  194.062586] R13: ff1100000571c300 R14: ffa00000004dbc50 R15: 00000=
+00000000000
+> > >
+> > > [  194.063132] FS:  00007f03a6a95740(0000) GS:ff110000d8597000(0000) =
+knlGS:0000000000000000
+> > >
+> > > [  194.063748] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > >
+> > > [  194.064189] CR2: 00000000000000d0 CR3: 0000000007830004 CR4: 00000=
+00000773ef0
+> > >
+> > > [  194.064722] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 00000=
+00000000000
+> > >
+> > > [  194.065258] DR3: 0000000000000000 DR6: 00000000ffff07f0 DR7: 00000=
+00000000400
+> > >
+> > > [  194.065813] PKRU: 55555554
+> > >
+> > > [  194.066022] Call Trace:
+> > >
+> > > [  194.066240]  <TASK>
+> > >
+> > > [  194.066418]  device_unregister+0x12/0x30
+> > >
+> > > [  194.066724]  vp_vdpa_dev_del+0x16/0x20 [vp_vdpa]
+> > >
+> > > [  194.067078]  vdpa_nl_cmd_dev_del_set_doit+0x67/0xe0 [vdpa]
+> > >
+> > > [  194.067497]  genl_family_rcv_msg_doit+0xd2/0x120
+> > >
+> > > [  194.067863]  genl_rcv_msg+0x182/0x2b0
+> > >
+> > > [  194.068160]  ? vdpa_nl_cmd_dev_get_dumpit+0xa0/0xa0 [vdpa]
+> > >
+> > > [  194.068594]  ? genl_family_rcv_msg_dumpit+0xf0/0xf0
+> > >
+> > > [  194.068971]  netlink_rcv_skb+0x57/0x100
+> > >
+> > > [  194.069270]  genl_rcv+0x28/0x40
+> > >
+> > > [  194.069515]  netlink_unicast+0x278/0x3a0
+> > >
+> > > [  194.069828]  netlink_sendmsg+0x1e7/0x420
+> > >
+> > > [  194.070134]  __sock_sendmsg+0x38/0x60
+> > >
+> > > [  194.070414]  ? move_addr_to_kernel.part.0+0x1b/0x60
+> > >
+> > > [  194.070794]  __sys_sendto+0x115/0x170
+> > >
+> > > [  194.071086]  ? __sys_recvmsg+0x6a/0xc0
+> > >
+> > > [  194.071378]  __x64_sys_sendto+0x24/0x30
+> > >
+> > > [  194.071674]  do_syscall_64+0x59/0x1f0
+> > >
+> > > [  194.071963]  entry_SYSCALL_64_after_hwframe+0x4b/0x53
+> > >
+> > > [  194.072347] RIP: 0033:0x7f03a6ba7dea
+> > >
+> > > [  194.072625] Code: d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 =
+f3 0f 1e fa 41 89 ca 64 8b 04 25 18 00 00 00 85 c0 75 15 b8 2c 00 00 00 0f =
+05 <48> 3d 00 f0 ff ff 77 7e c3 0f 1f 44 00 00 41 54 48 83 ec 30 44 89
+> > >
+> > > [  194.074021] RSP: 002b:00007ffceb0ebeb8 EFLAGS: 00000246 ORIG_RAX: =
+000000000000002c
+> > >
+> > > [  194.074610] RAX: ffffffffffffffda RBX: 00005646e0680350 RCX: 00007=
+f03a6ba7dea
+> > >
+> > > [  194.075154] RDX: 0000000000000020 RSI: 00005646e0680350 RDI: 00000=
+00000000003
+> > >
+> > > [  194.075699] RBP: 00005646e06802a0 R08: 00007f03a6cae200 R09: 00000=
+0000000000c
+> > >
+> > > [  194.076455] R10: 0000000000000000 R11: 0000000000000246 R12: 00000=
+00000000000
+> > >
+> > > [  194.077197] R13: 0000000000000000 R14: 00007ffceb0ec75d R15: 00000=
+00000000064
+> > >
+> > > [  194.077944]  </TASK>
+> > >
+> > > [  194.078321] Modules linked in: vp_vdpa vdpa kvm_intel kvm irqbypas=
+s fuse configfs xfs virtio_net net_failover failover virtio_pci virtio_pci_=
+legacy_dev virtio_pci_modern_dev be2iscsi cxgb3i cxgb3 mdio libcxgbi libcxg=
+b iscsi_tcp libiscsi_tcp libiscsi scsi_transport_iscsi autofs4
+> > >
+> > > [  194.080556] CR2: 00000000000000d0
+> > >
+> > > [  194.081040] ---[ end trace 0000000000000000 ]---
+> > >
+> > > [  194.660537] RIP: 0010:device_del+0x40/0x480
+> > >
+> > > [  194.662514] Code: 00 00 55 48 89 fd 53 48 83 ec 20 4c 8b 7f 40 4c =
+89 e7 65 48 8b 05 10 bf 73 01 48 89 44 24 18 31 c0 e8 b4 2f 63 00 48 8b 55 =
+48 <0f> b6 82 d0 00 00 00 a8 01 75 09 83 c8 01 88 82 d0 00 00 00 4c 89
+> > >
+> > > [  194.664367] RSP: 0018:ffa00000004dba90 EFLAGS: 00010246
+> > >
+> > > [  194.664996] RAX: 0000000000000000 RBX: ff110000089f1720 RCX: fffff=
+fffa05f2200
+> > >
+> > > [  194.665760] RDX: 0000000000000000 RSI: ff11000018296800 RDI: ff110=
+00018297080
+> > >
+> > > [  194.666527] RBP: ff11000018297000 R08: ff1100000a3ea048 R09: ffa00=
+000004dbc50
+> > >
+> > > [  194.667300] R10: ff11000006abae00 R11: 0000000000000026 R12: ff110=
+00018297080
+> > >
+> > > [  194.668066] R13: ff1100000571c300 R14: ffa00000004dbc50 R15: 00000=
+00000000000
+> > >
+> > > [  194.668823] FS:  00007f03a6a95740(0000) GS:ff110000d8597000(0000) =
+knlGS:0000000000000000
+> > >
+> > > [  194.669653] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > >
+> > > [  194.670322] CR2: 00000000000000d0 CR3: 0000000007830004 CR4: 00000=
+00000773ef0
+> > >
+> > > [  194.671083] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 00000=
+00000000000
+> > >
+> > > [  194.671845] DR3: 0000000000000000 DR6: 00000000ffff07f0 DR7: 00000=
+00000000400
+> > >
+> > > [  194.672607] PKRU: 55555554
+> > >
+> > > [  194.673042] note: vdpa[13582] exited with irqs disabled
+> > >
+> > > Killed
+> > >
+> > >
+> > > Best Regards,
+> > >
+> > >
+> > > wenli
+> >
+> > Thanks
+> >
+>
 
