@@ -1,77 +1,77 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9248271440
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00A4B26FD9B
 	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 08:14:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752567293; cv=none; b=V1YHMrM0cDTeO4gJNv5B1GnDle8b106YpkUyEhCB3E3oIZqPuUaDC/m7DxUd2MYkvDgVzkZfJf87HySaautS/MvuinON5yBjQHTgPl1MF29SWlge1a0ZmnTKU+zAB64oyjAqAKA1Mj7DKtFXVSaRnK6t6UysyJZnr0lpWt966Ps=
+	t=1752567293; cv=none; b=RVU64Ml+GTuEhJytQoXJ4HPuHii9RH44iKhVg8QOh0Y7AcBjg+V9CRLrBs5sjOVNtWYDidiDyWMnqWP6TnOee7dZv8Z5/Vo/MYjXSGIl8/zcSfkiEPif7fYiOysTYUd9eKMbqN2HLW4kBJfWoBPXFdUtHq6tSRA4ftlKu8qeBzc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1752567293; c=relaxed/simple;
-	bh=X9TDpqsmWRDOeAXAj/GnV0Xw67Fkk2XwStmQuW1ek5Q=;
+	bh=aX1MaoLciRJuCC3h/iX+r91QTYs2N07cJsPk6VLliKY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aJVHn1Kc5x+yaQHQ024iPRzIWO1jhiVhBRgMmdU5D1I6SYj9wwu9wwVL4Raxz5ZnNP3yp+zudODKpVrlutZUeIBaBROgUeKdBRh6Y4GYqEbmcic2QKFPBWgSTzAW0GNRA71VINJ/pdQKiIckh5n/2s6o8N8sPW8cAQ5JU/scNC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Eoffj03m; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3zL+m+wr; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Eoffj03m; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3zL+m+wr; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=RN9FOKyoRoxQLG3kyW38Aa5Y/Uc+PHIMv8t4U9Twt9jSK93UkVnXgnj2EubV3nzoacI0YxUFQxuxAuMT2o/dgd5HNZC+XTJAMdhKoU56RPSXxwSbdlcRWRli55+JNzK5t7Mgv8eiyyQFcq9e0p30sSzAGB9u4qBp/UV6M3Ct2Y0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=WokDQwue; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MjJmW8Bj; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=WokDQwue; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MjJmW8Bj; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Eoffj03m";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3zL+m+wr";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Eoffj03m";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3zL+m+wr"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="WokDQwue";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MjJmW8Bj";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="WokDQwue";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MjJmW8Bj"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id A5FE02124A;
-	Tue, 15 Jul 2025 08:14:34 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 4C6E21F7A6;
+	Tue, 15 Jul 2025 08:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1752567274; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1752567275; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Hy5ldVu6Rj+GfU9xVPzbZPg6d1jDoua0MtfC63HmPO4=;
-	b=Eoffj03mp4jjJaBG/+mfaTj4jfA2o40ZfcZdHsj3CTlC6sTIlR/msEtKXg3JTsBNhiQNie
-	XUsjRxgIH1ZifzBSIOu9V1i1CYPxe5Cg2TJiBNnBKrt1kGmB6Qksd+C1oDJ/lI5yiuGNoL
-	/VkPq8RZRVxBOYDdDYiJK8eZsj33aOc=
+	bh=mceqlRFOZFi8Ou2yah8L7DAx9CH23McNnkaeoGpddyM=;
+	b=WokDQwue0g0A/W1Dx5RcuP4StW4BFOu1OW229eni2g/qXIxZ2gqFv0yG86oygF3xPnbTpe
+	dSZoXPCybS3+xdFL6WdLAIp/GJ65//Oqt+yI/AJd8Q4OWSlNoOLHWOOEDNF9sucx/UlvPn
+	w2l/iq0lXy9MN/+Xk5/raqyXsC2AfKU=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1752567274;
+	s=susede2_ed25519; t=1752567275;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Hy5ldVu6Rj+GfU9xVPzbZPg6d1jDoua0MtfC63HmPO4=;
-	b=3zL+m+wrLgZRiUk7qkEWck1YfSH0casmIddqiyXrzbzb6LMS2XnXK3Vd2qTYEGvr//Ad1r
-	+k3GEra7pabravCw==
-Authentication-Results: smtp-out1.suse.de;
+	bh=mceqlRFOZFi8Ou2yah8L7DAx9CH23McNnkaeoGpddyM=;
+	b=MjJmW8BjbQxfkgEteAtH3VGlCIrDhAMryIOjix0oGFRTOl5SHyodjRdMl9z1SjLkBkxhSt
+	e4VyeI0AcgiKYgAg==
+Authentication-Results: smtp-out2.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1752567274; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1752567275; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Hy5ldVu6Rj+GfU9xVPzbZPg6d1jDoua0MtfC63HmPO4=;
-	b=Eoffj03mp4jjJaBG/+mfaTj4jfA2o40ZfcZdHsj3CTlC6sTIlR/msEtKXg3JTsBNhiQNie
-	XUsjRxgIH1ZifzBSIOu9V1i1CYPxe5Cg2TJiBNnBKrt1kGmB6Qksd+C1oDJ/lI5yiuGNoL
-	/VkPq8RZRVxBOYDdDYiJK8eZsj33aOc=
+	bh=mceqlRFOZFi8Ou2yah8L7DAx9CH23McNnkaeoGpddyM=;
+	b=WokDQwue0g0A/W1Dx5RcuP4StW4BFOu1OW229eni2g/qXIxZ2gqFv0yG86oygF3xPnbTpe
+	dSZoXPCybS3+xdFL6WdLAIp/GJ65//Oqt+yI/AJd8Q4OWSlNoOLHWOOEDNF9sucx/UlvPn
+	w2l/iq0lXy9MN/+Xk5/raqyXsC2AfKU=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1752567274;
+	s=susede2_ed25519; t=1752567275;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Hy5ldVu6Rj+GfU9xVPzbZPg6d1jDoua0MtfC63HmPO4=;
-	b=3zL+m+wrLgZRiUk7qkEWck1YfSH0casmIddqiyXrzbzb6LMS2XnXK3Vd2qTYEGvr//Ad1r
-	+k3GEra7pabravCw==
+	bh=mceqlRFOZFi8Ou2yah8L7DAx9CH23McNnkaeoGpddyM=;
+	b=MjJmW8BjbQxfkgEteAtH3VGlCIrDhAMryIOjix0oGFRTOl5SHyodjRdMl9z1SjLkBkxhSt
+	e4VyeI0AcgiKYgAg==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1D9B713306;
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AC9A213A6C;
 	Tue, 15 Jul 2025 08:14:34 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id gBTjBeoNdmgJUAAAD6G6ig
+	id 0JnCKOoNdmgJUAAAD6G6ig
 	(envelope-from <tzimmermann@suse.de>); Tue, 15 Jul 2025 08:14:34 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: simona@ffwll.ch,
@@ -95,9 +95,9 @@ Cc: bcm-kernel-feedback-list@broadcom.com,
 	intel-gfx@lists.freedesktop.org,
 	Thomas Zimmermann <tzimmermann@suse.de>,
 	Simona Vetter <simona.vetter@ffwll.ch>
-Subject: [PATCH v2 6/7] Revert "drm/gem-shmem: Use dma_buf from GEM object instance"
-Date: Tue, 15 Jul 2025 10:07:57 +0200
-Message-ID: <20250715081121.34473-7-tzimmermann@suse.de>
+Subject: [PATCH v2 7/7] Revert "drm/gem-dma: Use dma_buf from GEM object instance"
+Date: Tue, 15 Jul 2025 10:07:58 +0200
+Message-ID: <20250715081121.34473-8-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.50.0
 In-Reply-To: <20250715081121.34473-1-tzimmermann@suse.de>
 References: <20250715081121.34473-1-tzimmermann@suse.de>
@@ -127,7 +127,7 @@ X-Spamd-Result: default: False [-5.30 / 50.00];
 	RCVD_TLS_ALL(0.00)[];
 	TAGGED_RCPT(0.00)[etnaviv];
 	FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,amd.com,linux-foundation.org,linux.intel.com,kernel.org,pengutronix.de,armlinux.org.uk,redhat.com,collabora.com,chromium.org,broadcom.com];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo];
 	RCVD_COUNT_TWO(0.00)[2];
 	FROM_HAS_DN(0.00)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
@@ -138,7 +138,7 @@ X-Spam-Flag: NO
 X-Spam-Level: 
 X-Spam-Score: -5.30
 
-This reverts commit 1a148af06000e545e714fe3210af3d77ff903c11.
+This reverts commit e8afa1557f4f963c9a511bd2c6074a941c308685.
 
 The dma_buf field in struct drm_gem_object is not stable over the
 object instance's lifetime. The field becomes NULL when user space
@@ -156,31 +156,22 @@ Hence, this revert to going back to using .import_attach->dmabuf.
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Reviewed-by: Simona Vetter <simona.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_gem_dma_helper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 8ac0b1fa5287..5d1349c34afd 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -351,7 +351,7 @@ int drm_gem_shmem_vmap_locked(struct drm_gem_shmem_object *shmem,
- 	dma_resv_assert_held(obj->resv);
+diff --git a/drivers/gpu/drm/drm_gem_dma_helper.c b/drivers/gpu/drm/drm_gem_dma_helper.c
+index b7f033d4352a..4f0320df858f 100644
+--- a/drivers/gpu/drm/drm_gem_dma_helper.c
++++ b/drivers/gpu/drm/drm_gem_dma_helper.c
+@@ -230,7 +230,7 @@ void drm_gem_dma_free(struct drm_gem_dma_object *dma_obj)
  
- 	if (drm_gem_is_imported(obj)) {
--		ret = dma_buf_vmap(obj->dma_buf, map);
-+		ret = dma_buf_vmap(obj->import_attach->dmabuf, map);
- 	} else {
- 		pgprot_t prot = PAGE_KERNEL;
- 
-@@ -413,7 +413,7 @@ void drm_gem_shmem_vunmap_locked(struct drm_gem_shmem_object *shmem,
- 	dma_resv_assert_held(obj->resv);
- 
- 	if (drm_gem_is_imported(obj)) {
--		dma_buf_vunmap(obj->dma_buf, map);
-+		dma_buf_vunmap(obj->import_attach->dmabuf, map);
- 	} else {
- 		dma_resv_assert_held(shmem->base.resv);
- 
+ 	if (drm_gem_is_imported(gem_obj)) {
+ 		if (dma_obj->vaddr)
+-			dma_buf_vunmap_unlocked(gem_obj->dma_buf, &map);
++			dma_buf_vunmap_unlocked(gem_obj->import_attach->dmabuf, &map);
+ 		drm_prime_gem_destroy(gem_obj, dma_obj->sgt);
+ 	} else if (dma_obj->vaddr) {
+ 		if (dma_obj->map_noncoherent)
 -- 
 2.50.0
 
