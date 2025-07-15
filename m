@@ -1,233 +1,165 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E01A1DF98D
-	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 18:16:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69CA828000A
+	for <virtualization@lists.linux-foundation.org>; Tue, 15 Jul 2025 18:49:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752603372; cv=none; b=bEmKeJZ20RCZVCKRuF+AxpRR6EVXqm/ZoVlriWqr3is0bhfmLB3GDp42LkCWuy9s/i9soCycTdSUDVlcXU2CveEZxifSx79HuBMqgG3Onka4MXmfLNJyQwUtQLXSIY3vi0PzJChO4sJsVb0IwOL00Y2e63ApC2TX72OIEc1DFrw=
+	t=1752605391; cv=none; b=nJwaPgQFo8vyhZ5NyNjwh7ByncAVSunSkU1CPQXVkw+zzGQN647frcQpiL2YlUegI0wYsHf0yni8vt7eVXnApnRMOQjzYwJBoLbWGgdukY8TTpH4Sq4X9sXO/Km3so8BEs7Jt2cdUVEhlzzFww8fWSRisu9Y0QxLhfkEeix9T+w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752603372; c=relaxed/simple;
-	bh=KF1P8H9pio5hdPq64Wd+l6dMdiVE/cxrI0h/tw+6hc4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N/V6IP+jaw7lgsKmZOqhCRXGBPtdOp5ccd9HTbcSJlqtPsYIYjlwrPxeRMnhzdzvwTioHygeCvLtS3XjcNsWeSD2Q0k/W+5fn6Eg95YIBGDPfM3XSrxRPFf9OPwm/eEGVPFxc/krIYnrSGg+Y0bXDI6POc6lwqimxhTVeuQ8PtU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=dFmD/JAS; arc=none smtp.client-ip=209.85.128.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1752605391; c=relaxed/simple;
+	bh=iFd9GaUwBZZ8hKLWk61RAMzqE4jTygDop/hnKYS6V/4=;
+	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
+	 In-Reply-To:Content-Type; b=BDvpjzDbjep5bCk9vHm15Snbv4m9sLfeKXX2QCUBfltlqnzO+x5DMzPB5KlhiaXxXWGEpBXIeIJQ5PcOb5K0mD6pgHjhdb0r+S7Goz6jYM86MPE/jL9FNJLACKw9gMPPjmxf1/uhECJPxVxiovMMGY+QuOReh+Hwvk0qrQN7cp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=A/t48Lhb; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="dFmD/JAS"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-70f94fe1e40so1791607b3.1
-        for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 11:16:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1752603370; x=1753208170; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=980SBgdyOTTJkeZe3fmC67fmalDmS6qvEGzK0fgCj7I=;
-        b=dFmD/JASz+nycUQ3qxdzsDQmj3nKmbrXmq96bEfDOyDnDSS48z0SfqwwUCZB72Yh8H
-         ZrCqDHmGHARZneMDxrYuldG+44sKkRXXWzxa5JHpYO2eZ5XluPVe1vKzhVJf909vGQEb
-         63O0DjFQCgdlJuFW/oEC7MzlPTSJn9NJeXmHg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752603370; x=1753208170;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=980SBgdyOTTJkeZe3fmC67fmalDmS6qvEGzK0fgCj7I=;
-        b=WNXzb4ok4NQ18T9aKtv7qY8no7x7sDEdJXf5/VHPn6uO/WTmqolBNR+KxR37L8Puwk
-         TLceIucvXIyXL4cygbWqarMHyzy+R4cpTs2FwbTPPddC7Km48KKUqxCeVp3h01mL8hhs
-         gX8laaLb1MWVKcfL6E2HRD3gTELJ89xOFeRquXeR7g78GgqUF+wYJ5hQGhMO3qVb/Khk
-         mFJR2D546CrX2wq7hkCnBKfxhsNnLg/bR0g8QnpVnT/6DBTBmQrMJAxsxX0o8z2B1zLh
-         DCM6cpRz1FkjhsmfoLM3svy6CWDP5q46n7HnTbFtcYSasOkTW5Q5Jjq46g5mBSnLNYmW
-         S71A==
-X-Forwarded-Encrypted: i=1; AJvYcCXaPvYX6VdcsolOmadBwlBNlrruhtdvvbFrqXtTpBMCftZnLn7XcetgMFFjJJqK5MM2aRASFpaAqRLF/Xf0bg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy9PpM97Ls4WiofbYQjv4MPGYYt+W9bsScYim7t+9bBy51ap3mz
-	EmN9Q+s9KDyEEQosrtVuxFQwfKw8/Nohhh6vENhaTWRwnVYkSKgmosIrrvS9PYu0N6E9vl6zotg
-	9fjJfOc/338GJnXZ6jWAm0ZTXAaaQuzXwF054awsd
-X-Gm-Gg: ASbGncthoffh+gT2n4rvKc5F6C8REllx8wsg14nAWTh6a9WIKvwnZz47kI40CX48z4l
-	tKI4qjpwBsO0RLcbx8/uII2JfTnMsNa0SiRTJR28K4zcZQmIa/PuRe+8F0Skrq2L/lYzWUq0cqv
-	Rh4jK4DE68zNwrEA8Rt9WBtomU1Npoz+GdoPJt3lQsAQRiYkMUW5X3+MUbz56lInjFaeA0QpISZ
-	Zf3jxSkDZLBx8Gj3n8=
-X-Google-Smtp-Source: AGHT+IH18HIzDfiAUMtuCYdRmgoCqftHm0U2aeiTXjCkRgmxVFuZ5mWpVYYUMHrwJ2Oq+BhQ8JmA0/msgew5ZSA4pKc=
-X-Received: by 2002:a05:690c:b91:b0:70e:7f7f:cfda with SMTP id
- 00721157ae682-718350314d1mr3060677b3.10.1752603370280; Tue, 15 Jul 2025
- 11:16:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="A/t48Lhb"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id F3D6340B87
+	for <virtualization@lists.linux-foundation.org>; Tue, 15 Jul 2025 18:49:48 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -6.488
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ULX7o84f9LGV for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Jul 2025 18:49:48 +0000 (UTC)
+X-Greylist: delayed 322 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 15 Jul 2025 18:49:47 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org B4C3D40ACF
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B4C3D40ACF
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=web.de header.i=markus.elfring@web.de header.a=rsa-sha256 header.s=s29768273 header.b=A/t48Lhb
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=217.72.192.78; helo=mout.web.de; envelope-from=markus.elfring@web.de; receiver=<UNKNOWN> 
+Received: from mout.web.de (mout.web.de [217.72.192.78])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B4C3D40ACF
+	for <virtualization@lists.linux-foundation.org>; Tue, 15 Jul 2025 18:49:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1752605385; x=1753210185; i=markus.elfring@web.de;
+	bh=tkko6bLjsxZ5JFjBU07V5JcT/pFFwCD8KRbhylid18U=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
+	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
+	 cc:content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=A/t48Lhbr/csNuHUh5JEpqytdptf0ku9jcruFsaKzq2oVsYZ7YC6Z9QbYIT/VNwa
+	 tyzOmyFSe3ApNuoeQJ28zcMgZHoUQpT2gNHvOizMrKgDu+cJ56RvIHfpbF4067fBq
+	 GFCPHgTs9OEIZhXMBU1njaicz3jXMc/o7WCRgDUWrWGkSBA0EP8wKLoeHQ3/+NTLU
+	 JSWG48lBcXeHqYKa6UYVHSWLuQLiUqkcZtNtUfEMI2boFRc8zwxS9Y2eI73YWEJDq
+	 qhzx+rqRozr5Nr3WCmx/MAxpXdnWSl5uwSQ7safaQ/pPocAVcqfbzjOqQ8L5zJFx3
+	 VLB0FE672MsJfTLvrQ==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.29] ([94.31.93.1]) by smtp.web.de (mrweb105
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1M7Nig-1uYTua0Uhw-00GfnV; Tue, 15
+ Jul 2025 20:43:48 +0200
+Message-ID: <9dd21a72-9451-4b77-9ab4-d9b31b408e25@web.de>
+Date: Tue, 15 Jul 2025 20:43:45 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250715155934.150656-1-tzimmermann@suse.de>
-In-Reply-To: <20250715155934.150656-1-tzimmermann@suse.de>
-From: Zack Rusin <zack.rusin@broadcom.com>
-Date: Tue, 15 Jul 2025 14:15:59 -0400
-X-Gm-Features: Ac12FXxKEg1ugAQfc0kfIJatq4gdtnJJzB--PAhTyzI-iXu_KNJDMhlPIG8plIQ
-Message-ID: <CABQX2QNJ_Yd9h_L3iNhtFx2QZ8SiZQus3anNJ2d5OGOBz3ywHA@mail.gmail.com>
-Subject: Re: [PATCH v3 0/7] drm: Revert general use of struct drm_gem_object.dma_buf
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: simona@ffwll.ch, airlied@gmail.com, christian.koenig@amd.com, 
-	torvalds@linux-foundation.org, maarten.lankhorst@linux.intel.com, 
-	mripard@kernel.org, l.stach@pengutronix.de, linux+etnaviv@armlinux.org.uk, 
-	kraxel@redhat.com, christian.gmeiner@gmail.com, dmitry.osipenko@collabora.com, 
-	gurchetansingh@chromium.org, olvaffe@gmail.com, 
-	bcm-kernel-feedback-list@broadcom.com, dri-devel@lists.freedesktop.org, 
-	etnaviv@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	intel-gfx@lists.freedesktop.org
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-	boundary="0000000000005665100639fbc5e7"
-
---0000000000005665100639fbc5e7
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+To: Cindy Lu <lulu@redhat.com>, virtualization@lists.linux-foundation.org,
+ netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Mike Christie <michael.christie@oracle.com>,
+ Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+ Stefano Garzarella <sgarzare@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <20250714071333.59794-2-lulu@redhat.com>
+Subject: Re: [PATCH v13] vhost: Reintroduces support of kthread API and adds
+ mode selection
+Content-Language: en-GB, de-DE
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20250714071333.59794-2-lulu@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:sUaZL8+JVg34mBLItXeLK8kPlW/5K4UgwziQgnDobooT3ypkWjw
+ mNyDGVqJP6mhZHiKJRaDutRDxX9lezBc77EWyGJKkFwdt/eD1eydQw+u2Wpd16gRiGuLwxK
+ IhDQLYvllls+kgePQASUFNNu9sVgyvl40jHkK6hDiJ3LvnAfl7SGmTgCc+MUiHFiMX1s+7F
+ BI+3Ec1rYau9E/6TgaLbA==
+UI-OutboundReport: notjunk:1;M01:P0:aFIhqEv7IXg=;1Gtf5Sw6f7b1xlf7nw+QEt/jDww
+ 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
+ TRNGrms6UadIPyEjQVSnMv+7EiJR1M8vorD
 
-On Tue, Jul 15, 2025 at 12:02=E2=80=AFPM Thomas Zimmermann <tzimmermann@sus=
-e.de> wrote:
->
-> Revert the use of drm_gem_object.dma_buf back to .import_attach->dmabuf
-> in the affected places. Separates references to imported and exported DMA
-> bufs within a GEM object; as before.
->
-> The dma_buf field in struct drm_gem_object is not stable over the object
-> instance's lifetime. The field becomes NULL when user space releases the
-> final GEM handle on the buffer object. This resulted in a NULL-pointer
-> deref.
->
-> Workarounds in commit 5307dce878d4 ("drm/gem: Acquire references on GEM
-> handles for framebuffers") and commit f6bfc9afc751 ("drm/framebuffer:
-> Acquire internal references on GEM handles") only solved the problem
-> partially. They especially don't work for buffer objects without a DRM
-> framebuffer associated.
->
-> v3:
-> - cc stable where necessary
-> v2:
-> - extended commit messages (Sima)
-> - drop the GEM-handle changes to be resolved separately
->
-> Thomas Zimmermann (7):
->   Revert "drm/virtio: Use dma_buf from GEM object instance"
->   Revert "drm/vmwgfx: Use dma_buf from GEM object instance"
->   Revert "drm/etnaviv: Use dma_buf from GEM object instance"
->   Revert "drm/prime: Use dma_buf from GEM object instance"
->   Revert "drm/gem-framebuffer: Use dma_buf from GEM object instance"
->   Revert "drm/gem-shmem: Use dma_buf from GEM object instance"
->   Revert "drm/gem-dma: Use dma_buf from GEM object instance"
->
->  drivers/gpu/drm/drm_gem_dma_helper.c         | 2 +-
->  drivers/gpu/drm/drm_gem_framebuffer_helper.c | 8 ++++++--
->  drivers/gpu/drm/drm_gem_shmem_helper.c       | 4 ++--
->  drivers/gpu/drm/drm_prime.c                  | 8 +++++++-
->  drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c  | 4 ++--
->  drivers/gpu/drm/virtio/virtgpu_prime.c       | 5 +++--
->  drivers/gpu/drm/vmwgfx/vmwgfx_gem.c          | 6 +++---
->  7 files changed, 24 insertions(+), 13 deletions(-)
->
-> --
+> This patch reintroduces kthread mode for vhost workers and provides
+> configuration to select between kthread and task worker.
+=E2=80=A6
 
-Thanks for taking care of this.
+Is there a need to reconsider the relevance once more for the presented
+cover letter?
 
-Acked-by: Zack Rusin <zack.rusin@broadcom.com>
 
-z
+=E2=80=A6
+> +++ b/drivers/vhost/vhost.c
+=E2=80=A6
+> +static int vhost_attach_task_to_cgroups(struct vhost_worker *worker)
+> +{
+=E2=80=A6
+> +	vhost_worker_queue(worker, &attach.work);
+> +
+> +	mutex_lock(&worker->mutex);
+=E2=80=A6
+> +	worker->attachment_cnt =3D saved_cnt;
+> +
+> +	mutex_unlock(&worker->mutex);
+=E2=80=A6
 
---0000000000005665100639fbc5e7
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+Under which circumstances would you become interested to apply a statement
+like =E2=80=9Cguard(mutex)(&worker->mutex);=E2=80=9D?
+https://elixir.bootlin.com/linux/v6.16-rc6/source/include/linux/mutex.h#L2=
+25
 
-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
-6U6qgI8F5eiKsQyE0HgYrQJx/sDs9LLVZlaNiA3U8M8CgEnb8VhuH3BN/yXphhEQdJXb1TyaJA60
-SmHcZdEQZbl4EjwUcs3UIowmI/Mhi7ADQB7VNsO/BaOVBEQk53xH+4djY/cg7jvqTTeliY05j2Yx
-uwwXcDC4mWjGzxAT5DVqC8fKQvon1uc2heorHb555+sLdwYxAgMBAAGjggHYMIIB1DAOBgNVHQ8B
-Af8EBAMCBaAwgZMGCCsGAQUFBwEBBIGGMIGDMEYGCCsGAQUFBzAChjpodHRwOi8vc2VjdXJlLmds
-b2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2c21pbWVjYTIwMjMuY3J0MDkGCCsGAQUFBzABhi1o
-dHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMwZQYDVR0gBF4wXDAJ
-BgdngQwBBQMBMAsGCSsGAQQBoDIBKDBCBgorBgEEAaAyCgMCMDQwMgYIKwYBBQUHAgEWJmh0dHBz
-Oi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1UdEwQCMAAwQQYDVR0fBDowODA2
-oDSgMoYwaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMuY3JsMCIG
-A1UdEQQbMBmBF3phY2sucnVzaW5AYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB8G
-A1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBQNDn2m/OLuDx9YjEqPLCDB
-s/VKNTANBgkqhkiG9w0BAQsFAAOCAgEAF463syOLTQkWZmEyyR60W1sM3J1cbnMRrBFUBt3S2NTY
-SJ2NAvkTAxbPoOhK6IQdaTyrWi8xdg2tftr5FC1bOSUdxudY6dipq2txe7mEoUE6VlpJid/56Mo4
-QJRb6YiykQeIfoJiYMKsyuXWsTB1rhQxlxfnaFxi8Xy3+xKAeX68DcsHG3ZU0h1beBURA44tXcz6
-fFDNPQ2k6rWDFz+XNN2YOPqfse2wEm3DXpqNT79ycU7Uva7e51b8XdbmJ6XVzUFmWzhjXy5hvV8z
-iF+DvP+KT1/bjO6aNL2/3PWiy1u6xjnWvobHuAYVrXxQ5wzk8aPOnED9Q8pt2nqk/UIzw2f67Cn9
-3CxrVqXUKm93J+rupyKVTGgKO9T1ODVPo665aIbM72RxSI9Wsofatm2fo8DWOkrfs29pYfy6eECl
-91qfFMl+IzIVfDgIrEX6gSngJ2ZLaG6L+/iNrUxHxxsaUmyDwBbTfjYwr10H6NKES3JaxVRslnpF
-06HTTciJNx2wowbYF1c+BFY4r/19LHygijIVa+hZEgNuMrVLyAamaAKZ1AWxTdv8Q/eeNN3Myq61
-b1ykTSPCXjBq/03CMF/wT1wly16jYjLDXZ6II/HYyJt34QeqnBENU9zXTc9RopqcuHD2g+ROT7lI
-VLi5ffzC8rVliltTltbYPc7F0lAvGKAxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYD
-VQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBD
-QSAyMDIzAgxhPxw+eieHWB40hPkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIEIBcG
-ACp2vnr6+UOvAvSF8xGC/jbk5OWkJiWFwUiMKYumMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-HAYJKoZIhvcNAQkFMQ8XDTI1MDcxNTE4MTYxMFowXAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQME
-ASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcwCwYJ
-YIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBABd4T/163I7Q38CBtt30fgpIbMKckSIiwax+niIb
-hkRD7c5WGqU2ljZv3Rm7ypZD0NXEFWqcnxdCueeeUbOic2pmfiRFcAEl+ZJnC1qQjAYLAP4zy5sR
-4hr0K+ae2g3zeeXKJZ72jgUAeuTYI69R08b6T95BAX7KakZ0gqalgoYx6jcw+NGxm0z7UaHjK98G
-pltqcBeKtSo5r01N9e8XiNfmyDKxsw1bFdeWhEznsA7e6hlhrZAXpZ2d39OLZar9DSinqh21k+0c
-9m3WS9amejtpA+LwEeGr8OTyys40dIpbq/DBmKONNl1+17xEJTPfElLyeKSuu7+ya0qV0V2M8IU=
---0000000000005665100639fbc5e7--
+Regards,
+Markus
