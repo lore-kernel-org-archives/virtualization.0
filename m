@@ -1,133 +1,205 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f48.google.com (mail-oa1-f48.google.com [209.85.160.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E205ABE65
-	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 22:01:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6524233704
+	for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 22:55:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752616866; cv=none; b=dVZZeIOYxq9GDVdO5LFEytE80n0VpPgqalMcIAejMWkI5LNDhk81Ta4FqmKAb5cLi2IhJrxBVoPaF34IK3KdZ1uT568Wani4BN8DvKaJxxDkpp61mfVwgIhTKgCe1+Z2+0G7s+5YR1y5TrhFBP1HLgt/3hP8tih5tB2gyeH1tVM=
+	t=1752620153; cv=none; b=tU6kgWnX7pEO+n8Jom4ILJmB9it46ZD9KMDIqTVJEE5cmVCGwpRhloCIg50eFpzkRi+JbmL5zxfuw0js9RTIx3w9fCL9DlSR8xmyACdqf9RejCVEZrJfBi/4CJ6x/Xz1dIjaZewDCOHaEUfZ8COTi+lGzFcCC/TMxymX/2VrhTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752616866; c=relaxed/simple;
-	bh=aw4VtfDqjuaCSCkMl9eKdyKesdQJxtCTX+BsCCEcx7A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OyBgRkS4dLzYuyuCJuc3wcQLetE7z6dmbDBrxDUjYKrLmo/Tt3ECwI9bRDFBjMWfgyOXi55doIXp6Uu+2Tgi6HWTD9NGkqIifzlcdd0Jn1UTGyQIauLDVNWPfFroJbBFmlUJ0GV25EoHBasw/uuPEJusTfRzAbf64pX1AMBFv7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fnT6mzsv; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1752620153; c=relaxed/simple;
+	bh=vEmMpBK5/tPkb9KHvQ0SdOc52MTBa8ee6/BHSUyXBLo=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=r2b0RdMsmnKN1Ll5xtnqgjcS8hMvrEhwEp7TLSkhyVutsq/MJhcwQtHrT8E8aAS5lZXmvX5gi+KFuIsS5lUe8Rt4zcLNTtINRhJQnEyp+681tkQpliDai1qw2CN3kjQdbK8EP2tbpQM2Ajhq+hOv721V1nUsa2nEyLR6MhRImtk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=SyaLvmRa; arc=none smtp.client-ip=209.85.160.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fnT6mzsv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752616863;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kLAwa3dvkrMO6tqYCU+aUo3W6TsJmM1uaesMjUYNHF8=;
-	b=fnT6mzsv34iKi5PckdhaSQUeIYqMDP4xF0Ya/qqoJ8KlFq0H5llioxa6PrLBUBayBO0uIS
-	mTHCpgtwHgBTYqFPw5wksnBsgzHncKN8mdKhaLWYSAbcGSYZ1B8+a8qmcaOyzKuFtr2VMv
-	YEKmxMW6/zI7/3PyCjar+QB0tKoNv40=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-142-cqthykicMUmD69Iaz1aW-Q-1; Tue, 15 Jul 2025 18:01:02 -0400
-X-MC-Unique: cqthykicMUmD69Iaz1aW-Q-1
-X-Mimecast-MFC-AGG-ID: cqthykicMUmD69Iaz1aW-Q_1752616861
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a5058f9ef4so2520367f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 15:01:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="SyaLvmRa"
+Received: by mail-oa1-f48.google.com with SMTP id 586e51a60fabf-2f77591f208so194898fac.0
+        for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 15:55:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1752620151; x=1753224951; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=oi4TdNlobhflphwjzdK68I/IBj5StICPNqn66i2gNn4=;
+        b=SyaLvmRaZU7zwsmTJJfvKAvcBZ8WDVximDZo/3v4u7bovE8+1WS6N8+YNhhurm1HGB
+         787CYA/qI60GnEtRFFHY8Lmg7x9N02M4lfYLXemFyi4rKbemr+5sIQvFbbG2DmArOZNI
+         LQwNIbZUwiNvgekWPFAISNZwMqJi8VrqntM8YtEMz1kroYa5oMAWsgFrB0ewTbNkdsDH
+         /1f9SCL0Hc/kloWhuc8NlolxbhOZEwDSEmgxoZoZeBpke2GqvcDLxoCYAm7xDlA5pGW4
+         ywYuc34bmaWDKmBVhaCYLMRiv2g3+sLosZUELTame5ef7qLAVzmrPII8zYQz+JMcWXLZ
+         736w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752616861; x=1753221661;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kLAwa3dvkrMO6tqYCU+aUo3W6TsJmM1uaesMjUYNHF8=;
-        b=RItVkhwIf779h/2NnW0n+FuI/VKhboxX01R86ErraFyihz0ZrQ4mekCbQvHM3BLc5U
-         36u/CCSsHyWHeJe/LGFTxqBm9bLri0TDhykACOu12W+oruG5akeNnfoFduvtMfLzXY9U
-         vZgtEOVpSupAk7Mk32694I+q/srT0fAMmx9T/I1B40c60ac9IWb05ILvGNLjjno7+5d6
-         pqhZdGykpKsKL/RIDBj7MTdPxXJyZqd52vrnNYmZIZ9iqPAPVtATGMC1r9lngsJzX8gz
-         /t0qR4vAz6ubh7BFDS6/bYGboW97/fdgNd8c8zq5fprX0SvsYfGMMEFbgJqaa7+5TRmO
-         pkDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVG0mCeGqhWq8jP/d2PZJx6295a2z+bAAu0XK96fnE5iZmtmFbBPtS0zbnW0ygOOceMCeQVthrtBAJ05u+Pmw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwVfp6qPKtAOiV2uWdPNgb7DY3uYDOMqzlAIM6kKUtJafslkAa0
-	8m7xMI7KDWLsPzXixLRx8eoicfQYcAI7YiCJ5MP2Au1JQbkt0l2DsZP+asmhkuszv8T4wSVFX9T
-	blOTewEBteJbJc0ljAjtwJeZGcvvNH0Taki9hkg3qZkk4xkx/mQJ0utWoXOBW4dr4Wa3F
-X-Gm-Gg: ASbGncuOOSSD9s3bfG2TFCnI503lR+ZS3GCGbv9C+Jqcwc1qZQBqwO1211LQm62beFZ
-	ja7FH2BeUpKSw62Tf0WaPcTLbrnFxKLw+Ag8OyLmuNeWyJeMWC487wUmayVdzxWkGMoqlBL3YlF
-	16kg69eX9tlIV7GhZ0LPfmaumojz87ONCKiAPJKaNBv69A5K2Opz0YFZ7gdSAeS+El9MILhWUTd
-	IsJ8/m8Y5SR4cROoksf/objOBfg47mHiQgrAH3dO0dRqzRzZxxwp6rVnBGUoFtTgwmeCXHSywii
-	HfBZPYqPB2Toq7lKN6J6FgAyDiVneQSQztANpAnbdr4MjRKrFUKzyrA6NLh918jEOnqmHz03e9M
-	H
-X-Received: by 2002:a5d:5d0c:0:b0:3a8:30b8:cb93 with SMTP id ffacd0b85a97d-3b60dd95a75mr555275f8f.32.1752616860701;
-        Tue, 15 Jul 2025 15:01:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHLDHsg8OR9x/gIzmibOJxTfaj3TRrHrpjR78a3np6L7t4fAQSv39mTDqr+YfaxcUEbilL4qw==
-X-Received: by 2002:a5d:5d0c:0:b0:3a8:30b8:cb93 with SMTP id ffacd0b85a97d-3b60dd95a75mr555234f8f.32.1752616860168;
-        Tue, 15 Jul 2025 15:01:00 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:c:37e0:5b4d:4594:545c:dd8? ([2a01:e0a:c:37e0:5b4d:4594:545c:dd8])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b5e8e26c97sm16368518f8f.90.2025.07.15.15.00.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Jul 2025 15:00:59 -0700 (PDT)
-Message-ID: <05c40a0a-d2b0-4f55-981f-6da3765eebb2@redhat.com>
-Date: Wed, 16 Jul 2025 00:00:56 +0200
+        d=1e100.net; s=20230601; t=1752620151; x=1753224951;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=oi4TdNlobhflphwjzdK68I/IBj5StICPNqn66i2gNn4=;
+        b=Ijzg5w3qLpYVorlGrxMDWuf7j7GbI6EfZ99MwzQym4Hty44hYjW/EeD0LdimPLHGtu
+         ioK+2B7s8Cxdc7vs5uUGLkgVfvlxrItmDKoVM5PbDMliu3WKBUHRsoJ0aZ2FSAs9UGPr
+         M2fKUhNISiSFGaKTisVV8mDXZX70kdDtTWkyqhLVvqtF1hkNJ7Q1UK/lrN7AQJTIx47j
+         piAZkKQLTA6Ko6SuW+AEX7RHiP9qL1pr4BY1Hm5oDhGry3WPpg1KT5s7c3BCHxAMchge
+         /Rv1EQgBgBU3J7zpXmJ+JbTsFR/2iQwwqKNtDwtHI+wcZ5kgqSLmySa5dgsdiRk4Y+Am
+         4qfg==
+X-Forwarded-Encrypted: i=1; AJvYcCUEdWnSMj7vDoN6dUHyB8xu3rU6skamrpIqD9vifg5UmJr2OAjBvOg1kFNWoWYsN5uxs+xlBfwY3iir/5pGrg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz3MrtnT3Ffd7l12JcCbvkV3XcCEe3xpB9DhIsoRXYX+1WgU5Nq
+	iH5FNXQGf1sWHilpTED4Pbv8n+NR49xBO6IKNfuseJyWmbsBvB793THJuLWP9oRtIb0=
+X-Gm-Gg: ASbGncsSfgNYOlfsPh5kgyqV/PhjZEU/to8pize+TpFGNyfqpX94VTtDZStQ1hrTdXj
+	qyWC/6ZIPgehx7Z/5wXdIspCE1A5C9KJE/M3LoQBHWM+15thOAt27oVoatX/lFAzbuyllT6+/X+
+	6EDUUDTBO9eZ3p25gdHrOvSzJHfxmalE1Q9W2OyFfRaVH4iULOvuaUp9yneFc6PjF1zLK2lCsOM
+	DhUJYPSgxOLgTyLW+hXkpyjkEMs+jr3VNBD5aAV31U3PHLzI1Fl9QjgDqQlM1QbObl2ZDZw9XdM
+	8JR9jVUghGEdQw1pR8/7RpIDRTq8VH1ZHnXLEfXyh9+9lLRpVhu9nho6OuT3XuKx05qljEJvkmf
+	Fn+oSG8ZPzRGJxfQoULxvABT6xmvXH2tON4jB3sg=
+X-Google-Smtp-Source: AGHT+IF5HaHuyKCM6E4t2p7V295FGoLcL158yabHcCEf0sSmb2eM1U+wbvg4ZE1zb1cHzfegWFEB5Q==
+X-Received: by 2002:a05:6870:3288:b0:2f7:64f7:8d40 with SMTP id 586e51a60fabf-2ffb0bed7efmr740669fac.9.1752620150775;
+        Tue, 15 Jul 2025 15:55:50 -0700 (PDT)
+Received: from localhost ([2603:8080:b800:f700:a172:6205:b5e:43cb])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-2ff116d22easm2976522fac.33.2025.07.15.15.55.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Jul 2025 15:55:49 -0700 (PDT)
+Date: Wed, 16 Jul 2025 01:55:45 +0300
+From: Dan Carpenter <dan.carpenter@linaro.org>
+To: oe-kbuild@lists.linux.dev, Jason Gunthorpe <jgg@nvidia.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+	Longfang Liu <liulongfang@huawei.com>, qat-linux@intel.com,
+	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+	virtualization@lists.linux.dev, Xin Zeng <xin.zeng@intel.com>,
+	Yishai Hadas <yishaih@nvidia.com>
+Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev, patches@lists.linux.dev
+Subject: Re: [PATCH v3] vfio/pci: Do vf_token checks for
+ VFIO_DEVICE_BIND_IOMMUFD
+Message-ID: <76f27eb9-7f56-45e7-813e-e3f595f3b6e9@suswa.mountain>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH drm-next] drm/bochs: Add support for drm_panic
-To: Askar Safin <safinaskar@zohomail.com>
-Cc: ryasuoka <ryasuoka@redhat.com>, airlied <airlied@gmail.com>,
- dri-devel <dri-devel@lists.freedesktop.org>, kraxel <kraxel@redhat.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- "maarten.lankhorst" <maarten.lankhorst@linux.intel.com>,
- mripard <mripard@kernel.org>, simona <simona@ffwll.ch>,
- tzimmermann <tzimmermann@suse.de>,
- virtualization <virtualization@lists.linux.dev>
-References: <20250613132023.106946-1-ryasuoka@redhat.com>
- <20250714000456.14-1-safinaskar@zohomail.com>
- <1961897d-cf42-4495-aec7-f4c20dfe7566@redhat.com>
- <1980fcccefe.10a7c92b36705.2744765212931179004@zohomail.com>
-From: Jocelyn Falempe <jfalempe@redhat.com>
-In-Reply-To: <1980fcccefe.10a7c92b36705.2744765212931179004@zohomail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Pvwp6rhzBpHRV_Q9TATqJUUtmMe76s7_jKlXSKhgwfU_1752616861
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US, fr
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0-v3-bdd8716e85fe+3978a-vfio_token_jgg@nvidia.com>
 
-On 15/07/2025 22:35, Askar Safin wrote:
->   ---- On Tue, 15 Jul 2025 12:57:04 +0400  Jocelyn Falempe <jfalempe@redhat.com> wrote ---
->   > "Normal panics", is just the console logs through fbcon. The problem is
-> 
-> Thank you for answer! Is this possible to configure system such that fbcon works normally,
-> VTs work normally (i. e. via framebuffer), but when panic happens, it is displayed via drm_panic? This seems to
-> be solution to the problem.
+Hi Jason,
 
-Yes, that's the default if you use a drm driver like bochs with fbdev 
-emulation enabled. (Of course you can't have DRM panic on a pure fbdev 
-driver).
+kernel test robot noticed the following build warnings:
 
-There was a concurrency problem between fbcon and DRM panic, and I've 
-solved it a year ago with:
-https://patchwork.freedesktop.org/series/136182/
+url:    https://github.com/intel-lab-lkp/linux/commits/Jason-Gunthorpe/vfio-pci-Do-vf_token-checks-for-VFIO_DEVICE_BIND_IOMMUFD/20250715-001209
+base:   32b2d3a57e26804ca96d82a222667ac0fa226cb7
+patch link:    https://lore.kernel.org/r/0-v3-bdd8716e85fe%2B3978a-vfio_token_jgg%40nvidia.com
+patch subject: [PATCH v3] vfio/pci: Do vf_token checks for VFIO_DEVICE_BIND_IOMMUFD
+config: openrisc-randconfig-r071-20250715 (https://download.01.org/0day-ci/archive/20250716/202507160254.dAjYAz9h-lkp@intel.com/config)
+compiler: or1k-linux-gcc (GCC) 15.1.0
 
-So make sure you have the following in your .config:
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+| Closes: https://lore.kernel.org/r/202507160254.dAjYAz9h-lkp@intel.com/
 
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_DRM_FBDEV_EMULATION=y
-CONFIG_DRM_PANIC=y
-CONFIG_DRM_PANIC_SCREEN="kmsg"
+smatch warnings:
+drivers/vfio/device_cdev.c:126 vfio_df_ioctl_bind_iommufd() warn: missing unwind goto?
+drivers/vfio/device_cdev.c:170 vfio_df_ioctl_bind_iommufd() warn: inconsistent returns '&device->dev_set->lock'.
 
-Best regards,
+vim +126 drivers/vfio/device_cdev.c
+
+5fcc26969a164e Yi Liu          2023-07-18   83  long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
+5fcc26969a164e Yi Liu          2023-07-18   84  				struct vfio_device_bind_iommufd __user *arg)
+5fcc26969a164e Yi Liu          2023-07-18   85  {
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14   86  	const u32 VALID_FLAGS = VFIO_DEVICE_BIND_FLAG_TOKEN;
+5fcc26969a164e Yi Liu          2023-07-18   87  	struct vfio_device *device = df->device;
+5fcc26969a164e Yi Liu          2023-07-18   88  	struct vfio_device_bind_iommufd bind;
+5fcc26969a164e Yi Liu          2023-07-18   89  	unsigned long minsz;
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14   90  	u32 user_size;
+5fcc26969a164e Yi Liu          2023-07-18   91  	int ret;
+5fcc26969a164e Yi Liu          2023-07-18   92  
+5fcc26969a164e Yi Liu          2023-07-18   93  	static_assert(__same_type(arg->out_devid, df->devid));
+5fcc26969a164e Yi Liu          2023-07-18   94  
+5fcc26969a164e Yi Liu          2023-07-18   95  	minsz = offsetofend(struct vfio_device_bind_iommufd, out_devid);
+5fcc26969a164e Yi Liu          2023-07-18   96  
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14   97  	ret = get_user(user_size, &arg->argsz);
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14   98  	if (ret)
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14   99  		return ret;
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14  100  	if (user_size < minsz)
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14  101  		return -EINVAL;
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14  102  	ret = copy_struct_from_user(&bind, minsz, arg, user_size);
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14  103  	if (ret)
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14  104  		return ret;
+5fcc26969a164e Yi Liu          2023-07-18  105  
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14  106  	if (bind.iommufd < 0 || bind.flags & ~VALID_FLAGS)
+5fcc26969a164e Yi Liu          2023-07-18  107  		return -EINVAL;
+5fcc26969a164e Yi Liu          2023-07-18  108  
+5fcc26969a164e Yi Liu          2023-07-18  109  	/* BIND_IOMMUFD only allowed for cdev fds */
+5fcc26969a164e Yi Liu          2023-07-18  110  	if (df->group)
+5fcc26969a164e Yi Liu          2023-07-18  111  		return -EINVAL;
+5fcc26969a164e Yi Liu          2023-07-18  112  
+5fcc26969a164e Yi Liu          2023-07-18  113  	ret = vfio_device_block_group(device);
+5fcc26969a164e Yi Liu          2023-07-18  114  	if (ret)
+5fcc26969a164e Yi Liu          2023-07-18  115  		return ret;
+5fcc26969a164e Yi Liu          2023-07-18  116  
+5fcc26969a164e Yi Liu          2023-07-18  117  	mutex_lock(&device->dev_set->lock);
+5fcc26969a164e Yi Liu          2023-07-18  118  	/* one device cannot be bound twice */
+5fcc26969a164e Yi Liu          2023-07-18  119  	if (df->access_granted) {
+5fcc26969a164e Yi Liu          2023-07-18  120  		ret = -EINVAL;
+5fcc26969a164e Yi Liu          2023-07-18  121  		goto out_unlock;
+5fcc26969a164e Yi Liu          2023-07-18  122  	}
+5fcc26969a164e Yi Liu          2023-07-18  123  
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14  124  	ret = vfio_df_check_token(device, &bind);
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14  125  	if (ret)
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14 @126  		return ret;
+
+This needs to be a goto unlock.
+
+be2e70b96c3e54 Jason Gunthorpe 2025-07-14  127  
+5fcc26969a164e Yi Liu          2023-07-18  128  	df->iommufd = iommufd_ctx_from_fd(bind.iommufd);
+5fcc26969a164e Yi Liu          2023-07-18  129  	if (IS_ERR(df->iommufd)) {
+5fcc26969a164e Yi Liu          2023-07-18  130  		ret = PTR_ERR(df->iommufd);
+5fcc26969a164e Yi Liu          2023-07-18  131  		df->iommufd = NULL;
+5fcc26969a164e Yi Liu          2023-07-18  132  		goto out_unlock;
+5fcc26969a164e Yi Liu          2023-07-18  133  	}
+5fcc26969a164e Yi Liu          2023-07-18  134  
+5fcc26969a164e Yi Liu          2023-07-18  135  	/*
+5fcc26969a164e Yi Liu          2023-07-18  136  	 * Before the device open, get the KVM pointer currently
+5fcc26969a164e Yi Liu          2023-07-18  137  	 * associated with the device file (if there is) and obtain
+5fcc26969a164e Yi Liu          2023-07-18  138  	 * a reference.  This reference is held until device closed.
+5fcc26969a164e Yi Liu          2023-07-18  139  	 * Save the pointer in the device for use by drivers.
+5fcc26969a164e Yi Liu          2023-07-18  140  	 */
+5fcc26969a164e Yi Liu          2023-07-18  141  	vfio_df_get_kvm_safe(df);
+5fcc26969a164e Yi Liu          2023-07-18  142  
+5fcc26969a164e Yi Liu          2023-07-18  143  	ret = vfio_df_open(df);
+5fcc26969a164e Yi Liu          2023-07-18  144  	if (ret)
+5fcc26969a164e Yi Liu          2023-07-18  145  		goto out_put_kvm;
+5fcc26969a164e Yi Liu          2023-07-18  146  
+5fcc26969a164e Yi Liu          2023-07-18  147  	ret = copy_to_user(&arg->out_devid, &df->devid,
+5fcc26969a164e Yi Liu          2023-07-18  148  			   sizeof(df->devid)) ? -EFAULT : 0;
+5fcc26969a164e Yi Liu          2023-07-18  149  	if (ret)
+5fcc26969a164e Yi Liu          2023-07-18  150  		goto out_close_device;
+5fcc26969a164e Yi Liu          2023-07-18  151  
+5fcc26969a164e Yi Liu          2023-07-18  152  	device->cdev_opened = true;
+5fcc26969a164e Yi Liu          2023-07-18  153  	/*
+5fcc26969a164e Yi Liu          2023-07-18  154  	 * Paired with smp_load_acquire() in vfio_device_fops::ioctl/
+5fcc26969a164e Yi Liu          2023-07-18  155  	 * read/write/mmap
+5fcc26969a164e Yi Liu          2023-07-18  156  	 */
+5fcc26969a164e Yi Liu          2023-07-18  157  	smp_store_release(&df->access_granted, true);
+5fcc26969a164e Yi Liu          2023-07-18  158  	mutex_unlock(&device->dev_set->lock);
+5fcc26969a164e Yi Liu          2023-07-18  159  	return 0;
+5fcc26969a164e Yi Liu          2023-07-18  160  
+5fcc26969a164e Yi Liu          2023-07-18  161  out_close_device:
+5fcc26969a164e Yi Liu          2023-07-18  162  	vfio_df_close(df);
+5fcc26969a164e Yi Liu          2023-07-18  163  out_put_kvm:
+5fcc26969a164e Yi Liu          2023-07-18  164  	vfio_device_put_kvm(device);
+5fcc26969a164e Yi Liu          2023-07-18  165  	iommufd_ctx_put(df->iommufd);
+5fcc26969a164e Yi Liu          2023-07-18  166  	df->iommufd = NULL;
+5fcc26969a164e Yi Liu          2023-07-18  167  out_unlock:
+5fcc26969a164e Yi Liu          2023-07-18  168  	mutex_unlock(&device->dev_set->lock);
+5fcc26969a164e Yi Liu          2023-07-18  169  	vfio_device_unblock_group(device);
+5fcc26969a164e Yi Liu          2023-07-18 @170  	return ret;
+5fcc26969a164e Yi Liu          2023-07-18  171  }
 
 -- 
-
-Jocelyn
-
-> 
-> --
-> Askar Safin
-> https://types.pl/@safinaskar
-> 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
