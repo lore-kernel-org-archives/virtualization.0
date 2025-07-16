@@ -1,313 +1,127 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E9D52EFDB1
-	for <virtualization@lists.linux-foundation.org>; Wed, 16 Jul 2025 08:55:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 453232EF671
+	for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 08:57:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752656144; cv=none; b=NwJQ6mJo1AUZ2TcPXTZaIGTj9qaR/s/5djZCBqz46dTTJYYROJHhrEFqbCWvJJmjK9iKRgd1NzUuMuXpRyvFCTE2TeIXI83J5nhNghFvyWTsV38pgEjGke4SU1+zt/2Tml2kN02TdST0e2Zlr2ZTUeUk2NTEvpEppmnUEk4U+W4=
+	t=1752656262; cv=none; b=cJ4DJynakXCzp+FS5YNvZ7bVNhDUCQOaa78MZJ+igZMuKkcCC5a+Abd8ie4gw+XdoNwaNjp3+AOOxyvAKQBFJw9Qq8aGUATp9wYeT8SjXNkcWIwD9Dj297AHnVe5f14MMu5P564XTGpFbJBvDtMQthZg9UFEvXqCGoil61YzHXc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752656144; c=relaxed/simple;
-	bh=3XujhVuiu4yaKX8VdtoT8L7ry694S9HL3N/1pn8FpHE=;
+	s=arc-20240116; t=1752656262; c=relaxed/simple;
+	bh=bSZvmxVaLzzIexlJjfqAQuaa2x0fZVD8/09A4vIGlmk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=hIGUToV/6fPqjVRICJqLmxBNFs17dO5eeAf636H7IacSu4XCVgWmQS/GvB118E7Zo7OJ2Zh7T7ilk3nJoBi9lOyWfShuVeHwe3BKGiBw7P8/JrI0zSVr2c91shebajKCzAMTtxdPq0/qFl5zayxJRs5b1z5x/JsQACNM9Gxdkj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MofX2jhP; arc=none smtp.client-ip=140.211.166.133
+	 In-Reply-To:Content-Type:Content-Disposition; b=Xz1wl8MP+aGY/hO+iAAna9fMwjOw1kMyZcMNRDPhRxSVp7RbhpRGbHf6JtqDTFviWbjSg3RGehc9LN01MWIbiQE23nPI0XefbbRb6fbmIbQP5PnAau/jMyHXzoSQIEFXGdWUabvncukbJ35iSFZ9GtQaARwfNZGUjfoYAtuCHQ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LQdTDtPx; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MofX2jhP"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 91AD54016C
-	for <virtualization@lists.linux-foundation.org>; Wed, 16 Jul 2025 08:55:42 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id chCGaNDFpiil for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jul 2025 08:55:41 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 6871E400D5
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6871E400D5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MofX2jhP
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6871E400D5
-	for <virtualization@lists.linux-foundation.org>; Wed, 16 Jul 2025 08:55:40 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LQdTDtPx"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752656139;
+	s=mimecast20190719; t=1752656260;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=KJc5h/pWyKQ+w9Bq81OUahiAahZ/ZW6ST7tvA1a1o5A=;
-	b=MofX2jhP2x9BdHouCnHX8ytqk0oPBfFw+jPS/f2lyZ6QaWEBFONZmL4xoE+Z/73uAF/ZJA
-	fcGFQis42QroSYEvFyAoMq7lINccV0SO7uAiZDm1rXkk77tzxsH/Zp7rBENDeXdgMjiWGs
-	Eh36WmhyiQYeB8MAq/fpGYNBnJKvF8E=
+	bh=T0pk9pyfgDC9oxEgYm8PZjm4tzUcUb0Zdw4AkU7+zzw=;
+	b=LQdTDtPxQMQQm0CjVO6mtE9TLildw8cLFWU9vh1Wpk5tqw4H5cBsjr2Mh00yVxBS1jstSg
+	Cg12aRergmYU9Ipu3AfbDwr1PJ7hTWVMuKIW4XVmUeXwNgdDHHW1IwSfFy3siK8qvxIpdV
+	DFxlI2H1gUVVwdyDQjw/uU/+tmjodBo=
 Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
  [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-614-XtB3nMV6MgeSpZkuE7tSQQ-1; Wed, 16 Jul 2025 04:55:38 -0400
-X-MC-Unique: XtB3nMV6MgeSpZkuE7tSQQ-1
-X-Mimecast-MFC-AGG-ID: XtB3nMV6MgeSpZkuE7tSQQ_1752656137
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-455ea9cb0beso39494895e9.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 16 Jul 2025 01:55:38 -0700 (PDT)
+ us-mta-679-s8rWh3WzP6uF3MytdlpDNA-1; Wed, 16 Jul 2025 04:57:38 -0400
+X-MC-Unique: s8rWh3WzP6uF3MytdlpDNA-1
+X-Mimecast-MFC-AGG-ID: s8rWh3WzP6uF3MytdlpDNA_1752656257
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4560f28b2b1so12931075e9.2
+        for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 01:57:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752656135; x=1753260935;
+        d=1e100.net; s=20230601; t=1752656257; x=1753261057;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KJc5h/pWyKQ+w9Bq81OUahiAahZ/ZW6ST7tvA1a1o5A=;
-        b=TZiTy04uV06DWTnK8o7kcbkFHuU286zmxHjSTdUdga5pZnY0r/+WNm7s1lJbXC0aPo
-         KyDE/fR4T0UNKpriU/Ot4NznkGW8avM9lPxsJDc9Ll4d5Jbwtxa2XgGhgsmCNjiKT2Yp
-         ji/Y8UKM5Iakray5xyX31pU5NmY7IeoIINzJg18QnAZabTer3DfNmw86/J7UGqIIEdcd
-         uA1Q6raTRSBoIzrtXcV307r1fl1ztX/W09H39uRPC8T0YaKXE+vAAeGKEOqyYH85MAKK
-         kb43gObF7cyFMTuPymXPtlBDNPGZIEIZiGsDaffPdKEZfXb7BzYVDSABs5EkEs7PYy/f
-         Dr8A==
-X-Forwarded-Encrypted: i=1; AJvYcCWkQU/XVMIN3uyGZj7HZgy5ZHG0CsvRcRtK/fmGoj+/WeRhDigdUTKVqjCtmYlrwNQRoUt264sMJgEMuviXyg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxpD5+2cutjXWlqJonAbuBdylm82SJai9q+DFBj8j6uvK8bcItj
-	cA6F4DO/vqbuHVyG4M5mqpXMPXGtEcL1UHpMQhfxfxHa1/8oE8jGWIyYB4nM8Bq1zks65ibr7Ot
-	wvAhH8qLHKDvAp7SvPpfKUxCW8gp1e4aSxLChu5hGaZYscEDSlkKUV5YS+dAV+n1IrzV9M0DECt
-	6iGNHjkko=
-X-Gm-Gg: ASbGncvaWpXZ9TOGBKOJqU/W+oWaZglZLyixA45Sy8AwK2gIcwhfA4+We3DFYAqndAh
-	oDOriqw+sMOWgEnDZTetrivfBmrZx1O34P4iisnODUj/hi7rcJKiNl97rH4B8nbSQyNwqMvC6RV
-	x3MSlO4hSgbC1qBr9R98pnsXiY4MJYChDiFPe6ug7Jp5KkrRKVaLu5s2v0q4ttcTJL0J8radAgV
-	5WnqCgLWaQU1fBXMTegu7JqRSJ5FRNAT2K2/u1cotw0q/O4qxN+k5wFmQN+r6la08cnDFtv7hfZ
-	blA5MEE+48PSpuZWotvy9Ky6KFGSeyNK
-X-Received: by 2002:a05:600c:35d3:b0:456:18ca:68db with SMTP id 5b1f17b1804b1-4562e371b1fmr17014705e9.8.1752656134982;
-        Wed, 16 Jul 2025 01:55:34 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFIeeddWD/zXeNIK28bnOIs260/kSZeIsxuV6ecZ6mZpopBKmOyYwzIAIRkqbaMPhqIXtY3WA==
-X-Received: by 2002:a05:600c:35d3:b0:456:18ca:68db with SMTP id 5b1f17b1804b1-4562e371b1fmr17014325e9.8.1752656134500;
-        Wed, 16 Jul 2025 01:55:34 -0700 (PDT)
+        bh=T0pk9pyfgDC9oxEgYm8PZjm4tzUcUb0Zdw4AkU7+zzw=;
+        b=S11GeTI5FvhfgpqwjBuzBfEXPLGQCelY4L8PtFcNMMM373fwK+FtSQ8KCozliItbM3
+         JDBcVw4fd2GdoG9OAb0/riO0DSMoE5wqemGQHosT2ZIWjx8zUU+8s2W479WEvtq1+jen
+         fqAA75tuMFqcT9a/tbb9VqRgzdGkT/cRAoUBLPUKvjG2W7n2LvrsIK0/a9pmuxwTSali
+         9XluQ+qfxIAX7g2ExdNCRf+cBUlmEV6M84U3xpoWb1AKaSJRRd+D804/HYwRBulN5Jbs
+         2OzyUKTA8AHIgY5MN1MrJIvthkwhXF58n4IKPeRzTVWJgVfS9HRAUwn+oJrTlS9Z0dbo
+         auBA==
+X-Gm-Message-State: AOJu0YyAqZn/Jlr0gT3taESP9Y60Hzmuhd8EPEujb6DXIvQpRv7P546O
+	/IQUCU/l3+y6qsQbCuVaKGiO8F60Uh20OYknhQo00W6selok8usf4s9mdnPAd2IdlBLBEX2miDp
+	7HoB++WUFKDoto886D/s6wiAtV4Ij7YMiv1NiVr5togz0AyUNhs49pumYRFDLMBKnIsSZpqRF7O
+	uF
+X-Gm-Gg: ASbGncsz9inEILStq+n/5GH1Z30WNDa9NdM5Md23l26zxhTzMCQZmdlFi7KoQyzxUEv
+	L6MaWk/sP0SeJVGZU0Y47mPJ2HpLmgWE7q3W+LgoSeS/Sv7XD+Wa+znlnyl8on6mJNSRiPxkrdd
+	wEBtN5tk2ojE/362ysWV1RqRh8FXz14X0yFxtwVEH7RU94hGOCI9m4X+Zi1TZQO67bco8UFphDA
+	9Y+ORGmygoWt5eJqUPbiYoRs9W3GjMuem0kVsN6aCP81ovhbE8f6oOG3VAg+WqXdKvbnAtzk9mA
+	m2lQrZDRL3bVEyOVlzrRi+cNc+cQgAO7
+X-Received: by 2002:a05:600c:4586:b0:456:2142:7fa6 with SMTP id 5b1f17b1804b1-4562e03df81mr20025035e9.12.1752656256766;
+        Wed, 16 Jul 2025 01:57:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHPMQ1MbDi1mPyamg5hDacuZGeQ/q7zkCeqn5pVA9BWS/Ht5qJqtjeEvWW81loE7yxAUxIfwA==
+X-Received: by 2002:a05:600c:4586:b0:456:2142:7fa6 with SMTP id 5b1f17b1804b1-4562e03df81mr20024795e9.12.1752656256365;
+        Wed, 16 Jul 2025 01:57:36 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4562e81ccb4sm14628415e9.17.2025.07.16.01.55.32
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4562e802afasm14522575e9.12.2025.07.16.01.57.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jul 2025 01:55:33 -0700 (PDT)
-Date: Wed, 16 Jul 2025 04:55:30 -0400
+        Wed, 16 Jul 2025 01:57:35 -0700 (PDT)
+Date: Wed, 16 Jul 2025 04:57:33 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Shuah Khan <shuah@kernel.org>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	linux-kselftest@vger.kernel.org,
-	Yuri Benditovich <yuri.benditovich@daynix.com>,
-	Andrew Melnychenko <andrew@daynix.com>,
-	Stephen Hemminger <stephen@networkplumber.org>,
-	gur.stavi@huawei.com, Lei Yang <leiyang@redhat.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH net-next v12 00/10] tun: Introduce virtio-net hashing
- feature
-Message-ID: <20250716045513-mutt-send-email-mst@kernel.org>
-References: <20250530-rss-v12-0-95d8b348de91@daynix.com>
+To: Pei Xiao <xiaopei01@kylinos.cn>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH] vhost:  Use ERR_CAST inlined function instead of
+ ERR_PTR(PTR_ERR(...))
+Message-ID: <20250716045617-mutt-send-email-mst@kernel.org>
+References: <1a8499a5da53e4f72cf21aca044ae4b26db8b2ad.1749020055.git.xiaopei01@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250530-rss-v12-0-95d8b348de91@daynix.com>
+In-Reply-To: <1a8499a5da53e4f72cf21aca044ae4b26db8b2ad.1749020055.git.xiaopei01@kylinos.cn>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: LMXymWkR0_pr87tcmgIGJ7Rkw_5DWk_GrJmS6DGmp1M_1752656137
+X-Mimecast-MFC-PROC-ID: eLGYSHjXDc_jhqrD9_u-rEl7QcCGCJGMjLIXPGs0DwI_1752656257
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, May 30, 2025 at 01:50:04PM +0900, Akihiko Odaki wrote:
-> NOTE: I'm leaving Daynix Computing Ltd., for which I worked on this
-> patch series, by the end of this month.
+On Wed, Jun 04, 2025 at 02:55:48PM +0800, Pei Xiao wrote:
+> cocci warning:
+> ./kernel/vhost_task.c:148:9-16: WARNING: ERR_CAST can be used with tsk
 > 
-> While net-next is closed, this is the last chance for me to send another
-> version so let me send the local changes now.
+> Use ERR_CAST inlined function instead of ERR_PTR(PTR_ERR(...)).
 > 
-> Please contact Yuri Benditovich, who is CCed on this email, for anything
-> about this series.
+> Signed-off-by: Pei Xiao <xiaopei01@kylinos.cn>
+> ---
+>  kernel/vhost_task.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> virtio-net have two usage of hashes: one is RSS and another is hash
-> reporting. Conventionally the hash calculation was done by the VMM.
-> However, computing the hash after the queue was chosen defeats the
-> purpose of RSS.
-> 
-> Another approach is to use eBPF steering program. This approach has
-> another downside: it cannot report the calculated hash due to the
-> restrictive nature of eBPF.
-> 
-> Introduce the code to compute hashes to the kernel in order to overcome
-> thse challenges.
-> 
-> An alternative solution is to extend the eBPF steering program so that it
-> will be able to report to the userspace, but it is based on context
-> rewrites, which is in feature freeze. We can adopt kfuncs, but they will
-> not be UAPIs. We opt to ioctl to align with other relevant UAPIs (KVM
-> and vhost_net).
-> 
-> The patches for QEMU to use this new feature was submitted as RFC and
-> is available at:
-> https://patchew.org/QEMU/20250530-hash-v5-0-343d7d7a8200@daynix.com/
-> 
-> This work was presented at LPC 2024:
-> https://lpc.events/event/18/contributions/1963/
+> diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+> index 2f844c279a3e..8c4a82c0bdbe 100644
+> --- a/kernel/vhost_task.c
+> +++ b/kernel/vhost_task.c
+> @@ -111,7 +111,7 @@ EXPORT_SYMBOL_GPL(vhost_task_stop);
+>   * @arg: data to be passed to fn and handled_kill
+>   * @name: the thread's name
+>   *
+> - * This returns a specialized task for use by the vhost layer or ERR_PTR() on
+> + * This returns a specialized task for use by the vhost layer or ERR_CAST() on
+
+ERR_PTR is the type so it's appropriate here, I think.
 
 
-It's been a while, do you intend to post v13?
-
-> V1 -> V2:
->   Changed to introduce a new BPF program type.
-> 
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-> ---
-> Changes in v12:
-> - Updated tools/testing/selftests/net/config.
-> - Split TUNSETVNETHASH.
-> - Link to v11: https://lore.kernel.org/r/20250317-rss-v11-0-4cacca92f31f@daynix.com
-> 
-> Changes in v11:
-> - Added the missing code to free vnet_hash in patch
->   "tap: Introduce virtio-net hash feature".
-> - Link to v10: https://lore.kernel.org/r/20250313-rss-v10-0-3185d73a9af0@daynix.com
-> 
-> Changes in v10:
-> - Split common code and TUN/TAP-specific code into separate patches.
-> - Reverted a spurious style change in patch "tun: Introduce virtio-net
->   hash feature".
-> - Added a comment explaining disable_ipv6 in tests.
-> - Used AF_PACKET for patch "selftest: tun: Add tests for
->   virtio-net hashing". I also added the usage of FIXTURE_VARIANT() as
->   the testing function now needs access to more variant-specific
->   variables.
-> - Corrected the message of patch "selftest: tun: Add tests for
->   virtio-net hashing"; it mentioned validation of configuration but
->   it is not scope of this patch.
-> - Expanded the description of patch "selftest: tun: Add tests for
->   virtio-net hashing".
-> - Added patch "tun: Allow steering eBPF program to fall back".
-> - Changed to handle TUNGETVNETHASHCAP before taking the rtnl lock.
-> - Removed redundant tests for tun_vnet_ioctl().
-> - Added patch "selftest: tap: Add tests for virtio-net ioctls".
-> - Added a design explanation of ioctls for extensibility and migration.
-> - Removed a few branches in patch
->   "vhost/net: Support VIRTIO_NET_F_HASH_REPORT".
-> - Link to v9: https://lore.kernel.org/r/20250307-rss-v9-0-df76624025eb@daynix.com
-> 
-> Changes in v9:
-> - Added a missing return statement in patch
->   "tun: Introduce virtio-net hash feature".
-> - Link to v8: https://lore.kernel.org/r/20250306-rss-v8-0-7ab4f56ff423@daynix.com
-> 
-> Changes in v8:
-> - Disabled IPv6 to eliminate noises in tests.
-> - Added a branch in tap to avoid unnecessary dissection when hash
->   reporting is disabled.
-> - Removed unnecessary rtnl_lock().
-> - Extracted code to handle new ioctls into separate functions to avoid
->   adding extra NULL checks to the code handling other ioctls.
-> - Introduced variable named "fd" to __tun_chr_ioctl().
-> - s/-/=/g in a patch message to avoid confusing Git.
-> - Link to v7: https://lore.kernel.org/r/20250228-rss-v7-0-844205cbbdd6@daynix.com
-> 
-> Changes in v7:
-> - Ensured to set hash_report to VIRTIO_NET_HASH_REPORT_NONE for
->   VHOST_NET_F_VIRTIO_NET_HDR.
-> - s/4/sizeof(u32)/ in patch "virtio_net: Add functions for hashing".
-> - Added tap_skb_cb type.
-> - Rebased.
-> - Link to v6: https://lore.kernel.org/r/20250109-rss-v6-0-b1c90ad708f6@daynix.com
-> 
-> Changes in v6:
-> - Extracted changes to fill vnet header holes into another series.
-> - Squashed patches "skbuff: Introduce SKB_EXT_TUN_VNET_HASH", "tun:
->   Introduce virtio-net hash reporting feature", and "tun: Introduce
->   virtio-net RSS" into patch "tun: Introduce virtio-net hash feature".
-> - Dropped the RFC tag.
-> - Link to v5: https://lore.kernel.org/r/20241008-rss-v5-0-f3cf68df005d@daynix.com
-> 
-> Changes in v5:
-> - Fixed a compilation error with CONFIG_TUN_VNET_CROSS_LE.
-> - Optimized the calculation of the hash value according to:
->   https://git.dpdk.org/dpdk/commit/?id=3fb1ea032bd6ff8317af5dac9af901f1f324cab4
-> - Added patch "tun: Unify vnet implementation".
-> - Dropped patch "tap: Pad virtio header with zero".
-> - Added patch "selftest: tun: Test vnet ioctls without device".
-> - Reworked selftests to skip for older kernels.
-> - Documented the case when the underlying device is deleted and packets
->   have queue_mapping set by TC.
-> - Reordered test harness arguments.
-> - Added code to handle fragmented packets.
-> - Link to v4: https://lore.kernel.org/r/20240924-rss-v4-0-84e932ec0e6c@daynix.com
-> 
-> Changes in v4:
-> - Moved tun_vnet_hash_ext to if_tun.h.
-> - Renamed virtio_net_toeplitz() to virtio_net_toeplitz_calc().
-> - Replaced htons() with cpu_to_be16().
-> - Changed virtio_net_hash_rss() to return void.
-> - Reordered variable declarations in virtio_net_hash_rss().
-> - Removed virtio_net_hdr_v1_hash_from_skb().
-> - Updated messages of "tap: Pad virtio header with zero" and
->   "tun: Pad virtio header with zero".
-> - Fixed vnet_hash allocation size.
-> - Ensured to free vnet_hash when destructing tun_struct.
-> - Link to v3: https://lore.kernel.org/r/20240915-rss-v3-0-c630015db082@daynix.com
-> 
-> Changes in v3:
-> - Reverted back to add ioctl.
-> - Split patch "tun: Introduce virtio-net hashing feature" into
->   "tun: Introduce virtio-net hash reporting feature" and
->   "tun: Introduce virtio-net RSS".
-> - Changed to reuse hash values computed for automq instead of performing
->   RSS hashing when hash reporting is requested but RSS is not.
-> - Extracted relevant data from struct tun_struct to keep it minimal.
-> - Added kernel-doc.
-> - Changed to allow calling TUNGETVNETHASHCAP before TUNSETIFF.
-> - Initialized num_buffers with 1.
-> - Added a test case for unclassified packets.
-> - Fixed error handling in tests.
-> - Changed tests to verify that the queue index will not overflow.
-> - Rebased.
-> - Link to v2: https://lore.kernel.org/r/20231015141644.260646-1-akihiko.odaki@daynix.com
-> 
-> ---
-> Akihiko Odaki (10):
->       virtio_net: Add functions for hashing
->       net: flow_dissector: Export flow_keys_dissector_symmetric
->       tun: Allow steering eBPF program to fall back
->       tun: Add common virtio-net hash feature code
->       tun: Introduce virtio-net hash feature
->       tap: Introduce virtio-net hash feature
->       selftest: tun: Test vnet ioctls without device
->       selftest: tun: Add tests for virtio-net hashing
->       selftest: tap: Add tests for virtio-net ioctls
->       vhost/net: Support VIRTIO_NET_F_HASH_REPORT
-> 
->  Documentation/networking/tuntap.rst  |   7 +
->  drivers/net/Kconfig                  |   1 +
->  drivers/net/ipvlan/ipvtap.c          |   2 +-
->  drivers/net/macvtap.c                |   2 +-
->  drivers/net/tap.c                    |  80 +++++-
->  drivers/net/tun.c                    |  92 +++++--
->  drivers/net/tun_vnet.h               | 165 +++++++++++-
->  drivers/vhost/net.c                  |  68 ++---
->  include/linux/if_tap.h               |   4 +-
->  include/linux/skbuff.h               |   3 +
->  include/linux/virtio_net.h           | 188 ++++++++++++++
->  include/net/flow_dissector.h         |   1 +
->  include/uapi/linux/if_tun.h          |  80 ++++++
->  net/core/flow_dissector.c            |   3 +-
->  net/core/skbuff.c                    |   4 +
->  tools/testing/selftests/net/Makefile |   2 +-
->  tools/testing/selftests/net/config   |   1 +
->  tools/testing/selftests/net/tap.c    | 131 +++++++++-
->  tools/testing/selftests/net/tun.c    | 485 ++++++++++++++++++++++++++++++++++-
->  19 files changed, 1234 insertions(+), 85 deletions(-)
-> ---
-> base-commit: 5cb8274d66c611b7889565c418a8158517810f9b
-> change-id: 20240403-rss-e737d89efa77
-> 
-> Best regards,
+>   * failure. The returned task is inactive, and the caller must fire it up
+>   * through vhost_task_start().
+>   */
+> @@ -145,7 +145,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
+>  	tsk = copy_process(NULL, 0, NUMA_NO_NODE, &args);
+>  	if (IS_ERR(tsk)) {
+>  		kfree(vtsk);
+> -		return ERR_PTR(PTR_ERR(tsk));
+> +		return ERR_CAST(tsk);
+>  	}
+>  
+>  	vtsk->task = tsk;
 > -- 
-> Akihiko Odaki <akihiko.odaki@daynix.com>
+> 2.25.1
 
