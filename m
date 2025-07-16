@@ -1,76 +1,75 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 453232EF671
-	for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 08:57:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 537A42EAB63
+	for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 08:59:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752656262; cv=none; b=cJ4DJynakXCzp+FS5YNvZ7bVNhDUCQOaa78MZJ+igZMuKkcCC5a+Abd8ie4gw+XdoNwaNjp3+AOOxyvAKQBFJw9Qq8aGUATp9wYeT8SjXNkcWIwD9Dj297AHnVe5f14MMu5P564XTGpFbJBvDtMQthZg9UFEvXqCGoil61YzHXc=
+	t=1752656342; cv=none; b=o2EsFJZ3lJxlisHMNtlEzGXQ4FNF+ipJvYxy2PCH8Kz9YD7L/ZZFlEW/mnkHXSIYHZpe/g+qpfYat/N7zb/F85xg2KIZQ9td1yp6lCIuVbIG+d+ueY5B5udsejJj8bKoOqxLjaZwBL+8izN8PGfd0nr8lx+V0psApaq4qnPS9aI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752656262; c=relaxed/simple;
-	bh=bSZvmxVaLzzIexlJjfqAQuaa2x0fZVD8/09A4vIGlmk=;
+	s=arc-20240116; t=1752656342; c=relaxed/simple;
+	bh=k/xKLRmdytdD5dFxCZPED+uv6Wm4lSnJRb0jKkIgcTA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Xz1wl8MP+aGY/hO+iAAna9fMwjOw1kMyZcMNRDPhRxSVp7RbhpRGbHf6JtqDTFviWbjSg3RGehc9LN01MWIbiQE23nPI0XefbbRb6fbmIbQP5PnAau/jMyHXzoSQIEFXGdWUabvncukbJ35iSFZ9GtQaARwfNZGUjfoYAtuCHQ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LQdTDtPx; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=F/18nh/KCd3FnTlkOxKWFdwXRXzco+JD+IeKBI75xV0GIGxI/dxvYhIufrU6qD7WGOQmuSRfaxW38lJ6mXWMAM3rpt6kJG85XEfGxslT84xEhSXjmbU6y2K6IfyaHIcOLnp2YfhdNsWTTKpLGbrWWZ6/nVir3vcsyoZZEeRY0ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cKNUcUFW; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LQdTDtPx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cKNUcUFW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752656260;
+	s=mimecast20190719; t=1752656340;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=T0pk9pyfgDC9oxEgYm8PZjm4tzUcUb0Zdw4AkU7+zzw=;
-	b=LQdTDtPxQMQQm0CjVO6mtE9TLildw8cLFWU9vh1Wpk5tqw4H5cBsjr2Mh00yVxBS1jstSg
-	Cg12aRergmYU9Ipu3AfbDwr1PJ7hTWVMuKIW4XVmUeXwNgdDHHW1IwSfFy3siK8qvxIpdV
-	DFxlI2H1gUVVwdyDQjw/uU/+tmjodBo=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=BzMG3VIcZp7IpI2SiaxGZq52jq3kQ6ab3CdN8rN3Rxw=;
+	b=cKNUcUFWAouNwDAl0gOf3bF/rOaPZpi0uczTTXYDi9TUxmGA0erBytO1CPNorJfFLp3crX
+	ncgSHATox774TBfo41j/SBVvSTvo/MWt/pr1ELOAjyET8JkhLcDejjYOk3se7yJzVqZR9r
+	QIvAV0ltViE7Oo6GeOohBVl4sItdbN0=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-679-s8rWh3WzP6uF3MytdlpDNA-1; Wed, 16 Jul 2025 04:57:38 -0400
-X-MC-Unique: s8rWh3WzP6uF3MytdlpDNA-1
-X-Mimecast-MFC-AGG-ID: s8rWh3WzP6uF3MytdlpDNA_1752656257
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4560f28b2b1so12931075e9.2
-        for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 01:57:38 -0700 (PDT)
+ us-mta-156-2L62pRX3NXGvxVPnv6SfRA-1; Wed, 16 Jul 2025 04:58:58 -0400
+X-MC-Unique: 2L62pRX3NXGvxVPnv6SfRA-1
+X-Mimecast-MFC-AGG-ID: 2L62pRX3NXGvxVPnv6SfRA_1752656337
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3a523ce0bb2so3164413f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 01:58:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752656257; x=1753261057;
+        d=1e100.net; s=20230601; t=1752656337; x=1753261137;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=T0pk9pyfgDC9oxEgYm8PZjm4tzUcUb0Zdw4AkU7+zzw=;
-        b=S11GeTI5FvhfgpqwjBuzBfEXPLGQCelY4L8PtFcNMMM373fwK+FtSQ8KCozliItbM3
-         JDBcVw4fd2GdoG9OAb0/riO0DSMoE5wqemGQHosT2ZIWjx8zUU+8s2W479WEvtq1+jen
-         fqAA75tuMFqcT9a/tbb9VqRgzdGkT/cRAoUBLPUKvjG2W7n2LvrsIK0/a9pmuxwTSali
-         9XluQ+qfxIAX7g2ExdNCRf+cBUlmEV6M84U3xpoWb1AKaSJRRd+D804/HYwRBulN5Jbs
-         2OzyUKTA8AHIgY5MN1MrJIvthkwhXF58n4IKPeRzTVWJgVfS9HRAUwn+oJrTlS9Z0dbo
-         auBA==
-X-Gm-Message-State: AOJu0YyAqZn/Jlr0gT3taESP9Y60Hzmuhd8EPEujb6DXIvQpRv7P546O
-	/IQUCU/l3+y6qsQbCuVaKGiO8F60Uh20OYknhQo00W6selok8usf4s9mdnPAd2IdlBLBEX2miDp
-	7HoB++WUFKDoto886D/s6wiAtV4Ij7YMiv1NiVr5togz0AyUNhs49pumYRFDLMBKnIsSZpqRF7O
-	uF
-X-Gm-Gg: ASbGncsz9inEILStq+n/5GH1Z30WNDa9NdM5Md23l26zxhTzMCQZmdlFi7KoQyzxUEv
-	L6MaWk/sP0SeJVGZU0Y47mPJ2HpLmgWE7q3W+LgoSeS/Sv7XD+Wa+znlnyl8on6mJNSRiPxkrdd
-	wEBtN5tk2ojE/362ysWV1RqRh8FXz14X0yFxtwVEH7RU94hGOCI9m4X+Zi1TZQO67bco8UFphDA
-	9Y+ORGmygoWt5eJqUPbiYoRs9W3GjMuem0kVsN6aCP81ovhbE8f6oOG3VAg+WqXdKvbnAtzk9mA
-	m2lQrZDRL3bVEyOVlzrRi+cNc+cQgAO7
-X-Received: by 2002:a05:600c:4586:b0:456:2142:7fa6 with SMTP id 5b1f17b1804b1-4562e03df81mr20025035e9.12.1752656256766;
-        Wed, 16 Jul 2025 01:57:36 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHPMQ1MbDi1mPyamg5hDacuZGeQ/q7zkCeqn5pVA9BWS/Ht5qJqtjeEvWW81loE7yxAUxIfwA==
-X-Received: by 2002:a05:600c:4586:b0:456:2142:7fa6 with SMTP id 5b1f17b1804b1-4562e03df81mr20024795e9.12.1752656256365;
-        Wed, 16 Jul 2025 01:57:36 -0700 (PDT)
+        bh=BzMG3VIcZp7IpI2SiaxGZq52jq3kQ6ab3CdN8rN3Rxw=;
+        b=FVnqTQU2D+oks83mrKqDvwsXsKbYZouL4QZLyuduIqDTZM2OUB2PVqojLuaRetXXlK
+         ywfapZ2GgB44erT8jorkycB5F0FlTQyUfkkp56lnXi4GezOth9j1OK9DRxA6xKSgETPH
+         Ug+8tYMTVEaO1OXSmckqdcBv/HNk7y5V+Y2VPLyDwyN2hOXjNRQXwY5S51Y65b3IRF5z
+         vGvH6hpf9mc/cHw8jGiHLlQVbe5jZ8Tko50cHHevrB/Qxy0sDphN5ANO2Si3lJ/SkR0v
+         X1UXgEd0sPY2tZlR9bmyzgIJk5SDFO8Dh/48fTSI/6C4422t8JxAUShXI7z/hivOHW7g
+         G62g==
+X-Gm-Message-State: AOJu0Yy4maF+KYVAiHdMcwQ74V6dUAa/8YgtIC7zE9qkkzHmPkyw0HKS
+	zULGMKIGT58hCi399sJxZ9+DaTOiOCxdiMgfSQOvc8mkc52zAkYiUftClKt1w6aMSijGOVYJS71
+	B1CbHrZvj+SWaEiZj6l5KYcpFbXyEabHajiBdUIVOVhKcGXyTpa40f8pQaAB4LE+xNR0i
+X-Gm-Gg: ASbGncv3tpawufJAGB49x20Kz2YEI7QLret61KbOtb7x1nVeTeT6pGlh52CfBNkV9qb
+	6gGm1t4ZH9ErBUGGZy1f5VE6Gh6wIyS5irHxH6mFtNVy1DTJfjLp6T+W9KnQuqabHPNU/Pn6FSR
+	Gr9smlqN8/tFEwWD+I6SHulTZmxpDJjWZAHcu4ZU/pOyp5+y4DNY9Rb3uev0xuZHIADDqcgUtdL
+	4wbNGbYv72bLksYMyhw638Pf+5C6dUNj1q1B3jwAifmy2uI58VcceruTcmTKpdH8uHUHiQr/3JG
+	Kb6HONh0D4hH0SOW2UtyxWBooIxHHmNv
+X-Received: by 2002:a05:6000:2087:b0:3a6:e1e7:2a88 with SMTP id ffacd0b85a97d-3b60e518b33mr1415220f8f.57.1752656337277;
+        Wed, 16 Jul 2025 01:58:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHgFM5T6msjvz4eBt9JJxEEAvHAo5VJrH/1JPYb+hX9XJmhxEwUw9K86spL5EHzREJnWORrmA==
+X-Received: by 2002:a05:6000:2087:b0:3a6:e1e7:2a88 with SMTP id ffacd0b85a97d-3b60e518b33mr1415197f8f.57.1752656336811;
+        Wed, 16 Jul 2025 01:58:56 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4562e802afasm14522575e9.12.2025.07.16.01.57.35
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b5e8e0d76fsm17596638f8f.64.2025.07.16.01.58.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jul 2025 01:57:35 -0700 (PDT)
-Date: Wed, 16 Jul 2025 04:57:33 -0400
+        Wed, 16 Jul 2025 01:58:56 -0700 (PDT)
+Date: Wed, 16 Jul 2025 04:58:54 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Pei Xiao <xiaopei01@kylinos.cn>
 Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
 	kvm@vger.kernel.org
 Subject: Re: [PATCH] vhost:  Use ERR_CAST inlined function instead of
  ERR_PTR(PTR_ERR(...))
-Message-ID: <20250716045617-mutt-send-email-mst@kernel.org>
+Message-ID: <20250716045841-mutt-send-email-mst@kernel.org>
 References: <1a8499a5da53e4f72cf21aca044ae4b26db8b2ad.1749020055.git.xiaopei01@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -80,7 +79,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <1a8499a5da53e4f72cf21aca044ae4b26db8b2ad.1749020055.git.xiaopei01@kylinos.cn>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eLGYSHjXDc_jhqrD9_u-rEl7QcCGCJGMjLIXPGs0DwI_1752656257
+X-Mimecast-MFC-PROC-ID: ljlhJcUDfF0WIHOLzbBa9M8apa-c9gyEcy_ITTZPZzk_1752656337
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -106,10 +105,6 @@ On Wed, Jun 04, 2025 at 02:55:48PM +0800, Pei Xiao wrote:
 >   *
 > - * This returns a specialized task for use by the vhost layer or ERR_PTR() on
 > + * This returns a specialized task for use by the vhost layer or ERR_CAST() on
-
-ERR_PTR is the type so it's appropriate here, I think.
-
-
 >   * failure. The returned task is inactive, and the caller must fire it up
 >   * through vhost_task_start().
 >   */
@@ -122,6 +117,9 @@ ERR_PTR is the type so it's appropriate here, I think.
 >  	}
 >  
 >  	vtsk->task = tsk;
+
+I applied just this chunk.
+
 > -- 
 > 2.25.1
 
