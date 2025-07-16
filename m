@@ -1,176 +1,161 @@
-Received: from sender4-pp-o95.zoho.com (sender4-pp-o95.zoho.com [136.143.188.95])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15ACB2ED87F
-	for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 21:48:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.95
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752702527; cv=pass; b=klQ0pNs8Bl+N1aUd1LuimoPXMz4zN7efPukAqQdcvR6sdrHQvgp0UabtCSJsqAZvUDioLQDWpNxKhkahRtsrhg2Hww+lh14YdtmkSgZSUme4sXj7UEP3ZMqx9sJXXKjSlF6//GVGT9zEa+EuGAt9EVxbEfTChyaXp7xWBxVsIHQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752702527; c=relaxed/simple;
-	bh=u6BdzZJhx24mYYqYOAREec47UXOE7JPyiDqGUzGpSYI=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=JWqaFS258iybhLjsI8wAl5C5qyoLGbbvxfwhCzWbPZCZJNROyPisxjXcCAgt+kZupi8QokzLSTky31rLRxopKFe1fVsklOYxKQSI3FQqr48zkvOdrFeIqRfgCZqjvkI1mL4qwR5SK4Ur2fzCl4m+9sGxOwQZVntr9jSKn0Jf2ug=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zohomail.com; spf=pass smtp.mailfrom=zohomail.com; dkim=pass (1024-bit key) header.d=zohomail.com header.i=safinaskar@zohomail.com header.b=AACRkPJF; arc=pass smtp.client-ip=136.143.188.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zohomail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zohomail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B294B1DE2AD;
+	Wed, 16 Jul 2025 22:29:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752704942; cv=none; b=MOJSy/f+GB5aybguJRHgOXakC7SLKkS3fLMR9Ys8HtFHNpQB/WJd3fFx4fxnOaGcDjU2aFDMhcjEZKVVUqXLHkNUn6KyCUUS8h+X0VX29PJa4TDs+ZI8pdwP/xi1hCh61xTm7yKxPXFUHObcppldhl1kJvXRxpwYBaQ4u4JlAQA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752704942; c=relaxed/simple;
+	bh=/K8c9O3faeP5vT2aL2aOt7LnXFCGLEyAU4ITOMMFYzI=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=fyTGpizmH67LacewQK7jZHIm/nk+O1yjDDq/lCC1uR9oMNKnWRbR22gY0DnBQuFm6JUalTnbXHrWKTnvsK/L7BUS/SoZ3OP2gj6MhqF5Bo9LMp8AKBQ/yX0AsMu2p310XCVZX8Vjg5Dm7ByFAdUSMrNixbEVuspdf37ohem8Lqw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FxhFmUcg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=zohomail.com header.i=safinaskar@zohomail.com header.b="AACRkPJF"
-ARC-Seal: i=1; a=rsa-sha256; t=1752702517; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=JCgbVQKeF8fPuBzymCpZ6ocDt/uZa4MaRcWzaPxap4+fqhJ//Yn5jxFwCa1aag4/UxhdfF9KrZTAhE4gHRUY26bA85Ujkon1a0STuaW3ACNjM5xijp2UbYvF7Ko5nBugM4BmAdayuXL2U6E3d0HcdSkswioWAJyFcaZGo6cjwMI=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1752702517; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=jykymLpcIuD1F/ilyuxCAh0D/DhSx5X6vDiB9nbBDi8=; 
-	b=ButG1eaqH+j60qJkVSoXIcjoc5i6ITbNl5SylW2URa4C71UcRL57jA6Tu1cXT5W8SMs/70mbuQ22ZMr+mUUJCttZWaBGlv4/WsaF7/e9L/YvdPc2Dz7Md+eTLKXdJt1WFCwCAN7MRP5raSG3SeEM0rqAWoiD6SbhD3Tsmpowbyk=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=zohomail.com;
-	spf=pass  smtp.mailfrom=safinaskar@zohomail.com;
-	dmarc=pass header.from=<safinaskar@zohomail.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1752702517;
-	s=zm2022; d=zohomail.com; i=safinaskar@zohomail.com;
-	h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:References:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Feedback-ID:Message-Id:Reply-To;
-	bh=jykymLpcIuD1F/ilyuxCAh0D/DhSx5X6vDiB9nbBDi8=;
-	b=AACRkPJF1sTJJnG4JmepNkWcwoHEUoNZ6piD+VdqiwTXoQgtrnzgjTSnWSA+Q3aM
-	SZmDOIuTx8+ySKjUD0lVl0gqkL7UCAeQOyFMiwro2v6Yn23g2/qHh8CI3p3nlRJx7WC
-	9z/QlLkKbe/IPHdTdv4z0VgZQc7kO69yj0sb7VjM=
-Received: from mail.zoho.com by mx.zohomail.com
-	with SMTP id 17527025142865.420431262086026; Wed, 16 Jul 2025 14:48:34 -0700 (PDT)
-Received: from  [212.73.77.104] by mail.zoho.com
-	with HTTP;Wed, 16 Jul 2025 14:48:34 -0700 (PDT)
-Date: Thu, 17 Jul 2025 01:48:34 +0400
-From: Askar Safin <safinaskar@zohomail.com>
-To: "Jocelyn Falempe" <jfalempe@redhat.com>
-Cc: "ryasuoka" <ryasuoka@redhat.com>, "airlied" <airlied@gmail.com>,
-	"dri-devel" <dri-devel@lists.freedesktop.org>,
-	"kraxel" <kraxel@redhat.com>,
-	"linux-kernel" <linux-kernel@vger.kernel.org>,
-	"maarten.lankhorst" <maarten.lankhorst@linux.intel.com>,
-	"mripard" <mripard@kernel.org>, "simona" <simona@ffwll.ch>,
-	"tzimmermann" <tzimmermann@suse.de>,
-	"virtualization" <virtualization@lists.linux.dev>
-Message-ID: <1981535f461.11e01ca3b21091.7915707831085255756@zohomail.com>
-In-Reply-To: <05c40a0a-d2b0-4f55-981f-6da3765eebb2@redhat.com>
-References: <20250613132023.106946-1-ryasuoka@redhat.com>
- <20250714000456.14-1-safinaskar@zohomail.com>
- <1961897d-cf42-4495-aec7-f4c20dfe7566@redhat.com>
- <1980fcccefe.10a7c92b36705.2744765212931179004@zohomail.com> <05c40a0a-d2b0-4f55-981f-6da3765eebb2@redhat.com>
-Subject: Re: [PATCH drm-next] drm/bochs: Add support for drm_panic
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FxhFmUcg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17132C4CEE7;
+	Wed, 16 Jul 2025 22:29:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1752704942;
+	bh=/K8c9O3faeP5vT2aL2aOt7LnXFCGLEyAU4ITOMMFYzI=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=FxhFmUcgz5lIBObgaOcFPRX1BPALU5DeVSI2wSOl8YZwa2oYSVm/tHRNsx33k5W2T
+	 oUJA4FDhGAo7j1z8cX8xOlkj6/wmhVyfPHu1x+piN+eM2k6nO0wkYPXU/Wr+hX28mJ
+	 myYN2zHEX/PlnQOUclwCOVJM/XUN9DQSvf4ilargewdAF1dxW10cKNnaQ8jcvX73HY
+	 OiZlf+PMnxs7Ay6+Nf14nc/x5l0JqD6H6kV1ZrFJPCDKiDkAoEDUyyBdfH6auzzRKv
+	 BGQ0qQ2xp6DH1XZ5R+yTOP1NBYZ+chZ47nsgh5g4Wc0hhcP7N+T7QLfgVE3l5K5uUN
+	 tB+cEQgJ3aNEw==
+Date: Wed, 16 Jul 2025 17:29:00 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+	Keith Busch <kbusch@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
+	stefanha@redhat.com, alok.a.tiwari@oracle.com,
+	linux-pci@vger.kernel.org
+Subject: Re: [PATCH RFC v5 1/5] pci: report surprise removal event
+Message-ID: <20250716222900.GA2556670@bhelgaas>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Importance: Medium
-User-Agent: Zoho Mail
-X-Mailer: Zoho Mail
-Feedback-ID: rr08011227c5463886fdf22997189eff70000061a5f1d7e53860d826172f6061090962bf5ae90f91ad8289de:zu080112276f196aec0a095a0a879bbc740000301014a8f874aef8db273d280520c189b8235d3de26de00cbf:rf0801122b6eb97275627a4a89c5a2933c000051fc395a76030f971dc85125368a1f3ccbb2b641e979217cbffce946b8:ZohoMail
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250715022111-mutt-send-email-mst@kernel.org>
 
- ---- On Wed, 16 Jul 2025 02:00:56 +0400  Jocelyn Falempe <jfalempe@redhat.com> wrote --- 
- > Yes, that's the default if you use a drm driver like bochs with fbdev 
+On Tue, Jul 15, 2025 at 02:28:20AM -0400, Michael S. Tsirkin wrote:
+> On Mon, Jul 14, 2025 at 04:13:51PM -0500, Bjorn Helgaas wrote:
+> > On Mon, Jul 14, 2025 at 02:26:19AM -0400, Michael S. Tsirkin wrote:
+> > > On Wed, Jul 09, 2025 at 06:38:20PM -0500, Bjorn Helgaas wrote:
+> > > > On Wed, Jul 09, 2025 at 04:55:26PM -0400, Michael S. Tsirkin wrote:
+> > > > > At the moment, in case of a surprise removal, the regular
+> > > > > remove callback is invoked, exclusively.  This works well,
+> > > > > because mostly, the cleanup would be the same.
+> > > > > 
+> > > > > However, there's a race: imagine device removal was
+> > > > > initiated by a user action, such as driver unbind, and it in
+> > > > > turn initiated some cleanup and is now waiting for an
+> > > > > interrupt from the device. If the device is now
+> > > > > surprise-removed, that never arrives and the remove callback
+> > > > > hangs forever.
+> > > > > 
+> > > > > For example, this was reported for virtio-blk:
+> > > > > 
+> > > > > 	1. the graceful removal is ongoing in the remove() callback, where disk
+> > > > > 	   deletion del_gendisk() is ongoing, which waits for the requests +to
+> > > > > 	   complete,
+> > > > > 
+> > > > > 	2. Now few requests are yet to complete, and surprise removal started.
+> > > > > 
+> > > > > 	At this point, virtio block driver will not get notified by the driver
+> > > > > 	core layer, because it is likely serializing remove() happening by
+> > > > > 	+user/driver unload and PCI hotplug driver-initiated device removal.  So
+> > > > > 	vblk driver doesn't know that device is removed, block layer is waiting
+> > > > > 	for requests completions to arrive which it never gets.  So
+> > > > > 	del_gendisk() gets stuck.
+> > > > > 
+> > > > > Drivers can artificially add timeouts to handle that, but it can be
+> > > > > flaky.
+> > > > > 
+> > > > > Instead, let's add a way for the driver to be notified about the
+> > > > > disconnect. It can then do any necessary cleanup, knowing that the
+> > > > > device is inactive.
+> > > > 
+> > > > This relies on somebody (typically pciehp, I guess) calling
+> > > > pci_dev_set_disconnected() when a surprise remove happens.
+> > > > 
+> > > > Do you think it would be practical for the driver's .remove() method
+> > > > to recognize that the device may stop responding at any point, even if
+> > > > no hotplug driver is present to call pci_dev_set_disconnected()?
+> > > > 
+> > > > Waiting forever for an interrupt seems kind of vulnerable in general.
+> > > > Maybe "artificially adding timeouts" is alluding to *not* waiting
+> > > > forever for interrupts?  That doesn't seem artificial to me because
+> > > > it's just a fact of life that devices can disappear at arbitrary
+> > > > times.
+> > > > 
+> > > > It seems a little fragile to me to depend on some other part of the
+> > > > system to notice the surprise removal and tell you about it or
+> > > > schedule your work function.  I think it would be more robust for the
+> > > > driver to check directly, i.e., assume writes to the device may be
+> > > > lost, check for PCI_POSSIBLE_ERROR() after reads from the device, and
+> > > > never wait for an interrupt without a timeout.
+> > > 
+> > > virtio is ... kind of special, in that users already take it for
+> > > granted that having a device as long as they want to respond
+> > > still does not lead to errors and data loss.
+> > > 
+> > > Makes it a bit harder as our timeout would have to
+> > > check for presence and retry, we can't just fail as a
+> > > normal hardware device does.
+> > 
+> > Sorry, I don't know enough about virtio to follow what you said about 
+> > "having a device as long as they want to respond".
+> > 
+> > We started with a graceful remove.  That must mean the user no longer
+> > needs the device.
+> 
+> I'll try to clarify:
+> 
+> Indeed, the user will not submit new requests,
+> but users might also not know that there are some old requests
+> being in progress of being processed by the device.
+> The driver, currently, waits for that processsing to be complete.
+> Cancelling that with a reset on a timeout might be a regression,
+> unless the timeout is very long.
 
-Thank you for answer! I just tried kernel from drm-tip with this config with drm_panic in qemu. And panic works.
-But I don't like result.
-When drm panic happens, messages printed to /dev/console disappear. Only kernel messages remain.
+This seems like a corner case and maybe rare enough that simply making
+the timeout very long would be a possibility.
 
-Here are steps to reproduce. And then I will describe how this breaks my workflow.
+> > > And there's the overhead thing - poking at the device a lot
+> > > puts a high load on the host.
+> > 
+> > Checking for PCI_POSSIBLE_ERROR() doesn't touch the device.  If you
+> > did a config read already, and the result happened to be ~0, *then* we
+> > have the problem of figuring out whether the actual data from the
+> > device was ~0, or if the read failed and the Root Complex synthesized
+> > the ~0.  In many cases a driver knows that ~0 is not a possible
+> > register value.  Otherwise it might have to read another register that
+> > is known not to be ~0.
+> 
+> To clarify, virtio generally is designed to operate solely
+> by means of DMA and interrupt, completely avoiding any PCI
+> reads. This, due to PCI reads being very expensive in virtualized
+> scenarios.
+> 
+> The extra overhead I refer to is exactly initiating such a read
+> where there would not be one in normal operation.
 
-Compile kernel from drm-tip ( https://gitlab.freedesktop.org/drm/tip ). I used commit b012f04b5be909a307ff629b297387e0ed55195a .
-It seems to include this bochs patch (i. e. "drm/bochs: Add support for drm_panic").
-Use this miniconfig:
+Thanks, this part is very helpful.  And since config accesses are very
+expensive in *all* environments, I expect most drivers for
+high-performance devices work the same way and only do config accesses
+during at probe time.
 
-$ cat mini
-CONFIG_64BIT=y
+If that's true, it will make this more understandable if the commit
+log approaches it from that direction and omits virtio specifics.
 
-CONFIG_EXPERT=y
-
-CONFIG_PRINTK=y
-CONFIG_PRINTK_TIME=y
-
-CONFIG_PCI=y
-
-CONFIG_TTY=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_DRM=y
-CONFIG_DRM_FBDEV_EMULATION=y
-CONFIG_DRM_BOCHS=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PROC_FS=y
-
-CONFIG_DRM_PANIC=y
-CONFIG_DRM_PANIC_SCREEN="kmsg"
-
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_RD_GZIP=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_SCRIPT=y
-$ make KCONFIG_ALLCONFIG=mini allnoconfig
-
-Create initramfs, which contains exactly these files:
-$ find /tmp/i -ls
-     2861      0 drwxrwxr-x   3 user     user           80 Jul 16 23:56 /tmp/i
-     2891      0 drwxrwxr-x   2 user     user           80 Jul 16 23:56 /tmp/i/bin
-     2893      0 lrwxrwxrwx   1 user     user            7 Jul 16 23:56 /tmp/i/bin/sh -> busybox
-     2892   1980 -rwxr-xr-x   1 user     user      2024544 Jul 16 23:56 /tmp/i/bin/busybox
-     2864      4 -rwxrwxr-x   1 user     user           43 Jul 16 23:18 /tmp/i/init
-
-This is "init":
-===
-#!/bin/sh
-
-set -e
-
-echo hello
-sleep 3
-exit 0
-===
-
-Now boot this in Qemu. I used this command:
-$ qemu-system-x86_64 -enable-kvm -m 1024  -kernel arch/x86/boot/bzImage -initrd /tmp/ini.cpio.gz
-
-You will see word "hello", then after 3 seconds the system will fail into drm panic.
-
-What I saw: word "hello" disappeared, when the system falled into panic
-What I expected to see: word "hello" should remain.
-
-Now let me describe how this breaks my workflow.
-
-I often use hand-crafted shell scripts as PID 1. Both in Qemu and on real hardware.
-I use them to reproduce and bisect various kernel bugs.
-I always put "set -e" in the beginning of shell script. This means that script fails after first error.
-And thus system fails into kernel panic.
-I also sometimes put "set -x" to debug these scripts.
-Thus, when script fails and panic happens, then faulty shell command will be last thing printed on screen before panic stacktrace.
-But with drm_panic everything printed to /dev/console disappears.
-This breaks my workflow.
-
-In Qemu I can easily workaround this by using serial console.
-
-But I cannot do this on real hardware.
-
-And yes, I experience fbcon panic problems on real hardware, too, this is why I'm interested in drm panic: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/14658
-
-(I have not yet tested whether drm_panic fixes that fbcon i915 panic problem, but I assume it does.)
-
-I can workaround this by using efi fb with fb panic as opposed to i915. But this will not work if I attempting to catch bug in i915 itself.
-(And yes, I recently found another i915-related bug, and I'm trying to debug it using shell scripts running as PID 1.
-Here it is: https://gitlab.freedesktop.org/drm/i915/kernel/-/issues/14598 .)
-
-I can workaround this by logging everything to disk.
-But this will not work when everything is mounted read-only.
-And this is exactly what happens, when I try to catch that kexec-related bug:
-immediately before issuing "kexec -e" command I mount everything read-only.
-
-The only remaining workaround is to redirect everything to /dev/kmsg.
-I. e. put "exec > /dev/kmsg 2>&1" to the script.
-This will work.
-But I still don't like this.
-
---
-Askar Safin
-https://types.pl/@safinaskar
-
+Bjorn
