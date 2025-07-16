@@ -1,393 +1,263 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFD5119D09C
-	for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 02:47:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D419223C38C
+	for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 02:47:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752634025; cv=none; b=kDLX0iAvy7S9FjYg6pu3zxEM/PeYbFC214DJbImzWsULKXp6FtE8e/QcOKW89KzcZhHs8eSxp368j4Tt66TAdq+UyckfEpo6t5GjZi4JYYUdBCT12BHaSwpHwMPTCEhjBVN0pc0iNSg/5qHOIRr+wNV97r/blSnt8EOQaFpjZDE=
+	t=1752634056; cv=none; b=BHUfLFPEA5lxfi2Cv9XJB189QNWtBpfJCRcC3HQLdxWYOvnHXqWRgmnauWynEZI6vs7yrz/oU9A33IlLT8gvNHLGq+iMSJdOo1WY1QfKPyQaYzNMhghHlrvLmVagx3SQdTmd0TLvI1yE6oIl9B25x1WKb4kM+eZixEEnzXOD8eI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752634025; c=relaxed/simple;
-	bh=k2NFFFwBjAOf5EKIJ+8wy9UTf0Qcxqn2XW7ABzZoEfY=;
+	s=arc-20240116; t=1752634056; c=relaxed/simple;
+	bh=6tyFQG9ObMR6DQRml1mb/juchm0s9LQKambyFuaWRJY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oogDzUAnifn5JoTgDWEgpt5oYUmYDGcY3OwE29TIjDH4G6ylT10sLDaSmhYEgMMcKslBCjCZlp4J34To24LLHc4jpQBF2sKOjhp2iAHfo1Xs1ZWDY0hYf+gu4yknE8xuq7dFY2o5tqLTzc4ITfiBloKbmRyPhUaTH6TfP6dMttU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=U42guR9M; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=jC9GhQ8ij+wEkO8O0830aCV1tA2fHaKHmzy/iX0J893fpEfkHgZ6w3uSt0dftu7smfoRSvskIPKKhBzbU3TM8G4WaZwmSmQha4B8klooJeJKq5zsR//23dZIMktHiFmMjESGx5bbdjCqFO67q4Ausi1gGTXVASPI9hNmn1G540k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ruo1JzCF; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U42guR9M"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ruo1JzCF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752634020;
+	s=mimecast20190719; t=1752634053;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=U8/iQTIPbU0FNMAJkvvQmaYYlrpxp/sYu4IodaBeK2c=;
-	b=U42guR9Mx9Xz1u8F9LF9hfz6ym5gXWTnNFTxqFNmyUsayGlLe+HPlw8ThseryBvnLsBy0+
-	FrV4mHIzBdoCcmBjJG3DJOKZ661AhsdS7tzMj8627vr3+AzCFRtgFIw6nIqTOzHXFoBG4V
-	xztuRyy6j2/B5JyThlnsnbF8zU+O7dE=
-Received: from mail-ua1-f69.google.com (mail-ua1-f69.google.com
- [209.85.222.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=s6LOs3KwxAcMoFoSn4gzE7xIJQ2DUSqrbD9QaSjD71I=;
+	b=Ruo1JzCFsYgin/C3Ef7SE1zn4IhsRZDjo5uqdmlYk6+QPjh/gJZn/yVcRKPuXhMboAAHAx
+	55YmHaz+6ROFaEQnKD9chjyeiQ0SBY3+PRu3s6Dr906bdwmBKWOxR1qXGJ/0UDobUKtTdk
+	vWLQrVUtlRF1omLb5tWRjih56/H3+lg=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-232-1LmVhnRPMjeZzNx1APy_cg-1; Tue, 15 Jul 2025 22:46:57 -0400
-X-MC-Unique: 1LmVhnRPMjeZzNx1APy_cg-1
-X-Mimecast-MFC-AGG-ID: 1LmVhnRPMjeZzNx1APy_cg_1752634017
-Received: by mail-ua1-f69.google.com with SMTP id a1e0cc1a2514c-87ece544f24so475376241.0
-        for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 19:46:57 -0700 (PDT)
+ us-mta-658-J5q1xCZeMNavK5SH_PnWsA-1; Tue, 15 Jul 2025 22:47:32 -0400
+X-MC-Unique: J5q1xCZeMNavK5SH_PnWsA-1
+X-Mimecast-MFC-AGG-ID: J5q1xCZeMNavK5SH_PnWsA_1752634051
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-31215090074so10864484a91.0
+        for <virtualization@lists.linux.dev>; Tue, 15 Jul 2025 19:47:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752634017; x=1753238817;
+        d=1e100.net; s=20230601; t=1752634051; x=1753238851;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U8/iQTIPbU0FNMAJkvvQmaYYlrpxp/sYu4IodaBeK2c=;
-        b=V+/S2HPqzxOZ02Uu8hu0TLCpk2uvQqtZKrDAuNtqgz0BvRL+SrZhAnYwRGS7Gxkj+H
-         +Jj5p4rsf4TvC5+2XaFkE1gnQEUjLd3QV8gTysXOP6XKqO8fE1do0LZaJmV/b16QLoD/
-         Ls4EO/DwjyufN5d8wdRlFrQzUoWgiqVhQOX8453ZGI9T3isguNprrSBeUO+M8FQEAFd5
-         kN7PKehUTjZ+A0atI+0tr3uKxxyclEum8jlFm+DT1BQtPx0P82kf3THvFhkPLHwZ7mP3
-         vDnlOtsO0vYlZHDfamkbqF5zrFUF0dyx4h6uzS3lOEcIsQP9cL3W2w/KlQciDc8m4nDs
-         yIaw==
-X-Forwarded-Encrypted: i=1; AJvYcCVqtSNcvzf69N7xc1w66ExuAi0go6KQs2ytXiGE6LuT1DlTWi2T/4AqxbnOQ4xNxyXnYLhbkMVBgU8NzjwINA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw6YZDUPnp9F12NJPrPlpDrz/3IgrxhADGL2doDJ3ioRYmKi6y/
-	HQ849pTeYdI6+FO250wfTGcFb9y0mx0STn9nQ2X9AGZR9UiRvlP33VnzV6LUYqjUxd6hNcgrnpH
-	KoPuahZ22V7Zo0fdUUB2QKPRHT6fNhVU65IdTlN3SSDekDDWTEZajt2mQu8VaAWnVNoIkJz/G73
-	r6fguGOAtNxSA/Zr+j0ZJTJ9oAbBoqHXvKIHsUA4S0BhU=
-X-Gm-Gg: ASbGncs9CIlEkWcgxxtjZ0jDdvEDaVMvlVoj8ssUBEkz+mCINcChX5NgAHMIf5sdEu9
-	vARlUdmdk76uow5k48emXTB/OZXBSgSEXlpyyu1M8YkkY8sPyVw49IYzBRUVIJqRPkq2O4RW7ZK
-	V1WQzNsh6eBahayfb5kE4kIg==
-X-Received: by 2002:a05:6102:2d0c:b0:4ec:e1fa:ed7b with SMTP id ada2fe7eead31-4f8900ae907mr847831137.9.1752634016684;
-        Tue, 15 Jul 2025 19:46:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGdq2DCZWvufO3kU5vO4MXGf8+qfZ4VtirElLMCH31v0yrleW4EVWo4pTXTA2Z9HwIUFt6W4sY3xmmko7u7F74=
-X-Received: by 2002:a05:6102:2d0c:b0:4ec:e1fa:ed7b with SMTP id
- ada2fe7eead31-4f8900ae907mr847822137.9.1752634016202; Tue, 15 Jul 2025
- 19:46:56 -0700 (PDT)
+        bh=s6LOs3KwxAcMoFoSn4gzE7xIJQ2DUSqrbD9QaSjD71I=;
+        b=T3uD0sSZLWM2f0rKwksj5ohu+o65TFLSQyc3GRPq/eCWYVH6CyoNZ9TuRGlaVB6lF/
+         ixzL7LqnkRy//Dzf7zX6uLpCyRNyMgljDECCjVxLRuF0g/EX4tdh6u8aFa0Pxkn2ER8z
+         wFJrb8mTKGdiNBjofjTZiFJkElfLjrZgm1+tlGoBpmLedwcdKvsKZJpwlHOYOWSUmjzY
+         Yf/VpT2PI+e45kTBgkkzD4vw/x4HwIuBwLbumzSo5dt5gv4CZbBhkVRPs/nL7rD4bsUs
+         FDQQwtVykSl0DjN7kJ2gIrSADT18J3KRqk0nU8uunhvbVgHotUEXRZq9Ft8b4g+SR3tF
+         KjPQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVVoTCM8mkPbk/R/3Dwrj+T8JN0N072T0CIGpKap6JcuEDTd74ps63iJGpyxM/Z/mH/O3Xvao9uLJ832e/USg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw+h8TdMVqiG/e68NiB33oa6iXTrC1/Fk1qGVA4GtYRnpCZKyu8
+	OXW4FMswquEgsghOREcsqCbYWbpMxoyvcNGhnqICfA8yCLFdfSDaZAW2jffL5iRvzIQXe3+SATd
+	Fk9BhIaM6VFBvMuz1MJjajY7W70LXMPix6Sel4Fk7SuwfHyb+5u9yAjWc0ordfKp6Os4BG7/kl8
+	WHt1LJgSG9IonXRi9CX8jTk+qGnWLyakUHmorE4dtm/go=
+X-Gm-Gg: ASbGncupo1qOiz3pu2ee9/SK7Le75XsAgm0C2W0K9SbPyAgnk/u14Gq8RvdfAXawg7t
+	8J9GaSEOtIzI3HG9iMw9J1+rYNeFW2oXHdDSB5SdRgxYLXCYapSdZLZn0j/rSd4ZtvKh+iUzRtS
+	e6BDGMEqfxGluYYxuKx7Q=
+X-Received: by 2002:a17:90b:55cb:b0:312:959:dc41 with SMTP id 98e67ed59e1d1-31c9f43747emr1236227a91.27.1752634050868;
+        Tue, 15 Jul 2025 19:47:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFSgy3Q6uvDcv+dh57LPDBZNKo40hU3FNxj6pWecHXujau5F/JesmVv4D6IJmpzKmuDlsaWm5Df3O5TB62z2j0=
+X-Received: by 2002:a17:90b:55cb:b0:312:959:dc41 with SMTP id
+ 98e67ed59e1d1-31c9f43747emr1236201a91.27.1752634050348; Tue, 15 Jul 2025
+ 19:47:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CADZSLS3WYUHJFhQx786Fbxz=8JredK+XxtZAeLzp3XWaOGnZRw@mail.gmail.com>
- <CACGkMEtza2ey3JJhFcq4p6cJ-O4CPA9sC8mK0Twv25F-6eWGNQ@mail.gmail.com>
- <CACLfguXzJM+TB_fm=BmK9kphsg_OdRpmmreeyFuo62Bjp4wQFg@mail.gmail.com>
- <CADZSLS3Wm08UZuScuJ1Pa4vLQ+6bzk73NQaVt-ALjen1pvSJtQ@mail.gmail.com>
- <CACLfguXypcPC50yhcXGjYLj+JagXxtkdK4_P35x__QqwqkO3-A@mail.gmail.com> <CACLfguW4ByjHuaeXYygj2_n7yd82rhk8w63_k3gDXmO6WYzajg@mail.gmail.com>
-In-Reply-To: <CACLfguW4ByjHuaeXYygj2_n7yd82rhk8w63_k3gDXmO6WYzajg@mail.gmail.com>
-From: Cindy Lu <lulu@redhat.com>
-Date: Wed, 16 Jul 2025 10:46:17 +0800
-X-Gm-Features: Ac12FXwVfAu3SpwPii5V1TbrJwxOd1kQWgGibrrfUCEh-zWA2p5uOizrTplqR9c
-Message-ID: <CACLfguVOuvfwNHyx8oh4jN-dr4LCvgnYVK1b3=F2DZMKqXKNZQ@mail.gmail.com>
-Subject: Re: Failure to create vp_vdpa device with enabled feature provisioning
-To: Wenli Quan <wquan@redhat.com>, Yanhui Ma <yama@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, "S. Tsirkin, Michael" <mst@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio Perez Martin <eperezma@redhat.com>, 
-	virtualization@lists.linux.dev, Dragos Tatulea <dtatulea@nvidia.com>
+References: <20250702103722.576219-1-zuozhijie@bytedance.com>
+ <CACGkMEvjXBZ-Q77-8YRyd_EV0t9xMT8R8-FT5TKJBnqAOed=pQ@mail.gmail.com> <d5ad1b10-f485-4939-b9de-918b378362b9@bytedance.com>
+In-Reply-To: <d5ad1b10-f485-4939-b9de-918b378362b9@bytedance.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 16 Jul 2025 10:47:19 +0800
+X-Gm-Features: Ac12FXwY0618meZM7op6lRwCQ2ykvxYxmr5LBy2rowmHFXBgfqqUkpEG1gaprFg
+Message-ID: <CACGkMEvZ5dqjc6+1uwoq98x-78eymGFHXpOJtbViG3U9mOyn8g@mail.gmail.com>
+Subject: Re: Re: [PATCH net v2] virtio-net: fix a rtnl_lock() deadlock during probing
+To: Zigit Zo <zuozhijie@bytedance.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 8dFVNl6HQ9CNhJzU2VzZ9KJkDy_gYy8y7iTfisdq4N4_1752634017
+X-Mimecast-MFC-PROC-ID: 3nu-WY39r9FnrSBs__7NoEYCpVjsVu9pO1Jsudj53b8_1752634051
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
- also include PO Yanhui Ma in the loop to track this issue.
+Hi Zigit:
 
-On Wed, Jul 16, 2025 at 10:41=E2=80=AFAM Cindy Lu <lulu@redhat.com> wrote:
+On Tue, Jul 15, 2025 at 7:00=E2=80=AFPM Zigit Zo <zuozhijie@bytedance.com> =
+wrote:
 >
-> Hi   Wenli
->
-> I'm able to reproduce this issue on the latest kernel. Could you
-> please filing a Jira ticket for it?
->
-> thanks
-> cindy
->
-> On Tue, Jul 15, 2025 at 4:39=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+> On 7/15/25 5:31 PM, Jason Wang wrote:
+> > On Wed, Jul 2, 2025 at 6:37=E2=80=AFPM Zigit Zo <zuozhijie@bytedance.co=
+m> wrote:
+> >>
+> >> This bug happens if the VMM sends a VIRTIO_NET_S_ANNOUNCE request whil=
+e
+> >> the virtio-net driver is still probing with rtnl_lock() hold, this wil=
+l
+> >> cause a recursive mutex in netdev_notify_peers().
+> >>
+> >> Fix it by temporarily save the announce status while probing, and then=
+ in
+> >> virtnet_open(), if it sees a delayed announce work is there, it starts=
+ to
+> >> schedule the virtnet_config_changed_work().
+> >>
+> >> Another possible solution is to directly check whether rtnl_is_locked(=
+)
+> >> and call __netdev_notify_peers(), but in that way means we need to rel=
+ies
+> >> on netdev_queue to schedule the arp packets after ndo_open(), which we
+> >> thought is not very intuitive.
+> >>
+> >> We've observed a softlockup with Ubuntu 24.04, and can be reproduced w=
+ith
+> >> QEMU sending the announce_self rapidly while booting.
+> >>
+> >> [  494.167473] INFO: task swapper/0:1 blocked for more than 368 second=
+s.
+> >> [  494.167667]       Not tainted 6.8.0-57-generic #59-Ubuntu
+> >> [  494.167810] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disa=
+bles this message.
+> >> [  494.168015] task:swapper/0       state:D stack:0     pid:1     tgid=
+:1     ppid:0      flags:0x00004000
+> >> [  494.168260] Call Trace:
+> >> [  494.168329]  <TASK>
+> >> [  494.168389]  __schedule+0x27c/0x6b0
+> >> [  494.168495]  schedule+0x33/0x110
+> >> [  494.168585]  schedule_preempt_disabled+0x15/0x30
+> >> [  494.168709]  __mutex_lock.constprop.0+0x42f/0x740
+> >> [  494.168835]  __mutex_lock_slowpath+0x13/0x20
+> >> [  494.168949]  mutex_lock+0x3c/0x50
+> >> [  494.169039]  rtnl_lock+0x15/0x20
+> >> [  494.169128]  netdev_notify_peers+0x12/0x30
+> >> [  494.169240]  virtnet_config_changed_work+0x152/0x1a0
+> >> [  494.169377]  virtnet_probe+0xa48/0xe00
+> >> [  494.169484]  ? vp_get+0x4d/0x100
+> >> [  494.169574]  virtio_dev_probe+0x1e9/0x310
+> >> [  494.169682]  really_probe+0x1c7/0x410
+> >> [  494.169783]  __driver_probe_device+0x8c/0x180
+> >> [  494.169901]  driver_probe_device+0x24/0xd0
+> >> [  494.170011]  __driver_attach+0x10b/0x210
+> >> [  494.170117]  ? __pfx___driver_attach+0x10/0x10
+> >> [  494.170237]  bus_for_each_dev+0x8d/0xf0
+> >> [  494.170341]  driver_attach+0x1e/0x30
+> >> [  494.170440]  bus_add_driver+0x14e/0x290
+> >> [  494.170548]  driver_register+0x5e/0x130
+> >> [  494.170651]  ? __pfx_virtio_net_driver_init+0x10/0x10
+> >> [  494.170788]  register_virtio_driver+0x20/0x40
+> >> [  494.170905]  virtio_net_driver_init+0x97/0xb0
+> >> [  494.171022]  do_one_initcall+0x5e/0x340
+> >> [  494.171128]  do_initcalls+0x107/0x230
+> >> [  494.171228]  ? __pfx_kernel_init+0x10/0x10
+> >> [  494.171340]  kernel_init_freeable+0x134/0x210
+> >> [  494.171462]  kernel_init+0x1b/0x200
+> >> [  494.171560]  ret_from_fork+0x47/0x70
+> >> [  494.171659]  ? __pfx_kernel_init+0x10/0x10
+> >> [  494.171769]  ret_from_fork_asm+0x1b/0x30
+> >> [  494.171875]  </TASK>
+> >>
+> >> Fixes: df28de7b0050 ("virtio-net: synchronize operstate with admin sta=
+te on up/down")
+> >> Signed-off-by: Zigit Zo <zuozhijie@bytedance.com>
+> >> ---
+> >> v1 -> v2:
+> >> - Check vi->status in virtnet_open().
+> >> v1:
+> >> - https://lore.kernel.org/netdev/20250630095109.214013-1-zuozhijie@byt=
+edance.com/
+> >> ---
+> >>  drivers/net/virtio_net.c | 43 ++++++++++++++++++++++++---------------=
+-
+> >>  1 file changed, 26 insertions(+), 17 deletions(-)
+> >>
+> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> >> index e53ba600605a..859add98909b 100644
+> >> --- a/drivers/net/virtio_net.c
+> >> +++ b/drivers/net/virtio_net.c
+> >> @@ -3151,6 +3151,10 @@ static int virtnet_open(struct net_device *dev)
+> >>         if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> >>                 if (vi->status & VIRTIO_NET_S_LINK_UP)
+> >>                         netif_carrier_on(vi->dev);
+> >> +               if (vi->status & VIRTIO_NET_S_ANNOUNCE) {
+> >> +                       vi->status &=3D ~VIRTIO_NET_S_ANNOUNCE;
+> >> +                       schedule_work(&vi->config_work);
+> >> +               }
+> >>                 virtio_config_driver_enable(vi->vdev);
 > >
-> > On Tue, Jul 15, 2025 at 3:17=E2=80=AFPM Wenli Quan <wquan@redhat.com> w=
-rote:
-> > >
-> > > On Tue, Jul 15, 2025 at 9:35=E2=80=AFAM Cindy Lu <lulu@redhat.com> wr=
-ote:
-> > > >
-> > > > Hi Wenli,
-> > > >
-> > > > Could you please provide more details regarding the following:
-> > > >
-> > > > > \[ 84.703574\] vp-vdpa 0000:01:00.0: Failed to register to vdpa b=
-us
-> > > > >
-> > > > > kernel answers: File exists
-> > > > >
-> > > > > # vdpa dev del vdpa0
-> > > >
-> > > > I suspect the device wasn't created successfully. Could it be that =
-a
-> > > > vdpa0 already existed before you tried to create one?
-> > >
-> > > It existed vdpa0 before being removed. btw, to reproduce it, it's
-> > > needed to operate twice for creating the vdpa0 device, then to remove
-> > > it.
-> > >
-> > > # vdpa -jp dev config show vdpa0
-> > > {
-> > > Error: vdpa: device not found.
-> > > kernel answers: No such device
-> > >     "config": {}
-> > > }
-> > >
-> > > After first creating the vdpa0.
-> > > #  vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features
-> > > 0x1
-> > > #  vdpa -jp dev config show vdpa0
-> > > {
-> > >     "config": {
-> > >         "vdpa0": {}
-> > >     }
-> > > }
-> > > # vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_features 0x=
-1
-> > > [  188.690040] vp-vdpa 0000:01:00.0: Failed to register to vdpa bus
-> > > kernel answers: File exists
-> > > # vdpa dev del vdpa0
-> > >
-> > > Then Call Trace happened.
-> > >
-> > > Best Regards, wenli
-> > >
-> > thanks Wenli. I will check this
-> > thanks
-> > cindy
+> > Instead of doing tricks like this.
 > >
-> > > > Thanks,
-> > > > Cindy
-> > > >
-> > > > On Tue, Jul 15, 2025 at 9:19=E2=80=AFAM Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > >
-> > > > > Adding Cindy for help here.
-> > > > >
-> > > > > On Mon, Jul 14, 2025 at 9:18=E2=80=AFPM Wenli Quan <wquan@redhat.=
-com> wrote:
-> > > > > >
-> > > > > > Hello all:
-> > > > > >
-> > > > > > I am encountering an issue when creating a vp_vdpa device with =
-feature provisioning enabled.
-> > > > > >
-> > > > > > In the vm:
-> > > > > >
-> > > > > > # uname -r
-> > > > > > 6.16.0-rc2+
-> > > > > >
-> > > > > > # cd /sys/bus/pci/drivers/virtio-pci/
-> > > > > >
-> > > > > > # echo 0000:01:00.0 > unbind
-> > > > > >
-> > > > > > # modprobe vp_vdpa
-> > > > > >
-> > > > > > # cd ../vp-vdpa/
-> > > > > >
-> > > > > > # echo "1af4 1041" > new_id
-> > > > > >
-> > > > > > # vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_featu=
-res 0x1
-> > > > > >
-> > > > > > # vdpa dev add name vdpa0 mgmtdev pci/0000:01:00.0 device_featu=
-res 0x1
-> > > > > >
-> > > > > > [   84.703574] vp-vdpa 0000:01:00.0: Failed to register to vdpa=
- bus
-> > > > > >
-> > > > > > kernel answers: File exists
-> > > > > >
-> > > > > > # vdpa dev del vdpa0
-> > > > > >
-> > > > > >
-> > > > > > [  194.055148] BUG: kernel NULL pointer dereference, address: 0=
-0000000000000d0
-> > > > > >
-> > > > > > [  194.055698] #PF: supervisor read access in kernel mode
-> > > > > >
-> > > > > > [  194.056100] #PF: error_code(0x0000) - not-present page
-> > > > > >
-> > > > > > [  194.056497] PGD 7c7e067 P4D 0
-> > > > > >
-> > > > > > [  194.056739] Oops: Oops: 0000 [#1] SMP
-> > > > > >
-> > > > > > [  194.057040] CPU: 0 UID: 0 PID: 13582 Comm: vdpa Not tainted =
-6.16.0-rc2+ #6 PREEMPT(voluntary)
-> > > > > >
-> > > > > > [  194.057697] Hardware name: Red Hat KVM/RHEL, BIOS edk2-20241=
-117-2.el9_6.1 11/17/2024
-> > > > > >
-> > > > > > [  194.058299] RIP: 0010:device_del+0x40/0x480
-> > > > > >
-> > > > > > [  194.058623] Code: 00 00 55 48 89 fd 53 48 83 ec 20 4c 8b 7f =
-40 4c 89 e7 65 48 8b 05 10 bf 73 01 48 89 44 24 18 31 c0 e8 b4 2f 63 00 48 =
-8b 55 48 <0f> b6 82 d0 00 00 00 a8 01 75 09 83 c8 01 88 82 d0 00 00 00 4c 8=
-9
-> > > > > >
-> > > > > > [  194.060031] RSP: 0018:ffa00000004dba90 EFLAGS: 00010246
-> > > > > >
-> > > > > > [  194.060436] RAX: 0000000000000000 RBX: ff110000089f1720 RCX:=
- ffffffffa05f2200
-> > > > > >
-> > > > > > [  194.060976] RDX: 0000000000000000 RSI: ff11000018296800 RDI:=
- ff11000018297080
-> > > > > >
-> > > > > > [  194.061510] RBP: ff11000018297000 R08: ff1100000a3ea048 R09:=
- ffa00000004dbc50
-> > > > > >
-> > > > > > [  194.062051] R10: ff11000006abae00 R11: 0000000000000026 R12:=
- ff11000018297080
-> > > > > >
-> > > > > > [  194.062586] R13: ff1100000571c300 R14: ffa00000004dbc50 R15:=
- 0000000000000000
-> > > > > >
-> > > > > > [  194.063132] FS:  00007f03a6a95740(0000) GS:ff110000d8597000(=
-0000) knlGS:0000000000000000
-> > > > > >
-> > > > > > [  194.063748] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003=
-3
-> > > > > >
-> > > > > > [  194.064189] CR2: 00000000000000d0 CR3: 0000000007830004 CR4:=
- 0000000000773ef0
-> > > > > >
-> > > > > > [  194.064722] DR0: 0000000000000000 DR1: 0000000000000000 DR2:=
- 0000000000000000
-> > > > > >
-> > > > > > [  194.065258] DR3: 0000000000000000 DR6: 00000000ffff07f0 DR7:=
- 0000000000000400
-> > > > > >
-> > > > > > [  194.065813] PKRU: 55555554
-> > > > > >
-> > > > > > [  194.066022] Call Trace:
-> > > > > >
-> > > > > > [  194.066240]  <TASK>
-> > > > > >
-> > > > > > [  194.066418]  device_unregister+0x12/0x30
-> > > > > >
-> > > > > > [  194.066724]  vp_vdpa_dev_del+0x16/0x20 [vp_vdpa]
-> > > > > >
-> > > > > > [  194.067078]  vdpa_nl_cmd_dev_del_set_doit+0x67/0xe0 [vdpa]
-> > > > > >
-> > > > > > [  194.067497]  genl_family_rcv_msg_doit+0xd2/0x120
-> > > > > >
-> > > > > > [  194.067863]  genl_rcv_msg+0x182/0x2b0
-> > > > > >
-> > > > > > [  194.068160]  ? vdpa_nl_cmd_dev_get_dumpit+0xa0/0xa0 [vdpa]
-> > > > > >
-> > > > > > [  194.068594]  ? genl_family_rcv_msg_dumpit+0xf0/0xf0
-> > > > > >
-> > > > > > [  194.068971]  netlink_rcv_skb+0x57/0x100
-> > > > > >
-> > > > > > [  194.069270]  genl_rcv+0x28/0x40
-> > > > > >
-> > > > > > [  194.069515]  netlink_unicast+0x278/0x3a0
-> > > > > >
-> > > > > > [  194.069828]  netlink_sendmsg+0x1e7/0x420
-> > > > > >
-> > > > > > [  194.070134]  __sock_sendmsg+0x38/0x60
-> > > > > >
-> > > > > > [  194.070414]  ? move_addr_to_kernel.part.0+0x1b/0x60
-> > > > > >
-> > > > > > [  194.070794]  __sys_sendto+0x115/0x170
-> > > > > >
-> > > > > > [  194.071086]  ? __sys_recvmsg+0x6a/0xc0
-> > > > > >
-> > > > > > [  194.071378]  __x64_sys_sendto+0x24/0x30
-> > > > > >
-> > > > > > [  194.071674]  do_syscall_64+0x59/0x1f0
-> > > > > >
-> > > > > > [  194.071963]  entry_SYSCALL_64_after_hwframe+0x4b/0x53
-> > > > > >
-> > > > > > [  194.072347] RIP: 0033:0x7f03a6ba7dea
-> > > > > >
-> > > > > > [  194.072625] Code: d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f =
-1f 00 f3 0f 1e fa 41 89 ca 64 8b 04 25 18 00 00 00 85 c0 75 15 b8 2c 00 00 =
-00 0f 05 <48> 3d 00 f0 ff ff 77 7e c3 0f 1f 44 00 00 41 54 48 83 ec 30 44 8=
-9
-> > > > > >
-> > > > > > [  194.074021] RSP: 002b:00007ffceb0ebeb8 EFLAGS: 00000246 ORIG=
-_RAX: 000000000000002c
-> > > > > >
-> > > > > > [  194.074610] RAX: ffffffffffffffda RBX: 00005646e0680350 RCX:=
- 00007f03a6ba7dea
-> > > > > >
-> > > > > > [  194.075154] RDX: 0000000000000020 RSI: 00005646e0680350 RDI:=
- 0000000000000003
-> > > > > >
-> > > > > > [  194.075699] RBP: 00005646e06802a0 R08: 00007f03a6cae200 R09:=
- 000000000000000c
-> > > > > >
-> > > > > > [  194.076455] R10: 0000000000000000 R11: 0000000000000246 R12:=
- 0000000000000000
-> > > > > >
-> > > > > > [  194.077197] R13: 0000000000000000 R14: 00007ffceb0ec75d R15:=
- 0000000000000064
-> > > > > >
-> > > > > > [  194.077944]  </TASK>
-> > > > > >
-> > > > > > [  194.078321] Modules linked in: vp_vdpa vdpa kvm_intel kvm ir=
-qbypass fuse configfs xfs virtio_net net_failover failover virtio_pci virti=
-o_pci_legacy_dev virtio_pci_modern_dev be2iscsi cxgb3i cxgb3 mdio libcxgbi =
-libcxgb iscsi_tcp libiscsi_tcp libiscsi scsi_transport_iscsi autofs4
-> > > > > >
-> > > > > > [  194.080556] CR2: 00000000000000d0
-> > > > > >
-> > > > > > [  194.081040] ---[ end trace 0000000000000000 ]---
-> > > > > >
-> > > > > > [  194.660537] RIP: 0010:device_del+0x40/0x480
-> > > > > >
-> > > > > > [  194.662514] Code: 00 00 55 48 89 fd 53 48 83 ec 20 4c 8b 7f =
-40 4c 89 e7 65 48 8b 05 10 bf 73 01 48 89 44 24 18 31 c0 e8 b4 2f 63 00 48 =
-8b 55 48 <0f> b6 82 d0 00 00 00 a8 01 75 09 83 c8 01 88 82 d0 00 00 00 4c 8=
-9
-> > > > > >
-> > > > > > [  194.664367] RSP: 0018:ffa00000004dba90 EFLAGS: 00010246
-> > > > > >
-> > > > > > [  194.664996] RAX: 0000000000000000 RBX: ff110000089f1720 RCX:=
- ffffffffa05f2200
-> > > > > >
-> > > > > > [  194.665760] RDX: 0000000000000000 RSI: ff11000018296800 RDI:=
- ff11000018297080
-> > > > > >
-> > > > > > [  194.666527] RBP: ff11000018297000 R08: ff1100000a3ea048 R09:=
- ffa00000004dbc50
-> > > > > >
-> > > > > > [  194.667300] R10: ff11000006abae00 R11: 0000000000000026 R12:=
- ff11000018297080
-> > > > > >
-> > > > > > [  194.668066] R13: ff1100000571c300 R14: ffa00000004dbc50 R15:=
- 0000000000000000
-> > > > > >
-> > > > > > [  194.668823] FS:  00007f03a6a95740(0000) GS:ff110000d8597000(=
-0000) knlGS:0000000000000000
-> > > > > >
-> > > > > > [  194.669653] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003=
-3
-> > > > > >
-> > > > > > [  194.670322] CR2: 00000000000000d0 CR3: 0000000007830004 CR4:=
- 0000000000773ef0
-> > > > > >
-> > > > > > [  194.671083] DR0: 0000000000000000 DR1: 0000000000000000 DR2:=
- 0000000000000000
-> > > > > >
-> > > > > > [  194.671845] DR3: 0000000000000000 DR6: 00000000ffff07f0 DR7:=
- 0000000000000400
-> > > > > >
-> > > > > > [  194.672607] PKRU: 55555554
-> > > > > >
-> > > > > > [  194.673042] note: vdpa[13582] exited with irqs disabled
-> > > > > >
-> > > > > > Killed
-> > > > > >
-> > > > > >
-> > > > > > Best Regards,
-> > > > > >
-> > > > > >
-> > > > > > wenli
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > >
-> > >
+> > I wonder if the fix is as simple as calling
+> > virtio_config_driver_disable() before init_vqs()?
+> >
+> > Thanks
+> >
+>
+> That might not work as the device like QEMU will set the VIRTIO_NET_S_ANN=
+OUNCE
+> regardless of most of the driver status, QEMU only checks whether the dri=
+ver has
+> finalized it's features with VIRTIO_NET_F_GUEST_ANNOUNCE & VIRTIO_NET_F_C=
+TRL_VQ.
+>
+> We've made a little patch to verify, don't know if it matches your though=
+t, but
+> it does not seem to work :(
+>
+>     diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>     index e53ba600605a..f309ce3fe243 100644
+>     --- a/drivers/net/virtio_net.c
+>     +++ b/drivers/net/virtio_net.c
+>     @@ -6903,6 +6903,9 @@ static int virtnet_probe(struct virtio_device *=
+vdev)
+>                     vi->curr_queue_pairs =3D num_online_cpus();
+>             vi->max_queue_pairs =3D max_queue_pairs;
+>
+>     +       /* Disable config change notification until ndo_open. */
+>     +       virtio_config_driver_disable(vi->vdev);
+>     +
+>             /* Allocate/initialize the rx/tx queues, and invoke find_vqs =
+*/
+>             err =3D init_vqs(vi);
+>             if (err)
+>     @@ -6965,9 +6968,6 @@ static int virtnet_probe(struct virtio_device *=
+vdev)
+>                     goto free_failover;
+>             }
+>
+>     -       /* Disable config change notification until ndo_open. */
+>     -       virtio_config_driver_disable(vi->vdev);
+>     -
+>             virtio_device_ready(vdev);
+>
+>             if (vi->has_rss || vi->has_rss_hash_report) {
+>
+> For reproduce details,
+>
+> 1. Spawn qemu with monitor, like `-monitor unix:qemu.sock,server`
+> 2. In another window, run `while true; echo "announce_self"; end | socat =
+- unix-connect:qemu.sock > /dev/null`
+> 3. The boot up will get hanged when probing the virtio_net
+>
+> The simplest version we've made is to revert the usage of
+> `virtnet_config_changed_work()` back to the `schedule_work()`, but as in =
+v1,
+> we're still trying to understand the impact, making sure that it won't br=
+eak
+> other things.
+>
+> Regards,
+>
+
+Thanks for the clarification. Now I see the issue.
+
+It looks like the root cause is to call virtio_config_changed_work()
+directly during probe().
+
+Let's switch to use virtio_config_changed() instead so that we can
+properly check the config_driver_disabled.
+
+Thanks
 
