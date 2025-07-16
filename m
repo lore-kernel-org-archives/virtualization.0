@@ -1,128 +1,205 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BAF61E379B
-	for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 13:45:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91A251CAA92
+	for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 13:56:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752673540; cv=none; b=apv9OQ3HAq5HQLf5SQNf8mpwouUd8BYSpSdoPFSOZtBa+bkMjsV+nJwM2mioTuMuri9mH0MA3O/WBSr0GDR5lQ4eszdadZ8vINAT9Fzf4bPwpNFbNeZJyDDM3Rn3mYMQOdj46R6SQT50/hGl4BeJxFw+a0XwR4Wwg3bz+mRqcxc=
+	t=1752674220; cv=none; b=TOpqpSXW1nWreJSs8SdJz2QLlqMgLw4zgus19MstlvTwGvoQc3rlgVY39vElhqSFe5Bv3G7m7sEfYzO9R3oCYyZ/foTQBDq8Ag0xvaFa/dwlsz/9bxKQPHjrFq6OSATKD8XAZgDQchRYeByMtFbLPh8OFSdIbjQfRAx5IZLTHL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752673540; c=relaxed/simple;
-	bh=MPg4EE5I0+tMhvOJhfhmxHTCL0q9r66jTiHCRaj/jH0=;
+	s=arc-20240116; t=1752674220; c=relaxed/simple;
+	bh=iPt/IuCgv7X6wzHFK3I4GCGSIo9yuavU0rKQEyFHi4U=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=eX2PxaG9wP6N4KAScqz6uIFhIGh7E6lWebZ1C5GkFNoAtlG9wPftJyU4UHpx4CL2OZy3NLFPO9JgMIKkAfU2M+OlXWeIXn428L7YIUN76TWMWH8XHpEsP/q0Sgn7wG+WmGrs5W15+Cb2VQ48TPUdEuPiqBQXfuta1/pWZPGjaR8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=U7V9bvsT; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=DmP96dISn8Rx2cnV4EOPGEpKny/klCZDh/oss48AwNt7B8Y3mA2zvZ+Uj1oZuJx5xJSG1c+rroei3FjHGmn+hT8BYM2fdMzQOm/tNc1Z3tT9cQNeygErt/ZFZO45wdBynmhvOGfSVKx6ed0EIkVOaw2goUtvEW9QsEXp8ZPYRE0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L61GihwD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U7V9bvsT"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L61GihwD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752673537;
+	s=mimecast20190719; t=1752674217;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=BzG4s6GH/MRwK8y3gbFMVIDxtkMeQaen3c1mJicjw+4=;
-	b=U7V9bvsTOQC/mJbXUBjoA6qPAHiZcZketMvOeAv2M1L6MnDxRrBsHzF4AEF+4by2isGNn9
-	4pL4lKHi1MzNJKm+7kECduFQa0+apHEwXLaMg3BFEElRDe1hnRgzG/EZWADJmUnt0VrYWr
-	cbLN3AgsqXzb4KbSHw28LR3Stkjbyls=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=8fU90Rrx5Q2FZQjCI0B6EMx3qMx3LCWE+lzijdY4q10=;
+	b=L61GihwDy/vdDkbxdH5X7JDQTKh273eATNLOMvg0jHLdLvF/by76EUwI819bfvtskglYVE
+	jAmAb8+GMRXE209O2mm+ZYJ2jreY7MaKUoPEGOtCYYAN9t8cAjBqOLkETiZzgnQIEON4VX
+	wWvxb8jhLe8UcZ1wwTH0YAE1nm/bsQc=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-634-SWyGaGf-NDaj0Haq6958vQ-1; Wed, 16 Jul 2025 09:45:35 -0400
-X-MC-Unique: SWyGaGf-NDaj0Haq6958vQ-1
-X-Mimecast-MFC-AGG-ID: SWyGaGf-NDaj0Haq6958vQ_1752673535
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a6d1394b07so4875712f8f.3
-        for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 06:45:35 -0700 (PDT)
+ us-mta-583-gdl7kMC1O-KTEKqEREusvQ-1; Wed, 16 Jul 2025 09:56:56 -0400
+X-MC-Unique: gdl7kMC1O-KTEKqEREusvQ-1
+X-Mimecast-MFC-AGG-ID: gdl7kMC1O-KTEKqEREusvQ_1752674215
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a50816cc58so2334203f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 06:56:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752673534; x=1753278334;
+        d=1e100.net; s=20230601; t=1752674215; x=1753279015;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BzG4s6GH/MRwK8y3gbFMVIDxtkMeQaen3c1mJicjw+4=;
-        b=pLQGDGj/zNBt60gJeQAnzpDijXmR+wkLIkiSHEOtgUupZlxL8LX5ZCvLT8j0U5Sc/Y
-         KKpubAO0WkQH44i/qDkJ5lGsqV1GRDcbEpufc4NVGy/JvRy6sehUwOs1GHlYGbApFovG
-         si/ZsoVW1+geOwzEUeobSYtFe6CpvWnnByflsnQiowrkbrvNrT36Ra2UOGRrxIyFnhTg
-         kgOCDRCWXK8+b2jU7yHUkxBL3WhBVeY+6dEoC2gSnDcQlipJRfXNwh/9TviFYtKQSQr8
-         lxKFGIhc3v7qBL6vq6lsfM6UkiRTusNri8Bebmpdu6O1AXl6HwAISYwVPxKIxUlmGD4c
-         rFiQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXUzI2ESb1+ivf3eFHzPq6s4XEXVOEMkREjO/MVM9qbvo+THFW9mC0p1Hn/yMAFRsonz/DtAhkbF8DLQ2bgeQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwI/rpT8PPuTY4Eu17wSQgs3krVg/HP6R+WdVo6eqlW1TuIXwEh
-	DBkLrotoeAAH3dQZu2hRPims8tZajC+ZDvJ3ATGo8ZJEkM/lumuT4hmPEbjyTX/4eRESOCThSyH
-	fRsqNtZAjRaZRr2oPpQZVwxwMKDuhm4vF/dYrAv3nlHaPchourCvgQyNhD3ICzuuVsPWa
-X-Gm-Gg: ASbGncvx8yy4wRrZs5Xu7DkN+Q7WkN36S3yroyhwaTDsy6kkSbIBpk5seL4a2TfxjuQ
-	KaSgLMxx6mQBzqWGbqskujQt3dyTh0nf0v84LQRXmCsR4W5mYUx8B+JuLE0qxTauFGZmoVzlFUM
-	KSLmK9qDYEQEwo9JtyRu56AB26tHYoUeFJjviMPsmC5ilMIMmB6P37p0Pf3Ia3B4dUdfmaUjiIP
-	CRiZ49/zYl8kmrwwC+iN154Ihzf3ughCn2iDnga6ZswiN/jR4951tPk1pK5oo1moALT435Lr+Um
-	IwwKlfEDiO2Ovoz5wrMUnBRqkm1MZJu1
-X-Received: by 2002:a05:6000:43c8:b0:3b6:936:976c with SMTP id ffacd0b85a97d-3b60dd4fademr2281064f8f.17.1752673534494;
-        Wed, 16 Jul 2025 06:45:34 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHDl23G87l0xWrShlZkzWfmkRE81fr+mwiy+IsaH40FgxN7MhRFtfKraLRaKD+dZPLwNm5OLQ==
-X-Received: by 2002:a05:6000:43c8:b0:3b6:936:976c with SMTP id ffacd0b85a97d-3b60dd4fademr2281038f8f.17.1752673534057;
-        Wed, 16 Jul 2025 06:45:34 -0700 (PDT)
+        bh=8fU90Rrx5Q2FZQjCI0B6EMx3qMx3LCWE+lzijdY4q10=;
+        b=fV48R7iDM7SeEFqlYr6ocyxsZYgqaC87KY2fIx37INHarwYaWbPHjvdXdStc415u50
+         bAOOjyi2qSNR+8Cktp6smr/813P+6HMiVLYX/SEhlU3+enxT9VQhcI+/0QTGiI5GLISX
+         tSuJ8eIJICagCzrJhCXWimMqBN4esO4CwISU7wRIMO07y3tk/iF+iOn5EeikU9rxa4DB
+         xAgYMRpf5coZw3CSkN3chpbi6pXMSIN0K5/XSeyuWWiiubcyL51u+o79VYQDDsKVemgr
+         W8lCdatlRHlRvnFMA1b80I60NRLJAlByVN5ZoxQWjnqxe4zIp7SMgsw12BdMqOfdDtWN
+         GluQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUnaMYDdth1WoqnqTMsLOvovYw3AMiBcNlQBXj3FIETO4dx7N8KpSwtseIdLHIpXWm6xzwHug2QDpRx7qberw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzVjFRhO5rvOflDE6mJ6R5P+qbXxbzbd371nf+t4/q2fg8CqCtb
+	tUTQkfowNjnkw7TmJkZ2NUbcxJ7Z/MUnM/s+Jj5HHhr8RlB9KLKk3FQJwhdrMJN9zQJWcwoxvKO
+	FNQBjPNzNnElvtphsoej7imKvQkTXh63QeTjDZSsnhdOeAyCvd0vAZHSAc8iJKigzvT16
+X-Gm-Gg: ASbGnctYH73Es821LiCrD/2rgaJAbln/wQn7QdrB6TqCi89TQx9fOm1InLSgtHXDHyO
+	zNHzJIFZWJk6FTMSp2DtwYJyr1o52gBzz2ftLZ1rQ+AJ1GGLwdu6MkX6g78A/o9oMYUooyjKAKx
+	J3ew9oJZsGVvr2L99mwe4w7//8C2RXry57P9+yw6ypm/7K5uIUQmla4HPDuTf0NYjq7F6qulWFo
+	rBuztJcNRGlIzHI7+wXOqETxPMet7IBNFpLPpvDgHnyMq96PVTqxmql5n7uXVVrUTF3y6vAO8WD
+	G+CubFiENJQqvgOKENdiLHbx2mPgJIg7
+X-Received: by 2002:adf:f64b:0:b0:3b6:936:92fa with SMTP id ffacd0b85a97d-3b60dd8df46mr2367237f8f.52.1752674215040;
+        Wed, 16 Jul 2025 06:56:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEDkw4tjXyAdhQ6LVjUDIf1HaSWqF1ZS/CeOQWr/qZekbvwZ8qxdZocOeTQ+5WAYNkarEumJw==
+X-Received: by 2002:adf:f64b:0:b0:3b6:936:92fa with SMTP id ffacd0b85a97d-3b60dd8df46mr2367218f8f.52.1752674214534;
+        Wed, 16 Jul 2025 06:56:54 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b5e8e26c97sm18146038f8f.90.2025.07.16.06.45.32
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b5e8bd15bfsm18252140f8f.19.2025.07.16.06.56.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jul 2025 06:45:33 -0700 (PDT)
-Date: Wed, 16 Jul 2025 09:45:30 -0400
+        Wed, 16 Jul 2025 06:56:54 -0700 (PDT)
+Date: Wed, 16 Jul 2025 09:56:46 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: WangYuli <wangyuli@uniontech.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	zhanjun@uniontech.com, niecheng1@uniontech.com,
-	guanwentao@uniontech.com
-Subject: Re: [PATCH] virtio: virtio_dma_buf: fix missing parameter
- documentation
-Message-ID: <20250716094357-mutt-send-email-mst@kernel.org>
-References: <241C7118259DA110+20250623065210.270237-1-wangyuli@uniontech.com>
+To: jiang.peng9@zte.com.cn
+Cc: jasowang@redhat.com, krzk@kernel.org, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, sumit.semwal@linaro.org,
+	christian.koenig@amd.com, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, xu.xin16@zte.com.cn,
+	yang.yang29@zte.com.cn
+Subject: Re: [PATCH v2] virtio: Update kerneldoc in
+ drivers/virtio/virtio_dma_buf.c
+Message-ID: <20250716095046-mutt-send-email-mst@kernel.org>
+References: <20250705105803198ff11jYCkg1TxntcCEb00R@zte.com.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <241C7118259DA110+20250623065210.270237-1-wangyuli@uniontech.com>
+In-Reply-To: <20250705105803198ff11jYCkg1TxntcCEb00R@zte.com.cn>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6yEkhZz5x9ndR9Wdt6kkwKCFbx4ayHZ7iDhKiMxQd2c_1752673535
+X-Mimecast-MFC-PROC-ID: QplVAceRgfJSHZuaYoUnuc00Tav5NFVA3N9R4W3xaaM_1752674215
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Jun 23, 2025 at 02:52:10PM +0800, WangYuli wrote:
-> Add missing parameter documentation for virtio_dma_buf_attach()
-> function to fix kernel-doc warnings:
+On Sat, Jul 05, 2025 at 10:58:03AM +0800, jiang.peng9@zte.com.cn wrote:
+> From: Peng Jiang <jiang.peng9@zte.com.cn>
 > 
-> Warning: drivers/virtio/virtio_dma_buf.c:41 function parameter 'dma_buf' not described in 'virtio_dma_buf_attach'
-> Warning: drivers/virtio/virtio_dma_buf.c:41 function parameter 'attach' not described in 'virtio_dma_buf_attach'
+> Fix kernel-doc descriptions in virtio_dma_buf.c to fix W=1 warnings:
 > 
-> The function documentation was missing descriptions for both the
-> 'dma_buf' and 'attach' parameters. Add proper parameter documentation
-> following kernel-doc format.
+> drivers/virtio/virtio_dma_buf.c:41 function parameter 'dma_buf' not described in 'virtio_dma_buf_attach'
+> drivers/virtio/virtio_dma_buf.c:41 function parameter 'attach' not described in 'virtio_dma_buf_attach'
 > 
-> Signed-off-by: WangYuli <wangyuli@uniontech.com>
+> Signed-off-by: Peng Jiang <jiang.peng9@zte.com.cn>
 
 
-Seems to be a subset of:
-[PATCH v2] virtio: Update kerneldoc in drivers/virtio/virtio_dma_buf.c
+The extra documentation unfortunately just mechanically repeats what the
+code does. Code comments should explain the reasoning behind the code,
+instead.
 
-can you pls review that one?
 
 > ---
->  drivers/virtio/virtio_dma_buf.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/virtio/virtio_dma_buf.c | 30 +++++++++++++++++++++++++-----
+>  1 file changed, 25 insertions(+), 5 deletions(-)
 > 
 > diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
-> index 3fe1d03b0645..95c10632f84a 100644
+> index 3fe1d03b0645..0b39b1b209ee 100644
 > --- a/drivers/virtio/virtio_dma_buf.c
 > +++ b/drivers/virtio/virtio_dma_buf.c
-> @@ -36,6 +36,8 @@ EXPORT_SYMBOL(virtio_dma_buf_export);
->  
+> @@ -9,13 +9,20 @@
+>  #include <linux/virtio_dma_buf.h>
+> 
 >  /**
->   * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
-> + * @dma_buf: [in] buffer to attach
-> + * @attach: [in] attachment structure
+> - * virtio_dma_buf_export - Creates a new dma-buf for a virtio exported object
+> + * virtio_dma_buf_export() - Creates a new dma-buf for a virtio exported object
+
+virtio core uses the form without () consistently, everywhere.
+
+
+
+>   * @exp_info: [in] see dma_buf_export(). ops MUST refer to a dma_buf_ops
+>   *     struct embedded in a virtio_dma_buf_ops.
+>   *
+>   * This wraps dma_buf_export() to allow virtio drivers to create a dma-buf
+>   * for an virtio exported object that can be queried by other virtio drivers
+>   * for the object's UUID.
+> + *
+> + * Returns:
+> + *   - Valid struct dma_buf pointer on success
+> + *   - ERR_PTR(-EINVAL) if:
+> + *     - exp_info->ops is NULL
+> + *     - attach callback isn't virtio_dma_buf_attach()
+> + *     - virtio_ops->get_uuid() is not implemented
+
+Too verbose, no one will rememeber to update this when changing code.
+Just 
+	Returns the dma_buf or ERR_PTR
+
+is enough.
+
+
+>   */
+>  struct dma_buf *virtio_dma_buf_export
+>         (const struct dma_buf_export_info *exp_info)
+> @@ -35,7 +42,16 @@ struct dma_buf *virtio_dma_buf_export
+>  EXPORT_SYMBOL(virtio_dma_buf_export);
+> 
+>  /**
+> - * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
+> + * virtio_dma_buf_attach() - Mandatory attach callback for virtio dma-bufs
+> + * @dma_buf: Pointer to the shared dma-buf structure
+> + * @attach: Pointer to the newly created attachment metadata
+> + *
+> + * Implements the standard dma-buf attach operation for virtio devices.
+> + * Retrieves virtio-specific operations through container_of macro,
+> + * then invokes device-specific attach callback if present.
+> + * This enables virtio devices to participate in dma-buf sharing.
+> + *
+
+Same thing pls do not repeat all of code.
+
+> + * Return: 0 on success, error code on failure
+
+we say "Returns zero or a negative error" elsewhere. seems clearer.
+
 >   */
 >  int virtio_dma_buf_attach(struct dma_buf *dma_buf,
->  			  struct dma_buf_attachment *attach)
+>                           struct dma_buf_attachment *attach)
+> @@ -55,8 +71,12 @@ int virtio_dma_buf_attach(struct dma_buf *dma_buf,
+>  EXPORT_SYMBOL(virtio_dma_buf_attach);
+> 
+>  /**
+> - * is_virtio_dma_buf - returns true if the given dma-buf is a virtio dma-buf
+> - * @dma_buf: buffer to query
+> + * is_virtio_dma_buf() - Check if a dma-buf was created by virtio DMA framework
+> + * @dma_buf: [in] buffer to query
+> + *
+> + * Returns:
+> + *   - true  if the dma-buf uses virtio_dma_buf_attach() as its attach callback
+> + *   - false otherwise
+
+
+one is return one is returns ... no consistency.
+
+>   */
+>  bool is_virtio_dma_buf(struct dma_buf *dma_buf)
+>  {
+> @@ -65,7 +85,7 @@ bool is_virtio_dma_buf(struct dma_buf *dma_buf)
+>  EXPORT_SYMBOL(is_virtio_dma_buf);
+> 
+>  /**
+> - * virtio_dma_buf_get_uuid - gets a virtio dma-buf's exported object's uuid
+> + * virtio_dma_buf_get_uuid() - gets a virtio dma-buf's exported object's uuid
+>   * @dma_buf: [in] buffer to query
+>   * @uuid: [out] the uuid
+>   *
 > -- 
-> 2.50.0
+> 2.25.1
 
