@@ -1,79 +1,113 @@
-Received: from mxhk.zte.com.cn (mxhk.zte.com.cn [160.30.148.35])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F19810A1F
-	for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 01:26:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=160.30.148.35
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEC331BC58
+	for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 02:02:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752715578; cv=none; b=EZH2yEMjisD+qcHTNodDgiFXx4i0DZQmmzB29g/OTSu/w1kTXfjEHuOQLuqCldBmLXVz2uva0Usn9xZqrSXQd2W6SQp1MpTct/XWZxv1m3pAFZ0xUxPod8xOi1CwTwh62SdqYg7EqDL9HgoirrxRRP8G7W3YE53igjZRgiIryKI=
+	t=1752717759; cv=none; b=Ihzd8IbaNcFCx/O5GA+LVxvJRqY6xPx6JWKCaPFedhjvZOm8MA/yRNlhp316FT/QWxdVnRfuzRQ3QV5KuVuHTYNCfHPhMZjJekGOc+ciBaMzkUrfBoWpy5p/kmEASmi/7PP7h6IMzaoAmRDNLFN18goz/AUeFcMpWLh0tCyPHhE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752715578; c=relaxed/simple;
-	bh=gxAUpE8VBN7v0rV0nMnestBQ5EL+ueS4F4ZJIgcrVHA=;
-	h=Date:Message-ID:In-Reply-To:References:Mime-Version:From:To:Cc:
-	 Subject:Content-Type; b=UG1fmhr8Im8AjgIxlQN+RT9W4MMh2C0a/seAsDQ6JnjOnGlA4Dd/1nH8Ju0UvZiOkatW46Te3Gh785xaEtCA/H7LDCGuyLL7y+kE3eESiSIB1NpcNWSJc35UzzlZswVRpHtj12K5Np+eTsG1M2t2auqEV4IJWL7tVKLP9RHGD40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn; spf=pass smtp.mailfrom=zte.com.cn; arc=none smtp.client-ip=160.30.148.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zte.com.cn
-Received: from mse-fl2.zte.com.cn (unknown [10.5.228.133])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mxhk.zte.com.cn (FangMail) with ESMTPS id 4bjFcX5h0Vz8Xs6x;
-	Thu, 17 Jul 2025 09:26:04 +0800 (CST)
-Received: from xaxapp04.zte.com.cn ([10.99.98.157])
-	by mse-fl2.zte.com.cn with SMTP id 56H1PoN0037389;
-	Thu, 17 Jul 2025 09:25:50 +0800 (+08)
-	(envelope-from jiang.peng9@zte.com.cn)
-Received: from mapi (xaxapp01[null])
-	by mapi (Zmail) with MAPI id mid31;
-	Thu, 17 Jul 2025 09:25:51 +0800 (CST)
-Date: Thu, 17 Jul 2025 09:25:51 +0800 (CST)
-X-Zmail-TransId: 2af96878511fffffffffe78-dc0f4
-X-Mailer: Zmail v1.0
-Message-ID: <20250717092551456yMDDlrv0yFKFOsnqotOlG@zte.com.cn>
-In-Reply-To: <20250716095046-mutt-send-email-mst@kernel.org>
-References: 20250705105803198ff11jYCkg1TxntcCEb00R@zte.com.cn,20250716095046-mutt-send-email-mst@kernel.org
+	s=arc-20240116; t=1752717759; c=relaxed/simple;
+	bh=0GZHNVlrO+mmKMgTeSzkW0wKBWAd9//7yTO7Ox115SE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=C3AVNFPSv8i3JVNnq0ff728oAQBzmqYdivL37mGFbEX4oIHdbH9mmOuM7W4A6b6LQwGplpUE5A/7kA9WzKLs0j+pocY5s9/YtgM+vwHV5wozw0hFY7Prj0R+2cu+cQaTJhZ/T9NqdoqGnOkaNDXENC5jWLaQA88lv4GFyvT3b88=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E0PsZeN4; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E0PsZeN4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752717756;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=M14DsGiQtqzXQpY818urP9W5ujH4yY77Exoy3IyUIdA=;
+	b=E0PsZeN4qysR/ByaMUD/e3h5JYWnjsnnlgBKShG7C77lvnhbQ+ca6ZVJ23Sx+7se2h27vt
+	jcvffnDesWVOogz5MIkQUc1cvtss8Ao5Rj8aBUHBLj0r4ZxWNC3RGguBP0gOXkr5ko+Kvn
+	81vPi219tBmpcBVKYAvDEENfSoJ0QBg=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-691-WOqPSFDmPbyI6qXR7oVTHQ-1; Wed, 16 Jul 2025 22:02:35 -0400
+X-MC-Unique: WOqPSFDmPbyI6qXR7oVTHQ-1
+X-Mimecast-MFC-AGG-ID: WOqPSFDmPbyI6qXR7oVTHQ_1752717754
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-313f702d37fso623731a91.3
+        for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 19:02:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752717754; x=1753322554;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=M14DsGiQtqzXQpY818urP9W5ujH4yY77Exoy3IyUIdA=;
+        b=XZxVfI1pLG2StzlWOH9Q2p/Z17x2XFM8y6Paj3WVKz4nzMVZtJgdONuIUOX0JH2HXZ
+         +aAeWim9woRz2GUwaMdDQKmTVC5org+PTE3gfih14Vq8RK7EcXNonfhfzIiYNx5Rrii7
+         6LAz4ghEVUIATuEP2aGda41Bkp0Ka7ikvPviZvC4Ipf2le+bzr3QYHvR3Es2VP1k50tZ
+         XIW920IgwdTPW6N96W22xKHG8C//nEJsbiHjTSTE86N5wc8MSpj50J1zQjTfutBHMw7x
+         BtzanGfF0/heUR8iyEoZ1lb0ilhV4nmzO5Oyvqdw44IIxSPNxZIi0qH7gRTfxw6VG3HS
+         MeIw==
+X-Forwarded-Encrypted: i=1; AJvYcCVzHhrRvZ7b6azJOdYOWs2hwTHyCiISkm/fQdwYSnR7ggkOaUlvNjsLHv4nC6f6bt6VodrA/jIR1KGexbrGPA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzFpD3B9ZPt5DY2JZGxlwTqMl/Awb66W0nSIeUOM5GXDcjtoBOp
+	nTfRtsyoc7t/2Lu0tYhT9nhqd0g5yIF9KbjDfe836emvTJbzNLGIjAwx+ccPuykpwBnUTPYc1tl
+	bojtJowQtIG70Kk/MJpxE+EJSflLBOMd+ZKbpPaCyK1O30xFse9zsS0hxyRtE3gibAYwx7WbH4q
+	2geQ0K+gB0YWteDZitjbt7JcFlBZRgmE/tfbLxXebojKs=
+X-Gm-Gg: ASbGncvfeozkRk392mjuvY4/SykvpuxgtD32uFAZuf75PJCX2PLm++j+1tX6cwAeQrF
+	h71VlHN8KPwyv1M/KJmxPX/FAUvQO9dsy2sAdWuf6+50pY4WAlsNiRjcr/DEsTnMHubXj6rvnrF
+	LFpaNDiH09HGZhFsoOumsz
+X-Received: by 2002:a17:90b:1fc3:b0:30c:540b:9ba with SMTP id 98e67ed59e1d1-31c9f44bc2dmr7521580a91.10.1752717754216;
+        Wed, 16 Jul 2025 19:02:34 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH5iPUiqqpQyBmPLZCPtjid1ls/tJqR3WHYd9f5uSW/9kS6qJ/9PczlVKVSg/orVJ4W9fRrd/6H4sTsVPc7n5k=
+X-Received: by 2002:a17:90b:1fc3:b0:30c:540b:9ba with SMTP id
+ 98e67ed59e1d1-31c9f44bc2dmr7521534a91.10.1752717753774; Wed, 16 Jul 2025
+ 19:02:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-From: <jiang.peng9@zte.com.cn>
-To: <mst@redhat.com>
-Cc: <jasowang@redhat.com>, <krzk@kernel.org>, <xuanzhuo@linux.alibaba.com>,
-        <eperezma@redhat.com>, <sumit.semwal@linaro.org>,
-        <christian.koenig@amd.com>, <virtualization@lists.linux.dev>,
-        <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
-        <dri-devel@lists.freedesktop.org>, <xu.xin16@zte.com.cn>,
-        <yang.yang29@zte.com.cn>
-Subject: =?UTF-8?B?UmU6IFtQQVRDSCB2Ml0gdmlydGlvOiBVcGRhdGUga2VybmVsZG9jIGluIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19kbWFfYnVmLmM=?=
-Content-Type: text/plain;
-	charset="UTF-8"
-X-MAIL:mse-fl2.zte.com.cn 56H1PoN0037389
-X-TLS: YES
-X-SPF-DOMAIN: zte.com.cn
-X-ENVELOPE-SENDER: jiang.peng9@zte.com.cn
-X-SPF: None
-X-SOURCE-IP: 10.5.228.133 unknown Thu, 17 Jul 2025 09:26:04 +0800
-X-Fangmail-Anti-Spam-Filtered: true
-X-Fangmail-MID-QID: 6878512C.000/4bjFcX5h0Vz8Xs6x
+MIME-Version: 1.0
+References: <20250716115717.1472430-1-zuozhijie@bytedance.com>
+In-Reply-To: <20250716115717.1472430-1-zuozhijie@bytedance.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 17 Jul 2025 10:02:22 +0800
+X-Gm-Features: Ac12FXxK3fHuuCF0pftokODGN7tkaUVBIGycjF0F-57Uypg4whIM51FXe-X2b_o
+Message-ID: <CACGkMEsSD_r0akWpsP+Xa4_CvCAEVbF2cQ9GrE6VYhZ7m2C9hA@mail.gmail.com>
+Subject: Re: [PATCH net v3] virtio-net: fix recursived rtnl_lock() during probe()
+To: Zigit Zo <zuozhijie@bytedance.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com, 
+	andrew+netdev@lunn.ch, edumazet@google.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: vUx2y90bcrhm0k4b7oAFf89L_eDxLY-80HJbllIwzdM_1752717754
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> The extra documentation unfortunately just mechanically repeats what the
-> code does. Code comments should explain the reasoning behind the code,
-> instead.
+On Wed, Jul 16, 2025 at 7:57=E2=80=AFPM Zigit Zo <zuozhijie@bytedance.com> =
+wrote:
+>
+> The deadlock appears in a stack trace like:
+>
+>   virtnet_probe()
+>     rtnl_lock()
+>     virtio_config_changed_work()
+>       netdev_notify_peers()
+>         rtnl_lock()
+>
+> It happens if the VMM sends a VIRTIO_NET_S_ANNOUNCE request while the
+> virtio-net driver is still probing.
+>
+> The config_work in probe() will get scheduled until virtnet_open() enable=
+s
+> the config change notification via virtio_config_driver_enable().
+>
+> Fixes: df28de7b0050 ("virtio-net: synchronize operstate with admin state =
+on up/down")
+> Signed-off-by: Zigit Zo <zuozhijie@bytedance.com>
+> ---
 
-Thanks for the helpful feedback - I appreciate you taking the time to review this.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-In v3 I'll:
+Thanks
 
-1.Remove the parentheses from function names to match virtio conventions;
-
-2.Simplify all descriptions to focus on purpose rather than repeating code mechanics;
-
-3.Consolidate return value documentation to essential information only.
-
-The revised patch will maintain W=1 warning fixes while aligning with the kernel's documentation philosophy. I'll send the update shortly.
-
-Best regards,
-Peng Jiang
