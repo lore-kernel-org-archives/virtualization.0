@@ -1,142 +1,128 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8599A42049
-	for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 06:31:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F178E7262D
+	for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 08:02:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752733874; cv=none; b=Nd2Kd70Gjc9yTS3rtPz7ywpTdSfqqyGhdkVtvKgdjvOVvXNtydrpL0FK2WnTW2IeFZihq/9E4ess7p4J+HG192jntCrZOKcMNMlLMCy+6EpTVzuE9C4bgQzh8CSfyO+2iRHELOMGLhJsId54YLZIK4FqB+OloaRQGb6SZJkk5iQ=
+	t=1752739371; cv=none; b=B8RtmmXari2bsuhFDA+XKGa80/XKG/R2LEsot4nO44Xi2KZ7GfGDIOGZZlB6uyqnddrjgkv62Y3ae+ZDe6gps2Ox2hKioT4xmOeRbQCl+C3xv6QryMURI9PS+W5AziSpypnB5/WLp4GJZe5qmJryZ21BIQ6817eH7i8Pa3VvwD4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752733874; c=relaxed/simple;
-	bh=nGt6mjY502NYQJQNLQHOqJ0cX0q0+Ew5UUFrSaN7eOE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=WGKB4JsYUN16aAvD7uFQTnu5wI0jLybQM9thXw5Vxb2PjCJOifLQUwTE8UzMoU7RUQlaBgSGM099SPRihUHeYGCqYeudO8j21yZxHEEEmMOkJ0YsdpI9yIyKpYHNzNH2/5+GJRsDIVu6OM2Ype7nxgqvtx7/fFpzEaukeA8PH6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S1pPHusI; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1752739371; c=relaxed/simple;
+	bh=BgDj4PibCrxpiB8DfAYTRrS3UhIcPHZ9+H6G9YHHdc0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=U1Pu/lIF+ho+O4/zjzojMK2mfjxP+8/sHTpNBHXXB85fWkSB09FPBvJ/u63GMTV09JkFDbUK6ZQoe2qHbrSmhAmEPyuXSDu84Pm0wYODB+i+QA17DYOVc/gyc+QwMZiw3ehisILvs8seV3F4OV/0qT2u6U8p7robDVk5rc2kz90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BaJNaNtU; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S1pPHusI"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BaJNaNtU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752733871;
+	s=mimecast20190719; t=1752739368;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=zvK5vwyLkiwd45XXL+NYQb7X8wlfzvJMgGcpvl9Wm5M=;
-	b=S1pPHusIkIPXMBHA9XGAuP/VSQsXuEfuUNLzc8uFrIOBjoC/sSBDuR/OeRe//flv2sq3yW
-	YSqY+471IFOM5Tl/Dr5PCPVVuvB8BX/kkzjt9l/qrmNZp0lD+rXzmJ36aONrOXjcuJmcZ5
-	6EOSliMGybOwho70twKyirwK7DZI2Bc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-640-ti9aZLjoP9atSU7iMe3Rhg-1; Thu, 17 Jul 2025 02:31:10 -0400
-X-MC-Unique: ti9aZLjoP9atSU7iMe3Rhg-1
-X-Mimecast-MFC-AGG-ID: ti9aZLjoP9atSU7iMe3Rhg_1752733869
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a4edf5bb4dso461379f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 23:31:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752733868; x=1753338668;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zvK5vwyLkiwd45XXL+NYQb7X8wlfzvJMgGcpvl9Wm5M=;
-        b=S71HJN30CXVrGFro9B2fMUQn5zn48b4dbn09GbADAdUbOCnmGGcopP8vtIotmZVUhA
-         XaZ1ph1W4f82mKGQ07NlRn81VZpfM0JZDgDinlu3+VscZONa4nJOyVBR0glqoFRRNnMh
-         ym2jiTRBp+tj0N9giDbXczWl9bcE/egI1uPdZZkMTQKuzVK7YyWRe3jS5GBoRS1JFOBV
-         kQkqRJiWLn4bEvuw0Klf7KaQBEtMa0nvROJ0oCokFKtmH9rQFeig0uBqWp3Trncay2o7
-         Gq+m6Gy3Dc60R/xsECktmkzL/qAGPrGJeDnc9IrPN30VyddYJqaHD5SLkLFkcTeRbke1
-         13zA==
-X-Forwarded-Encrypted: i=1; AJvYcCVOKlRXRDhQnaUj4ucc3IpdGaibvTYJIHeatUz09Z01RKHiMQ7HD/n44LUGiLjGop3AsPG/bl2xbPuz/Qf++A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YygiXljImX9H1Fwoai8OnXKZhbNOApqfJXXxbfL3mA2EuguQjew
-	Uu9t0ZNHNpCCHibhIFwJSWIJnEqIKp7yfG6PfzlgEprV1UrFR6V996pb92RVpzB/L75V5tg9fSl
-	VJKaqsPUy4JU/4Q5nMvsn+0L5oUdVXSyoXhAagcebv7VTGdpM/dwbfYeGipT2cdVvYh51VafGjo
-	OZ
-X-Gm-Gg: ASbGncvnKeFSUz2Eo3IHzXDp+jKXr/XL3mqOhv7mZoRWIqaYsk3I6BrbrAeQJ/Kd31j
-	ap0xQ7voPe7unJ/xmjHieojN9CHnDTMXWhsiGG6f8d6UNtHs936GfoWb9mFIA7gz4DXXKKpq3hd
-	9wzoecYTHxFpUagtun92cccu8ii8Nl3JVxwNnBOXte+zPmKDKc7vmeZl9pJ3ff8S0t6kz+aMbGW
-	fg8CMiP+dUUNjM/niv0msDaf6Rg4NUCUm5DGAQaG3gzbETZGXv0XhCXZJV2cKm8pfjdgmVzCyi1
-	FhiexB7tfzaLDqUJceVi8Yp48wTKbJgB
-X-Received: by 2002:a05:6000:4a06:b0:3b3:a6b2:9cd3 with SMTP id ffacd0b85a97d-3b60dd827a9mr5402532f8f.48.1752733868527;
-        Wed, 16 Jul 2025 23:31:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IENDhNrlMdoGwMnp3S2sOg05qA/z2rX+K2yXyqiJ23p15NQvqO+DN/Tziiqc7jgSgj6yaxfLA==
-X-Received: by 2002:a05:6000:4a06:b0:3b3:a6b2:9cd3 with SMTP id ffacd0b85a97d-3b60dd827a9mr5402502f8f.48.1752733868012;
-        Wed, 16 Jul 2025 23:31:08 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b5e8dc3a62sm19679812f8f.40.2025.07.16.23.31.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jul 2025 23:31:07 -0700 (PDT)
-Date: Thu, 17 Jul 2025 02:31:04 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, eperezma@redhat.com,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	jonah.palmer@oracle.com
-Subject: Re: [PATCH net-next V2 0/3] in order support for vhost-net
-Message-ID: <20250717020749-mutt-send-email-mst@kernel.org>
-References: <20250714084755.11921-1-jasowang@redhat.com>
- <20250716170406.637e01f5@kernel.org>
- <CACGkMEvj0W98Jc=AB-g8G0J0u5pGAM4mBVCrp3uPLCkc6CK7Ng@mail.gmail.com>
- <20250717015341-mutt-send-email-mst@kernel.org>
- <CACGkMEvX==TSK=0gH5WaFecMY1E+o7mbQ6EqJF+iaBx6DyMiJg@mail.gmail.com>
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=AX/f9tSJVFi5CZpxF0+vkvq51JIWK4dOW2DS/LIZuW4=;
+	b=BaJNaNtUhLjUiZkJMcfVtzr3tJo0cMtFd9eTh5375YGvY7iDeqMIrPzTmfkKlbaPhYXZ+V
+	9t308zCv99werFPoTo5qxG8Oco1hLjjB5Z5R9m61wPSAnrp/ocaJkzwKzxIUmy26m/DRc2
+	mSZ9OPhCHYP+X8lC2kEnCnRBx4MHG6s=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-631-4ynXSyBdO4yBS2znhQF9xA-1; Thu,
+ 17 Jul 2025 04:02:45 -0400
+X-MC-Unique: 4ynXSyBdO4yBS2znhQF9xA-1
+X-Mimecast-MFC-AGG-ID: 4ynXSyBdO4yBS2znhQF9xA_1752739364
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A06A3180028D;
+	Thu, 17 Jul 2025 08:02:44 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.22])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 802921956089;
+	Thu, 17 Jul 2025 08:02:40 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com
+Cc: virtualization@lists.linux.dev,
+	hch@infradead.org,
+	root <root@dell-per760-18.lab.eng.pek2.redhat.com>
+Subject: [PATCH V2 0/9] Refine virtio mapping API
+Date: Thu, 17 Jul 2025 16:02:28 +0800
+Message-ID: <20250717080237.6518-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvX==TSK=0gH5WaFecMY1E+o7mbQ6EqJF+iaBx6DyMiJg@mail.gmail.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: JCkKC2VycaYPB-P0DftI07tqhAbqVVDWWQQkZUzjHqE_1752733869
+X-Mimecast-MFC-PROC-ID: 8h73OOsoWEdI-1NDOAol-No69Ld8tJHooBvJ2vvfjs0_1752739364
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-On Thu, Jul 17, 2025 at 02:01:06PM +0800, Jason Wang wrote:
-> On Thu, Jul 17, 2025 at 1:55 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Thu, Jul 17, 2025 at 10:03:00AM +0800, Jason Wang wrote:
-> > > On Thu, Jul 17, 2025 at 8:04 AM Jakub Kicinski <kuba@kernel.org> wrote:
-> > > >
-> > > > On Mon, 14 Jul 2025 16:47:52 +0800 Jason Wang wrote:
-> > > > > This series implements VIRTIO_F_IN_ORDER support for vhost-net. This
-> > > > > feature is designed to improve the performance of the virtio ring by
-> > > > > optimizing descriptor processing.
-> > > > >
-> > > > > Benchmarks show a notable improvement. Please see patch 3 for details.
-> > > >
-> > > > You tagged these as net-next but just to be clear -- these don't apply
-> > > > for us in the current form.
-> > > >
-> > >
-> > > Will rebase and send a new version.
-> > >
-> > > Thanks
-> >
-> > Indeed these look as if they are for my tree (so I put them in
-> > linux-next, without noticing the tag).
-> 
-> I think that's also fine.
-> 
-> Do you prefer all vhost/vhost-net patches to go via your tree in the future?
-> 
-> (Note that the reason for the conflict is because net-next gets UDP
-> GSO feature merged).
+From: root <root@dell-per760-18.lab.eng.pek2.redhat.com>
 
-Whatever is easier really. Generally I do core vhost but if there is a
-conflict we can do net-next.
+Hi all:
 
-> >
-> > But I also guess guest bits should be merged in the same cycle
-> > as host bits, less confusion.
-> 
-> Work for me, I will post guest bits.
-> 
-> Thanks
-> 
-> >
-> > --
-> > MST
-> >
+Virtio used to be coupled with DMA API. This works fine for the device
+that do real DMA but not the others. For example, VDUSE nees to craft
+with DMA API in order to let the virtio-vdpa driver to work.
+
+This series tries to solve this issue by introducing the mapping API
+in the virtio core. So transport like vDPA can implement their own
+mapping logic without the need to hack with DMA API. The mapping API
+are abstracted with a new map operations in order to be re-used by
+transprot or device. So device like VDUSE can implement its own
+mapping loigc.
+
+For device that uses DMA (for example PCI device), the virtio core
+will still call DMA API directly without the need of implementing map
+ops per device/transport.
+
+Please review.
+
+Changes since V1:
+
+- Fix build error of mlx5_vdpa driver
+
+Jason Wang (9):
+  virtio_ring: constify virtqueue pointer for DMA helpers
+  virtio_ring: switch to use dma_{map|unmap}_page()
+  virtio: rename dma helpers
+  virtio: rename dma_dev to map_token
+  virtio_ring: rename dma_handle to map_handle
+  virtio: introduce map ops in virtio core
+  vdpa: rename dma_dev to map_token
+  vdpa: introduce map ops
+  vduse: switch to use virtio map API instead of DMA API
+
+ drivers/net/virtio_net.c                 |  32 +-
+ drivers/vdpa/alibaba/eni_vdpa.c          |   5 +-
+ drivers/vdpa/ifcvf/ifcvf_main.c          |   5 +-
+ drivers/vdpa/mlx5/core/mr.c              |   4 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c        |  10 +-
+ drivers/vdpa/octeon_ep/octep_vdpa_main.c |   6 +-
+ drivers/vdpa/pds/vdpa_dev.c              |   3 +-
+ drivers/vdpa/solidrun/snet_main.c        |   8 +-
+ drivers/vdpa/vdpa.c                      |   5 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c         |   4 +-
+ drivers/vdpa/vdpa_user/iova_domain.c     |   8 +-
+ drivers/vdpa/vdpa_user/iova_domain.h     |   5 +-
+ drivers/vdpa/vdpa_user/vduse_dev.c       |  34 +-
+ drivers/vdpa/virtio_pci/vp_vdpa.c        |   5 +-
+ drivers/vhost/vdpa.c                     |  11 +-
+ drivers/virtio/virtio_ring.c             | 440 ++++++++++++++---------
+ drivers/virtio/virtio_vdpa.c             |  15 +-
+ include/linux/vdpa.h                     |  22 +-
+ include/linux/virtio.h                   |  36 +-
+ include/linux/virtio_config.h            |  68 ++++
+ include/linux/virtio_ring.h              |   6 +-
+ 21 files changed, 485 insertions(+), 247 deletions(-)
+
+-- 
+2.47.3
 
