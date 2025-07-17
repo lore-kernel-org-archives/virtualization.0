@@ -1,56 +1,79 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mxhk.zte.com.cn (mxhk.zte.com.cn [160.30.148.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB68C2904;
-	Thu, 17 Jul 2025 00:04:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F19810A1F
+	for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 01:26:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=160.30.148.35
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752710647; cv=none; b=pDLjw/vswQyXy6cGX4Mwu5MYjpHAPaPfamjeisOvm5JC/k7LgLQ/fg1lh2dHq7dkaaWNNAtHo3LFUDfaZaSh+tdM/POYSnEtFJhE/LHfEyt0Ca0oqNjGC3sDWkg0FxbfV95P2QEsSvrFfImSBSpxgkLt0HVcWB/G0SUApnNBgP4=
+	t=1752715578; cv=none; b=EZH2yEMjisD+qcHTNodDgiFXx4i0DZQmmzB29g/OTSu/w1kTXfjEHuOQLuqCldBmLXVz2uva0Usn9xZqrSXQd2W6SQp1MpTct/XWZxv1m3pAFZ0xUxPod8xOi1CwTwh62SdqYg7EqDL9HgoirrxRRP8G7W3YE53igjZRgiIryKI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752710647; c=relaxed/simple;
-	bh=DpWiesLa7vbS826EtQoWeBav2x/WTnA3BZlee6Q5GQc=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hQydECjk+CSqWXhh91MKq7/rFyiKvzvfc1zTlbqj79LcCA3R1K/kCDj+JaEbFD26t2J5+Yg6JRLYI1hN1HnUx9h2gveHM6o0oyeHiGwj+tQ071H4vdzU7e3S6+KAMUi6NmA8Xg3b8xN5OLpK38Zfqo7vB0U7mcWsyJudUNL7eQ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ifS5K02q; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ifS5K02q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D81FC4CEE7;
-	Thu, 17 Jul 2025 00:04:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752710647;
-	bh=DpWiesLa7vbS826EtQoWeBav2x/WTnA3BZlee6Q5GQc=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=ifS5K02q06JStZdhQeWA3FvuMvvuxaR6z3+6afUNNNUbRf6HY+I1ZjF+VEwYTVzIG
-	 48DxVMyuQ7u9DswPj5nWMz9EpuYhKPFE4I/Y5+5onoGiJ/MMQ8zkByaNBT14K08g0G
-	 u78wx0C1pt3a8rbr9Fe+Yd+fmaPg5dzHx/xP4RIKpNHiluW7yxUo78I4yTyF79AekQ
-	 9Px4wXGexik2KuUE9bbxwO0JJWI+pSfCEs+v+csx24kksAqhJLvZfQukDfrqZJlUcq
-	 elNR0LHjdIzYvAJx+OSfQ7rPOusFSM/7TCzBFX2uOCbMHaWVdZS7Kt88+H3hKWCmqB
-	 kQqb4QZ0w7PNw==
-Date: Wed, 16 Jul 2025 17:04:06 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, eperezma@redhat.com, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, jonah.palmer@oracle.com
-Subject: Re: [PATCH net-next V2 0/3] in order support for vhost-net
-Message-ID: <20250716170406.637e01f5@kernel.org>
-In-Reply-To: <20250714084755.11921-1-jasowang@redhat.com>
-References: <20250714084755.11921-1-jasowang@redhat.com>
+	s=arc-20240116; t=1752715578; c=relaxed/simple;
+	bh=gxAUpE8VBN7v0rV0nMnestBQ5EL+ueS4F4ZJIgcrVHA=;
+	h=Date:Message-ID:In-Reply-To:References:Mime-Version:From:To:Cc:
+	 Subject:Content-Type; b=UG1fmhr8Im8AjgIxlQN+RT9W4MMh2C0a/seAsDQ6JnjOnGlA4Dd/1nH8Ju0UvZiOkatW46Te3Gh785xaEtCA/H7LDCGuyLL7y+kE3eESiSIB1NpcNWSJc35UzzlZswVRpHtj12K5Np+eTsG1M2t2auqEV4IJWL7tVKLP9RHGD40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn; spf=pass smtp.mailfrom=zte.com.cn; arc=none smtp.client-ip=160.30.148.35
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zte.com.cn
+Received: from mse-fl2.zte.com.cn (unknown [10.5.228.133])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mxhk.zte.com.cn (FangMail) with ESMTPS id 4bjFcX5h0Vz8Xs6x;
+	Thu, 17 Jul 2025 09:26:04 +0800 (CST)
+Received: from xaxapp04.zte.com.cn ([10.99.98.157])
+	by mse-fl2.zte.com.cn with SMTP id 56H1PoN0037389;
+	Thu, 17 Jul 2025 09:25:50 +0800 (+08)
+	(envelope-from jiang.peng9@zte.com.cn)
+Received: from mapi (xaxapp01[null])
+	by mapi (Zmail) with MAPI id mid31;
+	Thu, 17 Jul 2025 09:25:51 +0800 (CST)
+Date: Thu, 17 Jul 2025 09:25:51 +0800 (CST)
+X-Zmail-TransId: 2af96878511fffffffffe78-dc0f4
+X-Mailer: Zmail v1.0
+Message-ID: <20250717092551456yMDDlrv0yFKFOsnqotOlG@zte.com.cn>
+In-Reply-To: <20250716095046-mutt-send-email-mst@kernel.org>
+References: 20250705105803198ff11jYCkg1TxntcCEb00R@zte.com.cn,20250716095046-mutt-send-email-mst@kernel.org
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+From: <jiang.peng9@zte.com.cn>
+To: <mst@redhat.com>
+Cc: <jasowang@redhat.com>, <krzk@kernel.org>, <xuanzhuo@linux.alibaba.com>,
+        <eperezma@redhat.com>, <sumit.semwal@linaro.org>,
+        <christian.koenig@amd.com>, <virtualization@lists.linux.dev>,
+        <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
+        <dri-devel@lists.freedesktop.org>, <xu.xin16@zte.com.cn>,
+        <yang.yang29@zte.com.cn>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCB2Ml0gdmlydGlvOiBVcGRhdGUga2VybmVsZG9jIGluIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19kbWFfYnVmLmM=?=
+Content-Type: text/plain;
+	charset="UTF-8"
+X-MAIL:mse-fl2.zte.com.cn 56H1PoN0037389
+X-TLS: YES
+X-SPF-DOMAIN: zte.com.cn
+X-ENVELOPE-SENDER: jiang.peng9@zte.com.cn
+X-SPF: None
+X-SOURCE-IP: 10.5.228.133 unknown Thu, 17 Jul 2025 09:26:04 +0800
+X-Fangmail-Anti-Spam-Filtered: true
+X-Fangmail-MID-QID: 6878512C.000/4bjFcX5h0Vz8Xs6x
 
-On Mon, 14 Jul 2025 16:47:52 +0800 Jason Wang wrote:
-> This series implements VIRTIO_F_IN_ORDER support for vhost-net. This
-> feature is designed to improve the performance of the virtio ring by
-> optimizing descriptor processing.
-> 
-> Benchmarks show a notable improvement. Please see patch 3 for details.
+> The extra documentation unfortunately just mechanically repeats what the
+> code does. Code comments should explain the reasoning behind the code,
+> instead.
 
-You tagged these as net-next but just to be clear -- these don't apply
-for us in the current form.
+Thanks for the helpful feedback - I appreciate you taking the time to review this.
+
+In v3 I'll:
+
+1.Remove the parentheses from function names to match virtio conventions;
+
+2.Simplify all descriptions to focus on purpose rather than repeating code mechanics;
+
+3.Consolidate return value documentation to essential information only.
+
+The revised patch will maintain W=1 warning fixes while aligning with the kernel's documentation philosophy. I'll send the update shortly.
+
+Best regards,
+Peng Jiang
