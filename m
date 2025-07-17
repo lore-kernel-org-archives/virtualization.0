@@ -1,120 +1,136 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 827C2215773
-	for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 05:55:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD5E32AD14
+	for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 06:01:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752731703; cv=none; b=gO/jkO3neNNHyblZzsLYa0NzHtZpRVBT789UVVpQtedZbOXmuEhsKxUWPMap/7VCdJ0ly1gxhTAda+pq6dkq36j24tw+VVnZlo7cPhwjwrNWGF2kdZt+jkz+u7SgCe/WQAmVLa3rrdNvWzaoracExg+578W6P2LArUD0LVf50SM=
+	t=1752732083; cv=none; b=bYPVi15OiEphuZbYs5k2B2TtOdWegHmz5B+jx65pxRReZNhWg0kQKeYaadMz2CCzVc/oOfikz5jiSNdkKyBNED+RJiMh3TSOj5hC4ayDeFZaHn90SR4smBiAEjvmhzppYV9bCPOox32g943IS+kfpKzL4Mi31YEGHepRARGKMCE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752731703; c=relaxed/simple;
-	bh=m4gQAyHYuuJrm9YUv7NlPCUouAw8kLG5UfeMrAnYE6U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=e/RdXHQ5e76SafEEty1CQi9ny1eqscYBW+X0RTHCF9IkvPKHIz3t3jLoohSjk7N93YeVf1XnMa8EkEGyY7lXR3N98ExpHQgNaBlHTeboWf5ZO07sQ6Uxl4mMXOgyo52tlKKMeuVEahL3rfH4rd+FyRF17sFh0CFSjBP2cFv0itk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=d02XGtx0; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1752732083; c=relaxed/simple;
+	bh=jxOpZ0mtCseo/bSPj1OyB2eE1E7Wq+zP8rpLdjVZc98=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cqxDmRMckD7Gj6R1vr9fzi7MKrtWzr5xmJaKPRUih+jW6ThGDYLlUe6MmQeJ4Sz8GvZ7hlpreMwJ2p/PJuCXQlfhcAHitMVtYmYaoCaGATBziFiG2pDCCZGTjgQ11WEKFoKhGgwUdH8SpV2y8dxd3bU1q2o+6dVrS7dF5wVXnBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SAVl38Jp; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d02XGtx0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SAVl38Jp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752731700;
+	s=mimecast20190719; t=1752732080;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=kE0G9wXRbk7fNnfl6vFgdzVxCOzno+UfAnUTQ9t+cLI=;
-	b=d02XGtx0H5tdFQ23iThenHE4Va6vi5gIqllKQqHXKtfxzJkxvH7NN9Mnx0I3cWpz38jB39
-	AYqu28rlxQqZOErZQL3xPUj/8ANbI6ZYhMfYg00YBKDxG+/FoWpMI2EZ67suM+v4kRH5UI
-	88zn3dTMQClfRdE75B57VOk0xkxVWOY=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=jxOpZ0mtCseo/bSPj1OyB2eE1E7Wq+zP8rpLdjVZc98=;
+	b=SAVl38Jptu9v9WoMVTFte9S9k6gG6mO8OXmoNI+5HEEuoYkeVKfhmcSOM0POwIG/KiqzjO
+	aaHhSMwR29ReNnUIIyCLpFniN+ET5Pq3pciog2mE00RTsZsy8mGwDO1bjPti2+Ylplz5IO
+	GOLAJSxzISO2mqKtgj3THTcW4kCptY0=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-186-Q0CyuQpUMBi4by2u3gHXfA-1; Thu, 17 Jul 2025 01:54:59 -0400
-X-MC-Unique: Q0CyuQpUMBi4by2u3gHXfA-1
-X-Mimecast-MFC-AGG-ID: Q0CyuQpUMBi4by2u3gHXfA_1752731698
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45624f0be48so2414155e9.3
-        for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 22:54:58 -0700 (PDT)
+ us-mta-70-H3aoMOYqME6J6FqLVqHxuQ-1; Thu, 17 Jul 2025 02:01:19 -0400
+X-MC-Unique: H3aoMOYqME6J6FqLVqHxuQ-1
+X-Mimecast-MFC-AGG-ID: H3aoMOYqME6J6FqLVqHxuQ_1752732078
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-31315427249so598015a91.1
+        for <virtualization@lists.linux.dev>; Wed, 16 Jul 2025 23:01:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752731697; x=1753336497;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kE0G9wXRbk7fNnfl6vFgdzVxCOzno+UfAnUTQ9t+cLI=;
-        b=o6OKyZ3Fy3lUXlNZWEIeag32ep2JGs/+P2SQhNudU4oLheu8RMhrCy0GZkjoz+FOe3
-         s1zm0qDtu2kwjiZJe5D32EwiveiUCk8YpdOCiGk8q8h7nrHH+XN1LUaT8a3JPeADAMok
-         Ejfzia5D0qqIQCdoc0e9oBtEEc4DfTCjbWP+BPmNyxPMFT06bvZan6JaBh+RdHj4UcKE
-         HLB9XCLTuheCL+I5IOH+syw2Iz1DJr31oTdRYv8EKnlBi4epGlzvGeAxCFmv7mk9fEQl
-         /oMuoBitFQ4hscku35afzX9FwZfZzqqKujtUKneSlIfkgkSa3jZZDERSarZB1WLkzAi2
-         wj5Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVu6s6F7WJ0aida1nq+JIi9She6C5Rx24DRGR6z5o1v55GWUUgFoKN+Z4rHSHHD6322/fzK5LJt2THW2SIgVg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyXtqj388XQdTaN50+8eVj6UezukxqFZlROt3knRXjeVtyl4dM8
-	LZEm0X2lXyxmaC+EoTue7EN/QiBwu+ibe6cDCNa8QGsY/Gr1yo5uMDiWPajKNPGLCiBnbqqqo8O
-	mU+AMU2ZBTDDLsUsGbm92te1PEUTBWAPk6pFADOWCH6GomdefQQgjZ0axO32WRBBtBCDJ0VLC2e
-	xF
-X-Gm-Gg: ASbGncvwc8yPvH/bDAJ/1aFQU99KQiw2JdCfpiDOH8uTup5UsWlOliIiK0HZXV9aPri
-	v+R14uDdrQ6Xtg2zHEgAMStqhnLAGMs7Qycsa1oLXOVjwHqYAnxKfWm89SOiiZArrmDNY8yhnQU
-	h4k369/6H/3P//dt71S9TYP7l91/EuyJeIRBk8zXtfQuCm3qO852k2WyBvpbiqMgyHkI0nYILr8
-	vDHMiZLAkd/594AyPpEZFj65XJSj9ON/eClfVWcU/KoG/NOZmjiu4yDAzM5gbZTZRo8SmIodbFZ
-	lqQ1XATrpUIFMQp5fyRN1+KEAK3wNBxT
-X-Received: by 2002:a05:600c:a306:b0:453:84a:8cf1 with SMTP id 5b1f17b1804b1-4562e30bb16mr31847265e9.33.1752731697635;
-        Wed, 16 Jul 2025 22:54:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEyU6o9Q3CoUlYWFKgakh+xAw1rIC3vPhNwaIEN4/uUvZfr53w1uYu1w84EorH+yJxtkxDubw==
-X-Received: by 2002:a05:600c:a306:b0:453:84a:8cf1 with SMTP id 5b1f17b1804b1-4562e30bb16mr31847155e9.33.1752731697218;
-        Wed, 16 Jul 2025 22:54:57 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45634ec9162sm11757495e9.0.2025.07.16.22.54.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jul 2025 22:54:56 -0700 (PDT)
-Date: Thu, 17 Jul 2025 01:54:54 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, eperezma@redhat.com,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	jonah.palmer@oracle.com
-Subject: Re: [PATCH net-next V2 0/3] in order support for vhost-net
-Message-ID: <20250717015341-mutt-send-email-mst@kernel.org>
-References: <20250714084755.11921-1-jasowang@redhat.com>
- <20250716170406.637e01f5@kernel.org>
- <CACGkMEvj0W98Jc=AB-g8G0J0u5pGAM4mBVCrp3uPLCkc6CK7Ng@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1752732078; x=1753336878;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jxOpZ0mtCseo/bSPj1OyB2eE1E7Wq+zP8rpLdjVZc98=;
+        b=EOtUsYTaV9IA0tb6MhPBTePJPzTy4q/buaTIxZGfZgO3caVcv9CeceHryJ6EbKtwK2
+         VnmL81ioMiQ+9p/MeYRwZo7QID1tWOc2mN1qPkX91GZ7VbcqSOqPxPspbKevFnO/MLlf
+         6iGqy/buhutfREWnscNdzqkq8Kr2dgRmXlOjrF4jbtGxQqI7l7tn7SqujacbJWA98L+k
+         QEp1FanJ7twUXIKSF5cAseGUeY3a+O3fjSL7iobHQKCKctRniOsc+FgvAQOdcw5MuLGA
+         GqQwzktvF7BLLD5/uqnK7yGHsMZHGwXwQ7yAmxF+yl0MHCWdK+2vIFRymDuftTszKKFC
+         jLLA==
+X-Forwarded-Encrypted: i=1; AJvYcCUKBOSqXJ586NSpAHF+C/0gc5VqGSq7SojU8QTGcqNWf7VEPq8vvcP7Ny1VI3hvb4ml7HB690xcI+tTKYvMzg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxRyoVm75l7xj8eYpIHNTUD3bJfvzgijvDoLWzbXIeiz8CykDcm
+	By1afIYdlbn8mkey/hDW1LaNQrAIfPPVgzwpHWZ13kSTeTsg3/049Xow5wma82crKoZoy+XF3Wr
+	l8zdcR8DCTywZC37T/dyb5zQgtcgusTfVA3moYGb5D7hQ660OBeavvf/OiZTg9UpafbAvD0LgaJ
+	7yrpN+FUs2abutKSnbdQ6hc6YVaJPt7y2eRjIaVnjVt58=
+X-Gm-Gg: ASbGncvFeWSOGyVkUslGcV5lIbqdMr7Uit5YrCN2WREi7hrZgO575jMkjeNZ+AKSzXL
+	3M9FBroMtdouDQfrOehraWluzNza6zK6qr0CG3C09Xl1KO5twldyM89U5uqLhlCDwCHsGQrzy1b
+	NIkeujz2zWnUYtO0hQ8mxK
+X-Received: by 2002:a17:90b:3d08:b0:311:c93b:3ca2 with SMTP id 98e67ed59e1d1-31c9e6e96fdmr7785019a91.6.1752732078189;
+        Wed, 16 Jul 2025 23:01:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHwj9WmmYZqqcY9e7xgqKnA/kJN103hoaasmkwFwEeUcw9OvLCJ0a3fMKNsQmV80tmXN1QWinAAhZ7uGEl6g/c=
+X-Received: by 2002:a17:90b:3d08:b0:311:c93b:3ca2 with SMTP id
+ 98e67ed59e1d1-31c9e6e96fdmr7784953a91.6.1752732077622; Wed, 16 Jul 2025
+ 23:01:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvj0W98Jc=AB-g8G0J0u5pGAM4mBVCrp3uPLCkc6CK7Ng@mail.gmail.com>
+References: <20250714084755.11921-1-jasowang@redhat.com> <20250716170406.637e01f5@kernel.org>
+ <CACGkMEvj0W98Jc=AB-g8G0J0u5pGAM4mBVCrp3uPLCkc6CK7Ng@mail.gmail.com> <20250717015341-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250717015341-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 17 Jul 2025 14:01:06 +0800
+X-Gm-Features: Ac12FXzpdsVwGDtCJSLzaoSwQSJcC8NcxCnl7Zblf_dU7B8OIQV_ThQuhTzi5L0
+Message-ID: <CACGkMEvX==TSK=0gH5WaFecMY1E+o7mbQ6EqJF+iaBx6DyMiJg@mail.gmail.com>
+Subject: Re: [PATCH net-next V2 0/3] in order support for vhost-net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, eperezma@redhat.com, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, jonah.palmer@oracle.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wtPQFNa7AJDKrP69xOzCa5H1q30Kdq1SxtkQh0Hek0g_1752731698
+X-Mimecast-MFC-PROC-ID: cMxR9bwEWdbAL_9MeBEM7KBIPIv3JNEIzqXpxE6ThfQ_1752732078
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 17, 2025 at 10:03:00AM +0800, Jason Wang wrote:
-> On Thu, Jul 17, 2025 at 8:04 AM Jakub Kicinski <kuba@kernel.org> wrote:
-> >
-> > On Mon, 14 Jul 2025 16:47:52 +0800 Jason Wang wrote:
-> > > This series implements VIRTIO_F_IN_ORDER support for vhost-net. This
-> > > feature is designed to improve the performance of the virtio ring by
-> > > optimizing descriptor processing.
+On Thu, Jul 17, 2025 at 1:55=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Thu, Jul 17, 2025 at 10:03:00AM +0800, Jason Wang wrote:
+> > On Thu, Jul 17, 2025 at 8:04=E2=80=AFAM Jakub Kicinski <kuba@kernel.org=
+> wrote:
 > > >
-> > > Benchmarks show a notable improvement. Please see patch 3 for details.
+> > > On Mon, 14 Jul 2025 16:47:52 +0800 Jason Wang wrote:
+> > > > This series implements VIRTIO_F_IN_ORDER support for vhost-net. Thi=
+s
+> > > > feature is designed to improve the performance of the virtio ring b=
+y
+> > > > optimizing descriptor processing.
+> > > >
+> > > > Benchmarks show a notable improvement. Please see patch 3 for detai=
+ls.
+> > >
+> > > You tagged these as net-next but just to be clear -- these don't appl=
+y
+> > > for us in the current form.
+> > >
 > >
-> > You tagged these as net-next but just to be clear -- these don't apply
-> > for us in the current form.
+> > Will rebase and send a new version.
 > >
-> 
-> Will rebase and send a new version.
-> 
-> Thanks
+> > Thanks
+>
+> Indeed these look as if they are for my tree (so I put them in
+> linux-next, without noticing the tag).
 
-Indeed these look as if they are for my tree (so I put them in
-linux-next, without noticing the tag).
+I think that's also fine.
 
-But I also guess guest bits should be merged in the same cycle
-as host bits, less confusion.
+Do you prefer all vhost/vhost-net patches to go via your tree in the future=
+?
 
--- 
-MST
+(Note that the reason for the conflict is because net-next gets UDP
+GSO feature merged).
+
+>
+> But I also guess guest bits should be merged in the same cycle
+> as host bits, less confusion.
+
+Work for me, I will post guest bits.
+
+Thanks
+
+>
+> --
+> MST
+>
 
