@@ -1,45 +1,45 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F1C421FF29
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 09:16:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 002F61E5B78
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 09:16:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752830168; cv=none; b=UCjroVPLS1Wui6M3HSubThMT08IjltugTs7dzXmNfsBQzzvcjndWoC839dthQP9xTpYTb6Fr9l24C1CfRdS/aazhky+INAGA55fVPyhdV6YNJazgBbAFWFSgaPZ7Lj7iP1m5Dhxd+tqc9sWzA6ZibDBIro0hq1I3ypMVJBNWgUs=
+	t=1752830187; cv=none; b=eGLP7oLjrgGRPTqZvj+RkT6OtV0cV70A3VxdjRMgFBi63tVh5rx5DaDdIk/2UER094LpuMg+HeAWW5YW+ctjL7UhDhr8hz9YuglgomSl8h1zUOBlV5qdCudLRX1XhwoMnQMvxsSsKOAu4pNC6v6KgeXZ+UsODwwZti1TUU4EGxI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752830168; c=relaxed/simple;
+	s=arc-20240116; t=1752830187; c=relaxed/simple;
 	bh=G1sWb3uh2vK5Y6yOFGnk+EWD358ECyel+UpkR0kaByo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=eSkmqfzQcFkstnqlHM/Nx4rBO40J/ZYCVHsodV9A/A7MCDDJKSraEZItgO2ZxEHU0mk++B29V8d0kxb8WetYoRQYvbaFx/YCZbCF8cwtKt5Xu46MBxyQBWWPaknbPI9gifL3qPL8dJZG6z8uwmj4z7dzN2T40VyQ1SlXlDGlj9s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TH3fswpn; arc=none smtp.client-ip=170.10.133.124
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=P0Mf/tKEeqVMjHSXnqyUTdueGZ9QAxZ3gkYVkyVRMhHXKteyA3jTb3v8sE22Jt1M/UE1xkr8WKqakVkXUChOvHfDv3kTz5GSdX4xX2mCBIouStezYmukm0cbzXr2Fk6Fd0EyL1mQUdg3gS5jj1eGIxj4KzXGtcu4F7YcUzID9jY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DUWm8eqx; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TH3fswpn"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DUWm8eqx"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752830165;
+	s=mimecast20190719; t=1752830185;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding;
 	bh=kFQHrFy1C6pRfX50T1uF7bdqR7oVEpuwtJZqihrwg/E=;
-	b=TH3fswpnjcM7+IlSJHjCFV7bLD0sbdgT3OFBuVtpRb24NkJusqeW8PQVdLTg9B/xyQ3lLw
-	oPymzLH84hoKXxn9S4qjl37Q8x4A0TowIyD/gJEfl/Pgjy+QkVDW8mvALrbbF81t4WYhFn
-	ubPmJXtP6rnEFUUtHNjddDDsy3cKWnQ=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+	b=DUWm8eqxtzOfJUEo27E/IxbOB/2iDsq4tWpFeta0ZEaAXW0Uoz+veiZQQbysH9ige0MRzC
+	ftHujcH6LL3e5tVGcjQQW3U81VUvHyDhT1b3f/GpABFaY5eIyHLTi5aUL+uioGj+61K5Wt
+	rp1aevm7XUx2AtfeW8jfFNBZhnO4Xqo=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-312-ZK0ObvdiPi2xr4so-SZcrg-1; Fri,
- 18 Jul 2025 05:16:02 -0400
-X-MC-Unique: ZK0ObvdiPi2xr4so-SZcrg-1
-X-Mimecast-MFC-AGG-ID: ZK0ObvdiPi2xr4so-SZcrg_1752830161
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-15-gwWEpOAaNl2FaHC1V0m-Xw-1; Fri,
+ 18 Jul 2025 05:16:23 -0400
+X-MC-Unique: gwWEpOAaNl2FaHC1V0m-Xw-1
+X-Mimecast-MFC-AGG-ID: gwWEpOAaNl2FaHC1V0m-Xw_1752830183
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9D3D51800281;
-	Fri, 18 Jul 2025 09:16:00 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 988C31800359;
+	Fri, 18 Jul 2025 09:16:22 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.112.32])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7B55318002AF;
-	Fri, 18 Jul 2025 09:15:56 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3736B195608D;
+	Fri, 18 Jul 2025 09:16:18 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com,
@@ -48,17 +48,17 @@ To: mst@redhat.com,
 Cc: virtualization@lists.linux.dev,
 	hch@infradead.org
 Subject: [PATCH V4 0/9] Refine virtio mapping API
-Date: Fri, 18 Jul 2025 17:15:44 +0800
-Message-ID: <20250718091553.6108-1-jasowang@redhat.com>
+Date: Fri, 18 Jul 2025 17:16:07 +0800
+Message-ID: <20250718091616.6140-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: o_19MiRVedFX6DvVg0EfVUcNndt_-Xw-kXXkupDVQsg_1752830161
+X-Mimecast-MFC-PROC-ID: nmE412bmx9zquegAWnbMQAVwpiICh_4ZwXtikCJpHW0_1752830183
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
