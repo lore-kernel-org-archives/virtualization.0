@@ -1,108 +1,134 @@
-Received: from smtp153-171.sina.com.cn (smtp153-171.sina.com.cn [61.135.153.171])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BDA620E71D
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 09:07:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=61.135.153.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F1C421FF29
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 09:16:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752829672; cv=none; b=Mc1NbPZrfeI5fM8TCHh8UUPMIkk4UZBW2N+M7uIb2/SvlyZQno3VlEKODR/seHlXEWH4S/CcavG8u1AEBkJ1kWfQ7iZbw6pp8Ps8VT0HZWVi6n6fqZUowRUsyedI0IzlMJe9sIrcwmMC478FeoFCZIvsAoFmSgv1ETMX4qUCIh0=
+	t=1752830168; cv=none; b=UCjroVPLS1Wui6M3HSubThMT08IjltugTs7dzXmNfsBQzzvcjndWoC839dthQP9xTpYTb6Fr9l24C1CfRdS/aazhky+INAGA55fVPyhdV6YNJazgBbAFWFSgaPZ7Lj7iP1m5Dhxd+tqc9sWzA6ZibDBIro0hq1I3ypMVJBNWgUs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752829672; c=relaxed/simple;
-	bh=tdcTDQz0ceE2ycFuA9V+lIGdMG3HLelkQNZjBbIokO8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AFgF5lpzwonlvHKiO43/f9x/sy5HCU0buF0z+7KVHffrBiosH8VtuzSpm299+TPtsNlRaLfEYasrZmF4h5LqnS9SYjwJwtKovLSlxFiuGNmH4TdXNVmUjhi8NQyXaYmuk2O/lOfcD2/tgGDa2ArVPb0BdhLy6to3GOW30RSaP3M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b=YpkGA/fm; arc=none smtp.client-ip=61.135.153.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
+	s=arc-20240116; t=1752830168; c=relaxed/simple;
+	bh=G1sWb3uh2vK5Y6yOFGnk+EWD358ECyel+UpkR0kaByo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=eSkmqfzQcFkstnqlHM/Nx4rBO40J/ZYCVHsodV9A/A7MCDDJKSraEZItgO2ZxEHU0mk++B29V8d0kxb8WetYoRQYvbaFx/YCZbCF8cwtKt5Xu46MBxyQBWWPaknbPI9gifL3qPL8dJZG6z8uwmj4z7dzN2T40VyQ1SlXlDGlj9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TH3fswpn; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b="YpkGA/fm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1752829663;
-	bh=PAssbCFbHKXX8KDkOtfUWg5h+sjvgzJKyTPGjFAvfYg=;
-	h=From:Subject:Date:Message-ID;
-	b=YpkGA/fmCw3RdN2rFPDp9aEov2ucOIOCBc2omg4Df3dw/0COZAYMpeyfVPLE95X3S
-	 J68k6K4G9LQrbWo6OSPPcUKUN5apLpyGG7mEIXizDm2WxpT7t0s8AtedtAe4lasRw3
-	 aK9DlTP/asuaLFQXwkUQL3ZWFvTlzF+IfeQgS2vE=
-X-SMAIL-HELO: localhost.localdomain
-Received: from unknown (HELO localhost.localdomain)([114.249.58.236])
-	by sina.com (10.54.253.34) with ESMTP
-	id 687A0ED5000079FC; Fri, 18 Jul 2025 17:07:35 +0800 (CST)
-X-Sender: hdanton@sina.com
-X-Auth-ID: hdanton@sina.com
-Authentication-Results: sina.com;
-	 spf=none smtp.mailfrom=hdanton@sina.com;
-	 dkim=none header.i=none;
-	 dmarc=none action=none header.from=hdanton@sina.com
-X-SMAIL-MID: 1225016292282
-X-SMAIL-UIID: 87A29BE28692473C9B3A50DD8B7A1688-20250718-170735-1
-From: Hillf Danton <hdanton@sina.com>
-To: Nikolay Kuratov <kniv@yandex-team.ru>
-Cc: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Lei Yang <leiyang@redhat.com>,
-	Andrey Ryabinin <arbn@yandex-team.com>,
-	Andrey Smetanin <asmetanin@yandex-team.ru>
-Subject: Re: [PATCH] vhost/net: Replace wait_queue with completion in ubufs reference
-Date: Fri, 18 Jul 2025 17:07:24 +0800
-Message-ID: <20250718090725.2352-1-hdanton@sina.com>
-In-Reply-To: <20250716162243.1401676-1-kniv@yandex-team.ru>
-References: 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TH3fswpn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752830165;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=kFQHrFy1C6pRfX50T1uF7bdqR7oVEpuwtJZqihrwg/E=;
+	b=TH3fswpnjcM7+IlSJHjCFV7bLD0sbdgT3OFBuVtpRb24NkJusqeW8PQVdLTg9B/xyQ3lLw
+	oPymzLH84hoKXxn9S4qjl37Q8x4A0TowIyD/gJEfl/Pgjy+QkVDW8mvALrbbF81t4WYhFn
+	ubPmJXtP6rnEFUUtHNjddDDsy3cKWnQ=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-312-ZK0ObvdiPi2xr4so-SZcrg-1; Fri,
+ 18 Jul 2025 05:16:02 -0400
+X-MC-Unique: ZK0ObvdiPi2xr4so-SZcrg-1
+X-Mimecast-MFC-AGG-ID: ZK0ObvdiPi2xr4so-SZcrg_1752830161
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9D3D51800281;
+	Fri, 18 Jul 2025 09:16:00 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.32])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7B55318002AF;
+	Fri, 18 Jul 2025 09:15:56 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com
+Cc: virtualization@lists.linux.dev,
+	hch@infradead.org
+Subject: [PATCH V4 0/9] Refine virtio mapping API
+Date: Fri, 18 Jul 2025 17:15:44 +0800
+Message-ID: <20250718091553.6108-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: o_19MiRVedFX6DvVg0EfVUcNndt_-Xw-kXXkupDVQsg_1752830161
+X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-On Wed, 16 Jul 2025 19:22:43 +0300 Nikolay Kuratov wrote:
->  drivers/vhost/net.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 7cbfc7d718b3..454d179fffeb 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
->  	 * >1: outstanding ubufs
->  	 */
->  	atomic_t refcount;
-> -	wait_queue_head_t wait;
-> +	struct completion wait;
->  	struct vhost_virtqueue *vq;
->  };
->  
-> @@ -240,7 +240,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
->  	if (!ubufs)
->  		return ERR_PTR(-ENOMEM);
->  	atomic_set(&ubufs->refcount, 1);
-> -	init_waitqueue_head(&ubufs->wait);
-> +	init_completion(&ubufs->wait);
->  	ubufs->vq = vq;
->  	return ubufs;
->  }
-> @@ -249,14 +249,15 @@ static int vhost_net_ubuf_put(struct vhost_net_ubuf_ref *ubufs)
->  {
->  	int r = atomic_sub_return(1, &ubufs->refcount);
->  	if (unlikely(!r))
-> -		wake_up(&ubufs->wait);
-> +		complete_all(&ubufs->wait);
->  	return r;
->  }
->  
->  static void vhost_net_ubuf_put_and_wait(struct vhost_net_ubuf_ref *ubufs)
->  {
->  	vhost_net_ubuf_put(ubufs);
-> -	wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
-> +	wait_for_completion(&ubufs->wait);
-> +	reinit_completion(&ubufs->wait);
+Hi all:
 
-In the case of 5 waiters for example, after the first waiter reinitializes
-the completion, the 3rd waiter misses the wakeup, no?
+Virtio used to be coupled with DMA API. This works fine for the device
+that do real DMA but not the others. For example, VDUSE nees to craft
+with DMA API in order to let the virtio-vdpa driver to work.
 
->  }
->  
->  static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
-> -- 
-> 2.34.1
+This series tries to solve this issue by introducing the mapping API
+in the virtio core. So transport like vDPA can implement their own
+mapping logic without the need to hack with DMA API. The mapping API
+are abstracted with a new map operations in order to be re-used by
+transprot or device. So device like VDUSE can implement its own
+mapping loigc.
+
+For device that uses DMA (for example PCI device), the virtio core
+will still call DMA API directly without the need of implementing map
+ops per device/transport.
+
+Please review.
+
+Changes since V3:
+
+- Fix build error of PDS vDPA driver
+
+Changes since V2:
+
+- Drop VDUSE dependenct for HAS_DMA and ARCH_HAS_DMA_OPS
+
+Changes since V1:
+
+- Fix build error of mlx5_vdpa driver
+
+Jason Wang (9):
+  virtio_ring: constify virtqueue pointer for DMA helpers
+  virtio_ring: switch to use dma_{map|unmap}_page()
+  virtio: rename dma helpers
+  virtio: rename dma_dev to map_token
+  virtio_ring: rename dma_handle to map_handle
+  virtio: introduce map ops in virtio core
+  vdpa: rename dma_dev to map_token
+  vdpa: introduce map ops
+  vduse: switch to use virtio map API instead of DMA API
+
+ drivers/net/virtio_net.c                 |  32 +-
+ drivers/vdpa/Kconfig                     |   8 +-
+ drivers/vdpa/alibaba/eni_vdpa.c          |   5 +-
+ drivers/vdpa/ifcvf/ifcvf_main.c          |   5 +-
+ drivers/vdpa/mlx5/core/mr.c              |   4 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c        |  10 +-
+ drivers/vdpa/octeon_ep/octep_vdpa_main.c |   6 +-
+ drivers/vdpa/pds/vdpa_dev.c              |   5 +-
+ drivers/vdpa/solidrun/snet_main.c        |   8 +-
+ drivers/vdpa/vdpa.c                      |   5 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c         |   4 +-
+ drivers/vdpa/vdpa_user/iova_domain.c     |   8 +-
+ drivers/vdpa/vdpa_user/iova_domain.h     |   5 +-
+ drivers/vdpa/vdpa_user/vduse_dev.c       |  34 +-
+ drivers/vdpa/virtio_pci/vp_vdpa.c        |   5 +-
+ drivers/vhost/vdpa.c                     |  11 +-
+ drivers/virtio/virtio_ring.c             | 440 ++++++++++++++---------
+ drivers/virtio/virtio_vdpa.c             |  15 +-
+ include/linux/vdpa.h                     |  22 +-
+ include/linux/virtio.h                   |  36 +-
+ include/linux/virtio_config.h            |  68 ++++
+ include/linux/virtio_ring.h              |   6 +-
+ 22 files changed, 487 insertions(+), 255 deletions(-)
+
+-- 
+2.47.3
+
