@@ -1,181 +1,156 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6966521C9EA
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 21:35:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF23521B9E0
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 21:50:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752874512; cv=none; b=tDnl2Xa95FF8+SuzksM2b9sHFBbQ1x4sQj0KhwjpTpry4RR8uAiiVenBqlEzrbjd0SF3i8Sp2MKMPR+KKrkT1qUJbAYNeNnUq2XTDG5VIzH5aVUh7pr7CoEXkCPTDrsjc/KW/FdSPkYp0mYAz7c9fg/Vd6uxslShjEFqZeS6Mxg=
+	t=1752875404; cv=none; b=IFpVi8RqpLeKuInPQJ2K9aRwoHCf+PvDTF9PNQu6YMSj2iAvNOYfTmUTsVaJYfLgF7nftqzfI1CCLBDXHc48v5lp+N1hhVlJhh0o3a1E32Q7qoRYY7dLHYfMJXRf6y7za0EhWEzfbZZrLiOgWcIovULF93e4/J9dHylcVsee9/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752874512; c=relaxed/simple;
-	bh=NXPmr3BOE2u5fhRNvI0cqLh8kd9rVIcOhU8I/rc0IfU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Hse+VM6Vvv7TypG8o4e6yfPS7SgGQnDsdVKLpflKK4Bfbl5N8sqCF33vTyfrnaKvqhsdbeMG8T6C7UWBnMgMsld5OR3fCrwgLBNU6Rhq3gwFu6A8RKIfCFvpkk/BmbfkBOr1OW0+4ulHg+DCFIk/aJq53NoeXLCH8mrdKTqHWYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=DSCKhfYx; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1752875404; c=relaxed/simple;
+	bh=ltKlX/6V8eiGzqwSGoa5gPUbAJICZza9LmiBT1RB0UM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NObx5fx91LSpWZVRPOChpqb8/yHhRHhFvjLpelSlvAyxHYQbzq+dNIPT26B9fhd8Czdk9BMNSsKEXPP6LQ2tCMJVIWKUwnjysrUXARnimrxbDQamNLtQv4NgShNTCkTglFlF+rMQ7ZtY9sXhJlCuhWv8da2C5swQtPV2McjBYss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=b4JTlvJk; arc=none smtp.client-ip=209.85.208.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="DSCKhfYx"
-Received: from mail.zytor.com ([IPv6:2601:646:8081:9482:197f:c1e5:8ae9:2d06])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56ILX0sl2795198
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Fri, 18 Jul 2025 14:33:15 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56ILX0sl2795198
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025062101; t=1752874399;
-	bh=NhtjXHm8n19JlB0jzDbzbq1BDP9/2sJrEr7ZMM4ZOgY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=DSCKhfYxOzSL+px0MZ4TAnvg9uQlNuCGi4G73+n+wLx8Q7YavwZc2Px2zSXZTQto3
-	 1plvjh0/sLhIWPgZ22widI7khU7thmRtxGpmZ8Vozu1xui9m2wBFjOpBYeIPY3sW0v
-	 LIxvVM/18kTHW4mYpl9cD6VppG2BnuROjoT9VWHPmo+4hEPK8d551nRF9Xzr7B1Zdz
-	 bgBYSod1ouE0y6Zq9mS6sYis6nfVI2XP6tVkzVjrqavrvI2lGuHnjfJA9Nmvn0yURT
-	 ExMFs5//bPncOz5SZVUb0vdGel503WRCiJcGv/42xy9Cau2hsrD3sETZgg1DtC4ffC
-	 nhPb+bff8AJ6g==
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: 
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, Alexei Starovoitov <ast@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrii Nakryiko <andrii@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
-        Borislav Petkov <bp@alien8.de>, Cong Wang <cong.wang@bytedance.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        David Laight <David.Laight@ACULAB.COM>,
-        David Lechner <dlechner@baylibre.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Eduard Zingerman <eddyz87@gmail.com>,
-        Gatlin Newhouse <gatlin.newhouse@gmail.com>,
-        Hao Luo <haoluo@google.com>, Ingo Molnar <mingo@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>,
-        Kees Cook <kees@kernel.org>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Marc Herbert <Marc.Herbert@linux.intel.com>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>,
-        Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>,
-        NeilBrown <neil@brown.name>, Peter Zijlstra <peterz@infradead.org>,
-        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-        Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>,
-        Song Liu <song@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thorsten Blum <thorsten.blum@linux.dev>,
-        Uros Bizjak <ubizjak@gmail.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Yafang Shao <laoar.shao@gmail.com>, Ye Bin <yebin10@huawei.com>,
-        Yonghong Song <yonghong.song@linux.dev>,
-        Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
-        virtualization@lists.linux.dev, x86@kernel.org
-Subject: [PATCH 3/7] fs/proc: replace "__auto_type" with "auto"
-Date: Fri, 18 Jul 2025 14:32:46 -0700
-Message-ID: <20250718213252.2384177-4-hpa@zytor.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250718213252.2384177-1-hpa@zytor.com>
-References: <20250718213252.2384177-1-hpa@zytor.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="b4JTlvJk"
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6129ff08877so4025308a12.1
+        for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 14:50:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1752875401; x=1753480201; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=fXvc2xA25r+Dun5T9AdGpnAPv49cA2nPvvpwJnVhZbM=;
+        b=b4JTlvJkjxxZ906cESGc3rmqGN74L7wdYqS3JFoVJYUhERzjClrAhqMHijdSdAXJcr
+         woZ3bjRTnIjytfF2drMwMIWMfEa2HDVt4BP1JpfmhHCJmVgqJDAUrbn2vvW5YkKWwrOx
+         mXr+QlfRi3ndJvsV7xH2KAPJVv1ZXG4/3HjeM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752875401; x=1753480201;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fXvc2xA25r+Dun5T9AdGpnAPv49cA2nPvvpwJnVhZbM=;
+        b=lJHxmdKEEd7f/Kt/PuzhSvGxyd7SiTWz9JVINq8hDK4WGN4VhAn3EP3gyDYuIMhUqx
+         4osxbxFxn+r/QqV+dyEx4tAvalUlBSOjsYMiAq8YNCvFgZR3RBeKVRetX/d9Iwj1xk8z
+         zUMLaK7369q2MA6xrOu6upHTDFoIPOpyWlEIJAWwWQUsGOY43nOAbDC6IguPxnu9Do7q
+         NKriqNGu0LPlhU+8tK3QHjpHve5NubxNUO8hjBnF0Jj8tdbolA+cQJwDAtJ+F0d8W16O
+         ZyxtzQyJl73Prdjupm0RLWx12wt90IIcCevVeIZ894p2YIqOsqZgS1BNHQTyK6P1ClNZ
+         SwRg==
+X-Forwarded-Encrypted: i=1; AJvYcCUbN65nvtXBXKqiyDx02v35+zlxohqF+ryWsnwQrHdoYnbcE1Fz0Pp6xGSDrrkzBwTkGRZYZimlapbqjaf2Ew==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyFFzr3hlvrtYBMa45FxI5nqjqcUoGXZHLaJ1o7hTavjI7gNzSF
+	ZIPUfEegE36d7rpWNKREdQc525VFUaPfLlBgu5+gdpk9aTPsntnvHJWlGo8Xfr+vJC19s5LXqy2
+	cP+d/ecA=
+X-Gm-Gg: ASbGncsk9Jm+1u13S1Cw+lj7OLNdCl5007MplAAK/MMaQD0p5DNLNQusqSE5yQNAbih
+	XsHU8j8Hg8z5lFDLKZ14a5iSzpYlNxkRtKyetZoa1RjnTIUPk43e9nUxEBfNmyXSSKgtkfDAeu7
+	JFCVSm9BaZRbM9J3wkLZwUDdMCQHPwMVZ2E6mR8OkqR5+NWNs/Ft17xhlfcmVIoqbzWECKidnwq
+	RlpcKdbFW4He2ZfeQJK2i5HJewehs594hNecaAw0Nh+SEkIg4r8OoypY/2YlaIVHzMTrPnxEaop
+	NUTk1UGfJcrrJZg2AMgSQAaORp9wRklN3v7t7wFIOp5Xp1DKnwDScV8QD7Ei2ijN2fBY23yxK7d
+	Z/6PuNpMtLXT36j5Ps5X6+qPm9fK9qoqyZHGxr6hytm5phz3ttGACxxwE/hE1ptG8dqsD/kQA
+X-Google-Smtp-Source: AGHT+IFxKpsfN+lTXidhfE9J4MGSNu/UwPAvXKjufiP8WgjGAO6bjR3Mv+pfQTpNpLc81ZvV2WrYVQ==
+X-Received: by 2002:a17:907:728c:b0:adb:2f9b:e16f with SMTP id a640c23a62f3a-aec4de65ccemr915594966b.16.1752875400869;
+        Fri, 18 Jul 2025 14:50:00 -0700 (PDT)
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com. [209.85.208.47])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aec6c7d7783sm188402366b.63.2025.07.18.14.50.00
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 18 Jul 2025 14:50:00 -0700 (PDT)
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6097d144923so5559933a12.1
+        for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 14:50:00 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCX8rPvNjI03kj90k8bj0HVJDFoGZI00EjsqrVsFzVxIzt/EPHDGCgYqrFIG20uIfMImCud/bbYAy9b9rRObDg==@lists.linux.dev
+X-Received: by 2002:a05:6402:13c2:b0:60c:3ecd:5140 with SMTP id
+ 4fb4d7f45d1cf-612c0091a9amr4324302a12.0.1752875399525; Fri, 18 Jul 2025
+ 14:49:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250718213252.2384177-1-hpa@zytor.com> <20250718213252.2384177-5-hpa@zytor.com>
+In-Reply-To: <20250718213252.2384177-5-hpa@zytor.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 18 Jul 2025 14:49:41 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whGcopJ_wewAtzfTS7=cG1yvpC90Y-xz5t-1Aw0ew682w@mail.gmail.com>
+X-Gm-Features: Ac12FXwcle_QXTMWRdj0MWMkwuJCKrti8An2oscUa99HJ5SDjVBQa7FesoFMBkk
+Message-ID: <CAHk-=whGcopJ_wewAtzfTS7=cG1yvpC90Y-xz5t-1Aw0ew682w@mail.gmail.com>
+Subject: Re: [PATCH 4/7] arch/nios: replace "__auto_type" with "auto"
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Alexei Starovoitov <ast@kernel.org>, Alexey Dobriyan <adobriyan@gmail.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Andrii Nakryiko <andrii@kernel.org>, 
+	Arnd Bergmann <arnd@kernel.org>, Borislav Petkov <bp@alien8.de>, Cong Wang <cong.wang@bytedance.com>, 
+	Dan Williams <dan.j.williams@intel.com>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, David Laight <David.Laight@aculab.com>, 
+	David Lechner <dlechner@baylibre.com>, Dinh Nguyen <dinguyen@kernel.org>, 
+	Eduard Zingerman <eddyz87@gmail.com>, Gatlin Newhouse <gatlin.newhouse@gmail.com>, 
+	Hao Luo <haoluo@google.com>, Ingo Molnar <mingo@redhat.com>, 
+	Jakub Sitnicki <jakub@cloudflare.com>, Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>, 
+	Jiri Olsa <jolsa@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>, Josh Poimboeuf <jpoimboe@kernel.org>, 
+	KP Singh <kpsingh@kernel.org>, Kees Cook <kees@kernel.org>, 
+	Luc Van Oostenryck <luc.vanoostenryck@gmail.com>, Marc Herbert <Marc.Herbert@linux.intel.com>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>, 
+	Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>, NeilBrown <neil@brown.name>, 
+	Peter Zijlstra <peterz@infradead.org>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
+	Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>, Song Liu <song@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Thomas Gleixner <tglx@linutronix.de>, 
+	Thorsten Blum <thorsten.blum@linux.dev>, Uros Bizjak <ubizjak@gmail.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Yafang Shao <laoar.shao@gmail.com>, 
+	Ye Bin <yebin10@huawei.com>, Yonghong Song <yonghong.song@linux.dev>, 
+	Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-sparse@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Replace uses of "__auto_type" in fs/proc/inode.c with "auto".
+On Fri, 18 Jul 2025 at 14:34, H. Peter Anvin <hpa@zytor.com> wrote:
+>
+> -       __auto_type __pu_ptr = (ptr);                                   \
+> +       auto __pu_ptr = (ptr);                                  \
+>         typeof(*__pu_ptr) __pu_val = (typeof(*__pu_ptr))(x);            \
 
-Signed-off-by: H. Peter Anvin (Intel) <hpa@zytor.com>
----
- fs/proc/inode.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+Side note: I think some coccinelle (or sed) script that replaces that
+older form of
 
-diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-index 3604b616311c..e5b150e70166 100644
---- a/fs/proc/inode.c
-+++ b/fs/proc/inode.c
-@@ -303,7 +303,7 @@ static ssize_t proc_reg_read_iter(struct kiocb *iocb, struct iov_iter *iter)
- 
- static ssize_t pde_read(struct proc_dir_entry *pde, struct file *file, char __user *buf, size_t count, loff_t *ppos)
- {
--	__auto_type read = pde->proc_ops->proc_read;
-+	auto read = pde->proc_ops->proc_read;
- 	if (read)
- 		return read(file, buf, count, ppos);
- 	return -EIO;
-@@ -325,7 +325,7 @@ static ssize_t proc_reg_read(struct file *file, char __user *buf, size_t count,
- 
- static ssize_t pde_write(struct proc_dir_entry *pde, struct file *file, const char __user *buf, size_t count, loff_t *ppos)
- {
--	__auto_type write = pde->proc_ops->proc_write;
-+	auto write = pde->proc_ops->proc_write;
- 	if (write)
- 		return write(file, buf, count, ppos);
- 	return -EIO;
-@@ -347,7 +347,7 @@ static ssize_t proc_reg_write(struct file *file, const char __user *buf, size_t
- 
- static __poll_t pde_poll(struct proc_dir_entry *pde, struct file *file, struct poll_table_struct *pts)
- {
--	__auto_type poll = pde->proc_ops->proc_poll;
-+	auto poll = pde->proc_ops->proc_poll;
- 	if (poll)
- 		return poll(file, pts);
- 	return DEFAULT_POLLMASK;
-@@ -369,7 +369,7 @@ static __poll_t proc_reg_poll(struct file *file, struct poll_table_struct *pts)
- 
- static long pde_ioctl(struct proc_dir_entry *pde, struct file *file, unsigned int cmd, unsigned long arg)
- {
--	__auto_type ioctl = pde->proc_ops->proc_ioctl;
-+	auto ioctl = pde->proc_ops->proc_ioctl;
- 	if (ioctl)
- 		return ioctl(file, cmd, arg);
- 	return -ENOTTY;
-@@ -392,7 +392,7 @@ static long proc_reg_unlocked_ioctl(struct file *file, unsigned int cmd, unsigne
- #ifdef CONFIG_COMPAT
- static long pde_compat_ioctl(struct proc_dir_entry *pde, struct file *file, unsigned int cmd, unsigned long arg)
- {
--	__auto_type compat_ioctl = pde->proc_ops->proc_compat_ioctl;
-+	auto compat_ioctl = pde->proc_ops->proc_compat_ioctl;
- 	if (compat_ioctl)
- 		return compat_ioctl(file, cmd, arg);
- 	return -ENOTTY;
-@@ -414,7 +414,7 @@ static long proc_reg_compat_ioctl(struct file *file, unsigned int cmd, unsigned
- 
- static int pde_mmap(struct proc_dir_entry *pde, struct file *file, struct vm_area_struct *vma)
- {
--	__auto_type mmap = pde->proc_ops->proc_mmap;
-+	auto mmap = pde->proc_ops->proc_mmap;
- 	if (mmap)
- 		return mmap(file, vma);
- 	return -EIO;
-@@ -497,7 +497,7 @@ static int proc_reg_open(struct inode *inode, struct file *file)
- 	if (!use_pde(pde))
- 		return -ENOENT;
- 
--	__auto_type release = pde->proc_ops->proc_release;
-+	auto release = pde->proc_ops->proc_release;
- 	if (release) {
- 		pdeo = kmem_cache_alloc(pde_opener_cache, GFP_KERNEL);
- 		if (!pdeo) {
-@@ -534,7 +534,7 @@ static int proc_reg_release(struct inode *inode, struct file *file)
- 	struct pde_opener *pdeo;
- 
- 	if (pde_is_permanent(pde)) {
--		__auto_type release = pde->proc_ops->proc_release;
-+		auto release = pde->proc_ops->proc_release;
- 		if (release) {
- 			return release(inode, file);
- 		}
--- 
-2.50.1
+       typeof(x) Y = (typeof(x))(Z);
 
+or
+
+        typeof(Z) Y = Z;
+
+
+with just
+
+        auto Y = Z;
+
+is also worthwhile at some point.
+
+We have more of those, because that's the really traditional gcc way
+to do things that predates __auto_type.
+
+And the patterns are a bit more complicated, so they need care: not
+all of the "typeof (x) Z = Y" patterns have the same type in the
+assignment.
+
+So it's not the universal case, but it's the _common_ case, I think.
+
+For example, it's obviously the case in the above, where we use the
+exact same "typeof" on both sides, but in other uaccess.h files we
+also have patterns like
+
+        __typeof__(*(ptr)) __x = (x); /* eval x once */
+        __typeof__(ptr) __ptr = (ptr); /* eval ptr once */
+
+where that *first* case very much needs to use that "__typeof__"
+model, because 'x' typically does not necessarily have the same type
+as '*(ptr)' (and we absolutely do not want to use a cast: we want
+integer types to convert naturally, but we very much want warnings if
+somebody were to mix types wrong).
+
+But that second case obviously is exactly the "auto type" case, just
+written using __typeof__.
+
+               Linus
