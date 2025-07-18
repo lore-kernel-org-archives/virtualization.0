@@ -1,91 +1,120 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+Received: from mail3-166.sinamail.sina.com.cn (mail3-166.sinamail.sina.com.cn [202.108.3.166])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCA1E2BEC44;
-	Fri, 18 Jul 2025 11:13:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 108155695
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 12:47:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.108.3.166
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752837216; cv=none; b=e8nwIqPPlUQ0NGyWOstMZ7lSvuuQZOlMuNl3VqLLBdeTguOAuJEOujOgJDRCH/UdtAOm9LLeDOOIjQSsW4gJsL84dMPCRLI6p++J5Cgb4inVPuHWCEiOoDlUNfLWqtAHnRzAjxtH86LNCQLBGknlCiZDVOWVnH9WdIvQN0s5pZQ=
+	t=1752842846; cv=none; b=BUv7yCW4Ipk+uEnNRHmu8wWglc+vIzrKKtz7YKs8AkxjDvyWHAUig0CMWVdNuAEx9yXmOa0LRhbylAdLIpl5o2weWHN69ACHL/cQXHCsdIKumWf8L8AI8xiUna8xNzZrzZT0HGbcTWDBzY4+iI7p7zQnq/vJrAU/Rp/zoVB7J+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752837216; c=relaxed/simple;
-	bh=JL5F+QMyAbZRgl1qNW2EXe1o8d3EBJKY1WaFusUNqmA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uCKlw6UqI6kps1lGVrHCpR/HTtwSTi9reQ4nDdnJH5UdPwQTrLoTy9YQrUKLW9P9OioVTez/OLbpYYTJ+UInrgru3LehpHdAS/8nBImDGRjYimODjunkxKQqgQRsf1LC1CPwduO0yKpy6GhliJT5Uyk5118nBxys1QnfEuaJNJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=IRqfuQIK; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1752842846; c=relaxed/simple;
+	bh=F11q+SajRL1s+aGrsJcfDhgtWQTBvLq27lRdD4eAHL8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=FUzWuNRO/ov9lY9Wzj34SwTrSLBfjcwBDGxHeogwvOXYHagYlTPqNzq0jBDvBGUme5/X4FaD+Rhth7wEWjKVYu412YUumQcbejCWwWI7RhdoSVSGeXWHZ42rJEfOexikh7qJuFMKIMXWPOFvGXqEGPwzliup+RAyVoIbhSfzmho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b=pRmB61R7; arc=none smtp.client-ip=202.108.3.166
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="IRqfuQIK"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=wV4SP9Ub4GxAfJeEGt1fuHcJt5aoaEgYsz+HesyeccQ=; b=IRqfuQIKz9uFJUibejaVU0BHYf
-	t0CaJ6GP7AWLHFNH2ArHDmicIZrO8AizfkOoMgaCf6UhxZAcGiOl+muPjvzjpKxMZY2pf519zvDoY
-	S5hal3TZkVSYRzGWJ3a1VxrYVzfEqXMrygasSUmBBQ04aD4GPhdZm6vu2nQp0778bnIeovS0Use0U
-	h0qb/05UbaLnEIy/yCmSTYd8rMv6tiSai0Q4E3ElEo6k0JCMVu5jQQBPb9kXWSNGJ4SFctAbvBCZL
-	E1PIvgQgyHIGV2xymGhV1uvLESWUPrZRj+FdNWX9BvVMPi+002U3m/VxOhX65HBwALeFERImS6xnS
-	3BQj8TZQ==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1ucimR-007ynq-1Z;
-	Fri, 18 Jul 2025 19:13:28 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 18 Jul 2025 21:13:27 +1000
-Date: Fri, 18 Jul 2025 21:13:27 +1000
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Ovidiu Panait <ovidiu.panait.oss@gmail.com>
-Cc: davem@davemloft.net, linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org, freude@linux.ibm.com,
-	dengler@linux.ibm.com, linux-s390@vger.kernel.org,
-	horia.geanta@nxp.com, pankaj.gupta@nxp.com, gaurav.jain@nxp.com,
-	arei.gonglei@huawei.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH 1/2] crypto: engine: remove request batching support
-Message-ID: <aHosV3T9l0OQkKY0@gondor.apana.org.au>
-References: <20250711182932.918257-1-ovidiu.panait.oss@gmail.com>
+	dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b="pRmB61R7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1752842841;
+	bh=cRELcXBlxny6lNaBGcEEyYOTog8DRO1ARtWovaU+gaI=;
+	h=From:Subject:Date:Message-ID;
+	b=pRmB61R7/mHbnh5THnMw5yk9sfygsKFq+y1pRMKV5E5GWqQEmct/zy6M3Xnvl48km
+	 UPuWCqIvz7hpHt6oPCW05Xge+3aMFu27esnuz7EOojdGOyVW7EZR1HETWG54dPBb94
+	 RUM8zLGKMqtlxSKgP9FJ4XwD/Kgq5h1EEYQB/0Lk=
+X-SMAIL-HELO: localhost.localdomain
+Received: from unknown (HELO localhost.localdomain)([114.249.58.236])
+	by sina.com (10.54.253.31) with ESMTP
+	id 687A424B000069BD; Fri, 18 Jul 2025 20:47:08 +0800 (CST)
+X-Sender: hdanton@sina.com
+X-Auth-ID: hdanton@sina.com
+Authentication-Results: sina.com;
+	 spf=none smtp.mailfrom=hdanton@sina.com;
+	 dkim=none header.i=none;
+	 dmarc=none action=none header.from=hdanton@sina.com
+X-SMAIL-MID: 9991446816238
+X-SMAIL-UIID: B92073821F22481A95B5626781CD631D-20250718-204708-1
+From: Hillf Danton <hdanton@sina.com>
+To: Nikolay Kuratov <kniv@yandex-team.ru>
+Cc: linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Lei Yang <leiyang@redhat.com>,
+	Andrey Ryabinin <arbn@yandex-team.com>,
+	Andrey Smetanin <asmetanin@yandex-team.ru>
+Subject: Re: [PATCH v2] vhost/net: Replace wait_queue with completion in ubufs reference
+Date: Fri, 18 Jul 2025 20:46:56 +0800
+Message-ID: <20250718124657.2394-1-hdanton@sina.com>
+In-Reply-To: <20250718110355.1550454-1-kniv@yandex-team.ru>
+References: 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250711182932.918257-1-ovidiu.panait.oss@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 11, 2025 at 09:29:31PM +0300, Ovidiu Panait wrote:
-> Remove request batching support from crypto_engine, as there are no
-> drivers using this feature and it doesn't really work that well.
+On Fri, 18 Jul 2025 14:03:55 +0300 Nikolay Kuratov wrote:
 > 
-> Instead of doing batching based on backlog, a more optimal approach
-> would be for the user to handle the batching (similar to how IPsec
-> can hook into GSO to get 64K of data each time or how block encryption
-> can use unit sizes much greater than 4K).
+>  drivers/vhost/net.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
 > 
-> Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
-> Signed-off-by: Ovidiu Panait <ovidiu.panait.oss@gmail.com>
-> ---
-> Cc: freude@linux.ibm.com
-> Cc: dengler@linux.ibm.com
-> Cc: linux-s390@vger.kernel.org
-> Cc: horia.geanta@nxp.com
-> Cc: pankaj.gupta@nxp.com
-> Cc: gaurav.jain@nxp.com
-> Cc: arei.gonglei@huawei.com
-> Cc: virtualization@lists.linux.dev
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 7cbfc7d718b3..69e1bfb9627e 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
+>  	 * >1: outstanding ubufs
+>  	 */
+>  	atomic_t refcount;
+> -	wait_queue_head_t wait;
+> +	struct completion wait;
+>  	struct vhost_virtqueue *vq;
+>  };
+>  
+> @@ -240,7 +240,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
+>  	if (!ubufs)
+>  		return ERR_PTR(-ENOMEM);
+>  	atomic_set(&ubufs->refcount, 1);
+> -	init_waitqueue_head(&ubufs->wait);
+> +	init_completion(&ubufs->wait);
+>  	ubufs->vq = vq;
+>  	return ubufs;
+>  }
+> @@ -249,14 +249,14 @@ static int vhost_net_ubuf_put(struct vhost_net_ubuf_ref *ubufs)
+>  {
+>  	int r = atomic_sub_return(1, &ubufs->refcount);
+>  	if (unlikely(!r))
+> -		wake_up(&ubufs->wait);
+> +		complete_all(&ubufs->wait);
+>  	return r;
+>  }
+>  
+>  static void vhost_net_ubuf_put_and_wait(struct vhost_net_ubuf_ref *ubufs)
+>  {
+>  	vhost_net_ubuf_put(ubufs);
+> -	wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
+> +	wait_for_completion(&ubufs->wait);
+>  }
+>  
+>  static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
+> @@ -1381,6 +1381,7 @@ static void vhost_net_flush(struct vhost_net *n)
+>  		mutex_lock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
+>  		n->tx_flush = false;
+>  		atomic_set(&n->vqs[VHOST_NET_VQ_TX].ubufs->refcount, 1);
+> +		reinit_completion(&n->vqs[VHOST_NET_VQ_TX].ubufs->wait);
+>  		mutex_unlock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
+>  	}
+>  }
+> -- 
+> 2.34.1
 > 
->  arch/s390/crypto/paes_s390.c               |  2 +-
->  arch/s390/crypto/phmac_s390.c              |  2 +-
->  crypto/crypto_engine.c                     | 25 +---------------------
->  drivers/crypto/caam/jr.c                   |  3 +--
->  drivers/crypto/virtio/virtio_crypto_core.c |  2 +-
->  include/crypto/engine.h                    |  1 -
->  include/crypto/internal/engine.h           |  4 ----
->  7 files changed, 5 insertions(+), 34 deletions(-)
+In the sequence below,
+	vhost_net_flush()
+	  vhost_net_ubuf_put_and_wait(n->vqs[VHOST_NET_VQ_TX].ubufs);
+	    wait_for_completion(&ubufs->wait);
+	  reinit_completion(&n->vqs[VHOST_NET_VQ_TX].ubufs->wait);
 
-All applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+reinit after wait, so the chance for missing wakeup still exists.
