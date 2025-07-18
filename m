@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 405881F1302
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 405341EFFA6
 	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 21:35:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752874509; cv=none; b=Zo3BZ4jxQtGVAoy5V7i5UeZ52AJNtpWZpDzPY4UZbI88cxXQa99b/O1HE/fS3e0weXoRZg8A0LluUaZw6cB3dOzWwi9HBwBt3klaQpxfHzWGJvlklgNQTMor/EVMN4O39V9DITbyemkkKo0py1+O/tNp8+rsHp8s31n7qRbKkko=
+	t=1752874510; cv=none; b=uqcmAwWMDkFet6rfKpnaIWdHjzVby4YnU9sQcR9NeOnDYQLKzA4UitWrOur1Dri8n1fLy5IM8LkRDS8e44obE06PhUFonfokmr+8jk6XzRiT42Xaef8o/+xcvvoB7/LLyGaVsioe7KcjHFG6APAfFjHxEps+3ptihEep7k30EBU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752874509; c=relaxed/simple;
-	bh=lBKUGA6zNqcsPATDf41Ebh8yrcRzfOT5mMVIGxIAdVs=;
+	s=arc-20240116; t=1752874510; c=relaxed/simple;
+	bh=wMzR91h+TTsVUPy1C9Ptk1wSfGkXWgH6/ZpbQTxAPyQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=U121/gKEZfUt0FVJUQhySDczgJEa5EsFO3zKWqMaVesgVusMcCF/GgsjoFirUdnAQ62TiHP8ZkDa8d2ONKMX6jNFiFpylNNgeh3EDfz9aIJm/KXeQa1nX+eYgozd9Xui4G8T+YAPxtzhWrk1UohgthUGpjf+FamRDqKTjxjFgvE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=V5Z//aag; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=MoEfJ28ErWiiIvymSk+eazLF5ia81BUiEA5+LCpucSKP0Vng3GDOR55B7vBzjZeThQE+5YNmh4Ehv8iuslMzldBCWVXcOrwSyOTDnxeaX7d7TzCx2cd+Kg5CfBxmwOHCmVadyHYcD1bmlCtTMoXT924PAEyjyo5Fm5WThueA/qI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=IW9rzXlw; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="V5Z//aag"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="IW9rzXlw"
 Received: from mail.zytor.com ([IPv6:2601:646:8081:9482:197f:c1e5:8ae9:2d06])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56ILX0sm2795198
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56ILX0sn2795198
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Fri, 18 Jul 2025 14:33:19 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56ILX0sm2795198
+	Fri, 18 Jul 2025 14:33:23 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56ILX0sn2795198
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025062101; t=1752874403;
-	bh=jOYLooryEKHScahs/oq1OSMQ5trl6tIglcozgM03cmk=;
+	s=2025062101; t=1752874406;
+	bh=qL1eHen7HIDVH6yqsXjkpDMtAGllh3zedpoW2tNYpvo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=V5Z//aagl38qTHkyKVLjtRYpQg6NLFKlGhO4PTrXNQ+X5WlkCRSfUKB8e2A3YoZ9C
-	 6bf3/7kfIkGso1z32JhBGAFS9WqaGkYL84wlFTTFIVb0f3t24PPSHDMczaXVzUZKlD
-	 1hBIlHdmZtg1ELHdMO3eX1lzbmqGZZiZG9RMV9MALm5IuUA2GXvk7mZRsQnC4MchvN
-	 peq3QRvYPRphYqYX3+Zxyf4UXYjOVs0umThbe4E6PvXQuYappn97AzFeAG+ZZCHh9t
-	 0xU5RxTb+3BCZg47mZp5WG6FWvOYUrZgb/aRzR85G4MN49aqicMrwuy0oUkbBtpZcp
-	 0mMeiaVOOH6ow==
+	b=IW9rzXlwv/uOkas2T3V1khmJxnERsM2el1H1phxIc7qBkga4MRMTJqZm/DomFnl35
+	 13DgyxteCdDLxQXAMTjZT4QCKOAa2XlTB4RRqROrWiW8v+aUAPtPup3VvZX79UZ0w4
+	 M/Dp8YZJJo3weiB7ePx+x6MdyGAJbnCehkeS7eAUcBdDl/7qWeHNyKvwq3+ywo09lV
+	 mh4Yp6iGpkGN+EVv1osRLkRAXVmGvmJ47UjqsYwnHpb7etq5FpyBctcUjTEvClOX1r
+	 JSTu9U0f1LXRMf0PUUcicVM0fKa34mwPaZF94RKc1s4ReHsuyk9Bm5gpbcgdPuY4rE
+	 N9SyHnaYWmTrg==
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: 
 Cc: "H. Peter Anvin" <hpa@zytor.com>,
@@ -79,9 +79,9 @@ Cc: "H. Peter Anvin" <hpa@zytor.com>,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
         virtualization@lists.linux.dev, x86@kernel.org
-Subject: [PATCH 4/7] arch/nios: replace "__auto_type" with "auto"
-Date: Fri, 18 Jul 2025 14:32:47 -0700
-Message-ID: <20250718213252.2384177-5-hpa@zytor.com>
+Subject: [PATCH 5/7] arch/x86: replace "__auto_type" with "auto"
+Date: Fri, 18 Jul 2025 14:32:48 -0700
+Message-ID: <20250718213252.2384177-6-hpa@zytor.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250718213252.2384177-1-hpa@zytor.com>
 References: <20250718213252.2384177-1-hpa@zytor.com>
@@ -93,35 +93,76 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace uses of "__auto_type" in arch/nios2/include/asm/uaccess.h with
-"auto".
+Replace instances of "__auto_type" with "auto" in:
+
+	arch/x86/include/asm/bug.h
+	arch/x86/include/asm/string_64.h
+	arch/x86/include/asm/uaccess_64.h
 
 Signed-off-by: H. Peter Anvin (Intel) <hpa@zytor.com>
 ---
- arch/nios2/include/asm/uaccess.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/bug.h        | 2 +-
+ arch/x86/include/asm/string_64.h  | 6 +++---
+ arch/x86/include/asm/uaccess_64.h | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/nios2/include/asm/uaccess.h b/arch/nios2/include/asm/uaccess.h
-index b8299082adbe..fa9b06a7d7c6 100644
---- a/arch/nios2/include/asm/uaccess.h
-+++ b/arch/nios2/include/asm/uaccess.h
-@@ -172,14 +172,14 @@ do {									\
+diff --git a/arch/x86/include/asm/bug.h b/arch/x86/include/asm/bug.h
+index f0e9acf72547..4cce2ce8657b 100644
+--- a/arch/x86/include/asm/bug.h
++++ b/arch/x86/include/asm/bug.h
+@@ -94,7 +94,7 @@ do {								\
+  */
+ #define __WARN_FLAGS(flags)					\
+ do {								\
+-	__auto_type __flags = BUGFLAG_WARNING|(flags);		\
++	auto __flags = BUGFLAG_WARNING|(flags);		\
+ 	instrumentation_begin();				\
+ 	_BUG_FLAGS(ASM_UD2, __flags, ANNOTATE_REACHABLE(1b));	\
+ 	instrumentation_end();					\
+diff --git a/arch/x86/include/asm/string_64.h b/arch/x86/include/asm/string_64.h
+index 79e9695dc13e..4635616863f5 100644
+--- a/arch/x86/include/asm/string_64.h
++++ b/arch/x86/include/asm/string_64.h
+@@ -31,7 +31,7 @@ KCFI_REFERENCE(__memset);
+ #define __HAVE_ARCH_MEMSET16
+ static inline void *memset16(uint16_t *s, uint16_t v, size_t n)
+ {
+-	const __auto_type s0 = s;
++	const auto s0 = s;
+ 	asm volatile (
+ 		"rep stosw"
+ 		: "+D" (s), "+c" (n)
+@@ -44,7 +44,7 @@ static inline void *memset16(uint16_t *s, uint16_t v, size_t n)
+ #define __HAVE_ARCH_MEMSET32
+ static inline void *memset32(uint32_t *s, uint32_t v, size_t n)
+ {
+-	const __auto_type s0 = s;
++	const auto s0 = s;
+ 	asm volatile (
+ 		"rep stosl"
+ 		: "+D" (s), "+c" (n)
+@@ -57,7 +57,7 @@ static inline void *memset32(uint32_t *s, uint32_t v, size_t n)
+ #define __HAVE_ARCH_MEMSET64
+ static inline void *memset64(uint64_t *s, uint64_t v, size_t n)
+ {
+-	const __auto_type s0 = s;
++	const auto s0 = s;
+ 	asm volatile (
+ 		"rep stosq"
+ 		: "+D" (s), "+c" (n)
+diff --git a/arch/x86/include/asm/uaccess_64.h b/arch/x86/include/asm/uaccess_64.h
+index c8a5ae35c871..b0e4533ce625 100644
+--- a/arch/x86/include/asm/uaccess_64.h
++++ b/arch/x86/include/asm/uaccess_64.h
+@@ -72,7 +72,7 @@ static inline void __user *mask_user_address(const void __user *ptr)
+ 	return ret;
+ }
+ #define masked_user_access_begin(x) ({				\
+-	__auto_type __masked_ptr = (x);				\
++	auto __masked_ptr = (x);				\
+ 	__masked_ptr = mask_user_address(__masked_ptr);		\
+ 	__uaccess_begin(); __masked_ptr; })
  
- #define __put_user(x, ptr)						\
- ({									\
--	__auto_type __pu_ptr = (ptr);					\
-+	auto __pu_ptr = (ptr);					\
- 	typeof(*__pu_ptr) __pu_val = (typeof(*__pu_ptr))(x);		\
- 	__put_user_common(__pu_val, __pu_ptr);				\
- })
- 
- #define put_user(x, ptr)						\
- ({									\
--	__auto_type __pu_ptr = (ptr);					\
-+	auto __pu_ptr = (ptr);					\
- 	typeof(*__pu_ptr) __pu_val = (typeof(*__pu_ptr))(x);		\
- 	access_ok(__pu_ptr, sizeof(*__pu_ptr)) ?			\
- 		__put_user_common(__pu_val, __pu_ptr) :			\
 -- 
 2.50.1
 
