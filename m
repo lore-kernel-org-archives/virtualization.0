@@ -1,138 +1,161 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85B2529C32C
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 10:09:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AC0D40BF5
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 10:54:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752833392; cv=none; b=MTw/E0KECGHFfPI2b7WUfy333VC6E/U8OhvbnzvAcyHM3q+AP59ic35BPJtXUmg11Da/sdZ/oDa3C1Su/LTsmZ2DNMlIB5zbA+LUlhlBk7gCDsU7qnY7LKIGoaFa9Rdi3kjCvRZXzNE8g+30friHMyn4l75pN/9ldYwFaFvH5Fg=
+	t=1752836063; cv=none; b=HoWZe05dx4GGY5vpeNLYXCrRfwhRYhOHOls0ZlJwJPD4cqK3VUlv6mN2dRS/EkH00YKcMWL4mj7x53qFY5IqDfDE2G3nlicgvEnAjNpfmGLcEHzh8aau96a7wpmnGafthHvjjbjvoQFoTslCUWAzHQYlwVwgeNrLU6ymr0uCHsc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752833392; c=relaxed/simple;
-	bh=ctlCGKGs8G/73yMJcXOMmayiep3EzQ3+xghnEDl9aTU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EcPmvwfkcyi1y97F3DRwEeAa89DD5j4kYNbohnWp/zHrt3RNxmX5+aUcO0nBY8m8sVRog/0eKEv7GmR3kF2kXsXeQj3FdcBCXXC2F1Gvjh/Sxv5K8JB1FAYdsGJaBEcAiKSMuHf7QuXDVuLUHP2eQa50NJ2PRiXefR99sZIbRiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jIXuJEFF; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1752836063; c=relaxed/simple;
+	bh=L6w5YicZ+2uJKRKkkVqi5nSVRQuaPvJWVKRWUN4W6i0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ZzhE5hw3/Y/QjhMYMCaun5q692dlo+C4NN8S6OELzoxgmXwV8sTI94XvRaUIbnmadpykJInEJvjo9eDwn6R4Vt+kdP7Io8rXcHYIUOXWum+POEYbiDjKJakB68l4U8o4Of7LT9XStCZXODQ8mCIczOxFlsY4i+2kn5anHTy4ofI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=mBcI985s; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jIXuJEFF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752833389;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ctlCGKGs8G/73yMJcXOMmayiep3EzQ3+xghnEDl9aTU=;
-	b=jIXuJEFFuNd21uSmlXIJRLme8V660QD3BWZktRB1wSmLp4UedPO95vNstVREBfjXny1737
-	oyRBAdR8a8lGl0we6JY0e3JWJL4vmy73ynJ5Uls9iMTPBH7cGM4w8TxIZ8/z043IZGMT1M
-	7fZMaH14rTXYVyPXgL+z4IsQkK/sUM0=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-478-UBo5AH4EOHqVPrQVFkTPSg-1; Fri, 18 Jul 2025 06:09:48 -0400
-X-MC-Unique: UBo5AH4EOHqVPrQVFkTPSg-1
-X-Mimecast-MFC-AGG-ID: UBo5AH4EOHqVPrQVFkTPSg_1752833387
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-3132c1942a1so2691513a91.2
-        for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 03:09:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752833387; x=1753438187;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ctlCGKGs8G/73yMJcXOMmayiep3EzQ3+xghnEDl9aTU=;
-        b=N7Qoo55/ujTkGEzJPZFkWs44VbX6DpYhGB7rKPEFmV256rHHEje93W/npH0/eYj4f2
-         Pai7lo3FJESKIL8t9Pca1s6q6p8jAtHXxs0sm963xRUoYnQQpgixyXqSCfY8UrIMs8T8
-         CHDdhCHL1ySkQOLRbS/dDYUz6anIRBCGniwRuzTSTTtPOrywThrDXeh7AKLIUIV7GpuK
-         qSId05t2dnX9iTKcy/WmllA8Dv2seyyzfaR6C9kg5x6sqXpxwNLAeLzbu/Hx8kXp/LEw
-         SP/f4SgbtX+CUSdR62vbSpAzMXN6UX0VStclO4OC03qtlKM/SwIxHFGYG2EqvMBxk1+/
-         mTgw==
-X-Forwarded-Encrypted: i=1; AJvYcCXmVOSC3+kVbhevaGr/2+WNbU/fdytj9tXObeHKmMT/AOaAXaIXeBaQ/uP13B3Ig58jntTqDNMaF0xLaR+gZw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyn333/e0QDdnCUSsSN0cOJ9WQXqsFzQ/vK8NbryrY5ZP0TUK6D
-	rROgH86hiH9It+eIqHPbkmkT2TabsJsIERvAOxmj6bGwn+zihI12x3GasE/EgmZv11cqSMAxBJf
-	jbpvQ26xYYbZ0uJXqWQly5Cwbw86KbDJLfTCd++0erkneWkXKff2dvr3yGqfQqvHhR9xZqXSrBj
-	jIz87tCvqFUj5d9NqS3BqomfMoqElf13nTwpUhbqVE4u0=
-X-Gm-Gg: ASbGnctFZI3GtcC/ldhwHUqbKdcB1kd0BCsWAZq06f+LHV7GQ7SMAl2mGhEgb8ZkhUO
-	Q1nuK5pEnBmZ89MS9ZsP+qiNBXOY10shEXDCIQwPXC/x4Wm13mFAJUB3/XsE0/yrQm46e5Y5jrC
-	F6tytcH6EVJKtm/erEpRY=
-X-Received: by 2002:a17:90b:380f:b0:311:a314:c2ca with SMTP id 98e67ed59e1d1-31c9f398d36mr13984148a91.6.1752833387336;
-        Fri, 18 Jul 2025 03:09:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH5RYKqHnTauNryCtc3dIhE431HKTwwsn/bJJN2W1g/LNzYcywCp8S3qRz3FUJvplozLFoFyjeMytjWPwHyYRQ=
-X-Received: by 2002:a17:90b:380f:b0:311:a314:c2ca with SMTP id
- 98e67ed59e1d1-31c9f398d36mr13984115a91.6.1752833386946; Fri, 18 Jul 2025
- 03:09:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="mBcI985s"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1752836059;
+	bh=L6w5YicZ+2uJKRKkkVqi5nSVRQuaPvJWVKRWUN4W6i0=;
+	h=From:To:Cc:Subject:Date:From;
+	b=mBcI985sxjmZ0g1gAq9+isfWxrxF8FJ4PIwmiBbenOAMcNN02eCxnNKJPOnfrAKjj
+	 1cvmygrWTvd96UaDJzMRSctEZUobKQTHWXVAQST6HZefkc1Ub3c4mJYqfwBqznsEJi
+	 gx/FIehGqRVftwOK7TeUcSk4ZXwHn1K6PsAgVYEbD3LoQ3hqqeq7apfc2xzzi4xa7h
+	 HwY6WrV5Vhdl3ODsJadnTAxysi8wg0RXvma50oRYaJ9hEXaFHxOFZjkFjGmKhuOCbR
+	 12SPzJLycIPgV6eSIkvVfzT1HyP+CsVcrccu/oH3fq859lEiRedW95p/xUqa7/oaaQ
+	 TE3UkY23/Uimg==
+Received: from debian.. (unknown [171.76.80.183])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id D4DC417E1522;
+	Fri, 18 Jul 2025 12:54:15 +0200 (CEST)
+From: Vignesh Raman <vignesh.raman@collabora.com>
+To: dri-devel@lists.freedesktop.org
+Cc: daniels@collabora.com,
+	helen.fornazier@gmail.com,
+	airlied@gmail.com,
+	simona.vetter@ffwll.ch,
+	robdclark@gmail.com,
+	guilherme.gallo@collabora.com,
+	sergi.blanch.torne@collabora.com,
+	valentine.burley@collabora.com,
+	lumag@kernel.org,
+	linux-mediatek@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	amd-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1 0/7] drm/ci: add new jobs, uprev IGT and mesa
+Date: Fri, 18 Jul 2025 16:23:52 +0530
+Message-ID: <20250718105407.32878-1-vignesh.raman@collabora.com>
+X-Mailer: git-send-email 2.47.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250718091616.6140-1-jasowang@redhat.com> <20250718091616.6140-8-jasowang@redhat.com>
- <20250718053156-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250718053156-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 18 Jul 2025 18:09:35 +0800
-X-Gm-Features: Ac12FXwHR1sN1y1DpfX9qqmgTEuRWZjK6eAXhjAxne1BebM98OF_goG595R79UY
-Message-ID: <CACGkMEue4Wh3ocM2Pmn5E_nMzjHkJqd-MhYbPDY9pXdwMtqgXQ@mail.gmail.com>
-Subject: Re: [PATCH V4 7/9] vdpa: rename dma_dev to map_token
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, hch@infradead.org, 
-	Christoph Hellwig <hch@lst.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OraVS5HBejf8ELWR5K5HNvQpOZ_mN7R5IW61tr37ojk_1752833387
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 18, 2025 at 5:37=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Fri, Jul 18, 2025 at 05:16:14PM +0800, Jason Wang wrote:
-> > Virtio core switches from DMA device to mapping token, let's do that
-> > as well for vDPA.
->
-> Pls switch to imperative mood.
->
-> And add explanation about what is going on and why please.
+This series introduces new jobs to drm-ci for testing the following
+devices:
+- rk3588-rock-5b
+- mt8192-asurada-spherion-r0
 
-I think this has been explained in patch [PATCH V4 6/9] virtio:
-introduce map ops in virtio core?
+Other updates include:
+- Uprev IGT and updating test expectations accordingly.
+- Adapting to recent changes in Mesa CI, such as:
+   - LAVA overlay-based firmware handling
+   - Container/job rule separation
+   - Removal of the python-artifacts job
+   - Use of the Alpine container for LAVA jobs
+   - Various other CI improvements
+- Disabling bare-metal jobs for apq8016 and apq8096, as these devices
+  are being migrated to LAVA.
+- Updating the runner tag for i915: cml (switching from hatch to puff)
+  to improve device availability.
+- Adjusting parallelism in jobs (sm8350-hdk, amly) to better utilize
+  test resources.
 
-"""
-For the device or transport that doesn't do DMA,
-they can implement their own mapping logic without the need to trick
-DMA core. In this case the map_token is opaque to the virtio core that
-will be passed back to the transport or device specific map
-operations. For other devices, DMA API will still be used, so map
-token will still be the dma device to minimize the changeset and
-performance impact.
-"""
+Pipeline: https://gitlab.freedesktop.org/vigneshraman/msm/-/pipelines/1473405
+MR: https://gitlab.freedesktop.org/drm/msm/-/merge_requests/180 
 
->
-> At least, document what are the actual types stored here.
+Vignesh Raman (7):
+  drm/ci: disable apq8016 and apq8096 bare-metal jobs
+  drm/ci: reduce sm8350-hdk parallel jobs from 4 to 2
+  drm/ci: i915: cml: update runner tag
+  drm/ci: uprev mesa
+  drm/ci: uprev IGT
+  drm/ci: add rk3588-rock-5b
+  drm/ci: add mt8192
 
-It is opaque to the virtio core and will be used as a token to be
-passed back when the virtio core wants to map/unmap a buffer. So it
-doesn't have a type.
+ MAINTAINERS                                   |   1 +
+ drivers/gpu/drm/ci/arm64.config               |   9 ++
+ drivers/gpu/drm/ci/build.sh                   |   1 +
+ drivers/gpu/drm/ci/build.yml                  |  23 ++--
+ drivers/gpu/drm/ci/container.yml              |  12 +-
+ drivers/gpu/drm/ci/gitlab-ci.yml              |  95 +++++++++++---
+ drivers/gpu/drm/ci/igt_runner.sh              |   6 +-
+ drivers/gpu/drm/ci/image-tags.yml             |  14 ++-
+ drivers/gpu/drm/ci/lava-submit.sh             |  99 +++++++--------
+ drivers/gpu/drm/ci/static-checks.yml          |   1 +
+ drivers/gpu/drm/ci/test.yml                   |  73 +++++++++--
+ .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt |   2 +
+ .../drm/ci/xfails/amdgpu-stoney-flakes.txt    |   7 ++
+ drivers/gpu/drm/ci/xfails/i915-amly-fails.txt |  11 +-
+ drivers/gpu/drm/ci/xfails/i915-apl-fails.txt  |   2 +
+ drivers/gpu/drm/ci/xfails/i915-cml-fails.txt  |  29 +----
+ drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt |   7 ++
+ drivers/gpu/drm/ci/xfails/i915-glk-fails.txt  |   8 +-
+ drivers/gpu/drm/ci/xfails/i915-glk-skips.txt  |  83 ++++++++++++
+ drivers/gpu/drm/ci/xfails/i915-jsl-fails.txt  |  10 +-
+ drivers/gpu/drm/ci/xfails/i915-kbl-fails.txt  |   3 +
+ drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt  |   5 +-
+ drivers/gpu/drm/ci/xfails/i915-tgl-flakes.txt |   6 +
+ drivers/gpu/drm/ci/xfails/i915-whl-fails.txt  |   7 +-
+ .../drm/ci/xfails/mediatek-mt8173-fails.txt   |   5 +-
+ .../drm/ci/xfails/mediatek-mt8173-flakes.txt  | 119 ++++++++++++++++++
+ .../drm/ci/xfails/mediatek-mt8183-fails.txt   |   7 +-
+ .../drm/ci/xfails/mediatek-mt8192-fails.txt   |  34 +++++
+ .../drm/ci/xfails/mediatek-mt8192-skips.txt   |  14 +++
+ .../msm-sc7180-trogdor-kingoftown-fails.txt   |   1 +
+ ...sm-sc7180-trogdor-lazor-limozeen-fails.txt |   1 +
+ .../drm/ci/xfails/msm-sm8350-hdk-fails.txt    |   1 +
+ .../drm/ci/xfails/msm-sm8350-hdk-skips.txt    |  73 +++++++++++
+ .../drm/ci/xfails/panfrost-mt8183-fails.txt   |   1 +
+ .../drm/ci/xfails/panfrost-mt8192-fails.txt   |   9 ++
+ .../drm/ci/xfails/panfrost-mt8192-skips.txt   |  20 +++
+ .../drm/ci/xfails/panfrost-rk3288-fails.txt   |   1 +
+ .../drm/ci/xfails/panfrost-rk3399-fails.txt   |   1 +
+ .../drm/ci/xfails/panthor-rk3588-fails.txt    |   5 +
+ .../drm/ci/xfails/panthor-rk3588-skips.txt    |  20 +++
+ .../drm/ci/xfails/rockchip-rk3288-fails.txt   |  12 +-
+ .../drm/ci/xfails/rockchip-rk3288-flakes.txt  |  21 ++++
+ .../drm/ci/xfails/rockchip-rk3399-fails.txt   |   9 +-
+ .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |  35 ++++++
+ .../drm/ci/xfails/rockchip-rk3588-fails.txt   |  10 ++
+ .../drm/ci/xfails/rockchip-rk3588-skips.txt   |  14 +++
+ .../drm/ci/xfails/virtio_gpu-none-fails.txt   |   4 +
+ drivers/gpu/drm/ci/xfails/vkms-none-fails.txt |   3 +
+ drivers/gpu/drm/ci/xfails/vkms-none-skips.txt |   3 +
+ 49 files changed, 771 insertions(+), 166 deletions(-)
+ create mode 100644 drivers/gpu/drm/ci/xfails/i915-tgl-flakes.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8192-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8192-skips.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-mt8192-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-mt8192-skips.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panthor-rk3588-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panthor-rk3588-skips.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3588-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3588-skips.txt
 
-> I checked and it looks like vduse actually returns struct device * here, =
-too?
-
-It's just a token, vduse can return anything that can be used to
-identify an iova domain. For example, it can return a pointer to
-iova_domain which will also work. If you prefer to use iova domain, I
-can change to use that in the next version.
-
-> So why do we need this, why lose all type safety?
-
-If you worry about the case that assumes map_token as dma device in
-virtio core. I can keep both map_token and dma_device and make the
-mutually exclusive, then:
-
-- when transport reports dma device, use DMA API
-- when transport reports map token, use map ops
-
-Does this work for you?
-
-Thanks
+-- 
+2.47.2
 
