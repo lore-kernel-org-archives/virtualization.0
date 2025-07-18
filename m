@@ -1,133 +1,222 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79E8B29346F
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 08:40:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 414161D5CE8
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 08:46:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752828034; cv=none; b=AYOcGJAkmfHFRbYXzNFxlfKvREIDgzyd3MfZ/v7XH+f2ieKNWv8aVjxceGZCQlBKypzrJX/g+ecC7mgsKap8s2J2P+h8elvDOYU8gZ/NKYFyPjpQEYGSuXcgp3GbT5x5mKI+12XSfeADTbnO7e8b7aEv2tF4/+e4asPWh3n1jyI=
+	t=1752828399; cv=none; b=LOg5dLLGNRIDzxLRY430VdAfdSdpJ4vxVe2q9QxNUFd2qIUv2jmdC57QIe8FmNPVpf79IFi5jTbOJpDj7guGc3Z0+hSmFdQAM+sZYRiuGI4WqsKoO05oCaT+Xre4DYjomUO1jfIRBYoEt7vwnCCReCBdJg+2tP6qq5f4xjdCpvE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752828034; c=relaxed/simple;
-	bh=d/cITLBHlMU6TAxUTNaIP7pa1O0kFJWp8UkvhASv7Ik=;
+	s=arc-20240116; t=1752828399; c=relaxed/simple;
+	bh=r8HNSenv3i93seyFN/HkzRDH6Z+/x+ftOLEYrPEHFGM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Y/0DXi/HGiKoaLNCfBsoZnowWFYzoEMDS7E414dJKHqZRNTxssdvjc14s22c77/pyyUwfRkLoBBHo0Hy6zUwBM1g1a5fZT9RtuNRV392vr82GfqFczJA7nFYW5b19ncqqIgx21iHCHlt9jTcpNVd8dPCUjhklbn210IHvsVxKtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MyTPgiot; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=ll2EWH/x59XjaaU5okjkZFQf/sIU9ggjEo1kq3rx0wAntqxkb4Nk5B8cXo4K2hrORdH3NTJima385f53s7P+jx4WoUgBc+7evEvmvacy4ux6XD9qvVqX3/lPFfTnTE44DqiupFeupI6FHwE/phOGMsECsxY0dG9sYz8n/i0bkpw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KYnE1KuV; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MyTPgiot"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KYnE1KuV"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752828031;
+	s=mimecast20190719; t=1752828397;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qhhj+5lPdjvEGUsT5bIy4jc4ubsrbG5zCwrEB9sz+w4=;
-	b=MyTPgiotJFEQ3hZIiSckKisTy5f2QIbItgwbrtBXmHykOMlO71OozWNYzs+oLSNkn7b+LI
-	DPU2WLmoUd0iQlV1yO7Pks/3idc2N9cacqB2adHZHnKv+azQ9+vRLsrDmVH/M0qljctFUY
-	eIUMO4mKL+Y1afkxHj4pRdP00tqlfqc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=rkeF+nsoMc+ORIFDqLpObr+hn2VFjp0dIELtxR6yL3M=;
+	b=KYnE1KuVGqvGDlHgVXkgSkRq67WaBtprT47du9kQClmEDMCuWVkNRd98r1G+W1qy92JBXT
+	9U7etjl18fZYfg0WrI/E8z2NhFXouagxbZnUAyAKJiFmetR1kCaPyW7SIWko2eQguRJpnk
+	7NDUDaUzqfsbDzl2E5/QTGUeXobxc/o=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-439-umQ1JsgROni-NYS3Dhc8nw-1; Fri, 18 Jul 2025 04:40:27 -0400
-X-MC-Unique: umQ1JsgROni-NYS3Dhc8nw-1
-X-Mimecast-MFC-AGG-ID: umQ1JsgROni-NYS3Dhc8nw_1752828027
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a50049f8eeso924770f8f.3
-        for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 01:40:27 -0700 (PDT)
+ us-mta-394-45xluW0tOSKiH4ZaZ5xffg-1; Fri, 18 Jul 2025 04:46:35 -0400
+X-MC-Unique: 45xluW0tOSKiH4ZaZ5xffg-1
+X-Mimecast-MFC-AGG-ID: 45xluW0tOSKiH4ZaZ5xffg_1752828394
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-455e9daab1cso4442395e9.1
+        for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 01:46:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752828026; x=1753432826;
+        d=1e100.net; s=20230601; t=1752828394; x=1753433194;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qhhj+5lPdjvEGUsT5bIy4jc4ubsrbG5zCwrEB9sz+w4=;
-        b=sFD4gHuNAmBRWX5nrUmQqdyI1pktBUGHNwgAEB8455N6Qtv3+ATFzS4FLdfKXexfKk
-         2DVqkyn2pj5vetQdQ0vYn3Wznl6tyz8DXsQS+I/lRyG9zIGKCjlLJXCgFs0A80PViG4H
-         rLB7C8+bGGdGiWmp3HMCbRww0MgNWkDX3m08YR3U4LOjQLEXTNbyQN304h9oL5/FJ8Ws
-         LXftbgWpgC261ZRlzr0e7BbHWvcHSmDw1MPw3q/Jz1PKr92VKT3AyxvkFPZ+bjY8/rzB
-         lhSWucZJ7DUFkHcxpBIqLASCnp9PfmxOwC98RLE6FLizDjOm/1mTBqT/9FP+x676EQrI
-         CmhA==
-X-Forwarded-Encrypted: i=1; AJvYcCUmKU8uPKS65iaKkW9FXcqASo2lDtaGiFYMePVjEi6YItWFoOsEu9uYyugXw9Hk3i7IhfDZJvjTcq+JXeRtCQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwfnZZmal+t4h8GBCJnDvcqdk8zx311ipnb+2gI7JUQp3KiStBm
-	drbC91Hwa0sir4AOCkO2Ap8Rik+UBoEtTV1g/9xF/TWj7uNEDoBDEWK+c3dEeySMOxzqqfANYvM
-	gWsxCIjCFzBTbTUFamX7X86Q8+qhQGu5mMIMSLvz9qnQ96kH71hXKp2qXapEFQfgATKeA
-X-Gm-Gg: ASbGncsdYIZFdrZ/8dKv061rLzByUVEmNFMgc0qlFh5luRRSZmUTXhbbFjDQpvcyOaX
-	JqsgjnBiexK1EWJiwPcCz5b+mC7q1N3LWvay3j439m9EETfF6d0TFHMb81W+jVBAT155ZefsFyj
-	pKGcPKAVe/7P+jbHakbu2W+paqpd82f7Hh6hcZb8+Zz088e4VMxEBNpt6fAs55pYnPJO+aOlq2+
-	XIF56AwB2sgvtgbTud++SyV+sv/lOT8nXoxSjHwpBWs6Zg158lAbAQo38xV641kNu6r6tcp8HRM
-	Rn91BzeTYcGTapgC0AD8ZOEouk6ZanD7
-X-Received: by 2002:adf:e192:0:b0:3a4:e5ea:1ac0 with SMTP id ffacd0b85a97d-3b61b0ebf41mr1511863f8f.5.1752828026487;
-        Fri, 18 Jul 2025 01:40:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHqBvIibZpxmEevMb7PnR+yqkZwG63DgOrUJ7WvDQrH3ySphvekTPCQWQL3DTfQJNDfF22bDw==
-X-Received: by 2002:adf:e192:0:b0:3a4:e5ea:1ac0 with SMTP id ffacd0b85a97d-3b61b0ebf41mr1511830f8f.5.1752828026104;
-        Fri, 18 Jul 2025 01:40:26 -0700 (PDT)
+        bh=rkeF+nsoMc+ORIFDqLpObr+hn2VFjp0dIELtxR6yL3M=;
+        b=UXepY+97ME5IJOBmbTEiVs/EflJ6Q72q2dejTpvlddr2Yqjx6Als6khHNvd859mTpw
+         O2LKCqb83/IA0nekPRKn6wHrrPCHt1WIkb5RtMjeTeRdKa1prAMTOC3IZ6mzSq44zWDm
+         xt3RqsbqQkFiW2gZCU3cVJx03zbeEWa7sZ8PQ1vDh/cJ/pHT/RocvWdjHTDI5mufcXk1
+         T+3ffSb1GvyhG5DOKI7feXaKN0lXK8LoEwkRD021/ZQRTcPHfAUSEbBBUuNgcyWLWt7Z
+         fPbTECYz7OKUajfBeFwV9N0vfXeQKNq5tiHoaYv418KBvwUSyHztblF6NlVhpJznnJNG
+         Y4bA==
+X-Forwarded-Encrypted: i=1; AJvYcCXimHKlD5QCA0gZ3a1LvFCSuFGoeR6xYIGMJ2aLBbmQ7LDQSDuXkfenJr1Q+AkpcNE/EJ5fUwXI8hCabpSYww==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzXOHmNVZLLgUMePsarjYdkEZ177NF44HDP9vvdl9qyrXVnlFJh
+	/COw3VcT380AfPH4FAUd3LeoUEbuNEp69/PYldp4aHH2H0RNLObTnuq3NJbFtqYfWRZdlaggIIN
+	2ZdUD+pKnC5UMrCsFelFJfL6j4jkqjPVqb7DT2t0KnxhBepoCYlGc9gZF0pPD5huATS5M
+X-Gm-Gg: ASbGncv/gVBVDrxfGDXSLfiWE7KT2rXGYRVlRjLcBKBW6JQTqSgxmIHhFZF4q7iTsdq
+	tr5TtsXGXbKYMUl9iv9CgOVOorzp5+UvT4U4tsgY10Fh5wXcQHj8bwK1x7ehkq3dCUnYkjmKNp8
+	4+p6wVvOreqN7aueNIjL2C9p0MmN+0OxPgTCBJh9PfFu8n7hHgCqsBolpLR+mTnriovjSlakXgi
+	6GVxI3OjajDaD9Q1OAvCVpAeddQxHSj4Hbk/wMuIyzBp0Ge+fsml1OAhjg53O1M7coR+mvWKQw+
+	y+2JBG/2+xGBAHepiUybJqO4TCf3SUOY
+X-Received: by 2002:a05:600c:858c:b0:442:f97f:8174 with SMTP id 5b1f17b1804b1-4562eb80e1amr73843945e9.18.1752828394209;
+        Fri, 18 Jul 2025 01:46:34 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGb0v+11O9uf8A2xcoCsT2S4EzSLGXQb/NNOjAvXhk/EXicJpFoz89yfB5M5Pnh1eYcicC6ww==
+X-Received: by 2002:a05:600c:858c:b0:442:f97f:8174 with SMTP id 5b1f17b1804b1-4562eb80e1amr73843765e9.18.1752828393748;
+        Fri, 18 Jul 2025 01:46:33 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b61ca4d475sm1164451f8f.65.2025.07.18.01.40.24
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4562e886113sm73530615e9.23.2025.07.18.01.46.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Jul 2025 01:40:25 -0700 (PDT)
-Date: Fri, 18 Jul 2025 04:40:22 -0400
+        Fri, 18 Jul 2025 01:46:33 -0700 (PDT)
+Date: Fri, 18 Jul 2025 04:46:30 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Lukas Wunner <lukas@wunner.de>
-Cc: linux-kernel@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
-	stefanha@redhat.com, alok.a.tiwari@oracle.com,
-	linux-pci@vger.kernel.org
-Subject: Re: [PATCH RFC v5 1/5] pci: report surprise removal event
-Message-ID: <20250718044006-mutt-send-email-mst@kernel.org>
-References: <cover.1752094439.git.mst@redhat.com>
- <fba3d235e38c1c6fcef2a30ed083ad9e25b20fa3.1752094439.git.mst@redhat.com>
- <aHSfeNhpocI4nmQk@wunner.de>
- <20250717091025-mutt-send-email-mst@kernel.org>
- <aHlZE18kPuHuDtTT@wunner.de>
- <20250717193122-mutt-send-email-mst@kernel.org>
- <aHnPLIe-0ScYDfej@wunner.de>
+To: Jason Wang <jasowang@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, hch@infradead.org,
+	Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH V3 1/9] virtio_ring: constify virtqueue pointer for DMA
+ helpers
+Message-ID: <20250718044623-mutt-send-email-mst@kernel.org>
+References: <20250718023758.36866-1-jasowang@redhat.com>
+ <20250718023758.36866-2-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aHnPLIe-0ScYDfej@wunner.de>
+In-Reply-To: <20250718023758.36866-2-jasowang@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wlxqLQYky1lVLitydaL7fBncktx64bTlPL2WKzUhbQQ_1752828027
+X-Mimecast-MFC-PROC-ID: osWoEuyul3RxwvbjJdipOZby3szc06OIgk039iixZTA_1752828394
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Jul 18, 2025 at 06:35:56AM +0200, Lukas Wunner wrote:
-> On Thu, Jul 17, 2025 at 07:31:57PM -0400, Michael S. Tsirkin wrote:
-> > On Thu, Jul 17, 2025 at 10:12:03PM +0200, Lukas Wunner wrote:
-> > > pciehp_handle_presence_or_link_change() is called from pciehp_ist(),
-> > > the IRQ thread.  During safe removal the IRQ thread is busy in
-> > > pciehp_unconfigure_device() and waiting for the driver to unbind
-> > > from devices being safe-removed.
-> > 
-> > Confused. I thought safe removal happens in the userspace thread
-> > that wrote into sysfs?
-> 
-> No, the userspace thread synthesizes a DISABLE_SLOT event,
-> calls irq_wake_thread(), then waits for the IRQ thread to
-> finish handling that event.  See pciehp_sysfs_disable_slot().
-> 
-> Until 2018 we indeed brought down the slot in the userspace
-> thread, but that required locking between the workqueue fed
-> by the interrupt handler on the one hand and the userspace
-> thread on the other hand.  It was difficult to reason about
-> the code.
-> 
-> We had bug reports about slots flapping the link or presence
-> bits on slot bringdown that we could easily address by handling
-> everything in the IRQ thread, see 3943af9d01e9.  The same was
-> reported for slot bringup and addressed by 6c35a1ac3da6.
-> 
-> This wouldn't have been possible with the architecture prior
-> to 2018, at least not this easily.
-> 
-> Thanks,
-> 
-> Lukas
+On Fri, Jul 18, 2025 at 10:37:50AM +0800, Jason Wang wrote:
+> This patch consities virtqueue point for DMA helpers.
 
-Got it, thanks!
+point -> pointer
 
--- 
-MST
+> 
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/virtio/virtio_ring.c | 25 +++++++++++++------------
+>  include/linux/virtio.h       | 12 ++++++------
+>  2 files changed, 19 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index f5062061c408..103bad8cffff 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -3149,12 +3149,12 @@ EXPORT_SYMBOL_GPL(virtqueue_get_vring);
+>   *
+>   * return DMA address. Caller should check that by virtqueue_dma_mapping_error().
+>   */
+> -dma_addr_t virtqueue_dma_map_single_attrs(struct virtqueue *_vq, void *ptr,
+> +dma_addr_t virtqueue_dma_map_single_attrs(const struct virtqueue *_vq, void *ptr,
+>  					  size_t size,
+>  					  enum dma_data_direction dir,
+>  					  unsigned long attrs)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	const struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+>  	if (!vq->use_dma_api) {
+>  		kmsan_handle_dma(virt_to_page(ptr), offset_in_page(ptr), size, dir);
+> @@ -3176,11 +3176,12 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_map_single_attrs);
+>   * Unmap the address that is mapped by the virtqueue_dma_map_* APIs.
+>   *
+>   */
+> -void virtqueue_dma_unmap_single_attrs(struct virtqueue *_vq, dma_addr_t addr,
+> +void virtqueue_dma_unmap_single_attrs(const struct virtqueue *_vq,
+> +				      dma_addr_t addr,
+>  				      size_t size, enum dma_data_direction dir,
+>  				      unsigned long attrs)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	const struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+>  	if (!vq->use_dma_api)
+>  		return;
+> @@ -3196,9 +3197,9 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_unmap_single_attrs);
+>   *
+>   * Returns 0 means dma valid. Other means invalid dma address.
+>   */
+> -int virtqueue_dma_mapping_error(struct virtqueue *_vq, dma_addr_t addr)
+> +int virtqueue_dma_mapping_error(const struct virtqueue *_vq, dma_addr_t addr)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	const struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+>  	if (!vq->use_dma_api)
+>  		return 0;
+> @@ -3217,9 +3218,9 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_mapping_error);
+>   *
+>   * return bool
+>   */
+> -bool virtqueue_dma_need_sync(struct virtqueue *_vq, dma_addr_t addr)
+> +bool virtqueue_dma_need_sync(const struct virtqueue *_vq, dma_addr_t addr)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	const struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+>  	if (!vq->use_dma_api)
+>  		return false;
+> @@ -3240,12 +3241,12 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_need_sync);
+>   * the DMA address really needs to be synchronized
+>   *
+>   */
+> -void virtqueue_dma_sync_single_range_for_cpu(struct virtqueue *_vq,
+> +void virtqueue_dma_sync_single_range_for_cpu(const struct virtqueue *_vq,
+>  					     dma_addr_t addr,
+>  					     unsigned long offset, size_t size,
+>  					     enum dma_data_direction dir)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	const struct vring_virtqueue *vq = to_vvq(_vq);
+>  	struct device *dev = vring_dma_dev(vq);
+>  
+>  	if (!vq->use_dma_api)
+> @@ -3266,12 +3267,12 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_cpu);
+>   * Before calling this function, use virtqueue_dma_need_sync() to confirm that
+>   * the DMA address really needs to be synchronized
+>   */
+> -void virtqueue_dma_sync_single_range_for_device(struct virtqueue *_vq,
+> +void virtqueue_dma_sync_single_range_for_device(const struct virtqueue *_vq,
+>  						dma_addr_t addr,
+>  						unsigned long offset, size_t size,
+>  						enum dma_data_direction dir)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	const struct vring_virtqueue *vq = to_vvq(_vq);
+>  	struct device *dev = vring_dma_dev(vq);
+>  
+>  	if (!vq->use_dma_api)
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index dd98cc2b8c18..f2dbd18a2b2e 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -264,18 +264,18 @@ void unregister_virtio_driver(struct virtio_driver *drv);
+>  	module_driver(__virtio_driver, register_virtio_driver, \
+>  			unregister_virtio_driver)
+>  
+> -dma_addr_t virtqueue_dma_map_single_attrs(struct virtqueue *_vq, void *ptr, size_t size,
+> +dma_addr_t virtqueue_dma_map_single_attrs(const struct virtqueue *_vq, void *ptr, size_t size,
+>  					  enum dma_data_direction dir, unsigned long attrs);
+> -void virtqueue_dma_unmap_single_attrs(struct virtqueue *_vq, dma_addr_t addr,
+> +void virtqueue_dma_unmap_single_attrs(const struct virtqueue *_vq, dma_addr_t addr,
+>  				      size_t size, enum dma_data_direction dir,
+>  				      unsigned long attrs);
+> -int virtqueue_dma_mapping_error(struct virtqueue *_vq, dma_addr_t addr);
+> +int virtqueue_dma_mapping_error(const struct virtqueue *_vq, dma_addr_t addr);
+>  
+> -bool virtqueue_dma_need_sync(struct virtqueue *_vq, dma_addr_t addr);
+> -void virtqueue_dma_sync_single_range_for_cpu(struct virtqueue *_vq, dma_addr_t addr,
+> +bool virtqueue_dma_need_sync(const struct virtqueue *_vq, dma_addr_t addr);
+> +void virtqueue_dma_sync_single_range_for_cpu(const struct virtqueue *_vq, dma_addr_t addr,
+>  					     unsigned long offset, size_t size,
+>  					     enum dma_data_direction dir);
+> -void virtqueue_dma_sync_single_range_for_device(struct virtqueue *_vq, dma_addr_t addr,
+> +void virtqueue_dma_sync_single_range_for_device(const struct virtqueue *_vq, dma_addr_t addr,
+>  						unsigned long offset, size_t size,
+>  						enum dma_data_direction dir);
+>  
+> -- 
+> 2.42.0
 
