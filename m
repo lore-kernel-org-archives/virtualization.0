@@ -1,153 +1,91 @@
-Received: from forwardcorp1a.mail.yandex.net (forwardcorp1a.mail.yandex.net [178.154.239.72])
+Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 918E333985
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 11:04:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.72
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCA1E2BEC44;
+	Fri, 18 Jul 2025 11:13:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752836679; cv=none; b=c3+JX2m36+3M5jpoGtv09nDTzyuHhMx2jzbPwX2Fs7sRANNZh0z4C4kjRAIIEyHvJn5SLbgFO4FJIPEwDQcDEIaXUPOs5nikFZkfFT6N67XXl/cfajIK0YzKhZQ8uFNDR/Cdvh5+qRmVuCPXPJH/ehmuL5tZwdIMmrr9nqMe/9A=
+	t=1752837216; cv=none; b=e8nwIqPPlUQ0NGyWOstMZ7lSvuuQZOlMuNl3VqLLBdeTguOAuJEOujOgJDRCH/UdtAOm9LLeDOOIjQSsW4gJsL84dMPCRLI6p++J5Cgb4inVPuHWCEiOoDlUNfLWqtAHnRzAjxtH86LNCQLBGknlCiZDVOWVnH9WdIvQN0s5pZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752836679; c=relaxed/simple;
-	bh=cFORY9gb0sfHAI5NO7xSZ6xnWnAfgmRgOLUsTQ179wQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=AtY/B5qhxBBGfPhgXXeilWruUhDmRnxQJYFKVoEu9FqCPBYdoqwWVcXnOwV3S317XHOMCsvtzQCf8CsYX4QQCUbGeXAU9hchNq50Il8AkXy7Ndvp+P7gV7u+PR75FA6+c0Z6BX2iLfUn3CQjrbnAXGL4uuLXN1KKd76fEsxdA4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru; spf=pass smtp.mailfrom=yandex-team.ru; dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b=Hg/k6Xe4; arc=none smtp.client-ip=178.154.239.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex-team.ru
+	s=arc-20240116; t=1752837216; c=relaxed/simple;
+	bh=JL5F+QMyAbZRgl1qNW2EXe1o8d3EBJKY1WaFusUNqmA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uCKlw6UqI6kps1lGVrHCpR/HTtwSTi9reQ4nDdnJH5UdPwQTrLoTy9YQrUKLW9P9OioVTez/OLbpYYTJ+UInrgru3LehpHdAS/8nBImDGRjYimODjunkxKQqgQRsf1LC1CPwduO0yKpy6GhliJT5Uyk5118nBxys1QnfEuaJNJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=IRqfuQIK; arc=none smtp.client-ip=180.181.231.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="Hg/k6Xe4"
-Received: from mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net (mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net [IPv6:2a02:6b8:c0f:4291:0:640:5ba1:0])
-	by forwardcorp1a.mail.yandex.net (Yandex) with ESMTPS id 01F6CC1324;
-	Fri, 18 Jul 2025 14:04:30 +0300 (MSK)
-Received: from kniv-nix.yandex-team.ru (unknown [2a02:6bf:8080:56e::1:20])
-	by mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id C4MJsn1G4eA0-22dOx9QF;
-	Fri, 18 Jul 2025 14:04:29 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru;
-	s=default; t=1752836669;
-	bh=2qalnWYlQY+v6tyEg1CW//D2TKZDTcBnHEPVSwiWO/A=;
-	h=Message-Id:Date:Cc:Subject:To:From;
-	b=Hg/k6Xe4zn/33viN5WiQsuyi+GvR3boPyW3beCibPRrnN9PeNfOjcaMEITbrG2QnV
-	 BMYj8L68OOlljHdI7jRvNfOgS5hpLhkVV4oAoQ+TasSL/KqJ8Zy9ooZ7eDELWGShQs
-	 dB0e0QBbGTTCGiOH/v+X/rvIKBL7iZU6feUQpL7E=
-Authentication-Results: mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net; dkim=pass header.i=@yandex-team.ru
-From: Nikolay Kuratov <kniv@yandex-team.ru>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Lei Yang <leiyang@redhat.com>,
-	Hillf Danton <hdanton@sina.com>,
-	Nikolay Kuratov <kniv@yandex-team.ru>,
-	stable@vger.kernel.org,
-	Andrey Ryabinin <arbn@yandex-team.com>,
-	Andrey Smetanin <asmetanin@yandex-team.ru>
-Subject: [PATCH v2] vhost/net: Replace wait_queue with completion in ubufs reference
-Date: Fri, 18 Jul 2025 14:03:55 +0300
-Message-Id: <20250718110355.1550454-1-kniv@yandex-team.ru>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="IRqfuQIK"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=wV4SP9Ub4GxAfJeEGt1fuHcJt5aoaEgYsz+HesyeccQ=; b=IRqfuQIKz9uFJUibejaVU0BHYf
+	t0CaJ6GP7AWLHFNH2ArHDmicIZrO8AizfkOoMgaCf6UhxZAcGiOl+muPjvzjpKxMZY2pf519zvDoY
+	S5hal3TZkVSYRzGWJ3a1VxrYVzfEqXMrygasSUmBBQ04aD4GPhdZm6vu2nQp0778bnIeovS0Use0U
+	h0qb/05UbaLnEIy/yCmSTYd8rMv6tiSai0Q4E3ElEo6k0JCMVu5jQQBPb9kXWSNGJ4SFctAbvBCZL
+	E1PIvgQgyHIGV2xymGhV1uvLESWUPrZRj+FdNWX9BvVMPi+002U3m/VxOhX65HBwALeFERImS6xnS
+	3BQj8TZQ==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1ucimR-007ynq-1Z;
+	Fri, 18 Jul 2025 19:13:28 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 18 Jul 2025 21:13:27 +1000
+Date: Fri, 18 Jul 2025 21:13:27 +1000
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Ovidiu Panait <ovidiu.panait.oss@gmail.com>
+Cc: davem@davemloft.net, linux-crypto@vger.kernel.org,
+	linux-kernel@vger.kernel.org, freude@linux.ibm.com,
+	dengler@linux.ibm.com, linux-s390@vger.kernel.org,
+	horia.geanta@nxp.com, pankaj.gupta@nxp.com, gaurav.jain@nxp.com,
+	arei.gonglei@huawei.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH 1/2] crypto: engine: remove request batching support
+Message-ID: <aHosV3T9l0OQkKY0@gondor.apana.org.au>
+References: <20250711182932.918257-1-ovidiu.panait.oss@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250711182932.918257-1-ovidiu.panait.oss@gmail.com>
 
-When operating on struct vhost_net_ubuf_ref, the following execution
-sequence is theoretically possible:
-CPU0 is finalizing DMA operation                   CPU1 is doing VHOST_NET_SET_BACKEND
-                             // &ubufs->refcount == 2
-vhost_net_ubuf_put()                               vhost_net_ubuf_put_wait_and_free(oldubufs)
-                                                     vhost_net_ubuf_put_and_wait()
-                                                       vhost_net_ubuf_put()
-                                                         int r = atomic_sub_return(1, &ubufs->refcount);
-                                                         // r = 1
-int r = atomic_sub_return(1, &ubufs->refcount);
-// r = 0
-                                                      wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
-                                                      // no wait occurs here because condition is already true
-                                                    kfree(ubufs);
-if (unlikely(!r))
-  wake_up(&ubufs->wait);  // use-after-free
+On Fri, Jul 11, 2025 at 09:29:31PM +0300, Ovidiu Panait wrote:
+> Remove request batching support from crypto_engine, as there are no
+> drivers using this feature and it doesn't really work that well.
+> 
+> Instead of doing batching based on backlog, a more optimal approach
+> would be for the user to handle the batching (similar to how IPsec
+> can hook into GSO to get 64K of data each time or how block encryption
+> can use unit sizes much greater than 4K).
+> 
+> Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
+> Signed-off-by: Ovidiu Panait <ovidiu.panait.oss@gmail.com>
+> ---
+> Cc: freude@linux.ibm.com
+> Cc: dengler@linux.ibm.com
+> Cc: linux-s390@vger.kernel.org
+> Cc: horia.geanta@nxp.com
+> Cc: pankaj.gupta@nxp.com
+> Cc: gaurav.jain@nxp.com
+> Cc: arei.gonglei@huawei.com
+> Cc: virtualization@lists.linux.dev
+> 
+>  arch/s390/crypto/paes_s390.c               |  2 +-
+>  arch/s390/crypto/phmac_s390.c              |  2 +-
+>  crypto/crypto_engine.c                     | 25 +---------------------
+>  drivers/crypto/caam/jr.c                   |  3 +--
+>  drivers/crypto/virtio/virtio_crypto_core.c |  2 +-
+>  include/crypto/engine.h                    |  1 -
+>  include/crypto/internal/engine.h           |  4 ----
+>  7 files changed, 5 insertions(+), 34 deletions(-)
 
-This leads to use-after-free on ubufs access. This happens because CPU1
-skips waiting for wake_up() when refcount is already zero.
-
-To prevent that use a completion instead of wait_queue as the ubufs
-notification mechanism. wait_for_completion() guarantees that there will
-be complete() call prior to its return.
-
-We also need to reinit completion in vhost_net_flush(), because
-refcnt == 0 does not mean freeing in that case.
-
-Cc: stable@vger.kernel.org
-Fixes: 0ad8b480d6ee9 ("vhost: fix ref cnt checking deadlock")
-Reported-by: Andrey Ryabinin <arbn@yandex-team.com>
-Suggested-by: Andrey Smetanin <asmetanin@yandex-team.ru>
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Tested-by: Lei Yang <leiyang@redhat.com> (v1)
-Signed-off-by: Nikolay Kuratov <kniv@yandex-team.ru>
----
-v2:
-* move reinit_completion() into vhost_net_flush(), thanks
-  to Hillf Danton
-* add Tested-by: Lei Yang
-* check that usages of put_and_wait() are consistent across
-  LTS kernels
-
- drivers/vhost/net.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 7cbfc7d718b3..69e1bfb9627e 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
- 	 * >1: outstanding ubufs
- 	 */
- 	atomic_t refcount;
--	wait_queue_head_t wait;
-+	struct completion wait;
- 	struct vhost_virtqueue *vq;
- };
- 
-@@ -240,7 +240,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
- 	if (!ubufs)
- 		return ERR_PTR(-ENOMEM);
- 	atomic_set(&ubufs->refcount, 1);
--	init_waitqueue_head(&ubufs->wait);
-+	init_completion(&ubufs->wait);
- 	ubufs->vq = vq;
- 	return ubufs;
- }
-@@ -249,14 +249,14 @@ static int vhost_net_ubuf_put(struct vhost_net_ubuf_ref *ubufs)
- {
- 	int r = atomic_sub_return(1, &ubufs->refcount);
- 	if (unlikely(!r))
--		wake_up(&ubufs->wait);
-+		complete_all(&ubufs->wait);
- 	return r;
- }
- 
- static void vhost_net_ubuf_put_and_wait(struct vhost_net_ubuf_ref *ubufs)
- {
- 	vhost_net_ubuf_put(ubufs);
--	wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
-+	wait_for_completion(&ubufs->wait);
- }
- 
- static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
-@@ -1381,6 +1381,7 @@ static void vhost_net_flush(struct vhost_net *n)
- 		mutex_lock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
- 		n->tx_flush = false;
- 		atomic_set(&n->vqs[VHOST_NET_VQ_TX].ubufs->refcount, 1);
-+		reinit_completion(&n->vqs[VHOST_NET_VQ_TX].ubufs->wait);
- 		mutex_unlock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
- 	}
- }
+All applied.  Thanks.
 -- 
-2.34.1
-
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
