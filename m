@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1219C1EFFA6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52AD21F1302
 	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 21:35:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752874512; cv=none; b=BY23l+/N2YPSxK+xRNZeLB3rvQi3A7/Wc51bE0VOTXAVs1VV0msWT2gfbzNW+cUVQuLTZIDnE6Xkp6J+3TckFPXYcNyQ1WMoGd8nYZN+Est4xchB8jxyy4G8p04gT0CpmV7KDqkXs73uE1IpUEpUTBItnUPOLCGJeHES1tS7WP4=
+	t=1752874512; cv=none; b=BCHviH06mv/rDOthzOQcN3trt7lp3Y1m/mWRoUwY/Aa8f4OMeZ0vIfphH0Q3PdB2UzMU3hof7HAuI1hZnSgCsnLb2tJRrfbm/mT2Z8rjyV+0jmIFgU9I2To9U3dAlY8icHKI8293Qv2z1uwUMw2NNKZI/GTm0LfwpYs9txZmhG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1752874512; c=relaxed/simple;
-	bh=qTM7AwfdMSpV4NjWdyBTj056XS0XUIw4MsAivRgxjA0=;
+	bh=OPia4yWRRB0ETvHg3iEu6ZARkqU6LQuX0N7+VdhAdZY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=O2l9FggcOjUyXYN0eVopKCWj0Y9VpXr16gmNQfqd+zoo3mZzDtH01N6SZQNoAISc+rZXHXs7oEZwyxJ2vLWc0dwQGGu8l0aBEeRSc1/R7vvH1/x1WVBeWi99AvsVHNA43QlpWyOi6WQxVdRsCLcEGg4YmwwkjWpKrSZPCCU+xaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=kUtLsUmn; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=IppDdICR71HWSwh1exymtFf7UD9+ZmMl0A80Gtnp3tbRB10R/4xbKCrYxBCrtdvx4Yy2WzY5Bmp0N/bwq+s59Kj3CH0+TcCMdyN1+x2uCIG7ZXwmF6YqMtg5+xaJnEIakRBbeC1BnOONnOJUK6wlTp35gpUzk3ZU06wDl2a0U4g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=cFg+031R; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="kUtLsUmn"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="cFg+031R"
 Received: from mail.zytor.com ([IPv6:2601:646:8081:9482:197f:c1e5:8ae9:2d06])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56ILX0so2795198
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56ILX0sp2795198
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Fri, 18 Jul 2025 14:33:26 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56ILX0so2795198
+	Fri, 18 Jul 2025 14:33:30 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56ILX0sp2795198
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025062101; t=1752874410;
-	bh=jdACkDnI1i4f1cAIvfWumKYM1ftH6IqzvEllMEW8ooQ=;
+	s=2025062101; t=1752874414;
+	bh=PBGN4oO/waKGE3jC/Ll9lbwkGvnnLUY8sUOeeNBmyj4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=kUtLsUmnGPo16uDqJL2qnrWMXseSawh9pJpv2YNt13h/uBXId+AZ31/sNWTpQXkp2
-	 SjEAlw3kdXesYtDUSnlCvfAQNJLFsTtaIo6MXGBTKn3LylDCR6PPhMBLUd5mcsQyfX
-	 57ujEYGvSBblQt4abQ3lWHNmuhdAwG0gyzOAMOeE/ztt60vidgLq9F+AOBLr4XsBmW
-	 r8LStmai4OmIZA0okWI//xBbtAIjITaM3K3apWhtvxdZpYXAIHuowGsM8KQJDSmR1v
-	 j/alPUDZy6ED9LuWWNAZgancdZ4nVifLbixnsyiSXDaE1mUcmhczWyQeYdRKFPGu6S
-	 KQCwtaZV5Xgtg==
+	b=cFg+031RqaaaPlckPQZdrk7tHRtUQ91gMNZp0PCiAL+WS4vDpv5381NXCbOx9+vvi
+	 vA2jRIb+O5/TVvIfLSuwnuFCz0DXgInWqk0DTtrJi8gPLUe1MVqpOm2n5j0W3DxwAJ
+	 tZAeEeTeTQWXhL+b+HKBe5o7KVHhnv/VYE/5PTiVKLImFHUL30VJ3SiEiEkDceRwIQ
+	 j22Dtvl6wpGlQSC4QquExka0Lf8ys+jSvS1EgRDoVCuzSPtlcM+fBkck//a3x1N7r9
+	 y1P3/wLVyPO9mfdNhI6s4gnvNmYd8pAlAeKvUir8mEV0gjLzQYUn3RG9wWSMQC6YUp
+	 rWuLmL/fzY+bA==
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: 
 Cc: "H. Peter Anvin" <hpa@zytor.com>,
@@ -79,9 +79,9 @@ Cc: "H. Peter Anvin" <hpa@zytor.com>,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
         virtualization@lists.linux.dev, x86@kernel.org
-Subject: [PATCH 6/7] selftests/bpf: replace "__auto_type" with "auto"
-Date: Fri, 18 Jul 2025 14:32:49 -0700
-Message-ID: <20250718213252.2384177-7-hpa@zytor.com>
+Subject: [PATCH 7/7] tools/virtio: replace "__auto_type" with "auto"
+Date: Fri, 18 Jul 2025 14:32:50 -0700
+Message-ID: <20250718213252.2384177-8-hpa@zytor.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250718213252.2384177-1-hpa@zytor.com>
 References: <20250718213252.2384177-1-hpa@zytor.com>
@@ -93,42 +93,31 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace instances of "__auto_type" with "auto" in:
+Replace one instance of "__auto_type" with "auto" in:
 
-	tools/testing/selftests/bpf/prog_tests/socket_helpers.h
+	tools/virtio/linux/compiler.h
 
-This file does not seem to be including <linux/compiler_types.h>
-directly or indirectly, so copy the definition but guard it with
-!defined(auto).
+This file *does* include <linux/compiler_types.h> directly, so there
+is no need to duplicate the definition.
 
 Signed-off-by: H. Peter Anvin (Intel) <hpa@zytor.com>
 ---
- tools/testing/selftests/bpf/prog_tests/socket_helpers.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ tools/virtio/linux/compiler.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/socket_helpers.h b/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
-index e02cabcc814e..958b65aa29ea 100644
---- a/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
-+++ b/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
-@@ -17,11 +17,16 @@
- #define VMADDR_CID_LOCAL 1
- #endif
+diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
+index 204ef0e9f542..b6e94c2ebe49 100644
+--- a/tools/virtio/linux/compiler.h
++++ b/tools/virtio/linux/compiler.h
+@@ -31,7 +31,7 @@
+  */
+ #define data_race(expr)							\
+ ({									\
+-	__auto_type __v = (expr);					\
++	auto __v = (expr);					\
+ 	__v;								\
+ })
  
-+/* include/linux/compiler_types.h */
-+#if __STDC_VERSION__ < 202311L && !defined(auto)
-+# define auto __auto_type
-+#endif
-+
- /* include/linux/cleanup.h */
- #define __get_and_null(p, nullvalue)                                           \
- 	({                                                                     \
--		__auto_type __ptr = &(p);                                      \
--		__auto_type __val = *__ptr;                                    \
-+		auto __ptr = &(p);                                      \
-+		auto __val = *__ptr;                                    \
- 		*__ptr = nullvalue;                                            \
- 		__val;                                                         \
- 	})
 -- 
 2.50.1
 
