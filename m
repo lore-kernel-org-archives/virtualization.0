@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BAD51B412A
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 02:38:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E4251B0F23
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 02:41:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752806340; cv=none; b=ohisOryDWMbW9/G2dmS4NtoPCJiE1WGioU9Dbrwf4RHX3o6OshSMW3TVCNzTU6hPCh1CGQ2WRbzKK77geGDwrlz3Z0f3tLupXRgRxW+h5/3MkKGyIkXGTIYiquC+2G/BqZ29wnOk/LhgZtVEzdrjxAuqtUao0QQt3YPciJvrkzw=
+	t=1752806494; cv=none; b=fvhwdn4/S9P26NeNaUVXysWWpcymjeNl6wHFnt0xrTmHz7zaZRxYjmSIKxCTFnmbyzO5HvVpVubEEvr+Mz9CVBebbH9tRrf0pLblVSvnA6LtQ+A62LtCcBeoF2CpnEzLIDIOb7M21wbdyiDQDe9FpZHsBI/EViW4mrnyKkFILQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752806340; c=relaxed/simple;
-	bh=/36CE0phXBG0MeOf6QLXocdFQpIS5/31UussTrs7a1I=;
+	s=arc-20240116; t=1752806494; c=relaxed/simple;
+	bh=tKRAAZvIgcD9V7uzb3SLhO+RCydf8PsdTyyxa1wpOS4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=lIuqB4FUypUUZANmzrgc3a7wZB0ZFHOgJhUvwkfRF9v+6p7Bb7yONLMYb4HgUm+lkwMjNwWZpK3Rnt0ALI8/p97PNIOsaPjcomYBD/tlPoowKQli69IzqfKBJ/Jdk9P3e32V90Eq/OKgmgHLHMbNUTHtR93UfTOFgwNm0MomPvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MdSk1s0C; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:Content-type; b=pHUhOidrtSPvowUZtdtkY5qIgE+zKfG3NmzfKEFnl0shWU2pEwC1Aj+Ov1Cx9LBqBbdBI59/oLIKmMWn4AXUwsAWBwXs6aduBH7VtyIjEATn9QxPKXT42y32j62Zs2QEvcqXO1pWN/E7XVrz6JGQld2GWQGrmA8Wn9nM2EF8AkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ep1LJZBT; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MdSk1s0C"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ep1LJZBT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752806337;
+	s=mimecast20190719; t=1752806492;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=IvFrMdu0v43ZLfEJ1ed92+yUT7QLayELxU9kpRzone4=;
-	b=MdSk1s0CO4f4OrOb0zAoe+KDbp4u31eW7IVsj6hniQInJLa/c+ig/LRV5E0sFrtXpZSsrv
-	hVolEIiGP5+rzm1Y48gmZ5EOUhJxqmgJw316hpR8PTR56i0pJsVOYcm2V/cGXXyCOniC30
-	17pUKDklZXfGc3ooq6cp3MNx0wL+Jao=
+	bh=g/OxXeqbeKEs2+kXeL4cq4sS7WnEqGRjB8HxGWpN4Do=;
+	b=Ep1LJZBTstz+m7a82ZTr6v+B4qhhIUNQGAfg7tlLcUycF9OCDP+UobYPk/SFBv9uF8PY56
+	11L+X/4yLDmSwCIqNq17+ibRq9KVW3frWHSkHsljUaBUTwuNR0x+LbsHAkmRoTs0bKzMCY
+	eHeE5/x4UTD5xZm+WRFCidaYJN4NdFc=
 Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-687-aNVvWMp6NEGxRbZXK3Dm0A-1; Thu,
- 17 Jul 2025 22:38:54 -0400
-X-MC-Unique: aNVvWMp6NEGxRbZXK3Dm0A-1
-X-Mimecast-MFC-AGG-ID: aNVvWMp6NEGxRbZXK3Dm0A_1752806333
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-206-ldniAQEyNtCc3q4aNLPZXg-1; Thu,
+ 17 Jul 2025 22:38:16 -0400
+X-MC-Unique: ldniAQEyNtCc3q4aNLPZXg-1
+X-Mimecast-MFC-AGG-ID: ldniAQEyNtCc3q4aNLPZXg_1752806295
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BCA591956089;
-	Fri, 18 Jul 2025 02:38:53 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1E9B91956088;
+	Fri, 18 Jul 2025 02:38:15 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.112.207])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 40A4F30001B1;
-	Fri, 18 Jul 2025 02:38:49 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A137830001B1;
+	Fri, 18 Jul 2025 02:38:11 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com,
@@ -50,9 +50,9 @@ To: mst@redhat.com,
 Cc: virtualization@lists.linux.dev,
 	hch@infradead.org,
 	Christoph Hellwig <hch@lst.de>
-Subject: [PATCH V3 9/9] vduse: switch to use virtio map API instead of DMA API
-Date: Fri, 18 Jul 2025 10:37:58 +0800
-Message-ID: <20250718023758.36866-10-jasowang@redhat.com>
+Subject: [PATCH V3 2/9] virtio_ring: switch to use dma_{map|unmap}_page()
+Date: Fri, 18 Jul 2025 10:37:51 +0800
+Message-ID: <20250718023758.36866-3-jasowang@redhat.com>
 In-Reply-To: <20250718023758.36866-1-jasowang@redhat.com>
 References: <20250718023758.36866-1-jasowang@redhat.com>
 Precedence: bulk
@@ -63,198 +63,116 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eojmjAV7UnjVTFeYwivK_v-Hj29qOeyA-MPHy_vZZnw_1752806333
+X-Mimecast-MFC-PROC-ID: V2rFbAupDoLFMo_u8jRDgpYEvJhVIJSfDxkfW16jCBg_1752806295
 X-Mimecast-Originator: redhat.com
 Content-type: text/plain
 Content-Transfer-Encoding: 8bit
 
-Lacking the support of device specific mapping supported in virtio,
-VDUSE must trick the DMA API in order to make virtio-vdpa transport
-work. This is done by advertising vDPA device as dma device with a
-VDUSE specific dma_ops even if it doesn't do DMA at all.
-
-This will be fixed by this patch. Thanks to the new mapping operations
-support by virtio and vDPA. VDUSE can simply switch to advertise its
-specific mappings operations to virtio via virtio-vdpa then DMA API is
-not needed for VDUSE any more.
+This patch switches to use dma_{map|unmap}_page() to reduce the
+coverage of DMA operations. This would help for the following rework
+on the virtio map operations.
 
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vdpa/Kconfig                 |  8 +------
- drivers/vdpa/vdpa_user/iova_domain.c |  2 +-
- drivers/vdpa/vdpa_user/iova_domain.h |  2 +-
- drivers/vdpa/vdpa_user/vduse_dev.c   | 31 ++++++++++++++++------------
- 4 files changed, 21 insertions(+), 22 deletions(-)
+ drivers/virtio/virtio_ring.c | 55 +++++++++++++++---------------------
+ 1 file changed, 23 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
-index 559fb9d3271f..857cf288c876 100644
---- a/drivers/vdpa/Kconfig
-+++ b/drivers/vdpa/Kconfig
-@@ -34,13 +34,7 @@ config VDPA_SIM_BLOCK
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 103bad8cffff..75e5f6336c8d 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -405,8 +405,8 @@ static dma_addr_t vring_map_single(const struct vring_virtqueue *vq,
+ 	if (!vq->use_dma_api)
+ 		return (dma_addr_t)virt_to_phys(cpu_addr);
  
- config VDPA_USER
- 	tristate "VDUSE (vDPA Device in Userspace) support"
--	depends on EVENTFD && MMU && HAS_DMA
--	#
--	# This driver incorrectly tries to override the dma_ops.  It should
--	# never have done that, but for now keep it working on architectures
--	# that use dma ops
--	#
--	depends on ARCH_HAS_DMA_OPS
-+	depends on EVENTFD && MMU
- 	select VHOST_IOTLB
- 	select IOMMU_IOVA
- 	help
-diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
-index 019f3305c0ac..8ea311692545 100644
---- a/drivers/vdpa/vdpa_user/iova_domain.c
-+++ b/drivers/vdpa/vdpa_user/iova_domain.c
-@@ -447,7 +447,7 @@ void vduse_domain_unmap_page(struct vduse_iova_domain *domain,
- 
- void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
- 				  size_t size, dma_addr_t *dma_addr,
--				  gfp_t flag, unsigned long attrs)
-+				  gfp_t flag)
- {
- 	struct iova_domain *iovad = &domain->consistent_iovad;
- 	unsigned long limit = domain->iova_limit;
-diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_user/iova_domain.h
-index 846572b95c23..a2316571671f 100644
---- a/drivers/vdpa/vdpa_user/iova_domain.h
-+++ b/drivers/vdpa/vdpa_user/iova_domain.h
-@@ -64,7 +64,7 @@ void vduse_domain_unmap_page(struct vduse_iova_domain *domain,
- 
- void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
- 				  size_t size, dma_addr_t *dma_addr,
--				  gfp_t flag, unsigned long attrs);
-+				  gfp_t flag);
- 
- void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size_t size,
- 				void *vaddr, dma_addr_t dma_addr,
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 934c50d15b28..d858c4389cc1 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -814,51 +814,55 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
- 	.free			= vduse_vdpa_free,
- };
- 
--static void vduse_dev_sync_single_for_device(struct device *dev,
-+static void vduse_dev_sync_single_for_device(void *token,
- 					     dma_addr_t dma_addr, size_t size,
- 					     enum dma_data_direction dir)
- {
-+	struct device *dev = token;
- 	struct vduse_dev *vdev = dev_to_vduse(dev);
- 	struct vduse_iova_domain *domain = vdev->domain;
- 
- 	vduse_domain_sync_single_for_device(domain, dma_addr, size, dir);
+-	return dma_map_single(vring_dma_dev(vq),
+-			      cpu_addr, size, direction);
++	return virtqueue_dma_map_single_attrs(&vq->vq, cpu_addr,
++					      size, direction, 0);
  }
  
--static void vduse_dev_sync_single_for_cpu(struct device *dev,
-+static void vduse_dev_sync_single_for_cpu(void *token,
- 					     dma_addr_t dma_addr, size_t size,
- 					     enum dma_data_direction dir)
- {
-+	struct device *dev = token;
- 	struct vduse_dev *vdev = dev_to_vduse(dev);
- 	struct vduse_iova_domain *domain = vdev->domain;
+ static int vring_mapping_error(const struct vring_virtqueue *vq,
+@@ -451,22 +451,14 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+ 	if (flags & VRING_DESC_F_INDIRECT) {
+ 		if (!vq->use_dma_api)
+ 			goto out;
++	} else if (!vring_need_unmap_buffer(vq, extra))
++		goto out;
  
- 	vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir);
+-		dma_unmap_single(vring_dma_dev(vq),
+-				 extra->addr,
+-				 extra->len,
+-				 (flags & VRING_DESC_F_WRITE) ?
+-				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+-	} else {
+-		if (!vring_need_unmap_buffer(vq, extra))
+-			goto out;
+-
+-		dma_unmap_page(vring_dma_dev(vq),
+-			       extra->addr,
+-			       extra->len,
+-			       (flags & VRING_DESC_F_WRITE) ?
+-			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+-	}
++	dma_unmap_page(vring_dma_dev(vq),
++		       extra->addr,
++		       extra->len,
++		       (flags & VRING_DESC_F_WRITE) ?
++		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 
+ out:
+ 	return extra->next;
+@@ -1276,20 +1268,13 @@ static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
+ 	if (flags & VRING_DESC_F_INDIRECT) {
+ 		if (!vq->use_dma_api)
+ 			return;
++	} else if (!vring_need_unmap_buffer(vq, extra))
++		return;
+ 
+-		dma_unmap_single(vring_dma_dev(vq),
+-				 extra->addr, extra->len,
+-				 (flags & VRING_DESC_F_WRITE) ?
+-				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+-	} else {
+-		if (!vring_need_unmap_buffer(vq, extra))
+-			return;
+-
+-		dma_unmap_page(vring_dma_dev(vq),
+-			       extra->addr, extra->len,
+-			       (flags & VRING_DESC_F_WRITE) ?
+-			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+-	}
++	dma_unmap_page(vring_dma_dev(vq),
++		       extra->addr, extra->len,
++		       (flags & VRING_DESC_F_WRITE) ?
++		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
  }
  
--static dma_addr_t vduse_dev_map_page(struct device *dev, struct page *page,
-+static dma_addr_t vduse_dev_map_page(void *token, struct page *page,
- 				     unsigned long offset, size_t size,
- 				     enum dma_data_direction dir,
- 				     unsigned long attrs)
- {
-+	struct device *dev = token;
- 	struct vduse_dev *vdev = dev_to_vduse(dev);
- 	struct vduse_iova_domain *domain = vdev->domain;
- 
- 	return vduse_domain_map_page(domain, page, offset, size, dir, attrs);
- }
- 
--static void vduse_dev_unmap_page(struct device *dev, dma_addr_t dma_addr,
-+static void vduse_dev_unmap_page(void *token, dma_addr_t dma_addr,
- 				size_t size, enum dma_data_direction dir,
- 				unsigned long attrs)
- {
-+	struct device *dev = token;
- 	struct vduse_dev *vdev = dev_to_vduse(dev);
- 	struct vduse_iova_domain *domain = vdev->domain;
- 
- 	return vduse_domain_unmap_page(domain, dma_addr, size, dir, attrs);
- }
- 
--static void *vduse_dev_alloc_coherent(struct device *dev, size_t size,
--					dma_addr_t *dma_addr, gfp_t flag,
--					unsigned long attrs)
-+static void *vduse_dev_alloc_coherent(void *token, size_t size,
-+				      dma_addr_t *dma_addr, gfp_t flag)
- {
-+	struct device *dev = token;
- 	struct vduse_dev *vdev = dev_to_vduse(dev);
- 	struct vduse_iova_domain *domain = vdev->domain;
- 	unsigned long iova;
-@@ -866,7 +870,7 @@ static void *vduse_dev_alloc_coherent(struct device *dev, size_t size,
- 
- 	*dma_addr = DMA_MAPPING_ERROR;
- 	addr = vduse_domain_alloc_coherent(domain, size,
--				(dma_addr_t *)&iova, flag, attrs);
-+					   (dma_addr_t *)&iova, flag);
- 	if (!addr)
- 		return NULL;
- 
-@@ -875,25 +879,27 @@ static void *vduse_dev_alloc_coherent(struct device *dev, size_t size,
- 	return addr;
- }
- 
--static void vduse_dev_free_coherent(struct device *dev, size_t size,
-+static void vduse_dev_free_coherent(void *token, size_t size,
- 					void *vaddr, dma_addr_t dma_addr,
- 					unsigned long attrs)
- {
-+	struct device *dev = token;
- 	struct vduse_dev *vdev = dev_to_vduse(dev);
- 	struct vduse_iova_domain *domain = vdev->domain;
- 
- 	vduse_domain_free_coherent(domain, size, vaddr, dma_addr, attrs);
- }
- 
--static size_t vduse_dev_max_mapping_size(struct device *dev)
-+static size_t vduse_dev_max_mapping_size(void *token)
- {
-+	struct device *dev = token;
- 	struct vduse_dev *vdev = dev_to_vduse(dev);
- 	struct vduse_iova_domain *domain = vdev->domain;
- 
- 	return domain->bounce_size;
- }
- 
--static const struct dma_map_ops vduse_dev_dma_ops = {
-+static const struct virtio_map_ops vduse_map_ops = {
- 	.sync_single_for_device = vduse_dev_sync_single_for_device,
- 	.sync_single_for_cpu = vduse_dev_sync_single_for_cpu,
- 	.map_page = vduse_dev_map_page,
-@@ -2009,7 +2015,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- 		return -EEXIST;
- 
- 	vdev = vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
--				 &vduse_vdpa_config_ops, NULL,
-+				 &vduse_vdpa_config_ops, &vduse_map_ops,
- 				 1, 1, name, true);
- 	if (IS_ERR(vdev))
- 		return PTR_ERR(vdev);
-@@ -2022,7 +2028,6 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- 		put_device(&vdev->vdpa.dev);
- 		return ret;
+ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
+@@ -3161,7 +3146,13 @@ dma_addr_t virtqueue_dma_map_single_attrs(const struct virtqueue *_vq, void *ptr
+ 		return (dma_addr_t)virt_to_phys(ptr);
  	}
--	set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
- 	vdev->vdpa.map_token = &vdev->vdpa.dev;
- 	vdev->vdpa.mdev = &vduse_mgmt->mgmt_dev;
+ 
+-	return dma_map_single_attrs(vring_dma_dev(vq), ptr, size, dir, attrs);
++	/* DMA must never operate on areas that might be remapped. */
++	if (dev_WARN_ONCE(&_vq->vdev->dev, is_vmalloc_addr(ptr),
++			  "rejecting DMA map of vmalloc memory\n"))
++		return DMA_MAPPING_ERROR;
++
++	return dma_map_page_attrs(vring_dma_dev(vq), virt_to_page(ptr),
++				  offset_in_page(ptr), size, dir, attrs);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_dma_map_single_attrs);
+ 
+@@ -3186,7 +3177,7 @@ void virtqueue_dma_unmap_single_attrs(const struct virtqueue *_vq,
+ 	if (!vq->use_dma_api)
+ 		return;
+ 
+-	dma_unmap_single_attrs(vring_dma_dev(vq), addr, size, dir, attrs);
++	dma_unmap_page_attrs(vring_dma_dev(vq), addr, size, dir, attrs);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_dma_unmap_single_attrs);
  
 -- 
 2.42.0
