@@ -1,83 +1,128 @@
-Received: from r3-23.sinamail.sina.com.cn (r3-23.sinamail.sina.com.cn [202.108.3.23])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C62936FB9
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 22:11:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.108.3.23
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C961C211460
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 22:12:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752876718; cv=none; b=JzaLL+WrBJgpbmRMZb/qIHNu4e2+QfoHVvAe/FUOcZFQ+j/3hpnOhowe4LOcJXpTvs6YbBqyDCjDA5DVlCjm/Sjf7zmmZROQ0Bwg2p6MUuAPnurRa8famZxL3800lJuAciuLwyZNFLCy6Ip4UJUuTWRIKUKseSvy1bnS+H52E0A=
+	t=1752876764; cv=none; b=qs9uMGq9Ti80WBrTZSkwNeR5HKgShZcma4roXeqb6/+IrDTcewv06hqt6Y/hc5ahPjIKVvpPfu9ChHRqc848iZM6juPfA7Crbi5qJcKvuAVMM+mRkWhI78tmJYQK46hYJxO1+y0FGs0hjV4eszDbzqYNeeUWQh3bDVZ/OpVJS8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752876718; c=relaxed/simple;
-	bh=Ra3d4yk79GRZayeWZZmeTZHAUr1GECTgXY/nJ5YTfco=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JljyvZWdLyTqnLr4/7KLEcENNXiP/yY5W55CIQe+Tb7oWmJl3tKWg4UBo9UUTU9Nq6MC+fUn5kKhAbncxelhmuO1bFoA7dfaZX/XMkCAKDuNkK5Ayw/KHPdYSZKia/0XNVs+pUxMq2cp839p7CvJFeUza1Qh93j8cDmXMizkBbs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b=Iv1hdlXK; arc=none smtp.client-ip=202.108.3.23
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
+	s=arc-20240116; t=1752876764; c=relaxed/simple;
+	bh=qzVuvkfAQQqtpak8j7vWQvsEeX5h7ioyRGvKq72N9U4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mGNru9nVXNFZbiI66TQgLL4ZrcHqyZ96q0wjTXiiOfjhRio7d2j/ztmKYLeMT5MthK4+80ToBsMgzNH6cXumKLaqNB5gLdAOQoke8nGOCy2AOWAnV7ZQ66CSdGhL7fCTQjMvqWQkdmA5hxpLFJdJJ5OoMGMamCsaRxVmjDjNzKc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=khFAFbSc; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b="Iv1hdlXK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1752876714;
-	bh=/07EaF41gnn4gEnfBX30qAY9V6Nyv0EgPAskka0SJFg=;
-	h=From:Subject:Date:Message-ID;
-	b=Iv1hdlXK5Zdbubj7qRgpEbvtNVZy2+m20W0MFokgKCdZgcBvog/IRM/HleVyOXwju
-	 B9a5SF6T0W3oFkUuHqy+43BPBssBYc7gZ0ZbKE/lLtunGnCJot/jSD9iNr7HFsWVir
-	 BH4zuEXD7ewL3oo5kQyUB61nGEtOzehbVEpfHxSg=
-X-SMAIL-HELO: localhost.localdomain
-Received: from unknown (HELO localhost.localdomain)([114.249.58.236])
-	by sina.com (10.54.253.31) with ESMTP
-	id 687AC6A400005A43; Fri, 19 Jul 2025 06:11:49 +0800 (CST)
-X-Sender: hdanton@sina.com
-X-Auth-ID: hdanton@sina.com
-Authentication-Results: sina.com;
-	 spf=none smtp.mailfrom=hdanton@sina.com;
-	 dkim=none header.i=none;
-	 dmarc=none action=none header.from=hdanton@sina.com
-X-SMAIL-MID: 6668606816158
-X-SMAIL-UIID: BD9A24E909A44BBEA68488125BCB5FA3-20250719-061149-1
-From: Hillf Danton <hdanton@sina.com>
-To: Nikolay Kuratov <kniv@yandex-team.ru>
-Cc: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio Peterz <eperezma@redhat.com>,
-	Lei Yang <leiyang@redhat.com>
-Subject: Re: [PATCH] vhost/net: Replace wait_queue with completion in ubufs reference
-Date: Sat, 19 Jul 2025 06:11:36 +0800
-Message-ID: <20250718221137.2432-1-hdanton@sina.com>
-In-Reply-To: <20250718132414.1572292-1-kniv@yandex-team.ru>
-References: <20250718124657.2394-1-hdanton@sina.com>
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="khFAFbSc"
+Received: from [IPV6:2601:646:8081:9482:197f:c1e5:8ae9:2d06] ([IPv6:2601:646:8081:9482:197f:c1e5:8ae9:2d06])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56IMBIs32809490
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Fri, 18 Jul 2025 15:11:18 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56IMBIs32809490
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025062101; t=1752876686;
+	bh=u3adsmw2raiz193Cp3Ip0T4zuSrb0ygShqiBU7iriLA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=khFAFbScCZJHVCx2iCaQ/z1I13MQx2fEe4vN7kjiySbR87BC1QYYKAH6Qo4dLOvND
+	 wYzZxTi6mA/p9YGAoW38GfQDMozSOsYTA+GA6AHvqyFcYXssYSZ+QYA39g893LN561
+	 8k3fvC8WujrEKRGYTw2jXgpP0Pi0kILbZW2Na1NqIQJkJ+qoL3kv9meHntuuMbdQnm
+	 xqsCV9hLQMO9Lg8+QwGCz54/nLsjuhkoMrUAnjuoKrd9iBo7s8MG+3a1ylVItbx8ws
+	 zRINg5Jiq27watVpljC8QAWIg4HXrCFpM2WpV1nPngLS4rVIgYPTxgZQQgnyGzZYZv
+	 jeIi6qwmD5kRw==
+Message-ID: <62cfe957-56bb-43de-91d9-9f64d8100a62@zytor.com>
+Date: Fri, 18 Jul 2025 15:11:13 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 4/7] arch/nios: replace "__auto_type" with "auto"
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Alexei Starovoitov <ast@kernel.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrii Nakryiko <andrii@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
+        Borislav Petkov <bp@alien8.de>, Cong Wang <cong.wang@bytedance.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Laight <David.Laight@aculab.com>,
+        David Lechner
+ <dlechner@baylibre.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Eduard Zingerman <eddyz87@gmail.com>,
+        Gatlin Newhouse <gatlin.newhouse@gmail.com>,
+        Hao Luo <haoluo@google.com>, Ingo Molnar <mingo@redhat.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>,
+        Kees Cook <kees@kernel.org>,
+        Luc Van Oostenryck
+ <luc.vanoostenryck@gmail.com>,
+        Marc Herbert <Marc.Herbert@linux.intel.com>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>,
+        Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>,
+        NeilBrown <neil@brown.name>, Peter Zijlstra <peterz@infradead.org>,
+        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+        Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>,
+        Song Liu <song@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thorsten Blum
+ <thorsten.blum@linux.dev>,
+        Uros Bizjak <ubizjak@gmail.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Yafang Shao <laoar.shao@gmail.com>, Ye Bin <yebin10@huawei.com>,
+        Yonghong Song <yonghong.song@linux.dev>,
+        Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
+        virtualization@lists.linux.dev, x86@kernel.org
+References: <20250718213252.2384177-1-hpa@zytor.com>
+ <20250718213252.2384177-5-hpa@zytor.com>
+ <CAHk-=whGcopJ_wewAtzfTS7=cG1yvpC90Y-xz5t-1Aw0ew682w@mail.gmail.com>
+Content-Language: en-US
+From: "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <CAHk-=whGcopJ_wewAtzfTS7=cG1yvpC90Y-xz5t-1Aw0ew682w@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, 18 Jul 2025 16:24:14 +0300 Nikolay Kuratov wrote:
-> > reinit after wait, so the chance for missing wakeup still exists.
+On 2025-07-18 14:49, Linus Torvalds wrote:
 > 
-> Can you please provide more details on this? Yes, it is reinit after wait,
-
-The missing wakeup exists if complete_all() is used in combination with
-reinit after wait, with nothing to do with vhost.
-
-Your patch was checked simply because of reinit, which hints the chance for
-mess in mind without exception.
-
-Of course feel free to prove that missing wakeup disappears in vhost
-even if reinit is deployed.
-
-> but wait should not be concurrent. I checked multiple code pathes towards
-> vhost_net_flush(), they're all protected by device mutex, except
-> vhost_net_release(). In case of vhost_net_release() - it would be a
-> problem itself if it was called in parallel with some ioctl on a device?
+> Side note: I think some coccinelle (or sed) script that replaces that
+> older form of
 > 
-> Also rationale for this is that put_and_wait() is waiting for zero
-> refcount condition. Zero refcount means that after put_and_wait() calling
-> thread is the only owner of an ubufs structure. If multiple threads got
-> ubufs structure with zero refcount - how either thread can be sure that
-> another one is not free'ing it?
+>        typeof(x) Y = (typeof(x))(Z);
+> 
+> or
+> 
+>         typeof(Z) Y = Z;
 > 
 > 
+> with just
+> 
+>         auto Y = Z;
+> 
+> is also worthwhile at some point.
+> 
+> We have more of those, because that's the really traditional gcc way
+> to do things that predates __auto_type.
+> 
+
+Agreed.  And I think that this, indeed is a job more for Coccinelle than
+for sed, because the patterns can be rather complex and we don't want
+false positives.
+
+	-hpa
+
