@@ -1,53 +1,87 @@
-Received: from forwardcorp1b.mail.yandex.net (forwardcorp1b.mail.yandex.net [178.154.239.136])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 867A82DC334
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 13:25:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404E11E832E
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 21:35:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752845162; cv=none; b=dkfYMPnWOWPVqwy0qfdxxr5S90yU7SPo1WLJb2n+SXi17xFJx3CF987oLK58OPrETW0L3pPhAWSDetVf5kbZ1/5gKDhVTvo0+WFKSXj62fhyM3sQK/qHWCZhzxMbunOqVx1BBeqKVEz73dxJnEYkvwobcRcPAKE/GhmQm64F3EM=
+	t=1752874509; cv=none; b=YUqj9yXbuUuyozisoEm+4oMaB9UZyxsnzYsDze7XZcHi8dd61EkPxXdpi6Z0aiq87e5jbxN09vPMmP/y/4yOCrmsxaUr38j7kqP7N823WjMdO36nUFz7XYc2sjToOACsZ+wGfrlruPXcKRDeuiCosBTJbbV4PaOq/DUf+oSWA6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752845162; c=relaxed/simple;
-	bh=yPn3Ujsrz1O6i/sbCiSIVoSWdNDDE0vK/MdFMfUAV9s=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=GQT9toVhMZbl3WwXxXI2DFQWi5wT+GAI8Sd0/9HkaONFyeOxoIriEkKqJlMlLM5Lh21FUTZJp+GxSA9so9E9SKD3k9oPCa/RvZcEo3OxsTgFdBo8lXit/izcupiSb4lIFtQaoMKur/JlhP97ZRaHFnh8nNtg9OjQE8Rw6egSixM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru; spf=pass smtp.mailfrom=yandex-team.ru; dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b=QXi7FKZJ; arc=none smtp.client-ip=178.154.239.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex-team.ru
+	s=arc-20240116; t=1752874509; c=relaxed/simple;
+	bh=e26wcrCpgtY0ThMsVaf6VETi8cowQt0T8Wlu/NYupfY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mBlzT7OkIjwg1dTxHMCfZdGUON36rDaynW5YvDF1sjc5s/uz34+5CvZREfHaESO8sqJIeVi/h9I1WGfANwgxYT8Ya6RLAgcmdO9fCIyTtz7QRmRDbMV3zhVddQH4b/TFw0/11ty7pq9A/pMLjD4Pkki5wpFnQe/G58iBBPi2yZs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=QZ5S+p32; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="QXi7FKZJ"
-Received: from mail-nwsmtp-smtp-corp-canary-81.sas.yp-c.yandex.net (mail-nwsmtp-smtp-corp-canary-81.sas.yp-c.yandex.net [IPv6:2a02:6b8:c23:110d:0:640:50bc:0])
-	by forwardcorp1b.mail.yandex.net (Yandex) with ESMTPS id A7D99806E8;
-	Fri, 18 Jul 2025 16:24:31 +0300 (MSK)
-Received: from kniv-nix.yandex-team.ru (unknown [2a02:6bf:8080:56e::1:20])
-	by mail-nwsmtp-smtp-corp-canary-81.sas.yp-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id EOO4ZJ2GxuQ0-lvAz1N9s;
-	Fri, 18 Jul 2025 16:24:31 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru;
-	s=default; t=1752845071;
-	bh=yPn3Ujsrz1O6i/sbCiSIVoSWdNDDE0vK/MdFMfUAV9s=;
-	h=Message-Id:Date:In-Reply-To:Cc:Subject:References:To:From;
-	b=QXi7FKZJFFS2RQWnQp6iO4PlRDaMgFXCXteAVzxKTPzetrSUmafAzyHgK/406mUqz
-	 +u/VvstxDeKVgbHN6nKXuY205yzMsHwO1N5rpUzX4TD2u6WYmnNz0SokP5PmzCkYwg
-	 Ou/lETf5QNUgGXYDBB4yLzTJujHP5uNOf8kKl1Mo=
-Authentication-Results: mail-nwsmtp-smtp-corp-canary-81.sas.yp-c.yandex.net; dkim=pass header.i=@yandex-team.ru
-From: Nikolay Kuratov <kniv@yandex-team.ru>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Lei Yang <leiyang@redhat.com>,
-	Hillf Danton <hdanton@sina.com>,
-	kniv@yandex-team.ru
-Subject: Re: [PATCH] vhost/net: Replace wait_queue with completion in ubufs reference
-Date: Fri, 18 Jul 2025 16:24:14 +0300
-Message-Id: <20250718132414.1572292-1-kniv@yandex-team.ru>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20250718124657.2394-1-hdanton@sina.com>
-References: <20250718124657.2394-1-hdanton@sina.com>
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="QZ5S+p32"
+Received: from mail.zytor.com ([IPv6:2601:646:8081:9482:197f:c1e5:8ae9:2d06])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56ILX0si2795198
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
+	Fri, 18 Jul 2025 14:33:00 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56ILX0si2795198
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025062101; t=1752874388;
+	bh=gldC6YCEbu9Wrkqgglu65d8d6ydEAjRPt571KpQxh08=;
+	h=From:To:Cc:Subject:Date:From;
+	b=QZ5S+p32GsU27K2XDsJHVIHXIncdLYMVx9WkzgY9upJ2iSoAd8fOE6NLZvS2z8pHx
+	 prhlzCi6T6l62vb9elhydX5NGbcUOL15dyvEwc51AyEsiTYSDTmUgUZzGm0Jpifvg0
+	 p4Pb2759nqiqNKXHrvRbkNlUhkGC+y3LpLGwlZ6No42OS0Kq7x+ONSxKb+AgGAGM2j
+	 Iazr3VxtTbJ+oPkfc1/FSKWp7rpY/KwlZkkLO56MZTHbhHz4JNPcfsS9E02xOWOanE
+	 rr9BJ0ie8/pESWhCvoLLLxODingDn66IzCZnsV2qSKV8NUMyX9IqT3Uo48ddW3zo4v
+	 W9YbGSw7reB9Q==
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: 
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Alexei Starovoitov <ast@kernel.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrii Nakryiko <andrii@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
+        Borislav Petkov <bp@alien8.de>, Cong Wang <cong.wang@bytedance.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Laight <David.Laight@ACULAB.COM>,
+        David Lechner <dlechner@baylibre.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Eduard Zingerman <eddyz87@gmail.com>,
+        Gatlin Newhouse <gatlin.newhouse@gmail.com>,
+        Hao Luo <haoluo@google.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>,
+        Kees Cook <kees@kernel.org>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Marc Herbert <Marc.Herbert@linux.intel.com>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>,
+        Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>,
+        NeilBrown <neil@brown.name>, Peter Zijlstra <peterz@infradead.org>,
+        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+        Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>,
+        Song Liu <song@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thorsten Blum <thorsten.blum@linux.dev>,
+        Uros Bizjak <ubizjak@gmail.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Yafang Shao <laoar.shao@gmail.com>, Ye Bin <yebin10@huawei.com>,
+        Yonghong Song <yonghong.song@linux.dev>,
+        Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
+        virtualization@lists.linux.dev, x86@kernel.org
+Subject: [PATCH 0/7] Replace "__auto_type" with "auto"
+Date: Fri, 18 Jul 2025 14:32:43 -0700
+Message-ID: <20250718213252.2384177-1-hpa@zytor.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -56,17 +90,33 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-> reinit after wait, so the chance for missing wakeup still exists.
+"auto" was defined as a keyword back in the K&R days, but as a storage
+type specifier.  No one ever used it, since it was and is the default
+storage type for local variables.
 
-Can you please provide more details on this? Yes, it is reinit after wait,
-but wait should not be concurrent. I checked multiple code pathes towards
-vhost_net_flush(), they're all protected by device mutex, except
-vhost_net_release(). In case of vhost_net_release() - it would be a
-problem itself if it was called in parallel with some ioctl on a device?
+C++11 recycled the keyword to allow a type to be declared based on the
+type of an initializer.  This was finally adopted into standard C in
+C23.
 
-Also rationale for this is that put_and_wait() is waiting for zero
-refcount condition. Zero refcount means that after put_and_wait() calling
-thread is the only owner of an ubufs structure. If multiple threads got
-ubufs structure with zero refcount - how either thread can be sure that
-another one is not free'ing it?
+gcc and clang provide the "__auto_type" alias keyword as an extension
+for pre-C23, however, there is no reason to pollute the bulk of the
+source base with this temporary keyword; instead define "auto" as a
+macro unless the compiler is running in C23+ mode.
 
+This macro is added in <linux/compiler_types.h> because that header is
+included in some of the tools headers, wheres <linux/compiler.h> is
+not as it has a bunch of very kernel-specific things in it.
+
+--- 
+ arch/nios2/include/asm/uaccess.h                        |  4 ++--
+ arch/x86/include/asm/bug.h                              |  2 +-
+ arch/x86/include/asm/string_64.h                        |  6 +++---
+ arch/x86/include/asm/uaccess_64.h                       |  2 +-
+ fs/proc/inode.c                                         | 16 ++++++++--------
+ include/linux/cleanup.h                                 |  4 ++--
+ include/linux/compiler.h                                |  2 +-
+ include/linux/compiler_types.h                          | 13 +++++++++++++
+ include/linux/minmax.h                                  |  6 +++---
+ tools/testing/selftests/bpf/prog_tests/socket_helpers.h |  9 +++++++--
+ tools/virtio/linux/compiler.h                           |  2 +-
+ 11 files changed, 42 insertions(+), 24 deletions(-)
