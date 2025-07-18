@@ -1,63 +1,53 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from forwardcorp1a.mail.yandex.net (forwardcorp1a.mail.yandex.net [178.154.239.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04CB62C0327
-	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 10:54:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 918E333985
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 11:04:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752836089; cv=none; b=He016QZG6U+RHMcjIp0Je74K4DPM8dBJyTAr1/9Q2bRgiJwOwRG1N+2KazRfCnqgpiqdhW3ftCOSAjnA3LeCZoLSZoNTECBPw8VA9/YQWTEUoEPbZRl3ma5qWRWRe/TJZV+Q4mO7y40JoRDMaaBCBhoX9i4o/fcpYOSCpxANUhA=
+	t=1752836679; cv=none; b=c3+JX2m36+3M5jpoGtv09nDTzyuHhMx2jzbPwX2Fs7sRANNZh0z4C4kjRAIIEyHvJn5SLbgFO4FJIPEwDQcDEIaXUPOs5nikFZkfFT6N67XXl/cfajIK0YzKhZQ8uFNDR/Cdvh5+qRmVuCPXPJH/ehmuL5tZwdIMmrr9nqMe/9A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752836089; c=relaxed/simple;
-	bh=zAFyDkIf9qCUhBZe8gnx6U8C2dwmN1Ikbn0/wkc7YvU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=trFHQjCMC1T+lrP8vEuHfhotMyu+pdBFDVeYWL/OM4MRUVHy8BrHItWO+wE0Q8mF2ObQT++WrrlFAiRE+aeYiMh9RRPoZ3d6tyF/JfJ99YvfrncKgHQXtl7ayCfQJb3gkK82RAl/VR8sLRavaMqK+oaw80rXd2MsQSS9teGsyBg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=qTl+/PNw; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1752836679; c=relaxed/simple;
+	bh=cFORY9gb0sfHAI5NO7xSZ6xnWnAfgmRgOLUsTQ179wQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=AtY/B5qhxBBGfPhgXXeilWruUhDmRnxQJYFKVoEu9FqCPBYdoqwWVcXnOwV3S317XHOMCsvtzQCf8CsYX4QQCUbGeXAU9hchNq50Il8AkXy7Ndvp+P7gV7u+PR75FA6+c0Z6BX2iLfUn3CQjrbnAXGL4uuLXN1KKd76fEsxdA4A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru; spf=pass smtp.mailfrom=yandex-team.ru; dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b=Hg/k6Xe4; arc=none smtp.client-ip=178.154.239.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex-team.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="qTl+/PNw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1752836086;
-	bh=zAFyDkIf9qCUhBZe8gnx6U8C2dwmN1Ikbn0/wkc7YvU=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=qTl+/PNwgT4pQnJiv0dRTS0wCfOw5K0VqkHPHmswV3uS26vgK96Bl2lt7jN4pdurW
-	 +lLQcQ4vUxqBodZrP5pFnHjF60LbRTLo0qHUH1yzwa7wdalGQXMUig7sS559dhO7fY
-	 /UakIWIXeP0TxDWU7o0/AFU6cJ6nYFq6lF1NoxGRMfZTQXXSc4YvwqEz/9Mnz9lfx+
-	 a39eRszxJAvOcbWHUeNeHgoMzErBxD/mGCBRtPwEW5VOtkusmUEqKk5oMHiCIkPAPY
-	 I7PFLsY82pI+QjSoMMUeCv1nbc8WiFZZU7/G5ej+ZLnrxnLm3hemaFMS5rmj/UQ+pk
-	 2EKYvXymLrxcQ==
-Received: from debian.. (unknown [171.76.80.183])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 3538517E1560;
-	Fri, 18 Jul 2025 12:54:43 +0200 (CEST)
-From: Vignesh Raman <vignesh.raman@collabora.com>
-To: dri-devel@lists.freedesktop.org
-Cc: daniels@collabora.com,
-	helen.fornazier@gmail.com,
-	airlied@gmail.com,
-	simona.vetter@ffwll.ch,
-	robdclark@gmail.com,
-	guilherme.gallo@collabora.com,
-	sergi.blanch.torne@collabora.com,
-	valentine.burley@collabora.com,
-	lumag@kernel.org,
-	linux-mediatek@lists.infradead.org,
-	linux-amlogic@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	amd-gfx@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
+	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="Hg/k6Xe4"
+Received: from mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net (mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net [IPv6:2a02:6b8:c0f:4291:0:640:5ba1:0])
+	by forwardcorp1a.mail.yandex.net (Yandex) with ESMTPS id 01F6CC1324;
+	Fri, 18 Jul 2025 14:04:30 +0300 (MSK)
+Received: from kniv-nix.yandex-team.ru (unknown [2a02:6bf:8080:56e::1:20])
+	by mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id C4MJsn1G4eA0-22dOx9QF;
+	Fri, 18 Jul 2025 14:04:29 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru;
+	s=default; t=1752836669;
+	bh=2qalnWYlQY+v6tyEg1CW//D2TKZDTcBnHEPVSwiWO/A=;
+	h=Message-Id:Date:Cc:Subject:To:From;
+	b=Hg/k6Xe4zn/33viN5WiQsuyi+GvR3boPyW3beCibPRrnN9PeNfOjcaMEITbrG2QnV
+	 BMYj8L68OOlljHdI7jRvNfOgS5hpLhkVV4oAoQ+TasSL/KqJ8Zy9ooZ7eDELWGShQs
+	 dB0e0QBbGTTCGiOH/v+X/rvIKBL7iZU6feUQpL7E=
+Authentication-Results: mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net; dkim=pass header.i=@yandex-team.ru
+From: Nikolay Kuratov <kniv@yandex-team.ru>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v1 7/7] drm/ci: add mt8192
-Date: Fri, 18 Jul 2025 16:23:59 +0530
-Message-ID: <20250718105407.32878-8-vignesh.raman@collabora.com>
-X-Mailer: git-send-email 2.47.2
-In-Reply-To: <20250718105407.32878-1-vignesh.raman@collabora.com>
-References: <20250718105407.32878-1-vignesh.raman@collabora.com>
+	kvm@vger.kernel.org,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Lei Yang <leiyang@redhat.com>,
+	Hillf Danton <hdanton@sina.com>,
+	Nikolay Kuratov <kniv@yandex-team.ru>,
+	stable@vger.kernel.org,
+	Andrey Ryabinin <arbn@yandex-team.com>,
+	Andrey Smetanin <asmetanin@yandex-team.ru>
+Subject: [PATCH v2] vhost/net: Replace wait_queue with completion in ubufs reference
+Date: Fri, 18 Jul 2025 14:03:55 +0300
+Message-Id: <20250718110355.1550454-1-kniv@yandex-team.ru>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -66,167 +56,98 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add job that executes the IGT test suite for mt8192-asurada-spherion-r0.
+When operating on struct vhost_net_ubuf_ref, the following execution
+sequence is theoretically possible:
+CPU0 is finalizing DMA operation                   CPU1 is doing VHOST_NET_SET_BACKEND
+                             // &ubufs->refcount == 2
+vhost_net_ubuf_put()                               vhost_net_ubuf_put_wait_and_free(oldubufs)
+                                                     vhost_net_ubuf_put_and_wait()
+                                                       vhost_net_ubuf_put()
+                                                         int r = atomic_sub_return(1, &ubufs->refcount);
+                                                         // r = 1
+int r = atomic_sub_return(1, &ubufs->refcount);
+// r = 0
+                                                      wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
+                                                      // no wait occurs here because condition is already true
+                                                    kfree(ubufs);
+if (unlikely(!r))
+  wake_up(&ubufs->wait);  // use-after-free
 
-Signed-off-by: Deborah Brouwer <deborah.brouwer@collabora.com>
-Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+This leads to use-after-free on ubufs access. This happens because CPU1
+skips waiting for wake_up() when refcount is already zero.
+
+To prevent that use a completion instead of wait_queue as the ubufs
+notification mechanism. wait_for_completion() guarantees that there will
+be complete() call prior to its return.
+
+We also need to reinit completion in vhost_net_flush(), because
+refcnt == 0 does not mean freeing in that case.
+
+Cc: stable@vger.kernel.org
+Fixes: 0ad8b480d6ee9 ("vhost: fix ref cnt checking deadlock")
+Reported-by: Andrey Ryabinin <arbn@yandex-team.com>
+Suggested-by: Andrey Smetanin <asmetanin@yandex-team.ru>
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Tested-by: Lei Yang <leiyang@redhat.com> (v1)
+Signed-off-by: Nikolay Kuratov <kniv@yandex-team.ru>
 ---
- drivers/gpu/drm/ci/arm64.config               |  4 +++
- drivers/gpu/drm/ci/test.yml                   | 13 +++++--
- .../drm/ci/xfails/mediatek-mt8192-fails.txt   | 34 +++++++++++++++++++
- .../drm/ci/xfails/mediatek-mt8192-skips.txt   | 14 ++++++++
- .../drm/ci/xfails/panfrost-mt8192-fails.txt   |  9 +++++
- .../drm/ci/xfails/panfrost-mt8192-skips.txt   | 20 +++++++++++
- 6 files changed, 92 insertions(+), 2 deletions(-)
- create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8192-fails.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8192-skips.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-mt8192-fails.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/panfrost-mt8192-skips.txt
+v2:
+* move reinit_completion() into vhost_net_flush(), thanks
+  to Hillf Danton
+* add Tested-by: Lei Yang
+* check that usages of put_and_wait() are consistent across
+  LTS kernels
 
-diff --git a/drivers/gpu/drm/ci/arm64.config b/drivers/gpu/drm/ci/arm64.config
-index 7cd6d9d612fc..bae0175df556 100644
---- a/drivers/gpu/drm/ci/arm64.config
-+++ b/drivers/gpu/drm/ci/arm64.config
-@@ -213,3 +213,7 @@ CONFIG_PWM_TEGRA=y
- CONFIG_DRM_PANTHOR=m
- CONFIG_PHY_ROCKCHIP_NANENG_COMBO_PHY=y
- CONFIG_PHY_ROCKCHIP_SAMSUNG_HDPTX=y
-+
-+# For Mediatek mt8192
-+CONFIG_SPMI_MTK_PMIF=y
-+CONFIG_REGULATOR_MT6315=y
-diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
-index dbd582442776..3d871c4bb5b9 100644
---- a/drivers/gpu/drm/ci/test.yml
-+++ b/drivers/gpu/drm/ci/test.yml
-@@ -451,8 +451,7 @@ panfrost:mt8183:
-     - .mt8183
-     - .panfrost-gpu
+ drivers/vhost/net.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 7cbfc7d718b3..69e1bfb9627e 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
+ 	 * >1: outstanding ubufs
+ 	 */
+ 	atomic_t refcount;
+-	wait_queue_head_t wait;
++	struct completion wait;
+ 	struct vhost_virtqueue *vq;
+ };
  
--# drm-mtk doesn't even probe yet in mainline for mt8192
--.mediatek:mt8192:
-+.mt8192:
-   extends:
-     - .mediatek-device
-   parallel: 3
-@@ -461,6 +460,16 @@ panfrost:mt8183:
-     GPU_VERSION: mt8192
-     RUNNER_TAG: mesa-ci-x86-64-lava-mt8192-asurada-spherion-r0
+@@ -240,7 +240,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
+ 	if (!ubufs)
+ 		return ERR_PTR(-ENOMEM);
+ 	atomic_set(&ubufs->refcount, 1);
+-	init_waitqueue_head(&ubufs->wait);
++	init_completion(&ubufs->wait);
+ 	ubufs->vq = vq;
+ 	return ubufs;
+ }
+@@ -249,14 +249,14 @@ static int vhost_net_ubuf_put(struct vhost_net_ubuf_ref *ubufs)
+ {
+ 	int r = atomic_sub_return(1, &ubufs->refcount);
+ 	if (unlikely(!r))
+-		wake_up(&ubufs->wait);
++		complete_all(&ubufs->wait);
+ 	return r;
+ }
  
-+mediatek:mt8192:
-+  extends:
-+    - .mt8192
-+    - .mediatek-display
-+
-+panfrost:mt8192:
-+  extends:
-+    - .mt8192
-+    - .panfrost-gpu
-+
- .meson-device:
-   extends:
-     - .lava-igt:arm64
-diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8192-fails.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8192-fails.txt
-new file mode 100644
-index 000000000000..4b4f1b594c23
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8192-fails.txt
-@@ -0,0 +1,34 @@
-+core_setmaster@master-drop-set-user,Fail
-+dumb_buffer@create-clear,Crash
-+kms_bw@connected-linear-tiling-1-displays-1920x1080p,Fail
-+kms_bw@connected-linear-tiling-1-displays-2160x1440p,Fail
-+kms_bw@connected-linear-tiling-1-displays-2560x1440p,Fail
-+kms_bw@connected-linear-tiling-1-displays-3840x2160p,Fail
-+kms_bw@linear-tiling-1-displays-1920x1080p,Fail
-+kms_bw@linear-tiling-1-displays-2160x1440p,Fail
-+kms_bw@linear-tiling-1-displays-2560x1440p,Fail
-+kms_bw@linear-tiling-1-displays-3840x2160p,Fail
-+kms_color@invalid-gamma-lut-sizes,Fail
-+kms_cursor_legacy@cursor-vs-flip-atomic,Fail
-+kms_cursor_legacy@cursor-vs-flip-legacy,Fail
-+kms_flip@basic-plain-flip,Fail
-+kms_flip@dpms-off-confusion,Fail
-+kms_flip@dpms-off-confusion-interruptible,Fail
-+kms_flip@flip-vs-blocking-wf-vblank,Fail
-+kms_flip@flip-vs-dpms-on-nop,Fail
-+kms_flip@flip-vs-dpms-on-nop-interruptible,Fail
-+kms_flip@flip-vs-expired-vblank,Fail
-+kms_flip@flip-vs-expired-vblank-interruptible,Fail
-+kms_flip@flip-vs-modeset-vs-hang,Fail
-+kms_flip@flip-vs-panning,Fail
-+kms_flip@flip-vs-panning-interruptible,Fail
-+kms_flip@flip-vs-panning-vs-hang,Fail
-+kms_flip@flip-vs-suspend,Fail
-+kms_flip@flip-vs-suspend-interruptible,Fail
-+kms_flip@plain-flip-fb-recreate,Fail
-+kms_flip@plain-flip-fb-recreate-interruptible,Fail
-+kms_flip@plain-flip-interruptible,Fail
-+kms_flip@plain-flip-ts-check,Fail
-+kms_flip@plain-flip-ts-check-interruptible,Fail
-+kms_invalid_mode@overflow-vrefresh,Fail
-+kms_lease@lease-uevent,Fail
-diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8192-skips.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8192-skips.txt
-new file mode 100644
-index 000000000000..a165fccd8a93
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8192-skips.txt
-@@ -0,0 +1,14 @@
-+# Skip driver specific tests
-+^amdgpu.*
-+^msm.*
-+nouveau_.*
-+^panfrost.*
-+^v3d.*
-+^vc4.*
-+^vmwgfx*
-+
-+# Skip intel specific tests
-+gem_.*
-+i915_.*
-+tools_test.*
-+kms_dp_link_training.*
-diff --git a/drivers/gpu/drm/ci/xfails/panfrost-mt8192-fails.txt b/drivers/gpu/drm/ci/xfails/panfrost-mt8192-fails.txt
-new file mode 100644
-index 000000000000..6589d194323f
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/panfrost-mt8192-fails.txt
-@@ -0,0 +1,9 @@
-+core_hotunplug@hotreplug,Fail
-+core_hotunplug@hotreplug-lateclose,Fail
-+core_hotunplug@hotunplug-rescan,Fail
-+core_hotunplug@unplug-rescan,Fail
-+core_setmaster@master-drop-set-user,Fail
-+panfrost/panfrost_prime@gem-prime-import,Fail
-+panfrost/panfrost_submit@pan-reset,Fail
-+panfrost/panfrost_submit@pan-submit-error-bad-requirements,Fail
-+panfrost/panfrost_submit@pan-unhandled-pagefault,Fail
-diff --git a/drivers/gpu/drm/ci/xfails/panfrost-mt8192-skips.txt b/drivers/gpu/drm/ci/xfails/panfrost-mt8192-skips.txt
-new file mode 100644
-index 000000000000..b724cf04e3b3
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/panfrost-mt8192-skips.txt
-@@ -0,0 +1,20 @@
-+# Skip driver specific tests
-+^amdgpu.*
-+^msm.*
-+nouveau_.*
-+^v3d.*
-+^vc4.*
-+^vmwgfx*
-+
-+# Skip intel specific tests
-+gem_.*
-+i915_.*
-+tools_test.*
-+kms_dp_link_training.*
-+
-+# Panfrost is not a KMS driver, so skip the KMS tests
-+kms_.*
-+
-+# Skip display functionality tests for GPU-only drivers
-+dumb_buffer.*
-+fbdev.*
+ static void vhost_net_ubuf_put_and_wait(struct vhost_net_ubuf_ref *ubufs)
+ {
+ 	vhost_net_ubuf_put(ubufs);
+-	wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
++	wait_for_completion(&ubufs->wait);
+ }
+ 
+ static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
+@@ -1381,6 +1381,7 @@ static void vhost_net_flush(struct vhost_net *n)
+ 		mutex_lock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
+ 		n->tx_flush = false;
+ 		atomic_set(&n->vqs[VHOST_NET_VQ_TX].ubufs->refcount, 1);
++		reinit_completion(&n->vqs[VHOST_NET_VQ_TX].ubufs->wait);
+ 		mutex_unlock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
+ 	}
+ }
 -- 
-2.47.2
+2.34.1
 
