@@ -1,159 +1,141 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A69224677C
-	for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 23:32:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 870B2BA27
+	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 02:04:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752795126; cv=none; b=lW6pUelx8zW1F2cm9DJqybmLnwTXCZ73T0NGSNWJ5sDhj00Uwilqt8maGaNcZei0p/ZJX7Riq341Bo//A4T346aDZuQsdxS99Zrqq3JS7qaqCsKm5HxrDBw7SeE6NMbpS1WM2i+SRBrLXnMWTtVsVgerQZwN45cipJ+MTWO747w=
+	t=1752804283; cv=none; b=HeL+T0Ud/4XR5U9ZHJ4mlEVxW4eGpvR/7Af/vlV3yDuM8SQSemKu+936eLP7mllm4yfMsdj8vOHVehhZ1Q1+Zp6WOgYjccRmdkqAd6HPTDXzDtkXlh/uLB0VloS5hXWZpPjILzVN9CwAvAG7loCX6TQTGVQhWdSaycEujHvN4qU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752795126; c=relaxed/simple;
-	bh=uzxWS3lULfWWEQq2HQszI0g0C6y0xwg1naBkY2aPFXM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=kRBCat7YTaoRbJ1HRagD1bZahjo8/LgqVTgiHo0LR3W6GPrXzTeJ2phX6nYSroY7maJtK5CDxo08hkZU+MxawpGhfAw65q6WmFC/8iTg1tJIAZvW9C29aPZ/t2SBCCNlYUM0/5GY6/8hnoya1A9gLQZESSYkrWVcfHaddXdF0ts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gXwmBhO/; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1752804283; c=relaxed/simple;
+	bh=F9KoY0fWAyT0ZBg+rowE+1s3YIsLeaL/832ZnoeP1Wc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DLZmDi8DLyblnYFW6pMYEgTtJSwtFP9GBnS5t8Gx915QzThBcm8WyWW7BuClTiyXM0MMxakI0sLjXNnmdB5BB/wWc/RS8MTrpPzszWKNFuDr5nC8qO4fy0XX7SWfzf3HtxdVkoTvKbRQ3Pu6ayX0dbF7IFnUKRjkOIEqigSZ44Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IOexmGRa; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gXwmBhO/"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IOexmGRa"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752795123;
+	s=mimecast20190719; t=1752804280;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=CpZT+Mzo2oQHVk3kzL8pLB1r2CdXyvoZE7LSvS2Rg/U=;
-	b=gXwmBhO/LUmmXJl0fjOUsbcf++1bsL11mLid6AuIhL117ZLfVZSnwA/z8zmBwRKEfH6P+d
-	KnJzoK7OtAyZRqZo7Sgrsg6Vtx0ZI7DFkm+yqTy5RmEnbrl4h26IAxFcz6TyEBcxkggnH8
-	5LwhXkFKAFibUkp/ywrpjP7IVDpBIco=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=F9KoY0fWAyT0ZBg+rowE+1s3YIsLeaL/832ZnoeP1Wc=;
+	b=IOexmGRadnjAUK6Z7heu3u1IsRm3bpl1qAgqRGo9eV0WxN3atdUSjf84OEcr6mr7Je9Pgq
+	5O/FCZep0LJDMalPbfMUvpCNdl0ms8pYx5boN9MYgIwj81YMJhsZAttIkd8OjfwLwLR8Z6
+	+39nuANSoJ3/TdM3axhTZz09FehBmxM=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-611-UXbY2zipOo2CmAf0_hTlvA-1; Thu, 17 Jul 2025 19:32:02 -0400
-X-MC-Unique: UXbY2zipOo2CmAf0_hTlvA-1
-X-Mimecast-MFC-AGG-ID: UXbY2zipOo2CmAf0_hTlvA_1752795121
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a6d1394b07so992401f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 16:32:02 -0700 (PDT)
+ us-mta-390-6L0AJIwsOeu6P3l0LloU_A-1; Thu, 17 Jul 2025 22:04:38 -0400
+X-MC-Unique: 6L0AJIwsOeu6P3l0LloU_A-1
+X-Mimecast-MFC-AGG-ID: 6L0AJIwsOeu6P3l0LloU_A_1752804277
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3138f5e8ff5so1700777a91.3
+        for <virtualization@lists.linux.dev>; Thu, 17 Jul 2025 19:04:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752795121; x=1753399921;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CpZT+Mzo2oQHVk3kzL8pLB1r2CdXyvoZE7LSvS2Rg/U=;
-        b=OadQPr9HaehhIyyQQDpAALVBRE94kaxx7Ogip4KKFCctPh35CKsVOG9jxE5/Kfml9K
-         koeUcers5eq+VbtexYJ34IDlPmSFGn+8GwSnhTeZUdNBHA/Ac7kLVbhdlK/uuGYLxnFb
-         HqwL+W5xDcv7+KjqXFzKMIc7Wew8vAOgY1Z4Eino3GzDRfjJ3bwdva0Gx/0lLnGd1z9Z
-         NxK8HEFuML4q2L2yVqhC8EygwsYK3rxyPj3RRTpCn8TRIIqFEz8KkSVuT3PjfEQcWsot
-         eiMUn53AqRwM13g3uorOtiXamCncRqHgFZVgoQMIv30bKY8NWXqi5zWilE35RyGjnwd0
-         h+BA==
-X-Forwarded-Encrypted: i=1; AJvYcCVGFsJWWCcppnTDpe0bQ9c7qCcI3iKg9/vcA1y3rTvgUQIUsrNoYjuIffy7JcGSvIAsm7FTuvLyu4awiuh1+w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwlI19d0F89odIqJV/PuUZVYo54Jo/UbkF3tDdcIuVm8McEiEH1
-	szW8KwO/9bj5yQLe7VCdbo8xpPLv+BzFvxTU+gznyUcXUEB++LymecUVUTCTE8n7IiECEit8GS7
-	Z6dFkyxwhjOC+ifmIvHcbrO7lb+90E7JsL1yTGtb+XXiSvzQN8VIpAzFN/PPVXA2iw5U+
-X-Gm-Gg: ASbGncvNM7EGgn+Bif/tYNC1/TVJpDCazad7FrC2WUHnHdTYciQaK5m5FS4Oo1ehjic
-	WxTdjtAA08/nceRKfXd7CEUINaK2bDvTxSnBhbO3QEB2bjaPmARLmW4cfMvCBfFEsM81itnQXK/
-	m0xhZ/bu14TaKwBgTStEpXA4EnI8nT6Y5R7kzZW8rtREZQQq2lbSunHc6jUAJUlrbqI0wrrgxrb
-	5iki0EFWOHUhPuaAK1oAfkIGOk+ypuiYIBlhwj4Fn0OKbiVHBBDOrDQBYp7CzA5hDATs3/lgoMa
-	BOX440LcbIRnht0P9S8QyADaDBnQN12Y
-X-Received: by 2002:a5d:5d10:0:b0:3a5:5270:c38f with SMTP id ffacd0b85a97d-3b60dd0db62mr8300298f8f.0.1752795120805;
-        Thu, 17 Jul 2025 16:32:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IExuHiZKPsl7+fM4ddbkHTlANT8kdKZ8czJfqKssVMAXmY7AK0qAvc0j4x6/StlbI3vHNtqEw==
-X-Received: by 2002:a5d:5d10:0:b0:3a5:5270:c38f with SMTP id ffacd0b85a97d-3b60dd0db62mr8300286f8f.0.1752795120388;
-        Thu, 17 Jul 2025 16:32:00 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:150d:fc00:de3:4725:47c6:6809])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4562e81ccb4sm63884635e9.17.2025.07.17.16.31.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Jul 2025 16:31:59 -0700 (PDT)
-Date: Thu, 17 Jul 2025 19:31:57 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Lukas Wunner <lukas@wunner.de>
-Cc: linux-kernel@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Parav Pandit <parav@nvidia.com>, virtualization@lists.linux.dev,
-	stefanha@redhat.com, alok.a.tiwari@oracle.com,
-	linux-pci@vger.kernel.org
-Subject: Re: [PATCH RFC v5 1/5] pci: report surprise removal event
-Message-ID: <20250717193122-mutt-send-email-mst@kernel.org>
-References: <cover.1752094439.git.mst@redhat.com>
- <fba3d235e38c1c6fcef2a30ed083ad9e25b20fa3.1752094439.git.mst@redhat.com>
- <aHSfeNhpocI4nmQk@wunner.de>
- <20250717091025-mutt-send-email-mst@kernel.org>
- <aHlZE18kPuHuDtTT@wunner.de>
+        d=1e100.net; s=20230601; t=1752804277; x=1753409077;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=F9KoY0fWAyT0ZBg+rowE+1s3YIsLeaL/832ZnoeP1Wc=;
+        b=JUsUVfqTViqsRsPTL+Lt8Xn2z1XUu9deoeLo1h0EIBXDcueOyVfMPeG6EebmRfAobQ
+         6+a321i454IOuT2TmUlj+PPRyxD9ec7GLfuszgn+0eLxacMN2GnaJyoh2lofzY68XZSn
+         YyZo6BOsWc+rBGkZHYp1XwfHyRjkjx1fB2UluHzJogH4VIJ00LR3pfxJq1Q+GEv1HjV6
+         YZUxqZx9t1YJAh2ue8XreXiTnBww05s+DLVrHl5qqN5kzR+cz6KBbsY3n1QYe/sDFVGs
+         glUkA0Jg02v2cW0B5DaJmCTpnnX0hepCkftwDM4PI/XCi0Q9wPSgzWTu3Do5GOcK2aoo
+         aDnA==
+X-Forwarded-Encrypted: i=1; AJvYcCXRVCYLoXnTiwFPNEnOGEVcgGwtD9Z/KHiYTecIbLcL2z/Vb923njog8EsPCOWDZc2QqH13dg7NWisTN9aisQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzqx9Col5EMhdxMkDz3QJCfUGvQOC//zR/9MdKuvHDobwtmdgac
+	j/S6ECTwpE4YVQUpng8jAF/TnptRjXE8J/PUs+Ma8jVC/oe2sIxefLtjlofEO2oG4SBiv2CwSFO
+	jH+jRYmSARhG15rehgJlNqx5IDJZiaIVmJYuGtpdi/jkfiLIMSG7kEi/5+zkhUEpb39UEmv6yfr
+	YrV51yas3CBCYyydDVl5fKNkQrnAAtAKucR3PGmCJ7LGY=
+X-Gm-Gg: ASbGncscEZCUsgfNktYJ50o6Lia2F/FuJ0G3IhyT/Y3VLCVXcaj9gBoP37gRA3eKmkT
+	a9D5pC4ZnWocZeU1RoDNVFW/PZtIJryi5ctvuwb0EFckP1br0B+/HfiUNXCCiTiz2BFlO9xLmjT
+	EhX8I1x7O4JvtywzbMnvrw
+X-Received: by 2002:a17:90b:1b05:b0:313:fa28:b223 with SMTP id 98e67ed59e1d1-31c9f3c3538mr10850938a91.3.1752804277407;
+        Thu, 17 Jul 2025 19:04:37 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE8KqrUIVNAEyJPRiT2OM9FATHXOwO2SqN0Txk9K1dB4PdC1uDpWK6ggmwhD+ohejDdUwFOfVzzFbUMJaFde+g=
+X-Received: by 2002:a17:90b:1b05:b0:313:fa28:b223 with SMTP id
+ 98e67ed59e1d1-31c9f3c3538mr10850916a91.3.1752804276960; Thu, 17 Jul 2025
+ 19:04:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aHlZE18kPuHuDtTT@wunner.de>
+References: <20250714084755.11921-1-jasowang@redhat.com> <20250716170406.637e01f5@kernel.org>
+ <CACGkMEvj0W98Jc=AB-g8G0J0u5pGAM4mBVCrp3uPLCkc6CK7Ng@mail.gmail.com>
+ <20250717015341-mutt-send-email-mst@kernel.org> <CACGkMEvX==TSK=0gH5WaFecMY1E+o7mbQ6EqJF+iaBx6DyMiJg@mail.gmail.com>
+ <bea4ea64-f7ec-4508-a75f-7b69d04f743a@redhat.com>
+In-Reply-To: <bea4ea64-f7ec-4508-a75f-7b69d04f743a@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 18 Jul 2025 10:04:25 +0800
+X-Gm-Features: Ac12FXy68XSJi1v7t16tcsLyYegSvV6N-LmJH3rh-wlnh3moxbcvqEtUDzYQPos
+Message-ID: <CACGkMEv3gZLPgimK6=f0Zrt_SSux8ssA5-UeEv+DHPoeSrNBQQ@mail.gmail.com>
+Subject: Re: [PATCH net-next V2 0/3] in order support for vhost-net
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>, eperezma@redhat.com, 
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, jonah.palmer@oracle.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: C9zr5s2_OTHzMFatFREY-Dh5WX8EnpouZm545xrrElE_1752795121
+X-Mimecast-MFC-PROC-ID: eA8_d1mOqpC3IopUXsLAj4nN4OGk_pxO9XO2VNQrU9c_1752804277
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 17, 2025 at 10:12:03PM +0200, Lukas Wunner wrote:
-> On Thu, Jul 17, 2025 at 11:11:44AM -0400, Michael S. Tsirkin wrote:
-> > On Mon, Jul 14, 2025 at 08:11:04AM +0200, Lukas Wunner wrote:
-> > > On Wed, Jul 09, 2025 at 04:55:26PM -0400, Michael S. Tsirkin wrote:
-> > > > At the moment, in case of a surprise removal, the regular remove
-> > > > callback is invoked, exclusively.  This works well, because mostly, the
-> > > > cleanup would be the same.
-> > > > 
-> > > > However, there's a race: imagine device removal was initiated by a user
-> > > > action, such as driver unbind, and it in turn initiated some cleanup and
-> > > > is now waiting for an interrupt from the device. If the device is now
-> > > > surprise-removed, that never arrives and the remove callback hangs
-> > > > forever.
-> > > 
-> > > For PCI devices in a hotplug slot, user space can initiate "safe removal"
-> > > by writing "0" to the hotplug slot's "power" file in sysfs.
-> > > 
-> > > If the PCI device is yanked from the slot while safe removal is ongoing,
-> > > there is likewise no way for the driver to know that the device is
-> > > suddenly gone.  That's because pciehp_unconfigure_device() only calls
-> > > pci_dev_set_disconnected() in the surprise removal case, not for
-> > > safe removal.
-> > > 
-> > > The solution proposed here is thus not a complete one:  It may work
-> > > if user space initiated *driver* removal, but not if it initiated *safe*
-> > > removal of the entire device.  For virtio, that may be sufficient.
-> > 
-> > So just as an idea, something like this can work I guess?  I'm yet to
-> > test this - wrote this on the go -
-> 
-> Don't bother, it won't work:
-> 
-> pciehp_handle_presence_or_link_change() is called from pciehp_ist(),
-> the IRQ thread.  During safe removal the IRQ thread is busy in
-> pciehp_unconfigure_device() and waiting for the driver to unbind
-> from devices being safe-removed.
+On Thu, Jul 17, 2025 at 9:52=E2=80=AFPM Paolo Abeni <pabeni@redhat.com> wro=
+te:
+>
+> On 7/17/25 8:01 AM, Jason Wang wrote:
+> > On Thu, Jul 17, 2025 at 1:55=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
+com> wrote:
+> >> On Thu, Jul 17, 2025 at 10:03:00AM +0800, Jason Wang wrote:
+> >>> On Thu, Jul 17, 2025 at 8:04=E2=80=AFAM Jakub Kicinski <kuba@kernel.o=
+rg> wrote:
+> >>>>
+> >>>> On Mon, 14 Jul 2025 16:47:52 +0800 Jason Wang wrote:
+> >>>>> This series implements VIRTIO_F_IN_ORDER support for vhost-net. Thi=
+s
+> >>>>> feature is designed to improve the performance of the virtio ring b=
+y
+> >>>>> optimizing descriptor processing.
+> >>>>>
+> >>>>> Benchmarks show a notable improvement. Please see patch 3 for detai=
+ls.
+> >>>>
+> >>>> You tagged these as net-next but just to be clear -- these don't app=
+ly
+> >>>> for us in the current form.
+> >>>>
+> >>>
+> >>> Will rebase and send a new version.
+> >>>
+> >>> Thanks
+> >>
+> >> Indeed these look as if they are for my tree (so I put them in
+> >> linux-next, without noticing the tag).
+> >
+> > I think that's also fine.
+> >
+> > Do you prefer all vhost/vhost-net patches to go via your tree in the fu=
+ture?
+> >
+> > (Note that the reason for the conflict is because net-next gets UDP
+> > GSO feature merged).
+>
+> FTR, I thought that such patches should have been pulled into the vhost
+> tree, too. Did I miss something?
 
-Confused. I thought safe removal happens in the userspace thread
-that wrote into sysfs?
+See: https://www.spinics.net/lists/netdev/msg1108896.html
 
-> An IRQ thread is always single-threaded.  There's no second instance
-> of the IRQ thread being run when another interrupt is signaled.
-> Rather, the IRQ thread is re-run when it has finished.
-> 
-> In *theory* what would be possible is to plumb this into pciehp_isr().
-> That's the hardirq handler.  This one will indeed be run when an
-> interrupt comes in while the IRQ thread is running.  Normally the
-> hardirq handler would just collect the events for later consumption
-> by the IRQ thread.  The hardirq handler could *theoretically* mark
-> devices gone while they're being safe-removed.
-> 
-> I'm saying "theoretically" because in reality I don't think this is
-> a viable approach either:  pciehp_ist() contains code to *ignore*
-> link or presence changes if they were caused by a Secondary Bus Reset
-> or Downstream Port Containment.  In that case we do *not* want to mark
-> devices disconnected because they're only *temporarily* inaccessible.
-> This requires waiting for the SBR or DPC to conclude, which can take
-> several seconds.  We can't wait in the hardirq handler.
-> 
-> So this cannot be solved with the current architecture of pciehp,
-> at least not easily or in an elegant way.  Sorry!
-> 
+>
 > Thanks,
-> 
-> Lukas
+>
+> Paolo
+>
+
+Thanks
 
