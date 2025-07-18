@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52A7A1E832E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1219C1EFFA6
 	for <virtualization@lists.linux.dev>; Fri, 18 Jul 2025 21:35:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752874511; cv=none; b=Cxa+Lasa+h2/DBcN5CuScY8tdCz0QxK/e1pA7IHjLXYtI5VLcerWcw9CH4ASvJlj7b6o/aJgNklIb3LU+GqcF/+h7pBHBddtX4SnX/sgfjihbf6N/t7ardpI5gdNVMNx+xoKFmUXIJGI08gwA1et69a0wwe/Nvz0eADQVFjh9SA=
+	t=1752874512; cv=none; b=BY23l+/N2YPSxK+xRNZeLB3rvQi3A7/Wc51bE0VOTXAVs1VV0msWT2gfbzNW+cUVQuLTZIDnE6Xkp6J+3TckFPXYcNyQ1WMoGd8nYZN+Est4xchB8jxyy4G8p04gT0CpmV7KDqkXs73uE1IpUEpUTBItnUPOLCGJeHES1tS7WP4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752874511; c=relaxed/simple;
-	bh=9dtVCcaoM7scDr6iHjz+kfoV+3QGDIWOIuOPomYWM8w=;
+	s=arc-20240116; t=1752874512; c=relaxed/simple;
+	bh=qTM7AwfdMSpV4NjWdyBTj056XS0XUIw4MsAivRgxjA0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tetfqvOx/T47y14gEliRA76cJAwP+R0AddPXYGb81NZNKhRXGdskIj9nMytlTu80wmUOc+TvF95x6w981SW09a4y73dVIW3xZ6lDgO1n1BUnvj3oMRc6X5mqTI51oDj7DHDlU12IfRZgXPZx1ciCsecB2OMjFTUUMDJSHzJsSM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=Zk9YCLSE; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=O2l9FggcOjUyXYN0eVopKCWj0Y9VpXr16gmNQfqd+zoo3mZzDtH01N6SZQNoAISc+rZXHXs7oEZwyxJ2vLWc0dwQGGu8l0aBEeRSc1/R7vvH1/x1WVBeWi99AvsVHNA43QlpWyOi6WQxVdRsCLcEGg4YmwwkjWpKrSZPCCU+xaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=kUtLsUmn; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="Zk9YCLSE"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="kUtLsUmn"
 Received: from mail.zytor.com ([IPv6:2601:646:8081:9482:197f:c1e5:8ae9:2d06])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56ILX0sk2795198
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56ILX0so2795198
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Fri, 18 Jul 2025 14:33:12 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56ILX0sk2795198
+	Fri, 18 Jul 2025 14:33:26 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56ILX0so2795198
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025062101; t=1752874395;
-	bh=Z4WmS4NAnxtVl2zGz5v9dKawPFHSnciPALGaXZnv+mI=;
+	s=2025062101; t=1752874410;
+	bh=jdACkDnI1i4f1cAIvfWumKYM1ftH6IqzvEllMEW8ooQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Zk9YCLSE+KfX8gmZ6wswqlqJW5JOx+SissEJ5Ra2wJTy1z7ecBDKHBGRc64XXQhNE
-	 YZVhdTFGXR/Dh1aYxkOOAJUbRtB0NhBTa5/4TeGRJt3f4bZAIv+vF+od9n7EFsWHPE
-	 5mcyAnxN1JS+C7sEx7Kb1S7AvDFnoN5+K4Mec9vf5RXaUDj0vWkuV+yLe/lwL9obPj
-	 XRNn1oKKwl+4Sq0358zKr91s43RP7AdpGWVM5D8r6mlYTJ/Bw0kHkLiojNOjKikOdz
-	 rMOKgmauDhfRoWu0WTCVxGtC3lY8ioEkKUyWrnmWMgNrwmvCe4+kbH3kmHJWdY8JlL
-	 Uv8GXdJ/L0ZNQ==
+	b=kUtLsUmnGPo16uDqJL2qnrWMXseSawh9pJpv2YNt13h/uBXId+AZ31/sNWTpQXkp2
+	 SjEAlw3kdXesYtDUSnlCvfAQNJLFsTtaIo6MXGBTKn3LylDCR6PPhMBLUd5mcsQyfX
+	 57ujEYGvSBblQt4abQ3lWHNmuhdAwG0gyzOAMOeE/ztt60vidgLq9F+AOBLr4XsBmW
+	 r8LStmai4OmIZA0okWI//xBbtAIjITaM3K3apWhtvxdZpYXAIHuowGsM8KQJDSmR1v
+	 j/alPUDZy6ED9LuWWNAZgancdZ4nVifLbixnsyiSXDaE1mUcmhczWyQeYdRKFPGu6S
+	 KQCwtaZV5Xgtg==
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: 
 Cc: "H. Peter Anvin" <hpa@zytor.com>,
@@ -79,9 +79,9 @@ Cc: "H. Peter Anvin" <hpa@zytor.com>,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
         virtualization@lists.linux.dev, x86@kernel.org
-Subject: [PATCH 2/7] include/linux: change "__auto_type" to "auto"
-Date: Fri, 18 Jul 2025 14:32:45 -0700
-Message-ID: <20250718213252.2384177-3-hpa@zytor.com>
+Subject: [PATCH 6/7] selftests/bpf: replace "__auto_type" with "auto"
+Date: Fri, 18 Jul 2025 14:32:49 -0700
+Message-ID: <20250718213252.2384177-7-hpa@zytor.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250718213252.2384177-1-hpa@zytor.com>
 References: <20250718213252.2384177-1-hpa@zytor.com>
@@ -93,74 +93,42 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace instances of "__auto_type" with "auto" in include/linux.
+Replace instances of "__auto_type" with "auto" in:
+
+	tools/testing/selftests/bpf/prog_tests/socket_helpers.h
+
+This file does not seem to be including <linux/compiler_types.h>
+directly or indirectly, so copy the definition but guard it with
+!defined(auto).
 
 Signed-off-by: H. Peter Anvin (Intel) <hpa@zytor.com>
 ---
- include/linux/cleanup.h  | 4 ++--
- include/linux/compiler.h | 2 +-
- include/linux/minmax.h   | 6 +++---
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/socket_helpers.h | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/cleanup.h b/include/linux/cleanup.h
-index 7093e1d08af0..08973560e81d 100644
---- a/include/linux/cleanup.h
-+++ b/include/linux/cleanup.h
-@@ -201,8 +201,8 @@
+diff --git a/tools/testing/selftests/bpf/prog_tests/socket_helpers.h b/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
+index e02cabcc814e..958b65aa29ea 100644
+--- a/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
++++ b/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
+@@ -17,11 +17,16 @@
+ #define VMADDR_CID_LOCAL 1
+ #endif
  
- #define __get_and_null(p, nullvalue)   \
- 	({                                  \
--		__auto_type __ptr = &(p);   \
--		__auto_type __val = *__ptr; \
-+		auto __ptr = &(p);   \
-+		auto __val = *__ptr; \
- 		*__ptr = nullvalue;         \
- 		__val;                      \
++/* include/linux/compiler_types.h */
++#if __STDC_VERSION__ < 202311L && !defined(auto)
++# define auto __auto_type
++#endif
++
+ /* include/linux/cleanup.h */
+ #define __get_and_null(p, nullvalue)                                           \
+ 	({                                                                     \
+-		__auto_type __ptr = &(p);                                      \
+-		__auto_type __val = *__ptr;                                    \
++		auto __ptr = &(p);                                      \
++		auto __val = *__ptr;                                    \
+ 		*__ptr = nullvalue;                                            \
+ 		__val;                                                         \
  	})
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index 6f04a1d8c720..f50183b71bb6 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -186,7 +186,7 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
- #define data_race(expr)							\
- ({									\
- 	__kcsan_disable_current();					\
--	__auto_type __v = (expr);					\
-+	auto __v = (expr);					\
- 	__kcsan_enable_current();					\
- 	__v;								\
- })
-diff --git a/include/linux/minmax.h b/include/linux/minmax.h
-index eaaf5c008e4d..7c6fba53ea5b 100644
---- a/include/linux/minmax.h
-+++ b/include/linux/minmax.h
-@@ -89,7 +89,7 @@
- 	__cmp_once_unique(op, type, x, y, __UNIQUE_ID(x_), __UNIQUE_ID(y_))
- 
- #define __careful_cmp_once(op, x, y, ux, uy) ({		\
--	__auto_type ux = (x); __auto_type uy = (y);	\
-+	auto ux = (x); auto uy = (y);	\
- 	BUILD_BUG_ON_MSG(!__types_ok(ux, uy),		\
- 		#op"("#x", "#y") signedness error");	\
- 	__cmp(op, ux, uy); })
-@@ -129,7 +129,7 @@
- 	__careful_cmp(max, (x) + 0u + 0ul + 0ull, (y) + 0u + 0ul + 0ull)
- 
- #define __careful_op3(op, x, y, z, ux, uy, uz) ({			\
--	__auto_type ux = (x); __auto_type uy = (y);__auto_type uz = (z);\
-+	auto ux = (x); auto uy = (y); auto uz = (z);			\
- 	BUILD_BUG_ON_MSG(!__types_ok3(ux, uy, uz),			\
- 		#op"3("#x", "#y", "#z") signedness error");		\
- 	__cmp(op, ux, __cmp(op, uy, uz)); })
-@@ -203,7 +203,7 @@
-  * This macro checks @val/@lo/@hi to make sure they have compatible
-  * signedness.
-  */
--#define clamp(val, lo, hi) __careful_clamp(__auto_type, val, lo, hi)
-+#define clamp(val, lo, hi) __careful_clamp(auto, val, lo, hi)
- 
- /**
-  * clamp_t - return a value clamped to a given range using a given type
 -- 
 2.50.1
 
