@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 105221B423D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B2BA1C84BB
 	for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 06:52:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752994377; cv=none; b=Ceni04K/1UD/0o+P9Sb00Ydwg8NwcpFoWIg18ctbEwDryKQWSocxOIVbctarVNbMi8qU5nJYgtowOy3BKXzhlA9UbhFavo66SMymd0yi4uHYqX4HT/SSG12FTWL+wZ0Zr2bXVUuyeQusX8JbwOO4uVG/MvBBRc9wK1gXXORWeVQ=
+	t=1752994377; cv=none; b=K9u/9LwchRKbRjz5OSsqK3AseAQ1iokRap8OKJ1gIjBE9t6D2C6/hoEJqy/QiNlmz0I4ztPVu7Gph+T7A8KkPpn2qYI09jtBSpTEOaFcbfN79rwO+g9+3VXKQxFyfrgAT0xnvb8z/dieJ2jVLsjZsBXYeWtCrfVIwBRmFB1CIrg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1752994377; c=relaxed/simple;
-	bh=hbvAwknEuBZZy8wzM2rrw6C9ssd7Qd2r3sI2ZSM6FRc=;
+	bh=LsNKexgn6BXks9XAt1SRbHnNEwPRhDi/Uja4dX8cv2o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Bgg4kQ5KI7ZZv54UTufS9fX1kZ3JyQ1zDsGtjwxWQO3i7uPE4pMFL5DlEnqOh3xqanU5lk6VG8eRnqRUJUU0rt4K8N35AHNBT8QOmKwferMpgySZdnWPJo0bu+OR6KRYza3HfMOxAtUU86JonV/E3k0wbfR+QhBIOaTikDdbWus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=FktW2hKM; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=W5htvUA1a3FLFlaDpgRkGKa/3PIZ2xNlSg/KE8ms0W4l8PmhoVMXDeVrq45t1yLHQI02UV0eIhG41I3QnRd5FFqmfzvpD3i+jtna+Av47atcN+3JHhCR5HRGL/bnNDGdSwTjcc9500dc07p4miWRlITAznF5Yw83/z0jqOL0h1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=bfT8wB4N; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="FktW2hKM"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="bfT8wB4N"
 Received: from mail.zytor.com ([IPv6:2601:646:8081:9484:f04a:f27d:fd66:5c61])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56K6oq0e3555973
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56K6oq0b3555973
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Sat, 19 Jul 2025 23:51:22 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56K6oq0e3555973
+	Sat, 19 Jul 2025 23:51:11 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56K6oq0b3555973
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025062101; t=1752994285;
-	bh=is1xGlkfyHt70hEGiHhmNMzkwdIVhZyUiA44BEc8nvs=;
+	s=2025062101; t=1752994275;
+	bh=WjknFaojsifwlKw0WpmL9PxEqgNG67NL4pP5k1y5h+E=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=FktW2hKMjcrEahQ4BX+tnQYpnVrlQ0KHypZy5Z6dQU+OtvbravrDm40vu8FXR4g8H
-	 xbCM/ysi7vqQh6gNwfRz4t52FBII1ke1vd0E83TOBa6FeyoVzvi4tuqeEbYhDHfsUq
-	 tKZC4cywsDIyDVp8aHVNxDfNeooea1dYznAMQh8tZvGy1q1JAJCGRPVLWK7bYXu3Cl
-	 19V6FZZCYpobZ4DD5XRnnV+JrEendA569OUpmtttbVpcCaqaelNI6vdaSzVH08LDUM
-	 snW6ecw1wTrRCUnkpjzR8rw5F7Cf4oQToZgwDTuMRprULu9l1rp9zgbU46IPbH4Nim
-	 lXHN2zQagbwqg==
+	b=bfT8wB4NnCNiFno5TmtLgXp0LHSfcSGYno/ulj/mwTg2eV/U0U5mXDDLkhxIzDOWu
+	 Yn//5eN6IgvkaZZDalhvPMYwur4x5RPsQ7ukQRJcrbbrK5lkTRFRTsAEs0YAqnTsPG
+	 KVJoTRtRhgCnSRb34YM7GgdSHICF6a09oJQVKyQLhuvVtLgvE2/1xBl/RDnYXBAkev
+	 Qo0cU9LsowrnxbikFqwbodWZTVIg3zcTvssyJbemvXwN/BWEB4DW/lxarrXqkESIdP
+	 s/enNrRqYcsNdynt5gF54xwhvSV3wuw+Zb75z4P8GR2cdk44p6eOJhauAxKrWxCXLp
+	 wi9VYu2Mnq6Fg==
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: 
 Cc: "H. Peter Anvin" <hpa@zytor.com>,
@@ -79,9 +79,9 @@ Cc: "H. Peter Anvin" <hpa@zytor.com>,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
         virtualization@lists.linux.dev, x86@kernel.org
-Subject: [PATCH v2 7/7] tools/virtio: replace "__auto_type" with "auto"
-Date: Sat, 19 Jul 2025 23:50:44 -0700
-Message-ID: <20250720065045.2859105-8-hpa@zytor.com>
+Subject: [PATCH v2 4/7] arch/nios2: replace "__auto_type" and adjacent equivalent with "auto"
+Date: Sat, 19 Jul 2025 23:50:41 -0700
+Message-ID: <20250720065045.2859105-5-hpa@zytor.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250720065045.2859105-1-hpa@zytor.com>
 References: <20250720065045.2859105-1-hpa@zytor.com>
@@ -93,31 +93,40 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace one instance of "__auto_type" with "auto" in:
+Replace uses of "__auto_type" in arch/nios2/include/asm/uaccess.h with
+"auto", and equivalently convert an adjacent cast to the analogous
+form.
 
-	tools/virtio/linux/compiler.h
-
-This file *does* include <linux/compiler_types.h> directly, so there
-is no need to duplicate the definition.
-
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: H. Peter Anvin (Intel) <hpa@zytor.com>
 ---
- tools/virtio/linux/compiler.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/include/asm/uaccess.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
-index 204ef0e9f542..725b93bfeee1 100644
---- a/tools/virtio/linux/compiler.h
-+++ b/tools/virtio/linux/compiler.h
-@@ -31,7 +31,7 @@
-  */
- #define data_race(expr)							\
+diff --git a/arch/nios2/include/asm/uaccess.h b/arch/nios2/include/asm/uaccess.h
+index b8299082adbe..6ccc9a232c23 100644
+--- a/arch/nios2/include/asm/uaccess.h
++++ b/arch/nios2/include/asm/uaccess.h
+@@ -172,15 +172,15 @@ do {									\
+ 
+ #define __put_user(x, ptr)						\
  ({									\
--	__auto_type __v = (expr);					\
-+	auto __v = (expr);						\
- 	__v;								\
+-	__auto_type __pu_ptr = (ptr);					\
+-	typeof(*__pu_ptr) __pu_val = (typeof(*__pu_ptr))(x);		\
++	auto __pu_ptr = (ptr);						\
++	auto __pu_val = (typeof(*__pu_ptr))(x);				\
+ 	__put_user_common(__pu_val, __pu_ptr);				\
  })
  
+ #define put_user(x, ptr)						\
+ ({									\
+-	__auto_type __pu_ptr = (ptr);					\
+-	typeof(*__pu_ptr) __pu_val = (typeof(*__pu_ptr))(x);		\
++	auto __pu_ptr = (ptr);						\
++	auto __pu_val = (typeof(*__pu_ptr))(x);				\
+ 	access_ok(__pu_ptr, sizeof(*__pu_ptr)) ?			\
+ 		__put_user_common(__pu_val, __pu_ptr) :			\
+ 		-EFAULT;						\
 -- 
 2.50.1
 
