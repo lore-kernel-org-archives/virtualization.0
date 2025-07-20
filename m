@@ -1,159 +1,130 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8028B33EC
-	for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 16:13:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01EF41ACED5
+	for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 16:36:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753028004; cv=none; b=ZryaWlUyBgHoObwUwZoGENRuEtByXFzuVVwgdszZxr+QY5XNERQoEpohmfpiPfHCff8D1FPFx1ZqcjAp3YLAXXiatqzjoHoeM8dqQiyuTeve5I5i+X4IPlJqa36sQGSeaKjnCQP4d+4LQ+smaXrT+blXr+HaMJB9yotG7Ruy50I=
+	t=1753029376; cv=none; b=R+u8kvfDEc3G07cRZsE5cIGq6Nma8SfXOLqO5WAXtDtSNA5t0EIRN+xZp5u15v5BNFr07SKB+PJrZ/RVI3NHMdQjPKXr3igJ9GNpi7cu7cA+BB1elLPFfEFDo6J+4l9IrmpgUuIcaHeLuZA5lviw5GM/OY1Hv2Gu4s0Bn0MOK+I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753028004; c=relaxed/simple;
-	bh=waHBK/dHOhY61lgCppPc1hC3CKS8KkMfCExvaN3qBfw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=MrwS+yURbLA0g78DeJwaSv8gIa1gayfbcfX6en+qVDHzTfB88g9+Ine6rPUy6SHTbkuYnR+krgiiQ9Aaw2QIRNiCXWRkdXM55G+QPe9QL5nIW1rAoIY7JW0+3lPGdGsJ5lL06TS+9XRmYCKPQR8IGVPAeQz4fFW6ApYY/q7C2Ng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JnDhFWoF; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1753029376; c=relaxed/simple;
+	bh=bvrkXmR36adZ41cNSDTbguwL1Foz+xHv842/MR+nR2s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NW5moLfww4qXvlS86lWxLp5ocvoPsRK5fBb+uZ50sxkRbFQLeIl39PprB8P2FBKYw7mgFuZmqgMAZagcSK3mia1rUdLRYHFbuF7FiVOZKqzKaCiQBkJnGkHjABrAnD8ywvyacQFmml9ZOqtdNWovTbY8a1ppXL7rQcSuSJHUH5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BsrjZ95k; arc=none smtp.client-ip=209.85.215.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JnDhFWoF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753028000;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/Jj3apqxe+kr9fcNoPVcjrR+Gq4Oua7cDA/qKij4XC8=;
-	b=JnDhFWoFpB1LQgegSDbzQB4oQThem0qd6xOU3ROiKfJBaXd/7t2IWvJbU5DVr064cDbatg
-	DjPCHyHSjzrSn/hUAWChnI7Ejk7WAZIR9oPx3+w13qI/s+Cig71k41a8fgoSe7gPTB/sb7
-	QBZ6a8qNb90XvDPUyKIm+2LSOhPUNHE=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-440-A4Vnky_jM6OhC-oGWkcYBA-1; Sun, 20 Jul 2025 12:13:18 -0400
-X-MC-Unique: A4Vnky_jM6OhC-oGWkcYBA-1
-X-Mimecast-MFC-AGG-ID: A4Vnky_jM6OhC-oGWkcYBA_1753027998
-Received: by mail-qv1-f71.google.com with SMTP id 6a1803df08f44-6fd3aeb2825so120046126d6.3
-        for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 09:13:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753027998; x=1753632798;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BsrjZ95k"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-b3badf1afc0so165563a12.3
+        for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 09:36:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1753029374; x=1753634174; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/Jj3apqxe+kr9fcNoPVcjrR+Gq4Oua7cDA/qKij4XC8=;
-        b=VUonHUDAuapZBEWdz9gLz0U6hO+dgCLIi4+GTLgW4mooYeKgmwFkc0v1zOHRc9dm7B
-         H8ICuBcC1nLoA/s7Y2oOmeL/0/Nrp/6bHYnHNKVrByhxe6iEV67VjMDWK3Ns651BEB5L
-         ZemRH284ximIwcEmGBDFAbTp+zNkhtjvZOvjhw5+uqZsc9GmrKpgpXsI5JyFGyecuDQz
-         dBS4wCpmPaytLtfGZEBJztDCs2s1KFOvtbwZLEgemFOws/CQmY5lTExD9uPVBCaKn1Vr
-         HvfSrY6L0dcp7b3HVx3cNQ3CEBPt9dWFOIg9bYznof9uuv9gkGTxafLun1m3YwLPLp3x
-         9Qgg==
-X-Forwarded-Encrypted: i=1; AJvYcCU0E2wAHgQfO4sfRdoKapBqDyYFTpm1H6fU3Asj4tfHlFf054gFh8eYQdPIB5xGqryrmcooPHK0w30C5nRFvA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzGCE8YLXDElwDaRCRfH049+tPEe2BDcHvfeiPQAISj5Y9uw+PJ
-	vO9H/0YW5YDhCSvz8TJ5ZEtIo4sbwJNw04Cad54QnBQGkoSmlHjt5k0wrElW4qKFcHwhoEcMZyt
-	DSwfpae0hTUaQ53ciAfe0duTa/tuzBU/rlSKEkhUrH9OheZ9tOYYr0l97qybaNCmxb/um
-X-Gm-Gg: ASbGncsCEyjo6hAfRHZSLxxj0plbr+uAEOGhiLlbPLskiQbU9AxU3cVc07ZE4grmcsL
-	mhenwV/XzY/Tws3/AQ8fXrhxKsy/LEjJ6JZzcpOL+qc8vAXdIiE8i4ZCqJB0/ylvL4A+2cZw+td
-	WcbDZRNv2BjnyC7lD7uciiM/Kibx6oOyFZL0D3KI82eG1tAVpMwFIAngH2t7Q9UZbZUpVtHmNGv
-	BqLiY/2ehEYYdvV1Nwt+zVPAhuc5hqmK0xYbXgTPM9N/j3wNVn+zKE0R12tr49AWipbNmDf0aWo
-	C78i+uZtWii+1RsO0tLNDw37TDH2gQE=
-X-Received: by 2002:a05:6214:5195:b0:704:7dbd:5d90 with SMTP id 6a1803df08f44-70519fc9cf4mr124408926d6.9.1753027998113;
-        Sun, 20 Jul 2025 09:13:18 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF6LiE8pkS62bIaBTVjt45PmxaYTrc0y1TsJte7EO3rbVHjyeTl3+MgHQg0Hafie3fbwQjvdw==
-X-Received: by 2002:a05:6214:5195:b0:704:7dbd:5d90 with SMTP id 6a1803df08f44-70519fc9cf4mr124408646d6.9.1753027997715;
-        Sun, 20 Jul 2025 09:13:17 -0700 (PDT)
-Received: from redhat.com ([185.187.243.84])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-7051b90616asm29643326d6.35.2025.07.20.09.13.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Jul 2025 09:13:17 -0700 (PDT)
-Date: Sun, 20 Jul 2025 12:13:10 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Hillf Danton <hdanton@sina.com>
-Cc: Nikolay Kuratov <kniv@yandex-team.ru>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
-	Eugenio Perez <eperezma@redhat.com>, Lei Yang <leiyang@redhat.com>,
-	Andrey Ryabinin <arbn@yandex-team.com>,
-	Andrey Smetanin <asmetanin@yandex-team.ru>
-Subject: Re: [PATCH v2] vhost/net: Replace wait_queue with completion in
- ubufs reference
-Message-ID: <20250720121256-mutt-send-email-mst@kernel.org>
-References: <20250718110355.1550454-1-kniv@yandex-team.ru>
- <20250718230356.2459-1-hdanton@sina.com>
+        bh=+kfkCmoQKEDkofij+kUTFNmulT0YX5tsOABpETlCkRo=;
+        b=BsrjZ95kZRtldRcG4pufRiVY+A0w9qVz/mQ9GbAfT6Ck45YaR1NWzT11/qk28UIs2B
+         vLvC6PmpucdrhekXV7KvetbHYx8oxVnVMvAOFIo44wXiMkRr+4O3bT8q7Ep4bAjeKdn1
+         iOyW1yc0IaB8nvGZ0W2wgwNP5QIAPl+BdEEsVCweuiDLGj+6i3GjOC5aglGIY8N1XTIg
+         JUffHeQ3ROotv47sJEqIVdUKKehpJmW8OJ17ApMWBOu2u1HxKqW0VmLMrySzESjtLLqg
+         6WHPXGd6i6NhV6VujYGnmq5wXhZTaj2qI2uJi3hFFoHUPjLQh4ROdo7w9/yKfapkvzLU
+         S6RA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753029374; x=1753634174;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+kfkCmoQKEDkofij+kUTFNmulT0YX5tsOABpETlCkRo=;
+        b=CR7mIDZa0BkMhzjHbiL2ZljgNZ5C6CI7mzU8nj+A7zaiX5p4tIG1h9C7apAalqsFY9
+         oEPQDLA2TH7Fk4tP2LcQRdTVKjVKM7VwD/w3Vd3YaR6QfJMtq8vaIisSOVGIRtDbIFag
+         hjg0xxlYj385zpgk55Y21rbuJ1RMiZHDfi9NnlTCcXEmobNiFfDoW+QAwehvP+HuMPn6
+         sgKymZQ4Rta23lzKDvsloKda5pTaCi2RM662FK5YGYbRlOdXjsotbKf4CbKltolBEW42
+         GA9VrjQWQDqfBZd1UKIsJOgx3UYQ7yMcci5DrbWDRSROmQRjVR1NqXkzpBhp8BODwzT4
+         dXfg==
+X-Forwarded-Encrypted: i=1; AJvYcCUq4gl5Q15jWz8f7lJAugAhNUqZWHfHRzmgszBx6spnqSV+cQYJHCxCEMjkX57mGixuZQe7HZHBA8cHuOXJrA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy+rxljcFwwYIRsI8vwVTkvRI3ABLRslK5hLdGCGgiQaRnoXaWt
+	0VevvyoRo6sMfFndBc2P0oP+WddyHCGbH9CFhbCC9VjnsYg2hEUeVJnLh82ZlOCkhjmVGrCnwYh
+	NaSoK2m763DBkTyVNthIgVdvcQkWL7M8=
+X-Gm-Gg: ASbGncskmlRBoZhE3L8IRP/6Cm3xlbMhvZyKCW3YIBJZZRDe0BqElt9amPAbeM0MyNz
+	Em8aWEEshV857o9hpHCgA0ZzaoWRxN1N0jXEW2u9tvsU6nAj5nUMZ/Qu6Xm3yiqCKwxuNZne0rJ
+	ZI/EsujxwrklHM2+RALKGixodRcK5mPyOzm8wHM4omjDgTVyINjHtAwu5FtIezfh/940W8mkq7X
+	w1ADhge
+X-Google-Smtp-Source: AGHT+IH50oSkAuvxv6uZUvE/Ve2TuI3Fxok9m8jWgL04NiDIsbgPX9U+P5yFyAh5qDxK3l4vBipk9lXgFQKQQ9R90bI=
+X-Received: by 2002:a17:90a:e18c:b0:311:a314:c2dd with SMTP id
+ 98e67ed59e1d1-31c9e77394emr9950764a91.4.1753029374267; Sun, 20 Jul 2025
+ 09:36:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250718230356.2459-1-hdanton@sina.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Ax8v06DZxT9B9dRCG-dVD3xMO05c2ut8kAo6DtLwEzE_1753027998
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20250720065045.2859105-1-hpa@zytor.com> <20250720065045.2859105-2-hpa@zytor.com>
+In-Reply-To: <20250720065045.2859105-2-hpa@zytor.com>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date: Sun, 20 Jul 2025 18:36:01 +0200
+X-Gm-Features: Ac12FXzsFbO3wDRf2U_8K-azeesJPixu1ntYI5bLlTM6iCxpMmbGfGJVOtGHyH0
+Message-ID: <CANiq72kE5AznnA81sb5S-KVx3VCef20zcMBfbRUO41g3uAtQ+Q@mail.gmail.com>
+Subject: Re: [PATCH v2 1/7] compiler_types.h: add "auto" as a macro for "__auto_type"
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Alexei Starovoitov <ast@kernel.org>, Alexey Dobriyan <adobriyan@gmail.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Andrii Nakryiko <andrii@kernel.org>, 
+	Arnd Bergmann <arnd@kernel.org>, Borislav Petkov <bp@alien8.de>, Dan Williams <dan.j.williams@intel.com>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	David Laight <David.Laight@aculab.com>, David Lechner <dlechner@baylibre.com>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Gatlin Newhouse <gatlin.newhouse@gmail.com>, Hao Luo <haoluo@google.com>, 
+	Ingo Molnar <mingo@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, 
+	Jakub Sitnicki <jakub@cloudflare.com>, Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>, 
+	Jiri Olsa <jolsa@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>, Josh Poimboeuf <jpoimboe@kernel.org>, 
+	KP Singh <kpsingh@kernel.org>, Kees Cook <kees@kernel.org>, 
+	Luc Van Oostenryck <luc.vanoostenryck@gmail.com>, Marc Herbert <Marc.Herbert@linux.intel.com>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>, 
+	Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>, NeilBrown <neil@brown.name>, 
+	Peter Zijlstra <peterz@infradead.org>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
+	Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>, Song Liu <song@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Thomas Gleixner <tglx@linutronix.de>, 
+	Thorsten Blum <thorsten.blum@linux.dev>, Uros Bizjak <ubizjak@gmail.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Yafang Shao <laoar.shao@gmail.com>, 
+	Ye Bin <yebin10@huawei.com>, Yonghong Song <yonghong.song@linux.dev>, 
+	Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-sparse@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jul 19, 2025 at 07:03:23AM +0800, Hillf Danton wrote:
-> On Fri, 18 Jul 2025 14:03:55 +0300 Nikolay Kuratov wrote:
-> > When operating on struct vhost_net_ubuf_ref, the following execution
-> > sequence is theoretically possible:
-> > CPU0 is finalizing DMA operation                   CPU1 is doing VHOST_NET_SET_BACKEND
-> >                              // &ubufs->refcount == 2
-> > vhost_net_ubuf_put()                               vhost_net_ubuf_put_wait_and_free(oldubufs)
-> >                                                      vhost_net_ubuf_put_and_wait()
-> >                                                        vhost_net_ubuf_put()
-> >                                                          int r = atomic_sub_return(1, &ubufs->refcount);
-> >                                                          // r = 1
-> > int r = atomic_sub_return(1, &ubufs->refcount);
-> > // r = 0
-> >                                                       wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
-> >                                                       // no wait occurs here because condition is already true
-> >                                                     kfree(ubufs);
-> > if (unlikely(!r))
-> >   wake_up(&ubufs->wait);  // use-after-free
-> > 
-> > This leads to use-after-free on ubufs access. This happens because CPU1
-> > skips waiting for wake_up() when refcount is already zero.
-> > 
-> > To prevent that use a completion instead of wait_queue as the ubufs
-> > notification mechanism. wait_for_completion() guarantees that there will
-> > be complete() call prior to its return.
-> > 
-> Alternatively rcu helps.
-> 
-> --- x/drivers/vhost/net.c
-> +++ y/drivers/vhost/net.c
-> @@ -96,6 +96,7 @@ struct vhost_net_ubuf_ref {
->  	atomic_t refcount;
->  	wait_queue_head_t wait;
->  	struct vhost_virtqueue *vq;
-> +	struct rcu_head rcu;
->  };
->  
->  #define VHOST_NET_BATCH 64
-> @@ -247,9 +248,13 @@ vhost_net_ubuf_alloc(struct vhost_virtqu
->  
->  static int vhost_net_ubuf_put(struct vhost_net_ubuf_ref *ubufs)
->  {
-> -	int r = atomic_sub_return(1, &ubufs->refcount);
-> +	int r;
-> +
-> +	rcu_read_lock();
-> +	r = atomic_sub_return(1, &ubufs->refcount);
->  	if (unlikely(!r))
->  		wake_up(&ubufs->wait);
-> +	rcu_read_unlock();
->  	return r;
->  }
->  
-> @@ -262,7 +267,7 @@ static void vhost_net_ubuf_put_and_wait(
->  static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
->  {
->  	vhost_net_ubuf_put_and_wait(ubufs);
-> -	kfree(ubufs);
-> +	kfree_rcu(ubufs, rcu);
->  }
->  
->  static void vhost_net_clear_ubuf_info(struct vhost_net *n)
+On Sun, Jul 20, 2025 at 8:52=E2=80=AFAM H. Peter Anvin <hpa@zytor.com> wrot=
+e:
+>
+> gcc and clang provide the "__auto_type" alias keyword as an extension
+> for pre-C23, however, there is no reason to pollute the bulk of the
+> source base with this temporary keyword; instead define "auto" as a
+> macro unless the compiler is running in C23+ mode.
+>
+> This macro is added in <linux/compiler_types.h> because that header is
+> included in some of the tools headers, wheres <linux/compiler.h> is
+> not as it has a bunch of very kernel-specific things in it.
 
-I like that.
+Sounds good. I guess we could need a workaround if someone happened to
+invent an attribute which requires using "auto" in it, since it is not
+reserved there in C23 AFAIU. So FWIW:
 
--- 
-MST
+Acked-by: Miguel Ojeda <ojeda@kernel.org>
 
+> + * so it has always been "namespace reserved."
+
+Not sure what this means (could we just say reserved?).
+
+Thanks!
+
+Relatedly, there are some proposed, further changes to `auto` for C2y:
+
+    https://www.open-std.org/jtc1/sc22/WG14/www/docs/n3579.htm
+
+Cheers,
+Miguel
