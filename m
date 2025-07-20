@@ -1,37 +1,37 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF9F8192598
-	for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 06:52:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E29C31991C9
+	for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 06:52:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752994376; cv=none; b=nS17pt2bXxiWjUiU2KcKwbRQWvjOI3rTyF143/e9e3tFwFj+TgMt+/mTBAqk5ImI2QVbr40Rcnt6dbbdW4afHZnAyuE/d+743Y/zwhtbcr+uoj6BkKT7ab/fbleBqCxS8zkHlqWRVYc7sMLCxzGle44myE318CY3kz2jRMK7WsA=
+	t=1752994377; cv=none; b=kiBAqE2x8GXM5J2xdWyERVJhDIN5FVhLJEGgjMGNhzGJrlrr2hNn1DVlYb1VEfhbvdbfmChWSiUPs4JdlCGrcsnZLTUb8IsZO2VH/uGfsi39IsCL+ef8f4HoAmGHhQYigjwjzKxyOiGHLjsBYFaxOhOaMpQZ9Q6+/SdHDhTJQew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752994376; c=relaxed/simple;
-	bh=+dM1bld6YqFuWFqTeVy2M0W6B7tgTC8OPQdbIxYR2qs=;
+	s=arc-20240116; t=1752994377; c=relaxed/simple;
+	bh=xSzAA2gv0ibDrNTKlxM9ctRGuuU7YJyBmHWCcxfeOeY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dudDPdbR/YP9c+HkZVRZww7fgguailKjDoUlavwZz4UhWn0DfhMMiS6cyWtFVnE13Gm7qHWb5Wf7tsFu2HoiF27Bnkhel7He9ZvOf+yU5ZOwUUtGYPzgXBCxLFUyYsCPS8i2G5qXjWnINRWQnGNiBZyK+jD7hVFuXfCKiJVZB9k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=ZyDBDKwJ; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version; b=gML6LmnqL5NGaaEeYZJiLm+M11wwnYXNDzcuDBO/wTMHdUNiTi6wKGZz3JZNnJMq3wljB3Cv11rDZJ4hJEUuC+zJpYkdpUqFBehmHfYHjA0vk+hq5Gmzb+7VeQT64nX7KuNAnFZR5MHran7yYOFQGnRFIJzJIaCZyHzVsAclmJg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=WbPJ5jDG; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="ZyDBDKwJ"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="WbPJ5jDG"
 Received: from mail.zytor.com ([IPv6:2601:646:8081:9484:f04a:f27d:fd66:5c61])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56K6oq0Y3555973
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56K6oq0d3555973
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Sat, 19 Jul 2025 23:51:00 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56K6oq0Y3555973
+	Sat, 19 Jul 2025 23:51:18 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56K6oq0d3555973
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025062101; t=1752994264;
-	bh=vsGxPzzTTwhbkBTwSIw4sMhUPUpWMkx20cB75uEuQgk=;
+	s=2025062101; t=1752994282;
+	bh=D2ugkTWHSXT0lgY/l81pjC122eFLTRxMlbXL6ZHS8/U=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ZyDBDKwJ82kVHavnoOkwuOs1qV0y87AnM33njIS0JfpbC5KvDYtNpaF7gvZsBf0xV
-	 nVSq1R9fnrUmhCTKA1CoMUmcFc+doBbPDDA2tHj5kZmv6IcbSb6ib2YcxjMKh28I7G
-	 rKiEuAN8wWXPJWzxX1uQQLcZNbkUQOx8WJ29nOD3QSVDNWfXIaXz4tpC24uIVuq9ej
-	 oEAS2eBXkRn8ZimKfJutIoG7rn5fnjmZW+taM70aqT6aBc7FcoKRYDmXHYBg3Q2ZDS
-	 sFYPEyqjn16JROYOoPEb6WPcYXBQxczMapwNEKfsf2l6PlSWVUKL7mw/otFBLJ38Ys
-	 R0BeVUxJwySsQ==
+	b=WbPJ5jDG6RivnIGPGdH7tAxTfD9XHzmh0bmqjk3F973Xb5FIbCaOvDyDyN0WiLW+c
+	 tAy5g/9v8RqOIbjCNSInPta52bvotaWD5hPRM2K4tYGULsfe821h/r4HdujoW8rdGn
+	 9EFmbltCfQLyLdRDItbhgPJ53ZPZCGhW9HCQnawRm07kUSSfwL45JVPL9XpFRKMy2D
+	 2hEyzbhiOW+lCYQ3FyZ2P2GRpqPNw/1YfkCVJZKyzBpSVwn52GICIvNqCBCCqxkzGf
+	 FrZ/9vdEL1jhvq2l9eNoQhYhFkql9Vhx4htZWEqN/Ersst18Dlw9Y8kG++tO6qOW3y
+	 MmwLHD5lW3ing==
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: 
 Cc: "H. Peter Anvin" <hpa@zytor.com>,
@@ -79,9 +79,9 @@ Cc: "H. Peter Anvin" <hpa@zytor.com>,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
         virtualization@lists.linux.dev, x86@kernel.org
-Subject: [PATCH v2 1/7] compiler_types.h: add "auto" as a macro for "__auto_type"
-Date: Sat, 19 Jul 2025 23:50:38 -0700
-Message-ID: <20250720065045.2859105-2-hpa@zytor.com>
+Subject: [PATCH v2 6/7] selftests/bpf: replace "__auto_type" with "auto"
+Date: Sat, 19 Jul 2025 23:50:43 -0700
+Message-ID: <20250720065045.2859105-7-hpa@zytor.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250720065045.2859105-1-hpa@zytor.com>
 References: <20250720065045.2859105-1-hpa@zytor.com>
@@ -93,52 +93,42 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-"auto" was defined as a keyword back in the K&R days, but as a storage
-type specifier.  No one ever used it, since it was and is the default
-storage type for local variables.
+Replace instances of "__auto_type" with "auto" in:
 
-C++11 recycled the keyword to allow a type to be declared based on the
-type of an initializer.  This was finally adopted into standard C in
-C23.
+	tools/testing/selftests/bpf/prog_tests/socket_helpers.h
 
-gcc and clang provide the "__auto_type" alias keyword as an extension
-for pre-C23, however, there is no reason to pollute the bulk of the
-source base with this temporary keyword; instead define "auto" as a
-macro unless the compiler is running in C23+ mode.
-
-This macro is added in <linux/compiler_types.h> because that header is
-included in some of the tools headers, wheres <linux/compiler.h> is
-not as it has a bunch of very kernel-specific things in it.
+This file does not seem to be including <linux/compiler_types.h>
+directly or indirectly, so copy the definition but guard it with
+!defined(auto).
 
 Signed-off-by: H. Peter Anvin (Intel) <hpa@zytor.com>
 ---
- include/linux/compiler_types.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ tools/testing/selftests/bpf/prog_tests/socket_helpers.h | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
-index 2b77d12e07b2..c8b1ee37934e 100644
---- a/include/linux/compiler_types.h
-+++ b/include/linux/compiler_types.h
-@@ -13,6 +13,19 @@
+diff --git a/tools/testing/selftests/bpf/prog_tests/socket_helpers.h b/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
+index e02cabcc814e..0d59503a0c73 100644
+--- a/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
++++ b/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
+@@ -17,11 +17,16 @@
+ #define VMADDR_CID_LOCAL 1
+ #endif
  
- #ifndef __ASSEMBLY__
- 
-+/*
-+ * C23 introduces "auto" as a standard way to define type-inferred
-+ * variables, but "auto" has been a (useless) keyword even since K&R C,
-+ * so it has always been "namespace reserved."
-+ *
-+ * Until at some future time we require C23 support, we need the gcc
-+ * extension __auto_type, but there is no reason to put that elsewhere
-+ * in the source code.
-+ */
-+#if __STDC_VERSION__ < 202311L
++/* include/linux/compiler_types.h */
++#if __STDC_VERSION__ < 202311L && !defined(auto)
 +# define auto __auto_type
 +#endif
 +
- /*
-  * Skipped when running bindgen due to a libclang issue;
-  * see https://github.com/rust-lang/rust-bindgen/issues/2244.
+ /* include/linux/cleanup.h */
+ #define __get_and_null(p, nullvalue)                                           \
+ 	({                                                                     \
+-		__auto_type __ptr = &(p);                                      \
+-		__auto_type __val = *__ptr;                                    \
++		auto __ptr = &(p);					       \
++		auto __val = *__ptr;                                           \
+ 		*__ptr = nullvalue;                                            \
+ 		__val;                                                         \
+ 	})
 -- 
 2.50.1
 
