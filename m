@@ -1,190 +1,159 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4800042A9D
-	for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 06:59:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8028B33EC
+	for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 16:13:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752994799; cv=none; b=XZvMBmJfT+pguAhEKxEqzQNxqhZdHkB1f7JvSdulXfDlQpihU4jhhHh+iM9dMHyKO7jwYdhUQRxU6wVhg14NGHUTJS6Wnt73dZMW3v+LAPu1Tol4RIY3kD317otRsBnY5ZeUoX4sHzX4sNBKbsfOwYYnKT/d/jZ2al33rgY5u/M=
+	t=1753028004; cv=none; b=ZryaWlUyBgHoObwUwZoGENRuEtByXFzuVVwgdszZxr+QY5XNERQoEpohmfpiPfHCff8D1FPFx1ZqcjAp3YLAXXiatqzjoHoeM8dqQiyuTeve5I5i+X4IPlJqa36sQGSeaKjnCQP4d+4LQ+smaXrT+blXr+HaMJB9yotG7Ruy50I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752994799; c=relaxed/simple;
-	bh=jAgN3a59HW0jFBgp7fJXfejPjGPuyVLybrmtNNuLGZA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BefHuShd9kCfYsHmlHQoTnQ9zMjR+XX8yg2ZIpPTnHgZHY5tTrVghiOduZXxLgQGlA73RQBb20td065H/Y0MpWGqSxyl6Fzd+q3JZM8jw97WntWBrwGZwfXuJ98rjCE/qfTKvmxhEWPy80b4OxdhJbm2DlAM0OCWGvuWq8aW060=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=X/ZNv9Uw; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1753028004; c=relaxed/simple;
+	bh=waHBK/dHOhY61lgCppPc1hC3CKS8KkMfCExvaN3qBfw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=MrwS+yURbLA0g78DeJwaSv8gIa1gayfbcfX6en+qVDHzTfB88g9+Ine6rPUy6SHTbkuYnR+krgiiQ9Aaw2QIRNiCXWRkdXM55G+QPe9QL5nIW1rAoIY7JW0+3lPGdGsJ5lL06TS+9XRmYCKPQR8IGVPAeQz4fFW6ApYY/q7C2Ng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JnDhFWoF; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="X/ZNv9Uw"
-Received: from mail.zytor.com ([IPv6:2601:646:8081:9484:f04a:f27d:fd66:5c61])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56K6woIr3558364
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-	Sat, 19 Jul 2025 23:58:51 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56K6woIr3558364
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025062101; t=1752994735;
-	bh=qWkl5KkNltsuNThUh3tqROvdQvDotGvMGGERi6Uh9Rs=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=X/ZNv9Uw1SvFZpCH3dxz1ibqkF2nY9hpqTHSvNP45WMauA9ovKJTK0SQ1mAGUnKXK
-	 5RMV/KtpYvt4zIqwwlluOZ7jjlIlIQWIEJnz2jG9DZ5cqpHeEo3NXYCmQMuvi1np5I
-	 /LEh6bB+Zwkih2cKhduFKCnDM04ZsoJHas36/UHGWNotFC/hsucPpehZr8Rdy73pph
-	 NlJdyStrt02WvcD7WThBw8x+0MR7YfpkEyUI+MoIeeFvRyUYVUVVecN9L/6cDu5ewH
-	 l6M2ToSTJZCdjWl0oxn8Mz3qrJmpm+xdAArLw0rSVcog7WrTiy+2nJbynUVpFTGlF8
-	 68mw9pqkJMMgA==
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: 
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, Alexei Starovoitov <ast@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrii Nakryiko <andrii@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        David Laight <David.Laight@ACULAB.COM>,
-        David Lechner <dlechner@baylibre.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Eduard Zingerman <eddyz87@gmail.com>,
-        Gatlin Newhouse <gatlin.newhouse@gmail.com>,
-        Hao Luo <haoluo@google.com>, Ingo Molnar <mingo@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>,
-        Kees Cook <kees@kernel.org>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Marc Herbert <Marc.Herbert@linux.intel.com>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>,
-        Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>,
-        NeilBrown <neil@brown.name>, Peter Zijlstra <peterz@infradead.org>,
-        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-        Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>,
-        Song Liu <song@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thorsten Blum <thorsten.blum@linux.dev>,
-        Uros Bizjak <ubizjak@gmail.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Yafang Shao <laoar.shao@gmail.com>, Ye Bin <yebin10@huawei.com>,
-        Yonghong Song <yonghong.song@linux.dev>,
-        Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
-        virtualization@lists.linux.dev, x86@kernel.org
-Subject: [PATCH v2.1 3/7] fs/proc: replace "__auto_type" with "const auto"
-Date: Sat, 19 Jul 2025 23:58:43 -0700
-Message-ID: <20250720065844.2860000-1-hpa@zytor.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250720065045.2859105-4-hpa@zytor.com>
-References: 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JnDhFWoF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1753028000;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/Jj3apqxe+kr9fcNoPVcjrR+Gq4Oua7cDA/qKij4XC8=;
+	b=JnDhFWoFpB1LQgegSDbzQB4oQThem0qd6xOU3ROiKfJBaXd/7t2IWvJbU5DVr064cDbatg
+	DjPCHyHSjzrSn/hUAWChnI7Ejk7WAZIR9oPx3+w13qI/s+Cig71k41a8fgoSe7gPTB/sb7
+	QBZ6a8qNb90XvDPUyKIm+2LSOhPUNHE=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-440-A4Vnky_jM6OhC-oGWkcYBA-1; Sun, 20 Jul 2025 12:13:18 -0400
+X-MC-Unique: A4Vnky_jM6OhC-oGWkcYBA-1
+X-Mimecast-MFC-AGG-ID: A4Vnky_jM6OhC-oGWkcYBA_1753027998
+Received: by mail-qv1-f71.google.com with SMTP id 6a1803df08f44-6fd3aeb2825so120046126d6.3
+        for <virtualization@lists.linux.dev>; Sun, 20 Jul 2025 09:13:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753027998; x=1753632798;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/Jj3apqxe+kr9fcNoPVcjrR+Gq4Oua7cDA/qKij4XC8=;
+        b=VUonHUDAuapZBEWdz9gLz0U6hO+dgCLIi4+GTLgW4mooYeKgmwFkc0v1zOHRc9dm7B
+         H8ICuBcC1nLoA/s7Y2oOmeL/0/Nrp/6bHYnHNKVrByhxe6iEV67VjMDWK3Ns651BEB5L
+         ZemRH284ximIwcEmGBDFAbTp+zNkhtjvZOvjhw5+uqZsc9GmrKpgpXsI5JyFGyecuDQz
+         dBS4wCpmPaytLtfGZEBJztDCs2s1KFOvtbwZLEgemFOws/CQmY5lTExD9uPVBCaKn1Vr
+         HvfSrY6L0dcp7b3HVx3cNQ3CEBPt9dWFOIg9bYznof9uuv9gkGTxafLun1m3YwLPLp3x
+         9Qgg==
+X-Forwarded-Encrypted: i=1; AJvYcCU0E2wAHgQfO4sfRdoKapBqDyYFTpm1H6fU3Asj4tfHlFf054gFh8eYQdPIB5xGqryrmcooPHK0w30C5nRFvA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzGCE8YLXDElwDaRCRfH049+tPEe2BDcHvfeiPQAISj5Y9uw+PJ
+	vO9H/0YW5YDhCSvz8TJ5ZEtIo4sbwJNw04Cad54QnBQGkoSmlHjt5k0wrElW4qKFcHwhoEcMZyt
+	DSwfpae0hTUaQ53ciAfe0duTa/tuzBU/rlSKEkhUrH9OheZ9tOYYr0l97qybaNCmxb/um
+X-Gm-Gg: ASbGncsCEyjo6hAfRHZSLxxj0plbr+uAEOGhiLlbPLskiQbU9AxU3cVc07ZE4grmcsL
+	mhenwV/XzY/Tws3/AQ8fXrhxKsy/LEjJ6JZzcpOL+qc8vAXdIiE8i4ZCqJB0/ylvL4A+2cZw+td
+	WcbDZRNv2BjnyC7lD7uciiM/Kibx6oOyFZL0D3KI82eG1tAVpMwFIAngH2t7Q9UZbZUpVtHmNGv
+	BqLiY/2ehEYYdvV1Nwt+zVPAhuc5hqmK0xYbXgTPM9N/j3wNVn+zKE0R12tr49AWipbNmDf0aWo
+	C78i+uZtWii+1RsO0tLNDw37TDH2gQE=
+X-Received: by 2002:a05:6214:5195:b0:704:7dbd:5d90 with SMTP id 6a1803df08f44-70519fc9cf4mr124408926d6.9.1753027998113;
+        Sun, 20 Jul 2025 09:13:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF6LiE8pkS62bIaBTVjt45PmxaYTrc0y1TsJte7EO3rbVHjyeTl3+MgHQg0Hafie3fbwQjvdw==
+X-Received: by 2002:a05:6214:5195:b0:704:7dbd:5d90 with SMTP id 6a1803df08f44-70519fc9cf4mr124408646d6.9.1753027997715;
+        Sun, 20 Jul 2025 09:13:17 -0700 (PDT)
+Received: from redhat.com ([185.187.243.84])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-7051b90616asm29643326d6.35.2025.07.20.09.13.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 20 Jul 2025 09:13:17 -0700 (PDT)
+Date: Sun, 20 Jul 2025 12:13:10 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Hillf Danton <hdanton@sina.com>
+Cc: Nikolay Kuratov <kniv@yandex-team.ru>, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+	Eugenio Perez <eperezma@redhat.com>, Lei Yang <leiyang@redhat.com>,
+	Andrey Ryabinin <arbn@yandex-team.com>,
+	Andrey Smetanin <asmetanin@yandex-team.ru>
+Subject: Re: [PATCH v2] vhost/net: Replace wait_queue with completion in
+ ubufs reference
+Message-ID: <20250720121256-mutt-send-email-mst@kernel.org>
+References: <20250718110355.1550454-1-kniv@yandex-team.ru>
+ <20250718230356.2459-1-hdanton@sina.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Supercedes: <20250720065045.2859105-4-hpa@zytor.com>
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250718230356.2459-1-hdanton@sina.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Ax8v06DZxT9B9dRCG-dVD3xMO05c2ut8kAo6DtLwEzE_1753027998
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Replace use of "__auto_type" in fs/proc/inode.c with "const auto".
+On Sat, Jul 19, 2025 at 07:03:23AM +0800, Hillf Danton wrote:
+> On Fri, 18 Jul 2025 14:03:55 +0300 Nikolay Kuratov wrote:
+> > When operating on struct vhost_net_ubuf_ref, the following execution
+> > sequence is theoretically possible:
+> > CPU0 is finalizing DMA operation                   CPU1 is doing VHOST_NET_SET_BACKEND
+> >                              // &ubufs->refcount == 2
+> > vhost_net_ubuf_put()                               vhost_net_ubuf_put_wait_and_free(oldubufs)
+> >                                                      vhost_net_ubuf_put_and_wait()
+> >                                                        vhost_net_ubuf_put()
+> >                                                          int r = atomic_sub_return(1, &ubufs->refcount);
+> >                                                          // r = 1
+> > int r = atomic_sub_return(1, &ubufs->refcount);
+> > // r = 0
+> >                                                       wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
+> >                                                       // no wait occurs here because condition is already true
+> >                                                     kfree(ubufs);
+> > if (unlikely(!r))
+> >   wake_up(&ubufs->wait);  // use-after-free
+> > 
+> > This leads to use-after-free on ubufs access. This happens because CPU1
+> > skips waiting for wake_up() when refcount is already zero.
+> > 
+> > To prevent that use a completion instead of wait_queue as the ubufs
+> > notification mechanism. wait_for_completion() guarantees that there will
+> > be complete() call prior to its return.
+> > 
+> Alternatively rcu helps.
+> 
+> --- x/drivers/vhost/net.c
+> +++ y/drivers/vhost/net.c
+> @@ -96,6 +96,7 @@ struct vhost_net_ubuf_ref {
+>  	atomic_t refcount;
+>  	wait_queue_head_t wait;
+>  	struct vhost_virtqueue *vq;
+> +	struct rcu_head rcu;
+>  };
+>  
+>  #define VHOST_NET_BATCH 64
+> @@ -247,9 +248,13 @@ vhost_net_ubuf_alloc(struct vhost_virtqu
+>  
+>  static int vhost_net_ubuf_put(struct vhost_net_ubuf_ref *ubufs)
+>  {
+> -	int r = atomic_sub_return(1, &ubufs->refcount);
+> +	int r;
+> +
+> +	rcu_read_lock();
+> +	r = atomic_sub_return(1, &ubufs->refcount);
+>  	if (unlikely(!r))
+>  		wake_up(&ubufs->wait);
+> +	rcu_read_unlock();
+>  	return r;
+>  }
+>  
+> @@ -262,7 +267,7 @@ static void vhost_net_ubuf_put_and_wait(
+>  static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
+>  {
+>  	vhost_net_ubuf_put_and_wait(ubufs);
+> -	kfree(ubufs);
+> +	kfree_rcu(ubufs, rcu);
+>  }
+>  
+>  static void vhost_net_clear_ubuf_info(struct vhost_net *n)
 
-Suggested-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: H. Peter Anvin (Intel) <hpa@zytor.com>
-Reviewed-by: Alexey Dobriyan <adobriyan@gmail.com>
----
- fs/proc/inode.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+I like that.
 
-[ v2 of this patch was an obvious thinko, this is the correct one ]
-
-diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-index 3604b616311c..8b90ab9b9cfc 100644
---- a/fs/proc/inode.c
-+++ b/fs/proc/inode.c
-@@ -303,7 +303,7 @@ static ssize_t proc_reg_read_iter(struct kiocb *iocb, struct iov_iter *iter)
- 
- static ssize_t pde_read(struct proc_dir_entry *pde, struct file *file, char __user *buf, size_t count, loff_t *ppos)
- {
--	__auto_type read = pde->proc_ops->proc_read;
-+	const auto read = pde->proc_ops->proc_read;
- 	if (read)
- 		return read(file, buf, count, ppos);
- 	return -EIO;
-@@ -325,7 +325,7 @@ static ssize_t proc_reg_read(struct file *file, char __user *buf, size_t count,
- 
- static ssize_t pde_write(struct proc_dir_entry *pde, struct file *file, const char __user *buf, size_t count, loff_t *ppos)
- {
--	__auto_type write = pde->proc_ops->proc_write;
-+	const auto write = pde->proc_ops->proc_write;
- 	if (write)
- 		return write(file, buf, count, ppos);
- 	return -EIO;
-@@ -347,7 +347,7 @@ static ssize_t proc_reg_write(struct file *file, const char __user *buf, size_t
- 
- static __poll_t pde_poll(struct proc_dir_entry *pde, struct file *file, struct poll_table_struct *pts)
- {
--	__auto_type poll = pde->proc_ops->proc_poll;
-+	const auto poll = pde->proc_ops->proc_poll;
- 	if (poll)
- 		return poll(file, pts);
- 	return DEFAULT_POLLMASK;
-@@ -369,7 +369,7 @@ static __poll_t proc_reg_poll(struct file *file, struct poll_table_struct *pts)
- 
- static long pde_ioctl(struct proc_dir_entry *pde, struct file *file, unsigned int cmd, unsigned long arg)
- {
--	__auto_type ioctl = pde->proc_ops->proc_ioctl;
-+	const auto ioctl = pde->proc_ops->proc_ioctl;
- 	if (ioctl)
- 		return ioctl(file, cmd, arg);
- 	return -ENOTTY;
-@@ -392,7 +392,7 @@ static long proc_reg_unlocked_ioctl(struct file *file, unsigned int cmd, unsigne
- #ifdef CONFIG_COMPAT
- static long pde_compat_ioctl(struct proc_dir_entry *pde, struct file *file, unsigned int cmd, unsigned long arg)
- {
--	__auto_type compat_ioctl = pde->proc_ops->proc_compat_ioctl;
-+	const auto compat_ioctl = pde->proc_ops->proc_compat_ioctl;
- 	if (compat_ioctl)
- 		return compat_ioctl(file, cmd, arg);
- 	return -ENOTTY;
-@@ -414,7 +414,7 @@ static long proc_reg_compat_ioctl(struct file *file, unsigned int cmd, unsigned
- 
- static int pde_mmap(struct proc_dir_entry *pde, struct file *file, struct vm_area_struct *vma)
- {
--	__auto_type mmap = pde->proc_ops->proc_mmap;
-+	const auto mmap = pde->proc_ops->proc_mmap;
- 	if (mmap)
- 		return mmap(file, vma);
- 	return -EIO;
-@@ -497,7 +497,7 @@ static int proc_reg_open(struct inode *inode, struct file *file)
- 	if (!use_pde(pde))
- 		return -ENOENT;
- 
--	__auto_type release = pde->proc_ops->proc_release;
-+	const auto release = pde->proc_ops->proc_release;
- 	if (release) {
- 		pdeo = kmem_cache_alloc(pde_opener_cache, GFP_KERNEL);
- 		if (!pdeo) {
-@@ -534,10 +534,9 @@ static int proc_reg_release(struct inode *inode, struct file *file)
- 	struct pde_opener *pdeo;
- 
- 	if (pde_is_permanent(pde)) {
--		__auto_type release = pde->proc_ops->proc_release;
--		if (release) {
-+		const auto release = pde->proc_ops->proc_release;
-+		if (release)
- 			return release(inode, file);
--		}
- 		return 0;
- 	}
- 
 -- 
-2.50.1
+MST
 
