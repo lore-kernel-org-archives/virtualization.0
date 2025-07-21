@@ -1,232 +1,153 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F381B808
-	for <virtualization@lists.linux.dev>; Mon, 21 Jul 2025 05:47:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFE3927EC80
+	for <virtualization@lists.linux.dev>; Mon, 21 Jul 2025 08:05:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753076853; cv=none; b=jwyuhrmZ0Sowq7hh/1S8PLpu++GWhSAfmqQZOLF1RrkxujJ97yMSjG2ZD+yCNhF7N3AmQRf6TJ3J9V/82XX1OOvgpgrel+8v4RFdPeXOv3F0UQFwHw/8971NndKN4QBe0EYV/Klqx6I4YYyCKfOFiWwdDrAFT+TC57z3bp3vJ18=
+	t=1753085133; cv=none; b=lorA9NY/KryvKfAe7Zuff1/8IRAJUY4ZUfS+TT3IhY6knMWSz6bueLB7/0wLr+sGraj/ci+0U/7ZRlW1CmDFV5oXqh0u2EE++XLRTzSejtlTWB7XnhAoNlSfaA24ilyT4kFKSYLPDwIqqQsiT3nmAMO8QOCRPJnKOihd8PIFjr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753076853; c=relaxed/simple;
-	bh=Y6O1LeXawfH6jqCiha75wKFY04tLvXmKtw8IkQsRZzE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RIooPudWaPGRUY7WB/yxPXnhGhRa1bCBZkS80lLiG3osxzuMmu+DPHeBreNV/wTFb86M53dMj9keYLSmQ5KrzxU8rGxwnwM22sAnaL04+oqav6DWyPX/Ux8+tON7ofS+zAZ9FfUJCgsrYRGGhkqpmxnAD/i4kWsF7ZNY4N8ihvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=R6sgbtT1; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1753085133; c=relaxed/simple;
+	bh=7UQ+sz4mAM0NbQoJk7vFgEdHdcc74MEORdPFpt1r/Dk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KOtOaDMzXt6sT4wmR72iaAbvu8gnrSILvjtpoo+xdp5S1zQOvcQH4z9JluaNHahsyAdZl+cFrYw9iZO1QGHmCf1GPWS68SkFAyk6ox/+drGfcda4JYnHNGtDLfbUIx4DLBpMfZ7kSkDLLcFItsZuENVyOIS1fZzTQ7WY5IZeG9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RwVa9CGv; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="R6sgbtT1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1753076842;
-	bh=Y6O1LeXawfH6jqCiha75wKFY04tLvXmKtw8IkQsRZzE=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=R6sgbtT1j4PydMnb9LKCtJbvY/h+dBwoJCRjJfAknzIQNRrlcOiG3Rk7yOIjryhEo
-	 oT7IdyLx4C46fpqYi16JO1SXk+maA3prPGcpfO41dZKiPy/jt/7nmEClDczTMthbjO
-	 f5rn1uQfLT9p/KaXVj+L7P7QFkUwyCRq8fB7KJnD12SvtbzJDgF6K2DqpC6eNNMXSc
-	 R4tdiCX2+c7lD3XeADrFBiihDgbCH+kYyNMl57OF7K1/z6GCmvW19PSFZ3/ayya0Kj
-	 Sl9U4R7JPUywoq3uTD9VyR8AzQ3zrX9cT/8qIK4KOr7oEry2iagdrQ+7cmqWFkzuq2
-	 qyC1Q3wjkaoUw==
-Received: from [192.168.50.250] (unknown [171.76.80.183])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id B508E17E0F66;
-	Mon, 21 Jul 2025 07:47:19 +0200 (CEST)
-Message-ID: <bcff3bed-0695-45fa-8f62-453878b6075f@collabora.com>
-Date: Mon, 21 Jul 2025 11:17:02 +0530
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RwVa9CGv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1753085130;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7UQ+sz4mAM0NbQoJk7vFgEdHdcc74MEORdPFpt1r/Dk=;
+	b=RwVa9CGvxFlKKmaoJzjBXIivNoJE/YxPRhB864pJJgLkLqMtLTUbmeJwd+LczqPLZmv7Yz
+	gRZnzjeh3HN4PvS8VAt/vPQgRJFhHi7g0VVbnY1F3Jv4TpQKFMAO27pB8wJUe1MRT55Ctf
+	iszS7y5Wa8fctE7dhebMseZc3hz3e/A=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-507-Uzs2USISNj24mNcMX07NfQ-1; Mon, 21 Jul 2025 04:05:29 -0400
+X-MC-Unique: Uzs2USISNj24mNcMX07NfQ-1
+X-Mimecast-MFC-AGG-ID: Uzs2USISNj24mNcMX07NfQ_1753085128
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-315af08594fso3914289a91.2
+        for <virtualization@lists.linux.dev>; Mon, 21 Jul 2025 01:05:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753085128; x=1753689928;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7UQ+sz4mAM0NbQoJk7vFgEdHdcc74MEORdPFpt1r/Dk=;
+        b=iI5XqqzHIbCU4vCF248PVPN6hJ45/BESISZrWtaat0xk0Hw0G0b0s0MYzovzi5VrvK
+         yrhlfHLgOPmZQO9+GVb9I/hAjnlu8ytCAWX+C3db/anTOZUdPh/kDsWNu+V8z/RDcaXK
+         URvOLkWN7MguPME8R0hk+BnHVUyZt0mMugX70GEokfqoEgYiUtFLTlck8ezpN+Ia4xQr
+         8TgR8oZ1PzmS9m8BRtrD3SDAtxtdGj9Y7K1xwNgf4H3Sq5Jv7A97C49j953BE8kinsUk
+         2lkbwrOg9c/JScCKmGQ59NQd18wyfvPv76g8GIoMeuM1ImN4exCPG/qx7X2Zdpnnx1UT
+         cH0A==
+X-Forwarded-Encrypted: i=1; AJvYcCWSUdOQDPvdaQCvrS+60tsgIM7KWHiXVuDXFzeIq7hE9SEXyxb/m5Pl8bwlaO6dZRNB4IqbFJoDzfIcJXXraw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzZUycLhEXnT3MzXrZS18v/zzeeoXhFyn/a/Q/qkGeFum6nN9bS
+	zqk7J+AQYdvjx40oNudPNJKS8eD26RLApplaaC4GEtjkTkoumPh1x7mG7kHdlLVwAzK2/TdJiBV
+	3nDaRAb2vHyD/xIFTG7WHsdD2ordd6lQs5I6WkQvkDZu9gKTlPVjZYzGr6fVD5z2Y9ip1myKzkU
+	JOVM4xrFSUrVMNh1WXrUBQaMBH7+xb+7jIPaVa6nuQ+YU=
+X-Gm-Gg: ASbGncuE4ENUvxjEZPrPepYYvr0wkqPDNYTpGKfNIgDi0Jo8GlJPwk7eo+zOqnR3mv2
+	W8NOdNqMwICsyz+Nc+yeZ2DD8N/5Oe7IX48loeC7SXuF7c4AI64WfBz9defK1hIHCEoXTaS7wKn
+	0YLj5+yBXLFDRLcKofZoc=
+X-Received: by 2002:a17:903:46c6:b0:235:880:cf8a with SMTP id d9443c01a7336-23e256aeedamr288798695ad.15.1753085128466;
+        Mon, 21 Jul 2025 01:05:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF3Dbja7nAXl0q6kNuWhhr4T0q+P62Jj5wZ8N+sZk61dNuDLy22HK5Op3UULHuwJBGNpc/Vo/E/4K//6ScVLwU=
+X-Received: by 2002:a17:903:46c6:b0:235:880:cf8a with SMTP id
+ d9443c01a7336-23e256aeedamr288798415ad.15.1753085128091; Mon, 21 Jul 2025
+ 01:05:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 5/7] drm/ci: uprev IGT
-To: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
- helen.fornazier@gmail.com, airlied@gmail.com, simona.vetter@ffwll.ch,
- robdclark@gmail.com, guilherme.gallo@collabora.com,
- sergi.blanch.torne@collabora.com, valentine.burley@collabora.com,
- lumag@kernel.org, linux-mediatek@lists.infradead.org,
- linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
- amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20250718105407.32878-1-vignesh.raman@collabora.com>
- <20250718105407.32878-6-vignesh.raman@collabora.com>
- <7c6suvc6quwwxni2nsos65btzim2lbv7f2u6mz5qbupzpmpzgb@g46wg63ubr6l>
-Content-Language: en-US
-From: Vignesh Raman <vignesh.raman@collabora.com>
-In-Reply-To: <7c6suvc6quwwxni2nsos65btzim2lbv7f2u6mz5qbupzpmpzgb@g46wg63ubr6l>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20250718091616.6140-1-jasowang@redhat.com> <20250718091616.6140-8-jasowang@redhat.com>
+ <20250718053156-mutt-send-email-mst@kernel.org> <CACGkMEue4Wh3ocM2Pmn5E_nMzjHkJqd-MhYbPDY9pXdwMtqgXQ@mail.gmail.com>
+In-Reply-To: <CACGkMEue4Wh3ocM2Pmn5E_nMzjHkJqd-MhYbPDY9pXdwMtqgXQ@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 21 Jul 2025 16:05:17 +0800
+X-Gm-Features: Ac12FXyo_8synm61E4m4n9coHa8YmsWzZJDSCTemJRNc5JgB3AB-8QaFJxUUZls
+Message-ID: <CACGkMEtxWrrq-9bW0w4eVyRbXra94oM-fEfPJOeWAOcNZVrjjw@mail.gmail.com>
+Subject: Re: [PATCH V4 7/9] vdpa: rename dma_dev to map_token
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, hch@infradead.org, 
+	Christoph Hellwig <hch@lst.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: z42bahhL7QvpPJnmRfM7SpCOoVe9-eSBjmI6R8KmM7k_1753085128
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Fri, Jul 18, 2025 at 6:09=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Fri, Jul 18, 2025 at 5:37=E2=80=AFPM Michael S. Tsirkin <mst@redhat.co=
+m> wrote:
+> >
+> > On Fri, Jul 18, 2025 at 05:16:14PM +0800, Jason Wang wrote:
+> > > Virtio core switches from DMA device to mapping token, let's do that
+> > > as well for vDPA.
+> >
+> > Pls switch to imperative mood.
+> >
+> > And add explanation about what is going on and why please.
+>
+> I think this has been explained in patch [PATCH V4 6/9] virtio:
+> introduce map ops in virtio core?
+>
+> """
+> For the device or transport that doesn't do DMA,
+> they can implement their own mapping logic without the need to trick
+> DMA core. In this case the map_token is opaque to the virtio core that
+> will be passed back to the transport or device specific map
+> operations. For other devices, DMA API will still be used, so map
+> token will still be the dma device to minimize the changeset and
+> performance impact.
+> """
+>
+> >
+> > At least, document what are the actual types stored here.
+>
+> It is opaque to the virtio core and will be used as a token to be
+> passed back when the virtio core wants to map/unmap a buffer. So it
+> doesn't have a type.
+>
+> > I checked and it looks like vduse actually returns struct device * here=
+, too?
+>
+> It's just a token, vduse can return anything that can be used to
+> identify an iova domain. For example, it can return a pointer to
+> iova_domain which will also work. If you prefer to use iova domain, I
+> can change to use that in the next version.
+>
+> > So why do we need this, why lose all type safety?
+>
+> If you worry about the case that assumes map_token as dma device in
+> virtio core. I can keep both map_token and dma_device and make the
+> mutually exclusive, then:
+>
+> - when transport reports dma device, use DMA API
+> - when transport reports map token, use map ops
+>
+> Does this work for you?
 
-On 18/07/25 18:24, Dmitry Baryshkov wrote:
-> On Fri, Jul 18, 2025 at 04:23:57PM +0530, Vignesh Raman wrote:
->> Uprev IGT to the latest version and update expectation files.
->>
->> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
->> ---
->>   drivers/gpu/drm/ci/gitlab-ci.yml              |   2 +-
->>   .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt |   2 +
->>   .../drm/ci/xfails/amdgpu-stoney-flakes.txt    |   7 ++
->>   drivers/gpu/drm/ci/xfails/i915-amly-fails.txt |  11 +-
->>   drivers/gpu/drm/ci/xfails/i915-apl-fails.txt  |   2 +
->>   drivers/gpu/drm/ci/xfails/i915-cml-fails.txt  |  29 +----
->>   drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt |   7 ++
->>   drivers/gpu/drm/ci/xfails/i915-glk-fails.txt  |   8 +-
->>   drivers/gpu/drm/ci/xfails/i915-glk-skips.txt  |  83 ++++++++++++
->>   drivers/gpu/drm/ci/xfails/i915-jsl-fails.txt  |  10 +-
->>   drivers/gpu/drm/ci/xfails/i915-kbl-fails.txt  |   3 +
->>   drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt  |   5 +-
->>   drivers/gpu/drm/ci/xfails/i915-tgl-flakes.txt |   6 +
->>   drivers/gpu/drm/ci/xfails/i915-whl-fails.txt  |   7 +-
->>   .../drm/ci/xfails/mediatek-mt8173-fails.txt   |   5 +-
->>   .../drm/ci/xfails/mediatek-mt8173-flakes.txt  | 119 ++++++++++++++++++
->>   .../drm/ci/xfails/mediatek-mt8183-fails.txt   |   7 +-
->>   .../msm-sc7180-trogdor-kingoftown-fails.txt   |   1 +
->>   ...sm-sc7180-trogdor-lazor-limozeen-fails.txt |   1 +
->>   .../drm/ci/xfails/msm-sm8350-hdk-fails.txt    |   1 +
->>   .../drm/ci/xfails/msm-sm8350-hdk-skips.txt    |  73 +++++++++++
->>   .../drm/ci/xfails/panfrost-mt8183-fails.txt   |   1 +
->>   .../drm/ci/xfails/panfrost-rk3288-fails.txt   |   1 +
->>   .../drm/ci/xfails/panfrost-rk3399-fails.txt   |   1 +
->>   .../drm/ci/xfails/rockchip-rk3288-fails.txt   |  12 +-
->>   .../drm/ci/xfails/rockchip-rk3288-flakes.txt  |  21 ++++
->>   .../drm/ci/xfails/rockchip-rk3399-fails.txt   |   9 +-
->>   .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |  35 ++++++
->>   .../drm/ci/xfails/virtio_gpu-none-fails.txt   |   4 +
->>   drivers/gpu/drm/ci/xfails/vkms-none-fails.txt |   3 +
->>   drivers/gpu/drm/ci/xfails/vkms-none-skips.txt |   3 +
->>   31 files changed, 416 insertions(+), 63 deletions(-)
->>   create mode 100644 drivers/gpu/drm/ci/xfails/i915-tgl-flakes.txt
->>
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt
->> index e4a8f8352cd6..9bf38c077f8e 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-fails.txt
->> @@ -15,3 +15,4 @@ kms_pipe_crc_basic@compare-crc-sanitycheck-nv12,Fail
->>   kms_plane_alpha_blend@alpha-7efc,Fail
->>   kms_plane_alpha_blend@coverage-7efc,Fail
->>   kms_plane_alpha_blend@coverage-vs-premult-vs-constant,Fail
->> +core_setmaster@master-drop-set-user,Fail
-> 
-> Could you please point out the issue / failure log?
+This seems to result in a lot of unnecessary code. I wonder if the
+following would work:
 
-Please see the pipeline logs,
-https://gitlab.freedesktop.org/vigneshraman/msm/-/jobs/79793740
-https://gitlab.freedesktop.org/vigneshraman/msm/-/jobs/79793742
+Just document the requirement in vring_create_virtqueue_map, say
+something like when a virtio device doesn't have a map operation,
+map_token must be a pointer to struct device.
 
-Let me know if you want me to raise an issue.
+Please give me some advice so I can work on a new version..
 
-Regards,
-Vignesh
+Thanks
 
-> 
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt
->> index e4a8f8352cd6..7441b363efae 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-fails.txt
->> @@ -1,3 +1,4 @@
->> +core_setmaster@master-drop-set-user,Fail
->>   kms_color@ctm-0-25,Fail
->>   kms_color@ctm-0-50,Fail
->>   kms_color@ctm-0-75,Fail
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt b/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
->> index 8d26b23133aa..f387c73193c6 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-fails.txt
->> @@ -1,3 +1,4 @@
->> +core_setmaster@master-drop-set-user,Fail
->>   kms_3d,Fail
->>   kms_cursor_legacy@forked-bo,Fail
->>   kms_cursor_legacy@forked-move,Fail
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-skips.txt b/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-skips.txt
->> index 9450f2a002fd..84ffbe0981ea 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-skips.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-sm8350-hdk-skips.txt
->> @@ -210,3 +210,76 @@ msm/msm_mapping@ring
->>   # [  229.752499] CPU features: 0x18,00000017,00200928,4200720b
->>   # [  229.758095] Memory Limit: none
->>   # [  229.761291] ---[ end Kernel panic - not syncing: softlockup: hung tasks ]---
->> +
->> +msm/msm_recovery@gpu-fault
-> 
-> Hmm. I thought this should have been fixed...
-> 
->> +# DEBUG - Begin test msm/msm_recovery@gpu-fault
->> +# [  153.288652] [IGT] msm_recovery: executing
->> +# [  153.295317] [IGT] msm_recovery: starting subtest gpu-fault
->> +# [  153.317588] adreno 3d00000.gpu: CP | opcode error | possible opcode=0xDEADDEAD
->> +# [  153.367412] adreno 3d00000.gpu: [drm:a6xx_irq] *ERROR* gpu fault ring 0 fence 814 status 00800005 rb 016b/0215 ib1 000000010000B000/0000 ib2 0000000000000000/0000
->> +# [  153.383449] msm_dpu ae01000.display-controller: [drm:recover_worker] *ERROR* 6.6.0.1: hangcheck recover!
->> +# [  153.393296] msm_dpu ae01000.display-controller: [drm:recover_worker] *ERROR* 6.6.0.1: offending task: msm_recovery (/igt/libexec/igt-gpu-tools/msm/msm_recovery --run-subtest gpu-fault)
->> +# [  153.436085] revision: 660 (6.6.0.1)
->> +# [  153.439702] rb 0: fence:    2063/2068
->> +# [  153.443659] rptr:     360
->> +# [  153.446389] rb wptr:  533
->> +# [  153.449103] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG0: 0
->> +# [  153.455746] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG1: 0
->> +# [  153.462387] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG2: 2062
->> +# [  153.469293] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG3: 0
->> +# [  153.475680] adreno 3d00000.gpu: [drm:a6xx_irq] *ERROR* gpu fault ring 0 fence 814 status 00800005 rb 016b/0215 ib1 000000010000B000/0000 ib2 0000000000000000/0000
->> +# [  153.475919] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG4: 0
->> +# [  153.475925] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG5: 0
->> +# [  153.475928] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG6: 0
->> +# [  153.475930] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG7: 1
->> +# [  153.529587] platform 3d6a000.gmu: [drm:a6xx_gmu_set_oob] *ERROR* Timeout waiting for GMU OOB set GPU_SET: 0x0
->> +# [  153.539837] msm_dpu ae01000.display-controller: [drm:recover_worker] *ERROR* 6.6.0.1: hangcheck recover!
->> +# [  153.549597] msm_dpu ae01000.display-controller: [drm:recover_worker] *ERROR* 6.6.0.1: offending task: msm_recovery (/igt/libexec/igt-gpu-tools/msm/msm_recovery --run-subtest gpu-fault)
->> +# [  153.566489] revision: 660 (6.6.0.1)
->> +# [  153.570099] rb 0: fence:    2064/2068
->> +# [  153.573878] rptr:     0
->> +# [  153.576411] rb wptr:  688
->> +# [  153.579134] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG0: 0
->> +# [  153.585775] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG1: 0
->> +# [  153.592410] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG2: 0
->> +# [  153.597308] [IGT] msm_recovery: finished subtest gpu-fault, FAIL
->> +# [  153.599039] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG3: 0
->> +# [  153.611856] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG4: 0
->> +# [  153.618498] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG5: 0
->> +# [  153.625132] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG6: 0
->> +# [  153.631766] adreno 3d00000.gpu: [drm:a6xx_recover] CP_SCRATCH_REG7: 0
->> +# [  153.639162] *** gpu fault: ttbr0=00000001042fc000 iova=0000000000000000 dir=READ type=TRANSLATION source=CP (0,0,0,0)
->> +# [  153.648502] platform 3d6a000.gmu: [drm:a6xx_gmu_set_oob] *ERROR* Timeout waiting for GMU OOB set GPU_SET: 0x0
->> +# [  153.650144] *** gpu fault: ttbr0=00000001042fc000 iova=0000000000000020 dir=READ type=TRANSLATION source=CP (0,0,0,0)
->> +# [  153.650241] adreno 3d00000.gpu: CP illegal instruction error
->> +# [  153.671006] platform 3d6a000.gmu: [drm:a6xx_rpmh_start] *ERROR* Unable to power on the GPU RSC
->> +# [  153.687278] platform 3d6a000.gmu: [drm:a6xx_gmu_set_oob] *ERROR* Timeout waiting for GMU OOB set GPU_SET: 0x0
->> +# [  363.495437] INFO: task msm_recovery:876 blocked for more than 120 seconds.
->> +# [  363.503070]       Not tainted 6.16.0-rc2-g0594d0b01a7c #1
->> +# [  363.508838] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
->> +# [  363.517142] task:msm_recovery    state:D stack:0     pid:876   tgid:876   ppid:274    task_flags:0x400100 flags:0x00000009
->> +# [  363.528876] Call trace:
->> +# [  363.531554]  __switch_to+0xf8/0x1a8 (T)
->> +# [  363.535703]  __schedule+0x418/0xee0
->> +# [  363.539486]  schedule+0x4c/0x164
->> +# [  363.542986]  schedule_timeout+0x11c/0x128
->> +# [  363.547281]  dma_fence_default_wait+0x13c/0x234
->> +# [  363.552123]  dma_fence_wait_timeout+0x160/0x45c
->> +# [  363.556947]  dma_resv_wait_timeout+0x70/0x11c
->> +# [  363.561582]  msm_gem_close+0xac/0xe4
->> +# [  363.565405]  drm_gem_handle_delete+0x74/0xe8
->> +# [  363.569951]  drm_gem_close_ioctl+0x38/0x44
->> +# [  363.574297]  drm_ioctl_kernel+0xc4/0x134
->> +# [  363.578442]  drm_ioctl+0x224/0x4f0
->> +# [  363.582050]  __arm64_sys_ioctl+0xac/0x104
->> +# [  363.586292]  invoke_syscall+0x48/0x110
->> +# [  363.590254]  el0_svc_common.constprop.0+0x40/0xe0
->> +# [  363.595197]  do_el0_svc+0x1c/0x28
->> +# [  363.598705]  el0_svc+0x4c/0x158
->> +# [  363.602035]  el0t_64_sync_handler+0x10c/0x138
->> +# [  363.606601]  el0t_64_sync+0x198/0x19c
->> +# [  363.610465] Showing all locks held in the system:
->> +# [  363.620406]  #0: ffff0000840200a0 (&tty->ldisc_sem){++++}-{0:0}, at: ldsem_down_read+0x18/0x24
->> +# [  363.629412]  #1: ffff800080d7c2f0 (&ldata->atomic_read_lock){+.+.}-{4:4}, at: n_tty_read+0x15c/0x57c
->> +# [  363.643169]  #0: ffffbd9c0475d920 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x18/0x1c0
->> +# [  363.654158] =============================================
-> 
+>
+> Thanks
 
