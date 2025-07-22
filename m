@@ -1,77 +1,78 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74DA8548EE
-	for <virtualization@lists.linux.dev>; Tue, 22 Jul 2025 14:01:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CCB82D8766
+	for <virtualization@lists.linux.dev>; Tue, 22 Jul 2025 14:02:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753192900; cv=none; b=IQKM0hcsR1BPp3ltAmM3t1SaL9AEOc5BWpM6WL2mtESXcC2jJ2AeEsViUh7A8+41RuvdAoU4lQyC+W7vM1OOxA4ny4gTLqxRyi8t8O+Hx3vFCi7w7bFKb0i0ofCHEUIYcVCiSFrh7fq/muH/gebOVysZR/kLw3otDNg2VgOuEsE=
+	t=1753192968; cv=none; b=mx7fuAsJ/f0gzN7kedDvL43nJ/6bgs7nUG+2N2c7P2y7Fs8erDYmfGw6Jyo2hcpKuParuQvKdYbIxHtNL7NvXWbnoqt7YWny5HciXFWziRqkQhxOh6hjn/yU3eUVeY/za4Nc506ickA0ldYF9Af471wRQx4GPwGgG4ccbbbLZCs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753192900; c=relaxed/simple;
-	bh=rLhbKeMGlKtq2qqpoIx9GD2rFy1CZas52/3EGbn75sE=;
+	s=arc-20240116; t=1753192968; c=relaxed/simple;
+	bh=ysK3LJORetfqe2m6QiMRCxCJNBHvLtrt2UrUawZ1XbU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ondS3rh7umlC3rmJ5WCbt9LCHg4kb1dRSp3udwvBsdGWCBHqtCzwNOTPBMsz93/AWRgcRLN44DkKi0RrxhBroyvXzpo7TH8NPk1lyb4yACmrntEFeaO43T5wubvnv7oJ5ISzoK/+KwDGzc65WGjg6bnuiznzgspxzKue9VJX4+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=THEGhBgk; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=B5CzADXioUEtZDS1k+B81nP8JbSJEDDZLLymQ0fguuMOgYHHgViFALTq+gsXI7Qtbxs2Sfv0GaDD1RPKnNJ/dj3evovnVNziPoBazzx36wF2zSEsKtvr10C16rMA8cJ2qoFJ8zBeDjgf3p/jAkBRQ4AHmQ5r6DAug9Ot1jkO4mk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b8l6Lnqt; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="THEGhBgk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b8l6Lnqt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753192895;
+	s=mimecast20190719; t=1753192964;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=r0p5ikzOpbDLH0UbPpUrEk8y7env/9ggdXGp32RRYhI=;
-	b=THEGhBgkAyRSv8iuWZMFpKHXnyqh0vIDhYFfoPNvjphx0xjyzLy2SOjqOAmWPYXuhFZy88
-	th202gwwHh3rQRlQpHF2CgxGlYzPf5X64yNYs4YnJF8zgeG8PIEmGn4pBEHC/2TmPyKHGS
-	uhRZG2NCk4z2y11AkbU0Q+4GeC3tp/E=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CMsmk24wS4yO9z8lRswa+OHxPzX/WLAHQmwdnAHVCQQ=;
+	b=b8l6LnqttsqQULRyVzU9Ca7C4Oo23FIAg1WWsEZEQ6DFhDRpiiZTUEgo69IKddaZ0cDS5N
+	o+c2Q0K2OIJjWHYAy/oL99K86ViccwqcMzY/14s6orvfFD6PlW6OxPTBWcNono6wz+cqQW
+	JRDq96N9N07nYPLq+0f9uZ72xYCGwYI=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-554-RLeBJXFnPEWjq3YycaqKwg-1; Tue, 22 Jul 2025 10:01:31 -0400
-X-MC-Unique: RLeBJXFnPEWjq3YycaqKwg-1
-X-Mimecast-MFC-AGG-ID: RLeBJXFnPEWjq3YycaqKwg_1753192889
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a4e713e05bso2351518f8f.3
-        for <virtualization@lists.linux.dev>; Tue, 22 Jul 2025 07:01:30 -0700 (PDT)
+ us-mta-274-OCL2p6G7MN25FyEILz_AQg-1; Tue, 22 Jul 2025 10:02:42 -0400
+X-MC-Unique: OCL2p6G7MN25FyEILz_AQg-1
+X-Mimecast-MFC-AGG-ID: OCL2p6G7MN25FyEILz_AQg_1753192961
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4561dfd07bcso32898915e9.1
+        for <virtualization@lists.linux.dev>; Tue, 22 Jul 2025 07:02:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753192889; x=1753797689;
+        d=1e100.net; s=20230601; t=1753192961; x=1753797761;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=r0p5ikzOpbDLH0UbPpUrEk8y7env/9ggdXGp32RRYhI=;
-        b=VO9OD0YrCshHxoyfpdx9LvTmknNAZIlw57aQiG5cFoQEbp7O/GC+6mKoTV5zXrYWzD
-         F/8Z/TmZ9hcNzqZ//mLsmIO/ZteJqgXOxNutkfqzjUxGQto5CfUWd+FNjfzGzWsEMuqs
-         dLUyAzN5w9yP6Abjn9doEBJ/iOerGKAvGO5FGkUYxJ2cu36cCx9O0iEho8S0S2IJeGs/
-         C2ii4n7HJeAK+7+ftKhqY/xPCKpaxs5iCE4x6koq52jpFABVHJOYZz51ZRhC5Dq/smS0
-         e00luA/rh8pntatCb8DlJO/sDdlBYKLJ3F0D8NM1KsaspZJImeMQbcTmGucG/41C8txv
-         eVzA==
-X-Forwarded-Encrypted: i=1; AJvYcCWak4KJ8KprN0t2DbBr9Bsy3k51MI5r/w9BoZwKD3RXUt1LcdxcF1zuJfXda+4Abz7UvyaSUxXA9Hkqz6+N2w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwlpqjuPtzQl0cJPpnLYlKsrrx3GO+fGdfJgfPr0oehmo+LQb+H
-	Di5kbQhQp29RqyCQ0bgUY4ibJoWonC+24CO6xthfs4SczQhdrQ69dryorX2P7be7NG99Bk2/Svv
-	O2LHyr1Nqxp3HPK6J5wUjJI8LEnJggKCX5/Ka8FcPco6wmOFBLpcwOgXgSceBiGNXRF7V
-X-Gm-Gg: ASbGnctUQhNSjMpmjRNBoQUt5aq2Ih+izjbbPJzTlioD4J3JOFPkh5nxRi20Ki99Elf
-	o3dSK47hvx8ioj1aVsV7YchFut2ogI8vThtEA3HPO5vjsk5xtboa3ewGZer1gHUSrUIkXh1vNOa
-	r/PGed5UvC8vupHA/rhzCIVNwUwyVjKW6flr4uhyy0KNOK2y8ZaI+aC5inFm1FscYd0Si6uNh2Q
-	NPbDTR+h/bPgHoVZcJWP0qmcjkMj/Q+5nljDoYyDr8fRiPQo+gkZAR1zubOGAo2BKqaKqEWa5qF
-	5JbWlVftD2XqU/TheP0choQX6yDTObLTXSg=
-X-Received: by 2002:a5d:5c06:0:b0:3a4:ec23:dba7 with SMTP id ffacd0b85a97d-3b60e523dd1mr20763199f8f.31.1753192888541;
-        Tue, 22 Jul 2025 07:01:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFQ3rSNVwHPJ6Ng2M1j7QSPWGFRjSkUOx6fR5MAPIP7OudPNK9d59DFqx5h8HC6DddfVseKSQ==
-X-Received: by 2002:a5d:5c06:0:b0:3a4:ec23:dba7 with SMTP id ffacd0b85a97d-3b60e523dd1mr20763116f8f.31.1753192887870;
-        Tue, 22 Jul 2025 07:01:27 -0700 (PDT)
+        bh=CMsmk24wS4yO9z8lRswa+OHxPzX/WLAHQmwdnAHVCQQ=;
+        b=c89NVBff9yu36SVLgaDctNb1u0dHKMWIgm858ggWiOSRRtRFbClnOyTZoy2EYC6SRn
+         72CIZ0CF6HW7RDXOCz34MTU22ZKIiz7aTVh4VeRN3JEkA8BAICP/dknYLglYWs0OncDc
+         e/7u9rOLqBsfELzJw1y7LxOfhTLFe6TAddpZ40HNNh+DVGVx7gUbFUhvT5FhXL8JJXr3
+         KV2EFK8qBpHJhcXxFQqk6gyFpi5P8/YGx6XlL6xKm6WZXN6D63n/y4TJsIoqlVg/7xse
+         EOQfLxc8+1a6rbFav+UBSvO4oQwdzggcSxREJTtbBdLm+Z40TmkHTEi4VFHqKK2bdDRz
+         FDNg==
+X-Forwarded-Encrypted: i=1; AJvYcCXYEPGFMfLLxugCBKFzNglxZiSXiPllfQc32QJAorl3xmAfZDwqmX4slKMJBJ8r4xJ4wvleycZFJsHQWS1R/A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxYitF28u0D0D4P00uquWiwMh09Ir7ydlI+Nq1Yzzi8+cIW/7VB
+	LaP/iW14+lY0Vr1WbRPESA6PZiNYherbfeC/WhrYJKQ9+Xl6CmMrqpBnRnijmaIqDI1+D8IXvhH
+	zBkb+93ZhbyB6T3PcrlQNh9adodZmck80EfSWMACFMLPcmhrwUwWeJpB4N9uzVIE/seF1JV32Z0
+	feN/A=
+X-Gm-Gg: ASbGncubu/mN0KQIzWcua0l+6lBOWjJJuY9T1UyDSRuihUtgno3lcMJM6v2+OL0aOGZ
+	4WsRanVnR7gh/Mno6FEGF4kC00X4ziQoMf71GPtcmLATCBn1MHyOpsbyEln8xtDQz36jFH+/Vee
+	MhA4yxK4m33xMSmHy5x8iIPdxif1vCJmzsVB03avIm4Hz5e49BV7iQSjSM3s4D6xitztW4RwuXG
+	8PcZ3d5nnyvZmDlAvYokoEKjdbzt2y9cUnR94ZkAXQt5e2rQtW0o5hMlOwrQsipiOAmiGQSKzcN
+	ONjI5sp4Ek0GbEw3Eg7wT7j8wXbzpdnvqYA=
+X-Received: by 2002:a05:6000:288b:b0:3a5:8934:493a with SMTP id ffacd0b85a97d-3b60e51bb18mr20665651f8f.44.1753192960712;
+        Tue, 22 Jul 2025 07:02:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHUumw18vsojS8d7RLLYLqcCC4C+084hSxa3aZSAolLXdq+v6zn7t9vvSh5JY0kbpz3zyRebQ==
+X-Received: by 2002:a05:6000:288b:b0:3a5:8934:493a with SMTP id ffacd0b85a97d-3b60e51bb18mr20665426f8f.44.1753192958410;
+        Tue, 22 Jul 2025 07:02:38 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:153d:b500:b346:7481:16b2:6b23])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4562e886286sm196509885e9.26.2025.07.22.07.01.26
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4562e886286sm196540625e9.26.2025.07.22.07.02.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Jul 2025 07:01:27 -0700 (PDT)
-Date: Tue, 22 Jul 2025 10:01:23 -0400
+        Tue, 22 Jul 2025 07:02:37 -0700 (PDT)
+Date: Tue, 22 Jul 2025 10:02:35 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
 	virtualization@lists.linux.dev, hch@infradead.org,
 	Christoph Hellwig <hch@lst.de>
 Subject: Re: [PATCH V4 7/9] vdpa: rename dma_dev to map_token
-Message-ID: <20250722100106-mutt-send-email-mst@kernel.org>
+Message-ID: <20250722100213-mutt-send-email-mst@kernel.org>
 References: <20250718091616.6140-1-jasowang@redhat.com>
  <20250718091616.6140-8-jasowang@redhat.com>
  <20250718053156-mutt-send-email-mst@kernel.org>
@@ -84,7 +85,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <CACGkMEue4Wh3ocM2Pmn5E_nMzjHkJqd-MhYbPDY9pXdwMtqgXQ@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: RytRpnYuwDB8C6Mj8hdssgzN-wREZ-pO9m60A-UmNu4_1753192889
+X-Mimecast-MFC-PROC-ID: _32yNsTMRJSYoNM87jZUprTz9J58r5CFcYabLH5Z6yI_1753192961
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -127,7 +128,9 @@ On Fri, Jul 18, 2025 at 06:09:35PM +0800, Jason Wang wrote:
 > identify an iova domain. For example, it can return a pointer to
 > iova_domain which will also work. If you prefer to use iova domain, I
 > can change to use that in the next version.
-> 
+
+iova domain sounds better than void*.
+
 > > So why do we need this, why lose all type safety?
 > 
 > If you worry about the case that assumes map_token as dma device in
@@ -140,6 +143,4 @@ On Fri, Jul 18, 2025 at 06:09:35PM +0800, Jason Wang wrote:
 > Does this work for you?
 > 
 > Thanks
-
-Sounds fine, to me.
 
