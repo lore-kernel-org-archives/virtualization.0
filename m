@@ -1,273 +1,275 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A26A2EAB6A
-	for <virtualization@lists.linux-foundation.org>; Tue, 22 Jul 2025 14:35:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24A3B2EA743
+	for <virtualization@lists.linux.dev>; Tue, 22 Jul 2025 14:36:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753194949; cv=none; b=D1PU7KmE6RsAWz/1bbRdVsWmobW+ZC8RE/pvingwfbkjUJURVgjf2haPHNjIHm1ahsRXqmw2uHJXOdjcACv5X91UeDixfBx0u/laWiNDS3BLbafGpCFtY0FuInnbCfVkAi4YRNm8/a2vGOWY++VNQ4lVNRRNWY9QrOKn07qixGo=
+	t=1753194996; cv=none; b=I+9ota2ZxV07osuoaeGocJQuBZ/bOX2ayc0Pt1Yl8seJAagUUeF5zrw8pIxTANhzLGCI9SLfPB2mpnc2HSmN5kb3W5nICvLpM2vwedkE4kHl8A8WT1BVtz1f1JtvnKszlaBrUgKKHjzyNRRiBTXWcKKUCcPhZvCKIrMfTiV7210=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753194949; c=relaxed/simple;
-	bh=FtMcpts9tF0PQFNX2Xy1OLTiS5qBzXfp3waJCk/dUso=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=NGqM5kygUVe7fiftgiktIiadBJsafNTPheqAUVpkq9vGMnQGwR8vHHsbzNUrLGwNUyy+Sh9rjCghK4nD3LxR/5IoMvwMjzr5YNfR2/jHuHXDUuReSF81VZWt/TmGEaaPgkMXFQnVO7487LS13YbV9fJ5TR6ZPfg/N0WQPx6SQjU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CQhe4s58; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1753194996; c=relaxed/simple;
+	bh=U38vHwYvj/snWXvCq8nA+Zbfq/F5HTG8jvr3xzABwS4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Jr9w6I3RvNK+7Lo19wuU5wWwr8LvaTgBk0X7x+KaIcorWB0rbG5H9E273BGem9vZugGOGv9o2vjoBI/NKZp70I2HOfjqaE4okJVw2IAVlzOAOM5x7zl7aHFbQBFbp3XoGK+JM6WjpcJ6vvkYwWK8Xaq4V1ZAks6HI3+23tXimT0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=u2Hu8Jjl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=plinSJiD; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=u2Hu8Jjl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=plinSJiD; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CQhe4s58"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id F282A611F4
-	for <virtualization@lists.linux-foundation.org>; Tue, 22 Jul 2025 14:35:47 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id w23z0dm3kGcr for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Jul 2025 14:35:47 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org E3ED360E5A
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E3ED360E5A
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CQhe4s58
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E3ED360E5A
-	for <virtualization@lists.linux-foundation.org>; Tue, 22 Jul 2025 14:35:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753194944;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fzB7P1BusfnapG0uVAVGElcUdQoH/V3AcX2/zWIOBVg=;
-	b=CQhe4s58x3OrdWIaGeUPYxARs9lxw+HkDnH/FSY6+/yiSIl9evtvgoLWNwyRV1FrIrQKxr
-	4j+h5neymW7ntf1Oyki0O9fJYygeUJFFHUyxPF/g1JwRliRHT9hciztjYBdD4iOgI6CxZ8
-	9ZqsIscRzUsxOxX3hsxM3+6XIuKsKu4=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-461-BdXi8dbxPMOzy93kZiFd4g-1; Tue, 22 Jul 2025 10:35:42 -0400
-X-MC-Unique: BdXi8dbxPMOzy93kZiFd4g-1
-X-Mimecast-MFC-AGG-ID: BdXi8dbxPMOzy93kZiFd4g_1753194941
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-ae3c8477f1fso478306966b.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 22 Jul 2025 07:35:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753194941; x=1753799741;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fzB7P1BusfnapG0uVAVGElcUdQoH/V3AcX2/zWIOBVg=;
-        b=vezbOAyvUNhn9n7tV4sHKZJULVZ9k9bXdBNCMt5W9mmuBcV4UG8ONbf5VGowpw4yzj
-         7aQHm14et/7zdAwOFD0ov5JHjzPSXDcQ5NIaZ0T7DCb1oQHlyZ58j0VnTzI/ZVoVPiyT
-         oPEjPDDRwEUkTDsKmnUepAqxmIBXIc3PayWrEfafaJfrQge3EvIUEn3wVw6aepkoexj4
-         Ej6FQtsZJOoIvebq1GZdeQlQG6u+En/R646RGP0DAevwS+XtfAEOm2V3GVQv4mP0+MkR
-         isQJhSlSCHxN7tMvidZLIXdWKRe+ixNiyuz/HA+trp65bAJHPRulMQ1ZPEGaXJBfEHPg
-         uKdg==
-X-Forwarded-Encrypted: i=1; AJvYcCUL74l13yMu6EE6QzCGRTZ60cYB4K0q2I0OhJkHQIxvaIBFgy4RYub8R5LAUoZEW0pjWpXX5KGvWtykaxEOCA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YzkX2TpIdNp9fXgFT+rqdPdhHVx3SkM5WuTKWX8Zj2Wz0hQQsng
-	+hSy87zIO7cJWPN0BQ1i1To9T8x15DvnQZH78mht25p9Mou+GQuPt9MqBTyID8bgg2nSoagZVKr
-	pOp4c9DxJZvFZ5V0GnPP3vEdpO9RxsryyAinH4ytObZf6wvweHDuMcpZeuneOQk4IgW+yP1HAZ0
-	mnLc1RSC4=
-X-Gm-Gg: ASbGncv5cntMm8TpEYCy/RjGbrIk5fWhnf5t8PEX9Mc9jrkaV+Ea5DKzIn90eO6ccJK
-	w6stxV0Q6P6Mq8A2R1bmFSXaSmxIvttEE2idCYMgNpHkIpRunFVoqv/2LzYEglJNf70A4BrfsnW
-	oA6lhJAw+S1R+vpxpQ+ZhUXohsjvDLGyFG4Eemyq0+Ai3Gl1rU/85Sh+9CZB/6MCZFDarGaaeEX
-	NbSK0OMxr8SveCnCnzQw8Mw6phWRLtfDw2K7bC5B8V4FNnQZb/wFp6IlJqHVud4eDGRDnt7OFMb
-	o5Xb+hmOUWJc3Hir6mCZBW8vOFN10DBI/wgSlf+nLlnpjqY7SpmGEIp9J4j+zoYuQcPTAJPYSCZ
-	HPWnH980LwPneF5E=
-X-Received: by 2002:a17:906:7946:b0:ae9:8dcb:4dac with SMTP id a640c23a62f3a-ae9c99bac5fmr2438078666b.14.1753194941141;
-        Tue, 22 Jul 2025 07:35:41 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF/TeWm8DeewR5crPsEXii/8MlhRmlF6n2C6fHO5dz/5iDDWZFbxMXiWYmWah7yJm8iOWS6rw==
-X-Received: by 2002:a17:906:7946:b0:ae9:8dcb:4dac with SMTP id a640c23a62f3a-ae9c99bac5fmr2438071766b.14.1753194940260;
-        Tue, 22 Jul 2025 07:35:40 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-45-205-118.retail.telecomitalia.it. [79.45.205.118])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aec6c7d9941sm879107266b.56.2025.07.22.07.35.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Jul 2025 07:35:39 -0700 (PDT)
-Date: Tue, 22 Jul 2025 16:35:25 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Amery Hung <ameryhung@gmail.com>
-Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
-	pabeni@redhat.com, kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org, 
-	decui@microsoft.com, bryantan@vmware.com, vdasa@vmware.com, pv-drivers@vmware.com, 
-	dan.carpenter@linaro.org, simon.horman@corigine.com, oxffffaa@gmail.com, 
-	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	bpf@vger.kernel.org, bobby.eshleman@bytedance.com, jiang.wang@bytedance.com, 
-	amery.hung@bytedance.com, xiyou.wangcong@gmail.com
-Subject: Re: [RFC PATCH net-next v6 00/14] virtio/vsock: support datagrams
-Message-ID: <dsamf7k2byoflztkwya3smj7jyczyq7aludvd36lufdrboxdqk@u73iwrcyb5am>
-References: <20240710212555.1617795-1-amery.hung@bytedance.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="u2Hu8Jjl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="plinSJiD";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="u2Hu8Jjl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="plinSJiD"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 3C061211C9;
+	Tue, 22 Jul 2025 14:36:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1753194992; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=AYaGKdibHtzw4fA/0MfIQrIP4w9AF7TLkj3JQ1iP4C4=;
+	b=u2Hu8JjlgffotkHx5wKimPnY9YrKxfvbfJCljb9mXhMfit/pJkkv57d0u5hRXM6sLi6d7R
+	BdbvJtJcKyy7i/IOYeNOzxspvafX4FbrhBK3e9PYqehsA9qZ2MwxBb4f0WxZk59gYg1S94
+	WIPA9y6prvKGlVMbjjvJI/kTyzABIeQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1753194992;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=AYaGKdibHtzw4fA/0MfIQrIP4w9AF7TLkj3JQ1iP4C4=;
+	b=plinSJiDqSWEZSQEdK7JB5oOXqxdfJ6KMMqJL3BUb4gHbFGmAcXVZGvaqqyS0wXotfgJPY
+	WwQj1yDN8088MRBw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=u2Hu8Jjl;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=plinSJiD
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1753194992; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=AYaGKdibHtzw4fA/0MfIQrIP4w9AF7TLkj3JQ1iP4C4=;
+	b=u2Hu8JjlgffotkHx5wKimPnY9YrKxfvbfJCljb9mXhMfit/pJkkv57d0u5hRXM6sLi6d7R
+	BdbvJtJcKyy7i/IOYeNOzxspvafX4FbrhBK3e9PYqehsA9qZ2MwxBb4f0WxZk59gYg1S94
+	WIPA9y6prvKGlVMbjjvJI/kTyzABIeQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1753194992;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=AYaGKdibHtzw4fA/0MfIQrIP4w9AF7TLkj3JQ1iP4C4=;
+	b=plinSJiDqSWEZSQEdK7JB5oOXqxdfJ6KMMqJL3BUb4gHbFGmAcXVZGvaqqyS0wXotfgJPY
+	WwQj1yDN8088MRBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CE5FB132EA;
+	Tue, 22 Jul 2025 14:36:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id Y3kdIuihf2jxKQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 22 Jul 2025 14:36:24 +0000
+Message-ID: <a0afced8-fcfe-4e1e-b679-e17b40238786@suse.de>
+Date: Tue, 22 Jul 2025 16:36:23 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240710212555.1617795-1-amery.hung@bytedance.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6U3ILapIpIC_UG9W3SCHPxltHIGL00W_sxYW2hrTWdY_1753194941
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 00/25] drm/dumb-buffers: Fix and improve buffer-size
+ calculation
+To: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
+ maarten.lankhorst@linux.intel.com, geert@linux-m68k.org,
+ tomi.valkeinen@ideasonboard.com
+Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
+ freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+ imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
+ nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+ intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org
+References: <20250613090431.127087-1-tzimmermann@suse.de>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20250613090431.127087-1-tzimmermann@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,linux-m68k.org,ideasonboard.com];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[20];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_DN_NONE(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 3C061211C9
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -3.01
 
-Hi Amery,
+Ping for additional reviews. Especially patches 3, 4, and 5, which cover 
+a wide range of drivers..
 
-On Wed, Jul 10, 2024 at 09:25:41PM +0000, Amery Hung wrote:
->Hey all!
+Am 13.06.25 um 11:00 schrieb Thomas Zimmermann:
+> Dumb-buffer pitch and size is specified by width, height, bits-per-pixel
+> plus various hardware-specific alignments. The calculation of these
+> values is inconsistent and duplicated among drivers. The results for
+> formats with bpp < 8 are sometimes incorrect.
 >
->This series introduces support for datagrams to virtio/vsock.
+> This series fixes this for most drivers. Default scanline pitch and
+> buffer size are now calculated with the existing 4CC helpers. There is
+> a new helper drm_mode_size_dumb() that calculates scanline pitch and
+> buffer size according to driver requirements.
+>
+> The series fixes the common GEM implementations for DMA, SHMEM and
+> VRAM. It further changes most implementations of dumb_create to use
+> the new helper. A small number of drivers has more complicated
+> calculations and will be updated by a later patches.
+>
+> v5:
+> - use check_mul_overflow() for overflow test (Tomi)
+> - imx: fix intermediate code (Tomi)
+> - rz-du: include dumb-buffers header
+> v4:
+> - improve UAPI documentation
+> - document bpp special cases
+> - use drm_warn_once()
+> - add TODO lists
+> - armada: fix pitch alignment
+> v3:
+> - document UAPI semantics
+> - fall back to bpp-based allocation for unknown color modes
+> - cleanups
+> v2:
+> - rewrite series
+> - convert many individual drivers besides the shared GEM helpers
+>
+> Thomas Zimmermann (25):
+>    drm/dumb-buffers: Sanitize output on errors
+>    drm/dumb-buffers: Provide helper to set pitch and size
+>    drm/gem-dma: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/gem-shmem: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/gem-vram: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/armada: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/exynos: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/gma500: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/hibmc: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/imx/ipuv3: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/loongson: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/mediatek: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/msm: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/nouveau: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/omapdrm: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/qxl: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/renesas/rcar-du: Compute dumb-buffer sizes with
+>      drm_mode_size_dumb()
+>    drm/renesas/rz-du: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/rockchip: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/tegra: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/virtio: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/vmwgfx: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/xe: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/xen: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>    drm/xlnx: Compute dumb-buffer sizes with drm_mode_size_dumb()
+>
+>   Documentation/gpu/todo.rst                    |  27 +++
+>   drivers/gpu/drm/armada/armada_gem.c           |  16 +-
+>   drivers/gpu/drm/drm_dumb_buffers.c            | 170 ++++++++++++++++--
+>   drivers/gpu/drm/drm_gem_dma_helper.c          |   7 +-
+>   drivers/gpu/drm/drm_gem_shmem_helper.c        |  16 +-
+>   drivers/gpu/drm/drm_gem_vram_helper.c         |  89 +++------
+>   drivers/gpu/drm/exynos/exynos_drm_gem.c       |   8 +-
+>   drivers/gpu/drm/gma500/gem.c                  |  21 +--
+>   .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c   |  25 ++-
+>   drivers/gpu/drm/imx/ipuv3/imx-drm-core.c      |  29 ++-
+>   drivers/gpu/drm/loongson/lsdc_gem.c           |  29 +--
+>   drivers/gpu/drm/mediatek/mtk_gem.c            |  13 +-
+>   drivers/gpu/drm/msm/msm_gem.c                 |  27 ++-
+>   drivers/gpu/drm/nouveau/nouveau_display.c     |   7 +-
+>   drivers/gpu/drm/omapdrm/omap_gem.c            |  15 +-
+>   drivers/gpu/drm/qxl/qxl_dumb.c                |  17 +-
+>   drivers/gpu/drm/renesas/rcar-du/rcar_du_kms.c |   7 +-
+>   drivers/gpu/drm/renesas/rz-du/rzg2l_du_kms.c  |   8 +-
+>   drivers/gpu/drm/rockchip/rockchip_drm_gem.c   |  12 +-
+>   drivers/gpu/drm/tegra/gem.c                   |   8 +-
+>   drivers/gpu/drm/virtio/virtgpu_gem.c          |  11 +-
+>   drivers/gpu/drm/vmwgfx/vmwgfx_surface.c       |  21 +--
+>   drivers/gpu/drm/xe/xe_bo.c                    |   8 +-
+>   drivers/gpu/drm/xen/xen_drm_front.c           |   7 +-
+>   drivers/gpu/drm/xlnx/zynqmp_kms.c             |   7 +-
+>   include/drm/drm_dumb_buffers.h                |  14 ++
+>   include/drm/drm_gem_vram_helper.h             |   6 -
+>   include/uapi/drm/drm_mode.h                   |  50 +++++-
+>   28 files changed, 447 insertions(+), 228 deletions(-)
+>   create mode 100644 include/drm/drm_dumb_buffers.h
+>
+>
+> base-commit: 75238c32deae15ee4120b42a5be556ec36807a84
+> prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
+> prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
+> prerequisite-patch-id: 719d09751d38f5da743beed6266585ee063e1e29
 
-any update on v7 of this series?
-
-Thanks,
-Stefano
-
->
->It is a spin-off (and smaller version) of this series from the summer:
->  https://lore.kernel.org/all/cover.1660362668.git.bobby.eshleman@bytedance.com/
->
->Please note that this is an RFC and should not be merged until
->associated changes are made to the virtio specification, which will
->follow after discussion from this series.
->
->Another aside, the v4 of the series has only been mildly tested with a
->run of tools/testing/vsock/vsock_test. Some code likely needs cleaning
->up, but I'm hoping to get some of the design choices agreed upon before
->spending too much time making it pretty.
->
->This series first supports datagrams in a basic form for virtio, and
->then optimizes the sendpath for all datagram transports.
->
->The result is a very fast datagram communication protocol that
->outperforms even UDP on multi-queue virtio-net w/ vhost on a variety
->of multi-threaded workload samples.
->
->For those that are curious, some summary data comparing UDP and VSOCK
->DGRAM (N=5):
->
->	vCPUS: 16
->	virtio-net queues: 16
->	payload size: 4KB
->	Setup: bare metal + vm (non-nested)
->
->	UDP: 287.59 MB/s
->	VSOCK DGRAM: 509.2 MB/s
->
->Some notes about the implementation...
->
->This datagram implementation forces datagrams to self-throttle according
->to the threshold set by sk_sndbuf. It behaves similar to the credits
->used by streams in its effect on throughput and memory consumption, but
->it is not influenced by the receiving socket as credits are.
->
->The device drops packets silently.
->
->As discussed previously, this series introduces datagrams and defers
->fairness to future work. See discussion in v2 for more context around
->datagrams, fairness, and this implementation.
->
->Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
->Signed-off-by: Amery Hung <amery.hung@bytedance.com>
->---
->Changes in v6:
->- allow empty transport in datagram vsock
->- add empty transport checks in various paths
->- transport layer now saves source cid and port to control buffer of skb
->  to remove the dependency of transport in recvmsg()
->- fix virtio dgram_enqueue() by looking up the transport to be used when
->  using sendto(2)
->- fix skb memory leaks in two places
->- add dgram auto-bind test
->- Link to v5: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v5-0-581bd37fdb26@bytedance.com
->
->Changes in v5:
->- teach vhost to drop dgram when a datagram exceeds the receive buffer
->  - now uses MSG_ERRQUEUE and depends on Arseniy's zerocopy patch:
->	"vsock: read from socket's error queue"
->- replace multiple ->dgram_* callbacks with single ->dgram_addr_init()
->  callback
->- refactor virtio dgram skb allocator to reduce conflicts w/ zerocopy series
->- add _fallback/_FALLBACK suffix to dgram transport variables/macros
->- add WARN_ONCE() for table_size / VSOCK_HASH issue
->- add static to vsock_find_bound_socket_common
->- dedupe code in vsock_dgram_sendmsg() using module_got var
->- drop concurrent sendmsg() for dgram and defer to future series
->- Add more tests
->  - test EHOSTUNREACH in errqueue
->  - test stream + dgram address collision
->- improve clarity of dgram msg bounds test code
->- Link to v4: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v4-0-0cebbb2ae899@bytedance.com
->
->Changes in v4:
->- style changes
->  - vsock: use sk_vsock(vsk) in vsock_dgram_recvmsg instead of
->    &sk->vsk
->  - vsock: fix xmas tree declaration
->  - vsock: fix spacing issues
->  - virtio/vsock: virtio_transport_recv_dgram returns void because err
->    unused
->- sparse analysis warnings/errors
->  - virtio/vsock: fix unitialized skerr on destroy
->  - virtio/vsock: fix uninitialized err var on goto out
->  - vsock: fix declarations that need static
->  - vsock: fix __rcu annotation order
->- bugs
->  - vsock: fix null ptr in remote_info code
->  - vsock/dgram: make transport_dgram a fallback instead of first
->    priority
->  - vsock: remove redundant rcu read lock acquire in getname()
->- tests
->  - add more tests (message bounds and more)
->  - add vsock_dgram_bind() helper
->  - add vsock_dgram_connect() helper
->
->Changes in v3:
->- Support multi-transport dgram, changing logic in connect/bind
->  to support VMCI case
->- Support per-pkt transport lookup for sendto() case
->- Fix dgram_allow() implementation
->- Fix dgram feature bit number (now it is 3)
->- Fix binding so dgram and connectible (cid,port) spaces are
->  non-overlapping
->- RCU protect transport ptr so connect() calls never leave
->  a lockless read of the transport and remote_addr are always
->  in sync
->- Link to v2: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v2-0-079cc7cee62e@bytedance.com
->
->
->Bobby Eshleman (14):
->  af_vsock: generalize vsock_dgram_recvmsg() to all transports
->  af_vsock: refactor transport lookup code
->  af_vsock: support multi-transport datagrams
->  af_vsock: generalize bind table functions
->  af_vsock: use a separate dgram bind table
->  virtio/vsock: add VIRTIO_VSOCK_TYPE_DGRAM
->  virtio/vsock: add common datagram send path
->  af_vsock: add vsock_find_bound_dgram_socket()
->  virtio/vsock: add common datagram recv path
->  virtio/vsock: add VIRTIO_VSOCK_F_DGRAM feature bit
->  vhost/vsock: implement datagram support
->  vsock/loopback: implement datagram support
->  virtio/vsock: implement datagram support
->  test/vsock: add vsock dgram tests
->
-> drivers/vhost/vsock.c                   |   62 +-
-> include/linux/virtio_vsock.h            |    9 +-
-> include/net/af_vsock.h                  |   24 +-
-> include/uapi/linux/virtio_vsock.h       |    2 +
-> net/vmw_vsock/af_vsock.c                |  343 ++++++--
-> net/vmw_vsock/hyperv_transport.c        |   13 -
-> net/vmw_vsock/virtio_transport.c        |   24 +-
-> net/vmw_vsock/virtio_transport_common.c |  188 ++++-
-> net/vmw_vsock/vmci_transport.c          |   61 +-
-> net/vmw_vsock/vsock_loopback.c          |    9 +-
-> tools/testing/vsock/util.c              |  177 +++-
-> tools/testing/vsock/util.h              |   10 +
-> tools/testing/vsock/vsock_test.c        | 1032 ++++++++++++++++++++---
-> 13 files changed, 1638 insertions(+), 316 deletions(-)
->
->-- 
->2.20.1
->
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
