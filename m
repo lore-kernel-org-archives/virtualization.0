@@ -1,192 +1,208 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 878DD27EC99
-	for <virtualization@lists.linux.dev>; Tue, 22 Jul 2025 17:26:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C7E62F4A
+	for <virtualization@lists.linux.dev>; Wed, 23 Jul 2025 05:54:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753205211; cv=none; b=aaHrk9vO9gnlRoPYWUj3CnJYEYOtZr6sCKUWBWZFgMFqqHI7Ca2Bc0faU6uLqEa6ojlsjWxYHcn5snwqGwIq9FeQDzzeODQxXtIo/0+w93jH4sLiAA4axJ/GgTz40I+DF6536JQJzUA3BUBn2eXCFxtjl6uu/25FCY0dMKAFSfw=
+	t=1753250094; cv=none; b=L+iEgKlyOboUwhOPN+Z6AvRLIe3qIBG/D1g0wWaTOduLKlZScy4Faq2bi/yoFaIU/njAjemY3hIohQenaBvOcHblcXWB45+KirTRoWim5p/ydQF3HoQbAi6d9J+YwDsw1pN1Iz9bEaGV76Fz6FaUxxlUsFKS7+3rMQC+IZ2EdWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753205211; c=relaxed/simple;
-	bh=c5xfm6OYNiVwbzNBet3aZZZZdKaKwvkqUSGPp2GJVv8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ojPdg+6KEsXZupBDP6rvjMsy0BJ2vZ6tieda5x6NgZHSWY5+zIT4Id1rFAhwCs6Oz18aEUysLqkAkqQjqhaXvx8iwmyUZW3/ILLVuQf2USvloOEwBZemeKi/tSDmKZ3OHUQr5Ft6st5y/gLm7Sy9gnA4L9vqk80gZaqMIpKCe9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XT2VtKav; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1753250094; c=relaxed/simple;
+	bh=zf2Wlb7Ift34ysEfsoLpeIPw5lDouMgTKNbR5q0NdQo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=L82xfwgpY/3KkvinBWQaYN8BHWhxk9d0CGqHoORMy7gPWWUP1YNFI0V7eSUAMQ60vJ0/HCRDmzBQT83DpYDTB8A26I+/MVTgesdWr8hguAGVxg0u0s6ex/2ZcxyslaDzI9fZwnSJnMG71nalORphZgD8MlH/X51gYMt5MDa0Yjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fsL59AMw; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XT2VtKav"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fsL59AMw"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753205208;
+	s=mimecast20190719; t=1753250091;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=335W5XPGAY+ZXGhtj/TuWMIOn7SjBZFQRs8M/rKwXEA=;
-	b=XT2VtKavu0HYC9W06FYkqGPb/Gd9WlnaYGhKPrBNLdt9wHT9lbgK9o8CArDS+Dyz+3JyGv
-	iHTTSEF8w4ooRQxkgafJMm9Y3lATu2UBfF7A4QwJtA2HJL3ZCMNIlo+VJYF4NcXDyC7C2t
-	SMATbmY2ZzyMlf81qkGwesT94g8h+gQ=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=oqWgWRsseAIy1ZQW/9u1dfWPa0QgpiATWf558L1Lh/4=;
+	b=fsL59AMw6U3226uRND4r8hfdkAcIDme8OyY7Uw/zEltKLD2mSuIeEDBlkN90qOiX8oGdPU
+	OIh5KVYpCazJeW4GcuNOGqZw3yXlWC6jpF8vgnGLKnUtsu5HTh9pBvp8yNAv5YxZn8D82x
+	YvKZko6hxga0UbmCgl44T8/tcGn7aJ4=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-208-kmD5Xy-HPrGx4WxG5I4I2A-1; Tue, 22 Jul 2025 13:26:45 -0400
-X-MC-Unique: kmD5Xy-HPrGx4WxG5I4I2A-1
-X-Mimecast-MFC-AGG-ID: kmD5Xy-HPrGx4WxG5I4I2A_1753205204
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-606b62ce2d4so5691072a12.3
-        for <virtualization@lists.linux.dev>; Tue, 22 Jul 2025 10:26:45 -0700 (PDT)
+ us-mta-491-piBrCOC_Ore3JcUvn8vt_A-1; Wed, 23 Jul 2025 01:54:50 -0400
+X-MC-Unique: piBrCOC_Ore3JcUvn8vt_A-1
+X-Mimecast-MFC-AGG-ID: piBrCOC_Ore3JcUvn8vt_A_1753250089
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-31218e2d5b0so9616793a91.2
+        for <virtualization@lists.linux.dev>; Tue, 22 Jul 2025 22:54:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753205203; x=1753810003;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=335W5XPGAY+ZXGhtj/TuWMIOn7SjBZFQRs8M/rKwXEA=;
-        b=KNI/7mRGnHmDTbrmpbz5my/9E8UZpjH+XE6acMI9CnZPWMwR4/yv8F/LUsszauHCZz
-         7l4Hc3ao/04Y7X5lgkTa8QjWt+TNQl6c27niSA/nQnBIcdlg5CI0W+G7yeTgAAh3H7Mo
-         rbxxHpckVI749NdMDsWu73PkGPvwrX2cac0RvK4Y46bhsKVxfOXxRKUuviugW/kAYJfV
-         n+6w/h0kusWHiiKNgfyWcKJAKcsQClRBkhPHyooliYR8qPRdg5GxTYcbkVfsmkrUAISN
-         wZZY8ndHqSOGJeUBwc32+xFENo0rXJIb8naniBZ49yqetc8etSULhliBoHfJAXmP+c87
-         s8Ew==
-X-Forwarded-Encrypted: i=1; AJvYcCU5LlKgNVf+qq3v5KJ9j9PWOdyWwo+iLb7sgYubK4jEESVKl+uPvQ6UqqNL/KtRtY/y2jWhvVBPBqHqbhZa3g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy44B4nj8mR0aYWbyzJ8GDA4lAC+CMWF3MMtDZ8iRu5FsEiCxQ2
-	Jq8KWBfMIrgj6UsnJefz3GenktT/aYxgt9c/Znirec+WzgzeyAJcykrmXGxrMbBWK+pKTKZfnvJ
-	s1bfzOwHvEKEvGNllW9XhjcMoFrZRRH1v39fItKOjyHTw8U9y0N0lLeKkqtFNK1WzO8VJ
-X-Gm-Gg: ASbGncujwyrRixrRWVf0pX1eltQ2guyoshzpscIq5PwNtl56urSFgZPUA19CROwpEnd
-	dicuM+X8YwE/NumYjEBpJ2lZorOAEZjP+gGRJuOQ8a1kjWSNzrQ7fKMKO8K1JDaZy1dnPDnaOdI
-	UoA0UXQgAAMpYzWBdQCiKPMa0wtFUesbJ0U5sBOdN5KYfM7qXHHrl3qQTrdECijMdik4MkLpoke
-	94CgMfecTyIqZBGyj2Cbl9Y3AGBEPje1wrHLmK6mmh6K9mxHGfEfDEiAVU8Toh5a7j7qvd47uqd
-	xfnI6mvKMZQOh+eOuJ/BfAnLZ2U4HA==
-X-Received: by 2002:a05:6402:2693:b0:614:9567:4c98 with SMTP id 4fb4d7f45d1cf-61495674e36mr485124a12.5.1753205203502;
-        Tue, 22 Jul 2025 10:26:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH6ystqhDq9xjk78cU+H/eYTHS9qSMHNACY1JGEIqeoIofNDZac9pWTRqDGeQLtVAjbkFhhBA==
-X-Received: by 2002:a05:6402:2693:b0:614:9567:4c98 with SMTP id 4fb4d7f45d1cf-61495674e36mr485106a12.5.1753205203008;
-        Tue, 22 Jul 2025 10:26:43 -0700 (PDT)
-Received: from redhat.com ([31.187.78.147])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-61353336972sm1029021a12.48.2025.07.22.10.26.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Jul 2025 10:26:42 -0700 (PDT)
-Date: Tue, 22 Jul 2025 13:26:39 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, hch@infradead.org,
-	Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH V4 7/9] vdpa: rename dma_dev to map_token
-Message-ID: <20250722131746-mutt-send-email-mst@kernel.org>
-References: <20250718091616.6140-1-jasowang@redhat.com>
- <20250718091616.6140-8-jasowang@redhat.com>
- <20250718053156-mutt-send-email-mst@kernel.org>
- <CACGkMEue4Wh3ocM2Pmn5E_nMzjHkJqd-MhYbPDY9pXdwMtqgXQ@mail.gmail.com>
- <CACGkMEtxWrrq-9bW0w4eVyRbXra94oM-fEfPJOeWAOcNZVrjjw@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1753250089; x=1753854889;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=oqWgWRsseAIy1ZQW/9u1dfWPa0QgpiATWf558L1Lh/4=;
+        b=Uwwyoi/f09HTk9Ob7kqc4BhzGrOsMNHKqUcr7vzMui4LziNVp6LXYXAxUbUiI2cPWe
+         IB7JDGrEorB0iQ0gAJ2iZOFO8qRoBuhi5UZSfKnpl9wBZidXsxnbie1TrEwg/EFl1f/U
+         0pr0rnfDdNV8A8vRWZiZBq0SWa0D6ezpBQyB9qDu/qNaaZ2i4eDeEw5/wyFlewdIZ3ix
+         zOG4lL5zlznbKdcu/vG0CGal+dnxJH33k2C3Abt0zigAvu6hmp1GbnxFJ4nwhYO3ph9V
+         9B3XPP0cG5qDvufQFbqswvuJXevO2qt+fSS81DUOwGT0firQ6yMUHbEMDHcKzAmO6fHK
+         8b/A==
+X-Forwarded-Encrypted: i=1; AJvYcCVui2PFNeklXMHDjZWvlvBTaiAlgvuf0Nc1MLWoHRMlyYkPo0XV6i7X/2el0IZBDu93ch9iRqGbarY84h3t5Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz3HMUlWMRejn6lRinmf2qqjTlpcupoteOkLul4U3xxaxIkD1MN
+	B7Sakg5No6l1njIbsAWbyQ2uBwz0hjHQ11L880BOi9cRnkq9iLEhPLQvglDGMaF5qCGcSQBH5Ik
+	usQCNi55bMRszi0sIUJN2fpEMosoLzLwi7isNJHBkgunyA1XhU88BqhioHpW2TIWvGUJ0noUV0S
+	cNvg4u2RYQsPzaz+aF7V4rkZpb8XuD7S+8cPg8h7xG49E=
+X-Gm-Gg: ASbGncslEiZfS5npsdWurTH7cdviPsr0/0vgjJxTIsE0A4dU1lYbuC1BDL4P1/OCQG3
+	kNVkb//Yb+FdFM6i0/IoqJ1bbGVcAGLIFcyI0owQ72knp81YDTFkhlQfIJAv2SyePoNoDISNH5+
+	UYf1c6e1fMZmJLzW4OnlI=
+X-Received: by 2002:a17:90b:5487:b0:311:f99e:7f4a with SMTP id 98e67ed59e1d1-31e507cddb3mr2853724a91.26.1753250089047;
+        Tue, 22 Jul 2025 22:54:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFg3YXIMNSjOiKB94IAoqLxFOx4RrEgnsVtpgEXv95MbhQb/qhPbpH2qJwosv2tYiH6S3MUzHPmJV2ZldFCtY8=
+X-Received: by 2002:a17:90b:5487:b0:311:f99e:7f4a with SMTP id
+ 98e67ed59e1d1-31e507cddb3mr2853706a91.26.1753250088576; Tue, 22 Jul 2025
+ 22:54:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtxWrrq-9bW0w4eVyRbXra94oM-fEfPJOeWAOcNZVrjjw@mail.gmail.com>
+References: <20250718091616.6140-1-jasowang@redhat.com> <20250718091616.6140-8-jasowang@redhat.com>
+ <20250718053156-mutt-send-email-mst@kernel.org> <CACGkMEue4Wh3ocM2Pmn5E_nMzjHkJqd-MhYbPDY9pXdwMtqgXQ@mail.gmail.com>
+ <CACGkMEtxWrrq-9bW0w4eVyRbXra94oM-fEfPJOeWAOcNZVrjjw@mail.gmail.com> <20250722131746-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250722131746-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 23 Jul 2025 13:54:37 +0800
+X-Gm-Features: Ac12FXxXu_ZDpFAvHW50BwUk-EMm2aY6L-G-T-sU76NLXVRyb3_-TnJMpl1pFnA
+Message-ID: <CACGkMEt+mLO9xL3LaJE7XJV_-YiUVeJgSm3oWAhDmmvwhfwXfA@mail.gmail.com>
+Subject: Re: [PATCH V4 7/9] vdpa: rename dma_dev to map_token
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, hch@infradead.org, 
+	Christoph Hellwig <hch@lst.de>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1e_GJXP8HsLzB8fO39YGzvLBEaA8Py8HBL2tP-pOL2c_1753205204
+X-Mimecast-MFC-PROC-ID: Y1MRDNOsknzX-Sz4IIQVSLLXan9Z_S44rz7zsLwmdM4_1753250089
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 21, 2025 at 04:05:17PM +0800, Jason Wang wrote:
-> On Fri, Jul 18, 2025 at 6:09 PM Jason Wang <jasowang@redhat.com> wrote:
-> >
-> > On Fri, Jul 18, 2025 at 5:37 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Wed, Jul 23, 2025 at 1:26=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Mon, Jul 21, 2025 at 04:05:17PM +0800, Jason Wang wrote:
+> > On Fri, Jul 18, 2025 at 6:09=E2=80=AFPM Jason Wang <jasowang@redhat.com=
+> wrote:
 > > >
-> > > On Fri, Jul 18, 2025 at 05:16:14PM +0800, Jason Wang wrote:
-> > > > Virtio core switches from DMA device to mapping token, let's do that
-> > > > as well for vDPA.
+> > > On Fri, Jul 18, 2025 at 5:37=E2=80=AFPM Michael S. Tsirkin <mst@redha=
+t.com> wrote:
+> > > >
+> > > > On Fri, Jul 18, 2025 at 05:16:14PM +0800, Jason Wang wrote:
+> > > > > Virtio core switches from DMA device to mapping token, let's do t=
+hat
+> > > > > as well for vDPA.
+> > > >
+> > > > Pls switch to imperative mood.
+> > > >
+> > > > And add explanation about what is going on and why please.
 > > >
-> > > Pls switch to imperative mood.
+> > > I think this has been explained in patch [PATCH V4 6/9] virtio:
+> > > introduce map ops in virtio core?
 > > >
-> > > And add explanation about what is going on and why please.
-> >
-> > I think this has been explained in patch [PATCH V4 6/9] virtio:
-> > introduce map ops in virtio core?
-> >
-> > """
-> > For the device or transport that doesn't do DMA,
-> > they can implement their own mapping logic without the need to trick
-> > DMA core. In this case the map_token is opaque to the virtio core that
-> > will be passed back to the transport or device specific map
-> > operations. For other devices, DMA API will still be used, so map
-> > token will still be the dma device to minimize the changeset and
-> > performance impact.
-> > """
-> >
+> > > """
+> > > For the device or transport that doesn't do DMA,
+> > > they can implement their own mapping logic without the need to trick
+> > > DMA core. In this case the map_token is opaque to the virtio core tha=
+t
+> > > will be passed back to the transport or device specific map
+> > > operations. For other devices, DMA API will still be used, so map
+> > > token will still be the dma device to minimize the changeset and
+> > > performance impact.
+> > > """
 > > >
-> > > At least, document what are the actual types stored here.
+> > > >
+> > > > At least, document what are the actual types stored here.
+> > >
+> > > It is opaque to the virtio core and will be used as a token to be
+> > > passed back when the virtio core wants to map/unmap a buffer. So it
+> > > doesn't have a type.
+> > >
+> > > > I checked and it looks like vduse actually returns struct device * =
+here, too?
+> > >
+> > > It's just a token, vduse can return anything that can be used to
+> > > identify an iova domain. For example, it can return a pointer to
+> > > iova_domain which will also work. If you prefer to use iova domain, I
+> > > can change to use that in the next version.
+> > >
+> > > > So why do we need this, why lose all type safety?
+> > >
+> > > If you worry about the case that assumes map_token as dma device in
+> > > virtio core. I can keep both map_token and dma_device and make the
+> > > mutually exclusive, then:
+> > >
+> > > - when transport reports dma device, use DMA API
+> > > - when transport reports map token, use map ops
+> > >
+> > > Does this work for you?
 > >
-> > It is opaque to the virtio core and will be used as a token to be
-> > passed back when the virtio core wants to map/unmap a buffer. So it
-> > doesn't have a type.
+> > This seems to result in a lot of unnecessary code. I wonder if the
+> > following would work:
 > >
-> > > I checked and it looks like vduse actually returns struct device * here, too?
+> > Just document the requirement in vring_create_virtqueue_map, say
+> > something like when a virtio device doesn't have a map operation,
+> > map_token must be a pointer to struct device.
 > >
-> > It's just a token, vduse can return anything that can be used to
-> > identify an iova domain. For example, it can return a pointer to
-> > iova_domain which will also work. If you prefer to use iova domain, I
-> > can change to use that in the next version.
-> >
-> > > So why do we need this, why lose all type safety?
-> >
-> > If you worry about the case that assumes map_token as dma device in
-> > virtio core. I can keep both map_token and dma_device and make the
-> > mutually exclusive, then:
-> >
-> > - when transport reports dma device, use DMA API
-> > - when transport reports map token, use map ops
-> >
-> > Does this work for you?
-> 
-> This seems to result in a lot of unnecessary code. I wonder if the
-> following would work:
-> 
-> Just document the requirement in vring_create_virtqueue_map, say
-> something like when a virtio device doesn't have a map operation,
-> map_token must be a pointer to struct device.
-> 
-> Please give me some advice so I can work on a new version..
-> 
-> Thanks
-> 
+> > Please give me some advice so I can work on a new version..
 > >
 > > Thanks
+> >
+> > >
+> > > Thanks
+>
+>
+> How about something like this?
+>
+> typedef union {
+>         struct device *dma_dev;
+>         struct vduse_iova_domain *iova_domain;
+>         void *ptr;
+> } virtio_dma_dev_t;
+>
+>
+>
+> Now, just pass this around.
+> You can also add an enum with the pointer:
+>
+> typedef struct {
+>         union {
+>                 struct device *dma_dev;
+>                 struct vduse_iova_domain *iova_domain;
+>                 void *ptr;
+>         };
+>         enum {
+>                 VIRTIO_DMA,
+>                 VIRTIO_IOVA
+>         } type;
+> } virtio_dma_dev_t;
+>
+> (possibly only on debug builds, if you find it's costly?)
 
+I've considered something like this, but it looks more like trying to
+hard-code the runtime type information which I'm not sure we really
+need.
 
-How about something like this?
+Assuming the token or DMA device won't be changed after the probe. Let
+the transport to report one of the dma_dev or mapping_token should be
+sufficient.
 
-typedef union {
-	struct device *dma_dev;
-	struct vduse_iova_domain *iova_domain;
-	void *ptr;
-} virtio_dma_dev_t;
+Let me try and see.
 
+Thanks
 
-
-Now, just pass this around.
-You can also add an enum with the pointer:
-
-typedef struct {
-	union {
-		struct device *dma_dev;
-		struct vduse_iova_domain *iova_domain;
-		void *ptr;
-	};
-	enum {
-		VIRTIO_DMA,
-		VIRTIO_IOVA
-	} type;
-} virtio_dma_dev_t;
-
-(possibly only on debug builds, if you find it's costly?)
-
-This allows encapsulation and asserts that the type is right.
-
-
--- 
-MST
+>
+> This allows encapsulation and asserts that the type is right.
+>
+>
+> --
+> MST
+>
 
