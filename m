@@ -1,78 +1,82 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5533E2DEA87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA49E258CF8
 	for <virtualization@lists.linux.dev>; Thu, 24 Jul 2025 14:37:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753367849; cv=none; b=ScWb8rhSq3CitG7t5Q/a2fhM/o7MxFuGtYWHzRzW3nfCJu+oO7HEg7Xwm5b46tRQuOWwMbTwEmZyx5Z4YiHPUOp1DZfe/Sprfw+nsceWwftz+ZXqBSQY5VZiPzUhBTYdxqXhRLXYiXJ8yZwwrkeh2n8NJiSlHfkch+UDZnQuoNM=
+	t=1753367850; cv=none; b=CwAkSB4DlFQWOj+gWRWdCU8iFX4zn63CGgjZCcVFUmprn9e1XMvlCgpc7DDONjqUjMcAfd7IAxJi2FjEc9ijtsSXHUL8xZWtKS1BixPioZCv6cqn8iRigcKl/mrA1ExnFy8QR+CP8eKsHJxSvCI9yLEL0nqwM7vpOGLUyOF8A8A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753367849; c=relaxed/simple;
-	bh=iKpdDrV3kOuTOMc9bKV37vH2GuPaHLNQYpIK298DPUg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HE31/bZW43yORF3G6rmolTAUgvLeHQ9oNi9V2Zl9PN366/r8LMc/Q4b5u1FiCWnwgDY7zYV5jbV3f/TX/FawwNeXUvZKZF5oENBRygXubgwWyxK+eAeBBfvNNJ9mNepDZbZAVtAvXWtwADALclzfdzuvj9qJtB/UIgqufnEr/Z8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Xhbmu1O9; arc=none smtp.client-ip=205.220.168.131
+	s=arc-20240116; t=1753367850; c=relaxed/simple;
+	bh=i1slLS6fKL6k/lJjpB1zEBUCWviGCPU4GQH5Mw9K1LE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ZgTouUv0rEcXDFpVloAWZv0hr16MlmjztsGuWz3c9xJbUT5fXE3OpxADceqMTjA7qNOWFW2AjiDRAjl3S/95rZgGfWLxajYMxFCZfKUmSEbDZNOQ+l74Daz23PvPuMwSbgC5sVHwaR6Lk3ia00fuo1E0M80Al4n5gYgKl0Ss73I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=nJNUZb2M; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Xhbmu1O9"
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56O9fjiv010362
-	for <virtualization@lists.linux.dev>; Thu, 24 Jul 2025 14:37:27 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="nJNUZb2M"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56O9afNB029601
+	for <virtualization@lists.linux.dev>; Thu, 24 Jul 2025 14:37:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=XR+fnHt/cqBwBuufCMHCP6JVhgYBVarZl6G
-	D88IpMe0=; b=Xhbmu1O9XrQSBkuApyIbBeOUQ5dV+hozQWqvPq1eHl0bWT//51a
-	Uq0SGquOrhR8V/lelPmCfREeZQ8AQHts3oGiEHgCuajusctPIaGG875wtO02+esi
-	HOtULLor6lThCHfGhZTfNayT8UbUIuH1MHIcDzuDV+HhYWhwQDZ9dkrkTCocUSUl
-	ViEEOo+qqmODjqXdYBwRjrhUmoH0XrifcIRxqzrm/gmkJaD1KYPPdDedaCoUMV3k
-	Rf0VUwiloug3NktoSTHYnuJxyggp5+tD0mcVjGtfXDh/ktkDVgwSWkuklgr2urRU
-	8fjzBAkjplcfyodESlyLo/xCjC5+yHXRjNg==
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com [209.85.219.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 481t6wa7y7-1
+	cc:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=qcppdkim1; bh=1/ClJdrWPfw
+	KRkRpbRRXkAMnaqMIpW6RqyjsVq8yU5M=; b=nJNUZb2MHMlazo/lHBTTkx7RVqD
+	mKkM1XLOTUjLVxHwwO6ntu5k5NMLGeu3GfWfeExSsH4CoG18PYbY2sRQZwk6GepE
+	kKJnegj1qnrJ9987J981svWV6MRgM5b4e7lhl0k3JWRT/0Jsiq74Mt0sZCIoFjoz
+	WzunazjjNXLOQyIBbthmKudOX/0HTUd3oKj7vZgQOiexnSKaqCApet/I4mW4AXh7
+	sJOhS0RpouMRpufAsY8vfP1N+Jkfgmx2iVB3rwgPS+2EazMnGYACZFEdT+/nr0Cw
+	TXwOKZIkQ1w9XlFcueMIDTmmQENAQ9g9sJ6PbIXm5simWPnD8+deTD6gRRA==
+Received: from mail-vk1-f199.google.com (mail-vk1-f199.google.com [209.85.221.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4826t1gcyj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
 	for <virtualization@lists.linux.dev>; Thu, 24 Jul 2025 14:37:27 +0000 (GMT)
-Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-6face45b58dso16765826d6.3
+Received: by mail-vk1-f199.google.com with SMTP id 71dfb90a1353d-53169549f5aso366643e0c.1
         for <virtualization@lists.linux.dev>; Thu, 24 Jul 2025 07:37:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753367846; x=1753972646;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=XR+fnHt/cqBwBuufCMHCP6JVhgYBVarZl6GD88IpMe0=;
-        b=P80wi+mPT8iZI0txBcU62FJEohkWkKYbJoX8YsbNpGvpAeKovHmgEdjksuMT0Md5tz
-         N36T2wkXn/Is18M4gGrC7Saw8T4gGPSZkQ3MHCwHNResaA5yCk/J9It2CJDW6WS0UPxX
-         VhQnNawfLJtnVff61JtpU4g8KUZrOeKrhKgpEDlL0lmBOezaWLPnMGP61jJtkcoNTiId
-         NNJq3SoJhF6uuo4Skk+lkGbPRG5u7ci7PGM0MqOS60urY7p8rrSOLLxjQsTqDYKsl1xe
-         dwq1U4U2JeWVpDIrBr9R7hJIvd6kPt7X18eYDkFaywtj+oFOnWJWkypf2pFchxLAuqfK
-         TjFg==
-X-Forwarded-Encrypted: i=1; AJvYcCW919nCEx4B4vOVsT/DXjsxHhuBSmLZAr+pH3poLkoV7weSUmcRfUDGhsOfZIl5e3xq7mOdEwdZHWu2re/1QQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy5+/TEv2ZoBBWqbBp1O2zsi/7Fg5F68GmD2oWzunb1zV1oY1qk
-	q1y/9GhLHgMiRoYWjBKgKLNUgj+wiCe3kZM2AMBaj+QU1IS/OHRI4t+8MDpMXzwV+itsxAXSRpJ
-	XWHIdw0ITJmURGl2HAsBFODRo5RTX9kqxc46zdC1tA07i332tUzsblzNNBgOmlUo7RTrGPw==
-X-Gm-Gg: ASbGncsSg2lfgRZOax0NzSKcffD+UkJae8nhJggfrNLqtMoultpQmijJjt2yDLSFwm0
-	GVNCFTLKPujPGvupAgQaneRu73xqw8T1xtlgdQh2bdCXhWOsMNqu0edxhxKHpHqvIIUr4PP5sa/
-	A4IMd3mcdx1VzWkeETsPTvfACp9YVcqezjeRNO809HzIVhju+HRAqnP49Lk7EtOD0yytr3yW/Uo
-	mkw1/KnCwxlppui6RXJTZ7wfqaV9Qst4ssEf45AMUDJm19JbbpZLmUxwxT8noK+RFheLLTETUyv
-	uZ1wBCVsn1VndILuKUHfi2JdBSGKuWH1lGbfpmAfTU+pY0rBj47CCE8/F1cioczxzQ==
-X-Received: by 2002:a05:6214:1e3:b0:707:826:1ab5 with SMTP id 6a1803df08f44-70708261c32mr74163166d6.40.1753367845533;
-        Thu, 24 Jul 2025 07:37:25 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEc5FI+9v6XLNucNriGBwsIEQ9dZNlTaDhhPu74MX9L6L2A3ovmGB0HEuxN22mlYUvA2rHdHA==
-X-Received: by 2002:a05:6214:1e3:b0:707:826:1ab5 with SMTP id 6a1803df08f44-70708261c32mr74162576d6.40.1753367844954;
-        Thu, 24 Jul 2025 07:37:24 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1753367847; x=1753972647;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1/ClJdrWPfwKRkRpbRRXkAMnaqMIpW6RqyjsVq8yU5M=;
+        b=wEDddZliQ3YJ/I/caJ8z1ZofVksBz1vcKQW4hsBP59fWOf/esYZXqSaRLXr0obSiUg
+         Oq2f5LP49CxSaspXqsQ9v+EvGX0Jqqz+qszVLHq2HtEtapIredCXFgMkFWidpeQMJZVT
+         hIPAu11FfkblwnJ3MCIGeUsKyc3588KPhT1UY4iwCfEMH63MIeYnArDPfUB/NifYAf0P
+         tJNlFOgUtaN+FYV0smHX2Mj/2eCVBuOK6qKh8I/DTKIQZZqaVScsXusstZK0oXlsehwc
+         QBYB+EDnxUFx0nnNKeHwmN5vx++8LWUhDto0NtVMckm52wTWxgma1UaScQqqfMOYzZm9
+         RSUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWNirZnX3Nb1OXUENRFG+nWt7A8ItJCH0+ZGJhFJ9aIJ57AEbHsTeLlBiGF7iNVGeUAm2Hl3iw4j5RlngDBEQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxmdgyrwNEqnwin/39DbxIgdlyddQZxv0Fcxz1aiKy/sRdId3yq
+	YKM4n7hHrZ3I2qCC6/jDDBXLlf8zHv+ZA9TpKc1+tka7g6FCzquaBa7dBOsYCmvbtEjZzGCK3US
+	BO0+qTmSipIgsKOGT4nI9k6QcnjoXNaBYRMU4lq6GrLsaGWxVymHzgFn9ats+ASoXU07Skg==
+X-Gm-Gg: ASbGncu4ABHdpRI2WetxYiOyIOwmTxGTo19pwiDTO5G0ZZp4+lwtBqraTH1WUCPLBNJ
+	FlgpYwFTr0jpGrdhwiGe1/ZgLy1qZxdCJmjIEJCYOA2eQ8oB6wfANST+STid6IEaak3N0XSJgkO
+	CIg7/RJ2fqKGciIG1gION8qPoQxdpfRa0yHb1765vvYRS/S6SssyolRR1tg7URO6jPFMqbsa2sw
+	5fuXiGmOojCSzSEB5fZhjvzC7xU4WzxKO15zPxnvQoLNIDzXt2TDVWbp8VSUpzGuSqod19GVdaG
+	sjxhm+BhtIOCBitoQUKr6JtWBGV5s1Fjy4bTZ7cXVoEE4YpzVyaEMs42lOZPyZrI7Q==
+X-Received: by 2002:a05:6122:509:b0:531:2f51:7676 with SMTP id 71dfb90a1353d-537af565921mr3835506e0c.9.1753367846785;
+        Thu, 24 Jul 2025 07:37:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEFC9QgriQyVRZksDj1oB9q4RdVIKez8rc+GtzAgwBhWM1KCgo2TsHI0fM64ZXC1O2Pn7YiEg==
+X-Received: by 2002:a05:6122:509:b0:531:2f51:7676 with SMTP id 71dfb90a1353d-537af565921mr3835474e0c.9.1753367846304;
+        Thu, 24 Jul 2025 07:37:26 -0700 (PDT)
 Received: from HMOMMER.na.qualcomm.com ([212.136.9.4])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af47c495f02sm122856266b.2.2025.07.24.07.37.23
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af47c495f02sm122856266b.2.2025.07.24.07.37.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Jul 2025 07:37:24 -0700 (PDT)
+        Thu, 24 Jul 2025 07:37:25 -0700 (PDT)
 From: Harald Mommer <harald.mommer@oss.qualcomm.com>
 To: Enrico Weigelt <info@metux.net>, Viresh Kumar <vireshk@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <brgl@bgdev.pl>
 Cc: linux-gpio@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/1] gpio: virtio: Fix config space reading.
-Date: Thu, 24 Jul 2025 16:36:52 +0200
-Message-ID: <20250724143718.5442-1-harald.mommer@oss.qualcomm.com>
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH v2 1/1] gpio: virtio: Fix config space reading.
+Date: Thu, 24 Jul 2025 16:36:53 +0200
+Message-ID: <20250724143718.5442-2-harald.mommer@oss.qualcomm.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20250724143718.5442-1-harald.mommer@oss.qualcomm.com>
+References: <20250724143718.5442-1-harald.mommer@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,39 +84,71 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Authority-Analysis: v=2.4 cv=SPpCVPvH c=1 sm=1 tr=0 ts=68824527 cx=c_pps
- a=wEM5vcRIz55oU/E2lInRtA==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
- a=Wb1JkmetP80A:10 a=OcK3cvsEmbn26l3-tBAA:9 a=ZXulRonScM0A:10
- a=OIgjcC2v60KrkQgK7BGD:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzI0MDExMSBTYWx0ZWRfXzHv2k2kq+rUS
- 8X8FaAvqDKiN7zL74NnYzuTHwdZ1yP9IT4rfJ4AKJTMuFfSxpMe1HoBdVgQL7pfeL0HYqLJAL4r
- 5tgZQ+j+pm+wWLBN+sHzFABbVTdqXyd4Tdghehsvbv2XJGLtMV8S2nut1QgRvTjSSIhAdGu9Qja
- n58dz3whB9ft3+wR1WjS0ry8RQZG/t5JaSQw4TIclG/IUO9NUOBaY2H3xybcuAbnyQm61XiHUKM
- Y6c+Lk7IvBTWV5//A1p4U0cvj2UZxYvkQiBMY0RMu3hjaZIPq1n6QpHPZKOxGvN83CNc2Ak9Rh2
- njJHxhCn2R+hBTcUkPepyrAZ5pjVpaLQoqAryjzzRHTzn3pYADi9HCq6KpQzH7bkdJrIOgG+zUJ
- a8963f+fxzzl5qCclmUjM/C/OUtjhzHlNB7nwAUKiK+s5Gvsiy5OWMb8LXoJ2kKqE20Wqfx0
-X-Proofpoint-ORIG-GUID: eDGyxlIlvzt4IVGeV7Fs3OwXSq6ZyiO7
-X-Proofpoint-GUID: eDGyxlIlvzt4IVGeV7Fs3OwXSq6ZyiO7
+X-Proofpoint-GUID: 2vx03LyIbvt7kNexG9nKXqTmXzZj0i3i
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzI0MDExMSBTYWx0ZWRfX5XvUeeK2dKTJ
+ 5ZmeIq5WJqgASom3IdII79eKiznOCI0rkg9uyHnJNW1I1+zCBbMxARhl4xXGCj0bNnuFxLTKbgp
+ 6G357YLim3IlrSlZDZ/GleWW7gvHAb47P/DjoyePC4dGqMAJMEBDa20p2c690RNwBnAdg0qxeMv
+ zw4A6JOY3ruZo6jdMu/fRA7ePIsSJZE+EVVaQbq6hmVBVucUo7xZ7VPrZTvOGruGWHQUyitGgCM
+ chzmkXpGvYFPZeDz7NLCcL4+63k2UHkJuXA3oszpYwLlH4a8v/O/rpcUVMlR9O1h9ESvu0rxfSl
+ WxdFQtptHdaxFbSn4P613cbOGDIkytLNxIvRTHe2e/HMqHzHWnX7vu+11MIpCkGkysa6FD6wWIZ
+ bbsWPDfE4b3g8sSSqJhGX64EzoSCtYP5et6SlBQnoaIreLbjGd4WcrSmjGR8lil47A6PZKZr
+X-Authority-Analysis: v=2.4 cv=E8/Npbdl c=1 sm=1 tr=0 ts=68824527 cx=c_pps
+ a=+D9SDfe9YZWTjADjLiQY5g==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
+ a=Wb1JkmetP80A:10 a=EUspDBNiAAAA:8 a=VwQbUJbxAAAA:8 a=KKAkSRfTAAAA:8
+ a=x8YHxakxDffKOoiCecoA:9 a=vmgOmaN-Xu0dpDh8OwbV:22 a=cvBusfyB2V15izCimMoJ:22
+X-Proofpoint-ORIG-GUID: 2vx03LyIbvt7kNexG9nKXqTmXzZj0i3i
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-07-24_02,2025-07-24_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 adultscore=0 phishscore=0 malwarescore=0
- mlxscore=0 bulkscore=0 clxscore=1015 priorityscore=1501 impostorscore=0
- lowpriorityscore=0 mlxlogscore=938 classifier=spam authscore=0 authtc=n/a
- authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2505280000 definitions=main-2507240111
+ impostorscore=0 malwarescore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
+ priorityscore=1501 adultscore=0 suspectscore=0 clxscore=1015 phishscore=0
+ mlxlogscore=999 mlxscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2507240111
 
-Fix for Virtio GPIO Linux driver
+Quote from the virtio specification chapter 4.2.2.2:
 
-The Virtio GPIO Linux driver reads the configuration space in a way not
-conformant with the virtio specification. The hypervisor we are using is
-strict in what it accepts so the current behavior causes a problem.
+"For the device-specific configuration space, the driver MUST use 8 bit
+wide accesses for 8 bit wide fields, 16 bit wide and aligned accesses
+for 16 bit wide fields and 32 bit wide and aligned accesses for 32 and
+64 bit wide fields."
 
-Builds on top of gpio/for-next, tested on Linux v6.5.7.
+Signed-off-by: Harald Mommer <harald.mommer@oss.qualcomm.com>
+Cc: stable@vger.kernel.org
+Fixes: 3a29355a22c0 ("gpio: Add virtio-gpio driver")
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ drivers/gpio/gpio-virtio.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-- Add CC: to stable as requested
-- Add Fixes: in commit message as requested.
-  (Problem is present from the beginning and was not introcuced later)
-- Add Acked-by: from Viresh Kumar to the commit message
-- No further changes to the patch itself
+diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
+index 92b456475d89..07552611da98 100644
+--- a/drivers/gpio/gpio-virtio.c
++++ b/drivers/gpio/gpio-virtio.c
+@@ -527,7 +527,6 @@ static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio,
+ 
+ static int virtio_gpio_probe(struct virtio_device *vdev)
+ {
+-	struct virtio_gpio_config config;
+ 	struct device *dev = &vdev->dev;
+ 	struct virtio_gpio *vgpio;
+ 	struct irq_chip *gpio_irq_chip;
+@@ -540,9 +539,11 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
+ 		return -ENOMEM;
+ 
+ 	/* Read configuration */
+-	virtio_cread_bytes(vdev, 0, &config, sizeof(config));
+-	gpio_names_size = le32_to_cpu(config.gpio_names_size);
+-	ngpio = le16_to_cpu(config.ngpio);
++	gpio_names_size =
++		virtio_cread32(vdev, offsetof(struct virtio_gpio_config,
++					      gpio_names_size));
++	ngpio =  virtio_cread16(vdev, offsetof(struct virtio_gpio_config,
++					       ngpio));
+ 	if (!ngpio) {
+ 		dev_err(dev, "Number of GPIOs can't be zero\n");
+ 		return -EINVAL;
+-- 
+2.43.0
+
