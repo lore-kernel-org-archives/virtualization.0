@@ -1,154 +1,116 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA49E258CF8
-	for <virtualization@lists.linux.dev>; Thu, 24 Jul 2025 14:37:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D5A1E5B6F;
+	Thu, 24 Jul 2025 17:24:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753367850; cv=none; b=CwAkSB4DlFQWOj+gWRWdCU8iFX4zn63CGgjZCcVFUmprn9e1XMvlCgpc7DDONjqUjMcAfd7IAxJi2FjEc9ijtsSXHUL8xZWtKS1BixPioZCv6cqn8iRigcKl/mrA1ExnFy8QR+CP8eKsHJxSvCI9yLEL0nqwM7vpOGLUyOF8A8A=
+	t=1753377847; cv=none; b=odL1O3z1g9ixN6v67dkE7zbMCaATu1H+VwG+C3gGbEUdbhIH1n0JSDX4acAGaIFLEPHJKP6Zp3rClP9DT+zfa84DCZS100tfAS0ZWi5qAfbhXUcAGZEK87nEuoes7yUqi1dtN11hEdwyvUe58LtMVSd18lw+Iuj5OP2L4C4Q9XQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753367850; c=relaxed/simple;
-	bh=i1slLS6fKL6k/lJjpB1zEBUCWviGCPU4GQH5Mw9K1LE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZgTouUv0rEcXDFpVloAWZv0hr16MlmjztsGuWz3c9xJbUT5fXE3OpxADceqMTjA7qNOWFW2AjiDRAjl3S/95rZgGfWLxajYMxFCZfKUmSEbDZNOQ+l74Daz23PvPuMwSbgC5sVHwaR6Lk3ia00fuo1E0M80Al4n5gYgKl0Ss73I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=nJNUZb2M; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1753377847; c=relaxed/simple;
+	bh=NSPDTm3RpSgjTZrzLusFL5QBI95JaHmhAin4q3oEx3s=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=g2f6MiUTLwwden+K2YVSFptMafr++qRBxh51buvfcOF2cxwaV06zFZEV9H+nDRJhMGHS7a/LIYVZ0oexQ0uaSdrFn4oXlEjWx9urWRDR2uY98VZA+GpI+LOu7806C/qPN/GKlKs7+SoUpUrEQgBQOvCLhAn/mJN8JSF6xk81YT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z/gwTcWu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="nJNUZb2M"
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56O9afNB029601
-	for <virtualization@lists.linux.dev>; Thu, 24 Jul 2025 14:37:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=qcppdkim1; bh=1/ClJdrWPfw
-	KRkRpbRRXkAMnaqMIpW6RqyjsVq8yU5M=; b=nJNUZb2MHMlazo/lHBTTkx7RVqD
-	mKkM1XLOTUjLVxHwwO6ntu5k5NMLGeu3GfWfeExSsH4CoG18PYbY2sRQZwk6GepE
-	kKJnegj1qnrJ9987J981svWV6MRgM5b4e7lhl0k3JWRT/0Jsiq74Mt0sZCIoFjoz
-	WzunazjjNXLOQyIBbthmKudOX/0HTUd3oKj7vZgQOiexnSKaqCApet/I4mW4AXh7
-	sJOhS0RpouMRpufAsY8vfP1N+Jkfgmx2iVB3rwgPS+2EazMnGYACZFEdT+/nr0Cw
-	TXwOKZIkQ1w9XlFcueMIDTmmQENAQ9g9sJ6PbIXm5simWPnD8+deTD6gRRA==
-Received: from mail-vk1-f199.google.com (mail-vk1-f199.google.com [209.85.221.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4826t1gcyj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Thu, 24 Jul 2025 14:37:27 +0000 (GMT)
-Received: by mail-vk1-f199.google.com with SMTP id 71dfb90a1353d-53169549f5aso366643e0c.1
-        for <virtualization@lists.linux.dev>; Thu, 24 Jul 2025 07:37:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753367847; x=1753972647;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1/ClJdrWPfwKRkRpbRRXkAMnaqMIpW6RqyjsVq8yU5M=;
-        b=wEDddZliQ3YJ/I/caJ8z1ZofVksBz1vcKQW4hsBP59fWOf/esYZXqSaRLXr0obSiUg
-         Oq2f5LP49CxSaspXqsQ9v+EvGX0Jqqz+qszVLHq2HtEtapIredCXFgMkFWidpeQMJZVT
-         hIPAu11FfkblwnJ3MCIGeUsKyc3588KPhT1UY4iwCfEMH63MIeYnArDPfUB/NifYAf0P
-         tJNlFOgUtaN+FYV0smHX2Mj/2eCVBuOK6qKh8I/DTKIQZZqaVScsXusstZK0oXlsehwc
-         QBYB+EDnxUFx0nnNKeHwmN5vx++8LWUhDto0NtVMckm52wTWxgma1UaScQqqfMOYzZm9
-         RSUQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWNirZnX3Nb1OXUENRFG+nWt7A8ItJCH0+ZGJhFJ9aIJ57AEbHsTeLlBiGF7iNVGeUAm2Hl3iw4j5RlngDBEQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxmdgyrwNEqnwin/39DbxIgdlyddQZxv0Fcxz1aiKy/sRdId3yq
-	YKM4n7hHrZ3I2qCC6/jDDBXLlf8zHv+ZA9TpKc1+tka7g6FCzquaBa7dBOsYCmvbtEjZzGCK3US
-	BO0+qTmSipIgsKOGT4nI9k6QcnjoXNaBYRMU4lq6GrLsaGWxVymHzgFn9ats+ASoXU07Skg==
-X-Gm-Gg: ASbGncu4ABHdpRI2WetxYiOyIOwmTxGTo19pwiDTO5G0ZZp4+lwtBqraTH1WUCPLBNJ
-	FlgpYwFTr0jpGrdhwiGe1/ZgLy1qZxdCJmjIEJCYOA2eQ8oB6wfANST+STid6IEaak3N0XSJgkO
-	CIg7/RJ2fqKGciIG1gION8qPoQxdpfRa0yHb1765vvYRS/S6SssyolRR1tg7URO6jPFMqbsa2sw
-	5fuXiGmOojCSzSEB5fZhjvzC7xU4WzxKO15zPxnvQoLNIDzXt2TDVWbp8VSUpzGuSqod19GVdaG
-	sjxhm+BhtIOCBitoQUKr6JtWBGV5s1Fjy4bTZ7cXVoEE4YpzVyaEMs42lOZPyZrI7Q==
-X-Received: by 2002:a05:6122:509:b0:531:2f51:7676 with SMTP id 71dfb90a1353d-537af565921mr3835506e0c.9.1753367846785;
-        Thu, 24 Jul 2025 07:37:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEFC9QgriQyVRZksDj1oB9q4RdVIKez8rc+GtzAgwBhWM1KCgo2TsHI0fM64ZXC1O2Pn7YiEg==
-X-Received: by 2002:a05:6122:509:b0:531:2f51:7676 with SMTP id 71dfb90a1353d-537af565921mr3835474e0c.9.1753367846304;
-        Thu, 24 Jul 2025 07:37:26 -0700 (PDT)
-Received: from HMOMMER.na.qualcomm.com ([212.136.9.4])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af47c495f02sm122856266b.2.2025.07.24.07.37.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Jul 2025 07:37:25 -0700 (PDT)
-From: Harald Mommer <harald.mommer@oss.qualcomm.com>
-To: Enrico Weigelt <info@metux.net>, Viresh Kumar <vireshk@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-gpio@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH v2 1/1] gpio: virtio: Fix config space reading.
-Date: Thu, 24 Jul 2025 16:36:53 +0200
-Message-ID: <20250724143718.5442-2-harald.mommer@oss.qualcomm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20250724143718.5442-1-harald.mommer@oss.qualcomm.com>
-References: <20250724143718.5442-1-harald.mommer@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z/gwTcWu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B27EC4CEF1;
+	Thu, 24 Jul 2025 17:24:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1753377846;
+	bh=NSPDTm3RpSgjTZrzLusFL5QBI95JaHmhAin4q3oEx3s=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Z/gwTcWuN+DoliAeu/v98641wE29hhdgY1gEOj4PN3z/ZvVwFgmxNcy45TwtVfA9H
+	 GDueToHR64nwd4XmOREBX8ozpp3E4dbk421fDykzUeZZNcYD8Ovbk+f55QOniMe2jW
+	 Q+9jSl1/Eo1OFrYkF2azqNSnlXIuVUDuRQksad823aBzXQzi44Sgc0Je+nPrYdOVF5
+	 +eAPase7hR9aMNtrHqp573OKDpSnwbLMpmeqgDeriZCUTvMzIT+lwwamgfSpIAUOnz
+	 XD7qfzRsQpT4XGkuNIXj3oV8E5s6RSIE3mbgg+8bpXtbeQHbzTOQITkiNoEWMv8EPS
+	 AP5v7Xh/k3yQA==
+Date: Thu, 24 Jul 2025 19:24:00 +0200
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To: Ricardo Ribalda <ribalda@chromium.org>, Alexandre Courbot
+ <gnurou@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil
+ <hverkuil@xs4all.nl>, Albert Esteve <aesteve@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, gurchetansingh@google.com,
+ daniel.almeida@collabora.com, adelva@google.com, changyeon@google.com,
+ nicolas.dufresne@collabora.com, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org, virtualization@lists.linux.dev, Alexandre
+ Courbot <acourbot@google.com>
+Subject: Re: [PATCH v3] media: add virtio-media driver
+Message-ID: <20250724191833.253b8f40@foz.lan>
+In-Reply-To: <CANiDSCt9nGP=r8VxkZH76a1i+xEd+RCJ71=6qx0_iPYdrn+GoQ@mail.gmail.com>
+References: <20250412-virtio-media-v3-1-97dc94c18398@gmail.com>
+	<CANiDSCsmbiveo4GHX54_q7-1CeKiDAVaGnb8+jsCybM+pyA7Fw@mail.gmail.com>
+	<20250601113425.4d5a3d89@foz.lan>
+	<CANiDSCt9nGP=r8VxkZH76a1i+xEd+RCJ71=6qx0_iPYdrn+GoQ@mail.gmail.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: 2vx03LyIbvt7kNexG9nKXqTmXzZj0i3i
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzI0MDExMSBTYWx0ZWRfX5XvUeeK2dKTJ
- 5ZmeIq5WJqgASom3IdII79eKiznOCI0rkg9uyHnJNW1I1+zCBbMxARhl4xXGCj0bNnuFxLTKbgp
- 6G357YLim3IlrSlZDZ/GleWW7gvHAb47P/DjoyePC4dGqMAJMEBDa20p2c690RNwBnAdg0qxeMv
- zw4A6JOY3ruZo6jdMu/fRA7ePIsSJZE+EVVaQbq6hmVBVucUo7xZ7VPrZTvOGruGWHQUyitGgCM
- chzmkXpGvYFPZeDz7NLCcL4+63k2UHkJuXA3oszpYwLlH4a8v/O/rpcUVMlR9O1h9ESvu0rxfSl
- WxdFQtptHdaxFbSn4P613cbOGDIkytLNxIvRTHe2e/HMqHzHWnX7vu+11MIpCkGkysa6FD6wWIZ
- bbsWPDfE4b3g8sSSqJhGX64EzoSCtYP5et6SlBQnoaIreLbjGd4WcrSmjGR8lil47A6PZKZr
-X-Authority-Analysis: v=2.4 cv=E8/Npbdl c=1 sm=1 tr=0 ts=68824527 cx=c_pps
- a=+D9SDfe9YZWTjADjLiQY5g==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
- a=Wb1JkmetP80A:10 a=EUspDBNiAAAA:8 a=VwQbUJbxAAAA:8 a=KKAkSRfTAAAA:8
- a=x8YHxakxDffKOoiCecoA:9 a=vmgOmaN-Xu0dpDh8OwbV:22 a=cvBusfyB2V15izCimMoJ:22
-X-Proofpoint-ORIG-GUID: 2vx03LyIbvt7kNexG9nKXqTmXzZj0i3i
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-07-24_02,2025-07-24_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 malwarescore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
- priorityscore=1501 adultscore=0 suspectscore=0 clxscore=1015 phishscore=0
- mlxlogscore=999 mlxscore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507240111
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Quote from the virtio specification chapter 4.2.2.2:
+Em Sun, 1 Jun 2025 12:01:22 +0200
+Ricardo Ribalda <ribalda@chromium.org> escreveu:
 
-"For the device-specific configuration space, the driver MUST use 8 bit
-wide accesses for 8 bit wide fields, 16 bit wide and aligned accesses
-for 16 bit wide fields and 32 bit wide and aligned accesses for 32 and
-64 bit wide fields."
+> Hi Mauro
+> 
+> On Sun, 1 Jun 2025 at 11:34, Mauro Carvalho Chehab
+> <mchehab+huawei@kernel.org> wrote:
+> >
+> > Em Wed, 28 May 2025 18:23:02 +0200
+> > Ricardo Ribalda <ribalda@chromium.org> escreveu:
+> >  
+> > > > +static int scatterlist_builder_add_userptr(struct scatterlist_builder *builder,
+> > > > +                                          unsigned long userptr,
+> > > > +                                          unsigned long length)
+> > > > +{
+> > > > +       int ret;
+> > > > +       int nents;  
+> > > Could you initialize nents and sg_list?
+> > > old versions of gcc are a bit picky
+> > > https://gitlab.freedesktop.org/linux-media/users/ribalda/-/jobs/77042562#L4381  
+> >
+> > Please don't. In this specific case, ret is always initialized:
+> >  
+> > > +       struct virtio_media_sg_entry *sg_list;
+> > > +
+> > > +       ret = __scatterlist_builder_add_userptr(builder, userptr, length,
+> > > +                                               &sg_list, &nents);  
+> >
+> > nents and sg_list may or may not be initialized at the function,
+> > but initializing it is wrong, as, when they are not initialized, the
+> > ret code shall catch it (and if not, we *do* want gcc to warn).
+> >
+> > So, if our CI is warning about that due to an old version, please upgrade
+> > the version at the CI runner.  
+> 
+> The main version of gcc works fine. It is the minimal version (8.1) required by
+> https://www.kernel.org/doc/html/next/process/changes.html
+> that  complains.
 
-Signed-off-by: Harald Mommer <harald.mommer@oss.qualcomm.com>
-Cc: stable@vger.kernel.org
-Fixes: 3a29355a22c0 ("gpio: Add virtio-gpio driver")
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Ricardo, 
+
+gcc 8.1 was released in May 2, 2018. I don't think it makes sense to
+address bogus warnings with that old gcc versions. I would just disable
+WERROR for such versions on our CI tests.
+
 ---
- drivers/gpio/gpio-virtio.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-index 92b456475d89..07552611da98 100644
---- a/drivers/gpio/gpio-virtio.c
-+++ b/drivers/gpio/gpio-virtio.c
-@@ -527,7 +527,6 @@ static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio,
- 
- static int virtio_gpio_probe(struct virtio_device *vdev)
- {
--	struct virtio_gpio_config config;
- 	struct device *dev = &vdev->dev;
- 	struct virtio_gpio *vgpio;
- 	struct irq_chip *gpio_irq_chip;
-@@ -540,9 +539,11 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 		return -ENOMEM;
- 
- 	/* Read configuration */
--	virtio_cread_bytes(vdev, 0, &config, sizeof(config));
--	gpio_names_size = le32_to_cpu(config.gpio_names_size);
--	ngpio = le16_to_cpu(config.ngpio);
-+	gpio_names_size =
-+		virtio_cread32(vdev, offsetof(struct virtio_gpio_config,
-+					      gpio_names_size));
-+	ngpio =  virtio_cread16(vdev, offsetof(struct virtio_gpio_config,
-+					       ngpio));
- 	if (!ngpio) {
- 		dev_err(dev, "Number of GPIOs can't be zero\n");
- 		return -EINVAL;
--- 
-2.43.0
+Alexandre/Michael,
 
+I need a couple of full days to properly review virtio-media. 
+I was planning to do it during this Kernel cycle, but I ended
+allocating too much time just to be able to create a crossvm
+that would allow testing it. Afterwards, I got sidetracked with other 
+issues. I won't be able to review it in time for this merge window.
+
+I'm planning to do it at the beginning of the next merge cycle.
+
+Thanks,
+Mauro
