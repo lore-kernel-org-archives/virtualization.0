@@ -1,192 +1,111 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4D20224B1F
-	for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 07:55:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04C9D253F12
+	for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 08:10:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753430124; cv=none; b=LkWdn6HM4guROx6NF+CbKOhoR3FnPmlKGJ2z21CcZ8R4vysAQkIWQE14+HT+WDqeMofpmV6TFUBaubDX7/FTdNQ5I4BEpaKXmISBzP4/a3ZPOoe+2JZjbBr/crZOtEsHOi7FTdkCFCZUKED3RwJHU2WbYlSwFagRpVsDqpn3ayc=
+	t=1753431050; cv=none; b=plNlrhytsN8unMeOmuNZpq+z+LjbZv4LLFkUFKHgKdizb5wjrp6mqf5xwycbzmWm1ubDH01I3CWbXOfZqR28INDvrB5D91F2Elm2JwuDtgkr96ZNMSmHufE8x46rj4itLDZ5o9Y0kQcSLktWE4nA7jg6uCMM7n5E++TqKg1uOGQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753430124; c=relaxed/simple;
-	bh=dkLDUErdQqDtqWWpzqfVlXVVNCgpMZAZKx0UhRIwXEY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=eggq64CVdGf7nuh+CoWFEfEqnESEcqXGEWBnD/HXJhEIyDXMmEqD2HNzj//BT0Gc80DqBwhKwnvNK/nNLZL/eDRYTeNoJhH8Vfhdcdg3mzAqXpB41/n26jq/I8So/XvGiTShyXl3tC4bkWEKIsm7hcmpCOpD9F/XMMCEKjnrbNg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.252])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4bpKmN3SDzz14M01;
-	Fri, 25 Jul 2025 15:50:28 +0800 (CST)
-Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
-	by mail.maildlp.com (Postfix) with ESMTPS id 4B0C6180B66;
-	Fri, 25 Jul 2025 15:55:19 +0800 (CST)
-Received: from [10.174.176.70] (10.174.176.70) by
- dggpemf500016.china.huawei.com (7.185.36.197) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Fri, 25 Jul 2025 15:55:18 +0800
-Message-ID: <bef878c0-4d7f-4e9a-a05d-30f6fde31e3c@huawei.com>
-Date: Fri, 25 Jul 2025 15:55:15 +0800
+	s=arc-20240116; t=1753431050; c=relaxed/simple;
+	bh=/8Jy2q7BUbMRemNSy/ayI7mRAKf+o02bPXV7CnXtXQ0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=AAzhPQHitHSgVxG0JPwFrztROkkbrhM3CIX6lLbXrwf82XvdtmwYYAHxu2ySBDUTcfIkVy4di2ptFuyVUg0Z/MSDCmlDrFCXeadMgsXsg/E96JD5SqpQyJdEPbwPjhGauABgynX87PJYb5HbhGoLJL/tQhfzEe4427APCVVvRTA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl; spf=none smtp.mailfrom=bgdev.pl; dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b=TQfYHhes; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bgdev.pl
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b="TQfYHhes"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4561ed868b5so13178515e9.0
+        for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 01:10:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20230601.gappssmtp.com; s=20230601; t=1753431047; x=1754035847; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TjnADGgMIxD9Mwt4aQx2cVoKFVB9u557YmwsL2pYhHc=;
+        b=TQfYHhesEFIipDn8vIBPTUAaf07+0+qcFwyNKaj1AQMf61pps4+7Gv9CnqoSJyumH6
+         ns2guxFbCun74EajpZjBhZj178OH/RAPzm2ictyFVCfUABs/RCtp0I0+f5RYWikOQI/N
+         V/yMd5nJGoDghACQ2VpWKeR9YpmCZ15ZZLpbolrk52FFSDED6m5KjlwFP1tGZbSY98V8
+         IXw7aA0/l0+q0heMgKOIhFHxWUB4+Z/W9psLxHE6vHwO9b40WZH8foYZBXo4HBfNBbRj
+         IYISLyIC+U9+ghH7KfU6+DtvL4I0qPtvf7B6WMW93oGJsbm54A4HHQ0x2+PErpNTv0N0
+         tjaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753431047; x=1754035847;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TjnADGgMIxD9Mwt4aQx2cVoKFVB9u557YmwsL2pYhHc=;
+        b=feGP3J8aqnlvmOoNBDR0wujNKo4huhBIuo73Bzmg4h5fxQa6a38P6zOwyvK/pbQaVd
+         JQDA9fR4LOvNk3vVU4vZLokn5mjixLdqwatq7ER6WwgIWEwhpzS2e7BCMXfAn933A3OT
+         l70pdI6xH8bFC+br/9gNiR9A1HNdTbZkPk/dpmUtUZTuLWgin58ff4wvECqDIXMDyl3E
+         A3rGW2bkBk0k98H3gq4Knb/N/rsk+Qg9YW+QBiQWhJLQNpE+M94t+ld3Z5TLp7mdQ1PW
+         YJxgQeSok7mG9xs30Qe2uyK60OR5ySrH0SADMnikdZmwFOF4bfvYWf02Zr1aR8RPHhpI
+         dt2Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVY/OG24taB/N1x/pF2+l3ffNXenKpXIgiCsnYmw0gxk0NIpB1lqDaDRHWXmxjxCQRzGuo47UZrEJ315DrUDw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwmBvDysi4eEaRgpgLOVlrP/nmoRVL9qRAqM003j+/2/FgKMPKF
+	sNjx4zk3odCGvZ3YsDWa8gkEYSQCJOF02fVe3ZrYTqk49UhXanKNINLfzrMAy66+Gr4=
+X-Gm-Gg: ASbGncvc8d8r71t9W8UeZjmKqNZ8JS3gXHHYGLpgylvvRIpIu+HwNjuSEv9zmqBjcwW
+	m3MjMQojIPNNHOWfFmxUV3ikAc1UeZvgeQKeBYyl+kyDwpyHqC/ytBcak5BCKM7IwLDyHfnpFke
+	DnBrNzMcV3Kpghaj4EiEu/WxCr2EYM6L+m8vn8rP7BdNg8CUxvfN5YQIGp0vKowqmtgS01f7lnb
+	S+d/FFpTyjf8fe8qf1ylmfrOo+FiAWjK7zFzAOB3fNQOTV2K3ZVaAFmsN+bxmD9Llt+9XB/s+M0
+	nTwuzOk6zxfBfq8UCeT1NvlgxyaWHsBLxscrBKQ6nQY1i+2TopUxvJQTXwjA2rc2ZjrXhVElcAq
+	r0ODHcUcyr9R+l2EZSkzxsO0=
+X-Google-Smtp-Source: AGHT+IFtrN6VUv3AxAAmMB1p8Cksy5ht9aBXYvpOBIp9CQazid75UckioUfrsNhXmPCAYyDnC0fv7Q==
+X-Received: by 2002:a05:6000:2407:b0:3b7:6d94:a032 with SMTP id ffacd0b85a97d-3b7765e6ba2mr811266f8f.3.1753431047252;
+        Fri, 25 Jul 2025 01:10:47 -0700 (PDT)
+Received: from brgl-uxlite.home ([2a01:cb1d:dc:7e00:3c3c:6b37:9b23:6049])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b76fcad22asm4402723f8f.53.2025.07.25.01.10.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Jul 2025 01:10:46 -0700 (PDT)
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+To: Enrico Weigelt <info@metux.net>,
+	Viresh Kumar <vireshk@kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Harald Mommer <harald.mommer@oss.qualcomm.com>
+Cc: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+	linux-gpio@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/1] gpio: virtio: Fix config space reading.
+Date: Fri, 25 Jul 2025 10:10:45 +0200
+Message-ID: <175343097349.17150.917277696050409769.b4-ty@linaro.org>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250724143718.5442-1-harald.mommer@oss.qualcomm.com>
+References: <20250724143718.5442-1-harald.mommer@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net: check the minimum value of gso size in
- virtio_net_hdr_to_skb()
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, <mst@redhat.com>,
-	<jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
-	<pabeni@redhat.com>, <davem@davemloft.net>, <willemb@google.com>,
-	<atenart@kernel.org>
-CC: <yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
-	<netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <steffen.klassert@secunet.com>
-References: <20250724083005.3918375-1-wangliang74@huawei.com>
- <688235273230f_39271d29430@willemb.c.googlers.com.notmuch>
-From: Wang Liang <wangliang74@huawei.com>
-In-Reply-To: <688235273230f_39271d29430@willemb.c.googlers.com.notmuch>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
- dggpemf500016.china.huawei.com (7.185.36.197)
+
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 
 
-在 2025/7/24 21:29, Willem de Bruijn 写道:
-> Wang Liang wrote:
->> When sending a packet with virtio_net_hdr to tun device, if the gso_type
->> in virtio_net_hdr is SKB_GSO_UDP and the gso_size is less than udphdr
->> size, below crash may happen.
->>
-> gso_size is the size of the segment payload, excluding the transport
-> header.
->
-> This is probably not the right approach.
->
-> Not sure how a GSO skb can be built that is shorter than even the
-> transport header. Maybe an skb_dump of the GSO skb can be elucidating.
->>   			return -EINVAL;
->>   
->>   		/* Too small packets are not really GSO ones. */
->> -- 
->> 2.34.1
->>
+On Thu, 24 Jul 2025 16:36:52 +0200, Harald Mommer wrote:
+> Fix for Virtio GPIO Linux driver
+> 
+> The Virtio GPIO Linux driver reads the configuration space in a way not
+> conformant with the virtio specification. The hypervisor we are using is
+> strict in what it accepts so the current behavior causes a problem.
+> 
+> Builds on top of gpio/for-next, tested on Linux v6.5.7.
+> 
+> [...]
 
-Thanks for your review!
+It's already Friday and I won't be able to run it through the autobuilders so
+I won't be sending it for v6.16. I queued it for v6.17 and it will be part of
+my PR early next week.
 
-Here is the skb_dump result:
+Thanks!
 
-     skb len=4 headroom=98 headlen=4 tailroom=282
-     mac=(64,14) mac_len=14 net=(78,20) trans=98
-     shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
-     csum(0x8c start=140 offset=0 ip_summed=1 complete_sw=0 valid=1 level=0)
-     hash(0x0 sw=0 l4=0) proto=0x0800 pkttype=2 iif=4
-     priority=0x0 mark=0x0 alloc_cpu=0 vlan_all=0x0
-     encapsulation=0 inner(proto=0x0000, mac=0, net=0, trans=0)
-     dev name=tun0 feat=0x00002000000048c1
-     skb headroom: 00000000: 20 00 00 00 10 00 05 00 c4 2c 83 68 00 00 00 00
-     skb headroom: 00000010: 00 00 00 00 04 00 00 00 01 00 00 00 01 00 00 00
-     skb headroom: 00000020: 08 00 1d 00 09 00 00 00 09 00 03 00 74 75 6e 30
-     skb headroom: 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb headroom: 00000040: 01 80 c2 00 00 00 ff ff ff ff ff ff 08 00 45 00
-     skb headroom: 00000050: 00 18 00 00 20 00 00 11 ba d4 00 00 00 00 e0 00
-     skb headroom: 00000060: 00 01
-     skb linear:   00000000: 00 9c d0 90
-     skb tailroom: 00000000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 000000a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 000000b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 000000c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 000000d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 000000e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 000000f0: 00 00 00 00 00 00 00 00 00 00 00 0b 0e 04 80 88
-     skb tailroom: 00000100: ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     skb tailroom: 00000110: 00 00 00 00 00 00 00 00 00 00
+[1/1] gpio: virtio: Fix config space reading.
+      https://git.kernel.org/brgl/linux/c/4740e1e2f320061c2f0dbadc0dd3dfb58df986d5
 
-The following C code can reproduce this issue:
-
-     #include <string.h>
-     #include <fcntl.h>
-     #include <sys/ioctl.h>
-     #include <linux/if.h>
-     #include <linux/if_tun.h>
-     #include <linux/virtio_net.h>
-     #include <netinet/ip.h>
-     #include <netinet/udp.h>
-
-     int main(void)
-     {
-         // create udp socket, set option UDP_ENCAP_ESPINUDP
-         int udp_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-         struct sockaddr_in server_addr = {
-             .sin_family = AF_INET,
-             .sin_port = htons(20004),
-             .sin_addr.s_addr = inet_addr("224.0.0.1"),
-         };
-         bind(udp_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
-         int val = UDP_ENCAP_ESPINUDP;
-         setsockopt(udp_fd, IPPROTO_UDP, UDP_ENCAP, &val, sizeof(val));
-
-         // send udp packet to tun/tap dev
-         system("ip tuntap add dev tun0 mode tap");
-         system("ip link set dev tun0 up");
-         int fd = open("/dev/net/tun", O_RDWR);
-         struct ifreq ifr = {
-             .ifr_flags = IFF_TAP | IFF_NAPI | IFF_NAPI_FRAGS | 
-IFF_ONE_QUEUE | IFF_VNET_HDR,
-             .ifr_name  = "tun0",
-         };
-         ioctl(fd, TUNSETIFF, &ifr);
-         struct tun_pi pi = { 0 };
-         struct virtio_net_hdr gso = {
-             .flags = VIRTIO_NET_HDR_F_NEEDS_CSUM,
-             .gso_type = VIRTIO_NET_HDR_GSO_UDP,
-             .hdr_len = 64,
-             .gso_size = 4,
-             .csum_start = 76,
-             .csum_offset = 0,
-         };
-         struct ethhdr eth = {
-             .h_dest   = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x00},
-             .h_source = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-             .h_proto  = htons(0x0800),
-         };
-         struct iphdr iph = {
-             .version = 4,
-             .ihl = 5,
-             .tot_len = htons(176),
-             .protocol = IPPROTO_UDP,
-             .saddr = 0,
-             .daddr = inet_addr("224.0.0.1"),
-             .check = 0x3cda,
-         };
-         struct udphdr uh = {
-             .source = 0,
-             .dest = htons(20004),
-             .len = htons(156),
-             .check = 0x2363,
-         };
-         char buf[204] = { 0 };
-         memcpy(buf, &pi, 4);
-         memcpy(buf + 4, &gso, 10);
-         memcpy(buf + 14, &eth, 14);
-         memcpy(buf + 28, &iph, 20);
-         memcpy(buf + 48, &uh, 8);
-         write(fd, buf, sizeof(buf));
-         close(fd);
-         return 0;
-     }
-
-------
-Best regards
-Wang Liang
-
->
+Best regards,
+-- 
+Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
