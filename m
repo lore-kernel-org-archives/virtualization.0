@@ -1,154 +1,127 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8235E2BFC85
-	for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 08:38:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F02B42BE65D
+	for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 08:39:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753432723; cv=none; b=ut5Do0SL0W2H786aWOi+YU+BUCeN+EZyklI/eFtjo8Xkq+Zp0eD1RxprKHXVi/9igS5+C3l76P5G2G4q9GMnaZ7vPkH/3mxKQm+IgZUvHzhIvXa7ZwGUapYzEdOr8bolORmaEu3rp0zmkED5Fw8YE5LTGxx06hC+MOsqP7hB5UU=
+	t=1753432779; cv=none; b=gXNWtXC2ZEIHGr4nUPZl+fw4dKDsni/2A+JukHq23hRrU/6NRToakw8HR5sL1r1dg2PBLzBRJqwS/l23Q4Vb/DxR5yb6XEHNxxIVEkmAgLCCPzaG0PZy3EuV5AgwckWVEOg6KeGvZv8lUKm+iQXqY1Wcga+BNLVa8IyHBz6Oaak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753432723; c=relaxed/simple;
-	bh=p/sPergCSqvqBREakhNKoleZIUie9w55wmYdj8MbWVo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cux0Vazz8lQfIn8Q++yR9dEeodjcqlkKCZbIFn7KBpxBddRmrBWZwgfbpnCR5kdP4Bt0nXPeRMWs0M6EeIDMsQpt8+TwdMjmkDUkG1wSZFZpcERj510b4d20bG0ph227Q1MgkrV/CTSoke9Qc0NJozvHwO69XTN+NXrHBSIlLF0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Edw+uyb4; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1753432779; c=relaxed/simple;
+	bh=tBY0iimkxVoIBYuB3s33dxWd0cIaOYVPs9j9EliKe5o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=uC+Im9f0p+86aHj72/iB/YCp8cMk95+of0RbOrqFSFxlti25rp5yBvvKgc1yHCR4SdQgVrPIWce2ApJTIxIUqLwVMNHcyXFyarW2GYogz7SP1qliP7TKcrch4XzOi1nxOZYuAnIf6EQPfoZP3Juq69IW3Y1dK2xctt9xUiUWGbU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OJk7TxpC; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Edw+uyb4"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OJk7TxpC"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753432720;
+	s=mimecast20190719; t=1753432776;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=l839FtmJfD9QeEUNEIgs65whKDPvocBigZOfnNQ86T4=;
-	b=Edw+uyb49mgfOzMnK9KBaRYjkK351nsoG4d+fdiWp5jKZi0piQzodvmIOVMwBjPcR7IwuD
-	Zr0ZSXn5S0bLUjYYowiIdji/J554Ekauz2NMlkanx9E9KTw8i7TiOpLjKJ7SOPrFjZN21R
-	uqrG1Oy4b6r+inNwDJfhcu7i/4XegLg=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=jtiFyoZfZGgkbcgP/8jfuIG2d1G6bK99JX46EtJwAvg=;
+	b=OJk7TxpCCUlbCY48VcHsK5lpIvHaQPV+qWbqMvIqAoLgNxIzmA5VZ2XVfvSr0oKeNZuXTV
+	dpSosKD+egjgwNxupWe+sKnWUDIHwB+IQ5lKLPEj9ZjwPNPTmep2n5WMBQ49J5ApIo4vjR
+	FsbFNItAua3b7ZA7HGfHnDuYSJOS+/M=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-442-i-mR3OXsN1Gxg12IL5f36A-1; Fri, 25 Jul 2025 04:38:38 -0400
-X-MC-Unique: i-mR3OXsN1Gxg12IL5f36A-1
-X-Mimecast-MFC-AGG-ID: i-mR3OXsN1Gxg12IL5f36A_1753432717
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-3141f9ce4e2so3136011a91.1
-        for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 01:38:38 -0700 (PDT)
+ us-mta-517-mXwtqtHCMdKGAm_yWCPTJA-1; Fri, 25 Jul 2025 04:39:34 -0400
+X-MC-Unique: mXwtqtHCMdKGAm_yWCPTJA-1
+X-Mimecast-MFC-AGG-ID: mXwtqtHCMdKGAm_yWCPTJA_1753432774
+Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-6fb50d92061so28917466d6.3
+        for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 01:39:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753432717; x=1754037517;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=l839FtmJfD9QeEUNEIgs65whKDPvocBigZOfnNQ86T4=;
-        b=Y0ZZqUVTsVfPfEt8hMFFGv7AEsXq59RX+WAEnv4kFFKKjZgSuYUqfV8NhMWbjyQ0Ej
-         CEUQKJvh7SzdBkXxWQ0scJ4beszQecSdGIZiz3CuTmirXBPFKc3EXnNSDfrAAvfVbk7H
-         agaOLEeR0nLiGcLVD4HXIJYL8LgZD7SBkchOHOuP/TKnRnnFoB/E0dbV1uSQgMtCwwIj
-         m/CRRWeYWmkJA3c7Af5gkiKUU5b7rZ6W8+kcIoIyuspvNEbBOegj076tvOj3m7J14uFJ
-         ndkS6O2QB6ULNDqzHVnJXZbusAgAIPX5M/JlVxaVifPdul5b7OGmw7NR7I4Nnz9y0g/c
-         Jo+w==
-X-Forwarded-Encrypted: i=1; AJvYcCU1JEjuD0fLgzrDzOilOgS6z7j5AIDLptVt8H04wTXrON96+atJFmGYEViPmmCVZ1oanUqVhhxEaGdTp7KaHA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw82yHy9TTbLN82pQUKds7Gq3+Qxtea9A+Cyy2xDizjAdnfNR2I
-	NtaHH4q1rFL8hKCE/2qrYqE3yA+5UonC79OEoQSc3pZ7EsD06BUl8ylvH4Zv0uRzudjJJz8UiEY
-	q8V4DG/p83GEJ1gLsXR35hlgpEy2DieMjCuvh5bBjNGml8bTDqW94zOxpU/hy5xyKEo/xVJNNI8
-	vKQKt9YeIDJ97eOhE4GuUAN7cKWEGSbw+wfiMbjVzIJsg=
-X-Gm-Gg: ASbGncuAj5nsqwCLVDReIfBoLrC4T+Jk6MjxBAJXqXJTLos5PRTaMD98LB1w6SqKRvv
-	F8hhNpFvkQDtarrEilNpspN/SvA7IpUhosgDNEwj5l09ByPTLmx0jgbROLzT7O+qZsse+aMeE0U
-	4luScBuH7T0TPX/o9w3yrS
-X-Received: by 2002:a17:90b:35cb:b0:312:639:a064 with SMTP id 98e67ed59e1d1-31e77afec2fmr1638828a91.28.1753432717343;
-        Fri, 25 Jul 2025 01:38:37 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF8BbwGTpiFIgHKfWf4ykhdVvu66EB0IkDK+M3uuBHxAip1Ohv9ZFi2p5wZH0IQqVXbSMfAhFdTeSqW8PM8WX0=
-X-Received: by 2002:a17:90b:35cb:b0:312:639:a064 with SMTP id
- 98e67ed59e1d1-31e77afec2fmr1638806a91.28.1753432716948; Fri, 25 Jul 2025
- 01:38:36 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1753432774; x=1754037574;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jtiFyoZfZGgkbcgP/8jfuIG2d1G6bK99JX46EtJwAvg=;
+        b=WQvQrkXtmC969uizFSDZULZPEI+/jLogAEZXZ/cGC6QEFGP/+/0xXE19zKfH3lsqm7
+         NpYZrzsOul/PkGU09adC0E3w6Y77/1mTHWjTN6ZuVGekBDk9NEw+MiBWGtczyqHhVbAd
+         U1qfCA7wguPik7rYA/uw3Ro1MeE4w1l41/ptGkJoB1EBh1DcbHNrnU7xPeT01Rw7XY39
+         lauMRn7wqvZNNl1SkaNgQrX8bvorUPa3zpsrxmyl6SglwUtOS9aR0i8GSXR3Dnbhifjs
+         u7UzufgFG37Ls8nW+Pj+ZqVrq0uSsMO5ZkFIBC6NU+ZHOLDkB54LyYxUUbRahU24V1H0
+         FKwA==
+X-Forwarded-Encrypted: i=1; AJvYcCV+geXrt3I63LON5iUaLDtB4pk662M5WqdKk/nFcbS8KycDJmbmbWT2RoppFqvk+mIV6EVsjqRaARXEKxCHCQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxb8R6Yb0h48mEKv+tTKTnEz6v/bJ0BG+knAlF11HJYTiWdgZdR
+	XTDRlCKQa88tzIfnsM46h80Sge86Wp14qa2DqJ2xAj+Mz3YNVeY2LNQHfQgzL/V4DjhZhnj9uT5
+	av+fMGswea673VIsQU+TqghEF7TCaBaLgy56pZjySXIbcof6Zty5euofo3sJwlFY76gr1
+X-Gm-Gg: ASbGncsI95Z+hmIDe1lBDOxdKDnznSVTk0FKrdy/Upp8b3aubv93ctARHMNAJOj54sL
+	OEECp/QaCAjdZUtgxV/JN6GuS4VHQNvsM95MWPJirdYWltd+hzuA5iF3M56RhA6qfc44hrYEOva
+	l3rhjfBFOJOT/6cMCpxBo+j7cbdGPgpN6pYRGtf0P60C4kqGMjvXpYvO/vnLU6N9SC0gcRgZV1Z
+	an1r1Yqq3B/w1i7i+4mxj7Sh5OSRR++XHJmY/zel6SK8WzyXNu1eHSgL03IZb+96niM8yOJQ1Ui
+	3p5SoRnG8uFjBFnhGyv28Acit1URjK5xHwaB/B6Y8lWdv9mwEtYCLHRDje4RHTtExIu9Gkp5+xS
+	BdRBpQqdptzW+nGc=
+X-Received: by 2002:a05:6214:242c:b0:6fa:bb26:1459 with SMTP id 6a1803df08f44-707204dceacmr12797396d6.7.1753432773691;
+        Fri, 25 Jul 2025 01:39:33 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEuvrU/iDku3ReNmbC6er8A+AX9lbZ9M1ZVZ63Zo4Y0gnCBIubTMZ5l4qHxguWAFRNt5SjA+A==
+X-Received: by 2002:a05:6214:242c:b0:6fa:bb26:1459 with SMTP id 6a1803df08f44-707204dceacmr12797146d6.7.1753432773224;
+        Fri, 25 Jul 2025 01:39:33 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-45-205-118.retail.telecomitalia.it. [79.45.205.118])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-7070fca2189sm24242566d6.62.2025.07.25.01.39.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Jul 2025 01:39:32 -0700 (PDT)
+Date: Fri, 25 Jul 2025 10:39:25 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Wang Liang <wangliang74@huawei.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	pabeni@redhat.com, horms@kernel.org, yuehaibing@huawei.com, 
+	zhangchangzhong@huawei.com, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next] vsock: remove unnecessary null check in
+ vsock_getname()
+Message-ID: <dqlpaa6nczbjmf5agbjktmlzu2avgnqjmsuisp2ic2hsvgxh7a@ruhby5c6lcbn>
+References: <20250725013808.337924-1-wangliang74@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CA+G9fYuBnDVaiZ6Mqhr=4Y2quAsqeZoGfJ158xJ1-Q5HHw=cBw@mail.gmail.com>
-In-Reply-To: <CA+G9fYuBnDVaiZ6Mqhr=4Y2quAsqeZoGfJ158xJ1-Q5HHw=cBw@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 25 Jul 2025 16:38:25 +0800
-X-Gm-Features: Ac12FXwqAD8VmCJzAPOUYLLys8jDigRvmsJk7uLS2PNwF-x1PPSwDp1GEdHtbVA
-Message-ID: <CACGkMEtWyJKqQr2yRyhU5=5qg+EH06FXsHRabk3da5iwfCA4FQ@mail.gmail.com>
-Subject: Re: next-20250725 i386 x86_64 virtio_ring.c error variable 'id' is
- uninitialized when used here [-Werror,-Wuninitialized]
-To: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: open list <linux-kernel@vger.kernel.org>, virtualization@lists.linux.dev, 
-	clang-built-linux <llvm@lists.linux.dev>, lkft-triage@lists.linaro.org, 
-	Linux Regressions <regressions@lists.linux.dev>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Nathan Chancellor <nathan@kernel.org>, 
-	Arnd Bergmann <arnd@arndb.de>, Dan Carpenter <dan.carpenter@linaro.org>, 
-	Anders Roxell <anders.roxell@linaro.org>, Ben Copeland <benjamin.copeland@linaro.org>
+In-Reply-To: <20250725013808.337924-1-wangliang74@huawei.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: m4riKhgw8BlXCjRIqu8Trbn2em61aZe07yEJpsVFjBw_1753432717
+X-Mimecast-MFC-PROC-ID: BwQd11NX4VT5Azi7lQepq_CRi7QZv0m8iUmtxqlRU_I_1753432774
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Fri, Jul 25, 2025 at 3:43=E2=80=AFPM Naresh Kamboju
-<naresh.kamboju@linaro.org> wrote:
+On Fri, Jul 25, 2025 at 09:38:08AM +0800, Wang Liang wrote:
+>The local variable 'vm_addr' is always not NULL, no need to check it.
 >
-> Regressions noticed while building x86_64 and i386 builds with clang-nigh=
-tly
-> and clang-20 toolchains on the Linux next-20250725 tag.
->
-> First seen on the Linux next-20250725
-> Good: next-20250724
-> Bad:  next-20250725
->
-> Regression Analysis:
-> - New regression? Yes
-> - Reproducibility? Yes
->
-> ## Build regressions
-> * i386, build
->   - clang-20-defconfig
->   - clang-nightly-defconfig
->
-> * x86_64, build
->   - clang-20-allyesconfig
->   - clang-20-lkftconfig
->   - clang-20-lkftconfig-compat
->   - clang-20-lkftconfig-kcsan
->   - clang-20-lkftconfig-no-kselftest-frag
->   - clang-20-x86_64_defconfig
->   - clang-nightly-lkftconfig
->   - clang-nightly-lkftconfig-hardening
->   - clang-nightly-lkftconfig-kselftest
->   - clang-nightly-lkftconfig-lto-full
->   - clang-nightly-lkftconfig-lto-thing
->   - clang-nightly-x86_64_defconfig
->   - gcc-13-allyesconfig
->   - korg-clang-20-lkftconfig-hardening
->   - korg-clang-20-lkftconfig-lto-full
->   - korg-clang-20-lkftconfig-lto-thing
->   - rustclang-nightly-lkftconfig-kselftest
->
-> Build regression: next-20250725 i386 x86_64 virtio_ring.c error
-> variable 'id' is uninitialized when used here
-> [-Werror,-Wuninitialized]
->
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
->
-> ## Build log
-> drivers/virtio/virtio_ring.c:2113:40: error: variable 'id' is
-> uninitialized when used here [-Werror,-Wuninitialized]
->  2113 |                 BAD_RING(vq, "id %u out of range\n", id);
->       |                                                      ^~
-> drivers/virtio/virtio_ring.c:2077:19: note: initialize the variable
-> 'id' to silence this warning
->  2077 |         u16 last_used, id, last_used_idx;
->       |                          ^
->       |                           =3D 0
-> 1 error generated.
->
+>Signed-off-by: Wang Liang <wangliang74@huawei.com>
+>---
+> net/vmw_vsock/af_vsock.c | 5 -----
+> 1 file changed, 5 deletions(-)
 
-A fix has been posted here:
+Thanks for the cleanup! We've had it since the beginning, maybe some 
+changes were made during initial development...
 
-https://lore.kernel.org/virtualization/20250725083635.73355-1-jasowang@redh=
-at.com/T/#u
+LGTM!
 
-Thanks
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
+>
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index 1053662725f8..fae512594849 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -1028,11 +1028,6 @@ static int vsock_getname(struct socket *sock,
+> 		vm_addr = &vsk->local_addr;
+> 	}
+>
+>-	if (!vm_addr) {
+>-		err = -EINVAL;
+>-		goto out;
+>-	}
+>-
+> 	/* sys_getsockname() and sys_getpeername() pass us a
+> 	 * MAX_SOCK_ADDR-sized buffer and don't set addr_len.  Unfortunately
+> 	 * that macro is defined in socket.c instead of .h, so we hardcode its
+>-- 
+>2.34.1
+>
+>
 
