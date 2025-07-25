@@ -1,116 +1,72 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D5A1E5B6F;
-	Thu, 24 Jul 2025 17:24:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92D78376F1
+	for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 01:16:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753377847; cv=none; b=odL1O3z1g9ixN6v67dkE7zbMCaATu1H+VwG+C3gGbEUdbhIH1n0JSDX4acAGaIFLEPHJKP6Zp3rClP9DT+zfa84DCZS100tfAS0ZWi5qAfbhXUcAGZEK87nEuoes7yUqi1dtN11hEdwyvUe58LtMVSd18lw+Iuj5OP2L4C4Q9XQ=
+	t=1753406206; cv=none; b=ZqRhj9LWMoomv4rFkI5kYWQc7nQ23O3uXnAYT7iMAQSuvzK8wsVnjIebWDUsE5M2elP+5JsHmhI/UJRYS4U0QIOWTdsx2K6SQQwHgpakLV0BBeqDpvJKYrjNmwWifqU7bGZA8WPs5lclDIMnA/iGiQO00MgM9wA77396qat+RfI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753377847; c=relaxed/simple;
-	bh=NSPDTm3RpSgjTZrzLusFL5QBI95JaHmhAin4q3oEx3s=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=g2f6MiUTLwwden+K2YVSFptMafr++qRBxh51buvfcOF2cxwaV06zFZEV9H+nDRJhMGHS7a/LIYVZ0oexQ0uaSdrFn4oXlEjWx9urWRDR2uY98VZA+GpI+LOu7806C/qPN/GKlKs7+SoUpUrEQgBQOvCLhAn/mJN8JSF6xk81YT8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z/gwTcWu; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z/gwTcWu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B27EC4CEF1;
-	Thu, 24 Jul 2025 17:24:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1753377846;
-	bh=NSPDTm3RpSgjTZrzLusFL5QBI95JaHmhAin4q3oEx3s=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Z/gwTcWuN+DoliAeu/v98641wE29hhdgY1gEOj4PN3z/ZvVwFgmxNcy45TwtVfA9H
-	 GDueToHR64nwd4XmOREBX8ozpp3E4dbk421fDykzUeZZNcYD8Ovbk+f55QOniMe2jW
-	 Q+9jSl1/Eo1OFrYkF2azqNSnlXIuVUDuRQksad823aBzXQzi44Sgc0Je+nPrYdOVF5
-	 +eAPase7hR9aMNtrHqp573OKDpSnwbLMpmeqgDeriZCUTvMzIT+lwwamgfSpIAUOnz
-	 XD7qfzRsQpT4XGkuNIXj3oV8E5s6RSIE3mbgg+8bpXtbeQHbzTOQITkiNoEWMv8EPS
-	 AP5v7Xh/k3yQA==
-Date: Thu, 24 Jul 2025 19:24:00 +0200
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-To: Ricardo Ribalda <ribalda@chromium.org>, Alexandre Courbot
- <gnurou@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil
- <hverkuil@xs4all.nl>, Albert Esteve <aesteve@redhat.com>, Jason Wang
- <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
- =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, gurchetansingh@google.com,
- daniel.almeida@collabora.com, adelva@google.com, changyeon@google.com,
- nicolas.dufresne@collabora.com, linux-kernel@vger.kernel.org,
- linux-media@vger.kernel.org, virtualization@lists.linux.dev, Alexandre
- Courbot <acourbot@google.com>
-Subject: Re: [PATCH v3] media: add virtio-media driver
-Message-ID: <20250724191833.253b8f40@foz.lan>
-In-Reply-To: <CANiDSCt9nGP=r8VxkZH76a1i+xEd+RCJ71=6qx0_iPYdrn+GoQ@mail.gmail.com>
-References: <20250412-virtio-media-v3-1-97dc94c18398@gmail.com>
-	<CANiDSCsmbiveo4GHX54_q7-1CeKiDAVaGnb8+jsCybM+pyA7Fw@mail.gmail.com>
-	<20250601113425.4d5a3d89@foz.lan>
-	<CANiDSCt9nGP=r8VxkZH76a1i+xEd+RCJ71=6qx0_iPYdrn+GoQ@mail.gmail.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	s=arc-20240116; t=1753406206; c=relaxed/simple;
+	bh=tgJjmb3D/EBX50l0+VI6F0vwMmlQ/g6/llxOIyaa9H0=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mn35ujvDqrwMVeNC6QMrJi/Dnpacz6sdQx3qOgyCKKhmY9v3Bd7dqVK16DueySpr7DN4bK3i74elX2pHTZUi+d1n23eN3GTAOg6lRnB1rcG/4A1xvIb0nzD8mWCjDVLJ4xanmW7b0H9gWTeaMJaaWLcFdHmGiVCbars/TXaMNqY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.112])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4bp8zN2fTmz2RVxc;
+	Fri, 25 Jul 2025 09:14:24 +0800 (CST)
+Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
+	by mail.maildlp.com (Postfix) with ESMTPS id CDF271400D4;
+	Fri, 25 Jul 2025 09:16:39 +0800 (CST)
+Received: from huawei.com (10.175.124.27) by dggpemf500016.china.huawei.com
+ (7.185.36.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 25 Jul
+ 2025 09:16:38 +0800
+From: Wang Liang <wangliang74@huawei.com>
+To: <sgarzare@redhat.com>, <davem@davemloft.net>, <edumazet@google.com>,
+	<kuba@kernel.org>, <pabeni@redhat.com>, <horms@kernel.org>
+CC: <yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
+	<wangliang74@huawei.com>, <virtualization@lists.linux.dev>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH net-next] vsock: remove unnecessary null check in vsock_getname()
+Date: Fri, 25 Jul 2025 09:38:08 +0800
+Message-ID: <20250725013808.337924-1-wangliang74@huawei.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ dggpemf500016.china.huawei.com (7.185.36.197)
 
-Em Sun, 1 Jun 2025 12:01:22 +0200
-Ricardo Ribalda <ribalda@chromium.org> escreveu:
+The local variable 'vm_addr' is always not NULL, no need to check it.
 
-> Hi Mauro
-> 
-> On Sun, 1 Jun 2025 at 11:34, Mauro Carvalho Chehab
-> <mchehab+huawei@kernel.org> wrote:
-> >
-> > Em Wed, 28 May 2025 18:23:02 +0200
-> > Ricardo Ribalda <ribalda@chromium.org> escreveu:
-> >  
-> > > > +static int scatterlist_builder_add_userptr(struct scatterlist_builder *builder,
-> > > > +                                          unsigned long userptr,
-> > > > +                                          unsigned long length)
-> > > > +{
-> > > > +       int ret;
-> > > > +       int nents;  
-> > > Could you initialize nents and sg_list?
-> > > old versions of gcc are a bit picky
-> > > https://gitlab.freedesktop.org/linux-media/users/ribalda/-/jobs/77042562#L4381  
-> >
-> > Please don't. In this specific case, ret is always initialized:
-> >  
-> > > +       struct virtio_media_sg_entry *sg_list;
-> > > +
-> > > +       ret = __scatterlist_builder_add_userptr(builder, userptr, length,
-> > > +                                               &sg_list, &nents);  
-> >
-> > nents and sg_list may or may not be initialized at the function,
-> > but initializing it is wrong, as, when they are not initialized, the
-> > ret code shall catch it (and if not, we *do* want gcc to warn).
-> >
-> > So, if our CI is warning about that due to an old version, please upgrade
-> > the version at the CI runner.  
-> 
-> The main version of gcc works fine. It is the minimal version (8.1) required by
-> https://www.kernel.org/doc/html/next/process/changes.html
-> that  complains.
-
-Ricardo, 
-
-gcc 8.1 was released in May 2, 2018. I don't think it makes sense to
-address bogus warnings with that old gcc versions. I would just disable
-WERROR for such versions on our CI tests.
-
+Signed-off-by: Wang Liang <wangliang74@huawei.com>
 ---
+ net/vmw_vsock/af_vsock.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-Alexandre/Michael,
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 1053662725f8..fae512594849 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1028,11 +1028,6 @@ static int vsock_getname(struct socket *sock,
+ 		vm_addr = &vsk->local_addr;
+ 	}
+ 
+-	if (!vm_addr) {
+-		err = -EINVAL;
+-		goto out;
+-	}
+-
+ 	/* sys_getsockname() and sys_getpeername() pass us a
+ 	 * MAX_SOCK_ADDR-sized buffer and don't set addr_len.  Unfortunately
+ 	 * that macro is defined in socket.c instead of .h, so we hardcode its
+-- 
+2.34.1
 
-I need a couple of full days to properly review virtio-media. 
-I was planning to do it during this Kernel cycle, but I ended
-allocating too much time just to be able to create a crossvm
-that would allow testing it. Afterwards, I got sidetracked with other 
-issues. I won't be able to review it in time for this merge window.
-
-I'm planning to do it at the beginning of the next merge cycle.
-
-Thanks,
-Mauro
