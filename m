@@ -1,25 +1,25 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 64A4C2528E1;
-	Fri, 25 Jul 2025 20:04:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BF549257426;
+	Fri, 25 Jul 2025 20:05:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753473901; cv=none; b=fWQHnCsLIiH2x9Q2hi0Mrpq19MsPd6/ng+mj++AajE1xsyYQY0Xnm7/30oyATiqOYennzwfEzPqYy9HeSfAWtb+73/3uqp3UyeLXVzKfbfV2Afj6dIGgbBJgJ+TmNXy9/X6+n/E8ogvatDCo7JcMYFM9m5X8HVWQ4tP9V67w7mE=
+	t=1753473956; cv=none; b=FnumYyePOtK3q39MioGkfq3cEr51DE5ebVO7dQQFnWDTGdn3J9c3SGa/kkbrMrN9gO+H6Br9mg1PB6ZClKUHUgZRvzvp+mDEeOBJNjMxcrLPpVUyy13o9UR9bRtZYD+aH8so9YsNNu+Cu8g7uWEbA8B8Lnib23R1TdaVjjPMcBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753473901; c=relaxed/simple;
-	bh=8+OH0jpnYCxLHJivUXbltpTlvIRJChdCd+Jh3a0RZJA=;
+	s=arc-20240116; t=1753473956; c=relaxed/simple;
+	bh=ODc8BUbdLA0Xu8RNO9sp6CmCixwXABeVZzZOWA0RFI8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=J90eKvwEUrK8PXPIMqaH3QSelf/2QniG/0flrwLrxqfovdx1sWe+BiXe5J7AfLzLSedyIziwDSCYrZjiHIQLe1NQe/AWRRV0afGK0nieD72SJEtK6r6nr9d6JTnhOCvOV5lzq3LT6PTUQiHLDLekKD1S3CffK+S6OxOpJQxe6VQ=
+	 In-Reply-To:Content-Type; b=rKkB8HcfYG0fbD88iYz/4pn81reApyDPq/AkGnWwDR5ORHovnl4T+d7mwQrP6iCm/FelVeE+SVnm0hCHeFYYuSOHh8Uc4zYM+u325CAc534wi8IsglLXjzfiPKKaj3O74dsGn6iqZYCihyOo/RRyMKRYv9CdZ+L4voXXcXHl1OE=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8E344176C;
-	Fri, 25 Jul 2025 13:04:51 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4BFC91A00;
+	Fri, 25 Jul 2025 13:05:47 -0700 (PDT)
 Received: from [10.57.4.83] (unknown [10.57.4.83])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 167FB3F6A8;
-	Fri, 25 Jul 2025 13:04:52 -0700 (PDT)
-Message-ID: <02240cf7-c4d4-4296-9b1e-87b4231874a1@arm.com>
-Date: Fri, 25 Jul 2025 21:04:50 +0100
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1A7893F6A8;
+	Fri, 25 Jul 2025 13:05:48 -0700 (PDT)
+Message-ID: <751e7ece-8640-4653-b308-96da6731b8e7@arm.com>
+Date: Fri, 25 Jul 2025 21:05:46 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -27,12 +27,11 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 6/8] dma-mapping: fail early if physical address is mapped
- through platform callback
+Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
 To: Leon Romanovsky <leon@kernel.org>,
  Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Leon Romanovsky <leonro@nvidia.com>, Christoph Hellwig <hch@lst.de>,
- Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+Cc: Christoph Hellwig <hch@lst.de>, Jonathan Corbet <corbet@lwn.net>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
  Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
  Christophe Leroy <christophe.leroy@csgroup.eu>,
  Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
@@ -49,64 +48,124 @@ Cc: Leon Romanovsky <leonro@nvidia.com>, Christoph Hellwig <hch@lst.de>,
  kasan-dev@googlegroups.com, linux-trace-kernel@vger.kernel.org,
  linux-mm@kvack.org
 References: <cover.1750854543.git.leon@kernel.org>
- <5fc1f0ca52a85834b3e978c5d6a3171d7dd3c194.1750854543.git.leon@kernel.org>
 From: Robin Murphy <robin.murphy@arm.com>
 Content-Language: en-GB
-In-Reply-To: <5fc1f0ca52a85834b3e978c5d6a3171d7dd3c194.1750854543.git.leon@kernel.org>
+In-Reply-To: <cover.1750854543.git.leon@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2025-06-25 2:19 pm, Leon Romanovsky wrote:
-> From: Leon Romanovsky <leonro@nvidia.com>
-> 
-> All platforms which implement map_page interface don't support physical
-> addresses without real struct page. Add condition to check it.
+On 2025-06-25 2:18 pm, Leon Romanovsky wrote:
+> This series refactors the DMA mapping to use physical addresses
+> as the primary interface instead of page+offset parameters. This
+> change aligns the DMA API with the underlying hardware reality where
+> DMA operations work with physical addresses, not page structures.
 
-As-is, the condition also needs to cover iommu-dma, because that also 
-still doesn't support non-page-backed addresses. You can't just do a 
-simple s/page/phys/ rename and hope it's OK because you happen to get 
-away with it for coherent, 64-bit, trusted devices.
+That is obvious nonsense - the DMA *API* does not exist in "hardware 
+reality"; the DMA API abstracts *software* operations that must be 
+performed before and after the actual hardware DMA operation in order to 
+preserve memory coherency etc.
+
+Streaming DMA API callers get their buffers from alloc_pages() or 
+kmalloc(); they do not have physical addresses, they have a page or 
+virtual address. The internal operations of pretty much every DMA API 
+implementation that isn't a no-op also require a page and/or virtual 
+address. It is 100% logical for the DMA API interfaces to take a page or 
+virtual address (and since virt_to_page() is pretty trivial, we already 
+consolidated the two interfaces ages ago).
+
+Yes, once you get right down to the low-level arch_sync_dma_*() 
+interfaces that passes a physical address, but that's mostly an artefact 
+of them being factored out of old dma_sync_single_*() implementations 
+that took a (physical) DMA address. Nearly all of them then use __va() 
+or phys_to_virt() to actually consume it. Even though it's a 
+phys_addr_t, the implicit guarantee that it represents page-backed 
+memory is absolutely vital.
+
+Take a step back; what do you imagine that a DMA API call on a 
+non-page-backed physical address could actually *do*?
+
+- Cache maintenance? No, it would be illogical for a P2P address to be 
+cached in a CPU cache, and anyway it would almost always crash because 
+it requires page-backed memory with a virtual address.
+
+- Bounce buffering? Again no, that would be illogical, defeat the entire 
+point of a P2P operation, and anyway would definitely crash because it 
+requires page-backed memory with a virtual address.
+
+- IOMMU mappings? Oh hey look that's exactly what dma_map_resource() has 
+been doing for 9 years. Not to mention your new IOMMU API if callers 
+want to be IOMMU-aware (although without the same guarantee of not also 
+doing the crashy things.)
+
+- Debug tracking? Again, already taken care of by dma_map_resource().
+
+- Some entirely new concept? Well, I'm eager to be enlightened if so!
+
+But given what we do already know of from decades of experience, obvious 
+question: For the tiny minority of users who know full well when they're 
+dealing with a non-page-backed physical address, what's wrong with using 
+dma_map_resource?
+
+Does it make sense to try to consolidate our p2p infrastructure so 
+dma_map_resource() could return bus addresses where appropriate? Yes, 
+almost certainly, if it makes it more convenient to use. And with only 
+about 20 users it's not too impractical to add some extra arguments or 
+even rejig the whole interface if need be. Indeed an overhaul might even 
+help solve the current grey area as to when it should take dma_range_map 
+into account or not for platform devices.
+
+> The series consists of 8 patches that progressively convert the DMA
+> mapping infrastructure from page-based to physical address-based APIs:
+
+And as a result ends up making said DMA mapping infrastructure slightly 
+more complicated and slightly less efficient for all its legitimate 
+users, all so one or two highly specialised users can then pretend to 
+call it in situations where it must be a no-op anyway? Please explain 
+convincingly why that is not a giant waste of time.
+
+Are we trying to remove struct page from the kernel altogether? If yes, 
+then for goodness' sake lead with that, but even then I'd still prefer 
+to see the replacements for critical related infrastructure like 
+pfn_valid() in place before we start trying to reshape the DMA API to fit.
 
 Thanks,
 Robin.
 
-> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> ---
->   kernel/dma/mapping.c | 15 ++++++++++++++-
->   1 file changed, 14 insertions(+), 1 deletion(-)
+> The series maintains backward compatibility by keeping the old
+> page-based API as wrapper functions around the new physical
+> address-based implementations.
 > 
-> diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
-> index 709405d46b2b..74efb6909103 100644
-> --- a/kernel/dma/mapping.c
-> +++ b/kernel/dma/mapping.c
-> @@ -158,6 +158,7 @@ dma_addr_t dma_map_page_attrs(struct device *dev, struct page *page,
->   {
->   	const struct dma_map_ops *ops = get_dma_ops(dev);
->   	phys_addr_t phys = page_to_phys(page) + offset;
-> +	bool is_pfn_valid = true;
->   	dma_addr_t addr;
->   
->   	BUG_ON(!valid_dma_direction(dir));
-> @@ -170,8 +171,20 @@ dma_addr_t dma_map_page_attrs(struct device *dev, struct page *page,
->   		addr = dma_direct_map_phys(dev, phys, size, dir, attrs);
->   	else if (use_dma_iommu(dev))
->   		addr = iommu_dma_map_phys(dev, phys, size, dir, attrs);
-> -	else
-> +	else {
-> +		if (IS_ENABLED(CONFIG_DMA_API_DEBUG))
-> +			is_pfn_valid = pfn_valid(PHYS_PFN(phys));
-> +
-> +		if (unlikely(!is_pfn_valid))
-> +			return DMA_MAPPING_ERROR;
-> +
-> +		/*
-> +		 * All platforms which implement .map_page() don't support
-> +		 * non-struct page backed addresses.
-> +		 */
->   		addr = ops->map_page(dev, page, offset, size, dir, attrs);
-> +	}
-> +
->   	kmsan_handle_dma(phys, size, dir);
->   	trace_dma_map_phys(dev, phys, addr, size, dir, attrs);
->   	debug_dma_map_phys(dev, phys, size, dir, addr, attrs);
+> Thanks
+> 
+> Leon Romanovsky (8):
+>    dma-debug: refactor to use physical addresses for page mapping
+>    dma-mapping: rename trace_dma_*map_page to trace_dma_*map_phys
+>    iommu/dma: rename iommu_dma_*map_page to iommu_dma_*map_phys
+>    dma-mapping: convert dma_direct_*map_page to be phys_addr_t based
+>    kmsan: convert kmsan_handle_dma to use physical addresses
+>    dma-mapping: fail early if physical address is mapped through platform
+>      callback
+>    dma-mapping: export new dma_*map_phys() interface
+>    mm/hmm: migrate to physical address-based DMA mapping API
+> 
+>   Documentation/core-api/dma-api.rst |  4 +-
+>   arch/powerpc/kernel/dma-iommu.c    |  4 +-
+>   drivers/iommu/dma-iommu.c          | 14 +++----
+>   drivers/virtio/virtio_ring.c       |  4 +-
+>   include/linux/dma-map-ops.h        |  8 ++--
+>   include/linux/dma-mapping.h        | 13 ++++++
+>   include/linux/iommu-dma.h          |  7 ++--
+>   include/linux/kmsan.h              | 12 +++---
+>   include/trace/events/dma.h         |  4 +-
+>   kernel/dma/debug.c                 | 28 ++++++++-----
+>   kernel/dma/debug.h                 | 16 ++++---
+>   kernel/dma/direct.c                |  6 +--
+>   kernel/dma/direct.h                | 13 +++---
+>   kernel/dma/mapping.c               | 67 +++++++++++++++++++++---------
+>   kernel/dma/ops_helpers.c           |  6 +--
+>   mm/hmm.c                           |  8 ++--
+>   mm/kmsan/hooks.c                   | 36 ++++++++++++----
+>   tools/virtio/linux/kmsan.h         |  2 +-
+>   18 files changed, 159 insertions(+), 93 deletions(-)
+> 
 
