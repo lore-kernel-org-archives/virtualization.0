@@ -1,156 +1,192 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3606925F781
-	for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 07:43:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4D20224B1F
+	for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 07:55:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753429386; cv=none; b=ILvxPvqHUvEyqGxNx0hDN2wouUAZQpNu/hyxIjsHMMFq9H6IwJkTahWAJ6YdJqsUGDPcD5keJYbJD0TtNNwIQqpu1i4lpBYWI2nlb1FRNhYNX88wJCWrcqBWATGxg6An9jNvU8NFvtZiftUnhWW5n1aGDBjvREip5cy6iJZFB0g=
+	t=1753430124; cv=none; b=LkWdn6HM4guROx6NF+CbKOhoR3FnPmlKGJ2z21CcZ8R4vysAQkIWQE14+HT+WDqeMofpmV6TFUBaubDX7/FTdNQ5I4BEpaKXmISBzP4/a3ZPOoe+2JZjbBr/crZOtEsHOi7FTdkCFCZUKED3RwJHU2WbYlSwFagRpVsDqpn3ayc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753429386; c=relaxed/simple;
-	bh=EjB9rdz31V935PwTHxBHCYPbwVDHTu9kCqt+BydQCw0=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=GCbjsnQFebcm9dp0CjWn5mPEtYZcdMPYH4Yl/6FLAs2DhmI+jiDJjDRGotwY9WguuAbn9FwJwD6bZTtkadkaq08r6JNa5eViTGM6LNC2NMPHl1q8E3xH/43M8SVbEkrlBkKnvKxVI+GNXe0F4+KdWsSUrNbp0XooRie4R/Kf3Jc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=ItlfBLFp; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ItlfBLFp"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-234f17910d8so15855395ad.3
-        for <virtualization@lists.linux.dev>; Fri, 25 Jul 2025 00:43:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1753429384; x=1754034184; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=B6A9eWb8jLD3CX4uWt67BOw6P0IxcLuBPt2ZgUNQsy8=;
-        b=ItlfBLFpVtxoXlJiu8QT+jk+MViHCcriZSgMeJWWxoGGEGBdof0KsjE4oRknbFNqDb
-         uHneqnSE1zHSXjWU2i7ClTFATwb70SBrX4otR56bdogFFuAa9Xa76jh7FQg7dOU/iRV+
-         ZNisBRHcHk81SeCgo3JHzrTuq53d/I9MXhObqy82Qk8FNcAEcu045EF3WXj78Z/3mQvz
-         SA1EZ1DAC1VyrJCQUAumyAudJ9ZUENezIti/K0Hy72zK7TYthxHiM3aWEUb21pN46SEc
-         GZ02AEaBPS5VJ0zzA3PyK0YbhbhN7cw7dy2eMZ3oAFc7rBuQ8QL3t5ImtclkhYMmm05H
-         E7lw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753429384; x=1754034184;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=B6A9eWb8jLD3CX4uWt67BOw6P0IxcLuBPt2ZgUNQsy8=;
-        b=cFwBqucDbwhi7/NyzLqzcitYdFV6qkV1eNWSYcIiIDsesTCO99fX+VPh1nz3sEzD0V
-         pQAWnPEhAo6nFrtvGBz/ZiI1ANnAGSH0RWfsTmBl5f2HY5Vw0Br8H0pFAB/CMXGJuhNw
-         nrB+QQkkedIdMSpRYwapYS4lYWXCOkSWCCmX6zUuWmqgjbsR/E53oOgmJVyz2dr12hnH
-         xxI1/BsA5fS53pFhPHP0RQ3OMr7pLoGFmCLhGwzqXieHByCBbmyQ2fsA6tUjoVaSYGtC
-         9vMk+mO39xUT0JxTZowQKQJ17AlNVpcM3k8vUO8BA+sPn60Qi0VEvngU4VNeCIFDu/0u
-         npzw==
-X-Forwarded-Encrypted: i=1; AJvYcCUTHxTgnuQ2MfQHUdkhgfIpiz3/x70JKcY7HxIukJIZ+beM7DgQENuULSJHf8lxMmEBoBGGCGOrFTZ/vR0kqA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/qxOZcy8cRuTOY8gtjSZaZeaNhRFMJWxBqtBFm7OPBL4+k+7T
-	BxVH+iROGIOy2vBJXt0FviA7ikTpcSFy4LLuVIp6qy+gfs3EmBhhPlUt0Su8xz4TYir+IJwMH6d
-	MXmOUYoxKxKV9RnfbGpa+H08n9UDwc2QZSVqnfl4OIw==
-X-Gm-Gg: ASbGncucFZEbmK7OMa2bJePWOkXaKH9Mi/UrVXZYBIrPp3c9wM1zGgrLih421Ig277L
-	l1HLFSTuKeYchPZutQu4CU+wAKRsb5Lt8Lwkqdmiv+ZaGIoiAk6tidtCiaH65qe2CyDmN3xriMC
-	u6I0n/pZ94Cfoa4SCqQ2YmYJ+jVMhlTYWlsrndc5J6AN62LaypEkuE8vsy9Rcp8I7WwkzZU7a+S
-	4S+h47chPgcxwxNIdG4HvrpV4qjDUBwTGfRTjc=
-X-Google-Smtp-Source: AGHT+IEp4yZltn1iEhku5b0BcUr/ZNUbZr9VJ2s3ZKzfyejP8ux9369sbYm6mfNAuhTfixuEu4GOK43HMuYchrNOtkE=
-X-Received: by 2002:a17:903:46cc:b0:234:8ec1:4af1 with SMTP id
- d9443c01a7336-23fb2e7c3e1mr15487105ad.0.1753429384481; Fri, 25 Jul 2025
- 00:43:04 -0700 (PDT)
+	s=arc-20240116; t=1753430124; c=relaxed/simple;
+	bh=dkLDUErdQqDtqWWpzqfVlXVVNCgpMZAZKx0UhRIwXEY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=eggq64CVdGf7nuh+CoWFEfEqnESEcqXGEWBnD/HXJhEIyDXMmEqD2HNzj//BT0Gc80DqBwhKwnvNK/nNLZL/eDRYTeNoJhH8Vfhdcdg3mzAqXpB41/n26jq/I8So/XvGiTShyXl3tC4bkWEKIsm7hcmpCOpD9F/XMMCEKjnrbNg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.252])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4bpKmN3SDzz14M01;
+	Fri, 25 Jul 2025 15:50:28 +0800 (CST)
+Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
+	by mail.maildlp.com (Postfix) with ESMTPS id 4B0C6180B66;
+	Fri, 25 Jul 2025 15:55:19 +0800 (CST)
+Received: from [10.174.176.70] (10.174.176.70) by
+ dggpemf500016.china.huawei.com (7.185.36.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Fri, 25 Jul 2025 15:55:18 +0800
+Message-ID: <bef878c0-4d7f-4e9a-a05d-30f6fde31e3c@huawei.com>
+Date: Fri, 25 Jul 2025 15:55:15 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Fri, 25 Jul 2025 13:12:53 +0530
-X-Gm-Features: Ac12FXwVCzv5N5zea2jLa_Q7rXwF-illzX5YacV4yqYK_TUIYP730sgY7-VdPXY
-Message-ID: <CA+G9fYuBnDVaiZ6Mqhr=4Y2quAsqeZoGfJ158xJ1-Q5HHw=cBw@mail.gmail.com>
-Subject: next-20250725 i386 x86_64 virtio_ring.c error variable 'id' is
- uninitialized when used here [-Werror,-Wuninitialized]
-To: open list <linux-kernel@vger.kernel.org>, virtualization@lists.linux.dev, 
-	clang-built-linux <llvm@lists.linux.dev>, lkft-triage@lists.linaro.org, 
-	Linux Regressions <regressions@lists.linux.dev>
-Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Nathan Chancellor <nathan@kernel.org>, 
-	Arnd Bergmann <arnd@arndb.de>, Dan Carpenter <dan.carpenter@linaro.org>, 
-	Anders Roxell <anders.roxell@linaro.org>, Ben Copeland <benjamin.copeland@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net: check the minimum value of gso size in
+ virtio_net_hdr_to_skb()
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, <mst@redhat.com>,
+	<jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
+	<pabeni@redhat.com>, <davem@davemloft.net>, <willemb@google.com>,
+	<atenart@kernel.org>
+CC: <yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
+	<netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <steffen.klassert@secunet.com>
+References: <20250724083005.3918375-1-wangliang74@huawei.com>
+ <688235273230f_39271d29430@willemb.c.googlers.com.notmuch>
+From: Wang Liang <wangliang74@huawei.com>
+In-Reply-To: <688235273230f_39271d29430@willemb.c.googlers.com.notmuch>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
+ dggpemf500016.china.huawei.com (7.185.36.197)
 
-Regressions noticed while building x86_64 and i386 builds with clang-nightly
-and clang-20 toolchains on the Linux next-20250725 tag.
 
-First seen on the Linux next-20250725
-Good: next-20250724
-Bad:  next-20250725
+在 2025/7/24 21:29, Willem de Bruijn 写道:
+> Wang Liang wrote:
+>> When sending a packet with virtio_net_hdr to tun device, if the gso_type
+>> in virtio_net_hdr is SKB_GSO_UDP and the gso_size is less than udphdr
+>> size, below crash may happen.
+>>
+> gso_size is the size of the segment payload, excluding the transport
+> header.
+>
+> This is probably not the right approach.
+>
+> Not sure how a GSO skb can be built that is shorter than even the
+> transport header. Maybe an skb_dump of the GSO skb can be elucidating.
+>>   			return -EINVAL;
+>>   
+>>   		/* Too small packets are not really GSO ones. */
+>> -- 
+>> 2.34.1
+>>
 
-Regression Analysis:
-- New regression? Yes
-- Reproducibility? Yes
+Thanks for your review!
 
-## Build regressions
-* i386, build
-  - clang-20-defconfig
-  - clang-nightly-defconfig
+Here is the skb_dump result:
 
-* x86_64, build
-  - clang-20-allyesconfig
-  - clang-20-lkftconfig
-  - clang-20-lkftconfig-compat
-  - clang-20-lkftconfig-kcsan
-  - clang-20-lkftconfig-no-kselftest-frag
-  - clang-20-x86_64_defconfig
-  - clang-nightly-lkftconfig
-  - clang-nightly-lkftconfig-hardening
-  - clang-nightly-lkftconfig-kselftest
-  - clang-nightly-lkftconfig-lto-full
-  - clang-nightly-lkftconfig-lto-thing
-  - clang-nightly-x86_64_defconfig
-  - gcc-13-allyesconfig
-  - korg-clang-20-lkftconfig-hardening
-  - korg-clang-20-lkftconfig-lto-full
-  - korg-clang-20-lkftconfig-lto-thing
-  - rustclang-nightly-lkftconfig-kselftest
+     skb len=4 headroom=98 headlen=4 tailroom=282
+     mac=(64,14) mac_len=14 net=(78,20) trans=98
+     shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
+     csum(0x8c start=140 offset=0 ip_summed=1 complete_sw=0 valid=1 level=0)
+     hash(0x0 sw=0 l4=0) proto=0x0800 pkttype=2 iif=4
+     priority=0x0 mark=0x0 alloc_cpu=0 vlan_all=0x0
+     encapsulation=0 inner(proto=0x0000, mac=0, net=0, trans=0)
+     dev name=tun0 feat=0x00002000000048c1
+     skb headroom: 00000000: 20 00 00 00 10 00 05 00 c4 2c 83 68 00 00 00 00
+     skb headroom: 00000010: 00 00 00 00 04 00 00 00 01 00 00 00 01 00 00 00
+     skb headroom: 00000020: 08 00 1d 00 09 00 00 00 09 00 03 00 74 75 6e 30
+     skb headroom: 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb headroom: 00000040: 01 80 c2 00 00 00 ff ff ff ff ff ff 08 00 45 00
+     skb headroom: 00000050: 00 18 00 00 20 00 00 11 ba d4 00 00 00 00 e0 00
+     skb headroom: 00000060: 00 01
+     skb linear:   00000000: 00 9c d0 90
+     skb tailroom: 00000000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 000000a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 000000b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 000000c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 000000d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 000000e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 000000f0: 00 00 00 00 00 00 00 00 00 00 00 0b 0e 04 80 88
+     skb tailroom: 00000100: ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     skb tailroom: 00000110: 00 00 00 00 00 00 00 00 00 00
 
-Build regression: next-20250725 i386 x86_64 virtio_ring.c error
-variable 'id' is uninitialized when used here
-[-Werror,-Wuninitialized]
+The following C code can reproduce this issue:
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+     #include <string.h>
+     #include <fcntl.h>
+     #include <sys/ioctl.h>
+     #include <linux/if.h>
+     #include <linux/if_tun.h>
+     #include <linux/virtio_net.h>
+     #include <netinet/ip.h>
+     #include <netinet/udp.h>
 
-## Build log
-drivers/virtio/virtio_ring.c:2113:40: error: variable 'id' is
-uninitialized when used here [-Werror,-Wuninitialized]
- 2113 |                 BAD_RING(vq, "id %u out of range\n", id);
-      |                                                      ^~
-drivers/virtio/virtio_ring.c:2077:19: note: initialize the variable
-'id' to silence this warning
- 2077 |         u16 last_used, id, last_used_idx;
-      |                          ^
-      |                           = 0
-1 error generated.
+     int main(void)
+     {
+         // create udp socket, set option UDP_ENCAP_ESPINUDP
+         int udp_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+         struct sockaddr_in server_addr = {
+             .sin_family = AF_INET,
+             .sin_port = htons(20004),
+             .sin_addr.s_addr = inet_addr("224.0.0.1"),
+         };
+         bind(udp_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+         int val = UDP_ENCAP_ESPINUDP;
+         setsockopt(udp_fd, IPPROTO_UDP, UDP_ENCAP, &val, sizeof(val));
 
-## Source
-* Git tree: https://kernel.googlesource.com/pub/scm/linux/kernel/git/next/linux-next.git
-* Project: https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20250725/
-* Git sha: d7af19298454ed155f5cf67201a70f5cf836c842
-* Git describe: 6.16.0-rc7-next-20250725
-* kernel version: next-20250725
-* Architectures: i386, x86_64
-* Toolchains: clang-nightly clang-20
-* Kconfigs: defconfig hardening lto-thing lto-full
+         // send udp packet to tun/tap dev
+         system("ip tuntap add dev tun0 mode tap");
+         system("ip link set dev tun0 up");
+         int fd = open("/dev/net/tun", O_RDWR);
+         struct ifreq ifr = {
+             .ifr_flags = IFF_TAP | IFF_NAPI | IFF_NAPI_FRAGS | 
+IFF_ONE_QUEUE | IFF_VNET_HDR,
+             .ifr_name  = "tun0",
+         };
+         ioctl(fd, TUNSETIFF, &ifr);
+         struct tun_pi pi = { 0 };
+         struct virtio_net_hdr gso = {
+             .flags = VIRTIO_NET_HDR_F_NEEDS_CSUM,
+             .gso_type = VIRTIO_NET_HDR_GSO_UDP,
+             .hdr_len = 64,
+             .gso_size = 4,
+             .csum_start = 76,
+             .csum_offset = 0,
+         };
+         struct ethhdr eth = {
+             .h_dest   = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x00},
+             .h_source = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+             .h_proto  = htons(0x0800),
+         };
+         struct iphdr iph = {
+             .version = 4,
+             .ihl = 5,
+             .tot_len = htons(176),
+             .protocol = IPPROTO_UDP,
+             .saddr = 0,
+             .daddr = inet_addr("224.0.0.1"),
+             .check = 0x3cda,
+         };
+         struct udphdr uh = {
+             .source = 0,
+             .dest = htons(20004),
+             .len = htons(156),
+             .check = 0x2363,
+         };
+         char buf[204] = { 0 };
+         memcpy(buf, &pi, 4);
+         memcpy(buf + 4, &gso, 10);
+         memcpy(buf + 14, &eth, 14);
+         memcpy(buf + 28, &iph, 20);
+         memcpy(buf + 48, &uh, 8);
+         write(fd, buf, sizeof(buf));
+         close(fd);
+         return 0;
+     }
 
-## Test
-* Test log: https://qa-reports.linaro.org/api/testruns/29243926/log_file/
-* Test details:
-https://regressions.linaro.org/lkft/linux-next-master/next-20250725/build/clang-nightly-defconfig/
-* Test run: https://regressions.linaro.org/lkft/linux-next-master/next-20250725/testruns/1727064/
-* Test history:
-https://regressions.linaro.org/lkft/linux-next-master/next-20250725/log-parser-build-clang/clang-compiler-drivers_virtio_virtio_ring_c-error-variable-id-is-uninitialized-when-used-here/
-* Test plan: https://tuxapi.tuxsuite.com/v1/groups/linaro/projects/lkft/builds/30LiHiVcyjXbMOk2IAEwlO93ZaH
-* Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/30LiHiVcyjXbMOk2IAEwlO93ZaH/
-* Kernel config:
-https://storage.tuxsuite.com/public/linaro/lkft/builds/30LiHiVcyjXbMOk2IAEwlO93ZaH/config
+------
+Best regards
+Wang Liang
 
-## steps to reproduce
- * tuxmake --runtime podman --target-arch i386 --toolchain
-clang-nightly --kconfig defconfig LLVM=1 LLVM_IAS=1
-
---
-Linaro LKFT
-https://lkft.linaro.org
+>
