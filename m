@@ -1,338 +1,121 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F36C72E36E6
-	for <virtualization@lists.linux.dev>; Mon, 28 Jul 2025 03:28:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 310F5202F7B
+	for <virtualization@lists.linux.dev>; Mon, 28 Jul 2025 03:30:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753673324; cv=none; b=TsQKNLvnoKJxfVflxGYmjDYu8oUM+7InxoekgEIOP9hZG9KHNVlS6bRQZLMSU45yR0K+RAnIpD04DdoWzoXgcOlBjejfOnUQ7TtjLbKovuquSRJycP8wYm09U07rN/+UvdET7bFRK+00TMbba+1i577+GtCB+3PUBq4IxKUQx/U=
+	t=1753673407; cv=none; b=DjVZg1SaxW2b99/PZn60+Q8/3lZAC7PK/IMgghPi3HBMtoAgrodqP59P6sRraVher6ApikuItNgd+7+fvyMFHv8QvNaLReUL5ed78j2lfvwob/tsMv1VI6GEshfHOB3yY3hcGoAoLGYaVHUN00uEO8NsQfk2onOrN5uFBHxh2qs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753673324; c=relaxed/simple;
-	bh=gCmBgqSdPOGx7a1LRs1ysrjxAzAmXzQPjsAzH45QxcY=;
+	s=arc-20240116; t=1753673407; c=relaxed/simple;
+	bh=7DYuxYq5iQMVGICDY2QMi9y65NM/F8ac6MLxH71EyBU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N5d+FfG20OaGiuSQvzK5gpEEXtsQpWCmstHcWrybAmiUWDcsI2Su50ccAOrwokhwWQA8NWdTzLQcmFqpLY8C3LB25YJnczdABrQ1Y2/kwqd5oQzD2MgN1QYaxnZzlP4MxCE3cX9vmpi9DfCE0m87DVQba7C3FjOUUp+kChiKy9s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ewMzzQrI; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=Kc1M/HqzyXDFBOcQ+I+iCENc7w777U2lv/sHkCMzzmrWmcD5jwjrsVcdlKJe0FpSEQR1HlDsM/ZGfZl5OkoO508GC+0xnwrSwHABa2YX9JyymJn92Jg1sVaJIy+61YmTH65tAjwGhgcHeNZqa4DhqlyN07StG9nayIq6hf7ivGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OzM4DO7Z; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ewMzzQrI"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OzM4DO7Z"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753673320;
+	s=mimecast20190719; t=1753673402;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8f0NjS475dSijJ2fA+eJGPGEKtjO2u3PdgQWKnQqLvE=;
-	b=ewMzzQrIhHZSDHz8FZb03F81dtkPNOz0HzfG592FXqQdxJi6Hk02ZyoBB4gd9zclc8zZLo
-	TbL1erbCqrLjI4sPEUinyW1ZcKxVXDn7IkSyorrIyZD5hKOquwjZdoayuxhKkmnC0ecrdq
-	21Qz26rgCOGUXO3bGylAgd02/YPgAc4=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=C83Mxg+jc4W7tLsg6CC1/bE+dKhpk6vxsSd0/8fHDfw=;
+	b=OzM4DO7ZvOaHAqmluEdx4l6+QV0+rZZe3owFFiHGX8v3tsMdJ5QNq21VLQ0Z1a2EnYoKNG
+	mIbjEMGggXIMOLd6UPx8lhwC9dbyqoHyFig4d8l6S7aGzMQ/yELvRLFSNwvoLzdvHessv3
+	WcLqODHtt5gh4ulaAd6Mbe6erdYIFXg=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-245-bDZrbay6M-ij8B3VfOUduw-1; Sun, 27 Jul 2025 23:28:39 -0400
-X-MC-Unique: bDZrbay6M-ij8B3VfOUduw-1
-X-Mimecast-MFC-AGG-ID: bDZrbay6M-ij8B3VfOUduw_1753673318
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-311d670ad35so3631752a91.3
-        for <virtualization@lists.linux.dev>; Sun, 27 Jul 2025 20:28:39 -0700 (PDT)
+ us-mta-611-uDbfXV2DM26Oni0tYggAOQ-1; Sun, 27 Jul 2025 23:30:00 -0400
+X-MC-Unique: uDbfXV2DM26Oni0tYggAOQ-1
+X-Mimecast-MFC-AGG-ID: uDbfXV2DM26Oni0tYggAOQ_1753673399
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-2400b28296fso10479945ad.1
+        for <virtualization@lists.linux.dev>; Sun, 27 Jul 2025 20:30:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753673318; x=1754278118;
+        d=1e100.net; s=20230601; t=1753673399; x=1754278199;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=8f0NjS475dSijJ2fA+eJGPGEKtjO2u3PdgQWKnQqLvE=;
-        b=h42c6OacjOq8qD6I59RQ8iR7KTXHYhv7bT9aIU6cdHKhjJ0ywXlOtT2fyCfdNDKWEs
-         RF3BWMKANmztxI0V5ZnOhbMud8PjccNvwEKB6uBsIkQGicYQdAPu/4r5yGxMuTjPH9oe
-         2nlJ7/ZrUtjNGDW+pt9lNzEFtwZ9pJrXGsInyQ7CertwI9O0nwAaUDlkO0C3vd9U4Xw+
-         U8t5C+VzRH/kmT3BQN17Oq1Qm0Rd4FdQBFCDYmK4cIzeWo1pkCtbM3kuqsiCBD3Nxk21
-         UXCae6itbPUOh2cLpan13inkoXF3fflfbLqkvHAZH2fAJjPRbXV0r4LS5R+fjdN4V4fy
-         pCcg==
-X-Gm-Message-State: AOJu0YwnoNOEPJiw6wtbQl0bkyFnd5x3Nq1bvLw7ESwErenWAcqJ7fbV
-	8lkptooGe+05yQIKgBsfH4629DSRfxM7r9jDC5hWpPlbLF44ijHwJD386dfu1TziPV28UBM8bLx
-	w25YqQT5qIxKGui7/U+9wd6EOYWiZv8c9mnP1Z+4EnnAf5EjE6Qir/ihRNn+HH5IdhUgUXfDEzw
-	cUfR8UWbrFgh/B352HbFEp8w6CephcrGX3gPSUiZ833uw=
-X-Gm-Gg: ASbGnctEDMSTkAQOfRp7fbT8h4R4Q1knZ2JDtVZqdgJIDCHADK4LM/H5fhxzIaaIYJc
-	sMn0UMjQI5YDIIAAoESg2cXAMrGeXSY8VnpGzB9Q4UelLk1+lYVOfiFNH2fSfJWPyWthu7E0ob5
-	IGbYquHWJqrBRCJZ5LcXE=
-X-Received: by 2002:a17:90a:e7c4:b0:312:639:a058 with SMTP id 98e67ed59e1d1-31e77a143cdmr12724129a91.27.1753673318258;
-        Sun, 27 Jul 2025 20:28:38 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGMcdq+U2T/HnEwydft2v9gyyWoDkvoNMkFuSZYJU28tEnJLCfvKRh+pf1nc22lxIj9ODVE0JLlyUhJD3DKBCk=
-X-Received: by 2002:a17:90a:e7c4:b0:312:639:a058 with SMTP id
- 98e67ed59e1d1-31e77a143cdmr12724101a91.27.1753673317685; Sun, 27 Jul 2025
- 20:28:37 -0700 (PDT)
+        bh=C83Mxg+jc4W7tLsg6CC1/bE+dKhpk6vxsSd0/8fHDfw=;
+        b=EdVIx7Jusz7cl+uOtxB50iR+0bZOO9QcqsO1Cn3fSB2duP99VdvQ4UHaI4vgzCN7ef
+         rYLU2e/ga2kk+GiD4XGc/l0xiGaLBjNXGfMngksANaOCl12Zw12DV7+NHn9662wvcqDh
+         zGOR5bZRTbD43zz0wC8wvvb1tJVm+cAn/MpBr4CYHxLz8lUi9PX28bu/ZxgYFfkBiPBa
+         qEe9u/7te5PgSRCCnqXv39iNDtD/H/ehXXv0QfDWjwGopgdsg4tS+P9NO9suLrCQ4TMt
+         CQNZpYv4zQOIJNyHhpXUGSSEH8tfj/LzDFAXdlVH+0T7e1BLcOSvKa1VhwO744HwD0kw
+         CdKA==
+X-Forwarded-Encrypted: i=1; AJvYcCXAC9Px0S+2ReuOpprnN25h6Ad1X5ioE932O29ehRLKseE02JNdYhQiuQyCU2m54TQ2wMxlxY1MRXCLgTMlSA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyeSE7PPSH+UoF8Isbd6jZES8KwGtznhlh4nVJ/ANJanNafeQMb
+	SoE6yWNX+HUJufRquMCXhJm8mBWp1O8V5vxOeIN0TUTcOPsM86EDQWbVkx5lXniDvOjlbFlVkC5
+	IInJvCf3PHOxLBOneuTvip3rD6T6TNMlQQZYW/I5nilqxeR9qa7K9MyDCtwQwAC4vFq0WX4iKr5
+	mPPE87JWs4cHQmZ8W5aIrMH93pFiviv+UV9hYX1k5HMks=
+X-Gm-Gg: ASbGnctaeJrFQW9SkMhZnvASJYFsTPRPU0CIYL4aGt6S1sCUUDIxZNLz3kGlUcNygCb
+	P0851YET3TTvhF3rVJE6gfWBRIyNMWXnytfuCicMh3BPdSQCGwrMgX13Ef5zsHdJSYjoQgROQQI
+	8TS//KQdCWIv71xljGqYw=
+X-Received: by 2002:a17:902:ebcd:b0:240:1f25:d443 with SMTP id d9443c01a7336-2401f25d6e2mr30560125ad.30.1753673399597;
+        Sun, 27 Jul 2025 20:29:59 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEDm/Gzir3BF/7ZYp0sKNtVBOwnJLz6VbOmMMiqGZKAeWWWfopLvjf9zqkYWO77SQsKbsCM/eGVmPDAVdqAVuE=
+X-Received: by 2002:a17:902:ebcd:b0:240:1f25:d443 with SMTP id
+ d9443c01a7336-2401f25d6e2mr30559885ad.30.1753673399191; Sun, 27 Jul 2025
+ 20:29:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250718091616.6140-1-jasowang@redhat.com> <20250718091616.6140-7-jasowang@redhat.com>
- <1753434835.586962-6-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1753434835.586962-6-xuanzhuo@linux.alibaba.com>
+References: <20250725083635.73355-1-jasowang@redhat.com> <20250725091129-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250725091129-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 28 Jul 2025 11:28:26 +0800
-X-Gm-Features: Ac12FXxl0u0YgTagADgKG8zyzxFm0sOHZjpEE0lg-XNxLYD-6Jl-0wyVECT4OKY
-Message-ID: <CACGkMEvOV9UHPbUx=iq_npcXcHYC2JVa=pZeDWbWmUF8TOgWkw@mail.gmail.com>
-Subject: Re: [PATCH V4 6/9] virtio: introduce map ops in virtio core
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, hch@infradead.org, 
-	Christoph Hellwig <hch@lst.de>, mst@redhat.com, eperezma@redhat.com
+Date: Mon, 28 Jul 2025 11:29:47 +0800
+X-Gm-Features: Ac12FXzBKfRjj1zeWsbUaDLspQ0PjkB3AfDBNjrF97VpxVGJeQKTp10kHWMIYgw
+Message-ID: <CACGkMEu2Dq6MWM9D4AgUMXWe-evhmN5pMGjWeW84Yzj5MBXK4g@mail.gmail.com>
+Subject: Re: [PATCH] virtio_ring: fix uninitialized used value
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	Naresh Kamboju <naresh.kamboju@linaro.org>, Randy Dunlap <rdunlap@infradead.org>, 
+	"kernelci . org bot" <bot@kernelci.org>, Linux Kernel Functional Testing <lkft@linaro.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -2kQAhtEnCw6zX1hjlhQRDJanMfSh1tWbW2AAcqKt3U_1753673318
+X-Mimecast-MFC-PROC-ID: 26PyJ2iF0NAEu3mJ0venGcriQUX6a-tI97CVdQvg7zs_1753673399
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 25, 2025 at 5:15=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
+On Fri, Jul 25, 2025 at 9:12=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
 >
-> On Fri, 18 Jul 2025 17:16:13 +0800, Jason Wang <jasowang@redhat.com> wrot=
-e:
-> > This patch introduces map operations for virtio device. Virtio use to
-> > use DMA API which is not necessarily the case since some devices
-> > doesn't do DMA. Instead of using tricks and abusing DMA API, let's
-> > simply abstract the current mapping logic into a virtio specific
-> > mapping operations. For the device or transport that doesn't do DMA,
-> > they can implement their own mapping logic without the need to trick
-> > DMA core. In this case the map_token is opaque to the virtio core that
-> > will be passed back to the transport or device specific map
-> > operations. For other devices, DMA API will still be used, so map
-> > token will still be the dma device to minimize the changeset and
-> > performance impact.
+> On Fri, Jul 25, 2025 at 04:36:35PM +0800, Jason Wang wrote:
+> > Buildbot reports uninitialized used:
 > >
-> > The mapping operations are abstract as a independent structure instead
-> > of reusing virtio_config_ops. This allows the transport can simply
-> > reuse the structure for lower layers.
+> > drivers/virtio/virtio_ring.c:2113:40: error: variable 'id' is
+> > uninitialized when used here [-Werror,-Wuninitialized]
+> >  2113 |                 BAD_RING(vq, "id %u out of range\n", id);
+> >       |                                                      ^~
+> > drivers/virtio/virtio_ring.c:2077:19: note: initialize the variable
+> > 'id' to silence this warning
+> >  2077 |         u16 last_used, id, last_used_idx;
+> >       |                          ^
+> >       |                           =3D 0
+> > 1 error generated.
 > >
-> > A set of new mapping helpers were introduced for the device that want
-> > to do mapping by themselves.
+> > Fixing this by use last_used instead and drop the complete unused
+> > variable id.
 > >
-> > Reviewed-by: Christoph Hellwig <hch@lst.de>
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c  | 174 +++++++++++++++++++++++++++++-----
-> >  include/linux/virtio.h        |  22 +++++
-> >  include/linux/virtio_config.h |  68 +++++++++++++
-> >  3 files changed, 238 insertions(+), 26 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.=
-c
-> > index 26ce8a3d6927..3f86e74dd79f 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -298,8 +298,14 @@ size_t virtio_max_dma_size(const struct virtio_dev=
-ice *vdev)
-> >  {
-> >       size_t max_segment_size =3D SIZE_MAX;
-> >
-> > -     if (vring_use_map_api(vdev))
-> > -             max_segment_size =3D dma_max_mapping_size(vdev->dev.paren=
-t);
-> > +     if (vring_use_map_api(vdev)) {
-> > +             if (vdev->map)
-> > +                     max_segment_size =3D
-> > +                             vdev->map->max_mapping_size(vdev->dev.par=
-ent);
-> > +             else
-> > +                     max_segment_size =3D
-> > +                             dma_max_mapping_size(vdev->dev.parent);
-> > +     }
-> >
-> >       return max_segment_size;
-> >  }
-> > @@ -310,8 +316,8 @@ static void *vring_alloc_queue(struct virtio_device=
- *vdev, size_t size,
-> >                              void *map_token)
-> >  {
-> >       if (vring_use_map_api(vdev)) {
-> > -             return dma_alloc_coherent(map_token, size,
-> > -                                       map_handle, flag);
-> > +             return virtqueue_map_alloc_coherent(vdev, map_token, size=
-,
-> > +                                                 map_handle, flag);
-> >       } else {
-> >               void *queue =3D alloc_pages_exact(PAGE_ALIGN(size), flag)=
-;
-> >
-> > @@ -344,7 +350,8 @@ static void vring_free_queue(struct virtio_device *=
-vdev, size_t size,
-> >                            void *map_token)
-> >  {
-> >       if (vring_use_map_api(vdev))
-> > -             dma_free_coherent(map_token, size, queue, map_handle);
-> > +             virtqueue_map_free_coherent(vdev, map_token, size,
-> > +                                         queue, map_handle);
-> >       else
-> >               free_pages_exact(queue, PAGE_ALIGN(size));
-> >  }
-> > @@ -388,9 +395,9 @@ static int vring_map_one_sg(const struct vring_virt=
-queue *vq, struct scatterlist
-> >        * the way it expects (we don't guarantee that the scatterlist
-> >        * will exist for the lifetime of the mapping).
-> >        */
-> > -     *addr =3D dma_map_page(vring_map_token(vq),
-> > -                         sg_page(sg), sg->offset, sg->length,
-> > -                         direction);
-> > +     *addr =3D virtqueue_map_page_attrs(&vq->vq, sg_page(sg),
-> > +                                      sg->offset, sg->length,
-> > +                                      direction, 0);
-> >
-> >       if (dma_mapping_error(vring_map_token(vq), *addr))
-> >               return -ENOMEM;
-> > @@ -454,11 +461,12 @@ static unsigned int vring_unmap_one_split(const s=
-truct vring_virtqueue *vq,
-> >       } else if (!vring_need_unmap_buffer(vq, extra))
-> >               goto out;
-> >
-> > -     dma_unmap_page(vring_map_token(vq),
-> > -                    extra->addr,
-> > -                    extra->len,
-> > -                    (flags & VRING_DESC_F_WRITE) ?
-> > -                    DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> > +     virtqueue_unmap_page_attrs(&vq->vq,
-> > +                                extra->addr,
-> > +                                extra->len,
-> > +                                (flags & VRING_DESC_F_WRITE) ?
-> > +                                DMA_FROM_DEVICE : DMA_TO_DEVICE,
-> > +                                0);
-> >
-> >  out:
-> >       return extra->next;
-> > @@ -1271,10 +1279,11 @@ static void vring_unmap_extra_packed(const stru=
-ct vring_virtqueue *vq,
-> >       } else if (!vring_need_unmap_buffer(vq, extra))
-> >               return;
-> >
-> > -     dma_unmap_page(vring_map_token(vq),
-> > -                    extra->addr, extra->len,
-> > -                    (flags & VRING_DESC_F_WRITE) ?
-> > -                    DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> > +     virtqueue_unmap_page_attrs(&vq->vq,
-> > +                                extra->addr, extra->len,
-> > +                                (flags & VRING_DESC_F_WRITE) ?
-> > +                                DMA_FROM_DEVICE : DMA_TO_DEVICE,
-> > +                                0);
-> >  }
-> >
-> >  static struct vring_packed_desc *alloc_indirect_packed(unsigned int to=
-tal_sg,
-> > @@ -3121,6 +3130,105 @@ const struct vring *virtqueue_get_vring(const s=
-truct virtqueue *vq)
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_get_vring);
-> >
-> > +/**
-> > + * virtqueue_map_alloc_coherent - alloc coherent mapping
-> > + * @vdev: the virtio device we are talking to
-> > + * @token: device specific mapping token
-> > + * @size: the size of the buffer
-> > + * @map_handle: the pointer to the mapped adress
-> > + * @gfp: allocation flag (GFP_XXX)
-> > + *
-> > + * return virtual address or NULL on error
-> > + */
-> > +void *virtqueue_map_alloc_coherent(struct virtio_device *vdev,
-> > +                                void *map_token, size_t size,
-> > +                                dma_addr_t *map_handle, gfp_t gfp)
-> > +{
-> > +     if (vdev->map)
-> > +             return vdev->map->alloc(map_token, size, map_handle, gfp)=
-;
-> > +     else
-> > +             return dma_alloc_coherent(map_token, size,
-> > +                                       map_handle, gfp);
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtqueue_map_alloc_coherent);
-> > +
-> > +/**
-> > + * virtqueue_map_free_coherent - free coherent mapping
-> > + * @vdev: the virtio device we are talking to
-> > + * @token: device specific mapping token
-> > + * @size: the size of the buffer
-> > + * @map_handle: the mapped address that needs to be freed
-> > + *
-> > + */
-> > +void virtqueue_map_free_coherent(struct virtio_device *vdev,
-> > +                              void *map_token, size_t size, void *vadd=
-r,
-> > +                              dma_addr_t map_handle)
-> > +{
-> > +     if (vdev->map)
-> > +             vdev->map->free(map_token, size, vaddr, map_handle, 0);
-> > +     else
-> > +             dma_free_coherent(map_token, size, vaddr, map_handle);
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtqueue_map_free_coherent);
-> > +
-> > +/**
-> > + * virtqueue_map_page_attrs - map a page to the device
-> > + * @_vq: the virtqueue we are talking to
-> > + * @page: the page that will be mapped by the device
-> > + * @offset: the offset in the page for a buffer
-> > + * @size: the buffer size
-> > + * @dir: mapping direction
-> > + * @attrs: mapping attributes
-> > + *
-> > + * Returns mapped address. Caller should check that by virtqueue_mappi=
-ng_error().
-> > + */
-> > +dma_addr_t virtqueue_map_page_attrs(const struct virtqueue *_vq,
-> > +                                 struct page *page,
-> > +                                 unsigned long offset,
-> > +                                 size_t size,
-> > +                                 enum dma_data_direction dir,
-> > +                                 unsigned long attrs)
-> > +{
-> > +     const struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > +     struct virtio_device *vdev =3D _vq->vdev;
-> > +     void *map_token =3D vring_map_token(vq);
-> > +
-> > +     if (vdev->map)
-> > +             return vdev->map->map_page(map_token,
-> > +                                        page, offset, size,
-> > +                                        dir, attrs);
-> > +
-> > +     return dma_map_page_attrs(map_token,
-> > +                               page, offset, size,
-> > +                               dir, attrs);
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtqueue_map_page_attrs);
-> > +
-> > +/**
-> > + * virtqueue_unmap_page_attrs - map a page to the device
-> > + * @_vq: the virtqueue we are talking to
-> > + * @map_handle: the mapped address
-> > + * @size: the buffer size
-> > + * @dir: mapping direction
-> > + * @attrs: unmapping attributes
-> > + */
-> > +void virtqueue_unmap_page_attrs(const struct virtqueue *_vq,
-> > +                             dma_addr_t map_handle,
-> > +                             size_t size, enum dma_data_direction dir,
-> > +                             unsigned long attrs)
-> > +{
-> > +     const struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > +     struct virtio_device *vdev =3D _vq->vdev;
-> > +     void *map_token =3D vring_map_token(vq);
-> > +
-> > +     if (vdev->map)
-> > +             vdev->map->unmap_page(map_token, map_handle,
-> > +                                   size, dir, attrs);
-> > +     else
-> > +             dma_unmap_page_attrs(map_token, map_handle, size, dir, at=
-trs);
+> > Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
+> > Cc: Randy Dunlap <rdunlap@infradead.org>
+> > Reported-by: kernelci.org bot <bot@kernelci.org>
+> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 >
->
-> How about setting dma_unmap_page_attrs as the default value of vdev->map-=
->unmap_page?
->
-> Then we can call vdev->map->unmap_page directly.
->
-> Thanks.
+> I squashed but I think you should respin.
+> also noticed a couple of minor issues.
 >
 
-This looks more clean but the problem is that the indirect call might
-be slow when mitigation is enabled. So I tend to keep the hard code
-condition here.
+I think a reppin of this patch should be sufficient.
+
+I can post a new version.
 
 Thanks
 
