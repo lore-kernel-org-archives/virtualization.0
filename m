@@ -1,58 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2D8B1FF603
-	for <virtualization@lists.linux.dev>; Mon, 28 Jul 2025 20:52:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DFE221C18D
+	for <virtualization@lists.linux.dev>; Mon, 28 Jul 2025 21:25:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753735944; cv=none; b=Sen1sn+dxZ0QaD09rpza9uzmFkI5tXRrVYMpN12SXEMzqIQyqA+PPPhkqkp0ozEHCkfOBEc4wknJAwnxPrIwduxolT0Lu+17ffmOl9Kb6/uJOmu+foQ1vjs/LynFKRtpiUCQcMZlNw7t5kj6Ua85g2MdEiBIJwScApvhwnGZK90=
+	t=1753737908; cv=none; b=mkHzGJXQHXFzMOV6TI8e6FxfivOm51GW/ae9anOOQS4T9LUPGaIFpiT9qdAEJE/3noHNMoEB4nsKPVTik8Jk95770/EEkHiRek4GMQwc7UxpfnPxOE0MhiY3Q73f4PEGzohN9b65D94DRKZCkil3IjhLZGUXPzkzrmH+AK4uUkc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753735944; c=relaxed/simple;
-	bh=cF4SyXtqXvTUmC4fAGd1dcUwXleYQvxcBS0IZpSVUas=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=BoU/S26pCoMparsosvA5Tt5rZDGfdBbYsd3l6koMEL891PsPi6UlATa7GpU9F+38P/o4fWskbRR0zWFWDNqUIj2zOM7TIcOisvBZXLVwxjeeC7QUBtXlY6AP+8JWVHFRjUIEPcVoZ3DOV7r1C5IA/2la32Yd/nHeIQMsLYpDBnI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iILanYIJ; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1753737908; c=relaxed/simple;
+	bh=hFGF4ak4iL9Eg7qXDoI/Knr80giZOYy2BcIVSQFdahs=;
+	h=Message-ID:Date:MIME-Version:Subject:References:To:Cc:From:
+	 In-Reply-To:Content-Type; b=GqSGbYghcfe68fQXryhsRjqNUPUwlOhTViUuev9f0XNL8Gv8e2FqZ18Qg3A3bs3R+hI17uG9Z2ZTvVDqY8p/+ccNApLCvc3g4q5XOxvqwyvKUFxs2VsdM/kSlFRMePd7dk9Gtu6ii0jE22lbAeZzqmJISLZRawneVLy4GvASh98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AiJGs3Fv; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iILanYIJ"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AiJGs3Fv"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56SGRl9K011939;
-	Mon, 28 Jul 2025 20:52:21 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56SDBOgI027003;
+	Mon, 28 Jul 2025 21:25:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=UGlfmwfsh4Vr/pXuF9ToEw67g2Yt
-	m6shnzntkhJVzGU=; b=iILanYIJtFaWs8UbiO8WBSaerHemEJdTyQY0m7sNpB0M
-	UN+d9H0sG3kXMr5gb3eYQV5K1UvdLtwvtB9I/ky++0ng9x9qHBcxXquFHdSLlhR2
-	4T8qzhNOWFAYpEJUVzY06ldVJU0q/BQEBO64XIO5jCQbsmzeuivX+1XmlK0riVUC
-	iODKw2hp6kxuL/t1RBNbAJizgYUFzLnR6Tfvl6nOMOYWuUdtmXyFBUmJ7yXnZqeW
-	l2FvNb3WqoZXW5ROGLFym3fy5mfZV25QAxjuvtfXOp1BwT1Oc887KBoyPyw/8G3K
-	iwluVV5TZi2r4n8L9p+x7GLs/lTHymfO7JqN/s9v8A==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 484qemk6e8-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=RsIpm1
+	ZePftr61CV00pezlWbIWceZ1DWlXmXkQqYnbI=; b=AiJGs3Fvcesi9WQsru5oEp
+	mlv3Xk53vRkPhtV8WAHA2L5FvwRemw0lHQCeBV4ifuSKHJoTwq9w0pzaZdVNDeML
+	ZVbVLMbYDmILSsq21Ig5YCc+uNbu5lhXEgDpuNvZ6SX52mtJhHEXjdMO3pfe8nsf
+	mBxFbNZ9Eur0kEckWEbPn7710G11jATj0Clcbb1ezkopZsxM2yt8Im1VLFZ5wOXm
+	dIvuuC/OaVPVhp2/hJNIseI140hbV69NJVWrhnOOg7s8Q0Od153k94+H6SKiNuCt
+	hI29WYghUIa/4zFkJeHHiC740MFD8ODYqC/L4WO288G1p+JyQafZubryoM8Rewlw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 484qemkayj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 28 Jul 2025 20:52:21 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56SKOD9q028745;
-	Mon, 28 Jul 2025 20:52:20 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 485c22f4bc-1
+	Mon, 28 Jul 2025 21:25:05 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56SJAibc018301;
+	Mon, 28 Jul 2025 21:25:04 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 485abnyhhx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 28 Jul 2025 20:52:20 +0000
+	Mon, 28 Jul 2025 21:25:04 +0000
 Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56SKqCNi29950686
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56SLP3lI58327434
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 28 Jul 2025 20:52:12 GMT
+	Mon, 28 Jul 2025 21:25:03 GMT
 Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4DE215805C;
-	Mon, 28 Jul 2025 20:52:19 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8E6865805D;
+	Mon, 28 Jul 2025 21:25:03 +0000 (GMT)
 Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DEF2358058;
-	Mon, 28 Jul 2025 20:52:18 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2B91358059;
+	Mon, 28 Jul 2025 21:25:03 +0000 (GMT)
 Received: from [9.24.20.98] (unknown [9.24.20.98])
 	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 28 Jul 2025 20:52:18 +0000 (GMT)
-Message-ID: <1b28a10e-0cff-405e-9106-0c20e70854f9@linux.ibm.com>
-Date: Mon, 28 Jul 2025 15:52:18 -0500
+	Mon, 28 Jul 2025 21:25:03 +0000 (GMT)
+Message-ID: <c2bba86f-d9d2-4bab-97e4-d983bffbb485@linux.ibm.com>
+Date: Mon, 28 Jul 2025 16:25:02 -0500
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,38 +62,41 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
+Subject: vhost: linux-next: kernel crash at vhost_dev_cleanup/kfree
 Content-Language: en-US
+References: <1b28a10e-0cff-405e-9106-0c20e70854f9@linux.ibm.com>
 To: jasowang@redhat.com
 Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux.dev,
-        netdev@vger.kernel.org, inux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
         jonah.palmer@oracle.com, Eric Farman <farman@linux.ibm.com>
 From: JAEHOON KIM <jhkim@linux.ibm.com>
-Subject: vhost: linux-next: kernel crash at vhost_dev_cleanup/kfree
+In-Reply-To: <1b28a10e-0cff-405e-9106-0c20e70854f9@linux.ibm.com>
+X-Forwarded-Message-Id: <1b28a10e-0cff-405e-9106-0c20e70854f9@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: TCEV5JEFpBT1uv6QJDiUZzebQTa3i5Qk
-X-Proofpoint-GUID: TCEV5JEFpBT1uv6QJDiUZzebQTa3i5Qk
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzI4MDE1NCBTYWx0ZWRfXw88S2OX53J0B
- bq/elWxbXqvMHGR/vpbAn0OyS2wCojAG1LtcQ3Me5gj1P//BiFHYw/5UjX6ovy7lI0AZ77emTJR
- BflX8efOEcr940uaomkgZUB6j3RBmtFjCMrOsUvD8kVbOH2MJ1S2047wZjFtbimkVrdhVGkEUXF
- mxIQoz4mVuDQg8ojI9RJHvIRvXuq1Ekcoc1ELdzU4LVlHGDOdH57KZxtUHD/ruQHzXSh7j6SaEF
- D2CimkOzaQMwmevKDiGF1M3xHaibD333QJOSWf6BUDKseiI5ICSD57WqR7YC40eQqDJsP1m6T7l
- obDh/ILRLsHd1lqptxWooHr4fFmYyFwJ6vEwPhkkeiTJ4ekalVmGg1eXjNKtemWxSH3zARSoF+x
- GwdD9tkYEI/w/ZmUaqxjPKcOC5TjL4seozi3btom2Y9sYgwgJIscjO4EgL+yUuclxPACbNjj
-X-Authority-Analysis: v=2.4 cv=BJOzrEQG c=1 sm=1 tr=0 ts=6887e305 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: JNDVpRasbacsR66uLIqWAC1n7XU-CD_o
+X-Proofpoint-GUID: JNDVpRasbacsR66uLIqWAC1n7XU-CD_o
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzI4MDE1OCBTYWx0ZWRfXwJI2oKzajmWT
+ oqxgMxP28FEyAmTx3ojVVGrhRGA2q1xvu6el+2mPwR39gkjXmRa0myhuKm4JzbFGqu5guMyfrSG
+ mAUb4tCwCUmKig+6BVrXC3eqzgsTHrV3o6x9ocOUF5GprsdLqxYnDjLQOIffwp/Mt+rUvN3+11f
+ IMr+WNPcuQrBuQEVqL+8+LSYmWqiq0kDRgWcL8sgiVcp0cP09ph09B0OkVbRDmYeaMfVfT6BhFf
+ vdB2++r+DkjMQeg5Pa7OJv21pyI/S+lBs1EQEgzamDgmELb9emxFOlYyNj2X6xH2kmFJeTMHk98
+ v9HEBupywZH7KM2xOV5LVWnXautn2MVv6drfF+1v5u2bjTNAP71S6yTC92pkDJxtGvsk8YD1CPi
+ R22E7zwWsf3NnWdxyJBefiSpRoVtjLQ4jDJHBcvH2DE+8YElRjc/D3MJVkm1TQWIMvRQq9E+
+X-Authority-Analysis: v=2.4 cv=BJOzrEQG c=1 sm=1 tr=0 ts=6887eab1 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=VwQbUJbxAAAA:8 a=8vsdKcPWeYT-9k0nS1MA:9
  a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-07-28_03,2025-07-28_01,2025-03-28_01
+ definitions=2025-07-28_04,2025-07-28_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  impostorscore=0 phishscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0
- mlxlogscore=754 priorityscore=1501 malwarescore=0 mlxscore=0 bulkscore=0
+ mlxlogscore=812 priorityscore=1501 malwarescore=0 mlxscore=0 bulkscore=0
  adultscore=0 clxscore=1011 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507280154
+ definitions=main-2507280158
 
 
 Dear Jason Wang,
@@ -137,21 +142,19 @@ PM:0 RI:0 EA:3
 00000328856e8000 0000262500000000
 [ 5413.029685]            000003ff8312cfa8 0000000000000000 
 000023015ba00000 000002a71e8d3ba8
-[ 5413.029697] Krnl Code: 0000032714b9f146: e3e060080008 ag      %r14,8(%r6)
-[ 5413.029697]            0000032714b9f14c: ec1e06b93a59 risbgn  
+[ 5413.029697] Krnl Code: 0000032714b9f146: e3e060080008 ag %r14,8(%r6)
+[ 5413.029697]            0000032714b9f14c: ec1e06b93a59 risbgn 
 %r1,%r14,6,185,58
-[ 5413.029697]           #0000032714b9f152: b90800a1 agr     %r10,%r1
+[ 5413.029697]           #0000032714b9f152: b90800a1 agr %r10,%r1
 [ 5413.029697]           >0000032714b9f156: e320a0080004 lg      %r2,8(%r10)
 [ 5413.029697]            0000032714b9f15c: a7210001 tmll    %r2,1
-[ 5413.029697]            0000032714b9f160: a77400e0 brc     
-7,0000032714b9f320
-[ 5413.029697]            0000032714b9f164: c004000000ca brcl    
+[ 5413.029697]            0000032714b9f160: a77400e0 brc 7,0000032714b9f320
+[ 5413.029697]            0000032714b9f164: c004000000ca brcl 
 0,0000032714b9f2f8
-[ 5413.029697]            0000032714b9f16a: 95f5a030 cli     48(%r10),245
+[ 5413.029697]            0000032714b9f16a: 95f5a030 cli 48(%r10),245
 [ 5413.029738] Call Trace:
 [ 5413.029741]  [<0000032714b9f156>] kfree+0x66/0x340
-[ 5413.029747]  [<0000032694e0391a>] vhost_dev_free_iovecs+0x9a/0xc0 
-[vhost]
+[ 5413.029747]  [<0000032694e0391a>] vhost_dev_free_iovecs+0x9a/0xc0 [vhost]
 [ 5413.029757]  [<0000032694e05406>] vhost_dev_cleanup+0xb6/0x210 [vhost]
 [ 5413.029763]  [<000003269507000a>] vhost_vsock_dev_release+0x1aa/0x1e0 
 [vhost_vsock]
