@@ -1,123 +1,169 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C4AA1C3C04
-	for <virtualization@lists.linux.dev>; Tue, 29 Jul 2025 09:56:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 015A8287507
+	for <virtualization@lists.linux.dev>; Tue, 29 Jul 2025 12:22:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753783011; cv=none; b=Di/3ZIstVWzu/ggxYLGcrHzjGTPg0+WN6ClZdBAWXqgRBXWIBAbY6uJ0EqCj7tuPWv8g3QLDwy/L5EUup/zBd4w9rxRhhszim1A7anGnEas7dH+EPcFDNnkqp9zBgakwvrWgsHJ7cpLzE0fKkhtcIx+Iv1rt7xvZ+YXhT929Rf8=
+	t=1753791773; cv=none; b=qwNfqnyzDcvpq2nseGEF45sTYIBDENCAT9skq8rS7FQ1h2UnNoKqGkpcIvmhOrogrgydEFutnwXuWZ5ILBTWnI+s3jmu3QYYUHgyjIN5IX/yNBqQ0TjqzhTG9Kv7dPGaZz8N2JRGRF91VHOivnorYLNc8OdU13U96GzGt2/+yRs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753783011; c=relaxed/simple;
-	bh=zs5ODgjq88Dh/p97NrIETQcV4sqEQTVPW1IHpVCIj5Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Tah7iUa+PV3xYLxActLfQk7f0eRVGTjTGkTpBr7dzgkfb+gA5lXabyc/sUakMz43AGWQBdzpPqtF5iUGPuBq7KWhCXjqKVXHUp7apvJtrg5lCjqjgi7j+88vjnuF0qD1rDKgW1kN1MoB7Kd7ybdlcJHmI5OCFBf1rth47aJipmY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cXNIE86Z; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cXNIE86Z"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753783007;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=v9Q72PwGeVTj3y8z/xg+PR9uIGfJgkCfjcqVd6z2uJw=;
-	b=cXNIE86Zcy7SZMXeY209e6lf4p+0ZiAe5fbXpyXJNVDwgHEcKCCM9qGYKQ5Zofdgt7dREU
-	IgE4pqFEoN5/+3uEZe/CMrYmWNvWIr0WC/d002sxwqk50mzhULDBny5D5Kw4r64YidCh7R
-	UQVcxy4VzLvzzOMXo/5NbVaJlxOBY4w=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-215-Ij11pgccMMWcDE7oEaUW5Q-1; Tue, 29 Jul 2025 05:56:46 -0400
-X-MC-Unique: Ij11pgccMMWcDE7oEaUW5Q-1
-X-Mimecast-MFC-AGG-ID: Ij11pgccMMWcDE7oEaUW5Q_1753783005
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-ae9bf1c5947so69652366b.0
-        for <virtualization@lists.linux.dev>; Tue, 29 Jul 2025 02:56:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753783005; x=1754387805;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=v9Q72PwGeVTj3y8z/xg+PR9uIGfJgkCfjcqVd6z2uJw=;
-        b=ScOLkQJrGfdWdsYu4NvDEqUm+0E3NpDPvxdAX8uPtXpbv4CTYl1gidNHV7M8AUj8DZ
-         T85pafW/qbgm8TEwbJzIorTOesIUzyrApmPE2Wy3xvf4W+i1jw+VWBB6gfSrzAnFsPdR
-         FzmS2CjgUjih8a1oSVEjd5zvMrX68dXmwZ+Y4FqfQnZxBHQn5iktqskOQKPn598Hu361
-         y2zlEPnjkLzRcvL+h8iFiOdOtZEkr9LgH+6wuTiQLBTzet/HENivFL51bNVUz+9ikw35
-         unc3rMuNn/YIj7X0WMG82PpgD3HbX9h5QJCzr6En2XAECokM3u40Uxppb/wq9vjuuRjz
-         iLxg==
-X-Forwarded-Encrypted: i=1; AJvYcCUqgQ+qalhs1nyt516I47RLtzMPIyT76TRuJJfI06s+rPKocAsXwcOuml+eG7367AnTcLF4RjZcP1cFmTmeJA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwPTLZJkbANF+2mdI3pkgNjvFBobqj5fCIU9e2XMSA4tpyrKdde
-	9DdmkBYN3GUGVH+ixAdTsvIrNn/HjHaKZ90d3TLYCbnyk0wFn8pQH56y8DYb8EwiD3wfOuw/vcD
-	TMw3iR2riLj2wW7/c1hau42q9uSiRqiph77VI08TokK2lAJ81CrBhPQ8TELyFqcoSsjha
-X-Gm-Gg: ASbGncvnCeJe1hbXRLE3zk8bdaj8SDX7HGyYKMLgqyXz69+EzLS9jVcFtrLcVuy12Ou
-	dLAF3bRAfTceBLB3C8xkllcltHgoRQ3zjpr0eG/xAmDOUnNdSLS4XutRnOUFqyfAmM4n4hiK7Rk
-	1IxAMVeRh9ARIs0FUjZ9OuYMOsJ9gXYlOthCZ27ZzDP2Rga4uvj02dzA4TGwrOYzX6QFRiiWLYj
-	h6wCIQqzvd3xFG5PjvBRtyna15bNnNhFcsQzbpxTs/HsShX1pyVSCl3eXfZsH3yYjHZGhdEeKTh
-	4ZHbcEF9kO2QdTxYPHXC5jbU9gkF4odGanmh58wxSE1RLr8SpGy88//U2cFAp5CL/XHq2jd2w+R
-	eKfpzd+EXp6wQTsM=
-X-Received: by 2002:a17:907:3da1:b0:af2:4690:9df3 with SMTP id a640c23a62f3a-af7bfd85f30mr309160566b.14.1753783004779;
-        Tue, 29 Jul 2025 02:56:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGikTxgu8BzOOJSc5KnbVu6iBWvoq2vv43KLwCvZ/Y6ueWN7/Ah83jj2TRypRMINdlKpJ2KOA==
-X-Received: by 2002:a17:907:3da1:b0:af2:4690:9df3 with SMTP id a640c23a62f3a-af7bfd85f30mr309159366b.14.1753783004396;
-        Tue, 29 Jul 2025 02:56:44 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-45-205-118.retail.telecomitalia.it. [79.45.205.118])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-61500addc6asm4421025a12.53.2025.07.29.02.56.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Jul 2025 02:56:43 -0700 (PDT)
-Date: Tue, 29 Jul 2025 11:56:40 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, eperezma@redhat.com, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	will@kernel.org, JAEHOON KIM <jhkim@linux.ibm.com>, 
-	Breno Leitao <leitao@debian.org>
-Subject: Re: [PATCH] vhost: initialize vq->nheads properly
-Message-ID: <6yp7ww6misiazdkeumkklrds2e7s3cmgf42lafvukhhqtopby4@ex6h5km4hq5y>
-References: <20250729073916.80647-1-jasowang@redhat.com>
+	s=arc-20240116; t=1753791773; c=relaxed/simple;
+	bh=FV6g1EBRL1RK/tzC+xm4c6xHhJTIID14Yplsrt/zSew=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=jfRbJQHJqwx9tVhBauWTkqM38gus4Xg87d5UJ63OnfUldIwUe/zuD/EvlbTk+SRhk4RMW5DVV3zBaKC1G4CAGmcYFUKM1gHdv4gNiQK1Azsv+UGpCQbNmu4MklceAWuLRZm+R41UfUIzyqyNrZsN+G+MYY7sNZTrSaTAQ6O8WhE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.234])
+	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4brvdy1KH4z27j3b;
+	Tue, 29 Jul 2025 20:23:50 +0800 (CST)
+Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
+	by mail.maildlp.com (Postfix) with ESMTPS id D13A81400D2;
+	Tue, 29 Jul 2025 20:22:48 +0800 (CST)
+Received: from [10.174.176.70] (10.174.176.70) by
+ dggpemf500016.china.huawei.com (7.185.36.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Tue, 29 Jul 2025 20:22:47 +0800
+Message-ID: <17042f3d-ce75-4be4-a53e-3d57907488e8@huawei.com>
+Date: Tue, 29 Jul 2025 20:22:46 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250729073916.80647-1-jasowang@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: b6sQWmzYj3O5AHwTKSuETQBTNUjtG5H-r8twGrgCfyM_1753783005
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net: check the minimum value of gso size in
+ virtio_net_hdr_to_skb()
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+CC: <yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
+	<netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
+	<eperezma@redhat.com>, <pabeni@redhat.com>, <davem@davemloft.net>,
+	<willemb@google.com>, <atenart@kernel.org>
+References: <20250724083005.3918375-1-wangliang74@huawei.com>
+ <1753433749.959542-1-xuanzhuo@linux.alibaba.com>
+From: Wang Liang <wangliang74@huawei.com>
+In-Reply-To: <1753433749.959542-1-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
+ dggpemf500016.china.huawei.com (7.185.36.197)
 
-On Tue, Jul 29, 2025 at 03:39:16PM +0800, Jason Wang wrote:
->Commit 7918bb2d19c9 ("vhost: basic in order support") introduces
->vq->nheads to store the number of batched used buffers per used elem
->but it forgets to initialize the vq->nheads to NULL in
->vhost_dev_init() this will cause kfree() that would try to free it
->without be allocated if SET_OWNER is not called.
+
+在 2025/7/25 16:55, Xuan Zhuo 写道:
+> On Thu, 24 Jul 2025 16:30:05 +0800, Wang Liang <wangliang74@huawei.com> wrote:
+>> When sending a packet with virtio_net_hdr to tun device, if the gso_type
+>> in virtio_net_hdr is SKB_GSO_UDP and the gso_size is less than udphdr
+>> size, below crash may happen.
+>>
+>>    ------------[ cut here ]------------
+>>    kernel BUG at net/core/skbuff.c:4572!
+>>    Oops: invalid opcode: 0000 [#1] SMP NOPTI
+>>    CPU: 0 UID: 0 PID: 62 Comm: mytest Not tainted 6.16.0-rc7 #203 PREEMPT(voluntary)
+>>    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+>>    RIP: 0010:skb_pull_rcsum+0x8e/0xa0
+>>    Code: 00 00 5b c3 cc cc cc cc 8b 93 88 00 00 00 f7 da e8 37 44 38 00 f7 d8 89 83 88 00 00 00 48 8b 83 c8 00 00 00 5b c3 cc cc cc cc <0f> 0b 0f 0b 66 66 2e 0f 1f 84 00 000
+>>    RSP: 0018:ffffc900001fba38 EFLAGS: 00000297
+>>    RAX: 0000000000000004 RBX: ffff8880040c1000 RCX: ffffc900001fb948
+>>    RDX: ffff888003e6d700 RSI: 0000000000000008 RDI: ffff88800411a062
+>>    RBP: ffff8880040c1000 R08: 0000000000000000 R09: 0000000000000001
+>>    R10: ffff888003606c00 R11: 0000000000000001 R12: 0000000000000000
+>>    R13: ffff888004060900 R14: ffff888004050000 R15: ffff888004060900
+>>    FS:  000000002406d3c0(0000) GS:ffff888084a19000(0000) knlGS:0000000000000000
+>>    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>    CR2: 0000000020000040 CR3: 0000000004007000 CR4: 00000000000006f0
+>>    Call Trace:
+>>     <TASK>
+>>     udp_queue_rcv_one_skb+0x176/0x4b0 net/ipv4/udp.c:2445
+>>     udp_queue_rcv_skb+0x155/0x1f0 net/ipv4/udp.c:2475
+>>     udp_unicast_rcv_skb+0x71/0x90 net/ipv4/udp.c:2626
+>>     __udp4_lib_rcv+0x433/0xb00 net/ipv4/udp.c:2690
+>>     ip_protocol_deliver_rcu+0xa6/0x160 net/ipv4/ip_input.c:205
+>>     ip_local_deliver_finish+0x72/0x90 net/ipv4/ip_input.c:233
+>>     ip_sublist_rcv_finish+0x5f/0x70 net/ipv4/ip_input.c:579
+>>     ip_sublist_rcv+0x122/0x1b0 net/ipv4/ip_input.c:636
+>>     ip_list_rcv+0xf7/0x130 net/ipv4/ip_input.c:670
+>>     __netif_receive_skb_list_core+0x21d/0x240 net/core/dev.c:6067
+>>     netif_receive_skb_list_internal+0x186/0x2b0 net/core/dev.c:6210
+>>     napi_complete_done+0x78/0x180 net/core/dev.c:6580
+>>     tun_get_user+0xa63/0x1120 drivers/net/tun.c:1909
+>>     tun_chr_write_iter+0x65/0xb0 drivers/net/tun.c:1984
+>>     vfs_write+0x300/0x420 fs/read_write.c:593
+>>     ksys_write+0x60/0xd0 fs/read_write.c:686
+>>     do_syscall_64+0x50/0x1c0 arch/x86/entry/syscall_64.c:63
+>>     </TASK>
+>>
+>> To trigger gso segment in udp_queue_rcv_skb(), we should also set option
+>> UDP_ENCAP_ESPINUDP to enable udp_sk(sk)->encap_rcv. When the encap_rcv
+>> hook return 1 in udp_queue_rcv_one_skb(), udp_csum_pull_header() will try
+>> to pull udphdr, but the skb size has been segmented to gso size, which
+>> leads to this crash.
+> Is it correct to access the checksum of a segmented skb?
 >
->Reported-by: JAEHOON KIM <jhkim@linux.ibm.com>
->Reported-by: Breno Leitao <leitao@debian.org>
->Fixes: 7918bb2d19c9 ("vhost: basic in order support")
->Signed-off-by: Jason Wang <jasowang@redhat.com>
->---
-> drivers/vhost/vhost.c | 1 +
-> 1 file changed, 1 insertion(+)
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
+>> Only udp has this probloem. Add check for the minimum value of gso size in
+>> virtio_net_hdr_to_skb().
+> Why tcp has not this problem?
 >
->diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->index a4873d116df1..b4dfe38c7008 100644
->--- a/drivers/vhost/vhost.c
->+++ b/drivers/vhost/vhost.c
->@@ -615,6 +615,7 @@ void vhost_dev_init(struct vhost_dev *dev,
-> 		vq->log = NULL;
-> 		vq->indirect = NULL;
-> 		vq->heads = NULL;
->+		vq->nheads = NULL;
-> 		vq->dev = dev;
-> 		mutex_init(&vq->mutex);
-> 		vhost_vq_reset(dev, vq);
->-- 
->2.39.5
 >
+>> Fixes: cf329aa42b66 ("udp: cope with UDP GRO packet misdirection")
+>> Fixes: 3d010c8031e3 ("udp: do not accept non-tunnel GSO skbs landing in a tunnel")
+>> Signed-off-by: Wang Liang <wangliang74@huawei.com>
+>> ---
+>>   include/linux/virtio_net.h | 5 ++++-
+>>   1 file changed, 4 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+>> index 02a9f4dc594d..0533101642bd 100644
+>> --- a/include/linux/virtio_net.h
+>> +++ b/include/linux/virtio_net.h
+>> @@ -157,11 +157,13 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>>   		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
+>>   		unsigned int nh_off = p_off;
+>>   		struct skb_shared_info *shinfo = skb_shinfo(skb);
+>> +		u16 min_gso_size = 0;
+>>
+>>   		switch (gso_type & ~SKB_GSO_TCP_ECN) {
+>>   		case SKB_GSO_UDP:
+>>   			/* UFO may not include transport header in gso_size. */
+>>   			nh_off -= thlen;
+>> +			min_gso_size = sizeof(struct udphdr) + 1;
+>>   			break;
+>>   		case SKB_GSO_UDP_L4:
+>>   			if (!(hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM))
+>> @@ -172,6 +174,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>>   				return -EINVAL;
+>>   			if (gso_type != SKB_GSO_UDP_L4)
+>>   				return -EINVAL;
+>> +			min_gso_size = sizeof(struct udphdr) + 1;
+> why +1?
+>
+> Thanks.
 
+
+Hi! Sorry for replying so late.
+
+The first patch should add RFC, because I am not sure it is the best fix
+method. Set 'min_gso_size = sizeof(struct udphdr) + 1;' to ensure at least
+one byte in payload.
+
+After discussions in mail list, I send a v2 patch, please check it:
+https://lore.kernel.org/netdev/20250729123907.3318425-1-wangliang74@huawei.com/T/#u
+
+Thanks.
+
+>>   			break;
+>>   		case SKB_GSO_TCPV4:
+>>   		case SKB_GSO_TCPV6:
+>> @@ -182,7 +185,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>>   		}
+>>
+>>   		/* Kernel has a special handling for GSO_BY_FRAGS. */
+>> -		if (gso_size == GSO_BY_FRAGS)
+>> +		if ((gso_size == GSO_BY_FRAGS) || (gso_size < min_gso_size))
+>>   			return -EINVAL;
+>>
+>>   		/* Too small packets are not really GSO ones. */
+>> --
+>> 2.34.1
+>>
