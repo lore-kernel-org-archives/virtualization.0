@@ -1,167 +1,145 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5B6617578
-	for <virtualization@lists.linux.dev>; Tue, 29 Jul 2025 02:35:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 849C418C03F
+	for <virtualization@lists.linux.dev>; Tue, 29 Jul 2025 02:40:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753756537; cv=none; b=I9pF+uzkTiIbUcI8jEC9fjXtOOOBAAOhKeRjrVhVOOwnUKRJ+9YyBAjxfCn72sUREAlpOu4wxOcLlEQIp/zicwijgN6d5Pq3dtJHGBFHfkW6P3KQrHgY6XLUqil2LHLO0orLeCU1jWHoDi/alMMBM3fdYB92WkVTFqcd7RxROT0=
+	t=1753756810; cv=none; b=ue3QNw1GoEyfy2ZwP3o8dmnJHuVb1p4ealZxu4PY1MXd9jvhlTis31XMNf4N+jri/WZbK4mxX9O/e+Ee+2zghLoZsmNsc09Q/9+QPvj7tXJtbFYRLSkifpxH6xk5BwKFL4aMtRLdo0aGAqVE/+0mE5Cjgdst8ENR3GleTK/p2fQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753756537; c=relaxed/simple;
-	bh=/HRnCcZbRcb+9UnZQVgZArGPTp9yESFm13pZNntIREc=;
+	s=arc-20240116; t=1753756810; c=relaxed/simple;
+	bh=u9eeyt0TY8VZJUTPBx+3waaYqQoZvCknm4y0ibpoDwM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lrw1vgQ/9DjAUfS59aLXVx3iEiM3xfYnMiHqTBCTUjV2ebgltFBLfJBowZbYfvkWMWy+hhUOtJszaBsjqDDarVDsa5ISxZyQtEKGcCew1XKRzC9K1824yzWaKZ9Ul7Q5iiYbUD1eKHlJsYMxmPdcWkpIGYm8lFxLOpQYdRXSO9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aE6xB6Ki; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=ru223M6gCmTaIQqeCbs4401blWM5LcD1hQ2NnwPw+7FlqG8ADzW1/Y51iYBEc02ftw7ML0u7hGTD0HWkodZb2kz63ZoS6qXul43/zxwcC4TEm3xgvRa0zQraUGd3QMIj0QVjeA+5BmdD7IKRLLhEmRTIKHQ3tWbJeM+zsbmr850=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K+GRRSgO; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aE6xB6Ki"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K+GRRSgO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753756534;
+	s=mimecast20190719; t=1753756807;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=WIZbtQ2slqhS5EM/uMEEbTpOOGP49cWRXzWaMjTHz98=;
-	b=aE6xB6KiE16aoWBoAdHivT7cR/pnJau6VRUii/jUBvlbx9fy5JQJnyedgES/Yf0p6xrM10
-	lsk6cFXNNLIf2wVLb6MHcPUvMpi2QO33bAbBOr+Zv+ttxpYCYTZjWQUeBP6+JCyWVTRfB6
-	pmGxb/2fpS//ejkr7Poy89dqBulo/sI=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Rr0RBtM4PPEUCRYnReQAehBJpOEIUsyueCfwPvyGiT8=;
+	b=K+GRRSgOJbDxxj4IucSGVJxCkbJDONwm0a6SrfwLqkLXEj1TyewthaGxQMiiTXrhSCjm3h
+	mEDddM9JZpaRiyVU2+5KtRdu8IfOAXw2+F+vbzNR5sxP1ODw4oXSQtSzhpQUauBVECW9pp
+	e8jDDzMfZ7Ec1z7K2CoXFjRPAF3xWfQ=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-319-JKtbkxOHMHapUF6O4Lh6XQ-1; Mon, 28 Jul 2025 22:35:33 -0400
-X-MC-Unique: JKtbkxOHMHapUF6O4Lh6XQ-1
-X-Mimecast-MFC-AGG-ID: JKtbkxOHMHapUF6O4Lh6XQ_1753756531
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-31eec1709e7so2687462a91.0
-        for <virtualization@lists.linux.dev>; Mon, 28 Jul 2025 19:35:32 -0700 (PDT)
+ us-mta-365-SjVDyuOqNim6yuZ842vPPg-1; Mon, 28 Jul 2025 22:40:05 -0400
+X-MC-Unique: SjVDyuOqNim6yuZ842vPPg-1
+X-Mimecast-MFC-AGG-ID: SjVDyuOqNim6yuZ842vPPg_1753756804
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-b31df10dfadso3548568a12.0
+        for <virtualization@lists.linux.dev>; Mon, 28 Jul 2025 19:40:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753756531; x=1754361331;
+        d=1e100.net; s=20230601; t=1753756804; x=1754361604;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=WIZbtQ2slqhS5EM/uMEEbTpOOGP49cWRXzWaMjTHz98=;
-        b=b4VUWCY56u0sVBbUWMW/q/yJble1SSUffoS2BKRKE9i8dJibPP8QXyuPowfaWjLGS6
-         1pZbC+jlAxmHDSHrLW6Uc1wGTHKPMrHt5aLY9InbWEiuzgH1ir8Zxc7QoHfFJW07rs/U
-         1ZjR1v6TkGRd4+5oGFv2LCpqlLhZA4zV03prceHwqe8NiTF6u3/kDt8+8yqOb7eFzCPq
-         MZoXLS5DvCZSa674gZ0hTwHmO67un82bCm4rGpg5C9x/KdnkF6wqfVgtWy/rOQBw6EKZ
-         /1Ymv1FrXaPM4ytSndP78dCgddJX91QIHerdlIbP2ejVp+IWtgX73r0wBuZegNJKU4AV
-         611g==
-X-Forwarded-Encrypted: i=1; AJvYcCVVETa1da+WJOtgOaxZ2kZPC5Kh3tXMLV9aiOkMMW0WQEHE2vE4Gs95Wy+FVQzuNQlItABgx6vFbSeGbYk4/w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwLi7FTOGFbSdK1bgBEwYlCODrXLdp9C70dXEgeDFiqHQ6Te7Up
-	qEDiFer8e67jqVSecW+n8DgNeULPTH3xf1FE8n6aKIj6Q4qcs9GlgbXVa4WUOcL4TcwAAVFabCb
-	3VWx9yxLOMq0cuUNALMjOdmJQHhlK/47gR7p/PjBtuXgpoHW9rJtGTxrXhkjeiSsRHD7t0W4lHW
-	5MKUvH6ONQVkQLrhGoJ0EpJPZgXZHa8sLbLxvi/uYBsRgZB3v1BC0sCA==
-X-Gm-Gg: ASbGnctA167MDfN1qZMIqVpXLgQBSCFaTMvgqwFllCU8HJi9uModwJTGVonfjzbYkzu
-	N2XDH9f/INKrba0Kw9ioc8SYeWp2GKhmDTGB4WOD+n6e5OWROueI6zdkj/oF3Kt4QdYWyRdWKcl
-	ps2717C/smdnjEcAfk9pw=
-X-Received: by 2002:a17:90b:35cb:b0:312:639:a064 with SMTP id 98e67ed59e1d1-31e77afec2fmr20280650a91.28.1753756530819;
-        Mon, 28 Jul 2025 19:35:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHkVhn9W+WFyYhtsUNtXSblsyo22sgv8VehvQUpBc0h593QkX1IjQB6CHvJZiJD5dWDQF9Je+oR19Df3Sb6E8U=
-X-Received: by 2002:a17:90b:35cb:b0:312:639:a064 with SMTP id
- 98e67ed59e1d1-31e77afec2fmr20280619a91.28.1753756530435; Mon, 28 Jul 2025
- 19:35:30 -0700 (PDT)
+        bh=Rr0RBtM4PPEUCRYnReQAehBJpOEIUsyueCfwPvyGiT8=;
+        b=eTSDXQ2II44yLLrX2Vxc3RBLbpLO+ruGplyPes3TYJNryxnr1PpyHoPyC4BYeNaHZi
+         wLk3R5LRhh9ao2p+0DZKKADjhuBJ/jEU2oTN1/XBZj3yp74LkRVEgOgDXJyAb8sgl3UU
+         dcjoxlQq/6zjGv+qVUXUAJ1mP8I1m/IxZ3tZ0oB4OlAYLsIoCzobs3zdZKHZqqH2VET7
+         9IZiJ3889Yv3TLmgr2zTBrO82CSygoO8StvmJ2jY0mx/h0YLlrAyfxFy2WJ+vwGjY2TR
+         txQd6PMaNoLHE3kILaftVOEBmvjEx5m3lb0qye49V+5eo6iE0LIXOgi6tMcqHMHqwyXE
+         n82g==
+X-Forwarded-Encrypted: i=1; AJvYcCXOlFwdV1sDfTr7jKqm2z7zYvVK9riCBnhme0zV7KY9y5jV6U6acA/ofSfuDd23OyXYCxGtjPp+DU2CB43kIw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzrqbsZNFXDmH6vL8+DW85Lqkd1Byjw8/8xsVffGG/Eus/rbTP+
+	QQ0a1vwTJJImHlzk2EG/DLQpIsra/YOQpccLH2OsF+oSyhtlNS7gSp3diEqK+9Cp7EPR6cI2c3Z
+	Wq+PVaZZ8VHN2CfOYxPbz8enlluOqqbwPzb7m7uPkl0Ros3681IH4bLHTUuKtVNnRoo7cLf/+OD
+	lLfGVSp2ZJc+XQU6kFZXze49bLb2iwPqq4Vi3CnOtgry/iqF9at57w+Q==
+X-Gm-Gg: ASbGncv2qBkplQsXQ7BwpuPjRuEi/2qDP/ZVa2ZTciumRQxN9puzwie1b1brHP1CBve
+	70Kg52ib05EmenjR5Z/oov6hv4l7V2w3jTuJJVC7mls/ihRFFUHwCgWETvt+7UwyP65TPo8ZSjB
+	sbtsMtaFEgVB7UtEWaSG8=
+X-Received: by 2002:a17:902:e891:b0:23d:ed91:6142 with SMTP id d9443c01a7336-23fb30e873fmr218672725ad.42.1753756803837;
+        Mon, 28 Jul 2025 19:40:03 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE/7E/5hv5l0CnRxhJGw4HL+V+BlBjKku3YaF/ts6+ubdu5Ax0qOzggJ46ozsRaRygBUyeaDIM5MmmXS7Jid2I=
+X-Received: by 2002:a17:902:e891:b0:23d:ed91:6142 with SMTP id
+ d9443c01a7336-23fb30e873fmr218672455ad.42.1753756803412; Mon, 28 Jul 2025
+ 19:40:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250724064017.26058-1-jasowang@redhat.com> <CAJaqyWddTABhmjGjvY5F91g1x5pN4MxCtPnsWt-3H=SqEKO4RQ@mail.gmail.com>
-In-Reply-To: <CAJaqyWddTABhmjGjvY5F91g1x5pN4MxCtPnsWt-3H=SqEKO4RQ@mail.gmail.com>
+References: <20250718075336.4374-1-jasowang@redhat.com> <CAJaqyWefAVfQtrboc3ms3A4BH5i0mFngoeznPXMVZaF3ULxuLQ@mail.gmail.com>
+In-Reply-To: <CAJaqyWefAVfQtrboc3ms3A4BH5i0mFngoeznPXMVZaF3ULxuLQ@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 29 Jul 2025 10:35:18 +0800
-X-Gm-Features: Ac12FXzp_K3lxtN6U2Qhjv41YpDpTlmP8AfplG3zvRlUK09iDW2x38sfF0CaVmE
-Message-ID: <CACGkMEugov98y857bGK2CmbPVK3AiB5_USxm9LOPeVj7UpfpHg@mail.gmail.com>
-Subject: Re: [PATCH V4 00/19] virtio_ring in order support
+Date: Tue, 29 Jul 2025 10:39:52 +0800
+X-Gm-Features: Ac12FXwWO2WiaAjldG1-S2luBixeBpyqS0UWVMspMyJ87TZLXhe7W3Fn-397h1A
+Message-ID: <CACGkMEt8ae2RFuSvWCO-BtngeYgG_9DHXtRe80fCVNu6=8d1Qw@mail.gmail.com>
+Subject: Re: [PATCH] vduse: drop depedencies for HAS_DMA and ARCH_HAS_DMA_OPS
 To: Eugenio Perez Martin <eperezma@redhat.com>
 Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
+	hch@infradead.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Q32zRD-TFfjRk_-dQdnGGvJofo-6cf1HhzShMCFj_nQ_1753756531
+X-Mimecast-MFC-PROC-ID: u6C8GXF5F970l2QzVbX3S6dtq1CqTftagLuUgf1uGOg_1753756804
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 28, 2025 at 9:42=E2=80=AFPM Eugenio Perez Martin
+On Mon, Jul 28, 2025 at 9:53=E2=80=AFPM Eugenio Perez Martin
 <eperezma@redhat.com> wrote:
 >
-> On Thu, Jul 24, 2025 at 8:40=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+> On Fri, Jul 18, 2025 at 9:53=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
 wrote:
 > >
-> > Hello all:
+> > After commit c2dbb3fc2a97 ("vduse: switch to use virtio map API
+> > instead of DMA API"), vduse doesn't use DMA API. So we can safely drop
+> > the depedencies for HAS_DMA and ARCH_HAS_DMA_OPS.
 > >
-> > This sereis tries to implement the VIRTIO_F_IN_ORDER to
-> > virtio_ring. This is done by introducing virtqueue ops so we can
-> > implement separate helpers for different virtqueue layout/features
-> > then the in-order were implemented on top.
-> >
-> > Tests shows 2%-19% imporvment with packed virtqueue PPS with KVM guest
-> > vhost-net/testpmd on the host.
-> >
-> > Changes since V3:
-> >
-> > - Re-benchmark with the recent vhost-net in order support
-> > - Rename the batched used id and length
-> > - Other minor tweaks
-> >
-> > Changes since V2:
-> >
-> > - Fix build warning when DEBUG is enabled
-> >
-> > Changes since V1:
-> >
-> > - use const global array of function pointers to avoid indirect
-> >   branches to eliminate retpoline when mitigation is enabled
-> > - fix used length calculation when processing used ids in a batch
-> > - fix sparse warnings
-> >
-> > Please review.
-> >
-> > Thanks
-> >
-> > Jason Wang (19):
-> >   virtio_ring: rename virtqueue_reinit_xxx to virtqueue_reset_xxx()
-> >   virtio_ring: switch to use vring_virtqueue in virtqueue_poll variants
-> >   virtio_ring: unify logic of virtqueue_poll() and more_used()
-> >   virtio_ring: switch to use vring_virtqueue for virtqueue resize
-> >     variants
-> >   virtio_ring: switch to use vring_virtqueue for virtqueue_kick_prepare
-> >     variants
-> >   virtio_ring: switch to use vring_virtqueue for virtqueue_add variants
-> >   virtio: switch to use vring_virtqueue for virtqueue_add variants
-> >   virtio_ring: switch to use vring_virtqueue for enable_cb_prepare
-> >     variants
-> >   virtio_ring: use vring_virtqueue for enable_cb_delayed variants
-> >   virtio_ring: switch to use vring_virtqueue for disable_cb variants
-> >   virtio_ring: switch to use vring_virtqueue for detach_unused_buf
-> >     variants
-> >   virtio_ring: use u16 for last_used_idx in virtqueue_poll_split()
-> >   virtio_ring: introduce virtqueue ops
-> >   virtio_ring: determine descriptor flags at one time
-> >   virtio_ring: factor out core logic of buffer detaching
-> >   virtio_ring: factor out core logic for updating last_used_idx
-> >   virtio_ring: factor out split indirect detaching logic
-> >   virtio_ring: factor out split detaching logic
-> >   virtio_ring: add in order support
-> >
-> >  drivers/virtio/virtio_ring.c | 902 +++++++++++++++++++++++++++--------
-> >  1 file changed, 690 insertions(+), 212 deletions(-)
-> >
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
 >
-> I'm happy with this series and it solves the abuse of the DMA API as
-> far as I know. As a suggestion, maybe we can get rid of the
-> vring_use_map_api function and move it to the vdev? It's actually part
-> of the TODO of the function, and this seems ideal.
+> This should be at the end of the series that makes VDUSE not depend on
+> DMA, isn't it? Or am I missing something?
 
-Right, but I tend to make it on top.
+This is a fixup after Michael merges the series. But he spot some
+other issue (e.g losing the type safety of dma device), so the series
+were dropped from his tree.
+
+I will work on a new version.
 
 >
-> This can be done on top of course, so
+> Anyway,
 >
 > Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 >
 > Thanks!
->
 
 Thanks
+
+>
+> > ---
+> >  drivers/vdpa/Kconfig | 8 +-------
+> >  1 file changed, 1 insertion(+), 7 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> > index 559fb9d3271f..857cf288c876 100644
+> > --- a/drivers/vdpa/Kconfig
+> > +++ b/drivers/vdpa/Kconfig
+> > @@ -34,13 +34,7 @@ config VDPA_SIM_BLOCK
+> >
+> >  config VDPA_USER
+> >         tristate "VDUSE (vDPA Device in Userspace) support"
+> > -       depends on EVENTFD && MMU && HAS_DMA
+> > -       #
+> > -       # This driver incorrectly tries to override the dma_ops.  It sh=
+ould
+> > -       # never have done that, but for now keep it working on architec=
+tures
+> > -       # that use dma ops
+> > -       #
+> > -       depends on ARCH_HAS_DMA_OPS
+> > +       depends on EVENTFD && MMU
+> >         select VHOST_IOTLB
+> >         select IOMMU_IOVA
+> >         help
+> > --
+> > 2.47.3
+> >
+>
 
