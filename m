@@ -1,169 +1,329 @@
-Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 015A8287507
-	for <virtualization@lists.linux.dev>; Tue, 29 Jul 2025 12:22:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A865291C33
+	for <virtualization@lists.linux-foundation.org>; Tue, 29 Jul 2025 12:41:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753791773; cv=none; b=qwNfqnyzDcvpq2nseGEF45sTYIBDENCAT9skq8rS7FQ1h2UnNoKqGkpcIvmhOrogrgydEFutnwXuWZ5ILBTWnI+s3jmu3QYYUHgyjIN5IX/yNBqQ0TjqzhTG9Kv7dPGaZz8N2JRGRF91VHOivnorYLNc8OdU13U96GzGt2/+yRs=
+	t=1753792864; cv=none; b=r0PrzHpDKi+sRJzoBCHuZylAJbthZ0LZpqkSMreTVmW8E2uo0XEjKjbz2De2PyMc4kIkPUDVwpmpc7/+5BjqbC0CF2/iqdqjkVqQnnjDfWfCeyWUh+ZgQPLrLq3InIrPuXm6g3ne1FRi8ZlMUQLzYpyQbFAYjPPlmM87rm0wkIM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753791773; c=relaxed/simple;
-	bh=FV6g1EBRL1RK/tzC+xm4c6xHhJTIID14Yplsrt/zSew=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=jfRbJQHJqwx9tVhBauWTkqM38gus4Xg87d5UJ63OnfUldIwUe/zuD/EvlbTk+SRhk4RMW5DVV3zBaKC1G4CAGmcYFUKM1gHdv4gNiQK1Azsv+UGpCQbNmu4MklceAWuLRZm+R41UfUIzyqyNrZsN+G+MYY7sNZTrSaTAQ6O8WhE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.234])
-	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4brvdy1KH4z27j3b;
-	Tue, 29 Jul 2025 20:23:50 +0800 (CST)
-Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
-	by mail.maildlp.com (Postfix) with ESMTPS id D13A81400D2;
-	Tue, 29 Jul 2025 20:22:48 +0800 (CST)
-Received: from [10.174.176.70] (10.174.176.70) by
- dggpemf500016.china.huawei.com (7.185.36.197) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Tue, 29 Jul 2025 20:22:47 +0800
-Message-ID: <17042f3d-ce75-4be4-a53e-3d57907488e8@huawei.com>
-Date: Tue, 29 Jul 2025 20:22:46 +0800
+	s=arc-20240116; t=1753792864; c=relaxed/simple;
+	bh=UZDGhd/+rLzayX5aZ+vg8gEPGLMCsevSY+i2MYFbMCQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qK24YZB1S9lYXA32I6i80Rcl/54qUU12Q+qT/0dPZevwIvebWkiYcH1j/WGnfp/6A84plul8I4Y0ikNhGk16bJWrsUDyHmOlpjkXJfDoiNJnOPAx89d8u5u9w66ycUcMiP3i/Ybru4UkVPSi8Pby1CUbOjVC2V3DV+kUcteDxZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MXzWKvF6; arc=none smtp.client-ip=140.211.166.137
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MXzWKvF6"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3D8A740BEA
+	for <virtualization@lists.linux-foundation.org>; Tue, 29 Jul 2025 12:41:02 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 2qWyvN826EUY for <virtualization@lists.linux-foundation.org>;
+ Tue, 29 Jul 2025 12:41:01 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 14B2940BE2
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 14B2940BE2
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MXzWKvF6
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 14B2940BE2
+	for <virtualization@lists.linux-foundation.org>; Tue, 29 Jul 2025 12:40:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1753792858;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ZV5EUUEtu0wYoF6c14HgKdxGyYYQj0FRgNzMPWXQSQ8=;
+	b=MXzWKvF6KE6l6WFxC8CEMS9sVhfmkCKYpj9eElvAnnyZU2k7NpJLxLcbxY5uX+AdRLxoiF
+	5o7W0fR3NVGxS2mINiLClAwFj21XhlM1L1y/ATn9qxUXtxJmvIGPQwKOyeWymrGW5jM2QT
+	8WRHImFOpDxzGJPRU4MooWLf1+lw92M=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-593-P8hjNeVJMye1zdiUteu2nA-1; Tue, 29 Jul 2025 08:40:57 -0400
+X-MC-Unique: P8hjNeVJMye1zdiUteu2nA-1
+X-Mimecast-MFC-AGG-ID: P8hjNeVJMye1zdiUteu2nA_1753792856
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-7196c919719so77986537b3.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 29 Jul 2025 05:40:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753792856; x=1754397656;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZV5EUUEtu0wYoF6c14HgKdxGyYYQj0FRgNzMPWXQSQ8=;
+        b=KdW/exonCo6RmXZMDmHJsUynjtlXVwQB4DLdYYrTalFudESLbmQnjUOLJtMcYZYVG2
+         YggEsr+Ro9M4otUbOfuYLYmPhYkittOc2Hg2yfoGuk3rMGf59GbvrjKxP4hEjAOLBl9I
+         OxKlhTcpGqdl1oLTqhe5RATdIXAh+5m+PZShBzfxRmTs7Oal009DWg9wIDZMFHD5EsbH
+         LpvHTH/10paLCOo2umYu0oDiKOZpSlQGmQ6CSJdIc63xXWmMuFf6QMOyJPv/qbVjhiI+
+         et/zzxYbUHDwY+tLrNN1c8u8tQ2X9t2yFn2W7ILRFpC8REcype/Z5VRvLD9bvxXrgcbr
+         apkQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV3W6y/rQVppGqpK1wPcZljFlIz0wfvRBuJL/UPcPr9bO23q5zT4mu0+wu/WNA/qJ1dRakLIBq+fC6WEpTRWQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxWh0SQX7O0mpDG8UxTAtbCyqnjNFqA7++Qv5UaPe7ef7tte6Uo
+	BRvz0XVNmMGyIES6n+NSVrbDMc83RQ16JTOrV6GIofAj6FK+BnK9xwkgbb8owxREFza1C6BPo2X
+	8bqaB378OuFgM8ZwocDxQs1nF6efxdpS36/yn6x1CFXMPchGdhmCVAUqD9Jim/VqOS0seSpunR/
+	BdSH4jRYt+YYka1kBmE7XqPxrWKhDA8nhXErEUwGR4b75JV6hk4oXuMLXBmQ==
+X-Gm-Gg: ASbGncukQ7/WmbPvl83NSLqSZrIiM8xTq8s0p7hgnbxY8O3XcRDRylhLmB9M+qdi74O
+	3vtiheuaEH/wHbYL3DnltdeeEK1L5Ww5t/UpUBPPxfNKscKQEXaox38xSyzZQhqwZg+0Fq+KI+I
+	g7g89LcvlB6nojt5+tagIu
+X-Received: by 2002:a05:690c:4b0a:b0:71a:41be:133 with SMTP id 00721157ae682-71a41be022dmr9012907b3.14.1753792856403;
+        Tue, 29 Jul 2025 05:40:56 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IExzXD78VZ4NrcWcboXVLgFWfObrbN+8Z2f+u0nM+qzWO61wtyD3iImlO5JbXTPxUvCLloIIb5LOzY9XjoHDwo=
+X-Received: by 2002:a05:690c:4b0a:b0:71a:41be:133 with SMTP id
+ 00721157ae682-71a41be022dmr9012387b3.14.1753792855972; Tue, 29 Jul 2025
+ 05:40:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net: check the minimum value of gso size in
- virtio_net_hdr_to_skb()
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-CC: <yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
-	<netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
-	<eperezma@redhat.com>, <pabeni@redhat.com>, <davem@davemloft.net>,
-	<willemb@google.com>, <atenart@kernel.org>
-References: <20250724083005.3918375-1-wangliang74@huawei.com>
- <1753433749.959542-1-xuanzhuo@linux.alibaba.com>
-From: Wang Liang <wangliang74@huawei.com>
-In-Reply-To: <1753433749.959542-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
- dggpemf500016.china.huawei.com (7.185.36.197)
+References: <20240710212555.1617795-1-amery.hung@bytedance.com>
+ <dsamf7k2byoflztkwya3smj7jyczyq7aludvd36lufdrboxdqk@u73iwrcyb5am> <CAMB2axNKxW4gnd6qiSNYdm2zPxJkbbLgZz9P-Kh7SS0Sb1Yw=Q@mail.gmail.com>
+In-Reply-To: <CAMB2axNKxW4gnd6qiSNYdm2zPxJkbbLgZz9P-Kh7SS0Sb1Yw=Q@mail.gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Tue, 29 Jul 2025 14:40:44 +0200
+X-Gm-Features: Ac12FXx0AfUlrxkGal_IZT1J3PL02_FYYzLBRvPuEGsCQYHWQt-envTrILmUXG4
+Message-ID: <CAGxU2F6aObcrixKnbp2PthJDpeQyhzVXwXtfkkQm-8Ni4xenTg@mail.gmail.com>
+Subject: Re: [RFC PATCH net-next v6 00/14] virtio/vsock: support datagrams
+To: Amery Hung <ameryhung@gmail.com>, Sergio Lopez Pascual <slp@redhat.com>, 
+	Tyler Fanelli <tfanelli@redhat.com>
+Cc: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
+	kuba@kernel.org, pabeni@redhat.com, kys@microsoft.com, haiyangz@microsoft.com, 
+	wei.liu@kernel.org, decui@microsoft.com, bryantan@vmware.com, 
+	vdasa@vmware.com, pv-drivers@vmware.com, dan.carpenter@linaro.org, 
+	simon.horman@corigine.com, oxffffaa@gmail.com, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	bpf@vger.kernel.org, bobby.eshleman@bytedance.com, jiang.wang@bytedance.com, 
+	amery.hung@bytedance.com, xiyou.wangcong@gmail.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: EP3GeFsE3taKMdMkf60I91CgTRPad4gYem-vBaSWtRQ_1753792856
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+Hi Amery,
 
-在 2025/7/25 16:55, Xuan Zhuo 写道:
-> On Thu, 24 Jul 2025 16:30:05 +0800, Wang Liang <wangliang74@huawei.com> wrote:
->> When sending a packet with virtio_net_hdr to tun device, if the gso_type
->> in virtio_net_hdr is SKB_GSO_UDP and the gso_size is less than udphdr
->> size, below crash may happen.
->>
->>    ------------[ cut here ]------------
->>    kernel BUG at net/core/skbuff.c:4572!
->>    Oops: invalid opcode: 0000 [#1] SMP NOPTI
->>    CPU: 0 UID: 0 PID: 62 Comm: mytest Not tainted 6.16.0-rc7 #203 PREEMPT(voluntary)
->>    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
->>    RIP: 0010:skb_pull_rcsum+0x8e/0xa0
->>    Code: 00 00 5b c3 cc cc cc cc 8b 93 88 00 00 00 f7 da e8 37 44 38 00 f7 d8 89 83 88 00 00 00 48 8b 83 c8 00 00 00 5b c3 cc cc cc cc <0f> 0b 0f 0b 66 66 2e 0f 1f 84 00 000
->>    RSP: 0018:ffffc900001fba38 EFLAGS: 00000297
->>    RAX: 0000000000000004 RBX: ffff8880040c1000 RCX: ffffc900001fb948
->>    RDX: ffff888003e6d700 RSI: 0000000000000008 RDI: ffff88800411a062
->>    RBP: ffff8880040c1000 R08: 0000000000000000 R09: 0000000000000001
->>    R10: ffff888003606c00 R11: 0000000000000001 R12: 0000000000000000
->>    R13: ffff888004060900 R14: ffff888004050000 R15: ffff888004060900
->>    FS:  000000002406d3c0(0000) GS:ffff888084a19000(0000) knlGS:0000000000000000
->>    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>    CR2: 0000000020000040 CR3: 0000000004007000 CR4: 00000000000006f0
->>    Call Trace:
->>     <TASK>
->>     udp_queue_rcv_one_skb+0x176/0x4b0 net/ipv4/udp.c:2445
->>     udp_queue_rcv_skb+0x155/0x1f0 net/ipv4/udp.c:2475
->>     udp_unicast_rcv_skb+0x71/0x90 net/ipv4/udp.c:2626
->>     __udp4_lib_rcv+0x433/0xb00 net/ipv4/udp.c:2690
->>     ip_protocol_deliver_rcu+0xa6/0x160 net/ipv4/ip_input.c:205
->>     ip_local_deliver_finish+0x72/0x90 net/ipv4/ip_input.c:233
->>     ip_sublist_rcv_finish+0x5f/0x70 net/ipv4/ip_input.c:579
->>     ip_sublist_rcv+0x122/0x1b0 net/ipv4/ip_input.c:636
->>     ip_list_rcv+0xf7/0x130 net/ipv4/ip_input.c:670
->>     __netif_receive_skb_list_core+0x21d/0x240 net/core/dev.c:6067
->>     netif_receive_skb_list_internal+0x186/0x2b0 net/core/dev.c:6210
->>     napi_complete_done+0x78/0x180 net/core/dev.c:6580
->>     tun_get_user+0xa63/0x1120 drivers/net/tun.c:1909
->>     tun_chr_write_iter+0x65/0xb0 drivers/net/tun.c:1984
->>     vfs_write+0x300/0x420 fs/read_write.c:593
->>     ksys_write+0x60/0xd0 fs/read_write.c:686
->>     do_syscall_64+0x50/0x1c0 arch/x86/entry/syscall_64.c:63
->>     </TASK>
->>
->> To trigger gso segment in udp_queue_rcv_skb(), we should also set option
->> UDP_ENCAP_ESPINUDP to enable udp_sk(sk)->encap_rcv. When the encap_rcv
->> hook return 1 in udp_queue_rcv_one_skb(), udp_csum_pull_header() will try
->> to pull udphdr, but the skb size has been segmented to gso size, which
->> leads to this crash.
-> Is it correct to access the checksum of a segmented skb?
+On Sat, 26 Jul 2025 at 07:53, Amery Hung <ameryhung@gmail.com> wrote:
 >
->> Only udp has this probloem. Add check for the minimum value of gso size in
->> virtio_net_hdr_to_skb().
-> Why tcp has not this problem?
+> On Tue, Jul 22, 2025 at 7:35=E2=80=AFAM Stefano Garzarella <sgarzare@redh=
+at.com> wrote:
+> >
+> > Hi Amery,
+> >
+> > On Wed, Jul 10, 2024 at 09:25:41PM +0000, Amery Hung wrote:
+> > >Hey all!
+> > >
+> > >This series introduces support for datagrams to virtio/vsock.
+> >
+> > any update on v7 of this series?
+> >
+>
+> Hi Stefano,
+>
+> Sorry that I don't have personal time to work on v7. Since I don't
+> think people involved in this set are still working on it, I am
+> posting my v7 WIP here to see if anyone is interested in finishing it.
+> Would greatly appreciate any help.
+>
+> Link: https://github.com/ameryhung/linux/tree/vsock-dgram-v7
+>
+> Here are the things that I haven't address in the WIP:
+>
+> 01/14
+> - Arseniy suggested doing skb_put(dg->payload_size) and memcpy(dg->payloa=
+d_size)
+>
+> 07/14
+> - Remove the double transport lookup in the send path by passing
+> transport to dgram_enqueue
+> - Address Arseniy's comment about updating vsock_virtio_transport_common.=
+h
+>
+> 14/14
+> - Split test/vsock into smaller patches
+>
+> Finally the spec change discussion also needs to happen.
+
+Thanks for the update!
+I CCed Sergio and Tyler that may be interested on completing this for
+libkrun use case.
+
+Thanks,
+Stefano
+
 >
 >
->> Fixes: cf329aa42b66 ("udp: cope with UDP GRO packet misdirection")
->> Fixes: 3d010c8031e3 ("udp: do not accept non-tunnel GSO skbs landing in a tunnel")
->> Signed-off-by: Wang Liang <wangliang74@huawei.com>
->> ---
->>   include/linux/virtio_net.h | 5 ++++-
->>   1 file changed, 4 insertions(+), 1 deletion(-)
->>
->> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
->> index 02a9f4dc594d..0533101642bd 100644
->> --- a/include/linux/virtio_net.h
->> +++ b/include/linux/virtio_net.h
->> @@ -157,11 +157,13 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->>   		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
->>   		unsigned int nh_off = p_off;
->>   		struct skb_shared_info *shinfo = skb_shinfo(skb);
->> +		u16 min_gso_size = 0;
->>
->>   		switch (gso_type & ~SKB_GSO_TCP_ECN) {
->>   		case SKB_GSO_UDP:
->>   			/* UFO may not include transport header in gso_size. */
->>   			nh_off -= thlen;
->> +			min_gso_size = sizeof(struct udphdr) + 1;
->>   			break;
->>   		case SKB_GSO_UDP_L4:
->>   			if (!(hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM))
->> @@ -172,6 +174,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->>   				return -EINVAL;
->>   			if (gso_type != SKB_GSO_UDP_L4)
->>   				return -EINVAL;
->> +			min_gso_size = sizeof(struct udphdr) + 1;
-> why +1?
 >
-> Thanks.
+> > Thanks,
+> > Stefano
+> >
+> > >
+> > >It is a spin-off (and smaller version) of this series from the summer:
+> > >  https://lore.kernel.org/all/cover.1660362668.git.bobby.eshleman@byte=
+dance.com/
+> > >
+> > >Please note that this is an RFC and should not be merged until
+> > >associated changes are made to the virtio specification, which will
+> > >follow after discussion from this series.
+> > >
+> > >Another aside, the v4 of the series has only been mildly tested with a
+> > >run of tools/testing/vsock/vsock_test. Some code likely needs cleaning
+> > >up, but I'm hoping to get some of the design choices agreed upon befor=
+e
+> > >spending too much time making it pretty.
+> > >
+> > >This series first supports datagrams in a basic form for virtio, and
+> > >then optimizes the sendpath for all datagram transports.
+> > >
+> > >The result is a very fast datagram communication protocol that
+> > >outperforms even UDP on multi-queue virtio-net w/ vhost on a variety
+> > >of multi-threaded workload samples.
+> > >
+> > >For those that are curious, some summary data comparing UDP and VSOCK
+> > >DGRAM (N=3D5):
+> > >
+> > >       vCPUS: 16
+> > >       virtio-net queues: 16
+> > >       payload size: 4KB
+> > >       Setup: bare metal + vm (non-nested)
+> > >
+> > >       UDP: 287.59 MB/s
+> > >       VSOCK DGRAM: 509.2 MB/s
+> > >
+> > >Some notes about the implementation...
+> > >
+> > >This datagram implementation forces datagrams to self-throttle accordi=
+ng
+> > >to the threshold set by sk_sndbuf. It behaves similar to the credits
+> > >used by streams in its effect on throughput and memory consumption, bu=
+t
+> > >it is not influenced by the receiving socket as credits are.
+> > >
+> > >The device drops packets silently.
+> > >
+> > >As discussed previously, this series introduces datagrams and defers
+> > >fairness to future work. See discussion in v2 for more context around
+> > >datagrams, fairness, and this implementation.
+> > >
+> > >Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+> > >Signed-off-by: Amery Hung <amery.hung@bytedance.com>
+> > >---
+> > >Changes in v6:
+> > >- allow empty transport in datagram vsock
+> > >- add empty transport checks in various paths
+> > >- transport layer now saves source cid and port to control buffer of s=
+kb
+> > >  to remove the dependency of transport in recvmsg()
+> > >- fix virtio dgram_enqueue() by looking up the transport to be used wh=
+en
+> > >  using sendto(2)
+> > >- fix skb memory leaks in two places
+> > >- add dgram auto-bind test
+> > >- Link to v5: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v5-0-5=
+81bd37fdb26@bytedance.com
+> > >
+> > >Changes in v5:
+> > >- teach vhost to drop dgram when a datagram exceeds the receive buffer
+> > >  - now uses MSG_ERRQUEUE and depends on Arseniy's zerocopy patch:
+> > >       "vsock: read from socket's error queue"
+> > >- replace multiple ->dgram_* callbacks with single ->dgram_addr_init()
+> > >  callback
+> > >- refactor virtio dgram skb allocator to reduce conflicts w/ zerocopy =
+series
+> > >- add _fallback/_FALLBACK suffix to dgram transport variables/macros
+> > >- add WARN_ONCE() for table_size / VSOCK_HASH issue
+> > >- add static to vsock_find_bound_socket_common
+> > >- dedupe code in vsock_dgram_sendmsg() using module_got var
+> > >- drop concurrent sendmsg() for dgram and defer to future series
+> > >- Add more tests
+> > >  - test EHOSTUNREACH in errqueue
+> > >  - test stream + dgram address collision
+> > >- improve clarity of dgram msg bounds test code
+> > >- Link to v4: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v4-0-0=
+cebbb2ae899@bytedance.com
+> > >
+> > >Changes in v4:
+> > >- style changes
+> > >  - vsock: use sk_vsock(vsk) in vsock_dgram_recvmsg instead of
+> > >    &sk->vsk
+> > >  - vsock: fix xmas tree declaration
+> > >  - vsock: fix spacing issues
+> > >  - virtio/vsock: virtio_transport_recv_dgram returns void because err
+> > >    unused
+> > >- sparse analysis warnings/errors
+> > >  - virtio/vsock: fix unitialized skerr on destroy
+> > >  - virtio/vsock: fix uninitialized err var on goto out
+> > >  - vsock: fix declarations that need static
+> > >  - vsock: fix __rcu annotation order
+> > >- bugs
+> > >  - vsock: fix null ptr in remote_info code
+> > >  - vsock/dgram: make transport_dgram a fallback instead of first
+> > >    priority
+> > >  - vsock: remove redundant rcu read lock acquire in getname()
+> > >- tests
+> > >  - add more tests (message bounds and more)
+> > >  - add vsock_dgram_bind() helper
+> > >  - add vsock_dgram_connect() helper
+> > >
+> > >Changes in v3:
+> > >- Support multi-transport dgram, changing logic in connect/bind
+> > >  to support VMCI case
+> > >- Support per-pkt transport lookup for sendto() case
+> > >- Fix dgram_allow() implementation
+> > >- Fix dgram feature bit number (now it is 3)
+> > >- Fix binding so dgram and connectible (cid,port) spaces are
+> > >  non-overlapping
+> > >- RCU protect transport ptr so connect() calls never leave
+> > >  a lockless read of the transport and remote_addr are always
+> > >  in sync
+> > >- Link to v2: https://lore.kernel.org/r/20230413-b4-vsock-dgram-v2-0-0=
+79cc7cee62e@bytedance.com
+> > >
+> > >
+> > >Bobby Eshleman (14):
+> > >  af_vsock: generalize vsock_dgram_recvmsg() to all transports
+> > >  af_vsock: refactor transport lookup code
+> > >  af_vsock: support multi-transport datagrams
+> > >  af_vsock: generalize bind table functions
+> > >  af_vsock: use a separate dgram bind table
+> > >  virtio/vsock: add VIRTIO_VSOCK_TYPE_DGRAM
+> > >  virtio/vsock: add common datagram send path
+> > >  af_vsock: add vsock_find_bound_dgram_socket()
+> > >  virtio/vsock: add common datagram recv path
+> > >  virtio/vsock: add VIRTIO_VSOCK_F_DGRAM feature bit
+> > >  vhost/vsock: implement datagram support
+> > >  vsock/loopback: implement datagram support
+> > >  virtio/vsock: implement datagram support
+> > >  test/vsock: add vsock dgram tests
+> > >
+> > > drivers/vhost/vsock.c                   |   62 +-
+> > > include/linux/virtio_vsock.h            |    9 +-
+> > > include/net/af_vsock.h                  |   24 +-
+> > > include/uapi/linux/virtio_vsock.h       |    2 +
+> > > net/vmw_vsock/af_vsock.c                |  343 ++++++--
+> > > net/vmw_vsock/hyperv_transport.c        |   13 -
+> > > net/vmw_vsock/virtio_transport.c        |   24 +-
+> > > net/vmw_vsock/virtio_transport_common.c |  188 ++++-
+> > > net/vmw_vsock/vmci_transport.c          |   61 +-
+> > > net/vmw_vsock/vsock_loopback.c          |    9 +-
+> > > tools/testing/vsock/util.c              |  177 +++-
+> > > tools/testing/vsock/util.h              |   10 +
+> > > tools/testing/vsock/vsock_test.c        | 1032 ++++++++++++++++++++--=
+-
+> > > 13 files changed, 1638 insertions(+), 316 deletions(-)
+> > >
+> > >--
+> > >2.20.1
+> > >
+> >
+>
 
-
-Hi! Sorry for replying so late.
-
-The first patch should add RFC, because I am not sure it is the best fix
-method. Set 'min_gso_size = sizeof(struct udphdr) + 1;' to ensure at least
-one byte in payload.
-
-After discussions in mail list, I send a v2 patch, please check it:
-https://lore.kernel.org/netdev/20250729123907.3318425-1-wangliang74@huawei.com/T/#u
-
-Thanks.
-
->>   			break;
->>   		case SKB_GSO_TCPV4:
->>   		case SKB_GSO_TCPV6:
->> @@ -182,7 +185,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->>   		}
->>
->>   		/* Kernel has a special handling for GSO_BY_FRAGS. */
->> -		if (gso_size == GSO_BY_FRAGS)
->> +		if ((gso_size == GSO_BY_FRAGS) || (gso_size < min_gso_size))
->>   			return -EINVAL;
->>
->>   		/* Too small packets are not really GSO ones. */
->> --
->> 2.34.1
->>
