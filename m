@@ -1,88 +1,78 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08345235BE1
-	for <virtualization@lists.linux.dev>; Tue, 29 Jul 2025 08:09:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3EB926A1B8
+	for <virtualization@lists.linux.dev>; Tue, 29 Jul 2025 09:11:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753776569; cv=none; b=YPcidC5XpixusvkbZBnxR2UgXuKjSsN3LtZPnofZ5g2j+nQrsyoABOiDHnrvVS1alAJpiZ3nhrH2jtUqP8L0aLkiu/ltIDF+BAAz/3G2yMWvDrdsiQrirF+0PSxQE/3aHqaU/mTxUterWe3hLMxUPaaK7RM856A8Wv/SCYnB9E0=
+	t=1753780305; cv=none; b=Bjs4nI966jChIAst2oFtEu63QNNQOwIMWmgw8K8WOG9NeNueN82OoM+zTpo4O8f5AAXK73u64lJPq91ySmH384iDiYtk31za4FEPCvbFVDW/joiVg+TF5Ffupwf8tgM4g8c2caQToHj4Jxb8T8zxO+WKWa0O0Yd/QoFoHvYfius=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753776569; c=relaxed/simple;
-	bh=Ij7Ymnaxc/DGUvIdevj8VlgMUZz8ZVDdL8pduuUCM5U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UItoSs9fF3cbXIa1aaRjXmm9wSA4SgqHTuLEvhz3IkwWC1xD69KLFV0VkSdSm+cv8+x1pWhOA2pjzp4Ou8sdsN8eSrRGjsoU5URlwfl8Z5PaIyyI4qNp6LNXKzQBHnjVX70C4MhIIss+3uvhaDxIt0UC1shH1ozNjwH5mh4TNZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Oh0raH+w; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Oh0raH+w"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1753776568; x=1785312568;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=Ij7Ymnaxc/DGUvIdevj8VlgMUZz8ZVDdL8pduuUCM5U=;
-  b=Oh0raH+w5Jveh8t5N5WhYBH8Wzan6qYVgisoSTe1oEHg1fDwGISvhZ6M
-   l1Au2s9aESSP6cYjM0cn43sxcp8CKPGal9GbLrlAkQSpTroK+l85Wxk4u
-   viBIEl5V7EQFKEW23EP2zAxKuGAoPJ5kfgRGDT5GeSY1rzar5fbqOQ8XZ
-   yYffFQy7lRAHSMhzEyKxyYYCxXyravvJxExtw1XaVhpKpnG3KqQEcJoWh
-   oI7nS394M/4VgiED0XYBPrykdenjaYIsVDLNDcheTS3Zu4RxtUdhuccgS
-   G+AV5MrhqBebx7K7v+wwfjbl1sibvbnNy54VyO6ELBeFOvZtHEzephgkL
-   A==;
-X-CSE-ConnectionGUID: DskJg+aLT1604wqu9e7A3Q==
-X-CSE-MsgGUID: 6YA1mTsrSeaItcAg24q3ng==
-X-IronPort-AV: E=McAfee;i="6800,10657,11505"; a="56009330"
-X-IronPort-AV: E=Sophos;i="6.16,348,1744095600"; 
-   d="scan'208";a="56009330"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2025 01:09:28 -0700
-X-CSE-ConnectionGUID: yliyZV1bT5GA0nAttgIj5g==
-X-CSE-MsgGUID: Do91cK04QJWrVeE20TctQg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.16,348,1744095600"; 
-   d="scan'208";a="166810470"
-Received: from soc-5cg4396xfb.clients.intel.com (HELO [172.28.180.57]) ([172.28.180.57])
-  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2025 01:09:25 -0700
-Message-ID: <c236b8ef-b899-4c23-bded-cf411c5b5ad1@linux.intel.com>
-Date: Tue, 29 Jul 2025 10:09:21 +0200
+	s=arc-20240116; t=1753780305; c=relaxed/simple;
+	bh=AooAinBEhVQgX4xQPKEnqfkbfDa2o/pfSJaoO6cyeHU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ryBWMy5bPmckrtSPAmaS7BITikF7iCEYgNZIPS1PpzOwBniVI7syy+o0pWa++595NtEcp81N/n0cDXcA1SjHre+jaWMK97yGr49vhwsxAMvVMNmoJswZelY2OffMtjBQw6mSHBcVWEyLf0zoQTU3IFATrqeN53WS/Cvf1AkUYEs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-61553a028dfso1982049a12.0
+        for <virtualization@lists.linux.dev>; Tue, 29 Jul 2025 02:11:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753780302; x=1754385102;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mTe0pbkq2BTo76Iwyv7UU0Sc/vWsm4BTTYdkBS408H0=;
+        b=tdq5sxTC5e4v4AQCCj8E9/eVM4TnzU+nVDB9ZhoirkDcKIkhR/+mNbzx1KV0YxiGTJ
+         0GQpWkcIQlQ1oibHkqK+jUQ2N+SGd7BJXM/yfjfWNYiWE1+pE2nwHMdDRvHdZrUDH6Yv
+         /Wb9F+4aW0nT2xLfoWfos955s5m7P2tIGFTupVZxY7gAMhAplXGZ+M9YZ741Ljp0EdX8
+         VNeIW9/4cAeP93s9r50g7kR6GmlT9hs3F2Je80KqPFVhCfmuMflWaOpIW5VQzKItKVQl
+         aMX3CLq6JM24aJO1HogNn6JWEOJ8+H9UlWiPui34GNqevO9/Bz8AwmkPuxjzX6CcITpO
+         vgIQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV7oV9YR8yAG1CKc9dHjs+hGwQzyCreC3m26Gics3KjfvJElWXHq09yAEnisSbsGAUUeE0NfGGyxYomMSuyYg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxjliFYn1DE5tqzaVPT4mZhOgptznRYlO3G5ioKFEemF3XTy5Rl
+	sTFetPpmjdYCtKllVG56KI2nXEz+C+S9fN2Lboupr25nGS8RS+rFM5e/
+X-Gm-Gg: ASbGncuWXtlaUReGsN+Cly6WgK91jsk5XFLxH6giV6j5sROOJeP2I4TRUIg6j+I3yIK
+	xH0sOUl1Q+ZbK+cMAwpoJryWcNI02p34rugWvrJMJv2AoeP56QNNAgR6ps/tZfzcsdaQ8mmKoa/
+	0janubUeV+tC5aMUS/xZ6VPQDIVTdRhS6q+TZ49JNyoOoqwkeP9umSkTiJXs69ZcuymnHowSG+w
+	xyWQjTIXvf0LvOmoN4w15FIrppiGD9qtHYfsQLmNy4hrG6uy74f3bZG4XohMkwoptMWgfRISof6
+	jDJoNJUsmMmpA22Et13wnSq/y6R0i5VQBbjCL+EP9nofdPAYXwYUxlwLRUxdjF1qWx59/Pd10hl
+	jGWCq6W7JRu2eh3fWefo0kDeb
+X-Google-Smtp-Source: AGHT+IHiUSyBteGKx3hNSMSmlbFFC29cVQsp80PeSD3fki0Wu7eWgmkZiAy6HP138mxj1vsKT47V7g==
+X-Received: by 2002:a05:6402:2348:b0:615:357d:5630 with SMTP id 4fb4d7f45d1cf-615357d569dmr8322665a12.28.1753780301941;
+        Tue, 29 Jul 2025 02:11:41 -0700 (PDT)
+Received: from gmail.com ([2a03:2880:30ff:74::])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-61542a59c99sm2146959a12.1.2025.07.29.02.11.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Jul 2025 02:11:41 -0700 (PDT)
+Date: Tue, 29 Jul 2025 02:11:39 -0700
+From: Breno Leitao <leitao@debian.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, eperezma@redhat.com, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	sgarzare@redhat.com, will@kernel.org, JAEHOON KIM <jhkim@linux.ibm.com>
+Subject: Re: [PATCH] vhost: initialize vq->nheads properly
+Message-ID: <nswdjfxtogobamp7bqktyrihl4w6xs2jnvxjofdvqoxqtvjp5s@vrsdmzuvsvx4>
+References: <20250729073916.80647-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vhost: initialize vq->nheads properly
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, eperezma@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, sgarzare@redhat.com,
- will@kernel.org, JAEHOON KIM <jhkim@linux.ibm.com>,
- Breno Leitao <leitao@debian.org>
-References: <20250729073916.80647-1-jasowang@redhat.com>
-Content-Language: pl, en-US
-From: Dawid Osuchowski <dawid.osuchowski@linux.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20250729073916.80647-1-jasowang@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 2025-07-29 9:39 AM, Jason Wang wrote:
+On Tue, Jul 29, 2025 at 03:39:16PM +0800, Jason Wang wrote:
 > Commit 7918bb2d19c9 ("vhost: basic in order support") introduces
 > vq->nheads to store the number of batched used buffers per used elem
 > but it forgets to initialize the vq->nheads to NULL in
 > vhost_dev_init() this will cause kfree() that would try to free it
 > without be allocated if SET_OWNER is not called.
-
-nit: as someone who is not familiar with vhost code, it took me a while 
-to figure out you meant VHOST_SET_OWNER and the corresponding 
-vhost_dev_set_owner()
-
 > 
 > Reported-by: JAEHOON KIM <jhkim@linux.ibm.com>
 > Reported-by: Breno Leitao <leitao@debian.org>
 > Fixes: 7918bb2d19c9 ("vhost: basic in order support")
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Reviewed-by: Dawid Osuchowski <dawid.osuchowski@linux.intel.com>
-
-Thanks,
-Dawid
+Tested-by: Breno Leitao <leitao@debian.org>
