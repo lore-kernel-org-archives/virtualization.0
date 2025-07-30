@@ -1,129 +1,117 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D4B4635;
-	Wed, 30 Jul 2025 09:49:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F31241F4E4F
+	for <virtualization@lists.linux.dev>; Wed, 30 Jul 2025 10:57:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753868961; cv=none; b=T4vUDx4ahBTZ3v60gn4y9qHvZorGrnV5fwYRTtLgsl0rDR2VGA/D7k5OkOyma1YP0T0Z+BObR3mPO/y1awSFiMzHCUitMYYAZO//ndnP1mq0qAiKMucQHwMrgARUcUcXo8cWaKQvMba3YjVAZpSXCz7mB9mwePuZLfsllBVqDKg=
+	t=1753873069; cv=none; b=Vb2lXUtscoUcAjtejrljjGZpFSXjdIkGUKrZGyO4KlDimyl1CDQu13UDSvaacn6bKM9TiGdJ8uv+6RQYdbIqKGCoJqxD7w6Sfzuc/x+SoMjv9kDca52y/KtCV+BLInXpu6Lq71kmjaVD2AYX25n2D0GURAzGzB4m9GkIxQ2x+gA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753868961; c=relaxed/simple;
-	bh=UimlKP3HSONXYCOXhI5k/xeHFAvvYzDBkpGyXWw4lgU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OMkDTtEQHEk7vV3WsJOrFAvONhflKKb7eGSl9yVlOUrTFbyNeFpDeGASKcw/1KcWs8dwtwEvGfPkiODmOhKoHIfZOrjsBGJQPUjd+HVpTzQME5meC+T4dUAsgMvs30ZLRFKowjuTtr9uaxRyaYiZbn+5taQbjWq1tW/Wqo7F0tc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=u0l0FvA7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1753873069; c=relaxed/simple;
+	bh=DQmcKnGKJN5RrMHBWyXbcinOiyM7f1vIIndXQ5oJZhU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bm/17X7ykbp8CUZ4nEpCV/aO80lTz9cEteUJgeS4tKwx757YQsLsfqjR7dGkznhMR438wzi3W/t4FivjXXNpQVrs5s3Y8no8AUxgj5nFMgRgP02bM6s9XN2fEraC13P/jnFErob42dtkP/gNq5nWphmeiN6MoMoN+aV8zzs8cOk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=e87Ex1Sh; arc=none smtp.client-ip=209.85.215.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="u0l0FvA7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B123C4CEF6;
-	Wed, 30 Jul 2025 09:49:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1753868960;
-	bh=UimlKP3HSONXYCOXhI5k/xeHFAvvYzDBkpGyXWw4lgU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=u0l0FvA7Sm1rh+7Sx/2QZ6/Uq1zhgLUSU8BykuTP2Enw+rHBCAztUZT7XxPeg2hAQ
-	 Jel8Ha8NMkVppS9NELGZCEPO7XjSalYDa+M8WweEzICFlobk4/Kvq7hpfSQgGmijX0
-	 bY0euDSjUbTIMZhUm9L9yzSQ2ULOpU+X9JykUfQcSOHhR/LmProiQw0ctpCDnHY+fR
-	 EyUAk9mePNWDvtt+F9AIU6Z40etr890Y9IQSSQeuSxHw++lMJNB5PbzGkXCVBFtoQq
-	 6LmdjEcqM2EjQzVftBwdWkDkDPmFLJH37P5KEcHr9KXzbOwZqrA5F0JQCTZ0ZP2U3O
-	 Zpj7N3ohZsJIA==
-Message-ID: <1ba0e803-cbca-43d0-be9d-79fef4e54201@kernel.org>
-Date: Wed, 30 Jul 2025 11:49:14 +0200
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="e87Ex1Sh"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-b3bad2f99f5so745965a12.1
+        for <virtualization@lists.linux.dev>; Wed, 30 Jul 2025 03:57:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1753873067; x=1754477867; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=dey3O+8JYJ0+DC9nws58D9CFVLsgCTJwkc0ezpPGS4U=;
+        b=e87Ex1Sh6bHqn5y8oQcQf5JE7dAVN8VJLq2fK3YiZgCyP0vfAl1dYtfl2rBEH+2CiX
+         xKTvxtXr0zJKVqKILhubvHTwwvcerA/6TlmRHYwiLHQZBlDTzu3ntEtXBbayfVCCxGLh
+         CvLJ7PS11zO47AiEaRdwvR/gWweb97SwDW2FoRTN1zJvJbSMnw1bwOc3/BntnS0wDdw4
+         tjW7rZXGOfayjWDfJVJoPtAT26DrWfj50x6pH+s8YAkqgXHBJCWUgE9M2tDCZu7ORL88
+         v04IEZ3wLfHudW9MbnvQiVG7yQ2x06hLSF5kmnGHJ0aEkCgOMA2dVcpJQo7G6crM9Dpd
+         Bqww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753873067; x=1754477867;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dey3O+8JYJ0+DC9nws58D9CFVLsgCTJwkc0ezpPGS4U=;
+        b=eflTeLRupKBEchKc+BH8EoJkv9FlkDm8tfi3SdscNX8FvodN8JC0J20lFy2wY68o7w
+         sgFFi7JatLgchTtBcnL1O7ZEcbVAUt2nV3oIwpIglm/cycNiZHH+iveXqHODQSOvaEII
+         MY/vuemmKg8/I2g13A/j2uzI9/4Pxd9AR2z/W9eaU/WccUFLdEjlflKnfKw+GqZK9Tqz
+         GmfJFwezjLm/eFP+AnoJtwdSIXYToku9MF2hKW7MJBjCtFymP+Hk/egB8x8/dI1KAXB+
+         XLeIiGoLuuuSpO6rPWaGAG7AXfx/T0cASss7p6QceuCWV1ZzYyj9waSQhb2T4XEufnms
+         TZoQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXO4khFOyTDyX/qlNjZoniENY9i/SOpgihLdmUl54uhQAVCVwlscc0lpixAjpyb9R1y+Q7kmcfTzTo3wW2Kgg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw2qXM8+GrfXAfu0KpAfcZG77gKiwAOKdb6M+JybwbBEzV7SXYZ
+	C7x6FCmYfpr+5X9OzDBzFi4Jxy0UpMqPgPCGvQnG7WPj9g6o5rs7myMCRBAGMEilIIU=
+X-Gm-Gg: ASbGncsGvsm713rNlTXgnowItLKXB8MlcFjF6x5XBDAdUrHqXi+WwkFLk1n9Sti5VmQ
+	mD9bnXh0XMxuDn+R1jfDbd2lzJ/bz4IdKjLqm/HAxPMcjFFsvdCxRv2JYdRVIqjmYc/NMC8IXjF
+	AFSnfrCs8vJlcp7rScIbWfSl0WoJFgzKEWltqsavkaWj/xCyJqCTIv72LJbtNXHLhf3B8HWZpHz
+	oIUOaNWa/henFToFORw3wTSVZgh8Gy//OyO9Quy63hNPaWzxLPdzflRmsgM58XdpHxxsgGe85Jd
+	NUhEqBzxSoDCfkIULVZ7JK+lrylXnp1DVzapSIlWlQBUC69e52pdeRN/mC2YRjJ9Ud4CtkshycY
+	A+eLfLtkL1T0kadZO60ON9R4=
+X-Google-Smtp-Source: AGHT+IGLMQbx3bVJOXpmSkSx907QNjU8+Ld7Du3dzmjXKj+AuNh+yN+/PiipqFf54/jcg5ZF+q9LkQ==
+X-Received: by 2002:a17:903:90f:b0:234:9fe1:8fc6 with SMTP id d9443c01a7336-24063d8ba20mr111820815ad.18.1753873067186;
+        Wed, 30 Jul 2025 03:57:47 -0700 (PDT)
+Received: from localhost ([122.172.85.40])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23ff1edf4cbsm83526835ad.184.2025.07.30.03.57.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Jul 2025 03:57:46 -0700 (PDT)
+Date: Wed, 30 Jul 2025 16:27:44 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>,
+	Saravana Kannan <saravanak@google.com>,
+	Arnd Bergmann <arnd@kernel.org>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>,
+	Bill Mills <bill.mills@linaro.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, devicetree@vger.kernel.org,
+	virtualization@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
+	Bertrand Marquis <bertrand.marquis@arm.com>,
+	"Edgar E . Iglesias" <edgar.iglesias@amd.com>,
+	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Subject: Re: [RFC PATCH 2/6] of: reserved-memory: Add
+ of_reserved_mem_lookup_by_name
+Message-ID: <20250730105744.w5arednoluxufvio@vireshk-i7>
+References: <cover.1753865268.git.viresh.kumar@linaro.org>
+ <feb4591cc48c70f9790c3f4d37c149fc336c3110.1753865268.git.viresh.kumar@linaro.org>
+ <b32b9698-0254-43b3-8109-ee8e37482bae@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 6/6] virtio-msg: Add support for loopback bus
-To: Viresh Kumar <viresh.kumar@linaro.org>, linux-kernel@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>
-Cc: Arnd Bergmann <arnd@kernel.org>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- =?UTF-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>,
- Bill Mills <bill.mills@linaro.org>, Rob Herring <robh@kernel.org>,
- Saravana Kannan <saravanak@google.com>, devicetree@vger.kernel.org,
- virtualization@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
- Bertrand Marquis <bertrand.marquis@arm.com>,
- "Edgar E . Iglesias" <edgar.iglesias@amd.com>,
- Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
-References: <cover.1753865268.git.viresh.kumar@linaro.org>
- <622460b11118be66d5ec380b3d5771be77fc1e91.1753865268.git.viresh.kumar@linaro.org>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <622460b11118be66d5ec380b3d5771be77fc1e91.1753865268.git.viresh.kumar@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b32b9698-0254-43b3-8109-ee8e37482bae@kernel.org>
 
-On 30/07/2025 11:29, Viresh Kumar wrote:
-> Add a loopback bus implementation for the virtio-msg transport.
+On 30-07-25, 11:46, Krzysztof Kozlowski wrote:
+> On 30/07/2025 11:29, Viresh Kumar wrote:
+> > +	struct device_node *child __free(device_node) = NULL;
 > 
-> This bus simulates a backend that echoes messages to itself, allowing
-> testing and development of virtio-msg without requiring an actual remote
-> backend or transport hardware.
-> 
-> The loopback bus requires a reserved memory region for its operation.
-> All DMA-coherent and streaming DMA allocations are restricted to this
-> region, enabling safe mapping into user space and helping validate the
-> memory-sharing model.
-> 
-> The reserved-memory region must be named "vmsglb" in the device tree.
+> This should not be NULL or this should not be cleanup. Follow coding
+> style for cleanup - constructor must be real here.
 
-No, because I can name regions how I wish. You cannot add undocumented
-ABI and claim in commit msg, that the commit msg is the ABI.
+I may have misunderstood how cleanup works, but this is what I
+thought:
 
-Either you have ABI documented or you cannot rely on implicit ABI, thus
-remove above restriction.
+The cleanup is defined in of.h as:
 
-This is really poor choice to add such hidden ABI and it already broke
-several users in the past.
+DEFINE_FREE(device_node, struct device_node *, if (_T) of_node_put(_T))
 
 
-Best regards,
-Krzysztof
+Doesn't this mean that it handles the case where `child` is NULL, by
+not calling of_node_put() ? So it should either be a valid constructor
+or NULL and not some stale value.
+
+> You probably wanted scoped loop below.
+
+Ahh, didn't realize we have that available.
+
+-- 
+viresh
