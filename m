@@ -1,64 +1,63 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F087629344F
-	for <virtualization@lists.linux.dev>; Wed, 30 Jul 2025 09:30:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86212276057
+	for <virtualization@lists.linux.dev>; Wed, 30 Jul 2025 09:30:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753867823; cv=none; b=oMZhFMphp92INZGm8rW0H9W6reMkiwMw3e4IX44Idq/HFPcaeWTxLxRQOt81nFulM0tnepEJte8VTKQuthX0uFRvP+wi7KX2azmT0xp15cL61W6ypWsnekzVgRHTNoHakWKMfF84IiZufNQNjTlUUphc6rreIh3s/Z4fDKXqi54=
+	t=1753867827; cv=none; b=JcxRtPBFKlod6ak70l7Z4j2YuYz2JeROLD75BwrA4/Q6ooes4gSZ2IkWM58yLDucm3dEBZqluN+pxg5wcssk3V4oMsvQhpwZbVf8qiSeYfT7fXQbEYcBvInN+OEAuIf+ULq7DrYRPYuXCd9hy5diyek9on00ttIv6kb64x31VYo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753867823; c=relaxed/simple;
-	bh=kh8oZZLxtpKtHprLa+VlRCslzZw9tpPZ2cm6feCEKvQ=;
+	s=arc-20240116; t=1753867827; c=relaxed/simple;
+	bh=EZG5GWBuYkwXyo63tWvaS2vVdUxh8TggH36mdHovo0U=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=qicQTerJ0cuhFtHJsAspp3T7kCVYSAugx4radVmIbFd1c8I5NKJrRQpFLikOUnIB5ce8NTY1YHkl5zl8EjuBiih0t3oXFgMQ0tYRP/QM637sr4ZP07hK15NIFO3fJ9i8yGgK3rTSCVQlLpZLl29SpkBbyuuC2Ge2eQBmpB1c6ys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=BM7O7/C3; arc=none smtp.client-ip=209.85.216.41
+	 MIME-Version; b=qeyUR7rcy++T3diC+ACGe2/bU3/GbaCGNkP4jsAJAmiaxBHB1U5UwdUxs+r7oP0YjmpIC5B43gUkqnU/4OHq2OdqYbTWYYGBRcmnVz3yDNyo02elqsgEcB2cXazWMxwOYEC4tLf+tdUFaIkREFjbrxMNjJncZWZIYejHhqFCbkE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=v6cBCkjC; arc=none smtp.client-ip=209.85.216.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="BM7O7/C3"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-313eeb77b1fso5415799a91.1
-        for <virtualization@lists.linux.dev>; Wed, 30 Jul 2025 02:30:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="v6cBCkjC"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-31ecd40352fso3025174a91.2
+        for <virtualization@lists.linux.dev>; Wed, 30 Jul 2025 02:30:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1753867820; x=1754472620; darn=lists.linux.dev;
+        d=linaro.org; s=google; t=1753867825; x=1754472625; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=RDdIW5aB1KFsKcGqeqlSYjq6LlhWq0LdQwZTMGlp6LY=;
-        b=BM7O7/C3qewwxaTjSbgt1uUxZP6bTVNDL7q2Cd6/t548YtfMXHPtUe6UHGOTvn9/jp
-         9STXjas16JBWCmNGVxTicyr/n8BS7WwOtcMo4InGPrAI55c8k1ou32+ORtvuWDgXTizm
-         aqTNzOhcGIHujILB3sAhETgReHk/ElbSDcmpWxSH5T3AO4OERUy42V3bWpBux24ujGk1
-         8eH6DJpEAoEY4x3gd7ZMoPNkDyUTL+iSVUdDr0nr3hBQbb36IY102xYdzGz34u3dKaLm
-         c5zy06zfc/H28nJxtrUi3WklgyECYyoWtqAVpbmHXUJjCVFZK2r6yamjztkdB5UQoxI6
-         0cBA==
+        bh=+ztfLizoM6vJzWJQpk/yKuNltuSgkusaceKeZjG9ohE=;
+        b=v6cBCkjCLuPMDqY29WjYpxGi2AT1dCqZ2EIbX3kMZjEKF2a/Tpfa0kIZSbFBpXEJJu
+         jBDX0cDPZzCFgHO6iNcBwylhmdVbCEsxmlY0d1r36eaoSIIxfGWg7o6mniN9E1npHRsv
+         RHCuPp4z0ZiDEpK4vXig845BvlHcz2YchDEFjvrUlcxAbbCsVnpc649gz6spjz4AvZNm
+         RsQfPTXWd43/Zgi89MGLmOttoPgJLO0AJGGnnCMkmpkMWxWb+hmeFap0nCnIEgydww8k
+         dsKAdMZ+Y43EMEV1YHujneKqoq7SFn6dJ1tSUiMYJY1GrQQlqmpvpGjnVZ13LvUvAbTB
+         c8dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753867820; x=1754472620;
+        d=1e100.net; s=20230601; t=1753867825; x=1754472625;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=RDdIW5aB1KFsKcGqeqlSYjq6LlhWq0LdQwZTMGlp6LY=;
-        b=eECsqTFr4J6wSsmGuRC861asluKEkphsuFr6JtkxwV1SVPtMO74ztMd9gI31dtypHI
-         iLRgtG8lgawbjg7NezVljZuySW7OQafWKRWCn582PhMLX/4ehWifllPKxi664QBAFmbT
-         G19Cz170u1GoOKxkFO0c++f6mLS/2B2/5m0SWHQg+eUurCzfxvRLsByhhpbZxlxFPI4Y
-         1RZA9/DufWtmqQ3RdP75wya3PM0nhpEn88xRh60nG0ld1uHrV4LAliJUqdSoSDCZpif+
-         R6fs6vAZgui8BgvBZuVmEGlZZRxzJRhRYKh5mV7F70cG3ZFw/Siw/qtnevSEMq03Of0O
-         55rg==
-X-Forwarded-Encrypted: i=1; AJvYcCXsCP8OZLcihwd3cUY3DDBDepc3f6QixocBwa02uluLN/Cs7ZT4PbQ8RzfvPFw2NXU7i5vuEWb+mD03GfExoQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwwKr7IkPofDzPKLNUqi8+S6f0M728F6HvR0uk9jm+JY07WWa/V
-	Cv1RYzafbUzRyOT9aIMsn6qk96OyLVlPjXDwuMR5dIzOoV5ifdDrqAuZxogjy83iCI4x0C7715Y
-	+qhd9
-X-Gm-Gg: ASbGncvcx9aKwy6W1vRmf11TDQQjj/mAuoEm1VKulBtYyhE2pUpZQDKb7xBfayw22k/
-	Jns2GFtaZDZlxGmak0uRtjPTBvVhP4BMyEA21P3ZD2LVmWFr77KKVljdDCqKoSo99TPdxzmSjpF
-	ECN550K6S/VR7Qvj+OS+Hn+JzJ9z6crV+p+sLzwYXsl8SncrR6LYzPsbWJE7sBe3oDb5UxWJ7ND
-	i1Xyjy1ocZHgIfomQFYaU9rf6Z+w34v0JZ5AmN1lznoUCVw35UKlB+Urt9aHD9mA37Iimls5Oye
-	MaJ96+SNQBv3ICIG3gE37wziWwFssyelwf5+FHQgLGvNLrIu28Awcs/Z9VRCeXgKfUYeCZ5/VoH
-	9zFvG8VvE23uSL7L9rdLP1q0=
-X-Google-Smtp-Source: AGHT+IFQ0s2+2/egoEkMdJ3Tv9LHI5rzvo7KvcNNz9TKi4S2Jyq1GVoMeyJ7IOza8UhnllAqhv/heQ==
-X-Received: by 2002:a17:90b:4b83:b0:31c:3872:9411 with SMTP id 98e67ed59e1d1-31f5de63c28mr4175721a91.33.1753867819846;
-        Wed, 30 Jul 2025 02:30:19 -0700 (PDT)
+        bh=+ztfLizoM6vJzWJQpk/yKuNltuSgkusaceKeZjG9ohE=;
+        b=L4doWGg5scVHpmh9juHx67mJCcNc3JxVTjRVNOwHEgRLbkZ0+iO/6CRmMA2AeuLOB1
+         +pJAEK2zAv99cHJlsqy0VooDuXgR/dlIW4XmI3qbo/8QTffORt2kWiGR3LzdSAJlDKlG
+         R+GiKA0BNkPXaeuSJjtl9EdGEGU5sgKAhOXO2btWE5y1ks73Au2O7kqIL5K2SZmjaGiP
+         yz1ZgEZMFUQgJaipn7qXlTmmFkbWe3DUT9frOCrghxTsgnGMj+rMXqosf4aBG9k3wFQk
+         uaRLhAfnvWyBN6WU+YI2/3SlrDy8A02yygkO5IG2rJoDrKn+qfpG/a/gpaO8k8VmEWwb
+         HrEw==
+X-Forwarded-Encrypted: i=1; AJvYcCWZmWEHrzESgjOPH+e2k8tAZu2erCSJiRoGlIeul+xROwtevYuWglC/1/yxmi6X/tgVaOG54Q2VJbsYM//xew==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw8f0mvQ1WmK//uit8xB0/O9QIfRvTLgxwdyPgDy4P23M5D/xL8
+	/u/+6vO0dyDFL9zvNTYwnKNASOY/Z+d7K97yzQfP/77DVrgGE9CyW5jPhNJTws/x7E8=
+X-Gm-Gg: ASbGncsIh7FhfPm6ngMcdP1hQp9WP4oQXwMm1p3wIXdWq5ZoGrsk6KhymX+QXHr79n6
+	PeuCttTcvwtMj+i3P03RqzPhrbM28uc4mgIKvOCE4BESDUIhnFfluWDMA4lNeiykG1AeF4dXzkl
+	lzq1JxP88k+2Ynw6mT/yTg0vrggdhCEmUTGZc5I2/A60Zj/jsDvszKYC6a5NRBh5t9o+RZi/HjI
+	dz6PxoMg/FAubw32SHZZeqdo/Ebqu6URAXhK/W2A9Kra+4XzUyV7wOGLPgiL0NtmTefXkNg5Pmo
+	rr6bhYZK6e/aVQP5OjPfDoB2gQ8v8b/EAZbdexnFq3bAOwC6DNGRXBqTN0Ird3BRr8WWhpoXVAX
+	PA/qufKsSabL2v82WlpG7uJA=
+X-Google-Smtp-Source: AGHT+IFUrg1QYU7YbPaiKF9yxuBVZ4/0jL0dMyof/YqyAVSp+4ZDAcvrCV6vSNusV2vKF99MbZL+zw==
+X-Received: by 2002:a17:90b:3e84:b0:311:e8cc:424c with SMTP id 98e67ed59e1d1-31f5ea4c967mr3628584a91.25.1753867824670;
+        Wed, 30 Jul 2025 02:30:24 -0700 (PDT)
 Received: from localhost ([122.172.85.40])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-31f63f0b4b9sm1481141a91.27.2025.07.30.02.30.18
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-31f63dd8c04sm1479090a91.19.2025.07.30.02.30.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Jul 2025 02:30:19 -0700 (PDT)
+        Wed, 30 Jul 2025 02:30:24 -0700 (PDT)
 From: Viresh Kumar <viresh.kumar@linaro.org>
 To: linux-kernel@vger.kernel.org,
 	"Michael S. Tsirkin" <mst@redhat.com>,
@@ -80,9 +79,9 @@ Cc: Arnd Bergmann <arnd@kernel.org>,
 	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>
-Subject: [RFC PATCH  5/6] virtio-msg: Add support for FF-A (Firmware Framework for Arm) bus
-Date: Wed, 30 Jul 2025 14:59:34 +0530
-Message-Id: <c3b5352befaac3bdeb0c169bdb76b7ae2453361e.1753865268.git.viresh.kumar@linaro.org>
+Subject: [RFC PATCH  6/6] virtio-msg: Add support for loopback bus
+Date: Wed, 30 Jul 2025 14:59:35 +0530
+Message-Id: <622460b11118be66d5ec380b3d5771be77fc1e91.1753865268.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
 In-Reply-To: <cover.1753865268.git.viresh.kumar@linaro.org>
 References: <cover.1753865268.git.viresh.kumar@linaro.org>
@@ -94,71 +93,58 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Introduce a virtio-msg bus implementation based on the Arm FF-A
-(Firmware Framework for Arm) communication interface.
+Add a loopback bus implementation for the virtio-msg transport.
 
-This bus enables virtio-msg transport over secure channels typically
-used between the normal world OS and a secure OS or hypervisor. It
-leverages the standardized FF-A interface to exchange messages with a
-remote backend service.
+This bus simulates a backend that echoes messages to itself, allowing
+testing and development of virtio-msg without requiring an actual remote
+backend or transport hardware.
 
-The implementation integrates with the core virtio-msg transport and
-uses FF-A service calls to transmit and receive messages.
+The loopback bus requires a reserved memory region for its operation.
+All DMA-coherent and streaming DMA allocations are restricted to this
+region, enabling safe mapping into user space and helping validate the
+memory-sharing model.
 
-Optionally, this bus supports attaching a reserved-memory region to
-constrain DMA-coherent and streaming DMA allocations to a well-defined
-contiguous area. This memory can be pre-mapped on the remote side,
-reducing runtime overhead and preventing accidental sharing of unrelated
-pages due to page-granularity mapping.
-
-To enable reserved memory, the following device tree node should be
-defined (the node must be named "vmsgffa"):
+The reserved-memory region must be named "vmsglb" in the device tree.
+Example:
 
   reserved-memory {
     #address-cells = <2>;
     #size-cells   = <2>;
     ranges;
 
-    vmsgffa@100000000 {
+    vmsglb@100000000 {
       compatible = "restricted-dma-pool";
       reg = <0x00000001 0x00000000  0x0 0x00400000>; /* 4 MiB */
     };
   };
 
+This bus is primarily intended for functional testing, development, and
+validation of the virtio-msg transport and its userspace interface.
+
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- drivers/virtio/Kconfig              |  12 +-
- drivers/virtio/Makefile             |   1 +
- drivers/virtio/virtio_msg_ffa.c     | 505 ++++++++++++++++++++++++++++
- include/uapi/linux/virtio_msg_ffa.h |  94 ++++++
- 4 files changed, 611 insertions(+), 1 deletion(-)
- create mode 100644 drivers/virtio/virtio_msg_ffa.c
- create mode 100644 include/uapi/linux/virtio_msg_ffa.h
+ drivers/virtio/Kconfig               |   9 +
+ drivers/virtio/Makefile              |   1 +
+ drivers/virtio/virtio_msg_loopback.c | 323 +++++++++++++++++++++++++++
+ include/uapi/linux/virtio_msg_lb.h   |  22 ++
+ 4 files changed, 355 insertions(+)
+ create mode 100644 drivers/virtio/virtio_msg_loopback.c
+ create mode 100644 include/uapi/linux/virtio_msg_lb.h
 
 diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index a86025c9e008..683152477e3f 100644
+index 683152477e3f..934e8ccb3a01 100644
 --- a/drivers/virtio/Kconfig
 +++ b/drivers/virtio/Kconfig
-@@ -176,7 +176,8 @@ config VIRTIO_MSG
- 	select VIRTIO
- 	help
- 	  This enables support for Virtio message transport. This option is
--	  selected by any driver which implements the virtio message bus.
-+	  selected by any driver which implements the virtio message bus, such
-+	  as VIRTIO_MSG_FFA.
+@@ -196,6 +196,15 @@ config VIRTIO_MSG_FFA
  
- config VIRTIO_MSG_USER
- 	tristate "Userspace interface for virtio message transport"
-@@ -186,6 +187,15 @@ config VIRTIO_MSG_USER
- 	  can be used to read / write messages over virtio-msg transport from
- 	  userspace.
+ 	 If unsure, say N.
  
-+config VIRTIO_MSG_FFA
-+	tristate "FF-A bus driver for virtio message transport"
-+	depends on ARM_FFA_TRANSPORT
++config VIRTIO_MSG_LOOPBACK
++	tristate "Loopback bus driver for virtio message transport"
 +	select VIRTIO_MSG
++	select VIRTIO_MSG_USER
 +	help
-+	 This implements a Virtio message bus based on ARM FF-A protocol.
++	 This implements the Loopback bus for Virtio msg transport.
 +
 +	 If unsure, say N.
 +
@@ -166,628 +152,374 @@ index a86025c9e008..683152477e3f 100644
  	tristate
  	depends on DMA_SHARED_BUFFER
 diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-index 5b664c5f5f25..96ec0a9c4a7a 100644
+index 96ec0a9c4a7a..90a2f1d86937 100644
 --- a/drivers/virtio/Makefile
 +++ b/drivers/virtio/Makefile
 @@ -7,6 +7,7 @@ obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
  virtio_msg_transport-y := virtio_msg.o
  virtio_msg_transport-$(CONFIG_VIRTIO_MSG_USER) += virtio_msg_user.o
  obj-$(CONFIG_VIRTIO_MSG) += virtio_msg_transport.o
-+obj-$(CONFIG_VIRTIO_MSG_FFA) += virtio_msg_ffa.o
++obj-$(CONFIG_VIRTIO_MSG_LOOPBACK) += virtio_msg_loopback.o
+ obj-$(CONFIG_VIRTIO_MSG_FFA) += virtio_msg_ffa.o
  obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
  virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
- virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) += virtio_pci_legacy.o
-diff --git a/drivers/virtio/virtio_msg_ffa.c b/drivers/virtio/virtio_msg_ffa.c
+diff --git a/drivers/virtio/virtio_msg_loopback.c b/drivers/virtio/virtio_msg_loopback.c
 new file mode 100644
-index 000000000000..e7f2cbcd238b
+index 000000000000..d1d454fadc6f
 --- /dev/null
-+++ b/drivers/virtio/virtio_msg_ffa.c
-@@ -0,0 +1,505 @@
++++ b/drivers/virtio/virtio_msg_loopback.c
+@@ -0,0 +1,323 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ * FF-A bus implementation for Virtio message transport.
++ * Loopback bus implementation for Virtio message transport.
 + *
 + * Copyright (C) 2025 Google LLC and Linaro.
 + * Viresh Kumar <viresh.kumar@linaro.org>
 + *
-+ * This implements the FF-A (Arm Firmware Framework) bus for Virtio msg
-+ * transport.
++ * This implements the Loopback bus for Virtio msg transport.
 + */
 +
-+#define pr_fmt(fmt) "virtio-msg-ffa: " fmt
++#define pr_fmt(fmt) "virtio-msg-loopback: " fmt
 +
-+#include <linux/arm_ffa.h>
 +#include <linux/err.h>
++#include <linux/list.h>
++#include <linux/miscdevice.h>
 +#include <linux/module.h>
++#include <linux/mutex.h>
 +#include <linux/of_reserved_mem.h>
-+#include <linux/pm.h>
 +#include <linux/slab.h>
 +#include <linux/types.h>
 +#include <linux/virtio.h>
-+#include <uapi/linux/virtio_msg_ffa.h>
++#include <uapi/linux/virtio_msg.h>
++#include <uapi/linux/virtio_msg_lb.h>
 +
 +#include "virtio_msg_internal.h"
 +
-+struct virtio_msg_indirect_data {
-+	struct completion completion;
-+	struct virtio_msg *response;
-+};
-+
-+struct virtio_msg_device_data {
++struct vmlb_device {
 +	struct virtio_msg_device vmdev;
-+	struct virtio_msg_indirect_data idata;
++	struct list_head list;
 +};
 +
-+/* Represents FF-A corresponding to a partition */
-+struct virtio_msg_ffa_device {
-+	struct ffa_device *ffa_dev;
++struct virtio_msg_lb {
++	/* Serializes transfers and protects list */
++	struct mutex lock;
++	struct list_head list;
++	struct miscdevice misc;
++	struct virtio_msg_user_device vmudev;
++	struct virtio_msg *response;
 +	struct reserved_mem *rmem;
-+	struct virtio_msg_indirect_data idata;
-+	struct virtio_msg_device_data *vmdevs;
-+	int (*send)(struct virtio_msg_ffa_device *vmfdev,
-+		    struct virtio_msg *request,
-+		    struct virtio_msg *response,
-+		    struct virtio_msg_indirect_data *idata);
-+	int vmdev_count;
-+	u16 msg_size;
++	struct device *dev;
 +};
 +
-+#define to_vmdevdata(_vmdev) \
-+	container_of(_vmdev, struct virtio_msg_device_data, vmdev)
-+#define to_vmfdev(_vmdev) ((struct virtio_msg_ffa_device *)(_vmdev)->bus_data)
++static struct virtio_msg_lb *vmlb;
 +
-+static int vmsg_ffa_send_direct(struct virtio_msg_ffa_device *vmfdev,
-+				struct virtio_msg *request,
-+				struct virtio_msg *response,
-+				struct virtio_msg_indirect_data *idata_unused)
++#define to_vmlbdev(_vmdev)	((struct vmlb_device *)(_vmdev)->bus_data)
++
++static struct vmlb_device *find_vmlbdev(u16 dev_id)
 +{
-+	struct ffa_device *ffa_dev = vmfdev->ffa_dev;
-+	struct ffa_send_direct_data2 ffa_data;
-+	int ret;
++	struct vmlb_device *vmlbdev;
 +
-+	memcpy(&ffa_data, request, request->msg_size);
-+
-+	ret = ffa_dev->ops->msg_ops->sync_send_receive2(ffa_dev, &ffa_data);
-+	if (ret) {
-+		dev_dbg(&ffa_dev->dev,
-+			"Unable to send direct FF-A message: %d\n", ret);
-+		return ret;
++	list_for_each_entry(vmlbdev, &vmlb->list, list) {
++		if (vmlbdev->vmdev.dev_id == dev_id)
++			return vmlbdev;
 +	}
 +
-+	if (response)
-+		memcpy(response, &ffa_data, vmfdev->msg_size);
-+
-+	return 0;
++	return NULL;
 +}
 +
-+static int vmsg_ffa_send_indirect(struct virtio_msg_ffa_device *vmfdev,
-+				  struct virtio_msg *request,
-+				  struct virtio_msg *response,
-+				  struct virtio_msg_indirect_data *idata)
++static const char *virtio_msg_lb_bus_info(struct virtio_msg_device *vmdev,
++					  u16 *msg_size, u32 *rev)
 +{
-+	struct ffa_device *ffa_dev = vmfdev->ffa_dev;
-+	struct device *dev = &ffa_dev->dev;
-+	int ret, count = 10;
++	*msg_size = VIRTIO_MSG_MIN_SIZE;
++	*rev = VIRTIO_MSG_REVISION_1;
++
++	return dev_name(vmlb->dev);
++}
++
++static int virtio_msg_lb_transfer(struct virtio_msg_device *vmdev,
++				  struct virtio_msg *request,
++				  struct virtio_msg *response)
++{
++	struct virtio_msg_user_device *vmudev = &vmlb->vmudev;
++	int ret;
 +
 +	/*
-+	 * Store the response pointer in idata structure. This will be updated
-+	 * by vmsg_ffa_notifier_cb() later.
++	 * Allow only one transaction to progress at once.
 +	 */
-+	idata->response = response;
-+
-+try_again:
-+	ret = ffa_dev->ops->msg_ops->indirect_send(ffa_dev, request,
-+						   request->msg_size);
-+	if (ret == -EBUSY && --count) {
-+		cpu_relax();
-+		goto try_again;
-+	}
-+
-+	if (ret) {
-+		dev_err(dev, "Failed sending indirect FF-A message: %d\n", ret);
-+		return ret;
-+	}
++	guard(mutex)(&vmlb->lock);
 +
 +	/*
-+	 * Always wait for the operation to finish, otherwise we may start
-+	 * another operation while the previous one is still ongoing.
++	 * Set `vmsg` to `request` and finish the completion to wake up the
++	 * `read()` thread.
 +	 */
-+	ret = wait_for_completion_interruptible_timeout(&idata->completion, 1000);
++	vmudev->vmsg = request;
++	vmlb->response = response;
++	complete(&vmudev->r_completion);
++
++	/*
++	 * Wait here for the `write()` thread to finish and not return before
++	 * the operation is finished to avoid any potential races.
++	 */
++	ret = wait_for_completion_interruptible_timeout(&vmudev->w_completion, 1000);
 +	if (ret < 0) {
-+		dev_err(dev, "Interrupted - waiting for a response: %d\n", ret);
++		dev_err(vmlb->dev, "Interrupted while waiting for response: %d\n", ret);
 +	} else if (!ret) {
-+		dev_err(dev, "Timed out waiting for a response\n");
++		dev_err(vmlb->dev, "Timed out waiting for response\n");
 +		ret = -ETIMEDOUT;
 +	} else {
 +		ret = 0;
 +	}
 +
++	/* Clear the pointers, just to be safe */
++	vmudev->vmsg = NULL;
++	vmlb->response = NULL;
++
 +	return ret;
 +}
 +
-+static struct virtio_msg_device *
-+find_vmdev(struct virtio_msg_ffa_device *vmfdev, u16 dev_id)
++static struct virtio_msg_ops virtio_msg_lb_ops = {
++	.transfer = virtio_msg_lb_transfer,
++	.bus_info = virtio_msg_lb_bus_info,
++};
++
++static int virtio_msg_lb_user_handle(struct virtio_msg_user_device *vmudev,
++				     struct virtio_msg *vmsg)
 +{
-+	int i;
++	struct vmlb_device *vmlbdev;
 +
-+	/* Find the device corresponding to a dev_id */
-+	for (i = 0; i < vmfdev->vmdev_count; i++) {
-+		if (vmfdev->vmdevs[i].vmdev.dev_id == dev_id)
-+			return &vmfdev->vmdevs[i].vmdev;
-+	}
-+
-+	dev_err(&vmfdev->ffa_dev->dev, "Couldn't find matching vmdev: %d\n",
-+		dev_id);
-+	return NULL;
-+}
-+
-+static void vmsg_ffa_notifier_cb(int notify_id, void *cb_data, void *buf)
-+{
-+	struct virtio_msg_ffa_device *vmfdev = cb_data;
-+	struct ffa_device *ffa_dev = vmfdev->ffa_dev;
-+	struct virtio_msg_indirect_data *idata;
-+	struct virtio_msg_device *vmdev;
-+	struct virtio_msg *vmsg = buf;
-+
-+	/*
-+	 * We can either receive a response message (to a previously sent
-+	 * request), or an EVENT_USED request message.
-+	 */
++	/* Response message */
 +	if (vmsg->type & VIRTIO_MSG_TYPE_RESPONSE) {
-+		if (vmsg->type & VIRTIO_MSG_TYPE_BUS) {
-+			idata = &vmfdev->idata;
-+		} else {
-+			vmdev = find_vmdev(vmfdev, le16_to_cpu(vmsg->dev_id));
-+			if (!vmdev)
-+				return;
++		if (vmlb->response)
++			memcpy(vmlb->response, vmsg, VIRTIO_MSG_MIN_SIZE);
 +
-+			idata = &to_vmdevdata(vmdev)->idata;
-+		}
-+
-+		if (idata->response)
-+			memcpy(idata->response, vmsg, vmsg->msg_size);
-+
-+		complete(&idata->completion);
-+
-+		return;
++		return 0;
 +	}
 +
 +	/* Only support EVENT_USED virtio request messages */
-+	if (vmsg->type & VIRTIO_MSG_TYPE_BUS ||
-+	    vmsg->msg_id != VIRTIO_MSG_EVENT_USED) {
-+		dev_err(&ffa_dev->dev, "Unsupported message received\n");
-+		return;
++	if (vmsg->type & VIRTIO_MSG_TYPE_BUS || vmsg->msg_id != VIRTIO_MSG_EVENT_USED) {
++		dev_err(vmlb->dev, "Unsupported message received\n");
++		return 0;
 +	}
 +
-+	vmdev = find_vmdev(vmfdev, le16_to_cpu(vmsg->dev_id));
-+	if (!vmdev)
-+		return;
++	vmlbdev = find_vmlbdev(le16_to_cpu(vmsg->dev_id));
++	if (!vmlbdev)
++		return 0;
 +
-+	virtio_msg_event(vmdev, vmsg);
++	virtio_msg_event(&vmlbdev->vmdev, vmsg);
++	return 0;
 +}
 +
-+static int vmsg_ffa_notify_setup(struct virtio_msg_ffa_device *vmfdev)
++static struct virtio_msg_user_ops vmlb_user_ops = {
++	.handle = virtio_msg_lb_user_handle,
++};
++
++static int vmlbdev_add(struct file *file, struct vmsg_lb_dev_info *info)
 +{
-+	struct ffa_device *ffa_dev = vmfdev->ffa_dev;
++	struct vmlb_device *vmlbdev;
 +	int ret;
 +
-+	ret = ffa_dev->ops->notifier_ops->fwk_notify_request(ffa_dev,
-+			&vmsg_ffa_notifier_cb, vmfdev, 0);
-+	if (ret)
-+		dev_err(&ffa_dev->dev, "Unable to request notifier: %d\n", ret);
++	scoped_guard(mutex, &vmlb->lock) {
++		if (find_vmlbdev(info->dev_id))
++			return -EEXIST;
 +
++		vmlbdev = kzalloc(sizeof(*vmlbdev), GFP_KERNEL);
++		if (!vmlbdev)
++			return -ENOMEM;
++
++		vmlbdev->vmdev.dev_id = info->dev_id;
++		vmlbdev->vmdev.ops = &virtio_msg_lb_ops;
++		vmlbdev->vmdev.vdev.dev.parent = vmlb->dev;
++		vmlbdev->vmdev.bus_data = vmlbdev;
++
++		list_add(&vmlbdev->list, &vmlb->list);
++	}
++
++	ret = virtio_msg_register(&vmlbdev->vmdev);
++	if (ret) {
++		dev_err(vmlb->dev, "Failed to register virtio msg lb device (%d)\n", ret);
++		goto out;
++	}
++
++	return 0;
++
++out:
++	scoped_guard(mutex, &vmlb->lock)
++		list_del(&vmlbdev->list);
++
++	kfree(vmlbdev);
 +	return ret;
 +}
 +
-+static void vmsg_ffa_notify_cleanup(struct virtio_msg_ffa_device *vmfdev)
++static int vmlbdev_remove(struct file *file, struct vmsg_lb_dev_info *info)
 +{
-+	struct ffa_device *ffa_dev = vmfdev->ffa_dev;
-+	int ret;
++	struct vmlb_device *vmlbdev;
 +
-+	ret = ffa_dev->ops->notifier_ops->fwk_notify_relinquish(ffa_dev, 0);
-+	if (ret)
-+		dev_err(&ffa_dev->dev, "Unable to relinquish notifier: %d\n", ret);
-+}
-+
-+static int vmsg_ffa_bus_get_devices(struct virtio_msg_ffa_device *vmfdev,
-+				    u16 *map, u16 *count)
-+{
-+	u8 req_buf[VIRTIO_MSG_FFA_BUS_MSG_SIZE];
-+	u8 res_buf[VIRTIO_MSG_FFA_BUS_MSG_SIZE];
-+	struct virtio_msg *request = (struct virtio_msg *)&req_buf;
-+	struct virtio_msg *response = (struct virtio_msg *)&res_buf;
-+	struct bus_get_devices *req_payload = virtio_msg_payload(request);
-+	struct bus_get_devices_resp *res_payload = virtio_msg_payload(response);
-+	int ret;
-+
-+	static_assert(sizeof(*request) + sizeof(*req_payload) <
-+		      VIRTIO_MSG_FFA_BUS_MSG_SIZE);
-+	static_assert(sizeof(*response) + sizeof(*res_payload) <
-+		      VIRTIO_MSG_FFA_BUS_MSG_SIZE);
-+
-+	virtio_msg_prepare(request, VIRTIO_MSG_BUS_GET_DEVICES,
-+			   sizeof(*req_payload));
-+	req_payload->offset = 0;
-+	req_payload->num = cpu_to_le16(0xFF);
-+
-+	ret = vmfdev->send(vmfdev, request, response, &vmfdev->idata);
-+	if (ret < 0)
-+		return ret;
-+
-+	*count = le16_to_cpu(res_payload->num);
-+	if (!*count)
-+		return -ENODEV;
-+
-+	if (res_payload->offset != req_payload->offset)
-+		return -EINVAL;
-+
-+	/* Support up to 16 devices for now */
-+	if (res_payload->next_offset)
-+		return -EINVAL;
-+
-+	map[0] = res_payload->devices[0];
-+	map[1] = res_payload->devices[1];
-+
-+	return 0;
-+}
-+
-+static int vmsg_ffa_bus_version(struct virtio_msg_ffa_device *vmfdev)
-+{
-+	u8 req_buf[VIRTIO_MSG_FFA_BUS_MSG_SIZE];
-+	u8 res_buf[VIRTIO_MSG_FFA_BUS_MSG_SIZE];
-+	struct virtio_msg *request = (struct virtio_msg *)&req_buf;
-+	struct virtio_msg *response = (struct virtio_msg *)&res_buf;
-+	struct bus_ffa_version *req_payload = virtio_msg_payload(request);
-+	struct bus_ffa_version_resp *res_payload = virtio_msg_payload(response);
-+	u32 features;
-+	int ret;
-+
-+	static_assert(sizeof(*request) + sizeof(*req_payload) <
-+		      VIRTIO_MSG_FFA_BUS_MSG_SIZE);
-+	static_assert(sizeof(*response) + sizeof(*res_payload) <
-+		      VIRTIO_MSG_FFA_BUS_MSG_SIZE);
-+
-+	virtio_msg_prepare(request, VIRTIO_MSG_FFA_BUS_VERSION,
-+			   sizeof(*req_payload));
-+	req_payload->driver_version = cpu_to_le32(VIRTIO_MSG_FFA_BUS_VERSION_1_0);
-+	req_payload->vmsg_revision = cpu_to_le32(VIRTIO_MSG_REVISION_1);
-+	req_payload->vmsg_features = cpu_to_le32(VIRTIO_MSG_FEATURES);
-+	req_payload->features = cpu_to_le32(VIRTIO_MSG_FFA_FEATURE_BOTH_SUPP);
-+	req_payload->area_num = cpu_to_le16(VIRTIO_MSG_FFA_AREA_ID_MAX);
-+
-+	ret = vmfdev->send(vmfdev, request, response, &vmfdev->idata);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (le32_to_cpu(res_payload->device_version) != VIRTIO_MSG_FFA_BUS_VERSION_1_0)
-+		return -EINVAL;
-+
-+	if (le32_to_cpu(res_payload->vmsg_revision) != VIRTIO_MSG_REVISION_1)
-+		return -EINVAL;
-+
-+	if (le32_to_cpu(res_payload->vmsg_features) != VIRTIO_MSG_FEATURES)
-+		return -EINVAL;
-+
-+	features = le32_to_cpu(res_payload->features);
-+
-+	/*
-+	 * - Direct message must be supported if it already worked.
-+	 * - Indirect message must be supported if it already worked
-+	 * - And direct message must not be supported since it didn't work.
-+	 */
-+	if ((ffa_partition_supports_direct_recv(vmfdev->ffa_dev) &&
-+	     !(features & VIRTIO_MSG_FFA_FEATURE_DIRECT_MSG_RX_SUPP)) ||
-+	    (ffa_partition_supports_indirect_msg(vmfdev->ffa_dev) &&
-+	     !(features & VIRTIO_MSG_FFA_FEATURE_INDIRECT_MSG_SUPP))) {
-+		dev_err(&vmfdev->ffa_dev->dev, "Invalid features\n");
-+		return -EINVAL;
++	scoped_guard(mutex, &vmlb->lock) {
++		vmlbdev = find_vmlbdev(info->dev_id);
++		if (vmlbdev) {
++			list_del(&vmlbdev->list);
++			virtio_msg_unregister(&vmlbdev->vmdev);
++			return 0;
++		}
 +	}
 +
-+	return 0;
++	dev_err(vmlb->dev, "Failed to find virtio msg lb device.\n");
++	return -ENODEV;
 +}
 +
-+static int virtio_msg_ffa_transfer(struct virtio_msg_device *vmdev,
-+				   struct virtio_msg *request,
-+				   struct virtio_msg *response)
++static void vmlbdev_remove_all(void)
 +{
-+	struct virtio_msg_indirect_data *idata = &to_vmdevdata(vmdev)->idata;
-+	struct virtio_msg_ffa_device *vmfdev = to_vmfdev(vmdev);
++	struct vmlb_device *vmlbdev, *tvmlbdev;
 +
-+	return vmfdev->send(vmfdev, request, response, idata);
++	guard(mutex)(&vmlb->lock);
++
++	list_for_each_entry_safe(vmlbdev, tvmlbdev, &vmlb->list, list) {
++		virtio_msg_unregister(&vmlbdev->vmdev);
++		list_del(&vmlbdev->list);
++	}
 +}
 +
-+static const char *virtio_msg_ffa_bus_info(struct virtio_msg_device *vmdev,
-+					   u16 *msg_size, u32 *rev)
++static long vmlb_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 +{
-+	struct virtio_msg_ffa_device *vmfdev = to_vmfdev(vmdev);
++	struct vmsg_lb_dev_info info;
 +
-+	*msg_size = vmfdev->msg_size;
-+	*rev = VIRTIO_MSG_REVISION_1;
++	if (copy_from_user(&info, (void __user *)data, sizeof(info)))
++		return -EFAULT;
 +
-+	return dev_name(&vmfdev->ffa_dev->dev);
++	switch (cmd) {
++	case IOCTL_VMSG_LB_ADD:
++		return vmlbdev_add(file, &info);
++
++	case IOCTL_VMSG_LB_REMOVE:
++		return vmlbdev_remove(file, &info);
++
++	default:
++		return -ENOTTY;
++	}
 +}
 +
-+static struct virtio_msg_ops vmf_ops = {
-+	.transfer = virtio_msg_ffa_transfer,
-+	.bus_info = virtio_msg_ffa_bus_info,
++static int vmlb_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	unsigned long size = vma->vm_end - vma->vm_start;
++	unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
++
++	if (offset > vmlb->rmem->size - size)
++		return -EINVAL;
++
++	return remap_pfn_range(vma, vma->vm_start,
++			(vmlb->rmem->base + offset) >> PAGE_SHIFT,
++			size,
++			vma->vm_page_prot);
++}
++
++static loff_t vmlb_llseek(struct file *file, loff_t offset, int whence)
++{
++	return fixed_size_llseek(file, offset, whence, vmlb->rmem->size);
++}
++
++static const struct file_operations vmlb_miscdev_fops = {
++	.owner = THIS_MODULE,
++	.unlocked_ioctl = vmlb_ioctl,
++	.mmap = vmlb_mmap,
++	.llseek = vmlb_llseek,
 +};
 +
-+static void remove_vmdevs(struct virtio_msg_ffa_device *vmfdev, int count)
++static int virtio_msg_lb_init(void)
 +{
-+	while (count--)
-+		virtio_msg_unregister(&vmfdev->vmdevs[count].vmdev);
-+}
++	int ret;
 +
-+static int virtio_msg_ffa_probe(struct ffa_device *ffa_dev)
-+{
-+	struct virtio_msg_ffa_device *vmfdev;
-+	struct device *dev = &ffa_dev->dev;
-+	struct virtio_msg_device *vmdev;
-+	unsigned long devices = 0;
-+	int ret, i = 0, bit;
-+	u16 count;
-+
-+	vmfdev = devm_kzalloc(dev, sizeof(*vmfdev), GFP_KERNEL);
-+	if (!vmfdev)
++	vmlb = kzalloc(sizeof(*vmlb), GFP_KERNEL);
++	if (!vmlb)
 +		return -ENOMEM;
 +
-+	if (ffa_partition_supports_direct_recv(ffa_dev)) {
-+		vmfdev->send = vmsg_ffa_send_direct;
-+	} else if (ffa_partition_supports_indirect_msg(ffa_dev)) {
-+		vmfdev->send = vmsg_ffa_send_indirect;
-+	} else {
-+		dev_err(dev, "Direct or Indirect messages not supported\n");
-+		return -EINVAL;
++	INIT_LIST_HEAD(&vmlb->list);
++	mutex_init(&vmlb->lock);
++	vmlb->vmudev.ops = &vmlb_user_ops;
++
++	vmlb->misc.name = "virtio-msg-lb";
++	vmlb->misc.minor = MISC_DYNAMIC_MINOR;
++	vmlb->misc.fops = &vmlb_miscdev_fops;
++
++	ret = misc_register(&vmlb->misc);
++	if (ret)
++		goto vmlb_free;
++
++	vmlb->dev = vmlb->misc.this_device;
++	vmlb->vmudev.parent = vmlb->dev;
++
++	vmlb->rmem = of_reserved_mem_lookup_by_name("vmsglb");
++	if (IS_ERR(vmlb->rmem)) {
++		ret = PTR_ERR(vmlb->rmem);
++		goto unregister;
++	}
++	ret = reserved_mem_device_init(vmlb->dev, vmlb->rmem);
++	if (ret)
++		goto mem_release;
++
++	/* Register with virtio-msg UAPI */
++	ret = virtio_msg_user_register(&vmlb->vmudev);
++	if (ret) {
++		dev_err(vmlb->dev, "Could not register virtio-msg user API\n");
++		goto mem_release;
 +	}
 +
-+	vmfdev->ffa_dev = ffa_dev;
-+	vmfdev->msg_size = VIRTIO_MSG_FFA_BUS_MSG_SIZE;
-+	ffa_dev_set_drvdata(ffa_dev, vmfdev);
-+	init_completion(&vmfdev->idata.completion);
-+
-+	ret = vmsg_ffa_notify_setup(vmfdev);
++	ret = dma_coerce_mask_and_coherent(vmlb->dev, DMA_BIT_MASK(64));
 +	if (ret)
-+		return ret;
-+
-+	ret = vmsg_ffa_bus_version(vmfdev);
-+	if (ret)
-+		goto notify_cleanup;
-+
-+	ret = vmsg_ffa_bus_get_devices(vmfdev, (u16 *)&devices, &count);
-+	if (ret)
-+		goto notify_cleanup;
-+
-+	ret = dma_coerce_mask_and_coherent(dev, DMA_BIT_MASK(64));
-+	if (ret)
-+		dev_warn(dev, "Failed to enable 64-bit or 32-bit DMA\n");
-+
-+	vmfdev->rmem = of_reserved_mem_lookup_by_name("vmsgffa");
-+	if (!IS_ERR(vmfdev->rmem)) {
-+		ret = reserved_mem_device_init(dev, vmfdev->rmem);
-+		if (ret)
-+			goto rmem_free;
-+	} else {
-+		dev_info(dev, "Continuing without reserved-memory block\n");
-+	}
-+
-+	vmfdev->vmdevs = devm_kcalloc(dev, count, sizeof(*vmfdev->vmdevs),
-+				      GFP_KERNEL);
-+	if (!vmfdev->vmdevs) {
-+		ret = -ENOMEM;
-+		goto rmem_free;
-+	}
-+	vmfdev->vmdev_count = count;
-+
-+	for_each_set_bit(bit, &devices, sizeof(devices)) {
-+		init_completion(&vmfdev->vmdevs[i].idata.completion);
-+		vmdev = &vmfdev->vmdevs[i].vmdev;
-+		vmdev->dev_id = bit;
-+		vmdev->ops = &vmf_ops;
-+		vmdev->vdev.dev.parent = dev;
-+		vmdev->bus_data = vmfdev;
-+
-+		ret = virtio_msg_register(vmdev);
-+		if (ret) {
-+			dev_err(dev, "Failed to register virtio-msg device (%d)\n", ret);
-+			goto unregister;
-+		}
-+
-+		i++;
-+	}
++		dev_warn(vmlb->dev, "Failed to enable 64-bit or 32-bit DMA\n");
 +
 +	return 0;
 +
++mem_release:
++	of_reserved_mem_device_release(vmlb->dev);
 +unregister:
-+	remove_vmdevs(vmfdev, i);
-+rmem_free:
-+	if (!IS_ERR(vmfdev->rmem))
-+		of_reserved_mem_device_release(dev);
-+notify_cleanup:
-+	vmsg_ffa_notify_cleanup(vmfdev);
++	misc_deregister(&vmlb->misc);
++vmlb_free:
++	kfree(vmlb);
 +	return ret;
 +}
++module_init(virtio_msg_lb_init);
 +
-+static void virtio_msg_ffa_remove(struct ffa_device *ffa_dev)
++static void virtio_msg_lb_exit(void)
 +{
-+	struct virtio_msg_ffa_device *vmfdev = ffa_dev->dev.driver_data;
-+
-+	remove_vmdevs(vmfdev, vmfdev->vmdev_count);
-+
-+	if (!IS_ERR(vmfdev->rmem))
-+		of_reserved_mem_device_release(&ffa_dev->dev);
-+
-+	vmsg_ffa_notify_cleanup(vmfdev);
++	virtio_msg_user_unregister(&vmlb->vmudev);
++	of_reserved_mem_device_release(vmlb->dev);
++	vmlbdev_remove_all();
++	misc_deregister(&vmlb->misc);
++	kfree(vmlb);
 +}
-+
-+static const struct ffa_device_id virtio_msg_ffa_device_ids[] = {
-+	/* c66028b5-2498-4aa1-9de7-77da6122abf0 */
-+	{ UUID_INIT(0xc66028b5, 0x2498, 0x4aa1,
-+		    0x9d, 0xe7, 0x77, 0xda, 0x61, 0x22, 0xab, 0xf0) },
-+	{}
-+};
-+
-+static int __maybe_unused virtio_msg_ffa_suspend(struct device *dev)
-+{
-+	struct virtio_msg_ffa_device *vmfdev = dev_get_drvdata(dev);
-+	int ret, i, index;
-+
-+	for (i = 0; i < vmfdev->vmdev_count; i++) {
-+		index = vmfdev->vmdev_count - i - 1;
-+		ret = virtio_device_freeze(&vmfdev->vmdevs[index].vmdev.vdev);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused virtio_msg_ffa_resume(struct device *dev)
-+{
-+	struct virtio_msg_ffa_device *vmfdev = dev_get_drvdata(dev);
-+	int ret, i;
-+
-+	for (i = 0; i < vmfdev->vmdev_count; i++) {
-+		ret = virtio_device_restore(&vmfdev->vmdevs[i].vmdev.vdev);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops virtio_msg_ffa_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(virtio_msg_ffa_suspend, virtio_msg_ffa_resume)
-+};
-+
-+static struct ffa_driver virtio_msg_ffa_driver = {
-+	.name = "virtio-msg-ffa",
-+	.probe = virtio_msg_ffa_probe,
-+	.remove = virtio_msg_ffa_remove,
-+	.id_table = virtio_msg_ffa_device_ids,
-+	.driver = {
-+		.pm = &virtio_msg_ffa_pm_ops,
-+	},
-+};
-+
-+static int virtio_msg_ffa_init(void)
-+{
-+	if (IS_REACHABLE(CONFIG_ARM_FFA_TRANSPORT))
-+		return ffa_register(&virtio_msg_ffa_driver);
-+	else
-+		return -EOPNOTSUPP;
-+}
-+module_init(virtio_msg_ffa_init);
-+
-+static void virtio_msg_ffa_exit(void)
-+{
-+	if (IS_REACHABLE(CONFIG_ARM_FFA_TRANSPORT))
-+		ffa_unregister(&virtio_msg_ffa_driver);
-+}
-+module_exit(virtio_msg_ffa_exit);
++module_exit(virtio_msg_lb_exit);
 +
 +MODULE_AUTHOR("Viresh Kumar <viresh.kumar@linaro.org>");
-+MODULE_DESCRIPTION("Virtio message FF-A bus driver");
++MODULE_DESCRIPTION("Virtio message loopback bus driver");
 +MODULE_LICENSE("GPL");
-diff --git a/include/uapi/linux/virtio_msg_ffa.h b/include/uapi/linux/virtio_msg_ffa.h
+diff --git a/include/uapi/linux/virtio_msg_lb.h b/include/uapi/linux/virtio_msg_lb.h
 new file mode 100644
-index 000000000000..adcc081b483a
+index 000000000000..fe0ce6269a0a
 --- /dev/null
-+++ b/include/uapi/linux/virtio_msg_ffa.h
-@@ -0,0 +1,94 @@
++++ b/include/uapi/linux/virtio_msg_lb.h
+@@ -0,0 +1,22 @@
 +/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
 +/*
-+ * Virtio message FF-A (Arm Firmware Framework) bus header.
++ * Virtio message Loopback bus header.
 + *
 + * Copyright (C) 2025 Google LLC and Linaro.
 + * Viresh Kumar <viresh.kumar@linaro.org>
 + */
 +
-+#ifndef _LINUX_VIRTIO_MSG_FFA_H
-+#define _LINUX_VIRTIO_MSG_FFA_H
++#ifndef _LINUX_VIRTIO_MSG_LB_H
++#define _LINUX_VIRTIO_MSG_LB_H
 +
-+#include <linux/types.h>
++struct vmsg_lb_dev_info {
++	unsigned int dev_id;
++};
 +
-+/* Message types */
-+#define VIRTIO_MSG_FFA_BUS_VERSION			0x80
-+#define VIRTIO_MSG_FFA_BUS_AREA_SHARE			0x81
-+#define VIRTIO_MSG_FFA_BUS_AREA_UNSHARE			0x82
-+#define VIRTIO_MSG_FFA_BUS_RESET			0x83
-+#define VIRTIO_MSG_FFA_BUS_EVENT_POLL			0x84
-+#define VIRTIO_MSG_FFA_BUS_AREA_RELEASE			0xC0
++#define IOCTL_VMSG_LB_ADD					\
++	_IOC(_IOC_NONE, 'P', 0, sizeof(struct vmsg_lb_dev_info))
 +
-+#define VIRTIO_MSG_FEATURES				0
-+#define VIRTIO_MSG_FFA_BUS_VERSION_1_0			0x1
-+#define VIRTIO_MSG_FFA_BUS_MSG_SIZE			VIRTIO_MSG_MIN_SIZE
++#define IOCTL_VMSG_LB_REMOVE					\
++	_IOC(_IOC_NONE, 'P', 1, sizeof(struct vmsg_lb_dev_info))
 +
-+#define VIRTIO_MSG_FFA_FEATURE_DIRECT_MSG_RX_SUPP	(1 << 0)
-+#define VIRTIO_MSG_FFA_FEATURE_DIRECT_MSG_TX_SUPP	(1 << 1)
-+#define VIRTIO_MSG_FFA_FEATURE_DIRECT_MSG_SUPP		\
-+	(VIRTIO_MSG_FFA_FEATURE_DIRECT_MSG_RX_SUPP |	\
-+	 VIRTIO_MSG_FFA_FEATURE_DIRECT_MSG_TX_SUPP)
-+
-+#define VIRTIO_MSG_FFA_FEATURE_INDIRECT_MSG_RX_SUPP	(1 << 2)
-+#define VIRTIO_MSG_FFA_FEATURE_INDIRECT_MSG_TX_SUPP	(1 << 3)
-+#define VIRTIO_MSG_FFA_FEATURE_INDIRECT_MSG_SUPP	\
-+	(VIRTIO_MSG_FFA_FEATURE_INDIRECT_MSG_RX_SUPP |	\
-+	 VIRTIO_MSG_FFA_FEATURE_INDIRECT_MSG_TX_SUPP)
-+
-+#define VIRTIO_MSG_FFA_FEATURE_BOTH_SUPP		\
-+	(VIRTIO_MSG_FFA_FEATURE_DIRECT_MSG_SUPP |	\
-+	 VIRTIO_MSG_FFA_FEATURE_INDIRECT_MSG_SUPP)
-+
-+#define VIRTIO_MSG_FFA_AREA_ID_MAX			0xFF
-+#define VIRTIO_MSG_FFA_AREA_ID_OFFSET			56
-+#define VIRTIO_MSG_FFA_OFFSET_MASK			\
-+	((ULL(1) << VIRTIO_MSG_FFA_AREA_ID_OFFSET) - 1)
-+
-+#define VIRTIO_MSG_FFA_RESULT_ERROR			(1 << 0)
-+#define VIRTIO_MSG_FFA_RESULT_BUSY			(1 << 1)
-+
-+/* Message payload format */
-+
-+struct bus_ffa_version {
-+	__le32 driver_version;
-+	__le32 vmsg_revision;
-+	__le32 vmsg_features;
-+	__le32 features;
-+	__le16 area_num;
-+} __attribute__((packed));
-+
-+struct bus_ffa_version_resp {
-+	__le32 device_version;
-+	__le32 vmsg_revision;
-+	__le32 vmsg_features;
-+	__le32 features;
-+	__le16 area_num;
-+} __attribute__((packed));
-+
-+struct bus_area_share {
-+	__le16 area_id;
-+	__le64 mem_handle;
-+	__le64 tag;
-+	__le32 count;
-+	__le32 attr;
-+} __attribute__((packed));
-+
-+struct bus_area_share_resp {
-+	__le16 area_id;
-+	__le16 result;
-+} __attribute__((packed));
-+
-+struct bus_area_unshare {
-+	__le16 area_id;
-+} __attribute__((packed));
-+
-+struct bus_area_unshare_resp {
-+	__le16 area_id;
-+	__le16 result;
-+} __attribute__((packed));
-+
-+struct bus_area_release {
-+	__le16 area_id;
-+} __attribute__((packed));
-+
-+#endif /* _LINUX_VIRTIO_MSG_FFA_H */
++#endif /* _LINUX_VIRTIO_MSG_LB_H */
 -- 
 2.31.1.272.g89b43f80a514
 
