@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75BC5442C;
-	Wed, 30 Jul 2025 09:46:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D4B4635;
+	Wed, 30 Jul 2025 09:49:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753868812; cv=none; b=UnAsFuQmWiMxy91ZYblqvtxG+11OJoB4hp7NRm5f8iApcDUetudaqyODw2qIsa2za6bZaXe3fnrmdW16g06EAmOEH2sPlzjqbDmaoP1hDMsHzBEooEF+NB49qJHj0kGlchqzSOiWSgmI13WLh1cZLMfgYHvAdtFlwR3lX125ZqY=
+	t=1753868961; cv=none; b=T4vUDx4ahBTZ3v60gn4y9qHvZorGrnV5fwYRTtLgsl0rDR2VGA/D7k5OkOyma1YP0T0Z+BObR3mPO/y1awSFiMzHCUitMYYAZO//ndnP1mq0qAiKMucQHwMrgARUcUcXo8cWaKQvMba3YjVAZpSXCz7mB9mwePuZLfsllBVqDKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753868812; c=relaxed/simple;
-	bh=uyeZmXmKI4iT+qFSAZJTJfQfO5Y7A1PihaHJyFjEudw=;
+	s=arc-20240116; t=1753868961; c=relaxed/simple;
+	bh=UimlKP3HSONXYCOXhI5k/xeHFAvvYzDBkpGyXWw4lgU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KsQMfqnjzoVdlUngQwwWSZenvKdh+EsPsdKYO/0IxUERZHJpCv4KRazTHQ4eYl0b6vu36Y0axMUBjrSFQdRYiPxKd1dNxBA9GYZiaa59Lm548xHeY9Li5/g8jo2sNz2XhKeFBIIiVSppa8l/UqScYMpceev3VoNYtuYYhhEWrHU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=raOgpMBA; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=OMkDTtEQHEk7vV3WsJOrFAvONhflKKb7eGSl9yVlOUrTFbyNeFpDeGASKcw/1KcWs8dwtwEvGfPkiODmOhKoHIfZOrjsBGJQPUjd+HVpTzQME5meC+T4dUAsgMvs30ZLRFKowjuTtr9uaxRyaYiZbn+5taQbjWq1tW/Wqo7F0tc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=u0l0FvA7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="raOgpMBA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C4A1C4CEF9;
-	Wed, 30 Jul 2025 09:46:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="u0l0FvA7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B123C4CEF6;
+	Wed, 30 Jul 2025 09:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1753868812;
-	bh=uyeZmXmKI4iT+qFSAZJTJfQfO5Y7A1PihaHJyFjEudw=;
+	s=k20201202; t=1753868960;
+	bh=UimlKP3HSONXYCOXhI5k/xeHFAvvYzDBkpGyXWw4lgU=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=raOgpMBALXt15WK1hEDMIk/x/TfEvBST3vaF+Y6lw4mUY+79Azoqpw4D0dBO429X4
-	 pDt7vZ2LRnxUjZA6XolpYSQkOiSvLI+7KTwRGBKywTUaxTOLmiYe8OrLhcnnWuMRyJ
-	 KO26eWncMCqCFXB74xrJAcICYW6GYrS83eiRBlXmXVfjaTyT5q4CuspHt17CiC4L7G
-	 2iPSylI9C76Rqhqyr4NQZABlXOMbL3rmGBVK9G34FCc4OvAHD/5JwvyD2SmkM9MrOh
-	 wtMfLOY345B2c/hN+fBxkigEQj7ti00fB7dRVenVEzTDCkLcmRKn58rVGJvkHaLOD7
-	 NyaNm5qgzdFzQ==
-Message-ID: <b32b9698-0254-43b3-8109-ee8e37482bae@kernel.org>
-Date: Wed, 30 Jul 2025 11:46:46 +0200
+	b=u0l0FvA7Sm1rh+7Sx/2QZ6/Uq1zhgLUSU8BykuTP2Enw+rHBCAztUZT7XxPeg2hAQ
+	 Jel8Ha8NMkVppS9NELGZCEPO7XjSalYDa+M8WweEzICFlobk4/Kvq7hpfSQgGmijX0
+	 bY0euDSjUbTIMZhUm9L9yzSQ2ULOpU+X9JykUfQcSOHhR/LmProiQw0ctpCDnHY+fR
+	 EyUAk9mePNWDvtt+F9AIU6Z40etr890Y9IQSSQeuSxHw++lMJNB5PbzGkXCVBFtoQq
+	 6LmdjEcqM2EjQzVftBwdWkDkDPmFLJH37P5KEcHr9KXzbOwZqrA5F0JQCTZ0ZP2U3O
+	 Zpj7N3ohZsJIA==
+Message-ID: <1ba0e803-cbca-43d0-be9d-79fef4e54201@kernel.org>
+Date: Wed, 30 Jul 2025 11:49:14 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,22 +35,23 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 2/6] of: reserved-memory: Add
- of_reserved_mem_lookup_by_name
+Subject: Re: [RFC PATCH 6/6] virtio-msg: Add support for loopback bus
 To: Viresh Kumar <viresh.kumar@linaro.org>, linux-kernel@vger.kernel.org,
- Rob Herring <robh@kernel.org>, Saravana Kannan <saravanak@google.com>
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>
 Cc: Arnd Bergmann <arnd@kernel.org>,
  Vincent Guittot <vincent.guittot@linaro.org>,
  =?UTF-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>,
- Bill Mills <bill.mills@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, devicetree@vger.kernel.org,
+ Bill Mills <bill.mills@linaro.org>, Rob Herring <robh@kernel.org>,
+ Saravana Kannan <saravanak@google.com>, devicetree@vger.kernel.org,
  virtualization@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
  Bertrand Marquis <bertrand.marquis@arm.com>,
  "Edgar E . Iglesias" <edgar.iglesias@amd.com>,
  Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
 References: <cover.1753865268.git.viresh.kumar@linaro.org>
- <feb4591cc48c70f9790c3f4d37c149fc336c3110.1753865268.git.viresh.kumar@linaro.org>
+ <622460b11118be66d5ec380b3d5771be77fc1e91.1753865268.git.viresh.kumar@linaro.org>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -96,41 +97,32 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <feb4591cc48c70f9790c3f4d37c149fc336c3110.1753865268.git.viresh.kumar@linaro.org>
+In-Reply-To: <622460b11118be66d5ec380b3d5771be77fc1e91.1753865268.git.viresh.kumar@linaro.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 30/07/2025 11:29, Viresh Kumar wrote:
-> This adds of_reserved_mem_lookup_by_name() helper to get a
+> Add a loopback bus implementation for the virtio-msg transport.
+> 
+> This bus simulates a backend that echoes messages to itself, allowing
+> testing and development of virtio-msg without requiring an actual remote
+> backend or transport hardware.
+> 
+> The loopback bus requires a reserved memory region for its operation.
+> All DMA-coherent and streaming DMA allocations are restricted to this
+> region, enabling safe mapping into user space and helping validate the
+> memory-sharing model.
+> 
+> The reserved-memory region must be named "vmsglb" in the device tree.
 
-Add...
+No, because I can name regions how I wish. You cannot add undocumented
+ABI and claim in commit msg, that the commit msg is the ABI.
 
+Either you have ABI documented or you cannot rely on implicit ABI, thus
+remove above restriction.
 
->  
-> +/**
-> + * of_reserved_mem_lookup_by_name() - acquire reserved_mem from node name
-> + * @name:	node name
-> + *
-> + * This function allows drivers to acquire a reference to the reserved_mem
-> + * struct based on a reserved-memory node name.
-> + *
-> + * Returns a reserved_mem reference, or NULL on error.
-> + */
-> +struct reserved_mem *of_reserved_mem_lookup_by_name(const char *name)
-> +{
-> +	struct device_node *np __free(device_node) =
-> +		of_find_node_by_path("/reserved-memory");
-> +	struct device_node *child __free(device_node) = NULL;
-
-This should not be NULL or this should not be cleanup. Follow coding
-style for cleanup - constructor must be real here. You probably wanted
-scoped loop below.
-
-> +
-> +	if (!np)
-> +		return ERR_PTR(-ENODEV);
-> +
-> +	for_each_child_of_node(np, child) {
+This is really poor choice to add such hidden ABI and it already broke
+several users in the past.
 
 
 Best regards,
