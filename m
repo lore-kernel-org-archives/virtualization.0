@@ -1,134 +1,107 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09C3125761;
-	Wed, 30 Jul 2025 11:24:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C08D2D3EC5
+	for <virtualization@lists.linux.dev>; Wed, 30 Jul 2025 13:39:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753874648; cv=none; b=GHrlik1nbE1WfBoHSr5t1J7xICqaAidAkADwBQ/gdTnjXwrRegQktcjEsXbHjBFFsd5OojUBtR6ifAywwqqy9+nUU+Esai8IbrANEEn64oQmPs1BBGhsQtK28oWSnhCNNNONT7HVZMxonHAVJ1nxheggdcHXqsg25c4/SlVkYFU=
+	t=1753882798; cv=none; b=GSAVtROC5fE/LI07O2jkc92NgdGHJ9/SfRucKtHA1dE9fdo9jUZ/C4GINJS1D/F8oINFFL6RUNrb9JrUdnpllSJCYabzXve/ULvwpnRmQpcpTvDfv8Vbz4IQkayRavW9dMbyHDEFzD9KWoWaMKBxkLa293HknWSrD3hN06Dwo1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753874648; c=relaxed/simple;
-	bh=p439xKdUjQDIZnib0dKjcMt9bu3g5d26E1vN3T7Uh5Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=o07ttfxULoWlkNi68gKvQUu3r15tMwPDINdslY3EcCJPd9z948Q43UQ9pwzVhWhJUZesXFJzCODMBWgKvcPROnHc2qRpf3EvPkCbseccTEAc0GqrPah/ExkATGHEdrHlt9nxxcy0RsvHtR72f7kgHBGWKOQHE7bq3I07r/ulKvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RXX/RAVI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1753882798; c=relaxed/simple;
+	bh=FvpLspMfizkDeBxIkg/xekgU7Uyfj0y7AN+Zs4GVRs0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Kwy1M/XCsMGXr6b1Alz79xzSipLb0IDLvu6pUITLa5lsTMmp5KibnHXo0930VzlveW2+G0MwjnhV65qCBZK0TCotnY70rRgObyEyiX1y5Go47zgFYCLQc2lLIYdlCs+JyuPCtAcVntkXs6vrxNKWvN/8/UxtwgcIy1GuCdzsSp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UYvRGx1H; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RXX/RAVI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92105C4CEE7;
-	Wed, 30 Jul 2025 11:24:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UYvRGx1H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0496C4CEF7
+	for <virtualization@lists.linux.dev>; Wed, 30 Jul 2025 13:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1753874647;
-	bh=p439xKdUjQDIZnib0dKjcMt9bu3g5d26E1vN3T7Uh5Q=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=RXX/RAVI27DR10M/gfwNiS935Ue6Zdqk/CyooqHwDNb1SajzszBzF//byGdkDyMh/
-	 UAAt9LcAAbHCIWusf/pcLfNpauaUSv1kP3YuAJ0VWBYxwC/rYvuaMvBinpT1EejcYH
-	 dg/5Dntnt0khOT2LTdswlfMM7U0O9/yrEBBcR5Sdjlf7yM60FhAr8YW+TveE/sB8zB
-	 xifWuuVuCW6Xd0ysWCE5nO+CEtkabJlrx7R+DVYeSjFVIEKJVFXUTqohy/R/XQkYED
-	 +h87tW629+0bc/n2PTAJv7Bn91DM15gh9GKcNlidOiDUbS4VeJLXf0kE3Ucx4Lb7bW
-	 FD0QR+nY09++Q==
-Message-ID: <462402ce-22cf-492b-bc40-bd9dbc3a2f16@kernel.org>
-Date: Wed, 30 Jul 2025 13:24:02 +0200
+	s=k20201202; t=1753882797;
+	bh=FvpLspMfizkDeBxIkg/xekgU7Uyfj0y7AN+Zs4GVRs0=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=UYvRGx1HOii8U2PLosDu5LSfDQtE9dwk+Aet8Pe1cQHnOVjMRGtlwwyZ53J2OmU1F
+	 qA9BM+treVzWycMpomTkJrWFSYbNfwzMlOt2Zr40zlawQzOL5zt0K3q7qt55+CXfHi
+	 OQahU+HDeqNVc1RS59Vk5p2cuvsLqj6277aeCrWUseUMcCYMMdlB78+fqnIbbRUKX8
+	 njaQ7NYU5vwvwUlV9GChZkN2sHg0Gn6mdW5b0G5seUusE7fL2BpKDCEYF7Ycm1Qsrc
+	 1Jp8oH6WEshdbhc4DIcwirth+9r5N9gIDRVxRfWgM5dopld/WDffT6dGaXnwyH88kk
+	 bBCZ6TgHsGOxQ==
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-ae360b6249fso1240736966b.1
+        for <virtualization@lists.linux.dev>; Wed, 30 Jul 2025 06:39:57 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUSCKoM+XcXbD6zfwEim/hOwsITtO++zKFUstJ7YFQUBbGDn0GuIWHk3DWUeS/8m/dTbBL37wvqtSadAhp0GQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx9mieUMjQ3mIUHX3Ll6HdEviegZVGD6b2kSs+hgaeEHf7nfYgl
+	cEnJEDFhTpX5wfVvo4OW+Su+aB0tOs9A/XyCtOuGUnQp2ci8t9gezBGe1Ig3KbDH2qkKM7MMNbr
+	y1euE0en265bzGTaZfRxHoy91V523MQ==
+X-Google-Smtp-Source: AGHT+IGPoa94KZMO3CxT5BHxcNLbFX0ka6sBY/j36WnCxd4454EPYg+eCD7JAlMEsyTiIf2ckWZOq3V0iWduPco48Ro=
+X-Received: by 2002:a17:907:9410:b0:af8:f58f:89dc with SMTP id
+ a640c23a62f3a-af8fd9ed6afmr432683766b.41.1753882796266; Wed, 30 Jul 2025
+ 06:39:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 2/6] of: reserved-memory: Add
- of_reserved_mem_lookup_by_name
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>,
- Saravana Kannan <saravanak@google.com>, Arnd Bergmann <arnd@kernel.org>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- =?UTF-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>,
- Bill Mills <bill.mills@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, devicetree@vger.kernel.org,
- virtualization@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
- Bertrand Marquis <bertrand.marquis@arm.com>,
- "Edgar E . Iglesias" <edgar.iglesias@amd.com>,
- Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
 References: <cover.1753865268.git.viresh.kumar@linaro.org>
- <feb4591cc48c70f9790c3f4d37c149fc336c3110.1753865268.git.viresh.kumar@linaro.org>
- <b32b9698-0254-43b3-8109-ee8e37482bae@kernel.org>
- <20250730105744.w5arednoluxufvio@vireshk-i7>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20250730105744.w5arednoluxufvio@vireshk-i7>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <cover.1753865268.git.viresh.kumar@linaro.org>
+From: Rob Herring <robh@kernel.org>
+Date: Wed, 30 Jul 2025 08:39:44 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqJn2XtvWaDBSqYPUe2ZVxE7t4EbAt8OPncbQaKjh1jY5w@mail.gmail.com>
+X-Gm-Features: Ac12FXxEywWNtZl5abfalLDGdegqDfPIjD9L5lbHvRJWQgO4YCOCdgR-mgr7rc8
+Message-ID: <CAL_JsqJn2XtvWaDBSqYPUe2ZVxE7t4EbAt8OPncbQaKjh1jY5w@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/6] virtio: Add support for Virtio message transport
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linux-kernel@vger.kernel.org, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Saravana Kannan <saravanak@google.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Arnd Bergmann <arnd@kernel.org>, Vincent Guittot <vincent.guittot@linaro.org>, 
+	=?UTF-8?B?QWxleCBCZW5uw6ll?= <alex.bennee@linaro.org>, 
+	Bill Mills <bill.mills@linaro.org>, devicetree@vger.kernel.org, 
+	virtualization@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>, 
+	Bertrand Marquis <bertrand.marquis@arm.com>, "Edgar E . Iglesias" <edgar.iglesias@amd.com>, 
+	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 30/07/2025 12:57, Viresh Kumar wrote:
-> On 30-07-25, 11:46, Krzysztof Kozlowski wrote:
->> On 30/07/2025 11:29, Viresh Kumar wrote:
->>> +	struct device_node *child __free(device_node) = NULL;
->>
->> This should not be NULL or this should not be cleanup. Follow coding
->> style for cleanup - constructor must be real here.
-> 
-> I may have misunderstood how cleanup works, but this is what I
-> thought:
-> 
-> The cleanup is defined in of.h as:
-> 
-> DEFINE_FREE(device_node, struct device_node *, if (_T) of_node_put(_T))
-> 
-> 
-> Doesn't this mean that it handles the case where `child` is NULL, by
-> not calling of_node_put() ? So it should either be a valid constructor
-> or NULL and not some stale value.
+On Wed, Jul 30, 2025 at 4:29=E2=80=AFAM Viresh Kumar <viresh.kumar@linaro.o=
+rg> wrote:
+>
+> Hello,
+>
+> This RFC series introduces support for a new Virtio transport type:
+> "virtio-msg", as proposed in [1]. Unlike existing transport types like
+> virtio-mmio or virtio-pci, which rely on memory-mapped registers, virtio-=
+msg
+> implements transport operations via structured messages. Those messages c=
+an be
+> transported through different mechanisms such as mailboxes, shared memory=
+ based
+> FIFO or specific protocols such as FF-A on Arm.
+>
+> This series includes:
+> - Core virtio-msg transport support.
+> - Two message transport bus implementations:
+>   - virtio-msg-ffa: based on ARM's Firmware Framework for Arm (FF-A).
+>   - virtio-msg-loopback: a loopback device for testing and validation.
+>
+> The code is available here for reference: [2] and virtio-msg loopback and=
+ FF-A
+> test setups are explained here: [3] and [4].
+>
+> This series is based on v6.16 and depends on commit [5].
+>
+>
+> ### Memory Mapping and Reserved Memory Usage
+>
+> The first two patches enhance the reserved-memory subsystem to support at=
+taching
+> struct device`s that do not originate from DT nodes =E2=80=94 essential f=
+or virtual or
+> dynamically discovered devices like the FF-A or loopback buses.
 
-I am speaking about coding style. It's explicitly requested to use only
-the full constructor syntax (see long time Linus' remark or just read
-cleanup.h docs).
+We support creating devices from reserved-memory nodes. Just add a
+compatible which you should do anyways because node names are not
+supposed to be that specific or an ABI.
 
-NULL is allowed in certain cases, but the code here does not look like
-needing it in the first place.
-
-
-Best regards,
-Krzysztof
+Rob
