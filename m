@@ -1,90 +1,153 @@
-Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9561932C85
-	for <virtualization@lists.linux.dev>; Sat,  2 Aug 2025 09:43:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60CF0F9D6
+	for <virtualization@lists.linux.dev>; Sun,  3 Aug 2025 15:59:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754127787; cv=none; b=nEplRT4kO2JKWEFP1POTR7088lw6Y8tBjLv+Lpmh0mSjfWhJs061GDm+MAp8bT+GbXSFpHFREy64441TK1BVwgrnBwo+dJdVO1zxJOXoMqJhxPLpOnKX/t8tjEt5lQOTwoXuU/SL3ZZ8bmZlzYOSp64Qlukz0tfWGU6fAee8GWw=
+	t=1754236751; cv=none; b=Km+ToYPzSoPbzuTUchcwbK0GZDA1JstltKebJsMkYtG+q7nPx9+JYpI5oaT+WGKOtQtYhDf4ZuhsinRmXTosjNz0OBJ9+WeYw39jPAL4BCICqyv01FENfgR5fOtxJrZqr8zXvYp55eKeiKM26dYXto2hnomt7MUrEaUO5sbuQHI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754127787; c=relaxed/simple;
-	bh=LwDX/givvtGDz+Iiqtjljsja2TU3lYjcGygNaSNnTzI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=frAK0vCkyRLOfmAlOyQoXqISufZvUb2lGQPbF3yicAGInMtd+IZX/tmyDdLxwby9/zpu176W9JbvJJRlxMGz7y7hyXPa5q/iCkHjIP2y533llDFYo9+ncwtvzxhY94F1UYadTzZPmVUhnd3KoVjhSY5qRWxXWnj/7IpS+2cxh/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=fail (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=gLYSRyKD reason="key not found in DNS"; arc=none smtp.client-ip=49.212.243.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
+	s=arc-20240116; t=1754236751; c=relaxed/simple;
+	bh=dOREvHopvvWFJAmzvvzH1bmzFboHl3N3LTpx6CxCqIQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tL2/Z631J4iHAd0FVmbnrIf0HfRfaBaD7roM9iTr2i96i1RJ4Pbk6CETSrAVKTbppZ0oVizqpF6ggd3DD4ZeQqZ9wwfPSuWKdieU8/uh0It3eTmxSNQ5ZkFLtq9CvHQ2ARKrgbwDTUn81pVbwvPoLIe7yp6UaSVWcfgTJ9amJ94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=Rski9TxI; arc=none smtp.client-ip=209.85.160.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="gLYSRyKD"
-Received: from [133.11.54.205] (h205.csg.ci.i.u-tokyo.ac.jp [133.11.54.205])
-	(authenticated bits=0)
-	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 5729fDB0031085
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Sat, 2 Aug 2025 18:41:13 +0900 (JST)
-	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
-DKIM-Signature: a=rsa-sha256; bh=ovuEvXGyQDw3EIAnC2OBfPaHMeg92Ny3eDfRpSilftM=;
-        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
-        h=Message-ID:Date:Subject:To:From;
-        s=rs20250326; t=1754127673; v=1;
-        b=gLYSRyKDh7uJqUJcPRnC6ewOzIE2Lskd+6h1ChpWAeUAIv92qs8hV8ZAvaQFYFTQ
-         i8GOTzKT5RQN5CFGKVlSyWEB01fRUG2s6JbCaM28C1O2yk7elC+Cn9I+JlUbslsY
-         Iw+uqkNUP453c+pgs7InQk9Z/3rA35V5yUXQAHw0h2HE9qXzuZvFPv/VQOA49s1C
-         b0MSy6GpTJxdy6xIoYgo0fuF5oEPQUvwdJ/9h87vshPA7b2glH5GxUlowuY15TZs
-         n6awUJG2EdJLn9GUx5y95zE6zgb2lam4d34LdgeiL+OHgnFBJwzk7hDS2B2fs9Lq
-         crHqg0NhEiiCu7Tttk0QwQ==
-Message-ID: <91aec5d7-7647-41d1-ae12-c86020be4537@rsg.ci.i.u-tokyo.ac.jp>
-Date: Sat, 2 Aug 2025 18:41:12 +0900
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="Rski9TxI"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4b0619a353dso3057421cf.3
+        for <virtualization@lists.linux.dev>; Sun, 03 Aug 2025 08:59:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1754236748; x=1754841548; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=8slyx6E/zt3CNU5aqFjzFMTLA7WC2ifuj8UOdB6q15U=;
+        b=Rski9TxIM9Qwfa/gFB/lDfBZx+hLVy+QfaF/06natTnQNhi5aUeSicL/PzlJwVgMWf
+         lt7HoCpsQNBVpgVjF332iWnQvL13JHr22P1wJ8+jAtASAisyNqCuW4B6B5nQxM/IeZ1v
+         e9e0NW6rdxfUTkNXOJzkP79DRzGilaFVWPjXhgETT27bsjGtj8r3K9djXjSN4900Lllp
+         nyaGtVOT8vvBn4Y/VPq/JDVGWgnMsAxgdwt42irzAGHkljZT9Ki2oETX5txs1A5hSD4R
+         /Wfj3jfeeHq6kEEng7WwQPY2wQ18DBnRmMWet/EDMvhzDMPJI7LT2xAtfhVzB/DimzZr
+         /4VQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754236748; x=1754841548;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8slyx6E/zt3CNU5aqFjzFMTLA7WC2ifuj8UOdB6q15U=;
+        b=cVTMbeL4Wo6fIjQhobQOpBNd4YjQ/2VcNZoqq83BsTsAlDFQx5I52pneLK1K9gjCLc
+         Pzm90KkStngst9E/BAKrDW0dC87p2sDJ/NvcVOGuGsHln4XK2GdKPJshnJqmSyT4I/GN
+         xns+3wpVjn9e1VGJgDxo7nG2ulCANoGVJJ6/+jfz/EBCJtyjvwZTDhsN68f4O6IrRItP
+         BOqFq2/N6o26vlfLTmLU/o9/hiHGjEgqxT0M8aS35yvm6Dmo9L4L5BnakRMx8e+3bPrT
+         7hp0sVY1W+Cqxt9jzQaqtWhRcrQkvkqSs30ACFJaVlYDe66DVImjjYHRVxJTRWuZRKvB
+         YcAg==
+X-Forwarded-Encrypted: i=1; AJvYcCX1MU3dqiipYBtvaPM0ebUsvNP2Fj0jiFCzLDgLELwzxKnW1l8SlOhRaCePuqfMr5E7tF0DWjTkerelw//85Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyIGre5RsBEQfiD9xkTlw23ozmhebYkfhywUbEITjmkBoAUNqVs
+	m5705eYBA2j15+1LtTVoZqawC8Pzh96HajYee6M6CpoufkDZJ3cSaHVyoK1gc3iTxhfk8i4ZwFn
+	pIvCD
+X-Gm-Gg: ASbGnctKfrEuZ30VfxeLMJexx+zxaNdURvTeo3YKsDTB4f7q3zQlpq1NXlFypes36nR
+	4YyzVtmi4HrBIcCPCDwzj+B+zMfzhnECmc9GLtF+VYj4O3Vigv2Cc+EkEqoklan1Nt+mXVf3OHW
+	zKTjaCd+XaV6ZfRVdlI/plu0rcApjj5OLIkqTMnH70qiCZTTdohESc0L765sUbBorfyfttTUSQI
+	TpgMZMe+o3houeb5cjK+mZYFF+ME9vHPl61TsM4IK5ukKCxNyc+g0Qeigo8/E8RrxIvZeDNZJLY
+	yB+R2MH9DTURYLh1QzRW0vjS2lBe36bjn7kvPYYY3TFm+7fUopLddHI8PWcS+TdIrRs3rXtC1pq
+	UEt9KjsdXp+PVGtqNjB1Ufx0TcBqJTMIYM6W6yC92xiD5IxVXiVlR2Gh28p5pJtXC2hxW
+X-Google-Smtp-Source: AGHT+IGXTSS5qgdnpS/eJ13tqSItmWfAUC8meUEvOe7mj0qBpcNtZfptB2QZRGNN4fnSPsBSKZwvXw==
+X-Received: by 2002:a05:622a:1dc5:b0:4b0:6da3:26df with SMTP id d75a77b69052e-4b06da333ccmr13497821cf.29.1754236748067;
+        Sun, 03 Aug 2025 08:59:08 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-47-55-120-4.dhcp-dynamic.fibreop.ns.bellaliant.net. [47.55.120.4])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4af01e4aa4dsm29318401cf.23.2025.08.03.08.59.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 Aug 2025 08:59:07 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1uib74-00000001Hym-2XZx;
+	Sun, 03 Aug 2025 12:59:06 -0300
+Date: Sun, 3 Aug 2025 12:59:06 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Christoph Hellwig <hch@lst.de>, Leon Romanovsky <leon@kernel.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Alexander Potapenko <glider@google.com>,
+	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	=?utf-8?B?SsOpcsO0bWU=?= Glisse <jglisse@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, iommu@lists.linux.dev,
+	virtualization@lists.linux.dev, kasan-dev@googlegroups.com,
+	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
+Message-ID: <20250803155906.GM26511@ziepe.ca>
+References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
+ <cover.1750854543.git.leon@kernel.org>
+ <35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
+ <20250627170213.GL17401@unreal>
+ <20250630133839.GA26981@lst.de>
+ <69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
+ <f912c446-1ae9-4390-9c11-00dce7bf0fd3@arm.com>
+ <aIupx_8vOg8wQh6w@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] virtio-net: Fix VLAN filter table reset timing
-To: Michael Tokarev <mjt@tls.msk.ru>,
-        Konstantin Shkolnyy
- <kshk@linux.ibm.com>, qemu-devel@nongnu.org
-Cc: yin31149@gmail.com, eperezma@redhat.com, mst@redhat.com,
-        jasowang@redhat.com, virtualization@lists.linux.dev,
-        qemu-stable@nongnu.org, Lei Yang <leiyang@redhat.com>
-References: <20250727-vlan-v3-1-bbee738619b1@rsg.ci.i.u-tokyo.ac.jp>
- <7b657acb-7186-42bf-9be5-8c1253c6316c@tls.msk.ru>
-Content-Language: en-US
-From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-In-Reply-To: <7b657acb-7186-42bf-9be5-8c1253c6316c@tls.msk.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aIupx_8vOg8wQh6w@casper.infradead.org>
 
-On 2025/08/02 16:26, Michael Tokarev wrote:
-> On 27.07.2025 09:22, Akihiko Odaki wrote:
-> ...
->> @@ -3942,6 +3943,7 @@ static void 
->> virtio_net_device_realize(DeviceState *dev, Error **errp)
->>       n->mac_table.macs = g_malloc0(MAC_TABLE_ENTRIES * ETH_ALEN);
->>       n->vlans = g_malloc0(MAX_VLAN >> 3);
->> +    memset(n->vlans, 0xff, MAX_VLAN >> 3);
-> 
-> A nitpick: we don't need to init this memory with 0 before
-> initing it with 0xff.
-> 
-> But looking at this, why can't we embed n->vlans directly into
-> this structure, something like the attached patch?
+On Thu, Jul 31, 2025 at 06:37:11PM +0100, Matthew Wilcox wrote:
 
-VMState also needs a change: VMSTATE_BUFFER_POINTER_UNSAFE() should be 
-replaced with plain VMSTATE_BUFFER(). Actually this is the only user of 
-VMSTATE_BUFFER_POINTER_UNSAFE().
+> The replacement for kmap_atomic() is already here -- it's
+> kmap_(atomic|local)_pfn().  If a simple wrapper like kmap_local_phys()
+> would make this more palatable, that would be fine by me.  Might save
+> a bit of messing around with calculating offsets in each caller.
 
-I appreciate if you submit the patch with this VMState change and patch 
-message.
+I think that makes the general plan clearer. We should be removing the
+struct pages entirely from the insides of DMA API layer and use the
+phys_addr_t, kmap_XX_phys(), phys_to_virt(), and so on.
 
-> 
-> This, and maybe a few other fields like it?
+The request from Christoph and Marek to clean up the dma_ops makes
+sense in that context, we'd have to go into the ops and replace the
+struct page kmaps/etc with the phys based ones.
 
-There is another candidate: n->mac_table.macs
+This hides the struct page requirement to get to a KVA inside the core
+mm code only and that sort of modularity is exactly the sort of thing
+that could help entirely remove a struct page requirement for some
+kinds of DMA someday.
 
-But it is not straightforward to embed this array because it uses 
-VMSTATE_VBUFFER_MULTIPLY().
+Matthew, do you think it makes sense to introduce types to make this
+clearer? We have two kinds of values that a phys_addr_t can store -
+something compatible with kmap_XX_phys(), and something that isn't.
 
-Regards,
-Akihiko Odaki
+This was recently a long discussion in ARM KVM as well which had a
+similar confusion that a phys_addr_t was actually two very different
+things inside its logic.
+
+So what about some dedicated types:
+ kphys_addr_t - A physical address that can be passed to
+     kmap_XX_phys(), phys_to_virt(), etc.
+
+ raw_phys_addr_t - A physical address that may not be cachable, may
+     not be DRAM, and does not work with kmap_XX_phys()/etc.
+
+We clearly have these two different ideas floating around in code,
+page tables, etc.
+
+I read some of Robin's concern that the struct page provided a certain
+amount of type safety in the DMA API, this could provide similar.
+
+Thanks,
+Jason
