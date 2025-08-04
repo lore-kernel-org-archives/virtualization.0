@@ -1,70 +1,37 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60CF0F9D6
-	for <virtualization@lists.linux.dev>; Sun,  3 Aug 2025 15:59:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A66F2E36F6;
+	Mon,  4 Aug 2025 03:38:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754236751; cv=none; b=Km+ToYPzSoPbzuTUchcwbK0GZDA1JstltKebJsMkYtG+q7nPx9+JYpI5oaT+WGKOtQtYhDf4ZuhsinRmXTosjNz0OBJ9+WeYw39jPAL4BCICqyv01FENfgR5fOtxJrZqr8zXvYp55eKeiKM26dYXto2hnomt7MUrEaUO5sbuQHI=
+	t=1754278717; cv=none; b=OhyiS3bSBXlts9BR5kPRSRH84f3LmqmIiYL/j8k7fRrW5UmJBz0YD0c2XmV0cSP/62BsGKPelexoLLViyn862YaW/Y5Wy8oErbCDC/KsIlU2QKqxUqpFSHsfPLeauoq2Zsyo9xWTN8PUvrp5MOFtWs63muARyQ2lOtD+8qwzLCE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754236751; c=relaxed/simple;
-	bh=dOREvHopvvWFJAmzvvzH1bmzFboHl3N3LTpx6CxCqIQ=;
+	s=arc-20240116; t=1754278717; c=relaxed/simple;
+	bh=SOeerCe2y6K5nRKWsYQD+Gw3CrMokUtIY1kTl7H92Ok=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tL2/Z631J4iHAd0FVmbnrIf0HfRfaBaD7roM9iTr2i96i1RJ4Pbk6CETSrAVKTbppZ0oVizqpF6ggd3DD4ZeQqZ9wwfPSuWKdieU8/uh0It3eTmxSNQ5ZkFLtq9CvHQ2ARKrgbwDTUn81pVbwvPoLIe7yp6UaSVWcfgTJ9amJ94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=Rski9TxI; arc=none smtp.client-ip=209.85.160.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	 Content-Type:Content-Disposition:In-Reply-To; b=VDpCrFrrQUzopFF2+opqgRcbokp/xSRvYNbVMXD01AE9aHhTXKs1FP5k+juedTHTkBsZ0U5UOtHWDSPi+JXyxb/QRboHBBejuicFXg0cz/22unpAWy9sC7yDRkWhQ3DLywmFWDTPO8W44c3jLA1WRVF9KzeaJl2LefsJIC7Vrtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=vIsLKdYF; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="Rski9TxI"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4b0619a353dso3057421cf.3
-        for <virtualization@lists.linux.dev>; Sun, 03 Aug 2025 08:59:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1754236748; x=1754841548; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=8slyx6E/zt3CNU5aqFjzFMTLA7WC2ifuj8UOdB6q15U=;
-        b=Rski9TxIM9Qwfa/gFB/lDfBZx+hLVy+QfaF/06natTnQNhi5aUeSicL/PzlJwVgMWf
-         lt7HoCpsQNBVpgVjF332iWnQvL13JHr22P1wJ8+jAtASAisyNqCuW4B6B5nQxM/IeZ1v
-         e9e0NW6rdxfUTkNXOJzkP79DRzGilaFVWPjXhgETT27bsjGtj8r3K9djXjSN4900Lllp
-         nyaGtVOT8vvBn4Y/VPq/JDVGWgnMsAxgdwt42irzAGHkljZT9Ki2oETX5txs1A5hSD4R
-         /Wfj3jfeeHq6kEEng7WwQPY2wQ18DBnRmMWet/EDMvhzDMPJI7LT2xAtfhVzB/DimzZr
-         /4VQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754236748; x=1754841548;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8slyx6E/zt3CNU5aqFjzFMTLA7WC2ifuj8UOdB6q15U=;
-        b=cVTMbeL4Wo6fIjQhobQOpBNd4YjQ/2VcNZoqq83BsTsAlDFQx5I52pneLK1K9gjCLc
-         Pzm90KkStngst9E/BAKrDW0dC87p2sDJ/NvcVOGuGsHln4XK2GdKPJshnJqmSyT4I/GN
-         xns+3wpVjn9e1VGJgDxo7nG2ulCANoGVJJ6/+jfz/EBCJtyjvwZTDhsN68f4O6IrRItP
-         BOqFq2/N6o26vlfLTmLU/o9/hiHGjEgqxT0M8aS35yvm6Dmo9L4L5BnakRMx8e+3bPrT
-         7hp0sVY1W+Cqxt9jzQaqtWhRcrQkvkqSs30ACFJaVlYDe66DVImjjYHRVxJTRWuZRKvB
-         YcAg==
-X-Forwarded-Encrypted: i=1; AJvYcCX1MU3dqiipYBtvaPM0ebUsvNP2Fj0jiFCzLDgLELwzxKnW1l8SlOhRaCePuqfMr5E7tF0DWjTkerelw//85Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyIGre5RsBEQfiD9xkTlw23ozmhebYkfhywUbEITjmkBoAUNqVs
-	m5705eYBA2j15+1LtTVoZqawC8Pzh96HajYee6M6CpoufkDZJ3cSaHVyoK1gc3iTxhfk8i4ZwFn
-	pIvCD
-X-Gm-Gg: ASbGnctKfrEuZ30VfxeLMJexx+zxaNdURvTeo3YKsDTB4f7q3zQlpq1NXlFypes36nR
-	4YyzVtmi4HrBIcCPCDwzj+B+zMfzhnECmc9GLtF+VYj4O3Vigv2Cc+EkEqoklan1Nt+mXVf3OHW
-	zKTjaCd+XaV6ZfRVdlI/plu0rcApjj5OLIkqTMnH70qiCZTTdohESc0L765sUbBorfyfttTUSQI
-	TpgMZMe+o3houeb5cjK+mZYFF+ME9vHPl61TsM4IK5ukKCxNyc+g0Qeigo8/E8RrxIvZeDNZJLY
-	yB+R2MH9DTURYLh1QzRW0vjS2lBe36bjn7kvPYYY3TFm+7fUopLddHI8PWcS+TdIrRs3rXtC1pq
-	UEt9KjsdXp+PVGtqNjB1Ufx0TcBqJTMIYM6W6yC92xiD5IxVXiVlR2Gh28p5pJtXC2hxW
-X-Google-Smtp-Source: AGHT+IGXTSS5qgdnpS/eJ13tqSItmWfAUC8meUEvOe7mj0qBpcNtZfptB2QZRGNN4fnSPsBSKZwvXw==
-X-Received: by 2002:a05:622a:1dc5:b0:4b0:6da3:26df with SMTP id d75a77b69052e-4b06da333ccmr13497821cf.29.1754236748067;
-        Sun, 03 Aug 2025 08:59:08 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-47-55-120-4.dhcp-dynamic.fibreop.ns.bellaliant.net. [47.55.120.4])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4af01e4aa4dsm29318401cf.23.2025.08.03.08.59.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Aug 2025 08:59:07 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1uib74-00000001Hym-2XZx;
-	Sun, 03 Aug 2025 12:59:06 -0300
-Date: Sun, 3 Aug 2025 12:59:06 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Matthew Wilcox <willy@infradead.org>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="vIsLKdYF"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=SmxoINSQKVJVK+Bn4i2QXaigutnESsGDJWcnHJouMq8=; b=vIsLKdYFH8YXGskFCYuFxM0Kri
+	4LEo9ReJIfgKFC95xymdzIuZHgWmCy4G3xVF1JqLP/afdrq9I84T2Y/HuFvZL4VO6QmU21lsUX/J7
+	vabemJeVXNbK57caQoIcupupdF5BH7q6dfJPU0J/aad1iPWgFP1Pta6YnAxGVC/HxIlB76K9yRSGM
+	9j3b/WmA+tZKaDnoC39qDIVxVYX23JxNjVp20InQWi7XyuBDNDCOuusdG9eda9qGfK1Uki2htTbQ5
+	+Xwy3IqaT9W3uDTeg3KYHyV0grcCXOdru7B95ajExnsHQEygus1gpnlTvvukrNJXtwkIJZ4HcTmaN
+	wXIAK1ig==;
+Received: from willy by casper.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1uim1N-000000099Z0-0JOE;
+	Mon, 04 Aug 2025 03:37:57 +0000
+Date: Mon, 4 Aug 2025 04:37:56 +0100
+From: Matthew Wilcox <willy@infradead.org>
+To: Jason Gunthorpe <jgg@ziepe.ca>
 Cc: Robin Murphy <robin.murphy@arm.com>,
 	Marek Szyprowski <m.szyprowski@samsung.com>,
 	Christoph Hellwig <hch@lst.de>, Leon Romanovsky <leon@kernel.org>,
@@ -77,19 +44,19 @@ Cc: Robin Murphy <robin.murphy@arm.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
 	Alexander Potapenko <glider@google.com>,
 	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
 	Masami Hiramatsu <mhiramat@kernel.org>,
 	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	=?utf-8?B?SsOpcsO0bWU=?= Glisse <jglisse@redhat.com>,
+	=?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org, iommu@lists.linux.dev,
 	virtualization@lists.linux.dev, kasan-dev@googlegroups.com,
 	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
-Message-ID: <20250803155906.GM26511@ziepe.ca>
+Message-ID: <aJArFNkuP8DJIdMY@casper.infradead.org>
 References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
  <cover.1750854543.git.leon@kernel.org>
  <35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
@@ -98,6 +65,7 @@ References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2
  <69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
  <f912c446-1ae9-4390-9c11-00dce7bf0fd3@arm.com>
  <aIupx_8vOg8wQh6w@casper.infradead.org>
+ <20250803155906.GM26511@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -106,48 +74,46 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aIupx_8vOg8wQh6w@casper.infradead.org>
+In-Reply-To: <20250803155906.GM26511@ziepe.ca>
 
-On Thu, Jul 31, 2025 at 06:37:11PM +0100, Matthew Wilcox wrote:
+On Sun, Aug 03, 2025 at 12:59:06PM -0300, Jason Gunthorpe wrote:
+> Matthew, do you think it makes sense to introduce types to make this
+> clearer? We have two kinds of values that a phys_addr_t can store -
+> something compatible with kmap_XX_phys(), and something that isn't.
 
-> The replacement for kmap_atomic() is already here -- it's
-> kmap_(atomic|local)_pfn().  If a simple wrapper like kmap_local_phys()
-> would make this more palatable, that would be fine by me.  Might save
-> a bit of messing around with calculating offsets in each caller.
+I was with you up until this point.  And then you said "What if we have
+a raccoon that isn't a raccoon" and my brain derailed.
 
-I think that makes the general plan clearer. We should be removing the
-struct pages entirely from the insides of DMA API layer and use the
-phys_addr_t, kmap_XX_phys(), phys_to_virt(), and so on.
+> This was recently a long discussion in ARM KVM as well which had a
+> similar confusion that a phys_addr_t was actually two very different
+> things inside its logic.
 
-The request from Christoph and Marek to clean up the dma_ops makes
-sense in that context, we'd have to go into the ops and replace the
-struct page kmaps/etc with the phys based ones.
+No.  A phys_addr_t is a phys_addr_t.  If something's abusing a
+phys_addr_t to store something entirely different then THAT is what
+should be using a different type.  We've defined what a phys_addr_t
+is.  That was in Documentation/core-api/bus-virt-phys-mapping.rst
+before Arnd removed it; to excerpt the relevant bit:
 
-This hides the struct page requirement to get to a KVA inside the core
-mm code only and that sort of modularity is exactly the sort of thing
-that could help entirely remove a struct page requirement for some
-kinds of DMA someday.
+---
 
-Matthew, do you think it makes sense to introduce types to make this
-clearer? We have two kinds of values that a phys_addr_t can store -
-something compatible with kmap_XX_phys(), and something that isn't.
+- CPU untranslated.  This is the "physical" address.  Physical address
+  0 is what the CPU sees when it drives zeroes on the memory bus.
 
-This was recently a long discussion in ARM KVM as well which had a
-similar confusion that a phys_addr_t was actually two very different
-things inside its logic.
+[...]
+So why do we care about the physical address at all? We do need the physical
+address in some cases, it's just not very often in normal code.  The physical
+address is needed if you use memory mappings, for example, because the
+"remap_pfn_range()" mm function wants the physical address of the memory to
+be remapped as measured in units of pages, a.k.a. the pfn.
 
-So what about some dedicated types:
- kphys_addr_t - A physical address that can be passed to
-     kmap_XX_phys(), phys_to_virt(), etc.
+---
 
- raw_phys_addr_t - A physical address that may not be cachable, may
-     not be DRAM, and does not work with kmap_XX_phys()/etc.
+So if somebody is stuffing something else into phys_addr_t, *THAT* is
+what needs to be fixed, not adding a new sub-type of phys_addr_t for
+things which are actually phys_addr_t.
 
-We clearly have these two different ideas floating around in code,
-page tables, etc.
+> We clearly have these two different ideas floating around in code,
+> page tables, etc.
 
-I read some of Robin's concern that the struct page provided a certain
-amount of type safety in the DMA API, this could provide similar.
+No.  No, we don't.  I've never heard of this asininity before.
 
-Thanks,
-Jason
