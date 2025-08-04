@@ -1,71 +1,70 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05B93253B52
-	for <virtualization@lists.linux.dev>; Mon,  4 Aug 2025 11:30:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F4661FBEB9;
+	Mon,  4 Aug 2025 12:43:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754307005; cv=none; b=bXcz3JEkMgIROj5wlwXCv5taQeWTsergbhu4UIqWvHlyW/rsayd3HyZOmuXjn2MMI2izqIwLSHfvryXVoYeHYjl8loCdQvf9ML0UeZ3IpOfjwSUQiPGgI0yW/QiCmL48doCIAqBWDEI4LZrMcBS3YQZh497KKt+D+vmUPQ4RuKw=
+	t=1754311394; cv=none; b=sDZoiaYoKaA+13T4B6tT5zGbVRvMgJ1u2nzMHtkVMDUwlQEW51MuK2iYGYUvCzhXKDlvnFguR47qkzBgJQ42l01qigFFWJA6WvN5HjA0JJz3nAqmreEri3eXDiGt1kL5QNEDwUBoozofD80gC3NK7blm4Toc2U6TCz9DGcVprTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754307005; c=relaxed/simple;
-	bh=tTDUsBXsPeQGzlryvB0NPAsroThBBrNMmq8k5cEQFwo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=R4pj5LWyUo8CIXloIqWXLshuv5r5geri4JrQpUqUZGftkNtgDNKJM8a2Af1YBs3g6JqTGM8LjFyGS/18kUnRpqt0i2CE4lECmtHO0MIH+Jr1nv5MiaXSe5GepkRNLtGNdqMlprLerPlv+43Dpa8FayOrR+bAczRmipWcCWTaFbI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RqB4kT1M; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1754311394; c=relaxed/simple;
+	bh=5JNlmVmGVDRpHLFMyx/IqEG6PVqYnGg8cLXnDHx1P9k=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fIBkLakXfiSFwftyAP9WQ5RyBEiYKJUH4UNBCGnF5fIxZvIyEv47B4tQvM5/xFptGxpnGLse2Uw45BSOVgKEsImmwD376DTOANoRXP7sM+BZd0xrq00YwAxon3fDuMKSkduRuCfmrthb8QHHc79kfGRRShh5klYPwrW5mG5jU58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ea6NngjA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RqB4kT1M"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-7682560a2f2so4065529b3a.1
-        for <virtualization@lists.linux.dev>; Mon, 04 Aug 2025 04:30:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754307003; x=1754911803; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wvgE21mt8Nkxs3REibthkNPZrx5ubt1AxIt2mJnpkqw=;
-        b=RqB4kT1MTwFSpvWRGH/RCQmcwa/bc8p5ANITEWnKGIs7o8Jei7yGHP4cvVkBikAIPm
-         PAXdDO2Z/GXen6zKFVH9jApc9lubGMIwbSsQ5uwHhxIaKiwiiBiAQlImR+zZ38YQtAbA
-         ZDruMaUtILx7xzOL1XcyRBa+X6Q8CisINKepRTKaYU+wLC21sTxric7+SKpciWOPxY3Y
-         akAJJFm1AVTJu1dVh6XZ0BPMbF59OoRmleCLwoQw5bdJGRO2UjfDRSoxFd/aXxw17B4F
-         X4k1MbLpSHJNED4tJ29urKsPJGxllommHkR504mnOaOa0kzX1rP/y83+woRqCqK1sbXC
-         sGSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754307003; x=1754911803;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wvgE21mt8Nkxs3REibthkNPZrx5ubt1AxIt2mJnpkqw=;
-        b=FLm3d3ExhhcdthsSW87TgUvoBlDDkw0wITxFgip1FkJY7QoH6sfZyBCTbpB8KT4uVP
-         uzLrIrzfQ1l1tQh3ggZy7fpTxzgNUXdG8Sv/K9n1OOFfpAC3Dn2/0PfFnKYLoBINXJ/g
-         /GZp2NyItxR640f0+rUtIInaamh4ALobDfS/tH77d3avMXGWIddO3l774XVzbE1lxpZq
-         bWpcd/oSXPpCcxzxoZXBuoWSpaDfEwMwroXyNwaJ+MX9fGOzy+bVJIVbxn7y+jqbhX4H
-         IaTpjTajjH7Xm7L4Yk2FNvi8gI2jhYBRViqMCwJ8CaTu8eQabnBn4Mfrxx64k9jkoUvw
-         kf6Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXSk1oZ3mb3XhtynJ2hDSyi0oiMxhDw59+bfPs0Kq1/IC8HClhp0BdbsOHu9nq6b5lyDR+lnOUh0HriUDzU5w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyNfJGV0mJjQL47S+s4t2918pVGISqpmCW3hNqX7YhgAMs+TKz5
-	ucfiimeVxWl4NONTSe3Hroly4a4pQUc9efPeugp6VqIlgG1A80ceXwpI
-X-Gm-Gg: ASbGncumC2+BRHq/BX9gXGKoTw5CWvo2apNZvt+6NuY6YDhW3unHXNKRSQCN1niWRmo
-	Z7XxMpXfxHpXP8GFN0R8Fj8LF149DM1X2ZvXyMfcrY0YYINVBKzMugjM4p4hb60mbPWrUpQya6+
-	dC01F+8wb7wcZzLMTtER9wydy36F3AE3ejofwB6lAmpzzcNRrIQwWxYggnI5ykuCycczgadTCcu
-	KJRknuHYmbKCcc8KV9PF0kvE4hgGxPB+xkOJJxAyAYSKIQwxgRcg6mBMKVN45BqV0LYOQUZ3c4x
-	g6Jq3QO7kl25jqNlx74tUDrKuIY69tfAtYuRnBTRnQlwujXZsae50DCw8hD4B7BJWaz/i7Rj0DX
-	CMRW7sNL3vnydgUQk50mpXvmvQp75iECb
-X-Google-Smtp-Source: AGHT+IGzu6hKk4pv2fmINX8NvSw0SR6b16DoazjKoD+x2PNZOZIigvNZIun/V7bREmyAtP2VlzWf6g==
-X-Received: by 2002:a05:6a00:2d0a:b0:76b:ea1e:78b9 with SMTP id d2e1a72fcca58-76bea1e7b6cmr10521687b3a.1.1754307003180;
-        Mon, 04 Aug 2025 04:30:03 -0700 (PDT)
-Received: from avinash ([2406:8800:9014:d938:f647:9d6a:9509:bc41])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-76bf8f12c95sm3999526b3a.2.2025.08.04.04.30.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Aug 2025 04:30:02 -0700 (PDT)
-From: Abinash Singh <abinashsinghlalotra@gmail.com>
-To: amit@kernel.org
-Cc: arnd@arndb.de,
-	gregkh@linuxfoundation.org,
-	virtualization@lists.linux.dev,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ea6NngjA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73ED3C4CEE7;
+	Mon,  4 Aug 2025 12:43:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1754311393;
+	bh=5JNlmVmGVDRpHLFMyx/IqEG6PVqYnGg8cLXnDHx1P9k=;
+	h=From:To:Cc:Subject:Date:From;
+	b=Ea6NngjAGEvyrXvmgnjdDyM3mXPSC8QQfT+nOKbotr6HcSnhW9BlM6zfns9p9k3kL
+	 aHN1p5RrLF18qj2RnxxdzX8nS9REiqaWtNTzVJNCM1ShLOSb5FfV99ZaNORp06pQRf
+	 K3R1pWS9saoxzj1xXJAIiMxruqRredF2Zi+OmY/oC+bQ4mzzuhWorXTUyup4qpTeuv
+	 RrIC3bsvwJsKhiLKd060hGDOvjUq+dNjvySky2bOV6npAhY9wBNf0nitks6Cij982L
+	 fFaJuAYxFYDUX0NP4XT5/rJMF9kRy2ZpZIT9BlCY9GVEvgTb44GAyAGaBkqZ5aGmE4
+	 Sus5Is+qyLnxQ==
+From: Leon Romanovsky <leon@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Alex Gaynor <alex.gaynor@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@lst.de>,
+	Danilo Krummrich <dakr@kernel.org>,
+	iommu@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>,
+	Jens Axboe <axboe@kernel.dk>,
+	Joerg Roedel <joro@8bytes.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Juergen Gross <jgross@suse.com>,
+	kasan-dev@googlegroups.com,
+	Keith Busch <kbusch@kernel.org>,
+	linux-block@vger.kernel.org,
+	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Abinash Singh <abinashsinghlalotra@gmail.com>
-Subject: [PATCH] drivers/char/virtio_console : refactor resource cleanup to use scope-based helpers
-Date: Mon,  4 Aug 2025 17:00:20 +0530
-Message-ID: <20250804113020.620352-1-abinashsinghlalotra@gmail.com>
+	linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-trace-kernel@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	rust-for-linux@vger.kernel.org,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev,
+	Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Subject: [PATCH v1 00/16] dma-mapping: migrate to physical address-based API
+Date: Mon,  4 Aug 2025 15:42:34 +0300
+Message-ID: <cover.1754292567.git.leon@kernel.org>
 X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -75,73 +74,71 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This refactors the 'alloc_buf' function to replace traditional goto-based
-error handling with scope-based cleanup helpers.
+Changelog:
+v1:
+ * Added new DMA_ATTR_MMIO attribute to indicate
+   PCI_P2PDMA_MAP_THRU_HOST_BRIDGE path.
+ * Rewrote dma_map_* functions to use thus new attribute
+v0: https://lore.kernel.org/all/cover.1750854543.git.leon@kernel.org/
+------------------------------------------------------------------------
 
-No functional changes intended.
+This series refactors the DMA mapping to use physical addresses
+as the primary interface instead of page+offset parameters. This
+change aligns the DMA API with the underlying hardware reality where
+DMA operations work with physical addresses, not page structures.
 
-Signed-off-by: Abinash Singh <abinashsinghlalotra@gmail.com>
----
- drivers/char/virtio_console.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+The series maintains export symbol backward compatibility by keeping
+the old page-based API as wrapper functions around the new physical
+address-based implementations.
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 088182e54deb..9875f5f07b32 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -27,6 +27,7 @@
- #include <linux/module.h>
- #include <linux/dma-mapping.h>
- #include <linux/string_choices.h>
-+#include <linux/cleanup.h>
- #include "../tty/hvc/hvc_console.h"
- 
- #define is_rproc_enabled IS_ENABLED(CONFIG_REMOTEPROC)
-@@ -404,7 +405,7 @@ static void reclaim_dma_bufs(void)
- static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size,
- 				     int pages)
- {
--	struct port_buffer *buf;
-+	struct port_buffer *buf __free(kfree) = NULL;
- 
- 	reclaim_dma_bufs();
- 
-@@ -414,7 +415,7 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
- 	 */
- 	buf = kmalloc(struct_size(buf, sg, pages), GFP_KERNEL);
- 	if (!buf)
--		goto fail;
-+		return NULL;
- 
- 	buf->sgpages = pages;
- 	if (pages > 0) {
-@@ -432,7 +433,7 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
- 		 */
- 		buf->dev = vdev->dev.parent;
- 		if (!buf->dev)
--			goto free_buf;
-+			return NULL;
- 
- 		/* Increase device refcnt to avoid freeing it */
- 		get_device(buf->dev);
-@@ -444,16 +445,11 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
- 	}
- 
- 	if (!buf->buf)
--		goto free_buf;
-+		return NULL;
- 	buf->len = 0;
- 	buf->offset = 0;
- 	buf->size = buf_size;
- 	return buf;
--
--free_buf:
--	kfree(buf);
--fail:
--	return NULL;
- }
- 
- /* Callers should take appropriate locks */
+Thanks
+
+Leon Romanovsky (16):
+  dma-mapping: introduce new DMA attribute to indicate MMIO memory
+  iommu/dma: handle MMIO path in dma_iova_link
+  dma-debug: refactor to use physical addresses for page mapping
+  dma-mapping: rename trace_dma_*map_page to trace_dma_*map_phys
+  iommu/dma: rename iommu_dma_*map_page to iommu_dma_*map_phys
+  iommu/dma: extend iommu_dma_*map_phys API to handle MMIO memory
+  dma-mapping: convert dma_direct_*map_page to be phys_addr_t based
+  kmsan: convert kmsan_handle_dma to use physical addresses
+  dma-mapping: handle MMIO flow in dma_map|unmap_page
+  xen: swiotlb: Open code map_resource callback
+  dma-mapping: export new dma_*map_phys() interface
+  mm/hmm: migrate to physical address-based DMA mapping API
+  mm/hmm: properly take MMIO path
+  block-dma: migrate to dma_map_phys instead of map_page
+  block-dma: properly take MMIO path
+  nvme-pci: unmap MMIO pages with appropriate interface
+
+ Documentation/core-api/dma-api.rst        |   4 +-
+ Documentation/core-api/dma-attributes.rst |   7 ++
+ arch/powerpc/kernel/dma-iommu.c           |   4 +-
+ block/blk-mq-dma.c                        |  15 ++-
+ drivers/iommu/dma-iommu.c                 |  69 +++++++------
+ drivers/nvme/host/pci.c                   |  18 +++-
+ drivers/virtio/virtio_ring.c              |   4 +-
+ drivers/xen/swiotlb-xen.c                 |  21 +++-
+ include/linux/blk-mq-dma.h                |   6 +-
+ include/linux/blk_types.h                 |   2 +
+ include/linux/dma-direct.h                |   2 -
+ include/linux/dma-map-ops.h               |   8 +-
+ include/linux/dma-mapping.h               |  27 +++++
+ include/linux/iommu-dma.h                 |  11 +--
+ include/linux/kmsan.h                     |  12 ++-
+ include/trace/events/dma.h                |   9 +-
+ kernel/dma/debug.c                        |  71 ++++---------
+ kernel/dma/debug.h                        |  37 ++-----
+ kernel/dma/direct.c                       |  22 +----
+ kernel/dma/direct.h                       |  50 ++++++----
+ kernel/dma/mapping.c                      | 115 +++++++++++++---------
+ kernel/dma/ops_helpers.c                  |   6 +-
+ mm/hmm.c                                  |  19 ++--
+ mm/kmsan/hooks.c                          |  36 +++++--
+ rust/kernel/dma.rs                        |   3 +
+ tools/virtio/linux/kmsan.h                |   2 +-
+ 26 files changed, 320 insertions(+), 260 deletions(-)
+
 -- 
 2.50.1
 
