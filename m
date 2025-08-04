@@ -1,119 +1,105 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A66F2E36F6;
-	Mon,  4 Aug 2025 03:38:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1881246799
+	for <virtualization@lists.linux.dev>; Mon,  4 Aug 2025 09:06:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754278717; cv=none; b=OhyiS3bSBXlts9BR5kPRSRH84f3LmqmIiYL/j8k7fRrW5UmJBz0YD0c2XmV0cSP/62BsGKPelexoLLViyn862YaW/Y5Wy8oErbCDC/KsIlU2QKqxUqpFSHsfPLeauoq2Zsyo9xWTN8PUvrp5MOFtWs63muARyQ2lOtD+8qwzLCE=
+	t=1754298374; cv=none; b=kbTo4qU6YRWJlFk3RkQYTVx7hXkQq2Oddc+CrAu7j9r8Do+ICNoBoJAXJMYthm3/oyvjiGU5NFH+5zfXAezAIbZ0iLvVKvFPK2hftllDnIx+DdDci8OLELHTRp5AXM14lzPXrbNHRqTSoXN/6Cal0YSuCHAJJUb1rKGLayR9DPo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754278717; c=relaxed/simple;
-	bh=SOeerCe2y6K5nRKWsYQD+Gw3CrMokUtIY1kTl7H92Ok=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VDpCrFrrQUzopFF2+opqgRcbokp/xSRvYNbVMXD01AE9aHhTXKs1FP5k+juedTHTkBsZ0U5UOtHWDSPi+JXyxb/QRboHBBejuicFXg0cz/22unpAWy9sC7yDRkWhQ3DLywmFWDTPO8W44c3jLA1WRVF9KzeaJl2LefsJIC7Vrtc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=vIsLKdYF; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1754298374; c=relaxed/simple;
+	bh=FC2gKnlK0tlH4AVIjMhG/aH0ST923yLbY61/gTdaWtU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nTwIGtJbEVYDeDpFYiYXP3G8/QCbQrol4nxHgFgeWq18B7YXVYYreiP2pK3uth9tbmg/urgRq9eF+93AIE2BWTnWsVxjoUkWdYKFcxeIkDN8bc7BJq5qk15H8PGwgNYl53NeyCRQRSFmbIQ/bJlqIulN8eP5/JJ5/OT3h5DJFPA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LN0P8mM0; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="vIsLKdYF"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=SmxoINSQKVJVK+Bn4i2QXaigutnESsGDJWcnHJouMq8=; b=vIsLKdYFH8YXGskFCYuFxM0Kri
-	4LEo9ReJIfgKFC95xymdzIuZHgWmCy4G3xVF1JqLP/afdrq9I84T2Y/HuFvZL4VO6QmU21lsUX/J7
-	vabemJeVXNbK57caQoIcupupdF5BH7q6dfJPU0J/aad1iPWgFP1Pta6YnAxGVC/HxIlB76K9yRSGM
-	9j3b/WmA+tZKaDnoC39qDIVxVYX23JxNjVp20InQWi7XyuBDNDCOuusdG9eda9qGfK1Uki2htTbQ5
-	+Xwy3IqaT9W3uDTeg3KYHyV0grcCXOdru7B95ajExnsHQEygus1gpnlTvvukrNJXtwkIJZ4HcTmaN
-	wXIAK1ig==;
-Received: from willy by casper.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uim1N-000000099Z0-0JOE;
-	Mon, 04 Aug 2025 03:37:57 +0000
-Date: Mon, 4 Aug 2025 04:37:56 +0100
-From: Matthew Wilcox <willy@infradead.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Christoph Hellwig <hch@lst.de>, Leon Romanovsky <leon@kernel.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Alexander Potapenko <glider@google.com>,
-	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	=?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, iommu@lists.linux.dev,
-	virtualization@lists.linux.dev, kasan-dev@googlegroups.com,
-	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 0/8] dma-mapping: migrate to physical address-based API
-Message-ID: <aJArFNkuP8DJIdMY@casper.infradead.org>
-References: <CGME20250625131920eucas1p271b196cde042bd39ac08fb12beff5baf@eucas1p2.samsung.com>
- <cover.1750854543.git.leon@kernel.org>
- <35df6f2a-0010-41fe-b490-f52693fe4778@samsung.com>
- <20250627170213.GL17401@unreal>
- <20250630133839.GA26981@lst.de>
- <69b177dc-c149-40d3-bbde-3f6bad0efd0e@samsung.com>
- <f912c446-1ae9-4390-9c11-00dce7bf0fd3@arm.com>
- <aIupx_8vOg8wQh6w@casper.infradead.org>
- <20250803155906.GM26511@ziepe.ca>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LN0P8mM0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1754298371;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=FC2gKnlK0tlH4AVIjMhG/aH0ST923yLbY61/gTdaWtU=;
+	b=LN0P8mM05fuXxVG3KM7mnua5lUZVv3dAPqEojOA+pleWq6Ec7Hr0RCspmUMKJ1NvW4ZNLS
+	7/LnuqrwNV+Ws2s9TDhtGMsMVz1my3B2taDjw8+z4HpiTkcA1LpVsX2SfoF/XQMR+ioEXI
+	g0VUT+y0fwiZ6JzPcvSy2PtfwrLcHto=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-29-UB2N5FlDO4-BNornbo-t3g-1; Mon, 04 Aug 2025 05:06:10 -0400
+X-MC-Unique: UB2N5FlDO4-BNornbo-t3g-1
+X-Mimecast-MFC-AGG-ID: UB2N5FlDO4-BNornbo-t3g_1754298369
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-24283069a1cso140425ad.1
+        for <virtualization@lists.linux.dev>; Mon, 04 Aug 2025 02:06:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754298369; x=1754903169;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FC2gKnlK0tlH4AVIjMhG/aH0ST923yLbY61/gTdaWtU=;
+        b=YwEp4RNn21voxmCKJZfGy/z7ntvSTpeTyGhc34af9YmxRlyBbkBLKvBef6Xu93MBzd
+         rGaaJkVLAQP5sfe84rdH8KnS8b/oP0wVsupqhO7mXzr8dQ+h1xHnG/eoUPsylBlXZhmZ
+         dMgA4hNwcxRMXis/kgYtqilYUZTq0RWZLOUqk540UknuL6MsxAuL6th6GiHN3GM4fuk5
+         G+2qbs8JDJWOOLNMKgwGWIBdYUqkc9myU1l2wlMxNtP0WK4a8IA7lmjsTAmtB/fVkHI5
+         9cpajHklPoX697tH5FkOOxN8ggP6I8ySSJ2okMD27xJUOnKsX5vtTZYp/lUEJQhdJmnz
+         IydA==
+X-Forwarded-Encrypted: i=1; AJvYcCUlFkhVHEwHFVHMDEyYhqorEScBHwIGSHLJS4R2dYMEFhk40z0Wsayzgo14mzizwC14/svLxBMBjxjAcpPmGA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzoCtxQIClB6aKd6yCxr6RnswDT51gsomtjVDjwbY33wmUcOqVu
+	i0opaitQP7nf/s6fWhzUBe2If9M/55Qo8JwxZHHkcLCb/rU4CFotwj529tQt/KB+BXuIF+MoyH1
+	EOrDoasGLyaSTLrJRBQoLGclOpQF8909fHzz4HptVJWoYcGPTeKOTOIFpscxFZ0kDwLFTbMVyCw
+	bWqkVZas+KxmNp7Gtc5nnsqqDVyY3jCOEladfCzFPZT8Y=
+X-Gm-Gg: ASbGncsvYz0i1IrOdA0Sx7MFH/4ngkSeJ5ztmLopMbmk582Gz8Fe4ZvwZozO2Vd7HGh
+	hUx7Kx0LAKORdfVbIoblOHbSlp4wVo1b1p7gYunXU+ojCTX6EaYtDQBhhp2yA30CHObCqXkTynV
+	kX4kpqgteyflDGrlwiBpoIaA==
+X-Received: by 2002:a17:902:f552:b0:23f:f983:5ca1 with SMTP id d9443c01a7336-24246f5dfb2mr132550155ad.12.1754298369517;
+        Mon, 04 Aug 2025 02:06:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFEcYXd+G3MrEs13nVvxY8yeK+0iPt6uzM6BT+j7IwyIkqouuxJCmX+aT/C268Bf+EzVOioFJTajAeAVP8Oj2U=
+X-Received: by 2002:a17:902:f552:b0:23f:f983:5ca1 with SMTP id
+ d9443c01a7336-24246f5dfb2mr132549655ad.12.1754298369069; Mon, 04 Aug 2025
+ 02:06:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250803155906.GM26511@ziepe.ca>
+References: <20250729073916.80647-1-jasowang@redhat.com>
+In-Reply-To: <20250729073916.80647-1-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 4 Aug 2025 17:05:57 +0800
+X-Gm-Features: Ac12FXy2PpNcxx7Wuo6WWD9onNx5D2Zc4zo6EJWLkWuf_3KiHYfBpugk7fN5otM
+Message-ID: <CACGkMEuNx_7Q_Jq+xcE83fwbFa2uVZkrqr0Nx=1pxcZuFkO91w@mail.gmail.com>
+Subject: Re: [PATCH] vhost: initialize vq->nheads properly
+To: mst@redhat.com, jasowang@redhat.com, eperezma@redhat.com
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, sgarzare@redhat.com, 
+	will@kernel.org, JAEHOON KIM <jhkim@linux.ibm.com>, Breno Leitao <leitao@debian.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: QvDmYJ2KJNE6Xd9zGQtgAjls6g_pU1K9-1dgVCBDnhs_1754298369
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Aug 03, 2025 at 12:59:06PM -0300, Jason Gunthorpe wrote:
-> Matthew, do you think it makes sense to introduce types to make this
-> clearer? We have two kinds of values that a phys_addr_t can store -
-> something compatible with kmap_XX_phys(), and something that isn't.
+Hi Michael:
 
-I was with you up until this point.  And then you said "What if we have
-a raccoon that isn't a raccoon" and my brain derailed.
+On Tue, Jul 29, 2025 at 3:39=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> Commit 7918bb2d19c9 ("vhost: basic in order support") introduces
+> vq->nheads to store the number of batched used buffers per used elem
+> but it forgets to initialize the vq->nheads to NULL in
+> vhost_dev_init() this will cause kfree() that would try to free it
+> without be allocated if SET_OWNER is not called.
+>
+> Reported-by: JAEHOON KIM <jhkim@linux.ibm.com>
+> Reported-by: Breno Leitao <leitao@debian.org>
+> Fixes: 7918bb2d19c9 ("vhost: basic in order support")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-> This was recently a long discussion in ARM KVM as well which had a
-> similar confusion that a phys_addr_t was actually two very different
-> things inside its logic.
+I didn't see this in your pull request.
 
-No.  A phys_addr_t is a phys_addr_t.  If something's abusing a
-phys_addr_t to store something entirely different then THAT is what
-should be using a different type.  We've defined what a phys_addr_t
-is.  That was in Documentation/core-api/bus-virt-phys-mapping.rst
-before Arnd removed it; to excerpt the relevant bit:
-
----
-
-- CPU untranslated.  This is the "physical" address.  Physical address
-  0 is what the CPU sees when it drives zeroes on the memory bus.
-
-[...]
-So why do we care about the physical address at all? We do need the physical
-address in some cases, it's just not very often in normal code.  The physical
-address is needed if you use memory mappings, for example, because the
-"remap_pfn_range()" mm function wants the physical address of the memory to
-be remapped as measured in units of pages, a.k.a. the pfn.
-
----
-
-So if somebody is stuffing something else into phys_addr_t, *THAT* is
-what needs to be fixed, not adding a new sub-type of phys_addr_t for
-things which are actually phys_addr_t.
-
-> We clearly have these two different ideas floating around in code,
-> page tables, etc.
-
-No.  No, we don't.  I've never heard of this asininity before.
+Thanks
 
