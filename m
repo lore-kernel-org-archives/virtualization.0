@@ -1,66 +1,66 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DCC82BE054
-	for <virtualization@lists.linux.dev>; Tue,  5 Aug 2025 21:49:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 175E12BE7B1
+	for <virtualization@lists.linux.dev>; Tue,  5 Aug 2025 21:49:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754430571; cv=none; b=AhQEoBkKpNzWoZl5VlXCDDWm5yiZkO2MJN/A8I1G6aNXQCV4Zsw2wlMr4pRMqH9lmz4aLkaP2R/ym8mGVq4aYZUC8eKaXWoS/HrpHW8GS+cadGyR+Dm30uYdlFzg+14z92doZ4QZVAPuc/LKq3N20JkFcZ7K65V5nOYm2v+kx4Q=
+	t=1754430572; cv=none; b=m7rOTRQKPX0pMxSySI0p0cVfoGISUECKhalHQHyLCdiny/zT7DaVP6jGHIL4ijO9yBeXF0jUWRcJJFLEJysLbdTFt2KtfLQdbcFxNQLz06aavvpwZgswJb7OADdrYkU1AG7iAPneauQoHDjOtbCNC40c0uhGzm09awYU+qNRvPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754430571; c=relaxed/simple;
-	bh=EcIbGeQZlwbG2n3LwrGpP4mEJH5ftJ79PCsbYjs89dI=;
+	s=arc-20240116; t=1754430572; c=relaxed/simple;
+	bh=BquwX6HjvEBxZ0NOdjFPMl3JAQrw/BuuZkbNRV5kNDE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=DsvpQFjmN9ZcgqQnUqeQVt7aOgdBq7ckmffObQydSC3PcaQAInbJVhFooaY3SSXQgZ7vq45eO24vK8giLrCNWZZRbbNNn3I210v7W0w2mWESHf8A/TOpa3cW8yKQtFIO/TElHfNVmdkPsosDDCZ0PdEKBDYu9DHwKvz5l+Ze+qc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bmmjzXfD; arc=none smtp.client-ip=209.85.210.179
+	 In-Reply-To:To:Cc; b=QeLW/YAUs4E8xw5PHk2IKxx1PfQ6xwx4XzMU6LoVXlkVRaIN+jb5Rbs5N0L+KBrJrSbZvBCmRYTSR/JaRRJYL1l78me5oIQn/b0DPUE9Mh/eBkijnTrpv2qI/3rtpeguVrZZaVJlTKKUMlCioIA3nX4+N4HDZLr7s0pnLdWW7LE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YA94VpoX; arc=none smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bmmjzXfD"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-76b77a97a04so3906703b3a.1
-        for <virtualization@lists.linux.dev>; Tue, 05 Aug 2025 14:49:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YA94VpoX"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-31f3fe66ebaso265008a91.0
+        for <virtualization@lists.linux.dev>; Tue, 05 Aug 2025 14:49:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754430569; x=1755035369; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1754430570; x=1755035370; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=D2evao2yHguRL1K3LeUb7zk3K6u4tPHmAj2zWCiTI2M=;
-        b=bmmjzXfDBqlOG9e2BJpfYxTler0nooG0KnVoEWO7nXn43DDBM5NrygIVw3SHQ7ZTC5
-         uuo7TKBqGu7OSoSyTR4FScdxvASC7NE0oXF3cvnsFbO27bjHQBDMJGIPzzMmCeA11E+H
-         F/fPCLqQdlDyBuRHCUYbWWCt872rtpwg6k37CL5Hypri1UfpIqcCFyevkUF5lt5MrxGv
-         FC+sgdxC7ps1tgjc0pv4OkWL6Soifhefxxq/ASnlVn50HBA/5hu2MqYJyTdsRCf4ykQ+
-         0WmzhUM4LxOoYH5g0Jm/l3bEepCSYtx4njoZVNMHAH960TMBEzM+wKpwaVM9/qAQ8Fh6
-         feNQ==
+        bh=1YyzkIGkPcN4s/5n8XbmWu5wXR7Mhh7fBZ/cTvP3v7E=;
+        b=YA94VpoXfLcG0YQBSlUlGqmfltwKioXAcyFDLx3iyWKm6NodTz4wmX45TjbvKJyec2
+         2L8+F25LqtrKqB8s/Zy2v1EuhghvBhqaVvPLNd7TueaCKvvDf3HMfaCrUPcQy1+ckorJ
+         AsO8ZgZRJthiQXYCKws+61jfPeW1MPqqc2SFDOOY93dZYzcQnoHSQ25BzOrp1GKbT4/2
+         ekHfV60o8SmkArikvmFstEdvU0k3clYw3EJDlDwRuyyL8A7iVE9DRx+z0W1zikEi1epY
+         HohkFfY0BThnWWKsnLuH8tqMBtaVCvnvBLDcfgG7q3+yFrm47MxR0jDmYagPoAT2QBUi
+         a/iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754430569; x=1755035369;
+        d=1e100.net; s=20230601; t=1754430570; x=1755035370;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=D2evao2yHguRL1K3LeUb7zk3K6u4tPHmAj2zWCiTI2M=;
-        b=glB4osx+wELBtCzrslEJGSaq5gkCtCjbYQJIXmEi7alY5KfP0P6NM8dZs7nulw24G+
-         QR1hSSLXNzfg+1c/gC4zNaqj5BjvTe+jPxUFgDuANhdfpl6vg/cv0VRZ9R8r5H2/YxHl
-         lOFdnFZKuLIneUMg5w+6M82/ljfaRVb6TXukwtyB6X6W4dqzQGpXyZt5VOatjCiG6ywE
-         cRv2bn6F0v9e3mMPJyotd79Vk4jiKZUzkhNtugZji6Gru8elXvl+fPDL3GqbcG2XbHt2
-         e214wBU0BLSS32njKp61wSAH3KNX9Bw4GDDwAmt20cqWR69LIUCvT/lPS33ae9PCjfXe
-         rflg==
-X-Gm-Message-State: AOJu0YzasrY90TZ+/wcn6pLUK/UMv4qUG3NPQ0hndFHY92AS6Bz0E0PM
-	QpAd1AM3uwd3p3gOf9YUieAqWL9C+Z1Wth0WD9U5e1c/CDIvvy/ULVbu
-X-Gm-Gg: ASbGncuGtop4WAeyZQFNTIJUh7RCdLqhKYp9xH2fZssfZYRyT0xaZqG1GmFNe8wgKTx
-	kPNDB1unsurMHX9KAxYhRlUVFdGzG7mUL07CenmjxwBgKmbVcS2PSGk9U7Dfj8F01AsRGl38kVH
-	ycIdmvp3XOIKeGJ4WOHPvDOHv7OllIngVONLjcDLMK93VN44eIlomTfctMudz9lNWu/Z/N/vccr
-	DtxfIYyUXHNOiWqs2P/uSI6aDFmlJMP6avU1HC2S7QPkUD19dwGcWhSn0XqheYAXbz6BRLSts9+
-	oLt9IV7lB87MEXbTygftcOiE9/6XX7/eopz/6Qs4RwlZIds+HNGdu+XLtvteHUGWnnNDng+b+rw
-	TN+CCR5kvGcRJGwOwTEA=
-X-Google-Smtp-Source: AGHT+IHDiccVFKt2foX9cebWCbcaO5d4WSAdQ7P+8EpIETJhLNYp3VcDpYhvm/jSZPHzCAGnogLnzA==
-X-Received: by 2002:a05:6a20:1591:b0:21a:d1fe:9e82 with SMTP id adf61e73a8af0-240330fa38fmr182206637.30.1754430568726;
-        Tue, 05 Aug 2025 14:49:28 -0700 (PDT)
-Received: from localhost ([2a03:2880:2ff:9::])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-76bccfc0a2asm13891503b3a.70.2025.08.05.14.49.27
+        bh=1YyzkIGkPcN4s/5n8XbmWu5wXR7Mhh7fBZ/cTvP3v7E=;
+        b=XviHVgVb8+7aFZYb1qSNGokbPMR4KUJcxSiuvJgMpEqJ9EtVbr16GvG9cmBnFvmdVb
+         g4zqS/nMajFUP8bZDmes1pa7dbPpV+CAjo6SFSIBTf6GOcc+2GASgjXjlHZYC73zBbGg
+         s/HL6uhyqBeJgXMGwWpsVxzxt926rLgVFUZjiQrl5cDIFvF+klRskHQTMU61rM7YRVbQ
+         QprRxsFLxkHPYfTEdqVku13aRgTK5IxKXlRhKG3e5jrHnamLlJUaVVGAUAkOcJ9qvLHg
+         gIoABUcK6DB4j9Aur4ebuiV03FlhkIfoc0acWSkE35iieBu5VQ7TEuPKhkyzije8j/WE
+         60lg==
+X-Gm-Message-State: AOJu0Ywis3gtT2H3Z+fAqPntDl9oZGsdwHWkwESJt8she9/0jP8mc3qU
+	J/9spfaoWQ+pmyhcYOdFkdxzdKKIQCnkhrsJRsmvl9LYtluPQckvIrRs
+X-Gm-Gg: ASbGncsFJN7eTZTOuRMlVriaeFkEINfG8m+yiwmaig7BSz85aIl/VftlI1749wMVxan
+	k4Ikf7sFytTQrY+Gl1mnOKHjhKRyatGQuEmfF+G7IVXCg74n2/2Bz375Rp3gUStVGjp1JQtVq/+
+	yES2D6wxH81l3un2Wpx+HN4BJRb+vidteOuMHD4lMio0Tq1WC5CuvGotrEw28gYo8Vu558b3xel
+	5BbrpvisFi6TWP1STwHYwPi5Xoyt3fU6feeExMlfXgXuCKBIsovE6wEcSIsoTeyUSzcGPvcsP34
+	MfW6qeIxbRTwFP1PM1t8xUXDJYjHqj4cuVfC0/J+j9fU1xJfKxyPL+SK0JTzHHFnLJCtuQFMmEM
+	kdOv3QkO/BpTsKA1H+Nu9Ffj7QbQ9upk=
+X-Google-Smtp-Source: AGHT+IEGF9ILDBnnoknWZKQ2G+wK9h51qA8kxxh5nsU0lZMy+4+a+iHFcBwZmFqZpGGoul2VL5iLww==
+X-Received: by 2002:a17:90b:2801:b0:312:dbcd:b93d with SMTP id 98e67ed59e1d1-32166a3a19emr474676a91.14.1754430570367;
+        Tue, 05 Aug 2025 14:49:30 -0700 (PDT)
+Received: from localhost ([2a03:2880:2ff:45::])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-31f63ee49e0sm17855734a91.24.2025.08.05.14.49.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Aug 2025 14:49:28 -0700 (PDT)
+        Tue, 05 Aug 2025 14:49:29 -0700 (PDT)
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Tue, 05 Aug 2025 14:49:18 -0700
-Subject: [PATCH RFC net-next v4 10/12] selftests/vsock: improve logging in
- vmtest.sh
+Date: Tue, 05 Aug 2025 14:49:19 -0700
+Subject: [PATCH RFC net-next v4 11/12] selftests/vsock: invoke vsock_test
+ through helpers
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -69,7 +69,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250805-vsock-vmtest-v4-10-059ec51ab111@meta.com>
+Message-Id: <20250805-vsock-vmtest-v4-11-059ec51ab111@meta.com>
 References: <20250805-vsock-vmtest-v4-0-059ec51ab111@meta.com>
 In-Reply-To: <20250805-vsock-vmtest-v4-0-059ec51ab111@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
@@ -93,202 +93,179 @@ X-Mailer: b4 0.13.0
 
 From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Improve logging by adding configurable log levels. Additionally, improve
-usability of logging functions. Remove the test name prefix from logging
-functions so that logging calls can be made deeper into the call stack
-without passing down the test name or setting some global. Teach log
-function to accept a LOG_PREFIX variable to avoid unnecessary argument
-shifting.
+Add helper calls vm_vsock_test() and host_vsock_test() to invoke the
+vsock_test binary. This encapsulates several items of repeat logic, such
+as waiting for the server to reach listening state and
+enabling/disabling the bash option pipefail to avoid pipe-style logging
+from hiding failures.
 
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 ---
- tools/testing/selftests/vsock/vmtest.sh | 75 ++++++++++++++++-----------------
- 1 file changed, 37 insertions(+), 38 deletions(-)
+ tools/testing/selftests/vsock/vmtest.sh | 120 ++++++++++++++++++++++++++++----
+ 1 file changed, 108 insertions(+), 12 deletions(-)
 
 diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index edacebfc1632..183647a86c8a 100755
+index 183647a86c8a..5e36d1068f6f 100755
 --- a/tools/testing/selftests/vsock/vmtest.sh
 +++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -51,7 +51,12 @@ readonly TEST_DESCS=(
- 	"Run vsock_test using the loopback transport in the VM."
- )
+@@ -248,6 +248,7 @@ wait_for_listener()
+ 	local port=$1
+ 	local interval=$2
+ 	local max_intervals=$3
++	local old_pipefail
+ 	local protocol=tcp
+ 	local pattern
+ 	local i
+@@ -256,6 +257,13 @@ wait_for_listener()
  
--VERBOSE=0
-+readonly LOG_LEVEL_DEBUG=0
-+readonly LOG_LEVEL_INFO=1
-+readonly LOG_LEVEL_WARN=2
-+readonly LOG_LEVEL_ERROR=3
+ 	# for tcp protocol additionally check the socket state
+ 	[ "${protocol}" = "tcp" ] && pattern="${pattern}0A"
 +
-+VERBOSE="${LOG_LEVEL_WARN}"
- 
- usage() {
- 	local name
-@@ -196,7 +201,7 @@ vm_start() {
- 
- 	qemu=$(command -v "${QEMU}")
- 
--	if [[ "${VERBOSE}" -eq 1 ]]; then
-+	if [[ ${VERBOSE} -le ${LOG_LEVEL_DEBUG} ]]; then
- 		verbose_opt="--verbose"
- 		logfile=/dev/stdout
- 	fi
-@@ -271,60 +276,56 @@ EOF
- 
- host_wait_for_listener() {
- 	wait_for_listener "${TEST_HOST_PORT_LISTENER}" "${WAIT_PERIOD}" "${WAIT_PERIOD_MAX}"
--}
--
--__log_stdin() {
--	cat | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }'
--}
- 
--__log_args() {
--	echo "$*" | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }'
- }
- 
- log() {
--	local prefix="$1"
-+	local redirect
-+	local prefix
- 
--	shift
--	local redirect=
--	if [[ ${VERBOSE} -eq 0 ]]; then
-+	if [[ ${VERBOSE} -gt ${LOG_LEVEL_INFO} ]]; then
- 		redirect=/dev/null
- 	else
- 		redirect=/dev/stdout
- 	fi
- 
-+	prefix="${LOG_PREFIX:-}"
++	# 'grep -q' exits on match, sending SIGPIPE to 'awk', which exits with
++	# an error, causing the if-condition to fail when pipefail is set.
++	# Instead, temporarily disable pipefail and restore it later.
++	old_pipefail=$(set -o | awk '/^pipefail[[:space:]]+(on|off)$/{print $2}')
++	set +o pipefail
 +
- 	if [[ "$#" -eq 0 ]]; then
--		__log_stdin | tee -a "${LOG}" > ${redirect}
-+		if [[ -n "${prefix}" ]]; then
-+			cat | awk -v prefix="${prefix}" '{printf "%s: %s\n", prefix, $0}'
-+		else
-+			cat
+ 	for i in $(seq "${max_intervals}"); do
+ 		if awk '{print $2" "$4}' /proc/net/"${protocol}"* | \
+ 		   grep -q "${pattern}"; then
+@@ -263,6 +271,10 @@ wait_for_listener()
+ 		fi
+ 		sleep "${interval}"
+ 	done
++
++	if [[ "${old_pipefail}" == on ]]; then
++		set -o pipefail
++	fi
+ }
+ 
+ vm_wait_for_listener() {
+@@ -314,28 +326,112 @@ log_guest() {
+ 	LOG_PREFIX=guest log $@
+ }
+ 
++vm_vsock_test() {
++	local ns=$1
++	local mode=$2
++	local rc
++
++	set -o pipefail
++	if [[ "${mode}" == client ]]; then
++		local host=$3
++		local cid=$4
++		local port=$5
++
++		# log output and use pipefail to respect vsock_test errors
++		vm_ssh "${ns}" -- "${VSOCK_TEST}" \
++			--mode=client \
++			--control-host="${host}" \
++			--peer-cid="${cid}" \
++			--control-port="${port}" \
++			2>&1 | log_guest
++		rc=$?
++	else
++		local cid=$3
++		local port=$4
++
++		# log output and use pipefail to respect vsock_test errors
++		vm_ssh "${ns}" -- "${VSOCK_TEST}" \
++			--mode=server \
++			--peer-cid="${cid}" \
++			--control-port="${port}" \
++			2>&1 | log_guest &
++		rc=$?
++
++		if [[ $rc -ne 0 ]]; then
++			set +o pipefail
++			return $rc
 +		fi
- 	else
--		__log_args "$@" | tee -a "${LOG}" > ${redirect}
--	fi
-+		if [[ -n "${prefix}" ]]; then
-+			echo "${prefix}: " "$@"
-+		else
-+			echo "$@"
++
++		vm_wait_for_listener "${ns}" "${port}"
++		rc=$?
++	fi
++	set +o pipefail
++
++	return $rc
+ }
+ 
++host_vsock_test() {
++	local ns=$1
++	local mode=$2
++	local cmd
++
++	if [[ "${ns}" == none ]]; then
++		cmd="${VSOCK_TEST}"
++	else
++		cmd="ip netns exec ${ns} ${VSOCK_TEST}"
++	fi
++
++	# log output and use pipefail to respect vsock_test errors
++	set -o pipefail
++	if [[ "${mode}" == client ]]; then
++		local host=$3
++		local cid=$4
++		local port=$5
++
++		${cmd} \
++			--mode="${mode}" \
++			--peer-cid="${cid}" \
++			--control-host="${host}" \
++			--control-port="${port}" 2>&1 | log_host
++		rc=$?
++	else
++		local cid=$3
++		local port=$4
++
++		${cmd} \
++			--mode="${mode}" \
++			--peer-cid="${cid}" \
++			--control-port="${port}" 2>&1 | log_host &
++		rc=$?
++
++		if [[ $rc -ne 0 ]]; then
++			return $rc
 +		fi
-+	fi | tee -a "${LOG}" > ${redirect}
- }
++
++		host_wait_for_listener "${ns}" "${port}" "${WAIT_PERIOD}" "${WAIT_PERIOD_MAX}"
++		rc=$?
++	fi
++	set +o pipefail
  
--log_setup() {
--	log "setup" "$@"
-+log_host() {
-+	LOG_PREFIX=host log $@
- }
- 
--log_host() {
--	local testname=$1
-+log_guest() {
-+	LOG_PREFIX=guest log $@
-+}
- 
--	shift
--	log "test:${testname}:host" "$@"
- }
- 
--log_guest() {
--	local testname=$1
- 
--	shift
--	log "test:${testname}:guest" "$@"
++	return $rc
  }
  
  test_vm_server_host_client() {
--	local testname="${FUNCNAME[0]#test_}"
++	vm_vsock_test "none" "server" 2 "${TEST_GUEST_PORT}"
++	host_vsock_test "none" "client" "127.0.0.1" "${VSOCK_CID}" "${TEST_HOST_PORT}"
++}
  
- 	vm_ssh -- "${VSOCK_TEST}" \
- 		--mode=server \
- 		--control-port="${TEST_GUEST_PORT}" \
- 		--peer-cid=2 \
--		2>&1 | log_guest "${testname}" &
-+		2>&1 | log_guest &
+-	vm_ssh -- "${VSOCK_TEST}" \
+-		--mode=server \
+-		--control-port="${TEST_GUEST_PORT}" \
+-		--peer-cid=2 \
+-		2>&1 | log_guest &
++test_vm_client_host_server() {
++	host_vsock_test "none" "server" "${VSOCK_CID}" "${TEST_HOST_PORT_LISTENER}"
++	vm_vsock_test "none" "client" "10.0.2.2" 2 "${TEST_HOST_PORT_LISTENER}"
++}
  
- 	vm_wait_for_listener "${TEST_GUEST_PORT}"
+-	vm_wait_for_listener "${TEST_GUEST_PORT}"
++test_vm_loopback() {
++	vm_vsock_test "none" "server" 1 "${TEST_HOST_PORT_LISTENER}"
++	vm_vsock_test "none" "client" "127.0.0.1" 1 "${TEST_HOST_PORT_LISTENER}"
++}
  
-@@ -332,18 +333,17 @@ test_vm_server_host_client() {
- 		--mode=client \
- 		--control-host=127.0.0.1 \
- 		--peer-cid="${VSOCK_CID}" \
--		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host "${testname}"
-+		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host
+-	${VSOCK_TEST} \
+-		--mode=client \
+-		--control-host=127.0.0.1 \
+-		--peer-cid="${VSOCK_CID}" \
+-		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host
  
- 	return $?
+-	return $?
  }
  
  test_vm_client_host_server() {
--	local testname="${FUNCNAME[0]#test_}"
- 
- 	${VSOCK_TEST} \
- 		--mode "server" \
- 		--control-port "${TEST_HOST_PORT_LISTENER}" \
--		--peer-cid "${VSOCK_CID}" 2>&1 | log_host "${testname}" &
-+		--peer-cid "${VSOCK_CID}" 2>&1 | log_host &
- 
- 	host_wait_for_listener
- 
-@@ -351,19 +351,18 @@ test_vm_client_host_server() {
- 		--mode=client \
- 		--control-host=10.0.2.2 \
- 		--peer-cid=2 \
--		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest "${testname}"
-+		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest
- 
- 	return $?
- }
- 
- test_vm_loopback() {
--	local testname="${FUNCNAME[0]#test_}"
- 	local port=60000 # non-forwarded local port
- 
- 	vm_ssh -- "${VSOCK_TEST}" \
- 		--mode=server \
- 		--control-port="${port}" \
--		--peer-cid=1 2>&1 | log_guest "${testname}" &
-+		--peer-cid=1 2>&1 | log_guest &
- 
- 	vm_wait_for_listener "${port}"
- 
-@@ -371,7 +370,7 @@ test_vm_loopback() {
- 		--mode=client \
- 		--control-host="127.0.0.1" \
- 		--control-port="${port}" \
--		--peer-cid=1 2>&1 | log_guest "${testname}"
-+		--peer-cid=1 2>&1 | log_guest
- 
- 	return $?
- }
-@@ -429,7 +428,7 @@ QEMU="qemu-system-$(uname -m)"
- while getopts :hvsq:b o
- do
- 	case $o in
--	v) VERBOSE=1;;
-+	v) VERBOSE=$(( VERBOSE - 1 ));;
- 	b) BUILD=1;;
- 	q) QEMU=$OPTARG;;
- 	h|*) usage;;
-@@ -452,10 +451,10 @@ handle_build
- 
- echo "1..${#ARGS[@]}"
- 
--log_setup "Booting up VM"
-+log_host "Booting up VM"
- vm_start
- vm_wait_for_ssh
--log_setup "VM booted up"
-+log_host "VM booted up"
- 
- cnt_pass=0
- cnt_fail=0
 
 -- 
 2.47.3
