@@ -1,87 +1,84 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+Received: from mail-pg1-f194.google.com (mail-pg1-f194.google.com [209.85.215.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECA5D13C8FF
-	for <virtualization@lists.linux.dev>; Tue,  5 Aug 2025 05:10:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B58A175A5
+	for <virtualization@lists.linux.dev>; Tue,  5 Aug 2025 06:20:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754370624; cv=none; b=F+/ibE06DkNc6i5QEDqTodPceMOOU/PvcCdva8ALK620YlcTLZ5Me5pJoKwYrwqNlY1A+M8jdk4i2grAOcuXsNYQGpC3DMLrhsxkuEFOlepaMhogVGu18c9mrLRSXxO45PCineOuEO1l5RgJufrhWYnRs3pgnchdxwR89hyg8xA=
+	t=1754374853; cv=none; b=H3L7JH9YtrzeCFAua/F5deUTRQhXFGUBAySwCOmdQ6Y13VxPtKm/dxGXj6B6LRswQb1WiXkmxrvBZagzeSv6lEiWE5rwDwntSLKlIDQyLHIMBLWoLL4d5A/auP9seJHB6WNNT5uyEPaakPbxDru3OG632M/EieCe4LKO6yWI/OM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754370624; c=relaxed/simple;
-	bh=rz2T/muz4Qw4k3ub258+1cVYVKlDE1bFbShc3SV/tFw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PwHMGkZV0DwoJPPrUYqC4Mztj70gwGbGgO4t1Jyk7MUNGQ2Rf9O1PUzUWuH8o43tuCyPqys7GF2S8E27ixvVDLehgxSz05zBKS0q1IRI5H8+nBdmlBbHrw+cVQbV/tkFkDkyAwQiwy1tlH8e1pLtgrHXfZ0Quciaq/cV9YIAvQ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Eac0F6lS; arc=none smtp.client-ip=209.85.216.42
+	s=arc-20240116; t=1754374853; c=relaxed/simple;
+	bh=HU3EoErcw718HgQs6DMndFnBksuEYx4Ps3O8g3pWdi4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cae26djVLiTHI1y6SSpKu+ehuocwyN1hW2M3RgYdfyoK0JmbnGRyuNtWZjNErgNo9+4wZ1skbjs6ZDwJm1JS4qVkL6843BM9vfzi44NstVzzOtcOajCGYqn80/18AxCTA3wNWtLPAdSBCokbu3TcuIKNEq/uxsfbtwb/eLg1m0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TwS7gWnR; arc=none smtp.client-ip=209.85.215.194
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Eac0F6lS"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-31f02b6cd37so3918429a91.1
-        for <virtualization@lists.linux.dev>; Mon, 04 Aug 2025 22:10:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TwS7gWnR"
+Received: by mail-pg1-f194.google.com with SMTP id 41be03b00d2f7-b422b31b1c0so3095474a12.0
+        for <virtualization@lists.linux.dev>; Mon, 04 Aug 2025 23:20:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754370622; x=1754975422; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1754374852; x=1754979652; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+uY4cABllPxXs/C2q+4FmYgKlnMM0alRZ+gST3WbRQE=;
-        b=Eac0F6lS91xImE7Ms4FN6QXKrEKKRxKa1gtlOwopBBj3bqVB3yatYk0k8VRH9QOl4e
-         X4VWQdezV2OGX0QMPKErYnCDM5Rc60fj/2zhd0+ioBFdDmm7J0sRpHcYcarJgmmGmULe
-         G47/jTidKKn8OeJRsFGdeEbqUHsDwVa4XouUmJ5JmGQx4mcDTHf1m5tEshwSSBRYEhJd
-         gVAjtxD1XLGXhrunK4XSZn2TjTvnZUlcmTQt455oY1bD5oYGL5ksVOdxw0aMPa/ghdJZ
-         S1B5VdfVYHfE+jZwUauKhLrgX6cqKNvzaVcrVKiHYmXtqY2Nhm8unjNuV5c451pdqKzM
-         YttA==
+        bh=bxXdvCPPZKEryeBHh/ilhPWl4SN2qoBiCBLYJe9cq58=;
+        b=TwS7gWnRlK6iLRSd1jrKeFYMSAKKWCKhZ8ZOu2JOYK0nK5nglapKnMUEsnY/hqMau5
+         i4v3R1OpDcSTKHd3Ol6tb/rnQ4G3SW9711MWerS7w+s2pjHQ1jKK+GV3BASAc3JYBCGL
+         LFsswMjrFiWw1RJkwVEIDQQ6t1UzbeBd3hCmLgWOC4pFKUPooOp10XSExVfRoBfDlP+Q
+         MpFvy6nl1j6UE6yT94vMva/fisWt56qSiGAmOnQqTyTBQoq7l6Ojozs5OUcsbqvT7jGL
+         77hyI59JD1FeDJyz9LwdBPGnjfgbWfrV4KXTLx+FhqgAGO2+iFQ5p+XgApPVS0uItvdQ
+         dPcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754370622; x=1754975422;
+        d=1e100.net; s=20230601; t=1754374852; x=1754979652;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=+uY4cABllPxXs/C2q+4FmYgKlnMM0alRZ+gST3WbRQE=;
-        b=WCPbDkv7DoEyY0HwJ4N0j7OIbzk3N2qxYW5OE7kCe/d2O65udSH2z953yT9MwD3tnL
-         XhCN4nfl0+/KCsjWnpe7wNjMlGvqv0bzNzUmE22eWo0/Lfh54nrjrOronid49he+J+rl
-         pfqs2hUetoMAF/eZ56rVkQFZAX837RQW0tt05uyW/u62ZbcMvCVgjT8dSYwv1etPqgOJ
-         acuU/vm14mZNXgcdAccbW46rJmnt/wjd8kryd1j0uGi7mjVtbGpHNjjZQ4O29zpqp2br
-         o9YJNWTA2jVAihomsCKmoCksjDDUBKHAQHNyqlKjIlYwXaJE8D6FatRIffUnt7V0WPFU
-         W+BQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXMkGhGcspUoFNGxwSvwOIapxTqGLJAjAHwKRfGStSNYJsQN8NBoqzcqQJvWXJHqvwzFG7powabuN5GT+fxqg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyS84TH7usdrdyysZWSZtc/UU01LKUQY/h75oiPlHMKkb0y9YfQ
-	AZrbkn61KIMqL/aZjyXs2R2xyttf0ct8J2Vu3J8AmT6gBGsVot+0rrZC
-X-Gm-Gg: ASbGnct+t+AJqiAFE61TjWISxZKEgFjmxH2BWVvQL3uFXD36QFHvKoKLDqtDNzN3gAe
-	En/oFAv7eUuIYdL83B+klB8GSB+gBGMTkeRqxCc+1B9HU4/H6rnpzi7JJyspOQQpS/LSVClZUVM
-	XKK+r6mXyE04NzMG3Iw81sumDa0YPCUQSxDQDQbogBrbuB4MOaEkt9xKTSTejHEImxPt0tfxq4C
-	vUZ/+iy8jFFphGnk3x/XpwvfHjaeu+6CqheUyHQKu8s6W9vkoxtS6yEn+hu3m0cNfkGs19rgHFC
-	pt4SKbB2IAkQvcn3vUwRJadAXzntm/fyFcGRbw2Z/JCkutGRjggjFIlDiaOT34Ng3XB/wMt5Gci
-	AbSFq2/MzWQkO45siQm4UBT//SrLtkPKsVrYCSHxw7XrCIfITKesuzqDbYJcB
-X-Google-Smtp-Source: AGHT+IHufrTKBXs+K1VueoQh9zPly7G9Z9xC6MOKli9LFxgZM7FAsVi3GX49qoHXnWhLox0TwYq8WQ==
-X-Received: by 2002:a17:90b:5804:b0:31f:eae:a7e8 with SMTP id 98e67ed59e1d1-32116203b03mr19506716a91.11.1754370621958;
-        Mon, 04 Aug 2025 22:10:21 -0700 (PDT)
-Received: from localhost.localdomain ([14.116.239.36])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3209a850417sm13177953a91.35.2025.08.04.22.10.15
+        bh=bxXdvCPPZKEryeBHh/ilhPWl4SN2qoBiCBLYJe9cq58=;
+        b=oSYRTszjpMonQYgU2w5Lkx28GxPbI/EP1X8MOQPu8DxloNk59YGF7hg+t3FwWZh+hl
+         KRkIVv704wgHNab1sQ7ZpxIDAWGnQ5z28sayaqobZDdEsY45A9E8FLQYF1FuhO4v+MWH
+         JycPFxPHgzey8Q5IyBhgqakrtkS2EVqKENhFD8YDiRdIz1Zdzr7GH/uFqBZsPYyw7cgK
+         xtVCO0a8sFrQvzfT22DKBCbZTD7OjFtP/t1dV3SWnlASzyuqBezSss4H1j29tNdA4cKI
+         9RxDDwnndzJ4fUrk6Rn2N/UQpRpg+Jh8Me5xO2XVcQ8BIXKrBOttRgzrrXltPfYQspr5
+         mB/w==
+X-Forwarded-Encrypted: i=1; AJvYcCUHQ0SU7trA6SInIhERKzMmzNCUX0fewaJZ/XXFDPMm+s6Ms00Iq8NBzN0hhOWoj7yyUvPpmMlYHAIihx1sUw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzqiOl6WT5D/YhMxoyfhUJQIcI8HADPd6wqv/whu62tBrVXHhEJ
+	s6rQpjxmyNkB/oAQJpIL+m3f7t7T9W3paasheSemUU/sZXDSjJ2pTect
+X-Gm-Gg: ASbGncsrihyw0c+yHKGYLnw7ksoXbF2e5N8Smc3oobetAyXR1fKPUlc3hAGbYokCX4z
+	74MYCzr1sq8bXkt1rXSmeX1yUG7ixlWUJOssqqFqJzCBU9VpE67RlKZYxqhto0tm22EDYfnScYI
+	F9IXwAnR5dNXLR+GTbCCx/U2KWcLRp67rGQskpTZ3r/jlNYly+x42QgM/9o5esn/omIaKBTapuy
+	G+hhVGXJp7SbGtDNVFi+jI0OgpiQPRM+7PRtFnKs1wMq6kw+UDXitt5q1SiBRXWCBn1wDWI47NK
+	wQODEURrm4CpwP2Hu0md0zvmMgFGkR4QAPpUZ87Y6/K0F1AqhQzCn1R/JD2IiYUO0BDcm6JWJln
+	9Rh7bBcQTLq0qbdBkrQbFjMMs6uedLkHqrlvYR2fIr+QFOCECcaLGmOrkyZj/
+X-Google-Smtp-Source: AGHT+IE6My9ExfIadYycYh55LtSyfalv/17oohhFtIWDUvu7/IXwtZ4gsI1N0BiWTm7Fcv5PWkWCUA==
+X-Received: by 2002:a17:90b:4a11:b0:321:59e7:c5c5 with SMTP id 98e67ed59e1d1-32159e7c72fmr955459a91.27.1754374851535;
+        Mon, 04 Aug 2025 23:20:51 -0700 (PDT)
+Received: from localhost.localdomain ([14.116.239.35])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3207eca6e9asm13095030a91.18.2025.08.04.23.20.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Aug 2025 22:10:21 -0700 (PDT)
+        Mon, 04 Aug 2025 23:20:51 -0700 (PDT)
 From: bsdhenrymartin@gmail.com
 X-Google-Original-From: tcs_kernel@tencent.com
 To: huntazhang@tencent.com,
 	jitxie@tencent.com,
 	landonsun@tencent.com,
-	stefanha@redhat.com,
+	bryan-bt.tan@broadcom.com,
+	vishnu.dasa@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com,
 	sgarzare@redhat.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
 	davem@davemloft.net,
 	edumazet@google.com,
 	kuba@kernel.org,
 	pabeni@redhat.com,
 	horms@kernel.org
-Cc: kvm@vger.kernel.org,
+Cc: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
 	bsdhenrymartin@gmail.com,
 	Henry Martin <bsdhenryma@tencent.com>,
 	TCS Robot <tcs_robot@tencent.com>
-Subject: [PATCH v1] VSOCK: fix Information Leak in virtio_transport_shutdown()
-Date: Tue,  5 Aug 2025 13:10:09 +0800
-Message-ID: <20250805051009.1766587-1-tcs_kernel@tencent.com>
+Subject: [PATCH v1] VSOCK: fix Out-of-Bounds Read in vmci_transport_dgram_dequeue()
+Date: Tue,  5 Aug 2025 14:20:41 +0800
+Message-ID: <20250805062041.1804857-1-tcs_kernel@tencent.com>
 X-Mailer: git-send-email 2.41.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -93,48 +90,42 @@ Content-Transfer-Encoding: 8bit
 
 From: Henry Martin <bsdhenryma@tencent.com>
 
-The `struct virtio_vsock_pkt_info` is declared on the stack but only
-partially initialized (only `op`, `flags`, and `vsk` are set)
+vmci_transport_dgram_dequeue lack of buffer length validation before
+accessing `vmci_datagram` header.
 
-The uninitialized fields (including `pkt_len`, `remote_cid`,
-`remote_port`, etc.) contain residual kernel stack data. This structure
-is passed to `virtio_transport_send_pkt_info()`, which uses the
-uninitialized fields.
+Trigger Path:
+1. Attacker sends a datagram with length < sizeof(struct
+   vmci_datagram).
+2. `skb_recv_datagram()` returns the malformed sk_buff (skb->len <
+   sizeof(struct vmci_datagram)).
+3. Code casts skb->data to struct vmci_datagram *dg without verifying
+   skb->len.
+4. Accessing `dg->payload_size` (Line: `payload_len =
+   dg->payload_size;`) reads out-of-bounds memory.
 
-Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
 Reported-by: TCS Robot <tcs_robot@tencent.com>
 Signed-off-by: Henry Martin <bsdhenryma@tencent.com>
 ---
- net/vmw_vsock/virtio_transport_common.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ net/vmw_vsock/vmci_transport.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index fe92e5fa95b4..cb391a98d025 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1073,14 +1073,14 @@ EXPORT_SYMBOL_GPL(virtio_transport_connect);
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 7eccd6708d66..0be605e19b2e 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -1749,6 +1749,11 @@ static int vmci_transport_dgram_dequeue(struct vsock_sock *vsk,
+ 	if (!skb)
+ 		return err;
  
- int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
- {
--	struct virtio_vsock_pkt_info info = {
--		.op = VIRTIO_VSOCK_OP_SHUTDOWN,
--		.flags = (mode & RCV_SHUTDOWN ?
--			  VIRTIO_VSOCK_SHUTDOWN_RCV : 0) |
--			 (mode & SEND_SHUTDOWN ?
--			  VIRTIO_VSOCK_SHUTDOWN_SEND : 0),
--		.vsk = vsk,
--	};
-+	struct virtio_vsock_pkt_info info = {0};
++	if (skb->len < sizeof(struct vmci_datagram)) {
++		err = -EINVAL;
++		goto out;
++	}
 +
-+	info.op = VIRTIO_VSOCK_OP_SHUTDOWN;
-+	info.flags = (mode & RCV_SHUTDOWN ?
-+			VIRTIO_VSOCK_SHUTDOWN_RCV : 0) |
-+			(mode & SEND_SHUTDOWN ?
-+			VIRTIO_VSOCK_SHUTDOWN_SEND : 0);
-+	info.vsk = vsk;
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
- }
+ 	dg = (struct vmci_datagram *)skb->data;
+ 	if (!dg)
+ 		/* err is 0, meaning we read zero bytes. */
 -- 
 2.41.3
 
