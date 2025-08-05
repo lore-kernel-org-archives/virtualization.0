@@ -1,152 +1,192 @@
-Received: from mail-lj1-f196.google.com (mail-lj1-f196.google.com [209.85.208.196])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DEDE2192F5
-	for <virtualization@lists.linux.dev>; Tue,  5 Aug 2025 08:53:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5544D192580
+	for <virtualization@lists.linux.dev>; Tue,  5 Aug 2025 10:02:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754383998; cv=none; b=jecDzymHBFnn+n9diPqeKR+19tYHz8Mj5CDG9P4SGo9bL8PGMLHcSYSKkyWLDKZqcXAQNBhs32FOh4eDhnIxQoldaLWqlYXidsrwIinYXF1UxHH9zm1vvbpACjb9VZ2p2oQkimNYFyOSRwNgXWVXJh0x7a6xCNFFyruBvyI5Sjw=
+	t=1754388134; cv=none; b=PdKiFu0lVkv9UY12kfvzKw1NZCF72Dly2o3xKXsNZ9wtWpFw7XXI2DYbHsK21hApho6TiszVVSF+rybmbRFKcpxG+HsD4FDAq44HKpvrvWs9tDuzb3TeymBigFW7feojcyW0v4cSCANkTChrilod6IBkJwo5V6nvbCA2PDKokOQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754383998; c=relaxed/simple;
-	bh=bmc3fqkz5l4aFYJYtB/WgxFSjibZd7amLkHxt3HSOPY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KD45cNW4rz5ihR4Urxrc2E2kxGkpVy73R5W7GxW1Rnno9QadHdN0gXYRT4Y1c+aj9VyQ9u+1kaPfjgKIAhVpWAEm5RiZBU50LcudsQmqIk1c3DUxEljQT8h+RVMqR0+2S8KeCyPEQWNLZy+MpI5z9/pxhgtNLQV+lkt2v7pRYr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gf4vLtto; arc=none smtp.client-ip=209.85.208.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1754388134; c=relaxed/simple;
+	bh=ghVc4jUywvAFQR8Cbgq1AJpVrOuHaExsk9z8LbGUnck=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=r4ThBUYn/JgzZCLwCqnA73L0b9krn5LdExPjMQWxHoirqsZ6UtkWE++XdST8kqV1E256hrgLQBBcn/7NzZgim/VB2KK9vlmTHd0MQKwr5zWOcniJrPrq+5jdPgDNisCmd9HOYZKswfxD3dWz/aniQEbAtq2k0E95YkoQXCruiy0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ccQ2XHSD; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gf4vLtto"
-Received: by mail-lj1-f196.google.com with SMTP id 38308e7fff4ca-3322bb2ac6eso41518151fa.0
-        for <virtualization@lists.linux.dev>; Tue, 05 Aug 2025 01:53:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754383995; x=1754988795; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ibHjp0RKgyKqNDDPGolCzlUBv8FDlz7MwKF0ZylR1+w=;
-        b=Gf4vLttohFHvnzw9W3ELLPS8EeBP27AlQF5E3Df8mVbzgvaH0f7+PoDiStEEdtIfqJ
-         7Hl94GZXeMGs2Lyj948uZRHP7H+CFNl7OG3FPsXCkr7Wc2iyDSQ/hyrxEaXwLJkdDY0M
-         YGV/SdvIGbNAPgJFwkSQq9IV92z9YnUIbokI4ST3kD6mz4WPpycbd2jmBLkfSPQSYbpT
-         ZM+ajWOzK0ulyjQx7/swsoD0bI9leXKNnaJqNW1ohbz1+HpAdwrll+yHn+ykB5AHTjWQ
-         rDyyXZUZo3RdO8t4R3gvhsFVZjkfBZ4EL6j7myyv6s+WFsRhRCY0PWI92A003vMKHNT6
-         KuJg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ccQ2XHSD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1754388131;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C8iq3DcQDje5KaWsGWyrnSm7HvAQMMkFMgKVgyZHegI=;
+	b=ccQ2XHSDfFZ4MT0Ppu2Inx6A8Lcumf5RxtcBADimZD4KV/Uea/mMLJ+T5XfNLYbrgTMBMV
+	g5DFO8gCsyyKrg7jshTTagG38yV4mQbSa8lIXos2dlo73ftuf1J6Gm38JpiEVUYsxzp8WD
+	l5lPw+4OVZfHBn38++A/LJbsH8ypwNw=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-449-qnItDj48OL6pxQ0LrEHlyw-1; Tue, 05 Aug 2025 06:02:10 -0400
+X-MC-Unique: qnItDj48OL6pxQ0LrEHlyw-1
+X-Mimecast-MFC-AGG-ID: qnItDj48OL6pxQ0LrEHlyw_1754388129
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3b7891afb31so2765210f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 05 Aug 2025 03:02:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754383995; x=1754988795;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ibHjp0RKgyKqNDDPGolCzlUBv8FDlz7MwKF0ZylR1+w=;
-        b=sCYBpr7AoUHLoZUA6XObuRAmLF9fDBnPPwBW14bGuQf+F8jfcghf82L0Ve8KGcYpRQ
-         RkWBnZCun5okmK42wMDPVAwevZhu05ISsFIY72FZj48NkQ3KQauzSE/TWF+TdgE4IEOd
-         GxSzkd+FEgGfmROYihZGspLBD07xFgP130cufVKdtrmUaYIcMi8PgR2Q/j7ywaeVKJPT
-         uyrqFNp2N2xrsPOqNhLov8F5lHh+ef6iUlL0YRDKKlU6Xk0mnMAVczHMzQ3GytD9SCDN
-         BO1Bbj0BmK3nmqZKZ98xeq1W19CaNFJ+YIZC5BKpIME/DTyBNEpJxl7nbHCLA70XU64g
-         fqPA==
-X-Forwarded-Encrypted: i=1; AJvYcCUhDShT/27Y36dUm8fLLOPXku80JwDOaI3+gDXuAcIUTbYU2gxiIPcLbi9wBlZvxeea7YvxIq+hD3LB/W/Q2Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyFUe+ETviYqCfWMHGRbOewRfQDCeLGs1OXc4xUWj+m9VsF7Igs
-	IoVJCIUV7d9fJCyTZMNB3XIw2Tj6VLjKWU4ftetWVK9U8BYafM0w408b1h/O2wW0ZqGw7jF/j7n
-	9Mj94J+VHjHYtkuLmV8ThZlN6Gwv0Gzk=
-X-Gm-Gg: ASbGncv/18oi9g8MoNDSHrXgACOMt32iidb5CNirIKgjaMssIEm1S+3/aeHCjVnU45I
-	ZY9YgGLmmfSGzTPZUXEepxB2i75045ANthe2kLHpua5o8xUKvJTi22cltFi5tvPDz1N6nQmYzrv
-	7LPPAqiGb8GKvO3rra92c5yHWL/retP8R5uy7A99oX5OCLHn2EbzcCLI6Cojy1JHeWGGm1NDaGx
-	pX/URQ=
-X-Google-Smtp-Source: AGHT+IFD5XNw8cP384FaLMCLrTz2I87FHqRB6f/qwltp9qO9etEP6nue9QDshjhDWfCXFPjNxtkFMqihQ3uLrVpxQEI=
-X-Received: by 2002:a2e:a54f:0:b0:332:45b5:d665 with SMTP id
- 38308e7fff4ca-33256709372mr32288541fa.11.1754383994891; Tue, 05 Aug 2025
- 01:53:14 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1754388129; x=1754992929;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=C8iq3DcQDje5KaWsGWyrnSm7HvAQMMkFMgKVgyZHegI=;
+        b=GLuo0qc9b+JMebmMQq2XcKGY1EAKHfeqFrSNoMduMDdG36/OqVagh69i5rEDt75Qpq
+         Tdp3DwxiPfffYtfI9EFEh8WwY+no2bHDifVd+ozbyO+3wil9EvnlFatI8LJ4uW0Aba6E
+         fYtRkpZTw+9W9gclV1wK7jSdju3A7LN+qEnuJ0xAzUifJY6OVJDQmVqyTpIx/Fn6j51k
+         zfZQJyTGd20csAR4amaihEkN+u3ZEuBKX+zCbinEC73kIhp76WDIb4CfOqv1PPanDpLq
+         JRHt/mW2tLuN9HbLsVsI3wLRbAn/018yqZ1hTyh5YvSDQ+gpHGDS7IlIYFjgpd8xOl1q
+         CpVQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX9nBKaAlhvaltGRpKW5rocHcLxNxScdP/6tx6gFh8pwI7KEQKO23N/BIYZ1OTWrH3gtf9iROvm7qUk+x+DQQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxh8vXKxBV/zWksTSNNRHZ8AWl5j1a51co8W18dH9il9kWG7XZU
+	Y2lUQKEwj6ojRvuGzmPtxsfkyYSKqbNT3X1dn42bNZT+tfZHtNYVyQIzi6OOSCGvmcF9Zrpp3i9
+	Jme0jRRqjUV+3LsI7bDgJw/5gqjudngVk2NqRxnMjlpq4r3yPt0vVKtHHIBDwqhQ4rL2B
+X-Gm-Gg: ASbGnctHcfmd/Wf00lLREVltzmS0U+Lbb2iKekhOy/2QOjZym3TNeiBDQhiqVMjCVBF
+	OBr6MgAN4AFGpPWUSnhljSRrKdIMDv+3HKfUQjo9LR2/ptrDNOvwfWVA534YvW7QRgTFIzBU01T
+	wV3mJzak6W3kjsjg1ONg4+1UQ85q98aMSTGQTF0csmqx5xq2lR82WCF9u/CazXyDgvZPgSF9Qt8
+	5UR+Wx5BRvN3lc3BBXZQ7Rc+awkLVKE7RWZaoCrnRP0Hd42Woq95gAB5mGpjDxWidJD1KXBbgj5
+	Y/iFai2SJvm1vWif/xJAWhZYJMGWddZ1
+X-Received: by 2002:a5d:584b:0:b0:3b7:924a:998f with SMTP id ffacd0b85a97d-3b8d946b3a2mr10486260f8f.5.1754388128673;
+        Tue, 05 Aug 2025 03:02:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE0h3EuzIaMa9Wir/mQMI0EF1I5NZk8tEiHqXjJLyBPOFpTj+sXNt2uVT98K1ru7T8YB22hmw==
+X-Received: by 2002:a5d:584b:0:b0:3b7:924a:998f with SMTP id ffacd0b85a97d-3b8d946b3a2mr10486210f8f.5.1754388128107;
+        Tue, 05 Aug 2025 03:02:08 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b79c48de68sm18532205f8f.67.2025.08.05.03.02.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Aug 2025 03:02:07 -0700 (PDT)
+Date: Tue, 5 Aug 2025 06:02:04 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Nikolay Kuratov <kniv@yandex-team.ru>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Lei Yang <leiyang@redhat.com>, Hillf Danton <hdanton@sina.com>,
+	stable@vger.kernel.org, Andrey Ryabinin <arbn@yandex-team.com>,
+	Andrey Smetanin <asmetanin@yandex-team.ru>
+Subject: Re: [PATCH v2] vhost/net: Replace wait_queue with completion in
+ ubufs reference
+Message-ID: <20250805060149-mutt-send-email-mst@kernel.org>
+References: <20250718110355.1550454-1-kniv@yandex-team.ru>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250805051009.1766587-1-tcs_kernel@tencent.com> <4sbamls46k3dxlqgreifhhhd66iaosbeoxgbpyvwaipwlnwiba@dep4mseknust>
-In-Reply-To: <4sbamls46k3dxlqgreifhhhd66iaosbeoxgbpyvwaipwlnwiba@dep4mseknust>
-From: henry martin <bsdhenrymartin@gmail.com>
-Date: Tue, 5 Aug 2025 16:53:03 +0800
-X-Gm-Features: Ac12FXzozgbryRFZfZ8Jbwl1TrTa0Ad2T4Xt810HLdQs9hEAdhKtjpUCUff4i9Y
-Message-ID: <CAEnQdOr+Gnk7MW3di-=EDD92BR1C1m0P5pK=Fz6ov5iUH+=u2w@mail.gmail.com>
-Subject: Re: [PATCH v1] VSOCK: fix Information Leak in virtio_transport_shutdown()
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: huntazhang@tencent.com, jitxie@tencent.com, landonsun@tencent.com, 
-	stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Henry Martin <bsdhenryma@tencent.com>, 
-	TCS Robot <tcs_robot@tencent.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20250718110355.1550454-1-kniv@yandex-team.ru>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: YvXRGGXFr3VyDqbkSQLBRN4urQzTkeMIIU1iIeoa7Xo_1754388129
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks for the quick review. You're right=E2=80=94this patch is a false
-positive. Modern compilers zero out the remaining fields, so the fix
-isn't needed.
+On Fri, Jul 18, 2025 at 02:03:55PM +0300, Nikolay Kuratov wrote:
+> When operating on struct vhost_net_ubuf_ref, the following execution
+> sequence is theoretically possible:
+> CPU0 is finalizing DMA operation                   CPU1 is doing VHOST_NET_SET_BACKEND
+>                              // &ubufs->refcount == 2
+> vhost_net_ubuf_put()                               vhost_net_ubuf_put_wait_and_free(oldubufs)
+>                                                      vhost_net_ubuf_put_and_wait()
+>                                                        vhost_net_ubuf_put()
+>                                                          int r = atomic_sub_return(1, &ubufs->refcount);
+>                                                          // r = 1
+> int r = atomic_sub_return(1, &ubufs->refcount);
+> // r = 0
+>                                                       wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
+>                                                       // no wait occurs here because condition is already true
+>                                                     kfree(ubufs);
+> if (unlikely(!r))
+>   wake_up(&ubufs->wait);  // use-after-free
+> 
+> This leads to use-after-free on ubufs access. This happens because CPU1
+> skips waiting for wake_up() when refcount is already zero.
+> 
+> To prevent that use a completion instead of wait_queue as the ubufs
+> notification mechanism. wait_for_completion() guarantees that there will
+> be complete() call prior to its return.
+> 
+> We also need to reinit completion in vhost_net_flush(), because
+> refcnt == 0 does not mean freeing in that case.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 0ad8b480d6ee9 ("vhost: fix ref cnt checking deadlock")
+> Reported-by: Andrey Ryabinin <arbn@yandex-team.com>
+> Suggested-by: Andrey Smetanin <asmetanin@yandex-team.ru>
+> Suggested-by: Hillf Danton <hdanton@sina.com>
+> Tested-by: Lei Yang <leiyang@redhat.com> (v1)
+> Signed-off-by: Nikolay Kuratov <kniv@yandex-team.ru>
 
-I'll be withdrawing all the patches and will ensure we more carefully
-evaluate our robot's findings before submitting in the future.
 
-Thanks for your help!
+Nikolay should I expect v3?
 
-Stefano Garzarella <sgarzare@redhat.com> =E4=BA=8E2025=E5=B9=B48=E6=9C=885=
-=E6=97=A5=E5=91=A8=E4=BA=8C 15:01=E5=86=99=E9=81=93=EF=BC=9A
->
-> On Tue, Aug 05, 2025 at 01:10:09PM +0800, bsdhenrymartin@gmail.com wrote:
-> >From: Henry Martin <bsdhenryma@tencent.com>
-> >
-> >The `struct virtio_vsock_pkt_info` is declared on the stack but only
-> >partially initialized (only `op`, `flags`, and `vsk` are set)
-> >
-> >The uninitialized fields (including `pkt_len`, `remote_cid`,
-> >`remote_port`, etc.) contain residual kernel stack data. This structure
-> >is passed to `virtio_transport_send_pkt_info()`, which uses the
-> >uninitialized fields.
-> >
-> >Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-> >Reported-by: TCS Robot <tcs_robot@tencent.com>
-> >Signed-off-by: Henry Martin <bsdhenryma@tencent.com>
-> >---
-> > net/vmw_vsock/virtio_transport_common.c | 15 +++++++--------
-> > 1 file changed, 7 insertions(+), 8 deletions(-)
-> >
-> >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vir=
-tio_transport_common.c
-> >index fe92e5fa95b4..cb391a98d025 100644
-> >--- a/net/vmw_vsock/virtio_transport_common.c
-> >+++ b/net/vmw_vsock/virtio_transport_common.c
-> >@@ -1073,14 +1073,14 @@ EXPORT_SYMBOL_GPL(virtio_transport_connect);
-> >
-> > int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
-> > {
-> >-      struct virtio_vsock_pkt_info info =3D {
-> >-              .op =3D VIRTIO_VSOCK_OP_SHUTDOWN,
-> >-              .flags =3D (mode & RCV_SHUTDOWN ?
-> >-                        VIRTIO_VSOCK_SHUTDOWN_RCV : 0) |
-> >-                       (mode & SEND_SHUTDOWN ?
-> >-                        VIRTIO_VSOCK_SHUTDOWN_SEND : 0),
-> >-              .vsk =3D vsk,
-> >-      };
->
-> The compiler sets all other fields to 0, so I don't understand what this
-> patch solves.
-> Can you give an example of the problem you found?
->
-> Furthermore, even if this fix were valid, why do it for just one
-> function?
->
-> Stefano
->
-> >+      struct virtio_vsock_pkt_info info =3D {0};
-> >+
-> >+      info.op =3D VIRTIO_VSOCK_OP_SHUTDOWN;
-> >+      info.flags =3D (mode & RCV_SHUTDOWN ?
-> >+                      VIRTIO_VSOCK_SHUTDOWN_RCV : 0) |
-> >+                      (mode & SEND_SHUTDOWN ?
-> >+                      VIRTIO_VSOCK_SHUTDOWN_SEND : 0);
-> >+      info.vsk =3D vsk;
-> >
-> >       return virtio_transport_send_pkt_info(vsk, &info);
-> > }
-> >--
-> >2.41.3
-> >
->
+> ---
+> v2:
+> * move reinit_completion() into vhost_net_flush(), thanks
+>   to Hillf Danton
+> * add Tested-by: Lei Yang
+> * check that usages of put_and_wait() are consistent across
+>   LTS kernels
+> 
+>  drivers/vhost/net.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 7cbfc7d718b3..69e1bfb9627e 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
+>  	 * >1: outstanding ubufs
+>  	 */
+>  	atomic_t refcount;
+> -	wait_queue_head_t wait;
+> +	struct completion wait;
+>  	struct vhost_virtqueue *vq;
+>  };
+>  
+> @@ -240,7 +240,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
+>  	if (!ubufs)
+>  		return ERR_PTR(-ENOMEM);
+>  	atomic_set(&ubufs->refcount, 1);
+> -	init_waitqueue_head(&ubufs->wait);
+> +	init_completion(&ubufs->wait);
+>  	ubufs->vq = vq;
+>  	return ubufs;
+>  }
+> @@ -249,14 +249,14 @@ static int vhost_net_ubuf_put(struct vhost_net_ubuf_ref *ubufs)
+>  {
+>  	int r = atomic_sub_return(1, &ubufs->refcount);
+>  	if (unlikely(!r))
+> -		wake_up(&ubufs->wait);
+> +		complete_all(&ubufs->wait);
+>  	return r;
+>  }
+>  
+>  static void vhost_net_ubuf_put_and_wait(struct vhost_net_ubuf_ref *ubufs)
+>  {
+>  	vhost_net_ubuf_put(ubufs);
+> -	wait_event(ubufs->wait, !atomic_read(&ubufs->refcount));
+> +	wait_for_completion(&ubufs->wait);
+>  }
+>  
+>  static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
+> @@ -1381,6 +1381,7 @@ static void vhost_net_flush(struct vhost_net *n)
+>  		mutex_lock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
+>  		n->tx_flush = false;
+>  		atomic_set(&n->vqs[VHOST_NET_VQ_TX].ubufs->refcount, 1);
+> +		reinit_completion(&n->vqs[VHOST_NET_VQ_TX].ubufs->wait);
+>  		mutex_unlock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
+>  	}
+>  }
+> -- 
+> 2.34.1
+
