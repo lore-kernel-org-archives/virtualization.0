@@ -1,133 +1,152 @@
-Received: from mout.web.de (mout.web.de [212.227.17.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f196.google.com (mail-lj1-f196.google.com [209.85.208.196])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E24C31E868
-	for <virtualization@lists.linux.dev>; Tue,  5 Aug 2025 08:08:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DEDE2192F5
+	for <virtualization@lists.linux.dev>; Tue,  5 Aug 2025 08:53:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754381322; cv=none; b=Y8cMMbyEQFzv4Oo7+oHWuVSqxTiz08f893jyLaW+BOtXuqCHdVkQYHiLSHPcgobt/zWUaB3KWhFP735bPFqVLQtQZoKV05YreZV/3pMRRY5uyURIpEkSDRrV9Fa6qi84z8LtEs8pI/HG2Y6++UN5NpG3J0kxjMxBmbfx07Cqqg4=
+	t=1754383998; cv=none; b=jecDzymHBFnn+n9diPqeKR+19tYHz8Mj5CDG9P4SGo9bL8PGMLHcSYSKkyWLDKZqcXAQNBhs32FOh4eDhnIxQoldaLWqlYXidsrwIinYXF1UxHH9zm1vvbpACjb9VZ2p2oQkimNYFyOSRwNgXWVXJh0x7a6xCNFFyruBvyI5Sjw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754381322; c=relaxed/simple;
-	bh=Cf5zX3DlmIEAytbYhV40xHoSLQSNZGosi+ckput3C0Q=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=nDQdIXWEX4lCNKsD2gNzu7gsvJxPlV4OHxtMJnx2echxvAX9f4859Buq8litlB705OyjJSYr3pCEfIQ9bmtVjp0ifpcs3LW+mftgOxxxmq16qnbsiQlJPRxF8795qSfXuUTlRjrJiGblihTB2vlNDOQO7+9G0qq8F1xb8lEkemY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=jXnhIbmc; arc=none smtp.client-ip=212.227.17.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1754383998; c=relaxed/simple;
+	bh=bmc3fqkz5l4aFYJYtB/WgxFSjibZd7amLkHxt3HSOPY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KD45cNW4rz5ihR4Urxrc2E2kxGkpVy73R5W7GxW1Rnno9QadHdN0gXYRT4Y1c+aj9VyQ9u+1kaPfjgKIAhVpWAEm5RiZBU50LcudsQmqIk1c3DUxEljQT8h+RVMqR0+2S8KeCyPEQWNLZy+MpI5z9/pxhgtNLQV+lkt2v7pRYr0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gf4vLtto; arc=none smtp.client-ip=209.85.208.196
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="jXnhIbmc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1754381296; x=1754986096; i=markus.elfring@web.de;
-	bh=Cf5zX3DlmIEAytbYhV40xHoSLQSNZGosi+ckput3C0Q=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=jXnhIbmc4Fo7CjO+ULyOwhLvEKuap66sVIJT6u1Ij4pFtQRAn+Ma9I5lwVsjTYPY
-	 z5dsKDi4MeyrJ8pZF9SlzMGFVKPa4XO5LzPw0UHeOBVz+0PNxVZlYNzWtPKjugmrM
-	 p41SD/zM2Ftgy4MHEwdFRteoKWy3/H5zFSZRKREw5Iv8C1Oa1e0769vrhMi5uMXAG
-	 Ewme0HzPaPY5YSz2Ycol5FqOp2wopaABIoUjD4w481c/uYYpqZ+w12zsEkmA54d4x
-	 WiG2tSsc3TBDiJhnt0RhlUpi34YihbM9rpfwQY+rHRYEabZXuK+oeXxksDUmbv/1W
-	 zz0qjcaDgtf4XUC1fA==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.29] ([94.31.92.245]) by smtp.web.de (mrweb105
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1N2BHw-1ue8zO1P6U-0160Tq; Tue, 05
- Aug 2025 10:08:16 +0200
-Message-ID: <c90910d8-a4e4-4238-95e7-9a2d052cf52f@web.de>
-Date: Tue, 5 Aug 2025 10:08:11 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gf4vLtto"
+Received: by mail-lj1-f196.google.com with SMTP id 38308e7fff4ca-3322bb2ac6eso41518151fa.0
+        for <virtualization@lists.linux.dev>; Tue, 05 Aug 2025 01:53:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1754383995; x=1754988795; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ibHjp0RKgyKqNDDPGolCzlUBv8FDlz7MwKF0ZylR1+w=;
+        b=Gf4vLttohFHvnzw9W3ELLPS8EeBP27AlQF5E3Df8mVbzgvaH0f7+PoDiStEEdtIfqJ
+         7Hl94GZXeMGs2Lyj948uZRHP7H+CFNl7OG3FPsXCkr7Wc2iyDSQ/hyrxEaXwLJkdDY0M
+         YGV/SdvIGbNAPgJFwkSQq9IV92z9YnUIbokI4ST3kD6mz4WPpycbd2jmBLkfSPQSYbpT
+         ZM+ajWOzK0ulyjQx7/swsoD0bI9leXKNnaJqNW1ohbz1+HpAdwrll+yHn+ykB5AHTjWQ
+         rDyyXZUZo3RdO8t4R3gvhsFVZjkfBZ4EL6j7myyv6s+WFsRhRCY0PWI92A003vMKHNT6
+         KuJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754383995; x=1754988795;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ibHjp0RKgyKqNDDPGolCzlUBv8FDlz7MwKF0ZylR1+w=;
+        b=sCYBpr7AoUHLoZUA6XObuRAmLF9fDBnPPwBW14bGuQf+F8jfcghf82L0Ve8KGcYpRQ
+         RkWBnZCun5okmK42wMDPVAwevZhu05ISsFIY72FZj48NkQ3KQauzSE/TWF+TdgE4IEOd
+         GxSzkd+FEgGfmROYihZGspLBD07xFgP130cufVKdtrmUaYIcMi8PgR2Q/j7ywaeVKJPT
+         uyrqFNp2N2xrsPOqNhLov8F5lHh+ef6iUlL0YRDKKlU6Xk0mnMAVczHMzQ3GytD9SCDN
+         BO1Bbj0BmK3nmqZKZ98xeq1W19CaNFJ+YIZC5BKpIME/DTyBNEpJxl7nbHCLA70XU64g
+         fqPA==
+X-Forwarded-Encrypted: i=1; AJvYcCUhDShT/27Y36dUm8fLLOPXku80JwDOaI3+gDXuAcIUTbYU2gxiIPcLbi9wBlZvxeea7YvxIq+hD3LB/W/Q2Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyFUe+ETviYqCfWMHGRbOewRfQDCeLGs1OXc4xUWj+m9VsF7Igs
+	IoVJCIUV7d9fJCyTZMNB3XIw2Tj6VLjKWU4ftetWVK9U8BYafM0w408b1h/O2wW0ZqGw7jF/j7n
+	9Mj94J+VHjHYtkuLmV8ThZlN6Gwv0Gzk=
+X-Gm-Gg: ASbGncv/18oi9g8MoNDSHrXgACOMt32iidb5CNirIKgjaMssIEm1S+3/aeHCjVnU45I
+	ZY9YgGLmmfSGzTPZUXEepxB2i75045ANthe2kLHpua5o8xUKvJTi22cltFi5tvPDz1N6nQmYzrv
+	7LPPAqiGb8GKvO3rra92c5yHWL/retP8R5uy7A99oX5OCLHn2EbzcCLI6Cojy1JHeWGGm1NDaGx
+	pX/URQ=
+X-Google-Smtp-Source: AGHT+IFD5XNw8cP384FaLMCLrTz2I87FHqRB6f/qwltp9qO9etEP6nue9QDshjhDWfCXFPjNxtkFMqihQ3uLrVpxQEI=
+X-Received: by 2002:a2e:a54f:0:b0:332:45b5:d665 with SMTP id
+ 38308e7fff4ca-33256709372mr32288541fa.11.1754383994891; Tue, 05 Aug 2025
+ 01:53:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: Henry Martin <bsdhenryma@tencent.com>, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, netdev@vger.kernel.org
-Cc: tcs_robot@tencent.com, LKML <linux-kernel@vger.kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- huntazhang@tencent.com, Jakub Kicinski <kuba@kernel.org>,
- Jason Wang <jasowang@redhat.com>, jitxie@tencent.com, landonsun@tencent.com,
- "Michael S. Tsirkin" <mst@redhat.com>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, Stefano Garzarella <sgarzare@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20250805051009.1766587-1-tcs_kernel@tencent.com>
-Subject: Re: [PATCH] VSOCK: fix Information Leak in
- virtio_transport_shutdown()
-Content-Language: en-GB, de-DE
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20250805051009.1766587-1-tcs_kernel@tencent.com>
-Content-Type: text/plain; charset=UTF-8
+References: <20250805051009.1766587-1-tcs_kernel@tencent.com> <4sbamls46k3dxlqgreifhhhd66iaosbeoxgbpyvwaipwlnwiba@dep4mseknust>
+In-Reply-To: <4sbamls46k3dxlqgreifhhhd66iaosbeoxgbpyvwaipwlnwiba@dep4mseknust>
+From: henry martin <bsdhenrymartin@gmail.com>
+Date: Tue, 5 Aug 2025 16:53:03 +0800
+X-Gm-Features: Ac12FXzozgbryRFZfZ8Jbwl1TrTa0Ad2T4Xt810HLdQs9hEAdhKtjpUCUff4i9Y
+Message-ID: <CAEnQdOr+Gnk7MW3di-=EDD92BR1C1m0P5pK=Fz6ov5iUH+=u2w@mail.gmail.com>
+Subject: Re: [PATCH v1] VSOCK: fix Information Leak in virtio_transport_shutdown()
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: huntazhang@tencent.com, jitxie@tencent.com, landonsun@tencent.com, 
+	stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Henry Martin <bsdhenryma@tencent.com>, 
+	TCS Robot <tcs_robot@tencent.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:PN7V6S5zSAmhkQy0TjSOPo+L2ivD5X8OWzYIliPIEYcG0Cw0Yft
- nKuFjAUwNgHZa6CfikIcd9DbVnMxk1/J+vh1ameXEcjYTYN6Ldjw0PpRnPRGGvkr3aTBTmN
- W44gUxvKqD76LvcvKiCcnrJLd28+uo3BX0+zNZPy2gN00OOuo35eLJlt8cS+BLXRQlEJwK3
- mSjOCfw5Zqh1Pm+lkY62A==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:2NcbyRpYDdE=;etC1pI//OULfYjX2q8PEYgkLL7R
- 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
- 1Q==
 
-> The `struct virtio_vsock_pkt_info` is declared on the stack but only
-> partially initialized (only `op`, `flags`, and `vsk` are set)
-=E2=80=A6
+Thanks for the quick review. You're right=E2=80=94this patch is a false
+positive. Modern compilers zero out the remaining fields, so the fix
+isn't needed.
 
-See also once more:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
-cumentation/process/submitting-patches.rst?h=3Dv6.16#n94
+I'll be withdrawing all the patches and will ensure we more carefully
+evaluate our robot's findings before submitting in the future.
 
-Would a summary phrase like =E2=80=9CPrevent information leak in virtio_tr=
-ansport_shutdown()=E2=80=9D
-be nicer?
+Thanks for your help!
 
-Regards,
-Markus
+Stefano Garzarella <sgarzare@redhat.com> =E4=BA=8E2025=E5=B9=B48=E6=9C=885=
+=E6=97=A5=E5=91=A8=E4=BA=8C 15:01=E5=86=99=E9=81=93=EF=BC=9A
+>
+> On Tue, Aug 05, 2025 at 01:10:09PM +0800, bsdhenrymartin@gmail.com wrote:
+> >From: Henry Martin <bsdhenryma@tencent.com>
+> >
+> >The `struct virtio_vsock_pkt_info` is declared on the stack but only
+> >partially initialized (only `op`, `flags`, and `vsk` are set)
+> >
+> >The uninitialized fields (including `pkt_len`, `remote_cid`,
+> >`remote_port`, etc.) contain residual kernel stack data. This structure
+> >is passed to `virtio_transport_send_pkt_info()`, which uses the
+> >uninitialized fields.
+> >
+> >Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+> >Reported-by: TCS Robot <tcs_robot@tencent.com>
+> >Signed-off-by: Henry Martin <bsdhenryma@tencent.com>
+> >---
+> > net/vmw_vsock/virtio_transport_common.c | 15 +++++++--------
+> > 1 file changed, 7 insertions(+), 8 deletions(-)
+> >
+> >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vir=
+tio_transport_common.c
+> >index fe92e5fa95b4..cb391a98d025 100644
+> >--- a/net/vmw_vsock/virtio_transport_common.c
+> >+++ b/net/vmw_vsock/virtio_transport_common.c
+> >@@ -1073,14 +1073,14 @@ EXPORT_SYMBOL_GPL(virtio_transport_connect);
+> >
+> > int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
+> > {
+> >-      struct virtio_vsock_pkt_info info =3D {
+> >-              .op =3D VIRTIO_VSOCK_OP_SHUTDOWN,
+> >-              .flags =3D (mode & RCV_SHUTDOWN ?
+> >-                        VIRTIO_VSOCK_SHUTDOWN_RCV : 0) |
+> >-                       (mode & SEND_SHUTDOWN ?
+> >-                        VIRTIO_VSOCK_SHUTDOWN_SEND : 0),
+> >-              .vsk =3D vsk,
+> >-      };
+>
+> The compiler sets all other fields to 0, so I don't understand what this
+> patch solves.
+> Can you give an example of the problem you found?
+>
+> Furthermore, even if this fix were valid, why do it for just one
+> function?
+>
+> Stefano
+>
+> >+      struct virtio_vsock_pkt_info info =3D {0};
+> >+
+> >+      info.op =3D VIRTIO_VSOCK_OP_SHUTDOWN;
+> >+      info.flags =3D (mode & RCV_SHUTDOWN ?
+> >+                      VIRTIO_VSOCK_SHUTDOWN_RCV : 0) |
+> >+                      (mode & SEND_SHUTDOWN ?
+> >+                      VIRTIO_VSOCK_SHUTDOWN_SEND : 0);
+> >+      info.vsk =3D vsk;
+> >
+> >       return virtio_transport_send_pkt_info(vsk, &info);
+> > }
+> >--
+> >2.41.3
+> >
+>
