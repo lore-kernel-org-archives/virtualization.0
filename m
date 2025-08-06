@@ -1,29 +1,30 @@
 Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2D66322618F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8733121D3E9;
 	Wed,  6 Aug 2025 21:55:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754517350; cv=none; b=uudthLCEGwL6KQ0+2Lyx92FTN4EvioR1XwZk7axn+jQFSzacx2I3FXv7arki7+Cr2UV2fvZXNdjd++ljStqkScYunDwf547PenpherfoOVNK+qUqjsIXNRHHukRNqfiXww4eWgSm+truXv0wm7DKhy2N8awNSJow+6NLHBuqDnA=
+	t=1754517350; cv=none; b=nKtLWIkQ/xEYQxvH4y5AOiq6QKrm+R7vYUZynCv8eBqVMzmlnOAzNlgwGrqLLwMT0XcA4/a6yVXba/JzjjqSecn7ZUyoCxsy4FXCimVquPKNDXtjcrkKu+boRx6p0QGMQKyF2jYKSttMseow2ZX8ZBlqImyga0bExh+gXsuRh4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1754517350; c=relaxed/simple;
-	bh=j95Df0u1twPoNe4ufuiyqZ4gjJJnOCPJvR8Y38Unaa4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mP9q7h//MxLXBhjTO9KbYm7xlRbcth+DhEf/rw3XhsSgxrIr/9umMgaBwJ4juNZ6q9h+WztZPUUyzSA49bTerE4kwEm6M2epvgaQopKFEIsgoftaxbd0xY5WQbzjSoiWsuUUBtn0xUp3gfE5/EcTjeLxqazLnEGcdNwoZJKS2A4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=rfGsuz8d; arc=none smtp.client-ip=13.77.154.182
+	bh=MFOsyzoQ5EgQD+pRBVwFgyjX2lsuIqKClk9V/ps+F68=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=iOns8RxB6maqUTwjX5BB1f51+PAy7+txXzr17KwL10hn19QmLcQf342NEjNr1WbC46kFkc6rIpdMVKOh6k6zHXLRk6DriLns6IClkNcqJFytI2L1om2BFZLkBAaqP+6Xcnu28wUzC1upOAcoYq8Z8Gs0pbbz+VSJv1IucLxZF1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=s0B5TsGc; arc=none smtp.client-ip=13.77.154.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="rfGsuz8d"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="s0B5TsGc"
 Received: from thinkpad-p16sg1.corp.microsoft.com (unknown [40.65.108.177])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 6D9BD2018F33;
+	by linux.microsoft.com (Postfix) with ESMTPSA id E3DE4201BC8C;
 	Wed,  6 Aug 2025 14:55:48 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 6D9BD2018F33
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E3DE4201BC8C
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1754517348;
-	bh=EB5F7X0QTQBLYUeJTZBsEDkMArE5SLaRkOQ9lia3kO8=;
-	h=From:To:Cc:Subject:Date:From;
-	b=rfGsuz8deZNit4jb/h6AAxRxsJrJRm5iHZARB0RYBxr38DNSJnTp1Pl6AJBdkQ4dE
-	 vl7PB/Pg8MKcRk6pIMjkzLlMaZbc+RdW0Qzm28cyv0SnwA3+WKl+gQOtRGZhKGUG99
-	 hb5kWS7YYT/TdX46xMv7YyL7BhxMr1/weJku+I2U=
+	s=default; t=1754517349;
+	bh=EMBDT2zYRzRMO1qYEwatd0iuKmtiwimyn6wYon4+bTE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=s0B5TsGcwACdQKAFaHdhC7vvERX2B/PzH3VHd+0ealVxsDHeWfeLoGngkc1e8N2Co
+	 vIsT4H6bUQe7CnrQS9+M8X7xOhp2+/PNA25jQsFuyl537BlziC689mZldl/J/Z1xYU
+	 Z7K/MJqMUCorjkvH6xomiVt6SAZYB35+LoGlQMp0=
 From: Shyam Saini <shyamsaini@linux.microsoft.com>
 To: iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
@@ -37,10 +38,12 @@ Cc: jgg@ziepe.ca,
 	eahariha@linux.microsoft.com,
 	vijayb@linux.microsoft.com,
 	bboscaccy@linux.microsoft.com
-Subject: [PATCH v3 0/3] arm-smmu: select suitable MSI IOVA
-Date: Wed,  6 Aug 2025 14:55:36 -0700
-Message-Id: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
+Subject: [PATCH v3 1/3] arm-smmu: move MSI_IOVA macro definitions
+Date: Wed,  6 Aug 2025 14:55:37 -0700
+Message-Id: <20250806215539.1240561-2-shyamsaini@linux.microsoft.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
+References: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -50,57 +53,73 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Level: **
 
-Hi,
+MSI_IOVA* are common among different iommu/smu drivers,
+so move them to common iommu.h header file.
 
-Currently, the MSI_IOVA_BASE address is hard-coded to 0x80000000,
-assuming that all platforms have this address available for MSI IOVA
-reservation. However, this is not always the case, as some platforms
-reserve this address for other purposes. Consequently, these platforms
-cannot reserve the MSI_IOVA_BASE address for MSI.
-
-There was an [1] attempt to fix this problem by passing the MSI IOVA
-base as a kernel command line parameter.
-
-This patch series aims to address the issue by reserving faulty MSI_IOVA
-and selecting suitable MSI IOVA address for a given platform.
-
-This approach accommodates platforms that do not have the default MSI base address
-available for MSI reservation.
-
-[1]: https://lore.kernel.org/lkml/20200914181307.117792-1-vemegava@linux.microsoft.com/
-
-Thanks,
-Shyam
-
+Suggested-by: Jacob Pan <jacob.pan@linux.microsoft.com>
+Signed-off-by: Shyam Saini <shyamsaini@linux.microsoft.com>
 ---
-v3:
-- Drop "arm,smmu-faulty-msi-iova" property change
-- Fix iommu driver device tree configuration for PCI devices
-- Use "iommu-addresses" property to identify reserved MSI IOVA regions,
-  and introduce an additional MSI_IOVA_BASE2 macro to select a suitable
-  MSI IOVA base if the default overlaps with a reserved region (suggested by Jason)
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h | 3 ---
+ drivers/iommu/arm/arm-smmu/arm-smmu.c       | 3 ---
+ drivers/iommu/virtio-iommu.c                | 2 --
+ include/linux/iommu.h                       | 3 +++
+ 4 files changed, 3 insertions(+), 8 deletions(-)
 
-v2:
-- add new dts property to hold faulty MSI IOVA and select appropriate
-  MSI IOVA address
-Link: https://lore.kernel.org/linux-iommu/20250410225030.2528385-1-shyamsaini@linux.microsoft.com/
-
-v1:
-Link: https://lore.kernel.org/linux-iommu/20250116232307.1436693-1-shyamsaini@linux.microsoft.com/
-
-Shyam Saini (3):
-  arm-smmu: move MSI_IOVA macro definitions
-  iommu/of: fix device tree configuration for PCI devices
-  arm-smmu: select suitable MSI IOVA
-
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 27 ++++++++++++++-----
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h |  3 ---
- drivers/iommu/arm/arm-smmu/arm-smmu.c       | 30 ++++++++++++++-------
- drivers/iommu/of_iommu.c                    | 11 ++++++++
- drivers/iommu/virtio-iommu.c                |  2 --
- include/linux/iommu.h                       | 28 +++++++++++++++++++
- 6 files changed, 79 insertions(+), 22 deletions(-)
-
+diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
+index ea41d790463ed..4db5714a50f1e 100644
+--- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
++++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
+@@ -503,9 +503,6 @@ static inline unsigned int arm_smmu_cdtab_l2_idx(unsigned int ssid)
+ #define ARM_SMMU_POLL_TIMEOUT_US	1000000 /* 1s! */
+ #define ARM_SMMU_POLL_SPIN_COUNT	10
+ 
+-#define MSI_IOVA_BASE			0x8000000
+-#define MSI_IOVA_LENGTH			0x100000
+-
+ enum pri_resp {
+ 	PRI_RESP_DENY = 0,
+ 	PRI_RESP_FAIL = 1,
+diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+index 4ced4b5bee4df..4a07650911991 100644
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+@@ -50,9 +50,6 @@
+  */
+ #define QCOM_DUMMY_VAL -1
+ 
+-#define MSI_IOVA_BASE			0x8000000
+-#define MSI_IOVA_LENGTH			0x100000
+-
+ static int force_stage;
+ module_param(force_stage, int, S_IRUGO);
+ MODULE_PARM_DESC(force_stage,
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 532db1de201ba..6b72776f17716 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -24,8 +24,6 @@
+ 
+ #include "dma-iommu.h"
+ 
+-#define MSI_IOVA_BASE			0x8000000
+-#define MSI_IOVA_LENGTH			0x100000
+ 
+ #define VIOMMU_REQUEST_VQ		0
+ #define VIOMMU_EVENT_VQ			1
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 7073be1d88415..517f908296436 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -1508,6 +1508,9 @@ static inline void iommu_debugfs_setup(void) {}
+ #endif
+ 
+ #ifdef CONFIG_IOMMU_DMA
++#define MSI_IOVA_BASE        0x8000000
++#define MSI_IOVA_LENGTH      0x100000
++
+ int iommu_get_msi_cookie(struct iommu_domain *domain, dma_addr_t base);
+ #else /* CONFIG_IOMMU_DMA */
+ static inline int iommu_get_msi_cookie(struct iommu_domain *domain, dma_addr_t base)
 -- 
 2.34.1
 
