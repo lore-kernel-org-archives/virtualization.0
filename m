@@ -1,122 +1,133 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5962E23C4E9
-	for <virtualization@lists.linux.dev>; Wed,  6 Aug 2025 20:47:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39DAA1A08BC
+	for <virtualization@lists.linux.dev>; Wed,  6 Aug 2025 20:49:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754513260; cv=none; b=hJieBUPFJs3/wL6fe4Y55eIdwQMtu5fUh38AHiN722nzEXH69Wg8K4xBcfIkiAgzMau4xNp/2/9OthEfX1gK4i3ZRLsjYmIFrcaT4/G5XFILl02mnLeIwGm8ylACRcBTfTqEvU4ZSaJcnQYvng9oRTVmS2QqC7rXHW7PSHoiJT4=
+	t=1754513342; cv=none; b=HlRrpzlhialPosktjlkgMayLHiRmL+mVBN87rwd4wUwGSEmu8Bl6Z5eGQgxUyTc4fActHFj/P6NhnfFdZabr9+ae/0dmyPi6/6m+3dlLfi6398PK42e2bvYbUtzCUlNxaSoXLW/tZjqDANr8Z9xxkGaQILh1CUtXdl6DITFwYvA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754513260; c=relaxed/simple;
-	bh=K32KMutlu0ueMIlLxLbh57mXUrOlGxR7duFPs825SlA=;
+	s=arc-20240116; t=1754513342; c=relaxed/simple;
+	bh=Z7gnSoFpXMZtZYmB+pSje8VMOdscPp38/iGm9p4yLMI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=qVZZKy8bzXpkiCp0GHxBliSTaFLmxuyAYtWEWkEsnQI+dawJdejGZpjU9PhmCXCcAj4TZwLc9Jc2zKwWLcCk+8fy8wmLqlSkHilZBgQrXJa2Hf9RoiVz30yz9jSgvz6SnfjwVAzGULAu3riPYZ2AbfUZ/2m3ig9ALfPzfQdnHBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YCZhU1bz; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZtMEbnuusbZTKtaqdulrqAt/3/27u+VpsjZRs0EkwHpP028QZEw5mwjbIpmbDjabuaR/ifAghuM7cihNar49xt3dAKA4oL4QaGrv8eeZvbTAwHVqHbxwKiz0kaq9OXtVF2J8TnW+zI4NAtrpnDD1mGQdomoSdSctqDypyTG6Ijo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g4trX4Kc; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YCZhU1bz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g4trX4Kc"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1754513255;
+	s=mimecast20190719; t=1754513340;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=TlwNsvbEYjfHRGNVKi2/h04wG5TuQNP/hEP/Uihzto4=;
-	b=YCZhU1bzRL7Weu1xEokbqvqHtmGhGqM7QNOfSPKLyfPYqy90WC1x6YsMjKSKz6JTqwZdXw
-	doY7vcFkB3cTHMJw4A5hxOhjrJ+aaLZRhvfCWgOxaOn0TN7eoOp42HrBJBfwTxFP4ILCge
-	iP7Vs7Q3YURyC+GAjL2XY8gQSNzCWO8=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=5CGoQnB77NbGRAfGUH2qulvf4J2jjsKcFyT5XT1q7y8=;
+	b=g4trX4KcNtkWGq9WL4hn557oh6Bc3kOIyDqfXnUdk0SdYSAPJJ4emAn7SomSXqqtveHfdX
+	ZA+2BzfQjsxpjUOc9pOmb3LaaU+UCRok9tb35KkZoPGU7upxiNKltQsJfhQWt/tKLnUzHP
+	kxW2/fFhGtN07nh3idISxSLD/U3TGD4=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-531-wyHmlRYQOFWtSJMKn-s9DA-1; Wed, 06 Aug 2025 16:47:32 -0400
-X-MC-Unique: wyHmlRYQOFWtSJMKn-s9DA-1
-X-Mimecast-MFC-AGG-ID: wyHmlRYQOFWtSJMKn-s9DA_1754513251
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-459dde02e38so1025945e9.1
-        for <virtualization@lists.linux.dev>; Wed, 06 Aug 2025 13:47:32 -0700 (PDT)
+ us-mta-671-BYCBN_WHP4W2m7a0YY94JQ-1; Wed, 06 Aug 2025 16:48:58 -0400
+X-MC-Unique: BYCBN_WHP4W2m7a0YY94JQ-1
+X-Mimecast-MFC-AGG-ID: BYCBN_WHP4W2m7a0YY94JQ_1754513338
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-459de8f00cfso1175505e9.2
+        for <virtualization@lists.linux.dev>; Wed, 06 Aug 2025 13:48:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754513251; x=1755118051;
+        d=1e100.net; s=20230601; t=1754513338; x=1755118138;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=TlwNsvbEYjfHRGNVKi2/h04wG5TuQNP/hEP/Uihzto4=;
-        b=YR82V0YjhIAoYHlqUmdZgxpF1uNpHEepam6mPezffIeeVab0B1/SodHwuO7R+JfLu/
-         qEq15ORjCnFmme5jfHRF6ydN81WRMA58J5WUhNmkg8X5W4zw+aoEqOsdnhYmHJBW4JN/
-         k8WdN0O0hWhYBX1eBOCiTC3c/9JYHlYvQzYC0EPa+8Es5DjFnWrAFVRbmaX5B8jKgUuO
-         7YBN9eAoETENiMjgXP8fwXMw4ZOVYmrNP44JPIczOudBykyHRJjbJO3PCG+4w2h6PVG/
-         ylCBDU64fWRz+CxPWmnAL7GjAqBA6Rh2FdpXUj16CPAVAqrCc3cJ/kRStPMYIX6dt4HZ
-         9ztg==
-X-Forwarded-Encrypted: i=1; AJvYcCX3/2EpSZ5lvNE/3io0clRNy0LxRkkVOscRwJIPeBoDWEJ/DNolczodTkDaBmT78kIJ/P0yd4EX7NANTdue3Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyV7Ilcq1iWqZ/PgcdEaatC+/oQMC3waESaq0oPJHT1TqHdLqev
-	w1qo4kNExZCwdikXL7o18Fl0xH4c5Plsb6VmmXVdWi3NiGdgO6IbutlD9Cj5iL+Fcpyll2K62Qv
-	ybJynTjPnO0+XLbfkEchfQPM+ITSqOpFHXM7IrvyjaencFa/GhLmbRO4nRNDj/oeGeSKZ
-X-Gm-Gg: ASbGnctv7OWQyTDklChEuuG+7LKYL0nL60PdFXvKmYKhjyuScDCbG6rWRy4GGgWNUgi
-	PLRfXCwag41nFulJqB2B7R/AwsTRRUJmCA7gOtT/oMul5hHrM3gOGCldW7RwpJOFmndCwassfQV
-	CGeTuE5hbtR8UyWHhfAUEtwlYG18ShPWoFCXicfsijCvu7LsN9ztrpB2DbN7OLcjHhtsQtk2LDP
-	aMBAc9IEhi/xk6ee+YCN39deEUqJ6BIjzBk2Aeh8uXLBejUUlGRNcajKnl4s82spkron2Td/yGh
-	PT+frQV4/odzv0oIseYKam9/7vva47Xp
-X-Received: by 2002:a05:600c:6305:b0:458:b7d1:99f9 with SMTP id 5b1f17b1804b1-459e709aae6mr37799235e9.11.1754513251203;
-        Wed, 06 Aug 2025 13:47:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEbRLRaL7K60EhkRWSlXNixh8uPd6V6yEGxqI0NMw0jyPpuYmGLkX16WFH/BvDKnaRCqACLiQ==
-X-Received: by 2002:a05:600c:6305:b0:458:b7d1:99f9 with SMTP id 5b1f17b1804b1-459e709aae6mr37799045e9.11.1754513250752;
-        Wed, 06 Aug 2025 13:47:30 -0700 (PDT)
+        bh=5CGoQnB77NbGRAfGUH2qulvf4J2jjsKcFyT5XT1q7y8=;
+        b=PtNwRWxHp8xGdv4ZgC61p9vEpreH5asB41tsGnvlVOwk+zWX6SDOcpM2hQOn1NdXjs
+         ZRZh0iYDVc7mWWnTgJCtPPMVrSd22KeaB23ToNov4sXoia/UqfSieOOmOTnz/I9+lk3X
+         /inpncceRCl7SEH03s8fVHWn39zS4QxCsO/tm70+p1OfJBZ/B5loZsYPQys0YfDlmcU1
+         0e/kTsF7KYpPspP7FqgPqkxJaCLORiTW5JQr7/UFgAmqPRlhdwwTVBgGTypyLLawF0DI
+         XzcdsExWIDZhyQ4H5DjZHpMeUjqaJGMock0YGV37/b9cVXa0OB5Ix3CYcEhGE3EbKGUX
+         ZBNw==
+X-Forwarded-Encrypted: i=1; AJvYcCXWyd2uwhcmjsVOAgw3s06GLZplwc8own1eGNUK9SYZ/hw0iRHke67qXJuc3LJEdfEiziZvvfnRYzDqEsjSJA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzgw9iGmuIIoByrrBrjs2XZiMvcFc+Lgv1amvhtps19fWjqefaW
+	bmh4eppyvzQrVkFY/u8rJ/Sx1pGXC0bt3JOrZg5UIpahVM5VzqX1YDCbj+3rs88tH4YMG39JsSl
+	bgdy6wbWRGOxymmHz9qX+srIfQnYJ2N0v+hiETR/Vg5TvRSMdiZWeIP0tovCly6gCBZDZ
+X-Gm-Gg: ASbGncsJVL28Bsc/KwOakvPCfJMKHEl93u3+JYBzHcBvr8a+Dxz/ljAu0K9RFrSyPw1
+	tys3oenEflMrggAurMxlUpaQXECRmTR9OXMNF/W8fptrw9jP3Hj6E67xMKUhMtMSz6hEAmmjbRi
+	aXYRc/wz/Trq/tFU/y3mvY7GizYcGBtNSLq1pnbQChrw/Nd2Tiaw17dYHt16fTnGioypCMtjPG/
+	rF1daSdndGJdbSKghIFEIwUUkO7+0ENPmvjpPmmJKRtzkGkUfY2IFQ7cEWF26+zjW/gjtqnsf3L
+	oUmU7p4yv0hePqhJQk4467bCaIiFWKN6
+X-Received: by 2002:a05:600c:470c:b0:459:e370:d065 with SMTP id 5b1f17b1804b1-459e70b2429mr40363625e9.15.1754513337786;
+        Wed, 06 Aug 2025 13:48:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEAWOenh2BJ1jNIk1Hu3XA4xplelNQQj5MxVZI3HYDxDv88AShmWyIFdUMijf06sj2dUKS8qA==
+X-Received: by 2002:a05:600c:470c:b0:459:e370:d065 with SMTP id 5b1f17b1804b1-459e70b2429mr40363495e9.15.1754513337417;
+        Wed, 06 Aug 2025 13:48:57 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b8f5d7deaasm3285773f8f.65.2025.08.06.13.47.28
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b79c4532c4sm24061086f8f.36.2025.08.06.13.48.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Aug 2025 13:47:29 -0700 (PDT)
-Date: Wed, 6 Aug 2025 16:47:27 -0400
+        Wed, 06 Aug 2025 13:48:57 -0700 (PDT)
+Date: Wed, 6 Aug 2025 16:48:54 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Igor Torrente <igor.torrente@collabora.com>
-Cc: samimdko <sami.md.ko@gmail.com>,
-	virtualization <virtualization@lists.linux.dev>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	eperezma <eperezma@redhat.com>,
-	xuanzhuo <xuanzhuo@linux.alibaba.com>,
-	jasowang <jasowang@redhat.com>,
-	Dmitrii Osipenko <dmitry.osipenko@collabora.com>
-Subject: Re: `virtio: reject shm region if length is zero` breaks virtio-gpu
- host_visible feature
-Message-ID: <20250806164708-mutt-send-email-mst@kernel.org>
-References: <19880aa3804.3aa8c0311540629.5527706858754550702@collabora.com>
+To: Chelsy Ratnawat <chelsyratnawat2001@gmail.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH] virtio_ring:  fix uninitialized symbol warnings
+Message-ID: <20250806164805-mutt-send-email-mst@kernel.org>
+References: <20250806124101.3574834-1-chelsyratnawat2001@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <19880aa3804.3aa8c0311540629.5527706858754550702@collabora.com>
+In-Reply-To: <20250806124101.3574834-1-chelsyratnawat2001@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: YqmS52QP9XGVvQWq3i6GE-gRxQjCc8r6smwL5c-9n6A_1754513251
+X-Mimecast-MFC-PROC-ID: -CWy-N4GlsN3AJwiViOzNdWiegnqIN4xQsBx0B8cK8A_1754513338
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, Aug 06, 2025 at 03:34:55PM -0300, Igor Torrente wrote:
-> Hello,
+On Wed, Aug 06, 2025 at 05:41:01AM -0700, Chelsy Ratnawat wrote:
+> Fix below smatch warnings:
+>   virtio_ring.c:1566 virtqueue_add_packed() error: uninitialized symbol 'prev'.
+>   virtio_ring.c:1574 virtqueue_add_packed() error: uninitialized symbol 'head_flags'.
+>   virtio_ring.c:635 virtqueue_add_split() error: uninitialized symbol 'prev'.
 > 
-> The commit `206cc44588f7 virtio: reject shm region if length is zero` breaks the Virtio-gpu `host_visible` feature.
+> No functional changes intended.
 > 
-> As you can see in the snippet below, host_visible_region is zero because of the `kzalloc`. 
-> It's using the `vm_get_shm_region` (drivers/virtio/virtio_mmio.c:536) to read the `addr` and `len` from qemu/crosvm.
-> 
-> ```
-> drivers/gpu/drm/virtio/virtgpu_kms.c
-> 132         vgdev = drmm_kzalloc(dev, sizeof(struct virtio_gpu_device), GFP_KERNEL);
-> [...]
-> 177         if (virtio_get_shm_region(vgdev->vdev, &vgdev->host_visible_region, 
-> 178                                   VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
-> ```
-> Now it always fails.
-> 
-> I don't know exactly what issue this patch is trying to solve, but right now Virtio-gpu relies upon the previous behavior. 
-> Can we just revert it?
-> 
-> BR,
-> ----
-> Igor Torrente
+> Signed-off-by: Chelsy Ratnawat <chelsyratnawat2001@gmail.com>
 
 
-Pls go ahead and post the revert. We'll see what happens.
+Sorry we don't mechanically "fix" warnings like this. 
+Please analyse the code and report whether the issue is
+real or a false positive.
 
--- 
-MST
+
+> ---
+>  drivers/virtio/virtio_ring.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index f5062061c408..03aa08aaebed 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -540,7 +540,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>  	struct vring_desc_extra *extra;
+>  	struct scatterlist *sg;
+>  	struct vring_desc *desc;
+> -	unsigned int i, n, avail, descs_used, prev, err_idx;
+> +	unsigned int i, n, avail, descs_used, prev = 0, err_idx;
+>  	int head;
+>  	bool indirect;
+>  
+> @@ -1459,8 +1459,8 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+>  	struct vring_packed_desc *desc;
+>  	struct scatterlist *sg;
+>  	unsigned int i, n, c, descs_used, err_idx, len;
+> -	__le16 head_flags, flags;
+> -	u16 head, id, prev, curr, avail_used_flags;
+> +	__le16 head_flags = 0, flags;
+> +	u16 head, id, prev = 0, curr, avail_used_flags;
+>  	int err;
+>  
+>  	START_USE(vq);
+> -- 
+> 2.47.3
 
