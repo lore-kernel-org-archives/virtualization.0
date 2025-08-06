@@ -1,218 +1,135 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id BE97B22FF35;
-	Wed,  6 Aug 2025 21:55:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3175F277CA2
+	for <virtualization@lists.linux.dev>; Wed,  6 Aug 2025 23:58:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754517352; cv=none; b=hLbgk41oR5RHZaSAGzUy0pYtmuK7e2QuzJT+abVmm3GQQ9IXOyEFH38AXBfgr7HePmyWFU6snTgfwKtdlQEJDXgHW2Ol5qqqC5I+AX56K8GRqGpG0fOTkAB7nAmq+Tr5CMQxQd4VMCGR3t7JDuq/YK45HZ8J1/ClPleejgaa8mI=
+	t=1754524732; cv=none; b=ZSlnKKyYfJSMeqdP+ttBitoOPKlguMN14NseZRCy1PtwKMoLkNfchvIcQh1K0aawg05WUle8e7tsxwtLwcLwo87ZoYtz1kWUcS6iC4YI+vKoYV0SprZRgKO9BMd9eUDXmcQLKg84PuFmejFdDSRhsYwrP7T9dudrDQvu0PGromQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754517352; c=relaxed/simple;
-	bh=+pGZ975IxNxnr1V+i1tGkKgf9TG50k9YbqtnSjkg4/4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=EgsbVYYN4470XI7AsnWkHkoHSHYhqKTBpbIWhN5Fs0ZuPx49c3ZotWSSwI7xM5MeTcT73oI87GdM1kvP6S0Z5X861jflyEGaIfNKbLqrSYmFipTD0CXx9UgWBt0g2RKJiIaK3iV6kz5DNPh89cQAn74hefkXInVZJj5sj9cndtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=nY3Trcvs; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1754524732; c=relaxed/simple;
+	bh=Ch3Lu3JNorrE3DqTb4s0lvqvQJV5+k082o5zzm77yE0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kXALvslyrZ2xtk5lvG6mGyh36yGbqaRF47hmBHmBK00/5xDioHhjteOwK79HUGrzqzzUSKUsqHGztCWS81kOa1vyex+BFhTt9ZgDiOWfu6VC7UuF94TDZNqrFQ3CMKa+gISZ64zy9XT0yPfKLbpzNav3ju3KmYpOOTthCYgfPPI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=MH27oci2; arc=none smtp.client-ip=209.85.222.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="nY3Trcvs"
-Received: from thinkpad-p16sg1.corp.microsoft.com (unknown [40.65.108.177])
-	by linux.microsoft.com (Postfix) with ESMTPSA id DB4B7201BC85;
-	Wed,  6 Aug 2025 14:55:49 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com DB4B7201BC85
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1754517350;
-	bh=CZfnUWwxdxJN9955pgQFuv1T6J84459tvn2v5OJo7mg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=nY3Trcvs//X2Tf79PjOTOC2zzQiT48wYcGdOOJR66n9wdprAOc7jUohX6jkfsNMBT
-	 u1xaaRzXmn7yO5VRXXvmvJbCkKTh/lOJPgrTpUzcpFg23rm2r6gC5bceLtPHokRw5t
-	 3l8aS0kmSExWgR4JviCBxlPhDhWg/tCeYqqcU7qY=
-From: Shyam Saini <shyamsaini@linux.microsoft.com>
-To: iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: jgg@ziepe.ca,
-	will@kernel.org,
-	jacob.pan@linux.microsoft.com,
-	eric.auger@redhat.com,
-	code@tyhicks.com,
-	eahariha@linux.microsoft.com,
-	vijayb@linux.microsoft.com,
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="MH27oci2"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-7e182e4171bso52627985a.3
+        for <virtualization@lists.linux.dev>; Wed, 06 Aug 2025 16:58:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1754524730; x=1755129530; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=I4DgF6Vw8xGQncqmkZy1+xUkx+suIzKaCcwcVTdjpkA=;
+        b=MH27oci2nJjyrPxMZoBx++UIIjvZjcXN591pFI4mCv0vumJ8zo9CY4GZZvnt8++Bt0
+         brldMJZ8vFFmEpnD35dbhq7FUD1SsRA9CPy0Z/o4x38G+c+swFzuu/H30lsNaw2XqHzb
+         XjqAKhjOulsOytsl+GIH1u1ucneKHUt2oN0M/fJZHwlf5aplJ0J2Wpb1BawBVUrCgCqM
+         0zjeR4mJvxbUDii1p+ec4W7sUOs12HTiySstdxmjAS+ysmLLZXAwkt8td2q281PXtDaW
+         mM0h+kH+newNYQ8i38K1g4oyiOt0KKwuAUDj9HldbQv7K6Za5qNIEcfVfX0uQlV5x5MM
+         ktig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754524730; x=1755129530;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=I4DgF6Vw8xGQncqmkZy1+xUkx+suIzKaCcwcVTdjpkA=;
+        b=QueThJQmXG66MP4eF9I6+d8MAOaK0Sx6GQRs2SC+Qp4oBj3uXbEyzbQjumvGufpHiK
+         StI5ApGr/xNs6Xx26HgEK6EKmxh/YdKBLes/AZ1WIIw7BhPRF1m4BBMY19zFDGivAHwW
+         4IpJoeXuKFWqVcZ335qCPK2z3XA2py8PhECJ+5IsxdpFGTL4xsn0D6hHlPDpB3zxvkxg
+         dqi03/vDOnQ0jyptkqkwxobl+58PxRvx+Vqg5UxRto1g0s98R5NwGE1PPdH24UK+ZxZw
+         bD/nmqpnySU8jY5myEFVMIDINRjUxCu//zGr/hy+4X977byinPuXx4izHV4LweC6xZDl
+         b93A==
+X-Forwarded-Encrypted: i=1; AJvYcCXn6p8D6xxjpVX6oUgWWOnj4GN+G1OjV4yHw+R8huYuslX23AHKtCTvUNgreB2m8caLgnlBPeCpZjYsvptE6w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx741+APpR5KnMeiBx0lAOkygtnlG42W1MQYQOsizr6PozIkyRl
+	3rT1GAoB6gSjzHzreviDjbQBaI+5a0YNTdUpGA3L9+blPN+0wuq8HOIell48jdNv7oY=
+X-Gm-Gg: ASbGncsx0AaSMd+i27EXZP8ru8ZHw+TYFSYGts64+BAbEQE6sU/Z2PkQ24Qmc8igRg4
+	X82NEaO06PMR6r71dqOMCrazgOu2EOfSq7NbGS9RgAUHgjgZ8Jcqjodz7c7J7hqyHon79tGieSo
+	vJbF+jkY36yleW/3INL25u4E4VItcudQ3KfPzEE8pjYaDMKp3RxUR4dor2WNi3xWS7LSokY+2hW
+	mbSM0wXnrLbL/ZDEN3esZrmKJq81zJVK+8jDH1gZEr1t3B2ataWlgnc6fRBygGTYp2jD6n8QJPb
+	gbGhBgVwVckIzk3PbV+SvC7pS6eo7Fb5DOgJ23AAD5/DNL9naktcbqyK2ozUl+ApZlF+uvPaVw2
+	Kno0yqKvlIEtYc3e6Sub+SyJdAI00KPCrlgEb1zSjRDQzNpBNy5euWV11EUkgd7fGIxJe
+X-Google-Smtp-Source: AGHT+IGnS032BQYfbSfwSqYTvKso8Ea62PyX+fE1vpQVHfXPFL26cVNK4i9ZyLJUzr/PgtuVEArJEg==
+X-Received: by 2002:a05:620a:4045:b0:7e6:97a2:ea7d with SMTP id af79cd13be357-7e81677da93mr625181985a.62.1754524729857;
+        Wed, 06 Aug 2025 16:58:49 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-47-55-120-4.dhcp-dynamic.fibreop.ns.bellaliant.net. [47.55.120.4])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7e80b869d4bsm310283985a.24.2025.08.06.16.58.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Aug 2025 16:58:49 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1ujo1w-00000001sk1-2RDU;
+	Wed, 06 Aug 2025 20:58:48 -0300
+Date: Wed, 6 Aug 2025 20:58:48 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Shyam Saini <shyamsaini@linux.microsoft.com>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
+	will@kernel.org, jacob.pan@linux.microsoft.com,
+	eric.auger@redhat.com, code@tyhicks.com,
+	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
 	bboscaccy@linux.microsoft.com
-Subject: [PATCH v3 3/3] arm-smmu: select suitable MSI IOVA
-Date: Wed,  6 Aug 2025 14:55:39 -0700
-Message-Id: <20250806215539.1240561-4-shyamsaini@linux.microsoft.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
+Subject: Re: [PATCH v3 3/3] arm-smmu: select suitable MSI IOVA
+Message-ID: <20250806235848.GD377696@ziepe.ca>
 References: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
+ <20250806215539.1240561-4-shyamsaini@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: **
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250806215539.1240561-4-shyamsaini@linux.microsoft.com>
 
-Currently ARM SMMU drivers hardcode PCI MSI IOVA address.
-Not all the platform have same memory mappings and some platform
-could have this address already being mapped for something else.
-This can lead to collision and as a consequence the MSI IOVA addr
-range is never reserved.
+On Wed, Aug 06, 2025 at 02:55:39PM -0700, Shyam Saini wrote:
+> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> @@ -3642,17 +3642,30 @@ static int arm_smmu_of_xlate(struct device *dev,
+>  static void arm_smmu_get_resv_regions(struct device *dev,
+>  				      struct list_head *head)
+>  {
+> -	struct iommu_resv_region *region;
+>  	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
+>  
+> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
+> -					 prot, IOMMU_RESV_SW_MSI, GFP_KERNEL);
+> -	if (!region)
+> -		return;
+> -
+> -	list_add_tail(&region->list, head);
+> +	static const u64 msi_bases[] = { MSI_IOVA_BASE, MSI_IOVA_BASE2 };
+>  
+>  	iommu_dma_get_resv_regions(dev, head);
+> +
+> +	/*
+> +	 * Use the first msi_base that does not intersect with a platform
+> +	 * reserved region. The SW MSI base selection is entirely arbitrary.
+> +	 */
+> +	for (int i = 0; i != ARRAY_SIZE(msi_bases); i++) {
+> +		struct iommu_resv_region *region;
+> +
+> +		if (resv_region_intersects(msi_bases[i], MSI_IOVA_LENGTH, head))
+> +			continue;
+> +
+> +		region = iommu_alloc_resv_region(msi_bases[i], MSI_IOVA_LENGTH, prot,
+> +						 IOMMU_RESV_SW_MSI, GFP_KERNEL);
+> +		if (!region)
+> +			return;
+> +
+> +		list_add_tail(&region->list, head);
+> +		return;
+> +	}
+>  }
 
-Fix this by reserving faulty IOVA range and selecting alternate MSI_IOVA
-suitable for the intended platform.
+I think this whole series looks pretty good, but I would suggest to
+put this in a helper..
 
-Example of reserving faulty IOVA range for PCIE device in the DTS:
+'iommu_set_sw_msi()' perhaps, must be called after iommu_dma_get_resv_regions()
 
-reserved-memory {
-	#address-cells = <2>;
-	#size-cells = <2>;
-	faulty_iova: resv_faulty {
-		iommu-addresses = <&pcieX 0x0 0x8000000 0x0 0x100000>;
-	};
-};
+Then maybe the constants can just be placed in the .c file inside the
+helper function.
 
-&pcieX {
-	memory-region = <&faulty_iova>;
-};
-
-Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-Link: https://lore.kernel.org/linux-iommu/20250416181759.GF493866@ziepe.ca/
-Signed-off-by: Shyam Saini <shyamsaini@linux.microsoft.com>
----
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 27 +++++++++++++++------
- drivers/iommu/arm/arm-smmu/arm-smmu.c       | 27 +++++++++++++++------
- include/linux/iommu.h                       | 25 +++++++++++++++++++
- 3 files changed, 65 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-index 5f46140a8f3fa..0dfb522e173f0 100644
---- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-+++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-@@ -3642,17 +3642,30 @@ static int arm_smmu_of_xlate(struct device *dev,
- static void arm_smmu_get_resv_regions(struct device *dev,
- 				      struct list_head *head)
- {
--	struct iommu_resv_region *region;
- 	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
- 
--	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
--					 prot, IOMMU_RESV_SW_MSI, GFP_KERNEL);
--	if (!region)
--		return;
--
--	list_add_tail(&region->list, head);
-+	static const u64 msi_bases[] = { MSI_IOVA_BASE, MSI_IOVA_BASE2 };
- 
- 	iommu_dma_get_resv_regions(dev, head);
-+
-+	/*
-+	 * Use the first msi_base that does not intersect with a platform
-+	 * reserved region. The SW MSI base selection is entirely arbitrary.
-+	 */
-+	for (int i = 0; i != ARRAY_SIZE(msi_bases); i++) {
-+		struct iommu_resv_region *region;
-+
-+		if (resv_region_intersects(msi_bases[i], MSI_IOVA_LENGTH, head))
-+			continue;
-+
-+		region = iommu_alloc_resv_region(msi_bases[i], MSI_IOVA_LENGTH, prot,
-+						 IOMMU_RESV_SW_MSI, GFP_KERNEL);
-+		if (!region)
-+			return;
-+
-+		list_add_tail(&region->list, head);
-+		return;
-+	}
- }
- 
- /*
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-index 4a07650911991..84b74b8519386 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -1600,17 +1600,30 @@ static int arm_smmu_of_xlate(struct device *dev,
- static void arm_smmu_get_resv_regions(struct device *dev,
- 				      struct list_head *head)
- {
--	struct iommu_resv_region *region;
- 	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
- 
--	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
--					 prot, IOMMU_RESV_SW_MSI, GFP_KERNEL);
--	if (!region)
--		return;
--
--	list_add_tail(&region->list, head);
-+	static const u64 msi_bases[] = { MSI_IOVA_BASE, MSI_IOVA_BASE2 };
- 
- 	iommu_dma_get_resv_regions(dev, head);
-+
-+	/*
-+	 * Use the first msi_base that does not intersect with a platform
-+	 * reserved region. The SW MSI base selection is entirely arbitrary.
-+	 */
-+	for (int i = 0; i != ARRAY_SIZE(msi_bases); i++) {
-+		struct iommu_resv_region *region;
-+
-+		if (resv_region_intersects(msi_bases[i], MSI_IOVA_LENGTH, head))
-+			continue;
-+
-+		region = iommu_alloc_resv_region(msi_bases[i], MSI_IOVA_LENGTH, prot,
-+						 IOMMU_RESV_SW_MSI, GFP_KERNEL);
-+		if (!region)
-+			return;
-+
-+		list_add_tail(&region->list, head);
-+		return;
-+	}
- }
- 
- static int arm_smmu_def_domain_type(struct device *dev)
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 517f908296436..6750ecdebaa94 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -1509,14 +1509,39 @@ static inline void iommu_debugfs_setup(void) {}
- 
- #ifdef CONFIG_IOMMU_DMA
- #define MSI_IOVA_BASE        0x8000000
-+#define MSI_IOVA_BASE2       0xA0000000
- #define MSI_IOVA_LENGTH      0x100000
- 
-+static inline bool resv_region_intersects(phys_addr_t msi_base, size_t length,
-+					  struct list_head *resv_region_list)
-+{
-+	struct iommu_resv_region *region;
-+	phys_addr_t start, end, resv_region_end;
-+
-+	start = msi_base;
-+	end = start + length - 1;
-+	list_for_each_entry(region, resv_region_list, list) {
-+		resv_region_end = region->start + region->length - 1;
-+		/* overlap detected */
-+		if (!(start > resv_region_end || end < region->start))
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
- int iommu_get_msi_cookie(struct iommu_domain *domain, dma_addr_t base);
- #else /* CONFIG_IOMMU_DMA */
- static inline int iommu_get_msi_cookie(struct iommu_domain *domain, dma_addr_t base)
- {
- 	return -ENODEV;
- }
-+
-+static inline bool resv_region_intersects(phys_addr_t msi_base, size_t length,
-+					  struct list_head *resv_region_list)
-+{
-+	return false;
-+}
- #endif	/* CONFIG_IOMMU_DMA */
- 
- /*
--- 
-2.34.1
-
+Jsaon
