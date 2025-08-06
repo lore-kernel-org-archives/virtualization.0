@@ -1,239 +1,115 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f196.google.com (mail-pl1-f196.google.com [209.85.214.196])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10EA2433C8
-	for <virtualization@lists.linux.dev>; Wed,  6 Aug 2025 10:43:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60D6828C5DF
+	for <virtualization@lists.linux.dev>; Wed,  6 Aug 2025 11:46:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754477008; cv=none; b=GF+POmSC2cxj0FsHsTryywkDGh5YC7l9nTNVIGj2PfEY9NoTyjpur8gkMyUuXt4dhDolY8Is70SHW4vAgYG8GYoYOCxG1mJBEIaFEl4QwMTbNudQGvqzDo7puy3Ak/gZgcAHwrQtYyEnU4+OWdmefvc/F6e3HxWevUIN+rv9IMI=
+	t=1754480792; cv=none; b=XK0GYkpX+nnWI5LBBwBFzs8Rl9e/iAHuBJGznoq20LQTxWKSE1HZ51ljhy+BQ+SQZQHNsnceyH23w6iNWgvXAu7TDqg2j/TBbwLygoMqXYZGx4EE2iYxTCsfAD+fa2c5ZaQ2TY3gLP2ntlM98jfm7KS34QS6rwI+DxPnGzB8wiQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754477008; c=relaxed/simple;
-	bh=leYmNFud19dEBktjX/qSLYPAz8qlfnhMcr538hSMSIs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oagjvW1CXUOtFWNRXJPSutFDraUIg82t7kjMdi7OStmvAysG8L+NtGa5IXsFjfWKgf6e966OJZa8GUxr80yYbh8f7VcRVXPjnJH8EwfZICcM69QKXZ34sM8l5RvV4clBKZFpYBcpdjqR4+IR9FRis2lhpxEfj/YV31urwzTpAxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UwCrPj1T; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1754480792; c=relaxed/simple;
+	bh=AeTg3n2+36U1bKKUxTj3cnvi0+ymaUvU/tCDhqRpp98=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=b71HUZHv2F6dpIiHKk6CxNAgSDvWltYBzkT9QfbdAVAqnHUHd8r03YLgZYSG3b0RYF6vnZddJLoDuT5OFu6ONziruZcqTwwEVOuKwIwaur+2pH61E89OEcYaIA5VQtR5hMMcp/TPMOgW2wqlNjtSJUFG/KvJoCFccmsNPSpmzo8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QnLVH9j/; arc=none smtp.client-ip=209.85.214.196
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UwCrPj1T"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1754477005;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Vqnoi8qrtxL9pTOaS/+krX+WtLa3a5uwXy2NOCwnpqU=;
-	b=UwCrPj1TduJ8uzT8Ewebr2KZO78ZZkLgcRTVHI9+3JlAPlSmBGn9ZZ44y2S+qYVHK67ZnV
-	3Cl6OL5We4gfDs5yExj14b8/9lEytRb/h8WosDx2EapVaWyMU+iKSOpoF1CTbnfd5ZU6wF
-	4qwhe7AJApi5LUeOcARO9DfJXUFxKcI=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-66-pgeLvhqcMWiXg81qAs4oYQ-1; Wed, 06 Aug 2025 06:43:24 -0400
-X-MC-Unique: pgeLvhqcMWiXg81qAs4oYQ-1
-X-Mimecast-MFC-AGG-ID: pgeLvhqcMWiXg81qAs4oYQ_1754477003
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-ad56a52edc5so497148366b.0
-        for <virtualization@lists.linux.dev>; Wed, 06 Aug 2025 03:43:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QnLVH9j/"
+Received: by mail-pl1-f196.google.com with SMTP id d9443c01a7336-23c8f179e1bso64809755ad.1
+        for <virtualization@lists.linux.dev>; Wed, 06 Aug 2025 04:46:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1754480789; x=1755085589; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=QvQ3K/B+PsFDhSqERlrqC+tEsNJAT5qOCzxTgrGl7VU=;
+        b=QnLVH9j/9m5tJYjFJt7/IKKdqfULHsnYh/wocXGu+tf7spGGL0HKWVa+2eAeNu2XpJ
+         DxOPKo6S+3muS31M90ME64N2RbbcnDwvRwJ3yHDBCz36mFrf9v0YwzNMoOaRQzidjc5D
+         EtozrZfCi8oGww51CZIW3CN7yVAPNG3QVmSpN+rc2P1410VswmCzvW30NMKiXfP2w0ib
+         WWqq6Mi6CsWG7nThTCgaMKvH36VQ9BByyyQc/H+CEt3Uou7skCCz/n7D46NUTECF17FA
+         qmLDbcnqsatGh4s+P8j6FzFHevhP3BiPZrmHSD7L3OkYUg7buwra8DjVR9alZipoIY/i
+         bvPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754477003; x=1755081803;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Vqnoi8qrtxL9pTOaS/+krX+WtLa3a5uwXy2NOCwnpqU=;
-        b=CC5ImYr1C8AoCoWcNSt0QK8xuk2LzeZFhdTEiWWvUtNYi8SvlpcmxPhbo39JjeFGeD
-         BPEzT2L8h4WCXApsIwqrJ7/9jboX6LLWojnbldZl5CFGCAZlsLTHk/eeeTy53SRqFNop
-         tjcpa6TrORak2LpABnr5d5F5cMHUDoZqfGFEkOcMQEf/fcme7iwA2RdQAofz9MEZTywG
-         ZUluh9M8cAkdb/b82aeFoN6SMOofIwPn/X+ybef4hevYYj86xXMq1D1h3MxYwgP6n1jF
-         XsE9MKS3RvaexFFGUtNk+R5y20GphjNJJhdc69IvqhPw51sKLPXe+qHyTeQp7YK2Pt2d
-         4ikA==
-X-Forwarded-Encrypted: i=1; AJvYcCW484l7LAGpMuUw4jb6V3uY/k0Qa3UzA4JnTIlrPSrDJz3B6chP11MwbklAymPERI79mCL4UtGTvPbaw5iiSQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy7brc8i/6J9CdSxlHfuzaiYUPrYali9GOqrvX8zLL76iUobYXA
-	0h6Kc3XuUJLy2W1jbQXYxlbivujBWqk1k+Ieat2AkVJpWuN6LFjunr4P9HZVmiTQGErkXUKqPgo
-	DJZxh/Iv1ZbLxOMzyIAOWiBLUt66JpbT1fq/SOHDbyFvQ2EmjKLwpoJsGi2Y2ZioXezbYYNKoZQ
-	H8CcuGmrfHNKg2M6bwUiG3En/Szgzy+33ZTWLk10TkPg8=
-X-Gm-Gg: ASbGnctw0QRS813RiN6OjIKqqsK0w+Ig3bRR2USdTtlrPHW/Ye99vDZUzrqRT7pw8F6
-	OagBrKvGSEAsya+R6eT88ilM9qn+uPtYIRGCpkrgQUaLBYeLzvkxSw0Yk00OHZbDznr/MXRWmee
-	kZEUYDy52luxhBVt3GubHWkQ==
-X-Received: by 2002:a17:907:6d1b:b0:af9:88a2:b7a7 with SMTP id a640c23a62f3a-af99048b9a1mr211307666b.48.1754477003501;
-        Wed, 06 Aug 2025 03:43:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGAebosUpbeq9s9Bz5urn47OJQZK+u1L1dJLsX4v+AP0ko9r4MqWrNmfNhal+LWMl/oeacHmWoudyKHAX99JPc=
-X-Received: by 2002:a17:907:6d1b:b0:af9:88a2:b7a7 with SMTP id
- a640c23a62f3a-af99048b9a1mr211304866b.48.1754477003042; Wed, 06 Aug 2025
- 03:43:23 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1754480789; x=1755085589;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QvQ3K/B+PsFDhSqERlrqC+tEsNJAT5qOCzxTgrGl7VU=;
+        b=KdNdgYUWv4aFvPg2gzUd6rA3ZnBsDb6LutFOKNdKbvk1l0T15NuzN15guWTYA6g99+
+         zqfbn102qzcucVaqa6dcGHPWOLrLa5q4ajX3nwN6ppudzVlpg3Rk77ousy5cqYW8IH7E
+         d9vYyoHAPn5ecQPDJS2jTPBs/oTFf2TwdOF7qpJNELtBfEoyFBqWBJ7DAv4rp5iRfG8o
+         6wP2dE88TJmcfb6PYdiw1I6z3MigJa0Ixet0KWL2dei9XN9Uq+R39M/OH/a6Onn92fQ+
+         FIOKyxIXxNFupGlxU/jKJkJxVa+/QTRG9E6R47QnqcAfMQKs/MDySeRbm7hse1Ef4d5y
+         Ppag==
+X-Forwarded-Encrypted: i=1; AJvYcCX/RMSwmCUoGt7Ud9eAdgibO46GiSrJuFs63NA9C27y4RKp58pbvl+ZIDJTLwrZ/fvJ5pxQpIBbNqkLVk6FeQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzdYngTQJRpKireZ2gA6IvdxR0DvFPJ86G8YDdsz9GZpaD/HleV
+	T1GnMY58svFaXi4XPsU50q/BAY5Tc6sneZS8weZpYX4XVvp07JFO3lcy
+X-Gm-Gg: ASbGncu+z1rYyt0ZeTR1UJnpK0ZlnLnhHJRnB0/68h7QQxUOwjqYGgMhML1rGtQIkrO
+	9XX6xeWHHHRMq0wh4Bai+EIuR/rduD74JiZA23qAEwejnHpKtkQifh8xHKfVx8LI9tI5eb65z3w
+	Vlrb3/xPhhxXVKXCg562vNqvau4EsoYkZPiMS496khzt1QaKdiFnrbNDgpCLuJo3X0qFTRhWCx7
+	/k35XtxNXUiq2nvRBJv9e0XMwSEnrf83qi77Jn7tL8EkfwWaBocq9z5LW/If1iGyqMAJzYOa1Z7
+	tYH7BtpMxbiSYGmGs9nd1RA43rSmlWlpCpxJJ+4DDO/080LqRSQ6cFnRCOnvL2Mhk0UeETzGDDL
+	JRcCymkbDSf5BhavjVzUjT35Vwptg3Gw4OsOzQ9rDnD4T72ou5LPJdCRKmsNmqIHGZPZqjjI=
+X-Google-Smtp-Source: AGHT+IGYnNnkqbBejCEa738PL68HMyteeGMcVERAvjm5Y65paJqZqI9HTxHastRunZ+7mQnAMKeaEQ==
+X-Received: by 2002:a17:902:f687:b0:240:aa0:1584 with SMTP id d9443c01a7336-242a0b8bc9fmr32866005ad.38.1754480789428;
+        Wed, 06 Aug 2025 04:46:29 -0700 (PDT)
+Received: from localhost.localdomain ([14.116.239.34])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-76bcce6f6fesm15190656b3a.26.2025.08.06.04.46.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Aug 2025 04:46:28 -0700 (PDT)
+From: bsdhenrymartin@gmail.com
+X-Google-Original-From: tcs_kernel@tencent.com
+To: huntazhang@tencent.com,
+	jitxie@tencent.com,
+	landonsun@tencent.com,
+	mst@redhat.com,
+	jasowang@redhat.com
+Cc: eperezma@redhat.com,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bsdhenrymartin@gmail.com,
+	Henry Martin <bsdhenryma@tencent.com>,
+	TCS Robot <tcs_robot@tencent.com>
+Subject: [PATCH v1] vhost: fix missing descriptor reclaim on copy_to_iter failure
+Date: Wed,  6 Aug 2025 19:46:20 +0800
+Message-ID: <20250806114620.2696386-1-tcs_kernel@tencent.com>
+X-Mailer: git-send-email 2.41.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250728064129.32382-1-jasowang@redhat.com> <20250728060823-mutt-send-email-mst@kernel.org>
- <CACGkMEsX9=MAT=pg+MG-5_0PN7DYGNv8G9E2ZLgtZ1TmCLV-0g@mail.gmail.com>
-In-Reply-To: <CACGkMEsX9=MAT=pg+MG-5_0PN7DYGNv8G9E2ZLgtZ1TmCLV-0g@mail.gmail.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Wed, 6 Aug 2025 18:42:46 +0800
-X-Gm-Features: Ac12FXwjsaUrwZ3HtqaXSQImiLG2up-ILmGcVP5QBC1pOAAAUnebPr4gUGDosKQ
-Message-ID: <CAPpAL=yVvT4VYFMr6gykMuo3MYmfJMApWgW_naWWwTNKeTRGJA@mail.gmail.com>
-Subject: Re: [PATCH V5] virtio_ring: add in order support
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: iYbqth4iwyS_Ji-isBsJcEQvlrlAHIvznSERutMVP0o_1754477003
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Tested this series of patches with virtio-net regression tests,
-everything works fine.
+From: Henry Martin <bsdhenryma@tencent.com>
 
-Tested-by: Lei Yang <leiyang@redhat.com>
+If copy_to_iter(&hdr, sizeof(hdr), &fixup) fails, the descriptor is not
+reclaimed via vhost_discard_vq_desc(), leading to potential resource
+leaks.
 
-On Tue, Jul 29, 2025 at 10:34=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
->
-> On Mon, Jul 28, 2025 at 6:17=E2=80=AFPM Michael S. Tsirkin <mst@redhat.co=
-m> wrote:
-> >
-> > On Mon, Jul 28, 2025 at 02:41:29PM +0800, Jason Wang wrote:
-> > > This patch implements in order support for both split virtqueue and
-> > > packed virtqueue. Perfomance could be gained for the device where the
-> > > memory access could be expensive (e.g vhost-net or a real PCI device)=
-:
-> > >
-> > > Benchmark with KVM guest:
-> > >
-> > > Vhost-net on the host: (pktgen + XDP_DROP):
-> > >
-> > >          in_order=3Doff | in_order=3Don | +%
-> > >     TX:  5.20Mpps     | 6.20Mpps    | +19%
-> > >     RX:  3.47Mpps     | 3.61Mpps    | + 4%
-> > >
-> > > Vhost-user(testpmd) on the host: (pktgen/XDP_DROP):
-> > >
-> > > For split virtqueue:
-> > >
-> > >          in_order=3Doff | in_order=3Don | +%
-> > >     TX:  5.60Mpps     | 5.60Mpps    | +0.0%
-> > >     RX:  9.16Mpps     | 9.61Mpps    | +4.9%
-> > >
-> > > For packed virtqueue:
-> > >
-> > >          in_order=3Doff | in_order=3Don | +%
-> > >     TX:  5.60Mpps     | 5.70Mpps    | +1.7%
-> > >     RX:  10.6Mpps     | 10.8Mpps    | +1.8%
-> > >
-> > > Benchmark also shows no performance impact for in_order=3Doff for que=
-ue
-> > > size with 256 and 1024.
-> > >
-> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > ---
-> > > Changes since V4:
-> > > - Fix build error when DEBUG is enabled
-> > > - Fix function duplications
-> > > - Remove unnecessary new lines
-> > > ---
-> > > drivers/virtio/virtio_ring.c | 421 +++++++++++++++++++++++++++++++++-=
--
-> > >  1 file changed, 401 insertions(+), 20 deletions(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
-g.c
-> > > index e675d8305dbf..c6558e271f97 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -70,11 +70,14 @@
-> > >  enum vq_layout {
-> > >       SPLIT =3D 0,
-> > >       PACKED,
-> > > +     SPLIT_IN_ORDER,
-> > > +     PACKED_IN_ORDER,
-> > >       VQ_TYPE_MAX,
-> > >  };
-> >
-> >
-> > how about specifying the #s here?
-> >         SPLIT =3D 0,
-> >         PACKED =3D 1,
-> >         IN_ORDER =3D 2,
-> >         SPLIT_IN_ORDER =3D 2,
-> >         PACKED_IN_ORDER =3D 3,
-> >         VQ_TYPE_MAX,
-> >
-> > and then
-> >
-> >   static inline bool virtqueue_is_packed(const struct vring_virtqueue *=
-vq)
-> >   {
-> >         return vq->layout & PACKED;
-> >  }
-> >
-> >  static inline bool virtqueue_is_in_order(const struct vring_virtqueue =
-*vq)
-> >  {
-> >         return vq->layout & IN_ORDER;
-> >   }
-> >
-> > which is a tiny bit less code.
-> >
-> > worth doing?
->
-> Probably not, for example it would introduce branches. As we
-> discussed, once we have sufficient optimizations, most of the branches
-> could be saved.
->
-> >
-> > >
-> > >  struct vring_desc_state_split {
-> > >       void *data;                     /* Data for callback. */
-> > > +     u32 total_len;                  /* Buffer Length */
-> > >
-> > >       /* Indirect desc table and extra table, if any. These two will =
-be
-> > >        * allocated together. So we won't stress more to the memory al=
-locator.
-> >
-> >
-> > this is only used for in_order, and it increases the struct size
-> > by half due to padding. why not a separate struct?
-> > Or if you like, reuse vring_desc_state_packed - it is same
-> > size with this addition.
-> >
-> >
-> > > @@ -84,6 +87,7 @@ struct vring_desc_state_split {
-> > >
-> > >  struct vring_desc_state_packed {
-> > >       void *data;                     /* Data for callback. */
-> > > +     u32 total_len;                  /* Buffer Length */
-> > >
-> > >       /* Indirect desc table and extra table, if any. These two will =
-be
-> > >        * allocated together. So we won't stress more to the memory al=
-locator.
-> >
-> > there's empty space at the end of this struct.
-> > struct vring_desc_state_packed {
-> >         void *data;                     /* Data for callback. */
-> >         u32 total_len;                  /* Buffer Length */
-> >
-> >         /* Indirect desc table and extra table, if any. These two will =
-be
-> >          * allocated together. So we won't stress more to the memory al=
-locator.
-> >          */
-> >         struct vring_packed_desc *indir_desc;
-> >         u16 num;                        /* Descriptor list length. */
-> >         u16 last;                       /* The last desc state in a lis=
-t. */
-> > };
-> >
-> > why not put it there?
-> >
->
-> Fine.
->
-> Thanks
->
->
+Fix it by explicitly calling vhost_discard_vq_desc() on failure.
+
+Fixes: 4c5a84421c7d ("vhost: cleanup iterator update logic")
+Reported-by: TCS Robot <tcs_robot@tencent.com>
+Signed-off-by: Henry Martin <bsdhenryma@tencent.com>
+---
+ drivers/vhost/net.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 6edac0c1ba9b..7b4be344b8af 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1238,6 +1238,7 @@ static void handle_rx(struct vhost_net *net)
+ 					 &fixup) != sizeof(hdr)) {
+ 				vq_err(vq, "Unable to write vnet_hdr "
+ 				       "at addr %p\n", vq->iov->iov_base);
++				vhost_discard_vq_desc(vq, headcount);
+ 				goto out;
+ 			}
+ 		} else {
+-- 
+2.41.3
 
