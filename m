@@ -1,144 +1,130 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E66895FB95
-	for <virtualization@lists.linux.dev>; Thu,  7 Aug 2025 12:46:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D6AA2566F7
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Aug 2025 12:47:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754570768; cv=none; b=FG2YoIuD1oSmlLJo4OsMpuJnON96abEw7WjlIKJXWkKL28okLK0c3cOdnRRQQ5/EVySCIE+a3v+aengZvpaLp4BPG94WXa87tDuIZge88JPHr8sHktOVMx9isOANtwcmz5I7oXY35lSFStT5HF0xl4kN5yozAFoy2hH9GDG8Xus=
+	t=1754570851; cv=none; b=N6/dzXnEMf/Fxh1x1LPpmXhTzm5IPvV4eavhuyxvg7hrK2LnGSygZAT0wMW65STw92TVV1944u/VSUd7/nk1tVuudkhoBQGEFyTEqzIVw+cXMfYioBQZ+P8tnKxhIZVCtCx0++6I7UpkfGkGi0BF56W/9Md7s80YD/Tq9JM6tmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754570768; c=relaxed/simple;
-	bh=SLMjRNqfRB8WZrmm7YlXu1OtnsSA4gA3+W+rAwXSIbs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=FOLJVG0f5UDGEjmo2Qbf1a+qEZnOo0AZmhCgsEEHkdTfVQTXAU1RNub5V+Wd//+LunGefrB5lpHzvI0sTQ8yQzbq7gTfhbpsm74EKuXM+/zXyHNoJYB2tWvYbYI2PR1qW5UBI61izfvyvvL9x8wg/3rtuPYJni3PSTOxeZDFirI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ghhbs5Wy; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1754570851; c=relaxed/simple;
+	bh=un3RrEaBjFQNWnpFNJaSEVX8CHxrowanZGwCtU3ENaQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=ERz/9Albgu0JCEXa++cXDMDPB18eLSkur+s4JulQ2VZHnxaHwVfdfO43SUP8dEiojHsJHJCUo79fHtlhA1PkjCyrMtX9npiC4r5Lhzv01Nuyh1FoN8+PBCtCljLgDeSsCRCF+8TR9dhQXynZLp7hwwrloSorE78uL4DOa9k07vY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F+nGFL1O; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ghhbs5Wy"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F+nGFL1O"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3AB5A84DDE
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Aug 2025 12:47:30 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ddvwxpK4LZk2 for <virtualization@lists.linux-foundation.org>;
+ Thu,  7 Aug 2025 12:47:29 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 67F6884D6F
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 67F6884D6F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=F+nGFL1O
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 67F6884D6F
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Aug 2025 12:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1754570762;
+	s=mimecast20190719; t=1754570847;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QzpyvLBCuDDbTq0I4txF+uqEBSf1omkOPXzrV+o5WA8=;
-	b=ghhbs5Wy8Oa43hPyDfRtYcXfwwdj0ViHaWfcD4jifflUAQolGDnlMOaBbNSuWRwVlabvM3
-	E8lmb9rmszwIw4K23UPxigE4NDkzCJqLxukZh2ENkz4yR2WJqXr9/6G5+bkssNnAsMVx6G
-	oEWhI4rmhphWhwdErq5lA3VJB/EOvQg=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=aTK69kQaFZtjtvMSMDYC7o+QFQbEWEankqiOa7dNWH4=;
+	b=F+nGFL1O2otRqpfrcqPVxpXrKDNGDTW1qF14NO5224K5lJR0xcoka33xxsxRTIbaQEDwhJ
+	rEF4CSKWe4kPUOgtFJVpj8wimaGX2Dwxq1mi0kHbL5GTZ6w66S0s8fcECwBB3oSXrS3URO
+	rxWyZ7T3OMJEhZdlDPWUk6FKRnP7JXk=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-252-NeFJBk1wPvGDukixI0dXYw-1; Thu, 07 Aug 2025 08:46:01 -0400
-X-MC-Unique: NeFJBk1wPvGDukixI0dXYw-1
-X-Mimecast-MFC-AGG-ID: NeFJBk1wPvGDukixI0dXYw_1754570760
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-459e0f54c88so5004785e9.1
-        for <virtualization@lists.linux.dev>; Thu, 07 Aug 2025 05:46:01 -0700 (PDT)
+ us-mta-67-Z9wWtln_P4635MZ9PN8mdA-1; Thu, 07 Aug 2025 08:47:26 -0400
+X-MC-Unique: Z9wWtln_P4635MZ9PN8mdA-1
+X-Mimecast-MFC-AGG-ID: Z9wWtln_P4635MZ9PN8mdA_1754570845
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-458b9ded499so7940105e9.1
+        for <virtualization@lists.linux-foundation.org>; Thu, 07 Aug 2025 05:47:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754570760; x=1755175560;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QzpyvLBCuDDbTq0I4txF+uqEBSf1omkOPXzrV+o5WA8=;
-        b=XKYIYGCruFSpiQEQ/eWE+OWegbMmchwq4dt/SWx9JoxIPyCI94IuoJ1DSfV1+BdFVb
-         KJ/vyppu4AxUhu6iCVS3aOi6ybSsGwqFGBauFtelv5MSjlgrLXhlM8efdoNsoctUvT57
-         eYkRlIY/WfITEkT1NcEu/sN9wYlTIjqA18pwopfdFBDBLpdBEzlfLpe0WeIcBvBdhMbG
-         gkr6IcOWfV1uc3csmGOX44tgptxArYRU2oMkGr4Xli28trwMgEGBKqGf7T42UWbUdsHa
-         OWZOclhW21q2cLVmujpw/5qlgoVANTu0UJ6ESmMD7JOHTdqw2a3nGaWWFG/YjyRhG4KU
-         FdMw==
-X-Forwarded-Encrypted: i=1; AJvYcCWKkUyYA5SjvRC6W1ebhkT17bZjV50RaWN1N8cd39fgO3WWNIYOk7qSka9kgTI8Xwui0KA5UJ60J+A4rSYJZg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyZuhktgC1VVXEHT2nsVJM34sABUpUvD9xT6CHHOdjbJmTiMBDR
-	icTCA1lVXGFNFoSLOZtsytLhgwAkX8d22S99BiAh4UQoFxIYB3d8yQDhAfvVDtrk2m8qX0Y039A
-	icG+dzfESbmFPpVdDr8HNY/+NzipLUbH7s6h4QI+DPJLmGuZgzOAlct1d/Xx2GqEPiw3J
-X-Gm-Gg: ASbGncttOkgfV7e/413yb4GWfckrYQhwnm7StlpKN8j8/Vk6EYw2XMn7bT55C3OWuWO
-	CAKuy0kwdCpjhQAiL7kCuFBHAZZvXaxfuA72yQ0ZCAUVgQhLzNyuo9XZKjqgDlCC6RWxqE96tOh
-	nYaqR/MW4tc16F4lMNRPFnrtae/9OzdFVsp5ETA7JngjNGst7BRgPk4Ce7VdWR+S+VvuxshPsPw
-	Ur3yxwDiLBLb1Z0YGphrk6RMau1pk+o4UXIv2VJjmnRQO1/LGRP3lpk2/fq4nWDf57yWzXIuT/t
-	KymaPoAwsw5ly7jAowrwmQPLXzY3ciVW
-X-Received: by 2002:a05:600c:1c9c:b0:459:443e:b18a with SMTP id 5b1f17b1804b1-459ee0a960dmr34280005e9.14.1754570760128;
-        Thu, 07 Aug 2025 05:46:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEbbXT1nYDpa11Vm4wjS1klHPpTOY7WS4UUDzDQqgWHSoXb4hnl8yYsbxcqS9wXeD7K7Y86cw==
-X-Received: by 2002:a05:600c:1c9c:b0:459:443e:b18a with SMTP id 5b1f17b1804b1-459ee0a960dmr34279735e9.14.1754570759734;
-        Thu, 07 Aug 2025 05:45:59 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1754570845; x=1755175645;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aTK69kQaFZtjtvMSMDYC7o+QFQbEWEankqiOa7dNWH4=;
+        b=LteXrZlCDMlrhBYETKhdjvNBeptNliKv+J11THDL723axX6OAcIVaXwTs6RHMhgiYw
+         nWs02vP5SukGBUputwpN0bBuaRVgtZN9clZ+3EnU4PL5aBxSNq2X/Z4vkECIPuZx5FPV
+         2ZrL7ILXJUUkYspaA6corhF4Kebm8l8LtUz8AkOvhpZLQNnmMfZMHqM0OMXAVd25mfpB
+         ahoPdIMxdJG8d93hIlEoVWme8CGYB7d4EE8ekTLQTg2TZF4ocEMLH5zQRB4/nLOCH7dQ
+         fToHsCkoVk86mEEqfcGpv/+O5loH4405+7frGKz+x7//iVbHrOticCzxDOPxGZBwuJmF
+         I9Ew==
+X-Forwarded-Encrypted: i=1; AJvYcCXIMnFdUGbM2Mx1ousTG9UwlvmnWsMBsH4G0xCRrzvoAO9i3v4+sGgzmJGkgSY3Xd3KSSY+ehWCtGx/6mWNVg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzySQHcIacL1ANAb6Tv57OFHfXDPZdC2amfAC9YBIbbwWEqZI2k
+	TtKoMdBLeQFrgmfHRsHqLBE7bClXaUkIeiHRErNZhdebvVD+lKH6JQkbyiAVFT8HpGPztKZ3ptC
+	deD6mn8M2f4ACAP08YE/IAc+g/Gge96IKDKdH5d1repF9MFfQLhGZPPM/AyFuV7J9gslw7siFx4
+	ipwZgbvCM=
+X-Gm-Gg: ASbGnctop9vqOJw0bbm7oy4iFDhk7iSOvDp657FI8SbNZEMUbp4ScBUgGgBAMCXXgEW
+	BfXNEIJiKnwGhoa/2js/KuhBAerZ8qmzdlTpLZGx4/CKVxp9RG06diIZVR0tMx89epaP1MJ1L3R
+	UbJTJtQRTjWXEN9aIFxU1mD8dYjpkcdHQODActD4N04CQIOwgvLJGEU0PneFn4N/3VcgdPJUl3T
+	viBXDcI/63q9NKdZQttQX+n8Eh/WCaOC8xDdoXn/vY/mf09/bT/eyilqOeAQJoZRcPbbGGzB2WA
+	qQLfCzdHiI7oxLLrZjcgLtV+UouxDD0V
+X-Received: by 2002:a05:600c:468b:b0:456:1ac8:cace with SMTP id 5b1f17b1804b1-459ebd12934mr46363035e9.12.1754570845008;
+        Thu, 07 Aug 2025 05:47:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG09B4jVXtQ521CCCpSOE6UxD7Ba5Baj1YjRug6kR2oAgnAlGT6bbB3OaejRPpTTtCumhOhhg==
+X-Received: by 2002:a05:600c:468b:b0:456:1ac8:cace with SMTP id 5b1f17b1804b1-459ebd12934mr46362755e9.12.1754570844604;
+        Thu, 07 Aug 2025 05:47:24 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b79c46ee84sm26009083f8f.57.2025.08.07.05.45.58
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-459e0a24bf1sm120608885e9.1.2025.08.07.05.47.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Aug 2025 05:45:59 -0700 (PDT)
-Date: Thu, 7 Aug 2025 08:45:56 -0400
+        Thu, 07 Aug 2025 05:47:23 -0700 (PDT)
+Date: Thu, 7 Aug 2025 08:47:21 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Igor Torrente <igor.torrente@collabora.com>
-Cc: sami.md.ko@gmail.com, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com, jasowang@redhat.com,
-	dmitry.osipenko@collabora.com
-Subject: Re: [PATCH] Revert "virtio: reject shm region if length is zero"
-Message-ID: <20250807084310-mutt-send-email-mst@kernel.org>
-References: <20250807124145.81816-1-igor.torrente@collabora.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	jasowang@redhat.com, jhkim@linux.ibm.com, leitao@debian.org,
+	mst@redhat.com
+Subject: [GIT PULL] vhost: bugfix
+Message-ID: <20250807084721-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250807124145.81816-1-igor.torrente@collabora.com>
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wDP3rz_t2E22y-qdQr1VkjVeflUZlBFSsl4tAvKORSQ_1754570760
+X-Mimecast-MFC-PROC-ID: OyPUJ1lxMCtKPOVsJ1KFkoWQxFEUaWH0YPbcmi3EwFg_1754570845
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, Aug 07, 2025 at 09:41:45AM -0300, Igor Torrente wrote:
-> This reverts commit 206cc44588f72b49ad4d7e21a7472ab2a72a83df.
-> 
+The following changes since commit 7e161a991ea71e6ec526abc8f40c6852ebe3d946:
 
-No that's not enough. Explain the why not the what.
-for example
+  Merge tag 'i2c-for-6.17-rc1-part2' of git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux (2025-08-04 16:37:29 -0700)
 
--------
+are available in the Git repository at:
 
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-The commit 206cc44588f7 ("virtio: reject shm region if length is zero")
-breaks the Virtio-gpu `host_visible` feature.
+for you to fetch changes up to 6a20f9fca30c4047488a616b5225acb82367ef6b:
 
-As you can see in the snippet below, host_visible_region is zero because
-of the `kzalloc`.  It's using the `vm_get_shm_region`
-(drivers/virtio/virtio_mmio.c:536) to read the `addr` and `len` from
-qemu/crosvm.
+  vhost: initialize vq->nheads properly (2025-08-05 05:57:40 -0400)
 
-```
-drivers/gpu/drm/virtio/virtgpu_kms.c
-132         vgdev = drmm_kzalloc(dev, sizeof(struct virtio_gpu_device), GFP_KERNEL);
-[...]
-177         if (virtio_get_shm_region(vgdev->vdev, &vgdev->host_visible_region,
-178                                   VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
-```
-Now it always fails.
+----------------------------------------------------------------
+vhost: bugfix
 
-To fix, revert the offending commit.
+A single fix for a regression in vhost.
 
-Fixes: 206cc44588f7 ("virtio: reject shm region if length is zero` breaks the Virtio-gpu `host_visible")
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
--------
+----------------------------------------------------------------
+Jason Wang (1):
+      vhost: initialize vq->nheads properly
 
-> Signed-off-by: Igor Torrente <igor.torrente@collabora.com>
-
-
-> ---
->  include/linux/virtio_config.h | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index b3e1d30c765b..169c7d367fac 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -329,8 +329,6 @@ static inline
->  bool virtio_get_shm_region(struct virtio_device *vdev,
->  			   struct virtio_shm_region *region, u8 id)
->  {
-> -	if (!region->len)
-> -		return false;
->  	if (!vdev->config->get_shm_region)
->  		return false;
->  	return vdev->config->get_shm_region(vdev, region, id);
-> -- 
-> 2.49.0
+ drivers/vhost/vhost.c | 1 +
+ 1 file changed, 1 insertion(+)
 
