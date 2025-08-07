@@ -1,239 +1,180 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0102245000
-	for <virtualization@lists.linux.dev>; Thu,  7 Aug 2025 08:06:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDDD4277C90
+	for <virtualization@lists.linux.dev>; Thu,  7 Aug 2025 10:56:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754554017; cv=none; b=F67ND36YEzmeE7n29fvm9n4p7mnkx2y1oNdh2VHpu3P2VRIcCc2zOTJwqrgdUkrMz8WaZK9HLa2Q6Te3vX/2HTskF0BgQIUlxIrQ0XlmXi9yogdzJSUfwHpfTj3uTkKVn06t0o2xPFly9GplRorP2FxUwcggNAn+6/iOtG3f+ug=
+	t=1754564182; cv=none; b=XeD9s4ncoE4Pgyn/lwnEWPDjdePR0Zd1SlYco0dThR5BJVoTYVDR/wP6wFN1NkBOHJ1tTG5QHowkciNqDGluL8/5Ul/9N/yHKX2T2b+oW/CMwMOkWY++0yxTC1rFI0DnQ+t+svKVwMeRX+bmXH5Kow557NjYRBqQ1M5QWxADX9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754554017; c=relaxed/simple;
-	bh=u2Il4zcXlbBWcOa6mv3Dqk2LkCaGUlZ1IGfaEMSMzMQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=M1A60BPyLZqRFnFIYjpRMe0ErYbiyURU1kWKDQ0vOMIeTaFIEIx0ecqpCe3d+Bd9wPNach4vQkT0PoKZNcaDVjnnnR6aNiPPhBfws4Z+KGkIrKLaK0k7hxSyaP0LgmRwC5ieLtvFcPNrAYq9ZC/A3eRDYh1oc9HIXB+0nr9NX/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Fg1Fplfl; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1754564182; c=relaxed/simple;
+	bh=5WHRKH5kbB05KZTBQnFvrLARtEFezmcNFMUZirfp/wU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bLF4TO6BUAKFmzy7l53+EsZcCCBKGYGBtxRmtS8SMEzR+EOHlF+++I6HLk6gKkmQojwSYUuQpyp8tCxuo5Kk95CKulKxqIDpLs+Pwllp7xzVr26FvsG+qAi09cvtTKbe97YYZTDw7cKwy0k6Bm+9jXG6nzcOOrL5ILMJ7yjOzNc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PpkctXu8; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Fg1Fplfl"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PpkctXu8"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1754554014;
+	s=mimecast20190719; t=1754564179;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=7F/nfJfc6zfGggUKAtMQtDXDSwk2D4R5Dz6fv6UQzEk=;
-	b=Fg1FplflcZtNXEjYmw7oWR1vzv5DRNWfqnCBrP2ECR2aWSGoPQgRX0p/py8g44sj6PFX+P
-	n/GT8hHhA8T5QyEe0eJiqm6LxVzY7jnHAca9nUptZp5qYGoNp3+oEOkLdoMSn9a3MtHT4Y
-	k7QgDuL24c3WItksK5V/3LRQHjJHO0s=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=5WHRKH5kbB05KZTBQnFvrLARtEFezmcNFMUZirfp/wU=;
+	b=PpkctXu8F7M+6hE0NUvdAh8tTIxxjWZZLWeLMkhlXZloQvMFpH8SunSYG+DPMSzP4/7c4P
+	6Q8zT0QShFFEWkTSjmhqqavsDuokmc0kWC+P+aklRTsc2btsgdzyN37WuV/LRynx+3tedK
+	ECMrfXwCcRzsHsmbyaEuoYjbBYiv1KU=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-601-jUn3C1PZMjSQ_VlrZbSLhw-1; Thu, 07 Aug 2025 04:06:53 -0400
-X-MC-Unique: jUn3C1PZMjSQ_VlrZbSLhw-1
-X-Mimecast-MFC-AGG-ID: jUn3C1PZMjSQ_VlrZbSLhw_1754554013
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-70e73d3c474so11142997b3.3
-        for <virtualization@lists.linux.dev>; Thu, 07 Aug 2025 01:06:53 -0700 (PDT)
+ us-mta-363-3DItn30jMV2hz4bwCGlwZw-1; Thu, 07 Aug 2025 06:56:18 -0400
+X-MC-Unique: 3DItn30jMV2hz4bwCGlwZw-1
+X-Mimecast-MFC-AGG-ID: 3DItn30jMV2hz4bwCGlwZw_1754564178
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-31f4d0f60caso1010199a91.1
+        for <virtualization@lists.linux.dev>; Thu, 07 Aug 2025 03:56:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754554010; x=1755158810;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7F/nfJfc6zfGggUKAtMQtDXDSwk2D4R5Dz6fv6UQzEk=;
-        b=PyWR8Oh074T6wo1n0lbiQSo+5tv80HCjQk3B993RJH9Huc7yVbvcFW+1DNYthVeNkY
-         xWqmeahoaUI4gpGbVPDthwOmllguEf/5R8Dwyfy0ffbsTy42KuU7qaCO4EUS1miHtgPt
-         0qRQ/EZasgPb+SPKe4yeZ4Q8nebwLD4j5XbB4S9WYSDKE5MdMJQyS3092C9XQ68pf3M9
-         au3/fUUfkvv1qjp9DT6+wV8JtteFjgV3H2qa6TJVAy5461A6KHPUmbDMexzeY3PQM6C7
-         qfa0xxBBsRcDv221uIAroRRYbiw8WpvzghOnsVf5hRJvUJJRjwovoJ/nOFBLMAv6O5rs
-         GKeQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVLrv29wDKqurp1cjEoHk22iv2bfbPwjWf3qPCmsDX4Dg940GWpbHZr89B5EN4mRnK5oGm9bNXkJAwS2yhJaQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwEJmPWh+w9ipl8Qyb5+Rz4jM+/qyHmrqX+lxP2q3mNWT+6vzCj
-	YCorc4gEJOMqKZiurn6XZaVaK/LWaSxrJx7va7jxMtezUGzGcdOjSLLUtPMyniXifYo80iYvRrx
-	rsgWZIRRkJd2cmWYRmWQenaS4cNPNxrxgYwKy7RBuTi3QFMWn+u6DkGfD14j0MVqERgO1
-X-Gm-Gg: ASbGncsSXuNc5wh+XQOgFdJlLeikVcWjVo5EBj7QItZSBRS3SWzIlMVE47oE4ZoFRor
-	0TJDcVyHaEjUKBDMK4dIGKRnAb+ekF/UOSM9E0S93Xo1BWnwKngonHdSjSGUYWdPbqUv4QYTl5a
-	JYixBlmFoDRRw7vHWqK7tq4dSnF8QkVaD6y6oWOLga9HD4GBr+eTkwIPzdzIsvPdhcUOciUaA0m
-	BIKfEQTZccyysevNqX/rvA8r9BQpPXvhJnOcsscqytds9un8PD1rsOKUTL+Rp+HXo7jxyP4o3ak
-	aKuTXvNlClD4nEIDSX1HxDH24IGC5eCVivO3dPzgzeWh0ZgVGHds75EfYv0QkF8tYRmUSj29hqJ
-	yXALd+fdU8wQIEAQ=
-X-Received: by 2002:a05:690c:6203:b0:71a:a9c:30dd with SMTP id 00721157ae682-71bcc6d6851mr85321027b3.2.1754554009645;
-        Thu, 07 Aug 2025 01:06:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHkk4jVdfxkNS66lXJnELQ1c8i2y7wkD6dlYIhb6ZnK84/IDwj2JHOFZ/v+UaqBfCV8rwA6qA==
-X-Received: by 2002:a05:690c:6203:b0:71a:a9c:30dd with SMTP id 00721157ae682-71bcc6d6851mr85319947b3.2.1754554008050;
-        Thu, 07 Aug 2025 01:06:48 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-45-205-118.retail.telecomitalia.it. [79.45.205.118])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-71b5a3a9110sm44916537b3.4.2025.08.07.01.06.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Aug 2025 01:06:47 -0700 (PDT)
-Date: Thu, 7 Aug 2025 10:06:35 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
-	Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, berrange@redhat.com, Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH RFC net-next v4 00/12] vsock: add namespace support to
- vhost-vsock
-Message-ID: <27a6zuc6wwuixgozhkxxd2bmpiegiat4bkwghvjz6y3wugtjqm@az7j7et7hzpq>
-References: <20250805-vsock-vmtest-v4-0-059ec51ab111@meta.com>
+        d=1e100.net; s=20230601; t=1754564178; x=1755168978;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5WHRKH5kbB05KZTBQnFvrLARtEFezmcNFMUZirfp/wU=;
+        b=XGIBL8qc/A7V9EOg6bgOGGddnddJUyEfvgw72Sb5wFZnbSgN4or1BWKD7hrJePLMCK
+         LSQcpNDLbT+rzwdLXZqTWa8HKj8O5GMQFwbRUFx7KQKCAE5xm/t6nzl3pv7nM0DIWAe7
+         Zp7WOwUut8VwDeVKOq7PPac8dIugQIuficfG57pzGnxAjmFbSBMVDv0Wi4JL2FJR91SY
+         j1hra1VKd1scWRAGDatG5ZR4Te2K04qyR5RRQT0EYUxq9aPMG1+PLF77ObIXWoHH9ZOR
+         tMKGUyZVd4cIYn6AP/mtfxCMjUsAK7vZN/2yUl1Nn7CgcKj+VDs809MC9ZXh06Q5YJoF
+         CDRw==
+X-Forwarded-Encrypted: i=1; AJvYcCXDwOi4RDZs3UgEEntrTcjByXA3T1sNgYkoLKEjILu1edSROMbjQa7C8jvISkk4N+CIhi3tu6Gd6qrQx/HilA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz4KIXJYWFmnFeOERlYiXPsEZE62GyoE2wytkUhBCSJgyT/KA8z
+	Bw0z0t417BCNCnXZbFfD085+oKdG1eEmXXbiSeyIu8+pS6zFdAz6l/BEsVh9Az99KVlsCLDQRfm
+	iYmPMYLw5FjU+Feyc6Vc3CfsGPqUxY3FAX3pEGq3bHELN4CiGlbJCsOh7GpKOpKKoLvhzI3jlkm
+	lCJwfFVxMZl9OyAzNm3ZlG5CQL63w5iIbXNRhTHNyWVKs=
+X-Gm-Gg: ASbGncvbODuILHtFr95ZDxyCilZSOHCdoZFymlw2p4k7bNclgmSPFr1EVcVl5eLl4XW
+	8h8WbHAaAAOYN+mANZaZHEz1IVY5aMlQlzK3UuFerJ/DtPspoouJ8U/tDBs13Hbkqv1JUB0t0mF
+	VXYV+uNP93H+/sBgvCV6T2
+X-Received: by 2002:a17:90b:1c10:b0:31f:4a91:4e94 with SMTP id 98e67ed59e1d1-32166ceff05mr7274977a91.30.1754564177531;
+        Thu, 07 Aug 2025 03:56:17 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEnji28TKZYRSPeOPRIzeGS5YsdiPvxMHMQ8G/IxMSHDVyC2mWQCHBvrdd0u92IisFQ9KMRBNPftWmwbHSU0qY=
+X-Received: by 2002:a17:90b:1c10:b0:31f:4a91:4e94 with SMTP id
+ 98e67ed59e1d1-32166ceff05mr7274942a91.30.1754564177031; Thu, 07 Aug 2025
+ 03:56:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250805-vsock-vmtest-v4-0-059ec51ab111@meta.com>
+References: <20250606115012.1331551-1-eperezma@redhat.com> <20250606115012.1331551-2-eperezma@redhat.com>
+ <CACGkMEsw2taXgW11na2CFK6W03c=x=wMn3iwNZPypgPkeSU06Q@mail.gmail.com>
+ <CACGkMEvinV7Zd+xddnxcerFbw_c+RZypkeD5HaN8=g6+peZvMQ@mail.gmail.com>
+ <CAJaqyWeetDsdoDzVrN-n0+jr97MBPeHdTxeM3ttmNUeLK702VA@mail.gmail.com> <CACGkMEvbxZsmPPHgfst89FCbZamBPLt8V=K-eepa4s3muFuM4A@mail.gmail.com>
+In-Reply-To: <CACGkMEvbxZsmPPHgfst89FCbZamBPLt8V=K-eepa4s3muFuM4A@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 7 Aug 2025 12:55:40 +0200
+X-Gm-Features: Ac12FXyAp2Orw7ea3GlDIsGBdiXOoNFGa3EvjiOD9nnxscN9GpRPsdcRVCe1ktU
+Message-ID: <CAJaqyWerLAL44w-mnwaohZh+duzHqPS3BO-sJDoEHZDN5RLY1g@mail.gmail.com>
+Subject: Re: [RFC 1/6] vduse: add v1 API definition
+To: Jason Wang <jasowang@redhat.com>
+Cc: Yongji Xie <xieyongji@bytedance.com>, Cindy Lu <lulu@redhat.com>, 
+	linux-kernel@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Laurent Vivier <lvivier@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: O_Tfm2bjnRYzmbJfZJorwdoS54a0WbytMN58skANgQQ_1754554013
+X-Mimecast-MFC-PROC-ID: 4ltRl4vy9PoF9MY5YL0S6NLuhjxxqD_59j07saQ5Xz4_1754564178
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Bobby,
+On Tue, Jun 10, 2025 at 10:36=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
+rote:
+>
+> On Mon, Jun 9, 2025 at 2:11=E2=80=AFPM Eugenio Perez Martin <eperezma@red=
+hat.com> wrote:
+> >
+> > On Mon, Jun 9, 2025 at 3:50=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
+ wrote:
+> > >
+> > > On Mon, Jun 9, 2025 at 9:41=E2=80=AFAM Jason Wang <jasowang@redhat.co=
+m> wrote:
+> > > >
+> > > > On Fri, Jun 6, 2025 at 7:50=E2=80=AFPM Eugenio P=C3=A9rez <eperezma=
+@redhat.com> wrote:
+> > > > >
+> > > > > This allows to define all functions checking the API version set =
+by the
+> > > > > userland device.
+> > > > >
+> > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > >
+> > > > It might be worth clarifying how it works.
+> > > >
+> > > > For example,
+> > > >
+> > > > 1) would VDUSE behave differently or if it's just some new ioctls
+> >
+> > I'd like to test more in-depth, but a device can just bump the version
+> > ID and then implement the replies to the vduse messages. No need to
+> > implement new ioctls. If the VDUSE device sets 0 in either number of
+> > ASID or vq groups, the kernel assumes 1.
+>
+> Right, this is the way we use now and I think maybe we can document
+> this somewhere.
+>
+> >
+> > But you have a very good point here, I think it is wise to evaluate
+> > the shortcut of these messages in the VDUSE kernel module. If a VDUSE
+> > device only has one vq group and one ASID, it can always return group
+> > 0 and asid 0 for everything, and fail every try to ser asid !=3D 0.
+>
+> Yes, and vhost-vDPA needs to guard against the misconfiguration.
+>
+> > This
+> > way, the update is transparent for the VDUSE device, and future
+> > devices do not need to implement the reply of these. What do you
+> > think?
+>
+> This should work.
+>
+> >
+> > > > 2) If VDUSE behave differently, do we need a ioctl to set the API
+> > > > version for backward compatibility?
+> > >
+> > > Speak too fast, there's a VDUSE_SET_API_VERSION actually.
+> > >
+> > > I think we need to think if it complicates the migration compatibilit=
+y or not.
+> > >
+> >
+> > Do you mean migration as "increase the VDUSE version number", not "VM
+> > live migration from vduse version 0 to vduse version 1", isn't it? The
+> > second should not have any problem but I haven't tested it.
+>
+> I mean if we bump the version, we can't migrate from version 1 to
+> version 0. Or we can offload this to the management (do we need to
+> extend the vdpa tool for this)?
+>
 
-On Tue, Aug 05, 2025 at 02:49:08PM -0700, Bobby Eshleman wrote:
->This series adds namespace support to vhost-vsock. It does not add
->namespaces to any of the guest transports (virtio-vsock, hyperv, or
->vmci).
->
->The current revision only supports two modes: local or global. Local
->mode is complete isolation of namespaces, while global mode is complete
->sharing between namespaces of CIDs (the original behavior).
->
->Future may include supporting a mixed mode, which I expect to be more
->complicated because socket lookups will have to include new logic and
->API changes to behave differently based on if the lookup is part of a
->mixed mode CID allocation, a global CID allocation, a mixed-to-global
->connection (allowed), or a global-to-mixed connection (not allowed).
->
->Modes are per-netns and write-once. This allows a system to configure
->namespaces independently (some may share CIDs, others are completely
->isolated). This also supports future mixed use cases, where there may 
->be
->namespaces in global mode spinning up VMs while there are
->mixed mode namespaces that provide services to the VMs, but are not
->allowed to allocate from the global CID pool.
->
->Thanks again for everyone's help and reviews!
+I just noticed I left this unreplied. But I still do not get what
+migrate means here :).
 
-Thanks for your work!
+If migrate means to run current VDUSE devices on kernel with this
+series applied these devices don't set V1 API so they have one vq
+group, and one asid. I'm actually testing this with my libfuse+VDUSE
+modifications that don't use V1 at all. Adding this explanation to the
+patch as it is a very good point indeed.
 
-As I mentioned to you, I'll be off for the next 2 weeks, so I'll take a 
-look when I'm back, but feel free to send new versions if you receive 
-enough comments on this.
+If it means to migrate a guest from using a V1 VDUSE device to a V0
+device "it should work", as it is just a backend implementation
+detail. If we migrate from or to a vdpa device backed by hardware, for
+example, one of the devices does not even have the concept of VDUSE
+API version.
 
-Thanks,
-Stefano
-
->
->Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
->To: Stefano Garzarella <sgarzare@redhat.com>
->To: Shuah Khan <shuah@kernel.org>
->To: David S. Miller <davem@davemloft.net>
->To: Eric Dumazet <edumazet@google.com>
->To: Jakub Kicinski <kuba@kernel.org>
->To: Paolo Abeni <pabeni@redhat.com>
->To: Simon Horman <horms@kernel.org>
->To: Stefan Hajnoczi <stefanha@redhat.com>
->To: Michael S. Tsirkin <mst@redhat.com>
->To: Jason Wang <jasowang@redhat.com>
->To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->To: Eugenio Pérez <eperezma@redhat.com>
->To: K. Y. Srinivasan <kys@microsoft.com>
->To: Haiyang Zhang <haiyangz@microsoft.com>
->To: Wei Liu <wei.liu@kernel.org>
->To: Dexuan Cui <decui@microsoft.com>
->To: Bryan Tan <bryan-bt.tan@broadcom.com>
->To: Vishnu Dasa <vishnu.dasa@broadcom.com>
->To: Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
->Cc: virtualization@lists.linux.dev
->Cc: netdev@vger.kernel.org
->Cc: linux-kselftest@vger.kernel.org
->Cc: linux-kernel@vger.kernel.org
->Cc: kvm@vger.kernel.org
->Cc: linux-hyperv@vger.kernel.org
->Cc: berrange@redhat.com
->
->Changes in v4:
->- removed RFC tag
->- implemented loopback support
->- renamed new tests to better reflect behavior
->- completed suite of tests with permutations of ns modes and vsock_test
->  as guest/host
->- simplified socat bridging with unix socket instead of tcp + veth
->- only use vsock_test for success case, socat for failure case (context
->  in commit message)
->- lots of cleanup
->
->Changes in v3:
->- add notion of "modes"
->- add procfs /proc/net/vsock_ns_mode
->- local and global modes only
->- no /dev/vhost-vsock-netns
->- vmtest.sh already merged, so new patch just adds new tests for NS
->- Link to v2:
->  https://lore.kernel.org/kvm/20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com
->
->Changes in v2:
->- only support vhost-vsock namespaces
->- all g2h namespaces retain old behavior, only common API changes
->  impacted by vhost-vsock changes
->- add /dev/vhost-vsock-netns for "opt-in"
->- leave /dev/vhost-vsock to old behavior
->- removed netns module param
->- Link to v1:
->  https://lore.kernel.org/r/20200116172428.311437-1-sgarzare@redhat.com
->
->Changes in v1:
->- added 'netns' module param to vsock.ko to enable the
->  network namespace support (disabled by default)
->- added 'vsock_net_eq()' to check the "net" assigned to a socket
->  only when 'netns' support is enabled
->- Link to RFC: https://patchwork.ozlabs.org/cover/1202235/
->
->---
->Bobby Eshleman (12):
->      vsock: a per-net vsock NS mode state
->      vsock: add net to vsock skb cb
->      vsock: add netns to af_vsock core
->      vsock/virtio: add netns to virtio transport common
->      vhost/vsock: add netns support
->      vsock/virtio: use the global netns
->      hv_sock: add netns hooks
->      vsock/vmci: add netns hooks
->      vsock/loopback: add netns support
->      selftests/vsock: improve logging in vmtest.sh
->      selftests/vsock: invoke vsock_test through helpers
->      selftests/vsock: add namespace tests
->
-> MAINTAINERS                             |    1 +
-> drivers/vhost/vsock.c                   |   48 +-
-> include/linux/virtio_vsock.h            |   12 +
-> include/net/af_vsock.h                  |   59 +-
-> include/net/net_namespace.h             |    4 +
-> include/net/netns/vsock.h               |   21 +
-> net/vmw_vsock/af_vsock.c                |  204 +++++-
-> net/vmw_vsock/hyperv_transport.c        |    2 +-
-> net/vmw_vsock/virtio_transport.c        |    5 +-
-> net/vmw_vsock/virtio_transport_common.c |   14 +-
-> net/vmw_vsock/vmci_transport.c          |    4 +-
-> net/vmw_vsock/vsock_loopback.c          |   59 +-
-> tools/testing/selftests/vsock/vmtest.sh | 1088 ++++++++++++++++++++++++++-----
-> 13 files changed, 1330 insertions(+), 191 deletions(-)
->---
->base-commit: dd500e4aecf25e48e874ca7628697969df679493
->change-id: 20250325-vsock-vmtest-b3a21d2102c2
->
->Best regards,
->-- 
->Bobby Eshleman <bobbyeshleman@meta.com>
->
+In the case of net, it does not work at the moment because the only
+way to set features like mq are through the shadow CVQ. If a VDUSE net
+device implements, let's say, admin vq, something similar to PF and
+VF, and dirty bitmap, I guess it should be possible. Maybe it is
+easier to play with this wuth block devices.
 
