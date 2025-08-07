@@ -1,135 +1,128 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3175F277CA2
-	for <virtualization@lists.linux.dev>; Wed,  6 Aug 2025 23:58:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 511F7944F
+	for <virtualization@lists.linux.dev>; Thu,  7 Aug 2025 01:20:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754524732; cv=none; b=ZSlnKKyYfJSMeqdP+ttBitoOPKlguMN14NseZRCy1PtwKMoLkNfchvIcQh1K0aawg05WUle8e7tsxwtLwcLwo87ZoYtz1kWUcS6iC4YI+vKoYV0SprZRgKO9BMd9eUDXmcQLKg84PuFmejFdDSRhsYwrP7T9dudrDQvu0PGromQ=
+	t=1754529652; cv=none; b=uiCuLGu/T8+isB2sMpv5eaWaW2kQ/sNmD3iNgg0ZwZXDo1VxAT9ljjgDbzKaiL5dK1lYyFmVsHtzqgooYOYFEWS3UXZawCbbMpwtmlKLGOGjjghMON9bC2PabmzN29kz3dSggmQovCa4dKva6VhKlYy2siQGZUQ8aIb15A5on90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754524732; c=relaxed/simple;
-	bh=Ch3Lu3JNorrE3DqTb4s0lvqvQJV5+k082o5zzm77yE0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kXALvslyrZ2xtk5lvG6mGyh36yGbqaRF47hmBHmBK00/5xDioHhjteOwK79HUGrzqzzUSKUsqHGztCWS81kOa1vyex+BFhTt9ZgDiOWfu6VC7UuF94TDZNqrFQ3CMKa+gISZ64zy9XT0yPfKLbpzNav3ju3KmYpOOTthCYgfPPI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=MH27oci2; arc=none smtp.client-ip=209.85.222.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1754529652; c=relaxed/simple;
+	bh=EdG5h2XMWMMxJ7yemQmFSa4bc5diWpKiyMAF5xqNq6E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=n+l74sb/A3vg3ZWp2AG2DjH0MleabiryTWoF+MhDIOXkIH7jXfMX+tAgKctKcTH1L9hPDnXx+5aRkQtIN1uP9OTl3zuRkS5bgbcFz4IBXNJLv4YJJ5HCqkF0x/FEaFqZ1TGCA9iRQZiMKqiMb17IH2dX5pKRAEzRqiBgOmcuymw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GTW3Eovv; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="MH27oci2"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-7e182e4171bso52627985a.3
-        for <virtualization@lists.linux.dev>; Wed, 06 Aug 2025 16:58:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1754524730; x=1755129530; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=I4DgF6Vw8xGQncqmkZy1+xUkx+suIzKaCcwcVTdjpkA=;
-        b=MH27oci2nJjyrPxMZoBx++UIIjvZjcXN591pFI4mCv0vumJ8zo9CY4GZZvnt8++Bt0
-         brldMJZ8vFFmEpnD35dbhq7FUD1SsRA9CPy0Z/o4x38G+c+swFzuu/H30lsNaw2XqHzb
-         XjqAKhjOulsOytsl+GIH1u1ucneKHUt2oN0M/fJZHwlf5aplJ0J2Wpb1BawBVUrCgCqM
-         0zjeR4mJvxbUDii1p+ec4W7sUOs12HTiySstdxmjAS+ysmLLZXAwkt8td2q281PXtDaW
-         mM0h+kH+newNYQ8i38K1g4oyiOt0KKwuAUDj9HldbQv7K6Za5qNIEcfVfX0uQlV5x5MM
-         ktig==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GTW3Eovv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1754529649;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WEWrYjjWGNjohxH9R8UlGTMdvalBWlYjle/WluhTEow=;
+	b=GTW3EovvjIYPx8TeDaCdv3r+zD+nVi8BA/fzoxsndawnZVx/KVPA7eABJtdPieFAaGx/I+
+	H1F/7Jbcbro+ADh6iWx4q9X2fPTvLKJkHv1xZFlYLieEOjVdPlySO0NXcoSLgG+TmmORzw
+	kfQcG/5F4BVwAHANgHqw4Pda4eX0oSE=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-282-kPv3jA3yMYSfweEK7bUvwA-1; Wed, 06 Aug 2025 21:20:45 -0400
+X-MC-Unique: kPv3jA3yMYSfweEK7bUvwA-1
+X-Mimecast-MFC-AGG-ID: kPv3jA3yMYSfweEK7bUvwA_1754529644
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-af955068456so43024866b.0
+        for <virtualization@lists.linux.dev>; Wed, 06 Aug 2025 18:20:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754524730; x=1755129530;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=I4DgF6Vw8xGQncqmkZy1+xUkx+suIzKaCcwcVTdjpkA=;
-        b=QueThJQmXG66MP4eF9I6+d8MAOaK0Sx6GQRs2SC+Qp4oBj3uXbEyzbQjumvGufpHiK
-         StI5ApGr/xNs6Xx26HgEK6EKmxh/YdKBLes/AZ1WIIw7BhPRF1m4BBMY19zFDGivAHwW
-         4IpJoeXuKFWqVcZ335qCPK2z3XA2py8PhECJ+5IsxdpFGTL4xsn0D6hHlPDpB3zxvkxg
-         dqi03/vDOnQ0jyptkqkwxobl+58PxRvx+Vqg5UxRto1g0s98R5NwGE1PPdH24UK+ZxZw
-         bD/nmqpnySU8jY5myEFVMIDINRjUxCu//zGr/hy+4X977byinPuXx4izHV4LweC6xZDl
-         b93A==
-X-Forwarded-Encrypted: i=1; AJvYcCXn6p8D6xxjpVX6oUgWWOnj4GN+G1OjV4yHw+R8huYuslX23AHKtCTvUNgreB2m8caLgnlBPeCpZjYsvptE6w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx741+APpR5KnMeiBx0lAOkygtnlG42W1MQYQOsizr6PozIkyRl
-	3rT1GAoB6gSjzHzreviDjbQBaI+5a0YNTdUpGA3L9+blPN+0wuq8HOIell48jdNv7oY=
-X-Gm-Gg: ASbGncsx0AaSMd+i27EXZP8ru8ZHw+TYFSYGts64+BAbEQE6sU/Z2PkQ24Qmc8igRg4
-	X82NEaO06PMR6r71dqOMCrazgOu2EOfSq7NbGS9RgAUHgjgZ8Jcqjodz7c7J7hqyHon79tGieSo
-	vJbF+jkY36yleW/3INL25u4E4VItcudQ3KfPzEE8pjYaDMKp3RxUR4dor2WNi3xWS7LSokY+2hW
-	mbSM0wXnrLbL/ZDEN3esZrmKJq81zJVK+8jDH1gZEr1t3B2ataWlgnc6fRBygGTYp2jD6n8QJPb
-	gbGhBgVwVckIzk3PbV+SvC7pS6eo7Fb5DOgJ23AAD5/DNL9naktcbqyK2ozUl+ApZlF+uvPaVw2
-	Kno0yqKvlIEtYc3e6Sub+SyJdAI00KPCrlgEb1zSjRDQzNpBNy5euWV11EUkgd7fGIxJe
-X-Google-Smtp-Source: AGHT+IGnS032BQYfbSfwSqYTvKso8Ea62PyX+fE1vpQVHfXPFL26cVNK4i9ZyLJUzr/PgtuVEArJEg==
-X-Received: by 2002:a05:620a:4045:b0:7e6:97a2:ea7d with SMTP id af79cd13be357-7e81677da93mr625181985a.62.1754524729857;
-        Wed, 06 Aug 2025 16:58:49 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-47-55-120-4.dhcp-dynamic.fibreop.ns.bellaliant.net. [47.55.120.4])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7e80b869d4bsm310283985a.24.2025.08.06.16.58.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Aug 2025 16:58:49 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1ujo1w-00000001sk1-2RDU;
-	Wed, 06 Aug 2025 20:58:48 -0300
-Date: Wed, 6 Aug 2025 20:58:48 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Shyam Saini <shyamsaini@linux.microsoft.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
-	will@kernel.org, jacob.pan@linux.microsoft.com,
-	eric.auger@redhat.com, code@tyhicks.com,
-	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
-	bboscaccy@linux.microsoft.com
-Subject: Re: [PATCH v3 3/3] arm-smmu: select suitable MSI IOVA
-Message-ID: <20250806235848.GD377696@ziepe.ca>
-References: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
- <20250806215539.1240561-4-shyamsaini@linux.microsoft.com>
+        d=1e100.net; s=20230601; t=1754529644; x=1755134444;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WEWrYjjWGNjohxH9R8UlGTMdvalBWlYjle/WluhTEow=;
+        b=FGPaSuJ+nH7JROF/VbzUskY+xxSEva37muTwZT1aAevkLDwTTxo+ncJVDVxfH1e3j9
+         fHFl76NB6DBUVOy2C+59XL99Iy9YhUrCl31IL0dIezo98Vg/HZduv8HPlgWOweuyms/8
+         u+0wNA2qIdF8gyZWEOxzKTt2XP54ywLhKZJiC9EENGMu4uHp36hAuK7TVkpRixtkAMkx
+         I2hRtL6SXLTLzpZQuKpc2zM/XQka+A9xU0aPkMBxahOeCN1F3pyCQIzY5Np7SgDY2qo7
+         hH6OSw/C4J0/0OymBoahbdXIcvrVXHpR+tuaWPZMu1096xtuoB7kwkLPuX/IUpxOKgdG
+         Xbaw==
+X-Forwarded-Encrypted: i=1; AJvYcCV4/0IDOtanzQ7l2iHwxIcjsLQVLFtVMS4GHI6PoboIRo+9FM6T4MIS9xtRzW8GlmC7K3GuH1ayKVyTQv/RNQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyJFkCjta8qm4j+NmfKoRXMNp+ZELjMwTK7yN0n0Vm7JrKm2OjZ
+	E4ygv4DZ8vyppyJdH4u/RhlmyHSNmFRC6fprVtTcqKm7P0ZKr7RfeQmYXH/ZRKEDOm89siCBGlI
+	k3M3DkCg/LYe8bAr9FajFpURzjapivNwxnLqJDiOXHZDyx8jfGfNJYY/OMPQFRf4t66NcxlwcmD
+	DEWVcrfA/1+Uot8cpOCkpuqGfYu+fiHvbDccow6n/6Wc4=
+X-Gm-Gg: ASbGncuFrisUDWsgj1wAaIQhy7OUluVqnKL+uAcp2RHl2ii1cQY1zIHRvfQrzeb1iYZ
+	U0T/NDD8XDSITGJf2pEx7XXfH20UVC9aIRdq6AEXYC132s9YYFijLPTICrXhMirEFyZCvNWcPOQ
+	RrPigwPHCDnwKFdh+8/7Z7uQ==
+X-Received: by 2002:a17:906:478b:b0:ae1:f1e0:8730 with SMTP id a640c23a62f3a-af992c6c33amr362296666b.57.1754529644133;
+        Wed, 06 Aug 2025 18:20:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHuVKYcqXyRGEOsTk+t3Ivio5HYohT/1PPb5lwl05ILoEYx6eYSe0xYK8By9jiCL6X1UkZ8aNd9kBreFrsaNRE=
+X-Received: by 2002:a17:906:478b:b0:ae1:f1e0:8730 with SMTP id
+ a640c23a62f3a-af992c6c33amr362295166b.57.1754529643803; Wed, 06 Aug 2025
+ 18:20:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250806215539.1240561-4-shyamsaini@linux.microsoft.com>
+References: <20250727-vlan-v3-1-bbee738619b1@rsg.ci.i.u-tokyo.ac.jp>
+ <7b657acb-7186-42bf-9be5-8c1253c6316c@tls.msk.ru> <91aec5d7-7647-41d1-ae12-c86020be4537@rsg.ci.i.u-tokyo.ac.jp>
+In-Reply-To: <91aec5d7-7647-41d1-ae12-c86020be4537@rsg.ci.i.u-tokyo.ac.jp>
+From: Lei Yang <leiyang@redhat.com>
+Date: Thu, 7 Aug 2025 09:20:07 +0800
+X-Gm-Features: Ac12FXxj7g2hGybmIndLW3D3NWQkijy579ZCYNkErpeCG-tTNz7HqsXyOOt1tgs
+Message-ID: <CAPpAL=xEZ+U4PnOWXP0Dtk1p6TmU4F+NxZZug+-wmYBsb1KvaQ@mail.gmail.com>
+Subject: Re: [PATCH v3] virtio-net: Fix VLAN filter table reset timing
+To: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+Cc: Michael Tokarev <mjt@tls.msk.ru>, Konstantin Shkolnyy <kshk@linux.ibm.com>, qemu-devel@nongnu.org, 
+	yin31149@gmail.com, eperezma@redhat.com, mst@redhat.com, jasowang@redhat.com, 
+	virtualization@lists.linux.dev, qemu-stable@nongnu.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: nlSjM_88dv4fNG7e6FDdp7IwEbcRI7AvlHar5pLRE-E_1754529644
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 06, 2025 at 02:55:39PM -0700, Shyam Saini wrote:
-> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> @@ -3642,17 +3642,30 @@ static int arm_smmu_of_xlate(struct device *dev,
->  static void arm_smmu_get_resv_regions(struct device *dev,
->  				      struct list_head *head)
->  {
-> -	struct iommu_resv_region *region;
->  	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
->  
-> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
-> -					 prot, IOMMU_RESV_SW_MSI, GFP_KERNEL);
-> -	if (!region)
-> -		return;
-> -
-> -	list_add_tail(&region->list, head);
-> +	static const u64 msi_bases[] = { MSI_IOVA_BASE, MSI_IOVA_BASE2 };
->  
->  	iommu_dma_get_resv_regions(dev, head);
-> +
-> +	/*
-> +	 * Use the first msi_base that does not intersect with a platform
-> +	 * reserved region. The SW MSI base selection is entirely arbitrary.
-> +	 */
-> +	for (int i = 0; i != ARRAY_SIZE(msi_bases); i++) {
-> +		struct iommu_resv_region *region;
-> +
-> +		if (resv_region_intersects(msi_bases[i], MSI_IOVA_LENGTH, head))
-> +			continue;
-> +
-> +		region = iommu_alloc_resv_region(msi_bases[i], MSI_IOVA_LENGTH, prot,
-> +						 IOMMU_RESV_SW_MSI, GFP_KERNEL);
-> +		if (!region)
-> +			return;
-> +
-> +		list_add_tail(&region->list, head);
-> +		return;
-> +	}
->  }
+Tested pass this patch with virtio-net regression tests, everything works w=
+ell.
 
-I think this whole series looks pretty good, but I would suggest to
-put this in a helper..
+Tested-by: Lei Yang <leiyang@redhat.com>
 
-'iommu_set_sw_msi()' perhaps, must be called after iommu_dma_get_resv_regions()
+On Sat, Aug 2, 2025 at 5:43=E2=80=AFPM Akihiko Odaki
+<odaki@rsg.ci.i.u-tokyo.ac.jp> wrote:
+>
+> On 2025/08/02 16:26, Michael Tokarev wrote:
+> > On 27.07.2025 09:22, Akihiko Odaki wrote:
+> > ...
+> >> @@ -3942,6 +3943,7 @@ static void
+> >> virtio_net_device_realize(DeviceState *dev, Error **errp)
+> >>       n->mac_table.macs =3D g_malloc0(MAC_TABLE_ENTRIES * ETH_ALEN);
+> >>       n->vlans =3D g_malloc0(MAX_VLAN >> 3);
+> >> +    memset(n->vlans, 0xff, MAX_VLAN >> 3);
+> >
+> > A nitpick: we don't need to init this memory with 0 before
+> > initing it with 0xff.
+> >
+> > But looking at this, why can't we embed n->vlans directly into
+> > this structure, something like the attached patch?
+>
+> VMState also needs a change: VMSTATE_BUFFER_POINTER_UNSAFE() should be
+> replaced with plain VMSTATE_BUFFER(). Actually this is the only user of
+> VMSTATE_BUFFER_POINTER_UNSAFE().
+>
+> I appreciate if you submit the patch with this VMState change and patch
+> message.
+>
+> >
+> > This, and maybe a few other fields like it?
+>
+> There is another candidate: n->mac_table.macs
+>
+> But it is not straightforward to embed this array because it uses
+> VMSTATE_VBUFFER_MULTIPLY().
+>
+> Regards,
+> Akihiko Odaki
+>
 
-Then maybe the constants can just be placed in the .c file inside the
-helper function.
-
-Jsaon
