@@ -1,150 +1,187 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07F0A283FEF
-	for <virtualization@lists.linux.dev>; Fri,  8 Aug 2025 15:21:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754666489; cv=pass; b=FqoyF428PKCsguDK2dgNJTxA28UQFxR8XI3Z1qIhdY1t2JVorS61LAaS36cCOcxS3OJ6ghWAvxyCP/SiQVdkvkM/om/FgQACUBdieZxk3w5ajDCk+ClbnsCS4tT3YihuJR8vgXRBr51GdxH+K3mPdbdpSRfK0HiPVQWkkG+yX94=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754666489; c=relaxed/simple;
-	bh=mKBzMw8QG8aSq568ciqZDbQ/WAve6Dhv1j4Rn86FiNw=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=HZ+fmKEQv94NnmbU1fMwztgvjJIfGHslERWpJEHu9TOwRiSFdFRm5UFC8nS8j8QOtOIgQHbSWPIOFA7Cz4Ujg7SUSkwruW6eAIA8uqunKTOkYXfPajdX0lgmBMpEeuGPUTWJFWkBrctwfhQilhsajVg+5XnSr/sDUN8Iu77AZ9k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=igor.torrente@collabora.com header.b=QuW5yL7w; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A79E1211A28;
+	Fri,  8 Aug 2025 18:51:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1754679083; cv=none; b=jOkNpt7YkQ1LVc6nvp/gie3qsf3niB45UqJh3O6LN4Mnv2/ZWMjkJWhN1VEoojye9wka8sOu99hOdBhPeYp2ZmTEg3JH51k3iXYTnrXj4lqoo8YghUvPZDq93fKY7IJWA77q2U9ptBNME6BSSlhuIhtPeZ9P8DuUOAe0q1aqmIA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1754679083; c=relaxed/simple;
+	bh=Xw71vlQN+dR5IVF6R7vT9L4ieXN7VDvTeRfHYilMwow=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=kwZjMcScv69vNjmMKZ9MF/xbtWBSFFQqvprobV6pXrcwv3W+n4ELgnuSV9v+Ngfp9/zabAvUuiljDbiguIcJJCmmxHTO+5ECUNBh/x78SA3zTjn3hkKpC/hCLlv6aVCjJwO6gt2O6/RYeP0yJVxcjvdJ4sKkHQ9QHuz2+s9n97U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=WGyqUFMD; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=igor.torrente@collabora.com header.b="QuW5yL7w"
-ARC-Seal: i=1; a=rsa-sha256; t=1754666477; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=Rq8B4awTkKUNJWp2w9fSev6iVg3RmS73AMovuUxfGF/5+dj7GFGKn3GErSHu1bD/XG4xocounqpj0r7rFBWR41B58Wbbp3r/CR5eqr7u803OVys1pOASwhuoOYlj9BdYlnGI5WMMveYowps257qQ2Yi4PZ8PLcl8LJLJ0vtzyZ8=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1754666477; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=gCD2y/rarTOAylxNx5TyooRJWxYNgJq4MFQaefgv8GY=; 
-	b=PT3sDEdHABXsFelVN0lVxsZt+bE2JBPQVb5t85SQ2qqKmkuv5MhMJMm9358r1ueosnxrDp1hbH4RVj636xjdzUCvUcSM3KD0GOQhI17k41CKlkDG1PZHO2ZCXrSPbPeZ4P8XIP1KfDuaxdbPaF7X5I2mmj9HWCXQdiPrPtM8nik=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=igor.torrente@collabora.com;
-	dmarc=pass header.from=<igor.torrente@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1754666477;
-	s=zohomail; d=collabora.com; i=igor.torrente@collabora.com;
-	h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:References:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=gCD2y/rarTOAylxNx5TyooRJWxYNgJq4MFQaefgv8GY=;
-	b=QuW5yL7wR4mHc6TIoqE4HGtOliAOBtCCK2h/3IWD95sOH3Z8ivIeC5Evpt2apfAA
-	hVh9qhZF4MHMXdkjYZyu1GO1Dxwlpih34WJ06NgKi0oQqoMipdKg5TMngWJCV11Jhsk
-	w9tUu8+wnJPGj5bf1pQBFKBDJV1RbFiqSJ4UJmqk=
-Received: from mail.zoho.com by mx.zohomail.com
-	with SMTP id 1754666475761185.0698473179949; Fri, 8 Aug 2025 08:21:15 -0700 (PDT)
-Date: Fri, 08 Aug 2025 12:21:15 -0300
-From: Igor Torrente <igor.torrente@collabora.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "sami.md.ko" <sami.md.ko@gmail.com>,
-	"virtualization" <virtualization@lists.linux.dev>,
-	"linux-kernel" <linux-kernel@vger.kernel.org>,
-	"eperezma" <eperezma@redhat.com>,
-	"xuanzhuo" <xuanzhuo@linux.alibaba.com>,
-	"jasowang" <jasowang@redhat.com>,
-	"dmitry.osipenko" <dmitry.osipenko@collabora.com>
-Message-ID: <1988a45a0a2.802c54fc2698695.3285632374822658409@collabora.com>
-In-Reply-To: <20250808072533-mutt-send-email-mst@kernel.org>
-References: <20250807130326.82662-4-igor.torrente@collabora.com> <20250808072533-mutt-send-email-mst@kernel.org>
-Subject: Re: [PATCH v2] Revert "virtio: reject shm region if length is zero"
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="WGyqUFMD"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20250808185114euoutp0162c911292defe8bfee54f2309b1e8171~Z31I7WGpl0720707207euoutp01Y;
+	Fri,  8 Aug 2025 18:51:14 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20250808185114euoutp0162c911292defe8bfee54f2309b1e8171~Z31I7WGpl0720707207euoutp01Y
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1754679074;
+	bh=eZMpLLPpWLfEcYOqjTqa6+eB/bqRZJ+BbYqsgnnPbkY=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=WGyqUFMDFBBsAtsI8xiD1Ayr7WYuZYdyBJMCoPCRGfrVxwAdMcl3GCV7Qwkcc4nI/
+	 gnDfUeRP8iiJIUgEStFM4TfVVnoq/LDogKUpBA2D+NmwrtJRryBOG1ru2ITf74oehS
+	 IO287BU42jFk8ZARXzvIDO/cRSfPjtUJVNlWylGo=
+Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20250808185112eucas1p285bfbeb3352a16df0b5c8f262fadbf2f~Z31Hzuzfc1555715557eucas1p2H;
+	Fri,  8 Aug 2025 18:51:12 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20250808185109eusmtip1cf791168d581e5b5b824a27d8cdd9069~Z31ElK-rK1126511265eusmtip1F;
+	Fri,  8 Aug 2025 18:51:09 +0000 (GMT)
+Message-ID: <a154e058-c0e6-4208-9f52-57cec22eaf7d@samsung.com>
+Date: Fri, 8 Aug 2025 20:51:08 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Importance: Medium
-User-Agent: Zoho Mail
-X-Mailer: Zoho Mail
+User-Agent: Betterbird (Windows)
+Subject: Re: [PATCH v1 00/16] dma-mapping: migrate to physical address-based
+ API
+To: Jason Gunthorpe <jgg@nvidia.com>, Leon Romanovsky <leon@kernel.org>
+Cc: Abdiel Janulgue <abdiel.janulgue@gmail.com>, Alexander Potapenko
+	<glider@google.com>, Alex Gaynor <alex.gaynor@gmail.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, Danilo
+	Krummrich <dakr@kernel.org>, iommu@lists.linux.dev, Jason Wang
+	<jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>, Joerg Roedel
+	<joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, Juergen Gross
+	<jgross@suse.com>, kasan-dev@googlegroups.com, Keith Busch
+	<kbusch@kernel.org>, linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-trace-kernel@vger.kernel.org, Madhavan Srinivasan
+	<maddy@linux.ibm.com>, Masami Hiramatsu <mhiramat@kernel.org>, Michael
+	Ellerman <mpe@ellerman.id.au>, "Michael S. Tsirkin" <mst@redhat.com>, Miguel
+	Ojeda <ojeda@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	rust-for-linux@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>, Stefano
+	Stabellini <sstabellini@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <20250807141929.GN184255@nvidia.com>
+Content-Transfer-Encoding: 8bit
+X-CMS-MailID: 20250808185112eucas1p285bfbeb3352a16df0b5c8f262fadbf2f
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20250807141938eucas1p2319a0526b25db120b3c9aeb49f69cce1
+X-EPHeader: CA
+X-CMS-RootMailID: 20250807141938eucas1p2319a0526b25db120b3c9aeb49f69cce1
+References: <cover.1754292567.git.leon@kernel.org>
+	<CGME20250807141938eucas1p2319a0526b25db120b3c9aeb49f69cce1@eucas1p2.samsung.com>
+	<20250807141929.GN184255@nvidia.com>
 
- ---- El vie., 08 ago. 2025 08:26:08 -0300,  Michael S. Tsirkin <mst@redhat=
-.com> escribi=C3=B3 ----=20
- > On Thu, Aug 07, 2025 at 10:03:29AM -0300, Igor Torrente wrote:
- > > The commit 206cc44588f7 ("virtio: reject shm region if length is zero"=
-)
- > > breaks the Virtio-gpu `host_visible` feature.
- > >=20
- > > Right now in the Virtio-gpu code, `host_visible_region.len` is zero be=
-cause
- > > the struct comes directly from the `kzalloc` allocation. And Virtio-gp=
-u
- > > is using the `vm_get_shm_region` (drivers/virtio/virtio_mmio.c:536) to=
- read
- > > the `addr` and `len` from Qemu/Crosvm.
- > >=20
- > > ```
- > > drivers/gpu/drm/virtio/virtgpu_kms.c
- > > 132 vgdev =3D drmm_kzalloc(dev, sizeof(struct virtio_gpu_device), GFP_=
-KERNEL);
- > > [...]
- > > 177 if (virtio_get_shm_region(vgdev->vdev, &vgdev->host_visible_region=
-,
- > > 178                           VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
- > > ```
- > > Now it always fails.
- > >=20
- > > As the Virtio-gpu relies on the previous behavior, this patch reverts
- > > the offending commit.
- > >=20
- > > Fixes: 206cc44588f7 ("virtio: reject shm region if length is zero` bre=
-aks the Virtio-gpu `host_visible")
- > >=20
- > > This reverts commit 206cc44588f72b49ad4d7e21a7472ab2a72a83df.
- > >=20
- > > Signed-off-by: Igor Torrente <igor.torrente@collabora.com>
- >=20
- >=20
- > Fixes has to be adjacent to Signed-off-by.
+On 07.08.2025 16:19, Jason Gunthorpe wrote:
+> On Mon, Aug 04, 2025 at 03:42:34PM +0300, Leon Romanovsky wrote:
+>> Changelog:
+>> v1:
+>>   * Added new DMA_ATTR_MMIO attribute to indicate
+>>     PCI_P2PDMA_MAP_THRU_HOST_BRIDGE path.
+>>   * Rewrote dma_map_* functions to use thus new attribute
+>> v0: https://lore.kernel.org/all/cover.1750854543.git.leon@kernel.org/
+>> ------------------------------------------------------------------------
+>>
+>> This series refactors the DMA mapping to use physical addresses
+>> as the primary interface instead of page+offset parameters. This
+>> change aligns the DMA API with the underlying hardware reality where
+>> DMA operations work with physical addresses, not page structures.
+> Lets elaborate this as Robin asked:
+>
+> This series refactors the DMA mapping API to provide a phys_addr_t
+> based, and struct-page free, external API that can handle all the
+> mapping cases we want in modern systems:
+>
+>   - struct page based cachable DRAM
+>   - struct page MEMORY_DEVICE_PCI_P2PDMA PCI peer to peer non-cachable MMIO
+>   - struct page-less PCI peer to peer non-cachable MMIO
+>   - struct page-less "resource" MMIO
+>
+> Overall this gets much closer to Matthew's long term wish for
+> struct-pageless IO to cachable DRAM. The remaining primary work would
+> be in the mm side to allow kmap_local_pfn()/phys_to_virt() to work on
+> phys_addr_t without a struct page.
+>
+> The general design is to remove struct page usage entirely from the
+> DMA API inner layers. For flows that need to have a KVA for the
+> physical address they can use kmap_local_pfn() or phys_to_virt(). This
+> isolates the struct page requirements to MM code only. Long term all
+> removals of struct page usage are supporting Matthew's memdesc
+> project which seeks to substantially transform how struct page works.
+>
+> Instead make the DMA API internals work on phys_addr_t. Internally
+> there are still dedicated 'page' and 'resource' flows, except they are
+> now distinguished by a new DMA_ATTR_MMIO instead of by callchain. Both
+> flows use the same phys_addr_t.
+>
+> When DMA_ATTR_MMIO is specified things work similar to the existing
+> 'resource' flow. kmap_local_pfn(), phys_to_virt(), phys_to_page(),
+> pfn_valid(), etc are never called on the phys_addr_t. This requires
+> rejecting any configuration that would need swiotlb. CPU cache
+> flushing is not required, and avoided, as ATTR_MMIO also indicates the
+> address have no cachable mappings. This effectively removes any
+> DMA API side requirement to have struct page when DMA_ATTR_MMIO is
+> used.
+>
+> In the !DMA_ATTR_MMIO mode things work similarly to the 'page' flow,
+> except on the common path of no cache flush, no swiotlb it never
+> touches a struct page. When cache flushing or swiotlb copying
+> kmap_local_pfn()/phys_to_virt() are used to get a KVA for CPU
+> usage. This was already the case on the unmap side, now the map side
+> is symmetric.
+>
+> Callers are adjusted to set DMA_ATTR_MMIO. Existing 'resource' users
+> must set it. The existing struct page based MEMORY_DEVICE_PCI_P2PDMA
+> path must also set it. This corrects some existing bugs where iommu
+> mappings for P2P MMIO were improperly marked IOMMU_CACHE.
+>
+> Since ATTR_MMIO is made to work with all the existing DMA map entry
+> points, particularly dma_iova_link(), this finally allows a way to use
+> the new DMA API to map PCI P2P MMIO without creating struct page. The
+> VFIO DMABUF series demonstrates how this works. This is intended to
+> replace the incorrect driver use of dma_map_resource() on PCI BAR
+> addresses.
+>
+> This series does the core code and modern flows. A followup series
+> will give the same treatement to the legacy dma_ops implementation.
 
-Ohh, I will pay attention to this next time.=20
+Thanks for the elaborate description, that's something that was missing 
+in the previous attempt. I read again all the previous discussion and 
+this explanation and there are still two things that imho needs more 
+clarification.
 
- > But anyway, I already included v1 in my tree, pls check it out
- > and tell me if more fixes are needed.
 
-I tested here your branch, and it's working fine.
+First - basing the API on the phys_addr_t.
 
-```
-[    0.298365] [drm] pci: virtio-gpu-pci detected at 0000:00:04.0
-[    0.298506] [drm] Host memory window: 0x200000000 +0x200000000
-[    0.298510] [drm] features: +virgl +edid +resource_blob +host_visible
-```
-```
-Linux debian-arm64-vm-chromebook 6.16.0mst_virt_repo_linux-next+ #159 SMP P=
-REEMPT_DYNAMIC Fri Aug  8 11:53:04 -03 2025 aarch64 GNU/Linux
-```
+Page based API had the advantage that it was really hard to abuse it and 
+call for something that is not 'a normal RAM'. I initially though that 
+phys_addr_t based API will somehow simplify arch specific 
+implementation, as some of them indeed rely on phys_addr_t internally, 
+but I missed other things pointed by Robin. Do we have here any 
+alternative?
 
-Thanks for applying it,
----
-Igor Torrente
 
- >=20
- > > ---
- > > v2: Improve the commit message (Michael S. Tsirkin)
- > >=20
- > >  include/linux/virtio_config.h | 2 --
- > >  1 file changed, 2 deletions(-)
- > >=20
- > > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_conf=
-ig.h
- > > index b3e1d30c765b..169c7d367fac 100644
- > > --- a/include/linux/virtio_config.h
- > > +++ b/include/linux/virtio_config.h
- > > @@ -329,8 +329,6 @@ static inline
- > >  bool virtio_get_shm_region(struct virtio_device *vdev,
- > >                 struct virtio_shm_region *region, u8 id)
- > >  {
- > > -    if (!region->len)
- > > -        return false;
- > >      if (!vdev->config->get_shm_region)
- > >          return false;
- > >      return vdev->config->get_shm_region(vdev, region, id);
- > > --=20
- > > 2.49.0
- >=20
- >=20
+Second - making dma_map_phys() a single API to handle all cases.
+
+Do we really need such single function to handle all cases? To handle 
+P2P case, the caller already must pass DMA_ATTR_MMIO, so it must somehow 
+keep such information internally. Cannot it just call existing 
+dma_map_resource(), so there will be clear distinction between these 2 
+cases (DMA to RAM and P2P DMA)? Do we need additional check for 
+DMA_ATTR_MMIO for every typical DMA user? I know that branching is 
+cheap, but this will probably increase code size for most of the typical 
+users for no reason.
+
+
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
