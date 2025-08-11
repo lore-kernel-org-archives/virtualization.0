@@ -1,103 +1,129 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D25213AD1C
-	for <virtualization@lists.linux.dev>; Mon, 11 Aug 2025 10:56:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754909776; cv=pass; b=b77I9gUW7mUI+lptPMi5NdD2RZDznDoXKxTk7/Ez9Ok4TWXAm460enND3K2KaDdUeLY4oUJx8NFcewihPS74O9uTFrn1AHKeWxATptvCJRYN8ETax5njsJGjn2MrM6faXlle91Gof6pko4dwWZhnJEXVBDv6oIE+LK6W/wyNEd0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754909776; c=relaxed/simple;
-	bh=VxsT5ybCorAoQQbzOk/buWM2fBtdmQlNTzBki2dXZyU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Kg5/eUYwvkMMAwY0nSSKJDhjnF56AhdfmjnQwONnO/P2/NRpRlA7XwS6VLgHgkLYWmk4QG6LSa8dc5NGr1YocUvolgS4KE8O9qfJW2ykqZu7lN6v492qFnJYSLuh8Tosl2wBRzzfbtpxIExuXCmalAst6UJJcbVBGHMvSZtBHTI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=MOC9jVQY; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D46072BE7AF
+	for <virtualization@lists.linux.dev>; Mon, 11 Aug 2025 11:04:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1754910260; cv=none; b=t4auIpMdT+35/CkRNUMGWr69jVQlIKuSl3laJX+SliTfeFbGZsWtwN74iTvirnB06g50S3EV3nfVqgIB7a80HGMiXkfwICawXK8V/O7u2c37eit0rb3rkgqfbiVxEMI531w5vF3i634uwMOSdmPoAtBqtoBYPUW9KKv3tXGCnjk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1754910260; c=relaxed/simple;
+	bh=7swBeyj25GpPy2B4vm5DrwjXt8XVNNkLZpz1CZp3XHQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lSusxBP+9ZUhwMH1Lv04GsYQzX0daMv9QvXkcEjf6nexZsmBErEkbyemUyXZtqYtHSG8Qhro7xHgQK6+NM4QB2q2sRUBlpzATojYx/k34S2RMe9SeZozXeF46p/mOzWisFZmRftsXGHczI+JyOpfQafgNrNMM7Ib2t+awIxQNV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Qo6SCscf; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="MOC9jVQY"
-ARC-Seal: i=1; a=rsa-sha256; t=1754909767; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=g0Pss77BdVF5GyA3MPtntNOEY3Jwe6jfGJzrJH4rnT59wW/RSVp85D1kxXv/jf/mjvsGYI4fU8gGQa/eeBQ+iRlYqIWP2cyJQGicWqi4c1UCApVNozbN6B08x8ep/nGz65B5cEvkck5KREW+oDGt+gZFX6nXlXFTJW/Qt0MbbrE=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1754909767; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=G+Em1yigSYKGpSutasCgI5Mjtpjuuyzd78rKbkGKgP8=; 
-	b=d9I/kVuYQhF/LLHJcokBl/D3ad5lOEQOJzzwj4/hN7TEHJDd7QTzhsOLeXsV4JGCwOz8TYAftHvfO36P2llSPFXWBYgeSvbHFVf2gWM9puKdropAq9bc44DPyksw7N/Rl2IEpei1N/p43Q/A/FZzeaF+IXjVWkJgPJqJoYHxoEI=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1754909767;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=G+Em1yigSYKGpSutasCgI5Mjtpjuuyzd78rKbkGKgP8=;
-	b=MOC9jVQYZ17uT1u72NJCbgBBpXkqR50VJp8aIPh5rToM2WBz8+QNVUulwCKQrlqi
-	xAMSMkrhDLJlD9vAVVHfXMYD6fiANm65dYSp5BgefDFmBn0wly5nbB/wytJokEKV71F
-	zXxQseQziyUmFLNkymhVuiDjnxbjJdoxfemNw/gY=
-Received: by mx.zohomail.com with SMTPS id 1754909766270534.3509971757793;
-	Mon, 11 Aug 2025 03:56:06 -0700 (PDT)
-Message-ID: <d36e24ce-c2cb-4d44-aacd-aa1e44665c75@collabora.com>
-Date: Mon, 11 Aug 2025 13:56:02 +0300
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Qo6SCscf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1754910257;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gbtrlWAXKnBqFTiIwDQ3ZgGXj2AWGHBhEhOwNJt/ZYk=;
+	b=Qo6SCscfwLF/pzHHWnoP+dukN45rTpBtJl7TgtjUb7E+BjZuCDu6l5QXvMBa9pYWs3qbgf
+	RRzNZEZrp4IQ5iNfOarVOmFm8JiELzvqIvZKyK+VS18MxUHgrIhIFAa5brY2yp677LC3Zi
+	5CByrTIrvFLvIQ6VN2KPsrpQDnOAeBI=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-498-_MWYfilNOPC0aB7GH9MlLw-1; Mon, 11 Aug 2025 07:04:14 -0400
+X-MC-Unique: _MWYfilNOPC0aB7GH9MlLw-1
+X-Mimecast-MFC-AGG-ID: _MWYfilNOPC0aB7GH9MlLw_1754910253
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-31eec1709e7so7337746a91.0
+        for <virtualization@lists.linux.dev>; Mon, 11 Aug 2025 04:04:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754910253; x=1755515053;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gbtrlWAXKnBqFTiIwDQ3ZgGXj2AWGHBhEhOwNJt/ZYk=;
+        b=XxfeKBgpxWI+eXc1joWxl5ZAQ7AZ5Dm6OA49FU3HU29UyxhNM1l/Ka4g+3J7g95NRT
+         d+qIg/xX5C4HXX7+Rx9pnDSnMNyXQiZrWrg85UAo3CSWjBJ8AsJDSeSvw/xSLShfggjD
+         VnWlhZBVuu51hFVY7B0CIVF2wIIl7efa5bgn9TwhfVpQdYBn/ZuP420m1Lee3srnP/oi
+         WwfcTPCNhvW24sBxCNWEL4HV1ON1OFYXJqFISezLgbPrDAdUTyJliKVhJShM4AltwbNC
+         HtlzdH3egJUo/1gcsYq9u42kDerSXtnIeB4Tuqcsz8HtOLPapZc0vGiCDc4VmJ5m+ecB
+         8RIQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW0DgBr4qOBhPn+j9+nZJH5qaaxwZ4oOl/d1Ka6yqrYWbwvSc0eVvC8ZzNdZqSnAAWk4LLrUhLbk+mB24p7fQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzCGAkmE9ioRNDcmFKCGMMPemMY2A+DlERIfDZSVknVVZmNZK/b
+	2bAfPOO7Es8bneILAgRF/SgPP0KZiQ5CkhHD/CR7j/AHDhSXTNYZ+m4NHpVXDylcK2sH22GePfK
+	7C/drreQAVJd3B69UKMRhSXNzixJ/7cDhzW1kEhZFxeP0n33K5tHKSBPSFT2AKQon3DHjV9fBkk
+	i9og28J0WBkNiG1TPEIQT452PASpz0mDfC0DGIN7mLokE=
+X-Gm-Gg: ASbGnct8YaUGio4ZkdnCCzgeDMM3X/pd5tUYvixP7zkMRpArluOk6itB+mHNd9HoW6j
+	xd0hVjW5WbkLdKx9sEElMAU6/JGkp0gcXZ3vg6xxicvne/dqZP01zfgkvyipr8RSYTh/ofsyQ1i
+	jZO+Y62I5RiDcgM4Dwdw/n
+X-Received: by 2002:a17:90b:3d4c:b0:321:1682:2d49 with SMTP id 98e67ed59e1d1-32183e53bc5mr14049814a91.32.1754910253477;
+        Mon, 11 Aug 2025 04:04:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF3xV7eQmtVr29Dvkrf19Z0RpYiJKfehsxKGeyuyfepW7qEzpFPEIZ90g+ShPrigpIu8heBQhMEISWgVc3nZvU=
+X-Received: by 2002:a17:90b:3d4c:b0:321:1682:2d49 with SMTP id
+ 98e67ed59e1d1-32183e53bc5mr14049792a91.32.1754910253179; Mon, 11 Aug 2025
+ 04:04:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtio: use new debugfs device-centered functions
-To: Brahmajit Das <listout@listout.xyz>, airlied@redhat.com,
- kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
- simona@ffwll.ch
-Cc: linux-next@vger.kernel.org, virtualization@lists.linux.dev,
- dri-devel@lists.freedesktop.org
-References: <20250809125443.4011734-1-listout@listout.xyz>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20250809125443.4011734-1-listout@listout.xyz>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+References: <20250807115752.1663383-1-eperezma@redhat.com> <20250807115752.1663383-5-eperezma@redhat.com>
+ <CACGkMEurTUOb6t9g+nVdzwU8LrZ=eAAxzHYVCTH1XkQkRtAUXQ@mail.gmail.com>
+In-Reply-To: <CACGkMEurTUOb6t9g+nVdzwU8LrZ=eAAxzHYVCTH1XkQkRtAUXQ@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Mon, 11 Aug 2025 13:03:37 +0200
+X-Gm-Features: Ac12FXz-ElJczrAcsWwjTE4HF8afkl2XnLnlhag32dbWIT1lsmlWc3ma_13wMhA
+Message-ID: <CAJaqyWfh_3_J3+rq_7pa0YMUQSQHfeHn7Tvurz=PAmWoqV5vNg@mail.gmail.com>
+Subject: Re: [RFC v2 4/7] vduse: return internal vq group struct as map token
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Yongji Xie <xieyongji@bytedance.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	virtualization@lists.linux.dev, Laurent Vivier <lvivier@redhat.com>, 
+	linux-kernel@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Maxime Coquelin <mcoqueli@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: cu4W_doLP4Xwq6DxTw0oFSfdr0HInNyuyrxpvBosQVk_1754910253
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 8/9/25 15:54, Brahmajit Das wrote:
-> Replace the use of drm_debugfs_create_files() with the new
-> drm_debugfs_add_files() function, which centers the debugfs files
-> management on the drm_device instead of drm_minor.
-> 
-> Signed-off-by: Brahmajit Das <listout@listout.xyz>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_debugfs.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-> index 853dd9aa397e..b7c895fe5ddc 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-> @@ -94,7 +94,7 @@ virtio_gpu_debugfs_host_visible_mm(struct seq_file *m, void *data)
->  	return 0;
->  }
->  
-> -static struct drm_info_list virtio_gpu_debugfs_list[] = {
-> +static struct drm_debugfs_info virtio_gpu_debugfs_list[] = {
->  	{ "virtio-gpu-features", virtio_gpu_features },
->  	{ "virtio-gpu-irq-fence", virtio_gpu_debugfs_irq_info, 0, NULL },
->  	{ "virtio-gpu-host-visible-mm", virtio_gpu_debugfs_host_visible_mm },
-> @@ -105,7 +105,6 @@ static struct drm_info_list virtio_gpu_debugfs_list[] = {
->  void
->  virtio_gpu_debugfs_init(struct drm_minor *minor)
->  {
-> -	drm_debugfs_create_files(virtio_gpu_debugfs_list,
-> -				 VIRTIO_GPU_DEBUGFS_ENTRIES,
-> -				 minor->debugfs_root, minor);
-> +	drm_debugfs_add_files(minor->dev, virtio_gpu_debugfs_list,
-> +			      VIRTIO_GPU_DEBUGFS_ENTRIES);
->  }
+On Mon, Aug 11, 2025 at 5:11=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Thu, Aug 7, 2025 at 7:58=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redha=
+t.com> wrote:
+> >
+> > Return the internal struct that represents the vq group as virtqueue ma=
+p
+> > token, instead of the device.
+>
+> Note that Michael prefers to use the iova domain. This indeed seems to
+> be better.
+>
 
-drm_debugfs_create_files() uses drm_info_node, while
-drm_debugfs_add_files() uses drm_debugfs_entry. This patch looks wrong
-and, AFAICT, doesn't improve anything. Hence, let's keep this code as-is
-if there is no real benefit from the change.
+Well iova domain would delete an indirection in the pointer chase, but
+it would be problematic to store the token in the caller.
 
--- 
-Best regards,
-Dmitry
+And we need to add some way to protect that the ASID of a vq group is
+not changed in the middle of the operation by an ioctl. IOW, the
+vq_group_internal struct pointer is constant for all the lifetime of
+the device, while iova_domain is not.
+
+> > This allows the DMA functions to access
+>
+> s/DMA/map/
+>
+
+Ouch, thanks for the catch!
+
+> > the information per group.
+> >
+> > At this moment all the virtqueues share the same vq group, that only
+> > can point to ASID 0.  This change prepares the infrastructure for actua=
+l
+> > per-group address space handling
+> >
+> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+>
+> Thanks
+>
+
