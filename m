@@ -1,253 +1,232 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24BC44315A
-	for <virtualization@lists.linux.dev>; Mon, 11 Aug 2025 02:58:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B06F219F40B
+	for <virtualization@lists.linux.dev>; Mon, 11 Aug 2025 03:10:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754881139; cv=none; b=eh8tNMg6JAqo9Fdjm037tdXzAjnBH8m75cU2JeLT0E+/50woimJMJRBh8qWr+N3J6b+OHceuk7hFF/SgIAE73G1ajfXVvNgLyvjGgHPBhCht88fyjODJBOlLcwh9KaIIjhnjh/pnvILYMds9nhnvsyjFjLntczaHNb7L1hRRNjQ=
+	t=1754881811; cv=none; b=Gh6GfqUk/EfSNkSXjVCzLhFjLEfaDxFprJNZ4qeWX5NxNEe5gmvkDSfTFFCgt05lEmZNVWhqaGaMVvCdcZ0V7ab4IA8hm6GpVwjx+Ytnt7UELgpvOKKlaM+5Agfl0G9qeSyzCGkyrJU5Wwz+Xi6aTUgmDFe4dY6dNwsFqzjsDLk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754881139; c=relaxed/simple;
-	bh=q6Hu5EXgp1My3SfX82LOBVeKEsjib+rPWEXVFZEwbx8=;
+	s=arc-20240116; t=1754881811; c=relaxed/simple;
+	bh=gmFBvAsAXFhHJ5DXWqnrqxnDPhs8jC4gkrep2Sry10g=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Peaoq7We1voyz5nzAAzJCPMWvwBGl3dJqUb6xV9fPRtoEqtsLD9675iRwiHzqvHFOwYQyi3XWuB7vrLSAlf3mqvXxDsWoJZGeQi5f8AFNgI4Gly9WN/pe4/PyQlpsTK8WqxO8fhvt62dZ3R4PVQArwIG5kKiE6sDyRLg892c9iM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CPvn8FGD; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=P05iZH1/nPO5UFSDw2MrBcQ44sD5xjGF/Z1pXuJTytxRmW9hT/9cHJrTUiTqktoYVLqGEfxJoXpclC1reZRhL01D8US0LMfNx0/iqYp6CO/CENylQvQTC+I5OuE5qTxviZeQ/Hjmq+z7F7lv3giqSmIjRCt5bOfHsYnUGY7zeFM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hvCTxMZF; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CPvn8FGD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hvCTxMZF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1754881136;
+	s=mimecast20190719; t=1754881808;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=q6Hu5EXgp1My3SfX82LOBVeKEsjib+rPWEXVFZEwbx8=;
-	b=CPvn8FGDkdFP0ev0LaAoxVoLtVs/du0wf+6iuwYhceU1SGEC+5qiq96fUEaLM03eL3lUeT
-	SuQOgKBDrW9hyigFIk0TdZSDZgSHZinl/zH2tdlikO+5NDMD+lSMsAFYxbBNBfiXpzaH8M
-	SByRVpzhqf1T89Tl8fjqfp3IGGZvS58=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=20ghAhTra6izBIEKTsU0crmKM6rj8P8UsO71njZ+5PA=;
+	b=hvCTxMZFP8i58sGaaIA8HROrryMVZp4BFkAcrQPxHSvkF0TY1lcr/IT5yiEvJamkwMplXW
+	grHQkw5hm+IousxsYXf9Uw23GZe2s2dZ2EctvQCE+Kc4VAytgEPHNwpva6+x/H3V1hu5L8
+	+MHQqP4KrU94kZ32V24GM2+ojbWTdVI=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-613-wtcZnJW9NfKQqvqBJK0YMw-1; Sun, 10 Aug 2025 22:58:54 -0400
-X-MC-Unique: wtcZnJW9NfKQqvqBJK0YMw-1
-X-Mimecast-MFC-AGG-ID: wtcZnJW9NfKQqvqBJK0YMw_1754881133
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-3211b736a11so8679696a91.0
-        for <virtualization@lists.linux.dev>; Sun, 10 Aug 2025 19:58:54 -0700 (PDT)
+ us-mta-21-RZjV4RJHNnCpuZ_Wss7rrg-1; Sun, 10 Aug 2025 23:10:06 -0400
+X-MC-Unique: RZjV4RJHNnCpuZ_Wss7rrg-1
+X-Mimecast-MFC-AGG-ID: RZjV4RJHNnCpuZ_Wss7rrg_1754881794
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-31ea6231678so4374523a91.0
+        for <virtualization@lists.linux.dev>; Sun, 10 Aug 2025 20:09:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754881133; x=1755485933;
+        d=1e100.net; s=20230601; t=1754881794; x=1755486594;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=q6Hu5EXgp1My3SfX82LOBVeKEsjib+rPWEXVFZEwbx8=;
-        b=nQTWogZC9CL3llmXYYvQ1aIWZNEw/MUR8lXPxex/nWeBFpUk1UfMznJxs0q67PT8m3
-         QsQJ+/w8a1js6A36TRrcDOC0ItJDLt3/C36K2aCV1X59dn1uljQUBQ/7LkGVJ2NSPgEh
-         yo7T2/PsJbgZ8VDWjoV9XPyLa9nBi6vyqY5LXxlqUX2+XhnHk6au3B5w9YkO6b8izJF4
-         fuMHbCq1ZeShsx7akovA5cG2e46+tCaS6b8C/NqgBgqpY0/QK0KGPDXTiVrjh9qDOf9h
-         rBVpFnN3Yu92Rr8k6znZct4uDydvBo6Pc1kh71ULLnF4iFkia/d31WqvLWqAKOGu3VjN
-         mmBg==
-X-Forwarded-Encrypted: i=1; AJvYcCXYecynfGrwhhyWOhf5bD3KMZ1ncFYAR2Nd3noshmqR0A9gID41s/etFkochMEw9pWjeZB7/0YVn98XSPabEg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXqIjsiqTb5nQIlltvVhYBcHL/ld3cGhfw3mE/Oix3i3JJQzj2
-	7z0baEV+HCcNPIc6akQnmdNaqdODHtg5C7Du1DKs591ymrbpHtH/UPlQgYGOhffMiE7v4GUafjM
-	e3zi++UiLlgyLGcK/usqHnH++5xFa9NDF/Iudvxfv5pV8g9u+pERPkHY/Czt9VLH2mKDMh50MJ3
-	d1fP+7bVWzxSv7KwEdycVUIPByXQ+pSopHl0ttQ4w/09g=
-X-Gm-Gg: ASbGnctSvHnQsTOXQmvg7QX290KJ1id4EWJne9//EkZez08kLQTEVIjRAflcU5Biqah
-	9N/VeZCvTY7lXeH5YIeo07KSGGEugt13hx4boY4f1KLTNOfY9EKKTOA+V8xjPzjIEP1mQBkHeBG
-	XySkj40TPde0HzC6NdjrM=
-X-Received: by 2002:a17:90b:3951:b0:321:2f06:d3ab with SMTP id 98e67ed59e1d1-32183b4573emr17938488a91.21.1754881133359;
-        Sun, 10 Aug 2025 19:58:53 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG28yVH9yNcT1SayN1+TxixGDCCbolSNgBOa5s90uQYplFkc7pA6iWREpleNXpewZOV3PboIupfDDi34j98mn8=
-X-Received: by 2002:a17:90b:3951:b0:321:2f06:d3ab with SMTP id
- 98e67ed59e1d1-32183b4573emr17938454a91.21.1754881132887; Sun, 10 Aug 2025
- 19:58:52 -0700 (PDT)
+        bh=20ghAhTra6izBIEKTsU0crmKM6rj8P8UsO71njZ+5PA=;
+        b=PHM6G1NQsS3TRtVotjYQjxgB2/Fw2bBqHC5YS3mcIIx42I1D/TZNaH+aAl9OxqpcVe
+         mBlv8b/Hv+PTYEMLd81DnNcwoC8WRSuzSi5U8vHusM4cAKf5w2t0a9BUXI/Rgmz2BcTe
+         nO/naWaEIkJWqiFvS8xYU5SM+zXHEHCUfqc/t7jf7y9WfTKKfM1mUMl/JRqobc0dKdwS
+         /CZ3067M77zDvMHM8bz8YRmwT/OgBpJM4ou92xQwd2FzHLoTbr2Xh27DvyDtSVXe/Kij
+         KqEuyA1blCdjBmNsG2Dfj7JfpUia90rcq4fPnyS+K0OAO8Wwoav2Y391kUaoidOwS2tF
+         AVJg==
+X-Forwarded-Encrypted: i=1; AJvYcCUN6SNRssy/8K33zqKhUI5Xej4d5LztVAF9dazwIToSMJNv0VB4Nvv8Iij/V0kFWd+fRV+2d9mBCKwIqC+WsQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwJ/fh8xt1uuCLSeafzfZnmUSXIT08ZHvEAtOQ4i/NbcBXJKmSL
+	28OK8AXY20O9QEgvZheI8tdMB2NGDOhW4gq/6U5bCizomYs9iPwi48C6d+yia5CMrllOMNGxKwh
+	l/3WSGuLRcwa6Zscb8yTXuL748P5+ASPiHgvOP81BHyRpe5i5PBTXyjcCE9SwBlUOZqRDSjotcP
+	rnUBmr2RylsgBzxo0eybOmuZJ8jf7PR5mQ0XuMp6qsiWE=
+X-Gm-Gg: ASbGncsfr08glMr16aj489Qs7UP/nzyrQHwSjKnZVEahCijpebs8vMQsCLgSwoNVYQz
+	taXd65fVehM34qxUIOdk9Ix4Mw/nUin93AN1LWowZVmKbP5DZFfT7wyiRzQ/WhtTQ0mFFcqPLrW
+	aaSXn4s8I96aEjGxhlfao=
+X-Received: by 2002:a17:90b:4986:b0:314:2cd2:595d with SMTP id 98e67ed59e1d1-3218439db43mr18155725a91.8.1754881794073;
+        Sun, 10 Aug 2025 20:09:54 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG4Fs7VVa0FzIKzinv2kEUKLby94eOvwISEi+KslRsbTo/SBws2naemJhmXAHJ7/cbZMrOelyftz/so8ltFrO8=
+X-Received: by 2002:a17:90b:4986:b0:314:2cd2:595d with SMTP id
+ 98e67ed59e1d1-3218439db43mr18155700a91.8.1754881793611; Sun, 10 Aug 2025
+ 20:09:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250606115012.1331551-1-eperezma@redhat.com> <20250606115012.1331551-2-eperezma@redhat.com>
- <CACGkMEsw2taXgW11na2CFK6W03c=x=wMn3iwNZPypgPkeSU06Q@mail.gmail.com>
- <CACGkMEvinV7Zd+xddnxcerFbw_c+RZypkeD5HaN8=g6+peZvMQ@mail.gmail.com>
- <CAJaqyWeetDsdoDzVrN-n0+jr97MBPeHdTxeM3ttmNUeLK702VA@mail.gmail.com>
- <CACGkMEvbxZsmPPHgfst89FCbZamBPLt8V=K-eepa4s3muFuM4A@mail.gmail.com>
- <CAJaqyWerLAL44w-mnwaohZh+duzHqPS3BO-sJDoEHZDN5RLY1g@mail.gmail.com>
- <CACGkMEvsvFzKUF6w0T4juUFcDbm67YoFFwNDw82K6kogB-1yRA@mail.gmail.com> <CAJaqyWeteUcvzTbcf2ShatX8QLCVCEgs-dgy19ir=W3LJE3y1A@mail.gmail.com>
-In-Reply-To: <CAJaqyWeteUcvzTbcf2ShatX8QLCVCEgs-dgy19ir=W3LJE3y1A@mail.gmail.com>
+References: <20250807115752.1663383-1-eperezma@redhat.com> <20250807115752.1663383-3-eperezma@redhat.com>
+In-Reply-To: <20250807115752.1663383-3-eperezma@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 11 Aug 2025 10:58:40 +0800
-X-Gm-Features: Ac12FXySCTONtYkmuO8NMluRp3D5fVCBLdUFipBjPxdE0S7dXWOTZ8aEEBqmpNw
-Message-ID: <CACGkMEtir49z9P=82SO9a4JML9D71UAaGSm38R2Ubx3Sg6ZufQ@mail.gmail.com>
-Subject: Re: [RFC 1/6] vduse: add v1 API definition
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Yongji Xie <xieyongji@bytedance.com>, Cindy Lu <lulu@redhat.com>, 
-	linux-kernel@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Laurent Vivier <lvivier@redhat.com>
+Date: Mon, 11 Aug 2025 11:09:42 +0800
+X-Gm-Features: Ac12FXyd2NEMDD86QVQx-BBNPdp7ly5Y3cms8CTZ-KwtgAbSfMFH_t9eySwY9kY
+Message-ID: <CACGkMEsMcnBnVPMWD7fxrnXzT+rsUppAxNkoSC4Zy=HiodOvZw@mail.gmail.com>
+Subject: Re: [RFC v2 2/7] vduse: add vq group support
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Yongji Xie <xieyongji@bytedance.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	virtualization@lists.linux.dev, Laurent Vivier <lvivier@redhat.com>, 
+	linux-kernel@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Maxime Coquelin <mcoqueli@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: jyxYEstahZhYlILaPcKd4NPH-uQqxHOLIib2NRSZtuI_1754881133
+X-Mimecast-MFC-PROC-ID: QTkENTiG43H717SJWfZc_bS1jOyr1wEgPv3zjjFkYMU_1754881794
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Aug 10, 2025 at 6:18=E2=80=AFPM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Fri, Aug 8, 2025 at 2:50=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
-> >
-> > On Thu, Aug 7, 2025 at 6:56=E2=80=AFPM Eugenio Perez Martin <eperezma@r=
-edhat.com> wrote:
-> > >
-> > > On Tue, Jun 10, 2025 at 10:36=E2=80=AFAM Jason Wang <jasowang@redhat.=
+On Thu, Aug 7, 2025 at 7:58=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redhat.=
 com> wrote:
-> > > >
-> > > > On Mon, Jun 9, 2025 at 2:11=E2=80=AFPM Eugenio Perez Martin <eperez=
-ma@redhat.com> wrote:
-> > > > >
-> > > > > On Mon, Jun 9, 2025 at 3:50=E2=80=AFAM Jason Wang <jasowang@redha=
-t.com> wrote:
-> > > > > >
-> > > > > > On Mon, Jun 9, 2025 at 9:41=E2=80=AFAM Jason Wang <jasowang@red=
-hat.com> wrote:
-> > > > > > >
-> > > > > > > On Fri, Jun 6, 2025 at 7:50=E2=80=AFPM Eugenio P=C3=A9rez <ep=
-erezma@redhat.com> wrote:
-> > > > > > > >
-> > > > > > > > This allows to define all functions checking the API versio=
-n set by the
-> > > > > > > > userland device.
-> > > > > > > >
-> > > > > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > > > > >
-> > > > > > > It might be worth clarifying how it works.
-> > > > > > >
-> > > > > > > For example,
-> > > > > > >
-> > > > > > > 1) would VDUSE behave differently or if it's just some new io=
-ctls
-> > > > >
-> > > > > I'd like to test more in-depth, but a device can just bump the ve=
-rsion
-> > > > > ID and then implement the replies to the vduse messages. No need =
-to
-> > > > > implement new ioctls. If the VDUSE device sets 0 in either number=
- of
-> > > > > ASID or vq groups, the kernel assumes 1.
-> > > >
-> > > > Right, this is the way we use now and I think maybe we can document
-> > > > this somewhere.
-> > > >
-> > > > >
-> > > > > But you have a very good point here, I think it is wise to evalua=
-te
-> > > > > the shortcut of these messages in the VDUSE kernel module. If a V=
-DUSE
-> > > > > device only has one vq group and one ASID, it can always return g=
-roup
-> > > > > 0 and asid 0 for everything, and fail every try to ser asid !=3D =
-0.
-> > > >
-> > > > Yes, and vhost-vDPA needs to guard against the misconfiguration.
-> > > >
-> > > > > This
-> > > > > way, the update is transparent for the VDUSE device, and future
-> > > > > devices do not need to implement the reply of these. What do you
-> > > > > think?
-> > > >
-> > > > This should work.
-> > > >
-> > > > >
-> > > > > > > 2) If VDUSE behave differently, do we need a ioctl to set the=
- API
-> > > > > > > version for backward compatibility?
-> > > > > >
-> > > > > > Speak too fast, there's a VDUSE_SET_API_VERSION actually.
-> > > > > >
-> > > > > > I think we need to think if it complicates the migration compat=
-ibility or not.
-> > > > > >
-> > > > >
-> > > > > Do you mean migration as "increase the VDUSE version number", not=
- "VM
-> > > > > live migration from vduse version 0 to vduse version 1", isn't it=
-? The
-> > > > > second should not have any problem but I haven't tested it.
-> > > >
-> > > > I mean if we bump the version, we can't migrate from version 1 to
-> > > > version 0. Or we can offload this to the management (do we need to
-> > > > extend the vdpa tool for this)?
-> > > >
-> > >
-> > > I just noticed I left this unreplied. But I still do not get what
-> > > migrate means here :).
-> > >
-> > > If migrate means to run current VDUSE devices on kernel with this
-> > > series applied these devices don't set V1 API so they have one vq
-> > > group, and one asid. I'm actually testing this with my libfuse+VDUSE
-> > > modifications that don't use V1 at all. Adding this explanation to th=
-e
-> > > patch as it is a very good point indeed.
-> >
-> > Right.
-> >
-> > >
-> > > If it means to migrate a guest from using a V1 VDUSE device to a V0
-> > > device "it should work", as it is just a backend implementation
-> > > detail.
-> >
-> > For example src is the VDUSE with multiqueue support (v1) but dest
-> > doesn't have this support (v0). I think the qemu should fail to launch
-> > in dest.
-> >
-> > > If we migrate from or to a vdpa device backed by hardware, for
-> > > example, one of the devices does not even have the concept of VDUSE
-> > > API version.
-> > >
-> > > In the case of net, it does not work at the moment because the only
-> > > way to set features like mq are through the shadow CVQ.
-> >
-> > I think you mean qemu should fail, I'm not sure this is friendly to lib=
-virt.
-> >
 >
-> No, I think QEMU should not transmit vdpa backend properties not
-> visible to the guest, so we don't get an explosion of properties that
-> are hard to get. Expanding on this, QEMU is not even able to know if
-> it is talking with VDUSE, vdpa_sim, or a vdpa device backed by
-> hardware. And I think we don't want QEMU to have this information. So
-> sending the VDUSE version implies removing a lot of useful
-> abstractions.
+> This allows sepparate the different virtqueues in groups that shares the
+> same address space.  Asking the VDUSE device for the groups of the vq at
+> the beginning as they're needed for the DMA API.
 >
-> In the case of net, the destination QEMU should fail if it is not able
-> to restore the device state. At this moment this implies to have at
-> least two ASID if the net device has CVQ, and that CVQ is in its own
-> ASID, but that may not be true in the future.
+> Allocating 3 vq groups as net is the device that need the most groups:
+> * Dataplane (guest passthrough)
+> * CVQ
+> * Shadowed vrings.
 >
-> But QEMU does not check if that is the case migrating between two
-> vdpa_net_sim if one supports ASID but the other doesn't.
-
-Ok I think I must miss something. I need some context here. For
-example, Is the shadow cvq option used by libvirt or not? (Or it has
-been enabled by default if Qemu detect cvq has its own group?)
-
-If shadow cvq is neither used by libvirt nor automatically enabled, we
-need to make it work for libvirt first.
-
-If it relies on libvirt to enable it explicitly, is libvirt expected
-to detect the vDPA ability (I guess it is not what libvirt wants)?
-If shadow cvq is enabled automatically, migrating from V2 to V1 is
-fine but not the reverse.
-
-> And this is
-> only a requirement for net, not for other vdpa devices.
+> Future versions of the series can include dynamic allocation of the
+> groups array so VDUSE can declare more groups.
 >
-> So if we want to develop it, I think it is independent of this series.
+> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> ---
+> v2:
+> * Cache group information in kernel, as we need to provide the vq map
+>   tokens properly.
+> * Add descs vq group to optimize SVQ forwarding and support indirect
+>   descriptors out of the box.
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 71 +++++++++++++++++++++++++++++-
+>  include/uapi/linux/vduse.h         | 19 +++++++-
+>  2 files changed, 88 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
+vduse_dev.c
+> index d858c4389cc1..d1f6d00a9c71 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -46,6 +46,11 @@
+>  #define VDUSE_IOVA_SIZE (VDUSE_MAX_BOUNCE_SIZE + 128 * 1024 * 1024)
+>  #define VDUSE_MSG_DEFAULT_TIMEOUT 30
+>
+> +/*
+> + * Let's make it 3 for simplicity.
+> + */
+> +#define VDUSE_MAX_VQ_GROUPS 3
+
+I think we can release this to something like 64. Otherwise we might
+bump the version again just to increase the limitation? Or having a
+sysfs entry like bounce_size?
+
+> +
+>  #define IRQ_UNBOUND -1
+>
+>  struct vduse_virtqueue {
+> @@ -58,6 +63,8 @@ struct vduse_virtqueue {
+>         struct vdpa_vq_state state;
+>         bool ready;
+>         bool kicked;
+> +       u32 vq_group;
+> +       u32 vq_desc_group;
+>         spinlock_t kick_lock;
+>         spinlock_t irq_lock;
+>         struct eventfd_ctx *kickfd;
+> @@ -114,6 +121,7 @@ struct vduse_dev {
+>         u8 status;
+>         u32 vq_num;
+>         u32 vq_align;
+> +       u32 ngroups;
+>         struct vduse_umem *umem;
+>         struct mutex mem_lock;
+>         unsigned int bounce_size;
+> @@ -592,6 +600,20 @@ static int vduse_vdpa_set_vq_state(struct vdpa_devic=
+e *vdpa, u16 idx,
+>         return 0;
+>  }
+>
+> +static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 idx)
+> +{
+> +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> +
+> +       return dev->vqs[idx]->vq_group;
+> +}
+> +
+> +static u32 vduse_get_vq_desc_group(struct vdpa_device *vdpa, u16 idx)
+> +{
+> +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> +
+> +       return dev->vqs[idx]->vq_desc_group;
+> +}
+> +
+>  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx,
+>                                 struct vdpa_vq_state *state)
+>  {
+> @@ -678,13 +700,48 @@ static u8 vduse_vdpa_get_status(struct vdpa_device =
+*vdpa)
+>         return dev->status;
+>  }
+>
+> +static int vduse_fill_vq_groups(struct vduse_dev *dev)
+> +{
+> +       if (dev->api_version < VDUSE_API_VERSION_1)
+> +               return 0;
+> +
+> +       for (int i =3D 0; i < dev->vdev->vdpa.nvqs; ++i) {
+> +               struct vduse_dev_msg msg =3D { 0 };
+> +               int ret;
+> +
+> +               msg.req.type =3D VDUSE_GET_VQ_GROUP;
+> +               msg.req.vq_group.index =3D i;
+> +               ret =3D vduse_dev_msg_sync(dev, &msg);
+
+I fail to understand why the default group mapping is not done during
+device creation.
+
+> +               if (ret)
+> +                       return ret;
+> +
+> +               dev->vqs[i]->vq_group =3D msg.resp.vq_group.num;
+> +
+> +               msg.req.type =3D VDUSE_GET_VRING_DESC_GROUP;
+> +               ret =3D vduse_dev_msg_sync(dev, &msg);
+> +               if (ret)
+> +                       return ret;
+> +
+> +               dev->vqs[i]->vq_desc_group =3D msg.resp.vq_group.num;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+>  static void vduse_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
+>  {
+>         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> +       u8 previous_status =3D dev->status;
+>
+>         if (vduse_dev_set_status(dev, status))
+>                 return;
+>
+> +       if ((dev->status ^ previous_status) &
+> +            BIT_ULL(VIRTIO_CONFIG_S_FEATURES_OK) &&
+> +           status & (1ULL << VIRTIO_CONFIG_S_FEATURES_OK))
+> +               if (vduse_fill_vq_groups(dev))
+
+Can we merge the two messages into a single one? Or can we use a
+shared memory for storing such mapping?
+
+For example, if we have 256 queues it would be very slow.
 
 Thanks
-
->
-> [...]
->
 
