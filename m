@@ -1,202 +1,112 @@
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79FBA2F90DE;
-	Tue, 12 Aug 2025 16:23:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.237.130.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 505582E972E
+	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 17:46:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755015841; cv=none; b=L1MPMkl8rknrgU5WyZUAv/rMggQNlAx8wAM5VE0imB5qdL+DFEGPr01h9eMudYZ4fUVeEATvRFz2JbWddGJ1qxUjq1s3qSBNEZNTBDa4L/tl9H9oqk4pqBBWZfntuCJfkx0UpDvZJ7uabzvbm9tLt9ooSGFN/zfHWCXyCsXrE5U=
+	t=1755020762; cv=none; b=VxwFHBB/oquwCRK/2YMNcsGl1v1a2H7gCGjWj7FKPuDd1lE2PRw9lK3LPVp2OWPpmBobvXAOYNXkEx3iSGyVmzYWQgudHlpX5cIy9pnRgxBvi6nGwXcGA9coGvGDclOy/Ex8W3AJtV7RZyVsJua4l63WdG4Rd47ZUDnVSLB1QiI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755015841; c=relaxed/simple;
-	bh=56/69U/k5THQ7aJSbesOKKjQt+X4pjxrQas9Ychkhs4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=W2rptwkfoXxJx20pkUL1QgxqDu2kDFxpwaC/bw8pcD6S3KHAq2uhK9jcDc56NZpZsWPFzbG6tk77o7JfWoSD5vNYFIQz/xcdvco8+uDozlE/lzA2d4JKvhdxKSNrBhAEPmCFUuvFaiJm1Ad+l0UqHmMqhfCQysypCVRy3wLd7mw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=LWeNWMe2; arc=none smtp.client-ip=80.237.130.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
+	s=arc-20240116; t=1755020762; c=relaxed/simple;
+	bh=sLBrvqqsZtV1FCVTCMrMgsMw93cY6+eaaOKrjSt2vBE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NBuSu72nrCZSwBgMFWRvCENF2vYEprYG9kO6kbBSDDmr91Mv57lIzlMTjk0vKcs34bzMc0oMVtX9x3LfTR7lmXI7unEjHTOGOnrZE3yrR1YioUNsAasZvbMZNFHI4j0QVWChNJY7m/2PrQzFwUW28JFixWfL1SF9j7gxseqF1bY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dama.to; spf=none smtp.mailfrom=dama.to; dkim=pass (2048-bit key) header.d=dama-to.20230601.gappssmtp.com header.i=@dama-to.20230601.gappssmtp.com header.b=1eh2HExZ; arc=none smtp.client-ip=209.85.210.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dama.to
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=dama.to
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="LWeNWMe2"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=leemhuis.info; s=he214686; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:From:
-	Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
-	Content-Transfer-Encoding:Content-ID:Content-Description:In-Reply-To:
-	References; bh=aHJzgTYNHhUFIaGCwqmyoUgVvhj+lSUoXDtgiSq6xY8=; t=1755015839;
-	x=1755447839; b=LWeNWMe2uvekrmbASCp9e3Nq4ZSGoFmcYsZ5ULdD11UA31KEcREZ2PjTdarqc
-	OQfA+7IgI9U+n9rK+kGPZPIaDjaoHiqQLxFdlpoJw21e7BtvzTvoMhnY1RLz/JKF2Aijx5JW9hWWr
-	WRJjcAjSH7Szw0q6UHD3g5OtxTrOOYSV0iS9WBkV6dnS3TjWC6GZr4gSWEFrdLKhQno4TcjUwMEHV
-	5b70/gFfIJUfCS1E1Fz9Q3iFw1sGEzX5IPVe94ttbOObOLe8yOIvnIuEwoZTK62iVU8C+wm6iv8HV
-	vwZDd3jgavbp71lbCF4NQVaezrMXVXn+315iWW1/aho60wCITw==;
-Received: from [2a02:8108:8984:1d00:a0cf:1912:4be:477f]; authenticated
-	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128)
-	id 1ulrms-004YLW-1x;
-	Tue, 12 Aug 2025 18:23:46 +0200
-Message-ID: <9b9edf2a-b4f3-4024-a91d-0902cfe832dc@leemhuis.info>
-Date: Tue, 12 Aug 2025 18:23:45 +0200
+	dkim=pass (2048-bit key) header.d=dama-to.20230601.gappssmtp.com header.i=@dama-to.20230601.gappssmtp.com header.b="1eh2HExZ"
+Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-76bddb92dc1so7248259b3a.0
+        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 10:46:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=dama-to.20230601.gappssmtp.com; s=20230601; t=1755020759; x=1755625559; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=M+evhD+loaePWkAdN54jiK6XfwBYZ051YhjuuP6S/D8=;
+        b=1eh2HExZmF9cEULsKFTfliamerXYBd47n3nE2oYc8OyH9iCzwWSie8fOm8HtyOXTtE
+         P8zQAB4LuSzUQQeYXsXk6KKLf3aiNugCxPNRXxK6dL1BP6gJKy54jZfAv5yTNdDNvwGZ
+         DVCj4RYb5ihlD4FMrDYHGV4/sXjsuVIsZ2ApFCzxfpR3SQYYAjR85GLwQnHQSl2znBR2
+         nScQjuigvQl4F9oW6cHFZ5B4lf1gHFAHxFMHuoSmQ40oO79DSsJYxEDU17X0ue8hMRmQ
+         frk122mPU0q4v1yTqdBlPSBKX1GM3B7iE3Ypq0iSW5pVsLxf+uZRN5loDNB7vkXgIo7A
+         /LFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755020759; x=1755625559;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=M+evhD+loaePWkAdN54jiK6XfwBYZ051YhjuuP6S/D8=;
+        b=nzmS/q/QGNKi+6DBIla+8M2epYUre+wo9IPjc1TcQtKud9/z4w4cUlJrJi5mkfQul3
+         JpopoRduEI2PIJzlQVsNAN2Z/vPedKG7sL0jPxf32na5bHGcu1tGkSDpgqRN+mt9YnHo
+         za+Kme9cr7oeGAbcN8jB5zQZyj+6/BYenQC0Q1N3FRMkSkNro6ZpNGJsasEWT+Mf8haP
+         afbMbWBqIAgGP3xj4ncZuMRvC47fALTljlv+Sk8HuNOmW54lElYhtAgadRu2TE+gcj8Y
+         OYUWfEu6KO+R0XtFHesiC+HoPfpf3AhPFv8GnZC4NYBJgHzw1nwKJt6dgSy33w0j+kHA
+         Fg1g==
+X-Forwarded-Encrypted: i=1; AJvYcCXCy1YXzHgkhF208608rJPykpU7cGyFQwKLSG45psvrWi5TjgRkRGYV0axukhD97Ex0k08sLrBYpKeoPbC49A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyCHNX61q93OGaXlogLSrDBeiVQLIUOpTOOHc8uy27wePOTCD7H
+	+JGVHLZCWi2ibKAcigkWODi3hSdLWPaPQbMGf4Vo1w3j85HP+9W9nUlWE18Ob4As0NM=
+X-Gm-Gg: ASbGncuwz2hwgFLCQqjKXq5DJBsofSA0Pkzwym/l6e6NIbBMMwfDA6xt/BDDR1qGI86
+	X/0PthmV+2JmjOF6befK5t97Rle+F1vKf1k/PZgBgC8sOEPKOHGG8mEIiIBRsZsV0hpuTdZfb1B
+	miw+JqL0ql0MmlD9yN1O0MXD/uxdbe8SiDfZz7AQZ3X//6rWO7vW7mJnrCxoVE/YokxtCBebFfl
+	NFIxrVlxv+81FbAEsW1dL6Wgppbj6DC0c8YttubYp9dVCkSyMZztPY94xOeHe3jxZpFYL5b4RCa
+	WNII+enYBeC4NRaE3XwFHc41RKMif0K9gi63hgfViL6XZft+X/lp4Q/DKcoBKiVDBpY8BERv0Ov
+	76+NplMME+Js6xEiEbSeRt31TXRZcR3ddU7gR0J7/LbbNpqO43PfaSUkT5q/c+d/xQOpCZn8k
+X-Google-Smtp-Source: AGHT+IHgeepKUmWcRSt+K6fwtVExxF9zuRBGrYePdQX+VK6gDgBfVe8guzcU2VXIutR11ypHY64Xyg==
+X-Received: by 2002:a05:6a00:8d4:b0:76b:ffd1:7737 with SMTP id d2e1a72fcca58-76e20fb980dmr68959b3a.22.1755020759568;
+        Tue, 12 Aug 2025 10:45:59 -0700 (PDT)
+Received: from MacBook-Air.local (c-73-222-201-58.hsd1.ca.comcast.net. [73.222.201.58])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-76c61dd2ce7sm8965276b3a.41.2025.08.12.10.45.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Aug 2025 10:45:59 -0700 (PDT)
+Date: Tue, 12 Aug 2025 10:45:57 -0700
+From: Joe Damato <joe@dama.to>
+To: Liao Yuanhong <liaoyuanhong@vivo.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Konstantin Shkolnyy <kshk@linux.ibm.com>,
+	"open list:VM SOCKETS (AF_VSOCK)" <virtualization@lists.linux.dev>,
+	"open list:VM SOCKETS (AF_VSOCK)" <netdev@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vsock/test: Remove redundant semicolons
+Message-ID: <aJt91SSkBO486bg5@MacBook-Air.local>
+Mail-Followup-To: Joe Damato <joe@dama.to>,
+	Liao Yuanhong <liaoyuanhong@vivo.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Konstantin Shkolnyy <kshk@linux.ibm.com>,
+	"open list:VM SOCKETS (AF_VSOCK)" <virtualization@lists.linux.dev>,
+	"open list:VM SOCKETS (AF_VSOCK)" <netdev@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>
+References: <20250812040115.502956-1-liaoyuanhong@vivo.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [REGRESSION][BISECTED] kernel panic is not displayed correctly in
- qemu (CONFIG_DRM_BOCHS)
-To: Askar Safin <safinaskar@zohomail.com>,
- Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, =?UTF-8?Q?Noralf_Tr=C3=B8nnes?=
- <noralf@tronnes.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>,
- virtualization <virtualization@lists.linux.dev>,
- ryasuoka <ryasuoka@redhat.com>, dri-devel <dri-devel@lists.freedesktop.org>,
- qemu-devel <qemu-devel@nongnu.org>, regressions
- <regressions@lists.linux.dev>, Ben Hutchings <benh@debian.org>
-References: <197f290e30b.eaadc7bc7913.7315623184036672946@zohomail.com>
-From: Thorsten Leemhuis <regressions@leemhuis.info>
-Content-Language: de-DE, en-US
-In-Reply-To: <197f290e30b.eaadc7bc7913.7315623184036672946@zohomail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1755015839;46364fb1;
-X-HE-SMSGID: 1ulrms-004YLW-1x
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250812040115.502956-1-liaoyuanhong@vivo.com>
 
-Hi! Thanks for your report. Given that Thomas' commits that broke things
-and then partially made them working again are from 2019 there is no
-real benefit in tracking this with regzbot, as it can't be solved with a
-revert or such; sure, ideally the involved developers or someone else
-will look at it, but often they have much more important things to fix –
-and often they moved on to new endeavors and sometimes even retired in
-between. Sorry, that's just how it is.
+On Tue, Aug 12, 2025 at 12:01:15PM +0800, Liao Yuanhong wrote:
+> Remove unnecessary semicolons.
+> 
+> Fixes: 86814d8ffd55f ("vsock/test: verify socket options after setting them")
+> Signed-off-by: Liao Yuanhong <liaoyuanhong@vivo.com>
+> ---
+>  tools/testing/vsock/util.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+> index 7b861a8e997a..d843643ced6b 100644
+> --- a/tools/testing/vsock/util.c
+> +++ b/tools/testing/vsock/util.c
+> @@ -756,7 +756,6 @@ void setsockopt_ull_check(int fd, int level, int optname,
+>  fail:
+>  	fprintf(stderr, "%s  val %llu\n", errmsg, val);
+>  	exit(EXIT_FAILURE);
+> -;
+>  }
 
-But well, with a bit of luck this mail or something else motivates
-someone to look into the issue. :-D Wish you luck!
-
-Ciao, Thorsten
-
-#regzbot introduced: a6c3464f69cf5a8a31e
-#regzbot resolve: tracking unpromising
-
-On 10.07.25 06:21, Askar Safin wrote:
-> Steps to reproduce:
-> 
-> - Build Linux v6.16-rc5 so:
-> 
-> $ cat mini
-> CONFIG_64BIT=y
-> 
-> CONFIG_EXPERT=y
-> CONFIG_EMBEDDED=y
-> 
-> CONFIG_PRINTK=y
-> CONFIG_PRINTK_TIME=y
-> 
-> CONFIG_PCI=y
-> 
-> CONFIG_TTY=y
-> CONFIG_VT=y
-> CONFIG_VT_CONSOLE=y
-> CONFIG_DRM=y
-> CONFIG_DRM_FBDEV_EMULATION=y
-> CONFIG_DRM_BOCHS=y
-> CONFIG_FRAMEBUFFER_CONSOLE=y
-> CONFIG_PROC_FS=y
-> $ make KCONFIG_ALLCONFIG=mini allnoconfig
-> $ make
-> 
-> - Then boot this Linux image in Qemu so:
-> 
-> $ qemu-system-x86_64 -enable-kvm -m 1024 -daemonize -kernel arch/x86_64/boot/bzImage
-> 
-> Kernel will (predictably) panic (because it has no initramfs, nor real disk), but actual panic message will not be shown!
-> 
-> Last shown line is "Run /bin/sh as init process"
-> 
-> My host OS is Debian Trixie. "uname -a":
-> 
-> Linux receipt 6.12.33+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.33-1 (2025-06-19) x86_64 GNU/Linux
-> 
-> Qemu version is:
-> 
-> QEMU emulator version 10.0.2 (Debian 1:10.0.2+ds-1)
-> 
-> Guest kernel is v6.16-rc5 x86_64.
-> 
-> The problem doesn't reproduce on old guest kernels. I. e. old guest kernels actually show panic message.
-> 
-> I did bisect, and bisect showed the following two commits:
-> 
-> ===
-> 
-> commit a6c3464f69cf5a8a31eb31cc436e7dbd325b8ff9
-> Author: Thomas Zimmermann <tzimmermann@suse.de>
-> Date:   Thu Jun 13 09:30:33 2019 +0200
-> 
->     drm/gem-vram: Support pinning buffers to current location
->     
->     Pinning a buffer prevents it from being moved to a different memory
->     location. For some operations, such as buffer updates, it is not
->     important where the buffer is located. Setting the pin function's
->     pl_flag argument to 0 will pin the buffer to whereever it is stored.
->     
->     v2:
->             * document pin flags in PRIME pin helper
->     
->     Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->     Acked-by: Gerd Hoffmann <kraxel@redhat.com>
->     Link: https://patchwork.freedesktop.org/patch/msgid/20190613073041.29350-2-tzimmermann@suse.de
-> 
-> commit 58540594570778fd149cd8c9b2bff61f2cefa8c9
-> Author: Thomas Zimmermann <tzimmermann@suse.de>
-> Date:   Wed Jul 3 09:58:34 2019 +0200
-> 
->     drm/bochs: Use shadow buffer for bochs framebuffer console
->     
->     The bochs driver (and virtual hardware) requires buffer objects to
->     reside in video ram to display them to the screen. So it can not
->     display the framebuffer console because the respective buffer object
->     is permanently pinned in system memory.
->     
->     Using a shadow buffer for the console solves this problem. The console
->     emulation will pin the buffer object only during updates from the shadow
->     buffer. Otherwise, the bochs driver can freely relocated the buffer
->     between system memory and video ram.
->     
->     v2:
->             * select shadow FB via struct drm_mode_config.prefer_shadow_fbdev
->     
->     Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->     Acked-by: Noralf Trønnes <noralf@tronnes.org>
->     Link: https://patchwork.freedesktop.org/patch/315833/
->     Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> 
-> ===
-> 
-> Commit a6c3464f69cf5a8a31e changed good behavior to absolutely wrong: after a6c3464f69cf5a8a31e I see just black screen.
-> Then (after many commits) 58540594570778fd149 made screen working again, but now panics are not shown.
-> 
-> So, result: all commits in range a6c3464f69cf5a8a31e .. 58540594570778fd149 are not testable (black screen), all commits before a6c3464f69cf5a8a31e
-> are "good" (panic is shown) and all commits after 58540594570778fd149 (inclusive) (including v6.16-rc5) are "bad" (panic is not shown).
-> 
-> The next commit after 58540594570778fd149 is 5fd5d2b7c53de5a1290d82, thus correct regzbot instruction is:
-> 
-> #regzbot introduced: a6c3464f69cf5a8a31e..5fd5d2b7c53de5a1290d82
-> 
-> Config above is not special. It is result of minimizing standard Debian config.
-> 
-> The bug is reproducible with standard Debian kernels (if we use them as guests).
-> 
-> Reproduction steps are so:
-> - Install Debian Trixie to Qemu VM
-> - Boot it with "init=/bin/true" added (to cause kernel panic)
-> 
-> You will not see panic message.
-> 
-> I minimized this Debian bug to small config shown in the beginning of this letter.
-> 
-> --
-> Askar Safin
-> https://types.pl/@safinaskar
-> 
-> 
-> 
-
+This isn't a fixes since it doesn't fix a bug; it's cleanup so I'd probably
+target net-next and drop the fixes tag.
