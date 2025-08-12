@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D91D62E1C74
-	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 09:26:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBA8E2E8897
+	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 09:27:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754990809; cv=none; b=VsVVlZNm3cW7wPyOtQ1aK4CPxWgECEd1PGK+nSBKfzKH0DA5bDNvgKxR2WuLIQmNuSZNqCwZv+/LH/WAxsUDOrQ68VMAnnKKw3XCooRNg1Chf3xsiK3WBWhjlHYNJBzc/MMlgR30XrskdJoW81YZbqw5E1NHOqYtY1YjBMtHyAk=
+	t=1754990839; cv=none; b=Dqg+g1iV6Csm/ZpmWSV2EiGp6NGy8Bih7Fz4tTKwzlS+UXAOzTICIHK3vTCRPgC+X/Zx+7HOHRGKE2y8Ry+75YA3ZNSxb7oi1ObuH3Sf0G90MaXDQRlE/28Tvc9N/ITR+aaQDX7RuQ4Agm29FRUsiCOkedoi7c0Bt6B6W1ZCIFg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754990809; c=relaxed/simple;
-	bh=2jQQhPx7fDhjqgwZEv2HTKTsSEOUcuWb3seC1V18dDc=;
+	s=arc-20240116; t=1754990839; c=relaxed/simple;
+	bh=Hun7Pj2QeIThbWWcEnI4efZAqJOfJrOaDsvmrUO0zJo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TOGLqufsEqZ+vHyh2ll8U82fZOaOtkhsA6LcRU0nfVrof/fj9QE8X8M6i/yzKSR9Cg/L8qat3uV/kBjMlh8c86Oxz0A0D76tO22HJD2CKVMh+O8vNJoCJFoNuvXJMovtDsCgzJZtPLP9I2x40x4wI6k1lERp+UmAVZEArEBhQJA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Si62xXAg; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=PNAsmZeewNg8/+fFqQY+4VYxLw+atZvTbeGXfNFAOa77bAXnCnhbaRGK8Bx0N4GkojTJkqjlIyJxJsbcRd1Pm5fSMhY6K0CrUZGWyp+tBryC1lVRUbQqaeJvsEEkL1V5NBaeCnp2QRVnIsaak+kV9FGG4UkZYpeFliiXj6cVZfA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XEl1EThw; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Si62xXAg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XEl1EThw"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1754990806;
+	s=mimecast20190719; t=1754990837;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8FqEOts7cjbFL2GxnmOTUKK/m+lDHG7eDxkUxgY3gxA=;
-	b=Si62xXAgHSSPD91S4jvSal7FfKRllKOpXFXj2qtiAbGUXlYrjyGLaVm1DcXwEY1pxmi7/U
-	3SEIp6ddFyfGcVUQ0DEdf3jyAyd+XtB6cZcKFEcBzKkCKB8z9vCV0WuxS2DiP2CKDunGwZ
-	sod9/HCe8bvp4JWJPHFpmf1r4mdZDB0=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=WGp9+izCkrlBj+bCsKQsfK68CmTdIqz5MvXVpGGtKI8=;
+	b=XEl1EThw6sbEQeHZcfewwYxnaktxCxWmrWKCqBfeiMgg1jMzu74gTrhKYxN6tjhwkvrwtl
+	Dsa+lz1CGwG8rATHL22RYRDrxD4gjZgT9mf9ufp8Jsx8WVLSCgyoTr1+K7wRd1xPExHHnk
+	MGSRTroBJMraoW3pA2humMlHEVrUzhE=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-374-e335InFnNgW8NweWnfkpdg-1; Tue, 12 Aug 2025 05:26:45 -0400
-X-MC-Unique: e335InFnNgW8NweWnfkpdg-1
-X-Mimecast-MFC-AGG-ID: e335InFnNgW8NweWnfkpdg_1754990804
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-459dfbece11so26909805e9.2
-        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 02:26:44 -0700 (PDT)
+ us-mta-474-eDYofJNEMMy8_jA_ix7t9Q-1; Tue, 12 Aug 2025 05:27:15 -0400
+X-MC-Unique: eDYofJNEMMy8_jA_ix7t9Q-1
+X-Mimecast-MFC-AGG-ID: eDYofJNEMMy8_jA_ix7t9Q_1754990834
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-458c0845b34so37525785e9.2
+        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 02:27:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754990804; x=1755595604;
+        d=1e100.net; s=20230601; t=1754990833; x=1755595633;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=8FqEOts7cjbFL2GxnmOTUKK/m+lDHG7eDxkUxgY3gxA=;
-        b=SRSAqZ1Jh9eUdynrB5Za38SdLtpcuBdHsbE4Ndwgom7yboBS2TrGRJyb4ndXQzyUop
-         ECn+MpH0m8/MgeMxtHLCjZ1Cdl1pgVu45ueSBuyaFEu24g1erlAHAhOhKpntT0aLIzAs
-         l92VIOO5SVqUekVcdWVGu0bYOJWI2C4XjAavBw3viPqy3YlSSCJqSmYUq4DEnUaLomRU
-         5WI2Mlb9DQIREtBxlVgxZY5e1HE0UfKK/2ukltqHJTIqCLSPblwm98MbwIG9lEcoKQNa
-         F2kxoXLd5kxzvAu0c9wNoxlKtRwqf5quYGiejc40suJ2SweWOTkf9Nf6hhL680n3JNH9
-         WbTw==
-X-Forwarded-Encrypted: i=1; AJvYcCVGuJuleoZswKFdf4nk1mYeHbjv3zuB2Rv2y1s+diAmAG+T0QzALGjz9ghcgCoe8x9cWo9rPJKJaTOLmNvF+g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxVMxV6+4WFvuXENpv/daRLbmS28iC3t2kwhm0XtYpyDyZPcE/m
-	ERG9aVgq4fZLoJhGNSOT90x2P2dRpEgqXnDSOl4nAuZPUbB4uT6nCwdzwxAy3jif0p3sF9Yv3F9
-	SWHCTEdkojWcTnUPpxHWJrX0kYzDvNId7r6Jt5m0wclo6h/jFF8kaiyyTORM5faLeaYtD
-X-Gm-Gg: ASbGncstufTV3P213PRgsaAeQheFsxKRj0LsxPDfLe/kYsNQp1tlxxWWdc6Ysh8Mcts
-	I+Xi2UeJmRKBkTDUsTJ/ZpUZCQqWCyFmnRfNNeafKTfNAbtYbVoC4b5mUDOigiviGvBR3+karM/
-	1JPev+t7onuQAj7Izd/dpV8W9YHN7sMiKz0aROc6UbF7KlSgxBf0Q0EaB0+gAC4Ad9F9tH8Uugz
-	JLscb6aAig5QQX1SChF+23XZ+qzpfZjG44ftvNCdTHRpLfYRAARv1hzJZBJSs2h8ae6YbMvbMm/
-	zBF77fMo4oV2PEdvqgV3Cgj0naLyGwcY
-X-Received: by 2002:a05:600c:4748:b0:456:161c:3d6f with SMTP id 5b1f17b1804b1-45a10bb020emr23220955e9.11.1754990803687;
-        Tue, 12 Aug 2025 02:26:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFEXWjg9WUytTJs/5mxhcuBTLsQA+wgTgNaY4EutJ5NHJY7LJaT22Y7BY4IoMEr3P4QNDHpwQ==
-X-Received: by 2002:a05:600c:4748:b0:456:161c:3d6f with SMTP id 5b1f17b1804b1-45a10bb020emr23220675e9.11.1754990803200;
-        Tue, 12 Aug 2025 02:26:43 -0700 (PDT)
+        bh=WGp9+izCkrlBj+bCsKQsfK68CmTdIqz5MvXVpGGtKI8=;
+        b=SDRM/VbGhEC3pR96lomOVqGPex6Wb90+K7UQUmDeyUEJa1wQfLMORQ5e9MX2rCcpTX
+         pVo/axQtD9zh+UvacJgFTCafswEiZlrrXDoxXYOvRjWh+N8C1V8lSI7bWMw3FR9pdGQ8
+         bUkMuMEwb+QERH+tsdnBBjxiELUcgaC+aDFJN0+MyCqQq7DtYX+m2DXMnhehPO3vzMzI
+         1wL5nnnJFmK12FpUbIQ/qOZEYzAtudz6BzMD24cwSJpnTDOfs7DviAbQ9SL6FX/a+l2c
+         XMhmjThpmdm9xChNLmCqx3dB1fz3QD2hYdP8J5bY1WJO04Ew1H0IIApJqCx1eIiyT5Js
+         E1iQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWvjDOwpqBw74BsoyMbIPVM43SF9ah6Ko5MnnHBg/J9wAggVRfEWwCVamhQU5VFMAoiux2SF+bfNx3D5p9RVg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwCNs3MYVbrRZlMoFIG/cesBGbpkV/oE+MiBiYklKCqSLX6NL+3
+	sshtVXL/LR2hdxLRGblJsPT3cgaRFf8Du/6Tj++bLYRvrIpQg9pfXPITx4kdMFEraZwPNV2Bq/I
+	daFnNfyM8nHLd2jBfll55E9Whz76gIJBW07yJ6kDisO+VBAsLw3poiNHQZ8OJO4CCOdaf
+X-Gm-Gg: ASbGncvWojJ4hta6g9CSkqUXDetwHxoB2SXSE5PdE6p1ij+64UKet1OoNgf37Xl0zpC
+	4H45UrVk1aqZTkjVzJfoDh1Lvsr7JRoavpWUXs0rds7/SFXq0OCd3PUKJXk95sC0tKf7Z0fTpvs
+	DDTW+pltcERLgKRsyrx4Num6AzvzJWMLN5V0cM3mh8XrjHA6k/rZz1sNPre/qjRB75ULTkx1j6s
+	TJiEn1jQEeaCq5ZheW7tAleTNIyzgLLS8hnfijTpTJPu39kCgbwXbSRilmoSlzW8uQmMtZs5b7P
+	cZxwqpAoI5vHqqLOklsRZDgh43PLj0Qb
+X-Received: by 2002:a5d:64cd:0:b0:3a4:f70e:abda with SMTP id ffacd0b85a97d-3b910fce9a8mr2143721f8f.10.1754990833549;
+        Tue, 12 Aug 2025 02:27:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGFkY9FzWL94KYJ81gviv0bWbapS/YWsGTjYnmEpZTu+fpeDhGDEmVz6ELyY1r99MnE6tNX6Q==
+X-Received: by 2002:a5d:64cd:0:b0:3a4:f70e:abda with SMTP id ffacd0b85a97d-3b910fce9a8mr2143685f8f.10.1754990832925;
+        Tue, 12 Aug 2025 02:27:12 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b79c469319sm42730533f8f.54.2025.08.12.02.26.41
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b79c3c4d02sm42398517f8f.33.2025.08.12.02.27.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Aug 2025 02:26:42 -0700 (PDT)
-Date: Tue, 12 Aug 2025 05:26:39 -0400
+        Tue, 12 Aug 2025 02:27:12 -0700 (PDT)
+Date: Tue, 12 Aug 2025 05:27:09 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: syzbot <syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com>
 Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
@@ -74,7 +74,7 @@ Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
 	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
 Subject: Re: [syzbot] [kvm?] [net?] [virt?] WARNING in
  virtio_transport_send_pkt_info
-Message-ID: <20250812052537-mutt-send-email-mst@kernel.org>
+Message-ID: <20250812052645-mutt-send-email-mst@kernel.org>
 References: <689a3d92.050a0220.7f033.00ff.GAE@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -84,7 +84,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <689a3d92.050a0220.7f033.00ff.GAE@google.com>
 X-Mimecast-Spam-Score: 1
-X-Mimecast-MFC-PROC-ID: InahE9upkXio7Wh587fhmtiy-4L5UpBFepNrcgz7nG0_1754990804
+X-Mimecast-MFC-PROC-ID: 7f0EoRioIJcgxJbAdb6JtmoswbiZvgO8h3moGL-d9-g_1754990834
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -170,8 +170,8 @@ On Mon, Aug 11, 2025 at 11:59:30AM -0700, syzbot wrote:
 > #syz test: git://repo/address.git branch-or-commit-hash
 > If you attach or paste a git patch, syzbot will apply it before testing.
 
-#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 8ca76151d2c8219edea82f1925a2a25907ff6a9d
 
+#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 6693731487a8145a9b039bc983d77edc47693855
 
 
 > If you want to overwrite report's subsystems, reply with:
