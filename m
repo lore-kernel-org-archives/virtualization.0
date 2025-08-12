@@ -1,76 +1,144 @@
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98A102EA15F
-	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 09:48:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.69
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F02054D599
+	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 09:49:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754992088; cv=none; b=jcvLQPij3GDKK3ngz+LriXdukZbjFT/+OQXVv1N/oWXCmTthy3Fs6IzsPru0NG9hlRRbsp9t7SWoFvI/5qakyL38dktkBI6FasgBxKE2BNh6KAj54i1ieLtRP06UtramZ6DJzuUHG30KONzXvktVsD4/uxsSUBpeqzbbpZgFBfM=
+	t=1754992201; cv=none; b=QO2cGnLoS8PB7LfQCJBVf0YZiI1YXsoO7O2PCbI6cYgVmcg+e31LSdRQom92KvQ23hqXc/7Npem8dEHdN0dzCl1wF/f98XooxUy1UJoUgR/TLafHbIPWtyOiA6cbSSfKWKD9XiVb0pbcMEJ50qhxrmJzSW1WMYPG7YNHoDxe0Wg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754992088; c=relaxed/simple;
-	bh=tgMF8HuU+iL/6Y55dy6ba5v8RvxSKr6oTJYUTWCzqHs=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=kIz5OBWoIEyR7ABhy4MRM855flKGMRvdFoUGEW0z0rGdvD3qkvJvJiAQ8v+63dBNKbXsj+pWpwls49O/dBn0Q+fKHleFfQBoRO72mr/momOUBHDyTsrKOY7FZSWOU2kDT4g7Eu3t/ukh8XVNi3rgbwP/RA0qU6rZGrRatv61CLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.69
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-86463467dddso534016439f.3
-        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 02:48:06 -0700 (PDT)
+	s=arc-20240116; t=1754992201; c=relaxed/simple;
+	bh=0490oyMMcCSA6IAYKsOOlTvkHGvUwxMFO7SMFhwwTEc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dWg7MSgJ967swRuTWarFI/gcnb0zTxeUWVrRDbuWTYTMW606iR2oCB7i1Ndtd5fTIblUj/Rx0x2TgNymcBAKuKRvyL14xqNoCKUpN9ztjam34RlTCu47E0yoi8/aelmxKLaDLd8Go1LiI2BD4nHb5tRc5bt23wt4hAK9FmN0TGw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=J3iuEWal; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="J3iuEWal"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-32138e0d9adso4429858a91.2
+        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 02:49:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1754992199; x=1755596999; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=rHx6Lde4qag7Ztq8SOjvT6+8sJ05xOxFR27nxsVwgtA=;
+        b=J3iuEWalzn5bEz3E4a1QE0LcxiebZL6dFHjbLq6FQROKMpUKVQTPaRUXB+hKxGUh9A
+         slxNMQBD3bLxF4G4hl2PZqyCK1KW4tEH/e3TteyOPjL2gqpDljoNkoKNmbvNfj1fwrdR
+         B5ouPrDfnUuuWMc5MAgHQkgVcTARd+fp87+Oc+lazAPB2ghXXbaLc8Pmwzr4zM7K16Cm
+         phv0p3mtMLqUaL3lcbEntqSZEOW+U4e98bwb/1NKE1Q3MDEz+Ct1IdE6L7z4KJsOqtzR
+         EaNGFZ2AS0ytWVz4mnARlq0nU9py+HTiYfyh/92lD5SplO+QIZPowZBXPvx36rUNA7ji
+         yfFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754992086; x=1755596886;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
+        d=1e100.net; s=20230601; t=1754992199; x=1755596999;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=23s4cMMxaWk/6h2mIsslFjC/yj0rjYz/dHBx5jBiKdk=;
-        b=tu3Tc2/i0d0AHoPwNu5OkSoDZtrDmWuz+sxI6Zv0fhgd3nGzCmNco8UtUukt0+24yy
-         ulRHb7W9oc0p5vTnLqmhjKaMFciinjIir7o4m6yugEyk8JqQHQqAka0zeGz9S7Vzys+c
-         8eb3OzFDIQSYzmdxt20Sa9EpFX0ttNPUzTHjFrcIHCoG17NLcUgaPyomodtAWRCftk+a
-         98fG/+cxt6rfsqPCCDehq4uTtMSmpYL4l1FreEEu18ieiUD/K6jedhBitWe0DHH+W+ll
-         4p8p71ZG5HWxqLfAKMwhaqjeUw8hm7X2RDJHiq4m+xqHMSCowAS0tfSkRtCipg3YNfx0
-         QLBQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXB1m53QnyELGIoSgKmlFN5Pg2QZdkC2K3HoIT6CYQYg1zY77H4C2QTL18didjdzVpovqhGxvByTJxguaBnOg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwP0oCTt4EoGNmxEyvq63eiWhqMa0f+YaUnAdp050nHUaYjzIAI
-	sm9637vDQ4mtMRj0FEPE9l62DXnNgMXpn7cjWWT3s5YucmAlk3oe0pA6rU2noKDnE4alFTHH3fT
-	2soJ+vOJVbX/u0R76wW8BVpCEylcB8PFOebr0w6VuMLt/83VqMiBqco8LsY0=
-X-Google-Smtp-Source: AGHT+IG3SLQLj7KxZZEj1GNTliTbrGRu9ikWa+/cuwM6xZfm+k+wklil9CcAWSa+9Q7XgA8ywVi7c7dtP5+lK+hEKORoB3z1DYwc
+        bh=rHx6Lde4qag7Ztq8SOjvT6+8sJ05xOxFR27nxsVwgtA=;
+        b=auxOFwCR2YOkl5uoFHcIdq5mbYXoMHjU+6G0SbSlROEuv0QPIykePHUXvTtku8cT+k
+         taE6tXZSg/KJp/oQsVf6lpygvPksGl1mQpjRtOVGG28b/xU6bN88bD/8ipQELAqXRP8u
+         iqT3zg0WxRxOEfDI/SmKspyU9DcLNmDcz0f8EKrtPaX1XCAJOJluHcaMb378d0vIMsVx
+         tQaZodCjuTY28Oi/bkanUFAxoMkr8d5be65RQATZ5hgAFYjPOjCGObpz1nwsHL7ah9Vr
+         dFAKShApWhOKXoDHjbCoKK3Ncua41gMUWaB1io+eOBRBIj41YIUjl4ym9V6u45pmxAnY
+         YMAA==
+X-Forwarded-Encrypted: i=1; AJvYcCWzJJA3Low96bs7PLis4+rEwc0XvtdyS8Xgw4V8c2uCXaazOVBY6mbONRCMiUEDipxhXf69Z8U/pEfHXHxvug==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyH49hgW5r6KQHCQ5xHU9MG1qTG0DSOKZ3+NTFVhgqOCpn3Ei5I
+	OJI2NqFEuBpa3pB2QrrhWDAIeWUJj+Us47LPw5epVyuAok6IMafxwSsuACVBJSfpRIM=
+X-Gm-Gg: ASbGnctCtGKyRQ3FsXRtZkxcRSFluhsVyDqmZd7UdA/bt4VI+lLVoNbXDTKiESfPA4u
+	DJkVJnCLf07qZQ0vsf/ffiaLXriz4vzuVCaHrHmjw+XU7zdr8R3FLkRyY9w7ZwXCHgz/KzBiPd2
+	/VFFvfHlUDcUC0G+d0w2Y5gE4SWLeh1g8Hqjcs0m5y2jwXrohzMeHCSS7aG0Fa6FFXxrzJ5ZJNT
+	Klu9tGq3XDg2KS76OAMN8lOfOgFbKy2ZGck9d7qcQ6bWHD78UVNzWiomdKgxD9BQSpN5vS5rAs9
+	3rPkFBUMuxRiv47eH9Mray+REAA6TQ2EDSatb6eN9ItytanfcrCd6xMMdVGlgNXBs5sQZa81brT
+	YRgvy7GggWIf9Si3epL91+bhq
+X-Google-Smtp-Source: AGHT+IFaE9wVmVALZ0AY3vMXxmm7SesZjwR/ULKy6XjkkdnNRyUoc7TfxGfX3avMzoLT05C0xMUULg==
+X-Received: by 2002:a17:90b:55cd:b0:312:1c83:58e7 with SMTP id 98e67ed59e1d1-321b3e81bb1mr7812400a91.1.1754992199185;
+        Tue, 12 Aug 2025 02:49:59 -0700 (PDT)
+Received: from localhost ([122.172.87.165])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b422b7d86f7sm24860991a12.24.2025.08.12.02.49.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Aug 2025 02:49:58 -0700 (PDT)
+Date: Tue, 12 Aug 2025 15:19:55 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Saravana Kannan <saravanak@google.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Arnd Bergmann <arnd@kernel.org>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>,
+	Bill Mills <bill.mills@linaro.org>, devicetree@vger.kernel.org,
+	virtualization@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
+	Bertrand Marquis <bertrand.marquis@arm.com>,
+	"Edgar E . Iglesias" <edgar.iglesias@amd.com>,
+	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Subject: Re: [RFC PATCH 0/6] virtio: Add support for Virtio message transport
+Message-ID: <20250812094955.fdyil4cbxr3bx4bo@vireshk-i7>
+References: <cover.1753865268.git.viresh.kumar@linaro.org>
+ <CAL_JsqJn2XtvWaDBSqYPUe2ZVxE7t4EbAt8OPncbQaKjh1jY5w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6602:1546:b0:881:8979:93f4 with SMTP id
- ca18e2360f4ac-883f127fca5mr3181687939f.14.1754992085862; Tue, 12 Aug 2025
- 02:48:05 -0700 (PDT)
-Date: Tue, 12 Aug 2025 02:48:05 -0700
-In-Reply-To: <20250812052537-mutt-send-email-mst@kernel.org>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <689b0dd5.050a0220.7f033.0119.GAE@google.com>
-Subject: Re: [syzbot] [kvm?] [net?] [virt?] WARNING in virtio_transport_send_pkt_info
-From: syzbot <syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com>
-To: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
-	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
-	pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAL_JsqJn2XtvWaDBSqYPUe2ZVxE7t4EbAt8OPncbQaKjh1jY5w@mail.gmail.com>
 
-Hello,
+Hi Rob,
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+On 30-07-25, 08:39, Rob Herring wrote:
+> On Wed, Jul 30, 2025 at 4:29 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
+> > ### Memory Mapping and Reserved Memory Usage
+> >
+> > The first two patches enhance the reserved-memory subsystem to support attaching
+> > struct device`s that do not originate from DT nodes — essential for virtual or
+> > dynamically discovered devices like the FF-A or loopback buses.
+> 
+> We support creating devices from reserved-memory nodes.
 
-Reported-by: syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com
-Tested-by: syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com
+I didn't know about this.
 
-Tested on:
+> Just add a
+> compatible which you should do anyways because node names are not
+> supposed to be that specific or an ABI.
 
-commit:         8ca76151 vsock/virtio: Rename virtio_vsock_skb_rx_put()
-git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-console output: https://syzkaller.appspot.com/x/log.txt?x=15d54af0580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=84141250092a114f
-dashboard link: https://syzkaller.appspot.com/bug?extid=b4d960daf7a3c7c2b7b1
-compiler:       Debian clang version 20.1.7 (++20250616065708+6146a88f6049-1~exp1~20250616065826.132), Debian LLD 20.1.7
+Yeah, I already knew that the node-names thing isn't going to fly as
+you and Krzysztof rightly pointed out. I just wanted inputs from you
+guys and so did that as a first implementation to get the discussion
+started.
 
-Note: no patches were applied.
-Note: testing is done by a robot and is best-effort only.
+I tried something like this now:
+
+      reserved-memory {
+        #address-cells = <2>;
+        #size-cells   = <2>;
+        ranges;
+
+        rmem@100000000 {
+          compatible = "restricted-dma-pool", "virtio-msg,loopback";
+          reg = <0x00000001 0x00000000  0x0 0x00400000>; /* 4 MiB */
+        };
+      };
+
+and this works fine. I am adding two compatibles for virtio-msg:
+"virtio-msg,loopback" and "virtio-msg,ffa". Yes I will properly
+document them in the next version.
+
+With this, we don't need the 2nd patch anymore:
+  of: reserved-memory: Add of_reserved_mem_lookup_by_name
+
+but still need the 1st one:
+  of: reserved-memory: Add reserved_mem_device_init()
+
+Thanks.
+
+-- 
+viresh
