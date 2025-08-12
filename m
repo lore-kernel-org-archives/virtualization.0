@@ -1,145 +1,82 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB3621C7005
-	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 01:30:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B0C1EDA0B
+	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 01:58:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754962216; cv=none; b=LvvlUN7BJh/oR4YziLBlkt2YUB80sLdrAOebo5l/95SWITJkdJGFlMi9spz/wVKjRpLW6sNodh5K/iT6VLYe9pYYf9XqL0xZsbs2bDqkxrjY46NxB3ntDTeEJPDrQ723ZDoe0gvj9y5Vm02Yrv/tt2tAU5wOzqsFFqlEFJ46ugs=
+	t=1754963935; cv=none; b=jk2suMv116WBjLC9WdOCYcl2LGdNRNWF2Lzp+XUfimzKj6SXPcz9Sz1SxBz7FvHYNAqmGov+QkCmxUYgnLsE9TV7Ozc4UeYVHwdpve83Hc1K0pAqcJMaoq2ioBfiO9khj/p0gfBG6csm74YrbDCQggfqSADs2KHO4knUOIdtj6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754962216; c=relaxed/simple;
-	bh=5VapdnES7ub01fEzwLbmifK+dKN+v5agxO17nHqVte8=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=SCDaSH2WL9qEQtT1aOt+3ZGMrBYhfShrdyQacXQnpvmcmdxQI4XtTCxXX0fhGJQ+NUXZMvniUY1ehBmocBBi8AHvonsoZkuPJclRcfY6Q8Q57xvkZrYX8ypFApu4IMN1W9rle+oASyo1VFO2SF/py3OnmqpHOlbC4tQ1IytI0Wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JMbfwpsR; arc=none smtp.client-ip=115.124.30.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JMbfwpsR"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1754962210; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
-	bh=djZxdkbYS5ABjJh5vZ+OSyzqxKEA12clHOn12k1eFBw=;
-	b=JMbfwpsRNCi9vQ8K0CdPK0zFsmtjl1OT5ze7/nvcC9uy1+BBNgnJzrXzYo/jsMsVasDPYYjhUbEL4r0yaX89uL9z80p/b5ORZUZIyBKo2n7zC/7pwar7Es6i3EZ6u8anU7cbm5tcI49YJa+A9LIyWz09nPLOifv3+UzTQQDKM9s=
-Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0WlYvemQ_1754962181 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 12 Aug 2025 09:30:08 +0800
-From: "Huang, Ying" <ying.huang@linux.alibaba.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org,  linux-mm@kvack.org,
-  linuxppc-dev@lists.ozlabs.org,  virtualization@lists.linux.dev,
-  linux-fsdevel@vger.kernel.org,  linux-aio@kvack.org,
-  linux-btrfs@vger.kernel.org,  jfs-discussion@lists.sourceforge.net,
-  Andrew Morton <akpm@linux-foundation.org>,  Madhavan Srinivasan
- <maddy@linux.ibm.com>,  Michael Ellerman <mpe@ellerman.id.au>,  Nicholas
- Piggin <npiggin@gmail.com>,  Christophe Leroy
- <christophe.leroy@csgroup.eu>,  Jerrin Shaji George
- <jerrin.shaji-george@broadcom.com>,  Arnd Bergmann <arnd@arndb.de>,  Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>,  "Michael S. Tsirkin"
- <mst@redhat.com>,  Jason Wang <jasowang@redhat.com>,  Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>,  Eugenio =?utf-8?Q?P=C3=A9rez?=
- <eperezma@redhat.com>,
-  Alexander Viro <viro@zeniv.linux.org.uk>,  Christian Brauner
- <brauner@kernel.org>,  Jan Kara <jack@suse.cz>,  Benjamin LaHaise
- <bcrl@kvack.org>,  Chris Mason <clm@fb.com>,  Josef Bacik
- <josef@toxicpanda.com>,  David Sterba <dsterba@suse.com>,  Muchun Song
- <muchun.song@linux.dev>,  Oscar Salvador <osalvador@suse.de>,  Dave
- Kleikamp <shaggy@kernel.org>,  Zi Yan <ziy@nvidia.com>,  Matthew Brost
- <matthew.brost@intel.com>,  Joshua Hahn <joshua.hahnjy@gmail.com>,  Rakie
- Kim <rakie.kim@sk.com>,  Byungchul Park <byungchul@sk.com>,  Gregory Price
- <gourry@gourry.net>,  Alistair Popple <apopple@nvidia.com>,  Minchan Kim
- <minchan@kernel.org>,  Sergey Senozhatsky <senozhatsky@chromium.org>
-Subject: Re: [PATCH v1 0/2] mm: remove MIGRATEPAGE_*
-In-Reply-To: <20250811143949.1117439-1-david@redhat.com> (David Hildenbrand's
-	message of "Mon, 11 Aug 2025 16:39:46 +0200")
-References: <20250811143949.1117439-1-david@redhat.com>
-Date: Tue, 12 Aug 2025 09:29:40 +0800
-Message-ID: <87bjolgwe3.fsf@DESKTOP-5N7EMDA>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	s=arc-20240116; t=1754963935; c=relaxed/simple;
+	bh=UzEWDia7gGgwOVF7m1ZaRBdsqIrgGalbDGEes9tFoPc=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=F4cMywD/NshY2G14ofch/TAv3kV7DfVDkWi8VhrTZTgqNJDadwA/uwxnODSpuli4Vcm0qsGModSmRuYAqDSXB6yYKxAjbTgT9zhoarP2abxUPUhWEZtfGD1yb1yhNE7x+Sy0CS3c/vwpitUE7ca/8mvpOiMaK+RDulViiZF67Ok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.48])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4c1F0b3L90z14MHS;
+	Tue, 12 Aug 2025 09:53:51 +0800 (CST)
+Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
+	by mail.maildlp.com (Postfix) with ESMTPS id 48D2E180064;
+	Tue, 12 Aug 2025 09:58:50 +0800 (CST)
+Received: from huawei.com (10.175.104.170) by dggpemf500016.china.huawei.com
+ (7.185.36.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Tue, 12 Aug
+ 2025 09:58:49 +0800
+From: Wang Liang <wangliang74@huawei.com>
+To: <sgarzare@redhat.com>, <davem@davemloft.net>, <edumazet@google.com>,
+	<kuba@kernel.org>, <pabeni@redhat.com>, <horms@kernel.org>
+CC: <yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
+	<wangliang74@huawei.com>, <virtualization@lists.linux.dev>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH net-next] vsock: use sizeof(struct sockaddr_storage) instead of magic value
+Date: Tue, 12 Aug 2025 09:59:29 +0800
+Message-ID: <20250812015929.1419896-1-wangliang74@huawei.com>
+X-Mailer: git-send-email 2.33.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
+ dggpemf500016.china.huawei.com (7.185.36.197)
 
-Hi, David,
+Previous commit 230b183921ec ("net: Use standard structures for generic
+socket address structures.") use 'struct sockaddr_storage address;'
+to replace 'char address[MAX_SOCK_ADDR];'.
 
-David Hildenbrand <david@redhat.com> writes:
+The macro MAX_SOCK_ADDR is removed by commit 01893c82b4e6 ("net: Remove
+MAX_SOCK_ADDR constant").
 
-> This is against mm/mm-new.
->
-> This series gets rid of MIGRATEPAGE_UNMAP, to then convert the remaining
-> MIGRATEPAGE_SUCCESS usage to simply use 0 instead.
->
-> Not sure if it makes sense to split the second patch up, a treewide
-> cleanup felt more reasonable for this simple change in an area where
-> I don't expect a lot of churn.
->
-> Briefly tested with virtio-mem in a VM, making sure that basic
-> page migration keeps working.
->
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Nicholas Piggin <npiggin@gmail.com>
-> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Cc: Jerrin Shaji George <jerrin.shaji-george@broadcom.com>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Cc: "Eugenio P=C3=A9rez" <eperezma@redhat.com>
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: Christian Brauner <brauner@kernel.org>
-> Cc: Jan Kara <jack@suse.cz>
-> Cc: Benjamin LaHaise <bcrl@kvack.org>
-> Cc: Chris Mason <clm@fb.com>
-> Cc: Josef Bacik <josef@toxicpanda.com>
-> Cc: David Sterba <dsterba@suse.com>
-> Cc: Muchun Song <muchun.song@linux.dev>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Dave Kleikamp <shaggy@kernel.org>
-> Cc: Zi Yan <ziy@nvidia.com>
-> Cc: Matthew Brost <matthew.brost@intel.com>
-> Cc: Joshua Hahn <joshua.hahnjy@gmail.com>
-> Cc: Rakie Kim <rakie.kim@sk.com>
-> Cc: Byungchul Park <byungchul@sk.com>
-> Cc: Gregory Price <gourry@gourry.net>
-> Cc: Ying Huang <ying.huang@linux.alibaba.com>
-> Cc: Alistair Popple <apopple@nvidia.com>
-> Cc: Minchan Kim <minchan@kernel.org>
-> Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
->
-> David Hildenbrand (2):
->   mm/migrate: remove MIGRATEPAGE_UNMAP
->   treewide: remove MIGRATEPAGE_SUCCESS
+The comment in vsock_getname() is outdated, use sizeof(struct
+sockaddr_storage) instead of magic value 128.
 
-LGTM.  Feel free to add my
-
-Reviewed-by: Huang Ying <ying.huang@linux.alibaba.com>
-
-for the whole series in the future versions.
-
->  arch/powerpc/platforms/pseries/cmm.c |  2 +-
->  drivers/misc/vmw_balloon.c           |  4 +-
->  drivers/virtio/virtio_balloon.c      |  2 +-
->  fs/aio.c                             |  2 +-
->  fs/btrfs/inode.c                     |  4 +-
->  fs/hugetlbfs/inode.c                 |  4 +-
->  fs/jfs/jfs_metapage.c                |  8 +--
->  include/linux/migrate.h              | 11 +---
->  mm/migrate.c                         | 80 ++++++++++++++--------------
->  mm/migrate_device.c                  |  2 +-
->  mm/zsmalloc.c                        |  4 +-
->  11 files changed, 56 insertions(+), 67 deletions(-)
->
->
-> base-commit: 53c448023185717d0ed56b5546dc2be405da92ff
-
+Signed-off-by: Wang Liang <wangliang74@huawei.com>
 ---
-Best Regards,
-Huang, Ying
+ net/vmw_vsock/af_vsock.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index ead6a3c14b87..f7b2d61d1d16 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1028,12 +1028,7 @@ static int vsock_getname(struct socket *sock,
+ 		vm_addr = &vsk->local_addr;
+ 	}
+ 
+-	/* sys_getsockname() and sys_getpeername() pass us a
+-	 * MAX_SOCK_ADDR-sized buffer and don't set addr_len.  Unfortunately
+-	 * that macro is defined in socket.c instead of .h, so we hardcode its
+-	 * value here.
+-	 */
+-	BUILD_BUG_ON(sizeof(*vm_addr) > 128);
++	BUILD_BUG_ON(sizeof(*vm_addr) > sizeof(struct sockaddr_storage));
+ 	memcpy(addr, vm_addr, sizeof(*vm_addr));
+ 	err = sizeof(*vm_addr);
+ 
+-- 
+2.33.0
+
