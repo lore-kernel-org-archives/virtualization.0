@@ -1,126 +1,202 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A69F427FB3C
-	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 13:29:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79FBA2F90DE;
+	Tue, 12 Aug 2025 16:23:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.237.130.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755005348; cv=none; b=JpWadvTc8lY4m+1AYGDKgeT8JO/wgefKgsmP6pw0mqPY5vJEp8JTlINfnWulLi3fKZ9jPHD2ywkaJefAgLaIFWmRBUFYr23WC2AIE/1aY7V+yC5TWdxGWt2s1OYfgm1gnaf9A02OLsXJ4lNlbfUXuZBNfXNJCF7Aw88qmk5Dz6s=
+	t=1755015841; cv=none; b=L1MPMkl8rknrgU5WyZUAv/rMggQNlAx8wAM5VE0imB5qdL+DFEGPr01h9eMudYZ4fUVeEATvRFz2JbWddGJ1qxUjq1s3qSBNEZNTBDa4L/tl9H9oqk4pqBBWZfntuCJfkx0UpDvZJ7uabzvbm9tLt9ooSGFN/zfHWCXyCsXrE5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755005348; c=relaxed/simple;
-	bh=GMMGDDvmy7/b2xlgQxi4X/T90SQPEHldSBlyZttmxGE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N1u9hXQ+VdlHeFFMnfrRP/e+om1a2EPdwhZ9IOb3YRl9/3rTUsnmwFWRWvq+vlyGzauxyDKbeFiJgEKQaSxEQBSJNYbTUDdGqNkbKsYV9CsgQgCkZ/O61jKvd2xV7JXpL10nAcGelm10FVPe9bMGX3442qEOSCU8rWqBo7M4lV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mM3yubK/; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755015841; c=relaxed/simple;
+	bh=56/69U/k5THQ7aJSbesOKKjQt+X4pjxrQas9Ychkhs4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=W2rptwkfoXxJx20pkUL1QgxqDu2kDFxpwaC/bw8pcD6S3KHAq2uhK9jcDc56NZpZsWPFzbG6tk77o7JfWoSD5vNYFIQz/xcdvco8+uDozlE/lzA2d4JKvhdxKSNrBhAEPmCFUuvFaiJm1Ad+l0UqHmMqhfCQysypCVRy3wLd7mw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=LWeNWMe2; arc=none smtp.client-ip=80.237.130.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mM3yubK/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5688DC4AF09
-	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 13:29:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755005348;
-	bh=GMMGDDvmy7/b2xlgQxi4X/T90SQPEHldSBlyZttmxGE=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=mM3yubK/lLObJpIvrrD0Z8M/KPVOdrEcMP3Igh2O1y4EMgBv7flQJ3R84zjPdpE6A
-	 lkWqQ/9iYehUJCAIa4TttzatnPapFLqNzr/e5Sdc84WioG5wYYvt4GgadNPt7Mf4Me
-	 VDEkGEa8N4bjYUZ2N2A4IJaX63H1355tLSbByPqnTlsn56Jh+MabZuXdN18JKRA1+f
-	 MxXBBj4XtJn5OM6fqNkkuISWBjz7dYJv1W+zXA85XENNWEt5mruU92p0g46LNK0S03
-	 M2qjpYk/aM24DUvmeI8h5IwOsyPPmirAU6DajST3wTrgW3xIlcanCMQZF0Wtmc22Li
-	 CB8B1LrrLCfJA==
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6154d14d6f6so6380997a12.2
-        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 06:29:08 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCWhBmM9s8fvGb7aRPlAb9v0ogPr+z9vxaPWzrvh3qa9JZuBaTZNirPstvt6/c5yiVuVTScbQibE9g7IK/DPmA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxRpWjQT/fR+9UsVvKVquZbgiKJlZqqEH6jVCE6BNc4ih77VFkA
-	cbYaYmjwq8eDKWksv32EH7zyud3uwEsY69Wg1dKMq5d0t9nFVe47x6GDNhxOGJfxpafvsV1u9T7
-	muktzLhvenn2jAtWkzS3T5rd29Ihzuw==
-X-Google-Smtp-Source: AGHT+IF7GHeMWGqSVBOM1gStPy48v5sXvDsBL4TjWEX2CXWZdGbz6C+H2e2r4/C3oWTX5oWbCwqx0GQUgijlu7ioPnk=
-X-Received: by 2002:a17:907:dac:b0:af9:5da0:adde with SMTP id
- a640c23a62f3a-afa1e155119mr344130866b.45.1755005346908; Tue, 12 Aug 2025
- 06:29:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="LWeNWMe2"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=leemhuis.info; s=he214686; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:From:
+	Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:In-Reply-To:
+	References; bh=aHJzgTYNHhUFIaGCwqmyoUgVvhj+lSUoXDtgiSq6xY8=; t=1755015839;
+	x=1755447839; b=LWeNWMe2uvekrmbASCp9e3Nq4ZSGoFmcYsZ5ULdD11UA31KEcREZ2PjTdarqc
+	OQfA+7IgI9U+n9rK+kGPZPIaDjaoHiqQLxFdlpoJw21e7BtvzTvoMhnY1RLz/JKF2Aijx5JW9hWWr
+	WRJjcAjSH7Szw0q6UHD3g5OtxTrOOYSV0iS9WBkV6dnS3TjWC6GZr4gSWEFrdLKhQno4TcjUwMEHV
+	5b70/gFfIJUfCS1E1Fz9Q3iFw1sGEzX5IPVe94ttbOObOLe8yOIvnIuEwoZTK62iVU8C+wm6iv8HV
+	vwZDd3jgavbp71lbCF4NQVaezrMXVXn+315iWW1/aho60wCITw==;
+Received: from [2a02:8108:8984:1d00:a0cf:1912:4be:477f]; authenticated
+	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128)
+	id 1ulrms-004YLW-1x;
+	Tue, 12 Aug 2025 18:23:46 +0200
+Message-ID: <9b9edf2a-b4f3-4024-a91d-0902cfe832dc@leemhuis.info>
+Date: Tue, 12 Aug 2025 18:23:45 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <cover.1753865268.git.viresh.kumar@linaro.org> <CAL_JsqJn2XtvWaDBSqYPUe2ZVxE7t4EbAt8OPncbQaKjh1jY5w@mail.gmail.com>
- <20250812094955.fdyil4cbxr3bx4bo@vireshk-i7>
-In-Reply-To: <20250812094955.fdyil4cbxr3bx4bo@vireshk-i7>
-From: Rob Herring <robh@kernel.org>
-Date: Tue, 12 Aug 2025 08:28:53 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqKHGFPF-2d-cH4KhxFQ-KA1WO+TuDn722vYbs4Jyx8iYw@mail.gmail.com>
-X-Gm-Features: Ac12FXzhhmuReoPQBliN29Av2MDBr7ZwnqPE5KVpcSyLcTFZhNi2n8hmWiHskf8
-Message-ID: <CAL_JsqKHGFPF-2d-cH4KhxFQ-KA1WO+TuDn722vYbs4Jyx8iYw@mail.gmail.com>
-Subject: Re: [RFC PATCH 0/6] virtio: Add support for Virtio message transport
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-kernel@vger.kernel.org, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Saravana Kannan <saravanak@google.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Arnd Bergmann <arnd@kernel.org>, Vincent Guittot <vincent.guittot@linaro.org>, 
-	=?UTF-8?B?QWxleCBCZW5uw6ll?= <alex.bennee@linaro.org>, 
-	Bill Mills <bill.mills@linaro.org>, devicetree@vger.kernel.org, 
-	virtualization@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>, 
-	Bertrand Marquis <bertrand.marquis@arm.com>, "Edgar E . Iglesias" <edgar.iglesias@amd.com>, 
-	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [REGRESSION][BISECTED] kernel panic is not displayed correctly in
+ qemu (CONFIG_DRM_BOCHS)
+To: Askar Safin <safinaskar@zohomail.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, =?UTF-8?Q?Noralf_Tr=C3=B8nnes?=
+ <noralf@tronnes.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>,
+ virtualization <virtualization@lists.linux.dev>,
+ ryasuoka <ryasuoka@redhat.com>, dri-devel <dri-devel@lists.freedesktop.org>,
+ qemu-devel <qemu-devel@nongnu.org>, regressions
+ <regressions@lists.linux.dev>, Ben Hutchings <benh@debian.org>
+References: <197f290e30b.eaadc7bc7913.7315623184036672946@zohomail.com>
+From: Thorsten Leemhuis <regressions@leemhuis.info>
+Content-Language: de-DE, en-US
+In-Reply-To: <197f290e30b.eaadc7bc7913.7315623184036672946@zohomail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1755015839;46364fb1;
+X-HE-SMSGID: 1ulrms-004YLW-1x
 
-On Tue, Aug 12, 2025 at 4:50=E2=80=AFAM Viresh Kumar <viresh.kumar@linaro.o=
-rg> wrote:
->
-> Hi Rob,
->
-> On 30-07-25, 08:39, Rob Herring wrote:
-> > On Wed, Jul 30, 2025 at 4:29=E2=80=AFAM Viresh Kumar <viresh.kumar@lina=
-ro.org> wrote:
-> > > ### Memory Mapping and Reserved Memory Usage
-> > >
-> > > The first two patches enhance the reserved-memory subsystem to suppor=
-t attaching
-> > > struct device`s that do not originate from DT nodes =E2=80=94 essenti=
-al for virtual or
-> > > dynamically discovered devices like the FF-A or loopback buses.
-> >
-> > We support creating devices from reserved-memory nodes.
->
-> I didn't know about this.
->
-> > Just add a
-> > compatible which you should do anyways because node names are not
-> > supposed to be that specific or an ABI.
->
-> Yeah, I already knew that the node-names thing isn't going to fly as
-> you and Krzysztof rightly pointed out. I just wanted inputs from you
-> guys and so did that as a first implementation to get the discussion
-> started.
->
-> I tried something like this now:
->
->       reserved-memory {
->         #address-cells =3D <2>;
->         #size-cells   =3D <2>;
->         ranges;
->
->         rmem@100000000 {
->           compatible =3D "restricted-dma-pool", "virtio-msg,loopback";
+Hi! Thanks for your report. Given that Thomas' commits that broke things
+and then partially made them working again are from 2019 there is no
+real benefit in tracking this with regzbot, as it can't be solved with a
+revert or such; sure, ideally the involved developers or someone else
+will look at it, but often they have much more important things to fix –
+and often they moved on to new endeavors and sometimes even retired in
+between. Sorry, that's just how it is.
 
-The order is wrong here. The 2nd one seems more specific to me. But is
-"restricted-dma-pool" useful? Should an OS that only understands that
-and not "virtio-msg,loopback" use it?
+But well, with a bit of luck this mail or something else motivates
+someone to look into the issue. :-D Wish you luck!
 
-The format of compatibles is <vendor>,<device/block/interface> and
-"virtio-msg" is not a vendor.
+Ciao, Thorsten
 
->           reg =3D <0x00000001 0x00000000  0x0 0x00400000>; /* 4 MiB */
->         };
->       };
->
-> and this works fine. I am adding two compatibles for virtio-msg:
-> "virtio-msg,loopback" and "virtio-msg,ffa". Yes I will properly
-> document them in the next version.
+#regzbot introduced: a6c3464f69cf5a8a31e
+#regzbot resolve: tracking unpromising
 
-Why do you need 2 compatibles? Can't you discover what the remote end
-is with some message? We only define "virtio-mmio" in DT for example,
-not that the device is a console, rng, etc.
+On 10.07.25 06:21, Askar Safin wrote:
+> Steps to reproduce:
+> 
+> - Build Linux v6.16-rc5 so:
+> 
+> $ cat mini
+> CONFIG_64BIT=y
+> 
+> CONFIG_EXPERT=y
+> CONFIG_EMBEDDED=y
+> 
+> CONFIG_PRINTK=y
+> CONFIG_PRINTK_TIME=y
+> 
+> CONFIG_PCI=y
+> 
+> CONFIG_TTY=y
+> CONFIG_VT=y
+> CONFIG_VT_CONSOLE=y
+> CONFIG_DRM=y
+> CONFIG_DRM_FBDEV_EMULATION=y
+> CONFIG_DRM_BOCHS=y
+> CONFIG_FRAMEBUFFER_CONSOLE=y
+> CONFIG_PROC_FS=y
+> $ make KCONFIG_ALLCONFIG=mini allnoconfig
+> $ make
+> 
+> - Then boot this Linux image in Qemu so:
+> 
+> $ qemu-system-x86_64 -enable-kvm -m 1024 -daemonize -kernel arch/x86_64/boot/bzImage
+> 
+> Kernel will (predictably) panic (because it has no initramfs, nor real disk), but actual panic message will not be shown!
+> 
+> Last shown line is "Run /bin/sh as init process"
+> 
+> My host OS is Debian Trixie. "uname -a":
+> 
+> Linux receipt 6.12.33+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.33-1 (2025-06-19) x86_64 GNU/Linux
+> 
+> Qemu version is:
+> 
+> QEMU emulator version 10.0.2 (Debian 1:10.0.2+ds-1)
+> 
+> Guest kernel is v6.16-rc5 x86_64.
+> 
+> The problem doesn't reproduce on old guest kernels. I. e. old guest kernels actually show panic message.
+> 
+> I did bisect, and bisect showed the following two commits:
+> 
+> ===
+> 
+> commit a6c3464f69cf5a8a31eb31cc436e7dbd325b8ff9
+> Author: Thomas Zimmermann <tzimmermann@suse.de>
+> Date:   Thu Jun 13 09:30:33 2019 +0200
+> 
+>     drm/gem-vram: Support pinning buffers to current location
+>     
+>     Pinning a buffer prevents it from being moved to a different memory
+>     location. For some operations, such as buffer updates, it is not
+>     important where the buffer is located. Setting the pin function's
+>     pl_flag argument to 0 will pin the buffer to whereever it is stored.
+>     
+>     v2:
+>             * document pin flags in PRIME pin helper
+>     
+>     Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>     Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+>     Link: https://patchwork.freedesktop.org/patch/msgid/20190613073041.29350-2-tzimmermann@suse.de
+> 
+> commit 58540594570778fd149cd8c9b2bff61f2cefa8c9
+> Author: Thomas Zimmermann <tzimmermann@suse.de>
+> Date:   Wed Jul 3 09:58:34 2019 +0200
+> 
+>     drm/bochs: Use shadow buffer for bochs framebuffer console
+>     
+>     The bochs driver (and virtual hardware) requires buffer objects to
+>     reside in video ram to display them to the screen. So it can not
+>     display the framebuffer console because the respective buffer object
+>     is permanently pinned in system memory.
+>     
+>     Using a shadow buffer for the console solves this problem. The console
+>     emulation will pin the buffer object only during updates from the shadow
+>     buffer. Otherwise, the bochs driver can freely relocated the buffer
+>     between system memory and video ram.
+>     
+>     v2:
+>             * select shadow FB via struct drm_mode_config.prefer_shadow_fbdev
+>     
+>     Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>     Acked-by: Noralf Trønnes <noralf@tronnes.org>
+>     Link: https://patchwork.freedesktop.org/patch/315833/
+>     Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> 
+> ===
+> 
+> Commit a6c3464f69cf5a8a31e changed good behavior to absolutely wrong: after a6c3464f69cf5a8a31e I see just black screen.
+> Then (after many commits) 58540594570778fd149 made screen working again, but now panics are not shown.
+> 
+> So, result: all commits in range a6c3464f69cf5a8a31e .. 58540594570778fd149 are not testable (black screen), all commits before a6c3464f69cf5a8a31e
+> are "good" (panic is shown) and all commits after 58540594570778fd149 (inclusive) (including v6.16-rc5) are "bad" (panic is not shown).
+> 
+> The next commit after 58540594570778fd149 is 5fd5d2b7c53de5a1290d82, thus correct regzbot instruction is:
+> 
+> #regzbot introduced: a6c3464f69cf5a8a31e..5fd5d2b7c53de5a1290d82
+> 
+> Config above is not special. It is result of minimizing standard Debian config.
+> 
+> The bug is reproducible with standard Debian kernels (if we use them as guests).
+> 
+> Reproduction steps are so:
+> - Install Debian Trixie to Qemu VM
+> - Boot it with "init=/bin/true" added (to cause kernel panic)
+> 
+> You will not see panic message.
+> 
+> I minimized this Debian bug to small config shown in the beginning of this letter.
+> 
+> --
+> Askar Safin
+> https://types.pl/@safinaskar
+> 
+> 
+> 
 
-Rob
