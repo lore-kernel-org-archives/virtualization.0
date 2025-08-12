@@ -1,144 +1,117 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F02054D599
-	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 09:49:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6A42EA49E
+	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 10:03:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754992201; cv=none; b=QO2cGnLoS8PB7LfQCJBVf0YZiI1YXsoO7O2PCbI6cYgVmcg+e31LSdRQom92KvQ23hqXc/7Npem8dEHdN0dzCl1wF/f98XooxUy1UJoUgR/TLafHbIPWtyOiA6cbSSfKWKD9XiVb0pbcMEJ50qhxrmJzSW1WMYPG7YNHoDxe0Wg=
+	t=1754992985; cv=none; b=i5bw1qJPXe9RmkKBNmZ4lpX7GxWcSRU3BAAduNHWmueVO9whMVKW/10K1lhjDviiKvGMIxpDXKR14pwCuCZXgafiCM4FewVNaUX3KqWWUY9mHTgrz//wJXez0Q6md6HYFV8foc1ODCUCdW+KrIuxY4R+pNhHwhM9KHWDqQnSaks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754992201; c=relaxed/simple;
-	bh=0490oyMMcCSA6IAYKsOOlTvkHGvUwxMFO7SMFhwwTEc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dWg7MSgJ967swRuTWarFI/gcnb0zTxeUWVrRDbuWTYTMW606iR2oCB7i1Ndtd5fTIblUj/Rx0x2TgNymcBAKuKRvyL14xqNoCKUpN9ztjam34RlTCu47E0yoi8/aelmxKLaDLd8Go1LiI2BD4nHb5tRc5bt23wt4hAK9FmN0TGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=J3iuEWal; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="J3iuEWal"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-32138e0d9adso4429858a91.2
-        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 02:49:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1754992199; x=1755596999; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=rHx6Lde4qag7Ztq8SOjvT6+8sJ05xOxFR27nxsVwgtA=;
-        b=J3iuEWalzn5bEz3E4a1QE0LcxiebZL6dFHjbLq6FQROKMpUKVQTPaRUXB+hKxGUh9A
-         slxNMQBD3bLxF4G4hl2PZqyCK1KW4tEH/e3TteyOPjL2gqpDljoNkoKNmbvNfj1fwrdR
-         B5ouPrDfnUuuWMc5MAgHQkgVcTARd+fp87+Oc+lazAPB2ghXXbaLc8Pmwzr4zM7K16Cm
-         phv0p3mtMLqUaL3lcbEntqSZEOW+U4e98bwb/1NKE1Q3MDEz+Ct1IdE6L7z4KJsOqtzR
-         EaNGFZ2AS0ytWVz4mnARlq0nU9py+HTiYfyh/92lD5SplO+QIZPowZBXPvx36rUNA7ji
-         yfFQ==
+	s=arc-20240116; t=1754992985; c=relaxed/simple;
+	bh=V8Td4yiIhp1fByfK4cfqghrB3LJC7VilyAq40eVW1Zw=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=LGrs00N7NTzHWLRXyVEbWs/pFrGkb+YfDlGjOWKfOTAuyzNpv+c6URa/TVqkUw/d9fDnGCmOcCqFhAeDVsi3KhPmEQTSWSFWMU+6lHu9Z13wVhdXMFW6hWy4P0sMOdL0voCL9npGK+d6fRziSDTP9S00clGbtUoBG3u+/WX723Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-88177c70d63so574427539f.1
+        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 03:03:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754992199; x=1755596999;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
+        d=1e100.net; s=20230601; t=1754992982; x=1755597782;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rHx6Lde4qag7Ztq8SOjvT6+8sJ05xOxFR27nxsVwgtA=;
-        b=auxOFwCR2YOkl5uoFHcIdq5mbYXoMHjU+6G0SbSlROEuv0QPIykePHUXvTtku8cT+k
-         taE6tXZSg/KJp/oQsVf6lpygvPksGl1mQpjRtOVGG28b/xU6bN88bD/8ipQELAqXRP8u
-         iqT3zg0WxRxOEfDI/SmKspyU9DcLNmDcz0f8EKrtPaX1XCAJOJluHcaMb378d0vIMsVx
-         tQaZodCjuTY28Oi/bkanUFAxoMkr8d5be65RQATZ5hgAFYjPOjCGObpz1nwsHL7ah9Vr
-         dFAKShApWhOKXoDHjbCoKK3Ncua41gMUWaB1io+eOBRBIj41YIUjl4ym9V6u45pmxAnY
-         YMAA==
-X-Forwarded-Encrypted: i=1; AJvYcCWzJJA3Low96bs7PLis4+rEwc0XvtdyS8Xgw4V8c2uCXaazOVBY6mbONRCMiUEDipxhXf69Z8U/pEfHXHxvug==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyH49hgW5r6KQHCQ5xHU9MG1qTG0DSOKZ3+NTFVhgqOCpn3Ei5I
-	OJI2NqFEuBpa3pB2QrrhWDAIeWUJj+Us47LPw5epVyuAok6IMafxwSsuACVBJSfpRIM=
-X-Gm-Gg: ASbGnctCtGKyRQ3FsXRtZkxcRSFluhsVyDqmZd7UdA/bt4VI+lLVoNbXDTKiESfPA4u
-	DJkVJnCLf07qZQ0vsf/ffiaLXriz4vzuVCaHrHmjw+XU7zdr8R3FLkRyY9w7ZwXCHgz/KzBiPd2
-	/VFFvfHlUDcUC0G+d0w2Y5gE4SWLeh1g8Hqjcs0m5y2jwXrohzMeHCSS7aG0Fa6FFXxrzJ5ZJNT
-	Klu9tGq3XDg2KS76OAMN8lOfOgFbKy2ZGck9d7qcQ6bWHD78UVNzWiomdKgxD9BQSpN5vS5rAs9
-	3rPkFBUMuxRiv47eH9Mray+REAA6TQ2EDSatb6eN9ItytanfcrCd6xMMdVGlgNXBs5sQZa81brT
-	YRgvy7GggWIf9Si3epL91+bhq
-X-Google-Smtp-Source: AGHT+IFaE9wVmVALZ0AY3vMXxmm7SesZjwR/ULKy6XjkkdnNRyUoc7TfxGfX3avMzoLT05C0xMUULg==
-X-Received: by 2002:a17:90b:55cd:b0:312:1c83:58e7 with SMTP id 98e67ed59e1d1-321b3e81bb1mr7812400a91.1.1754992199185;
-        Tue, 12 Aug 2025 02:49:59 -0700 (PDT)
-Received: from localhost ([122.172.87.165])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b422b7d86f7sm24860991a12.24.2025.08.12.02.49.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Aug 2025 02:49:58 -0700 (PDT)
-Date: Tue, 12 Aug 2025 15:19:55 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Rob Herring <robh@kernel.org>
-Cc: linux-kernel@vger.kernel.org,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Saravana Kannan <saravanak@google.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Arnd Bergmann <arnd@kernel.org>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>,
-	Bill Mills <bill.mills@linaro.org>, devicetree@vger.kernel.org,
-	virtualization@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
-	Bertrand Marquis <bertrand.marquis@arm.com>,
-	"Edgar E . Iglesias" <edgar.iglesias@amd.com>,
-	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>
-Subject: Re: [RFC PATCH 0/6] virtio: Add support for Virtio message transport
-Message-ID: <20250812094955.fdyil4cbxr3bx4bo@vireshk-i7>
-References: <cover.1753865268.git.viresh.kumar@linaro.org>
- <CAL_JsqJn2XtvWaDBSqYPUe2ZVxE7t4EbAt8OPncbQaKjh1jY5w@mail.gmail.com>
+        bh=2ZKDF37TU1lzwfEknu372ML6nocSlXYGlciy4tYV/pM=;
+        b=sPIaUE6YYzwy+JHx7pVpvm+68cWDkEsjxxWlH3ZMIkAOVnRoe75n1tni6yzssSPD5c
+         Rkt/Qaa2XYZKFGDjGZ4JU33aodI36vExG+0VRWZ7t1ZK9iG9t/+PPk4eanTuNccAYmyW
+         IgfRqSW2hFCkqecfKcBdVau+Lwe0SRWy9QPC7yOubTBZOyMC3KR7DCi/77bK3RO9qUyh
+         pV0f3ahDWAeM3Kd7ZXS9755mdguu/WrRrkOavcss/CAYXBt0VdHJmquJB3zIa6cf7S6r
+         ga3jpBsbMT0TLujLIgoWqoKdhfbHNYljpgydJufL9QkJch39LB2sbXJqbL1UBpPBXUHM
+         SzGQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWKnwtz6AIFzWNvtIO8lPPAQqhbpTtl5eyEv4hBqVM8B6sOaqbCa+YRPiODYdqKUDWX9HxXtdnXvsRH7DbYtQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzrSls2/CqLiYQjxUUsiCIEo2CcKr5zpT9DbvWVHOOAJZTQHk4q
+	6PPuWe0dKikThGAIHae89uy2v4bsdEbkKMdaf4rsnleSVHUgyy8qPSlxDhazSKRBczHQMRLItrg
+	GtsJU5VBD3yTr400P5NnYzGl3q55M+uWSbt5+sIetjIJc3wqPK/IZURC0KXM=
+X-Google-Smtp-Source: AGHT+IFPQxJ8w6GgR1zw+Su3jgAnPf07mS294rHJhZt5m0Fy8wL2C6nVhzgXe8eriyaH9+BNt9BM+YdACJ8PiU06S1BEQxBPMvWK
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAL_JsqJn2XtvWaDBSqYPUe2ZVxE7t4EbAt8OPncbQaKjh1jY5w@mail.gmail.com>
+X-Received: by 2002:a05:6602:7416:b0:881:7627:b0a3 with SMTP id
+ ca18e2360f4ac-8841bf8bd7fmr613040739f.14.1754992982677; Tue, 12 Aug 2025
+ 03:03:02 -0700 (PDT)
+Date: Tue, 12 Aug 2025 03:03:02 -0700
+In-Reply-To: <20250812052645-mutt-send-email-mst@kernel.org>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <689b1156.050a0220.7f033.011c.GAE@google.com>
+Subject: Re: [syzbot] [kvm?] [net?] [virt?] WARNING in virtio_transport_send_pkt_info
+From: syzbot <syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
+	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Rob,
+Hello,
 
-On 30-07-25, 08:39, Rob Herring wrote:
-> On Wed, Jul 30, 2025 at 4:29 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> > ### Memory Mapping and Reserved Memory Usage
-> >
-> > The first two patches enhance the reserved-memory subsystem to support attaching
-> > struct device`s that do not originate from DT nodes — essential for virtual or
-> > dynamically discovered devices like the FF-A or loopback buses.
-> 
-> We support creating devices from reserved-memory nodes.
+syzbot has tested the proposed patch but the reproducer is still triggering an issue:
+WARNING in virtio_transport_send_pkt_info
 
-I didn't know about this.
+------------[ cut here ]------------
+'send_pkt()' returns 0, but 65536 expected
+WARNING: CPU: 0 PID: 5936 at net/vmw_vsock/virtio_transport_common.c:428 virtio_transport_send_pkt_info+0xd11/0xf00 net/vmw_vsock/virtio_transport_common.c:426
+Modules linked in:
+CPU: 0 UID: 0 PID: 5936 Comm: syz.0.17 Not tainted 6.16.0-rc6-syzkaller-00030-g6693731487a8 #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2~bpo12+1 04/01/2014
+RIP: 0010:virtio_transport_send_pkt_info+0xd11/0xf00 net/vmw_vsock/virtio_transport_common.c:426
+Code: 0f 0b 90 bd f2 ff ff ff eb bc e8 2a 15 74 f6 c6 05 17 6f 40 04 01 90 48 c7 c7 00 4b b7 8c 44 89 f6 4c 89 ea e8 e0 f7 37 f6 90 <0f> 0b 90 90 e9 e1 fe ff ff e8 01 15 74 f6 90 0f 0b 90 e9 c5 f7 ff
+RSP: 0018:ffffc9000cc2f530 EFLAGS: 00010246
+RAX: 72837a5a4342cf00 RBX: 0000000000010000 RCX: ffff888033218000
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000002
+RBP: ffffffff8f8592b0 R08: 0000000000000003 R09: 0000000000000004
+R10: dffffc0000000000 R11: fffffbfff1bfa6ec R12: dffffc0000000000
+R13: 0000000000010000 R14: 0000000000000000 R15: ffff8880406730e4
+FS:  00007fc0bd7eb6c0(0000) GS:ffff88808d230000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fd5857ec368 CR3: 00000000517cf000 CR4: 0000000000352ef0
+Call Trace:
+ <TASK>
+ virtio_transport_stream_enqueue net/vmw_vsock/virtio_transport_common.c:1111 [inline]
+ virtio_transport_seqpacket_enqueue+0x143/0x1c0 net/vmw_vsock/virtio_transport_common.c:839
+ vsock_connectible_sendmsg+0xac4/0x1050 net/vmw_vsock/af_vsock.c:2123
+ sock_sendmsg_nosec net/socket.c:712 [inline]
+ __sock_sendmsg+0x219/0x270 net/socket.c:727
+ ____sys_sendmsg+0x52d/0x830 net/socket.c:2566
+ ___sys_sendmsg+0x21f/0x2a0 net/socket.c:2620
+ __sys_sendmmsg+0x227/0x430 net/socket.c:2709
+ __do_sys_sendmmsg net/socket.c:2736 [inline]
+ __se_sys_sendmmsg net/socket.c:2733 [inline]
+ __x64_sys_sendmmsg+0xa0/0xc0 net/socket.c:2733
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xfa/0x3b0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7fc0bc98ebe9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fc0bd7eb038 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
+RAX: ffffffffffffffda RBX: 00007fc0bcbb5fa0 RCX: 00007fc0bc98ebe9
+RDX: 0000000000000001 RSI: 0000200000000100 RDI: 0000000000000004
+RBP: 00007fc0bca11e19 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000024008094 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007fc0bcbb6038 R14: 00007fc0bcbb5fa0 R15: 00007ffdb7bf09f8
+ </TASK>
 
-> Just add a
-> compatible which you should do anyways because node names are not
-> supposed to be that specific or an ABI.
 
-Yeah, I already knew that the node-names thing isn't going to fly as
-you and Krzysztof rightly pointed out. I just wanted inputs from you
-guys and so did that as a first implementation to get the discussion
-started.
+Tested on:
 
-I tried something like this now:
+commit:         66937314 vsock/virtio: Allocate nonlinear SKBs for han..
+git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+console output: https://syzkaller.appspot.com/x/log.txt?x=159d75bc580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=84141250092a114f
+dashboard link: https://syzkaller.appspot.com/bug?extid=b4d960daf7a3c7c2b7b1
+compiler:       Debian clang version 20.1.7 (++20250616065708+6146a88f6049-1~exp1~20250616065826.132), Debian LLD 20.1.7
 
-      reserved-memory {
-        #address-cells = <2>;
-        #size-cells   = <2>;
-        ranges;
-
-        rmem@100000000 {
-          compatible = "restricted-dma-pool", "virtio-msg,loopback";
-          reg = <0x00000001 0x00000000  0x0 0x00400000>; /* 4 MiB */
-        };
-      };
-
-and this works fine. I am adding two compatibles for virtio-msg:
-"virtio-msg,loopback" and "virtio-msg,ffa". Yes I will properly
-document them in the next version.
-
-With this, we don't need the 2nd patch anymore:
-  of: reserved-memory: Add of_reserved_mem_lookup_by_name
-
-but still need the 1st one:
-  of: reserved-memory: Add reserved_mem_device_init()
-
-Thanks.
-
--- 
-viresh
+Note: no patches were applied.
