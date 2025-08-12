@@ -1,186 +1,76 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBA8E2E8897
-	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 09:27:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98A102EA15F
+	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 09:48:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.69
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754990839; cv=none; b=Dqg+g1iV6Csm/ZpmWSV2EiGp6NGy8Bih7Fz4tTKwzlS+UXAOzTICIHK3vTCRPgC+X/Zx+7HOHRGKE2y8Ry+75YA3ZNSxb7oi1ObuH3Sf0G90MaXDQRlE/28Tvc9N/ITR+aaQDX7RuQ4Agm29FRUsiCOkedoi7c0Bt6B6W1ZCIFg=
+	t=1754992088; cv=none; b=jcvLQPij3GDKK3ngz+LriXdukZbjFT/+OQXVv1N/oWXCmTthy3Fs6IzsPru0NG9hlRRbsp9t7SWoFvI/5qakyL38dktkBI6FasgBxKE2BNh6KAj54i1ieLtRP06UtramZ6DJzuUHG30KONzXvktVsD4/uxsSUBpeqzbbpZgFBfM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754990839; c=relaxed/simple;
-	bh=Hun7Pj2QeIThbWWcEnI4efZAqJOfJrOaDsvmrUO0zJo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=PNAsmZeewNg8/+fFqQY+4VYxLw+atZvTbeGXfNFAOa77bAXnCnhbaRGK8Bx0N4GkojTJkqjlIyJxJsbcRd1Pm5fSMhY6K0CrUZGWyp+tBryC1lVRUbQqaeJvsEEkL1V5NBaeCnp2QRVnIsaak+kV9FGG4UkZYpeFliiXj6cVZfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XEl1EThw; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XEl1EThw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1754990837;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=WGp9+izCkrlBj+bCsKQsfK68CmTdIqz5MvXVpGGtKI8=;
-	b=XEl1EThw6sbEQeHZcfewwYxnaktxCxWmrWKCqBfeiMgg1jMzu74gTrhKYxN6tjhwkvrwtl
-	Dsa+lz1CGwG8rATHL22RYRDrxD4gjZgT9mf9ufp8Jsx8WVLSCgyoTr1+K7wRd1xPExHHnk
-	MGSRTroBJMraoW3pA2humMlHEVrUzhE=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-474-eDYofJNEMMy8_jA_ix7t9Q-1; Tue, 12 Aug 2025 05:27:15 -0400
-X-MC-Unique: eDYofJNEMMy8_jA_ix7t9Q-1
-X-Mimecast-MFC-AGG-ID: eDYofJNEMMy8_jA_ix7t9Q_1754990834
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-458c0845b34so37525785e9.2
-        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 02:27:15 -0700 (PDT)
+	s=arc-20240116; t=1754992088; c=relaxed/simple;
+	bh=tgMF8HuU+iL/6Y55dy6ba5v8RvxSKr6oTJYUTWCzqHs=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=kIz5OBWoIEyR7ABhy4MRM855flKGMRvdFoUGEW0z0rGdvD3qkvJvJiAQ8v+63dBNKbXsj+pWpwls49O/dBn0Q+fKHleFfQBoRO72mr/momOUBHDyTsrKOY7FZSWOU2kDT4g7Eu3t/ukh8XVNi3rgbwP/RA0qU6rZGrRatv61CLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-86463467dddso534016439f.3
+        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 02:48:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754990833; x=1755595633;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WGp9+izCkrlBj+bCsKQsfK68CmTdIqz5MvXVpGGtKI8=;
-        b=SDRM/VbGhEC3pR96lomOVqGPex6Wb90+K7UQUmDeyUEJa1wQfLMORQ5e9MX2rCcpTX
-         pVo/axQtD9zh+UvacJgFTCafswEiZlrrXDoxXYOvRjWh+N8C1V8lSI7bWMw3FR9pdGQ8
-         bUkMuMEwb+QERH+tsdnBBjxiELUcgaC+aDFJN0+MyCqQq7DtYX+m2DXMnhehPO3vzMzI
-         1wL5nnnJFmK12FpUbIQ/qOZEYzAtudz6BzMD24cwSJpnTDOfs7DviAbQ9SL6FX/a+l2c
-         XMhmjThpmdm9xChNLmCqx3dB1fz3QD2hYdP8J5bY1WJO04Ew1H0IIApJqCx1eIiyT5Js
-         E1iQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWvjDOwpqBw74BsoyMbIPVM43SF9ah6Ko5MnnHBg/J9wAggVRfEWwCVamhQU5VFMAoiux2SF+bfNx3D5p9RVg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwCNs3MYVbrRZlMoFIG/cesBGbpkV/oE+MiBiYklKCqSLX6NL+3
-	sshtVXL/LR2hdxLRGblJsPT3cgaRFf8Du/6Tj++bLYRvrIpQg9pfXPITx4kdMFEraZwPNV2Bq/I
-	daFnNfyM8nHLd2jBfll55E9Whz76gIJBW07yJ6kDisO+VBAsLw3poiNHQZ8OJO4CCOdaf
-X-Gm-Gg: ASbGncvWojJ4hta6g9CSkqUXDetwHxoB2SXSE5PdE6p1ij+64UKet1OoNgf37Xl0zpC
-	4H45UrVk1aqZTkjVzJfoDh1Lvsr7JRoavpWUXs0rds7/SFXq0OCd3PUKJXk95sC0tKf7Z0fTpvs
-	DDTW+pltcERLgKRsyrx4Num6AzvzJWMLN5V0cM3mh8XrjHA6k/rZz1sNPre/qjRB75ULTkx1j6s
-	TJiEn1jQEeaCq5ZheW7tAleTNIyzgLLS8hnfijTpTJPu39kCgbwXbSRilmoSlzW8uQmMtZs5b7P
-	cZxwqpAoI5vHqqLOklsRZDgh43PLj0Qb
-X-Received: by 2002:a5d:64cd:0:b0:3a4:f70e:abda with SMTP id ffacd0b85a97d-3b910fce9a8mr2143721f8f.10.1754990833549;
-        Tue, 12 Aug 2025 02:27:13 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGFkY9FzWL94KYJ81gviv0bWbapS/YWsGTjYnmEpZTu+fpeDhGDEmVz6ELyY1r99MnE6tNX6Q==
-X-Received: by 2002:a5d:64cd:0:b0:3a4:f70e:abda with SMTP id ffacd0b85a97d-3b910fce9a8mr2143685f8f.10.1754990832925;
-        Tue, 12 Aug 2025 02:27:12 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b79c3c4d02sm42398517f8f.33.2025.08.12.02.27.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Aug 2025 02:27:12 -0700 (PDT)
-Date: Tue, 12 Aug 2025 05:27:09 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: syzbot <syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com>
-Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
-	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org,
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, pabeni@redhat.com, sgarzare@redhat.com,
-	stefanha@redhat.com, syzkaller-bugs@googlegroups.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Subject: Re: [syzbot] [kvm?] [net?] [virt?] WARNING in
- virtio_transport_send_pkt_info
-Message-ID: <20250812052645-mutt-send-email-mst@kernel.org>
-References: <689a3d92.050a0220.7f033.00ff.GAE@google.com>
+        d=1e100.net; s=20230601; t=1754992086; x=1755596886;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=23s4cMMxaWk/6h2mIsslFjC/yj0rjYz/dHBx5jBiKdk=;
+        b=tu3Tc2/i0d0AHoPwNu5OkSoDZtrDmWuz+sxI6Zv0fhgd3nGzCmNco8UtUukt0+24yy
+         ulRHb7W9oc0p5vTnLqmhjKaMFciinjIir7o4m6yugEyk8JqQHQqAka0zeGz9S7Vzys+c
+         8eb3OzFDIQSYzmdxt20Sa9EpFX0ttNPUzTHjFrcIHCoG17NLcUgaPyomodtAWRCftk+a
+         98fG/+cxt6rfsqPCCDehq4uTtMSmpYL4l1FreEEu18ieiUD/K6jedhBitWe0DHH+W+ll
+         4p8p71ZG5HWxqLfAKMwhaqjeUw8hm7X2RDJHiq4m+xqHMSCowAS0tfSkRtCipg3YNfx0
+         QLBQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXB1m53QnyELGIoSgKmlFN5Pg2QZdkC2K3HoIT6CYQYg1zY77H4C2QTL18didjdzVpovqhGxvByTJxguaBnOg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwP0oCTt4EoGNmxEyvq63eiWhqMa0f+YaUnAdp050nHUaYjzIAI
+	sm9637vDQ4mtMRj0FEPE9l62DXnNgMXpn7cjWWT3s5YucmAlk3oe0pA6rU2noKDnE4alFTHH3fT
+	2soJ+vOJVbX/u0R76wW8BVpCEylcB8PFOebr0w6VuMLt/83VqMiBqco8LsY0=
+X-Google-Smtp-Source: AGHT+IG3SLQLj7KxZZEj1GNTliTbrGRu9ikWa+/cuwM6xZfm+k+wklil9CcAWSa+9Q7XgA8ywVi7c7dtP5+lK+hEKORoB3z1DYwc
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <689a3d92.050a0220.7f033.00ff.GAE@google.com>
-X-Mimecast-Spam-Score: 1
-X-Mimecast-MFC-PROC-ID: 7f0EoRioIJcgxJbAdb6JtmoswbiZvgO8h3moGL-d9-g_1754990834
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Received: by 2002:a05:6602:1546:b0:881:8979:93f4 with SMTP id
+ ca18e2360f4ac-883f127fca5mr3181687939f.14.1754992085862; Tue, 12 Aug 2025
+ 02:48:05 -0700 (PDT)
+Date: Tue, 12 Aug 2025 02:48:05 -0700
+In-Reply-To: <20250812052537-mutt-send-email-mst@kernel.org>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <689b0dd5.050a0220.7f033.0119.GAE@google.com>
+Subject: Re: [syzbot] [kvm?] [net?] [virt?] WARNING in virtio_transport_send_pkt_info
+From: syzbot <syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
+	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Aug 11, 2025 at 11:59:30AM -0700, syzbot wrote:
-> Hello,
-> 
-> syzbot found the following issue on:
-> 
-> HEAD commit:    37816488247d Merge tag 'net-6.17-rc1' of git://git.kernel...
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=10b3b2f0580000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=e143c1cd9dadd720
-> dashboard link: https://syzkaller.appspot.com/bug?extid=b4d960daf7a3c7c2b7b1
-> compiler:       Debian clang version 20.1.7 (++20250616065708+6146a88f6049-1~exp1~20250616065826.132), Debian LLD 20.1.7
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10f0f042580000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=14855434580000
-> 
-> Downloadable assets:
-> disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-37816488.raw.xz
-> vmlinux: https://storage.googleapis.com/syzbot-assets/74b3ac8946d4/vmlinux-37816488.xz
-> kernel image: https://storage.googleapis.com/syzbot-assets/a2b391aacaec/bzImage-37816488.xz
-> 
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com
-> 
-> ------------[ cut here ]------------
-> 'send_pkt()' returns 0, but 65536 expected
-> WARNING: CPU: 0 PID: 5503 at net/vmw_vsock/virtio_transport_common.c:428 virtio_transport_send_pkt_info+0xd11/0xf00 net/vmw_vsock/virtio_transport_common.c:426
-> Modules linked in:
-> CPU: 0 UID: 0 PID: 5503 Comm: syz.0.17 Not tainted 6.16.0-syzkaller-12063-g37816488247d #0 PREEMPT(full) 
-> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2~bpo12+1 04/01/2014
-> RIP: 0010:virtio_transport_send_pkt_info+0xd11/0xf00 net/vmw_vsock/virtio_transport_common.c:426
-> Code: 0f 0b 90 bd f2 ff ff ff eb bc e8 8a 20 65 f6 c6 05 94 cf 32 04 01 90 48 c7 c7 00 c3 b8 8c 44 89 f6 4c 89 ea e8 40 af 28 f6 90 <0f> 0b 90 90 e9 e1 fe ff ff e8 61 20 65 f6 90 0f 0b 90 e9 c5 f7 ff
-> RSP: 0018:ffffc900027ff530 EFLAGS: 00010246
-> RAX: d7fcdfc663889c00 RBX: 0000000000010000 RCX: ffff888000e1a440
-> RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000002
-> RBP: ffffffff8f8764d0 R08: ffff88801fc24253 R09: 1ffff11003f8484a
-> R10: dffffc0000000000 R11: ffffed1003f8484b R12: dffffc0000000000
-> R13: 0000000000010000 R14: 0000000000000000 R15: ffff888058b48024
-> FS:  000055556bda1500(0000) GS:ffff88808d218000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 000020000003f000 CR3: 000000003f6db000 CR4: 0000000000352ef0
-> Call Trace:
->  <TASK>
->  virtio_transport_stream_enqueue net/vmw_vsock/virtio_transport_common.c:1111 [inline]
->  virtio_transport_seqpacket_enqueue+0x143/0x1c0 net/vmw_vsock/virtio_transport_common.c:839
->  vsock_connectible_sendmsg+0xac7/0x1050 net/vmw_vsock/af_vsock.c:2140
->  sock_sendmsg_nosec net/socket.c:714 [inline]
->  __sock_sendmsg+0x21c/0x270 net/socket.c:729
->  ____sys_sendmsg+0x52d/0x830 net/socket.c:2614
->  ___sys_sendmsg+0x21f/0x2a0 net/socket.c:2668
->  __sys_sendmmsg+0x227/0x430 net/socket.c:2757
->  __do_sys_sendmmsg net/socket.c:2784 [inline]
->  __se_sys_sendmmsg net/socket.c:2781 [inline]
->  __x64_sys_sendmmsg+0xa0/0xc0 net/socket.c:2781
->  do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
->  do_syscall_64+0xfa/0x3b0 arch/x86/entry/syscall_64.c:94
->  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> RIP: 0033:0x7fddc238ebe9
-> Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-> RSP: 002b:00007ffd48081028 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
-> RAX: ffffffffffffffda RBX: 00007fddc25b5fa0 RCX: 00007fddc238ebe9
-> RDX: 0000000000000001 RSI: 0000200000000100 RDI: 0000000000000004
-> RBP: 00007fddc2411e19 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000024008094 R11: 0000000000000246 R12: 0000000000000000
-> R13: 00007fddc25b5fa0 R14: 00007fddc25b5fa0 R15: 0000000000000004
->  </TASK>
-> 
-> 
-> ---
-> This report is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
-> 
-> syzbot will keep track of this issue. See:
-> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-> 
-> If the report is already addressed, let syzbot know by replying with:
-> #syz fix: exact-commit-title
-> 
-> If you want syzbot to run the reproducer, reply with:
-> #syz test: git://repo/address.git branch-or-commit-hash
-> If you attach or paste a git patch, syzbot will apply it before testing.
+Hello,
 
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
 
-#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 6693731487a8145a9b039bc983d77edc47693855
+Reported-by: syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com
+Tested-by: syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com
 
+Tested on:
 
-> If you want to overwrite report's subsystems, reply with:
-> #syz set subsystems: new-subsystem
-> (See the list of subsystem names on the web dashboard)
-> 
-> If the report is a duplicate of another one, reply with:
-> #syz dup: exact-subject-of-another-report
-> 
-> If you want to undo deduplication, reply with:
-> #syz undup
+commit:         8ca76151 vsock/virtio: Rename virtio_vsock_skb_rx_put()
+git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+console output: https://syzkaller.appspot.com/x/log.txt?x=15d54af0580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=84141250092a114f
+dashboard link: https://syzkaller.appspot.com/bug?extid=b4d960daf7a3c7c2b7b1
+compiler:       Debian clang version 20.1.7 (++20250616065708+6146a88f6049-1~exp1~20250616065826.132), Debian LLD 20.1.7
 
+Note: no patches were applied.
+Note: testing is done by a robot and is best-effort only.
