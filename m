@@ -1,240 +1,145 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id EC39126E71F;
-	Mon, 11 Aug 2025 22:34:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB3621C7005
+	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 01:30:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754951688; cv=none; b=eoY3W2rMvwGsKmv2JAu+pXi41D61duWXHuv/0ooUAq5lNT/Ai/fPf2AdayIRZfGY+5GjNUNWpIInY0NzRdwCALM8wM+HlTcbki0bmz2/nEXSG4Sf9VQ6PXuk2wOzVYyt1lOMbUxMG8fRsYvSqQiWTkYDO0i7ubV1qH/OFf//+1w=
+	t=1754962216; cv=none; b=LvvlUN7BJh/oR4YziLBlkt2YUB80sLdrAOebo5l/95SWITJkdJGFlMi9spz/wVKjRpLW6sNodh5K/iT6VLYe9pYYf9XqL0xZsbs2bDqkxrjY46NxB3ntDTeEJPDrQ723ZDoe0gvj9y5Vm02Yrv/tt2tAU5wOzqsFFqlEFJ46ugs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754951688; c=relaxed/simple;
-	bh=KEJz8V3hTKSNX75hFQYkEePbPa67hYMeGLAn/TFBgQE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=sQsw095/U809sHWSyptup03cvxURco3d5yEamTaLrs7rTz5MHIQz6nN3Sx/Wk5ExuMtC9TFP+SsxKZqmNUB4GbFzKplg91sYgBv8VLODotqKdiBazkVvWlcy2aDVj5+GjkrHhIu7/13whQLKJO6FbxnVHOynGIndRuXSpGsR07Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=NC8fmStE; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1754962216; c=relaxed/simple;
+	bh=5VapdnES7ub01fEzwLbmifK+dKN+v5agxO17nHqVte8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=SCDaSH2WL9qEQtT1aOt+3ZGMrBYhfShrdyQacXQnpvmcmdxQI4XtTCxXX0fhGJQ+NUXZMvniUY1ehBmocBBi8AHvonsoZkuPJclRcfY6Q8Q57xvkZrYX8ypFApu4IMN1W9rle+oASyo1VFO2SF/py3OnmqpHOlbC4tQ1IytI0Wo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JMbfwpsR; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="NC8fmStE"
-Received: from localhost (unknown [20.236.11.102])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 766862118279;
-	Mon, 11 Aug 2025 15:34:45 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 766862118279
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1754951686;
-	bh=IwUhsFOiIi6zVcaJg3YrevuM/Efz5wgM79z0k/2+V58=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=NC8fmStEktFHXs7Gwd5+MBF/sOxe/YRuwXQMP7Cdg+03h1qB9i7z25fjbxNTfeJB2
-	 HJs+BEDX2sjBvRhUBvPOeI4Cvh3CkAvE1SK931K1TBY6QoisYwInK5UxEvhzD1jKiM
-	 v1dAlPzV+DO2ajr4BftKMDV3pGyAsQQN4RRFhBPg=
-Date: Mon, 11 Aug 2025 15:34:44 -0700
-From: Jacob Pan <jacob.pan@linux.microsoft.com>
-To: Shyam Saini <shyamsaini@linux.microsoft.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- devicetree@vger.kernel.org, virtualization@lists.linux.dev, jgg@ziepe.ca,
- will@kernel.org, eric.auger@redhat.com, code@tyhicks.com,
- eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
- bboscaccy@linux.microsoft.com
-Subject: Re: [PATCH v3 3/3] arm-smmu: select suitable MSI IOVA
-Message-ID: <20250811153444.000071ab@linux.microsoft.com>
-In-Reply-To: <20250806215539.1240561-4-shyamsaini@linux.microsoft.com>
-References: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
-	<20250806215539.1240561-4-shyamsaini@linux.microsoft.com>
-Organization: LSG
-X-Mailer: Claws Mail 3.21.0 (GTK+ 2.24.33; x86_64-w64-mingw32)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JMbfwpsR"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1754962210; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
+	bh=djZxdkbYS5ABjJh5vZ+OSyzqxKEA12clHOn12k1eFBw=;
+	b=JMbfwpsRNCi9vQ8K0CdPK0zFsmtjl1OT5ze7/nvcC9uy1+BBNgnJzrXzYo/jsMsVasDPYYjhUbEL4r0yaX89uL9z80p/b5ORZUZIyBKo2n7zC/7pwar7Es6i3EZ6u8anU7cbm5tcI49YJa+A9LIyWz09nPLOifv3+UzTQQDKM9s=
+Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0WlYvemQ_1754962181 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 12 Aug 2025 09:30:08 +0800
+From: "Huang, Ying" <ying.huang@linux.alibaba.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org,  linux-mm@kvack.org,
+  linuxppc-dev@lists.ozlabs.org,  virtualization@lists.linux.dev,
+  linux-fsdevel@vger.kernel.org,  linux-aio@kvack.org,
+  linux-btrfs@vger.kernel.org,  jfs-discussion@lists.sourceforge.net,
+  Andrew Morton <akpm@linux-foundation.org>,  Madhavan Srinivasan
+ <maddy@linux.ibm.com>,  Michael Ellerman <mpe@ellerman.id.au>,  Nicholas
+ Piggin <npiggin@gmail.com>,  Christophe Leroy
+ <christophe.leroy@csgroup.eu>,  Jerrin Shaji George
+ <jerrin.shaji-george@broadcom.com>,  Arnd Bergmann <arnd@arndb.de>,  Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>,  "Michael S. Tsirkin"
+ <mst@redhat.com>,  Jason Wang <jasowang@redhat.com>,  Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>,  Eugenio =?utf-8?Q?P=C3=A9rez?=
+ <eperezma@redhat.com>,
+  Alexander Viro <viro@zeniv.linux.org.uk>,  Christian Brauner
+ <brauner@kernel.org>,  Jan Kara <jack@suse.cz>,  Benjamin LaHaise
+ <bcrl@kvack.org>,  Chris Mason <clm@fb.com>,  Josef Bacik
+ <josef@toxicpanda.com>,  David Sterba <dsterba@suse.com>,  Muchun Song
+ <muchun.song@linux.dev>,  Oscar Salvador <osalvador@suse.de>,  Dave
+ Kleikamp <shaggy@kernel.org>,  Zi Yan <ziy@nvidia.com>,  Matthew Brost
+ <matthew.brost@intel.com>,  Joshua Hahn <joshua.hahnjy@gmail.com>,  Rakie
+ Kim <rakie.kim@sk.com>,  Byungchul Park <byungchul@sk.com>,  Gregory Price
+ <gourry@gourry.net>,  Alistair Popple <apopple@nvidia.com>,  Minchan Kim
+ <minchan@kernel.org>,  Sergey Senozhatsky <senozhatsky@chromium.org>
+Subject: Re: [PATCH v1 0/2] mm: remove MIGRATEPAGE_*
+In-Reply-To: <20250811143949.1117439-1-david@redhat.com> (David Hildenbrand's
+	message of "Mon, 11 Aug 2025 16:39:46 +0200")
+References: <20250811143949.1117439-1-david@redhat.com>
+Date: Tue, 12 Aug 2025 09:29:40 +0800
+Message-ID: <87bjolgwe3.fsf@DESKTOP-5N7EMDA>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed,  6 Aug 2025 14:55:39 -0700
-Shyam Saini <shyamsaini@linux.microsoft.com> wrote:
+Hi, David,
 
-> Currently ARM SMMU drivers hardcode PCI MSI IOVA address.
-> Not all the platform have same memory mappings and some platform
-> could have this address already being mapped for something else.
-> This can lead to collision and as a consequence the MSI IOVA addr
-> range is never reserved.
-> 
-> Fix this by reserving faulty IOVA range and selecting alternate
-> MSI_IOVA suitable for the intended platform.
-> 
-> Example of reserving faulty IOVA range for PCIE device in the DTS:
-> 
-> reserved-memory {
-> 	#address-cells = <2>;
-> 	#size-cells = <2>;
-> 	faulty_iova: resv_faulty {
-> 		iommu-addresses = <&pcieX 0x0 0x8000000 0x0 0x100000>;
-> 	};
-> };
-> 
-> &pcieX {
-> 	memory-region = <&faulty_iova>;
-> };
-> 
-> Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Link: https://lore.kernel.org/linux-iommu/20250416181759.GF493866@ziepe.ca/
-> Signed-off-by: Shyam Saini <shyamsaini@linux.microsoft.com>
-> ---
->  drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 27
-> +++++++++++++++------ drivers/iommu/arm/arm-smmu/arm-smmu.c       |
-> 27 +++++++++++++++------ include/linux/iommu.h
-> | 25 +++++++++++++++++++ 3 files changed, 65 insertions(+), 14
-> deletions(-)
-> 
-> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c index
-> 5f46140a8f3fa..0dfb522e173f0 100644 ---
-> a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c +++
-> b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c @@ -3642,17 +3642,30 @@
-> static int arm_smmu_of_xlate(struct device *dev, static void
-> arm_smmu_get_resv_regions(struct device *dev, struct list_head *head)
->  {
-> -	struct iommu_resv_region *region;
->  	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
->  
-> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE,
-> MSI_IOVA_LENGTH,
-> -					 prot, IOMMU_RESV_SW_MSI,
-> GFP_KERNEL);
-> -	if (!region)
-> -		return;
-> -
-> -	list_add_tail(&region->list, head);
-> +	static const u64 msi_bases[] = { MSI_IOVA_BASE,
-> MSI_IOVA_BASE2 }; 
->  	iommu_dma_get_resv_regions(dev, head);
-> +
-> +	/*
-> +	 * Use the first msi_base that does not intersect with a
-> platform
-> +	 * reserved region. The SW MSI base selection is entirely
-> arbitrary.
-> +	 */
-> +	for (int i = 0; i != ARRAY_SIZE(msi_bases); i++) {
-nit: i < ARRAY_SIZE(msi_bases) is more robust
+David Hildenbrand <david@redhat.com> writes:
 
-> +		struct iommu_resv_region *region;
-> +
-> +		if (resv_region_intersects(msi_bases[i],
-> MSI_IOVA_LENGTH, head))
-> +			continue;
-> +
-> +		region = iommu_alloc_resv_region(msi_bases[i],
-> MSI_IOVA_LENGTH, prot,
-> +						 IOMMU_RESV_SW_MSI,
-> GFP_KERNEL);
-> +		if (!region)
-> +			return;
-> +
-> +		list_add_tail(&region->list, head);
-> +		return;
-> +	}
+> This is against mm/mm-new.
+>
+> This series gets rid of MIGRATEPAGE_UNMAP, to then convert the remaining
+> MIGRATEPAGE_SUCCESS usage to simply use 0 instead.
+>
+> Not sure if it makes sense to split the second patch up, a treewide
+> cleanup felt more reasonable for this simple change in an area where
+> I don't expect a lot of churn.
+>
+> Briefly tested with virtio-mem in a VM, making sure that basic
+> page migration keeps working.
+>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Cc: Jerrin Shaji George <jerrin.shaji-george@broadcom.com>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Cc: "Eugenio P=C3=A9rez" <eperezma@redhat.com>
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: Christian Brauner <brauner@kernel.org>
+> Cc: Jan Kara <jack@suse.cz>
+> Cc: Benjamin LaHaise <bcrl@kvack.org>
+> Cc: Chris Mason <clm@fb.com>
+> Cc: Josef Bacik <josef@toxicpanda.com>
+> Cc: David Sterba <dsterba@suse.com>
+> Cc: Muchun Song <muchun.song@linux.dev>
+> Cc: Oscar Salvador <osalvador@suse.de>
+> Cc: Dave Kleikamp <shaggy@kernel.org>
+> Cc: Zi Yan <ziy@nvidia.com>
+> Cc: Matthew Brost <matthew.brost@intel.com>
+> Cc: Joshua Hahn <joshua.hahnjy@gmail.com>
+> Cc: Rakie Kim <rakie.kim@sk.com>
+> Cc: Byungchul Park <byungchul@sk.com>
+> Cc: Gregory Price <gourry@gourry.net>
+> Cc: Ying Huang <ying.huang@linux.alibaba.com>
+> Cc: Alistair Popple <apopple@nvidia.com>
+> Cc: Minchan Kim <minchan@kernel.org>
+> Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+>
+> David Hildenbrand (2):
+>   mm/migrate: remove MIGRATEPAGE_UNMAP
+>   treewide: remove MIGRATEPAGE_SUCCESS
 
-Maybe add a warning if both msi_bases are conflicting. Or you can keep
-searching until a non-intersecting region is found. e.g. let
-resv_region_intersects() return a valid region.
+LGTM.  Feel free to add my
 
->  }
->  
->  /*
-> diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-> b/drivers/iommu/arm/arm-smmu/arm-smmu.c index
-> 4a07650911991..84b74b8519386 100644 ---
-> a/drivers/iommu/arm/arm-smmu/arm-smmu.c +++
-> b/drivers/iommu/arm/arm-smmu/arm-smmu.c @@ -1600,17 +1600,30 @@
-> static int arm_smmu_of_xlate(struct device *dev, static void
-> arm_smmu_get_resv_regions(struct device *dev, struct list_head *head)
->  {
-> -	struct iommu_resv_region *region;
->  	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
->  
-> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE,
-> MSI_IOVA_LENGTH,
-> -					 prot, IOMMU_RESV_SW_MSI,
-> GFP_KERNEL);
-> -	if (!region)
-> -		return;
-> -
-> -	list_add_tail(&region->list, head);
-> +	static const u64 msi_bases[] = { MSI_IOVA_BASE,
-> MSI_IOVA_BASE2 }; 
->  	iommu_dma_get_resv_regions(dev, head);
-> +
-> +	/*
-> +	 * Use the first msi_base that does not intersect with a
-> platform
-> +	 * reserved region. The SW MSI base selection is entirely
-> arbitrary.
-> +	 */
-> +	for (int i = 0; i != ARRAY_SIZE(msi_bases); i++) {
-> +		struct iommu_resv_region *region;
-> +
-> +		if (resv_region_intersects(msi_bases[i],
-> MSI_IOVA_LENGTH, head))
-> +			continue;
-> +
-> +		region = iommu_alloc_resv_region(msi_bases[i],
-> MSI_IOVA_LENGTH, prot,
-> +						 IOMMU_RESV_SW_MSI,
-> GFP_KERNEL);
-> +		if (!region)
-> +			return;
-> +
-> +		list_add_tail(&region->list, head);
-> +		return;
-> +	}
->  }
->  
->  static int arm_smmu_def_domain_type(struct device *dev)
-> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-> index 517f908296436..6750ecdebaa94 100644
-> --- a/include/linux/iommu.h
-> +++ b/include/linux/iommu.h
-> @@ -1509,14 +1509,39 @@ static inline void iommu_debugfs_setup(void)
-> {} 
->  #ifdef CONFIG_IOMMU_DMA
->  #define MSI_IOVA_BASE        0x8000000
-> +#define MSI_IOVA_BASE2       0xA0000000
->  #define MSI_IOVA_LENGTH      0x100000
->  
-> +static inline bool resv_region_intersects(phys_addr_t msi_base,
-> size_t length,
-> +					  struct list_head
-> *resv_region_list) +{
-> +	struct iommu_resv_region *region;
-> +	phys_addr_t start, end, resv_region_end;
-> +
-> +	start = msi_base;
-> +	end = start + length - 1;
-> +	list_for_each_entry(region, resv_region_list, list) {
-> +		resv_region_end = region->start + region->length - 1;
-> +		/* overlap detected */
-> +		if (!(start > resv_region_end || end <
-> region->start))
-> +			return true;
-> +	}
-> +
-> +	return false;
-> +}
-> +
->  int iommu_get_msi_cookie(struct iommu_domain *domain, dma_addr_t
-> base); #else /* CONFIG_IOMMU_DMA */
->  static inline int iommu_get_msi_cookie(struct iommu_domain *domain,
-> dma_addr_t base) {
->  	return -ENODEV;
->  }
-> +
-> +static inline bool resv_region_intersects(phys_addr_t msi_base,
-> size_t length,
-> +					  struct list_head
-> *resv_region_list) +{
-> +	return false;
-> +}
->  #endif	/* CONFIG_IOMMU_DMA */
->  
->  /*
+Reviewed-by: Huang Ying <ying.huang@linux.alibaba.com>
 
+for the whole series in the future versions.
+
+>  arch/powerpc/platforms/pseries/cmm.c |  2 +-
+>  drivers/misc/vmw_balloon.c           |  4 +-
+>  drivers/virtio/virtio_balloon.c      |  2 +-
+>  fs/aio.c                             |  2 +-
+>  fs/btrfs/inode.c                     |  4 +-
+>  fs/hugetlbfs/inode.c                 |  4 +-
+>  fs/jfs/jfs_metapage.c                |  8 +--
+>  include/linux/migrate.h              | 11 +---
+>  mm/migrate.c                         | 80 ++++++++++++++--------------
+>  mm/migrate_device.c                  |  2 +-
+>  mm/zsmalloc.c                        |  4 +-
+>  11 files changed, 56 insertions(+), 67 deletions(-)
+>
+>
+> base-commit: 53c448023185717d0ed56b5546dc2be405da92ff
+
+---
+Best Regards,
+Huang, Ying
