@@ -1,112 +1,118 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 505582E972E
-	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 17:46:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E50E248865
+	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 23:20:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755020762; cv=none; b=VxwFHBB/oquwCRK/2YMNcsGl1v1a2H7gCGjWj7FKPuDd1lE2PRw9lK3LPVp2OWPpmBobvXAOYNXkEx3iSGyVmzYWQgudHlpX5cIy9pnRgxBvi6nGwXcGA9coGvGDclOy/Ex8W3AJtV7RZyVsJua4l63WdG4Rd47ZUDnVSLB1QiI=
+	t=1755040832; cv=none; b=VVht1EBlDjzzOAOI1dJsxLIQ1JuzLoBZlkl8kIwCc47nZ7XaJ8Zwq7qcM21a1QI+VnXFhUP0B5GDPNjq5WFCyfDH5IwO6sjptwZ9cjx8bP+f4VPXIOLg35CNwB/kTly3k95SNhyfQzUCYl4OTBaMbQaaXYXkCKifFOqFTkra2d0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755020762; c=relaxed/simple;
-	bh=sLBrvqqsZtV1FCVTCMrMgsMw93cY6+eaaOKrjSt2vBE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NBuSu72nrCZSwBgMFWRvCENF2vYEprYG9kO6kbBSDDmr91Mv57lIzlMTjk0vKcs34bzMc0oMVtX9x3LfTR7lmXI7unEjHTOGOnrZE3yrR1YioUNsAasZvbMZNFHI4j0QVWChNJY7m/2PrQzFwUW28JFixWfL1SF9j7gxseqF1bY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dama.to; spf=none smtp.mailfrom=dama.to; dkim=pass (2048-bit key) header.d=dama-to.20230601.gappssmtp.com header.i=@dama-to.20230601.gappssmtp.com header.b=1eh2HExZ; arc=none smtp.client-ip=209.85.210.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dama.to
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=dama.to
+	s=arc-20240116; t=1755040832; c=relaxed/simple;
+	bh=wle9r2gsnhO7JaaLb1bCPkD7qWWf9Zu+D8DM/DNZTjw=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type:
+	 References; b=NRHcIb8kZ3kl2yzRidkRGonGn/Vp3YQV9F4I/Wg5VvOVhJ3ep9BR33TqxIlH9c6FHaJM7MgKQNjZj92EzSy0q3Icyp/is6/SjXsKoL0Bdv6MCEkc4C5bk5LrmSBH38JKlbbDCftHDftORra/RAoi6IGcFDuqP0ZZqlgz7c4gFiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=mJ6NWbR4; arc=none smtp.client-ip=203.254.224.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=dama-to.20230601.gappssmtp.com header.i=@dama-to.20230601.gappssmtp.com header.b="1eh2HExZ"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-76bddb92dc1so7248259b3a.0
-        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 10:46:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dama-to.20230601.gappssmtp.com; s=20230601; t=1755020759; x=1755625559; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=M+evhD+loaePWkAdN54jiK6XfwBYZ051YhjuuP6S/D8=;
-        b=1eh2HExZmF9cEULsKFTfliamerXYBd47n3nE2oYc8OyH9iCzwWSie8fOm8HtyOXTtE
-         P8zQAB4LuSzUQQeYXsXk6KKLf3aiNugCxPNRXxK6dL1BP6gJKy54jZfAv5yTNdDNvwGZ
-         DVCj4RYb5ihlD4FMrDYHGV4/sXjsuVIsZ2ApFCzxfpR3SQYYAjR85GLwQnHQSl2znBR2
-         nScQjuigvQl4F9oW6cHFZ5B4lf1gHFAHxFMHuoSmQ40oO79DSsJYxEDU17X0ue8hMRmQ
-         frk122mPU0q4v1yTqdBlPSBKX1GM3B7iE3Ypq0iSW5pVsLxf+uZRN5loDNB7vkXgIo7A
-         /LFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755020759; x=1755625559;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=M+evhD+loaePWkAdN54jiK6XfwBYZ051YhjuuP6S/D8=;
-        b=nzmS/q/QGNKi+6DBIla+8M2epYUre+wo9IPjc1TcQtKud9/z4w4cUlJrJi5mkfQul3
-         JpopoRduEI2PIJzlQVsNAN2Z/vPedKG7sL0jPxf32na5bHGcu1tGkSDpgqRN+mt9YnHo
-         za+Kme9cr7oeGAbcN8jB5zQZyj+6/BYenQC0Q1N3FRMkSkNro6ZpNGJsasEWT+Mf8haP
-         afbMbWBqIAgGP3xj4ncZuMRvC47fALTljlv+Sk8HuNOmW54lElYhtAgadRu2TE+gcj8Y
-         OYUWfEu6KO+R0XtFHesiC+HoPfpf3AhPFv8GnZC4NYBJgHzw1nwKJt6dgSy33w0j+kHA
-         Fg1g==
-X-Forwarded-Encrypted: i=1; AJvYcCXCy1YXzHgkhF208608rJPykpU7cGyFQwKLSG45psvrWi5TjgRkRGYV0axukhD97Ex0k08sLrBYpKeoPbC49A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyCHNX61q93OGaXlogLSrDBeiVQLIUOpTOOHc8uy27wePOTCD7H
-	+JGVHLZCWi2ibKAcigkWODi3hSdLWPaPQbMGf4Vo1w3j85HP+9W9nUlWE18Ob4As0NM=
-X-Gm-Gg: ASbGncuwz2hwgFLCQqjKXq5DJBsofSA0Pkzwym/l6e6NIbBMMwfDA6xt/BDDR1qGI86
-	X/0PthmV+2JmjOF6befK5t97Rle+F1vKf1k/PZgBgC8sOEPKOHGG8mEIiIBRsZsV0hpuTdZfb1B
-	miw+JqL0ql0MmlD9yN1O0MXD/uxdbe8SiDfZz7AQZ3X//6rWO7vW7mJnrCxoVE/YokxtCBebFfl
-	NFIxrVlxv+81FbAEsW1dL6Wgppbj6DC0c8YttubYp9dVCkSyMZztPY94xOeHe3jxZpFYL5b4RCa
-	WNII+enYBeC4NRaE3XwFHc41RKMif0K9gi63hgfViL6XZft+X/lp4Q/DKcoBKiVDBpY8BERv0Ov
-	76+NplMME+Js6xEiEbSeRt31TXRZcR3ddU7gR0J7/LbbNpqO43PfaSUkT5q/c+d/xQOpCZn8k
-X-Google-Smtp-Source: AGHT+IHgeepKUmWcRSt+K6fwtVExxF9zuRBGrYePdQX+VK6gDgBfVe8guzcU2VXIutR11ypHY64Xyg==
-X-Received: by 2002:a05:6a00:8d4:b0:76b:ffd1:7737 with SMTP id d2e1a72fcca58-76e20fb980dmr68959b3a.22.1755020759568;
-        Tue, 12 Aug 2025 10:45:59 -0700 (PDT)
-Received: from MacBook-Air.local (c-73-222-201-58.hsd1.ca.comcast.net. [73.222.201.58])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-76c61dd2ce7sm8965276b3a.41.2025.08.12.10.45.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Aug 2025 10:45:59 -0700 (PDT)
-Date: Tue, 12 Aug 2025 10:45:57 -0700
-From: Joe Damato <joe@dama.to>
-To: Liao Yuanhong <liaoyuanhong@vivo.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Konstantin Shkolnyy <kshk@linux.ibm.com>,
-	"open list:VM SOCKETS (AF_VSOCK)" <virtualization@lists.linux.dev>,
-	"open list:VM SOCKETS (AF_VSOCK)" <netdev@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vsock/test: Remove redundant semicolons
-Message-ID: <aJt91SSkBO486bg5@MacBook-Air.local>
-Mail-Followup-To: Joe Damato <joe@dama.to>,
-	Liao Yuanhong <liaoyuanhong@vivo.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Konstantin Shkolnyy <kshk@linux.ibm.com>,
-	"open list:VM SOCKETS (AF_VSOCK)" <virtualization@lists.linux.dev>,
-	"open list:VM SOCKETS (AF_VSOCK)" <netdev@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-References: <20250812040115.502956-1-liaoyuanhong@vivo.com>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="mJ6NWbR4"
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+	by mailout4.samsung.com (KnoxPortal) with ESMTP id 20250812232025epoutp04ab9fad932be67dad5c3e508758990065~bKFUflnkZ0502605026epoutp04D
+	for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 23:20:25 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20250812232025epoutp04ab9fad932be67dad5c3e508758990065~bKFUflnkZ0502605026epoutp04D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1755040825;
+	bh=eLnMXqyfqg1qktU4SrlD9F/Y1gqGVc8jfzRmVy/nmCI=;
+	h=From:To:Cc:Subject:Date:References:From;
+	b=mJ6NWbR4xW/U2R+s6Bm5+nLKokzqV2QSbhXzQ3mPfyMLFkWFypuFCALoqQUEFhoJ+
+	 RbR1s1PMwnY7pnKcMoCOACQ0/kFtgywyNBRe208RuEvxAYO+jqgxHIFlmVmpOrN2H0
+	 EEx7y0S6JS5csMWhxkcPHCR+qDeknC4li70ePqD0=
+Received: from epsnrtp04.localdomain (unknown [182.195.42.156]) by
+	epcas5p1.samsung.com (KnoxPortal) with ESMTPS id
+	20250812232025epcas5p14d7f42eedf5b2403536eae76232f848d~bKFTxM57n0474904749epcas5p1D;
+	Tue, 12 Aug 2025 23:20:25 +0000 (GMT)
+Received: from epcas5p4.samsung.com (unknown [182.195.38.92]) by
+	epsnrtp04.localdomain (Postfix) with ESMTP id 4c1nY42bxGz6B9mF; Tue, 12 Aug
+	2025 23:20:24 +0000 (GMT)
+Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
+	epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+	20250812095108epcas5p3aebdbf9e790cd259173d54611652a97b~a-CuL4_aG1911819118epcas5p3b;
+	Tue, 12 Aug 2025 09:51:08 +0000 (GMT)
+Received: from asg29.. (unknown [109.105.129.29]) by epsmtip1.samsung.com
+	(KnoxPortal) with ESMTPA id
+	20250812095107epsmtip14a9258f84c8573280a6948e6f6ea6767~a-Cs27tkY0384203842epsmtip1B;
+	Tue, 12 Aug 2025 09:51:07 +0000 (GMT)
+From: Ying Gao <ying01.gao@samsung.com>
+To: kraxel@redhat.com, mst@redhat.com, jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	ying123.xu@samsung.com, lei19.wang@samsung.com, liping.qi@samsung.com,
+	junnan01.wu@samsung.com, Ying Gao <ying01.gao@samsung.com>
+Subject: [PATCH] virtio_input: Improve freeze handling
+Date: Tue, 12 Aug 2025 17:51:18 +0800
+Message-Id: <20250812095118.3622717-1-ying01.gao@samsung.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250812040115.502956-1-liaoyuanhong@vivo.com>
+Content-Transfer-Encoding: 8bit
+X-CMS-MailID: 20250812095108epcas5p3aebdbf9e790cd259173d54611652a97b
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+cpgsPolicy: CPGSC10-505,Y
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20250812095108epcas5p3aebdbf9e790cd259173d54611652a97b
+References: <CGME20250812095108epcas5p3aebdbf9e790cd259173d54611652a97b@epcas5p3.samsung.com>
 
-On Tue, Aug 12, 2025 at 12:01:15PM +0800, Liao Yuanhong wrote:
-> Remove unnecessary semicolons.
-> 
-> Fixes: 86814d8ffd55f ("vsock/test: verify socket options after setting them")
-> Signed-off-by: Liao Yuanhong <liaoyuanhong@vivo.com>
-> ---
->  tools/testing/vsock/util.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-> index 7b861a8e997a..d843643ced6b 100644
-> --- a/tools/testing/vsock/util.c
-> +++ b/tools/testing/vsock/util.c
-> @@ -756,7 +756,6 @@ void setsockopt_ull_check(int fd, int level, int optname,
->  fail:
->  	fprintf(stderr, "%s  val %llu\n", errmsg, val);
->  	exit(EXIT_FAILURE);
-> -;
->  }
+When executing suspend to ram, if lacking the operations
+to reset device and free unused buffers before deleting
+a vq, resource leaks and inconsistent device status will
+appear.
 
-This isn't a fixes since it doesn't fix a bug; it's cleanup so I'd probably
-target net-next and drop the fixes tag.
+According to chapter "3.3.1 Driver Requirements: Device Cleanup:"
+of virtio-specification:
+  Driver MUST ensure a virtqueue isn’t live
+  (by device reset) before removing exposed
+  buffers.
+
+Therefore, modify the virtinput_freeze function to reset the
+device and delete the unused buffers before deleting the
+virtqueue, just like virtinput_remove does.
+
+Co-developed-by: Ying Xu <ying123.xu@samsung.com>
+Signed-off-by: Ying Xu <ying123.xu@samsung.com>
+Co-developed-by: Junnan Wu <junnan01.wu@samsung.com>
+Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
+Signed-off-by: Ying Gao <ying01.gao@samsung.com>
+---
+ drivers/virtio/virtio_input.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+index a5d63269f20b..d0728285b6ce 100644
+--- a/drivers/virtio/virtio_input.c
++++ b/drivers/virtio/virtio_input.c
+@@ -360,11 +360,15 @@ static int virtinput_freeze(struct virtio_device *vdev)
+ {
+ 	struct virtio_input *vi = vdev->priv;
+ 	unsigned long flags;
++	void *buf;
+ 
+ 	spin_lock_irqsave(&vi->lock, flags);
+ 	vi->ready = false;
+ 	spin_unlock_irqrestore(&vi->lock, flags);
+ 
++	virtio_reset_device(vdev);
++	while ((buf = virtqueue_detach_unused_buf(vi->sts)) != NULL)
++		kfree(buf);
+ 	vdev->config->del_vqs(vdev);
+ 	return 0;
+ }
+-- 
+2.34.1
+
