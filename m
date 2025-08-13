@@ -1,159 +1,139 @@
-Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E716B640
-	for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 05:05:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4A59288C25
+	for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 05:48:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755061553; cv=none; b=pKMzK0B4vObwMyQVIdUXPlvgByOLCuxF+wEa1AumWncD4O5P7lXX33+LU2u3zTzGCnc3C7aeCVTIqgaEir53Hn8TS89YAum64/ftsb12kzvjSVt6zU4PLt4d+6/bKG/RNaNBf1H9i5AtMYmF/AQpmU8NDZ4JhRxEY13iu3ZRlm0=
+	t=1755064126; cv=none; b=EsQ494QnrLkt4cuh1kv0Y3KHM6atw8RyP+98D9bJKJV81HU9l0wZPlVf7f1t/5ZK/Mjhw6IPBRDvaPnxYIRBDeWwn6h9+WnZWDnB0mzkOYgn03+qnvYo6CVuz5N7SKViL81j19knAOX0GaCANxM3UlGKnIJQB00wAw1jSbWFlvk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755061553; c=relaxed/simple;
-	bh=FERtpqvVacMx7zhRiTKdNCJfsEaDsHDYudw8mCLif1o=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YkQ9E8iCJP+vqiNsYFkFnmLzd7FoC/adJw1FpyNsAB8yKs8y75yiPiNzhSsMCbfUCq52FpPEfYOJxSkOj9CNB9jpF5W0axXQjZjh2sMm3nrGjerxcp9jPTBy5XvXKGileD332lNVVn+ee/V7k2/HTkJCMHLhmQMICxwcHUDaXgc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=echifE6a; arc=none smtp.client-ip=91.218.175.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1755064126; c=relaxed/simple;
+	bh=8tORJ+sN4leG63mVV3VR/BwdzLBKllceH7JJBcyu5Og=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=vGaS21phoF/mTsQq21FzdRoVvzRiqlLRvKEH8mXaheI7sPGlsyjygpQ4jqNPL/o80v6+1uUab5EzKGVuE2ESBAxKn4IDY4j0xB34WYhxDQAo1Z3Y8mIVmIjobXSKZRb1R96KkO1oXphUNQVSTuYPuR45YWkEeU8Qb+KuOXNXnuM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=haBD2jrr; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="echifE6a"
-X-Forwarded-Encrypted: i=1; AJvYcCUbi0TXAyZmd/dBrI0auQZtkFS5cZ7pElmavfwm7z47n1KCM4zrODOvFCuJ/LGroHm/z+n5FB+rY+wsiQEQ6Q==@lists.linux.dev
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1755061548;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="haBD2jrr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1755064123;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=87bLiKw1h579sXw+ErVi2X85NzXrARI80WO5rF5C6xU=;
-	b=echifE6a0d0YRlLZ68iWy7DYBGwnO1M8AkkUIzqcQFFIJpTGBirqUdL7KTmsDfN+jgfsJz
-	Trs+zAZmsq6cg36dY3iOzWvZJuH9X6GbhtWzoC71HmAkiX4XSAHm95zQTvjhe3GbJ2zrHl
-	uxo5cjYDsWF4XNMpPgQ0usWEyO8KFsg=
-X-Gm-Message-State: AOJu0Yy2f492y76qsH5eVBMSH2QmhaSeXFNGnOs/CkPAJrqX5BpHufAB
-	oLla48H5SX3GEkGz30HdqxIV3ar5aM/GigOhePSXijkvwPsbLubYyilU1Rndj3ImMxkPV0zxsrZ
-	X0wEIXVZtc41bXtCS0fYwhrHSHJ67tCo=
-X-Google-Smtp-Source: AGHT+IGZEPRXKg3wTS4iOnxLeW0VcVJpSHw/Siwyoa1WzS8WxyYOyRd8JzJTNVHXWXH3rQ3YpjAcT1JHiZ4LgeKLzSs=
-X-Received: by 2002:a05:6214:246e:b0:709:31f8:fd96 with SMTP id
- 6a1803df08f44-709e8865a26mr19274996d6.20.1755061536500; Tue, 12 Aug 2025
- 22:05:36 -0700 (PDT)
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=qHSj26gK5BZF8STA/OhvCVhnS7fUfKq/EAFNdR1dWWQ=;
+	b=haBD2jrrGLETKxGywBNKEoiG882l3bCrVWVCcYiNQsFB1o7S788SNEhRB+LlRe9jr9szdN
+	GNOiyhuEY7MQfg+fGjBSvo8e9t8o567vYvCnUHq2aewEEGv9kPjxVjldLiBrbfwHhtNVDV
+	F82RH3NuSz9s3MNPDDpiTZbW8GiJZ4Y=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-443-nPgfs3qaNke-zY1GES2IlQ-1; Wed,
+ 13 Aug 2025 01:48:40 -0400
+X-MC-Unique: nPgfs3qaNke-zY1GES2IlQ-1
+X-Mimecast-MFC-AGG-ID: nPgfs3qaNke-zY1GES2IlQ_1755064119
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 293441956080;
+	Wed, 13 Aug 2025 05:48:39 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.168])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B94B41800446;
+	Wed, 13 Aug 2025 05:48:34 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: hch@infradead.org
+Subject: [PATCH V5 0/9] Refine virtio mapping API
+Date: Wed, 13 Aug 2025 13:48:22 +0800
+Message-ID: <20250813054831.25865-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250811143949.1117439-1-david@redhat.com> <20250811143949.1117439-2-david@redhat.com>
-In-Reply-To: <20250811143949.1117439-2-david@redhat.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Lance Yang <lance.yang@linux.dev>
-Date: Wed, 13 Aug 2025 13:05:22 +0800
-X-Gmail-Original-Message-ID: <CABzRoyYU2yOuGQskCAG_gzKiQwR6uM9eAYqOOCoQj+Xv=r163A@mail.gmail.com>
-X-Gm-Features: Ac12FXz5RRcASyIjWC2h4OdZEnpLc7e6olfF88c8Jo2nErMh7OQ3VSRS5jfjM-I
-Message-ID: <CABzRoyYU2yOuGQskCAG_gzKiQwR6uM9eAYqOOCoQj+Xv=r163A@mail.gmail.com>
-Subject: Re: [PATCH v1 1/2] mm/migrate: remove MIGRATEPAGE_UNMAP
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
-	linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev, 
-	linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, 
-	linux-btrfs@vger.kernel.org, jfs-discussion@lists.sourceforge.net, 
-	Andrew Morton <akpm@linux-foundation.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Jerrin Shaji George <jerrin.shaji-george@broadcom.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Benjamin LaHaise <bcrl@kvack.org>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, 
-	David Sterba <dsterba@suse.com>, Muchun Song <muchun.song@linux.dev>, 
-	Oscar Salvador <osalvador@suse.de>, Dave Kleikamp <shaggy@kernel.org>, Zi Yan <ziy@nvidia.com>, 
-	Matthew Brost <matthew.brost@intel.com>, Joshua Hahn <joshua.hahnjy@gmail.com>, 
-	Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
-	Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, 
-	Minchan Kim <minchan@kernel.org>, Sergey Senozhatsky <senozhatsky@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Migadu-Flow: FLOW_OUT
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On Mon, Aug 11, 2025 at 10:47=E2=80=AFPM David Hildenbrand <david@redhat.co=
-m> wrote:
->
-[...]
-> +++ b/mm/migrate.c
-> @@ -1176,16 +1176,6 @@ static int migrate_folio_unmap(new_folio_t get_new=
-_folio,
->         bool locked =3D false;
->         bool dst_locked =3D false;
->
-> -       if (folio_ref_count(src) =3D=3D 1) {
-> -               /* Folio was freed from under us. So we are done. */
-> -               folio_clear_active(src);
-> -               folio_clear_unevictable(src);
-> -               /* free_pages_prepare() will clear PG_isolated. */
-> -               list_del(&src->lru);
-> -               migrate_folio_done(src, reason);
-> -               return MIGRATEPAGE_SUCCESS;
-> -       }
-> -
->         dst =3D get_new_folio(src, private);
->         if (!dst)
->                 return -ENOMEM;
-> @@ -1275,7 +1265,7 @@ static int migrate_folio_unmap(new_folio_t get_new_=
-folio,
->
->         if (unlikely(page_has_movable_ops(&src->page))) {
->                 __migrate_folio_record(dst, old_page_state, anon_vma);
-> -               return MIGRATEPAGE_UNMAP;
-> +               return 0;
->         }
->
->         /*
-> @@ -1305,7 +1295,7 @@ static int migrate_folio_unmap(new_folio_t get_new_=
-folio,
->
->         if (!folio_mapped(src)) {
->                 __migrate_folio_record(dst, old_page_state, anon_vma);
-> -               return MIGRATEPAGE_UNMAP;
-> +               return 0;
->         }
->
->  out:
-> @@ -1848,14 +1838,28 @@ static int migrate_pages_batch(struct list_head *=
-from,
->                                 continue;
->                         }
->
-> +                       /*
-> +                        * If we are holding the last folio reference, th=
-e folio
-> +                        * was freed from under us, so just drop our refe=
-rence.
-> +                        */
-> +                       if (likely(!page_has_movable_ops(&folio->page)) &=
-&
-> +                           folio_ref_count(folio) =3D=3D 1) {
-> +                               folio_clear_active(folio);
-> +                               folio_clear_unevictable(folio);
-> +                               list_del(&folio->lru);
-> +                               migrate_folio_done(folio, reason);
-> +                               stats->nr_succeeded +=3D nr_pages;
-> +                               stats->nr_thp_succeeded +=3D is_thp;
-> +                               continue;
-> +                       }
-> +
+Hi all:
 
-It seems the reason parameter is no longer used within migrate_folio_unmap(=
-)
-after this patch.
+Virtio used to be coupled with DMA API. This works fine for the device
+that do real DMA but not the others. For example, VDUSE nees to craft
+with DMA API in order to let the virtio-vdpa driver to work.
 
-Perhaps it could be removed from the function's signature ;)
+This series tries to solve this issue by introducing the mapping API
+in the virtio core. So transport like vDPA can implement their own
+mapping logic without the need to hack with DMA API. The mapping API
+are abstracted with a new map operations in order to be re-used by
+transprot or device. So device like VDUSE can implement its own
+mapping loigc.
 
->                         rc =3D migrate_folio_unmap(get_new_folio, put_new=
-_folio,
->                                         private, folio, &dst, mode, reaso=
-n,
->                                         ret_folios);
+For device that uses DMA (for example PCI device), the virtio core
+will still call DMA API directly without the need of implementing map
+ops per device/transport.
 
-Anyway, just a small thought. Feel free to add:
-Reviewed-by: Lance Yang <lance.yang@linux.dev>
+Please review.
 
-Thanks,
-Lance
+Changes since V4:
+
+- Rename map_token to mapping_token
+- Introduce a union container for opaque token as well as the DMA
+  device so we won't lose the type safety
+- Do not try to set DMA mask for VDUSE device
+- Introduce a new mapper_error op for API completeness
+
+Changes since V3:
+
+- Fix build error of PDS vDPA driver
+
+Changes since V2:
+
+- Drop VDUSE dependenct for HAS_DMA and ARCH_HAS_DMA_OPS
+
+Changes since V1:
+
+- Fix build error of mlx5_vdpa driver
+
+Jason Wang (9):
+  virtio_ring: constify virtqueue pointer for DMA helpers
+  virtio_ring: switch to use dma_{map|unmap}_page()
+  virtio: rename dma helpers
+  virtio: introduce vring_mapping_token
+  virtio_ring: rename dma_handle to map_handle
+  virtio: introduce map ops in virtio core
+  vdpa: support mapping token
+  vdpa: introduce map ops
+  vduse: switch to use virtio map API instead of DMA API
+
+ drivers/net/virtio_net.c                 |  28 +-
+ drivers/vdpa/Kconfig                     |   8 +-
+ drivers/vdpa/alibaba/eni_vdpa.c          |   5 +-
+ drivers/vdpa/ifcvf/ifcvf_main.c          |   5 +-
+ drivers/vdpa/mlx5/core/mr.c              |   4 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c        |  15 +-
+ drivers/vdpa/octeon_ep/octep_vdpa_main.c |   6 +-
+ drivers/vdpa/pds/vdpa_dev.c              |   5 +-
+ drivers/vdpa/solidrun/snet_main.c        |   8 +-
+ drivers/vdpa/vdpa.c                      |   5 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c         |   4 +-
+ drivers/vdpa/vdpa_user/iova_domain.c     |   2 +-
+ drivers/vdpa/vdpa_user/iova_domain.h     |   2 +-
+ drivers/vdpa/vdpa_user/vduse_dev.c       |  76 ++--
+ drivers/vdpa/virtio_pci/vp_vdpa.c        |   5 +-
+ drivers/vhost/vdpa.c                     |  18 +-
+ drivers/virtio/virtio_ring.c             | 471 ++++++++++++++---------
+ drivers/virtio/virtio_vdpa.c             |  17 +-
+ include/linux/vdpa.h                     |  25 +-
+ include/linux/virtio.h                   |  43 ++-
+ include/linux/virtio_config.h            |  72 ++++
+ include/linux/virtio_ring.h              |   7 +-
+ 22 files changed, 545 insertions(+), 286 deletions(-)
+
+-- 
+2.31.1
+
