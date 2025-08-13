@@ -1,605 +1,384 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A06FF2DC326
-	for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 08:58:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F4812F0681
+	for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 09:03:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755075516; cv=none; b=nMnIA8CiXsZwe42GDXJi4zGQsg0Xrzo7qJQtXNxr0NVWNfv1dmuJs4nfP2BNVbCGgRx7Oz4RnyUgqNxsKCD7yWr2YryzeLgGQs6WyIZ9vfwuy9C+1gdmQaFV733aoTvjeS6KlSejIK6ER4rvqD+09RsNy2kq9cLHzcBIzqoldZU=
+	t=1755075803; cv=none; b=EH6Nk5v1IS3cSNswy1FKrES7XjHwRB8HTjRMyMQAVaEt/W8EjaGgc7WxMPo/UlB7cp0mjUNlIAiEtAMGrTC0UceCPnpu3Vv/EVH+PWsHFgzbvYrcYdyFWYKaiUVGPzoeE87QvRr8HDUzRkOFnyTO+i0s2AziJKEIt8mtkGsI2Ko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755075516; c=relaxed/simple;
-	bh=WKrnVaSKBm13WUdpY35+8vdsQ78DGHtnIw+ENXv8eBs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rpfz8lg6zk5n9gipFnmaiIQf/XpKJkbjg4+x5jPQd26EqXpX0s6JucIKgnktRjdxbvQcvjFa95Gw8f7VAlJHHjA8de/6erPLP5qHFJfJjyPdasLBtI79hS8VsRgU9xSC+zMEKtximcM7/sdHQYYLCi5oFfi798yZEsq2zryve8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TGNJlgK/; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1755075803; c=relaxed/simple;
+	bh=Aj52hjGpFwDKOEkg+yoVubJt3cZKtQEFLNv5e/Q++kU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UIw6KlGdHdcxcPZmksfKT07Rvi1/5cbCeIxbOPmMxHZtvtW3K8B64pEeo7iEESwd6XunkAEjEUUAoe5d8XTFr6qSQ4uUAkDBieHcjCplSXb47xmyNbDMqpIwJ3Wyuk02+J5XuZifwJ6cPgPwhJUkfHYBtqIa2NYbmmTOTAjj3bE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GAZegAa6; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TGNJlgK/"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GAZegAa6"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755075513;
+	s=mimecast20190719; t=1755075799;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=S67QLRRrgpezRPtL9p+k0avM4OhhOF+VDZlUgZJZmh8=;
-	b=TGNJlgK/o8ilT7/r3k9D/gKykWLl687vH/6Mnd0fywD8gth3h91foOdpHboEVOFlxpgXxX
-	blHsXXCGwCZWDIGVWfL3tEQf4ofq+pRULaCeR/77zqjJyEDyEO36qu9+WJCsTuiNd6BGIV
-	abjxZpllLn+xqdtDkuuobbuuwfcZ2IY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ced2zugqerKUWoRnDLqpVCEfNS36g0dc3X5IsE9iu9w=;
+	b=GAZegAa6ygiINJcv56ltU1hj+dz8agDZ6cQoOhWtN2WB77McOL0l/isaDkIXZD4ghMV7qw
+	hH9Kb9ggcItcDCQMPSSHjPS5S7W8YRjIXHUNrZyUoEBbWMP0wnh4QBTLbjMVPbEIb6DTXH
+	TMzQdeRq0pxpPxsZl5qFEbiWYxassUo=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-175-LVpmW7JtM5SXP2HFxYqXpA-1; Wed, 13 Aug 2025 04:58:29 -0400
-X-MC-Unique: LVpmW7JtM5SXP2HFxYqXpA-1
-X-Mimecast-MFC-AGG-ID: LVpmW7JtM5SXP2HFxYqXpA_1755075509
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-45a159216e8so3717535e9.0
-        for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 01:58:29 -0700 (PDT)
+ us-mta-616-wzVchrJqMlusnShmxhmh9A-1; Wed, 13 Aug 2025 05:03:18 -0400
+X-MC-Unique: wzVchrJqMlusnShmxhmh9A-1
+X-Mimecast-MFC-AGG-ID: wzVchrJqMlusnShmxhmh9A_1755075797
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2425364e0b2so74111185ad.1
+        for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 02:03:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755075508; x=1755680308;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=S67QLRRrgpezRPtL9p+k0avM4OhhOF+VDZlUgZJZmh8=;
-        b=wNfXp379o7DcqfK39WQ7B5Itd8OEHwcRAtLmVkcJD4CtIsAXKHbDmL6Vlr9/V2ykp/
-         HgzjLbpJz0bzNi9zeu9xiLC0aHKzBTpzNIYuaWFuLCNPB3ogD0WKQhZXggKpQBVY+ZTs
-         4X8t4whBu7kLOhJ6ki/NyzSBCMko+gk8RtvjWVj6O3NXrxn7cGrk10cWgWXGDAxmXPy8
-         OM5LeU2yzboXHexzMgqVsadS+71DohdRHIdqj+x/zIXT+QbK2xs8pyI2BF0Iw1wS9yTl
-         fuKTd4onIOfKVCX87fHY2zOk+8V3hSVWc+6NrFKV6+2tj037NqTBwvZN3153kPJCRAUA
-         BUxA==
-X-Forwarded-Encrypted: i=1; AJvYcCXPc1HLmWaKSTiNJdfW2B1jDqv7psV3ZTAMkF6B2wuNm+hxE3COlKp5mMl420Ozb3mnw/W+sVqOO6P/LNKW7w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwT4waeQTqbjD6/1i6wSJF1QxaWDUyxiI50n6RBsgSAVcJAl66R
-	1w+etTknkj3jhDDaeOwY5A4WI7WwgGsaQjVU+Pt7iY9hFTZ8QxuVKRhaBN0n8xtv2fi+ermhUf4
-	Ytp9iDtMpUFYfJO4eZxFp2APJHXxgfwjRiMxs7n2/1rQWO4Bj8m2wOYZEQS5QkYuAbCu0
-X-Gm-Gg: ASbGncvq1E/19GrdhJBRz5KuKD4wPlrd8NWyn4JfZza7gnNAfaVYdHd2b7E9EqhrOIh
-	s1A98BQB8un6OnEkWMVuY7xBf7S390JvEamUOxRfsUcGxCe1IWxS24nQFIUuLLr4pnw9o9TGFzf
-	y2ZR1T/4DBnbgLuUGGVRAtA7j+e8avTpUJi4qr3kGDKMi2bOP5jMxkhve2Ak0YNTw1XQOs/SFOr
-	7/dgjvM1MFuirT7SRsPZoXZNtAru1b7gLNid2CGGktyoM6WLN4GV+P7uJ5ESpXTmX4RrqKA4KET
-	Sg6kA/i2TKxqVTS+RaQFJT5F54wgw61e
-X-Received: by 2002:a05:600c:c8f:b0:458:c094:8ba5 with SMTP id 5b1f17b1804b1-45a165b5452mr19514395e9.12.1755075508488;
-        Wed, 13 Aug 2025 01:58:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGlKdMNRAlIWXK9VpYUW4hnUUcN3xIGsg8RUnoV5pHdNX7+SROnGRQ+hQPLE8LFRhhgqY2hjg==
-X-Received: by 2002:a05:600c:c8f:b0:458:c094:8ba5 with SMTP id 5b1f17b1804b1-45a165b5452mr19514075e9.12.1755075507952;
-        Wed, 13 Aug 2025 01:58:27 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45a16ddb5a1sm22122795e9.8.2025.08.13.01.58.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Aug 2025 01:58:27 -0700 (PDT)
-Date: Wed, 13 Aug 2025 04:58:24 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	hch@infradead.org
-Subject: Re: [PATCH V5 4/9] virtio: introduce vring_mapping_token
-Message-ID: <20250813045703-mutt-send-email-mst@kernel.org>
-References: <20250813054831.25865-1-jasowang@redhat.com>
- <20250813054831.25865-5-jasowang@redhat.com>
+        d=1e100.net; s=20230601; t=1755075797; x=1755680597;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ced2zugqerKUWoRnDLqpVCEfNS36g0dc3X5IsE9iu9w=;
+        b=HGR3ZkemMCw1NsdCIrtXCj+YUxOSwKmhj1EtjkDaAPWA1v7rujkNRq3ep/O5daRGNG
+         i6H1uoZOQcSrEMnLXhjW2BClT6YciZQqMdLRxneHTIkbZDY4YTtl5k1VO5TffKvFMBwE
+         3i8Hj+5fw3VwbkLtUYTzEC/zvPTSthHwf3DeGa6ufDd9z2VQ8zZ4xzhIrlTZCcQdrcpj
+         kUhM2nON8HJJjgQ+8qwrkrbMIRAUz8zZuDFKEUQazKbTV8UoZOg0X8rUTiADO3Z487mw
+         NhP5hil5TSGkFjE9bTu0HiUh/jft4ebLYK7nQ3PToK3r5aBu8jEunKcKC3rirPYWxznw
+         zuuQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVdvWcVXrOMdsTKUR4zjDCHLQ7f3n0D7lfawGu4k5WpGyXOI6oHOABMLgct2kMAyiP8R+iizGERnoD2aIH+mQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YywxPG9CtY6SFp4DAnljaKCuzNOLI2anTeeNNemlTnLH1nfg8Vl
+	Ye+lM5MhxDbA3Tv3vvBiNeI66JF60dQuXD+nNuasgcCYKRGxz3lWv3AKh36Yj39shYi/kta61xT
+	+oR2mS26k8yn2aC4DmqSMYW4aTSBCnKR1kRdC5vtG6pr/JeIDIJ2/daaT74Xgnk0z61Wsm0XQ6K
+	HExJ4hOYlg+dOa24NmJKWGLgVqC4MmyXiy8oPvasuQUb8=
+X-Gm-Gg: ASbGncutrwaLHCokLn6QLV3fHmYgzbRjAITOCnOXlDCFsG0J/RB9yenNd0hhO2iKKVo
+	GlOxzjwYVbb9NkuNwr04A1zwJD6iSAfdlk0QEvpBUN+KqzzaF80zd4cHaqsQ9LDJy4Br2dQwrj3
+	G161ylwuq3cs8e3+77iOFDZVdf+UuXN0/ye3DG5DZbFHa1ozSH04zjhw8=
+X-Received: by 2002:a17:902:e748:b0:242:3105:1788 with SMTP id d9443c01a7336-2430d26ec8amr37711725ad.45.1755075796763;
+        Wed, 13 Aug 2025 02:03:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGcIRJqmQuwKANiz/+p3nsKkxnTguY11utBfiv/zk5L3YGSk5MKsG5FVN18bi13oyLxTZNPbBQf74wdJECdvcw=
+X-Received: by 2002:a17:902:e748:b0:242:3105:1788 with SMTP id
+ d9443c01a7336-2430d26ec8amr37711305ad.45.1755075796292; Wed, 13 Aug 2025
+ 02:03:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250813054831.25865-5-jasowang@redhat.com>
+References: <20250813054831.25865-1-jasowang@redhat.com> <20250813054831.25865-10-jasowang@redhat.com>
+In-Reply-To: <20250813054831.25865-10-jasowang@redhat.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 13 Aug 2025 11:02:40 +0200
+X-Gm-Features: Ac12FXx21ljdLj-EkoI0xvLjH0x-RBhy426HTvbSRhe1Al8_JoP9Uoq32NRk8-4
+Message-ID: <CAJaqyWdZv30TMedrdb-iF6qwwis7d_GJpVyk2dCur2J27+ywog@mail.gmail.com>
+Subject: Re: [PATCH V5 9/9] vduse: switch to use virtio map API instead of DMA API
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, hch@infradead.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: O5soQVSopMYBOEi1e9oseBWcNYZaWL4ukvxe4xKhk9Q_1755075509
+X-Mimecast-MFC-PROC-ID: 9CId13g_zkdia8K0p4y7RlgQayn61hoYDa_bZxGzlz0_1755075797
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 13, 2025 at 01:48:26PM +0800, Jason Wang wrote:
-> Following patch will introduce the mapping operations for virtio
-> device. In order to achieve this, besides the dma device, virtio core
-> needs to support a transport or device specific mapping token as well.
-> So this patch introduces a union container of a dma device and opaque
-> mapping token. The idea is the allow the transport layer to pass
-> device specific mapping token which will be used as a parameter for
-> the virtio mapping operations. For the transport or device that is
-> using DMA, dma device is still being used.
-> 
+On Wed, Aug 13, 2025 at 7:49=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> Lacking the support of device specific mapping supported in virtio,
+> VDUSE must trick the DMA API in order to make virtio-vdpa transport
+> work. This is done by advertising vDPA device as dma device with a
+> VDUSE specific dma_ops even if it doesn't do DMA at all.
+>
+> This will be fixed by this patch. Thanks to the new mapping operations
+> support by virtio and vDPA. VDUSE can simply switch to advertise its
+> specific mappings operations to virtio via virtio-vdpa then DMA API is
+> not needed for VDUSE any more and iova domain could be used as the
+> mapping token instead.
+>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
->  drivers/virtio/virtio_ring.c | 110 ++++++++++++++++++-----------------
->  drivers/virtio/virtio_vdpa.c |   6 +-
->  include/linux/virtio.h       |   7 +++
->  include/linux/virtio_ring.h  |   7 ++-
->  4 files changed, 72 insertions(+), 58 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 482a268af851..fb1d407d5f1b 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -210,8 +210,7 @@ struct vring_virtqueue {
->  	/* DMA, allocation, and size information */
->  	bool we_own_ring;
->  
-> -	/* Device used for doing DMA */
-> -	struct device *dma_dev;
-> +	union vring_mapping_token mapping_token;
+>  drivers/vdpa/Kconfig                 |  8 +--
+>  drivers/vdpa/vdpa_user/iova_domain.c |  2 +-
+>  drivers/vdpa/vdpa_user/iova_domain.h |  2 +-
+>  drivers/vdpa/vdpa_user/vduse_dev.c   | 75 ++++++++++++++--------------
+>  4 files changed, 41 insertions(+), 46 deletions(-)
+>
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index 559fb9d3271f..857cf288c876 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -34,13 +34,7 @@ config VDPA_SIM_BLOCK
+>
+>  config VDPA_USER
+>         tristate "VDUSE (vDPA Device in Userspace) support"
+> -       depends on EVENTFD && MMU && HAS_DMA
+> -       #
+> -       # This driver incorrectly tries to override the dma_ops.  It shou=
+ld
+> -       # never have done that, but for now keep it working on architectu=
+res
+> -       # that use dma ops
+> -       #
+> -       depends on ARCH_HAS_DMA_OPS
+> +       depends on EVENTFD && MMU
+>         select VHOST_IOTLB
+>         select IOMMU_IOVA
+>         help
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_use=
+r/iova_domain.c
+> index 58116f89d8da..ccaed24b7ef8 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> @@ -447,7 +447,7 @@ void vduse_domain_unmap_page(struct vduse_iova_domain=
+ *domain,
+>
+>  void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
+>                                   size_t size, dma_addr_t *dma_addr,
+> -                                 gfp_t flag, unsigned long attrs)
+> +                                 gfp_t flag)
+>  {
+>         struct iova_domain *iovad =3D &domain->consistent_iovad;
+>         unsigned long limit =3D domain->iova_limit;
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_use=
+r/iova_domain.h
+> index 7f3f0928ec78..1f3c30be272a 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.h
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.h
+> @@ -64,7 +64,7 @@ void vduse_domain_unmap_page(struct vduse_iova_domain *=
+domain,
+>
+>  void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
+>                                   size_t size, dma_addr_t *dma_addr,
+> -                                 gfp_t flag, unsigned long attrs);
+> +                                 gfp_t flag);
+>
+>  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size_t=
+ size,
+>                                 void *vaddr, dma_addr_t dma_addr,
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
+vduse_dev.c
+> index f161059d543e..3260edefdf0d 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -88,6 +88,7 @@ struct vduse_dev {
+>         struct device *dev;
+>         struct vduse_virtqueue **vqs;
+>         struct vduse_iova_domain *domain;
+> +       struct vduse_iova_domain *dom;
 
-For name I don't much like "token". and it's not just
-mapping right? maybe it is just union virtio_dma ?
+*dom is not used
 
-
->  #ifdef DEBUG
->  	/* They're supposed to lock for us. */
-> @@ -307,10 +306,10 @@ EXPORT_SYMBOL_GPL(virtio_max_dma_size);
->  
->  static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
->  			       dma_addr_t *dma_handle, gfp_t flag,
-> -			       struct device *dma_dev)
-> +			       union vring_mapping_token *mapping_token)
->  {
->  	if (vring_use_map_api(vdev)) {
-> -		return dma_alloc_coherent(dma_dev, size,
-> +		return dma_alloc_coherent(mapping_token->dma_dev, size,
->  					  dma_handle, flag);
->  	} else {
->  		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
-> @@ -341,22 +340,22 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
->  
->  static void vring_free_queue(struct virtio_device *vdev, size_t size,
->  			     void *queue, dma_addr_t dma_handle,
-> -			     struct device *dma_dev)
-> +			     union vring_mapping_token *mapping_token)
->  {
->  	if (vring_use_map_api(vdev))
-> -		dma_free_coherent(dma_dev, size, queue, dma_handle);
-> +		dma_free_coherent(mapping_token->dma_dev, size, queue, dma_handle);
->  	else
->  		free_pages_exact(queue, PAGE_ALIGN(size));
->  }
->  
->  /*
-> - * The DMA ops on various arches are rather gnarly right now, and
-> - * making all of the arch DMA ops work on the vring device itself
-> + * The map ops on various arches are rather gnarly right now, and
-> + * making all of the arch map ops work on the vring device itself
->   * is a mess.
->   */
->  static struct device *vring_dma_dev(const struct vring_virtqueue *vq)
->  {
-> -	return vq->dma_dev;
-> +	return vq->mapping_token.dma_dev;
->  }
->  
->  /* Map one sg entry. */
-> @@ -1056,12 +1055,13 @@ static int vring_alloc_state_extra_split(struct vring_virtqueue_split *vring_spl
->  }
->  
->  static void vring_free_split(struct vring_virtqueue_split *vring_split,
-> -			     struct virtio_device *vdev, struct device *dma_dev)
-> +			     struct virtio_device *vdev,
-> +			     union vring_mapping_token *mapping_token)
->  {
->  	vring_free_queue(vdev, vring_split->queue_size_in_bytes,
->  			 vring_split->vring.desc,
->  			 vring_split->queue_dma_addr,
-> -			 dma_dev);
-> +			 mapping_token);
->  
->  	kfree(vring_split->desc_state);
->  	kfree(vring_split->desc_extra);
-> @@ -1072,7 +1072,7 @@ static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
->  				   u32 num,
->  				   unsigned int vring_align,
->  				   bool may_reduce_num,
-> -				   struct device *dma_dev)
-> +				   union vring_mapping_token *mapping_token)
->  {
->  	void *queue = NULL;
->  	dma_addr_t dma_addr;
-> @@ -1088,7 +1088,7 @@ static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
->  		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
->  					  &dma_addr,
->  					  GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO,
-> -					  dma_dev);
-> +					  mapping_token);
->  		if (queue)
->  			break;
->  		if (!may_reduce_num)
-> @@ -1102,7 +1102,7 @@ static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
->  		/* Try to get a single page. You are my only hope! */
->  		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
->  					  &dma_addr, GFP_KERNEL | __GFP_ZERO,
-> -					  dma_dev);
-> +					  mapping_token);
->  	}
->  	if (!queue)
->  		return -ENOMEM;
-> @@ -1126,7 +1126,7 @@ static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
->  					       bool (*notify)(struct virtqueue *),
->  					       void (*callback)(struct virtqueue *),
->  					       const char *name,
-> -					       struct device *dma_dev)
-> +					       union vring_mapping_token *mapping_token)
->  {
->  	struct vring_virtqueue *vq;
->  	int err;
-> @@ -1149,7 +1149,7 @@ static struct virtqueue *__vring_new_virtqueue_split(unsigned int index,
->  #else
->  	vq->broken = false;
->  #endif
-> -	vq->dma_dev = dma_dev;
-> +	vq->mapping_token = *mapping_token;
->  	vq->use_map_api = vring_use_map_api(vdev);
->  
->  	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
-> @@ -1187,21 +1187,21 @@ static struct virtqueue *vring_create_virtqueue_split(
->  	bool (*notify)(struct virtqueue *),
->  	void (*callback)(struct virtqueue *),
->  	const char *name,
-> -	struct device *dma_dev)
-> +	union vring_mapping_token *mapping_token)
->  {
->  	struct vring_virtqueue_split vring_split = {};
->  	struct virtqueue *vq;
->  	int err;
->  
->  	err = vring_alloc_queue_split(&vring_split, vdev, num, vring_align,
-> -				      may_reduce_num, dma_dev);
-> +				      may_reduce_num, mapping_token);
->  	if (err)
->  		return NULL;
->  
->  	vq = __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
-> -				   context, notify, callback, name, dma_dev);
-> +				   context, notify, callback, name, mapping_token);
->  	if (!vq) {
-> -		vring_free_split(&vring_split, vdev, dma_dev);
-> +		vring_free_split(&vring_split, vdev, mapping_token);
->  		return NULL;
->  	}
->  
-> @@ -1220,7 +1220,7 @@ static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
->  	err = vring_alloc_queue_split(&vring_split, vdev, num,
->  				      vq->split.vring_align,
->  				      vq->split.may_reduce_num,
-> -				      vring_dma_dev(vq));
-> +				      &vq->mapping_token);
->  	if (err)
->  		goto err;
->  
-> @@ -1238,7 +1238,7 @@ static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
->  	return 0;
->  
->  err_state_extra:
-> -	vring_free_split(&vring_split, vdev, vring_dma_dev(vq));
-> +	vring_free_split(&vring_split, vdev, &vq->mapping_token);
->  err:
->  	virtqueue_reinit_split(vq);
->  	return -ENOMEM;
-> @@ -1947,25 +1947,25 @@ static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num)
->  
->  static void vring_free_packed(struct vring_virtqueue_packed *vring_packed,
->  			      struct virtio_device *vdev,
-> -			      struct device *dma_dev)
-> +			      union vring_mapping_token *mapping_token)
->  {
->  	if (vring_packed->vring.desc)
->  		vring_free_queue(vdev, vring_packed->ring_size_in_bytes,
->  				 vring_packed->vring.desc,
->  				 vring_packed->ring_dma_addr,
-> -				 dma_dev);
-> +				 mapping_token);
->  
->  	if (vring_packed->vring.driver)
->  		vring_free_queue(vdev, vring_packed->event_size_in_bytes,
->  				 vring_packed->vring.driver,
->  				 vring_packed->driver_event_dma_addr,
-> -				 dma_dev);
-> +				 mapping_token);
->  
->  	if (vring_packed->vring.device)
->  		vring_free_queue(vdev, vring_packed->event_size_in_bytes,
->  				 vring_packed->vring.device,
->  				 vring_packed->device_event_dma_addr,
-> -				 dma_dev);
-> +				 mapping_token);
->  
->  	kfree(vring_packed->desc_state);
->  	kfree(vring_packed->desc_extra);
-> @@ -1973,7 +1973,7 @@ static void vring_free_packed(struct vring_virtqueue_packed *vring_packed,
->  
->  static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
->  				    struct virtio_device *vdev,
-> -				    u32 num, struct device *dma_dev)
-> +				    u32 num, union vring_mapping_token *mapping_token)
->  {
->  	struct vring_packed_desc *ring;
->  	struct vring_packed_desc_event *driver, *device;
-> @@ -1985,7 +1985,7 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
->  	ring = vring_alloc_queue(vdev, ring_size_in_bytes,
->  				 &ring_dma_addr,
->  				 GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO,
-> -				 dma_dev);
-> +				 mapping_token);
->  	if (!ring)
->  		goto err;
->  
-> @@ -1998,7 +1998,7 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
->  	driver = vring_alloc_queue(vdev, event_size_in_bytes,
->  				   &driver_event_dma_addr,
->  				   GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO,
-> -				   dma_dev);
-> +				   mapping_token);
->  	if (!driver)
->  		goto err;
->  
-> @@ -2009,7 +2009,7 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
->  	device = vring_alloc_queue(vdev, event_size_in_bytes,
->  				   &device_event_dma_addr,
->  				   GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO,
-> -				   dma_dev);
-> +				   mapping_token);
->  	if (!device)
->  		goto err;
->  
-> @@ -2021,7 +2021,7 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
->  	return 0;
->  
->  err:
-> -	vring_free_packed(vring_packed, vdev, dma_dev);
-> +	vring_free_packed(vring_packed, vdev, mapping_token);
->  	return -ENOMEM;
->  }
->  
-> @@ -2097,7 +2097,7 @@ static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
->  					       bool (*notify)(struct virtqueue *),
->  					       void (*callback)(struct virtqueue *),
->  					       const char *name,
-> -					       struct device *dma_dev)
-> +					       union vring_mapping_token *mapping_token)
->  {
->  	struct vring_virtqueue *vq;
->  	int err;
-> @@ -2120,7 +2120,7 @@ static struct virtqueue *__vring_new_virtqueue_packed(unsigned int index,
->  	vq->broken = false;
->  #endif
->  	vq->packed_ring = true;
-> -	vq->dma_dev = dma_dev;
-> +	vq->mapping_token = *mapping_token;
->  	vq->use_map_api = vring_use_map_api(vdev);
->  
->  	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
-> @@ -2158,18 +2158,18 @@ static struct virtqueue *vring_create_virtqueue_packed(
->  	bool (*notify)(struct virtqueue *),
->  	void (*callback)(struct virtqueue *),
->  	const char *name,
-> -	struct device *dma_dev)
-> +	union vring_mapping_token *mapping_token)
->  {
->  	struct vring_virtqueue_packed vring_packed = {};
->  	struct virtqueue *vq;
->  
-> -	if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev))
-> +	if (vring_alloc_queue_packed(&vring_packed, vdev, num, mapping_token))
->  		return NULL;
->  
->  	vq = __vring_new_virtqueue_packed(index, &vring_packed, vdev, weak_barriers,
-> -					context, notify, callback, name, dma_dev);
-> +					context, notify, callback, name, mapping_token);
->  	if (!vq) {
-> -		vring_free_packed(&vring_packed, vdev, dma_dev);
-> +		vring_free_packed(&vring_packed, vdev, mapping_token);
->  		return NULL;
->  	}
->  
-> @@ -2185,7 +2185,8 @@ static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
->  	struct virtio_device *vdev = _vq->vdev;
->  	int err;
->  
-> -	if (vring_alloc_queue_packed(&vring_packed, vdev, num, vring_dma_dev(vq)))
-> +	if (vring_alloc_queue_packed(&vring_packed, vdev,
-> +				     num, &vq->mapping_token))
->  		goto err_ring;
->  
->  	err = vring_alloc_state_extra_packed(&vring_packed);
-> @@ -2202,7 +2203,7 @@ static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
->  	return 0;
->  
->  err_state_extra:
-> -	vring_free_packed(&vring_packed, vdev, vring_dma_dev(vq));
-> +	vring_free_packed(&vring_packed, vdev, &vq->mapping_token);
->  err_ring:
->  	virtqueue_reinit_packed(vq);
->  	return -ENOMEM;
-> @@ -2423,6 +2424,7 @@ int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_premapped);
->  
-> +
->  /**
->   * virtqueue_dma_dev - get the dma dev
->   * @_vq: the struct virtqueue we're talking about.
-> @@ -2434,7 +2436,7 @@ struct device *virtqueue_dma_dev(struct virtqueue *_vq)
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  
->  	if (vq->use_map_api)
-> -		return vring_dma_dev(vq);
-> +		return vq->mapping_token.dma_dev;
->  	else
->  		return NULL;
->  }
-> @@ -2719,19 +2721,20 @@ struct virtqueue *vring_create_virtqueue(
->  	void (*callback)(struct virtqueue *),
->  	const char *name)
->  {
-> +	union vring_mapping_token mapping_token = {.dma_dev = vdev->dev.parent};
->  
->  	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
->  		return vring_create_virtqueue_packed(index, num, vring_align,
->  				vdev, weak_barriers, may_reduce_num,
-> -				context, notify, callback, name, vdev->dev.parent);
-> +				context, notify, callback, name, &mapping_token);
->  
->  	return vring_create_virtqueue_split(index, num, vring_align,
->  			vdev, weak_barriers, may_reduce_num,
-> -			context, notify, callback, name, vdev->dev.parent);
-> +			context, notify, callback, name, &mapping_token);
->  }
->  EXPORT_SYMBOL_GPL(vring_create_virtqueue);
->  
-> -struct virtqueue *vring_create_virtqueue_dma(
-> +struct virtqueue *vring_create_virtqueue_map(
->  	unsigned int index,
->  	unsigned int num,
->  	unsigned int vring_align,
-> @@ -2742,19 +2745,19 @@ struct virtqueue *vring_create_virtqueue_dma(
->  	bool (*notify)(struct virtqueue *),
->  	void (*callback)(struct virtqueue *),
->  	const char *name,
-> -	struct device *dma_dev)
-> +	union vring_mapping_token *mapping_token)
->  {
->  
->  	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
->  		return vring_create_virtqueue_packed(index, num, vring_align,
->  				vdev, weak_barriers, may_reduce_num,
-> -				context, notify, callback, name, dma_dev);
-> +				context, notify, callback, name, mapping_token);
->  
->  	return vring_create_virtqueue_split(index, num, vring_align,
->  			vdev, weak_barriers, may_reduce_num,
-> -			context, notify, callback, name, dma_dev);
-> +			context, notify, callback, name, mapping_token);
->  }
-> -EXPORT_SYMBOL_GPL(vring_create_virtqueue_dma);
-> +EXPORT_SYMBOL_GPL(vring_create_virtqueue_map);
->  
->  /**
->   * virtqueue_resize - resize the vring of vq
-> @@ -2865,6 +2868,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
->  				      const char *name)
->  {
->  	struct vring_virtqueue_split vring_split = {};
-> +	union vring_mapping_token mapping_token = {.dma_dev = vdev->dev.parent};
->  
->  	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED)) {
->  		struct vring_virtqueue_packed vring_packed = {};
-> @@ -2874,13 +2878,13 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
->  		return __vring_new_virtqueue_packed(index, &vring_packed,
->  						    vdev, weak_barriers,
->  						    context, notify, callback,
-> -						    name, vdev->dev.parent);
-> +						    name, &mapping_token);
->  	}
->  
->  	vring_init(&vring_split.vring, num, pages, vring_align);
->  	return __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
->  				     context, notify, callback, name,
-> -				     vdev->dev.parent);
-> +				     &mapping_token);
->  }
->  EXPORT_SYMBOL_GPL(vring_new_virtqueue);
->  
-> @@ -2894,19 +2898,19 @@ static void vring_free(struct virtqueue *_vq)
->  					 vq->packed.ring_size_in_bytes,
->  					 vq->packed.vring.desc,
->  					 vq->packed.ring_dma_addr,
-> -					 vring_dma_dev(vq));
-> +					 &vq->mapping_token);
->  
->  			vring_free_queue(vq->vq.vdev,
->  					 vq->packed.event_size_in_bytes,
->  					 vq->packed.vring.driver,
->  					 vq->packed.driver_event_dma_addr,
-> -					 vring_dma_dev(vq));
-> +					 &vq->mapping_token);
->  
->  			vring_free_queue(vq->vq.vdev,
->  					 vq->packed.event_size_in_bytes,
->  					 vq->packed.vring.device,
->  					 vq->packed.device_event_dma_addr,
-> -					 vring_dma_dev(vq));
-> +					 &vq->mapping_token);
->  
->  			kfree(vq->packed.desc_state);
->  			kfree(vq->packed.desc_extra);
-> @@ -2915,7 +2919,7 @@ static void vring_free(struct virtqueue *_vq)
->  					 vq->split.queue_size_in_bytes,
->  					 vq->split.vring.desc,
->  					 vq->split.queue_dma_addr,
-> -					 vring_dma_dev(vq));
-> +					 &vq->mapping_token);
->  		}
->  	}
->  	if (!vq->packed_ring) {
-> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-> index e25610e3393a..acea98ab08ee 100644
-> --- a/drivers/virtio/virtio_vdpa.c
-> +++ b/drivers/virtio/virtio_vdpa.c
-> @@ -139,6 +139,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
->  	struct vdpa_callback cb;
->  	struct virtqueue *vq;
->  	u64 desc_addr, driver_addr, device_addr;
-> +	union vring_mapping_token mapping_token = {0};
->  	/* Assume split virtqueue, switch to packed if necessary */
->  	struct vdpa_vq_state state = {0};
->  	u32 align, max_num, min_num = 1;
-> @@ -185,9 +186,10 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
->  		dma_dev = ops->get_vq_dma_dev(vdpa, index);
->  	else
->  		dma_dev = vdpa_get_dma_dev(vdpa);
-> -	vq = vring_create_virtqueue_dma(index, max_num, align, vdev,
-> +	mapping_token.dma_dev = dma_dev;
-> +	vq = vring_create_virtqueue_map(index, max_num, align, vdev,
->  					true, may_reduce_num, ctx,
-> -					notify, callback, name, dma_dev);
-> +					notify, callback, name, &mapping_token);
->  	if (!vq) {
->  		err = -ENOMEM;
->  		goto error_new_virtqueue;
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index addbc209275a..37029df94aaf 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -40,6 +40,13 @@ struct virtqueue {
->  	void *priv;
+>         char *name;
+>         struct mutex lock;
+>         spinlock_t msg_lock;
+> @@ -814,59 +815,53 @@ static const struct vdpa_config_ops vduse_vdpa_conf=
+ig_ops =3D {
+>         .free                   =3D vduse_vdpa_free,
 >  };
->  
-> +union vring_mapping_token {
-> +	/* Device that performs DMA */
-> +	struct device *dma_dev;
-> +	/* Transport specific token used for doing map */
-> +	void *opaque;
-> +};
+>
+> -static void vduse_dev_sync_single_for_device(struct device *dev,
+> +static void vduse_dev_sync_single_for_device(void *token,
+>                                              dma_addr_t dma_addr, size_t =
+size,
+>                                              enum dma_data_direction dir)
+>  {
+> -       struct vduse_dev *vdev =3D dev_to_vduse(dev);
+> -       struct vduse_iova_domain *domain =3D vdev->domain;
+> +       struct vduse_iova_domain *domain =3D token;
+
+If I add ASID support to VDUSE I'll need to replace the token by a vq
+group representor. Is that ok?
+
+I think it is as I like how using *domain here makes this patch
+clearer, and adding something else will make this patch harder to
+review.
+
+>
+>         vduse_domain_sync_single_for_device(domain, dma_addr, size, dir);
+>  }
+>
+> -static void vduse_dev_sync_single_for_cpu(struct device *dev,
+> +static void vduse_dev_sync_single_for_cpu(void *token,
+>                                              dma_addr_t dma_addr, size_t =
+size,
+>                                              enum dma_data_direction dir)
+>  {
+> -       struct vduse_dev *vdev =3D dev_to_vduse(dev);
+> -       struct vduse_iova_domain *domain =3D vdev->domain;
+> +       struct vduse_iova_domain *domain =3D token;
+>
+>         vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir);
+>  }
+>
+> -static dma_addr_t vduse_dev_map_page(struct device *dev, struct page *pa=
+ge,
+> +static dma_addr_t vduse_dev_map_page(void *token, struct page *page,
+>                                      unsigned long offset, size_t size,
+>                                      enum dma_data_direction dir,
+>                                      unsigned long attrs)
+>  {
+> -       struct vduse_dev *vdev =3D dev_to_vduse(dev);
+> -       struct vduse_iova_domain *domain =3D vdev->domain;
+> +       struct vduse_iova_domain *domain =3D token;
+>
+>         return vduse_domain_map_page(domain, page, offset, size, dir, att=
+rs);
+>  }
+>
+> -static void vduse_dev_unmap_page(struct device *dev, dma_addr_t dma_addr=
+,
+> +static void vduse_dev_unmap_page(void *token, dma_addr_t dma_addr,
+>                                 size_t size, enum dma_data_direction dir,
+>                                 unsigned long attrs)
+>  {
+> -       struct vduse_dev *vdev =3D dev_to_vduse(dev);
+> -       struct vduse_iova_domain *domain =3D vdev->domain;
+> +       struct vduse_iova_domain *domain =3D token;
+>
+>         return vduse_domain_unmap_page(domain, dma_addr, size, dir, attrs=
+);
+>  }
+>
+> -static void *vduse_dev_alloc_coherent(struct device *dev, size_t size,
+> -                                       dma_addr_t *dma_addr, gfp_t flag,
+> -                                       unsigned long attrs)
+> +static void *vduse_dev_alloc_coherent(void *token, size_t size,
+> +                                     dma_addr_t *dma_addr, gfp_t flag)
+>  {
+> -       struct vduse_dev *vdev =3D dev_to_vduse(dev);
+> -       struct vduse_iova_domain *domain =3D vdev->domain;
+> +       struct vduse_iova_domain *domain =3D token;
+>         unsigned long iova;
+>         void *addr;
+>
+>         *dma_addr =3D DMA_MAPPING_ERROR;
+>         addr =3D vduse_domain_alloc_coherent(domain, size,
+> -                               (dma_addr_t *)&iova, flag, attrs);
+> +                                          (dma_addr_t *)&iova, flag);
+>         if (!addr)
+>                 return NULL;
+>
+> @@ -875,31 +870,45 @@ static void *vduse_dev_alloc_coherent(struct device=
+ *dev, size_t size,
+>         return addr;
+>  }
+>
+> -static void vduse_dev_free_coherent(struct device *dev, size_t size,
+> -                                       void *vaddr, dma_addr_t dma_addr,
+> -                                       unsigned long attrs)
+> +static void vduse_dev_free_coherent(void *token, size_t size,
+> +                                   void *vaddr, dma_addr_t dma_addr,
+> +                                   unsigned long attrs)
+>  {
+> -       struct vduse_dev *vdev =3D dev_to_vduse(dev);
+> -       struct vduse_iova_domain *domain =3D vdev->domain;
+> +       struct vduse_iova_domain *domain =3D token;
+>
+>         vduse_domain_free_coherent(domain, size, vaddr, dma_addr, attrs);
+>  }
+>
+> -static size_t vduse_dev_max_mapping_size(struct device *dev)
+> +static bool vduse_dev_need_sync(void *token, dma_addr_t dma_addr)
+>  {
+> -       struct vduse_dev *vdev =3D dev_to_vduse(dev);
+> -       struct vduse_iova_domain *domain =3D vdev->domain;
+> +       struct vduse_iova_domain *domain =3D token;
 > +
->  int virtqueue_add_outbuf(struct virtqueue *vq,
->  			 struct scatterlist sg[], unsigned int num,
->  			 void *data,
-> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> index 9b33df741b63..fd997178da2a 100644
-> --- a/include/linux/virtio_ring.h
-> +++ b/include/linux/virtio_ring.h
-> @@ -3,6 +3,7 @@
->  #define _LINUX_VIRTIO_RING_H
->  
->  #include <asm/barrier.h>
-> +#include <linux/virtio.h>
->  #include <linux/irqreturn.h>
->  #include <uapi/linux/virtio_ring.h>
->  
-> @@ -79,9 +80,9 @@ struct virtqueue *vring_create_virtqueue(unsigned int index,
->  
->  /*
->   * Creates a virtqueue and allocates the descriptor ring with per
-> - * virtqueue DMA device.
-> + * virtqueue mapping operations.
->   */
-> -struct virtqueue *vring_create_virtqueue_dma(unsigned int index,
-> +struct virtqueue *vring_create_virtqueue_map(unsigned int index,
->  					     unsigned int num,
->  					     unsigned int vring_align,
->  					     struct virtio_device *vdev,
-> @@ -91,7 +92,7 @@ struct virtqueue *vring_create_virtqueue_dma(unsigned int index,
->  					     bool (*notify)(struct virtqueue *vq),
->  					     void (*callback)(struct virtqueue *vq),
->  					     const char *name,
-> -					     struct device *dma_dev);
-> +					     union vring_mapping_token *mapping_token);
->  
->  /*
->   * Creates a virtqueue with a standard layout but a caller-allocated
-> -- 
+> +       return dma_addr < domain->bounce_size;
+> +}
+> +
+> +static int vduse_dev_mapping_error(void *token, dma_addr_t dma_addr)
+> +{
+> +       if (unlikely(dma_addr =3D=3D DMA_MAPPING_ERROR))
+> +               return -ENOMEM;
+> +       return 0;
+> +}
+> +
+> +static size_t vduse_dev_max_mapping_size(void *token)
+> +{
+> +       struct vduse_iova_domain *domain =3D token;
+>
+>         return domain->bounce_size;
+>  }
+>
+> -static const struct dma_map_ops vduse_dev_dma_ops =3D {
+> +static const struct virtio_map_ops vduse_map_ops =3D {
+>         .sync_single_for_device =3D vduse_dev_sync_single_for_device,
+>         .sync_single_for_cpu =3D vduse_dev_sync_single_for_cpu,
+>         .map_page =3D vduse_dev_map_page,
+>         .unmap_page =3D vduse_dev_unmap_page,
+>         .alloc =3D vduse_dev_alloc_coherent,
+>         .free =3D vduse_dev_free_coherent,
+> +       .need_sync =3D vduse_dev_need_sync,
+> +       .mapping_error =3D vduse_dev_mapping_error,
+
+I think that adding these functions here is problematic,
+
+In the case of mapping error vring_mapping_error only checks for
+vdev->map, not for vdev->map->mapping_error:
+
+static int vring_mapping_error(const struct vring_virtqueue *vq,
+                              dma_addr_t addr)
+{
+       struct virtio_device *vdev =3D vq->vq.vdev;
+
+       if (!vq->use_map_api)
+               return 0;
+
+       if (vdev->map)
+               return vdev->map->mapping_error(vring_mapping_token(vq), add=
+r);
+       else
+               return dma_mapping_error(vring_dma_dev(vq), addr);
+}
+
+So we either add the check for the member or we define them from the beginn=
+ing.
+
+>         .max_mapping_size =3D vduse_dev_max_mapping_size,
+>  };
+>
+> @@ -2003,27 +2012,18 @@ static struct vduse_mgmt_dev *vduse_mgmt;
+>  static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
+>  {
+>         struct vduse_vdpa *vdev;
+> -       int ret;
+>
+>         if (dev->vdev)
+>                 return -EEXIST;
+>
+>         vdev =3D vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
+> -                                &vduse_vdpa_config_ops, NULL,
+> +                                &vduse_vdpa_config_ops, &vduse_map_ops,
+>                                  1, 1, name, true);
+>         if (IS_ERR(vdev))
+>                 return PTR_ERR(vdev);
+>
+>         dev->vdev =3D vdev;
+>         vdev->dev =3D dev;
+> -       vdev->vdpa.dev.dma_mask =3D &vdev->vdpa.dev.coherent_dma_mask;
+> -       ret =3D dma_set_mask_and_coherent(&vdev->vdpa.dev, DMA_BIT_MASK(6=
+4));
+> -       if (ret) {
+> -               put_device(&vdev->vdpa.dev);
+> -               return ret;
+> -       }
+> -       set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
+> -       vdev->vdpa.mapping_token.dma_dev =3D &vdev->vdpa.dev;
+>         vdev->vdpa.mdev =3D &vduse_mgmt->mgmt_dev;
+>
+>         return 0;
+> @@ -2056,6 +2056,7 @@ static int vdpa_dev_add(struct vdpa_mgmt_dev *mdev,=
+ const char *name,
+>                 return -ENOMEM;
+>         }
+>
+> +       dev->vdev->vdpa.mapping_token.token =3D dev->domain;
+>         ret =3D _vdpa_register_device(&dev->vdev->vdpa, dev->vq_num);
+>         if (ret) {
+>                 put_device(&dev->vdev->vdpa.dev);
+> --
 > 2.31.1
+>
 
