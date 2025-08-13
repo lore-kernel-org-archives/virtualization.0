@@ -1,210 +1,153 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FBB41DE2D7;
-	Wed, 13 Aug 2025 06:21:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB8CD2D46A9
+	for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 06:28:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755066101; cv=none; b=fi55yu6d9Qf7Pg25FHV+IjRArsEwMnuur1fYvqy9DnNV+3lyRgyZ/3Z6mTkmFsfzAKzfepDueQ8tE8yVPXkCJvi4u8DXQrYC9ShsYj5/EKUufMlK/ctsii3dWfrklHhDWzDrd6ecgc3luScWjL0yIDVpDsTENBHIzuSdbxvduKw=
+	t=1755066508; cv=none; b=X75lTPbQZbtDZiDLD4vrDM88BlD1b8xSzLBFz6RlMLlj/cqk8R7HFCwl2J6F+3iiNJOb+QW+qe7OdEPiqVqNTy5XwF0QF4vuz0Rm7gmIpPBgm0EMqj6Zr974dJxXTmWqjxWyGS2wte9NmiOK/a3pbW11SyGuxrV1J/lYXlXLPqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755066101; c=relaxed/simple;
-	bh=9lXBpt4mIMT6d2TGJJvZMhjb/fpze1Qddkv0CbIjggs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lkNewr4TJv3ZIUlVCGmYdZa+Mhv9wKiWQusIxOtT3yUPGRjtYnn7fIi4JpQnHHN9X8LwPHJ789Qouffge5gDmp8df8IbAprRIOkVxm+6NY2nje5rhLb7kXBJYS/l/+2bMVfJQP/thqSrEnDG3iBFc+NekgQC7D7cGgN5qwG1GzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UnbyHweD; arc=none smtp.client-ip=209.85.210.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1755066508; c=relaxed/simple;
+	bh=ruSc1og0k+neVyIZpEtyljRVj11cTbE4xBOWaKErHVs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VgJgrwWi17qUENUADy03GDkdjgKOuKrMo5vZIVLLUqWGC97tXWFzHzjha568Exj3bziZYdlV8in1mxhMYYPHBQL/yFGZm9t5HXIvd8vJoxwasNH7gX0lgYe/Vc5abjThX1YxBUNf7sUwd5ysmCd3/pU1Wh9zZgI3WWhkRGsnwrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=a42vxY0n; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UnbyHweD"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-747e41d5469so7090277b3a.3;
-        Tue, 12 Aug 2025 23:21:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="a42vxY0n"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-242d8dff9deso37962865ad.2
+        for <virtualization@lists.linux.dev>; Tue, 12 Aug 2025 23:28:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755066099; x=1755670899; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9ST3OBHUDmupawOhRPYNVodoxTLlNYfnl/2sDqaHKqM=;
-        b=UnbyHweD1lzyfM0MEmXAf3hblD20vrEN50qubhnmSgQWua9FxbnhfPM4uTRt+rteAl
-         fZ+AbdyN0+axwF4hFXk+lAL3yswn3UWQCC2FwT14NcoRgxwVzipBskQkpYobxKg//z2c
-         AJ9vovUmoxiuR8Sunnv4Bt0hVrtXoI09EzRbbVW9Y+TE4NbjQobvqbB1r1kP6plrwWOI
-         aFa0JG1p845zEH/ObNsXfZ5r3pSJ/DIbMRxWVkC15FXmjUG4nxpDO+Z4RDZRiSu8aXf0
-         4eyLcKZ+4ClqRjA8A4Cuf2kWLLCg5WOnMbQXVWMIo+nbb1jOl2m+oIYCuWDnEaMpWH1H
-         h6EQ==
+        d=linaro.org; s=google; t=1755066506; x=1755671306; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=hkkOFNG1twvUB4ikm7yQwDp0IAPOj20d67SV/lZx5C0=;
+        b=a42vxY0nzhtWALz3DsuhAXEGn8kfCSuL43ZLOU8X7yOhbiYZlW3vQKXaKwaUStDzLu
+         Bf+fLybmcK217ZaDdeMCW7GwazSIkyr+sy/3wLeNxq8M2v2XFWKd7QkXays1zIsigkMz
+         UWapwp+1QgPxs8cJ5uQ7E936i30F72V3HkcJTgID5TMdlU8obsaXa00cq6gt//J1uUxV
+         2Ts32xLfiANjSl1Sl9JE1h/aGtMI/EWQfKfizKJMtKwcGO8zjO1cjGEMeVZLknUz7Edl
+         tlamg3ffTh5JkKQ334C/S5++rUuwkzXmUp9gJrLxdHDsAKnH8YNVkjV2g21Rx8Dz9fjm
+         07rg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755066099; x=1755670899;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9ST3OBHUDmupawOhRPYNVodoxTLlNYfnl/2sDqaHKqM=;
-        b=Ele1c6qY8hIYQ1swnivRffyZzUqZ/kNQsoBB33A7Srk8Q6v8BxHB2IT3WlTX9a22Wr
-         UE3VeImHzoNKzvrzM/Vudq+IPIHmUQcTKoecp3d5Xb73CfWM8ym94Z9iKelN84DfO5Nj
-         g4w9+NNKvDosjFXZx/wz2Skrb1okJtwOyYaMvFLvSaJhf8zNHz61eEb4Kbeqo/+lH1Z2
-         PBCPGr9qWOo0cmO/lSFwqH5xJvcoZND9kmNHHQ/DRe0bfN7VMZfyN7iea8cJdhg7FvYm
-         HqMJjCXn9iXyGy7EJNR9e/ITOvWp8Vv+y4Uazp4PRpZkVETuSa4WqvKsoV6ilhzW0hjd
-         aG2g==
-X-Forwarded-Encrypted: i=1; AJvYcCV9/t47mVeQfo46QB6x7F9kx4ZPC/FC68bpWCdBq6w7AtMxdSMAqemztI+eD1mjZed1fqqH8sr4kqUW7pZLya8=@lists.linux.dev, AJvYcCWHfpYwskS0XlOLt746lYq+ev/rZG+cwqNjrwOaBGm/gWpVbnzEcg7DplNUvKpiU2P1L4ToRvK0vdj/bhw6ufEzLjYjCQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzV+S/6AZvdwOYSiWoXf0jsFQ34csuvDZLYvjQE+1yp0rSvrL3o
-	TlhC3JPk/1vA0iC/ge6Qs1uScbXBHSBiuqUc2D+T4KiahIb1RA84fyzB
-X-Gm-Gg: ASbGnct/FNX0NcByj6yZti7/uGjMFzuBfpFdtzC90ATiiJLeBRcyO6j9X/p8a9BL4SM
-	NPRDzrVI+OR30gzNb88mp0Q46mam3MfcMenCRhzBB7sY3PILRKyymL+pUHbqHam0qmwiB/G4CW7
-	GUbjkWhNqYX7StmEC80q9SKEApznLpTdKXAfQjOFeRPxX6RHhDxMVgYtb7F9nkKAAlHViYOKV9b
-	Kvid0XUaRRDj6dfEGS55MuYHFhpOut9OKmN8gtmVO80xvxQFyYv58CRqEOcUSIhnsJkfKAfde4Q
-	QtOgfLkH/CIOhJYBmy8K7XF9x8kxxd92Wj55R7g5IvccNxxygd/7uU5/X6PemlRnyqfR/p2yoS7
-	H1Ohi9PEH7B1BRXJbngE=
-X-Google-Smtp-Source: AGHT+IEcTztVLi+UwZHZ0a2lGY69Y011yXfIdJLL6J3nKQcw2Coh7E6JYmUMTFdAFtBh6CYhcaokWw==
-X-Received: by 2002:a05:6a20:244b:b0:240:7ed:402b with SMTP id adf61e73a8af0-240a8b76ba5mr3616066637.33.1755066099386;
-        Tue, 12 Aug 2025 23:21:39 -0700 (PDT)
-Received: from Terra ([2001:df0:b240:417c:391a:2d23:2970:dee9])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-76bcce89132sm31303296b3a.29.2025.08.12.23.21.36
+        d=1e100.net; s=20230601; t=1755066506; x=1755671306;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=hkkOFNG1twvUB4ikm7yQwDp0IAPOj20d67SV/lZx5C0=;
+        b=WqIeeE8HsB/v5eR5b3U/7UybuTM+dBZ6IiyTvOjfsZ9U/DoQJCmSUM+/azWiC2tDwG
+         ZUux8g65DMV4z95CgvolqnKAgFX5+nyWr6m0TCTL2dDCeEWRikDG6NSXrQHTZ32ie03G
+         NzBzy43Pc/ABW56feHnx2mHflhfTiO3W0ISMJJw0TZEskHWZ7qnvMlYF5MSzUQjixRNI
+         vOtaQcbNIv0fsg0JX6oGLBQcYrFWSWnoV9UFWpz3i0KhpH7GnZcw0t3V8UYFrW1oxaKJ
+         +IpewFLDcHGsAB2jUz1lp7kBrNMyoGs993BILx8dUIZXcQeux/y2GUprbg/Duw8/5FGJ
+         tiGw==
+X-Forwarded-Encrypted: i=1; AJvYcCUcuz+l2vS/uUYYrv4qaA0HIkd6TbWtIoSLeimmZ4rGJl+JZlIzm4LAd5rxn7T794Rh0yjbIKaJxY/wfvZbIQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzq770HwDsstORZGziq47jFCILGvXGaAlFTHxmCkQk/SqobbgsD
+	Q7rg7LZSlc9XzRcBYq0W29Q/H+LJFWJ2HR3Of67p+N4eSUjW4/+G+bdRH3edemCGVwA=
+X-Gm-Gg: ASbGncsS6MSr3Puxjflv4k1t8yfv1obTdRvYuHHOYIZo39qCLancTHwa8miJ41Cm3nu
+	ORfaaWXqlP4TbwIYicL3ElnD/zKf2ieye05JBRVxNbIuYqFtxE3FGBssQbUCINQ0/BBy6EIFhDc
+	+0hHLstFl2gfPG+pAhzdQUnPneakSfnc11mwHRUH9/nVmBc5bnq+76uzapjl1Qh+qZuQsZmkcZ9
+	/d8b+Ja+QA09PbXwJfraDHZDJ46qyJ3faGJgbLuBa9hf8+F5VqDN91/pEfn2U1Au7N+tlmXzyDD
+	a6CAmZz0puh3T99Q+8mzV3iZ6Z27VcT95FFzdVtJ1KVOjchMaChI/wAS6jNZvEn33P7T1nI4urW
+	4dIDI4JbP4+UR0Mvt5eDTTG3k
+X-Google-Smtp-Source: AGHT+IFYTVLKZy1oWyOc6hnM/pMXzM/G8sghp8UldVXVga+3t7fJRL5dFPBL8RVz5xsAnY8qYxh7aA==
+X-Received: by 2002:a17:903:18e:b0:23c:7c59:c74e with SMTP id d9443c01a7336-2430cf2d4bdmr32205525ad.0.1755066506029;
+        Tue, 12 Aug 2025 23:28:26 -0700 (PDT)
+Received: from localhost ([122.172.87.165])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-243017dd480sm32575855ad.33.2025.08.12.23.28.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Aug 2025 23:21:39 -0700 (PDT)
-From: Athul Raj Kollareth <krathul3152@gmail.com>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	dmitry.osipenko@collabora.com,
-	gurchetansingh@chromium.org
-Cc: Athul Raj Kollareth <krathul3152@gmail.com>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	skhan@linuxfoundation.org,
-	linux-kernel-mentees@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/virtio: clean up minor codestyle issues
-Date: Wed, 13 Aug 2025 11:51:05 +0530
-Message-ID: <20250813062109.5326-1-krathul3152@gmail.com>
-X-Mailer: git-send-email 2.50.1
+        Tue, 12 Aug 2025 23:28:25 -0700 (PDT)
+Date: Wed, 13 Aug 2025 11:58:22 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Saravana Kannan <saravanak@google.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Arnd Bergmann <arnd@kernel.org>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>,
+	Bill Mills <bill.mills@linaro.org>, devicetree@vger.kernel.org,
+	virtualization@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
+	Bertrand Marquis <bertrand.marquis@arm.com>,
+	"Edgar E . Iglesias" <edgar.iglesias@amd.com>,
+	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Subject: Re: [RFC PATCH 0/6] virtio: Add support for Virtio message transport
+Message-ID: <20250813062822.3rsgdx5fmefzslc2@vireshk-i7>
+References: <cover.1753865268.git.viresh.kumar@linaro.org>
+ <CAL_JsqJn2XtvWaDBSqYPUe2ZVxE7t4EbAt8OPncbQaKjh1jY5w@mail.gmail.com>
+ <20250812094955.fdyil4cbxr3bx4bo@vireshk-i7>
+ <CAL_JsqKHGFPF-2d-cH4KhxFQ-KA1WO+TuDn722vYbs4Jyx8iYw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAL_JsqKHGFPF-2d-cH4KhxFQ-KA1WO+TuDn722vYbs4Jyx8iYw@mail.gmail.com>
 
-Fix codestyle warnings and errors generated by CHECKPATCH in virtio
-source files.
+On 12-08-25, 08:28, Rob Herring wrote:
+> On Tue, Aug 12, 2025 at 4:50 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
+> > I tried something like this now:
+> >
+> >       reserved-memory {
+> >         #address-cells = <2>;
+> >         #size-cells   = <2>;
+> >         ranges;
+> >
+> >         rmem@100000000 {
+> >           compatible = "restricted-dma-pool", "virtio-msg,loopback";
+> 
+> The order is wrong here. The 2nd one seems more specific to me.
 
-Signed-off-by: Athul Raj Kollareth <krathul3152@gmail.com>
----
- drivers/gpu/drm/virtio/virtgpu_display.c |  3 +--
- drivers/gpu/drm/virtio/virtgpu_kms.c     | 20 ++++++++++----------
- drivers/gpu/drm/virtio/virtgpu_object.c  |  4 ++--
- drivers/gpu/drm/virtio/virtgpu_plane.c   |  2 +-
- drivers/gpu/drm/virtio/virtgpu_vq.c      |  2 ++
- 5 files changed, 16 insertions(+), 15 deletions(-)
+Right.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index e5805ca646c7..c3315935d8bc 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -131,9 +131,8 @@ static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
- 	 * in the plane update callback, and here we just check
- 	 * whenever we must force the modeset.
- 	 */
--	if (drm_atomic_crtc_needs_modeset(crtc_state)) {
-+	if (drm_atomic_crtc_needs_modeset(crtc_state))
- 		output->needs_modeset = true;
--	}
- }
- 
- static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 7dfb2006c561..1c15cbf326b7 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -162,18 +162,18 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_VIRGL))
- 		vgdev->has_virgl_3d = true;
- #endif
--	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
-+	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID))
- 		vgdev->has_edid = true;
--	}
--	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
-+
-+	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC))
- 		vgdev->has_indirect = true;
--	}
--	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID)) {
-+
-+	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID))
- 		vgdev->has_resource_assign_uuid = true;
--	}
--	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_BLOB)) {
-+
-+	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_BLOB))
- 		vgdev->has_resource_blob = true;
--	}
-+
- 	if (virtio_get_shm_region(vgdev->vdev, &vgdev->host_visible_region,
- 				  VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
- 		if (!devm_request_mem_region(&vgdev->vdev->dev,
-@@ -193,9 +193,9 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 			    (unsigned long)vgdev->host_visible_region.addr,
- 			    (unsigned long)vgdev->host_visible_region.len);
- 	}
--	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_CONTEXT_INIT)) {
-+
-+	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_CONTEXT_INIT))
- 		vgdev->has_context_init = true;
--	}
- 
- 	DRM_INFO("features: %cvirgl %cedid %cresource_blob %chost_visible",
- 		 vgdev->has_virgl_3d    ? '+' : '-',
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 5517cff8715c..e6363c887500 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -47,6 +47,7 @@ int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev, uint32_t *resid)
- 		*resid = handle + 1;
- 	} else {
- 		int handle = ida_alloc(&vgdev->resource_ida, GFP_KERNEL);
-+
- 		if (handle < 0)
- 			return handle;
- 		*resid = handle + 1;
-@@ -56,9 +57,8 @@ int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev, uint32_t *resid)
- 
- static void virtio_gpu_resource_id_put(struct virtio_gpu_device *vgdev, uint32_t id)
- {
--	if (!virtio_gpu_virglrenderer_workaround) {
-+	if (!virtio_gpu_virglrenderer_workaround)
- 		ida_free(&vgdev->resource_ida, id - 1);
--	}
- }
- 
- void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 698ea7adb951..29e4b458ae57 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -120,7 +120,7 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
- 	crtc_state = drm_atomic_get_crtc_state(state,
- 					       new_plane_state->crtc);
- 	if (IS_ERR(crtc_state))
--                return PTR_ERR(crtc_state);
-+		return PTR_ERR(crtc_state);
- 
- 	ret = drm_atomic_helper_check_plane_state(new_plane_state, crtc_state,
- 						  DRM_PLANE_NO_SCALING,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 55a15e247dd1..8181b22b9b46 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -248,6 +248,7 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
- 		if (resp->type != cpu_to_le32(VIRTIO_GPU_RESP_OK_NODATA)) {
- 			if (le32_to_cpu(resp->type) >= VIRTIO_GPU_RESP_ERR_UNSPEC) {
- 				struct virtio_gpu_ctrl_hdr *cmd;
-+
- 				cmd = virtio_gpu_vbuf_ctrl_hdr(entry);
- 				DRM_ERROR_RATELIMITED("response 0x%x (command 0x%x)\n",
- 						      le32_to_cpu(resp->type),
-@@ -468,6 +469,7 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 	if (vbuf->data_size) {
- 		if (is_vmalloc_addr(vbuf->data_buf)) {
- 			int sg_ents;
-+
- 			sgt = vmalloc_to_sgt(vbuf->data_buf, vbuf->data_size,
- 					     &sg_ents);
- 			if (!sgt) {
+> But is "restricted-dma-pool" useful?
+
+I need this to call kernel/dma/swiotlb.c: rmem_swiotlb_setup(), which
+makes all the memory allocation for the device happen from that area.
+
+> Should an OS that only understands that and not
+> "virtio-msg,loopback" use it?
+
+Since the reserved memory isn't linked to a device in the DT (via the
+"memory-region" property), I don't expect an OS to use it without
+virtio-msg.
+
+> The format of compatibles is <vendor>,<device/block/interface> and
+> "virtio-msg" is not a vendor.
+
+"virtio,msg" is fine then I guess ? Just like "virtio,mmio".
+
+> >           reg = <0x00000001 0x00000000  0x0 0x00400000>; /* 4 MiB */
+> >         };
+> >       };
+> >
+> > and this works fine. I am adding two compatibles for virtio-msg:
+> > "virtio-msg,loopback" and "virtio-msg,ffa". Yes I will properly
+> > document them in the next version.
+> 
+> Why do you need 2 compatibles? Can't you discover what the remote end
+> is with some message? We only define "virtio-mmio" in DT for example,
+> not that the device is a console, rng, etc.
+
+In case of virtio-mmio, the reg-range is trapped by the other side and
+meaningful MMIO messages are exchanged. And so the OS knows the kind
+of device the DT node is related to.
+
+In this case however, this memory is going to be used for virtqueues
+and buffers and I don't see a way of communicating the device type
+here. Maybe I can get rid of two compatibles and add a property that
+links to a device type ? The memory is otherwise exactly same in both
+the cases, it is just about which device is using it eventually.
+
 -- 
-2.50.1
-
+viresh
