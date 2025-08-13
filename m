@@ -1,60 +1,76 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07872C158F
-	for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 05:49:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FBB41DE2D7;
+	Wed, 13 Aug 2025 06:21:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755064171; cv=none; b=s6aLX9awx40ngtDwr0pZB1EoquZ9E9I8bxVQJTDv5WJWDVgDHrLux8tmOhKdFwnQbFVjRzrkwS1eLqUPaQ10egGw5nK8TGbTPYcB81RE9fUxCnG0URzmFd1KSfmQVgnVdewzClhpL9GP6w9iLEYpKVhcI995qRHsc1trBZqH5rY=
+	t=1755066101; cv=none; b=fi55yu6d9Qf7Pg25FHV+IjRArsEwMnuur1fYvqy9DnNV+3lyRgyZ/3Z6mTkmFsfzAKzfepDueQ8tE8yVPXkCJvi4u8DXQrYC9ShsYj5/EKUufMlK/ctsii3dWfrklHhDWzDrd6ecgc3luScWjL0yIDVpDsTENBHIzuSdbxvduKw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755064171; c=relaxed/simple;
-	bh=ct2P4Jylji6l95HatANo7+Nm1zSSO67jYR8EPb0kjMg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EXFVURtIMhr+ZUTL1GmoO0xgp8P1PInHk98AFVaBllzc/uAEM22PZ5qRBs3DHXg2/9RdidUxA7rvjyBex1/whgMlbkPLulclWpMTgoNZB307rTrz0cMtM8NOdsKIiilkoul0oh3+bx11DiLmE5W5lGibu3RgKrvxbI0d5mzXUFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZbCCV1XC; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1755066101; c=relaxed/simple;
+	bh=9lXBpt4mIMT6d2TGJJvZMhjb/fpze1Qddkv0CbIjggs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lkNewr4TJv3ZIUlVCGmYdZa+Mhv9wKiWQusIxOtT3yUPGRjtYnn7fIi4JpQnHHN9X8LwPHJ789Qouffge5gDmp8df8IbAprRIOkVxm+6NY2nje5rhLb7kXBJYS/l/+2bMVfJQP/thqSrEnDG3iBFc+NekgQC7D7cGgN5qwG1GzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UnbyHweD; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZbCCV1XC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755064168;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=MrnLAqNPP3MNN09OO/tPRCXaRUs0p44l+QLGU8ZWbJk=;
-	b=ZbCCV1XClDUTlhBVI62BjG8JXQn/SjvBpHBO3YQG+hKtC5HbJ9Rk3NmWNgK/oFg+dUmyZZ
-	CBYYjqIS5B3urOk2DfzUt7aZ3eUaYPXFyi2w2vWuXghosLxKXll7wkrTZN4cVIgtlJGFXd
-	zX94QQVbsUM0ZIts1XPQesGM+EK0bHw=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-249-kSQY00JZNVishG9zl_7usg-1; Wed,
- 13 Aug 2025 01:49:25 -0400
-X-MC-Unique: kSQY00JZNVishG9zl_7usg-1
-X-Mimecast-MFC-AGG-ID: kSQY00JZNVishG9zl_7usg_1755064164
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4676A1956095;
-	Wed, 13 Aug 2025 05:49:24 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.72.112.168])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 444581800280;
-	Wed, 13 Aug 2025 05:49:19 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UnbyHweD"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-747e41d5469so7090277b3a.3;
+        Tue, 12 Aug 2025 23:21:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1755066099; x=1755670899; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=9ST3OBHUDmupawOhRPYNVodoxTLlNYfnl/2sDqaHKqM=;
+        b=UnbyHweD1lzyfM0MEmXAf3hblD20vrEN50qubhnmSgQWua9FxbnhfPM4uTRt+rteAl
+         fZ+AbdyN0+axwF4hFXk+lAL3yswn3UWQCC2FwT14NcoRgxwVzipBskQkpYobxKg//z2c
+         AJ9vovUmoxiuR8Sunnv4Bt0hVrtXoI09EzRbbVW9Y+TE4NbjQobvqbB1r1kP6plrwWOI
+         aFa0JG1p845zEH/ObNsXfZ5r3pSJ/DIbMRxWVkC15FXmjUG4nxpDO+Z4RDZRiSu8aXf0
+         4eyLcKZ+4ClqRjA8A4Cuf2kWLLCg5WOnMbQXVWMIo+nbb1jOl2m+oIYCuWDnEaMpWH1H
+         h6EQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755066099; x=1755670899;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9ST3OBHUDmupawOhRPYNVodoxTLlNYfnl/2sDqaHKqM=;
+        b=Ele1c6qY8hIYQ1swnivRffyZzUqZ/kNQsoBB33A7Srk8Q6v8BxHB2IT3WlTX9a22Wr
+         UE3VeImHzoNKzvrzM/Vudq+IPIHmUQcTKoecp3d5Xb73CfWM8ym94Z9iKelN84DfO5Nj
+         g4w9+NNKvDosjFXZx/wz2Skrb1okJtwOyYaMvFLvSaJhf8zNHz61eEb4Kbeqo/+lH1Z2
+         PBCPGr9qWOo0cmO/lSFwqH5xJvcoZND9kmNHHQ/DRe0bfN7VMZfyN7iea8cJdhg7FvYm
+         HqMJjCXn9iXyGy7EJNR9e/ITOvWp8Vv+y4Uazp4PRpZkVETuSa4WqvKsoV6ilhzW0hjd
+         aG2g==
+X-Forwarded-Encrypted: i=1; AJvYcCV9/t47mVeQfo46QB6x7F9kx4ZPC/FC68bpWCdBq6w7AtMxdSMAqemztI+eD1mjZed1fqqH8sr4kqUW7pZLya8=@lists.linux.dev, AJvYcCWHfpYwskS0XlOLt746lYq+ev/rZG+cwqNjrwOaBGm/gWpVbnzEcg7DplNUvKpiU2P1L4ToRvK0vdj/bhw6ufEzLjYjCQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzV+S/6AZvdwOYSiWoXf0jsFQ34csuvDZLYvjQE+1yp0rSvrL3o
+	TlhC3JPk/1vA0iC/ge6Qs1uScbXBHSBiuqUc2D+T4KiahIb1RA84fyzB
+X-Gm-Gg: ASbGnct/FNX0NcByj6yZti7/uGjMFzuBfpFdtzC90ATiiJLeBRcyO6j9X/p8a9BL4SM
+	NPRDzrVI+OR30gzNb88mp0Q46mam3MfcMenCRhzBB7sY3PILRKyymL+pUHbqHam0qmwiB/G4CW7
+	GUbjkWhNqYX7StmEC80q9SKEApznLpTdKXAfQjOFeRPxX6RHhDxMVgYtb7F9nkKAAlHViYOKV9b
+	Kvid0XUaRRDj6dfEGS55MuYHFhpOut9OKmN8gtmVO80xvxQFyYv58CRqEOcUSIhnsJkfKAfde4Q
+	QtOgfLkH/CIOhJYBmy8K7XF9x8kxxd92Wj55R7g5IvccNxxygd/7uU5/X6PemlRnyqfR/p2yoS7
+	H1Ohi9PEH7B1BRXJbngE=
+X-Google-Smtp-Source: AGHT+IEcTztVLi+UwZHZ0a2lGY69Y011yXfIdJLL6J3nKQcw2Coh7E6JYmUMTFdAFtBh6CYhcaokWw==
+X-Received: by 2002:a05:6a20:244b:b0:240:7ed:402b with SMTP id adf61e73a8af0-240a8b76ba5mr3616066637.33.1755066099386;
+        Tue, 12 Aug 2025 23:21:39 -0700 (PDT)
+Received: from Terra ([2001:df0:b240:417c:391a:2d23:2970:dee9])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-76bcce89132sm31303296b3a.29.2025.08.12.23.21.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Aug 2025 23:21:39 -0700 (PDT)
+From: Athul Raj Kollareth <krathul3152@gmail.com>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	dmitry.osipenko@collabora.com,
+	gurchetansingh@chromium.org
+Cc: Athul Raj Kollareth <krathul3152@gmail.com>,
+	dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
+	skhan@linuxfoundation.org,
+	linux-kernel-mentees@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Cc: hch@infradead.org
-Subject: [PATCH V5 9/9] vduse: switch to use virtio map API instead of DMA API
-Date: Wed, 13 Aug 2025 13:48:31 +0800
-Message-ID: <20250813054831.25865-10-jasowang@redhat.com>
-In-Reply-To: <20250813054831.25865-1-jasowang@redhat.com>
-References: <20250813054831.25865-1-jasowang@redhat.com>
+Subject: [PATCH] drm/virtio: clean up minor codestyle issues
+Date: Wed, 13 Aug 2025 11:51:05 +0530
+Message-ID: <20250813062109.5326-1-krathul3152@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -62,248 +78,133 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Lacking the support of device specific mapping supported in virtio,
-VDUSE must trick the DMA API in order to make virtio-vdpa transport
-work. This is done by advertising vDPA device as dma device with a
-VDUSE specific dma_ops even if it doesn't do DMA at all.
+Fix codestyle warnings and errors generated by CHECKPATCH in virtio
+source files.
 
-This will be fixed by this patch. Thanks to the new mapping operations
-support by virtio and vDPA. VDUSE can simply switch to advertise its
-specific mappings operations to virtio via virtio-vdpa then DMA API is
-not needed for VDUSE any more and iova domain could be used as the
-mapping token instead.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Athul Raj Kollareth <krathul3152@gmail.com>
 ---
- drivers/vdpa/Kconfig                 |  8 +--
- drivers/vdpa/vdpa_user/iova_domain.c |  2 +-
- drivers/vdpa/vdpa_user/iova_domain.h |  2 +-
- drivers/vdpa/vdpa_user/vduse_dev.c   | 75 ++++++++++++++--------------
- 4 files changed, 41 insertions(+), 46 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_display.c |  3 +--
+ drivers/gpu/drm/virtio/virtgpu_kms.c     | 20 ++++++++++----------
+ drivers/gpu/drm/virtio/virtgpu_object.c  |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_plane.c   |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_vq.c      |  2 ++
+ 5 files changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
-index 559fb9d3271f..857cf288c876 100644
---- a/drivers/vdpa/Kconfig
-+++ b/drivers/vdpa/Kconfig
-@@ -34,13 +34,7 @@ config VDPA_SIM_BLOCK
- 
- config VDPA_USER
- 	tristate "VDUSE (vDPA Device in Userspace) support"
--	depends on EVENTFD && MMU && HAS_DMA
--	#
--	# This driver incorrectly tries to override the dma_ops.  It should
--	# never have done that, but for now keep it working on architectures
--	# that use dma ops
--	#
--	depends on ARCH_HAS_DMA_OPS
-+	depends on EVENTFD && MMU
- 	select VHOST_IOTLB
- 	select IOMMU_IOVA
- 	help
-diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
-index 58116f89d8da..ccaed24b7ef8 100644
---- a/drivers/vdpa/vdpa_user/iova_domain.c
-+++ b/drivers/vdpa/vdpa_user/iova_domain.c
-@@ -447,7 +447,7 @@ void vduse_domain_unmap_page(struct vduse_iova_domain *domain,
- 
- void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
- 				  size_t size, dma_addr_t *dma_addr,
--				  gfp_t flag, unsigned long attrs)
-+				  gfp_t flag)
- {
- 	struct iova_domain *iovad = &domain->consistent_iovad;
- 	unsigned long limit = domain->iova_limit;
-diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_user/iova_domain.h
-index 7f3f0928ec78..1f3c30be272a 100644
---- a/drivers/vdpa/vdpa_user/iova_domain.h
-+++ b/drivers/vdpa/vdpa_user/iova_domain.h
-@@ -64,7 +64,7 @@ void vduse_domain_unmap_page(struct vduse_iova_domain *domain,
- 
- void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
- 				  size_t size, dma_addr_t *dma_addr,
--				  gfp_t flag, unsigned long attrs);
-+				  gfp_t flag);
- 
- void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size_t size,
- 				void *vaddr, dma_addr_t dma_addr,
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index f161059d543e..3260edefdf0d 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -88,6 +88,7 @@ struct vduse_dev {
- 	struct device *dev;
- 	struct vduse_virtqueue **vqs;
- 	struct vduse_iova_domain *domain;
-+	struct vduse_iova_domain *dom;
- 	char *name;
- 	struct mutex lock;
- 	spinlock_t msg_lock;
-@@ -814,59 +815,53 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
- 	.free			= vduse_vdpa_free,
- };
- 
--static void vduse_dev_sync_single_for_device(struct device *dev,
-+static void vduse_dev_sync_single_for_device(void *token,
- 					     dma_addr_t dma_addr, size_t size,
- 					     enum dma_data_direction dir)
- {
--	struct vduse_dev *vdev = dev_to_vduse(dev);
--	struct vduse_iova_domain *domain = vdev->domain;
-+	struct vduse_iova_domain *domain = token;
- 
- 	vduse_domain_sync_single_for_device(domain, dma_addr, size, dir);
- }
- 
--static void vduse_dev_sync_single_for_cpu(struct device *dev,
-+static void vduse_dev_sync_single_for_cpu(void *token,
- 					     dma_addr_t dma_addr, size_t size,
- 					     enum dma_data_direction dir)
- {
--	struct vduse_dev *vdev = dev_to_vduse(dev);
--	struct vduse_iova_domain *domain = vdev->domain;
-+	struct vduse_iova_domain *domain = token;
- 
- 	vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir);
- }
- 
--static dma_addr_t vduse_dev_map_page(struct device *dev, struct page *page,
-+static dma_addr_t vduse_dev_map_page(void *token, struct page *page,
- 				     unsigned long offset, size_t size,
- 				     enum dma_data_direction dir,
- 				     unsigned long attrs)
- {
--	struct vduse_dev *vdev = dev_to_vduse(dev);
--	struct vduse_iova_domain *domain = vdev->domain;
-+	struct vduse_iova_domain *domain = token;
- 
- 	return vduse_domain_map_page(domain, page, offset, size, dir, attrs);
- }
- 
--static void vduse_dev_unmap_page(struct device *dev, dma_addr_t dma_addr,
-+static void vduse_dev_unmap_page(void *token, dma_addr_t dma_addr,
- 				size_t size, enum dma_data_direction dir,
- 				unsigned long attrs)
- {
--	struct vduse_dev *vdev = dev_to_vduse(dev);
--	struct vduse_iova_domain *domain = vdev->domain;
-+	struct vduse_iova_domain *domain = token;
- 
- 	return vduse_domain_unmap_page(domain, dma_addr, size, dir, attrs);
- }
- 
--static void *vduse_dev_alloc_coherent(struct device *dev, size_t size,
--					dma_addr_t *dma_addr, gfp_t flag,
--					unsigned long attrs)
-+static void *vduse_dev_alloc_coherent(void *token, size_t size,
-+				      dma_addr_t *dma_addr, gfp_t flag)
- {
--	struct vduse_dev *vdev = dev_to_vduse(dev);
--	struct vduse_iova_domain *domain = vdev->domain;
-+	struct vduse_iova_domain *domain = token;
- 	unsigned long iova;
- 	void *addr;
- 
- 	*dma_addr = DMA_MAPPING_ERROR;
- 	addr = vduse_domain_alloc_coherent(domain, size,
--				(dma_addr_t *)&iova, flag, attrs);
-+					   (dma_addr_t *)&iova, flag);
- 	if (!addr)
- 		return NULL;
- 
-@@ -875,31 +870,45 @@ static void *vduse_dev_alloc_coherent(struct device *dev, size_t size,
- 	return addr;
- }
- 
--static void vduse_dev_free_coherent(struct device *dev, size_t size,
--					void *vaddr, dma_addr_t dma_addr,
--					unsigned long attrs)
-+static void vduse_dev_free_coherent(void *token, size_t size,
-+				    void *vaddr, dma_addr_t dma_addr,
-+				    unsigned long attrs)
- {
--	struct vduse_dev *vdev = dev_to_vduse(dev);
--	struct vduse_iova_domain *domain = vdev->domain;
-+	struct vduse_iova_domain *domain = token;
- 
- 	vduse_domain_free_coherent(domain, size, vaddr, dma_addr, attrs);
- }
- 
--static size_t vduse_dev_max_mapping_size(struct device *dev)
-+static bool vduse_dev_need_sync(void *token, dma_addr_t dma_addr)
- {
--	struct vduse_dev *vdev = dev_to_vduse(dev);
--	struct vduse_iova_domain *domain = vdev->domain;
-+	struct vduse_iova_domain *domain = token;
-+
-+	return dma_addr < domain->bounce_size;
-+}
-+
-+static int vduse_dev_mapping_error(void *token, dma_addr_t dma_addr)
-+{
-+	if (unlikely(dma_addr == DMA_MAPPING_ERROR))
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+static size_t vduse_dev_max_mapping_size(void *token)
-+{
-+	struct vduse_iova_domain *domain = token;
- 
- 	return domain->bounce_size;
- }
- 
--static const struct dma_map_ops vduse_dev_dma_ops = {
-+static const struct virtio_map_ops vduse_map_ops = {
- 	.sync_single_for_device = vduse_dev_sync_single_for_device,
- 	.sync_single_for_cpu = vduse_dev_sync_single_for_cpu,
- 	.map_page = vduse_dev_map_page,
- 	.unmap_page = vduse_dev_unmap_page,
- 	.alloc = vduse_dev_alloc_coherent,
- 	.free = vduse_dev_free_coherent,
-+	.need_sync = vduse_dev_need_sync,
-+	.mapping_error = vduse_dev_mapping_error,
- 	.max_mapping_size = vduse_dev_max_mapping_size,
- };
- 
-@@ -2003,27 +2012,18 @@ static struct vduse_mgmt_dev *vduse_mgmt;
- static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- {
- 	struct vduse_vdpa *vdev;
--	int ret;
- 
- 	if (dev->vdev)
- 		return -EEXIST;
- 
- 	vdev = vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
--				 &vduse_vdpa_config_ops, NULL,
-+				 &vduse_vdpa_config_ops, &vduse_map_ops,
- 				 1, 1, name, true);
- 	if (IS_ERR(vdev))
- 		return PTR_ERR(vdev);
- 
- 	dev->vdev = vdev;
- 	vdev->dev = dev;
--	vdev->vdpa.dev.dma_mask = &vdev->vdpa.dev.coherent_dma_mask;
--	ret = dma_set_mask_and_coherent(&vdev->vdpa.dev, DMA_BIT_MASK(64));
--	if (ret) {
--		put_device(&vdev->vdpa.dev);
--		return ret;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index e5805ca646c7..c3315935d8bc 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -131,9 +131,8 @@ static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
+ 	 * in the plane update callback, and here we just check
+ 	 * whenever we must force the modeset.
+ 	 */
+-	if (drm_atomic_crtc_needs_modeset(crtc_state)) {
++	if (drm_atomic_crtc_needs_modeset(crtc_state))
+ 		output->needs_modeset = true;
 -	}
--	set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
--	vdev->vdpa.mapping_token.dma_dev = &vdev->vdpa.dev;
- 	vdev->vdpa.mdev = &vduse_mgmt->mgmt_dev;
+ }
  
- 	return 0;
-@@ -2056,6 +2056,7 @@ static int vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
- 		return -ENOMEM;
+ static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 7dfb2006c561..1c15cbf326b7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -162,18 +162,18 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+ 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_VIRGL))
+ 		vgdev->has_virgl_3d = true;
+ #endif
+-	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
++	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID))
+ 		vgdev->has_edid = true;
+-	}
+-	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
++
++	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC))
+ 		vgdev->has_indirect = true;
+-	}
+-	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID)) {
++
++	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID))
+ 		vgdev->has_resource_assign_uuid = true;
+-	}
+-	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_BLOB)) {
++
++	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_BLOB))
+ 		vgdev->has_resource_blob = true;
+-	}
++
+ 	if (virtio_get_shm_region(vgdev->vdev, &vgdev->host_visible_region,
+ 				  VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
+ 		if (!devm_request_mem_region(&vgdev->vdev->dev,
+@@ -193,9 +193,9 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+ 			    (unsigned long)vgdev->host_visible_region.addr,
+ 			    (unsigned long)vgdev->host_visible_region.len);
  	}
+-	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_CONTEXT_INIT)) {
++
++	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_CONTEXT_INIT))
+ 		vgdev->has_context_init = true;
+-	}
  
-+	dev->vdev->vdpa.mapping_token.token = dev->domain;
- 	ret = _vdpa_register_device(&dev->vdev->vdpa, dev->vq_num);
- 	if (ret) {
- 		put_device(&dev->vdev->vdpa.dev);
+ 	DRM_INFO("features: %cvirgl %cedid %cresource_blob %chost_visible",
+ 		 vgdev->has_virgl_3d    ? '+' : '-',
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index 5517cff8715c..e6363c887500 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -47,6 +47,7 @@ int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev, uint32_t *resid)
+ 		*resid = handle + 1;
+ 	} else {
+ 		int handle = ida_alloc(&vgdev->resource_ida, GFP_KERNEL);
++
+ 		if (handle < 0)
+ 			return handle;
+ 		*resid = handle + 1;
+@@ -56,9 +57,8 @@ int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev, uint32_t *resid)
+ 
+ static void virtio_gpu_resource_id_put(struct virtio_gpu_device *vgdev, uint32_t id)
+ {
+-	if (!virtio_gpu_virglrenderer_workaround) {
++	if (!virtio_gpu_virglrenderer_workaround)
+ 		ida_free(&vgdev->resource_ida, id - 1);
+-	}
+ }
+ 
+ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 698ea7adb951..29e4b458ae57 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -120,7 +120,7 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+ 	crtc_state = drm_atomic_get_crtc_state(state,
+ 					       new_plane_state->crtc);
+ 	if (IS_ERR(crtc_state))
+-                return PTR_ERR(crtc_state);
++		return PTR_ERR(crtc_state);
+ 
+ 	ret = drm_atomic_helper_check_plane_state(new_plane_state, crtc_state,
+ 						  DRM_PLANE_NO_SCALING,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 55a15e247dd1..8181b22b9b46 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -248,6 +248,7 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
+ 		if (resp->type != cpu_to_le32(VIRTIO_GPU_RESP_OK_NODATA)) {
+ 			if (le32_to_cpu(resp->type) >= VIRTIO_GPU_RESP_ERR_UNSPEC) {
+ 				struct virtio_gpu_ctrl_hdr *cmd;
++
+ 				cmd = virtio_gpu_vbuf_ctrl_hdr(entry);
+ 				DRM_ERROR_RATELIMITED("response 0x%x (command 0x%x)\n",
+ 						      le32_to_cpu(resp->type),
+@@ -468,6 +469,7 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 	if (vbuf->data_size) {
+ 		if (is_vmalloc_addr(vbuf->data_buf)) {
+ 			int sg_ents;
++
+ 			sgt = vmalloc_to_sgt(vbuf->data_buf, vbuf->data_size,
+ 					     &sg_ents);
+ 			if (!sgt) {
 -- 
-2.31.1
+2.50.1
 
