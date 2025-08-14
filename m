@@ -1,75 +1,37 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42ADB1E3DDB
-	for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 17:11:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D15E2FCC1B;
+	Thu, 14 Aug 2025 17:37:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755191508; cv=none; b=hGRlBTOSCiroTAIW6kvNGH89DWNT9wAB23W3Jv2T2B9pAyO3vY0J6ui+B8XRutdZoS3Kfklcu+ztW9M/ynsQFf9Ep2XLJ7HnrhABZbLHaKssCs0yFsbMhuvYs27SRXRjvtrkpjx8Xw1Reh0szbCqLquZLnKKTTzaZyrSJPQtl6s=
+	t=1755193057; cv=none; b=ubIMjtlh1lR9FzvsH/fGSvtqveOam9NrwihjflmSzWqVxy1j6nqzQVhUdB40pBCLq7ZuQ6jDri4bKzp1T8pHHMj3uh8zRfDW833QMgoQqliVqbyQNYnso5Z1Xm/M5Scq4BjgGkRBpFY35lG5pE/MjlstR7KCepp+VwIxmIcXAl0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755191508; c=relaxed/simple;
-	bh=AhX5F4G0aBYzPmFDasmo2ht5cOhGbSJjHuqzpT/I+Lo=;
+	s=arc-20240116; t=1755193057; c=relaxed/simple;
+	bh=35OSPT0f4Af9mWm5Mjmz1qp4rxi1vAcU3tfv/dQervA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bwgK6hmbJvYrhwWD7o4sMT4orU/jOSNrjmZlsea9x/BtlyfboKp/LMxoDokc8mUiDU7NBdAeBki+2toG3hMWblUO6j9HH7tCoF3lBQyQ1vpPCkKJTIouET8WuVJTZ0V1vPbRUiHaA6glns8ca3UOKGc9dzJcfujvVVxVFn8yo1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Uspf+S06; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=UiXG0WdXFeCeAfBZozP99vr7wvXamcScYNGcMwV6cTTOT1W7BVNdVY1YggNmt4rqXYm/8RzEyLFl+WGGyhGVr8j5r1vMPoyEi0pCkWXeO2tY7hK42yHoaYUCHdAbC/Of9mGaODEGmbmUbdFvV23ltfNaOdjGAplKSz5xSvgyHxE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=4KLyFDU/; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Uspf+S06"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755191506;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lznyOOkV6KkkIEe59fB3MWrdJzsx93AmS4/MBGo8g1g=;
-	b=Uspf+S06CRjvpvhh1zBI92fWnUIxeCJj9r4qeRXYeN/dLQTC8wPFDU3WwRrM8c57yNvIg+
-	8bp3iGERf/0rYnlfPuwH/YDfvc4CXn6qrLYcECGvaqyhuAsfGIcuFp1mh8nRmMgdRRkjla
-	Odvr3A1ALZrS4qoNDJbpr+ZggJuL3IQ=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-687-0K-Rg3r_Mw6rh3NCaMMGXQ-1; Thu, 14 Aug 2025 13:11:45 -0400
-X-MC-Unique: 0K-Rg3r_Mw6rh3NCaMMGXQ-1
-X-Mimecast-MFC-AGG-ID: 0K-Rg3r_Mw6rh3NCaMMGXQ_1755191505
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-7e870676ac0so278575985a.3
-        for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 10:11:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755191504; x=1755796304;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:reply-to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lznyOOkV6KkkIEe59fB3MWrdJzsx93AmS4/MBGo8g1g=;
-        b=GtBoINVUxTgl0HLAFmz7OyjlwuTwZt5aPE+BQvu7AWu1psACM47Y5KbTV/4lbBv61w
-         ZfsrlbEbM5HuACBsRxWxDvfhGi+l321Z0iD7f/fiDv5dbiSWVSSc07kzSxhXoKxlx5Kg
-         avnHmUcitKt+pxPJXHTeNMWpYbHylbSz1fHYkYgUxghlF8SqOrUBH3F7VIOWwAbTL4ph
-         tgirRrh7qXv3FXCCVGCxZ5Y1Ho7YPjzM/hiMvk/uD/rsFNtzHk4dxqjvYP5h1ErJKr5C
-         tTftGA9dw+LFfh3KciemuPOfz+8wrF4tpR04CyX3YY/xS90rWvwACF1XhyEHS6QvnOCl
-         EwsA==
-X-Forwarded-Encrypted: i=1; AJvYcCXUOsUrR4t2BQVH/sNkf6/1o/5yF+qbds1ApQSVuv3DbmVBj4WjvkeBM+POywYvaYeGebw3gA/GCA1scXtSyQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxZN/ugIWnDYV1A6P1xaYkhOroZr0sAxQsPbGVYcyLkZ60OV5/0
-	hvtitpPv3eYR9CEGOLnuKw8zVKWOgzENBcYR+t756kByGchBfeFGC3rHArlbF36iL55okyh6iAS
-	SqAeRpAQuiyjzDTXrarcmJvcWCaDGIYmN1QbeDE7BkHyLLC5miD1X6nazSWKtOlgkiMfV7wCyf7
-	it
-X-Gm-Gg: ASbGncunFn+qpRX56+Q/0g349FRiqcHGKTSncyFpb1eW0nA0rC7e+OPTdlD5t27dztt
-	NPsxkSBcypyz3vMX+ysabJgm977McbsPsjH2KAE4HwaQ+sIfEwHpQKRmMmXSqWjQkk9cwdg8neJ
-	dH4APTUQd19CAsOYPtnhrc890o+D1kd0tYC+kyXym3/spwuhTO+rVLHfuD5B/W7rroB780M+gx3
-	31+lYIOjTUuOfBckozW7XJdJIPxMUyNTYOkCEJENHCYq+hmv3rsDcmCVTbDHn2joNgjL7SqJzcn
-	C76bjz0PcCFScNi1fTtPF4fCzUZmpLNPvenuqIo9ONj9drWsX8auhMQogZFm5c36yfu94Z5PisY
-	EzsbultKRI1U=
-X-Received: by 2002:a05:620a:424a:b0:7e8:7094:52e7 with SMTP id af79cd13be357-7e87094638dmr516634485a.10.1755191504403;
-        Thu, 14 Aug 2025 10:11:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG1WjbN3jtp13Y9aVPhnFkE4KaUT281M8OZYzkWWCEt0LdtOUTsCxK8pvtDoHGnPioaqAABXA==
-X-Received: by 2002:a05:620a:424a:b0:7e8:7094:52e7 with SMTP id af79cd13be357-7e87094638dmr516630585a.10.1755191503980;
-        Thu, 14 Aug 2025 10:11:43 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:f0e:9070:527b:9dff:feef:3874? ([2a01:e0a:f0e:9070:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7e87b37e80bsm2466785a.37.2025.08.14.10.11.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 14 Aug 2025 10:11:43 -0700 (PDT)
-Message-ID: <589663b5-7b92-4366-b4c1-6d4e091a0ea7@redhat.com>
-Date: Thu, 14 Aug 2025 19:11:41 +0200
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="4KLyFDU/"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=OE4LAchkYGbRbWIAPtKdq4yp8AV8hBrJ1qdnR14GXT4=; b=4KLyFDU/Vumsz96izTNEFh1dPT
+	gcELlCyTppY1dhYETNtbcxbOIeh1/sthMu9DbTeiVaAcP7tcEuyIkykR+tjpcFgzaiM4l5e7zW/99
+	WT21f95NU5V6ne9427BqfukuNCmE4P8LKLVbcXGI3NVbyx+CI0xucaJY3VBJ0r3B7kFJXEhhBYBCH
+	rRABtXI9ZkOcgZvf82D6jL0f5HF0S2ekt30gXEkdZuKsfcL0Px0gARfb1GdZ7N6PG/l3W5OuzmpWz
+	GxsIWFejW3a3LSYz1Mfw2PcJDMlTUQWwRae7vRCeE50nJNZOOiGyqf3SNV1eNn7Mpy146jdENj5EG
+	0OjLyf7Q==;
+Received: from [50.53.25.54] (helo=[192.168.254.17])
+	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1umbtD-00000000E9n-3MTt;
+	Thu, 14 Aug 2025 17:37:23 +0000
+Message-ID: <c855a4f9-4a50-4e02-9ac6-372abe7da730@infradead.org>
+Date: Thu, 14 Aug 2025 10:37:22 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -77,105 +39,79 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH v2] iommu/virtio: Make instance lookup robust
-To: Robin Murphy <robin.murphy@arm.com>, will@kernel.org, joro@8bytes.org,
- jean-philippe@linaro.org
-Cc: iommu@lists.linux.dev, virtualization@lists.linux.dev,
- stable@vger.kernel.org
-References: <308911aaa1f5be32a3a709996c7bd6cf71d30f33.1755190036.git.robin.murphy@arm.com>
-From: Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <308911aaa1f5be32a3a709996c7bd6cf71d30f33.1755190036.git.robin.murphy@arm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: rzDKdtnpb182w6Cd7tpPuM3fnyGU16GJ2P3VnJxcKWQ_1755191505
-X-Mimecast-Originator: redhat.com
+Subject: Re: [PATCH v2 01/16] dma-mapping: introduce new DMA attribute to
+ indicate MMIO memory
+To: Leon Romanovsky <leon@kernel.org>,
+ Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Leon Romanovsky <leonro@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>,
+ Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+ Alexander Potapenko <glider@google.com>, Alex Gaynor
+ <alex.gaynor@gmail.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
+ iommu@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+ Jens Axboe <axboe@kernel.dk>, Joerg Roedel <joro@8bytes.org>,
+ Jonathan Corbet <corbet@lwn.net>, Juergen Gross <jgross@suse.com>,
+ kasan-dev@googlegroups.com, Keith Busch <kbusch@kernel.org>,
+ linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-trace-kernel@vger.kernel.org, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Masami Hiramatsu <mhiramat@kernel.org>,
+ Michael Ellerman <mpe@ellerman.id.au>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Miguel Ojeda <ojeda@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
+ Sagi Grimberg <sagi@grimberg.me>, Stefano Stabellini
+ <sstabellini@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+ virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+ xen-devel@lists.xenproject.org
+References: <cover.1755153054.git.leon@kernel.org>
+ <f832644c76e13de504ecf03450fd5d125f72f4c6.1755153054.git.leon@kernel.org>
 Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <f832644c76e13de504ecf03450fd5d125f72f4c6.1755153054.git.leon@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-Hi Robin,
+Hi Leon,
 
-On 8/14/25 6:47 PM, Robin Murphy wrote:
-> Much like arm-smmu in commit 7d835134d4e1 ("iommu/arm-smmu: Make
-> instance lookup robust"), virtio-iommu appears to have the same issue
-> where iommu_device_register() makes the IOMMU instance visible to other
-> API callers (including itself) straight away, but internally the
-> instance isn't ready to recognise itself for viommu_probe_device() to
-> work correctly until after viommu_probe() has returned. This matters a
-> lot more now that bus_iommu_probe() has the DT/VIOT knowledge to probe
-> client devices the way that was always intended. Tweak the lookup and
-> initialisation in much the same way as for arm-smmu, to ensure that what
-> we register is functional and ready to go.
->
-> Cc: stable@vger.kernel.org
-> Fixes: bcb81ac6ae3c ("iommu: Get DT/ACPI parsing into the proper probe path")
-> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-
-This version works for me. Thanks for the diligent respin.
-
-Tested-by: Eric Auger <eric.auger@redhat.com>
-
-Thanks
-
-Eric
-
-
-
-> ---
->
-> v2: Of course generic bus_find_device_by_fwnode() didn't work, since
->     it's dev->parent we need to check rather than dev itself, sigh...
-> ---
->  drivers/iommu/virtio-iommu.c | 15 +++++++++------
->  1 file changed, 9 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 532db1de201b..b39d6f134ab2 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -998,8 +998,7 @@ static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
->  	iommu_dma_get_resv_regions(dev, head);
->  }
->  
-> -static const struct iommu_ops viommu_ops;
-> -static struct virtio_driver virtio_iommu_drv;
-> +static const struct bus_type *virtio_bus_type;
->  
->  static int viommu_match_node(struct device *dev, const void *data)
->  {
-> @@ -1008,8 +1007,9 @@ static int viommu_match_node(struct device *dev, const void *data)
->  
->  static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
->  {
-> -	struct device *dev = driver_find_device(&virtio_iommu_drv.driver, NULL,
-> -						fwnode, viommu_match_node);
-> +	struct device *dev = bus_find_device(virtio_bus_type, NULL, fwnode,
-> +					     viommu_match_node);
+On 8/14/25 3:13 AM, Leon Romanovsky wrote:
+> diff --git a/Documentation/core-api/dma-attributes.rst b/Documentation/core-api/dma-attributes.rst
+> index 1887d92e8e92..58a1528a9bb9 100644
+> --- a/Documentation/core-api/dma-attributes.rst
+> +++ b/Documentation/core-api/dma-attributes.rst
+> @@ -130,3 +130,21 @@ accesses to DMA buffers in both privileged "supervisor" and unprivileged
+>  subsystem that the buffer is fully accessible at the elevated privilege
+>  level (and ideally inaccessible or at least read-only at the
+>  lesser-privileged levels).
 > +
->  	put_device(dev);
->  
->  	return dev ? dev_to_virtio(dev)->priv : NULL;
-> @@ -1160,6 +1160,9 @@ static int viommu_probe(struct virtio_device *vdev)
->  	if (!viommu)
->  		return -ENOMEM;
->  
-> +	/* Borrow this for easy lookups later */
-> +	virtio_bus_type = dev->bus;
+> +DMA_ATTR_MMIO
+> +-------------
 > +
->  	spin_lock_init(&viommu->request_lock);
->  	ida_init(&viommu->domain_ids);
->  	viommu->dev = dev;
-> @@ -1229,10 +1232,10 @@ static int viommu_probe(struct virtio_device *vdev)
->  	if (ret)
->  		goto err_free_vqs;
->  
-> -	iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
-> -
->  	vdev->priv = viommu;
->  
-> +	iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
+> +This attribute indicates the physical address is not normal system
+> +memory. It may not be used with kmap*()/phys_to_virt()/phys_to_page()
+> +functions, it may not be cachable, and access using CPU load/store
+
+Usually "cacheable" (git grep -w cacheable counts 1042 hits vs.
+55 hits for "cachable"). And the $internet agrees.
+
+> +instructions may not be allowed.
 > +
->  	dev_info(dev, "input address: %u bits\n",
->  		 order_base_2(viommu->geometry.aperture_end));
->  	dev_info(dev, "page mask: %#llx\n", viommu->pgsize_bitmap);
+> +Usually this will be used to describe MMIO addresses, or other non
+
+non-cacheable
+
+> +cachable register addresses. When DMA mapping this sort of address we
+
+> +call the operation Peer to Peer as a one device is DMA'ing to another
+> +device. For PCI devices the p2pdma APIs must be used to determine if
+> +DMA_ATTR_MMIO is appropriate.
+> +
+> +For architectures that require cache flushing for DMA coherence
+> +DMA_ATTR_MMIO will not perform any cache flushing. The address
+> +provided must never be mapped cachable into the CPU.
+again.
+
+thanks.
+-- 
+~Randy
 
