@@ -1,691 +1,363 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E8032FF660
-	for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 03:39:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A38232FF660
+	for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 03:42:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755142775; cv=none; b=RKqs7s77pXcSqG6ZDd4YZF0zyT+Mz4O+LdRhxkB4L5nTi/uAIvy36aTZRmv8J38H98Lywl1DNY4UdT09OLcJaZBlkMJXfj28giaFnE5pYx1RON8+n3hot0yoJIvafSXb6V8oqnREmuUTjZW7PhNNXH2SQ8OU8LbHhNlEBsut42k=
+	t=1755142947; cv=none; b=OaNKR+4gIpRQwButXNTw2mG1tzwiByfgK+93n4jSodrZan8fdOK1VPMSqqYHh4ZJvUtVBOFVwgg7t+aW/ucJ1l6JcNPpBjwgK8uG2Ih+sjxIpcOUXa0b/Dwwu/P3z2dojijmSf5umAkd7fPD/zVpGuhnX4FSDIfQ8/8MOgYexQQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755142775; c=relaxed/simple;
-	bh=x6Q7Vq/NfbDomm1gHXNxmu18QiSPUEIujMhAlWFrHqg=;
+	s=arc-20240116; t=1755142947; c=relaxed/simple;
+	bh=GDOuQ8e7rvpZZLraol9f9m6nY0aGOhLFU9xUo6o3hB4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mNy/GxkXlOYQIM019rHR/GTWUIK57EKyoyU00AY6xsqGZg26bD+Bs8ZUP8G3xeoMLOI8XlMlJ43nrUVbTYzBfdpj1gsgd2DjTvkmvfOM00XBbCe2P5/4/uMGERfjQQFxl6FhfDK6jz23evIa4/XvQbVi/jVZIYx513+D4Et08xk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PRZIwEPD; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=Km+J9oi84bxlpzyS6aiJDarCkUnUpXv6AAi09g1JYWF5dxrVG63TXV5n2uuFoHbzfcxPbzgdbUr1h6hnAoh8CDFP2zy5Rw8ANP1lKa1x/tSt7sAz67ip8JalhHSYZtJiBuAYsmn9EmgYre5JJb0a1sDvJw5NidGK4MLm+lBoiKg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Tx+/0imr; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PRZIwEPD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tx+/0imr"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755142771;
+	s=mimecast20190719; t=1755142944;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=gQuleDNmdvlGKuIuPyfeFI5TZd8GYOMu99LGJeUVEf4=;
-	b=PRZIwEPDi2hAzSz6KoC4mPM7eLiy4vluElAsbs0Qc3ahaUxKOxhUN/Zv/A4p4Jf7fkZnPK
-	usPMKmbMB8iMVIuLqAp125sePOL8+FueituhxxQSHHbpYmVjh2/ySSav9dKSYuuWV7WNzl
-	lSXhe33c0qw3+pRLRzkkd+rXALLMVRU=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=w97hjv5i+uwmkU+KfwU9kkYWprz91mHI8ezeUK8Eabo=;
+	b=Tx+/0imr1MeWgCNe4M7QFzD4jQ2rJ8Fr0bt+HdPZrWKwOcAsmhL3wwRJAg1gM4W7fGV4jO
+	Dz3k+W85A3Qw5SO75jANwb7TWHI5WI3h09bQgtyyua5Y8FFwDJDVqaIYKqKplQGKJ9gXCY
+	mIsvd6hb1fCaxoipb67xfnPz6D9XgV8=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-178-FwkPxuvCM0GPmOGsYAYokA-1; Wed, 13 Aug 2025 23:39:30 -0400
-X-MC-Unique: FwkPxuvCM0GPmOGsYAYokA-1
-X-Mimecast-MFC-AGG-ID: FwkPxuvCM0GPmOGsYAYokA_1755142769
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-323266a1e87so528695a91.0
-        for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 20:39:30 -0700 (PDT)
+ us-mta-673-KVZvlfR_MfCMF3dzyWTjvw-1; Wed, 13 Aug 2025 23:42:21 -0400
+X-MC-Unique: KVZvlfR_MfCMF3dzyWTjvw-1
+X-Mimecast-MFC-AGG-ID: KVZvlfR_MfCMF3dzyWTjvw_1755142940
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-32326e6b1deso486979a91.3
+        for <virtualization@lists.linux.dev>; Wed, 13 Aug 2025 20:42:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755142769; x=1755747569;
+        d=1e100.net; s=20230601; t=1755142940; x=1755747740;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gQuleDNmdvlGKuIuPyfeFI5TZd8GYOMu99LGJeUVEf4=;
-        b=vsQ3hrPq6br0vq5RkFWPv9iPO31trwQWuuH3FcmWL6fQoSY/bWHe7PfISFOM8hylMf
-         EvESAWUIWmzY1v7JPyU9BIeIN3v0UeClcUS8MCJqVvENOK9fY3lfCb6YrLsozUnrlA5J
-         2TXaTPGICabPTusD5BJSSU9ZhfDbRFNMapS2YTlcjMHMMPwavfDOdo0W101+nzLJ6M9Y
-         WM7K/hth7TUlNKUThta2SyjWEjVVrl98o/+zRBdD6YzpkdDXicgMAikuVZlGuPK5V4YQ
-         UM1oA0dsPVpqxirca2iKZ/ZSh3EruQJiPMUhtmuip3WksbIxcTgvWvBqhCv9ZEAfD1Ku
-         /oTg==
-X-Forwarded-Encrypted: i=1; AJvYcCVnVV7MDACjj/svT2/26IsfDssHuXY/owQtGjZFe/LNssPa8ncO1fPtGHPOJn0f0yu3e/wzshMW3qzIdmbngg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx7BWZMsqpvVjSqy70VVvQBkwBQLPe5Nggs0mC2x4NPnWLPsf09
-	Krp4O2bk8b7BEl1o5WXazwTwdkPtLwdP/MwwEKvZCr5O5SQQ31JHbqVTNMTbdot/dCyZrD/lfti
-	SdUB8n4WUXYRew0ywAya6s+54jx0h9sz0b1btvCUWusOWRh3MmL7/ubXtcDBe0Sgf8QhHVZg4ls
-	EwJQ/Cng7bgAbha5QNKPLBqq/W3gLEzNEYNbgbAdUVPIY=
-X-Gm-Gg: ASbGncsjPMyraCssG1IS0veGRCRf+uRt50kAioKteWZ3HmY8CYMiflOHY4ZdK2MIDVK
-	kDEgI/QkNCyu1XxHN9kS7B/XSe8sQ36axUX5kzyml+8r18Bge06vKGkiZFpt+UrVaBIjHoGTrws
-	7cc+Wp0ABuN9xfH9tuSz9m4g==
-X-Received: by 2002:a17:90b:35cc:b0:311:c939:c851 with SMTP id 98e67ed59e1d1-32327a7c120mr2192031a91.4.1755142768964;
-        Wed, 13 Aug 2025 20:39:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH3aa0rxcdHjMe7mJb3s3Sb1/ChGGMarriGgqgya1C/yb2OhSrcwg3h1N0OCiIs7xYIG5paV3YKUIdNQ8HTCeE=
-X-Received: by 2002:a17:90b:35cc:b0:311:c939:c851 with SMTP id
- 98e67ed59e1d1-32327a7c120mr2191978a91.4.1755142768128; Wed, 13 Aug 2025
- 20:39:28 -0700 (PDT)
+        bh=w97hjv5i+uwmkU+KfwU9kkYWprz91mHI8ezeUK8Eabo=;
+        b=LoUb3B5AOnTNTSd9DxgfUshOA8CjuaGg2tZgg1fSqvrBvns6EwNG5soUU49TMNGL6K
+         eGH35AVCS4JX35IazTXjS26yP76taga0zRO/gLXfXJLiHzf384kk5GfN4FHwPAoI3ALT
+         JEA/Ap/47H4jfWf/ymdUSp37QrU9dmxYYREg9XYyJfnn7CILWpATod3vFuS9ABJjwHWP
+         uTP68Yn1gLcoT0y/GG224wszW9ttKVJV8/NkmShXN8ymcpvZzuUARzG/z2ciRvIR2cB/
+         kwHBeK6LexLDnXGqejAVXIu8Pc4TZgiii4Eu4C0Y+NYMRfl/kX93jqPaifK/d3s4W4bV
+         IN2w==
+X-Forwarded-Encrypted: i=1; AJvYcCV3SiEuIt1FI76OcoXQjw3WBbC2cgLXZUHWtF9Sqs2OWT5GsD1uOZSo6iASgTlyh3dQtzrrTiY5xkCtvIUtcg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzTC012beKB/BfBtbL6Y8zPIHvItKs/uwH5Ntj1RZL/kQWlz0Vw
+	5QmcKvHLR2ru2d5uEsCXtdsN33h3GbWsg4H3wPO3jSB3t0FI4nInGICpWQ1d2H5rUb2frlSoQxa
+	xxMWdz3nD7SmVHRQ79Dgl1vmx4chO+RwLDvPb6JnDoa/gfvhTSCNAf6I6SdydBYj5RC33z+jvJ6
+	fJHnm3rKMmzbm8i43fNynbMlkyKrnBgN/T5dyqH0gDQ5g=
+X-Gm-Gg: ASbGncuPQyJh1X0lCvWNP8YFKJ6rrTpFnf8vguIa933pM/FEFbNUlMajkY9DCx/Ab6G
+	kjMPu/iUU5vkmt2a1x7pTT4Xjwxj4hozdN3aF0+KIw5seE1TWUhxk6D9fqpnCuW0oBc+WQQGlAJ
+	5ASme9XJO9DoVq+bjhZ3NFwA==
+X-Received: by 2002:a17:90b:390f:b0:31e:ff94:3fba with SMTP id 98e67ed59e1d1-32327b58070mr2569935a91.24.1755142940029;
+        Wed, 13 Aug 2025 20:42:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFSvA6j4t0b5QEgBDxuYCwcd5Oei9P0Low20mXXvsuHEvsnzUysQd5NWOj+uF+Cn9ZIvD6ke761fuj+QMqLtN0=
+X-Received: by 2002:a17:90b:390f:b0:31e:ff94:3fba with SMTP id
+ 98e67ed59e1d1-32327b58070mr2569889a91.24.1755142939498; Wed, 13 Aug 2025
+ 20:42:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250813054831.25865-1-jasowang@redhat.com> <20250813054831.25865-5-jasowang@redhat.com>
- <20250813043151-mutt-send-email-mst@kernel.org> <CAJaqyWcPW+e5damPvgcmC_sjs7UoDk+pj-pVHAezaJQO4Ard0A@mail.gmail.com>
-In-Reply-To: <CAJaqyWcPW+e5damPvgcmC_sjs7UoDk+pj-pVHAezaJQO4Ard0A@mail.gmail.com>
+References: <20250807115752.1663383-1-eperezma@redhat.com> <20250807115752.1663383-3-eperezma@redhat.com>
+ <CACGkMEsMcnBnVPMWD7fxrnXzT+rsUppAxNkoSC4Zy=HiodOvZw@mail.gmail.com>
+ <CAJaqyWfDVioqnprsER2r3yCpgdK4cTO8cxEMndf+-HLUxQtSOA@mail.gmail.com>
+ <CACGkMEuZq2NaS9icynhrgZtXQ26fDFFpFrP3bUwDXLCR6uN4qw@mail.gmail.com> <CAJaqyWfB-nxpdtv+HRPB=7oc-MmquZ=7-mDqdVi42Mwf28CX7A@mail.gmail.com>
+In-Reply-To: <CAJaqyWfB-nxpdtv+HRPB=7oc-MmquZ=7-mDqdVi42Mwf28CX7A@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 14 Aug 2025 11:39:16 +0800
-X-Gm-Features: Ac12FXxbkBxEp6YqL6Qxa9zNp9VM2uGtM3BPd1VDHzG42iblnDg5VpA5seCB-uc
-Message-ID: <CACGkMEsVtEwLv5VZqJc_658PcY6NKhh6iqW2PGCY8e8FV50sMA@mail.gmail.com>
-Subject: Re: [PATCH V5 4/9] virtio: introduce vring_mapping_token
+Date: Thu, 14 Aug 2025 11:42:07 +0800
+X-Gm-Features: Ac12FXy1uiD6tKU5aMf7QAGhLniCOlqEn8-Wqgzk-g3rBHK3mItWz4VQoUaEPmY
+Message-ID: <CACGkMEuVngGjgPZXnajiPC+pcbt+dr6jqKRQr8OcX7HK1W3WNQ@mail.gmail.com>
+Subject: Re: [RFC v2 2/7] vduse: add vq group support
 To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, xuanzhuo@linux.alibaba.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	hch@infradead.org
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Yongji Xie <xieyongji@bytedance.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	virtualization@lists.linux.dev, Laurent Vivier <lvivier@redhat.com>, 
+	linux-kernel@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Maxime Coquelin <mcoqueli@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 4m0NaIk4weSRcQ4KVuvf4OMFpyWzW1HdGbn0DoEsFoU_1755142769
+X-Mimecast-MFC-PROC-ID: Le21b4fEEV7YFHaslZhdZRnDN0UeN8z8lrInmzZQz50_1755142940
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 13, 2025 at 5:14=E2=80=AFPM Eugenio Perez Martin
+On Wed, Aug 13, 2025 at 6:12=E2=80=AFPM Eugenio Perez Martin
 <eperezma@redhat.com> wrote:
 >
-> On Wed, Aug 13, 2025 at 10:55=E2=80=AFAM Michael S. Tsirkin <mst@redhat.c=
+> On Tue, Aug 12, 2025 at 5:01=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Mon, Aug 11, 2025 at 5:52=E2=80=AFPM Eugenio Perez Martin
+> > <eperezma@redhat.com> wrote:
+> > >
+> > > On Mon, Aug 11, 2025 at 5:10=E2=80=AFAM Jason Wang <jasowang@redhat.c=
 om> wrote:
+> > > >
+> > > > On Thu, Aug 7, 2025 at 7:58=E2=80=AFPM Eugenio P=C3=A9rez <eperezma=
+@redhat.com> wrote:
+> > > > >
+> > > > > This allows sepparate the different virtqueues in groups that sha=
+res the
+> > > > > same address space.  Asking the VDUSE device for the groups of th=
+e vq at
+> > > > > the beginning as they're needed for the DMA API.
+> > > > >
+> > > > > Allocating 3 vq groups as net is the device that need the most gr=
+oups:
+> > > > > * Dataplane (guest passthrough)
+> > > > > * CVQ
+> > > > > * Shadowed vrings.
+> > > > >
+> > > > > Future versions of the series can include dynamic allocation of t=
+he
+> > > > > groups array so VDUSE can declare more groups.
+> > > > >
+> > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > > ---
+> > > > > v2:
+> > > > > * Cache group information in kernel, as we need to provide the vq=
+ map
+> > > > >   tokens properly.
+> > > > > * Add descs vq group to optimize SVQ forwarding and support indir=
+ect
+> > > > >   descriptors out of the box.
+> > > > > ---
+> > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 71 ++++++++++++++++++++++++=
++++++-
+> > > > >  include/uapi/linux/vduse.h         | 19 +++++++-
+> > > > >  2 files changed, 88 insertions(+), 2 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vd=
+pa_user/vduse_dev.c
+> > > > > index d858c4389cc1..d1f6d00a9c71 100644
+> > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > @@ -46,6 +46,11 @@
+> > > > >  #define VDUSE_IOVA_SIZE (VDUSE_MAX_BOUNCE_SIZE + 128 * 1024 * 10=
+24)
+> > > > >  #define VDUSE_MSG_DEFAULT_TIMEOUT 30
+> > > > >
+> > > > > +/*
+> > > > > + * Let's make it 3 for simplicity.
+> > > > > + */
+> > > > > +#define VDUSE_MAX_VQ_GROUPS 3
+> > > >
+> > > > I think we can release this to something like 64. Otherwise we migh=
+t
+> > > > bump the version again just to increase the limitation? Or having a
+> > > > sysfs entry like bounce_size?
+> > > >
+> > >
+> > > I think it should not be linked to the version, but it is true there
+> > > is no way for VDUSE devices to check the maximum VQ groups / ASID tha=
+t
+> > > the kernel supports.
+> > >
+> > > To handle as bounce_size seems the best option, good point. I'll send
+> > > a new version with that!
+> > >
+> > > > > +
+> > > > >  #define IRQ_UNBOUND -1
+> > > > >
+> > > > >  struct vduse_virtqueue {
+> > > > > @@ -58,6 +63,8 @@ struct vduse_virtqueue {
+> > > > >         struct vdpa_vq_state state;
+> > > > >         bool ready;
+> > > > >         bool kicked;
+> > > > > +       u32 vq_group;
+> > > > > +       u32 vq_desc_group;
+> > > > >         spinlock_t kick_lock;
+> > > > >         spinlock_t irq_lock;
+> > > > >         struct eventfd_ctx *kickfd;
+> > > > > @@ -114,6 +121,7 @@ struct vduse_dev {
+> > > > >         u8 status;
+> > > > >         u32 vq_num;
+> > > > >         u32 vq_align;
+> > > > > +       u32 ngroups;
+> > > > >         struct vduse_umem *umem;
+> > > > >         struct mutex mem_lock;
+> > > > >         unsigned int bounce_size;
+> > > > > @@ -592,6 +600,20 @@ static int vduse_vdpa_set_vq_state(struct vd=
+pa_device *vdpa, u16 idx,
+> > > > >         return 0;
+> > > > >  }
+> > > > >
+> > > > > +static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 idx)
+> > > > > +{
+> > > > > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > > > +
+> > > > > +       return dev->vqs[idx]->vq_group;
+> > > > > +}
+> > > > > +
+> > > > > +static u32 vduse_get_vq_desc_group(struct vdpa_device *vdpa, u16=
+ idx)
+> > > > > +{
+> > > > > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > > > +
+> > > > > +       return dev->vqs[idx]->vq_desc_group;
+> > > > > +}
+> > > > > +
+> > > > >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16=
+ idx,
+> > > > >                                 struct vdpa_vq_state *state)
+> > > > >  {
+> > > > > @@ -678,13 +700,48 @@ static u8 vduse_vdpa_get_status(struct vdpa=
+_device *vdpa)
+> > > > >         return dev->status;
+> > > > >  }
+> > > > >
+> > > > > +static int vduse_fill_vq_groups(struct vduse_dev *dev)
+> > > > > +{
+> > > > > +       if (dev->api_version < VDUSE_API_VERSION_1)
+> > > > > +               return 0;
+> > > > > +
+> > > > > +       for (int i =3D 0; i < dev->vdev->vdpa.nvqs; ++i) {
+> > > > > +               struct vduse_dev_msg msg =3D { 0 };
+> > > > > +               int ret;
+> > > > > +
+> > > > > +               msg.req.type =3D VDUSE_GET_VQ_GROUP;
+> > > > > +               msg.req.vq_group.index =3D i;
+> > > > > +               ret =3D vduse_dev_msg_sync(dev, &msg);
+> > > >
+> > > > I fail to understand why the default group mapping is not done duri=
+ng
+> > > > device creation.
+> > > >
+> > >
+> > > Because it changes depending on the features.
+> > >
+> > > If a new device has 5 virtqueues and the device wants to isolate the
+> > > CVQ, the CVQ position depends on the features that the guest's acks:
+> > > * If MQ is acked the isolated vq is #5
+> > > * If MQ is not acked the isolated vq is #3.
 > >
-> > On Wed, Aug 13, 2025 at 01:48:26PM +0800, Jason Wang wrote:
-> > > Following patch will introduce the mapping operations for virtio
-> > > device. In order to achieve this, besides the dma device, virtio core
-> > > needs to support a transport or device specific mapping token as well=
-.
-> > > So this patch introduces a union container of a dma device and opaque
-> > > mapping token. The idea is the allow the transport layer to pass
-> > > device specific mapping token which will be used as a parameter for
-> > > the virtio mapping operations. For the transport or device that is
-> > > using DMA, dma device is still being used.
-> > >
-> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > ---
-> > >  drivers/virtio/virtio_ring.c | 110 ++++++++++++++++++---------------=
---
-> > >  drivers/virtio/virtio_vdpa.c |   6 +-
-> > >  include/linux/virtio.h       |   7 +++
-> > >  include/linux/virtio_ring.h  |   7 ++-
-> > >  4 files changed, 72 insertions(+), 58 deletions(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
-g.c
-> > > index 482a268af851..fb1d407d5f1b 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -210,8 +210,7 @@ struct vring_virtqueue {
-> > >       /* DMA, allocation, and size information */
-> > >       bool we_own_ring;
-> > >
-> > > -     /* Device used for doing DMA */
-> > > -     struct device *dma_dev;
-> > > +     union vring_mapping_token mapping_token;
-> > >
-> > >  #ifdef DEBUG
-> > >       /* They're supposed to lock for us. */
-> > > @@ -307,10 +306,10 @@ EXPORT_SYMBOL_GPL(virtio_max_dma_size);
-> > >
-> > >  static void *vring_alloc_queue(struct virtio_device *vdev, size_t si=
-ze,
-> > >                              dma_addr_t *dma_handle, gfp_t flag,
-> > > -                            struct device *dma_dev)
-> > > +                            union vring_mapping_token *mapping_token=
-)
+> > I see we are still damaged by the design of the cvq index. But this is
+> > just a static branch not a dynamic one. If we can find ways to make it
+> > static it would be better.
 > >
-> > Why are you passing it by pointer? It's just an 8 bit value, pass it
-> > as is.
+> > >
+> > > > > +               if (ret)
+> > > > > +                       return ret;
+> > > > > +
+> > > > > +               dev->vqs[i]->vq_group =3D msg.resp.vq_group.num;
+> > > > > +
+> > > > > +               msg.req.type =3D VDUSE_GET_VRING_DESC_GROUP;
+> > > > > +               ret =3D vduse_dev_msg_sync(dev, &msg);
+> > > > > +               if (ret)
+> > > > > +                       return ret;
+> > > > > +
+> > > > > +               dev->vqs[i]->vq_desc_group =3D msg.resp.vq_group.=
+num;
+> > > > > +       }
+> > > > > +
+> > > > > +       return 0;
+> > > > > +}
+> > > > > +
+> > > > >  static void vduse_vdpa_set_status(struct vdpa_device *vdpa, u8 s=
+tatus)
+> > > > >  {
+> > > > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > > > +       u8 previous_status =3D dev->status;
+> > > > >
+> > > > >         if (vduse_dev_set_status(dev, status))
+> > > > >                 return;
+> > > > >
+> > > > > +       if ((dev->status ^ previous_status) &
+> > > > > +            BIT_ULL(VIRTIO_CONFIG_S_FEATURES_OK) &&
+> > > > > +           status & (1ULL << VIRTIO_CONFIG_S_FEATURES_OK))
+> > > > > +               if (vduse_fill_vq_groups(dev))
+> > > >
+> > > > Can we merge the two messages into a single one? Or can we use a
+> > > > shared memory for storing such mapping?
+> > > >
+> > > > For example, if we have 256 queues it would be very slow.
+> > > >
+> > >
+> > > To merge it in the same message is good to me, sure.
 > >
-> >
-> > >  {
-> > >       if (vring_use_map_api(vdev)) {
-> > > -             return dma_alloc_coherent(dma_dev, size,
-> > > +             return dma_alloc_coherent(mapping_token->dma_dev, size,
-> > >                                         dma_handle, flag);
-> > >       } else {
-> > >               void *queue =3D alloc_pages_exact(PAGE_ALIGN(size), fla=
-g);
-> > > @@ -341,22 +340,22 @@ static void *vring_alloc_queue(struct virtio_de=
-vice *vdev, size_t size,
-> > >
-> > >  static void vring_free_queue(struct virtio_device *vdev, size_t size=
-,
-> > >                            void *queue, dma_addr_t dma_handle,
-> > > -                          struct device *dma_dev)
-> > > +                          union vring_mapping_token *mapping_token)
-> > >  {
-> > >       if (vring_use_map_api(vdev))
-> > > -             dma_free_coherent(dma_dev, size, queue, dma_handle);
-> > > +             dma_free_coherent(mapping_token->dma_dev, size, queue, =
-dma_handle);
-> > >       else
-> > >               free_pages_exact(queue, PAGE_ALIGN(size));
-> > >  }
-> > >
-> > >  /*
-> > > - * The DMA ops on various arches are rather gnarly right now, and
-> > > - * making all of the arch DMA ops work on the vring device itself
-> > > + * The map ops on various arches are rather gnarly right now, and
-> >
-> >
-> > how does this make sense?
-> >
-> > > + * making all of the arch map ops work on the vring device itself
-> > >   * is a mess.
-> > >   */
-> > >  static struct device *vring_dma_dev(const struct vring_virtqueue *vq=
-)
-> > >  {
-> > > -     return vq->dma_dev;
-> > > +     return vq->mapping_token.dma_dev;
-> > >  }
-> > >
-> > >  /* Map one sg entry. */
-> > > @@ -1056,12 +1055,13 @@ static int vring_alloc_state_extra_split(stru=
-ct vring_virtqueue_split *vring_spl
-> > >  }
-> > >
-> > >  static void vring_free_split(struct vring_virtqueue_split *vring_spl=
-it,
-> > > -                          struct virtio_device *vdev, struct device =
-*dma_dev)
-> > > +                          struct virtio_device *vdev,
-> > > +                          union vring_mapping_token *mapping_token)
-> > >  {
-> > >       vring_free_queue(vdev, vring_split->queue_size_in_bytes,
-> > >                        vring_split->vring.desc,
-> > >                        vring_split->queue_dma_addr,
-> > > -                      dma_dev);
-> > > +                      mapping_token);
-> > >
-> > >       kfree(vring_split->desc_state);
-> > >       kfree(vring_split->desc_extra);
-> > > @@ -1072,7 +1072,7 @@ static int vring_alloc_queue_split(struct vring=
-_virtqueue_split *vring_split,
-> > >                                  u32 num,
-> > >                                  unsigned int vring_align,
-> > >                                  bool may_reduce_num,
-> > > -                                struct device *dma_dev)
-> > > +                                union vring_mapping_token *mapping_t=
-oken)
-> > >  {
-> > >       void *queue =3D NULL;
-> > >       dma_addr_t dma_addr;
-> > > @@ -1088,7 +1088,7 @@ static int vring_alloc_queue_split(struct vring=
-_virtqueue_split *vring_split,
-> > >               queue =3D vring_alloc_queue(vdev, vring_size(num, vring=
-_align),
-> > >                                         &dma_addr,
-> > >                                         GFP_KERNEL | __GFP_NOWARN | _=
-_GFP_ZERO,
-> > > -                                       dma_dev);
-> > > +                                       mapping_token);
-> > >               if (queue)
-> > >                       break;
-> > >               if (!may_reduce_num)
-> > > @@ -1102,7 +1102,7 @@ static int vring_alloc_queue_split(struct vring=
-_virtqueue_split *vring_split,
-> > >               /* Try to get a single page. You are my only hope! */
-> > >               queue =3D vring_alloc_queue(vdev, vring_size(num, vring=
-_align),
-> > >                                         &dma_addr, GFP_KERNEL | __GFP=
-_ZERO,
-> > > -                                       dma_dev);
-> > > +                                       mapping_token);
-> > >       }
-> > >       if (!queue)
-> > >               return -ENOMEM;
-> > > @@ -1126,7 +1126,7 @@ static struct virtqueue *__vring_new_virtqueue_=
-split(unsigned int index,
-> > >                                              bool (*notify)(struct vi=
-rtqueue *),
-> > >                                              void (*callback)(struct =
-virtqueue *),
-> > >                                              const char *name,
-> > > -                                            struct device *dma_dev)
-> > > +                                            union vring_mapping_toke=
-n *mapping_token)
-> > >  {
-> > >       struct vring_virtqueue *vq;
-> > >       int err;
-> > > @@ -1149,7 +1149,7 @@ static struct virtqueue *__vring_new_virtqueue_=
-split(unsigned int index,
-> > >  #else
-> > >       vq->broken =3D false;
-> > >  #endif
-> > > -     vq->dma_dev =3D dma_dev;
-> > > +     vq->mapping_token =3D *mapping_token;
-> > >       vq->use_map_api =3D vring_use_map_api(vdev);
-> > >
-> > >       vq->indirect =3D virtio_has_feature(vdev, VIRTIO_RING_F_INDIREC=
-T_DESC) &&
-> > > @@ -1187,21 +1187,21 @@ static struct virtqueue *vring_create_virtque=
-ue_split(
-> > >       bool (*notify)(struct virtqueue *),
-> > >       void (*callback)(struct virtqueue *),
-> > >       const char *name,
-> > > -     struct device *dma_dev)
-> > > +     union vring_mapping_token *mapping_token)
-> > >  {
-> > >       struct vring_virtqueue_split vring_split =3D {};
-> > >       struct virtqueue *vq;
-> > >       int err;
-> > >
-> > >       err =3D vring_alloc_queue_split(&vring_split, vdev, num, vring_=
-align,
-> > > -                                   may_reduce_num, dma_dev);
-> > > +                                   may_reduce_num, mapping_token);
-> > >       if (err)
-> > >               return NULL;
-> > >
-> > >       vq =3D __vring_new_virtqueue_split(index, &vring_split, vdev, w=
-eak_barriers,
-> > > -                                context, notify, callback, name, dma=
-_dev);
-> > > +                                context, notify, callback, name, map=
-ping_token);
-> > >       if (!vq) {
-> > > -             vring_free_split(&vring_split, vdev, dma_dev);
-> > > +             vring_free_split(&vring_split, vdev, mapping_token);
-> > >               return NULL;
-> > >       }
-> > >
-> > > @@ -1220,7 +1220,7 @@ static int virtqueue_resize_split(struct virtqu=
-eue *_vq, u32 num)
-> > >       err =3D vring_alloc_queue_split(&vring_split, vdev, num,
-> > >                                     vq->split.vring_align,
-> > >                                     vq->split.may_reduce_num,
-> > > -                                   vring_dma_dev(vq));
-> > > +                                   &vq->mapping_token);
-> > >       if (err)
-> > >               goto err;
-> > >
-> > > @@ -1238,7 +1238,7 @@ static int virtqueue_resize_split(struct virtqu=
-eue *_vq, u32 num)
-> > >       return 0;
-> > >
-> > >  err_state_extra:
-> > > -     vring_free_split(&vring_split, vdev, vring_dma_dev(vq));
-> > > +     vring_free_split(&vring_split, vdev, &vq->mapping_token);
-> > >  err:
-> > >       virtqueue_reinit_split(vq);
-> > >       return -ENOMEM;
-> > > @@ -1947,25 +1947,25 @@ static struct vring_desc_extra *vring_alloc_d=
-esc_extra(unsigned int num)
-> > >
-> > >  static void vring_free_packed(struct vring_virtqueue_packed *vring_p=
-acked,
-> > >                             struct virtio_device *vdev,
-> > > -                           struct device *dma_dev)
-> > > +                           union vring_mapping_token *mapping_token)
-> > >  {
-> > >       if (vring_packed->vring.desc)
-> > >               vring_free_queue(vdev, vring_packed->ring_size_in_bytes=
-,
-> > >                                vring_packed->vring.desc,
-> > >                                vring_packed->ring_dma_addr,
-> > > -                              dma_dev);
-> > > +                              mapping_token);
-> > >
-> > >       if (vring_packed->vring.driver)
-> > >               vring_free_queue(vdev, vring_packed->event_size_in_byte=
-s,
-> > >                                vring_packed->vring.driver,
-> > >                                vring_packed->driver_event_dma_addr,
-> > > -                              dma_dev);
-> > > +                              mapping_token);
-> > >
-> > >       if (vring_packed->vring.device)
-> > >               vring_free_queue(vdev, vring_packed->event_size_in_byte=
-s,
-> > >                                vring_packed->vring.device,
-> > >                                vring_packed->device_event_dma_addr,
-> > > -                              dma_dev);
-> > > +                              mapping_token);
-> > >
-> > >       kfree(vring_packed->desc_state);
-> > >       kfree(vring_packed->desc_extra);
-> > > @@ -1973,7 +1973,7 @@ static void vring_free_packed(struct vring_virt=
-queue_packed *vring_packed,
-> > >
-> > >  static int vring_alloc_queue_packed(struct vring_virtqueue_packed *v=
-ring_packed,
-> > >                                   struct virtio_device *vdev,
-> > > -                                 u32 num, struct device *dma_dev)
-> > > +                                 u32 num, union vring_mapping_token =
-*mapping_token)
-> > >  {
-> > >       struct vring_packed_desc *ring;
-> > >       struct vring_packed_desc_event *driver, *device;
-> > > @@ -1985,7 +1985,7 @@ static int vring_alloc_queue_packed(struct vrin=
-g_virtqueue_packed *vring_packed,
-> > >       ring =3D vring_alloc_queue(vdev, ring_size_in_bytes,
-> > >                                &ring_dma_addr,
-> > >                                GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO=
-,
-> > > -                              dma_dev);
-> > > +                              mapping_token);
-> > >       if (!ring)
-> > >               goto err;
-> > >
-> > > @@ -1998,7 +1998,7 @@ static int vring_alloc_queue_packed(struct vrin=
-g_virtqueue_packed *vring_packed,
-> > >       driver =3D vring_alloc_queue(vdev, event_size_in_bytes,
-> > >                                  &driver_event_dma_addr,
-> > >                                  GFP_KERNEL | __GFP_NOWARN | __GFP_ZE=
-RO,
-> > > -                                dma_dev);
-> > > +                                mapping_token);
-> > >       if (!driver)
-> > >               goto err;
-> > >
-> > > @@ -2009,7 +2009,7 @@ static int vring_alloc_queue_packed(struct vrin=
-g_virtqueue_packed *vring_packed,
-> > >       device =3D vring_alloc_queue(vdev, event_size_in_bytes,
-> > >                                  &device_event_dma_addr,
-> > >                                  GFP_KERNEL | __GFP_NOWARN | __GFP_ZE=
-RO,
-> > > -                                dma_dev);
-> > > +                                mapping_token);
-> > >       if (!device)
-> > >               goto err;
-> > >
-> > > @@ -2021,7 +2021,7 @@ static int vring_alloc_queue_packed(struct vrin=
-g_virtqueue_packed *vring_packed,
-> > >       return 0;
-> > >
-> > >  err:
-> > > -     vring_free_packed(vring_packed, vdev, dma_dev);
-> > > +     vring_free_packed(vring_packed, vdev, mapping_token);
-> > >       return -ENOMEM;
-> > >  }
-> > >
-> > > @@ -2097,7 +2097,7 @@ static struct virtqueue *__vring_new_virtqueue_=
-packed(unsigned int index,
-> > >                                              bool (*notify)(struct vi=
-rtqueue *),
-> > >                                              void (*callback)(struct =
-virtqueue *),
-> > >                                              const char *name,
-> > > -                                            struct device *dma_dev)
-> > > +                                            union vring_mapping_toke=
-n *mapping_token)
-> > >  {
-> > >       struct vring_virtqueue *vq;
-> > >       int err;
-> > > @@ -2120,7 +2120,7 @@ static struct virtqueue *__vring_new_virtqueue_=
-packed(unsigned int index,
-> > >       vq->broken =3D false;
-> > >  #endif
-> > >       vq->packed_ring =3D true;
-> > > -     vq->dma_dev =3D dma_dev;
-> > > +     vq->mapping_token =3D *mapping_token;
-> > >       vq->use_map_api =3D vring_use_map_api(vdev);
-> > >
-> > >       vq->indirect =3D virtio_has_feature(vdev, VIRTIO_RING_F_INDIREC=
-T_DESC) &&
-> > > @@ -2158,18 +2158,18 @@ static struct virtqueue *vring_create_virtque=
-ue_packed(
-> > >       bool (*notify)(struct virtqueue *),
-> > >       void (*callback)(struct virtqueue *),
-> > >       const char *name,
-> > > -     struct device *dma_dev)
-> > > +     union vring_mapping_token *mapping_token)
-> > >  {
-> > >       struct vring_virtqueue_packed vring_packed =3D {};
-> > >       struct virtqueue *vq;
-> > >
-> > > -     if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev)=
-)
-> > > +     if (vring_alloc_queue_packed(&vring_packed, vdev, num, mapping_=
-token))
-> > >               return NULL;
-> > >
-> > >       vq =3D __vring_new_virtqueue_packed(index, &vring_packed, vdev,=
- weak_barriers,
-> > > -                                     context, notify, callback, name=
-, dma_dev);
-> > > +                                     context, notify, callback, name=
-, mapping_token);
-> > >       if (!vq) {
-> > > -             vring_free_packed(&vring_packed, vdev, dma_dev);
-> > > +             vring_free_packed(&vring_packed, vdev, mapping_token);
-> > >               return NULL;
-> > >       }
-> > >
-> > > @@ -2185,7 +2185,8 @@ static int virtqueue_resize_packed(struct virtq=
-ueue *_vq, u32 num)
-> > >       struct virtio_device *vdev =3D _vq->vdev;
-> > >       int err;
-> > >
-> > > -     if (vring_alloc_queue_packed(&vring_packed, vdev, num, vring_dm=
-a_dev(vq)))
-> > > +     if (vring_alloc_queue_packed(&vring_packed, vdev,
-> > > +                                  num, &vq->mapping_token))
-> > >               goto err_ring;
-> > >
-> > >       err =3D vring_alloc_state_extra_packed(&vring_packed);
-> > > @@ -2202,7 +2203,7 @@ static int virtqueue_resize_packed(struct virtq=
-ueue *_vq, u32 num)
-> > >       return 0;
-> > >
-> > >  err_state_extra:
-> > > -     vring_free_packed(&vring_packed, vdev, vring_dma_dev(vq));
-> > > +     vring_free_packed(&vring_packed, vdev, &vq->mapping_token);
-> > >  err_ring:
-> > >       virtqueue_reinit_packed(vq);
-> > >       return -ENOMEM;
-> > > @@ -2423,6 +2424,7 @@ int virtqueue_add_inbuf_premapped(struct virtqu=
-eue *vq,
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_premapped);
-> > >
-> > > +
-> > >  /**
-> > >   * virtqueue_dma_dev - get the dma dev
-> > >   * @_vq: the struct virtqueue we're talking about.
-> >
-> >
-> > and this?
-> >
-> > > @@ -2434,7 +2436,7 @@ struct device *virtqueue_dma_dev(struct virtque=
-ue *_vq)
-> > >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > >
-> > >       if (vq->use_map_api)
-> > > -             return vring_dma_dev(vq);
-> > > +             return vq->mapping_token.dma_dev;
-> > >       else
-> > >               return NULL;
-> > >  }
-> > > @@ -2719,19 +2721,20 @@ struct virtqueue *vring_create_virtqueue(
-> > >       void (*callback)(struct virtqueue *),
-> > >       const char *name)
-> > >  {
-> > > +     union vring_mapping_token mapping_token =3D {.dma_dev =3D vdev-=
->dev.parent};
-> > >
-> > >       if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
-> > >               return vring_create_virtqueue_packed(index, num, vring_=
-align,
-> > >                               vdev, weak_barriers, may_reduce_num,
-> > > -                             context, notify, callback, name, vdev->=
-dev.parent);
-> > > +                             context, notify, callback, name, &mappi=
-ng_token);
-> > >
-> > >       return vring_create_virtqueue_split(index, num, vring_align,
-> > >                       vdev, weak_barriers, may_reduce_num,
-> > > -                     context, notify, callback, name, vdev->dev.pare=
-nt);
-> > > +                     context, notify, callback, name, &mapping_token=
-);
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(vring_create_virtqueue);
-> > >
-> > > -struct virtqueue *vring_create_virtqueue_dma(
-> > > +struct virtqueue *vring_create_virtqueue_map(
-> > >       unsigned int index,
-> > >       unsigned int num,
-> > >       unsigned int vring_align,
-> > > @@ -2742,19 +2745,19 @@ struct virtqueue *vring_create_virtqueue_dma(
-> > >       bool (*notify)(struct virtqueue *),
-> > >       void (*callback)(struct virtqueue *),
-> > >       const char *name,
-> > > -     struct device *dma_dev)
-> > > +     union vring_mapping_token *mapping_token)
-> > >  {
-> > >
-> > >       if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
-> > >               return vring_create_virtqueue_packed(index, num, vring_=
-align,
-> > >                               vdev, weak_barriers, may_reduce_num,
-> > > -                             context, notify, callback, name, dma_de=
-v);
-> > > +                             context, notify, callback, name, mappin=
-g_token);
-> > >
-> > >       return vring_create_virtqueue_split(index, num, vring_align,
-> > >                       vdev, weak_barriers, may_reduce_num,
-> > > -                     context, notify, callback, name, dma_dev);
-> > > +                     context, notify, callback, name, mapping_token)=
-;
-> > >  }
-> > > -EXPORT_SYMBOL_GPL(vring_create_virtqueue_dma);
-> > > +EXPORT_SYMBOL_GPL(vring_create_virtqueue_map);
-> > >
-> > >  /**
-> > >   * virtqueue_resize - resize the vring of vq
-> > > @@ -2865,6 +2868,7 @@ struct virtqueue *vring_new_virtqueue(unsigned =
-int index,
-> > >                                     const char *name)
-> > >  {
-> > >       struct vring_virtqueue_split vring_split =3D {};
-> > > +     union vring_mapping_token mapping_token =3D {.dma_dev =3D vdev-=
->dev.parent};
-> > >
-> > >       if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED)) {
-> > >               struct vring_virtqueue_packed vring_packed =3D {};
-> > > @@ -2874,13 +2878,13 @@ struct virtqueue *vring_new_virtqueue(unsigne=
-d int index,
-> > >               return __vring_new_virtqueue_packed(index, &vring_packe=
-d,
-> > >                                                   vdev, weak_barriers=
-,
-> > >                                                   context, notify, ca=
-llback,
-> > > -                                                 name, vdev->dev.par=
-ent);
-> > > +                                                 name, &mapping_toke=
-n);
-> > >       }
-> > >
-> > >       vring_init(&vring_split.vring, num, pages, vring_align);
-> > >       return __vring_new_virtqueue_split(index, &vring_split, vdev, w=
-eak_barriers,
-> > >                                    context, notify, callback, name,
-> > > -                                  vdev->dev.parent);
-> > > +                                  &mapping_token);
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(vring_new_virtqueue);
-> > >
-> > > @@ -2894,19 +2898,19 @@ static void vring_free(struct virtqueue *_vq)
-> > >                                        vq->packed.ring_size_in_bytes,
-> > >                                        vq->packed.vring.desc,
-> > >                                        vq->packed.ring_dma_addr,
-> > > -                                      vring_dma_dev(vq));
-> > > +                                      &vq->mapping_token);
-> > >
-> > >                       vring_free_queue(vq->vq.vdev,
-> > >                                        vq->packed.event_size_in_bytes=
-,
-> > >                                        vq->packed.vring.driver,
-> > >                                        vq->packed.driver_event_dma_ad=
-dr,
-> > > -                                      vring_dma_dev(vq));
-> > > +                                      &vq->mapping_token);
-> > >
-> > >                       vring_free_queue(vq->vq.vdev,
-> > >                                        vq->packed.event_size_in_bytes=
-,
-> > >                                        vq->packed.vring.device,
-> > >                                        vq->packed.device_event_dma_ad=
-dr,
-> > > -                                      vring_dma_dev(vq));
-> > > +                                      &vq->mapping_token);
-> > >
-> > >                       kfree(vq->packed.desc_state);
-> > >                       kfree(vq->packed.desc_extra);
-> > > @@ -2915,7 +2919,7 @@ static void vring_free(struct virtqueue *_vq)
-> > >                                        vq->split.queue_size_in_bytes,
-> > >                                        vq->split.vring.desc,
-> > >                                        vq->split.queue_dma_addr,
-> > > -                                      vring_dma_dev(vq));
-> > > +                                      &vq->mapping_token);
-> > >               }
-> > >       }
-> > >       if (!vq->packed_ring) {
-> > > diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdp=
-a.c
-> > > index e25610e3393a..acea98ab08ee 100644
-> > > --- a/drivers/virtio/virtio_vdpa.c
-> > > +++ b/drivers/virtio/virtio_vdpa.c
-> > > @@ -139,6 +139,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, =
-unsigned int index,
-> > >       struct vdpa_callback cb;
-> > >       struct virtqueue *vq;
-> > >       u64 desc_addr, driver_addr, device_addr;
-> > > +     union vring_mapping_token mapping_token =3D {0};
-> > >       /* Assume split virtqueue, switch to packed if necessary */
-> > >       struct vdpa_vq_state state =3D {0};
-> > >       u32 align, max_num, min_num =3D 1;
-> > > @@ -185,9 +186,10 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev,=
- unsigned int index,
-> > >               dma_dev =3D ops->get_vq_dma_dev(vdpa, index);
-> > >       else
-> > >               dma_dev =3D vdpa_get_dma_dev(vdpa);
-> > > -     vq =3D vring_create_virtqueue_dma(index, max_num, align, vdev,
-> > > +     mapping_token.dma_dev =3D dma_dev;
-> > > +     vq =3D vring_create_virtqueue_map(index, max_num, align, vdev,
-> > >                                       true, may_reduce_num, ctx,
-> > > -                                     notify, callback, name, dma_dev=
-);
-> > > +                                     notify, callback, name, &mappin=
-g_token);
-> > >       if (!vq) {
-> > >               err =3D -ENOMEM;
-> > >               goto error_new_virtqueue;
-> > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > > index addbc209275a..37029df94aaf 100644
-> > > --- a/include/linux/virtio.h
-> > > +++ b/include/linux/virtio.h
-> > > @@ -40,6 +40,13 @@ struct virtqueue {
-> > >       void *priv;
-> > >  };
-> > >
-> > > +union vring_mapping_token {
-> > > +     /* Device that performs DMA */
-> > > +     struct device *dma_dev;
-> > > +     /* Transport specific token used for doing map */
-> > > +     void *opaque;
-> >
-> > Please just declare whatever structure you want it to be.
+> > We can start from this if we can't find a way to provision vq to group
+> > mapping during device creation.
 > >
 >
-> The type would be backend-specific in the future. HW vdpa will not
-> have the same type here as VDUSE, and they contain backend-specific
-> information.
-
-Yes.
-
+> Note that I don't think it is worth implementing these in this series,
+> but to add them on top in another one. Because I don't think we will
+> find devices with a lot of virtqueues for now. But here are some ideas
+> to mitigate the startup time cost:
 >
-> If we want to be 100% type safe we could declare an empty or small
-> struct and make the backend "inherit" (as "make the empty struct a
-> member of the backend struct") at the backend so we can cast them with
-> container_of or similar. Would that work?
+> 1) Support more than one virtqueue in the same vduse request / reply
+> Something like:
+> vduse_dev_response{
+>   u32 req_id;
+>   u32 result;
+>   union {
+>     ...
+>     struct vduse_vq_group {
+>       u32 num_vqs_requested;
+>       struct {
+>         u32 vq_idx;
+>         u32 vq_group;
+>       } vqs[15];
+>     }
+>     u32 padding[32];
+>   }
+> }
+>
+> Choosing 15 to fill the current size of vduse_dev_response struct.
+>
+> 2) Pointer chasing in the struct written
+>
+> Same as previous, but the vqs struct is actually a pointer in
+> userspace. This way it can be arbitrarily big.
+>
+> vduse_dev_response{
+>   u32 req_id;
+>   u32 result;
+>   union {
+>     ...
+>     struct vduse_vq_group {
+>       u32 num_vqs_requested;
+>       struct {
+>         u32 vq_idx;
+>         u32 vq_group;
+>       } *vqs;
+>     }
+>     u32 padding[32];
+>   }
+> }
+>
+> I cannot locate any use of this in write() data, but it is more or
+> less common in ioctl.
+>
+> 3) Allow VQ_GROUP_BATCH_BEGIN and _END, similar to how memory map
+> works in vhost_vdpa. As many vq_group response as needed in between.
+>
+> +) Assume that any vq not mentioned in the reply is vq group 0.
 
-I'm fine with this but I don't see an obvious difference.
+Or make VDUSE io_uring compatible.  (Anyhow it looks like another topic).
+
+I'm fine if Michael and others are fine with starting with merging the
+message. It's worth trying to reduce the userspace/kernel interaction
+as much as possible.
 
 Thanks
+
+>
+>
+> > > To make it a
+> > > table in shm seems more complicated, unless we accept a void * in the
+> > > reply and VDUSE uses copy_from_user. If that is ok here, then sure.
+> > >
+> >
+> > This looks tricky indeed.
+> >
+> > Thanks
+> >
+>
 
