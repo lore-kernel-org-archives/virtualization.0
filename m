@@ -1,61 +1,87 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F240463B9;
-	Thu, 14 Aug 2025 00:23:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35F5818B12
+	for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 02:36:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755130989; cv=none; b=W4T1o3kbdIp32Axp7aqsVy7dL8XJeq/o366eigq+7ScKS1KUALBfLTlPW/DuzHQ8tlkfkgZZ16AbR+C3BOpFac00vcDwBH8RXeY9xkeIdA9GPQPisecUuNKF2fqzSvjptagynvt34AKS/6UDDFnOv0aA+aCmqdfYWozVquoHetI=
+	t=1755139012; cv=none; b=TXoh3jWb0lAU9hYapNWXZtxNjOg3fb7mR16rE+u4lly+8n3rPlR3Hl2ztdlNyBHIeSWcABsjQrjoBSedmmEOABcaADBM3PwRwhZ1sU0CyCp+62+mX5kD6lT0J4HUEEgv0dIQre0z8fbE/DwXJXovi5vonghdcyNXIq2yt8eQTI8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755130989; c=relaxed/simple;
-	bh=NOYIe5fIq0ZW0wP4ciZ05r1N3+F+Cu1olPCew4z+46M=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BXN8iDUPLBpQl7IqpRICckRKo3+KDNbmN87/U3rszi0Vbv3P4viMId0EhMEuDNeKYgHCuWTJB6PeRrrL4vs7BdCpFENo0hWfMogw5ps1LewBwNBttpzyIHS1nykmgCGrLR15BbB+qfjJGYH4rhLAXhDFAQq08hXtTNjwRI4FFKQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bWwXvqJd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755139012; c=relaxed/simple;
+	bh=ZUKjgyy0btOB0JEvG/0aTzv8AXdnUlUTp8QHtmFnrh8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
+	 Content-Type:References; b=HWIgSTV01yyX+cBRAWdpxfdOtqc0VfD8R2BmcOdUG1cDwLgFY24YezELLKFmXCO10EwdPSkeqB5gzU/HN0qM6zJz5Gq+XevNdMqIfTBCP5atma07OffqDLmtMnv9+2P/dfPpsSvqtK8Gk78zGvH9xJAURkg1BBDvodeDp4C/9jQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=bnSyl4Qa; arc=none smtp.client-ip=203.254.224.24
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bWwXvqJd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2978CC4CEEB;
-	Thu, 14 Aug 2025 00:23:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755130988;
-	bh=NOYIe5fIq0ZW0wP4ciZ05r1N3+F+Cu1olPCew4z+46M=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=bWwXvqJdW4O7UxRN/w7HR6j8jAxZJx0K4lOciF1ilBZScH6GoHhLOnrMiNWCzwQ0c
-	 qYCb7a48kA67DJ9Rv95JlXfXAPwPY80HFFgUE22/+v12hiMIT03ldrOaXx05E3FNDe
-	 uAvdrkx3eNqhVt+W8Ba6hYSE69YcmW2jZ7jeHf5RfxacZPUzqTCcLULXY0mLbCPHfM
-	 pFJyzYHpDM0tSHkF1sYA2ny0BgaxTcKzsvBGF5DVbc6OxCx1Wx0zpoUuJP4STAoIcq
-	 EKPYeo5MAfPWk2E33CRJ9alRaHDHUS6SE6IE1XY/a81woOjbRJ0kOusggoZfSmXIop
-	 kMfNMO833CKUQ==
-Date: Wed, 13 Aug 2025 17:23:07 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Junnan Wu <junnan01.wu@samsung.com>
-Cc: mst@redhat.com, jasowang@redhat.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, ying123.xu@samsung.com,
- lei19.wang@samsung.com, q1.huang@samsung.com
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="bnSyl4Qa"
+Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
+	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20250814023648epoutp01e790f7998849e8ba8ce9ea4aa5b6201d~bgaDxoaYw1861818618epoutp01k
+	for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 02:36:48 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20250814023648epoutp01e790f7998849e8ba8ce9ea4aa5b6201d~bgaDxoaYw1861818618epoutp01k
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1755139008;
+	bh=44C6bRh5qYy8AvG4h59yKMY2QM+osiZPYVbTKoGgO1w=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=bnSyl4Qa/Y76HjejSdeSYBIe4L4fSvARz1y8n8E7hPXWemNczkWITFanmz8fSGxgu
+	 2H8VE5Ydyf6v/SLGvhA3eSwkID9KKZQXgoyiOXl2cmp9m5PtYqL5+3zXeW0weIHrhi
+	 BJ7LtgnvTcZgDf5BuorAk34+3WNtAIlO6VTF9uhU=
+Received: from epsnrtp02.localdomain (unknown [182.195.42.154]) by
+	epcas5p4.samsung.com (KnoxPortal) with ESMTPS id
+	20250814023647epcas5p4df13272ea95eaa15c0573df6d09bb9fd~bgaC_jSqy0260502605epcas5p4m;
+	Thu, 14 Aug 2025 02:36:47 +0000 (GMT)
+Received: from epcas5p2.samsung.com (unknown [182.195.38.92]) by
+	epsnrtp02.localdomain (Postfix) with ESMTP id 4c2TsB1D4Rz2SSKf; Thu, 14 Aug
+	2025 02:36:46 +0000 (GMT)
+Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
+	epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
+	20250814023554epcas5p4b3dcab50835e2da4749be1be135def20~bgZR_ftYe2756427564epcas5p4K;
+	Thu, 14 Aug 2025 02:35:54 +0000 (GMT)
+Received: from asg29.. (unknown [109.105.129.29]) by epsmtip1.samsung.com
+	(KnoxPortal) with ESMTPA id
+	20250814023552epsmtip1d326f6f872887b30b03960a9a0fb04b2~bgZQVvLG62143121431epsmtip1n;
+	Thu, 14 Aug 2025 02:35:52 +0000 (GMT)
+From: Junnan Wu <junnan01.wu@samsung.com>
+To: kuba@kernel.org
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	eperezma@redhat.com, jasowang@redhat.com, junnan01.wu@samsung.com,
+	lei19.wang@samsung.com, linux-kernel@vger.kernel.org, mst@redhat.com,
+	netdev@vger.kernel.org, pabeni@redhat.com, q1.huang@samsung.com,
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
+	ying123.xu@samsung.com
 Subject: Re: [PATCH net] virtio_net: adjust the execution order of function
  `virtnet_close` during freeze
-Message-ID: <20250813172307.7d5603e0@kernel.org>
-In-Reply-To: <20250812090817.3463403-1-junnan01.wu@samsung.com>
-References: <CGME20250812090805epcas5p25ba25ca1c5c68bbdf9df27d95ccae4f5@epcas5p2.samsung.com>
-	<20250812090817.3463403-1-junnan01.wu@samsung.com>
+Date: Thu, 14 Aug 2025 10:36:07 +0800
+Message-Id: <20250814023607.3888932-1-junnan01.wu@samsung.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20250813172307.7d5603e0@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CMS-MailID: 20250814023554epcas5p4b3dcab50835e2da4749be1be135def20
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+cpgsPolicy: CPGSC10-505,Y
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20250814023554epcas5p4b3dcab50835e2da4749be1be135def20
+References: <20250813172307.7d5603e0@kernel.org>
+	<CGME20250814023554epcas5p4b3dcab50835e2da4749be1be135def20@epcas5p4.samsung.com>
 
-On Tue, 12 Aug 2025 17:08:17 +0800 Junnan Wu wrote:
-> "Use after free" issue appears in suspend once race occurs when
-> napi poll scheduls after `netif_device_detach` and before napi disables.
+On Wed, 13 Aug 2025 17:23:07 -0700 Jakub Kicinski wrote:
+> Sounds like a fix people may want to backport. Could you repost with 
+> an appropriate Fixes tag added, pointing to the earliest commit where
+> the problem can be observed?
 
-Sounds like a fix people may want to backport. Could you repost with 
-an appropriate Fixes tag added, pointing to the earliest commit where
-the problem can be observed?
--- 
-pw-bot: cr
+This issue is caused by commit "7b0411ef4aa69c9256d6a2c289d0a2b320414633"
+After this patch, during `virtnet_poll`, function `virtnet_poll_cleantx`
+will be invoked, which will wakeup tx queue and clear queue state.
+If you agree with it, I will repost with this Fixes tag later.
+
+Fixes: 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi")
