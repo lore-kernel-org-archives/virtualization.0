@@ -1,110 +1,113 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6749A23ABAF
-	for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 15:40:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 341911991BF;
+	Thu, 14 Aug 2025 16:47:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755186036; cv=none; b=DkEooaIsrKKwrOWVh4trPyL+0SXR3BVSS6l/ZVdlMhaxA7jn4LeF2Z6TSmRdzxBFgzOj2V+D1RyJY5ohDokKgKVcoanTzeT8ipHqVWvNXloF1uOLYpI6/d5aiBKUOTID0dustPWK5bAcg8oIAzG4JrEBO5Oo21h7ve4ecqhcaGs=
+	t=1755190051; cv=none; b=Wi0lnMKShNFc3/4PfHoCTr8ZcLUENSCkfYDwE22TJu+3EN+KWq+v03kpwHelXgGzgqmUdBXUc4bBEeBGSm9BHPn0pEkM0sqocAdOHLMSTh6VYAzgUstiC9x8/kOYfGn328cDzwEBJyDEXIbQlcCoP3z2PrUH26IkR5/DZZKhbQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755186036; c=relaxed/simple;
-	bh=yaSYWXyGxJ/9XhopS6Hw1gTGGNBA7I4gi0bSsDYE9rU=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=qW81Lgwa+hOzT0rYbjgDqv5ao9RMwkJfWni9tK45SXk7VS0j0Jy0UjxPe9HpKdfeTUSh3SxVQcRuu9cIbyEb7s4Z5Gq8erdOlK8rvjOcZ4IpDktEzazRdU+77To09Iy1i5LgUcmAcOhO9ercpamJFTJuQTv1iZ/CR0EtKCmy/+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S8ceUGX5; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S8ceUGX5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755186033;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yaSYWXyGxJ/9XhopS6Hw1gTGGNBA7I4gi0bSsDYE9rU=;
-	b=S8ceUGX562nUVVE0UXPXNip6CLFVw+GjnzJv4WHPqmz95rheZbuCdD7fIGebn6LdAwmGxv
-	JGXxGyAGsiMdLZntH1q+cnU7qeT8VskQtrPxRMHXEcEbCDXmd5cTgjmQJo2Pkag6+bbruN
-	TBDXq5MFw9jYYxmIONlJQHVwGeCe/JE=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-563-KH-byDijPLigDVjFUhw7aA-1; Thu, 14 Aug 2025 11:40:31 -0400
-X-MC-Unique: KH-byDijPLigDVjFUhw7aA-1
-X-Mimecast-MFC-AGG-ID: KH-byDijPLigDVjFUhw7aA_1755186031
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45a1b0b14daso3488295e9.2
-        for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 08:40:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755186030; x=1755790830;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yaSYWXyGxJ/9XhopS6Hw1gTGGNBA7I4gi0bSsDYE9rU=;
-        b=lz8cbK+Cmo120Xzy7ufXt0QYK/khiQBIYXJUKU5ZhwkMLC/jEqaUmeSpCgc7A/AYXJ
-         bmU9NaVUvjcM83ab31v4wkcSPEs12kr9zuN62z3Km3A4EIpKGzq5hfKhdiw2pElA5ckL
-         KLead0oZUn4GMpV1KV/NuZmt8wCDufNcZAWlELVMF13Rze74j3Am77o8TIlicb/LHMK8
-         CDIGBJ5HrpW53el2DY8OJo9MvJw4MYTUvJgEI5pKC1HYvs93oHm5cOfvZQ3WisJMQ8Ej
-         +VFDpvzaNeAIZQg3yqVU/rDOg0sErlkMoey4h4L6QE2CEiNE6H/fh+qFZhxVq8TePZI4
-         aB5A==
-X-Gm-Message-State: AOJu0YyDWJyNaWKFmrpNT7Y6D81TrNGI+ST6g5VL8XPfFNvbkqd+iyB7
-	2hdYqgan81Nj6TUAIJmhN5W9k5/w09g0qF7KGZFpUW+OS+4XGJxAGeTl5UHIfQZdHb8h3+/Ok3p
-	cigN7of89RGXqGO5GDxDKaqtTSQp01/fmgmds86D7OiGMdRTA6+6nqPUZpm1LwYTk6M7LSnV2Ia
-	8q
-X-Gm-Gg: ASbGncur5wOlSWHyeX00LmHAdKsN4bIsepHnqjeu+VTidTMPHmgERpY3CkvBbiK3lEZ
-	VIcXhXtHB8mFtdoS9ZayYnqP21+UkiRUyk2hoF1qwMXlpFmkUJe04O5pMjKj2xtoSXqATXKhTlE
-	7+ahKEifgZAodYi297/t56dkSGu0TCL+PFhY/VNvs3ZpQGUh4F2moay5HouPmib7icyRtPk/his
-	8fUOAr5HiIGijAaQW06TiB8JQ+Vn6iHFht+12x2y23mKObYLqrjEEfD+AF2bbfEJxWp/fsbhRr0
-	auA+fgEkPWWGfvdSL8HD7LvW5h6BJ0PqIpVG5saN6xTXpLkM0qMG/pBMD+t7JVl5O39E4vKt4CS
-	GM+yp5WWTKSQ=
-X-Received: by 2002:a05:600c:1390:b0:459:dba8:bb7b with SMTP id 5b1f17b1804b1-45a1b60f926mr33912805e9.13.1755186030033;
-        Thu, 14 Aug 2025 08:40:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGO8j0bl06t8kLqVusdd2gtWRvt7hDatkEzclPmxcaIlT06nd+NntfwSiemJ8UjNqI6qlg2+Q==
-X-Received: by 2002:a05:600c:1390:b0:459:dba8:bb7b with SMTP id 5b1f17b1804b1-45a1b60f926mr33912485e9.13.1755186029551;
-        Thu, 14 Aug 2025 08:40:29 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:2712:7e10:4d59:d956:544f:d65c? ([2a0d:3344:2712:7e10:4d59:d956:544f:d65c])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45a1fe2c019sm5608825e9.17.2025.08.14.08.40.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 14 Aug 2025 08:40:28 -0700 (PDT)
-Message-ID: <c25f924f-a66b-47cc-819d-5ed241a4bac6@redhat.com>
-Date: Thu, 14 Aug 2025 17:40:27 +0200
+	s=arc-20240116; t=1755190051; c=relaxed/simple;
+	bh=RZ39O8LRy1DmXEIYFGqThJTu+hwEpbt7xjcvbQVF8+o=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Jt7Zw79+7TmDNMlyA+em27WwwijhFGuIn0Nph+JZxcYYeGstXJpZNE+719EHdCA1tpYAkPCGc/P0lHvjVi/5FRYu6CuEGcM2lGsRiNxbuwL41jYhhq1B64Rrsf+c2TNEWTfKeRdw5QQikNHZUPW5DIyTf0KYuVqTqikNJBdh/sI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 526841691;
+	Thu, 14 Aug 2025 09:47:19 -0700 (PDT)
+Received: from e121345-lin.cambridge.arm.com (e121345-lin.cambridge.arm.com [10.1.196.50])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 77AF63F738;
+	Thu, 14 Aug 2025 09:47:26 -0700 (PDT)
+From: Robin Murphy <robin.murphy@arm.com>
+To: will@kernel.org,
+	joro@8bytes.org,
+	jean-philippe@linaro.org
+Cc: iommu@lists.linux.dev,
+	virtualization@lists.linux.dev,
+	eric.auger@redhat.com,
+	stable@vger.kernel.org
+Subject: [PATCH v2] iommu/virtio: Make instance lookup robust
+Date: Thu, 14 Aug 2025 17:47:16 +0100
+Message-Id: <308911aaa1f5be32a3a709996c7bd6cf71d30f33.1755190036.git.robin.murphy@arm.com>
+X-Mailer: git-send-email 2.39.2.101.g768bb238c484.dirty
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [REGRESSION] Virtio networking issues on v6.17-rc1
-From: Paolo Abeni <pabeni@redhat.com>
-To: Cristian Marussi <cristian.marussi@arm.com>
-Cc: virtualization@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>
-References: <aJycJvs3xztfD5Rm@pluto> <aJzU1JsV5we-QqgQ@pluto>
- <aa46dd09-a450-4633-a647-b04781599c87@redhat.com> <aJz1_HzPsEyvY6HN@pluto>
- <146fd5f7-c694-4606-afa5-522c5c05d9ff@redhat.com>
-In-Reply-To: <146fd5f7-c694-4606-afa5-522c5c05d9ff@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: pOAElw7lCgyD3nQip6g78DV9RcxzsPCX2WE1-7upX3g_1755186031
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 8/13/25 10:41 PM, Paolo Abeni wrote:
-> Thanks for the detailed reproduction steps.
+Much like arm-smmu in commit 7d835134d4e1 ("iommu/arm-smmu: Make
+instance lookup robust"), virtio-iommu appears to have the same issue
+where iommu_device_register() makes the IOMMU instance visible to other
+API callers (including itself) straight away, but internally the
+instance isn't ready to recognise itself for viommu_probe_device() to
+work correctly until after viommu_probe() has returned. This matters a
+lot more now that bus_iommu_probe() has the DT/VIOT knowledge to probe
+client devices the way that was always intended. Tweak the lookup and
+initialisation in much the same way as for arm-smmu, to ensure that what
+we register is functional and ready to go.
 
-They definitely helped to reproduce the issue here. It took a little
-time because I'm a complete noob WRT kvmtool.
+Cc: stable@vger.kernel.org
+Fixes: bcb81ac6ae3c ("iommu: Get DT/ACPI parsing into the proper probe path")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+---
 
-Apparently it was indeed a kvmtool issue.
+v2: Of course generic bus_find_device_by_fwnode() didn't work, since
+    it's dev->parent we need to check rather than dev itself, sigh...
+---
+ drivers/iommu/virtio-iommu.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-I just posted a patch that addresses the issue for me:
-
-https://lore.kernel.org/kvm/ed62443b8fd3fef87bd313a54f821cf363f647a5.1755185758.git.pabeni@redhat.com/T/#u
-
-Cheers,
-
-Paolo
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 532db1de201b..b39d6f134ab2 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -998,8 +998,7 @@ static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
+ 	iommu_dma_get_resv_regions(dev, head);
+ }
+ 
+-static const struct iommu_ops viommu_ops;
+-static struct virtio_driver virtio_iommu_drv;
++static const struct bus_type *virtio_bus_type;
+ 
+ static int viommu_match_node(struct device *dev, const void *data)
+ {
+@@ -1008,8 +1007,9 @@ static int viommu_match_node(struct device *dev, const void *data)
+ 
+ static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
+ {
+-	struct device *dev = driver_find_device(&virtio_iommu_drv.driver, NULL,
+-						fwnode, viommu_match_node);
++	struct device *dev = bus_find_device(virtio_bus_type, NULL, fwnode,
++					     viommu_match_node);
++
+ 	put_device(dev);
+ 
+ 	return dev ? dev_to_virtio(dev)->priv : NULL;
+@@ -1160,6 +1160,9 @@ static int viommu_probe(struct virtio_device *vdev)
+ 	if (!viommu)
+ 		return -ENOMEM;
+ 
++	/* Borrow this for easy lookups later */
++	virtio_bus_type = dev->bus;
++
+ 	spin_lock_init(&viommu->request_lock);
+ 	ida_init(&viommu->domain_ids);
+ 	viommu->dev = dev;
+@@ -1229,10 +1232,10 @@ static int viommu_probe(struct virtio_device *vdev)
+ 	if (ret)
+ 		goto err_free_vqs;
+ 
+-	iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
+-
+ 	vdev->priv = viommu;
+ 
++	iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
++
+ 	dev_info(dev, "input address: %u bits\n",
+ 		 order_base_2(viommu->geometry.aperture_end));
+ 	dev_info(dev, "page mask: %#llx\n", viommu->pgsize_bitmap);
+-- 
+2.39.2.101.g768bb238c484.dirty
 
