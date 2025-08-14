@@ -1,61 +1,71 @@
-Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36501262D14
-	for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 07:10:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552012EA15A;
+	Thu, 14 Aug 2025 10:13:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755155420; cv=none; b=Upz1vPTgUYCDOeX0UR92+exDo8pOIR8Z2dU1VemvYzu5dJqyj1JE7O6JuJnQSabJRqTJexKxD6xxL2P+ZvVTH+jA9pONthsgDXWaNnXAzH+AuT2yrTJvZEWLm9T589ztp83c4pLVXQJSofD5GS5dxD4GDwSWwty6/VC5U+pDjxc=
+	t=1755166430; cv=none; b=KQFLPCKHa/hmaTeENsiSlJLagOWNsxZhkQRmsIpM2UJq5QrbwR24BuaYfG0P7BSXQCr6dZQxRS4o1P249NjvbeEA5Pc8bCxgZ/U0IcHOQW6uTw5SbFKsQ2+QXRcQBX8ORqEZWs/5PmQrBpHVEe9UBNEJlJF+4Wdq7N1VcQ3J+rc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755155420; c=relaxed/simple;
-	bh=lch8aVeg2M0Un/tBpZiaeFcnAJXX6vJNLe9Y5YUF7QU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
-	 Content-Type:References; b=X09reb0x5D7raUVZfeuyx66MjdLD+JhsSA3W0woS5Pw6+5/itELBQQynsL6xyIIM8n+MLbAAXb4ARiicwDI8rHXxQ0PYRAjQJgf5cBYAGTfoC7Nk1pM/iTngddMQNEkHBAo1HgPqz/QZMkTBlBLFyesCyoXLNqAHN6lId7nwWAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=qhfBT4H0; arc=none smtp.client-ip=203.254.224.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1755166430; c=relaxed/simple;
+	bh=WvslSImvBRVIN9npZ+rLYR2kEKQBnxvpUzJZAvcwdxs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aW85MofCaHGVuBSMeBNTiowliCO2cyB/oublTW5SeQocPMHhdHahwtscybVkdDGN59AaQ0fxIgG82TdnWe9aS9Ofvhk/6BothFGtv1+o0Fw1sUNwRmLxEHxqDhUjPFR9wN7BwoERpETtW22JsRsUuauh141RwsSCGe5e6y5OpvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GbJfmdOg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="qhfBT4H0"
-Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
-	by mailout4.samsung.com (KnoxPortal) with ESMTP id 20250814071015epoutp0440836751175727adea2013eda3f459a4~bkI02Ce9D0706707067epoutp04C
-	for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 07:10:15 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20250814071015epoutp0440836751175727adea2013eda3f459a4~bkI02Ce9D0706707067epoutp04C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1755155416;
-	bh=MPvvXGlKnavvQz2YJEvA9alXVq22vI+juGIh/Eeqync=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=qhfBT4H05xhWw8CDTNdQ2uLh4QOZcaCoVWBqbKag0KMlhPVgkOw2f2iBN0V2wnaqd
-	 nJPNl+PQvuUgW6VR8CsB35AUmqhIjmiJeuHH/nIjIAecCoyKsOlzNZTLTDGnmgr35B
-	 e92AoE8tsb0D+NKeC5LUC01b/x++icKyU6neCJLk=
-Received: from epsnrtp04.localdomain (unknown [182.195.42.156]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTPS id
-	20250814071015epcas5p48b23e6cec4e265c03a1e54a4e4ea21c6~bkI0csvFj1096610966epcas5p42;
-	Thu, 14 Aug 2025 07:10:15 +0000 (GMT)
-Received: from epcas5p1.samsung.com (unknown [182.195.38.90]) by
-	epsnrtp04.localdomain (Postfix) with ESMTP id 4c2bwk3cvTz6B9m9; Thu, 14 Aug
-	2025 07:10:14 +0000 (GMT)
-Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-	20250814070809epcas5p46bc5a5fe62fd5bedc8a858ae4d28a92a~bkG-hESx00412404124epcas5p4X;
-	Thu, 14 Aug 2025 07:08:09 +0000 (GMT)
-Received: from asg29.. (unknown [109.105.129.29]) by epsmtip1.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20250814070807epsmtip1de0a9e8777b9474a04c8c2fd05aa43d2~bkG9RiAJs2811428114epsmtip1R;
-	Thu, 14 Aug 2025 07:08:07 +0000 (GMT)
-From: Junnan Wu <junnan01.wu@samsung.com>
-To: jasowang@redhat.com
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-	eperezma@redhat.com, junnan01.wu@samsung.com, kuba@kernel.org,
-	lei19.wang@samsung.com, linux-kernel@vger.kernel.org, mst@redhat.com,
-	netdev@vger.kernel.org, pabeni@redhat.com, q1.huang@samsung.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
-	ying123.xu@samsung.com
-Subject: Re: [PATCH net] virtio_net: adjust the execution order of function
- `virtnet_close` during freeze
-Date: Thu, 14 Aug 2025 15:08:21 +0800
-Message-Id: <20250814070821.1792157-1-junnan01.wu@samsung.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <CACGkMEuCaOs_towX_CGUdnpDJBPrN9vZ3=s84RKJ3PsRX5s7OQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GbJfmdOg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15191C4CEED;
+	Thu, 14 Aug 2025 10:13:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1755166429;
+	bh=WvslSImvBRVIN9npZ+rLYR2kEKQBnxvpUzJZAvcwdxs=;
+	h=From:To:Cc:Subject:Date:From;
+	b=GbJfmdOggEzm8njF3Ipzk+wplt5NpDFzWhDA8mQ22Appp4nEs/hEpcVVQQVZajRLT
+	 O88nGQEEP2f1y6g2DJ7AUnqg/jSHQfu6+8ooocHr11sduLrzG6pTywne0g+/M1EJAl
+	 02AnRdTbqcBbrPm3eJlvH+DaHFAahHTWIQ+4WG+JESkwNk7gs0x7vG654nR9ortQ+C
+	 VUWu+YXBeLXmlENfAVjFuPe7B1/xCB0sT5de0HgVXmYkUrv0XTzn9PxsTCEZarm8vE
+	 c1/pPOXYYDc3IibUSAxgsv8+okkLIlwU60yNvt77zmNHT/ed7hVFRfvFLMl7PYBeoB
+	 iMmfPD5OzUqFg==
+From: Leon Romanovsky <leon@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Alex Gaynor <alex.gaynor@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@lst.de>,
+	Danilo Krummrich <dakr@kernel.org>,
+	iommu@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>,
+	Jens Axboe <axboe@kernel.dk>,
+	Joerg Roedel <joro@8bytes.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Juergen Gross <jgross@suse.com>,
+	kasan-dev@googlegroups.com,
+	Keith Busch <kbusch@kernel.org>,
+	linux-block@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-trace-kernel@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	rust-for-linux@vger.kernel.org,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev,
+	Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Subject: [PATCH v2 00/16] dma-mapping: migrate to physical address-based API
+Date: Thu, 14 Aug 2025 13:13:18 +0300
+Message-ID: <cover.1755153054.git.leon@kernel.org>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,47 +73,135 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20250814070809epcas5p46bc5a5fe62fd5bedc8a858ae4d28a92a
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-cpgsPolicy: CPGSC10-505,Y
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250814070809epcas5p46bc5a5fe62fd5bedc8a858ae4d28a92a
-References: <CACGkMEuCaOs_towX_CGUdnpDJBPrN9vZ3=s84RKJ3PsRX5s7OQ@mail.gmail.com>
-	<CGME20250814070809epcas5p46bc5a5fe62fd5bedc8a858ae4d28a92a@epcas5p4.samsung.com>
 
-On Thu, 14 Aug 2025 14:49:06 +0800 Jason Wang wrote:
-> On Thu, Aug 14, 2025 at 2:44 PM Junnan Wu <junnan01.wu@samsung.com> wrote:
-> >
-> > On Thu, 14 Aug 2025 12:01:18 +0800 Jason Wang wrote:
-> > > On Thu, Aug 14, 2025 at 10:36 AM Junnan Wu <junnan01.wu@samsung.com> wrote:
-> > > >
-> > > > On Wed, 13 Aug 2025 17:23:07 -0700 Jakub Kicinski wrote:
-> > > > > Sounds like a fix people may want to backport. Could you repost with
-> > > > > an appropriate Fixes tag added, pointing to the earliest commit where
-> > > > > the problem can be observed?
-> > > >
-> > > > This issue is caused by commit "7b0411ef4aa69c9256d6a2c289d0a2b320414633"
-> > > > After this patch, during `virtnet_poll`, function `virtnet_poll_cleantx`
-> > > > will be invoked, which will wakeup tx queue and clear queue state.
-> > > > If you agree with it, I will repost with this Fixes tag later.
-> > > >
-> > > > Fixes: 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi")
-> > >
-> > > Could you please explain why it is specific to RX NAPI but not TX?
-> > >
-> > > Thanks
-> >
-> > This issue appears in suspend flow, if a TCP connection in host VM is still
-> > sending packet before driver suspend is completed, it will tigger RX napi schedule,
-> > Finally "use after free" happens when tcp ack timer is up.
-> >
-> > And in suspend flow, the action to send packet is already stopped in guest VM,
-> 
-> The TX interrupt and NAPI is not disabled yet. Or anything I miss here?
+Changelog:
+v2:
+ * Used commit messages and cover letter from Jason
+ * Moved setting IOMMU_MMIO flag to dma_info_to_prot function
+ * Micro-optimized the code
+ * Rebased code on v6.17-rc1
+v1: https://lore.kernel.org/all/cover.1754292567.git.leon@kernel.org
+ * Added new DMA_ATTR_MMIO attribute to indicate
+   PCI_P2PDMA_MAP_THRU_HOST_BRIDGE path.
+ * Rewrote dma_map_* functions to use thus new attribute
+v0: https://lore.kernel.org/all/cover.1750854543.git.leon@kernel.org/
+------------------------------------------------------------------------
 
-When system suspends, the userspace progress which based on virtio_net
-will be freezed firstly, and then driver suspend callback executes.
-so though TX interrupt and NAPI is not disabled at that time, it will also not be scheduled.
+This series refactors the DMA mapping to use physical addresses
+as the primary interface instead of page+offset parameters. This
+change aligns the DMA API with the underlying hardware reality where
+DMA operations work with physical addresses, not page structures.
+
+The series maintains export symbol backward compatibility by keeping
+the old page-based API as wrapper functions around the new physical
+address-based implementations.
+
+This series refactors the DMA mapping API to provide a phys_addr_t
+based, and struct-page free, external API that can handle all the
+mapping cases we want in modern systems:
+
+ - struct page based cachable DRAM
+ - struct page MEMORY_DEVICE_PCI_P2PDMA PCI peer to peer non-cachable
+   MMIO
+ - struct page-less PCI peer to peer non-cachable MMIO
+ - struct page-less "resource" MMIO
+
+Overall this gets much closer to Matthew's long term wish for
+struct-pageless IO to cachable DRAM. The remaining primary work would
+be in the mm side to allow kmap_local_pfn()/phys_to_virt() to work on
+phys_addr_t without a struct page.
+
+The general design is to remove struct page usage entirely from the
+DMA API inner layers. For flows that need to have a KVA for the
+physical address they can use kmap_local_pfn() or phys_to_virt(). This
+isolates the struct page requirements to MM code only. Long term all
+removals of struct page usage are supporting Matthew's memdesc
+project which seeks to substantially transform how struct page works.
+
+Instead make the DMA API internals work on phys_addr_t. Internally
+there are still dedicated 'page' and 'resource' flows, except they are
+now distinguished by a new DMA_ATTR_MMIO instead of by callchain. Both
+flows use the same phys_addr_t.
+
+When DMA_ATTR_MMIO is specified things work similar to the existing
+'resource' flow. kmap_local_pfn(), phys_to_virt(), phys_to_page(),
+pfn_valid(), etc are never called on the phys_addr_t. This requires
+rejecting any configuration that would need swiotlb. CPU cache
+flushing is not required, and avoided, as ATTR_MMIO also indicates the
+address have no cachable mappings. This effectively removes any
+DMA API side requirement to have struct page when DMA_ATTR_MMIO is
+used.
+
+In the !DMA_ATTR_MMIO mode things work similarly to the 'page' flow,
+except on the common path of no cache flush, no swiotlb it never
+touches a struct page. When cache flushing or swiotlb copying
+kmap_local_pfn()/phys_to_virt() are used to get a KVA for CPU
+usage. This was already the case on the unmap side, now the map side
+is symmetric.
+
+Callers are adjusted to set DMA_ATTR_MMIO. Existing 'resource' users
+must set it. The existing struct page based MEMORY_DEVICE_PCI_P2PDMA
+path must also set it. This corrects some existing bugs where iommu
+mappings for P2P MMIO were improperly marked IOMMU_CACHE.
+
+Since ATTR_MMIO is made to work with all the existing DMA map entry
+points, particularly dma_iova_link(), this finally allows a way to use
+the new DMA API to map PCI P2P MMIO without creating struct page. The
+VFIO DMABUF series demonstrates how this works. This is intended to
+replace the incorrect driver use of dma_map_resource() on PCI BAR
+addresses.
+
+This series does the core code and modern flows. A followup series
+will give the same treatment to the legacy dma_ops implementation.
+
+Thanks
+
+Leon Romanovsky (16):
+  dma-mapping: introduce new DMA attribute to indicate MMIO memory
+  iommu/dma: implement DMA_ATTR_MMIO for dma_iova_link().
+  dma-debug: refactor to use physical addresses for page mapping
+  dma-mapping: rename trace_dma_*map_page to trace_dma_*map_phys
+  iommu/dma: rename iommu_dma_*map_page to iommu_dma_*map_phys
+  iommu/dma: extend iommu_dma_*map_phys API to handle MMIO memory
+  dma-mapping: convert dma_direct_*map_page to be phys_addr_t based
+  kmsan: convert kmsan_handle_dma to use physical addresses
+  dma-mapping: handle MMIO flow in dma_map|unmap_page
+  xen: swiotlb: Open code map_resource callback
+  dma-mapping: export new dma_*map_phys() interface
+  mm/hmm: migrate to physical address-based DMA mapping API
+  mm/hmm: properly take MMIO path
+  block-dma: migrate to dma_map_phys instead of map_page
+  block-dma: properly take MMIO path
+  nvme-pci: unmap MMIO pages with appropriate interface
+
+ Documentation/core-api/dma-api.rst        |   4 +-
+ Documentation/core-api/dma-attributes.rst |  18 ++++
+ arch/powerpc/kernel/dma-iommu.c           |   4 +-
+ block/blk-mq-dma.c                        |  15 ++-
+ drivers/iommu/dma-iommu.c                 |  61 ++++++------
+ drivers/nvme/host/pci.c                   |  18 +++-
+ drivers/virtio/virtio_ring.c              |   4 +-
+ drivers/xen/swiotlb-xen.c                 |  21 +++-
+ include/linux/blk-mq-dma.h                |   6 +-
+ include/linux/blk_types.h                 |   2 +
+ include/linux/dma-direct.h                |   2 -
+ include/linux/dma-map-ops.h               |   8 +-
+ include/linux/dma-mapping.h               |  33 ++++++
+ include/linux/iommu-dma.h                 |  11 +-
+ include/linux/kmsan.h                     |  12 ++-
+ include/trace/events/dma.h                |   9 +-
+ kernel/dma/debug.c                        |  71 ++++---------
+ kernel/dma/debug.h                        |  37 ++-----
+ kernel/dma/direct.c                       |  22 +---
+ kernel/dma/direct.h                       |  52 ++++++----
+ kernel/dma/mapping.c                      | 116 +++++++++++++---------
+ kernel/dma/ops_helpers.c                  |   6 +-
+ mm/hmm.c                                  |  19 ++--
+ mm/kmsan/hooks.c                          |  36 +++++--
+ rust/kernel/dma.rs                        |   3 +
+ tools/virtio/linux/kmsan.h                |   2 +-
+ 26 files changed, 333 insertions(+), 259 deletions(-)
+
+-- 
+2.50.1
+
