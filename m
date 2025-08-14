@@ -1,79 +1,61 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA7151EEE6;
-	Thu, 14 Aug 2025 00:09:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F240463B9;
+	Thu, 14 Aug 2025 00:23:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755130195; cv=none; b=qU+w+t3BVFDRkXqOkGke0mzIzVph0ltF5yfHiRYCvTvD255HxHqXQw6GUUvtbCANo1iRzwkAum4qQXGydyvVVeRmWbeWxyJVcob5ZvkEqUVN/uusDME3JNG3BfSITAnW3DtKIFTrB7v3r/twDms6FqmmWnm2HY8eEatW/KWrbZM=
+	t=1755130989; cv=none; b=W4T1o3kbdIp32Axp7aqsVy7dL8XJeq/o366eigq+7ScKS1KUALBfLTlPW/DuzHQ8tlkfkgZZ16AbR+C3BOpFac00vcDwBH8RXeY9xkeIdA9GPQPisecUuNKF2fqzSvjptagynvt34AKS/6UDDFnOv0aA+aCmqdfYWozVquoHetI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755130195; c=relaxed/simple;
-	bh=DW4CsdevOiR6rhiPYnrtcOlpAXU4lp/cbwii1TzRmtE=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=Ejjp759lp2eznrnKXfdmVHfQZL05/CQZbS6blDMCYxxc/5mvKN/vZ/jjUlyQoBnoD8arkcRYA9iu3xP2jMfBgSymOE01jsybsD9wa581MOKcY3xHLCuaWKCQBuvVGxlZt4agaRYvgY5667vJO5rU2pGA3uAP1fc3RmiFxye1/DI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pF/lcqMw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755130989; c=relaxed/simple;
+	bh=NOYIe5fIq0ZW0wP4ciZ05r1N3+F+Cu1olPCew4z+46M=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=BXN8iDUPLBpQl7IqpRICckRKo3+KDNbmN87/U3rszi0Vbv3P4viMId0EhMEuDNeKYgHCuWTJB6PeRrrL4vs7BdCpFENo0hWfMogw5ps1LewBwNBttpzyIHS1nykmgCGrLR15BbB+qfjJGYH4rhLAXhDFAQq08hXtTNjwRI4FFKQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bWwXvqJd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pF/lcqMw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F538C4CEEB;
-	Thu, 14 Aug 2025 00:09:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bWwXvqJd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2978CC4CEEB;
+	Thu, 14 Aug 2025 00:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755130194;
-	bh=DW4CsdevOiR6rhiPYnrtcOlpAXU4lp/cbwii1TzRmtE=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=pF/lcqMwRx8Fx96VnYxhhb0k/vgUHgCSqSvx+qQYfwexKjx/rMy2GrSEJQCxnOmdV
-	 rfLL3+TYyY/R3Q2iSaRfq8MQK6W5zHONWAlia1p63CuTFKFqoZdkG3IkYbUNfT2wxU
-	 yh9hfpD+UGxTFlaZBRW0EF7sQX/TnJKRYebGsU7vKgRMAyhPMtNnQpELF3UI2bHxdT
-	 1E85Buk6djb3a6qya2er3oeceAqfth7pv5S6MCaiDpAsGWkUosNsoVJYc/gSX1IsCV
-	 qNZaPA95wCpIg2m1TNuuE/spxoELWvu0NTzktRzOBhD0rROb9/aagehN4L2aXpF2gS
-	 9EO2A6V0u54rg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33F4C39D0C37;
-	Thu, 14 Aug 2025 00:10:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1755130988;
+	bh=NOYIe5fIq0ZW0wP4ciZ05r1N3+F+Cu1olPCew4z+46M=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=bWwXvqJdW4O7UxRN/w7HR6j8jAxZJx0K4lOciF1ilBZScH6GoHhLOnrMiNWCzwQ0c
+	 qYCb7a48kA67DJ9Rv95JlXfXAPwPY80HFFgUE22/+v12hiMIT03ldrOaXx05E3FNDe
+	 uAvdrkx3eNqhVt+W8Ba6hYSE69YcmW2jZ7jeHf5RfxacZPUzqTCcLULXY0mLbCPHfM
+	 pFJyzYHpDM0tSHkF1sYA2ny0BgaxTcKzsvBGF5DVbc6OxCx1Wx0zpoUuJP4STAoIcq
+	 EKPYeo5MAfPWk2E33CRJ9alRaHDHUS6SE6IE1XY/a81woOjbRJ0kOusggoZfSmXIop
+	 kMfNMO833CKUQ==
+Date: Wed, 13 Aug 2025 17:23:07 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Junnan Wu <junnan01.wu@samsung.com>
+Cc: mst@redhat.com, jasowang@redhat.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+ xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, ying123.xu@samsung.com,
+ lei19.wang@samsung.com, q1.huang@samsung.com
+Subject: Re: [PATCH net] virtio_net: adjust the execution order of function
+ `virtnet_close` during freeze
+Message-ID: <20250813172307.7d5603e0@kernel.org>
+In-Reply-To: <20250812090817.3463403-1-junnan01.wu@samsung.com>
+References: <CGME20250812090805epcas5p25ba25ca1c5c68bbdf9df27d95ccae4f5@epcas5p2.samsung.com>
+	<20250812090817.3463403-1-junnan01.wu@samsung.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] vsock: use sizeof(struct sockaddr_storage)
- instead
- of magic value
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175513020601.3825277.1947080522866981155.git-patchwork-notify@kernel.org>
-Date: Thu, 14 Aug 2025 00:10:06 +0000
-References: <20250812015929.1419896-1-wangliang74@huawei.com>
-In-Reply-To: <20250812015929.1419896-1-wangliang74@huawei.com>
-To: Wang Liang <wangliang74@huawei.com>
-Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, yuehaibing@huawei.com,
- zhangchangzhong@huawei.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hello:
+On Tue, 12 Aug 2025 17:08:17 +0800 Junnan Wu wrote:
+> "Use after free" issue appears in suspend once race occurs when
+> napi poll scheduls after `netif_device_detach` and before napi disables.
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Tue, 12 Aug 2025 09:59:29 +0800 you wrote:
-> Previous commit 230b183921ec ("net: Use standard structures for generic
-> socket address structures.") use 'struct sockaddr_storage address;'
-> to replace 'char address[MAX_SOCK_ADDR];'.
-> 
-> The macro MAX_SOCK_ADDR is removed by commit 01893c82b4e6 ("net: Remove
-> MAX_SOCK_ADDR constant").
-> 
-> [...]
-
-Here is the summary with links:
-  - [net-next] vsock: use sizeof(struct sockaddr_storage) instead of magic value
-    https://git.kernel.org/netdev/net-next/c/4d18083d6b2c
-
-You are awesome, thank you!
+Sounds like a fix people may want to backport. Could you repost with 
+an appropriate Fixes tag added, pointing to the earliest commit where
+the problem can be observed?
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+pw-bot: cr
