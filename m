@@ -1,183 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9258A3019CB;
-	Thu, 14 Aug 2025 10:14:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36D122264CF
+	for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 10:42:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755166497; cv=none; b=Hk2zp2vlvvaBrHDEMFVILZKZklZ6tZEhk9hw3u+9CKmRTgEg+r+rI/5r1qFkjleu4NlGiL7Y7hNWf6HXUFbM44YgBuaJj58KmbRgwhL7z9Bfo5P9tBWVBs5tipbW+UCoB/Mq1kQ/xA9u6cH4FCkU9fZNfFqUNRPpsZVZbnpuq+0=
+	t=1755168143; cv=none; b=qU4kmL8uPWT5Db7por5MS9L23PJ2o0jXMn9/VOVIcrDitos1v+qF02C0Isvd+A9Erhoa69Q7fImN+eago8pwsKw2Rj47/EtABfpkv7HMLKCooKNNXaUowTA3L+8DvIA3il9qk8fb9oY4nwu4UeapQnWaDhNjDsMmYBgZZE3fk3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755166497; c=relaxed/simple;
-	bh=VNpaHZYPDKoIVZk7JizQ+fAc7bXMl6IIrMQIwsKC7lg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UR4BevQsG0dbK5JY/mGos9EQT9pY1vmjtbaF6Tdq3msqDCv/xLSjsyrKP4QRttVgfhCDflsLqz1yTTZHS3+Fqn0/nhqFlf7ehxhMreR4BZhlaj7XAImb8zmqev6gaITd1+4XuXokQ5biY6RYqSIxVBDrzw5E3ejP8gKsxtAOoy4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sgcAjNmQ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755168143; c=relaxed/simple;
+	bh=NZEGr2QeyUxRWwugsIcQDl4cNFKSjIiz0H7NjY0LWuQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=OZe2XSi95AtsiCaZ1dIt8rUAaW7xCdeJdzc4KiiwyxA9S28pzJz1AcdQwZlL3cG2HFPomuh2A9+hG9LTT6qnNRSa+nYWwjcQm7a/0wNnRqcuNRfN7czHsGwIXxmqmqxdxwaXOk9rAVLJG0EMmsm2N9xIk4XBj6OPAqfgIk2Q6uw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SnfDEpGL; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sgcAjNmQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E732C4CEED;
-	Thu, 14 Aug 2025 10:14:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755166497;
-	bh=VNpaHZYPDKoIVZk7JizQ+fAc7bXMl6IIrMQIwsKC7lg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=sgcAjNmQ4H9PR9eNw1PcsrGYJZDdCoIhSA00MB1PlPh4PY294zzHjmBNp/Feerkz5
-	 onfh+H4AOnhzfctRKBnuKCZx/TKbia4qDj/ZGv49iPN8pTjetV2F9L2VUkgOWdWDRc
-	 XlrdyafRknSjL//iLlaNOBweJcYzh6FKt3CyXPCoJvTLjW4fEmAhBIfd9+UAEg8Pzu
-	 GT/aO6y+QSatuf+mIF+REo7cmsN0/u40Aqx/jFMMVRttbv3XnuIdoCIUPj7ks/cy6e
-	 xakUo8h2pDLy9UhEDhcLSzeOH+G0q/blCWi158fJN5vnT8J/3Fmo24+nsmO++3Zqz5
-	 MlYCBR+W1ikrA==
-From: Leon Romanovsky <leon@kernel.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Leon Romanovsky <leonro@nvidia.com>,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
-	Alexander Potapenko <glider@google.com>,
-	Alex Gaynor <alex.gaynor@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Christoph Hellwig <hch@lst.de>,
-	Danilo Krummrich <dakr@kernel.org>,
-	iommu@lists.linux.dev,
-	Jason Wang <jasowang@redhat.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	Joerg Roedel <joro@8bytes.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Juergen Gross <jgross@suse.com>,
-	kasan-dev@googlegroups.com,
-	Keith Busch <kbusch@kernel.org>,
-	linux-block@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-nvme@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-trace-kernel@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	rust-for-linux@vger.kernel.org,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	virtualization@lists.linux.dev,
-	Will Deacon <will@kernel.org>,
-	xen-devel@lists.xenproject.org
-Subject: [PATCH v2 15/16] block-dma: properly take MMIO path
-Date: Thu, 14 Aug 2025 13:13:33 +0300
-Message-ID: <87b7d3a0e3f6be9da49947923d52355ed0835833.1755153054.git.leon@kernel.org>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <cover.1755153054.git.leon@kernel.org>
-References: <cover.1755153054.git.leon@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SnfDEpGL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1755168141;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=KT5Tzn19cqg4hmQfGcslJH9hMAr6Q0PLi1IKh5xD2zI=;
+	b=SnfDEpGLVBDJsjYue/B6E/omYAluQ43nu0PIrKQuL06NqVcbOVakN4WmhnMG3pBvA6g6kh
+	ghE2P+2peRcXvD2e1JE5kGTgOy2GXnQbILuAkGXS5mrqV6azb26IYNrtrrzAf2w37uEZ9e
+	im5/Wzwv4YRY194ckeNt2vWCmQM3L6Y=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-272-_ALoZjX-MIO4q47GaIGlPw-1; Thu, 14 Aug 2025 06:42:19 -0400
+X-MC-Unique: _ALoZjX-MIO4q47GaIGlPw-1
+X-Mimecast-MFC-AGG-ID: _ALoZjX-MIO4q47GaIGlPw_1755168139
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3b9d41b779aso464120f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 03:42:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755168138; x=1755772938;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KT5Tzn19cqg4hmQfGcslJH9hMAr6Q0PLi1IKh5xD2zI=;
+        b=JfOT/QSl4Nk7gGDyvauXeVct2t0si53qEMlZPrAWVoyYTvb8xdji66ejg8MBNu0VW3
+         qcnlPM1XXFV7jZhXC1DKKNhs6H8Mr4Y87UK04pbZozOvsKYVRPmZVeatBWuSSXyt5lV+
+         RFf1ZX3ggzCIgG4WKRmJY76wtczYrmwvgWZAx5dQHTijOKnQluBZZ0434WeSpapGttDl
+         f9e8nfFwvNL5CQpSsqN+4l6rxbmnfnFT6R472L5zZYl5dToFEFyxhNvtFO+AM/tqlKno
+         a51zynBgGAnbRjFacV/MaZY72v9QQAOVKk2Bp3m8dqrXeBUtz4nrUM3eGHSQsCMpXZVW
+         zQ3g==
+X-Forwarded-Encrypted: i=1; AJvYcCVLAD8RosB362EzYTNbb51LrfPEJnRLM9Yy8HGf2WwaJL2za/uSwZnaKbBkQXgco/pEtBkVET440q3UcXwIlA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwQBlKHynTA3LmeOFevwKpD8ZUggwtkTaddVU+FohVNj1uTZYLB
+	dqAMmqSbCE6Cc4v+h2GstaETn4CC7i7BHxU5qunJPHcZvN6J0CosrB9aJnsgBus3zm3LUjlFaTE
+	rch9LrgeSn33JQRXjx91PZ1yLGXFhbh2qXNhyTdCSi2YcqU2xVoc7Qe5LWn3YTm/4Ww00
+X-Gm-Gg: ASbGnctZUKseCC9rW7cQT4pBYg8XsT80YYQKRmHH7oI3foaO0VaSKiDHiM1/Dp4sEvp
+	mfHFTWHOUvltNMWwDWoQOT/Ji0drQ9ruELnZrLwP6OYNF9fp3KBWnZDZHjfdYd3akUui/43pqEF
+	rVi29usbef2Y94sVe7ImjJnHE9kLuCI5FEnrXFxrBMN3Ce1J9XGfQFhief6dxSv22ru4h5zzIY4
+	PSiVGzpzV/Az+ajbMZrvJ9IvYiw8VmVdx7tGxtSNu+4h0Fr4ZtQRgugySm+lnNHwMO1ZRi7Rzo3
+	QFGDvNg2ILSPzWHbDMKyWCZDHSHa9W8vAkY=
+X-Received: by 2002:a05:600c:a06:b0:456:1d61:b0f2 with SMTP id 5b1f17b1804b1-45a1b687253mr23970615e9.30.1755168138567;
+        Thu, 14 Aug 2025 03:42:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG9mCEyeVUFOpZlzFS33KyQN6euUVxnMFYMC8qwFmmhan4Sd4sDTaAq8nOK27r6IHm2BnFDpw==
+X-Received: by 2002:a05:600c:a06:b0:456:1d61:b0f2 with SMTP id 5b1f17b1804b1-45a1b687253mr23970315e9.30.1755168138131;
+        Thu, 14 Aug 2025 03:42:18 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:73d6:5500:f926:f5f2:d44c:9bbf])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45a1c6cf151sm16626985e9.8.2025.08.14.03.42.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Aug 2025 03:42:17 -0700 (PDT)
+Date: Thu, 14 Aug 2025 06:42:15 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	hch@infradead.org
+Subject: Re: [PATCH V5 4/9] virtio: introduce vring_mapping_token
+Message-ID: <20250814063927-mutt-send-email-mst@kernel.org>
+References: <20250813054831.25865-1-jasowang@redhat.com>
+ <20250813054831.25865-5-jasowang@redhat.com>
+ <20250813043151-mutt-send-email-mst@kernel.org>
+ <CACGkMEuKmn4f9spFT1YxjVPxBFkdGVCTQEUpNG=xHd6hcL-a8w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CACGkMEuKmn4f9spFT1YxjVPxBFkdGVCTQEUpNG=xHd6hcL-a8w@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: _q4Q5MVXqIQXHEJYUdLMH4jVWMNXo-KuX-RNlj6qZOg_1755168139
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-From: Leon Romanovsky <leonro@nvidia.com>
+On Thu, Aug 14, 2025 at 11:36:22AM +0800, Jason Wang wrote:
+> > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > > index addbc209275a..37029df94aaf 100644
+> > > --- a/include/linux/virtio.h
+> > > +++ b/include/linux/virtio.h
+> > > @@ -40,6 +40,13 @@ struct virtqueue {
+> > >       void *priv;
+> > >  };
+> > >
+> > > +union vring_mapping_token {
+> > > +     /* Device that performs DMA */
+> > > +     struct device *dma_dev;
+> > > +     /* Transport specific token used for doing map */
+> > > +     void *opaque;
+> >
+> > Please just declare whatever structure you want it to be.
+> 
+> It's an opaque one and so
+> 
+> 1) the virtio core knows nothing about that because it could be
+> transport or device specific
+> 2) no assumption of the type and usage, it just receive it from the
+> transport and pass it back when doing the mapping
+> 
+> It should work like page->private etc.
+> 
+> Does this make sense?
+> 
+> Thanks
 
-Make sure that CPU is not synced and IOMMU is configured to take
-MMIO path by providing newly introduced DMA_ATTR_MMIO attribute.
+I fully expect most devices simply to use DMA here and no weird
+tricks. vduse is the weird one, but I don't see us making it
+grow much beyond that.
 
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
----
- block/blk-mq-dma.c         | 13 +++++++++++--
- include/linux/blk-mq-dma.h |  6 +++++-
- include/linux/blk_types.h  |  2 ++
- 3 files changed, 18 insertions(+), 3 deletions(-)
+So I think for now we can just make it vduse_iova_domain *. If we see
+it's getting out of hand with too many types, we can think of solutions.
 
-diff --git a/block/blk-mq-dma.c b/block/blk-mq-dma.c
-index 37e2142be4f7..d415088ed9fd 100644
---- a/block/blk-mq-dma.c
-+++ b/block/blk-mq-dma.c
-@@ -87,8 +87,13 @@ static bool blk_dma_map_bus(struct blk_dma_iter *iter, struct phys_vec *vec)
- static bool blk_dma_map_direct(struct request *req, struct device *dma_dev,
- 		struct blk_dma_iter *iter, struct phys_vec *vec)
- {
-+	unsigned int attrs = 0;
-+
-+	if (req->cmd_flags & REQ_MMIO)
-+		attrs = DMA_ATTR_MMIO;
-+
- 	iter->addr = dma_map_phys(dma_dev, vec->paddr, vec->len,
--			rq_dma_dir(req), 0);
-+			rq_dma_dir(req), attrs);
- 	if (dma_mapping_error(dma_dev, iter->addr)) {
- 		iter->status = BLK_STS_RESOURCE;
- 		return false;
-@@ -103,14 +108,17 @@ static bool blk_rq_dma_map_iova(struct request *req, struct device *dma_dev,
- {
- 	enum dma_data_direction dir = rq_dma_dir(req);
- 	unsigned int mapped = 0;
-+	unsigned int attrs = 0;
- 	int error;
- 
- 	iter->addr = state->addr;
- 	iter->len = dma_iova_size(state);
-+	if (req->cmd_flags & REQ_MMIO)
-+		attrs = DMA_ATTR_MMIO;
- 
- 	do {
- 		error = dma_iova_link(dma_dev, state, vec->paddr, mapped,
--				vec->len, dir, 0);
-+				vec->len, dir, attrs);
- 		if (error)
- 			break;
- 		mapped += vec->len;
-@@ -176,6 +184,7 @@ bool blk_rq_dma_map_iter_start(struct request *req, struct device *dma_dev,
- 			 * same as non-P2P transfers below and during unmap.
- 			 */
- 			req->cmd_flags &= ~REQ_P2PDMA;
-+			req->cmd_flags |= REQ_MMIO;
- 			break;
- 		default:
- 			iter->status = BLK_STS_INVAL;
-diff --git a/include/linux/blk-mq-dma.h b/include/linux/blk-mq-dma.h
-index c26a01aeae00..6c55f5e58511 100644
---- a/include/linux/blk-mq-dma.h
-+++ b/include/linux/blk-mq-dma.h
-@@ -48,12 +48,16 @@ static inline bool blk_rq_dma_map_coalesce(struct dma_iova_state *state)
- static inline bool blk_rq_dma_unmap(struct request *req, struct device *dma_dev,
- 		struct dma_iova_state *state, size_t mapped_len)
- {
-+	unsigned int attrs = 0;
-+
- 	if (req->cmd_flags & REQ_P2PDMA)
- 		return true;
- 
- 	if (dma_use_iova(state)) {
-+		if (req->cmd_flags & REQ_MMIO)
-+			attrs = DMA_ATTR_MMIO;
- 		dma_iova_destroy(dma_dev, state, mapped_len, rq_dma_dir(req),
--				 0);
-+				 attrs);
- 		return true;
- 	}
- 
-diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
-index 09b99d52fd36..283058bcb5b1 100644
---- a/include/linux/blk_types.h
-+++ b/include/linux/blk_types.h
-@@ -387,6 +387,7 @@ enum req_flag_bits {
- 	__REQ_FS_PRIVATE,	/* for file system (submitter) use */
- 	__REQ_ATOMIC,		/* for atomic write operations */
- 	__REQ_P2PDMA,		/* contains P2P DMA pages */
-+	__REQ_MMIO,		/* contains MMIO memory */
- 	/*
- 	 * Command specific flags, keep last:
- 	 */
-@@ -420,6 +421,7 @@ enum req_flag_bits {
- #define REQ_FS_PRIVATE	(__force blk_opf_t)(1ULL << __REQ_FS_PRIVATE)
- #define REQ_ATOMIC	(__force blk_opf_t)(1ULL << __REQ_ATOMIC)
- #define REQ_P2PDMA	(__force blk_opf_t)(1ULL << __REQ_P2PDMA)
-+#define REQ_MMIO	(__force blk_opf_t)(1ULL << __REQ_MMIO)
- 
- #define REQ_NOUNMAP	(__force blk_opf_t)(1ULL << __REQ_NOUNMAP)
- 
 -- 
-2.50.1
+MST
 
