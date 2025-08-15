@@ -1,92 +1,144 @@
-Received: from smtp153-165.sina.com.cn (smtp153-165.sina.com.cn [61.135.153.165])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 582DE21ABAA
-	for <virtualization@lists.linux.dev>; Fri, 15 Aug 2025 12:08:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=61.135.153.165
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3118F23ABA7;
+	Fri, 15 Aug 2025 15:48:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755259692; cv=none; b=DlNwjW4rJ1aXTq7KuLKELIUd2BuZab0hoIFLJh4jaV4zfounS/cwN+ZBM4vgo8ylJUU5QRLgJsAurtBDLGVE+D/a9peT9emtyaKYkDFfoENAyRzx+AAOAbGRwRQhQejWP9ljog/EUfSrY/pdJxytfq7VXDm4V5qfqDK3iVLYeG8=
+	t=1755272887; cv=none; b=XYffcL1rhAIGE05IcyM81LxVjxt7+cnECN4qs0wXjl0TZmRq4mbuzN/ajUbopUSbbAHoGnTwTz3JPog46gxy4NlGJCHz9uFieSMB8RIfVonfXDMILybfhYyaU5zntCY8HU5IftMbP47s2G8psG5JAaIuLoW5oiAnq4c6TVonKlw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755259692; c=relaxed/simple;
-	bh=kmOx6KNrW9R2ODoH8ZfThQ3AFAnXjdWrstnCoX4e6s8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bHEePxLyJns1dPE7pptdt4930s0JkY2LHVYY8sARt42p3fgGeKA1inJA1YI9Uk72o7IxPADPmcjOzTp9GpLeYE3Av41QztP/Pwwy/dhras8/vGhaeVyeruAolqpE+/p6z3W5GlfE5guH4IbIUF+wb08n0LOGxMonf5AH0voKlqw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b=W5LBk3ws; arc=none smtp.client-ip=61.135.153.165
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
+	s=arc-20240116; t=1755272887; c=relaxed/simple;
+	bh=7J7O8B58402DZIOvOG4YVrzlmAE/IexxgXMdQIJautM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UPS8ZiFookzKzMP7UMKf+h+IqwlmTKRyuzBY+rknODtYGdCRRgU6/skgzgVLYQ44JR6kHhCfAiDlVRGEzNqJJu54tpOWfs6JJxrrC5AlKrw+5RWyaW/auZJSAYu7P/V7A/cS3ZXHY37DfTCcuiNkpKPoWJN3taDuXYBv5v2uyW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SgIX7RTv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b="W5LBk3ws"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1755259687;
-	bh=94wBHy/NdizbVtKXVXboJCBrkTObdo7WSc8rNvbMJhI=;
-	h=From:Subject:Date:Message-ID;
-	b=W5LBk3ws4RD4VIXuRt4vDX2TNFz79zO0ugg/BfoYUFL/u5T3XxAMSW8Tky8pJ8Any
-	 9eZxcBymJ7BcttvoND3D/onRFTRjXKIIdw3KI0InfURqL5Uo2mvX3bOq9LcsZDCwVV
-	 FrG76WRkiMqyMHdgolxXXK7DOeLZIAfyaMNgZNe4=
-X-SMAIL-HELO: localhost.localdomain
-Received: from unknown (HELO localhost.localdomain)([114.249.58.236])
-	by sina.com (10.54.253.32) with ESMTP
-	id 689F231B0000553B; Fri, 15 Aug 2025 20:07:57 +0800 (CST)
-X-Sender: hdanton@sina.com
-X-Auth-ID: hdanton@sina.com
-Authentication-Results: sina.com;
-	 spf=none smtp.mailfrom=hdanton@sina.com;
-	 dkim=none header.i=none;
-	 dmarc=none action=none header.from=hdanton@sina.com
-X-SMAIL-MID: 5596864456636
-X-SMAIL-UIID: 3A54955BD27249B2992BABC3730E264C-20250815-200757-1
-From: Hillf Danton <hdanton@sina.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SgIX7RTv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B20D3C4CEEB;
+	Fri, 15 Aug 2025 15:48:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1755272886;
+	bh=7J7O8B58402DZIOvOG4YVrzlmAE/IexxgXMdQIJautM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=SgIX7RTvZhmiYGgeJf8Xyi9SvoEvPcefxLNIy9s4Z9gG3L5ZWH79RGsHSGb+rp2PV
+	 tLBsXdREfvDfAYCiu+Tp40vAum4zf3YARXmA/6zN2iuCkaRLoOI08otWwe97Pz9f1O
+	 1Wfml97ZFvrRUUKHcRvecmvwjGF0Vu2toJionb24DxUCcxKAatt3wSPkTlmv8p4FmU
+	 SzhdChi6CfdVphvLbOETvRsHKhWDfhBLwmvO4PsnwHFWm5srZiYTh/P/6OyuF1Vgfn
+	 vxESvslwC+72+Vsa/ReF8Rjun4p9kuGhEDDlLZcFqHTK9Rh8K5kYSWz21e9OnkWBNz
+	 u1mbsVQqwUwLA==
+Date: Fri, 15 Aug 2025 16:48:00 +0100
+From: Will Deacon <will@kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Will Deacon <will@kernel.org>,
-	linux-kernel@vger.kernel.org,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v4 9/9] vsock/virtio: Allocate nonlinear SKBs for handling large transmit buffers
-Date: Fri, 15 Aug 2025 20:07:46 +0800
-Message-ID: <20250815120747.4634-1-hdanton@sina.com>
-In-Reply-To: <20250815062222-mutt-send-email-mst@kernel.org>
-References: <20250717090116.11987-1-will@kernel.org> <20250717090116.11987-10-will@kernel.org> <20250813132554.4508-1-hdanton@sina.com>
+Cc: syzbot <syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com>,
+	davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
+	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org,
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org, pabeni@redhat.com, sgarzare@redhat.com,
+	stefanha@redhat.com, syzkaller-bugs@googlegroups.com,
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Subject: Re: [syzbot] [kvm?] [net?] [virt?] WARNING in
+ virtio_transport_send_pkt_info
+Message-ID: <aJ9WsFovkgZM3z09@willie-the-truck>
+References: <20250812052645-mutt-send-email-mst@kernel.org>
+ <689b1156.050a0220.7f033.011c.GAE@google.com>
+ <20250812061425-mutt-send-email-mst@kernel.org>
+ <aJ8HVCbE-fIoS1U4@willie-the-truck>
+ <20250815063140-mutt-send-email-mst@kernel.org>
+ <aJ8heyq4-RtJAPyI@willie-the-truck>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aJ8heyq4-RtJAPyI@willie-the-truck>
 
-On Fri, 15 Aug 2025 06:22:56 -0400 "Michael S. Tsirkin" wrote:
-> On Wed, Aug 13, 2025 at 09:25:53PM +0800, Hillf Danton wrote:
-> > On Wed, 13 Aug 2025 04:41:09 -0400 "Michael S. Tsirkin" wrote:
-> > > On Thu, Jul 17, 2025 at 10:01:16AM +0100, Will Deacon wrote:
-> > > > When transmitting a vsock packet, virtio_transport_send_pkt_info() calls
-> > > > virtio_transport_alloc_linear_skb() to allocate and fill SKBs with the
-> > > > transmit data. Unfortunately, these are always linear allocations and
-> > > > can therefore result in significant pressure on kmalloc() considering
-> > > > that the maximum packet size (VIRTIO_VSOCK_MAX_PKT_BUF_SIZE +
-> > > > VIRTIO_VSOCK_SKB_HEADROOM) is a little over 64KiB, resulting in a 128KiB
-> > > > allocation for each packet.
+On Fri, Aug 15, 2025 at 01:00:59PM +0100, Will Deacon wrote:
+> On Fri, Aug 15, 2025 at 06:44:47AM -0400, Michael S. Tsirkin wrote:
+> > On Fri, Aug 15, 2025 at 11:09:24AM +0100, Will Deacon wrote:
+> > > On Tue, Aug 12, 2025 at 06:15:46AM -0400, Michael S. Tsirkin wrote:
+> > > > On Tue, Aug 12, 2025 at 03:03:02AM -0700, syzbot wrote:
+> > > > > Hello,
+> > > > > 
+> > > > > syzbot has tested the proposed patch but the reproducer is still triggering an issue:
+> > > > > WARNING in virtio_transport_send_pkt_info
 > > > > 
-> > > > Rework the vsock SKB allocation so that, for sizes with page order
-> > > > greater than PAGE_ALLOC_COSTLY_ORDER, a nonlinear SKB is allocated
-> > > > instead with the packet header in the SKB and the transmit data in the
-> > > > fragments. Note that this affects both the vhost and virtio transports.
+> > > > OK so the issue triggers on
+> > > > commit 6693731487a8145a9b039bc983d77edc47693855
+> > > > Author: Will Deacon <will@kernel.org>
+> > > > Date:   Thu Jul 17 10:01:16 2025 +0100
 > > > > 
-> > > > Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> > > > Signed-off-by: Will Deacon <will@kernel.org>
-> > > 
-> > > So this caused a regression, see syzbot report:
-> > > 
-> > > https://lore.kernel.org/all/689a3d92.050a0220.7f033.00ff.GAE@google.com
-> > > 
-> > > I'm inclined to revert unless we have a fix quickly.
-> > > 
-> > Because recomputing skb len survived the syzbot test [1], Will looks innocent.
-> > 
-> > [1] https://lore.kernel.org/lkml/689c8d08.050a0220.7f033.014a.GAE@google.com/
+> > > >     vsock/virtio: Allocate nonlinear SKBs for handling large transmit buffers
+> > > >     
+> > > > 
+> > > > but does not trigger on:
+> > > > 
+> > > > commit 8ca76151d2c8219edea82f1925a2a25907ff6a9d
+> > > > Author: Will Deacon <will@kernel.org>
+> > > > Date:   Thu Jul 17 10:01:15 2025 +0100
+> > > > 
+> > > >     vsock/virtio: Rename virtio_vsock_skb_rx_put()
+> > > >     
+> > > > 
+> > > > 
+> > > > Will, I suspect your patch merely uncovers a latent bug
+> > > > in zero copy handling elsewhere.
 > 
-> I'm not sure I follow that patch though. Do you mind submitting
-> with an explanation in the commit log?
+> I'm still looking at this, but I'm not sure zero-copy is the right place
+> to focus on.
 > 
-It is a simple debug patch to test if Will's work is good at least in the
-syzbot scenario, but stil a couple miles away from a patch with the SOB tag.
+> The bisected patch 6693731487a8 ("vsock/virtio: Allocate nonlinear SKBs
+> for handling large transmit buffers") only has two hunks. The first is
+> for the non-zcopy case and the latter is a no-op for zcopy, as
+> skb_len == VIRTIO_VSOCK_SKB_HEADROOM and so we end up with a linear SKB
+> regardless.
+
+It's looking like this is caused by moving from memcpy_from_msg() to
+skb_copy_datagram_from_iter(), which is necessary to handle non-linear
+SKBs correctly.
+
+In the case of failure (i.e. faulting on the source and returning
+-EFAULT), memcpy_from_msg() rewinds the message iterator whereas
+skb_copy_datagram_from_iter() does not. If we have previously managed to
+transmit some of the packet, then I think
+virtio_transport_send_pkt_info() can end up returning a positive "bytes
+written" error code and the caller will call it again. If we've advanced
+the message iterator, then this can end up with the reported warning if
+we run out of input data.
+
+As a hack (see below), I tried rewinding the iterator in the error path
+of skb_copy_datagram_from_iter() but I'm not sure whether other callers
+would be happy with that. If not, then we could save/restore the
+iterator state in virtio_transport_fill_skb() if the copy fails. Or we
+could add a variant of skb_copy_datagram_from_iter(), say
+skb_copy_datagram_from_iter_full(), which has the rewind behaviour.
+
+What do you think?
+
+Will
+
+--->8
+
+diff --git a/net/core/datagram.c b/net/core/datagram.c
+index 94cc4705e91d..62e44ab136b7 100644
+--- a/net/core/datagram.c
++++ b/net/core/datagram.c
+@@ -551,7 +551,7 @@ int skb_copy_datagram_from_iter(struct sk_buff *skb, int offset,
+ 				 int len)
+ {
+ 	int start = skb_headlen(skb);
+-	int i, copy = start - offset;
++	int i, copy = start - offset, start_off = offset;
+ 	struct sk_buff *frag_iter;
+ 
+ 	/* Copy header. */
+@@ -614,6 +614,7 @@ int skb_copy_datagram_from_iter(struct sk_buff *skb, int offset,
+ 		return 0;
+ 
+ fault:
++	iov_iter_revert(from, offset - start_off);
+ 	return -EFAULT;
+ }
+ EXPORT_SYMBOL(skb_copy_datagram_from_iter);
