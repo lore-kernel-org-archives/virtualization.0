@@ -1,144 +1,79 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3118F23ABA7;
-	Fri, 15 Aug 2025 15:48:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7863E2FD7AB;
+	Fri, 15 Aug 2025 15:55:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755272887; cv=none; b=XYffcL1rhAIGE05IcyM81LxVjxt7+cnECN4qs0wXjl0TZmRq4mbuzN/ajUbopUSbbAHoGnTwTz3JPog46gxy4NlGJCHz9uFieSMB8RIfVonfXDMILybfhYyaU5zntCY8HU5IftMbP47s2G8psG5JAaIuLoW5oiAnq4c6TVonKlw=
+	t=1755273305; cv=none; b=PZjxHa+L0JUgcR1UNzVmn6VUp5TOlTSp7ZeBZuQmQUngCYrhVD5ynh+4B+pp1H6rAb3usfJq6nI60mXGKkSyb5/gXFdZxe2TVUNz92v91dQyuH9sWDKIzK/FnMDuWD85eJErFZChfF8s5lZ1pOUWZ2cklHgj5HiiUKcGLDhNA88=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755272887; c=relaxed/simple;
-	bh=7J7O8B58402DZIOvOG4YVrzlmAE/IexxgXMdQIJautM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UPS8ZiFookzKzMP7UMKf+h+IqwlmTKRyuzBY+rknODtYGdCRRgU6/skgzgVLYQ44JR6kHhCfAiDlVRGEzNqJJu54tpOWfs6JJxrrC5AlKrw+5RWyaW/auZJSAYu7P/V7A/cS3ZXHY37DfTCcuiNkpKPoWJN3taDuXYBv5v2uyW8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SgIX7RTv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755273305; c=relaxed/simple;
+	bh=x7aU1I8M6iwiC2l3589pCAl472y6tYetQV/dG/yANxE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=RW0gDzz3aNXDbAHs5TKvd494Hob0xgFzAzaXcUuV9/Bo3Qx41pCDkDyLBODhb7sNS7JjE2UBFqZVih5VzbGh5yx2BR8GTZNDaPd5pjnOqiYDAfDLtdPa21lRlXm12BAmt03+vnd9tfjmeLY4Rdu+VXCHcAK0PhAXQj/QoFk5pA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ENNzS6KE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SgIX7RTv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B20D3C4CEEB;
-	Fri, 15 Aug 2025 15:48:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ENNzS6KE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA65EC4CEEB;
+	Fri, 15 Aug 2025 15:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755272886;
-	bh=7J7O8B58402DZIOvOG4YVrzlmAE/IexxgXMdQIJautM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=SgIX7RTvZhmiYGgeJf8Xyi9SvoEvPcefxLNIy9s4Z9gG3L5ZWH79RGsHSGb+rp2PV
-	 tLBsXdREfvDfAYCiu+Tp40vAum4zf3YARXmA/6zN2iuCkaRLoOI08otWwe97Pz9f1O
-	 1Wfml97ZFvrRUUKHcRvecmvwjGF0Vu2toJionb24DxUCcxKAatt3wSPkTlmv8p4FmU
-	 SzhdChi6CfdVphvLbOETvRsHKhWDfhBLwmvO4PsnwHFWm5srZiYTh/P/6OyuF1Vgfn
-	 vxESvslwC+72+Vsa/ReF8Rjun4p9kuGhEDDlLZcFqHTK9Rh8K5kYSWz21e9OnkWBNz
-	 u1mbsVQqwUwLA==
-Date: Fri, 15 Aug 2025 16:48:00 +0100
-From: Will Deacon <will@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: syzbot <syzbot+b4d960daf7a3c7c2b7b1@syzkaller.appspotmail.com>,
-	davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
-	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org,
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, pabeni@redhat.com, sgarzare@redhat.com,
-	stefanha@redhat.com, syzkaller-bugs@googlegroups.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Subject: Re: [syzbot] [kvm?] [net?] [virt?] WARNING in
- virtio_transport_send_pkt_info
-Message-ID: <aJ9WsFovkgZM3z09@willie-the-truck>
-References: <20250812052645-mutt-send-email-mst@kernel.org>
- <689b1156.050a0220.7f033.011c.GAE@google.com>
- <20250812061425-mutt-send-email-mst@kernel.org>
- <aJ8HVCbE-fIoS1U4@willie-the-truck>
- <20250815063140-mutt-send-email-mst@kernel.org>
- <aJ8heyq4-RtJAPyI@willie-the-truck>
+	s=k20201202; t=1755273305;
+	bh=x7aU1I8M6iwiC2l3589pCAl472y6tYetQV/dG/yANxE=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=ENNzS6KE3FnH3ZVtO/3/oxssNha5TXvty4iwSKqL+/YA5uilo92fJUK2dGovY1hBd
+	 pQVQtvc1Q8L2BvRjn68+RiB/ZGS3H19n12a28UbeJRF328PqWz7CM3Z+xzb79iLqch
+	 66R+10Dnjb0mcjQMnKsnr+NFB0XVgKCLmCW2xjGjidI4Y0Tk821wLEgp15yy2YeehM
+	 7WpuUrPLxk9MxqHDN9tkwPaReIy6Rv05Z8GaRMB9BrzOnaZhxxXD+ts+KjhO/G1JX6
+	 NhxqYxWkYou16mzCLzjdAP90DYumqrcFdMxeK6rGCRLIXCeukPl704D0DRzwXIz1bU
+	 pc/f9MorQKd7g==
+Date: Fri, 15 Aug 2025 08:55:03 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Junnan Wu <junnan01.wu@samsung.com>
+Cc: jasowang@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
+ edumazet@google.com, eperezma@redhat.com, lei19.wang@samsung.com,
+ linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+ pabeni@redhat.com, q1.huang@samsung.com, virtualization@lists.linux.dev,
+ xuanzhuo@linux.alibaba.com, ying123.xu@samsung.com
+Subject: Re: [PATCH net] virtio_net: adjust the execution order of function
+ `virtnet_close` during freeze
+Message-ID: <20250815085503.3034e391@kernel.org>
+In-Reply-To: <20250815060615.4162-1-junnan01.wu@samsung.com>
+References: <CACGkMEtakEiHbrcAqF+TMU0jWgYOxTcDYpuELG+1p9d85MSN0w@mail.gmail.com>
+	<CGME20250815060604epcas5p3a6856bcd64ee4ed80abb43b09aab8a42@epcas5p3.samsung.com>
+	<20250815060615.4162-1-junnan01.wu@samsung.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aJ8heyq4-RtJAPyI@willie-the-truck>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Fri, Aug 15, 2025 at 01:00:59PM +0100, Will Deacon wrote:
-> On Fri, Aug 15, 2025 at 06:44:47AM -0400, Michael S. Tsirkin wrote:
-> > On Fri, Aug 15, 2025 at 11:09:24AM +0100, Will Deacon wrote:
-> > > On Tue, Aug 12, 2025 at 06:15:46AM -0400, Michael S. Tsirkin wrote:
-> > > > On Tue, Aug 12, 2025 at 03:03:02AM -0700, syzbot wrote:
-> > > > > Hello,
-> > > > > 
-> > > > > syzbot has tested the proposed patch but the reproducer is still triggering an issue:
-> > > > > WARNING in virtio_transport_send_pkt_info
-> > > > 
-> > > > OK so the issue triggers on
-> > > > commit 6693731487a8145a9b039bc983d77edc47693855
-> > > > Author: Will Deacon <will@kernel.org>
-> > > > Date:   Thu Jul 17 10:01:16 2025 +0100
-> > > > 
-> > > >     vsock/virtio: Allocate nonlinear SKBs for handling large transmit buffers
-> > > >     
-> > > > 
-> > > > but does not trigger on:
-> > > > 
-> > > > commit 8ca76151d2c8219edea82f1925a2a25907ff6a9d
-> > > > Author: Will Deacon <will@kernel.org>
-> > > > Date:   Thu Jul 17 10:01:15 2025 +0100
-> > > > 
-> > > >     vsock/virtio: Rename virtio_vsock_skb_rx_put()
-> > > >     
-> > > > 
-> > > > 
-> > > > Will, I suspect your patch merely uncovers a latent bug
-> > > > in zero copy handling elsewhere.
+On Fri, 15 Aug 2025 14:06:15 +0800 Junnan Wu wrote:
+> On Fri, 15 Aug 2025 13:38:21 +0800 Jason Wang <jasowang@redhat.com> wrote
+> > On Fri, Aug 15, 2025 at 10:24 AM Junnan Wu <junnan01.wu@samsung.com> wrote:  
+> > > Sorry, I basically mean that the tx napi which caused by
+> > > userspace will not be scheduled during suspend, others can not be
+> > > guaranteed, such as unfinished packets already in tx vq etc.
+> > >
+> > > But after this patch, once `virtnet_close` completes,
+> > > both tx and rq napi will be disabled which guarantee their napi
+> > > will not be scheduled in future. And the tx state will be set to
+> > > "__QUEUE_STATE_DRV_XOFF" correctly in `netif_device_detach`.  
+> > 
+> > Ok, so the commit mentioned by fix tag is incorrect.  
 > 
-> I'm still looking at this, but I'm not sure zero-copy is the right place
-> to focus on.
+> Yes, you are right. The commit of this fix tag is the first commit I
+> found which add function `virtnet_poll_cleantx`. Actually, we are not
+> sure whether this issue appears after this commit.
 > 
-> The bisected patch 6693731487a8 ("vsock/virtio: Allocate nonlinear SKBs
-> for handling large transmit buffers") only has two hunks. The first is
-> for the non-zcopy case and the latter is a no-op for zcopy, as
-> skb_len == VIRTIO_VSOCK_SKB_HEADROOM and so we end up with a linear SKB
-> regardless.
+> In our side, this issue is found by chance in version 5.15.
+> 
+> It's hard to find the key commit which cause this issue
+> for reason that the reproduction of this scenario is too complex.
 
-It's looking like this is caused by moving from memcpy_from_msg() to
-skb_copy_datagram_from_iter(), which is necessary to handle non-linear
-SKBs correctly.
-
-In the case of failure (i.e. faulting on the source and returning
--EFAULT), memcpy_from_msg() rewinds the message iterator whereas
-skb_copy_datagram_from_iter() does not. If we have previously managed to
-transmit some of the packet, then I think
-virtio_transport_send_pkt_info() can end up returning a positive "bytes
-written" error code and the caller will call it again. If we've advanced
-the message iterator, then this can end up with the reported warning if
-we run out of input data.
-
-As a hack (see below), I tried rewinding the iterator in the error path
-of skb_copy_datagram_from_iter() but I'm not sure whether other callers
-would be happy with that. If not, then we could save/restore the
-iterator state in virtio_transport_fill_skb() if the copy fails. Or we
-could add a variant of skb_copy_datagram_from_iter(), say
-skb_copy_datagram_from_iter_full(), which has the rewind behaviour.
-
-What do you think?
-
-Will
-
---->8
-
-diff --git a/net/core/datagram.c b/net/core/datagram.c
-index 94cc4705e91d..62e44ab136b7 100644
---- a/net/core/datagram.c
-+++ b/net/core/datagram.c
-@@ -551,7 +551,7 @@ int skb_copy_datagram_from_iter(struct sk_buff *skb, int offset,
- 				 int len)
- {
- 	int start = skb_headlen(skb);
--	int i, copy = start - offset;
-+	int i, copy = start - offset, start_off = offset;
- 	struct sk_buff *frag_iter;
- 
- 	/* Copy header. */
-@@ -614,6 +614,7 @@ int skb_copy_datagram_from_iter(struct sk_buff *skb, int offset,
- 		return 0;
- 
- fault:
-+	iov_iter_revert(from, offset - start_off);
- 	return -EFAULT;
- }
- EXPORT_SYMBOL(skb_copy_datagram_from_iter);
+I think the problem needs to be more clearly understood, and then it
+will be easier to find the fixes tag. At the face of it the patch
+makes it look like close() doesn't reliably stop the device, which
+is highly odd.
