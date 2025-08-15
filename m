@@ -1,91 +1,127 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A5339295504;
-	Fri, 15 Aug 2025 02:32:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4900122DFB1;
+	Fri, 15 Aug 2025 05:11:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755225158; cv=none; b=VNtTZGmZAHbWypZklECMGpDbwppu7ughgaTFONmWKWYcz1BWYQPJYD9l8bjhsr59Yk59WH1Q9QOL5HquaR6ZZkyjCCxAyb2OjP3urBz7toCmxtWpXrLb5Lr1/OXP4A5E0BA7bg7O6fmRlF4bKr3LXZZ7GEi2pMOhbUbFXIfzC18=
+	t=1755234665; cv=none; b=n1HUpVcAGsenyroKZW8ej7Hj6E+KtH5oJteEN17QIETakqu9weoMXSj/Z7qeW6z3Qj4NOE+moPoz3Q4ZJUQ0PMGG3DlnWiqVCpSq+FGeLRwooAIes2wt2Tko8Su8QECw38ojWisKKau6pJpbQIL/Ap7J3wmi/hyBmuMQBG8KeAM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755225158; c=relaxed/simple;
-	bh=jb5aUAIOPmXQlX/Gkg+Ce77q59K2k4DHix2ig07Lyyo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eQOv0Q6hScSFivK9FoPYAoM27WjuItrLrd+PvWwVWLB/Rp5TbtRk3AhT4vURf93Yfk8Tfpwd8TQ0yp/kx1m2Hw1KpPKKxiqDQjqCrPj6+n3wCPQ7Y88T+KQ6P6ecnDbcBsTqgzSGB+AgC62nz2l5nxTMpz6s7Vf+FzGeJDEiVvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=BOcqGEZc; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1755234665; c=relaxed/simple;
+	bh=rjs/V71n+3a48sbczUimLUbQ99An++PfjAuhQIEa13s=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=NHxjDFuSQEVNg3wE1HtqJicmMoCPtaZyI+pvKrg2Yq/HmwCkomnu5Q5/Yd+QFgtX+dKSsHYxXIV4PPIbT3AqFcHC7z18Gn7GjBdgnUgBEljnMbOeebrwxWmbg0pib4VeQpjq02p7kpUHcjL/OfKCkEYXPHKC37OQx/uNq8V9gQc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qaZHeg2/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="BOcqGEZc"
-Received: by linux.microsoft.com (Postfix, from userid 1152)
-	id 440FB2015E67; Thu, 14 Aug 2025 19:32:36 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 440FB2015E67
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1755225156;
-	bh=SfVLrp5MpeYOXpVpoxxNlTvQJ1uMnDQpTS8cxvxTiM8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BOcqGEZcYK/2LHjZDb7xkXurRNzYTfC7qbXD1W0BEtudQ+SR358Agacb9YpCR7Pii
-	 5dOU+pKT38r+DtzAhG0k5ZVAQ6Ky89TFgGDHKZxvbiFNW8N6BJOuEehjvAg/BA8JFH
-	 q9OoHT6v9cg0jfey0UKbmRyGV6j3tz2MujrkMF6c=
-Date: Thu, 14 Aug 2025 19:32:36 -0700
-From: Shyam Saini <shyamsaini@linux.microsoft.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
-	will@kernel.org, jacob.pan@linux.microsoft.com,
-	eric.auger@redhat.com, code@tyhicks.com,
-	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
-	bboscaccy@linux.microsoft.com, robh@kernel.org,
-	saravanak@google.com, krzk+dt@kernel.org, conor+dt@kernel.org,
-	lizhi.hou@amd.com, clement.leger@bootlin.com
-Subject: Re: [PATCH v3 2/3] iommu/of: fix device tree configuration for PCI
- devices
-Message-ID: <20250815023236.GA30997@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
- <20250806215539.1240561-3-shyamsaini@linux.microsoft.com>
- <20250808121515.GE377696@ziepe.ca>
- <20250814233018.GA31418@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
- <20250815003958.GE599331@ziepe.ca>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qaZHeg2/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFEBCC4AF09;
+	Fri, 15 Aug 2025 05:11:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1755234665;
+	bh=rjs/V71n+3a48sbczUimLUbQ99An++PfjAuhQIEa13s=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
+	b=qaZHeg2/5a1nlFDrCh+QQq8+2z+k/HIBWZUD4nh0+1i6c37KB42J7MuL6+NCG/t+L
+	 Sb4lS+mkZ14VoVX+YlDNVGPRMcWMXRHAGigO6GBs+JD82O/j0LxY54D+zDNDsJYKAo
+	 sXevI5VIzQWOLFfl/WV5zUlxyV+wLZ1J0REOzQc8KXCWGG5zo4v1sD8WTb37YmZh26
+	 fQvGeRnhGwhiRkaAiLioOMAOHFUuoJ1KDM4vS7BfgMxeW43efHE9YPv+gnweYXLTPM
+	 XrWCUBDKKDrqe8banORHuWlWg0uTJGuY3c9EmS4cdtxIgiUKad4TjoW3OXKR2Ys5uU
+	 wi4dFrypsvChQ==
+Received: from phl-compute-12.internal (phl-compute-12.internal [10.202.2.52])
+	by mailfauth.phl.internal (Postfix) with ESMTP id CD58BF40066;
+	Fri, 15 Aug 2025 01:11:02 -0400 (EDT)
+Received: from phl-imap-08 ([10.202.2.84])
+  by phl-compute-12.internal (MEProxy); Fri, 15 Aug 2025 01:11:02 -0400
+X-ME-Sender: <xms:ZsGeaEjCAtEWX1UaHLA2gfColtQZO7w89chtZ2uFaG4vMYHweTmDIQ>
+    <xme:ZsGeaNCED0uQ78E9d2j9GAg3NYkGAhxwrM8S6giPlAbcy5DsDkd_hrjkIGTNdnggG
+    4eL_xWyjdx6jEOR_bI>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgddugeeftdekucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedfnfgvohhn
+    ucftohhmrghnohhvshhkhidfuceolhgvohhnsehkvghrnhgvlhdrohhrgheqnecuggftrf
+    grthhtvghrnhepffegjefgueegffffjeevheektdekgeevheelvdekieehvdejvdejjefh
+    hfelhfefnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiii
+    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehlvghonhdomhgvshhmthhprghuthhh
+    phgvrhhsohhnrghlihhthidquddvfedtheefleekgedqvdejjeeljeejvdekqdhlvghonh
+    eppehkvghrnhgvlhdrohhrgheslhgvohhnrdhnuhdpnhgspghrtghpthhtohepfeejpdhm
+    ohguvgepshhmthhpohhuthdprhgtphhtthhopehjohhroheskegshihtvghsrdhorhhgpd
+    hrtghpthhtoheprhhosghinhdrmhhurhhphhihsegrrhhmrdgtohhmpdhrtghpthhtohep
+    tghhrhhishhtohhphhgvrdhlvghrohihsegtshhgrhhouhhprdgvuhdprhgtphhtthhope
+    hmphgvsegvlhhlvghrmhgrnhdrihgurdgruhdprhgtphhtthhopegrsgguihgvlhdrjhgr
+    nhhulhhguhgvsehgmhgrihhlrdgtohhmpdhrtghpthhtoheprghlvgigrdhgrgihnhhorh
+    esghhmrghilhdrtghomhdprhgtphhtthhopehrohhsthgvughtsehgohhoughmihhsrdho
+    rhhgpdhrtghpthhtohepghhlihguvghrsehgohhoghhlvgdrtghomhdprhgtphhtthhope
+    hkrghsrghnqdguvghvsehgohhoghhlvghgrhhouhhpshdrtghomh
+X-ME-Proxy: <xmx:ZsGeaPWPNXdI6VvYib3k9QdMC2XlJbr86LA_KN5YspkDL_EEK6BRlA>
+    <xmx:ZsGeaI3d1bh3fFRFl4aiXZUts9ejR-WHFcon7KnhJbC_6nOGWjjn2Q>
+    <xmx:ZsGeaIdgKvfZyaCQpAF_MAary9Xg8Dva0Q5zSBAie2gJ8xC3nka9fw>
+    <xmx:ZsGeaNVlXDFhOQ5jT6MnFggS_FVesjsSUNJLf3EVumbGV5Io7NaXkQ>
+    <xmx:ZsGeaG9LccLFJ2EboOYrfkTWU2yRr6gsoUbWRyvB7Ij-X0QWOgy49Rp5>
+Feedback-ID: i927946fb:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 8094E2CE0071; Fri, 15 Aug 2025 01:11:02 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250815003958.GE599331@ziepe.ca>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+X-ThreadId: AWyaQ402xWe7
+Date: Fri, 15 Aug 2025 08:10:43 +0300
+From: "Leon Romanovsky" <leon@kernel.org>
+To: "Christophe Leroy" <christophe.leroy@csgroup.eu>,
+ "Marek Szyprowski" <m.szyprowski@samsung.com>
+Cc: "Jason Gunthorpe" <jgg@nvidia.com>,
+ "Abdiel Janulgue" <abdiel.janulgue@gmail.com>,
+ "Alexander Potapenko" <glider@google.com>,
+ "Alex Gaynor" <alex.gaynor@gmail.com>,
+ "Andrew Morton" <akpm@linux-foundation.org>,
+ "Christoph Hellwig" <hch@lst.de>, "Danilo Krummrich" <dakr@kernel.org>,
+ iommu@lists.linux.dev, "Jason Wang" <jasowang@redhat.com>,
+ "Jens Axboe" <axboe@kernel.dk>, "Joerg Roedel" <joro@8bytes.org>,
+ "Jonathan Corbet" <corbet@lwn.net>, "Juergen Gross" <jgross@suse.com>,
+ kasan-dev@googlegroups.com, "Keith Busch" <kbusch@kernel.org>,
+ linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-trace-kernel@vger.kernel.org,
+ "Madhavan Srinivasan" <maddy@linux.ibm.com>,
+ "Masami Hiramatsu" <mhiramat@kernel.org>,
+ "Michael Ellerman" <mpe@ellerman.id.au>,
+ "Michael S. Tsirkin" <mst@redhat.com>, "Miguel Ojeda" <ojeda@kernel.org>,
+ "Robin Murphy" <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
+ "Sagi Grimberg" <sagi@grimberg.me>,
+ "Stefano Stabellini" <sstabellini@kernel.org>,
+ "Steven Rostedt" <rostedt@goodmis.org>, virtualization@lists.linux.dev,
+ "Will Deacon" <will@kernel.org>, xen-devel@lists.xenproject.org
+Message-Id: <45552b38-5717-4b0c-b0eb-8c463d8cf816@app.fastmail.com>
+In-Reply-To: <ccc8eeba-757a-440d-80d3-9158e80c19fe@csgroup.eu>
+References: <cover.1755193625.git.leon@kernel.org>
+ <ccc8eeba-757a-440d-80d3-9158e80c19fe@csgroup.eu>
+Subject: Re: [PATCH v3 00/16] dma-mapping: migrate to physical address-based API
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 14, 2025 at 09:39:58PM -0300, Jason Gunthorpe wrote:
-> On Thu, Aug 14, 2025 at 04:30:18PM -0700, Shyam Saini wrote:
-> > or were you referring to [2]?
-> > 
-> > In that case, the PCI child node data needs to be parsed, which is
-> > currently handled individually by each host controller driver.
-> 
-> Yes, this looks like it may be what I was thinking of, the pci@1,0
-> specifes the BDF effectively
-> 
 
-In that case, we'll need to parse the child DTS nodes properly
-within of_iommu_get_resv_regions(). I'll include this in v4.
 
-> > This might not be a strong argument, but since firmware updates tend
-> > to happen less frequently than OS updates, any addition or modification
-> > to the FDT would require a firmware update. Wouldn't it be more
-> > maintainable to keep this logic in Linux, which is easier to update
-> > and typically updated more often?
-> 
-> The DT is supposed to describe the HW, if the PCI device has an issue
-> with its dma ranges then it seems reasonable to me the FW will use the
-> existing standards based way to describe that issue?
+On Thu, Aug 14, 2025, at 22:05, Christophe Leroy wrote:
+> Le 14/08/2025 =C3=A0 19:53, Leon Romanovsky a =C3=A9crit=C2=A0:
+>> Changelog:
+>> v3:
+>>   * Fixed typo in "cacheable" word
+>>   * Simplified kmsan patch a lot to be simple argument refactoring
+>
+> v2 sent today at 12:13, v3 sent today at 19:53 .... for only that ?
+>
+> Have you read=20
+> https://docs.kernel.org//process/submitting-patches.html#don-t-get-dis=
+couraged-or-impatient=20
+> ?
 
-If that's the preferred approach, I'll revise the next version accordingly
+Yes, I'm aware of that section. It is not even remotely close to the rea=
+lity in different subsystems.
 
-> Presumably this is a fixed issue of the platform. You never did
-> explain how your system has such werdio behavior, or how something
-> like iommu=pt can function on it...
-Yes, this issue is platform-specific. On this platform, the default MSI IOVA
-range overlaps with an address region that is reserved for another purpose,
-Other than that we haven't observed any obvious issues for DMA operations
+There are some places in the kernel where you never get any responses.
 
-Thanks,
-Shyam
+Thanks
