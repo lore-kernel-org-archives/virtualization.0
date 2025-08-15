@@ -1,111 +1,95 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AE9D28C2BC
-	for <virtualization@lists.linux.dev>; Fri, 15 Aug 2025 05:38:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D2662F60BF
+	for <virtualization@lists.linux.dev>; Fri, 15 Aug 2025 09:30:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755236321; cv=none; b=iERNTg0EUC6x1vpwAKKcp/D3YBxxR/l/6o7IQ5zhi+Hb3b/5SHf2VHONksg7hg3WX6sI0Iev+1tQuLGI1iIMAZ6o4FLhsTVCC/i+Kt7yusnWYPciKelqXoA3vo3ZlYfxmjIuzIjse6kMivNLSdlxX2hbuga6nY1LO1/0mr0uKDA=
+	t=1755250254; cv=none; b=AN1/WBW5aWBALFIuHu6Eag0Z4gCHsshQ13p0r4xc1y9+lb69c5zfhwRxU+LFxjuNTFalUo0GELvf9N2DVfIxfeALSPLr80Wi9dDAuB/APDdjRau2sPDeGKwy3NBJRCB66J+cwprvZox8t5xByXgprW4FvzM6IF0gh2dNQ4DzKG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755236321; c=relaxed/simple;
-	bh=k+R2H99bfh+BH8niSXXyRR5xbh5Ki0lvO06FVlwDvVA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MAmkiTZg3bAB5WEkj8BOljTEc7T1vhiukDDLb9lAnQWRoQY0BAB/E/na1vohVR93EfkUwnGbP2g1Epfxn2gv6t0AZUA9AM9GX3dXDoOZOVKu04Xo4yR5z11H1uJoqx575J+Y0slUGiafeXtwCoQfYgzeLsye0Um2/O46kyqZkck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bg4oYuM0; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1755250254; c=relaxed/simple;
+	bh=t7UlHOuN49CWXLyZpNuOkb/8d+QezXZ+35enZ0R4o+s=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
+	 Content-Type:References; b=WTCix1vzcGyOJzTpvotNb+SkxbGDmdr6wYI3VU8t7SKEtgJ/nJy2fRIwd8KV5wtGXZvk6P8O/ghXmY7J/01dcLA45NqlH82Zct4GQHlyj7ItoHn9DDLsiT0t1wxiaSpYfd3SNMdBKY3JflszWjiVJb3W1A7rF5Hx7V4d/TYBZjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=uHgeWOyj; arc=none smtp.client-ip=203.254.224.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bg4oYuM0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755236318;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=k+R2H99bfh+BH8niSXXyRR5xbh5Ki0lvO06FVlwDvVA=;
-	b=bg4oYuM03qICeF/ha5yrS0bMYx3Ses0UT6ZH2+KmgNx47k+FA7wjZx4T4CxhfCy0BN5mD/
-	A4menhSjMBrgE/0INVAeRrcgrO2O+IX+7RBN79PiNXZhgTlWyf7AuD2aOLNvgUsyHbBK8q
-	cK0b7Z1KB7iEOY9HlmmxjV0LpZnOhj0=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-395-0Z7fMUb1OYWXDehOaJVyzg-1; Fri, 15 Aug 2025 01:38:35 -0400
-X-MC-Unique: 0Z7fMUb1OYWXDehOaJVyzg-1
-X-Mimecast-MFC-AGG-ID: 0Z7fMUb1OYWXDehOaJVyzg_1755236314
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-24458067fdeso18163565ad.1
-        for <virtualization@lists.linux.dev>; Thu, 14 Aug 2025 22:38:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755236314; x=1755841114;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=k+R2H99bfh+BH8niSXXyRR5xbh5Ki0lvO06FVlwDvVA=;
-        b=adpnWbuN74vjV4gH1QUI2HanCPHVQyU1Sm1ebMYPOJ0pswlBRK/Y/+16abV8VNTloo
-         CFnq1SU3XMI4/81/bNLROVC3HI2ucFduP/izGwhNg97dW+ynYwkXk51Z6T3KMhkVilqa
-         nHqvJ42wpEZGS361Znl9eSClXvaKU0iOCOwby6FDN573CMgl7TONL+/He6K7dekf9tc7
-         xT8LnSpOJwCs19FNOHZCaVyCMv4mWlfAd0wkBpMCp0yXIOR9ppioUC//OBVaMM1R+UjO
-         EQiOIU5krojNnPZ/jAqPdh6VYCn32OC++k1qUefDAzN6yfqZMWCWf/+ImVfkVbGZTCnm
-         Jh8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUP8a1JbLBGt3NW/pl65qeFgqXnsQCx/Qox9yc7vGz0b9k/+wy1oJkmqIHKds+hhAVazYEOt5bDvUB7f7Fsjg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzgM760KVwcRxY5crsWu3knSUjGoQM+YPj/NtAcn5VqdV/VNe4L
-	phOCIMEujdLGtcKZPSfg7oC0oXuAn7FuJ84HcCuXma7NESLHIiIHGDocKV9PXmSQ570k79U8dPz
-	zdmGNJi0VYniVQ3OOZmyWbsRkJDOeopMUL+0dOhGt20bP2R4Th0u1j/LH+IBIgdadVLZhydQ8js
-	v48ckzlizB8vWjDdTN6msGFbTLqbakrUtfZaDdI0HAPgo=
-X-Gm-Gg: ASbGnctls1/13jw7IFTHdcY4/hRf9z+tKblb5nhhVq/vgbRH9HJWaSEqpSpIcJDvLp0
-	npqJ6neOSleiFlezvMbFlzxMTZ1n08h+o4t8EMbJT4BEOJYTzNqVtYfizfMJ4dsUX5ZHMt0Ef5e
-	u/dKdwHL7AcmIk52eGbB/YBQ==
-X-Received: by 2002:a17:902:ce84:b0:240:5549:708e with SMTP id d9443c01a7336-2446d8ef2dcmr14827985ad.46.1755236313892;
-        Thu, 14 Aug 2025 22:38:33 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHNF8ixWW+K/UQ+wsBh6Kk+3CTYVr9Miz4ZwB26y/XjbpOCpnb8qBRzSIZa7K8FyWNx9BMFUAKlBAn4MxP1R4w=
-X-Received: by 2002:a17:902:ce84:b0:240:5549:708e with SMTP id
- d9443c01a7336-2446d8ef2dcmr14827585ad.46.1755236313492; Thu, 14 Aug 2025
- 22:38:33 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="uHgeWOyj"
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+	by mailout3.samsung.com (KnoxPortal) with ESMTP id 20250815093044epoutp03c95222c68f41949a7063fa7f82ef8d70~b5sxNR6kt1253012530epoutp03W
+	for <virtualization@lists.linux.dev>; Fri, 15 Aug 2025 09:30:44 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20250815093044epoutp03c95222c68f41949a7063fa7f82ef8d70~b5sxNR6kt1253012530epoutp03W
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1755250244;
+	bh=oDZNru6EzrQYE5oyYm0kJ/e5sm/ukK+OmYVVJ+YMNcE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=uHgeWOyj1Hu0xurEfTFZR3mgvaO+VfobyNmRk3g1EhZCtKawWKSycs84AFWzTpeB9
+	 sl9N/zlqCMfXetsvpGM+htdVfMCwBmf0TOO3tVxzDXVDCx5skF5m0gTn7iJni7Cipm
+	 4TNkiufnzjKJxPNvxKc42kp/e/0Sz8lEWRUQOQTI=
+Received: from epsnrtp02.localdomain (unknown [182.195.42.154]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPS id
+	20250815093044epcas5p2a2173e718c713bf1d49e0eeed3a886ff~b5sw3Knp_2650526505epcas5p2f;
+	Fri, 15 Aug 2025 09:30:44 +0000 (GMT)
+Received: from epcas5p4.samsung.com (unknown [182.195.38.92]) by
+	epsnrtp02.localdomain (Postfix) with ESMTP id 4c3H0M4fTTz2SSKX; Fri, 15 Aug
+	2025 09:30:43 +0000 (GMT)
+Received: from epsmtip2.samsung.com (unknown [182.195.34.31]) by
+	epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+	20250815060604epcas5p3a6856bcd64ee4ed80abb43b09aab8a42~b26D626KY2237322373epcas5p3c;
+	Fri, 15 Aug 2025 06:06:04 +0000 (GMT)
+Received: from asg29.. (unknown [109.105.129.29]) by epsmtip2.samsung.com
+	(KnoxPortal) with ESMTPA id
+	20250815060602epsmtip2645ad38253d82a680344ab48d7efd956~b26Cb0GMD0801708017epsmtip2Z;
+	Fri, 15 Aug 2025 06:06:02 +0000 (GMT)
+From: Junnan Wu <junnan01.wu@samsung.com>
+To: jasowang@redhat.com
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	eperezma@redhat.com, junnan01.wu@samsung.com, kuba@kernel.org,
+	lei19.wang@samsung.com, linux-kernel@vger.kernel.org, mst@redhat.com,
+	netdev@vger.kernel.org, pabeni@redhat.com, q1.huang@samsung.com,
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
+	ying123.xu@samsung.com
+Subject: Re: [PATCH net] virtio_net: adjust the execution order of function
+ `virtnet_close` during freeze
+Date: Fri, 15 Aug 2025 14:06:15 +0800
+Message-Id: <20250815060615.4162-1-junnan01.wu@samsung.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <CACGkMEtakEiHbrcAqF+TMU0jWgYOxTcDYpuELG+1p9d85MSN0w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CGME20250815022257epcas5p3de66f4e633a87e17275c0b16b888bb4e@epcas5p3.samsung.com>
- <CACGkMEv2wMm_tb+mbgMFA2M2ZimVr1OBKre3nrYrBDVPpqVoiw@mail.gmail.com> <20250815022308.2783786-1-junnan01.wu@samsung.com>
-In-Reply-To: <20250815022308.2783786-1-junnan01.wu@samsung.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 15 Aug 2025 13:38:21 +0800
-X-Gm-Features: Ac12FXx0bLK4_QgLg7PMFy71tElM2n26_1WoRrHpv6PfQj0ttolriEFKlqdwaoQ
-Message-ID: <CACGkMEtakEiHbrcAqF+TMU0jWgYOxTcDYpuELG+1p9d85MSN0w@mail.gmail.com>
-Subject: Re: [PATCH net] virtio_net: adjust the execution order of function
- `virtnet_close` during freeze
-To: Junnan Wu <junnan01.wu@samsung.com>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
-	eperezma@redhat.com, kuba@kernel.org, lei19.wang@samsung.com, 
-	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
-	pabeni@redhat.com, q1.huang@samsung.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com, ying123.xu@samsung.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 3kdbxSyrXgn-zffqfgGNnPkfKbM1CfESvTAeBJT6wZs_1755236314
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CMS-MailID: 20250815060604epcas5p3a6856bcd64ee4ed80abb43b09aab8a42
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+cpgsPolicy: CPGSC10-505,Y
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20250815060604epcas5p3a6856bcd64ee4ed80abb43b09aab8a42
+References: <CACGkMEtakEiHbrcAqF+TMU0jWgYOxTcDYpuELG+1p9d85MSN0w@mail.gmail.com>
+	<CGME20250815060604epcas5p3a6856bcd64ee4ed80abb43b09aab8a42@epcas5p3.samsung.com>
 
-On Fri, Aug 15, 2025 at 10:24=E2=80=AFAM Junnan Wu <junnan01.wu@samsung.com=
-> wrote:
->
-> Sorry, I basically mean that the tx napi which caused by userspace will n=
-ot be scheduled during suspend,
-> others can not be guaranteed, such as unfinished packets already in tx vq=
- etc.
->
-> But after this patch, once `virtnet_close` completes,
-> both tx and rq napi will be disabled which guarantee their napi will not =
-be scheduled in future.
-> And the tx state will be set to "__QUEUE_STATE_DRV_XOFF" correctly in `ne=
-tif_device_detach`.
+On Fri, 15 Aug 2025 13:38:21 +0800 Jason Wang <jasowang@redhat.com> wrote
+> On Fri, Aug 15, 2025 at 10:24 AM Junnan Wu <junnan01.wu@samsung.com> wrote:
+> >
+> > Sorry, I basically mean that the tx napi which caused by userspace will not be scheduled during suspend,
+> > others can not be guaranteed, such as unfinished packets already in tx vq etc.
+> >
+> > But after this patch, once `virtnet_close` completes,
+> > both tx and rq napi will be disabled which guarantee their napi will not be scheduled in future.
+> > And the tx state will be set to "__QUEUE_STATE_DRV_XOFF" correctly in `netif_device_detach`.
+> 
+> Ok, so the commit mentioned by fix tag is incorrect.
 
-Ok, so the commit mentioned by fix tag is incorrect.
+Yes, you are right. The commit of this fix tag is the first commit I found which add function `virtnet_poll_cleantx`.
+Actually, we are not sure whether this issue appears after this commit.
 
-Thanks
+In our side, this issue is found by chance in version 5.15.
 
->
-> Thanks.
->
-
+It's hard to find the key commit which cause this issue
+for reason that the reproduction of this scenario is too complex.
