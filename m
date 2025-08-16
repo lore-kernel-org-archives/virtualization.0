@@ -1,181 +1,162 @@
-Received: from fout-a4-smtp.messagingengine.com (fout-a4-smtp.messagingengine.com [103.168.172.147])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5986129ACCE;
-	Sat, 16 Aug 2025 11:05:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.147
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 963E927F758
+	for <virtualization@lists.linux.dev>; Sat, 16 Aug 2025 11:16:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755342345; cv=none; b=tGj/9/MOpi2b4jjsCIkYArRRpf+XlxFHqG1E8pW+P5dG5R+TFiB+MTENTS0kBOU85OAE/9TqHsf9WhukPkrDfCyVhZVN/DL0d0zgCgKhem2AEVXCLtqu+lM20hIiEygUlDoyyulDRHJp/h640bR/cGqO3b44WXH9ZHVcTMXuK8I=
+	t=1755342994; cv=none; b=mspa6v9Bb5+IBGlgyay9gcxKHW/B4OBkw/4G8kiQxVbKfbM1UOhU3gqP22LI71YHsgKZ+hAB8NxgF1oTj1oIed/dxKK5E/QKM4Y93Vt/lrnGOAASqcNZqKuHz7vuZ7cdG/dHra8cs1NmLV6vd7Rgxj9e+j6qQ+tM9Vlbz2IaPys=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755342345; c=relaxed/simple;
-	bh=/Xr/7+XDj+4rgaBJNMQKcJXTzT1LWyASSqvqAtphER8=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=SkvKrHRTqD4L1k679wr/A7LKeWN0gCVriJTCEPsjrNQpTzRoJVa57TZvsOdSMsHCIR7hVUeC7v+sgL3xABi3A+cNPxLr3VZejEyWCSvFNCq8DchJVLTvGodudizFfL0alFB3UOArXxYr+26YhmPA5ktYRXksAYpSYMT1vAZ/sfg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=FQJRsQkq; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=cP/EA5be; arc=none smtp.client-ip=103.168.172.147
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
+	s=arc-20240116; t=1755342994; c=relaxed/simple;
+	bh=p+OQJdHRBzlxDexxQc8bsWt3RekR3nxtrLX9rgGs9d4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=TMLEvT8mj0oTyW5K/ipNmdp8NH4a9TRkpNApwgI9+85PAV4MhUS0ZlXi/iQM6yjXnRAHZ68qKn/E0WIYcVOAv2cq6Ot56Kut8Lzhl0ikHVmRepBycC3QPFtKSZfy4ejEkHpt6IejTAJ6kSyLi1jjYaIb7iMEypKSpbwY1QszfXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AVs1zYbe; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="FQJRsQkq";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="cP/EA5be"
-Received: from phl-compute-07.internal (phl-compute-07.internal [10.202.2.47])
-	by mailfout.phl.internal (Postfix) with ESMTP id 4F3F8EC00BE;
-	Sat, 16 Aug 2025 07:05:41 -0400 (EDT)
-Received: from phl-mailfrontend-01 ([10.202.2.162])
-  by phl-compute-07.internal (MEProxy); Sat, 16 Aug 2025 07:05:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1755342341; x=1755428741; bh=eoQIGU9yvG
-	8i+AvNZIEoFY+QHKc+7oPWWb3n/JwcGJQ=; b=FQJRsQkqF+1nnUajQYxRH7lYp0
-	PlO9qi6iJwhoEspfyt8iE84Tgaj1A94qZe4+B2S9i1grYfrwhlJa3gdjDOze/HhP
-	O3k35gxGwgFfm/Hc5OSEijg/nB3fDDRTxf+2Bt2IbgTUG83AYB3NGjnx7eg3YLOg
-	4NIofvJexoEL0KMRKyOomrzlOnlGo8gvXJ5f2bBsEBzUG8T7M74QhFWDdpbvD1nM
-	9ZukORhLzP4D1wEPOHDrt3Yfb5HMhfTfF3PAx6mwAGEVvNBCJFYmwBtKO63kuZ3V
-	VQGfTrCbOqjwlaV9kM7BFjFUN9YpSUXjbLWMdxcOg7Plsz2ZnD3X99GONIGA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1755342341; x=1755428741; bh=eoQIGU9yvG8i+AvNZIEoFY+QHKc+7oPWWb3
-	n/JwcGJQ=; b=cP/EA5be/9ehUZx7r0APnfatWtPuu/PmJCdQxWOGHzjo5H3KNq6
-	2TVS7SyT2cpm07RjsXhMLj6NGHOyhmSmoiApQgnp78fFkFrsesV20gCXiocBqf6O
-	9Z97rfRKh5QK1CNAx5PZ6NeUPJ9GNfJlq8FhxXmATG8eaOm6ceC1g+jyl5beha2/
-	39kuoR7jz/it/nmIe284U+IpPtjV6/Cs7C/mTijgpyhqHFDGYzkx+S9Uq+WC8Qnb
-	rC06mSZ3pIrkS5G+zMYcdyKg21Vz1TU12C8nx5Y1ND4X4KGlKu98hinH+7QPwZnr
-	EFhyBcUHLX9hrG69ObxVoTplqFYNk+GgpwQ==
-X-ME-Sender: <xms:BGagaOC46lm7hgrYXOSBmW8fWyV6CVFyBzo5sarcOC8UC5LjUMgV0A>
-    <xme:BGagaEMwME03leEk1ldyN-sa2521H3kTGWbTtX9l00iCgmD6-1vBpUN2NuUAPp4m2
-    gi9zfVSWAkcp4C_eQ>
-X-ME-Received: <xmr:BGagaOC_GfEC9mCDmyzAXwCc7W8dqgiCp8OeMIXxLIRdHgU1CZO7aeTWDqJ_SeoJ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgddugeeiieelucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucenucfjughrpefhvfevufgjfhffkfggtgesghdtreertd
-    dtjeenucfhrhhomheptehlhihsshgrucftohhsshcuoehhihesrghlhihsshgrrdhisheq
-    necuggftrfgrthhtvghrnhepjeetudegvefhvdehgeevffffledvgeelhfeggeegleeije
-    fhuddttdeiieetuedvnecuffhomhgrihhnpegtrhhoshhvmhdruggvvhdpghhithhhuhgs
-    rdgtohhmpdhkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
-    grmhepmhgrihhlfhhrohhmpehhihesrghlhihsshgrrdhishdpnhgspghrtghpthhtohep
-    ledpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepshgrmhhiuhguughinhhsrghmih
-    drmhgurdhkohesghhmrghilhdrtghomhdprhgtphhtthhopehsrghmihdrmhgurdhkohes
-    ghhmrghilhdrtghomhdprhgtphhtthhopeiguhgrnhiihhhuoheslhhinhhugidrrghlih
-    gsrggsrgdrtghomhdprhgtphhtthhopehrvghgrhgvshhsihhonhhssehlihhsthhsrdhl
-    ihhnuhigrdguvghvpdhrtghpthhtohepvhhirhhtuhgrlhhiiigrthhiohhnsehlihhsth
-    hsrdhlihhnuhigrdguvghvpdhrtghpthhtohepvghpvghrvgiimhgrsehrvgguhhgrthdr
-    tghomhdprhgtphhtthhopehjrghsohifrghnghesrhgvughhrghtrdgtohhmpdhrtghpth
-    htohepmhhsthesrhgvughhrghtrdgtohhmpdhrtghpthhtoheplhhinhhugidqkhgvrhhn
-    vghlsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:BGagaF7K90hJoxwyYV-pOM4y4H-wEHH1aZ57SDqhk1LINdTTpG5YWg>
-    <xmx:BGagaI4V_JxLB52z_asyXklSoFv2_czc7f0nJaXK17aUj2ckEZWkSA>
-    <xmx:BGagaHQqW-mV8-rMPObgfQb3OSFcKaWDOukxBGeHdDGYAErWdwJj5A>
-    <xmx:BGagaA9cV8GXkE7rj1PSl1JNXY4-S-U-FOzMnDYY65xkZPKut74DyA>
-    <xmx:BWagaBlHvLeVUNaFZgiDjjA_3O0ysPa-aMUiy9_DEKod5LjXtHNESbu0>
-Feedback-ID: i12284293:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 16 Aug 2025 07:05:40 -0400 (EDT)
-Received: by mbp.qyliss.net (Postfix, from userid 1000)
-	id E4A6414025C2; Sat, 16 Aug 2025 13:05:33 +0200 (CEST)
-From: Alyssa Ross <hi@alyssa.is>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AVs1zYbe"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1755342991;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9+qL3UxaFfrtgWhKmgO7weS5eswTNMs7xBKwQ0a2qNg=;
+	b=AVs1zYbeBjdGnIYa8G87Z+k7ZEeUp6xW4pp3YvZ7wkdztiN9Iv5rRFldR1vTwxcpFRP0la
+	2AH1DAldDAP0DpAtp5aU8U25+cj69yvPzIQTIfn8f+uT+PCLQd+F5C27ZZ3762mHWvtHNS
+	o4y8lmgVpW5QLm7wLWzssu/5T+54tI4=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-518-syoVLjBhPuWhbnEA7i7vhg-1; Sat, 16 Aug 2025 07:16:27 -0400
+X-MC-Unique: syoVLjBhPuWhbnEA7i7vhg-1
+X-Mimecast-MFC-AGG-ID: syoVLjBhPuWhbnEA7i7vhg_1755342986
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3b9a3471121so1684570f8f.0
+        for <virtualization@lists.linux.dev>; Sat, 16 Aug 2025 04:16:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755342986; x=1755947786;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9+qL3UxaFfrtgWhKmgO7weS5eswTNMs7xBKwQ0a2qNg=;
+        b=JpaL6NwCDwtr+a50I3Xoqz5XnqxuyVf5AcjG1uBPoL/Px0Pjlf7aEEToQDTpbwtHWJ
+         0LMda4GyjZVi8ivWQUXH1vw/9W4E3xOl+LU8ozeeiS0dTkSx1qPmWzKm+KvtFY8M75PT
+         RkuZmpBQ1BsyPvaaGXxhyj7Hwf6svxQu6z7OTe6lBTBXIzG/JeUJuwudEaW2tZGZJ5rI
+         4Ex8/Opr07kOL1qsZb2LI/LDUDMKdnN0IifAaGFjBr9SoQ7bFi3XDvjb7HEGdUISE5V6
+         8BxaxReyPcY2QbFjp7RF6fBCW7VNPpouJx0XCEHWk31TUTxc5GBupi6A/YY8/EyKaWv2
+         x/jg==
+X-Forwarded-Encrypted: i=1; AJvYcCW8TFleSDe7+qTZUZShwWCJoJzi2ucMZSK2d+Uv4PSrak8FdDDGPIa0wiU/FnQhyfLsbVC10iwfN+p89QqbBQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxdo1z7nGms4GxJfry7pUnw5ME2hke9bU4iqpWeMd9vbRsgwLBZ
+	L6U3UqKqUmyLN/ZDCriMesNPfRckFsHuhoc9JOydGMm1yheq+E3JuAkBPVse5YOyJWZf5/PP08n
+	xEne0TQry8pnSdKY+8Ku6TyGgD7f9vnkdJQdj0wxoi8lVT64ukGgZW5+QFoPnBievU2Ge
+X-Gm-Gg: ASbGncvgbhWPxAld5MlNB+876MOfbSOs2YbE5HEalF75EAzdxTrSMCOJ4gB2/YSeLh0
+	fWt929tnPAs1SETKLNei8H3uYbOa8L3a18Td/hGoHxgFUbom1aAIktmf11mGWcccVKKSwe/3cyq
+	iETRKDfZlglUZKTL4bv85jg/Lz/VSYtp+STVkR6FRika4Ol1yKBJOuypWbS053qEV+vLM7asoSR
+	DPSWphOe2FIs/GE2O+tzroqrE2t4aGEvdqHNK56LfDveugfhYL6z367VqaSMUKeWfp5r8oFldKA
+	wePIu+GxBJp7obOTwKYUF775R+4eJyJ5rN4=
+X-Received: by 2002:a05:6000:22c6:b0:3b8:d740:a16a with SMTP id ffacd0b85a97d-3ba508ec53emr8158704f8f.16.1755342986425;
+        Sat, 16 Aug 2025 04:16:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFCB/tq6+rH1afwsy5HF5LOvKBlZteXTvS85IvwsaJcRQSuivds13I3biPvIiVcaxEDU6JMqQ==
+X-Received: by 2002:a05:6000:22c6:b0:3b8:d740:a16a with SMTP id ffacd0b85a97d-3ba508ec53emr8158691f8f.16.1755342986010;
+        Sat, 16 Aug 2025 04:16:26 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:73cf:b700:6c5c:d9e7:553f:9f71])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3bb64e27843sm5427333f8f.19.2025.08.16.04.16.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 16 Aug 2025 04:16:25 -0700 (PDT)
+Date: Sat, 16 Aug 2025 07:16:23 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alyssa Ross <hi@alyssa.is>
 Cc: SamiUddinsami.md.ko@gmail.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, Sami Uddin
- <sami.md.ko@gmail.com>, regressions@lists.linux.dev
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	Sami Uddin <sami.md.ko@gmail.com>, regressions@lists.linux.dev
 Subject: Re: [REGRESSION] virtio: reject shm region if length is zero
-In-Reply-To: <20250816063522-mutt-send-email-mst@kernel.org>
+Message-ID: <20250816071600-mutt-send-email-mst@kernel.org>
 References: <20250511222153.2332-1-sami.md.ko@gmail.com>
  <kgasjsq2s4pshravsinycfihdfjhdts5iz2fox42aejs4xqhce@frurksambnk3>
- <87y0rkie9l.fsf@alyssa.is> <20250816063522-mutt-send-email-mst@kernel.org>
-Date: Sat, 16 Aug 2025 13:05:21 +0200
-Message-ID: <878qjj8r2m.fsf@alyssa.is>
+ <87y0rkie9l.fsf@alyssa.is>
+ <20250816063522-mutt-send-email-mst@kernel.org>
+ <878qjj8r2m.fsf@alyssa.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha512; protocol="application/pgp-signature"
-
---=-=-=
+In-Reply-To: <878qjj8r2m.fsf@alyssa.is>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: DmUvEu9EUBiWsR9-AQapBuETKlVzw7td-G2zc2ORCzE_1755342986
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
+On Sat, Aug 16, 2025 at 01:05:21PM +0200, Alyssa Ross wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> 
+> > On Fri, Aug 15, 2025 at 09:19:34PM +0200, Alyssa Ross wrote:
+> >> Alyssa Ross <hi@alyssa.is> writes:
+> >> 
+> >> > On Mon, May 12, 2025 at 07:51:53AM +0930, SamiUddinsami.md.ko@gmail.com wrote:
+> >> >> From: Sami Uddin <sami.md.ko@gmail.com>
+> >> >>
+> >> >> Prevent usage of shared memory regions where the length is zero,
+> >> >> as such configurations are not valid and may lead to unexpected behavior.
+> >> >>
+> >> >> Signed-off-by: Sami Uddin <sami.md.ko@gmail.com>
+> >> >> ---
+> >> >> v3:
+> >> >> - Use idiomatic 'if (!region->len)' as suggested by reviewer
+> >> >> v2:
+> >> >> - Fixed coding style issue: added space after 'if' statement
+> >> >>
+> >> >>  include/linux/virtio_config.h | 2 ++
+> >> >>  1 file changed, 2 insertions(+)
+> >> >
+> >> > Hi, I'm sorry to be the bearer of bad news, but since this patch my VM
+> >> > no longer works.  The system is running wayland-proxy-virtwl[1] inside
+> >> > a crosvm[2] VM, using crosvm's virtio-gpu device to do cross-domain
+> >> > Wayland forwarding.
+> >> >
+> >> > Since this change, wayland-proxy-virtwl crashes with the following log
+> >> > message:
+> >> >
+> >> > 	wl-proxy [WARNING]: Error handling client: Unix.Unix_error(Unix.EINVAL, "DRM_IOCTL_VIRTGPU_RESOURCE_CREATE_BLOB", "")
+> >> >
+> >> > I'm pretty confused by what this change was supposed to do in the first
+> >> > place…  Looking at how virtio_get_shm_region() is used in
+> >> > virtio_gpu_init(), it's called with a pointer to zeroed memory, and then
+> >> > the get_shm_region() implementation is supposed to write to the region,
+> >> > without ever reading from it as far as I can tell.  Why is the initial
+> >> > value of an out parameter being checked at all?  How does this prevent
+> >> > using zero-length shared memory regions?
+> >> >
+> >> > [1]: https://crosvm.dev/
+> >> > [2]: https://github.com/talex5/wayland-proxy-virtwl
+> >> >
+> >> > #regzbot introduced: 206cc44588f72b49ad4d7e21a7472ab2a72a83df
+> >> 
+> >> Okay, just found that it's already been reverted:
+> >> https://lore.kernel.org/all/20250808072533-mutt-send-email-mst@kernel.org/
+> >> 
+> >> Still, I'm confused how this was supposed to fix anything…
+> >> 
+> >> #regzbot fix: Revert "virtio: reject shm region if length is zero"
+> >
+> >
+> >
+> > Are you asking why was the patch applied in the 1st place?
+> > It seemed like an invalid behaviour to me, and I thought it's
+> > not too late to block it so we don't need to support it
+> > down the road.
+> 
+> So you just weren't aware during the review that it's an output
+> parameter rather than an input?  Should the parameter maybe be renamed
+> or something to make that more obvious?
 
-> On Fri, Aug 15, 2025 at 09:19:34PM +0200, Alyssa Ross wrote:
->> Alyssa Ross <hi@alyssa.is> writes:
->>=20
->> > On Mon, May 12, 2025 at 07:51:53AM +0930, SamiUddinsami.md.ko@gmail.co=
-m wrote:
->> >> From: Sami Uddin <sami.md.ko@gmail.com>
->> >>
->> >> Prevent usage of shared memory regions where the length is zero,
->> >> as such configurations are not valid and may lead to unexpected behav=
-ior.
->> >>
->> >> Signed-off-by: Sami Uddin <sami.md.ko@gmail.com>
->> >> ---
->> >> v3:
->> >> - Use idiomatic 'if (!region->len)' as suggested by reviewer
->> >> v2:
->> >> - Fixed coding style issue: added space after 'if' statement
->> >>
->> >>  include/linux/virtio_config.h | 2 ++
->> >>  1 file changed, 2 insertions(+)
->> >
->> > Hi, I'm sorry to be the bearer of bad news, but since this patch my VM
->> > no longer works.  The system is running wayland-proxy-virtwl[1] inside
->> > a crosvm[2] VM, using crosvm's virtio-gpu device to do cross-domain
->> > Wayland forwarding.
->> >
->> > Since this change, wayland-proxy-virtwl crashes with the following log
->> > message:
->> >
->> > 	wl-proxy [WARNING]: Error handling client: Unix.Unix_error(Unix.EINVA=
-L, "DRM_IOCTL_VIRTGPU_RESOURCE_CREATE_BLOB", "")
->> >
->> > I'm pretty confused by what this change was supposed to do in the first
->> > place=E2=80=A6  Looking at how virtio_get_shm_region() is used in
->> > virtio_gpu_init(), it's called with a pointer to zeroed memory, and th=
-en
->> > the get_shm_region() implementation is supposed to write to the region,
->> > without ever reading from it as far as I can tell.  Why is the initial
->> > value of an out parameter being checked at all?  How does this prevent
->> > using zero-length shared memory regions?
->> >
->> > [1]: https://crosvm.dev/
->> > [2]: https://github.com/talex5/wayland-proxy-virtwl
->> >
->> > #regzbot introduced: 206cc44588f72b49ad4d7e21a7472ab2a72a83df
->>=20
->> Okay, just found that it's already been reverted:
->> https://lore.kernel.org/all/20250808072533-mutt-send-email-mst@kernel.or=
-g/
->>=20
->> Still, I'm confused how this was supposed to fix anything=E2=80=A6
->>=20
->> #regzbot fix: Revert "virtio: reject shm region if length is zero"
->
->
->
-> Are you asking why was the patch applied in the 1st place?
-> It seemed like an invalid behaviour to me, and I thought it's
-> not too late to block it so we don't need to support it
-> down the road.
+Sounds like a good idea.
 
-So you just weren't aware during the review that it's an output
-parameter rather than an input?  Should the parameter maybe be renamed
-or something to make that more obvious?
+-- 
+MST
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEARYKAB0WIQRV/neXydHjZma5XLJbRZGEIw/wogUCaKBl8QAKCRBbRZGEIw/w
-onvaAP46XV37Gzix67SqACor2g971Hpr2vz0/OP+0qpre+cGDQD/cgQQxms1GDD1
-rBMc+tC4sKjF8OuS1+aR1BKBa/MCyAg=
-=UddE
------END PGP SIGNATURE-----
---=-=-=--
