@@ -1,152 +1,132 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D47926CE1E
-	for <virtualization@lists.linux.dev>; Sat, 16 Aug 2025 10:36:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F343328F926
+	for <virtualization@lists.linux.dev>; Sat, 16 Aug 2025 10:38:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755340587; cv=none; b=jGjrf+TRdBgmCbdJ4/tnw8ip0zr+2iSVU8USogUPqoLqtuDfy36IZVme4u29rsUrdivda2QzUqpps5GZURJDlInYcmwuHncMAMBcThQTP35RanRuvpFtfER1dC+R0+F2oLxZdT9CxPTsyt49YngDp8fL42qTGNdotJKvf5Qs+CA=
+	t=1755340700; cv=none; b=RFTi5+5YL/Qjpbkws119fwIvTy2YOrbY1n/k3FnhE1kxL0JhUJhVopcizEAiszHaRQowcIWt15qt1yx0a8tqtWABrj19tTWFHqFRJgIn8O2NQBD0rtWS/IsnNqyEN4xZrvjwg1F1A9I3QsaVNKd8Jw9TSc3T+2qCG+nkRMEd/Js=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755340587; c=relaxed/simple;
-	bh=EYfRYy1z92ajS4ke1U1qfeBzLYzlyxCzubIJ3/OY6bs=;
+	s=arc-20240116; t=1755340700; c=relaxed/simple;
+	bh=ekx8YSOc7g6jM4/k8aaZwSazUxe/M8O4Al5/LfbvT28=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=lzBtB0BxeFeS8ZBvnJ+rYL02omr/3rJJD5U70a45dsNsJ9XRJJwnh/YjIrEgpfipWHc7t8O+KcFpIYcflY5XKVP42aJudSDYOsmOnRQJV/Yy6OwWNqkhpgkPGonuGRwm3zFnCZxwJNDIRbYO2up/cHIc/cYPW7Dtwte+zAJrG6o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bddQ7JUF; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=r0kWglnNYBvKrJo+KiSpX4CtPkMS00ymXgp1HZWsn8hoAQVSQgoLDSs/DI5RbKjlNCEuLo+g/Eq/sqnDY54abasN3iTsxzl2I58wLawXRilfy6IlH1/aXTWBt3e0evdjkI1dG2OsZIHMfoh1+ohogpBLS+gCPKO1Av1nxq6s+K0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UIFnvw7N; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bddQ7JUF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UIFnvw7N"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755340584;
+	s=mimecast20190719; t=1755340697;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=u8kpb4zYqo4EMmVx2Xny+4AO4zuhFI4D+a2JoLHbhIs=;
-	b=bddQ7JUFQ5QD85Kt9P2FeWLty2Uck6PEqmOpr0fEgFoO+a26T4pqgDwdfjeibAcpj3RCG6
-	vEgD80IG0Xv/bNdMAnaeAfhYZATaV7MyotMnnKMmviXrUHKqgW0UUOz08Qrg7VoYpzcAx/
-	950FWT6RgcZQTNWdwIM5rU454OaZrVM=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=WVcBDRwWsttWGK38lVHrVbMK6gqAO5C0KIt3MgVZUK8=;
+	b=UIFnvw7NjVftyT0n7odJ2BhaiF0TwR9gI/e5eNeKwb/hPKHc8VavRdh5Rzt6CuQoJdQXFq
+	7ze4uNJvPhUTHyYwyb6mJNkeJFJawpkAkpA9JXXrPZX5L7y4mTfjVj14HNdLr8Jzkoq7ZZ
+	DtJ4o4Z9ySm+UP0t3XBPf4bMsE9jiKo=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-356-PWYM6LAmP0CnFThWMPg0QA-1; Sat, 16 Aug 2025 06:36:23 -0400
-X-MC-Unique: PWYM6LAmP0CnFThWMPg0QA-1
-X-Mimecast-MFC-AGG-ID: PWYM6LAmP0CnFThWMPg0QA_1755340582
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3b9a3471121so1666433f8f.0
-        for <virtualization@lists.linux.dev>; Sat, 16 Aug 2025 03:36:22 -0700 (PDT)
+ us-mta-252-unTsiHi6Ps2L5c9WB2laKA-1; Sat, 16 Aug 2025 06:38:16 -0400
+X-MC-Unique: unTsiHi6Ps2L5c9WB2laKA-1
+X-Mimecast-MFC-AGG-ID: unTsiHi6Ps2L5c9WB2laKA_1755340695
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-45a1b05d8d0so15003195e9.1
+        for <virtualization@lists.linux.dev>; Sat, 16 Aug 2025 03:38:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755340581; x=1755945381;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=u8kpb4zYqo4EMmVx2Xny+4AO4zuhFI4D+a2JoLHbhIs=;
-        b=mTIzhWT3aFQ1eEExznYqSDFFYuBtq7OHeFT9dQ71dmUhWWKOlt+76M2ezGfBE0peno
-         i0CCgBOp7IYmJ11xVnxw4c/tU0jXt8iBIuSw1IZzWFlIO42Ln8uiOJBHyC6IGo2uRvf7
-         hQCBcvsyYIsqedVoNvus8wgu8BJWP5WdxQS/GRTZlzsdEE47Gs59NX6/jlsoPaDLB6Aq
-         C77AK3KN0RTxp5xNgOI1NlohM+x5Nu5+u4bfaxDiLaEmqrml/LNTpqhCWsYzMacnvQ9h
-         yifOAalNwe5ZdbnABXsdYtybq/3ldSC8k3ljXyQzd+CksMYk0zVWjqMQ3vlESlOSJb/l
-         +ppg==
-X-Forwarded-Encrypted: i=1; AJvYcCXfEpBK1Pc00Fgj115wCIdS9pW4dbz3YahZgGEmF18Fxhtwtsf3Uh0kHYE2nQEWELW5+NVgeRQo8nXbJOoscw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyh1yyLUba656NAqgqssLmm9gyqS4jn8R0sARZB8ZRPyINiQMhp
-	bABgSNGjtytfiS8CKOPhvihphpE4kWOdSxIDAllUPN7t3keV/XB0+CkNOMveIeDH0aTLaSaEoVp
-	YFOGp2R9DsE7KNKSbCwr9zXDIfNyeoXrTyxBJUFy56HHOCEFNz0NymzLj3UByrz06TdZHIE+95a
-	0/
-X-Gm-Gg: ASbGncuBD9XqQRpQPEINk7RzQMSYt3OIIqla3muhkjP7+K0SGFsWv/58njD733hVrYg
-	AMNveGP7XTyy2pOLp0aWu6SmDGWVpoSCkAjfcqZm0YdcJMptkRrUgPIrE8MNtxthsMEhvy2kh0S
-	PyKW3Fv2PvDBT0mDZesKHJBBIr7TuMdBxhOyooqMLqTW8tYI4FjuE3zYaZRxDlPbkPXIC0nidwD
-	FvpEbYVR2wAD9sRm3YLLvC3JfvY5qvHZbzEWC5DhFm7WGbt/rMxAwqq8/JxSU106cfkWA17N9P8
-	Q7zVrR8+FUBboVq9J4m14txcGu2FGCJDSSI=
-X-Received: by 2002:a05:6000:4310:b0:3a5:8991:64b7 with SMTP id ffacd0b85a97d-3ba5093b77dmr7934612f8f.26.1755340581487;
-        Sat, 16 Aug 2025 03:36:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGhOaIvnCh51kO1M3yudZ1Zco2KV8bF2xaTDUF4+BRWU8NLMhH+ezyI4LNzBjTWj+A0q+/Xgw==
-X-Received: by 2002:a05:6000:4310:b0:3a5:8991:64b7 with SMTP id ffacd0b85a97d-3ba5093b77dmr7934596f8f.26.1755340581068;
-        Sat, 16 Aug 2025 03:36:21 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1755340695; x=1755945495;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WVcBDRwWsttWGK38lVHrVbMK6gqAO5C0KIt3MgVZUK8=;
+        b=H2ApoMbFM7bnwiIttQM1KUAk45407oIza+agLKQRh1js6S1UlD33lcGkcFsycdSR1R
+         9Zi6IylNvVyzF4VQ9ePrk5Wslg3oM6LkjOKmvCyuitqtgllgrlBp9k5ZIBa2ty9KwNZM
+         5JcfQ/7BDaftzbzCiVWaOAibVjpczzcvundfjyOubAsd/vICFvcDizD5mtz+l9ZprBs5
+         wLUe9ziOPvTWEfmuDLdiDcyiZGtQbQkghSVG300cn5puDkw6xSNenjNMqqNhsb6y0s1W
+         +XSVVs81O3RfLG7g481/3N7ThdyXC91CfzFRjc18ea88azhkacgHcKnygn16EWl/pFhS
+         8rBg==
+X-Forwarded-Encrypted: i=1; AJvYcCWo1RsYPQ+4pF0SmDsnHG+8QXfDHc55RrKaj6rGiJA7BJ+dDu6ZJHcS7IPKYbVzGbkTGWrF8t9kfKPDwUHHTg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw7kxZQNZatz47PpgZOTbyo9OeZGOpVImRONbAiv+fc9ZRdyDFU
+	fIl6wecmXRVt/9VSO+PEBniW0eZb/EaVqeji8hVYS17vw+hZizGGDaFy9j7snG6seBtFONa6rQP
+	HqH7zj/qP7o4l3Twuvv7+emKIcIsQSrLzIvC9+G56U5TCnTRuniCF6o60mK91pcykCbcCeDY8zW
+	BB
+X-Gm-Gg: ASbGncvFQQz5sFgop/KiJlOXSCJalZk8k8BbJXTOkhoUKSi7ATTsZ9aFBs5H0c3Xnlt
+	vmTcjescFsFLBtamykHI3UfZUZScqczydqO4kWSwLyJODwvt2Xpwi6unOPnneXne4JlRqNkiZ71
+	UeT09UtDfhYVDxhqVMEJB6Awgme3p2QN9GsnfDvrLOG0zK/J5hx3AcB5xvZMaRaW49RG7E1/ThZ
+	nk5FrSfedR56THx9z+q+5Ja9yO1aAzh8qQIUFYhumNg92ncMS2b09n5C7OTGOztB2ejO+0h57dp
+	GSm2r/Xbj00aHUOM0J8887Ebg/EVktkQGwE=
+X-Received: by 2002:a05:600c:4f53:b0:459:d780:3604 with SMTP id 5b1f17b1804b1-45a24220467mr38335015e9.3.1755340694656;
+        Sat, 16 Aug 2025 03:38:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGpyVsdecoZjN3XgasLnVr8q4r9q39UzUvK2o47D3rxm95PhfzS+mCEvAW9UWwlVcWzucaPIA==
+X-Received: by 2002:a05:600c:4f53:b0:459:d780:3604 with SMTP id 5b1f17b1804b1-45a24220467mr38334835e9.3.1755340694248;
+        Sat, 16 Aug 2025 03:38:14 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73cf:b700:6c5c:d9e7:553f:9f71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3bb64d307cfsm5181464f8f.18.2025.08.16.03.36.19
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45a1c6bd337sm91741855e9.4.2025.08.16.03.38.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 16 Aug 2025 03:36:20 -0700 (PDT)
-Date: Sat, 16 Aug 2025 06:36:18 -0400
+        Sat, 16 Aug 2025 03:38:13 -0700 (PDT)
+Date: Sat, 16 Aug 2025 06:38:11 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alyssa Ross <hi@alyssa.is>
-Cc: SamiUddinsami.md.ko@gmail.com, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Sami Uddin <sami.md.ko@gmail.com>, regressions@lists.linux.dev
-Subject: Re: [REGRESSION] virtio: reject shm region if length is zero
-Message-ID: <20250816063522-mutt-send-email-mst@kernel.org>
-References: <20250511222153.2332-1-sami.md.ko@gmail.com>
- <kgasjsq2s4pshravsinycfihdfjhdts5iz2fox42aejs4xqhce@frurksambnk3>
- <87y0rkie9l.fsf@alyssa.is>
+To: Hillf Danton <hdanton@sina.com>
+Cc: Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v4 9/9] vsock/virtio: Allocate nonlinear SKBs for
+ handling large transmit buffers
+Message-ID: <20250816063802-mutt-send-email-mst@kernel.org>
+References: <20250717090116.11987-1-will@kernel.org>
+ <20250717090116.11987-10-will@kernel.org>
+ <20250813132554.4508-1-hdanton@sina.com>
+ <20250815120747.4634-1-hdanton@sina.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <87y0rkie9l.fsf@alyssa.is>
+In-Reply-To: <20250815120747.4634-1-hdanton@sina.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -_9Z8fWhsJYuy2v0c3GSHIYOzQ1aFcVXnoj4PE3Tbcw_1755340582
+X-Mimecast-MFC-PROC-ID: GUdm05CkchEMsd0SqCzxybuTGDf8XIbvceFfY1DX1Q4_1755340695
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Fri, Aug 15, 2025 at 09:19:34PM +0200, Alyssa Ross wrote:
-> Alyssa Ross <hi@alyssa.is> writes:
-> 
-> > On Mon, May 12, 2025 at 07:51:53AM +0930, SamiUddinsami.md.ko@gmail.com wrote:
-> >> From: Sami Uddin <sami.md.ko@gmail.com>
-> >>
-> >> Prevent usage of shared memory regions where the length is zero,
-> >> as such configurations are not valid and may lead to unexpected behavior.
-> >>
-> >> Signed-off-by: Sami Uddin <sami.md.ko@gmail.com>
-> >> ---
-> >> v3:
-> >> - Use idiomatic 'if (!region->len)' as suggested by reviewer
-> >> v2:
-> >> - Fixed coding style issue: added space after 'if' statement
-> >>
-> >>  include/linux/virtio_config.h | 2 ++
-> >>  1 file changed, 2 insertions(+)
-> >
-> > Hi, I'm sorry to be the bearer of bad news, but since this patch my VM
-> > no longer works.  The system is running wayland-proxy-virtwl[1] inside
-> > a crosvm[2] VM, using crosvm's virtio-gpu device to do cross-domain
-> > Wayland forwarding.
-> >
-> > Since this change, wayland-proxy-virtwl crashes with the following log
-> > message:
-> >
-> > 	wl-proxy [WARNING]: Error handling client: Unix.Unix_error(Unix.EINVAL, "DRM_IOCTL_VIRTGPU_RESOURCE_CREATE_BLOB", "")
-> >
-> > I'm pretty confused by what this change was supposed to do in the first
-> > place…  Looking at how virtio_get_shm_region() is used in
-> > virtio_gpu_init(), it's called with a pointer to zeroed memory, and then
-> > the get_shm_region() implementation is supposed to write to the region,
-> > without ever reading from it as far as I can tell.  Why is the initial
-> > value of an out parameter being checked at all?  How does this prevent
-> > using zero-length shared memory regions?
-> >
-> > [1]: https://crosvm.dev/
-> > [2]: https://github.com/talex5/wayland-proxy-virtwl
-> >
-> > #regzbot introduced: 206cc44588f72b49ad4d7e21a7472ab2a72a83df
-> 
-> Okay, just found that it's already been reverted:
-> https://lore.kernel.org/all/20250808072533-mutt-send-email-mst@kernel.org/
-> 
-> Still, I'm confused how this was supposed to fix anything…
-> 
-> #regzbot fix: Revert "virtio: reject shm region if length is zero"
+On Fri, Aug 15, 2025 at 08:07:46PM +0800, Hillf Danton wrote:
+> On Fri, 15 Aug 2025 06:22:56 -0400 "Michael S. Tsirkin" wrote:
+> > On Wed, Aug 13, 2025 at 09:25:53PM +0800, Hillf Danton wrote:
+> > > On Wed, 13 Aug 2025 04:41:09 -0400 "Michael S. Tsirkin" wrote:
+> > > > On Thu, Jul 17, 2025 at 10:01:16AM +0100, Will Deacon wrote:
+> > > > > When transmitting a vsock packet, virtio_transport_send_pkt_info() calls
+> > > > > virtio_transport_alloc_linear_skb() to allocate and fill SKBs with the
+> > > > > transmit data. Unfortunately, these are always linear allocations and
+> > > > > can therefore result in significant pressure on kmalloc() considering
+> > > > > that the maximum packet size (VIRTIO_VSOCK_MAX_PKT_BUF_SIZE +
+> > > > > VIRTIO_VSOCK_SKB_HEADROOM) is a little over 64KiB, resulting in a 128KiB
+> > > > > allocation for each packet.
+> > > > > 
+> > > > > Rework the vsock SKB allocation so that, for sizes with page order
+> > > > > greater than PAGE_ALLOC_COSTLY_ORDER, a nonlinear SKB is allocated
+> > > > > instead with the packet header in the SKB and the transmit data in the
+> > > > > fragments. Note that this affects both the vhost and virtio transports.
+> > > > > 
+> > > > > Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> > > > > Signed-off-by: Will Deacon <will@kernel.org>
+> > > > 
+> > > > So this caused a regression, see syzbot report:
+> > > > 
+> > > > https://lore.kernel.org/all/689a3d92.050a0220.7f033.00ff.GAE@google.com
+> > > > 
+> > > > I'm inclined to revert unless we have a fix quickly.
+> > > > 
+> > > Because recomputing skb len survived the syzbot test [1], Will looks innocent.
+> > > 
+> > > [1] https://lore.kernel.org/lkml/689c8d08.050a0220.7f033.014a.GAE@google.com/
+> > 
+> > I'm not sure I follow that patch though. Do you mind submitting
+> > with an explanation in the commit log?
+> > 
+> It is a simple debug patch to test if Will's work is good at least in the
+> syzbot scenario, but stil a couple miles away from a patch with the SOB tag.
 
-
-
-Are you asking why was the patch applied in the 1st place?
-It seemed like an invalid behaviour to me, and I thought it's
-not too late to block it so we don't need to support it
-down the road.
-
--- 
-MST
+Oh that makes sense then.
 
