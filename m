@@ -1,171 +1,271 @@
-Received: from TYPPR03CU001.outbound.protection.outlook.com (mail-japaneastazon11012023.outbound.protection.outlook.com [52.101.126.23])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FD0E2C2359
-	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 10:29:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.126.23
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755512950; cv=fail; b=JvK0rSjFvbqGt2qicwUhMvXUrEZLOx4efrMj57s0K7hYNp4qEBb+PrYI2zW/+Bj5HH3fLVjHii38SVYBK57/Qqq92ToIp48JmHnh2AV0bLT/bEtxF+ACPe5CX10SXAYVrzk1DSgJUXQYmuioqKmrm4OnxlmjSIwG2wEkMOvFg1c=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755512950; c=relaxed/simple;
-	bh=fOfkdZWgo1Di9WrKNDng1+Jq4r6xTWj9CDQjrdqinx0=;
-	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=KxmspjqSVFNa9PsKRllr8r4IEpd9v/4oP6MRazkOKZmO6GmIsTeh1WBQO7oR0jwq/vHIekp7AksUfZgc2GA+6ksRVRMpXQtyjslC70qTHjK8YW8t33Ek4TooXh8+CGTK8QW/Lc3cTvm76ij9EmX7ck88QYDNevortJaUw7YH9GE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com; spf=pass smtp.mailfrom=vivo.com; dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b=EYlmIDhE; arc=fail smtp.client-ip=52.101.126.23
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivo.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C6F631AF08
+	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 11:28:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1755516511; cv=none; b=pD0tWeTgFv0Kt6HO1bPZSWlUMS3sbMjQoiiktMvQI8K5iXd6tKMgQoco9Tg1RBV1IOpWFq+ZYduzQP6k0DwNrSwqTHrVR9QUMPKYgmslxIRebDDslCuzPh7KYyHVEKBZJTezZoW5Pqsq82uornOEqAm1zaFDhvgV9tpBAlzoWJw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1755516511; c=relaxed/simple;
+	bh=VY8634xpHXk7cZiYCL2JpatoZSb7xQVGRxlqHFOaah0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tqpqjooUl4bXBamv8eoDKHYjaVLlenORK3bnLl18vd0aYuzfuPvtHNzUzSXTE+4ZCnZY3OQ9UB4rkA0RsnIjpcvrikYKHxr+dr/yCBkT2oAgrkiDe1jAL+hp4+vtdj077laR+EFaWS0kYdYukYqpBnOXHhzMcCkb9jdRiae+ttk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z4v5ROuS; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b="EYlmIDhE"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ekJFTYTtGbWfFHpA28NKmFDUqJoQRfHF8KLubRCP/l2ORWCqa1qevou92gQ5d4cF5GYFOUe+W1Gh56WTZYfwhRPtOmp9AqcBDWPToR53f1k9vfwTLtO/YG+qt8hXShUh20qG9evqWxA5zPwenUKe9fWs4ofFrfkm76pmBQ82GcFfZTCJZnXMghkTiqLWLCsVu/EVkGuhRjW52MpXiS390I80jZmEAqrcOB8X/Ktd3lZ00tPGJGXPDoQWAFwfh1Y8hPqpUFBsGzRJFJJmynzguvQxm4tWBI0B/+pwH5oUqnbMOHha5bz/KrPKFI9dNJMAEaxiC1YPSNSNa0HLBkKSgQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IkGpBru/M1Plu9XVa78ANpRG0guUp3PvlwJH53RgdJs=;
- b=BTmrd/98ZEcrXzIZjQxBEEoZ/eBylU+jr+DRtJwO+KOJhF56XnTyud3okP32JIDdBxE37sDJRu9MZ8rvjXdmCBwtFeLW5XN0T5w+FTKyojJa8aZbwDO4g1qXZsiNVCl6y8nSp/JyPBRQnQzLa3i8p6mRyM7SY0UNXnZTNas/CDaOuVyJZL5Fh6+xMbCV+ucR5u6xvBNBbKdTgX16LmkPhiaXEzQPaIcrUimHTAmfFtn0yCDG7Q1zYcQaKfdIOjjfK3e4/EsB1FzPYjOHxNgef8RPXY/Rc8LwBsA6jjcMT8p0iy8jxfTxhCj4M7ChjeNWR2sNtr40ugND1Sny+MIfbg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
- dkim=pass header.d=vivo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IkGpBru/M1Plu9XVa78ANpRG0guUp3PvlwJH53RgdJs=;
- b=EYlmIDhE6aclSobJVd9sppEIC7dLQKfkCiXc62winAHS9s2t1fPGHov9r1QsfgkE21DClhGv6R6d69W5NbVp7teUzEDC32anztVnjyzwZozYu6poE2nZSSSZTbImSLb5cAtHe60cSdndQXsvsffOYkwJKAp1HCox66AugQTo7RD9HhOkNZ6VWK24YJRsZeaqUF6qiAImFKrdmesTND0ttGinWiI8F3ERidPJNUxKWXZT52Z9QBK+/DM+oFzdJ+kySBPEvzlU5nYxsVQp6TmXWDZlaH7qi+996cCB3f3NMub8o204REW+PP6R7AMKBx8A8HW3CnCbLBNTmCCq8DZzFQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vivo.com;
-Received: from KL1PR06MB6020.apcprd06.prod.outlook.com (2603:1096:820:d8::5)
- by KUXPR06MB7997.apcprd06.prod.outlook.com (2603:1096:d10:42::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9031.23; Mon, 18 Aug
- 2025 10:29:05 +0000
-Received: from KL1PR06MB6020.apcprd06.prod.outlook.com
- ([fe80::4ec9:a94d:c986:2ceb]) by KL1PR06MB6020.apcprd06.prod.outlook.com
- ([fe80::4ec9:a94d:c986:2ceb%5]) with mapi id 15.20.9031.023; Mon, 18 Aug 2025
- 10:29:05 +0000
-From: Xichao Zhao <zhao.xichao@vivo.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Xichao Zhao <zhao.xichao@vivo.com>
-Subject: [PATCH v3] virtio-vdpa: Drop redundant conversion to bool
-Date: Mon, 18 Aug 2025 18:28:48 +0800
-Message-Id: <20250818102848.578875-1-zhao.xichao@vivo.com>
-X-Mailer: git-send-email 2.34.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SI1PR02CA0009.apcprd02.prod.outlook.com
- (2603:1096:4:1f7::10) To KL1PR06MB6020.apcprd06.prod.outlook.com
- (2603:1096:820:d8::5)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z4v5ROuS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1755516508;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=J0poHkf7IJxzNGcjiPzQE+7iEkpA1901ZpOaMVbBkbk=;
+	b=Z4v5ROuSMIsUYsQ550OSnBuw4T3qh5Np8rkOURSaWI8sre0uWbOX9G4i8z/H19ID6pWZTL
+	IANTWBTJZQ6luFiclDuIY4F8OmsAVl5QdpWVntEJH2Y3nfucX7UW5KkYro8HS7yt93SAqw
+	E7u2mCgpJWqsAlho5H/IO+9F0cSTX2w=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-284-WKnpfmmoMDOu-APq2XKScQ-1; Mon, 18 Aug 2025 07:28:27 -0400
+X-MC-Unique: WKnpfmmoMDOu-APq2XKScQ-1
+X-Mimecast-MFC-AGG-ID: WKnpfmmoMDOu-APq2XKScQ_1755516506
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3b9edf41d07so2619424f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 04:28:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755516506; x=1756121306;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=J0poHkf7IJxzNGcjiPzQE+7iEkpA1901ZpOaMVbBkbk=;
+        b=tNKuJynxhfhOT1ysgpYAM/3LbpJWQgg1amHmL+mlmV4D2L/QZn5OEJ9mzIVlE0bryc
+         OMYSGNwmjZK8QHa2rf2JoO+aKm5qhg2LmfEQ6nJ+b1+s0uykEYa7gvp0740z/+tVnrWD
+         dmSpoxJpFWH6267yKydyx1GkwrFPD5q9kztOlJo38Zu9PwpZEioAL5uFK3yCrGQj+6RQ
+         1wSrlYYoCwyU/s9++8oUXR7PZeAZ94Lv70iRtdRAxa0VmhoK9x5PSAzCJz+UmrcYU3Wp
+         qrLLRVl84d1Td0O/RNclI9JmcsVJMTyaXM9bAIDKPkJPS2gJTiXYb7REVAH32TsGhmU4
+         xtXw==
+X-Forwarded-Encrypted: i=1; AJvYcCUKUCSUgHj24kQpufeyP1j4jZv4SALmjXMjDYFx0qHjlbqogKbWkNvDtAXysk0Ot3wg5l2udmJT+z+3Ml1bgA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwxyTEOWKpAYoaCqkQLncvip74Sap/an/zuiDGK3n9op45q3yk2
+	vxJQ+G97PUfxx3AeeKdX3sQyvSXcMMyMu1BDhW//Ff9eMUEC4N8O4Q8fH4TS40u3DsL7JwdAoUV
+	RGcULTXyE90uGP6J2OixLBEqTx3ClGShCmZCbV9prrDLrG1lHQ5exgRdtfgS2d7V8GZGu
+X-Gm-Gg: ASbGncvFMx55k8v8vnD/9EKXqUa+5oost4ZawRLx7foeBYrmA0rIeOub3iEmN7lQdDq
+	ZxsYTTZomNnahUlqt1x1TRe9Zydij0v/X+JgaZcyKvqSxgu5g2zXPooBsXvPFe/+eIv4FPR1r0G
+	/a1XbXqhMQ8y72wJZosrRAhCYLh0AXleaSNF3aiGwSDfPKf6O6Yxmnov5lZqfNs8906S/9niZjP
+	X1g/BL2lqeM01kTDBPvuAgXewHWm64ZuPnVX8I+Z+vuLlcbHY2s0gw+K2095vQr5M/4V0iPPqZH
+	u3QZfTWmdHzz9x9XTKbtCoddQhyURIdm8GLK9ylnwRzArRpiPlNABKx6UhSZ7E4ZIsI5Xg==
+X-Received: by 2002:a05:6000:2301:b0:3bb:2fb3:9c7e with SMTP id ffacd0b85a97d-3bb674db9eemr9706773f8f.21.1755516505960;
+        Mon, 18 Aug 2025 04:28:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFoJ2j4tybVSbT2mQ2UN8mZP25LV2c4F54aus7k4qiE296Q/C3YEoCeE99f3tiBsFkHDADQDg==
+X-Received: by 2002:a05:6000:2301:b0:3bb:2fb3:9c7e with SMTP id ffacd0b85a97d-3bb674db9eemr9706715f8f.21.1755516505387;
+        Mon, 18 Aug 2025 04:28:25 -0700 (PDT)
+Received: from [192.168.3.141] (p57a1a246.dip0.t-ipconnect.de. [87.161.162.70])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45a22211395sm129258685e9.4.2025.08.18.04.28.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 Aug 2025 04:28:24 -0700 (PDT)
+Message-ID: <3bb725f8-28d7-4aa2-b75f-af40d5cab280@redhat.com>
+Date: Mon, 18 Aug 2025 13:28:22 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: KL1PR06MB6020:EE_|KUXPR06MB7997:EE_
-X-MS-Office365-Filtering-Correlation-Id: 55b38e8d-4088-425b-33c9-08ddde420ee3
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|376014|1800799024|52116014|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?wCvDyOyxgPosjCK5jbACophppwEKXiR4PRC2MY9JLHhJviGu/c2BO+O960CS?=
- =?us-ascii?Q?WGt5nRHBY8DDkcXo1OHkKbbSHiNIg52ax5mKifbGQdAYszHXpRgwrE2abn4r?=
- =?us-ascii?Q?dOaVP5FtHd65jpMsAIZwyOB3W7x5AvIIiPv2nyPk87Aje7E5UFIF//fqUI2Q?=
- =?us-ascii?Q?McL2Fwvzz8zqgD3aRFlVof2BkuqVc4HDzYWYwa7ougDh+0rL9IkDc4mkOb50?=
- =?us-ascii?Q?KKZphaz3sICSCTvwojSnQFINp1T45AXkyOwz2Glbe6lekIr6dXqJiyd48JZX?=
- =?us-ascii?Q?Najr/FANLvjK4ck2CCEb8hSlo82YPWkHESnwhDm2PRlT98QoKXuqeccPsygA?=
- =?us-ascii?Q?iMh2nmfpYhvYAE9xroLoIN0D3oPFB9g0RTAtHVXac9g4nvwQSBNOiffOpvQ6?=
- =?us-ascii?Q?oE0OrTYAPdjT7a8DGRkUiDSY/tSoCD4ve/onD5xxuqbG+y6tucWGIpFhoRQD?=
- =?us-ascii?Q?lTpaIITPyX3EkPWPlnuXLudUGPiTANRn2MahVoMAEWtMKahVsuZXDGwTLt0I?=
- =?us-ascii?Q?B//65Sqr5/sRd5ToBtaVXSVPwNtfOwCDdGbEMAWexXKQybh3dKlo0POLW9Un?=
- =?us-ascii?Q?gI2i63y2OUAXKQB29AgTnpfQcq7seZ5AeQT3j2Eh6So+7eK23QYlZ/vbwVr1?=
- =?us-ascii?Q?raOXiYQqSaiCRLnBHYSjpowTHoNe/0zR/HXsKS0DwmGN6IolZUY0OcYY+N4p?=
- =?us-ascii?Q?uop2PsVeILnBuPx/qWoMnVJlc/agpTAz98e74or7zdj/TkSIEySPsgNDsB5s?=
- =?us-ascii?Q?FIJS5OUE4Hx8Bb8NUr2YUlyPLP/VDpxPHoY+fBTMDA6ErieGK45po/MyU4Ls?=
- =?us-ascii?Q?ru34eOCzQsYnenQSNLnmeafXRFZGXlXGPKlZ+bCkLLvmID8Esw1IFf/BVcMB?=
- =?us-ascii?Q?K8X179XdsoYJYWSXHWz7tLc53ELNRKdaKtPcwM1cpA+xiUDB5oJF9zKmvBK7?=
- =?us-ascii?Q?cJ/qqF8MUG3dP0my8wROrkKj02mFZMvgGApvxRXWYnCk+l+s+a/+IJZ2RnqJ?=
- =?us-ascii?Q?F+a3EmYbtm9cij4+zpXVlY01bn92SiEFbBFoAT8oh9DMq4mz/MbFNLr/zGsK?=
- =?us-ascii?Q?ql3mxzzNeAe4+aqOnaRZ731jCg8S4FLjilLZB1ZusseSnChjEdTJMXQWHpFj?=
- =?us-ascii?Q?prP790ESWdiafQiHv64g2VTr44cBITEULNZH6LA5mE/Hp8UHeMdqLKkxyHGp?=
- =?us-ascii?Q?j/fiZu7Q4IfGahJmsvBzNyTS9DPiIhHRiVYfRyritLQ4pZEl1K+07pdm7V62?=
- =?us-ascii?Q?kQogjdAjnAEUdVDAkPTveyNgXZWA9sFLPpc18sZes823Jlhfp0zZu6zJYjr+?=
- =?us-ascii?Q?zUx/rjNCtAArJ/+2OaDnZoVv4d9D4+r0T1Oz8KUQ6JrDzpLMP+jt+haYUMFZ?=
- =?us-ascii?Q?atC42+wRhEtg+IbaiEZXNoJB0UxNPI2Vsz9AzoxzcHeZAd2CsSHtd1nlImv2?=
- =?us-ascii?Q?6DALMl4kEjwPF21llFGupDh2M4nns40mQ5A6b/ZyeDriQgtJmxCJpd0d5fAI?=
- =?us-ascii?Q?dT68dkGJx7Du/VQ=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:KL1PR06MB6020.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(52116014)(38350700014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?ZKcKWnhNaKW/voayv3RNyt6JV2DIErY9PCBogBukI+s9p7zvmHz8wh6sRqpM?=
- =?us-ascii?Q?rWdVOLq7tmR9SMBGKQRbi+AU1pnU4srSPoaVI6TPP2xhcse3ESA/7YCfNaKI?=
- =?us-ascii?Q?1/jXMyokCX5nhGWIFtfHijnv+6gFrx4GOokSAw2e2EIIwx855eaSJhgB7iFi?=
- =?us-ascii?Q?jxCK35JljrD6neZQEKXSFyVmb/Er67+DApZ9djoFSrnjv9WkVwF6MXg12ITg?=
- =?us-ascii?Q?9ZyL0V1FbNq6SwxugOwFqAfavURx+3GH9f/YMsg8oBj4FwPjTWCPOMos+vrn?=
- =?us-ascii?Q?KjzYCVB4dvl9O0Xu2uDMr9mO+gwl82L2YPUcdNYxxtkq4eh1NpEgDFAHrwmm?=
- =?us-ascii?Q?jwqR3QRwG96pB0JJOZ8+HN4jg/SN1ueXVaTQqFmnEyk5zi4BaBV+/1LSZ1GH?=
- =?us-ascii?Q?/2fr6gtGY4OsKcG2YLhuOF9Geoo3dH8YmQbKluhsPbWxv6sy1WEC1c7IS5i3?=
- =?us-ascii?Q?rhbY/+HVW0lmkQMxwZX3jkKF3FygJER9wJ+BdYts6L0xQ0dQEx6tF1U9i9jZ?=
- =?us-ascii?Q?waFyvO94/Ijc124BaCepQkdinlgNB2puoxKsxxgcyPDMSL4bXWf0RvRII4mY?=
- =?us-ascii?Q?BjmLIxE572WbIFFLvqBJYTBtrwLVA5XsM3tGdj8Kq0e+KQWKTdGBRzAtwycf?=
- =?us-ascii?Q?X6mlsO6j2kGz6RCoBcKoStO2Ma3G+Fl3QVSAoNmun93VMMzT+tl0omgsk+bL?=
- =?us-ascii?Q?aiqHqyWyb5Se/laxpMxKcoL6Ey5sFzxkfLCeUPwFlLl/fZ7VOsM3VxvFF4fJ?=
- =?us-ascii?Q?pdYPLFPXwmX14m1GiN3x9n+wro+jxY4QOdkXZ0hHyojkR5eiZ4lDJXbv1+bw?=
- =?us-ascii?Q?EVuUBT4nZaqtDoHzr69mqmnktIlOQ8nucC2pT3RNBl0wZwCL1+T+sN3HNpqg?=
- =?us-ascii?Q?uzewhQeKyGI29NxFBM1f2NrWK0dIn51LsMip7yV+tTYWNcQXKl0Ci03jV50t?=
- =?us-ascii?Q?/V0sBeG8IE6sTTqQ2mLTeYaW+HpxcqC3z68zJsn6PJ/EsEI2pToA8sgFna3I?=
- =?us-ascii?Q?Ve/FhqG0T8gjSvQgTMerWmDvjdFdWIdZJVOtTm45YSBImIE/TzHIuN3pr0Kc?=
- =?us-ascii?Q?hKQB0wMB282TTcgO14mwrn0N/Mm6mxr4gacTZbPZVqnvlPjeyKvyW2YFVs2n?=
- =?us-ascii?Q?m8zBUDU95+Pv9jPhcfUOnCdLyXgZHFqTU0x/hjrXMt5IIYC0yKxPqMY2cGQN?=
- =?us-ascii?Q?31bwZ89rbtOvyuNGxIUR/FdORORjd9URyToqrxVZFuwTPeFSa5axLqDZve7y?=
- =?us-ascii?Q?ZgjEq/jZvJW7ywwlBuD4blObUxFRoxV5ExKIQncJnKJo/oeNaPqJbdJs/dzn?=
- =?us-ascii?Q?kCnA4y9iJUpXarml4iDQleF+n15siPF8F5D6WoxuWpGJUcrbrTdKWv0eWEG3?=
- =?us-ascii?Q?Wgl21wF7rdTdDcUQZUXATWVKdggQdKSK8CpCdzve6qJN5NG6jg/rNPwsjdGf?=
- =?us-ascii?Q?SvKsp1Krbh3y+1r8k+czO55JoWkuoq6B5MJ24kt99p5qLoFeS2H2exd4Pkxi?=
- =?us-ascii?Q?yMYJOJH2iSUWqhGlmSxcipQFqeqGQZ0Mann/qVPCunaI06/O+EgydOSoTtZ4?=
- =?us-ascii?Q?Il1jVhIjPzqkXQln7g9D1/2jOLrUgUQ3tvWci2AO?=
-X-OriginatorOrg: vivo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 55b38e8d-4088-425b-33c9-08ddde420ee3
-X-MS-Exchange-CrossTenant-AuthSource: KL1PR06MB6020.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Aug 2025 10:29:05.7309
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: nAZLq9J0/mBuWP2lpZANTOQkvykibVoMLGOyQ51glXwVPaypKEivyAx4w8zcA/4ztRnfUVuv2sqrCcTocTG0fg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: KUXPR06MB7997
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/2] mm/migrate: remove MIGRATEPAGE_UNMAP
+To: Lance Yang <lance.yang@linux.dev>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux.dev,
+ linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+ linux-btrfs@vger.kernel.org, jfs-discussion@lists.sourceforge.net,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Benjamin LaHaise <bcrl@kvack.org>, Chris Mason <clm@fb.com>,
+ Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>,
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+ Dave Kleikamp <shaggy@kernel.org>, Zi Yan <ziy@nvidia.com>,
+ Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>, Minchan Kim <minchan@kernel.org>,
+ Sergey Senozhatsky <senozhatsky@chromium.org>
+References: <20250811143949.1117439-1-david@redhat.com>
+ <20250811143949.1117439-2-david@redhat.com>
+ <CABzRoyYU2yOuGQskCAG_gzKiQwR6uM9eAYqOOCoQj+Xv=r163A@mail.gmail.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <CABzRoyYU2yOuGQskCAG_gzKiQwR6uM9eAYqOOCoQj+Xv=r163A@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: aQ05njGWjILOBOkM2FdAFFBAAaYqku0elsjatC8DTcE_1755516506
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-The result of integer comparison already evaluates to bool. No need for
-explicit conversion.
+On 13.08.25 07:05, Lance Yang wrote:
+> On Mon, Aug 11, 2025 at 10:47 PM David Hildenbrand <david@redhat.com> wrote:
+>>
+> [...]
+>> +++ b/mm/migrate.c
+>> @@ -1176,16 +1176,6 @@ static int migrate_folio_unmap(new_folio_t get_new_folio,
+>>          bool locked = false;
+>>          bool dst_locked = false;
+>>
+>> -       if (folio_ref_count(src) == 1) {
+>> -               /* Folio was freed from under us. So we are done. */
+>> -               folio_clear_active(src);
+>> -               folio_clear_unevictable(src);
+>> -               /* free_pages_prepare() will clear PG_isolated. */
+>> -               list_del(&src->lru);
+>> -               migrate_folio_done(src, reason);
+>> -               return MIGRATEPAGE_SUCCESS;
+>> -       }
+>> -
+>>          dst = get_new_folio(src, private);
+>>          if (!dst)
+>>                  return -ENOMEM;
+>> @@ -1275,7 +1265,7 @@ static int migrate_folio_unmap(new_folio_t get_new_folio,
+>>
+>>          if (unlikely(page_has_movable_ops(&src->page))) {
+>>                  __migrate_folio_record(dst, old_page_state, anon_vma);
+>> -               return MIGRATEPAGE_UNMAP;
+>> +               return 0;
+>>          }
+>>
+>>          /*
+>> @@ -1305,7 +1295,7 @@ static int migrate_folio_unmap(new_folio_t get_new_folio,
+>>
+>>          if (!folio_mapped(src)) {
+>>                  __migrate_folio_record(dst, old_page_state, anon_vma);
+>> -               return MIGRATEPAGE_UNMAP;
+>> +               return 0;
+>>          }
+>>
+>>   out:
+>> @@ -1848,14 +1838,28 @@ static int migrate_pages_batch(struct list_head *from,
+>>                                  continue;
+>>                          }
+>>
+>> +                       /*
+>> +                        * If we are holding the last folio reference, the folio
+>> +                        * was freed from under us, so just drop our reference.
+>> +                        */
+>> +                       if (likely(!page_has_movable_ops(&folio->page)) &&
+>> +                           folio_ref_count(folio) == 1) {
+>> +                               folio_clear_active(folio);
+>> +                               folio_clear_unevictable(folio);
+>> +                               list_del(&folio->lru);
+>> +                               migrate_folio_done(folio, reason);
+>> +                               stats->nr_succeeded += nr_pages;
+>> +                               stats->nr_thp_succeeded += is_thp;
+>> +                               continue;
+>> +                       }
+>> +
+> 
+> It seems the reason parameter is no longer used within migrate_folio_unmap()
+> after this patch.
+> 
+> Perhaps it could be removed from the function's signature ;)
 
-Signed-off-by: Xichao Zhao <zhao.xichao@vivo.com>
+Thanks, well spotted, @Andrew can you squash the following?
+
+
+ From 40938bb0de20e03250c813d5abc7286aea69d835 Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Mon, 18 Aug 2025 13:26:05 +0200
+Subject: [PATCH] fixup: mm/migrate: remove MIGRATEPAGE_UNMAP
+
+No need to pass "reason" to migrate_folio_unmap().
+
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
-v2: Correct the errors in version v1 and modified the commit message
-    and subject.
-v3: Change !(max_num == min_num) to (max_num != min_num).
----
+  mm/migrate.c | 5 ++---
+  1 file changed, 2 insertions(+), 3 deletions(-)
 
- drivers/virtio/virtio_vdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index 657b07a60788..deffbac33888 100644
---- a/drivers/virtio/virtio_vdpa.c
-+++ b/drivers/virtio/virtio_vdpa.c
-@@ -176,7 +176,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 	if (ops->get_vq_num_min)
- 		min_num = ops->get_vq_num_min(vdpa);
- 
--	may_reduce_num = (max_num == min_num) ? false : true;
-+	may_reduce_num = (max_num != min_num);
- 
- 	/* Create the vring */
- 	align = ops->get_vq_align(vdpa);
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 2db4974178e6a..aabc736eec022 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -1166,7 +1166,7 @@ static void migrate_folio_done(struct folio *src,
+  static int migrate_folio_unmap(new_folio_t get_new_folio,
+  		free_folio_t put_new_folio, unsigned long private,
+  		struct folio *src, struct folio **dstp, enum migrate_mode mode,
+-		enum migrate_reason reason, struct list_head *ret)
++		struct list_head *ret)
+  {
+  	struct folio *dst;
+  	int rc = -EAGAIN;
+@@ -1852,8 +1852,7 @@ static int migrate_pages_batch(struct list_head *from,
+  			}
+  
+  			rc = migrate_folio_unmap(get_new_folio, put_new_folio,
+-					private, folio, &dst, mode, reason,
+-					ret_folios);
++					private, folio, &dst, mode, ret_folios);
+  			/*
+  			 * The rules are:
+  			 *	0: folio will be put on unmap_folios list,
 -- 
-2.34.1
+2.50.1
+
+
+-- 
+Cheers
+
+David / dhildenb
 
