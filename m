@@ -1,146 +1,182 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from SEYPR02CU001.outbound.protection.outlook.com (mail-koreacentralazon11013027.outbound.protection.outlook.com [40.107.44.27])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 213DB30DD06
-	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 09:10:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755508226; cv=none; b=ryWB+a46Qkx6iT+zmK1MenudS1PNRfCHPsmCIPzwBXLEuREgeLBrYgGZbhJoKwRBnfJn8dwYSn5Nldh7vVPBu8gIXD1Cy544JYPxXBoovEElSx2xJCe7NuXLO7KjJLunE7/VWH35XzK0om8oKX7ri2roh+pymn3ZmZC5Y27gwYI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755508226; c=relaxed/simple;
-	bh=OoxFyzWMN9IiJadvJ63P+IvmvwWMqWQXae/OyA1JJCY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ij83chD9EXSINwlN2LPTmknRR+2P7X3nQWFW+FhlSrGd+E07X2X+58aw3QFbBhVhogWEEh+lcomdLQltKB0aggeI5q1wyohtvQpgNUXomNkF0OZhnHHGVnrWSIgGIhlV+hod6LVb8cx4XVqBBz9SJmqOKGWOY2FSODj47rWcmH0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eqdUyRkz; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B68E2777FD
+	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 09:18:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.44.27
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1755508733; cv=fail; b=Ma+o7C79IjzZ/RyIj1pPpGgY8WoVfslpISyxMGlUVofFR6hVmkgXlTEeeuwd2mAszrfTC/0CZfp1TQ4OGrDXu86xmciGC4bKPPoI9vaD8djDRzrRSskLLAh94ybH/fM+gl5I0DNY4tSAVYFSbZ4ayaswaPs4dlqh0+AVfiTGDk0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1755508733; c=relaxed/simple;
+	bh=L8mXk6nGg3ghOgjPzYeflmlRFzXUw1OnPyDDWtTB+Ys=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=RdyqVyg0mcByochewtMO2LenUXHvu6HkEOZjqsHZ0mHqDrnt6RYuHlFk9Ljf5n1uUp63YguswZsA2hgdFfgzOZMkTTLGo3R5KeU6hn7JO7G2VlMoe7KFanuJZuAupgFuV2NLJ4eGwjZSrhQZqhFIXa2eg8H6Bb8tYzl7YquRFDc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com; spf=pass smtp.mailfrom=vivo.com; dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b=PHWRUsyX; arc=fail smtp.client-ip=40.107.44.27
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eqdUyRkz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755508224;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JbqfCfcRPkiPSf4BnJf27P0ti29xxEnyI41pHA552G0=;
-	b=eqdUyRkz/KthtScv4so5tn7FUaUaTJk751bdekuuNnN9ENxix0q9ldiSkttw2c5ttvoNSJ
-	eaientCa3B2xwfVhUbDtBetfUCwCsXupYsqC8loc/3ldLRv9CRTUmP1WmVUZcUr4gMXah4
-	Yw2awutzL89V9FBDVfldJ9Miqiz6Ylg=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-689-V1mYaTUvMWuuISMw6vOcKg-1; Mon, 18 Aug 2025 05:10:22 -0400
-X-MC-Unique: V1mYaTUvMWuuISMw6vOcKg-1
-X-Mimecast-MFC-AGG-ID: V1mYaTUvMWuuISMw6vOcKg_1755508221
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-321cfa79cb3so5162921a91.1
-        for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 02:10:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755508221; x=1756113021;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JbqfCfcRPkiPSf4BnJf27P0ti29xxEnyI41pHA552G0=;
-        b=vl33MrEKru24CXQnlroNdHZu0H2C1ZKpcV5/cSZciBjblbsA+p2vV5LCRM0EvOX0ZL
-         vcPZDGEJK5RXCo0aXIqGnNwDa5O4fqAHU4SB5kIWGl1yp8vjvVzc5JqpvDcCV4ShWKoU
-         sbCD3a2nPgxnNGaMtzBurvzkV/eITgFlfzrFVNrWcftrQHbyyJJNrCFLOCnOFQfehYI5
-         Wu3ETq0LehNI7FF4dWhQVLeWNwWtdyR8J+oDvW0kCvfZYRPKMt7Dmc8RDR85221sz+56
-         +VqeDfqkgbIU1JpSlZPKbZoi983EZ2ayYyHcjrTPaRnBupMdFAv8U0t/uE8FgL4Hnmin
-         Mtsg==
-X-Forwarded-Encrypted: i=1; AJvYcCXm09ipIOlAx7w4CEw0i57gugmLFkXYqTwgSYaAyBnYhU5USYgwqxbA82/vyZ2Ak+2r+S/KKM5bCfg8YUbqQQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxxBc5b91r4qv0IiY4E4mA3EOCB+ujluNkrHVa+ubclMydH44u8
-	VtjqHU1rmF56OK9xGwm9JxRLYCOmCfiqbo/jT6igLXGMHsXHP+1zCWDK/ZpzoWD/WY6MxdIauIT
-	qB7dKbk99cwRrqVNxQEXrqYMMXn7w4m3WAhm6jVfgopugqrrwPHagR545YX/ZnwqA33W+g6A933
-	4K9hH1RpwBjIGPlRHNh6yiYzp5fg0zEa/iR2mHIGk3LD8=
-X-Gm-Gg: ASbGncv3BU6drZGKBOmy6eeGTiQhqDGtrnQJ7bmPE4E8hP7TZ3eI9eCamv+NT6JoqRI
-	yuOmxVDmblcJHmFjupuRsAGGDbnW0K2zYspSc4yPKxA15WP60yfejTXXrUJA4r3GOgH36RfxCTx
-	Im17m3cMwJFiufgPD7Y1zG
-X-Received: by 2002:a17:90b:3f85:b0:31f:35f:96a1 with SMTP id 98e67ed59e1d1-323407b888fmr17497491a91.15.1755508221452;
-        Mon, 18 Aug 2025 02:10:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGkbIi8hMym2IDFiQZsok2ZF14sb98uoPQT+I2UMlsCLp+g2zYDDJHRmmtJoXScx/v9hOzXO0IqsunBpLjVMGs=
-X-Received: by 2002:a17:90b:3f85:b0:31f:35f:96a1 with SMTP id
- 98e67ed59e1d1-323407b888fmr17497455a91.15.1755508220998; Mon, 18 Aug 2025
- 02:10:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b="PHWRUsyX"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=WjJhBqAKB/wUbi/F+vxdpFDLDrlQ6j4LrA6a5kkds9yWWvyKaGpxBHFj+yVQqg7pjYIQEKdwAMBg4jeEKb33HdmxvkRpPqUCaZj9kkologeoNe2UN672AcBtbakBrS/FwWqqPEOeuNWgUsSAeWVSyrlPkZQCcwDEv4EZ2AkgNFh+e/tZ6DfHZtwgS74By3RaJjd0rUw6TVDgQA5USYEtI2GHu7+xE/5oWrT+qEVcdTaB0nEJLlYPJjRyjlxWxw3q0a1DLrQjS3K7O3tz1ufHzoEPEqTWJzDochpMieNoe0+hj8ZGPFCDGsDdpD71Tt5TfGr6kMpV2pynfei7l9x/yw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=1HrNOlQr6gKxih8/Jd+SoWxTePw9dqvCLOl6MSBPqBk=;
+ b=jqt1EWH1pYWmfBVK+8Gfk/A+ca7kKdUpCzno6whM168OKP4EcgJS41yldTdi8is9tAQoNJMn6/RCvYGTmK3nRBgqEGjQxX+rJcCURQ8WLH8sKq/cXZsH5qp6yyP4xG7mL44o14CW3lwLonksoeBouwjw0nKDBEWO0WiTFtK/s+/PndMupcxz4rfrdoLRp+XkzJqaFqkUKS+ppwerKsshBf0Zaj9iow4vE3asHJ+rszoRSdvWn2MkvxEs6JU7NkBab0gLs8esoGpFlARBjMHpOmJTl78fPZGASUI0JmMGTRCwDEc02DaUMA1jg3ZIKiGFNehiI4F2ymQ2CWQKuxfjUA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
+ dkim=pass header.d=vivo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1HrNOlQr6gKxih8/Jd+SoWxTePw9dqvCLOl6MSBPqBk=;
+ b=PHWRUsyX4LuFdkOJiZQncbF+t1AN5pXIcOGOBLmACsKwjQ/V5ne4aETN8ms0Y9E6Tmbbuw0wPpou+Tv5017k+I4l1fz0kymiZP9UTYJ/U4InEJLMGEfM+fhqnR0UmApZ8CyQ7ToTgAomovjTPUTZKt5RZ5cvoC6uvOWPYGsfz00j//gtMCs+Am9ZZFGmLHa0CeFNSd1PQw1qpFOvZBeRsv2xqgwd66PsdH6s7Wrm4MqxfjC8M0DfgZHfowIQEpaacybFBgZQlCZkY/l7mm0vfbodRQN0mz0xJV4f+dK6NfKfkBziEgepudrreu5Tijny/0+gTrHNCScxksfYmFX+WQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vivo.com;
+Received: from KL1PR06MB6020.apcprd06.prod.outlook.com (2603:1096:820:d8::5)
+ by JH0PR06MB7349.apcprd06.prod.outlook.com (2603:1096:990:a5::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9031.23; Mon, 18 Aug
+ 2025 09:18:48 +0000
+Received: from KL1PR06MB6020.apcprd06.prod.outlook.com
+ ([fe80::4ec9:a94d:c986:2ceb]) by KL1PR06MB6020.apcprd06.prod.outlook.com
+ ([fe80::4ec9:a94d:c986:2ceb%5]) with mapi id 15.20.9031.023; Mon, 18 Aug 2025
+ 09:18:48 +0000
+From: Xichao Zhao <zhao.xichao@vivo.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Xichao Zhao <zhao.xichao@vivo.com>
+Subject: [PATCH] virtio-vdpa: simplify the code by removing unnecessary variables
+Date: Mon, 18 Aug 2025 17:18:39 +0800
+Message-Id: <20250818091839.550777-1-zhao.xichao@vivo.com>
+X-Mailer: git-send-email 2.34.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SG2PR02CA0063.apcprd02.prod.outlook.com
+ (2603:1096:4:54::27) To KL1PR06MB6020.apcprd06.prod.outlook.com
+ (2603:1096:820:d8::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250813054831.25865-1-jasowang@redhat.com> <20250813054831.25865-5-jasowang@redhat.com>
- <20250813043151-mutt-send-email-mst@kernel.org> <CACGkMEuKmn4f9spFT1YxjVPxBFkdGVCTQEUpNG=xHd6hcL-a8w@mail.gmail.com>
- <20250814063927-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250814063927-mutt-send-email-mst@kernel.org>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Mon, 18 Aug 2025 11:09:44 +0200
-X-Gm-Features: Ac12FXwWauHktoes46vJLvSCJWNDiN_iFDjd86oNm9bmlCrp2KcPLKWq_c4Jgu4
-Message-ID: <CAJaqyWcxV+f6dhKLscGGy0bw2YWJ8NaJ4QN+Qe3Ax7C+Lf4X-g@mail.gmail.com>
-Subject: Re: [PATCH V5 4/9] virtio: introduce vring_mapping_token
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, xuanzhuo@linux.alibaba.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	hch@infradead.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: LuAInxLZqcPRSa-gB5MVm9t1YLfXI9kmMuaKPxEWN7U_1755508221
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: KL1PR06MB6020:EE_|JH0PR06MB7349:EE_
+X-MS-Office365-Filtering-Correlation-Id: eb60b186-95d9-4888-3caf-08ddde383cdb
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|52116014|376014|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?Cq7pVSpucG3fmEkHcPkQiAFjYYVhmVIEtqvevCBvtyDd3cYBN9OaVdBgpLTs?=
+ =?us-ascii?Q?kzHcfFDIh8jlgxUoMoM4smZaJ1RgBelioAV+TvVouGkC3WLg3xjFuetfopXi?=
+ =?us-ascii?Q?2w/E7NnsEJbS9cW7mP8A/hgnbwDdG/V1VYJlXnFfncoEF6scDC2SdaNMPmRM?=
+ =?us-ascii?Q?Vb4EwfEvhDuvrL7mR6yRsYBXtDSJt7YFFS2rRsSGZ7QfA3XJfjvNKgC3AfeK?=
+ =?us-ascii?Q?Ilonr8GZPP4Fb9Ri4JNJriqWlAivjEw9xrrilGQUU1SpHiWhKudw6cOhyonR?=
+ =?us-ascii?Q?F9LhJzS5ZU6CvDoOCEtoi1Sm309RCzMdaVBpDOgRFsFvK85W8DPvgX8osFny?=
+ =?us-ascii?Q?DIQ/S3Ragd+3CusGGGonnLGlSlqx8HXN4wXSylIdUIxj0djC3viW1pDJAM49?=
+ =?us-ascii?Q?xgr16wIiSQUTdaevzvfvATMX5s1au9QhsQu5IT8UmtEU5HNf72aZmr9erWh7?=
+ =?us-ascii?Q?9Q5uuG2lV9YkswaW0giOaZpWCmp8NG8bzfR+54+bN2favRtaohem+C0oTSwB?=
+ =?us-ascii?Q?Ls/DueFbupG3Ggzf6X1tdxj2YvrPeI3wvlBWVJKI/rwOrULDEzhTDk2jl1kl?=
+ =?us-ascii?Q?Vx2R+xfc2IA7KokU4ROv2y+nKShBnpaF2JjKS1UsJu0WpJSz1d0AVC3PmiE8?=
+ =?us-ascii?Q?ejMwrOTfW6peu5tjn7IVrOdXXY8Moz4rrgSSBSWXM0sm9qAjWYzyM+suzeYq?=
+ =?us-ascii?Q?yZZnBK0n9xxlADCyr64pKgspNSYoVOu6zBgrrvlFJDfk9P2J/jGcxh8wvTE0?=
+ =?us-ascii?Q?SH/xieusBLzth7SB0hZzRcgG3wreC20/fcEousczV2GYxm4ZRpiGvez2npwq?=
+ =?us-ascii?Q?wkqNDLtajVFOuiTSIIpUQAckUvDqNjio10kCwxPxyl44ZhtQc2L7GOlYy8A/?=
+ =?us-ascii?Q?z3D4S27rR9N5gq/02RZXbFyKIrm8lavlH8n1x+gZY/JG8sPfsVx1he22ya3y?=
+ =?us-ascii?Q?gXxKOn0rqFBd1RSpGxVHFWmDK9J7VeU+ukz258nbR9oDh+5w9eC40AC4jMgI?=
+ =?us-ascii?Q?H93wvElcEdUsTomwBxIOxsNaisMZUfXORasrm3IOxR59tGzrGkM35EaAXlJ5?=
+ =?us-ascii?Q?lwAgvuqX4pJ5Y6TnBznjklqDkMPnCXbAaq/1PscKyBuXJ0NLRm/IKSnGVtRW?=
+ =?us-ascii?Q?vV/UbBWK4bhBtDDE9HIMYOeN51ROZnC4qOOBpbE8KsOvXdWB7s7utQSfO9HV?=
+ =?us-ascii?Q?WX+lkVMIWEyClMxAB9XRlC2T/ttGoWmcaRkzazlkhdsjKa2+0paeHdXLS4l9?=
+ =?us-ascii?Q?Qe7Q1YmDQUAcrM02fCDSBIK45SVN2QZThZFD4uaUoSOL3uXSL6W3c0W2gj4z?=
+ =?us-ascii?Q?2mPz0loIO+CQ7cfMSg2F6V0RIw82PRpJ1EfNcMe/4f2KBgvJF/vI6OPbhhkI?=
+ =?us-ascii?Q?c/qUPp5q2sYvCT3oct181mxaoGW/cSbt4koIClB7EahHfKYFQhdJARHgTTMd?=
+ =?us-ascii?Q?aNMoQK7etVlKfO86PzOMZg70UhjRbzIpCpYP/ezCIQUuvtCyPGgEkQ=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:KL1PR06MB6020.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(52116014)(376014)(38350700014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?sQ5cOxTa+GCCail+iegaBL6PZaQJPK/dC8m3B5rFHHQLfJv72+bveBdvmiO+?=
+ =?us-ascii?Q?UkzD2EepGxpj+1I8iuakCOI3JXZUQ4hGT6fe6OvU2Om84d8XlKqD6KG66nQm?=
+ =?us-ascii?Q?+kyxUryIFymtvnKVu9PrPs4Pn5kfPqWb5iUT86jwZcPIg2zYhSIt0WT2BM0g?=
+ =?us-ascii?Q?TIeQKN0Nwvd82cRTPAhuZVT4lPtYcseVi1heJvP2KHKRwAE9UKWQIK5GwurB?=
+ =?us-ascii?Q?WfC7V7t5xTUJwKldMQpUEdeuUqEKCPWSXempa3G/CuQjBRFovXEAcV4z0LK3?=
+ =?us-ascii?Q?umr2IowkoL0QExUwwinCUFtu0jwSv7nB9dwHfYmh1158gZcKzQhljupQtdgT?=
+ =?us-ascii?Q?/K1kn82w0s77bhQZkn1SqPrK7b0/kaJYjf3Z6GEXNTgyMpMiOKcFehFoFJdU?=
+ =?us-ascii?Q?wEbwfsr/pKBCAXsMQN27TajCLtixwlZLD2TyUQaQ9mmjATfDhKXiWim3rPIl?=
+ =?us-ascii?Q?KBOtqS3KUf6RY4rvaatS0Xq3prZxFvsTOFiuwcgrTZFbidG/JBVLfB68bpXQ?=
+ =?us-ascii?Q?/m5q+19GVfq7W2Z5tZenhkgQ2G2Y4eynSlxCmu24ZFH2w3YJ0VXhEgfx7rRX?=
+ =?us-ascii?Q?BJQlZUiGGdoLNylkUFnHI+DFHQFylFV62PYKjGATz0ln4V8y/NW9b6uTYDR+?=
+ =?us-ascii?Q?yCgDCxNFxQ/LZmVdH0sMpJA3AVWvTC8viIYFUAd6pcGyyMgg/UWJUFVbdxQC?=
+ =?us-ascii?Q?01zY7aeq6p15uN2KHIlimzniBwrwda2qxrNAALjmkQKcyr0jQtZK08OKxu6K?=
+ =?us-ascii?Q?8wQw+EO9/tTUVOY+KSNu9nvPczgZnwRXyWzSfQQA6LARSK8maRIBDHnfxDoU?=
+ =?us-ascii?Q?eauUY5yYAtJ6Fav1crqb2YsgEJ1sv8JBJ4L+C/Ww5PbZlzKPFFnS+mJcGYVY?=
+ =?us-ascii?Q?ceeIAtubwItyUuJ4iVelERbEsDLDE/SMr6DONP0CbBtkMfrElLBk/LgcERG7?=
+ =?us-ascii?Q?dcduCsfK0Yw+etnCwvBQAmJuP2vLex02C2i+VZngsLFUYTkB1NGsPUQnK8f5?=
+ =?us-ascii?Q?MGwvqxtoWQTraP2P+uz20h05rUCq7adYusTM7P/DdgtqyPdRrbsTjxz1UOok?=
+ =?us-ascii?Q?n7b66jqNsATZxK0o/lev8TZtXJGAJ5iloQIoMT6Ml2czv8VtINWO8H6cH5x5?=
+ =?us-ascii?Q?78JmWI89T0ktWIAtGaCE6C5FsLOCreMM8Z5ctaxNJNT5Feq/SorcoPTaID+7?=
+ =?us-ascii?Q?bBAIJOJQttWUiS0G+IZ/wGJlq5xDrF2gdyhWQGOIVwW2fTJxVZCURLdj0+Gt?=
+ =?us-ascii?Q?vLxfr7F3/n/r8UJvGwxTjy8X9CeA6bF36BAmTfzHQlVMnsmhi2FEQPx73hUR?=
+ =?us-ascii?Q?VKHPSDGyx8KAziA1daOaKhAbFPfiGW0RQlVpEGMuJEueLd3OsvVk4VTmAGsQ?=
+ =?us-ascii?Q?Lx5oN75YHEmrhLXma4wYdWlzkKcIl13eJkSLWnfrBrD6ks4cQD5dsZfqALM3?=
+ =?us-ascii?Q?Lf562jllQa+7u2v4FYhLzyTgWtIdkq8sNfDGtdPSmOtrvl8p5PozteCv4NTu?=
+ =?us-ascii?Q?OZsxPBugLkqba4G//uOUbXn4iYqZGA1kpYZXJ/B4FlmK+BESlJHg6LLVPe1i?=
+ =?us-ascii?Q?yTyjTw5g/yCizl9g2di4Og65ADqZflOnhwRojh4D?=
+X-OriginatorOrg: vivo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: eb60b186-95d9-4888-3caf-08ddde383cdb
+X-MS-Exchange-CrossTenant-AuthSource: KL1PR06MB6020.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Aug 2025 09:18:47.9172
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: T/C+c++xr1yQlihdGwWY30Hj+RZ94tt8AoeePhcMWyTiKQ6SQ7QwKb52xkLnzIY08JcRr6EocqwzY2TvyZYE4w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: JH0PR06MB7349
 
-On Thu, Aug 14, 2025 at 12:42=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com=
-> wrote:
->
-> On Thu, Aug 14, 2025 at 11:36:22AM +0800, Jason Wang wrote:
-> > > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > > > index addbc209275a..37029df94aaf 100644
-> > > > --- a/include/linux/virtio.h
-> > > > +++ b/include/linux/virtio.h
-> > > > @@ -40,6 +40,13 @@ struct virtqueue {
-> > > >       void *priv;
-> > > >  };
-> > > >
-> > > > +union vring_mapping_token {
-> > > > +     /* Device that performs DMA */
-> > > > +     struct device *dma_dev;
-> > > > +     /* Transport specific token used for doing map */
-> > > > +     void *opaque;
-> > >
-> > > Please just declare whatever structure you want it to be.
-> >
-> > It's an opaque one and so
-> >
-> > 1) the virtio core knows nothing about that because it could be
-> > transport or device specific
-> > 2) no assumption of the type and usage, it just receive it from the
-> > transport and pass it back when doing the mapping
-> >
-> > It should work like page->private etc.
-> >
-> > Does this make sense?
-> >
-> > Thanks
->
-> I fully expect most devices simply to use DMA here and no weird
-> tricks. vduse is the weird one, but I don't see us making it
-> grow much beyond that.
->
-> So I think for now we can just make it vduse_iova_domain *. If we see
-> it's getting out of hand with too many types, we can think of solutions.
->
+The may_reduce_num is used only once and has a redundant conversion to bool.
+Therefore, remove it.
 
-I've sent my series of adding ASID to VDUSE, which uses this series'
-token on each vq group, on top of this version of the DMA rework.
+Signed-off-by: Xichao Zhao <zhao.xichao@vivo.com>
+---
+ drivers/virtio/virtio_vdpa.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-This patch [1] and the next one are the one that reworks the token to
-an empty struct, so virtio can handle it in an opaque way and VDUSE
-can convert it back and forth in a type safe way, skipping the void *.
-Please let me know if you prefer to import a VDUSE header into the
-virtio config header or to make a VDUSE forward declaration instead of
-going through the empty struct to preserve layer boundaries.
-
-There is one usage I've not been able to convert though. Jason, could
-you take a look? It is marked as TODO in my series. I'm not sure if
-that's also an abuse of the void * in the DMA rework to be honest, but
-it should be easy to correct.
-
-[1] https://lore.kernel.org/all/20250818085711.3461758-4-eperezma@redhat.co=
-m/T/#u
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index 657b07a60788..8f762badec86 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -142,7 +142,6 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 	/* Assume split virtqueue, switch to packed if necessary */
+ 	struct vdpa_vq_state state = {0};
+ 	u32 align, max_num, min_num = 1;
+-	bool may_reduce_num = true;
+ 	int err;
+ 
+ 	if (!name)
+@@ -176,8 +175,6 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 	if (ops->get_vq_num_min)
+ 		min_num = ops->get_vq_num_min(vdpa);
+ 
+-	may_reduce_num = (max_num == min_num) ? false : true;
+-
+ 	/* Create the vring */
+ 	align = ops->get_vq_align(vdpa);
+ 
+@@ -186,7 +183,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 	else
+ 		dma_dev = vdpa_get_dma_dev(vdpa);
+ 	vq = vring_create_virtqueue_dma(index, max_num, align, vdev,
+-					true, may_reduce_num, ctx,
++					true, max_num == min_num, ctx,
+ 					notify, callback, name, dma_dev);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+-- 
+2.34.1
 
