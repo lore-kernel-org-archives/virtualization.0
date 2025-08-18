@@ -1,77 +1,61 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F5F379CF
-	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 00:00:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 707B21A26B
+	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 01:19:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755475261; cv=none; b=Fhzj9OXMoCdoSnjclVmhJAJm2MNs5oBNOko0JD8IUz3ae1Zfr8UkA02MpqPudVRNAbnU7qz8v6t/5xRVOadE7hi1PASD5A6DXlVT10LbOoFxTsUg/B9C4z1omC27be/rkmswW4raqYCCpclDfFNZz+boWlBNleB7N+mdX+uTI5o=
+	t=1755479994; cv=none; b=TAojMbDRRgTN0+hVYH0mltFdn9FeKcu77/QuDsGdWwtli93GoU+DvZYnyUPCxLV+gex7yun+Y6tvSWM8V+F7kIr6UeScACglEkqOwxKiXw8lrk3VMp6EA7bwu5rYC9ElE+2mGDzIRRCf/dVrYA40Xrl1P84Y4qhe6jPMLnd98qw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755475261; c=relaxed/simple;
-	bh=m1/hI4zAQpa/yacZ07Q91nQ7zDbp9gtYAaNYK2UtTyI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IFd2qSYoYRq4gnttxt3hey15j9VQ0Qeltx8kXFRyL4CaDFb9L1ewT5tW/hi6kEAmYP9ocZ8EpIMez8wD6jBfkOsgG8qiiRnhbpuDzXhDnHTByp6NFmSr82OWlVVUZyRZvKKGIIPAb4aqZXRVovMdo1kmy2Wq4pEYtbLk60lFjDo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hOxBsg37; arc=none smtp.client-ip=209.85.221.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1755479994; c=relaxed/simple;
+	bh=iMJ1oHRbauEj3lcgwQet8BFInJoPoG6llDJNmYuo08M=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
+	 Content-Type:References; b=rIn5rlF11GGqtmvoL3XhYer314NKc5Cbn9GMEBXE7OcvJpNSnqOTJ0uXRY0Xqaf0caQxgu/z3I7CC5sVYAQ65KpFGv/gNgIsvD4gmDNwbVoZGw0mxpTdXRX7y8Prft58/7LreD0NZHiGjSrKeSRvslV9EQVe19Qh2K5sQpBKJus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=r5bieQaQ; arc=none smtp.client-ip=203.254.224.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hOxBsg37"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-3b9edf36838so2322972f8f.3
-        for <virtualization@lists.linux.dev>; Sun, 17 Aug 2025 17:00:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755475258; x=1756080058; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=m1/hI4zAQpa/yacZ07Q91nQ7zDbp9gtYAaNYK2UtTyI=;
-        b=hOxBsg377Smds7BuVx8WJEIyMRjpu3Ea199tBOOC/d0ninv2+PgEDBEZS8sngRHiRn
-         3UWNMF3Xukfrg2dg44w0KZeNwhZJvGM+izBhR6hpXGFN3F5oHRS38Qhd+FeB38X7EKZC
-         vF3U07TL3oBLV9duOI1ocYvivfkQFRt1WgD/HVpVJveEpsRwaGige1VGVTmmHgj1lsfP
-         mz5fhFcELJ6LaTDYYl6rN0I0090cD4kjCTFwi8jtpx+Y3bpAMBFnwID+f20xZJUjSCtZ
-         rfTsXpneNbZwWSNxPFII0lUPhU9RKD0ZqnZp5I7iaeUvavPjckRSAwfVJnz5lYBuFGVs
-         BhIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755475258; x=1756080058;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=m1/hI4zAQpa/yacZ07Q91nQ7zDbp9gtYAaNYK2UtTyI=;
-        b=BUtg10s6n8qBZnmbM0B06oxXLRyRjrWPRgpksQ7mMWR9OHd6n8UDicMEQwlMHQhlwW
-         FK5VVhEbld5gLKStAPwY9aSyky12BptkfHBSvFSq6GxcoB+BRNo8h4VClswzpYurnoOf
-         vCIccpngnP9xY8tP6w7lDT18VHrD8cWoTgELFxvlLRN88zzy95P4mboE9qcLiMJfJDEP
-         pP0kqrVoh24FHkkOGL8kBR49jgn/B/pKbBYhshaMv001kIVwv65n5o+I9FFVjbuB6uV3
-         JTZkI9gyeCzPQ649ApHLehpybOoci2Tph0QqXE/cXpoumAm83XNdI/Ah/KaRjQoUtzr3
-         xYXA==
-X-Forwarded-Encrypted: i=1; AJvYcCXGt49i9aeKEObv0k94okKMdDRhS7d5dPfnsSbvggpgQ3ytNrtbwuliSbzDkZA0kVdRed6FGA3Ro4j4yETpow==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzI6oLYenJ1oa9P6CoaIxfzIlJrBi3RZZqz+bUSN0k5mdMrOv/i
-	8lzqf1l5XpuuLj67OX1iyNaCMaprsdDGgDyHMhRMiIIvEFBpPaiPXpgH
-X-Gm-Gg: ASbGncu/5Ry58GycPBfmT8GwRxo9uJYL265S0LWLDJQX+IiKV2R6Gybodd0hqXCEqa2
-	k1JzJA0VQ7Y/in+CeW5qUZYLMgd1eHsazqiKltembLv8TLLWdRmb5yRrk6y0OZDE42lMGJdcsI2
-	0nkZkFxX4yG/g5kDxNyMQe1M6gfIvCysOtzYcm7m9oSNE9AQeysQyN3dgPKN0ZhX+CZdmaopEAS
-	2hAxoiB3SXoh3uzy1QpelUsFdK99hyMpO13qulPkckhqxdX7eC+JXZzRGto1dyXbAPp1X4RKFMT
-	WQ3m/+0XVNSx3o3SfWePurUJew3D1wXWqaQvAxUj04APLaEvZw5akWNp31yHyMkC+KK9RwkgtUM
-	K1SPbuLncgNCf7dTOcQSezbAvbme1Bfgq/1qSNjeij/ceNtb3oH8d9g==
-X-Google-Smtp-Source: AGHT+IEAB+WLlffq7V8E4TMyf2eXBnLp5sNhzDD2NavmOoKq7fhLVZX5GaQCOGPobQS9T6QuJHPudA==
-X-Received: by 2002:a05:6000:18a5:b0:3b9:10ee:6e9a with SMTP id ffacd0b85a97d-3bb6864061dmr5979713f8f.33.1755475257446;
-        Sun, 17 Aug 2025 17:00:57 -0700 (PDT)
-Received: from stiangglanda-IdeaPad.. ([85.233.101.104])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3bb676caf79sm10734359f8f.42.2025.08.17.17.00.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Aug 2025 17:00:56 -0700 (PDT)
-From: Leander Kieweg <kieweg.leander@gmail.com>
-To: Gerd Hoffmann <kraxel@redhat.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Cc: "[Leander Kieweg]" <kieweg.leander@gmail.com>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	Sean Paul <seanpaul@chromium.org>,
-	linux-kernel@vger.kernel.org
-Subject: [RFC] Plan to convert drm/tiny/bochs to drm_* logging
-Date: Mon, 18 Aug 2025 01:57:48 +0200
-Message-ID: <20250817235836.134286-1-kieweg.leander@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="r5bieQaQ"
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+	by mailout2.samsung.com (KnoxPortal) with ESMTP id 20250818011943epoutp027af3ab16dd63166bfa2e818cd02e8710~ct75zUWFY1641716417epoutp02O
+	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 01:19:43 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20250818011943epoutp027af3ab16dd63166bfa2e818cd02e8710~ct75zUWFY1641716417epoutp02O
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1755479983;
+	bh=oNTFgx0f6ht5S3wLJmJIF+ULm2VzvhkkVhPoqV1VuFU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=r5bieQaQDK+udQuQ/GAQ5N52e5rs0LXmxAZRW3grU3xxgxroejR7nBhMq5bp/FOrj
+	 91R/485IL4Owz8xUHaVPhvN4g7tBjbtDuKpcIXwQKmy1poKuoZ6rmO5LWbnYiLUfzT
+	 WvwHanvYLOYWlpf70NMDpbvYko7DCy6deLZS3XgA=
+Received: from epsnrtp03.localdomain (unknown [182.195.42.155]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPS id
+	20250818011942epcas5p2aaaec9298cbcd1112fd218a1ae73ec32~ct75Ip0qr0869608696epcas5p2p;
+	Mon, 18 Aug 2025 01:19:42 +0000 (GMT)
+Received: from epcas5p1.samsung.com (unknown [182.195.38.87]) by
+	epsnrtp03.localdomain (Postfix) with ESMTP id 4c4vyP46yvz3hhT3; Mon, 18 Aug
+	2025 01:19:41 +0000 (GMT)
+Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
+	20250818011515epcas5p21295745d0e831fd988706877d598f913~ct3--8YNT1315413154epcas5p2j;
+	Mon, 18 Aug 2025 01:15:15 +0000 (GMT)
+Received: from asg29.. (unknown [109.105.129.29]) by epsmtip1.samsung.com
+	(KnoxPortal) with ESMTPA id
+	20250818011513epsmtip12d2ab6910a9fefba463c4b8f998f0853~ct3_D_ADu1149011490epsmtip1x;
+	Mon, 18 Aug 2025 01:15:12 +0000 (GMT)
+From: Junnan Wu <junnan01.wu@samsung.com>
+To: kuba@kernel.org
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	eperezma@redhat.com, jasowang@redhat.com, junnan01.wu@samsung.com,
+	lei19.wang@samsung.com, linux-kernel@vger.kernel.org, mst@redhat.com,
+	netdev@vger.kernel.org, pabeni@redhat.com, q1.huang@samsung.com,
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
+	ying123.xu@samsung.com
+Subject: Re: [PATCH net] virtio_net: adjust the execution order of function
+ `virtnet_close` during freeze
+Date: Mon, 18 Aug 2025 09:15:22 +0800
+Message-Id: <20250818011522.1334212-1-junnan01.wu@samsung.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20250815085503.3034e391@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,15 +63,54 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CMS-MailID: 20250818011515epcas5p21295745d0e831fd988706877d598f913
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+cpgsPolicy: CPGSC10-505,Y
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20250818011515epcas5p21295745d0e831fd988706877d598f913
+References: <20250815085503.3034e391@kernel.org>
+	<CGME20250818011515epcas5p21295745d0e831fd988706877d598f913@epcas5p2.samsung.com>
 
-From: [Leander Kieweg] <kieweg.leander@gmail.com>
+On Fri, 15 Aug 2025 08:55:03 -0700 Jakub Kicinski wrote
+> On Fri, 15 Aug 2025 14:06:15 +0800 Junnan Wu wrote:
+> > On Fri, 15 Aug 2025 13:38:21 +0800 Jason Wang <jasowang@redhat.com> wrote
+> > > On Fri, Aug 15, 2025 at 10:24 AM Junnan Wu <junnan01.wu@samsung.com> wrote:  
+> > > > Sorry, I basically mean that the tx napi which caused by
+> > > > userspace will not be scheduled during suspend, others can not be
+> > > > guaranteed, such as unfinished packets already in tx vq etc.
+> > > >
+> > > > But after this patch, once `virtnet_close` completes,
+> > > > both tx and rq napi will be disabled which guarantee their napi
+> > > > will not be scheduled in future. And the tx state will be set to
+> > > > "__QUEUE_STATE_DRV_XOFF" correctly in `netif_device_detach`.  
+> > > 
+> > > Ok, so the commit mentioned by fix tag is incorrect.  
+> > 
+> > Yes, you are right. The commit of this fix tag is the first commit I
+> > found which add function `virtnet_poll_cleantx`. Actually, we are not
+> > sure whether this issue appears after this commit.
+> > 
+> > In our side, this issue is found by chance in version 5.15.
+> > 
+> > It's hard to find the key commit which cause this issue
+> > for reason that the reproduction of this scenario is too complex.
+> 
+> I think the problem needs to be more clearly understood, and then it
+> will be easier to find the fixes tag. At the face of it the patch
+> makes it look like close() doesn't reliably stop the device, which
+> is highly odd.
 
-Hello,
+Yes, you are right. It is really strange that `close()` acts like that, because current order has worked for long time.
+But panic call stack in our env shows that the function `virtnet_close` and `netif_device_detach`
+should have a correct execution order.
+And it needs more time to find the fixes tag. I wonder that is it must have fixes tag to merge?
 
-I am a new contributor looking to get started with kernel development. I found the "Convert logging to drm_* functions" task on the gpu/todo.html list.
-The task description advises contacting the relevant maintainers before starting the work to ensure a patch would be welcome.
-After setting up a build and test environment, I've identified the drm/tiny/bochs driver as a good, self-contained candidate for this conversion.
-Would a patch to convert the remaining legacy logging calls in this driver to their modern drm_* equivalents be welcome?
-Thank you for your time,
+By the way, you mentioned that "the problem need to be more clearly understood",
+did you mean the descriptions and sequences in commit message are not easy to understand?
+Do you have some suggestions about this?
 
-Leander Kieweg
+Thanks!
+
