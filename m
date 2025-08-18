@@ -1,83 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0FB2274FDB;
-	Mon, 18 Aug 2025 15:39:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A18F9322A35
+	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 15:53:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755531559; cv=none; b=YX5+2iLmHFw7Jtb+e3exgqjYVv9SbcBdtmPY2sS2kXDAkj8RWXHCDL//WELs+DLSAhDYkujzROEBqHh57b73pttHhckatzW+pU+CcndaLBNWH7kAKqfkjzRObbYeR9GXjn7WGdkTNLI2Cr2jyLVSMpVJzL+8ET3VTkEphTG9kQM=
+	t=1755532395; cv=none; b=dks8/4ueUu8uUIsXeNRjXy8G+8XT0MkQMtbZ0BCw80ehL+Sj4Z8npKau7GXiIHykaMswqIRXvQaaSHS4lYyo96lZCccTNLmyBsI4JZAGwGlqqwkkuVCi4g/p8IoycdehRt4UDIHhgkASmVlCUbnf1mUWfBmsD2SY1mzgomuEicc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755531559; c=relaxed/simple;
-	bh=uo+eilYO4oF8TuPssFwLv6m+/cY9ysnICDRqi7G/yho=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cwyHrY/jVNK5W6YCtCaFiBmmQ+iL+w5Gbm+4DeOSJRar+PNmch8qvBcRsWRcajDz0zE+A/0biYFzpeE6+KJCf0Ok4KPSMwBWfUCnHwC4YUWOLwnS3UkbdJT1DTZkRJnL2+KjzYTZrZ6nvZkxVgKtadDdh3aDSVL2Emiq0rSpji4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r5Gcr2Wa; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755532395; c=relaxed/simple;
+	bh=EI7ph71E7vzBhJM3BGJQWwVv5bNRggTZ4F6M7dXxS+k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sXJoPL1jOt7ZDsmKurgm7bzW1uaPwbO6EgvmElfHxpZqTGapNXKSbS4sP/0Y9okHDVGmd9YWVqhrIFjFG+4Y4lHWxPMHUzpJNuNKp2t//njypKhI9H035WPFnng04LMCCEk1FtSZF9Eg+QN5mts19HNLybr1TNnR7oc3J2xbbIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=do9qhutU; arc=none smtp.client-ip=209.85.219.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r5Gcr2Wa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 233F2C4CEEB;
-	Mon, 18 Aug 2025 15:39:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755531558;
-	bh=uo+eilYO4oF8TuPssFwLv6m+/cY9ysnICDRqi7G/yho=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=r5Gcr2WaCtdIunh9lUs1z3HPI5LuKTQNsOIok0BMFOaE4QoGK3kk4AemMmHu+vllA
-	 2+y75tx3aD+iDbK3Op/fcdPe6viltoWZiJlxMOM5zJaYOSBBeKaz3qjTEiZTi0meRO
-	 GnTO1O/boLTpSBwyOYM7vnwcAxlBToC1f4Q7C1eSD8sG6GeQA6/y2PehjHFZCxmdfp
-	 VZb0O1EuvpwKmudxQCsEaYT8fYjS2R7U3+00vgOKRGTXvctJVFN/evZYeeAYzucbi5
-	 G6eFNjKe2Cdd3aXEUKLDSrU7pkBEfXudFz54Pc8fGDwJKenIyQVKmTOocTY46gxJwA
-	 qYTtaLkHcFj2Q==
-Date: Mon, 18 Aug 2025 08:39:17 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Junnan Wu <junnan01.wu@samsung.com>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- eperezma@redhat.com, jasowang@redhat.com, lei19.wang@samsung.com,
- linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- pabeni@redhat.com, q1.huang@samsung.com, virtualization@lists.linux.dev,
- xuanzhuo@linux.alibaba.com, ying123.xu@samsung.com
-Subject: Re: [PATCH net] virtio_net: adjust the execution order of function
- `virtnet_close` during freeze
-Message-ID: <20250818083917.435a4263@kernel.org>
-In-Reply-To: <20250818011522.1334212-1-junnan01.wu@samsung.com>
-References: <20250815085503.3034e391@kernel.org>
-	<CGME20250818011515epcas5p21295745d0e831fd988706877d598f913@epcas5p2.samsung.com>
-	<20250818011522.1334212-1-junnan01.wu@samsung.com>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="do9qhutU"
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-70a9f56b1f2so26119876d6.3
+        for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 08:53:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1755532392; x=1756137192; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Vj+qz5uWtdxe1t/4yn/fG3Kx2sOHLsT2H8fxH0m0kcM=;
+        b=do9qhutU79r3ie4oTb0wCvS//5Eun/BuH+gx8ikO3sPCYIwusCADRi2JVk4uL4J8jw
+         xFPXPQ6ILPEZG1cmTcBTJcKnA4wOUd3SbxAxlF1rJXHXxZjaQK66AesgF5LKu7E/t7fK
+         OYwGcAiensI+se9PvlLlUdeMRPPPvDnrK4S5BRVGDTtb2feZI9MqlKZ9joWLQiWujQYl
+         HReW7eQ7J0tZRRvk7ewHVPHHIE+f1o84nsgc1aubGg8Vyx2LXvGXXv+SULKYYx5RwHx5
+         S18OOMSXxe2tbZ1qzXRq+GzAtiXt0ihc61fIMABNjC1hOJT/xhM5DHlIjlRRb14nd5FW
+         H1Qw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755532392; x=1756137192;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Vj+qz5uWtdxe1t/4yn/fG3Kx2sOHLsT2H8fxH0m0kcM=;
+        b=pL4rtI96w2N5P8qIdGYW/Ug3lFLFQHS7/0FgLJCOscyTASBVCZYMyzyhQBXal0HKGl
+         qKhW63AxQ80f0XEZYydTTWfmpigaBQzVVct5nMlFIxRn1L+l/9Cz28+hx/Sc2eXoOzCi
+         MuWCGQO/rh47ph+mYymVyt0QS2mmhOeTWB9Ayo+ThjnCD9tObagx+mkdV8xMkzEMMkDJ
+         b+SqYE7L4m+z6RBBfQOZmx0yH4BJ6O6rtEwQlKoTrj0SguMM4EI+7Td3QGfFaTykBKh9
+         LLbG6GJEmnosBTS4Afr6D357iCyNqq/eUH91ngKTjBoiLwi8nfp3ACmeEPeVo0hLfMRi
+         C7AQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUtxxA2nZHbfTQjS5LJGcWpaDI+DSkZvD+fo0VIvu03jPQfgxiaHuA2YeqNar7nacanLhVcnVaoSTVbkgMB1A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwAH26+A14YlncGVyhD/x7dTxVYSaPjiupbh+7s6S33QG/pOCtp
+	8LeVQ3WjStPP/jFfTLwah6aPppK3cU5cxKq7QiCWT2oSD+86EEtu1AOgfAaCj/xeV1Y=
+X-Gm-Gg: ASbGncu1gvgXnjSZtn6rITULXqrH1GLxm6VTd13PlWKOvum+fpfrlYAgFFk9wlyRSfC
+	FCw1wyX5VeuRyzN9BqpfZKxuYFmoLvWiyubVK3z/OuGjAdt5MoxsyW/faubyiDFo2RPAMdQgInw
+	HmH9bOzbbfH6yVG0Ji4O9bT58N4yzIh0s7YMR2morMLk9UzUqJFdEvI+r05iHelmUKC71aO4Bw9
+	cod80+JQMFiiTjMRhZduTYPvd3Rq3+X+b1wpWlAdTB/2WE5c9UGPPJ+6cpP5S0Lwl2OnDHsb6o0
+	0Dy692GDPEOSlQvmdtNkh91ZFkV5TBwJN5gbTcZl1LnKPHcHSPDGLO1C4517IQHR2xYcpHic
+X-Google-Smtp-Source: AGHT+IHy5xjjBQNaLhq2Kl2pjcBSM8TtgEpdzaR3B4TcAc3XiKHcP9uaHgX//cMvSIYk535Uc7uNQQ==
+X-Received: by 2002:a05:6214:20ad:b0:709:e519:fbfb with SMTP id 6a1803df08f44-70ba7b5df3cmr141480306d6.22.1755532392375;
+        Mon, 18 Aug 2025 08:53:12 -0700 (PDT)
+Received: from ziepe.ca ([130.41.10.202])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-70ba90bcf7esm54232646d6.31.2025.08.18.08.53.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Aug 2025 08:53:11 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1uo2AY-00000004OfV-46ks;
+	Mon, 18 Aug 2025 12:53:10 -0300
+Date: Mon, 18 Aug 2025 12:53:10 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Shyam Saini <shyamsaini@linux.microsoft.com>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
+	will@kernel.org, jacob.pan@linux.microsoft.com,
+	eric.auger@redhat.com, code@tyhicks.com,
+	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
+	bboscaccy@linux.microsoft.com, robh@kernel.org,
+	saravanak@google.com, krzk+dt@kernel.org, conor+dt@kernel.org,
+	lizhi.hou@amd.com, clement.leger@bootlin.com
+Subject: Re: [PATCH v3 2/3] iommu/of: fix device tree configuration for PCI
+ devices
+Message-ID: <20250818155310.GG599331@ziepe.ca>
+References: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
+ <20250806215539.1240561-3-shyamsaini@linux.microsoft.com>
+ <20250808121515.GE377696@ziepe.ca>
+ <20250814233018.GA31418@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <20250815003958.GE599331@ziepe.ca>
+ <20250815023236.GA30997@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250815023236.GA30997@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
 
-On Mon, 18 Aug 2025 09:15:22 +0800 Junnan Wu wrote:
-> > > Yes, you are right. The commit of this fix tag is the first commit I
-> > > found which add function `virtnet_poll_cleantx`. Actually, we are not
-> > > sure whether this issue appears after this commit.
+On Thu, Aug 14, 2025 at 07:32:36PM -0700, Shyam Saini wrote:
+> On Thu, Aug 14, 2025 at 09:39:58PM -0300, Jason Gunthorpe wrote:
+> > On Thu, Aug 14, 2025 at 04:30:18PM -0700, Shyam Saini wrote:
+> > > or were you referring to [2]?
 > > > 
-> > > In our side, this issue is found by chance in version 5.15.
-> > > 
-> > > It's hard to find the key commit which cause this issue
-> > > for reason that the reproduction of this scenario is too complex.  
+> > > In that case, the PCI child node data needs to be parsed, which is
+> > > currently handled individually by each host controller driver.
 > > 
-> > I think the problem needs to be more clearly understood, and then it
-> > will be easier to find the fixes tag. At the face of it the patch
-> > makes it look like close() doesn't reliably stop the device, which
-> > is highly odd.  
+> > Yes, this looks like it may be what I was thinking of, the pci@1,0
+> > specifes the BDF effectively
 > 
-> Yes, you are right. It is really strange that `close()` acts like
-> that, because current order has worked for long time. But panic call
-> stack in our env shows that the function `virtnet_close` and
-> `netif_device_detach` should have a correct execution order. And it
-> needs more time to find the fixes tag. I wonder that is it must have
-> fixes tag to merge?
-> 
-> By the way, you mentioned that "the problem need to be more clearly
-> understood", did you mean the descriptions and sequences in commit
-> message are not easy to understand? Do you have some suggestions
-> about this?
+> In that case, we'll need to parse the child DTS nodes properly
+> within of_iommu_get_resv_regions(). I'll include this in v4.
 
-Perhaps Jason gets your explanation and will correct me, but to me it
-seems like the fix is based on trial and error rather than clear
-understanding of the problem. If you understood the problem clearly
-you should be able to find the Fixes tag without a problem..
+Kinda surprised this isn't happening already? It would be good to
+refer to the original specs and describe how whatetever you propose is
+aligned there.
+
+> > Presumably this is a fixed issue of the platform. You never did
+> > explain how your system has such werdio behavior, or how something
+> > like iommu=pt can function on it...
+> Yes, this issue is platform-specific. On this platform, the default MSI IOVA
+> range overlaps with an address region that is reserved for another purpose,
+> Other than that we haven't observed any obvious issues for DMA operations
+
+Usually DRAM is at the default MSI IOVA address, so if you run
+iommu=pt then presumably your DRAM map has a nice hole in it.. But
+maybe the memory map told the OS about that.
+
+Jason
