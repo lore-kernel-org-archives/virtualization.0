@@ -1,218 +1,167 @@
-Received: from mail-io1-f79.google.com (mail-io1-f79.google.com [209.85.166.79])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF91D2877ED
-	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 07:59:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.79
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7772A1E25F9
+	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 08:27:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755503974; cv=none; b=S2Qz+lNCigoJZgZSuPi9JR2YdXHDvCrzVHkBFBCZebKFMYBTpRbvFaZMPtqH+N6Agl0bg+/9U45oW1t2ltQ5ENsFsVs27tgkeKw+oKn12N3O6P2J2rEyKwrxTceIctrra4ngvBWyP0sIfUhCoTMsRVOYjiR437+DWoppRWY8gDM=
+	t=1755505678; cv=none; b=Bu7pDAs+R7zkBr6KbaCcniDxP6UPneOM2bKh2xr0ttUowaPw7O0bZexwb70Yyd9hNcxGOnI29BWzd6GECgvTJnA8DXBLmFZzta+9RxJyKkYS1pERtfI0WwK7kGhj7X1fy5q8MRQOgeF3eT0xmcqTALTo4nW3obpiuXqzc5Cb6Ps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755503974; c=relaxed/simple;
-	bh=/pqSSPndeW94Qw0Cfkt0F2CGstz9Z4x1ZQ9UDaUe6nw=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=LDxRTlMYOn8DGmlQLu3Wk6z9jkHyBfphjXtBlnSIF3PEiAEPF7Sjr8qQRRM182eHCYghVvtavMothbbMU4uNCrrD3VasawT9Q09JXWpfywCcef0rtDsPCJVjPFv6HosvHr/n1nTiAQqXk+hxL01fCkCIUcFoAxDlSoaCMPoxAGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f79.google.com with SMTP id ca18e2360f4ac-88432d9d5c1so389698439f.1
-        for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 00:59:32 -0700 (PDT)
+	s=arc-20240116; t=1755505678; c=relaxed/simple;
+	bh=rq6946DzumILvEIR5XWexmQkysEBR7GbvltHkcSl6YA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mGmkA4KhYuYSLlfep0k6EpSjQM9Y/b7XYUyNEgMqo1P6hQoRMAGC4xHioLkpKagV1LzYWTSSCjUcSIr4NM9tqCQzrz+ZCBW4I1h1h+mIFI+ftp1Zm8gFJm0gteQFE+YjCSu/Bql2nfhcKuRxsiSzKUWtBYoF8fgz4Zkq/Y6zVfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=pH0jjYJT; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="pH0jjYJT"
+Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57I7m82F015589
+	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 08:27:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	rq6946DzumILvEIR5XWexmQkysEBR7GbvltHkcSl6YA=; b=pH0jjYJTAl7re29P
+	eDXYy6doYRSC9/QrUBVDRGmaKfPZCRnt/27BpOESnbmKcDWYQWQE0TN4RjZHB26p
+	r31MIs4hA2/C4q4WvJs0F/TcGgCHu/dmVO2NTsFUfLgXGYc273YerMZN4+uFW9F7
+	hypGSTOfjNaHRAfD5yZE9ln9D4CBCF4ZoWT6/s894AJcWj4w2Ceci1tqrMg7FZ7T
+	8nC/lLMKExRJTWRCvcqmfiA5ilpDfF1xh3HEHJXusTG+HZ4HJHr6VZH5d8Jd3MdY
+	0E5ihcuWt8hBw0jAUsx0ZEQNIeQ0WCoiOmTnd4PZxYXj0A6xg9y5MRgUrzX0TcRD
+	r1n2kA==
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 48jj2ubxhv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 08:27:54 +0000 (GMT)
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-24457f54bb2so94113205ad.0
+        for <virtualization@lists.linux.dev>; Mon, 18 Aug 2025 01:27:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755503972; x=1756108772;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=7BSYpuBDwucpyaMQl070i2SR5XklPKyoMcgXiBMplEo=;
-        b=gslIMr1NUAxCnwCK/vQRpjdyXTVAqXr1JXcgQPvU2F2djWwTTYvCmjUWTqk00RiAs8
-         o6Ck8ATxrPom3a2rVp7wpmakrxoOifa4Vvjg/WEBfb4kCNlThA2PSpXwyfcv8gVJjmTe
-         YnoD3tg5NjXIcwzXws27BPeg7kfzTFKlQzwuYVTMOxXI+rNONvecB+s793Pq2/ChinkZ
-         MJh20zHt6F1RdWmsGHyPdTJ8ceDJDF2UORgqx5U6AD6neqnrf6S6neleZHuaYZjzTaH/
-         RcaD267KHG9KxEPR5dmZaA1MqSqkUtfbgksssYb5w40V9q0cvQJrUGRlWNO9lY86tZBc
-         0fpw==
-X-Forwarded-Encrypted: i=1; AJvYcCWnO/sGc5FUyHtdq5kNuLwurqwklxyokvA6WvwHCzXL2BfHoqCBpPt6+LD3flHAjiLWSTSoEFIG1VavPvMyCQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywj5jghxmFG/XtRCYwgM/WOGkZgUXXXrxAP6WAfJKhD0X9wpH3j
-	lFUrJyXvq+4C8n2TCoVlWEkeMBBGgcWnuqOPgbNuxsyTqUxlSR9q8GlxaUSfe/blB/aCXYpXkNF
-	R9ZQyG/QZv3bh27//2E8gHCOaFQZxahNc9vWvosd9ZDeFNi9oO6S+8iVyfxU=
-X-Google-Smtp-Source: AGHT+IHtYz4hPIB7+FEXGrEHfyEu8Yul6+5/2gTfNNCoOVB/vSVR4PTAaAc5Z7UAjnRZpnyan7q6zpHbTfm1inicvQhxuhqDFer8
+        d=1e100.net; s=20230601; t=1755505673; x=1756110473;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rq6946DzumILvEIR5XWexmQkysEBR7GbvltHkcSl6YA=;
+        b=gr8E4sttuUjPT5ftlAN1yDJFUp3DvLPXEH0ISe4CzvbgLeDNMo4v0PgpF9w1xjzMLK
+         4vfWcuja5fVdz5ITynrpPnDYFXbL+vgZc8vBDjz+HCDngBDqJkrJxkgpiRz06pGVg/9P
+         5NzfAMUyVV2BxlGywU83P7JTKt3hr6e6VeM+sPxwk/yMpmFwUlK9wJ9bhSNdESv8z51N
+         iPuOQmE3B2YgWBzTTpooWVpYRQRgOVgzafcW2ngnzu1CRM1h5yJYWI0rkPipeX1dxlt+
+         GiAEP6GtGtA8sO23sUaH5bIIM1468AsI6rWXj4AnrD4yivgTeva5PS8gHmrlF13BCdOE
+         z7FQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXBcPG9isThIF7XXPGPudsigzEc9x5rnDVP26OA4tFSoLmmEdnFhnCJeGZbijzgL/L/+yFGqqPGRtnRMnlJEA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz0/IZ3kubfXXVENCgUVagfse/W9YPB4x+EiHIn+Ciwn0RFXAx3
+	zSUzMR1UwgTV269pTHpXnTgz/VW07hIyFEtX5m56MVUsaTB7gZPPwYVHUeBXZWuhQeDcUbkwDqI
+	PwK4Te78SLXUWf+tuW+LTe1e3QJtzUpQb1TdnC5SuANPs+fxekQB+x6N+u8SChQKQa13yTp+nA9
+	qF1bZfq+bFoj7rh5kED2rrzWfq0xM3WUxExZwMsSj82h9U
+X-Gm-Gg: ASbGncsJHr/fQuBYriTiMo0/fkhP8ctUb+6qhucZCcmPfuwk4usXEAjOKCRNiDdlL0k
+	Sbl/NONwXpl0KPzonyqS1G1o/qyImbZcfP8Ae/jdSbFV6uArQtdm9L2kGBQSIrdACIjCTH2S9vf
+	LwjS3LLAavexmjF2h+enbfdA==
+X-Received: by 2002:a17:902:e842:b0:235:ed01:18cd with SMTP id d9443c01a7336-2446d99e6acmr165826955ad.44.1755505673493;
+        Mon, 18 Aug 2025 01:27:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGxmEX0bC4rGj0GsL0Ofny3nTaPHYYQ7bo5uu9L4GZIVv1jBDAAlTveYAPi+e7gAhEyyevMd3DrrsmVZDn0oyA=
+X-Received: by 2002:a17:902:e842:b0:235:ed01:18cd with SMTP id
+ d9443c01a7336-2446d99e6acmr165826455ad.44.1755505673065; Mon, 18 Aug 2025
+ 01:27:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:160a:b0:3e5:81ef:b099 with SMTP id
- e9e14a558f8ab-3e5837f086fmr155291385ab.1.1755503972053; Mon, 18 Aug 2025
- 00:59:32 -0700 (PDT)
-Date: Mon, 18 Aug 2025 00:59:32 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <68a2dd64.050a0220.e29e5.0096.GAE@google.com>
-Subject: [syzbot] [x86?] BUG: soft lockup in xfrm_timer_handler
-From: syzbot <syzbot+b6ae1c4eede4e0ea287f@syzkaller.appspotmail.com>
-To: ajay.kaher@broadcom.com, alexey.makhalov@broadcom.com, 
-	bcm-kernel-feedback-list@broadcom.com, bp@alien8.de, 
-	dave.hansen@linux.intel.com, hpa@zytor.com, jgross@suse.com, 
-	linux-kernel@vger.kernel.org, mingo@redhat.com, 
-	syzkaller-bugs@googlegroups.com, tglx@linutronix.de, 
-	virtualization@lists.linux.dev, x86@kernel.org
+References: <20250818-numa_memblks-v1-1-9eb29ade560a@oss.qualcomm.com> <d7cdb65d-c241-478c-aa01-bc1a5f188e4f@redhat.com>
+In-Reply-To: <d7cdb65d-c241-478c-aa01-bc1a5f188e4f@redhat.com>
+From: Pratyush Brahma <pratyush.brahma@oss.qualcomm.com>
+Date: Mon, 18 Aug 2025 13:57:41 +0530
+X-Gm-Features: Ac12FXzcSoeiNhok4BzoYQfoalKvL5KSge90N69qQ3e47Ph8xq7Ih6FtZXa_xiM
+Message-ID: <CALzOmR0C8BFY+-u-_aprVeAhq4uPOQa+f2L5m+yZH+=XZ2cv_w@mail.gmail.com>
+Subject: Re: [PATCH] mm/numa: Rename memory_add_physaddr_to_nid to memory_get_phys_to_nid
+To: David Hildenbrand <david@redhat.com>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Danilo Krummrich <dakr@kernel.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Jonathan Cameron <jonathan.cameron@huawei.com>,
+        Alison Schofield <alison.schofield@intel.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+        Dexuan Cui <decui@microsoft.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-acpi@vger.kernel.org, nvdimm@lists.linux.dev, linux-mm@kvack.org,
+        linux-cxl@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        virtualization@lists.linux.dev, xen-devel@lists.xenproject.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Authority-Analysis: v=2.4 cv=MJ9gmNZl c=1 sm=1 tr=0 ts=68a2e40a cx=c_pps
+ a=JL+w9abYAAE89/QcEU+0QA==:117 a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10
+ a=20KFwNOVAAAA:8 a=EUspDBNiAAAA:8 a=uSFNSxTeKwDZCnUuY58A:9 a=QEXdDO2ut3YA:10
+ a=324X-CrmTo6CU4MGRt3R:22
+X-Proofpoint-ORIG-GUID: nSi5h4v37XFWX9vXqhqn1lmKV6lKAZqz
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODE2MDAzMSBTYWx0ZWRfX2K3syL33CfYX
+ WtmKUW4KNMhXv27USeOISmWPQjz9Pn90Czl22r0rFbWhYZ17juPw4eSMGlQyUm9G3SSceDm+o9l
+ oS0rrPQ/4MBxxyKeb8ZY77jUzdcZZSLOFQUpzar5PmEqUMKjjcNMGqvAPAIJi+mCLpiUG1CDHxq
+ gtlDzrBbWs/wQdhqgPLsLUkUkRizjc+SrlrF6Uqqx8n9/m7zHxxR28TG52QUeFjrRakqjCfHks+
+ V9xwn7Wmh8I4yaURf5KNgPK7qEQ6y5lBW09uwpfsL52lwBBUSK4bbkmdJy2XmBgDcIZeuGL6qGz
+ zoRvDopZhi43wqt48UGIl9RHBFldelp/Iu9IloX9482rhCsWc9aUsuJM6i13qEyfXymp/45Ez83
+ OmvXhDdI
+X-Proofpoint-GUID: nSi5h4v37XFWX9vXqhqn1lmKV6lKAZqz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-18_03,2025-08-14_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 impostorscore=0 phishscore=0 bulkscore=0 malwarescore=0
+ spamscore=0 clxscore=1015 priorityscore=1501 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508160031
 
-Hello,
+On Mon, Aug 18, 2025 at 12:29=E2=80=AFPM David Hildenbrand <david@redhat.co=
+m> wrote:
+>
+> On 18.08.25 08:41, pratyush.brahma@oss.qualcomm.com wrote:
+> > From: Pratyush Brahma <pratyush.brahma@oss.qualcomm.com>
+> >
+> > The function `memory_add_physaddr_to_nid` seems a misnomer.
+> > It does not to "add" a physical address to a NID mapping,
+> > but rather it gets the NID associated with a given physical address.
+>
+> You probably misunderstood what the function is used for: memory hotplug
+> aka "memory_add".
+Thanks for your feedback. I get the part about memory hotplug here but
+using memory_add still seems a little odd as it doesn't truly reflect
+what this api is doing.
+However, I agree that my current suggestion
+may not be the perfect choice for the name, so I'm open to suggestions.
 
-syzbot found the following issue on:
-
-HEAD commit:    8742b2d8935f Merge tag 'pull-fixes' of git://git.kernel.or..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=109d2af0580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=412ee2f8b704a5e6
-dashboard link: https://syzkaller.appspot.com/bug?extid=b6ae1c4eede4e0ea287f
-compiler:       Debian clang version 20.1.7 (++20250616065708+6146a88f6049-1~exp1~20250616065826.132), Debian LLD 20.1.7
-userspace arch: i386
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/306c9da968d7/disk-8742b2d8.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/30ecb8c8194f/vmlinux-8742b2d8.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/ed161655b985/bzImage-8742b2d8.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+b6ae1c4eede4e0ea287f@syzkaller.appspotmail.com
-
-watchdog: BUG: soft lockup - CPU#0 stuck for 144s! [swapper/0:0]
-Modules linked in:
-irq event stamp: 2440187
-hardirqs last  enabled at (2440186): [<ffffffff8172210b>] kvm_wait+0x1fb/0x290 arch/x86/kernel/kvm.c:-1
-hardirqs last disabled at (2440187): [<ffffffff8b792e6e>] sysvec_apic_timer_interrupt+0xe/0xc0 arch/x86/kernel/apic/apic.c:1050
-softirqs last  enabled at (2386480): [<ffffffff8184f4da>] __do_softirq kernel/softirq.c:613 [inline]
-softirqs last  enabled at (2386480): [<ffffffff8184f4da>] invoke_softirq kernel/softirq.c:453 [inline]
-softirqs last  enabled at (2386480): [<ffffffff8184f4da>] __irq_exit_rcu+0xca/0x1f0 kernel/softirq.c:680
-softirqs last disabled at (2386487): [<ffffffff8184f4da>] __do_softirq kernel/softirq.c:613 [inline]
-softirqs last disabled at (2386487): [<ffffffff8184f4da>] invoke_softirq kernel/softirq.c:453 [inline]
-softirqs last disabled at (2386487): [<ffffffff8184f4da>] __irq_exit_rcu+0xca/0x1f0 kernel/softirq.c:680
-CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted 6.17.0-rc1-syzkaller-00016-g8742b2d8935f #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/12/2025
-RIP: 0010:pv_native_safe_halt+0x13/0x20 arch/x86/kernel/paravirt.c:82
-Code: 13 e8 02 00 cc cc cc 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 66 90 0f 00 2d 33 f7 0e 00 f3 0f 1e fa fb f4 <c3> cc cc cc cc cc cc cc cc cc cc cc cc 90 90 90 90 90 90 90 90 90
-RSP: 0018:ffffc900000077b8 EFLAGS: 00000246
-RAX: ffffffff8172213d RBX: 0000000000000003 RCX: ffffffff8de95100
-RDX: 0000000000000100 RSI: ffffffff8d9b6da5 RDI: ffffffff8be33400
-RBP: ffffc90000007890 R08: ffffffff8fa37e37 R09: 1ffffffff1f46fc6
-R10: dffffc0000000000 R11: fffffbfff1f46fc7 R12: dffffc0000000000
-R13: 0000000000000200 R14: 0000000000000003 R15: 1ffff92000000efc
-FS:  0000000000000000(0000) GS:ffff888125c1c000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000563a9e26fa58 CR3: 000000000df36000 CR4: 00000000003526f0
-Call Trace:
- <IRQ>
- arch_safe_halt arch/x86/include/asm/paravirt.h:107 [inline]
- kvm_wait+0x232/0x290 arch/x86/kernel/kvm.c:1064
- pv_wait arch/x86/include/asm/paravirt.h:569 [inline]
- pv_wait_head_or_lock kernel/locking/qspinlock_paravirt.h:466 [inline]
- __pv_queued_spin_lock_slowpath+0x7bf/0xb60 kernel/locking/qspinlock.c:325
- pv_queued_spin_lock_slowpath arch/x86/include/asm/paravirt.h:557 [inline]
- queued_spin_lock_slowpath+0x43/0x50 arch/x86/include/asm/qspinlock.h:51
- queued_spin_lock include/asm-generic/qspinlock.h:114 [inline]
- do_raw_spin_lock+0x21f/0x290 kernel/locking/spinlock_debug.c:116
- spin_lock include/linux/spinlock.h:351 [inline]
- __xfrm_state_delete+0xba/0xca0 net/xfrm/xfrm_state.c:818
- xfrm_timer_handler+0x18f/0xa00 net/xfrm/xfrm_state.c:716
- __run_hrtimer kernel/time/hrtimer.c:1761 [inline]
- __hrtimer_run_queues+0x52c/0xc60 kernel/time/hrtimer.c:1825
- hrtimer_run_softirq+0x187/0x2b0 kernel/time/hrtimer.c:1842
- handle_softirqs+0x283/0x870 kernel/softirq.c:579
- __do_softirq kernel/softirq.c:613 [inline]
- invoke_softirq kernel/softirq.c:453 [inline]
- __irq_exit_rcu+0xca/0x1f0 kernel/softirq.c:680
- irq_exit_rcu+0x9/0x30 kernel/softirq.c:696
- instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1050 [inline]
- sysvec_apic_timer_interrupt+0xa6/0xc0 arch/x86/kernel/apic/apic.c:1050
- </IRQ>
- <TASK>
- asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:702
-RIP: 0010:pv_native_safe_halt+0x13/0x20 arch/x86/kernel/paravirt.c:82
-Code: 13 e8 02 00 cc cc cc 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 66 90 0f 00 2d 33 f7 0e 00 f3 0f 1e fa fb f4 <c3> cc cc cc cc cc cc cc cc cc cc cc cc 90 90 90 90 90 90 90 90 90
-RSP: 0018:ffffffff8de07d80 EFLAGS: 000002c2
-RAX: 3d439e448e506a00 RBX: ffffffff81968308 RCX: 3d439e448e506a00
-RDX: 0000000000000001 RSI: ffffffff8d9b6da5 RDI: ffffffff8be33400
-RBP: ffffffff8de07eb8 R08: ffff8880b8632f9b R09: 1ffff110170c65f3
-R10: dffffc0000000000 R11: ffffed10170c65f4 R12: ffffffff8fa37e30
-R13: 0000000000000000 R14: 0000000000000000 R15: 1ffffffff1bd2a20
- arch_safe_halt arch/x86/include/asm/paravirt.h:107 [inline]
- default_idle+0x13/0x20 arch/x86/kernel/process.c:757
- default_idle_call+0x74/0xb0 kernel/sched/idle.c:122
- cpuidle_idle_call kernel/sched/idle.c:190 [inline]
- do_idle+0x1e8/0x510 kernel/sched/idle.c:330
- cpu_startup_entry+0x44/0x60 kernel/sched/idle.c:428
- rest_init+0x2de/0x300 init/main.c:744
- start_kernel+0x3a9/0x410 init/main.c:1097
- x86_64_start_reservations+0x24/0x30 arch/x86/kernel/head64.c:307
- x86_64_start_kernel+0x143/0x1c0 arch/x86/kernel/head64.c:288
- common_startup_64+0x13e/0x147
- </TASK>
-Sending NMI from CPU 0 to CPUs 1:
-NMI backtrace for cpu 1
-CPU: 1 UID: 0 PID: 7440 Comm: syz.2.420 Not tainted 6.17.0-rc1-syzkaller-00016-g8742b2d8935f #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/12/2025
-RIP: 0010:check_kcov_mode kernel/kcov.c:183 [inline]
-RIP: 0010:__sanitizer_cov_trace_pc+0x18/0x70 kernel/kcov.c:217
-Code: cc cc 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 48 8b 04 24 65 48 8b 0c 25 08 40 a0 92 65 8b 15 68 94 e0 10 <81> e2 00 01 ff 00 74 11 81 fa 00 01 00 00 75 35 83 b9 3c 16 00 00
-RSP: 0000:ffffc9001d36f0d8 EFLAGS: 00000297
-RAX: ffffffff8a216ca4 RBX: 0000000001000000 RCX: ffff888028cb8000
-RDX: 0000000000000402 RSI: 000000000007ffff RDI: 0000000000080000
-RBP: ffffc9001d36f230 R08: 0000000000000000 R09: ffffffff8a216a10
-R10: dffffc0000000000 R11: fffff52003a6de0c R12: dffffc0000000000
-R13: ffff88805489b300 R14: 0000000007000000 R15: ffffc9001d36f6a0
-FS:  0000000000000000(0000) GS:ffff888125d1c000(0063) knlGS:00000000f54ceb40
-CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
-CR2: 0000000000000000 CR3: 0000000072956000 CR4: 00000000003526f0
-DR0: 0000040000000000 DR1: 000000000000064f DR2: 0000000000000006
-DR3: 0000000000000006 DR6: 00000000ffff0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- xfrm_state_lookup_spi_proto net/xfrm/xfrm_state.c:1707 [inline]
- xfrm_alloc_spi+0x534/0xf30 net/xfrm/xfrm_state.c:2589
- xfrm_alloc_userspi+0x70b/0xc90 net/xfrm/xfrm_user.c:1873
- xfrm_user_rcv_msg+0x7a0/0xab0 net/xfrm/xfrm_user.c:3501
- netlink_rcv_skb+0x208/0x470 net/netlink/af_netlink.c:2552
- xfrm_netlink_rcv+0x79/0x90 net/xfrm/xfrm_user.c:3523
- netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
- netlink_unicast+0x82c/0x9e0 net/netlink/af_netlink.c:1346
- netlink_sendmsg+0x805/0xb30 net/netlink/af_netlink.c:1896
- sock_sendmsg_nosec net/socket.c:714 [inline]
- __sock_sendmsg+0x21c/0x270 net/socket.c:729
- ____sys_sendmsg+0x505/0x830 net/socket.c:2614
- ___sys_sendmsg+0x21f/0x2a0 net/socket.c:2668
- __sys_sendmsg+0x164/0x220 net/socket.c:2700
- do_syscall_32_irqs_on arch/x86/entry/syscall_32.c:83 [inline]
- __do_fast_syscall_32+0xb6/0x2b0 arch/x86/entry/syscall_32.c:306
- do_fast_syscall_32+0x34/0x80 arch/x86/entry/syscall_32.c:331
- entry_SYSENTER_compat_after_hwframe+0x84/0x8e
-RIP: 0023:0xf70de539
-Code: 03 74 b4 01 10 07 03 74 b0 01 10 08 03 74 d8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
-RSP: 002b:00000000f54ce55c EFLAGS: 00000206 ORIG_RAX: 0000000000000172
-RAX: ffffffffffffffda RBX: 0000000000000007 RCX: 0000000080000740
-RDX: 0000000000000050 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000206 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+Perhaps, something like "memory_add_get_nid_by_phys" may work here?
+>
+> This patch is making matters worse by stripping that detail, unfortunatel=
+y.
+>
+>
+> --
+> Cheers
+>
+> David / dhildenb
+>
+Thanks and Regards
+Pratyush
