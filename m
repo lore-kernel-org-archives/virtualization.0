@@ -1,120 +1,92 @@
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D4B62EBBAC
-	for <virtualization@lists.linux.dev>; Tue, 19 Aug 2025 03:34:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 735AD2690C0;
+	Tue, 19 Aug 2025 06:39:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755574471; cv=none; b=szHUu5Lhd/ug3J64Uy8mJ/hOIdVwjIARdq+5PQdTUaFOFsyvxzwjV/Kd9vi2t8Vo2xXTu/s4yZ6vQPo4MOs9YZGWmsOSX7BBm2sbAAQOg2a8tKLzaaqG7zkKxzTzCMjIeq0DkYTNBHwraR7n9H92FE+AJcDGnFHd7Uepe8rRwow=
+	t=1755585599; cv=none; b=t8qA1ZdaKiaZIIBAEZux4wDZ9VhjGaYvhot3GvdriWX4CFzFoWaX/i2Ku2EQrH1a0ihIz6xWi4uYRbU3r1JbLpOkOydRzblVa3/tdicyhr52MTRO4QszCKWD9wlqWrVoDrKvf0BzpSQZDAn8i3RnOM0fEjBRUPH8+28wj/E6l6s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755574471; c=relaxed/simple;
-	bh=JKNZX2bbEIrC8xCWZSb+vHXAfSZLVZNxXfIdG7LwcsI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
-	 Content-Type:References; b=taUu94qaUAJN2Vs16UG1izn81XJeamap1uEPpTNSAJOKagNWOUCCrkvK+VYFz2zQm5YBZ7aeLfCyzYCfYUN5qfOUtppaD4XDtGUcWBmzS/YjqVEz+RWFC+HqyUudKYzLAatimoKDqPnVnO4gPCDNf2w37yYUx3skISfAzRJk1xU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=XAv7CCLM; arc=none smtp.client-ip=203.254.224.24
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1755585599; c=relaxed/simple;
+	bh=HoWbYmhsA8SL51aANKCLbtiNokkLG98QFcJSsUgJGr8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=gG12yTib02L4yPd0jAOrJKw0PgMLpDXXFUptrNb32+GIHNuyfYFg63Dyn4/PFckyC9b8KU2sPQQ+hYS4TJwy+aG/DMMFkDYGbAjKZwifGZthx5PIj7ERDLXzjumX4GcNYrxZwe2pES/1AbzJrlqoT8fsPLmF8YffyZ6/BJhNEs8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VgWy9ue4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="XAv7CCLM"
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20250819033421epoutp01b78f02049692bd7922883858a4bf0b97~dDavhd-tI0236502365epoutp01X
-	for <virtualization@lists.linux.dev>; Tue, 19 Aug 2025 03:34:21 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20250819033421epoutp01b78f02049692bd7922883858a4bf0b97~dDavhd-tI0236502365epoutp01X
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1755574461;
-	bh=Hsc9puMhPwaXFA5i4kUspsGUpcSO7N7D73eS4uhdn3Q=;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VgWy9ue4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2CCAC4CEF4;
+	Tue, 19 Aug 2025 06:39:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1755585599;
+	bh=HoWbYmhsA8SL51aANKCLbtiNokkLG98QFcJSsUgJGr8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=XAv7CCLM6SQreTulkQMq4em7c1xdncPU0BbOGn72h1yGzDf2reKDAFT53/LGf7Rvi
-	 uVWulezwXSgwqdt4SVA//YSk6KUE7ECtdMi5HiLNq+BDzRDiH64XpAs3u87Pjjnr1x
-	 8YzLaIRFMpRw4J1uRoJ1jWfNSPxKvar/br7kHh+Q=
-Received: from epsnrtp01.localdomain (unknown [182.195.42.153]) by
-	epcas5p3.samsung.com (KnoxPortal) with ESMTPS id
-	20250819033421epcas5p386142418c9dce35e45e0a8ed238f7a60~dDavLPnx-1213112131epcas5p3t;
-	Tue, 19 Aug 2025 03:34:21 +0000 (GMT)
-Received: from epcas5p2.samsung.com (unknown [182.195.38.88]) by
-	epsnrtp01.localdomain (Postfix) with ESMTP id 4c5ZvJ1tHGz6B9mD; Tue, 19 Aug
-	2025 03:34:20 +0000 (GMT)
-Received: from epsmtip2.samsung.com (unknown [182.195.34.31]) by
-	epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-	20250819033318epcas5p3325d9c2481db3e40d776197d13f09d5a~dDZ034sxy1308013080epcas5p3B;
-	Tue, 19 Aug 2025 03:33:18 +0000 (GMT)
-Received: from asg29.. (unknown [109.105.129.29]) by epsmtip2.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20250819033316epsmtip2600ea94da3ad14d0a16bd9af8a307fec~dDZzQbId-1926619266epsmtip2D;
-	Tue, 19 Aug 2025 03:33:16 +0000 (GMT)
-From: Junnan Wu <junnan01.wu@samsung.com>
-To: jasowang@redhat.com
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-	eperezma@redhat.com, junnan01.wu@samsung.com, kuba@kernel.org,
-	lei19.wang@samsung.com, linux-kernel@vger.kernel.org, mst@redhat.com,
-	netdev@vger.kernel.org, pabeni@redhat.com, q1.huang@samsung.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
-	ying123.xu@samsung.com
-Subject: Re: [PATCH net] virtio_net: adjust the execution order of function
- `virtnet_close` during freeze
-Date: Tue, 19 Aug 2025 11:33:26 +0800
-Message-Id: <20250819033326.3602994-1-junnan01.wu@samsung.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <CACGkMEsVJcb2YYvfXYA0soE++cPEmQatkC0tB+shNKB=OTteWg@mail.gmail.com>
+	b=VgWy9ue4oVQqA5ZXVBseBthE4nnglgr43ZXl4X9E5o2Ay/SK4naLQc5zWOIsTceZu
+	 HYU1x5v7StG2UxeYvtCCwTNIy2gcWOgWjUw3uSBgOoZ0+INlxskI5dkmJrvZxVV8Dh
+	 g0K5cm2fI75meYpfhLVMySZ+DNrJnuAFC79DhotYXJfHguvhlzjpzk2ExUy5HfQwSD
+	 QauFX7ONxWXOAPJXpkPNt7OaI+G72mA9CTdS511Yy6NA5ZCKHEuWHeMcCXEQV+gIi0
+	 ejZ911WLs5Aocd9i0PH1y4FrYqsVb3t7z+sus4EfmxwO25EmUoa0GLzcvcPHVynkNA
+	 f8PLz6FE6fLYw==
+From: Namhyung Kim <namhyung@kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-perf-users@vger.kernel.org,
+	LKML <linux-kernel@vger.kernel.org>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>
+Subject: [PATCH] vhost: Fix ioctl # for VHOST_[GS]ET_FORK_FROM_OWNER
+Date: Mon, 18 Aug 2025 23:39:57 -0700
+Message-ID: <20250819063958.833770-1-namhyung@kernel.org>
+X-Mailer: git-send-email 2.51.0.rc1.167.g924127e9c0-goog
+In-Reply-To: <CACGkMEvm-wFV8TqX039CZU1JKnztft5Hp7kt6hqoqHCNyn3=jg@mail.gmail.com>
+References: <CACGkMEvm-wFV8TqX039CZU1JKnztft5Hp7kt6hqoqHCNyn3=jg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20250819033318epcas5p3325d9c2481db3e40d776197d13f09d5a
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-cpgsPolicy: CPGSC10-505,Y
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250819033318epcas5p3325d9c2481db3e40d776197d13f09d5a
-References: <CACGkMEsVJcb2YYvfXYA0soE++cPEmQatkC0tB+shNKB=OTteWg@mail.gmail.com>
-	<CGME20250819033318epcas5p3325d9c2481db3e40d776197d13f09d5a@epcas5p3.samsung.com>
 
-On Tue, 19 Aug 2025 10:48:37 +0800 Jason Wang wrote:
-> On Mon, Aug 18, 2025 at 11:39 PM Jakub Kicinski <kuba@kernel.org> wrote:
-> >
-> > On Mon, 18 Aug 2025 09:15:22 +0800 Junnan Wu wrote:
-> > > > > Yes, you are right. The commit of this fix tag is the first commit I
-> > > > > found which add function `virtnet_poll_cleantx`. Actually, we are not
-> > > > > sure whether this issue appears after this commit.
-> > > > >
-> > > > > In our side, this issue is found by chance in version 5.15.
-> > > > >
-> > > > > It's hard to find the key commit which cause this issue
-> > > > > for reason that the reproduction of this scenario is too complex.
-> > > >
-> > > > I think the problem needs to be more clearly understood, and then it
-> > > > will be easier to find the fixes tag. At the face of it the patch
-> > > > makes it look like close() doesn't reliably stop the device, which
-> > > > is highly odd.
-> > >
-> > > Yes, you are right. It is really strange that `close()` acts like
-> > > that, because current order has worked for long time. But panic call
-> > > stack in our env shows that the function `virtnet_close` and
-> > > `netif_device_detach` should have a correct execution order. And it
-> > > needs more time to find the fixes tag. I wonder that is it must have
-> > > fixes tag to merge?
-> > >
-> > > By the way, you mentioned that "the problem need to be more clearly
-> > > understood", did you mean the descriptions and sequences in commit
-> > > message are not easy to understand? Do you have some suggestions
-> > > about this?
-> >
-> > Perhaps Jason gets your explanation and will correct me, but to me it
-> > seems like the fix is based on trial and error rather than clear
-> > understanding of the problem. If you understood the problem clearly
-> > you should be able to find the Fixes tag without a problem..
-> >
-> 
-> +1
-> 
-> The code looks fine but the fixes tag needs to be correct.
-> 
-> Thanks
+The VHOST_[GS]ET_FEATURES_ARRAY ioctl already took 0x83 and it would
+result in a build error when the vhost uapi header is used for perf tool
+build like below.
 
-Well, I will do some works to find out the fixes tag.
-Once there's progress, I will let you know.
+  In file included from trace/beauty/ioctl.c:93:
+  tools/perf/trace/beauty/generated/ioctl/vhost_virtio_ioctl_array.c: In function ‘ioctl__scnprintf_vhost_virtio_cmd’:
+  tools/perf/trace/beauty/generated/ioctl/vhost_virtio_ioctl_array.c:36:18: error: initialized field overwritten [-Werror=override-init]
+     36 |         [0x83] = "SET_FORK_FROM_OWNER",
+        |                  ^~~~~~~~~~~~~~~~~~~~~
+  tools/perf/trace/beauty/generated/ioctl/vhost_virtio_ioctl_array.c:36:18: note: (near initialization for ‘vhost_virtio_ioctl_cmds[131]’)
+
+Fixes: 7d9896e9f6d02d8a ("vhost: Reintroduce kthread API and add mode selection")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+---
+ include/uapi/linux/vhost.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index 283348b64af9ac59..c57674a6aa0dbbea 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -260,7 +260,7 @@
+  * When fork_owner is set to VHOST_FORK_OWNER_KTHREAD:
+  *   - Vhost will create vhost workers as kernel threads.
+  */
+-#define VHOST_SET_FORK_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, __u8)
++#define VHOST_SET_FORK_FROM_OWNER _IOW(VHOST_VIRTIO, 0x84, __u8)
+ 
+ /**
+  * VHOST_GET_FORK_OWNER - Get the current fork_owner flag for the vhost device.
+@@ -268,6 +268,6 @@
+  *
+  * @return: An 8-bit value indicating the current thread mode.
+  */
+-#define VHOST_GET_FORK_FROM_OWNER _IOR(VHOST_VIRTIO, 0x84, __u8)
++#define VHOST_GET_FORK_FROM_OWNER _IOR(VHOST_VIRTIO, 0x85, __u8)
+ 
+ #endif
+-- 
+2.51.0.rc1.167.g924127e9c0-goog
+
