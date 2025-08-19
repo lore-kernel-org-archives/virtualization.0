@@ -1,136 +1,140 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A23E927876E
-	for <virtualization@lists.linux.dev>; Tue, 19 Aug 2025 11:22:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48E5F32BF5C
+	for <virtualization@lists.linux.dev>; Tue, 19 Aug 2025 11:42:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755602555; cv=none; b=gQGS2kToaLpLTo0ITKFF3ovTxqyD8GPLxdHGhENNC4cGkWIhiHqQAPDZ+D9i428oHU/STxxV+8E5pFI7ES8sAsM/JDpxzDj72iMqxkMCGsP93l60ha0ZddHXHy3m5xKsMlQRX/4oU/fAvI1nhPKnsFUfnTzry1FoEZmCVi9ZBOY=
+	t=1755603756; cv=none; b=W+fNZB2Imzb3PnHDrUf6didkOrd/ovFoEcdukBbqmc44bkq919cDuZN6bB/1PyD+mBFtDE0346Re130eLacNhPxd3s+WjaaWknP2nFygGduQLOpKEhZnZnGiOdkELmek5AHtOOl4CzTf/doOnv8IDCxPowhBvIgTdIWlzmmrXXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755602555; c=relaxed/simple;
-	bh=ljNmmhgO9RaVR5EfsrA+jtClGqwH4Ncw0+lLHEpMKhk=;
+	s=arc-20240116; t=1755603756; c=relaxed/simple;
+	bh=i6/FFx4o9rXet7U52TFbFcsr48kAqmv5yfVusV6aOYM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gBqb2sMb9jJyABTTsvzHYQ+5HHu2rVdpJysbOsrvfHWFtcMbfVq3wuzmQxRTsihpIvU9NkvMFuaUerhP9Gkqc3Fg06ybZEG9QH25miju2V2Jv/EUXD+Ih3zzUqBKphVvb1F5ZAV4tL87BTBrzb5+SZs8iy1qbrCCL99FAxOcb9w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hJBkTHKC; arc=none smtp.client-ip=170.10.129.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=asM+9hpDT9u0Ir9avxqkX9ab71Dcv5X5e3i4NCuL+5Y0Em3twXsZ0QphJZIfj9/ZzJQnawtqLf+IQFN0g6YoHqWJVbHoFul0h07zXDVfrVinjqTn6+l18jHCZaZnKpexUir7pTACwSCUsvcdxleuBrlYHESE0nph+hFbtl3MOc4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bB+k/JpD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hJBkTHKC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bB+k/JpD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755602552;
+	s=mimecast20190719; t=1755603754;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jdBinzdAYenwJX8OAfplMqIPm3EH+LTM0TGcBywLoj0=;
-	b=hJBkTHKC7xxyZ4/aReLPGO6dnGHI0VuzD9ue40LzqzTUCaFa22oEO+Aee5LY4H7avjoocK
-	xy4G/qOfFTpBUgzk4wz+fb4Ijnogh/P5EFr5ruyD8aC0fO2nbR9qlcaTvhMt3M93UAZm+W
-	VIQn9OPz+nipXbShXDeQqGDr5t1csLY=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-675-eVkt1-boPgOAod7dSoHZfQ-1; Tue, 19 Aug 2025 07:22:31 -0400
-X-MC-Unique: eVkt1-boPgOAod7dSoHZfQ-1
-X-Mimecast-MFC-AGG-ID: eVkt1-boPgOAod7dSoHZfQ_1755602550
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3b9edf34ad0so2728679f8f.3
-        for <virtualization@lists.linux.dev>; Tue, 19 Aug 2025 04:22:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755602550; x=1756207350;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jdBinzdAYenwJX8OAfplMqIPm3EH+LTM0TGcBywLoj0=;
-        b=bsC/rxC/+cAsVfKE6GEDKnm3gF2ZMz5lOBK6eSn0PCI9fGYDuPBH2P4xLr/QFLmr7O
-         1JbbysIhay+aseiQVEll8FoYQlJ42AyC56S4LHxao2Z2boerpOICei1Fo07TPAe4UXlX
-         DReKgBDqnhQ8jmv1sW4zlwXFtj2Sla0fQqtMbRNNx1bQrsdTRKKpBw8B98KKv6OF5HTF
-         8dnrn9/IxAv6IvLzQVOppOmZoCyjB9a8gjGpa+H+JvF2mVANlSi7yQVzkLxvpxS4SF4F
-         IT9kT3H+b1SiXKsdKIkSa4f2j51/+8wWn7gVWH6EusqBZjxddZh7YHJ306QIvWpQHo+/
-         vApw==
-X-Forwarded-Encrypted: i=1; AJvYcCWaC4ntO2Nrj0r0qCRRS7Mrbk9QSE8O2SpDC/Jv/toHn0anTgZA1mn2bBwe1p/2YDoVl0Kl87NWrqht/GKAyQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwTXNsKJ9+5JiAdMG00DF5dkZ3cWiy3Pp4PKEkS1yony4/Eckp6
-	a7DHIxFVxifWItxv+GFvg6DnwQcB5Nzb21Ou2vRCYI1BaO9W5SQ8X6C3d+T85AuLu8wPnMk30Fd
-	tpFU84aBtrFtkTRDTAsFC+m5uNS3BFgJKXkYf5gk+rPQuYOosp7uVY5QJ5bJFT5oFbHqW
-X-Gm-Gg: ASbGnct7R8vUqwQKVVZ0ld+/ZLvVDC7JIsAH5+l8W7p9xsh9tWAhyEdmhlIUi4OeNOu
-	PNtSq+hJ0/QPz8tA6zmh9LVRgDJ27/LS++0uJVfSxWLz2SeK+RGJIFp8oFFnKd8qzLoKXGdZA8x
-	2PyyEomzlIPbP8Zpkr7rz05FhMzSACfjvwZVB9ez3YD/bIeOHKRslyrS9JRnj3+FtXdQic49GdP
-	sZQLigblChkHJJi9lplSUepa3lqTEFEuCkm3zQtc/So/HoD3lCT6Ne9mu7sdeqK/J6MjcyfDb0O
-	V6si0hSbTxXiFPLmo4ZmUkHyCVPDhjUJ
-X-Received: by 2002:a05:6000:2387:b0:3b7:9aff:ef22 with SMTP id ffacd0b85a97d-3c0ecc3206dmr1914961f8f.27.1755602549980;
-        Tue, 19 Aug 2025 04:22:29 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFv8ySp3Cp9nuKkaFnxvZbN6GvUwPZexJl3kz+HR/Y9XxHDTyVom8LjTJyyFuYXs6XeX/e9Gg==
-X-Received: by 2002:a05:6000:2387:b0:3b7:9aff:ef22 with SMTP id ffacd0b85a97d-3c0ecc3206dmr1914938f8f.27.1755602549506;
-        Tue, 19 Aug 2025 04:22:29 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b42a84417sm36364775e9.13.2025.08.19.04.22.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Aug 2025 04:22:29 -0700 (PDT)
-Date: Tue, 19 Aug 2025 07:22:26 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-perf-users@vger.kernel.org,
-	LKML <linux-kernel@vger.kernel.org>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: Re: [PATCH] vhost: Fix ioctl # for VHOST_[GS]ET_FORK_FROM_OWNER
-Message-ID: <20250819072216-mutt-send-email-mst@kernel.org>
-References: <CACGkMEvm-wFV8TqX039CZU1JKnztft5Hp7kt6hqoqHCNyn3=jg@mail.gmail.com>
- <20250819063958.833770-1-namhyung@kernel.org>
+	bh=/CDY/siFmYcwlrdkt8B8vowtvoh8A+BRqaxiLLG+Hp8=;
+	b=bB+k/JpDFbYXIHwzy1ABpav4a5Io8tRKCNK8qPgrtM4D7JeNn01GNMVyatpqGbKuveBDo7
+	kTJEjMh522t7YZ/nL7xi1PYgsEnBRmxcr/tSh5RiacSJJND91M2Fsj46vI5yVryPejG2PS
+	cNrpSIk8pW/pI2zAJxHc4crcvkPFcvg=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-651-8WdoaadNMFm6nstW1JaUIw-1; Tue,
+ 19 Aug 2025 07:42:28 -0400
+X-MC-Unique: 8WdoaadNMFm6nstW1JaUIw-1
+X-Mimecast-MFC-AGG-ID: 8WdoaadNMFm6nstW1JaUIw_1755603746
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 87FE81954B1C;
+	Tue, 19 Aug 2025 11:42:26 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.68])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0BE1D19560AB;
+	Tue, 19 Aug 2025 11:42:24 +0000 (UTC)
+Date: Tue, 19 Aug 2025 07:42:23 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Will Deacon <will@kernel.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Hillf Danton <hdanton@sina.com>,
+	Jakub Kicinski <kuba@kernel.org>, Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH 0/2] Fix vsock error-handling regression introduced in
+ v6.17-rc1
+Message-ID: <20250819114223.GA37216@fedora>
+References: <20250818180355.29275-1-will@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250819063958.833770-1-namhyung@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xhUXyawEK8MBTmsQavmiBoNStAHfMmvoo_QVJXdQo34_1755602550
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="EiAQxVZfWL66lhJ5"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250818180355.29275-1-will@kernel.org>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Mon, Aug 18, 2025 at 11:39:57PM -0700, Namhyung Kim wrote:
-> The VHOST_[GS]ET_FEATURES_ARRAY ioctl already took 0x83 and it would
-> result in a build error when the vhost uapi header is used for perf tool
-> build like below.
-> 
->   In file included from trace/beauty/ioctl.c:93:
->   tools/perf/trace/beauty/generated/ioctl/vhost_virtio_ioctl_array.c: In function ‘ioctl__scnprintf_vhost_virtio_cmd’:
->   tools/perf/trace/beauty/generated/ioctl/vhost_virtio_ioctl_array.c:36:18: error: initialized field overwritten [-Werror=override-init]
->      36 |         [0x83] = "SET_FORK_FROM_OWNER",
->         |                  ^~~~~~~~~~~~~~~~~~~~~
->   tools/perf/trace/beauty/generated/ioctl/vhost_virtio_ioctl_array.c:36:18: note: (near initialization for ‘vhost_virtio_ioctl_cmds[131]’)
-> 
-> Fixes: 7d9896e9f6d02d8a ("vhost: Reintroduce kthread API and add mode selection")
-> Signed-off-by: Namhyung Kim <namhyung@kernel.org>
 
-Applied, thanks a lot!
+--EiAQxVZfWL66lhJ5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ---
->  include/uapi/linux/vhost.h | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index 283348b64af9ac59..c57674a6aa0dbbea 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -260,7 +260,7 @@
->   * When fork_owner is set to VHOST_FORK_OWNER_KTHREAD:
->   *   - Vhost will create vhost workers as kernel threads.
->   */
-> -#define VHOST_SET_FORK_FROM_OWNER _IOW(VHOST_VIRTIO, 0x83, __u8)
-> +#define VHOST_SET_FORK_FROM_OWNER _IOW(VHOST_VIRTIO, 0x84, __u8)
->  
->  /**
->   * VHOST_GET_FORK_OWNER - Get the current fork_owner flag for the vhost device.
-> @@ -268,6 +268,6 @@
->   *
->   * @return: An 8-bit value indicating the current thread mode.
->   */
-> -#define VHOST_GET_FORK_FROM_OWNER _IOR(VHOST_VIRTIO, 0x84, __u8)
-> +#define VHOST_GET_FORK_FROM_OWNER _IOR(VHOST_VIRTIO, 0x85, __u8)
->  
->  #endif
-> -- 
+On Mon, Aug 18, 2025 at 07:03:53PM +0100, Will Deacon wrote:
+> Hi all,
+>=20
+> Here are a couple of patches fixing the vsock error-handling regression
+> found by syzbot [1] that I introduced during the recent merge window.
+>=20
+> Cheers,
+>=20
+> Will
+>=20
+> [1] https://lore.kernel.org/all/689a3d92.050a0220.7f033.00ff.GAE@google.c=
+om/
+>=20
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: Christian Brauner <brauner@kernel.org>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Cc: Hillf Danton <hdanton@sina.com>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Paolo Abeni <pabeni@redhat.com>
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Cc: Stefano Garzarella <sgarzare@redhat.com>
+>=20
+> --->8
+>=20
+> Will Deacon (2):
+>   net: Introduce skb_copy_datagram_from_iter_full()
+>   vsock/virtio: Fix message iterator handling on transmit path
+>=20
+>  include/linux/skbuff.h                  |  2 ++
+>  net/core/datagram.c                     | 14 ++++++++++++++
+>  net/vmw_vsock/virtio_transport_common.c |  8 +++++---
+>  3 files changed, 21 insertions(+), 3 deletions(-)
+>=20
+> --=20
 > 2.51.0.rc1.167.g924127e9c0-goog
+>=20
+
+Stefano Garzarella is offline at the moment and may not get a chance to
+review this for another week. In the meantime I have reviewed this patch
+series:
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--EiAQxVZfWL66lhJ5
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmikYx8ACgkQnKSrs4Gr
+c8g6vwgAk0tzl/aU8i9ne8GgOXpF111xADxfNnaedXr6oUD9ZxeTTq5yUesC8mN7
+/DWT6dh3PuEb6bJLOGVHW8Nu57WjYfr7fIso5L3BnXvB3bZm7Ft98dESLl7RIF+7
+M7gy+28m7+jjgkbJ0u4EuQovGWRG6geEjqeHmo8XHefVlqaFl8YXnMwu8a4Q08xk
+ud9GQ7fcQGnJF2Gd7N37jGVZVN59XfBdwYyzCh6lWvHyj/U3CDDa5kqfeGWqXCyd
+AdPFM2DmWaO1U0IaKoHNa0v2F7oEYgouf/dkvsR6QfBxSWtNdysJ8AL8prYjarLU
+xR+U5eqHwm7YoUVh9ODH1RxZ4N3jHQ==
+=6Pi0
+-----END PGP SIGNATURE-----
+
+--EiAQxVZfWL66lhJ5--
 
