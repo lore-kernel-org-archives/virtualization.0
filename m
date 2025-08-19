@@ -1,140 +1,213 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94CA224337B
-	for <virtualization@lists.linux.dev>; Tue, 19 Aug 2025 14:46:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C62D30C34A;
+	Tue, 19 Aug 2025 17:37:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755614801; cv=none; b=kdbmTANplTz+JzkzU5LYWiUdpeAUspctjEy32me1dTzcHkCIBxkw8CLYNyIx8JQkfwqkvk0N9eCBRbuKEdknxVOA7eKMKgTLsvqJZkX5MyByh5GsuSQ88VaC62qBiW/f+cYGeoTw89E+GWNCxc/REcC/WA/NIOED9jA09OSgyZE=
+	t=1755625043; cv=none; b=BQxfAUl3W+pQts8W9Jwwj7GhcyHU6X65/nx2V5x3E3HzSvFJYlBkOYqc/p2Q137qZp2RcXaTnYySCl1yimWkG2fNWrA56ZAdm3sZzwYBaQMR3k8c5wX2N9qUwNDiX0xlhiuOqdlXxF7uhY2iaYGo7ux87SnVkmHaESDvgkeAp4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755614801; c=relaxed/simple;
-	bh=A/bQ8BPM18M5+5I1jcYBoAmnIskDpPsMSohOCfrxtUQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=ZP23CAeJ7hEdOny7EmLWMJS+y05O57lP2dfY+cUhHP2TxvNp+4IVRohNEu9tf/sCQZYToNiaZIg7+PjAFS3UaM0tWGMrXPBGFAKcwKQ2qnYcE7Cdj19qigkd0mKZrRzi+aJtgrHKXJjDX6lV9/fB0QCPFbs4mpphiZwCh0dkjRg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gAx4Uggk; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1755625043; c=relaxed/simple;
+	bh=PY9smWWJ4JNRFUAjSvtMNJOBqFCsxBLYO5QlYdxwbLE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=umX8jVGp7/E2+tpGM2gpWxcMNSg5QW4LmweGw0NcjakrwkKY3jZrhZpihd93io4U1OdzrRfC9dIfA5Cs3ttGhbcunFw3RL2s2K7MC9pufBQTLSoQOgOYFowvNwptObpR4VOW2UGzBE7OoZi/71pV8xJ0K2BVbn0+pwSHb++ZpAs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nt8pdRow; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gAx4Uggk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1755614799; x=1787150799;
-  h=message-id:date:mime-version:subject:to:references:from:
-   in-reply-to:content-transfer-encoding;
-  bh=A/bQ8BPM18M5+5I1jcYBoAmnIskDpPsMSohOCfrxtUQ=;
-  b=gAx4Uggk7dmVMWNjU18PFkmA97jzlpMDwatUmm/T8wqt/wCIPOoFEMoJ
-   FGyde7Cj8jvCQVpCwDEgVYUPZ9apI16Z45GGosZg6/binWw/ky0FWv7mW
-   kbHjqfJZzqOIxiZ+8CwJYwRxM/9Moif7d+9XzWAZCpZgh7GpU3v4eu8qy
-   oAQbQH1O/PbgRi5Ldb2nci1pws8Iqbx/VNXJXop9WdANtUbOa2yBIZCUh
-   iwVUWV3WOAp+F7t6LGbrGRUFqNm601lPF4+ZV6eC8JNNH4kakDHDeoGTi
-   dWU8lenA1E7Hro8u4rS/IkFq8yGNrWIorB7NfFXL7BNRw9LM977wubW6E
-   Q==;
-X-CSE-ConnectionGUID: jbK4IwF0Rd6jp5dm1Ov/ng==
-X-CSE-MsgGUID: ECO62w0eSLCTnPH5MT5Kew==
-X-IronPort-AV: E=McAfee;i="6800,10657,11527"; a="58008787"
-X-IronPort-AV: E=Sophos;i="6.17,302,1747724400"; 
-   d="scan'208";a="58008787"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2025 07:46:36 -0700
-X-CSE-ConnectionGUID: qSZVDYmfSbyaaJds6uCM7w==
-X-CSE-MsgGUID: 2IRox55MRfCJB6XnDqr+2A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.17,302,1747724400"; 
-   d="scan'208";a="198878619"
-Received: from gabaabhi-mobl2.amr.corp.intel.com (HELO [10.125.108.41]) ([10.125.108.41])
-  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2025 07:46:36 -0700
-Message-ID: <95833405-18aa-48ad-a5d6-4f659dfbf08a@intel.com>
-Date: Tue, 19 Aug 2025 07:46:35 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nt8pdRow"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C7B6C113D0;
+	Tue, 19 Aug 2025 17:37:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1755625042;
+	bh=PY9smWWJ4JNRFUAjSvtMNJOBqFCsxBLYO5QlYdxwbLE=;
+	h=From:To:Cc:Subject:Date:From;
+	b=nt8pdRowHseoXvExKasdI0tEDbHSrgizbMB2qlH1aCU/xuu2CZSaOV8+REt27f9GO
+	 87AyElpEj/wX92YaeYkB2ZUeSYzFX7ugQoGONRfzj6gLwHZfXjbZvX+XecnRMSzKxt
+	 XWFXqQ7FRrUCmWN75OAdzO2Bw50CvLG0hQxnk0yj1TPViX5VQGWTcqYi++OUdBQ/MI
+	 77ZymbBVIJT1fBt6mwrJPXADDaD1SHQ2OEMF2BgRWv5a+KqnO7FRcxsxJl834mNp8D
+	 2IaJ0ZC7YC5w/kVg1P0H0R1EvS8ZJSRiF91vJogJyrKxdQR7Akp5/4TKu+iWzc343Q
+	 0jqutLlV5YsRQ==
+From: Leon Romanovsky <leon@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Alex Gaynor <alex.gaynor@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@lst.de>,
+	Danilo Krummrich <dakr@kernel.org>,
+	iommu@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>,
+	Jens Axboe <axboe@kernel.dk>,
+	Joerg Roedel <joro@8bytes.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Juergen Gross <jgross@suse.com>,
+	kasan-dev@googlegroups.com,
+	Keith Busch <kbusch@kernel.org>,
+	linux-block@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-trace-kernel@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	rust-for-linux@vger.kernel.org,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev,
+	Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Subject: [PATCH v4 00/16] dma-mapping: migrate to physical address-based API
+Date: Tue, 19 Aug 2025 20:36:44 +0300
+Message-ID: <cover.1755624249.git.leon@kernel.org>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [syzbot] [x86?] BUG: soft lockup in xfrm_timer_handler
-To: syzbot <syzbot+b6ae1c4eede4e0ea287f@syzkaller.appspotmail.com>,
- ajay.kaher@broadcom.com, alexey.makhalov@broadcom.com,
- bcm-kernel-feedback-list@broadcom.com, bp@alien8.de,
- dave.hansen@linux.intel.com, hpa@zytor.com, jgross@suse.com,
- linux-kernel@vger.kernel.org, mingo@redhat.com,
- syzkaller-bugs@googlegroups.com, tglx@linutronix.de,
- virtualization@lists.linux.dev, x86@kernel.org,
- Steffen Klassert <steffen.klassert@secunet.com>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- "David S. Miller" <davem@davemloft.net>
-References: <68a2dd64.050a0220.e29e5.0096.GAE@google.com>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <68a2dd64.050a0220.e29e5.0096.GAE@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 8/18/25 00:59, syzbot wrote:
-> Call Trace:
->  <IRQ>
-...
->  spin_lock include/linux/spinlock.h:351 [inline]
->  __xfrm_state_delete+0xba/0xca0 net/xfrm/xfrm_state.c:818
->  xfrm_timer_handler+0x18f/0xa00 net/xfrm/xfrm_state.c:716
->  __run_hrtimer kernel/time/hrtimer.c:1761 [inline]
->  __hrtimer_run_queues+0x52c/0xc60 kernel/time/hrtimer.c:1825
->  hrtimer_run_softirq+0x187/0x2b0 kernel/time/hrtimer.c:1842
->  handle_softirqs+0x283/0x870 kernel/softirq.c:579
->  __do_softirq kernel/softirq.c:613 [inline]
->  invoke_softirq kernel/softirq.c:453 [inline]
->  __irq_exit_rcu+0xca/0x1f0 kernel/softirq.c:680
->  irq_exit_rcu+0x9/0x30 kernel/softirq.c:696
->  instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1050 [inline]
->  sysvec_apic_timer_interrupt+0xa6/0xc0 arch/x86/kernel/apic/apic.c:1050
+Changelog:
+v4:
+ * Fixed kbuild error with mismatch in kmsan function declaration due to
+   rebase error.
+v3: https://lore.kernel.org/all/cover.1755193625.git.leon@kernel.org
+ * Fixed typo in "cacheable" word
+ * Simplified kmsan patch a lot to be simple argument refactoring
+v2: https://lore.kernel.org/all/cover.1755153054.git.leon@kernel.org
+ * Used commit messages and cover letter from Jason
+ * Moved setting IOMMU_MMIO flag to dma_info_to_prot function
+ * Micro-optimized the code
+ * Rebased code on v6.17-rc1
+v1: https://lore.kernel.org/all/cover.1754292567.git.leon@kernel.org
+ * Added new DMA_ATTR_MMIO attribute to indicate
+   PCI_P2PDMA_MAP_THRU_HOST_BRIDGE path.
+ * Rewrote dma_map_* functions to use thus new attribute
+v0: https://lore.kernel.org/all/cover.1750854543.git.leon@kernel.org/
+------------------------------------------------------------------------
 
-From that call trace, I'd suspect a deadlock from the xfrm code not
-releasing the lock somewhere, not x86 code.
+This series refactors the DMA mapping to use physical addresses
+as the primary interface instead of page+offset parameters. This
+change aligns the DMA API with the underlying hardware reality where
+DMA operations work with physical addresses, not page structures.
 
-One thing that stands out is that of the ~20 or so uses of
-'->xfrm.xfrm_state_lock', the call site in the trace is the only one
-that uses spin_lock() instead of spin_lock_bh(). I didn't look at it for
-long, so maybe there's a good reason for it. But it did catch my eye.
+The series maintains export symbol backward compatibility by keeping
+the old page-based API as wrapper functions around the new physical
+address-based implementations.
+
+This series refactors the DMA mapping API to provide a phys_addr_t
+based, and struct-page free, external API that can handle all the
+mapping cases we want in modern systems:
+
+ - struct page based cachable DRAM
+ - struct page MEMORY_DEVICE_PCI_P2PDMA PCI peer to peer non-cachable
+   MMIO
+ - struct page-less PCI peer to peer non-cachable MMIO
+ - struct page-less "resource" MMIO
+
+Overall this gets much closer to Matthew's long term wish for
+struct-pageless IO to cachable DRAM. The remaining primary work would
+be in the mm side to allow kmap_local_pfn()/phys_to_virt() to work on
+phys_addr_t without a struct page.
+
+The general design is to remove struct page usage entirely from the
+DMA API inner layers. For flows that need to have a KVA for the
+physical address they can use kmap_local_pfn() or phys_to_virt(). This
+isolates the struct page requirements to MM code only. Long term all
+removals of struct page usage are supporting Matthew's memdesc
+project which seeks to substantially transform how struct page works.
+
+Instead make the DMA API internals work on phys_addr_t. Internally
+there are still dedicated 'page' and 'resource' flows, except they are
+now distinguished by a new DMA_ATTR_MMIO instead of by callchain. Both
+flows use the same phys_addr_t.
+
+When DMA_ATTR_MMIO is specified things work similar to the existing
+'resource' flow. kmap_local_pfn(), phys_to_virt(), phys_to_page(),
+pfn_valid(), etc are never called on the phys_addr_t. This requires
+rejecting any configuration that would need swiotlb. CPU cache
+flushing is not required, and avoided, as ATTR_MMIO also indicates the
+address have no cachable mappings. This effectively removes any
+DMA API side requirement to have struct page when DMA_ATTR_MMIO is
+used.
+
+In the !DMA_ATTR_MMIO mode things work similarly to the 'page' flow,
+except on the common path of no cache flush, no swiotlb it never
+touches a struct page. When cache flushing or swiotlb copying
+kmap_local_pfn()/phys_to_virt() are used to get a KVA for CPU
+usage. This was already the case on the unmap side, now the map side
+is symmetric.
+
+Callers are adjusted to set DMA_ATTR_MMIO. Existing 'resource' users
+must set it. The existing struct page based MEMORY_DEVICE_PCI_P2PDMA
+path must also set it. This corrects some existing bugs where iommu
+mappings for P2P MMIO were improperly marked IOMMU_CACHE.
+
+Since ATTR_MMIO is made to work with all the existing DMA map entry
+points, particularly dma_iova_link(), this finally allows a way to use
+the new DMA API to map PCI P2P MMIO without creating struct page. The
+VFIO DMABUF series demonstrates how this works. This is intended to
+replace the incorrect driver use of dma_map_resource() on PCI BAR
+addresses.
+
+This series does the core code and modern flows. A followup series
+will give the same treatment to the legacy dma_ops implementation.
+
+Thanks
+
+Leon Romanovsky (16):
+  dma-mapping: introduce new DMA attribute to indicate MMIO memory
+  iommu/dma: implement DMA_ATTR_MMIO for dma_iova_link().
+  dma-debug: refactor to use physical addresses for page mapping
+  dma-mapping: rename trace_dma_*map_page to trace_dma_*map_phys
+  iommu/dma: rename iommu_dma_*map_page to iommu_dma_*map_phys
+  iommu/dma: extend iommu_dma_*map_phys API to handle MMIO memory
+  dma-mapping: convert dma_direct_*map_page to be phys_addr_t based
+  kmsan: convert kmsan_handle_dma to use physical addresses
+  dma-mapping: handle MMIO flow in dma_map|unmap_page
+  xen: swiotlb: Open code map_resource callback
+  dma-mapping: export new dma_*map_phys() interface
+  mm/hmm: migrate to physical address-based DMA mapping API
+  mm/hmm: properly take MMIO path
+  block-dma: migrate to dma_map_phys instead of map_page
+  block-dma: properly take MMIO path
+  nvme-pci: unmap MMIO pages with appropriate interface
+
+ Documentation/core-api/dma-api.rst        |   4 +-
+ Documentation/core-api/dma-attributes.rst |  18 ++++
+ arch/powerpc/kernel/dma-iommu.c           |   4 +-
+ block/blk-mq-dma.c                        |  15 ++-
+ drivers/iommu/dma-iommu.c                 |  61 +++++------
+ drivers/nvme/host/pci.c                   |  18 +++-
+ drivers/virtio/virtio_ring.c              |   4 +-
+ drivers/xen/swiotlb-xen.c                 |  21 +++-
+ include/linux/blk-mq-dma.h                |   6 +-
+ include/linux/blk_types.h                 |   2 +
+ include/linux/dma-direct.h                |   2 -
+ include/linux/dma-map-ops.h               |   8 +-
+ include/linux/dma-mapping.h               |  33 ++++++
+ include/linux/iommu-dma.h                 |  11 +-
+ include/linux/kmsan.h                     |   9 +-
+ include/trace/events/dma.h                |   9 +-
+ kernel/dma/debug.c                        |  71 ++++---------
+ kernel/dma/debug.h                        |  37 ++-----
+ kernel/dma/direct.c                       |  22 +---
+ kernel/dma/direct.h                       |  52 ++++++----
+ kernel/dma/mapping.c                      | 117 +++++++++++++---------
+ kernel/dma/ops_helpers.c                  |   6 +-
+ mm/hmm.c                                  |  19 ++--
+ mm/kmsan/hooks.c                          |   5 +-
+ rust/kernel/dma.rs                        |   3 +
+ tools/virtio/linux/kmsan.h                |   2 +-
+ 26 files changed, 305 insertions(+), 254 deletions(-)
+
+-- 
+2.50.1
+
