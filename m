@@ -1,177 +1,191 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from TYVP286CU001.outbound.protection.outlook.com (mail-japaneastazon11011048.outbound.protection.outlook.com [52.101.125.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B61B62222C7
-	for <virtualization@lists.linux.dev>; Thu, 21 Aug 2025 09:00:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755766824; cv=none; b=PFeuyh027GlgpoCZ/s9iD+GvYgWbmSbZkIhrOY14oXLYUtn7tIwE9/5PHayK03pIVhCBS1dciKVmqx52HaEDxW5MSKUINYPim1/DmoNkVbXEDA9L5qRHw45WsKCMQ6uIzP7XZE7Eljy1m4HXui06WYbMFZ1KHjcAn4lDc5wXa14=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755766824; c=relaxed/simple;
-	bh=F1bQCaVkknpAXmD3Y2LWgtDLgRsVad+mR861NV5ZCaA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YBNgaISuAI6TXqwJYtn83RTX9LjAYjPpB1QRkUPR4OQ0fC/tOiaOaOTQYnRGs5XCInGpTICLBMJ79Nl6EL+fTRx1VA42QTuZIw26Sb/y/4SF5iIhfjZMa6HNdzRcNWgWrn0ltcTOuXGuaQnDmOJypI8PlhBLxUlZDMjdh66cAdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QgC8nfWu; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B81C030EF9B;
+	Thu, 21 Aug 2025 11:28:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.125.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1755775712; cv=fail; b=gqoIjXONJRS6beO6MVygdwKFj3xcSCMD8evs7pwOyhAY3YK8GJ1C2g+r0WRXNXpxEmSv89klihTG34EoZp6YK3i5h8VwOg4ZeY4obV/oMr+3o3imwFQixGEBdZ7XrjMK3FrU1xoT/MBkto1X9Om/Xmgj5A7cYwIgQzlBFhtS4qQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1755775712; c=relaxed/simple;
+	bh=batBPou7p6vt5Z9bn8Nk2nfj7gwkozC1W2UMIXPDDwo=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=Pd/OC1w8JJKV4m2WVoOMKbD9q+Ww6l0n4H3+yCl0zgJStXesZy6DUuupHPm0DYxf/I0XeJzL1AHH7r4sWX2JSdv9VBxRroG6LWY/Dn8LNnDTfnGSogMZzDVF44MRXwMs/kvZAzJhUwz54Q8xDR3YiplskNVI7/pwB4gcQShF54k=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bp.renesas.com; spf=pass smtp.mailfrom=bp.renesas.com; dkim=pass (1024-bit key) header.d=bp.renesas.com header.i=@bp.renesas.com header.b=YAsC3P9i; arc=fail smtp.client-ip=52.101.125.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bp.renesas.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bp.renesas.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QgC8nfWu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755766821;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ZryWVFyVtFZSWAWYLNDZgexNLIyxMGbOeXWK21db0Rc=;
-	b=QgC8nfWuVswRFkPsdiva0CL94JyUSg+vXb/9GDSbHY+Ysd2y4jPhERaR6DwZfqE/tTtmds
-	128TtuRaszC1L1vpF3wGA7WNl/YD6BbC9VjnsYBZa7323jxobMUmo+vVXSCJbrMFCWZLlI
-	vMbzyrFM2+GrtCRDQZsJsJxd4eNRNYk=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-613-sPpNv0JqN0GqWbZT2QBGcg-1; Thu, 21 Aug 2025 05:00:19 -0400
-X-MC-Unique: sPpNv0JqN0GqWbZT2QBGcg-1
-X-Mimecast-MFC-AGG-ID: sPpNv0JqN0GqWbZT2QBGcg_1755766817
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3b9edf2d82dso380949f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 21 Aug 2025 02:00:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755766817; x=1756371617;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:reply-to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ZryWVFyVtFZSWAWYLNDZgexNLIyxMGbOeXWK21db0Rc=;
-        b=wLiRzIeMMbQbkqwIHUyl7YLcArmb5KYdTdQ0g55laJQ/5WTwbR+o41D2N83BQaoCzS
-         rRffvoEMjFANXoVNZj9eZMEHLO8yoZ4bZ4UA5H6yln6BTtwagkX+8QGOvcdEK5r4B5RQ
-         dPUTC4nkq/ye2omnJvSq18amAUKqdvvhtFvM/yABiGwlcJH9VRL0GFy289zVjvoIIypY
-         n/kdWEXkzsFAqn4mr4WODdQK7kgoBLZ8Ohj54DocmWNU811t+6jvlHTnKskdmrP/8I/z
-         JXENm2Xgzn84rldnPEJ4DfatsqF6Ll7viAuuKg8F0vRb0X/2W6mMkifqrMEIa/vUYsK9
-         CPRA==
-X-Forwarded-Encrypted: i=1; AJvYcCWdXUbNvwVPQwV+ZjR7vEXr94V+1/RmYLKvyjPxup9fHb85xvBu2nDOWt05R+Qi/NNiaJEApJs++VcVZWM3Ug==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywk1dSeOq0L7Z+r/6PRnnIZIdaOd5tIvtVbKhY0CV04P4njuRID
-	2xwFjAvPO90wU0c3jxpMYcQK2XcwaCw/EaptdNuTiLyeXAed5LoNrhLYQpuLrMwLZbc8R6wxb7P
-	UlLFoeHLHEEabrX8CpMqZbCoTtNBnMlPFqWJuYuQSPJ4uT2TyH+gaR3t8VbyXWLIYej4pyoLcWc
-	+QoDQ=
-X-Gm-Gg: ASbGncufbY9PgSKGWhKI4axsjLdCvb2CK60EojBAoATaRw0Pjv+iUhxNCjWP2Gpcdxh
-	8Nzw1DLcOcWsjvcYbqpH2uuKXgTozMBr6UuM2YtQkqHrSC0wzBco2STHeqA03Ek5mRKzi7X4hnj
-	0eySqPV+IlEk5e8H30whcgeekQdbApSqHGgcpNEUBW5fbeRerxkvqZrUMxd2uMpDGHLC/K3TYPX
-	riGEPn6Tpf270Glryhod/HdJEvVr4D3tyJGHTpUZzX5l/KVFc6gdNOr4W1Sl6o3xHOEhUYe4e9k
-	rUj47A9XHAHknEYfyCilYzwz3a1FYEz6Z26TLvYkf30sYbYnjQLOwo62Qw7xxe/Y+7seDKhtz+Z
-	CIooTvs5LWgU=
-X-Received: by 2002:a5d:5887:0:b0:3b7:8a49:eee9 with SMTP id ffacd0b85a97d-3c494fc606bmr1222834f8f.8.1755766816954;
-        Thu, 21 Aug 2025 02:00:16 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGt0CUA7tv7mcfd7oFDqpqP6OD/HbUnRgCATzsnpUqKXGdeLPxh20p229NNHjxNzZKD8sh7CA==
-X-Received: by 2002:a5d:5887:0:b0:3b7:8a49:eee9 with SMTP id ffacd0b85a97d-3c494fc606bmr1222799f8f.8.1755766816404;
-        Thu, 21 Aug 2025 02:00:16 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:f0e:9070:527b:9dff:feef:3874? ([2a01:e0a:f0e:9070:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c5510a646asm90953f8f.15.2025.08.21.02.00.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Aug 2025 02:00:15 -0700 (PDT)
-Message-ID: <d08e49ca-7089-433f-862a-8c3e9914af98@redhat.com>
-Date: Thu, 21 Aug 2025 11:00:14 +0200
+	dkim=pass (1024-bit key) header.d=bp.renesas.com header.i=@bp.renesas.com header.b="YAsC3P9i"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=GVmB+TNGMZX9w5B5DrClJaT8j7d/S4urMdUZNJE+I12/+ZKqXfsREmXVkTg2I+I7UrwnbVTBjuD9ri6qy6lekjuKMjmVkRhLvXWW+oO31PneAB3zL6tyn/1E6FNGtWgencFiL4ApGI67Hdikccp2MrCePlwR5iRUgf8Nbg+ewevONksvKxIIFfpmP9Bnd4nVznqmwjGAn+ZhBtQBlwjkOxILWD++jq+WhQBJOxYpd0nAHg1gVQnnaNQmRJeAexHz1kgj9PEsf3LIYM7ixicsdPGIeEvBOPNuMcOBpop7WOk90CJ+crhc3/4Em++BcB6ngLPGAt2qGLGjB6wDq3aFhw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=batBPou7p6vt5Z9bn8Nk2nfj7gwkozC1W2UMIXPDDwo=;
+ b=xZabjna9u/Y81FSfbO5oOt6Ya2lMUJFPZZKM9byTZ1BcjI4SgQq2bHe4417HIPUecJ4gbWtzmPnA0tX2klRLFaUmpLQbGiNwRIFILyKOEpXzPNaT008N2uoFHEU6cHBnUQic+rzw6SfIgczmNaBuuUjqnZQO4rNUBfSOdqg8lfQQ/nBkI6HBH7YD5FZSWZz9h+GLsDQ+qp4N89inIT+Lf0cNYNk5mJb1tJRyD8KxjnF4ka5iBbUCcObGJUIjQibNo87N708frWU3iTbkpzNKmbvZh7rr2KyXJM7ZWA9PSlBp8CpV4UPXmiSoE3sU29vV4wg5LY4Em+Sl3vuzlhQl9Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=bp.renesas.com; dmarc=pass action=none
+ header.from=bp.renesas.com; dkim=pass header.d=bp.renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bp.renesas.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=batBPou7p6vt5Z9bn8Nk2nfj7gwkozC1W2UMIXPDDwo=;
+ b=YAsC3P9igXdfVQUuPOrh+U2ysrgV6o3GGcvlBGufKdkd0SnpFRXWNEaeTSr7EOQe3S+vyVWvfcgCMr6etNwriz4oqVqfXNWkxBo5id9PKbazwaCVIneuw9EJPHFCD0w3sA4jKu+J2s5ylgzut02q/UUlZnujwCUzOt0WAQqGN9I=
+Received: from TY3PR01MB11346.jpnprd01.prod.outlook.com (2603:1096:400:3d0::7)
+ by TYCPR01MB10811.jpnprd01.prod.outlook.com (2603:1096:400:26e::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9052.15; Thu, 21 Aug
+ 2025 11:28:25 +0000
+Received: from TY3PR01MB11346.jpnprd01.prod.outlook.com
+ ([fe80::86ef:ca98:234d:60e1]) by TY3PR01MB11346.jpnprd01.prod.outlook.com
+ ([fe80::86ef:ca98:234d:60e1%7]) with mapi id 15.20.9052.013; Thu, 21 Aug 2025
+ 11:28:25 +0000
+From: Biju Das <biju.das.jz@bp.renesas.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>, "simona@ffwll.ch"
+	<simona@ffwll.ch>, "airlied@gmail.com" <airlied@gmail.com>,
+	"mripard@kernel.org" <mripard@kernel.org>,
+	"maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
+	geert <geert@linux-m68k.org>, tomi.valkeinen
+	<tomi.valkeinen@ideasonboard.com>
+CC: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+	"linux-mediatek@lists.infradead.org" <linux-mediatek@lists.infradead.org>,
+	"freedreno@lists.freedesktop.org" <freedreno@lists.freedesktop.org>,
+	"linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+	"imx@lists.linux.dev" <imx@lists.linux.dev>,
+	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>,
+	"nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"spice-devel@lists.freedesktop.org" <spice-devel@lists.freedesktop.org>,
+	"linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>,
+	"linux-rockchip@lists.infradead.org" <linux-rockchip@lists.infradead.org>,
+	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+	"intel-xe@lists.freedesktop.org" <intel-xe@lists.freedesktop.org>,
+	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+Subject: RE: [PATCH v6 18/25] drm/renesas/rz-du: Compute dumb-buffer sizes
+ with drm_mode_size_dumb()
+Thread-Topic: [PATCH v6 18/25] drm/renesas/rz-du: Compute dumb-buffer sizes
+ with drm_mode_size_dumb()
+Thread-Index: AQHcEnS9RPzKheS8DUq4xJ6ExVmpC7Rs+CdA
+Date: Thu, 21 Aug 2025 11:28:24 +0000
+Message-ID:
+ <TY3PR01MB11346A4F40CE555D24C093F278632A@TY3PR01MB11346.jpnprd01.prod.outlook.com>
+References: <20250821081918.79786-1-tzimmermann@suse.de>
+ <20250821081918.79786-19-tzimmermann@suse.de>
+In-Reply-To: <20250821081918.79786-19-tzimmermann@suse.de>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=bp.renesas.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: TY3PR01MB11346:EE_|TYCPR01MB10811:EE_
+x-ms-office365-filtering-correlation-id: 9b78a164-43ad-4159-ccaf-08dde0a5d7bd
+x-ld-processed: 53d82571-da19-47e4-9cb4-625a166a4a2a,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|366016|376014|7416014|38070700018;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?N2kXLEFlj1eGCKIbn+vz8Sgi83kEkUFEy6HwZuvHYltrLvfrGM1P5UmBCtco?=
+ =?us-ascii?Q?ak+7V202f7dc7tnDVDU5BrH6nZxNfaPycO4m8GC9relShMvBTSu6FqjHfWro?=
+ =?us-ascii?Q?bgL9OiqDAprVigSb5XDqNzrhuPsrrUVHWo5KFojc+HPS9rN60TX/qym0Aqp8?=
+ =?us-ascii?Q?SIWIlXCpLtw7GPK6O5BrrwJ6uVNKzhRdGiQzsrXovLrcp6M1g0aAKR+LUHx4?=
+ =?us-ascii?Q?QV3E9zqoKjbJ2PbJm3Cm5i5ti78W/SbTKWeAR2kPlZlvDspNjYI226ZL0GC4?=
+ =?us-ascii?Q?UE3D1D9iEIHu9HWdAPaicc5TmVM5DNX99GynNqonyEzPd3QBIvJem/k/iYbT?=
+ =?us-ascii?Q?R8E+o+POGIWIJIniOuXIRDRc5Kp1Ga5Wd5McEJLO5VQ7Q15hguKv1D1+m84p?=
+ =?us-ascii?Q?8jiltoYZoBuEV8CglktXCU3XBMsxkTYv5Gy9rQn8RitoA+x3D7zrl8aa0eL/?=
+ =?us-ascii?Q?RaV/m5XH1UXwXwr5Wt7ZWx5MmyckC0bIx+yFOFMHiolUq3y6ot1MOQ5ExX2o?=
+ =?us-ascii?Q?NhWGgeY9jTwCXDcbriZ0VsH365Yk5Ex6IrRp04SUHuiAnGPECEW76QMRt9Jv?=
+ =?us-ascii?Q?vZv7WWECevwHqKJIY9iZQSPx5bB40jOEbDzJ9VDVi2tnM5U5v7RkIncV6I68?=
+ =?us-ascii?Q?vfUnluF9tyIS2ePvN4OOfBEspsHniV28DEWRvyc8Z9hXwUx1yjF2fyCFzV4U?=
+ =?us-ascii?Q?EJt6UJqm4Hoxbmnr4ypzm/8Sx4LLCp3RWYhhXvOma8VW2JtYQCsm3iaagCL+?=
+ =?us-ascii?Q?pekzcXlRS/BuX9bbFzMgb9dsEinPvHlKi+Ba9WW6rjDC8gtuGfkiDDIkYwFB?=
+ =?us-ascii?Q?5i+IbSAvuQbjn412ZXUOQi2P17IfXx5g9wTSwhsdyh/SPaiNWk4Ljm23m7yD?=
+ =?us-ascii?Q?7XSaQPLNXEw+1oRFf2SYcIazdsiWSBGVUQ5GbwM+EsnZ7mG/NchBVShCq/sM?=
+ =?us-ascii?Q?XzP79aE5tAh91zFX9/d7doTAzSb70CJ+mt3nsJvA93W2VlrK6wJPx4j+nnGL?=
+ =?us-ascii?Q?gFqw8OyvWCTUeT6/xN2QXBy45DZDPby/CT3VOAAWfx1El9gqXJTnMdqhDU7v?=
+ =?us-ascii?Q?lctq+0oKaHNhu4StQZlGQ9R7cSbPPsZ4HB2P0MqXQana0czLpcXu1Q4G+upF?=
+ =?us-ascii?Q?GpQ+wxU0fDjhQjZcKKljFkruaPw4KLLA1kp7smnlkqTv972DnQsypPwwzurc?=
+ =?us-ascii?Q?t3JVQvQpDOmNlfT8lAufC/8GCv1GzDbQnNCvd5KyNR9Zg1M6T7cCy8jbl+jF?=
+ =?us-ascii?Q?564QUCmcjzKaEMjU9qTXy5bEBb1pAmGB8k/cvjDu9WRYydjIfa89+bsAzw+T?=
+ =?us-ascii?Q?wu67TQ1FTrMxk0FjzFfffFotjtTv3O8XBViHlqAvHa7X5CeHBEVJ+zBwNPbz?=
+ =?us-ascii?Q?xsx4aaeTg3lV30rmoLuS4B8rA6M26z8bVh+yhU9aHhTfeqBNKKHngi9/vKmv?=
+ =?us-ascii?Q?oQN3unTlrNRdSbCWNeBd2uBhMgjzz+gVysDFpajoLxcMlCJSGstZ4A=3D=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY3PR01MB11346.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?PYGxOXRJ+AhtkSHRjSSo9MFFvB0Gk260SNAmCENfRdHquF7U5PkIjWNcVC07?=
+ =?us-ascii?Q?OMIMxmBrvMBOB+J6bGIDNNvlOPDuasXtMNBaWBrtRaIbY9IxULTIKztviEpz?=
+ =?us-ascii?Q?sH67lR0DXw6yUTXyboRaE+EoMjwUltms3WUtxtrNWphbjGuNHrOderM0zLcK?=
+ =?us-ascii?Q?pN8rYmnrXasnP3vF1JMqC8ZCCZrnFBQmCh2pD9PQIJ+IHWtYSnCpQPegW8iS?=
+ =?us-ascii?Q?lju+SD7BLBBnvizzg1J9k8nQhaHAjtEDOL38Y8pyoz3db1NHfO6x/Fvmfz4b?=
+ =?us-ascii?Q?+kf2dgV7zHQldU8kHA6QoqZ7IpZ4bSTxMVXzTL/QB1yPkpbWrt1tELb6B3I1?=
+ =?us-ascii?Q?2DdZOWGif6bq3hLXCZ7QqpfZlxaWRAQDGELhasURydZtMkTqNFaXUPihko9b?=
+ =?us-ascii?Q?5E/558Doo0t0YxjPXt83KRp3ZE/8WKZKNDItZGavXnRoI+D7nJeX8qjLUwCG?=
+ =?us-ascii?Q?cunw8KX1hmqZlOV/ztLqjqgWs8J2nRAXl+iQND8NfWYQ+e/HTepAowFxJfba?=
+ =?us-ascii?Q?AalpObkv5Rui5+z4ihA6BBxDB9wNqqJexARo3yePoSoYnxVHQRsOIZGROlqd?=
+ =?us-ascii?Q?DAnlEx5VV0poV8aY1ifA8gcvDPAPUTFN1r+bIkHfvQvVIyR58I8Lps2WDTdn?=
+ =?us-ascii?Q?STaA5r35JDy7DjGUtwpGdJWwNTvx4IQh7Kqufu8OOjJ65PfAJqxIE87koi3c?=
+ =?us-ascii?Q?gnZ1p3ToGwxJb9tIF0qs1FZtyk/Q6B9c7UWmIebNpHiihlViCEDfcB7MdrhG?=
+ =?us-ascii?Q?gK3lyWv1fsxbQGq3EP9N4k6EZWHxE1OIyNFYQvCvj2lz8eBxMJOxtC5Vhf04?=
+ =?us-ascii?Q?PQ1ePyOIeDARa/m5fAvug+/Fh5y7+g1l6w4YX08BLhvJhiEGdK0AJ0c4qK+z?=
+ =?us-ascii?Q?RQLV+jHWn3gleFCdunuzjMZqUmxPxCXDdIwkHwqMRVAVmHaUB6tw8C5kpWOK?=
+ =?us-ascii?Q?GSLgZCDecYKymLnUdi5KjIBUQoXqiApPTf5xQkPzy63gykuFdztc/7peC5FG?=
+ =?us-ascii?Q?zVF2p6pByXplQJohwey6M2GhdHCrIOiqNffV08n/CKQNgXpcJKB6pUKxX21d?=
+ =?us-ascii?Q?lSb3xSHS2UnDZ9M/RYolMTrlbu6tvYg27VX5AMEQsZ+7kPC3fxO6az9URqpB?=
+ =?us-ascii?Q?4rbF1DOa5j/j17hez38INcqb4qbZasd4tBIZ7VWGPh2bt626+y5IamYu4RBX?=
+ =?us-ascii?Q?H66aqdFMnqQGtZG0C7fWaX7afazH3qVUg+gML+ov1Py2MPhWU8xsePOoN46U?=
+ =?us-ascii?Q?T1BgeTjbQm//iGvRtP2c+b/nfTbxOm8d/6DGMjfH2aAPPYih0YkOwcFrew1G?=
+ =?us-ascii?Q?IGZJ27G4MOPPAFLv05A7I6XJnLSrXBKu9joq2VEzr+9SU04b0/QyyMRd5T11?=
+ =?us-ascii?Q?3p/e/tgowK5UNtOwEna2uL3PvhvqM9pVq0VAdGVMaUMJK7SgaEPBPn/U0wbT?=
+ =?us-ascii?Q?UdbWlXajo8nlLBv1VAEcDYVJz2DSPMpL23wcDvYpomqO1hWpcobNA96Fiu8I?=
+ =?us-ascii?Q?Nh1GzwGzjejm5QCdlUvwMREc415aGwOXzpg9PqAztkNe17rJ7coxEcBNp5xK?=
+ =?us-ascii?Q?GQJmSh6UnEvb6M56cssZ+Qoi/GAeBYJoMW0J89DnP7WLEF1BunVGuu45mx7s?=
+ =?us-ascii?Q?rw=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH v2] iommu/virtio: Make instance lookup robust
-To: Robin Murphy <robin.murphy@arm.com>, will@kernel.org, joro@8bytes.org,
- jean-philippe@linaro.org
-Cc: iommu@lists.linux.dev, virtualization@lists.linux.dev,
- stable@vger.kernel.org
-References: <308911aaa1f5be32a3a709996c7bd6cf71d30f33.1755190036.git.robin.murphy@arm.com>
-From: Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <308911aaa1f5be32a3a709996c7bd6cf71d30f33.1755190036.git.robin.murphy@arm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: o9fzEKVBhTBRcUlvCg1uhVVXyg25MpHS1iExVmSNzxc_1755766817
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-OriginatorOrg: bp.renesas.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: TY3PR01MB11346.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9b78a164-43ad-4159-ccaf-08dde0a5d7bd
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Aug 2025 11:28:24.9907
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: diWP74d6Hjqhrz3I2im0C9R48AtHhdFXOHtAbZWnsRHk5zzsvNCo0dexdMyiki0ZSZZx/wgKEHEcChoGToi+deLdzsEZ1MGzRC44i/17ZSI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYCPR01MB10811
 
-Hi Robin, Joerg,
+Hi Thomas Zimmermann,
 
-On 8/14/25 6:47 PM, Robin Murphy wrote:
-> Much like arm-smmu in commit 7d835134d4e1 ("iommu/arm-smmu: Make
-> instance lookup robust"), virtio-iommu appears to have the same issue
-> where iommu_device_register() makes the IOMMU instance visible to other
-> API callers (including itself) straight away, but internally the
-> instance isn't ready to recognise itself for viommu_probe_device() to
-> work correctly until after viommu_probe() has returned. This matters a
-> lot more now that bus_iommu_probe() has the DT/VIOT knowledge to probe
-> client devices the way that was always intended. Tweak the lookup and
-> initialisation in much the same way as for arm-smmu, to ensure that what
-> we register is functional and ready to go.
->
-> Cc: stable@vger.kernel.org
-> Fixes: bcb81ac6ae3c ("iommu: Get DT/ACPI parsing into the proper probe path")
-> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Thanks for the patch.
 
-could we get that fix merged as soon as possible? the virtio-iommu is
-currently totally broken.
+> -----Original Message-----
+> From: Thomas Zimmermann <tzimmermann@suse.de>
+> Sent: 21 August 2025 09:17
+> Subject: [PATCH v6 18/25] drm/renesas/rz-du: Compute dumb-buffer sizes wi=
+th drm_mode_size_dumb()
+>=20
+> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and buffe=
+r size. Align the pitch
+> according to hardware requirements.
+>=20
+> v5:
+> - include dumb-buffers header for drm_mode_size_dumb() (kernel test robot=
+)
+>=20
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Biju Das <biju.das.jz@bp.renesas.com>
 
-Thanks
+Tested-by: Biju Das <biju.das.jz@bp.renesas.com>
 
-Eric
-> ---
->
-> v2: Of course generic bus_find_device_by_fwnode() didn't work, since
->     it's dev->parent we need to check rather than dev itself, sigh...
-> ---
->  drivers/iommu/virtio-iommu.c | 15 +++++++++------
->  1 file changed, 9 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 532db1de201b..b39d6f134ab2 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -998,8 +998,7 @@ static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
->  	iommu_dma_get_resv_regions(dev, head);
->  }
->  
-> -static const struct iommu_ops viommu_ops;
-> -static struct virtio_driver virtio_iommu_drv;
-> +static const struct bus_type *virtio_bus_type;
->  
->  static int viommu_match_node(struct device *dev, const void *data)
->  {
-> @@ -1008,8 +1007,9 @@ static int viommu_match_node(struct device *dev, const void *data)
->  
->  static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
->  {
-> -	struct device *dev = driver_find_device(&virtio_iommu_drv.driver, NULL,
-> -						fwnode, viommu_match_node);
-> +	struct device *dev = bus_find_device(virtio_bus_type, NULL, fwnode,
-> +					     viommu_match_node);
-> +
->  	put_device(dev);
->  
->  	return dev ? dev_to_virtio(dev)->priv : NULL;
-> @@ -1160,6 +1160,9 @@ static int viommu_probe(struct virtio_device *vdev)
->  	if (!viommu)
->  		return -ENOMEM;
->  
-> +	/* Borrow this for easy lookups later */
-> +	virtio_bus_type = dev->bus;
-> +
->  	spin_lock_init(&viommu->request_lock);
->  	ida_init(&viommu->domain_ids);
->  	viommu->dev = dev;
-> @@ -1229,10 +1232,10 @@ static int viommu_probe(struct virtio_device *vdev)
->  	if (ret)
->  		goto err_free_vqs;
->  
-> -	iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
-> -
->  	vdev->priv = viommu;
->  
-> +	iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
-> +
->  	dev_info(dev, "input address: %u bits\n",
->  		 order_base_2(viommu->geometry.aperture_end));
->  	dev_info(dev, "page mask: %#llx\n", viommu->pgsize_bitmap);
-
+Cheers,
+Biju
