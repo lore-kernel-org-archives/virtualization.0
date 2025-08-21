@@ -1,204 +1,177 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F2153009EF
-	for <virtualization@lists.linux.dev>; Thu, 21 Aug 2025 08:23:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B61B62222C7
+	for <virtualization@lists.linux.dev>; Thu, 21 Aug 2025 09:00:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755764613; cv=none; b=ASrSXR0AkCfp/2eCV3iPucP6A7emv7NrPKKnTc56Eu+gkbFk7LkWcqeUp6M0GOkDTAqYJtqYirYIlbMrkreDyH6unTuTFLsYsilVuFEdhvZ6EyPfzKwygCI3PnviJ5GOq8iFZSRGS9pPvkbzYdoQgvOioW7n9lSFAAIQd7PWJd0=
+	t=1755766824; cv=none; b=PFeuyh027GlgpoCZ/s9iD+GvYgWbmSbZkIhrOY14oXLYUtn7tIwE9/5PHayK03pIVhCBS1dciKVmqx52HaEDxW5MSKUINYPim1/DmoNkVbXEDA9L5qRHw45WsKCMQ6uIzP7XZE7Eljy1m4HXui06WYbMFZ1KHjcAn4lDc5wXa14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755764613; c=relaxed/simple;
-	bh=e887uRDoxEpQCW1322GNYfBnc9kCE7+A3lBsrQIJdt0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=tdUBpchcsCHGlZmJocYasXLao95HSL2+lKImCm3NTvg4gMsH/yhOm0zZdYLOO/o0xdxippk+6Jfo43mrZAE32hVZRUKxiQJHEONOXf36K3Xx364Ao9Lfq61I+K3ShKZPtnRhxmS+y88PvF85/yj1uIZ4Qchj9xilrLxERTWnhXA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ybImOkpc; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=pD0tD8nN; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=WuVYjXJ7; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=fIo7TsGz; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1755766824; c=relaxed/simple;
+	bh=F1bQCaVkknpAXmD3Y2LWgtDLgRsVad+mR861NV5ZCaA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YBNgaISuAI6TXqwJYtn83RTX9LjAYjPpB1QRkUPR4OQ0fC/tOiaOaOTQYnRGs5XCInGpTICLBMJ79Nl6EL+fTRx1VA42QTuZIw26Sb/y/4SF5iIhfjZMa6HNdzRcNWgWrn0ltcTOuXGuaQnDmOJypI8PlhBLxUlZDMjdh66cAdc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QgC8nfWu; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ybImOkpc";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="pD0tD8nN";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="WuVYjXJ7";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="fIo7TsGz"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id E92901F836;
-	Thu, 21 Aug 2025 08:22:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1755764546; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QgC8nfWu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1755766821;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=hHo3GRIYvA9xU1xmUh5J3OGK8ZZKXekovTY6CDupMA0=;
-	b=ybImOkpcCpGMVxoLCfs7DwHB3NQdAM6I5GB2dIe6ycgAYybGRiSTDUQGrLPrf1H97wSjVA
-	jhAbOmccATonq4vNgnOBuUO59Ci4oJ5pRTUwaeRaB4io3FsQx+NHOad1Zcjr8yUUN8RYOZ
-	pg582KlEehqbsVla3Y2t9WJzQ3fZoPc=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1755764546;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hHo3GRIYvA9xU1xmUh5J3OGK8ZZKXekovTY6CDupMA0=;
-	b=pD0tD8nN42FoPTaMyUjCINwzI0MpsU3LtNHox/MXc+Z0lucytTbAGyUPhlQvkL7ZXWFI+J
-	KtlEgL0+SWpNUxBw==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=WuVYjXJ7;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=fIo7TsGz
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1755764545; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hHo3GRIYvA9xU1xmUh5J3OGK8ZZKXekovTY6CDupMA0=;
-	b=WuVYjXJ71ED17c9hj+XQLHQqWo7JmkkpelMz+gFtRa2o6XsakpdrrpVoAcGNRxrW5NRkJl
-	E4ffL/nvf+Gr6ZqhnglArODgYcAQFgTH6DQUSKF81qzdvXsnXNIxOvxDcebwm+emQGVPgn
-	G0hjA2/yDtCBP+UN5eHogvMRDLMx+14=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1755764545;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hHo3GRIYvA9xU1xmUh5J3OGK8ZZKXekovTY6CDupMA0=;
-	b=fIo7TsGzjwqszL/iU4SWJUBO0+5gStXtbBBikqOldRND3ePvehIOlQtLSoVuimz0Kwy3yW
-	0tQm9znLDnDLgwAg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4D34B13AB7;
-	Thu, 21 Aug 2025 08:22:25 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id MG6qEUHXpmhzEwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Thu, 21 Aug 2025 08:22:25 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: simona@ffwll.ch,
-	airlied@gmail.com,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	geert@linux-m68k.org,
-	tomi.valkeinen@ideasonboard.com
-Cc: dri-devel@lists.freedesktop.org,
-	linux-mediatek@lists.infradead.org,
-	freedreno@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-samsung-soc@vger.kernel.org,
-	nouveau@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	linux-renesas-soc@vger.kernel.org,
-	linux-rockchip@lists.infradead.org,
-	linux-tegra@vger.kernel.org,
-	intel-xe@lists.freedesktop.org,
-	xen-devel@lists.xenproject.org,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Matthew Auld <matthew.auld@intel.com>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	=?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH v6 23/25] drm/xe: Compute dumb-buffer sizes with drm_mode_size_dumb()
-Date: Thu, 21 Aug 2025 10:17:30 +0200
-Message-ID: <20250821081918.79786-24-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250821081918.79786-1-tzimmermann@suse.de>
-References: <20250821081918.79786-1-tzimmermann@suse.de>
+	bh=ZryWVFyVtFZSWAWYLNDZgexNLIyxMGbOeXWK21db0Rc=;
+	b=QgC8nfWuVswRFkPsdiva0CL94JyUSg+vXb/9GDSbHY+Ysd2y4jPhERaR6DwZfqE/tTtmds
+	128TtuRaszC1L1vpF3wGA7WNl/YD6BbC9VjnsYBZa7323jxobMUmo+vVXSCJbrMFCWZLlI
+	vMbzyrFM2+GrtCRDQZsJsJxd4eNRNYk=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-613-sPpNv0JqN0GqWbZT2QBGcg-1; Thu, 21 Aug 2025 05:00:19 -0400
+X-MC-Unique: sPpNv0JqN0GqWbZT2QBGcg-1
+X-Mimecast-MFC-AGG-ID: sPpNv0JqN0GqWbZT2QBGcg_1755766817
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3b9edf2d82dso380949f8f.2
+        for <virtualization@lists.linux.dev>; Thu, 21 Aug 2025 02:00:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755766817; x=1756371617;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:reply-to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ZryWVFyVtFZSWAWYLNDZgexNLIyxMGbOeXWK21db0Rc=;
+        b=wLiRzIeMMbQbkqwIHUyl7YLcArmb5KYdTdQ0g55laJQ/5WTwbR+o41D2N83BQaoCzS
+         rRffvoEMjFANXoVNZj9eZMEHLO8yoZ4bZ4UA5H6yln6BTtwagkX+8QGOvcdEK5r4B5RQ
+         dPUTC4nkq/ye2omnJvSq18amAUKqdvvhtFvM/yABiGwlcJH9VRL0GFy289zVjvoIIypY
+         n/kdWEXkzsFAqn4mr4WODdQK7kgoBLZ8Ohj54DocmWNU811t+6jvlHTnKskdmrP/8I/z
+         JXENm2Xgzn84rldnPEJ4DfatsqF6Ll7viAuuKg8F0vRb0X/2W6mMkifqrMEIa/vUYsK9
+         CPRA==
+X-Forwarded-Encrypted: i=1; AJvYcCWdXUbNvwVPQwV+ZjR7vEXr94V+1/RmYLKvyjPxup9fHb85xvBu2nDOWt05R+Qi/NNiaJEApJs++VcVZWM3Ug==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywk1dSeOq0L7Z+r/6PRnnIZIdaOd5tIvtVbKhY0CV04P4njuRID
+	2xwFjAvPO90wU0c3jxpMYcQK2XcwaCw/EaptdNuTiLyeXAed5LoNrhLYQpuLrMwLZbc8R6wxb7P
+	UlLFoeHLHEEabrX8CpMqZbCoTtNBnMlPFqWJuYuQSPJ4uT2TyH+gaR3t8VbyXWLIYej4pyoLcWc
+	+QoDQ=
+X-Gm-Gg: ASbGncufbY9PgSKGWhKI4axsjLdCvb2CK60EojBAoATaRw0Pjv+iUhxNCjWP2Gpcdxh
+	8Nzw1DLcOcWsjvcYbqpH2uuKXgTozMBr6UuM2YtQkqHrSC0wzBco2STHeqA03Ek5mRKzi7X4hnj
+	0eySqPV+IlEk5e8H30whcgeekQdbApSqHGgcpNEUBW5fbeRerxkvqZrUMxd2uMpDGHLC/K3TYPX
+	riGEPn6Tpf270Glryhod/HdJEvVr4D3tyJGHTpUZzX5l/KVFc6gdNOr4W1Sl6o3xHOEhUYe4e9k
+	rUj47A9XHAHknEYfyCilYzwz3a1FYEz6Z26TLvYkf30sYbYnjQLOwo62Qw7xxe/Y+7seDKhtz+Z
+	CIooTvs5LWgU=
+X-Received: by 2002:a5d:5887:0:b0:3b7:8a49:eee9 with SMTP id ffacd0b85a97d-3c494fc606bmr1222834f8f.8.1755766816954;
+        Thu, 21 Aug 2025 02:00:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGt0CUA7tv7mcfd7oFDqpqP6OD/HbUnRgCATzsnpUqKXGdeLPxh20p229NNHjxNzZKD8sh7CA==
+X-Received: by 2002:a5d:5887:0:b0:3b7:8a49:eee9 with SMTP id ffacd0b85a97d-3c494fc606bmr1222799f8f.8.1755766816404;
+        Thu, 21 Aug 2025 02:00:16 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:f0e:9070:527b:9dff:feef:3874? ([2a01:e0a:f0e:9070:527b:9dff:feef:3874])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c5510a646asm90953f8f.15.2025.08.21.02.00.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 21 Aug 2025 02:00:15 -0700 (PDT)
+Message-ID: <d08e49ca-7089-433f-862a-8c3e9914af98@redhat.com>
+Date: Thu, 21 Aug 2025 11:00:14 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Reply-To: eric.auger@redhat.com
+Subject: Re: [PATCH v2] iommu/virtio: Make instance lookup robust
+To: Robin Murphy <robin.murphy@arm.com>, will@kernel.org, joro@8bytes.org,
+ jean-philippe@linaro.org
+Cc: iommu@lists.linux.dev, virtualization@lists.linux.dev,
+ stable@vger.kernel.org
+References: <308911aaa1f5be32a3a709996c7bd6cf71d30f33.1755190036.git.robin.murphy@arm.com>
+From: Eric Auger <eric.auger@redhat.com>
+In-Reply-To: <308911aaa1f5be32a3a709996c7bd6cf71d30f33.1755190036.git.robin.murphy@arm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: o9fzEKVBhTBRcUlvCg1uhVVXyg25MpHS1iExVmSNzxc_1755766817
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: E92901F836
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-2.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	ARC_NA(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCPT_COUNT_TWELVE(0.00)[25];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,linux-m68k.org,ideasonboard.com];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	DWL_DNSWL_BLOCKED(0.00)[suse.de:dkim];
-	R_RATELIMIT(0.00)[to(RLbwen1niosrcqbxsafh1),to_ip_from(RLqtkr6cif1ebgurukgmwdm7xc)];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email,intel.com:email]
-X-Spam-Score: -2.01
+Content-Transfer-Encoding: 7bit
 
-Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch
-and buffer size. Align the pitch to a multiple of 8. Align the
-buffer size according to hardware requirements.
+Hi Robin, Joerg,
 
-Xe's internal calculation allowed for 64-bit wide buffer sizes, but
-the ioctl's internal checks always verified against 32-bit wide limits.
-Hance, it is safe to limit the driver code to 32-bit calculations as
-well.
+On 8/14/25 6:47 PM, Robin Murphy wrote:
+> Much like arm-smmu in commit 7d835134d4e1 ("iommu/arm-smmu: Make
+> instance lookup robust"), virtio-iommu appears to have the same issue
+> where iommu_device_register() makes the IOMMU instance visible to other
+> API callers (including itself) straight away, but internally the
+> instance isn't ready to recognise itself for viommu_probe_device() to
+> work correctly until after viommu_probe() has returned. This matters a
+> lot more now that bus_iommu_probe() has the DT/VIOT knowledge to probe
+> client devices the way that was always intended. Tweak the lookup and
+> initialisation in much the same way as for arm-smmu, to ensure that what
+> we register is functional and ready to go.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: bcb81ac6ae3c ("iommu: Get DT/ACPI parsing into the proper probe path")
+> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
 
-v3:
-- mention 32-bit calculation in commit description (Matthew)
+could we get that fix merged as soon as possible? the virtio-iommu is
+currently totally broken.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Cc: "Thomas Hellström" <thomas.hellstrom@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
----
- drivers/gpu/drm/xe/xe_bo.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Thanks
 
-diff --git a/drivers/gpu/drm/xe/xe_bo.c b/drivers/gpu/drm/xe/xe_bo.c
-index 6fea39842e1e..2be7a618165a 100644
---- a/drivers/gpu/drm/xe/xe_bo.c
-+++ b/drivers/gpu/drm/xe/xe_bo.c
-@@ -9,6 +9,7 @@
- #include <linux/nospec.h>
- 
- #include <drm/drm_drv.h>
-+#include <drm/drm_dumb_buffers.h>
- #include <drm/drm_gem_ttm_helper.h>
- #include <drm/drm_managed.h>
- #include <drm/ttm/ttm_backup.h>
-@@ -3130,14 +3131,13 @@ int xe_bo_dumb_create(struct drm_file *file_priv,
- 	struct xe_device *xe = to_xe_device(dev);
- 	struct xe_bo *bo;
- 	uint32_t handle;
--	int cpp = DIV_ROUND_UP(args->bpp, 8);
- 	int err;
- 	u32 page_size = max_t(u32, PAGE_SIZE,
- 		xe->info.vram_flags & XE_VRAM_FLAGS_NEED64K ? SZ_64K : SZ_4K);
- 
--	args->pitch = ALIGN(args->width * cpp, 64);
--	args->size = ALIGN(mul_u32_u32(args->pitch, args->height),
--			   page_size);
-+	err = drm_mode_size_dumb(dev, args, SZ_64, page_size);
-+	if (err)
-+		return err;
- 
- 	bo = xe_bo_create_user(xe, NULL, NULL, args->size,
- 			       DRM_XE_GEM_CPU_CACHING_WC,
--- 
-2.50.1
+Eric
+> ---
+>
+> v2: Of course generic bus_find_device_by_fwnode() didn't work, since
+>     it's dev->parent we need to check rather than dev itself, sigh...
+> ---
+>  drivers/iommu/virtio-iommu.c | 15 +++++++++------
+>  1 file changed, 9 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 532db1de201b..b39d6f134ab2 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -998,8 +998,7 @@ static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
+>  	iommu_dma_get_resv_regions(dev, head);
+>  }
+>  
+> -static const struct iommu_ops viommu_ops;
+> -static struct virtio_driver virtio_iommu_drv;
+> +static const struct bus_type *virtio_bus_type;
+>  
+>  static int viommu_match_node(struct device *dev, const void *data)
+>  {
+> @@ -1008,8 +1007,9 @@ static int viommu_match_node(struct device *dev, const void *data)
+>  
+>  static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
+>  {
+> -	struct device *dev = driver_find_device(&virtio_iommu_drv.driver, NULL,
+> -						fwnode, viommu_match_node);
+> +	struct device *dev = bus_find_device(virtio_bus_type, NULL, fwnode,
+> +					     viommu_match_node);
+> +
+>  	put_device(dev);
+>  
+>  	return dev ? dev_to_virtio(dev)->priv : NULL;
+> @@ -1160,6 +1160,9 @@ static int viommu_probe(struct virtio_device *vdev)
+>  	if (!viommu)
+>  		return -ENOMEM;
+>  
+> +	/* Borrow this for easy lookups later */
+> +	virtio_bus_type = dev->bus;
+> +
+>  	spin_lock_init(&viommu->request_lock);
+>  	ida_init(&viommu->domain_ids);
+>  	viommu->dev = dev;
+> @@ -1229,10 +1232,10 @@ static int viommu_probe(struct virtio_device *vdev)
+>  	if (ret)
+>  		goto err_free_vqs;
+>  
+> -	iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
+> -
+>  	vdev->priv = viommu;
+>  
+> +	iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
+> +
+>  	dev_info(dev, "input address: %u bits\n",
+>  		 order_base_2(viommu->geometry.aperture_end));
+>  	dev_info(dev, "page mask: %#llx\n", viommu->pgsize_bitmap);
 
