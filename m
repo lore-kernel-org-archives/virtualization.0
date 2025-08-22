@@ -1,161 +1,192 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2067.outbound.protection.outlook.com [40.107.92.67])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D24C1286D4C
-	for <virtualization@lists.linux.dev>; Fri, 22 Aug 2025 13:04:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755867900; cv=none; b=WhQMCbsbC7e1wXMDe+3P2qFbRcG2guEKkDbFhBwXajxE6YlD1zh7XzWYtx+D2jzV4HiJlUoC82HRWKjhV1t8d6LCohXCvgR446hE+i3f93iqCS/ubMOjvvsmw6l3R8ln5EHkHjIazD3d7HUmxor1kh+ifutY5RKlmC0/sT1Mql0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755867900; c=relaxed/simple;
-	bh=w0Q+FsNizwQyUYK9BsZ2M/EWU17/ju7wdDubu9d4kts=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=MmY5T8Yv/3zAYXJMZpUBS2mBjqE6cMnv424bCZ17GlOi400BxInXSAJRJh/C5b8SCq11Gq4aYBajAqO+i3x8X7CJKUqVUByxG3leH9FIBWrVT/iVvXbhd9yW+g8MKjgJWhRfauHLvl1ux4tpXBaCyguM8XBy5jDufcC1RrfSycQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RBLUvTW+; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F51C303C91
+	for <virtualization@lists.linux.dev>; Fri, 22 Aug 2025 13:49:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.67
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1755870580; cv=fail; b=dYLdRvfQ+dD6AeY0XAiOrAFyMqMAj1aDIN2ChXIVv7cFYl1GftHSfbxE7CX+3CPGmQ/svIuTOAG8NJ+9jM6kiXDWQ7vxy9BN0EdCju8prJNwCqmjpL67HEmnyLosR+kM8tXfpk6pi9N+RzJHBx/amzxXfw568ypGgU00fs+O9ik=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1755870580; c=relaxed/simple;
+	bh=/mset3D/sT+OkQSDTeXa9m7YVwbeDvjIOE9tsIbGN60=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=JMt9ietF+TFSg3R4YczkX5Ypfx/8hVng0BvZa5dqGcRzR9Anz/1wpwzulSEiuom6lcEIbpj05jC1Gi7clZhezYTWEjoaFgoKbAAU7AAB1nTujM4ahrtNiAqw0wqj5vIqu826Pfxv6lOz6FeyAXg6pPPUfZhsfr+SOEFY1JzcyZI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=V0OgGe+F; arc=fail smtp.client-ip=40.107.92.67
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RBLUvTW+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755867897;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HbdcQpncCh7btF+aNsL0pGSPRE3CkROlaSyGQtuUHUw=;
-	b=RBLUvTW+IDXB0K4j3p1hFW7sA6NI6Lfx5o2M1KZ7DNj20cAozTczLmSo6ktlkQ0T3fIRGg
-	5uVUcEgX9IWDx9SZA4QKAuYFjUds62OnUt9eVL8mflvfVbqXlawQibSwZzzJ/IrwmwVuVf
-	jH1MJIMqWt33f+lyVJ4YnE2Ca/nWsGQ=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-388-UqQ-zozpNW2JDVtkupUgQQ-1; Fri, 22 Aug 2025 09:04:56 -0400
-X-MC-Unique: UqQ-zozpNW2JDVtkupUgQQ-1
-X-Mimecast-MFC-AGG-ID: UqQ-zozpNW2JDVtkupUgQQ_1755867895
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45a1b05a59cso14973325e9.1
-        for <virtualization@lists.linux.dev>; Fri, 22 Aug 2025 06:04:55 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755867895; x=1756472695;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HbdcQpncCh7btF+aNsL0pGSPRE3CkROlaSyGQtuUHUw=;
-        b=k40jey6ElP2AMS3T+emQPR8CEriEomnT9E9mYPh6+Q2gTHwB5XHlBk2huX1ObXKKEm
-         q+SNYU+J9vgWhaAdOEQxKBPPzC1PoRHkZLyeYdcrZZ71M116P33tmAgM3MBhvxtYDXUu
-         nrHGxT2hjLxbZQoP5v+gKgKdoJzIca0A48K0cTDzj4mK9SeolkNdjgScOQJYVk9ftA2L
-         N7uTNEXOCow9KxqqohUrOmWOajACxsNhsWhQ00NjFSRn11t9xg0VjWh/7UtCKR5FRSbZ
-         f/bdFMvFZU6CYs1doXxnlnnyQ9/NjihkmkZivwb5Gvd7SNnvk0IYmPc9ghAln5JlT/xj
-         Aojw==
-X-Forwarded-Encrypted: i=1; AJvYcCUACoNNOlgQtBM+07GNZ07/QNVGJZoPfvvYt6qU0+HS8uDBB9uc3IcDdsjZSlM9S5AxiCSQWX0ptrOrOo6KtQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyF+XkiLVCr7o7mA5IB+ZeoLDRXywZAEd92bTH2CX3coS6FHq5w
-	KWmBbJRaGeYqLN3gsbLkkR78Lc6RrHS/A3u08WX278iie2s+6zkhsvBot9dSnhPcSWuPVHGmS77
-	hemM+CszkQ7rDJ5Y24+3a+iyG+8JmJQN238LCKAvfXX91YjAkfGiwm1vHOklNYGqUkHc5
-X-Gm-Gg: ASbGnctW5mj4zPjWFxEgog94evN8UHxrdyfWoXXPZc1p2Y6ZVYezC75jsLQ17XExUBZ
-	Qsfps8wO+diujngxzHUzUvfL3PLwuITOJqcMTNoI2di+dBwdQft2ybXitHLHa/klR1/e2kUwrf+
-	UmVL6NdNSSwQx6V2lks4y2otbOEAQMNI6c0q5w0qWQ856ibe4eW5/XR7ua7iX+IcWY6VXuVHnif
-	AnT7+XsKHE26DvnwdLP1AbzGOV5+wsWEgea3oF02sEc7bghcbmEky+UJGHLusUs+9d0+HZZ8FKw
-	kLOh2wBIA2eVPzWszQyfbsShg4wbFiA1
-X-Received: by 2002:a05:600c:8b17:b0:45b:47e1:ef68 with SMTP id 5b1f17b1804b1-45b517e8dc2mr23760045e9.35.1755867894713;
-        Fri, 22 Aug 2025 06:04:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFngGGmvja+c3hZ9pHn+YWINTUlG6R2wYP0GDnbBthnGEIHH5TrUNX9aU7b3F3Zm40FnvOqRg==
-X-Received: by 2002:a05:600c:8b17:b0:45b:47e1:ef68 with SMTP id 5b1f17b1804b1-45b517e8dc2mr23759625e9.35.1755867894246;
-        Fri, 22 Aug 2025 06:04:54 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b4e269d20sm37762895e9.2.2025.08.22.06.04.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Aug 2025 06:04:53 -0700 (PDT)
-Date: Fri, 22 Aug 2025 09:04:51 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Cc: "NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	"stefanha@redhat.com" <stefanha@redhat.com>,
-	"pbonzini@redhat.com" <pbonzini@redhat.com>,
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="V0OgGe+F"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=VN7BHRwmzovRf4TzqzOqvNxK7ldk2QCvFoBoTHE1+nvdnBB1/hSXPZyn1Dw/atfHax8KOTT/3rJBchkfPFOL0vBhqBADo2OycHxJixTCcwoaqALrznFW/RXP9rITLax6B6G+K2wKtOzkp6AS2Pdh+pwjTkh33rfOhBa+fYF347tKDO1iNcfJsn32VAaES1qbrFruWppkm//+Jb1O0os/TgF99+mdPnb/eOjexAZfi32QmOuckWc98EBnzqEJVWBxAGFRitNJbJno5QxXMk2yhLolGFBytMx78lVey1bJiup3ss9A9G5l26CK6T6CfoqnPEGqaaw1H2Gyc8GjcOM6hQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/mset3D/sT+OkQSDTeXa9m7YVwbeDvjIOE9tsIbGN60=;
+ b=CBoJAtcDXe+okfCMXpi/Xnn0ZnJZmkDJcBMbhFNB2JymAvM/711plqdMqPZ/DqEm9AzE0S9l3QASANTP+nsXEiIljDPJD0SxBagCKejL3YufjsXFgGVbQYX3PGn25Cp+v48T494G16s7JxX0V79y5D/ta7MmTXywF9SG6OPI4/VIbNpxn0caZM+4V3KafMFAPrUMnAluI3WXiLiuK1Erj/4q+mMwZXOybafIDj5wUXfMrVZnzH5y7vgzJC7d2SxLZkNj4o+GPJlDKp3vJwR5upLrTqJ+VfQmYPjEBXGiCzaXDK//bzW+3gSMKoVUAyaA6Y/EY5wnoQoc/rW+wXOcew==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/mset3D/sT+OkQSDTeXa9m7YVwbeDvjIOE9tsIbGN60=;
+ b=V0OgGe+FqCm4hJM/OEFRFTPlkDvu4QfErfoUoiXu9FrNAGpABRg8SJFymgIrjLnymp0dh8YXY39Cg3Njvg2BO6nXiRxc1Ud53SIj6JmzY2bzSlFU6udVDtZOtg4NnJPBPRWfboZRbM9p5p73VPa/KEXL605c3/RC12SU1vFxqs2DMfR+RPP3tziK6HpPzsDAdNqQykLVEETSyd0QgIYc6FDZ99ixhXGBV4oaVZ3sPhaQ1/Zw8fl05PHWmANFqNMHYvHrgi2wj9L/HQZQqXEbiTpAcW7HNqCm+uupKk0XidsfdyVkQgW0vihYLKnxE0GEbdzaPA+m3GohaAxtvL9lEA==
+Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
+ by DM3PR12MB9413.namprd12.prod.outlook.com (2603:10b6:8:1af::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9052.19; Fri, 22 Aug
+ 2025 13:49:36 +0000
+Received: from CY8PR12MB7195.namprd12.prod.outlook.com
+ ([fe80::e571:5f76:2b46:e0f8]) by CY8PR12MB7195.namprd12.prod.outlook.com
+ ([fe80::e571:5f76:2b46:e0f8%6]) with mapi id 15.20.9031.026; Fri, 22 Aug 2025
+ 13:49:36 +0000
+From: Parav Pandit <parav@nvidia.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"jasowang@redhat.com" <jasowang@redhat.com>, "stefanha@redhat.com"
+	<stefanha@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
 	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"stable@vger.kernel.org" <stable@vger.kernel.org>,
-	Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
+	"stable@vger.kernel.org" <stable@vger.kernel.org>, Max Gurtovoy
+	<mgurtovoy@nvidia.com>, "NBU-Contact-Li Rongqing (EXTERNAL)"
+	<lirongqing@baidu.com>
+Subject: RE: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
  pci device"
-Message-ID: <20250822090407-mutt-send-email-mst@kernel.org>
-References: <0cfe1ccf662346a2a6bc082b91ce9704@baidu.com>
- <CY8PR12MB7195996E1181A80D5890B9F1DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
+Thread-Topic: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
+ pci device"
+Thread-Index: AQHcE0XKqVbu8cWtaUCLZj1LjgeTGbRudpsAgAAWuWCAABaPAIAADA7w
+Date: Fri, 22 Aug 2025 13:49:36 +0000
+Message-ID:
+ <CY8PR12MB7195392690042EF1600CEAC5DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
+References: <20250822091706.21170-1-parav@nvidia.com>
+ <20250822060839-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195292684E62FD44B3ADFF9DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250822090249-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250822090249-mutt-send-email-mst@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|DM3PR12MB9413:EE_
+x-ms-office365-filtering-correlation-id: 953043d1-7cca-4505-046b-08dde182bb72
+x-ld-processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|376014|38070700018;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?GjhMB8HDGUuvjjuMMiq70JxPmcW9arxdl0EXhGirX9LvaLZo0XR6TdwO3tUM?=
+ =?us-ascii?Q?u3e946AUBISZUYF7BypDiY9ZPeUAO31vIzN4hDHkc3+vtMq2bMR9FbsbqV6N?=
+ =?us-ascii?Q?UhDiqrvW7PLQApRnAsrvvebm5H/DSWClRM9tGbGoN7jH1QtR7uTw6fKu2b8G?=
+ =?us-ascii?Q?r6s42y3yY4X+jbGG6+JflkRF3lX0ZqpXwfTCrG+ZQApEhWHBaRBxUfUEtpwz?=
+ =?us-ascii?Q?G9pXmDqg3pGjwfjH2icxMsi3D5euQgVI5li2dwFO/5ENaZuBrY+Rwg5PRfbl?=
+ =?us-ascii?Q?AEaZobqCzqzTCWAjjfWVeuTRm/TVoqau7SqXmGNmc04/sE90h/00i2jnl2h2?=
+ =?us-ascii?Q?km91GTljll5hrKISBlPW+hR8YONg7EpbYR+Uc8SZ7NsyY/NZliQimzOkqeLx?=
+ =?us-ascii?Q?rPQlLgHx0OUnWb1SUJ5H+Os67qEtBqMG+Zj3qGseQbZy7jA+Synzg1natBxP?=
+ =?us-ascii?Q?fGFFd8wG+/xa7LKl4da/N8xzL4HLdVnVUyf5UXFs47yBqvYU6HHN2SfbyvG9?=
+ =?us-ascii?Q?QmA59elISTgNXULbgyeECO+eVjBYLUDbch7b4ULeuWQrJ7+RAQBfJEumYl0i?=
+ =?us-ascii?Q?c2UeygRMO6v2YSJJQ8uqo0l1PZ/JcSYU/AApx7UodNHzI6DK2Rt/Ifcew5VI?=
+ =?us-ascii?Q?DoaF4oUGF/seXqUVqa5endPBPvkYUXnzN8gJCZUalcp/5RDosVNMABPzxsns?=
+ =?us-ascii?Q?9ZnpJB3XfRv3/i+nE5VTab93BvlQLFAln2RPoB+0D23hqRdFqERbKYSZI0YW?=
+ =?us-ascii?Q?Tcj+pG4h4OM0I+WvuWzLDmlbFatc3naYc/qWQWNV9zBQZZrEskT6uwh3+lMe?=
+ =?us-ascii?Q?mkgwJKG/ExN50ddmldtAYRcMcnh/7KkHlmlAon13omhCc2EnqzePW3AXTN0f?=
+ =?us-ascii?Q?HGhmiw8FGnlq+x06zbxk4c2NHAZxKqAGOWTxtxo1uBp8KIbZrCWVofQUPZbN?=
+ =?us-ascii?Q?X1erdrLqsrGHiZ8qKML8d8x+2Kf1EAgkKvItltY28EPHiw5sqMOcpJnipgBw?=
+ =?us-ascii?Q?0Mhm/NOv8nBjxmQtQNZjQHr06JbZSEvjq185WAmNCrJBWFmCSgKf/eHHwqbn?=
+ =?us-ascii?Q?FiAIH8EVbolxydZ7QlRN1ZBLO9zhEtksuULqw960C20+jRa//NS/iYDeiKUY?=
+ =?us-ascii?Q?sbmOb/kN0E7N0NdsaO/gmQwLfUD9UrNc0m7RL3HPu0dVVAgmUcH6Z6Gbpst5?=
+ =?us-ascii?Q?m3k9rfTufV4el+Qz1Fd895ZLrUl5g8v0bTARmdH3U3MC+XF83KnmxFHtxFYN?=
+ =?us-ascii?Q?4wJP+ACT8F7UqMJV7sjqbsYcFQyuPZs5iaBUPIfRU7DYVdCmF0fW9SNojzQp?=
+ =?us-ascii?Q?DHoHUDlnGC2gPibnpG/HN2v+0EEwpIBNWibkV9Vmz5+c91DNkndoVjedlgWa?=
+ =?us-ascii?Q?I/VDfXLXTsyHpxvfK9NQZ6BDqxSfRI5XOOURJrDAtFKGYjt/A1ue7jaziA83?=
+ =?us-ascii?Q?gpsGVFqiW8fp8FQ/q5ZCYj0qgD0EjNImqhCc907VKkbCjHQF+zcxDK7eBEr1?=
+ =?us-ascii?Q?rB+aIEuXTRC1fQU=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?k8yVaIStuAX8L5ikJSE+xCC602SjaNxxDZR8XVIUuFtWQ8mJBPTSAMuECsgV?=
+ =?us-ascii?Q?omjq1MByFYs+Ij8T9xPW3D8ArQNN1SuEz9OPvfd2TaViqD4NRss79UM/buWe?=
+ =?us-ascii?Q?/DzQy3Q4gsEvIRp5WQZwHsNezvaA3BPPlMeYlglcxo4nGGFnZrSlVHs6fcRR?=
+ =?us-ascii?Q?qAh9S+p09o2OOdiwW6ctl78a6dzaBq7T5b8GBDnx4RwshATCI/2/xwIGc8JM?=
+ =?us-ascii?Q?8l34/qBN35KZAiVG+76PGJPj7b/Lgfgq+6R0dRlk8Vvxm30E1BjsUYFOvqJD?=
+ =?us-ascii?Q?FS4+agNXsmq5v5hoUDkXtnGJjtiXZwXSQoE32UgCqTT00jNCR8ONhi5Ek6Wz?=
+ =?us-ascii?Q?mxytkDKQw2o7aKqYc4Xo8JI1axT0GXoEkrj37piGJCOl4ALv9bHw8mLdXhGS?=
+ =?us-ascii?Q?KrpsYCGOXf0EsAuHRgLXUOva6rQjY7cWgBL9Z/LElQIQkTchTj4tS7EVbod5?=
+ =?us-ascii?Q?8wPq425Q+opql8k3jyyPWpcdgPutWssgHQaf36+modev6kcBAlltZI8VZ1ry?=
+ =?us-ascii?Q?I4GNH1P9509qSm+kNhviaEN57Z3EVrEryIScH0h8BaYD3ku7B/fELIr5ATqf?=
+ =?us-ascii?Q?aA9f0MDytYX0NAaXrXQXXWH6sjSSSGfTwGnEr3nE06kmMJkaeGGyBZLd14LW?=
+ =?us-ascii?Q?XLx0zFmawCP0kXkpdBNMW86ucORi9ZsqY0MGLIFivgcSJ8ykrmui8N898JdP?=
+ =?us-ascii?Q?sWq7x7D1WUBsh0PVd22lIBiLQAzl/LGavVpjM/zVHTKCB6r3AO8Hm3Mz66nf?=
+ =?us-ascii?Q?mlz9FtGRm/5q1gMi89z4miNBFOxcjf1LpTV3eOR7UW+9PEOMDd5UUHx6JDYf?=
+ =?us-ascii?Q?VB/hQU7nVM0KQpTO6cMc9cG9hydriPo6YED8iohdFAKuyQiHZB/offrEtkYu?=
+ =?us-ascii?Q?kaY/ZFNQ3QvRdOHfkGd/0XqrREM/D8cqMn3JfYXSesDWbik16zLavAwSl8NT?=
+ =?us-ascii?Q?x44yXHY69o0xr6ZQvaSfd+nVuskXsIwvZ8hulCccN6WG4oxoiHKYv8eQES9O?=
+ =?us-ascii?Q?FNuE5c2lmkQvoPn/IbOWVKvf5Hf7ievxTyx4B2qVh4vST6yjL8F54844uRLi?=
+ =?us-ascii?Q?MWY7A/c9gFQE8PwgdMAqndFiizQMy1bbZrTPESr2ebaPwMtcqGoBt9uvfm59?=
+ =?us-ascii?Q?SzkuSNTFiy/FZ6wfWaiChYg9n9br2Gs+E75u0xAh8eoMPYuu5KRoMh2mQSNJ?=
+ =?us-ascii?Q?LWFAznpmo/962V3oAaEws/tu9OYcWWaCHLBupoIOSa/xQEsX3Pvso8J7codz?=
+ =?us-ascii?Q?GkVKT9YmqfgjNCu60BWnmXWPWYhZgqquiTaKi23LKeakdyLrRZq/sCEZnUnI?=
+ =?us-ascii?Q?WUh9YoXDOadpl+hsAVkTUEJp3xA77djzV7chLCTqzMzz9BQQ1lvVpevhCs2K?=
+ =?us-ascii?Q?rsQD4CLeYekOlPs9mKLYrF9P7YbCBs4ecPw4mcAcHC+YBid/XvTnWRA7YFKE?=
+ =?us-ascii?Q?dUluUlopmrH6VKRsupndmWhHvjtT5b4eP0kF2JnJCHOfwD6CbU6zMoh0Kils?=
+ =?us-ascii?Q?3KoA2V9ZBBK3AeXlGKrnIi8oSKMkGio+GoaBmfwU8BZVIwiyQ0XczNIvZHoy?=
+ =?us-ascii?Q?GHQBs++3mpLlzIoaNQw=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CY8PR12MB7195996E1181A80D5890B9F1DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: lQePb5P9Aqv7aPmcgZzJkbBhQeTtIEmhjP8M9xPOvEU_1755867895
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 953043d1-7cca-4505-046b-08dde182bb72
+X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Aug 2025 13:49:36.3237
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: UShYHccKEm8c70BFUCjWWPv67oN+b2fOG2pyAI1k29FxowFHUaXszrAgGb+dnRVJRltnjravnzus0XXM6yK8EQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM3PR12MB9413
 
-On Fri, Aug 22, 2025 at 12:24:06PM +0000, Parav Pandit wrote:
-> 
-> > From: Li,Rongqing <lirongqing@baidu.com>
-> > Sent: 22 August 2025 03:57 PM
-> > 
-> > > This reverts commit 43bb40c5b926 ("virtio_pci: Support surprise
-> > > removal of virtio pci device").
-> > >
-> > > Virtio drivers and PCI devices have never fully supported true
-> > > surprise (aka hot
-> > > unplug) removal. Drivers historically continued processing and waiting
-> > > for pending I/O and even continued synchronous device reset during
-> > > surprise removal. Devices have also continued completing I/Os, doing
-> > > DMA and allowing device reset after surprise removal to support such drivers.
-> > >
-> > > Supporting it correctly would require a new device capability and
-> > > driver negotiation in the virtio specification to safely stop I/O and free queue
-> > memory.
-> > > Failure to do so either breaks all the existing drivers with call
-> > > trace listed in the commit or crashes the host on continuing the DMA.
-> > > Hence, until such specification and devices are invented, restore the
-> > > previous behavior of treating surprise removal as graceful removal to
-> > > avoid regressions and maintain system stability same as before the
-> > > commit 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio pci
-> > device").
-> > >
-> > > As explained above, previous analysis of solving this only in driver
-> > > was incomplete and non-reliable at [1] and at [2]; Hence reverting
-> > > commit
-> > > 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio pci
-> > > device") is still the best stand to restore failures of virtio net and block
-> > devices.
-> > >
-> > > [1]
-> > >
-> > https://lore.kernel.org/virtualization/CY8PR12MB719506CC5613EB100BC6C6
-> > > 38 DCBD2@CY8PR12MB7195.namprd12.prod.outlook.com/#t
-> > > [2]
-> > > https://lore.kernel.org/virtualization/20250602024358.57114-1-parav@nv
-> > > idia.c
-> > > om/
-> > >
-> > > Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio
-> > > pci device")
-> > > Cc: stable@vger.kernel.org
-> > > Reported-by: lirongqing@baidu.com
-> > > Closes:
-> > > https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b474
-> > > 1@b
-> > > aidu.com/
-> > > Signed-off-by: Parav Pandit <parav@nvidia.com>
-> > 
-> > 
-> > 
-> > Tested-by: Li RongQing <lirongqing@baidu.com>
-> > 
-> > Thanks
-> > 
-> > -Li
-> >
-> Multiple users are blocked to have this fix in stable kernel.
 
-what are these users doing that is blocked by this fix?
+> From: Michael S. Tsirkin <mst@redhat.com>
+> Sent: 22 August 2025 06:34 PM
+>=20
+> On Fri, Aug 22, 2025 at 12:22:50PM +0000, Parav Pandit wrote:
+> > > From: Michael S. Tsirkin <mst@redhat.com>
+> > > Sent: 22 August 2025 03:52 PM
+> > >
+> > > On Fri, Aug 22, 2025 at 12:17:06PM +0300, Parav Pandit wrote:
+> > > > This reverts commit 43bb40c5b926 ("virtio_pci: Support surprise
+> > > > removal of
+> > > virtio pci device").
+> > > >
+> > > > Virtio drivers and PCI devices have never fully supported true
+> > > > surprise (aka hot unplug) removal. Drivers historically continued
+> > > > processing and waiting for pending I/O and even continued
+> > > > synchronous device reset during surprise removal. Devices have
+> > > > also continued completing I/Os, doing DMA and allowing device
+> > > > reset after surprise removal to support such drivers.
+> > > >
+> > > > Supporting it correctly would require a new device capability
+> > >
+> > > If a device is removed, it is removed.
+> > This is how it was implemented and none of the virtio drivers supported=
+ it.
+> > So vendors had stepped away from such device implementation.
+> > (not just us).
+>=20
+>=20
+> If the slot does not have a mechanical interlock, I can pull the device o=
+ut. It's
+> not up to a device implementation.
 
--- 
-MST
-
+Sure yes, stack is not there yet to support it.
+Each of the virtio device drivers are not there yet.
+Lets build that infra, let device indicate it and it will be smooth ride fo=
+r driver and device.
