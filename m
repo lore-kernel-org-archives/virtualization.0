@@ -1,120 +1,179 @@
-Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CECA515C158
-	for <virtualization@lists.linux.dev>; Mon, 25 Aug 2025 02:07:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9899A1E9919
+	for <virtualization@lists.linux.dev>; Mon, 25 Aug 2025 03:19:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756087639; cv=none; b=fVPGxaAYJkkcE9+hr3p0H/dnJO/a6FyxMU7QIl9tyHh/iBWRuoeH3o1+t9/QUUWPGSttbzvHNaEnBMQs8mSo5eUF/O0Ou/QB4xSQpGqWCbqiE7XmE4TuDG8ol/XGl4lOj4gi1N1fhBZl8VGHfyeXheerEjWyiLM1P6X4Cod7v3s=
+	t=1756091947; cv=none; b=EmqijIObvgJjrl7Z+BOh9IQF6b8830fl/2lmym+yijHUR811t2+HfpPovxRbMh6A+umVLbpwdJV+O/NYuX/7ZudzmaVDOtirk8WW7Vxeo7PIpRkv3Puee7GpEEtcTmx1GbsfbDB06ZEaHceiXafPC4kpkhgWxbyW5upJ/aofcK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756087639; c=relaxed/simple;
-	bh=wle9r2gsnhO7JaaLb1bCPkD7qWWf9Zu+D8DM/DNZTjw=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
-	 Content-Type:References; b=KdDDcsfAn+WbSNKcyzH4BzQTHSBK0NZbO/nn6T02Rp1nSJxfxolraYWTp9zvqmTGKVkjOvduvK8CENCv1UgRT/04EuQEpmVH8m03Bint6KpMAbh26zqx7Vc6fF0S4CV3+a8xzNFiiZIOWLN/uE4HsSMoMH7leWblv3Heodl0iPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=nWJvpIq9; arc=none smtp.client-ip=203.254.224.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1756091947; c=relaxed/simple;
+	bh=PuUbuNvyeLiLOXqEFw4faj6HQcjwdCPqnfZaWCW/qkc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tDxovWfOpgypmVLuA5fAEqQCSgCLEz/chPYKS2FJ5d7SwgAGMXVkh5OEAJ8zy9/10aIjdQrMkqC6MrY0If8ZVJsjOZa74BRMth7FW6ZuScvCXsnWF3au+7yWh4GDYbXNgUOTlYR8saEEp3w551UcUfX50wqpET56/5tLpi54r6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KOlZUR7M; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="nWJvpIq9"
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-	by mailout4.samsung.com (KnoxPortal) with ESMTP id 20250825020707epoutp04b40b79588746160c43a4db5a23bd098f~e4GSqFN410917009170epoutp04a
-	for <virtualization@lists.linux.dev>; Mon, 25 Aug 2025 02:07:07 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20250825020707epoutp04b40b79588746160c43a4db5a23bd098f~e4GSqFN410917009170epoutp04a
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1756087627;
-	bh=eLnMXqyfqg1qktU4SrlD9F/Y1gqGVc8jfzRmVy/nmCI=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=nWJvpIq9v4HQuO53y9CEaOIw+/g6Lt3XgWw7aKZtNkJbrCL+2G+U/pW42aZvZQvU2
-	 bzKOepmXBzXyx/ivLpbCmnkFQ5XGjoEgz/ZP0EHO05BCH8K1ZAM5CVTYFO6CJOL7Sj
-	 luBy3Vfpjh2Y7QBuMnKARLj+y8hMO3YBZ+nTfr1o=
-Received: from epsnrtp03.localdomain (unknown [182.195.42.155]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTPS id
-	20250825020707epcas5p456f163e3bca934301a8cdcd40f8874f6~e4GSF1zka1083410834epcas5p46;
-	Mon, 25 Aug 2025 02:07:07 +0000 (GMT)
-Received: from epcas5p3.samsung.com (unknown [182.195.38.87]) by
-	epsnrtp03.localdomain (Postfix) with ESMTP id 4c9Dgs6xxCz3hhT8; Mon, 25 Aug
-	2025 02:07:05 +0000 (GMT)
-Received: from epsmtip2.samsung.com (unknown [182.195.34.31]) by
-	epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
-	20250825020428epcas5p16a3306486407502504ca75bbe549927e~e4D_J20hW2609326093epcas5p1A;
-	Mon, 25 Aug 2025 02:04:28 +0000 (GMT)
-Received: from asg29.. (unknown [109.105.129.29]) by epsmtip2.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20250825020426epsmtip2664683fd89c1dd09d5a8c452b6061d25~e4D89fvNJ2221922219epsmtip2a;
-	Mon, 25 Aug 2025 02:04:26 +0000 (GMT)
-From: Ying Gao <ying01.gao@samsung.com>
-To: ying01.gao@samsung.com
-Cc: eperezma@redhat.com, jasowang@redhat.com, junnan01.wu@samsung.com,
-	kraxel@redhat.com, lei19.wang@samsung.com, linux-kernel@vger.kernel.org,
-	liping.qi@samsung.com, mst@redhat.com, virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com, ying123.xu@samsung.com
-Subject: [PATCH V2 RESEND] virtio_input: Improve freeze handling
-Date: Mon, 25 Aug 2025 10:04:24 +0800
-Message-Id: <20250825020424.1436159-1-ying01.gao@samsung.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20250812095118.3622717-1-ying01.gao@samsung.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KOlZUR7M"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756091944;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mkkr6dnBIuydFfXmGU4SfGiQP5HauMl51h1/p3ffeuI=;
+	b=KOlZUR7Mzn7snHYO+J94jyyhDDSy6wvuaUtCVm0l/oHcnua2Rm3ZioUGO7U0/VM/FjlpxU
+	gv5JndLtJgJI4Sf8LlgoXEkfu+tnxFVNq0iQaE6FWkN9YFIBrZPK5RBIeylRvrnubmbqUH
+	ZdcP1/UfzunlvOEwv/ibtQO6QRQMFZM=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-62-QdBV0EQaMpaJbpVvCyZDug-1; Sun, 24 Aug 2025 23:19:02 -0400
+X-MC-Unique: QdBV0EQaMpaJbpVvCyZDug-1
+X-Mimecast-MFC-AGG-ID: QdBV0EQaMpaJbpVvCyZDug_1756091942
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-61c6d735f25so269826a12.0
+        for <virtualization@lists.linux.dev>; Sun, 24 Aug 2025 20:19:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756091941; x=1756696741;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mkkr6dnBIuydFfXmGU4SfGiQP5HauMl51h1/p3ffeuI=;
+        b=I9AYk4ZXqO4D19Mw9QHk+YCmaPw4JYv5D8y6LlnyuRXRdjFoEjBWruA+E+TOJ3zDZf
+         rhmdKGuOnP4E0L1UjGUvODgydyobm+PhNKgTa9Qh9iiFG9FcNbprwdwsO98TDFbHWbNT
+         RHOxgW3tzJvsi4xGqd/6RsYuuoTXbXyEfaneqyQTIIhzUO7HJITktgWCPyiQudNdzY/M
+         Ehqb0tvGpqIqw+4KXuJ6n+xMhc8MyiE9G4WtPRVLDf2RywhxcuFSGm8Wq8FAIOkWmxWo
+         BU62CcclsPFrvvD+FHRMtgVbfE+Uilg/YUgPPj9mnbqmVXc2eP4lvhysaqpZJ0brUfw5
+         7TGA==
+X-Forwarded-Encrypted: i=1; AJvYcCXzTA1zQ+fJX4aA9LyJCtXS04gMYG24tKIBz8ngHDzLn7gmRx/+IPiwoY5+4q+agrvtrawq1Man+UZVy38M7A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxo2LLgQQFmsybcD9ZE1Yzp/IDFrPsVAlJP52mP0+UTkNse2QG5
+	NVcO8TPUhaCYUI6R0oUnglcPksGGKMGmLvxb4JhEN7vLCfhw8H7jyUIN8Jv3BbGGk6fgNjuCKVj
+	60jGKZpka2ImvLp7eR2z6i/LETtiHvp74pmYJeYNmQsgZLe+zi1mQSR4yPAzkUw1g7/L1Xce5I4
+	csV1ED3lwR2sMJctVcwg1DuzGC/rAsKuISjXvjFYTOXJw=
+X-Gm-Gg: ASbGncu4WTbFvbEY73UqmdQvxBGQzpPVFe2OP8uXIOoV7+Lh43C6PfjpJeLZ52PeCAP
+	nq+ES4a2CkOt2Lkri6beXGqVzGpt9ZF0mFdogCGw0r2a2lEHPDj1DKzJNdNoghaZdEdKv/4e2qF
+	j7UKf5OcoaBQ7UGG4kaITPMA==
+X-Received: by 2002:a05:6402:40d3:b0:61c:37f3:81df with SMTP id 4fb4d7f45d1cf-61c37f38ecdmr5584826a12.24.1756091941529;
+        Sun, 24 Aug 2025 20:19:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHUHpr+UmaF/UPIc0miOCPZ8Y2NNYsZioaKb50s3hxgE7GvvhOQDF1VyOiPbo78gZwh2DAf5XVxFTEfTBQQ2z4=
+X-Received: by 2002:a05:6402:40d3:b0:61c:37f3:81df with SMTP id
+ 4fb4d7f45d1cf-61c37f38ecdmr5584811a12.24.1756091941117; Sun, 24 Aug 2025
+ 20:19:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20250825020428epcas5p16a3306486407502504ca75bbe549927e
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-cpgsPolicy: CPGSC10-505,Y
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250825020428epcas5p16a3306486407502504ca75bbe549927e
-References: <20250812095118.3622717-1-ying01.gao@samsung.com>
-	<CGME20250825020428epcas5p16a3306486407502504ca75bbe549927e@epcas5p1.samsung.com>
+References: <20250821064641.5025-1-jasowang@redhat.com>
+In-Reply-To: <20250821064641.5025-1-jasowang@redhat.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Mon, 25 Aug 2025 11:18:24 +0800
+X-Gm-Features: Ac12FXwv6JFOS3OGRBYgKSn1mV44XXfCE_i9G8olouMUz6d6LV5uIEzVWRAeWF0
+Message-ID: <CAPpAL=yicLJsn1d+_QbLDAekEQappfkvO9oUedFCG9U9hPT5iQ@mail.gmail.com>
+Subject: Re: [PATCH V6 0/9] Refine virtio mapping API
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	hch@infradead.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: vS4rBpr8-kSzdrlkJnFOlK9ImVl27105s6CBAOpfuHs_1756091942
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When executing suspend to ram, if lacking the operations
-to reset device and free unused buffers before deleting
-a vq, resource leaks and inconsistent device status will
-appear.
+Tested pass with virtio-net regression tests,everything works fine.
 
-According to chapter "3.3.1 Driver Requirements: Device Cleanup:"
-of virtio-specification:
-  Driver MUST ensure a virtqueue isn’t live
-  (by device reset) before removing exposed
-  buffers.
+Tested-by: Lei Yang <leiyang@redhat.com>
 
-Therefore, modify the virtinput_freeze function to reset the
-device and delete the unused buffers before deleting the
-virtqueue, just like virtinput_remove does.
-
-Co-developed-by: Ying Xu <ying123.xu@samsung.com>
-Signed-off-by: Ying Xu <ying123.xu@samsung.com>
-Co-developed-by: Junnan Wu <junnan01.wu@samsung.com>
-Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
-Signed-off-by: Ying Gao <ying01.gao@samsung.com>
----
- drivers/virtio/virtio_input.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-index a5d63269f20b..d0728285b6ce 100644
---- a/drivers/virtio/virtio_input.c
-+++ b/drivers/virtio/virtio_input.c
-@@ -360,11 +360,15 @@ static int virtinput_freeze(struct virtio_device *vdev)
- {
- 	struct virtio_input *vi = vdev->priv;
- 	unsigned long flags;
-+	void *buf;
- 
- 	spin_lock_irqsave(&vi->lock, flags);
- 	vi->ready = false;
- 	spin_unlock_irqrestore(&vi->lock, flags);
- 
-+	virtio_reset_device(vdev);
-+	while ((buf = virtqueue_detach_unused_buf(vi->sts)) != NULL)
-+		kfree(buf);
- 	vdev->config->del_vqs(vdev);
- 	return 0;
- }
--- 
-2.34.1
+On Thu, Aug 21, 2025 at 2:50=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> Hi all:
+>
+> Virtio used to be coupled with DMA API. This works fine for the device
+> that do real DMA but not the others. For example, VDUSE nees to craft
+> with DMA API in order to let the virtio-vdpa driver to work.
+>
+> This series tries to solve this issue by introducing the mapping API
+> in the virtio core. So transport like vDPA can implement their own
+> mapping logic without the need to hack with DMA API. The mapping API
+> are abstracted with a new map operations in order to be re-used by
+> transprot or device. So device like VDUSE can implement its own
+> mapping loigc.
+>
+> For device that uses DMA (for example PCI device), the virtio core
+> will still call DMA API directly without the need of implementing map
+> ops per device/transport.
+>
+> Please review.
+>
+> Changes since V5:
+>
+> - Rename mapping_token to virtio_map
+> - Do not use opaque void * pointer, just use a forward decalration of
+>   vduse_iova_domain
+> - Remove unused variable and typo fixes
+>
+> Changes since V4:
+>
+> - Rename map_token to mapping_token
+> - Introduce a union container for opaque token as well as the DMA
+>   device so we won't lose the type safety
+> - Do not try to set DMA mask for VDUSE device
+> - Introduce a new mapper_error op for API completeness
+>
+> Changes since V3:
+>
+> - Fix build error of PDS vDPA driver
+>
+> Changes since V2:
+>
+> - Drop VDUSE dependenct for HAS_DMA and ARCH_HAS_DMA_OPS
+>
+> Changes since V1:
+>
+> - Fix build error of mlx5_vdpa driver
+>
+>
+> Jason Wang (9):
+>   virtio_ring: constify virtqueue pointer for DMA helpers
+>   virtio_ring: switch to use dma_{map|unmap}_page()
+>   virtio: rename dma helpers
+>   virtio: introduce virtio_map container union
+>   virtio_ring: rename dma_handle to map_handle
+>   virtio: introduce map ops in virtio core
+>   vdpa: support virtio_map
+>   vdpa: introduce map ops
+>   vduse: switch to use virtio map API instead of DMA API
+>
+>  drivers/net/virtio_net.c                 |  28 +-
+>  drivers/vdpa/Kconfig                     |   8 +-
+>  drivers/vdpa/alibaba/eni_vdpa.c          |   5 +-
+>  drivers/vdpa/ifcvf/ifcvf_main.c          |   5 +-
+>  drivers/vdpa/mlx5/core/mr.c              |   4 +-
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c        |  15 +-
+>  drivers/vdpa/octeon_ep/octep_vdpa_main.c |   6 +-
+>  drivers/vdpa/pds/vdpa_dev.c              |   5 +-
+>  drivers/vdpa/solidrun/snet_main.c        |   8 +-
+>  drivers/vdpa/vdpa.c                      |   5 +-
+>  drivers/vdpa/vdpa_sim/vdpa_sim.c         |   4 +-
+>  drivers/vdpa/vdpa_user/iova_domain.c     |   2 +-
+>  drivers/vdpa/vdpa_user/iova_domain.h     |   2 +-
+>  drivers/vdpa/vdpa_user/vduse_dev.c       |  79 ++--
+>  drivers/vdpa/virtio_pci/vp_vdpa.c        |   5 +-
+>  drivers/vhost/vdpa.c                     |   6 +-
+>  drivers/virtio/virtio_ring.c             | 459 ++++++++++++++---------
+>  drivers/virtio/virtio_vdpa.c             |  20 +-
+>  include/linux/vdpa.h                     |  25 +-
+>  include/linux/virtio.h                   |  46 ++-
+>  include/linux/virtio_config.h            |  72 ++++
+>  include/linux/virtio_ring.h              |   7 +-
+>  22 files changed, 531 insertions(+), 285 deletions(-)
+>
+> --
+> 2.31.1
+>
+>
 
