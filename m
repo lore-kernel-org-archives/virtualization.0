@@ -1,179 +1,199 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9899A1E9919
-	for <virtualization@lists.linux.dev>; Mon, 25 Aug 2025 03:19:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AD8726FA60
+	for <virtualization@lists.linux.dev>; Mon, 25 Aug 2025 12:49:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756091947; cv=none; b=EmqijIObvgJjrl7Z+BOh9IQF6b8830fl/2lmym+yijHUR811t2+HfpPovxRbMh6A+umVLbpwdJV+O/NYuX/7ZudzmaVDOtirk8WW7Vxeo7PIpRkv3Puee7GpEEtcTmx1GbsfbDB06ZEaHceiXafPC4kpkhgWxbyW5upJ/aofcK8=
+	t=1756126151; cv=none; b=uHgDLvx42DT63K9oY4h8wmBIQyQ0rajTq6SmNutXzh+N77bsgSgUgj/GlNY3ObOuTELapHi+xfvs5obqFTAzNWBhhfZx+MlV9MOc9Z7iZpSHJgx1Kqda9DvYynAUhpJijgxvVW9eQ1c/hRZPINymxgGVRwKu5TQruRg11S8CEkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756091947; c=relaxed/simple;
-	bh=PuUbuNvyeLiLOXqEFw4faj6HQcjwdCPqnfZaWCW/qkc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tDxovWfOpgypmVLuA5fAEqQCSgCLEz/chPYKS2FJ5d7SwgAGMXVkh5OEAJ8zy9/10aIjdQrMkqC6MrY0If8ZVJsjOZa74BRMth7FW6ZuScvCXsnWF3au+7yWh4GDYbXNgUOTlYR8saEEp3w551UcUfX50wqpET56/5tLpi54r6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KOlZUR7M; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1756126151; c=relaxed/simple;
+	bh=b7RwYEqsXqhvAIjVimo18yn+qIgGQwvJw8/CODbmjC8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=vEL1jLBMqOpLZtwpu2bHMuasi3EqI7rgUqCwEPt6btt/+8rUwj+4SHt4jQBNlR6k97+XqjacmHwXJG+4PpkNs8rJyVWSB7bW1fKoF/StJjrne+B9ecAIiyK0gen2Q7T8Ozgf8XqnOz2WqzVvbAfEYi/OcKtSkMLm4ToTkAkD8qk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WF+1JZAB; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KOlZUR7M"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WF+1JZAB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756091944;
+	s=mimecast20190719; t=1756126149;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=mkkr6dnBIuydFfXmGU4SfGiQP5HauMl51h1/p3ffeuI=;
-	b=KOlZUR7Mzn7snHYO+J94jyyhDDSy6wvuaUtCVm0l/oHcnua2Rm3ZioUGO7U0/VM/FjlpxU
-	gv5JndLtJgJI4Sf8LlgoXEkfu+tnxFVNq0iQaE6FWkN9YFIBrZPK5RBIeylRvrnubmbqUH
-	ZdcP1/UfzunlvOEwv/ibtQO6QRQMFZM=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=3vXE/JZQfiOFAY8LityNc5lKOCwFML9m2hfnchuxSjw=;
+	b=WF+1JZABgs3zWOuQ9ZHQR9WBqKwM01F8QOkk+5pbppnKy1WVsdzbt06ACg3tMdgMl89Dxo
+	z5gfFLIMRzu3U5BaFZONsXFjzquX8NQgzyd4KjFxG9FsdU6HCBawQ/UuYdVuVb9+/zkheD
+	LI52VKfMii2uy+OnDVBHaIdFohu/rds=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-62-QdBV0EQaMpaJbpVvCyZDug-1; Sun, 24 Aug 2025 23:19:02 -0400
-X-MC-Unique: QdBV0EQaMpaJbpVvCyZDug-1
-X-Mimecast-MFC-AGG-ID: QdBV0EQaMpaJbpVvCyZDug_1756091942
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-61c6d735f25so269826a12.0
-        for <virtualization@lists.linux.dev>; Sun, 24 Aug 2025 20:19:02 -0700 (PDT)
+ us-mta-652-7OltVcozPLeVwIpR-jxyJw-1; Mon, 25 Aug 2025 08:49:03 -0400
+X-MC-Unique: 7OltVcozPLeVwIpR-jxyJw-1
+X-Mimecast-MFC-AGG-ID: 7OltVcozPLeVwIpR-jxyJw_1756126142
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45a1b0060bfso28682545e9.0
+        for <virtualization@lists.linux.dev>; Mon, 25 Aug 2025 05:49:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756091941; x=1756696741;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mkkr6dnBIuydFfXmGU4SfGiQP5HauMl51h1/p3ffeuI=;
-        b=I9AYk4ZXqO4D19Mw9QHk+YCmaPw4JYv5D8y6LlnyuRXRdjFoEjBWruA+E+TOJ3zDZf
-         rhmdKGuOnP4E0L1UjGUvODgydyobm+PhNKgTa9Qh9iiFG9FcNbprwdwsO98TDFbHWbNT
-         RHOxgW3tzJvsi4xGqd/6RsYuuoTXbXyEfaneqyQTIIhzUO7HJITktgWCPyiQudNdzY/M
-         Ehqb0tvGpqIqw+4KXuJ6n+xMhc8MyiE9G4WtPRVLDf2RywhxcuFSGm8Wq8FAIOkWmxWo
-         BU62CcclsPFrvvD+FHRMtgVbfE+Uilg/YUgPPj9mnbqmVXc2eP4lvhysaqpZJ0brUfw5
-         7TGA==
-X-Forwarded-Encrypted: i=1; AJvYcCXzTA1zQ+fJX4aA9LyJCtXS04gMYG24tKIBz8ngHDzLn7gmRx/+IPiwoY5+4q+agrvtrawq1Man+UZVy38M7A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxo2LLgQQFmsybcD9ZE1Yzp/IDFrPsVAlJP52mP0+UTkNse2QG5
-	NVcO8TPUhaCYUI6R0oUnglcPksGGKMGmLvxb4JhEN7vLCfhw8H7jyUIN8Jv3BbGGk6fgNjuCKVj
-	60jGKZpka2ImvLp7eR2z6i/LETtiHvp74pmYJeYNmQsgZLe+zi1mQSR4yPAzkUw1g7/L1Xce5I4
-	csV1ED3lwR2sMJctVcwg1DuzGC/rAsKuISjXvjFYTOXJw=
-X-Gm-Gg: ASbGncu4WTbFvbEY73UqmdQvxBGQzpPVFe2OP8uXIOoV7+Lh43C6PfjpJeLZ52PeCAP
-	nq+ES4a2CkOt2Lkri6beXGqVzGpt9ZF0mFdogCGw0r2a2lEHPDj1DKzJNdNoghaZdEdKv/4e2qF
-	j7UKf5OcoaBQ7UGG4kaITPMA==
-X-Received: by 2002:a05:6402:40d3:b0:61c:37f3:81df with SMTP id 4fb4d7f45d1cf-61c37f38ecdmr5584826a12.24.1756091941529;
-        Sun, 24 Aug 2025 20:19:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHUHpr+UmaF/UPIc0miOCPZ8Y2NNYsZioaKb50s3hxgE7GvvhOQDF1VyOiPbo78gZwh2DAf5XVxFTEfTBQQ2z4=
-X-Received: by 2002:a05:6402:40d3:b0:61c:37f3:81df with SMTP id
- 4fb4d7f45d1cf-61c37f38ecdmr5584811a12.24.1756091941117; Sun, 24 Aug 2025
- 20:19:01 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1756126142; x=1756730942;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3vXE/JZQfiOFAY8LityNc5lKOCwFML9m2hfnchuxSjw=;
+        b=rXH3pcTAXs3KCGOLJcLgTQtNEJTLp2NIwQsF58AJL0w2sE9UlKCuYsP/hPmxV1Wpx/
+         6l9NxnDqsZWhDNlr6mf7G+Vt3hm/pIzp1ZUUPLx69vvNYx/RGySskDE11iw7vcmyKtAv
+         pBwW5/QC3AB1sl9bL1gyk3txQfHfS1tqZzeD3AcFRqny8P2mO1uVV3NdrGTDWEQv45tP
+         mW5Xvgig88CWBdJfLQIjWfZlJFnmImZ7xTAtOsGsO/AmKUrXbt2hLYLeCk4Ij1AZ0DbC
+         zAGR+9RDJ1MQzlUcUU8B2jD5ovQEXUMY6ez2vThx9eqroNYFkqFfUCfAw3KbCP5U5OlM
+         ilWg==
+X-Forwarded-Encrypted: i=1; AJvYcCUvslMG4S8XDMpwMXVhAOA3cu4CG2IAhMc61wVFWHN0iZ3Na7MeNrEjpHdiuo+w5rQugDju2iHJSH1M9HJncw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxlM8cDmicMXK/9Uje8/QqTzLsP2koCig4HZRX7UyCo/iBvRo1n
+	jHgFDCkfI2QiM5pDwE19VbFBGewZFiLRPa7uVRjCLZMVFiwPxA/w9sSQCVQF2attNC9lUAIUey/
+	KR/ZDcJgTh7O8v/h5707zUN9aGpQkYoHAeYfkWcJ+aM52qDV/uEgq1sYJuJqoaFozdMVH
+X-Gm-Gg: ASbGncuOT7uAllpomMJvh8ibAaBAvBwSbsfVEHHf58sA25r+3CBJD79ho/2hlI0FTtO
+	LUE2gZOcZdozQVhvnyIYqBHgivL7/JPomLOhduWUdBKxwVcHmqDy9uuGdAGNpKPMt1fB+TqITUq
+	4kFpd+LqRZ2Fi5u4D10W2Mo0t+mhkLS8EsiYZr7ec8OOKUznMe01ZhxoYH59XFPrK8ZKUCG68Mv
+	oVj5SkenpNDvXo+Zx4/i17EneYadZ0KxT6pVHZkftR3DxIVZ9UUTqJ/4impb+PbE4z8vrbPbNfh
+	YTOWkOl/HhzSJkF824zQ9fCtgCP+jJyR4RhXl4plN9oaDz5EVCku1ORo2IBoyv/posFs1jiF9VZ
+	WNLRXclf35qHeynk/ddWWD0PH+T4wVCxuhygyHzqL+pP5N9eOJTCKxk8mCW18AitS38Y=
+X-Received: by 2002:a05:600c:3b0f:b0:43c:fe5e:f03b with SMTP id 5b1f17b1804b1-45b517d4d50mr117581755e9.30.1756126141707;
+        Mon, 25 Aug 2025 05:49:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFXxc8CWovMYNQS1+MbZ/J1HLlRjFi84VTIxSAk5gdBYVSg2EOk3SSNbd5GU03jnCMkyvwvPg==
+X-Received: by 2002:a05:600c:3b0f:b0:43c:fe5e:f03b with SMTP id 5b1f17b1804b1-45b517d4d50mr117581475e9.30.1756126141263;
+        Mon, 25 Aug 2025 05:49:01 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f4f:1300:42f1:98e5:ddf8:3a76? (p200300d82f4f130042f198e5ddf83a76.dip0.t-ipconnect.de. [2003:d8:2f4f:1300:42f1:98e5:ddf8:3a76])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c70ea81d38sm11742640f8f.17.2025.08.25.05.48.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 Aug 2025 05:49:00 -0700 (PDT)
+Message-ID: <a90cf9a3-d662-4239-ad54-7ea917c802a5@redhat.com>
+Date: Mon, 25 Aug 2025 14:48:58 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250821064641.5025-1-jasowang@redhat.com>
-In-Reply-To: <20250821064641.5025-1-jasowang@redhat.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Mon, 25 Aug 2025 11:18:24 +0800
-X-Gm-Features: Ac12FXwv6JFOS3OGRBYgKSn1mV44XXfCE_i9G8olouMUz6d6LV5uIEzVWRAeWF0
-Message-ID: <CAPpAL=yicLJsn1d+_QbLDAekEQappfkvO9oUedFCG9U9hPT5iQ@mail.gmail.com>
-Subject: Re: [PATCH V6 0/9] Refine virtio mapping API
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	hch@infradead.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 10/35] mm/hugetlb: cleanup
+ hugetlb_folio_init_tail_vmemmap()
+To: Mike Rapoport <rppt@kernel.org>
+Cc: =?UTF-8?Q?Mika_Penttil=C3=A4?= <mpenttil@redhat.com>,
+ linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
+ Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ iommu@lists.linux.dev, io-uring@vger.kernel.org,
+ Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
+ Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
+ kasan-dev@googlegroups.com, kvm@vger.kernel.org,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
+ linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+ linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Michal Hocko <mhocko@suse.com>, Muchun Song <muchun.song@linux.dev>,
+ netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
+ Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
+ Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
+ virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
+ wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
+References: <20250821200701.1329277-1-david@redhat.com>
+ <20250821200701.1329277-11-david@redhat.com>
+ <9156d191-9ec4-4422-bae9-2e8ce66f9d5e@redhat.com>
+ <7077e09f-6ce9-43ba-8f87-47a290680141@redhat.com>
+ <aKmDBobyvEX7ZUWL@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <aKmDBobyvEX7ZUWL@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vS4rBpr8-kSzdrlkJnFOlK9ImVl27105s6CBAOpfuHs_1756091942
+X-Mimecast-MFC-PROC-ID: PbdiGFkZQi7KOw9srOmR61fdSoFBQr48qg4U7M4aPyQ_1756126142
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Tested pass with virtio-net regression tests,everything works fine.
+On 23.08.25 10:59, Mike Rapoport wrote:
+> On Fri, Aug 22, 2025 at 08:24:31AM +0200, David Hildenbrand wrote:
+>> On 22.08.25 06:09, Mika Penttilä wrote:
+>>>
+>>> On 8/21/25 23:06, David Hildenbrand wrote:
+>>>
+>>>> All pages were already initialized and set to PageReserved() with a
+>>>> refcount of 1 by MM init code.
+>>>
+>>> Just to be sure, how is this working with MEMBLOCK_RSRV_NOINIT, where MM is supposed not to
+>>> initialize struct pages?
+>>
+>> Excellent point, I did not know about that one.
+>>
+>> Spotting that we don't do the same for the head page made me assume that
+>> it's just a misuse of __init_single_page().
+>>
+>> But the nasty thing is that we use memblock_reserved_mark_noinit() to only
+>> mark the tail pages ...
+> 
+> And even nastier thing is that when CONFIG_DEFERRED_STRUCT_PAGE_INIT is
+> disabled struct pages are initialized regardless of
+> memblock_reserved_mark_noinit().
+> 
+> I think this patch should go in before your updates:
 
-Tested-by: Lei Yang <leiyang@redhat.com>
+Shouldn't we fix this in memblock code?
 
-On Thu, Aug 21, 2025 at 2:50=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> Hi all:
->
-> Virtio used to be coupled with DMA API. This works fine for the device
-> that do real DMA but not the others. For example, VDUSE nees to craft
-> with DMA API in order to let the virtio-vdpa driver to work.
->
-> This series tries to solve this issue by introducing the mapping API
-> in the virtio core. So transport like vDPA can implement their own
-> mapping logic without the need to hack with DMA API. The mapping API
-> are abstracted with a new map operations in order to be re-used by
-> transprot or device. So device like VDUSE can implement its own
-> mapping loigc.
->
-> For device that uses DMA (for example PCI device), the virtio core
-> will still call DMA API directly without the need of implementing map
-> ops per device/transport.
->
-> Please review.
->
-> Changes since V5:
->
-> - Rename mapping_token to virtio_map
-> - Do not use opaque void * pointer, just use a forward decalration of
->   vduse_iova_domain
-> - Remove unused variable and typo fixes
->
-> Changes since V4:
->
-> - Rename map_token to mapping_token
-> - Introduce a union container for opaque token as well as the DMA
->   device so we won't lose the type safety
-> - Do not try to set DMA mask for VDUSE device
-> - Introduce a new mapper_error op for API completeness
->
-> Changes since V3:
->
-> - Fix build error of PDS vDPA driver
->
-> Changes since V2:
->
-> - Drop VDUSE dependenct for HAS_DMA and ARCH_HAS_DMA_OPS
->
-> Changes since V1:
->
-> - Fix build error of mlx5_vdpa driver
->
->
-> Jason Wang (9):
->   virtio_ring: constify virtqueue pointer for DMA helpers
->   virtio_ring: switch to use dma_{map|unmap}_page()
->   virtio: rename dma helpers
->   virtio: introduce virtio_map container union
->   virtio_ring: rename dma_handle to map_handle
->   virtio: introduce map ops in virtio core
->   vdpa: support virtio_map
->   vdpa: introduce map ops
->   vduse: switch to use virtio map API instead of DMA API
->
->  drivers/net/virtio_net.c                 |  28 +-
->  drivers/vdpa/Kconfig                     |   8 +-
->  drivers/vdpa/alibaba/eni_vdpa.c          |   5 +-
->  drivers/vdpa/ifcvf/ifcvf_main.c          |   5 +-
->  drivers/vdpa/mlx5/core/mr.c              |   4 +-
->  drivers/vdpa/mlx5/net/mlx5_vnet.c        |  15 +-
->  drivers/vdpa/octeon_ep/octep_vdpa_main.c |   6 +-
->  drivers/vdpa/pds/vdpa_dev.c              |   5 +-
->  drivers/vdpa/solidrun/snet_main.c        |   8 +-
->  drivers/vdpa/vdpa.c                      |   5 +-
->  drivers/vdpa/vdpa_sim/vdpa_sim.c         |   4 +-
->  drivers/vdpa/vdpa_user/iova_domain.c     |   2 +-
->  drivers/vdpa/vdpa_user/iova_domain.h     |   2 +-
->  drivers/vdpa/vdpa_user/vduse_dev.c       |  79 ++--
->  drivers/vdpa/virtio_pci/vp_vdpa.c        |   5 +-
->  drivers/vhost/vdpa.c                     |   6 +-
->  drivers/virtio/virtio_ring.c             | 459 ++++++++++++++---------
->  drivers/virtio/virtio_vdpa.c             |  20 +-
->  include/linux/vdpa.h                     |  25 +-
->  include/linux/virtio.h                   |  46 ++-
->  include/linux/virtio_config.h            |  72 ++++
->  include/linux/virtio_ring.h              |   7 +-
->  22 files changed, 531 insertions(+), 285 deletions(-)
->
-> --
-> 2.31.1
->
->
+Hacking around that in the memblock_reserved_mark_noinit() user sound 
+wrong -- and nothing in the doc of memblock_reserved_mark_noinit() 
+spells that behavior out.
+
+-- 
+Cheers
+
+David / dhildenb
 
