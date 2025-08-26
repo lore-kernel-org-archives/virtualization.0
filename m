@@ -1,126 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B60630AAD4;
-	Mon, 25 Aug 2025 21:59:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D1932550CD
+	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 00:40:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756159153; cv=none; b=u9Gg7hipZ2WBwi+VDNt+9d0KN15MMTVcT28FcQT5NLSBVZNU/3TqMTWKnORQqQduhEiOjWmd3RpF6iECN9lw9ckKmEYuYv1mz4WVxJ9x5/LhHfLC0gnI6LMCE/0j+9D6qV/QmEdIyw5TP4MmJHDhnNuNrLm9xNWBEaCd4X9gf+M=
+	t=1756168816; cv=none; b=p+B6f9bI2Z3DhZk9x6p3epegxpajdklVEHfHfUgsvF3JWNpIdeINXYu1Yumi882yM+2NEQaFTMeODMG7chErhzKYRr0CpjdKusV/bHnQfoM+sitaQoqYE8TEmMpUmMyw7PpkKv3OvaLepzqpy+TMkJqgflnGgz9m74wRBBJXUW4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756159153; c=relaxed/simple;
-	bh=16EPmrHdMEr6M3sM1MYmbbFsavhSkZ1KC1VkNUsuyoI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=X57k8sAib1H9li7vL3MZblVfamMVLxTB7693vbSuXmd878eDRaqS3ztuDpbEMUbjHJrHlq8Yr7SsIkDaWDGuWr+7g78/3lwCKAeM/HRGtJoVLp6ijrogAFuSn5Uges+eDXBIKjqZzqSCAdViltUsXUyg9HB7lPW63RsqbfRmv/U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UbiU5j0v; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1756168816; c=relaxed/simple;
+	bh=OGApnXhecwv65yclankWf5l5OEJW6iLLstfxLiQxT78=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=hkdr+JdWlRN513fc4mf7N/188AL9qO0lEtzqAHnznksaHN+ciKbViEhlj52Te7jFYbxOUtYgzfB9qOXhmLt8lXN0hF360vqh4Zxm3GDSoOGYKjgYgGRzgK0KwC6dIy86jRpjHu70k3GgPhBBJIyZTRKFB7t27XFJMObpDC3cJ9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Bw28mXhG; arc=none smtp.client-ip=209.85.216.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UbiU5j0v"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C683C113D0;
-	Mon, 25 Aug 2025 21:59:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1756159153;
-	bh=16EPmrHdMEr6M3sM1MYmbbFsavhSkZ1KC1VkNUsuyoI=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=UbiU5j0vJ3AJEAOSTsxd2W6/CTIR+XIRNKEvOnBYNra7He8lRJIPJGqH4+KOX3Zh5
-	 ji9pQOfmCyT4xh+Son4fcpUEpOk6UIs3rtYLLYlcwxTiIxIcOxUFKw3UJMM9ZQ3P7z
-	 y6Vj/9SKq+/gQlsKlAU09j+YpYBYHGedhJzVcR3I7IviSExr/a8ojvOrHRwd2++2/6
-	 l7dhuPBkdVf/uS9PULid/UmpjflC/JBahaqKiu1I/I/IAH9ajkupkWmX6mZsyFux43
-	 rqFTTr5VT/o/gML6oin9loXLfBn3rpcqr6Iwp47Gx6JUjS8CbdFUyh9fxlPmkQw3ae
-	 Y5pYpV92nfWCQ==
-From: Namhyung Kim <namhyung@kernel.org>
-To: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Ian Rogers <irogers@google.com>,
-	Jiri Olsa <jolsa@kernel.org>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	linux-perf-users@vger.kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH 11/11] tools headers: Sync uapi/linux/vhost.h with the kernel source
-Date: Mon, 25 Aug 2025 14:59:03 -0700
-Message-ID: <20250825215904.2594216-12-namhyung@kernel.org>
-X-Mailer: git-send-email 2.51.0.261.g7ce5a0a67e-goog
-In-Reply-To: <20250825215904.2594216-1-namhyung@kernel.org>
-References: <20250825215904.2594216-1-namhyung@kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Bw28mXhG"
+Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-325ce108e45so1061201a91.0
+        for <virtualization@lists.linux.dev>; Mon, 25 Aug 2025 17:40:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1756168814; x=1756773614; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:date:reply-to:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BGFfEAOpmCnYuTpD1Fkefs/dVeGZ0wTmpw3Bli3LbeI=;
+        b=Bw28mXhGM5ftqKONLmuO2WXL4s87veOQ2DIZVxGGlUjw7s0xS3ucHqYtmtFbT8TFl0
+         a7iEpKrEa/QbN+HcYcI9rQsBJPx5cIaegaTaJrLV/DIj+YYx3/WDsD6LAL+P5kg8jYgr
+         JcZPAbZVOOLUth1pilppbmHQdVecMLmd9TBxnwoiMzUuD7E/FQYSVnKrqBL/5zuBqayD
+         6afBBXkRDEhWeD4gf+7F78vnSq4EVa0QDaKE3awJHfW6WZHCg2vieVjfAFpEK7alPQcA
+         0lho14mjwGsvZTV3q8anwQnzqMs5+TUbApSswQt5gULh9gHkUloR9m+X2bqGwWFkxC1p
+         2pnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756168814; x=1756773614;
+        h=cc:to:from:subject:message-id:mime-version:date:reply-to
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=BGFfEAOpmCnYuTpD1Fkefs/dVeGZ0wTmpw3Bli3LbeI=;
+        b=aV9zHalHLKEQ3U/6vOXofrvjD3d5Ao8g/xMiGq7IhsLuobtCLygET8OPN1pecmpq7m
+         LlT0cBcQDf8FaXELnsSwqVL6Y5hX8kHYhnO1zME7WxxQSC15HjxJAmcOrqv1fKKfpTTm
+         1sGOdT63mHZKZL9UeKQoszKgfb2v86KcZ/xGr6O7+ac7iemtUvOq8d/rYuVd+CoPy71v
+         yVY3YAQFcpdfYDsgtT//faCTxKfXJXdTUql9m6Gf4YZpmjkWYTO2Olw7LPuxHNWT05Z0
+         8hvzcOEvS4SdgS2npMCuo09W49215Tpdj5NHKquZaV1eIxrLSvqkX8OMxP62flWAB460
+         1dcQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV647ysmj4lVYxZpKWDtZpl3ozHYW+NA4hzLgeRnwG1FdN5u4YtfbLnEEiqSw689bzE9X3O9CnRLmH5ZW5hmQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzNhE50Dm1/6KEWVsu2BJH8mrQssBJhMqoH76dHtIpdvf4Xms52
+	Q9sWIAONge5I1dr73Pfu+NZ/5kAv4V3YJgbRAIzfIzs268wZpaZOKnE/I4dujqm1nwsgunA2SSL
+	ooO5zCQ==
+X-Google-Smtp-Source: AGHT+IHK1NCtVV/uARgx2pzXRzDVXR83QkBAFqL6vl11EOqC5SFFLlVBCFYJmnq5S7TIzbHzRbowBd1bBwU=
+X-Received: from pjbqc3.prod.google.com ([2002:a17:90b:2883:b0:312:dbc:f731])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:2811:b0:323:7df8:6eec
+ with SMTP id 98e67ed59e1d1-3274620a008mr515983a91.18.1756168814547; Mon, 25
+ Aug 2025 17:40:14 -0700 (PDT)
+Reply-To: Sean Christopherson <seanjc@google.com>
+Date: Mon, 25 Aug 2025 17:40:08 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.51.0.261.g7ce5a0a67e-goog
+Message-ID: <20250826004012.3835150-1-seanjc@google.com>
+Subject: [PATCH 0/3] vhost_task: KVM: Fix a race where KVM wakes an exited task
+From: Sean Christopherson <seanjc@google.com>
+To: Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 
-To pick up the changes in this cset:
+Fix a bug where KVM attempts to wake a vhost task that has already exited in
+response to a fatal signal, and tack on a few cleanups to harden against
+introducing similar bugs in the future.
 
-  7d9896e9f6d02d8a vhost: Reintroduce kthread API and add mode selection
-  333c515d189657c9 vhost-net: allow configuring extended features
+Somehow, this only started causing problems when commit 56180dd20c19 ("futex:
+Use RCU-based per-CPU reference counting instead of rcuref_t") landed.  I have
+no idea why the futex changes exposed the bug, and I don't care all that much,
+as this is firmly a KVM bug.
 
-This addresses these perf build warnings:
+Sean Christopherson (3):
+  vhost_task: KVM: Don't wake KVM x86's recovery thread if vhost task
+    was killed
+  vhost_task: Allow caller to omit handle_sigkill() callback
+  KVM: x86/mmu: Don't register a sigkill callback for NX hugepage
+    recovery tasks
 
-  Warning: Kernel ABI header differences:
-    diff -u tools/perf/trace/beauty/include/uapi/linux/vhost.h include/uapi/linux/vhost.h
+ arch/x86/kvm/mmu/mmu.c           |  9 ++----
+ include/linux/sched/vhost_task.h |  1 +
+ kernel/vhost_task.c              | 52 +++++++++++++++++++++++++++++---
+ 3 files changed, 51 insertions(+), 11 deletions(-)
 
-Please see tools/include/uapi/README for further details.
 
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org
-Cc: virtualization@lists.linux.dev
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
----
-* This is on top of the fix below:
-  https://lore.kernel.org/r/20250819063958.833770-1-namhyung@kernel.org
-
- .../trace/beauty/include/uapi/linux/vhost.h   | 35 +++++++++++++++++++
- 1 file changed, 35 insertions(+)
-
-diff --git a/tools/perf/trace/beauty/include/uapi/linux/vhost.h b/tools/perf/trace/beauty/include/uapi/linux/vhost.h
-index d4b3e2ae1314d1fc..c57674a6aa0dbbea 100644
---- a/tools/perf/trace/beauty/include/uapi/linux/vhost.h
-+++ b/tools/perf/trace/beauty/include/uapi/linux/vhost.h
-@@ -235,4 +235,39 @@
-  */
- #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
- 					      struct vhost_vring_state)
-+
-+/* Extended features manipulation */
-+#define VHOST_GET_FEATURES_ARRAY _IOR(VHOST_VIRTIO, 0x83, \
-+				       struct vhost_features_array)
-+#define VHOST_SET_FEATURES_ARRAY _IOW(VHOST_VIRTIO, 0x83, \
-+				       struct vhost_features_array)
-+
-+/* fork_owner values for vhost */
-+#define VHOST_FORK_OWNER_KTHREAD 0
-+#define VHOST_FORK_OWNER_TASK 1
-+
-+/**
-+ * VHOST_SET_FORK_FROM_OWNER - Set the fork_owner flag for the vhost device,
-+ * This ioctl must called before VHOST_SET_OWNER.
-+ * Only available when CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL=y
-+ *
-+ * @param fork_owner: An 8-bit value that determines the vhost thread mode
-+ *
-+ * When fork_owner is set to VHOST_FORK_OWNER_TASK(default value):
-+ *   - Vhost will create vhost worker as tasks forked from the owner,
-+ *     inheriting all of the owner's attributes.
-+ *
-+ * When fork_owner is set to VHOST_FORK_OWNER_KTHREAD:
-+ *   - Vhost will create vhost workers as kernel threads.
-+ */
-+#define VHOST_SET_FORK_FROM_OWNER _IOW(VHOST_VIRTIO, 0x84, __u8)
-+
-+/**
-+ * VHOST_GET_FORK_OWNER - Get the current fork_owner flag for the vhost device.
-+ * Only available when CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL=y
-+ *
-+ * @return: An 8-bit value indicating the current thread mode.
-+ */
-+#define VHOST_GET_FORK_FROM_OWNER _IOR(VHOST_VIRTIO, 0x85, __u8)
-+
- #endif
+base-commit: 1b237f190eb3d36f52dffe07a40b5eb210280e00
 -- 
 2.51.0.261.g7ce5a0a67e-goog
 
