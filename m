@@ -1,170 +1,263 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3397E2D0629
-	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 07:38:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5DD427E7EC
+	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 07:53:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756193940; cv=none; b=QJBnlkqunN0apWQ6O0genPInOlXAqFBl+Q7ANPyUQZLBiR/Ld69ZgG4AF1cGp64+YgP+zwsW1apqWU28ee+HV2vGyEUgncWdT44lLiWbqsYhIvZzOL7JupjMKJG1gL+TEZX55pCKF8RbtiXRxbERTe5fQorLYHXAoSIyBh8y3ks=
+	t=1756194791; cv=none; b=Rb+CKrDsLtsJm4BRaD6UY4jQ8QQtrjQ060gGyOzVzIYhVyRtY3ILzo5aM4eUv7st8HKENeVej+u+Rkwgorz+l/Gq7PQ6ETp6CoQMGqjc4PUyKXxEt4ePhS6OJoeodLxLM4GQq1khfIoO1NxTnJiHSMBh92Ui+9zzudTnG0rSYw4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756193940; c=relaxed/simple;
-	bh=uP5dMqsHSqXNlw+qX5Xqd1i4XVlTxybaVEVYi61d/5w=;
+	s=arc-20240116; t=1756194791; c=relaxed/simple;
+	bh=dX+JPSw1HIhEjyyyMZ4WgA8Kp7gGa/+lE1IIRyJ7GNw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=OU7q6iQ52OpMvSQNd6yiRNKaJ1zTne4u+QVh3937e+AgjFStW428QyLw1OAzZz0obk6almi2kEQVqyoLbj0u4MLaVWiGtttk5W1ZbEvLdLMlBJ+1H+ZePSo9qTmiLZul3Y0Vf2hoF784ETGABEz0dyLcuK0gLDDMvK/XSJughoM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QEh5DK/Y; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=JBbnhremelM2z2Y7fH1eGv6FuPpS3iY6KWz5nySf5lAgQqgNtfr5rNHJ3KpEw10yWyTVvXQJnYs/eWxyU4p57JK2IvQ4X/KUBtdXonSodKT7VxpUAMeBwoSng05LEVc4Xu8bvU1DMi6c/2q0YjFJ8nBoFn5YRBX4Ile39VcpOEk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GTK33Jkg; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QEh5DK/Y"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GTK33Jkg"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756193937;
+	s=mimecast20190719; t=1756194788;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/d6oLABXMDTE73AAJmn9nTIS3+npYIzihKgU/wI/Iwk=;
-	b=QEh5DK/YDwMy2tOVAV6/5NboS7c7jZPGl/GZzadZGmJ6CIWPMXdAGM6m9ksToTnzF6x0G+
-	a6UDA7hYGTeLWCPplfct8zNXWeu4uWGh3/hUHY3OmwubwUk2nHec3efpTNgZNiy44W8fQ5
-	vIrFKjP7VVI/KRiQ+KKU60OGLweFB4I=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=LoG/oMiDA0PShlYbHntrvwEM5QdNxw6NlWrg87rRvc0=;
+	b=GTK33JkgihLQnf1WlHefbJ/sTvYsXKh7+VPlxaTmtgauJquljnoAf0q+uYZbirejKIcdZG
+	2gzkIYVXW++vRMm9WAfawp+lYDy+Cr4x3b6Xw6meY6zH2cMHEM4Ge9P6+tkBTtgmyqpe4K
+	00KkPyrBw8rsF7Ac4ssn4lEfF6k3hYU=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-326-LMRMWk-COj6KjBf3Mw-ysQ-1; Tue, 26 Aug 2025 03:38:54 -0400
-X-MC-Unique: LMRMWk-COj6KjBf3Mw-ysQ-1
-X-Mimecast-MFC-AGG-ID: LMRMWk-COj6KjBf3Mw-ysQ_1756193932
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3cbe70a7861so17757f8f.3
-        for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 00:38:52 -0700 (PDT)
+ us-mta-504-gEqJXYRXO6SW0wI5PKeluA-1; Tue, 26 Aug 2025 03:53:06 -0400
+X-MC-Unique: gEqJXYRXO6SW0wI5PKeluA-1
+X-Mimecast-MFC-AGG-ID: gEqJXYRXO6SW0wI5PKeluA_1756194785
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3cbd6cd78efso68498f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 00:53:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756193932; x=1756798732;
+        d=1e100.net; s=20230601; t=1756194785; x=1756799585;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/d6oLABXMDTE73AAJmn9nTIS3+npYIzihKgU/wI/Iwk=;
-        b=GrtwmiJZh8Qz2mDWprtPyp2z7RHycYCbfqXbZ/Z4gws7ZoYNR1KSPQInViJCm6yZzw
-         QERCYL46hWmoAGqs5uukOVkL/NPJYIuGQ+NkbckSp4Ar2sM/7Z4SglCipiQCR3vLy0NW
-         dqnrKjwiew087vqNrLvRuNfiYNhTyAOizcGXsQkicbUm3p7eQ7735iw4Gf69Sb1nS3ar
-         reZ3iZIBSNGmmRIf4fGMz59TQJ4a/e67ykgKXGByQ2vScfLttfu1+vg5wVEMpg7UpcnP
-         HMj4h0aui6bTCezupWcywl8wgWkS0wUtA/oRxE2tPNfeutg1YvUevm6vz+nKrtEJe8en
-         tV+w==
-X-Forwarded-Encrypted: i=1; AJvYcCV1MFUYiPghlfqIIjFB+s9VkeXYghWcgVDz5UAXDPqApmm8bY8pwXgfTQYKY7jHX1nocX4hAudj0s/49zKsOQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzKWs0GnJWiYdn4P16zrXzptaImxIQn9zXaCufqvqX4cDpewkaj
-	wEhowjlNMz1NSJc77Bm0+3hGESnx/bnArjYgOAi/EhxeUAHs+LHZ3qH1oanAfV4zWNLDIRB6D4f
-	msigGsNbETnhBORcKE9gvFqCar2aBYHfIESdA1C61GsHnwbgFeEbj2GkseUPvkCjB53XR
-X-Gm-Gg: ASbGncs3NtHibN+NXufBYf+QmEKDPEzJVpgUtVsTOvGnDOIS02cJJ0U6LRUd5coCie7
-	TnwIZCWwckPFN7hicqamFoN91hEsoAreaoTho3oX59CO/mb+/90heqbhhBTdQJ/DmzxgRdr2c1p
-	qWgZIyVMtQGYHJ4HFfY4CHNcgDO2Oj77e7EDn3ZyYaOh00d9qhAJD7rr7ooAY5vX7MumRyiXfEW
-	j9BThKN1ILvOP5F6Qvyp8LY4PDksM5wEheYptnmByxJVDx1eu7CIJ6G5cHttWL4WaN9MCWfDlQm
-	se9dcNpneFl2IEhpxzXhBJH4VvI92+I=
-X-Received: by 2002:a5d:5d81:0:b0:3b8:893f:a185 with SMTP id ffacd0b85a97d-3c5dce05cc8mr11272223f8f.53.1756193931850;
-        Tue, 26 Aug 2025 00:38:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFHe+NtzZIdZcDMX+QmPMWtx5hDKS6iQR+ufYxm1cVDTFyfIzaA+q1XTB2lol3XvRHtPrWxGw==
-X-Received: by 2002:a5d:5d81:0:b0:3b8:893f:a185 with SMTP id ffacd0b85a97d-3c5dce05cc8mr11272202f8f.53.1756193931395;
-        Tue, 26 Aug 2025 00:38:51 -0700 (PDT)
+        bh=LoG/oMiDA0PShlYbHntrvwEM5QdNxw6NlWrg87rRvc0=;
+        b=JMHebVmz9KPzwN3n+HzW+sh/YVsjGpPlyyFhpmZzhnGBnZ8IPGUbTrtIPPYmbveMeA
+         3UYsX3Wq3oJ/y7uS4wDV2rESb1uCKDd6lBqQtUmOPcwGDYaxudgjaMOLvI3VH+pVVVI0
+         c9i2T2/I8JCCRpNe6yZQmGk4cDQc70rNRMN8UuC46/+CE6cJUzramoi5qzHI9APmJjh5
+         7eMEpCeZ8ah4kWYxtFK2AP0iTClQO+2z9/bbepxFUuVw380bHRpvVug43eo3BhYhFD4S
+         E0b7tywY3QvUa5AnOWfU7tbcYHqKd/O2nya7DcpUvoLM0tA21AdvHHbLSe1WhH2B2DX4
+         3UCg==
+X-Forwarded-Encrypted: i=1; AJvYcCWKgMc8RsOA7F3Cuxi9MoZeD9pwkobpwHiOlbemgx2N9/pAAQPOKhg9knuOGzwZqUTrFEfVqGwrfcGS3PAhWg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YweStzf529TcC2TRFKoUm16Yq95nWYkU58jU+NDj46qpkrVAXaP
+	lmcWi2wSmu+EHxA4tVQxEs96fmj9gCcgK2ZK3fPZ/t5Yuk2J5HXkK+zDfYx6LkIQfqoLccHFIdd
+	7oE7O4gc2QlYL2ANZ3Dg48qJaRIWz4HoX67YyEKWM3omfdeZZyDGd9gFep1nuOgCu40g1
+X-Gm-Gg: ASbGncvYOgM3gBZfHO9fPXUc96bfF9i5FseWokEZLEfC3LHb1VahD77r7EWe9RODP+C
+	jC5uQQXTjP/WLLE63J5keduFh2gnpEVABbI/SWjdRWfnSnkhfbjUGjhjDU+9G+5HKHUUvDSC/ei
+	CnQKPrFTQfxT9RsytlAwTQCQJdQv7g40Wc84QVAGhk613TbCBtiwbAfKYnb8lv3X1UrU9nanIt1
+	0KNP88CSibPUTE45KDnv6KCE6XAIBw93DCNQQDbO2I3NNTxrnhhqvyUnS7qdmtt6OM5ihau2Ujb
+	9KhjoTEYa5twOnzcyLvlRjGfdCNa6Cw=
+X-Received: by 2002:a05:6000:4211:b0:3c7:95cb:baae with SMTP id ffacd0b85a97d-3c795cbc786mr7797579f8f.36.1756194784904;
+        Tue, 26 Aug 2025 00:53:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEqVz0b+NfcNpGcCbXovaqiNDlqX9kOt6jyKlVBDTJ5Jc9+aLhIKRxVtdKSdE6hyWoOT2t9Kw==
+X-Received: by 2002:a05:6000:4211:b0:3c7:95cb:baae with SMTP id ffacd0b85a97d-3c795cbc786mr7797560f8f.36.1756194784423;
+        Tue, 26 Aug 2025 00:53:04 -0700 (PDT)
 Received: from redhat.com ([185.128.27.233])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b6133d9f1sm66813785e9.14.2025.08.26.00.38.47
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c70ef566dcsm14823742f8f.24.2025.08.26.00.53.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Aug 2025 00:38:50 -0700 (PDT)
-Date: Tue, 26 Aug 2025 03:38:44 -0400
+        Tue, 26 Aug 2025 00:53:03 -0700 (PDT)
+Date: Tue, 26 Aug 2025 03:52:59 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-	linux-perf-users@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH 11/11] tools headers: Sync uapi/linux/vhost.h with the
- kernel source
-Message-ID: <20250826033710-mutt-send-email-mst@kernel.org>
-References: <20250825215904.2594216-1-namhyung@kernel.org>
- <20250825215904.2594216-12-namhyung@kernel.org>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH 1/3] vhost_task: KVM: Don't wake KVM x86's recovery
+ thread if vhost task was killed
+Message-ID: <20250826034937-mutt-send-email-mst@kernel.org>
+References: <20250826004012.3835150-1-seanjc@google.com>
+ <20250826004012.3835150-2-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250825215904.2594216-12-namhyung@kernel.org>
+In-Reply-To: <20250826004012.3835150-2-seanjc@google.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: uBJgJqGhozNu2A7LcEs8cMKppPhSSQEvHlG26ICr8jg_1756193932
+X-Mimecast-MFC-PROC-ID: UQ1BlID9pd2xqcZL9p3jSEPau8GJQLUnH0Rfy-e8zb8_1756194785
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Aug 25, 2025 at 02:59:03PM -0700, Namhyung Kim wrote:
-> To pick up the changes in this cset:
+On Mon, Aug 25, 2025 at 05:40:09PM -0700, Sean Christopherson wrote:
+> Add a vhost_task_wake_safe() variant to handle the case where a vhost task
+> has exited due to a signal, i.e. before being explicitly stopped by the
+> owner of the task, and use the "safe" API in KVM when waking NX hugepage
+> recovery tasks.  This fixes a bug where KVM will attempt to wake a task
+> that has exited, which ultimately results in all manner of badness, e.g.
 > 
->   7d9896e9f6d02d8a vhost: Reintroduce kthread API and add mode selection
->   333c515d189657c9 vhost-net: allow configuring extended features
+>   Oops: general protection fault, probably for non-canonical address 0xff0e899fa1566052: 0000 [#1] SMP
+>   CPU: 51 UID: 0 PID: 53807 Comm: tee Tainted: G S         O        6.17.0-smp--38183c31756a-next #826 NONE
+>   Tainted: [S]=CPU_OUT_OF_SPEC, [O]=OOT_MODULE
+>   Hardware name: Google LLC Indus/Indus_QC_03, BIOS 30.110.0 09/13/2024
+>   RIP: 0010:queued_spin_lock_slowpath+0x123/0x250
+>   Code: ... <48> 89 8c 02 c0 da 47 a2 83 79 08 00 75 08 f3 90 83 79 08 00 74 f8
+>   RSP: 0018:ffffbf55cffe7cf8 EFLAGS: 00010006
+>   RAX: ff0e899fff0e8562 RBX: 0000000000d00000 RCX: ffffa39b40aefac0
+>   RDX: 0000000000000030 RSI: fffffffffffffff8 RDI: ffffa39d0592e68c
+>   RBP: 0000000000d00000 R08: 00000000ffffff80 R09: 0000000400000000
+>   R10: ffffa36cce4fe401 R11: 0000000000000800 R12: 0000000000000003
+>   R13: 0000000000000000 R14: ffffa39d0592e68c R15: ffffa39b9e672000
+>   FS:  00007f233b2e9740(0000) GS:ffffa39b9e672000(0000) knlGS:0000000000000000
+>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   CR2: 00007f233b39fda0 CR3: 00000004d031f002 CR4: 00000000007726f0
+>   PKRU: 55555554
+>   Call Trace:
+>    <TASK>
+>    _raw_spin_lock_irqsave+0x50/0x60
+>    try_to_wake_up+0x4f/0x5d0
+>    set_nx_huge_pages+0xe4/0x1c0 [kvm]
+>    param_attr_store+0x89/0xf0
+>    module_attr_store+0x1e/0x30
+>    kernfs_fop_write_iter+0xe4/0x160
+>    vfs_write+0x2cb/0x420
+>    ksys_write+0x7f/0xf0
+>    do_syscall_64+0x6f/0x1f0
+>    entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>   RIP: 0033:0x7f233b4178b3
+>   R13: 0000000000000002 R14: 00000000226ff3d0 R15: 0000000000000002
+>    </TASK>
 > 
-> This addresses these perf build warnings:
+> Provide an API in vhost task instead of forcing KVM to solve the problem,
+> as KVM would literally just add an equivalent to VHOST_TASK_FLAGS_KILLED,
+> along with a new lock to protect said flag.  In general, forcing simple
+> usage of vhost task to care about signals _and_ take non-trivial action to
+> do the right thing isn't developer friendly, and is likely to lead to
+> similar bugs in the future.
 > 
->   Warning: Kernel ABI header differences:
->     diff -u tools/perf/trace/beauty/include/uapi/linux/vhost.h include/uapi/linux/vhost.h
-> 
-> Please see tools/include/uapi/README for further details.
-> 
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: kvm@vger.kernel.org
-> Cc: virtualization@lists.linux.dev
-> Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+> Debugged-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Link: https://lore.kernel.org/all/aKkLEtoDXKxAAWju@google.com
+> Link: https://lore.kernel.org/all/aJ_vEP2EHj6l0xRT@google.com
+> Suggested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Fixes: d96c77bd4eeb ("KVM: x86: switch hugepage recovery thread to vhost_task")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+OK but I dislike the API.
 
-Should I queue it?
+Default APIs should be safe. So vhost_task_wake_safe should be
+vhost_task_wake
+
+This also reduces the changes to kvm.
+
+
+It does not look like we need the "unsafe" variant, so pls drop it.
+If we do need it, it should be called __vhost_task_wake.
+
+
+
+
+
 
 > ---
-> * This is on top of the fix below:
->   https://lore.kernel.org/r/20250819063958.833770-1-namhyung@kernel.org
+>  arch/x86/kvm/mmu/mmu.c           |  2 +-
+>  include/linux/sched/vhost_task.h |  1 +
+>  kernel/vhost_task.c              | 42 +++++++++++++++++++++++++++++---
+>  3 files changed, 41 insertions(+), 4 deletions(-)
 > 
->  .../trace/beauty/include/uapi/linux/vhost.h   | 35 +++++++++++++++++++
->  1 file changed, 35 insertions(+)
-> 
-> diff --git a/tools/perf/trace/beauty/include/uapi/linux/vhost.h b/tools/perf/trace/beauty/include/uapi/linux/vhost.h
-> index d4b3e2ae1314d1fc..c57674a6aa0dbbea 100644
-> --- a/tools/perf/trace/beauty/include/uapi/linux/vhost.h
-> +++ b/tools/perf/trace/beauty/include/uapi/linux/vhost.h
-> @@ -235,4 +235,39 @@
+> diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+> index 6e838cb6c9e1..d11730467fd4 100644
+> --- a/arch/x86/kvm/mmu/mmu.c
+> +++ b/arch/x86/kvm/mmu/mmu.c
+> @@ -7376,7 +7376,7 @@ static void kvm_wake_nx_recovery_thread(struct kvm *kvm)
+>  	struct vhost_task *nx_thread = READ_ONCE(kvm->arch.nx_huge_page_recovery_thread);
+>  
+>  	if (nx_thread)
+> -		vhost_task_wake(nx_thread);
+> +		vhost_task_wake_safe(nx_thread);
+>  }
+>  
+>  static int get_nx_huge_pages(char *buffer, const struct kernel_param *kp)
+> diff --git a/include/linux/sched/vhost_task.h b/include/linux/sched/vhost_task.h
+> index 25446c5d3508..5d5c187088f7 100644
+> --- a/include/linux/sched/vhost_task.h
+> +++ b/include/linux/sched/vhost_task.h
+> @@ -10,5 +10,6 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
+>  void vhost_task_start(struct vhost_task *vtsk);
+>  void vhost_task_stop(struct vhost_task *vtsk);
+>  void vhost_task_wake(struct vhost_task *vtsk);
+> +void vhost_task_wake_safe(struct vhost_task *vtsk);
+>  
+>  #endif /* _LINUX_SCHED_VHOST_TASK_H */
+> diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+> index bc738fa90c1d..5aa8ddf88d01 100644
+> --- a/kernel/vhost_task.c
+> +++ b/kernel/vhost_task.c
+> @@ -67,18 +67,54 @@ static int vhost_task_fn(void *data)
+>  	do_exit(0);
+>  }
+>  
+> +static void __vhost_task_wake(struct vhost_task *vtsk)
+> +{
+> +	wake_up_process(vtsk->task);
+> +}
+> +
+>  /**
+>   * vhost_task_wake - wakeup the vhost_task
+>   * @vtsk: vhost_task to wake
+>   *
+> - * wake up the vhost_task worker thread
+> + * Wake up the vhost_task worker thread.  The caller is responsible for ensuring
+> + * that the task hasn't exited.
 >   */
->  #define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
->  					      struct vhost_vring_state)
+>  void vhost_task_wake(struct vhost_task *vtsk)
+>  {
+> -	wake_up_process(vtsk->task);
+> +	/*
+> +	 * Checking VHOST_TASK_FLAGS_KILLED can race with signal delivery, but
+> +	 * a race can only result in false negatives and this is just a sanity
+> +	 * check, i.e. if KILLED is set, the caller is buggy no matter what.
+> +	 */
+> +	if (WARN_ON_ONCE(test_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags)))
+> +		return;
 > +
-> +/* Extended features manipulation */
-> +#define VHOST_GET_FEATURES_ARRAY _IOR(VHOST_VIRTIO, 0x83, \
-> +				       struct vhost_features_array)
-> +#define VHOST_SET_FEATURES_ARRAY _IOW(VHOST_VIRTIO, 0x83, \
-> +				       struct vhost_features_array)
-> +
-> +/* fork_owner values for vhost */
-> +#define VHOST_FORK_OWNER_KTHREAD 0
-> +#define VHOST_FORK_OWNER_TASK 1
-> +
+> +	__vhost_task_wake(vtsk);
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_task_wake);
+>  
 > +/**
-> + * VHOST_SET_FORK_FROM_OWNER - Set the fork_owner flag for the vhost device,
-> + * This ioctl must called before VHOST_SET_OWNER.
-> + * Only available when CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL=y
+> + * vhost_task_wake_safe - wakeup the vhost_task if it hasn't been killed
+> + * @vtsk: vhost_task to wake
 > + *
-> + * @param fork_owner: An 8-bit value that determines the vhost thread mode
-> + *
-> + * When fork_owner is set to VHOST_FORK_OWNER_TASK(default value):
-> + *   - Vhost will create vhost worker as tasks forked from the owner,
-> + *     inheriting all of the owner's attributes.
-> + *
-> + * When fork_owner is set to VHOST_FORK_OWNER_KTHREAD:
-> + *   - Vhost will create vhost workers as kernel threads.
+> + * Wake up the vhost_task worker thread if the task hasn't exited, e.g. due to
+> + * a signal.
 > + */
-> +#define VHOST_SET_FORK_FROM_OWNER _IOW(VHOST_VIRTIO, 0x84, __u8)
+> +void vhost_task_wake_safe(struct vhost_task *vtsk)
+> +{
+> +	guard(mutex)(&vtsk->exit_mutex);
 > +
-> +/**
-> + * VHOST_GET_FORK_OWNER - Get the current fork_owner flag for the vhost device.
-> + * Only available when CONFIG_VHOST_ENABLE_FORK_OWNER_CONTROL=y
-> + *
-> + * @return: An 8-bit value indicating the current thread mode.
-> + */
-> +#define VHOST_GET_FORK_FROM_OWNER _IOR(VHOST_VIRTIO, 0x85, __u8)
+> +	/* Attempting to wake a task that has been explicitly stopped is a bug. */
+> +	if (WARN_ON_ONCE(test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)))
+> +		return;
 > +
->  #endif
+> +	if (test_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags))
+> +		return;
+> +
+> +	__vhost_task_wake(vtsk);
+> +}
+> +EXPORT_SYMBOL_GPL(vhost_task_wake_safe);
+> +
+>  /**
+>   * vhost_task_stop - stop a vhost_task
+>   * @vtsk: vhost_task to stop
+> @@ -91,7 +127,7 @@ void vhost_task_stop(struct vhost_task *vtsk)
+>  	mutex_lock(&vtsk->exit_mutex);
+>  	if (!test_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags)) {
+>  		set_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags);
+> -		vhost_task_wake(vtsk);
+> +		__vhost_task_wake(vtsk);
+>  	}
+>  	mutex_unlock(&vtsk->exit_mutex);
+>  
 > -- 
 > 2.51.0.261.g7ce5a0a67e-goog
 
