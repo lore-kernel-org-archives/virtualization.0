@@ -1,221 +1,143 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 821C1286881
-	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 11:04:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70100284B5B
+	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 11:27:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756206284; cv=none; b=n22b8qyH+DeygsJvaajR4GJHAj4nHvLoOqXH5VJVek8ElacElQ9QSysW1F3I+mR+wH51cZRFApDZ5LduHaKmuNKPkPWsHr9lrIPKuBCKEtyxqwxeFGsIGkNcaKtz264eiaiEi6ajdtwLnpe2FFi7StvA/BqbaFdRrOXoNbwviZQ=
+	t=1756207643; cv=none; b=OOS10YngWw4VsOGs8YQ0VH4M6kxe2qwW4tJyHYPwTvgJE2rea9QamB+RkVFQTHu3z++JBk+eXWk+BmPyj0O3hPMRRYc/voOZbvc5af0LCb/FGINMM9Xap4LdY4sCVR9mTfIrjG9egzahg643N6HPvgB069094H2ya59PvREwV9w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756206284; c=relaxed/simple;
-	bh=IQ5LDCs/IEmTXiQ4zdkXIkPVxNBQzfU++k5VF/Ufz7k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JdScisA8Y8LJFH+xjGF/mycYWWEgbKMMJOW7LotCpmFPWz5YdL7OTFibT3nEkZuNpojYdIbgYfQrTKkKTi04pmshALuHlemFOI83fAOEq5PZVDJqpgWk0M0ggWQE3Dz1SnvA8lSKV+C1TDIOGatvasoUG51dYtKlYDvlX53Aqv8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=canFekNU; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1756207643; c=relaxed/simple;
+	bh=eqg9zf6FkyB+xl8m+3C1TXAQk0rMYY8paHFYDIi2P7g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=bkP8skvtl6hHvcDV/CDYmJaE1cNmdnY0aIu6tF1qwKmB6iaAOyoKVxaj1mp5WYGtUlxrYZn/dFgjyQRYRXKNfnCfg7PFbcXqmrGWVdeXIyQPuSV8nvzdsMtWoDN6Mc5d0iDbKBGQe79NrngFdVwOT1del0W//ZKekLEHE5B4wfo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NKedGvyi; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="canFekNU"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NKedGvyi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756206281;
+	s=mimecast20190719; t=1756207640;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jhHf33zPn8FMTc4V2Pm10xsHI1Kc6Z2Rv/ZWcei/RDk=;
-	b=canFekNUPR0xC+PH5766rAfjaS0A7rpG1sWfH1J24eV5gKUCCWPn2aUpkG4g9qA1q3pFUO
-	iIoqLx8q4zCIO3X3IjKKbYuFGh6tMbuPP1kyOrXOH7KsOHmYV19I8wZA535Sa1ICe7jDJk
-	Jc2rsDjPQJVQqkYZSG4eDlCUiNq9oe8=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-176-ydImeIdNPKaA0kY-SIw7mA-1; Tue, 26 Aug 2025 07:04:39 -0400
-X-MC-Unique: ydImeIdNPKaA0kY-SIw7mA-1
-X-Mimecast-MFC-AGG-ID: ydImeIdNPKaA0kY-SIw7mA_1756206279
-Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-61c927d2bfeso668216a12.3
-        for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 04:04:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756206279; x=1756811079;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jhHf33zPn8FMTc4V2Pm10xsHI1Kc6Z2Rv/ZWcei/RDk=;
-        b=D+IT3vHrbc0tirc0sz1Zr5TGarkbrdg83PjgFFDNvvlwg9HjxByGtgpmsMR5FrzFhu
-         4HsOLZZAHQYUb01UTU7e1UlcHKUHMIzzhoBmigYetnLi+wiQbKEDeJ59JmoFCxRasFFO
-         iVQATwLCvc6Hlc8QoX/hyj0RQKRJ6awJzr7VPWDZhZ/aTIY83TcNfpPM6zgeDYXK9ast
-         p5uYUjWKFbBcIqZtGgwL99O4M1wus9DvfigCkbcKRKNK7BMrYjvkz+TwGQdOlL7zHKhG
-         zSV78Ty/FnGiq+2os5hZPqgjnZHA/XAW9qEKwiCQ6kCnjWdtEofgWZuhEOkxBKJAV2gN
-         w3Qw==
-X-Forwarded-Encrypted: i=1; AJvYcCWK7BYzIijQQ4IvDac6v6AebHGdU32kuSONqHrowaTuFWk/DYUAhSH4ZiU1kort3NC30cznAcii8C3OWkHZhA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxcfrKqgtBPk3Td0JPRsYc1bz1G9tcK/qYm96oODymwEQd/n1xz
-	5yYITKHs7GAR1NGU/UoYMYxfRGzBXfSa5Q4F1Vj4dLyYxKf0iM6hE0T2/gPpuIki3J1c6wF4MFM
-	bRaCzt0VD74hhX3ntLP1vSZBBUHE6juk4ccpzYQC98ld2/qxtHbeJTjHDdwKg9G+iJSLd
-X-Gm-Gg: ASbGncuzkyLBEaX5z+k1iPgMNzrRx9GdIVSnLKfkis6GgzIwt4kAcGX98+zREUD5KDp
-	QtSO6UbJliZ8+yOwyyxFmvcta6J/8zrX6U+FnFyPt2xO3LKBqTP++AMzAS+Q9/S21KrBr6lR/Qo
-	JtsinceOXx0O6AMQQflFo177pwKCimKfz3sJ1FOFZegUo/uJmx5oCgmF4shV/k/wGPxlQcQP2Qo
-	GOT1K+xpUt/xdyrjjZxXMQ3TVNP6RhuO5gGAsd7hmuGhJJQs1MEH6CEGtVE+xIubUoNq0zbCQsb
-	ATEWhzyhrT7O+gg+GUvjejm7SPhrjBNvj7vLy5/ZI3Sz5b1L3GHrz23AwvyzDzJhw26ZVMSxlw=
-	=
-X-Received: by 2002:a05:6402:510e:b0:61c:a1a6:52a2 with SMTP id 4fb4d7f45d1cf-61ca1a65d0amr110501a12.28.1756206278282;
-        Tue, 26 Aug 2025 04:04:38 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFJfWOpyeYnJbaHVglB9KfY+PTnQ4jI93qRAexOTMKIRVofYBVmmLclF7ZKvry/r0B75eD1FQ==
-X-Received: by 2002:a05:6402:510e:b0:61c:a1a6:52a2 with SMTP id 4fb4d7f45d1cf-61ca1a65d0amr110409a12.28.1756206276561;
-        Tue, 26 Aug 2025 04:04:36 -0700 (PDT)
-Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-61c3172bf4csm6850118a12.38.2025.08.26.04.04.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Aug 2025 04:04:36 -0700 (PDT)
-Message-ID: <ad521f4f-47aa-4728-916f-3704bf01f770@redhat.com>
-Date: Tue, 26 Aug 2025 13:04:33 +0200
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=M+yP6wMJ27OA9eoLlW4sl9d1CWIKuSn4DTaJ9WLwbyI=;
+	b=NKedGvyi5/D/BqtjZBWpabXKXK8pNS6nOzC5THHRjIzdInOrNlJIOdxOGwWyCLjgKG6HHT
+	s6lNShzc/NV9WtH4I8xepL9ab2pb5dY/4vtapQ7quNsutj1p88yT+IH3yo2qK6tBVKAhTn
+	B+VcvlimUSgFcq9QSV31iNVcbKv/nSQ=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-447-1BDXUOjdOq6czNFu-H_qCQ-1; Tue,
+ 26 Aug 2025 07:27:17 -0400
+X-MC-Unique: 1BDXUOjdOq6czNFu-H_qCQ-1
+X-Mimecast-MFC-AGG-ID: 1BDXUOjdOq6czNFu-H_qCQ_1756207636
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E6A09195609F;
+	Tue, 26 Aug 2025 11:27:15 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.224.67])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3D6E41800280;
+	Tue, 26 Aug 2025 11:27:10 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: "Michael S . Tsirkin " <mst@redhat.com>
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Cindy Lu <lulu@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Laurent Vivier <lvivier@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	jasowang@redhat.com,
+	Yongji Xie <xieyongji@bytedance.com>,
+	Maxime Coquelin <mcoqueli@redhat.com>
+Subject: [PATCH 0/6] Add multiple address spaces support to VDUSE
+Date: Tue, 26 Aug 2025 13:27:03 +0200
+Message-ID: <20250826112709.1051172-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 21/35] mm/cma: refuse handing out non-contiguous page
- ranges
-To: Alexandru Elisei <alexandru.elisei@arm.com>
-Cc: linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
- Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
- Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
- Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
- Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
- Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org,
- Zi Yan <ziy@nvidia.com>
-References: <20250821200701.1329277-1-david@redhat.com>
- <20250821200701.1329277-22-david@redhat.com> <aK2QZnzS1ErHK5tP@raptor>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
- ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZoEEwEIAEQCGwMCF4ACGQEFCwkIBwICIgIG
- FQoJCAsCBBYCAwECHgcWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaJzangUJJlgIpAAKCRBN
- 3hD3AP+DWhAxD/9wcL0A+2rtaAmutaKTfxhTP0b4AAp1r/eLxjrbfbCCmh4pqzBhmSX/4z11
- opn2KqcOsueRF1t2ENLOWzQu3Roiny2HOU7DajqB4dm1BVMaXQya5ae2ghzlJN9SIoopTWlR
- 0Af3hPj5E2PYvQhlcqeoehKlBo9rROJv/rjmr2x0yOM8qeTroH/ZzNlCtJ56AsE6Tvl+r7cW
- 3x7/Jq5WvWeudKrhFh7/yQ7eRvHCjd9bBrZTlgAfiHmX9AnCCPRPpNGNedV9Yty2Jnxhfmbv
- Pw37LA/jef8zlCDyUh2KCU1xVEOWqg15o1RtTyGV1nXV2O/mfuQJud5vIgzBvHhypc3p6VZJ
- lEf8YmT+Ol5P7SfCs5/uGdWUYQEMqOlg6w9R4Pe8d+mk8KGvfE9/zTwGg0nRgKqlQXrWRERv
- cuEwQbridlPAoQHrFWtwpgYMXx2TaZ3sihcIPo9uU5eBs0rf4mOERY75SK+Ekayv2ucTfjxr
- Kf014py2aoRJHuvy85ee/zIyLmve5hngZTTe3Wg3TInT9UTFzTPhItam6dZ1xqdTGHZYGU0O
- otRHcwLGt470grdiob6PfVTXoHlBvkWRadMhSuG4RORCDpq89vu5QralFNIf3EysNohoFy2A
- LYg2/D53xbU/aa4DDzBb5b1Rkg/udO1gZocVQWrDh6I2K3+cCs7BTQRVy5+RARAA59fefSDR
- 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
- VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
- /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
- iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
- 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
- zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
- azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
- FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
- sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
- 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
- EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
- IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
- 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
- Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
- sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
- yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
- 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
- r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
- 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
- CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
- qIws/H2t
-In-Reply-To: <aK2QZnzS1ErHK5tP@raptor>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: gCyMmKZq8g6tMAT-WcOBs8diU4vpvp7SRyBp-nA42Ow_1756206279
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
->>   
->>   		pr_debug("%s(): memory range at pfn 0x%lx %p is busy, retrying\n",
->> -			 __func__, pfn, pfn_to_page(pfn));
->> +			 __func__, pfn, page);
->>   
->>   		trace_cma_alloc_busy_retry(cma->name, pfn, pfn_to_page(pfn),
-> 
-> Nitpick: I think you already have the page here.
+When used by vhost-vDPA bus driver for VM, the control virtqueue
+should be shadowed via userspace VMM (QEMU) instead of being assigned
+directly to Guest. This is because QEMU needs to know the device state
+in order to start and stop device correctly (e.g for Live Migration).
 
-Indeed, forgot to clean that up as well.
+This requies to isolate the memory mapping for control virtqueue
+presented by vhost-vDPA to prevent guest from accessing it directly.
 
-> 
->>   					   count, align);
->> -		/* try again with a bit different memory target */
->> -		start = bitmap_no + mask + 1;
->>   	}
->>   out:
->> -	*pagep = page;
->> +	if (!ret)
->> +		*pagep = page;
->>   	return ret;
->>   }
->>   
->> @@ -882,7 +892,7 @@ static struct page *__cma_alloc(struct cma *cma, unsigned long count,
->>   	 */
->>   	if (page) {
->>   		for (i = 0; i < count; i++)
->> -			page_kasan_tag_reset(nth_page(page, i));
->> +			page_kasan_tag_reset(page + i);
-> 
-> Had a look at it, not very familiar with CMA, but the changes look equivalent to
-> what was before. Not sure that's worth a Reviewed-by tag, but here it in case
-> you want to add it:
-> 
-> Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
+This series add support to multiple address spaces in VDUSE device
+allowing selective virtqueue isolation through address space IDs (ASID).
 
-Thanks!
+The VDUSE device needs to report:
+* Number of virtqueue groups
+* Association of each vq group with each virtqueue
+* Number of address spaces supported.
 
-> 
-> Just so I can better understand the problem being fixed, I guess you can have
-> two consecutive pfns with non-consecutive associated struct page if you have two
-> adjacent memory sections spanning the same physical memory region, is that
-> correct?
+Then, the vDPA driver can modify the ASID assigned to each VQ group to
+isolate the memory AS.  This aligns VDUSE with gq}vdpa_sim and nvidia
+mlx5 devices which already support ASID.
 
-Exactly. Essentially on SPARSEMEM without SPARSEMEM_VMEMMAP it is not 
-guaranteed that
+This helps to isolate the environments for the virtqueues that will not
+be assigned directly. E.g in the case of virtio-net, the control
+virtqueue will not be assigned directly to guest.
 
-	pfn_to_page(pfn + 1) == pfn_to_page(pfn) + 1
+This series depends on the series that reworks the virtio mapping API:
+https://lore.kernel.org/all/20250821064641.5025-1-jasowang@redhat.com/
 
-when we cross memory section boundaries.
+Also, to be able to test this patch, the user needs to manually revert
+56e71885b034 ("vduse: Temporarily fail if control queue feature requested").
 
-It can be the case for early boot memory if we allocated consecutive 
-areas from memblock when allocating the memmap (struct pages) per memory 
-section, but it's not guaranteed.
+PATCH v1:
+* Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+* Using vduse_vq_group_int directly instead of an empty struct in union
+  virtio_map.
 
-So we rule out that case.
+RFC v3:
+* Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
+  value to reduce memory consumption, but vqs are already limited to
+  that value and userspace VDUSE is able to allocate that many vqs.  Also, it's
+  a dynamic array now.  Same with ASID.
+* Move the valid vq groups range check to vduse_validate_config.
+* Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
+* Use of array_index_nospec in VDUSE device ioctls.
+* Move the umem mutex to asid struct so there is no contention between
+  ASIDs.
+* Remove the descs vq group capability as it will not be used and we can
+  add it on top.
+* Do not ask for vq groups in number of vq groups < 2.
+* Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
+  VDUSE_IOTLB_GET_INFO.
+
+RFC v2:
+* Cache group information in kernel, as we need to provide the vq map
+  tokens properly.
+* Add descs vq group to optimize SVQ forwarding and support indirect
+  descriptors out of the box.
+* Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
+  part of the struct is the same.
+* Fixes detected testing with OVS+VDUSE.
+
+Eugenio Pérez (6):
+  vduse: add v1 API definition
+  vduse: add vq group support
+  vduse: return internal vq group struct as map token
+  vduse: create vduse_as to make it an array
+  vduse: add vq group asid support
+  vduse: bump version number
+
+ drivers/vdpa/vdpa_user/vduse_dev.c | 385 ++++++++++++++++++++++-------
+ include/linux/virtio.h             |   6 +-
+ include/uapi/linux/vduse.h         |  73 +++++-
+ 3 files changed, 373 insertions(+), 91 deletions(-)
 
 -- 
-Cheers
-
-David / dhildenb
+2.51.0
 
