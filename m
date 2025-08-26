@@ -1,111 +1,166 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 780D326A0B3;
-	Tue, 26 Aug 2025 13:11:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A170C352FC4
+	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 14:03:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756213906; cv=none; b=Mhv/zsZxE8AsMO1ynlAJrkmb8qsx8KCYQxClq6ZsjUGwOJ6m/koI95xS+bYBOjhq9Wj1VbgfffD5mpfz2NDalxeFUa65aVG3U+zXfO2N6LlPPrmiEhZ1VtU629Bip414dZjgBfL3V/vw4Po83eyo87Wx48Gbx1GXL50+dQ+Pszg=
+	t=1756217018; cv=none; b=RGJqRThQGTgCVu9dllmewJUlyQnpuWaoS4ZknncOGpVsCtXwiY++XyctiJK1kyWw6bzQ0Dk4x9M9wifV1pgBygLZhL8OxfcZSJ4B79FdYZfYj5hx85DlXoAIHnv1ieM/npzGOnzP/v/0cq4qVBnGiu5Mr3Ila4nUI50P4vcz2hQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756213906; c=relaxed/simple;
-	bh=r4P1fcbNrMFnG8T5p3u4dMJamruaFASdwNbmXce96jM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HGlOHUhLdzhAdNr5XscS5Pm2iKb6cAL4c7u0Y9KQUVfZ900dxKLt54tImmE6ivZjx3J7Jf54xVBTasEz3DZJ52W+qUNkwYMI8WASqyCRpoL2YM0R1Zr6fGU1w8exo0Xt95tdXZNIUispf8Ys4GKtmFX+8p2ugkPfYj4f233cixc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7C1B82BF2;
-	Tue, 26 Aug 2025 06:11:36 -0700 (PDT)
-Received: from raptor (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0B7A13F63F;
-	Tue, 26 Aug 2025 06:11:36 -0700 (PDT)
-Date: Tue, 26 Aug 2025 14:11:34 +0100
-From: Alexandru Elisei <alexandru.elisei@arm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Brendan Jackman <jackmanb@google.com>,
-	Christoph Lameter <cl@gentwo.org>, Dennis Zhou <dennis@kernel.org>,
-	Dmitry Vyukov <dvyukov@google.com>, dri-devel@lists.freedesktop.org,
-	intel-gfx@lists.freedesktop.org, iommu@lists.linux.dev,
-	io-uring@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
-	Jens Axboe <axboe@kernel.dk>, Johannes Weiner <hannes@cmpxchg.org>,
-	John Hubbard <jhubbard@nvidia.com>, kasan-dev@googlegroups.com,
-	kvm@vger.kernel.org, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	linux-arm-kernel@axis.com, linux-arm-kernel@lists.infradead.org,
-	linux-crypto@vger.kernel.org, linux-ide@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, linux-mips@vger.kernel.org,
-	linux-mmc@vger.kernel.org, linux-mm@kvack.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Marco Elver <elver@google.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
-	Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
-	Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
-	virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
-	wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
-Subject: Re: [PATCH RFC 21/35] mm/cma: refuse handing out non-contiguous page
- ranges
-Message-ID: <aK2yhtQ0M_0hqQHh@raptor>
-References: <20250821200701.1329277-1-david@redhat.com>
- <20250821200701.1329277-22-david@redhat.com>
- <aK2QZnzS1ErHK5tP@raptor>
- <ad521f4f-47aa-4728-916f-3704bf01f770@redhat.com>
- <aK2wlGYvCaFQXzBm@raptor>
- <ecc599ee-4175-4356-ab66-1d76a75f44f7@redhat.com>
+	s=arc-20240116; t=1756217018; c=relaxed/simple;
+	bh=rjO0Dgpa+MvkB9kGuQaPMB5g0ekLMqstP2ZTtpD2Nsk=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=IPrgCrl4AVs9a1nQjt/Vu2wHki3N9TFS0dUQMyJEGm/0NrucEJ6iJx9cuNBnhIUf63gWYDtvPEkBltUROR8tyNOL3j+EofNPPQxjZcUAwBcSRGwjV4Dw4bvdlQPKe2zlyfLdQTZ5R5zqHySj1fOdLdMdxa/0rDwltIZcJGk7kQQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ED+mLxG2; arc=none smtp.client-ip=209.85.214.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ED+mLxG2"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2465bc6da05so50554625ad.0
+        for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 07:03:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1756217016; x=1756821816; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=aY0FrXGLxgZ/wGxfA4ovaT2GypQmDVl6QRK8fd0deSc=;
+        b=ED+mLxG2RnichWjhGl1BEVh/eijQc5IHdN8mF2iS2mo93F3Xp5wwIYt68ZyD9XbN4f
+         oQpslQaRwdLsaD3hoQB6o9TPYUqCfUNAg3sfyxIwZSv0Hh4qLmPSh6Q6/v83s7rihdyk
+         AJRb7ZQyf8ZxmP6ue2ns3svZE2J8zbbS6u1J7DYvLqngbT1E19ODpN202fsjCQdOumPJ
+         2HV2YSFvOYF+MaELeZ623cNWtHnk11bUEpwTlLeyA8WCS33xSTWFbz+7vdvnhlADAg/A
+         61qoYtiv7ZmmK+XSaLybdxfCrcp7QbbieBKsIGGXSnnrhLPtKt9TwrN0gTpTRYGAMvU+
+         LBjg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756217016; x=1756821816;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aY0FrXGLxgZ/wGxfA4ovaT2GypQmDVl6QRK8fd0deSc=;
+        b=i4oJrd1enxJv5hRhEsKkKIg5K7TftjMnitPYcpCjShq8wo81CInxsefrwoQsUgYaKy
+         UqRc4jGC/EQpMrtfGvVulgQG/KndliKqqRMKi/TpDrORzruK3fidT8+kzlCVNp/sutvI
+         KpgEIuKPc1l9XngbEZ1zAz+Qd1XE4f+GUg1htV7weJkCQdd3LSwgaQjYvCk1xbFYTUzI
+         QJX75HsqTq8hcWl/8e5QEWSBZp/4GeA86nMLN7XTet9e1k12uzU8EUT2NujZbHIZdF1W
+         6SWT/93BXgh5NUn82eSncJeYppW7iUiDJ+kaDqXeQste0Li9Z/kQaJRmPREAcR8asgOF
+         MEoA==
+X-Forwarded-Encrypted: i=1; AJvYcCW7HwLF8CSgrhbsX7tKHc3X6wl1KL/gMM8CTPihPgVQiJh6+0DzvXdzIxlzP1zUluLC2fzBPo+zUeQoFcSOGQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxk2yGQsdYgwP4EHRKj4ofKowA8uBCxvCwNYdlGjAD4wIXJs602
+	yqYBc17HtKufgp9whH/GNdURIcdqb820jFHyeXmhADM5Hw7raYFNZqQfz/6QpTiXMv+8tE/72g1
+	8hVvQPw==
+X-Google-Smtp-Source: AGHT+IGVJFRNMksQGpAlkIJ4vRSKOikAD8qcNdNTZurK//e/TKsMdmUxA10VRE8eqTCLKXiBB2hNPFQ1m8o=
+X-Received: from pjbso3.prod.google.com ([2002:a17:90b:1f83:b0:320:e3e2:6877])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:db0c:b0:240:10dc:b7c9
+ with SMTP id d9443c01a7336-2462ee2ba4dmr144692975ad.9.1756217015845; Tue, 26
+ Aug 2025 07:03:35 -0700 (PDT)
+Date: Tue, 26 Aug 2025 07:03:33 -0700
+In-Reply-To: <20250826034937-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ecc599ee-4175-4356-ab66-1d76a75f44f7@redhat.com>
+Mime-Version: 1.0
+References: <20250826004012.3835150-1-seanjc@google.com> <20250826004012.3835150-2-seanjc@google.com>
+ <20250826034937-mutt-send-email-mst@kernel.org>
+Message-ID: <aK2-tQLL-WN7Mqpb@google.com>
+Subject: Re: [PATCH 1/3] vhost_task: KVM: Don't wake KVM x86's recovery thread
+ if vhost task was killed
+From: Sean Christopherson <seanjc@google.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, 
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Content-Type: text/plain; charset="us-ascii"
 
-Hi David,
-
-On Tue, Aug 26, 2025 at 03:08:08PM +0200, David Hildenbrand wrote:
-> On 26.08.25 15:03, Alexandru Elisei wrote:
-> > Hi David,
+On Tue, Aug 26, 2025, Michael S. Tsirkin wrote:
+> On Mon, Aug 25, 2025 at 05:40:09PM -0700, Sean Christopherson wrote:
+> > Provide an API in vhost task instead of forcing KVM to solve the problem,
+> > as KVM would literally just add an equivalent to VHOST_TASK_FLAGS_KILLED,
+> > along with a new lock to protect said flag.  In general, forcing simple
+> > usage of vhost task to care about signals _and_ take non-trivial action to
+> > do the right thing isn't developer friendly, and is likely to lead to
+> > similar bugs in the future.
 > > 
-> > On Tue, Aug 26, 2025 at 01:04:33PM +0200, David Hildenbrand wrote:
-> > ..
-> > > > Just so I can better understand the problem being fixed, I guess you can have
-> > > > two consecutive pfns with non-consecutive associated struct page if you have two
-> > > > adjacent memory sections spanning the same physical memory region, is that
-> > > > correct?
-> > > 
-> > > Exactly. Essentially on SPARSEMEM without SPARSEMEM_VMEMMAP it is not
-> > > guaranteed that
-> > > 
-> > > 	pfn_to_page(pfn + 1) == pfn_to_page(pfn) + 1
-> > > 
-> > > when we cross memory section boundaries.
-> > > 
-> > > It can be the case for early boot memory if we allocated consecutive areas
-> > > from memblock when allocating the memmap (struct pages) per memory section,
-> > > but it's not guaranteed.
-> > 
-> > Thank you for the explanation, but I'm a bit confused by the last paragraph. I
-> > think what you're saying is that we can also have the reverse problem, where
-> > consecutive struct page * represent non-consecutive pfns, because memmap
-> > allocations happened to return consecutive virtual addresses, is that right?
+> > Debugged-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> > Link: https://lore.kernel.org/all/aKkLEtoDXKxAAWju@google.com
+> > Link: https://lore.kernel.org/all/aJ_vEP2EHj6l0xRT@google.com
+> > Suggested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> > Fixes: d96c77bd4eeb ("KVM: x86: switch hugepage recovery thread to vhost_task")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Sean Christopherson <seanjc@google.com>
 > 
-> Exactly, that's something we have to deal with elsewhere [1]. For this code,
-> it's not a problem because we always allocate a contiguous PFN range.
-> 
-> > 
-> > If that's correct, I don't think that's the case for CMA, which deals out
-> > contiguous physical memory. Or were you just trying to explain the other side of
-> > the problem, and I'm just overthinking it?
-> 
-> The latter :)
+> OK but I dislike the API.
 
-Ok, sorry for the noise then, and thank you for educating me.
+FWIW, I don't love it either.
 
-Alex
+> Default APIs should be safe. So vhost_task_wake_safe should be
+> vhost_task_wake
+> 
+> This also reduces the changes to kvm.
+> 
+> 
+> It does not look like we need the "unsafe" variant, so pls drop it.
+
+vhost_vq_work_queue() calls
+
+  vhost_worker_queue()
+  |
+  -> worker->ops->wakeup(worker)
+     |
+     -> vhost_task_wakeup()
+        |
+        -> vhost_task_wake()
+
+while holding RCU and so can't sleep.
+
+	rcu_read_lock();
+	worker = rcu_dereference(vq->worker);
+	if (worker) {
+		queued = true;
+		vhost_worker_queue(worker, work);
+	}
+	rcu_read_unlock();
+
+And the call from __vhost_worker_flush() is done while holding a vhost_worker.mutex.
+That's probably ok?  But there are many paths that lead to __vhost_worker_flush(),
+which makes it difficult to audit all flows.  So even if there is an easy change
+for the RCU conflict, I wouldn't be comfortable adding a mutex_lock() to so many
+flows in a patch that needs to go to stable@.
+
+> If we do need it, it should be called __vhost_task_wake.
+
+I initially had that, but didn't like that vhost_task_wake() wouldn't call
+__vhost_task_wake(), i.e. wouldn't follow the semi-standard pattern of the
+no-underscores function being a wrapper for the double-underscores function.
+
+I'm definitely not opposed to that though (or any other naming options).  Sans
+comments, this was my other idea for names:
+
+
+static void ____vhost_task_wake(struct vhost_task *vtsk)
+{
+	wake_up_process(vtsk->task);
+}
+
+void __vhost_task_wake(struct vhost_task *vtsk)
+{
+	WARN_ON_ONCE(!vtsk->handle_sigkill);
+
+	if (WARN_ON_ONCE(test_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags)))
+		return;
+
+	____vhost_task_wake(vtsk);
+}
+EXPORT_SYMBOL_GPL(__vhost_task_wake);
+
+void vhost_task_wake(struct vhost_task *vtsk)
+{
+	guard(mutex)(&vtsk->exit_mutex);
+
+	if (WARN_ON_ONCE(test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)))
+		return;
+
+	if (test_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags))
+		return;
+
+	____vhost_task_wake(vtsk);
+}
+EXPORT_SYMBOL_GPL(vhost_task_wake);
