@@ -1,112 +1,105 @@
-Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CC1829C325
-	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 00:40:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5E7CA1C6FE8;
+	Tue, 26 Aug 2025 01:15:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756168823; cv=none; b=GQ/FA0DGW0gUO5ciDabqx17mNhuFayvI0spBxdkUewMRO3vClaIht5ueNiIUpEGcyZJ6vBhZSFNWcpg8bJcIkwBirzYPe6yJtBjWm4wZZNdYPxGsyftWKgnsi21QgXWn5YuegSBcDiwVa45CabuaRpvBUNlSZeJUS2O7OcCtRn4=
+	t=1756170959; cv=none; b=Z+dM1il93+jhHrfGza9fgnHxVR9lx09Wa1Dl1K3ZMFT08PH08mEfA97zPiLRNOYj4+6VSdMhj6v/rDM2kMZS+QMrrV1E8oOFDJ+2FuhhWEnxS/yLp6pViAX5xop+ogefrg+x8X1kEhh0ylnpzS18uGnLgxJ5oVQzYgOGw0dXa5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756168823; c=relaxed/simple;
-	bh=GSD2okLRLxrD4e5YapBpGLuGmP9plExtQIHqvDp2aik=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=uVXoRLvgea0BG8PvsRrGNnl2DwMavKn9rM88wAaijnKb1pIyr3ea2O1fdzzA0iGRhreBWU953Rgofc43Tr0s1Y/G0AXFcg3CdI3DVZilU0TuWaCfM6ZZKAMqS3Gf1MLJw67ZAzE/fPoqyYKO54wtBFnYy9LR2PHYZj57a0jHVX4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=AkQTcbXN; arc=none smtp.client-ip=209.85.214.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1756170959; c=relaxed/simple;
+	bh=kwE9T2napWDQIi8ICaB3dOVpNakmaY8PwBjAto4q6z4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KTx7R+N8qeQQ/hH2GIHvsMqSM95llg5MkGksJZT6J/Aj74Z6fPJJdSbwabEqmp3tquGcic4gZcATn81DWqc/smYfA7vyw7uResrfNjyC9rFez/zPatS8dWdDTQ2nv1zrNmbZ99p5l61soj97wZfZjXCA4mkGXgkU0FLMIQPx7XQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=SCOaDPbr; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="AkQTcbXN"
-Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-246364842e7so84762245ad.1
-        for <virtualization@lists.linux.dev>; Mon, 25 Aug 2025 17:40:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1756168821; x=1756773621; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ich+F/WfOl90g4mC/WhzhSp8nc7SXERneaucsAgJ2BU=;
-        b=AkQTcbXNSlCShMQmfTLPX0kknRiwn5XYvArjNxl9zpNdMuoTr/lZ9OOvuVpMjcDHzi
-         xDEJq5BZfcVmeIoBlAWoeulG4w0DXHwOTVdtG5NfKGYTcuut/Lsd93rdjO4KfrTC2jn5
-         oC2lJDZbK1cJUmwZDWBVTMuANmh5lyIkOjsX98FmIxsgZEjvayaaIgiGCC3I8implyfU
-         uAHQKC/eqXdFMG59MWXH+KPgCkoCpS+iG9et0OjkNrPBtCai3CQ1Av8Dt+bR36OeyCKE
-         JiWTgSsGg7dLhlQohLTqr4QuPj3FyRssXDnI3lEG24VB8sr5VGjXsgQq8MUaNnb2PSpy
-         GTQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756168821; x=1756773621;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Ich+F/WfOl90g4mC/WhzhSp8nc7SXERneaucsAgJ2BU=;
-        b=eP4d8xx8T4ckKDkn0T0noXppNhi4mJcw0T/b1c3vLMRNaBSpuQavLwxoKB2x751ELs
-         ebUJtk/BNQJ8ZmEInq24S/blVmCrufMTUAZABVzateHHmwGy+jG3sIJy137OnRM8m42D
-         9hiZPIo/olSQm0KhWpuB9f3X49tVWS4l2rlOtzvgYUMFEv+gHah/pTsY33+hIvspUJBk
-         R4OKV7abMWkycdW7yd9gajQDkU2yw/xwoGV+RHZzb8/8qJ1sBUHSO29kjjsZOCShx6DV
-         spU2cG3sYtmEWW2TdZa96910Csz4VZo5CNSrdN5ULt3Ow6oCC6T27Cbw3omhNaFW4GUd
-         wvYA==
-X-Forwarded-Encrypted: i=1; AJvYcCUlHbaV2zP3hhTUdDs/Fls1wp9cbqwe2+cTKskyHbDTSOuy9LSbvpqNg7S3xijT+DUyhBRshgUjXt+XA9VD0g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzD4cBzUZn+8KFt2m02Np1KxtssY1CqqoU9ZFIFZ8PVWQxDaHow
-	fNuKwLIeBKKMynwP3fS5DIXDYiSrzR3Fnyi3bdxlK2OIV65Qo+VRY+oyEaoJ/LHMpJjIGYNpWWe
-	ntHEc6g==
-X-Google-Smtp-Source: AGHT+IG4vW/5MigHa/TBX8oRMlCra808eIipbqtMQjYVG19uVixcDoW82lYMlF7bL879fI0AObWue9cr2PY=
-X-Received: from pjyr7.prod.google.com ([2002:a17:90a:e187:b0:312:ea08:fa64])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:1a45:b0:246:ddd6:f8b9
- with SMTP id d9443c01a7336-246ddd6fd04mr66484515ad.43.1756168820938; Mon, 25
- Aug 2025 17:40:20 -0700 (PDT)
-Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Mon, 25 Aug 2025 17:40:11 -0700
-In-Reply-To: <20250826004012.3835150-1-seanjc@google.com>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="SCOaDPbr"
+Received: by linux.microsoft.com (Postfix, from userid 1152)
+	id EC06C211829B; Mon, 25 Aug 2025 18:15:57 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com EC06C211829B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1756170957;
+	bh=BDhBrrex6g5QaN9laTXmAgCa/05IrHo33281B3Hc3OE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=SCOaDPbrhTWDx26NAZDc9zk+UaPWJQFOnMx5s6aDmbJWEJtnk+D0lvohw3+XojSPK
+	 Qv3pWi6wrhkhJMYhP0mVuPXz/iBl6yuihWoQs/Zmwfrsd+rddgzfRP3dWr8jAaSeUM
+	 F+DYnYoRI+Wyl5NUEWaHe385v3/AAG5+kS1Nf69M=
+Date: Mon, 25 Aug 2025 18:15:57 -0700
+From: Shyam Saini <shyamsaini@linux.microsoft.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
+	will@kernel.org, jacob.pan@linux.microsoft.com,
+	eric.auger@redhat.com, code@tyhicks.com,
+	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
+	bboscaccy@linux.microsoft.com, robh@kernel.org,
+	saravanak@google.com, krzk+dt@kernel.org, conor+dt@kernel.org,
+	lizhi.hou@amd.com, clement.leger@bootlin.com
+Subject: Re: [PATCH v3 2/3] iommu/of: fix device tree configuration for PCI
+ devices
+Message-ID: <20250826011557.GA2980@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+References: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
+ <20250806215539.1240561-3-shyamsaini@linux.microsoft.com>
+ <20250808121515.GE377696@ziepe.ca>
+ <20250814233018.GA31418@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <20250815003958.GE599331@ziepe.ca>
+ <20250815023236.GA30997@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <20250818155310.GG599331@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250826004012.3835150-1-seanjc@google.com>
-X-Mailer: git-send-email 2.51.0.261.g7ce5a0a67e-goog
-Message-ID: <20250826004012.3835150-4-seanjc@google.com>
-Subject: [PATCH 3/3] KVM: x86/mmu: Don't register a sigkill callback for NX
- hugepage recovery tasks
-From: Sean Christopherson <seanjc@google.com>
-To: Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250818155310.GG599331@ziepe.ca>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-Don't register a sigkill callback with vhost_task when creating NX hugepage
-recovery threads now that said callback is optional.  In addition to
-removing what is effectively dead code, not registering a sigkill "handler"
-also guards against improper use of vhost_task_wake().
+Hi Jason,
 
-Signed-off-by: Sean Christopherson <seanjc@google.com>
----
- arch/x86/kvm/mmu/mmu.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+On Mon, Aug 18, 2025 at 12:53:10PM -0300, Jason Gunthorpe wrote:
+> On Thu, Aug 14, 2025 at 07:32:36PM -0700, Shyam Saini wrote:
+> > On Thu, Aug 14, 2025 at 09:39:58PM -0300, Jason Gunthorpe wrote:
+> > > On Thu, Aug 14, 2025 at 04:30:18PM -0700, Shyam Saini wrote:
+> > > > or were you referring to [2]?
+> > > > 
+> > > > In that case, the PCI child node data needs to be parsed, which is
+> > > > currently handled individually by each host controller driver.
+> > > 
+> > > Yes, this looks like it may be what I was thinking of, the pci@1,0
+> > > specifes the BDF effectively
+> > 
+> > In that case, we'll need to parse the child DTS nodes properly
+> > within of_iommu_get_resv_regions(). I'll include this in v4.
+> 
+> Kinda surprised this isn't happening already? It would be good to
+> refer to the original specs and describe how whatetever you propose is
+> aligned there.
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index d11730467fd4..dd90cf8a8170 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -7677,10 +7677,6 @@ static void kvm_recover_nx_huge_pages(struct kvm *kvm)
- 	srcu_read_unlock(&kvm->srcu, rcu_idx);
- }
+Just to confirm, does the v3 version of this series look good to you?
+If so, I’ll go ahead and respin the series with the iommu_set_sw_msi()
+change and address the other review comments from Jacob.
+
+Otherwise having pci devices nodes in the fdt or dts needs additional
+handling, let me know your preference :)
+
+> 
+> > > Presumably this is a fixed issue of the platform. You never did
+> > > explain how your system has such werdio behavior, or how something
+> > > like iommu=pt can function on it...
+> > Yes, this issue is platform-specific. On this platform, the default MSI IOVA
+> > range overlaps with an address region that is reserved for another purpose,
+> > Other than that we haven't observed any obvious issues for DMA operations
+> 
+> Usually DRAM is at the default MSI IOVA address, so if you run
+> iommu=pt then presumably your DRAM map has a nice hole in it.. But
+> maybe the memory map told the OS about that.
+>
  
--static void kvm_nx_huge_page_recovery_worker_kill(void *data)
--{
--}
--
- static bool kvm_nx_huge_page_recovery_worker(void *data)
- {
- 	struct kvm *kvm = data;
-@@ -7713,8 +7709,7 @@ static int kvm_mmu_start_lpage_recovery(struct once *once)
- 	struct vhost_task *nx_thread;
- 
- 	kvm->arch.nx_huge_page_last = get_jiffies_64();
--	nx_thread = vhost_task_create(kvm_nx_huge_page_recovery_worker,
--				      kvm_nx_huge_page_recovery_worker_kill,
-+	nx_thread = vhost_task_create(kvm_nx_huge_page_recovery_worker, NULL,
- 				      kvm, "kvm-nx-lpage-recovery");
- 
- 	if (IS_ERR(nx_thread))
--- 
-2.51.0.261.g7ce5a0a67e-goog
+our DRAM for this platform starts at higher offset, way beyond MSI_IOVA.
 
+
+Thanks,
+Shyam 
