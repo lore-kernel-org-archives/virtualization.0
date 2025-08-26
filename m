@@ -1,166 +1,77 @@
-Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A170C352FC4
-	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 14:03:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7549C350830
+	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 14:15:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756217018; cv=none; b=RGJqRThQGTgCVu9dllmewJUlyQnpuWaoS4ZknncOGpVsCtXwiY++XyctiJK1kyWw6bzQ0Dk4x9M9wifV1pgBygLZhL8OxfcZSJ4B79FdYZfYj5hx85DlXoAIHnv1ieM/npzGOnzP/v/0cq4qVBnGiu5Mr3Ila4nUI50P4vcz2hQ=
+	t=1756217722; cv=none; b=o1ZnJSOgsaQjcvzEPUVSMITNW1zkFVs5r5yXdkPnoWgjIshBfWuslF/rpIEpJ534ftMXmxXRJznYTj5KNxD1xgsO3AbHdjAyCcHGrGJkaxt7FFj60fdCn63Evx6DU7rFLVQR8s442smQ+KX29Q5PwW6IMbA21HkHXUrCP2lWfQQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756217018; c=relaxed/simple;
-	bh=rjO0Dgpa+MvkB9kGuQaPMB5g0ekLMqstP2ZTtpD2Nsk=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=IPrgCrl4AVs9a1nQjt/Vu2wHki3N9TFS0dUQMyJEGm/0NrucEJ6iJx9cuNBnhIUf63gWYDtvPEkBltUROR8tyNOL3j+EofNPPQxjZcUAwBcSRGwjV4Dw4bvdlQPKe2zlyfLdQTZ5R5zqHySj1fOdLdMdxa/0rDwltIZcJGk7kQQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ED+mLxG2; arc=none smtp.client-ip=209.85.214.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1756217722; c=relaxed/simple;
+	bh=EOBColXHYti+tdwPYRTPX55zWbuLqPbuLsls/+AgNT4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DFEBJNx4aeoBtWl9oFBHVgjtvc5vwMYONKVyaQFUABsaug6tUBV24eHPNxJi6+k5KYl8D40kazfgw1EVRURWm+4e5r+1ekE/z7bSmWqqYvrJ5m70vKDLbXz3lB2Czq7+Wj6zSb07zf0BfbkZPc3fIJOLlh+fE38P4gPCXD2KyuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=LwzQTsWT; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=A6j3O2ty; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ED+mLxG2"
-Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2465bc6da05so50554625ad.0
-        for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 07:03:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1756217016; x=1756821816; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=aY0FrXGLxgZ/wGxfA4ovaT2GypQmDVl6QRK8fd0deSc=;
-        b=ED+mLxG2RnichWjhGl1BEVh/eijQc5IHdN8mF2iS2mo93F3Xp5wwIYt68ZyD9XbN4f
-         oQpslQaRwdLsaD3hoQB6o9TPYUqCfUNAg3sfyxIwZSv0Hh4qLmPSh6Q6/v83s7rihdyk
-         AJRb7ZQyf8ZxmP6ue2ns3svZE2J8zbbS6u1J7DYvLqngbT1E19ODpN202fsjCQdOumPJ
-         2HV2YSFvOYF+MaELeZ623cNWtHnk11bUEpwTlLeyA8WCS33xSTWFbz+7vdvnhlADAg/A
-         61qoYtiv7ZmmK+XSaLybdxfCrcp7QbbieBKsIGGXSnnrhLPtKt9TwrN0gTpTRYGAMvU+
-         LBjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756217016; x=1756821816;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aY0FrXGLxgZ/wGxfA4ovaT2GypQmDVl6QRK8fd0deSc=;
-        b=i4oJrd1enxJv5hRhEsKkKIg5K7TftjMnitPYcpCjShq8wo81CInxsefrwoQsUgYaKy
-         UqRc4jGC/EQpMrtfGvVulgQG/KndliKqqRMKi/TpDrORzruK3fidT8+kzlCVNp/sutvI
-         KpgEIuKPc1l9XngbEZ1zAz+Qd1XE4f+GUg1htV7weJkCQdd3LSwgaQjYvCk1xbFYTUzI
-         QJX75HsqTq8hcWl/8e5QEWSBZp/4GeA86nMLN7XTet9e1k12uzU8EUT2NujZbHIZdF1W
-         6SWT/93BXgh5NUn82eSncJeYppW7iUiDJ+kaDqXeQste0Li9Z/kQaJRmPREAcR8asgOF
-         MEoA==
-X-Forwarded-Encrypted: i=1; AJvYcCW7HwLF8CSgrhbsX7tKHc3X6wl1KL/gMM8CTPihPgVQiJh6+0DzvXdzIxlzP1zUluLC2fzBPo+zUeQoFcSOGQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxk2yGQsdYgwP4EHRKj4ofKowA8uBCxvCwNYdlGjAD4wIXJs602
-	yqYBc17HtKufgp9whH/GNdURIcdqb820jFHyeXmhADM5Hw7raYFNZqQfz/6QpTiXMv+8tE/72g1
-	8hVvQPw==
-X-Google-Smtp-Source: AGHT+IGVJFRNMksQGpAlkIJ4vRSKOikAD8qcNdNTZurK//e/TKsMdmUxA10VRE8eqTCLKXiBB2hNPFQ1m8o=
-X-Received: from pjbso3.prod.google.com ([2002:a17:90b:1f83:b0:320:e3e2:6877])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:db0c:b0:240:10dc:b7c9
- with SMTP id d9443c01a7336-2462ee2ba4dmr144692975ad.9.1756217015845; Tue, 26
- Aug 2025 07:03:35 -0700 (PDT)
-Date: Tue, 26 Aug 2025 07:03:33 -0700
-In-Reply-To: <20250826034937-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="LwzQTsWT";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="A6j3O2ty"
+Date: Tue, 26 Aug 2025 16:15:16 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1756217718;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JD9Mbivfzta1IsMjGhVlMntp+L8qXG49mI8iNfMcMUs=;
+	b=LwzQTsWTBoWDx37sRi3tb0PU3Ajs+jz/IKfgLiKgj3SNBo81PY9cpOHKLYzAL7M7X9vCRs
+	FZGI/1VLSRkZcuHln0iZ5qfz+SM1eDSijuB/Vi9uZjAVk0Y33yZKTr4FE/s74aZGZmT4h/
+	O8TAdexVcIbJJkCKyG75v1S+xn56WRN7XgJP0e8vXbA5qQEJ3ucKNNv6VZFFd5o9Oo9v/o
+	XWmC0xk9Js+MZ8isbL1alwMkXPg0W1s3qGoXJrBsrCiu8+nevAS+W5Bu69sGuokDrvlDCp
+	xgZQVQkjEkXrLyta5s3CeLOfEagrmQej97s3+K1uhaWYNuITz22ijE4mbjqPmg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1756217718;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JD9Mbivfzta1IsMjGhVlMntp+L8qXG49mI8iNfMcMUs=;
+	b=A6j3O2tyCWBZzBRinhAyFlVtysNem2GxcBdeDD2YKoHgxzqgkyMt4mGki+3QnNz32c7ZgL
+	BbCCPDifu1NpmFBg==
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Sean Christopherson <seanjc@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] vhost_task: KVM: Don't wake KVM x86's recovery
+ thread if vhost task was killed
+Message-ID: <20250826141516.f_jWThaV@linutronix.de>
+References: <20250826004012.3835150-1-seanjc@google.com>
+ <20250826004012.3835150-2-seanjc@google.com>
+ <20250826034937-mutt-send-email-mst@kernel.org>
+ <aK2-tQLL-WN7Mqpb@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250826004012.3835150-1-seanjc@google.com> <20250826004012.3835150-2-seanjc@google.com>
- <20250826034937-mutt-send-email-mst@kernel.org>
-Message-ID: <aK2-tQLL-WN7Mqpb@google.com>
-Subject: Re: [PATCH 1/3] vhost_task: KVM: Don't wake KVM x86's recovery thread
- if vhost task was killed
-From: Sean Christopherson <seanjc@google.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, 
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <aK2-tQLL-WN7Mqpb@google.com>
 
-On Tue, Aug 26, 2025, Michael S. Tsirkin wrote:
-> On Mon, Aug 25, 2025 at 05:40:09PM -0700, Sean Christopherson wrote:
-> > Provide an API in vhost task instead of forcing KVM to solve the problem,
-> > as KVM would literally just add an equivalent to VHOST_TASK_FLAGS_KILLED,
-> > along with a new lock to protect said flag.  In general, forcing simple
-> > usage of vhost task to care about signals _and_ take non-trivial action to
-> > do the right thing isn't developer friendly, and is likely to lead to
-> > similar bugs in the future.
-> > 
-> > Debugged-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> > Link: https://lore.kernel.org/all/aKkLEtoDXKxAAWju@google.com
-> > Link: https://lore.kernel.org/all/aJ_vEP2EHj6l0xRT@google.com
-> > Suggested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> > Fixes: d96c77bd4eeb ("KVM: x86: switch hugepage recovery thread to vhost_task")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Sean Christopherson <seanjc@google.com>
-> 
-> OK but I dislike the API.
+On 2025-08-26 07:03:33 [-0700], Sean Christopherson wrote:
+> And the call from __vhost_worker_flush() is done while holding a vhost_worker.mutex.
+> That's probably ok?  But there are many paths that lead to __vhost_worker_flush(),
+> which makes it difficult to audit all flows.  So even if there is an easy change
+> for the RCU conflict, I wouldn't be comfortable adding a mutex_lock() to so many
+> flows in a patch that needs to go to stable@.
 
-FWIW, I don't love it either.
+If I may throw something else into the mix: If you do "early"
+get_task_struct() on the thread (within the thread), then you could wake
+it even after its do_exit() since the task_struct would remain valid.
+Once you remove it from all structs where it can be found, you would do
+the final put_task_struct().
 
-> Default APIs should be safe. So vhost_task_wake_safe should be
-> vhost_task_wake
-> 
-> This also reduces the changes to kvm.
-> 
-> 
-> It does not look like we need the "unsafe" variant, so pls drop it.
-
-vhost_vq_work_queue() calls
-
-  vhost_worker_queue()
-  |
-  -> worker->ops->wakeup(worker)
-     |
-     -> vhost_task_wakeup()
-        |
-        -> vhost_task_wake()
-
-while holding RCU and so can't sleep.
-
-	rcu_read_lock();
-	worker = rcu_dereference(vq->worker);
-	if (worker) {
-		queued = true;
-		vhost_worker_queue(worker, work);
-	}
-	rcu_read_unlock();
-
-And the call from __vhost_worker_flush() is done while holding a vhost_worker.mutex.
-That's probably ok?  But there are many paths that lead to __vhost_worker_flush(),
-which makes it difficult to audit all flows.  So even if there is an easy change
-for the RCU conflict, I wouldn't be comfortable adding a mutex_lock() to so many
-flows in a patch that needs to go to stable@.
-
-> If we do need it, it should be called __vhost_task_wake.
-
-I initially had that, but didn't like that vhost_task_wake() wouldn't call
-__vhost_task_wake(), i.e. wouldn't follow the semi-standard pattern of the
-no-underscores function being a wrapper for the double-underscores function.
-
-I'm definitely not opposed to that though (or any other naming options).  Sans
-comments, this was my other idea for names:
-
-
-static void ____vhost_task_wake(struct vhost_task *vtsk)
-{
-	wake_up_process(vtsk->task);
-}
-
-void __vhost_task_wake(struct vhost_task *vtsk)
-{
-	WARN_ON_ONCE(!vtsk->handle_sigkill);
-
-	if (WARN_ON_ONCE(test_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags)))
-		return;
-
-	____vhost_task_wake(vtsk);
-}
-EXPORT_SYMBOL_GPL(__vhost_task_wake);
-
-void vhost_task_wake(struct vhost_task *vtsk)
-{
-	guard(mutex)(&vtsk->exit_mutex);
-
-	if (WARN_ON_ONCE(test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)))
-		return;
-
-	if (test_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags))
-		return;
-
-	____vhost_task_wake(vtsk);
-}
-EXPORT_SYMBOL_GPL(vhost_task_wake);
+Sebastian
