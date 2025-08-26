@@ -1,253 +1,263 @@
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41387301021
-	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 10:39:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id EB7E916CD33;
+	Tue, 26 Aug 2025 10:46:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756204785; cv=none; b=QMd0iL6eCoy/nCMnTSD6dTN1aldA5eUu6/ep9x53dClTLBBuoyOMUBvtpVdaOpYczoM9ByRcGqo0dZNooTPvkJiVSCoBkGJfSOCd/7oJW9Qmg8eXb2UbRy23/wV9q0HfK/M0xHf1Tpx6DaWPkP2e6UAO5TK0AFaQeUSIE1dgF8M=
+	t=1756205171; cv=none; b=XjQ7xfPCHR2vVi3N0cs20LMZQHyVfAn58iztTklRWumJuJKY9d2zmhxEJcwbH+lhKxGwcjOkU4KfThC+ORyXYJeI4dRH8giQUgghYiiU1CKazu4LGpBtIQOyS+9cVniwo9CIKyz4hRF3S5zOQT+LFV03wjlgcnnWGTVe5Xpg1Wc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756204785; c=relaxed/simple;
-	bh=aubxpbk2XtBhI4C5/n2BXN9jWVxK0FlxNqKl7ieYfbQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cZjFdejMRRjkA8wik/ts8MfIypVMi/ywbfdsqact4GtubQazO33RVzcoYJrsemWPc9H7F31t/hoyww4ce92tKadwdi20gS1M87YJSLEdhrd/clgJVbefJrlav+2NO9NtPor8WJlTI1JCh81pmnqyALAnlxE8xN3Hca3gbv0fMnQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=cWP8RVb8; arc=none smtp.client-ip=209.85.208.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="cWP8RVb8"
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-61c5272afbfso4366664a12.1
-        for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 03:39:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1756204781; x=1756809581; darn=lists.linux.dev;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=aubxpbk2XtBhI4C5/n2BXN9jWVxK0FlxNqKl7ieYfbQ=;
-        b=cWP8RVb8rIs+fWFSSDcI0ijRy5zmjLhXI/S4RpsXnS3kKrhrhTSLMB49K6v/n0Vi9R
-         490D3ylTa7lgk1fmPjfdbW8lMzIXnGCY8GtfLjssOVJtZyXHFBAc5jVaNAwjYZ53+V1o
-         izyRySJelcMozKMyu3yijiN/BhILt6fAPGe9wVN6BFfLP9nIY7PlL22uWWVAJrHvWpTt
-         ardrPtH+wAcjqnnDGhksXxDwFqyWHFuMuylKwZVPy8yRUvv0sx47CKizQe503oyKRAtR
-         iwceTn9OK1b7KGT7Jdyrwr3O397Xke3bmFmINqzuookp4ixtxwK52gAJ1BiTEZPe0T96
-         Xjng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756204781; x=1756809581;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=aubxpbk2XtBhI4C5/n2BXN9jWVxK0FlxNqKl7ieYfbQ=;
-        b=gY57XGFAS6sjiiNvGb3xBy2gtyj+ihbuSGHYdPZeIvRpVHsBaOUetiSS5otpCV6jBZ
-         7W57inCcr+zEe0+2MRhCgMPS3yI/nx3qOiZR4KJ/nQL1ONOqlHaiXhwwDRbRlYwUN4FX
-         tl0QGj/vflm9hEPIjO/FswWPgl4vJqKydbrlYcBk5ZmGAj+i7EK70Oqb+HMn/6ImfwWR
-         3G1oQ7nGbJkFtaGzTl9EGdEAE2RXdpwawsPJStsdZqR+5izTkQ8sm85soOrYSMrjtjuZ
-         bPtpHF1oM3YzSHo/pIOZf40b4IT1n9gNXIP6Pa24A3W0Tc761ydhhXSsET8KsjSVOjC4
-         OM9w==
-X-Forwarded-Encrypted: i=1; AJvYcCWo0+TEIeRn/ozal6GF3pVkKPGaFV66Co9+v9jpoT5S9CMtJq1i6whc+jITZJ0asJqriopGkHCX30ygu3pmtg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxOQb2thwFKa3TrwS3trx8bJljqRSTQ45dhWtGoI9tiS/sYWpWz
-	rx09pwMLG/P8AIPlokJ+Q2dh9rzOU+3T3eduLT0lo+64SwMj96VOS0zWiKpRPuysHXY=
-X-Gm-Gg: ASbGnct0qUjq0CJiE/W6bhguBnDjrCljsoogGLjavFUwVuy5V2zWBj2R3aEc72mvt3/
-	CpzRZeo3QSFcscQf6GRTufbSgctzbFAPdJNWVJq0pCmLEMlz9fOoLv4TDUHXIfevPSq885dTvIn
-	01jZPwwwjbCdxYfSy/PVA1G1Ru3noVbgHjvQZDTzTDxp+RtNw2y0oL6Ch3tjXTmKcjxosAkP3nk
-	+xt/bQxTyWIKPGlMp9284mYcSFus68iSsDX654ZbF59dmgz8aLGjbK2QVmhXxXb8VmRV8GrnGM6
-	GWGqQ2GVzllpPmEB41gvmoAkPJj1pvCFiMIeqBxmmqCKOp599xgFqTVILJsqe64UlXieRk28rCE
-	LMN7Y0J+QVYDqRZ+t4PyGybglLHzTGimUTxbBfbPqPMw54PW3JU5a6FjTXaQa6YydedHRYmXcUJ
-	oU9c8ynx4um8NpHlmcSlXopEowdEALjqNAAYnvPdtA4Lo6n4YbHJf3CgU8Dg==
-X-Google-Smtp-Source: AGHT+IGTJ6kJcviN3gx0SsZhG3FYbsFiWuwc5ckYBN7HeTxHud9HajgH67qiuZuS9+NG+NFwi7i4Zg==
-X-Received: by 2002:a05:6402:1d49:b0:61c:926e:24fd with SMTP id 4fb4d7f45d1cf-61c926e25dfmr1488413a12.34.1756204781534;
-        Tue, 26 Aug 2025 03:39:41 -0700 (PDT)
-Received: from ?IPV6:2003:e5:872d:6400:8c05:37ee:9cf6:6840? (p200300e5872d64008c0537ee9cf66840.dip0.t-ipconnect.de. [2003:e5:872d:6400:8c05:37ee:9cf6:6840])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-61c316f4e10sm6724132a12.29.2025.08.26.03.39.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Aug 2025 03:39:41 -0700 (PDT)
-Message-ID: <6eb60b62-bd3a-4a64-9665-fc911cc7d869@suse.com>
-Date: Tue, 26 Aug 2025 12:39:39 +0200
+	s=arc-20240116; t=1756205171; c=relaxed/simple;
+	bh=RlYaQIsXPj/hYp0IY2hzpcUql9s2CJOIs/Vq55SuaEg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qROZUZP0Qrf5w4I1Pg9iFCHIbGtW6FMkp8nxrP5JhmGoB7hfXOXwZBieH6hITSCssgZNbfqzWyVZUzt2ARJR64nb24YLd03XGyK8js5ms1tJtkHWgM/ENJYPn83om+2C0m+0eXSk7VoB/g+jIRuZ6p0oS5WP2gqJqrYkaQEIYjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0AD2A1A00;
+	Tue, 26 Aug 2025 03:46:01 -0700 (PDT)
+Received: from raptor (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 93FC13F694;
+	Tue, 26 Aug 2025 03:46:01 -0700 (PDT)
+Date: Tue, 26 Aug 2025 11:45:58 +0100
+From: Alexandru Elisei <alexandru.elisei@arm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Brendan Jackman <jackmanb@google.com>,
+	Christoph Lameter <cl@gentwo.org>, Dennis Zhou <dennis@kernel.org>,
+	Dmitry Vyukov <dvyukov@google.com>, dri-devel@lists.freedesktop.org,
+	intel-gfx@lists.freedesktop.org, iommu@lists.linux.dev,
+	io-uring@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+	Jens Axboe <axboe@kernel.dk>, Johannes Weiner <hannes@cmpxchg.org>,
+	John Hubbard <jhubbard@nvidia.com>, kasan-dev@googlegroups.com,
+	kvm@vger.kernel.org, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	linux-arm-kernel@axis.com, linux-arm-kernel@lists.infradead.org,
+	linux-crypto@vger.kernel.org, linux-ide@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, linux-mips@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Marco Elver <elver@google.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
+	Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
+	Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
+	virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
+	wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
+Subject: Re: [PATCH RFC 21/35] mm/cma: refuse handing out non-contiguous page
+ ranges
+Message-ID: <aK2QZnzS1ErHK5tP@raptor>
+References: <20250821200701.1329277-1-david@redhat.com>
+ <20250821200701.1329277-22-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/6] x86/paravirt: Switch MSR access pv_ops functions to
- instruction interfaces
-To: Xin Li <xin@zytor.com>, linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev
-Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner
- <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, Andrew Cooper <andrew.cooper3@citrix.com>
-References: <20250506092015.1849-1-jgross@suse.com>
- <20250506092015.1849-6-jgross@suse.com>
- <722f5b30-20e9-4540-98e4-d211d7c44cbe@zytor.com>
- <9f4e33d5-9cb3-4079-b764-87a15265fd52@suse.com>
- <2365af70-d36f-4663-b819-59d886936ef5@zytor.com>
- <8a82946a-6c3e-41d1-b3bd-be164dc6eeba@suse.com>
- <7047440a-0419-4982-961b-46f9b90a86e9@zytor.com>
-Content-Language: en-US
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <7047440a-0419-4982-961b-46f9b90a86e9@zytor.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------RsLXUU2C1CGvpLiam006QHyM"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250821200701.1329277-22-david@redhat.com>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------RsLXUU2C1CGvpLiam006QHyM
-Content-Type: multipart/mixed; boundary="------------qvfxUhM9j5tB42NwHbcTZLzf";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Xin Li <xin@zytor.com>, linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev
-Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner
- <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, Andrew Cooper <andrew.cooper3@citrix.com>
-Message-ID: <6eb60b62-bd3a-4a64-9665-fc911cc7d869@suse.com>
-Subject: Re: [PATCH 5/6] x86/paravirt: Switch MSR access pv_ops functions to
- instruction interfaces
-References: <20250506092015.1849-1-jgross@suse.com>
- <20250506092015.1849-6-jgross@suse.com>
- <722f5b30-20e9-4540-98e4-d211d7c44cbe@zytor.com>
- <9f4e33d5-9cb3-4079-b764-87a15265fd52@suse.com>
- <2365af70-d36f-4663-b819-59d886936ef5@zytor.com>
- <8a82946a-6c3e-41d1-b3bd-be164dc6eeba@suse.com>
- <7047440a-0419-4982-961b-46f9b90a86e9@zytor.com>
-In-Reply-To: <7047440a-0419-4982-961b-46f9b90a86e9@zytor.com>
+Hi David,
 
---------------qvfxUhM9j5tB42NwHbcTZLzf
-Content-Type: multipart/mixed; boundary="------------yvNIYITvDlrd0dF2hWkwHAja"
+On Thu, Aug 21, 2025 at 10:06:47PM +0200, David Hildenbrand wrote:
+> Let's disallow handing out PFN ranges with non-contiguous pages, so we
+> can remove the nth-page usage in __cma_alloc(), and so any callers don't
+> have to worry about that either when wanting to blindly iterate pages.
+> 
+> This is really only a problem in configs with SPARSEMEM but without
+> SPARSEMEM_VMEMMAP, and only when we would cross memory sections in some
+> cases.
+> 
+> Will this cause harm? Probably not, because it's mostly 32bit that does
+> not support SPARSEMEM_VMEMMAP. If this ever becomes a problem we could
+> look into allocating the memmap for the memory sections spanned by a
+> single CMA region in one go from memblock.
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  include/linux/mm.h |  6 ++++++
+>  mm/cma.c           | 36 +++++++++++++++++++++++-------------
+>  mm/util.c          | 33 +++++++++++++++++++++++++++++++++
+>  3 files changed, 62 insertions(+), 13 deletions(-)
+> 
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index ef360b72cb05c..f59ad1f9fc792 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -209,9 +209,15 @@ extern unsigned long sysctl_user_reserve_kbytes;
+>  extern unsigned long sysctl_admin_reserve_kbytes;
+>  
+>  #if defined(CONFIG_SPARSEMEM) && !defined(CONFIG_SPARSEMEM_VMEMMAP)
+> +bool page_range_contiguous(const struct page *page, unsigned long nr_pages);
+>  #define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + (n))
+>  #else
+>  #define nth_page(page,n) ((page) + (n))
+> +static inline bool page_range_contiguous(const struct page *page,
+> +		unsigned long nr_pages)
+> +{
+> +	return true;
+> +}
+>  #endif
+>  
+>  /* to align the pointer to the (next) page boundary */
+> diff --git a/mm/cma.c b/mm/cma.c
+> index 2ffa4befb99ab..1119fa2830008 100644
+> --- a/mm/cma.c
+> +++ b/mm/cma.c
+> @@ -780,10 +780,8 @@ static int cma_range_alloc(struct cma *cma, struct cma_memrange *cmr,
+>  				unsigned long count, unsigned int align,
+>  				struct page **pagep, gfp_t gfp)
+>  {
+> -	unsigned long mask, offset;
+> -	unsigned long pfn = -1;
+> -	unsigned long start = 0;
+>  	unsigned long bitmap_maxno, bitmap_no, bitmap_count;
+> +	unsigned long start, pfn, mask, offset;
+>  	int ret = -EBUSY;
+>  	struct page *page = NULL;
+>  
+> @@ -795,7 +793,7 @@ static int cma_range_alloc(struct cma *cma, struct cma_memrange *cmr,
+>  	if (bitmap_count > bitmap_maxno)
+>  		goto out;
+>  
+> -	for (;;) {
+> +	for (start = 0; ; start = bitmap_no + mask + 1) {
+>  		spin_lock_irq(&cma->lock);
+>  		/*
+>  		 * If the request is larger than the available number
+> @@ -812,6 +810,22 @@ static int cma_range_alloc(struct cma *cma, struct cma_memrange *cmr,
+>  			spin_unlock_irq(&cma->lock);
+>  			break;
+>  		}
+> +
+> +		pfn = cmr->base_pfn + (bitmap_no << cma->order_per_bit);
+> +		page = pfn_to_page(pfn);
+> +
+> +		/*
+> +		 * Do not hand out page ranges that are not contiguous, so
+> +		 * callers can just iterate the pages without having to worry
+> +		 * about these corner cases.
+> +		 */
+> +		if (!page_range_contiguous(page, count)) {
+> +			spin_unlock_irq(&cma->lock);
+> +			pr_warn_ratelimited("%s: %s: skipping incompatible area [0x%lx-0x%lx]",
+> +					    __func__, cma->name, pfn, pfn + count - 1);
+> +			continue;
+> +		}
+> +
+>  		bitmap_set(cmr->bitmap, bitmap_no, bitmap_count);
+>  		cma->available_count -= count;
+>  		/*
+> @@ -821,29 +835,25 @@ static int cma_range_alloc(struct cma *cma, struct cma_memrange *cmr,
+>  		 */
+>  		spin_unlock_irq(&cma->lock);
+>  
+> -		pfn = cmr->base_pfn + (bitmap_no << cma->order_per_bit);
+>  		mutex_lock(&cma->alloc_mutex);
+>  		ret = alloc_contig_range(pfn, pfn + count, ACR_FLAGS_CMA, gfp);
+>  		mutex_unlock(&cma->alloc_mutex);
+> -		if (ret == 0) {
+> -			page = pfn_to_page(pfn);
+> +		if (!ret)
+>  			break;
+> -		}
+>  
+>  		cma_clear_bitmap(cma, cmr, pfn, count);
+>  		if (ret != -EBUSY)
+>  			break;
+>  
+>  		pr_debug("%s(): memory range at pfn 0x%lx %p is busy, retrying\n",
+> -			 __func__, pfn, pfn_to_page(pfn));
+> +			 __func__, pfn, page);
+>  
+>  		trace_cma_alloc_busy_retry(cma->name, pfn, pfn_to_page(pfn),
 
---------------yvNIYITvDlrd0dF2hWkwHAja
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Nitpick: I think you already have the page here.
 
-T24gMjUuMDguMjUgMDM6NTQsIFhpbiBMaSB3cm90ZToNCj4gT24gNi8xMS8yMDI1IDU6NTgg
-QU0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+PiBJJ20ganVzdCBkb2luZyBhIFYyIG9mIG15
-IHNlcmllcywgYnV0IHRoaXMgdGltZSBpbmNsdWRpbmcgdGhlIGFkZGl0aW9uYWwNCj4+IHN1
-cHBvcnQgb2YgdGhlIG5vbi1zZXJpYWxpemluZyBhbmQgaW1tZWRpYXRlIGZvcm1zLiBMZXRz
-IHNlZSBob3cgdGhpcyB3aWxsDQo+PiBsb29rIGxpa2UuIEkgd2lsbCBkcm9wIHVzaW5nIHRo
-ZSBFQVhfRURYXyogbWFjcm9zLCBidXQgZHVlIHRvIHRoZSByZWFzb24NCj4+IG1lbnRpb25l
-ZCBhYm92ZSBJIHdvbid0IHN3aXRjaCB0byB5b3VyIHZhcmlhbnQgY29tcGxldGVseS4NCj4g
-DQo+IEhpIEp1ZXJnZW4sDQo+IA0KPiBEbyB5b3UgaGF2ZSBhbnkgdXBkYXRlIG9uIHRoaXM/
-DQoNCkkndmUgYmVlbiB2ZXJ5IGJ1c3kgd2l0aCBvdGhlciBzdHVmZiAoZG93bnN0cmVhbSwg
-c2VjdXJpdHksIC4uLikuDQoNCkluIGJldHdlZW4gSSd2ZSBiZWVuIHdvcmtpbmcgb24gdGhl
-IHNlcmllcy4gSSBob3BlIHRvIHBvc3QgaXQgc29tZSB0aW1lIGluDQpTZXB0ZW1iZXIuDQoN
-Cg0KSnVlcmdlbg0K
---------------yvNIYITvDlrd0dF2hWkwHAja
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+>  					   count, align);
+> -		/* try again with a bit different memory target */
+> -		start = bitmap_no + mask + 1;
+>  	}
+>  out:
+> -	*pagep = page;
+> +	if (!ret)
+> +		*pagep = page;
+>  	return ret;
+>  }
+>  
+> @@ -882,7 +892,7 @@ static struct page *__cma_alloc(struct cma *cma, unsigned long count,
+>  	 */
+>  	if (page) {
+>  		for (i = 0; i < count; i++)
+> -			page_kasan_tag_reset(nth_page(page, i));
+> +			page_kasan_tag_reset(page + i);
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+Had a look at it, not very familiar with CMA, but the changes look equivalent to
+what was before. Not sure that's worth a Reviewed-by tag, but here it in case
+you want to add it:
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
 
---------------yvNIYITvDlrd0dF2hWkwHAja--
+Just so I can better understand the problem being fixed, I guess you can have
+two consecutive pfns with non-consecutive associated struct page if you have two
+adjacent memory sections spanning the same physical memory region, is that
+correct?
 
---------------qvfxUhM9j5tB42NwHbcTZLzf--
+Thanks,
+Alex
 
---------------RsLXUU2C1CGvpLiam006QHyM
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmitjuwFAwAAAAAACgkQsN6d1ii/Ey/W
-VAf/bjOTfxBU5Ic3yxL8cIuWVKFrTuMx8Ynv73k4yHoMT//hTOT0Zeu6iqflODNSpNHcSDDpylbo
-u5sZa0LLFzmKhpQGLF8+5RsnWrYCqMNydpYVbs9vCXf9VOl/QDrKBXIUo4KBzrhIIO6+SLzc1HcV
-UrVnidE37h8kuKWvIgPTrHdzP81NAg3Nq/AMLccIGowCHmFAWjo49D9x57tfTirIZH3KzZzSYKeQ
-/LjQtYhJx5bIQQ/fNns+bkx/uKUVAElX0VUf/B7KaPmsE3zg4hV/w/KDixyfeJFJNHthxrffaSH6
-qSKMNizNhEdUMq2TEBSIu9QA7VukkUKXXVuaPop1lA==
-=J7f0
------END PGP SIGNATURE-----
-
---------------RsLXUU2C1CGvpLiam006QHyM--
+>  	}
+>  
+>  	if (ret && !(gfp & __GFP_NOWARN)) {
+> diff --git a/mm/util.c b/mm/util.c
+> index d235b74f7aff7..0bf349b19b652 100644
+> --- a/mm/util.c
+> +++ b/mm/util.c
+> @@ -1280,4 +1280,37 @@ unsigned int folio_pte_batch(struct folio *folio, pte_t *ptep, pte_t pte,
+>  {
+>  	return folio_pte_batch_flags(folio, NULL, ptep, &pte, max_nr, 0);
+>  }
+> +
+> +#if defined(CONFIG_SPARSEMEM) && !defined(CONFIG_SPARSEMEM_VMEMMAP)
+> +/**
+> + * page_range_contiguous - test whether the page range is contiguous
+> + * @page: the start of the page range.
+> + * @nr_pages: the number of pages in the range.
+> + *
+> + * Test whether the page range is contiguous, such that they can be iterated
+> + * naively, corresponding to iterating a contiguous PFN range.
+> + *
+> + * This function should primarily only be used for debug checks, or when
+> + * working with page ranges that are not naturally contiguous (e.g., pages
+> + * within a folio are).
+> + *
+> + * Returns true if contiguous, otherwise false.
+> + */
+> +bool page_range_contiguous(const struct page *page, unsigned long nr_pages)
+> +{
+> +	const unsigned long start_pfn = page_to_pfn(page);
+> +	const unsigned long end_pfn = start_pfn + nr_pages;
+> +	unsigned long pfn;
+> +
+> +	/*
+> +	 * The memmap is allocated per memory section. We need to check
+> +	 * each involved memory section once.
+> +	 */
+> +	for (pfn = ALIGN(start_pfn, PAGES_PER_SECTION);
+> +	     pfn < end_pfn; pfn += PAGES_PER_SECTION)
+> +		if (unlikely(page + (pfn - start_pfn) != pfn_to_page(pfn)))
+> +			return false;
+> +	return true;
+> +}
+> +#endif
+>  #endif /* CONFIG_MMU */
+> -- 
+> 2.50.1
+> 
+> 
