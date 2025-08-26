@@ -1,50 +1,56 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5E7CA1C6FE8;
-	Tue, 26 Aug 2025 01:15:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 727E118A6AD
+	for <virtualization@lists.linux.dev>; Tue, 26 Aug 2025 06:29:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756170959; cv=none; b=Z+dM1il93+jhHrfGza9fgnHxVR9lx09Wa1Dl1K3ZMFT08PH08mEfA97zPiLRNOYj4+6VSdMhj6v/rDM2kMZS+QMrrV1E8oOFDJ+2FuhhWEnxS/yLp6pViAX5xop+ogefrg+x8X1kEhh0ylnpzS18uGnLgxJ5oVQzYgOGw0dXa5I=
+	t=1756189800; cv=none; b=G8o0vdGcdQv6xUCqKPyVYe5O5hoM+mXtDPMc0tAPRhaXYuM5HSiPsdmcuuD8OKRQHpPcLo93ORxhCV6wv0kV+A53fmdPmcS6veRiwftMLW295H9EoCyN+Kn8HM5yLGcnR3MOvK8h+Wh8oMS2rxGXkAPYOdJiuQnW39hfb1fUDnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756170959; c=relaxed/simple;
-	bh=kwE9T2napWDQIi8ICaB3dOVpNakmaY8PwBjAto4q6z4=;
+	s=arc-20240116; t=1756189800; c=relaxed/simple;
+	bh=qpmfk+xfq/qcYNhcqT9cFC1mP1WvTyD18P6Uq/e6gC0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KTx7R+N8qeQQ/hH2GIHvsMqSM95llg5MkGksJZT6J/Aj74Z6fPJJdSbwabEqmp3tquGcic4gZcATn81DWqc/smYfA7vyw7uResrfNjyC9rFez/zPatS8dWdDTQ2nv1zrNmbZ99p5l61soj97wZfZjXCA4mkGXgkU0FLMIQPx7XQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=SCOaDPbr; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=FLY3ygKv9+W9ZzoB9HCI/oA7QuqyEf+RHLG8xoZE3PCfnKY+UrIF5gNs/n6r3/uXLo7/Oc+1/du+ynqD1G69/GCV/ine2ieVNgmA0gTSSOLFCUk4yMWczWxarYA+0I9pIcoFHcXwTmFFHgBScx9soovyV+exN2ywLfp1DVcBdgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=P31hKE4o; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=43nXdEzQ; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="SCOaDPbr"
-Received: by linux.microsoft.com (Postfix, from userid 1152)
-	id EC06C211829B; Mon, 25 Aug 2025 18:15:57 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com EC06C211829B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1756170957;
-	bh=BDhBrrex6g5QaN9laTXmAgCa/05IrHo33281B3Hc3OE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=SCOaDPbrhTWDx26NAZDc9zk+UaPWJQFOnMx5s6aDmbJWEJtnk+D0lvohw3+XojSPK
-	 Qv3pWi6wrhkhJMYhP0mVuPXz/iBl6yuihWoQs/Zmwfrsd+rddgzfRP3dWr8jAaSeUM
-	 F+DYnYoRI+Wyl5NUEWaHe385v3/AAG5+kS1Nf69M=
-Date: Mon, 25 Aug 2025 18:15:57 -0700
-From: Shyam Saini <shyamsaini@linux.microsoft.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
-	will@kernel.org, jacob.pan@linux.microsoft.com,
-	eric.auger@redhat.com, code@tyhicks.com,
-	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
-	bboscaccy@linux.microsoft.com, robh@kernel.org,
-	saravanak@google.com, krzk+dt@kernel.org, conor+dt@kernel.org,
-	lizhi.hou@amd.com, clement.leger@bootlin.com
-Subject: Re: [PATCH v3 2/3] iommu/of: fix device tree configuration for PCI
- devices
-Message-ID: <20250826011557.GA2980@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
- <20250806215539.1240561-3-shyamsaini@linux.microsoft.com>
- <20250808121515.GE377696@ziepe.ca>
- <20250814233018.GA31418@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
- <20250815003958.GE599331@ziepe.ca>
- <20250815023236.GA30997@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
- <20250818155310.GG599331@ziepe.ca>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="P31hKE4o";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="43nXdEzQ"
+Date: Tue, 26 Aug 2025 08:29:52 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1756189793;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wsqQrehpilHddnDvFR3sXC4btLIz8Vlzv0GVLkTTpNk=;
+	b=P31hKE4o3kX/G/zyz/dlj1MNG+6bFvJrakMcRfGHmbsOSNlD8HfOfkRG34jbCQ901GAg1F
+	o9LGzz4tUm8EfkrAhvVsAnK5GJXlg73fYwFKOWe8+mLP8mhTXImGZMRvcsivJZfn5i42m/
+	bteLNcq5jJAuY6jYbkmGz3RRtd/Wu/SMsm+EFZLHBWdIP77o7fQevPH7lSYjEtM9bNjcGr
+	WXNRVIv0W8fEXQqYAgUOjBPBfJXl+hzY+r9cKGiuNMdRiOLKdhj3N3iim/k3kytyJYTk2J
+	24cGSjB/gh93Jq1HNXRcrw6AlIVob9aGoWAWJMjb89kqGqj1qJyeQXUs6FE83Q==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1756189793;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wsqQrehpilHddnDvFR3sXC4btLIz8Vlzv0GVLkTTpNk=;
+	b=43nXdEzQK0DNDN/8V97czMOpuC3TDyyjWE6PjXwXA7SoMZ7zLV/hvhgsylyBWbg7C4MmQv
+	2NWCiPQ53aQB1pDQ==
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] vhost_task: Allow caller to omit handle_sigkill()
+ callback
+Message-ID: <20250826062952.pMTsCcyH@linutronix.de>
+References: <20250826004012.3835150-1-seanjc@google.com>
+ <20250826004012.3835150-3-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -53,53 +59,15 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250818155310.GG599331@ziepe.ca>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20250826004012.3835150-3-seanjc@google.com>
 
-Hi Jason,
+On 2025-08-25 17:40:10 [-0700], Sean Christopherson wrote:
+> Now that vhost_task provides an API to safely wake a task without relying
+> on the caller to react to signalas, make handle_sigkill() optional and
+                                  ^
+Sounds Spanish :)
 
-On Mon, Aug 18, 2025 at 12:53:10PM -0300, Jason Gunthorpe wrote:
-> On Thu, Aug 14, 2025 at 07:32:36PM -0700, Shyam Saini wrote:
-> > On Thu, Aug 14, 2025 at 09:39:58PM -0300, Jason Gunthorpe wrote:
-> > > On Thu, Aug 14, 2025 at 04:30:18PM -0700, Shyam Saini wrote:
-> > > > or were you referring to [2]?
-> > > > 
-> > > > In that case, the PCI child node data needs to be parsed, which is
-> > > > currently handled individually by each host controller driver.
-> > > 
-> > > Yes, this looks like it may be what I was thinking of, the pci@1,0
-> > > specifes the BDF effectively
-> > 
-> > In that case, we'll need to parse the child DTS nodes properly
-> > within of_iommu_get_resv_regions(). I'll include this in v4.
-> 
-> Kinda surprised this isn't happening already? It would be good to
-> refer to the original specs and describe how whatetever you propose is
-> aligned there.
+=E2=80=A6
 
-Just to confirm, does the v3 version of this series look good to you?
-If so, I’ll go ahead and respin the series with the iommu_set_sw_msi()
-change and address the other review comments from Jacob.
-
-Otherwise having pci devices nodes in the fdt or dts needs additional
-handling, let me know your preference :)
-
-> 
-> > > Presumably this is a fixed issue of the platform. You never did
-> > > explain how your system has such werdio behavior, or how something
-> > > like iommu=pt can function on it...
-> > Yes, this issue is platform-specific. On this platform, the default MSI IOVA
-> > range overlaps with an address region that is reserved for another purpose,
-> > Other than that we haven't observed any obvious issues for DMA operations
-> 
-> Usually DRAM is at the default MSI IOVA address, so if you run
-> iommu=pt then presumably your DRAM map has a nice hole in it.. But
-> maybe the memory map told the OS about that.
->
- 
-our DRAM for this platform starts at higher offset, way beyond MSI_IOVA.
-
-
-Thanks,
-Shyam 
+Sebastian
