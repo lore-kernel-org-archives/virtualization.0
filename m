@@ -1,147 +1,116 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31F76285C91;
-	Wed, 27 Aug 2025 09:42:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99E362820BA
+	for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 10:19:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756287763; cv=none; b=eRqMFzPbw7ODEZ83IsxvK+KT0UxYLOscFr/3p2iA8q5e3mmnPpud4QB4XTNQEsoHRwxY2uTQMWAxOsxsSQgmKja7o6AaRS8bqfLCaCXaVrJUfYBrxYslfRFB7q6JK48Oywwf9dRgBDDkpFhTjzm3fPir4z61hZa2cwnqOlu7ZuE=
+	t=1756289964; cv=none; b=o2NAdzkor/QbFDPjaO7UeUYVSZbyNEdgOOWmltpfxnWOCNt2jhCQNLiHF7VIDqzelQ5MCNTym37rbtsPcm2/QDXpug8KmLdud7BeUnoP7YmoFbjbA7tYMyPPa8/tIIxzli6yquNP4XiZlYAeEZmq7eBdmV5tgQ2KZQaZJsoSVUM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756287763; c=relaxed/simple;
-	bh=A0KNxlVGHuvT2hmaoiFbUd67u8sxODxt85QG+mrnbSE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Yp/kCsucQxYIfQ0hY3l7N6oS7xBfBRUDNCVxCVbQIdITBdMkXVmGKPJBVvrKqqLcFt4diQErH2bsUNKFAjN3+8Zr/+58cxXDE6k/c7nz0TkBMj6cvfw6b1EgMLxNx08j/QLBgOZlDqg3yExJuTbqF1+GqonpAzD4WWmnvh3F17o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cgwu/AQu; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1756289964; c=relaxed/simple;
+	bh=y7lHJpJz82+fq+cmoA2Rje1ObPa1jJyCFZ+xy5la4bc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=GWnOLjxh9t8knwolXUcECVSr6YNbmitQyVA6y+wv7VittaEF2AygkuqTpnVIcWeUaCvHHtmI57jr4YFTPEB2881AXzrZ27Fn86BgtoOoC4hEJ3MsZe73CzXS4xrVGY3qPTMFq/i6zFrynGK5fbkuEOCPkE6om36xC1N90YktYzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YErr8aUP; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cgwu/AQu"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-3cd59c5a953so29126f8f.0;
-        Wed, 27 Aug 2025 02:42:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756287759; x=1756892559; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=s4gNirUawo/2N73RGh/VZFmiZovBEw6Zvsz5pkyBSog=;
-        b=cgwu/AQu+8kJH7NXekshnpHIodjnM51rYtYIs7aQRLfWhshi5JZIuONnDY1wlnc8X5
-         0p+OV5MNRMEZRQ0rjDU0On2KaTx5ZTi3q7c4y6eK4saAL+vsmxD/4uvsymPSomvQQK3h
-         WWby+6yqt3e+RIn2ch3GrECUaTDJfFvp3RDaoc+rEJqeHSWZZGvUZGTHOVUUGnKNBeeG
-         +ZLFPmJmF7q1boqcTSz2JlVtC+4CTVdKxBXHIzTSPF0nMh9yV3fphLSp/8K0uQEMrxsx
-         BA8BYkZRIgsU8CK18n2QEGLo3V1zSuvDajKH/LyBt1sM2/H+SZUEUy1TTjjp/AH5H8xN
-         sEAw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YErr8aUP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756289961;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YnxDSV7VEWbUTH7IQE/IACCp8ml0MfXzZao1fPU++/o=;
+	b=YErr8aUPsxVS3SRYxNvQjrxinSo5ZmP1NzJFJPa5n1YIWyFasK4yy4bo6yl7dQXE6EGDsy
+	B276XaBXN1Bp+jUH69M39U/1LRHMxoOo34PLuaO44eUiCicrpuVk5ecMgY8OaSk+VoAHqO
+	d6WfhoXVu4n+cfF1am+IBsNi9Owl06k=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-161-GnhHvdLuPNu1HIOrxZlzhg-1; Wed, 27 Aug 2025 06:19:19 -0400
+X-MC-Unique: GnhHvdLuPNu1HIOrxZlzhg-1
+X-Mimecast-MFC-AGG-ID: GnhHvdLuPNu1HIOrxZlzhg_1756289958
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3cca50781ddso395512f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 03:19:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756287759; x=1756892559;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=s4gNirUawo/2N73RGh/VZFmiZovBEw6Zvsz5pkyBSog=;
-        b=DRN/JX4Mxu6IZpUCUOI6FbpJGBQFx+M7mx80VRbyjtSPSA/nyFJv2X1pTbEujtqMdY
-         WI96HcaVvrOeNP5P5DWpaGl35V1jUaw/Me8bvRgxuQnxGAP3GshmVeKmxgWuWH4tPdaj
-         eNYgQT78DVhIBfUZXNtmVFXRgFnBu/xej0t1yV3y4RRKCTeArYlK6J24fM5wtIU0Dm1a
-         dZ6U+pKGCY51ifKxEwTmqO2ynwS2ruIIJUaVrRbTmHUiiJRaeWmkpuBnvmWVsinvPYQO
-         LNYuf6TQ3q6sfEMqrKyG6J3I0I+l0xzzxMyecW/mTv781p1Fbguh3GFs/cd8yrC5An2v
-         g7EQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVSqEIfa/ezWmCKAWuSVJ3EhCkHi78AHQuvbkTpOsT8DQTuJVrIG9wCS1EYncHvPrTEnWiiHirSnR336y/vTQE=@lists.linux.dev, AJvYcCWGrbUSxAofllmSlK+uXwIGYTND16Bf+Xf52zmkcvwxpuAcjrWlvV0G3RnzyW2bTTyE+6Vlog==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwcJQQ+pn2FPgJApQfwGIhPQzZ9jWrSE5visknzbnlZATTXvSy2
-	OhV8QEi0QcmQQ8AZHVgsB8R7BDlFaGLfbc9pl56H7JF5UViMEl5me79H
-X-Gm-Gg: ASbGncsNOpc6HtYJGU31WzugRr1cZlWxeK9TPE+WmE2cYq4u+DMoYDx7PuKeLqojF6q
-	y4NYp37MdW5mNqvjqQIZqAXreT5I3xQ6UsMJA8pD0gUoxad6s8GEbc9mppjlrxup3eyqziu60HW
-	OLQ699e514m2QcGWZ35+FLBrTV+W1Q1UFOKQM/JWvAyK5WY7gjQ8Yr3Z33/sFxWbHdmZ7+JtqJq
-	Wyj3upGBmnyMiCdiKEbbG/CXqANUGthniqTKRuHsdWg34XJNdqJiaGKCN8gkFXBqTLn2fb+PToJ
-	G5dXFVlUTsESOZK5c1h1FPL+0KT5p34llGcBKydYCUuOrR4beaBg5z74m+lnW19m77+n4dlARcr
-	DAG31QnoLSjfWwYrOj7hy1DzUGgtamPA0LA/u76KqfCVDwE6hDAx95dArEm+EODPWeQ==
-X-Google-Smtp-Source: AGHT+IFkjO5GHbU1+2MUuKQvNL0fwH2etmLb7S57NgBpdq01aCYpWSgROxwdQQpXxfO8aoPZevSNpQ==
-X-Received: by 2002:a05:6000:3105:b0:3b8:d672:3cf8 with SMTP id ffacd0b85a97d-3c5dcb10b6amr14770182f8f.43.1756287759105;
-        Wed, 27 Aug 2025 02:42:39 -0700 (PDT)
-Received: from ?IPV6:2620:10d:c096:325:77fd:1068:74c8:af87? ([2620:10d:c092:600::1:4a1a])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3cc4b102889sm3363615f8f.51.2025.08.27.02.42.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 Aug 2025 02:42:38 -0700 (PDT)
-Message-ID: <46d09557-1873-4d97-b073-ce0c7296b954@gmail.com>
-Date: Wed, 27 Aug 2025 10:43:59 +0100
+        d=1e100.net; s=20230601; t=1756289958; x=1756894758;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YnxDSV7VEWbUTH7IQE/IACCp8ml0MfXzZao1fPU++/o=;
+        b=hkYc3KG7bcgKvvFp6RlEgHoV1W8fXAtKeyBiJVXf87f1F07y1Sq3a9ZzgpPVZLZgVW
+         8jUdZz9gPWEXVFsxhh4Atvz+fEQh+TApZojo4Udjr9FEgt0x9UpC+YYvKuraJ3kOjcZx
+         XWGwnxsioXILPMid/YtnDftevR4mQckyDJ7taHIlBb8jWUpLNzng4Jq2gQZzZ5xFm24z
+         zxpkIL5Gaz+VeQ+IP274EwvfAEMzjougpTDvokzFsHNxfo0wrFpxkDbWSYBXrOu1ghe8
+         s/F0cAJRJTYKqB54z9J2BLSHP1bpNmc89kKdD8LIgmKmvYPt2ZHNeVhppSEmsKlyNUwx
+         6/hw==
+X-Gm-Message-State: AOJu0YxByP9kL4OXjj/gHEeV2oN5uDjGzW8QOhnJlV8bU7WIasaivlX0
+	FL37sJz8Ul6D6JrdbUcIiiwYvtavyC8doj3GWOb2G7piwoFnwoNAm43O7TFwYn3HCLh9AjUver1
+	MZaCAfb858m62qZPM5z0QST+XH1gHhzlMim7gM/FfrpoyBR0mCWn22pZh+HnkpT59X15r
+X-Gm-Gg: ASbGncshsqT8JJKkeP9qOcYGTFkSPZh3WTRdrbNGfWT4rcumoAfOMGbHlU0hSC5AX45
+	ySIOAGrOjAZtzEb3bKew34Ykj1/HcE5jJ9cdBvZ4iXtSuLKsnn/3BcKJiwyWjeNo5zWR3G2gr9S
+	498w2ChYQnD91mnsKVsLtOnte1SMrkzwZEPJooQOyuNhQ6EsUZRwLjASi5dviij5KetENUxq8XB
+	K5YiOewNy74/1XI0GqASrR06fd4zphKrXggswqCh2dJz0XhmIMjXbbgULPM9ArlBDSscrdvvpjS
+	Ow24PLx4XkQJ3DrdtAmSY/GtszjgtVU=
+X-Received: by 2002:a05:6000:3105:b0:3c9:c3dd:76b7 with SMTP id ffacd0b85a97d-3c9c3dd798dmr7365855f8f.13.1756289957752;
+        Wed, 27 Aug 2025 03:19:17 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEnBgHJDVrf3uqIPu7fLXfZWC1O9D9UZiySAsYPd5ClZgciVjBuom+qiFTUkCyFtJ3+vfLYKA==
+X-Received: by 2002:a05:6000:3105:b0:3c9:c3dd:76b7 with SMTP id ffacd0b85a97d-3c9c3dd798dmr7365831f8f.13.1756289957299;
+        Wed, 27 Aug 2025 03:19:17 -0700 (PDT)
+Received: from redhat.com ([185.137.39.233])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c711abd15asm20132997f8f.56.2025.08.27.03.19.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Aug 2025 03:19:16 -0700 (PDT)
+Date: Wed, 27 Aug 2025 06:19:13 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"jasowang@redhat.com" <jasowang@redhat.com>,
+	"stefanha@redhat.com" <stefanha@redhat.com>,
+	"pbonzini@redhat.com" <pbonzini@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>,
+	Max Gurtovoy <mgurtovoy@nvidia.com>,
+	"NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>
+Subject: Re: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
+ pci device"
+Message-ID: <20250827061537-mutt-send-email-mst@kernel.org>
+References: <20250822091706.21170-1-parav@nvidia.com>
+ <20250822060839-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195292684E62FD44B3ADFF9DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250822090249-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195392690042EF1600CEAC5DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250822095225-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195C932CA73F6C2FC7484ABDC3FA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250824102947-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB71956B4FDE7C4A2DA4304D0CDC39A@CY8PR12MB7195.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 18/35] io_uring/zcrx: remove "struct io_copy_cache"
- and one nth_page() usage
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>, Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Johannes Weiner <hannes@cmpxchg.org>,
- John Hubbard <jhubbard@nvidia.com>, kasan-dev@googlegroups.com,
- kvm@vger.kernel.org, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
- Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
- Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
- Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
- Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
- Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org,
- Zi Yan <ziy@nvidia.com>
-References: <20250821200701.1329277-1-david@redhat.com>
- <20250821200701.1329277-19-david@redhat.com>
- <b5b08ad3-d8cd-45ff-9767-7cf1b22b5e03@gmail.com>
- <473f3576-ddf3-4388-aeec-d486f639950a@redhat.com>
-Content-Language: en-US
-From: Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <473f3576-ddf3-4388-aeec-d486f639950a@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CY8PR12MB71956B4FDE7C4A2DA4304D0CDC39A@CY8PR12MB7195.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: eZ2R-ySDUuROAtaWp7zapFr_LFOYCSIExEJPgeBl9A4_1756289958
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 8/22/25 14:59, David Hildenbrand wrote:
-> On 22.08.25 13:32, Pavel Begunkov wrote:
->> On 8/21/25 21:06, David Hildenbrand wrote:
->>> We always provide a single dst page, it's unclear why the io_copy_cache
->>> complexity is required.
->>
->> Because it'll need to be pulled outside the loop to reuse the page for
->> multiple copies, i.e. packing multiple fragments of the same skb into
->> it. Not finished, and currently it's wasting memory.
-> 
-> Okay, so what you're saying is that there will be follow-up work that will actually make this structure useful.
+On Tue, Aug 26, 2025 at 06:52:03PM +0000, Parav Pandit wrote:
+> > What I do not understand, is what good does the revert do. Sorry.
+> > 
+> Let me explain.
+> It prevents the issue of vblk requests being stuck due to broken VQ.
+> It prevents the vnet driver start_xmit() to be not stuck on skb completions.
 
-Exactly
+This is the part I don't get.  In what scenario, before 43bb40c5b9265
+start_xmit is not stuck, but after 43bb40c5b9265 it is stuck?
 
->> Why not do as below? Pages there never cross boundaries of their folios. > Do you want it to be taken into the io_uring tree?
-> 
-> This should better all go through the MM tree where we actually guarantee contiguous pages within a folio. (see the cover letter)
+Once the device is gone, it is not using any buffers at all.
 
-Makes sense. No objection, hopefully it won't cause too many conflicts.
-
->> diff --git a/io_uring/zcrx.c b/io_uring/zcrx.c
->> index e5ff49f3425e..18c12f4b56b6 100644
->> --- a/io_uring/zcrx.c
->> +++ b/io_uring/zcrx.c
->> @@ -975,9 +975,9 @@ static ssize_t io_copy_page(struct io_copy_cache *cc, struct page *src_page,
->>            if (folio_test_partial_kmap(page_folio(dst_page)) ||
->>                folio_test_partial_kmap(page_folio(src_page))) {
->> -            dst_page = nth_page(dst_page, dst_offset / PAGE_SIZE);
->> +            dst_page += dst_offset / PAGE_SIZE;
->>                dst_offset = offset_in_page(dst_offset);
->> -            src_page = nth_page(src_page, src_offset / PAGE_SIZE);
->> +            src_page += src_offset / PAGE_SIZE;
-> 
-> Yeah, I can do that in the next version given that you have plans on extending that code soon.
-
-If we go with this version:
-
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 
 -- 
-Pavel Begunkov
+MST
 
