@@ -1,100 +1,125 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8C1921B9DA
-	for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 11:33:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756294428; cv=none; b=pTwwMymWPTGV96l58kYJMgOBoQfRA+VelMzzOKlptcREF5rgKlFPQJJRhhFTiiA+q8WrFtLoISWxSEtY8XpzbW9B0qMwTx3myVutcFekxsF7Vv6zqy/6lNhpKjsfaO7WFeXPPBfLlf9KASzoccesR5ufh/+9cXixO6v2zaUZWFw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756294428; c=relaxed/simple;
-	bh=XmNCkzuQTa4pSLXuCBnvKLcjmKigsVba1pgLbUpx+X4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Z5eB9mw+F+FIAjeh9mMQ7ivjrsOC+IMAuRt6BNry+iuKD4bRNp74xezUV0yI7YGZBfcHhdIfNoBc7VBuhfT7be8DRbYeWBBhBSwwIBKOE90wwToHv0IxCdpCqIwRkSWjI10aCcV5wrvt9WW5nOhEIA4dzVMQrqI0uNzLUZLns/c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PE+XbWjt; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B82A730CD81
+	for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 12:52:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756299147; cv=pass; b=rHF7xtVAknfpTEA5vup7EwKOeRjxCqEBMG4q71FqPiCwz6Jf1Xs/w5LNbRfJUyA02DHC/DavnUhN/F68Utg8HsecYbJ3DJdP9xBW9lv603uUeTsnRXQMJbKmQZ8iRUUb2ft2xx1sl1aOGddkTFz7YIPpiGTLQt0rT500IaFtqr4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756299147; c=relaxed/simple;
+	bh=oXpxbxsmBMnvefs2wvFPaJnm1H1uIuLqMfw22p8wq8Q=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=igJOzwuLIHA3HmSgNd1Sxz0M/ERgCJ1D4Hxfmxr4TPC1reAViHMwD208hlOuV+aYqNFQRe/1OIbWUnnvIk19F/ixHhS4xmybWcfeU4KILKfJtdrkLX8DCFYMN1Byd1ZbMjeEdSRw61MSaJEkt3RKvh3jUMBRGhVcrM3r+4+7wjk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=DMYsvwG5; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PE+XbWjt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756294425;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=c004jzm2W4PkBjkE5bj+/Vzdbx5vYKS5DvBkpQgw7xM=;
-	b=PE+XbWjtL5MVTnEEBkntTZXxd24ra+zLmG7kzVUGEoJh7T5Vc6Pu+CqRwFrfVUKq1xjtsF
-	lvDLZPZuVPt2yRPQH0X4VhYhFtoVIPZwlMhBkVY7BELQK8gQ6OeXTqowyFdojn7F6FibhV
-	uQFW7CcoiVNCVpvFYU1laFXISjgw2kY=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-135-ilkgBNJtM2aBkgCYTXwC1A-1; Wed,
- 27 Aug 2025 07:33:43 -0400
-X-MC-Unique: ilkgBNJtM2aBkgCYTXwC1A-1
-X-Mimecast-MFC-AGG-ID: ilkgBNJtM2aBkgCYTXwC1A_1756294422
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7563819560B2;
-	Wed, 27 Aug 2025 11:33:41 +0000 (UTC)
-Received: from localhost (dhcp-192-195.str.redhat.com [10.33.192.195])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 526E919560AB;
-	Wed, 27 Aug 2025 11:33:39 +0000 (UTC)
-From: Cornelia Huck <cohuck@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Parav Pandit <parav@nvidia.com>
-Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "jasowang@redhat.com" <jasowang@redhat.com>, "stefanha@redhat.com"
- <stefanha@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
- "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
- "stable@vger.kernel.org" <stable@vger.kernel.org>, Max Gurtovoy
- <mgurtovoy@nvidia.com>, "NBU-Contact-Li Rongqing (EXTERNAL)"
- <lirongqing@baidu.com>
-Subject: Re: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
- pci device"
-In-Reply-To: <20250827061537-mutt-send-email-mst@kernel.org>
-Organization: "Red Hat GmbH, Sitz: Werner-von-Siemens-Ring 12, D-85630
- Grasbrunn, Handelsregister: Amtsgericht =?utf-8?Q?M=C3=BCnchen=2C?= HRB
- 153243,
- =?utf-8?Q?Gesch=C3=A4ftsf=C3=BChrer=3A?= Ryan Barnhart, Charles Cachera,
- Avril Crosse O'Flaherty"
-References: <20250822091706.21170-1-parav@nvidia.com>
- <20250822060839-mutt-send-email-mst@kernel.org>
- <CY8PR12MB7195292684E62FD44B3ADFF9DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250822090249-mutt-send-email-mst@kernel.org>
- <CY8PR12MB7195392690042EF1600CEAC5DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250822095225-mutt-send-email-mst@kernel.org>
- <CY8PR12MB7195C932CA73F6C2FC7484ABDC3FA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250824102947-mutt-send-email-mst@kernel.org>
- <CY8PR12MB71956B4FDE7C4A2DA4304D0CDC39A@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250827061537-mutt-send-email-mst@kernel.org>
-User-Agent: Notmuch/0.38.3 (https://notmuchmail.org)
-Date: Wed, 27 Aug 2025 13:33:37 +0200
-Message-ID: <87frdddmni.fsf@redhat.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="DMYsvwG5"
+ARC-Seal: i=1; a=rsa-sha256; t=1756299133; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=Ez5iLcyAm0TWoQPpxjCYo0iJcmkpcbg0lKZxD43EkLggZqkKz9UPPcnRpSFzAEFnX55zbP6pQLKW1T80J/WunhglFi33mqIaZOlYrsU9bC1hfUXo4OmoX3awC7NTKCU2P32O03MAcoOFk8CKtAkSq/dGW/9rq6Gj69E8/xfpieo=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1756299133; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=Q9sEhWFWjO3Q+Hf3t/P42wG/ICyoqfqPOOvnA17tG0I=; 
+	b=nBsqJGmniSYeDOKBpfQjaEro1cJwC/UkXUKS32h1VOs4ukB/6aZFnCKdRTFOorHX8tbZS0AFaL5LqxurGkOlCIsBGNV6LCKmF6bsftq9yUuSXMxcy+ukDmy3duDszuVYAZPShUX0UTgFOO6QVVREYftalJcKYkG4ZWdm7roMmL8=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1756299133;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=Q9sEhWFWjO3Q+Hf3t/P42wG/ICyoqfqPOOvnA17tG0I=;
+	b=DMYsvwG5BLwt/NoeQPUSUOt5Sfyoya1XhAeF4WpM2dcaJme8pE9WvqSvUzIx++SQ
+	O1y2eeEwfRhS3GzCR8NZFOPQusKCtYD9wu8x31nQPk0s8jWvKw4XpQG+Fot1yViDaIR
+	pMLx3wSDLtk3jB6M9gc5+0c2qJSiBwTSMSC1kBXo=
+Received: by mx.zohomail.com with SMTPS id 1756299131644721.8061253320444;
+	Wed, 27 Aug 2025 05:52:11 -0700 (PDT)
+Message-ID: <9ecf015d-d96a-40ac-a7fb-50e46c4f6e00@collabora.com>
+Date: Wed, 27 Aug 2025 15:52:05 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: fix host visible memory detection in
+ virtio-gpu
+To: Honglei Huang <honglei1.huang@amd.com>, David Airlie
+ <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
+ Chia-I Wu <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20250827081231.1878248-1-honglei1.huang@amd.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20250827081231.1878248-1-honglei1.huang@amd.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On Wed, Aug 27 2025, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On 8/27/25 11:12, Honglei Huang wrote:
+> From: Honglei Huang <Honglei1.Huang@amd.com>
+> 
+> Commit 206cc44588f7 ("virtio: reject shm region if length is zero")
+> enhanced the validation in virtio_get_shm_region() by adding a check
+> for a zero-length shared memory region.
+> 
+> It is performed before the underlying transport's .get_shm_region()
+> implementation is called. This creates an issue in the virtio-gpu
+> driver, where the `region` struct is part of a larger structure
+> that is zero-initialized by drmm_kzalloc().
+> 
+> Consequently, the `len` field is 0 at the time of the check, causing
+> virtio_get_shm_region() to return false prematurely. This prevents the
+> host visible memory feature from being enabled, even when the device
+> supports it.
+> 
+> To resolve this, this patch bypasses the inline helper and calls the
+> underlying vdev->config->get_shm_region() function pointer directly.
+> This ensures that the region's parameters are checked only after they
+> have been populated by the transport, aligning with the intended logic.
+> 
+> Signed-off-by: Honglei Huang <Honglei1.Huang@amd.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_kms.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> index 7dfb2006c561..ed5981248302 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> @@ -174,8 +174,10 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+>  	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_BLOB)) {
+>  		vgdev->has_resource_blob = true;
+>  	}
+> -	if (virtio_get_shm_region(vgdev->vdev, &vgdev->host_visible_region,
+> -				  VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
+> +	if (vgdev->vdev->config->get_shm_region &&
+> +	    vgdev->vdev->config->get_shm_region(
+> +		    vgdev->vdev, &vgdev->host_visible_region,
+> +		    VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
+>  		if (!devm_request_mem_region(&vgdev->vdev->dev,
+>  					     vgdev->host_visible_region.addr,
+>  					     vgdev->host_visible_region.len,
 
-> On Tue, Aug 26, 2025 at 06:52:03PM +0000, Parav Pandit wrote:
->> > What I do not understand, is what good does the revert do. Sorry.
->> > 
->> Let me explain.
->> It prevents the issue of vblk requests being stuck due to broken VQ.
->> It prevents the vnet driver start_xmit() to be not stuck on skb completions.
->
-> This is the part I don't get.  In what scenario, before 43bb40c5b9265
-> start_xmit is not stuck, but after 43bb40c5b9265 it is stuck?
->
-> Once the device is gone, it is not using any buffers at all.
+Hi, virtio_get_shm_region() change has been reverted by [1]. Don't think
+anything else needs to be done.
 
-What I also don't understand: virtio-ccw does exactly the same thing
-(virtio_break_device(), added in 2014), and it supports surprise removal
-_only_, yet I don't remember seeing bug reports?
+[1]
+https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=next-20250827&id=ced17ee32a9988b8a260628e7c31a100d7dc082e
 
++cc Michael Tsirkin
+
+Might be only good to send a stable kernel PR with that revert. I see
+patch available only in linux-next, while stable kernels need to be
+fixed sooner.
+
+-- 
+Best regards,
+Dmitry
