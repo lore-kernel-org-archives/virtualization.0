@@ -1,174 +1,147 @@
-Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on2047.outbound.protection.outlook.com [40.107.95.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72237322774
-	for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 08:12:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.95.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756282378; cv=fail; b=f29U1lJI1sXoKX34+UnVkNXecwmHUGLxVxiEQBiIh+Lv6luXshFL4vn+SngfATS0/AL3Xc4Na5tB2iBGqq981vMIa9lvb/MHJTMqB1aK/UM3nTvoyTKMC+ts+oexKlGo20SIIARCyr4hMccxjgPyfMFO18y2pDcb/gHaTzHl79o=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756282378; c=relaxed/simple;
-	bh=ko76v2sOIFK6k+OPjPWUc/wWBnqRm72CUrs7Ax88TGQ=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=E0CtJri7rerXA7CjfixLhTpdWE2Du5P/LXhpGH3njU5PBOIKB47Q/B5ODYATKro14TVBcj9UpmHFc14uMpRDUTLjqXQj9ke0ht7USajnWVn+dq3xLEJBbL+as3ftreeP61kiGPjee9bV+F46/JZGbGQZcO1esKbe+9Z7SYdT1dw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=jv+o738Z; arc=fail smtp.client-ip=40.107.95.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31F76285C91;
+	Wed, 27 Aug 2025 09:42:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756287763; cv=none; b=eRqMFzPbw7ODEZ83IsxvK+KT0UxYLOscFr/3p2iA8q5e3mmnPpud4QB4XTNQEsoHRwxY2uTQMWAxOsxsSQgmKja7o6AaRS8bqfLCaCXaVrJUfYBrxYslfRFB7q6JK48Oywwf9dRgBDDkpFhTjzm3fPir4z61hZa2cwnqOlu7ZuE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756287763; c=relaxed/simple;
+	bh=A0KNxlVGHuvT2hmaoiFbUd67u8sxODxt85QG+mrnbSE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Yp/kCsucQxYIfQ0hY3l7N6oS7xBfBRUDNCVxCVbQIdITBdMkXVmGKPJBVvrKqqLcFt4diQErH2bsUNKFAjN3+8Zr/+58cxXDE6k/c7nz0TkBMj6cvfw6b1EgMLxNx08j/QLBgOZlDqg3yExJuTbqF1+GqonpAzD4WWmnvh3F17o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cgwu/AQu; arc=none smtp.client-ip=209.85.221.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="jv+o738Z"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=NGydAPWdDINV6y+f2obM6jFJiC3xCmHY0mypLSJ1bdLCWBdxvEz0sbYAH7JjPyArejCTsIV2vwq1UmiZJ7cE4vUtvaSGISdU5DwIbOX6Nb/ZxXp/PRT4or6Qab2Ss2oV3/oRFsSYqZSI4l5o2q6MqQ9sYI4cDzivQr87qSJBJq1/9kY9V17Y3sDt1buPMeJNNyLEfst/CEhRSR0/bY4+M3j6rJ0mVUmAHWTrnEvBT6zKQurJASAHCItTpePeFWWn+BaohYgr6zQHHpxIZ7zrk3SCc5OfGdjICJ11OVL6XSY0/EXN4Gc0j0UF5eXVkbOGGkmt3t5J9VFpjZLJ0cXuBw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dmJmNTRTLf61g9UKxpZYzMctCgwwSBH0ddEl/pzaw4E=;
- b=SJZtMRdG4qm2IY8SzxWsIm3jQeXC7CWa/yVZlChjRCQTOd0Nk6sXr1I2aWJdRDrVynVwFZn4AJRV3HRgQNR81ixDye1dPooWUTQD7/OBEqJ+edAsVL97xsXrV9ylZKMY0FJnaa33fgxBwc23uYYyjeF16BrtI7uTkB5b3mOxf2vsiJPEYsZu3nNbbf4wQ3OYwZ9u43Xg29h3ZdR3OhkAswOgAc5b4m38O+GV5/xH/9CQgXM7vN2vbxqPGE1TcRCMIAOv+SC6kKc/rUziBJulrDFd2ZztI4+9ye0PkIuYbNrWpg51syDN1BG2c9maqwQsJSrRHpTdn+w4fDKG5nIAOA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dmJmNTRTLf61g9UKxpZYzMctCgwwSBH0ddEl/pzaw4E=;
- b=jv+o738ZHFWQqaFXLMKpMIvpP/iwgF80DiDcTj3f/Uqd41hmLTbwXa4/bvd6cDqt+G0F6Q0LEwk+HSbyXYht5O7RiPPx6lKY71CJVzLVxPqaNfpGRG06F1VXwMXOai4OTo/0YE1E2IQzCAmebY5cberc7MXXrdL3jbyAgLxwODE=
-Received: from CH0PR04CA0120.namprd04.prod.outlook.com (2603:10b6:610:75::35)
- by PH7PR12MB5757.namprd12.prod.outlook.com (2603:10b6:510:1d0::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9052.20; Wed, 27 Aug
- 2025 08:12:52 +0000
-Received: from CH2PEPF0000009B.namprd02.prod.outlook.com
- (2603:10b6:610:75:cafe::9f) by CH0PR04CA0120.outlook.office365.com
- (2603:10b6:610:75::35) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9073.13 via Frontend Transport; Wed,
- 27 Aug 2025 08:12:51 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CH2PEPF0000009B.mail.protection.outlook.com (10.167.244.23) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.9052.8 via Frontend Transport; Wed, 27 Aug 2025 08:12:51 +0000
-Received: from honglei-remote.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Wed, 27 Aug
- 2025 03:12:48 -0500
-From: Honglei Huang <honglei1.huang@amd.com>
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>, Maarten Lankhorst
-	<maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>, Simona Vetter <simona@ffwll.ch>
-CC: Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
-	<olvaffe@gmail.com>, <dri-devel@lists.freedesktop.org>,
-	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>, "Honglei
- Huang" <Honglei1.Huang@amd.com>
-Subject: [PATCH] drm/virtio: fix host visible memory detection in virtio-gpu
-Date: Wed, 27 Aug 2025 16:12:31 +0800
-Message-ID: <20250827081231.1878248-1-honglei1.huang@amd.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cgwu/AQu"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-3cd59c5a953so29126f8f.0;
+        Wed, 27 Aug 2025 02:42:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1756287759; x=1756892559; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=s4gNirUawo/2N73RGh/VZFmiZovBEw6Zvsz5pkyBSog=;
+        b=cgwu/AQu+8kJH7NXekshnpHIodjnM51rYtYIs7aQRLfWhshi5JZIuONnDY1wlnc8X5
+         0p+OV5MNRMEZRQ0rjDU0On2KaTx5ZTi3q7c4y6eK4saAL+vsmxD/4uvsymPSomvQQK3h
+         WWby+6yqt3e+RIn2ch3GrECUaTDJfFvp3RDaoc+rEJqeHSWZZGvUZGTHOVUUGnKNBeeG
+         +ZLFPmJmF7q1boqcTSz2JlVtC+4CTVdKxBXHIzTSPF0nMh9yV3fphLSp/8K0uQEMrxsx
+         BA8BYkZRIgsU8CK18n2QEGLo3V1zSuvDajKH/LyBt1sM2/H+SZUEUy1TTjjp/AH5H8xN
+         sEAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756287759; x=1756892559;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=s4gNirUawo/2N73RGh/VZFmiZovBEw6Zvsz5pkyBSog=;
+        b=DRN/JX4Mxu6IZpUCUOI6FbpJGBQFx+M7mx80VRbyjtSPSA/nyFJv2X1pTbEujtqMdY
+         WI96HcaVvrOeNP5P5DWpaGl35V1jUaw/Me8bvRgxuQnxGAP3GshmVeKmxgWuWH4tPdaj
+         eNYgQT78DVhIBfUZXNtmVFXRgFnBu/xej0t1yV3y4RRKCTeArYlK6J24fM5wtIU0Dm1a
+         dZ6U+pKGCY51ifKxEwTmqO2ynwS2ruIIJUaVrRbTmHUiiJRaeWmkpuBnvmWVsinvPYQO
+         LNYuf6TQ3q6sfEMqrKyG6J3I0I+l0xzzxMyecW/mTv781p1Fbguh3GFs/cd8yrC5An2v
+         g7EQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVSqEIfa/ezWmCKAWuSVJ3EhCkHi78AHQuvbkTpOsT8DQTuJVrIG9wCS1EYncHvPrTEnWiiHirSnR336y/vTQE=@lists.linux.dev, AJvYcCWGrbUSxAofllmSlK+uXwIGYTND16Bf+Xf52zmkcvwxpuAcjrWlvV0G3RnzyW2bTTyE+6Vlog==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwcJQQ+pn2FPgJApQfwGIhPQzZ9jWrSE5visknzbnlZATTXvSy2
+	OhV8QEi0QcmQQ8AZHVgsB8R7BDlFaGLfbc9pl56H7JF5UViMEl5me79H
+X-Gm-Gg: ASbGncsNOpc6HtYJGU31WzugRr1cZlWxeK9TPE+WmE2cYq4u+DMoYDx7PuKeLqojF6q
+	y4NYp37MdW5mNqvjqQIZqAXreT5I3xQ6UsMJA8pD0gUoxad6s8GEbc9mppjlrxup3eyqziu60HW
+	OLQ699e514m2QcGWZ35+FLBrTV+W1Q1UFOKQM/JWvAyK5WY7gjQ8Yr3Z33/sFxWbHdmZ7+JtqJq
+	Wyj3upGBmnyMiCdiKEbbG/CXqANUGthniqTKRuHsdWg34XJNdqJiaGKCN8gkFXBqTLn2fb+PToJ
+	G5dXFVlUTsESOZK5c1h1FPL+0KT5p34llGcBKydYCUuOrR4beaBg5z74m+lnW19m77+n4dlARcr
+	DAG31QnoLSjfWwYrOj7hy1DzUGgtamPA0LA/u76KqfCVDwE6hDAx95dArEm+EODPWeQ==
+X-Google-Smtp-Source: AGHT+IFkjO5GHbU1+2MUuKQvNL0fwH2etmLb7S57NgBpdq01aCYpWSgROxwdQQpXxfO8aoPZevSNpQ==
+X-Received: by 2002:a05:6000:3105:b0:3b8:d672:3cf8 with SMTP id ffacd0b85a97d-3c5dcb10b6amr14770182f8f.43.1756287759105;
+        Wed, 27 Aug 2025 02:42:39 -0700 (PDT)
+Received: from ?IPV6:2620:10d:c096:325:77fd:1068:74c8:af87? ([2620:10d:c092:600::1:4a1a])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3cc4b102889sm3363615f8f.51.2025.08.27.02.42.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 27 Aug 2025 02:42:38 -0700 (PDT)
+Message-ID: <46d09557-1873-4d97-b073-ce0c7296b954@gmail.com>
+Date: Wed, 27 Aug 2025 10:43:59 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 18/35] io_uring/zcrx: remove "struct io_copy_cache"
+ and one nth_page() usage
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, Alexander Potapenko <glider@google.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
+ Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ iommu@lists.linux.dev, io-uring@vger.kernel.org,
+ Jason Gunthorpe <jgg@nvidia.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ John Hubbard <jhubbard@nvidia.com>, kasan-dev@googlegroups.com,
+ kvm@vger.kernel.org, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
+ linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+ linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
+ Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
+ Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
+ Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
+ Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
+ Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org,
+ Zi Yan <ziy@nvidia.com>
+References: <20250821200701.1329277-1-david@redhat.com>
+ <20250821200701.1329277-19-david@redhat.com>
+ <b5b08ad3-d8cd-45ff-9767-7cf1b22b5e03@gmail.com>
+ <473f3576-ddf3-4388-aeec-d486f639950a@redhat.com>
+Content-Language: en-US
+From: Pavel Begunkov <asml.silence@gmail.com>
+In-Reply-To: <473f3576-ddf3-4388-aeec-d486f639950a@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH2PEPF0000009B:EE_|PH7PR12MB5757:EE_
-X-MS-Office365-Filtering-Correlation-Id: c3986943-1677-491f-92bf-08dde54184aa
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|1800799024|82310400026|376014|7416014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?uS8H3uINxkLcKmJx0Er25lTJDDPaPfv/PXENNqndYPzW2vSHoepsiCQLXpHs?=
- =?us-ascii?Q?Xa1xC30+o+571LqKH4NvH/Xa8I136TPRAJWswf6nEX9B4EjMEh86WCIclSPQ?=
- =?us-ascii?Q?QYRMZg8uSymsl2EbpsXuuOxKA9+KofBWqd+fMPSeSpFI5Y1XLowQIVQsEQ1Q?=
- =?us-ascii?Q?1WqtpFtboY46vJME/LfPjjHoEmoDVvoRJC6pGsB+cJ3hn88vSDUP7nPC9spg?=
- =?us-ascii?Q?KfWcDtM2MQXb5ikOtnbrscpiEVd3sIkDTjNqxJXxTAMatfCIRKnfRvJyfiJV?=
- =?us-ascii?Q?eE1eq+c7gHwJg2uMnKdDmQ94INCZIMzinwclGgLLvLrFoQhjKMiUFaJhoh1Y?=
- =?us-ascii?Q?oeQO/jy9Y60Bk3MfuL188r6JraJxSy15ivsXZFt2xtfPJcuSJpwfHumBPI97?=
- =?us-ascii?Q?q7Gv+xTXu1gqW791GW1l5mlQeOq86ygTqDWLA23QTe7CD93dm30jUUDDdvJ3?=
- =?us-ascii?Q?YgQZYEmM+3DsQs5ix6lXVXheWDzzaqekNIwpURO+AE0DI2kw8vpo6EmlKA/A?=
- =?us-ascii?Q?Zv/Mbjiz9gi8QJtbD7VUncC1O6nqzDEd34sq4YAz26Hi+JJfZf1bfeGs0n2E?=
- =?us-ascii?Q?Rq/nJ+1pMlf+Cubb3sU9sXJZgucdVt7WCdAbGR5gRpelyZTNGAiuSqa+sdoy?=
- =?us-ascii?Q?bPIxjNh4WdXTjGdObYhZN/wdJMUpLPSgvIPEIRGh/qu4blpVHPGlP4+dzrN9?=
- =?us-ascii?Q?TypuvIcYtqsjjZId4tch0z9DpM/VNCtcpnV/O7y5LQccEhauxboSrfsD+6xh?=
- =?us-ascii?Q?XTlkI0+GFRByShzEjwOnostv0dhoNLU9jGzbephBEyoAAsvB6vUvUrKgRfj3?=
- =?us-ascii?Q?dcc+FrMl7JkV1H/aFhGXueipGEphSb+NiNnjM0ttQMeLq6wz2lo4ucubRvf0?=
- =?us-ascii?Q?27rjCwm5Yqd0shGa7CqkJ/ao9rqmkfwbYbpzhjNpPqjoQOB5CwgbTjyz6sJ9?=
- =?us-ascii?Q?qxS3JZLR1Cq9eMs62B5nAZ1iGeI6L51RKeTUI4782b8aE/1gkvaTDw3WfVKw?=
- =?us-ascii?Q?ATF3JEkGcWeFBainvr8uREpJEg9GtQ4yiZ+FMC3F/Mln/XmzXz7QIUN59plC?=
- =?us-ascii?Q?k0AWvQ+e9CyHSF5R5mTv357fGtWXvf7qZ/d13E9cW7YLLOw1zhbfN9BGmDKT?=
- =?us-ascii?Q?qFKRq5G/3uIxAd3cc2Dz69UsNXcWy+mOY5Lv1yXy+nSa4LXTUNfBySnZOF2U?=
- =?us-ascii?Q?xZer5yPFwGVb4D5FBUUWsyarUrHlmDIOiClvcwGTcATXRGz3rljWMvNQEeSw?=
- =?us-ascii?Q?96+if3lbmS0oEW3dBR8moKeW7W6DCteo7BXaeJJGtk3JzmKrq7bXjfIa9unC?=
- =?us-ascii?Q?uGRbp4alMNvbRWZ6SIvAoYdzLhscRNIrHf1KFB2z8OF8cCiTCry35fOiF0qK?=
- =?us-ascii?Q?aMvcjQruM0s2aIgfXX/ABwwFBt/QPQ3fOlE3QqwW0j8EfHpJC3VGlQjsHzKz?=
- =?us-ascii?Q?d5mk8plHSJ/tABsbHAd9XsIOeVb035eYhTd8S+J0ES9D7yFDoIQdwxuSO4NS?=
- =?us-ascii?Q?SxmSemLrXPXxXJCOdaDpjpptGB/7RRwbIVjB?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700013)(1800799024)(82310400026)(376014)(7416014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Aug 2025 08:12:51.7344
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: c3986943-1677-491f-92bf-08dde54184aa
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH2PEPF0000009B.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5757
 
-From: Honglei Huang <Honglei1.Huang@amd.com>
+On 8/22/25 14:59, David Hildenbrand wrote:
+> On 22.08.25 13:32, Pavel Begunkov wrote:
+>> On 8/21/25 21:06, David Hildenbrand wrote:
+>>> We always provide a single dst page, it's unclear why the io_copy_cache
+>>> complexity is required.
+>>
+>> Because it'll need to be pulled outside the loop to reuse the page for
+>> multiple copies, i.e. packing multiple fragments of the same skb into
+>> it. Not finished, and currently it's wasting memory.
+> 
+> Okay, so what you're saying is that there will be follow-up work that will actually make this structure useful.
 
-Commit 206cc44588f7 ("virtio: reject shm region if length is zero")
-enhanced the validation in virtio_get_shm_region() by adding a check
-for a zero-length shared memory region.
+Exactly
 
-It is performed before the underlying transport's .get_shm_region()
-implementation is called. This creates an issue in the virtio-gpu
-driver, where the `region` struct is part of a larger structure
-that is zero-initialized by drmm_kzalloc().
+>> Why not do as below? Pages there never cross boundaries of their folios. > Do you want it to be taken into the io_uring tree?
+> 
+> This should better all go through the MM tree where we actually guarantee contiguous pages within a folio. (see the cover letter)
 
-Consequently, the `len` field is 0 at the time of the check, causing
-virtio_get_shm_region() to return false prematurely. This prevents the
-host visible memory feature from being enabled, even when the device
-supports it.
+Makes sense. No objection, hopefully it won't cause too many conflicts.
 
-To resolve this, this patch bypasses the inline helper and calls the
-underlying vdev->config->get_shm_region() function pointer directly.
-This ensures that the region's parameters are checked only after they
-have been populated by the transport, aligning with the intended logic.
+>> diff --git a/io_uring/zcrx.c b/io_uring/zcrx.c
+>> index e5ff49f3425e..18c12f4b56b6 100644
+>> --- a/io_uring/zcrx.c
+>> +++ b/io_uring/zcrx.c
+>> @@ -975,9 +975,9 @@ static ssize_t io_copy_page(struct io_copy_cache *cc, struct page *src_page,
+>>            if (folio_test_partial_kmap(page_folio(dst_page)) ||
+>>                folio_test_partial_kmap(page_folio(src_page))) {
+>> -            dst_page = nth_page(dst_page, dst_offset / PAGE_SIZE);
+>> +            dst_page += dst_offset / PAGE_SIZE;
+>>                dst_offset = offset_in_page(dst_offset);
+>> -            src_page = nth_page(src_page, src_offset / PAGE_SIZE);
+>> +            src_page += src_offset / PAGE_SIZE;
+> 
+> Yeah, I can do that in the next version given that you have plans on extending that code soon.
 
-Signed-off-by: Honglei Huang <Honglei1.Huang@amd.com>
----
- drivers/gpu/drm/virtio/virtgpu_kms.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+If we go with this version:
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 7dfb2006c561..ed5981248302 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -174,8 +174,10 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_BLOB)) {
- 		vgdev->has_resource_blob = true;
- 	}
--	if (virtio_get_shm_region(vgdev->vdev, &vgdev->host_visible_region,
--				  VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
-+	if (vgdev->vdev->config->get_shm_region &&
-+	    vgdev->vdev->config->get_shm_region(
-+		    vgdev->vdev, &vgdev->host_visible_region,
-+		    VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
- 		if (!devm_request_mem_region(&vgdev->vdev->dev,
- 					     vgdev->host_visible_region.addr,
- 					     vgdev->host_visible_region.len,
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+
 -- 
-2.34.1
+Pavel Begunkov
 
