@@ -1,112 +1,130 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D4004230BCB;
-	Tue, 26 Aug 2025 22:19:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B4BC308F3A
+	for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 07:45:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756246751; cv=none; b=QeL3Jux2yNd1/n+Uchz6MuajeBedk6Raq2dKob6ZvgnV3qHfP51klPMALUjhnv/d/oKLFAvXQ09/vG4cN2Ux4bTyfo7A2LUruvlUAIxKJ/kpCtrP+/XnZRxBZPy8L8Gi9A6Is98IKbvyQltQjzHnzpTctLtE4z0+gjqa8Nv1anQ=
+	t=1756280749; cv=none; b=mxvIe0h1djJbrNyeAuZpp85bjMfC78wsRaqD2Q7h6xSVnCId+zFk6ARC7xsF3bd1DPxtJAZxrzGCSf6TqiOiK1NgBDZgYl64etIcqpu7eOcvmy4KojEk8TEds+LAnYYbRumtjLqihSu7UB/6Z8thLGoyVuXNIMEA59/I6UcNjgE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756246751; c=relaxed/simple;
-	bh=dDASlBP0MFIq8lXobKcU0ACkjKAUEd5X5sCs3eQWVxg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DeNpZI9RwjL6Hbdkyzz4yEEc4b2+2FUPLgto0FFmOCmUffpYZSdQZfUNaDfyd5vxyeC2OsB5IdkaPmtJAcyVOGKgpJkfVli2ipyQnAVoRdTMIrotVZZmsMQG4FuAY0//YPQYBJIqp/Ksh9Cn7jP+Jt3nl8e2g80wN9F92zA4sOU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=EXd25FO/; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1756280749; c=relaxed/simple;
+	bh=m1P0jEmqMZWxkTnadh0YZTaGGpaW9MgNFj/scBIbOjk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Ej/xUL5+s2vVrRGGu1+y44oYN/5NXSR4WQ/3xBnMxvi+dflas6nJTRSWyWcYYZtcHwwLZel8yvQTJhAgR7dZaCmrsh9AVVraFz6sbx0fozTmWgxZP/gfxxdWzTktdi/HkCa/wUB+UVqmBGEq5+X1qBfk1yEbFW7+bkDoXYcmzEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gExMxf31; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="EXd25FO/"
-Received: by linux.microsoft.com (Postfix, from userid 1152)
-	id 6C8812019D4D; Tue, 26 Aug 2025 15:19:09 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 6C8812019D4D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1756246749;
-	bh=8rtcCqNEwRzPi2I5Hkbq7ADSY01CvO5xXBkS7wksSvE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=EXd25FO/CTVn1QSOUQbXEMJ929gVepWWEUf8BzPGH1O47quoc3mUJI794aVUEr9uu
-	 WdMwUuZ4w6tMKjQ0o4OYxTeRjLqYZSem40ZIsqBPVC7iGR5ZVMolKhSMwD/qaNeGiq
-	 +pioNVkMiMZzPQAY70cl2TtQL6bM+1BVZxhP+Tx4=
-Date: Tue, 26 Aug 2025 15:19:09 -0700
-From: Shyam Saini <shyamsaini@linux.microsoft.com>
-To: thierry.reding@gmail.com, robin.murphy@arm.com, robh@kernel.org,
-	jroedel@suse.de
-Cc: jgg@ziepe.ca, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	virtualization@lists.linux.dev, will@kernel.org,
-	jacob.pan@linux.microsoft.com, eric.auger@redhat.com,
-	code@tyhicks.com, eahariha@linux.microsoft.com,
-	vijayb@linux.microsoft.com, bboscaccy@linux.microsoft.com,
-	saravanak@google.com, krzk+dt@kernel.org, conor+dt@kernel.org,
-	lizhi.hou@amd.com, clement.leger@bootlin.com
-Subject: Re: [PATCH v3 2/3] iommu/of: fix device tree configuration for PCI
- devices
-Message-ID: <20250826221909.GA3227@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20250806215539.1240561-1-shyamsaini@linux.microsoft.com>
- <20250806215539.1240561-3-shyamsaini@linux.microsoft.com>
- <20250808121515.GE377696@ziepe.ca>
- <20250814233018.GA31418@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
- <20250815003958.GE599331@ziepe.ca>
- <20250815023236.GA30997@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
- <20250818155310.GG599331@ziepe.ca>
- <20250826011557.GA2980@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
- <20250826123653.GC1899851@ziepe.ca>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gExMxf31"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756280746;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Y53iOSeYHWg2rhEwEqFZy9Ri7ZxF7SP7WMmqtTCcABE=;
+	b=gExMxf31RiGN6/ZBBxK7C3Td0PIyhcseGySS6fNJPHN/wUXEulBSAimbbphzzapboT0UKt
+	heRubZqJiTonRrijKwD0iv1y9Ipy+skxFvu301dlW4v0KRk5G7LIlp07SVlIxfxJIjn1zI
+	rBn/srqhX5jtqmLh9omTShedsgVs3Xw=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-538-LPZOE-vDMjS2GriOl4M9qA-1; Wed, 27 Aug 2025 03:45:44 -0400
+X-MC-Unique: LPZOE-vDMjS2GriOl4M9qA-1
+X-Mimecast-MFC-AGG-ID: LPZOE-vDMjS2GriOl4M9qA_1756280743
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-327706e0642so696509a91.3
+        for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 00:45:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756280743; x=1756885543;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Y53iOSeYHWg2rhEwEqFZy9Ri7ZxF7SP7WMmqtTCcABE=;
+        b=lBghjns9kFgxELDyo/NX5WmwXdTKbCBrjNBHVKEIuUDKxFnrTlawV584XmBHENfZ3Q
+         +LfheOrJ4mOcVZ+xdj/bHlBpjzLz6ceEBgi9DBEnSbKj+f8C5ksp5K+24eBw2RM738oI
+         NCapOgXCwgGFsDGWbFwvdPPsFH/26XslBil3VLElp7Pw73iYttv3vSdB4VTLcGtAjlc3
+         hwas1jpq2VSqKXy6tf8aG+J52dT9LI/FRGYnVB2ArEDq3AI3LdfyASNrAVlEdOE6axbI
+         0CW33tGmhVieur+Kt7Ae3iNHPE3lMXdZZF4rgGzXGTx2iXqoDgnuQzNbXmBTycsuAn37
+         tsMA==
+X-Forwarded-Encrypted: i=1; AJvYcCWYuY6DsnSgFAvn8FQ971J4sseyfsYW9IV+78G3Vm6G1XwaXrsR3JmDdP3pQfeXzEJnfQswfr5ajAV3EqtGnA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx7k2AJeRhE/KaLhZ20rpq1lOTSd0NoS5SEu4inRF3bnYu0pyzt
+	homkhXcmXwZ3Q9Q/2hbxPO3MZfdwbZ4G891YNZQnO7Qo6hr51GZH0gPXUJeObRr22nkjnV0v9tf
+	A+TTlhtF46IxuCj220wfzE7sDes9KPwXrTCgALM0qqEca0OL+F7VvapcDaVzpfx4tT2M3R3+yZL
+	Z7JOd7PiXg6U5W0HJKdU3u9TlAxwaqi+7quJZCQmAKXRc=
+X-Gm-Gg: ASbGncuMtTnv3OLdGriRgc1f9fa1Of1fygzWAyK7DEBnv0Rd98vG5NgQOSY5+mmPvXq
+	bZXiVH63EgQYmDmMZ7h0mVfCDyEXsSl/wezurhfayYrzmMAYtGdAb87XlSc11rZOYi9vzIT2OwV
+	jNjVwtPJbKdjvJocqM1TGR
+X-Received: by 2002:a17:90b:3b43:b0:325:c492:1541 with SMTP id 98e67ed59e1d1-325c492175cmr10781696a91.28.1756280742876;
+        Wed, 27 Aug 2025 00:45:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFL3QfOtkpTlqmDLyFPBToqiAGSTr07AvdWHQ5KB4MsCwD8hJyLgmML29/RVKHu2TWMxv7zu22lFBW97rccbXQ=
+X-Received: by 2002:a17:90b:3b43:b0:325:c492:1541 with SMTP id
+ 98e67ed59e1d1-325c492175cmr10781671a91.28.1756280742428; Wed, 27 Aug 2025
+ 00:45:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250826123653.GC1899851@ziepe.ca>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+References: <20250812040115.502956-1-liaoyuanhong@vivo.com>
+ <aJt91SSkBO486bg5@MacBook-Air.local> <a161ad99-8941-4213-95e3-86c5ef948215@vivo.com>
+In-Reply-To: <a161ad99-8941-4213-95e3-86c5ef948215@vivo.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Wed, 27 Aug 2025 09:45:30 +0200
+X-Gm-Features: Ac12FXyh6ecdn9TGNfNWZ5a4yYKMaOQgjIgTEY1tLxy6zfw-_ib0DMy_7VZaP-E
+Message-ID: <CAGxU2F4f+Ks6hUNuqvfAJ_kLzjf4sy5CfLkzPJ=Whn7n67-Szw@mail.gmail.com>
+Subject: Re: [PATCH] vsock/test: Remove redundant semicolons
+To: Liao Yuanhong <liaoyuanhong@vivo.com>
+Cc: Joe Damato <joe@dama.to>, Paolo Abeni <pabeni@redhat.com>, 
+	Konstantin Shkolnyy <kshk@linux.ibm.com>, 
+	"open list:VM SOCKETS (AF_VSOCK)" <virtualization@lists.linux.dev>, 
+	"open list:VM SOCKETS (AF_VSOCK)" <netdev@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: XYTGiRFaRF5p--0zZolch0orgDQpBuvy3I7SoEWFbbk_1756280743
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Thiery, Rob, Robin, and Joerg,
+On Wed, 13 Aug 2025 at 08:57, Liao Yuanhong <liaoyuanhong@vivo.com> wrote:
+>
+> On 8/13/2025 1:45 AM, Joe Damato wrote:
+>
+> > [You don't often get email from joe@dama.to. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
+> >
+> > On Tue, Aug 12, 2025 at 12:01:15PM +0800, Liao Yuanhong wrote:
+> >> Remove unnecessary semicolons.
+> >>
+> >> Fixes: 86814d8ffd55f ("vsock/test: verify socket options after setting them")
+> >> Signed-off-by: Liao Yuanhong <liaoyuanhong@vivo.com>
+> >> ---
+> >>   tools/testing/vsock/util.c | 1 -
+> >>   1 file changed, 1 deletion(-)
+> >>
+> >> diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+> >> index 7b861a8e997a..d843643ced6b 100644
+> >> --- a/tools/testing/vsock/util.c
+> >> +++ b/tools/testing/vsock/util.c
+> >> @@ -756,7 +756,6 @@ void setsockopt_ull_check(int fd, int level, int optname,
+> >>   fail:
+> >>        fprintf(stderr, "%s  val %llu\n", errmsg, val);
+> >>        exit(EXIT_FAILURE);
+> >> -;
+> >>   }
+> > This isn't a fixes since it doesn't fix a bug; it's cleanup so I'd probably
+> > target net-next and drop the fixes tag.
+>
+> Do you need me to resend the v2 version without the fixes tag?
 
-On 26 Aug 2025 09:36, Jason Gunthorpe wrote:
-> On Mon, Aug 25, 2025 at 06:15:57PM -0700, Shyam Saini wrote:
-> > Hi Jason,
-> > 
-> > On Mon, Aug 18, 2025 at 12:53:10PM -0300, Jason Gunthorpe wrote:
-> > > On Thu, Aug 14, 2025 at 07:32:36PM -0700, Shyam Saini wrote:
-> > > > On Thu, Aug 14, 2025 at 09:39:58PM -0300, Jason Gunthorpe wrote:
-> > > > > On Thu, Aug 14, 2025 at 04:30:18PM -0700, Shyam Saini wrote:
-> > > > > > or were you referring to [2]?
-> > > > > > 
-> > > > > > In that case, the PCI child node data needs to be parsed, which is
-> > > > > > currently handled individually by each host controller driver.
-> > > > > 
-> > > > > Yes, this looks like it may be what I was thinking of, the pci@1,0
-> > > > > specifes the BDF effectively
-> > > > 
-> > > > In that case, we'll need to parse the child DTS nodes properly
-> > > > within of_iommu_get_resv_regions(). I'll include this in v4.
-> > > 
-> > > Kinda surprised this isn't happening already? It would be good to
-> > > refer to the original specs and describe how whatetever you propose is
-> > > aligned there.
-> > 
-> > Just to confirm, does the v3 version of this series look good to you?
-> > If so, I’ll go ahead and respin the series with the iommu_set_sw_msi()
-> > change and address the other review comments from Jacob.
-> > 
-> > Otherwise having pci devices nodes in the fdt or dts needs additional
-> > handling, let me know your preference :)
-> 
-> I think you need to consult with the DT/OF owners on these questions..
-> 
-> I've forgotton so many of the details here.
-> 
-> But once you settle on whatever the DT representation is it looks like
-> the right direction to me.
-> 
+Yes, please.
 
-The of_iommu driver currently does not correctly handle parsing
-of the memory-region property for individual PCI devices. This
-patch addresses the issue by explicitly setting dev->of_node for
-PCI devices, enabling proper parsing of the memory-region property
-within of_iommu_get_resv_regions().
-
-Could you please share your feedback on this fix?
+Also target net-next:
+https://docs.kernel.org/process/maintainer-netdev.html#indicating-target-tree
 
 Thanks,
-Shyam
+Stefano
+
+>
+>
+> Thanks,
+>
+> Liao
+>
+
