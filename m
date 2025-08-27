@@ -1,57 +1,57 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 323BC2F0C59
-	for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 19:41:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 236B52F0C59
+	for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 19:41:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756323679; cv=none; b=XZPkktvp0QdU/Qa1tNb6WzgN6hwWTT+Z8TT9hQnnoYs+reMSMW//leRDbqyK/cbMLXfxTyT5+4aoqr9TxdVAlITfJwQcViJX/RZfMQ2n4TnC25sEOqQ4WLXJtpEfMqKIeWxnCAG6WYjuMpSQjAgGUHnXpN/+JarvBakh7k824KU=
+	t=1756323681; cv=none; b=JHn7+66H61xbkZqs54arHxltQmHDdvID3P68lirOqC6KnWc8EBMg8g+L9cGwFxFcIJdxpCpj1Da2Z4A9emHiHp/tyBndDIouHSEcjkLukMhiZBJpjvEIQRojUFda23OsOlaHSpn7qn3YahgfEhjD/MsLNLhsif6jMPUrfQFdCCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756323679; c=relaxed/simple;
-	bh=lOFYn5tzMu+BIyj/3iv2zb29eZrNyF3mgyqQKezrkec=;
+	s=arc-20240116; t=1756323681; c=relaxed/simple;
+	bh=lTJBUXa731wmAEkf8x8Aq275GNYxHtJHPWm/QJRsZcc=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=hkKmWeFaR8xHWBGdxwWVGjfdP0WborWF9KV1OhuP+KJXmaPRo5Umj/bcXRGs+kE4YT8MbJLpvLdnCmOjTTis1n9bv6NXPil1mZCDFZK6HEF3fXn+coTPzEkGzfOhcnSKNGwVqq09kYYKhQsvOm3zxwkM/gK2x5RE7oHXNK9H+Ck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BsxLuvvX; arc=none smtp.client-ip=209.85.216.73
+	 To:Cc:Content-Type; b=jjiJQYKoINz9Qzj377o2DfjEr+MnCiJs1AAQ4DxcgNnC7FbdKyPDDMaBMs93g3OpVTNfkbwzKOYcgyKX2N8jhNF+VUssWGCfq/2Xm6CtO1neCuZUhXWpsUcpZthQPgigKh/o8gC6TjqrMjtTQ97+o9Ri6K8+8TtZfqhOz4zwUy8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=QVQ/ArtN; arc=none smtp.client-ip=209.85.210.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BsxLuvvX"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-327594fd627so185244a91.3
-        for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 12:41:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QVQ/ArtN"
+Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-76e395107e2so167639b3a.3
+        for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 12:41:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1756323677; x=1756928477; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1756323679; x=1756928479; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=BKdkhp8v27Li0GOsmRqKq40Y7Pxs7HR00OYnU2c0jjU=;
-        b=BsxLuvvXC3zhqs18hO9Q/knmqrbBvGVWbAqvLYkw7LfANuD7p7mG6CCW8IiKfsWw9C
-         3X8fSA1DFczvcEVifeV5sEaIKBgxBcSrpFN4JOiwneRAuDDeuMmr+vkKxwRo+IJdL3th
-         uD+6Zed7Dc/VhBmh2Gw9gmQ6tJ/8fwmX+s9r8MYufDSVFa1WsVCSmZP4CjiHWtKQmflJ
-         fovSCMK5VejF0sb3Xg3LjfShBv7HkyH14Zj4+PiJxyq4dlu0cUNkbamk41xXL83zYdM8
-         6KaOAjvPOTYZsaICMBvJ7Vkljjc2L2iUgp5N+ydn/ugv6TRPocG3FLFv/65ddjADMtWw
-         76Pg==
+        bh=CAjH9n8kkSU88PuzJQYl+lvrDTSiqH/ka8e0rLGYB4Y=;
+        b=QVQ/ArtNMtjJBZG+6BYj4rSGfVsqdwPnlebEBem5qJpq4WY8KEP8LgclYSv4UtpleM
+         Cq3vGNERthelTsQZWAvF+9gibP9IHPhuWV9bwNRJxrAtwxu2It0XQwa7d3HufhBTkzWE
+         AAD69hvvsLH2iXHWXJKTnfZshcL7MemfQIfePBhQg5j6qpYfnIGbNb1Fl8zWGh8zAzoW
+         3RfsIVkhRgBfmt5kvcoK28jZbyMVgPnohnzWuI51xApVmhkSQ7eGUC8Ikw/os9br3pBb
+         t75w+tpluYgq9lYg4IkFuAgVlyPNwlchC1KNPrQgFhqhov/IAhVuDEng7H9LGmlfCN1l
+         7FwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756323677; x=1756928477;
+        d=1e100.net; s=20230601; t=1756323679; x=1756928479;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=BKdkhp8v27Li0GOsmRqKq40Y7Pxs7HR00OYnU2c0jjU=;
-        b=ps4tKL1TnXD/Gnuvkoknx/23DgyfxoQt11VwZzziSizq6foFWXYIfpmvtpQK5+bCpV
-         lVC8ffKEP5Jsmf30XtY6nRnXTp9vQQNOIhqbObpe2oFChIFAEf/7QuHP87l5yc2bUFxC
-         TzdzUx18mH/GLoBok/9WqPY+fdFxDFopTtDN+wAxowl/bhfPFU3VsZvGIj/IJjnjyDBz
-         CdngI2BBdpF5dsiFIcgqBmXm6p3SiATKtVt1woIqp+/zzUNN0aa55lXF2ovYXwbLScjS
-         QC5dmVvB5rn93WnM9p1lDtJOWOBwiVGrSBhV0fbXdA9R8VsEKPAVeY9Ite/dHl+D7O04
-         otTA==
-X-Forwarded-Encrypted: i=1; AJvYcCXJx+x8tYxiFGPiyNcpgR5vcGn2Go5wcHKQ3U/p3BjNU+EJ3K3Iq2hNQLMCId0/GMEsHbL+0aBr753GhpxJVg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwDQCHp01wnVkq+bxKmgAjElLke8xD9yWGY/WrCXnE/acAhdbg3
-	jfEE1wDTqBJITREo4RrgWG1kKNMlOM/EslaUMyb5/kihAYSvEb0DymUZCQFmFlT54R0WC2TVxmE
-	gK4e8Yw==
-X-Google-Smtp-Source: AGHT+IFkp3cSkHK/LCzu7rsgKn502PeqGnc81s3u1mjxkvPKl0aSkQfYxtfmuXztKttrbNAZ69OCb7JCKaU=
-X-Received: from pjbqd16.prod.google.com ([2002:a17:90b:3cd0:b0:31c:160d:e3be])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:1d4f:b0:324:eb2d:7537
- with SMTP id 98e67ed59e1d1-32515ea1b2dmr27081009a91.20.1756323677599; Wed, 27
- Aug 2025 12:41:17 -0700 (PDT)
+        bh=CAjH9n8kkSU88PuzJQYl+lvrDTSiqH/ka8e0rLGYB4Y=;
+        b=qmnyW8/ox4GwNoCsXgVFowCh4oojIeT+a+HVe7pX+7FV2eksPGoI9VCrCJK6hxpJV2
+         N2GhA2gpBMrCuOCu+oSa7Qm/YE3Suo6afA86NbgkRDeIbm+e8cMj3nmqUNj6noQ1Xdhv
+         zEPEF71b8yrOtysH0/Y/cEgcLr/QJeH3zPQbEVbYBpkLZUi0TEtJqbYztdeftzLU01eh
+         9TA2uC860uW0oYmv7+RCmz4I7j9SmZJuBGScutlm+6N2CHzMqK8Xlad/HPHpe4u4xx2S
+         3lq2PCa7y6KIAkH5S67YMJQirbqTgUuJDvfGvKtS1t2uA23rKoVhH6Gou25KgLzTiow+
+         XbYw==
+X-Forwarded-Encrypted: i=1; AJvYcCW8xki3oUMQWjHmAYMHcPEYfEZNr/xOxp07KyW5hxy+ljZDdnk5KCCk0hHcabtrdcTTj3JJPPlPCSr/Ed+Klg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxQFi/lb1RSOmTb6qyu0l6tthr9i1taITD1LF/VTGzfzG01vb/k
+	ll/AvUVWK+V/5XqpJ6Xi8GEhlCUy16OBHVXOlfk1Y5riu7Im3F6dWdzXMvAorJKMDqk4q+VP1np
+	X4ZbEaQ==
+X-Google-Smtp-Source: AGHT+IGn5ya0kUr/fIdsXYaCYO+ay+bA4LFPlBe/3Tzu+o9LmKU3qy0T5mYaH3gAWJMuIZiqZ0SiVacudbw=
+X-Received: from pfbk11.prod.google.com ([2002:a05:6a00:b00b:b0:772:77e:bc4d])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:1399:b0:770:5544:dc0c
+ with SMTP id d2e1a72fcca58-77055544aabmr20236423b3a.32.1756323679372; Wed, 27
+ Aug 2025 12:41:19 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Wed, 27 Aug 2025 12:41:06 -0700
+Date: Wed, 27 Aug 2025 12:41:07 -0700
 In-Reply-To: <20250827194107.4142164-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -61,8 +61,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 References: <20250827194107.4142164-1-seanjc@google.com>
 X-Mailer: git-send-email 2.51.0.268.g9569e192d0-goog
-Message-ID: <20250827194107.4142164-3-seanjc@google.com>
-Subject: [PATCH v2 2/3] vhost_task: Allow caller to omit handle_sigkill() callback
+Message-ID: <20250827194107.4142164-4-seanjc@google.com>
+Subject: [PATCH v2 3/3] KVM: x86/mmu: Don't register a sigkill callback for NX
+ hugepage recovery tasks
 From: Sean Christopherson <seanjc@google.com>
 To: Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
 	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
@@ -71,47 +72,41 @@ Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
 	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Content-Type: text/plain; charset="UTF-8"
 
-Now that vhost_task provides an API to safely wake a task without relying
-on the caller to react to signals, make handle_sigkill() optional and
-WARN if the "unsafe" __vhost_task_wake() is used without hooking sigkill.
-Requiring the user to react to sigkill adds no meaningful value, e.g. it
-didn't help KVM do the right thing with respect to signals, and adding a
-sanity check in __vhost_task_wake() gives developers a hint as to what
-needs to be done in response to sigkill.
+Don't register a sigkill callback with vhost_task when creating NX hugepage
+recovery threads now that said callback is optional.  In addition to
+removing what is effectively dead code, not registering a sigkill "handler"
+also guards against improper use of __vhost_task_wake().
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- kernel/vhost_task.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/x86/kvm/mmu/mmu.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
-index bd213d0b6da3..01bf7b0e2c5b 100644
---- a/kernel/vhost_task.c
-+++ b/kernel/vhost_task.c
-@@ -59,7 +59,8 @@ static int vhost_task_fn(void *data)
- 	 */
- 	if (!test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)) {
- 		set_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags);
--		vtsk->handle_sigkill(vtsk->data);
-+		if (vtsk->handle_sigkill)
-+			vtsk->handle_sigkill(vtsk->data);
- 	}
- 	mutex_unlock(&vtsk->exit_mutex);
- 	complete(&vtsk->exited);
-@@ -81,6 +82,13 @@ static void vhost_task_wake_up_process(struct vhost_task *vtsk)
-  */
- void __vhost_task_wake(struct vhost_task *vtsk)
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 6e838cb6c9e1..ace302137533 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -7677,10 +7677,6 @@ static void kvm_recover_nx_huge_pages(struct kvm *kvm)
+ 	srcu_read_unlock(&kvm->srcu, rcu_idx);
+ }
+ 
+-static void kvm_nx_huge_page_recovery_worker_kill(void *data)
+-{
+-}
+-
+ static bool kvm_nx_huge_page_recovery_worker(void *data)
  {
-+	/*
-+	 * Waking the task without taking exit_mutex is safe if and only if the
-+	 * implementation hooks sigkill, as that's the only way the caller can
-+	 * know if the task has exited prematurely due to a signal.
-+	 */
-+	WARN_ON_ONCE(!vtsk->handle_sigkill);
-+
- 	/*
- 	 * Checking VHOST_TASK_FLAGS_KILLED can race with signal delivery, but
- 	 * a race can only result in false negatives and this is just a sanity
+ 	struct kvm *kvm = data;
+@@ -7713,8 +7709,7 @@ static int kvm_mmu_start_lpage_recovery(struct once *once)
+ 	struct vhost_task *nx_thread;
+ 
+ 	kvm->arch.nx_huge_page_last = get_jiffies_64();
+-	nx_thread = vhost_task_create(kvm_nx_huge_page_recovery_worker,
+-				      kvm_nx_huge_page_recovery_worker_kill,
++	nx_thread = vhost_task_create(kvm_nx_huge_page_recovery_worker, NULL,
+ 				      kvm, "kvm-nx-lpage-recovery");
+ 
+ 	if (IS_ERR(nx_thread))
 -- 
 2.51.0.268.g9569e192d0-goog
 
