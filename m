@@ -1,116 +1,156 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 424943128A2
-	for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 13:05:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8382F275B08
+	for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 13:33:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756299950; cv=none; b=k0xutP5h6JmwRtLjcO0zLfyJb6r9SockPfnvJ/tx4ipoo8C3rjAP4sQtuJMFgt1AECFx0jlxbVmJ23t8ZtCJKER4XBobAL7sD4TUiRS74xRek5jXFEh8BF94sLSz8ly1i5YorO784YzlCy0EeV97oxP32jhT4jfYyd/Lkk0blVM=
+	t=1756301619; cv=none; b=BU2ezr//oafSZTRxJ58UY7nOlr19q7GzvEbCtAdQ9JvYbBLpuUUh/Uiz2UpYPkzOufgsQ92g9eirlWtXQ0kwik4GctahY8z2YIJtC9HfZvOmEJHchNBjoy3nl7j6zKZR2lYv2+8AlCNkRoh47bC3aOiPGpWBA/I08ThUPF8A24Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756299950; c=relaxed/simple;
-	bh=Lg5YJJaXpBc/s0JfoRj0Jz/sHkqXKEkjrx56oNdh6UA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KzC+A9LsJdXQf8GMPXiF6+JKE/+Kock+rKF75XtS8zNq4Ro+6i6+E8/hNP3aHfCmwFEp9mIqtc98DoZiF/lkkty3ZMUHrUbelMeFJ3mP06cs6aENz3BrZtSfXQlLekGyOEPCORveuJ4vlTFFOEpYdnCXOYPL44Kw9Z4IK0bgni0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=oFyr5vUr; arc=none smtp.client-ip=209.85.160.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
+	s=arc-20240116; t=1756301619; c=relaxed/simple;
+	bh=chTWJ/zEI6rTbv+YqS2P0SrjG/e7+RT/8QbiIzXP3ZA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=QeCIkLQbajn6UTFs0DA0OXeCnqdSz/EE9VCruh5/K1xocHPZMk4j9hKhUdSIMPBP76r6UjH+GHdT4sGrFF8CoTXlwpzBFIo5Co95/6RZQHZTMPtFp106L9KfJI7UYZiSTN9rOj65/fuT/gZpTJtCp2M5HnIwc44mfp7onAwXj8M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XAdQFc/+; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="oFyr5vUr"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4b109c59dc9so88396701cf.3
-        for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 06:05:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google; t=1756299946; x=1756904746; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=IS9A1xArxW2DbHOyp5U7gUvufvKTYOF7Z8twNaozFaA=;
-        b=oFyr5vUrtm7+yMvhmf8zqU3OEe5lPS0keliiTsWLPWNbR7I7lgWyUb8vzS8LzRLubm
-         szj3YGDe05S5/P60wLps8oml6JnQciBtVvBRGNjNT3KLZUKJx7T03ju2j8nlr4Ws23cK
-         ZBI3XyEoX32A/kmE5pazVJp4VPQuU/DbsXpmk=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XAdQFc/+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756301616;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=K8z/3KgzEoz0nXpB3RNGuEeKXFHUG30ORWT5Yv+ILFU=;
+	b=XAdQFc/+APj2Ni6OA8YpWcFuFZtMD5MnA7H1+sOHppuLvZK9r5LDJw2GcvaFg2GD59HuIW
+	66ASidHiH96Qv0LROw6oZOu+cUraRJWjTifKl0zT8xWL5NliT/NbkFTM099buDRZKRZ5JJ
+	zC2DKUHZi1NEPS1zSOKLH8HlcLtleX8=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-244-XAH7dpHGPl2R9WYPvHcPVg-1; Wed, 27 Aug 2025 09:33:34 -0400
+X-MC-Unique: XAH7dpHGPl2R9WYPvHcPVg-1
+X-Mimecast-MFC-AGG-ID: XAH7dpHGPl2R9WYPvHcPVg_1756301613
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3c897f28ab0so2481160f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 06:33:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756299946; x=1756904746;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=IS9A1xArxW2DbHOyp5U7gUvufvKTYOF7Z8twNaozFaA=;
-        b=TrTItXZkCSyYGNLmm1VVe1aTWwyLAAmW90Q1GaCO44hHmcjcDTCfHssrQliDUnNylH
-         5M7dUhYvN80e7kzBO18FhuXtHqLlOeyvJ/1lwDM6VivezV/J9S7MXwVch/qdtVqfQft1
-         fj6rhdx0UtU4+ERTo1LZzKzr0sC+mxIdYer/nBQ4Lm40OsP9kJd/+L/Grd3W6DLn0p0D
-         yzCtoPpDCyjKnx+uuYcxXrqHMXo0UHhs+yTkUdxApqYMRhbSIEJe8R9rYElxgfepSbex
-         lLxgaZk4pgcZ8BE8PpO4goP9jPT1sECOvh26Em2WBKKFb4iA6a1DMwk5sc6BlHPVRn4e
-         diug==
-X-Forwarded-Encrypted: i=1; AJvYcCUsVFVb/MfHOnfHu3s0KaV7JN1OeKzKF2lbGM346a7c2ki0GlRYPBP4qlo+97YvU4sJuioQOhPgnnhXMZBjuQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwETyuhDJlrIb1ppb9yWf88JOFHj1vKnVqnwyHTSWmWY+aegvMT
-	g/afvc9fxtJJ+wDbjbdk0+JQf1zdD8I3xA8MkDQdQ3TGnm3r/pGytORPDwe6y3H3p/+645v18Wh
-	Y/SNG17rF8qqshRjIgc8vw1Zb2Zz2rYyCHefi3WusaQ==
-X-Gm-Gg: ASbGnct82yRRDha9pM4Jpk8udE6MT5vdcpLu1RMC2wzJAttSQdgWDrlLQrAPkebnvNF
-	jRTWS0JtaRRkKlGVJjqev79F+jG1XaMD37uNOBLuKJ6yLsm7qs1Ltb8WuehgI0nteu2x9fP1IFr
-	T9oSB1cUq7RnxXsgtJ+kRJLwA6XY6/zEv22zgphyJFL4LiWiOkkHPYx0kUIPTtLWE9cNz/KnLyY
-	ks9nIV3HcS55aTkfel8
-X-Google-Smtp-Source: AGHT+IGLeocHq+w8KKF32Jz+bx2Tk/02BB9NqaabL//OB62XP1A63lXRphuALAt/uyjA7/9UrZ1B5iZzrud5rKizpFo=
-X-Received: by 2002:ac8:7d50:0:b0:4b1:1fc6:863a with SMTP id
- d75a77b69052e-4b2aab0cfa2mr202698391cf.63.1756299946002; Wed, 27 Aug 2025
- 06:05:46 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1756301612; x=1756906412;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=K8z/3KgzEoz0nXpB3RNGuEeKXFHUG30ORWT5Yv+ILFU=;
+        b=AW6hbj7coLDM9bepj2Rxfo2Ib+VDR7Yldb9QA3zsuNcvOy96hcT2HWKBEnfkWG1kLo
+         UqmPpR499nhZ3Ht2oIy86vnrIpNkhud5VoGLzgip5YjXWWZB4FPsySHxKIQXvB2YYxeQ
+         2BLAZt31itALilQ4HSbRNlRgS5IYJuVsufQWWLhPXYhJW9vQ3aMGGTto2P3fsJG4R5Ss
+         gh+s+T4zhnrqnUGp9AGidEJX4bWrJI0UrbRvbKizby6iEwmb8yDgcSylruCJMvdn7x2R
+         P0NN/o3MzRsvjGOeGRiai7ZhSjRth1trj2j9EfVj8VMvOzzL9OU5/68oQEeknQ1D08CC
+         wdmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUQ6Lf59Lvnfa8FDaPfbeVqsAYqbwwmY6apyTZXahtznOi6lnJmbPiYkIlf/XovVK/Cwhiw/Bqr3wPYkC6caw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxliMWVVMJxMVcq0Tsx2PC3xMQS35yOp9JPJwy8luEeGBsa1nny
+	xKhbAn1xY5RyqxFx4ISLspKTn2QdcO1H22EEPHQnOKQFcnqv0CXX3li9uO+dLO9YwwWgyllDBW+
+	oU6A5wePHFHUwWGyb8IqIF9S8hH2JRcUaRhtRoQSGKf0fJAVpYCXr3SwOB4oP6icJgIAe
+X-Gm-Gg: ASbGncuw9Uni5L5i5XnPeoXB2nkloZ2WtYwugfmOUOI2Yv7mc4fZ5Soiw8s6EHR2x5k
+	72Q90ZwlayrY/BnsTJ7TjYqKqX61MI/iQLblCZRVS70deIrcOWGUPeSWfC2DuUSJh22BCs8OUCE
+	dpKX2kVIUvXWIfw77aB20snLH3AvxXU6OmwrAVxh+BDiG96RZhn6wBD1WhMU6CJa/9PGefvRZm3
+	ZH9vImQ1gTxer5DzZkWqzHIeVvAQ1PAG91nsgJgXZbqNV66xytIFn2kaG0H/JtKy2Dlqw3TZYqy
+	jtx/wmNBgNkLZoenEsO1PJdMu5JGoPQ=
+X-Received: by 2002:a05:6000:2281:b0:3cd:4ff9:c487 with SMTP id ffacd0b85a97d-3cd4ff9c926mr847047f8f.45.1756301612449;
+        Wed, 27 Aug 2025 06:33:32 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGpXWIRKQBLCST7L7FbqSdMsqrTEd8mC9YrfacqJgmW7hhmhY+MtE22/oJUnVDrsWnKorEEVQ==
+X-Received: by 2002:a05:6000:2281:b0:3cd:4ff9:c487 with SMTP id ffacd0b85a97d-3cd4ff9c926mr847017f8f.45.1756301611871;
+        Wed, 27 Aug 2025 06:33:31 -0700 (PDT)
+Received: from redhat.com ([185.137.39.233])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3ccac1b892bsm2973545f8f.67.2025.08.27.06.33.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Aug 2025 06:33:31 -0700 (PDT)
+Date: Wed, 27 Aug 2025 09:33:27 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Honglei Huang <honglei1.huang@amd.com>,
+	David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Simona Vetter <simona@ffwll.ch>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drm/virtio: fix host visible memory detection in
+ virtio-gpu
+Message-ID: <20250827093320-mutt-send-email-mst@kernel.org>
+References: <20250827081231.1878248-1-honglei1.huang@amd.com>
+ <9ecf015d-d96a-40ac-a7fb-50e46c4f6e00@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <D5420EF2-6BA6-4789-A06A-D1105A3C33D4@nvidia.com>
- <CAJfpegvmhpyab2-kaud3VG47Tbjh0qG_o7G-3o6pV78M8O++tQ@mail.gmail.com> <1E1F125C-8D8C-4F82-B6A9-973CDF64EC3D@nvidia.com>
-In-Reply-To: <1E1F125C-8D8C-4F82-B6A9-973CDF64EC3D@nvidia.com>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 27 Aug 2025 15:05:34 +0200
-X-Gm-Features: Ac12FXzh4c9-bhOGpJCxyjBS2F9uSLYJUbMNbime6Sd-tJCzwd6Aonr7-j-nBrI
-Message-ID: <CAJfpegtmakX4Ery3o5CwKf8GbCeqxsR9GAAgdmnnor0eDYHgXA@mail.gmail.com>
-Subject: Re: Questions about FUSE_NOTIFY_INVAL_ENTRY
-To: Jim Harris <jiharris@nvidia.com>
-Cc: "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>, 
-	Max Gurtovoy <mgurtovoy@nvidia.com>, Idan Zach <izach@nvidia.com>, 
-	Roman Spiegelman <rspiegelman@nvidia.com>, Ben Walker <benwalker@nvidia.com>, 
-	Oren Duer <oren@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <9ecf015d-d96a-40ac-a7fb-50e46c4f6e00@collabora.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ENmWk0YyHWQUTtAowWuWkIdHyIL5AHTT4P5VcwPaiIU_1756301613
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 20 Aug 2025 at 22:42, Jim Harris <jiharris@nvidia.com> wrote:
->
->
->
-> > On Aug 20, 2025, at 1:55=E2=80=AFAM, Miklos Szeredi <miklos@szeredi.hu>=
- wrote:
+On Wed, Aug 27, 2025 at 03:52:05PM +0300, Dmitry Osipenko wrote:
+> On 8/27/25 11:12, Honglei Huang wrote:
+> > From: Honglei Huang <Honglei1.Huang@amd.com>
+> > 
+> > Commit 206cc44588f7 ("virtio: reject shm region if length is zero")
+> > enhanced the validation in virtio_get_shm_region() by adding a check
+> > for a zero-length shared memory region.
+> > 
+> > It is performed before the underlying transport's .get_shm_region()
+> > implementation is called. This creates an issue in the virtio-gpu
+> > driver, where the `region` struct is part of a larger structure
+> > that is zero-initialized by drmm_kzalloc().
+> > 
+> > Consequently, the `len` field is 0 at the time of the check, causing
+> > virtio_get_shm_region() to return false prematurely. This prevents the
+> > host visible memory feature from being enabled, even when the device
+> > supports it.
+> > 
+> > To resolve this, this patch bypasses the inline helper and calls the
+> > underlying vdev->config->get_shm_region() function pointer directly.
+> > This ensures that the region's parameters are checked only after they
+> > have been populated by the transport, aligning with the intended logic.
+> > 
+> > Signed-off-by: Honglei Huang <Honglei1.Huang@amd.com>
+> > ---
+> >  drivers/gpu/drm/virtio/virtgpu_kms.c | 6 ++++--
+> >  1 file changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> > index 7dfb2006c561..ed5981248302 100644
+> > --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+> > +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> > @@ -174,8 +174,10 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+> >  	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_BLOB)) {
+> >  		vgdev->has_resource_blob = true;
+> >  	}
+> > -	if (virtio_get_shm_region(vgdev->vdev, &vgdev->host_visible_region,
+> > -				  VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
+> > +	if (vgdev->vdev->config->get_shm_region &&
+> > +	    vgdev->vdev->config->get_shm_region(
+> > +		    vgdev->vdev, &vgdev->host_visible_region,
+> > +		    VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
+> >  		if (!devm_request_mem_region(&vgdev->vdev->dev,
+> >  					     vgdev->host_visible_region.addr,
+> >  					     vgdev->host_visible_region.len,
+> 
+> Hi, virtio_get_shm_region() change has been reverted by [1]. Don't think
+> anything else needs to be done.
+> 
+> [1]
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=next-20250827&id=ced17ee32a9988b8a260628e7c31a100d7dc082e
+> 
+> +cc Michael Tsirkin
+> 
+> Might be only good to send a stable kernel PR with that revert. I see
+> patch available only in linux-next, while stable kernels need to be
+> fixed sooner.
 
-> > FUSE_NOTIFY_INVAL_ENTRY with FUSE_EXPIRE_ONLY will do something like
-> > your desired FUSE_NOTIFY_DROP_ENTRY operation, at least on virtiofs
-> > (fc->delete_stale is on).  I notice there's a fuse_dir_changed() call
-> > regardless of FUSE_EXPIRE_ONLY, which is not appropriate for the drop
-> > case, this can probably be moved inside the !FUSE_EXPIRE_ONLY branch.
->
-> Thanks for the clarification.
->
-> For that extra fuse_dir_changed() call - is this a required fix for corre=
-ctness or just an optimization to avoid unnecessarily invalidating the pare=
-nt directory=E2=80=99s attributes?
+sooner than what?
 
-You see it correctly, it would be an optimization.
-
-
-
-> > The other question is whether something more efficient should be
-> > added. E.g. FUSE_NOTIFY_SHRINK_LOOKUP_CACHE with a num_drop argument
-> > that tells fuse to try to drop this many unused entries?
->
-> Absolutely something like this would be more efficient. Using FUSE_NOTIFY=
-_INVAL_ENTRY requires saving filenames which isn=E2=80=99t ideal.
-
-Okay, I suspect an interface that supplies an array of nodeid's would
-be best, as it would give control to the filesystem which inodes it
-wants to give up, but would allow batching the operation and would not
-require supplying the name.
-
-Will work on this.
-
-Thanks,
-Miklos
