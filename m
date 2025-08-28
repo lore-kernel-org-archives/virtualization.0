@@ -1,187 +1,143 @@
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2052.outbound.protection.outlook.com [40.107.92.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB4811CAB3
-	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 06:24:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756362260; cv=fail; b=sJfmMZIv5geewz4B3uYbq2WqS8D+977/m4ZTYQ0lR1dMKy5mimgPP9MCYP3FkaD59nqGB+QjlTFuiznkpMMlQ6jUmedYA/bmqXBYAPfneWf6Wp5O0pDyBBye9uJE4gba3j1CqZuFdL0BJk8H+xOry/SUuQ1/8wkfTN+zh765fGs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756362260; c=relaxed/simple;
-	bh=AVdO05053Moq1ZVU01LZpSAlb4MMjoEQQf+91MqQnGA=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=IfzKn9ZNaee52rXhA0irXFdBK0ek8lZ4FY8qrg52LdZ+Mg6v1vNJu8w5vyFpRIVgsCOFePgLETnuLZszvrfvLQb3jM0ylE9NMhHQas3UE5R4WkUC/9XNboy4Rt8Z3S3rXiBttdmfAQdm0mwOVE1RCT0F/iTcXPiQ7bx7RAPDwWA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=hojCC/Yq; arc=fail smtp.client-ip=40.107.92.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 11A2F1CAB3
+	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 06:26:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756362386; cv=none; b=ZvI71uPHzS4fKbfP8TMcZEn5pZbuHlV3smZQDunIFyM3+qjrdF0lov3frL/i101W8EXFbWQlNy47qhOl4IAPu/OSdiFe74GzmNxCnpmBckCUV9cY/wo1v0fYZyPt5HTuHTvQlv6LYrnILMUZoK1ujovncrVhtUpFNWDfRU0TbW4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756362386; c=relaxed/simple;
+	bh=GH1MnD9kkTN4c+3cTT8CmEeQjchnw3Uvm2OEhs8UdpU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kEFfcSNbn4Ntqf1HUDQXPRR5WLuwgQVJeKsPZB2/c6OMXpp8RTp49lgx+ZmyYagTfGHg5AL/bkn9tXKIp1XF9bDJzHBSqmAQw7mpwKjq6kOEwI77y+SZ3ZD9IfOKayOmKO27G0KHEx7TGc0/o7QZid7izIoW4K6fZTnqcQ/H2lE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=XY5IxvJq; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="hojCC/Yq"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=CYgF7/I3tzY19pebmJ2H0KAQmMICi7TWLZewUAvDohY3Gq7IAvDuPfMghgjnqo/90pSoahDrg7KPhmk6Bjj5idU5YKcUDaFtTFd5OJc+SfRAZ6c4i3DV+dKnccX35UdW/tWZ9odpxczTmKUWqP8suQHImI6BF+VMmAhF76rnnCRGtycxem/S4nKcfo1J/4gwxLaT7Fqx9wcE36S2XEX2o5nx977Xz1oUbjs1Ij2oYecWzJuyo5RHWZnM3weNdxiO7RTWKNx7jNPaLS9/uwQMZ9tYw32SpHEEifKKDDURozDupq9mbpwjx5mSFJzfQhXJQAHA/w43WoP15fVPT4thMQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5TxADPBmuNz3jV0sUnmMMLGnX+cruKRkl7RJiC+wVyY=;
- b=A+jY0Ajiym5v2jtRztia5KovNJ0GLcuhIl8m1Ub5mKlgRDUk+h+Efs07j7ZsWP2PIUhKxcbtFOxX5Zej9gOVEw7tSuThyO2sDlZ2q1kJqFOPv1AsG0ajHOePSBkQIKCLvYruotaTUIqMHZpwB+e1Y7R+1R73vJgkh7tpW7Q3edmTSCf8FIrSp5G1FT71OUPchlmX02ssUNGzOMQUNnzK/BdP8ds//lU3fTV9YVVFs3zr+aB0Klj6mkFBzMScfGZoj6wU2QSLbGvH8vg0T88O8f0uigWG6W/b6DVWlsYYOfRviSFwy5wq71W66s5GEBfxMPFelNjlmIjvtvbyAURO2A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5TxADPBmuNz3jV0sUnmMMLGnX+cruKRkl7RJiC+wVyY=;
- b=hojCC/YqiDeXP0A9XBXXJZIDVk9uxLxCBy6HIN3ZQe4eAsijWcB0LPjXu/Sapi1UAhDOrple+QswYzR2L6xEBC4q+UDX3MmDftPM2beF4htYUAU+itKwvN1XUlx9nyusupyWu9hAi7JjSDr/UfQ/TTn78ipZb3PKaNNzuAjOqQyFinnIre27ckVKHb3b+w+90oD6/c+nJpiKsN1q2o7PHfPl1gzvC4AWxUUsuGRvDPMLSRqmiqc/ulrsJbBu1omZhIZx8wjiQwGHFuJRaU2ziMhP5cTaS0VAcqhWlNC9F5EH9wjd2f/LONNOOPumv5HLCYcr7XkdrCjlG7Gzn/FThQ==
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
- by DS7PR12MB6070.namprd12.prod.outlook.com (2603:10b6:8:9e::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9073.16; Thu, 28 Aug
- 2025 06:24:12 +0000
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::e571:5f76:2b46:e0f8]) by CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::e571:5f76:2b46:e0f8%6]) with mapi id 15.20.9052.019; Thu, 28 Aug 2025
- 06:24:12 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: Cornelia Huck <cohuck@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"jasowang@redhat.com" <jasowang@redhat.com>, "stefanha@redhat.com"
-	<stefanha@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"stable@vger.kernel.org" <stable@vger.kernel.org>, Max Gurtovoy
-	<mgurtovoy@nvidia.com>, "NBU-Contact-Li Rongqing (EXTERNAL)"
-	<lirongqing@baidu.com>
-Subject: RE: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
- pci device"
-Thread-Topic: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
- pci device"
-Thread-Index:
- AQHcE0XKqVbu8cWtaUCLZj1LjgeTGbRudpsAgAAWuWCAABaPAIAADA7wgAADewCAAmIWsIAAy/cAgANp/uCAAQYPgIAAFMmAgAEqTRA=
-Date: Thu, 28 Aug 2025 06:24:12 +0000
-Message-ID:
- <CY8PR12MB7195FD9F90C45CC2B17A4776DC3BA@CY8PR12MB7195.namprd12.prod.outlook.com>
-References: <20250822091706.21170-1-parav@nvidia.com>
- <20250822060839-mutt-send-email-mst@kernel.org>
- <CY8PR12MB7195292684E62FD44B3ADFF9DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250822090249-mutt-send-email-mst@kernel.org>
- <CY8PR12MB7195392690042EF1600CEAC5DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250822095225-mutt-send-email-mst@kernel.org>
- <CY8PR12MB7195C932CA73F6C2FC7484ABDC3FA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250824102947-mutt-send-email-mst@kernel.org>
- <CY8PR12MB71956B4FDE7C4A2DA4304D0CDC39A@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250827061537-mutt-send-email-mst@kernel.org> <87frdddmni.fsf@redhat.com>
-In-Reply-To: <87frdddmni.fsf@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|DS7PR12MB6070:EE_
-x-ms-office365-filtering-correlation-id: d32690d3-8e95-4612-6bb2-08dde5fb8137
-x-ld-processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|366016|1800799024|38070700018;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?NSEvQ6CBySWugI9aBL8mzGoEgezcdPjQlcmdrTM8U5Uqhm6YlvwmAEEBtBjx?=
- =?us-ascii?Q?gb8FoweGdZneM1Hh7rjg4InpkX6YNdmPomtQuR4fu/mt2/LdMdwjyMLKiPrF?=
- =?us-ascii?Q?dy/aH7Piu8iFIVgFCjrUsGPzXyMbCw5bY74TC/b+dDqDKPzRsX2blgcwsl6M?=
- =?us-ascii?Q?SMtCxa3t/BchO9IwQ5MGpjDbf59DhVWW0bfEPUwryBIJv0hUZpXrBcZUgjIB?=
- =?us-ascii?Q?KVGSoUwgZQnfp3UK9VM/XvPmk/oOV1fgnrsYTC+L7+FSZltwTnUiakxOma02?=
- =?us-ascii?Q?7PiPDSZdIkNZ2ER6VsRCimIVq0CsC3eaVE1s/9RoQmVn8Veu1Hi0ZFTkenrq?=
- =?us-ascii?Q?Rd9PpQUhsPt/Vq/raGZIVVLXuXwnzOOIKYFGouiPKnbCQKWDEDZ0vqSedreR?=
- =?us-ascii?Q?L3cYMWTxRBqAuvxjFPeXquSl/v3poYkycudIuqu6OrfjtMD5iLQK0DcA3ABr?=
- =?us-ascii?Q?lEwGtTeoddZGdC92mzqITokskTURY/uAUuIy2+mNl0Lks1RvQy37k6Yqj+Ke?=
- =?us-ascii?Q?Qqum4HuTmEDMld9BVWiFLLYQidYziHuZM8wHW83pySk33BJAZUyS2eEbhWZH?=
- =?us-ascii?Q?jMtXldiB1gvkcfw6RgoDV7eetQ1h0AuCMrh4iQ5A8Kk95zCgsS5bO+Pz+uaE?=
- =?us-ascii?Q?Jy6H+LDgjw34ZQUQbaT5rl+JL/+YErGCRdUwBjxoG5Nh2HpvJJGRZNaSNQiz?=
- =?us-ascii?Q?g1mwltFGDmZd5iLL3zLjeaW9QX7SqOdypEhAXr7biIXpBUH8OYtDMetxJ01o?=
- =?us-ascii?Q?ms3HBbUCkmhFwVwVCcrJHhSJ5waDdQOMHOSl9ik66d1NwLdp3sR9zaEKIKfj?=
- =?us-ascii?Q?dScHHawIBvg8zyLBzkWzHbJAhe+UTciO+XIaH9j3SZyKCuI9Mr9PWEbTOAIc?=
- =?us-ascii?Q?bA6jVwybs0WOkjPYKDWZ/e5O6M98zsxYjwTPDcGXr9kRbGOMWB8dF2vx6swn?=
- =?us-ascii?Q?5YLGoY2yj2ey9G7lPqmfWjFKTeDFOwE3KXUg3DJ0Cx5jvsmlBrHbMNEo7YJn?=
- =?us-ascii?Q?q/58uk3OcxVKRxal23OlGCiOU7ex1Vk1N9mg8jskLgbE7B0czXuvxeuUEMdi?=
- =?us-ascii?Q?K8VtM+iTwPtQaesSaEFGNG+O+zIMdfHXeRkArEy1beKxmdJNuM0DpfVXG8Je?=
- =?us-ascii?Q?dQ4OZJEv609JFKAEMisoG0Vo/LW1q3d9ooumnejh2OBXKFUsxfiI1KCXN13l?=
- =?us-ascii?Q?xb4FUZZhzKVDsTsiwuPm2Jxn8LycGl2P/G5Lsx/LIZL8BahGjvvVG7NT1aFS?=
- =?us-ascii?Q?OiHteRQgmoV525ByAL1xb1tpfj3LaT43Z8kQMOAiBxkhAy5OCHtKJGJNqe0d?=
- =?us-ascii?Q?HyapP+3sYDfERcY44njCGwwPwUBDP5VS/EEcA1EZRjt0POog81aoijC4881D?=
- =?us-ascii?Q?Jo5g6QQbZqG/axgho0iT0QVeQkKZIGdsPmRqw3TWTGev7E8IFrTqxv/jAd8W?=
- =?us-ascii?Q?UqVhpYYGtvCm4d5vsTKJmRgx2WGaSa+hTAjLygc3fuAlm8NcIRh+ew=3D=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?Wy8DcOh/oIT1RVoS7LKHgZJXwjD2aZqlAr/MTp0YNU4mKzVTcZiC0El0aj/z?=
- =?us-ascii?Q?4uOEYR8JNuF3AM9Lc1LCDV9VRpmi6SwoSLBjwzDaqzpx0RfDXFi6dRZFH444?=
- =?us-ascii?Q?Sbn9yMx1Lxnkc4MO0VPTkJLEClASvdXwRKepLAeO59pdR3GKMiPXEIy5mMmw?=
- =?us-ascii?Q?KWYaNnSJbA7f9KJohcbnI9kuq50POrlexBHJ5k4i8t5/Qh6aV8O9YmvuhEao?=
- =?us-ascii?Q?6eWEzKhBEHSlWX7Fm8KybvGYhuBPDiUyvy2NG/AjW6pn7jSof9Ioy8rDCGRy?=
- =?us-ascii?Q?NjMz89pgPnDe3T1/C3fpaViUYR14QpagL0MnuNP8y/CS2ewOPv82mcSf1IP0?=
- =?us-ascii?Q?7xSoSucP1o3M9MVhQKYOQTfOuNVZVCM2ogaKHDPz7YWLkB89Iqf1YUFwHOlW?=
- =?us-ascii?Q?8cvf6OYJP/uSa8neY2WO3+hul2X6knrIafnSTLRsRcK3X2e48PYBzra3Az/Q?=
- =?us-ascii?Q?g02B0YZlJTdWZb72QaFQyQLho2ja2CJGozFcdFMSRh+yORT3QJ4LGwgP1vDR?=
- =?us-ascii?Q?oajgm+5Nnb2hbnFq+q7LuKxDdS3BGWGX0Wdb26QlJFcL66GCfInpUcCFKu+I?=
- =?us-ascii?Q?Gfq9BPcMIH3VQMYZF8yPa0Z4DXiaTFoxHA3WrOOwkzpkA9ifzohTxHe23wcI?=
- =?us-ascii?Q?U+HA2WYa/TEIZ1XTcnYWLUEIOnu1d7O/YeAyUI6gu3XE0vr4jCz0c1JXHqLk?=
- =?us-ascii?Q?OTeWEVj2DVyqqYU+Yzsq5HwivWd/OkGlq2JoV1XTgYDBaY+8lLOCtHwYMdpL?=
- =?us-ascii?Q?1R50MixWA+kgZv8C/oYxDqA/TECvsQAiXLKTxbgr+qr08YWuyusEQGghU2OU?=
- =?us-ascii?Q?+4UUQC6035z7Fo6VQEyKDJrZfoAfkv42N8KJXphQgKWbSkCTASNyn+AfQU88?=
- =?us-ascii?Q?EYb7mbWWvuucKBX9CRjMKjAASBR+o5SI8Qp5ULMHukGKstjI3OOdW7zzZ/0Q?=
- =?us-ascii?Q?HcOA6UuSYR0cToRXTj9igtflmnTmz2dDRJ+pgEPhmcqZ+6T0J9LZUgLvoZ/5?=
- =?us-ascii?Q?QFzD2SMQPPqteoae5ASRNcZu+SeerXe7CyCLAONRvj3t1wAQsoEOnkFgKKHz?=
- =?us-ascii?Q?gzFfAQgB2nPXHoz7rUItS2LRiG6ftl2DW7hnIrCdQeKoAHEESNIkAXIljz3l?=
- =?us-ascii?Q?jCvGm0QqcIDzeF9ZlDu9+MEVQ5MKYehpRUdibQ5MizxYOC18zTq1KcRWEamF?=
- =?us-ascii?Q?yHip7AE+0gMrl+J9a2fmTrsptTqAVZ+XSMpq5JkC92m230N8zexmdbvmeBf3?=
- =?us-ascii?Q?LJQ7DyZhAtcWtqOpzs1+oZUKAFAEIhJ/QKB/NnyAmdrPCe/2/jKBkvra165b?=
- =?us-ascii?Q?ujC2XGGoNeaiBIOj3dxCPx2VBREZ1KLy5RmC/M35qyCC50tay+kCQYVBy7cR?=
- =?us-ascii?Q?8vs69e/nucB1CEbHe8zi3cYUpnqDwp7+OQXkN/Tgx0xMrE9JMnKRuqZ83w30?=
- =?us-ascii?Q?0VmFECWQCB9GlewDBYDk25AC95emJT6cCC6aTWwYXqDHIcQ+7FpMn3Q6Cq4/?=
- =?us-ascii?Q?7d0M5yq7GXAMhMNdNAAx3/a0wvatFDHIkqQXyhVxCM89yxfPul441oMNLunB?=
- =?us-ascii?Q?29WFFiT7cUMVnlTQGYI=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="XY5IxvJq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=A4
+	M/POHWuLvUOmb8o4PVnu3p+ruDnZJl5Jdp4rRP8EA=; b=XY5IxvJqiXf4+4BKz0
+	DPF9whEe6YZsu7u8wp7bsG2+kBaxq+kv3A9mQNzfKGdpM9P/bU61AUpyAl7YBDeh
+	GvfGkyef9wgkvCaL2s7t7UG4DvX5URxKfdv5F13nkB1FEY3u6QKRyzgNKDW7MCVM
+	fqBwC0BLZPoN26clTe4TFnwCg=
+Received: from haiyue-pc.localdomain (unknown [])
+	by gzga-smtp-mtada-g0-3 (Coremail) with SMTP id _____wCnAafU8q9o4zdvEw--.31954S2;
+	Thu, 28 Aug 2025 14:10:29 +0800 (CST)
+From: Haiyue Wang <haiyuewa@163.com>
+To: linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org,
+	Alistair Popple <apopple@nvidia.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Cc: Haiyue Wang <haiyuewa@163.com>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Miklos Szeredi <miklos@szeredi.hu>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	David Hildenbrand <david@redhat.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	virtualization@lists.linux.dev (open list:VIRTIO FILE SYSTEM),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v1] virtio_fs: fix page fault for DAX page address
+Date: Thu, 28 Aug 2025 14:10:13 +0800
+Message-ID: <20250828061023.877-1-haiyuewa@163.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d32690d3-8e95-4612-6bb2-08dde5fb8137
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Aug 2025 06:24:12.3410
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Q1ZL4XnfWMZuu5aN8vNg4mc+LQAne05/4luQvLDbqvVNuFtvRusN48MZGCbiz7pKItJ5y1HKeaePoSnn6BTVfA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6070
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wCnAafU8q9o4zdvEw--.31954S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxArWUtw1Utw1kZF1kAFykAFb_yoW7Jw17pF
+	1Utr18Gr4kXr1UJF10vr1UXr13twsrAF18XrWxAr1kZF1UW3WDJr1kJrWUtr4UXryjqry7
+	trs8Gw1xtryDKaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zEiiSDUUUUU=
+X-CM-SenderInfo: 5kdl53xhzdqiywtou0bp/1tbiYAO2a2ivSTleAQABsX
 
+The commit ced17ee32a99 ("Revert "virtio: reject shm region if length is zero"")
+exposes the following DAX page fault bug:
 
-> From: Cornelia Huck <cohuck@redhat.com>
-> Sent: 27 August 2025 05:04 PM
->=20
-> On Wed, Aug 27 2025, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->=20
-> > On Tue, Aug 26, 2025 at 06:52:03PM +0000, Parav Pandit wrote:
-> >> > What I do not understand, is what good does the revert do. Sorry.
-> >> >
-> >> Let me explain.
-> >> It prevents the issue of vblk requests being stuck due to broken VQ.
-> >> It prevents the vnet driver start_xmit() to be not stuck on skb comple=
-tions.
-> >
-> > This is the part I don't get.  In what scenario, before 43bb40c5b9265
-> > start_xmit is not stuck, but after 43bb40c5b9265 it is stuck?
-> >
-> > Once the device is gone, it is not using any buffers at all.
->=20
-> What I also don't understand: virtio-ccw does exactly the same thing
-> (virtio_break_device(), added in 2014), and it supports surprise removal
-> _only_, yet I don't remember seeing bug reports?
+The commit 21aa65bf82a7 ("mm: remove callers of pfn_t functionality") handles
+the DAX physical page address incorrectly: the removed macro 'phys_to_pfn_t()'
+should be replaced with 'PHYS_PFN()'.
 
-I suspect that stress testing may not have happened for ccw with active vbl=
-k Ios and outstanding transmit pkt and cvq commands.
-Hard to say as we don't have ccw hw or systems.
+[    1.390321] BUG: unable to handle page fault for address: ffffd3fb40000008
+[    1.390875] #PF: supervisor read access in kernel mode
+[    1.391257] #PF: error_code(0x0000) - not-present page
+[    1.391509] PGD 0 P4D 0
+[    1.391626] Oops: Oops: 0000 [#1] SMP NOPTI
+[    1.391806] CPU: 6 UID: 1000 PID: 162 Comm: weston Not tainted 6.17.0-rc3-WSL2-STABLE #2 PREEMPT(none)
+[    1.392361] RIP: 0010:dax_to_folio+0x14/0x60
+[    1.392653] Code: 52 c9 c3 00 66 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 0f 1f 44 00 00 48 c1 ef 05 48 c1 e7 06 48 03 3d 34 b5 31 01 <48> 8b 57 08 48 89 f8 f6 c2 01 75 2b 66 90 c3 cc cc cc cc f7 c7 ff
+[    1.393727] RSP: 0000:ffffaf7d04407aa8 EFLAGS: 00010086
+[    1.394003] RAX: 000000a000000000 RBX: ffffaf7d04407bb0 RCX: 0000000000000000
+[    1.394524] RDX: ffffd17b40000008 RSI: 0000000000000083 RDI: ffffd3fb40000000
+[    1.394967] RBP: 0000000000000011 R08: 000000a000000000 R09: 0000000000000000
+[    1.395400] R10: 0000000000001000 R11: ffffaf7d04407c10 R12: 0000000000000000
+[    1.395806] R13: ffffa020557be9c0 R14: 0000014000000001 R15: 0000725970e94000
+[    1.396268] FS:  000072596d6d2ec0(0000) GS:ffffa0222dc59000(0000) knlGS:0000000000000000
+[    1.396715] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.397100] CR2: ffffd3fb40000008 CR3: 000000011579c005 CR4: 0000000000372ef0
+[    1.397518] Call Trace:
+[    1.397663]  <TASK>
+[    1.397900]  dax_insert_entry+0x13b/0x390
+[    1.398179]  dax_fault_iter+0x2a5/0x6c0
+[    1.398443]  dax_iomap_pte_fault+0x193/0x3c0
+[    1.398750]  __fuse_dax_fault+0x8b/0x270
+[    1.398997]  ? vm_mmap_pgoff+0x161/0x210
+[    1.399175]  __do_fault+0x30/0x180
+[    1.399360]  do_fault+0xc4/0x550
+[    1.399547]  __handle_mm_fault+0x8e3/0xf50
+[    1.399731]  ? do_syscall_64+0x72/0x1e0
+[    1.399958]  handle_mm_fault+0x192/0x2f0
+[    1.400204]  do_user_addr_fault+0x20e/0x700
+[    1.400418]  exc_page_fault+0x66/0x150
+[    1.400602]  asm_exc_page_fault+0x26/0x30
+[    1.400831] RIP: 0033:0x72596d1bf703
+[    1.401076] Code: 31 f6 45 31 e4 48 8d 15 b3 73 00 00 e8 06 03 00 00 8b 83 68 01 00 00 e9 8e fa ff ff 0f 1f 00 48 8b 44 24 08 4c 89 ee 48 89 df <c7> 00 21 43 34 12 e8 72 09 00 00 e9 6a fa ff ff 0f 1f 44 00 00 e8
+[    1.402172] RSP: 002b:00007ffc350f6dc0 EFLAGS: 00010202
+[    1.402488] RAX: 0000725970e94000 RBX: 00005b7c642c2560 RCX: 0000725970d359a7
+[    1.402898] RDX: 0000000000000003 RSI: 00007ffc350f6dc0 RDI: 00005b7c642c2560
+[    1.403284] RBP: 00007ffc350f6e90 R08: 000000000000000d R09: 0000000000000000
+[    1.403634] R10: 00007ffc350f6dd8 R11: 0000000000000246 R12: 0000000000000001
+[    1.404078] R13: 00007ffc350f6dc0 R14: 0000725970e29ce0 R15: 0000000000000003
+[    1.404450]  </TASK>
+[    1.404570] Modules linked in:
+[    1.404821] CR2: ffffd3fb40000008
+[    1.405029] ---[ end trace 0000000000000000 ]---
+[    1.405323] RIP: 0010:dax_to_folio+0x14/0x60
+[    1.405556] Code: 52 c9 c3 00 66 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 0f 1f 44 00 00 48 c1 ef 05 48 c1 e7 06 48 03 3d 34 b5 31 01 <48> 8b 57 08 48 89 f8 f6 c2 01 75 2b 66 90 c3 cc cc cc cc f7 c7 ff
+[    1.406639] RSP: 0000:ffffaf7d04407aa8 EFLAGS: 00010086
+[    1.406910] RAX: 000000a000000000 RBX: ffffaf7d04407bb0 RCX: 0000000000000000
+[    1.407379] RDX: ffffd17b40000008 RSI: 0000000000000083 RDI: ffffd3fb40000000
+[    1.407800] RBP: 0000000000000011 R08: 000000a000000000 R09: 0000000000000000
+[    1.408246] R10: 0000000000001000 R11: ffffaf7d04407c10 R12: 0000000000000000
+[    1.408666] R13: ffffa020557be9c0 R14: 0000014000000001 R15: 0000725970e94000
+[    1.409170] FS:  000072596d6d2ec0(0000) GS:ffffa0222dc59000(0000) knlGS:0000000000000000
+[    1.409608] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.409977] CR2: ffffd3fb40000008 CR3: 000000011579c005 CR4: 0000000000372ef0
+[    1.410437] Kernel panic - not syncing: Fatal exception
+[    1.410857] Kernel Offset: 0xc000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+
+Fixes: 21aa65bf82a7 ("mm: remove callers of pfn_t functionality")
+Signed-off-by: Haiyue Wang <haiyuewa@163.com>
+---
+ fs/fuse/virtio_fs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index c826e7ca49f5..76c8fd0bfc75 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -1016,7 +1016,7 @@ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
+ 	if (kaddr)
+ 		*kaddr = fs->window_kaddr + offset;
+ 	if (pfn)
+-		*pfn = fs->window_phys_addr + offset;
++		*pfn = PHYS_PFN(fs->window_phys_addr + offset);
+ 	return nr_pages > max_nr_pages ? max_nr_pages : nr_pages;
+ }
+ 
+-- 
+2.51.0
+
