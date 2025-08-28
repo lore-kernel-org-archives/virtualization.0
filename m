@@ -1,217 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59586208994;
-	Thu, 28 Aug 2025 11:57:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3BF930F957
+	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 12:16:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756382254; cv=none; b=ONTOpL3VUSJwVzxa5dFb5UjVQv+x7ueo8id0tNOgahhRfzjy8U7OG1pHlsqIXKXgnbIPaZEQ6sH27ia2DNBSKOLnIe2UIsZupbxPrVaq2/18hX0MuvVeJuP1jl24pYHpSuGno4VlRK6YgWeMqQF15LjCp9AjSiZmrJ84gtXnGfA=
+	t=1756383401; cv=none; b=FPbGav/NlcxsIuX/KC+fW3H51JOpZ2EvjPx+eC92vxpGc1xf2YmCHS8DxoHPHJgJdatyuewfoxCTmy62MoZJTUfxN5GiP+oFSoMA91WrkDhNdCk25QnDVxe+r1suxknpzpbNvyyZYy6qLBK2Bp3yn9UfQsly00HCbkm435+QU9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756382254; c=relaxed/simple;
-	bh=n8QXY5YRm9nQQBYQQGaxgrl8XdTmVTKFna/oqVl/xhQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AJ9GfL1/bM4FM1Ded2cEKFeo/9V36xjtNbK+8bJwgiuCB56NnHwkS2w706Hv3yIULS8AJoCtHFeYaC+5zKp7fB2eAxl2vU2HmFcCHnFSlKMGDbBzMlU4vjpp1xtaLpZzlyinWEp6mYLSAvN+agGDUqbG4mwrc0bBwPxi4uJREfQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OqLtXq0g; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1756383401; c=relaxed/simple;
+	bh=mdW2oSADWBbXGiEgktQ7epNSjn+PoivCb/saH/Cs8kw=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=k3wGw16BTzoHjsKe+M9LTMr4YrVQLFP5WhX2AbbWQkbOrozwnU8iBZDztPDvG6rPN1iqAfl2cWkSf4XbSl2ew0a2uJu3HKFz2N+dkcaUCZsl7ADFKcXa0K+Wjo2FTDAtz1WQ9dRz9kcJpLEozqGGrwGMtNSNaKqOUISXwnE9m2o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hW0OtPzG; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OqLtXq0g"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94ADC4CEEB;
-	Thu, 28 Aug 2025 11:57:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1756382253;
-	bh=n8QXY5YRm9nQQBYQQGaxgrl8XdTmVTKFna/oqVl/xhQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=OqLtXq0gi9UBzAMP2wcXlT2cBb1dLghW49oEfniFZWmFDZ8XrTzjet3Se+cK+4Enz
-	 bUcas58K9zqJYJO8K1xC/lojuRYXP35XvwWJ9XYIMcJRmRtfzd1ENQlyeWdM0r06Gk
-	 0iGSQIedtJXaN5EXHSKxCaObLHf9f2/iEhzMO/91YHWTXC+kQV5HZRzX+s7pvZgTMs
-	 /wX7b7wyAX9BAZbCT37OSLoaEdenWMo5h/NWko9aq0V1TzuE+BMc75vbwrCyO1DV2e
-	 WdS++dKThCK37gVl5uHk3NBx12J9+O+GbVUmIbjagbvOKAeDIwhduPUosVAdqLdX7n
-	 wfEu8DIXf5M5g==
-Date: Thu, 28 Aug 2025 14:57:29 +0300
-From: Leon Romanovsky <leon@kernel.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>,
-	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
-	Alexander Potapenko <glider@google.com>,
-	Alex Gaynor <alex.gaynor@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
-	iommu@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
-	Jens Axboe <axboe@kernel.dk>, Joerg Roedel <joro@8bytes.org>,
-	Jonathan Corbet <corbet@lwn.net>, Juergen Gross <jgross@suse.com>,
-	kasan-dev@googlegroups.com, Keith Busch <kbusch@kernel.org>,
-	linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	linux-trace-kernel@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
-	xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v4 00/16] dma-mapping: migrate to physical address-based
- API
-Message-ID: <20250828115729.GA10073@unreal>
-References: <cover.1755624249.git.leon@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hW0OtPzG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756383398;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=biyzL+1TO3pX1lKEDhJXK6ipdRuCbCoINQgGjSZT/uA=;
+	b=hW0OtPzGvlUxA6N25jW0IoPfTMoxL1eC5U3FK4WtsAaeCPTdlR02gXo2+w6rxTMzceG4Yy
+	O5DSJc/hTlaFVags0yYFwJATTIsmvIo8LL/6j9FzJIC9QDbsUAfQKfqM3SCky47O+llNg5
+	bNGY4SWUbPG6zLYzjUuZylA11Q0DzH8=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-592-In72s4WbOcu3kiOuKgyB6w-1; Thu,
+ 28 Aug 2025 08:16:34 -0400
+X-MC-Unique: In72s4WbOcu3kiOuKgyB6w-1
+X-Mimecast-MFC-AGG-ID: In72s4WbOcu3kiOuKgyB6w_1756383393
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D924C180028E;
+	Thu, 28 Aug 2025 12:16:32 +0000 (UTC)
+Received: from localhost (unknown [10.45.224.217])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3EA0530001BB;
+	Thu, 28 Aug 2025 12:16:30 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Parav Pandit <parav@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "jasowang@redhat.com" <jasowang@redhat.com>, "stefanha@redhat.com"
+ <stefanha@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
+ "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+ "stable@vger.kernel.org" <stable@vger.kernel.org>, Max Gurtovoy
+ <mgurtovoy@nvidia.com>, "NBU-Contact-Li Rongqing (EXTERNAL)"
+ <lirongqing@baidu.com>, linux-s390@vger.kernel.org
+Subject: RE: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
+ pci device"
+In-Reply-To: <CY8PR12MB7195FD9F90C45CC2B17A4776DC3BA@CY8PR12MB7195.namprd12.prod.outlook.com>
+Organization: "Red Hat GmbH, Sitz: Werner-von-Siemens-Ring 12, D-85630
+ Grasbrunn, Handelsregister: Amtsgericht =?utf-8?Q?M=C3=BCnchen=2C?= HRB
+ 153243,
+ =?utf-8?Q?Gesch=C3=A4ftsf=C3=BChrer=3A?= Ryan Barnhart, Charles Cachera,
+ Avril Crosse O'Flaherty"
+References: <20250822091706.21170-1-parav@nvidia.com>
+ <20250822060839-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195292684E62FD44B3ADFF9DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250822090249-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195392690042EF1600CEAC5DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250822095225-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195C932CA73F6C2FC7484ABDC3FA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250824102947-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB71956B4FDE7C4A2DA4304D0CDC39A@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250827061537-mutt-send-email-mst@kernel.org>
+ <87frdddmni.fsf@redhat.com>
+ <CY8PR12MB7195FD9F90C45CC2B17A4776DC3BA@CY8PR12MB7195.namprd12.prod.outlook.com>
+User-Agent: Notmuch/0.38.3 (https://notmuchmail.org)
+Date: Thu, 28 Aug 2025 14:16:28 +0200
+Message-ID: <87cy8fej4z.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1755624249.git.leon@kernel.org>
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Tue, Aug 19, 2025 at 08:36:44PM +0300, Leon Romanovsky wrote:
-> Changelog:
-> v4:
->  * Fixed kbuild error with mismatch in kmsan function declaration due to
->    rebase error.
-> v3: https://lore.kernel.org/all/cover.1755193625.git.leon@kernel.org
->  * Fixed typo in "cacheable" word
->  * Simplified kmsan patch a lot to be simple argument refactoring
-> v2: https://lore.kernel.org/all/cover.1755153054.git.leon@kernel.org
->  * Used commit messages and cover letter from Jason
->  * Moved setting IOMMU_MMIO flag to dma_info_to_prot function
->  * Micro-optimized the code
->  * Rebased code on v6.17-rc1
-> v1: https://lore.kernel.org/all/cover.1754292567.git.leon@kernel.org
->  * Added new DMA_ATTR_MMIO attribute to indicate
->    PCI_P2PDMA_MAP_THRU_HOST_BRIDGE path.
->  * Rewrote dma_map_* functions to use thus new attribute
-> v0: https://lore.kernel.org/all/cover.1750854543.git.leon@kernel.org/
-> ------------------------------------------------------------------------
-> 
-> This series refactors the DMA mapping to use physical addresses
-> as the primary interface instead of page+offset parameters. This
-> change aligns the DMA API with the underlying hardware reality where
-> DMA operations work with physical addresses, not page structures.
-> 
-> The series maintains export symbol backward compatibility by keeping
-> the old page-based API as wrapper functions around the new physical
-> address-based implementations.
-> 
-> This series refactors the DMA mapping API to provide a phys_addr_t
-> based, and struct-page free, external API that can handle all the
-> mapping cases we want in modern systems:
-> 
->  - struct page based cachable DRAM
->  - struct page MEMORY_DEVICE_PCI_P2PDMA PCI peer to peer non-cachable
->    MMIO
->  - struct page-less PCI peer to peer non-cachable MMIO
->  - struct page-less "resource" MMIO
-> 
-> Overall this gets much closer to Matthew's long term wish for
-> struct-pageless IO to cachable DRAM. The remaining primary work would
-> be in the mm side to allow kmap_local_pfn()/phys_to_virt() to work on
-> phys_addr_t without a struct page.
-> 
-> The general design is to remove struct page usage entirely from the
-> DMA API inner layers. For flows that need to have a KVA for the
-> physical address they can use kmap_local_pfn() or phys_to_virt(). This
-> isolates the struct page requirements to MM code only. Long term all
-> removals of struct page usage are supporting Matthew's memdesc
-> project which seeks to substantially transform how struct page works.
-> 
-> Instead make the DMA API internals work on phys_addr_t. Internally
-> there are still dedicated 'page' and 'resource' flows, except they are
-> now distinguished by a new DMA_ATTR_MMIO instead of by callchain. Both
-> flows use the same phys_addr_t.
-> 
-> When DMA_ATTR_MMIO is specified things work similar to the existing
-> 'resource' flow. kmap_local_pfn(), phys_to_virt(), phys_to_page(),
-> pfn_valid(), etc are never called on the phys_addr_t. This requires
-> rejecting any configuration that would need swiotlb. CPU cache
-> flushing is not required, and avoided, as ATTR_MMIO also indicates the
-> address have no cachable mappings. This effectively removes any
-> DMA API side requirement to have struct page when DMA_ATTR_MMIO is
-> used.
-> 
-> In the !DMA_ATTR_MMIO mode things work similarly to the 'page' flow,
-> except on the common path of no cache flush, no swiotlb it never
-> touches a struct page. When cache flushing or swiotlb copying
-> kmap_local_pfn()/phys_to_virt() are used to get a KVA for CPU
-> usage. This was already the case on the unmap side, now the map side
-> is symmetric.
-> 
-> Callers are adjusted to set DMA_ATTR_MMIO. Existing 'resource' users
-> must set it. The existing struct page based MEMORY_DEVICE_PCI_P2PDMA
-> path must also set it. This corrects some existing bugs where iommu
-> mappings for P2P MMIO were improperly marked IOMMU_CACHE.
-> 
-> Since ATTR_MMIO is made to work with all the existing DMA map entry
-> points, particularly dma_iova_link(), this finally allows a way to use
-> the new DMA API to map PCI P2P MMIO without creating struct page. The
-> VFIO DMABUF series demonstrates how this works. This is intended to
-> replace the incorrect driver use of dma_map_resource() on PCI BAR
-> addresses.
-> 
-> This series does the core code and modern flows. A followup series
-> will give the same treatment to the legacy dma_ops implementation.
-> 
-> Thanks
-> 
-> Leon Romanovsky (16):
->   dma-mapping: introduce new DMA attribute to indicate MMIO memory
->   iommu/dma: implement DMA_ATTR_MMIO for dma_iova_link().
->   dma-debug: refactor to use physical addresses for page mapping
->   dma-mapping: rename trace_dma_*map_page to trace_dma_*map_phys
->   iommu/dma: rename iommu_dma_*map_page to iommu_dma_*map_phys
->   iommu/dma: extend iommu_dma_*map_phys API to handle MMIO memory
->   dma-mapping: convert dma_direct_*map_page to be phys_addr_t based
->   kmsan: convert kmsan_handle_dma to use physical addresses
->   dma-mapping: handle MMIO flow in dma_map|unmap_page
->   xen: swiotlb: Open code map_resource callback
->   dma-mapping: export new dma_*map_phys() interface
->   mm/hmm: migrate to physical address-based DMA mapping API
->   mm/hmm: properly take MMIO path
->   block-dma: migrate to dma_map_phys instead of map_page
->   block-dma: properly take MMIO path
->   nvme-pci: unmap MMIO pages with appropriate interface
-> 
->  Documentation/core-api/dma-api.rst        |   4 +-
->  Documentation/core-api/dma-attributes.rst |  18 ++++
->  arch/powerpc/kernel/dma-iommu.c           |   4 +-
->  block/blk-mq-dma.c                        |  15 ++-
->  drivers/iommu/dma-iommu.c                 |  61 +++++------
->  drivers/nvme/host/pci.c                   |  18 +++-
->  drivers/virtio/virtio_ring.c              |   4 +-
->  drivers/xen/swiotlb-xen.c                 |  21 +++-
->  include/linux/blk-mq-dma.h                |   6 +-
->  include/linux/blk_types.h                 |   2 +
->  include/linux/dma-direct.h                |   2 -
->  include/linux/dma-map-ops.h               |   8 +-
->  include/linux/dma-mapping.h               |  33 ++++++
->  include/linux/iommu-dma.h                 |  11 +-
->  include/linux/kmsan.h                     |   9 +-
->  include/trace/events/dma.h                |   9 +-
->  kernel/dma/debug.c                        |  71 ++++---------
->  kernel/dma/debug.h                        |  37 ++-----
->  kernel/dma/direct.c                       |  22 +---
->  kernel/dma/direct.h                       |  52 ++++++----
->  kernel/dma/mapping.c                      | 117 +++++++++++++---------
->  kernel/dma/ops_helpers.c                  |   6 +-
->  mm/hmm.c                                  |  19 ++--
->  mm/kmsan/hooks.c                          |   5 +-
->  rust/kernel/dma.rs                        |   3 +
->  tools/virtio/linux/kmsan.h                |   2 +-
->  26 files changed, 305 insertions(+), 254 deletions(-)
+On Thu, Aug 28 2025, Parav Pandit <parav@nvidia.com> wrote:
 
-Marek,
+>> From: Cornelia Huck <cohuck@redhat.com>
+>> Sent: 27 August 2025 05:04 PM
+>> 
+>> On Wed, Aug 27 2025, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>> 
+>> > On Tue, Aug 26, 2025 at 06:52:03PM +0000, Parav Pandit wrote:
+>> >> > What I do not understand, is what good does the revert do. Sorry.
+>> >> >
+>> >> Let me explain.
+>> >> It prevents the issue of vblk requests being stuck due to broken VQ.
+>> >> It prevents the vnet driver start_xmit() to be not stuck on skb completions.
+>> >
+>> > This is the part I don't get.  In what scenario, before 43bb40c5b9265
+>> > start_xmit is not stuck, but after 43bb40c5b9265 it is stuck?
+>> >
+>> > Once the device is gone, it is not using any buffers at all.
+>> 
+>> What I also don't understand: virtio-ccw does exactly the same thing
+>> (virtio_break_device(), added in 2014), and it supports surprise removal
+>> _only_, yet I don't remember seeing bug reports?
+>
+> I suspect that stress testing may not have happened for ccw with active vblk Ios and outstanding transmit pkt and cvq commands.
+> Hard to say as we don't have ccw hw or systems.
 
-So what are the next steps here? This series is pre-requirement for the
-VFIO MMIO patches.
+cc:ing linux-s390 list. I'd be surprised if nobody ever tested surprise
+removal on a loaded system in the last 11 years.
 
-Thanks
-
-> 
-> -- 
-> 2.50.1
-> 
-> 
