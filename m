@@ -1,228 +1,231 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBF8D283682
-	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 20:51:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB0EE223DDD;
+	Thu, 28 Aug 2025 20:53:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756414316; cv=none; b=LH4knqe4T/30QgNxoKswPKSUh4pLtQ2ilC479hkG83jzpt6hJaDk33Rkpe+TsDzw6mjco6GZMvKbA7+e8VTdkTvsIDkGYjNxIZHnG34xOefmC5m6hQDPrKKwfbQfL/+uOrrQ7VPNxuRMwWBNv1N0ScBJbc/0dfzp42ORsPCgOtk=
+	t=1756414384; cv=none; b=RjDnz0xOJ/F1BArKSrKNv2TIHJSnRqGIIKVaVoU+YzCw2cO7ih0ZeSo5i4IvNhA4/qJOJXuY2ZBK05hGxSrIYnkr1cn5O0KE+1oBl/fgGRoZIkDhTyxULpe9CQRyEqzbRxwk3vtJoQG0dt9oQqKvvhFo2TepLi7NfxdF4zOxp1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756414316; c=relaxed/simple;
-	bh=2ucm0soIRFTqQyMyRZNn1dLd48MxmtIvrqQi2CirSwg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fNTzIUECs3X517gttHRg5+WvCeKL5/4Kkzf21hTr32ZrRAYDvAgjVSDpRCZjlXU8Aoy3cIni1qBLV8JyeFr9G8OzVQekvxOTORaVNidceoKEwK8aRx04PWADnJdYB2Uxl9HdJG4ysgjjyelxBMOD2cI1Vf3eOgD2cbuc6IiSaYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UhYX4RW1; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1756414384; c=relaxed/simple;
+	bh=5k4UXkTHLn8z4Oqhg0CbDCeOCFaMpfeezWZxNb6d5ms=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fvVSkxqbOq2gmnXe5emd3T5RPraiFr+JX1oxlV4nO4mqJ6e+0RZRsQLqd0oy7Aw0AeOv+VuSJXlSNc1/69KCYW/TI4mInJWdnvJB1zVvT03VwkyT6MANX/QM9AcSWZC0kvK/RgLzY7TFTusL1VZamEsSqRsOcCCMSOrGSLwg/6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gAR4ffAL; arc=none smtp.client-ip=192.198.163.8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UhYX4RW1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756414313;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=TWFVCA1eidbRWe4Mvk+B7obYKckT+mqN7M8LbBoJEjM=;
-	b=UhYX4RW1cHSThivPDmx+7E/zp/Ld67BOG3uhZx1RXHbL0liP0AH/b13dNOrsmkjoCJe6mj
-	+R7+Nc9u+NgfBfpjSD+0Gbty4mb/leeHYP7oPGfLuhnwSwrpS343bsU0ZGIpjAVrKV6Ge4
-	WKMw6E9/Mbsp7lDM5VBFso1x3bYkySo=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-390-FZnYPeYAO_OWpWgZNissCw-1; Thu, 28 Aug 2025 16:51:52 -0400
-X-MC-Unique: FZnYPeYAO_OWpWgZNissCw-1
-X-Mimecast-MFC-AGG-ID: FZnYPeYAO_OWpWgZNissCw_1756414311
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45a1b0b2b5cso9664365e9.2
-        for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 13:51:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756414311; x=1757019111;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=TWFVCA1eidbRWe4Mvk+B7obYKckT+mqN7M8LbBoJEjM=;
-        b=pqcw1lJqq4T3wjPw9N80bfpjJ7tqek0eQjg4c8MmrATJbOEFznUHXYidh2ccNsbh9b
-         LPW3oC04U2R4t5IXOlGtb0ss3Tu6DSSTgy9F7DnSn2Essl5CHHgIKhRpoapBLFUWYWU0
-         MF0PPDBW/eHc8wE7fT+IvW9fiF+QlmcYrjhlioPwKcG3wQkPi+7zeMqNBb3xBew6o6sD
-         uPWyOtGOIkISwFbkJxtHSxdMRsz8qnTWrP6ffJYWSI++ewweAhYGrEvs1nxH5A6YcwnK
-         MzqW8foE9usd4StWpkG6ML7wqbfLkyV1szaO5b7zQCCwhi1Lvh6GUXAFdtCCfpxUK45Q
-         3E4w==
-X-Forwarded-Encrypted: i=1; AJvYcCWc+c7YobwUuGY+ktS4/55Ac1rsczrltXxKdgrrm2Q6tO5ybOUnBiLgDCOVKgysgAIBkY52K9e1gK3jA02FyQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxq2UfiOM/4+1BGbbfXBtHdzv4ZSE/m65wj5iPKtuRbWDdR52KH
-	ZbetPuPAoruhMH0O6iWIak5OeNHt27mZJIgyqHqNjyv/ZmAUCJ0iymnXVB8CdKT+vfsFBdA7FOc
-	U5A9TCvZ173oT5+IaNWH07khm1+YJ5dMqYmzhm4EYvz6I9+tsnKIRVAarftX2sdq5Kaiq
-X-Gm-Gg: ASbGncssgghEGVme7AAbeRpyhX7i3QmyktFispE+OYKrgSGj3luE4SKwRrqWZ4KjDct
-	zAFopkB02ZmaBh14qCo6RmDbVJyozFte03K2aqu7iFMYwu1HRqPc1vCSf7Jq7mYEVYcwsPCD2f0
-	uOe4F1Zsfa2PVxkYke9rzZqajIvBpt2uA438N8uMw2Fi1D6N5ie+FVk8UpRAiSGNBm51v2zADc0
-	maCt2merr0Bg0BZOu5xRpTeEFbxFpVGJJ6zSMU+1Sb0RWZOhb3p+iIMnNpwFvWG3akYighSNOto
-	gikvi70TsshMmE7SUa+fm5WmjAXL2ljIlCnoMpHZ8sEsfVQ1B9xWzSyTdFNSlkKXulZbceAs7Xb
-	BmSNvOUUy/pP5xmJYOmUm7eIcQlPcIpLBlBBV+GdSjKg0Qj2rBgWsArEegaEmQEGCQKM=
-X-Received: by 2002:a05:600c:c491:b0:45b:4d47:5559 with SMTP id 5b1f17b1804b1-45b517dadd6mr212975895e9.36.1756414310772;
-        Thu, 28 Aug 2025 13:51:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEBxEpIi+OizhCOrvRivNgDFtglg6ujTEy6gKjCh35xHRfgibjOrf5BEosBm4/LLfFcliwoKA==
-X-Received: by 2002:a05:600c:c491:b0:45b:4d47:5559 with SMTP id 5b1f17b1804b1-45b517dadd6mr212975405e9.36.1756414310334;
-        Thu, 28 Aug 2025 13:51:50 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f28:c100:2225:10aa:f247:7b85? (p200300d82f28c100222510aaf2477b85.dip0.t-ipconnect.de. [2003:d8:2f28:c100:2225:10aa:f247:7b85])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b7df3ff72sm8506805e9.1.2025.08.28.13.51.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Aug 2025 13:51:49 -0700 (PDT)
-Message-ID: <2be7db96-2fa2-4348-837e-648124bd604f@redhat.com>
-Date: Thu, 28 Aug 2025 22:51:46 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gAR4ffAL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1756414383; x=1787950383;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=5k4UXkTHLn8z4Oqhg0CbDCeOCFaMpfeezWZxNb6d5ms=;
+  b=gAR4ffALhpK2+6E8g+FmmQBfH4l9d6QYZQ3Drw1oGR5MmNcR2AYXizM8
+   Gh56Qt77+prlPRFMVYGntmBY3kQ8amF1lcaK17rXGXIKXdYEUq1eooDYG
+   3inxWgzIVjx5otPBbVaWinrlEcG4FZlkpODrjmvflNz9ZMSMW0URA2pUN
+   i2lf3w2amKMwMpkXaUzuS4UZyiTYWtDc5GaRGnB+8xywdiMaQBh5gf3Au
+   GGA6Aa9XNq0iFwQweJoBMkqPrpvLaOYkiqmQQqG5rdBCjJYfuca0w5pNp
+   pRYjK5fB+O32Kw62bJdDa1ZRnk5kQv3Vcd1+7z5/JHiryIlUzaFnL2wx1
+   w==;
+X-CSE-ConnectionGUID: Qn8l+uOjTsGN8Q/oeq3tkA==
+X-CSE-MsgGUID: T1qiFHbtSF+r6pXQZQvo+Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11536"; a="76297161"
+X-IronPort-AV: E=Sophos;i="6.18,221,1751266800"; 
+   d="scan'208";a="76297161"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Aug 2025 13:53:02 -0700
+X-CSE-ConnectionGUID: jWEef5B0T1mlNZdvLmY8QQ==
+X-CSE-MsgGUID: QpkpGfHbQ/WmTKACR6Ey1g==
+X-ExtLoop1: 1
+Received: from lkp-server02.sh.intel.com (HELO 4ea60e6ab079) ([10.239.97.151])
+  by fmviesa003.fm.intel.com with ESMTP; 28 Aug 2025 13:52:59 -0700
+Received: from kbuild by 4ea60e6ab079 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1urjc9-000U3L-1H;
+	Thu, 28 Aug 2025 20:52:57 +0000
+Date: Fri, 29 Aug 2025 04:52:47 +0800
+From: kernel test robot <lkp@intel.com>
+To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org,
+	mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com,
+	virtualization@lists.linux.dev, pabeni@redhat.com
+Cc: oe-kbuild-all@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+	yohadt@nvidia.com, Daniel Jurgens <danielj@nvidia.com>
+Subject: Re: [PATCH net-next 05/11] virtio_net: Create a FF group for ethtool
+ steering
+Message-ID: <202508290458.9QTyiC0K-lkp@intel.com>
+References: <20250827183852.2471-6-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 20/36] mips: mm: convert __flush_dcache_pages() to
- __flush_dcache_folio_pages()
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: linux-kernel@vger.kernel.org,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Marco Elver <elver@google.com>,
- Marek Szyprowski <m.szyprowski@samsung.com>, Michal Hocko <mhocko@suse.com>,
- Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>,
- netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
- Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
- Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
- virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
- wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
-References: <20250827220141.262669-1-david@redhat.com>
- <20250827220141.262669-21-david@redhat.com>
- <ea74f0e3-bacf-449a-b7ad-213c74599df1@lucifer.local>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <ea74f0e3-bacf-449a-b7ad-213c74599df1@lucifer.local>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1iwdglOpOIzwrw3RGRuPpwCl6zD9WWQuUbPfVlA_yuY_1756414311
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250827183852.2471-6-danielj@nvidia.com>
 
-On 28.08.25 18:57, Lorenzo Stoakes wrote:
-> On Thu, Aug 28, 2025 at 12:01:24AM +0200, David Hildenbrand wrote:
->> Let's make it clearer that we are operating within a single folio by
->> providing both the folio and the page.
->>
->> This implies that for flush_dcache_folio() we'll now avoid one more
->> page->folio lookup, and that we can safely drop the "nth_page" usage.
->>
->> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>   arch/mips/include/asm/cacheflush.h | 11 +++++++----
->>   arch/mips/mm/cache.c               |  8 ++++----
->>   2 files changed, 11 insertions(+), 8 deletions(-)
->>
->> diff --git a/arch/mips/include/asm/cacheflush.h b/arch/mips/include/asm/cacheflush.h
->> index 5d283ef89d90d..8d79bfc687d21 100644
->> --- a/arch/mips/include/asm/cacheflush.h
->> +++ b/arch/mips/include/asm/cacheflush.h
->> @@ -50,13 +50,14 @@ extern void (*flush_cache_mm)(struct mm_struct *mm);
->>   extern void (*flush_cache_range)(struct vm_area_struct *vma,
->>   	unsigned long start, unsigned long end);
->>   extern void (*flush_cache_page)(struct vm_area_struct *vma, unsigned long page, unsigned long pfn);
->> -extern void __flush_dcache_pages(struct page *page, unsigned int nr);
->> +extern void __flush_dcache_folio_pages(struct folio *folio, struct page *page, unsigned int nr);
-> 
-> NIT: Be good to drop the extern.
+Hi Daniel,
 
-I think I'll leave the one in, though, someone should clean up all of 
-them in one go.
+kernel test robot noticed the following build warnings:
 
-Just imagine how the other functions would think about the new guy 
-showing off here. :)
+[auto build test WARNING on net-next/main]
 
-> 
->>
->>   #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
->>   static inline void flush_dcache_folio(struct folio *folio)
->>   {
->>   	if (cpu_has_dc_aliases)
->> -		__flush_dcache_pages(&folio->page, folio_nr_pages(folio));
->> +		__flush_dcache_folio_pages(folio, folio_page(folio, 0),
->> +					   folio_nr_pages(folio));
->>   	else if (!cpu_has_ic_fills_f_dc)
->>   		folio_set_dcache_dirty(folio);
->>   }
->> @@ -64,10 +65,12 @@ static inline void flush_dcache_folio(struct folio *folio)
->>
->>   static inline void flush_dcache_page(struct page *page)
->>   {
->> +	struct folio *folio = page_folio(page);
->> +
->>   	if (cpu_has_dc_aliases)
->> -		__flush_dcache_pages(page, 1);
->> +		__flush_dcache_folio_pages(folio, page, folio_nr_pages(folio));
-> 
-> Hmmm, shouldn't this be 1 not folio_nr_pages()? Seems that the original
-> implementation only flushed a single page even if contained within a larger
-> folio?
+url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Jurgens/virtio-pci-Expose-generic-device-capability-operations/20250828-024128
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20250827183852.2471-6-danielj%40nvidia.com
+patch subject: [PATCH net-next 05/11] virtio_net: Create a FF group for ethtool steering
+config: x86_64-randconfig-121-20250828 (https://download.01.org/0day-ci/archive/20250829/202508290458.9QTyiC0K-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250829/202508290458.9QTyiC0K-lkp@intel.com/reproduce)
 
-Yes, reworked it 3 times and messed it up during the last rework. Thanks!
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202508290458.9QTyiC0K-lkp@intel.com/
+
+sparse warnings: (new ones prefixed by >>)
+   drivers/net/virtio_net/virtio_net_ff.c: note: in included file (through include/linux/virtio_admin.h):
+   include/uapi/linux/virtio_net_ff.h:45:48: sparse: sparse: array of flexible structures
+>> drivers/net/virtio_net/virtio_net_ff.c:99:13: sparse: sparse: restricted __le32 degrades to integer
+>> drivers/net/virtio_net/virtio_net_ff.c:99:13: sparse: sparse: cast to restricted __le32
+>> drivers/net/virtio_net/virtio_net_ff.c:103:35: sparse: sparse: incorrect type in assignment (different base types) @@     expected restricted __le32 [usertype] groups_limit @@     got int @@
+   drivers/net/virtio_net/virtio_net_ff.c:103:35: sparse:     expected restricted __le32 [usertype] groups_limit
+   drivers/net/virtio_net/virtio_net_ff.c:103:35: sparse:     got int
+
+vim +99 drivers/net/virtio_net/virtio_net_ff.c
+
+    29	
+    30	void virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
+    31	{
+    32		struct virtio_admin_cmd_query_cap_id_result *cap_id_list __free(kfree) = NULL;
+    33		size_t ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data) +
+    34				      sizeof(struct virtio_net_ff_selector) *
+    35				      VIRTIO_NET_FF_MASK_TYPE_MAX;
+    36		struct virtio_net_resource_obj_ff_group ethtool_group = {};
+    37		struct virtio_net_ff_selector *sel;
+    38		int err;
+    39		int i;
+    40	
+    41		cap_id_list = kzalloc(sizeof(*cap_id_list), GFP_KERNEL);
+    42		if (!cap_id_list)
+    43			return;
+    44	
+    45		err = virtio_device_cap_id_list_query(vdev, cap_id_list);
+    46		if (err)
+    47			return;
+    48	
+    49		if (!(VIRTIO_CAP_IN_LIST(cap_id_list,
+    50					 VIRTIO_NET_FF_RESOURCE_CAP) &&
+    51		      VIRTIO_CAP_IN_LIST(cap_id_list,
+    52					 VIRTIO_NET_FF_SELECTOR_CAP) &&
+    53		      VIRTIO_CAP_IN_LIST(cap_id_list,
+    54					 VIRTIO_NET_FF_ACTION_CAP)))
+    55			return;
+    56	
+    57		ff->ff_caps = kzalloc(sizeof(*ff->ff_caps), GFP_KERNEL);
+    58		if (!ff->ff_caps)
+    59			return;
+    60	
+    61		err = virtio_device_cap_get(vdev,
+    62					    VIRTIO_NET_FF_RESOURCE_CAP,
+    63					    ff->ff_caps,
+    64					    sizeof(*ff->ff_caps));
+    65	
+    66		if (err)
+    67			goto err_ff;
+    68	
+    69		/* VIRTIO_NET_FF_MASK_TYPE start at 1 */
+    70		for (i = 1; i <= VIRTIO_NET_FF_MASK_TYPE_MAX; i++)
+    71			ff_mask_size += get_mask_size(i);
+    72	
+    73		ff->ff_mask = kzalloc(ff_mask_size, GFP_KERNEL);
+    74		if (!ff->ff_mask)
+    75			goto err_ff;
+    76	
+    77		err = virtio_device_cap_get(vdev,
+    78					    VIRTIO_NET_FF_SELECTOR_CAP,
+    79					    ff->ff_mask,
+    80					    ff_mask_size);
+    81	
+    82		if (err)
+    83			goto err_ff_mask;
+    84	
+    85		ff->ff_actions = kzalloc(sizeof(*ff->ff_actions) +
+    86						VIRTIO_NET_FF_ACTION_MAX,
+    87						GFP_KERNEL);
+    88		if (!ff->ff_actions)
+    89			goto err_ff_mask;
+    90	
+    91		err = virtio_device_cap_get(vdev,
+    92					    VIRTIO_NET_FF_ACTION_CAP,
+    93					    ff->ff_actions,
+    94					    sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
+    95	
+    96		if (err)
+    97			goto err_ff_action;
+    98	
+  > 99		if (le32_to_cpu(ff->ff_caps->groups_limit < VIRTNET_FF_MAX_GROUPS)) {
+   100			err = -ENOSPC;
+   101			goto err_ff_action;
+   102		}
+ > 103		ff->ff_caps->groups_limit = VIRTNET_FF_MAX_GROUPS;
+   104	
+   105		err = virtio_device_cap_set(vdev,
+   106					    VIRTIO_NET_FF_RESOURCE_CAP,
+   107					    ff->ff_caps,
+   108					    sizeof(*ff->ff_caps));
+   109		if (err)
+   110			goto err_ff_action;
+   111	
+   112		ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data);
+   113		sel = &ff->ff_mask->selectors[0];
+   114	
+   115		for (int i = 0; i < ff->ff_mask->count; i++) {
+   116			ff_mask_size += sizeof(struct virtio_net_ff_selector) + sel->length;
+   117			sel = (struct virtio_net_ff_selector *)((u8 *)sel + sizeof(*sel) + sel->length);
+   118		}
+   119	
+   120		err = virtio_device_cap_set(vdev,
+   121					    VIRTIO_NET_FF_SELECTOR_CAP,
+   122					    ff->ff_mask,
+   123					    ff_mask_size);
+   124		if (err)
+   125			goto err_ff_action;
+   126	
+   127		err = virtio_device_cap_set(vdev,
+   128					    VIRTIO_NET_FF_ACTION_CAP,
+   129					    ff->ff_actions,
+   130					    sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
+   131		if (err)
+   132			goto err_ff_action;
+   133	
+   134		ethtool_group.group_priority = cpu_to_le16(VIRTNET_FF_ETHTOOL_GROUP_PRIORITY);
+   135	
+   136		/* Use priority for the object ID. */
+   137		err = virtio_device_object_create(vdev,
+   138						  VIRTIO_NET_RESOURCE_OBJ_FF_GROUP,
+   139						  VIRTNET_FF_ETHTOOL_GROUP_PRIORITY,
+   140						  &ethtool_group,
+   141						  sizeof(ethtool_group));
+   142		if (err)
+   143			goto err_ff_action;
+   144	
+   145		ff->vdev = vdev;
+   146		ff->ff_supported = true;
+   147	
+   148		return;
+   149	
+   150	err_ff_action:
+   151		kfree(ff->ff_actions);
+   152	err_ff_mask:
+   153		kfree(ff->ff_mask);
+   154	err_ff:
+   155		kfree(ff->ff_caps);
+   156	}
+   157	
 
 -- 
-Cheers
-
-David / dhildenb
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
