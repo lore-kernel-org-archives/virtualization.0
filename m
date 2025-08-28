@@ -1,65 +1,65 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3644199920
-	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 00:31:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C9021B0414
+	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 00:31:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756341096; cv=none; b=oEB/NAG3xdU4+8bep6c7iDOfYWIAzlmr0nHxO7ara5NESx2cYeMTpob4rmgFYXdpxJVwNW4tYHI+2NFZnywN7QWXYmvgrpBrfkaTerMZvT6F9uFu+mK1USlPle+Z0yH1D1pxYTB42ni9dS0bkgyW/HrVmed743V0eHSnxISIgqU=
+	t=1756341098; cv=none; b=iq9BVT47m3lRfZGGotwxgxNuOckRZyL0Fw0+phdzB1LPGBcu9vNrubT0eKPYa7uEQxOD60A50GfVUmLPjYDjW7wUlY+YC9V7BrertUqh7dDOyZ6UVXC9C0OREpNpiIhpcAxmquj47Tg17wHfAM2cxRRFIQyMwdcuuPjUEwxUEok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756341096; c=relaxed/simple;
-	bh=z+sr6MdX8qILdTTvivuBLqgcZDE/1O6PGveEjKKmkI4=;
+	s=arc-20240116; t=1756341098; c=relaxed/simple;
+	bh=TYmMByH+5sTf+Nmv/lFpsDIcxlWf1v6PPyxvRt0BSCI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=oWN4FxwXH+gdFu8MqxQrF1fn9uBQHMHHbiE0yGx48HEOceA3pD3NGuyGqg283QTiKCO4lHTTgwplWQJXA74U7bwTD0XzJR+oim50hB6o3S/xqUhJyQXlTg3SolK8E59r+EC/yIOdA5Lv6mY3lVLzD3xsKxnikKpPrJOBVyBV+6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XnYesqHa; arc=none smtp.client-ip=209.85.210.173
+	 In-Reply-To:To:Cc; b=p5KAUt911Ye3KmAt6fPni/BaekWfTRhF5hxq8lol3tn37NY7P3+Wy8dbJmDD1MxRDdS7TLw5Vyfos7ppLCJWoJnTcNxR/cO2joCjzFRxVmQ15diq3vHDqYR44upUTTaf7NIMeBgXGHnGk2bVcJGnfd5yDpBpaTBya76RQ+TCtio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=be7qf9He; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XnYesqHa"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-7720c7cc05fso334207b3a.3
-        for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 17:31:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="be7qf9He"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-248d5074ff7so1576845ad.0
+        for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 17:31:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756341094; x=1756945894; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1756341095; x=1756945895; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=tgPhhCZTl4chPUEyREnq+4qsbR5ADg6VFT1FXFFAJKw=;
-        b=XnYesqHaF/utk6Mo5fHlsZhQ55pcuuMetSLmF3vwzbCP7SPDsMT5lpeVb39KkpbuGK
-         ZFWmnyGiJYgaifllcPTN/G+WkUB1pMH44/otQ0D5EZpOKrMlvbmRarGuJVnzDHspDlcc
-         4diI8NpUsUfBlQzY7lVMtjDoOB8eWiPYMn5Y8t4dtQdpWz7QFtRNMSBYKwSkgCOWzeNr
-         bn9u7uzBx73lRcfa6oKdDSZCbTJ1NJFwM6aYxDXrexIBU8PIlV1cLx2dIO58e7cxplOH
-         dMoM78iKL2CcYxqycEBEBMhwE8F/nOPL+eOmln/XPuDe3gqwj/d1RaKpVgHF0OsGdHUJ
-         usqg==
+        bh=CPvtzAfXM02gxsFwP0R3/4GEgD8KwF6jICYx2UBFbv4=;
+        b=be7qf9HeBUoioHJaph8hxAtcjuTm9LnCJfr3ENj/ZYgErsAeEq8SNvNpnCgQyJr+h7
+         uwQEo2kNQnYBxHT3XyuaKOoC/akXvQZo2F3dbs9knnhyHVRCgC6idMvh3KgRweI672xU
+         AqvdOOu7PmiGWiqfXxVF5lXL/OOx205QdAja2Bm7ImhJsAvC8YA18NAZDMlTsz7MCHkR
+         02M25TUDkbWXtDx0aVBXtjD7T6Sa+3ENgabNh6INw+0JUzcW+B+QpfnVtsHQ2TkU6eiD
+         WtcSoqFBwJ0F4EH+RqvcSaSfh0wX72CMOsjQznDI7M61qs8UWj3Ko1T47SHf02u/kVTI
+         eajQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756341094; x=1756945894;
+        d=1e100.net; s=20230601; t=1756341095; x=1756945895;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tgPhhCZTl4chPUEyREnq+4qsbR5ADg6VFT1FXFFAJKw=;
-        b=MeSF9ZnsSXYb/ihUr3paMVI1dKVTEo0bZjTHqrNc5qISD+maPnGGykmSZA/48tfBle
-         D6L898kFORZMGsNnjc10eZTFsQUt/j0oECdHjqXHuxvQ5Il0WTF3p6+0J/7pZwdWIr48
-         V1wdPVYx3e86SN7mUJnKqFS3OPqwCCiPMeISCibs2bLxpGxYbwbJBgcw/GYXE8Oieows
-         QfJP1lRwEZXPlk+bTiXzxXiGMNpjgC64TrxhQD1ix7EXpbEJDw+qYLdfS20vG8cLk1kk
-         mDb+oCk1SuU6H0dJEbm+NMSa4yJigJKUzSjcaLyxiVkg2BRzLtXB0Acw1LSJ2VScOKYi
-         fmWg==
-X-Gm-Message-State: AOJu0Yz9BW7idFscTayAtiQTOk1MG/iu5/NWnfe4YigPT95B9Tt9TF0p
-	SFDzch12xKIMfBe5K6o532yX1kr+8N+mqNIkx1B8wstb3Yt58nElv2Pz
-X-Gm-Gg: ASbGncv2GP3Y+f6wz3KNeaaYFCEsna8ixojFQfT9lPUVj8NQWfDGVvM6wOIC4wvWMFj
-	f0mWoD+KQE4GIW9ZDBRtGJOzHqWWowQEWXagyX4nzlhZSOTReHrKzebAryvqUjxcFj1lWjFt0fR
-	LPai+bkwEj+qRMgLdlFMmS80qrEEnflc1yWWfhN5q3H+lbifm9+4jsTOrLeIBC4AxQwsdLIXx0X
-	/kwkgI2wP7cbMeDsY0YR6b5UxbWOMODVdbNLwitIRtvVAYP+ryWvQfhNUdrq5mylF5xeYEAMlyN
-	7dDwkDSWcN3O2e12PVdeTgwPPlVhHcRdrX8OxR/mIx9SZeC1KXmIFVdRE52ecQLdeIXX6kNSVhC
-	JV/Dv2QP5Tv20WJzpO1s=
-X-Google-Smtp-Source: AGHT+IGASGKslm4YnrVrCyR6nvJ/i2wzlfWuyETjLKTMh0O1Ojw/wh+hTG7OFeKYXpYEcTD89VSvYw==
-X-Received: by 2002:a05:6a00:179a:b0:772:65e:4273 with SMTP id d2e1a72fcca58-772065e467dmr5963292b3a.18.1756341093774;
-        Wed, 27 Aug 2025 17:31:33 -0700 (PDT)
-Received: from localhost ([2a03:2880:2ff:6::])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-772093cac4bsm2796708b3a.12.2025.08.27.17.31.32
+        bh=CPvtzAfXM02gxsFwP0R3/4GEgD8KwF6jICYx2UBFbv4=;
+        b=rIby+daJk6iHKWlf+6ZnypNBZgxwJ1NW2CCTSUOk6F1W9VosF96mAWx6ThEp4VILWo
+         Y5N0OuFWeOGnZzT6WhIC2i2Rf8K5t4uTlcQrceX4kL1UDiHXjvC4JE2N/6CfP0MQsZL7
+         pADnTN0T+rJS768Mt6wCysfBBrtvJx8cXx6MTYYvAcnQksH1OTuT3DB91pIvY6dlTRCZ
+         da4NAJb8QAIq7cFirnw7IXcpOPpYkMezQJ6lBz9EFQA9vlRxPJb+VEHeJ1bheDbpqx34
+         1mQz0I4QorEym6q3bToEXlN+WmdG/lvGJcVUCd38tlqpaGuffLjkq8Q3ILt/kmbAUt9t
+         UHZg==
+X-Gm-Message-State: AOJu0YzwNQPNF9jcYr3saCzAHWg7R1Ljyiy1mqkFn+iG3JBgnT4aaXIS
+	jwVyhGbKawa/QlBNb/q2Exww4oE6CvFFMIznB2uCwHsIScSfum06LL78
+X-Gm-Gg: ASbGncvyRT/HysRxKHApN9hQevDPv/88E3q5JEGk6arCgv6mcbOe1fNAdGAuVZa9kFX
+	ZtUbT7KDde6yk6mCfDkYpvyvbxIsLzz+AGL1eKLA7SfFSHalv2PsCxtE2v1mszPRTnAHs/7O99W
+	lR/427hATyHLGogChTFTZgo0veWNZBvBbAy++SNjC2kJExvc2bF2IrXBgZmOx4LraV5Csq1bViH
+	B/8cPKueaAJY6f5QWKqRRcYaP6clyotbUckbOk0E2PQif2W7772VroprNKxOXMB/C9/zTkyMPP4
+	IeTZ5aUGZ33iQFV5gA/GoPwDF0aMrizP9/UbVIvmnJxLKpqpYsU0GzR/WP51tIf/IuojOxrA8k6
+	qlkgm1dfxmjVu6SQi40jG8oCzjTaFG/pykJIC4KghEg==
+X-Google-Smtp-Source: AGHT+IE2PGfR2lyF9Hr8hV5HbfYYYn2UwMgBVIhXdHI1pQtLPnrjVODZOdxlZ2k7OY2teQU7xaDFDA==
+X-Received: by 2002:a17:902:e88e:b0:234:8a4a:ad89 with SMTP id d9443c01a7336-248753a2359mr86214995ad.1.1756341095375;
+        Wed, 27 Aug 2025 17:31:35 -0700 (PDT)
+Received: from localhost ([2a03:2880:2ff:72::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-24893618880sm32735435ad.99.2025.08.27.17.31.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Aug 2025 17:31:32 -0700 (PDT)
+        Wed, 27 Aug 2025 17:31:34 -0700 (PDT)
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Wed, 27 Aug 2025 17:31:29 -0700
-Subject: [PATCH net-next v5 1/9] vsock: a per-net vsock NS mode state
+Date: Wed, 27 Aug 2025 17:31:30 -0700
+Subject: [PATCH net-next v5 2/9] vsock: add net to vsock skb cb
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,7 +68,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250827-vsock-vmtest-v5-1-0ba580bede5b@meta.com>
+Message-Id: <20250827-vsock-vmtest-v5-2-0ba580bede5b@meta.com>
 References: <20250827-vsock-vmtest-v5-0-0ba580bede5b@meta.com>
 In-Reply-To: <20250827-vsock-vmtest-v5-0-0ba580bede5b@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
@@ -92,145 +92,47 @@ X-Mailer: b4 0.13.0
 
 From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Add the per-net vsock NS mode state. This only adds the structure for
-holding the mode and some of the functions for setting/getting and
-checking the mode, but does not integrate the functionality yet.
+Add a net pointer to the vsock skb and helpers for getting/setting it.
+This is in preparation for adding vsock NS support.
 
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 
 ---
 Changes in v5:
-- use /proc/sys/net/vsock/ns_mode instead of /proc/net/vsock_ns_mode
-- change from net->vsock.ns_mode to net->vsock.mode
-- change vsock_net_set_mode() to vsock_net_write_mode()
-- vsock_net_write_mode() returns bool for write success to avoid
-  need to use vsock_net_mode_can_set()
-- remove vsock_net_mode_can_set()
+- some diff context change due to rebase to current net-next
 ---
- MAINTAINERS                 |  1 +
- include/net/af_vsock.h      | 42 ++++++++++++++++++++++++++++++++++++++++++
- include/net/net_namespace.h |  4 ++++
- include/net/netns/vsock.h   | 20 ++++++++++++++++++++
- 4 files changed, 67 insertions(+)
+ include/linux/virtio_vsock.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index bce96dd254b8..deaf7f02ec32 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -26578,6 +26578,7 @@ L:	netdev@vger.kernel.org
- S:	Maintained
- F:	drivers/vhost/vsock.c
- F:	include/linux/virtio_vsock.h
-+F:	include/net/netns/vsock.h
- F:	include/uapi/linux/virtio_vsock.h
- F:	net/vmw_vsock/virtio_transport.c
- F:	net/vmw_vsock/virtio_transport_common.c
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index d40e978126e3..5707514c30b6 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -10,6 +10,7 @@
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index 0c67543a45c8..c547cda7196b 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -13,6 +13,7 @@ struct virtio_vsock_skb_cb {
+ 	bool reply;
+ 	bool tap_delivered;
+ 	u32 offset;
++	struct net *net;
+ };
  
- #include <linux/kernel.h>
- #include <linux/workqueue.h>
-+#include <net/netns/vsock.h>
- #include <net/sock.h>
- #include <uapi/linux/vm_sockets.h>
- 
-@@ -256,4 +257,45 @@ static inline bool vsock_msgzerocopy_allow(const struct vsock_transport *t)
- {
- 	return t->msgzerocopy_allow && t->msgzerocopy_allow();
+ #define VIRTIO_VSOCK_SKB_CB(skb) ((struct virtio_vsock_skb_cb *)((skb)->cb))
+@@ -130,6 +131,16 @@ static inline size_t virtio_vsock_skb_len(struct sk_buff *skb)
+ 	return (size_t)(skb_end_pointer(skb) - skb->head);
  }
-+
-+static inline u8 vsock_net_mode(struct net *net)
-+{
-+	enum vsock_net_mode ret;
-+
-+	spin_lock_bh(&net->vsock.lock);
-+	ret = net->vsock.mode;
-+	spin_unlock_bh(&net->vsock.lock);
-+	return ret;
-+}
-+
-+static inline bool vsock_net_write_mode(struct net *net, u8 mode)
-+{
-+	bool ret;
-+
-+	spin_lock_bh(&net->vsock.lock);
-+
-+	if (net->vsock.written) {
-+		ret = false;
-+		goto skip;
-+	}
-+
-+	net->vsock.mode = mode;
-+	net->vsock.written = true;
-+	ret = true;
-+
-+skip:
-+	spin_unlock_bh(&net->vsock.lock);
-+	return ret;
-+}
-+
-+/* Return true if vsock net mode check passes. Otherwise, return false.
-+ *
-+ * Read more about modes in comment header of net/vmw_vsock/af_vsock.c.
-+ */
-+static inline bool vsock_net_check_mode(struct net *n1, struct net *n2)
-+{
-+	return net_eq(n1, n2) ||
-+	       (vsock_net_mode(n1) == VSOCK_NET_MODE_GLOBAL &&
-+		vsock_net_mode(n2) == VSOCK_NET_MODE_GLOBAL);
-+}
- #endif /* __AF_VSOCK_H__ */
-diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
-index 025a7574b275..005c0da4fb62 100644
---- a/include/net/net_namespace.h
-+++ b/include/net/net_namespace.h
-@@ -37,6 +37,7 @@
- #include <net/netns/smc.h>
- #include <net/netns/bpf.h>
- #include <net/netns/mctp.h>
-+#include <net/netns/vsock.h>
- #include <net/net_trackers.h>
- #include <linux/ns_common.h>
- #include <linux/idr.h>
-@@ -196,6 +197,9 @@ struct net {
- 	/* Move to a better place when the config guard is removed. */
- 	struct mutex		rtnl_mutex;
- #endif
-+#if IS_ENABLED(CONFIG_VSOCKETS)
-+	struct netns_vsock	vsock;
-+#endif
- } __randomize_layout;
  
- #include <linux/seq_file_net.h>
-diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
-new file mode 100644
-index 000000000000..d4593c0b8dc4
---- /dev/null
-+++ b/include/net/netns/vsock.h
-@@ -0,0 +1,20 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __NET_NET_NAMESPACE_VSOCK_H
-+#define __NET_NET_NAMESPACE_VSOCK_H
++static inline struct net *virtio_vsock_skb_net(struct sk_buff *skb)
++{
++	return VIRTIO_VSOCK_SKB_CB(skb)->net;
++}
 +
-+#include <linux/types.h>
++static inline void virtio_vsock_skb_set_net(struct sk_buff *skb, struct net *net)
++{
++	VIRTIO_VSOCK_SKB_CB(skb)->net = net;
++}
 +
-+enum vsock_net_mode {
-+	VSOCK_NET_MODE_GLOBAL,
-+	VSOCK_NET_MODE_LOCAL,
-+};
-+
-+struct netns_vsock {
-+	struct ctl_table_header *vsock_hdr;
-+	spinlock_t lock;
-+
-+	/* protected by lock */
-+	enum vsock_net_mode mode;
-+	bool written;
-+};
-+#endif /* __NET_NET_NAMESPACE_VSOCK_H */
+ /* Dimension the RX SKB so that the entire thing fits exactly into
+  * a single 4KiB page. This avoids wasting memory due to alloc_skb()
+  * rounding up to the next page order and also means that we
 
 -- 
 2.47.3
