@@ -1,143 +1,179 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 11A2F1CAB3
-	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 06:26:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3D8627A461
+	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 06:34:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756362386; cv=none; b=ZvI71uPHzS4fKbfP8TMcZEn5pZbuHlV3smZQDunIFyM3+qjrdF0lov3frL/i101W8EXFbWQlNy47qhOl4IAPu/OSdiFe74GzmNxCnpmBckCUV9cY/wo1v0fYZyPt5HTuHTvQlv6LYrnILMUZoK1ujovncrVhtUpFNWDfRU0TbW4=
+	t=1756362859; cv=none; b=IaAYxmjVvFKVJnwB19oDneXRFA3qU9K5mSoO67oCCylUfx72gLdEMA+DiK1+/EcUKbQV2eCaYjt1r3mGTHfcbjV2PQuwQLzltGK29BSwuNnx9H791PJfo1HPoV3WzdE/uWrM7USg2T4/MAl7PWgrroNxaRDu+b7TZQnI7lEMjhw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756362386; c=relaxed/simple;
-	bh=GH1MnD9kkTN4c+3cTT8CmEeQjchnw3Uvm2OEhs8UdpU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kEFfcSNbn4Ntqf1HUDQXPRR5WLuwgQVJeKsPZB2/c6OMXpp8RTp49lgx+ZmyYagTfGHg5AL/bkn9tXKIp1XF9bDJzHBSqmAQw7mpwKjq6kOEwI77y+SZ3ZD9IfOKayOmKO27G0KHEx7TGc0/o7QZid7izIoW4K6fZTnqcQ/H2lE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=XY5IxvJq; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1756362859; c=relaxed/simple;
+	bh=O+hoOkpxKzFagM4YINohrcCRbkfOC3WyapBZoGGUub0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=mpT/EGFubRRvz5NjZhhsLUj1hM2kYCjk7UsASsTsmP5N60b8z1mQz+k9TwDB0CzaqeUW1T9WCmeRN6ChwYu5FqMT8PmaT2qF0ry/EaplRxJQfKO7YYzyvS2MxC259qEAiaR0fFaQrfGyTAWe3e2SUb0xaHu9dLjoCERuU9g5Oww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KN6OXcDp; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="XY5IxvJq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=A4
-	M/POHWuLvUOmb8o4PVnu3p+ruDnZJl5Jdp4rRP8EA=; b=XY5IxvJqiXf4+4BKz0
-	DPF9whEe6YZsu7u8wp7bsG2+kBaxq+kv3A9mQNzfKGdpM9P/bU61AUpyAl7YBDeh
-	GvfGkyef9wgkvCaL2s7t7UG4DvX5URxKfdv5F13nkB1FEY3u6QKRyzgNKDW7MCVM
-	fqBwC0BLZPoN26clTe4TFnwCg=
-Received: from haiyue-pc.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-3 (Coremail) with SMTP id _____wCnAafU8q9o4zdvEw--.31954S2;
-	Thu, 28 Aug 2025 14:10:29 +0800 (CST)
-From: Haiyue Wang <haiyuewa@163.com>
-To: linux-fsdevel@vger.kernel.org,
-	linux-mm@kvack.org,
-	Alistair Popple <apopple@nvidia.com>,
-	Andrew Morton <akpm@linux-foundation.org>
-Cc: Haiyue Wang <haiyuewa@163.com>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	David Hildenbrand <david@redhat.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	virtualization@lists.linux.dev (open list:VIRTIO FILE SYSTEM),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v1] virtio_fs: fix page fault for DAX page address
-Date: Thu, 28 Aug 2025 14:10:13 +0800
-Message-ID: <20250828061023.877-1-haiyuewa@163.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KN6OXcDp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756362856;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NBle0psK83326FXvykrXUefZ5fJAW3yvhWvuCeWq0c4=;
+	b=KN6OXcDpNpt8iqG5zeZ/9xXnzfGZkZVFK+3TN/9efJjdlo1tIyaMDpkWgdtMRS4G5fwQIJ
+	502B94iylZgdaq/TYlL0lfYjBxwH1jChngM7x/TY0D1aqHKhWuZFQ8S82zGkAMdJZACAqQ
+	SSJ6miLOkcphsJxKuNuHGeeknn8Cj18=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-422-D68xveRBNlSWzAc-FlB_vA-1; Thu, 28 Aug 2025 02:34:14 -0400
+X-MC-Unique: D68xveRBNlSWzAc-FlB_vA-1
+X-Mimecast-MFC-AGG-ID: D68xveRBNlSWzAc-FlB_vA_1756362853
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45a1b0b14daso3019975e9.2
+        for <virtualization@lists.linux.dev>; Wed, 27 Aug 2025 23:34:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756362853; x=1756967653;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NBle0psK83326FXvykrXUefZ5fJAW3yvhWvuCeWq0c4=;
+        b=BBbNfOIz9fmM+dRDqBAI6km41ysug5qr82Di8jpLDc0l21rGr+BhohO1M1YBdfeqdU
+         DIDC1w89+cvDL1rQIbQp8AIdqWFCYr80yLy1I4++dz0GVrwPfV6//QZxaoQA6sigAsVu
+         ZVBqNvRHFvbasgBPl6NXFKmWrqq3kQHSnEkG0wt00kiGNT9trISm5bxoqo4F/w7UGjV4
+         tts0LCpV/GdmtoL5e/7i4oDUzK2k8OA8JhbTwmfXHGxROsoYSkLOou3sVr9hhnGHhpXX
+         mZiLignyLCLLhIwWqNZtJLLbo42JZu/RyKtm7Co+h+n9PeNWfLJB/+Gn6IhlVIV+ICrq
+         Ceog==
+X-Forwarded-Encrypted: i=1; AJvYcCXDdD+dFXsZqNZYh9YfJuORsBkB0IoeCsX87eHNL7KiTlhpBFm4latcHsYv/rgzEYvyK/1qz0hLRQTyTwTSyg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzR2wrZN90o8aN+FN8KPyHESW+v5woBwif/xX+KBmyzTY3SXVUX
+	rYVSNWCRkLaHslbSh8pdDVh1zHVa+AQZ88CkZdUV8/DJWiR/aEQ36H158AhKNXQYe5c2bYqgNQK
+	myO3C1xeLP0EndohYFR7I4ejfFXqYgdTN3PYztr+LqgcmLa6W6jhaOTku8r2/itvx/NCh
+X-Gm-Gg: ASbGnctFibP/aHPY/+7mR9UWQI37QpyS97claoZI9qd0AR1jBdsfgVCbz2sPV4x0HJq
+	L6ko0R3HfS4VXKkGxrtYL9ToVPX+Gpi5u3c3JHYiv9rXkaWLqzoRmpVy9oBf5D3VtyEWXYQKez8
+	LV8oCaFQw9HoyFn4gw0hkOXWFKUGWpqmHgCJIaalPCMh1zf8aJdEZIl5lPI5AYneeDwuFYAqu2g
+	CkCvQ0SOmEhhJ/kQdb2iBMUMdM35oAVmA0MXIhDpBMks/k8/yqrdm4aZ4b0XzAPpjIMsvkSUL5O
+	Vmt3WTaYQ/oZ+H+zh7kcxfOeN7xWmtGX
+X-Received: by 2002:a05:600c:a46:b0:456:19be:5e8 with SMTP id 5b1f17b1804b1-45b517d459dmr188529365e9.20.1756362853185;
+        Wed, 27 Aug 2025 23:34:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFQ8ShxovhE59HtjACcDksQuottjD5sgqN9H8NEO7Hjz/jKK66gFgjy+2JmPy1tKxjXKq2wUw==
+X-Received: by 2002:a05:600c:a46:b0:456:19be:5e8 with SMTP id 5b1f17b1804b1-45b517d459dmr188529155e9.20.1756362852764;
+        Wed, 27 Aug 2025 23:34:12 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b797dcad5sm17887505e9.18.2025.08.27.23.34.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Aug 2025 23:34:12 -0700 (PDT)
+Date: Thu, 28 Aug 2025 02:34:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Cc: "NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"jasowang@redhat.com" <jasowang@redhat.com>,
+	"stefanha@redhat.com" <stefanha@redhat.com>,
+	"pbonzini@redhat.com" <pbonzini@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>,
+	Max Gurtovoy <mgurtovoy@nvidia.com>
+Subject: Re: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
+ pci device"
+Message-ID: <20250828022502-mutt-send-email-mst@kernel.org>
+References: <CY8PR12MB7195996E1181A80D5890B9F1DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250822090407-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195425BDE79592BA24645C1DC3DA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250822095948-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB71954425100362FBA7E29F15DC3FA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250824102542-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB7195EC4A075009871C937664DC39A@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <20250827061925-mutt-send-email-mst@kernel.org>
+ <20250827064404-mutt-send-email-mst@kernel.org>
+ <CY8PR12MB71950328172FA0A696839623DC3BA@CY8PR12MB7195.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wCnAafU8q9o4zdvEw--.31954S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxArWUtw1Utw1kZF1kAFykAFb_yoW7Jw17pF
-	1Utr18Gr4kXr1UJF10vr1UXr13twsrAF18XrWxAr1kZF1UW3WDJr1kJrWUtr4UXryjqry7
-	trs8Gw1xtryDKaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zEiiSDUUUUU=
-X-CM-SenderInfo: 5kdl53xhzdqiywtou0bp/1tbiYAO2a2ivSTleAQABsX
+In-Reply-To: <CY8PR12MB71950328172FA0A696839623DC3BA@CY8PR12MB7195.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 1qQG9WgemRDoQce-mcr3JjWceKFA3jopKK2e4Q5j9-s_1756362853
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The commit ced17ee32a99 ("Revert "virtio: reject shm region if length is zero"")
-exposes the following DAX page fault bug:
+On Thu, Aug 28, 2025 at 06:23:02AM +0000, Parav Pandit wrote:
+> 
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> > Sent: 27 August 2025 04:19 PM
+> > 
+> > On Wed, Aug 27, 2025 at 06:21:28AM -0400, Michael S. Tsirkin wrote:
+> > > On Tue, Aug 26, 2025 at 06:52:11PM +0000, Parav Pandit wrote:
+> > > > > > > If it does not, and a user pull out the working device, how
+> > > > > > > does your patch help?
+> > > > > > >
+> > > > > > A driver must tell that it will not follow broken ancient
+> > > > > > behaviour and at that
+> > > > > point device would stop its ancient backward compatibility mode.
+> > > > >
+> > > > >
+> > > > >
+> > > > > I don't know what is "ancient backward compatibility mode".
+> > > > >
+> > > > Let me explain.
+> > > > Sadly, CSPs virtio pci device implementation is done such a way that, it
+> > works with ancient Linux kernel which does not have commit
+> > 43bb40c5b9265.
+> > >
+> > >
+> > > OK we are getting new information here.
+> > >
+> > > So let me summarize. There's a virtual system that pretends, to the
+> > > guest, that device was removed by surprise removal, but actually
+> > > device is there and is still doing DMA.
+> > > Is that a fair summary?
+> > 
+> Yes.
+>
+> > If that is the case, the thing to do would be to try and detect the fake removal
+> > and then work with device as usual - device not doing DMA after removal is
+> > pretty fundamental, after all.
+> > 
+> The issue is: one can build the device to stop the DMA.
+> There is no predictable combination for the driver and device that can work for the user.
+> For example, 
+> Device that stops the dma will not work before the commit 43bb40c5b9265.
+> Device that continues the dma will not work with whatever new implementation done in future kernels.
+> 
+> Hence the capability negotiation would be needed so that device can stop the DMA, config interrupts etc.
 
-The commit 21aa65bf82a7 ("mm: remove callers of pfn_t functionality") handles
-the DAX physical page address incorrectly: the removed macro 'phys_to_pfn_t()'
-should be replaced with 'PHYS_PFN()'.
+So this is a broken implementation at the pci level. We really can't fix
+removal for this device at all, except by fixing the device. Whatever
+works, works by chance.  Feature negotiation in spec is not the way to
+fix that, but some work arounds in the driver to skip the device are
+acceptable, mostly to not bother with it.
 
-[    1.390321] BUG: unable to handle page fault for address: ffffd3fb40000008
-[    1.390875] #PF: supervisor read access in kernel mode
-[    1.391257] #PF: error_code(0x0000) - not-present page
-[    1.391509] PGD 0 P4D 0
-[    1.391626] Oops: Oops: 0000 [#1] SMP NOPTI
-[    1.391806] CPU: 6 UID: 1000 PID: 162 Comm: weston Not tainted 6.17.0-rc3-WSL2-STABLE #2 PREEMPT(none)
-[    1.392361] RIP: 0010:dax_to_folio+0x14/0x60
-[    1.392653] Code: 52 c9 c3 00 66 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 0f 1f 44 00 00 48 c1 ef 05 48 c1 e7 06 48 03 3d 34 b5 31 01 <48> 8b 57 08 48 89 f8 f6 c2 01 75 2b 66 90 c3 cc cc cc cc f7 c7 ff
-[    1.393727] RSP: 0000:ffffaf7d04407aa8 EFLAGS: 00010086
-[    1.394003] RAX: 000000a000000000 RBX: ffffaf7d04407bb0 RCX: 0000000000000000
-[    1.394524] RDX: ffffd17b40000008 RSI: 0000000000000083 RDI: ffffd3fb40000000
-[    1.394967] RBP: 0000000000000011 R08: 000000a000000000 R09: 0000000000000000
-[    1.395400] R10: 0000000000001000 R11: ffffaf7d04407c10 R12: 0000000000000000
-[    1.395806] R13: ffffa020557be9c0 R14: 0000014000000001 R15: 0000725970e94000
-[    1.396268] FS:  000072596d6d2ec0(0000) GS:ffffa0222dc59000(0000) knlGS:0000000000000000
-[    1.396715] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.397100] CR2: ffffd3fb40000008 CR3: 000000011579c005 CR4: 0000000000372ef0
-[    1.397518] Call Trace:
-[    1.397663]  <TASK>
-[    1.397900]  dax_insert_entry+0x13b/0x390
-[    1.398179]  dax_fault_iter+0x2a5/0x6c0
-[    1.398443]  dax_iomap_pte_fault+0x193/0x3c0
-[    1.398750]  __fuse_dax_fault+0x8b/0x270
-[    1.398997]  ? vm_mmap_pgoff+0x161/0x210
-[    1.399175]  __do_fault+0x30/0x180
-[    1.399360]  do_fault+0xc4/0x550
-[    1.399547]  __handle_mm_fault+0x8e3/0xf50
-[    1.399731]  ? do_syscall_64+0x72/0x1e0
-[    1.399958]  handle_mm_fault+0x192/0x2f0
-[    1.400204]  do_user_addr_fault+0x20e/0x700
-[    1.400418]  exc_page_fault+0x66/0x150
-[    1.400602]  asm_exc_page_fault+0x26/0x30
-[    1.400831] RIP: 0033:0x72596d1bf703
-[    1.401076] Code: 31 f6 45 31 e4 48 8d 15 b3 73 00 00 e8 06 03 00 00 8b 83 68 01 00 00 e9 8e fa ff ff 0f 1f 00 48 8b 44 24 08 4c 89 ee 48 89 df <c7> 00 21 43 34 12 e8 72 09 00 00 e9 6a fa ff ff 0f 1f 44 00 00 e8
-[    1.402172] RSP: 002b:00007ffc350f6dc0 EFLAGS: 00010202
-[    1.402488] RAX: 0000725970e94000 RBX: 00005b7c642c2560 RCX: 0000725970d359a7
-[    1.402898] RDX: 0000000000000003 RSI: 00007ffc350f6dc0 RDI: 00005b7c642c2560
-[    1.403284] RBP: 00007ffc350f6e90 R08: 000000000000000d R09: 0000000000000000
-[    1.403634] R10: 00007ffc350f6dd8 R11: 0000000000000246 R12: 0000000000000001
-[    1.404078] R13: 00007ffc350f6dc0 R14: 0000725970e29ce0 R15: 0000000000000003
-[    1.404450]  </TASK>
-[    1.404570] Modules linked in:
-[    1.404821] CR2: ffffd3fb40000008
-[    1.405029] ---[ end trace 0000000000000000 ]---
-[    1.405323] RIP: 0010:dax_to_folio+0x14/0x60
-[    1.405556] Code: 52 c9 c3 00 66 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 0f 1f 44 00 00 48 c1 ef 05 48 c1 e7 06 48 03 3d 34 b5 31 01 <48> 8b 57 08 48 89 f8 f6 c2 01 75 2b 66 90 c3 cc cc cc cc f7 c7 ff
-[    1.406639] RSP: 0000:ffffaf7d04407aa8 EFLAGS: 00010086
-[    1.406910] RAX: 000000a000000000 RBX: ffffaf7d04407bb0 RCX: 0000000000000000
-[    1.407379] RDX: ffffd17b40000008 RSI: 0000000000000083 RDI: ffffd3fb40000000
-[    1.407800] RBP: 0000000000000011 R08: 000000a000000000 R09: 0000000000000000
-[    1.408246] R10: 0000000000001000 R11: ffffaf7d04407c10 R12: 0000000000000000
-[    1.408666] R13: ffffa020557be9c0 R14: 0000014000000001 R15: 0000725970e94000
-[    1.409170] FS:  000072596d6d2ec0(0000) GS:ffffa0222dc59000(0000) knlGS:0000000000000000
-[    1.409608] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.409977] CR2: ffffd3fb40000008 CR3: 000000011579c005 CR4: 0000000000372ef0
-[    1.410437] Kernel panic - not syncing: Fatal exception
-[    1.410857] Kernel Offset: 0xc000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+Pls document exactly how this pci looks. Does it have an id we can use
+to detect it?
 
-Fixes: 21aa65bf82a7 ("mm: remove callers of pfn_t functionality")
-Signed-off-by: Haiyue Wang <haiyuewa@163.com>
----
- fs/fuse/virtio_fs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > For example, how about reading device control+status?
+> > 
+> Most platforms read 0xffff on non-existing device, but not sure if this the standard or well defined.
 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index c826e7ca49f5..76c8fd0bfc75 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -1016,7 +1016,7 @@ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
- 	if (kaddr)
- 		*kaddr = fs->window_kaddr + offset;
- 	if (pfn)
--		*pfn = fs->window_phys_addr + offset;
-+		*pfn = PHYS_PFN(fs->window_phys_addr + offset);
- 	return nr_pages > max_nr_pages ? max_nr_pages : nr_pages;
- }
- 
--- 
-2.51.0
+IIRC it's in the pci spec as a note.
+
+> > If we get all ones device has been removed If we get 0 in bus master: device
+> > has been removed but re-inserted Anything else is a fake removal
+> > 
+> Bus master check may pass, right returning all 1s, even if the device is removed, isn't it?
+
+
+So we check all ones 1st, only check bus master if not all ones?
+
+
+> > Hmm?
+> > 
+> > 
+> > 
+> > > --
+> > > MST
+> > 
 
