@@ -1,140 +1,103 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8E022F9985;
-	Wed, 27 Aug 2025 22:52:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDF25CA6B;
+	Thu, 28 Aug 2025 00:15:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756335151; cv=none; b=KXgi6WgkcZG480q6tm1bs1ZGhKiQhu5L5kuYNBf6BAxVCCeGRxRDs1wvp4lVUAZmbFcRDeQA5Nma2AEri+g5y188sfc0ASlP7rjld2ipNb1R491sJTzp81Sl5fCvleOOuMadkRyoZWvyVTXu7AErUMRcBvZZflxpvdIoU7+obsk=
+	t=1756340145; cv=none; b=OZhIkpLHBvxTLZtVqUUxEFAWfwW21nuaipP2lxWRCjKt4WanLAgnTIswMd7Lths4yzfUGJHMWNdcItFinmSQg2c6nv8cfe3/2sg8kjV3aFuPRTI5MDrX+cyjSHFsI6ECu5q/nmVxa1nObnQGgZuqKkUaFgV2b76AmdIT/MJCRyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756335151; c=relaxed/simple;
-	bh=vJgBl10AZNWfXOOB/pDgIkoKh9accRpxxsoejJNG8b8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fNfKHMP7i7g1huBD3J2lXNgNIgWQvlcd2Y9bkzHRzdM4mE6MH/wP+O/CSy+IhccOxXwbnlh1LBS1EE3c/dpvNhPdE81LzTJB8dEAevj7qhAqFIf+imlVWiqOXImO6Mh8c7IxaPYS4bV743z7u5fXWL9H1IVp0Ej7I0wb+nYnUHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZqUYD5aQ; arc=none smtp.client-ip=192.198.163.12
+	s=arc-20240116; t=1756340145; c=relaxed/simple;
+	bh=X15jxw1bjDxbXh3rtpDUG6dcAg8RmRvouUgXO1Lx1nc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Xu9+/KQHOA9wWUbjF8kLgo78fxKEKbdL/4qZktQtscu/BVTmmVs+tl/0y0SBoVxZDQn5yArd0kQj/OAnci7malbR1c1DU5juU+1gm2iRfOJpYZSPwhIp/aM9J9hFgb2QFazGa++oOvFEempgA8z1Pg8le+3fgAFc6NK8uuQpB2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=e1oa3+Yn; arc=none smtp.client-ip=198.175.65.18
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZqUYD5aQ"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="e1oa3+Yn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1756335150; x=1787871150;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=vJgBl10AZNWfXOOB/pDgIkoKh9accRpxxsoejJNG8b8=;
-  b=ZqUYD5aQ0RvN9oWcS1wHmKoTChfKlOu12uMrFqZBvPjU6ATwEN5wI7OI
-   XVQZEpU4en1EEhTZAxFf1+jxaH+/k25YxS445oDGl1euSAha5ZmDWNH9S
-   IDC4d8klMHt7K4xv8tW+pg5eI1FpOhUSI2twTrdCL/l6Cebg2i2hSrGMx
-   mJOK46brGFPvECj/NrDVavCjrGNtVeGWb0tzL5v1ZhiuxmiMubvYDNnim
-   JoLZzCK/cEC21TGZpZyU5GEGpqVTVppuy/9KiL4gBAF2d6q/x7UIWpek4
-   Y9Sy+46ZrrvN0TuHsue52dirTThVNWl3PbUzp9DLy2ziscChJdE67ShN4
+  t=1756340143; x=1787876143;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=X15jxw1bjDxbXh3rtpDUG6dcAg8RmRvouUgXO1Lx1nc=;
+  b=e1oa3+YnrBWDzACNc+yrJZBsXZRhTRQl/DJkUVJMfTlRYrCU7Se8aRnc
+   wi3udj/+IW5H1TMJkbuMiLtGV19NASgPu5HnWi6mWtsvlan6LhahnHmtg
+   aTzKriHtdrdc/5+1IdvfkhqBiJuMGgccdLraRJNp/g4L/eTGTd3cFoX3D
+   90m9VhogftZ578kjRHGwIqth5TPguWYmFUhdLmXRqZSXq0w+lgEZ6XSb/
+   zQNoRHQAEaJMWBjIIsd2VnzvN7Tyql63HG15g7IEP50CB+bz2HLaLMvO8
+   /ewQgHSa73WthDmmzVGxUO7QiUBKs5gHUDXVKXCVVnhprKQzgMqDe0q9F
    A==;
-X-CSE-ConnectionGUID: 1Oa/eH9vSteS5GkV6EzGsg==
-X-CSE-MsgGUID: K3oEDJhxRtakA3atfwuHmQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11535"; a="62418169"
-X-IronPort-AV: E=Sophos;i="6.18,217,1751266800"; 
-   d="scan'208";a="62418169"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Aug 2025 15:52:29 -0700
-X-CSE-ConnectionGUID: 3xdHidK7Tq+UjmDsKE0yNA==
-X-CSE-MsgGUID: CnrtJs0bTmqQznqiw11SnA==
+X-CSE-ConnectionGUID: E4ZjRiaQRru3FGZKnK85Kw==
+X-CSE-MsgGUID: M8fI6bmVRC6PTP+Oc2wntg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="58666239"
+X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
+   d="scan'208";a="58666239"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Aug 2025 17:15:42 -0700
+X-CSE-ConnectionGUID: iXetU8geRCSmxvhjry4N3g==
+X-CSE-MsgGUID: muBJXXgoTNaRGb7JiqWu9A==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.18,217,1751266800"; 
-   d="scan'208";a="174125255"
-Received: from dwesterg-mobl1.amr.corp.intel.com (HELO [10.125.109.56]) ([10.125.109.56])
-  by ORVIESA003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Aug 2025 15:52:28 -0700
-Message-ID: <ab1e0119-85a6-4b2e-a734-275b43e6dac4@intel.com>
-Date: Wed, 27 Aug 2025 15:52:27 -0700
+   d="scan'208";a="170360066"
+Received: from lkp-server02.sh.intel.com (HELO 4ea60e6ab079) ([10.239.97.151])
+  by fmviesa008.fm.intel.com with ESMTP; 27 Aug 2025 17:15:39 -0700
+Received: from kbuild by 4ea60e6ab079 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1urQIi-000TIN-2k;
+	Thu, 28 Aug 2025 00:15:36 +0000
+Date: Thu, 28 Aug 2025 08:15:14 +0800
+From: kernel test robot <lkp@intel.com>
+To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org,
+	mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com,
+	virtualization@lists.linux.dev, pabeni@redhat.com
+Cc: oe-kbuild-all@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+	yohadt@nvidia.com, Daniel Jurgens <danielj@nvidia.com>
+Subject: Re: [PATCH net-next 04/11] virtio_net: Query and set flow filter caps
+Message-ID: <202508280749.JlXoz9Mz-lkp@intel.com>
+References: <20250827183852.2471-5-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 04/36] x86/Kconfig: drop superfluous "select
- SPARSEMEM_VMEMMAP"
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Muchun Song <muchun.song@linux.dev>,
- netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
- Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
- Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
- virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
- wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
-References: <20250827220141.262669-1-david@redhat.com>
- <20250827220141.262669-5-david@redhat.com>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <20250827220141.262669-5-david@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250827183852.2471-5-danielj@nvidia.com>
 
-On 8/27/25 15:01, David Hildenbrand wrote:
-> Now handled by the core automatically once SPARSEMEM_VMEMMAP_ENABLE
-> is selected.
+Hi Daniel,
 
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+kernel test robot noticed the following build errors:
 
+[auto build test ERROR on net-next/main]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Jurgens/virtio-pci-Expose-generic-device-capability-operations/20250828-024128
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20250827183852.2471-5-danielj%40nvidia.com
+patch subject: [PATCH net-next 04/11] virtio_net: Query and set flow filter caps
+config: i386-buildonly-randconfig-002-20250828 (https://download.01.org/0day-ci/archive/20250828/202508280749.JlXoz9Mz-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14+deb12u1) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250828/202508280749.JlXoz9Mz-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202508280749.JlXoz9Mz-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> error: include/uapi/linux/virtio_net_ff.h: missing "WITH Linux-syscall-note" for SPDX-License-Identifier
+   make[3]: *** [scripts/Makefile.headersinst:63: usr/include/linux/virtio_net_ff.h] Error 1 shuffle=2238678394
+   make[3]: Target '__headers' not remade because of errors.
+   make[2]: *** [Makefile:1380: headers] Error 2 shuffle=2238678394
+   make[2]: Target 'prepare' not remade because of errors.
+   make[1]: *** [Makefile:248: __sub-make] Error 2 shuffle=2238678394
+   make[1]: Target 'prepare' not remade because of errors.
+   make: *** [Makefile:248: __sub-make] Error 2 shuffle=2238678394
+   make: Target 'prepare' not remade because of errors.
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
