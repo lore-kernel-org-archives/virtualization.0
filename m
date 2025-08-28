@@ -1,73 +1,74 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 820F8275B0E
-	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 07:46:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6F6927876E
+	for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 07:51:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756367195; cv=none; b=ZyvPdzAg6tsHCgiuGuqyziBTere7/G8kJ8hGmNWZh1Eo+oes6V01Lm3upRtA/FMvW+jfSXF4xNt4Ut7o9MLGjwqc6OCfy95Qjb/Scrl3FiTzG/iAOW2QBYNZWdgtlMGZr3SBHhnU2RV6upaonNpUxq6gkNHfqKwQg/t6OkoNmpU=
+	t=1756367513; cv=none; b=iO7Mui3dlfPfJlbN7FG8PxytFbxf9nRfHRZlkx5dkwk7A2S82SEeB5bgbPhec+vbSuAuWiiF1dqD0Mpn1hb+a1xNvj2MSNWMwtoxc3gmYfsRXJfMTvBBPwGHjQ+QrUPFj5f3PyTMSFTk4z7pl1zfe7J9c/rjsw87V+oLJVfxf/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756367195; c=relaxed/simple;
-	bh=7Ac5/fFlxMMYJm2RX8zz5xHU7l2zHTYVR8+KP5LKWNI=;
+	s=arc-20240116; t=1756367513; c=relaxed/simple;
+	bh=aVIw0TcsxiY87h8D5K60j55G2q8/3/CdmpDHg/kInp0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UCdUkOTccv+Lx/dfMz9045ivZCUz6kFYykTqQTPSGfneAgaWczYf1kImz4dDct/5W7LjU/j71UATk/4NSDiVpiRaG88S0Kbb823+81VgoTImXMXFKSWMW3didFsIQVI1b/yvI56i3tKyWey5wnSCm8uxl+hlYkOneTkPFn+h+3k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eHAsVJf/; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=jyGPAK9owHuVr6wVr2n6p/PoBc+LnbA7iNcrPiV85HHYPQAB2gpAcMcaGLHPrndEPb8NQB4DeKjpBtteWaKMHeRnH8x7QipSQkTHC+k8ihRcduAgB99JRDnConV53dQM/i4DnRlWy2xoS+o5i8sxk3qcavMbQf4tlw35wwrQk+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P3rowve5; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eHAsVJf/"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P3rowve5"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756367192;
+	s=mimecast20190719; t=1756367509;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=QIPVhNdDqwyEUU2mMSzlYSdtbuVp92JbzlpYQuyYJ0w=;
-	b=eHAsVJf/8JCIXyxJzzeRIBtueAyFwQ1Ln8zGGPP7Jn/ZqFZej9yBqXBPuqJpeIKUrYLrqg
-	1xoHS2SlYmj4WK2OKvOJUZcPn9ftNSqwF/WrEnBwV2qsdHR1BtStfOTUb2awfAYEiGC494
-	H8EctAe9BeyA52f6x+PPZHaN8DHbnJM=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=W9hxzTxTQo/SdIPcCftN1rfm4EWEI2PYLX2i1EjssCk=;
+	b=P3rowve5xrgFCSkFnyq2adQk11nlr+WC045TrjPKTJY0bnCIbJpBPOw00TjU3n7rwkqyxV
+	A06iu02/2UPqR4tjp8Eha9fk7YL2zGQcGEXYVkIs1A2ij9tXjZvpTQYI0B4R4GOUHRCx+X
+	3w7ZcI3w2g2yrvk6W+WGSU3Oj+gMlPY=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-361-lk9_QS4JPJ6G-rzL7eu0Cg-1; Thu, 28 Aug 2025 03:46:31 -0400
-X-MC-Unique: lk9_QS4JPJ6G-rzL7eu0Cg-1
-X-Mimecast-MFC-AGG-ID: lk9_QS4JPJ6G-rzL7eu0Cg_1756367190
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3c6ae25997cso394602f8f.0
-        for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 00:46:30 -0700 (PDT)
+ us-mta-116-winEJ5UvPEGkMVpM8hUeVA-1; Thu, 28 Aug 2025 03:51:47 -0400
+X-MC-Unique: winEJ5UvPEGkMVpM8hUeVA-1
+X-Mimecast-MFC-AGG-ID: winEJ5UvPEGkMVpM8hUeVA_1756367506
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45b71fe31ffso3600855e9.2
+        for <virtualization@lists.linux.dev>; Thu, 28 Aug 2025 00:51:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756367190; x=1756971990;
+        d=1e100.net; s=20230601; t=1756367506; x=1756972306;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=QIPVhNdDqwyEUU2mMSzlYSdtbuVp92JbzlpYQuyYJ0w=;
-        b=oftUMqClhGTrdJSDrn1+xSw40bL1kfXWP5Z95B4kGWtP8D80yfaswe0S8z+jQAcx63
-         T5u4viP7uVs44TW2DKwpTo5TiFvYsaWEm0jqsm4VxtD75eYb0Na3esMyLqlRF/HqT6aP
-         LS6eve087YPhZ9srAqdc1caXkP/B9kuHJo3qJEX8Nh3VvVi7ZQOPPtKuFeNH1+BZ+Dzt
-         S0aEHFhNKuCeHYuD9/ae2a4dJTC4uoIGrY3PLtWDNi/D2QNewFILxWpraKAEksJ5tVtY
-         Co4tFmQydNSzfNgeKRkNXblztzJ35fRJyOTFtB1fdgiikGL7HATWhmi+Hd8M2I4l7aud
-         JiTQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVGPZ+bcQYVNhXe4NC0gewcCagcp2GZnjCiRMXaXw8/6aoLIFO6MetYp6XC8dNpmy7Cm0mV6YejfEKx0dBmSw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyWYUE9FunDkCkQvC2d/aRox7uSJ0cuaG/A4cfSsJ+W31suhkQV
-	iy3/FfAVvcoOXY0M3yKTwpcap2th/gzp1rcZD91ClSqQyCoMTGisVLIjHJJjgRYXgAS9CezAGpp
-	jANTKxeC6AzK7qQmw/csOgyDNpevbQ0nspE+CKwQ+bsFjjcxT14YiE4CtQfASgxapW/rV
-X-Gm-Gg: ASbGncv+fqR+uXX3eklpvg4SbULvhr9EiSkfrRRZCs7Pf05skrFXF5EIvSLWiNbmEop
-	r9AYS/fy5ZACVHdupATYQcR/boSf5Z+/+OEzJMQZre9PKx9nev2tnGa2/Du8BZnzNoYh98rqF9M
-	iDGLu3YbBvkgM4D5XiTi+b71Furs5IMU5TTy/P1bM++rRSANjJgrjp9ERdiczY8emM8yNJWJ4x7
-	cXzaDOXaXzcXx/JlOeGaG/LH/G1xSsE81Jz6Z/2xu4+xheLqYRS9Gd87MUUwyEKt/TvB3wxCsSm
-	WTIZ4yC/XouKrSuiMP9r2xDR8p2A+raQpPOvMIn+3NxXENFryqDG4r0Ruw3/N6dVnMZ0eYG6Da9
-	kFZK2kI/Ge/6flNEQiB7CVyZhi/WdiE7c1T/uiglffwiATQ3sz01l7E9Q0vx/YCX29N0=
-X-Received: by 2002:a05:6000:18ad:b0:3b7:948a:1361 with SMTP id ffacd0b85a97d-3c5da741330mr15989051f8f.6.1756367189578;
-        Thu, 28 Aug 2025 00:46:29 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHbZS9TwQor8utX8Cftd7hubod4ESO9oJ14F94do36paGGmjXBbrC+y7X5MmcQWQ6JKGQD26w==
-X-Received: by 2002:a05:6000:18ad:b0:3b7:948a:1361 with SMTP id ffacd0b85a97d-3c5da741330mr15989008f8f.6.1756367189132;
-        Thu, 28 Aug 2025 00:46:29 -0700 (PDT)
+        bh=W9hxzTxTQo/SdIPcCftN1rfm4EWEI2PYLX2i1EjssCk=;
+        b=nUOTvzyoUJMQ88DO1vVN4+GbxyjU/+XlO/KoPuHwG8GZ+znwSQKlNBin8V/zoUz0Gw
+         wRO8brvaG1Jf+yuqm4aOvY0SLYvP80VobMKOE3Z9zcVCfxw6a5fy20WzJ7Zh2FCrB/ve
+         m4TKHhoWI2wfJ1U0ILx6UkegjvguUaa9DmRlJYKbw9xMJoBCDRbFIv0a8BkWeLWO2cT1
+         FcTahFMNT6G+s5QZRS/x+tw6u5DxKlFMw2y2P4UZk4JodRmYPiQdiUzBxnDVbC3kqwnV
+         dzEcabAUbh1y8laycNdq5Gl5bK7RcaFLd6YM90W+TOnrFd9Djx8+7XgOICfOLPEMcoJt
+         RduA==
+X-Forwarded-Encrypted: i=1; AJvYcCVvr/6xwD2AudKvNym9wtH+7Y47h+sZGT4I9lhByL8/31qAn+xUxiz9Sr6RE4g8u/JEU7W/g87GRC6CL/kRIQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw8eLNBhECut2RIHliOBreJsZFPPpHqLK4f3DxX9/jH6at2dHsw
+	mRYZx8qmY7SlcXvc3t/HBqm6nVYaOEBo7whJZTK6JrVff0ewuE6JNX7pzcCim8F+mery/EVuCT8
+	9MtaNWWCSpm/gJizM0ak5RYu9ztxle4clX9bzfdGtQrW9kJj3Fzb70iCNy7S/jrVftf2qOB586X
+	fdNtmJdA==
+X-Gm-Gg: ASbGncspXr6vrERWWZVNmUHhQoYFENkQgN69er8GRVxgNaGtMuZP53/rGKIFiP83hF0
+	EfYjfKDZNGY/9SkOU8gLILnG9QysTKIEtPKa3srNwkfKhtgPPCQMwmdtT/us813dqlCSrRwNqD/
+	HSszxYIj8RfsPC0cgryTUceixF2tfgLMsfvrpR20rYAl/JeB9lK9eLuejSOs+2EhwHJXzEFhHUW
+	nLWoCZ9eYPct+B2AJB2l95AE6cgjssKbhtlvJ5CQgeihp5AOCQeJm44+S4+LRseAczRqh7EyTfX
+	lv0Fe7SH7siFOHJYGvKuX9KrGQ4m2Y+ulJkVMeEFxxSLUt5qNbkC2EoRCyI3u4FTOhH/9z/fhJF
+	RQ7YByQHDIjLPQgnhpRUaDEMMw95WJJ77VNKp9DbzilI/nwN9EnF5TOTh7ede5BCutH8=
+X-Received: by 2002:a05:6000:40c8:b0:3ca:5f27:46cb with SMTP id ffacd0b85a97d-3ca5f274a40mr9865725f8f.26.1756367505822;
+        Thu, 28 Aug 2025 00:51:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH8zgD/30H+XPzw6VmAOLABSxECVvdZkm8lTkssC7aflGskcW313GKDbwONtO4FwEoVzKVXnA==
+X-Received: by 2002:a05:6000:40c8:b0:3ca:5f27:46cb with SMTP id ffacd0b85a97d-3ca5f274a40mr9865704f8f.26.1756367505361;
+        Thu, 28 Aug 2025 00:51:45 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f28:c100:2225:10aa:f247:7b85? (p200300d82f28c100222510aaf2477b85.dip0.t-ipconnect.de. [2003:d8:2f28:c100:2225:10aa:f247:7b85])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b6b1cdf05sm35411485e9.1.2025.08.28.00.46.26
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3ce24ba1817sm1346778f8f.36.2025.08.28.00.51.44
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Aug 2025 00:46:28 -0700 (PDT)
-Message-ID: <0e1c0fe1-4dd1-46dc-8ce8-a6bf6e4c3e80@redhat.com>
-Date: Thu, 28 Aug 2025 09:46:25 +0200
+        Thu, 28 Aug 2025 00:51:44 -0700 (PDT)
+Message-ID: <dfeec4c7-b4de-486e-bcb6-8d27384b83bf@redhat.com>
+Date: Thu, 28 Aug 2025 09:51:43 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,35 +76,16 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 12/36] mm: simplify folio_page() and folio_page_idx()
-To: Wei Yang <richard.weiyang@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Zi Yan <ziy@nvidia.com>,
- Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
- Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
- Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
- Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
- Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
- Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org
-References: <20250827220141.262669-1-david@redhat.com>
- <20250827220141.262669-13-david@redhat.com>
- <20250828074356.3xiuqugokg36yuxw@master>
+Subject: Re: [PATCH v1] virtio_fs: fix page fault for DAX page address
+To: Haiyue Wang <haiyuewa@163.com>, linux-fsdevel@vger.kernel.org,
+ linux-mm@kvack.org, Alistair Popple <apopple@nvidia.com>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Miklos Szeredi <miklos@szeredi.hu>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ "open list:VIRTIO FILE SYSTEM" <virtualization@lists.linux.dev>,
+ open list <linux-kernel@vger.kernel.org>
+References: <20250828061023.877-1-haiyuewa@163.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -149,18 +131,103 @@ Autocrypt: addr=david@redhat.com; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20250828074356.3xiuqugokg36yuxw@master>
+In-Reply-To: <20250828061023.877-1-haiyuewa@163.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: tw2o8-oK_XKlafRPLjEwuFRExLGWIH26wOveZfaFGEE_1756367190
+X-Mimecast-MFC-PROC-ID: tiDW9BO3rACtp4Ow_dxfMKmS2FmBecsfml_ZytGYIYs_1756367506
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
+On 28.08.25 08:10, Haiyue Wang wrote:
+> The commit ced17ee32a99 ("Revert "virtio: reject shm region if length is zero"")
+> exposes the following DAX page fault bug:
 > 
-> Curious about why it is in page-flags.h. It seems not related to page-flags.
+> The commit 21aa65bf82a7 ("mm: remove callers of pfn_t functionality") handles
+> the DAX physical page address incorrectly: the removed macro 'phys_to_pfn_t()'
+> should be replaced with 'PHYS_PFN()'.
+> 
+> [    1.390321] BUG: unable to handle page fault for address: ffffd3fb40000008
+> [    1.390875] #PF: supervisor read access in kernel mode
+> [    1.391257] #PF: error_code(0x0000) - not-present page
+> [    1.391509] PGD 0 P4D 0
+> [    1.391626] Oops: Oops: 0000 [#1] SMP NOPTI
+> [    1.391806] CPU: 6 UID: 1000 PID: 162 Comm: weston Not tainted 6.17.0-rc3-WSL2-STABLE #2 PREEMPT(none)
+> [    1.392361] RIP: 0010:dax_to_folio+0x14/0x60
+> [    1.392653] Code: 52 c9 c3 00 66 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 0f 1f 44 00 00 48 c1 ef 05 48 c1 e7 06 48 03 3d 34 b5 31 01 <48> 8b 57 08 48 89 f8 f6 c2 01 75 2b 66 90 c3 cc cc cc cc f7 c7 ff
+> [    1.393727] RSP: 0000:ffffaf7d04407aa8 EFLAGS: 00010086
+> [    1.394003] RAX: 000000a000000000 RBX: ffffaf7d04407bb0 RCX: 0000000000000000
+> [    1.394524] RDX: ffffd17b40000008 RSI: 0000000000000083 RDI: ffffd3fb40000000
+> [    1.394967] RBP: 0000000000000011 R08: 000000a000000000 R09: 0000000000000000
+> [    1.395400] R10: 0000000000001000 R11: ffffaf7d04407c10 R12: 0000000000000000
+> [    1.395806] R13: ffffa020557be9c0 R14: 0000014000000001 R15: 0000725970e94000
+> [    1.396268] FS:  000072596d6d2ec0(0000) GS:ffffa0222dc59000(0000) knlGS:0000000000000000
+> [    1.396715] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    1.397100] CR2: ffffd3fb40000008 CR3: 000000011579c005 CR4: 0000000000372ef0
+> [    1.397518] Call Trace:
+> [    1.397663]  <TASK>
+> [    1.397900]  dax_insert_entry+0x13b/0x390
+> [    1.398179]  dax_fault_iter+0x2a5/0x6c0
+> [    1.398443]  dax_iomap_pte_fault+0x193/0x3c0
+> [    1.398750]  __fuse_dax_fault+0x8b/0x270
+> [    1.398997]  ? vm_mmap_pgoff+0x161/0x210
+> [    1.399175]  __do_fault+0x30/0x180
+> [    1.399360]  do_fault+0xc4/0x550
+> [    1.399547]  __handle_mm_fault+0x8e3/0xf50
+> [    1.399731]  ? do_syscall_64+0x72/0x1e0
+> [    1.399958]  handle_mm_fault+0x192/0x2f0
+> [    1.400204]  do_user_addr_fault+0x20e/0x700
+> [    1.400418]  exc_page_fault+0x66/0x150
+> [    1.400602]  asm_exc_page_fault+0x26/0x30
+> [    1.400831] RIP: 0033:0x72596d1bf703
+> [    1.401076] Code: 31 f6 45 31 e4 48 8d 15 b3 73 00 00 e8 06 03 00 00 8b 83 68 01 00 00 e9 8e fa ff ff 0f 1f 00 48 8b 44 24 08 4c 89 ee 48 89 df <c7> 00 21 43 34 12 e8 72 09 00 00 e9 6a fa ff ff 0f 1f 44 00 00 e8
+> [    1.402172] RSP: 002b:00007ffc350f6dc0 EFLAGS: 00010202
+> [    1.402488] RAX: 0000725970e94000 RBX: 00005b7c642c2560 RCX: 0000725970d359a7
+> [    1.402898] RDX: 0000000000000003 RSI: 00007ffc350f6dc0 RDI: 00005b7c642c2560
+> [    1.403284] RBP: 00007ffc350f6e90 R08: 000000000000000d R09: 0000000000000000
+> [    1.403634] R10: 00007ffc350f6dd8 R11: 0000000000000246 R12: 0000000000000001
+> [    1.404078] R13: 00007ffc350f6dc0 R14: 0000725970e29ce0 R15: 0000000000000003
+> [    1.404450]  </TASK>
+> [    1.404570] Modules linked in:
+> [    1.404821] CR2: ffffd3fb40000008
+> [    1.405029] ---[ end trace 0000000000000000 ]---
+> [    1.405323] RIP: 0010:dax_to_folio+0x14/0x60
+> [    1.405556] Code: 52 c9 c3 00 66 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 0f 1f 44 00 00 48 c1 ef 05 48 c1 e7 06 48 03 3d 34 b5 31 01 <48> 8b 57 08 48 89 f8 f6 c2 01 75 2b 66 90 c3 cc cc cc cc f7 c7 ff
+> [    1.406639] RSP: 0000:ffffaf7d04407aa8 EFLAGS: 00010086
+> [    1.406910] RAX: 000000a000000000 RBX: ffffaf7d04407bb0 RCX: 0000000000000000
+> [    1.407379] RDX: ffffd17b40000008 RSI: 0000000000000083 RDI: ffffd3fb40000000
+> [    1.407800] RBP: 0000000000000011 R08: 000000a000000000 R09: 0000000000000000
+> [    1.408246] R10: 0000000000001000 R11: ffffaf7d04407c10 R12: 0000000000000000
+> [    1.408666] R13: ffffa020557be9c0 R14: 0000014000000001 R15: 0000725970e94000
+> [    1.409170] FS:  000072596d6d2ec0(0000) GS:ffffa0222dc59000(0000) knlGS:0000000000000000
+> [    1.409608] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    1.409977] CR2: ffffd3fb40000008 CR3: 000000011579c005 CR4: 0000000000372ef0
+> [    1.410437] Kernel panic - not syncing: Fatal exception
+> [    1.410857] Kernel Offset: 0xc000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> 
+> Fixes: 21aa65bf82a7 ("mm: remove callers of pfn_t functionality")
+> Signed-off-by: Haiyue Wang <haiyuewa@163.com>
+> ---
+>   fs/fuse/virtio_fs.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index c826e7ca49f5..76c8fd0bfc75 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -1016,7 +1016,7 @@ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
+>   	if (kaddr)
+>   		*kaddr = fs->window_kaddr + offset;
+>   	if (pfn)
+> -		*pfn = fs->window_phys_addr + offset;
+> +		*pfn = PHYS_PFN(fs->window_phys_addr + offset);
+>   	return nr_pages > max_nr_pages ? max_nr_pages : nr_pages;
+>   }
+>   
 
-Likely because we have the page_folio() in there as well.
+Yeah, looks like that's the only instance we got wrong in that commit.
+
+Acked-by: David Hildenbrand <david@redhat.com>
 
 -- 
 Cheers
