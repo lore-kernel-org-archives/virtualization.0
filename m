@@ -1,225 +1,261 @@
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2043.outbound.protection.outlook.com [40.107.244.43])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60D7C31B10A;
-	Fri, 29 Aug 2025 13:16:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756473397; cv=fail; b=rw/D2MhqI87lsUa3A402oG7HBVy3zBjTT1U0O1H/UauYL6N4CBDJJZoo09GjuKVwGy2fNRPefTQ8XOZujTixDUn43DccimzNWVpdLwtDnkTPuwrcYifNEP0NI6OSnAfMhv+BX5ijMTaYshM6XJl83cxrSZsSnpVPGwwl08SIjOE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756473397; c=relaxed/simple;
-	bh=34F7YndVm12x0jfRxaG8FHmjm9L0cIhJZetLwUaispo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=Y24WiZ0uxGFNjkH4LcudXaEa63QUl8wcHFHZ69Mw8QbkcezJ95RFf31m5ljDSTThuVB2HGYXdB32CDIy5krHPgB+5ylQHEViZbwPxP9/g1zxs2f5hzNPlLhTXdam5tCvj9CKB7Ac1QdUDLY4zBw0wxCYQS4QW+0WJebxDcuf9z0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=i/HmXQce; arc=fail smtp.client-ip=40.107.244.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D18E274B30
+	for <virtualization@lists.linux.dev>; Fri, 29 Aug 2025 13:22:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756473731; cv=none; b=XIn6VXRCl3wtTKK0DYLkKccyxJrQJfjyE3tpe20fjhh5aSYWii0DZ2jjBbSydjJjv88McM1xbxoryRl2Mw7m8r1qIWjKYBfEWotq86WafDngXpfx+YwdFr1JaadZfTsuJvbq3w4m+tJUS1yEbG8kaLik77/XGiAqr8N4PNYHig0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756473731; c=relaxed/simple;
+	bh=N+5WFIKkpSCBHcdEkYaqeEr5+8bOiQ8nFMzvcD9Vf3I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=evyNkx6p3rq+jZYo3njGibycwYtXiUZXeEL2sqgymh2/IAILFsWJnBIO8nzbHCgYfm41v7Ic57xymZXCa2TZeazstzCQbKZli9Lr8em6V9ghJmDYAQ/K+6aIwOFftIZP0axYbwlfKzCMrrdDtSicnS50K9PuJZXP5z0+pwRCD40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UuLQ56t9; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="i/HmXQce"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=LeGvuQr0Ysrbr+MzudNf9fRl/IF+8Ww+1/UsvbO8U0UKUp22FhCMWxvNNvuD0itHcRjAd5WaDrI6uJ0lhcI/IKDEhQ9UZ+5j+9JCW0p8SiEcAfrTHxyhV7TZMRNE28DDni+X1lrq2M3793EKWmmPYeO2lT4ChgR1JKrY38rkEJTUTEP52J4aXz8YjbxWEzrM/J5pclucoymBFvGrdVULMTtrRn6FAlWWESvzqtCnnJZcrK2lz9aNUcr56lELdvKfQ3+/ZLQyGEvjFe5wTv0yKhfLL8BhXPWZx8oxnXhoD4CZf4Sr1iB9zIVW+7uo8rYYFFbjQerhUA7+6zHRPQEtLg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JCWmjjTdSUkiBsGmYNgY8r0NYQl0/mN0Xq0HSP0LaZs=;
- b=bwSi4uTVQzAGZpm8nR7mfw7Zo6RixsU4Xquq8NVPlKw/JuQoDODaLvefivB6GOkfsFDsqJX4GiC2OjJ028Ly5ZvNE4A/izUA4jt0mv8Sm3Q2UHFTJ3GTYyyl/l0wPf9KWI8dzHgRTFlIT5S2Y0ln746dwq4QIxsi207Xud+jpY0w4x86T3gaJuxHT0M6fbVHV4QGnwhUt8FDIgW1uxErMR50Ld/Eiq2js6bddfM+qChjIiZxzRJeeHAizdj7vZOdyrVNGlRWrdYCboim7b7Hsj2FEd/KSbkEl9rTrM9r7jpQiazthKgG0WJZkUiGuxzUwZqggkwgkCrGFAZ2RAbqrw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JCWmjjTdSUkiBsGmYNgY8r0NYQl0/mN0Xq0HSP0LaZs=;
- b=i/HmXQceGXNCOvexidulAQ0kC8o7yfjfECBkeBHjvQF5BeuA8hgQXtsFcVrdaCC62J2FCd2V8fMZzz3PTumh37UvAbH3iIXL/73mp/tVN0gMhBMEM32iqFmiMN+kmW1vNMtre46kzEl2SvhpR28QFiQVDuMjdNtsZ/H7oeGCDNuV8LPAGPFOp28hfysRfy+4ZP4s5U98ECO0TuRvzCND340G8bK6uc9Wq637XZw2zl64qgt7qX+2TEhHEaL25U2net4s+y+Czd91G4Sv6x8Fz+pb+PqDPCLvPND1geKt/784az7VLfLwLg95zeBhRYooO+E8BgIxhvNRtEPSNImP7g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW6PR12MB8663.namprd12.prod.outlook.com (2603:10b6:303:240::9)
- by CY5PR12MB6430.namprd12.prod.outlook.com (2603:10b6:930:3a::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9073.17; Fri, 29 Aug
- 2025 13:16:28 +0000
-Received: from MW6PR12MB8663.namprd12.prod.outlook.com
- ([fe80::594:5be3:34d:77f]) by MW6PR12MB8663.namprd12.prod.outlook.com
- ([fe80::594:5be3:34d:77f%7]) with mapi id 15.20.9073.017; Fri, 29 Aug 2025
- 13:16:28 +0000
-Date: Fri, 29 Aug 2025 10:16:25 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
-	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
-	Alexander Potapenko <glider@google.com>,
-	Alex Gaynor <alex.gaynor@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
-	iommu@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
-	Jens Axboe <axboe@kernel.dk>, Joerg Roedel <joro@8bytes.org>,
-	Jonathan Corbet <corbet@lwn.net>, Juergen Gross <jgross@suse.com>,
-	kasan-dev@googlegroups.com, Keith Busch <kbusch@kernel.org>,
-	linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	linux-trace-kernel@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
-	xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v4 00/16] dma-mapping: migrate to physical address-based
- API
-Message-ID: <20250829131625.GK9469@nvidia.com>
-References: <cover.1755624249.git.leon@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1755624249.git.leon@kernel.org>
-X-ClientProxiedBy: SA1P222CA0056.NAMP222.PROD.OUTLOOK.COM
- (2603:10b6:806:2c1::8) To MW6PR12MB8663.namprd12.prod.outlook.com
- (2603:10b6:303:240::9)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UuLQ56t9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756473728;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=aggFKTWIoz3JmsTS53UGUQwfpKwPCT7EHzMCjR4W6Kc=;
+	b=UuLQ56t9K9ET2MmcIeYyIW1ZImATJoQ1k+kHzh2cIgfahSMGcQJjlkQ3xqVpnEUZ0FSx2b
+	nMhJA3udtBaLTI2Sl89GB/+7soNOGPCYd0PMY1h1kprbkvVlwP2+SUEjHdz65j9Rr9kMQp
+	xRwI+bEvrE7xl8Jqfcsf9SsX5eHNwKg=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-278-5nOa_UE3MiayGD2HqDpsFQ-1; Fri, 29 Aug 2025 09:22:06 -0400
+X-MC-Unique: 5nOa_UE3MiayGD2HqDpsFQ-1
+X-Mimecast-MFC-AGG-ID: 5nOa_UE3MiayGD2HqDpsFQ_1756473726
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-45a1b05b15eso15377255e9.1
+        for <virtualization@lists.linux.dev>; Fri, 29 Aug 2025 06:22:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756473725; x=1757078525;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=aggFKTWIoz3JmsTS53UGUQwfpKwPCT7EHzMCjR4W6Kc=;
+        b=Q6SflGWBUIlOkK8G56YyOvAbiPBURBlZzXJQbVPLR4ueuSI7OqN7sOxkkOxjKVX3g8
+         AFe9cBHthgHKXcBPPUL2+hg+La/LrCP/4SzyRnKRHqAK7i20mTm40xbX2TTDOD7ffszJ
+         bWD0W+U7EyJ/C8XOJ8L3dblqeasRXS+H84aF1TyY/VfXJB2iQfc1DNRFC1aUHs9L6s3k
+         EFGJBd6BGsxAEs2jSaIlSwA9mGq1uBIgGJ4WOeE6HaYIzumwJiIWjPpJDDocWIjPsA1I
+         RCroOtsRW9D5/I9srKhPyvCuZeyiaUFsKlItVZt7pZ5qEsrKZPLz/4lykkf52/K5lVjx
+         GpoA==
+X-Forwarded-Encrypted: i=1; AJvYcCX2psR2tv7lNeKjERMvIBUGZqvfuBuxWiZz3nFoTxKNRBpJtE/fpMxRG7DbacLhSCfwXchMhY0oz+rCzO8gBA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YytW5L2CmT86f10cq/ztE2ypNgdeokaV+MWEdcX/VDdMyiwI7j0
+	P5vz4wLY3rTpT5hwkwvkGPZMnm1zMXgt0seza/d0x6rtemxGPw/3NmuzNWBmoxQhUKcIUcQenCl
+	O2gxXm6uQH8BQJd9W4yZLRp/kSxzq2hhG+HDSf5yBNU5xpnC2/2UH4nAzVLvZEVYWutm4
+X-Gm-Gg: ASbGnctenG/FOQ5xmw1ZORXyRa/7u0vHeKAF5Weu078mlot26e0Kj2T9H5TqXghRc1w
+	sB2frCJ2NnIbmRuSc0p3CUsdYeckO0v/k1X7fO7+kMOOYtUsoeh5YTy3VsAEvU4Qww5OSCOh0A2
+	8VUlM6faTy2SYZestCPMRpXxfhIEs9Lh1SJkNFY5diF/L3JkO6PCoaHYh4AJpczUrppvkBK05ZV
+	Xx/7iSW1vHaqqHpVF8q7/Gsu3o2VkR7NZNXGc1pGvLUL2uMVz9166iwNhXU3UoZUoeSH+JSVsqa
+	d7XSb5LK/t2hyNEa7/y38oS6isbXminRVUHxc+DMSlysPY/xF7meTtSCH1nflfD6A+2Ti8yWVoM
+	+VB/Aa4Q1fj4jmoetmQnu+ZK1/SYRthGf7bVHO8pw7ngUE4/9GoI7xAwsTy83VQ3J
+X-Received: by 2002:a05:6000:2c0f:b0:3ca:a190:c473 with SMTP id ffacd0b85a97d-3caa190c6ecmr9849824f8f.4.1756473725385;
+        Fri, 29 Aug 2025 06:22:05 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGFfrTd/+15/bT4PGZswHLcvGvODyGQLUC+I3pIFqxdvqjEg2cDf44HeYcneQKTQcaMEr0KOA==
+X-Received: by 2002:a05:6000:2c0f:b0:3ca:a190:c473 with SMTP id ffacd0b85a97d-3caa190c6ecmr9849784f8f.4.1756473724881;
+        Fri, 29 Aug 2025 06:22:04 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f1d:100:4f8e:bb13:c3c7:f854? (p200300d82f1d01004f8ebb13c3c7f854.dip0.t-ipconnect.de. [2003:d8:2f1d:100:4f8e:bb13:c3c7:f854])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3cf33add483sm3368560f8f.37.2025.08.29.06.22.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 29 Aug 2025 06:22:04 -0700 (PDT)
+Message-ID: <f7f9f535-0bbe-413a-84e4-fcb17a502a40@redhat.com>
+Date: Fri, 29 Aug 2025 15:22:01 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW6PR12MB8663:EE_|CY5PR12MB6430:EE_
-X-MS-Office365-Filtering-Correlation-Id: ba19d7ec-1bfe-485d-d6d3-08dde6fe431b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|7416014|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?j9VFqPDzvWCSugcsFZk8FRKZSbP5XUc8PO8hHBRkFrxG3PV5kB5sPfbUJe92?=
- =?us-ascii?Q?qM0CxUgtXXI7t6zdv+qXHeS/lN53bNx212jQJ9v3L+Hc23xLOb6UUptvjU7z?=
- =?us-ascii?Q?0nsgu+opQ/YYez+5mzeYkADogU4B0i8D47uiMeLy3LzYnrQIHKgNCHcZO1yS?=
- =?us-ascii?Q?LG+8lbyIJozKkFtjoIotPpC8K7NYZDG3KtJT/WWPuHQAmo46MyGR4IofXut3?=
- =?us-ascii?Q?je1OWIV0WSsYK4ukVbnQg9ZYQKr1OHm1DjwIwiNTrnp0NQuUIZCsF156iBEm?=
- =?us-ascii?Q?B8zNikV+SA+/4Qfwqp1NmUkOyiagQH1plfZRm+LUo92lJgB0Qmsd6LcX62LM?=
- =?us-ascii?Q?gFbiQevxrEKfmYj1RUUU/xOL69n3rNSrLKiIMqnNrjV5yPGaNa0tzyi1F94a?=
- =?us-ascii?Q?GhaoOM2I7fQIqxQndqWWMESGG9xiRwa+Mv7ozbT7r5zo4wd2ti8QljFc6LFK?=
- =?us-ascii?Q?+wn3vHsEe708TW+TVt8bXIzew8QVhx/fZXNI9i92CwccGJWNDdsx0NC+PZlU?=
- =?us-ascii?Q?C7506ogxRZvWMiEuEXkVNtzx1EYNVX96/n0U5mktuMVXhwoipSXKnH1qojab?=
- =?us-ascii?Q?9J+silk9IMFoa7A2k/W4/Iu6i3P/NWeoYoz+XNtLBXHhL1S0XYt6tO/4UOme?=
- =?us-ascii?Q?vomWDP8TRhDyKciwsbOZP62Raiqxx50YaH4V0R8YQlVytdSGZ6IWiLNLDq5C?=
- =?us-ascii?Q?ptw+3qyhWSPC8kqhCRYqnIpFWRA4W9rsv93pjkTAGdMdDINsZgliTFijLYPv?=
- =?us-ascii?Q?8cO+ic2nAYNeAqOUPe4ghcpxyfBDkc00HL0cBBk8DGw7IeHTTfUaoBi2/2KR?=
- =?us-ascii?Q?La1M+ngOqXBhts99xfBpbxRqrscFL+7GndFI1b4IhwodO4ZeJCWWJpgzLchS?=
- =?us-ascii?Q?t2gNzDyQyP/cUQKoiEA8/KXW613z9c0e2fdluhgpvOFziWzkd+DF9VHwC036?=
- =?us-ascii?Q?6QsIpabpQEIBVuiY92nH4XHlDFfHHtnflDSIhb+QGgYzGrFrfjm+eD4qIlGe?=
- =?us-ascii?Q?m81qxYrhAb8gguLUv/gIorbJbOcg5qFMCQ+XYOqnf6h8JIy2Yt6IiULdW4FJ?=
- =?us-ascii?Q?fUIra0gq8JbHZh8RLxzKzBKYbsAopMLfMzMIrtW9vzvoaGSaeEEHPlnZGemP?=
- =?us-ascii?Q?BY7rtxngUTeL+OLq6/F1QQ1vhjSpdEGRDcuzi5cvww3rf31DNcAIW/bBi/RS?=
- =?us-ascii?Q?oa0KPVhb5LjKn7l+XAT6kwi1xZXdX+e1YiaCFNymCyhy7vWtGJLN6SmQvgjh?=
- =?us-ascii?Q?AnFWFiC7U0Td8YqtXX8z0/U4aw5aqUJKg4CW4H4Vsxj9dKoA86MQ0BYy6gcN?=
- =?us-ascii?Q?/zaqzKi5XiCdWrHgiug0Ss0YQ/LjuLyIZRVRTNPlsL4woMRNUGzxojLdJzi5?=
- =?us-ascii?Q?j8gdLTa8o2fZ6t83iMuZyGW3j57C6es60RHXRnyS9nDqS+Gufqi6TATubaAG?=
- =?us-ascii?Q?9Pk99+LH3rc=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW6PR12MB8663.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(7416014)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?cuNT2mQMuDj2wUn+wdVR7TLhMYcPNGAj4gfzF3MkyBXvsYN4Os9nDsr7fyUq?=
- =?us-ascii?Q?TNCkRoX2fkf9TYXv9J7BfwijmnDHHTl1Kz2atZMVIwcHAn8aLGPqkWO9wemx?=
- =?us-ascii?Q?SYZfwEdgLcATAcQ0icpUHgkbH4sZMV5uMeTM0CRhEQP233jRtGtJSHD7Zb9A?=
- =?us-ascii?Q?/VNBySpyIhOMS/xAOa1dTvjc+eUBcZB8RwergxIQvssbWzG2lHG/6d0CrCaq?=
- =?us-ascii?Q?MZKO5RI150CwyCxyErlTUkGoH/JnmmYl9WRo9G8THd/bmxMIb0bVu8zdLq03?=
- =?us-ascii?Q?wn8duUi1UEoj+7adHkevd1hUYB/ZvKiqn92487xMuWDwtNFpc2CBxJpXd2Aj?=
- =?us-ascii?Q?4rAswgCTwaXhQUAdOd9oTyhnGk06OZ0qvTgchDp4KIh+blKM+RAhPZjH6P5H?=
- =?us-ascii?Q?aDlub8g7BHRjMB149QSPoVkoe4fl4+wGQ/peeR9v38rGkzcEAwr2uXCu8W39?=
- =?us-ascii?Q?aX4aURUAX2aPA180UfGsIRQJcDKsSxcy+ajZyn9XjmhIXuxI16pgufiKY2Zh?=
- =?us-ascii?Q?mtcPn6jVRM57FP6gFiuDnJ/PoZOLFL4gKQt50Jf+f/l0Gl9xVE9AgybQFF4h?=
- =?us-ascii?Q?Akt1sAOYFCmAUTqEI1xP+NQi9gyGPCWVWwVnaV7Y2gGxeXeWXiRV3GMlULIJ?=
- =?us-ascii?Q?FrpUNv+kUHkhmffgL2u4Ue2KMsAPO+X/H4eudxnX9lPp8/seaWeahuQ9JCMJ?=
- =?us-ascii?Q?f/XtU9ukdygN3ilosvYT6tpKcXPXFvPhSHFOl7gF/6nPfonJ5nmlOiDOgPrs?=
- =?us-ascii?Q?vmImJmXNnbWT1Nx2fmYr3Dhjth5OuYIWYFuTM2Kze2orglg6dg5O+I6hnnes?=
- =?us-ascii?Q?g5KoeoSeeV0PE46pehALs51tBDJgJR0E0jpMA0he0D5j5pmcdaDGgp3fPkin?=
- =?us-ascii?Q?uy0SykIa/i0gywHJcL1xn3iLiqJmrEaa9tcpB7jcbSNk9DWGy4WYa8koUQYL?=
- =?us-ascii?Q?SmDLUo7iRD5beZ+cQOSH2mQRT7aJvVmeWu7VXTSv45GXK9FobtcaAdimZL48?=
- =?us-ascii?Q?V//a6c7S+RDMz6mpw1NxvbNEX9/njiS8LPPsYMbYscSJi5gMah3JBejGu9Dh?=
- =?us-ascii?Q?wQeewTP1m96pF0NnJiBla7AKohhddhvfDWNqaIYLULY+XPyeGvzh8VgihpjZ?=
- =?us-ascii?Q?EDZ86DzqqLyY62FRfcFY49QSyWFhegdUmnrBPy/bg4q/FoHlTR8CQ7X0Vp/k?=
- =?us-ascii?Q?ggoYP7qoiHmLhZ8jjwFbhBaV7dfmr/skBTWtgMqPftUpOnhDLVc6Q4MbFXTS?=
- =?us-ascii?Q?5Jogn+C/+tvOQMSH49xsUj2WGiN8L92Vu/A6hPS5k5+yl9aGnLKw6hibXFAQ?=
- =?us-ascii?Q?EBMGXSb1mK7hmNJK27drHaKAY8FuJzDnWw1ipP/5hClrEhX8rFOSuUVbNbBt?=
- =?us-ascii?Q?Xs46jGnh7go+N5aYvzW+dLHRB5MCj4nsZJQo2ryH816xUvVO8lyGJ8j1piZc?=
- =?us-ascii?Q?hFnbKBQ1yoNC6l02T1eNYhEVDxYjQCfPjlFwYmES49rbsJig0wT6HO3HXcJl?=
- =?us-ascii?Q?3DGaXwPlor5er17Fo4mnTPkqb8/VYmV4ZcgbF7eU8lofOaEJZpSS/MTZ4Tgj?=
- =?us-ascii?Q?id1HcAcrt2U0YrhZ3++Oi9FndBPquNK8mchPcaOR?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ba19d7ec-1bfe-485d-d6d3-08dde6fe431b
-X-MS-Exchange-CrossTenant-AuthSource: MW6PR12MB8663.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Aug 2025 13:16:28.1462
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bixKXGNnNyPvA3cISmgXhm5zsYWSDMm/Kyz+5gZZkusXRtgA2Nwiwx0P8zrTZxwD
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6430
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 16/36] fs: hugetlbfs: cleanup folio in
+ adjust_range_hwpoison()
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
+ Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ iommu@lists.linux.dev, io-uring@vger.kernel.org,
+ Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
+ Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
+ kasan-dev@googlegroups.com, kvm@vger.kernel.org,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
+ linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+ linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Marco Elver <elver@google.com>,
+ Marek Szyprowski <m.szyprowski@samsung.com>, Michal Hocko <mhocko@suse.com>,
+ Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>,
+ netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
+ Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
+ Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
+ virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
+ wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
+References: <20250827220141.262669-1-david@redhat.com>
+ <20250827220141.262669-17-david@redhat.com>
+ <71cf3600-d9cf-4d16-951c-44582b46c0fa@lucifer.local>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <71cf3600-d9cf-4d16-951c-44582b46c0fa@lucifer.local>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: I4k_PylFHlTYOaW9zI6qCbCSM2a0XGg05xVypGWwWD8_1756473726
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Aug 19, 2025 at 08:36:44PM +0300, Leon Romanovsky wrote:
 
-> This series does the core code and modern flows. A followup series
-> will give the same treatment to the legacy dma_ops implementation.
+> 
+> Lord above.
+> 
+> Also semantics of 'if bytes == 0, then check first page anyway' which you do
+> capture.
 
-I took a quick check over this to see that it is sane.  I think using
-phys is an improvement for most of the dma_ops implemenations.
+Yeah, I think bytes == 0 would not make any sense, though. Staring 
+briefly at the single caller, that seems to be the case (bytes != 0).
 
-  arch/sparc/kernel/pci_sun4v.c
-  arch/sparc/kernel/iommu.c
-    Uses __pa to get phys from the page, never touches page
+> 
+> OK think I have convinced myself this is right, so hopefully no deeply subtle
+> off-by-one issues here :P
+> 
+> Anyway, LGTM, so:
+> 
+> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+> 
+>> ---
+>>   fs/hugetlbfs/inode.c | 33 +++++++++++----------------------
+>>   1 file changed, 11 insertions(+), 22 deletions(-)
+>>
+>> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+>> index c5a46d10afaa0..6ca1f6b45c1e5 100644
+>> --- a/fs/hugetlbfs/inode.c
+>> +++ b/fs/hugetlbfs/inode.c
+>> @@ -198,31 +198,20 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
+>>   static size_t adjust_range_hwpoison(struct folio *folio, size_t offset,
+>>   		size_t bytes)
+>>   {
+>> -	struct page *page;
+>> -	size_t n = 0;
+>> -	size_t res = 0;
+>> -
+>> -	/* First page to start the loop. */
+>> -	page = folio_page(folio, offset / PAGE_SIZE);
+>> -	offset %= PAGE_SIZE;
+>> -	while (1) {
+>> -		if (is_raw_hwpoison_page_in_hugepage(page))
+>> -			break;
+>> +	struct page *page = folio_page(folio, offset / PAGE_SIZE);
+>> +	size_t safe_bytes;
+>> +
+>> +	if (is_raw_hwpoison_page_in_hugepage(page))
+>> +		return 0;
+>> +	/* Safe to read the remaining bytes in this page. */
+>> +	safe_bytes = PAGE_SIZE - (offset % PAGE_SIZE);
+>> +	page++;
+>>
+>> -		/* Safe to read n bytes without touching HWPOISON subpage. */
+>> -		n = min(bytes, (size_t)PAGE_SIZE - offset);
+>> -		res += n;
+>> -		bytes -= n;
+>> -		if (!bytes || !n)
+>> +	for (; safe_bytes < bytes; safe_bytes += PAGE_SIZE, page++)
+> 
+> OK this is quite subtle - so if safe_bytes == bytes, this means we've confirmed
+> that all requested bytes are safe.
+> 
+> So offset=0, bytes = 4096 would fail this (as safe_bytes == 4096).
+> 
+> Maybe worth putting something like:
+> 
+> 	/*
+> 	 * Now we check page-by-page in the folio to see if any bytes we don't
+> 	 * yet know to be safe are contained within posioned pages or not.
+> 	 */
+> 
+> Above the loop. Or something like this.
 
-  arch/alpha/kernel/pci_iommu.c
-  arch/sparc/mm/io-unit.c
-  drivers/parisc/ccio-dma.c
-  drivers/parisc/sba_iommu.c
-    Does page_addres() and later does __pa on it. Doesn't touch struct page
+"Check each remaining page as long as we are not done yet."
 
-  arch/x86/kernel/amd_gart_64.c
-  drivers/xen/swiotlb-xen.c
-  arch/mips/jazz/jazzdma.c
-    Immediately does page_to_phys(), never touches struct page
+> 
+>> +		if (is_raw_hwpoison_page_in_hugepage(page))
+>>   			break;
+>> -		offset += n;
+>> -		if (offset == PAGE_SIZE) {
+>> -			page++;
+>> -			offset = 0;
+>> -		}
+>> -	}
+>>
+>> -	return res;
+>> +	return min(safe_bytes, bytes);
+> 
+> Yeah given above analysis this seems correct.
+> 
+> You must have torn your hair out over this :)
 
-  drivers/vdpa/vdpa_user/vduse_dev.c
-    Does page_to_phys() to call iommu_map()
+I could resist the urge to clean that up, yes.
 
-  drivers/xen/grant-dma-ops.c
-    Does page_to_pfn() and nothing else
+I'll also drop the "The implementation borrows the iteration logic from 
+copy_page_to_iter*." part, because I suspect this comment no longer 
+makes sense.
 
-  arch/powerpc/platforms/ps3/system-bus.c
-   This is a maze but I think it wants only phys and the virt is only
-   used for debug prints.
+Thanks!
 
-The above all never touch a KVA and just want a phys_addr_t.
+-- 
+Cheers
 
-The below are touching the KVA somehow:
+David / dhildenb
 
-  arch/sparc/mm/iommu.c
-  arch/arm/mm/dma-mapping.c
-    Uses page_address to cache flush, would be happy with phys_to_virt()
-    and a PhysHighMem()
-
-  arch/powerpc/kernel/dma-iommu.c
-  arch/powerpc/platforms/pseries/vio.c
-   Uses iommu_map_page() which wants phys_to_virt(), doesn't touch
-   struct page
-
-  arch/powerpc/platforms/pseries/ibmebus.c
-    Returns phys_to_virt() as dma_addr_t.
-
-The two PPC ones are weird, I didn't figure out how that was working..
-
-It would be easy to make map_phys patches for about half of these, in
-the first grouping. Doing so would also grant those arches
-map_resource capability.
-
-Overall I didn't think there was any reduction in maintainability in
-these places. Most are improvements eliminating code, and some are
-just switching to phys_to_virt() from page_address(), which we could
-further guard with DMA_ATTR_MMIO and a check for highmem.
-
-Jason
