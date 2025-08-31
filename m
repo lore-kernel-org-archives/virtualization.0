@@ -1,139 +1,278 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2049.outbound.protection.outlook.com [40.107.92.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6593257845;
-	Sun, 31 Aug 2025 13:12:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756645976; cv=none; b=QRzp0i+kcNgZ47JcW5NjL9aqSe1PfLlkTHRNPEhV53fkaq1SRcpYAEtp8UTIIk2WHx6UoO1/lEznvNd/Q9MkOSl5Syt2Z59a4bIBJzJamDiIRi0dvxOsKNZ5DSGtjxFbL0PmKu6RgQUiOMISVwYu4X42tFm9mpAgVHj8haIplWs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756645976; c=relaxed/simple;
-	bh=SVfffytdJ7l+FJFH+NQ2fAYz/jln+XvhXnCAv4vVciA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mgVzYVgVV0a50cguRnBjMpk0rWqmBnYI9ly+aegefDLM5gbBix+8QByEcn7D+tvkT8kWgd8McPFGvYvbdFmEungfSVsQgOVwMU74/cw5B1Op5bNPF2D6Gcqept5LmyxHZFTIOLh6JBebz8ST2271kH5qupwLWBnI9OftPmnOC74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WMN3gtSJ; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F087257834;
+	Sun, 31 Aug 2025 23:32:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.49
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756683168; cv=fail; b=N+yM5YG/KREWvTl6XnGExLSmhrAWWSM+4ju0KfyBwPzqlmpVEabkGmgqzll2kW4JZ1qsPbFXpPOZfREba8VL7ZSouDMwhfPPccsuXg/SUFDNC7abuNDJjCEkHvxg5uBQuEiWnNf9150tN1ZoKCl+ujwb+S5r9wg4q/jANSQGhn0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756683168; c=relaxed/simple;
+	bh=4GVgDDazXiXzbCrYp9CzaF7BOUfbUOdlBd2Si95DQTY=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Gs4gEJaDqD7/n6vlScBawWV4URuG/H//uhqxaKGi0ufNXt2gZJ0x9K3LTgQgjXZOlVTTngnRp0MZ09URBDhO41TCPhEf89v0kp4VWm11+5kPSPEiS9H0XshOrHbedQE5Az/2M8sqbNdsuYvlmtWkV3ht/5yF4dCpZcFIcvYAlsg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=edZrnUtd; arc=fail smtp.client-ip=40.107.92.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WMN3gtSJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB2B1C4CEED;
-	Sun, 31 Aug 2025 13:12:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1756645976;
-	bh=SVfffytdJ7l+FJFH+NQ2fAYz/jln+XvhXnCAv4vVciA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WMN3gtSJVf7yZJvH25PHoup176xzR4iH45PFd5WTaZl3P3yIlcpIRkfu5U3ulpn36
-	 IKubxjRKitiVH7tEFGk0EvSWGehRo+3Ze6ErmIyU4uPo4HQlYX4MxtypCD8fFWeHBM
-	 x5lx5bK4qJ+D+MLZSAMBnr8/dS6PtN2tAd1/pTiMLV/guQAHue805z1yqYSMaGWuq1
-	 Airln6Bzle28Ohk7U9LgDEafLkaTwO2O0iuzeLmhUWu5F6SgZbC5gh8KCCHy3wqp2C
-	 Hcv7g6EwqE5WnoDtEeiWuc9ndJyrHz9MWyHpBWe4DPcTvzNQTROEZWINBtgECoxCxA
-	 rqMaDKHjRKGlQ==
-Date: Sun, 31 Aug 2025 16:12:50 +0300
-From: Leon Romanovsky <leon@kernel.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
-	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
-	Alexander Potapenko <glider@google.com>,
-	Alex Gaynor <alex.gaynor@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
-	iommu@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
-	Jens Axboe <axboe@kernel.dk>, Joerg Roedel <joro@8bytes.org>,
-	Jonathan Corbet <corbet@lwn.net>, Juergen Gross <jgross@suse.com>,
-	kasan-dev@googlegroups.com, Keith Busch <kbusch@kernel.org>,
-	linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	linux-trace-kernel@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
-	xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v4 09/16] dma-mapping: handle MMIO flow in
- dma_map|unmap_page
-Message-ID: <20250831131250.GC10073@unreal>
-References: <cover.1755624249.git.leon@kernel.org>
- <ba5b6525bb8d49ca356a299aa63b0a495d3c74ca.1755624249.git.leon@kernel.org>
- <20250828151730.GH9469@nvidia.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="edZrnUtd"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=EeKPSQ+mMuuxB1ANxLrF3vaT7umjy+KNK6xOZKQ0zNdYm6iyoWtRl1sE97/iyQNZggxqektbxs/aJJWsAkFp6xLjiygNHC6UegpFviZek/tP4fStvuqtTzng1NRtXH5xo95iV8N4QG5BatuHM7Vl/Yo0oYP5B5FcjUIMdUfU8q/mX29lBx1flSnZ/1TdO0v3ASWFZTXKzm3XAlC4YlPo448DRbAOfIO1XspFX9NTf90tHsAzObzVriFqyZYuivrf1CXQi/YrVWStr33oRCOTPZIX7alqtYG1SIPR4oZ7rduAyF/sLjk9FCozyQKpaHY6HV+5Zbf5jlRYgypkROTrGg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=1bIDCj7cfHHj6oCXiv26pxEcrhqSGDOZhC14EMM9N5s=;
+ b=cnJ19RMQ5OZ/5pqV9TWSnVVLgJKYXguFkxkO506XgpHCbfJ6Bf9wjF4YyvpPGGwjh7dAN2aZLleAivfD5yV/sqV2TQrJLkmM4w99xn856vekBBH2FYHmA7nj6FZBNFLF45q9YVE6qvOysq3zpGuAbJG4VVOCd0VZVL8Nzf6dVDw7LtoHgBmHY93AXbMhqD7SK9xysyGi2JFUqH8lN43JBwrUMzJ4S+ANeJMrjlnGeaDgXWual/+dXl3a4rbduIs7SwAf77YEvfDvWgWhBC44Ub0M4j3FjPlhYFCesqMd0af9tXLasxA+jT69NRJHu6fnoVT96ELjECfDQMkgMmVyxg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=8bytes.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1bIDCj7cfHHj6oCXiv26pxEcrhqSGDOZhC14EMM9N5s=;
+ b=edZrnUtdxbk/tFc90itATzmWB7YNG0S0b8oYtgj2dSBliGisDl3a8SywzWEZ1f25FrR98xa64BQBbMaERmV6ZJ85+K/eD1F7DxF/ey3r1xYNl4kr6KwTfIVZXCpcxDZA9ZOHaeDDGmkcQK1dc+AuJTSifTNo4PQoBN2KMBQJNQjUm1rvqRw4EeTtAJUDH7jbh4uUsHjxAmlpAxTHdKVR9ptvkh4TlF7FGNW9foVkVLG/AcDujCAEtNqQ43vhjA9Ika2bFQFJHvYfpM47VyZ0RZtF0OaLWZ1HTreqU8qWy7pp/EGZziIaLG04FxqGeRKmseTDJ2rbxUN5sbbH9lpucA==
+Received: from MN2PR19CA0052.namprd19.prod.outlook.com (2603:10b6:208:19b::29)
+ by DM4PR12MB7743.namprd12.prod.outlook.com (2603:10b6:8:101::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9073.26; Sun, 31 Aug
+ 2025 23:32:40 +0000
+Received: from MN1PEPF0000F0E2.namprd04.prod.outlook.com
+ (2603:10b6:208:19b:cafe::76) by MN2PR19CA0052.outlook.office365.com
+ (2603:10b6:208:19b::29) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9009.15 via Frontend Transport; Sun,
+ 31 Aug 2025 23:32:40 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ MN1PEPF0000F0E2.mail.protection.outlook.com (10.167.242.40) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9094.14 via Frontend Transport; Sun, 31 Aug 2025 23:32:39 +0000
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Sun, 31 Aug
+ 2025 16:32:20 -0700
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail202.nvidia.com
+ (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Sun, 31 Aug
+ 2025 16:32:19 -0700
+Received: from Asurada-Nvidia.nvidia.com (10.127.8.14) by mail.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server id 15.2.1544.14 via Frontend
+ Transport; Sun, 31 Aug 2025 16:32:15 -0700
+From: Nicolin Chen <nicolinc@nvidia.com>
+To: <joro@8bytes.org>, <jgg@nvidia.com>, <bhelgaas@google.com>
+CC: <suravee.suthikulpanit@amd.com>, <will@kernel.org>,
+	<robin.murphy@arm.com>, <sven@kernel.org>, <j@jannau.net>,
+	<alyssa@rosenzweig.io>, <neal@gompa.dev>, <robin.clark@oss.qualcomm.com>,
+	<m.szyprowski@samsung.com>, <krzk@kernel.org>, <alim.akhtar@samsung.com>,
+	<dwmw2@infradead.org>, <baolu.lu@linux.intel.com>, <kevin.tian@intel.com>,
+	<yong.wu@mediatek.com>, <matthias.bgg@gmail.com>,
+	<angelogioacchino.delregno@collabora.com>, <tjeznach@rivosinc.com>,
+	<paul.walmsley@sifive.com>, <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>,
+	<alex@ghiti.fr>, <heiko@sntech.de>, <schnelle@linux.ibm.com>,
+	<mjrosato@linux.ibm.com>, <gerald.schaefer@linux.ibm.com>,
+	<orsonzhai@gmail.com>, <baolin.wang@linux.alibaba.com>,
+	<zhang.lyra@gmail.com>, <wens@csie.org>, <jernej.skrabec@gmail.com>,
+	<samuel@sholland.org>, <jean-philippe@linaro.org>, <rafael@kernel.org>,
+	<lenb@kernel.org>, <yi.l.liu@intel.com>, <cwabbott0@gmail.com>,
+	<quic_pbrahma@quicinc.com>, <iommu@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <asahi@lists.linux.dev>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-arm-msm@vger.kernel.org>,
+	<linux-samsung-soc@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+	<linux-riscv@lists.infradead.org>, <linux-rockchip@lists.infradead.org>,
+	<linux-s390@vger.kernel.org>, <linux-sunxi@lists.linux.dev>,
+	<linux-tegra@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-acpi@vger.kernel.org>, <linux-pci@vger.kernel.org>,
+	<patches@lists.linux.dev>, <vsethi@nvidia.com>, <helgaas@kernel.org>,
+	<etzhao1900@gmail.com>
+Subject: [PATCH v4 0/7] Disable ATS via iommu during PCI resets
+Date: Sun, 31 Aug 2025 16:31:52 -0700
+Message-ID: <cover.1756682135.git.nicolinc@nvidia.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250828151730.GH9469@nvidia.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MN1PEPF0000F0E2:EE_|DM4PR12MB7743:EE_
+X-MS-Office365-Filtering-Correlation-Id: 30ff8d33-bbb8-4b38-8731-08dde8e6acf3
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|7416014|376014|82310400026|36860700013|13003099007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?q7AJd0LoGCqmJ13O7nfpwyxZtpZGgaaDn2k2WmhSKuIfV6Uiert1UwR3M04n?=
+ =?us-ascii?Q?mw1cf8FQ0ZOsS/q/NmteKAjpWJYSwy9ZsXI/2R/jYYIwJZorsdVFgkzhkuoq?=
+ =?us-ascii?Q?4czf7vnOMMTqJhTT/Oq1mHlL9GnIxq3VNHEoN/LgydMHFNnbMXrTsl8yGZhz?=
+ =?us-ascii?Q?kD+mNfddIOlV2qNgyIn+4fiW9cHt37XqetcnMzxFFiE16vYvwa3GNqKK2YO7?=
+ =?us-ascii?Q?wjc1Bvbj5yZbvJwF6mo4R5cKbOjFlIgPCTBW6hkdDx8qLKslRS1hj9iWzS+9?=
+ =?us-ascii?Q?g/bzKsFM+91t+6tv4dRE2634uRKkq4ezYKYdR4RXFYWXmS1ei0pGAAO0iCsn?=
+ =?us-ascii?Q?6JUkBxjH/6d7PW4MKiZGdaSUYuB+LYuXRH9ROHgU8yqakdPdzjYP+YqNhenr?=
+ =?us-ascii?Q?CM34QGV1ZL0CoFQXIsLPIwWXnmBG2EtstKcutdVOztPGLaBV9PkI/TSUSjpQ?=
+ =?us-ascii?Q?atTln2f0oczfJh9OPeRqk9HPtBidlYRa6on095sExgH9you9uT/mjBWh71w2?=
+ =?us-ascii?Q?ko9SaMH+bkMJ4uBKPgEPFySSisjLaK2UxhX7isXN1wr+8iEOP9FiL99QYG+J?=
+ =?us-ascii?Q?q/PSd+LsZOenthCAEB61+UTCPwl0Jf9eQpV4JkwQXqv/+rCYzpDDsfHHoiQu?=
+ =?us-ascii?Q?Zty680JmAuKkMbE6P8xZbQ9lAERqVytFot+N5p0CsQMt/8w6twiGsHZOPAjQ?=
+ =?us-ascii?Q?qGTXgBbTmZ+hoZdKfwuhdU6EDMFUmZQkrQPfCeSRJmVcRsMHm8Izd0scBfct?=
+ =?us-ascii?Q?snLDxswdbpn1NopSNw4JYfCoy8UQy0fZcOQnrp7qUgsUZHeDBwvAysAcqAn4?=
+ =?us-ascii?Q?MxNaFZozGoKmO7l0RlwWJzj49xU8NmEFlS2ZVMbclG8zEmCkZLvAuLOGO5Oo?=
+ =?us-ascii?Q?GUVcvPRkknbAoxdo0eTLU9VfRR4nDrbabYixzvdupQPQvHRM4+np6PziIyE8?=
+ =?us-ascii?Q?D7gzcKOZCD1q3sRcVDfpD6U460dKcYi+mQnVPd9XalAo8/ns7mE4Agl7rapN?=
+ =?us-ascii?Q?lCK5gCdq6V0BOUMSntsaAsX99VcdZbEv3F8jPbje8wgq2YXXJ/v8avlGY/HA?=
+ =?us-ascii?Q?6M04IrGNrXta4RmfkEi8+9qvZ/RxlXrUk3AblX4zH65gv9ZuazDo2iLxHuVY?=
+ =?us-ascii?Q?pqe9hr1ddXjJWvDHDGWjKnm5c1K9ZP4i5gZHfBfiGp0gF60rYMIkhCIAAI3O?=
+ =?us-ascii?Q?1kdYMuelrGhrdxLS+QLMZHUYOQyz1CIrzJEewecgWaXbHMB61YLUEaiCKKMO?=
+ =?us-ascii?Q?F0br5Segwk5roWXa6+MyhIR7iye2G/ssHgZk8SsO/xt5L06+aBcRfSJsOqM9?=
+ =?us-ascii?Q?5KQm3VDTfZcKV63hGdz+Ok/xQejpX3yJM+wPBtDpyHrebulRuExKENdrH+LI?=
+ =?us-ascii?Q?mKOU0ErKlni0Z3emdXlCJolCIsdrx0hhhPQnIPluz/p+2u1CsNHzbiqZvFUZ?=
+ =?us-ascii?Q?qJtN+PpanMBK/7JPREaeScLKklGZg1q1NRsmF92tL7RQ6C57pG3lHtUQyAVu?=
+ =?us-ascii?Q?2XvMT4GE3/gOGbE6SFsJVUdzV+rgcRmS9UGIU/fQwgEj78ijLbVh16u9Vg?=
+ =?us-ascii?Q?=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(82310400026)(36860700013)(13003099007);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Aug 2025 23:32:39.6542
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 30ff8d33-bbb8-4b38-8731-08dde8e6acf3
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MN1PEPF0000F0E2.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB7743
 
-On Thu, Aug 28, 2025 at 12:17:30PM -0300, Jason Gunthorpe wrote:
-> On Tue, Aug 19, 2025 at 08:36:53PM +0300, Leon Romanovsky wrote:
-> > From: Leon Romanovsky <leonro@nvidia.com>
-> > 
-> > Extend base DMA page API to handle MMIO flow and follow
-> > existing dma_map_resource() implementation to rely on dma_map_direct()
-> > only to take DMA direct path.
-> 
-> I would reword this a little bit too
-> 
-> dma-mapping: implement DMA_ATTR_MMIO for dma_(un)map_page_attrs()
-> 
-> Make dma_map_page_attrs() and dma_map_page_attrs() respect
-> DMA_ATTR_MMIO.
-> 
-> DMA_ATR_MMIO makes the functions behave the same as dma_(un)map_resource():
->  - No swiotlb is possible
->  - Legacy dma_ops arches use ops->map_resource()
->  - No kmsan
->  - No arch_dma_map_phys_direct()
-> 
-> The prior patches have made the internl funtions called here support
-> DMA_ATTR_MMIO.
-> 
-> This is also preparation for turning dma_map_resource() into an inline
-> calling dma_map_phys(DMA_ATTR_MMIO) to consolidate the flows.
-> 
-> > @@ -166,14 +167,25 @@ dma_addr_t dma_map_page_attrs(struct device *dev, struct page *page,
-> >  		return DMA_MAPPING_ERROR;
-> >  
-> >  	if (dma_map_direct(dev, ops) ||
-> > -	    arch_dma_map_phys_direct(dev, phys + size))
-> > +	    (!is_mmio && arch_dma_map_phys_direct(dev, phys + size)))
-> >  		addr = dma_direct_map_phys(dev, phys, size, dir, attrs);
-> 
-> PPC is the only user of arch_dma_map_phys_direct() and it looks like
-> it should be called on MMIO memory. Seems like another inconsistency
-> with map_resource. I'd leave it like the above though for this series.
-> 
-> >  	else if (use_dma_iommu(dev))
-> >  		addr = iommu_dma_map_phys(dev, phys, size, dir, attrs);
-> > -	else
-> > +	else if (is_mmio) {
-> > +		if (!ops->map_resource)
-> > +			return DMA_MAPPING_ERROR;
-> 
-> Probably written like:
-> 
-> 		if (ops->map_resource)
-> 			addr = ops->map_resource(dev, phys, size, dir, attrs);
-> 		else
-> 			addr = DMA_MAPPING_ERROR;
+Hi all,
 
-I'm big fan of "if (!ops->map_resource)" coding style and prefer to keep it.
+PCIe permits a device to ignore ATS invalidation TLPs, while processing a
+reset. This creates a problem visible to the OS where an ATS invalidation
+command will time out: e.g. an SVA domain will have no coordination with a
+reset event and can racily issue ATS invalidations to a resetting device.
 
-> 
-> As I think some of the design here is to run the trace even on the
-> failure path?
+The OS should do something to mitigate this as we do not want production
+systems to be reporting critical ATS failures, especially in a hypervisor
+environment. Broadly, OS could arrange to ignore the timeouts, block page
+table mutations to prevent invalidations, or disable and block ATS.
 
-Yes, this is how it worked before.
+The PCIe spec in sec 10.3.1 IMPLEMENTATION NOTE recommends to disable and
+block ATS before initiating a Function Level Reset. It also mentions that
+other reset methods could have the same vulnerability as well.
 
-> 
-> Otherwise looks OK
-> 
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> 
-> Jason
+Provide a callback from the PCI subsystem that will enclose the reset and
+have the iommu core temporarily change domains to group->blocking_domain,
+so IOMMU drivers would fence any incoming ATS queries, synchronously stop
+issuing new ATS invalidations, and wait for existing ATS invalidations to
+complete. Doing this can avoid any ATS invaliation timeouts.
+
+When a device is resetting, any new domain attachment has to be rejected,
+until the reset is finished, to prevent ATS activity from being activated
+between the two callback functions. Introduce a new pending_reset flag to
+reject a concurrent __iommu_attach_device/set_group_pasid().
+
+Finally, apply these iommu_dev_reset_prepare/done() functions in the PCI
+reset functions.
+
+Note that this series doesn't work well for a resetting alias device or a
+SRIOV PF, so skip these two corner cases. There is nothing we can do for
+alias devices since they share the same RID. For SRIOV PF, its VFs would
+need to be blocked as well, and new dryrun attach_dev/set_group_pasid ops
+will be required to allow compatible domain to be cached concurrently.
+
+Some future followups after this series:
+ - A pair of dryrun testing ops for attach_dev/set_dev_pasid to make sure
+   no incompatible attempt will be given to attach_dev/set_dev_pasid().
+ - Stage all VFs to the blocked domain as well, if their PF is resetting.
+ - Clean up all unlocked iommu_get_domain_for_dev() call for UAF concern.
+   Replace with safer alternative APIs.
+
+This is on Github:
+https://github.com/nicolinc/iommufd/commits/iommu_dev_reset-v4
+
+Changelog
+v4
+ * Add Reviewed-by from Baolu
+ * [iommu] Use guard(mutex)
+ * [iommu] Update kdocs for typos and revisings
+ * [iommu] Skip two corner cases (alias and SRIOV)
+ * [iommu] Rework attach_dev to pass in old domain pointer
+ * [iommu] Reject concurrent attach_dev/set_dev_pasid for compatibility
+           concern
+ * [smmuv3] Drop the old_domain depedency in its release_dev callback
+ * [pci] Add pci_reset_iommu_prepare/_done() wrappers checking ATS cap
+v3
+ https://lore.kernel.org/all/cover.1754952762.git.nicolinc@nvidia.com/
+ * Add Reviewed-by from Jason
+ * [iommu] Add a fast return in iommu_deferred_attach()
+ * [iommu] Update kdocs, inline comments, and commit logs
+ * [iommu] Use group->blocking_domain v.s. ops->blocked_domain
+ * [iommu] Drop require_direct, iommu_group_get(), and xa_lock()
+ * [iommu] Set the pending_reset flag after RID/PASID domain setups
+ * [iommu] Do not bypass PASID domains when RID domain is already the
+           blocking_domain
+ * [iommu] Add iommu_get_domain_for_dev_locked to correctly return the
+           blocking_domain
+v2
+ https://lore.kernel.org/all/cover.1751096303.git.nicolinc@nvidia.com/
+ * [iommu] Update kdocs, inline comments, and commit logs
+ * [iommu] Replace long-holding group->mutex with a pending_reset flag
+ * [pci] Abort reset routines if iommu_dev_reset_prepare() fails
+ * [pci] Apply the same vulnerability fix to other reset functions
+v1
+ https://lore.kernel.org/all/cover.1749494161.git.nicolinc@nvidia.com/
+
+Thanks
+Nicolin
+
+Nicolin Chen (7):
+  iommu/arm-smmu-v3: Add release_domain to attach prior to release_dev()
+  iommu: Lock group->mutex in iommu_deferred_attach()
+  iommu: Pass in gdev to __iommu_device_set_domain
+  iommu: Pass in old domain to attach_dev callback functions
+  iommu: Add iommu_get_domain_for_dev_locked() helper
+  iommu: Introduce iommu_dev_reset_prepare() and iommu_dev_reset_done()
+  pci: Suspend iommu function prior to resetting a device
+
+ drivers/pci/pci.h                             |   2 +
+ include/linux/iommu.h                         |  16 +-
+ drivers/iommu/amd/iommu.c                     |  11 +-
+ drivers/iommu/apple-dart.c                    |   9 +-
+ .../arm/arm-smmu-v3/arm-smmu-v3-iommufd.c     |   5 +-
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c   |  66 +++--
+ drivers/iommu/arm/arm-smmu/arm-smmu.c         |   9 +-
+ drivers/iommu/arm/arm-smmu/qcom_iommu.c       |  11 +-
+ drivers/iommu/dma-iommu.c                     |   2 +-
+ drivers/iommu/exynos-iommu.c                  |   6 +-
+ drivers/iommu/fsl_pamu_domain.c               |  12 +-
+ drivers/iommu/intel/iommu.c                   |  10 +-
+ drivers/iommu/intel/nested.c                  |   2 +-
+ drivers/iommu/iommu.c                         | 256 +++++++++++++++++-
+ drivers/iommu/iommufd/selftest.c              |   2 +-
+ drivers/iommu/ipmmu-vmsa.c                    |  10 +-
+ drivers/iommu/msm_iommu.c                     |   8 +-
+ drivers/iommu/mtk_iommu.c                     |   8 +-
+ drivers/iommu/mtk_iommu_v1.c                  |   7 +-
+ drivers/iommu/omap-iommu.c                    |  12 +-
+ drivers/iommu/riscv/iommu.c                   |   9 +-
+ drivers/iommu/rockchip-iommu.c                |  20 +-
+ drivers/iommu/s390-iommu.c                    |   9 +-
+ drivers/iommu/sprd-iommu.c                    |   3 +-
+ drivers/iommu/sun50i-iommu.c                  |   8 +-
+ drivers/iommu/tegra-smmu.c                    |  10 +-
+ drivers/iommu/virtio-iommu.c                  |   6 +-
+ drivers/pci/pci-acpi.c                        |  12 +-
+ drivers/pci/pci.c                             |  68 ++++-
+ drivers/pci/quirks.c                          |  18 +-
+ 30 files changed, 509 insertions(+), 118 deletions(-)
+
+-- 
+2.43.0
+
