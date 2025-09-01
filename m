@@ -1,438 +1,362 @@
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2085.outbound.protection.outlook.com [40.107.100.85])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D76426FDB3;
-	Sun, 31 Aug 2025 23:33:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.85
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756683199; cv=fail; b=Xon1/l0e9+es9vyTVty5DLhucklNQhyg7MIu7SiKoCRjFfV2Hx9bXZG6KTyDmTLQBN0u/cjld7jfY16oSTFJ7N6Rx+lBOiGICWXry47ZJ3dSXNfG3TV/OLOUsudZ8wKZuvbykSyJgXCWVytbRitAeyHWhiIHet23dtSZk3PeXRs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756683199; c=relaxed/simple;
-	bh=Jp9sAvHL6CX98353pWEllyNpXDMmNK8irA/KH0Z2yZg=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fHf0Yz5Bp0I+uL36rI8tSnK1TdSPtQGuwF0oCJ1IktRGia7NLo59sQEtHK5wyAe6Aa8M4jGATRN97TVyo9S0C96k3QE0zEO8tcCWhRQAjkf1b38ss/hGod0u1IyPMnF+KCt+xAmI1t+BZ/vOlnLUjEB6/TiUd/q6jqK32iPeVuA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=OKKAfkN4; arc=fail smtp.client-ip=40.107.100.85
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98B5930CD95
+	for <virtualization@lists.linux.dev>; Mon,  1 Sep 2025 01:59:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756691966; cv=none; b=KAHE0+ERFKPdBPtYTA1m49cYjyS8sdP2ayou95i5O9wAVfAqhn6HB7vF9SXBBMKA5ytfUoj3/A7FOIe/KH/fqTDpL/USZF6h0RXrtwD4EffKqCp7GF4zGYITAY3eDxsG3hrlJt1T2gF8UQOtAg0k2E85mKPHfusGiRWExZGzrAU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756691966; c=relaxed/simple;
+	bh=hxvcKPw08t6dOgnJ88hYqLOR9p0U3nCgO7zJtSlQU0k=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fjS6O4sBmgXXJ3zGqjMpV+FJfxwxo9aTvtMfNXtuvvfQAuquwqGjVdDUU05wSFMND4Nj57s1OAv0ukdkxRHtFSX1dzVxmVYOkzUtr5b+z+1PCoWeWht8q4DELAsuVjgPM6SGlhWKoMkzLLrkSyq/Tvp6+RxkwCaoLqvhc5v3RqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hl2Q+I96; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="OKKAfkN4"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ZFcGyiEh9noqs9S0RlRu87ofpYInhqitxRYb3u4tFi7rkDbmJSwX5utrMbcibCaX8WarAd8HyioN3f4xVsWugoDXsMOe46MiGto2BWKORJWEoDQjLJxyoT/S9a5U1v4KeWvcRbF21JHn6YlyKh05wbXDw1xfmUh3Qg8Dv8qxcy39yPHY7k6LU+Tus2wKIXkUFAwRqlfD7HlkUQ7qnikgk6EPS6MiMZxdlITojbBKjxzpCKhDzog30Y9jUFqZefhndWA3bIjE/IoSDt3umcklE+ELUaSbFT6N8fNt+L0dlE8WWU3lCRWJN+rFblgn5VZ0/fl2sCVY3QPOBnEP+iHPYA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=t7XAfQegnIapW7HTU9nrmLiGfFWJaStkTZMtYA/OKR8=;
- b=wmj6xEUWvErqOB2MfLaSqZbs5fwBSMH94zqcPaGu5w9IZQi1ttIsf49qxneLbk+xn+cKFBNI9IySbSTQk0yniwRgMRFaq4kZ8Ob2QrTwmWvo4HAYF85dcak+nFxfFEqu6B+PSyXVUYW6yZzKnA3/eK+JBHvqjgppTkqM2YbPieADZi57f5wOXVLdYIiEpmEFaMQIqcs66flcUurYccSStdQAuecyA4XbNzPHX5bKYtSIVGUF3AM5yKeULQGLgr6lRZr7sFofLeE8W6DttCBWz/VF7ZXq/MqgvFH3zuvMfTs6qp1AJbNjVUzxZWgRN2CdujwgzV+C4snhGXo6C+lUCQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=8bytes.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=t7XAfQegnIapW7HTU9nrmLiGfFWJaStkTZMtYA/OKR8=;
- b=OKKAfkN4gYh7FYE13VwyUVlwLzOP7IXwdcMlonZjMqpUr90U0lRinAnLswM2kAfGt/Og1YrcOjn0AI0sqUhzJY6MFjS9zW0lmfTQKJk/MtjVy7I0tr8HufOhIKzFljUS9tUsLCt0arW3cree9/75IlRaOl+ZrK83MQpkJRpck7R7SqumRX4MzkDubY62EJ7R+RSxw7PLJRu2pbGJO6JexS2oquWZ7N5GX2r5vUem2HWuCGkraLsnA3PgOMBGK4zssmlAta93xCoY/oHXxtBRyV/wwSwmD0KqeLmYTh68e7t8DULugvH619Hpn6YnUFfaaNUpOA6DCaqle3VxFwlrdQ==
-Received: from BY5PR13CA0014.namprd13.prod.outlook.com (2603:10b6:a03:180::27)
- by IA1PR12MB7520.namprd12.prod.outlook.com (2603:10b6:208:42f::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9073.25; Sun, 31 Aug
- 2025 23:33:13 +0000
-Received: from CY4PEPF0000EE30.namprd05.prod.outlook.com
- (2603:10b6:a03:180:cafe::3) by BY5PR13CA0014.outlook.office365.com
- (2603:10b6:a03:180::27) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9094.15 via Frontend Transport; Sun,
- 31 Aug 2025 23:33:12 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- CY4PEPF0000EE30.mail.protection.outlook.com (10.167.242.36) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9094.14 via Frontend Transport; Sun, 31 Aug 2025 23:33:12 +0000
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Sun, 31 Aug
- 2025 16:32:51 -0700
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail205.nvidia.com
- (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Sun, 31 Aug
- 2025 16:32:50 -0700
-Received: from Asurada-Nvidia.nvidia.com (10.127.8.14) by mail.nvidia.com
- (10.129.68.10) with Microsoft SMTP Server id 15.2.1544.14 via Frontend
- Transport; Sun, 31 Aug 2025 16:32:46 -0700
-From: Nicolin Chen <nicolinc@nvidia.com>
-To: <joro@8bytes.org>, <jgg@nvidia.com>, <bhelgaas@google.com>
-CC: <suravee.suthikulpanit@amd.com>, <will@kernel.org>,
-	<robin.murphy@arm.com>, <sven@kernel.org>, <j@jannau.net>,
-	<alyssa@rosenzweig.io>, <neal@gompa.dev>, <robin.clark@oss.qualcomm.com>,
-	<m.szyprowski@samsung.com>, <krzk@kernel.org>, <alim.akhtar@samsung.com>,
-	<dwmw2@infradead.org>, <baolu.lu@linux.intel.com>, <kevin.tian@intel.com>,
-	<yong.wu@mediatek.com>, <matthias.bgg@gmail.com>,
-	<angelogioacchino.delregno@collabora.com>, <tjeznach@rivosinc.com>,
-	<paul.walmsley@sifive.com>, <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>,
-	<alex@ghiti.fr>, <heiko@sntech.de>, <schnelle@linux.ibm.com>,
-	<mjrosato@linux.ibm.com>, <gerald.schaefer@linux.ibm.com>,
-	<orsonzhai@gmail.com>, <baolin.wang@linux.alibaba.com>,
-	<zhang.lyra@gmail.com>, <wens@csie.org>, <jernej.skrabec@gmail.com>,
-	<samuel@sholland.org>, <jean-philippe@linaro.org>, <rafael@kernel.org>,
-	<lenb@kernel.org>, <yi.l.liu@intel.com>, <cwabbott0@gmail.com>,
-	<quic_pbrahma@quicinc.com>, <iommu@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <asahi@lists.linux.dev>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-arm-msm@vger.kernel.org>,
-	<linux-samsung-soc@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
-	<linux-riscv@lists.infradead.org>, <linux-rockchip@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, <linux-sunxi@lists.linux.dev>,
-	<linux-tegra@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<linux-acpi@vger.kernel.org>, <linux-pci@vger.kernel.org>,
-	<patches@lists.linux.dev>, <vsethi@nvidia.com>, <helgaas@kernel.org>,
-	<etzhao1900@gmail.com>
-Subject: [PATCH v4 7/7] pci: Suspend iommu function prior to resetting a device
-Date: Sun, 31 Aug 2025 16:31:59 -0700
-Message-ID: <cbceeb65dd248fd06e5665dbcb6df4484b2d8958.1756682135.git.nicolinc@nvidia.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1756682135.git.nicolinc@nvidia.com>
-References: <cover.1756682135.git.nicolinc@nvidia.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hl2Q+I96"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756691963;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Fy6pCYXTmSFNaHwV4XPd6mA/0aEtVrvyd7MZaD2NYeQ=;
+	b=hl2Q+I96zxLlM9K0pdum31F6JORFtfRc0xs1kvl9HirBe6CAablhVvlwO22V2fwXau7ZK8
+	Mve8J7vyWFaWo2FS+BApklVmtE/AbRNVTdLutF5bc80Avssgc0iLim1brLktS9RoiYiPWa
+	0OhRPO8kIhQsP1K29nXXF7AFYGluWys=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-532-W-TH5ntTMpOe0VMSVIfgSA-1; Sun, 31 Aug 2025 21:59:22 -0400
+X-MC-Unique: W-TH5ntTMpOe0VMSVIfgSA-1
+X-Mimecast-MFC-AGG-ID: W-TH5ntTMpOe0VMSVIfgSA_1756691961
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-24a9cc916baso9280185ad.2
+        for <virtualization@lists.linux.dev>; Sun, 31 Aug 2025 18:59:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756691961; x=1757296761;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Fy6pCYXTmSFNaHwV4XPd6mA/0aEtVrvyd7MZaD2NYeQ=;
+        b=jIUiSM0UMEdPTIvwZZxXg3QwtnHO7WOp0vurFU2NERbn1lMvOtHwPxPPksh4dTbgME
+         SY5vkztue9vFVk95+PHhXL3ncUULOulle2BxaHicP6OaU01D2q1RpZZrbsn5kWgtcrQc
+         FRuyaGNsq0yygdfcYHmGNpIH8zTw2Ji9G8+iWlPBO74iebBcuMVmSXCTETjx3NEerT3S
+         dbkP5GUyhFe0lhyFFlVyfraI07BGf1hSr1C+CW0mRfsZkv3rU8sBZ1MBrLnL0S5lmY+K
+         bAdD+Ai27IDAfR5dblqUWkNFMTxqcm1PKXScQjVeSbZPNtfsR4aaA6+y2ifGUFOrzgYm
+         pL2g==
+X-Forwarded-Encrypted: i=1; AJvYcCVYARdh11yOFBX7jAoFNjpI1VfS9fnczM2ATLQ4FhJPeFAQf3I8YOyna/2JwBpUd3bML0ovBPgzT9HE4BHFiQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzFzmEhVdp2jhJGUe80Y04ejggkDDCSG1tuPKmam51qD3J0btzF
+	h+qlexGnmTB2VxwoHWABl/Uo2L2iu9zMOx1tOGo7sn7boZDZ9p/Ba6lkDThCLK/7oPly8nq32Bp
+	HijMrrgMIw/Ygw/Ja1HWt7WmsDAPZXrwK/Xk+v1syrT+qlLohyAC75vrnJ4M+L2rXiDhPuPiBeC
+	XoCq8QecAOUtqE0BMEZ9dG/5UtgET/+0jfgHpdemJgkH4=
+X-Gm-Gg: ASbGncuW9ym9waCSosMuWAv0zRq/zeOaUx0ssdKx5nSccfOvW/wnIlNvjudJI2bAQJC
+	RC6B6Wc1/OQFQudOrmp0K5Eud07gBERCSkjxJEXEHwEdr7i3eBDoNP7acmrOgfC833HJR8Tiq8q
+	MkjhkbxnVvCkG8sJwGkKsP
+X-Received: by 2002:a17:902:cf08:b0:246:6442:19e4 with SMTP id d9443c01a7336-24944b2608cmr69245195ad.58.1756691960980;
+        Sun, 31 Aug 2025 18:59:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHgTnaAKaX1sVavgqnjJAd5HeZ8SNMZmOh35Nw4dqxmO6Pmc5GyzQXusxsEKEQ/nNV9UA+G4TjhXsA/GAxBry0=
+X-Received: by 2002:a17:902:cf08:b0:246:6442:19e4 with SMTP id
+ d9443c01a7336-24944b2608cmr69244915ad.58.1756691960491; Sun, 31 Aug 2025
+ 18:59:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY4PEPF0000EE30:EE_|IA1PR12MB7520:EE_
-X-MS-Office365-Filtering-Correlation-Id: e96c6974-ef33-4031-2b67-08dde8e6c061
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|82310400026|1800799024|376014|7416014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?sJNl4fQixJTM+mpj0B9nZbfPWHbarYkGcbAg4fePGMtvlMyFYdi5LMDtrQ6r?=
- =?us-ascii?Q?OiiUhNJ7IgLYGG4e+VvMs7ABpEf4pt2CHt6VFbcnGEz0hLOuZklOr82DP6EF?=
- =?us-ascii?Q?HKYhuQX1THvnoeD2ssE3YLiXOVNEAun6CxYMwZZuuNbfPdyPyt+oBWTr4FSc?=
- =?us-ascii?Q?95qLDJy726RxaejX7D2P3SMolhz1Dd7bXt8LSlRPdsEkGPcYT1YOG/8sPjZ8?=
- =?us-ascii?Q?zTwY+CigYrzuZoqJmZkjovqX5WTu/M4YQmS1xUijyhd2Nf4diWpd6cnNRoHO?=
- =?us-ascii?Q?Y2Riv82hW/KkqLlqnihwtZuDffZOF4KBRCAr6eqOqLLNS+LCE1bx3cOqYn12?=
- =?us-ascii?Q?OqeI0IppOrKOBDT/AVj9mVZ+l5GqVBLvcg2M0JptNjiaedmqeDk8N058Iihg?=
- =?us-ascii?Q?cx9SKjoBdTFZbgVEoeYXUNAGtXP47ORBDgLlVJi2Z7xKrFQ6yWQPme19NRey?=
- =?us-ascii?Q?7w8khm355UpENIFWb/LTy09X9BIDWaX+WNRgWvoCr/0PyUrrKww/MM8MpBfq?=
- =?us-ascii?Q?uJdG3/iwumwMrI58nnR7fgJ3jc/qPQJdv2DxFS8EY1rhmMSpKbT8joM05NaY?=
- =?us-ascii?Q?/yqEdhez79nl1Q3pq7d20fs/eSLnV2QXlDgWWEOuTJ+gbGRvDQocP0hR0LDC?=
- =?us-ascii?Q?gmYbnCj4CqjtUGUoSXN++sWNqCVjU7IAGzq6BOqC3RloMLHv9EglC5ovaSfN?=
- =?us-ascii?Q?GHFtLm3xnZNIN8oFERplH41XaVx7gpSd/6MNWRHSIMMN6jOsAjxgxDTxW51D?=
- =?us-ascii?Q?SlXE41oNEKtsr0+mrUks/go1zoxWoLsdYG797rqpENn2sIW76eJSZr74BGmT?=
- =?us-ascii?Q?nCZiKnpGQdW42u5KiH5hocm7hYX1fNZndwLrXEDfc5ANewGZYXSCkU2TDX1G?=
- =?us-ascii?Q?GORrbdz/O8PyS7XX61Aa/QLhTU72oBmHVlAbkz83g8ofmYO8G1uoIQypIrSD?=
- =?us-ascii?Q?5vu0DBkpgBwasjZnRSSu+4zrik61dbnUGe9CsOg1HdAanXfIkjOLhHrjs7OX?=
- =?us-ascii?Q?s5DymIIhw3+n47USZkBIwkAxfoJto2JsDo/2x+5hzHLKeOys/Z5sHRA0z1/O?=
- =?us-ascii?Q?UAgH3YECNmtpUZwALX9uG5mxSu1ctcYsmizFbSUjuZTJy1PAHi893BZPEGeT?=
- =?us-ascii?Q?jeRX7RStkbfPwRepw8vD9hJenjj89wTr18riXWh5BV8rOrlNMTA7MOSsivTi?=
- =?us-ascii?Q?IkaiIPFNgpxZ5d+jQcqJoNjgYjQ4hPtjwGUwz9c7WbQoEAMEnHvglKMhLdWB?=
- =?us-ascii?Q?KrKMgU/WzNrZfqRZ6YErB8F7hxxNmOYKHYl1IbBtgDoEEGCq+v0EjVTu9jdN?=
- =?us-ascii?Q?M1BkX47OXHzmZnv/HID0mBylnGAH3PiBBiaAG7ZZ922Ai3BWL/Pr8X07wFub?=
- =?us-ascii?Q?uIDgeGtbFNO9ChVMO5ISnqKbGye+njJnviJVE4ZG+su2LlYetM6KqezRLHvu?=
- =?us-ascii?Q?EJ00yySqzxzPjOjHCfK/V4QWi1hjH2LqQBXztx0Cy+OePobj28Xh66qmeTKS?=
- =?us-ascii?Q?E9bywo03XOa031v3EBWHt6c7Xf+l9LdlpKre?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(1800799024)(376014)(7416014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Aug 2025 23:33:12.2393
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e96c6974-ef33-4031-2b67-08dde8e6c061
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CY4PEPF0000EE30.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB7520
+References: <20250826112709.1051172-1-eperezma@redhat.com> <20250826112709.1051172-3-eperezma@redhat.com>
+In-Reply-To: <20250826112709.1051172-3-eperezma@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 1 Sep 2025 09:59:02 +0800
+X-Gm-Features: Ac12FXxuRZfQdFAmVZa559oY81QvFEDH1_a-lZcT0HnKzKi5ilVU5yKnNxoJaBk
+Message-ID: <CACGkMEvd9w_ijpf=+re8oUxUWfq6Q_0HaDM==_e65df3439k7w@mail.gmail.com>
+Subject: Re: [PATCH 2/6] vduse: add vq group support
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>, 
+	Maxime Coquelin <mcoqueli@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 4P85miEjZDkJ1TGLEoN7xYq7J35y7Kr73T24XEkB3K8_1756691961
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-PCIe permits a device to ignore ATS invalidation TLPs, while processing a
-reset. This creates a problem visible to the OS where an ATS invalidation
-command will time out: e.g. an SVA domain will have no coordination with a
-reset event and can racily issue ATS invalidations to a resetting device.
+On Tue, Aug 26, 2025 at 7:27=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redhat=
+.com> wrote:
+>
+> This allows sepparate the different virtqueues in groups that shares the
+> same address space.  Asking the VDUSE device for the groups of the vq at
+> the beginning as they're needed for the DMA API.
+>
+> Allocating 3 vq groups as net is the device that need the most groups:
+> * Dataplane (guest passthrough)
+> * CVQ
+> * Shadowed vrings.
+>
+> Future versions of the series can include dynamic allocation of the
+> groups array so VDUSE can declare more groups.
+>
+> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> ---
+> v1: Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+>
+> RFC v3:
+> * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
+>   value to reduce memory consumption, but vqs are already limited to
+>   that value and userspace VDUSE is able to allocate that many vqs.
+> * Remove the descs vq group capability as it will not be used and we can
+>   add it on top.
+> * Do not ask for vq groups in number of vq groups < 2.
+> * Move the valid vq groups range check to vduse_validate_config.
+>
+> RFC v2:
+> * Cache group information in kernel, as we need to provide the vq map
+>   tokens properly.
+> * Add descs vq group to optimize SVQ forwarding and support indirect
+>   descriptors out of the box.
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 51 ++++++++++++++++++++++++++++--
+>  include/uapi/linux/vduse.h         | 21 +++++++++++-
+>  2 files changed, 68 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
+vduse_dev.c
+> index e7bced0b5542..0f4e36dd167e 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -58,6 +58,7 @@ struct vduse_virtqueue {
+>         struct vdpa_vq_state state;
+>         bool ready;
+>         bool kicked;
+> +       u32 vq_group;
+>         spinlock_t kick_lock;
+>         spinlock_t irq_lock;
+>         struct eventfd_ctx *kickfd;
+> @@ -114,6 +115,7 @@ struct vduse_dev {
+>         u8 status;
+>         u32 vq_num;
+>         u32 vq_align;
+> +       u32 ngroups;
+>         struct vduse_umem *umem;
+>         struct mutex mem_lock;
+>         unsigned int bounce_size;
+> @@ -592,6 +594,13 @@ static int vduse_vdpa_set_vq_state(struct vdpa_devic=
+e *vdpa, u16 idx,
+>         return 0;
+>  }
+>
+> +static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 idx)
+> +{
+> +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> +
+> +       return dev->vqs[idx]->vq_group;
+> +}
+> +
+>  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx,
+>                                 struct vdpa_vq_state *state)
+>  {
+> @@ -678,6 +687,28 @@ static u8 vduse_vdpa_get_status(struct vdpa_device *=
+vdpa)
+>         return dev->status;
+>  }
+>
+> +static int vduse_fill_vq_groups(struct vduse_dev *dev)
+> +{
+> +       /* All vqs and descs must be in vq group 0 if ngroups < 2 */
+> +       if (dev->ngroups < 2)
+> +               return 0;
+> +
+> +       for (int i =3D 0; i < dev->vdev->vdpa.nvqs; ++i) {
+> +               struct vduse_dev_msg msg =3D { 0 };
+> +               int ret;
+> +
+> +               msg.req.type =3D VDUSE_GET_VQ_GROUP;
+> +               msg.req.vq_group.index =3D i;
+> +               ret =3D vduse_dev_msg_sync(dev, &msg);
+> +               if (ret)
+> +                       return ret;
+> +
+> +               dev->vqs[i]->vq_group =3D msg.resp.vq_group.group;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+>  static void vduse_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
+>  {
+>         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> @@ -685,6 +716,11 @@ static void vduse_vdpa_set_status(struct vdpa_device=
+ *vdpa, u8 status)
+>         if (vduse_dev_set_status(dev, status))
+>                 return;
+>
+> +       if (((dev->status ^ status) & VIRTIO_CONFIG_S_FEATURES_OK) &&
+> +           (status & VIRTIO_CONFIG_S_FEATURES_OK))
+> +               if (vduse_fill_vq_groups(dev))
+> +                       return;
 
-The PCIe spec in sec 10.3.1 IMPLEMENTATION NOTE recommends to disable and
-block ATS before initiating a Function Level Reset. It also mentions that
-other reset methods could have the same vulnerability as well.
+I may lose some context but I think we've agreed that we need to
+extend the status response for this instead of having multiple
+indepdent response.
 
-Now iommu_dev_reset_prepare/done() helpers are introduced for this matter.
-Use them in all the existing reset functions, which will attach the device
-to an IOMMU_DOMAIN_BLOCKED during a reset, so as to allow IOMMU driver to:
- - invoke pci_disable_ats() and pci_enable_ats(), if necessary
- - wait for all ATS invalidations to complete
- - stop issuing new ATS invalidations
- - fence any incoming ATS queries
+> +
+>         dev->status =3D status;
+>  }
+>
+> @@ -789,6 +825,7 @@ static const struct vdpa_config_ops vduse_vdpa_config=
+_ops =3D {
+>         .set_vq_cb              =3D vduse_vdpa_set_vq_cb,
+>         .set_vq_num             =3D vduse_vdpa_set_vq_num,
+>         .get_vq_size            =3D vduse_vdpa_get_vq_size,
+> +       .get_vq_group           =3D vduse_get_vq_group,
+>         .set_vq_ready           =3D vduse_vdpa_set_vq_ready,
+>         .get_vq_ready           =3D vduse_vdpa_get_vq_ready,
+>         .set_vq_state           =3D vduse_vdpa_set_vq_state,
+> @@ -1737,12 +1774,19 @@ static bool features_is_valid(struct vduse_dev_co=
+nfig *config)
+>         return true;
+>  }
+>
+> -static bool vduse_validate_config(struct vduse_dev_config *config)
+> +static bool vduse_validate_config(struct vduse_dev_config *config,
+> +                                 u64 api_version)
+>  {
+>         if (!is_mem_zero((const char *)config->reserved,
+>                          sizeof(config->reserved)))
+>                 return false;
+>
+> +       if (api_version < VDUSE_API_VERSION_1 && config->ngroups)
+> +               return false;
+> +
+> +       if (api_version >=3D VDUSE_API_VERSION_1 && config->ngroups > 0xf=
+fff)
+> +               return false;
 
-Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
----
- drivers/pci/pci.h      |  2 ++
- drivers/pci/pci-acpi.c | 12 ++++++--
- drivers/pci/pci.c      | 68 ++++++++++++++++++++++++++++++++++++++----
- drivers/pci/quirks.c   | 18 ++++++++++-
- 4 files changed, 92 insertions(+), 8 deletions(-)
+Let's use a macro instead of magic number.
 
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index 34f65d69662e9..9700ebca55771 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -106,6 +106,8 @@ void pci_init_reset_methods(struct pci_dev *dev);
- int pci_bridge_secondary_bus_reset(struct pci_dev *dev);
- int pci_bus_error_reset(struct pci_dev *dev);
- int __pci_reset_bus(struct pci_bus *bus);
-+int pci_reset_iommu_prepare(struct pci_dev *dev);
-+void pci_reset_iommu_done(struct pci_dev *dev);
- 
- struct pci_cap_saved_data {
- 	u16		cap_nr;
-diff --git a/drivers/pci/pci-acpi.c b/drivers/pci/pci-acpi.c
-index ddb25960ea47d..3291424730824 100644
---- a/drivers/pci/pci-acpi.c
-+++ b/drivers/pci/pci-acpi.c
-@@ -969,6 +969,7 @@ void pci_set_acpi_fwnode(struct pci_dev *dev)
- int pci_dev_acpi_reset(struct pci_dev *dev, bool probe)
- {
- 	acpi_handle handle = ACPI_HANDLE(&dev->dev);
-+	int ret = 0;
- 
- 	if (!handle || !acpi_has_method(handle, "_RST"))
- 		return -ENOTTY;
-@@ -976,12 +977,19 @@ int pci_dev_acpi_reset(struct pci_dev *dev, bool probe)
- 	if (probe)
- 		return 0;
- 
-+	ret = pci_reset_iommu_prepare(dev);
-+	if (ret) {
-+		pci_err(dev, "failed to stop IOMMU\n");
-+		return ret;
-+	}
-+
- 	if (ACPI_FAILURE(acpi_evaluate_object(handle, "_RST", NULL, NULL))) {
- 		pci_warn(dev, "ACPI _RST failed\n");
--		return -ENOTTY;
-+		ret = -ENOTTY;
- 	}
- 
--	return 0;
-+	pci_reset_iommu_done(dev);
-+	return ret;
- }
- 
- bool acpi_pci_power_manageable(struct pci_dev *dev)
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index b0f4d98036cdd..b4ca44ea6f494 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -13,6 +13,7 @@
- #include <linux/delay.h>
- #include <linux/dmi.h>
- #include <linux/init.h>
-+#include <linux/iommu.h>
- #include <linux/msi.h>
- #include <linux/of.h>
- #include <linux/pci.h>
-@@ -25,6 +26,7 @@
- #include <linux/logic_pio.h>
- #include <linux/device.h>
- #include <linux/pm_runtime.h>
-+#include <linux/pci-ats.h>
- #include <linux/pci_hotplug.h>
- #include <linux/vmalloc.h>
- #include <asm/dma.h>
-@@ -95,6 +97,23 @@ bool pci_reset_supported(struct pci_dev *dev)
- 	return dev->reset_methods[0] != 0;
- }
- 
-+/*
-+ * Per PCIe r6.3, sec 10.3.1 IMPLEMENTATION NOTE, software disables ATS before
-+ * initiating a reset. Notify the iommu driver that enabled ATS.
-+ */
-+int pci_reset_iommu_prepare(struct pci_dev *dev)
-+{
-+	if (pci_ats_supported(dev))
-+		return iommu_dev_reset_prepare(&dev->dev);
-+	return 0;
-+}
-+
-+void pci_reset_iommu_done(struct pci_dev *dev)
-+{
-+	if (pci_ats_supported(dev))
-+		iommu_dev_reset_done(&dev->dev);
-+}
-+
- #ifdef CONFIG_PCI_DOMAINS
- int pci_domains_supported = 1;
- #endif
-@@ -4529,13 +4548,22 @@ EXPORT_SYMBOL(pci_wait_for_pending_transaction);
-  */
- int pcie_flr(struct pci_dev *dev)
- {
-+	int ret = 0;
-+
- 	if (!pci_wait_for_pending_transaction(dev))
- 		pci_err(dev, "timed out waiting for pending transaction; performing function level reset anyway\n");
- 
-+	/* Have to call it after waiting for pending DMA transaction */
-+	ret = pci_reset_iommu_prepare(dev);
-+	if (ret) {
-+		pci_err(dev, "failed to stop IOMMU\n");
-+		return ret;
-+	}
-+
- 	pcie_capability_set_word(dev, PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_BCR_FLR);
- 
- 	if (dev->imm_ready)
--		return 0;
-+		goto done;
- 
- 	/*
- 	 * Per PCIe r4.0, sec 6.6.2, a device must complete an FLR within
-@@ -4544,7 +4572,10 @@ int pcie_flr(struct pci_dev *dev)
- 	 */
- 	msleep(100);
- 
--	return pci_dev_wait(dev, "FLR", PCIE_RESET_READY_POLL_MS);
-+	ret = pci_dev_wait(dev, "FLR", PCIE_RESET_READY_POLL_MS);
-+done:
-+	pci_reset_iommu_done(dev);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(pcie_flr);
- 
-@@ -4572,6 +4603,7 @@ EXPORT_SYMBOL_GPL(pcie_reset_flr);
- 
- static int pci_af_flr(struct pci_dev *dev, bool probe)
- {
-+	int ret = 0;
- 	int pos;
- 	u8 cap;
- 
-@@ -4598,10 +4630,17 @@ static int pci_af_flr(struct pci_dev *dev, bool probe)
- 				 PCI_AF_STATUS_TP << 8))
- 		pci_err(dev, "timed out waiting for pending transaction; performing AF function level reset anyway\n");
- 
-+	/* Have to call it after waiting for pending DMA transaction */
-+	ret = pci_reset_iommu_prepare(dev);
-+	if (ret) {
-+		pci_err(dev, "failed to stop IOMMU\n");
-+		return ret;
-+	}
-+
- 	pci_write_config_byte(dev, pos + PCI_AF_CTRL, PCI_AF_CTRL_FLR);
- 
- 	if (dev->imm_ready)
--		return 0;
-+		goto done;
- 
- 	/*
- 	 * Per Advanced Capabilities for Conventional PCI ECN, 13 April 2006,
-@@ -4611,7 +4650,10 @@ static int pci_af_flr(struct pci_dev *dev, bool probe)
- 	 */
- 	msleep(100);
- 
--	return pci_dev_wait(dev, "AF_FLR", PCIE_RESET_READY_POLL_MS);
-+	ret = pci_dev_wait(dev, "AF_FLR", PCIE_RESET_READY_POLL_MS);
-+done:
-+	pci_reset_iommu_done(dev);
-+	return ret;
- }
- 
- /**
-@@ -4632,6 +4674,7 @@ static int pci_af_flr(struct pci_dev *dev, bool probe)
- static int pci_pm_reset(struct pci_dev *dev, bool probe)
- {
- 	u16 csr;
-+	int ret;
- 
- 	if (!dev->pm_cap || dev->dev_flags & PCI_DEV_FLAGS_NO_PM_RESET)
- 		return -ENOTTY;
-@@ -4646,6 +4689,12 @@ static int pci_pm_reset(struct pci_dev *dev, bool probe)
- 	if (dev->current_state != PCI_D0)
- 		return -EINVAL;
- 
-+	ret = pci_reset_iommu_prepare(dev);
-+	if (ret) {
-+		pci_err(dev, "failed to stop IOMMU\n");
-+		return ret;
-+	}
-+
- 	csr &= ~PCI_PM_CTRL_STATE_MASK;
- 	csr |= PCI_D3hot;
- 	pci_write_config_word(dev, dev->pm_cap + PCI_PM_CTRL, csr);
-@@ -4656,7 +4705,9 @@ static int pci_pm_reset(struct pci_dev *dev, bool probe)
- 	pci_write_config_word(dev, dev->pm_cap + PCI_PM_CTRL, csr);
- 	pci_dev_d3_sleep(dev);
- 
--	return pci_dev_wait(dev, "PM D3hot->D0", PCIE_RESET_READY_POLL_MS);
-+	ret = pci_dev_wait(dev, "PM D3hot->D0", PCIE_RESET_READY_POLL_MS);
-+	pci_reset_iommu_done(dev);
-+	return ret;
- }
- 
- /**
-@@ -5111,6 +5162,12 @@ static int cxl_reset_bus_function(struct pci_dev *dev, bool probe)
- 	if (rc)
- 		return -ENOTTY;
- 
-+	rc = pci_reset_iommu_prepare(dev);
-+	if (rc) {
-+		pci_err(dev, "failed to stop IOMMU\n");
-+		return rc;
-+	}
-+
- 	if (reg & PCI_DVSEC_CXL_PORT_CTL_UNMASK_SBR) {
- 		val = reg;
- 	} else {
-@@ -5125,6 +5182,7 @@ static int cxl_reset_bus_function(struct pci_dev *dev, bool probe)
- 		pci_write_config_word(bridge, dvsec + PCI_DVSEC_CXL_PORT_CTL,
- 				      reg);
- 
-+	pci_reset_iommu_done(dev);
- 	return rc;
- }
- 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index d97335a401930..c1c32e57fe267 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4225,6 +4225,22 @@ static const struct pci_dev_reset_methods pci_dev_reset_methods[] = {
- 	{ 0 }
- };
- 
-+static int __pci_dev_specific_reset(struct pci_dev *dev, bool probe,
-+				    const struct pci_dev_reset_methods *i)
-+{
-+	int ret;
-+
-+	ret = pci_reset_iommu_prepare(dev);
-+	if (ret) {
-+		pci_err(dev, "failed to stop IOMMU\n");
-+		return ret;
-+	}
-+
-+	ret = i->reset(dev, probe);
-+	pci_reset_iommu_done(dev);
-+	return ret;
-+}
-+
- /*
-  * These device-specific reset methods are here rather than in a driver
-  * because when a host assigns a device to a guest VM, the host may need
-@@ -4239,7 +4255,7 @@ int pci_dev_specific_reset(struct pci_dev *dev, bool probe)
- 		     i->vendor == (u16)PCI_ANY_ID) &&
- 		    (i->device == dev->device ||
- 		     i->device == (u16)PCI_ANY_ID))
--			return i->reset(dev, probe);
-+			return __pci_dev_specific_reset(dev, probe, i);
- 	}
- 
- 	return -ENOTTY;
--- 
-2.43.0
+> +
+>         if (config->vq_align > PAGE_SIZE)
+>                 return false;
+>
+> @@ -1858,6 +1902,7 @@ static int vduse_create_dev(struct vduse_dev_config=
+ *config,
+>         dev->device_features =3D config->features;
+>         dev->device_id =3D config->device_id;
+>         dev->vendor_id =3D config->vendor_id;
+> +       dev->ngroups =3D (dev->api_version < 1) ? 1 : (config->ngroups ?:=
+ 1);
+>         dev->name =3D kstrdup(config->name, GFP_KERNEL);
+>         if (!dev->name)
+>                 goto err_str;
+> @@ -1936,7 +1981,7 @@ static long vduse_ioctl(struct file *file, unsigned=
+ int cmd,
+>                         break;
+>
+>                 ret =3D -EINVAL;
+> -               if (vduse_validate_config(&config) =3D=3D false)
+> +               if (!vduse_validate_config(&config, control->api_version)=
+)
+>                         break;
+>
+>                 buf =3D vmemdup_user(argp + size, config.config_size);
+> @@ -2017,7 +2062,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *de=
+v, const char *name)
+>
+>         vdev =3D vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
+>                                  &vduse_vdpa_config_ops, &vduse_map_ops,
+> -                                1, 1, name, true);
+> +                                dev->ngroups, 1, name, true);
+>         if (IS_ERR(vdev))
+>                 return PTR_ERR(vdev);
+>
+> diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> index 9a56d0416bfe..b1c0e47d71fb 100644
+> --- a/include/uapi/linux/vduse.h
+> +++ b/include/uapi/linux/vduse.h
+> @@ -31,6 +31,7 @@
+>   * @features: virtio features
+>   * @vq_num: the number of virtqueues
+>   * @vq_align: the allocation alignment of virtqueue's metadata
+> + * @ngroups: number of vq groups that VDUSE device declares
+>   * @reserved: for future use, needs to be initialized to zero
+>   * @config_size: the size of the configuration space
+>   * @config: the buffer of the configuration space
+> @@ -45,7 +46,8 @@ struct vduse_dev_config {
+>         __u64 features;
+>         __u32 vq_num;
+>         __u32 vq_align;
+> -       __u32 reserved[13];
+> +       __u32 ngroups; /* if VDUSE_API_VERSION >=3D 1 */
+> +       __u32 reserved[12];
+>         __u32 config_size;
+>         __u8 config[];
+>  };
+> @@ -160,6 +162,16 @@ struct vduse_vq_state_packed {
+>         __u16 last_used_idx;
+>  };
+>
+> +/**
+> + * struct vduse_vq_group - virtqueue group
+> + * @index: Index of the virtqueue
+> + * @group: Virtqueue group
+> + */
+> +struct vduse_vq_group {
+> +       __u32 index;
+> +       __u32 group;
+> +};
+> +
+>  /**
+>   * struct vduse_vq_info - information of a virtqueue
+>   * @index: virtqueue index
+> @@ -274,6 +286,7 @@ enum vduse_req_type {
+>         VDUSE_GET_VQ_STATE,
+>         VDUSE_SET_STATUS,
+>         VDUSE_UPDATE_IOTLB,
+> +       VDUSE_GET_VQ_GROUP,
+>  };
+>
+>  /**
+> @@ -316,6 +329,7 @@ struct vduse_iova_range {
+>   * @vq_state: virtqueue state, only index field is available
+>   * @s: device status
+>   * @iova: IOVA range for updating
+> + * @vq_group: virtqueue group of a virtqueue
+>   * @padding: padding
+>   *
+>   * Structure used by read(2) on /dev/vduse/$NAME.
+> @@ -328,6 +342,8 @@ struct vduse_dev_request {
+>                 struct vduse_vq_state vq_state;
+>                 struct vduse_dev_status s;
+>                 struct vduse_iova_range iova;
+> +               /* Only if vduse api version >=3D 1 */;
+> +               struct vduse_vq_group vq_group;
+>                 __u32 padding[32];
+>         };
+>  };
+> @@ -338,6 +354,7 @@ struct vduse_dev_request {
+>   * @result: the result of request
+>   * @reserved: for future use, needs to be initialized to zero
+>   * @vq_state: virtqueue state
+> + * @vq_group: virtqueue group of a virtqueue
+>   * @padding: padding
+>   *
+>   * Structure used by write(2) on /dev/vduse/$NAME.
+> @@ -350,6 +367,8 @@ struct vduse_dev_response {
+>         __u32 reserved[4];
+>         union {
+>                 struct vduse_vq_state vq_state;
+> +               /* Only if vduse api version >=3D 1 */
+> +               struct vduse_vq_group vq_group;
+>                 __u32 padding[32];
+>         };
+>  };
+> --
+> 2.51.0
+>
+
+Thanks
 
