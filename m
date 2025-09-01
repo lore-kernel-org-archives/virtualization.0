@@ -1,51 +1,52 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFC80345758
-	for <virtualization@lists.linux.dev>; Mon,  1 Sep 2025 15:06:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5694E34AB05
+	for <virtualization@lists.linux.dev>; Mon,  1 Sep 2025 15:07:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756739218; cv=none; b=JqeiPaKHC+ij0GNv+6GTRIQvclfxwCzkqBQtrXMXmUZsBRGvFJQ9m807gtGOhRW9Fz9z3v9hGpAg6gb5JaDTOHG1hDk8pphmoaZ7B5xtpl3waOtHK0PLSY8SWOTFC46zbwhUdVwCBTW1U8xCrn6Ze49CyVc7qmY0E0kZ83NQpX4=
+	t=1756739233; cv=none; b=fdS+Zqun5Q534eGFn9V7mycVSq1l+fkWdArYWlCiRaeLl2Gql1OLSdIob/QZSy+1WlkCqiw0W4oXzT1HfRtt/AIK150jPRUmY+5Js3qaIGK1u1HdOfC3zYo6idNSXeWsvpmFAmvq6Kp3rQIb7G4yL5SayUCscSy0LVdbyInYGzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756739218; c=relaxed/simple;
-	bh=b8eOU5FrI4fHaNnFCFSoHHDLHQDM1EDooeGg8Kslvrc=;
+	s=arc-20240116; t=1756739233; c=relaxed/simple;
+	bh=awZ3C2+6gqVSpU2nRz+GoKKKVTF9HKURUj8zg+19qco=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AW4hOqTVAqemD3pzPjzpAlA1HcSt3tiOQYmnkrqjxw1jDOFl/qtmzHD8i69AjPEJO5IU8JDL8tRcgMTOZGw9AcwpXnsjjazdSF/PJe+XS0HU/NWuga9MHICOncLQpGLw391S05vNVTaRj42K2D28fn0INGq+9GXMIJY8ZFjscHU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O3U61D4Q; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version; b=eBJ2duVLqo2r0QZSTUOHEn4ZmgVqV5nWfBJOlL4mXsOMN78YedufC1tw65Rd+Xkij7elEaGgRCS8SRzvlEVOtvm4OJSBPRBDOlB05j+ILu0i/bORXlA4K43Lp07mjvI34UC+/aaJgCzMdWVBVZ3pKql//LeZJ0wgS/WYtOqK0fc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y752v2AX; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O3U61D4Q"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y752v2AX"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756739215;
+	s=mimecast20190719; t=1756739231;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=VuRYozOj4jxmWMcjtZVJC7s6FW6AbDAZr6KxBuADLqo=;
-	b=O3U61D4Q/0AN+zwnhOjQNOgpUPANR+bXx1CiAlyhz2PvVQbarzfY5q8ylHri6bz/lLXmqU
-	3wIWK17B87GMC+HZmZFAPfoTJ5vKai5ZZGZ8fiKpVyDCpw60xaPyzuYqZFzMx/294NJJV3
-	Az5NCDIYR6cFITLSMScznLYW0qSNRrE=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+	bh=R4lKJy8SBWSrsm7Vh+zb8hrnJCJALrpbQ5NruWVxUgs=;
+	b=Y752v2AXbtMTd0iEXhuG+EHbDq6L6/z83onkjJx1VS1N9kcqs/e8hbcTu6ku7MjFIz2mVg
+	8YIA99/Hy6Gi78ozXW18coD0KGt6V/IifcgxpoUyhAVxmYxrbiSuAy2U8513n2NaDomZQu
+	3KECa6JSvdkFXgIU5ShvoaZVmUKnTuE=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-307-0sc7uRoVMaCioWHY8YjrVg-1; Mon,
- 01 Sep 2025 11:06:54 -0400
-X-MC-Unique: 0sc7uRoVMaCioWHY8YjrVg-1
-X-Mimecast-MFC-AGG-ID: 0sc7uRoVMaCioWHY8YjrVg_1756739207
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-488-6C4RCufwPEqzyZW8T0eORg-1; Mon,
+ 01 Sep 2025 11:07:06 -0400
+X-MC-Unique: 6C4RCufwPEqzyZW8T0eORg-1
+X-Mimecast-MFC-AGG-ID: 6C4RCufwPEqzyZW8T0eORg_1756739221
 Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BE64D19560AE;
-	Mon,  1 Sep 2025 15:06:46 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 331CF195C27E;
+	Mon,  1 Sep 2025 15:07:01 +0000 (UTC)
 Received: from t14s.fritz.box (unknown [10.22.88.45])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 69EDB1800447;
-	Mon,  1 Sep 2025 15:06:33 +0000 (UTC)
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3B7921800447;
+	Mon,  1 Sep 2025 15:06:47 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: David Hildenbrand <david@redhat.com>,
-	Zi Yan <ziy@nvidia.com>,
+	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+	Wei Yang <richard.weiyang@gmail.com>,
 	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
 	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
 	Alexander Potapenko <glider@google.com>,
@@ -79,7 +80,6 @@ Cc: David Hildenbrand <david@redhat.com>,
 	Marco Elver <elver@google.com>,
 	Marek Szyprowski <m.szyprowski@samsung.com>,
 	Michal Hocko <mhocko@suse.com>,
-	Mike Rapoport <rppt@kernel.org>,
 	Muchun Song <muchun.song@linux.dev>,
 	netdev@vger.kernel.org,
 	Oscar Salvador <osalvador@suse.de>,
@@ -90,10 +90,11 @@ Cc: David Hildenbrand <david@redhat.com>,
 	virtualization@lists.linux.dev,
 	Vlastimil Babka <vbabka@suse.cz>,
 	wireguard@lists.zx2c4.com,
-	x86@kernel.org
-Subject: [PATCH v2 08/37] mm/hugetlb: check for unreasonable folio sizes when registering hstate
-Date: Mon,  1 Sep 2025 17:03:29 +0200
-Message-ID: <20250901150359.867252-9-david@redhat.com>
+	x86@kernel.org,
+	Zi Yan <ziy@nvidia.com>
+Subject: [PATCH v2 09/37] mm/mm_init: make memmap_init_compound() look more like prep_compound_page()
+Date: Mon,  1 Sep 2025 17:03:30 +0200
+Message-ID: <20250901150359.867252-10-david@redhat.com>
 In-Reply-To: <20250901150359.867252-1-david@redhat.com>
 References: <20250901150359.867252-1-david@redhat.com>
 Precedence: bulk
@@ -105,46 +106,62 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-Let's check that no hstate that corresponds to an unreasonable folio size
-is registered by an architecture. If we were to succeed registering, we
-could later try allocating an unsupported gigantic folio size.
+Grepping for "prep_compound_page" leaves on clueless how devdax gets its
+compound pages initialized.
 
-Further, let's add a BUILD_BUG_ON() for checking that HUGETLB_PAGE_ORDER
-is sane at build time. As HUGETLB_PAGE_ORDER is dynamic on powerpc, we have
-to use a BUILD_BUG_ON_INVALID() to make it compile.
+Let's add a comment that might help finding this open-coded
+prep_compound_page() initialization more easily.
 
-No existing kernel configuration should be able to trigger this check:
-either SPARSEMEM without SPARSEMEM_VMEMMAP cannot be configured or
-gigantic folios will not exceed a memory section (the case on sparse).
+Further, let's be less smart about the ordering of initialization and just
+perform the prep_compound_head() call after all tail pages were
+initialized: just like prep_compound_page() does.
 
-Reviewed-by: Zi Yan <ziy@nvidia.com>
+No need for a comment to describe the initialization order: again,
+just like prep_compound_page().
+
+Reviewed-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
 Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Acked-by: Liam R. Howlett <Liam.Howlett@oracle.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/hugetlb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ mm/mm_init.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 1e777cc51ad04..d3542e92a712e 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4657,6 +4657,7 @@ static int __init hugetlb_init(void)
+diff --git a/mm/mm_init.c b/mm/mm_init.c
+index 5c21b3af216b2..df614556741a4 100644
+--- a/mm/mm_init.c
++++ b/mm/mm_init.c
+@@ -1091,6 +1091,12 @@ static void __ref memmap_init_compound(struct page *head,
+ 	unsigned long pfn, end_pfn = head_pfn + nr_pages;
+ 	unsigned int order = pgmap->vmemmap_shift;
  
- 	BUILD_BUG_ON(sizeof_field(struct page, private) * BITS_PER_BYTE <
- 			__NR_HPAGEFLAGS);
-+	BUILD_BUG_ON_INVALID(HUGETLB_PAGE_ORDER > MAX_FOLIO_ORDER);
- 
- 	if (!hugepages_supported()) {
- 		if (hugetlb_max_hstate || default_hstate_max_huge_pages)
-@@ -4740,6 +4741,7 @@ void __init hugetlb_add_hstate(unsigned int order)
++	/*
++	 * We have to initialize the pages, including setting up page links.
++	 * prep_compound_page() does not take care of that, so instead we
++	 * open-code prep_compound_page() so we can take care of initializing
++	 * the pages in the same go.
++	 */
+ 	__SetPageHead(head);
+ 	for (pfn = head_pfn + 1; pfn < end_pfn; pfn++) {
+ 		struct page *page = pfn_to_page(pfn);
+@@ -1098,15 +1104,8 @@ static void __ref memmap_init_compound(struct page *head,
+ 		__init_zone_device_page(page, pfn, zone_idx, nid, pgmap);
+ 		prep_compound_tail(head, pfn - head_pfn);
+ 		set_page_count(page, 0);
+-
+-		/*
+-		 * The first tail page stores important compound page info.
+-		 * Call prep_compound_head() after the first tail page has
+-		 * been initialized, to not have the data overwritten.
+-		 */
+-		if (pfn == head_pfn + 1)
+-			prep_compound_head(head, order);
  	}
- 	BUG_ON(hugetlb_max_hstate >= HUGE_MAX_HSTATE);
- 	BUG_ON(order < order_base_2(__NR_USED_SUBPAGE));
-+	WARN_ON(order > MAX_FOLIO_ORDER);
- 	h = &hstates[hugetlb_max_hstate++];
- 	__mutex_init(&h->resize_lock, "resize mutex", &h->resize_key);
- 	h->order = order;
++	prep_compound_head(head, order);
+ }
+ 
+ void __ref memmap_init_zone_device(struct zone *zone,
 -- 
 2.50.1
 
