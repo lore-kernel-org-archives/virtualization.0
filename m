@@ -1,118 +1,191 @@
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5DAA21B9F5;
-	Tue,  2 Sep 2025 20:49:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 493043568F5
+	for <virtualization@lists.linux.dev>; Tue,  2 Sep 2025 21:13:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756846200; cv=none; b=RPKCgY49dxFdpkZmaFVLLj7xMQbVdQtHQGCsI9DnHeIlNNupeHG3+BTf4qK4fSF6xVsWD4FHgw57wi1DLRk2wvCdKcv7hhMRrNkxehHVVnUDW6Usm4i38tae3EwXD+PmxHqQ0KWYzI4TsmRQgiPIX1Ksp5b3FgW11i/XjyRSc/c=
+	t=1756847602; cv=none; b=iEVAnH9QZGnfCLOHZKAiwXs0jVqA1PkcHW+6V0luY72ufuyLw9y+bNqnuDjeh2Ecab7Liv4CylZwWHlUYG2UYdsysIYVXxRHiHUD8Yecfy3OaXHkOChuDeMIZWNQXUa+KL7I6BozQGUTb6uhTF+qARV50qWn5Ynz8KDfqIYSv2o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756846200; c=relaxed/simple;
-	bh=h9YG598jez9xHSTtoGC3TbdsaCDXkMcOLxofIDRanhw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=DxePl2wqsf6y3wKophn1z7jujdcCehPS/ovIWiK+hCABdWnCEdQ5vADm4wCegSTKsxGHPUhEfZWqj4z42wpPfio3q6Jkdf1yjYKNDLM0ye/+4d4fjXgTuRAP9Y+zwWxr3+GQvgzO6RYxl4OTKuGSCIGrjCwXP4CPg6RubinvqOo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=TCSDXZF2; arc=none smtp.client-ip=210.118.77.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1756847602; c=relaxed/simple;
+	bh=pyDdBcVW0v9+xpIUz0AG9q7DuTI1Ozvq1geLOWJVPxI=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=R/qMqrlCgapeEV5rXkAVITqON3ThWxAUs/gMq8xoq/U0rf5EJxxUEuD9sYwzMIBkKi6GZRNPvDacIwEmoEN8G+jA6mDhUy1LwwKJ6WEI3zY+PB77mKPVPVHGuiJFshgrf7nFv5vUM6gnoubzlqXKm7F7Gt2eZBk46dSbAOnCINs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KbNMrh/t; arc=none smtp.client-ip=209.85.222.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="TCSDXZF2"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20250902204951euoutp019772216366e471dce5ab670ff270a1c3~hkk2PqBI40583005830euoutp01b;
-	Tue,  2 Sep 2025 20:49:51 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20250902204951euoutp019772216366e471dce5ab670ff270a1c3~hkk2PqBI40583005830euoutp01b
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1756846191;
-	bh=cns0fXIAbt1EqvizSg/wAnSv3SWVs6AXpQ/9VbxT1xc=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=TCSDXZF2Z62YcDiWqMDDa7Dv+pRBN+EUSjgrFZ1mzkO8tak0poyAI0nhbznKNDhqf
-	 D8kNvQjhwMLyfbECL2R2+e0uzHGZze/5arbNIj/FB7PwNbK4vxp5cjSUYa4Wb+jDZr
-	 M4rtfp2Rgp2ma7OWloLOB4f81ua8G4Rw/nxkJvc0=
-Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20250902204950eucas1p1185c6ab6c55958183bb0c347b0396b5b~hkk1r34Tc3157531575eucas1p1q;
-	Tue,  2 Sep 2025 20:49:50 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20250902204948eusmtip14b51a6d907c8deca19aa6660d162e2c8~hkkz6C6Li1369313693eusmtip1I;
-	Tue,  2 Sep 2025 20:49:48 +0000 (GMT)
-Message-ID: <2d8e67b2-4ab2-4c1f-9ef3-470810f99d07@samsung.com>
-Date: Tue, 2 Sep 2025 22:49:48 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KbNMrh/t"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-7f74b42ec59so325511785a.2
+        for <virtualization@lists.linux.dev>; Tue, 02 Sep 2025 14:13:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1756847598; x=1757452398; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CILSsYdSSQh7NUkrEKe1sZhsPfN00oaTeV/5x25EmIk=;
+        b=KbNMrh/toFmKEKlQwZsG9WhwonUJ16dG9pAqG0/YnnSjInO6MJofTuh7yny6+Z2ofO
+         GyXpJMHnXOeHgkp8mN4iVWJHQ+6/QdrguipyFK3sXKl71Xz6vu+F+XrzcOLUf13jB4QZ
+         79lOwazkP2xA+lzgtbY3KVImF1lw/y2fdVtNQDAISMqVcEjOVurkHHTynpIjoWjZPUZm
+         ZeAwx6ao/+WLm29Um80hkVohNnB9rye8hacMzwXrKWcy07O8/dTcFd0+8qbvN9JwJFVh
+         dZaGhvxM8JD/ANlkdHL+UWWuUd+dD2qka42uvC41DWboJGKe5cW9V1S0Zf6p7kz7FQ2V
+         EHYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756847598; x=1757452398;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=CILSsYdSSQh7NUkrEKe1sZhsPfN00oaTeV/5x25EmIk=;
+        b=oGnNuj+4Q3X17Ry4VvULFzBwhPNxVDJ+hC1LIGiIJcR+rVLOVgrJlnvyjor02sK/aE
+         zedeMxwdU8/7Jem3xJIkR2IlhP5X4GCu8yTI4WOf2z6g5NKcTyA9/jB88etxBAc8AG3r
+         PL5xgaxu8dECF0TMoQpizclNDetxOzvghDCXtE0uttkZ/NfDPcPug4vdgFujQ3K8kUTb
+         Xj93A0hBwKxHCkD56NUnxzrBJr10jQjDaHwqCM2o4uuweiw1WonT64AZCeLV6UHCZ5L6
+         QsW1NfGXlljfzasRp5UqBxc32j7VFhImi8qTzDcolLNq7LCjhepeDRKY30i31xC3kRVm
+         0tPw==
+X-Forwarded-Encrypted: i=1; AJvYcCWKqWEOk2Rb0ZYJl9itNhufx/+/rneEq5EQ/DsasPdW5ZH+YndgGF2jzpuJsE0Xo0Pdt1YPisV3vkTojIZyVg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzJVqz15T68or3H7MYXtYzxRZsXpvbm0n4CAuHoh+tKyXhAh0kx
+	X8HWTppqoVligvldVsX1zVRL1uujMrjkmpXddPEN2bCHJvokSuJXWOoc
+X-Gm-Gg: ASbGncuNWVAxfVcLNXgxdr2SLQ7FcT26k4m1CxR3yULbnR0IVlK+8gOOgcDQ8ophmm8
+	gKBM4d4vtuIhu8lOr98cnsCwj/WcbBhIzp/vSWbQxV1hAicAoXqwhCQUfnTEyTEx+ijj2pnWgpM
+	uJPTH0VLRQRyPGh9D3o033kGTewo4JZIYvLp0tB22VpgaAyVwI+UxRMtA3S8XBPlfabruBb6o9X
+	j7Lu68Om5uS0LXSYghbGJn6TJru4WySENbTHbSvjLJlR87Kf4ZyYg06KjfPVC5z+mgkb+wqSH9G
+	wuT0pB/FTWKGXxn54uumnd79EoAkVXREpyVVMgDbwX1t8bTqZInTTGb5W70uJDp6HnuBs4RW4tm
+	qKywk7icTO4/l/mskiXl9gQ0EPPQSOoXsQKXFZiJn0vMzDDXtjo4nlAuhvLE0VJ+uYxrCuwCrJg
+	EG6t/DKXVBl+lY
+X-Google-Smtp-Source: AGHT+IGfwGyYEQSsZhuRIBBjRHJpONNrkZUKk6/vfwU6F4j3sS0Cahrn3/lz445Kl8YoSSsb3MXbyw==
+X-Received: by 2002:a05:620a:6919:b0:7e8:902c:7f90 with SMTP id af79cd13be357-7ff26f9fdc9mr1389884185a.15.1756847597958;
+        Tue, 02 Sep 2025 14:13:17 -0700 (PDT)
+Received: from gmail.com (141.139.145.34.bc.googleusercontent.com. [34.145.139.141])
+        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-4b48f652814sm1143791cf.12.2025.09.02.14.13.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Sep 2025 14:13:17 -0700 (PDT)
+Date: Tue, 02 Sep 2025 17:13:17 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Simon Schippers <simon.schippers@tu-dortmund.de>, 
+ willemdebruijn.kernel@gmail.com, 
+ jasowang@redhat.com, 
+ mst@redhat.com, 
+ eperezma@redhat.com, 
+ stephen@networkplumber.org, 
+ netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ virtualization@lists.linux.dev, 
+ kvm@vger.kernel.org
+Cc: Simon Schippers <simon.schippers@tu-dortmund.de>, 
+ Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Message-ID: <willemdebruijn.kernel.6b96c721c235@gmail.com>
+In-Reply-To: <20250902080957.47265-2-simon.schippers@tu-dortmund.de>
+References: <20250902080957.47265-1-simon.schippers@tu-dortmund.de>
+ <20250902080957.47265-2-simon.schippers@tu-dortmund.de>
+Subject: Re: [PATCH 1/4] ptr_ring_spare: Helper to check if spare capacity of
+ size cnt is available
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Betterbird (Windows)
-Subject: Re: [PATCH v4 14/16] block-dma: migrate to dma_map_phys instead of
- map_page
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Leon Romanovsky <leonro@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>,
-	Abdiel Janulgue <abdiel.janulgue@gmail.com>, Alexander Potapenko
-	<glider@google.com>, Alex Gaynor <alex.gaynor@gmail.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, Danilo
-	Krummrich <dakr@kernel.org>, iommu@lists.linux.dev, Jason Wang
-	<jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>, Joerg Roedel
-	<joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, Juergen Gross
-	<jgross@suse.com>, kasan-dev@googlegroups.com, Keith Busch
-	<kbusch@kernel.org>, linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	linux-trace-kernel@vger.kernel.org, Madhavan Srinivasan
-	<maddy@linux.ibm.com>, Masami Hiramatsu <mhiramat@kernel.org>, Michael
-	Ellerman <mpe@ellerman.id.au>, "Michael S. Tsirkin" <mst@redhat.com>, Miguel
-	Ojeda <ojeda@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	rust-for-linux@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>, Stefano
-	Stabellini <sstabellini@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
-	xen-devel@lists.xenproject.org
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <22b824931bc8ba090979ab902e4c1c2ec8327b65.1755624249.git.leon@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: 7bit
-X-CMS-MailID: 20250902204950eucas1p1185c6ab6c55958183bb0c347b0396b5b
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20250819173845eucas1p221cd6842839f5e7130f131cd341df566
-X-EPHeader: CA
-X-CMS-RootMailID: 20250819173845eucas1p221cd6842839f5e7130f131cd341df566
-References: <cover.1755624249.git.leon@kernel.org>
-	<CGME20250819173845eucas1p221cd6842839f5e7130f131cd341df566@eucas1p2.samsung.com>
-	<22b824931bc8ba090979ab902e4c1c2ec8327b65.1755624249.git.leon@kernel.org>
 
-On 19.08.2025 19:36, Leon Romanovsky wrote:
-> From: Leon Romanovsky <leonro@nvidia.com>
->
-> After introduction of dma_map_phys(), there is no need to convert
-> from physical address to struct page in order to map page. So let's
-> use it directly.
->
-> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Simon Schippers wrote:
+> The implementation is inspired by ptr_ring_empty.
+> 
+> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
 > ---
->   block/blk-mq-dma.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/block/blk-mq-dma.c b/block/blk-mq-dma.c
-> index ad283017caef..37e2142be4f7 100644
-> --- a/block/blk-mq-dma.c
-> +++ b/block/blk-mq-dma.c
-> @@ -87,8 +87,8 @@ static bool blk_dma_map_bus(struct blk_dma_iter *iter, struct phys_vec *vec)
->   static bool blk_dma_map_direct(struct request *req, struct device *dma_dev,
->   		struct blk_dma_iter *iter, struct phys_vec *vec)
->   {
-> -	iter->addr = dma_map_page(dma_dev, phys_to_page(vec->paddr),
-> -			offset_in_page(vec->paddr), vec->len, rq_dma_dir(req));
-> +	iter->addr = dma_map_phys(dma_dev, vec->paddr, vec->len,
-> +			rq_dma_dir(req), 0);
->   	if (dma_mapping_error(dma_dev, iter->addr)) {
->   		iter->status = BLK_STS_RESOURCE;
->   		return false;
+>  include/linux/ptr_ring.h | 71 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 71 insertions(+)
+> 
+> diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
+> index 551329220e4f..6b8cfaecf478 100644
+> --- a/include/linux/ptr_ring.h
+> +++ b/include/linux/ptr_ring.h
+> @@ -243,6 +243,77 @@ static inline bool ptr_ring_empty_bh(struct ptr_ring *r)
+>  	return ret;
+>  }
+>  
+> +/*
+> + * Check if a spare capacity of cnt is available without taking any locks.
+> + *
+> + * If cnt==0 or cnt > r->size it acts the same as __ptr_ring_empty.
 
-I wonder where is the corresponding dma_unmap_page() call and its change 
-to dma_unmap_phys()...
+cnt >= r->size?
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+> + *
+> + * The same requirements apply as described for __ptr_ring_empty.
+> + */
+> +static inline bool __ptr_ring_spare(struct ptr_ring *r, int cnt)
+> +{
+> +	int size = r->size;
+> +	int to_check;
+> +
+> +	if (unlikely(!size || cnt < 0))
+> +		return true;
+
+Does !size ever happen. Also no need for preconditions for trivial
+errors that never happen, like passing negative values. Or prefer
+an unsigned type.
+
+> +
+> +	if (cnt > size)
+> +		cnt = 0;
+> +
+> +	to_check = READ_ONCE(r->consumer_head) - cnt;
+> +
+> +	if (to_check < 0)
+> +		to_check += size;
+> +
+> +	return !r->queue[to_check];
+> +}
+> +
+> +static inline bool ptr_ring_spare(struct ptr_ring *r, int cnt)
+> +{
+> +	bool ret;
+> +
+> +	spin_lock(&r->consumer_lock);
+> +	ret = __ptr_ring_spare(r, cnt);
+> +	spin_unlock(&r->consumer_lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static inline bool ptr_ring_spare_irq(struct ptr_ring *r, int cnt)
+> +{
+> +	bool ret;
+> +
+> +	spin_lock_irq(&r->consumer_lock);
+> +	ret = __ptr_ring_spare(r, cnt);
+> +	spin_unlock_irq(&r->consumer_lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static inline bool ptr_ring_spare_any(struct ptr_ring *r, int cnt)
+> +{
+> +	unsigned long flags;
+> +	bool ret;
+> +
+> +	spin_lock_irqsave(&r->consumer_lock, flags);
+> +	ret = __ptr_ring_spare(r, cnt);
+> +	spin_unlock_irqrestore(&r->consumer_lock, flags);
+> +
+> +	return ret;
+> +}
+> +
+> +static inline bool ptr_ring_spare_bh(struct ptr_ring *r, int cnt)
+> +{
+> +	bool ret;
+> +
+> +	spin_lock_bh(&r->consumer_lock);
+> +	ret = __ptr_ring_spare(r, cnt);
+> +	spin_unlock_bh(&r->consumer_lock);
+> +
+> +	return ret;
+> +}
+
+Please only introduce the variants actually used.
+
 
