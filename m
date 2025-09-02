@@ -1,42 +1,46 @@
 Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D542E2E7BC7;
-	Tue,  2 Sep 2025 08:10:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ECC22E6CC8;
+	Tue,  2 Sep 2025 08:10:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756800621; cv=none; b=D+M/3HDC9IHy9biwP2DzwUmCVEm7qsPMc+hR77OiVe/nlx35vVzdS8gBqCKbIXuNcrvOPsVFxkHexWpkB4RuWhEL5P3unseJWKfL5kSk1TI8ZNQML+bZzJVQ2kfzzI/GOwFrqoTwfWEwbxCiaL+s4ZQKK89FmRq3A4f3M2/eYNA=
+	t=1756800621; cv=none; b=JrL0+vqBJxbMZFeDqLALkh6G9dIx9WYETzL6/rFhTjQpIsAl+n4iKaZ62SYdkeYWufZnm36cqgjIqhwUml2uwOZJCJHWshoBzzzH2oAB+OvN+EsU0CJDO/yYVc0iwAb3+CygBEcwUW7UN/rb2ys/EOKmfyxRZcWVGJ21q2h5AWk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1756800621; c=relaxed/simple;
-	bh=cyJKkcqZqbk709afqt1BPhXGf6CjrosVwsdhTAJwy7k=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aQ+i9q/mqE6Ym5G2SORMd8Y1WwTRxLd/UCZABY7LyEiBTH4+vpG+DJOIq22Ij4oSZgksrwafDHeMUpPMo8y2TWvGG4k1BNyfz7NZ18SpIIKBNU2bGr1I+/IvZvFeASTUGYtTqY8KzUUD421Z8dm/IWBztyEwEbYgvivXAp+lkAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=RROp1G00; arc=none smtp.client-ip=129.217.128.51
+	bh=HBmY7vQEFqMz0J92IFcKEfGWzZs1VRvbCj8tHQAbbmA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jEkskU+R1ORWBh7b5JwYVGMMvT5kuGiXP/VLGOYZgn+q3iOtZtLIYnimyyBv2BkkqW0P0L1EpBlQteVrW1DIpgtCCGtnvThiLOFIUOs5QlZfiXEL9ZTMVOv1ijl2H9n9sjBXxpok1RimmirUw/VOJ35Rc5RuSHCBXQKsZTnbOW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=EegUHrcw; arc=none smtp.client-ip=129.217.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="RROp1G00"
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="EegUHrcw"
 Received: from simon-Latitude-5450.tu-dortmund.de (rechenknecht2.kn.e-technik.tu-dortmund.de [129.217.186.41])
 	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.1.9/8.18.1.10) with ESMTPSA id 58289x6R004012
+	by unimail.uni-dortmund.de (8.18.1.9/8.18.1.10) with ESMTPSA id 58289x6X004012
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 2 Sep 2025 10:10:06 +0200 (CEST)
+	Tue, 2 Sep 2025 10:10:08 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1756800607;
-	bh=cyJKkcqZqbk709afqt1BPhXGf6CjrosVwsdhTAJwy7k=;
-	h=From:To:Cc:Subject:Date;
-	b=RROp1G00rTRqLopxLsfYpYJW0yfO4NfbPS3b4C1nyB/PX8DeJA/HqfA2BarlvKtVq
-	 R4CJZnr8iLw068MHXJhdW/TTI1UcZmT3PnDUDr8js3fL3LJh+Dk4TXxKN7tUPcjIJJ
-	 HipDZvSDC2Fv57wREnt0vBmXA8PVZogZbudnlDwI=
+	s=unimail; t=1756800609;
+	bh=HBmY7vQEFqMz0J92IFcKEfGWzZs1VRvbCj8tHQAbbmA=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=EegUHrcwUh0aQhfQjkGSzOf+cHnbd2xM6k+4P+8WighQWlkQFGY6fQUY2GJxn1zjR
+	 T+i7Urfqo96REY/LIlJycWq0w1ethRU+ms4YaOX9t9R8ZvagrDhrp9hY+gtJxpEH/C
+	 B65rGm4xSs1AOOCuGyFxe/xHV5qRSSe3tm2QBNJo=
 From: Simon Schippers <simon.schippers@tu-dortmund.de>
 To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com, mst@redhat.com,
         eperezma@redhat.com, stephen@networkplumber.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
         virtualization@lists.linux.dev, kvm@vger.kernel.org
-Cc: Simon Schippers <simon.schippers@tu-dortmund.de>
-Subject: [PATCH net-next v4 0/4] TUN/TAP & vhost_net: netdev queue flow control to avoid ptr_ring tail drop
-Date: Tue,  2 Sep 2025 10:09:53 +0200
-Message-ID: <20250902080957.47265-1-simon.schippers@tu-dortmund.de>
+Cc: Simon Schippers <simon.schippers@tu-dortmund.de>,
+        Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Subject: [PATCH 3/4] netdev queue flow control for TAP
+Date: Tue,  2 Sep 2025 10:09:56 +0200
+Message-ID: <20250902080957.47265-4-simon.schippers@tu-dortmund.de>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20250902080957.47265-1-simon.schippers@tu-dortmund.de>
+References: <20250902080957.47265-1-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,86 +49,71 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch series deals with TUN/TAP and vhost_net which drop incoming 
-SKBs whenever their internal ptr_ring buffer is full. Instead, with this 
-patch series, the associated netdev queue is stopped before this happens. 
-This allows the connected qdisc to function correctly as reported by [1] 
-and improves application-layer performance, see benchmarks.
+Stopping the netdev queue is done in tun_net_xmit, as TAP uses this method
+as its ndo_start_xmit.
 
-This patch series includes TUN, TAP, and vhost_net because they share 
-logic. Adjusting only one of them would break the others. Therefore, the 
-patch series is structured as follows:
-1. New ptr_ring_spare helper to check if the ptr_ring has spare capacity
-2. Netdev queue flow control for TUN: Logic for stopping the queue upon 
-full ptr_ring and waking the queue if ptr_ring has spare capacity
-3. Additions for TAP: Similar logic for waking the queue
-4. Additions for vhost_net: Calling TUN/TAP methods for waking the queue
+To wake the queue, the new helper wake_netdev_queue is called in
+tap_do_read. This is done in the blocking wait queue and after consuming
+an SKB from the ptr_ring. This helper first checks if the netdev queue has
+stopped. Then with the smp_rmb(), which is paired with the smp_wmb() of
+tun_net_xmit, it is known that tun_net_xmit will not produce SKBs anymore.
+With that knowledge, the helper can then wake the netdev queue if there is
+at least a single spare slot. This check is done by calling the method
+ptr_ring_spare.
 
-Benchmarks ([2] & [3]):
-- TUN: TCP throughput over real-world 120ms RTT OpenVPN connection 
-improved by 36% (117Mbit/s vs 185 Mbit/s)
-- TAP: TCP throughput to local qemu VM stays the same (2.2Gbit/s), an 
-improvement by factor 2 at emulated 120ms RTT (98Mbit/s vs 198Mbit/s)
-- TAP+vhost_net: TCP throughput to local qemu VM approx. the same 
-(23.4Gbit/s vs 23.9Gbit/s), same performance at emulated 120ms RTT 
-(200Mbit/s)
-- TUN/TAP/TAP+vhost_net: Reduction of ptr_ring size to ~10 packets 
-possible without losing performance
+Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+---
+ drivers/net/tap.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-Possible future work:
-- Introduction of Byte Queue Limits as suggested by Stephen Hemminger
-- Adaption of the netdev queue flow control for ipvtap & macvtap
-
-[1] Link: 
-https://unix.stackexchange.com/questions/762935/traffic-shaping-ineffective-on-tun-device
-[2] Link: 
-https://cni.etit.tu-dortmund.de/storages/cni-etit/r/Research/Publications/2025/Gebauer_2025_VTCFall/Gebauer_VTCFall2025_AuthorsVersion.pdf
-[3] Link: https://github.com/tudo-cni/nodrop
-
-Links to previous versions:
-V3: 
-https://lore.kernel.org/netdev/20250825211832.84901-1-simon.schippers@tu-dortmund.de/T/#u
-V2: 
-https://lore.kernel.org/netdev/20250811220430.14063-1-simon.schippers@tu-dortmund.de/T/#u
-V1: 
-https://lore.kernel.org/netdev/20250808153721.261334-1-simon.schippers@tu-dortmund.de/T/#u
-
-Changelog:
-V3 -> V4:
-- Target net-next instead of net
-- Changed to patch series instead of single patch
-- Changed to new title from old title
-"TUN/TAP: Improving throughput and latency by avoiding SKB drops"
-- Wake netdev queue with new helpers wake_netdev_queue when there is any 
-spare capacity in the ptr_ring instead of waiting for it to be empty
-- Use tun_file instead of tun_struct in tun_ring_recv as a more consistent 
-logic
-- Use smp_wmb() and smp_rmb() barrier pair, which avoids any packet drops 
-that happened rarely before
-- Use safer logic for vhost_net using RCU read locks to access TUN/TAP data
-
-V2 -> V3: Added support for TAP and TAP+vhost_net.
-
-V1 -> V2: Removed NETDEV_TX_BUSY return case in tun_net_xmit and removed 
-unnecessary netif_tx_wake_queue in tun_ring_recv.
-
-
-
-Simon Schippers (4):
-  ptr_ring_spare: Helper to check if spare capacity of size cnt is
-    available
-  netdev queue flow control for TUN
-  netdev queue flow control for TAP
-  netdev queue flow control for vhost_net
-
- drivers/net/tap.c        | 28 ++++++++++++++++
- drivers/net/tun.c        | 39 ++++++++++++++++++++--
- drivers/vhost/net.c      | 34 +++++++++++++++----
- include/linux/if_tap.h   |  2 ++
- include/linux/if_tun.h   |  3 ++
- include/linux/ptr_ring.h | 71 ++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 168 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index 1197f245e873..4d874672bcd7 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -753,6 +753,24 @@ static ssize_t tap_put_user(struct tap_queue *q,
+ 	return ret ? ret : total;
+ }
+ 
++static inline void wake_netdev_queue(struct tap_queue *q)
++{
++	struct netdev_queue *txq;
++	struct net_device *dev;
++
++	rcu_read_lock();
++	dev = rcu_dereference(q->tap)->dev;
++	txq = netdev_get_tx_queue(dev, q->queue_index);
++
++	if (netif_tx_queue_stopped(txq)) {
++		/* Paired with smp_wmb() in tun_net_xmit. */
++		smp_rmb();
++		if (ptr_ring_spare(&q->ring, 1))
++			netif_tx_wake_queue(txq);
++	}
++	rcu_read_unlock();
++}
++
+ static ssize_t tap_do_read(struct tap_queue *q,
+ 			   struct iov_iter *to,
+ 			   int noblock, struct sk_buff *skb)
+@@ -785,12 +803,16 @@ static ssize_t tap_do_read(struct tap_queue *q,
+ 			ret = -ERESTARTSYS;
+ 			break;
+ 		}
++		wake_netdev_queue(q);
++
+ 		/* Nothing to read, let's sleep */
+ 		schedule();
+ 	}
+ 	if (!noblock)
+ 		finish_wait(sk_sleep(&q->sk), &wait);
+ 
++	wake_netdev_queue(q);
++
+ put:
+ 	if (skb) {
+ 		ret = tap_put_user(q, skb, to);
 -- 
 2.43.0
 
