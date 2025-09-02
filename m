@@ -1,65 +1,65 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C22F118E377
-	for <virtualization@lists.linux.dev>; Tue,  2 Sep 2025 21:31:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CE7735AAB7
+	for <virtualization@lists.linux.dev>; Tue,  2 Sep 2025 21:31:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756848668; cv=none; b=Db7fyl8gRRc/tDj4KFgThh2KSz1JJ00njOpJHlLgANr8guC4LK791MPdBbz72zAdl+iZmAHM1ZIv1L7WU4QeQkqJh/7qZKwg7ME/DBfBx3AC4mSOOCYnEz/ZRuJ3mL3ctZZ/cLNVvEhfy/IAHKx2pRRYmq0OS29XRKSCX2834mM=
+	t=1756848707; cv=none; b=KARerCsoKoOOAcWfFpxwZQPJFkJQQ9spfPgqi8Cx4q5v3Q2zXaEprAHAl85HlSHGv6Ndfznag3CLBwJ7Go72VaZX4WttsA1IFYByJDvYFHYRaYXs781XApTDOkDkCi6zedmxrjpezmzeHT4NBmkKAend++IAZHXUdlEVoar/XF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756848668; c=relaxed/simple;
-	bh=ehRCK06hQBQS1EJ8tAoqHs1vIhIJ+AvMT4WxbAEfCaI=;
+	s=arc-20240116; t=1756848707; c=relaxed/simple;
+	bh=Fhr1X2s81mKv666A5gstY8vVQTMahtF+o9XOsgjlsEU=;
 	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=LjKHnNRf1O6RScLqp763/hJb18h4f3L7bLrBybkDQ4ylMya0LDoMrlad10d9UWKMy+OSIl2j+B1bfaK/9xkq+ZWk6ngtJYn+qwEl2Uxo9CBDj6L8tHdi616BxfZeXcu8mLQFjoBxbqFuInH261xYTB1Alu3YnooatL0YrsElVOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YyN0JxiR; arc=none smtp.client-ip=209.85.160.170
+	 Mime-Version:Content-Type; b=HpQ7xZdgUTDCbzqBTISI/Ea0Z7qPkVdO2KtUI78txDtDg8dcDwnN0VoWRsGeuUOq0l5in0I/nCHv/ErJ2p2yFEUcl7RItAevnLlVlJfwgxtl6wYW3Y8n6cmrj3Nmu4b9jcVGranxuYwSlhJKwXElcsyo0BhiaQn8qqI33z+cF3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XHdCvOUJ; arc=none smtp.client-ip=209.85.219.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YyN0JxiR"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-4b340966720so11339041cf.2
-        for <virtualization@lists.linux.dev>; Tue, 02 Sep 2025 14:31:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XHdCvOUJ"
+Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-70ba7aa131fso65404456d6.2
+        for <virtualization@lists.linux.dev>; Tue, 02 Sep 2025 14:31:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756848666; x=1757453466; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1756848704; x=1757453504; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:subject:references
          :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ZrmfAL77oCr2lyI+ImgSTfu5UDVysM82HoeUlv+ch0k=;
-        b=YyN0JxiRQm3vvUSMFTcHcwvIc2GJh/3iJLng1jk+tBrTVY0cGoKPlL4MT/kB2q0Xro
-         A4ECpKy+CokE41oeDToorNrsgLOzj4kXcER9MM8FQUdK9qrehPuLO+uFviEbm0ThgKvT
-         xX/1oONBlQa53lGgIJQKDtP0X1dLGk5ApEHBxDNTdtP6jdoDceniEtMiCZnwrqkXpvjj
-         EGfA2DDThecTtGUWOLJEh92UcVSZvKIpjI0L/JZFSpyxJ3HOz2lRjTa1tuO9ngIKLDIR
-         PeaLK9ht6zbgxu6PCqYPwOPo6KW41AuNrbmtCC3vA0zO2hCLL3iyExMNB6FvvauhO9Fa
-         NHJg==
+        bh=5ccBuzbs+BrHDDKe4TyRzIoAM5cAJ6pCAgSin1bdA9A=;
+        b=XHdCvOUJAHZBESv3Gbz4L1BBAmw5bTuzKmPtBcaocW1dWwEmYiUw+QNQ15HNAfrIgt
+         pSFsISqo3nWIi4Yufj2H526ZEMO0d0J4tQZ4X/kCWr+j0yLfI+CQu3bps5Yc5zRwH/0C
+         SNr2WggGqdxdD3BJF/S+swCWErfGqM3J6wruaNwT8fy9W9nRHn+PwVNrlzWM4QQL22xE
+         5lEcRUWOp5b4zVow7C07vfI5wakxUKJo0I/FYTc4FKfXqKCWs8nhErHx9wqbz0TXvxWa
+         bTgKCIbwVy+pedxnOInvkcq6CQI8Q8T1CYYbUNr9mEhehunmlMFaIi6kXJ5xyB5QD9z2
+         u+Tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756848666; x=1757453466;
+        d=1e100.net; s=20230601; t=1756848704; x=1757453504;
         h=content-transfer-encoding:mime-version:subject:references
          :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=ZrmfAL77oCr2lyI+ImgSTfu5UDVysM82HoeUlv+ch0k=;
-        b=BZ+8qELtkgU/GphfF8dBIup0ZZHiLRvT7wiMIFh7MjErJwcZj0PqNqms10SrsFxxWB
-         aoQwp+6Rg6kJz7tSaqZFEQv7G3BM6y73hNL5xnUamxAz+J5UwiSRQ3MUjfeO7bX9t3oh
-         0LM5RflU2t3wvqAP0mdvS+ElRAgxzEECe+avUd6BJzvV6QGy3dsJxmMvo3vpkqu9NAhu
-         b2eQXQ/AU0UjBjpvVW0vWr8lShBEXFgfRZECvNAVmX1xv4tUQNRj86MINwquXumcHlaf
-         UJxf6jJq7VWO9+j00E+z/EL9Q0R26Je53zDPd9UKONcA6KLmc1wAH6IDpsnzJzj95Fpl
-         0lew==
-X-Forwarded-Encrypted: i=1; AJvYcCXPco215OTnVX2oRoZIcRHUhuvWuznixfjSoeQPJEJm/SAkKSd12jIeuua2eVsCEwZmXhSHe08zAEeSTosYJw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzSvLzXkIQ7t4fUqz3wxMmgfCzMf+HFo+WK+Y/a49iNlyNwQkZv
-	3arI5EjXI0MXjljwqQb9d8RmFQwXoh+ZzLKGC8Rbx/YXP/slpvCtd7uqlqwvHw==
-X-Gm-Gg: ASbGncs9bFp/BAIR2xdh0cNVfYjYEjqGw01IZuMgscdfilX68M6hNk/B/onSTCeZO9U
-	4a7m/3ueg6lWRkzatOYHy6djXnqu8XMkwsUu4L5H4yo397JMX2lePySo2irtWyYss2g9kM+7qUu
-	82JSDstqjjmszJVK75ZnEYOvDHTJouDp9+vQaAXvNtMA1uQkd/Be3ZaH4OU+NJabvJxx6mEXoP+
-	ZNBcmHaoauuv7XlM5RZ976eSm7ZlW5iA6Y2r4HDKXotroYJCoFuzAwpxn1/skuHLX/lgr2Wu/2P
-	Cbj1NfEB8bwqtAMBnudESTIFm5ZicAaxzCn1Cn+QFBSc9AU94QJyrxCF+tFuOPu8IWCSg9lnR0e
-	oX8s8A+zgevfTYkp6qgFgVzJbVIZgypYTd2Eo5UZ6pJwFzNpHNX+4xougkH4LgaC+gizKY35WqS
-	ccnw==
-X-Google-Smtp-Source: AGHT+IF7iJ3n8Ilr2HLnvwXXtRnIaBo6KUz7SGLPQzYvQZNV3FrYUDrLl/ZnyDGI7QVYJ6DoiIS0gQ==
-X-Received: by 2002:ac8:57d2:0:b0:4b3:214:1eb2 with SMTP id d75a77b69052e-4b31da18d25mr183076721cf.47.1756848665582;
-        Tue, 02 Sep 2025 14:31:05 -0700 (PDT)
+        bh=5ccBuzbs+BrHDDKe4TyRzIoAM5cAJ6pCAgSin1bdA9A=;
+        b=Zp/pB7F4yTXY9e0r7gU0flpX05LKNJgigGXHUGVTCgv0zJmAi7cQ1kfgSZGi4DLh9u
+         Z/01RuK3lh8bUdo9xlyOaowUq9FwPAroU1nXAJm5XE44ennkeNrfCdrL1Wbt8Uq7Btmj
+         oUuy85jJL5hc+jN+EPo0AA1o8SyWGZIIWsliETxSN81VwxbUARxONmLyOGl5A99lv6IG
+         8690oBXPMLT0dv0VEh3eyu/ToAgvYkGBguOkK+e1iBPwi3YCMMLIMDbqvy6WdgsII9dJ
+         E7Cfaw+nGa8yhM1yfFsgwZ3BD6fI/6sKp8AYg5G3kfTC90Mh0s1KcL1/NrLVoHTvsuUe
+         lP+g==
+X-Forwarded-Encrypted: i=1; AJvYcCV6ZdVjmHdT9xpVJlMTJ4I0RCgRix/zPWcwfzE08ykU1JfRZxOMhxZOLhfgUUFMckvqrf+u+9buy+GbvaLR9g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz0GbKhx5b55EDUO2KTR20cpetxFRldnwfWU347naz5ISLhUUQD
+	2VL8xwAlzqaEEItxHDJMZ4nKRT4vxMRT6dkl25GhHAwC7EfsLbNF50B8
+X-Gm-Gg: ASbGncvL6oyQjyr/ss36AhqyGnm1UIWGdetU9PRBwLI4vUhh/eN4bDsWpqwM6SPPYiV
+	p9AZffzdBCcJY2Sc8wOCM264FK1R9rLI5t4LYWillefUV1xbcWZ2TfljWOqE6H9BJKEAE5qJlyT
+	wTVxUbD1v0IsGyTdBAnhWtUJwz4G8X/WAdr9dkjYTjIY6THdWJyWwnhOoFH11X+2GQFnVV9vRH6
+	rxpO5cHebXeWWB3UipdeS/lBisiA/w2FSssSzJ20q5ENdqUYj4OUpOfzRlzy47Qa6itznPrSsqI
+	dJ4PuDX/GgTHTkfaRnNrQIRLOd4xNey2BrqIu7OBSYKZzI4QG2Ivx+NJFD/kxVayV40yfn/4J0S
+	UQdOtn2WqR7rKOl+khWdbVVK3kSM0qNIichKALDze57DiNOT+L954JZiimmZol7zDRxxKcAt8z6
+	qQGg==
+X-Google-Smtp-Source: AGHT+IHuSLao98z09CKcRFnRmWQxJ8TrKeoPQyY4lPLQgQdvitTmSna4yO9Wv7pVlwi66WpRyj7GFg==
+X-Received: by 2002:a05:6214:1925:b0:721:7a6a:b703 with SMTP id 6a1803df08f44-7217a6ac7ffmr26477986d6.53.1756848704343;
+        Tue, 02 Sep 2025 14:31:44 -0700 (PDT)
 Received: from gmail.com (141.139.145.34.bc.googleusercontent.com. [34.145.139.141])
-        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-4b48f635cbesm1378441cf.5.2025.09.02.14.31.04
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-720b644f2c9sm18578666d6.63.2025.09.02.14.31.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Sep 2025 14:31:05 -0700 (PDT)
-Date: Tue, 02 Sep 2025 17:31:04 -0400
+        Tue, 02 Sep 2025 14:31:43 -0700 (PDT)
+Date: Tue, 02 Sep 2025 17:31:43 -0400
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 To: Simon Schippers <simon.schippers@tu-dortmund.de>, 
  willemdebruijn.kernel@gmail.com, 
@@ -73,11 +73,11 @@ To: Simon Schippers <simon.schippers@tu-dortmund.de>,
  kvm@vger.kernel.org
 Cc: Simon Schippers <simon.schippers@tu-dortmund.de>, 
  Tim Gebauer <tim.gebauer@tu-dortmund.de>
-Message-ID: <willemdebruijn.kernel.251eacee11eca@gmail.com>
-In-Reply-To: <20250902080957.47265-5-simon.schippers@tu-dortmund.de>
+Message-ID: <willemdebruijn.kernel.1b33a2385592@gmail.com>
+In-Reply-To: <20250902080957.47265-3-simon.schippers@tu-dortmund.de>
 References: <20250902080957.47265-1-simon.schippers@tu-dortmund.de>
- <20250902080957.47265-5-simon.schippers@tu-dortmund.de>
-Subject: Re: [PATCH 4/4] netdev queue flow control for vhost_net
+ <20250902080957.47265-3-simon.schippers@tu-dortmund.de>
+Subject: Re: [PATCH 2/4] netdev queue flow control for TUN
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -89,215 +89,77 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 Simon Schippers wrote:
-> Stopping the queue is done in tun_net_xmit.
+> The netdev queue is stopped in tun_net_xmit after inserting an SKB into
+> the ring buffer if the ring buffer became full because of that. If the
+> insertion into the ptr_ring fails, the netdev queue is also stopped and
+> the SKB is dropped. However, this never happened in my testing. To ensure
+> that the ptr_ring change is available to the consumer before the netdev
+> queue stop, an smp_wmb() is used.
 > 
-> Waking the queue is done by calling one of the helpers,
-> tun_wake_netdev_queue and tap_wake_netdev_queue. For that, in
-> get_wake_netdev_queue, the correct method is determined and saved in the
-> function pointer wake_netdev_queue of the vhost_net_virtqueue. Then, each
-> time after consuming a batch in vhost_net_buf_produce, wake_netdev_queue
-> is called.
+> Then in tun_ring_recv, the new helper wake_netdev_queue is called in the
+> blocking wait queue and after consuming an SKB from the ptr_ring. This
+> helper first checks if the netdev queue has stopped. Then with the paired
+> smp_rmb() it is known that tun_net_xmit will not produce SKBs anymore.
+> With that knowledge, the helper can then wake the netdev queue if there is
+> at least a single spare slot in the ptr_ring by calling ptr_ring_spare
+> with cnt=1.
 > 
 > Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 > Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 > Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
 > ---
->  drivers/net/tap.c      |  6 ++++++
->  drivers/net/tun.c      |  6 ++++++
->  drivers/vhost/net.c    | 34 ++++++++++++++++++++++++++++------
->  include/linux/if_tap.h |  2 ++
->  include/linux/if_tun.h |  3 +++
->  5 files changed, 45 insertions(+), 6 deletions(-)
+>  drivers/net/tun.c | 33 ++++++++++++++++++++++++++++++---
+>  1 file changed, 30 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-> index 4d874672bcd7..0bad9e3d59af 100644
-> --- a/drivers/net/tap.c
-> +++ b/drivers/net/tap.c
-> @@ -1198,6 +1198,12 @@ struct socket *tap_get_socket(struct file *file)
->  }
->  EXPORT_SYMBOL_GPL(tap_get_socket);
->  
-> +void tap_wake_netdev_queue(struct file *file)
-> +{
-> +	wake_netdev_queue(file->private_data);
-> +}
-> +EXPORT_SYMBOL_GPL(tap_wake_netdev_queue);
-> +
->  struct ptr_ring *tap_get_ptr_ring(struct file *file)
->  {
->  	struct tap_queue *q;
 > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 735498e221d8..e85589b596ac 100644
+> index cc6c50180663..735498e221d8 100644
 > --- a/drivers/net/tun.c
 > +++ b/drivers/net/tun.c
-> @@ -3739,6 +3739,12 @@ struct socket *tun_get_socket(struct file *file)
->  }
->  EXPORT_SYMBOL_GPL(tun_get_socket);
+> @@ -1060,13 +1060,21 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
 >  
-> +void tun_wake_netdev_queue(struct file *file)
+>  	nf_reset_ct(skb);
+>  
+> -	if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+> +	queue = netdev_get_tx_queue(dev, txq);
+> +	if (unlikely(ptr_ring_produce(&tfile->tx_ring, skb))) {
+> +		/* Paired with smp_rmb() in wake_netdev_queue. */
+> +		smp_wmb();
+> +		netif_tx_stop_queue(queue);
+>  		drop_reason = SKB_DROP_REASON_FULL_RING;
+>  		goto drop;
+>  	}
+> +	if (ptr_ring_full(&tfile->tx_ring)) {
+> +		/* Paired with smp_rmb() in wake_netdev_queue. */
+> +		smp_wmb();
+> +		netif_tx_stop_queue(queue);
+> +	}
+>  
+>  	/* dev->lltx requires to do our own update of trans_start */
+> -	queue = netdev_get_tx_queue(dev, txq);
+>  	txq_trans_cond_update(queue);
+>  
+>  	/* Notify and wake up reader process */
+> @@ -2110,6 +2118,24 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+>  	return total;
+>  }
+>  
+> +static inline void wake_netdev_queue(struct tun_file *tfile)
+
+no inline keyword in .c files, let the compiler decide.
+
 > +{
-> +	wake_netdev_queue(file->private_data);
+> +	struct netdev_queue *txq;
+> +	struct net_device *dev;
+> +
+> +	rcu_read_lock();
+> +	dev = rcu_dereference(tfile->tun)->dev;
+> +	txq = netdev_get_tx_queue(dev, tfile->queue_index);
+> +
+> +	if (netif_tx_queue_stopped(txq)) {
+> +		/* Paired with smp_wmb() in tun_net_xmit. */
+> +		smp_rmb();
+> +		if (ptr_ring_spare(&tfile->tx_ring, 1))
+> +			netif_tx_wake_queue(txq);
+> +	}
+> +	rcu_read_unlock();
 > +}
-> +EXPORT_SYMBOL_GPL(tun_wake_netdev_queue);
-
-Having multiple functions with the same name is tad annoying from a 
-cscape PoV, better to call the internal functions
-__tun_wake_netdev_queue, etc.
-
-> +
->  struct ptr_ring *tun_get_tx_ring(struct file *file)
->  {
->  	struct tun_file *tfile;
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 6edac0c1ba9b..e837d3a334f1 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -130,6 +130,7 @@ struct vhost_net_virtqueue {
->  	struct vhost_net_buf rxq;
->  	/* Batched XDP buffs */
->  	struct xdp_buff *xdp;
-> +	void (*wake_netdev_queue)(struct file *f);
-
-Indirect function calls are expensive post spectre. Probably
-preferable to just have a branch.
-
-A branch in `file->f_op != &tun_fops` would be expensive still as it
-may touch a cold cacheline.
-
-How about adding a bit in struct ptr_ring itself. Pahole shows plenty
-of holes. Jason, WDYT?
-
->  };
->  
->  struct vhost_net {
-> @@ -175,13 +176,16 @@ static void *vhost_net_buf_consume(struct vhost_net_buf *rxq)
->  	return ret;
->  }
->  
-> -static int vhost_net_buf_produce(struct vhost_net_virtqueue *nvq)
-> +static int vhost_net_buf_produce(struct vhost_net_virtqueue *nvq,
-> +								 struct sock *sk)
->  {
-> +	struct file *file = sk->sk_socket->file;
->  	struct vhost_net_buf *rxq = &nvq->rxq;
->  
->  	rxq->head = 0;
->  	rxq->tail = ptr_ring_consume_batched(nvq->rx_ring, rxq->queue,
->  					      VHOST_NET_BATCH);
-> +	nvq->wake_netdev_queue(file);
->  	return rxq->tail;
->  }
->  
-> @@ -208,14 +212,15 @@ static int vhost_net_buf_peek_len(void *ptr)
->  	return __skb_array_len_with_tag(ptr);
->  }
->  
-> -static int vhost_net_buf_peek(struct vhost_net_virtqueue *nvq)
-> +static int vhost_net_buf_peek(struct vhost_net_virtqueue *nvq,
-> +							  struct sock *sk)
-
-odd indentation
-
->  {
->  	struct vhost_net_buf *rxq = &nvq->rxq;
->  
->  	if (!vhost_net_buf_is_empty(rxq))
->  		goto out;
->  
-> -	if (!vhost_net_buf_produce(nvq))
-> +	if (!vhost_net_buf_produce(nvq, sk))
->  		return 0;
->  
->  out:
-> @@ -994,7 +999,7 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
->  	unsigned long flags;
->  
->  	if (rvq->rx_ring)
-> -		return vhost_net_buf_peek(rvq);
-> +		return vhost_net_buf_peek(rvq, sk);
->  
->  	spin_lock_irqsave(&sk->sk_receive_queue.lock, flags);
->  	head = skb_peek(&sk->sk_receive_queue);
-> @@ -1499,6 +1504,19 @@ static struct socket *get_tap_socket(int fd)
->  	return sock;
->  }
->  
-> +static void (*get_wake_netdev_queue(struct file *file))(struct file *file)
-> +{
-> +	struct ptr_ring *ring;
-> +
-> +	ring = tun_get_tx_ring(file);
-> +	if (!IS_ERR(ring))
-> +		return tun_wake_netdev_queue;
-> +	ring = tap_get_ptr_ring(file);
-> +	if (!IS_ERR(ring))
-> +		return tap_wake_netdev_queue;
-> +	return NULL;
-> +}
-> +
->  static struct socket *get_socket(int fd)
->  {
->  	struct socket *sock;
-> @@ -1570,10 +1588,14 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  		if (r)
->  			goto err_used;
->  		if (index == VHOST_NET_VQ_RX) {
-> -			if (sock)
-> +			if (sock) {
->  				nvq->rx_ring = get_tap_ptr_ring(sock->file);
-> -			else
-> +				nvq->wake_netdev_queue =
-> +					get_wake_netdev_queue(sock->file);
-> +			} else {
->  				nvq->rx_ring = NULL;
-> +				nvq->wake_netdev_queue = NULL;
-> +			}
->  		}
->  
->  		oldubufs = nvq->ubufs;
-> diff --git a/include/linux/if_tap.h b/include/linux/if_tap.h
-> index 553552fa635c..02b2809784b5 100644
-> --- a/include/linux/if_tap.h
-> +++ b/include/linux/if_tap.h
-> @@ -10,6 +10,7 @@ struct socket;
->  
->  #if IS_ENABLED(CONFIG_TAP)
->  struct socket *tap_get_socket(struct file *);
-> +void tap_wake_netdev_queue(struct file *file);
->  struct ptr_ring *tap_get_ptr_ring(struct file *file);
->  #else
->  #include <linux/err.h>
-> @@ -18,6 +19,7 @@ static inline struct socket *tap_get_socket(struct file *f)
->  {
->  	return ERR_PTR(-EINVAL);
->  }
-> +static inline void tap_wake_netdev_queue(struct file *f) {}
->  static inline struct ptr_ring *tap_get_ptr_ring(struct file *f)
->  {
->  	return ERR_PTR(-EINVAL);
-> diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
-> index 80166eb62f41..04c504bb1954 100644
-> --- a/include/linux/if_tun.h
-> +++ b/include/linux/if_tun.h
-> @@ -21,6 +21,7 @@ struct tun_msg_ctl {
->  
->  #if defined(CONFIG_TUN) || defined(CONFIG_TUN_MODULE)
->  struct socket *tun_get_socket(struct file *);
-> +void tun_wake_netdev_queue(struct file *file);
->  struct ptr_ring *tun_get_tx_ring(struct file *file);
->  
->  static inline bool tun_is_xdp_frame(void *ptr)
-> @@ -50,6 +51,8 @@ static inline struct socket *tun_get_socket(struct file *f)
->  	return ERR_PTR(-EINVAL);
->  }
->  
-> +static inline void tun_wake_netdev_queue(struct file *f) {}
-> +
->  static inline struct ptr_ring *tun_get_tx_ring(struct file *f)
->  {
->  	return ERR_PTR(-EINVAL);
-> -- 
-> 2.43.0
-> 
-
-
