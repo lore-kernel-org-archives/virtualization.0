@@ -1,108 +1,118 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3482134A31D
-	for <virtualization@lists.linux.dev>; Tue,  2 Sep 2025 18:10:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5DAA21B9F5;
+	Tue,  2 Sep 2025 20:49:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756836636; cv=none; b=aXaCkb88merVcAlUpA8TebPBNI4WEJQNUH7943l9Gqwr7ukg/rNjQZjLXu5iH0Eg909Csu6fu3KSJTH6VjYEr2HZrSV8Wc+5xueDBxtPxhoJyvr7mokArHNlEIk2QOMOPZW5GrrD0Ak611St98bM79KwFypwPhb0vkkCBwESuGc=
+	t=1756846200; cv=none; b=RPKCgY49dxFdpkZmaFVLLj7xMQbVdQtHQGCsI9DnHeIlNNupeHG3+BTf4qK4fSF6xVsWD4FHgw57wi1DLRk2wvCdKcv7hhMRrNkxehHVVnUDW6Usm4i38tae3EwXD+PmxHqQ0KWYzI4TsmRQgiPIX1Ksp5b3FgW11i/XjyRSc/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756836636; c=relaxed/simple;
-	bh=mnD4JRGbk9W/QM5EuH31k1b1ffUiZwbDvhrc0zl10ow=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Si6vr48T8p3IxDtRxqrIbBCFsF3XCBcrKqC6WROeGdFcu5gMW2ogpgLxpVauyJ3jzOIWzaWvZ1pitQPPar4ohNnbqw0B8rUyKA9JocflrEdAgF6E5nEOh0jpk9C5kinHE/L1ifLXGy5CcJinCjj7aBSWhY94IWjJ6d4pY1JPDks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k5LbWSba; arc=none smtp.client-ip=209.85.215.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1756846200; c=relaxed/simple;
+	bh=h9YG598jez9xHSTtoGC3TbdsaCDXkMcOLxofIDRanhw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=DxePl2wqsf6y3wKophn1z7jujdcCehPS/ovIWiK+hCABdWnCEdQ5vADm4wCegSTKsxGHPUhEfZWqj4z42wpPfio3q6Jkdf1yjYKNDLM0ye/+4d4fjXgTuRAP9Y+zwWxr3+GQvgzO6RYxl4OTKuGSCIGrjCwXP4CPg6RubinvqOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=TCSDXZF2; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k5LbWSba"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-b4c738ee2fbso4389107a12.3
-        for <virtualization@lists.linux.dev>; Tue, 02 Sep 2025 11:10:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756836634; x=1757441434; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=11SI7K2HrD1Xkcfg4YipKbfNlLrbJJRsWjUQWdPP85o=;
-        b=k5LbWSbabSi3jUvPu1CvlVNK0vN0E8KQVszAu9ihs8nl3yxD31YsxlFbn/rbaLQZ1t
-         R3N+Eqku/gcHLUq1f559YRPtJjeRvHP4OWrnsVrUo4hi0aqixAmku37REaCckGgmtC1N
-         hsQf2qaZWKHDqgS7uW/i1g15+Tfe+Rv0SHacGNs5efBS5au55bhYTAO9ZEL9mDx+RASK
-         ly8TWeGZLYWZL1OA0k1ro6K4dPm/CNxmhIxiKOVaiU6GvmBr60se6Dbjv5AUagPvpr95
-         htuzl4eRX6WEbV7cidr/zwjhmYp5nWput37QLvIJ3jm8g7F5LvtRtYMIWGklrRb2zejW
-         wT8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756836634; x=1757441434;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=11SI7K2HrD1Xkcfg4YipKbfNlLrbJJRsWjUQWdPP85o=;
-        b=FY/yN3pfB0EycRf6wvDcvfzBH+V60r0PyFT2Wlv0NWJUZjlWTXkpsxWdDW4+1cWyET
-         v8rqmO6R8u//FyZuN1gswksMLao3ddEKfichYlX3NPogFfCbzWP479rkn/xCVGVR+3aA
-         Grvarv9e4acgILJcAle08ahq0UPW+0kL94A+MPmjb0h1k3dy6jsW7FGf197DIarzTFyF
-         q5rBqUQy68Tm0xhWjyusFyOjmdzx30zV1VL0PIyay+yQuQCXxuC2xjSZkPik5paL37ki
-         67fV29deKtRFpP8Ctb3KhTKFXnp2w8UO7EwkD5I2xeUJ+4T/3SgYHxNoIAlxaMLRZK0x
-         2efA==
-X-Forwarded-Encrypted: i=1; AJvYcCVgYWaJ7BPOiIyYmmqj/zSD3K4zGzZKpZRV2sPdmWHm7egLTbGtkMKC1+1AHYT8cA9bOVsh7NmJBoeycajxRA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwOrcUbuiIuTiNn5BB7GrhhGbhq/LWKLcUuqlJSXRlhrzB8+Vx9
-	fm9EN8we7mXxUZYVs61V6N+oPPcEtdsLtrg0D5t2rUwehuEjkrqwLe5n
-X-Gm-Gg: ASbGnctlDSh5mSKL2tGhLnuG6NTVG4S4E7S46p+QlVPLBP5VfYLYp1z4Bg/S3QbuJs3
-	cjeawfpdVIjteTogloQpoPY6nDRKnb0HK6oIWZkoYdOZ1nCAShJnfo1E/9cV5KkU0o9sb+i4aJS
-	kcO8yQgOrQXUsMIG9v/IJ82uKGYMFUBj13yv7M5Yxh3O07nPltfJc2mod/11UBqbrp6qturdKhe
-	ywZDq4VdCb2xPFCySspBI3ljVlYO+UfbepdA1lvhZNYI4mjygiDiV2wWFVrkm/Pc5jS6A4TiKSX
-	fVCODpnd9lbNBIzFBzjxdhXf+A0EebXeXDRLpasSwuVxr1qagdKd0k7LWiHwN1nSHP4EpU+1pvN
-	M5gY6R0tCiECZnhZFAesBLRD9cweIF6GDWIwKK5wxvBU=
-X-Google-Smtp-Source: AGHT+IFi/A5kl+CSm9Pre9tgHAXuj4Y9/s3vbKAIdfdu32Djhb4qcTMLMePJS7ddZUuOGxsxTT3zRQ==
-X-Received: by 2002:a17:903:230c:b0:248:ea98:3d12 with SMTP id d9443c01a7336-24944acc7d6mr170727225ad.40.1756836634401;
-        Tue, 02 Sep 2025 11:10:34 -0700 (PDT)
-Received: from devvm6216.cco0.facebook.com ([2a03:2880:2ff:1::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-24b2570cfb0sm18256955ad.139.2025.09.02.11.10.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Sep 2025 11:10:33 -0700 (PDT)
-Date: Tue, 2 Sep 2025 11:10:31 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	berrange@redhat.com, Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v5 9/9] selftests/vsock: add namespace tests
-Message-ID: <aLczFwjAClnFvANG@devvm6216.cco0.facebook.com>
-References: <20250827-vsock-vmtest-v5-0-0ba580bede5b@meta.com>
- <20250827-vsock-vmtest-v5-9-0ba580bede5b@meta.com>
- <phckm6qx2drazblg4fsheqe4meg7likmvhbyquffwct4xj35ub@ddz2iikovcq5>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="TCSDXZF2"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20250902204951euoutp019772216366e471dce5ab670ff270a1c3~hkk2PqBI40583005830euoutp01b;
+	Tue,  2 Sep 2025 20:49:51 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20250902204951euoutp019772216366e471dce5ab670ff270a1c3~hkk2PqBI40583005830euoutp01b
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1756846191;
+	bh=cns0fXIAbt1EqvizSg/wAnSv3SWVs6AXpQ/9VbxT1xc=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=TCSDXZF2Z62YcDiWqMDDa7Dv+pRBN+EUSjgrFZ1mzkO8tak0poyAI0nhbznKNDhqf
+	 D8kNvQjhwMLyfbECL2R2+e0uzHGZze/5arbNIj/FB7PwNbK4vxp5cjSUYa4Wb+jDZr
+	 M4rtfp2Rgp2ma7OWloLOB4f81ua8G4Rw/nxkJvc0=
+Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20250902204950eucas1p1185c6ab6c55958183bb0c347b0396b5b~hkk1r34Tc3157531575eucas1p1q;
+	Tue,  2 Sep 2025 20:49:50 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20250902204948eusmtip14b51a6d907c8deca19aa6660d162e2c8~hkkz6C6Li1369313693eusmtip1I;
+	Tue,  2 Sep 2025 20:49:48 +0000 (GMT)
+Message-ID: <2d8e67b2-4ab2-4c1f-9ef3-470810f99d07@samsung.com>
+Date: Tue, 2 Sep 2025 22:49:48 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <phckm6qx2drazblg4fsheqe4meg7likmvhbyquffwct4xj35ub@ddz2iikovcq5>
+User-Agent: Betterbird (Windows)
+Subject: Re: [PATCH v4 14/16] block-dma: migrate to dma_map_phys instead of
+ map_page
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Leon Romanovsky <leonro@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>, Alexander Potapenko
+	<glider@google.com>, Alex Gaynor <alex.gaynor@gmail.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, Danilo
+	Krummrich <dakr@kernel.org>, iommu@lists.linux.dev, Jason Wang
+	<jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>, Joerg Roedel
+	<joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, Juergen Gross
+	<jgross@suse.com>, kasan-dev@googlegroups.com, Keith Busch
+	<kbusch@kernel.org>, linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-trace-kernel@vger.kernel.org, Madhavan Srinivasan
+	<maddy@linux.ibm.com>, Masami Hiramatsu <mhiramat@kernel.org>, Michael
+	Ellerman <mpe@ellerman.id.au>, "Michael S. Tsirkin" <mst@redhat.com>, Miguel
+	Ojeda <ojeda@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	rust-for-linux@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>, Stefano
+	Stabellini <sstabellini@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <22b824931bc8ba090979ab902e4c1c2ec8327b65.1755624249.git.leon@kernel.org>
+Content-Transfer-Encoding: 7bit
+X-CMS-MailID: 20250902204950eucas1p1185c6ab6c55958183bb0c347b0396b5b
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20250819173845eucas1p221cd6842839f5e7130f131cd341df566
+X-EPHeader: CA
+X-CMS-RootMailID: 20250819173845eucas1p221cd6842839f5e7130f131cd341df566
+References: <cover.1755624249.git.leon@kernel.org>
+	<CGME20250819173845eucas1p221cd6842839f5e7130f131cd341df566@eucas1p2.samsung.com>
+	<22b824931bc8ba090979ab902e4c1c2ec8327b65.1755624249.git.leon@kernel.org>
 
-On Tue, Sep 02, 2025 at 05:40:38PM +0200, Stefano Garzarella wrote:
-> On Wed, Aug 27, 2025 at 05:31:37PM -0700, Bobby Eshleman wrote:
-> > From: Bobby Eshleman <bobbyeshleman@meta.com>
-> > 
-> > Add tests for namespace support in vsock. Use socat for basic connection
-> 
-> Are netns tests skipped if the kernel doesn't support it?
+On 19.08.2025 19:36, Leon Romanovsky wrote:
+> From: Leon Romanovsky <leonro@nvidia.com>
+>
+> After introduction of dma_map_phys(), there is no need to convert
+> from physical address to struct page in order to map page. So let's
+> use it directly.
+>
+> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> ---
+>   block/blk-mq-dma.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/block/blk-mq-dma.c b/block/blk-mq-dma.c
+> index ad283017caef..37e2142be4f7 100644
+> --- a/block/blk-mq-dma.c
+> +++ b/block/blk-mq-dma.c
+> @@ -87,8 +87,8 @@ static bool blk_dma_map_bus(struct blk_dma_iter *iter, struct phys_vec *vec)
+>   static bool blk_dma_map_direct(struct request *req, struct device *dma_dev,
+>   		struct blk_dma_iter *iter, struct phys_vec *vec)
+>   {
+> -	iter->addr = dma_map_page(dma_dev, phys_to_page(vec->paddr),
+> -			offset_in_page(vec->paddr), vec->len, rq_dma_dir(req));
+> +	iter->addr = dma_map_phys(dma_dev, vec->paddr, vec->len,
+> +			rq_dma_dir(req), 0);
+>   	if (dma_mapping_error(dma_dev, iter->addr)) {
+>   		iter->status = BLK_STS_RESOURCE;
+>   		return false;
 
-No, will fix in next rev.
+I wonder where is the corresponding dma_unmap_page() call and its change 
+to dma_unmap_phys()...
 
-Thanks,
-Bobby
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
+
