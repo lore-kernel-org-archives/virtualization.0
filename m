@@ -1,237 +1,240 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04olkn2106.outbound.protection.outlook.com [40.92.46.106])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7AE830648F;
-	Tue,  2 Sep 2025 12:08:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756814940; cv=none; b=A7ksgHQN0K23qipjUFdo6QBqtipkFa8vueJbZBv2UG8/u3F+aQuLK0S37fEF2U3OjtlrwT+yOgzwm/lZun5K76YOvZ48adlvXg4Ui2h7cW8kMX9k9Rzt8bF7fM57fG40Ywloi2BOSgAtnNMNL5Ec9E6+Tp/AT2PuGixqBnIOL9k=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756814940; c=relaxed/simple;
-	bh=H/sBEqWyTb20zDwKJVg5tvs3nf0zWsZui95oNH6FIeg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nzEYUZHbhRGZ/jntQfn/j4v81yWIJgq9dFTQTkeRe7bk4VMoqkwNSCu6GF1cAvR9KgIqxTJfTRaPQ7APLQ4KWnU47Qf5D9wb+SXFo/Cq4wtt+sn3H/apz6nHzCxrpD7bX9+XXT5dxwAMQYmNr93RJTpYzjuxA57i6kytQqoanwU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B+Z9qz4h; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FC1E31282C
+	for <virtualization@lists.linux.dev>; Tue,  2 Sep 2025 14:42:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.46.106
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756824151; cv=fail; b=QWuMVPO5uVEp4bWY+ZkuULOxx638IFRYYKDuX6+nNF/GvgEUQXRWNqgNyOxUVTGDiMXSPke9nE6AXAJAZghcWRGcEM42uT4VWkk5JI7RS+kEs4h9b0Ojrg95vCRhEp4wA4dJCapsIay9cifQYmcnSvGomdOfNnq41wS3pu1VDCU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756824151; c=relaxed/simple;
+	bh=bc6meLVigi9jK80hx0nfKMwMQ/gvl7U0LFpgsOpOYvI=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=d+h0Q5Nh508DErWTZIJqwLZKU8GZwLQDX6yuKJ8aUZTi+uoMgPWyMBzctZFUptaWepfiJ2IXibsTX+8tVOOZDXat6ubHox7bxPy2mFjvaoAbOXDrReEk8jSdiMnWhQWSl6yw/fKSFkHm89Uh6BE7qfriiGElzMGqNSC++nJIdQI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=jwSJ1UwT; arc=fail smtp.client-ip=40.92.46.106
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B+Z9qz4h"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F4D3C4CEF7;
-	Tue,  2 Sep 2025 12:08:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1756814939;
-	bh=H/sBEqWyTb20zDwKJVg5tvs3nf0zWsZui95oNH6FIeg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=B+Z9qz4hV4GaU4bbE6Wtx6Xpa+dTfkK3kO1U1khdS+/nNgC/GdoTGVdEMKUVM4Zqz
-	 UJ5Z/GGGbYSXWl2gGSKbzXCxKP2/1DRjwnbEc2sa+fMqGMfxGuAazqN1pRcJQO/TsT
-	 sQcgqGLMyX0Kn5UFzO6bUgnM2eKSC6TzcmyOrJs42vWwbbYewH4945QkdhGabTF8Ur
-	 MoDYfiLb6KPLBqy+dwRYTPahxMqPKod0f4E9bD9Vno72PWdABbjbUneOOdwTRzJinJ
-	 OUBMcm19e9cRcxYOCMOE47NPLWyon5NKu/m6v1CaKFRGCAVyKY56UbqY+A1DN+tLoW
-	 p25gIoc3YdSDw==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Junnan Wu <junnan01.wu@samsung.com>,
-	Ying Xu <ying123.xu@samsung.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Sasha Levin <sashal@kernel.org>,
-	jasowang@redhat.com,
-	andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.16] virtio_net: adjust the execution order of function `virtnet_close` during freeze
-Date: Tue,  2 Sep 2025 08:08:28 -0400
-Message-ID: <20250902120833.1342615-17-sashal@kernel.org>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250902120833.1342615-1-sashal@kernel.org>
-References: <20250902120833.1342615-1-sashal@kernel.org>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="jwSJ1UwT"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=aakwmMClCu8oCI4EoudNUs3yF152c8Yz/lIZMCtjqxOkbeDGPTwTbLXhIZ4+U/BPaDTOC5jqB62gKo+9tutk27NMK9D2KpoRsy4d9aP0yFPdh0ziTeLWwlOTNmMD4c56xHqG5I62qRM+sOKJwFPkXUWBAbF3fr7/wq58Jyo9Bg7nIyhikIeoIjr0q9Ey4Y9TJXEDK1IBeAq0X6DevMso1Z8AVWsIk4HuAureeQbW2quoNMBZyKUHlEmcIGcDBxfj5ZoE9A699rWUaaMsJwyPaJWOWH4DZVHlQFKFRtLwGUr8PlLtXU4qheSL0O3OGfJHYVRkKB6V110gga6ryHH6zA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=se48TOdd2F1d+ktohq1z2zeXEu8JTZdq5AVMM0zhXMg=;
+ b=QO7Gpb1n2/f/GaoNmCqjj+Ji5g6qESxEvGmd7A+vQTiZKO9H76Zx9S8j0VFrwlUaB7Djg+OM01e+v+cxABUmo2RTxQ2qsbLS5TKelkubzUu8649b/5sJrn/JXpbwsGMT6/EBZYJ6+fu/hcWL9eoVkLrESiMVNknMDBxycQQmNY8PLH7Xj8nE1AQyki5zAhOKKO0j0FRJ3roN4bNMDMIMWznD4lz0z9En+ljK576xBaVAxDCbmJHvIRq3iDUuavk37VMaRUXupwT0yqssjY20Vl+IEwJJKTK/T6mFlrUGor/4g3eqow4L7OcAdVp1upL+98bld0EIc0CoTV0bBQaPyQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=se48TOdd2F1d+ktohq1z2zeXEu8JTZdq5AVMM0zhXMg=;
+ b=jwSJ1UwTUR7FROfYEAkIS7w9pDUwf3rntpgIiVolslCBe7lO5SV8seVs2VL8nrRoKC6pg1EC9pWRx8gDJyv8QJr07hdk2vJJDh7bh4HR/F5IHEimH8bj9zRwrs/xTtPIN5gHo5a57W/MG+68CjvMNGNMZ/YqOxAGMMx5u+jQ+WERJ8UsIjtbq1AvtN1RVcuKDGo/aiEFHGc/Qk8bXWu9gNCFVmCodl+yOISwVF7jViX0xY4uQzlVTOdxx6jNu0ELPpc8octKLzfAwqO/sLZHd8vcfPg6ggXer8HkyBspw/kUK2hRWPwv35DOqjQLl7q+DKX4l8dGfpwMnZaDxSzJUg==
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
+ by LV3PR02MB10030.namprd02.prod.outlook.com (2603:10b6:408:19c::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9052.29; Tue, 2 Sep
+ 2025 14:42:23 +0000
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::cedd:1e64:8f61:b9df]) by SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::cedd:1e64:8f61:b9df%4]) with mapi id 15.20.9052.027; Tue, 2 Sep 2025
+ 14:42:23 +0000
+From: Michael Kelley <mhklinux@outlook.com>
+To: Mukesh Rathor <mrathor@linux.microsoft.com>,
+	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+	"linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+	"linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>,
+	"linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+CC: "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
+	"mripard@kernel.org" <mripard@kernel.org>, "tzimmermann@suse.de"
+	<tzimmermann@suse.de>, "airlied@gmail.com" <airlied@gmail.com>,
+	"simona@ffwll.ch" <simona@ffwll.ch>, "jikos@kernel.org" <jikos@kernel.org>,
+	"bentiss@kernel.org" <bentiss@kernel.org>, "kys@microsoft.com"
+	<kys@microsoft.com>, "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
+	"wei.liu@kernel.org" <wei.liu@kernel.org>, "decui@microsoft.com"
+	<decui@microsoft.com>, "dmitry.torokhov@gmail.com"
+	<dmitry.torokhov@gmail.com>, "andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>,
+	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
+	<edumazet@google.com>, "kuba@kernel.org" <kuba@kernel.org>,
+	"pabeni@redhat.com" <pabeni@redhat.com>, "bhelgaas@google.com"
+	<bhelgaas@google.com>, "James.Bottomley@HansenPartnership.com"
+	<James.Bottomley@HansenPartnership.com>, "martin.petersen@oracle.com"
+	<martin.petersen@oracle.com>, "gregkh@linuxfoundation.org"
+	<gregkh@linuxfoundation.org>, "deller@gmx.de" <deller@gmx.de>,
+	"arnd@arndb.de" <arnd@arndb.de>, "sgarzare@redhat.com" <sgarzare@redhat.com>,
+	"horms@kernel.org" <horms@kernel.org>
+Subject: RE: [PATCH V0 0/2] Fix CONFIG_HYPERV and vmbus related anamoly
+Thread-Topic: [PATCH V0 0/2] Fix CONFIG_HYPERV and vmbus related anamoly
+Thread-Index: AQHcF7c4ZH9DwegJF0iLCVnaUNUDXbR7UfGg
+Date: Tue, 2 Sep 2025 14:42:23 +0000
+Message-ID:
+ <SN6PR02MB4157917D84D00DBDAF54BD69D406A@SN6PR02MB4157.namprd02.prod.outlook.com>
+References: <20250828005952.884343-1-mrathor@linux.microsoft.com>
+In-Reply-To: <20250828005952.884343-1-mrathor@linux.microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|LV3PR02MB10030:EE_
+x-ms-office365-filtering-correlation-id: a40a4d39-6566-4539-a02c-08ddea2eed9e
+x-ms-exchange-slblob-mailprops:
+ YfhX3sd/0TVWrg+fxRScxfg9v9HXnUFl2bb0N5PwJ9age037L4Klz87A6NyjFdfQ8zYEvCPDD2Z9dLgS+qpBFyEHZS2T1G+CFZEgm+otSlW4Nu0RhuXIKAu0H1UhoRCwQASdRc4cGepmATgSb6B2epRKeVqTeXYHfl6108YYmB7N7wUwun8wMQKTjdrQdaBBW09pShWMy6EWb8JkjoYu08Eh9snF/14iUrTKGhJ8k/v5H8vGBbY5djvgqkc0MPupD1QcwqQJS9v/wHFcO7lGzq3sFWDchzBC1XwEG1/dtjJahWz81gqAgmgi54mBn3G07pKtjZip2C+iJ3ec47VvBI33oXcoOSq1JryUrrvV3wW+w0/S/KqJl5Yb4vAK5xx4Ce4IBk5XyegLrP7RMDF6ceNuyZEoB4MBoftKwedS+VHgef9sVbtWZTruMc3b5CJ913sSHinCpWY2hfpvDoADbDz1+WGxBU+ugPhESyFk4wkXH9NI91Lurhpew/sm5TWWXjyfREHFJlLLPLXVvweHEBU0GthnadUA0YgcrsLopyok2R5gn9WYjoA33feypqNNzl4cH1gSc4rkoRfmlMhxLYfzeM15NT2ShoJhD1Y7B+K1p+3wjI81qY3XG3QkLxgITxn2plnZvbZtrV5nJgLyyD+t1e/eMcW9mgo2GrQ8mN4CJwU5/pUqdDBQnatH5afrQLP2SSGSX0AfGbdxIA19BYpYXmIRmOpq8nENXwnSmvS4kYxE2eGUXyIV4nW1+bLC0BBTxz/T9sFskJSn4B+gtJglK197aqwlcJAaXSm5rUM=
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|19110799012|8060799015|8062599012|13091999003|461199028|31061999003|15080799012|3412199025|40105399003|41105399003|440099028|53005399003|102099032;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?MsjLxTZUp2l4MG7FKz/9FJAkVd/1+5Eun0kfhThgV2qEyvQJO+CV+tmo4iy1?=
+ =?us-ascii?Q?lR3ACW81kjxrouPyC7IHE66uupNO6CMKqsP536wbPSVEQpIM2JRhUBkzHzcM?=
+ =?us-ascii?Q?EzbI0xmg1I8+IeGXOHyqUPK5hND+98TPkmYS3lzY4jmxipxF7H0pKZ2ED30S?=
+ =?us-ascii?Q?QzdCk/9G+ngIHBpXza1zvFAPLAYVDV7003oFNBbPddEYJn7CrBRI1vtjy5eK?=
+ =?us-ascii?Q?6CMnSfaJnw+pUbqxS+wUYnll9a7SUhfEmUhT8Mg1ck/lpYhHTHMUq14RSWXo?=
+ =?us-ascii?Q?j+RdoSlQSL8gZXl2fL6AKtdVDlvNKqP9Tgk6eriZ/ErIE+3VlFL3wTcfMpfa?=
+ =?us-ascii?Q?MRB0ajnoZeX5S2gujlG/H3rwyaXoTgmTc7fw75F+RKYwtNm+Sp/GsuaMVzZP?=
+ =?us-ascii?Q?t3dm1uME6RY3qdT0J/cggjx8rE3Av21QD0gxEehXEDMV9zMb97DUwGUwjHqy?=
+ =?us-ascii?Q?Fl1V+xGIyT/Ewb4bqr2COnHP0zEmAfxkydRUi0d6sDPPzhRx2yUmaoiHO9dZ?=
+ =?us-ascii?Q?Kon+Z23INKDN7dxO+ek4iSImOrazEP1SgSCxvQsNDOhZnp9mVjYahvueTQ3l?=
+ =?us-ascii?Q?dqy94Mw9pKJ/zNd87pdZU22Gg4aZV5RT+2NrWW1DngEucAGqBuxIoZk7+5BT?=
+ =?us-ascii?Q?qov5wrbCDV3NyIYRbpnEwlIBT7YwfBJJy4Lxy6JQGV3RJy5qG6KVGPVhFr6s?=
+ =?us-ascii?Q?OWSbWGAdcPNt/TSgoAXj0QWndW7TIZ7JHmdEbG6Zm3BKq4JC9oFcV+RkmEGB?=
+ =?us-ascii?Q?W0Azxgppmxso1Oyi2tSbu+pXjw7/n4C0xzcJ1DKyOzuA52tpjTintfgOC6f7?=
+ =?us-ascii?Q?NYGJYPl7q+liLpxeXehXJPVzHdBcyYdyMWB7znvDzf2/NBqcgt7UV1gKSkoL?=
+ =?us-ascii?Q?jmarwzk1x7Z3Rz1/I/bCaM7H6vUSEx8W8wgQi+5N1XYZ3AMlRFJmoTuoHAcR?=
+ =?us-ascii?Q?MjEc0ABQhHvWmoc5I0R+Ve6bHxcOssatURNQgkYkaF5pMnwA58rCG7sd2FAL?=
+ =?us-ascii?Q?pWnS256pWzV92Oq269+BitW5GVvOEfF7Nyz1/oKGApqlK9CbFQ/dilaPcwEw?=
+ =?us-ascii?Q?/uB2ZKmvzInR+7kH3k1VlYNJs6Mq82le/IbUpmP9lWh4Bgz0ckguEQ86gjy/?=
+ =?us-ascii?Q?IVUcIXGy9QFqpPh2CLCCo5dZ79WYW1G9d3SaEr+LEGu7bOmA7F5vrF+IYP/R?=
+ =?us-ascii?Q?wXh5CGCxQOr+dwFWwGCtnXjeNDg4UEt6tSjj5CPET2xeoqOedGfg8fe8NYg?=
+ =?us-ascii?Q?=3D?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?4ioLFhR5M7csGXZ4ltKT8xjjCUJDyLM5t7kKKEL6ltC9DniUyp1BkwuRGHV+?=
+ =?us-ascii?Q?1YgfGQx0IrOzJRPimNqCEuePUNLPjV9zBliPeOIQC2/S41/9qAlh/FUATZ9Y?=
+ =?us-ascii?Q?gUU9T/Ghu5nO+MGq4z92Pw57kgRgXPM0UIgMiNcnkLEXpImxEbrh+KfZ0YZx?=
+ =?us-ascii?Q?aT/Xv0frboHUwt6LS3pKlxjxn/Na2DFfPLQOCAAvCqtLRcWXUyZmBtq4/4T/?=
+ =?us-ascii?Q?8HC5lshDIBs3f6CgcONu51Zv0/oG+eD7kO+vjcuzd71WuyLV069/tJes1LND?=
+ =?us-ascii?Q?o4BwqShs9hBge2t71qySBj7KIC38VPSKKApmw4RWDlTXqqO/vm/2XUUG77sK?=
+ =?us-ascii?Q?rtuyuhRPPqaE6gSct+THgNuDM8NscsAoj/+q28vVNsDdpXlEg1G0ZL/mAqbP?=
+ =?us-ascii?Q?zHoFYxNjTAIvsxu4ze3yVbrWbYVs1pIhKn2qfHF+yRLYXP04T3MOEXOIsS4W?=
+ =?us-ascii?Q?RHZaT34ZWU9e+DsK1Nx/bBRS6Z4qEgqhIOiHXmBl8XxEqXRx0PWWXOz4sIsl?=
+ =?us-ascii?Q?LgFpWSkUBe5l0pq1K86IsGGJC+opaQ2607UGoJJgB0xHHvnayNlBEUV6XHQy?=
+ =?us-ascii?Q?1sfLZ1SwUEu53tXrp9aVORYshTGLj7M6gcBIAiKkW/3niJOGDmS+4JHSRjis?=
+ =?us-ascii?Q?koJ80zD24Y/yDbVPa0ZQvaBdh4KIUQ2OAhhBA64y6wn2aoW5uhbI9QNKXryd?=
+ =?us-ascii?Q?6rrVM5tF8ghHHex3FEwEg0AxlXAAObMuA4zF1xLN161XTq9mSMztbnZU1xJj?=
+ =?us-ascii?Q?s8C11XZgeO0ohkcATRFS2Gj/JAiE238MgcBPNk8Flrf9HxYukrbFPnwgtDXV?=
+ =?us-ascii?Q?G82kG4ma5cjENkIzCqyRzlZbuCq9QpeGv3Y3zMcpR8vJRxtMGxV4XQVGTFju?=
+ =?us-ascii?Q?BNS6MEFc+VUcqpojdL3em8tR4EX1IJZo5eX+XHJ1zqnAdeRlofmt92rzCbDx?=
+ =?us-ascii?Q?RtdL/WR4+P6csfBrYv0MbAn3U8i4oGp+bcATwYULVLrElqMYsnfxVvaTHvXK?=
+ =?us-ascii?Q?00K9/WxiTeyxp7jto6ST0StV87M2gSSUu2e1OB6/RhVUnbOlpHXx6eYRmSfM?=
+ =?us-ascii?Q?tkZVa7yw9onzj+Ohlg0l7Y9jvAMNQ3TCi3Gj4kHrmk0qFDP50KR9lDBQsXML?=
+ =?us-ascii?Q?BTVh8UfkQVdYJHwylV548FswQz4T9WlNGLzrLG1uOQLRh8anicL0hSbWigb1?=
+ =?us-ascii?Q?/kes0dO4FsQ7FZqMwru2++j6NiHHKjWy90ybMezCKVtxPCGgVPseBDb6x28?=
+ =?us-ascii?Q?=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.16.4
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: a40a4d39-6566-4539-a02c-08ddea2eed9e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Sep 2025 14:42:23.2331
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR02MB10030
 
-From: Junnan Wu <junnan01.wu@samsung.com>
+From: Mukesh Rathor <mrathor@linux.microsoft.com> Sent: Wednesday, August 2=
+7, 2025 6:00 PM
+>=20
+> At present, drivers/Makefile will subst =3Dm to =3Dy for CONFIG_HYPERV fo=
+r hv
+> subdir. Also, drivers/hv/Makefile replaces =3Dm to =3Dy to build in
+> hv_common.c that is needed for the drivers. Moreover, vmbus driver is
+> built if CONFIG_HYPER is set, either loadable or builtin.
+>=20
+> This is not a good approach. CONFIG_HYPERV is really an umbrella config t=
+hat
+> encompasses builtin code and various other things and not a dedicated con=
+fig
+> option for VMBUS. Vmbus should really have a config option just like
+> CONFIG_HYPERV_BALLOON etc. This small series introduces CONFIG_HYPERV_VMB=
+US
+> to build VMBUS driver and make that distinction explicit. With that
+> CONFIG_HYPERV could be changed to bool.
 
-[ Upstream commit 45d8ef6322b8a828d3b1e2cfb8893e2ff882cb23 ]
+Separating the core hypervisor support (CONFIG_HYPERV) from the VMBus
+support (CONFIG_HYPERV_VMBUS) makes sense to me. Overall the code
+is already mostly in separate source files code, though there's some
+entanglement in the handling of VMBus interrupts, which could be
+improved later.
 
-"Use after free" issue appears in suspend once race occurs when
-napi poll scheduls after `netif_device_detach` and before napi disables.
+However, I have a compatibility concern. Consider this scenario:
 
-For details, during suspend flow of virtio-net,
-the tx queue state is set to "__QUEUE_STATE_DRV_XOFF" by CPU-A.
+1) Assume running in a Hyper-V VM with a current Linux kernel version
+    built with CONFIG_HYPERV=3Dm.
+2) Grab a new version of kernel source code that contains this patch set.
+3) Run 'make olddefconfig' to create the .config file for the new kernel.
+4) Build the new kernel. This succeeds.
+5) Install and run the new kernel in the Hyper-V VM. This fails.
 
-And at some coincidental times, if a TCP connection is still working,
-CPU-B does `virtnet_poll` before napi disable.
-In this flow, the state "__QUEUE_STATE_DRV_XOFF"
-of tx queue will be cleared. This is not the normal process it expects.
+The failure occurs because CONFIG_HYPERV=3Dm is no longer legal,
+so the .config file created in Step 3 has CONFIG_HYPERV=3Dn. The
+newly built kernel has no Hyper-V support and won't run in a
+Hyper-V VM.
 
-After that, CPU-A continues to close driver then virtqueue is removed.
+As a second issue, if in Step 1 the current kernel was built with
+CONFIG_HYPERV=3Dy, then the .config file for the new kernel will have
+CONFIG_HYPERV=3Dy, which is better. But CONFIG_HYPERV_VMBUS
+defaults to 'n', so the new kernel doesn't have any VMBus drivers
+and won't run in a typical Hyper-V VM.
 
-Sequence likes below:
---------------------------------------------------------------------------
-              CPU-A                            CPU-B
-              -----                            -----
-         suspend is called                  A TCP based on
-                                        virtio-net still work
- virtnet_freeze
- |- virtnet_freeze_down
- | |- netif_device_detach
- | | |- netif_tx_stop_all_queues
- | |  |- netif_tx_stop_queue
- | |   |- set_bit
- | |     (__QUEUE_STATE_DRV_XOFF,...)
- | |                                     softirq rasied
- | |                                    |- net_rx_action
- | |                                     |- napi_poll
- | |                                      |- virtnet_poll
- | |                                       |- virtnet_poll_cleantx
- | |                                        |- netif_tx_wake_queue
- | |                                         |- test_and_clear_bit
- | |                                          (__QUEUE_STATE_DRV_XOFF,...)
- | |- virtnet_close
- |  |- virtnet_disable_queue_pair
- |   |- virtnet_napi_tx_disable
- |- remove_vq_common
---------------------------------------------------------------------------
+The second issue could be fixed by assigning CONFIG_HYPERV_VMBUS
+a default value, such as whatever CONFIG_HYPERV is set to. But
+I'm not sure how to fix the first issue, except by continuing to
+allow CONFIG_HYPERV=3Dm.=20
 
-When TCP delayack timer is up, a cpu gets softirq and irq handler
-`tcp_delack_timer_handler` will be called, which will finally call
-`start_xmit` in virtio net driver.
-Then the access to tx virtq will cause panic.
+See additional minor comments in Patches 1 and 2.
 
-The root cause of this issue is that napi tx
-is not disable before `netif_tx_stop_queue`,
-once `virnet_poll` schedules in such coincidental time,
-the tx queue state will be cleared.
+Michael
 
-To solve this issue, adjusts the order of
-function `virtnet_close` in `virtnet_freeze_down`.
-
-Co-developed-by: Ying Xu <ying123.xu@samsung.com>
-Signed-off-by: Ying Xu <ying123.xu@samsung.com>
-Signed-off-by: Junnan Wu <junnan01.wu@samsung.com>
-Message-Id: <20250812090817.3463403-1-junnan01.wu@samsung.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
-
-LLM Generated explanations, may be completely bogus:
-
-**Backport Status: YES**
-
-This commit should be backported to stable kernel trees. Here's my
-extensive analysis:
-
-## Critical Bug Fix
-This commit fixes a **use-after-free vulnerability** in the virtio_net
-driver that can cause kernel panics during system suspend. The issue is
-a race condition between the suspend process and active network traffic,
-specifically:
-
-1. **Race Condition Details** (from commit message):
-   - CPU-A calls `netif_device_detach()` which sets
-     `__QUEUE_STATE_DRV_XOFF` on TX queues
-   - CPU-B running `virtnet_poll()` can clear this flag via
-     `netif_tx_wake_queue()`
-   - CPU-A then calls `virtnet_close()` which disables NAPI and removes
-     virtqueues
-   - Later, when TCP delayed ACK timer fires, accessing the removed TX
-     virtqueue causes a panic
-
-## Code Analysis
-
-The fix is **minimal and contained** - it simply reorders two operations
-in `virtnet_freeze_down()`:
-
-**Before (buggy order):**
-```c
-netif_tx_lock_bh(vi->dev);
-netif_device_detach(vi->dev);  // Sets __QUEUE_STATE_DRV_XOFF
-netif_tx_unlock_bh(vi->dev);
-if (netif_running(vi->dev)) {
-    virtnet_close(vi->dev);     // Disables NAPI - TOO LATE!
-}
-```
-
-**After (fixed order):**
-```c
-if (netif_running(vi->dev)) {
-    virtnet_close(vi->dev);     // Disables NAPI FIRST
-}
-netif_tx_lock_bh(vi->dev);
-netif_device_detach(vi->dev);  // Then detach device
-netif_tx_unlock_bh(vi->dev);
-```
-
-## Backport Suitability Criteria
-
-1. **Fixes a real bug**: YES - Use-after-free causing kernel panics
-2. **Small and contained**: YES - Only 8 lines moved, no logic changes
-3. **No side effects**: YES - Just reordering existing operations
-4. **No architectural changes**: YES - Simple ordering fix
-5. **Critical subsystem**: YES - Network driver suspend/resume path
-6. **Clear bug fix**: YES - Not a feature addition
-7. **Minimal regression risk**: YES - The new order is logically correct
-   (disable NAPI before marking queues stopped)
-
-## Historical Context
-
-From git blame analysis:
-- The problematic code structure has existed since 2017 (commit
-  9fe7bfce8b3e11)
-- Recent changes in 2025 (commit e7231f49d52682) modified the locking
-  but didn't fix the race
-- This indicates the bug has been latent for **years** and affects many
-  kernel versions
-
-## Impact Assessment
-
-- **Severity**: HIGH - Causes kernel panics during suspend with active
-  network traffic
-- **Likelihood**: MODERATE - Requires specific timing but can happen
-  with normal TCP traffic
-- **Affected systems**: All systems using virtio_net driver (VMs,
-  containers)
-
-The commit already has "[ Upstream commit
-45d8ef6322b8a828d3b1e2cfb8893e2ff882cb23 ]" indicating it's been
-identified for stable backporting, which further confirms its
-importance.
-
- drivers/net/virtio_net.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 82b4a2a2b8c42..c9b18b13cd940 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -5728,14 +5728,15 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
- 	disable_rx_mode_work(vi);
- 	flush_work(&vi->rx_mode_work);
- 
--	netif_tx_lock_bh(vi->dev);
--	netif_device_detach(vi->dev);
--	netif_tx_unlock_bh(vi->dev);
- 	if (netif_running(vi->dev)) {
- 		rtnl_lock();
- 		virtnet_close(vi->dev);
- 		rtnl_unlock();
- 	}
-+
-+	netif_tx_lock_bh(vi->dev);
-+	netif_device_detach(vi->dev);
-+	netif_tx_unlock_bh(vi->dev);
- }
- 
- static int init_vqs(struct virtnet_info *vi);
--- 
-2.50.1
+>=20
+> For now, hv_common.c is left as is to reduce conflicts for upcoming patch=
+es,
+> but once merges are mostly done, that and some others should be moved to
+> virt/hyperv directory.
+>=20
+> Mukesh Rathor (2):
+>   hyper-v: Add CONFIG_HYPERV_VMBUS option
+>   hyper-v: Make CONFIG_HYPERV bool
+>=20
+>  drivers/Makefile               |  2 +-
+>  drivers/gpu/drm/Kconfig        |  2 +-
+>  drivers/hid/Kconfig            |  2 +-
+>  drivers/hv/Kconfig             | 14 ++++++++++----
+>  drivers/hv/Makefile            |  4 ++--
+>  drivers/input/serio/Kconfig    |  4 ++--
+>  drivers/net/hyperv/Kconfig     |  2 +-
+>  drivers/pci/Kconfig            |  2 +-
+>  drivers/scsi/Kconfig           |  2 +-
+>  drivers/uio/Kconfig            |  2 +-
+>  drivers/video/fbdev/Kconfig    |  2 +-
+>  include/asm-generic/mshyperv.h |  8 +++++---
+>  net/vmw_vsock/Kconfig          |  2 +-
+>  13 files changed, 28 insertions(+), 20 deletions(-)
+>=20
+> --
+> 2.36.1.vfs.0.0
+>=20
 
