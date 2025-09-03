@@ -1,63 +1,63 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 273EC369975
-	for <virtualization@lists.linux.dev>; Wed,  3 Sep 2025 18:59:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 129DA369975
+	for <virtualization@lists.linux.dev>; Wed,  3 Sep 2025 18:59:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756925981; cv=none; b=mktDX+m7oPJh1qn9cDWAzUxMGLf9/jhno+hys8KK2HuXOgtijmH8YGlBVYfAxA5N5K3ieLj9/vOn3PaDvrmqe3/NgW+GopsWBzBUvvij+IsZ4Z93fQp3QUq8pW0Dxrt6S/yt6nFej7TfI+uCPTziG1tJLwbxYBKXocontkL3SIA=
+	t=1756925983; cv=none; b=HRjr+EtCN7dYlCEJhbsfyz5kf6ecQUgTE76c2CJLdjzOZRshvaq5jIkeU9ogFd+cEoFtYyOJASp0aL+KFLrS6H67ZWOj4BshlgfnCh3CSSoPbZHKF4429xZBtBQoqWtBUcnT9RPT3aZOvIheitDFBwCyKL77RY2T7v9T4tN1sw4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756925981; c=relaxed/simple;
-	bh=tDJPTP0lhO5ivDTkZpNt7Rd4fQWnznv9kl6iZmQUTXw=;
+	s=arc-20240116; t=1756925983; c=relaxed/simple;
+	bh=hMxsFCbfS4FNJ5KpQPQ814MUfYn5DLMes7LkACjORbM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Rxv841Ru1z1D1+aipUUg3z5NhleYjAEWnSskKs94n0+NuOTSQocwlCPr95vPgNWIXqJ3ldmYE7USXx8HVwkRcSzlDvdP9yVgJxtBj7X4a7ObgHK8bV2GnynXXmk3Gbmn1bhwQpCvsT4jTsOn+XTUuwFDZF17EPxRZVrUvUB2gfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P2gG5nAf; arc=none smtp.client-ip=209.85.214.174
+	 MIME-Version; b=BV9bG+Cf062mEbqkUeHd9Pb/4yL2VJ/lzO/X1kr3MTcq1yZQW1w4r1HlLULuKgRY1XPhLB7Gv5F1i9uaXbLW8iKBUD0KZn4/y29LcgSeFCGdCyr9+MqYR0YULGWuqzsHNiACq11UmGyGgdd3/nCqYhEGyvc0Qb6+FZClSszC8JE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hTVk+ZcK; arc=none smtp.client-ip=209.85.210.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P2gG5nAf"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-248ff4403b9so2723915ad.0
-        for <virtualization@lists.linux.dev>; Wed, 03 Sep 2025 11:59:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hTVk+ZcK"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-7724fe9b24dso190648b3a.2
+        for <virtualization@lists.linux.dev>; Wed, 03 Sep 2025 11:59:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756925979; x=1757530779; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1756925981; x=1757530781; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6wz/bZSqqVx6pRJeL2TZzvIUdrr6/vXiyt+C/9X3zJM=;
-        b=P2gG5nAfKgYEI3OQlbbpYPv4aAI/y4IjIRa3lErYshzUWJ6BUKdBvtIf3X1RyKvm8n
-         fr8L8OzLXWPGcdHnspXM6bDRJBuulRiS8rCHHd595Is/Hd5kxmxch8nPob4CaWZuxSlU
-         zzblk7gF3mhLoafGPkjgQoXZi4xsR9OmmM9oDoRDLpcr2le7aAzmrcVWfk1pWf2D9EPt
-         YRt7HLQ5qJUkHmbxZCdKCoNoYJyLA0PehoniKk+2CFnuxkRaF/CS5yG/Eu6IcEB6C5QP
-         XqNSUOUMh81eYjlgDlFHiLnLMR1zaoRoDV/GbwQuZfBnyliXMd9em/mpZ82q8XVoL6OV
-         hVJA==
+        bh=tE4h8lAMatl8zOgx47ZsHYZprqFSGIay3bVnFsp5zpE=;
+        b=hTVk+ZcKGZwfh2CTHRWy4oOuK+lB8P6XBtUqF1JBIlcfU1OsRzEt7kjj10r3HVhjrM
+         OVL+V+dyUf5n9+D3QWH+0T4nrEoZ+8T/0r6Qo8SkdeC4It+TyklbXgfUaz+h1qEzzbQz
+         ie69iozKlsRoP+K3O5uxt/D6yWBMPUfFZ79AK6CkFImRdRfVrB79Rv+w0PzQY1Zf7tA+
+         Q0tDhnMnCndmP4EFgd4/VNbfDAzlr3UXDqf6Cep2iKFjYLMCaBpvL9N5oGRojaN1EbcQ
+         MKJ7EeWQMhBctiNwoOvG5Vzcpd9P1ywHEGPTRbPUvSvObT4FTSofmCYgFfPVO51/gaFI
+         N4cw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756925979; x=1757530779;
+        d=1e100.net; s=20230601; t=1756925981; x=1757530781;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6wz/bZSqqVx6pRJeL2TZzvIUdrr6/vXiyt+C/9X3zJM=;
-        b=oX1I5j7SKxe2UzE8Nq/RFIIeWikUAL/6jpQm6MYPrVc5cPItBsLbgCxSYh1lYUYSRn
-         9SYzD1BYMRDVc2j49/JK2SgTToxrCAr6smhPkYGyA96UShy9FjerblXhQGss+Vdih+Dy
-         hpTMgy/BBEYSZt5gbuJmeVldVtTvWM9WX1j8KjtYLEiGGNhIHVgXkSqDOHHTfz9RUVrn
-         /fYCVG6qsguLL9Dhn5tKa9RV6DrfjCuozpz5ndf0VBV5irH42MYjR1ruDscY4JO47eep
-         JZVOSnzQZyYhZ2s4DXqOffOEHbzLfW8gO1dhLm90GgALTF+GUZV108z7g1BbX+Cgw8lY
-         3A/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXik2Nz7yGlURtFS/G9ql6qi7eGlJN1ZMYC6EznE3GOcmNG6UE9OhqeGgHQJ6VQwLQIc/wjgPBfZ+W0ve1xkw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx22zdPmZdvwMJqeJRMmSQ0Buo7O3WADHhQrzp6g+ymRCnFtWgQ
-	gtTEfjXyzPVT6s9PWPObuUGjlAQeG97nSRBdviJNW5y2SoMBGii/B408
-X-Gm-Gg: ASbGnct9nYYF0muJa6bU3D9Wy/JZWbrQ6+jvJlOK1WZA9EBQoQKngOlTDA2SHW83E2z
-	SBSRhRZE3Ez7FPb91bu8bvhhRYIBtAoVqSClClyDG+fydiNXrzFCR5/3MrcCCrU1k3Jtif6t/bH
-	U/UZ7miv3dXSuGG+X64Zhre57f1MUGecgvRfWYfdwYmgnoV9KWW3ILDCXuTPaxg9JjWqCcilR0a
-	ASGzGCqNpJZ4dVNEDiOAdNKSWIB1w5GFVD05dn0IkHVc+tqrkUalDBQoTYAXlvDSlJST/e6dhcd
-	L7aIbIrNN7XpPt5m84p5pkadr5kmY1qeiqQgTxrowp8e5XPi05/H+QhtZ/QCT6mhicBhVK8O6vF
-	45tnrOzn/QgD3U0/HYeu5nNwiIQYfRvYNGQhLX1yljxIC1AzOnCjReg==
-X-Google-Smtp-Source: AGHT+IFLYxGq/uXWczWSmoJ4dYmB1R4jOWZAcKlvb1pf3KqvOH6hTCxx8eQlFrsP54M7TPt133nTbQ==
-X-Received: by 2002:a17:902:f789:b0:246:d383:3964 with SMTP id d9443c01a7336-249448ac3c8mr239306545ad.18.1756925979423;
-        Wed, 03 Sep 2025 11:59:39 -0700 (PDT)
+        bh=tE4h8lAMatl8zOgx47ZsHYZprqFSGIay3bVnFsp5zpE=;
+        b=UTAAPnviJVCxxms7z1fziBGhQao//a3q/KLC+expL6eywKFOQEgt95HTG10obEbOBB
+         DLbmFLpTjcM5JCwE4S6NWIEtmycG5WFFATjZ58dwCL97JPffnVsbOhSJXMkg6l63HXn0
+         lGvANuapfXsAa7vthD215ql+TUBe9FMoLDgC232tma/ONaMTuSwXWOoi5JK4oIRPwxv8
+         J0e/o9r1TAkaHwr0a9C8vQZXb2EZKlDir6CB1sMbrtXG9YJ4siiXWZTGjTFfoBWVfQCt
+         FSHz6NIR1r48RdfYHnpLxnV/UMpHMFNLSOz1yK2nRblnIWxu/8U2b5AlEEi8TZd9ZY7R
+         kMCA==
+X-Forwarded-Encrypted: i=1; AJvYcCXL2Vz+KIlyU0V4MBoX2YxVoZ9Wp0kuiBd9mx2zj1WqUKfAuCj/KU3nuo00vgIy0NXEBCaWCUwwPkPhoQDQew==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzrumfLaeC10jvvAkn0X1hPo5KMcScSduNJR11tuuOlH5922jJn
+	VunNQ26GsceGU/esGuzM2hpU8bJcQcaVrE1hMmR23q+4+FPQa8hVHQNI
+X-Gm-Gg: ASbGncscrLACWGW11ECjZTVzUeol/IKaqRvP3QWyRgS7jbPf8H+k3k4cmCblv8nZYmL
+	arxieKzk5oDJExl8gVaLN7NgKVogeUBzxwK2tnOpwGxvJIaHxT0lH9sclDhj8bsqamxOjqVnJkJ
+	bAHMhVBDOozmjWsnx4yJoawkL+RfscYez8vdstDnA6nhSWsricu0JBiGojS5cSA8rOkuEgc1Yqk
+	V0X0ciQfeSkfd1nc5dciUjLeOBFAuYM9qfS3jhy6OUPC+0rxI0OdIAdICCQq37dsLvO9+670BBN
+	+kQhcezmfCJomQQKqmLHSuD7udYBJwNhh8bwAhU0kfLmbzzKa+Y/zUXtiOMipJINNt/Noo75fLA
+	4hRiouNFYNz12ISxCOiTCM5Rp2sw5iSKYXsaIrikzK570Zok0CbVkNPuNC5I8ngo9
+X-Google-Smtp-Source: AGHT+IFOzZVS9DP4L6Y226muKjeIB1JH5DNA05hxxzbj7ORa/S2amssbHzjMdMYqRSy3xMpxXA++JA==
+X-Received: by 2002:a17:902:cecc:b0:24a:aeb6:f1c8 with SMTP id d9443c01a7336-24aaeb6f63bmr166407785ad.43.1756925981346;
+        Wed, 03 Sep 2025 11:59:41 -0700 (PDT)
 Received: from fedora (c-67-164-59-41.hsd1.ca.comcast.net. [67.164.59.41])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-249065ab343sm169403475ad.126.2025.09.03.11.59.37
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-249065ab343sm169403475ad.126.2025.09.03.11.59.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Sep 2025 11:59:38 -0700 (PDT)
+        Wed, 03 Sep 2025 11:59:40 -0700 (PDT)
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 To: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org,
@@ -69,12 +69,12 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-efi@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	"Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v3 3/7] x86: Stop calling page_address() in free_pages()
-Date: Wed,  3 Sep 2025 11:59:17 -0700
-Message-ID: <20250903185921.1785167-4-vishal.moola@gmail.com>
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>
+Subject: [PATCH v3 4/7] riscv: Stop calling page_address() in free_pages()
+Date: Wed,  3 Sep 2025 11:59:18 -0700
+Message-ID: <20250903185921.1785167-5-vishal.moola@gmail.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20250903185921.1785167-1-vishal.moola@gmail.com>
 References: <20250903185921.1785167-1-vishal.moola@gmail.com>
@@ -90,38 +90,32 @@ free_pages() should be used when we only have a virtual address. We
 should call __free_pages() directly on our page instead.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 ---
- arch/x86/mm/init_64.c          | 2 +-
- arch/x86/platform/efi/memmap.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/riscv/mm/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index b9426fce5f3e..0e4270e20fad 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1031,7 +1031,7 @@ static void __meminit free_pagetable(struct page *page, int order)
- 		free_reserved_pages(page, nr_pages);
- #endif
- 	} else {
--		free_pages((unsigned long)page_address(page), order);
-+		__free_pages(page, order);
- 	}
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 15683ae13fa5..1056c11d3251 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -1624,7 +1624,7 @@ static void __meminit free_pud_table(pud_t *pud_start, p4d_t *p4d)
+ 	if (PageReserved(page))
+ 		free_reserved_page(page);
+ 	else
+-		free_pages((unsigned long)page_address(page), 0);
++		__free_pages(page, 0);
+ 	p4d_clear(p4d);
  }
  
-diff --git a/arch/x86/platform/efi/memmap.c b/arch/x86/platform/efi/memmap.c
-index 061b8ecc71a1..023697c88910 100644
---- a/arch/x86/platform/efi/memmap.c
-+++ b/arch/x86/platform/efi/memmap.c
-@@ -42,7 +42,7 @@ void __init __efi_memmap_free(u64 phys, unsigned long size, unsigned long flags)
- 		struct page *p = pfn_to_page(PHYS_PFN(phys));
- 		unsigned int order = get_order(size);
- 
--		free_pages((unsigned long) page_address(p), order);
-+		__free_pages(p, order);
+@@ -1646,7 +1646,7 @@ static void __meminit free_vmemmap_storage(struct page *page, size_t size,
+ 		return;
  	}
+ 
+-	free_pages((unsigned long)page_address(page), order);
++	__free_pages(page, order);
  }
  
+ static void __meminit remove_pte_mapping(pte_t *pte_base, unsigned long addr, unsigned long end,
 -- 
 2.51.0
 
