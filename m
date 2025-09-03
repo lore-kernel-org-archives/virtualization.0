@@ -1,146 +1,285 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A24D2F1FE2
-	for <virtualization@lists.linux-foundation.org>; Wed,  3 Sep 2025 10:28:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 391F01CEAC2
+	for <virtualization@lists.linux.dev>; Wed,  3 Sep 2025 10:31:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756895287; cv=none; b=rVnc97tgx/EmnP+tcHhgxUctNDW1WcnSMPC5gpuOVPJ2P5qdtN5YSqjR+6WEv8k848u0ZB8Ji6Bc7unhIFjcPtV6llBFe4nd5apL6bJCrf6d0tVoHVZm3pJ9prOXEXn78QyMuskTIYI2cvoKyRg5QHTcYp+rC7bm2FF39s+fx9U=
+	t=1756895467; cv=none; b=pRNk2YN3Lmf5VEX88EsKjYBZ5djqg8P0pKCRbWRS7xBVWWpxrcjJf8oZixMEKf4cBCDkDPu0vuTxNzHUa+sZqTjQMXTeEBwgJYC3cS6IlVYv6eyrsMhjarGlU6vx3rWxH9x5qd7CuGZ9XdlwqCEFdOEwpdTbuUKyzx7qcZuZr/Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756895287; c=relaxed/simple;
-	bh=d0x3JX/+9DiVecJg9Q5If5tZJiuJvMmVamNF3ZJOfzo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KSXpxcjLSke4OC9WiVSpL9pP5XfT95Q/UyfC/AxPoaeOs5Sya9v0SXBeigp8Vrb77/Amt/rp79QxZwlUHTALq7A6EIa+Q1cRxMOQ6NA3Ez8hBcWmzi4PkCfcqRduP/JPtND8iIM6Kbr+uSYRiAhlipqHzVZK/L7k+l83IhZpGfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=BFrrDGXi; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1756895467; c=relaxed/simple;
+	bh=IsuuiCOQW6pAhmbbZCIZ+Wm7t2WtLltTUDeVFIkXfYM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Tg1sH1shBDCX9M87gpYRyzSAPkQ++vlazmeMupe9ZSoAnTLsTcnf3Mnr38fQgONtDHDWAPcifn9X1tLA70nzM1NFApPgu47PnuGA6bxilsW5Iq5sbPFo8CBH1weyeI5NUeIrWvjX/a92+l9tD+I/4VGkjKCVgv94LSUS+KeNyzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AlUQRrZX; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BFrrDGXi"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 16A7D4048E
-	for <virtualization@lists.linux-foundation.org>; Wed,  3 Sep 2025 10:28:06 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -8.092
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ki-6tmw4gFnO for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Sep 2025 10:28:05 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.17; helo=mgamail.intel.com; envelope-from=andriy.shevchenko@intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1D13B407AE
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1D13B407AE
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=BFrrDGXi
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1D13B407AE
-	for <virtualization@lists.linux-foundation.org>; Wed,  3 Sep 2025 10:28:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1756895285; x=1788431285;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=d0x3JX/+9DiVecJg9Q5If5tZJiuJvMmVamNF3ZJOfzo=;
-  b=BFrrDGXigzk12OdWpxxMXL6I77W4SA9RfQ+N069TtpnI5DrLpmXCFt7/
-   hRfg2K0QPjUSIyUwdgnEQr0Nh+aSbEJwRGxCMDkZff8UjgMRpeIPlSBaZ
-   scfETUWf57Z2zvXu0Z7WCol1HOTfJLdOm+fThF+D3LLj3GXEu2pLmGKmZ
-   /V3Xt5FXlhk1rjv3/nOMi7Iw1Ld8gZqucrRh9uTMwM3U1XFvUKJRcplZI
-   2jyb2pb5g3vOyXnicMZWkGqHSHTaNSjanaHu2hVwlMe8wKD1WoK+dxble
-   +VySLkm3rpWWhJmR9HuG0QRpzdrIKVqcNZQt8w98kR47xf1wNkOVgZ9LL
-   w==;
-X-CSE-ConnectionGUID: HLSMGnd8R/CdvnzPbbQ5Pg==
-X-CSE-MsgGUID: FCanAWeAT0ePIJEwg0SeMA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="59153511"
-X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
-   d="scan'208";a="59153511"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2025 03:28:04 -0700
-X-CSE-ConnectionGUID: TralALkLQU+8hrjAbmNTdw==
-X-CSE-MsgGUID: JieKwavoTYOry3mIJvdrIw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.18,233,1751266800"; 
-   d="scan'208";a="208764839"
-Received: from smile.fi.intel.com ([10.237.72.52])
-  by orviesa001.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2025 03:28:01 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.98.2)
-	(envelope-from <andriy.shevchenko@intel.com>)
-	id 1utkib-0000000AxL8-2lXL;
-	Wed, 03 Sep 2025 13:27:57 +0300
-Date: Wed, 3 Sep 2025 13:27:57 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Haixu Cui <quic_haixcui@quicinc.com>
-Cc: harald.mommer@oss.qualcomm.com, quic_msavaliy@quicinc.com,
-	broonie@kernel.org, virtio-dev@lists.linux.dev,
-	viresh.kumar@linaro.org, linux-spi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, hdanton@sina.com,
-	qiang4.zhang@linux.intel.com, alex.bennee@linaro.org,
-	quic_ztu@quicinc.com, virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v9 3/3] SPI: Add virtio SPI driver
-Message-ID: <aLgYLS6Lr5O2cIhK@smile.fi.intel.com>
-References: <20250828093451.2401448-1-quic_haixcui@quicinc.com>
- <20250828093451.2401448-4-quic_haixcui@quicinc.com>
- <aLWMZH3NTfM8qOUy@smile.fi.intel.com>
- <5dcabe90-c25b-4af5-b51f-5cda7113b5f4@quicinc.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AlUQRrZX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756895462;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7qOsf15T960mtb9sS5UAjuBpUtscmR9jTiZsmS/xmDw=;
+	b=AlUQRrZXB+5CEzPm0Zc8eaWN2wc4oZxUUl7iP7dzKofdxGcUqVWVn7WyEnWUmHbmM+s4cl
+	6GTJ0aaMyC6BC6360xf9AOgV5bRR6KuMnYk/YLX1g9RN+8Ax1y+uVMsvi9Fte+BkYtQLld
+	MQ6FYqJxVYyi66dawG7KGavsbU8mDjk=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-5-jEqMcJAHPw2ikzFWhswCnQ-1; Wed, 03 Sep 2025 06:31:01 -0400
+X-MC-Unique: jEqMcJAHPw2ikzFWhswCnQ-1
+X-Mimecast-MFC-AGG-ID: jEqMcJAHPw2ikzFWhswCnQ_1756895460
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-329ee88fb47so2153645a91.2
+        for <virtualization@lists.linux.dev>; Wed, 03 Sep 2025 03:31:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756895460; x=1757500260;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7qOsf15T960mtb9sS5UAjuBpUtscmR9jTiZsmS/xmDw=;
+        b=xRF57Qj/6VlrFXTRGpzzVUk3CNjLbkji9yGPGyKa9qvkpDMd4dos3v1OHbxqUQabXw
+         COY9VdQ5Oqq2Mu9Kq4a/As6tMrA4Xq40Glv2EeaCiuSY1/R4GjOHc00Kgm6qNUbRN8Lf
+         fqjVcbPFLph2mgOAVttKWH4+A/DU7Pfd4j6QNnT4VfZjjxAcj9unPT9bdkq/Dyf5EN1Z
+         exNE4/n0/K61kTgOxAody3matXi3FPl50E1P1+sX368gXJ2All7o7TXTwKQlwu15JJAq
+         /ogNqE4JkG9oWXEHs2MCvHZO8/WY0CKVMf4HU2Zn5Jlfme1H3CjQytL75vpny4DHVeIX
+         pTJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUEn50ILCpMwlMYaQ0J58HWw3RIYwa1+qF1b83ugxYDF8FkS5FtWgoIldH2MUa+pT7cPIFxIgRg5ZRLY0ZCgw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwJh4NIj2ooggf7f3sALUuR/KEa4NljH05avcUE06ewuvGWAvl+
+	1K2gayshcI0OKsYcCDE0krJlwIU6r28+IC1fqSqTmXGaK5VWirmg86VIVhC7BhH4IYWM/7oG50A
+	fG6S99GqxYYcMy+aaXNjn20o2M+QtnyT9mGh+aLDJcZpIjdPZ/mFj6tpxeTwYLWTw20YZsTSCuj
+	QwCz8bNWphypWMCBmPYQTDfcEG7rXtjaONsW+GXAPDjng=
+X-Gm-Gg: ASbGncsBSKLz1DvQuzXNxDe+1EDdasmu1PJt6sAQ6SGqXHJLnPGBnC3cElVX4/lsEs1
+	dhZgvmcJ3iMmbc9J1vSMSTvbySEygRjU4BjPBUeIuhBCtgh8NbIhDGQq3uVByEsqmjeeFmHmiEZ
+	tNC2q8h3jod4MEbvU7KJn3lg==
+X-Received: by 2002:a17:90b:4d06:b0:327:dc81:b39e with SMTP id 98e67ed59e1d1-32815452f34mr16840645a91.13.1756895459902;
+        Wed, 03 Sep 2025 03:30:59 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IENP9nmb5WCwP8PtA5pBQnIUN1yc0WNZA+WYg3GqoWssXzlUN9eByNc1YtWgslytrfrBNmIaV4iioNjmPdJcgY=
+X-Received: by 2002:a17:90b:4d06:b0:327:dc81:b39e with SMTP id
+ 98e67ed59e1d1-32815452f34mr16840617a91.13.1756895459516; Wed, 03 Sep 2025
+ 03:30:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5dcabe90-c25b-4af5-b51f-5cda7113b5f4@quicinc.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+References: <20250826112709.1051172-1-eperezma@redhat.com> <20250826112709.1051172-3-eperezma@redhat.com>
+ <CACGkMEvd9w_ijpf=+re8oUxUWfq6Q_0HaDM==_e65df3439k7w@mail.gmail.com>
+ <CAJaqyWeHLw9CUEkH1KF8np2zJMC-zMRU6AFRJEhczzuF7MNU8A@mail.gmail.com>
+ <CACGkMEsUjfPadVi8Qr8L723mbQ_21WG7e07mDd79KDHFNn_AFw@mail.gmail.com>
+ <CAJaqyWejgnBngjrnuzefTVAhdjRcDOzAJfe5b0aE65uxON=G5w@mail.gmail.com> <CACGkMEtsCF5d_fdbkb9oPWQOscR=UgW3xq3ghQKXoWv1Be55Ag@mail.gmail.com>
+In-Reply-To: <CACGkMEtsCF5d_fdbkb9oPWQOscR=UgW3xq3ghQKXoWv1Be55Ag@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 3 Sep 2025 12:30:22 +0200
+X-Gm-Features: Ac12FXyu0knImzGvvLa58v0X2WkieIda6A4AeG8uSRmXTSAwzO7KVryCu8N8Hb8
+Message-ID: <CAJaqyWcAptQjRktZ7WcyDHADFqR0ZjGZ_D+gvKyq4JGSb7yFaQ@mail.gmail.com>
+Subject: Re: [PATCH 2/6] vduse: add vq group support
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>, 
+	Maxime Coquelin <mcoqueli@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: CCjsc5ojhAn5-zLHr2a20uK9jC7VOMbN0oTEEm7qu3Q_1756895460
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 03, 2025 at 05:04:46PM +0800, Haixu Cui wrote:
-> On 9/1/2025 8:07 PM, Andy Shevchenko wrote:
-> > On Thu, Aug 28, 2025 at 05:34:51PM +0800, Haixu Cui wrote:
-> > > This is the virtio SPI Linux kernel driver.
+On Wed, Sep 3, 2025 at 9:40=E2=80=AFAM Jason Wang <jasowang@redhat.com> wro=
+te:
+>
+> On Wed, Sep 3, 2025 at 2:29=E2=80=AFPM Eugenio Perez Martin <eperezma@red=
+hat.com> wrote:
+> >
+> > On Wed, Sep 3, 2025 at 5:58=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
+ wrote:
+> > >
+> > > On Mon, Sep 1, 2025 at 4:40=E2=80=AFPM Eugenio Perez Martin <eperezma=
+@redhat.com> wrote:
+> > > >
+> > > > On Mon, Sep 1, 2025 at 3:59=E2=80=AFAM Jason Wang <jasowang@redhat.=
+com> wrote:
+> > > > >
+> > > > > On Tue, Aug 26, 2025 at 7:27=E2=80=AFPM Eugenio P=C3=A9rez <epere=
+zma@redhat.com> wrote:
+> > > > > >
+> > > > > > This allows sepparate the different virtqueues in groups that s=
+hares the
+> > > > > > same address space.  Asking the VDUSE device for the groups of =
+the vq at
+> > > > > > the beginning as they're needed for the DMA API.
+> > > > > >
+> > > > > > Allocating 3 vq groups as net is the device that need the most =
+groups:
+> > > > > > * Dataplane (guest passthrough)
+> > > > > > * CVQ
+> > > > > > * Shadowed vrings.
+> > > > > >
+> > > > > > Future versions of the series can include dynamic allocation of=
+ the
+> > > > > > groups array so VDUSE can declare more groups.
+> > > > > >
+> > > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > > > ---
+> > > > > > v1: Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit =
+(Maxime)
+> > > > > >
+> > > > > > RFC v3:
+> > > > > > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to=
+ a lower
+> > > > > >   value to reduce memory consumption, but vqs are already limit=
+ed to
+> > > > > >   that value and userspace VDUSE is able to allocate that many =
+vqs.
+> > > > > > * Remove the descs vq group capability as it will not be used a=
+nd we can
+> > > > > >   add it on top.
+> > > > > > * Do not ask for vq groups in number of vq groups < 2.
+> > > > > > * Move the valid vq groups range check to vduse_validate_config=
+.
+> > > > > >
+> > > > > > RFC v2:
+> > > > > > * Cache group information in kernel, as we need to provide the =
+vq map
+> > > > > >   tokens properly.
+> > > > > > * Add descs vq group to optimize SVQ forwarding and support ind=
+irect
+> > > > > >   descriptors out of the box.
+> > > > > > ---
+> > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 51 ++++++++++++++++++++++=
+++++++--
+> > > > > >  include/uapi/linux/vduse.h         | 21 +++++++++++-
+> > > > > >  2 files changed, 68 insertions(+), 4 deletions(-)
+> > > > > >
+> > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/=
+vdpa_user/vduse_dev.c
+> > > > > > index e7bced0b5542..0f4e36dd167e 100644
+> > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > @@ -58,6 +58,7 @@ struct vduse_virtqueue {
+> > > > > >         struct vdpa_vq_state state;
+> > > > > >         bool ready;
+> > > > > >         bool kicked;
+> > > > > > +       u32 vq_group;
+> > > > > >         spinlock_t kick_lock;
+> > > > > >         spinlock_t irq_lock;
+> > > > > >         struct eventfd_ctx *kickfd;
+> > > > > > @@ -114,6 +115,7 @@ struct vduse_dev {
+> > > > > >         u8 status;
+> > > > > >         u32 vq_num;
+> > > > > >         u32 vq_align;
+> > > > > > +       u32 ngroups;
+> > > > > >         struct vduse_umem *umem;
+> > > > > >         struct mutex mem_lock;
+> > > > > >         unsigned int bounce_size;
+> > > > > > @@ -592,6 +594,13 @@ static int vduse_vdpa_set_vq_state(struct =
+vdpa_device *vdpa, u16 idx,
+> > > > > >         return 0;
+> > > > > >  }
+> > > > > >
+> > > > > > +static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 id=
+x)
+> > > > > > +{
+> > > > > > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > > > > +
+> > > > > > +       return dev->vqs[idx]->vq_group;
+> > > > > > +}
+> > > > > > +
+> > > > > >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u=
+16 idx,
+> > > > > >                                 struct vdpa_vq_state *state)
+> > > > > >  {
+> > > > > > @@ -678,6 +687,28 @@ static u8 vduse_vdpa_get_status(struct vdp=
+a_device *vdpa)
+> > > > > >         return dev->status;
+> > > > > >  }
+> > > > > >
+> > > > > > +static int vduse_fill_vq_groups(struct vduse_dev *dev)
+> > > > > > +{
+> > > > > > +       /* All vqs and descs must be in vq group 0 if ngroups <=
+ 2 */
+> > > > > > +       if (dev->ngroups < 2)
+> > > > > > +               return 0;
+> > > > > > +
+> > > > > > +       for (int i =3D 0; i < dev->vdev->vdpa.nvqs; ++i) {
+> > > > > > +               struct vduse_dev_msg msg =3D { 0 };
+> > > > > > +               int ret;
+> > > > > > +
+> > > > > > +               msg.req.type =3D VDUSE_GET_VQ_GROUP;
+> > > > > > +               msg.req.vq_group.index =3D i;
+> > > > > > +               ret =3D vduse_dev_msg_sync(dev, &msg);
+> > > > > > +               if (ret)
+> > > > > > +                       return ret;
+> > > > > > +
+> > > > > > +               dev->vqs[i]->vq_group =3D msg.resp.vq_group.gro=
+up;
+> > > > > > +       }
+> > > > > > +
+> > > > > > +       return 0;
+> > > > > > +}
+> > > > > > +
+> > > > > >  static void vduse_vdpa_set_status(struct vdpa_device *vdpa, u8=
+ status)
+> > > > > >  {
+> > > > > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > > > > @@ -685,6 +716,11 @@ static void vduse_vdpa_set_status(struct v=
+dpa_device *vdpa, u8 status)
+> > > > > >         if (vduse_dev_set_status(dev, status))
+> > > > > >                 return;
+> > > > > >
+> > > > > > +       if (((dev->status ^ status) & VIRTIO_CONFIG_S_FEATURES_=
+OK) &&
+> > > > > > +           (status & VIRTIO_CONFIG_S_FEATURES_OK))
+> > > > > > +               if (vduse_fill_vq_groups(dev))
+> > > > > > +                       return;
+> > > > >
+> > > > > I may lose some context but I think we've agreed that we need to
+> > > > > extend the status response for this instead of having multiple
+> > > > > indepdent response.
+> > > > >
+> > > >
+> > > > My understanding was it is ok to start with this version by [1]. We
+> > > > can even make it asynchronous on top if we find this is a bottlenec=
+k
+> > > > and the VDUSE device would need no change, would that work?
+> > >
+> > > I think I need to understand why we can not defer this to get_group_a=
+sid() call.
+> > >
+> >
+> > Because we need to know the vq_groups->asid mapping in other calls
+> > like set_group_asid or get_vq_group.
+>
+> I think we don't need the mapping of those, or anything I miss?
+>
 
-...
+If the kernel module does not ask the userland device for the actual
+vq group of a virtqueue, what should it return in vduse_get_vq_group?
+0 for all vqs, even if the CVQ is in vq group 1?
 
-> > > +#include <linux/completion.h>
-> > > +#include <linux/interrupt.h>
-> > > +#include <linux/io.h>
-> > > +#include <linux/module.h>
-> > > +#include <linux/spi/spi.h>
-> > > +#include <linux/stddef.h>
-> > 
-> > A lot of headers are still missing. See below.
-> 
-> This driver compiles successfully, and I believe all required definitions
-> are resolved through indirect inclusion. For example, since I included
-> virtio.h, there is no need to explicitly include device.h, scatterlist.h or
-> types.h.
-> 
-> I avoided redundant #includes to keep the code clean and minimal.
-> 
-> If there are any essential headers I’ve overlooked, please feel free to
-> highlight them—I’ll gladly include them in the next revision.
+That's also valid for vduse_get_vq_map, which return is assumed not to
+change in all the life of the device as it is not protected by a
+mutex.
 
-The rationale is described on https://include-what-you-use.org/.
+> And the vq to group mappings could be piggy backed by the device
+> creation request.
+>
 
-...
+I'm not sure, I think it involves a vduse request per asid or vq group
+operation. Even get_vq_map. But I'm open to explore this possibility
+for sure.
 
-> I plan to update the code as follows:
-> 
-> struct virtio_spi_req *spi_req __free(kfree) = NULL;
-> spi_req = kzalloc(sizeof(*spi_req), GFP_KERNEL);
-> if(!spi_req)
->     return -ENOMEM;
-> 
-> This follows the pattern used in
-> virtio_net(https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/net/virtio_net.c?h=v6.17-rc4#n3746)
-> 
-> I'd like to check if this style is acceptable here, thanks.
-
-The style is fine. The potential issue (not now and probably never) is that the
-scope of the variable in this case is different which might lead to unexpected
-side-effects. That said, You can go with it.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
+> >
+> > We could add a boolean on each virtqueue to track if we know its
+> > virtqueue group and then only ask VDUSE device it if needed, would
+> > that work?
+>
+> Thanks
+>
+> >
+>
 
