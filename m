@@ -1,70 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E223F3074B3
-	for <virtualization@lists.linux.dev>; Wed,  3 Sep 2025 13:11:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CECF6302778
+	for <virtualization@lists.linux.dev>; Wed,  3 Sep 2025 13:13:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756905063; cv=none; b=bzyJNSa19QOOXySwjwDu/BVTxmUF/sCWRggyAl9GL/RzagLF06tOyDHX3fv5RE1o4zXm1TU45I9eIX9kF8LlPXl6md7JWfg3PqV7gmQoyjFCyZw9a0wp8QVhZPS4l0V195QbSOOt2gjLzfBnl7WkazIMOjy8CVYwUVOmkzztcCE=
+	t=1756905203; cv=none; b=b46dL024AeatlOMteO51IP2zuMjV0lFYwhzaAPqOVXmpP6EeAuA/uqlFBfgOVzOfuS/9AFkPuOwbl5h0vjJ43YPn3DHTADdkhZBdRDIYqKZ9FSMgqEJb8OnLKD5UKe3LElUH77artN6T15ZgMbnyL33kbokR8AuwTzx/5lrKF68=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756905063; c=relaxed/simple;
-	bh=Y/X2fWSGYvLP2GbzQgVsXw6QemqhTogGncbWhT+ee+4=;
+	s=arc-20240116; t=1756905203; c=relaxed/simple;
+	bh=mBGx6bKd//U8D94s4t2SoXU3lLXnSajCr2AAkuXi1ZM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=hjvwducBjsSrO/irB/B4Y0yZUp7VsRhuK4NDJIHiYAg+rM3rBpNMxvnZCYmqBb8i4LH5uw+6uPJvyCEiAO0dTOgd3d/5/ItmZm3VRV7cG+h1r62/eZC3uQ/lr1fyqVzXm6Tb09yK/6OB7yn/9PVRBoy0dAV8NtVeo4IMytwCeDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Exi/sR+R; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=rCHxUPTl9nYDRj3qZs8EldPa+oKR80U3jDLsc7AdXlGzcQKyuvZBcwK5h9kGQuaRuiumXnffi+to/BtnlqC7NiZB+dQ8dHY4/MvBSPAfuR4FSKDFEf6se/XR/K98kvJ5Y+Cyd1tL26AhyYzCBKrPTIaxXaxrOKBFy/b44tnqKZE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XWrx27SJ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Exi/sR+R"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XWrx27SJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756905059;
+	s=mimecast20190719; t=1756905200;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Fu1nRMO4mP7hG3XcSYcXuE1KvbxzA7CKEO6dC9YqXJc=;
-	b=Exi/sR+RglCCQh5NKRerIUxe7lNdKnobFr1idk05dobUYMt3zyqsUFNYhmfxu+XcloWcge
-	pFIZtHi9wp0ALqJLMGmIMCevOUoF/2Zs+6Ykc+9EaOl5GgGWJXL0a1zxcxpT+CYhdtUNia
-	TDzGbSWUwV2hgbWKVlrdRdQoUuil1FA=
+	bh=yc++Bk4gHq8rVQO2rd4UcrQ6O5BuxTUofo1WcPNdozc=;
+	b=XWrx27SJpqY1/aRlFRahWuVDhJ5nZHXy5K6Zz/474DCeR8pWx/Wmip6AkyZWi3MpV8OSYk
+	HiIM8aOOFIy1rZodAEqyYT6siZu+NDOGsYFgZ6R5Yy1DnEDq6ZN7Q6RkIiAX1+ca89r4Wf
+	3H1ZVAJrZ/DceTUCm96Zz2TgWB11b3A=
 Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
  [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-381-5n5g8x2ZO2-PLE6mwixObQ-1; Wed, 03 Sep 2025 09:10:58 -0400
-X-MC-Unique: 5n5g8x2ZO2-PLE6mwixObQ-1
-X-Mimecast-MFC-AGG-ID: 5n5g8x2ZO2-PLE6mwixObQ_1756905057
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3cca50781ddso2866663f8f.2
-        for <virtualization@lists.linux.dev>; Wed, 03 Sep 2025 06:10:58 -0700 (PDT)
+ us-mta-194-zQj4KCDOMT6eKAtepwzv-Q-1; Wed, 03 Sep 2025 09:13:16 -0400
+X-MC-Unique: zQj4KCDOMT6eKAtepwzv-Q-1
+X-Mimecast-MFC-AGG-ID: zQj4KCDOMT6eKAtepwzv-Q_1756905195
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3c6abcfd303so968930f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 03 Sep 2025 06:13:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756905057; x=1757509857;
+        d=1e100.net; s=20230601; t=1756905195; x=1757509995;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Fu1nRMO4mP7hG3XcSYcXuE1KvbxzA7CKEO6dC9YqXJc=;
-        b=wESFiy1l1b09Nh0ILVaOy3vtRggrjrqJ0MsiELbjwqzQ1r4ZsvS1do9Aj3GT5SZk8h
-         E1pf3P+wH9CL0LmpBqslQNDJ7pUEfiGkAucDz5i2pvAUpFI55ry9YclpdZu2javZyKyk
-         quXcvXrv1MF9GJNaKQnU1DZHZdBXyJmWbb3Km72oPYt/jq3ZQ2aLcb2nXWlXhA4N9R9O
-         VKOhWQhtnKA1Rb7LFPtOmrM8OasYhUWIQtQSEkTuaDi8CEnIQF6cREBB6c18e5mz8uy0
-         aivuGCI0LELXpTRea3/ucKx2lVKOCJ5qbur//xYTzALu3M3QJYDGLeJxSZOSZxWoJPxJ
-         42jQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWAU53F4d0IM21GqSxNPxMjwYC8mJ8rHej3XF5nA0Lj9clnwD1ltBLy+0Nj+PNQgaQW0Lfel7sKj++VTQ3vew==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxKzOYAF1sKNsgz3liu627VJCIeIjPqIpQGCGh3BUO29NBtcHWE
-	Xw0Txb1L+vONqFvw7RZ2crqYAQWoKUK/xtEmfOJgSysP3PXMs5EXTQOB3SL1ekYSvt6DllHL5/P
-	7F9dz3KCWc2iYNtdWnd/tCcpsMDA8O+47zSnn7XQ/7oL8hzM4AB/yfv6aiRr4aPZOpUf58qM4hr
-	m1ZoQ=
-X-Gm-Gg: ASbGncuRs0N83FmvDHtk0aIK/0bWajgdSfkQc7NARyOyqBywnLpP4StfJ4eLZzHxiKY
-	DOJksPC/OXYmvCU6rTR+2NEptpX64FDjEuKvJ/rGJPW7boNlhvJao5vXpvLaXuUiCzegwXiTnC/
-	m64Hm+pXhY1phS2bOSar4NKHM/63qz7MT7Tsk0mC8AXj9ftf2zYjBGeArBzcrynNMuEIjq86BkO
-	BDBVDgumr5z4l+sgO2urECm23uAuBBUcnuYJvmXFkpnjzy44xsSmME4hXS4FfB3i9Rw70xLp84j
-	RfGw8bTMI0a227ZsxKCX/pfV16M6Xw==
-X-Received: by 2002:a05:6000:3110:b0:3cc:29e8:d52f with SMTP id ffacd0b85a97d-3d1dea86a76mr12153286f8f.38.1756905057065;
-        Wed, 03 Sep 2025 06:10:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFb0624kVbYkja7DUsEoelJ71o6GXCbvgslVOj9fGNi28SVeur6o32uG23Fh/vV7MnRvsF1pw==
-X-Received: by 2002:a05:6000:3110:b0:3cc:29e8:d52f with SMTP id ffacd0b85a97d-3d1dea86a76mr12153241f8f.38.1756905056517;
-        Wed, 03 Sep 2025 06:10:56 -0700 (PDT)
+        bh=yc++Bk4gHq8rVQO2rd4UcrQ6O5BuxTUofo1WcPNdozc=;
+        b=SEdmmet+MU7J965MYpR2IHxKH0LNTU6So8JBVDeAzW8yUj20oXpWDBZFnHQ7FeULdI
+         IuIysWd/NU/Jkijm2GZxg01zCvmTltwTM11950TmqsRVpwDTqsUOrHKVwz80jkWImwoU
+         5XP53x6kBnA0eXKj/hTAtpkcu474ycFBTjXNox3tTcDfe/2hJWHMEeHNf2HC7/XoFvzi
+         q0eJyJnIRp7VHo+qcedyaIxCGFEOW3FlnwH0S8xrE6rwBDmcoToqqadkarqOgkq4z60u
+         owPhoDuFoHE9n9g1lBrogw0iPQzXVGixnVVs9hcEjlbO2KpxqvFOtzJsyD98BIqDcru6
+         rOaw==
+X-Forwarded-Encrypted: i=1; AJvYcCUaPRbbxdx7nzmW+J8CXWiu/0C1q4lWy920rY3a3s8LH9Nccu4sn2tJOHrorf6L7dU5FTpVLOirlJncSPrO5A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx1FRftA5zBdu/JlZCobwSAlNn6XVlSiSJaZAm3V15HDvYvOKRx
+	tPTL27Mb/WhtS8J8QCSXtetPGy1kPRfFuLN1gRAeoqlH+/E3qJZFwzDTMePVj+7Lrp7+rm/vwNZ
+	pm6KAKKU95LqjXAIii200TXAfAP5kDpu9/cnUQAnRMBar+WKsJlFdmsWxWJw84zhPtoTl
+X-Gm-Gg: ASbGncves3DuB+4ITw2kmWl0fIuxPtdKtMZmZ0vQP8/UvhghWjnFcamh/8WqwJko0Ty
+	lKSrjmk/WPQSysMKvIWwB4w8yzIteEioqzYlldRXnM47ii8RKmG/msLteKJhRRcB5T9OA7g+8BP
+	+VteKwL43MLjFqi7zKay86XPNu9rTyNBll7O6q3EQAB9R06zvdNjT+FX0G0nAxz2lEUu7bnqjCD
+	U9S5U2LWsYIJMt4j22u+i4vR8r8F4dOScG5NhwVe294ls0tBC4KeNyA45jXq3EafC+MAlyu0kKg
+	hLGNLrKYSI754MAZ3YVGBc6a2bXAcw==
+X-Received: by 2002:a05:6000:25ee:b0:3d6:92ed:cae8 with SMTP id ffacd0b85a97d-3d692edce86mr10643412f8f.34.1756905195262;
+        Wed, 03 Sep 2025 06:13:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE5Rd9SrgoaV2dgKrR38B9EwqokmCVv2zYCp6Unv9lrkeF9C49ix2kdTmzDinE3j4u/W7oa3Q==
+X-Received: by 2002:a05:6000:25ee:b0:3d6:92ed:cae8 with SMTP id ffacd0b85a97d-3d692edce86mr10643375f8f.34.1756905194800;
+        Wed, 03 Sep 2025 06:13:14 -0700 (PDT)
 Received: from redhat.com ([2a0e:41b:f000:0:c4d3:2073:6af0:f91d])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b7e92a42asm237242065e9.20.2025.09.03.06.10.55
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3d2250115fdsm18102932f8f.40.2025.09.03.06.13.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Sep 2025 06:10:56 -0700 (PDT)
-Date: Wed, 3 Sep 2025 09:10:54 -0400
+        Wed, 03 Sep 2025 06:13:14 -0700 (PDT)
+Date: Wed, 3 Sep 2025 09:13:12 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Simon Schippers <simon.schippers@tu-dortmund.de>
 Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
@@ -73,7 +72,7 @@ Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
 	virtualization@lists.linux.dev, kvm@vger.kernel.org,
 	Tim Gebauer <tim.gebauer@tu-dortmund.de>
 Subject: Re: [PATCH 2/4] netdev queue flow control for TUN
-Message-ID: <20250903090723-mutt-send-email-mst@kernel.org>
+Message-ID: <20250903091235-mutt-send-email-mst@kernel.org>
 References: <20250902080957.47265-1-simon.schippers@tu-dortmund.de>
  <20250902080957.47265-3-simon.schippers@tu-dortmund.de>
 Precedence: bulk
@@ -84,7 +83,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20250902080957.47265-3-simon.schippers@tu-dortmund.de>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: mhokZgvlU6Xtm0pJahjbUkXeTFyY3-z0Ct_8zPm6e-M_1756905057
+X-Mimecast-MFC-PROC-ID: _Ako0X-2VuGsG95xdHxuls8BkrAfiY1eszZhwjahuQ0_1756905195
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -96,7 +95,11 @@ On Tue, Sep 02, 2025 at 10:09:55AM +0200, Simon Schippers wrote:
 > the SKB is dropped. However, this never happened in my testing. To ensure
 > that the ptr_ring change is available to the consumer before the netdev
 > queue stop, an smp_wmb() is used.
-> 
+
+I think the stop -> wake bounce involves enough barriers already,
+no need for us to get cute.
+
+
 > Then in tun_ring_recv, the new helper wake_netdev_queue is called in the
 > blocking wait queue and after consuming an SKB from the ptr_ring. This
 > helper first checks if the netdev queue has stopped. Then with the paired
@@ -108,56 +111,80 @@ On Tue, Sep 02, 2025 at 10:09:55AM +0200, Simon Schippers wrote:
 > Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 > Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 > Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-
-
-Oh you just want to know if produce will succeed?
-Kind of a version of peek but for producer?
-
-So all this cuteness of looking at the consumer is actually not necessary,
-and bad for cache.
-
-You just want this:
-
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-index 551329220e4f..de25fe81dd4e 100644
---- a/include/linux/ptr_ring.h
-+++ b/include/linux/ptr_ring.h
-@@ -96,6 +96,14 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
- 	return ret;
- }
- 
-+static inline int __ptr_ring_produce_peek(struct ptr_ring *r)
-+{
-+	if (unlikely(!r->size) || r->queue[r->producer])
-+		return -ENOSPC;
-+
-+	return 0;
-+}
-+
- /* Note: callers invoking this in a loop must use a compiler barrier,
-  * for example cpu_relax(). Callers must hold producer_lock.
-  * Callers are responsible for making sure pointer that is being queued
-@@ -103,8 +111,10 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
-  */
- static inline int __ptr_ring_produce(struct ptr_ring *r, void *ptr)
- {
--	if (unlikely(!r->size) || r->queue[r->producer])
--		return -ENOSPC;
-+	int r = __ptr_ring_produce_peek(r);
-+
-+	if (r)
-+		return r;
- 
- 	/* Make sure the pointer we are storing points to a valid data. */
- 	/* Pairs with the dependency ordering in __ptr_ring_consume. */
-
-
-
-Add some docs, and call this, then wake.  No?
-
--- 
-MST
+> ---
+>  drivers/net/tun.c | 33 ++++++++++++++++++++++++++++++---
+>  1 file changed, 30 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index cc6c50180663..735498e221d8 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -1060,13 +1060,21 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>  
+>  	nf_reset_ct(skb);
+>  
+> -	if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+> +	queue = netdev_get_tx_queue(dev, txq);
+> +	if (unlikely(ptr_ring_produce(&tfile->tx_ring, skb))) {
+> +		/* Paired with smp_rmb() in wake_netdev_queue. */
+> +		smp_wmb();
+> +		netif_tx_stop_queue(queue);
+>  		drop_reason = SKB_DROP_REASON_FULL_RING;
+>  		goto drop;
+>  	}
+> +	if (ptr_ring_full(&tfile->tx_ring)) {
+> +		/* Paired with smp_rmb() in wake_netdev_queue. */
+> +		smp_wmb();
+> +		netif_tx_stop_queue(queue);
+> +	}
+>  
+>  	/* dev->lltx requires to do our own update of trans_start */
+> -	queue = netdev_get_tx_queue(dev, txq);
+>  	txq_trans_cond_update(queue);
+>  
+>  	/* Notify and wake up reader process */
+> @@ -2110,6 +2118,24 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+>  	return total;
+>  }
+>  
+> +static inline void wake_netdev_queue(struct tun_file *tfile)
+> +{
+> +	struct netdev_queue *txq;
+> +	struct net_device *dev;
+> +
+> +	rcu_read_lock();
+> +	dev = rcu_dereference(tfile->tun)->dev;
+> +	txq = netdev_get_tx_queue(dev, tfile->queue_index);
+> +
+> +	if (netif_tx_queue_stopped(txq)) {
+> +		/* Paired with smp_wmb() in tun_net_xmit. */
+> +		smp_rmb();
+> +		if (ptr_ring_spare(&tfile->tx_ring, 1))
+> +			netif_tx_wake_queue(txq);
+> +	}
+> +	rcu_read_unlock();
+> +}
+> +
+>  static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+>  {
+>  	DECLARE_WAITQUEUE(wait, current);
+> @@ -2139,7 +2165,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+>  			error = -EFAULT;
+>  			break;
+>  		}
+> -
+> +		wake_netdev_queue(tfile);
+>  		schedule();
+>  	}
+>  
+> @@ -2147,6 +2173,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+>  	remove_wait_queue(&tfile->socket.wq.wait, &wait);
+>  
+>  out:
+> +	wake_netdev_queue(tfile);
+>  	*err = error;
+>  	return ptr;
+>  }
+> -- 
+> 2.43.0
 
