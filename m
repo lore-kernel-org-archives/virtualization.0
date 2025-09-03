@@ -1,65 +1,65 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C3C42D063A
-	for <virtualization@lists.linux.dev>; Wed,  3 Sep 2025 03:57:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D8CA33E7
+	for <virtualization@lists.linux.dev>; Wed,  3 Sep 2025 03:58:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756871867; cv=none; b=hCGt+vLGljdi8ckux3JUe8WXWwFuMci/ydciZw6gsC7mPxnjOt+RMakrmTpHsLnYGwoh6wXOqLTQahqSRUFmyK0kjC+/qlKa6x+aArOXPssfOrLz+SPWq8VlmggJgl+Z5jUMcgXIKkSys+gAzReRgjMC9Q35yvG1jXyMoDBQAUI=
+	t=1756871913; cv=none; b=pZ4YZwutp6qonDkwZDRhVYyQ5CBLZITHEsHLYEbEcxOb7iZ3H0MrQZnIpmofv1VNqzFMy60kZPTWMji1890y7gAk0iUvs6R4W3/DgPphD4v8EPjZUON9k1RcOPYKuWLtvq4ssAfzrXtgZ1nDMwtSyFGTDrrY49Qd2tGEhFdYjC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756871867; c=relaxed/simple;
-	bh=A7ssKPkqIDibigKVgV/mQDJH2sZnTU82jjxAnNgso+g=;
+	s=arc-20240116; t=1756871913; c=relaxed/simple;
+	bh=vMknnbbQmYzTOFy2Csd2WCcR3K2hCxpNauH+LM1kfoI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FsVqKi2eHTXsoNyXA6iFL73D75Tuti6ZUcuxv5B0iaxfy523bFdqbmpUr5qa9H50Xe68yzynt7+stUFDDzuxR/DiBV6EvfqFAvFIqnJaiM6rh3JgVAO60sRSrLLv84Vcu0eSaVmgmGRQDisdi4yHZ18/kv3Bp/6uTBL0tUe7F8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jNDzK1gr; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=GAtva54vLEEupvtrNuZUB5aBwo6NCrCEatUUa3YPIUzrDn/pef2Vi05FEC0S2Efc7vdyrqR2YFteJtR8RlDh9ReElWmS1sbDiZyON1MFlfPbukMQj/JCxumD7cjVAFhI3iNu80RNH1GjpU7hfyFT3qW1XL72hfInGo2PfA9jY74=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=glEped29; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jNDzK1gr"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="glEped29"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756871863;
+	s=mimecast20190719; t=1756871910;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8FMeOQhsZ/Bz1a50krITAkDUmAVmdmpSJmIX2uvA258=;
-	b=jNDzK1grk2vG6+332citlnmNEs915zokpMVBxqujLTKhJzOwDI55ZAeNXd0LYvKF1FJFzP
-	zsTawslik6xUYqEWN2M3qxlBJUX2/wwe0NDoIgxU/UX4ZiBf3govhdci0AjS7dHz34zmP6
-	2U6HFXpzMbI30dbfUnWxGRXB3VpnP6Q=
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
- [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=sNvYNe5vg9ZjKfIbx4GJXjyG8dW0HQaniQkkjzhXIEE=;
+	b=glEped29BlAQFKdMVFaoiSiZdkNZ0jqYVT/KlVvktXiqxoD9SNuLcWHZSuw1cdr2SKoRXK
+	719TzKl3gfBg7/zm8OKQgw4xqnV/T9LIQsog6Zz1Yq81BBUwLuik9d5eLHA9AwL2FbLPAV
+	orVQmrsxoehzEtE7xXl8T58VRJ66mEo=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-103-782VKwRCNLG-jD8bsmUgEA-1; Tue, 02 Sep 2025 23:57:39 -0400
-X-MC-Unique: 782VKwRCNLG-jD8bsmUgEA-1
-X-Mimecast-MFC-AGG-ID: 782VKwRCNLG-jD8bsmUgEA_1756871858
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-248eec89618so65163275ad.1
-        for <virtualization@lists.linux.dev>; Tue, 02 Sep 2025 20:57:38 -0700 (PDT)
+ us-mta-513-24Ry6_yVPNCjB7-5KWBHjQ-1; Tue, 02 Sep 2025 23:58:29 -0400
+X-MC-Unique: 24Ry6_yVPNCjB7-5KWBHjQ-1
+X-Mimecast-MFC-AGG-ID: 24Ry6_yVPNCjB7-5KWBHjQ_1756871908
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-329ee69e7deso1290371a91.3
+        for <virtualization@lists.linux.dev>; Tue, 02 Sep 2025 20:58:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756871858; x=1757476658;
+        d=1e100.net; s=20230601; t=1756871908; x=1757476708;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=8FMeOQhsZ/Bz1a50krITAkDUmAVmdmpSJmIX2uvA258=;
-        b=UEsniPZTHyc3ePaqA38g0K1cCaH9TniQBjfZl4RsLM2ysrtCCqgbCabjxitzQAgtoX
-         VqUmYHH3xcCXurCAEtcsmia9XF3g4m1VYc8jiQUsY3YiuINrSGwNlDZjkB/SUetjNSZB
-         RALeiKOdF3cPpK0cgidhJA3x5lN9842Pg0n2IDAPzHpfNfOd+bkuwIRyuPGyY0SseP2n
-         uQCy7weM08D8PPDrHezy8J2bvwZUn7hRMVAxIsiYubZ+WLaiCr90AvJCLUcXjsbY3eJD
-         XuTr+k7WJraiijV0xVHnyQ6MKL+MBvF11NzHdS6qo+Y9yYlZsSYyx4H2TiyVZQ3zr2RL
-         kkcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV4GkNmlJF0jFUWtBkdqf25Zm0zl7ZHqAUDLVnAumZkpLwIRaggTdBIzgjrCRsdK/25i8+7zGPDPPkBj/z9Qw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxgjAcHsATNxGqauOnN5DMcIiYCdgLrie4QvmxYQcc1O1qXkbWZ
-	zcGiUr7JnBpNWNodEHpGuy+vJc92lV9Zeg+bgmfjvlZClCDo447BUIxoHmswageIZ56NPwNETqz
-	IoMv4I+Vj8RjihI9IX42CZW+mezCVX6V16XW+oTUiZcOfwmjcAPtZwXDtb1DKuSO76BMFVFNA8X
-	2xp5Z60g9ViD92TKXqqEsWWoIgxjvXc4lHxUwVVhIgNjQ=
-X-Gm-Gg: ASbGncsFiyGWMkzoWPrJ8bG7+gI0V32E1DcUGLih7eGJhvTKB5HDGa8YNqzr402FiIx
-	bc/l2fVqpJIwWqDi/Sl2W6AUTyJi8ttxHBibRk+NulfVz8udIQiGE/38QGO6RzKZdu/aMkJ62J6
-	53XoD1JEa1MuBtWhX3AAVDYA==
-X-Received: by 2002:a17:903:3c45:b0:246:4eb3:9c08 with SMTP id d9443c01a7336-24944870a65mr173393645ad.5.1756871857878;
-        Tue, 02 Sep 2025 20:57:37 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFkE3iE/jqdcUHOgbC8sPvuCPSZCKKD0K/m8LwLji6un3PH2aumk05za/muG1bJ4viYeIzj5Ff9OEL5hv3VF8o=
-X-Received: by 2002:a17:903:3c45:b0:246:4eb3:9c08 with SMTP id
- d9443c01a7336-24944870a65mr173393355ad.5.1756871857260; Tue, 02 Sep 2025
- 20:57:37 -0700 (PDT)
+        bh=sNvYNe5vg9ZjKfIbx4GJXjyG8dW0HQaniQkkjzhXIEE=;
+        b=RN2Z+QTg4niH1Ur7BbmDpB+Q1eF59j0F5dantB5NbffNH5AsMliz0DRu91YaP27Jrj
+         DIfYGw4JedLPgfwqVbe0aBGIRnWwZkEOpwgIQNHoYzpE5edbgyO8VQtB6UCZF/Yy6ntO
+         KLOO5f4LiM3DuvzYsUZRXlbvkYPJGpAv1B5jNa9kg2lvGEVJxwtPrpoNt2Y1H+5FYoMe
+         1fCTKOHc81PParHsiN+B3nSSKs2elf2uRNDOX+pY+5XJIayUXQcJl2rAtX1moCS+QHv6
+         LG13qosJfxohjOGckJ1g/s0T77n6hEbGjKDpgYjrGbFketcbgsw0AXHW0FByiFtkQXaL
+         JI1Q==
+X-Forwarded-Encrypted: i=1; AJvYcCX/yBge4mi0usULY47FYSzDc3VwyDe16fVp1yqjzi2SxcSXPXpCO/BHZ7P7cJ+YbrXYdKN+Rsg3zTkidIV2jg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxL1pQy36SRu7EUhqRltzLPpZD92gLNukUOLZWcTmhrHOQ1HbnY
+	FY33P1E7lSLM3rGR4Q73LKyMM3MVAAUwLf8U2mkTGWTMm8KR1Hjb3yLri3E04A/Nq6oDZNdJPHH
+	VZrw3ZiEhn1oQzPLDkA/enEHkYVJnq5BrZ5+rvmcUdAyqfbtyG5sUItjTnBstg5XIexzKh6rgNm
+	V6XRXIh5p0UQsgEze0x+O7d9c+4EBbgcjZJRA7fGAXqIY=
+X-Gm-Gg: ASbGncs4cKxSDJqUwWk8QX1y0w/aLgd4nhkXHt2qcP/SD4R2IhTq7wJPAlp0V4a4Y74
+	ld7uY5gKO3A6GD4FKEZN1Sp2YKp0SBzd3KuVaZZWGjKBg9fq4oDz6ja+y0LqjeS0ZXUl360Uak6
+	3VvCgbZQ3UfeY1GVkG4w8jlQ==
+X-Received: by 2002:a17:90b:35c3:b0:327:ced1:26e2 with SMTP id 98e67ed59e1d1-328156baf5amr18434122a91.18.1756871908160;
+        Tue, 02 Sep 2025 20:58:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGj/l9+XDmJEijKU+wd1/EfrIGEVTmiQHMGFvLZVwWY+MpGINUIbbo3w/Qh26mBLxXeGt+dZGVUhyR6UTD9/h0=
+X-Received: by 2002:a17:90b:35c3:b0:327:ced1:26e2 with SMTP id
+ 98e67ed59e1d1-328156baf5amr18434091a91.18.1756871907644; Tue, 02 Sep 2025
+ 20:58:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,9 +70,9 @@ References: <20250826112709.1051172-1-eperezma@redhat.com> <20250826112709.10511
  <CACGkMEvd9w_ijpf=+re8oUxUWfq6Q_0HaDM==_e65df3439k7w@mail.gmail.com> <CAJaqyWeHLw9CUEkH1KF8np2zJMC-zMRU6AFRJEhczzuF7MNU8A@mail.gmail.com>
 In-Reply-To: <CAJaqyWeHLw9CUEkH1KF8np2zJMC-zMRU6AFRJEhczzuF7MNU8A@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 3 Sep 2025 11:57:26 +0800
-X-Gm-Features: Ac12FXxQzUUcpGjD91I8f81-ocOtOBSKHxA1qUyDeVHyGayy8sNvtEGSiahbZ0Y
-Message-ID: <CACGkMEuoH3J9HwRU_G5wsDoeP7EjYfUU-aCDRbsjmcv45OG2mw@mail.gmail.com>
+Date: Wed, 3 Sep 2025 11:58:15 +0800
+X-Gm-Features: Ac12FXxSXhLTpVqItZbwqLFmkkE7aWjAaPiNbYHNxF5T95f90TGBfdwRbZ2e3zk
+Message-ID: <CACGkMEsUjfPadVi8Qr8L723mbQ_21WG7e07mDd79KDHFNn_AFw@mail.gmail.com>
 Subject: Re: [PATCH 2/6] vduse: add vq group support
 To: Eugenio Perez Martin <eperezma@redhat.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
@@ -81,7 +81,7 @@ Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>,
 	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>, 
 	Maxime Coquelin <mcoqueli@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: H3n2HfXV7AOftngpWuGTolFj0HRSCwgyo4nOjbN2AGw_1756871858
+X-Mimecast-MFC-PROC-ID: _PrLLM6jtgmbHUwAUftn2Kqp5iBqA35pocD-8lK-qTU_1756871908
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -223,56 +223,9 @@ vice *vdpa, u8 status)
 > My understanding was it is ok to start with this version by [1]. We
 > can even make it asynchronous on top if we find this is a bottleneck
 > and the VDUSE device would need no change, would that work?
->
-> > > +
-> > >         dev->status =3D status;
-> > >  }
-> > >
-> > > @@ -789,6 +825,7 @@ static const struct vdpa_config_ops vduse_vdpa_co=
-nfig_ops =3D {
-> > >         .set_vq_cb              =3D vduse_vdpa_set_vq_cb,
-> > >         .set_vq_num             =3D vduse_vdpa_set_vq_num,
-> > >         .get_vq_size            =3D vduse_vdpa_get_vq_size,
-> > > +       .get_vq_group           =3D vduse_get_vq_group,
-> > >         .set_vq_ready           =3D vduse_vdpa_set_vq_ready,
-> > >         .get_vq_ready           =3D vduse_vdpa_get_vq_ready,
-> > >         .set_vq_state           =3D vduse_vdpa_set_vq_state,
-> > > @@ -1737,12 +1774,19 @@ static bool features_is_valid(struct vduse_de=
-v_config *config)
-> > >         return true;
-> > >  }
-> > >
-> > > -static bool vduse_validate_config(struct vduse_dev_config *config)
-> > > +static bool vduse_validate_config(struct vduse_dev_config *config,
-> > > +                                 u64 api_version)
-> > >  {
-> > >         if (!is_mem_zero((const char *)config->reserved,
-> > >                          sizeof(config->reserved)))
-> > >                 return false;
-> > >
-> > > +       if (api_version < VDUSE_API_VERSION_1 && config->ngroups)
-> > > +               return false;
-> > > +
-> > > +       if (api_version >=3D VDUSE_API_VERSION_1 && config->ngroups >=
- 0xffff)
-> > > +               return false;
-> >
-> > Let's use a macro instead of magic number.
-> >
->
-> The rest of the limits are hardcoded, but I'm ok with changing this.
-> Is UINT16_MAX ok here, or do you prefer something like MAX_NGROUPS and
-> MAX_ASID?
 
-MAX_NGROUPS and MAX_ASID seem to be better.
+I think I need to understand why we can not defer this to get_group_asid() =
+call.
 
 Thanks
-
->
-> [...]
->
-> [1] https://patchew.org/linux/20250807115752.1663383-1-eperezma@redhat.co=
-m/20250807115752.1663383-3-eperezma@redhat.com/#CACGkMEuVngGjgPZXnajiPC+pcb=
-t+dr6jqKRQr8OcX7HK1W3WNQ@mail.gmail.com
->
 
