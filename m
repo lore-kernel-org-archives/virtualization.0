@@ -1,94 +1,94 @@
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FF1F2FDC4D
-	for <virtualization@lists.linux.dev>; Wed,  3 Sep 2025 12:36:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CE072FE587
+	for <virtualization@lists.linux.dev>; Wed,  3 Sep 2025 12:42:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756902998; cv=none; b=OQ7maw39UO4wm+BFnYzv2FWNfeL/N2Uf+El3lGQXt4gm2rCb2QKCAOy6HYhcmUy9sDfrKY+pITbMCcpap9C/rbI9zArFyVDmJUOfMkMK3y2begRZz2NTMY7P0u4gFayRIexcz0uYAIk4EdfEWVK5kFQyuPAfcxxxXG1FdwFeJto=
+	t=1756903339; cv=none; b=qW3OQo21C7wueE1mII5esrNp8um8ZSV8V6PWdaVsNQt5V6X16B67cIWGtKOdZBfvXiuLNYQaUZgKR9+8BNkEP64B0AOTanUubHaeVPoPSQGxO3gF/ASG3gqVh6qEPD+aRBeTPeiKFrfxkNkFE2cwBd/ehOmJW08phBFy1cODQ/Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756902998; c=relaxed/simple;
-	bh=l/WUmSKmcloVy0aJQRPVTdT7iDD8Xpxi1iTBHrSsDs0=;
+	s=arc-20240116; t=1756903339; c=relaxed/simple;
+	bh=ZwD2K02kgnEXLqi6lq5OPz8a+xK0+swNo3Gv/I81cI0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qKMh+rmMrUOzDvwFgwtdUTnVatiOBIidaR3Yffb9fAW5/YQfmmy4XE8+ZijH78WtP04MlFb5d+Zep0ol5v0pivanEjEJIncTu4LtIAI4tr8OY0sQQtIPhwOkdEnADgg5tV1O/rRNHvhjFbS/E6OWuWEwlce6YyhgXdQNA8jKCb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=kVjoFdCg; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=JC7gL9++; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=kVjoFdCg; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=JC7gL9++; arc=none smtp.client-ip=195.135.223.131
+	 Content-Type:Content-Disposition:In-Reply-To; b=gK8iWNeuBgoJOeFEHT1HRMQANmsIXcROHKK297Ndq9xNGkC9RU863RnTWkUvBR1vKaT6o243dOFTVAS+LeJDt/czmfEbpns8AQfikr/tXl62dWSLDhUIKH8zqz4Uzh2Sg6D2BJyaxyIplFRp+qG8ZsHqKDBqyCgpkcuvzYsw/K4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=0XinekcA; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=rOLV+Quj; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=0XinekcA; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=rOLV+Quj; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="kVjoFdCg";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="JC7gL9++";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="kVjoFdCg";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="JC7gL9++"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="0XinekcA";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="rOLV+Quj";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="0XinekcA";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="rOLV+Quj"
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 53B3A1F453;
-	Wed,  3 Sep 2025 12:36:34 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 53BA31F38A;
+	Wed,  3 Sep 2025 12:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1756902994; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1756903335; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Z4dkn1xOtjZMvux09Ypde4SPog5LI5mjRt8sFdLaY4U=;
-	b=kVjoFdCgu/5/fm2+jELu+JLMX4XJc08ulrCIWfDshl3SRtjuY50CbL41pdnlV1OKFRuenV
-	FPAoq4yhQZqcXvNj3heuoiNr6bzpfxXstXbAkQ7u9kfZU81EfA4D+VFODrDuySMAohMReg
-	zzO9RSlJ8LNx3dXJLq2V+Q8WFDVle98=
+	bh=xIgaM36KJeIX4j/P65jhT8FLAdsH3bur2uN5IZqRt1U=;
+	b=0XinekcA5PGjWvzu5dKGsXcQT7L4bpSixC77gbR5vEAZRsXvd+prJA7H97aXMyub5lPq1S
+	KO139GLFKGqJxlCXysAdE4E7b1HzcFD7iqZVtW2AwhraSGESQKXMe8x5HEwZjaQMZiUIn5
+	SqXoizG3/7dZ1DNA5ym/bhw1xl0NlIo=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1756902994;
+	s=susede2_ed25519; t=1756903335;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Z4dkn1xOtjZMvux09Ypde4SPog5LI5mjRt8sFdLaY4U=;
-	b=JC7gL9++1ZpB9YCxnC/6M9nz3W8JxHmybvcmSdFTfEWWWDkcRfZCWClUCvdzzxdxrLUTIf
-	yBSx//eaP2+gDMAA==
+	bh=xIgaM36KJeIX4j/P65jhT8FLAdsH3bur2uN5IZqRt1U=;
+	b=rOLV+QujrozXuF7co4MMb3R3fAcYJ1LJg4LnT+5RliXi3TdvA9TjNXaSb2cU6wdFBgfD7J
+	zGLD5c6md+MZrJBA==
 Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=kVjoFdCg;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=JC7gL9++
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=0XinekcA;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=rOLV+Quj
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1756902994; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1756903335; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Z4dkn1xOtjZMvux09Ypde4SPog5LI5mjRt8sFdLaY4U=;
-	b=kVjoFdCgu/5/fm2+jELu+JLMX4XJc08ulrCIWfDshl3SRtjuY50CbL41pdnlV1OKFRuenV
-	FPAoq4yhQZqcXvNj3heuoiNr6bzpfxXstXbAkQ7u9kfZU81EfA4D+VFODrDuySMAohMReg
-	zzO9RSlJ8LNx3dXJLq2V+Q8WFDVle98=
+	bh=xIgaM36KJeIX4j/P65jhT8FLAdsH3bur2uN5IZqRt1U=;
+	b=0XinekcA5PGjWvzu5dKGsXcQT7L4bpSixC77gbR5vEAZRsXvd+prJA7H97aXMyub5lPq1S
+	KO139GLFKGqJxlCXysAdE4E7b1HzcFD7iqZVtW2AwhraSGESQKXMe8x5HEwZjaQMZiUIn5
+	SqXoizG3/7dZ1DNA5ym/bhw1xl0NlIo=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1756902994;
+	s=susede2_ed25519; t=1756903335;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Z4dkn1xOtjZMvux09Ypde4SPog5LI5mjRt8sFdLaY4U=;
-	b=JC7gL9++1ZpB9YCxnC/6M9nz3W8JxHmybvcmSdFTfEWWWDkcRfZCWClUCvdzzxdxrLUTIf
-	yBSx//eaP2+gDMAA==
+	bh=xIgaM36KJeIX4j/P65jhT8FLAdsH3bur2uN5IZqRt1U=;
+	b=rOLV+QujrozXuF7co4MMb3R3fAcYJ1LJg4LnT+5RliXi3TdvA9TjNXaSb2cU6wdFBgfD7J
+	zGLD5c6md+MZrJBA==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4149513A31;
-	Wed,  3 Sep 2025 12:36:34 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 42BB013A31;
+	Wed,  3 Sep 2025 12:42:15 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id XMvsD1I2uGj2MAAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Wed, 03 Sep 2025 12:36:34 +0000
-Date: Wed, 3 Sep 2025 14:36:33 +0200
+	id fTJHEKc3uGirMgAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Wed, 03 Sep 2025 12:42:15 +0000
+Date: Wed, 3 Sep 2025 14:42:10 +0200
 From: Daniel Wagner <dwagner@suse.de>
-To: Hannes Reinecke <hare@suse.de>
+To: John Garry <john.g.garry@oracle.com>
 Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
 	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
 	"Michael S. Tsirkin" <mst@redhat.com>, Aaron Tomlin <atomlin@atomlin.com>, 
 	"Martin K. Petersen" <martin.petersen@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, 
 	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
 	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>, 
-	Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, 
+	Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, Hannes Reinecke <hare@suse.de>, 
 	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
 	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
 	storagedev@microchip.com, virtualization@lists.linux.dev, 
 	GR-QLogic-Storage-Upstream@marvell.com
 Subject: Re: [PATCH v7 01/10] lib/group_cpus: Add group_masks_cpus_evenly()
-Message-ID: <5397286b-bb1f-493b-9d7d-b4168a67efe6@flourine.local>
+Message-ID: <f4ed094f-7370-4121-9df6-454411452751@flourine.local>
 References: <20250702-isolcpus-io-queues-v7-0-557aa7eacce4@kernel.org>
  <20250702-isolcpus-io-queues-v7-1-557aa7eacce4@kernel.org>
- <db0cbbe2-792c-4263-8be9-14b76eb0f7e6@suse.de>
+ <2b70fbd3-d63d-4bd3-8500-e14c41fc64b9@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -97,54 +97,83 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <db0cbbe2-792c-4263-8be9-14b76eb0f7e6@suse.de>
+In-Reply-To: <2b70fbd3-d63d-4bd3-8500-e14c41fc64b9@oracle.com>
 X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
+	BAYES_HAM(-3.00)[100.00%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
 	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
 	MX_GOOD(-0.01)[];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[26];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_TLS_ALL(0.00)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RL71uuc3g3e76oxfn4mu5aogan)];
-	RCVD_COUNT_TWO(0.00)[2];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim];
-	DKIM_TRACE(0.00)[suse.de:+]
+	RCPT_COUNT_TWELVE(0.00)[27];
+	MIME_TRACE(0.00)[0:+];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MISSING_XM_UA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RL71uuc3g3e76oxfn4mu5aogan)];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
 X-Spam-Flag: NO
 X-Spam-Level: 
-X-Rspamd-Queue-Id: 53B3A1F453
+X-Rspamd-Queue-Id: 53BA31F38A
 X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 X-Rspamd-Action: no action
 X-Spam-Score: -4.51
 
-On Thu, Jul 03, 2025 at 08:18:50AM +0200, Hannes Reinecke wrote:
+On Fri, Jul 11, 2025 at 09:28:12AM +0100, John Garry wrote:
 > > +/**
 > > + * group_mask_cpus_evenly - Group all CPUs evenly per NUMA/CPU locality
 > > + * @numgrps: number of groups
-> > + * @cpu_mask: CPU to consider for the grouping
-> > + * @nummasks: number of initialized cpusmasks
-> > + *
-> > + * Return: cpumask array if successful, NULL otherwise. And each element
-> > + * includes CPUs assigned to this group.
-> > + *
-> > + * Try to put close CPUs from viewpoint of CPU and NUMA locality into
-> > + * same group. Allocate present CPUs on these groups evenly.
-> > + */
 > 
-> Description could be improved. Point is that you do not do any
-> calculation here, you just call __group_cpus_evenly() with
-> a different mask.
+> this comment could be a bit more useful
+> 
+> > + * @cpu_mask: CPU to consider for the grouping
+> 
+> this is a CPU mask, and not a specific CPU index, right?
 
-I updated the documentation, it matches with group_cpus_evenly but with
-the constrain mask.
+Yes, I've updated the documentation to:
+
+/**
+ * group_mask_cpus_evenly - Group all CPUs evenly per NUMA/CPU locality
+ * @numgrps: number of cpumasks to create
+ * @mask: CPUs to consider for the grouping
+ * @nummasks: number of initialized cpusmasks
+ *
+ * Return: cpumask array if successful, NULL otherwise. Only the CPUs
+ * marked in the mask will be considered for the grouping. And each
+ * element includes CPUs assigned to this group. nummasks contains the
+ * number of initialized masks which can be less than numgrps. cpu_mask
+ *
+ * Try to put close CPUs from viewpoint of CPU and NUMA locality into
+ * same group, and run two-stage grouping:
+ *	1) allocate present CPUs on these groups evenly first
+ *	2) allocate other possible CPUs on these groups evenly
+ *
+ * We guarantee in the resulted grouping that all CPUs are covered, and
+ * no same CPU is assigned to multiple groups
+ */
+struct cpumask *group_mask_cpus_evenly(unsigned int numgrps,
+				       const struct cpumask *mask,
+				       unsigned int *nummasks)
+
+> > +	ret = __group_cpus_evenly(0, numgrps, node_to_cpumask, cpu_mask, nmsk,
+> > +				  masks);
+> 
+> maybe it's personal taste, but I don't think that it's a good style to
+> always pass through 'fail' labels, even if we have not failed in some
+> step
+
+I'd rather leave it as it is, because it matches the existing code in
+group_cpus_evenly. And there is also alloc_node_to_cpumask which does
+the same. Consistency wins IMO.
