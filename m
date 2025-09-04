@@ -1,207 +1,309 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6C252BAF7
-	for <virtualization@lists.linux.dev>; Thu,  4 Sep 2025 02:47:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D20BB1E520D
+	for <virtualization@lists.linux.dev>; Thu,  4 Sep 2025 03:17:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756954070; cv=none; b=T9YeaQVGadHMM7gykrYm+ZfWvv9ACyOQ3/IOoXuPkYdJoRR/RRFX7Vd6AlZ6IhSmkBCeVbjaiIpDYLv5ehgKaV3DcSmFVYHsZtvMB2N88Hd49lKKsBaZoJPUzQmsd4VdxiSrXBX2t7eiNBvwH5LWAjZ5eVax5Xum19VA4GBbcIQ=
+	t=1756955839; cv=none; b=Oj434YcAY/DMSaVtYheL2Dwm68GF8jI5cT7SPSY1gfdlO6mN08/WcvlVyiteZjL0AD4BB6Z68U28Go8S/2N9Zw/VSOacqJHpSglrRXLXJuFhGVbtkImKhaNZWYX/JoUWd0O/2cTOvVRHtcCZ3FwWytc+OsrZvlcbNrv2ncq6rlE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756954070; c=relaxed/simple;
-	bh=Jq8qiDws42tS3DgBZxRymrwfYw1lrOAh8NEvTO9bXLM=;
+	s=arc-20240116; t=1756955839; c=relaxed/simple;
+	bh=TZhWSoFjQY5w2WWSbxQVGFziVgRuSlXr4SLtpPc7hIU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=avBSxneXtZCaSYOWrn6A/nxxFVve0aCmbAYXhlzH4dZQdDGA4SU5dmX6yCUaIYaGc95iUePg+gTIZPOcJnUbc4a5SGphQbMGKo+n2Wc8eVDIcTL5pJSxEygURNlh+IVUF7YGqiPSAl8/znPG714wHoJ7vVhf4jE6nOnG5V9pCt0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DIQNRML0; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=GbZ53QGRunDRjO+eS4hbotUQMH+K7GnNqxp54TB0csTzYTymfUL/HbnWiFoU0ZrtDOqALNojXBX8gZ3Z/+3YQOWsZANsIjv4UFCO4/UiBSOCB7mkLRcx6IPDTypHKDc3HIoJZrohMwoTbiBZhmcA8BP6C1wCdz73GPr8bdXySP4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eqGK6y29; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DIQNRML0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eqGK6y29"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756954066;
+	s=mimecast20190719; t=1756955832;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=nPuBzO5sFF7pz/Em0FpS2T39kkMf6PUBGHFAt6g8pC0=;
-	b=DIQNRML0K4gJ5c5RrfgMXMceuXevmT50ufiGAmwbWB7ZxN75uiDzpGKruszlbtcjFNQqJc
-	YlGSlPGNrb3lUK9HaV3fxtwNUMvHCMHS9gfKcMHGByBBhde77eqUz8YLqSGHjfy6VbqKQd
-	NlOauNhC9OE91v7sEhYJ1jnW/pxQqTE=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=xCiDn5H04rkZjFCYtNUdEvadwxb+GPvXtkL8Ot360us=;
+	b=eqGK6y29cjybQsEBc7yGn9QxDa8wLroMWXkk8Omj22vZkCt+q8M0zazbgShsldhOdykt6I
+	NSzK0HqXumDYKZS1VFeL5qi/XmjrUuAyuG/6rPk2uQpId74EkFxf14LHs/9sbWLt24JWwu
+	CRqHJq3wWXVEFt1rC7lZXfao8US4rPQ=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-86-iiPD3TReNkOvBZhHZYYzuQ-1; Wed, 03 Sep 2025 22:47:45 -0400
-X-MC-Unique: iiPD3TReNkOvBZhHZYYzuQ-1
-X-Mimecast-MFC-AGG-ID: iiPD3TReNkOvBZhHZYYzuQ_1756954065
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-329e0a8337bso591616a91.3
-        for <virtualization@lists.linux.dev>; Wed, 03 Sep 2025 19:47:45 -0700 (PDT)
+ us-mta-630-CcB--qWRMC2K1-Rh87X0PA-1; Wed, 03 Sep 2025 23:17:05 -0400
+X-MC-Unique: CcB--qWRMC2K1-Rh87X0PA-1
+X-Mimecast-MFC-AGG-ID: CcB--qWRMC2K1-Rh87X0PA_1756955825
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-b4d3ab49a66so656557a12.3
+        for <virtualization@lists.linux.dev>; Wed, 03 Sep 2025 20:17:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756954065; x=1757558865;
+        d=1e100.net; s=20230601; t=1756955824; x=1757560624;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=nPuBzO5sFF7pz/Em0FpS2T39kkMf6PUBGHFAt6g8pC0=;
-        b=KHRTylZHX3uGiZ9Tvv2dIwBxgk7jxBip+Ixi6qmMOXO3I1xYeiQT8SlIKz/Es6SuWA
-         +vNRmxPOfK1KQaGVcb6L1HgjLPVv/MeCSTlPq1REUdJ8eYzn1gCItU8ZwjaZhBoDwTXa
-         wU8rRSLXEt6EAFWXG+vHMC7rKPErfEu4/okN7I3hRyr0IR5IXr38voMdU4QHbmx/0stf
-         bYr8twsKT5l0Y1rwiDoAhhKL6g/DTGc9zKKM9z4pVFlBBCU7fc5PQTPyh762lymmnyjx
-         5gPy4nAS1zHNUyweLB90RAm/qOe8pY1Vbn3+Ax1K6+iLO/l2lS/g3CPDZmSwxoBo/TKp
-         MJ8A==
-X-Forwarded-Encrypted: i=1; AJvYcCWNoOEgtimWelF8RGw2FMC5gkc3LllFYq2elL3QHHOU8565BXC/3qWVIDD0RrS9zIcxeS9J15ELzY0HM5g7+w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YylHUuXv+qgQ/daUJ22RWpGSCAjzL19j+cjKWn5oTzTcPs9+pgf
-	W8C5FA9YZ611wIrzysdaGZIbQb+2E3Di4/pKmmvGMh7NCJv4DRJRcwm0uy3tngn0zazmYDQ9GRe
-	hMolBHuQ5a2YevoIo/awU/hWVfN4tzdAYl+YGUuX/c+L4IliC2gKoxctOw3cn7HOf4M9uvgmBs1
-	a1U66lLBeo9DB+fr1qZaA65sLJt2hLuc8ZVwSXxmDvhrw=
-X-Gm-Gg: ASbGnctYeH6Gr9/NtNsFRxWg10aOHnIrgBDG6xQor9F0h6Dlhfy5c7Ufx1CvNrm39ES
-	0YBaF1dbYLH8qADjEBaKCtFMI3FiYTPMGEFYRxd+j6/I7gWRPG2/xLPBj5FKJklS5n1CheA5SNm
-	g/uhjSde7QTrFmlKokRT0=
-X-Received: by 2002:a17:90b:2ecc:b0:329:e3dc:db6c with SMTP id 98e67ed59e1d1-329e3dcdc0bmr10993118a91.23.1756954064580;
-        Wed, 03 Sep 2025 19:47:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFkDHqgDH/M72TzEiUNO4/wpezo4wquRaQJWXdohPpca0lZdT3tIFYzQxV00AK8Pp2pJZe1TcsVp6WvFKCncjI=
-X-Received: by 2002:a17:90b:2ecc:b0:329:e3dc:db6c with SMTP id
- 98e67ed59e1d1-329e3dcdc0bmr10993085a91.23.1756954064125; Wed, 03 Sep 2025
- 19:47:44 -0700 (PDT)
+        bh=xCiDn5H04rkZjFCYtNUdEvadwxb+GPvXtkL8Ot360us=;
+        b=k/YEafdyG257me2uNfbTuCCMQA7VRlR2XyZKijDZcxLFFQlrb1eNXszYydiYU/kBlL
+         LTn6S04xIAyC3/gJzpgCmE48vP1idRLnX2EKbz9L0o/+TGivCGwGrKniyNHN+pMME6zy
+         Nou1tAP7+4g4YSeGGaXScKE6/8c8cnnDDa1ALBByALyESp+TqgB4Egzl0aq5ZYtWgeDe
+         f/mqMIOUrNmdPvoIe6jJzFFajnx1TJy/uhKFbikv2r8aoSczbck+S0AadVdoxQDCpxZ/
+         byApCV1RQrccP6cpVJpB9/wGRaU74PJiH4nBBD59qOlhOTZhRU+4/y0AkDLfbApXIuSi
+         BCvQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWJx4bz+0ho5Q/XWW+Od9yMZYeAFTVYtwZnRt2G69ejMiEBrmBPzuGWbqWaxu2Pq2bqNjmhyqpjckAZEhiIwA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxePjTzL+l0EYoZRAivjzmsTVTqXoGr6Gw+Z1iZ6f2JO/TD1Ef3
+	omgzQkfXi2oxuxOel5Re1ZjQSD4bDw4pda+qiIUQX+Gifj4Fh5XU0QJ8DN2uUAxHKXx+n8Vwjhb
+	QLlcZWPuZejqBOjH3dQA768hKY6yM+G08LOpQkpJJToVqqoL9OTV/SsFYE5vtv122p27vhRTdQP
+	OJgN0plDXvChSG10KU5JfX2o8RRefLAlvSvNAneD4S0bI=
+X-Gm-Gg: ASbGncs0fZxon1Mm9A/SLwKICUOCDKtKl16cKg18OEX2HiWW/rM3nPCUrLcQcNqLw/5
+	CYQ8IgOh3+lBJzGHXbH4K1Bf6uCBb81dIN4uaXb9j42V3HhO2CtBoGEvl79S71UKFlSlr0n6yK1
+	ZLVTaZ1yjkFj5YTsVPFJQ=
+X-Received: by 2002:a17:90a:d2c8:b0:31f:11d6:cea0 with SMTP id 98e67ed59e1d1-328156de009mr22638039a91.27.1756955329910;
+        Wed, 03 Sep 2025 20:08:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFhtUhnk2gyKH6P1Jrm7ejAxw8eDAf7V9I9M9HYnNF7GQqVJDL2YIWt2o/utv2qYF1Sj5kxTQGZLIaBtlkLp/I=
+X-Received: by 2002:a17:90a:d2c8:b0:31f:11d6:cea0 with SMTP id
+ 98e67ed59e1d1-328156de009mr22637997a91.27.1756955328664; Wed, 03 Sep 2025
+ 20:08:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250902080957.47265-1-simon.schippers@tu-dortmund.de>
- <20250902080957.47265-5-simon.schippers@tu-dortmund.de> <willemdebruijn.kernel.251eacee11eca@gmail.com>
- <CACGkMEshZGJfh+Og_xrPeZYoWkBAcvqW8e93_DCr7ix4oOaP8Q@mail.gmail.com> <willemdebruijn.kernel.372e97487ad8b@gmail.com>
-In-Reply-To: <willemdebruijn.kernel.372e97487ad8b@gmail.com>
+References: <20250826112709.1051172-1-eperezma@redhat.com> <20250826112709.1051172-3-eperezma@redhat.com>
+ <CACGkMEvd9w_ijpf=+re8oUxUWfq6Q_0HaDM==_e65df3439k7w@mail.gmail.com>
+ <CAJaqyWeHLw9CUEkH1KF8np2zJMC-zMRU6AFRJEhczzuF7MNU8A@mail.gmail.com>
+ <CACGkMEsUjfPadVi8Qr8L723mbQ_21WG7e07mDd79KDHFNn_AFw@mail.gmail.com>
+ <CAJaqyWejgnBngjrnuzefTVAhdjRcDOzAJfe5b0aE65uxON=G5w@mail.gmail.com>
+ <CACGkMEtsCF5d_fdbkb9oPWQOscR=UgW3xq3ghQKXoWv1Be55Ag@mail.gmail.com> <CAJaqyWcAptQjRktZ7WcyDHADFqR0ZjGZ_D+gvKyq4JGSb7yFaQ@mail.gmail.com>
+In-Reply-To: <CAJaqyWcAptQjRktZ7WcyDHADFqR0ZjGZ_D+gvKyq4JGSb7yFaQ@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 4 Sep 2025 10:47:30 +0800
-X-Gm-Features: Ac12FXxK8G6F5K9kP9hZAbVWxKTcqMiuodU5d2Yu_6h48rhPlNy4xjY3e_hnfFc
-Message-ID: <CACGkMEtv+TKu+yBc_+WQsUj3UKqrRPvOVMGFDr7mB3zPHsW=wQ@mail.gmail.com>
-Subject: Re: [PATCH 4/4] netdev queue flow control for vhost_net
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Simon Schippers <simon.schippers@tu-dortmund.de>, mst@redhat.com, eperezma@redhat.com, 
-	stephen@networkplumber.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	kvm@vger.kernel.org, Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Date: Thu, 4 Sep 2025 11:08:37 +0800
+X-Gm-Features: Ac12FXw8ic7ZwoLUEnZNWeifQxpZmliXNdhzIdygh1SO4VzbUs1hcqr5FGbeVik
+Message-ID: <CACGkMEudOzDUzVr8i8PbeJ2q81vzBtEVDZKu=67R5y+p_9j8Bw@mail.gmail.com>
+Subject: Re: [PATCH 2/6] vduse: add vq group support
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>, 
+	Maxime Coquelin <mcoqueli@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: i7La-PZUpUKaItqwR9kRG8O2JmOcLv0yI6jCE0HvOvs_1756954065
+X-Mimecast-MFC-PROC-ID: J9fJxeWbzFOf-oouvyaw8zwNTDpUNnXSCbGUkEq2TDI_1756955825
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 3, 2025 at 9:52=E2=80=AFPM Willem de Bruijn
-<willemdebruijn.kernel@gmail.com> wrote:
+On Wed, Sep 3, 2025 at 6:31=E2=80=AFPM Eugenio Perez Martin <eperezma@redha=
+t.com> wrote:
 >
-> Jason Wang wrote:
-> > On Wed, Sep 3, 2025 at 5:31=E2=80=AFAM Willem de Bruijn
-> > <willemdebruijn.kernel@gmail.com> wrote:
-> > >
-> > > Simon Schippers wrote:
-> > > > Stopping the queue is done in tun_net_xmit.
-> > > >
-> > > > Waking the queue is done by calling one of the helpers,
-> > > > tun_wake_netdev_queue and tap_wake_netdev_queue. For that, in
-> > > > get_wake_netdev_queue, the correct method is determined and saved i=
-n the
-> > > > function pointer wake_netdev_queue of the vhost_net_virtqueue. Then=
-, each
-> > > > time after consuming a batch in vhost_net_buf_produce, wake_netdev_=
-queue
-> > > > is called.
-> > > >
-> > > > Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> > > > Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> > > > Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-> > > > ---
-> > > >  drivers/net/tap.c      |  6 ++++++
-> > > >  drivers/net/tun.c      |  6 ++++++
-> > > >  drivers/vhost/net.c    | 34 ++++++++++++++++++++++++++++------
-> > > >  include/linux/if_tap.h |  2 ++
-> > > >  include/linux/if_tun.h |  3 +++
-> > > >  5 files changed, 45 insertions(+), 6 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-> > > > index 4d874672bcd7..0bad9e3d59af 100644
-> > > > --- a/drivers/net/tap.c
-> > > > +++ b/drivers/net/tap.c
-> > > > @@ -1198,6 +1198,12 @@ struct socket *tap_get_socket(struct file *f=
-ile)
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(tap_get_socket);
-> > > >
-> > > > +void tap_wake_netdev_queue(struct file *file)
-> > > > +{
-> > > > +     wake_netdev_queue(file->private_data);
-> > > > +}
-> > > > +EXPORT_SYMBOL_GPL(tap_wake_netdev_queue);
-> > > > +
-> > > >  struct ptr_ring *tap_get_ptr_ring(struct file *file)
-> > > >  {
-> > > >       struct tap_queue *q;
-> > > > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> > > > index 735498e221d8..e85589b596ac 100644
-> > > > --- a/drivers/net/tun.c
-> > > > +++ b/drivers/net/tun.c
-> > > > @@ -3739,6 +3739,12 @@ struct socket *tun_get_socket(struct file *f=
-ile)
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(tun_get_socket);
-> > > >
-> > > > +void tun_wake_netdev_queue(struct file *file)
-> > > > +{
-> > > > +     wake_netdev_queue(file->private_data);
-> > > > +}
-> > > > +EXPORT_SYMBOL_GPL(tun_wake_netdev_queue);
-> > >
-> > > Having multiple functions with the same name is tad annoying from a
-> > > cscape PoV, better to call the internal functions
-> > > __tun_wake_netdev_queue, etc.
-> > >
-> > > > +
-> > > >  struct ptr_ring *tun_get_tx_ring(struct file *file)
-> > > >  {
-> > > >       struct tun_file *tfile;
-> > > > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > > > index 6edac0c1ba9b..e837d3a334f1 100644
-> > > > --- a/drivers/vhost/net.c
-> > > > +++ b/drivers/vhost/net.c
-> > > > @@ -130,6 +130,7 @@ struct vhost_net_virtqueue {
-> > > >       struct vhost_net_buf rxq;
-> > > >       /* Batched XDP buffs */
-> > > >       struct xdp_buff *xdp;
-> > > > +     void (*wake_netdev_queue)(struct file *f);
-> > >
-> > > Indirect function calls are expensive post spectre. Probably
-> > > preferable to just have a branch.
-> > >
-> > > A branch in `file->f_op !=3D &tun_fops` would be expensive still as i=
-t
-> > > may touch a cold cacheline.
-> > >
-> > > How about adding a bit in struct ptr_ring itself. Pahole shows plenty
-> > > of holes. Jason, WDYT?
-> > >
+> On Wed, Sep 3, 2025 at 9:40=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
+rote:
 > >
-> > I'm not sure I get the idea, did you mean a bit for classifying TUN
-> > and TAP? If this is, I'm not sure it's a good idea as ptr_ring should
-> > have no knowledge of its user.
+> > On Wed, Sep 3, 2025 at 2:29=E2=80=AFPM Eugenio Perez Martin <eperezma@r=
+edhat.com> wrote:
+> > >
+> > > On Wed, Sep 3, 2025 at 5:58=E2=80=AFAM Jason Wang <jasowang@redhat.co=
+m> wrote:
+> > > >
+> > > > On Mon, Sep 1, 2025 at 4:40=E2=80=AFPM Eugenio Perez Martin <eperez=
+ma@redhat.com> wrote:
+> > > > >
+> > > > > On Mon, Sep 1, 2025 at 3:59=E2=80=AFAM Jason Wang <jasowang@redha=
+t.com> wrote:
+> > > > > >
+> > > > > > On Tue, Aug 26, 2025 at 7:27=E2=80=AFPM Eugenio P=C3=A9rez <epe=
+rezma@redhat.com> wrote:
+> > > > > > >
+> > > > > > > This allows sepparate the different virtqueues in groups that=
+ shares the
+> > > > > > > same address space.  Asking the VDUSE device for the groups o=
+f the vq at
+> > > > > > > the beginning as they're needed for the DMA API.
+> > > > > > >
+> > > > > > > Allocating 3 vq groups as net is the device that need the mos=
+t groups:
+> > > > > > > * Dataplane (guest passthrough)
+> > > > > > > * CVQ
+> > > > > > > * Shadowed vrings.
+> > > > > > >
+> > > > > > > Future versions of the series can include dynamic allocation =
+of the
+> > > > > > > groups array so VDUSE can declare more groups.
+> > > > > > >
+> > > > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > > > > ---
+> > > > > > > v1: Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bi=
+t (Maxime)
+> > > > > > >
+> > > > > > > RFC v3:
+> > > > > > > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set =
+to a lower
+> > > > > > >   value to reduce memory consumption, but vqs are already lim=
+ited to
+> > > > > > >   that value and userspace VDUSE is able to allocate that man=
+y vqs.
+> > > > > > > * Remove the descs vq group capability as it will not be used=
+ and we can
+> > > > > > >   add it on top.
+> > > > > > > * Do not ask for vq groups in number of vq groups < 2.
+> > > > > > > * Move the valid vq groups range check to vduse_validate_conf=
+ig.
+> > > > > > >
+> > > > > > > RFC v2:
+> > > > > > > * Cache group information in kernel, as we need to provide th=
+e vq map
+> > > > > > >   tokens properly.
+> > > > > > > * Add descs vq group to optimize SVQ forwarding and support i=
+ndirect
+> > > > > > >   descriptors out of the box.
+> > > > > > > ---
+> > > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 51 ++++++++++++++++++++=
+++++++++--
+> > > > > > >  include/uapi/linux/vduse.h         | 21 +++++++++++-
+> > > > > > >  2 files changed, 68 insertions(+), 4 deletions(-)
+> > > > > > >
+> > > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdp=
+a/vdpa_user/vduse_dev.c
+> > > > > > > index e7bced0b5542..0f4e36dd167e 100644
+> > > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > > @@ -58,6 +58,7 @@ struct vduse_virtqueue {
+> > > > > > >         struct vdpa_vq_state state;
+> > > > > > >         bool ready;
+> > > > > > >         bool kicked;
+> > > > > > > +       u32 vq_group;
+> > > > > > >         spinlock_t kick_lock;
+> > > > > > >         spinlock_t irq_lock;
+> > > > > > >         struct eventfd_ctx *kickfd;
+> > > > > > > @@ -114,6 +115,7 @@ struct vduse_dev {
+> > > > > > >         u8 status;
+> > > > > > >         u32 vq_num;
+> > > > > > >         u32 vq_align;
+> > > > > > > +       u32 ngroups;
+> > > > > > >         struct vduse_umem *umem;
+> > > > > > >         struct mutex mem_lock;
+> > > > > > >         unsigned int bounce_size;
+> > > > > > > @@ -592,6 +594,13 @@ static int vduse_vdpa_set_vq_state(struc=
+t vdpa_device *vdpa, u16 idx,
+> > > > > > >         return 0;
+> > > > > > >  }
+> > > > > > >
+> > > > > > > +static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 =
+idx)
+> > > > > > > +{
+> > > > > > > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > > > > > +
+> > > > > > > +       return dev->vqs[idx]->vq_group;
+> > > > > > > +}
+> > > > > > > +
+> > > > > > >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa,=
+ u16 idx,
+> > > > > > >                                 struct vdpa_vq_state *state)
+> > > > > > >  {
+> > > > > > > @@ -678,6 +687,28 @@ static u8 vduse_vdpa_get_status(struct v=
+dpa_device *vdpa)
+> > > > > > >         return dev->status;
+> > > > > > >  }
+> > > > > > >
+> > > > > > > +static int vduse_fill_vq_groups(struct vduse_dev *dev)
+> > > > > > > +{
+> > > > > > > +       /* All vqs and descs must be in vq group 0 if ngroups=
+ < 2 */
+> > > > > > > +       if (dev->ngroups < 2)
+> > > > > > > +               return 0;
+> > > > > > > +
+> > > > > > > +       for (int i =3D 0; i < dev->vdev->vdpa.nvqs; ++i) {
+> > > > > > > +               struct vduse_dev_msg msg =3D { 0 };
+> > > > > > > +               int ret;
+> > > > > > > +
+> > > > > > > +               msg.req.type =3D VDUSE_GET_VQ_GROUP;
+> > > > > > > +               msg.req.vq_group.index =3D i;
+> > > > > > > +               ret =3D vduse_dev_msg_sync(dev, &msg);
+> > > > > > > +               if (ret)
+> > > > > > > +                       return ret;
+> > > > > > > +
+> > > > > > > +               dev->vqs[i]->vq_group =3D msg.resp.vq_group.g=
+roup;
+> > > > > > > +       }
+> > > > > > > +
+> > > > > > > +       return 0;
+> > > > > > > +}
+> > > > > > > +
+> > > > > > >  static void vduse_vdpa_set_status(struct vdpa_device *vdpa, =
+u8 status)
+> > > > > > >  {
+> > > > > > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > > > > > @@ -685,6 +716,11 @@ static void vduse_vdpa_set_status(struct=
+ vdpa_device *vdpa, u8 status)
+> > > > > > >         if (vduse_dev_set_status(dev, status))
+> > > > > > >                 return;
+> > > > > > >
+> > > > > > > +       if (((dev->status ^ status) & VIRTIO_CONFIG_S_FEATURE=
+S_OK) &&
+> > > > > > > +           (status & VIRTIO_CONFIG_S_FEATURES_OK))
+> > > > > > > +               if (vduse_fill_vq_groups(dev))
+> > > > > > > +                       return;
+> > > > > >
+> > > > > > I may lose some context but I think we've agreed that we need t=
+o
+> > > > > > extend the status response for this instead of having multiple
+> > > > > > indepdent response.
+> > > > > >
+> > > > >
+> > > > > My understanding was it is ok to start with this version by [1]. =
+We
+> > > > > can even make it asynchronous on top if we find this is a bottlen=
+eck
+> > > > > and the VDUSE device would need no change, would that work?
+> > > >
+> > > > I think I need to understand why we can not defer this to get_group=
+_asid() call.
+> > > >
+> > >
+> > > Because we need to know the vq_groups->asid mapping in other calls
+> > > like set_group_asid or get_vq_group.
+> >
+> > I think we don't need the mapping of those, or anything I miss?
+> >
 >
-> That is what I meant.
->
-> > Consider there were still indirect calls to sock->ops, maybe we can
-> > start from the branch.
->
-> What do you mean?
->
-> Tangential: if indirect calls really are needed in a hot path, e.g.,
-> to maintain this isolation of ptr_ring from its users, then
-> INDIRECT_CALL wrappers can be used to avoid the cost.
->
-> That too effectively breaks the isolation between caller and callee.
-> But only for the most important N callers that are listed in the
-> INDIRECT_CALL_? wrapper.
+> If the kernel module does not ask the userland device for the actual
+> vq group of a virtqueue, what should it return in vduse_get_vq_group?
+> 0 for all vqs, even if the CVQ is in vq group 1?
 
-Yes, I mean we can try to store the flag for example vhost_virtqueue struct=
-.
+Since the topology is fixed I think userspace should provide this when
+creating a device.
+
+>
+> That's also valid for vduse_get_vq_map, which return is assumed not to
+> change in all the life of the device as it is not protected by a
+> mutex.
+>
+> > And the vq to group mappings could be piggy backed by the device
+> > creation request.
+> >
+>
+> I'm not sure, I think it involves a vduse request per asid or vq group
+> operation. Even get_vq_map. But I'm open to explore this possibility
+> for sure.
+
+Something like this?
+
+struct vduse_vq_config {
+        __u32 index;
+        __u16 max_size;
+        __u16 reserved[13];
+};
+
+?
 
 Thanks
 
+>
+> > >
+> > > We could add a boolean on each virtqueue to track if we know its
+> > > virtqueue group and then only ask VDUSE device it if needed, would
+> > > that work?
+> >
+> > Thanks
+> >
+> > >
+> >
 >
 
