@@ -1,129 +1,175 @@
-Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com [209.85.219.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A314235354
-	for <virtualization@lists.linux.dev>; Thu,  4 Sep 2025 16:57:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.181
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 549F73093AC
+	for <virtualization@lists.linux.dev>; Thu,  4 Sep 2025 18:18:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757005078; cv=none; b=cO9FiGM6Nmbn27L5YMp/F66D37+3saNDNB7q+uERLOu9CO5QPHb6MEg3mCDRUfUSJydQwyOlwgXytF27z11//GcaDZ/0QeKAofrAgkUQG8rnh0LgD+ROcs4p3dbdMGn599mOnMCq/az/4/m2uDl3zQKXbw802Yb+7nZXOOXYw6Q=
+	t=1757009925; cv=none; b=tdBiW4ufab4tSruOn9U18a4jF5PnDd8qRdmxeZCp5H8gZAcrYtLpEdHQ1wo8g6OV/Zf2SuYAVBfTq5RQlDVYqSVztYAJwm89RNRUxANTXvMlbiXVnqpfvTIXvMfUDlFcNY11NWkfa7zQngH5eJlUpnSaKqLZnGmfG890s7pwKtM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757005078; c=relaxed/simple;
-	bh=ouXa+buHgPojnDxUmIhZfwT7/tCXbaUJ9leCQVUxMrI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=c88DuJf+218spyX5SfHnWv0VZbldPCkmQMioTmV4xN6Mi774Uo3CYZu3hLVEefMtypFjyuIrQGPGAmJgSRjYY1/qh2nKm3Epyu35snIOS2qu5+/+tM1wP19fuBg64wAzZGswYI9/vrBbJWa92W4nUIBbccO6oEZOCgSDzs4A+M8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mbsEUuAf; arc=none smtp.client-ip=209.85.219.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1757009925; c=relaxed/simple;
+	bh=7c8nj6KxULONPPQj8MkFkKHnBlddpgD0kXlRJfUjxGA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TOktLlt6jnolvJC8KTHcLLAP5oCDCXzb5k/ZMOyNxn/8kwZ1sKFNF8OB9tfB7ELeVZnzQibLqvahdcXIypx3rrP9OLt06nATmezIJ0Zs4tQ4QviqlqklE+LqEjxGWVgJEzb7maQeAWOyrs8PpFFKm7e5qngYglhMiKq7oXtFO08=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=oLu6V+pW; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mbsEUuAf"
-Received: by mail-yb1-f181.google.com with SMTP id 3f1490d57ef6-e96e5535fcdso2400048276.1
-        for <virtualization@lists.linux.dev>; Thu, 04 Sep 2025 09:57:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757005076; x=1757609876; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=irrrx3eJCz7Erx4j7m6TJA4T3jMD95DmIwByWZVQujs=;
-        b=mbsEUuAfiW+pZWgP28LMzanzLK08tfScHlLmbK/vNax9Ia8B8HaC4b/kimrjAzkae3
-         S7n9+9SukB1J9n1JW73TOYaDXrcopCxn+dK749H78iLPzCxcB3X0Ui+VavaI2tbLCKI0
-         BRW+3/XUTwo9Wam8IHPeFhD+cdSbtOpJ/mI3XeyKCrZiHIaD96/2GQOyEwUx0vfVVJgQ
-         Dw33bZ4aMH3ql01xrZr7eQpJpRHeP7Uo8+7D4n3/ulM3PTkcldt4pqSzAecfqPLiQHxV
-         k/etCflS2Mik4rDP2210a7vuW8mChTO3KPy4xTw4qa5mYuZnYKTk3GicwXXKJVtfMWZO
-         Ltdw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757005076; x=1757609876;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=irrrx3eJCz7Erx4j7m6TJA4T3jMD95DmIwByWZVQujs=;
-        b=utVY1hrFKc5sE//VDBa2LloYLCvoRf4gABJFkQJqH9+RLKnL5wUyToHENFImTVa5Yo
-         iXU+APpyZu4qazg23rXBgKfHYE4RVSBobDWg5PBqpO0gs5KRg0fzSxpDQbYjZUWqtRfh
-         Wn1iZkzFRRRjEXK28DDjm5d2MoEqSEPeGIjEHPAbTdo/nET86t8QruWfi6TPvUci08Pa
-         M1VQgy2/IlkEyaE0KPP2JAdQboq5hen7T1V2iYeVmUmdbDeLwiOLommKpIaFQAdpwHyT
-         klwtUgBG+ysWSvyuupZYr6HimOig29u68zuu63wRRgDrP9jFPwW4jw6D9PZ5jG941jBp
-         HAqA==
-X-Forwarded-Encrypted: i=1; AJvYcCWuyE8GQDICIWTFHWQEWUO1bvmYAxkmjFd8/0H8rwH6fAYUoTiKKHYsB2+gmp26C7+1AATCgjsSmJH8xF1XDg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXLRJPnV8+cVEMsym2GIiRgdymDMLJ8iy2EY6husXLJfiXGd3X
-	fqBHavDT3xNjChyEtSaXT2kT0RV1+Zym4h9yXsy/6xach110kLG2QQev
-X-Gm-Gg: ASbGncughfDK6iHIidBW4Srz0ENLrfcP7xO67TSdqSstfUbWqRZuLO74dy2jOsgsdSL
-	UT1egpptPn8eyWbCp5P9jjhyS36yvVHQ5oGVpoEWPu3HlDTBAZUUc+GNaG4Lk//Bljz0QPN0LcZ
-	HoLWSbQcbxJqZo9pSWN+yiGbGYo1amXFRoZccOrbeNPEYuSoP8ixgf8bc7b0UmZvr7hkFNvTpp9
-	RmkXNM15zFiK8ieAamJeno/StrdbS5VBifgMUPe763xKSGdaMXygKH8dlLqqiR+SQFoAcVAyMkW
-	JHN36P3+cmjkRkcefx9soyv3MI3dbzoGVHwEsvlIUr2lb+falCATTRtiSAPca/uYZMU6NVqPNJx
-	enrolArKnQ98fxE4paWUGVkrhgetRj33KRgdRIWPmZnFva+Y=
-X-Google-Smtp-Source: AGHT+IH84tU1qbIF/86A4dwkWsNLS9E7ptPPrXXDoSkNZ0JGyACTTGW1vQFLOTahp7MDXGWvzB7z0w==
-X-Received: by 2002:a53:bac6:0:b0:5f3:317e:40c9 with SMTP id 956f58d0204a3-60b699833femr293555d50.17.1757005075778;
-        Thu, 04 Sep 2025 09:57:55 -0700 (PDT)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:73::])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-723a8503294sm22857357b3.42.2025.09.04.09.57.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Sep 2025 09:57:54 -0700 (PDT)
-Date: Thu, 4 Sep 2025 09:57:53 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	berrange@redhat.com, Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v5 4/9] vsock/loopback: add netns support
-Message-ID: <aLnFESZSETzh/jMh@devvm11784.nha0.facebook.com>
-References: <20250827-vsock-vmtest-v5-0-0ba580bede5b@meta.com>
- <20250827-vsock-vmtest-v5-4-0ba580bede5b@meta.com>
- <mhjgn7fdztfqi6ku3gesgd42jj5atn4sqnvpyncw2jds23dpc3@iiupljayjxs4>
- <aLcy4Kk0joVPbxkd@devvm6216.cco0.facebook.com>
- <yuumxtgizcrkn4uspczro76p6u2dqvra5otqkrb57bi2se2lpx@zg4f4rtix7hb>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="oLu6V+pW"
+Received: from [192.168.0.88] (192-184-212-33.fiber.dynamic.sonic.net [192.184.212.33])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 6A3772119CB7;
+	Thu,  4 Sep 2025 11:18:42 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 6A3772119CB7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1757009923;
+	bh=d/D6Qrj0sP6g8qAnJASJd8z3FHjIIoC1QYzFJbAmmgM=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=oLu6V+pWgKTtTfQLhdxwHfvtkUJ0N0iCi/cfaSJbTLxtH/SZHgcXWgxsK9ZoNkfuI
+	 Jhe+3szLxA45hPC786Cup2SrThBmJ//Jy32lAGJDJ0uCT8yGVHH2WlO1x+gdZ2XUBb
+	 VnhKgbbsVrL7mHJ17eqOI/RKV3FeYxFdGYLhbtKQ=
+Message-ID: <4f38c613-255c-eaf6-0d50-28f8ffc02fff@linux.microsoft.com>
+Date: Thu, 4 Sep 2025 11:18:41 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yuumxtgizcrkn4uspczro76p6u2dqvra5otqkrb57bi2se2lpx@zg4f4rtix7hb>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.1
+Subject: Re: [PATCH V0 0/2] Fix CONFIG_HYPERV and vmbus related anamoly
+Content-Language: en-US
+To: Michael Kelley <mhklinux@outlook.com>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+ "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+ "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+ "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>,
+ "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Cc: "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
+ "mripard@kernel.org" <mripard@kernel.org>,
+ "tzimmermann@suse.de" <tzimmermann@suse.de>,
+ "airlied@gmail.com" <airlied@gmail.com>, "simona@ffwll.ch"
+ <simona@ffwll.ch>, "jikos@kernel.org" <jikos@kernel.org>,
+ "bentiss@kernel.org" <bentiss@kernel.org>,
+ "kys@microsoft.com" <kys@microsoft.com>,
+ "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
+ "wei.liu@kernel.org" <wei.liu@kernel.org>,
+ "decui@microsoft.com" <decui@microsoft.com>,
+ "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+ "andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>,
+ "davem@davemloft.net" <davem@davemloft.net>,
+ "edumazet@google.com" <edumazet@google.com>,
+ "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com"
+ <pabeni@redhat.com>, "bhelgaas@google.com" <bhelgaas@google.com>,
+ "James.Bottomley@HansenPartnership.com"
+ <James.Bottomley@HansenPartnership.com>,
+ "martin.petersen@oracle.com" <martin.petersen@oracle.com>,
+ "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+ "deller@gmx.de" <deller@gmx.de>, "arnd@arndb.de" <arnd@arndb.de>,
+ "sgarzare@redhat.com" <sgarzare@redhat.com>,
+ "horms@kernel.org" <horms@kernel.org>
+References: <20250828005952.884343-1-mrathor@linux.microsoft.com>
+ <SN6PR02MB4157917D84D00DBDAF54BD69D406A@SN6PR02MB4157.namprd02.prod.outlook.com>
+ <ff4c58f1-564d-ddfa-bdff-48ffee6e0d72@linux.microsoft.com>
+ <SN6PR02MB41573C5451F21286667C5441D400A@SN6PR02MB4157.namprd02.prod.outlook.com>
+From: Mukesh R <mrathor@linux.microsoft.com>
+In-Reply-To: <SN6PR02MB41573C5451F21286667C5441D400A@SN6PR02MB4157.namprd02.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Sep 03, 2025 at 05:10:31PM +0200, Stefano Garzarella wrote:
-> On Tue, Sep 02, 2025 at 11:09:36AM -0700, Bobby Eshleman wrote:
-> > On Tue, Sep 02, 2025 at 05:39:33PM +0200, Stefano Garzarella wrote:
-> > > On Wed, Aug 27, 2025 at 05:31:32PM -0700, Bobby Eshleman wrote:
-> > > > From: Bobby Eshleman <bobbyeshleman@meta.com>
-> > > >
-> > > 
-
-[...]
-
-> > 
-> > I could be wrong here, but I think net->vsock.loopback being set before
-> > vsock_core_register() prevents racing with net->vsock.loopback reads. We
-> > could add a lock to make sure and to make the protection explicit
-> > though.
+On 9/4/25 09:26, Michael Kelley wrote:
+> From: Mukesh R <mrathor@linux.microsoft.com> Sent: Wednesday, September 3, 2025 7:17 PM
+>>
+>> On 9/2/25 07:42, Michael Kelley wrote:
+>>> From: Mukesh Rathor <mrathor@linux.microsoft.com> Sent: Wednesday, August 27, 2025 6:00 PM
+>>>>
+>>>> At present, drivers/Makefile will subst =m to =y for CONFIG_HYPERV for hv
+>>>> subdir. Also, drivers/hv/Makefile replaces =m to =y to build in
+>>>> hv_common.c that is needed for the drivers. Moreover, vmbus driver is
+>>>> built if CONFIG_HYPER is set, either loadable or builtin.
+>>>>
+>>>> This is not a good approach. CONFIG_HYPERV is really an umbrella config that
+>>>> encompasses builtin code and various other things and not a dedicated config
+>>>> option for VMBUS. Vmbus should really have a config option just like
+>>>> CONFIG_HYPERV_BALLOON etc. This small series introduces CONFIG_HYPERV_VMBUS
+>>>> to build VMBUS driver and make that distinction explicit. With that
+>>>> CONFIG_HYPERV could be changed to bool.
+>>>
+>>> Separating the core hypervisor support (CONFIG_HYPERV) from the VMBus
+>>> support (CONFIG_HYPERV_VMBUS) makes sense to me. Overall the code
+>>> is already mostly in separate source files code, though there's some
+>>> entanglement in the handling of VMBus interrupts, which could be
+>>> improved later.
+>>>
+>>> However, I have a compatibility concern. Consider this scenario:
+>>>
+>>> 1) Assume running in a Hyper-V VM with a current Linux kernel version
+>>>     built with CONFIG_HYPERV=m.
+>>> 2) Grab a new version of kernel source code that contains this patch set.
+>>> 3) Run 'make olddefconfig' to create the .config file for the new kernel.
+>>> 4) Build the new kernel. This succeeds.
+>>> 5) Install and run the new kernel in the Hyper-V VM. This fails.
+>>>
+>>> The failure occurs because CONFIG_HYPERV=m is no longer legal,
+>>> so the .config file created in Step 3 has CONFIG_HYPERV=n. The
+>>> newly built kernel has no Hyper-V support and won't run in a
+>>> Hyper-V VM.
+>>>
+>>> As a second issue, if in Step 1 the current kernel was built with
+>>> CONFIG_HYPERV=y, then the .config file for the new kernel will have
+>>> CONFIG_HYPERV=y, which is better. But CONFIG_HYPERV_VMBUS
+>>> defaults to 'n', so the new kernel doesn't have any VMBus drivers
+>>> and won't run in a typical Hyper-V VM.
+>>>
+>>> The second issue could be fixed by assigning CONFIG_HYPERV_VMBUS
+>>> a default value, such as whatever CONFIG_HYPERV is set to. But
+>>> I'm not sure how to fix the first issue, except by continuing to
+>>> allow CONFIG_HYPERV=m.
+>>
+>> To certain extent, imo, users are expected to check config files
+>> for changes when moving to new versions/releases, so it would be a
+>> one time burden. 
 > 
-> I see, talkink about vsock_core_register(), I was thinking about,
-> extending it, maybe passing a struct with all parameters (e.g. transport
-> type, net callbacks, etc.). In this way we can easily check if the type
-> of transport is allowed to register net callbacks or not.
+> I'm not so sanguine about the impact. For those of us who work with
+> Hyper-V frequently, yes, it's probably not that big of an issue -- we can
+> figure it out. But a lot of Azure/Hyper-V users aren't that familiar with
+> the details of how the Kconfig files are put together. And the issue occurs
+> with no error messages that something has gone wrong in building
+> the kernel, except that it won't boot. Just running "make olddefconfig"
+> has worked in the past, so some users will be befuddled and end up
+> generating Azure support incidents. I also wonder about breaking
+> automated test suites for new kernels, as they are likely to be running
+> "make olddefconfig" or something similar as part of the automation.
 > 
-> Also because currently we don't do any check in
-> __vsock_register_net_callbacks() about transport type or even about
-> overriding calls.
+>> CONFIG_HYPERV=m is just broken imo as one sees that
+>> in .config but magically symbols in drivers/hv are in kerenel.
+>>
 > 
+> I agree that's not ideal. But note that some Hyper-V code and symbols
+> like ms_hyperv_init_platform() and related functions show up when
+> CONFIG_HYPERVISOR_GUEST=y, even if CONFIG_HYPERV=n. That's
+> the code in arch/x86/kernel/cpu/mshyperv.c and it's because Hyper-V
+> is one of the recognized and somewhat hardwired hypervisors (like
+> VMware, for example).
+> 
+> Finally, there are about a dozen other places in the kernel that use
+> the same Makefile construct to make some code built-in even though
+> the CONFIG option is set to "m". That may not be enough occurrences
+> to make it standard practice, but Hyper-V guests are certainly not the
+> only case.
+> 
+> In my mind, this is judgment call with no absolute right answer. What
+> do others think about the tradeoffs?
 
-That makes a lot of sense. I'll make that change if pernet_operations
-doesn't solve the probelem.
+Wei had said in private message that he agrees this is a good idea. Nuno
+said earlier above: 
 
-Best,
-Bobby
+"FWIW I think it's a good idea, interested to hear what others think."
+
+Thanks,
+-Mukesh
+
+
