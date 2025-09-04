@@ -1,47 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B873A2DFA5C;
-	Thu,  4 Sep 2025 09:13:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E831A2BDC09;
+	Thu,  4 Sep 2025 11:51:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756977200; cv=none; b=mt1lPq5Od3VL5XN+YLdxDRUfYFUUHix/UkPpg3bpD0eo4EknZplmRnjgdqDVXsqoYj4EWVV/6syC6dwoWEVRYhC4hEdb/NvGr7f/tZYcJO21rge+/AIs/BY/BNvUt0bPavaDNoHfSC6NspLtaEVMPRgNpRb4ZyvWmqQMPFVVgY4=
+	t=1756986675; cv=none; b=jq3w04Aat1HULlVuITqe44spg7jaQArPqqZ3y1SuncNT3TkJW8O6NLxl2oIVxRF8iPVCQv2JYWp+05p6rpi9j4LGzJRHlIxKdV/sLJIxqmds65TPh0ZwOYiMqM4LUUwa8R1OvlcgYB+Uu/u9wHpy2gxjhcdCgY4LUWN2iIuswBU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756977200; c=relaxed/simple;
-	bh=YWs124h50QsnlAzsLxV+1+ek9G9jWfNKu3Q0CLQIH1s=;
+	s=arc-20240116; t=1756986675; c=relaxed/simple;
+	bh=ayu+VFEFtlDXiKEZkYUc99UQyXAFV18iajSKbdBa3uI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DIX6EPQ6ubRRlf9SQoWcX/cvWIYUZ8WkhP7OYSBEZZ+xkaX754GVJRfgfwacTQ75oPTPUgBkwuNs0awVwwiUUYWcW0hVmKEuBHQL4JzqWsMZFTQuBC5y9qeQGxUVmJJVneB5ywEwgbWsKhCbSc0F6RoKcQ50HJ9AtGH36Cgaltg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WYIz2Cfk; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=FM5uto/DcFdlhDIIBl9D3bzdwS0wqMz713JJ/18u3tpM/O1MCl8kAmjsu5YY3RRzjTvUhL9arz3xsbkTFxJ8yfo47fDhBUZUvIiATcMhMdTmsLcOWo5LUtqM9ODXtBJ4Cr+Q27eI9IeXLVW6FqOApDgYERIMkRzwYaWYFwv6gkM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ONZrZBBC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WYIz2Cfk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D1F4C4CEF0;
-	Thu,  4 Sep 2025 09:13:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ONZrZBBC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 620D2C4CEF0;
+	Thu,  4 Sep 2025 11:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1756977200;
-	bh=YWs124h50QsnlAzsLxV+1+ek9G9jWfNKu3Q0CLQIH1s=;
+	s=k20201202; t=1756986674;
+	bh=ayu+VFEFtlDXiKEZkYUc99UQyXAFV18iajSKbdBa3uI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WYIz2Cfk1CY+u0nZdgXpFoMkvx02jTRnaFbblTwv6Rx5VBNwqlIwoS9RT/tDGtier
-	 grFdVdXgZyMfwTYk3bN2Wwg5oAQ8kEjjhZTjfZPiKXVjDzP0Hc/47MxmhbN+3x53HH
-	 7VMUB4qXr1fztPZl4JeHRU7muK9miMwI1xVq6kswLBhn2T4LusZ9B68LpFrE+u6tOP
-	 wDPPrYnJG2TD6uhiQQlw2qGyhGuOmNfpScLdGk/UFoTtKJt1/lsUnvL9TY/m1XOyBq
-	 GEeLDXTf339uD6S0nwQEibu15CRaZR4SZsUpX4fIojH5eOPbL/bp+2boVyInOX1MRb
-	 YQXVUg8vpnc6g==
-Date: Thu, 4 Sep 2025 10:13:15 +0100
-From: Simon Horman <horms@kernel.org>
-To: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH][next] virtio_net: Fix alignment and avoid
- -Wflex-array-member-not-at-end warning
-Message-ID: <20250904091315.GB372207@horms.kernel.org>
-References: <aLiYrQGdGmaDTtLF@kspp>
+	b=ONZrZBBCpuGwxh7arUAFmUebG80sJLxBC4MYYjuLVToYlzCW6RgNeQ07liMrV5F0N
+	 s/GiABu8diRs9Wt/8jy4v4GdTRk7UaVeB2bU3bZzobOKQryEy6GqMFzq3t2S1nPhmy
+	 MYYXXmjZa+R/jKyVAYEHCunJx2vEG8gVEeWMRqTlPy2r3VPODqu98SYt3INH8q6udv
+	 shoDQchLJ25xZPDhxEmUrOQCrsuE8Ft+HRhKOkDAURhrzQw8cQ9kMaWmoI2beur7nq
+	 TLvA7seUnmO3BltYWiXoiXISFP+iXNO3ejHGJ8SKbLXn7BVURmvpmM9/uaf0fTxflh
+	 /lCPuv3tqRbcA==
+Date: Thu, 4 Sep 2025 14:51:06 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-efi@vger.kernel.org, virtualization@lists.linux.dev,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v3 3/7] x86: Stop calling page_address() in free_pages()
+Message-ID: <aLl9KneqOYTujcCh@kernel.org>
+References: <20250903185921.1785167-1-vishal.moola@gmail.com>
+ <20250903185921.1785167-4-vishal.moola@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -50,112 +49,54 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aLiYrQGdGmaDTtLF@kspp>
+In-Reply-To: <20250903185921.1785167-4-vishal.moola@gmail.com>
 
-On Wed, Sep 03, 2025 at 09:36:13PM +0200, Gustavo A. R. Silva wrote:
-> -Wflex-array-member-not-at-end was introduced in GCC-14, and we are
-> getting ready to enable it, globally.
+On Wed, Sep 03, 2025 at 11:59:17AM -0700, Vishal Moola (Oracle) wrote:
+> free_pages() should be used when we only have a virtual address. We
+> should call __free_pages() directly on our page instead.
 > 
-> Use the new TRAILING_OVERLAP() helper to fix the following warning:
-> 
-> drivers/net/virtio_net.c:429:46: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
-> 
-> This helper creates a union between a flexible-array member (FAM)
-> and a set of members that would otherwise follow it (in this case
-> `u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];`). This
-> overlays the trailing members (rss_hash_key_data) onto the FAM
-> (hash_key_data) while keeping the FAM and the start of MEMBERS aligned.
-> The static_assert() ensures this alignment remains, and it's
-> intentionally placed inmediately after `struct virtnet_info` (no
-> blank line in between).
-> 
-> Notice that due to tail padding in flexible `struct
-> virtio_net_rss_config_trailer`, `rss_trailer.hash_key_data`
-> (at offset 83 in struct virtnet_info) and `rss_hash_key_data` (at
-> offset 84 in struct virtnet_info) are misaligned by one byte. See
-> below:
-> 
-> struct virtio_net_rss_config_trailer {
->         __le16                     max_tx_vq;            /*     0     2 */
->         __u8                       hash_key_length;      /*     2     1 */
->         __u8                       hash_key_data[];      /*     3     0 */
-> 
->         /* size: 4, cachelines: 1, members: 3 */
->         /* padding: 1 */
->         /* last cacheline: 4 bytes */
-> };
-> 
-> struct virtnet_info {
-> ...
->         struct virtio_net_rss_config_trailer rss_trailer; /*    80     4 */
-> 
->         /* XXX last struct has 1 byte of padding */
-> 
->         u8                         rss_hash_key_data[40]; /*    84    40 */
-> ...
->         /* size: 832, cachelines: 13, members: 48 */
->         /* sum members: 801, holes: 8, sum holes: 31 */
->         /* paddings: 2, sum paddings: 5 */
-> };
-> 
-> After changes, those members are correctly aligned at offset 795:
-> 
-> struct virtnet_info {
-> ...
->         union {
->                 struct virtio_net_rss_config_trailer rss_trailer; /*   792     4 */
->                 struct {
->                         unsigned char __offset_to_hash_key_data[3]; /*   792     3 */
->                         u8         rss_hash_key_data[40]; /*   795    40 */
->                 };                                       /*   792    43 */
->         };                                               /*   792    44 */
-> ...
->         /* size: 840, cachelines: 14, members: 47 */
->         /* sum members: 801, holes: 8, sum holes: 35 */
->         /* padding: 4 */
->         /* paddings: 1, sum paddings: 4 */
->         /* last cacheline: 8 bytes */
-> };
-> 
-> As a last note `struct virtio_net_rss_config_hdr *rss_hdr;` is also
-> moved to the end, since it seems those three members should stick
-> around together. :)
-> 
-> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 > ---
+>  arch/x86/mm/init_64.c          | 2 +-
+>  arch/x86/platform/efi/memmap.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> This should probably include the following tag:
+> diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+> index b9426fce5f3e..0e4270e20fad 100644
+> --- a/arch/x86/mm/init_64.c
+> +++ b/arch/x86/mm/init_64.c
+> @@ -1031,7 +1031,7 @@ static void __meminit free_pagetable(struct page *page, int order)
+>  		free_reserved_pages(page, nr_pages);
+>  #endif
+>  	} else {
+> -		free_pages((unsigned long)page_address(page), order);
+> +		__free_pages(page, order);
+>  	}
+>  }
+>  
+> diff --git a/arch/x86/platform/efi/memmap.c b/arch/x86/platform/efi/memmap.c
+> index 061b8ecc71a1..023697c88910 100644
+> --- a/arch/x86/platform/efi/memmap.c
+> +++ b/arch/x86/platform/efi/memmap.c
+> @@ -42,7 +42,7 @@ void __init __efi_memmap_free(u64 phys, unsigned long size, unsigned long flags)
+>  		struct page *p = pfn_to_page(PHYS_PFN(phys));
+>  		unsigned int order = get_order(size);
+>  
+> -		free_pages((unsigned long) page_address(p), order);
+
+Could be just free_pages((unsigned long)phys_to_virt(phys), order), then
+the page is not needed at all.
+
+> +		__free_pages(p, order);
+>  	}
+>  }
+>  
+> -- 
+> 2.51.0
 > 
-> 	Fixes: ed3100e90d0d ("virtio_net: Use new RSS config structs")
 > 
-> but I'd like to hear some feedback, first.
 
-I tend to agree given that:
-
-On the one hand:
-
-1) in virtnet_init_default_rss(), netdev_rss_key_fill() is used
-   to write random data to .rss_hash_key_data
-
-2) In virtnet_set_rxfh() key data written to .rss_hash_key_data
-
-While
-
-3) In virtnet_commit_rss_command() virtio_net_rss_config_trailer,
-   including the contents of .hash_key_data based on the length of
-   that data provided in .hash_key_length is copied.
-
-It seems to me that step 3 will include 1 byte of uninitialised data
-at the start of .hash_key_data. And, correspondingly, truncate
-.rss_hash_key_data by one byte.
-
-It's unclear to me what the effect of this - perhaps they key works
-regardless. But it doesn't seem intended. And while the result may be
-neutral, I do  suspect this reduces the quality of the key. And I more
-strongly suspect it doesn't have any positive outcome.
-
-So I would lean towards playing it safe and considering this as a bug.
-
-Of course, other's may have better insight as to the actual effect of this.
-
-...
+-- 
+Sincerely yours,
+Mike.
