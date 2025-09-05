@@ -1,278 +1,175 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47C3F2C08C4
-	for <virtualization@lists.linux.dev>; Fri,  5 Sep 2025 06:41:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA66C259C98
+	for <virtualization@lists.linux.dev>; Fri,  5 Sep 2025 07:41:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757054494; cv=none; b=Lhb1EFicAy6V7/OH40viSagn05z2SPE85pI0PDavZI+Ke/oPvhutAUN490agnwxLT5fJTXp8HmieEI5kRxvnsQj6wNRs4vPTQNJBgHA63+h5JLP+eseQi/BPWw8W3XGaTnspcS/4Ilsbb0Py40uPXmf8IzkzRjSPZQjA9BnSQNQ=
+	t=1757058107; cv=none; b=Bi8y8map0CiLoU2J/2B+gW1iUxlIO6wdVDxIGtklhdXGxMs5jboNKBJRt+Jjq9PTyxD729ZmiUfx8IT7GUtSHWtGDKdsrMYluRfb67N6wV8EFhnlkjT81KxOs4/7LH+P995xKm5fp1SsQ5n+DOzHdvvRNpbc66xXWcP9jdseBTw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757054494; c=relaxed/simple;
-	bh=5PP9Qy2JI0RylA8NM1X5jhoGp1Vq+k7r7Qo0XW9WsLM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZJM3FGABhYJLZednUM5/tCldHC/A7yUUZU4RyAoUkv9ZodeCnKs/7j37inboOd6g5i1mYfKEzl9qGc8TUTCNHkh8qwpjNEfLvWk1mz5Ixgc2PPYPaFvt3GF515g6FQWhUX8lR5yJY8I/MksCbat3RECMpb0BfAnrVPOrnrAJ5gw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EpW1p9MM; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1757058107; c=relaxed/simple;
+	bh=5EnOooRLaWG+1zujjxFTjqAcUilh1DuvKP0af/61SK8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DoKYgqKA3HQECNjRdsQh2quj+u6WPQ957v6KkKotlYlYanUK2Fr21Wk9cO1JpV+NoQvVcHvQkENCv3ApyffiLLJWAsbub3rLf52oGFtGHivkI8IuIJw7SZPZFKV8rEJOTMBjeCkYCT+wOo9Lq18fRWwJCSPZ8jGzNgd3/nhquiA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=MFDWFDQT; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=d6wvA4x6; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=MFDWFDQT; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=d6wvA4x6; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EpW1p9MM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1757054490;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=oF3HN1Q6ZNxZN3c5DymWi4LgFv8yUurotu5FuTflls4=;
-	b=EpW1p9MMbSDUi+SxAEcAL7HZbTLcxXjgKuaRcCee2TDI+3yZ8eGcUiDWKX1LvVr1KMVCwy
-	T7qi/fNDlIqPoU6ENhlQYJskkfhBCl2fSkz8yo+wadhzWXbqUY27ziyTlMA8I3rIjIU15r
-	IVbvW8HRUhpw8oXoa+xYLYjM4qDzqN4=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-312-aeDxu-PlPoSMCZnvExQAZg-1; Fri, 05 Sep 2025 02:41:29 -0400
-X-MC-Unique: aeDxu-PlPoSMCZnvExQAZg-1
-X-Mimecast-MFC-AGG-ID: aeDxu-PlPoSMCZnvExQAZg_1757054488
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-45cb6d8f42bso15001085e9.2
-        for <virtualization@lists.linux.dev>; Thu, 04 Sep 2025 23:41:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757054488; x=1757659288;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=oF3HN1Q6ZNxZN3c5DymWi4LgFv8yUurotu5FuTflls4=;
-        b=bkTQrLPQoEL63fjqkRm3W+WMqgnQZQImMsoiC2O49oGGVAquSZOFI8xAM75jU6ta6N
-         4r5ExrToLNy11D3Dv8kCtXSM+Lly0BxAV8Bhu16/UR1LgjZl6Ngnh0zO6VRGQ1EbUSJs
-         suPDHW1rSZLKiBxee8v1T1ssbHaumlmqjXkZZcbqS/i3n6t+dJeCjuQbjXbOF0TwYPbV
-         6vttp9wQ+tNUP/R6bt+0v9vMPGjAzsR4chMX0CCfX84SGSWqEeVGND8+0QOaHgFrWegm
-         0RP494J2mz1tHTuG9E88Tiyru8Xmv4PoKjHqMuymEWje2Fa5FwD9aORmcrzsUCmhyp9j
-         C+Rg==
-X-Forwarded-Encrypted: i=1; AJvYcCUoaUy4FaQ0K8ZbYagxz3oea1h8tcDdFFZmJ1c/Nu7uCTaznZypwj9+AzLqIFiZTvydsxd8IKz74tOujc81Hw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwnCcjVtj6f9Gaet5wpjfJ/GGm2Z4zWxupeNJ9ar8x6KKXPVPC2
-	jNXMAussLRZjmxOyVYbcGFaIJHyFeMmE92xpWWOgEoxNkdERz0fVB+tm8Pv2rwRyc1EQ+IWA3WP
-	fqeqc6Wr8Az6r/JOU4ymVWbXRC1wkrhEI7QKXRHUFJDt4lHZQ/FIrTqek4iZaJ5utxB33
-X-Gm-Gg: ASbGncs7WB1g49cRWjmRDzCQU51D7r+hmV87BbRJYqa612jKWWwFfwTTMhqyYwnCoXR
-	D/rRrUKFcO8XKFSGACBQ+WpyStYpZxXResu1TnFay52C0r9x/dQ2rnzqEvlaYb8slI5eg3sKRYa
-	ymcJVYeakWFn3WZGYh3y2G4MJahgRZNeUA/7asu+Gwqbek45f2LB9iN4x93nZEwRt0zfynVoRfL
-	PLJen3CblLU9niPvjkrnT31G9NS5h3lYZc2/8CAwR+vaiDafEa6Aa3lBHEYSRytN7HbXdNtyqes
-	0QFFsIz0RL7IqBy0yf7Av7ylwBcJ5CXt7V9zxKJag3YzSKKoi/7s9IPCEDkGR7o57igjJSgxDux
-	8ezEiWD6DMYqmwqQg3PCqUl0uwNg3bS3bADaxAVBw87VZz8wiEXsszymL
-X-Received: by 2002:a05:600c:4ec9:b0:45b:7ffa:1bf8 with SMTP id 5b1f17b1804b1-45b934f6a56mr114233005e9.23.1757054487745;
-        Thu, 04 Sep 2025 23:41:27 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHEj1Q4ueRZg61r58J+1sq7/RpmSeqvAcWabr/Sq37OcVKAf1elh8/EonCz3Jhepl0SBZP4Cg==
-X-Received: by 2002:a05:600c:4ec9:b0:45b:7ffa:1bf8 with SMTP id 5b1f17b1804b1-45b934f6a56mr114232615e9.23.1757054487185;
-        Thu, 04 Sep 2025 23:41:27 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f4d:e00:298:59cc:2514:52? (p200300d82f4d0e00029859cc25140052.dip0.t-ipconnect.de. [2003:d8:2f4d:e00:298:59cc:2514:52])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b7e8879cesm316420125e9.12.2025.09.04.23.41.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Sep 2025 23:41:26 -0700 (PDT)
-Message-ID: <5090355d-546a-4d06-99e1-064354d156b5@redhat.com>
-Date: Fri, 5 Sep 2025 08:41:23 +0200
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="MFDWFDQT";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="d6wvA4x6";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="MFDWFDQT";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="d6wvA4x6"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id A39294D92A;
+	Fri,  5 Sep 2025 07:41:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1757058102; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m+BAVyD25FezVwTZNryOXCPxljZr03tkbPhnVekdh0Q=;
+	b=MFDWFDQTxyFbha5g/xmtOkY9FdHT1TPudDjvqYwHsDk5SImSbZxn/UexebPgLDQHU8YU8d
+	Ec/gXDhN2/z3m4tj5II4pl3G+w4J0GRW34tpKZA95RKBLjeOyGVXzGP9VQBMKmiOocDEtZ
+	xeAKH9om4Tp7ACLeDNE8xAxEZUJQ8Hk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1757058102;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m+BAVyD25FezVwTZNryOXCPxljZr03tkbPhnVekdh0Q=;
+	b=d6wvA4x60pwWJ3Inxph2sEG+i20Ywu9+zBr/tJXUPI175gQzsXaSR0gHnEvoxXuMpERJG9
+	XFSiqAUMRxQCGBAA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=MFDWFDQT;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=d6wvA4x6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1757058102; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m+BAVyD25FezVwTZNryOXCPxljZr03tkbPhnVekdh0Q=;
+	b=MFDWFDQTxyFbha5g/xmtOkY9FdHT1TPudDjvqYwHsDk5SImSbZxn/UexebPgLDQHU8YU8d
+	Ec/gXDhN2/z3m4tj5II4pl3G+w4J0GRW34tpKZA95RKBLjeOyGVXzGP9VQBMKmiOocDEtZ
+	xeAKH9om4Tp7ACLeDNE8xAxEZUJQ8Hk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1757058102;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m+BAVyD25FezVwTZNryOXCPxljZr03tkbPhnVekdh0Q=;
+	b=d6wvA4x60pwWJ3Inxph2sEG+i20Ywu9+zBr/tJXUPI175gQzsXaSR0gHnEvoxXuMpERJG9
+	XFSiqAUMRxQCGBAA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8C07E13306;
+	Fri,  5 Sep 2025 07:41:42 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 4CXcITaUumiHCwAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Fri, 05 Sep 2025 07:41:42 +0000
+Date: Fri, 5 Sep 2025 09:41:42 +0200
+From: Daniel Wagner <dwagner@suse.de>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
+	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Aaron Tomlin <atomlin@atomlin.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, 
+	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
+	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>, 
+	Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
+	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
+	storagedev@microchip.com, virtualization@lists.linux.dev, 
+	GR-QLogic-Storage-Upstream@marvell.com
+Subject: Re: [PATCH v7 05/10] scsi: Use block layer helpers to constrain
+ queue affinity
+Message-ID: <71598d89-b29c-4b21-83ee-49fe9b890043@flourine.local>
+References: <20250702-isolcpus-io-queues-v7-0-557aa7eacce4@kernel.org>
+ <20250702-isolcpus-io-queues-v7-5-557aa7eacce4@kernel.org>
+ <d95de280-8cd7-4697-933a-37dc53f4c552@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 19/37] mm/gup: remove record_subpages()
-To: linux-kernel@vger.kernel.org
-Cc: Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
- Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
- Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
- Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
- Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
- Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org,
- Zi Yan <ziy@nvidia.com>, Jens Axboe <axboe@kernel.dk>
-References: <20250901150359.867252-1-david@redhat.com>
- <20250901150359.867252-20-david@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20250901150359.867252-20-david@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eIqqP_7AvXYxqrtlhZ6s9K3y2t1UmxtDuN33gQdd7cw_1757054488
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d95de280-8cd7-4697-933a-37dc53f4c552@suse.de>
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: A39294D92A
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[26];
+	MIME_TRACE(0.00)[0:+];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received,2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MISSING_XM_UA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RL71uuc3g3e76oxfn4mu5aogan)];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -4.51
 
-On 01.09.25 17:03, David Hildenbrand wrote:
-> We can just cleanup the code by calculating the #refs earlier,
-> so we can just inline what remains of record_subpages().
+On Thu, Jul 03, 2025 at 08:43:01AM +0200, Hannes Reinecke wrote:
+> >   drivers/scsi/fnic/fnic_isr.c              | 7 +++++--
+> >   drivers/scsi/hisi_sas/hisi_sas_v3_hw.c    | 1 +
+> >   drivers/scsi/megaraid/megaraid_sas_base.c | 5 ++++-
+> >   drivers/scsi/mpi3mr/mpi3mr_fw.c           | 6 +++++-
+> >   drivers/scsi/mpt3sas/mpt3sas_base.c       | 5 ++++-
+> >   drivers/scsi/pm8001/pm8001_init.c         | 1 +
+> >   drivers/scsi/qla2xxx/qla_isr.c            | 1 +
+> >   drivers/scsi/smartpqi/smartpqi_init.c     | 7 +++++--
+> >   8 files changed, 26 insertions(+), 7 deletions(-)
+> >
 > 
-> Calculate the number of references/pages ahead of times, and record them
-> only once all our tests passed.
+> All of these drivers are not aware of CPU hotplug, and as such
+> will not be notified when the number of CPUs changes.
+> But you use 'blk_mq_online_queue_affinity()' for all of these
+> drivers.
+> Wouldn't 'blk_mq_possible_queue_affinit()' a better choice here
+> to insulate against CPU hotplug effects?
 > 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->   mm/gup.c | 25 ++++++++-----------------
->   1 file changed, 8 insertions(+), 17 deletions(-)
-> 
-> diff --git a/mm/gup.c b/mm/gup.c
-> index c10cd969c1a3b..f0f4d1a68e094 100644
-> --- a/mm/gup.c
-> +++ b/mm/gup.c
-> @@ -484,19 +484,6 @@ static inline void mm_set_has_pinned_flag(struct mm_struct *mm)
->   #ifdef CONFIG_MMU
->   
->   #ifdef CONFIG_HAVE_GUP_FAST
-> -static int record_subpages(struct page *page, unsigned long sz,
-> -			   unsigned long addr, unsigned long end,
-> -			   struct page **pages)
-> -{
-> -	int nr;
-> -
-> -	page += (addr & (sz - 1)) >> PAGE_SHIFT;
-> -	for (nr = 0; addr != end; nr++, addr += PAGE_SIZE)
-> -		pages[nr] = page++;
-> -
-> -	return nr;
-> -}
-> -
->   /**
->    * try_grab_folio_fast() - Attempt to get or pin a folio in fast path.
->    * @page:  pointer to page to be grabbed
-> @@ -2967,8 +2954,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
->   	if (pmd_special(orig))
->   		return 0;
->   
-> -	page = pmd_page(orig);
-> -	refs = record_subpages(page, PMD_SIZE, addr, end, pages + *nr);
-> +	refs = (end - addr) >> PAGE_SHIFT;
-> +	page = pmd_page(orig) + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
->   
->   	folio = try_grab_folio_fast(page, refs, flags);
->   	if (!folio)
-> @@ -2989,6 +2976,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
->   	}
->   
->   	*nr += refs;
-> +	for (; refs; refs--)
-> +		*(pages++) = page++;
->   	folio_set_referenced(folio);
->   	return 1;
->   }
-> @@ -3007,8 +2996,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
->   	if (pud_special(orig))
->   		return 0;
->   
-> -	page = pud_page(orig);
-> -	refs = record_subpages(page, PUD_SIZE, addr, end, pages + *nr);
-> +	refs = (end - addr) >> PAGE_SHIFT;
-> +	page = pud_page(orig) + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
->   
->   	folio = try_grab_folio_fast(page, refs, flags);
->   	if (!folio)
-> @@ -3030,6 +3019,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
->   	}
->   
->   	*nr += refs;
-> +	for (; refs; refs--)
-> +		*(pages++) = page++;
->   	folio_set_referenced(folio);
->   	return 1;
->   }
+> Also some drivers which are using irq affinity (eg aacraid, lpfc) are
+> missing from these conversions. Why?
 
-Okay, this code is nasty. We should rework this code to just return the nr and receive a the proper
-pages pointer, getting rid of the "*nr" parameter.
+I've updated both drivers to use pci_alloc_irq_vectors_affinity with the
+PCI_IRQ_AFFINITY flag. But then I saw this:
 
-For the time being, the following should do the trick:
+  dafeaf2c03e7 ("scsi: aacraid: Stop using PCI_IRQ_AFFINITY")
 
-commit bfd07c995814354f6b66c5b6a72e96a7aa9fb73b (HEAD -> nth_page)
-Author: David Hildenbrand <david@redhat.com>
-Date:   Fri Sep 5 08:38:43 2025 +0200
+So we need be careful here.
 
-     fixup: mm/gup: remove record_subpages()
-     
-     pages is not adjusted by the caller, but idnexed by existing *nr.
-     
-     Signed-off-by: David Hildenbrand <david@redhat.com>
+In the case of lpfc (and qla2xxx), the nvme-fabrics core needs to be
+updated too (gets out ouf sync with the number of queues allocated). I
+already have patches for this. But I'd say we first continue with this
+series before the next set of patches.
 
-diff --git a/mm/gup.c b/mm/gup.c
-index 010fe56f6e132..22420f2069ee1 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2981,6 +2981,7 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
-                 return 0;
-         }
-  
-+       pages += *nr;
-         *nr += refs;
-         for (; refs; refs--)
-                 *(pages++) = page++;
-@@ -3024,6 +3025,7 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
-                 return 0;
-         }
-  
-+       pages += *nr;
-         *nr += refs;
-         for (; refs; refs--)
-                 *(pages++) = page++;
+Thus I decided to drop all the driver updates which are currently not
+using pci_alloc_irq_vectors_affinity and PCI_IRQ_AFFINITY. These are
+supporting managed irqs thus these should be all ready for this feature.
 
-
--- 
-
-Cheers
-
-David / dhildenb
-
+For the rest of the drivers, I'd rather update one by one so we don't
+introduce regressions (e.g. aacraid)
