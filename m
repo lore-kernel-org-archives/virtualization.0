@@ -1,141 +1,206 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97B92374290
-	for <virtualization@lists.linux.dev>; Fri,  5 Sep 2025 17:07:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94CE83191A2;
+	Fri,  5 Sep 2025 17:38:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757092067; cv=none; b=h9MOoM20KoO2gSrMCjgRL4Ko/1Vsz0HQwCJRuYDpKRGMgOrCNYR1G4tupmVU5JalGVL2srnqFv4qxnTKEjkKIn0zAMDqc91tivzbY8RbYYBsfNWdXlKfMJhTp4SXnWWcaMOlIy7EQGfcd978j6GjqD7x0DpkzbTF3HN07vqgLGo=
+	t=1757093935; cv=none; b=aZDrTys816/NRomw7OkJqC08+tz2Z60kjQXjvtNZYnU93t0dNL9LOPF1vAvBvQn2JNpiW0DkM7ZqrgIzESbz5pY2WxLQGcwKQd6upMizMizrkIUlbijGDDfw2JA96kIRUt9rX+9C1HUW7ijjfcB0O+H6HtqwBbBU46josiMcMxw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757092067; c=relaxed/simple;
-	bh=3aXidoCnjwjLlFAFt83SYhSNY9u5/DbQjFuEPX/ClMk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=qUhQziS7Hx7EI7TwfbOcaOlmM3bbNnppdLYZq4Xb5mU6YsgqHiIqa0y8I5U+Z62zZ0Z5/hdNKPpP68b5WVnIx1pmYC5D+nLrhath+/xO+m6LFuv1iXFG2BUN4mVCcUp+y7u4UAgYZtXuWor8A6HSZZk2P2qwdxPfA8tgUPs2mRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-622fbed96dfso429508a12.1
-        for <virtualization@lists.linux.dev>; Fri, 05 Sep 2025 10:07:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757092064; x=1757696864;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hPOh83BwsxUoqeI+xJ5O/OzWhrMRpIrMTjO1JPoh9E0=;
-        b=TurMPkanlj8IWz6pbURjauD2rsjEldVv4jYfmx3Uk/PtKNwys+8kbUjJ0m5gnmAmN3
-         X9EbHxPQX6/RWlbUB7/Mp9mPWrBIERyGSMcwsAqicWtX8vL6UcgbFNidUj25pdzOmUD9
-         RuLMVkXsulWTYXkF25DRPMXdoUb81wqsQSKHWnjmK2Vamo87v48csmwvTOKwLiKyVAVl
-         0yBDrphnLBypCXU2N0VJpDwa8MdNnjvTrulYnlo9WQ5GUr+H2vXRh0JFmO9ZPZPo2X5L
-         yHoVF6rT8XtjzoSWexoV+oiCGL7NpQrQpveNuXi4JFeX7BADveizearav55qsAvvkDeg
-         RoJg==
-X-Forwarded-Encrypted: i=1; AJvYcCX++6jWJYnwc5NoWSyeprNBrNf/C22rusI3tSm+jxD7CaSKUITg+B+CG3aPErzK+2d/qj2imt4NtkwC79LPhg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx0rYbXtInW3Tt70xREeJSPjNAh/4F5EgxpGoeDGICHrzDkayKU
-	gFG3N97RuEABc2fAlXf9eDXzPoPmQ/abN4JDYrmG7zslZn57RVxkXZuA
-X-Gm-Gg: ASbGncv7XrJYCqUGFuV0tvUeZs5avrm5XIWTwJcSvHwzGNK8G7fDYWcba8a6Jvi6DqD
-	YHvuFb03GUADG/TQIgQ20LfdTa5Axtb3vTkpM5eDnkajhKESaDT9NEbMhiyEjj8tU95l7rjay6U
-	y68SFL0tKquFkIcp0kWpdKMPXnzeCiBaU3d1EBOlwx0xDzOpDwRtkuxKIEsZr9gGSVvPzqgO3tu
-	Mjec3MpuIrdPD/MWvdVvaVAr56nIwxaIGyVFZ7nxedSfDJyKsYrf+9PmrtmDJt6S11bWYZrQaUv
-	SShi5V4JvhLi2clPeZPp9A1fXlHtW5XC9GzaaoKi3O2Lm83gSrH+0tiVz3+j0VTygbm+N9tIym1
-	AXADkowsXU13E0+k+9Tn3K7OC
-X-Google-Smtp-Source: AGHT+IFHB/021clnQGQ9l2V/ebhPpnhyDNv4aANIU9IER24mAVYd7lakHWEK5C+0sF2ladD2UZSv7Q==
-X-Received: by 2002:a05:6402:210c:b0:61e:a5c8:e830 with SMTP id 4fb4d7f45d1cf-61ea5c8e868mr16151197a12.1.1757092063706;
-        Fri, 05 Sep 2025 10:07:43 -0700 (PDT)
-Received: from localhost ([2a03:2880:30ff:71::])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-61cfc1c77d0sm17028678a12.11.2025.09.05.10.07.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Sep 2025 10:07:43 -0700 (PDT)
-From: Breno Leitao <leitao@debian.org>
-Date: Fri, 05 Sep 2025 10:07:26 -0700
-Subject: [PATCH RFC net-next 7/7] net: virtio_net: add get_rxrings ethtool
- callback for RX ring queries
+	s=arc-20240116; t=1757093935; c=relaxed/simple;
+	bh=RwgI6iOiiGGaVq5ryV0ZWpJOK9YgvvrfbQAyHKlknns=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ubr+6eQzglu21Zk/rhKmInfpkcsRiY028daSWnNnZ9aix7VLebvEsLFIjqdVPP/XUROVbQz7VnnBuG55/gGZ/3yj82JRjixB1YH0OLMY6GVI14zatg5vvT9P53ZwQ5d/oL7L6Kv+CaP3CsTMfhWTDBllNvAbnWEwLPf7QEb71zU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ld3/+CXF; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ld3/+CXF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA22C4CEF1;
+	Fri,  5 Sep 2025 17:38:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1757093935;
+	bh=RwgI6iOiiGGaVq5ryV0ZWpJOK9YgvvrfbQAyHKlknns=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Ld3/+CXFzo5ZlgBaEJAAJ7n8ftGIf1vPmYVyQ1Q0lHbk30C+f/zGBCjYcCjqKGMkP
+	 ws0j93C+g7AZ/Qe51tbRHlFMkxmG8V2HiTKDDiIWpTC2x67XRe77cJRX2O/0Emokq3
+	 empFPEdzGq6Yu1WtRJ7c3H3VguQh/C6NxRnBxnFK+dgTB/PoKfshLNhSffqo96FEeK
+	 5gqAp6J/XAgqm8C64dBl5bC3cJKCuXlyMRuLkxNADtvKhMqMkGQ2Y7tGhP772p1Ynd
+	 b5DRxNZc712LsAvfWwUYrOIy6AN49OJHPTqpk5krnaWlYW3AAU/MPcrMbpxJdoJz6O
+	 DAfHVEkZTDmug==
+Date: Fri, 5 Sep 2025 20:38:50 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Alex Gaynor <alex.gaynor@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
+	iommu@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+	Jens Axboe <axboe@kernel.dk>, Joerg Roedel <joro@8bytes.org>,
+	Jonathan Corbet <corbet@lwn.net>, Juergen Gross <jgross@suse.com>,
+	kasan-dev@googlegroups.com, Keith Busch <kbusch@kernel.org>,
+	linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-trace-kernel@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v4 00/16] dma-mapping: migrate to physical address-based
+ API
+Message-ID: <20250905173850.GB25881@unreal>
+References: <cover.1755624249.git.leon@kernel.org>
+ <CGME20250829131641eucas1p2ddd687e4e8c16a2bc64a293b6364fa6f@eucas1p2.samsung.com>
+ <20250829131625.GK9469@nvidia.com>
+ <7557f31e-1504-4f62-b00b-70e25bb793cb@samsung.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250905-gxrings-v1-7-984fc471f28f@debian.org>
-References: <20250905-gxrings-v1-0-984fc471f28f@debian.org>
-In-Reply-To: <20250905-gxrings-v1-0-984fc471f28f@debian.org>
-To: Andrew Lunn <andrew@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
- kuba@kernel.org, Simon Horman <horms@kernel.org>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- virtualization@lists.linux.dev, Breno Leitao <leitao@debian.org>, 
- jdamato@fastly.com, kernel-team@meta.com
-X-Mailer: b4 0.15-dev-dd21f
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1593; i=leitao@debian.org;
- h=from:subject:message-id; bh=3aXidoCnjwjLlFAFt83SYhSNY9u5/DbQjFuEPX/ClMk=;
- b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBouxjSrAs1Sm+xxMdVGyejtHHGgv9lU+1AEZcr8
- HRgIm5+yvKJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCaLsY0gAKCRA1o5Of/Hh3
- bSzdD/9VZrqjup5ByMvV1ARdrXaNOQAT0EzCwe6eGJSqbeLxU6C5ECSqaD2RYn6tKOwqGGwr0aK
- KNWlZc7acHG7tdwqHvzcctsE6HsC5bFDsVO7N4AdhNiZtz0b/U0FLDYas4mtVQyw68PRhffmMBX
- boWG8bfFtjAj4MvMwVbFlWNYsIbL/FNHgMx/7zj5pLzAWB4HFASzWEkpq2dgQdittZ05EpETn1u
- UMRVxB5cG7Gebm0jD0L86pan6rSQlaLr6VZDUN+zQkUsP9aO9YY99Zux7c+u16ZWaVS9AskwOze
- ce80xTgM9pgAz9S1WQyDCC0w1xLbw/zfZI2Y3xTUpD3oRC+QmRBzezdCnD3+6inNbf/QyNGqwpL
- 30d8WBTuEcCMXqKPYwmWgaEL30ljXdjT89l4Q4xyzMgGLc3WMBxLXUlFVq4AfW8JeSeIpITb/lj
- 9RX94ORn0vcc4wgenLBxht/1Y0JIRyWYr7JIz/CIfhlnbEl0VSaCNK0gFCMKf6u7DYpd29s5tZV
- l1WXHx3tdLMBIFtlbM2dAzS9eBBb8fbeh4QOju85Y4GOs5qozuuFsLZETAq1ZkJF1PdzeTWg+sP
- /1ig8EsSB8pIvbnuafh054c5DHfMc2I1IFr1eeVvrnu2Z3LzDJroipiBciPKHFPubblQW/PfxGa
- UOYSQ23i/cdj7GQ==
-X-Developer-Key: i=leitao@debian.org; a=openpgp;
- fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7557f31e-1504-4f62-b00b-70e25bb793cb@samsung.com>
 
-Replace the existing virtnet_get_rxnfc callback with a dedicated
-virtnet_get_rxrings implementation to provide the number of RX rings
-directly via the new ethtool_ops get_rxrings pointer.
+On Fri, Sep 05, 2025 at 06:20:51PM +0200, Marek Szyprowski wrote:
+> On 29.08.2025 15:16, Jason Gunthorpe wrote:
+> > On Tue, Aug 19, 2025 at 08:36:44PM +0300, Leon Romanovsky wrote:
+> >
+> >> This series does the core code and modern flows. A followup series
+> >> will give the same treatment to the legacy dma_ops implementation.
+> > I took a quick check over this to see that it is sane.  I think using
+> > phys is an improvement for most of the dma_ops implemenations.
+> >
+> >    arch/sparc/kernel/pci_sun4v.c
+> >    arch/sparc/kernel/iommu.c
+> >      Uses __pa to get phys from the page, never touches page
+> >
+> >    arch/alpha/kernel/pci_iommu.c
+> >    arch/sparc/mm/io-unit.c
+> >    drivers/parisc/ccio-dma.c
+> >    drivers/parisc/sba_iommu.c
+> >      Does page_addres() and later does __pa on it. Doesn't touch struct page
+> >
+> >    arch/x86/kernel/amd_gart_64.c
+> >    drivers/xen/swiotlb-xen.c
+> >    arch/mips/jazz/jazzdma.c
+> >      Immediately does page_to_phys(), never touches struct page
+> >
+> >    drivers/vdpa/vdpa_user/vduse_dev.c
+> >      Does page_to_phys() to call iommu_map()
+> >
+> >    drivers/xen/grant-dma-ops.c
+> >      Does page_to_pfn() and nothing else
+> >
+> >    arch/powerpc/platforms/ps3/system-bus.c
+> >     This is a maze but I think it wants only phys and the virt is only
+> >     used for debug prints.
+> >
+> > The above all never touch a KVA and just want a phys_addr_t.
+> >
+> > The below are touching the KVA somehow:
+> >
+> >    arch/sparc/mm/iommu.c
+> >    arch/arm/mm/dma-mapping.c
+> >      Uses page_address to cache flush, would be happy with phys_to_virt()
+> >      and a PhysHighMem()
+> >
+> >    arch/powerpc/kernel/dma-iommu.c
+> >    arch/powerpc/platforms/pseries/vio.c
+> >     Uses iommu_map_page() which wants phys_to_virt(), doesn't touch
+> >     struct page
+> >
+> >    arch/powerpc/platforms/pseries/ibmebus.c
+> >      Returns phys_to_virt() as dma_addr_t.
+> >
+> > The two PPC ones are weird, I didn't figure out how that was working..
+> >
+> > It would be easy to make map_phys patches for about half of these, in
+> > the first grouping. Doing so would also grant those arches
+> > map_resource capability.
+> >
+> > Overall I didn't think there was any reduction in maintainability in
+> > these places. Most are improvements eliminating code, and some are
+> > just switching to phys_to_virt() from page_address(), which we could
+> > further guard with DMA_ATTR_MMIO and a check for highmem.
+> 
+> Thanks for this summary.
+> 
+> However I would still like to get an answer for the simple question - 
+> why all this work cannot be replaced by a simple use of dma_map_resource()?
+> 
+> I've checked the most advertised use case in 
+> https://git.kernel.org/pub/scm/linux/kernel/git/leon/linux-rdma.git/log/?h=dmabuf-vfio 
+> and I still don't see the reason why it cannot be based 
+> on dma_map_resource() API? I'm aware of the little asymmetry of the 
+> client calls is such case, indeed it is not preety, but this should work 
+> even now:
+> 
+> phys = phys_vec[i].paddr;
+> 
+> if (is_mmio)
+>      dma_map_resource(phys, len, ...);
+> else
+>      dma_map_page(phys_to_page(phys), offset_in_page(phys), ...);
+> 
+> What did I miss?
 
-This simplifies the RX ring count retrieval and aligns virtio_net with
-the new ethtool API for querying RX ring parameters.
+"Even now" can't work mainly because both of these interfaces don't
+support p2p case (PCI_P2PDMA_MAP_BUS_ADDR).
 
-Signed-off-by: Breno Leitao <leitao@debian.org>
----
- drivers/net/virtio_net.c | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+It is unclear how to extend them without introducing new functions
+and/or changing whole kernel. In PCI_P2PDMA_MAP_BUS_ADDR case, there
+is no struct page, so dma_map_page() is unlikely to be possible to
+extend and dma_map_resource() has no direct way to access PCI
+bus_offset. In theory, it is doable, but will be layer violation as DMA
+will need to rely on PCI layer for address calculations.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 975bdc5dab84b..942ae55e8897d 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -5610,20 +5610,11 @@ static int virtnet_set_rxfh(struct net_device *dev,
- 	return 0;
- }
- 
--static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info, u32 *rule_locs)
-+static int virtnet_get_rxrings(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	int rc = 0;
- 
--	switch (info->cmd) {
--	case ETHTOOL_GRXRINGS:
--		info->data = vi->curr_queue_pairs;
--		break;
--	default:
--		rc = -EOPNOTSUPP;
--	}
--
--	return rc;
-+	return vi->curr_queue_pairs;
- }
- 
- static const struct ethtool_ops virtnet_ethtool_ops = {
-@@ -5651,7 +5642,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.set_rxfh = virtnet_set_rxfh,
- 	.get_rxfh_fields = virtnet_get_hashflow,
- 	.set_rxfh_fields = virtnet_set_hashflow,
--	.get_rxnfc = virtnet_get_rxnfc,
-+	.get_rxrings = virtnet_get_rxrings,
- };
- 
- static void virtnet_get_queue_stats_rx(struct net_device *dev, int i,
+If we don't extend, in general case (for HMM, RDMA and NVMe) end result will be something like that:
+if (...PCI_P2PDMA_MAP_BUS_ADDR)
+  pci_p2pdma_bus_addr_map
+else if (mmio)
+  dma_map_resource
+else              <- this case is not applicable to VFIO-DMABUF
+  dma_map_page
 
--- 
-2.47.3
+In case, we will somehow extend these functions to support it, we will
+lose very important optimization where we are performing one IOTLB
+sync for whole DMABUF region == dma_iova_state, and I was told that
+it is very large region.
 
+  103         for (i = 0; i < priv->nr_ranges; i++) {
+  <...>
+  107                 } else if (dma_use_iova(state)) {
+  108                         ret = dma_iova_link(attachment->dev, state,
+  109                                             phys_vec[i].paddr, 0,
+  110                                             phys_vec[i].len, dir, attrs);
+  111                         if (ret)
+  112                                 goto err_unmap_dma;
+  113
+  114                         mapped_len += phys_vec[i].len;
+  <...>
+  132         }
+  133
+  134         if (state && dma_use_iova(state)) {
+  135                 WARN_ON_ONCE(mapped_len != priv->size);
+  136                 ret = dma_iova_sync(attachment->dev, state, 0, mapped_len);
+
+> 
+> I'm not against this rework, but I would really like to know the 
+> rationale. I know that the 2-step dma-mapping API also use phys 
+> addresses and this is the same direction.
+
+This series is continuation of 2-step dma-mapping API. The plan to
+provide dma_map_phys() was from the beginning.
+
+Thanks
