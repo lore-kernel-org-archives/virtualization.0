@@ -1,304 +1,210 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 089202FA0C7
-	for <virtualization@lists.linux.dev>; Mon,  8 Sep 2025 12:12:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C63972FB61F
+	for <virtualization@lists.linux.dev>; Mon,  8 Sep 2025 12:16:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757333556; cv=none; b=AujDyy9uNu1IA7MO7eUL4P2pxaW47uUoxRml9xqqJ7nEqjs60yff3R+sC/wabLOjr3dAEbkxbenTHEkRuvp0tcKzSC2vDwVqPA0wgaUrbTd+c01y30HBb1cxaZVZL+W0oclMzzgMBXgB/xxEP9PN75+wBMiagSRV9A3NcK31W1s=
+	t=1757333805; cv=none; b=KJKpuQIRePrGdFlLlYo5EhSy3HkGpVfK60kN6ypx0ZCmBZqd6DUT99JaA+i/icKAHtlwKEHTJcnyprlUVkmRdas3tIpc8CnsGgKNcqjBlMDHCIYaojxkDK0YBidPbiUfZGW010/5K1P4UkyFcqYmb77+7nuCCSNqo6sDMZb20jg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757333556; c=relaxed/simple;
-	bh=otFOLS41MOzeOmIi5Qj4erstUXuYLgtkMaxX1Oi9Z/I=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qRbC/orjG/bjW9FOSPyCJk0+hTlhXbCuTOq1UQPswCZMHbDkxhGT6coFv3r05YKRoe6iO0AjvHE4k2RBPlsccmIQZY0XKGp2qccJ7VF+TgxixO/PoSRq0AK3Ut9ia+mXgHNC1UyYuxTQWXa5xuFGGJ7A63T/JMHaUKVNQhriNl8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=Hi+YuKvo; arc=none smtp.client-ip=209.85.215.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	s=arc-20240116; t=1757333805; c=relaxed/simple;
+	bh=qad2LZdhPW8r//ZESVSUeMo0L7zvDEesTLk0IFZn8MA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=H7vxGhzgtn3RV1+C/QnlUUmar18M7fQmuLVijpevT6Q8rZ8+X2+rv16gpVp6foSw5aE17P2C9BBDl9szJs+R9EPVZ+YBSeWod4yeELaE6VKjuJ4O6tsuDjb+lB/Q1HlUC34kgBU4Eerc1IddKUlFxlLuhrn0OU1yrvORGW2KeZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=KbRadsCa; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=vsNeu8wI; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=KbRadsCa; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=vsNeu8wI; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="Hi+YuKvo"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-b4cb3367d87so2832554a12.3
-        for <virtualization@lists.linux.dev>; Mon, 08 Sep 2025 05:12:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1757333553; x=1757938353; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LeeAbZ1EiDBRybQL5hHr70oeFHubNRnYbaFSvRYvGpY=;
-        b=Hi+YuKvoJk3LrrgEWsptmWqI2vd+7/6y3lzJARvDt4wIKSTYCO72I16NIUfjraTLQh
-         SoNUfn/2i78eK/iKN+Jm8fTx5mtxV+qTsJWUzKY2XT5vfQ9QF1LU7naxMeqjOF0y25ep
-         /Z/kFTzey+1iGluYw0Z30CSe+UF6rSmm/PCo+Rflezc7PhCh8CIuBxIONNhyHEMecaj3
-         JYo5Jsys4wlEz2PpVUKfuimtOmq1WDtdteIRe3pi5TpD8NxtcUqgQw+YF3kNxBZlEpl+
-         v7ylbSEFlZROtyxZ2B5O114WW5c3LP0+ZZpZqhDwOIbgPRch/Xz0/9PecgD1UttV66XL
-         /1GA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757333553; x=1757938353;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LeeAbZ1EiDBRybQL5hHr70oeFHubNRnYbaFSvRYvGpY=;
-        b=tY4xl5pS8SskULsjic9Y6FkE/fCbV9cMz4D84/7fOgSrlmz5wluMCOyEHo7AI56qWp
-         VwXIsvPM+VZHWWg/4w3sA7K3kXSdicUNxomniwy4bTvEnWf0t4AkaqneKLiIbdvNLAaZ
-         xdlszmgdtSGVbJT0p0GdBkuabWm+/DXvHTXoXEr+EU0dZsqBAr/CZ/1J3a44xwIIR5mi
-         yyEVt7ef9XRYMkfs2ZNDlnEDCPa4hco/e2oqYFUTxyp8la/I0827zXMc/4W9rN1Su9cq
-         JuZrbPb475ecBgV/rTdfteHQv35OtVA8OrjBEJslseMkHJmSc5eTxjBcY22KccjsHIfe
-         fkkA==
-X-Forwarded-Encrypted: i=1; AJvYcCUbZU2IGEgOYvR8yeTadYuSfXWlWCkhbs2L2YCcbxghhZ51PZUHNvARrNoilccNxhKzgvPux3a8B64pBPwMGw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwctaShJv0bZ1r/GbLf5kzsrj4nDgcBGUdisIIE8M9AEUGgJo7p
-	UFkwnR2+SuptS3JoPN1I8SWZ2JUUSh/UYiKwwBJuI5+4K7IZqizPTWCtXMftGmSGIq3GkVi+Vih
-	07Pw4s1cUTEuwfA8uxXxtHQ5QkUP/iC9BYK+ly1rl
-X-Gm-Gg: ASbGncv0LsDS/TmSNYCe8nas4ZEMCOhgw3JtlS0DL4GR1ITP+t5WsGWHV1cLXWAmT7n
-	P7fsDdXNcLgz0xFiFZHUsWAs19E9XoynzKe8896+y16l1KxLDPGbKP7AOY5GvzGzzsVHq4gCbSO
-	Bh17XnJ463v9Zu/2w8usmw4kD6ppzmXR8O4su5vIKtc+TsCCt+TJT/fLfgUqRpxsam4jq9xV7eq
-	UZkotY7PF1OlVEdAUAH3qgW+FVD2pdvhOaZ
-X-Google-Smtp-Source: AGHT+IGx6pmzghjPqFgsVQmVTkwwTtz5N4DB6EsXhw7FXgcknmkdSOnhkpnsWHjBZ6c8uUIRX/mbOCTyucBTce3hJUQ=
-X-Received: by 2002:a17:902:cf04:b0:24a:8e36:420a with SMTP id
- d9443c01a7336-25172291ecdmr99814645ad.40.1757333553153; Mon, 08 Sep 2025
- 05:12:33 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="KbRadsCa";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="vsNeu8wI";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="KbRadsCa";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="vsNeu8wI"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 72FE337A49;
+	Mon,  8 Sep 2025 12:16:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1757333771; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6xTgq1noCrm9jnbrisQzxEu2yVGEeEfzE9/qwHVwFUE=;
+	b=KbRadsCa3hOikbCiZISTl2SiaBW36Q8wOh6HoN09EnokTcerFdHwf5Y3eWHSq7NR075evH
+	3TrSGpgWwmId21O/e5GU3hxC3r2FEqHW0M0eUWe8AHky204cFJUC0/vZsWdijFtuudu+VR
+	P2pKOGhqgyWgAMA0Dg/XgvGH6/+cZWE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1757333771;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6xTgq1noCrm9jnbrisQzxEu2yVGEeEfzE9/qwHVwFUE=;
+	b=vsNeu8wIgeIL/G7QaRU7wB/fgUXKmbJI5F0q25bO1IcG2baaYYYvDnL8DhaBVpvX8rW0Jt
+	SWmVqfdLU2VQssBw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=KbRadsCa;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=vsNeu8wI
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1757333771; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6xTgq1noCrm9jnbrisQzxEu2yVGEeEfzE9/qwHVwFUE=;
+	b=KbRadsCa3hOikbCiZISTl2SiaBW36Q8wOh6HoN09EnokTcerFdHwf5Y3eWHSq7NR075evH
+	3TrSGpgWwmId21O/e5GU3hxC3r2FEqHW0M0eUWe8AHky204cFJUC0/vZsWdijFtuudu+VR
+	P2pKOGhqgyWgAMA0Dg/XgvGH6/+cZWE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1757333771;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=6xTgq1noCrm9jnbrisQzxEu2yVGEeEfzE9/qwHVwFUE=;
+	b=vsNeu8wIgeIL/G7QaRU7wB/fgUXKmbJI5F0q25bO1IcG2baaYYYvDnL8DhaBVpvX8rW0Jt
+	SWmVqfdLU2VQssBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2B2F413946;
+	Mon,  8 Sep 2025 12:16:11 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id aaqyCAvJvmhZIAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 08 Sep 2025 12:16:11 +0000
+Message-ID: <b8e91a2b-06e5-4ede-85b4-169e84e65528@suse.de>
+Date: Mon, 8 Sep 2025 14:16:10 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250826112709.1051172-1-eperezma@redhat.com> <20250826112709.1051172-6-eperezma@redhat.com>
-In-Reply-To: <20250826112709.1051172-6-eperezma@redhat.com>
-From: Yongji Xie <xieyongji@bytedance.com>
-Date: Mon, 8 Sep 2025 20:12:20 +0800
-X-Gm-Features: Ac12FXzQHka_VYKIEEmUPWsxhC3NsQ2ds4URqALiW1y4mZc2t3dSHUvk0HNuFtc
-Message-ID: <CACycT3v=_Nm6fefJGFEyoU+Xf5G=Kzi0sXhhaBHnJQZcG-4EqA@mail.gmail.com>
-Subject: Re: [PATCH 5/6] vduse: add vq group asid support
-To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
-	linux-kernel <linux-kernel@vger.kernel.org>, Jason Wang <jasowang@redhat.com>, 
-	Maxime Coquelin <mcoqueli@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/tiny/bochs: Convert dev_err() to drm_err()
+To: Leander Kieweg <kieweg.leander@gmail.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>
+Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org
+References: <20250818113530.187440-1-kieweg.leander@gmail.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20250818113530.187440-1-kieweg.leander@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: 72FE337A49
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_SOME(0.00)[];
+	FREEMAIL_TO(0.00)[gmail.com,redhat.com,linux.intel.com,kernel.org,ffwll.ch];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_SEVEN(0.00)[9];
+	DWL_DNSWL_BLOCKED(0.00)[suse.de:dkim];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:dkim,suse.de:mid,suse.de:email]
+X-Spam-Score: -3.01
 
-Hi Eugenio,
+Hi
 
-On Tue, Aug 26, 2025 at 7:27=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redhat=
-.com> wrote:
+Am 18.08.25 um 13:35 schrieb Leander Kieweg:
+> The DRM subsystem has a set of preferred, prefixed logging functions
+> (drm_info, drm_warn, drm_err) which improve debuggability by including
+> the driver and function name in the log output.
 >
-> Add support for assigning Address Space Identifiers (ASIDs) to each VQ
-> group.  This enables mapping each group into a distinct memory space.
+> As part of the ongoing effort to modernize logging calls,
+> convert a dev_err() call in the bochs hardware initialization
+> function to its drm_err() equivalent.
 >
-> Now that the driver can change ASID in the middle of operation, the
-> domain that each vq address point is also protected by domain_lock.
+> This work was suggested by the DRM TODO list.
 >
-> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> Signed-off-by: Leander Kieweg <kieweg.leander@gmail.com>
+
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+
+I'll soon add the patch to our tree.
+
+Best regards
+Thomas
+
 > ---
-> v3:
-> * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
->   value to reduce memory consumption, but vqs are already limited to
->   that value and userspace VDUSE is able to allocate that many vqs.
-> * Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
->   VDUSE_IOTLB_GET_INFO.
-> * Use of array_index_nospec in VDUSE device ioctls.
-> * Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
-> * Move the umem mutex to asid struct so there is no contention between
->   ASIDs.
+>   drivers/gpu/drm/tiny/bochs.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> v2:
-> * Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
->   part of the struct is the same.
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 290 +++++++++++++++++++++--------
->  include/uapi/linux/vduse.h         |  52 +++++-
->  2 files changed, 259 insertions(+), 83 deletions(-)
->
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
-vduse_dev.c
-> index 7d2a3ed77b1e..2fb227713972 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -92,6 +92,7 @@ struct vduse_as {
->  };
->
->  struct vduse_vq_group_int {
-> +       struct vduse_iova_domain *domain;
->         struct vduse_dev *dev;
->  };
->
-> @@ -99,7 +100,7 @@ struct vduse_dev {
->         struct vduse_vdpa *vdev;
->         struct device *dev;
->         struct vduse_virtqueue **vqs;
-> -       struct vduse_as as;
-> +       struct vduse_as *as;
->         char *name;
->         struct mutex lock;
->         spinlock_t msg_lock;
-> @@ -127,6 +128,7 @@ struct vduse_dev {
->         u32 vq_num;
->         u32 vq_align;
->         u32 ngroups;
-> +       u32 nas;
->         struct vduse_vq_group_int *groups;
->         unsigned int bounce_size;
->         struct mutex domain_lock;
-> @@ -317,7 +319,7 @@ static int vduse_dev_set_status(struct vduse_dev *dev=
-, u8 status)
->         return vduse_dev_msg_sync(dev, &msg);
->  }
->
-> -static int vduse_dev_update_iotlb(struct vduse_dev *dev,
-> +static int vduse_dev_update_iotlb(struct vduse_dev *dev, u32 asid,
->                                   u64 start, u64 last)
->  {
->         struct vduse_dev_msg msg =3D { 0 };
-> @@ -326,8 +328,14 @@ static int vduse_dev_update_iotlb(struct vduse_dev *=
-dev,
->                 return -EINVAL;
->
->         msg.req.type =3D VDUSE_UPDATE_IOTLB;
-> -       msg.req.iova.start =3D start;
-> -       msg.req.iova.last =3D last;
-> +       if (dev->api_version < VDUSE_API_VERSION_1) {
-> +               msg.req.iova.start =3D start;
-> +               msg.req.iova.last =3D last;
-> +       } else {
-> +               msg.req.iova_v2.start =3D start;
-> +               msg.req.iova_v2.last =3D last;
-> +               msg.req.iova_v2.asid =3D asid;
-> +       }
->
->         return vduse_dev_msg_sync(dev, &msg);
->  }
-> @@ -439,14 +447,28 @@ static __poll_t vduse_dev_poll(struct file *file, p=
-oll_table *wait)
->         return mask;
->  }
->
-> +/* Force set the asid to a vq group without a message to the VDUSE devic=
-e */
-> +static void vduse_set_group_asid_nomsg(struct vduse_dev *dev,
-> +                                      unsigned int group, unsigned int a=
-sid)
-> +{
-> +       guard(mutex)(&dev->domain_lock);
-> +       dev->groups[group].domain =3D dev->as[asid].domain;
-> +}
-> +
->  static void vduse_dev_reset(struct vduse_dev *dev)
->  {
->         int i;
-> -       struct vduse_iova_domain *domain =3D dev->as.domain;
->
->         /* The coherent mappings are handled in vduse_dev_free_coherent()=
- */
-> -       if (domain && domain->bounce_map)
-> -               vduse_domain_reset_bounce_map(domain);
-> +       for (i =3D 0; i < dev->nas; i++) {
-> +               struct vduse_iova_domain *domain =3D dev->as[i].domain;
-> +
-> +               if (domain && domain->bounce_map)
-> +                       vduse_domain_reset_bounce_map(domain);
-> +       }
-> +
-> +       for (i =3D 0; i < dev->ngroups; i++)
-> +               vduse_set_group_asid_nomsg(dev, i, 0);
->
->         down_write(&dev->rwsem);
->
-> @@ -620,6 +642,29 @@ static union virtio_map vduse_get_vq_map(struct vdpa=
-_device *vdpa, u16 idx)
->         return ret;
->  }
->
-> +static int vduse_set_group_asid(struct vdpa_device *vdpa, unsigned int g=
-roup,
-> +                               unsigned int asid)
-> +{
-> +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> +       struct vduse_dev_msg msg =3D { 0 };
-> +       int r;
-> +
-> +       if (dev->api_version < VDUSE_API_VERSION_1 ||
-> +           group >=3D dev->ngroups || asid >=3D dev->nas)
-> +               return -EINVAL;
-> +
-> +       msg.req.type =3D VDUSE_SET_VQ_GROUP_ASID;
-> +       msg.req.vq_group_asid.group =3D group;
-> +       msg.req.vq_group_asid.asid =3D asid;
-> +
-> +       r =3D vduse_dev_msg_sync(dev, &msg);
-> +       if (r < 0)
-> +               return r;
-> +
-> +       vduse_set_group_asid_nomsg(dev, group, asid);
-> +       return 0;
-> +}
-> +
->  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx,
->                                 struct vdpa_vq_state *state)
->  {
-> @@ -818,13 +863,13 @@ static int vduse_vdpa_set_map(struct vdpa_device *v=
-dpa,
->         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
->         int ret;
->
-> -       ret =3D vduse_domain_set_map(dev->as.domain, iotlb);
-> +       ret =3D vduse_domain_set_map(dev->as[asid].domain, iotlb);
->         if (ret)
->                 return ret;
->
-> -       ret =3D vduse_dev_update_iotlb(dev, 0ULL, ULLONG_MAX);
-> +       ret =3D vduse_dev_update_iotlb(dev, asid, 0ULL, ULLONG_MAX);
->         if (ret) {
-> -               vduse_domain_clear_map(dev->as.domain, iotlb);
-> +               vduse_domain_clear_map(dev->as[asid].domain, iotlb);
->                 return ret;
->         }
->
-> @@ -867,6 +912,7 @@ static const struct vdpa_config_ops vduse_vdpa_config=
-_ops =3D {
->         .get_vq_affinity        =3D vduse_vdpa_get_vq_affinity,
->         .reset                  =3D vduse_vdpa_reset,
->         .set_map                =3D vduse_vdpa_set_map,
-> +       .set_group_asid         =3D vduse_set_group_asid,
->         .get_vq_map             =3D vduse_get_vq_map,
->         .free                   =3D vduse_vdpa_free,
->  };
-> @@ -876,8 +922,10 @@ static void vduse_dev_sync_single_for_device(union v=
-irtio_map token,
->                                              enum dma_data_direction dir)
->  {
->         struct vduse_dev *vdev =3D token.group->dev;
-> -       struct vduse_iova_domain *domain =3D vdev->as.domain;
-> +       struct vduse_iova_domain *domain;
->
-> +       guard(mutex)(&vdev->domain_lock);
-> +       domain =3D token.group->domain;
->         vduse_domain_sync_single_for_device(domain, dma_addr, size, dir);
->  }
->
-> @@ -886,8 +934,10 @@ static void vduse_dev_sync_single_for_cpu(union virt=
-io_map token,
->                                              enum dma_data_direction dir)
->  {
->         struct vduse_dev *vdev =3D token.group->dev;
-> -       struct vduse_iova_domain *domain =3D vdev->as.domain;
-> +       struct vduse_iova_domain *domain;
->
-> +       guard(mutex)(&vdev->domain_lock);
-> +       domain =3D token.group->domain;
->         vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir);
->  }
->
-> @@ -897,8 +947,10 @@ static dma_addr_t vduse_dev_map_page(union virtio_ma=
-p token, struct page *page,
->                                      unsigned long attrs)
->  {
->         struct vduse_dev *vdev =3D token.group->dev;
-> -       struct vduse_iova_domain *domain =3D vdev->as.domain;
-> +       struct vduse_iova_domain *domain;
->
-> +       guard(mutex)(&vdev->domain_lock);
+> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+> index 8d3b7c4fa6a4..d2d5e9f1269f 100644
+> --- a/drivers/gpu/drm/tiny/bochs.c
+> +++ b/drivers/gpu/drm/tiny/bochs.c
+> @@ -252,7 +252,7 @@ static int bochs_hw_init(struct bochs_device *bochs)
+>   		}
+>   		bochs->ioports = 1;
+>   	} else {
+> -		dev_err(dev->dev, "I/O ports are not supported\n");
+> +		drm_err(dev, "I/O ports are not supported\n");
+>   		return -EIO;
+>   	}
+>   
 
-Won't this mutex lock hurt the performance? Can we use rw_lock/rcu_lock ins=
-tead?
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
-Thanks,
-Yongji
+
