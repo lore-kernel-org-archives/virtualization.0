@@ -1,151 +1,256 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44EC52E8E11
-	for <virtualization@lists.linux.dev>; Mon,  8 Sep 2025 08:08:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 719D52EFD86
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Sep 2025 09:24:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757318907; cv=none; b=nyChn8CpaKpWXoy2PcH9lE9fqzL1FztXyED/eRNBMoFpMzg+ODx4ueeRI+A4hqYOQV0Zd9YAtli9QfKQA0S8WAlzX0M/v2tt6WMjV+TmNGJdIVquvz/Xa8kLLU5tHblXGq60tR5vKCX8g7+C2LYpupY/vDPSMzkvpCGHwxZ38JQ=
+	t=1757323454; cv=none; b=jYwGmtNY2LhfTljtAB0Qj8UVmczOqIkv/ic5RdELRj3QYdz+n1pVByToMt1iK/lwUsM0WvWzCFTwp0P5w9oxZOtLeuOy0lMAKW1WnCw5GGx0jnQylk5kPW4pw3GjSkZdqgHA2jpCOziHyhIcvlu/0/SirtvJLS9WAy9n8xsPx7o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757318907; c=relaxed/simple;
-	bh=KlHyUYEthoEgZlA0iprUby6nKsW0V9HUhNrJBRjYfQo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=K7uwh1IigwvwiUA6P8r/zHoVoad3j43tsjmVMiSjVRoe0X1recQdQf4qUTdfbhQg1wPOCkTniyOyxfN1fWIN8CI6Pno7u1TXpwh/hozNT2ujCgsclF2fAMfvid2CTWAq+w1CtjhhihCRaAIQsssB2aQaW+QfNb28fKFm9vzTc7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=GSc58UFV; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kNG/Qagk; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=GSc58UFV; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kNG/Qagk; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1757323454; c=relaxed/simple;
+	bh=Lmf0sv2D0cJf19YN+ymNkfUJFVsX11nvRcxL4evcWBo=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=IPsvYvtKurIW8kvtY1rAv6ziMnPSXtGROtKJ2Rfr0Icm59r5EBoGkjoCA6lQV1W/1C6T9SuUxkmRTKK/zUNVD4EMEAng3WxC36q7O3Hmr1NuqyygAhKn/zwCZyrDIb21tMXTMR5SvM4QmLrJfhBqjRCDexaxF405nf47E6NmYZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=aSk1JrN5; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="GSc58UFV";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kNG/Qagk";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="GSc58UFV";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kNG/Qagk"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 957BF2469A;
-	Mon,  8 Sep 2025 08:08:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1757318903; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P5pBTmM/PWEIVyWVzMdHvPVxxzNBx2FFCHDJuwaqU5A=;
-	b=GSc58UFVTBVemNfSv3K5RRd2PbzAN1t15CH2bb7KVWiEeeiENr6cRFcCAQqbn5o565xSml
-	LwGcz1HXhk1H8PK2as9YUrEruyMEeIbUJ9pKVQdXGfvGQVE+hhv3ZWUPPriicLER27R+bf
-	aG76KqGkXc6sjkAC8ztLmVGJcAyDq+8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1757318903;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P5pBTmM/PWEIVyWVzMdHvPVxxzNBx2FFCHDJuwaqU5A=;
-	b=kNG/Qagkulgsx/JdfRBRA8EW5Q2Nvo4I/vaaSU+/Din8rY4KuLeDH+TrlFeI5l090nAv2d
-	ZRyL8bhtpnWEl/BQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=GSc58UFV;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="kNG/Qagk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1757318903; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P5pBTmM/PWEIVyWVzMdHvPVxxzNBx2FFCHDJuwaqU5A=;
-	b=GSc58UFVTBVemNfSv3K5RRd2PbzAN1t15CH2bb7KVWiEeeiENr6cRFcCAQqbn5o565xSml
-	LwGcz1HXhk1H8PK2as9YUrEruyMEeIbUJ9pKVQdXGfvGQVE+hhv3ZWUPPriicLER27R+bf
-	aG76KqGkXc6sjkAC8ztLmVGJcAyDq+8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1757318903;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P5pBTmM/PWEIVyWVzMdHvPVxxzNBx2FFCHDJuwaqU5A=;
-	b=kNG/Qagkulgsx/JdfRBRA8EW5Q2Nvo4I/vaaSU+/Din8rY4KuLeDH+TrlFeI5l090nAv2d
-	ZRyL8bhtpnWEl/BQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7692913946;
-	Mon,  8 Sep 2025 08:08:23 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 9fvsHPeOvmhXTwAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Mon, 08 Sep 2025 08:08:23 +0000
-Date: Mon, 8 Sep 2025 10:08:23 +0200
-From: Daniel Wagner <dwagner@suse.de>
-To: Hannes Reinecke <hare@suse.de>
-Cc: Daniel Wagner <wagi@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Aaron Tomlin <atomlin@atomlin.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, 
-	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>, 
-	Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
-	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
-	storagedev@microchip.com, virtualization@lists.linux.dev, 
-	GR-QLogic-Storage-Upstream@marvell.com
-Subject: Re: [PATCH v8 10/12] blk-mq: use hk cpus only when isolcpus=io_queue
- is enabled
-Message-ID: <6ba78d1d-19e9-41dc-bc91-3c9da537cabe@flourine.local>
-References: <20250905-isolcpus-io-queues-v8-0-885984c5daca@kernel.org>
- <20250905-isolcpus-io-queues-v8-10-885984c5daca@kernel.org>
- <ff66801c-f261-411d-bbbf-b386e013d096@suse.de>
- <d11a0c60-1b75-49ec-a2f8-7df402c4adf2@flourine.local>
- <321277a3-7dcc-414b-a329-71acfb504e91@suse.de>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="aSk1JrN5"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1614741201
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Sep 2025 09:24:13 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -6.491
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ebSPZ5ZQGYXL for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Sep 2025 09:24:12 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.168.131; helo=mx0a-0031df01.pphosted.com; envelope-from=quic_haixcui@quicinc.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org ED5C341302
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ED5C341302
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=quicinc.com header.i=@quicinc.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=aSk1JrN5
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id ED5C341302
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Sep 2025 09:24:11 +0000 (UTC)
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5883mJTf015294;
+	Mon, 8 Sep 2025 09:24:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=qcppdkim1; bh=rDvGDV0hfGDCJIVNik5ct+
+	796AnXM43cGU3tkAI7YHM=; b=aSk1JrN5oDUpKM1Cv9RG6IdeP9Hf0Jlih5Wsx5
+	6/2IQ7/6hUuUNAhZR8H5ANZU+L3+a523jza38SL9OYDALEZh6KATsF8IlGl/FgMD
+	BszMNF2Xq5bChYpA2HZFYuK1mre275RJziqvkjJwhXIppXcAIZcJLsd5zU5l9UA0
+	5GSd9mnnM/0ART97u/Alfn2TDpDo1F9rdhKhoWA1rSf8mLwddik5lZdsvZSF1Zye
+	4cH+N/kw4htdPjzbZbbGibtej/UHCFuMd3YyBiZMOW/dsFA6D7tV9PV3IhJa30ah
+	C/558N3AQqUAibGoimbOWtEamGeLNA79WZgitKKZWgA+43MA==
+Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 491qhdrw4m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 08 Sep 2025 09:24:06 +0000 (GMT)
+Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
+	by NALASPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 5889O5AH019489
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 8 Sep 2025 09:24:05 GMT
+Received: from haixcui1-gv.qualcomm.com (10.80.80.8) by
+ nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1748.24; Mon, 8 Sep 2025 02:24:01 -0700
+From: Haixu Cui <quic_haixcui@quicinc.com>
+To: <andriy.shevchenko@intel.com>, <harald.mommer@oss.qualcomm.com>,
+        <quic_msavaliy@quicinc.com>, <quic_haixcui@quicinc.com>,
+        <broonie@kernel.org>, <virtio-dev@lists.linux.dev>,
+        <viresh.kumar@linaro.org>, <linux-spi@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <hdanton@sina.com>,
+        <qiang4.zhang@linux.intel.com>, <alex.bennee@linaro.org>
+CC: <virtualization@lists.linux-foundation.org>, <quic_ztu@quicinc.com>
+Subject: [PATCH v10 0/3] Virtio SPI Linux driver
+Date: Mon, 8 Sep 2025 17:23:45 +0800
+Message-ID: <20250908092348.1283552-1-quic_haixcui@quicinc.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <321277a3-7dcc-414b-a329-71acfb504e91@suse.de>
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: 957BF2469A
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RCPT_COUNT_TWELVE(0.00)[26];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TO_DN_SOME(0.00)[];
-	ARC_NA(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	MIME_TRACE(0.00)[0:+];
-	MISSING_XM_UA(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RL71uuc3g3e76oxfn4mu5aogan)];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,flourine.local:mid,suse.de:dkim];
-	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:dkim,flourine.local:mid];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Spam-Score: -4.51
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: f9Ba2fhBUlEd72AA5ZquL1YRZouzGjZP
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA4MDAzNCBTYWx0ZWRfX+IDlU9Yl56mU
+ idQMpHNhN6oOiTGkJvbuMDOBgRSKnEkl9kKPiyeoeQhL7KT2OOcvoX/qwDvXaAyUQK3YyGbIc75
+ bi4IcMFif7O9pH+7HZ9VypOFi7uHKDnBSAzCyN3kXtrx8ToF1WC7NJTP3LhTcoJ+c/EmlbabZ42
+ s3/1smogMz/qclkh9rOFv0vGtKIiCitOG2hKhsiGxFYPnfQCJRRgEV5O8WjMT5ky39dZnkTa2qt
+ ntRDmqJ1l/aGup/hEP9vzsX9J45LE40/1zrpl/G92j0nQNhvvH4i5dYeBr4LN5boq0PlwXK9CTB
+ FsWgoTYt0gzFxa25ek8Kzuhw5xwGYCCw61Numyrl6vUs/R4+l1IfY4KDemmEkctfqm7QPvvuedA
+ L7EQp8+v
+X-Authority-Analysis: v=2.4 cv=YOCfyQGx c=1 sm=1 tr=0 ts=68bea0b6 cx=c_pps
+ a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
+ a=GEpy-HfZoHoA:10 a=yJojWOMRYYMA:10 a=NEAV23lmAAAA:8 a=Z4Rwk6OoAAAA:8
+ a=KKAkSRfTAAAA:8 a=ijoT9NbLev-7i16Au24A:9 a=HkZW87K1Qel5hWWM3VKY:22
+ a=cvBusfyB2V15izCimMoJ:22
+X-Proofpoint-ORIG-GUID: f9Ba2fhBUlEd72AA5ZquL1YRZouzGjZP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-08_03,2025-09-08_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 phishscore=0 clxscore=1015 adultscore=0 impostorscore=0
+ suspectscore=0 priorityscore=1501 spamscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509080034
 
-On Mon, Sep 08, 2025 at 09:51:34AM +0200, Hannes Reinecke wrote:
-> Wouldn't it be better to call 'cpumask_zero' before 'cpumask_and'?
+This is the 10th version of the virtio SPI Linux driver patch series which is
+intended to be compliant with the upcoming virtio specification
+version 1.4. The specification can be found in repository:
+https://github.com/oasis-tcs/virtio-spec.git branch virtio-1.4.
 
-I don't think this is necessary, from the docs :
+The original contributor Harald submitted:
+RFC v1 to RFC v3
+non-RFC v1 to non-RFC v3
 
-  cpumask_and - *dstp = *src1p & *src2p
+I continued the work and submitted:
+RFC v4 to RFC v8
+non-RFC v4, v9
 
-cpumask_and call bitmap_and which is:
+This submission is labeled as v10 to maintain continuity and clarity.
+It builds upon non-RFC v9, and incorporates feedback from the community
+and testing improvements.
 
-static __always_inline
-bool bitmap_and(unsigned long *dst, const unsigned long *src1,
-		const unsigned long *src2, unsigned int nbits)
-{
-	if (small_const_nbits(nbits))
-		return (*dst = *src1 & *src2 & BITMAP_LAST_WORD_MASK(nbits)) != 0;
-	return __bitmap_and(dst, src1, src2, nbits);
-}
+Changes between v9 and v10:
+- Remove support for reading "spi,bus-num" property in virtio_spi_probe.
+- Refine initialization of spi_req variable.
+- Update MAINTAINERS: change mailing list from
+  virtualization@lists.linux-foundation.org to virtualization@lists.linux.dev.
+
+Changes between non-RFC v4 and v9:
+- Updated macro definition to use SPI_MODE_X_MASK instead of manually
+  listing individual flags.
+- Restructured struct virtio_spi_req to improve cache alignment and
+  layout efficiency.
+- Replaced manual comparison logic with max() for word delay calculation.
+- Removed unnecessary u suffix from unsigned int initializations.
+- Simplified memory cleanup by using __free(kfree) for spi_req.
+- Standardized error variable naming from err to ret across the driver.
+- Removed redundant ACPI_COMPANION_SET() call to avoid inconsistency
+  with device_set_node().
+- Corrected logic for reading spi,bus-num property.
+- eplaced return err with return dev_err_probe for cleaner error reporting.
+- Used dev_to_virtio() in power management callbacks.
+- Added virtualization@lists.linux-foundation.org as the mailing list
+  for patch discussions.
+
+Changes between RFC V8 and non-RFC V4:
+- Replaced BUILD_BUG_ON with static_assert for SPI mode constants to
+  improve compile-time validation.
+- Introduced VIRTIO_SPI_MODE_MASK macro to simplify SPI mode bit masking.
+- Removed unnecessary __cacheline_aligned attributes from buffer
+  pointers in virtio_spi_req.
+- Simplified type casting in delay conversions by removing redundant
+  (u32) casts.
+- Replaced manual virtqueue cleanup with devm_add_action_or_reset()
+  for automatic resource management.
+- Migrated controller registration to devm_spi_register_controller()
+  for better lifecycle handling.
+- Updated power management callbacks to use struct device * and
+  added virtio_spi_pm_ops
+- Standardized bit macros in virtio_spi.h from BIT(x) to _BITUL(x) for
+  type safety.
+- Improved documentation comments in virtio_spi_config for clarity
+  and consistency.
+
+Changes between RFC V7 and RFC V8:
+- Restored original Copyright.
+
+Changes between RFC V6 and RFC V7:
+- Restored original MODULE_AUTHOR information in the driver source file.
+- Reinstated the original Signed-off-by tags.
+
+Changes between RFC V5 and RFC V6:
+- Dynamically allocate the virtio_spi_req structure instead of keeping
+  it as a member of virtio_spi_priv.
+- Remove redundant comments.
+
+Changes between RFC V4 and RFC V5:
+- Use dev_err_probe instead of dev_err in virtio_spi_probe function
+  to improve error handling.
+- Add comments to virtio_spi_set_delays function and revise several
+  field descriptions in mode_func_supported for improved clarity.
+- Update bitmask definitions from (1 << n) to BIT(n) to enhance code
+  readability.
+
+Changes between non-RFC V3 and RFC V4
+- Remove the logic code for statically creating SPI devices through
+  the spi_new_device function.
+- Add ACPI support.
+- According to Hillf Danton's comment, use init_completion instead of
+  reinit_completion in virtio_spi_transfer_one function.
+
+Changes between non-RFC V2 and non-RFC V3
+- Child spi device tree nodes are supported now.
+  If a child spi device tree node exists the setup of the user mode SPI
+  device is done by spi_register_controller() and the driver itself does
+  not call spi_new_device() any more to setup the chip selects.
+  If there is no device tree child node the SPI device sets up the user
+  mode SPI devices autonomously as it was before.
+  
+Changes between non-RFC V1 and non-RFC V2
+- Remove some comments stating the obvious
+- Remove error trace when devm_spi_alloc_host() failed as this is habit
+- Add some blank lines to improve readabilty
+- Last TODO comment removed which was used to trigger some discussion.
+  Discussion did not take place, most probably the code below is correct
+  as it is
+- Abstained from replacing "Cannot " by "Failed to " in error messages
+  as the wording "Cannot " is frequently used even when "Failed to " has
+  the majority. Announced this, heard nothing about this, so added the
+  "Reviewed-by" from Viresh Kumar <viresh.kumar@linaro.org> as
+  everything else was done.
+
+Changes between RFC V3 and non-RFC V1:
+- Address kernel test robot comment which revealed an actual bug
+- Rework some comments in the code addressing review comments
+- Remove a TODO comment which has served it's purpose
+- Allocate struct virtio_spi_req spi_req only once at startup
+- Use callback transfer_one instead of transfer_one_message to simplify
+  and shorten code. Due to this rework in the affected function(s) some
+  additional changes:
+  - Do init_completion() only once at startup, for re-initialization
+    now reinit_completion() is used
+  - Translate result codes VIRTIO_SPI_PARAM_ERR and VIRTIO_SPI_TRANS_ERR
+    to appropriate Linux error codes -EINVAL and -EIO
+
+Changes between RFC V2 and RFC V3:
+- Order header inclusion alphabetically.
+- Add Viresh Kumar's "signed-off" to the header files.
+- Rework virtio_spi_one_transfer
+  - Rework the delays according to Haixu Cui's advise. Delays are now
+    handled in a new sub-function virtio_spi_set_delays.
+  - Minor change: Re-formulate arguments of sg_init_one.
+- Rework virtio_spi_probe
+  - Replace some goto in error paths by return.
+  - Add spi_unregister_controller to an error path. Abstained from
+    using devm_spi_register_controller to keep order of
+    de-initialization in virtio_spi_remove.
+  - Add deletion of vqueue to all error paths taken after the virtqueues
+    have been initialized.
+
+Changes between RFC V1 and RFC V2:
+- Update from virtio SPI draft specification V4 to V10.
+- Incorporate review comments gotten from the community.
+- A proposal for a performance enhancement having more than only one SPI
+  message in flight had to be kept out. The more complicated code would
+  have caused an unacceptable project risk now.
+
+The driver was smoke tested on QEMU using:
+- Qualcomm's target hardware with a physical SPI backend device via
+  vhost-user protocol (Linux v6.12).
+- OpenSynergy's proprietary virtio SPI device simulating a SPI backend
+  on top of linux-next.git (v6.8).
+- Regression tested on physical hardware using kernel v6.5.7.
+
+
