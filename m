@@ -1,28 +1,28 @@
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2040.outbound.protection.outlook.com [40.107.94.40])
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2041.outbound.protection.outlook.com [40.107.92.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79D30311955
-	for <virtualization@lists.linux.dev>; Mon,  8 Sep 2025 16:43:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.40
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 067E33112CF
+	for <virtualization@lists.linux.dev>; Mon,  8 Sep 2025 16:43:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.41
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757349797; cv=fail; b=HYrQqdnriz+dZ7GBS8lMFMuIWsXgGDpHSR42ZAx2CoJJBBo1IkHgs/KVdAw0RPpRf9wjJEhZ2WNDjrN1mZDd9jBBLS99tKQr3XoP/fG4y/FdBUFoUFxRQjlDXyeJr9zpFIU1c4BMY43arii//agVcCq18+A0lUq7yxVGzKLAWkc=
+	t=1757349797; cv=fail; b=L1BJKZNcjC5dgKKYBl053/sbZlxyZVgsCCe7Uhxl4U5BUlLjg+KiWt7lGILx9jOpsi5pFUWOJJzi8IQV/EaJMJ9uwZ2YiuiqjQPZUalrFsTA0FGQr/ygZ3BiUbm9pTcweDJbDCWniqW21VzMBhthF6F1KAFrLO/Yp4crWDwxPzw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1757349797; c=relaxed/simple;
-	bh=29fscds7xBMppwDyeB+aI6Q3QscQBm6Agt95KWZ/N4M=;
+	bh=dto++ddzlMctcxW9Ts/nnOsEyNuxrFMAyUJ5cMJbJzE=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gyIUiGmc6URatauTiHnC9eFW8jgWwSNwvz3zyGAV7+Vhe/+1UWCvWOdK9fyVlG8PsADgDzMW3oWSAGGnr7J15T8aHhBVsIbUT16KBVTTT3t7JwxG4fcpAlryyxZ2Z+2/ytx4YO4ODcuZMZV6TB5ke1l8d8ZJ5IrugspZzCiO1FM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=lNjDcUmG; arc=fail smtp.client-ip=40.107.94.40
+	 MIME-Version:Content-Type; b=DkrLsUauABQESBHXF8YeTxJN60VmrJkGNgi1PHzi9TmX6HFa8tlpNtvyFXIPC96uAYcTd4jcdroK5Y5pkVT4PTI8epB5VIbmI1ETQvE3myY/bA6rtUhr79CgRxdPwe4GkTb0jBVJsJNp27eNtDh4atw3z1AVDKoUU/cRcGbrNlc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=r2ZxVPVT; arc=fail smtp.client-ip=40.107.92.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="lNjDcUmG"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="r2ZxVPVT"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=v9tIu2u65DEpToG6hcLNsqeiMXsD6jJSdgoOWozN+beC9xKUNBVu2v2dWTahQ5poa2hM/J1MLRZs3UVyFkdvxeYwZWMqKGDStGF1Bw/tWrMY3L11lfMa/XY+v5YWNCVh++1qEn6MEL0JoyYajPeEaugtFfPMSD2MvyWBzUkJD1GNqn+2962mIoFW4QP04XOfyr9Aah12IXkYP7es1z1Ce1SdrWMOXEAGHPf2UN6c9H+OCsouucDgjDYAa3RyOU84Z700x7430GQ3e+cVjNRqmPIhkQXye2y3W2y6gJ3GycyJD9wkJJsiiF2rKjRaHnVqn+SE21e2RWrogMvRku1WEQ==
+ b=WuhN0M/sGD/s0banzUOaNHUJfaDiZAEM9jzhwFm8DmXSnAAEkszBivSXNQKcmJZfz0RRnLUNEarUkq+s1aTcVsGS7/ZtBG9PNe6lcW/l7Jx+HSrwFukAN9/cC23s2zU93YYOvIO/vv2NraewqjkAc8NrfT54K0j/iVCAS2D3RWjR36E4tjsoVnvGij00b7VnPXvsMtIvpzR/cij+xG5hz0nnt7mB9wkn93BmZexroGg9Fl+ZHtWhd55BC1tufsrPiKX6s+UeS+zcU+azV8Peo99936bgUTCaaGG/1ZmSIgWYj70+sin1HuU7yN6fW1m7dvMxUq90zL+6cqIKTw5Baw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=64GY4G6M7D6Te8AVUcTBuRvjSKww7S0DD0tc1VxHLNw=;
- b=I4eqml9J1sgaPC6LRWzEv4q51bRxWqyL0MLUSmj+0AZgVsh6Hl8vPWSSML/pQG5/sCm1BGScbNhpN6M4rdk63AXLIWJqNgFatHtc90qJ8Hj67UfNVH1q57OGwXiM3/pcoIwR0N3wiq3O4J4GwxesZ1ZNt4omdpGWak3mu/w0C6rNiJ8bGvPUyV0KY2DiAwqrwPnCHy6WTtKCAivErs216F2/vMqqF4FZvzIPe6hm9tL085DArwD/UubY16OvPaFrLMXcL+vajSwpvwpMzcoDwBvH0uLtsRL0c/piT4EzYNnUsrecTwKwA1/HW2z/Qe5sXSB9kCRvGXVrpf2maFTDCw==
+ bh=3Cv1CSFlLBP6J9cN7qG9+sQ0b6BsLOr8b1MWkWeVXnY=;
+ b=KjgeWpX9kR3Ci50ALFKR4uk78tuBOuTASNJqV73ACZan4Cd1k7p/6nln4DaeT+IH5cZbGJ9yx8sMvr3zxjfXx/MVgeVvLk0hPboS5XrBbXksP7oGbVE34luVqus/yvKxUUWXFBt7kCi03p3BIfOAvKXlhOm/f042TIY53Nrk4Q0cYNzGTq0o+MENoKkazl2jT8eDqMNwyOVwH9snlbIkVyZCbbXxUi0hislyWCm8+/RbOiPNSj0HUaGdpNVYo0YQxIB4wDxveWa5uieC95Q38iYrOOaW+El0KGFz+UCrzpJMZ0pi9s//h8Zbd0i+JrraxDoMULeEJsF2zzYcZ47Qvg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.118.232) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
@@ -30,18 +30,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=64GY4G6M7D6Te8AVUcTBuRvjSKww7S0DD0tc1VxHLNw=;
- b=lNjDcUmGXh/He/SZfnyF4tMHNn4j9DESZKJOPO9I5xM2gnPPsuREp3T7YeNaojK6E9UInKHsIXyVxvYuDe90DZkEyVcC9nsHLKezH/xDGrq4NirriDnstsAQNvh2heouSjs620F3SRTuh2fAd1rXCaKxfIWoNghaozp7E/bMzesW3TN3iPSoQL7w7pSjaWVIeL/UAZYuEsnLiG4mFPwzBE0FhBIQbAatQfoUdS4LYfJUCcw+Vrvk8Q/IYuRkedeUf+KOdu9UC4iIoV6KqMVAZxG3jrj8WGkMmKDpWsFzm3txfdkT9TNeBj8PDk1PVGP4n7QPB5r0v5K9UOhhS24Z1Q==
-Received: from BYAPR03CA0030.namprd03.prod.outlook.com (2603:10b6:a02:a8::43)
- by MN2PR12MB4390.namprd12.prod.outlook.com (2603:10b6:208:26e::21) with
+ bh=3Cv1CSFlLBP6J9cN7qG9+sQ0b6BsLOr8b1MWkWeVXnY=;
+ b=r2ZxVPVTuKZL5CDn33K1Ue96k6qOZCmRDCoT5uZC6rygkJX0g94Rtnn4nxyIZ+fuPgC2DUeJGNz8nvUXfeSOxJW0WOrcCKK8JdlV+kpjwpTpiHoHp437/jrDqkNOV/1SB6Yz4z7lxQ0k5l904Qb+L+N9l0BH7lhmymaLe4rWJPTrvKTm4KPfSkKxxH6Aj0KXbKPpX5JLOuIhFshLnxdPIjCeeKaWXSxDb4VmmY6YqEqDQMYCqRATrcPuN7OZ0vYHXrwEjMoctOce9jYezj/C8997GyiUUdOzD18w6oT8dlIlroupRVksOiRF092SfDysKBkDzTz8TmsOyRNBskVqPQ==
+Received: from BYAPR03CA0012.namprd03.prod.outlook.com (2603:10b6:a02:a8::25)
+ by CH1PPF73CDB1C12.namprd12.prod.outlook.com (2603:10b6:61f:fc00::615) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9094.22; Mon, 8 Sep
- 2025 16:43:11 +0000
+ 2025 16:43:02 +0000
 Received: from CO1PEPF000044F5.namprd05.prod.outlook.com
- (2603:10b6:a02:a8:cafe::a8) by BYAPR03CA0030.outlook.office365.com
- (2603:10b6:a02:a8::43) with Microsoft SMTP Server (version=TLS1_3,
+ (2603:10b6:a02:a8:cafe::61) by BYAPR03CA0012.outlook.office365.com
+ (2603:10b6:a02:a8::25) with Microsoft SMTP Server (version=TLS1_3,
  cipher=TLS_AES_256_GCM_SHA384) id 15.20.9094.22 via Frontend Transport; Mon,
- 8 Sep 2025 16:43:10 +0000
+ 8 Sep 2025 16:43:02 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
@@ -51,27 +51,27 @@ Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
 Received: from mail.nvidia.com (216.228.118.232) by
  CO1PEPF000044F5.mail.protection.outlook.com (10.167.241.75) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9115.13 via Frontend Transport; Mon, 8 Sep 2025 16:43:09 +0000
+ 15.20.9115.13 via Frontend Transport; Mon, 8 Sep 2025 16:43:02 +0000
 Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
  (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Mon, 8 Sep
- 2025 09:42:40 -0700
+ 2025 09:42:35 -0700
 Received: from drhqmail201.nvidia.com (10.126.190.180) by
  drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14; Mon, 8 Sep 2025 09:42:39 -0700
+ 15.2.1544.14; Mon, 8 Sep 2025 09:42:34 -0700
 Received: from vdi.nvidia.com (10.127.8.14) by mail.nvidia.com
  (10.126.190.180) with Microsoft SMTP Server id 15.2.1544.14 via Frontend
- Transport; Mon, 8 Sep 2025 09:42:38 -0700
+ Transport; Mon, 8 Sep 2025 09:42:33 -0700
 From: Daniel Jurgens <danielj@nvidia.com>
 To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
 	<alex.williamson@redhat.com>, <virtualization@lists.linux.dev>,
 	<pabeni@redhat.com>
 CC: <parav@nvidia.com>, <shshitrit@nvidia.com>, <yohadt@nvidia.com>, "Daniel
- Jurgens" <danielj@nvidia.com>
-Subject: [PATCH net-next v2 05/11] virtio_net: Create a FF group for ethtool steering
-Date: Mon, 8 Sep 2025 11:40:40 -0500
-Message-ID: <20250908164046.25051-6-danielj@nvidia.com>
+ Jurgens" <danielj@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>
+Subject: [PATCH net-next v2 01/11] virtio-pci: Expose generic device capability operations
+Date: Mon, 8 Sep 2025 11:40:36 -0500
+Message-ID: <20250908164046.25051-2-danielj@nvidia.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250908164046.25051-1-danielj@nvidia.com>
 References: <20250908164046.25051-1-danielj@nvidia.com>
@@ -86,154 +86,534 @@ Content-Type: text/plain
 X-NV-OnPremToCloud: ExternallySecured
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1PEPF000044F5:EE_|MN2PR12MB4390:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2410e27f-4d0c-477b-5b4c-08ddeef6cb8b
+X-MS-TrafficTypeDiagnostic: CO1PEPF000044F5:EE_|CH1PPF73CDB1C12:EE_
+X-MS-Office365-Filtering-Correlation-Id: 13f5abb0-a038-4a45-bbc7-08ddeef6c6cd
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|82310400026|1800799024|36860700013;
+	BCL:0;ARA:13230040|1800799024|82310400026|376014|36860700013;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?fN1W7VZJUjz2V/rmVdcZTTg+8kWraAwmGvFjQClZ8rnCLvxrAAzU/M/CPQ4p?=
- =?us-ascii?Q?eqiPgRsBHGcFCdXY5QElLc8R/7B9MxoswG3zVK7wN+mU7AWVhSFKgvsUsrX2?=
- =?us-ascii?Q?vOMgCOXxXk5CPl+mCaDatyqTeO2IwlMGGniWRM3mXjf+/uYEZHcYYhsomKFN?=
- =?us-ascii?Q?11Y237vENlK66iSVs/Sl5LIdG3gc0rcllC+WweSSoS5+RVgkQV49nZlKlM4b?=
- =?us-ascii?Q?syLF+BrfU9vY2bHvaS3kF0wRDBRGTieyMksf9evW/5CAalldjhpGCT4bglLy?=
- =?us-ascii?Q?ZKRNExIufxxmnlFsnIa5ZpxqEeUw4RLrLI/XuEJ56288QsnczS1TW56b6rzX?=
- =?us-ascii?Q?f/HYf0VbhWPVzyCIZPINEhCIMIf/RoXBuDJBjNwMXICRX2IwUVHMR9I5utWB?=
- =?us-ascii?Q?I8LWF26d9cUpOnwEa3ZoHrS4dAayRTpulnY7hLJgonK2vpFcoyvvk76qtgI2?=
- =?us-ascii?Q?/ryAAlLQQJKzbfb8XUCXmem23fuhm3RKG33i1xmgWBsA7FPZu/s+qzlxmyF7?=
- =?us-ascii?Q?lgvyBDaIw1bZ87NIX5F/PiLFIwA5xtdP+1FwaYiCEIwq0F0QAuYO+edBa5tB?=
- =?us-ascii?Q?/FS14Ht12IWVdaFJ3VUoxGpS3mJj+sUEhtLN7T3qBOHvke3dfSOzTSPNmIei?=
- =?us-ascii?Q?SU3itDdbar6uMghU6K0Vb+8MDzh95PiZ6mT8v+3RK5pr2x96OV4qCiPcWRJa?=
- =?us-ascii?Q?hYfx2Y50J2z3OtLy5+mlsiAgoOm8UCukLD4iY61qu9Eq0TPr3jrj9RkMavi7?=
- =?us-ascii?Q?eDZuB7fPcgm91BrfjTPbRAbn6eMgB5cD8e0/IPyTy1yMHrXcAmiHHTEr6ogj?=
- =?us-ascii?Q?ZLrGl3KHUpFRObozejqx14jVxa3dJnKzmyiNI4oe0IYJA57CL9qRtjvE6zQc?=
- =?us-ascii?Q?g+etiYWj7kP3WVdeS7hBxDoYshOnd4Or9fhvG/3y5WZeEJYcK9kYB/igG6cR?=
- =?us-ascii?Q?oRXGUKm51f6Fse73l3Ejzk4VureRjumQcOWJOxuLakzi20WJuTX5JUpON3lu?=
- =?us-ascii?Q?PMlukhOiw5zYLgIXaU0nmpE90dLaa7ovDUmXDx4SV81o+j0/agxJmc7edGPs?=
- =?us-ascii?Q?ahNG+e46fkpbOhbt17WcAHgjGAPcvzGay73DZL4FsqOFD0tDBjxbAiju5okm?=
- =?us-ascii?Q?TJkTbKz+3VXzqGgH1B6H9bEHMLGD98HyEf6EC3WU2d0wQR6ISJ+ucIHh3bvh?=
- =?us-ascii?Q?yHiIx88otViQEapPIgmnOk6RKJ0hmoYIXGojNBBpCbtF5n55uMAbnYnBQJei?=
- =?us-ascii?Q?FMrcOTsqbaobBAPKdUQDlzxXuZzrqLX24JY2EEsnvwxDRk/1ElCe4QkmwnMF?=
- =?us-ascii?Q?r3V3Wwa8zMvY67YvzfLB7mcoyeVftM0/ZQeCeSe4YBZAm4wDPdMaolT4UHbT?=
- =?us-ascii?Q?1ds+bnkIkONwpLhaEMaTjjl0A9S2fg+1U4xGSzEjTdMEFcfChftdv7Qc3R5a?=
- =?us-ascii?Q?vSQiqW9Oc2glVxczsNaewfCGEo5mIJDLZIqabnd2u8Zpv56vOUOxaYk/GttJ?=
- =?us-ascii?Q?dz3YL86/PjR7GHDO94DC2+EJPMXTlCm7ZVQP?=
+	=?us-ascii?Q?jiBrQ1aUG+dSCRLiAKsqLszON7qwSjq8dji19UWIxvuO6pKAXdwO1KNYgn2D?=
+ =?us-ascii?Q?s/mljIbscRwl4wv9gP114tn9JV+dtcX56baXSNCMmt1fLeGDIKbGbAEZTrtY?=
+ =?us-ascii?Q?Hk1aQ+khFLzbqy233FFDEuHRLAVu1zqX3S2bAwDWAm/HIfrZ8Ldsi42HNOh7?=
+ =?us-ascii?Q?5Ye65Om8cm6vgqdsREGDSBLSpSoGn9eYPUOMTu559FxF9czq+0nYQ2outkl7?=
+ =?us-ascii?Q?dFED4HrxUiuA3vDxHtwfPaLpKpPVQOY9xph4o7YjMzx1g4aVzrNKnVS9RxPl?=
+ =?us-ascii?Q?NbLbyZus0lMbOOj5EIs7TnivZjR2dzOuPHmw2neDLC+q1CCELTA/HGUXfzx2?=
+ =?us-ascii?Q?4NUdpep0qZV8jcgL4dsgwFCyOLhtBCFB4oQ8wMZi507yUS8eUmRUD1K+dkh2?=
+ =?us-ascii?Q?7rMmS6exZF2tO3a8E/225j4xQVb1dGVhbP02qi58kmqmo+1nQ18VpcTV8Tg8?=
+ =?us-ascii?Q?/vFNIVpAL5NDmGEYu0OwXQ2SF5v8n06TtEMYEiRbeElRImtCV7ftI0hPcEJD?=
+ =?us-ascii?Q?L954VgfXopyiGXAGwsUcKmvulaFqsRxZPZXRTFgVMdIxJ4CYN35KaS06mxDe?=
+ =?us-ascii?Q?Yv0nwcBEubk5jDwnPMooBWUyC+amPflP/HHM42W/SKANkap4walp4lvGSpTV?=
+ =?us-ascii?Q?JspNChsQLah2tgDscqqUyI4mNbqOwHilVQIlJPGigt7hh0LBEut0GEqBAa+r?=
+ =?us-ascii?Q?WBZv+J1zsMMSYmlH/XFUJSdzKs+8GIwcq6G81ccM42vqDxpJuW5l4QFd9Wlr?=
+ =?us-ascii?Q?K7NqSFrT8tDhvbm5OzFpwFLP9DC1ML9ATGJiOseCfmrmNUrkWzJ1/bDn+TXW?=
+ =?us-ascii?Q?+RGRTmoX/qkpSXjWGSz5NLs8q08aN0XIO4S2AHJTtLUDg5PFWKI4C4yjb7JI?=
+ =?us-ascii?Q?HhHAhTJe17mHEElYG7ffx9PzG1OD7NfgWkcF8hCaBq8DXLZ8MTpioVsuKbKH?=
+ =?us-ascii?Q?JPWX7Su/Nd+6ELlosSif7H0bxOqGu1Iu0/yPWazFCrinpe+/pMV5+GO4Pw3b?=
+ =?us-ascii?Q?KRRdM5sGQijEQp2dqJ/G79GeArX0YD/XmczloQ9PSg/FuEnMgyYoaJjXCQ21?=
+ =?us-ascii?Q?ACjYUO9STdyWp1DctS45pB4LxGJCGUZaI8uunGieuq/kcvl6/HJX/Bxv5alh?=
+ =?us-ascii?Q?JvP8CS9zVNVDGYf+Vwot4ApK8t3cMyXZHOvuuBu+mn1v37gdtAFrtd9pAbbV?=
+ =?us-ascii?Q?073NDpqO8dWGbnC+rtrm3wU2VoVwEASaTnjqaOhVVfOaaamivaCm09qDEuFu?=
+ =?us-ascii?Q?RxGH6kBQiRORRjw1oNhXJ+KV0haMeqCLwbTCzC15OmXARNfIVuyMHDaHusvs?=
+ =?us-ascii?Q?BYH3YArIYNiwGBdZJuf8vbVkT//0t7rVn0voOYk4l/l99WhS0v5Wjn66xbss?=
+ =?us-ascii?Q?07Pf91sI8+B4VVMpFXGbY48zEl5SIDBL5IHggskFKA+ZZ4hHZPQW7mWxO74C?=
+ =?us-ascii?Q?llUAK4+z+xqyw2Go9RrLxMM/ORebHxw6VP1an0Q01SkXF/AijHbuFMqzjuyv?=
+ =?us-ascii?Q?cHICWcGUZ05fTx7RUdfSGXwHEb5ufb9ltHt2?=
 X-Forefront-Antispam-Report:
-	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(82310400026)(1800799024)(36860700013);DIR:OUT;SFP:1101;
+	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(376014)(36860700013);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Sep 2025 16:43:09.9889
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Sep 2025 16:43:02.0359
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2410e27f-4d0c-477b-5b4c-08ddeef6cb8b
+X-MS-Exchange-CrossTenant-Network-Message-Id: 13f5abb0-a038-4a45-bbc7-08ddeef6c6cd
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
 	CO1PEPF000044F5.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4390
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH1PPF73CDB1C12
 
-All ethtool steering rules will go in one group, create it during
-initialization.
+Currently querying and setting capabilities is restricted to a single
+capability and contained within the virtio PCI driver. However, each
+device type has generic and device specific capabilities, that may be
+queried and set. In subsequent patches virtio_net will query and set
+flow filter capabilities.
+
+Move the admin related definitions to a new header file. It needs to be
+abstracted away from the PCI specifics to be used by upper layer
+drivers.
 
 Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
 Reviewed-by: Parav Pandit <parav@nvidia.com>
 Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
-
+Reviewed-by: Yishai Hadas <yishaih@nvidia.com>
 ---
-v2: fix sparse warnings
----
- drivers/net/virtio_net/virtio_net_ff.c | 25 +++++++++++++++++++++++++
- include/uapi/linux/virtio_net_ff.h     |  7 +++++++
- 2 files changed, 32 insertions(+)
+ drivers/virtio/virtio.c            |  82 ++++++++++++++++
+ drivers/virtio/virtio_pci_common.h |   1 -
+ drivers/virtio/virtio_pci_modern.c | 145 +++++++++++++++++------------
+ include/linux/virtio.h             |  13 +++
+ include/linux/virtio_admin.h       |  68 ++++++++++++++
+ include/uapi/linux/virtio_pci.h    |   7 +-
+ 6 files changed, 254 insertions(+), 62 deletions(-)
+ create mode 100644 include/linux/virtio_admin.h
 
-diff --git a/drivers/net/virtio_net/virtio_net_ff.c b/drivers/net/virtio_net/virtio_net_ff.c
-index 61cb45331c97..0036c2db9f77 100644
---- a/drivers/net/virtio_net/virtio_net_ff.c
-+++ b/drivers/net/virtio_net/virtio_net_ff.c
-@@ -6,6 +6,9 @@
- #include <net/ip.h>
- #include "virtio_net_ff.h"
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index a09eb4d62f82..6bc268c11100 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -706,6 +706,88 @@ int virtio_device_reset_done(struct virtio_device *dev)
+ }
+ EXPORT_SYMBOL_GPL(virtio_device_reset_done);
  
-+#define VIRTNET_FF_ETHTOOL_GROUP_PRIORITY 1
-+#define VIRTNET_FF_MAX_GROUPS 1
++/**
++ * virtio_device_cap_id_list_query - Query the list of available capability IDs
++ * @vdev: the virtio device
++ * @data: pointer to store the capability ID list result
++ *
++ * This function queries the virtio device for the list of available capability
++ * IDs that can be used with virtio_device_cap_get() and virtio_device_cap_set().
++ * The result is stored in the provided data structure.
++ *
++ * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
++ * operations or capability queries, or a negative error code on other failures.
++ */
++int
++virtio_device_cap_id_list_query(struct virtio_device *vdev,
++				struct virtio_admin_cmd_query_cap_id_result *data)
++{
++	const struct virtio_admin_ops *admin = vdev->admin_ops;
 +
- static size_t get_mask_size(u16 type)
++	if (!admin || !admin->cap_id_list_query)
++		return -EOPNOTSUPP;
++
++	return admin->cap_id_list_query(vdev, data);
++}
++EXPORT_SYMBOL_GPL(virtio_device_cap_id_list_query);
++
++/**
++ * virtio_device_cap_get - Get a capability from a virtio device
++ * @vdev: the virtio device
++ * @id: capability ID to retrieve
++ * @caps: buffer to store the capability data
++ * @cap_size: size of the capability buffer in bytes
++ *
++ * This function retrieves a specific capability from the virtio device.
++ * The capability data is stored in the provided buffer. The caller must
++ * ensure the buffer is large enough to hold the capability data.
++ *
++ * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
++ * operations or capability retrieval, or a negative error code on other failures.
++ */
++int virtio_device_cap_get(struct virtio_device *vdev,
++			  u16 id,
++			  void *caps,
++			  size_t cap_size)
++{
++	const struct virtio_admin_ops *admin = vdev->admin_ops;
++
++	if (!admin || !admin->cap_get)
++		return -EOPNOTSUPP;
++
++	return admin->cap_get(vdev, id, caps, cap_size);
++}
++EXPORT_SYMBOL_GPL(virtio_device_cap_get);
++
++/**
++ * virtio_device_cap_set - Set a capability on a virtio device
++ * @vdev: the virtio device
++ * @id: capability ID to set
++ * @caps: buffer containing the capability data to set
++ * @cap_size: size of the capability data in bytes
++ *
++ * This function sets a specific capability on the virtio device.
++ * The capability data is read from the provided buffer and applied
++ * to the device. The device may validate the capability data before
++ * applying it.
++ *
++ * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
++ * operations or capability setting, or a negative error code on other failures.
++ */
++int virtio_device_cap_set(struct virtio_device *vdev,
++			  u16 id,
++			  const void *caps,
++			  size_t cap_size)
++{
++	const struct virtio_admin_ops *admin = vdev->admin_ops;
++
++	if (!admin || !admin->cap_set)
++		return -EOPNOTSUPP;
++
++	return admin->cap_set(vdev, id, caps, cap_size);
++}
++EXPORT_SYMBOL_GPL(virtio_device_cap_set);
++
+ static int virtio_init(void)
  {
- 	switch (type) {
-@@ -30,6 +33,7 @@ void virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
- 	size_t ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data) +
- 			      sizeof(struct virtio_net_ff_selector) *
- 			      VIRTIO_NET_FF_MASK_TYPE_MAX;
-+	struct virtio_net_resource_obj_ff_group ethtool_group = {};
- 	struct virtio_net_ff_selector *sel;
- 	int err;
- 	int i;
-@@ -92,6 +96,12 @@ void virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
- 	if (err)
- 		goto err_ff_action;
+ 	BUILD_BUG_ON(offsetof(struct virtio_device, features) !=
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index 8cd01de27baf..fc26e035e7a6 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -48,7 +48,6 @@ struct virtio_pci_admin_vq {
+ 	/* Protects virtqueue access. */
+ 	spinlock_t lock;
+ 	u64 supported_cmds;
+-	u64 supported_caps;
+ 	u8 max_dev_parts_objects;
+ 	struct ida dev_parts_ida;
+ 	/* Name of the admin queue: avq.$vq_index. */
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index dd0e65f71d41..c8bbd807371d 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -19,6 +19,7 @@
+ #define VIRTIO_PCI_NO_LEGACY
+ #define VIRTIO_RING_NO_LEGACY
+ #include "virtio_pci_common.h"
++#include <linux/virtio_admin.h>
  
-+	if (le32_to_cpu(ff->ff_caps->groups_limit) < VIRTNET_FF_MAX_GROUPS) {
-+		err = -ENOSPC;
-+		goto err_ff_action;
-+	}
-+	ff->ff_caps->groups_limit = cpu_to_le32(VIRTNET_FF_MAX_GROUPS);
-+
- 	err = virtio_device_cap_set(vdev,
- 				    VIRTIO_NET_FF_RESOURCE_CAP,
- 				    ff->ff_caps,
-@@ -121,6 +131,17 @@ void virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
- 	if (err)
- 		goto err_ff_action;
+ #define VIRTIO_AVQ_SGS_MAX	4
  
-+	ethtool_group.group_priority = cpu_to_le16(VIRTNET_FF_ETHTOOL_GROUP_PRIORITY);
-+
-+	/* Use priority for the object ID. */
-+	err = virtio_device_object_create(vdev,
-+					  VIRTIO_NET_RESOURCE_OBJ_FF_GROUP,
-+					  VIRTNET_FF_ETHTOOL_GROUP_PRIORITY,
-+					  &ethtool_group,
-+					  sizeof(ethtool_group));
-+	if (err)
-+		goto err_ff_action;
-+
- 	ff->vdev = vdev;
- 	ff->ff_supported = true;
+@@ -232,103 +233,123 @@ static void virtio_pci_admin_cmd_list_init(struct virtio_device *virtio_dev)
+ 	kfree(data);
+ }
  
-@@ -139,6 +160,10 @@ void virtnet_ff_cleanup(struct virtnet_ff *ff)
- 	if (!ff->ff_supported)
- 		return;
+-static void
+-virtio_pci_admin_cmd_dev_parts_objects_enable(struct virtio_device *virtio_dev)
++static int vp_modern_admin_cmd_cap_get(struct virtio_device *virtio_dev,
++				       u16 id,
++				       void *caps,
++				       size_t cap_size)
+ {
+-	struct virtio_pci_device *vp_dev = to_vp_device(virtio_dev);
+-	struct virtio_admin_cmd_cap_get_data *get_data;
+-	struct virtio_admin_cmd_cap_set_data *set_data;
+-	struct virtio_dev_parts_cap *result;
++	struct virtio_admin_cmd_cap_get_data *data __free(kfree) = NULL;
+ 	struct virtio_admin_cmd cmd = {};
+ 	struct scatterlist result_sg;
+ 	struct scatterlist data_sg;
+-	u8 resource_objects_limit;
+-	u16 set_data_size;
+-	int ret;
  
-+	virtio_device_object_destroy(ff->vdev,
-+				     VIRTIO_NET_RESOURCE_OBJ_FF_GROUP,
-+				     VIRTNET_FF_ETHTOOL_GROUP_PRIORITY);
-+
- 	kfree(ff->ff_actions);
- 	kfree(ff->ff_mask);
- 	kfree(ff->ff_caps);
-diff --git a/include/uapi/linux/virtio_net_ff.h b/include/uapi/linux/virtio_net_ff.h
-index a35533bf8377..662693e1fefd 100644
---- a/include/uapi/linux/virtio_net_ff.h
-+++ b/include/uapi/linux/virtio_net_ff.h
-@@ -12,6 +12,8 @@
- #define VIRTIO_NET_FF_SELECTOR_CAP 0x801
- #define VIRTIO_NET_FF_ACTION_CAP 0x802
+-	get_data = kzalloc(sizeof(*get_data), GFP_KERNEL);
+-	if (!get_data)
+-		return;
+-
+-	result = kzalloc(sizeof(*result), GFP_KERNEL);
+-	if (!result)
+-		goto end;
++	data = kzalloc(sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
  
-+#define VIRTIO_NET_RESOURCE_OBJ_FF_GROUP 0x0200
+-	get_data->id = cpu_to_le16(VIRTIO_DEV_PARTS_CAP);
+-	sg_init_one(&data_sg, get_data, sizeof(*get_data));
+-	sg_init_one(&result_sg, result, sizeof(*result));
++	data->id = cpu_to_le16(id);
++	sg_init_one(&data_sg, data, sizeof(*data));
++	sg_init_one(&result_sg, caps, cap_size);
+ 	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_DEVICE_CAP_GET);
+ 	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
+ 	cmd.data_sg = &data_sg;
+ 	cmd.result_sg = &result_sg;
+-	ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
+-	if (ret)
+-		goto err_get;
+ 
+-	set_data_size = sizeof(*set_data) + sizeof(*result);
+-	set_data = kzalloc(set_data_size, GFP_KERNEL);
+-	if (!set_data)
+-		goto err_get;
++	return vp_modern_admin_cmd_exec(virtio_dev, &cmd);
++}
+ 
+-	set_data->id = cpu_to_le16(VIRTIO_DEV_PARTS_CAP);
++static int vp_modern_admin_cmd_cap_set(struct virtio_device *virtio_dev,
++				       u16 id,
++				       const void *caps,
++				       size_t cap_size)
++{
++	struct virtio_admin_cmd_cap_set_data *data  __free(kfree) = NULL;
++	struct virtio_admin_cmd cmd = {};
++	struct scatterlist data_sg;
++	size_t data_size;
 +
- struct virtio_net_ff_cap_data {
- 	__le32 groups_limit;
- 	__le32 classifiers_limit;
-@@ -52,4 +54,9 @@ struct virtio_net_ff_actions {
- 	__u8 reserved[7];
- 	__u8 actions[];
++	data_size = sizeof(*data) + cap_size;
++	data = kzalloc(data_size, GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	data->id = cpu_to_le16(id);
++	memcpy(data->cap_specific_data, caps, cap_size);
++	sg_init_one(&data_sg, data, data_size);
++	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_DRIVER_CAP_SET);
++	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
++	cmd.data_sg = &data_sg;
++	cmd.result_sg = NULL;
++
++	return vp_modern_admin_cmd_exec(virtio_dev, &cmd);
++}
++
++static void
++virtio_pci_admin_cmd_dev_parts_objects_enable(struct virtio_device *virtio_dev)
++{
++	struct virtio_pci_device *vp_dev = to_vp_device(virtio_dev);
++	struct virtio_dev_parts_cap *dev_parts;
++	u8 resource_objects_limit;
++	int ret;
++
++	dev_parts = kzalloc(sizeof(*dev_parts), GFP_KERNEL);
++	if (!dev_parts)
++		return;
++
++	ret = vp_modern_admin_cmd_cap_get(virtio_dev, VIRTIO_DEV_PARTS_CAP,
++					  dev_parts, sizeof(*dev_parts));
++	if (ret)
++		goto err;
+ 
+ 	/* Set the limit to the minimum value between the GET and SET values
+ 	 * supported by the device. Since the obj_id for VIRTIO_DEV_PARTS_CAP
+ 	 * is a globally unique value per PF, there is no possibility of
+ 	 * overlap between GET and SET operations.
+ 	 */
+-	resource_objects_limit = min(result->get_parts_resource_objects_limit,
+-				     result->set_parts_resource_objects_limit);
+-	result->get_parts_resource_objects_limit = resource_objects_limit;
+-	result->set_parts_resource_objects_limit = resource_objects_limit;
+-	memcpy(set_data->cap_specific_data, result, sizeof(*result));
+-	sg_init_one(&data_sg, set_data, set_data_size);
+-	cmd.data_sg = &data_sg;
+-	cmd.result_sg = NULL;
+-	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_DRIVER_CAP_SET);
+-	ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
++	resource_objects_limit = min(dev_parts->get_parts_resource_objects_limit,
++				     dev_parts->set_parts_resource_objects_limit);
++	dev_parts->get_parts_resource_objects_limit = resource_objects_limit;
++	dev_parts->set_parts_resource_objects_limit = resource_objects_limit;
++
++	ret = vp_modern_admin_cmd_cap_set(virtio_dev, VIRTIO_DEV_PARTS_CAP,
++					  dev_parts, sizeof(*dev_parts));
+ 	if (ret)
+-		goto err_set;
++		goto err;
+ 
+ 	/* Allocate IDR to manage the dev caps objects */
+ 	ida_init(&vp_dev->admin_vq.dev_parts_ida);
+ 	vp_dev->admin_vq.max_dev_parts_objects = resource_objects_limit;
+ 
+-err_set:
+-	kfree(set_data);
+-err_get:
+-	kfree(result);
+-end:
+-	kfree(get_data);
++err:
++	kfree(dev_parts);
+ }
+ 
+-static void virtio_pci_admin_cmd_cap_init(struct virtio_device *virtio_dev)
++static int vp_modern_admin_cap_id_list_query(struct virtio_device *virtio_dev,
++					     struct virtio_admin_cmd_query_cap_id_result *data)
+ {
+-	struct virtio_pci_device *vp_dev = to_vp_device(virtio_dev);
+-	struct virtio_admin_cmd_query_cap_id_result *data;
+ 	struct virtio_admin_cmd cmd = {};
+ 	struct scatterlist result_sg;
+-	int ret;
+-
+-	data = kzalloc(sizeof(*data), GFP_KERNEL);
+-	if (!data)
+-		return;
+ 
+ 	sg_init_one(&result_sg, data, sizeof(*data));
+ 	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_CAP_ID_LIST_QUERY);
+ 	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
+ 	cmd.result_sg = &result_sg;
+ 
+-	ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
+-	if (ret)
+-		goto end;
++	return vp_modern_admin_cmd_exec(virtio_dev, &cmd);
++}
+ 
+-	/* Max number of caps fits into a single u64 */
+-	BUILD_BUG_ON(sizeof(data->supported_caps) > sizeof(u64));
++static void virtio_pci_admin_cmd_cap_init(struct virtio_device *virtio_dev)
++{
++	struct virtio_admin_cmd_query_cap_id_result *data;
+ 
+-	vp_dev->admin_vq.supported_caps = le64_to_cpu(data->supported_caps[0]);
++	data = kzalloc(sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return;
++
++	if (vp_modern_admin_cap_id_list_query(virtio_dev, data))
++		goto end;
+ 
+-	if (!(vp_dev->admin_vq.supported_caps & (1 << VIRTIO_DEV_PARTS_CAP)))
++	if (!(VIRTIO_CAP_IN_LIST(data, VIRTIO_DEV_PARTS_CAP)))
+ 		goto end;
+ 
+ 	virtio_pci_admin_cmd_dev_parts_objects_enable(virtio_dev);
+@@ -1264,6 +1285,11 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
+ 	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
  };
+ 
++static const struct virtio_admin_ops virtio_pci_admin_ops = {
++	.cap_id_list_query = vp_modern_admin_cap_id_list_query,
++	.cap_get = vp_modern_admin_cmd_cap_get,
++	.cap_set = vp_modern_admin_cmd_cap_set,
++};
+ /* the PCI probing function */
+ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ {
+@@ -1282,6 +1308,7 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ 	else
+ 		vp_dev->vdev.config = &virtio_pci_config_nodev_ops;
+ 
++	vp_dev->vdev.admin_ops = &virtio_pci_admin_ops;
+ 	vp_dev->config_vector = vp_config_vector;
+ 	vp_dev->setup_vq = setup_vq;
+ 	vp_dev->del_vq = del_vq;
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index db31fc6f4f1f..a6e121b6f1f1 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -12,6 +12,7 @@
+ #include <linux/dma-mapping.h>
+ #include <linux/completion.h>
+ #include <linux/virtio_features.h>
++#include <linux/virtio_admin.h>
+ 
+ /**
+  * struct virtqueue - a queue to register buffers for sending or receiving.
+@@ -161,6 +162,7 @@ struct virtio_device {
+ 	struct virtio_device_id id;
+ 	const struct virtio_config_ops *config;
+ 	const struct vringh_config_ops *vringh_config;
++	const struct virtio_admin_ops *admin_ops;
+ 	struct list_head vqs;
+ 	VIRTIO_DECLARE_FEATURES(features);
+ 	void *priv;
+@@ -195,6 +197,17 @@ int virtio_device_restore(struct virtio_device *dev);
+ void virtio_reset_device(struct virtio_device *dev);
+ int virtio_device_reset_prepare(struct virtio_device *dev);
+ int virtio_device_reset_done(struct virtio_device *dev);
++int
++virtio_device_cap_id_list_query(struct virtio_device *vdev,
++				struct virtio_admin_cmd_query_cap_id_result *data);
++int virtio_device_cap_get(struct virtio_device *vdev,
++			  u16 id,
++			  void *caps,
++			  size_t cap_size);
++int virtio_device_cap_set(struct virtio_device *vdev,
++			  u16 id,
++			  const void *caps,
++			  size_t cap_size);
+ 
+ size_t virtio_max_dma_size(const struct virtio_device *vdev);
+ 
+diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
+new file mode 100644
+index 000000000000..bbf543d20be4
+--- /dev/null
++++ b/include/linux/virtio_admin.h
+@@ -0,0 +1,68 @@
++/* SPDX-License-Identifier: GPL-2.0-only
++ *
++ * Header file for virtio admin operations
++ */
++#include <uapi/linux/virtio_pci.h>
 +
-+struct virtio_net_resource_obj_ff_group {
-+	__le16 group_priority;
++#ifndef _LINUX_VIRTIO_ADMIN_H
++#define _LINUX_VIRTIO_ADMIN_H
++
++struct virtio_device;
++
++/**
++ * VIRTIO_CAP_IN_LIST - Check if a capability is supported in the capability list
++ * @cap_list: Pointer to capability list structure containing supported_caps array
++ * @cap: Capability ID to check
++ *
++ * The cap_list contains a supported_caps array of little-endian 64-bit integers
++ * where each bit represents a capability. Bit 0 of the first element represents
++ * capability ID 0, bit 1 represents capability ID 1, and so on.
++ *
++ * Return: 1 if capability is supported, 0 otherwise
++ */
++#define VIRTIO_CAP_IN_LIST(cap_list, cap) \
++	(!!(1 & (le64_to_cpu(cap_list->supported_caps[cap / 64]) >> cap % 64)))
++
++/**
++ * struct virtio_admin_ops - Operations for virtio admin functionality
++ *
++ * This structure contains function pointers for performing administrative
++ * operations on virtio devices. All data and caps pointers must be allocated
++ * on the heap by the caller.
++ */
++struct virtio_admin_ops {
++	/**
++	 * @cap_id_list_query: Query the list of supported capability IDs
++	 * @vdev: The virtio device to query
++	 * @data: Pointer to result structure (must be heap allocated)
++	 * Return: 0 on success, negative error code on failure
++	 */
++	int (*cap_id_list_query)(struct virtio_device *vdev,
++				 struct virtio_admin_cmd_query_cap_id_result *data);
++	/**
++	 * @cap_get: Get capability data for a specific capability ID
++	 * @vdev: The virtio device
++	 * @id: Capability ID to retrieve
++	 * @caps: Pointer to capability data structure (must be heap allocated)
++	 * @cap_size: Size of the capability data structure
++	 * Return: 0 on success, negative error code on failure
++	 */
++	int (*cap_get)(struct virtio_device *vdev,
++		       u16 id,
++		       void *caps,
++		       size_t cap_size);
++	/**
++	 * @cap_set: Set capability data for a specific capability ID
++	 * @vdev: The virtio device
++	 * @id: Capability ID to set
++	 * @caps: Pointer to capability data structure (must be heap allocated)
++	 * @cap_size: Size of the capability data structure
++	 * Return: 0 on success, negative error code on failure
++	 */
++	int (*cap_set)(struct virtio_device *vdev,
++		       u16 id,
++		       const void *caps,
++		       size_t cap_size);
 +};
 +
- #endif
++#endif /* _LINUX_VIRTIO_ADMIN_H */
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index c691ac210ce2..0d5ca0cff629 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -315,15 +315,18 @@ struct virtio_admin_cmd_notify_info_result {
+ 
+ #define VIRTIO_DEV_PARTS_CAP 0x0000
+ 
++/* Update this value to largest implemented cap number. */
++#define VIRTIO_ADMIN_MAX_CAP 0x0fff
++
+ struct virtio_dev_parts_cap {
+ 	__u8 get_parts_resource_objects_limit;
+ 	__u8 set_parts_resource_objects_limit;
+ };
+ 
+-#define MAX_CAP_ID __KERNEL_DIV_ROUND_UP(VIRTIO_DEV_PARTS_CAP + 1, 64)
++#define VIRTIO_ADMIN_CAP_ID_ARRAY_SIZE __KERNEL_DIV_ROUND_UP(VIRTIO_ADMIN_MAX_CAP, 64)
+ 
+ struct virtio_admin_cmd_query_cap_id_result {
+-	__le64 supported_caps[MAX_CAP_ID];
++	__le64 supported_caps[VIRTIO_ADMIN_CAP_ID_ARRAY_SIZE];
+ };
+ 
+ struct virtio_admin_cmd_cap_get_data {
 -- 
 2.50.1
 
