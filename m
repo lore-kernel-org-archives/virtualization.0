@@ -1,103 +1,87 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 193037E107
-	for <virtualization@lists.linux.dev>; Mon,  8 Sep 2025 21:01:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46B151A314F;
+	Tue,  9 Sep 2025 04:25:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757365298; cv=none; b=pUp3oWz4JlSfISUoC0V1pck09J3s6UA6kCfg55HNXk2NsLo6YDo4Z6qPUdoDM7OTk7nmn7fOR4RwxmJ4puink8Iyjr4lk8DF6mELfZicU1tBwQtL5550gB5oAtsGzjlUJBw0g+2k9mzXlFYv+mFxLbasDpnUB7tSzclLaJ1huuo=
+	t=1757391923; cv=none; b=SofwvnAlRbCl3ihwkHIUHG/ZBfaayEOoRYV7LpfYFi8sa+yqXynx0BnQmEcVBvz8Vd25YuWfahxjagaUmUUd1a8Zke5SVrc6GLzypi+fEdmeiS+RQ/5e76ryv3R5O+equ3z+tJ6zMHeAUrXmiZFb9kKWh/3FM4Q4wLg8DiLyL1E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757365298; c=relaxed/simple;
-	bh=Qa3p4r1BGPTbg9JN8Jg7rYA6n7V+dwXJpFgMOWciwh0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nTI5MBZ/GbljLix0oXPUdyl9GW/ws2RLl9u8ePKobhDrRZFNUCCXY3J2ZfS6mD8fjVoFUDUNGTOeFr4vQIdTiVkiCjEYxIWtL2xmWE+hoCQM6+8hw+96cfDKdq9eCrqmmtowRkRuXH3qs2L+ME3Qc+xHvLlgQGFGmqAIJBggKts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=sZBDJtvF; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1757391923; c=relaxed/simple;
+	bh=RrzY4SDc18Ci2TyOyhCgyGYX7hmnnBCU2e/pxbH8zRw=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=cUW0WCiRKcepZh5XwvNunFtpOtrgHBbW/VBNMJBSlAOJT7V/truq5opGB6R77PuEFHLv8G12bdOvtlhhkFAhhAZqGtdgMQyC1dU+0hNwJGnJ3fI0p+9G0IuCiPiyX54SO2JoHD8jXuhcW+zy3rlY9eVdm6ZLB2v/d+4Ly7W1y0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=i9pJ18PL; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="sZBDJtvF"
-Received: from [192.168.0.88] (192-184-212-33.fiber.dynamic.sonic.net [192.184.212.33])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 3AF8E2119388;
-	Mon,  8 Sep 2025 14:01:35 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3AF8E2119388
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1757365296;
-	bh=8OfRFbMGWhbwHqeXODOj/IPgEc3LWLOaJehvGyq5fVY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=sZBDJtvFs9Ofj7nMAu5VU8L0L4nKeDGeNVmFwTGr5mm9ZPuuOp9UCj9Btu+E1vcfa
-	 HB/ifrMcHgdgWOwk/crvaI47rWI+1w94qYyPAZve41oYiMcu+vkaoDgD185Gry75ro
-	 Z7o4crQc3sp24xFFXTYFnxdnQ96IoHTX58i70aM8=
-Message-ID: <d7d7b23f-eaea-2dbc-9c9d-4bee082f6fe7@linux.microsoft.com>
-Date: Mon, 8 Sep 2025 14:01:34 -0700
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="i9pJ18PL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F9D2C4CEF4;
+	Tue,  9 Sep 2025 04:25:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1757391922;
+	bh=RrzY4SDc18Ci2TyOyhCgyGYX7hmnnBCU2e/pxbH8zRw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=i9pJ18PLXuxKbzs/Iruw3PpLBgKXy9ssEffV+i7Q9gMAvoRB7kzd+iGGYRZ4Vjd4z
+	 nsdDoX1b8RjqFfB2U020ZMoVgWz32DH/3KHr9yu4W24HNyAdp4ShFmw5Gwb3/8dyxq
+	 YI0F046jfWbWEKO92OxW3X9LzuK+WjtFkn1xH7Gk=
+Date: Mon, 8 Sep 2025 21:25:18 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: Eric Biggers <ebiggers@kernel.org>, linux-kernel@vger.kernel.org,
+ Alexander Potapenko <glider@google.com>, Brendan Jackman
+ <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>, Dennis Zhou
+ <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ iommu@lists.linux.dev, io-uring@vger.kernel.org, Jason Gunthorpe
+ <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>, Johannes Weiner
+ <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
+ kasan-dev@googlegroups.com, kvm@vger.kernel.org, "Liam R. Howlett"
+ <Liam.Howlett@oracle.com>, Linus Torvalds <torvalds@linux-foundation.org>,
+ linux-arm-kernel@axis.com, linux-arm-kernel@lists.infradead.org,
+ linux-crypto@vger.kernel.org, linux-ide@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Marco Elver <elver@google.com>, Marek Szyprowski
+ <m.szyprowski@samsung.com>, Michal Hocko <mhocko@suse.com>, Mike Rapoport
+ <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>,
+ netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>, Peter Xu
+ <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>, Suren
+ Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
+ virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
+ wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
+Subject: Re: [PATCH v2 19/37] mm/gup: remove record_subpages()
+Message-Id: <20250908212518.77671b31aaad2832c17eab07@linux-foundation.org>
+In-Reply-To: <64fe4c61-f9cc-4a5a-9c33-07bd0f089e94@redhat.com>
+References: <20250901150359.867252-1-david@redhat.com>
+	<20250901150359.867252-20-david@redhat.com>
+	<5090355d-546a-4d06-99e1-064354d156b5@redhat.com>
+	<20250905230006.GA1776@sol>
+	<64fe4c61-f9cc-4a5a-9c33-07bd0f089e94@redhat.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.1
-Subject: Re: [PATCH v1 2/2] Drivers: hv: Make CONFIG_HYPERV bool
-Content-Language: en-US
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-hyperv@vger.kernel.org,
- netdev@vger.kernel.org, linux-pci@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org,
- linux-arch@vger.kernel.org, virtualization@lists.linux.dev,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
- airlied@gmail.com, simona@ffwll.ch, jikos@kernel.org, bentiss@kernel.org,
- kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
- decui@microsoft.com, dmitry.torokhov@gmail.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, bhelgaas@google.com,
- James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
- deller@gmx.de, arnd@arndb.de, sgarzare@redhat.com, horms@kernel.org
-References: <20250906010952.2145389-1-mrathor@linux.microsoft.com>
- <20250906010952.2145389-3-mrathor@linux.microsoft.com>
- <2025090621-rumble-cost-2c0d@gregkh>
-From: Mukesh R <mrathor@linux.microsoft.com>
-In-Reply-To: <2025090621-rumble-cost-2c0d@gregkh>
-Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On 9/6/25 04:36, Greg KH wrote:
-> On Fri, Sep 05, 2025 at 06:09:52PM -0700, Mukesh Rathor wrote:
->> With CONFIG_HYPERV and CONFIG_HYPERV_VMBUS separated, change CONFIG_HYPERV
->> to bool from tristate. CONFIG_HYPERV now becomes the core Hyper-V
->> hypervisor support, such as hypercalls, clocks/timers, Confidential
->> Computing setup, PCI passthru, etc. that doesn't involve VMBus or VMBus
->> devices.
+On Sat, 6 Sep 2025 08:57:37 +0200 David Hildenbrand <david@redhat.com> wrote:
+
+> >> @@ -3024,6 +3025,7 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+> >>                  return 0;
+> >>          }
+> >> +       pages += *nr;
+> >>          *nr += refs;
+> >>          for (; refs; refs--)
+> >>                  *(pages++) = page++;
+> > 
+> > Can this get folded in soon?  This bug is causing crashes in AF_ALG too.
 > 
-> But why are you making it so that this can not be a module anymore?  You
-> are now forcing ALL Linux distro users to always have this code in their
-> system, despite not ever using the feature.  That feels like a waste to
-> me.
-> 
-> What is preventing this from staying as a module?  Why must you always
-> have this code loaded at all times for everyone?
+> Andrew immediately dropped the original patch, so it's gone from 
+> mm-unstable and should be gone from next soon (today?).
 
-This is currently not a module. I assume it was at the beginning. In
-drivers/Makefile today:
-
-obj-$(subst m,y,$(CONFIG_HYPERV))       += hv/
-
-
-More context: CONFIG_HYPERV doesn't really reflect one module. It is
-both for kernel built in code and building of stuff in drivers/hv.
-
-drivers/hv then builds 4 modules:
-
-obj-$(CONFIG_HYPERV)            += hv_vmbus.o
-obj-$(CONFIG_HYPERV_UTILS)      += hv_utils.o
-obj-$(CONFIG_HYPERV_BALLOON)    += hv_balloon.o
-obj-$(CONFIG_MSHV_ROOT)         += mshv_root.o
-
-Notice vmbus is using CONFIG_HYPERV because there is no 
-CONFIG_HYPERV_VMBUS. We are trying to fix that here.
-
-Thanks,
--Mukesh
-
-> thanks,
-> 
-> greg k-h
-
+I restored it once you sent out the fix.  It doesn't seem to be in
+present -next but it should be there in the next one.
