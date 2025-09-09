@@ -1,87 +1,101 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46B151A314F;
-	Tue,  9 Sep 2025 04:25:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24A5A302166;
+	Tue,  9 Sep 2025 06:23:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757391923; cv=none; b=SofwvnAlRbCl3ihwkHIUHG/ZBfaayEOoRYV7LpfYFi8sa+yqXynx0BnQmEcVBvz8Vd25YuWfahxjagaUmUUd1a8Zke5SVrc6GLzypi+fEdmeiS+RQ/5e76ryv3R5O+equ3z+tJ6zMHeAUrXmiZFb9kKWh/3FM4Q4wLg8DiLyL1E=
+	t=1757399014; cv=none; b=pirHo5uUnTrAuNle4ntUsm7sCq2WSG6ai5cx7t+Sx2c0EemI7OfSEC7+PdZGUUkHJAWdZEXMqTx+/91fM6vBm/+D1cEXHOj3jxN6DxZeOkYJiAY8oOp0HS3fPZ9+DZT5QM+2OmjXtDQ4bkiUORqH/Mg9GPHznEcmzbNb2XxOyEI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757391923; c=relaxed/simple;
-	bh=RrzY4SDc18Ci2TyOyhCgyGYX7hmnnBCU2e/pxbH8zRw=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=cUW0WCiRKcepZh5XwvNunFtpOtrgHBbW/VBNMJBSlAOJT7V/truq5opGB6R77PuEFHLv8G12bdOvtlhhkFAhhAZqGtdgMQyC1dU+0hNwJGnJ3fI0p+9G0IuCiPiyX54SO2JoHD8jXuhcW+zy3rlY9eVdm6ZLB2v/d+4Ly7W1y0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=i9pJ18PL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1757399014; c=relaxed/simple;
+	bh=RpvqyvM6Tia415RbHYKNy7KCcVHJVN5DwJEHb6JVKqw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jaD1QkK70TkyYH3fHnyvk4eAIH6f3QtX/mgONquJhr9BvHOKRdEJEy1EJ2dx/TgZ4bSYb/809hNH+L5nrDf99FUknHVvs19YdX0vAQrfE5/Bq/PesRzobqb8i3gr9rGPVp7gf6YtnAufWd/EcK357C1pQnbzy7WsMJ7bSmxZePE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=z0pQ6SS7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="i9pJ18PL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F9D2C4CEF4;
-	Tue,  9 Sep 2025 04:25:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1757391922;
-	bh=RrzY4SDc18Ci2TyOyhCgyGYX7hmnnBCU2e/pxbH8zRw=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=i9pJ18PLXuxKbzs/Iruw3PpLBgKXy9ssEffV+i7Q9gMAvoRB7kzd+iGGYRZ4Vjd4z
-	 nsdDoX1b8RjqFfB2U020ZMoVgWz32DH/3KHr9yu4W24HNyAdp4ShFmw5Gwb3/8dyxq
-	 YI0F046jfWbWEKO92OxW3X9LzuK+WjtFkn1xH7Gk=
-Date: Mon, 8 Sep 2025 21:25:18 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: Eric Biggers <ebiggers@kernel.org>, linux-kernel@vger.kernel.org,
- Alexander Potapenko <glider@google.com>, Brendan Jackman
- <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>, Dennis Zhou
- <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org, Jason Gunthorpe
- <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>, Johannes Weiner
- <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org, "Liam R. Howlett"
- <Liam.Howlett@oracle.com>, Linus Torvalds <torvalds@linux-foundation.org>,
- linux-arm-kernel@axis.com, linux-arm-kernel@lists.infradead.org,
- linux-crypto@vger.kernel.org, linux-ide@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski
- <m.szyprowski@samsung.com>, Michal Hocko <mhocko@suse.com>, Mike Rapoport
- <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>,
- netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>, Peter Xu
- <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>, Suren
- Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
- virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
- wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
-Subject: Re: [PATCH v2 19/37] mm/gup: remove record_subpages()
-Message-Id: <20250908212518.77671b31aaad2832c17eab07@linux-foundation.org>
-In-Reply-To: <64fe4c61-f9cc-4a5a-9c33-07bd0f089e94@redhat.com>
-References: <20250901150359.867252-1-david@redhat.com>
-	<20250901150359.867252-20-david@redhat.com>
-	<5090355d-546a-4d06-99e1-064354d156b5@redhat.com>
-	<20250905230006.GA1776@sol>
-	<64fe4c61-f9cc-4a5a-9c33-07bd0f089e94@redhat.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="z0pQ6SS7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 221BFC4CEF5;
+	Tue,  9 Sep 2025 06:23:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1757399012;
+	bh=RpvqyvM6Tia415RbHYKNy7KCcVHJVN5DwJEHb6JVKqw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=z0pQ6SS7eR2zJMW725Xm153fb0MmYDN1/F8RX2jDWN2asJKPn77OQKv9tW/ECSX74
+	 n91mDIMxCmVgzgjo0XihSloDRxk0DL7XjSz5NeCnILW9zIXDgL3wto4DW60mCvCOnb
+	 9v07Qb67+9Mg9qqlyJjeIBBIGn/m4BzYCjgW5pRE=
+Date: Tue, 9 Sep 2025 08:23:28 +0200
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Mukesh R <mrathor@linux.microsoft.com>
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	netdev@vger.kernel.org, linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org,
+	linux-arch@vger.kernel.org, virtualization@lists.linux.dev,
+	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+	tzimmermann@suse.de, airlied@gmail.com, simona@ffwll.ch,
+	jikos@kernel.org, bentiss@kernel.org, kys@microsoft.com,
+	haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+	dmitry.torokhov@gmail.com, andrew+netdev@lunn.ch,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, bhelgaas@google.com,
+	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+	deller@gmx.de, arnd@arndb.de, sgarzare@redhat.com, horms@kernel.org
+Subject: Re: [PATCH v1 2/2] Drivers: hv: Make CONFIG_HYPERV bool
+Message-ID: <2025090946-antibody-mortician-d6e1@gregkh>
+References: <20250906010952.2145389-1-mrathor@linux.microsoft.com>
+ <20250906010952.2145389-3-mrathor@linux.microsoft.com>
+ <2025090621-rumble-cost-2c0d@gregkh>
+ <d7d7b23f-eaea-2dbc-9c9d-4bee082f6fe7@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d7d7b23f-eaea-2dbc-9c9d-4bee082f6fe7@linux.microsoft.com>
 
-On Sat, 6 Sep 2025 08:57:37 +0200 David Hildenbrand <david@redhat.com> wrote:
-
-> >> @@ -3024,6 +3025,7 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
-> >>                  return 0;
-> >>          }
-> >> +       pages += *nr;
-> >>          *nr += refs;
-> >>          for (; refs; refs--)
-> >>                  *(pages++) = page++;
+On Mon, Sep 08, 2025 at 02:01:34PM -0700, Mukesh R wrote:
+> On 9/6/25 04:36, Greg KH wrote:
+> > On Fri, Sep 05, 2025 at 06:09:52PM -0700, Mukesh Rathor wrote:
+> >> With CONFIG_HYPERV and CONFIG_HYPERV_VMBUS separated, change CONFIG_HYPERV
+> >> to bool from tristate. CONFIG_HYPERV now becomes the core Hyper-V
+> >> hypervisor support, such as hypercalls, clocks/timers, Confidential
+> >> Computing setup, PCI passthru, etc. that doesn't involve VMBus or VMBus
+> >> devices.
 > > 
-> > Can this get folded in soon?  This bug is causing crashes in AF_ALG too.
+> > But why are you making it so that this can not be a module anymore?  You
+> > are now forcing ALL Linux distro users to always have this code in their
+> > system, despite not ever using the feature.  That feels like a waste to
+> > me.
+> > 
+> > What is preventing this from staying as a module?  Why must you always
+> > have this code loaded at all times for everyone?
 > 
-> Andrew immediately dropped the original patch, so it's gone from 
-> mm-unstable and should be gone from next soon (today?).
+> This is currently not a module. I assume it was at the beginning. In
+> drivers/Makefile today:
+> 
+> obj-$(subst m,y,$(CONFIG_HYPERV))       += hv/
+> 
+> 
+> More context: CONFIG_HYPERV doesn't really reflect one module. It is
+> both for kernel built in code and building of stuff in drivers/hv.
+> 
+> drivers/hv then builds 4 modules:
+> 
+> obj-$(CONFIG_HYPERV)            += hv_vmbus.o
+> obj-$(CONFIG_HYPERV_UTILS)      += hv_utils.o
+> obj-$(CONFIG_HYPERV_BALLOON)    += hv_balloon.o
+> obj-$(CONFIG_MSHV_ROOT)         += mshv_root.o
+> 
+> Notice vmbus is using CONFIG_HYPERV because there is no 
+> CONFIG_HYPERV_VMBUS. We are trying to fix that here.
 
-I restored it once you sent out the fix.  It doesn't seem to be in
-present -next but it should be there in the next one.
+Ah, I missed that this was getting changed in the Makefile in patch 1,
+that is what I was worried about.
+
+Nevermind, this should be fine, sorry for the noise.  I'll go queue it
+up later today.
+
+greg k-h
