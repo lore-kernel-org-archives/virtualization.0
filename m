@@ -1,196 +1,192 @@
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2063.outbound.protection.outlook.com [40.107.244.63])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66A2217A300
-	for <virtualization@lists.linux.dev>; Tue,  9 Sep 2025 17:56:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.63
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757440620; cv=fail; b=AS+ZMgxS0NIJLC9SLurnE62P/WhvOGCc29q4ZNApoeare95x7CTauvV0Dd4uFWdZdXwIGRUQm6Px5mWYCZIQmE+qitGJZqO4vhDbHaIH5qGn9IDXw+c2MGwEsJEobGLf63VymRM1XQvslwR6mvbbkhwHOPJmQ+YFRzhmlpEu5UQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757440620; c=relaxed/simple;
-	bh=F1+yFRwwl76QYezpQdgqv/9vDSREFnf/d+PzhfhiQVQ=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=RnvbGSiaOyZAozQ+RiOEf3NuLzFqVGM5vOcniba9ek1oo2rnFGmIII5v547y4BaXPEtCJF33iN0HtIRyPKdsSKu+UEwrD/i3ICYU1RS0NNr95hxWv00+3lKoK0ob41eSnrgWzUtp8eGQ+X6x65Ef1NYqLOxTqmACyrzDZzaAI+w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=bfiGHuQ2; arc=fail smtp.client-ip=40.107.244.63
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BF05256C88;
+	Tue,  9 Sep 2025 19:28:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1757446113; cv=none; b=OUhWucgD2qo1DQk7gCetrspm6PfDNsmynqUuNahbhhW4WLq3OBE9wPM3Vmh4Xh+GCry9rA6R9FMX5GbUUlX3atRK+x8LjoJizSN8RJVhbt9XmNHs5X7qpCbuTOg4PxfK/HoTqTSnnWjcHtR8euAj3H/RZMWNHj1RAOZaNbmAB+0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1757446113; c=relaxed/simple;
+	bh=1x5zVn7ZOm1nIU/0RB7M0zUuhGSlS6lEQ7GWNHTQbXI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=E3lGkjT2Kud0BOCOa9u6WCSUpL6SewyOJY6VbsDRNYHRCZDgNrBPD7QdBwx6189+VIGUGc1oqmrsVXSmTcFt9aygzmac43/8FHnJrM5c1cZuBLRUmccIUod4r0yucLRzsA6zNKbn9uMwV3kwTGi8Ntpc5HYIms4JQMuP00z3c3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RNinnesY; arc=none smtp.client-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="bfiGHuQ2"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=BS2DgdA7QeR6SkiCIaMXK6aOf6Y6g4h56ZcuFGllENZlUxJzX33f/IrMtVObSlrT/cvCMh9VIUxjkpk+5/h/3L5p99HDnX789YtTIv1i2b8rVj5ZCQFXWXoPghzBX0JiX5jIG4O+hJDaxCyaPLo93cBNnppQdZy2ZiNcTbJTJ03ID7bVgI0zPnuqFZpQaQfnIcqYfqfvEI8UOmSkVN2TPyveNLD5VjDjp5auIr75V0yyXhcw2Mr8+d+uNUoKSR2MfD8t4bT0qD4dky6EUqVKwWYhbRFvaXJNAnSCfvqdNBpRomeGW2Dw0QxhGzHIc8uLK0QRipE8r8bsBnuXNlkElQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nZ3SiqJAihy42Zh/MBfIBB+r2rME+IX8KDWkp6KbZik=;
- b=tlFXczfahznWPYrqPkX2HgqLDAkxkIZRerv9uJmi4he9JFkzW8qVe/lDhH+sYFP149TLaBDoXpCOHrnZT7OETshp9YFizoEjyA7cWwXnQFepxBceIsCVmc6VsLqZ4/pVXCEf+2CpVDEClsZk1C5ui5fAmBslqSVNpTkvZbIz83JPGh4bepJ+xGqTKgor1Kbhg5+7k7GVTlPh1v/k3McHQ/dbs6wSffJdBnfbUhQdXYzCy7gEN6hfEDcplXUtbsVDRmlngy2+zd4cxAog9KdZg7t6i1GTgxpufaB39JtoArn0YMZB1wOrUEO5rJliGZJJQhnOVBEbjVlwvMnyC6hx5Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nZ3SiqJAihy42Zh/MBfIBB+r2rME+IX8KDWkp6KbZik=;
- b=bfiGHuQ2Ry0pHugQRyf5IQzo0Jlt+CFiH8B8vmeS+NrnAl3n9X/FOqcWXudIRr32K0o7C50qNW4S/SXnJ1vzzjwkeTvuodgbu4V82Anj2FtIN9e0fLA2gJGk+Ex16b+Jl3OZ3GuRRN6C7OQbu/Z997aRiGxPeHqMUcoz6ooCvcRZhfVxvnLu++cO+CRtS6k3ZiDwovUy3rz8M2PnC3vwY//beIPRB1xygmc8LAFBkM6TQJirkcqag5MyF0e2j1dMAVlG+GRUtWQLFisNU1abQ/xkIb7f5eWDfuLPl1JWr37Ht0NwvnMYMdCpiZiXkm1toh5IMLKdWAOZVIeXiVXt5A==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by DS4PR12MB9562.namprd12.prod.outlook.com (2603:10b6:8:27e::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9094.22; Tue, 9 Sep
- 2025 17:56:57 +0000
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c%6]) with mapi id 15.20.9094.021; Tue, 9 Sep 2025
- 17:56:56 +0000
-Message-ID: <ff73e96f-8912-461a-8445-ea332f701cbc@nvidia.com>
-Date: Tue, 9 Sep 2025 12:56:43 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 01/11] virtio-pci: Expose generic device
- capability operations
-To: Simon Horman <horms@kernel.org>
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- alex.williamson@redhat.com, virtualization@lists.linux.dev,
- pabeni@redhat.com, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, Yishai Hadas <yishaih@nvidia.com>
-References: <20250908164046.25051-1-danielj@nvidia.com>
- <20250908164046.25051-2-danielj@nvidia.com>
- <20250909152947.GA20205@horms.kernel.org>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20250909152947.GA20205@horms.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: PH0PR07CA0103.namprd07.prod.outlook.com
- (2603:10b6:510:4::18) To MW4PR12MB7309.namprd12.prod.outlook.com
- (2603:10b6:303:22f::17)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RNinnesY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1757446111; x=1788982111;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=1x5zVn7ZOm1nIU/0RB7M0zUuhGSlS6lEQ7GWNHTQbXI=;
+  b=RNinnesYFFw6tIlrv5tg5tIg1uGgPYHgkFFqr6FoWPsCyAl3jsQWC4I2
+   OBM1kM613aHBCIjskria4eym+GLj83Bjap94hoNk60ZvK8CTEz+OMkcO5
+   kkLbJ48cXD8IKHGzGEuEtvLdTkwg17MYSvpmuPwD1zj5D0dhkho3aJEfX
+   hQaIlB0UiJXbXs0xVtXq7xVVhZu/pcF9bEtGLiA0Pu2/OESzl/X+jVX0A
+   WSaWzqXp8wuKdHzHD6kxkc/nDRqkNXwXqXhfAYpUrW0vEUg2QIL5X/Rnt
+   QlE6ed4hzg+XGSy+noExU1xEANzv0xEO6tnmy4wXtWOe2l3rUyrIGITYl
+   A==;
+X-CSE-ConnectionGUID: 8qv8BOk5SXO6F/N18RTEdA==
+X-CSE-MsgGUID: ktxOa0QaThaxJGIsQcNHQQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11548"; a="70359873"
+X-IronPort-AV: E=Sophos;i="6.18,252,1751266800"; 
+   d="scan'208";a="70359873"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2025 12:28:30 -0700
+X-CSE-ConnectionGUID: u+EuR4iZQHeXx/u+g8SYqg==
+X-CSE-MsgGUID: PTgf0DMoQeS+TgPl5h+8XA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.18,252,1751266800"; 
+   d="scan'208";a="173040704"
+Received: from lkp-server01.sh.intel.com (HELO 114d98da2b6c) ([10.239.97.150])
+  by orviesa007.jf.intel.com with ESMTP; 09 Sep 2025 12:28:28 -0700
+Received: from kbuild by 114d98da2b6c with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uw40v-0005D9-1D;
+	Tue, 09 Sep 2025 19:28:25 +0000
+Date: Wed, 10 Sep 2025 03:27:27 +0800
+From: kernel test robot <lkp@intel.com>
+To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org,
+	mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com,
+	virtualization@lists.linux.dev, pabeni@redhat.com
+Cc: oe-kbuild-all@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+	yohadt@nvidia.com, Daniel Jurgens <danielj@nvidia.com>
+Subject: Re: [PATCH net-next v2 03/11] virtio_net: Create virtio_net directory
+Message-ID: <202509100236.iFI48Aer-lkp@intel.com>
+References: <20250908164046.25051-4-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|DS4PR12MB9562:EE_
-X-MS-Office365-Filtering-Correlation-Id: b8f277e3-d331-441e-0a3a-08ddefca442c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?WEQ5UVJZa2p3K2RHdkFJcUExazdXcEJ2VmlvWStJSXcwaXV4L2VEdVAyRTFM?=
- =?utf-8?B?WFVGMStKRnE5MEtOTjJNanZ5ZmRXeGh3S3kzZ3Q1NDRWNmlEc0s4YXVONjRx?=
- =?utf-8?B?dVNuS0VpY3ZwNlFpcngvZmk3djNGSUh4c2Z4MWVtYldtQ1BIMHdJaHduMVNM?=
- =?utf-8?B?MnRVMGRUdHoyRzVKSjlIKzZaMTF1T3BsUVFzVkd0SmYrN1ZpbWw0UlFGZWJS?=
- =?utf-8?B?bHJ4VnB2dDRRdFFzSmVPbXl6MnUycXZtS2MxVmcrRFRQSzkrSjhULzA4WjZX?=
- =?utf-8?B?aVl2dGphV3MyTnlza1ZLWmN5R1BEYWJuOU5vQ2g0ZGhEcE5objBTeW9YbEVZ?=
- =?utf-8?B?cjlVemg1MlZvUDRtQjNScUlCcktzSXZDb21aRWhDcEJqYUxkam4zQmlUbk9F?=
- =?utf-8?B?UW9YMC91M0ZXZ2p6Z2QySG1aMTRTdk9ITEFhdklHYkVTOFg4SW1vaFNJWnhY?=
- =?utf-8?B?TjhRdUdUdnQ3QVJUb1Q0bFQ1NXhLbGhVbVBrb3VyZ0duN0RPREd4OGFhNUk5?=
- =?utf-8?B?V3IrRlBCK2VPSmxmczRHQUYwYzMzMVNUOTE2ZE9hNVdRa1gxajVJWWFVR2pK?=
- =?utf-8?B?ZzlxTDBZV1VPeUp2dlcxdExXRnNTakJoS2tVSmlqZDVlVThpMzJ2czdzZ3or?=
- =?utf-8?B?WVVBTStFWHFsNFpQTGZHWjQycVM5cGtzMmRDWnFOQUt1YklvaFlLUDJnaDBm?=
- =?utf-8?B?THB2TTR1VS9sVDhXdERXVGtjNXlaN0ZHYzBiMGREeUY1cE1acktJcmhqREE2?=
- =?utf-8?B?aE1wM29KWUVrTjdJc2I3R1hObTYzTU5waU5NRE54VEFBVHpaVGdZOEZNWmRH?=
- =?utf-8?B?cGxIQWduTG4rRnUrajQ5WjhwVUUxOEJXQmRSTXYzam1nMHZIUDRaUkFReUhl?=
- =?utf-8?B?VkZqbGE0dUxYOUlZb0xucGUvcERsRFVMbzlnTURRTEJVaXJVVWl4bEhUMFR4?=
- =?utf-8?B?Skp6dUxnWWJpUnVXanlrejZiNFZHdUp3Z00xOTZMU3VZR29XSVROb3ZDVGJZ?=
- =?utf-8?B?c1plZ2NmUmo1V3dRWStYcnp3S1VwbW9RaDZrYzdZQ0ZWTzhXNXd4a3lXa2da?=
- =?utf-8?B?Rk5yUEFFbXNqWW1xazBXNnM0NlBlVU5Yc1BxTFBITGlmRlR0K01GdkJJZTRG?=
- =?utf-8?B?WHVwS29XT2UvckZxYWRnRUl4WXZwaUtId1htTnQ2a1ZMcXFVc3JseU84azkw?=
- =?utf-8?B?L3F5SkZrN0RaVFZERkRyeWJaREFlRDl1SjR6bWt4bm9BMUxXQ1Z2L1h5bzZl?=
- =?utf-8?B?cWpmQ2JQR0R4S1BPNDRoK1FMazdheFU5bFZnRlBCYXg3R1JUYi84YWwxMjJj?=
- =?utf-8?B?UXRhb3N0Q2hhNjFUSExra0dlZ2Z5U2xoZzlmUlhMWUdwUGM1TWlBY29TaVBx?=
- =?utf-8?B?ZEEzUUx6cnJqaGdsOFM4SDl4K3pXRnRPa0RUd01HSEg5NCtIdVZEQTFyVk9o?=
- =?utf-8?B?cHIvelVTaUFPOG0wcU5IeGY5SjlIS2FzQnEyamI0WE5zVzZaeXBWWEIvbVcx?=
- =?utf-8?B?UFBWYU1sOGdMRVlsVnM4Ylk0T2QrS0xRSzBvWTVNeGx6UmJNLzcwcmpXSjVk?=
- =?utf-8?B?SjVCaS9VWllPWUd1RDFjVVRqeFNvRWhTbVdvOU1PZGZlYlo5MCszUU5peWkv?=
- =?utf-8?B?TXZac2ZZa1N0NHE5MUVYRnRPQ0E1ZDBPSDUvSC9KcHdMY0dIS3NISk5nTlhi?=
- =?utf-8?B?UElCenBYVzYvcGlaalFuTmt3aWV3VnpKNmhyWERIU0lJa2RXbjV1MmlXeXRQ?=
- =?utf-8?B?NzlGcTlKQU5qaFJvNVdRSExhOFZSNk5CZ1k1MDkrbnJicEtKTEl2OXlKekht?=
- =?utf-8?B?R2NyTVhQQlEwd0ZZeUIzUHRCclRKZkQwNWpNaEVoWFk4Uk5qM2hPT0M1NUlo?=
- =?utf-8?B?eFZDMm9OUFdkSVFCY2tXU3oxRVJHQ0MvL2F1YlVxRFZKWnV1Y0VNTzB1N0Vs?=
- =?utf-8?Q?g1ke+11YBGk=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?RmtPWmU0VG1SQTdyL1RwOHREaWRESlRNUmF0dE85OEVWTk90QTRCWjltTnlk?=
- =?utf-8?B?RUJJeTArTElESEpxTFNRckl1YXdKVlhVQkhaWTBrb1d2bENhUDVqODFOaUdH?=
- =?utf-8?B?T0VudEMzU0NpeUtTZ2lkaC8xTUZRVk9hRy9KbVVkc28yOGJteUY5MlowT1RH?=
- =?utf-8?B?YXVvQ1FqZDFUMXNUeEZYQkdpK2Zmdzc0WnRGWFpjSCtsTkdwYmxvRXM1cnpI?=
- =?utf-8?B?NjhVaE5iTFFHakVrSEdOR1VCQ1d2OEhNbGU5Mm9xRjloQkdIOFEwd2I1ZGQz?=
- =?utf-8?B?RjBSUWFzRHN6Y3NrZDA3UzdycEwvU3gvUFVUWUtZeFc5L2IxaVlxbDFqQjhR?=
- =?utf-8?B?NG5kMkpuN0RUeFB1M1pncGFFTFRIZURqUjdIWGUrZklqM21kK0I5T2xnditW?=
- =?utf-8?B?citrcDh0cUFhS1VaZmdOSTRSd1FrcHlYQmxGME5NOHBicWM2VDVaKzdPYnJS?=
- =?utf-8?B?K1lGOGcvM3djdUdOb1NqTGdMRU5yMkV4VVRndmJXNGVlc0ZIRU5qTXZ2L0pB?=
- =?utf-8?B?QzMxbzNuVUZNT0Y0STU2WHU5YWpaWitwUDVQbGU5YW5TZmpxRmdtK21wdENv?=
- =?utf-8?B?dytqSU9BbVFIbnJVSVA5WXVwWFhCNW1jeGxKMFk2ZUJxTFh2VG9CVXo4S3c3?=
- =?utf-8?B?OUhhZmhoSW5YVmhUclA4M1NSWXE3VkRaYTlmRGFLS0NBdm9Ub2V5dVB3N2FF?=
- =?utf-8?B?bHFnUlIxZ09SbGJZcTFlWU8vaUhGVWZWQ0pPbXNjNkV2WVhrRDE4NGZPVlRC?=
- =?utf-8?B?djJzdEk4MnppUnk2Wkt3RzdtaGwzS3JoZHgwc29odXloOWNLeTRwYjRoUWJ0?=
- =?utf-8?B?Q29FVDE1ZFM3MVpuUFZiN1YyZkV5RUh5LzJJUjhZMGFnSGIvZEFUeXFBSG14?=
- =?utf-8?B?a1NDVFRneUZSQ3ZidVZ1OXV6TG9ST25ZbjViaTYvc1hkOS9RdHpqcUk5RHhF?=
- =?utf-8?B?WkxZQk50d1ZydWRsUzlCQ0FkNVkyNVVobmRjWEhWUUt0WlVRWUFVQVZsdGFG?=
- =?utf-8?B?VVFWOEF4SFFMTGZQTkMwNytwbmhRbXFyd2dkYkJ5cXdubkljYVJ2NnRNd1hW?=
- =?utf-8?B?eW1FSHF2ZmJlbFhhSjd1ZjROeFR6UFdnZEJNVUhDMWhlNUN0Rm9ZOVhSazVh?=
- =?utf-8?B?KzJ3Z0pKNXFEaXhSMC9TTkJicmo3QnpVWkFOWWxxa0ZYU3VQUkNDczhXSks4?=
- =?utf-8?B?ZjZTR1RSSzFiSEFJS1VURDJxaS9GRkNZU2JkQWlXUVpVZ015L0FQMlRQeHJV?=
- =?utf-8?B?dDMzUjg3R1FVeUQ1RVhseEYzWUVWelZsUVFua0tWdThmaFBaTUQ3MUVUOFJa?=
- =?utf-8?B?WGltRmE0Q2h2YUZaVVBTc2dPNGN0aTFVT1k5L2Z3TzRxbm41K0xQUkdzZHNm?=
- =?utf-8?B?NURpM3V6Q0pRcnhMWFJjU3NJVFZsL1I2R3lhWlJraE5KOWptNmErSUJQNTIx?=
- =?utf-8?B?c0NuTThJWlppTmRDbDdETXIrbUE3Y1Qrcm5VcUZJbUxGVzFLQmZlcDk0dS8z?=
- =?utf-8?B?QmR4czVYaTBnNDhMOUMzdEpiVXB6VGtnOW8vQUpPaVhQMFJtckFnby80QlJr?=
- =?utf-8?B?dzM0MGZOcG9MT24wbENRNXJEaGswd0MxaVYwWWpnZkFoTnM3Z3dPTzkrT1pP?=
- =?utf-8?B?OEhUMFVSaEJiMHllR1JOMEQ3SU1TQkZTSHpVYmdDVFcwWVZqQTIwd3M5ZjEv?=
- =?utf-8?B?RDhFWEc2SXZWaWtLcDlsamh2NGlZWTU4UnQ4NXNjSzYvUFJ2N0x2NDVXWUxO?=
- =?utf-8?B?THdaSGd5YTI5SmR1UFg3dXVWYjZZZ2ZVandnemRBL29zS2syN3czYkhVbnp3?=
- =?utf-8?B?MHJ3NjcwV0ErSDZicGREWHlSODR2WGg0alp0TTR1YUoxdVNzVE1UeUJkK3RK?=
- =?utf-8?B?QnNOWVNNRW5Ca08wWEhtY1ZPOFBWRFg2V3U4WnVoNzI1QUhUZHhTQVVUTGhs?=
- =?utf-8?B?ck14c2RLTWMwei9YNnBXeUptZ3V3M2sySnp0aDdub3lqd0tRTGFrazRhcXFU?=
- =?utf-8?B?NVoyM2t2Z3hLbjNrMDhxeEhicW9OejdjVWY2UXVDcUNRUzh2KzZrV2l1WDMz?=
- =?utf-8?B?UWgxTWx5VkRsNEdLUHd6WG5aeGlUY3pxam5vNHZiSXlUWVFOb2o5dVB0aTBH?=
- =?utf-8?Q?1NeQ9xLmL7ijTO+A3+KSTSN3G?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b8f277e3-d331-441e-0a3a-08ddefca442c
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Sep 2025 17:56:56.8466
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: I2AcNHhjtU6q1Owmf4Gl0AZJqNFaxr/ChWV6Y/VcRwY24HeaRqsLu+w7b2I/wGRAww3YmjYpFWBKoZiY+P1jCg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS4PR12MB9562
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250908164046.25051-4-danielj@nvidia.com>
 
-On 9/9/25 10:29 AM, Simon Horman wrote:
-> On Mon, Sep 08, 2025 at 11:40:36AM -0500, Daniel Jurgens wrote:
-> 
-> ...
-> 
->> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
->> index db31fc6f4f1f..a6e121b6f1f1 100644
->> --- a/include/linux/virtio.h
->> +++ b/include/linux/virtio.h
->> @@ -12,6 +12,7 @@
->>  #include <linux/dma-mapping.h>
->>  #include <linux/completion.h>
->>  #include <linux/virtio_features.h>
->> +#include <linux/virtio_admin.h>
->>  
->>  /**
->>   * struct virtqueue - a queue to register buffers for sending or receiving.
->> @@ -161,6 +162,7 @@ struct virtio_device {
->>  	struct virtio_device_id id;
->>  	const struct virtio_config_ops *config;
->>  	const struct vringh_config_ops *vringh_config;
->> +	const struct virtio_admin_ops *admin_ops;
-> 
-> nit: Please consider also adding admin_ops to the Kernel doc for
->      struct virtio_device.
-> 
->>  	struct list_head vqs;
->>  	VIRTIO_DECLARE_FEATURES(features);
->>  	void *priv;
-> 
-> ...
+Hi Daniel,
 
-Thanks Simon, added for v3.
+kernel test robot noticed the following build warnings:
+
+[auto build test WARNING on net-next/main]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Jurgens/virtio-pci-Expose-generic-device-capability-operations/20250909-005006
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20250908164046.25051-4-danielj%40nvidia.com
+patch subject: [PATCH net-next v2 03/11] virtio_net: Create virtio_net directory
+config: sparc-randconfig-002-20250910 (https://download.01.org/0day-ci/archive/20250910/202509100236.iFI48Aer-lkp@intel.com/config)
+compiler: sparc64-linux-gcc (GCC) 8.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250910/202509100236.iFI48Aer-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202509100236.iFI48Aer-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   drivers/net/virtio_net/virtio_net_main.c: In function 'virtnet_probe':
+>> drivers/net/virtio_net/virtio_net_main.c:6487:36: warning: 'sprintf' may write a terminating nul past the end of the destination [-Wformat-overflow=]
+      sprintf(vi->rq[i].name, "input.%u", i);
+                                       ^
+   drivers/net/virtio_net/virtio_net_main.c:6487:3: note: 'sprintf' output between 8 and 17 bytes into a destination of size 16
+      sprintf(vi->rq[i].name, "input.%u", i);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> drivers/net/virtio_net/virtio_net_main.c:6488:35: warning: '%u' directive writing between 1 and 10 bytes into a region of size 9 [-Wformat-overflow=]
+      sprintf(vi->sq[i].name, "output.%u", i);
+                                      ^~
+   drivers/net/virtio_net/virtio_net_main.c:6488:27: note: directive argument in the range [0, 2147483647]
+      sprintf(vi->sq[i].name, "output.%u", i);
+                              ^~~~~~~~~~~
+   drivers/net/virtio_net/virtio_net_main.c:6488:3: note: 'sprintf' output between 9 and 18 bytes into a destination of size 16
+      sprintf(vi->sq[i].name, "output.%u", i);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+vim +/sprintf +6487 drivers/net/virtio_net/virtio_net_main.c
+
+d85b758f72b05a drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-09  6446  
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6447  static int virtnet_find_vqs(struct virtnet_info *vi)
+3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6448  {
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6449  	struct virtqueue_info *vqs_info;
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6450  	struct virtqueue **vqs;
+e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04  6451  	int ret = -ENOMEM;
+e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04  6452  	int total_vqs;
+d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6453  	bool *ctx;
+e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04  6454  	u16 i;
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6455  
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6456  	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6457  	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed by
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6458  	 * possible control vq.
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6459  	 */
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6460  	total_vqs = vi->max_queue_pairs * 2 +
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6461  		    virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ);
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6462  
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6463  	/* Allocate space for find_vqs parameters */
+6396bb221514d2 drivers/net/virtio_net.c Kees Cook          2018-06-12  6464  	vqs = kcalloc(total_vqs, sizeof(*vqs), GFP_KERNEL);
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6465  	if (!vqs)
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6466  		goto err_vq;
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6467  	vqs_info = kcalloc(total_vqs, sizeof(*vqs_info), GFP_KERNEL);
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6468  	if (!vqs_info)
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6469  		goto err_vqs_info;
+192f68cf35f5ee drivers/net/virtio_net.c Jason Wang         2017-07-19  6470  	if (!vi->big_packets || vi->mergeable_rx_bufs) {
+6396bb221514d2 drivers/net/virtio_net.c Kees Cook          2018-06-12  6471  		ctx = kcalloc(total_vqs, sizeof(*ctx), GFP_KERNEL);
+d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6472  		if (!ctx)
+d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6473  			goto err_ctx;
+d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6474  	} else {
+d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6475  		ctx = NULL;
+d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6476  	}
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6477  
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6478  	/* Parameters for control virtqueue, if any */
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6479  	if (vi->has_cvq) {
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6480  		vqs_info[total_vqs - 1].name = "control";
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6481  	}
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6482  
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6483  	/* Allocate/initialize parameters for send/receive virtqueues */
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6484  	for (i = 0; i < vi->max_queue_pairs; i++) {
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6485  		vqs_info[rxq2vq(i)].callback = skb_recv_done;
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6486  		vqs_info[txq2vq(i)].callback = skb_xmit_done;
+e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04 @6487  		sprintf(vi->rq[i].name, "input.%u", i);
+e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04 @6488  		sprintf(vi->sq[i].name, "output.%u", i);
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6489  		vqs_info[rxq2vq(i)].name = vi->rq[i].name;
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6490  		vqs_info[txq2vq(i)].name = vi->sq[i].name;
+d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6491  		if (ctx)
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6492  			vqs_info[rxq2vq(i)].ctx = true;
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6493  	}
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6494  
+6c85d6b653caeb drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6495  	ret = virtio_find_vqs(vi->vdev, total_vqs, vqs, vqs_info, NULL);
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6496  	if (ret)
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6497  		goto err_find;
+3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6498  
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6499  	if (vi->has_cvq) {
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6500  		vi->cvq = vqs[total_vqs - 1];
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6501  		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
+f646968f8f7c62 drivers/net/virtio_net.c Patrick McHardy    2013-04-19  6502  			vi->dev->features |= NETIF_F_HW_VLAN_CTAG_FILTER;
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6503  	}
+3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6504  
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6505  	for (i = 0; i < vi->max_queue_pairs; i++) {
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6506  		vi->rq[i].vq = vqs[rxq2vq(i)];
+d85b758f72b05a drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-09  6507  		vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6508  		vi->sq[i].vq = vqs[txq2vq(i)];
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6509  	}
+3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6510  
+2fa3c8a8b23041 drivers/net/virtio_net.c Tonghao Zhang      2018-05-31  6511  	/* run here: ret == 0. */
+3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6512  
+3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6513  
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6514  err_find:
+d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6515  	kfree(ctx);
+d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6516  err_ctx:
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6517  	kfree(vqs_info);
+c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6518  err_vqs_info:
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6519  	kfree(vqs);
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6520  err_vq:
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6521  	return ret;
+3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6522  }
+986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6523  
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
