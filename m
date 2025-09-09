@@ -1,62 +1,64 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BF05256C88;
-	Tue,  9 Sep 2025 19:28:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 574E5303A21;
+	Tue,  9 Sep 2025 19:37:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757446113; cv=none; b=OUhWucgD2qo1DQk7gCetrspm6PfDNsmynqUuNahbhhW4WLq3OBE9wPM3Vmh4Xh+GCry9rA6R9FMX5GbUUlX3atRK+x8LjoJizSN8RJVhbt9XmNHs5X7qpCbuTOg4PxfK/HoTqTSnnWjcHtR8euAj3H/RZMWNHj1RAOZaNbmAB+0=
+	t=1757446673; cv=none; b=QMIENappSzMzwE3tsCbeYlAzwWpGty8pwrW7hR+W/O1/GWNHyrClRtiB5iOYSqNtR5TWHstscdlKj/2hRaUjoCb7PD7pt3zSayKVSfq/RhfcefSSmqZreLjv7GZQ9i31h9s8eMr5pWUJCZqbdZ6kGHUQOAyWch/oIgb87dNUMDY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757446113; c=relaxed/simple;
-	bh=1x5zVn7ZOm1nIU/0RB7M0zUuhGSlS6lEQ7GWNHTQbXI=;
+	s=arc-20240116; t=1757446673; c=relaxed/simple;
+	bh=Vkfs1C2Q/m2ciXngYEnMywKI/5g7jYuOYmYnMi4Z+6A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=E3lGkjT2Kud0BOCOa9u6WCSUpL6SewyOJY6VbsDRNYHRCZDgNrBPD7QdBwx6189+VIGUGc1oqmrsVXSmTcFt9aygzmac43/8FHnJrM5c1cZuBLRUmccIUod4r0yucLRzsA6zNKbn9uMwV3kwTGi8Ntpc5HYIms4JQMuP00z3c3U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RNinnesY; arc=none smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Rm4LUgXeKAsTGWx/ZlACaduok0nVUObGFx9OsGPz6taAPydSRUvc4WtNHB+WR2CZEAtihAnoMa8W3oiqdVtvLrPDtqXLI8U553y93eLI+rxkVKWhQlpfVw0KEv0J25lpUWW9/gJfGRmd+nb2hmHabdPbGIP3eIlgGskjtnG3s9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BK33sGpV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RNinnesY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1757446111; x=1788982111;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=1x5zVn7ZOm1nIU/0RB7M0zUuhGSlS6lEQ7GWNHTQbXI=;
-  b=RNinnesYFFw6tIlrv5tg5tIg1uGgPYHgkFFqr6FoWPsCyAl3jsQWC4I2
-   OBM1kM613aHBCIjskria4eym+GLj83Bjap94hoNk60ZvK8CTEz+OMkcO5
-   kkLbJ48cXD8IKHGzGEuEtvLdTkwg17MYSvpmuPwD1zj5D0dhkho3aJEfX
-   hQaIlB0UiJXbXs0xVtXq7xVVhZu/pcF9bEtGLiA0Pu2/OESzl/X+jVX0A
-   WSaWzqXp8wuKdHzHD6kxkc/nDRqkNXwXqXhfAYpUrW0vEUg2QIL5X/Rnt
-   QlE6ed4hzg+XGSy+noExU1xEANzv0xEO6tnmy4wXtWOe2l3rUyrIGITYl
-   A==;
-X-CSE-ConnectionGUID: 8qv8BOk5SXO6F/N18RTEdA==
-X-CSE-MsgGUID: ktxOa0QaThaxJGIsQcNHQQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11548"; a="70359873"
-X-IronPort-AV: E=Sophos;i="6.18,252,1751266800"; 
-   d="scan'208";a="70359873"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2025 12:28:30 -0700
-X-CSE-ConnectionGUID: u+EuR4iZQHeXx/u+g8SYqg==
-X-CSE-MsgGUID: PTgf0DMoQeS+TgPl5h+8XA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.18,252,1751266800"; 
-   d="scan'208";a="173040704"
-Received: from lkp-server01.sh.intel.com (HELO 114d98da2b6c) ([10.239.97.150])
-  by orviesa007.jf.intel.com with ESMTP; 09 Sep 2025 12:28:28 -0700
-Received: from kbuild by 114d98da2b6c with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1uw40v-0005D9-1D;
-	Tue, 09 Sep 2025 19:28:25 +0000
-Date: Wed, 10 Sep 2025 03:27:27 +0800
-From: kernel test robot <lkp@intel.com>
-To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org,
-	mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com,
-	virtualization@lists.linux.dev, pabeni@redhat.com
-Cc: oe-kbuild-all@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
-	yohadt@nvidia.com, Daniel Jurgens <danielj@nvidia.com>
-Subject: Re: [PATCH net-next v2 03/11] virtio_net: Create virtio_net directory
-Message-ID: <202509100236.iFI48Aer-lkp@intel.com>
-References: <20250908164046.25051-4-danielj@nvidia.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BK33sGpV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30BB1C4CEF4;
+	Tue,  9 Sep 2025 19:37:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1757446672;
+	bh=Vkfs1C2Q/m2ciXngYEnMywKI/5g7jYuOYmYnMi4Z+6A=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=BK33sGpV6gJZdNQka35B5igzFncF6O4QoVJduYx5uymEwm19+Pae/Y8Ji2ztm6vFh
+	 Of79hrgQzN752E6kK9Pd6CitdpQ05JM71b0yY2nJK5WUadz3JmWI4AqHd+rhRkpPML
+	 jPSesTwS7Zw48bKNgh3AxJtfj3r28MMf09jWFv3Lide1Ok8C5lkasp0zoJfr6zuOnF
+	 N5cxlSvTSt07fnYvpbKZtFqt6TP2eL80kCSBPIQL9mOveIT/STSyNFrSlP91N6uUF+
+	 FdL0uwcDH/ATxbhiykxuiJP1XMjnnp4vhtxpR+0sRrU4PCEIaA22KI5S4HXWZpjWlB
+	 smMV1bUYsFvcA==
+Date: Tue, 9 Sep 2025 22:37:48 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Alex Gaynor <alex.gaynor@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
+	David Hildenbrand <david@redhat.com>, iommu@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+	Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>,
+	Juergen Gross <jgross@suse.com>, kasan-dev@googlegroups.com,
+	Keith Busch <kbusch@kernel.org>, linux-block@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, linux-nvme@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, linux-trace-kernel@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v6 03/16] dma-debug: refactor to use physical addresses
+ for page mapping
+Message-ID: <20250909193748.GG341237@unreal>
+References: <cover.1757423202.git.leonro@nvidia.com>
+ <56d1a6769b68dfcbf8b26a75a7329aeb8e3c3b6a.1757423202.git.leonro@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -65,128 +67,31 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250908164046.25051-4-danielj@nvidia.com>
+In-Reply-To: <56d1a6769b68dfcbf8b26a75a7329aeb8e3c3b6a.1757423202.git.leonro@nvidia.com>
 
-Hi Daniel,
+On Tue, Sep 09, 2025 at 04:27:31PM +0300, Leon Romanovsky wrote:
+> From: Leon Romanovsky <leonro@nvidia.com>
 
-kernel test robot noticed the following build warnings:
+<...>
 
-[auto build test WARNING on net-next/main]
+>  include/linux/page-flags.h         |  1 +
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Jurgens/virtio-pci-Expose-generic-device-capability-operations/20250909-005006
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20250908164046.25051-4-danielj%40nvidia.com
-patch subject: [PATCH net-next v2 03/11] virtio_net: Create virtio_net directory
-config: sparc-randconfig-002-20250910 (https://download.01.org/0day-ci/archive/20250910/202509100236.iFI48Aer-lkp@intel.com/config)
-compiler: sparc64-linux-gcc (GCC) 8.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250910/202509100236.iFI48Aer-lkp@intel.com/reproduce)
+<...>
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202509100236.iFI48Aer-lkp@intel.com/
+> --- a/include/linux/page-flags.h
+> +++ b/include/linux/page-flags.h
+> @@ -614,6 +614,7 @@ FOLIO_FLAG(dropbehind, FOLIO_HEAD_PAGE)
+>   * available at this point.
+>   */
+>  #define PageHighMem(__p) is_highmem_idx(page_zonenum(__p))
+> +#define PhysHighMem(__p) (PageHighMem(phys_to_page(__p)))
 
-All warnings (new ones prefixed by >>):
+This was a not so great idea to add PhysHighMem() because of "else"
+below which unfolds to maze of macros and automatically generated
+functions with "static inline int Page##uname ..." signature.
 
-   drivers/net/virtio_net/virtio_net_main.c: In function 'virtnet_probe':
->> drivers/net/virtio_net/virtio_net_main.c:6487:36: warning: 'sprintf' may write a terminating nul past the end of the destination [-Wformat-overflow=]
-      sprintf(vi->rq[i].name, "input.%u", i);
-                                       ^
-   drivers/net/virtio_net/virtio_net_main.c:6487:3: note: 'sprintf' output between 8 and 17 bytes into a destination of size 16
-      sprintf(vi->rq[i].name, "input.%u", i);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/net/virtio_net/virtio_net_main.c:6488:35: warning: '%u' directive writing between 1 and 10 bytes into a region of size 9 [-Wformat-overflow=]
-      sprintf(vi->sq[i].name, "output.%u", i);
-                                      ^~
-   drivers/net/virtio_net/virtio_net_main.c:6488:27: note: directive argument in the range [0, 2147483647]
-      sprintf(vi->sq[i].name, "output.%u", i);
-                              ^~~~~~~~~~~
-   drivers/net/virtio_net/virtio_net_main.c:6488:3: note: 'sprintf' output between 9 and 18 bytes into a destination of size 16
-      sprintf(vi->sq[i].name, "output.%u", i);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>  #define folio_test_highmem(__f)	is_highmem_idx(folio_zonenum(__f))
+>  #else
+>  PAGEFLAG_FALSE(HighMem, highmem)
 
-
-vim +/sprintf +6487 drivers/net/virtio_net/virtio_net_main.c
-
-d85b758f72b05a drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-09  6446  
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6447  static int virtnet_find_vqs(struct virtnet_info *vi)
-3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6448  {
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6449  	struct virtqueue_info *vqs_info;
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6450  	struct virtqueue **vqs;
-e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04  6451  	int ret = -ENOMEM;
-e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04  6452  	int total_vqs;
-d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6453  	bool *ctx;
-e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04  6454  	u16 i;
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6455  
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6456  	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6457  	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed by
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6458  	 * possible control vq.
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6459  	 */
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6460  	total_vqs = vi->max_queue_pairs * 2 +
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6461  		    virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ);
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6462  
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6463  	/* Allocate space for find_vqs parameters */
-6396bb221514d2 drivers/net/virtio_net.c Kees Cook          2018-06-12  6464  	vqs = kcalloc(total_vqs, sizeof(*vqs), GFP_KERNEL);
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6465  	if (!vqs)
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6466  		goto err_vq;
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6467  	vqs_info = kcalloc(total_vqs, sizeof(*vqs_info), GFP_KERNEL);
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6468  	if (!vqs_info)
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6469  		goto err_vqs_info;
-192f68cf35f5ee drivers/net/virtio_net.c Jason Wang         2017-07-19  6470  	if (!vi->big_packets || vi->mergeable_rx_bufs) {
-6396bb221514d2 drivers/net/virtio_net.c Kees Cook          2018-06-12  6471  		ctx = kcalloc(total_vqs, sizeof(*ctx), GFP_KERNEL);
-d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6472  		if (!ctx)
-d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6473  			goto err_ctx;
-d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6474  	} else {
-d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6475  		ctx = NULL;
-d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6476  	}
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6477  
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6478  	/* Parameters for control virtqueue, if any */
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6479  	if (vi->has_cvq) {
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6480  		vqs_info[total_vqs - 1].name = "control";
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6481  	}
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6482  
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6483  	/* Allocate/initialize parameters for send/receive virtqueues */
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6484  	for (i = 0; i < vi->max_queue_pairs; i++) {
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6485  		vqs_info[rxq2vq(i)].callback = skb_recv_done;
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6486  		vqs_info[txq2vq(i)].callback = skb_xmit_done;
-e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04 @6487  		sprintf(vi->rq[i].name, "input.%u", i);
-e3fe8d28c67bf6 drivers/net/virtio_net.c Zhu Yanjun         2024-01-04 @6488  		sprintf(vi->sq[i].name, "output.%u", i);
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6489  		vqs_info[rxq2vq(i)].name = vi->rq[i].name;
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6490  		vqs_info[txq2vq(i)].name = vi->sq[i].name;
-d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6491  		if (ctx)
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6492  			vqs_info[rxq2vq(i)].ctx = true;
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6493  	}
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6494  
-6c85d6b653caeb drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6495  	ret = virtio_find_vqs(vi->vdev, total_vqs, vqs, vqs_info, NULL);
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6496  	if (ret)
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6497  		goto err_find;
-3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6498  
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6499  	if (vi->has_cvq) {
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6500  		vi->cvq = vqs[total_vqs - 1];
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6501  		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
-f646968f8f7c62 drivers/net/virtio_net.c Patrick McHardy    2013-04-19  6502  			vi->dev->features |= NETIF_F_HW_VLAN_CTAG_FILTER;
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6503  	}
-3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6504  
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6505  	for (i = 0; i < vi->max_queue_pairs; i++) {
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6506  		vi->rq[i].vq = vqs[rxq2vq(i)];
-d85b758f72b05a drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-09  6507  		vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6508  		vi->sq[i].vq = vqs[txq2vq(i)];
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6509  	}
-3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6510  
-2fa3c8a8b23041 drivers/net/virtio_net.c Tonghao Zhang      2018-05-31  6511  	/* run here: ret == 0. */
-3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6512  
-3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6513  
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6514  err_find:
-d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6515  	kfree(ctx);
-d45b897b11eaf9 drivers/net/virtio_net.c Michael S. Tsirkin 2017-03-06  6516  err_ctx:
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6517  	kfree(vqs_info);
-c2c6325e1645b5 drivers/net/virtio_net.c Jiri Pirko         2024-07-08  6518  err_vqs_info:
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6519  	kfree(vqs);
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6520  err_vq:
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6521  	return ret;
-3f9c10b0d478a3 drivers/net/virtio_net.c Amit Shah          2011-12-22  6522  }
-986a4f4d452dec drivers/net/virtio_net.c Jason Wang         2012-12-07  6523  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Thanks
