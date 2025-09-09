@@ -1,143 +1,80 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D2453570DE;
-	Tue,  9 Sep 2025 13:29:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 957C2350820;
+	Tue,  9 Sep 2025 15:29:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757424562; cv=none; b=I+wwdS23DmoSzeuGcMRVHiWbBByMyDZ3BvAlqt6HCVQwbpZnJWWlOTOiPK/cvUTnp+aw5YZE1/odu3603uNxK48XAK0+RHG4aDQgkWY6KeFgFb6WnAAMAReFfTmH6YPiXdtAM0EA2vUhvUsMEZ5kcgyo5Xe9J3mcoHotf8dTG0M=
+	t=1757431792; cv=none; b=d5gQJVUE0XFYkmYfw3Q/tVd1qeLTv3TiNF/GSXO2Is1uWRMUtNggu51U4RsHbAKVJxjPi16wFJLQEutg1h+oiKj7XaW6sTpYo4fQZkHSX4o3GjIoUaCXHM2KqER/6LYlK0jt3EFEOmRVp7jp1iRlWXz2DRWiE2gdF2tHPSu2EXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757424562; c=relaxed/simple;
-	bh=iTHTFebdJnIM4qjuR28g9oSbyH9qTLhzazcpZ251F1w=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=El3XKuPSyOlK+BkI913YfJCqNC/A98/BGLVnTwLPXMdeAH4H48XjrOciYf0E2ilGxF3df6laYzRXrA2nzfzWDzV2MWq9j3bpmNchtCQGrtp/9+nyCE+DHMYuWonH/U2qiSnOHXraOMUYiOs9FDnKyTTAxcaMCAjOh2ppQkr6cLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jsG+qsUJ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1757431792; c=relaxed/simple;
+	bh=gnSZ009TbhMPnnauveV95W6+WSVRAPHvvwU+16TjJ94=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hxcDx+VqGCbV9qzkl77HjrWSiYeFtaA6RF6PVR4kI7KqPo1rJapupLT4Edj6l4bSyDY+xEm5B6lkeeQymoxjDsLKvSJUKO6IaC/TD/wQY3R8Rl5yzo9co8TDwLpv5tbaM2FtP1BJCGrMm9Jc1Nx3NmbfV5gSCsdWhz8ynTWfV2I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KLaoMygv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jsG+qsUJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7C94C4CEF5;
-	Tue,  9 Sep 2025 13:29:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KLaoMygv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0078CC4CEFB;
+	Tue,  9 Sep 2025 15:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1757424561;
-	bh=iTHTFebdJnIM4qjuR28g9oSbyH9qTLhzazcpZ251F1w=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=jsG+qsUJK7ffZ/z3OPchqA7x0yHguyPrENB1hNDceKyevn8Y0UY23vIlJKogKoOAV
-	 mdweaZvTaV73xdPNvzuLcSgBCkcKJinDpA+AFFif7FJFzPv/yP0eacNr7loyHWPJQl
-	 oDjSg5lytMZ5QZs3srGmQGs2aZnhiieWxGdijxV8InWTHYLEbMLD5nMB8zsJzQ7Y5/
-	 n6m5X6Og8JA73w+GsQKGuK+FDZc8VM+Pv/R0ANeQAPkMSUkS/Z7Crlwiferwk3j/aY
-	 bciFy1DVrMp5bQJF6IrE2GwiFytJBqVGnuxPc5FU5fznd5ZzC/Ro1XzYA9SknCnnqK
-	 nq4YmMAH6+QaA==
-From: Leon Romanovsky <leon@kernel.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Leon Romanovsky <leonro@nvidia.com>,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
-	Alexander Potapenko <glider@google.com>,
-	Alex Gaynor <alex.gaynor@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Christoph Hellwig <hch@lst.de>,
-	Danilo Krummrich <dakr@kernel.org>,
-	David Hildenbrand <david@redhat.com>,
-	iommu@lists.linux.dev,
-	Jason Wang <jasowang@redhat.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	Joerg Roedel <joro@8bytes.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Juergen Gross <jgross@suse.com>,
-	kasan-dev@googlegroups.com,
-	Keith Busch <kbusch@kernel.org>,
-	linux-block@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-nvme@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-trace-kernel@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	rust-for-linux@vger.kernel.org,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	virtualization@lists.linux.dev,
-	Will Deacon <will@kernel.org>,
-	xen-devel@lists.xenproject.org
-Subject: [PATCH v6 16/16] nvme-pci: unmap MMIO pages with appropriate interface
-Date: Tue,  9 Sep 2025 16:27:44 +0300
-Message-ID: <be35a070a883286f0e401f6746334d84a7a42612.1757423202.git.leonro@nvidia.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <cover.1757423202.git.leonro@nvidia.com>
-References: <cover.1757423202.git.leonro@nvidia.com>
+	s=k20201202; t=1757431792;
+	bh=gnSZ009TbhMPnnauveV95W6+WSVRAPHvvwU+16TjJ94=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=KLaoMygvQeudCxBCmlMph7ApSpewjTyman3XH1/JZcXGtVVtAHEBZ/FTaoiU9ORaG
+	 re6z6FAAZO7mODWhuQxPc4onh52rA/TpwyUuhTH7prclk2ylpHFFAwZISVIgaVkVea
+	 YhMZOihBDy4Cg9Kp8zlC06+1Nj9GrPIejXV+kJcw5HNTiCEI7SMr0ddtI+MadU9ktp
+	 guRfAmxhKTNkTrNjEywz2IcJPFz9SWvvadOJrcZ2y5YVS3ozlaE7vbaIRbQw4Wljco
+	 nDzLrYAKSeTnfFZk2ijXe2yNCXJVfIZpmr/IhYDc47u1MPNIfK2nw4mnMMXkvoPEOA
+	 8xJng89nq+iMw==
+Date: Tue, 9 Sep 2025 16:29:47 +0100
+From: Simon Horman <horms@kernel.org>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+	alex.williamson@redhat.com, virtualization@lists.linux.dev,
+	pabeni@redhat.com, parav@nvidia.com, shshitrit@nvidia.com,
+	yohadt@nvidia.com, Yishai Hadas <yishaih@nvidia.com>
+Subject: Re: [PATCH net-next v2 01/11] virtio-pci: Expose generic device
+ capability operations
+Message-ID: <20250909152947.GA20205@horms.kernel.org>
+References: <20250908164046.25051-1-danielj@nvidia.com>
+ <20250908164046.25051-2-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250908164046.25051-2-danielj@nvidia.com>
 
-From: Leon Romanovsky <leonro@nvidia.com>
+On Mon, Sep 08, 2025 at 11:40:36AM -0500, Daniel Jurgens wrote:
 
-Block layer maps MMIO memory through dma_map_phys() interface
-with help of DMA_ATTR_MMIO attribute. There is a need to unmap
-that memory with the appropriate unmap function, something which
-wasn't possible before adding new REQ attribute to block layer in
-previous patch.
+...
 
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
----
- drivers/nvme/host/pci.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index db31fc6f4f1f..a6e121b6f1f1 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -12,6 +12,7 @@
+>  #include <linux/dma-mapping.h>
+>  #include <linux/completion.h>
+>  #include <linux/virtio_features.h>
+> +#include <linux/virtio_admin.h>
+>  
+>  /**
+>   * struct virtqueue - a queue to register buffers for sending or receiving.
+> @@ -161,6 +162,7 @@ struct virtio_device {
+>  	struct virtio_device_id id;
+>  	const struct virtio_config_ops *config;
+>  	const struct vringh_config_ops *vringh_config;
+> +	const struct virtio_admin_ops *admin_ops;
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 2c6d9506b1725..f8ecc0e0f576d 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -682,11 +682,15 @@ static void nvme_free_prps(struct request *req)
- {
- 	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
- 	struct nvme_queue *nvmeq = req->mq_hctx->driver_data;
-+	unsigned int attrs = 0;
- 	unsigned int i;
- 
-+	if (req->cmd_flags & REQ_MMIO)
-+		attrs = DMA_ATTR_MMIO;
-+
- 	for (i = 0; i < iod->nr_dma_vecs; i++)
--		dma_unmap_page(nvmeq->dev->dev, iod->dma_vecs[i].addr,
--				iod->dma_vecs[i].len, rq_dma_dir(req));
-+		dma_unmap_phys(nvmeq->dev->dev, iod->dma_vecs[i].addr,
-+				iod->dma_vecs[i].len, rq_dma_dir(req), attrs);
- 	mempool_free(iod->dma_vecs, nvmeq->dev->dmavec_mempool);
- }
- 
-@@ -699,15 +703,19 @@ static void nvme_free_sgls(struct request *req)
- 	unsigned int sqe_dma_len = le32_to_cpu(iod->cmd.common.dptr.sgl.length);
- 	struct nvme_sgl_desc *sg_list = iod->descriptors[0];
- 	enum dma_data_direction dir = rq_dma_dir(req);
-+	unsigned int attrs = 0;
-+
-+	if (req->cmd_flags & REQ_MMIO)
-+		attrs = DMA_ATTR_MMIO;
- 
- 	if (iod->nr_descriptors) {
- 		unsigned int nr_entries = sqe_dma_len / sizeof(*sg_list), i;
- 
- 		for (i = 0; i < nr_entries; i++)
--			dma_unmap_page(dma_dev, le64_to_cpu(sg_list[i].addr),
--				le32_to_cpu(sg_list[i].length), dir);
-+			dma_unmap_phys(dma_dev, le64_to_cpu(sg_list[i].addr),
-+				le32_to_cpu(sg_list[i].length), dir, attrs);
- 	} else {
--		dma_unmap_page(dma_dev, sqe_dma_addr, sqe_dma_len, dir);
-+		dma_unmap_phys(dma_dev, sqe_dma_addr, sqe_dma_len, dir, attrs);
- 	}
- }
- 
--- 
-2.51.0
+nit: Please consider also adding admin_ops to the Kernel doc for
+     struct virtio_device.
 
+>  	struct list_head vqs;
+>  	VIRTIO_DECLARE_FEATURES(features);
+>  	void *priv;
+
+...
