@@ -1,172 +1,122 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79B302690F9
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Sep 2025 03:51:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 116522BD597;
+	Wed, 10 Sep 2025 05:26:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757476278; cv=none; b=KQ8YBKsfsCEbZ6klB3VrNh184Ly0bg+/vO7UMw2+8mc5xdkwW9FECxyruP0ICaIhokkPI++FLZ8UHhnG/0XBVW9ZFZP7tUYB4yuvh9AUO+G8R2sLAl6vsDYJRk3vrJCRdt+PfZOaiDYQIePdYmRmtt1iDxu5/ymIX6AEiY8cYQU=
+	t=1757481985; cv=none; b=EdzSlKwlzJ4cII89OePdM1PwGHtEk+6eOGtlDQKmOr4OJkKHXuIyOAm9MymoX6k6Xx9HHeQ1L4nhrHzJ//Q8s06OuYqsSTRr38/2b3bGFm++eZ5WqrSyFCOBcI2U165WktcfR+WZ8oewc1JkbZxhGDFutLBdVduC59XpsCa8Vic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757476278; c=relaxed/simple;
-	bh=qxZNqAZix6rwCEO0rBimeWyzxV2m1XdT0a7sLYWurxU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=AVoPjgsJrKf+ggYGzKl0Mq4l2da7+Vjszuf3zSKJNC/reup+ISdBhae4kxkNzGtBGnXCD+jgWMCbjekMAx/2kWewm11TVhb9mMbJ/4U9EX+PzQwvX62ICcyxBJyyYza+likPcqU4K2F4PHsZfC8mOcSOcWRqQOzKNvgEFRbqRg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=MibgBMdj; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1757481985; c=relaxed/simple;
+	bh=bqpgnX0YeaX4gP4gTelyGSzbrLPxwuSSl4ugIJkeFPI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Y0bZuDXiBB3zpTYlTt9cGuC8/jtS0DtM7Av7SJYIuIjzM4EHBmHGS8gtdgPoouGbq6cV5Nv8hPF11UaFGZcv2ZyBVfwFPqVeLbgR7KLMKwNjNaPKzAI9uWxfpU+L8l8zmHRyHKTDaixlZfwysql032l7FHDLsZVZVO/l7ZB6pNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W3++ctIi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="MibgBMdj"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F36104083C
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Sep 2025 03:51:15 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -6.491
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id X71kn6gEPze1 for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Sep 2025 03:51:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.168.131; helo=mx0a-0031df01.pphosted.com; envelope-from=quic_haixcui@quicinc.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org EAFE7403DA
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EAFE7403DA
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=quicinc.com header.i=@quicinc.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=MibgBMdj
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EAFE7403DA
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Sep 2025 03:51:14 +0000 (UTC)
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 589I0MBu002266;
-	Wed, 10 Sep 2025 03:51:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	D5mdBHAqEXHP7zlYREqKopUuLf7On5DXG2WXrZu8RVQ=; b=MibgBMdj2rnv/Is6
-	mCtkBK8uL5pTvQ+lYsBpOZON/O13aDYk0Was/mqg2/zgCkbnPtBY5ozOFLHu6385
-	qWGXKwEP36fPK6myZjZELLJHksMItWbKE4z7SoPBdY7fPKBNIFMSCpUbnUHI3KIy
-	SYjhFTIJXAU5b4Y8ixuSsXWaUbeljcAfFP+XZReezKrmSN3xRIKiVgGaTIjUmvGZ
-	mhpKOveXcFGjvX8alFDkOnneKA3D0WjWx8MOzTBsfzCqmgAY5u1uXDpFyRughY57
-	kyPUYqa0HuDQaWoybr0or/P8BALgeJV4Vji45ySka7HMkmKCs7YbtdVxcpxXuMcr
-	hqxXjA==
-Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 490dqg2ann-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Sep 2025 03:51:09 +0000 (GMT)
-Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 58A3p83a010036
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Sep 2025 03:51:08 GMT
-Received: from [10.239.105.140] (10.80.80.8) by nalasex01b.na.qualcomm.com
- (10.47.209.197) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1748.24; Tue, 9 Sep
- 2025 20:51:05 -0700
-Message-ID: <b9e9b4e5-7004-471b-a067-b6bacda2a0ca@quicinc.com>
-Date: Wed, 10 Sep 2025 11:51:03 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W3++ctIi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF34CC4CEF0;
+	Wed, 10 Sep 2025 05:26:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1757481983;
+	bh=bqpgnX0YeaX4gP4gTelyGSzbrLPxwuSSl4ugIJkeFPI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=W3++ctIiiR7UFpzqM9AUidv9AQ1n3Dz1tKeZadPk/293ETffI9nRLBp7aQx9AFled
+	 M5GCYM1B4a3jkkhLPVRESnUtwcqokI2ZK9ojJ1YPCMkJpjHT45Cl+QruyYKY3aGARs
+	 FpovID2F5xbpoec1xDhgC6MFSHIrXsB7JTzFkx6nfm41N+Pm3w/y/LnuGSrU2VRkhJ
+	 x7tt8kh1ACIrOtgalXRNyxNgQvord1Z8/t1JGvHRdIaRHxawPvJnDmdHHJxvC9RDqD
+	 RQiYwqXBRXcawbcju2eKP99VtdepUl8ofw/258NbTAl3BVZxhNFXZSkWH5N4CtNQIn
+	 DIZ8LyFL6amIQ==
+Date: Wed, 10 Sep 2025 08:26:18 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Alex Gaynor <alex.gaynor@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
+	David Hildenbrand <david@redhat.com>, iommu@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+	Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>,
+	Juergen Gross <jgross@suse.com>, kasan-dev@googlegroups.com,
+	Keith Busch <kbusch@kernel.org>, linux-block@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, linux-nvme@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, linux-trace-kernel@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v6 03/16] dma-debug: refactor to use physical addresses
+ for page mapping
+Message-ID: <20250910052618.GH341237@unreal>
+References: <cover.1757423202.git.leonro@nvidia.com>
+ <56d1a6769b68dfcbf8b26a75a7329aeb8e3c3b6a.1757423202.git.leonro@nvidia.com>
+ <20250909193748.GG341237@unreal>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 3/3] SPI: Add virtio SPI driver
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-CC: <harald.mommer@oss.qualcomm.com>, <quic_msavaliy@quicinc.com>,
-        <broonie@kernel.org>, <virtio-dev@lists.linux.dev>,
-        <viresh.kumar@linaro.org>, <linux-spi@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <hdanton@sina.com>,
-        <qiang4.zhang@linux.intel.com>, <alex.bennee@linaro.org>,
-        <quic_ztu@quicinc.com>, <virtualization@lists.linux-foundation.org>
-References: <20250828093451.2401448-1-quic_haixcui@quicinc.com>
- <20250828093451.2401448-4-quic_haixcui@quicinc.com>
- <aLWMZH3NTfM8qOUy@smile.fi.intel.com>
- <5dcabe90-c25b-4af5-b51f-5cda7113b5f4@quicinc.com>
- <aLgYLS6Lr5O2cIhK@smile.fi.intel.com>
-Content-Language: en-US
-From: Haixu Cui <quic_haixcui@quicinc.com>
-In-Reply-To: <aLgYLS6Lr5O2cIhK@smile.fi.intel.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01b.na.qualcomm.com (10.47.209.197)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: t34zmPoYWIF5cJKlrOhIOy2qKnYExiFs
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDAzNSBTYWx0ZWRfX9z2qHvHq5kR5
- wqw9Z65HogeBamBnVnLn1mXtaqVt09thac5Td7IMssI1Grq+LdvG5AIXoxZ4mlZUqBHkqb/UdZE
- 2f7BxaGzUdzX72XGGPpPac6lmm4Zb6CYR5pM6s3iRUh30EbWdJnag6mMf5G7YJiCLbT0hgiUX5r
- le1+/0ovkTOqnmsmedqp5mKDX8F+cUDgb+QihfNmhwFKuBT4KKHyQmV2rLU+0mUOVlz786Yagbi
- jMrZin/Ot9WKAZkQKq2rmpQmzD438i4RQUtgK2BJwTmt7GzSn17C+6UMeuYmhobXrLQ4cueMuvN
- DJwcViw8nyu/CG27gF98L22fJF3gf6ZyJDZfarjjO6FYSdIWfM57737TEEZLqmO36LC8cJCwJEL
- t4rz8Vph
-X-Proofpoint-GUID: t34zmPoYWIF5cJKlrOhIOy2qKnYExiFs
-X-Authority-Analysis: v=2.4 cv=N8UpF39B c=1 sm=1 tr=0 ts=68c0f5ad cx=c_pps
- a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
- a=GEpy-HfZoHoA:10 a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=4kCC11VFAAAA:8
- a=FwAf4IJFFU_psRvsp1cA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=i1DTqe_zuw-yvs4WsNz6:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-09_03,2025-09-08_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 spamscore=0 malwarescore=0 clxscore=1015 bulkscore=0
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060035
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250909193748.GG341237@unreal>
 
-
-
-On 9/3/2025 6:27 PM, Andy Shevchenko wrote:
-> On Wed, Sep 03, 2025 at 05:04:46PM +0800, Haixu Cui wrote:
->> On 9/1/2025 8:07 PM, Andy Shevchenko wrote:
->>> On Thu, Aug 28, 2025 at 05:34:51PM +0800, Haixu Cui wrote:
->>>> This is the virtio SPI Linux kernel driver.
+On Tue, Sep 09, 2025 at 10:37:48PM +0300, Leon Romanovsky wrote:
+> On Tue, Sep 09, 2025 at 04:27:31PM +0300, Leon Romanovsky wrote:
+> > From: Leon Romanovsky <leonro@nvidia.com>
 > 
-> ...
+> <...>
 > 
->>>> +#include <linux/completion.h>
->>>> +#include <linux/interrupt.h>
->>>> +#include <linux/io.h>
->>>> +#include <linux/module.h>
->>>> +#include <linux/spi/spi.h>
->>>> +#include <linux/stddef.h>
->>>
->>> A lot of headers are still missing. See below.
->>
->> This driver compiles successfully, and I believe all required definitions
->> are resolved through indirect inclusion. For example, since I included
->> virtio.h, there is no need to explicitly include device.h, scatterlist.h or
->> types.h.
->>
->> I avoided redundant #includes to keep the code clean and minimal.
->>
->> If there are any essential headers I’ve overlooked, please feel free to
->> highlight them—I’ll gladly include them in the next revision.
+> >  include/linux/page-flags.h         |  1 +
 > 
-> The rationale is described on https://include-what-you-use.org/.
+> <...>
 > 
+> > --- a/include/linux/page-flags.h
+> > +++ b/include/linux/page-flags.h
+> > @@ -614,6 +614,7 @@ FOLIO_FLAG(dropbehind, FOLIO_HEAD_PAGE)
+> >   * available at this point.
+> >   */
+> >  #define PageHighMem(__p) is_highmem_idx(page_zonenum(__p))
+> > +#define PhysHighMem(__p) (PageHighMem(phys_to_page(__p)))
+> 
+> This was a not so great idea to add PhysHighMem() because of "else"
+> below which unfolds to maze of macros and automatically generated
+> functions with "static inline int Page##uname ..." signature.
+> 
+> >  #define folio_test_highmem(__f)	is_highmem_idx(folio_zonenum(__f))
+> >  #else
+> >  PAGEFLAG_FALSE(HighMem, highmem)
 
-Hi Andy,
+After sleeping over it, the following hunk will help:
 
-Thanks for your feedback and for pointing me to the iwyu guidelines.
+diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+index dfbc4ba86bba2..2a1f346178024 100644
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -614,11 +614,11 @@ FOLIO_FLAG(dropbehind, FOLIO_HEAD_PAGE)
+  * available at this point.
+  */
+ #define PageHighMem(__p) is_highmem_idx(page_zonenum(__p))
+-#define PhysHighMem(__p) (PageHighMem(phys_to_page(__p)))
+ #define folio_test_highmem(__f)        is_highmem_idx(folio_zonenum(__f))
+ #else
+ PAGEFLAG_FALSE(HighMem, highmem)
+ #endif
++#define PhysHighMem(__p) (PageHighMem(phys_to_page(__p)))
 
-I've experimented with the iwyu tool, and while for spi-virtio.c I 
-noticed that it recommends header that is not directly to the code - 
-such as vdso/cache.h - and occasionally suggests re-include header like 
-linux/spi/spi.h that is already present.
-
-iwyu is a power tool expecially in application-level development for C++ 
-projects where header dependencies are more straightforward. However it 
-seems iwyu may not yet be fully suited for analyzing Linux kernel due to 
-its complexity and conditional inclusions.
-
-Additionally, I’ve verified that the driver compiles successfully with 
-both gcc and clang, which indicates that all required definitions are 
-either directly or indirectly resolved.
-
-I appreciate your guidance and will continue to refine the patch with 
-clarity and maintainability in mind.
-
-Best Regards
-haixu Cui
+ /* Does kmap_local_folio() only allow access to one page of the folio? */
+ #ifdef CONFIG_DEBUG_KMAP_LOCAL_FORCE_MAP
 
 
+> 
+> Thanks
+> 
