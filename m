@@ -1,284 +1,264 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C548824E4A1
-	for <virtualization@lists.linux.dev>; Thu, 11 Sep 2025 05:55:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8893261B8F
+	for <virtualization@lists.linux.dev>; Thu, 11 Sep 2025 06:34:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757570128; cv=none; b=S0DE7rHYXqmS5RJKSeOpPekGQtecmAvDO6l2VPWzeyVVM+46Bil/s8uEC9TGlGp+LCAT0mCpmC9zoHU8R8/meGVCHse40bjJ/yKxxW4dHtNpFpmqeRfYkIUCuh7WQIriSnZ6qzMMi4/QTICPvL5qjZi4yUD7HOdgmLHFVmxDWwQ=
+	t=1757572485; cv=none; b=HDqsgL54xqvvY2nHMgZRjp6bdPqzoPUTMV306G6oue3ICdpPU+4WvGtL38hvG33iVm4JEKiZ2900yxG2Jv1oTnAd3yHvmyaoddvLxP7c1A6YK3FJWUS6WMwYOicRAtGuslOVGpCxpzup3wds5fZR04opPbns3gR5B8hIsIGRDpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757570128; c=relaxed/simple;
-	bh=mNHP6MXt9vN9o9ikHq5g/ltKh1nvHlZyPrTcLGsaxxo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ef3NgK0stVuXt0pAFgpKaIScYAJVmDUDItDDRoTPYMwJwFGeqCKBtnJXbjXsw7z+/qt/f/OE0snh9bvifksjp2O3MvG92mdmI5gawotCuCapcfpMnv7Vnqhug0j2tB4bSEQ5A+MLHQ5SEM6DLLbe6CkmgA5GHFHEeCh6P3qvyXU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PW/DlNcP; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1757572485; c=relaxed/simple;
+	bh=z3B4DnJ6BUemzSAuWstjMH0mpHPwT5klWHL5AO+gu9w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Dq9k14wTUE5WOT5U7m6EpxojSee4/aa1YTzjCIMjHpEjiZYG598thEbVGw9QnYfdDe9Bl0U8tEah9LkSROj12vwVon6x/606ommcBx9ZdzxGPR/pFiXLu+7fUe4y5UCBltOR5M7oCXuSNRvyNAbcyLLP6W9frzXmXaUEOz8NnPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=Rb52kiLt; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=Rb52kiLt; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PW/DlNcP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1757570125;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vUb1wP8Iv2Mt/bu6aB3BX3ZLO+y4xLVnPTi/IdbBWMU=;
-	b=PW/DlNcPQzb2IA2kFE0cpMvtiytf5quJrh19359rwHhW1BOiNzEm5Id9gouXRGm35a4Zlq
-	5LUUtNCdLtyPQ7cgX+7jHL0kswhLqO4UAGi+diOP3pulsldDjBIgLcCAR9/3Pv8+vOb3tp
-	c+uh3xzcKRwrLkaATdcZ45drYa7bsh0=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-533-tc_maWtgMn67vahrkqRQNA-1; Thu, 11 Sep 2025 01:55:24 -0400
-X-MC-Unique: tc_maWtgMn67vahrkqRQNA-1
-X-Mimecast-MFC-AGG-ID: tc_maWtgMn67vahrkqRQNA_1757570123
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3e5190bcba1so258589f8f.2
-        for <virtualization@lists.linux.dev>; Wed, 10 Sep 2025 22:55:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757570123; x=1758174923;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vUb1wP8Iv2Mt/bu6aB3BX3ZLO+y4xLVnPTi/IdbBWMU=;
-        b=aCF5RDDW/nrsdNAgtUPsu+BgSydWVINeofvyJJ62RAv4toba9iuUZqmCmSMXx2LMwS
-         whXlNp2XUfZvWd3IJ6a4WCuJueC5YtKeyRpou3lgCpQeaLD0tWNeqnDWTrL6aN/llpgq
-         Q8lpNYFf0064e6eNz/A08xsIDtkgVqx70TCQai7w8qiVI9UDkyUovIxTm1lwK7ALu/ql
-         fB6/e4dJYVXwbXgqcEq/CpdW7yqo5T36rQcUc5Smc/D+geOiGUUi6Xelf/aI/p7BDpF6
-         VxhmXKsNiymvJUJJGmi7Lw6yTQ0PFuoK3Nm2RjVnJ8OLueOs5A8TIztDmTO9yXuBIJQ2
-         Zlaw==
-X-Forwarded-Encrypted: i=1; AJvYcCWbqdL/mRwd6UowA8N72QeHf0Rv4wLkt5MOP1ap2f0aw7I9FYBqHfd2SloM7tfjDoH94FotmdV0MSuzPRXA4Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzWg9DLNUhXUEybSRsXKMWHPneoMwNeNrj+ZJpVhYRQuJSZuAH2
-	mBjPX/zf1+IZb04/mGnVn/G6Va3t1q68HMshu2RdciQ7P2TdTrQbc2TwPzO3nHcoVJoR3/9fZqb
-	ssohfeuNNusEdfX4w0gnDRxJnXOX9dP7VDvPMFull7Cw3Fl/f9eLrdOii1f/VjwVumbSw
-X-Gm-Gg: ASbGncu5W1s6dtT8XPJmsiVXihbqpwy9mWADPNZi8IZAGVVCQK/cSBPilhVzJDHB/tM
-	PrMAqaPAO89a6kzZnlKUlxpH3KwSlHV5TVRVhNeWuXFujaRdHBNxFWfVpzJ9KRBhApPFuJM2+lt
-	McPGd1YC9ShS2VD5aqyhRCp3EYmSvTT49gHZTsCpcOhoWKZCUXN1/OvKZuSjJAknt2Pl40E44jA
-	1cBpMe29ZexiW6CD/+BC7zEMHdA2fMQuiR2ecFr93U5PX6Zs9MkGwuv8TnIZdrEYqqEJVNjBe8r
-	+Qwo3vC1tIQE5j1n8Ukx1rPsh509U3n9
-X-Received: by 2002:a05:6000:40cb:b0:3d3:8711:d94a with SMTP id ffacd0b85a97d-3e643180428mr17207974f8f.25.1757570122762;
-        Wed, 10 Sep 2025 22:55:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHz1OkB6rD5+wTQzJJvUMeB+/O8jVdfVC+aUmnmqhoqHG3cXBouNg/JKCu5m83YlZK3qiFckg==
-X-Received: by 2002:a05:6000:40cb:b0:3d3:8711:d94a with SMTP id ffacd0b85a97d-3e643180428mr17207960f8f.25.1757570122315;
-        Wed, 10 Sep 2025 22:55:22 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1536:c800:2952:74e:d261:8021])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3e760775842sm1070530f8f.7.2025.09.10.22.55.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Sep 2025 22:55:21 -0700 (PDT)
-Date: Thu, 11 Sep 2025 01:55:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jon Kohler <jon@nutanix.com>,
-	"patchwork-bot+netdevbpf@kernel.org" <patchwork-bot+netdevbpf@kernel.org>,
-	"eperezma@redhat.com" <eperezma@redhat.com>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: vhost_iotlb_miss tight loop lockup - RE vhost/net: Defer TX
- queue re-enable until after sendmsg
-Message-ID: <20250911015109-mutt-send-email-mst@kernel.org>
-References: <20250501020428.1889162-1-jon@nutanix.com>
- <174649563599.1007977.10317536057166889809.git-patchwork-notify@kernel.org>
- <154EA998-3FBB-41E9-B07E-4841B027B1B5@nutanix.com>
- <20250910155110-mutt-send-email-mst@kernel.org>
- <CACGkMEvggRncZegemhR9fnkRDGJh1G3jgjycDG0ZX8RKg2-X-Q@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Rb52kiLt";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Rb52kiLt"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 5E2A8683E8;
+	Thu, 11 Sep 2025 06:34:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1757572479; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Lfr1qPpuiB3AOwPU0ZFjKKYSXrWZllg4AtF3tp+3Wzs=;
+	b=Rb52kiLtTg3v2u9zgMn3NUgzc+I9t7goexfTSG/6vAd6CFqdCGPPMNDDYCobdCdyrq5sS4
+	THsDzUD4UF4y2fXBlIeYIVCPmZLL7CdaqepqR8WgmiYxUf4btn7G6HEQab08I1KrGeDcGm
+	nmUC3Xv4HYwAo2tomf/WXQlFMXA6O8w=
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1757572479; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Lfr1qPpuiB3AOwPU0ZFjKKYSXrWZllg4AtF3tp+3Wzs=;
+	b=Rb52kiLtTg3v2u9zgMn3NUgzc+I9t7goexfTSG/6vAd6CFqdCGPPMNDDYCobdCdyrq5sS4
+	THsDzUD4UF4y2fXBlIeYIVCPmZLL7CdaqepqR8WgmiYxUf4btn7G6HEQab08I1KrGeDcGm
+	nmUC3Xv4HYwAo2tomf/WXQlFMXA6O8w=
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 773761372E;
+	Thu, 11 Sep 2025 06:34:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id KsszG31twmjuTAAAD6G6ig
+	(envelope-from <jgross@suse.com>); Thu, 11 Sep 2025 06:34:37 +0000
+From: Juergen Gross <jgross@suse.com>
+To: linux-kernel@vger.kernel.org,
+	x86@kernel.org,
+	linux-hyperv@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	kvm@vger.kernel.org
+Cc: Juergen Gross <jgross@suse.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Will Deacon <will@kernel.org>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Waiman Long <longman@redhat.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	xen-devel@lists.xenproject.org,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ben Segall <bsegall@google.com>,
+	Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 00/14] paravirt: cleanup and reorg
+Date: Thu, 11 Sep 2025 08:34:19 +0200
+Message-ID: <20250911063433.13783-1-jgross@suse.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvggRncZegemhR9fnkRDGJh1G3jgjycDG0ZX8RKg2-X-Q@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vV2K1K6tkDpgGttYXOkWDQMxy59mcpPmwrkHT6nO8ng_1757570123
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-1.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_COUNT_TWO(0.00)[2];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FREEMAIL_CC(0.00)[suse.com,kernel.org,linutronix.de,redhat.com,alien8.de,linux.intel.com,zytor.com,microsoft.com,infradead.org,gmail.com,oracle.com,lists.xenproject.org,broadcom.com,armlinux.org.uk,arm.com,xen0n.name,linux.ibm.com,ellerman.id.au,csgroup.eu,sifive.com,dabbelt.com,eecs.berkeley.edu,ghiti.fr,linaro.org,goodmis.org,google.com,suse.de,lists.infradead.org,epam.com];
+	TO_DN_SOME(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_TLS_ALL(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:mid];
+	RCPT_COUNT_GT_50(0.00)[56];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Spam-Score: -1.30
 
-On Thu, Sep 11, 2025 at 01:49:05PM +0800, Jason Wang wrote:
-> On Thu, Sep 11, 2025 at 4:11 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Sep 10, 2025 at 06:58:18PM +0000, Jon Kohler wrote:
-> > >
-> > >
-> > > > On May 5, 2025, at 9:40 PM, patchwork-bot+netdevbpf@kernel.org wrote:
-> > > >
-> > > > Hello:
-> > > >
-> > > > This patch was applied to netdev/net-next.git (main)
-> > > > by Jakub Kicinski <kuba@kernel.org>:
-> > >
-> > > Hey all,
-> > > Writing to fire up a flare and point out a problem that we’re seeing
-> > > with this patch internally, specifically when we enable iommu on the
-> > > virtio-net device.
-> > >
-> > > With this patch applied on 6.12.y-based bare metal instance and then
-> > > starting a 6.12.y based guest with iommu enabled, we see lockups
-> > > within the guest in short order, as well as vmm (qemu) stuck in a tight
-> > > loop responding to iommu misses from vhost net loop.
-> > >
-> > > We've bisected this in our internal tree, and for sure it is this
-> > > patch that is alledgedly causing the problem, so I wanted to point out
-> > > there is some sort of issue here.
-> > >
-> > > Working on trying to figure this out, but if jumps off the page to
-> > > anyone, happy to take advice!
-> > >
-> > > Flamegraph:
-> > > https://gist.github.com/JonKohler/0e83c014230ab59ddc950f10441335f1#file-iotlb-lockup-svg
-> > >
-> > > Guest dmesg errors like so:
-> > > [   66.081694] virtio_net virtio0 eth0: NETDEV WATCHDOG: CPU: 1: transmit queue 0 timed out 5500 ms
-> > > [   68.145155] virtio_net virtio0 eth0: TX timeout on queue: 0, sq: output.0, vq: 0x1, name: output.0, 7560000 usecs ago
-> > > [  112.907012] virtio_net virtio0 eth0: NETDEV WATCHDOG: CPU: 1: transmit queue 0 timed out 5568 ms
-> > > [  124.117540] virtio_net virtio0 eth0: TX timeout on queue: 0, sq: output.0, vq: 0x1, name: output.0, 16776000 usecs ago
-> > > [  124.118050] virtio_net virtio0 eth0: NETDEV WATCHDOG: CPU: 1: transmit queue 0 timed out 16776 ms
-> > > [  124.118447] virtio_net virtio0 eth0: TX timeout on queue: 0, sq: output.0, vq: 0x1, name: output.0, 16776000 usecs ago
-> > >
-> > > Host level top output
-> > > 3992758 qemu      20   0   16.6g  52168  26704 R  99.9   0.0  21:23.72 qemu-kvm       <<< this is the qemu main thread
-> > > 3992769 qemu      20   0   16.6g  52168  26704 R  58.8   0.0  13:33.44 vhost-3992758 <<< this is the vhost-net kthread
-> > >
-> > > For qemu-kvm main thread:
-> > > Samples: 13K of event 'cycles:P', 4000 Hz, Event count (approx.): 5131922583 lost: 0/0 drop: 0/0
-> > >   Children      Self  Shared Object     Symbol
-> > > -   87.41%     0.30%  [kernel]          [k] entry_SYSCALL_64_after_hwframe
-> > >    - 87.11% entry_SYSCALL_64_after_hwframe
-> > >       - do_syscall_64
-> > >          - 44.79% ksys_write
-> > >             - 43.74% vfs_write
-> > >                - 40.96% vhost_chr_write_iter
-> > >                   - 38.22% vhost_process_iotlb_msg
-> > >                      - 13.72% vhost_iotlb_add_range_ctx
-> > >                         - 7.43% vhost_iotlb_map_free
-> > >                            - 4.37% vhost_iotlb_itree_remove
-> > >                                 rb_next
-> > >                              1.78% __rb_erase_color
-> > >                              0.73% kfree
-> > >                           1.15% __rb_insert_augmented
-> > >                           0.68% __kmalloc_cache_noprof
-> > >                      - 10.73% vhost_vq_work_queue
-> > >                         - 7.65% try_to_wake_up
-> > >                            - 2.55% ttwu_queue_wakelist
-> > >                               - 1.72% __smp_call_single_queue
-> > >                                    1.36% call_function_single_prep_ipi
-> > >                            - 1.32% __task_rq_lock
-> > >                               - _raw_spin_lock
-> > >                                    native_queued_spin_lock_slowpath
-> > >                            - 1.30% select_task_rq
-> > >                               - select_task_rq_fair
-> > >                                  - 0.88% wake_affine
-> > >                                       available_idle_cpu
-> > >                           2.06% llist_add_batch
-> > >                      - 4.05% __mutex_lock.constprop.0
-> > >                           2.14% mutex_spin_on_owner
-> > >                           0.72% osq_lock
-> > >                        3.00% mutex_lock
-> > >                      - 1.72% kfree
-> > >                         - 1.16% __slab_free
-> > >                              slab_update_freelist.constprop.0.isra.0
-> > >                        1.37% _raw_spin_lock
-> > >                        1.08% mutex_unlock
-> > >                     1.98% _copy_from_iter
-> > >                - 1.86% rw_verify_area
-> > >                   - security_file_permission
-> > >                      - 1.13% file_has_perm
-> > >                           0.69% avc_has_perm
-> > >               0.63% fdget_pos
-> > >          - 27.86% syscall_exit_to_user_mode
-> > >             - syscall_exit_to_user_mode_prepare
-> > >                - 25.96% __audit_syscall_exit
-> > >                   - 25.03% __audit_filter_op
-> > >                        6.66% audit_filter_rules.constprop.0
-> > >                  1.27% audit_reset_context.part.0.constprop.0
-> > >          - 10.86% ksys_read
-> > >             - 9.37% vfs_read
-> > >                - 6.67% vhost_chr_read_iter
-> > >                     1.48% _copy_to_iter
-> > >                     1.36% _raw_spin_lock
-> > >                   - 1.30% __wake_up
-> > >                        0.81% _raw_spin_lock_irqsave
-> > >                   - 1.25% vhost_enqueue_msg
-> > >                        _raw_spin_lock
-> > >                - 1.83% rw_verify_area
-> > >                   - security_file_permission
-> > >                      - 1.03% file_has_perm
-> > >                           0.64% avc_has_perm
-> > >               0.65% fdget_pos
-> > >               0.57% fput
-> > >          - 2.56% syscall_trace_enter
-> > >             - 1.25% __seccomp_filter
-> > >                  seccomp_run_filters
-> > >               0.54% __audit_syscall_entry
-> > >
-> > > vhost-net thread
-> > > Samples: 20K of event 'cycles:P', 4000 Hz, Event count (approx.): 7796456297 lost: 0/0 drop: 0/0
-> > >   Children      Self  Shared Object     Symbol
-> > > -  100.00%     3.38%  [kernel]          [k] vhost_task_fn
-> > >      38.26% 0xffffffff930bb8c0
-> > >    - 3.36% 0
-> > >         ret_from_fork_asm
-> > >         ret_from_fork
-> > >    - 1.16% vhost_task_fn
-> > >       - 2.35% vhost_run_work_list
-> > >          - 1.67% handle_tx
-> > >             - 7.09% __mutex_lock.constprop.0
-> > >                  6.64% mutex_spin_on_owner
-> > >             - 0.84% vq_meta_prefetch
-> > >                - 3.22% iotlb_access_ok
-> > >                     2.50% vhost_iotlb_itree_first
-> > >               0.80% mutex_lock
-> > >             - 0.75% handle_tx_copy
-> > >            0.86% llist_reverse_order
-> > >
-> > > >
-> > > > On Wed, 30 Apr 2025 19:04:28 -0700 you wrote:
-> > > >> In handle_tx_copy, TX batching processes packets below ~PAGE_SIZE and
-> > > >> batches up to 64 messages before calling sock->sendmsg.
-> > > >>
-> > > >> Currently, when there are no more messages on the ring to dequeue,
-> > > >> handle_tx_copy re-enables kicks on the ring *before* firing off the
-> > > >> batch sendmsg. However, sock->sendmsg incurs a non-zero delay,
-> > > >> especially if it needs to wake up a thread (e.g., another vhost worker).
-> > > >>
-> > > >> [...]
-> > > >
-> > > > Here is the summary with links:
-> > > >  - [net-next,v3] vhost/net: Defer TX queue re-enable until after sendmsg
-> > > >    https://urldefense.proofpoint.com/v2/url?u=https-3A__git.kernel.org_netdev_net-2Dnext_c_8c2e6b26ffe2&d=DwIDaQ&c=s883GpUCOChKOHiocYtGcg&r=NGPRGGo37mQiSXgHKm5rCQ&m=0XoR6N9VbkaJ_wBENy8Z28uDdqjCe4HRNCyV-8o4etqXeEJOqoFFGjeGGP5sQcmt&s=-X8si_rU8pXKNyWNNzBqx5Fmv-ut9w2gS5E6coMDApM&e=
-> > > >
-> > > > You are awesome, thank you!
-> > > > --
-> > > > Deet-doot-dot, I am a bot.
-> > > > https://urldefense.proofpoint.com/v2/url?u=https-3A__korg.docs.kernel.org_patchwork_pwbot.html&d=DwIDaQ&c=s883GpUCOChKOHiocYtGcg&r=NGPRGGo37mQiSXgHKm5rCQ&m=0XoR6N9VbkaJ_wBENy8Z28uDdqjCe4HRNCyV-8o4etqXeEJOqoFFGjeGGP5sQcmt&s=sydedZsBCMSJM9_Ldw6Al-BplvM7FokLwV_80bJpGnM&e=
-> > > >
-> > > >
-> > >
-> >
-> >
-> > Well it seems that if  get_tx_bufs failed with -EAGAIN then we
-> > previously bailed out, but now we will redo poll and so on, forever.
-> 
-> Something like this, the vhost_vq_avail_empty() will cause the
-> vhost_poll_queue() to be queued in this case.
-> 
-> Let me post a patch to fix that.
-> 
-> Thanks
+Some cleanups and reorg of paravirt code and headers:
 
+- The first 2 patches should be not controversial at all, as they
+  remove just some no longer needed #include and struct forward
+  declarations.
 
-To add to that, busyloop_intr getting set is now ignored except in
-the last loop, which also doesn't look nice but not a bug, strickly
-speaking.
+- The 3rd patch is removing CONFIG_PARAVIRT_DEBUG, which IMO has
+  no real value, as it just changes a crash to a BUG() (the stack
+  trace will basically be the same). As the maintainer of the main
+  paravirt user (Xen) I have never seen this crash/BUG() to happen.
 
-> >
-> >
-> > No?
-> >
-> >
-> > --
-> > MST
-> >
+- The 4th patch is just a movement of code.
+
+- I don't know for what reason asm/paravirt_api_clock.h was added,
+  as all archs supporting it do it exactly in the same way. Patch
+  5 is removing it.
+
+- Patches 6-12 are streamlining the paravirt clock interfaces by
+  using a common implementation across architectures where possible
+  and by moving the related code into common sched code, as this is
+  where it should live.
+
+- Patches 13+14 are more like RFC material: patch 13 is doing some
+  preparation work to enable patch 14 to move all spinlock related
+  paravirt functions into qspinlock.h. If this approach is accepted,
+  I'd like to continue with this work by moving most (or all?)
+  paravirt functions from paravirt.h into the headers where their
+  native counterparts are defined. This is meant to keep the native
+  and paravirt function definitions together in one place and
+  hopefully to be able to reduce the include hell with paravirt.
+
+Juergen Gross (14):
+  x86/paravirt: remove not needed includes of paravirt.h
+  x86/paravirt: remove some unneeded struct declarations
+  x86/paravirt: remove PARAVIRT_DEBUG config option
+  x86/paravirt: move thunk macros to paravirt_types.h
+  paravirt: remove asm/paravirt_api_clock.h
+  sched: move clock related paravirt code to kernel/sched
+  arm/paravirt: use common code for paravirt_steal_clock()
+  arm64/paravirt: use common code for paravirt_steal_clock()
+  loongarch/paravirt: use common code for paravirt_steal_clock()
+  riscv/paravirt: use common code for paravirt_steal_clock()
+  x86/paravirt: use common code for paravirt_steal_clock()
+  x86/paravirt: move paravirt_sched_clock() related code into tsc.c
+  x86/paravirt: allow pv-calls outside paravirt.h
+  x86/pvlocks: move paravirt spinlock functions into qspinlock.h
+
+ arch/Kconfig                                  |   3 +
+ arch/arm/Kconfig                              |   1 +
+ arch/arm/include/asm/paravirt.h               |  22 ---
+ arch/arm/include/asm/paravirt_api_clock.h     |   1 -
+ arch/arm/kernel/Makefile                      |   1 -
+ arch/arm/kernel/paravirt.c                    |  23 ---
+ arch/arm64/Kconfig                            |   1 +
+ arch/arm64/include/asm/paravirt.h             |  14 --
+ arch/arm64/include/asm/paravirt_api_clock.h   |   1 -
+ arch/arm64/kernel/paravirt.c                  |  11 +-
+ arch/loongarch/Kconfig                        |   1 +
+ arch/loongarch/include/asm/paravirt.h         |  13 --
+ .../include/asm/paravirt_api_clock.h          |   1 -
+ arch/loongarch/kernel/paravirt.c              |  10 +-
+ arch/powerpc/include/asm/paravirt.h           |   3 -
+ arch/powerpc/include/asm/paravirt_api_clock.h |   2 -
+ arch/powerpc/platforms/pseries/setup.c        |   4 +-
+ arch/riscv/Kconfig                            |   1 +
+ arch/riscv/include/asm/paravirt.h             |  14 --
+ arch/riscv/include/asm/paravirt_api_clock.h   |   1 -
+ arch/riscv/kernel/paravirt.c                  |  11 +-
+ arch/x86/Kconfig                              |   8 +-
+ arch/x86/entry/entry_64.S                     |   1 -
+ arch/x86/entry/vsyscall/vsyscall_64.c         |   1 -
+ arch/x86/hyperv/hv_spinlock.c                 |   1 -
+ arch/x86/include/asm/apic.h                   |   4 -
+ arch/x86/include/asm/highmem.h                |   1 -
+ arch/x86/include/asm/mmu_context.h            |   1 -
+ arch/x86/include/asm/mshyperv.h               |   1 -
+ arch/x86/include/asm/paravirt.h               | 166 ------------------
+ arch/x86/include/asm/paravirt_api_clock.h     |   1 -
+ arch/x86/include/asm/paravirt_types.h         |  82 +++++++--
+ arch/x86/include/asm/pgtable_32.h             |   1 -
+ arch/x86/include/asm/qspinlock.h              |  49 +++++-
+ arch/x86/include/asm/spinlock.h               |   1 -
+ arch/x86/include/asm/timer.h                  |   1 +
+ arch/x86/include/asm/tlbflush.h               |   4 -
+ arch/x86/kernel/apm_32.c                      |   1 -
+ arch/x86/kernel/callthunks.c                  |   1 -
+ arch/x86/kernel/cpu/bugs.c                    |   1 -
+ arch/x86/kernel/cpu/vmware.c                  |   1 +
+ arch/x86/kernel/kvm.c                         |   1 +
+ arch/x86/kernel/kvmclock.c                    |   1 +
+ arch/x86/kernel/paravirt.c                    |  16 --
+ arch/x86/kernel/tsc.c                         |  10 +-
+ arch/x86/kernel/vsmp_64.c                     |   1 -
+ arch/x86/kernel/x86_init.c                    |   1 -
+ arch/x86/lib/cache-smp.c                      |   1 -
+ arch/x86/mm/init.c                            |   1 -
+ arch/x86/xen/spinlock.c                       |   1 -
+ arch/x86/xen/time.c                           |   2 +
+ drivers/clocksource/hyperv_timer.c            |   2 +
+ drivers/xen/time.c                            |   2 +-
+ include/linux/sched/cputime.h                 |  18 ++
+ kernel/sched/core.c                           |   5 +
+ kernel/sched/cputime.c                        |  13 ++
+ kernel/sched/sched.h                          |   3 +-
+ 57 files changed, 182 insertions(+), 362 deletions(-)
+ delete mode 100644 arch/arm/include/asm/paravirt.h
+ delete mode 100644 arch/arm/include/asm/paravirt_api_clock.h
+ delete mode 100644 arch/arm/kernel/paravirt.c
+ delete mode 100644 arch/arm64/include/asm/paravirt_api_clock.h
+ delete mode 100644 arch/loongarch/include/asm/paravirt_api_clock.h
+ delete mode 100644 arch/powerpc/include/asm/paravirt_api_clock.h
+ delete mode 100644 arch/riscv/include/asm/paravirt_api_clock.h
+ delete mode 100644 arch/x86/include/asm/paravirt_api_clock.h
+
+-- 
+2.51.0
 
