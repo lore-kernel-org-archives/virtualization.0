@@ -1,210 +1,133 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A94FF273D7B
-	for <virtualization@lists.linux.dev>; Fri, 12 Sep 2025 08:32:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E5B22D0614
+	for <virtualization@lists.linux.dev>; Fri, 12 Sep 2025 08:40:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757665971; cv=none; b=NSfnMTiybXbz3oocZCl/8D2/eB7jWNNTbPmqXCi4JOfPeKTH1XscfRZokOeXHTOcFNW+OwRo4tTZW1ny27NjLeoLIVFmmlPxM+IshimyqSfrKIHzLvvpyPMUionWEed3igIcNhQLkehA3F87mVJEPiupV10p/OA3QzPCTFGv4Dc=
+	t=1757666446; cv=none; b=CvRzFvNNW8x4rKNaC6RFtFCLaBDyd97FQsWb1qKhY1QHxSjo+20PBD3AzOy6Z7tgw7zOj9wmD73ojFhvZlFWHQxIS5S2tBlJcOea+F2QSAcy81QKKa+z88kop4kBn/PBD1WvCtRiXpu9buW7eJ6q6MgOOKnGSYsKinexcn9i24E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757665971; c=relaxed/simple;
-	bh=LipYxOUh3mZhOquz2ghmpDRHwnWmjxQ7Y1qMaDoBYyY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jiZd+Z7RyHWgWPVMZa0w5yWEUWogcraWGOqo1/waaMuOurQll1JdjZqkT15DYlL1jF5doaRkheal2ZgjKJjsJG+2FPPKxC8zoDJ2mpEmEySB/kbblbPmDPCTnseacVOrsh3wC0YA+QzyGCB2K/Xa57aXzUjaohF6XUl33tHZaoY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=NzGZs2Va; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=IJRvEf8M; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=NzGZs2Va; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=IJRvEf8M; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1757666446; c=relaxed/simple;
+	bh=JFm9q5MHFWvo/CMc0shtVH4Yt0n17LPmzfEtHqz8xTw=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=J5K3UvClTQBCTggdidOFkMAlx2SVeeONgHK9xoHd02aZaTLeImoK0xOfJboJ55OfKG8VqB8OEsrpURW+7sVOiCKxJPeysf8lbFg+4C1aqYWmpiDblrDk6ALdIj+7cuaAxHFFSZ9NMVe1xm8CU+g7j57vky9U+LYeFpfq1K2qoUQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ic1VCgo+; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="NzGZs2Va";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="IJRvEf8M";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="NzGZs2Va";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="IJRvEf8M"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 46C8C20706;
-	Fri, 12 Sep 2025 08:32:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1757665967; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=E/CSSfN43nuBpCmvlSQv0g4m2YsMRqWgQtvSodhnH28=;
-	b=NzGZs2VaUva7nAB6VbcEuZSvhBSVlcW4blbtBY6HNBMWWAXbae08r9qYs3v5z+GdRFYgY/
-	VbeEpqO4pA7jByje53TP/rNV4Elzxv+SZjUQ0OFLzzAAZ+Kr/L3Bym88W7Dx4Ul2nVvL3l
-	TyT0M91a3S/Kr9Dj+CvBgTFiBddEJYI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1757665967;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=E/CSSfN43nuBpCmvlSQv0g4m2YsMRqWgQtvSodhnH28=;
-	b=IJRvEf8MaAIKPa9ZL8mK7o1+fIpbj5bi9eT0ydLdxT6d/IYDCbkKoZdlcbLdgnxuO7SBlJ
-	gjmRz1UNrH/tLXCA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1757665967; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=E/CSSfN43nuBpCmvlSQv0g4m2YsMRqWgQtvSodhnH28=;
-	b=NzGZs2VaUva7nAB6VbcEuZSvhBSVlcW4blbtBY6HNBMWWAXbae08r9qYs3v5z+GdRFYgY/
-	VbeEpqO4pA7jByje53TP/rNV4Elzxv+SZjUQ0OFLzzAAZ+Kr/L3Bym88W7Dx4Ul2nVvL3l
-	TyT0M91a3S/Kr9Dj+CvBgTFiBddEJYI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1757665967;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=E/CSSfN43nuBpCmvlSQv0g4m2YsMRqWgQtvSodhnH28=;
-	b=IJRvEf8MaAIKPa9ZL8mK7o1+fIpbj5bi9eT0ydLdxT6d/IYDCbkKoZdlcbLdgnxuO7SBlJ
-	gjmRz1UNrH/tLXCA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 33B4113869;
-	Fri, 12 Sep 2025 08:32:47 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id YkOaDK/aw2hKLgAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Fri, 12 Sep 2025 08:32:47 +0000
-Date: Fri, 12 Sep 2025 10:32:38 +0200
-From: Daniel Wagner <dwagner@suse.de>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Hannes Reinecke <hare@suse.de>, Daniel Wagner <wagi@kernel.org>, 
-	Jens Axboe <axboe@kernel.dk>, Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>, 
-	Sagi Grimberg <sagi@grimberg.me>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Aaron Tomlin <atomlin@atomlin.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
-	Costa Shulyupin <costa.shul@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Valentin Schneider <vschneid@redhat.com>, Waiman Long <llong@redhat.com>, Ming Lei <ming.lei@redhat.com>, 
-	Frederic Weisbecker <frederic@kernel.org>, Mel Gorman <mgorman@suse.de>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
-	linux-nvme@lists.infradead.org, megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org, 
-	storagedev@microchip.com, virtualization@lists.linux.dev, 
-	GR-QLogic-Storage-Upstream@marvell.com
-Subject: Re: [PATCH v8 10/12] blk-mq: use hk cpus only when isolcpus=io_queue
- is enabled
-Message-ID: <bc5ebdea-7091-4999-a021-ec2a65573aa0@flourine.local>
-References: <20250905-isolcpus-io-queues-v8-0-885984c5daca@kernel.org>
- <20250905-isolcpus-io-queues-v8-10-885984c5daca@kernel.org>
- <ff66801c-f261-411d-bbbf-b386e013d096@suse.de>
- <d11a0c60-1b75-49ec-a2f8-7df402c4adf2@flourine.local>
- <87ms72u3at.ffs@tglx>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ic1VCgo+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1757666444;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=PvsOvjK7iiT9XUkiykze+uFI53RNvUT/umyb7XIvWRc=;
+	b=Ic1VCgo+YWHG6lAchFt7f02CXtcSxcy/n0rAKtztdt+G9r8CRu7rUWbbmmCDSyTe0xBV54
+	CkMjWHuyF/3DqaCa0kgyX1Nx8IfPzaUJ4U9Pw314YWoXN5mMFr141JYtYanXdV5JJ9foHC
+	NY6iZvgI3kGinWJcC9VH5v1WYAz5pmk=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-197-HdoBqJrIME6b2eTHT31xOA-1; Fri, 12 Sep 2025 04:40:42 -0400
+X-MC-Unique: HdoBqJrIME6b2eTHT31xOA-1
+X-Mimecast-MFC-AGG-ID: HdoBqJrIME6b2eTHT31xOA_1757666441
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45d6c770066so8579055e9.0
+        for <virtualization@lists.linux.dev>; Fri, 12 Sep 2025 01:40:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757666441; x=1758271241;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=PvsOvjK7iiT9XUkiykze+uFI53RNvUT/umyb7XIvWRc=;
+        b=qhwcvw3fWvbyZ+C81cIuCFMI1PzViK2YYZ50f0F83caQsVxYs9H4AjDms63+XL1tCK
+         EHo5HEzIUaLSIFkfNvRQiOLgf7Hlq8XriAhCnc7jlACXPmRN4QKyZc+DwvXsb5V+4975
+         BTwU3BLRz1SeTlsTW0bA3MBX5SDQzYvY3f4PHJIXIVrbsunv+f3vDDlY+rT4VSkHhk4+
+         IO/IfkwuA6LAxsGilT5KbDXFqlf+huMf9Wymoc62k+aQeczRg2eajVmr3ksk3zDjxSNH
+         y2CHm0sMSfk8c6dq/nGu7nKpXQDtrGZUx82zQQnk3juSa0uCmsEMHVB8hJwxNJyrRgEs
+         Y7jg==
+X-Forwarded-Encrypted: i=1; AJvYcCUlrJi1CtwftnOx6wX8GblKG/kYaBqBrvjwgXf15Ca+Lzp2/44gcx+nna2v4CYUIbP7NaqNigSPEXQEQIRSwA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxJaxuWRdIewE1BNF0KquGtnHWmodPY9x1Yp8XSkWYx58RbZJ0+
+	pb78oTmbwXWtCjvVpvn4FeTArb53V25SnoCa9+lV3UyJ3mAf2COIgunYrk1RMIONwucQRjPuGw5
+	M9n7aGEvHLl06/KuX6BjPFubvuhKFHWP2m+K2irmG3YPr0Zkm0/EKWyLBXuoxnDVEbDDA
+X-Gm-Gg: ASbGncuxMFFzOIfQWESX9ZZaN/NJKpgaU8uOJXSmIs36v1EfP/aqE3PmbHVLD5nORMd
+	KZhM26lHnNHL59Ng6EJHJbo7GcCOtzn9Pl7NsxIN+gBVd/e9Fwe+q006MFHlQ0BqvU33rgGqCE6
+	sq7lPP5SumpMVCW74TB4k6ZtEtzqyYVxkE7Og4/ZIn4s3oIYzPCKdquibXDb0akqWwurbxLRFVL
+	rnSA+l073aXhc258TUNs3Ro0Dte3t4pRLbKq+3AFenD/Rl+TjS/3AU+rojzDYcvPBZq09HlaCjb
+	/2Y6wSrGZ8M91HeEyxV5NIJw0nn7Ci1Z
+X-Received: by 2002:a05:600c:1c9b:b0:45d:dd47:b465 with SMTP id 5b1f17b1804b1-45f211c8395mr18631685e9.7.1757666441049;
+        Fri, 12 Sep 2025 01:40:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFpABu+JYhUlWvQU7+IMiPKX/l2FbW8SOSOf9lAUj55zctSTxUjYZ6Qb1tuKOdhGKXoNOk0oQ==
+X-Received: by 2002:a05:600c:1c9b:b0:45d:dd47:b465 with SMTP id 5b1f17b1804b1-45f211c8395mr18631505e9.7.1757666440626;
+        Fri, 12 Sep 2025 01:40:40 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1536:c800:2952:74e:d261:8021])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45e0153fbd5sm29710965e9.5.2025.09.12.01.40.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Sep 2025 01:40:40 -0700 (PDT)
+Date: Fri, 12 Sep 2025 04:40:38 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Filip Hejsek <filip.hejsek@gmail.com>,
+	Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>,
+	Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	virtualization@lists.linux.dev
+Subject: [PATCH] Revert "virtio_console: fix order of fields cols and rows"
+Message-ID: <7ebfa9a5ec3f07506b3d8f01cd4f2a35e2135679.1757666355.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: xEdpxetmC_ubrsh3rYfSdse16XYDBCYJl2FlBBYSqdw_1757666441
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87ms72u3at.ffs@tglx>
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	MISSING_XM_UA(0.00)[];
-	ARC_NA(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[26];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RL67935bhfdkbndpbo95z3ogoo)];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
-X-Spam-Flag: NO
-X-Spam-Score: -4.30
 
-On Wed, Sep 10, 2025 at 10:20:26AM +0200, Thomas Gleixner wrote:
-> On Mon, Sep 08 2025 at 09:26, Daniel Wagner wrote:
-> > On Mon, Sep 08, 2025 at 08:13:31AM +0200, Hannes Reinecke wrote:
-> >> >   const struct cpumask *blk_mq_online_queue_affinity(void)
-> >> >   {
-> >> > +	if (housekeeping_enabled(HK_TYPE_IO_QUEUE)) {
-> >> > +		cpumask_and(&blk_hk_online_mask, cpu_online_mask,
-> >> > +			    housekeeping_cpumask(HK_TYPE_IO_QUEUE));
-> >> > +		return &blk_hk_online_mask;
-> >> 
-> >> Can you explain the use of 'blk_hk_online_mask'?
-> >> Why is a static variable?
-> >
-> > The blk_mq_*_queue_affinity helpers return a const struct cpumask *, the
-> > caller doesn't need to free the return value. Because cpumask_and needs
-> > store its result somewhere, I opted for the global static variable.
-> >
-> >> To my untrained eye it's being recalculated every time one calls
-> >> this function. And only the first invocation run on an empty mask,
-> >> all subsequent ones see a populated mask.
-> >
-> > The cpu_online_mask might change over time, it's not a static bitmap.
-> > Thus it's necessary to update the blk_hk_online_mask. Doing some sort of
-> > caching is certainly possible. Given that we have plenty of cpumask
-> > logic operation in the cpu_group_evenly code path later, I am not so
-> > sure this really makes a huge difference.
-> 
-> Sure,  but none of this is serialized against CPU hotplug operations. So
-> the resulting mask, which is handed into the spreading code can be
-> concurrently modified. IOW it's not as const as the code claims.
+This reverts commit 5326ab737a47278dbd16ed3ee7380b26c7056ddd.
 
-Thanks for explaining.
+The problem is that for a long time, the
+Linux kernel used a different field order from what was specified in the
+virtio spec. The kernel implementation was apparently merged around 2010,
+while the virtio spec came in 2014, so when a previous version of this
+patch series was being discussed here on this mailing list in 2020, it
+was decided that QEMU should match the Linux implementation, and ideally,
+the virtio spec should be changed.
 
-In group_cpu_evenly:
+There are about 15 years' worth
+of kernel versions with the swapped field order, including the kernel
+currently shipped in Debian stable. The effects of the swapped dimensions
+can sometimes be quite annoying - e.g. if you have a terminal with
+24 rows, this will be interpreted as 24 columns, and your shell may limit
+line editing to this small space, most of which will be taken by your
+prompt.
 
-	/*
-	 * Make a local cache of 'cpu_present_mask', so the two stages
-	 * spread can observe consistent 'cpu_present_mask' without holding
-	 * cpu hotplug lock, then we can reduce deadlock risk with cpu
-	 * hotplug code.
-	 *
-	 * Here CPU hotplug may happen when reading `cpu_present_mask`, and
-	 * we can live with the case because it only affects that hotplug
-	 * CPU is handled in the 1st or 2nd stage, and either way is correct
-	 * from API user viewpoint since 2-stage spread is sort of
-	 * optimization.
-	 */
-	cpumask_copy(npresmsk, data_race(cpu_present_mask));
+NB: the command structures really should move to the UAPI header so it
+is easier to notice when a change is breaking the guest/host ABI.
 
+Reported-by: Filip Hejsek <filip.hejsek@gmail.com>
+Fixes: 5326ab737a47 ("virtio_console: fix order of fields cols and rows")
+Cc: "Maximilian Immanuel Brandtner" <maxbr@linux.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/char/virtio_console.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-0263f92fadbb ("lib/group_cpus.c: avoid acquiring cpu hotplug lock in
-group_cpus_evenly"):
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 088182e54deb..216c5115637d 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1576,8 +1576,8 @@ static void handle_control_message(struct virtio_device *vdev,
+ 		break;
+ 	case VIRTIO_CONSOLE_RESIZE: {
+ 		struct {
+-			__virtio16 cols;
+ 			__virtio16 rows;
++			__virtio16 cols;
+ 		} size;
+ 
+ 		if (!is_console_port(port))
+-- 
+MST
 
-  group_cpus_evenly() could be part of storage driver's error handler, such
-  as nvme driver, when may happen during CPU hotplug, in which storage queue
-  has to drain its pending IOs because all CPUs associated with the queue
-  are offline and the queue is becoming inactive.  And handling IO needs
-  error handler to provide forward progress.
-
-  Then deadlock is caused:
-
-  1) inside CPU hotplug handler, CPU hotplug lock is held, and blk-mq's
-     handler is waiting for inflight IO
-
-  2) error handler is waiting for CPU hotplug lock
-
-  3) inflight IO can't be completed in blk-mq's CPU hotplug handler
-     because error handling can't provide forward progress.
-
-  Solve the deadlock by not holding CPU hotplug lock in group_cpus_evenly(),
-  in which two stage spreads are taken: 1) the 1st stage is over all present
-  CPUs; 2) the end stage is over all other CPUs.
-
-  Turns out the two stage spread just needs consistent 'cpu_present_mask',
-  and remove the CPU hotplug lock by storing it into one local cache.  This
-  way doesn't change correctness, because all CPUs are still covered.
-
-This sounds like I should do something similar with cpu_online_mask.
-Anyway, I'll work on this.
-
-> How is this even remotely correct?
-
-It isn't :( I did hotplug tests but obviously these were not really up
-to the task. The kernel test bot gave me a pointer how I should test.
