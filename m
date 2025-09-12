@@ -1,141 +1,132 @@
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EBBA322DCE
-	for <virtualization@lists.linux.dev>; Fri, 12 Sep 2025 15:59:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5187C31C570
+	for <virtualization@lists.linux.dev>; Fri, 12 Sep 2025 18:10:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757692783; cv=none; b=YPAsUjYKWJPhUjRwq2WFhIW/rr+2WUuWyZxaZOMKKwQpzoAAYNHq1y75mYiq3Rl70tUzvjdQuvV8bgo3SILbYh1KCNMZB0aSKvQn73jS6Xs/FiuU6B6I3TA1twszHP4k00PwAtnwuz2w9R+mpeCc1TWtsQ6LborCRw3O4VbxuL4=
+	t=1757700609; cv=none; b=JxqUS9OQDGgaAyDAAMKec8QM684ZH6xZQwlJnymGck3XTl4lCq6qylYrbvG0jxl+EF6LL/BYS9BQi8VCPovP3V2DomvnuD/n4q1yYJRl9l/41AiPZ1nQuLCa8LlQ6DZkVTRTFUuBhm51kS4MPcR0m97ZZBW9DLY1ah/972CM0pE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757692783; c=relaxed/simple;
-	bh=Y2hXfnHzSfKGpkRV/+ZGUekIkr1Gt4/QOQoMmnAXviE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=F5zFFQKsjExnWKxJ5PUxrvzXymTBgIQDo9zbIurEyixPzGyKXj3/3wWFgvpgki67LmcC+3cRtUAbQUJwtXffgqNpw76AuL8cjahgtVqlE0kGLgKOd4qaBx6VwEmSmCKWeyWGxHtei58o0959R101kT+RjPK+6S60B6sErJMmta0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-b042eb09948so443691466b.3
-        for <virtualization@lists.linux.dev>; Fri, 12 Sep 2025 08:59:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757692779; x=1758297579;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=n0gIuHH4FHMvq9oSF/Jigf17pZ9LbJklvlGco8PAXnY=;
-        b=ARgv6UyG+fJqk9OhTAbKbBeGh73PMJCfQTVuRau1Ly/tomHZ+Q8qeInvrmgvurdABz
-         8uv1lulCloCECgOD+mwx9Di8alZPUIDw9d7/TX0BQgQpeQaaE53DL43x7VezKjBUMyY8
-         ey4rXFbZz7AHC42H6ivuJY9RvvCI9ac6EJ6GMcNLdWHf5R/JUUDXl9PB6RT9nLNC6G+k
-         ZEomfn5AZ1xMPooNUYF4H3E26oImL8puCQgQ5nGJMcbW13M45JD/GB87at9Ep7IWpB40
-         7cSqw3IsTcEPLnm5wiC4Vm0pkngZ58PZBH5m+QFWf98hL2qfMbNcwGHWpa/ID3Ot0VD6
-         FvtA==
-X-Forwarded-Encrypted: i=1; AJvYcCXoDdbAb9fn+A4+xZbGqaG9EhtbHQubqdtHa9PnRD2rqizQCSqeNJZ7dsFAztK+7pC9UwRpgJ6tw72d6+skyg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwVrTE1d+1Yx5U0g9ybOFIUI1QH7KhYTOasyHxdIj9ExYiZnswE
-	ReZs1G/nfjyryTRzfapW1Wivmdar/fOsfaRDYQ5Y8qbY03M80WLDwKwN
-X-Gm-Gg: ASbGncvyJ60+4u9S4ybWIXuKrV8SRGlO+8runMK5hUVOunO6sAlGEams2cCG9Z+KThE
-	+Uq92qSTDlOB9ijb1BJFqdsUb3eoi/0awDv+i2TQZipYIFKIJvPsy9Ry1jSxP67umwSg9SGBYWS
-	E0mhX8kTIaigEPOl6wShtdOxSm1WHUoMX73NVuXDpocoH2DNJx12aaFvKQnFhX4STub746/Mkqf
-	/3Y7aPoEmChmAV9+jlgLUmeCez/JT5TuTyLKHxEYDiWGFoyAEMK4IAN8oWEyQfVl257bIbMjTSK
-	z34tSJY6jaqvjq4BeMNHBHwFSqp1L4oouprr6sMCpjBuLHIKVvWYp6v5e+C/P1tmJRPeb0sCv/h
-	o4h4arDLJggzqp7XBsvlGVfeL
-X-Google-Smtp-Source: AGHT+IENc4Ma8V5tCc/liKhp+02LKc2RicXHgsiwshsnplPzDX12vx98CIJbx90/d9q+6PULUumo8Q==
-X-Received: by 2002:a17:907:3f18:b0:b04:45e1:5929 with SMTP id a640c23a62f3a-b07c35cd746mr359576666b.28.1757692778573;
-        Fri, 12 Sep 2025 08:59:38 -0700 (PDT)
-Received: from localhost ([2a03:2880:30ff:42::])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-62ec33f3c01sm3584285a12.34.2025.09.12.08.59.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Sep 2025 08:59:38 -0700 (PDT)
-From: Breno Leitao <leitao@debian.org>
-Date: Fri, 12 Sep 2025 08:59:16 -0700
-Subject: [PATCH net-next v2 7/7] net: virtio_net: add get_rxrings ethtool
- callback for RX ring queries
+	s=arc-20240116; t=1757700609; c=relaxed/simple;
+	bh=yPJqLt8S5WWM4BObvCnuZSDbc1t/tgpd5gl4wkceEGg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=X3c+crgGM9/fJ1XVtzaq2C74CVkrhehomByFYYJ3536xoME/bMOoI+eCfaFN+QpLEeXimyjuMh1mHTFgsWFMP0cunydtYHzj6hzrZoeg6QfcYcDom9jPyqzvP0axGR48m3M6LnNbhmhdWwc3I8hVBhZEFcjUksr1tpZ8m7qj9EM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=LQ3BgZpe; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="LQ3BgZpe"
+Received: from [192.168.0.88] (192-184-212-33.fiber.dynamic.sonic.net [192.184.212.33])
+	by linux.microsoft.com (Postfix) with ESMTPSA id ED2B42119CBF;
+	Fri, 12 Sep 2025 11:10:00 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com ED2B42119CBF
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1757700602;
+	bh=HXYJgEfXFwo/OPKrYhrveFvpXwC44rrX+LkCZApziY4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=LQ3BgZpeMJGwjTLRudlWpMa8SX8RO+j/34vsQaL4PkTvTkI/qkWK/wElTFG4ma7bq
+	 8NM3LoJh5HhkcNK+KwwYAoh01/HqKWzw8IdRL8lUGd7y0lqldMU83UUu/URfbdFHiD
+	 X8LZ8UBwGVc2sHYIuNq4iAAYSpEmzqL/34I8VDGk=
+Message-ID: <a8c8305c-b518-c840-fc64-50bcba302725@linux.microsoft.com>
+Date: Fri, 12 Sep 2025 11:10:00 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.1
+Subject: Re: [PATCH v1 2/2] Drivers: hv: Make CONFIG_HYPERV bool
+Content-Language: en-US
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ netdev@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org,
+ linux-arch@vger.kernel.org, virtualization@lists.linux.dev,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
+ airlied@gmail.com, simona@ffwll.ch, jikos@kernel.org, bentiss@kernel.org,
+ kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+ decui@microsoft.com, dmitry.torokhov@gmail.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, bhelgaas@google.com,
+ James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+ deller@gmx.de, arnd@arndb.de, sgarzare@redhat.com, horms@kernel.org
+References: <20250906010952.2145389-1-mrathor@linux.microsoft.com>
+ <20250906010952.2145389-3-mrathor@linux.microsoft.com>
+ <2025090621-rumble-cost-2c0d@gregkh>
+ <d7d7b23f-eaea-2dbc-9c9d-4bee082f6fe7@linux.microsoft.com>
+ <2025091253-overwrite-carol-b197@gregkh>
+From: Mukesh R <mrathor@linux.microsoft.com>
+In-Reply-To: <2025091253-overwrite-carol-b197@gregkh>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250912-gxrings-v2-7-3c7a60bbeebf@debian.org>
-References: <20250912-gxrings-v2-0-3c7a60bbeebf@debian.org>
-In-Reply-To: <20250912-gxrings-v2-0-3c7a60bbeebf@debian.org>
-To: Andrew Lunn <andrew@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
- kuba@kernel.org, Simon Horman <horms@kernel.org>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- virtualization@lists.linux.dev, Breno Leitao <leitao@debian.org>, 
- Lei Yang <leiyang@redhat.com>, kernel-team@meta.com
-X-Mailer: b4 0.15-dev-dd21f
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1617; i=leitao@debian.org;
- h=from:subject:message-id; bh=Y2hXfnHzSfKGpkRV/+ZGUekIkr1Gt4/QOQoMmnAXviE=;
- b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBoxENeBFGi6WpdTS8dpLji/97clvQfo2zMjVoNE
- 56PFE2cZluJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCaMRDXgAKCRA1o5Of/Hh3
- bdEVD/0XB2Bl57L+rLumfG+of0zBhpBmxvs79I7Bx+mXlU0xsci+hGJzDcx3G5qMnEWiIYYrDMg
- ENU+pkKPyT7wLQ6HhaeQH5su1B19HWA35aqAhkbbJaF/GDSl1bhrAxMQ2760HBmXo4FAErMzz9L
- 2x6DIxi70oHcK8swT6751x0MXxqot89K1pzgh2D7xgBBGENxY6AXvdT7zzWOJT6c63v2gH8Rsrk
- CjjfqojfPIP0aPVE8NbnmUQ42KigZXuJdNnitjTE1ok7ymYN2wZbRUMOrzSmuyJ5v4PEIa966KL
- HLzQ5BMb09bn+gX0W4U5XwZznEAEVgIbjY7OAvuKXsUrarYZ5IPyJY/2oc11MhFM2MaA36uDjmU
- zRpmLtt51vHyuUls0x0yU3Plx4WQP8RWMzZRG5KDKpdJMvQJKmKCuhtKFDsX7mF85FxPAKf72l4
- VoEcAUwIci3bBZdZ9wFU3CzpeY1Qlc+SC493uQcoYy7VR//qHNz4aUbO8rOaKzlermR9c6ChYdm
- 8MDXoMyIVKGmmb6T0ayHbpF+1x7aUK6+5y1Dle0bu77fnCmGYI4A6Rn8hveuQNNPMou3SxPtPxk
- 4ShbNEvs8CF0KN9N+RsYNfTLgvsmQpH4pzF99CTHrj8hUPcbKyuBSbw6PddAMO3Xhw5lzWVnBFo
- wp4FunMO4VxPSwg==
-X-Developer-Key: i=leitao@debian.org; a=openpgp;
- fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
 
-Replace the existing virtnet_get_rxnfc callback with a dedicated
-virtnet_get_rxrings implementation to provide the number of RX rings
-directly via the new ethtool_ops get_rx_ring_count pointer.
+On 9/12/25 04:43, Greg KH wrote:
+> On Mon, Sep 08, 2025 at 02:01:34PM -0700, Mukesh R wrote:
+>> On 9/6/25 04:36, Greg KH wrote:
+>>> On Fri, Sep 05, 2025 at 06:09:52PM -0700, Mukesh Rathor wrote:
+>>>> With CONFIG_HYPERV and CONFIG_HYPERV_VMBUS separated, change CONFIG_HYPERV
+>>>> to bool from tristate. CONFIG_HYPERV now becomes the core Hyper-V
+>>>> hypervisor support, such as hypercalls, clocks/timers, Confidential
+>>>> Computing setup, PCI passthru, etc. that doesn't involve VMBus or VMBus
+>>>> devices.
+>>>
+>>> But why are you making it so that this can not be a module anymore?  You
+>>> are now forcing ALL Linux distro users to always have this code in their
+>>> system, despite not ever using the feature.  That feels like a waste to
+>>> me.
+>>>
+>>> What is preventing this from staying as a module?  Why must you always
+>>> have this code loaded at all times for everyone?
+>>
+>> This is currently not a module. I assume it was at the beginning. In
+>> drivers/Makefile today:
+>>
+>> obj-$(subst m,y,$(CONFIG_HYPERV))       += hv/
+>>
+>>
+>> More context: CONFIG_HYPERV doesn't really reflect one module. It is
+>> both for kernel built in code and building of stuff in drivers/hv.
+>>
+>> drivers/hv then builds 4 modules:
+>>
+>> obj-$(CONFIG_HYPERV)            += hv_vmbus.o
+>> obj-$(CONFIG_HYPERV_UTILS)      += hv_utils.o
+>> obj-$(CONFIG_HYPERV_BALLOON)    += hv_balloon.o
+>> obj-$(CONFIG_MSHV_ROOT)         += mshv_root.o
+>>
+>> Notice vmbus is using CONFIG_HYPERV because there is no 
+>> CONFIG_HYPERV_VMBUS. We are trying to fix that here.
+> 
+> This series does not apply to my tree:
+> 
+> checking file drivers/gpu/drm/Kconfig
+> checking file drivers/hid/Kconfig
+> checking file drivers/hv/Kconfig
+> Hunk #2 FAILED at 82.
+> 1 out of 2 hunks FAILED
+> checking file drivers/hv/Makefile
+> checking file drivers/input/serio/Kconfig
+> checking file drivers/net/hyperv/Kconfig
+> checking file drivers/pci/Kconfig
+> checking file drivers/scsi/Kconfig
+> checking file drivers/uio/Kconfig
+> checking file drivers/video/fbdev/Kconfig
+> checking file include/asm-generic/mshyperv.h
+> Hunk #1 succeeded at 162 with fuzz 2 (offset -3 lines).
+> Hunk #2 succeeded at 198 (offset -3 lines).
+> Hunk #3 succeeded at 215 (offset -3 lines).
+> checking file net/vmw_vsock/Kconfig
+> 
+> What was it made against?
+> 
 
-This simplifies the RX ring count retrieval and aligns virtio_net with
-the new ethtool API for querying RX ring parameters.
+Sorry to hear that. It was built against hyper-next, but perhaps I 
+accidentally used our internal mirror. Let me rebase and send V2
+right away.
 
-Signed-off-by: Breno Leitao <leitao@debian.org>
----
- drivers/net/virtio_net.c | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+Thanks,
+-Mukesh
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 975bdc5dab84b..e35b6ef015c05 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -5610,20 +5610,11 @@ static int virtnet_set_rxfh(struct net_device *dev,
- 	return 0;
- }
- 
--static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info, u32 *rule_locs)
-+static u32 virtnet_get_rx_ring_count(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	int rc = 0;
- 
--	switch (info->cmd) {
--	case ETHTOOL_GRXRINGS:
--		info->data = vi->curr_queue_pairs;
--		break;
--	default:
--		rc = -EOPNOTSUPP;
--	}
--
--	return rc;
-+	return vi->curr_queue_pairs;
- }
- 
- static const struct ethtool_ops virtnet_ethtool_ops = {
-@@ -5651,7 +5642,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.set_rxfh = virtnet_set_rxfh,
- 	.get_rxfh_fields = virtnet_get_hashflow,
- 	.set_rxfh_fields = virtnet_set_hashflow,
--	.get_rxnfc = virtnet_get_rxnfc,
-+	.get_rx_ring_count = virtnet_get_rx_ring_count,
- };
- 
- static void virtnet_get_queue_stats_rx(struct net_device *dev, int i,
 
--- 
-2.47.3
 
