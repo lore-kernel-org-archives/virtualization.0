@@ -1,93 +1,137 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9A1A2E5B0C
-	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 10:57:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36E612FDC42
+	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 11:00:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757933880; cv=none; b=VWCWBA8i8WW7teCTn4ixIfUSwIuepa1GY8h6NUg/xKe/n63QiohGTMtiRv9EYuYychjMowsWDcJiGoN2IwckS6M2RCAYOLoyT6ftJPgC/mLdmcUGe2twbjV0gIgITUc41G3rEicfBiFfARpjgNsFVLGiWkpionFopc4dtGh9Xq4=
+	t=1757934007; cv=none; b=iQOkQYuJA6LB1jmVuQ0E1Sekvr0A5nzUnWEqjn40SNhUCC8uolLlt0ShsL8j5ys9tn44b/aM4qDXazSiIKkytHZQo29GVXGqgDMsyqFyAHKcy7tJCFMM1ijDf0qIjDUWKJgEvOYuO892jXEyTvlGeYYKSwpnjsdmLKsf4kQaL1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757933880; c=relaxed/simple;
-	bh=H8a9AOknFnKTAIvE/ikaP5nTBBNK9uvX6MCcpkX9++g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Nu643ebP/op6h2BUCNBd0q4p9kFsXEOSi7c65VKJ1tzE6bg3did4QepcjD5TIoj1mpCESH6C8LzZj07WIMlKBugnwr2wwIknt6Ti/qG7UkW5il2NGUBUCOSgnod90zM8hG8cojPwb63BIG9I9NDVD5eylwevihn2mjeQM0ueFW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-3eb08d8d9e7so489194f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 03:57:58 -0700 (PDT)
+	s=arc-20240116; t=1757934007; c=relaxed/simple;
+	bh=MZ2Lk0VILdWqbc27hgBRyrK0F859ToA8uD4l4sEkcHY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=H8/VeHZX8v5E6FpgArnSY5tS1Lw0KaQk78EsQtfQydICgbmZhx9XQSZLAUSAOtA8pU0UaVxEHLuxLvpIv0GzdjkE9qEM8B7NQN+ApWzUFdUnaknP56rdjutBRLX1TdpRuqD4H7QJpnCrtYr86K20HDCeUi4hQx0KLrD6pBOaEtI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iXmRGYED; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iXmRGYED"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1757934004;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8LG/krU4VzCXhXDYZfOJeBrVjlSMl4dB2Tr4WvxEGIU=;
+	b=iXmRGYEDVo+R0Xbe3h0VbVvnPRQN7ADHHkVVPNEd+0zYB1HUWHAw7onxovwqaQIGU0dFvs
+	4IqI6x30ZaAicQWYiY/Jo+jaYDP4rUUY2ghv75O+WEX/VjXt9VIWO2irapQKwHlboOPmpO
+	ENCBF7jrbUODMa3VvFZ4hg8SanLX00U=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-627-plJ5GG19PCCeYfc4rSRt6g-1; Mon, 15 Sep 2025 07:00:02 -0400
+X-MC-Unique: plJ5GG19PCCeYfc4rSRt6g-1
+X-Mimecast-MFC-AGG-ID: plJ5GG19PCCeYfc4rSRt6g_1757934002
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-62ef8d95301so1632148a12.1
+        for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 04:00:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757933877; x=1758538677;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qxA92b/5xfR0qSfNO+nVmulxGyOD0T7zyHwVnXVrHGY=;
-        b=A4AyOZHTelNVl4D1fCx979fZ9r5KXAsztkNI/t/K/9nZQvGdt6+bIHqH74r9EyVHhW
-         yNQIAOIycbX5/529q/8RxTPn/3NfbvnGz6MpFLP+GCrI4CdNJg2A/8dUla1VUdHn5Aga
-         acVA4npSQ3P1HED+X4nwZY7ysTZceND1hmnOKOxDoOF6Tuc7tG1wkz6E8sUMWCptq2GS
-         QVJ1TQkfO5Ur0O/xzBoJagLNpoT4AvfYtFZS+Y1LcYdMLIxHu8iltSm5G/onul/0qfnR
-         KiXDgRLx7m6Sdd9DQltxksDbEq3CSP/xi3kAe0/DPs5IKvDOCW1U84M9kvAJzg8icNPB
-         VTqA==
-X-Forwarded-Encrypted: i=1; AJvYcCVGFVF6pgyj1nJGoTdd6isF6OScow0rlumiksZGY/JrXds2nftdoWhCrrWYDCVfYvS6W3A0Fow8SWyQtX5VsQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzOHh6+oxsXll5aG2U6RZjI7Ns4R8EiTQAzbfYctku+btyEkIkZ
-	cC0E1Fx20McU606K3LAFkI1sNml3ll8ttXaOT9C4AnU0M7+SQJr8uF/H
-X-Gm-Gg: ASbGncuCQiHWQs1JGqBxc7nWXoEpPFYQ2QlGmkjU4bZLdWQEWdTydt7una/6Aytd6mv
-	u7xWD0q2IWPn636czH5/NjEg9Pq7gGXY38iV+KYA8qMGjvigushMCp4GodXnbwq/f4PRpbst6pP
-	gxCmWcm5oeFOQQZAhZRCMFCtt8jFVlx4DchNkklWlLAZ2NWGMBokF5E/ja249ZzIdYAEvqr+CEK
-	uo7+q/F7poPGVLXRwXZzxq4KxMVg4fuvHatZfFqmNoRX+Mz3tex4NqLwOi+1Pu2Mv4RoqPuk85I
-	TWLNd4bZU/4eZf6lhzJCkXYTOBO7Iw+ByG7tvIUVQV+ghHjMfRTE6jId+zEF5dL9ddRjYV8gmHM
-	qaaT8Ab9hITvq
-X-Google-Smtp-Source: AGHT+IEqBROGBlCJuMZ5Xroh5nM+yePitTdtSR2h9RagADSGmVIoyFS5fOwROqRLNyP0ZkUbkvwstg==
-X-Received: by 2002:a5d:5f42:0:b0:3e8:6b2b:25e0 with SMTP id ffacd0b85a97d-3e86b2b278bmr6162260f8f.25.1757933877209;
-        Mon, 15 Sep 2025 03:57:57 -0700 (PDT)
-Received: from gmail.com ([2a03:2880:30ff:8::])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-62ec33ad2d6sm8998142a12.18.2025.09.15.03.57.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Sep 2025 03:57:56 -0700 (PDT)
-Date: Mon, 15 Sep 2025 03:57:54 -0700
-From: Breno Leitao <leitao@debian.org>
-To: Lei Yang <leiyang@redhat.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, kuba@kernel.org, 
-	Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, kernel-team@meta.com
-Subject: Re: [PATCH net-next v2 0/7] net: ethtool: add dedicated GRXRINGS
- driver callbacks
-Message-ID: <jserzzjxf75gwxeul35kvvexscs7yruhlddwhmw6h433shfdhf@jsesmjef3x76>
-References: <20250912-gxrings-v2-0-3c7a60bbeebf@debian.org>
- <CAPpAL=zn7ZQ_bVBML5no3ifkBNgd2d-uhx5n0RUTn-DXWyPxKQ@mail.gmail.com>
- <glf2hbcffix64oogovguhq2dh7icym7hq4qkxw46h74myq6mcf@d7szmoq3gx7q>
+        d=1e100.net; s=20230601; t=1757934002; x=1758538802;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8LG/krU4VzCXhXDYZfOJeBrVjlSMl4dB2Tr4WvxEGIU=;
+        b=BTl9dPgivfWmkCn4dCxHQrFNxHGYjTMbJLFa6WRyUX0bF6vwJN9d4OO/5qyzIeZXCT
+         LaygG/vEjwVg9GxqnGLlnzk5G//xd5FAUrA2VKqOEWb6uavEpgdo6mp+huPY4YiflVT9
+         ELekxWBHLzp5HzBCJKb+Qjd3GyrLH0tqHeSwSQxMlrsrEEANP0riWqBZOyx4dMfRUI62
+         aWsRl8lSyzGv6hisrMd4fZmPjfLq8T4RKqToTrUQdTXoI4cJTEIWrzTDGTTJcSf7tKLk
+         EllHIpNUuDnE3e490+Sw5zn2N1SznwqdkPX2mRJsO/zMuTDvLJunsF8bAMNOvMNpMVln
+         URgA==
+X-Forwarded-Encrypted: i=1; AJvYcCUzEOS/ioY5CBY8SwgqVwDcDK/iBS5njGt+ywssWi77Z4xeTAkmgcVz2bd7min5066vtPX6Tr9E2OSlN8UyiQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywugab/95+pEEENz+k7lYlBajDwp7OOGb6HprX6GUa4uBE8g7xU
+	bLzal8pFXfd8P0CO1WrKS1ViPIiBjiEWA0zCrLF4d/A3ycOZB4PRkbDPjM0r+mx08rdqGQ6+yaY
+	i6gA6Gw4GEAhj4rC435bcaHXWvpCerdeelQy6gVlIXTnFthCRl3prbS0LShiZBYcR+LvywHoaqm
+	kajGdKP9+/ZNyTn8KXbXtWnXfhz7wJryEnZMfctBioJ5Q=
+X-Gm-Gg: ASbGnctMm0phvn6pZa/lliBa1XKCZNDJJ5NDbr/sC4qnFuGegUG1q4GJ6pIhb+jdb24
+	AU8l+ZLsomPFan91V9auB8QAXcCJMMDgASgb+QlQZAJXj1efNn5NtnbYD+qB3eQqNP3aF/+3uu3
+	5iRjIh8VPBktLZR4QFYLO/dg==
+X-Received: by 2002:a05:6402:52c3:b0:61c:7090:c7de with SMTP id 4fb4d7f45d1cf-62ed827180amr11199640a12.13.1757934001649;
+        Mon, 15 Sep 2025 04:00:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH0FWS9+V2U6bS/hOunbJ92IvHyg28KU7vhAZPMSgU3NL7FZESOiBEKSGMh/3whVebsghh7ajGMdMYOU7jOcHY=
+X-Received: by 2002:a05:6402:52c3:b0:61c:7090:c7de with SMTP id
+ 4fb4d7f45d1cf-62ed827180amr11199617a12.13.1757934001266; Mon, 15 Sep 2025
+ 04:00:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <glf2hbcffix64oogovguhq2dh7icym7hq4qkxw46h74myq6mcf@d7szmoq3gx7q>
+References: <20250910091739.2999-1-zhangjiao2@cmss.chinamobile.com>
+In-Reply-To: <20250910091739.2999-1-zhangjiao2@cmss.chinamobile.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Mon, 15 Sep 2025 18:59:24 +0800
+X-Gm-Features: AS18NWCQ7fEFMgYdBUr25gcH_J-F5Mf8bPzgSCwAQZlFId0nTXghskAr0ksqVWA
+Message-ID: <CAPpAL=wGgYsEcvR5Vy7F-FdnArbOu6VNy4Y_Syc=9qDM9P-VRQ@mail.gmail.com>
+Subject: Re: [PATCH] vhost: vringh: Modify the return value check
+To: zhangjiao2 <zhangjiao2@cmss.chinamobile.com>
+Cc: mst@redhat.com, jasowang@redhat.com, eperezma@redhat.com, 
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 1TBBiDND5W9fgxFIqtZxAjmT5GeQzjTnyuDG_7sbiLs_1757934002
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 15, 2025 at 03:55:53AM -0700, Breno Leitao wrote:
-> On Mon, Sep 15, 2025 at 06:50:15PM +0800, Lei Yang wrote:
-> > This series of patches introduced a kernel panic bug. The tests are
-> > based on the linux-next commit [1]. I tried it a few times and found
-> > that if I didn't apply the current patch, the issue wouldn't be
-> > triggered. After applying the current patch, the probability of
-> > triggering the issue was 3/3.
-> > 
-> > Reproduced steps:
-> > 1. git clone https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
-> > 2. applied this series of patches
-> > 3. compile and install
-> > 4. reboot server(A kernel panic occurs at this step)
-> 
-> Thanks for the report. Let me try to reproduce it on my side.
-> 
-> Is this a physical machine, or, are you using a VM with the virtio change?
+Tested this patch with virtio-net regression tests, everything works fine.
 
-Also, I've just sent v3 earlier today, let me know if you have chance to
-test it as well, given it fixes the issue raised by Jakub in [1]
+Tested-by: Lei Yang <leiyang@redhat.com>
 
-Link: https://lore.kernel.org/all/20250914125949.17ea0ade@kernel.org/ [1]
+On Wed, Sep 10, 2025 at 5:18=E2=80=AFPM zhangjiao2
+<zhangjiao2@cmss.chinamobile.com> wrote:
+>
+> From: zhang jiao <zhangjiao2@cmss.chinamobile.com>
+>
+> The return value of copy_from_iter and copy_to_iter can't be negative,
+> check whether the copied lengths are equal.
+>
+> Signed-off-by: zhang jiao <zhangjiao2@cmss.chinamobile.com>
+> ---
+>  drivers/vhost/vringh.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+> index 9f27c3f6091b..0c8a17cbb22e 100644
+> --- a/drivers/vhost/vringh.c
+> +++ b/drivers/vhost/vringh.c
+> @@ -1115,6 +1115,7 @@ static inline int copy_from_iotlb(const struct vrin=
+gh *vrh, void *dst,
+>                 struct iov_iter iter;
+>                 u64 translated;
+>                 int ret;
+> +               size_t size;
+>
+>                 ret =3D iotlb_translate(vrh, (u64)(uintptr_t)src,
+>                                       len - total_translated, &translated=
+,
+> @@ -1132,9 +1133,9 @@ static inline int copy_from_iotlb(const struct vrin=
+gh *vrh, void *dst,
+>                                       translated);
+>                 }
+>
+> -               ret =3D copy_from_iter(dst, translated, &iter);
+> -               if (ret < 0)
+> -                       return ret;
+> +               size =3D copy_from_iter(dst, translated, &iter);
+> +               if (size !=3D translated)
+> +                       return -EFAULT;
+>
+>                 src +=3D translated;
+>                 dst +=3D translated;
+> --
+> 2.33.0
+>
+>
+>
+>
+
