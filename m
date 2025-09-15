@@ -1,183 +1,349 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6425619DF4F;
-	Mon, 15 Sep 2025 05:48:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 992472D6630
+	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 07:34:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757915303; cv=none; b=NnQiUxY2wFuIognBsaawOoG2kQ1evvRAqaUwDAYR0xJbKI4ehdO0qwvNwPNkUD22XcyUxB2X0an7G86ttbOnMMSCitqoe+5YULxGJQQuyOaB+FpT2mAcFJTtz5jQ1ucsFx7u1eQRZC8B0aQCt2PT28b1QJO7Ui+pU55BZ8OiwuY=
+	t=1757921682; cv=none; b=Q/ZtKmjvMrz3fVTjntvdbCrMMAUeJpuTX4VIy8KJBoWIM23N56zSv7ohWD4nyR04/e2U7TRICcR8nHiIe0Z7lnIjgSHGKwV6voAZ8zfipV6gvU/mMj2LzSbr7Vzb0uIcB4BLs6ZGw4FoERCk7blz1hi1yvfVRwiKzAXlrgaT7KI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757915303; c=relaxed/simple;
-	bh=QmA1uWtopyZKqYFa3aB5R38vcRhwp6UNA5QEhCCpxlY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EmIRlyKdzm0hyWCwrNXqF55utMwmqArkWgLr0xxkZi0sRopwMt+PkX42NnEzgPFDoV5Davve/fS9s7/eHt61ICZh6poB2Ph4ckH/Xy8iKC7yLQ2o9sadbtWN41w+PTbNOyzjqaLoo/7XijgSHqmhRdpwsghXHU2tAesJEdv/CEo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LY4R44OP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1757921682; c=relaxed/simple;
+	bh=2HMhB+z9Wmbw+6HNUryCiUx8upi/xjPSlu9nG2BaTWY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=TeYJScSi9bqNRSLLuzH7V9uSChVqQ5WVYhs17Ssz/hY5kZAXAiQe2uMo9auECfUSQUclF9HGCr4rMJ/NHPq4ERIX7EbpgkgW40jMnl9357ywW5uYnTXmvHj0qyFSmst0Def03L3pd38rSCpX+gNImfWiaPZ2GgURn+fZAcx+Fhc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=VUsd8kPK; arc=none smtp.client-ip=209.85.210.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LY4R44OP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1FCDC4CEF1;
-	Mon, 15 Sep 2025 05:48:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1757915302;
-	bh=QmA1uWtopyZKqYFa3aB5R38vcRhwp6UNA5QEhCCpxlY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=LY4R44OPNzL3Qer2vVNQup9uUTcNx43gZqh5FwLU0Oh1PdFVX0Y/KMu9Uvifa32bq
-	 LKQg8b7U2pc5ik4+PxHv4Vxaw4OOg+vsmxh8TnpYqhx/pMCEM27S4kfw09R8Z3+SrS
-	 WOCH3NphTYB7cis3wXHahmF9XEuFQFnTdwnEgrsxicfvxKQHyvsgH5+RBeSZZNlt+1
-	 jN5OeNDI/I13LeozFgh3Z/w6y7Zqmf8gbZ1coqUma25WZo+AQ3j6hF69NbTonbiUow
-	 a8r0c3Mzdr4L7umKhPtyml+GICc0Iz7CXrXjBFFY5PAmWMihDcJf2V0TWoeJPC1g6V
-	 RKkFNq598mfYQ==
-Date: Fri, 12 Sep 2025 12:03:27 +0300
-From: Leon Romanovsky <leon@kernel.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>,
-	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
-	Alexander Potapenko <glider@google.com>,
-	Alex Gaynor <alex.gaynor@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
-	David Hildenbrand <david@redhat.com>, iommu@lists.linux.dev,
-	Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-	Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>,
-	Juergen Gross <jgross@suse.com>, kasan-dev@googlegroups.com,
-	Keith Busch <kbusch@kernel.org>, linux-block@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-nvme@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, linux-trace-kernel@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
-	Sagi Grimberg <sagi@grimberg.me>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
-	xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v6 00/16] dma-mapping: migrate to physical address-based
- API
-Message-ID: <20250912090327.GU341237@unreal>
-References: <CGME20250909132821eucas1p1051ce9e0270ddbf520e105c913fa8db6@eucas1p1.samsung.com>
- <cover.1757423202.git.leonro@nvidia.com>
- <0db9bce5-40df-4cf5-85ab-f032c67d5c71@samsung.com>
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="VUsd8kPK"
+Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-77615d6af4fso3117163b3a.3
+        for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 00:34:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1757921680; x=1758526480; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=c0rUlxu9dxRa7SjOGu2hjs3bhYsbBAOKtMENXiwjFtw=;
+        b=VUsd8kPKS/L7aA3BwanwL6Gx0GvzIep48ZYR36XUx1B4xo6RfQ1EpTQgdnE82ibBrg
+         AEJCX9bAUNAyDtPD8iFJDegGv9AHtvDPKWp+E6kh5e8m0Ez4hWklKBEHntMAjw0UmYvg
+         a+US3o7JDHiqRD1gjgebegWuPoMO3wzMUWbYf3U+filtsaMkzqGMlHlDwfqiBELmSB01
+         z1G6Bu54/IjdoHQZUtULUQ3kxHu7rUoSmA7nj3v4NXzjkiCO42+VQ+oStFoRoDV/UB4h
+         DLuY5Eu99R4q9GGJOo7srEH+nW+525rONr5VgLh9G0N4sAHtnenrLm1C4u1xV8fewcuz
+         ZN7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757921680; x=1758526480;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=c0rUlxu9dxRa7SjOGu2hjs3bhYsbBAOKtMENXiwjFtw=;
+        b=gS7N66fe65gOL66679dUbyZgWHb2zWuYjY/rfyhUpcCVAv4Qk5EdkXEpWKl8MGWwMO
+         jO9GV/LbyxM5JyyLc0qn3nPx+vfLDMcaY/ZPio6HgIsHQD6LvHSI2FSbLuJEfRICwo3j
+         hCKLKXu1lqxKVINJulSVqXYpCFQDYDbqds0RsixF85wrhhxFjSiDidTB3vnX998syGTz
+         PaLjjL7rhdkf4cGY0+cdqNs/HjdDsBO8f0OhUbbT372gKaPvNHDnbOE0xNI77vNZfctT
+         NE9LooZbo1rgZ8OEsvMRKwpItL8d2XqZ8H8GlhXDXE6Yz+dQn2B5vJoiHCmp1YqOD01Z
+         e3gw==
+X-Gm-Message-State: AOJu0YzEGyNjljlXt093xsZKHET6pqwSVEfJ1ocYxN1rDFugXcgbaitu
+	FtV8nkjQXG2wpUr+NSNrxhhqFfEL3HjoUwOWfuxV1EV40EQZq5fbbTZmCs8qdDdA8h4=
+X-Gm-Gg: ASbGncviLsIcbr8lNWG1rX/Q8/4uFvpq7Z/n0kntgJSyYcIBJc/esJHps5/KAzy7Dbz
+	SXlo50V//3SDpu+zsEHqMruRS0CMJVJ7+FPOOmmjQAgPlIThF/Y/pwWA62hSQyOPlkTOdkRRY9W
+	Akadjz9dK1I7q5wAGhY5I66JZaPw56AUvOtS2JjMCsZ9/gpTQ8QV5qjoBB3i+0o3NO3HMnfazyy
+	VDFTGyd9/JIK+dS/9jseTJkq5hd3PiUbYU915lh/ekvHw3qnvDAq190PRZ5qGOXyGZ7Uv94x4M2
+	QfSJGzW/4KkdawXrevdCYO5I1V/csMdT+HW4py4TRkyIDO7AXyHFlHhISvw/R1tMxSegW7fBGBe
+	cjFZHnwOuT3ERsdouKPEsjPMCnA/fsejdibLhMRoFH4SkNldiPZqmFlBrIUYTTXqccWONfj/wH8
+	ct7fy8zTMPOg==
+X-Google-Smtp-Source: AGHT+IGWBBFTvXjPkwhC1q3K/gyU/0rSmSOfhvtAxOVjYW+gf7TUoGsC85i/QUCRghpMZknvfprsuQ==
+X-Received: by 2002:a05:6a20:7343:b0:243:aca2:e500 with SMTP id adf61e73a8af0-2602c04a56fmr14074924637.29.1757921679721;
+        Mon, 15 Sep 2025 00:34:39 -0700 (PDT)
+Received: from N91GQ2C6R9.bytedance.net ([61.213.176.56])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b54a387cd4bsm11050234a12.35.2025.09.15.00.34.35
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 15 Sep 2025 00:34:39 -0700 (PDT)
+From: sheng.zhao@bytedance.com
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	xieyongji@bytedance.com,
+	Sheng Zhao <sheng.zhao@bytedance.com>
+Subject: [PATCH] vduse: Use fixed 4KB bounce pages for arm64 64KB page size
+Date: Mon, 15 Sep 2025 15:34:29 +0800
+Message-Id: <20250915073429.54027-1-sheng.zhao@bytedance.com>
+X-Mailer: git-send-email 2.32.0 (Apple Git-132)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0db9bce5-40df-4cf5-85ab-f032c67d5c71@samsung.com>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 12, 2025 at 12:25:38AM +0200, Marek Szyprowski wrote:
-> On 09.09.2025 15:27, Leon Romanovsky wrote:
-> > From: Leon Romanovsky <leonro@nvidia.com>
-> >
-> > Changelog:
-> > v6:
-> >   * Based on "dma-debug: don't enforce dma mapping check on noncoherent
-> >     allocations" patch.
-> >   * Removed some unused variables from kmsan conversion.
-> >   * Fixed missed ! in dma check.
-> > v5: https://lore.kernel.org/all/cover.1756822782.git.leon@kernel.org
-> >   * Added Jason's and Keith's Reviewed-by tags
-> >   * Fixed DMA_ATTR_MMIO check in dma_direct_map_phys
-> >   * Jason's cleanup suggestions
-> > v4: https://lore.kernel.org/all/cover.1755624249.git.leon@kernel.org/
-> >   * Fixed kbuild error with mismatch in kmsan function declaration due to
-> >     rebase error.
-> > v3: https://lore.kernel.org/all/cover.1755193625.git.leon@kernel.org
-> >   * Fixed typo in "cacheable" word
-> >   * Simplified kmsan patch a lot to be simple argument refactoring
-> > v2: https://lore.kernel.org/all/cover.1755153054.git.leon@kernel.org
-> >   * Used commit messages and cover letter from Jason
-> >   * Moved setting IOMMU_MMIO flag to dma_info_to_prot function
-> >   * Micro-optimized the code
-> >   * Rebased code on v6.17-rc1
-> > v1: https://lore.kernel.org/all/cover.1754292567.git.leon@kernel.org
-> >   * Added new DMA_ATTR_MMIO attribute to indicate
-> >     PCI_P2PDMA_MAP_THRU_HOST_BRIDGE path.
-> >   * Rewrote dma_map_* functions to use thus new attribute
-> > v0: https://lore.kernel.org/all/cover.1750854543.git.leon@kernel.org/
-> > ------------------------------------------------------------------------
-> >
-> > This series refactors the DMA mapping to use physical addresses
-> > as the primary interface instead of page+offset parameters. This
-> > change aligns the DMA API with the underlying hardware reality where
-> > DMA operations work with physical addresses, not page structures.
-> >
-> > The series maintains export symbol backward compatibility by keeping
-> > the old page-based API as wrapper functions around the new physical
-> > address-based implementations.
-> >
-> > This series refactors the DMA mapping API to provide a phys_addr_t
-> > based, and struct-page free, external API that can handle all the
-> > mapping cases we want in modern systems:
-> >
-> >   - struct page based cacheable DRAM
-> >   - struct page MEMORY_DEVICE_PCI_P2PDMA PCI peer to peer non-cacheable
-> >     MMIO
-> >   - struct page-less PCI peer to peer non-cacheable MMIO
-> >   - struct page-less "resource" MMIO
-> >
-> > Overall this gets much closer to Matthew's long term wish for
-> > struct-pageless IO to cacheable DRAM. The remaining primary work would
-> > be in the mm side to allow kmap_local_pfn()/phys_to_virt() to work on
-> > phys_addr_t without a struct page.
-> >
-> > The general design is to remove struct page usage entirely from the
-> > DMA API inner layers. For flows that need to have a KVA for the
-> > physical address they can use kmap_local_pfn() or phys_to_virt(). This
-> > isolates the struct page requirements to MM code only. Long term all
-> > removals of struct page usage are supporting Matthew's memdesc
-> > project which seeks to substantially transform how struct page works.
-> >
-> > Instead make the DMA API internals work on phys_addr_t. Internally
-> > there are still dedicated 'page' and 'resource' flows, except they are
-> > now distinguished by a new DMA_ATTR_MMIO instead of by callchain. Both
-> > flows use the same phys_addr_t.
-> >
-> > When DMA_ATTR_MMIO is specified things work similar to the existing
-> > 'resource' flow. kmap_local_pfn(), phys_to_virt(), phys_to_page(),
-> > pfn_valid(), etc are never called on the phys_addr_t. This requires
-> > rejecting any configuration that would need swiotlb. CPU cache
-> > flushing is not required, and avoided, as ATTR_MMIO also indicates the
-> > address have no cacheable mappings. This effectively removes any
-> > DMA API side requirement to have struct page when DMA_ATTR_MMIO is
-> > used.
-> >
-> > In the !DMA_ATTR_MMIO mode things work similarly to the 'page' flow,
-> > except on the common path of no cache flush, no swiotlb it never
-> > touches a struct page. When cache flushing or swiotlb copying
-> > kmap_local_pfn()/phys_to_virt() are used to get a KVA for CPU
-> > usage. This was already the case on the unmap side, now the map side
-> > is symmetric.
-> >
-> > Callers are adjusted to set DMA_ATTR_MMIO. Existing 'resource' users
-> > must set it. The existing struct page based MEMORY_DEVICE_PCI_P2PDMA
-> > path must also set it. This corrects some existing bugs where iommu
-> > mappings for P2P MMIO were improperly marked IOMMU_CACHE.
-> >
-> > Since ATTR_MMIO is made to work with all the existing DMA map entry
-> > points, particularly dma_iova_link(), this finally allows a way to use
-> > the new DMA API to map PCI P2P MMIO without creating struct page. The
-> > VFIO DMABUF series demonstrates how this works. This is intended to
-> > replace the incorrect driver use of dma_map_resource() on PCI BAR
-> > addresses.
-> >
-> > This series does the core code and modern flows. A followup series
-> > will give the same treatment to the legacy dma_ops implementation.
-> 
-> Applied patches 1-13 into dma-mapping-for-next branch. Let's check if it 
-> works fine in linux-next.
+From: Sheng Zhao <sheng.zhao@bytedance.com>
 
-Thanks a lot.
+The allocation granularity of bounce pages is PAGE_SIZE. This may cause
+even small IO requests to occupy an entire bounce page exclusively. The
+kind of memory waste will be more significant on arm64 with 64KB pages.
 
-> 
-> Best regards
-> -- 
-> Marek Szyprowski, PhD
-> Samsung R&D Institute Poland
-> 
-> 
+So, optimize it by using fixed 4KB bounce pages.
+
+Signed-off-by: Sheng Zhao <sheng.zhao@bytedance.com>
+---
+ drivers/vdpa/vdpa_user/iova_domain.c | 120 +++++++++++++++++----------
+ drivers/vdpa/vdpa_user/iova_domain.h |   5 ++
+ 2 files changed, 83 insertions(+), 42 deletions(-)
+
+diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
+index 58116f89d8da..768313c80b62 100644
+--- a/drivers/vdpa/vdpa_user/iova_domain.c
++++ b/drivers/vdpa/vdpa_user/iova_domain.c
+@@ -103,19 +103,26 @@ void vduse_domain_clear_map(struct vduse_iova_domain *domain,
+ static int vduse_domain_map_bounce_page(struct vduse_iova_domain *domain,
+ 					 u64 iova, u64 size, u64 paddr)
+ {
+-	struct vduse_bounce_map *map;
++	struct vduse_bounce_map *map, *head_map;
++	struct page *tmp_page;
+ 	u64 last = iova + size - 1;
+ 
+ 	while (iova <= last) {
+-		map = &domain->bounce_maps[iova >> PAGE_SHIFT];
++		map = &domain->bounce_maps[iova >> BOUNCE_PAGE_SHIFT];
+ 		if (!map->bounce_page) {
+-			map->bounce_page = alloc_page(GFP_ATOMIC);
+-			if (!map->bounce_page)
+-				return -ENOMEM;
++			head_map = &domain->bounce_maps[(iova & PAGE_MASK) >> BOUNCE_PAGE_SHIFT];
++			if (!head_map->bounce_page) {
++				tmp_page = alloc_page(GFP_ATOMIC);
++				if (!tmp_page)
++					return -ENOMEM;
++				if (cmpxchg(&head_map->bounce_page, NULL, tmp_page))
++					__free_page(tmp_page);
++			}
++			map->bounce_page = head_map->bounce_page;
+ 		}
+ 		map->orig_phys = paddr;
+-		paddr += PAGE_SIZE;
+-		iova += PAGE_SIZE;
++		paddr += BOUNCE_PAGE_SIZE;
++		iova += BOUNCE_PAGE_SIZE;
+ 	}
+ 	return 0;
+ }
+@@ -127,12 +134,17 @@ static void vduse_domain_unmap_bounce_page(struct vduse_iova_domain *domain,
+ 	u64 last = iova + size - 1;
+ 
+ 	while (iova <= last) {
+-		map = &domain->bounce_maps[iova >> PAGE_SHIFT];
++		map = &domain->bounce_maps[iova >> BOUNCE_PAGE_SHIFT];
+ 		map->orig_phys = INVALID_PHYS_ADDR;
+-		iova += PAGE_SIZE;
++		iova += BOUNCE_PAGE_SIZE;
+ 	}
+ }
+ 
++static unsigned int offset_in_bounce_page(dma_addr_t addr)
++{
++	return (addr & ~BOUNCE_PAGE_MASK);
++}
++
+ static void do_bounce(phys_addr_t orig, void *addr, size_t size,
+ 		      enum dma_data_direction dir)
+ {
+@@ -163,7 +175,7 @@ static void vduse_domain_bounce(struct vduse_iova_domain *domain,
+ {
+ 	struct vduse_bounce_map *map;
+ 	struct page *page;
+-	unsigned int offset;
++	unsigned int offset, head_offset;
+ 	void *addr;
+ 	size_t sz;
+ 
+@@ -171,9 +183,10 @@ static void vduse_domain_bounce(struct vduse_iova_domain *domain,
+ 		return;
+ 
+ 	while (size) {
+-		map = &domain->bounce_maps[iova >> PAGE_SHIFT];
+-		offset = offset_in_page(iova);
+-		sz = min_t(size_t, PAGE_SIZE - offset, size);
++		map = &domain->bounce_maps[iova >> BOUNCE_PAGE_SHIFT];
++		head_offset = offset_in_page(iova);
++		offset = offset_in_bounce_page(iova);
++		sz = min_t(size_t, BOUNCE_PAGE_SIZE - offset, size);
+ 
+ 		if (WARN_ON(!map->bounce_page ||
+ 			    map->orig_phys == INVALID_PHYS_ADDR))
+@@ -183,7 +196,7 @@ static void vduse_domain_bounce(struct vduse_iova_domain *domain,
+ 		       map->user_bounce_page : map->bounce_page;
+ 
+ 		addr = kmap_local_page(page);
+-		do_bounce(map->orig_phys + offset, addr + offset, sz, dir);
++		do_bounce(map->orig_phys + offset, addr + head_offset, sz, dir);
+ 		kunmap_local(addr);
+ 		size -= sz;
+ 		iova += sz;
+@@ -218,7 +231,7 @@ vduse_domain_get_bounce_page(struct vduse_iova_domain *domain, u64 iova)
+ 	struct page *page = NULL;
+ 
+ 	read_lock(&domain->bounce_lock);
+-	map = &domain->bounce_maps[iova >> PAGE_SHIFT];
++	map = &domain->bounce_maps[iova >> BOUNCE_PAGE_SHIFT];
+ 	if (domain->user_bounce_pages || !map->bounce_page)
+ 		goto out;
+ 
+@@ -236,7 +249,7 @@ vduse_domain_free_kernel_bounce_pages(struct vduse_iova_domain *domain)
+ 	struct vduse_bounce_map *map;
+ 	unsigned long pfn, bounce_pfns;
+ 
+-	bounce_pfns = domain->bounce_size >> PAGE_SHIFT;
++	bounce_pfns = domain->bounce_size >> BOUNCE_PAGE_SHIFT;
+ 
+ 	for (pfn = 0; pfn < bounce_pfns; pfn++) {
+ 		map = &domain->bounce_maps[pfn];
+@@ -246,7 +259,8 @@ vduse_domain_free_kernel_bounce_pages(struct vduse_iova_domain *domain)
+ 		if (!map->bounce_page)
+ 			continue;
+ 
+-		__free_page(map->bounce_page);
++		if (!((pfn << BOUNCE_PAGE_SHIFT) & ~PAGE_MASK))
++			__free_page(map->bounce_page);
+ 		map->bounce_page = NULL;
+ 	}
+ }
+@@ -254,8 +268,12 @@ vduse_domain_free_kernel_bounce_pages(struct vduse_iova_domain *domain)
+ int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
+ 				       struct page **pages, int count)
+ {
+-	struct vduse_bounce_map *map;
+-	int i, ret;
++	struct vduse_bounce_map *map, *head_map;
++	int i, j, ret;
++	int inner_pages = PAGE_SIZE / BOUNCE_PAGE_SIZE;
++	int bounce_pfns = domain->bounce_size >> BOUNCE_PAGE_SHIFT;
++	struct page *head_page = NULL;
++	bool need_copy;
+ 
+ 	/* Now we don't support partial mapping */
+ 	if (count != (domain->bounce_size >> PAGE_SHIFT))
+@@ -267,16 +285,23 @@ int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
+ 		goto out;
+ 
+ 	for (i = 0; i < count; i++) {
+-		map = &domain->bounce_maps[i];
+-		if (map->bounce_page) {
++		need_copy = false;
++		head_map = &domain->bounce_maps[(i * inner_pages)];
++		head_page = head_map->bounce_page;
++		for (j = 0; j < inner_pages; j++) {
++			if ((i * inner_pages + j) >= bounce_pfns)
++				break;
++			map = &domain->bounce_maps[(i * inner_pages + j)];
+ 			/* Copy kernel page to user page if it's in use */
+-			if (map->orig_phys != INVALID_PHYS_ADDR)
+-				memcpy_to_page(pages[i], 0,
+-					       page_address(map->bounce_page),
+-					       PAGE_SIZE);
++			if ((head_page) && (map->orig_phys != INVALID_PHYS_ADDR))
++				need_copy = true;
++			map->user_bounce_page = pages[i];
+ 		}
+-		map->user_bounce_page = pages[i];
+ 		get_page(pages[i]);
++		if ((head_page) && (need_copy))
++			memcpy_to_page(pages[i], 0,
++				       page_address(head_page),
++				       PAGE_SIZE);
+ 	}
+ 	domain->user_bounce_pages = true;
+ 	ret = 0;
+@@ -288,8 +313,12 @@ int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
+ 
+ void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *domain)
+ {
+-	struct vduse_bounce_map *map;
+-	unsigned long i, count;
++	struct vduse_bounce_map *map, *head_map;
++	unsigned long i, j, count;
++	int inner_pages = PAGE_SIZE / BOUNCE_PAGE_SIZE;
++	int bounce_pfns = domain->bounce_size >> BOUNCE_PAGE_SHIFT;
++	struct page *head_page = NULL;
++	bool need_copy;
+ 
+ 	write_lock(&domain->bounce_lock);
+ 	if (!domain->user_bounce_pages)
+@@ -297,20 +326,27 @@ void vduse_domain_remove_user_bounce_pages(struct vduse_iova_domain *domain)
+ 
+ 	count = domain->bounce_size >> PAGE_SHIFT;
+ 	for (i = 0; i < count; i++) {
+-		struct page *page = NULL;
+-
+-		map = &domain->bounce_maps[i];
+-		if (WARN_ON(!map->user_bounce_page))
++		need_copy = false;
++		head_map = &domain->bounce_maps[(i * inner_pages)];
++		if (WARN_ON(!head_map->user_bounce_page))
+ 			continue;
+-
+-		/* Copy user page to kernel page if it's in use */
+-		if (map->orig_phys != INVALID_PHYS_ADDR) {
+-			page = map->bounce_page;
+-			memcpy_from_page(page_address(page),
+-					 map->user_bounce_page, 0, PAGE_SIZE);
++		head_page = head_map->user_bounce_page;
++
++		for (j = 0; j < inner_pages; j++) {
++			if ((i * inner_pages + j) >= bounce_pfns)
++				break;
++			map = &domain->bounce_maps[(i * inner_pages + j)];
++			if (WARN_ON(!map->user_bounce_page))
++				continue;
++			/* Copy user page to kernel page if it's in use */
++			if ((map->orig_phys != INVALID_PHYS_ADDR) && (head_map->bounce_page))
++				need_copy = true;
++			map->user_bounce_page = NULL;
+ 		}
+-		put_page(map->user_bounce_page);
+-		map->user_bounce_page = NULL;
++		if (need_copy)
++			memcpy_from_page(page_address(head_map->bounce_page),
++					 head_page, 0, PAGE_SIZE);
++		put_page(head_page);
+ 	}
+ 	domain->user_bounce_pages = false;
+ out:
+@@ -581,7 +617,7 @@ vduse_domain_create(unsigned long iova_limit, size_t bounce_size)
+ 	unsigned long pfn, bounce_pfns;
+ 	int ret;
+ 
+-	bounce_pfns = PAGE_ALIGN(bounce_size) >> PAGE_SHIFT;
++	bounce_pfns = PAGE_ALIGN(bounce_size) >> BOUNCE_PAGE_SHIFT;
+ 	if (iova_limit <= bounce_size)
+ 		return NULL;
+ 
+@@ -613,7 +649,7 @@ vduse_domain_create(unsigned long iova_limit, size_t bounce_size)
+ 	rwlock_init(&domain->bounce_lock);
+ 	spin_lock_init(&domain->iotlb_lock);
+ 	init_iova_domain(&domain->stream_iovad,
+-			PAGE_SIZE, IOVA_START_PFN);
++			BOUNCE_PAGE_SIZE, IOVA_START_PFN);
+ 	ret = iova_domain_init_rcaches(&domain->stream_iovad);
+ 	if (ret)
+ 		goto err_iovad_stream;
+diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_user/iova_domain.h
+index 7f3f0928ec78..23139a2eaf5c 100644
+--- a/drivers/vdpa/vdpa_user/iova_domain.h
++++ b/drivers/vdpa/vdpa_user/iova_domain.h
+@@ -19,6 +19,11 @@
+ 
+ #define INVALID_PHYS_ADDR (~(phys_addr_t)0)
+ 
++#define BOUNCE_PAGE_SHIFT	12
++#define BOUNCE_PAGE_SIZE	(1 << BOUNCE_PAGE_SHIFT)
++#define BOUNCE_PAGE_MASK	(~(BOUNCE_PAGE_SIZE - 1))
++#define BOUNCE_PAGE_ALIGN(addr)	(((addr) + BOUNCE_PAGE_SIZE - 1) & ~(BOUNCE_PAGE_SIZE - 1))
++
+ struct vduse_bounce_map {
+ 	struct page *bounce_page;
+ 	struct page *user_bounce_page;
+-- 
+2.20.1
+
