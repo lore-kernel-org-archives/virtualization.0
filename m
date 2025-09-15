@@ -1,141 +1,275 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 654EA30499D
-	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 10:47:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBE873002B6
+	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 10:50:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757933275; cv=none; b=nX0g0pWiXr4l0mphnhdv9jkArqsZaq4mbsNUKNcLSnFtEUAo7vIKiOcq+th5E8X90r2QrAHZcONkvJ7OyulpRYiuSfvTfldUT2ApcrHoLgUOAZOjfF68fODLP9FO5TtH2ARHgIPNOxn3jC4yibUqvwT+m6+Q0ZZtGnBDoN+GjOw=
+	t=1757933460; cv=none; b=SN97/rcqLSWFF9bI0QH5U1qbBcwkcUhaJFr74oLATgWA7NW0GsClqX7bwoTIWWhT5viGtMd0C3rQWtCmm8NM03/Oxq4zCXj9iyw0JWBpq1Pn1bNY4OdG2PjvrLG7DmI5Hbs1j7+0bqw8wzBJlY8divqfzgBV9OeSjCsFZ4HWuW4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757933275; c=relaxed/simple;
-	bh=XORibMK+HoTqfv4y9FVPPOq9ONbLbN3AR+BVl4Gb9Yg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=eRUNwIJOtFZp+5Q9x4/XsxzcjCaPDnSXzGuPOqGFyzILfGjlMsbouMhAgiZCFkxEKvY11bp2OdmZ0OeVj/tpyORZn6fg3Nx7+7yGvt2eo1Jf9ypxeijRduiC42gL9txYd4vqzSpyGaCVO1qg8ne9JQUjHd8iwX1uQDjovfQqm6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-62ef469bb2cso4546279a12.2
-        for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 03:47:52 -0700 (PDT)
+	s=arc-20240116; t=1757933460; c=relaxed/simple;
+	bh=OeQ9IpcIgY6LuQ+H/vwv6HoMGf9i92u1oM3pZdgDcDo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kErwg8lmb27Gc9/jNtQ8x2LWW10G1wYjh7syFovv61h62lLwkAbRI+wIF4mMCXFtKehHuHXoNLFVH17nwoLQVr4673I0frL+Y3H5A2ohO9ZtCs+uVcd50bLF50SxWI0kuK7DGFDN2NFojs4YK0XgOpU4eHQsGu/jkkmHGqnpsw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PNjg3BuK; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PNjg3BuK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1757933455;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xIotmOhuWaawwyuguxFvpeivsv2Is6XSpz6kCrw27oI=;
+	b=PNjg3BuKWG829jXBBW3NkzjzZFVPp3twu3TAAg2WJMvCGe38kxMZDz7OI8H+Duu3YMVCNF
+	U/xyeOtuMi00NG6aBxF4/uM1mAo51Kzyomjfe7z9A5ioxN/uJCCkz3S+LFXYbwY61UYsSX
+	eMmciOtTS+axIwHbnn3oshHrlQd8WdQ=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-686-SBQrcPN3PYOGJkzB378KHA-1; Mon, 15 Sep 2025 06:50:54 -0400
+X-MC-Unique: SBQrcPN3PYOGJkzB378KHA-1
+X-Mimecast-MFC-AGG-ID: SBQrcPN3PYOGJkzB378KHA_1757933453
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-b04827ca035so538182866b.0
+        for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 03:50:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757933271; x=1758538071;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1757933453; x=1758538253;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=DEFtILFHyV3cwaZ5irPCMUES0101pMsbpssc+ihdXEQ=;
-        b=jG2kDPBmjDtaKv7HjsQD93K1V54u7fIOFDB48deSDDJxZNwSTyaSf0FZSKfTCqaKBT
-         9U6tUvP7oYmlx7QTzEW/xrAugJr1ir2N7GLlvub+hCl021GVwjCy/VM2eBMVE9L7OPpt
-         Yx3rjvVnT5QrcOQOmOuHo1TNjH4/8IAFZ21oDpif5WaUcW2fEtGKaX471Ean7sCGZQ6y
-         FeaOwf1dJWpW62yjm5CqkVmq5wccRQnBD3WlXnLf2vgk5Ym+mYe+KnFM6D0jrtzLibx5
-         S45kagiFje9MCD0es5oEHVIfPceO2qaptrbJHZkDzTQUbQg1OQjVPT5/+0KgeJ+tFXBl
-         I5/A==
-X-Forwarded-Encrypted: i=1; AJvYcCUoRPcOXa+3N/emE8DK3Z0lMVfDaZ17oBbSC+6j5EGDO7neHmTHx+b9Bqsjp5duDCYlOdJCJ/uCi7Y8laWTIw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YweOX23mlafA4Lg1z5kSI8fpdjMFsi+cUJyoQD7NDoJgUUViy1j
-	XXu9DOhCXp+cj8PZSsCtiIUDs3O7vDQGx3F/GT9y2DmOUCIa7Xxy+Wqc
-X-Gm-Gg: ASbGncsWCnUclRsujU0IAnSkK7tyMTUaAEtGgw8HwrA+Wa9smeB6LuZBtuxCojm+/Zr
-	vyJGqr29PQnmARQy2Ib+iLViiV1PcSUuF5XwaSK302r5S6rGD7xxgguU+uQhL2gH4YsdeErkBmS
-	dOIToX/vrVeY+tDj9WODAhz5iIh5NyjAeClnBHykadgUJcjg5oyiKily+5jaQR3uIxHSJyh5lgp
-	bKMbk1sG9cCcoSQu/XReptC/Xog3FFdXeRweNKArlrMt7maiVrARK+6EB6H0qIw+/G9jQSgCdTV
-	mOb/gx7/A0zDS4S+hiZwDhQ8bROog5RBdfRxBipZxNTt7Pcjg2fVP0ZNz0O7bGNO4JaEjjW+8Tm
-	CdoTK6yml+3xUFyzTFekPPaw=
-X-Google-Smtp-Source: AGHT+IF5+uiN5sa5sYRSXuXbbs7oJKleowLHu5cpGTRmFx/VXRwFkx7z/RvBypC9//fYJkMmWRQHyw==
-X-Received: by 2002:a17:907:3c8b:b0:b0e:677c:d478 with SMTP id a640c23a62f3a-b0e679b61fbmr501433766b.19.1757933270605;
-        Mon, 15 Sep 2025 03:47:50 -0700 (PDT)
-Received: from localhost ([2a03:2880:30ff:5::])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b07b32ef574sm930111766b.73.2025.09.15.03.47.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Sep 2025 03:47:50 -0700 (PDT)
-From: Breno Leitao <leitao@debian.org>
-Date: Mon, 15 Sep 2025 03:47:33 -0700
-Subject: [PATCH net-next v3 8/8] net: virtio_net: add get_rxrings ethtool
- callback for RX ring queries
+        bh=xIotmOhuWaawwyuguxFvpeivsv2Is6XSpz6kCrw27oI=;
+        b=g85Z38kYMBYvq2ZxacgIDCMNCZlAe5ZpF8rpE4PS/eMvpGSHbvhWe9qX5OjxwzRkNc
+         lTsz5L4pvVBLJkQFVayr7zC6TrfJ/drlmOBgtYpWz3Vc3Yvw5FGL5e2LfwNCYTOuzmkG
+         iWn6QX7iDCVBCBeOJJJfZaB4q9boyQCUcKhgEPX5VSx1RkVbgpf89rEGJXt8V1Du4Vux
+         660Fj+yJr462Urkf/TmWbbeo6O2YZxIeCR3jRfZmpHLtCFbgSrXGKXxEqXFtIdVV/EQV
+         +dSUNGrHOKkm/s2eRMgzqiWGRc+nrzAzsZ1MVxKS/Ikb/DsSKDQckg95jl99b3xZuxhK
+         4yKw==
+X-Forwarded-Encrypted: i=1; AJvYcCWTiQMBXwMRcTjzr2iAOhopBZIC53OwC1UuGX04oWRtKORGlwS0/gIUo5P8hKcmcwm7Oyh7WgITDDY3bQMkEg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz+8DpFNV3Hs06BWv0QlKOsbAlByM/xpgv82P3ixBQKcTYenpoT
+	0FBBeztgUYyFxSKXVjbBbtwkH0ahbXR/LkmjO10Phw/GgRuW906URqKHgeeApsU/dFtGhQPWpBo
+	U8VqmuwSdw6xHESycDAqW9RsuJOe4oBC1S+Vsy3M8k4EQ6Mttrp12jP9wtIDKAUPiO61MplZQOh
+	IOLvqaBOgD16aHcM158QkujQuAX09t+q3oD8aj0ZMJl7Q=
+X-Gm-Gg: ASbGncvahBlkG8XoANz7gygqJoqSOTETZhU8zidz7tv73IATmnovENoOxNmlF7xjFem
+	NsVvIppu0hMvrjdcBJ91F8Zsw1WD/UlbDC8UzYynQ8HknXQF0DO+O4466fr65ag1lAVwzyTAl/m
+	NIR5jRUYGJE9ecC1zTGeT3ww==
+X-Received: by 2002:a17:906:3714:b0:b07:c715:31 with SMTP id a640c23a62f3a-b07c7151ae3mr888505966b.65.1757933453346;
+        Mon, 15 Sep 2025 03:50:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEwFXUMPhAfyOyWhskdT4TwFZdYDKzqZ9x9X/pura5VoVKpLkZNrGTRxBMnHJGvlHr1k7JI+yYLa/zNh3SQB5Q=
+X-Received: by 2002:a17:906:3714:b0:b07:c715:31 with SMTP id
+ a640c23a62f3a-b07c7151ae3mr888502166b.65.1757933452849; Mon, 15 Sep 2025
+ 03:50:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250915-gxrings-v3-8-bfd717dbcaad@debian.org>
-References: <20250915-gxrings-v3-0-bfd717dbcaad@debian.org>
-In-Reply-To: <20250915-gxrings-v3-0-bfd717dbcaad@debian.org>
-To: Andrew Lunn <andrew@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
- kuba@kernel.org, Simon Horman <horms@kernel.org>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- virtualization@lists.linux.dev, Breno Leitao <leitao@debian.org>, 
- Lei Yang <leiyang@redhat.com>, kernel-team@meta.com
-X-Mailer: b4 0.15-dev-dd21f
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1617; i=leitao@debian.org;
- h=from:subject:message-id; bh=XORibMK+HoTqfv4y9FVPPOq9ONbLbN3AR+BVl4Gb9Yg=;
- b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBox+7Ha+vYd+sWCyL8VwwHbZu51WC2X9xdaW/wJ
- Jlp8e8BwJiJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCaMfuxwAKCRA1o5Of/Hh3
- bVefEACYQzpDuHMK20qeGjvp9xI3L0p/CK3fhZQXXd0c2kdIerKJ7wW0ynIb4MkeF/NbJVeUgtK
- i22XWn/sWXXXTAm6+QHRBuzWb5AMhnwhPh5Mm0LSzf7vDDnNkQvv52UaI1uJuSQL0z8r4p7+e6s
- MWz79OSuL5KBLydsizzRc7IHcCtyipRjHOqGUaTDvYeaGQCovdF3b374+JyQaRifsTSZwecODft
- 74HzX/lqOgp1PYvKWx251NQb2/HaXuMn8zJZuphVmikSeels7/+fDO1rm0jmIE2TptULnr8TfV2
- 5gev9QSzwNG328eoo/oGFDP7vArQXiOJGjO8je+72OxvS+sXGH0s0YbdJhWSJOGYzegGqdzSOhZ
- +IlTmVzEz/AVmXQB2U97x6KuO11tezqqo5cvesMUfsH0rITk/o/mqfG7S31HfslBqdXlMrnPrwm
- AUjJPy1qQvV0RaJNTTboG0MNmOLfixX9E80VMFLAzlaLjeo7/FhiW2GokTGHARWIf3O4gmJ0UKh
- liJ97wftD3EEHnVdyTISbTqMfblm2jQBHomHBOT1129cO98D/sQEoz/1+i3YiIGmG3BzkMAZzsn
- zljywNgv+N5AS1UqmhXTwGF/8nGte7fsz7wEIRkFs4bkwEJBzFlfGJyNFLdBdIs1kYY0Zw1/t9h
- IOVI/rg3jXoSZWw==
-X-Developer-Key: i=leitao@debian.org; a=openpgp;
- fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
+References: <20250912-gxrings-v2-0-3c7a60bbeebf@debian.org>
+In-Reply-To: <20250912-gxrings-v2-0-3c7a60bbeebf@debian.org>
+From: Lei Yang <leiyang@redhat.com>
+Date: Mon, 15 Sep 2025 18:50:15 +0800
+X-Gm-Features: AS18NWDF1ZgPv9MjjdEfNagbJ6NFrcc2o78etskRgD59xtA91YySZUY1aQQZh_w
+Message-ID: <CAPpAL=zn7ZQ_bVBML5no3ifkBNgd2d-uhx5n0RUTn-DXWyPxKQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 0/7] net: ethtool: add dedicated GRXRINGS
+ driver callbacks
+To: Breno Leitao <leitao@debian.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, kuba@kernel.org, 
+	Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	kernel-team@meta.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 2xtJdS0yp6mb_yKCEWDyMV3Da4DXxg9WlLQHDFcfxpo_1757933453
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Replace the existing virtnet_get_rxnfc callback with a dedicated
-virtnet_get_rxrings implementation to provide the number of RX rings
-directly via the new ethtool_ops get_rx_ring_count pointer.
+Hi Breno
 
-This simplifies the RX ring count retrieval and aligns virtio_net with
-the new ethtool API for querying RX ring parameters.
+This series of patches introduced a kernel panic bug. The tests are
+based on the linux-next commit [1]. I tried it a few times and found
+that if I didn't apply the current patch, the issue wouldn't be
+triggered. After applying the current patch, the probability of
+triggering the issue was 3/3.
 
-Signed-off-by: Breno Leitao <leitao@debian.org>
----
- drivers/net/virtio_net.c | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+Reproduced steps:
+1. git clone https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-nex=
+t.git
+2. applied this series of patches
+3. compile and install
+4. reboot server(A kernel panic occurs at this step)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 06708c9a979e6..7da5a37917e92 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -5609,20 +5609,11 @@ static int virtnet_set_rxfh(struct net_device *dev,
- 	return 0;
- }
- 
--static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info, u32 *rule_locs)
-+static u32 virtnet_get_rx_ring_count(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	int rc = 0;
- 
--	switch (info->cmd) {
--	case ETHTOOL_GRXRINGS:
--		info->data = vi->curr_queue_pairs;
--		break;
--	default:
--		rc = -EOPNOTSUPP;
--	}
--
--	return rc;
-+	return vi->curr_queue_pairs;
- }
- 
- static const struct ethtool_ops virtnet_ethtool_ops = {
-@@ -5650,7 +5641,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.set_rxfh = virtnet_set_rxfh,
- 	.get_rxfh_fields = virtnet_get_hashflow,
- 	.set_rxfh_fields = virtnet_set_hashflow,
--	.get_rxnfc = virtnet_get_rxnfc,
-+	.get_rx_ring_count = virtnet_get_rx_ring_count,
- };
- 
- static void virtnet_get_queue_stats_rx(struct net_device *dev, int i,
+[1] commit 590b221ed4256fd6c34d3dea77aa5bd6e741bbc1 (tag:
+next-20250912, origin/master, origin/HEAD)
+Author: Stephen Rothwell <sfr@canb.auug.org.au>
+Date:   Fri Sep 12 15:15:12 2025 +1000
 
--- 
-2.47.3
+    Add linux-next specific files for 20250912
+
+    Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+
+kernel panic messages:
+[   13.769667] systemd[1]: bpf-restrict-fs: LSM BPF program attached
+[   13.840778] systemd-rc-local-generator[1084]: /etc/rc.d/rc.local is
+not marked executable, skipping.
+[   13.892736]  slab kmalloc-64 start ffff8b3784459940 pointer offset 40 si=
+ze 64
+[   13.899909] list_add corruption. prev->next should be next
+(ffffffffb5a91608), but was dead000000000100. (prev=3Dffff8b3784459968).
+[   13.911570] ------------[ cut here ]------------
+[   13.916185] kernel BUG at lib/list_debug.c:32!
+[   13.920637] Oops: invalid opcode: 0000 [#1] SMP NOPTI
+[   13.925708] CPU: 26 UID: 0 PID: 325 Comm: kworker/26:1 Tainted: G S
+         E       6.17.0-rc5-next-20250912+ #2 PREEMPT(voluntary)
+[   13.937692] Tainted: [S]=3DCPU_OUT_OF_SPEC, [E]=3DUNSIGNED_MODULE
+[   13.943437] Hardware name: Dell Inc. PowerEdge R740xd/01YM03, BIOS
+2.2.11 06/13/2019
+[   13.951176] Workqueue: cgroup_free css_free_rwork_fn
+[   13.956150] RIP: 0010:__list_add_valid_or_report+0x94/0xa0
+[   13.961635] Code: cf 88 ff 0f 0b 48 89 f7 48 89 34 24 e8 45 ba c7
+ff 48 8b 34 24 48 c7 c7 e8 fe e7 b4 48 8b 16 48 89 f1 48 89 de e8 8c
+cf 88 ff <0f> 0b 90 66 0f 1f 84 00 00 00 00 00 90 90 90 90 90 90 90 90
+90 90
+[   13.980381] RSP: 0018:ffffcdcb07397dc0 EFLAGS: 00010246
+[   13.985605] RAX: 0000000000000075 RBX: ffffffffb5a91608 RCX: 00000000000=
+00003
+[   13.992740] RDX: 0000000000000000 RSI: 0000000000000003 RDI: ffffffffb59=
+e45c8
+[   13.999870] RBP: ffff8b3008a6e5b0 R08: 0000000000000000 R09: ffffcdcb073=
+97c48
+[   14.007001] R10: ffffffffb5924588 R11: 0000000000000003 R12: ffffffffb5a=
+91600
+[   14.014135] R13: ffff8b3784459968 R14: ffff8b3008a6e040 R15: ffff8b3004e=
+5b468
+[   14.021267] FS:  0000000000000000(0000) GS:ffff8b37a9be9000(0000)
+knlGS:0000000000000000
+[   14.029352] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   14.035098] CR2: 00007fb1ef5862f4 CR3: 0000000ed3a24006 CR4: 00000000007=
+706f0
+[   14.042229] PKRU: 55555554
+[   14.044942] Call Trace:
+[   14.047395]  <TASK>
+[   14.049501]  mem_cgroup_css_free+0x52/0x150
+[   14.053688]  css_free_rwork_fn+0x4e/0x1f0
+[   14.057701]  process_one_work+0x18b/0x340
+[   14.061714]  worker_thread+0x256/0x3a0
+[   14.065465]  ? __pfx_worker_thread+0x10/0x10
+[   14.069737]  kthread+0xfc/0x240
+[   14.072882]  ? __pfx_kthread+0x10/0x10
+[   14.076633]  ? __pfx_kthread+0x10/0x10
+[   14.080388]  ret_from_fork+0xf0/0x110
+[   14.084053]  ? __pfx_kthread+0x10/0x10
+[   14.087807]  ret_from_fork_asm+0x1a/0x30
+[   14.091733]  </TASK>
+[   14.093924] Modules linked in: xfs(E) sd_mod(E) ahci(E) libahci(E)
+ghash_clmulni_intel(E) wdat_wdt(E) megaraid_sas(E) tg3(E) libata(E)
+wmi(E) sunrpc(E) dm_mirror(E) dm_region_hash(E) dm_log(E) dm_mod(E)
+be2iscsi(E) iscsi_boot_sysfs(E) bnx2i(E) cnic(E) uio(E) cxgb4i(E)
+cxgb4(E) tls(E) libcxgbi(E) libcxgb(E) iscsi_tcp(E) libiscsi_tcp(E)
+libiscsi(E) scsi_transport_iscsi(E) nfnetlink(E)
+[   14.093947] Unloaded tainted modules: fjes(E):1
+[   14.132310] ---[ end trace 0000000000000000 ]---
+[   14.177186] RIP: 0010:__list_add_valid_or_report+0x94/0xa0
+[   14.182685] Code: cf 88 ff 0f 0b 48 89 f7 48 89 34 24 e8 45 ba c7
+ff 48 8b 34 24 48 c7 c7 e8 fe e7 b4 48 8b 16 48 89 f1 48 89 de e8 8c
+cf 88 ff <0f> 0b 90 66 0f 1f 84 00 00 00 00 00 90 90 90 90 90 90 90 90
+90 90
+[   14.201432] RSP: 0018:ffffcdcb07397dc0 EFLAGS: 00010246
+[   14.206666] RAX: 0000000000000075 RBX: ffffffffb5a91608 RCX: 00000000000=
+00003
+[   14.213803] RDX: 0000000000000000 RSI: 0000000000000003 RDI: ffffffffb59=
+e45c8
+[   14.220934] RBP: ffff8b3008a6e5b0 R08: 0000000000000000 R09: ffffcdcb073=
+97c48
+[   14.228067] R10: ffffffffb5924588 R11: 0000000000000003 R12: ffffffffb5a=
+91600
+[   14.235199] R13: ffff8b3784459968 R14: ffff8b3008a6e040 R15: ffff8b3004e=
+5b468
+[   14.242331] FS:  0000000000000000(0000) GS:ffff8b37a9be9000(0000)
+knlGS:0000000000000000
+[   14.250419] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   14.256164] CR2: 00007fb1ef5862f4 CR3: 0000000ed3a24006 CR4: 00000000007=
+706f0
+[   14.263296] PKRU: 55555554
+[   14.266011] Kernel panic - not syncing: Fatal exception
+[   14.271323] Kernel Offset: 0x32600000 from 0xffffffff81000000
+(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+[   14.323149] ---[ end Kernel panic - not syncing: Fatal exception ]---
+
+Thanks
+Lei
+
+
+On Fri, Sep 12, 2025 at 11:59=E2=80=AFPM Breno Leitao <leitao@debian.org> w=
+rote:
+>
+> This patchset introduces a new dedicated ethtool_ops callback,
+> .get_rx_ring_count, which enables drivers to provide the number of RX
+> rings directly, improving efficiency and clarity in RX ring queries and
+> RSS configuration.
+>
+> Number of drivers implements .get_rxnfc callback just to report the ring
+> count, so, having a proper callback makes sense and simplify .get_rxnfc
+> (in some cases remove it completely).
+>
+> This has been suggested by Jakub, and follow the same idea as RXFH
+> driver callbacks [1].
+>
+> This also port virtio_net to this new callback. Once there is consensus
+> on this approach, I can start moving the drivers to this new callback.
+>
+> Link: https://lore.kernel.org/all/20250611145949.2674086-1-kuba@kernel.or=
+g/ [1]
+>
+> Suggested-by: Jakub Kicinski <kuba@kernel.org>
+> Signed-off-by: Breno Leitao <leitao@debian.org>
+> Tested-by: Lei Yang <leiyang@redhat.com>
+> ---
+> Changes in v2:
+> - rename get_num_rxrings() to ethtool_get_rx_ring_count() (Jakub)
+> - initialize struct ethtool_rxnfc() (Jakub)
+> - Link to v1: https://lore.kernel.org/r/20250909-gxrings-v1-0-634282f06a5=
+4@debian.org
+> ---
+> Changes v1 from RFC:
+> - Renaming and changing the return type of .get_rxrings() callback (Jakub=
+)
+> - Add the docstring format for the new callback (Simon)
+> - Remove the unecessary WARN_ONCE() (Jakub)
+> - Link to RFC: https://lore.kernel.org/r/20250905-gxrings-v1-0-984fc471f2=
+8f@debian.org
+>
+> ---
+> Breno Leitao (7):
+>       net: ethtool: pass the num of RX rings directly to ethtool_copy_val=
+idate_indir
+>       net: ethtool: add support for ETHTOOL_GRXRINGS ioctl
+>       net: ethtool: remove the duplicated handling from ethtool_get_rxrin=
+gs
+>       net: ethtool: add get_rx_ring_count callback to optimize RX ring qu=
+eries
+>       net: ethtool: update set_rxfh to use ethtool_get_rx_ring_count help=
+er
+>       net: ethtool: update set_rxfh_indir to use ethtool_get_rx_ring_coun=
+t helper
+>       net: virtio_net: add get_rxrings ethtool callback for RX ring queri=
+es
+>
+>  drivers/net/virtio_net.c | 15 ++-------
+>  include/linux/ethtool.h  |  2 ++
+>  net/ethtool/ioctl.c      | 81 +++++++++++++++++++++++++++++++++++++-----=
+------
+>  3 files changed, 68 insertions(+), 30 deletions(-)
+> ---
+> base-commit: 1f24a240974589ce42f70502ccb3ff3f5189d69a
+> change-id: 20250905-gxrings-a2ec22ee2aec
+>
+> Best regards,
+> --
+> Breno Leitao <leitao@debian.org>
+>
 
