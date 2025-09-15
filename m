@@ -1,137 +1,115 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36E612FDC42
-	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 11:00:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A6A92727F5
+	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 11:07:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757934007; cv=none; b=iQOkQYuJA6LB1jmVuQ0E1Sekvr0A5nzUnWEqjn40SNhUCC8uolLlt0ShsL8j5ys9tn44b/aM4qDXazSiIKkytHZQo29GVXGqgDMsyqFyAHKcy7tJCFMM1ijDf0qIjDUWKJgEvOYuO892jXEyTvlGeYYKSwpnjsdmLKsf4kQaL1U=
+	t=1757934475; cv=none; b=uHe5hXsNcOJWcZnVlOBd6aMa6vQeu9IkVV/iXuogE7nAYdJvtMrYoHdstTULcKn+cuno83GxHlFqrc2qN8oSm1x2h2ONHzFi27U4UfHaIK8glfN+vDkp7Hmgqq4rCbfBMy4krRh4zoOxs1RNhFyPXAUAcfxcMmU3BHe49JdTVkY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757934007; c=relaxed/simple;
-	bh=MZ2Lk0VILdWqbc27hgBRyrK0F859ToA8uD4l4sEkcHY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=H8/VeHZX8v5E6FpgArnSY5tS1Lw0KaQk78EsQtfQydICgbmZhx9XQSZLAUSAOtA8pU0UaVxEHLuxLvpIv0GzdjkE9qEM8B7NQN+ApWzUFdUnaknP56rdjutBRLX1TdpRuqD4H7QJpnCrtYr86K20HDCeUi4hQx0KLrD6pBOaEtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iXmRGYED; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1757934475; c=relaxed/simple;
+	bh=jn1UDMrVa2RkwDackfdvSPicrQA1mPEJmzSV+2yR/3M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bKXk2QSu5eZAxALNFiVg/+q1ff1l0yRj//LPjMmktCD7XWgHjzCNCyKF09Hm4OdcFpsPwuWEK2PaQdKOdRHt5yNhC581o3RXC3Km6oV/12yTm9AmKKV97/wVA4YuonqMQr2G0a1R7S+VzOQHoXWJ41YPDHa80ZaOChSRsrmZ8Ek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=h4VehND5; arc=none smtp.client-ip=209.85.210.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iXmRGYED"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1757934004;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8LG/krU4VzCXhXDYZfOJeBrVjlSMl4dB2Tr4WvxEGIU=;
-	b=iXmRGYEDVo+R0Xbe3h0VbVvnPRQN7ADHHkVVPNEd+0zYB1HUWHAw7onxovwqaQIGU0dFvs
-	4IqI6x30ZaAicQWYiY/Jo+jaYDP4rUUY2ghv75O+WEX/VjXt9VIWO2irapQKwHlboOPmpO
-	ENCBF7jrbUODMa3VvFZ4hg8SanLX00U=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-627-plJ5GG19PCCeYfc4rSRt6g-1; Mon, 15 Sep 2025 07:00:02 -0400
-X-MC-Unique: plJ5GG19PCCeYfc4rSRt6g-1
-X-Mimecast-MFC-AGG-ID: plJ5GG19PCCeYfc4rSRt6g_1757934002
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-62ef8d95301so1632148a12.1
-        for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 04:00:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="h4VehND5"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-7741991159bso5286133b3a.0
+        for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 04:07:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1757934473; x=1758539273; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=kdq8TPOWgd9r2bHucRGGKVjUvkEbkZsPHnW8zymhVdQ=;
+        b=h4VehND5pxmg0PIVmODxStn3IkKJD6J4HIWTciF2BHOh5jzaN9nJFyQnO14DKqFLGC
+         eKP8EvmhvWspg7kBvMaGlM91N3w2fIJkcGU+3gs7nfyi7i/3ckHKh2BnnGkd86jWVndy
+         XbTOggUEPCzfq0+gcOB99j+dfBE+ptkr6DFyfkF+61oaannqwjjYAhZ9UndbOTPLoPbp
+         OqRYQgMWpeHM3l1LjXpDQ+joW1UXr4G443V5q87J+SX9KqOYuu2ooGGEvJ+YrA++LZW5
+         t4GIzA8b9GcNpAiBsGlKKLszwBCysj1MVhHcdjIe9NqXKSFcanEjR7kU/VHmmyFD5QgZ
+         XWAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757934002; x=1758538802;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8LG/krU4VzCXhXDYZfOJeBrVjlSMl4dB2Tr4WvxEGIU=;
-        b=BTl9dPgivfWmkCn4dCxHQrFNxHGYjTMbJLFa6WRyUX0bF6vwJN9d4OO/5qyzIeZXCT
-         LaygG/vEjwVg9GxqnGLlnzk5G//xd5FAUrA2VKqOEWb6uavEpgdo6mp+huPY4YiflVT9
-         ELekxWBHLzp5HzBCJKb+Qjd3GyrLH0tqHeSwSQxMlrsrEEANP0riWqBZOyx4dMfRUI62
-         aWsRl8lSyzGv6hisrMd4fZmPjfLq8T4RKqToTrUQdTXoI4cJTEIWrzTDGTTJcSf7tKLk
-         EllHIpNUuDnE3e490+Sw5zn2N1SznwqdkPX2mRJsO/zMuTDvLJunsF8bAMNOvMNpMVln
-         URgA==
-X-Forwarded-Encrypted: i=1; AJvYcCUzEOS/ioY5CBY8SwgqVwDcDK/iBS5njGt+ywssWi77Z4xeTAkmgcVz2bd7min5066vtPX6Tr9E2OSlN8UyiQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywugab/95+pEEENz+k7lYlBajDwp7OOGb6HprX6GUa4uBE8g7xU
-	bLzal8pFXfd8P0CO1WrKS1ViPIiBjiEWA0zCrLF4d/A3ycOZB4PRkbDPjM0r+mx08rdqGQ6+yaY
-	i6gA6Gw4GEAhj4rC435bcaHXWvpCerdeelQy6gVlIXTnFthCRl3prbS0LShiZBYcR+LvywHoaqm
-	kajGdKP9+/ZNyTn8KXbXtWnXfhz7wJryEnZMfctBioJ5Q=
-X-Gm-Gg: ASbGnctMm0phvn6pZa/lliBa1XKCZNDJJ5NDbr/sC4qnFuGegUG1q4GJ6pIhb+jdb24
-	AU8l+ZLsomPFan91V9auB8QAXcCJMMDgASgb+QlQZAJXj1efNn5NtnbYD+qB3eQqNP3aF/+3uu3
-	5iRjIh8VPBktLZR4QFYLO/dg==
-X-Received: by 2002:a05:6402:52c3:b0:61c:7090:c7de with SMTP id 4fb4d7f45d1cf-62ed827180amr11199640a12.13.1757934001649;
-        Mon, 15 Sep 2025 04:00:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH0FWS9+V2U6bS/hOunbJ92IvHyg28KU7vhAZPMSgU3NL7FZESOiBEKSGMh/3whVebsghh7ajGMdMYOU7jOcHY=
-X-Received: by 2002:a05:6402:52c3:b0:61c:7090:c7de with SMTP id
- 4fb4d7f45d1cf-62ed827180amr11199617a12.13.1757934001266; Mon, 15 Sep 2025
- 04:00:01 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1757934473; x=1758539273;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=kdq8TPOWgd9r2bHucRGGKVjUvkEbkZsPHnW8zymhVdQ=;
+        b=EoksY38SQULL3MX6OfpDyusSfbGRHJ9dAnkL51DbsEQ++MS/JjetZkZ7fcj7AgbWzr
+         +6n8GY7MGBhlu5W1nBp/x3bNpyeIcmR/UTnR/kaW1ngMqUu1z4TUoqcCkr6/eyyM3YiF
+         kQkzl17q+bUmn2LOdU0+BXQtr1IlxWAEV4u5oLPq22KATGT8gNhK3adt0kbhZHzJFSqS
+         7q6/Bb00bF7cykuRAD/SG+SCJRp5xEvr9uT4hnchjrzzysvlodWdjd3pv7NZ0hstDmZi
+         282QUzusvQrzdPu4lpCcpOpWmxWwjmL7/7AsdPyI0s4MxaRXxvCRka8ikTtTjHoANJ4f
+         y4qw==
+X-Forwarded-Encrypted: i=1; AJvYcCWQeCcowonNMY3D1334AfORDcrxLY4EpBasSwuMzX1aaQcTjmLuS1wZ6ShhLuEtGgsOSPQAZjJExi7cXDiJ1g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyNe08w+/nHyiofJ0jnUkqB6CP6QbCGyf6a2ESLW6ccSs3Slr7N
+	HAcaVgmRbZPGfOPVH2K4Rfq5Yp1Ve25oZzuOLI1VXOHfwrRfO3EXkBv2v7I8yiAFbKQ=
+X-Gm-Gg: ASbGnctwsT4T9ewc2JkMTkoyZYp42YpfWy/zF5p9dPTknCu+SsH5JfMHvaZMTKqSq5W
+	Ok8D8zYYyO1DRnX7NtWpoXbbhhuzVOTv9ZCFSj3ryJ6qf21hqDbZNApvZ65b0V3uOea+RqY0Z1y
+	R6yXzcU5fEZQkpmpLO/49yuHy9/pg9bRQ5BKoEoL9/vAqHOZReejlj3FzWvJCxYzo6grP4TxgE9
+	+Jzoyyr0wP9Fk7ARdhN7ZbrgYP2xkw3akPwVfSsHy39dA6KJdHfSCx1kpcYtthQ7vjKTNbWVqnP
+	GgxbM2/u6DBXgxrnAkUty3Vuh5OruIwXmqb+FPTVGWNSmSx8tBjFclv2BdGXf2RRX8S9wMBFpIA
+	3SAVAvD4aMtoy3Q0f8HOrAx+9yayBDL0fnz5AUXkADO0IIfpX42/zzKkNpcDwbiknZHgv/yg=
+X-Google-Smtp-Source: AGHT+IFuRcr6hgmXMe2zsK7e+8P2AmK5zY9xr9VyAWEQkmImnrWVnmovPW/VnBl1d66Hj0mNNBFu+A==
+X-Received: by 2002:a05:6a00:8015:b0:776:19f6:5d35 with SMTP id d2e1a72fcca58-77619f66ccbmr12225524b3a.31.1757934472854;
+        Mon, 15 Sep 2025 04:07:52 -0700 (PDT)
+Received: from [10.88.213.9] ([61.213.176.57])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-77607b1a3fesm13209375b3a.56.2025.09.15.04.07.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 Sep 2025 04:07:52 -0700 (PDT)
+Message-ID: <328b3f8f-cca7-4d8f-9335-24341b40b2d5@bytedance.com>
+Date: Mon, 15 Sep 2025 19:07:47 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250910091739.2999-1-zhangjiao2@cmss.chinamobile.com>
-In-Reply-To: <20250910091739.2999-1-zhangjiao2@cmss.chinamobile.com>
-From: Lei Yang <leiyang@redhat.com>
-Date: Mon, 15 Sep 2025 18:59:24 +0800
-X-Gm-Features: AS18NWCQ7fEFMgYdBUr25gcH_J-F5Mf8bPzgSCwAQZlFId0nTXghskAr0ksqVWA
-Message-ID: <CAPpAL=wGgYsEcvR5Vy7F-FdnArbOu6VNy4Y_Syc=9qDM9P-VRQ@mail.gmail.com>
-Subject: Re: [PATCH] vhost: vringh: Modify the return value check
-To: zhangjiao2 <zhangjiao2@cmss.chinamobile.com>
-Cc: mst@redhat.com, jasowang@redhat.com, eperezma@redhat.com, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1TBBiDND5W9fgxFIqtZxAjmT5GeQzjTnyuDG_7sbiLs_1757934002
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [External] Re: [PATCH] vduse: Use fixed 4KB bounce pages for
+ arm64 64KB page size
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ xieyongji@bytedance.com
+References: <20250915073429.54027-1-sheng.zhao@bytedance.com>
+ <CACGkMEvWNOjFU0pgiS=LF2B+yEC-y_RU3w_P5_dr10RPH+5xrg@mail.gmail.com>
+Content-Language: en-US
+From: Sheng Zhao <sheng.zhao@bytedance.com>
+In-Reply-To: <CACGkMEvWNOjFU0pgiS=LF2B+yEC-y_RU3w_P5_dr10RPH+5xrg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Tested this patch with virtio-net regression tests, everything works fine.
 
-Tested-by: Lei Yang <leiyang@redhat.com>
 
-On Wed, Sep 10, 2025 at 5:18=E2=80=AFPM zhangjiao2
-<zhangjiao2@cmss.chinamobile.com> wrote:
->
-> From: zhang jiao <zhangjiao2@cmss.chinamobile.com>
->
-> The return value of copy_from_iter and copy_to_iter can't be negative,
-> check whether the copied lengths are equal.
->
-> Signed-off-by: zhang jiao <zhangjiao2@cmss.chinamobile.com>
-> ---
->  drivers/vhost/vringh.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-> index 9f27c3f6091b..0c8a17cbb22e 100644
-> --- a/drivers/vhost/vringh.c
-> +++ b/drivers/vhost/vringh.c
-> @@ -1115,6 +1115,7 @@ static inline int copy_from_iotlb(const struct vrin=
-gh *vrh, void *dst,
->                 struct iov_iter iter;
->                 u64 translated;
->                 int ret;
-> +               size_t size;
->
->                 ret =3D iotlb_translate(vrh, (u64)(uintptr_t)src,
->                                       len - total_translated, &translated=
-,
-> @@ -1132,9 +1133,9 @@ static inline int copy_from_iotlb(const struct vrin=
-gh *vrh, void *dst,
->                                       translated);
->                 }
->
-> -               ret =3D copy_from_iter(dst, translated, &iter);
-> -               if (ret < 0)
-> -                       return ret;
-> +               size =3D copy_from_iter(dst, translated, &iter);
-> +               if (size !=3D translated)
-> +                       return -EFAULT;
->
->                 src +=3D translated;
->                 dst +=3D translated;
-> --
-> 2.33.0
->
->
->
->
+在 2025/9/15 16:21, Jason Wang 写道:
+> On Mon, Sep 15, 2025 at 3:34 PM <sheng.zhao@bytedance.com> wrote:
+>>
+>> From: Sheng Zhao <sheng.zhao@bytedance.com>
+>>
+>> The allocation granularity of bounce pages is PAGE_SIZE. This may cause
+>> even small IO requests to occupy an entire bounce page exclusively.
+> 
+> This sounds more like an issue of the IOVA allocating that use the
+> wrong granular?
+> 
+
+Sorry, the previous email has a slight formatting issue.
+
+The granularity of the IOVA allocator is customized during the 
+initialization of the vduse domain, and this value is also modified in
+this commit.
+
+Thanks
+
+>> The
+>> kind of memory waste will be more significant on arm64 with 64KB pages.
+>>
+>> So, optimize it by using fixed 4KB bounce pages.
+>>
+>> Signed-off-by: Sheng Zhao <sheng.zhao@bytedance.com>
+> 
+> Thanks
+> 
 
