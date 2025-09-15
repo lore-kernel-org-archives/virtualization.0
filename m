@@ -1,185 +1,147 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9761239591
-	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 16:03:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1487323D7CE
+	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 16:03:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757952198; cv=none; b=MWt+W9kOC+8o4engYe6fMEe86RgepIzkN/aWcreS0wkPgWok6fOjO7/DDhnQgHssZIecDXahYZKJh0bgMrFaSyKSYICy8Ccd2yN47c5EJHZ1rc6Ss+RsWAdTA2+RgCOvOUBeEgFzXUBXsCEVEpPuvFhdVWpxOMxsVUkggt66hy0=
+	t=1757952210; cv=none; b=P16mWXBKhJ4ncEWjWSAeJJAHo27LK+lbBtbxlviB4o/VNuD99hFu4pxrCUPCWf6aX0voXFzgFjLs4lBF8G4O0GyTj53Sv2Ywag95ClfX/Khz/e2Id2uR0W2mJRkJowdLzbczoDFMq2P4ml3wh18CmeIBUqhUu1nZsPijP7k0oiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757952198; c=relaxed/simple;
-	bh=UgpAiUSkfqsIiMi/5vuPzG4RqiLKzyDrVtzPJiZs6b0=;
+	s=arc-20240116; t=1757952210; c=relaxed/simple;
+	bh=BAS0GBMKCDtwydPahpuw2HyfF0E/Y0qQ4Zq/+5p3ac8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Bmc1rFUbZekA9Bcmpcs0Qg1e/bBf6bMYS6LFjbnEsipQ5SbzE7Is0Chj0iYzhjtLxBtEYeYXNRtglkxspyyf2vi5XKrllPYbnxLZAYR/VTlH1C3g1G6kb50WRIQRdd0OKu/0vRMaFro75mVjLnJQA6KqZOR/SCtuAlJR7crG664=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dPKAIfnB; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=UqHFyApFcgj0l8PfFNgPY/fGLQjUyhb8r2q2wBBsO7Cy+oWFw7M1GTfx0UxDgsOgntLQ9d3Xbnrc083puGRTdIWDs6sfZT/YsWHaGkTz79P92iDwtUw/YMzYkq+pK4dkYpEyugiFEJLFewMhc40X5FQcDL107c4d5OFTVM4hoRE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JgrCjP5F; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dPKAIfnB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JgrCjP5F"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1757952195;
+	s=mimecast20190719; t=1757952208;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=mxYYDZD7WvA8pBIh8RZ+XYWpfwg8m7Jck2wpptSqpfw=;
-	b=dPKAIfnBBkSOZaiOxdGP1PiuyU56PTuZZY8Swx0Ha7AJPZgB7Lj+R09u6+IA/gZE/QebLe
-	UnSi05Z8/e1sES4/87i3o9m3xEkGtTn29MOoE714t9URm3KTYNvlTu8RwGkC+TtuxvulOB
-	p77eMs8vuQ0p2QzAmZF7AyM/6jTBtF0=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=eMxsZvyoTV3G/hm1yNnpqqa9WqA68QAPsx4b+ZiU9Ys=;
+	b=JgrCjP5FIRnDZmRBEzRCAS45ljjKhhL/ykRg7IVvCFXJNQo6IglMnv4u81RHHyBqpr4kR2
+	PXHW+R0mvCmJS78TJiPn/HcYhlfAL9LMSsfjKAIsbScblntbIGgSl5PRaW7nw4okGA4ecF
+	5izbNlLm5lav5Zf3cMNOiG/8YDhTGQI=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-179-Eoqb4NAxNj6WLOtAFh35XA-1; Mon, 15 Sep 2025 12:03:13 -0400
-X-MC-Unique: Eoqb4NAxNj6WLOtAFh35XA-1
-X-Mimecast-MFC-AGG-ID: Eoqb4NAxNj6WLOtAFh35XA_1757952192
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-6215a926e31so3517546a12.3
-        for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 09:03:12 -0700 (PDT)
+ us-mta-196-hQIDRZlOPgmzaWOdFEmMHQ-1; Mon, 15 Sep 2025 12:03:26 -0400
+X-MC-Unique: hQIDRZlOPgmzaWOdFEmMHQ-1
+X-Mimecast-MFC-AGG-ID: hQIDRZlOPgmzaWOdFEmMHQ_1757952206
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-b0ccfdab405so231708966b.2
+        for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 09:03:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757952192; x=1758556992;
+        d=1e100.net; s=20230601; t=1757952205; x=1758557005;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mxYYDZD7WvA8pBIh8RZ+XYWpfwg8m7Jck2wpptSqpfw=;
-        b=XTudHLWteWm2MZpfJNBirl1RcFiiQj4Pk+mm0J6XUUq/Tnj5k+IC9oskMZdCOJKsib
-         f0GFqYQ5GfaJZ9X2cvQG9vSQJw/oe1yS3FXzRDdTb3W+utNy8ecNUNe2f9VBxPA5hB67
-         TBbvst0mCtdDZG8RGjnBthcRvOo5JjaxGy51WUcQlqimjWz861OW4Xi4a09lDlsUpMUL
-         DdRscH0lwH1YbyE8E5t3l8QA68dP62y8g9XtkmWPPxfym6sKoy2rETk5i4ukdj7eGAaa
-         dLUewuayNl1BQ+oZMHy/hK0j4Zcei2j0IqyueYbdmOM+rDavufkWZd9v13oY5MPlPpl1
-         wPKg==
-X-Forwarded-Encrypted: i=1; AJvYcCXt6AJaR9xq66OEKyGyHlhKOof49Dr0cPqzIJ/fDCHOV9cP+d7ABrCUqzpkgmruNibyX1Ivz5fhKjPoqCJZtA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxsQpR47Jlp+9ZxqDW+gfJo7RUFGOiNSLo330BZ/jEBAHAbXA9A
-	ATbf1nr7g88uzaSdeGD7g73/6gs1Ye2yNWshFvxTPxq9znGf9uLT0sOgUaloi+YFGStO9qxmG3u
-	H9ejgHS067zWvvazzJPuaOcIxJtjyiyEE7CPPfet0rZJ5GvCAbhDlYsdhhh83mq8ouj2Q
-X-Gm-Gg: ASbGncujiVJY91BX8pD+/h8bvBF0doa3VUyL8OL3q4gllAaNuRdKxKK7eOyBBNDUg/T
-	AsgDNCoCCQw8JLy1udbuFQ9FmK5wEEgQrK3wapfE32qV4/rT6KXOjd0gY8JxtJBkyIws8dxUjCi
-	IYzBnWNrECvCILW7LxYr64ZM2DZqwld+1k7R3RzKiOiHpgFWUiuqo46NcYN5bMDrknH0sLGB5tS
-	iuwbJ6aiMAUenMpWHlzaE+GFfHSodewtGV7kcjtBGhNK98EV3tjpSe87MkT0RxInjk72dxBzYoC
-	PNsQH7h65sBVLr/6tDCniBqVbHVl
-X-Received: by 2002:a05:6402:5c9:b0:62f:5cd8:9b2e with SMTP id 4fb4d7f45d1cf-62f5cd8a072mr216478a12.29.1757952191712;
-        Mon, 15 Sep 2025 09:03:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFjGn2Z0BOy+sfljpNHO+I5IXHBbdbcb8SYTOdauYndHQ59yMvvIQnAzpSL9eW6X/im0GKszQ==
-X-Received: by 2002:a05:6402:5c9:b0:62f:5cd8:9b2e with SMTP id 4fb4d7f45d1cf-62f5cd8a072mr216441a12.29.1757952191084;
-        Mon, 15 Sep 2025 09:03:11 -0700 (PDT)
+        bh=eMxsZvyoTV3G/hm1yNnpqqa9WqA68QAPsx4b+ZiU9Ys=;
+        b=cziFY/T3HohPwTbH7AYhKpJiqItItCgqha7F0+EH+VOHtUTW/qzLyK5RIqzZ29Hj7z
+         mJ1qGDUtMLOKf+AW0aigzJ8aq3EZ6CJ3h/2KaYHfh7D2YhrG5J0SJvcKb/aQZ88Z/J/B
+         skEiZVLJaGYw0dkT5nxGvgH9D/wFVdDL+bN2h7AjYlrPfJ7Il+fcFqdSnn/2zPRHSMhl
+         XrLY+dRsRLNwKfecDvYVCpmmfW7LjjgKSf0HyUws+bq8lnI1tRKlndUt1uB7WqQiMNhP
+         J/1G9ImeoG/tZATB34z5epHRNYYTn5eT2lm7+WowGNBQfV2rvdfEdWscT/jcZu+x77DJ
+         r9PA==
+X-Forwarded-Encrypted: i=1; AJvYcCX9akHvJtQNeO2PQYpUC8jU2ee322hcJjEw3gRtG2fmHohhy8kGKatokWzh1hoqicqFYQgoDo821SPyVpDA/g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwS6NjIrIZqcKglXOgsXm1eAdcebU1fuuQ9aUa425amrxDzcQJY
+	D6m60IrK1Fwf/4kaLyPuzgCceD7rBtmZp05Qhfz9YCmM6tjTEZoiAeDS8YwMnpM6FMM0qwyw7kk
+	REjBqXc0KcbMHcycpYMYlwoRyku/BnAsa7Ba2VoJRzVh1qo191001YfPHITP8HmtJElNB
+X-Gm-Gg: ASbGncsxUWJ0eSh4dwKWnOQFKcZwESHywnDEK4CX1vz8WZmEIUeS27hxx5p0/fiKcwS
+	BKNuqm34QK/B1iekZVSLGpz5TReIzheSB51G6D4dUVdfwNxsJn3mFRu4HzLKFbZGpKsPzcoKSiG
+	GfK38zC5URW/dqj4p+lt7eeA5Q3/ESpIoClIYbrlQ2MUCGxbnxLOvvGyLYJqvc/B6JZ0IaA/+OW
+	N2cuTZy4LDskG2xXURDqlD0ib8oEVvKVvoEI72CjPNV6/z4S1bYLXAvVvz9j1mc5dIjRgOC2dv2
+	XGTilrBaSHf10RFyO1qdcHrSC6A4
+X-Received: by 2002:a17:907:9408:b0:b04:97df:d741 with SMTP id a640c23a62f3a-b07c3867766mr1173786266b.44.1757952205425;
+        Mon, 15 Sep 2025 09:03:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEMAUdK5dLnmNqeaAzIQ4sLNIVdJ/bLJv6BqI8ieVrFaCmiktbN+iyKUpr58pZivx2Iqu/CNg==
+X-Received: by 2002:a17:907:9408:b0:b04:97df:d741 with SMTP id a640c23a62f3a-b07c3867766mr1173783066b.44.1757952204919;
+        Mon, 15 Sep 2025 09:03:24 -0700 (PDT)
 Received: from redhat.com ([31.187.78.47])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-62f454f4288sm1899363a12.5.2025.09.15.09.03.09
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b07b2e7a35dsm1001013466b.0.2025.09.15.09.03.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Sep 2025 09:03:10 -0700 (PDT)
-Date: Mon, 15 Sep 2025 12:03:07 -0400
+        Mon, 15 Sep 2025 09:03:24 -0700 (PDT)
+Date: Mon, 15 Sep 2025 12:03:22 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: eperezma@redhat.com, jonah.palmer@oracle.com, kuba@kernel.org,
-	jon@nutanix.com, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH net 2/2] vhost-net: correctly flush batched packet before
- enabling notification
-Message-ID: <20250915120210-mutt-send-email-mst@kernel.org>
-References: <20250912082658.2262-1-jasowang@redhat.com>
- <20250912082658.2262-2-jasowang@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Jon Kohler <jon@nutanix.com>, netdev@vger.kernel.org,
+	Jason Wang <jasowang@redhat.com>, stable@vger.kernel.org,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Jonah Palmer <jonah.palmer@oracle.com>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH v3 1/3] vhost-net: unbreak busy polling
+Message-ID: <b93d3101a6c78f17a19bb0f883d72b30f66d1b54.1757952021.git.mst@redhat.com>
+References: <cover.1757951612.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250912082658.2262-2-jasowang@redhat.com>
+In-Reply-To: <cover.1757951612.git.mst@redhat.com>
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: CmMCpR_n27bY8tr5ZuLwtVvfqSDY1MbiffW3JUG3oWA_1757952192
+X-Mimecast-MFC-PROC-ID: C51wsWV-BJgYt03r3M5MMbCXBMW-lJk1fFPYXirN_To_1757952206
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Sep 12, 2025 at 04:26:58PM +0800, Jason Wang wrote:
-> Commit 8c2e6b26ffe2 ("vhost/net: Defer TX queue re-enable until after
-> sendmsg") tries to defer the notification enabling by moving the logic
-> out of the loop after the vhost_tx_batch() when nothing new is
-> spotted. This will bring side effects as the new logic would be reused
-> for several other error conditions.
-> 
-> One example is the IOTLB: when there's an IOTLB miss, get_tx_bufs()
-> might return -EAGAIN and exit the loop and see there's still available
-> buffers, so it will queue the tx work again until userspace feed the
-> IOTLB entry correctly. This will slowdown the tx processing and may
-> trigger the TX watchdog in the guest.
-> 
-> Fixing this by stick the notificaiton enabling logic inside the loop
-> when nothing new is spotted and flush the batched before.
-> 
-> Reported-by: Jon Kohler <jon@nutanix.com>
-> Cc: stable@vger.kernel.org
-> Fixes: 8c2e6b26ffe2 ("vhost/net: Defer TX queue re-enable until after sendmsg")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c | 33 +++++++++++++--------------------
->  1 file changed, 13 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 16e39f3ab956..3611b7537932 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -765,11 +765,11 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
->  	int err;
->  	int sent_pkts = 0;
->  	bool sock_can_batch = (sock->sk->sk_sndbuf == INT_MAX);
-> -	bool busyloop_intr;
->  	bool in_order = vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
->  
->  	do {
-> -		busyloop_intr = false;
-> +		bool busyloop_intr = false;
-> +
->  		if (nvq->done_idx == VHOST_NET_BATCH)
->  			vhost_tx_batch(net, nvq, sock, &msg);
->  
-> @@ -780,10 +780,18 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
->  			break;
->  		/* Nothing new?  Wait for eventfd to tell us they refilled. */
->  		if (head == vq->num) {
-> -			/* Kicks are disabled at this point, break loop and
-> -			 * process any remaining batched packets. Queue will
-> -			 * be re-enabled afterwards.
-> +			/* Flush batched packets before enabling
-> +			 * virqtueue notification to reduce
-> +			 * unnecssary virtqueue kicks.
->  			 */
-> +			vhost_tx_batch(net, nvq, sock, &msg);
+From: Jason Wang <jasowang@redhat.com>
 
-So why don't we do this in the "else" branch"? If we are busy polling
-then we are not enabling kicks, so is there a reason to flush?
+Commit 67a873df0c41 ("vhost: basic in order support") pass the number
+of used elem to vhost_net_rx_peek_head_len() to make sure it can
+signal the used correctly before trying to do busy polling. But it
+forgets to clear the count, this would cause the count run out of sync
+with handle_rx() and break the busy polling.
 
+Fixing this by passing the pointer of the count and clearing it after
+the signaling the used.
 
-> +			if (unlikely(busyloop_intr)) {
-> +				vhost_poll_queue(&vq->poll);
-> +			} else if (unlikely(vhost_enable_notify(&net->dev,
-> +								vq))) {
-> +				vhost_disable_notify(&net->dev, vq);
-> +				continue;
-> +			}
->  			break;
->  		}
->  
-> @@ -839,22 +847,7 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
->  		++nvq->done_idx;
->  	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
->  
-> -	/* Kicks are still disabled, dispatch any remaining batched msgs. */
->  	vhost_tx_batch(net, nvq, sock, &msg);
-> -
-> -	if (unlikely(busyloop_intr))
-> -		/* If interrupted while doing busy polling, requeue the
-> -		 * handler to be fair handle_rx as well as other tasks
-> -		 * waiting on cpu.
-> -		 */
-> -		vhost_poll_queue(&vq->poll);
-> -	else
-> -		/* All of our work has been completed; however, before
-> -		 * leaving the TX handler, do one last check for work,
-> -		 * and requeue handler if necessary. If there is no work,
-> -		 * queue will be reenabled.
-> -		 */
-> -		vhost_net_busy_poll_try_queue(net, vq);
->  }
->  
->  static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
-> -- 
-> 2.34.1
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 67a873df0c41 ("vhost: basic in order support")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Message-Id: <20250915024703.2206-1-jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/vhost/net.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index c6508fe0d5c8..16e39f3ab956 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1014,7 +1014,7 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
+ }
+ 
+ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
+-				      bool *busyloop_intr, unsigned int count)
++				      bool *busyloop_intr, unsigned int *count)
+ {
+ 	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
+ 	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
+@@ -1024,7 +1024,8 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
+ 
+ 	if (!len && rvq->busyloop_timeout) {
+ 		/* Flush batched heads first */
+-		vhost_net_signal_used(rnvq, count);
++		vhost_net_signal_used(rnvq, *count);
++		*count = 0;
+ 		/* Both tx vq and rx socket were polled here */
+ 		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, true);
+ 
+@@ -1180,7 +1181,7 @@ static void handle_rx(struct vhost_net *net)
+ 
+ 	do {
+ 		sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
+-						      &busyloop_intr, count);
++						      &busyloop_intr, &count);
+ 		if (!sock_len)
+ 			break;
+ 		sock_len += sock_hlen;
+-- 
+MST
 
