@@ -1,72 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A220D1D618A;
-	Sun, 14 Sep 2025 19:59:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29A3B1D416C
+	for <virtualization@lists.linux.dev>; Mon, 15 Sep 2025 02:47:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757879991; cv=none; b=n6LCH2MefsyCSt53PU2opaV3M7dltWSu+9PAfS6Iv6FHl5gAsVfu/q3ZeDXqDRuUZ3UuqN+sfej2RxqqzzoxWMdqr4h4V/o6X/1K/cTB0+l/r4rcPLyJG3gGO1LPdip7tzehsMrqy1I3WuVQtfKusCSpTW2fvX3PwLQBy8MzGfM=
+	t=1757904441; cv=none; b=iguoXiU/RoUOS4c+Ks08BLXGvkr7eYw7EV8l44CvBkIGM+1u6wAg/DVIwx1eLnpSRKHdGQHz4Mn2DEBcKFsyTFr+lwtEpha0649QjpWnVzrUuthLJ7BOsZC+wMNc7QRmT0jiJdCHYHbask8oFiuwtlz7g+T3DQhRdDYu0r6Ayw0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757879991; c=relaxed/simple;
-	bh=KCDO0FIo3aS1URwHlNLM4ayB53/iGMScKvQzPkT54Ks=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PA+/6C5DMn8xmbDku9YHeI6cxeCDjye1HEmwegEkVZ3OJ/lo4VtiR/SrFwH53b8FDaQxEJ2Yei89YmVnO6DkHsf8uhueoB9EDOorfwhrCZ6zkQ9HxuKqJcaEE2lVf9llvXPjGFPbCRVI+ut1wVrPr2dFUFfTJKxwztr+ujkPYHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mp131/QX; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1757904441; c=relaxed/simple;
+	bh=OOFDWJmS/f2uGkz6mS7atM5O/HZ8ia2l4cQssj9gFGE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IkaFOmA0g56J2in9bZ59ZIeW58arhC9j9n+/Q/fiSQhzi+sPMh3J66w2YvDGFof2zNqRKCXzQc7oqj0kQH08nyajYovde4l3xYxh4IPBAgdWNKYGVn2uSNKxn6QIclaDAJHjk0+IFXzgX4jbvTo/0HKgqcOTm61K4xc7bQm8YL8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hwuugFHK; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mp131/QX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B85C4CEF0;
-	Sun, 14 Sep 2025 19:59:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1757879991;
-	bh=KCDO0FIo3aS1URwHlNLM4ayB53/iGMScKvQzPkT54Ks=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=mp131/QXeuVe1nYVkFiSK2D5IFTzWWMf/NZTjIeouyIP4hJfqTjPrfaI+ovcClWHw
-	 WMY320XloPJeBlGrtNXwxrxalMYlDE9tDBkv+VRwleZJY+Rt5rr6k9M74sxRfcS/vx
-	 DG4LId2aKFYhgbCTNEzVKoUGQGQ68VhSkUo6Ot5T4NnUUdgjA3Pw6BI2Dnu8KbSGYg
-	 j0mWOPrKEmybZFlG0u8LTO1QHmPKZIBVjWFHpJ7CrIIUzQKPW/Mzl4pzdtnwgeRVQi
-	 aYu9cEhCF4+5xLEbyGABEOzQB7hXZAeCRCRPfVa0wl/z5B+c1CW9MMSaSZZRp+1HrO
-	 BOAITpHqweUpQ==
-Date: Sun, 14 Sep 2025 12:59:49 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Breno Leitao <leitao@debian.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon
- Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason
- Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
- =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Lunn
- <andrew+netdev@lunn.ch>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, Lei Yang
- <leiyang@redhat.com>, kernel-team@meta.com
-Subject: Re: [PATCH net-next v2 4/7] net: ethtool: add get_rx_ring_count
- callback to optimize RX ring queries
-Message-ID: <20250914125949.17ea0ade@kernel.org>
-In-Reply-To: <20250912-gxrings-v2-4-3c7a60bbeebf@debian.org>
-References: <20250912-gxrings-v2-0-3c7a60bbeebf@debian.org>
-	<20250912-gxrings-v2-4-3c7a60bbeebf@debian.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hwuugFHK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1757904439;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=tXbb4k0WVEIXwl73Se7rsi16GpKXRhgcEypjnLnCxSQ=;
+	b=hwuugFHK3xUekJtn9q9h89u5vjwdOK06fAltOZpvE+8Ax2spNQ4SO6/Alp2tNymi4Una9O
+	Np5m3N4q0TOv4Fr1lDTLPXOVjhn80OBpXX2qLFXUlFXKcGd6w6QfRfeXypIMJEtqen3/X0
+	ZDtReTkKncOHAVYQ3OZqp+wLfZtcnGA=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-12-7lvU5FqcOUyefsuZCnGIAA-1; Sun,
+ 14 Sep 2025 22:47:15 -0400
+X-MC-Unique: 7lvU5FqcOUyefsuZCnGIAA-1
+X-Mimecast-MFC-AGG-ID: 7lvU5FqcOUyefsuZCnGIAA_1757904434
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5D40B1956050;
+	Mon, 15 Sep 2025 02:47:14 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.230])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 71AEC1800447;
+	Mon, 15 Sep 2025 02:47:06 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	eperezma@redhat.com
+Cc: jonah.palmer@oracle.com,
+	kuba@kernel.org,
+	jon@nutanix.com,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH net V2 1/2] vhost-net: unbreak busy polling
+Date: Mon, 15 Sep 2025 10:47:02 +0800
+Message-ID: <20250915024703.2206-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Fri, 12 Sep 2025 08:59:13 -0700 Breno Leitao wrote:
-> @@ -1225,9 +1242,7 @@ static noinline_for_stack int ethtool_get_rxrings(struct net_device *dev,
->  	if (ret)
->  		return ret;
->  
-> -	ret = ops->get_rxnfc(dev, &info, NULL);
-> -	if (ret < 0)
-> -		return ret;
-> +	info.data = ethtool_get_rx_ring_count(dev);
+Commit 67a873df0c41 ("vhost: basic in order support") pass the number
+of used elem to vhost_net_rx_peek_head_len() to make sure it can
+signal the used correctly before trying to do busy polling. But it
+forgets to clear the count, this would cause the count run out of sync
+with handle_rx() and break the busy polling.
 
-Is there a reason we're no longer checking for negative errno here?
-It's possible that none of the drivers actually return an error, but
-we should still check. For consistency with the other patches / paths
-if nothing else.
+Fixing this by passing the pointer of the count and clearing it after
+the signaling the used.
 
->  	return ethtool_rxnfc_copy_to_user(useraddr, &info, info_size, NULL);
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 67a873df0c41 ("vhost: basic in order support")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index c6508fe0d5c8..16e39f3ab956 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1014,7 +1014,7 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
+ }
+ 
+ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
+-				      bool *busyloop_intr, unsigned int count)
++				      bool *busyloop_intr, unsigned int *count)
+ {
+ 	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
+ 	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
+@@ -1024,7 +1024,8 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
+ 
+ 	if (!len && rvq->busyloop_timeout) {
+ 		/* Flush batched heads first */
+-		vhost_net_signal_used(rnvq, count);
++		vhost_net_signal_used(rnvq, *count);
++		*count = 0;
+ 		/* Both tx vq and rx socket were polled here */
+ 		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, true);
+ 
+@@ -1180,7 +1181,7 @@ static void handle_rx(struct vhost_net *net)
+ 
+ 	do {
+ 		sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
+-						      &busyloop_intr, count);
++						      &busyloop_intr, &count);
+ 		if (!sock_len)
+ 			break;
+ 		sock_len += sock_hlen;
 -- 
-pw-bot: cr
+2.34.1
+
