@@ -1,65 +1,65 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 058EE2E974E
-	for <virtualization@lists.linux.dev>; Tue, 16 Sep 2025 23:43:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B90202F28FB
+	for <virtualization@lists.linux.dev>; Tue, 16 Sep 2025 23:43:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758066236; cv=none; b=On5MM5n5O0+yTK3zZ51zvlyce46ndSSAhJoncRiNdVR8aivLnjewuEMS66IICzjE5ydUKGH6yUBoGTa1CpSw9almG5sw7wE8TjHAjzBYVtrdaTVRiiDzU8FkiV0kvsbXkppehLz1CHqYOWNTVYNsK1+3S8NuFi2MozjM5HAGPsQ=
+	t=1758066239; cv=none; b=Xp+n5ku35HPfoOa0X1Z+RlqMdmHS8RqxZ3EopfrfBwd9O+pz1eJPhBmLmQmkmoZlZfyQfGPiv+L9jZA/2IoDei/XftNJpFbmX1F2mWiCG8ewHqMNDw1Cm0V5QNPubzktsxTCvP2m0sWqkNNIcKpWfl8l8uOGt6dZSZ31unYlS3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758066236; c=relaxed/simple;
-	bh=W8gd6XhWQ6pvri0xbAF1EAgDb4RZn2xcu5cNNgZFNfY=;
+	s=arc-20240116; t=1758066239; c=relaxed/simple;
+	bh=cCZ0k3gZPrNiKGPQFG75e6ZmTzrOXxGRT6BolLyEjaQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=XsgSKt/2mNuwakJjZcjxR/yPG4zY2ViA7BvtHN4ZV81V3sdtrNvOTI7W3eGvDLdLhGgDqD8HZj/r2Nf5j8BU7XTExP0B0RfBoOfVFxvITI/xLz48iZUKNPVoMZB7L9pUahilrsgC0lG6xoPBdt/KMTIRbSkwFcQHq/BOm8SI0jQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bPr30fUS; arc=none smtp.client-ip=209.85.210.180
+	 In-Reply-To:To:Cc; b=hrdW//7sD4fYTihThYsWvLz03Lbg35NS/scT7Vwo5PUaAO4qGgTZx+feXn7JES//3uh8pH2GAzYpbEql5jjH6I2i0zwSQLUC6bwoRgc4Gy6GEJPhNkQQH44MWFsnGb0/5xI9hvbly5FJejC7pi5VbE4o7bsawy4FxUtDzzXxT1Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cfjjP5Bu; arc=none smtp.client-ip=209.85.210.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bPr30fUS"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-7726c7ff7e5so4845270b3a.3
-        for <virtualization@lists.linux.dev>; Tue, 16 Sep 2025 16:43:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cfjjP5Bu"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-776b0100de0so304464b3a.0
+        for <virtualization@lists.linux.dev>; Tue, 16 Sep 2025 16:43:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1758066234; x=1758671034; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1758066236; x=1758671036; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=rJb7YbnroGsFtLz5T9G1lwB92kjtyMi3xE/F7vK5JjQ=;
-        b=bPr30fUSVjFYeZUmf1Efisyzxppj90CBxf/RYWM25gvHO72ijfSeGy7Vzvvx/Cgk1A
-         fn3kPlUzqP5dRIu/ydio4rL+7GqTCsZqpb+VZuPjTLHHkioFmN+SN9eVLS5BUJjN9gki
-         IyvS2vpr8YUMfVqpd2TM3D49R9uuUHJE2jhQaO3T9rwpqXP4akt4O9474sK0vQE8l/FP
-         RjHeyqtFOqJkvInsH3gbN2YbETOQXloqV9pIx+S50mreSvsJScinBzTIOfLIQrqobuFh
-         D/zYpAX6cpiK+sWGOX9TzaTWlzEOLOhDq4bPyTQLrJ8ksEQmin+ZHHvQUdby4v8t/hYO
-         ftTA==
+        bh=Nvqg6WCyfUTNgvIlAPY+rCUqJCQezm1KPFWgjZl14m0=;
+        b=cfjjP5Bu1Y5VLzoWJjfCFvlVUYWbXEJW8xlGPlkM3m7XteSNHLulnfrA8U5J1lcYA7
+         sJQbcqUT1tGxGU4jQB1MOb7Bo8vxQZmsLvBb8gBxOeQG2tqAA9r3eo4Cmask+ypqrWbU
+         Daqi/VLuXTlQT9xKftieyMBok91L1lRuuPNc/7PL92wAw2E7ECb9VpSzxoja9PwCWzCj
+         6Ukg4UVlarmXOKf4MA31kegRaw1YP44fCnbyOkdq8wYwTHxyeeA6b0jKWmlE273De9da
+         f+tKayxZT2iODYzwaVBeARmneDpty4vz2LLAcd0bQyUxHPIjfUpLh/PoTfER4QHUWK19
+         FXxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758066234; x=1758671034;
+        d=1e100.net; s=20230601; t=1758066236; x=1758671036;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rJb7YbnroGsFtLz5T9G1lwB92kjtyMi3xE/F7vK5JjQ=;
-        b=IDyDluji7YMFPd0CaQGPKaZBm356PI4OOehFtQyJAYvw1fEqlRcaZ3A4w+mWB5mvOq
-         YPOvIBojQw2y4e6yHZ1LotDCZCAdLpeuC47bHWrnVblRskysi/2uWh4nmiSHhOh4+n24
-         lcbAYKpxD5QDo+7BeqQSWSNOPCoIi3uxkp6krudfmt323LkB3Gfp/m7uDBV5j+UUpxUx
-         lik+PaOtroOMGv3GfDjaTbhX6L/sPa/Gs8eNRXLpN56/kbmkyAxy3jKBBxFGWWnozaYu
-         nBfo/9xTLvlJPKuvtzsRF4my0cIVrpVzjoEf0WMJKr4czawuM9gcSNS4HvKt23xHdXd6
-         gKBA==
-X-Gm-Message-State: AOJu0Yw+n28zIjEdRdstDgpDQ+kvETa9tn/ZzOXxRhTw/nC9/3gY5a/9
-	LYtU9lS0k4oFM6oKFveJZ3whxdIoAHeCGNryVkfxyZ2cUM5x/+D25sXe
-X-Gm-Gg: ASbGncsrYlJD/Rx5jIBq2t32MOhcuRtUW07keIjsgBc/KLUinzHiLlwPFWZJ+9n8Y8i
-	LSvgycSohqTeKBpTpzqR234jiC54Is9RNUbI5nlYFFVouJzKFCoTk2UDgAFVofm9I5s1Snm7yP1
-	aJ+78zgCQ0VEa1fB0cMwVBJdbYmM6TfQIZtWaJjE/HCm0ZdjzDkDVDep04pPTEPV5r4HuQGgSIB
-	BaOU/UawEPle4+eOj9H19VEH+y+BfFvNf6yKWtsyYlSPi3UnbQuAKcQI734SAQz14gQV3dx7FcO
-	t5RqrePsr8l7UVFEvDpAW7hQgFro6zLGnu9pPG9uareh+bf0TWNysqf19BCOLbwdIGz7jeM27Qg
-	Ef1yVYcBNKFtsp7TZ+ofJ
-X-Google-Smtp-Source: AGHT+IF/xw2akPqfiTx346iDoeH7Z1/kqJEVjbR3GnSIaOpGaqTCjMLhCHfObu3TSyZ9Zry5A1RkkQ==
-X-Received: by 2002:a17:902:ec91:b0:267:b357:9450 with SMTP id d9443c01a7336-26812179838mr1096375ad.17.1758066234099;
-        Tue, 16 Sep 2025 16:43:54 -0700 (PDT)
-Received: from localhost ([2a03:2880:2ff:73::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2679423db7fsm59353765ad.70.2025.09.16.16.43.53
+        bh=Nvqg6WCyfUTNgvIlAPY+rCUqJCQezm1KPFWgjZl14m0=;
+        b=xNHhj3zHE1U2OobUAFotLCsth0oyYMivKR0/5o29UupiOKvYNiA30j+KScf97v51P3
+         oQ7NZx7fDEXcjjuZDZqZBcbhewCUnq/TUcIncKNqKAkSbnbogCY7yeWpa+cAMxQEUuq/
+         fjwy04vRIMp5kfjfwQWnALq9dkQgU8AgM4TF2AaD5i8aDn8w96XRGkiQX5qFqzrGh4+A
+         B/3yYxHGA44QdZRnQrcMKhbVTd8OYpFLfP/bMLX6mUSap0TmkQrpbHi2bP1I2PdP/YHU
+         dvl5Un/lqY8XJEJ7xdTNVnaG0hF97mrMopo0j+IKzM+FIXAzCQNIjH3/yy8Pq3k+i90u
+         1+Xw==
+X-Gm-Message-State: AOJu0YztOC8Hx3bnEwxfcKrZj7WCQInwgme6PaC7ZFgmGhWSDCVMdIFc
+	F0HkoGwiWCuMyOD7ExiK0FjWJ4xC3N7RpXx01DyTIe8aTm3IKXIxZdny
+X-Gm-Gg: ASbGncsl8VVaVKoKu0NY8jj+tnrZCMcAwFS4dJGCLO+ig1pA/BcJko3ebGEG3Q3DVwX
+	sI8sT202rxgyb6+bAReQUyQWpqQhEaqHduzHW2YpDqDsKhlqIjotZ/jhfdrFGK3tmVT9gFpcPxU
+	muyHy4Q6/8FPK3OYMQaiXRCvYmfJYf4M42CVBSX7/WKQgZ8FSizPZ9g2g72rclezz7IN9CHUIZr
+	NPcmcMC7ScGoCYd/vb9C/mmMZgQ+DfgPlzcy44alxhqvZpgGIbPd0j2ZFk/bHUiwgDnA7EAl58U
+	w4ty+LN5crzg1mhWnpUC+rqzlhODScsVVl6DTGN0tj3X6iUx34YTtWxl0XavNkf1/YtM655gYq2
+	yM6Zwqcv8gqI7nJ1jJH9xuy3ALY1zdQ==
+X-Google-Smtp-Source: AGHT+IEXGEK2G7kXyiczsAodRLU1pih71p06gfVspnbFVCz1eOF0ku+EtnGblEkgSQpDZ6Y2hFEqCg==
+X-Received: by 2002:a05:6a20:7d9b:b0:247:55a7:695a with SMTP id adf61e73a8af0-27a2df7cac8mr167917637.15.1758066235644;
+        Tue, 16 Sep 2025 16:43:55 -0700 (PDT)
+Received: from localhost ([2a03:2880:2ff:8::])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-77607b17e23sm17370169b3a.55.2025.09.16.16.43.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Sep 2025 16:43:53 -0700 (PDT)
+        Tue, 16 Sep 2025 16:43:54 -0700 (PDT)
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Tue, 16 Sep 2025 16:43:46 -0700
-Subject: [PATCH net-next v6 2/9] vsock: add net to vsock skb cb
+Date: Tue, 16 Sep 2025 16:43:47 -0700
+Subject: [PATCH net-next v6 3/9] vsock: add netns to vsock core
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,7 +68,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250916-vsock-vmtest-v6-2-064d2eb0c89d@meta.com>
+Message-Id: <20250916-vsock-vmtest-v6-3-064d2eb0c89d@meta.com>
 References: <20250916-vsock-vmtest-v6-0-064d2eb0c89d@meta.com>
 In-Reply-To: <20250916-vsock-vmtest-v6-0-064d2eb0c89d@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
@@ -92,60 +92,580 @@ X-Mailer: b4 0.13.0
 
 From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Add a net pointer and orig_net_mode to the vsock skb and helpers for
-getting/setting them.  This is in preparation for adding vsock NS
-support.
+Add netns to logic to vsock core. Additionally, modify transport hook
+prototypes to be used by later transport-specific patches (e.g.,
+*_seqpacket_allow()).
+
+Namespaces are supported primarily by changing socket lookup functions
+(e.g., vsock_find_connected_socket()) to take into account the socket
+namespace and the namespace mode before considering a candidate socket a
+"match".
+
+Introduce a dummy namespace struct, __vsock_global_dummy_net, to be
+used by transports that do not support namespacing. This dummy always
+has mode "global" to preserve previous CID behavior.
+
+This patch also introduces the sysctl /proc/sys/net/vsock/ns_mode that
+accepts the "global" or "local" mode strings.
+
+The transports (besides vhost) are modified to use the global dummy.
+
+Add netns functionality (initialization, passing to transports, procfs,
+etc...) to the af_vsock socket layer. Later patches that add netns
+support to transports depend on this patch.
 
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 
 ---
-Changes in v5:
-- some diff context change due to rebase to current net-next
----
- include/linux/virtio_vsock.h | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+Changes in v6:
+- unregister sysctl ops in vsock_exit()
+- af_vsock: clarify description of CID behavior
+- af_vsock: fix buf vs buffer naming, and length checking
+- af_vsock: fix length checking w/ correct ctl_table->maxlen
 
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index 0c67543a45c8..ea955892488a 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -13,6 +13,8 @@ struct virtio_vsock_skb_cb {
- 	bool reply;
- 	bool tap_delivered;
- 	u32 offset;
-+	struct net *net;
-+	enum vsock_net_mode orig_net_mode;
- };
- 
- #define VIRTIO_VSOCK_SKB_CB(skb) ((struct virtio_vsock_skb_cb *)((skb)->cb))
-@@ -130,6 +132,27 @@ static inline size_t virtio_vsock_skb_len(struct sk_buff *skb)
- 	return (size_t)(skb_end_pointer(skb) - skb->head);
+Changes in v5:
+- vsock_global_net() -> vsock_global_dummy_net()
+- update comments for new uAPI
+- use /proc/sys/net/vsock/ns_mode instead of /proc/net/vsock_ns_mode
+- add prototype changes so patch remains compilable
+---
+ drivers/vhost/vsock.c                   |   4 +-
+ include/net/af_vsock.h                  |  15 ++-
+ net/vmw_vsock/af_vsock.c                | 219 ++++++++++++++++++++++++++++++--
+ net/vmw_vsock/hyperv_transport.c        |   2 +-
+ net/vmw_vsock/virtio_transport.c        |   6 +-
+ net/vmw_vsock/virtio_transport_common.c |   4 +-
+ net/vmw_vsock/vmci_transport.c          |   6 +-
+ net/vmw_vsock/vsock_loopback.c          |   4 +-
+ 8 files changed, 234 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index ae01457ea2cd..34adf0cf9124 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -404,7 +404,7 @@ static bool vhost_transport_msgzerocopy_allow(void)
+ 	return true;
  }
  
-+static inline struct net *virtio_vsock_skb_net(struct sk_buff *skb)
+-static bool vhost_transport_seqpacket_allow(u32 remote_cid);
++static bool vhost_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid);
+ 
+ static struct virtio_transport vhost_transport = {
+ 	.transport = {
+@@ -460,7 +460,7 @@ static struct virtio_transport vhost_transport = {
+ 	.send_pkt = vhost_transport_send_pkt,
+ };
+ 
+-static bool vhost_transport_seqpacket_allow(u32 remote_cid)
++static bool vhost_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
+ {
+ 	struct vhost_vsock *vsock;
+ 	bool seqpacket_allow = false;
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 2857e97699de..628e35ae9d00 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -145,7 +145,7 @@ struct vsock_transport {
+ 				     int flags);
+ 	int (*seqpacket_enqueue)(struct vsock_sock *vsk, struct msghdr *msg,
+ 				 size_t len);
+-	bool (*seqpacket_allow)(u32 remote_cid);
++	bool (*seqpacket_allow)(struct vsock_sock *vsk, u32 remote_cid);
+ 	u32 (*seqpacket_has_data)(struct vsock_sock *vsk);
+ 
+ 	/* Notification. */
+@@ -215,9 +215,12 @@ void vsock_enqueue_accept(struct sock *listener, struct sock *connected);
+ void vsock_insert_connected(struct vsock_sock *vsk);
+ void vsock_remove_bound(struct vsock_sock *vsk);
+ void vsock_remove_connected(struct vsock_sock *vsk);
+-struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr);
++struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr, struct net *net,
++				     enum vsock_net_mode orig_net_mode);
+ struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
+-					 struct sockaddr_vm *dst);
++					 struct sockaddr_vm *dst,
++					 struct net *net,
++					 enum vsock_net_mode orig_net_mode);
+ void vsock_remove_sock(struct vsock_sock *vsk);
+ void vsock_for_each_connected_socket(struct vsock_transport *transport,
+ 				     void (*fn)(struct sock *sk));
+@@ -259,6 +262,12 @@ static inline bool vsock_msgzerocopy_allow(const struct vsock_transport *t)
+ 	return t->msgzerocopy_allow && t->msgzerocopy_allow();
+ }
+ 
++extern struct net __vsock_global_dummy_net;
++static inline struct net *vsock_global_dummy_net(void)
 +{
-+	return VIRTIO_VSOCK_SKB_CB(skb)->net;
++	return &__vsock_global_dummy_net;
 +}
 +
-+static inline void virtio_vsock_skb_set_net(struct sk_buff *skb, struct net *net)
+ static inline enum vsock_net_mode vsock_net_mode(struct net *net)
+ {
+ 	enum vsock_net_mode ret;
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 0538948d5fd9..c78aba9cd20e 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -83,6 +83,35 @@
+  *   TCP_ESTABLISHED - connected
+  *   TCP_CLOSING - disconnecting
+  *   TCP_LISTEN - listening
++ *
++ * - Namespaces in vsock support two different modes configured
++ *   through /proc/sys/net/vsock/ns_mode. The modes are "local" and "global".
++ *   Each mode defines how the namespace interacts with CIDs.
++ *   /proc/sys/net/vsock/ns_mode is write-once, so that it may be configured
++ *   and locked down by a namespace manager. The default is "global". The mode
++ *   is set per-namespace.
++ *
++ *   The modes affect the allocation and accessibility of CIDs as follows:
++
++ *   - global - access and allocation are all system-wide
++ *      - all CID allocation from global namespaces draw from the same
++ *        system-wide pool
++ *      - if one global namespace has already allocated some CID, another
++ *        global namespace will not be able to allocate the same CID
++ *      - global mode AF_VSOCK sockets can reach any VM or socket in any global
++ *        namespace, they are not contained to only their own namespace
++ *      - AF_VSOCK sockets in a global mode namespace cannot reach VMs or
++ *        sockets in any local mode namespace
++ *   - local - access and allocation are contained within the namespace
++ *     - CID allocation draws only from a private pool local only to the
++ *       namespace, and does not affect the CIDs available for allocation in any
++ *       other namespace (global or local)
++ *     - VMs in a local namespace do not collide with CIDs in any other local
++ *       namespace or any global namespace. For example, if a VM in a local mode
++ *       namespace is given CID 10, then CID 10 is still available for
++ *       allocation in any other namespace, but not in the same namespace
++ *     - AF_VSOCK sockets in a local mode namespace can connect only to VMs or
++ *       other sockets within their own namespace.
+  */
+ 
+ #include <linux/compat.h>
+@@ -100,6 +129,7 @@
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+ #include <linux/net.h>
++#include <linux/proc_fs.h>
+ #include <linux/poll.h>
+ #include <linux/random.h>
+ #include <linux/skbuff.h>
+@@ -111,9 +141,14 @@
+ #include <linux/workqueue.h>
+ #include <net/sock.h>
+ #include <net/af_vsock.h>
++#include <net/netns/vsock.h>
+ #include <uapi/linux/vm_sockets.h>
+ #include <uapi/asm-generic/ioctls.h>
+ 
++#define VSOCK_NET_MODE_STR_GLOBAL "global"
++#define VSOCK_NET_MODE_STR_LOCAL "local"
++#define VSOCK_NET_MODE_STR_MAX 8
++
+ static int __vsock_bind(struct sock *sk, struct sockaddr_vm *addr);
+ static void vsock_sk_destruct(struct sock *sk);
+ static int vsock_queue_rcv_skb(struct sock *sk, struct sk_buff *skb);
+@@ -149,6 +184,9 @@ static const struct vsock_transport *transport_dgram;
+ static const struct vsock_transport *transport_local;
+ static DEFINE_MUTEX(vsock_register_mutex);
+ 
++struct net __vsock_global_dummy_net;
++EXPORT_SYMBOL_GPL(__vsock_global_dummy_net);
++
+ /**** UTILS ****/
+ 
+ /* Each bound VSocket is stored in the bind hash table and each connected
+@@ -235,17 +273,21 @@ static void __vsock_remove_connected(struct vsock_sock *vsk)
+ 	sock_put(&vsk->sk);
+ }
+ 
+-static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
++static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr,
++					      struct net *net,
++					      enum vsock_net_mode orig_net_mode)
+ {
+ 	struct vsock_sock *vsk;
+ 
+ 	list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) {
+-		if (vsock_addr_equals_addr(addr, &vsk->local_addr))
++		if (vsock_addr_equals_addr(addr, &vsk->local_addr) &&
++		    vsock_net_check_mode(vsk, net, orig_net_mode))
+ 			return sk_vsock(vsk);
+ 
+ 		if (addr->svm_port == vsk->local_addr.svm_port &&
+ 		    (vsk->local_addr.svm_cid == VMADDR_CID_ANY ||
+-		     addr->svm_cid == VMADDR_CID_ANY))
++		     addr->svm_cid == VMADDR_CID_ANY) &&
++		     vsock_net_check_mode(vsk, net, orig_net_mode))
+ 			return sk_vsock(vsk);
+ 	}
+ 
+@@ -253,14 +295,17 @@ static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
+ }
+ 
+ static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *src,
+-						  struct sockaddr_vm *dst)
++						  struct sockaddr_vm *dst,
++						  struct net *net,
++						  enum vsock_net_mode orig_net_mode)
+ {
+ 	struct vsock_sock *vsk;
+ 
+ 	list_for_each_entry(vsk, vsock_connected_sockets(src, dst),
+ 			    connected_table) {
+ 		if (vsock_addr_equals_addr(src, &vsk->remote_addr) &&
+-		    dst->svm_port == vsk->local_addr.svm_port) {
++		    dst->svm_port == vsk->local_addr.svm_port &&
++		    vsock_net_check_mode(vsk, net, orig_net_mode)) {
+ 			return sk_vsock(vsk);
+ 		}
+ 	}
+@@ -304,12 +349,13 @@ void vsock_remove_connected(struct vsock_sock *vsk)
+ }
+ EXPORT_SYMBOL_GPL(vsock_remove_connected);
+ 
+-struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
++struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr, struct net *net,
++				     enum vsock_net_mode orig_net_mode)
+ {
+ 	struct sock *sk;
+ 
+ 	spin_lock_bh(&vsock_table_lock);
+-	sk = __vsock_find_bound_socket(addr);
++	sk = __vsock_find_bound_socket(addr, net, orig_net_mode);
+ 	if (sk)
+ 		sock_hold(sk);
+ 
+@@ -320,12 +366,14 @@ struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
+ EXPORT_SYMBOL_GPL(vsock_find_bound_socket);
+ 
+ struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
+-					 struct sockaddr_vm *dst)
++					 struct sockaddr_vm *dst,
++					 struct net *net,
++					 enum vsock_net_mode orig_net_mode)
+ {
+ 	struct sock *sk;
+ 
+ 	spin_lock_bh(&vsock_table_lock);
+-	sk = __vsock_find_connected_socket(src, dst);
++	sk = __vsock_find_connected_socket(src, dst, net, orig_net_mode);
+ 	if (sk)
+ 		sock_hold(sk);
+ 
+@@ -528,7 +576,7 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+ 
+ 	if (sk->sk_type == SOCK_SEQPACKET) {
+ 		if (!new_transport->seqpacket_allow ||
+-		    !new_transport->seqpacket_allow(remote_cid)) {
++		    !new_transport->seqpacket_allow(vsk, remote_cid)) {
+ 			module_put(new_transport->module);
+ 			return -ESOCKTNOSUPPORT;
+ 		}
+@@ -676,6 +724,7 @@ static void vsock_pending_work(struct work_struct *work)
+ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+ 				    struct sockaddr_vm *addr)
+ {
++	struct net *net = sock_net(sk_vsock(vsk));
+ 	static u32 port;
+ 	struct sockaddr_vm new_addr;
+ 
+@@ -695,7 +744,8 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+ 
+ 			new_addr.svm_port = port++;
+ 
+-			if (!__vsock_find_bound_socket(&new_addr)) {
++			if (!__vsock_find_bound_socket(&new_addr, net,
++						       vsk->orig_net_mode)) {
+ 				found = true;
+ 				break;
+ 			}
+@@ -712,7 +762,8 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+ 			return -EACCES;
+ 		}
+ 
+-		if (__vsock_find_bound_socket(&new_addr))
++		if (__vsock_find_bound_socket(&new_addr, net,
++					      vsk->orig_net_mode))
+ 			return -EADDRINUSE;
+ 	}
+ 
+@@ -2552,6 +2603,7 @@ static int vsock_create(struct net *net, struct socket *sock,
+ 		return -ENOMEM;
+ 
+ 	vsk = vsock_sk(sk);
++	vsk->orig_net_mode = vsock_net_mode(net);
+ 
+ 	if (sock->type == SOCK_DGRAM) {
+ 		ret = vsock_assign_transport(vsk, NULL);
+@@ -2636,6 +2688,139 @@ static struct miscdevice vsock_device = {
+ 	.fops		= &vsock_device_ops,
+ };
+ 
++static int vsock_net_mode_string(const struct ctl_table *table, int write,
++				 void *buffer, size_t *lenp, loff_t *ppos)
 +{
-+	VIRTIO_VSOCK_SKB_CB(skb)->net = net;
++	char data[VSOCK_NET_MODE_STR_MAX] = {0};
++	enum vsock_net_mode mode;
++	struct ctl_table tmp;
++	struct net *net;
++	int ret;
++
++	if (!table->data || !table->maxlen || !*lenp) {
++		*lenp = 0;
++		return 0;
++	}
++
++	net = current->nsproxy->net_ns;
++	tmp = *table;
++	tmp.data = data;
++
++	if (!write) {
++		const char *p;
++
++		mode = vsock_net_mode(net);
++
++		if (mode == VSOCK_NET_MODE_GLOBAL) {
++			p = VSOCK_NET_MODE_STR_GLOBAL;
++		} else if (mode == VSOCK_NET_MODE_LOCAL) {
++			p = VSOCK_NET_MODE_STR_LOCAL;
++		} else {
++			WARN_ONCE(true, "netns has invalid vsock mode");
++			*lenp = 0;
++			return 0;
++		}
++
++		strscpy(data, p, sizeof(data));
++		tmp.maxlen = strlen(p);
++	}
++
++	ret = proc_dostring(&tmp, write, buffer, lenp, ppos);
++	if (ret)
++		return ret;
++
++	if (write) {
++		if (*lenp >= sizeof(data))
++			return -EINVAL;
++
++		if (!strncmp(data, VSOCK_NET_MODE_STR_GLOBAL, sizeof(data)))
++			mode = VSOCK_NET_MODE_GLOBAL;
++		else if (!strncmp(data, VSOCK_NET_MODE_STR_LOCAL, sizeof(data)))
++			mode = VSOCK_NET_MODE_LOCAL;
++		else
++			return -EINVAL;
++
++		if (!vsock_net_write_mode(net, mode))
++			return -EPERM;
++	}
++
++	return 0;
 +}
 +
-+static inline enum vsock_net_mode virtio_vsock_skb_orig_net_mode(struct sk_buff *skb)
++static struct ctl_table vsock_table[] = {
++	{
++		.procname	= "ns_mode",
++		.data		= &init_net.vsock.mode,
++		.maxlen		= VSOCK_NET_MODE_STR_MAX,
++		.mode		= 0644,
++		.proc_handler	= vsock_net_mode_string
++	},
++};
++
++static int __net_init vsock_sysctl_register(struct net *net)
 +{
-+	return VIRTIO_VSOCK_SKB_CB(skb)->orig_net_mode;
++	struct ctl_table *table;
++
++	if (net_eq(net, &init_net)) {
++		table = vsock_table;
++	} else {
++		table = kmemdup(vsock_table, sizeof(vsock_table), GFP_KERNEL);
++		if (!table)
++			goto err_alloc;
++
++		table[0].data = &net->vsock.mode;
++	}
++
++	net->vsock.vsock_hdr = register_net_sysctl_sz(net, "net/vsock", table,
++						      ARRAY_SIZE(vsock_table));
++	if (!net->vsock.vsock_hdr)
++		goto err_reg;
++
++	return 0;
++
++err_reg:
++	if (!net_eq(net, &init_net))
++		kfree(table);
++err_alloc:
++	return -ENOMEM;
 +}
 +
-+static inline void virtio_vsock_skb_set_orig_net_mode(struct sk_buff *skb,
-+						      enum vsock_net_mode orig_net_mode)
++static void vsock_sysctl_unregister(struct net *net)
 +{
-+	VIRTIO_VSOCK_SKB_CB(skb)->orig_net_mode = orig_net_mode;
++	const struct ctl_table *table;
++
++	table = net->vsock.vsock_hdr->ctl_table_arg;
++	unregister_net_sysctl_table(net->vsock.vsock_hdr);
++	if (!net_eq(net, &init_net))
++		kfree(table);
 +}
 +
- /* Dimension the RX SKB so that the entire thing fits exactly into
-  * a single 4KiB page. This avoids wasting memory due to alloc_skb()
-  * rounding up to the next page order and also means that we
++static void vsock_net_init(struct net *net)
++{
++	spin_lock_init(&net->vsock.lock);
++	net->vsock.mode = VSOCK_NET_MODE_GLOBAL;
++}
++
++static __net_init int vsock_sysctl_init_net(struct net *net)
++{
++	vsock_net_init(net);
++
++	if (vsock_sysctl_register(net))
++		return -ENOMEM;
++
++	return 0;
++}
++
++static __net_exit void vsock_sysctl_exit_net(struct net *net)
++{
++	vsock_sysctl_unregister(net);
++}
++
++static struct pernet_operations vsock_sysctl_ops __net_initdata = {
++	.init = vsock_sysctl_init_net,
++	.exit = vsock_sysctl_exit_net,
++};
++
+ static int __init vsock_init(void)
+ {
+ 	int err = 0;
+@@ -2663,10 +2848,19 @@ static int __init vsock_init(void)
+ 		goto err_unregister_proto;
+ 	}
+ 
++	if (register_pernet_subsys(&vsock_sysctl_ops)) {
++		err = -ENOMEM;
++		goto err_unregister_sock;
++	}
++
++	vsock_net_init(&init_net);
++	vsock_net_init(vsock_global_dummy_net());
+ 	vsock_bpf_build_proto();
+ 
+ 	return 0;
+ 
++err_unregister_sock:
++	sock_unregister(AF_VSOCK);
+ err_unregister_proto:
+ 	proto_unregister(&vsock_proto);
+ err_deregister_misc:
+@@ -2680,6 +2874,7 @@ static void __exit vsock_exit(void)
+ 	misc_deregister(&vsock_device);
+ 	sock_unregister(AF_VSOCK);
+ 	proto_unregister(&vsock_proto);
++	unregister_pernet_subsys(&vsock_sysctl_ops);
+ }
+ 
+ const struct vsock_transport *vsock_core_get_transport(struct vsock_sock *vsk)
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 432fcbbd14d4..79bc55eeecb3 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -313,7 +313,7 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+ 		return;
+ 
+ 	hvs_addr_init(&addr, conn_from_host ? if_type : if_instance);
+-	sk = vsock_find_bound_socket(&addr);
++	sk = vsock_find_bound_socket(&addr, vsock_global_dummy_net());
+ 	if (!sk)
+ 		return;
+ 
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index b6569b0ca2bb..4626ba0428ef 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -536,7 +536,7 @@ static bool virtio_transport_msgzerocopy_allow(void)
+ 	return true;
+ }
+ 
+-static bool virtio_transport_seqpacket_allow(u32 remote_cid);
++static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid);
+ 
+ static struct virtio_transport virtio_transport = {
+ 	.transport = {
+@@ -593,7 +593,7 @@ static struct virtio_transport virtio_transport = {
+ 	.can_msgzerocopy = virtio_transport_can_msgzerocopy,
+ };
+ 
+-static bool virtio_transport_seqpacket_allow(u32 remote_cid)
++static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
+ {
+ 	struct virtio_vsock *vsock;
+ 	bool seqpacket_allow;
+@@ -659,6 +659,8 @@ static void virtio_transport_rx_work(struct work_struct *work)
+ 			if (payload_len)
+ 				virtio_vsock_skb_put(skb, payload_len);
+ 
++			virtio_vsock_skb_set_net(skb, vsock_global_dummy_net());
++			virtio_vsock_skb_set_orig_net_mode(skb, VSOCK_NET_MODE_GLOBAL);
+ 			virtio_transport_deliver_tap_pkt(skb);
+ 			virtio_transport_recv_pkt(&virtio_transport, skb);
+ 		}
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index dcc8a1d5851e..1a9129e33d51 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1606,9 +1606,9 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+ 	/* The socket must be in connected or bound table
+ 	 * otherwise send reset back
+ 	 */
+-	sk = vsock_find_connected_socket(&src, &dst);
++	sk = vsock_find_connected_socket(&src, &dst, vsock_global_dummy_net());
+ 	if (!sk) {
+-		sk = vsock_find_bound_socket(&dst);
++		sk = vsock_find_bound_socket(&dst, vsock_global_dummy_net());
+ 		if (!sk) {
+ 			(void)virtio_transport_reset_no_sock(t, skb);
+ 			goto free_pkt;
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 7eccd6708d66..aa0cd2efe561 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -703,9 +703,11 @@ static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg)
+ 	vsock_addr_init(&src, pkt->dg.src.context, pkt->src_port);
+ 	vsock_addr_init(&dst, pkt->dg.dst.context, pkt->dst_port);
+ 
+-	sk = vsock_find_connected_socket(&src, &dst);
++	sk = vsock_find_connected_socket(&src, &dst, vsock_global_dummy_net(),
++					 VSOCK_NET_MODE_GLOBAL);
+ 	if (!sk) {
+-		sk = vsock_find_bound_socket(&dst);
++		sk = vsock_find_bound_socket(&dst, vsock_global_dummy_net(),
++					     VSOCK_NET_MODE_GLOBAL);
+ 		if (!sk) {
+ 			/* We could not find a socket for this specified
+ 			 * address.  If this packet is a RST, we just drop it.
+diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
+index 6e78927a598e..1b2fab73e0d0 100644
+--- a/net/vmw_vsock/vsock_loopback.c
++++ b/net/vmw_vsock/vsock_loopback.c
+@@ -46,7 +46,7 @@ static int vsock_loopback_cancel_pkt(struct vsock_sock *vsk)
+ 	return 0;
+ }
+ 
+-static bool vsock_loopback_seqpacket_allow(u32 remote_cid);
++static bool vsock_loopback_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid);
+ static bool vsock_loopback_msgzerocopy_allow(void)
+ {
+ 	return true;
+@@ -106,7 +106,7 @@ static struct virtio_transport loopback_transport = {
+ 	.send_pkt = vsock_loopback_send_pkt,
+ };
+ 
+-static bool vsock_loopback_seqpacket_allow(u32 remote_cid)
++static bool vsock_loopback_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
+ {
+ 	return true;
+ }
 
 -- 
 2.47.3
