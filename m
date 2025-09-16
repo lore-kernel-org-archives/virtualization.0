@@ -1,230 +1,149 @@
-Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B09819E992
-	for <virtualization@lists.linux.dev>; Tue, 16 Sep 2025 12:47:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.89.44.35
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77B6C1C2DB2
+	for <virtualization@lists.linux.dev>; Tue, 16 Sep 2025 13:08:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758026864; cv=none; b=OjYGM+c+ZtMpZ2q7M7ohfh2GNKPMbNABiojXDOHLUx5HUbHf8XCcuiJRQaA0JuSDZn1D4RSBWTpgSWU+NYXOqzJEDSXV5W6jyNAvr4FRZuAus+N+1zYl7fQPPlY4z4dcmf/e1LZ6uxXxGfs9u0DYnFBOES+SMejGX2kKtRuiai8=
+	t=1758028128; cv=none; b=cEN1kbQWZ+Syfmsbwl5iMjDjG4gKP3FivBhCm2ElXJWvb4kijM1PdvpsszMgYkkgIScL528WcT5MZSwT7pVHw1tZDjfHq0x7cTU3V+K9dAZ5ic/nwGuabmgLrDn9PWPzRcLpL4I/B+sZczGE0B9s9fUdLdclJ55URHCHFJMJFOQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758026864; c=relaxed/simple;
-	bh=shHE9KW7BesZUfFO29sYZ6kumc0tpGrToLz2fQbyJ+E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=u+vJc1woytnsCBveH9HLGdR+GiR/Prkemtr9iqzytbJOp0bIK4vr9XfDXbilr0KxUjfMrtji/JZF0P4WTnS7bl9373Rq+a1c3tL8SAANKDe/olMaUt5s/rDwdR6f+9zHvC0abwwIK7WUjNtz5bocn5+bFt8jSXct4Iqf8HKA1W8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com; spf=pass smtp.mailfrom=embeddedor.com; dkim=pass (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b=G4Xr4jmo; arc=none smtp.client-ip=35.89.44.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=embeddedor.com
+	s=arc-20240116; t=1758028128; c=relaxed/simple;
+	bh=O28A16v9jbOnULEPboNjLPqf9hYbLOV2EloCAN6pjTI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mRhYvZVck9vkaSgfHBzKHDuwoKH5Cu21bmrWcUE/r2kV6vUyoOxtwbQ5u+gV6pT8++CltjaO48gKSRVc9TNb2fDiEgTb2kc2Ewq/dQUELN2qnd2ufIMIAgIQqHwOSDR8tCBFd7dQmdqxwkPJStmi+PEjrT9kZsFLu2g5/t59fU4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CQYcXorv; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b="G4Xr4jmo"
-Received: from eig-obgw-6003b.ext.cloudfilter.net ([10.0.30.175])
-	by cmsmtp with ESMTPS
-	id yUO3uNO91jzfwyV5ruH7kS; Tue, 16 Sep 2025 12:47:35 +0000
-Received: from gator4166.hostgator.com ([108.167.133.22])
-	by cmsmtp with ESMTPS
-	id yV5qu52zqZmbnyV5queyNd; Tue, 16 Sep 2025 12:47:34 +0000
-X-Authority-Analysis: v=2.4 cv=HKfDFptv c=1 sm=1 tr=0 ts=68c95c66
- a=1YbLdUo/zbTtOZ3uB5T3HA==:117 a=rgnGs0SnPH8AdDS9O6an6A==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=7T7KSl7uo7wA:10 a=VwQbUJbxAAAA:8
- a=hq4P9umPRdET-EkN_ZoA:9 a=QEXdDO2ut3YA:10 a=xYX6OU9JNrHFPr8prv8u:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=Ir3vWjqrv49zXSLgiZpFEkxlPef9vckMUxhUY+rQbQo=; b=G4Xr4jmohwUGtFlp5kciSaLmxc
-	V4jusRpsg85n2MNX/y4uPmANn4XnAq2Mkn4CEEQ36ZB1c/MbYGO2Vzo41jCOd4UP6rUOZ5P6/Nmu6
-	m6L6KsdxWpQcM7HCHXWNRTFdnAkpTgpLgksqFv3gtZg7iHxYCCUsLfXEacp/d7UGeR+NY+KEU6c2P
-	FkiN1DsdSEy2KI6sMPwdh7FFz0u3womxRSNhWrNvCDbKrjaLoGRxphCTQYZf9zEu/W56dj/D/aN/0
-	GC5i4UxC3/lZ65KnYnzzUqTnMXfDhlA3tOvX1e+9R4bM0JQ3KWu8+Hud1NX5Af99jhwK4e6/EC96g
-	Kt1yI7IQ==;
-Received: from [185.7.52.72] (port=52888 helo=[172.30.86.44])
-	by gator4166.hostgator.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.98.1)
-	(envelope-from <gustavo@embeddedor.com>)
-	id 1uyV5n-00000003enU-2svP;
-	Tue, 16 Sep 2025 07:47:32 -0500
-Message-ID: <015cb465-6e4e-4242-8898-981721347050@embeddedor.com>
-Date: Tue, 16 Sep 2025 14:47:00 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CQYcXorv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1758028125;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=MF6tGX7AhGWCaipNfYtoVKK8zZp9Am7tSA8bcinR/Ss=;
+	b=CQYcXorv+KJ76dI8MYceroNHdawggxqjxiUccSE4p+3CCATa0btZpznantOjA5wNRJul2N
+	2w4ji+qWQDyV8k8qgvivH+3vd0LMuc36xqvK1qkeLSevJQHePr770vGls4HBaIlBbgdiCf
+	JuUwFGk3b//+1wOlVXI6YKCSRO2i9dc=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-523-HPcNd14KPyuXmaFgc-d6BA-1; Tue,
+ 16 Sep 2025 09:08:42 -0400
+X-MC-Unique: HPcNd14KPyuXmaFgc-d6BA-1
+X-Mimecast-MFC-AGG-ID: HPcNd14KPyuXmaFgc-d6BA_1758028121
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1EE1318002CF;
+	Tue, 16 Sep 2025 13:08:41 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.44.34.12])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id CC74919560BA;
+	Tue, 16 Sep 2025 13:08:35 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: "Michael S . Tsirkin " <mst@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+	jasowang@redhat.com,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-kernel@vger.kernel.org,
+	Maxime Coquelin <mcoqueli@redhat.com>,
+	Yongji Xie <xieyongji@bytedance.com>,
+	Cindy Lu <lulu@redhat.com>,
+	Laurent Vivier <lvivier@redhat.com>,
+	virtualization@lists.linux.dev,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Subject: [PATCH v2 0/7] Add multiple address spaces support to VDUSE
+Date: Tue, 16 Sep 2025 15:08:26 +0200
+Message-ID: <20250916130833.329087-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH][next] virtio_net: Fix alignment and avoid
- -Wflex-array-member-not-at-end warning
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Simon Horman <horms@kernel.org>,
- "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Akihiko Odaki <akihiko.odaki@daynix.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-hardening@vger.kernel.org
-References: <aLiYrQGdGmaDTtLF@kspp> <20250904091315.GB372207@horms.kernel.org>
- <cac19beb-eefb-4a6a-9eec-b414199ce339@embeddedor.com>
- <20250904172951-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-In-Reply-To: <20250904172951-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
-X-AntiAbuse: Original Domain - lists.linux.dev
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - embeddedor.com
-X-BWhitelist: no
-X-Source-IP: 185.7.52.72
-X-Source-L: No
-X-Exim-ID: 1uyV5n-00000003enU-2svP
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: ([172.30.86.44]) [185.7.52.72]:52888
-X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 4
-X-Org: HG=hgshared;ORG=hostgator;
-X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfAdnH1Xq6Qh7DKKDID4a81uLGd9e7vwtuBLeg2XANvFKNOWQoVf5dyDzjdiVVUj5TjqjPvk00W0ROOKdQmh/Q0NMgJTy4M85RfvttyQEh3ITCgHF+1M8
- eoJddTeuDIzbhBPDYvM/l97w5wZn2TBYC4nAebyQxKHWJYgnWRhfKA4eg4G/G/S48Who6qTERrQYZm116PGsGvlUOIZEH5fDKogaM1h6hb6LXwTGT76EMy0u
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
+When used by vhost-vDPA bus driver for VM, the control virtqueue
+should be shadowed via userspace VMM (QEMU) instead of being assigned
+directly to Guest. This is because QEMU needs to know the device state
+in order to start and stop device correctly (e.g for Live Migration).
 
+This requies to isolate the memory mapping for control virtqueue
+presented by vhost-vDPA to prevent guest from accessing it directly.
 
-On 9/4/25 23:31, Michael S. Tsirkin wrote:
-> On Thu, Sep 04, 2025 at 08:53:31PM +0200, Gustavo A. R. Silva wrote:
->>
->>
->> On 9/4/25 11:13, Simon Horman wrote:
->>> On Wed, Sep 03, 2025 at 09:36:13PM +0200, Gustavo A. R. Silva wrote:
->>>> -Wflex-array-member-not-at-end was introduced in GCC-14, and we are
->>>> getting ready to enable it, globally.
->>>>
->>>> Use the new TRAILING_OVERLAP() helper to fix the following warning:
->>>>
->>>> drivers/net/virtio_net.c:429:46: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
->>>>
->>>> This helper creates a union between a flexible-array member (FAM)
->>>> and a set of members that would otherwise follow it (in this case
->>>> `u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];`). This
->>>> overlays the trailing members (rss_hash_key_data) onto the FAM
->>>> (hash_key_data) while keeping the FAM and the start of MEMBERS aligned.
->>>> The static_assert() ensures this alignment remains, and it's
->>>> intentionally placed inmediately after `struct virtnet_info` (no
->>>> blank line in between).
->>>>
->>>> Notice that due to tail padding in flexible `struct
->>>> virtio_net_rss_config_trailer`, `rss_trailer.hash_key_data`
->>>> (at offset 83 in struct virtnet_info) and `rss_hash_key_data` (at
->>>> offset 84 in struct virtnet_info) are misaligned by one byte. See
->>>> below:
->>>>
->>>> struct virtio_net_rss_config_trailer {
->>>>           __le16                     max_tx_vq;            /*     0     2 */
->>>>           __u8                       hash_key_length;      /*     2     1 */
->>>>           __u8                       hash_key_data[];      /*     3     0 */
->>>>
->>>>           /* size: 4, cachelines: 1, members: 3 */
->>>>           /* padding: 1 */
->>>>           /* last cacheline: 4 bytes */
->>>> };
->>>>
->>>> struct virtnet_info {
->>>> ...
->>>>           struct virtio_net_rss_config_trailer rss_trailer; /*    80     4 */
->>>>
->>>>           /* XXX last struct has 1 byte of padding */
->>>>
->>>>           u8                         rss_hash_key_data[40]; /*    84    40 */
->>>> ...
->>>>           /* size: 832, cachelines: 13, members: 48 */
->>>>           /* sum members: 801, holes: 8, sum holes: 31 */
->>>>           /* paddings: 2, sum paddings: 5 */
->>>> };
->>>>
->>>> After changes, those members are correctly aligned at offset 795:
->>>>
->>>> struct virtnet_info {
->>>> ...
->>>>           union {
->>>>                   struct virtio_net_rss_config_trailer rss_trailer; /*   792     4 */
->>>>                   struct {
->>>>                           unsigned char __offset_to_hash_key_data[3]; /*   792     3 */
->>>>                           u8         rss_hash_key_data[40]; /*   795    40 */
->>>>                   };                                       /*   792    43 */
->>>>           };                                               /*   792    44 */
->>>> ...
->>>>           /* size: 840, cachelines: 14, members: 47 */
->>>>           /* sum members: 801, holes: 8, sum holes: 35 */
->>>>           /* padding: 4 */
->>>>           /* paddings: 1, sum paddings: 4 */
->>>>           /* last cacheline: 8 bytes */
->>>> };
->>>>
->>>> As a last note `struct virtio_net_rss_config_hdr *rss_hdr;` is also
->>>> moved to the end, since it seems those three members should stick
->>>> around together. :)
->>>>
->>>> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
->>>> ---
->>>>
->>>> This should probably include the following tag:
->>>>
->>>> 	Fixes: ed3100e90d0d ("virtio_net: Use new RSS config structs")
->>>>
->>>> but I'd like to hear some feedback, first.
->>>
->>> I tend to agree given that:
->>>
->>> On the one hand:
->>>
->>> 1) in virtnet_init_default_rss(), netdev_rss_key_fill() is used
->>>      to write random data to .rss_hash_key_data
->>>
->>> 2) In virtnet_set_rxfh() key data written to .rss_hash_key_data
->>>
->>> While
->>>
->>> 3) In virtnet_commit_rss_command() virtio_net_rss_config_trailer,
->>>      including the contents of .hash_key_data based on the length of
->>>      that data provided in .hash_key_length is copied.
->>>
->>> It seems to me that step 3 will include 1 byte of uninitialised data
->>> at the start of .hash_key_data. And, correspondingly, truncate
->>> .rss_hash_key_data by one byte.
->>>
->>> It's unclear to me what the effect of this - perhaps they key works
->>> regardless. But it doesn't seem intended. And while the result may be
->>> neutral, I do  suspect this reduces the quality of the key. And I more
->>> strongly suspect it doesn't have any positive outcome.
->>>
->>> So I would lean towards playing it safe and considering this as a bug.
->>>
->>> Of course, other's may have better insight as to the actual effect of this.
->>
->> Yeah, in the meantime I'll prepare v2 with both the 'Fixes' and 'stable'
->> tags.
->>
->> Thanks for the feedback!
->> -Gustavo
->>
->>
-> 
-> 
-> I agree. It looks like that commit completely broke RSS
-> configuration. Akihiko do you mind sharing how that was
-> tested? Maybe help testing the fix? Thanks!
+This series add support to multiple address spaces in VDUSE device
+allowing selective virtqueue isolation through address space IDs (ASID).
 
-I've been waiting for Akihiko's comments on this, but I
-guess I'll now go ahead and submit v2 with the Fixes and
-stable tags included.
+The VDUSE device needs to report:
+* Number of virtqueue groups
+* Association of each vq group with each virtqueue
+* Number of address spaces supported.
 
-Thanks for the feedback, Michael.
+Then, the vDPA driver can modify the ASID assigned to each VQ group to
+isolate the memory AS.  This aligns VDUSE with gq}vdpa_sim and nvidia
+mlx5 devices which already support ASID.
 
--Gustavo
+This helps to isolate the environments for the virtqueues that will not
+be assigned directly. E.g in the case of virtio-net, the control
+virtqueue will not be assigned directly to guest.
+
+This series depends on the series that reworks the virtio mapping API:
+https://lore.kernel.org/all/20250821064641.5025-1-jasowang@redhat.com/
+
+Also, to be able to test this patch, the user needs to manually revert
+56e71885b034 ("vduse: Temporarily fail if control queue feature requested").
+
+PATCH v2:
+* Now the vq group is in vduse_vq_config struct instead of issuing one
+  VDUSE message per vq.
+* Convert the use of mutex to rwlock (Xie Yongji).
+
+PATCH v1:
+* Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+* Using vduse_vq_group_int directly instead of an empty struct in union
+  virtio_map.
+
+RFC v3:
+* Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
+  value to reduce memory consumption, but vqs are already limited to
+  that value and userspace VDUSE is able to allocate that many vqs.  Also, it's
+  a dynamic array now.  Same with ASID.
+* Move the valid vq groups range check to vduse_validate_config.
+* Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
+* Use of array_index_nospec in VDUSE device ioctls.
+* Move the umem mutex to asid struct so there is no contention between
+  ASIDs.
+* Remove the descs vq group capability as it will not be used and we can
+  add it on top.
+* Do not ask for vq groups in number of vq groups < 2.
+* Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
+  VDUSE_IOTLB_GET_INFO.
+
+RFC v2:
+* Cache group information in kernel, as we need to provide the vq map
+  tokens properly.
+* Add descs vq group to optimize SVQ forwarding and support indirect
+  descriptors out of the box.
+* Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
+  part of the struct is the same.
+* Fixes detected testing with OVS+VDUSE.
+
+Eugenio Pérez (7):
+  vduse: add v1 API definition
+  vduse: make domain_lock an rwlock
+  vduse: add vq group support
+  vduse: return internal vq group struct as map token
+  vduse: create vduse_as to make it an array
+  vduse: add vq group asid support
+  vduse: bump version number
+
+ drivers/vdpa/vdpa_user/vduse_dev.c | 446 +++++++++++++++++++++--------
+ include/linux/virtio.h             |   6 +-
+ include/uapi/linux/vduse.h         |  65 ++++-
+ 3 files changed, 393 insertions(+), 124 deletions(-)
+
+-- 
+2.51.0
+
