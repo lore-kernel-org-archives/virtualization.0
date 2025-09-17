@@ -1,192 +1,279 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D4BF2EC0A6
-	for <virtualization@lists.linux.dev>; Wed, 17 Sep 2025 08:35:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C1C62FFF88
+	for <virtualization@lists.linux.dev>; Wed, 17 Sep 2025 08:36:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758098135; cv=none; b=pzauTB8gDE0nJ9gAKyF3DJBJv8YhHVkfSL7b+D2DdeJYYsygOuyud6bwdJdmtfxKrcuIqdupV+HPjqA7JpTBiZQwdAh1CYGNBWkuhG73x/ozbufEd3wOx6nQNwbvwO+xSWZojGKLblwgcKZcSfQdYtqNoPL5VxDSg2rFLurqkn8=
+	t=1758098219; cv=none; b=jaypT5FPJMhKSIQ/Y9PhSYRGI+eHjmMTeyVlUBdKsnc9pJv2Xm3PR2+rQXCxqTdaw+FmsHwNQi9wsXTinPNssAfaSuuHAo6nPJEIBDigywRTftOrZMBxDg9fcINzly6DXP/GHxwLx17eHNfwl2tW7YsK9BdKh3tTbn/Y6JYAbbs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758098135; c=relaxed/simple;
-	bh=q998US9DM6OvRET551aJFQGCAmTK69Gkhu3kFz33Lo0=;
+	s=arc-20240116; t=1758098219; c=relaxed/simple;
+	bh=mtdwjpppQuMYOYtHvgA3BLkqkWiPCjQmZHjBoBL53Qg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JZa8ukn0R34EEAAV3F8LjvGm3ilnEKvRfMOJlGzfoXcu6i1muY038L7wjcAQTshcyhTUQF3YRkxJsTTZr2borGtszpUFJwj60pRIs4J4PvCOiHfAEsY9b3ymoOG/K2vZs6ACdlP7Jin3yPRO5PurXkXcY6/yujWTYAxeA8+oxVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SyKrOky6; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=mBPRQYS0ZYY394SKdK2BfWT4cD1lzmDZ/jZxuVyzK/Q8VraLxrHBhoEv/3EAdhTqMFSShPlN2FLYRUP1cMlNb9BZhU+1gB4sT8EC9CLgyieXIc5JRWdvh+Q4cbT83Cudlco/DOxYfIHWNDdtU3j5CCfxoqM/ZSWAYWTUjyKn8fQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GO9SSFq5; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SyKrOky6"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GO9SSFq5"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758098132;
+	s=mimecast20190719; t=1758098217;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rpJuW7ScxpFIrDm/6lY2N9UNppFzeLdJ57JW01ss3N0=;
-	b=SyKrOky6ZtE7NoZHaDoS01epAIrDUmHu6kynQJLJ6nflAcr5x5ZCaYjFkUsLBRMFxqfoBj
-	ag1VSov73aZvMCtnJ3JvZRduyGUUXiF8CCG2reJCoMWqWL6ESPGCCOSYyeTVe2JAQF24vh
-	S5ENBU7tVb3Yoi39H2Gxfr9MWQu+DWY=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ZO090sKfTZEMJYwRNikVJVW8jUDpl6sZ6AO04VdsuYE=;
+	b=GO9SSFq5qVMWi4eNnk+5uISJME6bdqEFjsor5efQuKzv+8O2lv158Ii1vPAWoWtxfnCoZP
+	rH3hdkmwKxfNBayw+x2ZLoCZ8tniP06vpjkbCosmpd39BURX0G5zKa9Ww8OfVM5LrzO+ev
+	DG5jluGiLHw0h3mR6vtp6qI3KZBBmSY=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-453-NHGPTEU-NPWdGkTESR_CKg-1; Wed, 17 Sep 2025 04:35:29 -0400
-X-MC-Unique: NHGPTEU-NPWdGkTESR_CKg-1
-X-Mimecast-MFC-AGG-ID: NHGPTEU-NPWdGkTESR_CKg_1758098129
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-7341cfed3ffso44637707b3.3
-        for <virtualization@lists.linux.dev>; Wed, 17 Sep 2025 01:35:29 -0700 (PDT)
+ us-mta-673-8VNAlhTgNyCQUnNLu_nLlg-1; Wed, 17 Sep 2025 04:36:55 -0400
+X-MC-Unique: 8VNAlhTgNyCQUnNLu_nLlg-1
+X-Mimecast-MFC-AGG-ID: 8VNAlhTgNyCQUnNLu_nLlg_1758098215
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-b471737e673so8191285a12.1
+        for <virtualization@lists.linux.dev>; Wed, 17 Sep 2025 01:36:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758098128; x=1758702928;
+        d=1e100.net; s=20230601; t=1758098214; x=1758703014;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rpJuW7ScxpFIrDm/6lY2N9UNppFzeLdJ57JW01ss3N0=;
-        b=QxSp5wRhK5IP9KDAuD3zIn9+kU+B0jR1sm0stmXwVcJdRkMTHACaxGWxqiR9mmJOt/
-         EtOtpEEpi8hZRFxAtLerYEu30jzpBzFPuFigZNrA9pUVdec9D/yTjJYJHCHa6NIR7dUH
-         FhxMRVYtFGNulynXEKdGjcBaVIbnQkogsM0bzqWW7BD2geXBaa96kyJ5UUKbAV4xYk0O
-         4RYd7tWpYvJycXHF0TU2olDOp/QPi5sEZEqHkirg7Fe6oKnJg7YxS8hHA8kTNvSFPhrL
-         n3PPWUuW6tJN8fE89YEcgxSo9M8J+4nzhIDIZ7H0Jbnm5cklWVin3NJtmfYfntub1wQ2
-         sYMQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUpPDjVCSrb9Mlbwgf4dQ/nJx5SRgfBL1huV2Co7BRo7hEo4DNBblqVre9KXUv+h7l4a4rDQaJmDrXD8hHLww==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxhrfR9uJayU3acKaFWSXA6Uk6Hg+SUUFhNcvh8sIxuOuwXv0Qr
-	8JeuBI/Mghiu8I002gMsTC5YL301rGF8XW8Iikrv3o1iIaiVdmFG+fMJS7umO5BHiINUfPPR8dB
-	YNtiCEE3gEzWWgNEx3uTNty13Gg22JDX5PTcXhsmxV/JxTp/2a/OywlgxdmzkbB8W8JLvY48Egy
-	K1zuo2bFnqlMnbRn/c1vTj43kUxpckFI0rF86LpG9ZePM=
-X-Gm-Gg: ASbGncug70qkYk/Hc2Qgm3Kp53LxPDD8sKohY4Goytlqk2sdNKPqxj6QjNpxbHx3ESf
-	WT7mcjEhIkvgsSCS/0JaWwwFK500oLhRX1EI9zwljnARVEn4ncSc2p29qCcKFriamSZ/cMYBoA6
-	F5ONRizQXqIhWgb3Yuq9Ry3iONZwC/YhgldIzSGpUvQw9/gfapYiXxXIyBtuMV0i/tsca7DOh3g
-	KjQM2Ky
-X-Received: by 2002:a05:690c:6287:b0:734:4c38:8dd7 with SMTP id 00721157ae682-7389284e5e5mr9726507b3.37.1758098128456;
-        Wed, 17 Sep 2025 01:35:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFw7WOF0rEFwoWJH/Fs+cwlNlhklNtr7tfG2XSvbAwX8kIp4ppyqh9Npvtpo12WegIqko71EKOuElGMUL7KcsA=
-X-Received: by 2002:a05:690c:6287:b0:734:4c38:8dd7 with SMTP id
- 00721157ae682-7389284e5e5mr9726207b3.37.1758098127956; Wed, 17 Sep 2025
- 01:35:27 -0700 (PDT)
+        bh=ZO090sKfTZEMJYwRNikVJVW8jUDpl6sZ6AO04VdsuYE=;
+        b=EanP/+9K/zp5kLnsoAR3ruQhLCoJT4amgEJ96yDrN5wTwi+rj3AMRLc9fgpZo+pLLk
+         iuLBmAKOtxBGZhJGeb4f9JdIu8LpBzhGAsB04Q/5Rbh+QGQobuGbgNuUQcXokrTtak+H
+         zKCJRfj5tCOq65VCGuGHJFsJsyetCajvfINs8Tftgw5fl4zk7lIUYHAa9fkrPpwQmzSC
+         TeLfOcfXtZB1wSHhkiH6NXpVD1GSIK4sGhwHFuacVN3Z27kJToQY2qx3f6rUyRrT/GhN
+         salvAvQdbttTD0N4IBNCrG2kmpg9GhY5pXZPEhbIk+bwjCs44UXz8LlZ7NurwOiGneMX
+         I64w==
+X-Forwarded-Encrypted: i=1; AJvYcCUt/EUDzXLL3NbRCxyoNxA49dc8r1DMCpWvQIRqiIKZ6cmg03MYE4+0popBNvrBtYzvIBo/SbnGj/KfGhQVWw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YylT7F5F+Eaj6p4jrOn7d62XuCkWw0IHIFDJVQygMOKnKn9+BI6
+	+q1U9MgkK+2M0jNmvTLhKGD5ZL0y73eapaRVzjXC2aLwcrBuRw6oDEj67O9HynQrpp6NJyC9AkM
+	ABGetfxT1nSjZ8R0NDlYHqWLMdNALK8ePc2i4P3Hrjljdr1VbOXq0v7QIqU0tTQLqOr1HgIHHwI
+	sqfuLC+nN8U2zAFpLZmg+zF3Xydjjb/V3UJoYip2H6PmIZnCMO66OKxg==
+X-Gm-Gg: ASbGnctqNYQ0wwU3/hu7BTR9zJBdDlmrr5eNDho/WeIVe1OUGYxjJBfrN190IfdwRkO
+	+x9vKB7EWDDCiVHC+vY5fwsYUfoRLLEKi/40Q+UATdGbHQI9cC/vOaq1mNL4AwMgjxQvtz6mulA
+	CeW8GjMTWvD+SG3p3YbQ==
+X-Received: by 2002:a05:6a20:3d05:b0:243:b3e2:ca07 with SMTP id adf61e73a8af0-27ab81613efmr1868863637.58.1758098214239;
+        Wed, 17 Sep 2025 01:36:54 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGob8kyHak87Gd1ib5FpUZgzKA2iunl8JSl9iFDu6+BKTmDjmymMDjhF+A303gZi84HYTtXhb58wiGpAb9YSaM=
+X-Received: by 2002:a05:6a20:3d05:b0:243:b3e2:ca07 with SMTP id
+ adf61e73a8af0-27ab81613efmr1868818637.58.1758098213766; Wed, 17 Sep 2025
+ 01:36:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250917063045.2042-1-jasowang@redhat.com> <20250917063045.2042-2-jasowang@redhat.com>
-In-Reply-To: <20250917063045.2042-2-jasowang@redhat.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 17 Sep 2025 10:34:50 +0200
-X-Gm-Features: AS18NWCp8aMeKQoIpGNO8gXB409fPKuCuu417M71iyj7YQxnhfTZ79uY8_vwglw
-Message-ID: <CAJaqyWeWy9L322_-=MNno9JABegb+ByXEHmEyBsqXHUVTiBndg@mail.gmail.com>
-Subject: Re: [PATCH vhost 2/3] Revert "vhost/net: Defer TX queue re-enable
- until after sendmsg"
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, jonah.palmer@oracle.com, kuba@kernel.org, jon@nutanix.com, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20250916130833.329087-1-eperezma@redhat.com> <20250916130833.329087-3-eperezma@redhat.com>
+In-Reply-To: <20250916130833.329087-3-eperezma@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 17 Sep 2025 16:36:42 +0800
+X-Gm-Features: AS18NWBP8Pwo30SbuEqdrKv5Y0rlJF8L0BtuNswrz5Nzc-YpJTlgxpRv6bDffgo
+Message-ID: <CACGkMEsNTtD9nc7dRi9LH4jwh37kXQgM2WjbJfoz-MsHFe750Q@mail.gmail.com>
+Subject: Re: [PATCH v2 2/7] vduse: make domain_lock an rwlock
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vMqmRHrGgYq6eUTep9VJrsTeDP7VxuDRjd2A57db8JQ_1758098129
+X-Mimecast-MFC-PROC-ID: DnkTzQm0wPUNZ_Wl8ygmPn5bqpDBD8edcKPBKIRd1pw_1758098215
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 17, 2025 at 8:31=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
+On Tue, Sep 16, 2025 at 9:08=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redhat=
+.com> wrote:
 >
-> This reverts commit 8c2e6b26ffe243be1e78f5a4bfb1a857d6e6f6d6. It tries
-> to defer the notification enabling by moving the logic out of the loop
-> after the vhost_tx_batch() when nothing new is spotted. This will
-> bring side effects as the new logic would be reused for several other
-> error conditions.
+> It will be used in a few more scenarios read-only so make it more
+> scalable.
 >
-> One example is the IOTLB: when there's an IOTLB miss, get_tx_bufs()
-> might return -EAGAIN and exit the loop and see there's still available
-> buffers, so it will queue the tx work again until userspace feed the
-> IOTLB entry correctly. This will slowdown the tx processing and
-> trigger the TX watchdog in the guest as reported in
-> https://lkml.org/lkml/2025/9/10/1596.
->
-> To fix, revert the change. A follow up patch will being the performance
-> back in a safe way.
->
-> Reported-by: Jon Kohler <jon@nutanix.com>
-> Cc: stable@vger.kernel.org
-> Fixes: 8c2e6b26ffe2 ("vhost/net: Defer TX queue re-enable until after sen=
-dmsg")
+> Suggested-by: Xie Yongji <xieyongji@bytedance.com>
+> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Thanks
+
+
 > ---
->  drivers/vhost/net.c | 30 +++++++++---------------------
->  1 file changed, 9 insertions(+), 21 deletions(-)
+> v2: New in v2
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 41 +++++++++++++++---------------
+>  1 file changed, 21 insertions(+), 20 deletions(-)
 >
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 16e39f3ab956..57efd5c55f89 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -765,11 +765,11 @@ static void handle_tx_copy(struct vhost_net *net, s=
-truct socket *sock)
->         int err;
->         int sent_pkts =3D 0;
->         bool sock_can_batch =3D (sock->sk->sk_sndbuf =3D=3D INT_MAX);
-> -       bool busyloop_intr;
->         bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
+vduse_dev.c
+> index e7bced0b5542..2b6a8958ffe0 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/cdev.h>
+>  #include <linux/device.h>
+>  #include <linux/eventfd.h>
+> +#include <linux/rwlock.h>
+>  #include <linux/slab.h>
+>  #include <linux/wait.h>
+>  #include <linux/dma-map-ops.h>
+> @@ -117,7 +118,7 @@ struct vduse_dev {
+>         struct vduse_umem *umem;
+>         struct mutex mem_lock;
+>         unsigned int bounce_size;
+> -       struct mutex domain_lock;
+> +       rwlock_t domain_lock;
+>  };
 >
->         do {
-> -               busyloop_intr =3D false;
-> +               bool busyloop_intr =3D false;
-> +
->                 if (nvq->done_idx =3D=3D VHOST_NET_BATCH)
->                         vhost_tx_batch(net, nvq, sock, &msg);
->
-> @@ -780,10 +780,13 @@ static void handle_tx_copy(struct vhost_net *net, s=
-truct socket *sock)
+>  struct vduse_dev_msg {
+> @@ -1176,9 +1177,9 @@ static long vduse_dev_ioctl(struct file *file, unsi=
+gned int cmd,
+>                 if (entry.start > entry.last)
 >                         break;
->                 /* Nothing new?  Wait for eventfd to tell us they refille=
-d. */
->                 if (head =3D=3D vq->num) {
-> -                       /* Kicks are disabled at this point, break loop a=
-nd
-> -                        * process any remaining batched packets. Queue w=
-ill
-> -                        * be re-enabled afterwards.
-> -                        */
-> +                       if (unlikely(busyloop_intr)) {
-> +                               vhost_poll_queue(&vq->poll);
-> +                       } else if (unlikely(vhost_enable_notify(&net->dev=
-,
-> +                                                               vq))) {
-> +                               vhost_disable_notify(&net->dev, vq);
-> +                               continue;
-> +                       }
+>
+> -               mutex_lock(&dev->domain_lock);
+> +               read_lock(&dev->domain_lock);
+>                 if (!dev->domain) {
+> -                       mutex_unlock(&dev->domain_lock);
+> +                       read_unlock(&dev->domain_lock);
 >                         break;
 >                 }
+>                 spin_lock(&dev->domain->iotlb_lock);
+> @@ -1193,7 +1194,7 @@ static long vduse_dev_ioctl(struct file *file, unsi=
+gned int cmd,
+>                         entry.perm =3D map->perm;
+>                 }
+>                 spin_unlock(&dev->domain->iotlb_lock);
+> -               mutex_unlock(&dev->domain_lock);
+> +               read_unlock(&dev->domain_lock);
+>                 ret =3D -EINVAL;
+>                 if (!f)
+>                         break;
+> @@ -1346,10 +1347,10 @@ static long vduse_dev_ioctl(struct file *file, un=
+signed int cmd,
+>                                  sizeof(umem.reserved)))
+>                         break;
 >
-> @@ -839,22 +842,7 @@ static void handle_tx_copy(struct vhost_net *net, st=
-ruct socket *sock)
->                 ++nvq->done_idx;
->         } while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)=
-));
+> -               mutex_lock(&dev->domain_lock);
+> +               write_lock(&dev->domain_lock);
+>                 ret =3D vduse_dev_reg_umem(dev, umem.iova,
+>                                          umem.uaddr, umem.size);
+> -               mutex_unlock(&dev->domain_lock);
+> +               write_unlock(&dev->domain_lock);
+>                 break;
+>         }
+>         case VDUSE_IOTLB_DEREG_UMEM: {
+> @@ -1363,10 +1364,10 @@ static long vduse_dev_ioctl(struct file *file, un=
+signed int cmd,
+>                 if (!is_mem_zero((const char *)umem.reserved,
+>                                  sizeof(umem.reserved)))
+>                         break;
+> -               mutex_lock(&dev->domain_lock);
+> +               write_lock(&dev->domain_lock);
+>                 ret =3D vduse_dev_dereg_umem(dev, umem.iova,
+>                                            umem.size);
+> -               mutex_unlock(&dev->domain_lock);
+> +               write_unlock(&dev->domain_lock);
+>                 break;
+>         }
+>         case VDUSE_IOTLB_GET_INFO: {
+> @@ -1385,9 +1386,9 @@ static long vduse_dev_ioctl(struct file *file, unsi=
+gned int cmd,
+>                                  sizeof(info.reserved)))
+>                         break;
 >
-> -       /* Kicks are still disabled, dispatch any remaining batched msgs.=
- */
->         vhost_tx_batch(net, nvq, sock, &msg);
-> -
-> -       if (unlikely(busyloop_intr))
-> -               /* If interrupted while doing busy polling, requeue the
-> -                * handler to be fair handle_rx as well as other tasks
-> -                * waiting on cpu.
-> -                */
-> -               vhost_poll_queue(&vq->poll);
-> -       else
-> -               /* All of our work has been completed; however, before
-> -                * leaving the TX handler, do one last check for work,
-> -                * and requeue handler if necessary. If there is no work,
-> -                * queue will be reenabled.
-> -                */
-> -               vhost_net_busy_poll_try_queue(net, vq);
+> -               mutex_lock(&dev->domain_lock);
+> +               read_lock(&dev->domain_lock);
+>                 if (!dev->domain) {
+> -                       mutex_unlock(&dev->domain_lock);
+> +                       read_unlock(&dev->domain_lock);
+>                         break;
+>                 }
+>                 spin_lock(&dev->domain->iotlb_lock);
+> @@ -1402,7 +1403,7 @@ static long vduse_dev_ioctl(struct file *file, unsi=
+gned int cmd,
+>                                 info.capability |=3D VDUSE_IOVA_CAP_UMEM;
+>                 }
+>                 spin_unlock(&dev->domain->iotlb_lock);
+> -               mutex_unlock(&dev->domain_lock);
+> +               read_unlock(&dev->domain_lock);
+>                 if (!map)
+>                         break;
+>
+> @@ -1425,10 +1426,10 @@ static int vduse_dev_release(struct inode *inode,=
+ struct file *file)
+>  {
+>         struct vduse_dev *dev =3D file->private_data;
+>
+> -       mutex_lock(&dev->domain_lock);
+> +       write_lock(&dev->domain_lock);
+>         if (dev->domain)
+>                 vduse_dev_dereg_umem(dev, 0, dev->domain->bounce_size);
+> -       mutex_unlock(&dev->domain_lock);
+> +       write_unlock(&dev->domain_lock);
+>         spin_lock(&dev->msg_lock);
+>         /* Make sure the inflight messages can processed after reconncect=
+ion */
+>         list_splice_init(&dev->recv_list, &dev->send_list);
+> @@ -1647,7 +1648,7 @@ static struct vduse_dev *vduse_dev_create(void)
+>
+>         mutex_init(&dev->lock);
+>         mutex_init(&dev->mem_lock);
+> -       mutex_init(&dev->domain_lock);
+> +       rwlock_init(&dev->domain_lock);
+>         spin_lock_init(&dev->msg_lock);
+>         INIT_LIST_HEAD(&dev->send_list);
+>         INIT_LIST_HEAD(&dev->recv_list);
+> @@ -1805,7 +1806,7 @@ static ssize_t bounce_size_store(struct device *dev=
+ice,
+>         int ret;
+>
+>         ret =3D -EPERM;
+> -       mutex_lock(&dev->domain_lock);
+> +       write_lock(&dev->domain_lock);
+>         if (dev->domain)
+>                 goto unlock;
+>
+> @@ -1821,7 +1822,7 @@ static ssize_t bounce_size_store(struct device *dev=
+ice,
+>         dev->bounce_size =3D bounce_size & PAGE_MASK;
+>         ret =3D count;
+>  unlock:
+> -       mutex_unlock(&dev->domain_lock);
+> +       write_unlock(&dev->domain_lock);
+>         return ret;
 >  }
 >
->  static void handle_tx_zerocopy(struct vhost_net *net, struct socket *soc=
-k)
+> @@ -2045,11 +2046,11 @@ static int vdpa_dev_add(struct vdpa_mgmt_dev *mde=
+v, const char *name,
+>         if (ret)
+>                 return ret;
+>
+> -       mutex_lock(&dev->domain_lock);
+> +       write_lock(&dev->domain_lock);
+>         if (!dev->domain)
+>                 dev->domain =3D vduse_domain_create(VDUSE_IOVA_SIZE - 1,
+>                                                   dev->bounce_size);
+> -       mutex_unlock(&dev->domain_lock);
+> +       write_unlock(&dev->domain_lock);
+>         if (!dev->domain) {
+>                 put_device(&dev->vdev->vdpa.dev);
+>                 return -ENOMEM;
+> @@ -2059,10 +2060,10 @@ static int vdpa_dev_add(struct vdpa_mgmt_dev *mde=
+v, const char *name,
+>         ret =3D _vdpa_register_device(&dev->vdev->vdpa, dev->vq_num);
+>         if (ret) {
+>                 put_device(&dev->vdev->vdpa.dev);
+> -               mutex_lock(&dev->domain_lock);
+> +               write_lock(&dev->domain_lock);
+>                 vduse_domain_destroy(dev->domain);
+>                 dev->domain =3D NULL;
+> -               mutex_unlock(&dev->domain_lock);
+> +               write_unlock(&dev->domain_lock);
+>                 return ret;
+>         }
+>
 > --
-> 2.34.1
+> 2.51.0
 >
 
