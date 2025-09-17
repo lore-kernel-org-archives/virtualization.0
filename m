@@ -1,734 +1,343 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69F2C32E753
-	for <virtualization@lists.linux.dev>; Wed, 17 Sep 2025 14:54:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CB7C314D36
+	for <virtualization@lists.linux.dev>; Wed, 17 Sep 2025 15:42:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758120874; cv=none; b=AcDeV+7E6SsKAizXBXikdTIV/lJ4krKBpfSqwcAtn27nF2sjlh2MzB4LEyf7YOpUjQx6UIQVHUR54JwbTryrWH1CdHnpr1Kl5IZL67zxC3BZSWeG9zS7H9AVmblMY6ggtDD7YmEgy13WT+Yp5Q+aQxzgNpsh8eazydezbn0/C1c=
+	t=1758123749; cv=none; b=kz7aSBaaumzZZe+apeGKFK0NrByM41WLOhRG/RLdgqyYfYXpKwQ4H485MCiEOyZbE33ADKMf+OGS8zXCLvDHQanD34586As2R3QWCfJksJTrMGqF1/gqqCuobPuT8Qpe4Oxpt7esz9sCHvN5mgq9VoDeFjFZbzes3hPzi4KBhjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758120874; c=relaxed/simple;
-	bh=Av6YBQKD/jmht62RUX+05tEvmCUPo6T7CC+uNvhUyrk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JsBByvlSpaVlBd57N7/km8OAE+mv0i6GjrjhsmyfNPOg1Wg0HJFA4PMro9vxrIcfpGJqSSq0HO11V5yDZrtZUFDqcZ4k/X/a8eJAT1lFk7l6xP32LOTs7tmyYvriq1KLfgDYK+OyOIpC4W4TnZ9E6l4FVIgFx6du3CzbLvXgT1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=ORDiEYWm; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=ORDiEYWm; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1758123749; c=relaxed/simple;
+	bh=P9Q70W+Ic4EYe9oyW2PKBgA+8S/F5OLM4eIJ/534w8A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dpxASnUhOFyEIR63BHMh6anV3947RKDpX+f4CF6N7OtDM2CfFTjdqo1M83QSlmP2MQDAzOWGGp5gdRWKXmKG7jBhBfFsr6V2+rf6qBkVZuto6BnijOPVLY3QsM9VT0cYFIH4WtxeuTydUH9mzr000VUmQIgFza22ocMrAelCffw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gnRbxsYw; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="ORDiEYWm";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="ORDiEYWm"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id E1BA820750;
-	Wed, 17 Sep 2025 14:54:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1758120869; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gnRbxsYw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1758123746;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8N8BNr/7G8ZPffjUZylDkTdtOKvkH1xYKfpPdWRSBgI=;
-	b=ORDiEYWmAela846ojlOVLwooqr/l77scEgcBOUJ0aSiWHokuZRLUlxjJPjpX4ZD2MMFEwK
-	P49ZJ81MPF/fWgauv0Qo4AJBsMaC7YWI4ZSHS8VWZs458lkcWRRCZpLeoPzwhR46fNLxPl
-	Ip1sAzpb4AZ5JIvSAelSG9MV+ARGsbE=
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1758120869; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8N8BNr/7G8ZPffjUZylDkTdtOKvkH1xYKfpPdWRSBgI=;
-	b=ORDiEYWmAela846ojlOVLwooqr/l77scEgcBOUJ0aSiWHokuZRLUlxjJPjpX4ZD2MMFEwK
-	P49ZJ81MPF/fWgauv0Qo4AJBsMaC7YWI4ZSHS8VWZs458lkcWRRCZpLeoPzwhR46fNLxPl
-	Ip1sAzpb4AZ5JIvSAelSG9MV+ARGsbE=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1DF291368D;
-	Wed, 17 Sep 2025 14:54:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id ZzqRBaXLymieEwAAD6G6ig
-	(envelope-from <jgross@suse.com>); Wed, 17 Sep 2025 14:54:29 +0000
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	linux-hyperv@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Cc: Juergen Gross <jgross@suse.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>,
-	Dexuan Cui <decui@microsoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	xen-devel@lists.xenproject.org
-Subject: [PATCH v2 21/21] x86/pvlocks: Move paravirt spinlock functions into own header
-Date: Wed, 17 Sep 2025 16:52:20 +0200
-Message-ID: <20250917145220.31064-22-jgross@suse.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20250917145220.31064-1-jgross@suse.com>
-References: <20250917145220.31064-1-jgross@suse.com>
+	bh=gPN0dHRPryDKWq/zm65+OG6eMpi/ANVf5sCNoaNPxU0=;
+	b=gnRbxsYwJ5rK0nMx1NBs3HQbUC7kVYVxHCkxeMSdEDo9g1i3a2QAFrrK88C9i3eFTZ/YU2
+	3KMC0LPNMFlvQ5F6ac0fL06wrhx/dql2fbabhkMCOGulLez0PN5Txnk1tDkIz5yYsGMjjF
+	7iEjJRQtZOKIaAkh829VoYVp5iXbyw0=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-280-KI9UWVW4NruV_M86g0t9yQ-1; Wed, 17 Sep 2025 11:42:19 -0400
+X-MC-Unique: KI9UWVW4NruV_M86g0t9yQ-1
+X-Mimecast-MFC-AGG-ID: KI9UWVW4NruV_M86g0t9yQ_1758123738
+Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-55f6f4dea68so4525980e87.0
+        for <virtualization@lists.linux.dev>; Wed, 17 Sep 2025 08:42:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758123738; x=1758728538;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gPN0dHRPryDKWq/zm65+OG6eMpi/ANVf5sCNoaNPxU0=;
+        b=bdW/eK7SJtiCJKHZMl5kvR+PRfHIVL+4CcFk5CCX8P8NGlHpJpldi82sRm82mg5lo2
+         JVjmBAXD6/QOqDbb+M/L2JkxVV9NZ6r41EXVwAfTrKui74dJYfbM8+jOt3ysYryRm4xh
+         NLNF1N5LDo106VwgJ0BUUYbRrb4Td0yaMaRZEhgHoOVqRY4FcqesC11Y0iaK/1t9CBL/
+         tcEzKHAqITkbpqYjrtpuoofyNk4AzIDs5PNNmUub+3HDcp++OIaSGlETOfRIa1r4m62L
+         UoJNPZBdogLRFkUThdsfu8peUQBBpr4fUARJAf7dnjdOFkynfWRFjmY2M2ctksQPINrB
+         FM2Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVUi5Q+8/nXVA3rk+5EPj/iOQ+60hcJHEU5cP10XscXhgeSVDtc3TT3KLXtBd7/Qd3U9pEbKGxR6V4bmatL/w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz3c2Wigun4sLJIUq57niH+DOLCWzPGOkK2pKy0S1wpSZgg2KP2
+	y86eYxX9l1911WBriPemjb0b6VjlrtpLaZ84uziI8XpinaLNXzGeqCV0e5U+S7CqYvaMBOPfEmB
+	7w2H8jHi2EwZYCGbtoTXgA19ZWOrmAwCWb7Cq8a7vkHwuzfp7nnRZn1EQ/turvzFCXH+0sl7LhB
+	Z7aorZ+sB6asAFDJbXgXTKwyPUKRf1knjQHR/NEHJNFAg=
+X-Gm-Gg: ASbGnctExQT4bvE2vlXIdoHysAgZxJdXT8HlGCIzWNgxF6eadculUkQQcxyx9vBc1zD
+	vQKUACX7Q6fDStr3CNCvRTB91fkbT5sLm0N2INpBRDV3GuGshONvOxufJPb519cw59pe0TBvc1R
+	MU3sYZV+3h2O2arsAh8pAbJlwPHKsTaxkiO3+5xoiHlklTR/Uvg/tHdbKanXQUTsE9n6TvI4dmH
+	3tLLSaV
+X-Received: by 2002:a05:6512:3356:b0:55f:6c3b:7b3d with SMTP id 2adb3069b0e04-57798e1b87cmr808677e87.28.1758123737705;
+        Wed, 17 Sep 2025 08:42:17 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFQgQl/SvTIW2Wu/CQXxSmO3uRQElCvs5sMTx4nuA8wLFKACymUD+rNx8WqXB2KN/JPB3IpQtvWYVJ7pVsPeHY=
+X-Received: by 2002:a05:6512:3356:b0:55f:6c3b:7b3d with SMTP id
+ 2adb3069b0e04-57798e1b87cmr808659e87.28.1758123737156; Wed, 17 Sep 2025
+ 08:42:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:email,suse.com:mid];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[24];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	RCVD_TLS_ALL(0.00)[]
-X-Spam-Flag: NO
-X-Spam-Score: -6.80
+References: <20250916130833.329087-1-eperezma@redhat.com> <20250916130833.329087-4-eperezma@redhat.com>
+ <CACGkMEv+FxECjhxfEKjZJcqXKc=c7RogAk6wdptBymTvL0fz1Q@mail.gmail.com>
+In-Reply-To: <CACGkMEv+FxECjhxfEKjZJcqXKc=c7RogAk6wdptBymTvL0fz1Q@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 17 Sep 2025 17:41:36 +0200
+X-Gm-Features: AS18NWBYrdLBzT8YdeFrpJVn8K6S6deW49UHj3MfDqaTA-ihjHdxVryUX_buU0w
+Message-ID: <CAJaqyWeFDSXQtUnZG_O226YBu1Zy_L8ws_UMDGVTMA=YfrGcFg@mail.gmail.com>
+Subject: Re: [PATCH v2 3/7] vduse: add vq group support
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: KhoLg6bR54TeI5TUWGMAcR3b5Mji_f_7Qc6WOTyW2b0_1758123738
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Instead of having the pv spinlock function definitions in paravirt.h,
-move them into the new header paravirt-spinlock.h.
+On Wed, Sep 17, 2025 at 10:37=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
+rote:
+>
+> On Tue, Sep 16, 2025 at 9:08=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redh=
+at.com> wrote:
+> >
+> > This allows sepparate the different virtqueues in groups that shares th=
+e
+> > same address space.  Asking the VDUSE device for the groups of the vq a=
+t
+> > the beginning as they're needed for the DMA API.
+> >
+> > Allocating 3 vq groups as net is the device that need the most groups:
+> > * Dataplane (guest passthrough)
+> > * CVQ
+> > * Shadowed vrings.
+> >
+> > Future versions of the series can include dynamic allocation of the
+> > groups array so VDUSE can declare more groups.
+> >
+> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > ---
+> > v2:
+> > * Now the vq group is in vduse_vq_config struct instead of issuing one
+> >   VDUSE message per vq.
+> >
+> > v1:
+> > * Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+> >
+> > RFC v3:
+> > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
+> >   value to reduce memory consumption, but vqs are already limited to
+> >   that value and userspace VDUSE is able to allocate that many vqs.
+> > * Remove the descs vq group capability as it will not be used and we ca=
+n
+> >   add it on top.
+> > * Do not ask for vq groups in number of vq groups < 2.
+> > * Move the valid vq groups range check to vduse_validate_config.
+> >
+> > RFC v2:
+> > * Cache group information in kernel, as we need to provide the vq map
+> >   tokens properly.
+> > * Add descs vq group to optimize SVQ forwarding and support indirect
+> >   descriptors out of the box.
+> > ---
+> >  drivers/vdpa/vdpa_user/vduse_dev.c | 37 ++++++++++++++++++++++++++----
+> >  include/uapi/linux/vduse.h         | 12 +++++++---
+> >  2 files changed, 41 insertions(+), 8 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
+r/vduse_dev.c
+> > index 2b6a8958ffe0..42f8807911d4 100644
+> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > @@ -59,6 +59,7 @@ struct vduse_virtqueue {
+> >         struct vdpa_vq_state state;
+> >         bool ready;
+> >         bool kicked;
+> > +       u32 vq_group;
+> >         spinlock_t kick_lock;
+> >         spinlock_t irq_lock;
+> >         struct eventfd_ctx *kickfd;
+> > @@ -115,6 +116,7 @@ struct vduse_dev {
+> >         u8 status;
+> >         u32 vq_num;
+> >         u32 vq_align;
+> > +       u32 ngroups;
+> >         struct vduse_umem *umem;
+> >         struct mutex mem_lock;
+> >         unsigned int bounce_size;
+> > @@ -593,6 +595,13 @@ static int vduse_vdpa_set_vq_state(struct vdpa_dev=
+ice *vdpa, u16 idx,
+> >         return 0;
+> >  }
+> >
+> > +static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 idx)
+> > +{
+> > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > +
+> > +       return dev->vqs[idx]->vq_group;
+>
+> I wonder if we should fail if VDUSE_VQ_SETUP is not set by userspace?
+>
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V2:
-- use new header instead of qspinlock.h
-- use dedicated pv_ops_lock array
-- move more paravirt related lock code
----
- arch/x86/hyperv/hv_spinlock.c            |  10 +-
- arch/x86/include/asm/paravirt-spinlock.h | 146 +++++++++++++++++++++++
- arch/x86/include/asm/paravirt.h          |  61 ----------
- arch/x86/include/asm/paravirt_types.h    |  17 ---
- arch/x86/include/asm/qspinlock.h         |  89 ++------------
- arch/x86/kernel/Makefile                 |   2 +-
- arch/x86/kernel/kvm.c                    |  10 +-
- arch/x86/kernel/paravirt-spinlocks.c     |  24 +++-
- arch/x86/kernel/paravirt.c               |  21 ----
- arch/x86/xen/spinlock.c                  |  10 +-
- tools/objtool/check.c                    |   1 +
- 11 files changed, 192 insertions(+), 199 deletions(-)
- create mode 100644 arch/x86/include/asm/paravirt-spinlock.h
+I'm kind of ok with implementing it, but I see it as redundant as if
+the VDUSE device does not call the vq max size will be 0 anyway.
 
-diff --git a/arch/x86/hyperv/hv_spinlock.c b/arch/x86/hyperv/hv_spinlock.c
-index 2a3c2afb0154..210b494e4de0 100644
---- a/arch/x86/hyperv/hv_spinlock.c
-+++ b/arch/x86/hyperv/hv_spinlock.c
-@@ -78,11 +78,11 @@ void __init hv_init_spinlocks(void)
- 	pr_info("PV spinlocks enabled\n");
- 
- 	__pv_init_lock_hash();
--	pv_ops.lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
--	pv_ops.lock.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
--	pv_ops.lock.wait = hv_qlock_wait;
--	pv_ops.lock.kick = hv_qlock_kick;
--	pv_ops.lock.vcpu_is_preempted = PV_CALLEE_SAVE(hv_vcpu_is_preempted);
-+	pv_ops_lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
-+	pv_ops_lock.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
-+	pv_ops_lock.wait = hv_qlock_wait;
-+	pv_ops_lock.kick = hv_qlock_kick;
-+	pv_ops_lock.vcpu_is_preempted = PV_CALLEE_SAVE(hv_vcpu_is_preempted);
- }
- 
- static __init int hv_parse_nopvspin(char *arg)
-diff --git a/arch/x86/include/asm/paravirt-spinlock.h b/arch/x86/include/asm/paravirt-spinlock.h
-new file mode 100644
-index 000000000000..ed3ed343903d
---- /dev/null
-+++ b/arch/x86/include/asm/paravirt-spinlock.h
-@@ -0,0 +1,146 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+#ifndef _ASM_X86_PARAVIRT_SPINLOCK_H
-+#define _ASM_X86_PARAVIRT_SPINLOCK_H
-+
-+#include <asm/paravirt_types.h>
-+
-+#ifdef CONFIG_SMP
-+#include <asm/spinlock_types.h>
-+#endif
-+
-+struct qspinlock;
-+
-+struct pv_lock_ops {
-+	void (*queued_spin_lock_slowpath)(struct qspinlock *lock, u32 val);
-+	struct paravirt_callee_save queued_spin_unlock;
-+
-+	void (*wait)(u8 *ptr, u8 val);
-+	void (*kick)(int cpu);
-+
-+	struct paravirt_callee_save vcpu_is_preempted;
-+} __no_randomize_layout;
-+
-+extern struct pv_lock_ops pv_ops_lock;
-+
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+void __init paravirt_set_cap(void);
-+extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
-+extern void __pv_init_lock_hash(void);
-+extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
-+extern void __raw_callee_save___pv_queued_spin_unlock(struct qspinlock *lock);
-+extern bool nopvspin;
-+
-+static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
-+							 u32 val)
-+{
-+	PVOP_VCALL2(pv_ops_lock, queued_spin_lock_slowpath, lock, val);
-+}
-+
-+static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
-+{
-+	PVOP_ALT_VCALLEE1(pv_ops_lock, queued_spin_unlock, lock,
-+			  "movb $0, (%%" _ASM_ARG1 ");",
-+			  ALT_NOT(X86_FEATURE_PVUNLOCK));
-+}
-+
-+static __always_inline bool pv_vcpu_is_preempted(long cpu)
-+{
-+	return PVOP_ALT_CALLEE1(bool, pv_ops_lock, vcpu_is_preempted, cpu,
-+				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
-+				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
-+}
-+
-+#define queued_spin_unlock queued_spin_unlock
-+/**
-+ * queued_spin_unlock - release a queued spinlock
-+ * @lock : Pointer to queued spinlock structure
-+ *
-+ * A smp_store_release() on the least-significant byte.
-+ */
-+static inline void native_queued_spin_unlock(struct qspinlock *lock)
-+{
-+	smp_store_release(&lock->locked, 0);
-+}
-+
-+static inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
-+{
-+	pv_queued_spin_lock_slowpath(lock, val);
-+}
-+
-+static inline void queued_spin_unlock(struct qspinlock *lock)
-+{
-+	kcsan_release();
-+	pv_queued_spin_unlock(lock);
-+}
-+
-+#define vcpu_is_preempted vcpu_is_preempted
-+static inline bool vcpu_is_preempted(long cpu)
-+{
-+	return pv_vcpu_is_preempted(cpu);
-+}
-+
-+static __always_inline void pv_wait(u8 *ptr, u8 val)
-+{
-+	PVOP_VCALL2(pv_ops_lock, wait, ptr, val);
-+}
-+
-+static __always_inline void pv_kick(int cpu)
-+{
-+	PVOP_VCALL1(pv_ops_lock, kick, cpu);
-+}
-+
-+void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
-+bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
-+#endif /* CONFIG_PARAVIRT_SPINLOCKS */
-+
-+void __init native_pv_lock_init(void);
-+__visible void __native_queued_spin_unlock(struct qspinlock *lock);
-+bool pv_is_native_spin_unlock(void);
-+__visible bool __native_vcpu_is_preempted(long cpu);
-+bool pv_is_native_vcpu_is_preempted(void);
-+
-+/*
-+ * virt_spin_lock_key - disables by default the virt_spin_lock() hijack.
-+ *
-+ * Native (and PV wanting native due to vCPU pinning) should keep this key
-+ * disabled. Native does not touch the key.
-+ *
-+ * When in a guest then native_pv_lock_init() enables the key first and
-+ * KVM/XEN might conditionally disable it later in the boot process again.
-+ */
-+DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
-+
-+/*
-+ * Shortcut for the queued_spin_lock_slowpath() function that allows
-+ * virt to hijack it.
-+ *
-+ * Returns:
-+ *   true - lock has been negotiated, all done;
-+ *   false - queued_spin_lock_slowpath() will do its thing.
-+ */
-+#define virt_spin_lock virt_spin_lock
-+static inline bool virt_spin_lock(struct qspinlock *lock)
-+{
-+	int val;
-+
-+	if (!static_branch_likely(&virt_spin_lock_key))
-+		return false;
-+
-+	/*
-+	 * On hypervisors without PARAVIRT_SPINLOCKS support we fall
-+	 * back to a Test-and-Set spinlock, because fair locks have
-+	 * horrible lock 'holder' preemption issues.
-+	 */
-+
-+ __retry:
-+	val = atomic_read(&lock->val);
-+
-+	if (val || !atomic_try_cmpxchg(&lock->val, &val, _Q_LOCKED_VAL)) {
-+		cpu_relax();
-+		goto __retry;
-+	}
-+
-+	return true;
-+}
-+
-+#endif /* _ASM_X86_PARAVIRT_SPINLOCK_H */
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index ec274d13bae0..b21072af731d 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -19,15 +19,6 @@
- #include <linux/cpumask.h>
- #include <asm/frame.h>
- 
--__visible void __native_queued_spin_unlock(struct qspinlock *lock);
--bool pv_is_native_spin_unlock(void);
--__visible bool __native_vcpu_is_preempted(long cpu);
--bool pv_is_native_vcpu_is_preempted(void);
--
--#ifdef CONFIG_PARAVIRT_SPINLOCKS
--void __init paravirt_set_cap(void);
--#endif
--
- /* The paravirtualized I/O functions */
- static inline void slow_down_io(void)
- {
-@@ -522,46 +513,7 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
- {
- 	pv_ops.mmu.set_fixmap(idx, phys, flags);
- }
--#endif
--
--#if defined(CONFIG_SMP) && defined(CONFIG_PARAVIRT_SPINLOCKS)
--
--static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
--							u32 val)
--{
--	PVOP_VCALL2(pv_ops, lock.queued_spin_lock_slowpath, lock, val);
--}
--
--static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
--{
--	PVOP_ALT_VCALLEE1(pv_ops, lock.queued_spin_unlock, lock,
--			  "movb $0, (%%" _ASM_ARG1 ");",
--			  ALT_NOT(X86_FEATURE_PVUNLOCK));
--}
--
--static __always_inline void pv_wait(u8 *ptr, u8 val)
--{
--	PVOP_VCALL2(pv_ops, lock.wait, ptr, val);
--}
--
--static __always_inline void pv_kick(int cpu)
--{
--	PVOP_VCALL1(pv_ops, lock.kick, cpu);
--}
--
--static __always_inline bool pv_vcpu_is_preempted(long cpu)
--{
--	return PVOP_ALT_CALLEE1(bool, pv_ops, lock.vcpu_is_preempted, cpu,
--				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
--				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
--}
- 
--void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
--bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
--
--#endif /* SMP && PARAVIRT_SPINLOCKS */
--
--#ifdef CONFIG_PARAVIRT_XXL
- static __always_inline unsigned long arch_local_save_flags(void)
- {
- 	return PVOP_ALT_CALLEE0(unsigned long, pv_ops, irq.save_fl, "pushf; pop %%rax;",
-@@ -588,8 +540,6 @@ static __always_inline unsigned long arch_local_irq_save(void)
- }
- #endif
- 
--void native_pv_lock_init(void) __init;
--
- #else  /* __ASSEMBLER__ */
- 
- #ifdef CONFIG_X86_64
-@@ -613,12 +563,6 @@ void native_pv_lock_init(void) __init;
- #endif /* __ASSEMBLER__ */
- #else  /* CONFIG_PARAVIRT */
- # define default_banner x86_init_noop
--
--#ifndef __ASSEMBLER__
--static inline void native_pv_lock_init(void)
--{
--}
--#endif
- #endif /* !CONFIG_PARAVIRT */
- 
- #ifndef __ASSEMBLER__
-@@ -634,10 +578,5 @@ static inline void paravirt_arch_exit_mmap(struct mm_struct *mm)
- }
- #endif
- 
--#ifndef CONFIG_PARAVIRT_SPINLOCKS
--static inline void paravirt_set_cap(void)
--{
--}
--#endif
- #endif /* __ASSEMBLER__ */
- #endif /* _ASM_X86_PARAVIRT_H */
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 01a485f1a7f1..e2b487d35d14 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -184,22 +184,6 @@ struct pv_mmu_ops {
- #endif
- } __no_randomize_layout;
- 
--#ifdef CONFIG_SMP
--#include <asm/spinlock_types.h>
--#endif
--
--struct qspinlock;
--
--struct pv_lock_ops {
--	void (*queued_spin_lock_slowpath)(struct qspinlock *lock, u32 val);
--	struct paravirt_callee_save queued_spin_unlock;
--
--	void (*wait)(u8 *ptr, u8 val);
--	void (*kick)(int cpu);
--
--	struct paravirt_callee_save vcpu_is_preempted;
--} __no_randomize_layout;
--
- /* This contains all the paravirt structures: we get a convenient
-  * number for each function using the offset which we use to indicate
-  * what to patch. */
-@@ -207,7 +191,6 @@ struct paravirt_patch_template {
- 	struct pv_cpu_ops	cpu;
- 	struct pv_irq_ops	irq;
- 	struct pv_mmu_ops	mmu;
--	struct pv_lock_ops	lock;
- } __no_randomize_layout;
- 
- extern struct paravirt_patch_template pv_ops;
-diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
-index 68da67df304d..a2668bdf4c84 100644
---- a/arch/x86/include/asm/qspinlock.h
-+++ b/arch/x86/include/asm/qspinlock.h
-@@ -7,6 +7,9 @@
- #include <asm-generic/qspinlock_types.h>
- #include <asm/paravirt.h>
- #include <asm/rmwcc.h>
-+#ifdef CONFIG_PARAVIRT
-+#include <asm/paravirt-spinlock.h>
-+#endif
- 
- #define _Q_PENDING_LOOPS	(1 << 9)
- 
-@@ -27,89 +30,13 @@ static __always_inline u32 queued_fetch_set_pending_acquire(struct qspinlock *lo
- 	return val;
- }
- 
--#ifdef CONFIG_PARAVIRT_SPINLOCKS
--extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
--extern void __pv_init_lock_hash(void);
--extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
--extern void __raw_callee_save___pv_queued_spin_unlock(struct qspinlock *lock);
--extern bool nopvspin;
--
--#define	queued_spin_unlock queued_spin_unlock
--/**
-- * queued_spin_unlock - release a queued spinlock
-- * @lock : Pointer to queued spinlock structure
-- *
-- * A smp_store_release() on the least-significant byte.
-- */
--static inline void native_queued_spin_unlock(struct qspinlock *lock)
--{
--	smp_store_release(&lock->locked, 0);
--}
--
--static inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
--{
--	pv_queued_spin_lock_slowpath(lock, val);
--}
--
--static inline void queued_spin_unlock(struct qspinlock *lock)
--{
--	kcsan_release();
--	pv_queued_spin_unlock(lock);
--}
--
--#define vcpu_is_preempted vcpu_is_preempted
--static inline bool vcpu_is_preempted(long cpu)
--{
--	return pv_vcpu_is_preempted(cpu);
--}
-+#ifndef CONFIG_PARAVIRT_SPINLOCKS
-+static inline void paravirt_set_cap(void) { }
- #endif
- 
--#ifdef CONFIG_PARAVIRT
--/*
-- * virt_spin_lock_key - disables by default the virt_spin_lock() hijack.
-- *
-- * Native (and PV wanting native due to vCPU pinning) should keep this key
-- * disabled. Native does not touch the key.
-- *
-- * When in a guest then native_pv_lock_init() enables the key first and
-- * KVM/XEN might conditionally disable it later in the boot process again.
-- */
--DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
--
--/*
-- * Shortcut for the queued_spin_lock_slowpath() function that allows
-- * virt to hijack it.
-- *
-- * Returns:
-- *   true - lock has been negotiated, all done;
-- *   false - queued_spin_lock_slowpath() will do its thing.
-- */
--#define virt_spin_lock virt_spin_lock
--static inline bool virt_spin_lock(struct qspinlock *lock)
--{
--	int val;
--
--	if (!static_branch_likely(&virt_spin_lock_key))
--		return false;
--
--	/*
--	 * On hypervisors without PARAVIRT_SPINLOCKS support we fall
--	 * back to a Test-and-Set spinlock, because fair locks have
--	 * horrible lock 'holder' preemption issues.
--	 */
--
-- __retry:
--	val = atomic_read(&lock->val);
--
--	if (val || !atomic_try_cmpxchg(&lock->val, &val, _Q_LOCKED_VAL)) {
--		cpu_relax();
--		goto __retry;
--	}
--
--	return true;
--}
--
--#endif /* CONFIG_PARAVIRT */
-+#ifndef CONFIG_PARAVIRT
-+static inline void native_pv_lock_init(void) { }
-+#endif
- 
- #include <asm-generic/qspinlock.h>
- 
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index 0d2a6d953be9..56d57944fa4b 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -126,7 +126,7 @@ obj-$(CONFIG_DEBUG_NMI_SELFTEST) += nmi_selftest.o
- 
- obj-$(CONFIG_KVM_GUEST)		+= kvm.o kvmclock.o
- obj-$(CONFIG_PARAVIRT)		+= paravirt.o
--obj-$(CONFIG_PARAVIRT_SPINLOCKS)+= paravirt-spinlocks.o
-+obj-$(CONFIG_PARAVIRT)		+= paravirt-spinlocks.o
- obj-$(CONFIG_PARAVIRT_CLOCK)	+= pvclock.o
- obj-$(CONFIG_X86_PMEM_LEGACY_DEVICE) += pmem.o
- 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index a23211eaaeed..a94376d04dca 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -825,7 +825,7 @@ static void __init kvm_guest_init(void)
- 		has_steal_clock = 1;
- 		static_call_update(pv_steal_clock, kvm_steal_clock);
- 
--		pv_ops.lock.vcpu_is_preempted =
-+		pv_ops_lock.vcpu_is_preempted =
- 			PV_CALLEE_SAVE(__kvm_vcpu_is_preempted);
- 	}
- 
-@@ -1105,11 +1105,11 @@ void __init kvm_spinlock_init(void)
- 	pr_info("PV spinlocks enabled\n");
- 
- 	__pv_init_lock_hash();
--	pv_ops.lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
--	pv_ops.lock.queued_spin_unlock =
-+	pv_ops_lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
-+	pv_ops_lock.queued_spin_unlock =
- 		PV_CALLEE_SAVE(__pv_queued_spin_unlock);
--	pv_ops.lock.wait = kvm_wait;
--	pv_ops.lock.kick = kvm_kick_cpu;
-+	pv_ops_lock.wait = kvm_wait;
-+	pv_ops_lock.kick = kvm_kick_cpu;
- 
- 	/*
- 	 * When PV spinlock is enabled which is preferred over
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index 9e1ea99ad9df..f9cf6f71395a 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -3,12 +3,20 @@
-  * Split spinlock implementation out into its own file, so it can be
-  * compiled in a FTRACE-compatible way.
-  */
-+#include <linux/static_call.h>
- #include <linux/spinlock.h>
- #include <linux/export.h>
- #include <linux/jump_label.h>
- 
--#include <asm/paravirt.h>
-+DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
- 
-+void __init native_pv_lock_init(void)
-+{
-+	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-+		static_branch_enable(&virt_spin_lock_key);
-+}
-+
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
- __visible void __native_queued_spin_unlock(struct qspinlock *lock)
- {
- 	native_queued_spin_unlock(lock);
-@@ -17,7 +25,7 @@ PV_CALLEE_SAVE_REGS_THUNK(__native_queued_spin_unlock);
- 
- bool pv_is_native_spin_unlock(void)
- {
--	return pv_ops.lock.queued_spin_unlock.func ==
-+	return pv_ops_lock.queued_spin_unlock.func ==
- 		__raw_callee_save___native_queued_spin_unlock;
- }
- 
-@@ -29,7 +37,7 @@ PV_CALLEE_SAVE_REGS_THUNK(__native_vcpu_is_preempted);
- 
- bool pv_is_native_vcpu_is_preempted(void)
- {
--	return pv_ops.lock.vcpu_is_preempted.func ==
-+	return pv_ops_lock.vcpu_is_preempted.func ==
- 		__raw_callee_save___native_vcpu_is_preempted;
- }
- 
-@@ -41,3 +49,13 @@ void __init paravirt_set_cap(void)
- 	if (!pv_is_native_vcpu_is_preempted())
- 		setup_force_cpu_cap(X86_FEATURE_VCPUPREEMPT);
- }
-+
-+struct pv_lock_ops pv_ops_lock = {
-+	.queued_spin_lock_slowpath	= native_queued_spin_lock_slowpath,
-+	.queued_spin_unlock		= PV_CALLEE_SAVE(__native_queued_spin_unlock),
-+	.wait				= paravirt_nop,
-+	.kick				= paravirt_nop,
-+	.vcpu_is_preempted		= PV_CALLEE_SAVE(__native_vcpu_is_preempted),
-+};
-+EXPORT_SYMBOL(pv_ops_lock);
-+#endif
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 5dfbd3f55792..a6ed52cae003 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -57,14 +57,6 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
- DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
- #endif
- 
--DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
--
--void __init native_pv_lock_init(void)
--{
--	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
--		static_branch_enable(&virt_spin_lock_key);
--}
--
- static noinstr void pv_native_safe_halt(void)
- {
- 	native_safe_halt();
-@@ -221,19 +213,6 @@ struct paravirt_patch_template pv_ops = {
- 
- 	.mmu.set_fixmap		= native_set_fixmap,
- #endif /* CONFIG_PARAVIRT_XXL */
--
--#if defined(CONFIG_PARAVIRT_SPINLOCKS)
--	/* Lock ops. */
--#ifdef CONFIG_SMP
--	.lock.queued_spin_lock_slowpath	= native_queued_spin_lock_slowpath,
--	.lock.queued_spin_unlock	=
--				PV_CALLEE_SAVE(__native_queued_spin_unlock),
--	.lock.wait			= paravirt_nop,
--	.lock.kick			= paravirt_nop,
--	.lock.vcpu_is_preempted		=
--				PV_CALLEE_SAVE(__native_vcpu_is_preempted),
--#endif /* SMP */
--#endif
- };
- 
- #ifdef CONFIG_PARAVIRT_XXL
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index fe56646d6919..83ac24ead289 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -134,10 +134,10 @@ void __init xen_init_spinlocks(void)
- 	printk(KERN_DEBUG "xen: PV spinlocks enabled\n");
- 
- 	__pv_init_lock_hash();
--	pv_ops.lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
--	pv_ops.lock.queued_spin_unlock =
-+	pv_ops_lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
-+	pv_ops_lock.queued_spin_unlock =
- 		PV_CALLEE_SAVE(__pv_queued_spin_unlock);
--	pv_ops.lock.wait = xen_qlock_wait;
--	pv_ops.lock.kick = xen_qlock_kick;
--	pv_ops.lock.vcpu_is_preempted = PV_CALLEE_SAVE(xen_vcpu_stolen);
-+	pv_ops_lock.wait = xen_qlock_wait;
-+	pv_ops_lock.kick = xen_qlock_kick;
-+	pv_ops_lock.vcpu_is_preempted = PV_CALLEE_SAVE(xen_vcpu_stolen);
- }
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index ca6ad92618d8..e9e1b5d321e5 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -549,6 +549,7 @@ static struct {
- 	int idx_off;
- } pv_ops_tables[] = {
- 	{ .name = "pv_ops", },
-+	{ .name = "pv_ops_lock", },
- 	{ .name = NULL, .idx_off = -1 }
- };
- 
--- 
-2.51.0
+> > +}
+> > +
+> >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx,
+> >                                 struct vdpa_vq_state *state)
+> >  {
+> > @@ -790,6 +799,7 @@ static const struct vdpa_config_ops vduse_vdpa_conf=
+ig_ops =3D {
+> >         .set_vq_cb              =3D vduse_vdpa_set_vq_cb,
+> >         .set_vq_num             =3D vduse_vdpa_set_vq_num,
+> >         .get_vq_size            =3D vduse_vdpa_get_vq_size,
+> > +       .get_vq_group           =3D vduse_get_vq_group,
+> >         .set_vq_ready           =3D vduse_vdpa_set_vq_ready,
+> >         .get_vq_ready           =3D vduse_vdpa_get_vq_ready,
+> >         .set_vq_state           =3D vduse_vdpa_set_vq_state,
+> > @@ -1253,12 +1263,21 @@ static long vduse_dev_ioctl(struct file *file, =
+unsigned int cmd,
+> >                 if (config.index >=3D dev->vq_num)
+> >                         break;
+> >
+> > -               if (!is_mem_zero((const char *)config.reserved,
+> > -                                sizeof(config.reserved)))
+> > +               if (dev->api_version < VDUSE_API_VERSION_1 && config.gr=
+oup)
+> > +                       break;
+> > +
+> > +               if (dev->api_version >=3D VDUSE_API_VERSION_1 &&
+> > +                   config.group > dev->ngroups)
+> > +                       break;
+> > +
+> > +               if (config.reserved1 ||
+> > +                   !is_mem_zero((const char *)config.reserved2,
+> > +                                sizeof(config.reserved2)))
+> >                         break;
+>
+> What's the reason for having this check? I mean if we don't check this
+> since the day0, it might be too late to do that.
+>
+
+It's been checked from day0, both reserved1 and reserved2 were
+included in the config.reserved before the patch, and the replaced
+lines already checked with is_mem_zero [1].
+
+> >
+> >                 index =3D array_index_nospec(config.index, dev->vq_num)=
+;
+> >                 dev->vqs[index]->num_max =3D config.max_size;
+> > +               dev->vqs[index]->vq_group =3D config.group;
+> >                 ret =3D 0;
+> >                 break;
+> >         }
+> > @@ -1738,12 +1757,19 @@ static bool features_is_valid(struct vduse_dev_=
+config *config)
+> >         return true;
+> >  }
+> >
+> > -static bool vduse_validate_config(struct vduse_dev_config *config)
+> > +static bool vduse_validate_config(struct vduse_dev_config *config,
+> > +                                 u64 api_version)
+> >  {
+> >         if (!is_mem_zero((const char *)config->reserved,
+> >                          sizeof(config->reserved)))
+> >                 return false;
+> >
+> > +       if (api_version < VDUSE_API_VERSION_1 && config->ngroups)
+> > +               return false;
+>
+> Better with ngroups > 1?
+>
+
+Same here. The kernel in the master branch already returns false if
+that position of "reserved" is 1, and we are changing the behavior if
+we don't include the 1 too.
+
+> > +
+> > +       if (api_version >=3D VDUSE_API_VERSION_1 && config->ngroups > 0=
+xffff)
+> > +               return false;
+> > +
+> >         if (config->vq_align > PAGE_SIZE)
+> >                 return false;
+> >
+> > @@ -1859,6 +1885,7 @@ static int vduse_create_dev(struct vduse_dev_conf=
+ig *config,
+> >         dev->device_features =3D config->features;
+> >         dev->device_id =3D config->device_id;
+> >         dev->vendor_id =3D config->vendor_id;
+> > +       dev->ngroups =3D (dev->api_version < 1) ? 1 : (config->ngroups =
+?: 1);
+> >         dev->name =3D kstrdup(config->name, GFP_KERNEL);
+> >         if (!dev->name)
+> >                 goto err_str;
+> > @@ -1937,7 +1964,7 @@ static long vduse_ioctl(struct file *file, unsign=
+ed int cmd,
+> >                         break;
+> >
+> >                 ret =3D -EINVAL;
+> > -               if (vduse_validate_config(&config) =3D=3D false)
+> > +               if (!vduse_validate_config(&config, control->api_versio=
+n))
+> >                         break;
+> >
+> >                 buf =3D vmemdup_user(argp + size, config.config_size);
+> > @@ -2018,7 +2045,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *=
+dev, const char *name)
+> >
+> >         vdev =3D vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
+> >                                  &vduse_vdpa_config_ops, &vduse_map_ops=
+,
+> > -                                1, 1, name, true);
+> > +                                dev->ngroups, 1, name, true);
+> >         if (IS_ERR(vdev))
+> >                 return PTR_ERR(vdev);
+> >
+> > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> > index ccb92a1efce0..a3d51cf6df3a 100644
+> > --- a/include/uapi/linux/vduse.h
+> > +++ b/include/uapi/linux/vduse.h
+> > @@ -31,6 +31,7 @@
+> >   * @features: virtio features
+> >   * @vq_num: the number of virtqueues
+> >   * @vq_align: the allocation alignment of virtqueue's metadata
+> > + * @ngroups: number of vq groups that VDUSE device declares
+> >   * @reserved: for future use, needs to be initialized to zero
+> >   * @config_size: the size of the configuration space
+> >   * @config: the buffer of the configuration space
+> > @@ -45,7 +46,8 @@ struct vduse_dev_config {
+> >         __u64 features;
+> >         __u32 vq_num;
+> >         __u32 vq_align;
+> > -       __u32 reserved[13];
+> > +       __u32 ngroups; /* if VDUSE_API_VERSION >=3D 1 */
+> > +       __u32 reserved[12];
+> >         __u32 config_size;
+> >         __u8 config[];
+> >  };
+> > @@ -122,14 +124,18 @@ struct vduse_config_data {
+> >   * struct vduse_vq_config - basic configuration of a virtqueue
+> >   * @index: virtqueue index
+> >   * @max_size: the max size of virtqueue
+> > - * @reserved: for future use, needs to be initialized to zero
+> > + * @reserved1: for future use, needs to be initialized to zero
+> > + * @group: virtqueue group
+> > + * @reserved2: for future use, needs to be initialized to zero
+> >   *
+> >   * Structure used by VDUSE_VQ_SETUP ioctl to setup a virtqueue.
+> >   */
+> >  struct vduse_vq_config {
+> >         __u32 index;
+> >         __u16 max_size;
+> > -       __u16 reserved[13];
+> > +       __u16 reserved1;
+> > +       __u32 group;
+>
+> This makes me think if u16 is sufficient as I see:
+>
+>         u32 (*get_vq_group)(struct vdpa_device *vdev, u16 idx);
+>
+> The index is u16 but the group is u32 ...
+>
+
+That's a very good point, but I got the reverse logic actually :). All
+the vhost userland ioctls use an unsigned int (=3D=3Du32) already, so
+VDUSE should keep going with that. If any, get_vq_group (and similar)
+kernel internal API should move to u32 to keep up with userland API.
+
+[1] https://patchew.org/linux/20250606115012.1331551-1-eperezma@redhat.com/=
+20250606115012.1331551-4-eperezma@redhat.com/
 
