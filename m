@@ -1,176 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31A57219A79;
-	Thu, 18 Sep 2025 16:49:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45A1A2459C8
+	for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 16:52:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758214186; cv=none; b=mEGY0k1dpzshElbcxNw32CCci/kY3iPVtkdOAYUsZHBHSntyR+A5FDOM6hiWn1rzMBO8P6C0pEuRvwvXWWy4pZarOb6jlfMoBbReY3bUw3sHrkKAJFXF01rwqkvTE9hi7FkWQ6/PRWhNspxw7fMI4AwvYnnUqIZ6tIU1jZK4JdU=
+	t=1758214342; cv=none; b=iqmSKGolo6RdeCOVMqCwHU8FaYfIhvBdR75lXfUzVYz1/OI4Tja9yiSO8iQmR6114+PpUIaENwv8ml62/I1KjkphMAEjHIIddtS+l0tKNyqYO/GA2+364f1kNx+rhptODjOfsjOaOqXp4y0YARurXnogDp/TU7LrYFRdmgJ109U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758214186; c=relaxed/simple;
-	bh=8OuWAH6OvinDsM3HZFF+ftHMzLteFxBCpGaW+ema4Dc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=E4OE+fhaf4O5Cx29/3nQTCPSnyUg0258Z+3Z9PbKYLa/v3RZQ5xMpgWhEZSs2+CGifStWdsBnEvrlrhU2fiNCs19bpQGxXECm3MXmwWRl32gBDGu2VTsYrlZabGGkGN79ppu+ByLNghtrF1rTDIPnaEcmdUnS5+3eMiCd8W7+9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XhkSqZ0R; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1758214342; c=relaxed/simple;
+	bh=g+mvzN6J31AfqxKTFRmGGmksy1PcEAtdFhY3hfNn26E=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=PyChCrKtS297jEerI6BEEfI6f29EuyVjuiV6j3U9DZP2lS3LSFIXOPZ5Jyb8uHoKmiRmHoFr7e6mQwpeUdEmnKf7e5HcNxiRB70m3Ge3TJvrpxFV81fuyBdQW7UZdHLC004388vCGfnZX5glcPnAIc6GLki4LO7FGppWc2ucKPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ORXbt45W; arc=none smtp.client-ip=209.85.216.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XhkSqZ0R"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FAD2C4CEE7;
-	Thu, 18 Sep 2025 16:49:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1758214186;
-	bh=8OuWAH6OvinDsM3HZFF+ftHMzLteFxBCpGaW+ema4Dc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=XhkSqZ0RmKMoDqAaFQQbP8Dedsoke4YsdpJ+eT+BNeZBOKu6GoLC4mV5fyKlSj22V
-	 7O0M1l7sGbCN1coRUo5Y128lXr8FnrJb+JB6tYZ2+H8A5EYXG99fgoGXtkNgj+c6Qm
-	 qNPM0lAXmCKkUqjXFZlCKmR7yieAEwWyAW6LAih45owBDXF6kqosW+POMFzAA6PacD
-	 153lrIBqKlSGd6wlcFbCihifTBnEdEbNFwmwivOFJI+z8AukyS9luPcW9jQGQ5G1DL
-	 bxFMZMMUHVfWjU2lYn85Yv7UrECeA1J2GV6Tf7NCem2OafCWJ37XPnQOfszsdBOxdK
-	 64C0fcYteJRug==
-Date: Thu, 18 Sep 2025 17:49:39 +0100
-From: Will Deacon <will@kernel.org>
-To: Shyam Saini <shyamsaini@linux.microsoft.com>
-Cc: thierry.reding@gmail.com, robin.murphy@arm.com, robh@kernel.org,
-	joro@8bytes.org, jgg@ziepe.ca, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	virtualization@lists.linux.dev, jacob.pan@linux.microsoft.com,
-	eric.auger@redhat.com, code@tyhicks.com,
-	eahariha@linux.microsoft.com, vijayb@linux.microsoft.com,
-	bboscaccy@linux.microsoft.com, saravanak@google.com,
-	krzk+dt@kernel.org, conor+dt@kernel.org, lizhi.hou@amd.com,
-	clement.leger@bootlin.com
-Subject: Re: [PATCH v4 3/4] arm-smmu: select suitable MSI IOVA
-Message-ID: <aMw4I0AjKNPY6SOw@willie-the-truck>
-References: <20250909154600.910110-1-shyamsaini@linux.microsoft.com>
- <20250909154600.910110-4-shyamsaini@linux.microsoft.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ORXbt45W"
+Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-32ec69d22b2so1218387a91.1
+        for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 09:52:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1758214341; x=1758819141; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=TsOm7EtOKhXmScTczmTf6QtxSQ4DX78bGCwpxVq0Ey0=;
+        b=ORXbt45W9V1WlGgtDHr//lHI7BbroaBQK16yanrBS8v9CadDHAi+hMKqcbe+Jrh7MB
+         +H92+eO4oMjwVp7TF416oPV6CoTeRnJZ2ZW92wLWCGipM49hbX4GDtQvP5xGHDHOsR0E
+         fOKK2EdbOKzu0LcMdqicuJ+Tt5JxDdbcO7gw/J1kT683QsWFd59h98rGCjd0fWaRwKc0
+         Ga5EKkparurkNPgYGfbXBteyCFhmFOHEda+swevc6Ln/TOneHmBUZ+0b+9aboiaW+DcC
+         UfqLu2OAn08uveszxiac7DRHm+ZMHroI9bxlVb4lLXwE20erWOTheWaq9D+hm8o6yX79
+         vgyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758214341; x=1758819141;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=TsOm7EtOKhXmScTczmTf6QtxSQ4DX78bGCwpxVq0Ey0=;
+        b=gIwcmpXnd8GIMd0b9pNSFseCmHF6fpr1uBTJTkwnB+6rVMdzmnKMAvk7eVe4+s4Z2y
+         4QRGn6l2BtUI7SiyRdVKPv6ZXoD7vSYyuXmhlKKDSqf0CNn+giwYhA1Wf+LuGWS78Khf
+         LPudfQ5JoLWVvIxBLp1X3/96xRlZBhykW/zSFmedhgt1n+rTm3M/zWVM0D3QOnN42JMR
+         xsZB2czxLtNy3mp6G+qdvKY7upC7rUg2V7ABGdIwSsbaRuRhh0ElRTUt4RPWXp4g0Rz5
+         auU+mlQS9V0iBervelujQsqNOA9tcMwFsBGKLkMv/gX+dFC8+V1hA9scFVAQNiGT81SP
+         XPxg==
+X-Forwarded-Encrypted: i=1; AJvYcCVEUVCOkVxnJ8s+N1jqzjffJa548wkIhUJxSjgZphhafgNW58xbLavCYRPaY+by6lKG2gpFSsWhMsmwtv921Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzxzJJ6IUveOzahyu/tkO+SQ3Q5HzknF/ULARgXzNNIztuZvlxN
+	Oa5x4dndJaUuUwq9RuY4sKPezlcvi0HLoj8sEepcU2z6D1J1zobN2Mdb5TgqpgPtSPlD6KID1VV
+	rmfHH+w==
+X-Google-Smtp-Source: AGHT+IEZkwSUL2OHRLRPak5y7ADnxAbFSYdsmOIZcHrSCCNpbNhv66RerRTNz5VfhHWZmuNmvGLbT6SRYfY=
+X-Received: from pjl3.prod.google.com ([2002:a17:90b:2f83:b0:330:72b8:fcc0])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:498e:b0:32e:2059:ee5a
+ with SMTP id 98e67ed59e1d1-33097fce1b2mr65859a91.8.1758214340696; Thu, 18 Sep
+ 2025 09:52:20 -0700 (PDT)
+Date: Thu, 18 Sep 2025 09:52:19 -0700
+In-Reply-To: <20250918120658-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250909154600.910110-4-shyamsaini@linux.microsoft.com>
+Mime-Version: 1.0
+References: <20250827194107.4142164-1-seanjc@google.com> <20250827201059.EmmdDFB_@linutronix.de>
+ <20250918110828-mutt-send-email-mst@kernel.org> <20250918154826.oUc0cW0Y@linutronix.de>
+ <aMwtd40q44q5uqwr@google.com> <20250918120658-mutt-send-email-mst@kernel.org>
+Message-ID: <aMw4wx5ENt-odhYS@google.com>
+Subject: Re: [PATCH v2 0/3] vhost_task: Fix a bug where KVM wakes an exited task
+From: Sean Christopherson <seanjc@google.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
 
-On Tue, Sep 09, 2025 at 08:45:59AM -0700, Shyam Saini wrote:
-> Currently ARM SMMU drivers hardcode PCI MSI IOVA address.
-> Not all the platform have same memory mappings and some platform
-> could have this address already being mapped for something else.
-> This can lead to collision and as a consequence the MSI IOVA addr
-> range is never reserved.
+On Thu, Sep 18, 2025, Michael S. Tsirkin wrote:
+> On Thu, Sep 18, 2025 at 09:04:07AM -0700, Sean Christopherson wrote:
+> > On Thu, Sep 18, 2025, Sebastian Andrzej Siewior wrote:
+> > > On 2025-09-18 11:09:05 [-0400], Michael S. Tsirkin wrote:
+> > > > So how about switching to this approach then?
+> > > > Instead of piling up fixes like we seem to do now ...
+> > 
+> > I don't have a strong preference for 6.17, beyond landing a fix of some kind.
+> > I think there are three options for 6.17, in order of "least like to break
+> > something":
+> > 
+> >  1. Sebastian's get_task_struct() fix
 > 
-> Fix this by reserving faulty IOVA range and selecting alternate MSI_IOVA
-> suitable for the intended platform.
 > 
-> Example of reserving faulty IOVA range for PCIE device in the DTS:
-> 
-> reserved-memory {
-> 	#address-cells = <2>;
-> 	#size-cells = <2>;
-> 	faulty_iova: resv_faulty {
-> 		iommu-addresses = <&pcieX 0x0 0x8000000 0x0 0x100000>;
-> 	};
-> };
-> 
-> &pcieX {
-> 	memory-region = <&faulty_iova>;
-> }
-> 
-> Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Signed-off-by: Shyam Saini <shyamsaini@linux.microsoft.com>
-> ---
->  drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 29 +++++++++++++-----
->  drivers/iommu/arm/arm-smmu/arm-smmu.c       | 27 ++++++++++++-----
->  include/linux/iommu.h                       | 33 +++++++++++++++++++++
->  3 files changed, 75 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> index 2a8b46b948f05..748a5513c5dbb 100644
-> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> @@ -3642,17 +3642,32 @@ static int arm_smmu_of_xlate(struct device *dev,
->  static void arm_smmu_get_resv_regions(struct device *dev,
->  				      struct list_head *head)
->  {
-> -	struct iommu_resv_region *region;
->  	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
->  
-> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
-> -					 prot, IOMMU_RESV_SW_MSI, GFP_KERNEL);
-> -	if (!region)
-> -		return;
-> -
-> -	list_add_tail(&region->list, head);
-> +	static const u64 msi_bases[] = { MSI_IOVA_BASE, MSI_IOVA_BASE2 };
->  
->  	iommu_dma_get_resv_regions(dev, head);
-> +
-> +	/*
-> +	 * Use the first msi_base that does not intersect with a platform
-> +	 * reserved region. The SW MSI base selection is entirely arbitrary.
-> +	 */
-> +	for (int i = 0; i != ARRAY_SIZE(msi_bases); i++) {
-> +		struct iommu_resv_region *region;
-> +
-> +		if (resv_region_intersects(msi_bases[i], MSI_IOVA_LENGTH, head))
-> +			continue;
-> +
-> +		region = iommu_alloc_resv_region(msi_bases[i], MSI_IOVA_LENGTH, prot,
-> +						 IOMMU_RESV_SW_MSI, GFP_KERNEL);
-> +		if (!region) {
-> +			pr_warn("IOMMU: Failed to reserve MSI IOVA: No suitable MSI IOVA range available");
-> +			return;
-> +		}
-> +
-> +		list_add_tail(&region->list, head);
-> +		return;
-> +	}
->  }
->  
->  /*
-> diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-> index 4a07650911991..84b74b8519386 100644
-> --- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-> +++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-> @@ -1600,17 +1600,30 @@ static int arm_smmu_of_xlate(struct device *dev,
->  static void arm_smmu_get_resv_regions(struct device *dev,
->  				      struct list_head *head)
->  {
-> -	struct iommu_resv_region *region;
->  	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
->  
-> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
-> -					 prot, IOMMU_RESV_SW_MSI, GFP_KERNEL);
-> -	if (!region)
-> -		return;
-> -
-> -	list_add_tail(&region->list, head);
-> +	static const u64 msi_bases[] = { MSI_IOVA_BASE, MSI_IOVA_BASE2 };
->  
->  	iommu_dma_get_resv_regions(dev, head);
-> +
-> +	/*
-> +	 * Use the first msi_base that does not intersect with a platform
-> +	 * reserved region. The SW MSI base selection is entirely arbitrary.
-> +	 */
-> +	for (int i = 0; i != ARRAY_SIZE(msi_bases); i++) {
-> +		struct iommu_resv_region *region;
-> +
-> +		if (resv_region_intersects(msi_bases[i], MSI_IOVA_LENGTH, head))
-> +			continue;
-> +
-> +		region = iommu_alloc_resv_region(msi_bases[i], MSI_IOVA_LENGTH, prot,
-> +						 IOMMU_RESV_SW_MSI, GFP_KERNEL);
-> +		if (!region)
-> +			return;
-> +
-> +		list_add_tail(&region->list, head);
-> +		return;
-> +	}
+> I am just a bit apprehensive that we don't create a situation
+> where we leak the task struct somehow, given the limited
+> testing time. Can you help me get convinced that risk is 0?
 
-Given that we're walking over the reserved regions to see if we have a
-collision with MSI_IOVA_BASE, why not allocate the base address
-dynamically if we detect a collision rather than having yet another
-hard-coded address which we can't guarantee won't be problematic in future?
+I doubt it, I share same similar concerns about lack of testing.  So I guess
+thinking about this again, #2 is probably safer since it'd only impact KVM?
 
-Will
+> >  2. This series, without the KILLED sanity check in __vhost_task_wake()
+> >  3. This series, with my fixup (with which syzbot was happy)
