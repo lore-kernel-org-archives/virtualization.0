@@ -1,127 +1,116 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40237212566
-	for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 16:19:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AE4D212566
+	for <virtualization@lists.linux-foundation.org>; Thu, 18 Sep 2025 16:21:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758212385; cv=none; b=cVh1ZBDO27sFuvnHk3jH6GBcTAxlR+yqze/UNEQdQN8PKYOYs87o/xqRCQgclMAWKia4tXqZq7qY/Ar3RXAEiT/B6tj7qvgcwZ5fywokHaA8JcTL6McgCNgtCwdhgM2X/4e7IHKlDA52RmojqnllNU4J3paOV8sShKjeM7Vzcng=
+	t=1758212478; cv=none; b=r7eqOXCgR9/juys2X7O5whs+8wAN9P/2tElo0SWsUE2yVMUE9dyD4PpklBvcT+U0xS3q17J6nHbbhjpcpYgKGWTf2/iI/mWJMznP7CRfRieoeKogFF8PWtlDVBVZ8pnOK+NTNhDEf6f6m9ebcaZz4BjTY5h5NU+UthebEcyBXLs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758212385; c=relaxed/simple;
-	bh=EFWvOc5eU4ofeSkKNZEI5Kq6UjweP2qNOUO50xD8gVo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=VhTUUOwfByVvqKuw5cXBdPPCXY8QbjA5Kl8WMXek0Qf8yEGxGZyGuj1BmCHyiT3t9gSJYa4wT2JXHaIvdOtHbrmsjiERf/IKwNae5N8wGc302zQyv5xaPRhEJlVVAwfnM/HunuNEeRh16ko1gpCnbDsIdW//66OnyLVE+DclN1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AKaDOM7N; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1758212478; c=relaxed/simple;
+	bh=+6DWJ9V2/s86NKsZVHhjQHyxMst7QlpPf4TiS4jwR7E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hsPf1tysEoBfPta3sHT17JxGcf769I9oClz/byim6CajQAPwB/1zftsbnQnUzm+NJp3J7bwDnZ5GIyh1RDck7GghMxn9nBse9TN+F473UHNJHbRBTlvHK0LJnETUFfCDq1pa255fwt56iWf0/ZC+y7L7fVwYeLNeQ6xbMitNGxQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=P/jlUV2j; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AKaDOM7N"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758212382;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kcQaTjAvvBmm7x2rEgbh3SMOE0LbLZC8F5+37ZuTXtw=;
-	b=AKaDOM7NTwntiU1NTKpSfW2Da4MIkZsTc+RmO64yKSG1M79egszSOHKA9N0gG0WpDvmSfu
-	kYPCsKuumxeu3anBr2CECMjZFWvG/aD3GhASRAXOvRGLnU9lyqYdgMPk0404nTQY0BVtOD
-	CYXErAoQSJtTllWl9rF9O4NF+Smyc14=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-82-QzFpH8ZlPmWgd1QhCl6c5Q-1; Thu, 18 Sep 2025 12:19:41 -0400
-X-MC-Unique: QzFpH8ZlPmWgd1QhCl6c5Q-1
-X-Mimecast-MFC-AGG-ID: QzFpH8ZlPmWgd1QhCl6c5Q_1758212380
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3eae869cb3fso659973f8f.0
-        for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 09:19:41 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="P/jlUV2j"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 89661813CE
+	for <virtualization@lists.linux-foundation.org>; Thu, 18 Sep 2025 16:21:16 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.751
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id qlobu9A6aFSS for <virtualization@lists.linux-foundation.org>;
+ Thu, 18 Sep 2025 16:21:16 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::629; helo=mail-ej1-x629.google.com; envelope-from=torvalds@linuxfoundation.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 7E28F804A8
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7E28F804A8
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=P/jlUV2j
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7E28F804A8
+	for <virtualization@lists.linux-foundation.org>; Thu, 18 Sep 2025 16:21:15 +0000 (UTC)
+Received: by mail-ej1-x629.google.com with SMTP id a640c23a62f3a-b07d4d24d09so205437066b.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 18 Sep 2025 09:21:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1758212473; x=1758817273; darn=lists.linux-foundation.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=QBudDRqq0+IaBsPdP5gcYH9xINBuKzncv21Vz7DKv+k=;
+        b=P/jlUV2jWBDs/1x/hQfKEx+wlteTm+M/B7+1X5T9tehZjaYA6djLJF2zF8sTAbbUTV
+         ki6ZBERAGvy4SoBWiKAnEYn6IH+LU0FM2bVA9sf3uHckSdhGK7vvaK/fqAyz9W8kiv1R
+         kK6tS93Dc21qefMXEWfewICkWOsBLJRuFaLHw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758212380; x=1758817180;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kcQaTjAvvBmm7x2rEgbh3SMOE0LbLZC8F5+37ZuTXtw=;
-        b=v330v47oEvK4zsT0mVJHu9/GflJ0Wxl7CH0QFBvIhNCeiDY9UxJa73UUCSpkA5ZJoz
-         4qGNJCC0JO/Nw5dwHIO+eJRZuahg6XtnJcH2mFTu33AD8fE5xkyHd91B9OuG9wwxLHB1
-         E6vuAQIwqmDa2cSFY+UGzeKyUCxbDa2MACNMiU1Ncu/a2qspNf52iWaIK8SmgTm9W+eW
-         UTp4WG4OpoeR4JfRrPGGgR0zGMr9ivcaWR8zNi0lRpbaY81Gzjg1kL+1eoz1c8z2z06W
-         g0GGLSc5YSFlk2dY1EfazFTDrT/x+E/LJc2Wmy1+djfbXWCrL9iNPnxnQ0sn4yEzgn8y
-         iC6g==
-X-Forwarded-Encrypted: i=1; AJvYcCXzSUuf8mT3szRQLwoqVvZAjSj5uydZs15EbQsb6ZVF5WfT05eT4GwZOABCRnca8GI7OLJOoH9iuew6pN5XIg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyCQq/0zpv5ymvVUILyYUNrmjmOOP1LNdCzEdiHSNr1yn5mjdR2
-	Kqgrch4lePsFmCshuc6s+1VVHHh48mlnv4gTtr42aFFQvmN5gdkUSJ+R7+m+N1/+HRd2fDkw7zQ
-	QMvEpYPJCRDXZ122YkhCXYDhdQ1Pcs3vX2q2obDq3s1I/kofMXoq6xAPymKa/zHy/n59I
-X-Gm-Gg: ASbGncvIJysz0AqnZ6FSw082dhvRlvaKXAz7ux3bcPTyawwU2rRlpdHTXPLR578T9nf
-	XfzYI59rIvqV8UTr7+5B1cBkH0dHZVeEkRLuF1mSFG9ID1nV5SIGG5lZitjU3fB7W/MonrSXvBN
-	ZSR5ZIfx5AUNBEhGq0WfbmeROos8Syj6SZ4MIA+UmVvch6fDTOPVGYp2B+9LGYvLRpKM5cMLf/I
-	NeFhR85GAjPcLB86LrbK1RcBy92n27iFyZhPVE5qC4XQBvSY/iapUwggbAueNuo283BDhsvAnZ1
-	e9K4p0uS8nmXKWELjA6nPaiyC7zIVYGkE7M=
-X-Received: by 2002:a5d:5f45:0:b0:3ee:1461:165f with SMTP id ffacd0b85a97d-3ee146119demr1602973f8f.31.1758212379952;
-        Thu, 18 Sep 2025 09:19:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE3PnU0tA1p+umFkE5BXiLm4CDiDfRh2pQLB+Ug4+MdhzoDSNOstwjT9AY/VoIif+xcobxEvA==
-X-Received: by 2002:a5d:5f45:0:b0:3ee:1461:165f with SMTP id ffacd0b85a97d-3ee146119demr1602954f8f.31.1758212379509;
-        Thu, 18 Sep 2025 09:19:39 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73e7:4d00:2294:2331:c6cf:2fde])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4613e754140sm86493805e9.21.2025.09.18.09.19.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Sep 2025 09:19:39 -0700 (PDT)
-Date: Thu, 18 Sep 2025 12:19:36 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Filip Hejsek <filip.hejsek@gmail.com>
-Cc: stable@vger.kernel.org,
-	Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>,
-	Daniel Verkamp <dverkamp@chromium.org>, Amit Shah <amit@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	virtualization@lists.linux.dev
-Subject: Re: Backport request for commit 5326ab737a47 ("virtio_console: fix
- order of fields cols and rows")
-Message-ID: <20250918121858-mutt-send-email-mst@kernel.org>
-References: <f839e710b4ede119aa9ad1f2a8e8bcc7fcc00233.camel@gmail.com>
- <5a9aa16aafbcd8235a70f25249b94de6a897fc14.camel@gmail.com>
+        d=1e100.net; s=20230601; t=1758212473; x=1758817273;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QBudDRqq0+IaBsPdP5gcYH9xINBuKzncv21Vz7DKv+k=;
+        b=rYCjqahyPhnVCzNq/JYySuksBwt5l6vw3rOyYoQxjJTSQuvSGpxmOU//JZSAbqZiQr
+         meOqgCF/4nFUFceVopwVxXeWntfAvpqNPZAz3g4UBvVWfWOQDUh3cuYX3PSHYPGLTZ2Z
+         5TV6ZVpvtJx7GuVmzhoyBCJPzUeuEGO963wNzHnoU5XjxuJPpP+z1lidWEB5SzdCKB4h
+         elEenHVOo3H5mucVoi9GSGH6kXfWcGoZX2OXF9l6Yqxc4yZe9+J48lwk6T4UnZxv3mYY
+         gVHPo1AW8Vh9cupBWvtEEJBwowv5I56MM/nuG3yb00srvCYQNQfrLW6Lo3ePTYl/3Ngx
+         1W9A==
+X-Forwarded-Encrypted: i=1; AJvYcCUqXRWO/kKkMphmZ317eWBNK8bs5LGidinb/ZQZlqQy4rLcnDFaDaN6V/1EOZ69K5UppJqFQGUKKTkgwg3YNg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxWBDeHc3yJszfRYobOGrAICRyFgvEpxc4OCPCQHhhfGYTPJmCA
+	yWglbmQbELc7zYXNdcSvJ7Z/8kX3nn5ozFURSGmRAZLTL+nFQby6s5fRCBgZCnCoJuiIkR5IeWe
+	zztU7mAXy9Uuz
+X-Gm-Gg: ASbGncsPltn4S+bz8NEDBtptK+svjnjuecEnmpYqC6arRpLvwFa5BefdWV3eYIwKI+7
+	DJChMXtqntwyIcFE77Njr70PBN7fpFJZZrEcQtR55ZGKj8Ap1op2052p4fWfZXAhEpmehH1ouAS
+	E9o1qwzJCBhc0t6TuxExmlvdt5ifnGmDaqfuehtZrSF+a1Sbai5iqna71F7nO4v3SGzEqhelfi2
+	E4uWHAf1QYsFll9Kuq6UK4eL93K8wk9+fjeKBoF/ejkHTC+X/S46LuS8xP8tiEI1rcboqzTRFPk
+	rSLle+AvAFK/ybhWWPjrc+y38ayZv5oSemuDy3cRcYdGndNJ4MKdZlCHpJ8NXxkQLOP4EPqiq/B
+	oA6OVAfhI6gRexl5o+XI6zPo7nYP35MfHAp3PrrKFLUsvLi2eaYwg054nZclSjvgj1vmalN1a7K
+	vWEDshK3zKSHlETckjFhxyga+cIw==
+X-Google-Smtp-Source: AGHT+IH/Krhv/fzQ+OHApVxddwNOR76mmBj2x2nlUeyW/KFf8pc/rBZz0aOigNYCzq2R7bDp1NzHaA==
+X-Received: by 2002:a17:907:97c9:b0:afe:f418:2294 with SMTP id a640c23a62f3a-b1bba00ceacmr715778166b.49.1758212473118;
+        Thu, 18 Sep 2025 09:21:13 -0700 (PDT)
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com. [209.85.218.49])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b1fc73bb5b5sm226066866b.37.2025.09.18.09.21.12
+        for <virtualization@lists.linux-foundation.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 18 Sep 2025 09:21:12 -0700 (PDT)
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b07d4d24d09so205430066b.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 18 Sep 2025 09:21:12 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCX/oPCAsWpQL9t/nNneqECc3uLz5k8DsCVk2aojUEniCo03jmE4c2nTnfwVXXkV8pZ8xarlfG6eKTFSZaddug==@lists.linux-foundation.org
+X-Received: by 2002:a17:907:6d17:b0:b07:c715:31 with SMTP id
+ a640c23a62f3a-b1bbc545b7fmr610549366b.65.1758212471806; Thu, 18 Sep 2025
+ 09:21:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <5a9aa16aafbcd8235a70f25249b94de6a897fc14.camel@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: aE2N2fpyLow0boEi04l5PizVlAzOW7uA3f2mJylsqqQ_1758212380
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20250918110946-mutt-send-email-mst@kernel.org> <20250918121248-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250918121248-mutt-send-email-mst@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 18 Sep 2025 09:20:54 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whG45CvbpxG2dtWgAG31uPSRZ_FPw9s2tyH_8enuxYE8g@mail.gmail.com>
+X-Gm-Features: AS18NWAmxo1DLd_bNcF9s-ZOOAwZnodu5o6p8OrqHir3EF-tNoG8mT_VioNWcEI
+Message-ID: <CAHk-=whG45CvbpxG2dtWgAG31uPSRZ_FPw9s2tyH_8enuxYE8g@mail.gmail.com>
+Subject: Re: [GIT PULL v2] virtio,vhost: last minute fixes
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	alok.a.tiwari@oracle.com, ashwini@wisig.com, filip.hejsek@gmail.com, 
+	hi@alyssa.is, maxbr@linux.ibm.com, zhangjiao2@cmss.chinamobile.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Sep 18, 2025 at 05:58:55PM +0200, Filip Hejsek wrote:
-> On Thu, 2025-09-18 at 01:13 +0200, Filip Hejsek wrote:
-> > Hi,
-> > 
-> > I would like to request backporting 5326ab737a47 ("virtio_console: fix
-> > order of fields cols and rows") to all LTS kernels.
-> > 
-> > I'm working on QEMU patches that add virtio console size support.
-> > Without the fix, rows and columns will be swapped.
-> > 
-> > As far as I know, there are no device implementations that use the
-> > wrong order and would by broken by the fix.
-> > 
-> > Note: A previous version [1] of the patch contained "Cc: stable" and
-> > "Fixes:" tags, but they seem to have been accidentally left out from
-> > the final version.
-> > 
-> > [1]: https://lore.kernel.org/all/20250320172654.624657-1-maxbr@linux.ibm.com/
-> > 
-> > Thanks,
-> > Filip Hejsek
-> 
-> Sorry, that patch might actually end up being reverted, so please wait
-> until this clears up. We are still debating whether the Linux
-> implementation or the spec should be changed.
-> 
-> Best regards,
-> Filip Hejsek
+On Thu, 18 Sept 2025 at 09:14, Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> OK and now Filip asked me to drop this too.
+> I am really batting 100x.
+> Linus pls ignore all this.
+> Very sorry.
 
+Lol, that makes it very easy for me - no need to be sorry, and thanks
+for just reacting fast enough that I didn't have time to do a pull and
+then have to revert later.
 
-OK I sent a spec patch to make it match Linux. Let's see what is
-happening.
-
--- 
-MST
-
+          Linus
