@@ -1,162 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D91D2D9494;
-	Thu, 18 Sep 2025 18:46:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5EA02857F9
+	for <virtualization@lists.linux-foundation.org>; Thu, 18 Sep 2025 21:04:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758221171; cv=none; b=RRO4UmSfwNtdMVnDMSYyeSwPO8M7F2pD1rwZH++X0UOvwgCNBRarBfdDrvMJLrCp0CGHxCOFd3MNCEnUCzNQx5zg2cqQiRu9XHPtLtUc+A0A4BVJ0oIXIKOftgnwUzvMnCW5irp17hl2Z9oYhOHKT2mHONa3A214Tg08ipgGMx0=
+	t=1758229449; cv=none; b=gAxgpJ1j/yL6hgELR/apLwPkONjmmlzPrUHJiNzqxzUJSYE6tE0O88iZVSFtwzJ7r43MamD7ZwfqPM0LV3D3rQbTMhp/ZMvTv3YyPfoENd6wp5KLzNsZf5HctCgXizAJXnL4RdY+ovsUQLvUGdqZ2S8gEFMGiT+ZU7UrridMmE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758221171; c=relaxed/simple;
-	bh=uXtCKxAn4lJIk0uyzU0s1tMehbPq4hSpIpuFU2JE2Qo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BjrdRT7dN9FDKOFmQqYcJCPKgOSHKgovMLjku/ki78qdj78ijm4e1lnxBqdy9ALtfXhkydNKWwcR0kW/rMLkQw4JdnpnJpk9N0ssejrAFRU6Tipb6aGYXcR3DA8j/LJlGy7oApD1q9uDv/CtVkSJ3Vv8KcDOJaUWL0oRk+xwD+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XcDUWoml; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1758229449; c=relaxed/simple;
+	bh=pNpcSL9WFG/dfCK8Ux+dUJneofiCTUBlKDdEWDy6x0w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=D85dOvTRCjqB30kBsG237M+sl9x0khcCQ5MlW4HYBv+Vjv4BcrqNKZU2ZY17KZ9KJYfPxH5bDTGvMB0n0xCYJ6wiZ2/9fk3T+cRmh+f2JHnwWUelhAHVpl3z5mOIFZ/8Hc2QYp0EMCTcTtLud8d56PVwlkoXIFzPnUJiAd/C2BQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XRhZVO+v; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XcDUWoml"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41BE7C4CEE7;
-	Thu, 18 Sep 2025 18:46:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XRhZVO+v"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7114060596
+	for <virtualization@lists.linux-foundation.org>; Thu, 18 Sep 2025 21:04:08 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id f8f3HK7CshMX for <virtualization@lists.linux-foundation.org>;
+ Thu, 18 Sep 2025 21:04:07 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=broonie@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org ADBAE60593
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ADBAE60593
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=XRhZVO+v
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id ADBAE60593
+	for <virtualization@lists.linux-foundation.org>; Thu, 18 Sep 2025 21:04:07 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by tor.source.kernel.org (Postfix) with ESMTP id 64B3C601D4;
+	Thu, 18 Sep 2025 21:04:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FEAFC4CEE7;
+	Thu, 18 Sep 2025 21:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1758221171;
-	bh=uXtCKxAn4lJIk0uyzU0s1tMehbPq4hSpIpuFU2JE2Qo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=XcDUWomlStMMeFZ3/TJvShNKVI2ne4pT3ymiWQxIQ5cB6pCz+OArBrbwKpELnS63X
-	 AsFRL1spAgwyeCLnIS2Br262lbJnqBbpCVd4ULOZVZtnj2C10kT6CvJ8n+8JUEAfYP
-	 jFqxdtfM+opMXomXA3Ct9jKZuU3nvXXXih1anUIUmeYA2+NA0FUjI4Yl436qNKhCCW
-	 Aa/Vm8u8X4+psfEgiqdpsNqbGjvUEPS8JA0bNbKSpeXk0dd7H1N/gfHZ8mh5pUso/C
-	 fhMyzuZ9ej7kREv+eyKj/qcU15OhLAX2+3kVxzRJlcJjo/s2nJbBu1ygM503fdcjcp
-	 lkA9Tjnlkw/og==
-From: Leon Romanovsky <leon@kernel.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Leon Romanovsky <leonro@nvidia.com>,
-	Jason Gunthorpe <jgg@nvidia.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Geoff Levand <geoff@infradead.org>,
-	Helge Deller <deller@gmx.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	iommu@lists.linux.dev,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Juergen Gross <jgross@suse.com>,
-	linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Matt Turner <mattst88@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	sparclinux@vger.kernel.org,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	virtualization@lists.linux.dev,
-	x86@kernel.org,
-	xen-devel@lists.xenproject.org
-Subject: [PATCH 8/9] xen: swiotlb: Convert mapping routine to rely  on physical address
-Date: Thu, 18 Sep 2025 21:45:08 +0300
-Message-ID: <bdc496de560c8a62ab934a65ebab4137421c4cb1.1758219787.git.leon@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <cover.1758219786.git.leon@kernel.org>
-References: <cover.1758219786.git.leon@kernel.org>
+	s=k20201202; t=1758229445;
+	bh=pNpcSL9WFG/dfCK8Ux+dUJneofiCTUBlKDdEWDy6x0w=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=XRhZVO+vcwmGXhCry6oiRXlURjGYtfw4fMPfne7z1yxjUFyxvl0j52tR08yKLOJAW
+	 dOijzPhLd/tZPUzGy8Xb6/aGhLeS8RwFk9Or4+jYrBLo1za/QNKH4z654YNp0xte0d
+	 lXmpB1kE8aOKLVpjLuI2y1apXnEarTr4ncFmjFr3vZ2O7IIbjceeDWnwYSuHaq4qeD
+	 iFLpYZcjaQEmu/KzxOy39LGSYo5Ww3MgRbI8bPpoomAq1nlEZtWbXqgLpOiPApyX+E
+	 AGwA2ICVA70+mcHlzNSiKce4m1EMyCmSAzAOTg2YXkAGqHs1yTz4p9TdhZ6HWmQhua
+	 2Ex7R7Kq/HRvQ==
+Date: Thu, 18 Sep 2025 22:03:59 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Haixu Cui <quic_haixcui@quicinc.com>
+Cc: andriy.shevchenko@intel.com, harald.mommer@oss.qualcomm.com,
+	quic_msavaliy@quicinc.com, virtio-dev@lists.linux.dev,
+	viresh.kumar@linaro.org, linux-spi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, hdanton@sina.com,
+	qiang4.zhang@linux.intel.com, alex.bennee@linaro.org,
+	virtualization@lists.linux-foundation.org, quic_ztu@quicinc.com
+Subject: Re: [PATCH v10 0/3] Virtio SPI Linux driver
+Message-ID: <2b128530-ed43-49e9-a9bc-2736a2d13da2@sirena.org.uk>
+References: <20250908092348.1283552-1-quic_haixcui@quicinc.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ql5mcInMSvUHTFGF"
+Content-Disposition: inline
+In-Reply-To: <20250908092348.1283552-1-quic_haixcui@quicinc.com>
+X-Cookie: Victory uber allies!
 
-From: Leon Romanovsky <leonro@nvidia.com>
 
-Switch to .map_phys callback instead of .map_page.
+--ql5mcInMSvUHTFGF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
----
- drivers/xen/grant-dma-ops.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+On Mon, Sep 08, 2025 at 05:23:45PM +0800, Haixu Cui wrote:
+> This is the 10th version of the virtio SPI Linux driver patch series which is
+> intended to be compliant with the upcoming virtio specification
+> version 1.4. The specification can be found in repository:
+> https://github.com/oasis-tcs/virtio-spec.git branch virtio-1.4.
 
-diff --git a/drivers/xen/grant-dma-ops.c b/drivers/xen/grant-dma-ops.c
-index 29257d2639dbf..7f76e516fe24c 100644
---- a/drivers/xen/grant-dma-ops.c
-+++ b/drivers/xen/grant-dma-ops.c
-@@ -163,18 +163,22 @@ static void xen_grant_dma_free_pages(struct device *dev, size_t size,
- 	xen_grant_dma_free(dev, size, page_to_virt(vaddr), dma_handle, 0);
- }
- 
--static dma_addr_t xen_grant_dma_map_page(struct device *dev, struct page *page,
--					 unsigned long offset, size_t size,
-+static dma_addr_t xen_grant_dma_map_phys(struct device *dev, phys_addr_t phys,
-+					 size_t size,
- 					 enum dma_data_direction dir,
- 					 unsigned long attrs)
- {
- 	struct xen_grant_dma_data *data;
-+	unsigned long offset = offset_in_page(phys);
- 	unsigned long dma_offset = xen_offset_in_page(offset),
- 			pfn_offset = XEN_PFN_DOWN(offset);
- 	unsigned int i, n_pages = XEN_PFN_UP(dma_offset + size);
- 	grant_ref_t grant;
- 	dma_addr_t dma_handle;
- 
-+	if (attrs & DMA_ATTR_MMIO)
-+		return DMA_MAPPING_ERROR;
-+
- 	if (WARN_ON(dir == DMA_NONE))
- 		return DMA_MAPPING_ERROR;
- 
-@@ -190,7 +194,7 @@ static dma_addr_t xen_grant_dma_map_page(struct device *dev, struct page *page,
- 
- 	for (i = 0; i < n_pages; i++) {
- 		gnttab_grant_foreign_access_ref(grant + i, data->backend_domid,
--				pfn_to_gfn(page_to_xen_pfn(page) + i + pfn_offset),
-+				pfn_to_gfn(page_to_xen_pfn(phys_to_page(phys)) + i + pfn_offset),
- 				dir == DMA_TO_DEVICE);
- 	}
- 
-@@ -199,7 +203,7 @@ static dma_addr_t xen_grant_dma_map_page(struct device *dev, struct page *page,
- 	return dma_handle;
- }
- 
--static void xen_grant_dma_unmap_page(struct device *dev, dma_addr_t dma_handle,
-+static void xen_grant_dma_unmap_phys(struct device *dev, dma_addr_t dma_handle,
- 				     size_t size, enum dma_data_direction dir,
- 				     unsigned long attrs)
- {
-@@ -242,7 +246,7 @@ static void xen_grant_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
- 		return;
- 
- 	for_each_sg(sg, s, nents, i)
--		xen_grant_dma_unmap_page(dev, s->dma_address, sg_dma_len(s), dir,
-+		xen_grant_dma_unmap_phys(dev, s->dma_address, sg_dma_len(s), dir,
- 				attrs);
- }
- 
-@@ -257,7 +261,7 @@ static int xen_grant_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 		return -EINVAL;
- 
- 	for_each_sg(sg, s, nents, i) {
--		s->dma_address = xen_grant_dma_map_page(dev, sg_page(s), s->offset,
-+		s->dma_address = xen_grant_dma_map_phys(dev, sg_phys(s),
- 				s->length, dir, attrs);
- 		if (s->dma_address == DMA_MAPPING_ERROR)
- 			goto out;
-@@ -286,8 +290,8 @@ static const struct dma_map_ops xen_grant_dma_ops = {
- 	.free_pages = xen_grant_dma_free_pages,
- 	.mmap = dma_common_mmap,
- 	.get_sgtable = dma_common_get_sgtable,
--	.map_page = xen_grant_dma_map_page,
--	.unmap_page = xen_grant_dma_unmap_page,
-+	.map_phys = xen_grant_dma_map_phys,
-+	.unmap_phys = xen_grant_dma_unmap_phys,
- 	.map_sg = xen_grant_dma_map_sg,
- 	.unmap_sg = xen_grant_dma_unmap_sg,
- 	.dma_supported = xen_grant_dma_supported,
--- 
-2.51.0
+Does anyone have any thoughts on this?  It feels like we're mostly ready
+here.
 
+--ql5mcInMSvUHTFGF
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmjMc78ACgkQJNaLcl1U
+h9AoFgf8CxaSKWRQTF2EIc8YZmt6WWiIcgEkmLizccfnEBPfQUDBpvLhSPVaBd4+
+VjpFlnBb6Yy8CiIIGKL0pU5M+5bO8oFY+jMr/OGLe+MR9ZvEJ1FrZ0/cQ8Ib4XIB
+a5uMJKDNfhj68a5LIiY+kYEoZb8R2vSRegaEUisnMF336eGvCKMMXNPMREwXMMlY
+16VZ0u/0LvCXqHg3/hbMq21ifDS9OYwMdswOgdyQsYbosvNI/D40Tx8UUGRUEcT7
+FFqY1JU9FqNCDdFnOpDcDqG3ztm17xD9dGzwS+IXquFgP6CeA+TgwpFBCKbrmJDY
+rTW+PGucJ4kFLHaqZhOkT+veSzPt+g==
+=a5Fe
+-----END PGP SIGNATURE-----
+
+--ql5mcInMSvUHTFGF--
