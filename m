@@ -1,303 +1,371 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B9DC2C027E
-	for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 05:56:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EECC2D781E
+	for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 06:00:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758174997; cv=none; b=VL+olQ72lRwvvl3jmb4+2xtUTKO3WFpOC4KP7BFIYgdc+G/zbpArjBbPEBfopgj5UCO5jz0iRuiQgqNwzU4TI6x47xRkUK+vLMm5usnX6sZgTjEc7RrNzII9dT+kxf8/zSuCNfNqyKFL9qBx7vMnAWBC1efJtx4ljFmXCuG9NBs=
+	t=1758175242; cv=none; b=JxD+oiFpYMrF8A9jys4mckVcrGLYpqW47YaRVW0Vvr9hqVt/fksLi1plSZnDlkJFGGW5jfQ1NhHeiRzZTGk425pOI1q+PKEKI0IKXheoAmL08Aa840+mofJTLmQ1EX31BXlcmItc7qVX7PsNIjhfwcapQfPlLYU5AMqyDmo1i/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758174997; c=relaxed/simple;
-	bh=lfjlZ5yEEW0FqZlSU5dEgD0szSxc6bYm56+XzUkjJTA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qVGiGqt0f2ysJko0NG7/6cTUI2eQPbTkTh3XOOYg0cojL9mbywdaSYal7eluBt2v/nqx4MYw607vyA6FDusH2GSslBNFmjBqh6E/bX9FOLDka7JoH5fdzTyfxlYYB3ehmalkXw0XqLiDbuhMz0iWm2FDRoDE+W3ghxl9iul1jeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=AtMbUHaC; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=R4leFrKi; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1758175242; c=relaxed/simple;
+	bh=J/CC/MLx0na/ia90gUzHbCOsjOVmYIShm8WMw51G3uE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=o/sX7riGhbujOUrzsWFe25nhEp+jBU3AkGr/SQ59vkG8x2QeSwqnti6zfRQQAvBqO7U4zj6guGHMZzVtN/B09nPwJQTWuyG7SNAO0sbyrEtQR0CwtZFwwgdBm3aiBSVWEX9ynDxXUAcoes1OiWBH+qyLzDIR8CgIKR1OaF2DgIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PREosJ+z; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="AtMbUHaC";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="R4leFrKi"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 2908333791;
-	Thu, 18 Sep 2025 05:56:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1758174993; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=lfjlZ5yEEW0FqZlSU5dEgD0szSxc6bYm56+XzUkjJTA=;
-	b=AtMbUHaCjW8kIerM63RfMvkErkluHt/SoYLmUs6qb9k4NU1QSr5uWo9CkXYlH+YTU43Den
-	2SWsUXvP/0Vt9uoqik9/L0vC3M6Z9G9AJAnbUrv7UO0QhwoTA03342SQ0Z9wQdLq4P6Gn+
-	mimKXiWJmNXOH90iYfHk//qyq0p1d7E=
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1758174992; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=lfjlZ5yEEW0FqZlSU5dEgD0szSxc6bYm56+XzUkjJTA=;
-	b=R4leFrKiL6F0zpBOylDqOymlaGvFjHox96zXAMsfFKHxD7x/Vo3F/XX22z8mE/rPgM16Uv
-	3WtffFPPrzbns2Sv1emStnm5M6qP0x6+Gq+iS6MPYF54AFpaC+6zybzxbhjlNHWXv2w5we
-	Q8PLRwdm5uiZnu+zJ7NwCq14UO3rf0k=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3340013A51;
-	Thu, 18 Sep 2025 05:56:31 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id pxnVCg+fy2ivEgAAD6G6ig
-	(envelope-from <jgross@suse.com>); Thu, 18 Sep 2025 05:56:31 +0000
-Message-ID: <078d5556-c5a9-40f5-906d-f96253a22739@suse.com>
-Date: Thu, 18 Sep 2025 07:56:30 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PREosJ+z"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1758175239;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=D8oLiMDHlxx74GLSjArN8RqwVO2mfX7/biLkwfJqtlg=;
+	b=PREosJ+zWJsg3+3tENhYTK3iSw0BNIdAMJDGVMIEjooRLUfaGTJOC1zr39oS7RyJUWFljI
+	JVMG2ISLRuvkD/k1nn5gFgOGMBU29SxB88cK+TKtj6Xgv+JtQ2bxYw2yhIH2SjbjN2jPk6
+	toaqjFm1zWRpPSQhQm7+NmLRjKltw2M=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-189-VSBwVi4qOQG3ISOpweke7g-1; Thu, 18 Sep 2025 02:00:37 -0400
+X-MC-Unique: VSBwVi4qOQG3ISOpweke7g-1
+X-Mimecast-MFC-AGG-ID: VSBwVi4qOQG3ISOpweke7g_1758175236
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-b54fd3a8222so410099a12.1
+        for <virtualization@lists.linux.dev>; Wed, 17 Sep 2025 23:00:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758175236; x=1758780036;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=D8oLiMDHlxx74GLSjArN8RqwVO2mfX7/biLkwfJqtlg=;
+        b=Il3BL8Vn7nYSUJGy7R9gfw6Loo9zcjGrHISFOGoYhweY4/9nPZU8M7+PPRIkNbDyXY
+         0Mws1dtOaoNwX1FUnphf9nS0/cXirWR97F6G46yVsPx5R8rxnX5vpukMoeoh/jiYyxXI
+         lstzL4CT7KOaSQPsOE9gGWN1HO0qfVuNKKYGvEYWI3DfRmmrWWaCaFaOl08Ajv9Jcrrk
+         3B/BolWQgdKdxClnWlbetpu2dJmCrj8E9P2BK/kJ7Fq4n6RiZBfxglZZK7WXoNSgIaHK
+         wu5fTYaT7g4sy8UKSvhm1s9PhM4ysv/Qu6vm7BpAgAbh4A3Jpx/M8eQkNtoXz/tFefPl
+         HhTA==
+X-Forwarded-Encrypted: i=1; AJvYcCUgQxFowftxG7PpE3aytP7IIYpG2DUc0OmUxBZIeYVUEKW6h8RJ8t2g5nJefPScNp9ktBA1j6sAHuX5YTl0sg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwOeROffGfsi4H1IlVX1Bsjb9flaOSkVvarOUr5K3FYkqegiynY
+	7wryQ4v7sp1t1UUpLAXGOYUk9d7DlV3Q/Sbgr7MRVLn3CyRntgwnmEJ+sQbIdSBRXXQAZhD2TEl
+	FRiuALCxBsVwE8WWeUwKWffl9JgZSd1xMQ02YbiFgTNuJtLPpPT3OPpzoMcq0b6DedIVXMy28BH
+	8VG6WcjnjkdUPG1qn3SRusj6ncaiPMUtaLHWAwsPUFLno=
+X-Gm-Gg: ASbGncu1Ze7hIMvDUTOWCRyETEqTK+sGlSJona1apBSntQyV8HOgGIy+yyLQSWP42jw
+	lX00bcfxqgULwiM4+L0S1vnsCCkA9Hh9GQM+R8+9z1t1WPTSOe5t+MXvVQHVJL79fchWktSECqU
+	pc6sJfFVNvC5enwG8G6IkFVw==
+X-Received: by 2002:a05:6a21:33aa:b0:246:9192:278a with SMTP id adf61e73a8af0-27aa99bd41emr6149997637.44.1758175236113;
+        Wed, 17 Sep 2025 23:00:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE7+xmzxFyoklt2yjV8D8HuazMemR4ibiCqULitol5a5ZKHMdW971rjO9+Wz5VCrop82hSV7dqCE0g0evVA6Bs=
+X-Received: by 2002:a05:6a21:33aa:b0:246:9192:278a with SMTP id
+ adf61e73a8af0-27aa99bd41emr6149946637.44.1758175235570; Wed, 17 Sep 2025
+ 23:00:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 21/21] x86/pvlocks: Move paravirt spinlock functions
- into own header
-To: kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, linux-hyperv@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
- "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Josh Poimboeuf <jpoimboe@kernel.org>, xen-devel@lists.xenproject.org
-References: <20250917145220.31064-22-jgross@suse.com>
- <202509181008.MoLd2u4e-lkp@intel.com>
-Content-Language: en-US
-From: Juergen Gross <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <202509181008.MoLd2u4e-lkp@intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------d9VnNNakkD8gVqBNvxOXiPAE"
-X-Spamd-Result: default: False [-5.20 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SIGNED_PGP(-2.00)[];
-	MIME_BASE64_TEXT_BOGUS(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MIME_GOOD(-0.20)[multipart/signed,multipart/mixed,text/plain];
-	NEURAL_HAM_SHORT(-0.20)[-0.993];
-	MIME_UNKNOWN(0.10)[application/pgp-keys];
-	MIME_BASE64_TEXT(0.10)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	MIME_TRACE(0.00)[0:+,1:+,2:+,3:+,4:~,5:~];
-	TO_DN_SOME(0.00)[];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[25];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[01.org:url,imap1.dmz-prg2.suse.org:helo,suse.com:mid,intel.com:email,git-scm.com:url];
-	HAS_ATTACHMENT(0.00)[]
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Spam-Score: -5.20
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------d9VnNNakkD8gVqBNvxOXiPAE
-Content-Type: multipart/mixed; boundary="------------Csi8XDs0o0YVMq0XLmHh6km5";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, linux-hyperv@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
- "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Josh Poimboeuf <jpoimboe@kernel.org>, xen-devel@lists.xenproject.org
-Message-ID: <078d5556-c5a9-40f5-906d-f96253a22739@suse.com>
-Subject: Re: [PATCH v2 21/21] x86/pvlocks: Move paravirt spinlock functions
- into own header
-References: <20250917145220.31064-22-jgross@suse.com>
- <202509181008.MoLd2u4e-lkp@intel.com>
-In-Reply-To: <202509181008.MoLd2u4e-lkp@intel.com>
-
---------------Csi8XDs0o0YVMq0XLmHh6km5
-Content-Type: multipart/mixed; boundary="------------zcB9cwd0ZBMDf0rsBpcDRZ9W"
-
---------------zcB9cwd0ZBMDf0rsBpcDRZ9W
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
-
-T24gMTguMDkuMjUgMDQ6NDUsIGtlcm5lbCB0ZXN0IHJvYm90IHdyb3RlOg0KPiBIaSBKdWVy
-Z2VuLA0KPiANCj4ga2VybmVsIHRlc3Qgcm9ib3Qgbm90aWNlZCB0aGUgZm9sbG93aW5nIGJ1
-aWxkIHdhcm5pbmdzOg0KPiANCj4gW2F1dG8gYnVpbGQgdGVzdCBXQVJOSU5HIG9uIHRpcC9z
-Y2hlZC9jb3JlXQ0KPiBbYWxzbyBidWlsZCB0ZXN0IFdBUk5JTkcgb24ga3ZtL3F1ZXVlIGt2
-bS9uZXh0IGxpbnVzL21hc3RlciB2Ni4xNy1yYzYgbmV4dC0yMDI1MDkxN10NCj4gW2Nhbm5v
-dCBhcHBseSB0byB0aXAveDg2L2NvcmUga3ZtL2xpbnV4LW5leHRdDQo+IFtJZiB5b3VyIHBh
-dGNoIGlzIGFwcGxpZWQgdG8gdGhlIHdyb25nIGdpdCB0cmVlLCBraW5kbHkgZHJvcCB1cyBh
-IG5vdGUuDQo+IEFuZCB3aGVuIHN1Ym1pdHRpbmcgcGF0Y2gsIHdlIHN1Z2dlc3QgdG8gdXNl
-ICctLWJhc2UnIGFzIGRvY3VtZW50ZWQgaW4NCj4gaHR0cHM6Ly9naXQtc2NtLmNvbS9kb2Nz
-L2dpdC1mb3JtYXQtcGF0Y2gjX2Jhc2VfdHJlZV9pbmZvcm1hdGlvbl0NCj4gDQo+IHVybDog
-ICAgaHR0cHM6Ly9naXRodWIuY29tL2ludGVsLWxhYi1sa3AvbGludXgvY29tbWl0cy9KdWVy
-Z2VuLUdyb3NzL3g4Ni1wYXJhdmlydC1SZW1vdmUtbm90LW5lZWRlZC1pbmNsdWRlcy1vZi1w
-YXJhdmlydC1oLzIwMjUwOTE3LTIzMDMyMQ0KPiBiYXNlOiAgIHRpcC9zY2hlZC9jb3JlDQo+
-IHBhdGNoIGxpbms6ICAgIGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL3IvMjAyNTA5MTcxNDUy
-MjAuMzEwNjQtMjItamdyb3NzJTQwc3VzZS5jb20NCj4gcGF0Y2ggc3ViamVjdDogW1BBVENI
-IHYyIDIxLzIxXSB4ODYvcHZsb2NrczogTW92ZSBwYXJhdmlydCBzcGlubG9jayBmdW5jdGlv
-bnMgaW50byBvd24gaGVhZGVyDQo+IGNvbmZpZzogeDg2XzY0LXJhbmRjb25maWctMDAzLTIw
-MjUwOTE4IChodHRwczovL2Rvd25sb2FkLjAxLm9yZy8wZGF5LWNpL2FyY2hpdmUvMjAyNTA5
-MTgvMjAyNTA5MTgxMDA4Lk1vTGQydTRlLWxrcEBpbnRlbC5jb20vY29uZmlnKQ0KPiBjb21w
-aWxlcjogY2xhbmcgdmVyc2lvbiAyMC4xLjggKGh0dHBzOi8vZ2l0aHViLmNvbS9sbHZtL2xs
-dm0tcHJvamVjdCA4N2YwMjI3Y2I2MDE0N2EyNmExZWViNGZiMDZlM2I1MDVlOWM3MjYxKQ0K
-PiByZXByb2R1Y2UgKHRoaXMgaXMgYSBXPTEgYnVpbGQpOiAoaHR0cHM6Ly9kb3dubG9hZC4w
-MS5vcmcvMGRheS1jaS9hcmNoaXZlLzIwMjUwOTE4LzIwMjUwOTE4MTAwOC5Nb0xkMnU0ZS1s
-a3BAaW50ZWwuY29tL3JlcHJvZHVjZSkNCj4gDQo+IElmIHlvdSBmaXggdGhlIGlzc3VlIGlu
-IGEgc2VwYXJhdGUgcGF0Y2gvY29tbWl0IChpLmUuIG5vdCBqdXN0IGEgbmV3IHZlcnNpb24g
-b2YNCj4gdGhlIHNhbWUgcGF0Y2gvY29tbWl0KSwga2luZGx5IGFkZCBmb2xsb3dpbmcgdGFn
-cw0KPiB8IFJlcG9ydGVkLWJ5OiBrZXJuZWwgdGVzdCByb2JvdCA8bGtwQGludGVsLmNvbT4N
-Cj4gfCBDbG9zZXM6IGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL29lLWtidWlsZC1hbGwvMjAy
-NTA5MTgxMDA4Lk1vTGQydTRlLWxrcEBpbnRlbC5jb20vDQo+IA0KPiBBbGwgd2FybmluZ3Mg
-KG5ldyBvbmVzIHByZWZpeGVkIGJ5ID4+KToNCj4gDQo+Pj4gYXJjaC94ODYva2VybmVsL3Bh
-cmF2aXJ0LXNwaW5sb2Nrcy5jOjEzOjEzOiB3YXJuaW5nOiBubyBwcmV2aW91cyBwcm90b3R5
-cGUgZm9yIGZ1bmN0aW9uICduYXRpdmVfcHZfbG9ja19pbml0JyBbLVdtaXNzaW5nLXByb3Rv
-dHlwZXNdDQo+ICAgICAgICAxMyB8IHZvaWQgX19pbml0IG5hdGl2ZV9wdl9sb2NrX2luaXQo
-dm9pZCkNCj4gICAgICAgICAgIHwgICAgICAgICAgICAgXg0KPiAgICAgYXJjaC94ODYva2Vy
-bmVsL3BhcmF2aXJ0LXNwaW5sb2Nrcy5jOjEzOjE6IG5vdGU6IGRlY2xhcmUgJ3N0YXRpYycg
-aWYgdGhlIGZ1bmN0aW9uIGlzIG5vdCBpbnRlbmRlZCB0byBiZSB1c2VkIG91dHNpZGUgb2Yg
-dGhpcyB0cmFuc2xhdGlvbiB1bml0DQo+ICAgICAgICAxMyB8IHZvaWQgX19pbml0IG5hdGl2
-ZV9wdl9sb2NrX2luaXQodm9pZCkNCj4gICAgICAgICAgIHwgXg0KPiAgICAgICAgICAgfCBz
-dGF0aWMNCj4gICAgIDEgd2FybmluZyBnZW5lcmF0ZWQuDQoNCldpbGwgYmUgZml4ZWQgaW4g
-VjMuDQoNCg0KSnVlcmdlbg0K
---------------zcB9cwd0ZBMDf0rsBpcDRZ9W
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
+References: <20250916130833.329087-1-eperezma@redhat.com> <20250916130833.329087-4-eperezma@redhat.com>
+ <CACGkMEv+FxECjhxfEKjZJcqXKc=c7RogAk6wdptBymTvL0fz1Q@mail.gmail.com> <CAJaqyWeFDSXQtUnZG_O226YBu1Zy_L8ws_UMDGVTMA=YfrGcFg@mail.gmail.com>
+In-Reply-To: <CAJaqyWeFDSXQtUnZG_O226YBu1Zy_L8ws_UMDGVTMA=YfrGcFg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 18 Sep 2025 14:00:23 +0800
+X-Gm-Features: AS18NWCOj7OMXTG-GVNLvoead5gf7nL7fM2Mr9MxQSYyi6jR-qWZ9WN1-q_PY3A
+Message-ID: <CACGkMEtyKWwLfb17U3+7SZ_T-NrYhMpYfcCegVarjq_Xen2s6g@mail.gmail.com>
+Subject: Re: [PATCH v2 3/7] vduse: add vq group support
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: BwuMMvTv2Gl4IA7j6Z87hmiDMg5B4KRbD5-KI98nqYk_1758175236
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+On Wed, Sep 17, 2025 at 11:42=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Wed, Sep 17, 2025 at 10:37=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
+ wrote:
+> >
+> > On Tue, Sep 16, 2025 at 9:08=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@re=
+dhat.com> wrote:
+> > >
+> > > This allows sepparate the different virtqueues in groups that shares =
+the
+> > > same address space.  Asking the VDUSE device for the groups of the vq=
+ at
+> > > the beginning as they're needed for the DMA API.
+> > >
+> > > Allocating 3 vq groups as net is the device that need the most groups=
+:
+> > > * Dataplane (guest passthrough)
+> > > * CVQ
+> > > * Shadowed vrings.
+> > >
+> > > Future versions of the series can include dynamic allocation of the
+> > > groups array so VDUSE can declare more groups.
+> > >
+> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > ---
+> > > v2:
+> > > * Now the vq group is in vduse_vq_config struct instead of issuing on=
+e
+> > >   VDUSE message per vq.
+> > >
+> > > v1:
+> > > * Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+> > >
+> > > RFC v3:
+> > > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a low=
+er
+> > >   value to reduce memory consumption, but vqs are already limited to
+> > >   that value and userspace VDUSE is able to allocate that many vqs.
+> > > * Remove the descs vq group capability as it will not be used and we =
+can
+> > >   add it on top.
+> > > * Do not ask for vq groups in number of vq groups < 2.
+> > > * Move the valid vq groups range check to vduse_validate_config.
+> > >
+> > > RFC v2:
+> > > * Cache group information in kernel, as we need to provide the vq map
+> > >   tokens properly.
+> > > * Add descs vq group to optimize SVQ forwarding and support indirect
+> > >   descriptors out of the box.
+> > > ---
+> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 37 ++++++++++++++++++++++++++--=
+--
+> > >  include/uapi/linux/vduse.h         | 12 +++++++---
+> > >  2 files changed, 41 insertions(+), 8 deletions(-)
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_u=
+ser/vduse_dev.c
+> > > index 2b6a8958ffe0..42f8807911d4 100644
+> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > @@ -59,6 +59,7 @@ struct vduse_virtqueue {
+> > >         struct vdpa_vq_state state;
+> > >         bool ready;
+> > >         bool kicked;
+> > > +       u32 vq_group;
+> > >         spinlock_t kick_lock;
+> > >         spinlock_t irq_lock;
+> > >         struct eventfd_ctx *kickfd;
+> > > @@ -115,6 +116,7 @@ struct vduse_dev {
+> > >         u8 status;
+> > >         u32 vq_num;
+> > >         u32 vq_align;
+> > > +       u32 ngroups;
+> > >         struct vduse_umem *umem;
+> > >         struct mutex mem_lock;
+> > >         unsigned int bounce_size;
+> > > @@ -593,6 +595,13 @@ static int vduse_vdpa_set_vq_state(struct vdpa_d=
+evice *vdpa, u16 idx,
+> > >         return 0;
+> > >  }
+> > >
+> > > +static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 idx)
+> > > +{
+> > > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > +
+> > > +       return dev->vqs[idx]->vq_group;
+> >
+> > I wonder if we should fail if VDUSE_VQ_SETUP is not set by userspace?
+> >
+>
+> I'm kind of ok with implementing it, but I see it as redundant as if
+> the VDUSE device does not call the vq max size will be 0 anyway.
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+Is this better to fail (I meant return int instead of a u32, probably
+require changes in the vdpa core)?
 
---------------zcB9cwd0ZBMDf0rsBpcDRZ9W--
+>
+> > > +}
+> > > +
+> > >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx=
+,
+> > >                                 struct vdpa_vq_state *state)
+> > >  {
+> > > @@ -790,6 +799,7 @@ static const struct vdpa_config_ops vduse_vdpa_co=
+nfig_ops =3D {
+> > >         .set_vq_cb              =3D vduse_vdpa_set_vq_cb,
+> > >         .set_vq_num             =3D vduse_vdpa_set_vq_num,
+> > >         .get_vq_size            =3D vduse_vdpa_get_vq_size,
+> > > +       .get_vq_group           =3D vduse_get_vq_group,
+> > >         .set_vq_ready           =3D vduse_vdpa_set_vq_ready,
+> > >         .get_vq_ready           =3D vduse_vdpa_get_vq_ready,
+> > >         .set_vq_state           =3D vduse_vdpa_set_vq_state,
+> > > @@ -1253,12 +1263,21 @@ static long vduse_dev_ioctl(struct file *file=
+, unsigned int cmd,
+> > >                 if (config.index >=3D dev->vq_num)
+> > >                         break;
+> > >
+> > > -               if (!is_mem_zero((const char *)config.reserved,
+> > > -                                sizeof(config.reserved)))
+> > > +               if (dev->api_version < VDUSE_API_VERSION_1 && config.=
+group)
+> > > +                       break;
+> > > +
+> > > +               if (dev->api_version >=3D VDUSE_API_VERSION_1 &&
+> > > +                   config.group > dev->ngroups)
+> > > +                       break;
+> > > +
+> > > +               if (config.reserved1 ||
+> > > +                   !is_mem_zero((const char *)config.reserved2,
+> > > +                                sizeof(config.reserved2)))
+> > >                         break;
+> >
+> > What's the reason for having this check? I mean if we don't check this
+> > since the day0, it might be too late to do that.
+> >
+>
+> It's been checked from day0, both reserved1 and reserved2 were
+> included in the config.reserved before the patch, and the replaced
+> lines already checked with is_mem_zero [1].
 
---------------Csi8XDs0o0YVMq0XLmHh6km5--
+Ok. I see.
 
---------------d9VnNNakkD8gVqBNvxOXiPAE
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+>
+> > >
+> > >                 index =3D array_index_nospec(config.index, dev->vq_nu=
+m);
+> > >                 dev->vqs[index]->num_max =3D config.max_size;
+> > > +               dev->vqs[index]->vq_group =3D config.group;
+> > >                 ret =3D 0;
+> > >                 break;
+> > >         }
+> > > @@ -1738,12 +1757,19 @@ static bool features_is_valid(struct vduse_de=
+v_config *config)
+> > >         return true;
+> > >  }
+> > >
+> > > -static bool vduse_validate_config(struct vduse_dev_config *config)
+> > > +static bool vduse_validate_config(struct vduse_dev_config *config,
+> > > +                                 u64 api_version)
+> > >  {
+> > >         if (!is_mem_zero((const char *)config->reserved,
+> > >                          sizeof(config->reserved)))
+> > >                 return false;
+> > >
+> > > +       if (api_version < VDUSE_API_VERSION_1 && config->ngroups)
+> > > +               return false;
+> >
+> > Better with ngroups > 1?
+> >
+>
+> Same here. The kernel in the master branch already returns false if
+> that position of "reserved" is 1, and we are changing the behavior if
+> we don't include the 1 too.
+>
+> > > +
+> > > +       if (api_version >=3D VDUSE_API_VERSION_1 && config->ngroups >=
+ 0xffff)
+> > > +               return false;
+> > > +
+> > >         if (config->vq_align > PAGE_SIZE)
+> > >                 return false;
+> > >
+> > > @@ -1859,6 +1885,7 @@ static int vduse_create_dev(struct vduse_dev_co=
+nfig *config,
+> > >         dev->device_features =3D config->features;
+> > >         dev->device_id =3D config->device_id;
+> > >         dev->vendor_id =3D config->vendor_id;
+> > > +       dev->ngroups =3D (dev->api_version < 1) ? 1 : (config->ngroup=
+s ?: 1);
+> > >         dev->name =3D kstrdup(config->name, GFP_KERNEL);
+> > >         if (!dev->name)
+> > >                 goto err_str;
+> > > @@ -1937,7 +1964,7 @@ static long vduse_ioctl(struct file *file, unsi=
+gned int cmd,
+> > >                         break;
+> > >
+> > >                 ret =3D -EINVAL;
+> > > -               if (vduse_validate_config(&config) =3D=3D false)
+> > > +               if (!vduse_validate_config(&config, control->api_vers=
+ion))
+> > >                         break;
+> > >
+> > >                 buf =3D vmemdup_user(argp + size, config.config_size)=
+;
+> > > @@ -2018,7 +2045,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev=
+ *dev, const char *name)
+> > >
+> > >         vdev =3D vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
+> > >                                  &vduse_vdpa_config_ops, &vduse_map_o=
+ps,
+> > > -                                1, 1, name, true);
+> > > +                                dev->ngroups, 1, name, true);
+> > >         if (IS_ERR(vdev))
+> > >                 return PTR_ERR(vdev);
+> > >
+> > > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> > > index ccb92a1efce0..a3d51cf6df3a 100644
+> > > --- a/include/uapi/linux/vduse.h
+> > > +++ b/include/uapi/linux/vduse.h
+> > > @@ -31,6 +31,7 @@
+> > >   * @features: virtio features
+> > >   * @vq_num: the number of virtqueues
+> > >   * @vq_align: the allocation alignment of virtqueue's metadata
+> > > + * @ngroups: number of vq groups that VDUSE device declares
+> > >   * @reserved: for future use, needs to be initialized to zero
+> > >   * @config_size: the size of the configuration space
+> > >   * @config: the buffer of the configuration space
+> > > @@ -45,7 +46,8 @@ struct vduse_dev_config {
+> > >         __u64 features;
+> > >         __u32 vq_num;
+> > >         __u32 vq_align;
+> > > -       __u32 reserved[13];
+> > > +       __u32 ngroups; /* if VDUSE_API_VERSION >=3D 1 */
+> > > +       __u32 reserved[12];
+> > >         __u32 config_size;
+> > >         __u8 config[];
+> > >  };
+> > > @@ -122,14 +124,18 @@ struct vduse_config_data {
+> > >   * struct vduse_vq_config - basic configuration of a virtqueue
+> > >   * @index: virtqueue index
+> > >   * @max_size: the max size of virtqueue
+> > > - * @reserved: for future use, needs to be initialized to zero
+> > > + * @reserved1: for future use, needs to be initialized to zero
+> > > + * @group: virtqueue group
+> > > + * @reserved2: for future use, needs to be initialized to zero
+> > >   *
+> > >   * Structure used by VDUSE_VQ_SETUP ioctl to setup a virtqueue.
+> > >   */
+> > >  struct vduse_vq_config {
+> > >         __u32 index;
+> > >         __u16 max_size;
+> > > -       __u16 reserved[13];
+> > > +       __u16 reserved1;
+> > > +       __u32 group;
+> >
+> > This makes me think if u16 is sufficient as I see:
+> >
+> >         u32 (*get_vq_group)(struct vdpa_device *vdev, u16 idx);
+> >
+> > The index is u16 but the group is u32 ...
+> >
+>
+> That's a very good point, but I got the reverse logic actually :). All
+> the vhost userland ioctls use an unsigned int (=3D=3Du32) already, so
+> VDUSE should keep going with that. If any, get_vq_group (and similar)
+> kernel internal API should move to u32 to keep up with userland API.
 
------BEGIN PGP SIGNATURE-----
+Ok, I see this:
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmjLnw4FAwAAAAAACgkQsN6d1ii/Ey+x
-CQf+IQ1ng7WiKO4LhrrXkz1rSgyDCT7guo7w2f3gI6ps+45ddPrXGGTIGK0NrAjgRJnZW57Jnolf
-AGGN0NdoQQ3GLzherZQ5xl710Ed5WuWi6zWMEf0xgkcFRHsfWO3+Qo8O4kzARZMrxPCs4EgprQsr
-pEjdEqx7QK7jGQuGYQn5i7ItiB+lc0xXMAO0r3kcqickyQBiOBvQNuerpHkkbG+tcAiqg5ykGqNe
-y7cQ56AudOXRuZn46scyapBudBJLJGkMrZCiBggp0EFEmvVO9loIwF4Hnj4mnyDlv7H/A9oI5Tj6
-XbaXkcJ6a3s9ctqNarLQl404rq00+9moguCVUiQd9g==
-=EGob
------END PGP SIGNATURE-----
+struct vhost_vring_state {
+        unsigned int index;
+        unsigned int num;
+};
 
---------------d9VnNNakkD8gVqBNvxOXiPAE--
+It is just a little bit weird that we leave a hole.
+
+Thanks
+
+>
+> [1] https://patchew.org/linux/20250606115012.1331551-1-eperezma@redhat.co=
+m/20250606115012.1331551-4-eperezma@redhat.com/
+>
+
