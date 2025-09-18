@@ -1,91 +1,108 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 640D63148BD
-	for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 16:04:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28B4523B615
+	for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 16:06:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758211451; cv=none; b=OxQs1YnjyH69qkpF+wsDIf3ZLI/oMA6oTutLbXHxq6cElZwiPvmbk918rGrrLrCQomwEY1/5SBrAifZu48BLmhpO+iyxgLP4j3l/S+azsOjiEw3w0ZUEvBElv4gf2jGyMT+biEp/S/hhbdu8J010kG/lgoR0dlqgCj2SNhOb+pY=
+	t=1758211600; cv=none; b=HH+10mvipVln52VQEmfpy87wAAq6AodaCUzbXWKbZhINZ52+bPiG0W6mWDdK1FjdKCui1W6DrOyTc9V7CoZEzl4Fgc1wqTDPR9b3cZ7MVzWfxBMadDtJNyqkj47FbPSOywJJnSrJfGcHuP7kJgP6gZlUIVlU0TxkgwpMWVUzlBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758211451; c=relaxed/simple;
-	bh=Z5B5dt6wI87+KOD3sTN8FRIoAj7TBjgpAUwP/aqCmqQ=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=bM4NRnoIU7S0J7yA7lYXqcDBPR0rM2hv76yrWDB8q7WZXP16rr865X6BxGAuNbLIsUANHk1LLr6aK7YiTOLl8Do0nxvAhiqFE+F3yxq0WAWuubmtBGZzYMwiSD45Sd7InpO4BQpOSdP0LFMJ9/Q8W3HO57QxQpg5DIzshbjt6FU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ChrHGhmo; arc=none smtp.client-ip=209.85.216.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1758211600; c=relaxed/simple;
+	bh=P+Wmf0yqfouH3Oi06gJJiikblIWfpXgZcHs/2usguFc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=nT81dbmaPztRJ65n8tr7FWgFsSxCaXA5BEPO6qLFQh+QmKRFwYSHGHVw5C2zBloYPqJWhmpy9AifBzvxBtNdhelHeWownV5xfwkbTUi6AoS+0OBfLCaCe8/oPgFHWjp7NtJ6QUf1PsUGdMG7EqTOyLOpaD5eeUUME+VeMLIF+dM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IG4pwe58; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ChrHGhmo"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-32eb864fe90so1635527a91.3
-        for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 09:04:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1758211449; x=1758816249; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tqabNObTrUIXb/BYAEPfcGgxscP8Gw2Vuj2oVftkStA=;
-        b=ChrHGhmoihgLdtIltWUAHYury7W11iIGrKbDQ+Ig5sL83Y84+lG4Q0PyYNqQ4plU4w
-         ExhQ0yILLDMoJHSYffjywoTkeVcANhrxgDcl9U/qAcT7Ojfpzx6EiynYCLBj6LYbDMsa
-         EU05YorL/i02d7p/XMFnYyr0S2tconXl31AspEklLz3T5qC77R9kyzRSB6yjMJxhEROc
-         0kvYNy2N4LowQyyN2eI++yqLZoBmbMeAnVGaLJnFzyo10DB3exdyo/KQFivaqRVNPjSO
-         qopkjK4CM/+GTgP1C9NHS22za9fyyXNN4mEwFqefLhTFOT6WR6iXyYCBCgEPBG345Dme
-         /T2g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IG4pwe58"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1758211598;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=T/W5lCTYIz1tvKkOImL2aA/ps1g+KzlVk0fBujrhKzM=;
+	b=IG4pwe5890UhSMVh8eKMNvPwYKV7DfxT9iNyQ+8nlEQ1LJKoEPr67Zjq/udp0TnuSa3mNz
+	IBFCkq04U4VCqyPYjzmKeIYQ7C2LuYeqemHP6m/88zZLihR/PJLn9NMzEtqmLBKxqXx4lr
+	WX13UFcOA/cv9rscD+15Qb2zrmS2Mu0=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-668-9Z9Ff8szMyegPpt5tH2uZQ-1; Thu, 18 Sep 2025 12:06:36 -0400
+X-MC-Unique: 9Z9Ff8szMyegPpt5tH2uZQ-1
+X-Mimecast-MFC-AGG-ID: 9Z9Ff8szMyegPpt5tH2uZQ_1758211595
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3eb2c65e0d6so856310f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 18 Sep 2025 09:06:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758211449; x=1758816249;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=tqabNObTrUIXb/BYAEPfcGgxscP8Gw2Vuj2oVftkStA=;
-        b=MLjylMO7SUNPU+PWbSmQKswqLswgygvBId544suUdrAafIJizebBwfOyOwCwyVrxL1
-         TZNkvYljBw8Du2RuysnOdJO9snUnKDypbKldFFgQULWvNelrDvPOAsgDT2KBM0zq/MU7
-         E89KT1DbW3o++ncDmlsGx7iQGm/8YKj6Z6SNj4yG/HxDZ5tqCMOeWg4jc6j14PEIm3/1
-         GIGjvOrZrjAjfxz0Fg5R7Ye//9/Bw3nPrbtKCJAH/Z1Cuo9q8+Hos2O9H24AqNxk5YjU
-         /3S1GD6JIE4V0iRMy54A0lndhr0S16hiWtcCP3IuIwXif+ESsIlLyMUWhJtL/eyZR28V
-         RgxQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWetB/Q8Lm0Eqsuc+V9L7w8OM7BWa10cT86kkZBA0ATgPT0RbGkk922pCUHfdTnTHZgqyAuAl1UIi4HIlSYww==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywsmi4LCb65v1xcd0F2p+GPXK+K69CJWXdZsqsANty0OW85tVif
-	vuKi28Yu7PppkN7KoKigeTKxeNyElkLvE1+LFltrtp4vU4xL9qPyoIqzan56juZA42xZqzOEhWi
-	+/6N7Hw==
-X-Google-Smtp-Source: AGHT+IGkmbYJfZP5nllHSP5gPnF6lwqm76wSLahcIX1/RcNPCgiykqnALzGjrifpViIQLPrzkR7sDPMdXBM=
-X-Received: from pjp16.prod.google.com ([2002:a17:90b:55d0:b0:329:ec3d:72ad])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3f4b:b0:32e:9281:7c7b
- with SMTP id 98e67ed59e1d1-32ee3ebb1e1mr8451052a91.3.1758211448798; Thu, 18
- Sep 2025 09:04:08 -0700 (PDT)
-Date: Thu, 18 Sep 2025 09:04:07 -0700
-In-Reply-To: <20250918154826.oUc0cW0Y@linutronix.de>
+        d=1e100.net; s=20230601; t=1758211595; x=1758816395;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=T/W5lCTYIz1tvKkOImL2aA/ps1g+KzlVk0fBujrhKzM=;
+        b=vRs8NUySDbJIKEzGNkMyfu1AU3nICQv2AzHETEHx+kelt4j3y7VJ1X367MDF7zfWCS
+         +7bDc+CiRBl8qGrNP4QhtQbViOelFk7GCwFEIxGN6pu5NCxY24c7fgZIUVxDtgiJfVr2
+         5/RPOTLoaqoQkdcYHlWgU5fCOjrTpeGf6dlBqP8+NqV64CnzLOx8hTPEVbl1TcMdjGbH
+         Moi3l3ja4061se8h1FoRiu2TTmY5IIwioKgR40Lmuy3h3/edBThmtF5XivjDmjpDPyQG
+         sGiECSs0zW/d0NeiuagDOoxXy1yl9LSWiufkVAUfsMgYqHn+o2LVlONeLCGyhp1rBjA8
+         wYIA==
+X-Forwarded-Encrypted: i=1; AJvYcCUnoPG9QXSilQU1sgXz1r98QCS1C4tKweZi2TC2bEXWbx78z5IlKgxC3GoksUV3VfABGMi73YxqXrESQgL1Xw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yww4tcYUqk4Y/YGQ90biyPb5IB9m828JGDZNVPd7bXIBQCkHU94
+	QCqCbgIWHvRmdRfHS+b5lI7dW6jMfaLZZOg/+djQRQ2z68yUDjANQeXfFvH7dBQ//Iq0psrjIZP
+	tNmSLE2KWPYfStiQAilnYMEN4l2GyCOeoFxxNCzG9nA710TocKAMN3iHXUv9DFA1Lla9N
+X-Gm-Gg: ASbGncs/1rJheaodllU9k38QURWm10OM8+C4QUq7h+HBeJiNWV4xXV3XOwi0NZ3HyMC
+	upaamZUQoFZsm0xkd3yd6dZHPmx+hFSzHyl8Lp8SAEXIoy+UfXgC9IBtcbQXUKnIbjuTWJ5esjL
+	MaAaUv+IYXT6w0tX4eWvu08tkmSZcFvNkuZrwyCv3srCXr2J3vHfxa2wpFPu/4+Nn+V5TSD96P3
+	wV//4X7aodijHGX4Z7UJNYXLDj47QAT0dkcJ1eIT+LraMgpOEDLVMFHUxhxCSqFNDq5zxDdWLLK
+	+glBXugMoR3hqOypdXEaIVuWhNiibL7K8L0=
+X-Received: by 2002:a05:6000:2881:b0:3ec:df2b:14ff with SMTP id ffacd0b85a97d-3ecdfa14161mr6207938f8f.40.1758211595341;
+        Thu, 18 Sep 2025 09:06:35 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEk3vFxLumDhq+BR9Bo4nIsWcXRAcKMyNyvcVzS+eyg8tV4+vQBxrdk3o5AQ7UyoiyFo7QtNw==
+X-Received: by 2002:a05:6000:2881:b0:3ec:df2b:14ff with SMTP id ffacd0b85a97d-3ecdfa14161mr6207900f8f.40.1758211594963;
+        Thu, 18 Sep 2025 09:06:34 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:73e7:4d00:2294:2331:c6cf:2fde])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3ee0fbc7300sm4062735f8f.34.2025.09.18.09.06.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Sep 2025 09:06:34 -0700 (PDT)
+Date: Thu, 18 Sep 2025 12:06:32 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/3] vhost_task: Fix a bug where KVM wakes an exited
+ task
+Message-ID: <20250918120607-mutt-send-email-mst@kernel.org>
+References: <20250827194107.4142164-1-seanjc@google.com>
+ <20250827201059.EmmdDFB_@linutronix.de>
+ <20250918110828-mutt-send-email-mst@kernel.org>
+ <20250918154826.oUc0cW0Y@linutronix.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250827194107.4142164-1-seanjc@google.com> <20250827201059.EmmdDFB_@linutronix.de>
- <20250918110828-mutt-send-email-mst@kernel.org> <20250918154826.oUc0cW0Y@linutronix.de>
-Message-ID: <aMwtd40q44q5uqwr@google.com>
-Subject: Re: [PATCH v2 0/3] vhost_task: Fix a bug where KVM wakes an exited task
-From: Sean Christopherson <seanjc@google.com>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+In-Reply-To: <20250918154826.oUc0cW0Y@linutronix.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: as0VRPU1Pk-B0MFEar3_F4vM2U30MnxfbR79PjfnQAU_1758211595
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, Sep 18, 2025, Sebastian Andrzej Siewior wrote:
+On Thu, Sep 18, 2025 at 05:48:26PM +0200, Sebastian Andrzej Siewior wrote:
 > On 2025-09-18 11:09:05 [-0400], Michael S. Tsirkin wrote:
 > > So how about switching to this approach then?
 > > Instead of piling up fixes like we seem to do now ...
-
-I don't have a strong preference for 6.17, beyond landing a fix of some kind.
-I think there are three options for 6.17, in order of "least like to break
-something":
-
- 1. Sebastian's get_task_struct() fix
- 2. This series, without the KILLED sanity check in __vhost_task_wake()
- 3. This series, with my fixup (with which syzbot was happy)
-
-Longer term, I'd still like to land everything though.
-
 > > Sean?
 > 
 > Since I am in To: here. You want me to resent my diff as a proper patch?
+> 
+> Sebastian
 
-Ya, I think it makes sense to harden against UAF even if we fix the KVM bug more
-directly.
+Yes please, if Sean can ack it.
+
+-- 
+MST
+
