@@ -1,164 +1,162 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4DC6303CB7
-	for <virtualization@lists.linux.dev>; Fri, 19 Sep 2025 08:08:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA60725B2FE
+	for <virtualization@lists.linux.dev>; Fri, 19 Sep 2025 09:32:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758269318; cv=none; b=S/DYt3QAxdqTEpPO9zIFvX5Xa0G3GSxxNSVYxssbO9CZP/XGqs5ZGXgYMY8+f3n/7MXMOtQ1p7Z72b17dH6q3hVgetUavYo1y+J8choRvaGg1xGs354jX/hXnD97WFauQoRk1WJaYLQvOk7vWIA7B8mpw9ochRY6c7p5fnVv1Mo=
+	t=1758274365; cv=none; b=QmxQKX1B0fx1/h7qnjkbmtVaRuDLgLskgikaUup0pMeiu7TnMueCvKpo+n8uQJeIFjp53eYb3rBp4ifIb3JRz8VX3kwGI61Hp0CcV0u+iPXgHUK7MicZztkC86tQvp10li21TSjhmq4QThlIfzlYXo2UUNypaDP1/nHpj+J0UZM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758269318; c=relaxed/simple;
-	bh=VLZYffDAeaYgQlYikAN5MJfCakv0SHKRtux7+rgjz5E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mu/QDtKJhZjYC7DVmpT0uVd0a6nd/qsuBYJ18UqQMkimSHppwp/OzOekywvppoy1nsmLed4RFPOxzfSQB5OAgyLT6p6L7yvFI/nRRdK071SRQ9uUlYZuaFJQNLumokjEoTqW1fqsKpyuPAbvmCmpLC+7llskE+Yh3nnZ9N4pICs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Uxp/0H79; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1758274365; c=relaxed/simple;
+	bh=QyBw9V3MrwIBLTNTHmBzydrQVjWnsneezFu885BPIXI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=S15Sa31Hyk3jWWyH9CAJDNTmnsv4w5oMNBZaxhShU1oOD+MzUdQw0+A+f8ymr6+XhDYQ6Q5ays/IxWtyAKEcBw8Bjyt6EOtXEVcESFalNwGK0Qb2qWTtoYl2gFqSektWzSfSnRA8XPQvAq2OG33TdYm2jd9DL9SFix89wFC5YkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QAkKrTc7; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Uxp/0H79"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QAkKrTc7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758269315;
+	s=mimecast20190719; t=1758274361;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LIxzvraroGndXUseXRYHpQ4xGsj43fuuer+gtznNY3k=;
-	b=Uxp/0H79F75avWKIEJNDXCT/HmbvS11rjO5bcGBWRjw+UXGTExG03FwCuoTIgkSh+3dz1h
-	mqEKo2wgcxJNZSZU2OlOcypWbrMFcutc4UHMx/09ySGH9FpP3awI4q3RCPlPJ0wASCyv7O
-	ycQoaa6x8fFKaZDjFda518MqCBvAbrY=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-606-kufwwQQ1MDCuXj6KSvFeGw-1; Fri, 19 Sep 2025 04:08:33 -0400
-X-MC-Unique: kufwwQQ1MDCuXj6KSvFeGw-1
-X-Mimecast-MFC-AGG-ID: kufwwQQ1MDCuXj6KSvFeGw_1758269313
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45deddf34b9so18207175e9.1
-        for <virtualization@lists.linux.dev>; Fri, 19 Sep 2025 01:08:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758269312; x=1758874112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LIxzvraroGndXUseXRYHpQ4xGsj43fuuer+gtznNY3k=;
-        b=kFFWo/g3+d2M+7isSEMbp/xRAHyWgU/Vor2xEgGpvx0kUj1hbUawRk3mauhVFSJsGz
-         Y1KXUTJh9rA8DcevT8a7o4yBIjt98V0Zs6tPRQsd9EFuSHI9iEH56ACyDyRRTk0PJvZC
-         8dSFyzvTM/s+d3VFV9lzG7lsOSx/TSvhaoPIzXeWQrbpUBvucmqdBVVaw2stUugdGITW
-         nlYGh1azVUbmRiAZP/4PsOhsxwYoShSWt+J0f+mogsO/WMURy8jsH1ME8hYg1V6uxnDH
-         YgSLDEtD+Rricrh6dJv2+eo1Hk4/un9G1wHi6ZSRoCYxEJiVz9k0UBYr4d4D7z4H0W3H
-         veyw==
-X-Forwarded-Encrypted: i=1; AJvYcCU2PRBEGeWSz+HbD9xPkt0IAL3Km7Nrpochz64xr8nJkA/6DzbbCyZGWE32G4IOkc+NLY44GRYRWafnTw1wvQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxlaXXamy39ytT3UnHCixCkzwgQK8jBeObwF2VTqhx09gEDC9Ty
-	DPaLN2CPKBkdUIDDqkSPoP7HHZN8wRp5u/6I8WQ8JgUBxf6deV9v5BsB2vWqEBadiwCqolTtpZG
-	xj7fQ24sIH6Rdu5a1iIwFMgDQ+ETOuQHo1UkYgZyIMpNSCfQGBKnVm5hPMtjCCbYJFPFk
-X-Gm-Gg: ASbGncucGcDXjFKpLitEmJbOLgFWrXbhXw8nyEqOUxdwJg6ILqPGnlPneOH3OWb60ek
-	yjsosDAWFZraShFKil0fHy3+CXSdeVisMIpz6l/0A1mHxl8b2jIAf1Aln1LbynIp/nHCmn1XSL7
-	2SmfQ93LKkxtyikOJ0WiB6KqTP+O5mt6XHO67ukcmJkLO2pcHhPICxJLIM2Wayu2ZJma0KCO7pu
-	xYSpycGr5ZZaM5JNnGrIVYPZTVcNPZQi2anq0uIjZFKUp7NMGvZhgBTSgcONlPeFWMMLR82fxlT
-	/LE71y2EBmmo/ttbPZPohu5ez0eDQ5M=
-X-Received: by 2002:a05:600c:a316:b0:45b:86bb:af5f with SMTP id 5b1f17b1804b1-4650a0b8379mr52806665e9.6.1758269312585;
-        Fri, 19 Sep 2025 01:08:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHSYngzMvTigSbwISAEKdbUVkh+qjENhtjn2tbVqLzn3qz8kOruU3DQcxqKMxkEFwwZ+71K8w==
-X-Received: by 2002:a05:600c:a316:b0:45b:86bb:af5f with SMTP id 5b1f17b1804b1-4650a0b8379mr52806335e9.6.1758269312176;
-        Fri, 19 Sep 2025 01:08:32 -0700 (PDT)
-Received: from redhat.com ([147.235.214.91])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-464f162726bsm73886815e9.7.2025.09.19.01.08.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Sep 2025 01:08:31 -0700 (PDT)
-Date: Fri, 19 Sep 2025 04:08:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Heng Qi <hengqi@linux.alibaba.com>, virtualization@lists.linux.dev
-Subject: Re: [PATCH net] virtio-net: fix incorrect flags recording in big mode
-Message-ID: <20250919040736-mutt-send-email-mst@kernel.org>
-References: <20250919013450.111424-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEscCsCf8RC-xQzfTNMp94Ty4wTrBgLkF50OAQ+yF8xD-A@mail.gmail.com>
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=DEy+og7tihPhXp1E3SsxMGMOW3TK1N+nPInsY12TsqE=;
+	b=QAkKrTc7VwMg2K6b6ZSbVWviBAriaZV+2hDFaM6fwALAnzw3uwLRlsq0EM+jdcgeHXkWR/
+	Vq4rzhWufPT0/iYtybjtNQPbFC2o/+sO+ZoVSP5ITNrV9JI04TZ553zETilfTsswqC0134
+	pH4DuThhDDdfR5482tDsC0smyKxRVCc=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-258-hy7QeGCANc2LFu018EhOkg-1; Fri,
+ 19 Sep 2025 05:32:39 -0400
+X-MC-Unique: hy7QeGCANc2LFu018EhOkg-1
+X-Mimecast-MFC-AGG-ID: hy7QeGCANc2LFu018EhOkg_1758274358
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A0C021955F2A;
+	Fri, 19 Sep 2025 09:32:37 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.44.32.69])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6DEE31956045;
+	Fri, 19 Sep 2025 09:32:32 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: "Michael S . Tsirkin " <mst@redhat.com>
+Cc: Maxime Coquelin <mcoqueli@redhat.com>,
+	jasowang@redhat.com,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-kernel@vger.kernel.org,
+	Laurent Vivier <lvivier@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Yongji Xie <xieyongji@bytedance.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Cindy Lu <lulu@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: [PATCH v3 0/6] Add multiple address spaces support to VDUSE
+Date: Fri, 19 Sep 2025 11:32:25 +0200
+Message-ID: <20250919093231.960393-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEscCsCf8RC-xQzfTNMp94Ty4wTrBgLkF50OAQ+yF8xD-A@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: WJaKjkGAtCJEwsSSYqqEbQObM22s0o-_B7oJEd0uPyM_1758269313
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Fri, Sep 19, 2025 at 10:11:55AM +0800, Jason Wang wrote:
-> On Fri, Sep 19, 2025 at 9:35 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> >
-> > The purpose of commit 703eec1b2422 ("virtio_net: fixing XDP for fully
-> > checksummed packets handling") is to record the flags in advance, as
-> > their value may be overwritten in the XDP case. However, the flags
-> > recorded under big mode are incorrect, because in big mode, the passed
-> > buf does not point to the rx buffer, but rather to the page of the
-> > submitted buffer. This commit fixes this issue.
-> >
-> > For the small mode, the commit c11a49d58ad2 ("virtio_net: Fix mismatched
-> > buf address when unmapping for small packets") fixed it.
-> >
-> > Fixes: 703eec1b2422 ("virtio_net: fixing XDP for fully checksummed packets handling")
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio_net.c | 12 +++++++++---
-> >  1 file changed, 9 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 975bdc5dab84..6e6e74390955 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -2630,13 +2630,19 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
-> >          */
-> >         flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
-> >
-> > -       if (vi->mergeable_rx_bufs)
-> > +       if (vi->mergeable_rx_bufs) {
-> >                 skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
-> >                                         stats);
-> > -       else if (vi->big_packets)
-> > +       } else if (vi->big_packets) {
-> > +               void *p;
-> > +
-> > +               p = page_address((struct page *)buf);
-> > +               flags = ((struct virtio_net_common_hdr *)p)->hdr.flags;
-> > +
-> 
-> Patch looks good but a I have a nit:
-> 
-> It looks better to move this above?
-> 
-> if (vi->big_packets) {
->                void *p = page_address((struct page *)buf);
->                flags = ((struct virtio_net_common_hdr *)p)->hdr.flags;
-> } else
->                flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
-> 
-> To avoid twice the calculations and reuse the comment.
+When used by vhost-vDPA bus driver for VM, the control virtqueue
+should be shadowed via userspace VMM (QEMU) instead of being assigned
+directly to Guest. This is because QEMU needs to know the device state
+in order to start and stop device correctly (e.g for Live Migration).
 
+This requies to isolate the memory mapping for control virtqueue
+presented by vhost-vDPA to prevent guest from accessing it directly.
 
-I think duplicating a bit of code is better than branching twice.
-So I would move the flags assignment down instead.
+This series add support to multiple address spaces in VDUSE device
+allowing selective virtqueue isolation through address space IDs (ASID).
 
+The VDUSE device needs to report:
+* Number of virtqueue groups
+* Association of each vq group with each virtqueue
+* Number of address spaces supported.
 
-> >                 skb = receive_big(dev, vi, rq, buf, len, stats);
-> > -       else
-> > +       } else {
-> >                 skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
-> > +       }
-> >
-> >         if (unlikely(!skb))
-> >                 return;
-> > --
-> > 2.32.0.3.g01195cf9f
-> >
-> 
-> Thanks
+Then, the vDPA driver can modify the ASID assigned to each VQ group to
+isolate the memory AS.  This aligns VDUSE with vdpa_sim and nvidia mlx5
+devices which already support ASID.
+
+This helps to isolate the environments for the virtqueues that will not
+be assigned directly. E.g in the case of virtio-net, the control
+virtqueue will not be assigned directly to guest.
+
+Also, to be able to test this patch, the user needs to manually revert
+56e71885b034 ("vduse: Temporarily fail if control queue feature requested").
+
+PATCH v3:
+* Make the default group an invalid group as long as VDUSE device does
+  not set it to some valid u32 value.  Modify the vdpa core to take that
+  into account (Jason).  Adapt all the virtio_map_ops callbacks to it.
+* Make setting status DRIVER_OK fail if vq group is not valid.
+* Create the VDUSE_DEV_MAX_GROUPS and VDUSE_DEV_MAX_AS instead of using a magic
+  number
+* Remove the _int name suffix from struct vduse_vq_group.
+* Get the vduse domain through the vduse_as in the map functions (Jason).
+* Squash the patch implementing the AS logic with the patch creating the
+  vduse_as struct (Jason).
+
+PATCH v2:
+* Now the vq group is in vduse_vq_config struct instead of issuing one
+  VDUSE message per vq.
+* Convert the use of mutex to rwlock (Xie Yongji).
+
+PATCH v1:
+* Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+* Using vduse_vq_group_int directly instead of an empty struct in union
+  virtio_map.
+
+RFC v3:
+* Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
+  value to reduce memory consumption, but vqs are already limited to
+  that value and userspace VDUSE is able to allocate that many vqs.  Also, it's
+  a dynamic array now.  Same with ASID.
+* Move the valid vq groups range check to vduse_validate_config.
+* Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
+* Use of array_index_nospec in VDUSE device ioctls.
+* Move the umem mutex to asid struct so there is no contention between
+  ASIDs.
+* Remove the descs vq group capability as it will not be used and we can
+  add it on top.
+* Do not ask for vq groups in number of vq groups < 2.
+* Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
+  VDUSE_IOTLB_GET_INFO.
+
+RFC v2:
+* Cache group information in kernel, as we need to provide the vq map
+  tokens properly.
+* Add descs vq group to optimize SVQ forwarding and support indirect
+  descriptors out of the box.
+* Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
+  part of the struct is the same.
+* Fixes detected testing with OVS+VDUSE.
+
+Eugenio Pérez (6):
+  vduse: make domain_lock an rwlock
+  vduse: add v1 API definition
+  vduse: add vq group support
+  vduse: return internal vq group struct as map token
+  vduse: add vq group asid support
+  vduse: bump version number
+
+ drivers/vdpa/ifcvf/ifcvf_main.c    |   2 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  |   2 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c   |   2 +-
+ drivers/vdpa/vdpa_user/vduse_dev.c | 506 ++++++++++++++++++++++-------
+ drivers/vhost/vdpa.c               |  11 +-
+ include/linux/vdpa.h               |   5 +-
+ include/linux/virtio.h             |   6 +-
+ include/uapi/linux/vduse.h         |  65 +++-
+ 8 files changed, 467 insertions(+), 132 deletions(-)
+
+-- 
+2.51.0
 
