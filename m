@@ -1,97 +1,118 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f44.google.com (mail-oo1-f44.google.com [209.85.161.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 392A025B2FE
-	for <virtualization@lists.linux.dev>; Fri, 19 Sep 2025 09:36:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 728DE3093C9
+	for <virtualization@lists.linux.dev>; Fri, 19 Sep 2025 12:08:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758274616; cv=none; b=RzWC1wCPw+xGyUApLJwvcXYlFoK6pLUM/uni7KY4eW+SWtDUUdH32seKvW1pCJPbPN1vpxD3Ll1NJ3uQOjF9ngj0OpEdYQ2rVfmh7huiiWPiW4dhIKc2jU4Ln5kYPgru0J1/6gi8vIUY6KPXesgg9QNRpMS9AfShQCnIWUgVsGA=
+	t=1758283724; cv=none; b=q+8695ymHjHJUo0zFGaRXhaM7ontEMBdTazXdfUqEajsBmQLnhQ+MC6CY1D2JaR92/wzdMuduG4wuUXDKYx+E3vkyi4UeHFE+i9MV1zxbFNd2qtUD/rBZq/BHOgWL77tthApqMt/K6adppxrFlfLxwSUNc3lgyJcZbwjOxRHLrc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758274616; c=relaxed/simple;
-	bh=ruz9kdaDLCE4+rPabbd12pnH5qUqJwoy8Vr7fc+q3tI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nq1U17Z0Oss2p+RPyb3yDaNtnhh8WlPSVg89C+frbixWbq0GbUadrCvvLidAwho4rEeBJEp3vPF/Hyegrjcv7o8QaMPrA2Pr/ecxhFFeEgqnfCyj/nT9/FJgD4MTAjzukDv+TUCCC3Vw1FcYC8hUIyxWIiAjFgv22/X6F85mwKo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O0zZiw54; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1758283724; c=relaxed/simple;
+	bh=PU4BzVSUM6uCKa5w2l6OSfoECkEW3DTQ8YYJ6WsGxgA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EvPv0FgUmtMy2m2Xsjn97VYCKp/rVCe8mgQ9wippoWNG6EIYjJ2ZnWzsgeUOrTAT0LW8gxDsJ1+60q9qCDLd2qJICZ375whl0i9X/4GuT8X8o1Wji9+po8H8ppvthV5rGA6iDvCHMwiaAKrWKGenPmrMkG5BmbpPh53Dx6Ic5ok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=NM5faOPK; arc=none smtp.client-ip=209.85.161.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O0zZiw54"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758274614;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ruz9kdaDLCE4+rPabbd12pnH5qUqJwoy8Vr7fc+q3tI=;
-	b=O0zZiw54i55TPcQal5ILDc9ipN36CC90aJsPKIvFBOts0jwBNya+1TQaucNhnu9+Osk5rV
-	bLEGCdoCFdnncCCPLLB8va9duYaHwlGcHQNgFZ6HIvPN47eT4SuckwBDlnEvLriGZ0fy2a
-	xjJQ5p37I4WqHb6vVaLFh3P41fOiuSE=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-326-ux_jrGNFPdqpZ6W7TYOWTA-1; Fri, 19 Sep 2025 05:36:53 -0400
-X-MC-Unique: ux_jrGNFPdqpZ6W7TYOWTA-1
-X-Mimecast-MFC-AGG-ID: ux_jrGNFPdqpZ6W7TYOWTA_1758274612
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-733ff1a73dcso34681317b3.1
-        for <virtualization@lists.linux.dev>; Fri, 19 Sep 2025 02:36:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="NM5faOPK"
+Received: by mail-oo1-f44.google.com with SMTP id 006d021491bc7-6234995098eso1184822eaf.3
+        for <virtualization@lists.linux.dev>; Fri, 19 Sep 2025 05:08:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1758283721; x=1758888521; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ddOV/4AeMTKAaTlLO+S2d6s4wCcUbRWR+oBWKnZEc/A=;
+        b=NM5faOPKVeGO7OjDsQsb/kScnAlkMlNFQLKuRGZu3eliqIUtYMGOKu4MSztvFXSA8u
+         3p8+BUvdva99GmiPvIAdaKTsj5WhJKPXSlV7ug9b90uifo8AK2mUxla8i4KGDNaX1HsJ
+         1BlDsXe6Jia88E+SNGgnbl2Og2YZ/OF2Y57U0cupj469mUJfuGePXac3V6mRmCqKcDzY
+         oLUhYj/vHpEZHB5JrOkJRB+mpgK/4s+yCNuh9+EugGaFrVFQmCRZ3o1xhFmd/DnuEdyq
+         Pq3NwkqZE7KjPgulME4PPdA7+RGudPp+b3MpDDH7csicxRztjsDwoxODGnBzOMqgQ11/
+         QbNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758274612; x=1758879412;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ruz9kdaDLCE4+rPabbd12pnH5qUqJwoy8Vr7fc+q3tI=;
-        b=DTFkERy0AkmKQNONNKDy4x8lvFG7K9urbhJ6cL0VN8uGHi0unMy0+1ShB+dAyZOBXC
-         xP7FenAQ6vNRia0Zp1DU97/tvte3m5oV+5DCDke8PxgTt5dYw+cdbLtYENIs5l5ZfMa/
-         ihszDsRU/zEgCRHc2J+JbvPM/x7UI7WTA+yi4fYAA/SyBHrCem0mQTIij+nWVWDWOXhC
-         jSmGVLdGhZtnazDNi8YSGa6Hl98Mn4bywbt5Cw30CpGAD/6WROBOw4PDuVnbLC00gdrr
-         NonwBTWmd/vylMgvnxl9yAOkF+YgsxZpvqgLMsVkhu76dW39PoMzgQOlmRP1X17aITuq
-         n3qA==
-X-Forwarded-Encrypted: i=1; AJvYcCULSiOjYApQnsRRevpxELhAT0UyCkhMMWgYZglKZVhE/F+SGULwpMI8N/u6K6c2d09q8jE8Frf5hJhkkCY85A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy29NJJJeq3ynshrtjH5T3ZOt9jpNXTDU/NAJdyyHKraYsCzPJX
-	51s/F5oqQ3xLm0vzoCvpxFmS2Z/sNcg9OCYf5brsAPeJBSZ06DWGhur2CKbBmuSSX7DV2ouT5M+
-	yzEJQ1PeydkiCyvLRAFZw5wLedzm++DdBoURxaXxbB7+cQvvxZuHDHm7tFbOQU404Q+fQKmdP/R
-	KIbN5fC7ybDKDj3PwngDzeGecB9S6YZBuBPJJGllEsinM=
-X-Gm-Gg: ASbGncuMiSDavQG7snWZfL5qyVv9wg0Z4vvOrMI+8Mn4MOx0I6nCn+TBkwM1PQFNC1M
-	WrRoQz94GCimRA0XCSMUTToOwGx6LCP81p1yQqWIdehWnLJ5adCtKdA7BT48gO88IkGZVmMRV3e
-	8JQbGA9J9CVjBcspo1u2ICuoPs6mvsbttjqM4zqpUs+amg8Vt5p8cnQ2lmknyBhX/vGPMqxiaGZ
-	cN37LrN
-X-Received: by 2002:a05:690c:690f:b0:737:6973:fca8 with SMTP id 00721157ae682-73d3e2a15cdmr22403297b3.51.1758274612340;
-        Fri, 19 Sep 2025 02:36:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEcPKXVRQHM5BX6WlYQ2cBNEMEDhW1rNSC30sedm/I330JAJc5f9vDousTwUFG5/BlT/57DXfjYaIWiVnMmx4Q=
-X-Received: by 2002:a05:690c:690f:b0:737:6973:fca8 with SMTP id
- 00721157ae682-73d3e2a15cdmr22403137b3.51.1758274611905; Fri, 19 Sep 2025
- 02:36:51 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1758283721; x=1758888521;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ddOV/4AeMTKAaTlLO+S2d6s4wCcUbRWR+oBWKnZEc/A=;
+        b=MgX+/ZzOLoHMKGCSHcd7wEnv9oRGZWXxXenkUESW1uJY0Rm6pwSk3f4g9nseAAQrov
+         2k8Ig+AwOAdX2KF0ukzCoArgo3feQ6gkqWJeCq//G2RZ2oSXbRt8Pgk2AoT4PTnmNGG/
+         gwwEgZWME4TRqrpj+VG5NBI3bfTDzca10l/PrvN5zl7vcymFQ3rUhh3tfV1kSXLtKZdc
+         VR5/UYEPKDypZGrSO46px/WokSTBuYsE8r6RSBjDPkzFwKAfCw7oDibVR4BaylGS3c6q
+         qHFiXQmjEb8WXryLT83ewo9Yv6aKDbCIe/WH/5N4ltd9MDbIyLNqeSaxRBVuUmJEhg+x
+         lWIQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVpxKnmZcL7xx2isQuhXSil/vR/mjQJVKXMx5iqpEx3sq4FmxKvbsBitXI/EAckeub+iA1pOMb/p6378Ad2ag==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw3aRLjqhA/R/Vf5n1ux1/SeJss1d1f24HYzswMcX9fvotAIj/7
+	Nms/cYV9+Zl5qUU6lTCbK5n2h0Zs+sMrkQq2uX5hdaQ4bU84f3gHy/B1IJkdDVeV88Y=
+X-Gm-Gg: ASbGnct4l2CwTOHnqjdUYltznRf9GoxBYVN42OQ/kIOCYOIWYt8Kpnh97APNom9o3FC
+	euQsvQTOXh7ydCY1NNkWEEGNtEeUTsHeZvWPI/S8f8ihkacNyqKU4TAneRbITPAlzftM33nReMB
+	B/vbBp6FmoLAT0IfIubQFXfl/m+Vx653nT+DCNLGtuWjFi73o15bZ9ZeB6YYx3L7KsfaSn4SIou
+	i3pgxKZvYANtWG4MzGEBFHcijPzugtZkzKBEQ1i2U7Gyi/I4/uVtPkpBtU5NN4QJm+QguqZUJVd
+	kUA7Vva5XIw4hLN0WlNpt9nvOL893wUDQRZWrS51bBGZh3IsHpEMTJbPwWgubUoPpZuwWPDeQKH
+	+QGKnhSQ=
+X-Google-Smtp-Source: AGHT+IFaCWGfMylYUS564NQsUR0mWVuwnX1ZTO8LwVtBeK6iF/UthAXLSHYAnBZ/pCpVTkoFVFyzFQ==
+X-Received: by 2002:a05:6820:2285:b0:621:7820:a28 with SMTP id 006d021491bc7-6272abee5f2mr1140086eaf.8.1758283721447;
+        Fri, 19 Sep 2025 05:08:41 -0700 (PDT)
+Received: from ziepe.ca ([130.41.10.202])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7692a973dc1sm2326849a34.30.2025.09.19.05.08.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Sep 2025 05:08:40 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1uzZup-000000097kO-1FuO;
+	Fri, 19 Sep 2025 09:08:39 -0300
+Date: Fri, 19 Sep 2025 09:08:39 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Will Deacon <will@kernel.org>
+Cc: Shyam Saini <shyamsaini@linux.microsoft.com>, thierry.reding@gmail.com,
+	robin.murphy@arm.com, robh@kernel.org, joro@8bytes.org,
+	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
+	jacob.pan@linux.microsoft.com, eric.auger@redhat.com,
+	code@tyhicks.com, eahariha@linux.microsoft.com,
+	vijayb@linux.microsoft.com, bboscaccy@linux.microsoft.com,
+	saravanak@google.com, krzk+dt@kernel.org, conor+dt@kernel.org,
+	lizhi.hou@amd.com, clement.leger@bootlin.com
+Subject: Re: [PATCH v4 3/4] arm-smmu: select suitable MSI IOVA
+Message-ID: <20250919120839.GV1326709@ziepe.ca>
+References: <20250909154600.910110-1-shyamsaini@linux.microsoft.com>
+ <20250909154600.910110-4-shyamsaini@linux.microsoft.com>
+ <aMw4I0AjKNPY6SOw@willie-the-truck>
+ <20250918224322.GR1326709@ziepe.ca>
+ <aM0HQ51DelZW_Rt8@willie-the-truck>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250919093231.960393-1-eperezma@redhat.com>
-In-Reply-To: <20250919093231.960393-1-eperezma@redhat.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Fri, 19 Sep 2025 11:36:15 +0200
-X-Gm-Features: AS18NWBUmghOHNLPQI_96FL6YYrZHCEaA7Y_8tydnZj0vxyJbupjglhz-WKCBg8
-Message-ID: <CAJaqyWcymm-O+ED2veDojVhcH1pAnekYLnYXe_P-9VA3rOcuQg@mail.gmail.com>
-Subject: Re: [PATCH v3 0/6] Add multiple address spaces support to VDUSE
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Maxime Coquelin <mcoqueli@redhat.com>, jasowang@redhat.com, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
-	Laurent Vivier <lvivier@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Yongji Xie <xieyongji@bytedance.com>, Cindy Lu <lulu@redhat.com>, 
-	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: P-gFaY0sZNIoAKyNt62HSKFae-eNHmAb5kEfcgiIUtk_1758274612
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aM0HQ51DelZW_Rt8@willie-the-truck>
 
-On Fri, Sep 19, 2025 at 11:32=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redha=
-t.com> wrote:
->
+On Fri, Sep 19, 2025 at 08:33:23AM +0100, Will Deacon wrote:
+> pieces and will need to work on the userspace side. It's not like
+> MSI_IOVA2 is magically going to work (and I bet it won't be tested).
 
-[...]
+It could, if someone checks the default memory map a second constant
+could be selected that works.
 
-Sorry I hit Ctrl-C in the wrong terminal, so this series lacks the
-final patches.
+> > Nicolin has some patches on the iommufd side to let userspace select
+> > the MSI address instead, but they are not done yet.
+> 
+> Maybe we should just wait for that? Carrying a temporary hack with ABI
+> implications to support broken hardware isn't particularly compelling
+> to me.
 
+This patch would still be needed for kernel users.
+
+Arguably the kernel users should just be using the iova allocator from
+dma-iommu.c. This whole hard coded constant/sneaky uapi is just a hack
+to make vfio work..
+
+So maybe if the single constant doesn't work we could set some
+indication that the caller must allocate the MSI iova, the kernel can
+use the dma-iommu allocator and VFIO can just refuse to use the device
+for now.
+
+Jason
