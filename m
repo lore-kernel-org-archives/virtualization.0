@@ -1,85 +1,67 @@
-Received: from mail-oo1-f44.google.com (mail-oo1-f44.google.com [209.85.161.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 728DE3093C9
-	for <virtualization@lists.linux.dev>; Fri, 19 Sep 2025 12:08:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87D7A23C4F3;
+	Fri, 19 Sep 2025 16:08:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758283724; cv=none; b=q+8695ymHjHJUo0zFGaRXhaM7ontEMBdTazXdfUqEajsBmQLnhQ+MC6CY1D2JaR92/wzdMuduG4wuUXDKYx+E3vkyi4UeHFE+i9MV1zxbFNd2qtUD/rBZq/BHOgWL77tthApqMt/K6adppxrFlfLxwSUNc3lgyJcZbwjOxRHLrc=
+	t=1758298105; cv=none; b=jq7bWO0EBeqSSdueRBdq/Fbnu6RfoshKz3yaHLQg95gJN9v9BmoDvmGvRKPUAWtz8rjBmMCrvCUX6q7+NzjwbpiEZG8LdN/vGVtQIA47Mb0vwqpad14nmcZU/mcOqG+l1BUxkKs0TRFRV9+7DLpnV+QADkvvRBc/62fgNwr0fdE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758283724; c=relaxed/simple;
-	bh=PU4BzVSUM6uCKa5w2l6OSfoECkEW3DTQ8YYJ6WsGxgA=;
+	s=arc-20240116; t=1758298105; c=relaxed/simple;
+	bh=KR7+2nE82F6C0RiPmuqmiCYxfBNwhzjUQ6Re6K7PmkQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EvPv0FgUmtMy2m2Xsjn97VYCKp/rVCe8mgQ9wippoWNG6EIYjJ2ZnWzsgeUOrTAT0LW8gxDsJ1+60q9qCDLd2qJICZ375whl0i9X/4GuT8X8o1Wji9+po8H8ppvthV5rGA6iDvCHMwiaAKrWKGenPmrMkG5BmbpPh53Dx6Ic5ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=NM5faOPK; arc=none smtp.client-ip=209.85.161.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	 Content-Type:Content-Disposition:In-Reply-To; b=kP7hh39fxv0P9Ur5m66GUvw/XTGzMByZZsmW/tM7RXY/mOp1i+FjN5HY6nnWjW7kNP2Ee2CmM0JHrb5QLd+rw0A0BYGcw6Pcg+kplV7/ELLUufKYJKsuGclGCmG3adNlDzRblWYXb+95Y/eThf8Zea1AorOa8qe45sYo992glfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gxcwNWOd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="NM5faOPK"
-Received: by mail-oo1-f44.google.com with SMTP id 006d021491bc7-6234995098eso1184822eaf.3
-        for <virtualization@lists.linux.dev>; Fri, 19 Sep 2025 05:08:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1758283721; x=1758888521; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ddOV/4AeMTKAaTlLO+S2d6s4wCcUbRWR+oBWKnZEc/A=;
-        b=NM5faOPKVeGO7OjDsQsb/kScnAlkMlNFQLKuRGZu3eliqIUtYMGOKu4MSztvFXSA8u
-         3p8+BUvdva99GmiPvIAdaKTsj5WhJKPXSlV7ug9b90uifo8AK2mUxla8i4KGDNaX1HsJ
-         1BlDsXe6Jia88E+SNGgnbl2Og2YZ/OF2Y57U0cupj469mUJfuGePXac3V6mRmCqKcDzY
-         oLUhYj/vHpEZHB5JrOkJRB+mpgK/4s+yCNuh9+EugGaFrVFQmCRZ3o1xhFmd/DnuEdyq
-         Pq3NwkqZE7KjPgulME4PPdA7+RGudPp+b3MpDDH7csicxRztjsDwoxODGnBzOMqgQ11/
-         QbNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758283721; x=1758888521;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ddOV/4AeMTKAaTlLO+S2d6s4wCcUbRWR+oBWKnZEc/A=;
-        b=MgX+/ZzOLoHMKGCSHcd7wEnv9oRGZWXxXenkUESW1uJY0Rm6pwSk3f4g9nseAAQrov
-         2k8Ig+AwOAdX2KF0ukzCoArgo3feQ6gkqWJeCq//G2RZ2oSXbRt8Pgk2AoT4PTnmNGG/
-         gwwEgZWME4TRqrpj+VG5NBI3bfTDzca10l/PrvN5zl7vcymFQ3rUhh3tfV1kSXLtKZdc
-         VR5/UYEPKDypZGrSO46px/WokSTBuYsE8r6RSBjDPkzFwKAfCw7oDibVR4BaylGS3c6q
-         qHFiXQmjEb8WXryLT83ewo9Yv6aKDbCIe/WH/5N4ltd9MDbIyLNqeSaxRBVuUmJEhg+x
-         lWIQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVpxKnmZcL7xx2isQuhXSil/vR/mjQJVKXMx5iqpEx3sq4FmxKvbsBitXI/EAckeub+iA1pOMb/p6378Ad2ag==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw3aRLjqhA/R/Vf5n1ux1/SeJss1d1f24HYzswMcX9fvotAIj/7
-	Nms/cYV9+Zl5qUU6lTCbK5n2h0Zs+sMrkQq2uX5hdaQ4bU84f3gHy/B1IJkdDVeV88Y=
-X-Gm-Gg: ASbGnct4l2CwTOHnqjdUYltznRf9GoxBYVN42OQ/kIOCYOIWYt8Kpnh97APNom9o3FC
-	euQsvQTOXh7ydCY1NNkWEEGNtEeUTsHeZvWPI/S8f8ihkacNyqKU4TAneRbITPAlzftM33nReMB
-	B/vbBp6FmoLAT0IfIubQFXfl/m+Vx653nT+DCNLGtuWjFi73o15bZ9ZeB6YYx3L7KsfaSn4SIou
-	i3pgxKZvYANtWG4MzGEBFHcijPzugtZkzKBEQ1i2U7Gyi/I4/uVtPkpBtU5NN4QJm+QguqZUJVd
-	kUA7Vva5XIw4hLN0WlNpt9nvOL893wUDQRZWrS51bBGZh3IsHpEMTJbPwWgubUoPpZuwWPDeQKH
-	+QGKnhSQ=
-X-Google-Smtp-Source: AGHT+IFaCWGfMylYUS564NQsUR0mWVuwnX1ZTO8LwVtBeK6iF/UthAXLSHYAnBZ/pCpVTkoFVFyzFQ==
-X-Received: by 2002:a05:6820:2285:b0:621:7820:a28 with SMTP id 006d021491bc7-6272abee5f2mr1140086eaf.8.1758283721447;
-        Fri, 19 Sep 2025 05:08:41 -0700 (PDT)
-Received: from ziepe.ca ([130.41.10.202])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7692a973dc1sm2326849a34.30.2025.09.19.05.08.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Sep 2025 05:08:40 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1uzZup-000000097kO-1FuO;
-	Fri, 19 Sep 2025 09:08:39 -0300
-Date: Fri, 19 Sep 2025 09:08:39 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Will Deacon <will@kernel.org>
-Cc: Shyam Saini <shyamsaini@linux.microsoft.com>, thierry.reding@gmail.com,
-	robin.murphy@arm.com, robh@kernel.org, joro@8bytes.org,
-	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
-	jacob.pan@linux.microsoft.com, eric.auger@redhat.com,
-	code@tyhicks.com, eahariha@linux.microsoft.com,
-	vijayb@linux.microsoft.com, bboscaccy@linux.microsoft.com,
-	saravanak@google.com, krzk+dt@kernel.org, conor+dt@kernel.org,
-	lizhi.hou@amd.com, clement.leger@bootlin.com
-Subject: Re: [PATCH v4 3/4] arm-smmu: select suitable MSI IOVA
-Message-ID: <20250919120839.GV1326709@ziepe.ca>
-References: <20250909154600.910110-1-shyamsaini@linux.microsoft.com>
- <20250909154600.910110-4-shyamsaini@linux.microsoft.com>
- <aMw4I0AjKNPY6SOw@willie-the-truck>
- <20250918224322.GR1326709@ziepe.ca>
- <aM0HQ51DelZW_Rt8@willie-the-truck>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gxcwNWOd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76C8EC4CEF0;
+	Fri, 19 Sep 2025 16:08:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758298105;
+	bh=KR7+2nE82F6C0RiPmuqmiCYxfBNwhzjUQ6Re6K7PmkQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gxcwNWOdwyYYCt/Mr4IoNw/QjfiG4fCy9ykIixLtIZgzxpvEaTh0ZrsRzbEkVlnG2
+	 m8b1wOyRgj64SHlplGanM4IqWdr6Ywznq35IYlrDTPSiuH1HbSJA9OSV6F3cLQ0fmv
+	 gIfqZUpL6QTaZY7lchfgfbbV/HzPQ9GlWuIYB09YAq8LPsugW8lRkDPp3pD3pmqfjH
+	 MMDTa/BarqpIPeeM6zxgfbm5MTp42dkz6/ahu8QcAFUE+eO/S+U7a/1bN3BopMvk86
+	 +JRB492i+MxOTtI0yVlp8MJ781GY30PjuvtN+/6jEMPcnyQy8X2xhocLeJS5gf/FQl
+	 TeUW9JwC+yaOg==
+Date: Fri, 19 Sep 2025 10:08:21 -0600
+From: Keith Busch <kbusch@kernel.org>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
+	Jason Gunthorpe <jgg@nvidia.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Alex Gaynor <alex.gaynor@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
+	David Hildenbrand <david@redhat.com>, iommu@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+	Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>,
+	Juergen Gross <jgross@suse.com>, kasan-dev@googlegroups.com,
+	linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-trace-kernel@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v6 00/16] dma-mapping: migrate to physical address-based
+ API
+Message-ID: <aM1_9cS_LGl4GFC5@kbusch-mbp>
+References: <CGME20250909132821eucas1p1051ce9e0270ddbf520e105c913fa8db6@eucas1p1.samsung.com>
+ <cover.1757423202.git.leonro@nvidia.com>
+ <0db9bce5-40df-4cf5-85ab-f032c67d5c71@samsung.com>
+ <20250912090327.GU341237@unreal>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -88,31 +70,70 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aM0HQ51DelZW_Rt8@willie-the-truck>
+In-Reply-To: <20250912090327.GU341237@unreal>
 
-On Fri, Sep 19, 2025 at 08:33:23AM +0100, Will Deacon wrote:
-> pieces and will need to work on the userspace side. It's not like
-> MSI_IOVA2 is magically going to work (and I bet it won't be tested).
-
-It could, if someone checks the default memory map a second constant
-could be selected that works.
-
-> > Nicolin has some patches on the iommufd side to let userspace select
-> > the MSI address instead, but they are not done yet.
+On Fri, Sep 12, 2025 at 12:03:27PM +0300, Leon Romanovsky wrote:
+> On Fri, Sep 12, 2025 at 12:25:38AM +0200, Marek Szyprowski wrote:
+> > >
+> > > This series does the core code and modern flows. A followup series
+> > > will give the same treatment to the legacy dma_ops implementation.
+> > 
+> > Applied patches 1-13 into dma-mapping-for-next branch. Let's check if it 
+> > works fine in linux-next.
 > 
-> Maybe we should just wait for that? Carrying a temporary hack with ABI
-> implications to support broken hardware isn't particularly compelling
-> to me.
+> Thanks a lot.
 
-This patch would still be needed for kernel users.
+Just fyi, when dma debug is enabled, we're seeing this new warning
+below. I have not had a chance to look into it yet, so I'm just
+reporting the observation.
 
-Arguably the kernel users should just be using the iova allocator from
-dma-iommu.c. This whole hard coded constant/sneaky uapi is just a hack
-to make vfio work..
+ DMA-API: nvme 0006:01:00.0: cacheline tracking EEXIST, overlapping mappings aren't supported
+ WARNING: kernel/dma/debug.c:598 at add_dma_entry+0x26c/0x328, CPU#1: (udev-worker)/773
+ Modules linked in: acpi_power_meter(E) loop(E) efivarfs(E) autofs4(E)
+ CPU: 1 UID: 0 PID: 773 Comm: (udev-worker) Tainted: G            E    N  6.17.0-rc6-next-20250918-debug #6 PREEMPT(none)
+ Tainted: [E]=UNSIGNED_MODULE, [N]=TEST
+ pstate: 63400009 (nZCv daif +PAN -UAO +TCO +DIT -SSBS BTYPE=--)
+ pc : add_dma_entry+0x26c/0x328
+ lr : add_dma_entry+0x26c/0x328
+ sp : ffff80009fe0f460
+ x29: ffff80009fe0f470 x28: 0000000000000001 x27: 0000000000000001
+ x26: ffff8000835d7f38 x25: ffff8000835d7000 x24: ffff8000835d7e60
+ x23: 0000000000000000 x22: 0000000006e2cc00 x21: 0000000000000000
+ x20: ffff800082e8f218 x19: ffff0000a908ff80 x18: 00000000ffffffff
+ x17: ffff8000801972a0 x16: ffff800080197054 x15: 0000000000000000
+ x14: 0000000000000000 x13: 0000000000000004 x12: 0000000000020006
+ x11: 0000000030e4ef9f x10: ffff800083443358 x9 : ffff80008019499c
+ x8 : 00000000fffeffff x7 : ffff800083443358 x6 : 0000000000000000
+ x5 : 00000000000bfff4 x4 : 0000000000000000 x3 : ffff0000bb005ac0
+ x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff0000bb005ac0
+ Call trace:
+  add_dma_entry+0x26c/0x328 (P)
+  debug_dma_map_phys+0xc4/0xf0
+  dma_map_phys+0xe0/0x410
+  dma_map_page_attrs+0x94/0xf8
+  blk_dma_map_direct.isra.0+0x64/0xb8
+  blk_rq_dma_map_iter_next+0x6c/0xc8
+  nvme_prep_rq+0x894/0xa98
+  nvme_queue_rqs+0xb0/0x1a0
+  blk_mq_dispatch_queue_requests+0x268/0x3b8
+  blk_mq_flush_plug_list+0x90/0x188
+  __blk_flush_plug+0x104/0x170
+  blk_finish_plug+0x38/0x50
+  read_pages+0x1a4/0x3b8
+  page_cache_ra_unbounded+0x1a0/0x400
+  force_page_cache_ra+0xa8/0xd8
+  page_cache_sync_ra+0xa0/0x3f8
+  filemap_get_pages+0x104/0x950
+  filemap_read+0xf4/0x498
+  blkdev_read_iter+0x88/0x180
+  vfs_read+0x214/0x310
+  ksys_read+0x70/0x110
+  __arm64_sys_read+0x20/0x30
+  invoke_syscall+0x4c/0x118
+  el0_svc_common.constprop.0+0xc4/0xf0
+  do_el0_svc+0x24/0x38
+  el0_svc+0x1a0/0x340
+  el0t_64_sync_handler+0x98/0xe0
+  el0t_64_sync+0x17c/0x180
+ ---[ end trace 0000000000000000 ]---
 
-So maybe if the single constant doesn't work we could set some
-indication that the caller must allocate the MSI iova, the kernel can
-use the dma-iommu allocator and VFIO can just refuse to use the device
-for now.
-
-Jason
