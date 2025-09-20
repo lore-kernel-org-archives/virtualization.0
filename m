@@ -1,81 +1,68 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 170DAB663
-	for <virtualization@lists.linux-foundation.org>; Sat, 20 Sep 2025 14:49:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C4CD2AEF5;
+	Sat, 20 Sep 2025 15:53:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758379761; cv=none; b=knQj8tDNxSOCbWc1W4fQYyIdwS4/UOv/6TUC1AeXNiLiE3vBXG6z3yrLg6+hijGURVSFavu137pfnpZzCdnm0ylM9Ikz0+1U1Fz1mOmfnjrL12EyBV3qK0ZQGY/CkwlhFi104owO+JmUx5DfrRF0GuCY0Lj2cMluuRwoieXvD8M=
+	t=1758383637; cv=none; b=kUXMETKPxepL2rst9jYPXHZa0bS+a4u/WALgjTXLLhsCDihPUHYrwQb6WdjtfHIWoOiOmA8yU8yTSe1AdgcaJCePQ73nj/CY/iT1mzHXR+I8sUKVELySVt4SB7IEY6r/+RWuyHRL86WZms4N+xKdi2NBM45RgqB3otouDwOx65M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758379761; c=relaxed/simple;
-	bh=8ESeYby+VBnGxoL4sKU6AzMNuckA9rBZYz1Tl2yfc9U=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=LczDz63ePEy8iAdw5nDo3QxWvj7f28245lnvw+h35RzzpEhEG3s4qJKxQgYnNDCDLzhWTRHIRJXZNB5htngqOdBVsvgTPSO3Sj1xIezVq/FVG7pf1MGrmzFwijFsHtAvpQbgpGikTvr8+c6sajl5aJqYzT+aYwki8oCFzzvAujM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fq+uTdl4; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1758383637; c=relaxed/simple;
+	bh=74lAPVg94TJI1UJYgpgsOH2UQdl5PvTbgBIsxqD4zKU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BU9XaLw1JCW8sj+8Kv6rILFGDKTLXl5lL0N3WXSwwTpdn1CF462vALRrnMwspp2jNBymRNthnEJLypdU0bwHS00En3s3Z5qNWbWcV0t8IoeM9UXQol576VzAOoT9P8nfoAUMDS9xZNfeSfmyfvybVIIbIt5Lei/kTk5BTVZ3A64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qbW+7cTt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fq+uTdl4"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 96F6B415F1
-	for <virtualization@lists.linux-foundation.org>; Sat, 20 Sep 2025 14:49:19 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -8.092
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 4gj-cTOGxbRy for <virtualization@lists.linux-foundation.org>;
- Sat, 20 Sep 2025 14:49:18 +0000 (UTC)
-X-Greylist: delayed 428 seconds by postgrey-1.37 at util1.osuosl.org; Sat, 20 Sep 2025 14:49:18 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 65312415E0
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 65312415E0
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=fq+uTdl4
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.17; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 65312415E0
-	for <virtualization@lists.linux-foundation.org>; Sat, 20 Sep 2025 14:49:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1758379759; x=1789915759;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=8ESeYby+VBnGxoL4sKU6AzMNuckA9rBZYz1Tl2yfc9U=;
-  b=fq+uTdl44n7nzaHiVscH1fIvctDam6CGNP+d1rrGhkRa6eG1KOqN8/nm
-   88dW6Rf4iUuLQ/qP5xWrHb+GnLLqvVhUf2kCDYDmLt2gVoeH8bkD9yZvm
-   P3UKFBAtdEc4O8j9IT4xtpnGzkPhvyhTwSRZXyy/ehMP6+W+hOgRD9e5c
-   kMC27OqEwobk4gMo3j2ND29aF2CjKWtYFtMMsR6WQizeFgDzDBkzSVEuO
-   7mc2Dgrlfvop+wSBQDXGgasdImHF9Zra6dMOOnyEA1iHDquWWgwzKTHs1
-   CAg6fEBskNrEoG20XYdOlhFzUT03c2g6B6tC/bE4n7uLRHSVvT1mrd93I
-   Q==;
-X-CSE-ConnectionGUID: j11KjpjHQ0GYOZSTQrMQSg==
-X-CSE-MsgGUID: Cpz667FmRkGdB2uyv0EtAw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="60645900"
-X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
-   d="scan'208";a="60645900"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2025 07:42:10 -0700
-X-CSE-ConnectionGUID: oLTEyd53SQGIys1VP2VHIA==
-X-CSE-MsgGUID: 8S919d3NRSSML7Z5SxHNpw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.18,281,1751266800"; 
-   d="scan'208";a="206832999"
-Received: from lkp-server01.sh.intel.com (HELO 84a20bd60769) ([10.239.97.150])
-  by orviesa002.jf.intel.com with ESMTP; 20 Sep 2025 07:42:08 -0700
-Received: from kbuild by 84a20bd60769 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1uzymq-0005O7-15;
-	Sat, 20 Sep 2025 14:42:04 +0000
-Date: Sat, 20 Sep 2025 22:41:40 +0800
-From: kernel test robot <lkp@intel.com>
-To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [mst-vhost:vhost 41/44] drivers/vdpa/pds/vdpa_dev.c:590:19: error:
- incompatible function pointer types initializing 's64 (*)(struct vdpa_device
- *, u16)' (aka 'long long (*)(struct vdpa_device *, unsigned short)') with an
- expression of type 'u32 (struct vdpa_device *, u16)' (aka ...
-Message-ID: <202509202256.zVt4MifB-lkp@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qbW+7cTt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60277C4CEEB;
+	Sat, 20 Sep 2025 15:53:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758383637;
+	bh=74lAPVg94TJI1UJYgpgsOH2UQdl5PvTbgBIsxqD4zKU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=qbW+7cTtf3ZC80yzIDcC6P8YiS7RGpwlDTYrGzG6j13dnssuecjvDInjgO1NGXAWT
+	 hwAQh0KbTGofBujeWDAzo8uyHyjnB4klpbdUcdr3KuR2vqLH1ociavVauQR6s6LM4C
+	 wtVOvrFkt2iXYZs5fqCArx+bz0wZR2AOL0I2MwUCesz5LxbYvHr8I0E7tiQwcKX2mh
+	 /6u8BUT9rHwxjmbaoEZQ7oL93zaaJmT1SbIoB4zqQPQjKbmP8WBwznCmHZDgor62TB
+	 Nrccq2E0zXdIiG+Jydr5UoWaXp7Rok6i3H1DFwLNWMk9eGO4TL+3lE8Pzt1MNtveO6
+	 UwT9ZhNinKNOQ==
+Date: Sat, 20 Sep 2025 18:53:52 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Keith Busch <kbusch@kernel.org>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
+	Jason Gunthorpe <jgg@nvidia.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Alex Gaynor <alex.gaynor@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
+	David Hildenbrand <david@redhat.com>, iommu@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+	Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>,
+	Juergen Gross <jgross@suse.com>, kasan-dev@googlegroups.com,
+	linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-trace-kernel@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v6 00/16] dma-mapping: migrate to physical address-based
+ API
+Message-ID: <20250920155352.GH10800@unreal>
+References: <CGME20250909132821eucas1p1051ce9e0270ddbf520e105c913fa8db6@eucas1p1.samsung.com>
+ <cover.1757423202.git.leonro@nvidia.com>
+ <0db9bce5-40df-4cf5-85ab-f032c67d5c71@samsung.com>
+ <20250912090327.GU341237@unreal>
+ <aM1_9cS_LGl4GFC5@kbusch-mbp>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -84,70 +71,78 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <aM1_9cS_LGl4GFC5@kbusch-mbp>
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
-head:   877102ca14b3ee9b5343d71f6420f036baf8a9fc
-commit: 2951c77700c3944ecd991ede7ee77e31f47f24ab [41/44] vduse: add vq group support
-config: loongarch-randconfig-001-20250920 (https://download.01.org/0day-ci/archive/20250920/202509202256.zVt4MifB-lkp@intel.com/config)
-compiler: clang version 22.0.0git (https://github.com/llvm/llvm-project 7c861bcedf61607b6c087380ac711eb7ff918ca6)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250920/202509202256.zVt4MifB-lkp@intel.com/reproduce)
+On Fri, Sep 19, 2025 at 10:08:21AM -0600, Keith Busch wrote:
+> On Fri, Sep 12, 2025 at 12:03:27PM +0300, Leon Romanovsky wrote:
+> > On Fri, Sep 12, 2025 at 12:25:38AM +0200, Marek Szyprowski wrote:
+> > > >
+> > > > This series does the core code and modern flows. A followup series
+> > > > will give the same treatment to the legacy dma_ops implementation.
+> > > 
+> > > Applied patches 1-13 into dma-mapping-for-next branch. Let's check if it 
+> > > works fine in linux-next.
+> > 
+> > Thanks a lot.
+> 
+> Just fyi, when dma debug is enabled, we're seeing this new warning
+> below. I have not had a chance to look into it yet, so I'm just
+> reporting the observation.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202509202256.zVt4MifB-lkp@intel.com/
+Did you apply all patches or only Marek's branch?
+I don't get this warning when I run my NVMe tests on current dmabuf-vfio branch.
 
-All errors (new ones prefixed by >>):
+Thanks
 
->> drivers/vdpa/pds/vdpa_dev.c:590:19: error: incompatible function pointer types initializing 's64 (*)(struct vdpa_device *, u16)' (aka 'long long (*)(struct vdpa_device *, unsigned short)') with an expression of type 'u32 (struct vdpa_device *, u16)' (aka 'unsigned int (struct vdpa_device *, unsigned short)') [-Wincompatible-function-pointer-types]
-     590 |         .get_vq_group           = pds_vdpa_get_vq_group,
-         |                                   ^~~~~~~~~~~~~~~~~~~~~
-   1 error generated.
-
-
-vim +590 drivers/vdpa/pds/vdpa_dev.c
-
-151cc834f3ddafe Shannon Nelson 2023-05-19  577  
-151cc834f3ddafe Shannon Nelson 2023-05-19  578  static const struct vdpa_config_ops pds_vdpa_ops = {
-151cc834f3ddafe Shannon Nelson 2023-05-19  579  	.set_vq_address		= pds_vdpa_set_vq_address,
-151cc834f3ddafe Shannon Nelson 2023-05-19  580  	.set_vq_num		= pds_vdpa_set_vq_num,
-151cc834f3ddafe Shannon Nelson 2023-05-19  581  	.kick_vq		= pds_vdpa_kick_vq,
-151cc834f3ddafe Shannon Nelson 2023-05-19  582  	.set_vq_cb		= pds_vdpa_set_vq_cb,
-151cc834f3ddafe Shannon Nelson 2023-05-19  583  	.set_vq_ready		= pds_vdpa_set_vq_ready,
-151cc834f3ddafe Shannon Nelson 2023-05-19  584  	.get_vq_ready		= pds_vdpa_get_vq_ready,
-151cc834f3ddafe Shannon Nelson 2023-05-19  585  	.set_vq_state		= pds_vdpa_set_vq_state,
-151cc834f3ddafe Shannon Nelson 2023-05-19  586  	.get_vq_state		= pds_vdpa_get_vq_state,
-151cc834f3ddafe Shannon Nelson 2023-05-19  587  	.get_vq_notification	= pds_vdpa_get_vq_notification,
-151cc834f3ddafe Shannon Nelson 2023-05-19  588  	.get_vq_irq		= pds_vdpa_get_vq_irq,
-151cc834f3ddafe Shannon Nelson 2023-05-19  589  	.get_vq_align		= pds_vdpa_get_vq_align,
-151cc834f3ddafe Shannon Nelson 2023-05-19 @590  	.get_vq_group		= pds_vdpa_get_vq_group,
-151cc834f3ddafe Shannon Nelson 2023-05-19  591  
-151cc834f3ddafe Shannon Nelson 2023-05-19  592  	.get_device_features	= pds_vdpa_get_device_features,
-151cc834f3ddafe Shannon Nelson 2023-05-19  593  	.set_driver_features	= pds_vdpa_set_driver_features,
-151cc834f3ddafe Shannon Nelson 2023-05-19  594  	.get_driver_features	= pds_vdpa_get_driver_features,
-151cc834f3ddafe Shannon Nelson 2023-05-19  595  	.set_config_cb		= pds_vdpa_set_config_cb,
-151cc834f3ddafe Shannon Nelson 2023-05-19  596  	.get_vq_num_max		= pds_vdpa_get_vq_num_max,
-151cc834f3ddafe Shannon Nelson 2023-05-19  597  	.get_device_id		= pds_vdpa_get_device_id,
-151cc834f3ddafe Shannon Nelson 2023-05-19  598  	.get_vendor_id		= pds_vdpa_get_vendor_id,
-151cc834f3ddafe Shannon Nelson 2023-05-19  599  	.get_status		= pds_vdpa_get_status,
-151cc834f3ddafe Shannon Nelson 2023-05-19  600  	.set_status		= pds_vdpa_set_status,
-151cc834f3ddafe Shannon Nelson 2023-05-19  601  	.reset			= pds_vdpa_reset,
-151cc834f3ddafe Shannon Nelson 2023-05-19  602  	.get_config_size	= pds_vdpa_get_config_size,
-151cc834f3ddafe Shannon Nelson 2023-05-19  603  	.get_config		= pds_vdpa_get_config,
-151cc834f3ddafe Shannon Nelson 2023-05-19  604  	.set_config		= pds_vdpa_set_config,
-151cc834f3ddafe Shannon Nelson 2023-05-19  605  };
-25d1270b6e9ea89 Shannon Nelson 2023-05-19  606  static struct virtio_device_id pds_vdpa_id_table[] = {
-25d1270b6e9ea89 Shannon Nelson 2023-05-19  607  	{VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID},
-25d1270b6e9ea89 Shannon Nelson 2023-05-19  608  	{0},
-25d1270b6e9ea89 Shannon Nelson 2023-05-19  609  };
-25d1270b6e9ea89 Shannon Nelson 2023-05-19  610  
-
-:::::: The code at line 590 was first introduced by commit
-:::::: 151cc834f3ddafec869269fe48036460d920d08a pds_vdpa: add support for vdpa and vdpamgmt interfaces
-
-:::::: TO: Shannon Nelson <shannon.nelson@amd.com>
-:::::: CC: Michael S. Tsirkin <mst@redhat.com>
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+> 
+>  DMA-API: nvme 0006:01:00.0: cacheline tracking EEXIST, overlapping mappings aren't supported
+>  WARNING: kernel/dma/debug.c:598 at add_dma_entry+0x26c/0x328, CPU#1: (udev-worker)/773
+>  Modules linked in: acpi_power_meter(E) loop(E) efivarfs(E) autofs4(E)
+>  CPU: 1 UID: 0 PID: 773 Comm: (udev-worker) Tainted: G            E    N  6.17.0-rc6-next-20250918-debug #6 PREEMPT(none)
+>  Tainted: [E]=UNSIGNED_MODULE, [N]=TEST
+>  pstate: 63400009 (nZCv daif +PAN -UAO +TCO +DIT -SSBS BTYPE=--)
+>  pc : add_dma_entry+0x26c/0x328
+>  lr : add_dma_entry+0x26c/0x328
+>  sp : ffff80009fe0f460
+>  x29: ffff80009fe0f470 x28: 0000000000000001 x27: 0000000000000001
+>  x26: ffff8000835d7f38 x25: ffff8000835d7000 x24: ffff8000835d7e60
+>  x23: 0000000000000000 x22: 0000000006e2cc00 x21: 0000000000000000
+>  x20: ffff800082e8f218 x19: ffff0000a908ff80 x18: 00000000ffffffff
+>  x17: ffff8000801972a0 x16: ffff800080197054 x15: 0000000000000000
+>  x14: 0000000000000000 x13: 0000000000000004 x12: 0000000000020006
+>  x11: 0000000030e4ef9f x10: ffff800083443358 x9 : ffff80008019499c
+>  x8 : 00000000fffeffff x7 : ffff800083443358 x6 : 0000000000000000
+>  x5 : 00000000000bfff4 x4 : 0000000000000000 x3 : ffff0000bb005ac0
+>  x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff0000bb005ac0
+>  Call trace:
+>   add_dma_entry+0x26c/0x328 (P)
+>   debug_dma_map_phys+0xc4/0xf0
+>   dma_map_phys+0xe0/0x410
+>   dma_map_page_attrs+0x94/0xf8
+>   blk_dma_map_direct.isra.0+0x64/0xb8
+>   blk_rq_dma_map_iter_next+0x6c/0xc8
+>   nvme_prep_rq+0x894/0xa98
+>   nvme_queue_rqs+0xb0/0x1a0
+>   blk_mq_dispatch_queue_requests+0x268/0x3b8
+>   blk_mq_flush_plug_list+0x90/0x188
+>   __blk_flush_plug+0x104/0x170
+>   blk_finish_plug+0x38/0x50
+>   read_pages+0x1a4/0x3b8
+>   page_cache_ra_unbounded+0x1a0/0x400
+>   force_page_cache_ra+0xa8/0xd8
+>   page_cache_sync_ra+0xa0/0x3f8
+>   filemap_get_pages+0x104/0x950
+>   filemap_read+0xf4/0x498
+>   blkdev_read_iter+0x88/0x180
+>   vfs_read+0x214/0x310
+>   ksys_read+0x70/0x110
+>   __arm64_sys_read+0x20/0x30
+>   invoke_syscall+0x4c/0x118
+>   el0_svc_common.constprop.0+0xc4/0xf0
+>   do_el0_svc+0x24/0x38
+>   el0_svc+0x1a0/0x340
+>   el0t_64_sync_handler+0x98/0xe0
+>   el0t_64_sync+0x17c/0x180
+>  ---[ end trace 0000000000000000 ]---
+> 
+> 
