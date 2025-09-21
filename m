@@ -1,142 +1,140 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAEDA296BA2
-	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 20:56:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 261902765EA
+	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 20:59:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758488188; cv=none; b=JKvRd7am0ISndGDKIVjPjuYLZVW+8rqHq1VHusfkfEq6g8e2MJ7glOrkTgiMmP7H65arJANFwYcgljYLAFS2iFbchdkHtfqx0PGsroT7d+isAUCZUecvtmNDWkJpx9N2DYhjcrlq9LCBqcGDCk/75xQFHgkoCAfNF+gfhiUSIUA=
+	t=1758488381; cv=none; b=jUeW7DiH49HP81J5gdfOdnRXWJAcS9MbAJQqN2eWTtp+q/7CwcilwL+lRC0SqgohS4ApPExhxheHgaRLK6D19WjyolW0QZYHaMzHGTV68QtvOQDIv65dxFVbIPgNkngTUzmhAQrtLZwPWAX3i3OmXD0X1SIki7FL+pCnzI9ohz8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758488188; c=relaxed/simple;
-	bh=vcRE+eOSUt9r7QlljmvLF/beKVSKoUFncXZuFjVkhlU=;
+	s=arc-20240116; t=1758488381; c=relaxed/simple;
+	bh=i7pW9HwRwP2c7GQu7cmSv4/uxHxGCvk/Ta/jaDGnmYQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=kvHbyjwiWOpQK/rzejyPIIc6reNhXcrKnzscerNRhNmdbq3oU+F6ih7slHYnV0xc5959s6J9LjMa4uY+c7onTzPiJ+yZqWV43CeelsDKhXcert3mRQJwjarhKYC7DlUMth0KuoG7++nhq4pBpG/za+hLzFLb0wT491faR301V40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iRAdl7SE; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=nfFWwfmluKhl4F3MrT9qv9u4293GvYRsxQtz+lateekTz6DDdN6ylo1FwgPtFkOzjKQmHm93RYOEu7HcP6QNBUAP0QN9IlUaKw/cDPGt0EaogJsEmoqIqjwq+CfvT6iz/Uwv49b9kPelWeghEjgbz99f/lc/F6ejkLVVwwZhYOY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Uc23reFv; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iRAdl7SE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Uc23reFv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758488185;
+	s=mimecast20190719; t=1758488379;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YZa+gvlnzJbu0CdEMidkqaQp0dZ4QxQQFlF/kZd1gcw=;
-	b=iRAdl7SECa4uQZ1B4Ac/dJqZS7yeM8Uo44vCOlv5P6yHmxwtd0SvrEyX5jP4YpcmMdqWQq
-	Yy4I6VS/bZjCLNbpIuBVeeXHfnyz4JC8dRm1vWyAw8sqV1vqNEmsWEIrfXF9Kn9j+gsZ2/
-	kGCzHfIspL7Em+F21hni5233Nt0O31s=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=cccTVUHrijNSX4z+x7tgOWrfdy/5n+8UzzmA9bxQJ4s=;
+	b=Uc23reFvm6uJZmX2rTDVjweww81LYP6Zkt+vjDui3VqlXdbFBfT8BA6xI/Jt13Br6KviuC
+	CTaYfnIFN/egykOPu5MKzCAX6Xtx9HDa6UR/XgJv25OPqcdZWvhxnjhW3obDRoQL0kBDkM
+	NZsa2pLB3PnghSXzM/4yUd36trcZBqw=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-397-zv9cxGlxOtmTq9Ak15RPFQ-1; Sun, 21 Sep 2025 16:56:21 -0400
-X-MC-Unique: zv9cxGlxOtmTq9Ak15RPFQ-1
-X-Mimecast-MFC-AGG-ID: zv9cxGlxOtmTq9Ak15RPFQ_1758488180
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45de07b831dso22823735e9.1
-        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 13:56:21 -0700 (PDT)
+ us-mta-449-V3PLs4seOvWNHZaZXzd_fA-1; Sun, 21 Sep 2025 16:59:37 -0400
+X-MC-Unique: V3PLs4seOvWNHZaZXzd_fA-1
+X-Mimecast-MFC-AGG-ID: V3PLs4seOvWNHZaZXzd_fA_1758488376
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-45de18e7eccso18205245e9.0
+        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 13:59:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758488180; x=1759092980;
+        d=1e100.net; s=20230601; t=1758488376; x=1759093176;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YZa+gvlnzJbu0CdEMidkqaQp0dZ4QxQQFlF/kZd1gcw=;
-        b=eOKGs/mzXSG2AosL1mU6WP7efRxqERakyNA6UNtKjJ46pUX/TKA2e687bpb9upKxVU
-         sDuTOEKXVDSTdWxnao6w5xXlBDHoMqHFapAKsCF5pjIraYjuc9vydNnSRM+QGmxZoTRI
-         8PRQ0S9gWPhSV5SjErV5g+K5xT2sX50JX7Yhz3ZtMzqiABiNvkc9YLkkgBf4UCKqLj/p
-         kprTiy+sq7QPugC0QKsZZ2HYs/VVRuTGPZ4VtowH0fCMWcAV5BJQKeEHLOymXf3rQujX
-         RMJYwW0GLWtk4DbElVqhPIl9bd3mAmae2lyhayqckAaJ+aAOMbMaQzGO2lZ04Umwvcgy
-         Ll6w==
-X-Forwarded-Encrypted: i=1; AJvYcCXlbbKvl8mut1GiXNmmK1p4ZAYW6KNVA7+/Br42JYak76ZY3pmAvwu2DMMo0ZsiQWlL6F9IiG5q10PZcUJbRw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzzGgUIyCFp6sljtX82Tc2Jp5E7taZHg7/kSUuXP+fPQWkYXQVa
-	KqhKCzzpIQfHkpr3W1c49loL8EtHfWfpGeZcINLbJZ3k2OcPVfu/p2V1gWdhJf0Gc2BQvOXw6mG
-	OUBMIPLkKUQ8LZcGP+abgRsrX13/skF78irJ5aVArQo7VWaoII2JQFBUNM301m2dbTym1
-X-Gm-Gg: ASbGncvJONSY9u/b9lH0KNJIgmrUgMq8Vf76TztucL65wn5m9VsN/+dxf8wkQdX6zqI
-	i63xJvs31Nm4jwOgCC1IukiwO4mo/vc1dShbcK6ZLkiKX7gPZ3Cb55juQqrzOo1fAB3LUgM0vMF
-	tXeu/WF9do10vNrWKokiLwPDcRWucWo9AeE+YgwhwzMZGZgEUA4FojAT+wwYofOXTfgQBTXrsgb
-	Zy4LpS0QCKAvW3+8pvDobpFGpTNqNcoIdpf9q5cs9UP7ye6Kgf//F2sy/8+h5C42JEB6Ajk/hqO
-	jIzP6C4+wyGPmSiZ7lqhgxfmw1R5OoDsjds=
-X-Received: by 2002:a05:600c:9a5:b0:46c:e3df:529e with SMTP id 5b1f17b1804b1-46ce3df54dfmr9206395e9.19.1758488180274;
-        Sun, 21 Sep 2025 13:56:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEnqwMssDCjhijdZ/zRsJjF/aux8aMPTu3vT6tEWO8ityPhOqzUTeSFi2aStyrPs+FMZNaF1Q==
-X-Received: by 2002:a05:600c:9a5:b0:46c:e3df:529e with SMTP id 5b1f17b1804b1-46ce3df54dfmr9206345e9.19.1758488179887;
-        Sun, 21 Sep 2025 13:56:19 -0700 (PDT)
+        bh=cccTVUHrijNSX4z+x7tgOWrfdy/5n+8UzzmA9bxQJ4s=;
+        b=fXPUQjw6gtI5WSpWEjHkfFApNMGU2+ptDguWU9yw6dOWbE6odQZPQB/zq7xMHOOXWb
+         Q2S6V/Si2s02/03i+PXXAqGi6b2VrmSsXhYQQVq2o89Bxabb7ZfNzvWSFWuXqoEScWzw
+         AIzfzisXGrVBdf+ddbHZFwhGBjpY02mm5IxUhy6EemoLtwJuhTB4Bg44DjBdpjoGTJDH
+         w4sP7Sv5LVKc0g5Tu6FiTJFj6bD4GQwH2GGWU68/ERPzuUG7yQEs2wrgVp/jCWhcyHCr
+         0EMXueeqHupBZFBWumKiy2KWaszTE7AiHg2mOrPN/g4kd2GQhTNvsRl+PvS86o9F63P+
+         93kg==
+X-Forwarded-Encrypted: i=1; AJvYcCXyFbDIhF1S1soCIMYvad2CS3Vxydxx7OlW/s8jThDiN5OqZwIEqsIS5xRYB6kF4YnBrTcmDkJkzRwq+jMgEw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy/SptZ6KbXQacm4hmcVYJteZZ58zosZ1rMA7f48jqjIfhVvUHi
+	vYy1YcNow4Pe0C1cOEmZ2X9mtq4kjic59P8+qIiq75Ff7+Pn/1xYpcr6u3W9NFfSyln8xdz01xF
+	vabn3JjP2qOwnR0dX7ACRXHHYv1N0Yc7G1d0TwktM5xmvsj+zAhSlQpD0K9ZKhwApP3tr
+X-Gm-Gg: ASbGncsPPUGXPfGE/s+N+fYCtNVvJM/b0KeYtm5IMUTIC6CorJQQn4InwFty+0roKoU
+	0yvuO34t7sjNSum2GYZoj8knScj/2kx8ouvemRIYGCisVE7AdZnHhhEPkYsxq1Gg57tmWkEREOX
+	BaBRN+9PSUurcKRzbVsKxDQ8Roy5fv6Kao49FoynpUf2jSdq6UPhvOz1Mp9Ucw0XJBlI8pPGfAm
+	rg98tbGykvvo5LNbV88BR4wgYlOpVHWfoocLYdZ9zuqHtr9c/1M0Y+wCvk+5RojhuahX4z98NTr
+	VpqwYLMBRef2exgO5SErdNaYJyXIb1WPDrc=
+X-Received: by 2002:a05:600c:3b20:b0:45f:2805:91df with SMTP id 5b1f17b1804b1-467efb044f0mr75179875e9.20.1758488376295;
+        Sun, 21 Sep 2025 13:59:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH+9gyh4b7Pe6vwSysrkjuIQgt/cb1zE0T12QzGBFLzTc0cFE1MvWmSWaHwMUzYdnnxQL7Ozw==
+X-Received: by 2002:a05:600c:3b20:b0:45f:2805:91df with SMTP id 5b1f17b1804b1-467efb044f0mr75179775e9.20.1758488375860;
+        Sun, 21 Sep 2025 13:59:35 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45f321032a1sm131335005e9.2.2025.09.21.13.56.18
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3fa9e584309sm3897012f8f.49.2025.09.21.13.59.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Sep 2025 13:56:19 -0700 (PDT)
-Date: Sun, 21 Sep 2025 16:56:16 -0400
+        Sun, 21 Sep 2025 13:59:34 -0700 (PDT)
+Date: Sun, 21 Sep 2025 16:59:31 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org,
+To: zhangjiao2 <zhangjiao2@cmss.chinamobile.com>
+Cc: jasowang@redhat.com, eperezma@redhat.com, kvm@vger.kernel.org,
 	virtualization@lists.linux.dev, netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vhost: Take a reference on the task that is reference in
- struct vhost_task.
-Message-ID: <20250921165538-mutt-send-email-mst@kernel.org>
-References: <20250827194107.4142164-1-seanjc@google.com>
- <20250827201059.EmmdDFB_@linutronix.de>
- <20250918110828-mutt-send-email-mst@kernel.org>
- <20250918154826.oUc0cW0Y@linutronix.de>
- <20250918120607-mutt-send-email-mst@kernel.org>
- <20250918181144.Ygo8BZ-R@linutronix.de>
+Subject: Re: [PATCH] vhost: vringh: Modify the return value check
+Message-ID: <20250921165746-mutt-send-email-mst@kernel.org>
+References: <20250910091739.2999-1-zhangjiao2@cmss.chinamobile.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250918181144.Ygo8BZ-R@linutronix.de>
+In-Reply-To: <20250910091739.2999-1-zhangjiao2@cmss.chinamobile.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: TE6Tgh7H73buceY-9xApV4uROsUJ7ISlnRya7IkMwko_1758488180
+X-Mimecast-MFC-PROC-ID: LSWv6HpGaaSQgWn5gERvJWfQg5O2eH5N1T7zQHGnwGg_1758488376
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Subject: that is reference -> that is referenced
+On Wed, Sep 10, 2025 at 05:17:38PM +0800, zhangjiao2 wrote:
+> From: zhang jiao <zhangjiao2@cmss.chinamobile.com>
+> 
+> The return value of copy_from_iter and copy_to_iter can't be negative,
+> check whether the copied lengths are equal.
+> 
+> Signed-off-by: zhang jiao <zhangjiao2@cmss.chinamobile.com>
 
-On Thu, Sep 18, 2025 at 08:11:44PM +0200, Sebastian Andrzej Siewior wrote:
-> vhost_task_create() creates a task and keeps a reference to its
-> task_struct. That task may exit early via a signal and its task_struct
-> will be released.
-> A pending vhost_task_wake() will then attempt to wake the task and
-> access a task_struct which is no longer there.
-> 
-> Acquire a reference on the task_struct while creating the thread and
-> release the reference while the struct vhost_task itself is removed.
-> If the task exits early due to a signal, then the vhost_task_wake() will
-> still access a valid task_struct. The wake is safe and will be skipped
-> in this case.
-> 
-> Fixes: f9010dbdce911 ("fork, vhost: Use CLONE_THREAD to fix freezer/ps regression")
-> Reported-by: Sean Christopherson <seanjc@google.com>
-> Closes: https://lore.kernel.org/all/aKkLEtoDXKxAAWju@google.com/
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Well I don't see a fix for copy_to_iter here.
+
+
+                ret = copy_to_iter(src, translated, &iter);
+                if (ret < 0)
+                        return ret;
+
+
+
+
+
 > ---
->  kernel/vhost_task.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  drivers/vhost/vringh.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 > 
-> diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
-> index bc738fa90c1d6..27107dcc1cbfe 100644
-> --- a/kernel/vhost_task.c
-> +++ b/kernel/vhost_task.c
-> @@ -100,6 +100,7 @@ void vhost_task_stop(struct vhost_task *vtsk)
->  	 * freeing it below.
->  	 */
->  	wait_for_completion(&vtsk->exited);
-> +	put_task_struct(vtsk->task);
->  	kfree(vtsk);
->  }
->  EXPORT_SYMBOL_GPL(vhost_task_stop);
-> @@ -148,7 +149,7 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
->  		return ERR_CAST(tsk);
->  	}
+> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+> index 9f27c3f6091b..0c8a17cbb22e 100644
+> --- a/drivers/vhost/vringh.c
+> +++ b/drivers/vhost/vringh.c
+> @@ -1115,6 +1115,7 @@ static inline int copy_from_iotlb(const struct vringh *vrh, void *dst,
+>  		struct iov_iter iter;
+>  		u64 translated;
+>  		int ret;
+> +		size_t size;
 >  
-> -	vtsk->task = tsk;
-> +	vtsk->task = get_task_struct(tsk);
->  	return vtsk;
->  }
->  EXPORT_SYMBOL_GPL(vhost_task_create);
+>  		ret = iotlb_translate(vrh, (u64)(uintptr_t)src,
+>  				      len - total_translated, &translated,
+> @@ -1132,9 +1133,9 @@ static inline int copy_from_iotlb(const struct vringh *vrh, void *dst,
+>  				      translated);
+>  		}
+>  
+> -		ret = copy_from_iter(dst, translated, &iter);
+> -		if (ret < 0)
+> -			return ret;
+> +		size = copy_from_iter(dst, translated, &iter);
+> +		if (size != translated)
+> +			return -EFAULT;
+>  
+>  		src += translated;
+>  		dst += translated;
 > -- 
-> 2.51.0
+> 2.33.0
+> 
+> 
 
