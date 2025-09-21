@@ -1,75 +1,75 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 162412750FE
-	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 18:07:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDFF027281D
+	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 18:24:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758478059; cv=none; b=TFpTmy65sIUwX5UH6zbtGsv/mWihVtENhjlYKeTVnrK1s9YVZ3MpblPlBYAADYvEM4CKIyGLrOKOa7YNb4ElJmRyTwUl4hLIhjj/PW6BgKGKCKyYsOyq93L8HVoQG6Hf9IxNOxsadzMMs8DL4t6fpMxWttM5Wc8NHkwxIRQMPfw=
+	t=1758479062; cv=none; b=rd/Cc4Tz2IAb8tqZciHsW1H/RwxemgVfsE1fwRfO9XaE3m/D2fN1bX3g80gnNYjoXNMKwnLDnl8WdxoASHMDuVF6tWgIPevai9QSV1+9JtVXj3Yu1NWceNbg9O9eNycKIxnNYSXn+c4qo9JalvhzY46SucAA6glMGEX56sksWTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758478059; c=relaxed/simple;
-	bh=0iqCnV57N1a5UlUBorfIx+npFlGmUjs7+JfyHcABbt0=;
+	s=arc-20240116; t=1758479062; c=relaxed/simple;
+	bh=hdk+x5etOhRsq5vJN+g5OwtJcZ2VQOyMx3GkAoml+XA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=bQScKv/1TMpq4XWaxfluJpzaQSirWcq6VZ/e4qB1zSWHPSdXYBkAkASsDbBoS21a9zfhIw3fvKgwQQsx5pId9XTSyPkjwyxmF97/UPkMtc0OsoxS68NUVYs8KNHW4tEjHdEDlKbWN5bnp5uf4XSR2o3sRvZt9mEPW2xzN/B4Sws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eGWUBuiG; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=OpnTN5Q6OqC8CxMRPTyGc++zZt2RfzFWdyxe7zbjzXTirHCn8c4Wgk44hxzauOJ8tw5jKIIOgkPcSxllTv5YMXSdDhODlOZrOXxd+4SsvPZsizhtbpun1nfaOJeDAIKpcIETB0Icu/dFv5af3bm2TkF53qipUlhTNN7mc4YHVSM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PF5avi8v; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eGWUBuiG"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PF5avi8v"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758478056;
+	s=mimecast20190719; t=1758479058;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=0XkF2cteyuJLsnz1suqMm9ecRwj7XpZ59y3uZtcmzjM=;
-	b=eGWUBuiG45S9j6nGrYfMlJU08GO1vizUDSusKLIOeIb4sAhVsu+hBT85OlABGlxvx8ghey
-	WvwUZdnDsmZnIUsnArJjzcqEes61DDUDlcs6Xgx9xPuAg439lX+7UIdOaxf1Wqhd7uk2VR
-	SgZYHEjjUcn3LJBfuVxY70MwE3gkGko=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=YhHkaS/4PY2wz7GqHyE/TUmPmNardqLDC2rxbkl01aY=;
+	b=PF5avi8vmLpmyxbcymLBhCkV1PbgSndFGu3ojEiD0/9224HjuA/WGDCXsHhFU43vJLRQ8u
+	e9Ptzyk0XQW/HyrU/T25fdH4ubK3Oqm7rZ7eaDN1IVjmoczVrdBlw0fJvTGE4Q9eQo0H5+
+	sZn0AftekgcfrkZ0omzLj3x1sldzVc4=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-480-z_YnmIAjOaOgX-7I7ukQ4g-1; Sun, 21 Sep 2025 14:07:28 -0400
-X-MC-Unique: z_YnmIAjOaOgX-7I7ukQ4g-1
-X-Mimecast-MFC-AGG-ID: z_YnmIAjOaOgX-7I7ukQ4g_1758478047
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-46be15ade1dso5704305e9.3
-        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 11:07:28 -0700 (PDT)
+ us-mta-428-9RR3l4-9O_yHSf5Exq47tg-1; Sun, 21 Sep 2025 14:24:11 -0400
+X-MC-Unique: 9RR3l4-9O_yHSf5Exq47tg-1
+X-Mimecast-MFC-AGG-ID: 9RR3l4-9O_yHSf5Exq47tg_1758479050
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45f28552927so28660365e9.2
+        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 11:24:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758478047; x=1759082847;
+        d=1e100.net; s=20230601; t=1758479049; x=1759083849;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0XkF2cteyuJLsnz1suqMm9ecRwj7XpZ59y3uZtcmzjM=;
-        b=dzG8/bOn48wsr4Oaa4Ng6nm/zFlCh6f76UP486Wh+bP7ys/XBHS4UC1jYvdg8LZa6y
-         D19JPeNymnf3Or5ogKj4/jymM1sGAs7T65uaDJySAwrNHbKYnMykPoYtRQ1iE/bcGiuJ
-         7EAupuqF3u/4o25sXzQCK4KZyjHvAv/5loO+pqiTRjrp7VRAF4Q+wVjn1xYL3yRXcxZb
-         gbiGZ0uLd6eN1BXHq6+3Gpo5w4xEd+OcCzNir0RnW/XT/6rPXwmDNvCrU5sCqPDBKGeF
-         eTzCqbhOVwXs2uEBc/8Im9At7yEpxTSRm38QE8z5e+NirdMK5UhffHi91Q8sdi2hmbRQ
-         wzXw==
-X-Forwarded-Encrypted: i=1; AJvYcCVrZ/e9GswyxGFMOUM7MNnKOQZSg6S4MVgJxHMbZelON2L8QwDrR2xw4xt/ZOOSdWZzVNQ+TxIi0eax++LzjQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyVJKfwHhIiASua/LZr+7MynHvr67LNIQ6ucN7QnD1b3hWANPLt
-	40/YZScJBEpt5OtpsXcc78WiaLwcq9QFwnDk9acyp8zSXnc7DVty/xBJKkw3B3bOegty4orSVG/
-	6Qy4dxlaWWNrXKOA6r/bDTepMtNX/ktfbAO5GPfjtv3WrDwJT/uRzhKj6G0IaTfQ1pg5Q
-X-Gm-Gg: ASbGncuT/GUAMWGIL1ppc9sza0VesYxGnpcc1Mff93PThfVJmE5rVe+1TBhTiHqzg2D
-	wXf/Her6bNKqs6LTsOg0h7C5uS9G7gNAzF39r+YVILFDha06Kh06SSFiIvqR/wDVFKABTyfxKrP
-	H51DuGBdS1ApvIr9NXWWPDk2DLy7ryhF1S11PXvkWvw5ZSjT0RlT3elz/+dFmpDXIvicNnegh/n
-	z9R1cdJIyn8qWa+P8Pe6BBLkqwEaHDk501EVtMy3TF3ndTW27IH1/AvIhbjVFwm8j2yt5prI4oO
-	HFL8ztOZPiiSqaxE0kyWbJZjTIIKFlta++0=
-X-Received: by 2002:a05:600c:450b:b0:45d:e28c:8741 with SMTP id 5b1f17b1804b1-467eaa8821emr89852175e9.29.1758478047191;
-        Sun, 21 Sep 2025 11:07:27 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGGs4pgWfikGWpkpZh+hgPLLpMz42/rKwi+/I8sVrOEipg7IRftrxZPnomzMp+qcTi9/yCrQw==
-X-Received: by 2002:a05:600c:450b:b0:45d:e28c:8741 with SMTP id 5b1f17b1804b1-467eaa8821emr89851955e9.29.1758478046588;
-        Sun, 21 Sep 2025 11:07:26 -0700 (PDT)
+        bh=YhHkaS/4PY2wz7GqHyE/TUmPmNardqLDC2rxbkl01aY=;
+        b=I7ebdLbnO7612OLwP4UVzmbrqay9uv6zWtms9TV/qnzO9Tr3uai61Hubc3NTw3iGBp
+         OprA9rQeSyhfpF2LmJc/+UrvXdaE2afFAfBttjL6D1dH5oMfvs2nOU0iPU/ZEcmLa59l
+         HnEBHJmkSNbcU0drqCNy4wQLtq6BW1C5YYZuFl84nRFk1/mLHGbswvm/+/yuCJSElvOy
+         SsLTvB6FcItvxNyiClh9qLnym2QALil2p7a6icBhnwpAUX6ISfHFLmMAMi2DI0l0kfmm
+         +vyYzJDgTaQxZQ9Uj8LmkvvAt6hRx/XsAM4R9Ole0+UN8YMUUnPXFdJq14kMWbiIXpLJ
+         2zkw==
+X-Forwarded-Encrypted: i=1; AJvYcCXQvdSWggqxKSppY4gn/STDSPFt9M9gCpWgW7epqDR6+uXeIWidwqzcc5+0eaPOPnvnmuL6hBBvEuQY89951w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YznmIZeYT3vIhttbwSAaaToHCsxtQn4KuksZUcIDSofR1yxerGz
+	lb+ewKXlWvPb+ElFL+rQHP5HgbbmUbdfJ9UcMEmQdX0wlOWV2SAMbeyNrFHOKWLiFynK90pjUT2
+	Cg76kMMO0qZmR+jnD6qMv/dWVASeq7FSFuPcLl6QIOv64/D7RfSRo6aK1oP3exIvJ2hBI
+X-Gm-Gg: ASbGnctT9YdchMNq4kRdXR5CE09rszUq94GqpO0qtMaN/C93RBiCfTTc2CNRJdnLkhq
+	A1ZFPHDisfajgNq99y8cYaFOqyrKN32wr5zJADs9/HenNQhwl5cBnPyLm9ioykRfcJUc2hjCEyB
+	rs9zqBjZaC+nRA6WRWCvMvpl4lXTkwusCMvMaqy32A46HQN6kZM/y2TJXCD+62vs9bQb7vbvOTJ
+	sPPPYiYi2TNNRe2MLpccF6mBdXWwmKXQIBoZFurWmsCMzfPPuc140PKvtZCNzWxxcUGyGbo6hEn
+	fWZQdrS5IQy0WtJ1odGXBE1JVr+jQ7c+ggQ=
+X-Received: by 2002:a05:600c:5251:b0:45b:9291:320d with SMTP id 5b1f17b1804b1-467f0b4fa71mr102314675e9.31.1758479049396;
+        Sun, 21 Sep 2025 11:24:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHLIlor7WZ6LhOsF/1dO1Pu+O7uTKQ9QLZmqBkxHzxgXfSniR1OyYzexCcvl1Rs5uH1egJuBw==
+X-Received: by 2002:a05:600c:5251:b0:45b:9291:320d with SMTP id 5b1f17b1804b1-467f0b4fa71mr102314445e9.31.1758479048752;
+        Sun, 21 Sep 2025 11:24:08 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46139ba88d0sm209953285e9.10.2025.09.21.11.07.25
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46d1c97a87csm14237195e9.20.2025.09.21.11.24.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Sep 2025 11:07:26 -0700 (PDT)
-Date: Sun, 21 Sep 2025 14:07:23 -0400
+        Sun, 21 Sep 2025 11:24:08 -0700 (PDT)
+Date: Sun, 21 Sep 2025 14:24:06 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH V6 19/19] virtio_ring: add in order support
-Message-ID: <20250921140623-mutt-send-email-mst@kernel.org>
+Message-ID: <20250921142053-mutt-send-email-mst@kernel.org>
 References: <20250919073154.49278-1-jasowang@redhat.com>
  <20250919073154.49278-20-jasowang@redhat.com>
 Precedence: bulk
@@ -80,18 +80,14 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20250919073154.49278-20-jasowang@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: WSC_eAMgG1HFhDOBtRwM6c-wsR_xdXN3FDB3xA9H5vQ_1758478047
+X-Mimecast-MFC-PROC-ID: DhRqK1nvDgiuCp1M2D6B13H5ghqxnDgA4udPnXkZSq4_1758479050
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 On Fri, Sep 19, 2025 at 03:31:54PM +0800, Jason Wang wrote:
 > This patch implements in order support for both split virtqueue and
-> packed virtqueue. Perfomance
-
-Performance
-
-> could be gained for the device where the
+> packed virtqueue. Perfomance could be gained for the device where the
 > memory access could be expensive (e.g vhost-net or a real PCI device):
 > 
 > Benchmark with KVM guest:
@@ -233,6 +229,14 @@ Performance
 > +{
 > +	if (vq->batch_last.id != vq->packed.vring.num)
 > +		return true;
+
+Hmm why ->packed?
+
+This is actually a problem in this approach, kinda easy to get confused
+which variant to call where.
+
+Worth thinking how to fix this.
+
 > +
 > +	return virtqueue_poll_split(vq, vq->last_used_idx);
 > +}
