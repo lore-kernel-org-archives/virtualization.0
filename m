@@ -1,171 +1,155 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DAC9137C52
-	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 18:40:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C37292765E8
+	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 20:54:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758480007; cv=none; b=USLOAE5juYVi1EUCOmzdSxrlcZXDIFGK2qGivc3Jpf2LswMg7IXX5rq+fHEo5O2z9/wpj8k0ORMOAg2DDX3hV/iwXuYm8A4malG7bZQER9VnULQVM/1uP1DlzN7qndqAL8c6P7h5b+o63+4+uXx5Nh8ApAdCmaFw0v1UZLbujhc=
+	t=1758488066; cv=none; b=hUu9N+k/AFPGeqq7QtpXj/4ShvQZnRAeb3bhErDQeIaa5PhRFJZKmBgP23J645MhR0c45m/bXbLJYauFJ1W/EjfJhMYxaWu97gJzwHvpajf65qamBnIydP/eTbLdgOLtq/SNNZJzW6HwkbV7CFR43203JBgifPhOTmfrFQZXzaE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758480007; c=relaxed/simple;
-	bh=N2URmMcqqSL9E+49wAyf/0otiSSQtKZ5dw8twXpZWps=;
+	s=arc-20240116; t=1758488066; c=relaxed/simple;
+	bh=uW9UwUN7CZ4teKHcfAn18eLt3QqmBZWjrgXXTqGYGdI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mrQLKhyQhrCxMC2Yvqep+nSOsnN5pXVq9A4KKibiu4DVV9apapVfv1tLTXlixiTVudDQKFjXGdn/M/kcPex1vmGj/+TslWHuRS66GXj4lEV/WSRwNe2BUpfIJaKN02su02v2iyvVOR0fT3GrffTaUQo22pOdXW0ooKGA0LPrejU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hI5Nmh/B; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=B4VC9oPi+wUi7ULsRr8WFDrVitH/fDkFbOUJDZuMwzAX2cKXoM+fkqjoeO6wuLrqufojF8Ge/6YqwLznHEWchdtbjInwANpnuI8VEJjDE70eMz1wcOTdvDcEkyovmUnCh+j1GrQonbNuAxA+OntF2bQaSe2hY0v7XaQ/iR/bkOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aQz+m9SE; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hI5Nmh/B"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aQz+m9SE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758480004;
+	s=mimecast20190719; t=1758488062;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=RJXH+iEnGEt26c26vQRT9hIQ+xfb73XIUiLB79dbIag=;
-	b=hI5Nmh/BYok5oiaARdlijDhluvohHsxinZwvTMft3zf2i/k+piTvyDozg/zDPhUKJIVrNO
-	yOOQ0i1FTR8yF/fycJO8u5B31ymJ5r5e/8csQzuzwsHJhgtGzp/Dyx7iQTruK0v+WL3LzZ
-	QoGsJLtGjI1EJUYkAA8j3ZQdoTGEeKA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=xBq188AXBSuVVCyB2PFVSgR4xlxI1tenZeY+L8GcOIc=;
+	b=aQz+m9SEh/mPHDgRnXLi60K9MsRCtayGGaOqsq5UzJopaq59+WgNYrIpCREXfOkzpSjW0t
+	Gdj9Vbop8kdMty3lc3GTCyfC4EXZGnppfwAbufZppU5a5mRl2GM1h1T4uFijvFxor0jBag
+	BVX0CzufejFbKHVr+0grS73Oh3nRp4Q=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-216-HNrAqKuLME-Vl7Y3ehqHTQ-1; Sun, 21 Sep 2025 14:39:57 -0400
-X-MC-Unique: HNrAqKuLME-Vl7Y3ehqHTQ-1
-X-Mimecast-MFC-AGG-ID: HNrAqKuLME-Vl7Y3ehqHTQ_1758479996
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-45f28552927so28716825e9.2
-        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 11:39:56 -0700 (PDT)
+ us-mta-353-RYNxI78aNSGWa7YGiqgxjQ-1; Sun, 21 Sep 2025 16:54:21 -0400
+X-MC-Unique: RYNxI78aNSGWa7YGiqgxjQ-1
+X-Mimecast-MFC-AGG-ID: RYNxI78aNSGWa7YGiqgxjQ_1758488060
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3f6b44ab789so324811f8f.3
+        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 13:54:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758479996; x=1759084796;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RJXH+iEnGEt26c26vQRT9hIQ+xfb73XIUiLB79dbIag=;
-        b=D7RONuQIlCm520hEnS4RjVTiWzzpyR0Irlz/7gotQSRiQ0RBSzwEO4a/5BS4oFz9k+
-         LI9WkuCwpRnKW5brX/0gyDBAf+NTmNgjyXzRdRDeWts6ib++eIDfgxZIGoAo+tJ+k0HD
-         2Z41HAmC/N5shzUbmdtycnurbAL5Cx/bjGyirZHaTqXTVFdFJruUgyn8frUUuVkWIXxy
-         oKlcbt3YL2uy5V2E1HgkvgX7QI5LmDrJBTESNqAz6RESZA+2EwCcbhrZZkwqMvEfwCo+
-         ZBw5AN8wh6vDXt9pl2HrMcy8ra7OrH8QP+EUdJ8Ov+nZycLMK6z1EY0K/lY6vJMw0l/l
-         kYcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV5KaQzFotVmXl+dXGNox3JeBhLJsmMMKLlVhksoNIjdEc81Ka+j6LwsPSrPhTL5d2plr//xQh7pbg73LiUIA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyVttf8Wxs1GDyv8+jSWqlefAutbbbd91fU9BOBk5fi2UYp4hW6
-	yhMl+DCLV2kJU1GdmbeISxU/MwWNd7c+mVm8lyr8uH7NytokOtc2WqmQOB9lzuhID1Fd4DiH8yM
-	XyrxHDlZqtPxce/l0+dFm5x9YA18DGKFw5nWINEV3YKMQMnFt6YdMlPIHMoo6X3XpsAD2
-X-Gm-Gg: ASbGnctU9BlCeoL8UztnTpmCttl2HhJjX0v+6zAWl122k+oqRHCPueMb0OcR4mR9Xff
-	GoRnU2XAkN2w8IVjXRWOjBvtJQx57ZYILoMhLgNLOf7RFyUIMnw1h+j08GnVXfucY+3iTH0/bzb
-	ZibbBXkTksRBeXunFaunb0Hd95QzndSZiDX/Y1xC59akBvkb1WleNJhTB2KSJpwkvFDejQmzgAg
-	6Q43doF216UYNygIrqO3nUnbcryvJAQEJ0Z+b/p3pZzq4Dnjtb2xZT9Q3qxhugCCaZaXtBNyM0U
-	yptWjSXCltZXKVQs92YXbhF2CFftgxPXMlo=
-X-Received: by 2002:a05:600c:4f42:b0:468:7a5a:725 with SMTP id 5b1f17b1804b1-4687a5a0801mr95488185e9.1.1758479995821;
-        Sun, 21 Sep 2025 11:39:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF1CBCIW++Ueg7vKc5VsvYUAu+SHw7b8hKtcbIM6zE006kbvlAaeQ1o+vByx1lH4SuXnMbMJQ==
-X-Received: by 2002:a05:600c:4f42:b0:468:7a5a:725 with SMTP id 5b1f17b1804b1-4687a5a0801mr95488085e9.1.1758479995417;
-        Sun, 21 Sep 2025 11:39:55 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1758488060; x=1759092860;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xBq188AXBSuVVCyB2PFVSgR4xlxI1tenZeY+L8GcOIc=;
+        b=EvVgu0u5KXyRw2JBn+CzcZeb/JUDi6FENdwLJ58DqihVrjyH7a/M74tGodBG8OvNQG
+         IgjZVAvkaAEyrXxQ5ts076PSzUktSpVGjxff43GI453LS+BlGNV6En2DXF05JocLl7KT
+         17iP9YKcufgV7Y8WgLcs5qrxsbCEoLzMKHEaMMvTtAZsX1MKeWBm2r6ZNqn/4mRTGugS
+         OV1N6TDpA1Y8t92LG6UJU5SxpvdumCrRyIKM8TstZgVlUXCsWraDSk5bbKOInr6EmMvR
+         whMZO3k4cVyWDsapTx3qTpIvYdIOCISQJX7VRoa5Hbdr0p9GhEm8HIa3UDF6zTK/nKLZ
+         dKrA==
+X-Forwarded-Encrypted: i=1; AJvYcCU7HLKXQ5swqy8TVt00weMeKl7NFFD9wNbox0ax8rfHrO0u6fs+TiOkjlO+2ydEjyj7R7ZxWSTsoqOx1Ui+Og==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyS9lH6pdzmXARLBeREXJadwyug17XYWhwCoE9HiIAht0ABKjjM
+	BP0X6VidsifTtD9K1j6004bf/JyYoJQyS5tobeYiWvzeiOI1OhHV/in8maAvnKFnPZHr2Bzze4K
+	vfWWCj9OGoXQAG8s/yEEbuZe2MLL++BGnO9E9MwzM2YXAUBTXkPWyjYuz5Cymn4m4NCHE
+X-Gm-Gg: ASbGncsYVJDqPKeb3xBi2yY/DTnSuVCz1WpOB84DKG9n+lulFoQvt4IAWof817N29DY
+	1BV5AYGErRjWLRArobuaTJ8xGglAyv/YjKsME1PiRfDov1DNQ0ZEO70f1K/H0T1teRQhnlunScx
+	1miclkrpFzcg0UBxAqGwgE1QecPwB11/Z3bwTF6k+vY1LvAbuoN2Op8ZZFDvqshACMp8bUhkmOh
+	vJ189MN6CUa3FwNf2dVlNQ7CXMSdcACmOvUU+xwdTCmQvZPQ5Qe+RBgpLB7uyGlzGg12hhdn7fW
+	mfawJiS1VGZ4qPuuAm5TghGsypuMII2wz9c=
+X-Received: by 2002:a05:6000:144c:b0:3ea:6680:8f97 with SMTP id ffacd0b85a97d-3ee7c5529e2mr9183492f8f.2.1758488060206;
+        Sun, 21 Sep 2025 13:54:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFVmqrSeyTyn+vNrblxaFs736hmj/tx3H63IBTr5ZBghyBT0dYb4dU98Nl7befn9KTzwvrdBg==
+X-Received: by 2002:a05:6000:144c:b0:3ea:6680:8f97 with SMTP id ffacd0b85a97d-3ee7c5529e2mr9183484f8f.2.1758488059818;
+        Sun, 21 Sep 2025 13:54:19 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45f32640f49sm117008595e9.9.2025.09.21.11.39.54
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3ee0fbc7460sm17127896f8f.31.2025.09.21.13.54.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Sep 2025 11:39:54 -0700 (PDT)
-Date: Sun, 21 Sep 2025 14:39:52 -0400
+        Sun, 21 Sep 2025 13:54:19 -0700 (PDT)
+Date: Sun, 21 Sep 2025 16:54:15 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH V6 14/19] virtio_ring: determine descriptor flags at one
- time
-Message-ID: <20250921143758-mutt-send-email-mst@kernel.org>
-References: <20250919073154.49278-1-jasowang@redhat.com>
- <20250919073154.49278-15-jasowang@redhat.com>
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	hch@infradead.org, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH V5 5/9] virtio_ring: rename dma_handle to map_handle
+Message-ID: <20250921165408-mutt-send-email-mst@kernel.org>
+References: <20250813054831.25865-1-jasowang@redhat.com>
+ <20250813054831.25865-6-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250919073154.49278-15-jasowang@redhat.com>
+In-Reply-To: <20250813054831.25865-6-jasowang@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: FHHSu6v2PCGovrXufWXHcC-LeMpFhdQmuGkRIGzKuWw_1758479996
+X-Mimecast-MFC-PROC-ID: bjovqOyM9EBgon0-evScbKU7qOL6sAlYuDBK--QWvUc_1758488060
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 19, 2025 at 03:31:49PM +0800, Jason Wang wrote:
-> Let's determine the last descriptor by counting the number of sg. This
-> would be consistent with packed virtqueue implementation and ease the
-> future in-order implementation.
+On Wed, Aug 13, 2025 at 01:48:27PM +0800, Jason Wang wrote:
+> Following patch will introduce virtio map opreations which means the
+
+operations
+
+> address is not necessarily used for DMA. Let's rename the dma_handle
+> to map_handle first.
 > 
-> Acked-by: Eugenio Pérez <eperezma@redhat.com>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
 > Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
->  drivers/virtio/virtio_ring.c | 21 ++++++++-------------
->  1 file changed, 8 insertions(+), 13 deletions(-)
+>  drivers/virtio/virtio_ring.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 > 
 > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 1045c553ee65..0949675a3d12 100644
+> index fb1d407d5f1b..94b2a8f3acc2 100644
 > --- a/drivers/virtio/virtio_ring.c
 > +++ b/drivers/virtio/virtio_ring.c
-> @@ -574,7 +574,7 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
->  	struct vring_desc_extra *extra;
->  	struct scatterlist *sg;
->  	struct vring_desc *desc;
-> -	unsigned int i, n, avail, descs_used, prev, err_idx;
-> +	unsigned int i, n, avail, descs_used, err_idx, c = 0;
->  	int head;
->  	bool indirect;
+> @@ -305,18 +305,18 @@ size_t virtio_max_dma_size(const struct virtio_device *vdev)
+>  EXPORT_SYMBOL_GPL(virtio_max_dma_size);
 >  
-> @@ -631,6 +631,7 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
->  	}
+>  static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
+> -			       dma_addr_t *dma_handle, gfp_t flag,
+> +			       dma_addr_t *map_handle, gfp_t flag,
+>  			       union vring_mapping_token *mapping_token)
+>  {
+>  	if (vring_use_map_api(vdev)) {
+>  		return dma_alloc_coherent(mapping_token->dma_dev, size,
+> -					  dma_handle, flag);
+> +					  map_handle, flag);
+>  	} else {
+>  		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
 >  
->  	for (n = 0; n < out_sgs; n++) {
-> +		sg = sgs[n];
->  		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
->  			dma_addr_t addr;
->  			u32 len;
-> @@ -638,12 +639,12 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
->  			if (vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr, &len, premapped))
->  				goto unmap_release;
+>  		if (queue) {
+>  			phys_addr_t phys_addr = virt_to_phys(queue);
+> -			*dma_handle = (dma_addr_t)phys_addr;
+> +			*map_handle = (dma_addr_t)phys_addr;
 >  
-> -			prev = i;
->  			/* Note that we trust indirect descriptor
->  			 * table since it use stream DMA mapping.
+>  			/*
+>  			 * Sanity check: make sure we dind't truncate
+> @@ -329,7 +329,7 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
+>  			 * warning and abort if we end up with an
+>  			 * unrepresentable address.
 >  			 */
->  			i = virtqueue_add_desc_split(vq, desc, extra, i, addr, len,
-> -						     VRING_DESC_F_NEXT,
-> +						     ++c == total_sg ?
-> +						     0 : VRING_DESC_F_NEXT,
-
-I would indent this line a bit more to the right - it is a continuation,
-after all.
-
->  						     premapped);
->  		}
->  	}
-> @@ -655,21 +656,15 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
->  			if (vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &addr, &len, premapped))
->  				goto unmap_release;
+> -			if (WARN_ON_ONCE(*dma_handle != phys_addr)) {
+> +			if (WARN_ON_ONCE(*map_handle != phys_addr)) {
+>  				free_pages_exact(queue, PAGE_ALIGN(size));
+>  				return NULL;
+>  			}
+> @@ -339,11 +339,11 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
+>  }
 >  
-> -			prev = i;
->  			/* Note that we trust indirect descriptor
->  			 * table since it use stream DMA mapping.
->  			 */
-> -			i = virtqueue_add_desc_split(vq, desc, extra, i, addr, len,
-> -						     VRING_DESC_F_NEXT |
-> -						     VRING_DESC_F_WRITE,
-> -						     premapped);
-> +			i = virtqueue_add_desc_split(vq, desc, extra,
-> +				i, addr, len,
-> +				(++c == total_sg ? 0 : VRING_DESC_F_NEXT) |
-> +				VRING_DESC_F_WRITE, premapped);
->  		}
->  	}
-> -	/* Last one doesn't continue. */
-> -	desc[prev].flags &= cpu_to_virtio16(vq->vq.vdev, ~VRING_DESC_F_NEXT);
-> -	if (!indirect && vring_need_unmap_buffer(vq, &extra[prev]))
-> -		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags &=
-> -			~VRING_DESC_F_NEXT;
->  
->  	if (indirect) {
->  		/* Now that the indirect table is filled in, map it. */
+>  static void vring_free_queue(struct virtio_device *vdev, size_t size,
+> -			     void *queue, dma_addr_t dma_handle,
+> +			     void *queue, dma_addr_t map_handle,
+>  			     union vring_mapping_token *mapping_token)
+>  {
+>  	if (vring_use_map_api(vdev))
+> -		dma_free_coherent(mapping_token->dma_dev, size, queue, dma_handle);
+> +		dma_free_coherent(mapping_token->dma_dev, size, queue, map_handle);
+>  	else
+>  		free_pages_exact(queue, PAGE_ALIGN(size));
+>  }
 > -- 
 > 2.31.1
 
