@@ -1,159 +1,228 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A169449620
-	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 21:42:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 099D62D0620
+	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 21:42:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758490924; cv=none; b=GGnTbQayVGV/HRiXun7+9IZUjhvyH6Jw6H88B7MZoX9qJB0F0MCq21xroymUojpQVfRHDzSkjwcxJfXB5BCLA3jyIEltXr82FDgN58jkjSAZaL14D+HqaC4wwz04oetc0kBlNv7kY9uRlATiR51TvmYOWd5MYuIkI93Sa1XcfzA=
+	t=1758490945; cv=none; b=V3aihxm+bk3n3hOgtB8Mw6A81g/dpcUAbJ5qame8cnZXxrxWuboaYI0/jGBZF+hfZerBcJUAAczFR3APkoeoyrfA+UdOa6TMzpFNVipjI+Nd9xBuxh1JiPTrdwjh0A/PgQz+bEaY4G9G1C5SdTxi87HkcKlVkZCDyljPNiwVLrA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758490924; c=relaxed/simple;
-	bh=NsJb4st6T99WMlBu/ChJ8MnGDssz57Eubv5GG90Wdek=;
+	s=arc-20240116; t=1758490945; c=relaxed/simple;
+	bh=aHOEkzJA7O99geYKwgD7vfUEqI5TGA6J+xW3/dqC7jc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=NVzF5tEYAzoDCui2VtDIltrYla/dO3FmjpKxBQ+S3OlkwaeazCzngTMpHLIJpedEZxodE/Bu28t3sl8TBvvUzaR4zLlytkn4aysWCYMiHvqtEy6ctUEFQvBVLROE+B3mA0uDkRWt1xIddI+KWFUQP1jDl6HJmSBWaWTE3e7b708=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g45t1F1H; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=EA0/m8uUk7kJ9k9QzSE/paIKlF+zsqrMr+4N9OKzySkl0GUF5/gzpnCl6vR7OF9X6vsK+hnSsqiB0AeYgULR+kAmPwbVwItprOA33v1V+S86kBRjgOs/GzFYUxmB5dA2KUZ0RcaDMI67dUvpjvar5qsSKXofq3j+IUJrZz1MjWE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EbUYkrMr; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g45t1F1H"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EbUYkrMr"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758490921;
+	s=mimecast20190719; t=1758490942;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=IXbaHpfhyIqU48t3D/0byoBr9VRqYAJB99Dj7IEd2W0=;
-	b=g45t1F1Hqzff4Uog3m4lp1wmBbDbH7l3nLA0+YsYW+YbeDc+es3Y2L7ugmv3fPuio6XRor
-	dZzBBXtgMy9QIdPm+tdGDbYT30YBp8kKZw1mI76rHpktF572f2gSwrw3QclCPz7zZUDFcP
-	MGWmxb43Qcxt1mvhkNhfv01LT4ZfLsw=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=tA2L9oyJbyVq83RbEtZfV+vSBPTFArfNal5zWUCe3Zg=;
+	b=EbUYkrMrz0RwPuqRT2+y80F4wjIGzRJ3mGtl9+M+78JNqV10YLGpjwm4RrKc3IzvxXGR+r
+	l2y6txaYgJn8TtItO/4qv3DVJ5614Dh+vZmphKmHlMUU6dwyC2xKu1yr+aJd19EEkPC5jC
+	gQaLM9LONihnmc+WrVcbteZV9CWe4to=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-29-Ra5L1NBwMWSE7NnW2yD2KA-1; Sun, 21 Sep 2025 17:42:00 -0400
-X-MC-Unique: Ra5L1NBwMWSE7NnW2yD2KA-1
-X-Mimecast-MFC-AGG-ID: Ra5L1NBwMWSE7NnW2yD2KA_1758490919
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-46c84b3b27bso5052225e9.2
-        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 14:41:59 -0700 (PDT)
+ us-mta-184-IFZTNVVePTScRAJHHCQvbA-1; Sun, 21 Sep 2025 17:42:15 -0400
+X-MC-Unique: IFZTNVVePTScRAJHHCQvbA-1
+X-Mimecast-MFC-AGG-ID: IFZTNVVePTScRAJHHCQvbA_1758490935
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3f93db57449so473012f8f.2
+        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 14:42:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758490919; x=1759095719;
+        d=1e100.net; s=20230601; t=1758490934; x=1759095734;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IXbaHpfhyIqU48t3D/0byoBr9VRqYAJB99Dj7IEd2W0=;
-        b=BOS1zSi2dge/Frg/m2XSO/PlPjdbLIwsbvpeG5ulCWyVpTzZR6+LEtTmvSCOGVShqh
-         2MGL7aVGNvJzUyTRY6R46N5c7cARpREdn06U2jU7w4vRVMXpi1V4x42NwNkRzt3tuCS2
-         f/MyX/gxYvdIPJS+V5C4sWYl+PNUI2rm6ng3uwkL7QAchMp1D0t5fFLHRlIli6dgFq43
-         ZXeMiiG4Qunm635KXfcGBfoodngFtE2DdKwfiId/DYkHJcVMvXuawB9ii5XwPG1KxkYy
-         hfmln5uGOBZLvAzAu891nlGx7bSs7WJYTz/IY/YO9/VS0QFOJ3RplUjEHKmhuBSqXwVo
-         zBLQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUi/glMxnAAI5EUGdxmhKCemru6ck2uk+DQPrjB2MMPiDmHQpgqCSrCzqx/TKJxJiCHw3INC8jdDJV7l7vrtA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzxim5D1ntraEygVG3ql7rpnf+otdXh1ZLv4tK1BCunRpe0/Yiz
-	6dadIIyR4sTZ2Vsg51huQoTMOBvoxTwWqFuAjHb10LoJMd381dUSXWCEgIxkQK6XkGaH6D73dSs
-	pfjWM45xhD+zpt5WCmRNERsdHRbg+WBt8fqWyT0CHildOmiEGSDTzNkolkwgNVo84MLaa
-X-Gm-Gg: ASbGnct5Y2HWTy7s3XMa2r2Eu0tnK/6WCFHrcxD0aNPWmjOZ/WwC9fP8QVkrmtoqrnE
-	ws/NwCz7lfe0b0ZND6IEdI+VcHF+rrHAnBPADTxb7CDYWhb1dLShexw+QU0ykaumC0aQal9ewda
-	TXwDZyg4Y0IxsUf5i4rp9SViv8Xlkzj692JNRLpOP1Ba6kJ6Bll9BP/XjsxgsirEnkE6fkWMPxH
-	G1cC12OFWZid9esPip9QI3pl7/eL/qIt0Bx8x76hGEh8sSCKCQm5VTaEjPQaKHr9fQGPyNTuFIZ
-	TwUTe8750U3EEoFwxxL8XSTqJZl430OoQuI=
-X-Received: by 2002:a05:600c:3593:b0:45d:dc85:c009 with SMTP id 5b1f17b1804b1-467eed8f53amr130731655e9.10.1758490918679;
-        Sun, 21 Sep 2025 14:41:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFP8mWhdXShjZD0e5Xi7FTGL9vfgfRfQHQVeAIFxmMdoNRpcK/uKJpXqqR5BGPpb4ADjBQBLA==
-X-Received: by 2002:a05:600c:3593:b0:45d:dc85:c009 with SMTP id 5b1f17b1804b1-467eed8f53amr130731455e9.10.1758490918213;
-        Sun, 21 Sep 2025 14:41:58 -0700 (PDT)
+        bh=tA2L9oyJbyVq83RbEtZfV+vSBPTFArfNal5zWUCe3Zg=;
+        b=jQThHl3sNOP1m1i7OUeqyfYt1K4KRttmY4PemQnTr/3TKu02pQuwmMfx7tP2chd+Y2
+         tZZe2fo4fE+Nv0WbWdTAp9NsTnukdwmG6o3YZE2ZQbEbQrq3lK7xPR8O+Rh84NPNgF9i
+         VZSlIi90FKtVPskOUpP99/DWm9Y5OPKHaxpM8eUU0KR3BEv2oskYsOzfkZ+TDOiid9RJ
+         mxgDNqNyy7fLrhwv4Hc6+8W+5lGn/wqdoeRH6hgE2B1kSDPQzKeAlw+Q7ts25DC4n8kE
+         eT5Q3UdRfPoDY8uZtNQbGE51jdfIak4M8DOglfbBriUpDBwo578LdqTqWis74yQT3iEU
+         2opg==
+X-Forwarded-Encrypted: i=1; AJvYcCVNE12FbPKt203jW8OxAqJWQxB+gAkW5hnA5nLtGhl8L2cwoeS4GQRqj61dNvXIp9NVrsVU/WgM3yz6D6FTSQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy2wwXmRUyFJF4tw59+RcvTUXo6gOJr3+iZm/UpxuHZ/NB6C5YG
+	2rTzKU5CUYjeTPwrChtLI2wuinWVGX6a3AULq7+6qrcHRkfGNx4ym8Q2MrKyOpKZERzI3XWEefM
+	csSOiVeDk2ZMoTkyu1iGAphsSh7wUp1lLQB3tVTI6XJecCWUAEDGbwz7QYQwpUu1YUTgb3JztS0
+	pi
+X-Gm-Gg: ASbGncu+jMu3sdTZfB99y+VqwCWiQSskz9SOnRiNPbmmBoQfYobLt3GLdA5pEbCqlOi
+	RMAouDVqWrcWItpp8FowNhdUQyCakJjYLM6W7+elGCkqqLkhtg0np5JGAn6Ao4TxTZ6zoapdL+Q
+	cQnNZGRuiLVlbmJx8laLvqsDwOkTtNwYBcXOdS1d8riWxX/FvLjERv1efM3Dr29d7ye0pBfmsDO
+	S4hHPfIawKON2pIo+fXi0mibFVAavHHL9GaTM1bWbztE+sBHv6XJPeQZSepgNmajDbEK3UR+uAz
+	HMyVeoOAqQ82MGT/SH8qPENqHWZRwYq3GeQ=
+X-Received: by 2002:a05:6000:186f:b0:3e5:6dbd:2114 with SMTP id ffacd0b85a97d-3ee875101c4mr9729688f8f.59.1758490934378;
+        Sun, 21 Sep 2025 14:42:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFOf6Xd/ib6Qk5AuxiP/gcSHWrjecYFCzIwGgc4RUQ/GENU+tpLMM4iOB1+zibgYBEvPDrkSw==
+X-Received: by 2002:a05:6000:186f:b0:3e5:6dbd:2114 with SMTP id ffacd0b85a97d-3ee875101c4mr9729679f8f.59.1758490933990;
+        Sun, 21 Sep 2025 14:42:13 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3ee07412111sm16881566f8f.28.2025.09.21.14.41.55
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3ee073f53c4sm17183107f8f.3.2025.09.21.14.42.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Sep 2025 14:41:57 -0700 (PDT)
-Date: Sun, 21 Sep 2025 17:41:54 -0400
+        Sun, 21 Sep 2025 14:42:13 -0700 (PDT)
+Date: Sun, 21 Sep 2025 17:42:10 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
 	hch@infradead.org, Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH V5 5/9] virtio_ring: rename dma_handle to map_handle
-Message-ID: <20250921174143-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH V5 1/9] virtio_ring: constify virtqueue pointer for DMA
+ helpers
+Message-ID: <20250921174203-mutt-send-email-mst@kernel.org>
 References: <20250813054831.25865-1-jasowang@redhat.com>
- <20250813054831.25865-6-jasowang@redhat.com>
- <20250921165408-mutt-send-email-mst@kernel.org>
+ <20250813054831.25865-2-jasowang@redhat.com>
+ <20250921165434-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250921165408-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20250921165434-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Z0LPdFSa5eBJ2zfilVshQSgovZMRG5jatYvNKrEn6kQ_1758490919
+X-Mimecast-MFC-PROC-ID: Cspok9SWyGUH5H6uc25ZL17m_L8O4Lq5vbFZkdA7gEA_1758490935
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Sun, Sep 21, 2025 at 04:54:19PM -0400, Michael S. Tsirkin wrote:
-> On Wed, Aug 13, 2025 at 01:48:27PM +0800, Jason Wang wrote:
-> > Following patch will introduce virtio map opreations which means the
+On Sun, Sep 21, 2025 at 04:55:10PM -0400, Michael S. Tsirkin wrote:
+> On Wed, Aug 13, 2025 at 01:48:23PM +0800, Jason Wang wrote:
+> > This patch consities virtqueue point for DMA helpers.
 > 
-> operations
+> constifies the virtqueue pointer
 
 note that i fixed it for now
 
-> > address is not necessarily used for DMA. Let's rename the dma_handle
-> > to map_handle first.
 > > 
 > > Reviewed-by: Christoph Hellwig <hch@lst.de>
 > > Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > > ---
-> >  drivers/virtio/virtio_ring.c | 12 ++++++------
-> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> >  drivers/virtio/virtio_ring.c | 25 +++++++++++++------------
+> >  include/linux/virtio.h       | 12 ++++++------
+> >  2 files changed, 19 insertions(+), 18 deletions(-)
 > > 
 > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index fb1d407d5f1b..94b2a8f3acc2 100644
+> > index f5062061c408..103bad8cffff 100644
 > > --- a/drivers/virtio/virtio_ring.c
 > > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -305,18 +305,18 @@ size_t virtio_max_dma_size(const struct virtio_device *vdev)
-> >  EXPORT_SYMBOL_GPL(virtio_max_dma_size);
-> >  
-> >  static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
-> > -			       dma_addr_t *dma_handle, gfp_t flag,
-> > +			       dma_addr_t *map_handle, gfp_t flag,
-> >  			       union vring_mapping_token *mapping_token)
+> > @@ -3149,12 +3149,12 @@ EXPORT_SYMBOL_GPL(virtqueue_get_vring);
+> >   *
+> >   * return DMA address. Caller should check that by virtqueue_dma_mapping_error().
+> >   */
+> > -dma_addr_t virtqueue_dma_map_single_attrs(struct virtqueue *_vq, void *ptr,
+> > +dma_addr_t virtqueue_dma_map_single_attrs(const struct virtqueue *_vq, void *ptr,
+> >  					  size_t size,
+> >  					  enum dma_data_direction dir,
+> >  					  unsigned long attrs)
 > >  {
-> >  	if (vring_use_map_api(vdev)) {
-> >  		return dma_alloc_coherent(mapping_token->dma_dev, size,
-> > -					  dma_handle, flag);
-> > +					  map_handle, flag);
-> >  	} else {
-> >  		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
+> > -	struct vring_virtqueue *vq = to_vvq(_vq);
+> > +	const struct vring_virtqueue *vq = to_vvq(_vq);
 > >  
-> >  		if (queue) {
-> >  			phys_addr_t phys_addr = virt_to_phys(queue);
-> > -			*dma_handle = (dma_addr_t)phys_addr;
-> > +			*map_handle = (dma_addr_t)phys_addr;
-> >  
-> >  			/*
-> >  			 * Sanity check: make sure we dind't truncate
-> > @@ -329,7 +329,7 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
-> >  			 * warning and abort if we end up with an
-> >  			 * unrepresentable address.
-> >  			 */
-> > -			if (WARN_ON_ONCE(*dma_handle != phys_addr)) {
-> > +			if (WARN_ON_ONCE(*map_handle != phys_addr)) {
-> >  				free_pages_exact(queue, PAGE_ALIGN(size));
-> >  				return NULL;
-> >  			}
-> > @@ -339,11 +339,11 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
-> >  }
-> >  
-> >  static void vring_free_queue(struct virtio_device *vdev, size_t size,
-> > -			     void *queue, dma_addr_t dma_handle,
-> > +			     void *queue, dma_addr_t map_handle,
-> >  			     union vring_mapping_token *mapping_token)
+> >  	if (!vq->use_dma_api) {
+> >  		kmsan_handle_dma(virt_to_page(ptr), offset_in_page(ptr), size, dir);
+> > @@ -3176,11 +3176,12 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_map_single_attrs);
+> >   * Unmap the address that is mapped by the virtqueue_dma_map_* APIs.
+> >   *
+> >   */
+> > -void virtqueue_dma_unmap_single_attrs(struct virtqueue *_vq, dma_addr_t addr,
+> > +void virtqueue_dma_unmap_single_attrs(const struct virtqueue *_vq,
+> > +				      dma_addr_t addr,
+> >  				      size_t size, enum dma_data_direction dir,
+> >  				      unsigned long attrs)
 > >  {
-> >  	if (vring_use_map_api(vdev))
-> > -		dma_free_coherent(mapping_token->dma_dev, size, queue, dma_handle);
-> > +		dma_free_coherent(mapping_token->dma_dev, size, queue, map_handle);
-> >  	else
-> >  		free_pages_exact(queue, PAGE_ALIGN(size));
-> >  }
+> > -	struct vring_virtqueue *vq = to_vvq(_vq);
+> > +	const struct vring_virtqueue *vq = to_vvq(_vq);
+> >  
+> >  	if (!vq->use_dma_api)
+> >  		return;
+> > @@ -3196,9 +3197,9 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_unmap_single_attrs);
+> >   *
+> >   * Returns 0 means dma valid. Other means invalid dma address.
+> >   */
+> > -int virtqueue_dma_mapping_error(struct virtqueue *_vq, dma_addr_t addr)
+> > +int virtqueue_dma_mapping_error(const struct virtqueue *_vq, dma_addr_t addr)
+> >  {
+> > -	struct vring_virtqueue *vq = to_vvq(_vq);
+> > +	const struct vring_virtqueue *vq = to_vvq(_vq);
+> >  
+> >  	if (!vq->use_dma_api)
+> >  		return 0;
+> > @@ -3217,9 +3218,9 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_mapping_error);
+> >   *
+> >   * return bool
+> >   */
+> > -bool virtqueue_dma_need_sync(struct virtqueue *_vq, dma_addr_t addr)
+> > +bool virtqueue_dma_need_sync(const struct virtqueue *_vq, dma_addr_t addr)
+> >  {
+> > -	struct vring_virtqueue *vq = to_vvq(_vq);
+> > +	const struct vring_virtqueue *vq = to_vvq(_vq);
+> >  
+> >  	if (!vq->use_dma_api)
+> >  		return false;
+> > @@ -3240,12 +3241,12 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_need_sync);
+> >   * the DMA address really needs to be synchronized
+> >   *
+> >   */
+> > -void virtqueue_dma_sync_single_range_for_cpu(struct virtqueue *_vq,
+> > +void virtqueue_dma_sync_single_range_for_cpu(const struct virtqueue *_vq,
+> >  					     dma_addr_t addr,
+> >  					     unsigned long offset, size_t size,
+> >  					     enum dma_data_direction dir)
+> >  {
+> > -	struct vring_virtqueue *vq = to_vvq(_vq);
+> > +	const struct vring_virtqueue *vq = to_vvq(_vq);
+> >  	struct device *dev = vring_dma_dev(vq);
+> >  
+> >  	if (!vq->use_dma_api)
+> > @@ -3266,12 +3267,12 @@ EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_cpu);
+> >   * Before calling this function, use virtqueue_dma_need_sync() to confirm that
+> >   * the DMA address really needs to be synchronized
+> >   */
+> > -void virtqueue_dma_sync_single_range_for_device(struct virtqueue *_vq,
+> > +void virtqueue_dma_sync_single_range_for_device(const struct virtqueue *_vq,
+> >  						dma_addr_t addr,
+> >  						unsigned long offset, size_t size,
+> >  						enum dma_data_direction dir)
+> >  {
+> > -	struct vring_virtqueue *vq = to_vvq(_vq);
+> > +	const struct vring_virtqueue *vq = to_vvq(_vq);
+> >  	struct device *dev = vring_dma_dev(vq);
+> >  
+> >  	if (!vq->use_dma_api)
+> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > index 8b745ce0cf5f..cf8def717dfd 100644
+> > --- a/include/linux/virtio.h
+> > +++ b/include/linux/virtio.h
+> > @@ -259,18 +259,18 @@ void unregister_virtio_driver(struct virtio_driver *drv);
+> >  	module_driver(__virtio_driver, register_virtio_driver, \
+> >  			unregister_virtio_driver)
+> >  
+> > -dma_addr_t virtqueue_dma_map_single_attrs(struct virtqueue *_vq, void *ptr, size_t size,
+> > +dma_addr_t virtqueue_dma_map_single_attrs(const struct virtqueue *_vq, void *ptr, size_t size,
+> >  					  enum dma_data_direction dir, unsigned long attrs);
+> > -void virtqueue_dma_unmap_single_attrs(struct virtqueue *_vq, dma_addr_t addr,
+> > +void virtqueue_dma_unmap_single_attrs(const struct virtqueue *_vq, dma_addr_t addr,
+> >  				      size_t size, enum dma_data_direction dir,
+> >  				      unsigned long attrs);
+> > -int virtqueue_dma_mapping_error(struct virtqueue *_vq, dma_addr_t addr);
+> > +int virtqueue_dma_mapping_error(const struct virtqueue *_vq, dma_addr_t addr);
+> >  
+> > -bool virtqueue_dma_need_sync(struct virtqueue *_vq, dma_addr_t addr);
+> > -void virtqueue_dma_sync_single_range_for_cpu(struct virtqueue *_vq, dma_addr_t addr,
+> > +bool virtqueue_dma_need_sync(const struct virtqueue *_vq, dma_addr_t addr);
+> > +void virtqueue_dma_sync_single_range_for_cpu(const struct virtqueue *_vq, dma_addr_t addr,
+> >  					     unsigned long offset, size_t size,
+> >  					     enum dma_data_direction dir);
+> > -void virtqueue_dma_sync_single_range_for_device(struct virtqueue *_vq, dma_addr_t addr,
+> > +void virtqueue_dma_sync_single_range_for_device(const struct virtqueue *_vq, dma_addr_t addr,
+> >  						unsigned long offset, size_t size,
+> >  						enum dma_data_direction dir);
+> >  
 > > -- 
 > > 2.31.1
 
