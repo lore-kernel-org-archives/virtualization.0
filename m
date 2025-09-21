@@ -1,76 +1,76 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2F5D1400E
-	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 22:04:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D80423956E
+	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 22:06:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758492247; cv=none; b=p7+PmN0JIRbY4vMzjSmjSJWr0NqMzaGDrhRhA0+mTePz/xFgjjIzgipyO1f7+kTKAkLoJJcVpzUMrgx1Eoib789NQ9G7juSMyMImSwZ2+f1nn6ZIYiaAthtu1Ux0W1m+cw7gyyhUjwLYf0nfenOqBdejR+vepywQMf2AWDhkPxs=
+	t=1758492372; cv=none; b=r47Fco4YUndwmGZTkMa5Z2xHZvncxE7xKiKHVjJUGm1yoGVNInSXeCTphv+J/AeDG9u0QkNg1OHzazFVCR16ek/SGHhcOjElawHyqLjA7J215K9s+Z6tmHBLKvYGBYh8kfxHA9fTeWORIV7hfc1bziNcyNPfq+xidIsdpNa/nww=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758492247; c=relaxed/simple;
-	bh=5BiSCFIEF2vb48yI7EFLT2+TbkJZ6qm76xDVpJWhEKg=;
+	s=arc-20240116; t=1758492372; c=relaxed/simple;
+	bh=dysQy1LgaNQGhPgJ62RPZfECyqwF1qMtyAsHEYtx7Pk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Gu6nDToATTCFJSpZp2p5GtXHoiG0u96TbrR1X6pHhNJHsM012AZS2pr6RFP1tqaDsVJqfopc1W7wxrI6R4aIV1ANAM9pSogHyY+5um3ONkZ0HicLMuIvWYh+/2/Qamd/+B80UKndVGDo4cDVYU3thRQsIATQBt5YGeDelyEDqBw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AobwDAQG; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=BoHoAcyBYfBl4uEavFSj6ydxeigovckvfAngIx9yOVI4NBh8rnb7d8S24McDDjo4XsMb8HCoDsJKCgToUuUKySnKjC0JDbWWH20zMkBbbp9tbLmcJinJWMuateEX0OaFKArRXof87Y13TVZTmKguHQ7nrb3I5yLwiDZlax6jYj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y0AlwIgN; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AobwDAQG"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y0AlwIgN"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758492242;
+	s=mimecast20190719; t=1758492368;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ONP85/kE6LZeutwGgQYDvNA1HvoKzizVzvTOoz6SSI4=;
-	b=AobwDAQGDu6SSgBCB2ij/RcZgyDNU3MoayfUyfQls5gXQqaf+6FlM7wXwtT+DeBFahGyob
-	rJk7f3lkQsmakVFqWGiaRLr9mT5bsp3odk4YM6H5+r5mXAjA+ajCOYj2WW3RG0D/iKMhE/
-	hPEqfzp2UZVBZ2CSdmv0qER+PHCK8YU=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=7UosoLsALRUmkkDefiEvEbWd0s+j+h1QhwUQcDUkgws=;
+	b=Y0AlwIgN1zB1RAMT49HcNW+v1m2jPgUsCD9eld2aIGQtC35uEPpSPZGtsJZUA9lIngP+BN
+	Zz8bWsdoTiCgMm+uiP0N7kzOcnjTHOnzOef8kczpXbWkq2/LbfqcOj4xvLeffjnjhxSNsq
+	L8/Iy0ey5BZfekHxJz2gF9laULut/9Y=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-14-vHLSOIluOW2_XzUXHC4YWQ-1; Sun, 21 Sep 2025 18:04:01 -0400
-X-MC-Unique: vHLSOIluOW2_XzUXHC4YWQ-1
-X-Mimecast-MFC-AGG-ID: vHLSOIluOW2_XzUXHC4YWQ_1758492240
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45b9a856d58so29019315e9.0
-        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 15:04:01 -0700 (PDT)
+ us-mta-15-99f1vIGGNu26-1_4SDkreA-1; Sun, 21 Sep 2025 18:06:07 -0400
+X-MC-Unique: 99f1vIGGNu26-1_4SDkreA-1
+X-Mimecast-MFC-AGG-ID: 99f1vIGGNu26-1_4SDkreA_1758492366
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3ece0cb7c9cso2716569f8f.1
+        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 15:06:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758492240; x=1759097040;
+        d=1e100.net; s=20230601; t=1758492366; x=1759097166;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ONP85/kE6LZeutwGgQYDvNA1HvoKzizVzvTOoz6SSI4=;
-        b=Ku6CZB41KexGgO1hnbNeqSQH5gKkGx6FREYjJdLXUtiZvdqJYh9hA7P6E3Y1TisYZo
-         /NQuAXtrZtJLqKoS6u2Q6zXOeqMRePAhynWppw3EZgDUOXYHfb0DBwX1yziM5EG/z28B
-         Xu2MsIzXxit/M/f1v6O3JQHg3HJJgMbESRbeRf3wspbDD+YBLdqsq6ICrRoBrodzjYHu
-         Gbve5Ma3Kfe1qjjBWHiH8jgxoT8sKEu4EkjfEpcu3oI5wMTfFOOimJROzswr9U33KUBn
-         8076oZGKP16tx4tCVrfw23ylWdt0BrR8Z8EWGwfuFfSw5zxRdiPXZ7RHkLzs2FyHDAOe
-         nUdg==
-X-Forwarded-Encrypted: i=1; AJvYcCV1RxuLsUvpVPi28WnZAvGBf5UBNYyaA3WefBZXrUF9Hx5UiC0gtQ/eu3VudJiu9bdJjgwEbNdsPWjQjSVEiw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxVYP5/yL3M18EOfmSBdr/vPRq5+FPQ5X++/dDFMBer1TYVuqIR
-	3H40ATcWZcoQbwJSqRJhJuIV0p+1iVEQNd7jQ7RSudQ2XworSCeiowL+HygHXV5jNPWIRgTXWww
-	CLPDxvnsOFqjbsiOSKfDzGnm6UzpFmaYOwpn/MBtk+fRwgt6Xl8e9B434joCSpatkgsHI
-X-Gm-Gg: ASbGncunn9rA516Rf7iYTAlAUjECF7pEn8ITi7Ww9qn877sbDP5rx57k49VaYrhrzA2
-	FJ8/dzIKNAAlQJQbte+YfXo3xzgP5Cbwy5CM12QPCf2g2PvWEJqcabVTV+xOfacWiJSCoZ4rdh7
-	63OVkM5D6tgdPeZ/1MkGPD53Uo738Oh/9+EPlN/xE8zwBwM8ucrSplmmWhIlZZ+su4HoWKAzMYu
-	VPx+FDEeFW7hFy1XyhoACyY6QmecYPzSHC16L3UPrAEDA5qdQU+19IGWRw2q/XSsq55Y9j/tGk9
-	YFi4nVrEEcFfSvcq2eBBGFSZ7Y+5Ujqt+w4=
-X-Received: by 2002:a05:600c:8b4c:b0:46d:27b7:e7e5 with SMTP id 5b1f17b1804b1-46d27b7e8f5mr8273065e9.32.1758492239776;
-        Sun, 21 Sep 2025 15:03:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFYVTAld6RKHKDr8EfbZQLYVgCLaOGrRc+Re/ppDckY0JxaBt8dh90AguZrfJ6QxRxscsj/DQ==
-X-Received: by 2002:a05:600c:8b4c:b0:46d:27b7:e7e5 with SMTP id 5b1f17b1804b1-46d27b7e8f5mr8272895e9.32.1758492239258;
-        Sun, 21 Sep 2025 15:03:59 -0700 (PDT)
+        bh=7UosoLsALRUmkkDefiEvEbWd0s+j+h1QhwUQcDUkgws=;
+        b=TcgNtxt/QroGH3TJmTeKLPBmvYUGhM50yhl+zvXxDTkAuvVWcCugecLEZnPPF1cyXr
+         2Bu+RyOCGisXG6GZnysgB3coc5nMkfG1w7u4Cx3HcE1UIocrWWMhzKIu6EtptyzmtAxS
+         xxyZXYdSv1Aa80a7vX6Cvaboz12WAv64FvlYuQtqxNFnfE/v9GZHn5Ner1zo56M8/oCU
+         p5Quc+WbfEJWCMgnAFludi+Bf0YJR6lJr8T5FSGKxcU51JsRtzsR0dk36jUFtkXUVyJa
+         FUx/j+VQvRtfahjX3mp5Qrq/ItyJIlRuIaldunFunJfXRZe4FrlvC8XyxMzL+ue/Mqec
+         dvFA==
+X-Forwarded-Encrypted: i=1; AJvYcCVHrxPo863eSyPvSw+lYyvk1JERpiI6vkXoupCqYnlrP1Qe/BJxUQ7LGguu8WXdN9+ENpYy0oCGODSUNquykg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyjFVsHMV+CKfGXRtBFTigbSg7yJIBdlL4m4v/7Y6Ooxekagzg5
+	6Vume5af4xnCVJEuQcmC+c5WZQ0D4e4ystozNEhE/1yVNDEhD+2O0UiS7AodVLs6AlM8U0DRCOF
+	XxoXXC9/7U9RebHIjNpnUDQYWm5nNzNCt55qn1dCtpcq0CDl9c4VJSAN8VIpLy7b40KfM
+X-Gm-Gg: ASbGncuLgNbmRfK9Kioq+x4IW/n1R2LMc3Do51Q7VsKe0QYMbcYKAaBPGn6aNmogBJy
+	HLZkHohKIiMbXVOeMP6DF0eD0ajnSlHtnaacEpvKbkvRQ65n4+c9+512EN1MX6ddQViC18lnvCa
+	YccIbtlAwxU6PahOMsramx8usRcWsilX8UBB+bsEx0m+KLKlOl7dHhMfjitB1irvQTr7B/qNs/C
+	+qfp2gwD3MbYbfH32PXBhTXx68yhX5L8UETVpZQGcCYfkw2PPxOeNqBcOnjSuaCNItkm3xkLYOh
+	UvEDvUilZQUvzqTjuMnWXpH8WDAD2Sk2PfY=
+X-Received: by 2002:a05:6000:24c4:b0:3fe:34ec:2f90 with SMTP id ffacd0b85a97d-3fe34ec332fmr1041476f8f.54.1758492365550;
+        Sun, 21 Sep 2025 15:06:05 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IExs9nzkwIBt0N4iLWdSlTs/SEaKWQvEzbjRPh94RaKFKeAL/KboleqyoBQ8N9kIxGQuk6Hug==
+X-Received: by 2002:a05:6000:24c4:b0:3fe:34ec:2f90 with SMTP id ffacd0b85a97d-3fe34ec332fmr1041460f8f.54.1758492365051;
+        Sun, 21 Sep 2025 15:06:05 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46da6900832sm1619815e9.0.2025.09.21.15.03.58
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3ee0fbc7107sm18049789f8f.30.2025.09.21.15.06.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Sep 2025 15:03:58 -0700 (PDT)
-Date: Sun, 21 Sep 2025 18:03:56 -0400
+        Sun, 21 Sep 2025 15:06:04 -0700 (PDT)
+Date: Sun, 21 Sep 2025 18:06:01 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
 	hch@infradead.org
 Subject: Re: [PATCH V6 6/9] virtio: introduce map ops in virtio core
-Message-ID: <20250921180208-mutt-send-email-mst@kernel.org>
+Message-ID: <20250921180553-mutt-send-email-mst@kernel.org>
 References: <20250821064641.5025-1-jasowang@redhat.com>
  <20250821064641.5025-7-jasowang@redhat.com>
 Precedence: bulk
@@ -81,7 +81,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20250821064641.5025-7-jasowang@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 3cyRgNjLc_J-twGGbY1BQfxcAPmDtS60jM9XhMjJXj8_1758492240
+X-Mimecast-MFC-PROC-ID: yxTbFMZhvXxUn2ZKtVJ-YmXJQ_ipHxikzXVtDR7qZbw_1758492366
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -89,6 +89,9 @@ Content-Disposition: inline
 On Thu, Aug 21, 2025 at 02:46:38PM +0800, Jason Wang wrote:
 > This patch introduces map operations for virtio device. Virtio use to
 > use DMA API which is not necessarily the case since some devices
+
+used to use
+
 > doesn't do DMA. Instead of using tricks and abusing DMA API, let's
 > simply abstract the current mapping logic into a virtio specific
 > mapping operations. For the device or transport that doesn't do DMA,
@@ -262,11 +265,6 @@ On Thu, Aug 21, 2025 at 02:46:38PM +0800, Jason Wang wrote:
 > + * @map: metadata for performing mapping
 > + * @size: the size of the buffer
 > + * @map_handle: the pointer to the mapped address
-
-it's actually still a DMA address. So just keep it simple,
-everyone knows what is a dma address no one knows what
-is a "mapped address".
-
 > + * @gfp: allocation flag (GFP_XXX)
 > + *
 > + * return virtual address or NULL on error
@@ -291,10 +289,8 @@ is a "mapped address".
 > + * @map: metadata for performing mapping
 > + * @size: the size of the buffer
 > + * @map_handle: the mapped address that needs to be freed
-
-same
-
-
+> + *
+> + */
 > +void virtqueue_map_free_coherent(struct virtio_device *vdev,
 > +				 union virtio_map map, size_t size, void *vaddr,
 > +				 dma_addr_t map_handle)
@@ -317,9 +313,6 @@ same
 > + * @attrs: mapping attributes
 > + *
 > + * Returns mapped address. Caller should check that by virtqueue_mapping_error().
-
-same
-
 > + */
 > +dma_addr_t virtqueue_map_page_attrs(const struct virtqueue *_vq,
 > +				    struct page *page,
@@ -346,9 +339,6 @@ same
 > + * virtqueue_unmap_page_attrs - map a page to the device
 > + * @_vq: the virtqueue we are talking to
 > + * @map_handle: the mapped address
-
-same
-
 > + * @size: the buffer size
 > + * @dir: mapping direction
 > + * @attrs: unmapping attributes
@@ -379,10 +369,6 @@ same
 >   *
 > - * return DMA address. Caller should check that by virtqueue_mapping_error().
 > + * return mapped address. Caller should check that by virtqueue_mapping_error().
-
-
-same
-
 >   */
 >  dma_addr_t virtqueue_map_single_attrs(const struct virtqueue *_vq, void *ptr,
 >  				      size_t size,
