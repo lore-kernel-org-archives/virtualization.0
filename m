@@ -1,152 +1,170 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BCCE270EA5
-	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 17:42:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DD2527280C
+	for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 17:44:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758476577; cv=none; b=expLZXBAIX9xuAer6a/e9PcwNMjgC1gCcXR9PzwUPDoHQnu24D+cQWlIgqBiZW+n4Szazi1FEJQxfFpMo1zW6GcQIzGrZTToRlQ0BdosJrOmwk6DSrx63ADUZZceMESHoCfTjkSL+uFIFV1yAvyMJmMxXmNbY0Y2Kqa0F+oRjBA=
+	t=1758476659; cv=none; b=KoKgPzFmbYLezg1/uOrrhS0mPRe5mPMVxcWW5cPtkrg9Eet2BcTw++BeZ314rmuPOEKd99S6sJdNE5JK85JXIdoc7ltKC5Zsjpn7ZmN72Q6XBwWy3QEiVhRHmxXUl5z7TYJ1Y/mec8ohhs4KJt9az7yU2OmPE/eYCD9V08EsU2w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758476577; c=relaxed/simple;
-	bh=NyKEKr1b2BIcyNy09zsOZ61YBaYjsa5gw1rrHkIXNFg=;
+	s=arc-20240116; t=1758476659; c=relaxed/simple;
+	bh=LvT8oGd5u6CH/ESo2P4mkZoxFwFx3wJMIuQOb+wu7tk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Q/1iARDL+4TrdkNuVon/UygmJZYggVYM+sBF6lmG3+qynqs5Qct0F6RGBasl3OUsKOaJFeVlUbdRxH39pRIaUdP9ELuiQvhfPZ2RwXHHDvpVdW/1HP8JMp58aiiSQdU/KLAvcVALjEl1AxB0gx83mQ9Mq4uNHoHEWbW0ZNF/l2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Sgra2/cR; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=I83OMK8vSYCypdGa3tzJgDmxWWQvMsacXsZbZaCcbkpByVwUBWmZlUvBQJawUzn5RA/vRi5CtPCVdyuMPp0u3gbPMuBd6L3iBioast3ZJJ79ZZgu+PTAi/l9RTg/82ci93Iqh1Ffg4zUufyJndmr6Vvs6NU7ftB3KvOrZkR0lhE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dBB6NL5s; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Sgra2/cR"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dBB6NL5s"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758476575;
+	s=mimecast20190719; t=1758476654;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ki5SNULUk4ovbhFY3JwbvaZTB4gpWhdkwmyhVBSCsGw=;
-	b=Sgra2/cRZPgsiXXBrJZQpWUfpHSm+mmWbs7JkxymzP1CZAJrtmfvrzelC9ZWF8wxs/OGtn
-	T/54dejT2mDBSXV7659iOcE1glDgvtJViPaAvJEnoShWzjiuFC0Ka/5zJ5l4FW53dEx5Iy
-	+Ymam71deik3umutz2PXjToX3M3yKdE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=+ja6bk3OZIOMP0JkRTfcKTdTZycfJVtYVqkigNFQTRI=;
+	b=dBB6NL5sEB29V+hOPp5KDxnEPoAPb9572+uIc+UI7FkJTOJGDIPnNbuhI+YsBR7KVOkbjR
+	qBH3yIBk48BJ1IwTRD8ZXGYTn3AMeuc4ubZV+DVlzQ/JaAuazEwZGW9c9rfY0gkvLdOVAr
+	EgcLWOUyvBZfthn1Ls+qKfe42dzHElo=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-28-uswMF-J1OM-F86eqW2nSDg-1; Sun, 21 Sep 2025 13:42:52 -0400
-X-MC-Unique: uswMF-J1OM-F86eqW2nSDg-1
-X-Mimecast-MFC-AGG-ID: uswMF-J1OM-F86eqW2nSDg_1758476571
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-45f29eb22f8so18660315e9.0
-        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 10:42:51 -0700 (PDT)
+ us-mta-656-9tFBeiT0N5yXSXFEnzHFsw-1; Sun, 21 Sep 2025 13:44:07 -0400
+X-MC-Unique: 9tFBeiT0N5yXSXFEnzHFsw-1
+X-Mimecast-MFC-AGG-ID: 9tFBeiT0N5yXSXFEnzHFsw_1758476646
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45df7e734e0so36147865e9.0
+        for <virtualization@lists.linux.dev>; Sun, 21 Sep 2025 10:44:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758476571; x=1759081371;
+        d=1e100.net; s=20230601; t=1758476646; x=1759081446;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ki5SNULUk4ovbhFY3JwbvaZTB4gpWhdkwmyhVBSCsGw=;
-        b=To7qQoUXCyU/Bs6h4+w29TqXVX488WwqD2CzrL6Kg3eiqAqSDjbvYKQLWczOTY5GZO
-         iYBu1M1uVr1f+qOF4bPTA0jiEE17L/eO6oOQUPvxgAkQRsCSpRmShh+ic1I2k9Ar6h5C
-         6XcqLsX6q4LnEdFh/9AwOW3AKWIpRJO2vYE4b/XjwZKp0W78Ed0ZxO86N/3x6BrEQ4nm
-         ig2ql8JZuBdDP8beELVZJJtETphkglf1p6coaAFDG20SGriWK5BWaiPK1CAyQwokTlNb
-         NZve6fQ7ZjoBtD9cxcuWpe+O/YghtoSIjAwZVQFznwMWai/I60+NXmSawry9WsWhLXhk
-         UHlw==
-X-Forwarded-Encrypted: i=1; AJvYcCWgGneYjyE3IN+Yv81YJH5ESexSBkuXTkTezg+/isYUnM6fyXWvkRSYGmGX5M/RV8x76e4RqZiCOhQnFU43xQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzWeMmvY0ykFm5X6ltxeT0CdGw5F80xea67qtAsqufZAa0h2poM
-	nOR9LpMpK5CgAPfS6uXW1P6I6MwtT9l98AE56PrfKwg+nTy67dSYyZJVLf9GyVDqMRKFe6Aaz4O
-	WnHhEEW5q4RfQeEI1eZBEEvYm2LXGMi/F2WgbP4PWFhrp7xkKDmeeJ1ZP1oJXzQeD5532
-X-Gm-Gg: ASbGncsPMHjXwSVUiozkEGNb3la0IISQtGUdDRSU5pJcaZqE9qyvdLX9n2WKB73O/xF
-	gRg5DihQ8yWQ4b1y4Uu+nayskl+DBodkNEI/GTkmJyCwVrNLflF+Fowiqb/mQ9KBAu5UUMpRJGf
-	X9QkISXtAViGGcKOySYI14HaFHTKG5jP6J8R+RVCwmeqk928I5Qjm7e5tP1XUEozkul3Iohht/t
-	0numqzCQgO00PRpdEcU7r392PxgtymSNHdHsKnwOhs8YK4FRDKJ5qL0gBPkdatO65wuxaC9OUsG
-	y/LySnGRObfiWHZ3B3lY0pztPIq3hg7q/k4=
-X-Received: by 2002:a05:600c:4fc2:b0:45d:ec9d:5fde with SMTP id 5b1f17b1804b1-467ec46079dmr95217405e9.37.1758476570636;
-        Sun, 21 Sep 2025 10:42:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFiD/X8G7MP1jcVbjEIkInBgciEQnAeB2QSMG8GJCmlocmhldDBxHzW7xwz0JStIEtLdCYMSA==
-X-Received: by 2002:a05:600c:4fc2:b0:45d:ec9d:5fde with SMTP id 5b1f17b1804b1-467ec46079dmr95217255e9.37.1758476570232;
-        Sun, 21 Sep 2025 10:42:50 -0700 (PDT)
+        bh=+ja6bk3OZIOMP0JkRTfcKTdTZycfJVtYVqkigNFQTRI=;
+        b=q4wUNOP5pPj2v06ONmtC/PYS3lm/bw1eHkwb9Ihhj3ygfJsoNjDf3/V1axJHx6gqNJ
+         rewWJOyc+Mysj03i2ZyIi7RmSIRj8Qg+aUYKg4Og2DC1Q0uH332vwqif1+lZVnyhrqJy
+         LiT6vkJdKu9vc5ibfqBWykw0440i1CJmQZVOwZNyQi19UWLsoVKo7sdUNurRwvgM6YQF
+         d2Idxx1GxqprSEgPJBxXmsQUjTY9cQph56LE5lnilHAz3AYaq7+g26+Z61/LnyJwmOvw
+         6FCxG9xmquxFbPHbmXU+3hZbutArkZqyeMG1CB0YeElyAwtXLDJpf2BCGWEw1NL5/gNN
+         fuUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXyxOrOr53RTmBl0B3a/eXMDxQA0mWDEzVeAuUst2KvmCW913WHTqbpkiSNmXgjkKFrh7N2TgPoy2SEUV6/Sg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyMM1bA4gtfRRh5OoBZ+VwCKzu4gN28/1PmNCe8xxzOktrvrdWy
+	KeJC07tr/vwLTsT4gGVSxXSC8OzrX0SkWxjuAEggUYgEVvo8AwgC+OIuPjMg8/wThttw28kMq7C
+	jGxHk6oshJ/IWpWv+Y2Nn1WLYPIro61/RG7DMJRuztAaM7PA1gyDS9GyWZuM0jZx9ouY/
+X-Gm-Gg: ASbGncs1CPyODZGV8tXCoNVFJHiNrvBSvUCJCRsQEJmcYTPdVZWFidTNZLYexYokW7P
+	+wVKS86rmh9GOqsXbL+p4BmFSDhkJznyOeOXlAbLqlXCN6MMRK8CYEeEU+nN3PCGcZb2XLvcr1w
+	McJD789eKTvM79KB/p5mQgLbHJOJzVBwwNl2sjRKy77mirDmXtFeGdMzdWix6MY9SawD3wqUX7u
+	ARbKNz8eptUUIkTN62AyrCofs4Bj6ofa37AQ2uNv6GUhn/Y88RgpwEs3GZVqNMcCWX9jhKId99e
+	a6hfXNqX9fLdrmWatveZXeieY7iQP3sxZTw=
+X-Received: by 2002:a05:600c:8a16:10b0:468:1a3f:c4c7 with SMTP id 5b1f17b1804b1-4681a3fc4e6mr79590205e9.24.1758476645656;
+        Sun, 21 Sep 2025 10:44:05 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFH0xEwAxiicRk6Wh8us79HfrItFjr2zQbpgO1lL0QPCnZY66TW8UA4iOeJ32MywWIrxn1K+A==
+X-Received: by 2002:a05:600c:8a16:10b0:468:1a3f:c4c7 with SMTP id 5b1f17b1804b1-4681a3fc4e6mr79590085e9.24.1758476645311;
+        Sun, 21 Sep 2025 10:44:05 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3ee07407aebsm17000435f8f.14.2025.09.21.10.42.49
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-467fc818e00sm128532715e9.0.2025.09.21.10.44.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Sep 2025 10:42:49 -0700 (PDT)
-Date: Sun, 21 Sep 2025 13:42:47 -0400
+        Sun, 21 Sep 2025 10:44:04 -0700 (PDT)
+Date: Sun, 21 Sep 2025 13:44:02 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH V6 15/19] virtio_ring: factor out core logic of buffer
- detaching
-Message-ID: <20250921134159-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH V6 14/19] virtio_ring: determine descriptor flags at one
+ time
+Message-ID: <20250921134323-mutt-send-email-mst@kernel.org>
 References: <20250919073154.49278-1-jasowang@redhat.com>
- <20250919073154.49278-16-jasowang@redhat.com>
+ <20250919073154.49278-15-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250919073154.49278-16-jasowang@redhat.com>
+In-Reply-To: <20250919073154.49278-15-jasowang@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: uHYe-3xOgJ_9mKV1LFmkz4rxce-gbMmw2wBR_UMsA-k_1758476571
+X-Mimecast-MFC-PROC-ID: Rqbm00EEzuqSsNwBpLZ8N12uVcAmsf4qWdPwluqsF_c_1758476646
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 19, 2025 at 03:31:50PM +0800, Jason Wang wrote:
-> Factor out core logic of buffer detaching and leave the id population
-> to the caller so in order can just call the core logic.
+On Fri, Sep 19, 2025 at 03:31:49PM +0800, Jason Wang wrote:
+> Let's determine the last descriptor by counting the number of sg. This
+> would be consistent with packed virtqueue implementation and ease the
+> future in-order implementation.
 > 
 > Acked-by: Eugenio Pérez <eperezma@redhat.com>
 > Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
->  drivers/virtio/virtio_ring.c | 17 +++++++++++++----
->  1 file changed, 13 insertions(+), 4 deletions(-)
+>  drivers/virtio/virtio_ring.c | 21 ++++++++-------------
+>  1 file changed, 8 insertions(+), 13 deletions(-)
 > 
 > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 0949675a3d12..a83d08070e8a 100644
+> index 1045c553ee65..0949675a3d12 100644
 > --- a/drivers/virtio/virtio_ring.c
 > +++ b/drivers/virtio/virtio_ring.c
-> @@ -1662,8 +1662,8 @@ static bool virtqueue_kick_prepare_packed(struct vring_virtqueue *vq)
->  	return needs_kick;
->  }
+> @@ -574,7 +574,7 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
+>  	struct vring_desc_extra *extra;
+>  	struct scatterlist *sg;
+>  	struct vring_desc *desc;
+> -	unsigned int i, n, avail, descs_used, prev, err_idx;
+> +	unsigned int i, n, avail, descs_used, err_idx, c = 0;
+>  	int head;
+>  	bool indirect;
 >  
-> -static void detach_buf_packed(struct vring_virtqueue *vq,
-> -			      unsigned int id, void **ctx)
-> +static void detach_buf_packed_in_order(struct vring_virtqueue *vq,
-> +				       unsigned int id, void **ctx)
->  {
->  	struct vring_desc_state_packed *state = NULL;
->  	struct vring_packed_desc *desc;
-> @@ -1674,8 +1674,6 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
->  	/* Clear data ptr. */
->  	state->data = NULL;
->  
-> -	vq->packed.desc_extra[state->last].next = vq->free_head;
-> -	vq->free_head = id;
->  	vq->vq.num_free += state->num;
->  
->  	if (unlikely(vq->use_map_api)) {
-> @@ -1712,6 +1710,17 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+> @@ -631,6 +631,7 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
 >  	}
->  }
 >  
-> +static void detach_buf_packed(struct vring_virtqueue *vq,
-> +			      unsigned int id, void **ctx)
-> +{
-> +	struct vring_desc_state_packed *state = &vq->packed.desc_state[id];
-> +
-> +	vq->packed.desc_extra[state->last].next = vq->free_head;
-> +	vq->free_head = id;
-> +
-> +	return detach_buf_packed_in_order(vq, id, ctx);
-> +}
-> +
+>  	for (n = 0; n < out_sgs; n++) {
+> +		sg = sgs[n];
+>  		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
+>  			dma_addr_t addr;
+>  			u32 len;
 
-Wait what? return in a void function?
-How does this compile? I'm guessing it's tweaked by a follow
-up patch?
+How does this make any sense?
 
-
->  static inline bool is_used_desc_packed(const struct vring_virtqueue *vq,
->  				       u16 idx, bool used_wrap_counter)
->  {
+> @@ -638,12 +639,12 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
+>  			if (vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr, &len, premapped))
+>  				goto unmap_release;
+>  
+> -			prev = i;
+>  			/* Note that we trust indirect descriptor
+>  			 * table since it use stream DMA mapping.
+>  			 */
+>  			i = virtqueue_add_desc_split(vq, desc, extra, i, addr, len,
+> -						     VRING_DESC_F_NEXT,
+> +						     ++c == total_sg ?
+> +						     0 : VRING_DESC_F_NEXT,
+>  						     premapped);
+>  		}
+>  	}
+> @@ -655,21 +656,15 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
+>  			if (vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &addr, &len, premapped))
+>  				goto unmap_release;
+>  
+> -			prev = i;
+>  			/* Note that we trust indirect descriptor
+>  			 * table since it use stream DMA mapping.
+>  			 */
+> -			i = virtqueue_add_desc_split(vq, desc, extra, i, addr, len,
+> -						     VRING_DESC_F_NEXT |
+> -						     VRING_DESC_F_WRITE,
+> -						     premapped);
+> +			i = virtqueue_add_desc_split(vq, desc, extra,
+> +				i, addr, len,
+> +				(++c == total_sg ? 0 : VRING_DESC_F_NEXT) |
+> +				VRING_DESC_F_WRITE, premapped);
+>  		}
+>  	}
+> -	/* Last one doesn't continue. */
+> -	desc[prev].flags &= cpu_to_virtio16(vq->vq.vdev, ~VRING_DESC_F_NEXT);
+> -	if (!indirect && vring_need_unmap_buffer(vq, &extra[prev]))
+> -		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags &=
+> -			~VRING_DESC_F_NEXT;
+>  
+>  	if (indirect) {
+>  		/* Now that the indirect table is filled in, map it. */
 > -- 
 > 2.31.1
 
