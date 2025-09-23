@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE3B124EF8C
-	for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 14:48:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21E581F5846
+	for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 14:54:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758638883; cv=none; b=PV/6XzYuFL5wHAmNv2EPADQxd1S0w5bKWONlp8R0h2/Z5fCtgggxFI2j/gTygNy+VW2rewNE+yFcITTJdRK09HURJGxF+o8YS40QTmXsBTcf7lOkOZbKMiJTFvjKhyHxxdOnN7HQ9ho/0+8p07qZpDnKkcUsM31YazPJSNTYpUQ=
+	t=1758639283; cv=none; b=BNEWR7dfgxjwwK7cDUn9r0/tRqa+2DC0dO7ORRXw14kQBmXwWSa5ba4B4GjjhKzNpqnL2x10ae6bFfcXxR11z6tjGUylAVTA2YeRGPziPAvFCX5ZVYob9XhscTka/NGuSGswQP0QyYAXZjSrsMVWcV3e0xKuch0oavmD4eHXHM4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758638883; c=relaxed/simple;
-	bh=KeqE1HEyB8QFnK2pN1rXqm6q+uT9Q0dbCDWcjv2Nc1M=;
+	s=arc-20240116; t=1758639283; c=relaxed/simple;
+	bh=yLJ8trcIeN87cTM37Qp7/z/or3KwICs4V/zFq2dp/xY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=R8yyTOzw/00xCjEXOSn//OKk1OihlZ+fWq+CgbF9IQNQqwtwEAmGxv45LRIdTexZ3D6sCu1mm9mVaxJ33VV+fWKIdjh0p8gmpocybh2fDX4kgVcn1ADLrUYk0gzfEfWFEaAoxNsH5mVw9kqluUS0usOf1gzw2ZEeSde/XGyaRcY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i0/29LKL; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=X82v4VdUhzryNEsONue/T3xaKG1xuKG6inn6dene8uv8HNcK+Tc8UsMevh8G8WEa4N9/A+eTX9DJ+8vBhB9gB9cyhQ9sa6E+TjhzXqCoN0JqxUqS02PoqGjgLJfubH3ckKWt1WtmmjIw3DucH6sSAg0qvhkBhpXBZFL4RtzYOQQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FLUus4Ph; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i0/29LKL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FLUus4Ph"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758638880;
+	s=mimecast20190719; t=1758639281;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=lGsm6H7P2q74l6MeTkSvpQNEFLpHSBIxi1h0StSUMNY=;
-	b=i0/29LKLkZQ6UxxsUcQd1JzmVJBGD09OQT5s3LxI1/uIkkTykf276CN8c9QyofmWMG6RYP
-	KOjELBVYq2wwav0eDoXNUXxSyH+7zSp1Bg85/iU3rvKeAt0Pzp53i05/eTR9bjpj0u6r1z
-	2CbvUOhjt+ljAlTi5e9p1qVYcpLuKTU=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=GlTGS/oUq6qr4tFK7p920ZEocw8mB7yDznWqUIeSU/0=;
+	b=FLUus4PhA1JD+T3k8ndtD0IW63i7t8c0OvuYjykz66fRKReLtKf+ehlMkyl8cbxQbqOhkV
+	cysZsWu6EjZDNl9v0/ZWfbcU3svKmQhr8SUVvnk4RLFfgujMsiWKOTwHPmsPDUJHiS1cRE
+	4ZlxkyjQSxWQ/cOU3vBnX+Ybz6JCCNM=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-428-1PFggW98PL-4fVNWLi8uFA-1; Tue, 23 Sep 2025 10:47:57 -0400
-X-MC-Unique: 1PFggW98PL-4fVNWLi8uFA-1
-X-Mimecast-MFC-AGG-ID: 1PFggW98PL-4fVNWLi8uFA_1758638876
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3ece0cb7c9cso4669570f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 07:47:57 -0700 (PDT)
+ us-mta-648-HREMyOCQM-2MmVTmpOAynQ-1; Tue, 23 Sep 2025 10:54:40 -0400
+X-MC-Unique: HREMyOCQM-2MmVTmpOAynQ-1
+X-Mimecast-MFC-AGG-ID: HREMyOCQM-2MmVTmpOAynQ_1758639279
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-b2e6b2bb443so176686566b.2
+        for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 07:54:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758638876; x=1759243676;
+        d=1e100.net; s=20230601; t=1758639279; x=1759244079;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lGsm6H7P2q74l6MeTkSvpQNEFLpHSBIxi1h0StSUMNY=;
-        b=SZ3etTbLORD55knnQneOoolij6nKLuUsiQh72wad1wbzHc6OYK0Sf4ZZclnPcFSh+a
-         PNyCTn08oyWRnrBN6+5iwTAsdJ4oPew7H4yCcqCpGkGtbkdPYXWvQ4+MJqvnXsKr/qgV
-         TnEZsl/aLRBSnFcav6EzmcR6NL1VSi6F2veuJCfoqd4SUeUpTIZlXcpvAoUrhMspMVAH
-         kqOqST5/liMZHUesuz6Dz0p0aXT+qaeQ+83yMh4+NJfkPRUZnuD6Dh4Jh4Qe7GtPdzpQ
-         r0TdCF0YW01c+J+k26tulJBWv9B/N6mUlEv6BILnYU2B9eNfvoJM7VJI1g44X/oOY91l
-         KG3w==
-X-Forwarded-Encrypted: i=1; AJvYcCXehknr64gI2O9anpIhZizOABCsUm2yneDt6bwScWoaXd/NkBYcHGUJ0AL6R/hrwuVJvzckAnxVz/DJsED1QQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzOx2qR710zEaR1ZGSm1zl5d9sPuV+1SJpJ0P9BwqZ1U/cxSOQ/
-	GAc1PIdyWx7XzZw6v8roVN3rmvh72ZjycfUaY0XvWDXBZERoQAqtwyp7QoQkvvnAEUajrnOhxD9
-	zgdZZVlr7VA35b9ZApMMXoQClvujx7JQtFNwLOmS+2rlV7h9i2ZMZxLBhepdXutMPuEBI
-X-Gm-Gg: ASbGncvjfo5IeTADoGDOBZdtV/twdYYZeXlysMtywUp8fz7SEvidyVnX4MnXk2/WsBA
-	2P6YItDYyF1wgDiQDdyAlw3AEPjpvX4pfOaQ73jrNVWqSZWCV8IaqULve4FpqfihGVwpZUvrPiA
-	hp48zuBFWYfNerydPIxNCPlrconhSdqflmj0lkm1WYysNmMjOWejj+EbAgrGvv97E0XVwhkL2V2
-	NdZvqOVkHWu07fKt2hHqsDDREpTVDJzFzamrDjRieMdB6QiwtB9/H3rudFA9ZIM+Oy0cL3Ng8yc
-	rq3sQLlKGclOoqRcSmwB4+Y8O1WQcUgvnXk=
-X-Received: by 2002:a05:6000:220c:b0:3f3:88e1:9e30 with SMTP id ffacd0b85a97d-405c5bd85e9mr2624058f8f.15.1758638875928;
-        Tue, 23 Sep 2025 07:47:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFVQW7wtomtpR1qDlFcvwbCRqGqsve/Ts8yCwjgDlTYhRUQTsERWyfPd2452H8Z8mCijph+Xg==
-X-Received: by 2002:a05:6000:220c:b0:3f3:88e1:9e30 with SMTP id ffacd0b85a97d-405c5bd85e9mr2624025f8f.15.1758638875505;
-        Tue, 23 Sep 2025 07:47:55 -0700 (PDT)
+        bh=GlTGS/oUq6qr4tFK7p920ZEocw8mB7yDznWqUIeSU/0=;
+        b=WoUx/3jRaa3i+p7l0eGUvUGJX1lc2mAE9c3w3RNv4vyo+CzlwFrEZYJmTlignj8te6
+         yPajvMpCcHLu4MLJtLZqyYqy+J+y8Ct0ibcc/rykZv3D8ZH2wIWlKX60a6WiwpX/rgO2
+         QHmJwEXj+KVSeQycjP0jKqd9bGT/HFQ1xwBf/FSNKCWCt9VwdcR/9uQl1lDozJ0RC4U4
+         9KuXYJlw/4Zr3K2kJV4gjSg+sZqXcsk9PD+MSJzPHGUS7h8Q9vQJ9fT3lsJpHFOh25Mb
+         /sCKS8slrYZ9oVXEef8i7wZ9dDRR2/kyr6vIy/7684cwW3OyczXiTUIg0VK1je7KED+B
+         Iuqw==
+X-Forwarded-Encrypted: i=1; AJvYcCUMznHwqw8K8Kbnw7okpSb/k9oebFl2oNtIwdYvYqK5U9NhUSWReg8yHCnVhiPQnQtYb4lS44UBGT4leSY5yg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyMAuS6vwT7jV1q7a5/M4XgNQrzy97kiFSh7hWu5tkXppLRtdye
+	944LTA+MXvrEcVYGosdaNX+LaZojuGTlaiS9qyc9nHOt7aDv2u6ijL9yNNYD7r0vXvqtoof/1CF
+	d3xuR2loXRclwjo+tkjUMAhlYYqHDhaHOlkpyPnkbJ5Bv0oV3Uk78nWKWd+vguih/OgAD
+X-Gm-Gg: ASbGncv/9kKenfDqs/nPz8YQTnRjkcz9Q6IU8v+UtqQGVk/Ld0Du3/LCgr9A1VmXPw8
+	xlmXyjCuqYEhAorXHrAaBn30AKS1mORuLD5jpMmmXHOYj3op6/D2WO+QFC9Fz4ZpZdnGgqeptUI
+	iwTvkfH5S8zSPCUrCOZnSga8dCSak4bvt7o4h5hCQB2WJ4jvD3TZjjW4JPKuWq0vcE7hyzs48xK
+	ClyBYsRTTCBS+dqmx+JcO1XbssqKbVZ2Z6G1nXu/6WX2zkZgXly399s54wBME+OdWpfNY0T1s2G
+	/RurdDh82mjz/aZYlyw4TGyicBPUtwCjvEg=
+X-Received: by 2002:a17:906:4fca:b0:ae3:b2b7:7f2f with SMTP id a640c23a62f3a-b302a36d276mr320841666b.40.1758639278592;
+        Tue, 23 Sep 2025 07:54:38 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH0UY1L8jdF7RbmRM0SmnKrV7GJclLjE5bXJYDHMS+tHgb236lYdm0fYPTKRoEBIL9oZfqX0g==
+X-Received: by 2002:a17:906:4fca:b0:ae3:b2b7:7f2f with SMTP id a640c23a62f3a-b302a36d276mr320838666b.40.1758639278088;
+        Tue, 23 Sep 2025 07:54:38 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3f61703b206sm14087074f8f.6.2025.09.23.07.47.54
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b2dd7bab2e6sm392363866b.41.2025.09.23.07.54.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Sep 2025 07:47:55 -0700 (PDT)
-Date: Tue, 23 Sep 2025 10:47:52 -0400
+        Tue, 23 Sep 2025 07:54:37 -0700 (PDT)
+Date: Tue, 23 Sep 2025 10:54:34 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Simon Schippers <simon.schippers@tu-dortmund.de>
 Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
@@ -71,103 +71,214 @@ Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev, kvm@vger.kernel.org,
 	Tim Gebauer <tim.gebauer@tu-dortmund.de>
-Subject: Re: [PATCH net-next v5 3/8] TUN, TAP & vhost_net: Stop netdev queue
- before reaching a full ptr_ring
-Message-ID: <20250923104348-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH net-next v5 4/8] TUN & TAP: Wake netdev queue after
+ consuming an entry
+Message-ID: <20250923104818-mutt-send-email-mst@kernel.org>
 References: <20250922221553.47802-1-simon.schippers@tu-dortmund.de>
- <20250922221553.47802-4-simon.schippers@tu-dortmund.de>
+ <20250922221553.47802-5-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250922221553.47802-4-simon.schippers@tu-dortmund.de>
+In-Reply-To: <20250922221553.47802-5-simon.schippers@tu-dortmund.de>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: CYyDAqDmgFa9fgg5CeG4ScFCI6Nk4XKK1A1wi5djgsU_1758638876
+X-Mimecast-MFC-PROC-ID: WOXekjaymRIC0eZJyjs0rZ9oi1fSGgmpxQh_BbJQKRs_1758639279
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Sep 23, 2025 at 12:15:48AM +0200, Simon Schippers wrote:
-> Stop the netdev queue ahead of __ptr_ring_produce when
-> __ptr_ring_full_next signals the ring is about to fill. Due to the
-> smp_wmb() of __ptr_ring_produce the consumer is guaranteed to be able to
-> notice the stopped netdev queue after seeing the new ptr_ring entry. As
-> both __ptr_ring_full_next and __ptr_ring_produce need the producer_lock,
-> the lock is held during the execution of both methods.
+On Tue, Sep 23, 2025 at 12:15:49AM +0200, Simon Schippers wrote:
+> The new wrappers tun_ring_consume/tap_ring_consume deal with consuming an
+> entry of the ptr_ring and then waking the netdev queue when entries got
+> invalidated to be used again by the producer.
+> To avoid waking the netdev queue when the ptr_ring is full, it is checked
+> if the netdev queue is stopped before invalidating entries. Like that the
+> netdev queue can be safely woken after invalidating entries.
 > 
-> dev->lltx is disabled to ensure that tun_net_xmit is not called even
-> though the netdev queue is stopped (which happened in my testing,
-> resulting in rare packet drops). Consequently, the update of trans_start
-> in tun_net_xmit is also removed.
+> The READ_ONCE in __ptr_ring_peek, paired with the smp_wmb() in
+> __ptr_ring_produce within tun_net_xmit guarantees that the information
+> about the netdev queue being stopped is visible after __ptr_ring_peek is
+> called.
+> 
+> The netdev queue is also woken after resizing the ptr_ring.
 > 
 > Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 > Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 > Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+
+
+Sounds like there is subtle interplay here between queue stopped bit and
+ring full status, all lockless with fancy ordering tricks.  I have to
+say this is fragile. I'd like to see much more documentation.
+
+
+Or alternatively, I ask myself if, after detecting flow control
+issues, it is possible to just use a spinlock to synchronize,
+somehow.
+
+
 > ---
->  drivers/net/tun.c | 16 ++++++++++------
->  1 file changed, 10 insertions(+), 6 deletions(-)
+>  drivers/net/tap.c | 44 +++++++++++++++++++++++++++++++++++++++++++-
+>  drivers/net/tun.c | 47 +++++++++++++++++++++++++++++++++++++++++++++--
+>  2 files changed, 88 insertions(+), 3 deletions(-)
 > 
+> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+> index 1197f245e873..f8292721a9d6 100644
+> --- a/drivers/net/tap.c
+> +++ b/drivers/net/tap.c
+> @@ -753,6 +753,46 @@ static ssize_t tap_put_user(struct tap_queue *q,
+>  	return ret ? ret : total;
+>  }
+>  
+> +static struct sk_buff *tap_ring_consume(struct tap_queue *q)
+> +{
+> +	struct netdev_queue *txq;
+> +	struct net_device *dev;
+> +	bool will_invalidate;
+> +	bool stopped;
+> +	void *ptr;
+> +
+> +	spin_lock(&q->ring.consumer_lock);
+> +	ptr = __ptr_ring_peek(&q->ring);
+> +	if (!ptr) {
+> +		spin_unlock(&q->ring.consumer_lock);
+> +		return ptr;
+> +	}
+> +
+> +	/* Check if the queue stopped before zeroing out, so no ptr get
+> +	 * produced in the meantime, because this could result in waking
+> +	 * even though the ptr_ring is full. The order of the operations
+
+which operations, I don't get it? it's unusual for barrier()
+to be effective. are you trying to order the read in netif_tx_queue_stopped
+versus the read in __ptr_ring_discard_one?
+Then that would seem to need smp_rmb and accordingly smp_wmb in the
+producing side.
+
+
+> +	 * is ensured by barrier().
+> +	 */
+> +	will_invalidate = __ptr_ring_will_invalidate(&q->ring);
+> +	if (unlikely(will_invalidate)) {
+> +		rcu_read_lock();
+> +		dev = rcu_dereference(q->tap)->dev;
+> +		txq = netdev_get_tx_queue(dev, q->queue_index);
+> +		stopped = netif_tx_queue_stopped(txq);
+> +	}
+> +	barrier();
+> +	__ptr_ring_discard_one(&q->ring, will_invalidate);
+> +
+> +	if (unlikely(will_invalidate)) {
+> +		if (stopped)
+> +			netif_tx_wake_queue(txq);
+> +		rcu_read_unlock();
+> +	}
+> +	spin_unlock(&q->ring.consumer_lock);
+> +
+> +	return ptr;
+> +}
+> +
+>  static ssize_t tap_do_read(struct tap_queue *q,
+>  			   struct iov_iter *to,
+>  			   int noblock, struct sk_buff *skb)
+> @@ -774,7 +814,7 @@ static ssize_t tap_do_read(struct tap_queue *q,
+>  					TASK_INTERRUPTIBLE);
+>  
+>  		/* Read frames from the queue */
+> -		skb = ptr_ring_consume(&q->ring);
+> +		skb = tap_ring_consume(q);
+>  		if (skb)
+>  			break;
+>  		if (noblock) {
+> @@ -1207,6 +1247,8 @@ int tap_queue_resize(struct tap_dev *tap)
+>  	ret = ptr_ring_resize_multiple_bh(rings, n,
+>  					  dev->tx_queue_len, GFP_KERNEL,
+>  					  __skb_array_destroy_skb);
+> +	if (netif_running(dev))
+> +		netif_tx_wake_all_queues(dev);
+>  
+>  	kfree(rings);
+>  	return ret;
 > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 86a9e927d0ff..c6b22af9bae8 100644
+> index c6b22af9bae8..682df8157b55 100644
 > --- a/drivers/net/tun.c
 > +++ b/drivers/net/tun.c
-> @@ -931,7 +931,7 @@ static int tun_net_init(struct net_device *dev)
->  	dev->vlan_features = dev->features &
->  			     ~(NETIF_F_HW_VLAN_CTAG_TX |
->  			       NETIF_F_HW_VLAN_STAG_TX);
-> -	dev->lltx = true;
-> +	dev->lltx = false;
+> @@ -2114,13 +2114,53 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+>  	return total;
+>  }
 >  
->  	tun->flags = (tun->flags & ~TUN_FEATURES) |
->  		      (ifr->ifr_flags & TUN_FEATURES);
-> @@ -1060,14 +1060,18 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
->  
->  	nf_reset_ct(skb);
->  
-> -	if (ptr_ring_produce(&tfile->tx_ring, skb)) {
-> +	queue = netdev_get_tx_queue(dev, txq);
+> +static void *tun_ring_consume(struct tun_file *tfile)
+> +{
+> +	struct netdev_queue *txq;
+> +	struct net_device *dev;
+> +	bool will_invalidate;
+> +	bool stopped;
+> +	void *ptr;
 > +
-> +	spin_lock(&tfile->tx_ring.producer_lock);
-> +	if (__ptr_ring_full_next(&tfile->tx_ring))
-> +		netif_tx_stop_queue(queue);
+> +	spin_lock(&tfile->tx_ring.consumer_lock);
+> +	ptr = __ptr_ring_peek(&tfile->tx_ring);
+> +	if (!ptr) {
+> +		spin_unlock(&tfile->tx_ring.consumer_lock);
+> +		return ptr;
+> +	}
 > +
-> +	if (unlikely(__ptr_ring_produce(&tfile->tx_ring, skb))) {
-> +		spin_unlock(&tfile->tx_ring.producer_lock);
->  		drop_reason = SKB_DROP_REASON_FULL_RING;
->  		goto drop;
->  	}
-
-The comment makes it sound like you always keep one slot free
-in the queue but that is not the case - you just
-check before calling __ptr_ring_produce.
-
-
-But it is racy isn't it? So first of all I suspect you
-are missing an mb before netif_tx_stop_queue.
-
-Second it's racy because more entries can get freed
-afterwards. Which maybe is ok in this instance?
-But it really should be explained in more detail, if so.
-
-
-
-Now - why not just check ring full *after* __ptr_ring_produce?
-Why do we need all these new APIs, and we can
-use existing ones which at least are not so hard to understand.
-
-
-
-
-> -
-> -	/* dev->lltx requires to do our own update of trans_start */
-> -	queue = netdev_get_tx_queue(dev, txq);
-> -	txq_trans_cond_update(queue);
-> +	spin_unlock(&tfile->tx_ring.producer_lock);
+> +	/* Check if the queue stopped before zeroing out, so no ptr get
+> +	 * produced in the meantime, because this could result in waking
+> +	 * even though the ptr_ring is full. The order of the operations
+> +	 * is ensured by barrier().
+> +	 */
+> +	will_invalidate = __ptr_ring_will_invalidate(&tfile->tx_ring);
+> +	if (unlikely(will_invalidate)) {
+> +		rcu_read_lock();
+> +		dev = rcu_dereference(tfile->tun)->dev;
+> +		txq = netdev_get_tx_queue(dev, tfile->queue_index);
+> +		stopped = netif_tx_queue_stopped(txq);
+> +	}
+> +	barrier();
+> +	__ptr_ring_discard_one(&tfile->tx_ring, will_invalidate);
+> +
+> +	if (unlikely(will_invalidate)) {
+> +		if (stopped)
+> +			netif_tx_wake_queue(txq);
+> +		rcu_read_unlock();
+> +	}
+> +	spin_unlock(&tfile->tx_ring.consumer_lock);
+> +
+> +	return ptr;
+> +}
+> +
+>  static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+>  {
+>  	DECLARE_WAITQUEUE(wait, current);
+>  	void *ptr = NULL;
+>  	int error = 0;
 >  
->  	/* Notify and wake up reader process */
->  	if (tfile->flags & TUN_FASYNC)
+> -	ptr = ptr_ring_consume(&tfile->tx_ring);
+> +	ptr = tun_ring_consume(tfile);
+>  	if (ptr)
+>  		goto out;
+>  	if (noblock) {
+> @@ -2132,7 +2172,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+>  
+>  	while (1) {
+>  		set_current_state(TASK_INTERRUPTIBLE);
+> -		ptr = ptr_ring_consume(&tfile->tx_ring);
+> +		ptr = tun_ring_consume(tfile);
+>  		if (ptr)
+>  			break;
+>  		if (signal_pending(current)) {
+> @@ -3621,6 +3661,9 @@ static int tun_queue_resize(struct tun_struct *tun)
+>  					  dev->tx_queue_len, GFP_KERNEL,
+>  					  tun_ptr_free);
+>  
+> +	if (netif_running(dev))
+> +		netif_tx_wake_all_queues(dev);
+> +
+>  	kfree(rings);
+>  	return ret;
+>  }
 > -- 
 > 2.43.0
 
