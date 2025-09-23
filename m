@@ -1,290 +1,216 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010028.outbound.protection.outlook.com [40.93.198.28])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDD65328591
-	for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 16:36:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758645401; cv=none; b=kzbe1Z+W7X8ha5NTLVAAtu6YeuIsEk23LFmxdezDsotB2dr4jYFZBFZOmABwof0LVnzLJH6O/x3l/zkXbilmCVXMGJnXUnfcD1bsQdEcwKV8vLfnh+9zG/kcC626oGvaqILsv6Y98gVZ83T2kjW8MEr/Q2ATak3mgRYAaqEWL+g=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758645401; c=relaxed/simple;
-	bh=WRbvQlH5wzDRTJnGfw2q29Hf/ZHyrfDOIIYTdpuj9BM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=bBXNXa4SKtluc00ZD7MnpMDiZ72lPS853ohE5B5J17921YGg39UdldQy/04pWgaWTZZxZJXGArrXviTmxHV65GGnnRruiNTtBtoc09EsoE9zvcQOVQziKu01H6JTwnT1b6OI17mNt/tpzUsUxN2IpaoqlxtY6Ps4HNLX7LUZn3Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DjhGfuWc; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF2A02727E0;
+	Tue, 23 Sep 2025 17:09:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.28
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1758647387; cv=fail; b=JTt29VvDZbw7D7i+5FRk7b5sFiJWmcOTDXEan5Ja9JLw2uLoai7K4UcmjeNou9e7b/GSxDWGHU5yhL4J4Bk3N1aUtEX+fUtOIZYlX0mNfVGkdDZZvrAGBOFMQr014F7ueXCkAwOAAii1Rdzxq0gFuJ1WhRbGufD6l/whiYiLwe8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1758647387; c=relaxed/simple;
+	bh=GxsBgj3fhwJjGg/W0z/DCTOq8NCTkxZRnQQm2qzRT40=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=LZVZdfcsFwVA/TLoDAPVu1M6p1TrAyplQ6ifk/rKiIdu1GGBirzaxeOfp4zqxndexV4BM5zDqfc2W+cqILso/97hzPRbPZndlzH3RD7VXkcyS/hn1HAeJbnEOyEs0hYzNcGNkcyV5spVHrUWoJyxHubD5KDKpnMjKk7YpWCdhkI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Clve4RHO; arc=fail smtp.client-ip=40.93.198.28
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DjhGfuWc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758645398;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4zPpYQN6ZewmJa/VE3YRRkMpzAS6jQaLK0K7KotGZpQ=;
-	b=DjhGfuWcqhSUMsXJfKakOmW7E385oRXULaf597tNBB3S21dDN9dkLNca1aL7hh7G4cttaE
-	4aiGRgH1Y8mGaFkw43fYwFW2goPc2M4r8TmFX5zR27/BSuhlDomuI1ebQ6vzDQQE5gGU2v
-	PMJgZpKqkMwGPlHHDDpCY8cVLA53PLM=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-257-TUPX6X_vP-aiU-xzV_AUGA-1; Tue, 23 Sep 2025 12:36:35 -0400
-X-MC-Unique: TUPX6X_vP-aiU-xzV_AUGA-1
-X-Mimecast-MFC-AGG-ID: TUPX6X_vP-aiU-xzV_AUGA_1758645394
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3eff3936180so1513747f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 09:36:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758645394; x=1759250194;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4zPpYQN6ZewmJa/VE3YRRkMpzAS6jQaLK0K7KotGZpQ=;
-        b=pSqbE8q1A0sPu1tebTiRaNdXadEUSrPL9yrv5lBk+sduPRZZ/66u0fvAVUPcO7cdUZ
-         kEFG0dFBoyyC57dbgv5M6qcBGqebdJSjDG8t2rwdWzdwxVmCcB1sMPi8EsRfOl0ZcHsC
-         JbOogzng1q17hnMZtCuB4iAxKftB2Ss12TihuTjHZUMy50GwLy1smXyEOnwo3vVZZpIH
-         S80iH9k0dtT+iBY0Dnyj9XJ9iF2rMlnyRZVQPGnjbIA+Vf27QgILWhTkVpCXkAzGXjxU
-         celIF1muLiNeKcniw04d8a+5Tra6ZMFm8/kWOOOG16zjjUQ+qta5GsSeLXhrRQ9V6ETC
-         9mSg==
-X-Forwarded-Encrypted: i=1; AJvYcCU0NsPS5sCSUKvu1YQfIx5n8/PKFq1IbGH2QRgbAS3ZH5E2yvF3KuZyJVJiZCGbd84S29reMmislK4yWTAs2A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxTtWdFO2CFsbC7jpjyL1NL4Ia76srFT3XQW16NdbSZpNfk4Kyq
-	egEl7ZNpOJGWLTSVHxgLL6wT04Sc3Yk3IpY8H6ALdhVKXcS5xHcPom/HwPlZITVmtG/wqLnKcGp
-	R2kXn1RH5xeZpQKB1m7I+kNuwiFcO+F9e51b3Hw8pu5a5bFEmlyHT8npE1SyPcalCQSIq
-X-Gm-Gg: ASbGncvQpgn3ec8Ix8ZVQf7J8wu3lVrE6FI0M8kk78QhsDF2wd3t9NtpQnZHIN0u5Pv
-	8MboN2N9tOQOLnaKbybVV9NZQYrCIYiCj6aYfUZLFgbKHp7cuISg8jgDU9LR3MIKDW4st3gCuML
-	JIAqwKDW9nFzVEzlfiU5d9mrHm43sgvYUq5DcykT21KgCOsmbyWZt0qDXeo0qWsBmsNv/8Lljz6
-	bY800UEH9bVYFeeAqoR67UuOgn2UT88DJbAzb/NCte6beFxtJ9n7BM8Rl52SICf2DnyhUrPmcr0
-	rYEw8NOIlaitT3AqjQN1CdhmNx/8Q/XzWG8=
-X-Received: by 2002:a05:6000:1a87:b0:3ff:f55b:274a with SMTP id ffacd0b85a97d-405cb6c6b56mr2974008f8f.43.1758645393689;
-        Tue, 23 Sep 2025 09:36:33 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEOZ04vpd4BJvD9C2hR3DHmCmGT6e5v2KZ+8ep2PmkrMv09043lQZ0v8NtS5c34X1dkjLA54g==
-X-Received: by 2002:a05:6000:1a87:b0:3ff:f55b:274a with SMTP id ffacd0b85a97d-405cb6c6b56mr2973978f8f.43.1758645393257;
-        Tue, 23 Sep 2025 09:36:33 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-464f64ad359sm288273635e9.22.2025.09.23.09.36.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Sep 2025 09:36:32 -0700 (PDT)
-Date: Tue, 23 Sep 2025 12:36:30 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Simon Schippers <simon.schippers@tu-dortmund.de>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-	eperezma@redhat.com, stephen@networkplumber.org, leiyang@redhat.com,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	Tim Gebauer <tim.gebauer@tu-dortmund.de>
-Subject: Re: [PATCH net-next v5 4/8] TUN & TAP: Wake netdev queue after
- consuming an entry
-Message-ID: <20250923123101-mutt-send-email-mst@kernel.org>
-References: <20250922221553.47802-1-simon.schippers@tu-dortmund.de>
- <20250922221553.47802-5-simon.schippers@tu-dortmund.de>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Clve4RHO"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=oWXggwVgG5+rl5z3SotJHQW1m4VjyXkt4rjniHHR2g+2Y3BHmjdoAqeVdP8k6mFe4IPb7kV+kge+ua1wSDvFL/quwLj4xhgtg8qlTIIUhCND6ACY1ARSrSYQ1pBHaSOpuwWRUe4OCI33oN+aektYyfNGfWTTlHi5lIwPl+an8UXKbN+hNUXK9Al/EyVpsysGtHD3vdUrEgNt1EMA7AVtqQwfJvPDoxL69kJrBOAbNaM3P//k0fFCX16uKv5cS6gw5sNS6VeWBk1hZgy5h50/yWGLyF4jP1+0rbw5DoPWdZbzD2HEXux/VkFJmyXHmptrQF3nI2FE+1vg30x+4Ui66g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zfBJt5ORyJeWyTmriSi9rxIRbYwbq9D6z6afL/pAXS8=;
+ b=c4pMUCw0BfP/FSxTb+iJvOpFnhv2VZ5tk4N0rFUs3VE5JxKA+/LCYfsgEscOPhkcBmn8mnqWcvQBR8ozQh3kBNvhm/k8t/iXX0N3X3MAB7NL+3A7G+2SRwEnBiw9tNhNJ++RJMXlSFhasUB3UKspQrLRpqDBn809urbmvdRpCe8BQtw+rAQ3B6qSQMHUcXgjB97FDu8Z8M/QGUR/kkKu8BrcsyDg+z1FjySil2bvtHYp5VbPFYh3DrMT5KLkFnOVJE3g2Z9jrRPkrKYpnxDMu5ap+AsWNINW9UHaB4ftMQ/b789+skrb0bomTQOX2Z14ErVFPJGj3bG6xxi2XV3jKQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zfBJt5ORyJeWyTmriSi9rxIRbYwbq9D6z6afL/pAXS8=;
+ b=Clve4RHOxCmnuRZI1E6kaQWOMfhYl/gXKCQEkQ5MRl2kUIrjhbIR4RSReFQ4rSuBhHkpAhanzX9NW2skuKFHEmfVa54Dw9rU1UpMbeRRdeCaTVsqubTq5izKSmZ2udMsGlUy976lrNdGvdmcewLGFwRbyDxCvRPRoebjb0xsVLmuoCx7xSrUXpYQ2q6w72pNlFOj9SpzTionNFu8B24ImUw3Ndcfg55P7wKftC1gE6vXBr7HTN7jnMw935VCoF1V33cShDJxWK0rx+upcHZ3CsEhvN/LdNaaegoduC2dMaXY5bYkNtV4+9iHn88R4gzIty8gy1HBx5HgdWMNwtZsXg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from PH7PR12MB5757.namprd12.prod.outlook.com (2603:10b6:510:1d0::13)
+ by CY8PR12MB7097.namprd12.prod.outlook.com (2603:10b6:930:51::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9137.14; Tue, 23 Sep
+ 2025 17:09:39 +0000
+Received: from PH7PR12MB5757.namprd12.prod.outlook.com
+ ([fe80::f012:300c:6bf4:7632]) by PH7PR12MB5757.namprd12.prod.outlook.com
+ ([fe80::f012:300c:6bf4:7632%2]) with mapi id 15.20.9137.018; Tue, 23 Sep 2025
+ 17:09:39 +0000
+Date: Tue, 23 Sep 2025 14:09:36 -0300
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Keith Busch <kbusch@kernel.org>
+Cc: Leon Romanovsky <leon@kernel.org>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Abdiel Janulgue <abdiel.janulgue@gmail.com>,
+	Alexander Potapenko <glider@google.com>,
+	Alex Gaynor <alex.gaynor@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christoph Hellwig <hch@lst.de>, Danilo Krummrich <dakr@kernel.org>,
+	David Hildenbrand <david@redhat.com>, iommu@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+	Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>,
+	Juergen Gross <jgross@suse.com>, kasan-dev@googlegroups.com,
+	linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-trace-kernel@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>, rust-for-linux@vger.kernel.org,
+	Sagi Grimberg <sagi@grimberg.me>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>,
+	xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v6 00/16] dma-mapping: migrate to physical address-based
+ API
+Message-ID: <20250923170936.GA2614310@nvidia.com>
+References: <CGME20250909132821eucas1p1051ce9e0270ddbf520e105c913fa8db6@eucas1p1.samsung.com>
+ <cover.1757423202.git.leonro@nvidia.com>
+ <0db9bce5-40df-4cf5-85ab-f032c67d5c71@samsung.com>
+ <20250912090327.GU341237@unreal>
+ <aM1_9cS_LGl4GFC5@kbusch-mbp>
+ <20250920155352.GH10800@unreal>
+ <aM9LH6WSeOPGeleY@kbusch-mbp>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aM9LH6WSeOPGeleY@kbusch-mbp>
+X-ClientProxiedBy: BL0PR0102CA0062.prod.exchangelabs.com
+ (2603:10b6:208:25::39) To PH7PR12MB5757.namprd12.prod.outlook.com
+ (2603:10b6:510:1d0::13)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250922221553.47802-5-simon.schippers@tu-dortmund.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 7LRriTFy23i_OeCq3EAXcIs9J-cgfKnB4SosEPGKIfg_1758645394
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH7PR12MB5757:EE_|CY8PR12MB7097:EE_
+X-MS-Office365-Filtering-Correlation-Id: bc204952-1979-427d-43f4-08ddfac3faa1
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|7416014|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?SJmAD6P8WrWWuHZOaif2sELSogZjML3CSOMNpyLWiBOtInZlQ+z3+HEwPek+?=
+ =?us-ascii?Q?xMrD+nXnpvB6+wyNA1MiGP7PUnMUXGOAo3Uji+JoeKTFjjpa2Wi8Tbdyy306?=
+ =?us-ascii?Q?lwMaY9apU4XbSh6ZMNDCYILAWKLg9xO1o0WaQX8X0t8PvWqGVI05dXYUfaJS?=
+ =?us-ascii?Q?dP23xF90g3yxrMg3E0ZweazGKCUtcpUk0BvZseMZ9Mn3ZEYPDC6SUqNTPyT5?=
+ =?us-ascii?Q?h9T0/JdzXqp5RVHFb0bCnTeE1SrhMbi0i6Rwq9D+7fSAiRtjgDGvD08j6Dh4?=
+ =?us-ascii?Q?9zDSElycQTqtC+SxuEXwPTeBP5j6mXPlytrpc/8I54CGMdxY0OT/iG0EKH+k?=
+ =?us-ascii?Q?fKXK1lmN2YB3l8NfwJKB3i6Bz1OJ+8wsnPpvf5DTWI6QOizZNh1dlKcg9Ons?=
+ =?us-ascii?Q?TwWJMjyGVaKnEc2KUnRHPRc9MXBxGdU2tpcoHFFMsv9ME5toHcHyY+5fBPyE?=
+ =?us-ascii?Q?3Lb1wA0tfhFmNLq9dByW3S/Z+OHToqipzWlBOL6llXnYqFA+YekgTSmj5THl?=
+ =?us-ascii?Q?IUevUbBBCkjpZQxFLPv0NEJI2jBOhEfviO8nRNoLyQPmgl2v4GXdiHmnd5B0?=
+ =?us-ascii?Q?qgOqPkxSpeWRVpwdlX+vRBOY8V8aTOnh+PZoebudEvEnynv7uqK6MA0Pr1F4?=
+ =?us-ascii?Q?+TlSLo1HaMFQ+fiKgoBluBBPW4Er7lSbish+pOk2mGuC9aJf+Flh7VdsNF6A?=
+ =?us-ascii?Q?UBkhE3SDC/eCbRcZtuyp5GvG8SnptVS3yn2DsSwwLQpvFtNh5A2kh4ZNKih5?=
+ =?us-ascii?Q?QE5ni5X10wtQk9Lj7T3AchwuQtLJwd4rBA7qvGl2P71YUZWb2LPuBW0/72Ko?=
+ =?us-ascii?Q?HO0ZQDsdrG8umM0sZrIhMKAFizButughBB28ZD1cnb+YnbeglqerRHRo9O8o?=
+ =?us-ascii?Q?1tTH5/UldaE30aM/XBB3HqZ6cRzzPdXjNJQwa2kWysbdYBzArHi4lJOq6uT+?=
+ =?us-ascii?Q?mZxfrv0YS27avYVToN6qcOyuSpCKxEBWrDJacnMkhhw+w06PXPIWOVgcLgod?=
+ =?us-ascii?Q?pRGBSZmi4gYf6GWVOypTrxrQ0KtcbuO8KCcCkSjevTbrbQp5gUbkFJW/lEoY?=
+ =?us-ascii?Q?zELONf86F3MT5VsZE9116D1a+e6lzmJCL9whVQqkV5sdp1irFJ+ropB9qI/k?=
+ =?us-ascii?Q?gGCmG061yMAzLvZxz6tc7q3/3RWpV+zHLlQxPe1v04t0wauH76R68fyv9HNn?=
+ =?us-ascii?Q?zn9NF6ZRGRZ5r/qNo2Uw/19OKlKFBpbeXLMMvKu5NQTSsADFKP7IT7jD76xH?=
+ =?us-ascii?Q?mn/fba6qnsgXbTXfsL0KdhGksYcRoJxVvi8p2TUhJ41p79ubs5tNZJcXm0IY?=
+ =?us-ascii?Q?Nd/QX/TgbDELc27Fsek28z6L76ISG+5VrCn+LPiDjw7PEuA4X6IpJ76tIYcL?=
+ =?us-ascii?Q?6ccVwWP77+YQSyB29uu+HetpBBRd/bjPUMECjnJO/TWb3cSYEl3+bHX392Dy?=
+ =?us-ascii?Q?2VgYRkJLZZo=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5757.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?9brSa+bdlvi/6eftqG0wEDppljbQgJEznYpb1kQH86dDICWbUMxtWiwK0/X7?=
+ =?us-ascii?Q?4rEWjqAc1kRsokCGBoz/oQbnANRsFgz673fviV3zWc3btFSRfD9I/XSh4cqp?=
+ =?us-ascii?Q?Q+Q+8h58Gm0cfSghyhxjy0uUK1l4e4fzZLwD04xX2uZPZxg3rHzASRTDh+us?=
+ =?us-ascii?Q?qgCFEDJR1PuMoPABTM36UOjJ6ub0/RXqf1Q10EItpXz66f9Eqppjjk/LCCMf?=
+ =?us-ascii?Q?49LiQkJ7Jeo39RkV8AIR7CtfJoLZrdV3MdmykRQ57YzURLJzvykAbUMGKRFx?=
+ =?us-ascii?Q?OQFm3ar9RMXa+/T8WxRzXgwMvRW/YW7wivCv74tpewW3AhCRCEu+wj3SOSB+?=
+ =?us-ascii?Q?4RlQ9MjNbsW7Jl9giTy6DXl4x6Fu9qIX6oRShn8Uilv+pRN/ry8KE3UcA+Wn?=
+ =?us-ascii?Q?ULvpHSCX1TyG+D3TBfE5QuTqlCG3isyhf2JNFtZpdroPhK0r/PANzfcv3BWG?=
+ =?us-ascii?Q?5+EH4FUjAbQPDabCUvlrG6EzUYfox05xMC6bLMoreyRPS7Ojy2mp1v2pIg7j?=
+ =?us-ascii?Q?7c1YIEg/truGG6QwtrwM4sI/9Vf+vz4UxPJNkExIvW4XDBa07XUdpPIfdPwD?=
+ =?us-ascii?Q?wx9RpRN+d13xiSLdQIFkuqZII6bHusCMmTb9E4narF0h5L/oEgpOqxsBcHBg?=
+ =?us-ascii?Q?ewdVKMLIBuo4fNrUkHkFKGzyKxveEUg9bW8w2PUI6njWI+DQIkg5J+YF38uK?=
+ =?us-ascii?Q?Ew1CW/yzGdWCvjC7hpcT8Ks7ALN72NOBDVhNCOMPtfuQ00fdyYU/ImkkcDCa?=
+ =?us-ascii?Q?OgXhBxMQtCnHPN/94sn7nXKb42TanX5SvZSuubFyUn9YK/MPNCkdbSd2cvPd?=
+ =?us-ascii?Q?O+eiBurynvlcVjvyQvC6tIMszTe9kXiIDrHL6h2TvytWCOgZyCSBQYmy8HjZ?=
+ =?us-ascii?Q?AJE8h0BeCiD4GxdgQU0B9kVCJ7SRRuaVeWcG/byzaTRliSgzwspmNszSU7vI?=
+ =?us-ascii?Q?w1zJZCrHgFDVq5KyG3ask7NK2W0l6gI+hQBLGORGHW4LJCSId4OVNZlD53px?=
+ =?us-ascii?Q?qw+5w0iybqAX5cb/BcIO3BvJd+6Dvl9TTQXENrWmNE4hrPzOz3r/cCf6XjLK?=
+ =?us-ascii?Q?MOa7ZLp/kRBF0xUqB0hEEAt7uVdrDwUHTBraQMBLZdDZS6Yh5Wmnam1J2ZZu?=
+ =?us-ascii?Q?gL5lGS0Sa8F7GW+ZQWERfs/8h3BinfAAwALQr+XognophwGG/PoHnulu55wn?=
+ =?us-ascii?Q?N6N61LxtGOTnozw9ccWDX9sp7X/5ZZUgMTNqDe5HPkkzf8E+TRIWQaSqsUMZ?=
+ =?us-ascii?Q?h7hVC2StbNxHjI6L/97Q4lxxwCOl59nYpHes7gqUxhZIKkFj1NJ/QML71bGJ?=
+ =?us-ascii?Q?SRBra1y1gGCD6HM4rDZdFiWixSvuP/Zl8olGEJUgiYR0LZo7l2+3qJ0DENnC?=
+ =?us-ascii?Q?5qugSmfjHJFJVySpdCgDiGx7H/u147UlCRCnLlNsX1sBgdSO5fMLmg1bj1M1?=
+ =?us-ascii?Q?8KkyHbCIbZvB+TBvJjr+HZZoL9DomFAIc8tlOZAIx2zdP7zX2hvfN/h9EOpe?=
+ =?us-ascii?Q?dRp/8lGy1sAFgNZzIblQrUHChTBvYY7FFJUihHYLu0AQAC7CntY0Dde2YTGz?=
+ =?us-ascii?Q?SOVUD2AqRajEjF69PyqwB/dZIVBwUeZ/PoDq/A15?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bc204952-1979-427d-43f4-08ddfac3faa1
+X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5757.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Sep 2025 17:09:39.1137
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ceigpDcxetN7qTmDdR6xf/u6VfAhbxjc3VgXcalLxLEkjfvE0x+7MsjxHGl5BBWd
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7097
 
-On Tue, Sep 23, 2025 at 12:15:49AM +0200, Simon Schippers wrote:
-> The new wrappers tun_ring_consume/tap_ring_consume deal with consuming an
-> entry of the ptr_ring and then waking the netdev queue when entries got
-> invalidated to be used again by the producer.
-> To avoid waking the netdev queue when the ptr_ring is full, it is checked
-> if the netdev queue is stopped before invalidating entries. Like that the
-> netdev queue can be safely woken after invalidating entries.
+On Sat, Sep 20, 2025 at 06:47:27PM -0600, Keith Busch wrote:
+> On Sat, Sep 20, 2025 at 06:53:52PM +0300, Leon Romanovsky wrote:
+> > On Fri, Sep 19, 2025 at 10:08:21AM -0600, Keith Busch wrote:
+> > > On Fri, Sep 12, 2025 at 12:03:27PM +0300, Leon Romanovsky wrote:
+> > > > On Fri, Sep 12, 2025 at 12:25:38AM +0200, Marek Szyprowski wrote:
+> > > > > >
+> > > > > > This series does the core code and modern flows. A followup series
+> > > > > > will give the same treatment to the legacy dma_ops implementation.
+> > > > > 
+> > > > > Applied patches 1-13 into dma-mapping-for-next branch. Let's check if it 
+> > > > > works fine in linux-next.
+> > > > 
+> > > > Thanks a lot.
+> > > 
+> > > Just fyi, when dma debug is enabled, we're seeing this new warning
+> > > below. I have not had a chance to look into it yet, so I'm just
+> > > reporting the observation.
+> > 
+> > Did you apply all patches or only Marek's branch?
+> > I don't get this warning when I run my NVMe tests on current dmabuf-vfio branch.
 > 
-> The READ_ONCE in __ptr_ring_peek, paired with the smp_wmb() in
-> __ptr_ring_produce within tun_net_xmit guarantees that the information
-> about the netdev queue being stopped is visible after __ptr_ring_peek is
-> called.
+> This was the snapshot of linux-next from the 20250918 tag. It doesn't
+> have the full patchset applied.
 > 
-> The netdev queue is also woken after resizing the ptr_ring.
-> 
-> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-> ---
->  drivers/net/tap.c | 44 +++++++++++++++++++++++++++++++++++++++++++-
->  drivers/net/tun.c | 47 +++++++++++++++++++++++++++++++++++++++++++++--
->  2 files changed, 88 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-> index 1197f245e873..f8292721a9d6 100644
-> --- a/drivers/net/tap.c
-> +++ b/drivers/net/tap.c
-> @@ -753,6 +753,46 @@ static ssize_t tap_put_user(struct tap_queue *q,
->  	return ret ? ret : total;
->  }
->  
-> +static struct sk_buff *tap_ring_consume(struct tap_queue *q)
-> +{
-> +	struct netdev_queue *txq;
-> +	struct net_device *dev;
-> +	bool will_invalidate;
-> +	bool stopped;
-> +	void *ptr;
-> +
-> +	spin_lock(&q->ring.consumer_lock);
-> +	ptr = __ptr_ring_peek(&q->ring);
-> +	if (!ptr) {
-> +		spin_unlock(&q->ring.consumer_lock);
-> +		return ptr;
-> +	}
-> +
-> +	/* Check if the queue stopped before zeroing out, so no ptr get
-> +	 * produced in the meantime, because this could result in waking
-> +	 * even though the ptr_ring is full.
+> One other thing to note, this was runing on arm64 platform using smmu
+> configured with 64k pages. If your iommu granule is 4k instead, we
+> wouldn't use the blk_dma_map_direct path.
 
-So what? Maybe it would be a bit suboptimal? But with your design, I do
-not get what prevents this:
+I spent some time looking to see if I could guess what this is and
+came up empty. It seems most likely we are leaking a dma mapping
+tracking somehow? The DMA API side is pretty simple here though..
 
+Not sure the 64k/4k itself is a cause, but triggering the non-iova
+flow is probably the issue.
 
-	stopped? -> No
-		ring is stopped
-	discard
+Can you check the output of this debugfs:
 
-and queue stays stopped forever
+/*
+ * Dump mappings entries on user space via debugfs
+ */
+static int dump_show(struct seq_file *seq, void *v)
 
+? If the system is idle and it has lots of entries that is probably
+confirmation of the theory.
 
-> The order of the operations
-> +	 * is ensured by barrier().
-> +	 */
-> +	will_invalidate = __ptr_ring_will_invalidate(&q->ring);
-> +	if (unlikely(will_invalidate)) {
-> +		rcu_read_lock();
-> +		dev = rcu_dereference(q->tap)->dev;
-> +		txq = netdev_get_tx_queue(dev, q->queue_index);
-> +		stopped = netif_tx_queue_stopped(txq);
-> +	}
-> +	barrier();
-> +	__ptr_ring_discard_one(&q->ring, will_invalidate);
-> +
-> +	if (unlikely(will_invalidate)) {
-> +		if (stopped)
-> +			netif_tx_wake_queue(txq);
-> +		rcu_read_unlock();
-> +	}
-
-
-After an entry is consumed, you can detect this by checking
-
-	                r->consumer_head >= r->consumer_tail
-
-
-so it seems you could keep calling regular ptr_ring_consume
-and check afterwards?
-
-
-
-
-> +	spin_unlock(&q->ring.consumer_lock);
-> +
-> +	return ptr;
-> +}
-> +
->  static ssize_t tap_do_read(struct tap_queue *q,
->  			   struct iov_iter *to,
->  			   int noblock, struct sk_buff *skb)
-> @@ -774,7 +814,7 @@ static ssize_t tap_do_read(struct tap_queue *q,
->  					TASK_INTERRUPTIBLE);
->  
->  		/* Read frames from the queue */
-> -		skb = ptr_ring_consume(&q->ring);
-> +		skb = tap_ring_consume(q);
->  		if (skb)
->  			break;
->  		if (noblock) {
-> @@ -1207,6 +1247,8 @@ int tap_queue_resize(struct tap_dev *tap)
->  	ret = ptr_ring_resize_multiple_bh(rings, n,
->  					  dev->tx_queue_len, GFP_KERNEL,
->  					  __skb_array_destroy_skb);
-> +	if (netif_running(dev))
-> +		netif_tx_wake_all_queues(dev);
->  
->  	kfree(rings);
->  	return ret;
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index c6b22af9bae8..682df8157b55 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -2114,13 +2114,53 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->  	return total;
->  }
->  
-> +static void *tun_ring_consume(struct tun_file *tfile)
-> +{
-> +	struct netdev_queue *txq;
-> +	struct net_device *dev;
-> +	bool will_invalidate;
-> +	bool stopped;
-> +	void *ptr;
-> +
-> +	spin_lock(&tfile->tx_ring.consumer_lock);
-> +	ptr = __ptr_ring_peek(&tfile->tx_ring);
-> +	if (!ptr) {
-> +		spin_unlock(&tfile->tx_ring.consumer_lock);
-> +		return ptr;
-> +	}
-> +
-> +	/* Check if the queue stopped before zeroing out, so no ptr get
-> +	 * produced in the meantime, because this could result in waking
-> +	 * even though the ptr_ring is full. The order of the operations
-> +	 * is ensured by barrier().
-> +	 */
-> +	will_invalidate = __ptr_ring_will_invalidate(&tfile->tx_ring);
-> +	if (unlikely(will_invalidate)) {
-> +		rcu_read_lock();
-> +		dev = rcu_dereference(tfile->tun)->dev;
-> +		txq = netdev_get_tx_queue(dev, tfile->queue_index);
-> +		stopped = netif_tx_queue_stopped(txq);
-> +	}
-> +	barrier();
-> +	__ptr_ring_discard_one(&tfile->tx_ring, will_invalidate);
-> +
-> +	if (unlikely(will_invalidate)) {
-> +		if (stopped)
-> +			netif_tx_wake_queue(txq);
-> +		rcu_read_unlock();
-> +	}
-> +	spin_unlock(&tfile->tx_ring.consumer_lock);
-> +
-> +	return ptr;
-> +}
-> +
->  static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
->  {
->  	DECLARE_WAITQUEUE(wait, current);
->  	void *ptr = NULL;
->  	int error = 0;
->  
-> -	ptr = ptr_ring_consume(&tfile->tx_ring);
-> +	ptr = tun_ring_consume(tfile);
->  	if (ptr)
->  		goto out;
->  	if (noblock) {
-> @@ -2132,7 +2172,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
->  
->  	while (1) {
->  		set_current_state(TASK_INTERRUPTIBLE);
-> -		ptr = ptr_ring_consume(&tfile->tx_ring);
-> +		ptr = tun_ring_consume(tfile);
->  		if (ptr)
->  			break;
->  		if (signal_pending(current)) {
-> @@ -3621,6 +3661,9 @@ static int tun_queue_resize(struct tun_struct *tun)
->  					  dev->tx_queue_len, GFP_KERNEL,
->  					  tun_ptr_free);
->  
-> +	if (netif_running(dev))
-> +		netif_tx_wake_all_queues(dev);
-> +
->  	kfree(rings);
->  	return ret;
->  }
-> -- 
-> 2.43.0
-
+Jason
