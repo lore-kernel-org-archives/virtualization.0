@@ -1,105 +1,131 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EDC730B527
-	for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 20:23:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8E8321348
+	for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 21:47:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758659003; cv=none; b=Kz3FBgSlpUefFX9zlWmOv90yEyVPAdsCouTTBRwGzv/FuTBzqSW2wPi9ccfsUjZa3wIBx92TwrwlgZypMW4jsNGJh8u8G0NEx47a9S2lOcdPjQPYyl1AGOEeKoRqLP5JeE74t+GhuwC4YqxCBeNdldjOoOHVLlGMeloJWDvj2lM=
+	t=1758664082; cv=none; b=L0ptYwbAVvT2hjGmgYTUASinsNODrOxB4X+cWujZm/hFbPXwrDJmue8MeSgtE3YIlWsKbeldxgh/plL0iou+kXvlzg2QG88IJAzv5fjW1J97IkS0I25ECEDix/T2Ba7jXQc3c+3Mmw9PQtpkXN1sDvWj5HQWcu66FlmtL5zWELo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758659003; c=relaxed/simple;
-	bh=OSMUbX9bSPs8LSpsu1FOIupPXlp5+jSGnO82BlQGuYA=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IeJmiONrPu9UeVa89Jln+3vJm3bDhQqXfiCK/Wga4mSmYeicUkoYhNyHryQO8dKB+mvrbz4v2I2k1YlBTivcIzXl+EFHEQrbis+dCIqhvP6c324oY+vnCvFvVZoa+FvYZrREXBWN8hvLdtJpx8mT60N0aE+k9ZoSxag2iFD/tdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=gfUl438g; arc=none smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1758664082; c=relaxed/simple;
+	bh=ueTXvYOaTGFnlsHbGUKhUluBx5Uj1EtJeF74+R0Vgys=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=FBb6nqshlrfD7z/j742CqOqdnILSsb9Qt+P7eRiJSk2pi9ZN4PHPPF6JTsubJuqDUTvu0A23382u2gClkjHb1757IcZNDh46KK2ePOFPiZxY5Otb/G7QmEjXsmj+olojHCur4Fb6dh6Jo51mJRfjJRiTAp8R2jqqQsxvmNisWZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ATrY/tpm; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="gfUl438g"
-Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58NImYS9021417;
-	Tue, 23 Sep 2025 13:23:17 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=Z
-	x8wWMh9XKF0ByLn3vUuTzN65AIvwSeHHqX6iaEaM48=; b=gfUl438gWWYMFIReh
-	VRJ0QwF4UG6P5I9svx8pd4hJuXAJixJB1XshBI0f9iNTJURdYvlg2U8Ylp+sPYzF
-	aF8bGQHYwXUEZGRh+7F7sp7uR5isQkvFtAg/wBD2pY59Bu5oFEKbxbqzw/5sOU0c
-	YqbwVgBPYB9E8zRE3icKE6vL7CugxpksAC+Sibyc3p1kszKosPPP26F9Jnh7BEtk
-	+TUdkmh4H0t+6MVaTcebFibRy5Xwhi1r8TtRJF5cIyc+ugbAHiawLOrsM4rzUkcS
-	iXcKPhlHWJAdD9IxEz0eig04U6XZqIDvQer98eWbw/gjuuUEjxmoVUDQJTO//t0L
-	xqd2w==
-Received: from dc5-exch05.marvell.com ([199.233.59.128])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 49bnagsvxm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 23 Sep 2025 13:23:16 -0700 (PDT)
-Received: from DC5-EXCH05.marvell.com (10.69.176.209) by
- DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Tue, 23 Sep 2025 13:23:23 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH05.marvell.com
- (10.69.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
- Transport; Tue, 23 Sep 2025 13:23:23 -0700
-Received: from 5810.caveonetworks.com (unknown [10.29.45.105])
-	by maili.marvell.com (Postfix) with ESMTP id 07A7B3F7064;
-	Tue, 23 Sep 2025 13:23:11 -0700 (PDT)
-From: Kommula Shiva Shankar <kshankar@marvell.com>
-To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
-        <pabeni@redhat.com>, <xuanzhuo@linux.alibaba.com>
-CC: <virtualization@lists.linux.dev>, <parav@nvidia.com>, <jerinj@marvell.com>,
-        <ndabilpuram@marvell.com>, <sburla@marvell.com>, <schalla@marvell.com>
-Subject: [PATCH v1 net-next  3/3] vhost/net: enable outer nw header offset support.
-Date: Wed, 24 Sep 2025 01:52:58 +0530
-Message-ID: <20250923202258.2738717-4-kshankar@marvell.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250923202258.2738717-1-kshankar@marvell.com>
-References: <20250923202258.2738717-1-kshankar@marvell.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ATrY/tpm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1758664078;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=gE1p9jvRg0lKTpk9XpwlgaFgqtSuJtcDtsDSqLMg4mo=;
+	b=ATrY/tpm6rFJ55hsbZsuP7MWrDIKs6uzwmNjzAh41YItDjwItOTTNx8zqbF5iNtUN1fqnd
+	5doIpvG/U+jFBheT3VkG9jLOtASL5fx6GDuufMLzQ7SCqk2wi4JbKto/RJKJcBkggNOkgK
+	wzZYTvxQG3iCfqkF3O3H5bXAkiw+cWA=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-187-KsbajKqRPy-K5Wz0d7VAIw-1; Tue, 23 Sep 2025 17:47:57 -0400
+X-MC-Unique: KsbajKqRPy-K5Wz0d7VAIw-1
+X-Mimecast-MFC-AGG-ID: KsbajKqRPy-K5Wz0d7VAIw_1758664076
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3ef9218daf5so1866909f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 14:47:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758664076; x=1759268876;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=gE1p9jvRg0lKTpk9XpwlgaFgqtSuJtcDtsDSqLMg4mo=;
+        b=KM+yOpEAFsLP8MNr8WLr0AVCzmfwlLt0e6gMfPegFo4xFnYX8ak5h9EQTIs962DDdk
+         AoV98oSDyu6N5y7/n//yRdEoYxZD16C9jPdvGie1IN7B4bEBbGjsjmAfmaeHz8Y3A8Wm
+         Hly6Bng2Xv0csxDewhLXxOrwaN/4uojySMyAAHaoco1nSedVzVptNQP3PhX4mgglTdn6
+         nAPkEpM2XW7tJppnMSRsAJtiDt57/3abp9GGMqkfbVhjvoFnpz18fk2uVmsRgKT8SSaX
+         2PmIV1+FqZolN1zxhHupA86rqojpIOwtKLm/xyehdZnm0fLkwTQgtvfW05QkTfVN3/90
+         OYzQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUBzT96PnH49O/iEnWFwMZIfNGiMIyPSWNfA9ad62w+bdkqofXlEruFqSdD2dA9nwIDSQTEYQOjZ6k20+eOUg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyEEtEeYB3mCslCHWz+6m8vrnuBSRphnE72/2BefnDo9kbpivtB
+	/pZlthnAvtIxNx3k2YYIAK+CydR74KJaRJSp9at0KLmEbf6wqwmvRRDKGh72qG1cjM1clj5Kwdc
+	+ZEvwcinnLyEoRn+KObVbwhJxkyKNZ2GS0Hooy32bL75wddcklR4Cpe9AHym0L88ogX0C
+X-Gm-Gg: ASbGncsMzaqXg8xXUb/YxS0fjP6a7S9kFZWpWwS/D2zaZ+3GUhwo7zbT5L9wmfoqc6N
+	B6qY3h4MVIYNxKBpY6JhrCSw2ZzBTr0WcgDjUQNRNHrY0bu3MxDgI/+lvBhQGsiefW55A68UXZv
+	C9457SN7aJLj3WJRWwvshx76VHRO3USgIqBr1Q3SbhUusxnEmtZo9Xj8K+yCDkIXcSeoRHJUTUi
+	zfG939180ehkdqsDk6cIEZ7n020eTvMHl/+/1nMAVX9XxAWi/dPDDt37AeMzfFCLm9LovQoiL/N
+	rOzk9lUL7Z00K4NpxFSHGUPGuRDrb8UDPos=
+X-Received: by 2002:a05:6000:1885:b0:3cd:ef83:a9a1 with SMTP id ffacd0b85a97d-405c6751cabmr3721719f8f.20.1758664075765;
+        Tue, 23 Sep 2025 14:47:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IETV4Q7KUf/fsmOmIwTE27eO2P2KhRHj2pOb3/FmZCSUNeq3z+t0xn78V0pxCEhXhxYrElaFg==
+X-Received: by 2002:a05:6000:1885:b0:3cd:ef83:a9a1 with SMTP id ffacd0b85a97d-405c6751cabmr3721711f8f.20.1758664075279;
+        Tue, 23 Sep 2025 14:47:55 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3f61703b206sm15270816f8f.6.2025.09.23.14.47.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Sep 2025 14:47:54 -0700 (PDT)
+Date: Tue, 23 Sep 2025 17:47:53 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: zhang jiao <zhangjiao2@cmss.chinamobile.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: [PATCH] vhost: vringh: Fix copy_to_iter return value check
+Message-ID: <cd637504a6e3967954a9e80fc1b75e8c0978087b.1758664002.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Authority-Analysis: v=2.4 cv=X6pSKHTe c=1 sm=1 tr=0 ts=68d301b5 cx=c_pps a=rEv8fa4AjpPjGxpoe8rlIQ==:117 a=rEv8fa4AjpPjGxpoe8rlIQ==:17 a=yJojWOMRYYMA:10 a=M5GUcnROAAAA:8 a=bmR9eAtJbORf3SWsNlEA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTIzMDA0NyBTYWx0ZWRfXyduOQLlnLqu0 JGf5ra/aYa4BMsuOgHM4mUigrhVXHpK1eomndYYIzbiZIQwVqaB8gxcaL/31OozGaRfuiyndRnv VimrtgjkDhHh3qDF5hhv0G5pTQCaFGQeJUxOE09mF2wutzA6AoD2zusOugSKMgyYLYYnpY9FdmV
- LGVblNsty+o5HUpDG3Nu3BCMCg4Nqqxr3YYnB+Sx0i5g0TdB0OiRQtDvw3E47rjZyefjCs+CNKH m+yTqmd426e+yeUOd50+RVw39r2OCg5bkXSHleiUFI6whUh3PByxKXzYWdPiuzbCyCwRljr434e exPyPcF6RsIHUDEDVvHDzNZ43qg922CrO9u9Us8dFFmSaTU74ZIvgUpWlacZRpWa0c0juxmlY1F UmBGp79B
-X-Proofpoint-GUID: ScMM5zi8suCynCgJwvby05buTqbIaqh2
-X-Proofpoint-ORIG-GUID: ScMM5zi8suCynCgJwvby05buTqbIaqh2
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-23_05,2025-09-22_05,2025-03-28_01
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: -Aj5Bi1GiPvapE5Pl2PwxKFD8OzmITkvvjEnjaWtO1s_1758664076
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-apprise vhost net about the virtio net header size.
+The return value of copy_to_iter can't be negative, check whether the
+copied length is equal to the requested length instead of checking for
+negative values.
 
-Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
+Cc: zhang jiao <zhangjiao2@cmss.chinamobile.com>
+Link: https://lore.kernel.org/all/20250910091739.2999-1-zhangjiao2@cmss.chinamobile.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/net.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index c6508fe0d5c8..a5c56af555f9 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -78,6 +78,7 @@ static const u64 vhost_net_features[VIRTIO_FEATURES_DWORDS] = {
- 	(1ULL << VIRTIO_F_IN_ORDER),
- 	VIRTIO_BIT(VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) |
- 	VIRTIO_BIT(VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO),
-+	VIRTIO_BIT(VIRTIO_NET_F_OUT_NET_HEADER),
- };
+
+Lightly tested. zhang jiao could you pls also test, either ack or
+fold into your patch?
+
+ drivers/vhost/vringh.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 0c8a17cbb22e..925858cc6096 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -1162,6 +1162,7 @@ static inline int copy_to_iotlb(const struct vringh *vrh, void *dst,
+ 		struct iov_iter iter;
+ 		u64 translated;
+ 		int ret;
++		size_t size;
  
- enum {
-@@ -1661,6 +1662,9 @@ static int vhost_net_set_features(struct vhost_net *n, const u64 *features)
- 		  sizeof(struct virtio_net_hdr_mrg_rxbuf) :
- 		  sizeof(struct virtio_net_hdr);
+ 		ret = iotlb_translate(vrh, (u64)(uintptr_t)dst,
+ 				      len - total_translated, &translated,
+@@ -1179,9 +1180,9 @@ static inline int copy_to_iotlb(const struct vringh *vrh, void *dst,
+ 				      translated);
+ 		}
  
-+	if (virtio_features_test_bit(features,
-+				     VIRTIO_NET_F_OUT_NET_HEADER))
-+		hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel_out_net_hdr);
- 	if (virtio_features_test_bit(features,
- 				     VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO) ||
- 	    virtio_features_test_bit(features,
+-		ret = copy_to_iter(src, translated, &iter);
+-		if (ret < 0)
+-			return ret;
++		size = copy_to_iter(src, translated, &iter);
++		if (size != translated)
++			return -EFAULT;
+ 
+ 		src += translated;
+ 		dst += translated;
 -- 
-2.48.1
+MST
 
