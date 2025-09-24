@@ -1,201 +1,202 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0986B1DA60F
-	for <virtualization@lists.linux.dev>; Wed, 24 Sep 2025 01:16:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB7FADF71
+	for <virtualization@lists.linux.dev>; Wed, 24 Sep 2025 04:05:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758676609; cv=none; b=f4CXhn6XWHcyNQ9nbr+B6/1T1uabPxSw/PmdZzSB+QmJVEuNj7tYz+F4isJY1jU03frfHPmslsPZbsIiuZa2J+59DFoWLEtVXBDD+Q8qQDK23t0jvxTLAfrIOmLoomU6GNw0yIFg6PSXKlaXFlcGjR8/nTd3ToBOQc9KrJYBDSA=
+	t=1758686746; cv=none; b=VjP1SqUr18wAcJDf5sfQMdZeP9lZpoUMVJ4BWFNeA+lB22q88bBOfkkohLKzEnmBZYTh8CHdlwdIc9H7DUOC0rfUG2YbS2VUGUF0e8ZGid8pT41gw21AOyShVqYrntndphJuA3tFhCKmvbqYe+rkJWzbmx2Pbymq+5VhR+OPoTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758676609; c=relaxed/simple;
-	bh=A37mvEVaESR9ERs99IPcDOLra8qkZubx6sUnWAZs6gw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fKxYl4e9Ens1vYiGYgQYt5jLFL8Vjq5l7DzBM0J6ZDA8lHbyjqM8JWtQpRhaNuPH0Rw6y8P5H1NNV0Gt7MStXQI7dGvtXZKOk8JvahMHLFFS0VO6sYIHOvDeSCJH8IQsE44E4OKEMaIX1svTsjuew7dt+2Gb3/kga2sK/8kumU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W3Couzl1; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1758686746; c=relaxed/simple;
+	bh=NQPZF9e2c9CtsjhkZliyNOSlNI5BNbDFaXzN53vkEB4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WYrUhKZHzA1v2tooRJDYqAQ6n4sdr5S0euqilDHyKKfDpUmQDBsE8jdVId7GWRNnVDzj6AXv6wjMvr1sQrzAxH3qH5gDRLdDgg9kgQjtpaf1T8HOCtHPD5V792VG/m7dqInSUZ5AnTRI9X6zLwU9x7Log+SXID9LvBR1u9NNQTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=XtpcZ/Rv; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W3Couzl1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758676606;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OyDZ+fFvNiHT1HqmIdQBeq5LnfgvaLlQ7Rr3LfU20CE=;
-	b=W3Couzl1GDWT8tgcZdrIdzl8cgYuroIrIq5cmlwssExx6V4j+mFBb0Tugyf9azYaOvxiVJ
-	BXf7USkz4Ov1YkbcJR+YVkb0VGtm/tB4D1juK08UtfR1+O7tHFt1GzazSuoxRs2PXSFe+y
-	X5cAuv1TM+g0f92IhVWwsLQWMgVJvX8=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-591-8DTyE8h0NzKbyoXcRt2_sg-1; Tue, 23 Sep 2025 21:16:45 -0400
-X-MC-Unique: 8DTyE8h0NzKbyoXcRt2_sg-1
-X-Mimecast-MFC-AGG-ID: 8DTyE8h0NzKbyoXcRt2_sg_1758676605
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-32edda89a37so5976379a91.1
-        for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 18:16:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="XtpcZ/Rv"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-33292adb180so2262363a91.3
+        for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 21:05:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1758686742; x=1759291542; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Hj/VG0+ZBnyrZwY9mojsT9ngdgtjWP1naUzw+Q1A/nE=;
+        b=XtpcZ/Rvbgi/K+N4JK/kriC4tgUnPGFhKQYpg0AuOh7ZfjbpDk0uQHeX3sPcIQ/O2h
+         GeOGFBers8b8vjUdONPzb/8a9j7Kkna3ij/OxyNAO07ENh6aW54jMUdkUcK4IEfFmTq3
+         5/VTgpBlWf2DGcun/jkEYkr0bYZwIXI+twK+KBZKQXKMCt57+55FwXIc3T+nXhT+SGyk
+         m4FSD2+L/LJaKXv9GelIcelATxOcHPhohHxjSOdE145wHkmZm59q4jrbSwbNTgBe7eGw
+         rxSPlNnvvaOHKHzyFiFWjxliofrHfDSmnxjulSvWVLhWvMq4jizFogJYL7vVK9D3klLc
+         e21Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758676605; x=1759281405;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OyDZ+fFvNiHT1HqmIdQBeq5LnfgvaLlQ7Rr3LfU20CE=;
-        b=YLXPOliXGbWz0vDU58SvcH7SbGnGvW8I8HftXlAmOn46jyptl3AR4ky9T/H2Sk3wlP
-         iEtY956Mj/HNEXfIefquxIzKPhHwgjDOpD/0hQmQA8KXrPqfvw6baim5gq7d5y5Kbilg
-         B8glU4A+vlIyi9TqypCwtUpNBGXqH29umm6twu5BvXH9B2YPymCi7/+njXMAkhAOXF0X
-         Jh/3Mk5dwq1WbmRwNZ2fl3V5xOa8JpvLZ4Us+4ffln0ud43TeSBnhJx1XDUNLTvLKm8s
-         BTcV0vMnqjEu+FR/Z74MPPQlLjE8dfK6kI3z9Hzt7inWJziZ1IMwG3NNPEM5Agwvg94R
-         +cMg==
-X-Forwarded-Encrypted: i=1; AJvYcCU2Oi199F0mGQVc4H+oveM1rX3s0J2pOqt46R5vxgXlJeCmmvdQKx7GX452XkAF6eiehp6WMg3z1Avj8G2akw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywpkt3oMT9hb2LC/tavIyAMQlnlsdaSEemUe8Pze74zoORXHwn2
-	5GFq2ufL/tC9KKoJQoW5n2QKow5MqBJ6XTvVBTzimPk71eWCLhNZJdIKHppO27duQEEBxxg+YPX
-	nydrlyGyGtgXgkzllZHrAyLr2x2DFvim6tY+p+UT2KwkKyd4u3htcWwFuxLBcgjGUiUrboyokgG
-	6cvLrVSXtB083GdT+FDc7tI8BVdV3Oz3cUUXlhFGwKy4I=
-X-Gm-Gg: ASbGncvgLsH7yl83bwAS7CnL70mJt4mhcZR3l6vXyvkl7aX9x395sx1MgVrugvcWtX+
-	0VyELm52ZWpNLEDOzYvP1h9GF0+suhHDrOUxVRR/ySRHi1+w4DkQwLFrvCndqNytzbR79foetdn
-	KXiS1CRwYVv7v0FglZjA==
-X-Received: by 2002:a17:90b:2787:b0:32e:9daa:7347 with SMTP id 98e67ed59e1d1-332a92c9d80mr5114655a91.7.1758676604622;
-        Tue, 23 Sep 2025 18:16:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGs73M9j2BtC1//YXJzQkXNW+3YPImYGOnyy6pQKBAcyQFPHjntIsqG+Q8iHg4YeF4Q32lErt4BqBZ2IoYHWWs=
-X-Received: by 2002:a17:90b:2787:b0:32e:9daa:7347 with SMTP id
- 98e67ed59e1d1-332a92c9d80mr5114636a91.7.1758676604146; Tue, 23 Sep 2025
- 18:16:44 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1758686742; x=1759291542;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Hj/VG0+ZBnyrZwY9mojsT9ngdgtjWP1naUzw+Q1A/nE=;
+        b=r/TMjg+65pFuTk3Mrh9Mo5k+8uZZb8vACpplJX2bK4dHnapfRXK3nDku+8V3L7giaB
+         UHr0FzJaeVVAvKcC88DO0G57OERw3P3+elTx1+VAn9e1P4h6jo4+AVe9GLtm2MY8z04L
+         Hc5Nt468R35Nojpa2jVh84ghWC7Jn4l1SacGOF8ToVtcV81ERrkgwSD/TpUzs7ZFW01V
+         cO0lVHocRLniMYBtZmr/Gaj1LFzxTWz8gisFOv4OKDWSWXiRTdtSDSCC6QB2CRk3p4g0
+         5ssG8Gf4VZ/9jBXu3gnaBdB3VUrxE1ANRoIiJmWFMmjDx0sU3wVqagD1rzazAzUH6B8V
+         q+VQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWcMUA43HhHCOueRUwrsdNq9df+/CdhSwJZBrswdkZaZQSKhk6pclxfoqyZgq7J11oQMtQbZf8HjDnXkBtEyQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw4xXOkUjyOBumCw0ve7yQUuuD/Cu7y8pVLypalmJwo5Yy5Ns3x
+	NgBD6CwzfC+rXlc2ubxLnMJp1S3S3leY4soPpZxOBgEpj06jH+yZvoF9JO+usGLmVvQ=
+X-Gm-Gg: ASbGncuDCIpEPSeNOtLG6vvYvc4/OmHfwos47W3tfo0R6zpvtrTgz34koyyfw4toptm
+	u145J4EMJOd/hZl9TVJHntUweURyRnX1xQJVVLbkYuMpUmGoComyOXGhK1Bv86vgfos1KBqRhuI
+	fMHohdxT1JsVLyaVxpTtXhUXjD7mZ71vOBQOtyesE/DUqHFI6Q+xNAkTd7fQA7LPRpGNNVKnEVM
+	IX6+u88i6184Bt8h+roGq41VbHNBZQoZSERM7aJ/IOKE6xTcmWkDeM/+XEYfPO7MbyWIXLZY4DG
+	jpAb/KvFavEfV+r9i5qg6u/YXfu2u8x1iUxZAT11fJ32QlltRZJXmOWtTpKsnZoaQsD/7SXSSiU
+	VEy0MA1qgMqoORCe39e1kDwjDu6S3ydeUJIZzlUUMq7hHfe7F7TYJBRGlqVhxqE0w/4EflmE=
+X-Google-Smtp-Source: AGHT+IGb5iPXT+ZtAJ3FiTP92YXhJI/RPFbN4furn0bB8MFVyoMrlhzBZRruGqdq83PrpiswhpPc8g==
+X-Received: by 2002:a17:90b:58c5:b0:32b:dfdb:b276 with SMTP id 98e67ed59e1d1-332a98fc381mr5336158a91.34.1758686742150;
+        Tue, 23 Sep 2025 21:05:42 -0700 (PDT)
+Received: from [10.88.213.9] ([61.213.176.55])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3341bd8b206sm756958a91.2.2025.09.23.21.05.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Sep 2025 21:05:41 -0700 (PDT)
+Message-ID: <aed938d0-e70a-4af6-9950-d4d0b7d6a93f@bytedance.com>
+Date: Wed, 24 Sep 2025 12:05:36 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250923141920.283862-1-danielj@nvidia.com> <20250923141920.283862-2-danielj@nvidia.com>
-In-Reply-To: <20250923141920.283862-2-danielj@nvidia.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 24 Sep 2025 09:16:32 +0800
-X-Gm-Features: AS18NWDhGgiNINZrLH8_-LM_Y57n9a7onhAJNax7urmMViSZxqMJ6y0IOuE6oz8
-Message-ID: <CACGkMEtkqhvsP1-b8zBnrFZwnK3LvEO4GBN52rxzdbOXJ3J7Qw@mail.gmail.com>
-Subject: Re: [PATCH net-next v3 01/11] virtio-pci: Expose generic device
- capability operations
-To: Daniel Jurgens <danielj@nvidia.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, alex.williamson@redhat.com, 
-	pabeni@redhat.com, virtualization@lists.linux.dev, parav@nvidia.com, 
-	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, shameerali.kolothum.thodi@huawei.com, jgg@ziepe.ca, 
-	kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch, 
-	edumazet@google.com, Yishai Hadas <yishaih@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Rj7LjarKhW_g2tLRTX4TugfnhpnsypQ53W0CLgOzqLw_1758676605
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: Re: [PATCH] vduse: Use fixed 4KB bounce pages for arm64 64KB page
+ size
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ xieyongji@bytedance.com
+References: <20250915073429.54027-1-sheng.zhao@bytedance.com>
+ <CACGkMEuvT3=a+6LyaFZFmCZzGS5tntPSbSJg=h6FAHdk89pC8g@mail.gmail.com>
+ <2739dcc3-7c38-492c-854a-731298396a0c@bytedance.com>
+ <CACGkMEv3pUBF3Uv2s3MM0Qn--fP3mwN92SqE9NX4gNuMALBTUg@mail.gmail.com>
+Content-Language: en-US
+From: Sheng Zhao <sheng.zhao@bytedance.com>
+In-Reply-To: <CACGkMEv3pUBF3Uv2s3MM0Qn--fP3mwN92SqE9NX4gNuMALBTUg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, Sep 23, 2025 at 10:20=E2=80=AFPM Daniel Jurgens <danielj@nvidia.com=
-> wrote:
->
-> Currently querying and setting capabilities is restricted to a single
-> capability and contained within the virtio PCI driver. However, each
-> device type has generic and device specific capabilities, that may be
-> queried and set. In subsequent patches virtio_net will query and set
-> flow filter capabilities.
->
-> Move the admin related definitions to a new header file. It needs to be
-> abstracted away from the PCI specifics to be used by upper layer
-> drivers.
->
-> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> Reviewed-by: Parav Pandit <parav@nvidia.com>
-> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
-> Reviewed-by: Yishai Hadas <yishaih@nvidia.com>
-> ---
 
-[...]
 
->
->  size_t virtio_max_dma_size(const struct virtio_device *vdev);
->
-> diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
-> new file mode 100644
-> index 000000000000..bbf543d20be4
-> --- /dev/null
-> +++ b/include/linux/virtio_admin.h
-> @@ -0,0 +1,68 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only
-> + *
-> + * Header file for virtio admin operations
-> + */
-> +#include <uapi/linux/virtio_pci.h>
-> +
-> +#ifndef _LINUX_VIRTIO_ADMIN_H
-> +#define _LINUX_VIRTIO_ADMIN_H
-> +
-> +struct virtio_device;
-> +
-> +/**
-> + * VIRTIO_CAP_IN_LIST - Check if a capability is supported in the capabi=
-lity list
-> + * @cap_list: Pointer to capability list structure containing supported_=
-caps array
-> + * @cap: Capability ID to check
-> + *
-> + * The cap_list contains a supported_caps array of little-endian 64-bit =
-integers
-> + * where each bit represents a capability. Bit 0 of the first element re=
-presents
-> + * capability ID 0, bit 1 represents capability ID 1, and so on.
-> + *
-> + * Return: 1 if capability is supported, 0 otherwise
-> + */
-> +#define VIRTIO_CAP_IN_LIST(cap_list, cap) \
-> +       (!!(1 & (le64_to_cpu(cap_list->supported_caps[cap / 64]) >> cap %=
- 64)))
-> +
-> +/**
-> + * struct virtio_admin_ops - Operations for virtio admin functionality
-> + *
-> + * This structure contains function pointers for performing administrati=
-ve
-> + * operations on virtio devices. All data and caps pointers must be allo=
-cated
-> + * on the heap by the caller.
-> + */
-> +struct virtio_admin_ops {
-> +       /**
-> +        * @cap_id_list_query: Query the list of supported capability IDs
-> +        * @vdev: The virtio device to query
-> +        * @data: Pointer to result structure (must be heap allocated)
-> +        * Return: 0 on success, negative error code on failure
-> +        */
-> +       int (*cap_id_list_query)(struct virtio_device *vdev,
-> +                                struct virtio_admin_cmd_query_cap_id_res=
-ult *data);
-> +       /**
-> +        * @cap_get: Get capability data for a specific capability ID
-> +        * @vdev: The virtio device
-> +        * @id: Capability ID to retrieve
-> +        * @caps: Pointer to capability data structure (must be heap allo=
-cated)
-> +        * @cap_size: Size of the capability data structure
-> +        * Return: 0 on success, negative error code on failure
-> +        */
-> +       int (*cap_get)(struct virtio_device *vdev,
-> +                      u16 id,
-> +                      void *caps,
-> +                      size_t cap_size);
-> +       /**
-> +        * @cap_set: Set capability data for a specific capability ID
-> +        * @vdev: The virtio device
-> +        * @id: Capability ID to set
-> +        * @caps: Pointer to capability data structure (must be heap allo=
-cated)
-> +        * @cap_size: Size of the capability data structure
-> +        * Return: 0 on success, negative error code on failure
-> +        */
-> +       int (*cap_set)(struct virtio_device *vdev,
-> +                      u16 id,
-> +                      const void *caps,
-> +                      size_t cap_size);
-> +};
+On 2025/9/24 08:57, Jason Wang wrote:
+> On Tue, Sep 23, 2025 at 8:37 PM Sheng Zhao <sheng.zhao@bytedance.com> wrote:
+>>
+>>
+>>
+>> On 2025/9/17 16:16, Jason Wang wrote:
+>>> On Mon, Sep 15, 2025 at 3:34 PM <sheng.zhao@bytedance.com> wrote:
+>>>>
+>>>> From: Sheng Zhao <sheng.zhao@bytedance.com>
+>>>>
+>>>> The allocation granularity of bounce pages is PAGE_SIZE. This may cause
+>>>> even small IO requests to occupy an entire bounce page exclusively. The
+>>>> kind of memory waste will be more significant on arm64 with 64KB pages.
+>>>
+>>> Let's tweak the title as there are archs that are using non 4KB pages
+>>> other than arm.
+>>>
+>>
+>> Got it. I will modify this in v2.
+>>
+>>>>
+>>>> So, optimize it by using fixed 4KB bounce pages.
+>>>>
+>>>> Signed-off-by: Sheng Zhao <sheng.zhao@bytedance.com>
+>>>> ---
+>>>>    drivers/vdpa/vdpa_user/iova_domain.c | 120 +++++++++++++++++----------
+>>>>    drivers/vdpa/vdpa_user/iova_domain.h |   5 ++
+>>>>    2 files changed, 83 insertions(+), 42 deletions(-)
+>>>>
+>>>> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
+>>>> index 58116f89d8da..768313c80b62 100644
+>>>> --- a/drivers/vdpa/vdpa_user/iova_domain.c
+>>>> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+>>>> @@ -103,19 +103,26 @@ void vduse_domain_clear_map(struct vduse_iova_domain *domain,
+>>>>    static int vduse_domain_map_bounce_page(struct vduse_iova_domain *domain,
+>>>>                                            u64 iova, u64 size, u64 paddr)
+>>>>    {
+>>>> -       struct vduse_bounce_map *map;
+>>>> +       struct vduse_bounce_map *map, *head_map;
+>>>> +       struct page *tmp_page;
+>>>>           u64 last = iova + size - 1;
+>>>>
+>>>>           while (iova <= last) {
+>>>> -               map = &domain->bounce_maps[iova >> PAGE_SHIFT];
+>>>> +               map = &domain->bounce_maps[iova >> BOUNCE_PAGE_SHIFT];
+>>>
+>>> BOUNCE_PAGE_SIZE is kind of confusing as it's not the size of any page
+>>> at all when PAGE_SIZE is not 4K.
+>>>
+>>
+>> How about BOUNCE_MAP_SIZE?
+> 
+> Fine with me.
+> 
+>>
+>>>>                   if (!map->bounce_page) {
+>>>> -                       map->bounce_page = alloc_page(GFP_ATOMIC);
+>>>> -                       if (!map->bounce_page)
+>>>> -                               return -ENOMEM;
+>>>> +                       head_map = &domain->bounce_maps[(iova & PAGE_MASK) >> BOUNCE_PAGE_SHIFT];
+>>>> +                       if (!head_map->bounce_page) {
+>>>> +                               tmp_page = alloc_page(GFP_ATOMIC);
+>>>> +                               if (!tmp_page)
+>>>> +                                       return -ENOMEM;
+>>>> +                               if (cmpxchg(&head_map->bounce_page, NULL, tmp_page))
+>>>> +                                       __free_page(tmp_page);
+>>>
+>>> I don't understand why we need cmpxchg() logic.
+>>>
+>>> Btw, it looks like you want to make multiple bounce_map to point to
+>>> the same 64KB page? I wonder what's the advantages of doing this. Can
+>>> we simply keep the 64KB page in bounce_map?
+>>>
+>>> Thanks
+>>>
+>>
+>> That's correct. We use fixed 4KB-sized bounce pages, and there will be a
+>> many-to-one relationship between these 4KB bounce pages and the 64KB
+>> memory pages.
+>>
+>> Bounce pages are allocated on demand. As a result, it may occur that
+>> multiple bounce pages corresponding to the same 64KB memory page attempt
+>> to allocate memory simultaneously, so we use cmpxchg to handle this
+>> concurrency.
+>>
+>> In the current implementation, the bounce_map structure requires no
+>> modification. However, if we keep the 64KB page into a single bounce_map
+>> while still wanting to implement a similar logic, we may need an
+>> additional array to store multiple orig_phys values in order to
+>> accommodate the many-to-one relationship.
+> 
+> Or simply having a bitmap is sufficient per bounce_map?
+> 
 
-Looking at this, it's nothing admin virtqueue specific, I wonder why
-it is not part of virtio_config_ops.
+Yes, using a bitmap can mark the usage status of each 4KB, but it may 
+not simplify things overall.
+
+- we will inevitably need to add an additional array per bounce_map to 
+store the orig_phys corresponding to each 4KB for subsequent copying 
+(vduse_domain_bounce).
+
+- compared to the current commit, this modification may only be a 
+structural change and fail to reduce the amount of changes to the code 
+logic. For instance, cmpxchg is still required.
+
 
 Thanks
+
+> Thanks
+> 
+>>
+>> Thanks
+>>
+> 
 
