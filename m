@@ -1,157 +1,104 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94E431D63F8
-	for <virtualization@lists.linux.dev>; Wed, 24 Sep 2025 00:51:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1358452F99
+	for <virtualization@lists.linux.dev>; Wed, 24 Sep 2025 00:54:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758675106; cv=none; b=VfGXzNCvEWDMXjDBvWdgcVS4vcLgqst1DzBzvi7DkCCEYKn392hzEY8fndGwSE8rs/4L9DI0fyJKkzJDRfg6AnDSOgIm5n44nSUSA1y/yx3RqWT+Mwjub+z7XAyKplVbB3rnA+Z02tDNYycRN/AHtUsEZKvNFwQziRqe73ZvQJQ=
+	t=1758675266; cv=none; b=ADNetIpej0pgIWKdjvJbVsEsazRQtr8eKMWQdtzBX8g8JfXy8zmwqwQ6wEQEb9xYFncOWgp/Y6rn+VMgQTKekewEzEnYlu6BMBLoaNGXSlMDWswapCsAwNievupkWcCQg8Lbcpim4wPNZpaneGKV82FH1C4PaH9ua8EEiyBM70s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758675106; c=relaxed/simple;
-	bh=B+gaEmpZQToa9D3BoDg5LW16aK2GKwumpEPqc28GJP4=;
+	s=arc-20240116; t=1758675266; c=relaxed/simple;
+	bh=v4t0XEY19ig96vtXWrbtL/pFwHwKfnwuWWleF5TfQQQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kECUdgBANSz/oQVRCHHfJZtQGxfUCRyjAD5/KTqIXUV3b/AVlt1X3zr/6eZqlwTeeFC23QkDfxwz0B8UichGs/mzaOnA3eN044kzoRAJCnoPMBSQ0TmimJLFSiV+/TNegR2SdK9Zm81TQM/jkmpgADDpPk5xsJIymLf+S93uaBI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E07reOT1; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=fSn+d/dlYZEvVY+Rdl3NU7B5NpDQmEehwh0sFG4xlcvv1+jvGhttof+XVaU8mqT48cH/Oie6p/HCuKtg+e3nv7VmUnHYhutACfcvvhpdWqYkofq0vehI0gp5t9aDRru2VVs+nmGPF+UcBjp6mNw5rLpr9fCHzUgNq1ZvDgUG/tI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XMdhE9w5; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E07reOT1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XMdhE9w5"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758675103;
+	s=mimecast20190719; t=1758675264;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=0+CF+f8ZPtjHdoOi5iGDqJ4Pzq5sIU1lG9ApqP2SS3I=;
-	b=E07reOT16ucuujXiTH1s35u5SksHh2hSwgM83KPTegSumPBuVSaT2ZwMKcB0BbBThO8JJJ
-	FewluLqWq8bnthexSvt1MfIuwHvKuKtENq6olUC/029uB5ThYgquURr2ku80YNkDjPFmwk
-	/U3s4Qzku7wJKsWVWsJ0vHFE35JiexI=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=v4t0XEY19ig96vtXWrbtL/pFwHwKfnwuWWleF5TfQQQ=;
+	b=XMdhE9w5Efjgyd1eea580BE7gvBLpgXkeEqI1bi4w7dFVDRmKNqMztlt0Ijtb98oymTpkX
+	OtbaUh1Xpc02ErSA+Q0p59UYJ0GffJY0MslaW1jHRbs5HjRJZGBNUU6qIOTVTTVJhbR5Vi
+	1PbtNqU8pffes56fTLnA4aa4b7w/J80=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-569-RkKLFDRuPGyBqus41m5i5w-1; Tue, 23 Sep 2025 20:51:42 -0400
-X-MC-Unique: RkKLFDRuPGyBqus41m5i5w-1
-X-Mimecast-MFC-AGG-ID: RkKLFDRuPGyBqus41m5i5w_1758675101
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-32eb18b5659so6353225a91.2
-        for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 17:51:42 -0700 (PDT)
+ us-mta-376-ZcGOv1hOM8ynFLsu5gR84w-1; Tue, 23 Sep 2025 20:54:22 -0400
+X-MC-Unique: ZcGOv1hOM8ynFLsu5gR84w-1
+X-Mimecast-MFC-AGG-ID: ZcGOv1hOM8ynFLsu5gR84w_1758675261
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-32eaeba9abaso8538485a91.3
+        for <virtualization@lists.linux.dev>; Tue, 23 Sep 2025 17:54:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758675101; x=1759279901;
+        d=1e100.net; s=20230601; t=1758675261; x=1759280061;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0+CF+f8ZPtjHdoOi5iGDqJ4Pzq5sIU1lG9ApqP2SS3I=;
-        b=qNfxYAJaXACRvS30G7eDcZUdRQX++S5nhgDqDuqLO/pqnSBZYT8rfvAyVCbItzaXAT
-         GMGowHHjQmJCTV3e5CcoGZroUOQtAxZCL7qrs11lRVx+ibhqnSm2FbFsy/fwMlmw2bxv
-         M8ESkD4KHm7D6uY6LH2Uqg/2yo2DarRh6i9is71kJXmn0xPRHpkQ01mFDGevsj8LKIIb
-         QbSand6CbhWb+iscAqKBaFv37768TTTfnN+YF4xFSwDFpEkrAEW11hs1yeqfP47x7cUS
-         LrGcWFnz9Cnq7dBsVDgc6aLyPesubRfoaNwJtItaxY93CfyIEgjnWsnzeT4Rxaa8R0WC
-         MEMA==
-X-Forwarded-Encrypted: i=1; AJvYcCXTouIxWveXhVHUXYT1ek/vBsuQKzR5drC5cxBP4YjaT26/pm96LOyt+4WuyK/y1vfxN40DcPUiMKv3mdEmMw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwtYbyi2yHSL5FZIsgpILl0POvLZJbY5dyHcjRj+lj5hUVgIxGk
-	h7+s7XYqB+Vc43snbeE5omMC/L5m5YxLd7NPX15urYxOf4f6fc1gRhor8yaDDPHFuBUTs2BTa0L
-	1Big/cMU1sHNyZLMnXXzBhe+0e1utB2J20sszNlwcttdnxteTvQ7Inp6Fx/vNe7weO/b6uWqn+g
-	1/8gjBZZpVZTIOwUnyKYfpi+p26l3Gh21Oz3HYb023Pzc=
-X-Gm-Gg: ASbGnctIigUiur/3ZjQcaH/9kM0GeU66jVirudIYm7LajZHDBGuXcb0/ZE4yipNS3x+
-	iyIYktQNRfMfKwsewL/iEwa2HL61j+1sVfmlKcisvCf6iP4SkPGvSOvwnK/iHH6hphMb6ZUlp4M
-	fG13eYnBah9Bdwk8LTbw==
-X-Received: by 2002:a17:90b:3811:b0:32e:5d87:8abc with SMTP id 98e67ed59e1d1-332a970664cmr4735580a91.36.1758675101153;
-        Tue, 23 Sep 2025 17:51:41 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG6wlZU45QFpZaoYYGJj/yXqXhdztwIB8H8KjfQJG+1bAi7ZxkXTql04g41IaDsPBl3CCKvK35kQdqhNnbKqmU=
-X-Received: by 2002:a17:90b:3811:b0:32e:5d87:8abc with SMTP id
- 98e67ed59e1d1-332a970664cmr4735562a91.36.1758675100707; Tue, 23 Sep 2025
- 17:51:40 -0700 (PDT)
+        bh=v4t0XEY19ig96vtXWrbtL/pFwHwKfnwuWWleF5TfQQQ=;
+        b=TMiK9JNr1UM+RDOmeJ7sGv9Gs1+RF2Et/N08RG2SLmWBeEBMaoUByd5+Z95rDECbnv
+         FKq+mdvsdAVzAEXBoyauHQ65NsZSpUlXSabBcK9/dYXn3ZDWC6cPI46ZYxTnyOlJe2Vn
+         5BF5zgr6EqDkvGXy7u1z91+kw2jYqSkJUlLcmgFpVKcwxoriDMpDSgWrq+yLgm9HgH2o
+         L8ek6GglNfUrpVoov+2okQ7m4JFT2XRJJQsCDHjuLL20kdSgXBL4myykUJTu/a/OsSPf
+         kLPXsfvp5LH2MHHXC4dKMnlK3Vdz4kAUI7jzLZdWrhVh1N9+a4UaPbhdyb/bUwhJGWRU
+         aRaA==
+X-Forwarded-Encrypted: i=1; AJvYcCULunVJ6jxjDDo6tmVqFrD6854iMHddB5j/OghUZ7wF5zFLfIg6lemK4N5w9s1ferodG5gospQkFTEx/cgQTA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YywKrn7r6qQ2biRxBQ37TRagY61xap/zXrL5miGx1zx1Q6dMfHe
+	QdYAv3EiyyQOM8Q5L3P/nvh+17Sr+YfxS0lDKvkLpE6jE3z83IkeMbPS4TKVfrm/hTQ87A8ZgHz
+	rIn9g8DXY5KGFt1H5Fhhqj8Kjw/7p0y8ZQG23BOOtkzkRr41+gpfdNHr5diIM9XhHAZ6g058OYN
+	1njojwzquSACkoGvizZn1+0Rs/zbQu4WN5x5azRJb8cbE=
+X-Gm-Gg: ASbGnctvCtruTkB2OpiGg/4r52yazoSiz3LR6rp4M9Ah6FIdjcFyp/X9JF03+Xe+qyJ
+	OrAIrGxxS62fGRAOxTEyljmCOyCr+cw5BQTJI1PABI53ecVxuhcDgheiW6bqj+qCAhsrYTE7s3s
+	XjWC5ERxnrHSVV6iME7Q==
+X-Received: by 2002:a17:90b:1343:b0:32d:f352:f75c with SMTP id 98e67ed59e1d1-332a9535640mr5034840a91.13.1758675261409;
+        Tue, 23 Sep 2025 17:54:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEEfQasazQYrAqwbi0RG98kEq9UrRRqH3IBMDr3ithyqZtr8231pYip07BOxHuYxpr8+ga/tswXckGmozrzyuk=
+X-Received: by 2002:a17:90b:1343:b0:32d:f352:f75c with SMTP id
+ 98e67ed59e1d1-332a9535640mr5034815a91.13.1758675260992; Tue, 23 Sep 2025
+ 17:54:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250923202258.2738717-1-kshankar@marvell.com> <20250923202258.2738717-2-kshankar@marvell.com>
-In-Reply-To: <20250923202258.2738717-2-kshankar@marvell.com>
+References: <cd637504a6e3967954a9e80fc1b75e8c0978087b.1758664002.git.mst@redhat.com>
+In-Reply-To: <cd637504a6e3967954a9e80fc1b75e8c0978087b.1758664002.git.mst@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 24 Sep 2025 08:51:29 +0800
-X-Gm-Features: AS18NWDo9GoRDKQ-kypc5YbeoTNltuvTxzdNxXyoo3qGwjJnvJLpDCXfXyisvgk
-Message-ID: <CACGkMEvUMq7xgOndvWUYU=BZL=ZZD1q_LRy=5YFL7k80cYBRRg@mail.gmail.com>
-Subject: Re: [PATCH v1 net-next 1/3] net: implement virtio helper to handle
- outer nw offset
-To: Kommula Shiva Shankar <kshankar@marvell.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, pabeni@redhat.com, 
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, parav@nvidia.com, 
-	jerinj@marvell.com, ndabilpuram@marvell.com, sburla@marvell.com, 
-	schalla@marvell.com
+Date: Wed, 24 Sep 2025 08:54:09 +0800
+X-Gm-Features: AS18NWDvb7ormS481il9vCXSYhrezOtK7Oc0syIfP-2dUJUzReMkhidld3UC0C0
+Message-ID: <CACGkMEtU9YSuJhuHCk=RZ2wyPbb+zYp05jdGp1rtpJx8iRDpXg@mail.gmail.com>
+Subject: Re: [PATCH] vhost: vringh: Fix copy_to_iter return value check
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, zhang jiao <zhangjiao2@cmss.chinamobile.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xkICwkjEu6jlurR9CPnCX7-B51xO5LAzeeZ2LWze97M_1758675101
+X-Mimecast-MFC-PROC-ID: FT3dyjPBlTj8vU6qBzD51uId6eFMvz-fGz5OZtxFccQ_1758675261
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 24, 2025 at 4:23=E2=80=AFAM Kommula Shiva Shankar
-<kshankar@marvell.com> wrote:
+On Wed, Sep 24, 2025 at 5:48=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
 >
-> virtio specification introduced support for outer network
-> header offset broadcast.
+> The return value of copy_to_iter can't be negative, check whether the
+> copied length is equal to the requested length instead of checking for
+> negative values.
 >
-> This patch implements the needed defines and virtio header
-> parsing capabilities.
->
-> Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
+> Cc: zhang jiao <zhangjiao2@cmss.chinamobile.com>
+> Link: https://lore.kernel.org/all/20250910091739.2999-1-zhangjiao2@cmss.c=
+hinamobile.com
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  include/linux/virtio_net.h      | 40 +++++++++++++++++++++++++++++++++
->  include/uapi/linux/virtio_net.h |  8 +++++++
->  2 files changed, 48 insertions(+)
 >
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 20e0584db1dd..e6153e9106d3 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -374,6 +374,46 @@ static inline int virtio_net_handle_csum_offload(str=
-uct sk_buff *skb,
->         return 0;
->  }
 >
-> +static inline int
-> +virtio_net_out_net_header_to_skb(struct sk_buff *skb,
-> +                                struct virtio_net_hdr_v1_hash_tunnel_out=
-_net_hdr *vhdr,
-> +                                bool out_net_hdr_negotiated,
-> +                                bool little_endian)
-> +{
-> +       unsigned int out_net_hdr_off;
-> +
-> +       if (!out_net_hdr_negotiated)
-> +               return 0;
-> +
-> +       if (vhdr->outer_nh_offset) {
-> +               out_net_hdr_off =3D __virtio16_to_cpu(little_endian, vhdr=
-->outer_nh_offset);
-> +               skb_set_network_header(skb, out_net_hdr_off);
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +static inline int
-> +virtio_net_out_net_header_from_skb(const struct sk_buff *skb,
-> +                                  struct virtio_net_hdr_v1_hash_tunnel_o=
-ut_net_hdr *vhdr,
-> +                                  bool out_net_hdr_negotiated,
-> +                                  bool little_endian)
-> +{
-> +       unsigned int out_net_hdr_off;
-> +
-> +       if (!out_net_hdr_negotiated) {
-> +               vhdr->outer_nh_offset =3D 0;
-> +               return 0;
-> +       }
-> +
-> +       out_net_hdr_off =3D skb_network_offset(skb);
-> +       if (out_net_hdr_off && skb->protocol =3D=3D htons(ETH_P_IP))
-> +               vhdr->outer_nh_offset =3D __cpu_to_virtio16(little_endian=
-,
-> +                                                         out_net_hdr_off=
-);
 
-I'd expect this to work for IPV6 as well.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
