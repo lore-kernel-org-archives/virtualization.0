@@ -1,45 +1,47 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70DD22F1FF9
-	for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 10:37:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A14902F9983
+	for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 10:37:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758796646; cv=none; b=nUTFRzzBaFb71asPzR2CvTJBSOh4xI+8Qd6H/WcH13976AHJEUbE8tPip/j04rcI2+rFcAaaJakJ8pQDQjwcdsChUYBDGIMSwvHuksLUmpS0JlIAo2N400w7w3/CDrkiSyv5BQHoeWVvjdzOhcq1BkHudDqZPiiUzRmcAciXYVQ=
+	t=1758796650; cv=none; b=H51XHfwq6qNz1rauegPmTODD2GRBdghGV+yLQhLQ1vrfKqrD+m/kiU1CE9xuqfhpUBUZNns5SFCtjqJpNDQJxbrtNAwrZOt/mNUJ+NwFcAmqBzTygwA5ef/iUN3waSSHjtq3vXUV6J6d8n/OK58SpC0hcPs/SPBIGfFgvk8VK+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758796646; c=relaxed/simple;
-	bh=4+zKr2yoqvxat5W1m7gLDcddQ5j6BzIrsDrF/lKuBPA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=PRt236EhhaQZVjOq4OfZfe1CqzZyffdeHiaFDsBI/kTSPZlTw7bdfKxy4rYZd30HfTfF+jTUyONQw9G951DCoeY7JrSy2jUq0So7rSus79rosIfedXIVr2MQXh0YnrIqNL8wdmDH4f41OqaWUl81yFwzm+XfY4b3RQ/6Wc3E+aU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KjRgVbkA; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1758796650; c=relaxed/simple;
+	bh=Prhd+LkqoYp0VJ2YSuQDc0m2lgDkGgYa2aWwnVG/VQw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=LTEJUVcOq20RXeHiZD9MztjZjmtpGHcA9z/ZWwLOQL7hxwkT4EVwiB3zIWFQrPH72kivmgB1LYEshpTz0ZH+OXxjXjTE9wadzZBYDs3+AWazSDrJCZCRaODUAUenvcU+pPy/L14HrmOCI762Mjv8H3+Q57BtXo66777Ivob3naY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UTSwGdo9; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KjRgVbkA"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UTSwGdo9"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758796643;
+	s=mimecast20190719; t=1758796647;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=pXTK8H73rTFtCvf5wagp3rWhk7oI2YrssL3FPDtIawI=;
-	b=KjRgVbkAifw/HLFlpYNfid3QiDMmbdu8srEZpn3DIZu/tQ0Mq5uSyL4S8otbM4atpoLol3
-	F/NSsK4iB+YQ9Hzdf61zAQ3Se/i4tyNIqaSEmZPSlaGWKxqHjDzkUwAuYwYDbgq7ckVvNE
-	VVqHMA0D3be/APpoDA7aluXlzLxBogI=
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9HvYkyijRiL6uD+3Th5PyNitUXfDZOQ8r0roTL8rtAQ=;
+	b=UTSwGdo9Wd3doL5Ckx9nc5U3IhuIP5Lwx6D2YGnzVmkMqdVbMMgkkF9YsQzoz/Z9jqbSIi
+	zIViOkMwIqoaxEIHzGQB0fozF0QDZo484REsL5RAX7ypIaeCUXao07Qc7YTBFd9IDQ+HZe
+	i0N4WfW+qIYEhqHvhjL694Xq7tyecX0=
 Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-608-ojmW6dMuNeyxk2PVDldh3A-1; Thu,
- 25 Sep 2025 06:37:19 -0400
-X-MC-Unique: ojmW6dMuNeyxk2PVDldh3A-1
-X-Mimecast-MFC-AGG-ID: ojmW6dMuNeyxk2PVDldh3A_1758796638
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-652-ApNZKHyYOPy86ejs3t-rTg-1; Thu,
+ 25 Sep 2025 06:37:24 -0400
+X-MC-Unique: ApNZKHyYOPy86ejs3t-rTg-1
+X-Mimecast-MFC-AGG-ID: ApNZKHyYOPy86ejs3t-rTg_1758796643
 Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 878D1180057F;
-	Thu, 25 Sep 2025 10:37:18 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7DF8D1800576;
+	Thu, 25 Sep 2025 10:37:23 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.112.10])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0449119560A2;
-	Thu, 25 Sep 2025 10:37:14 +0000 (UTC)
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6881519560A2;
+	Thu, 25 Sep 2025 10:37:18 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com,
@@ -47,9 +49,11 @@ To: mst@redhat.com,
 	eperezma@redhat.com
 Cc: virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH V7 00/19] virtio_ring in order support
-Date: Thu, 25 Sep 2025 18:36:49 +0800
-Message-ID: <20250925103708.44589-1-jasowang@redhat.com>
+Subject: [PATCH V7 01/19] virtio_ring: rename virtqueue_reinit_xxx to virtqueue_reset_xxx()
+Date: Thu, 25 Sep 2025 18:36:50 +0800
+Message-ID: <20250925103708.44589-2-jasowang@redhat.com>
+In-Reply-To: <20250925103708.44589-1-jasowang@redhat.com>
+References: <20250925103708.44589-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,81 +64,67 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-Hello all:
+To be consistent with virtqueue_reset().
 
-This sereis tries to implement the VIRTIO_F_IN_ORDER to
-virtio_ring. This is done by introducing virtqueue ops so we can
-implement separate helpers for different virtqueue layout/features
-then the in-order were implemented on top.
+Acked-by: Eugenio Pérez <eperezma@redhat.com>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio_ring.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Tests shows 2%-19% imporvment with packed virtqueue PPS with KVM guest
-vhost-net/testpmd on the host.
-
-Changes since V6:
-
-- Rebase on vhost.git linux-next branch
-- Fix poking packed virtqueue in more_used_split_in_order()
-- Fix calling detach_buf_packed_in_order() unconditonally in
-  virtqueue_detach_unused_buf_packed()
-- Typo and indentation fixes
-- Fix wrong changelog of patch 7
-
-Changes since V5:
-
-- rebase on vhost.git linux-next branch
-- reorder the total_len to reduce memory comsuming
-
-Changes since V4:
-
-- Fix build error when DEBUG is enabled
-- Fix function duplications
-- Remove unnecessary new lines
-
-Changes since V3:
-
-- Re-benchmark with the recent vhost-net in order support
-- Rename the batched used id and length
-- Other minor tweaks
-
-Changes since V2:
-
-- Fix build warning when DEBUG is enabled
-
-Changes since V1:
-
-- use const global array of function pointers to avoid indirect
-  branches to eliminate retpoline when mitigation is enabled
-- fix used length calculation when processing used ids in a batch
-- fix sparse warnings
-
-Jason Wang (19):
-  virtio_ring: rename virtqueue_reinit_xxx to virtqueue_reset_xxx()
-  virtio_ring: switch to use vring_virtqueue in virtqueue_poll variants
-  virtio_ring: unify logic of virtqueue_poll() and more_used()
-  virtio_ring: switch to use vring_virtqueue for virtqueue resize
-    variants
-  virtio_ring: switch to use vring_virtqueue for virtqueue_kick_prepare
-    variants
-  virtio_ring: switch to use vring_virtqueue for virtqueue_add variants
-  virtio: switch to use vring_virtqueue for virtqueue_get variants
-  virtio_ring: switch to use vring_virtqueue for enable_cb_prepare
-    variants
-  virtio_ring: use vring_virtqueue for enable_cb_delayed variants
-  virtio_ring: switch to use vring_virtqueue for disable_cb variants
-  virtio_ring: switch to use vring_virtqueue for detach_unused_buf
-    variants
-  virtio_ring: use u16 for last_used_idx in virtqueue_poll_split()
-  virtio_ring: introduce virtqueue ops
-  virtio_ring: determine descriptor flags at one time
-  virtio_ring: factor out core logic of buffer detaching
-  virtio_ring: factor out core logic for updating last_used_idx
-  virtio_ring: factor out split indirect detaching logic
-  virtio_ring: factor out split detaching logic
-  virtio_ring: add in order support
-
- drivers/virtio/virtio_ring.c | 892 ++++++++++++++++++++++++++---------
- 1 file changed, 681 insertions(+), 211 deletions(-)
-
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index f91a432b3e53..73790593523a 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1009,7 +1009,7 @@ static void virtqueue_vring_init_split(struct vring_virtqueue_split *vring_split
+ 	}
+ }
+ 
+-static void virtqueue_reinit_split(struct vring_virtqueue *vq)
++static void virtqueue_reset_split(struct vring_virtqueue *vq)
+ {
+ 	int num;
+ 
+@@ -1253,7 +1253,7 @@ static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
+ err_state_extra:
+ 	vring_free_split(&vring_split, vdev, vq->map);
+ err:
+-	virtqueue_reinit_split(vq);
++	virtqueue_reset_split(vq);
+ 	return -ENOMEM;
+ }
+ 
+@@ -2091,7 +2091,7 @@ static void virtqueue_vring_attach_packed(struct vring_virtqueue *vq,
+ 	vq->free_head = 0;
+ }
+ 
+-static void virtqueue_reinit_packed(struct vring_virtqueue *vq)
++static void virtqueue_reset_packed(struct vring_virtqueue *vq)
+ {
+ 	memset(vq->packed.vring.device, 0, vq->packed.event_size_in_bytes);
+ 	memset(vq->packed.vring.driver, 0, vq->packed.event_size_in_bytes);
+@@ -2218,7 +2218,7 @@ static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
+ err_state_extra:
+ 	vring_free_packed(&vring_packed, vdev, vq->map);
+ err_ring:
+-	virtqueue_reinit_packed(vq);
++	virtqueue_reset_packed(vq);
+ 	return -ENOMEM;
+ }
+ 
+@@ -2860,9 +2860,9 @@ int virtqueue_reset(struct virtqueue *_vq,
+ 		recycle_done(_vq);
+ 
+ 	if (vq->packed_ring)
+-		virtqueue_reinit_packed(vq);
++		virtqueue_reset_packed(vq);
+ 	else
+-		virtqueue_reinit_split(vq);
++		virtqueue_reset_split(vq);
+ 
+ 	return virtqueue_enable_after_reset(_vq);
+ }
 -- 
 2.31.1
 
