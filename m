@@ -1,262 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 951451519A6
-	for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 00:20:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1696D14A4F9;
+	Thu, 25 Sep 2025 01:07:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758759629; cv=none; b=spFzqf3ILGwooYnUKST+V+a8/55DXwp9MDdlLDqHXxPmK6afwpSt5vBFiBPyLJQB2dGmd8Vso3qDrf0V+aKvWD032iS26E16wvJlVMHZtvZ75cNWfAVOpX2s9K5WPVTIoHWWe95WdyFm08zAnLYzMLbBZYcNcklEF3zIg2aVY9I=
+	t=1758762466; cv=none; b=qD94YSVsnihDA9ldnZWvIG5BxBzhRzZg0ejp4lW/THPXYfsOQQ06FQgbwIQLf+4oZR3rOxrhEPbbH7q4as3LRpgKRLwWVN2/1vjwalLRXzQXYlMQsun9MUuvmR2CbvvwC+0bRFrTYEfuqGnGBi1CrUXYddcJ/GNQAvnr8XxYxkk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758759629; c=relaxed/simple;
-	bh=z6RG1NzBqpZcXxw7lAJMb1E2Y3MSfyoy5GWNYgAnZDE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OU0b3jv807pan3sF4IC39xKxSZG2ecA4sdDaE0AjRwUxDeJiffRydwFKNB/+Xl3jRLj5UwaovecNWXVjaP2QmnAPLsY2cr65qETyo3HpwlSo7o51OOuw7b4zDIZwsl8dC/5IRZ5QUGV2P2mBb18eQdTjBvH/626lb2h1yImIask=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bUmfIl3M; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1758762466; c=relaxed/simple;
+	bh=CFlZhPgAxboz1Cv27dcvdJcYS+vH2Myac43V87lcC38=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pfpZMyyc4aRcGld3hwIHsfNC0SuysFnjYquFL5B+O4Pz/oUzqlPUBIY3WHnGQOYGSR9pcFO+vW1AT+pqsAbKzBgZDdxh22BSx2kLqZ3PmED52HMQKO73DtBqCyBm+BWOxOgfwWTuhm/uxMTQJCLCHHFqOqbe9kpJlPmaWpPyjZs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=d2nLoFL2; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bUmfIl3M"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758759626;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tBdXmbBK+zYgY+FkDU0KfDCA9hAmOijbFD22Agl/pNA=;
-	b=bUmfIl3MSF6RAyHzJ1uu4CrNV82ds9fCbvXeXDM8I0LoUHxTNpw23oR5wHEAK22QDBHkNW
-	Zdk7lyehtw1nWKKSg2pBuMVWfxkE1PiSrDuZhpckjIV/TQJEFitmegpHIxTY1lvifM1H17
-	8h73eSVa5Li/wY8g/AmRrSuoeAE3iNE=
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
- [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-530-RUh7NAMBNJmQb7hgAHSXvQ-1; Wed, 24 Sep 2025 20:20:24 -0400
-X-MC-Unique: RUh7NAMBNJmQb7hgAHSXvQ-1
-X-Mimecast-MFC-AGG-ID: RUh7NAMBNJmQb7hgAHSXvQ_1758759624
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-780f914b5a4so390611b3a.1
-        for <virtualization@lists.linux.dev>; Wed, 24 Sep 2025 17:20:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758759624; x=1759364424;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tBdXmbBK+zYgY+FkDU0KfDCA9hAmOijbFD22Agl/pNA=;
-        b=aZijja8SW2sDZ2Zo8aEcwhFkq5pCqn/0gCxlnpxuP1vAmsvJFU6moD04Rgy6kdM239
-         5uq80ukbmgm7zWprR6BwwKnKbr2D1QGybJFcvTiK6TGe21FfkyTH6tROlo8H3rvawgOg
-         8T2g0uAmt0cdJOwjGvN0boL1BPYaYYxr45y4OrA9ZvVkdDUT9fbVOfu4ZwyzyeuP3/dn
-         CISjml9c/jejBilCJcxCfzLwHNIrvLJJ2YDZj8R4jzrRkyosEStEqRDkG/u7fitL3ICP
-         WiemlKc/gWWTm4n3VErtH13rD2Q0bJ6Y9ZIMEWdGlJs7PTbfS1JWyedZLCapfSxhFvb+
-         Rm7w==
-X-Forwarded-Encrypted: i=1; AJvYcCXySI9DQG1Adqb1kesa8hacEgcNp0m3BKs8bjz5sWd91idSGxHf0aOA+jTxjp/4tA9SW2Iha1ZSC+uBiMB9/Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxLr7it8fkFPFrvhyXxC8J0kgrZh0vlhe72tRJYCm78xP1iRRBu
-	qChF5Opr1IXg4aIAb5ryVTr9DdeNQwoVncX9oz4sRVK5uJvSUTLgd9iocZpTpWpD8JZuTXYEfa7
-	Pepxsvyf8DjDe6haPYiMmY1qHZlP4b7J/lXd45JBme9hVZNYw+lje1pDsZ1AJalrjoW9g5MEe5E
-	16IYZz4SevgGYAwUDWtsUvMMWKV8BHAcAyR7qInYyAaIs=
-X-Gm-Gg: ASbGnctVItS27R0jRx02mwTBtYgX7KX4HlC01l9qA6A2n/3DH+6dteOPUKgYz+1cqYx
-	6vdrdyiT/7RS0J6ggK9M+j/NooWa3gnv0uzdNqUMMPpeb8BnWcctS1qE8/TKZMmgZgdr1vqCGp8
-	jma7JE22wTh8C+WxzdwQ==
-X-Received: by 2002:a05:6a20:a126:b0:24c:dd96:54f2 with SMTP id adf61e73a8af0-2e7bf47c13emr1926792637.1.1758759623743;
-        Wed, 24 Sep 2025 17:20:23 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHvLMAV/8B1P5qPCLtvGQU0+RKs7N8f4KhEHl70VSOnWY8mLTxXSnMrb+lx7ACU9ZyiJFWSTtOBh9B3XvN3V9E=
-X-Received: by 2002:a05:6a20:a126:b0:24c:dd96:54f2 with SMTP id
- adf61e73a8af0-2e7bf47c13emr1926740637.1.1758759623163; Wed, 24 Sep 2025
- 17:20:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="d2nLoFL2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1758762464; x=1790298464;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=CFlZhPgAxboz1Cv27dcvdJcYS+vH2Myac43V87lcC38=;
+  b=d2nLoFL2Xc1ivz3pKdoPdctYSi/faxDC7DN8LU64OkAKc9DGqh4uPvvB
+   bRf+aUwYlhfxkqgMvIOnq9kEQjQIOr9woPg3LskfFjQnMXz/Zp+3hmb12
+   tnzNP9vFmWXqPM+IfI4qfmq6spLd5cdfi2E1yA4xeoy5jcc2BE4x8AdcW
+   0WDEMAacqnNxN4WVO+Nfpx0GOABFkWE+S0Ed6eMM2yaxLq+BuabeiRkty
+   ugYScZQZDz7xzZvG0NtLXWufit38QbBIkoY0/BQpRl9G7n8056ZCajD0K
+   5u5uFRjrKIgemiiKkjo4xa/J1ktlrVS7kLSgS/fkMnPN2Pbey+RvVmph2
+   w==;
+X-CSE-ConnectionGUID: hk46rRn+RZKFAQ0K6obtmA==
+X-CSE-MsgGUID: dxR/imC/TjW386qlSp1P2g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11563"; a="72499898"
+X-IronPort-AV: E=Sophos;i="6.18,291,1751266800"; 
+   d="scan'208";a="72499898"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2025 18:07:43 -0700
+X-CSE-ConnectionGUID: xVolhA3PT8epk9iyLHx9ug==
+X-CSE-MsgGUID: TpAAOHCwRGiTaLWtNbgzxQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.18,291,1751266800"; 
+   d="scan'208";a="177257941"
+Received: from lkp-server02.sh.intel.com (HELO 84c55410ccf6) ([10.239.97.151])
+  by orviesa008.jf.intel.com with ESMTP; 24 Sep 2025 18:07:40 -0700
+Received: from kbuild by 84c55410ccf6 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1v1aSP-0004mH-23;
+	Thu, 25 Sep 2025 01:07:37 +0000
+Date: Thu, 25 Sep 2025 09:07:18 +0800
+From: kernel test robot <lkp@intel.com>
+To: Kommula Shiva Shankar <kshankar@marvell.com>, netdev@vger.kernel.org,
+	mst@redhat.com, jasowang@redhat.com, pabeni@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Cc: oe-kbuild-all@lists.linux.dev, virtualization@lists.linux.dev,
+	parav@nvidia.com, jerinj@marvell.com, ndabilpuram@marvell.com,
+	sburla@marvell.com, schalla@marvell.com
+Subject: Re: [PATCH v1 net-next  2/3] virtio_net: enable outer nw header
+ offset support.
+Message-ID: <202509250856.HoVMjFzw-lkp@intel.com>
+References: <20250923202258.2738717-3-kshankar@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250915073429.54027-1-sheng.zhao@bytedance.com>
- <CACGkMEuvT3=a+6LyaFZFmCZzGS5tntPSbSJg=h6FAHdk89pC8g@mail.gmail.com>
- <2739dcc3-7c38-492c-854a-731298396a0c@bytedance.com> <CACGkMEv3pUBF3Uv2s3MM0Qn--fP3mwN92SqE9NX4gNuMALBTUg@mail.gmail.com>
- <aed938d0-e70a-4af6-9950-d4d0b7d6a93f@bytedance.com> <CACGkMEv4TZOAyxaTkCvZ4rgyVsPet+r3pNSauHaGOYHim3Loag@mail.gmail.com>
- <b5bc34c2-b82a-475d-ba15-a7f67495b56a@bytedance.com>
-In-Reply-To: <b5bc34c2-b82a-475d-ba15-a7f67495b56a@bytedance.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 25 Sep 2025 08:20:11 +0800
-X-Gm-Features: AS18NWDdt4kY5KPqivF5QVdC5EV0coiQzHRAXlVturRFKt4v3-LoM7ZWGsG5sK0
-Message-ID: <CACGkMEsLg-oi3BU1EgRVb2hB9P1bfxEyZoH03+vtEGe=YmNQHg@mail.gmail.com>
-Subject: Re: Re: [PATCH] vduse: Use fixed 4KB bounce pages for arm64 64KB page size
-To: Sheng Zhao <sheng.zhao@bytedance.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	xieyongji@bytedance.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5T6UT36zuPo7pKyfZUyplYOtnj5bgxDRmaMA0lrE2cM_1758759624
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250923202258.2738717-3-kshankar@marvell.com>
 
-On Wed, Sep 24, 2025 at 2:38=E2=80=AFPM Sheng Zhao <sheng.zhao@bytedance.co=
-m> wrote:
->
->
->
-> On 2025/9/24 12:15, Jason Wang wrote:
-> > On Wed, Sep 24, 2025 at 12:05=E2=80=AFPM Sheng Zhao <sheng.zhao@bytedan=
-ce.com> wrote:
-> >>
-> >>
-> >>
-> >> On 2025/9/24 08:57, Jason Wang wrote:
-> >>> On Tue, Sep 23, 2025 at 8:37=E2=80=AFPM Sheng Zhao <sheng.zhao@byteda=
-nce.com> wrote:
-> >>>>
-> >>>>
-> >>>>
-> >>>> On 2025/9/17 16:16, Jason Wang wrote:
-> >>>>> On Mon, Sep 15, 2025 at 3:34=E2=80=AFPM <sheng.zhao@bytedance.com> =
-wrote:
-> >>>>>>
-> >>>>>> From: Sheng Zhao <sheng.zhao@bytedance.com>
-> >>>>>>
-> >>>>>> The allocation granularity of bounce pages is PAGE_SIZE. This may =
-cause
-> >>>>>> even small IO requests to occupy an entire bounce page exclusively=
-. The
-> >>>>>> kind of memory waste will be more significant on arm64 with 64KB p=
-ages.
-> >>>>>
-> >>>>> Let's tweak the title as there are archs that are using non 4KB pag=
-es
-> >>>>> other than arm.
-> >>>>>
-> >>>>
-> >>>> Got it. I will modify this in v2.
-> >>>>
-> >>>>>>
-> >>>>>> So, optimize it by using fixed 4KB bounce pages.
-> >>>>>>
-> >>>>>> Signed-off-by: Sheng Zhao <sheng.zhao@bytedance.com>
-> >>>>>> ---
-> >>>>>>     drivers/vdpa/vdpa_user/iova_domain.c | 120 +++++++++++++++++--=
---------
-> >>>>>>     drivers/vdpa/vdpa_user/iova_domain.h |   5 ++
-> >>>>>>     2 files changed, 83 insertions(+), 42 deletions(-)
-> >>>>>>
-> >>>>>> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/v=
-dpa_user/iova_domain.c
-> >>>>>> index 58116f89d8da..768313c80b62 100644
-> >>>>>> --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> >>>>>> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> >>>>>> @@ -103,19 +103,26 @@ void vduse_domain_clear_map(struct vduse_iov=
-a_domain *domain,
-> >>>>>>     static int vduse_domain_map_bounce_page(struct vduse_iova_doma=
-in *domain,
-> >>>>>>                                             u64 iova, u64 size, u6=
-4 paddr)
-> >>>>>>     {
-> >>>>>> -       struct vduse_bounce_map *map;
-> >>>>>> +       struct vduse_bounce_map *map, *head_map;
-> >>>>>> +       struct page *tmp_page;
-> >>>>>>            u64 last =3D iova + size - 1;
-> >>>>>>
-> >>>>>>            while (iova <=3D last) {
-> >>>>>> -               map =3D &domain->bounce_maps[iova >> PAGE_SHIFT];
-> >>>>>> +               map =3D &domain->bounce_maps[iova >> BOUNCE_PAGE_S=
-HIFT];
-> >>>>>
-> >>>>> BOUNCE_PAGE_SIZE is kind of confusing as it's not the size of any p=
-age
-> >>>>> at all when PAGE_SIZE is not 4K.
-> >>>>>
-> >>>>
-> >>>> How about BOUNCE_MAP_SIZE?
-> >>>
-> >>> Fine with me.
-> >>>
-> >>>>
-> >>>>>>                    if (!map->bounce_page) {
-> >>>>>> -                       map->bounce_page =3D alloc_page(GFP_ATOMIC=
-);
-> >>>>>> -                       if (!map->bounce_page)
-> >>>>>> -                               return -ENOMEM;
-> >>>>>> +                       head_map =3D &domain->bounce_maps[(iova & =
-PAGE_MASK) >> BOUNCE_PAGE_SHIFT];
-> >>>>>> +                       if (!head_map->bounce_page) {
-> >>>>>> +                               tmp_page =3D alloc_page(GFP_ATOMIC=
-);
-> >>>>>> +                               if (!tmp_page)
-> >>>>>> +                                       return -ENOMEM;
-> >>>>>> +                               if (cmpxchg(&head_map->bounce_page=
-, NULL, tmp_page))
-> >>>>>> +                                       __free_page(tmp_page);
-> >>>>>
-> >>>>> I don't understand why we need cmpxchg() logic.
-> >>>>>
-> >>>>> Btw, it looks like you want to make multiple bounce_map to point to
-> >>>>> the same 64KB page? I wonder what's the advantages of doing this. C=
-an
-> >>>>> we simply keep the 64KB page in bounce_map?
-> >>>>>
-> >>>>> Thanks
-> >>>>>
-> >>>>
-> >>>> That's correct. We use fixed 4KB-sized bounce pages, and there will =
-be a
-> >>>> many-to-one relationship between these 4KB bounce pages and the 64KB
-> >>>> memory pages.
-> >>>>
-> >>>> Bounce pages are allocated on demand. As a result, it may occur that
-> >>>> multiple bounce pages corresponding to the same 64KB memory page att=
-empt
-> >>>> to allocate memory simultaneously, so we use cmpxchg to handle this
-> >>>> concurrency.
-> >>>>
-> >>>> In the current implementation, the bounce_map structure requires no
-> >>>> modification. However, if we keep the 64KB page into a single bounce=
-_map
-> >>>> while still wanting to implement a similar logic, we may need an
-> >>>> additional array to store multiple orig_phys values in order to
-> >>>> accommodate the many-to-one relationship.
-> >>>
-> >>> Or simply having a bitmap is sufficient per bounce_map?
-> >>>
-> >>
-> >> Yes, using a bitmap can mark the usage status of each 4KB, but it may
-> >> not simplify things overall.
-> >>
-> >> - we will inevitably need to add an additional array per bounce_map to
-> >> store the orig_phys corresponding to each 4KB for subsequent copying
-> >> (vduse_domain_bounce).
-> >
-> > I may miss something, the PAGE_SIZE is 64KB in this case, why do we
-> > need to store per 4KB orig_phys?
-> >
->
-> Since one orig_phys originates from one IO request. If we want the
-> minimum size of bounce pages occupied by an IO request to be 4KB instead
-> of 64KB. we need to store their respective orig_phys values for each 4KB
-> corresponding to the IO request.
->
-> In other words, we may not be able to guarantee that the orig_phys
-> values of all IO requests within the same 64KB memory page are
-> contiguous, so we need to store them separately.
+Hi Kommula,
 
-Ok, let's leave a comment to explain this design.
+kernel test robot noticed the following build warnings:
 
-Thanks
+[auto build test WARNING on net-next/main]
 
->
-> Thanks
-> >>
-> >> - compared to the current commit, this modification may only be a
-> >> structural change and fail to reduce the amount of changes to the code
-> >> logic. For instance, cmpxchg is still required.
-> >
-> > Thanks
-> >
-> >>
-> >>
-> >> Thanks
-> >>
-> >>> Thanks
-> >>>
-> >>>>
-> >>>> Thanks
-> >>>>
-> >>>
-> >>
-> >
->
+url:    https://github.com/intel-lab-lkp/linux/commits/Kommula-Shiva-Shankar/net-implement-virtio-helper-to-handle-outer-nw-offset/20250924-042602
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20250923202258.2738717-3-kshankar%40marvell.com
+patch subject: [PATCH v1 net-next  2/3] virtio_net: enable outer nw header offset support.
+config: x86_64-randconfig-122-20250924 (https://download.01.org/0day-ci/archive/20250925/202509250856.HoVMjFzw-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250925/202509250856.HoVMjFzw-lkp@intel.com/reproduce)
 
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202509250856.HoVMjFzw-lkp@intel.com/
+
+sparse warnings: (new ones prefixed by >>)
+   drivers/net/virtio_net.c: note: in included file:
+>> include/linux/virtio_net.h:389:72: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted __virtio16 [usertype] val @@     got restricted __le16 [usertype] outer_nh_offset @@
+   include/linux/virtio_net.h:389:72: sparse:     expected restricted __virtio16 [usertype] val
+   include/linux/virtio_net.h:389:72: sparse:     got restricted __le16 [usertype] outer_nh_offset
+>> include/linux/virtio_net.h:411:39: sparse: sparse: incorrect type in assignment (different base types) @@     expected restricted __le16 [usertype] outer_nh_offset @@     got restricted __virtio16 @@
+   include/linux/virtio_net.h:411:39: sparse:     expected restricted __le16 [usertype] outer_nh_offset
+   include/linux/virtio_net.h:411:39: sparse:     got restricted __virtio16
+
+vim +389 include/linux/virtio_net.h
+
+a2fb4bc4e2a6a0 Paolo Abeni           2025-07-08  376  
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  377  static inline int
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  378  virtio_net_out_net_header_to_skb(struct sk_buff *skb,
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  379  				 struct virtio_net_hdr_v1_hash_tunnel_out_net_hdr *vhdr,
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  380  				 bool out_net_hdr_negotiated,
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  381  				 bool little_endian)
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  382  {
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  383  	unsigned int out_net_hdr_off;
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  384  
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  385  	if (!out_net_hdr_negotiated)
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  386  		return 0;
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  387  
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  388  	if (vhdr->outer_nh_offset) {
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24 @389  		out_net_hdr_off = __virtio16_to_cpu(little_endian, vhdr->outer_nh_offset);
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  390  		skb_set_network_header(skb, out_net_hdr_off);
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  391  	}
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  392  
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  393  	return 0;
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  394  }
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  395  
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  396  static inline int
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  397  virtio_net_out_net_header_from_skb(const struct sk_buff *skb,
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  398  				   struct virtio_net_hdr_v1_hash_tunnel_out_net_hdr *vhdr,
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  399  				   bool out_net_hdr_negotiated,
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  400  				   bool little_endian)
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  401  {
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  402  	unsigned int out_net_hdr_off;
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  403  
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  404  	if (!out_net_hdr_negotiated) {
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  405  		vhdr->outer_nh_offset = 0;
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  406  		return 0;
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  407  	}
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  408  
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  409  	out_net_hdr_off = skb_network_offset(skb);
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  410  	if (out_net_hdr_off && skb->protocol == htons(ETH_P_IP))
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24 @411  		vhdr->outer_nh_offset = __cpu_to_virtio16(little_endian,
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  412  							  out_net_hdr_off);
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  413  
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  414  	return 0;
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  415  }
+1dc49efaeaa4c1 Kommula Shiva Shankar 2025-09-24  416  
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
