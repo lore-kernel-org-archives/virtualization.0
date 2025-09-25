@@ -1,118 +1,140 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB5362EF67A
-	for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 10:35:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70DD22F1FF9
+	for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 10:37:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758796552; cv=none; b=nP/0mo/pQnt7xBJOH1RFrX2qUT/Uog4BameVsUCMxf8D3Vpck0yPTYfI+0Km5IRyVu763Klf2gqp5zpnXiCcs0OIMwLSG50uFntjb3c9YDspdulU9NMow60PInts0bQ9IjHqeXnj8ib28JB2+Plms5FhgZziFvQ7YsBTSq3gwNI=
+	t=1758796646; cv=none; b=nUTFRzzBaFb71asPzR2CvTJBSOh4xI+8Qd6H/WcH13976AHJEUbE8tPip/j04rcI2+rFcAaaJakJ8pQDQjwcdsChUYBDGIMSwvHuksLUmpS0JlIAo2N400w7w3/CDrkiSyv5BQHoeWVvjdzOhcq1BkHudDqZPiiUzRmcAciXYVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758796552; c=relaxed/simple;
-	bh=xUNLHeoXDRqlz24TV5AEjntAUr9nhMODMN2h5qvvvjA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Zq9LX5afeUnzL4RSF10Amn6hKVIjYJhZdYvG0attdx++tjRHZmQTEfgg1JNRvqmPXqfITDihHhcBC7yYNuPaSFWSTc472iB2xcN1/qrn2C3LATnQujOqOBMYH/jDqZpMG03Y4TOfEUJV6AZ4ioIIxaTckcXHL20+KZOLZumfwVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Pd6HZnQ2; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1758796646; c=relaxed/simple;
+	bh=4+zKr2yoqvxat5W1m7gLDcddQ5j6BzIrsDrF/lKuBPA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=PRt236EhhaQZVjOq4OfZfe1CqzZyffdeHiaFDsBI/kTSPZlTw7bdfKxy4rYZd30HfTfF+jTUyONQw9G951DCoeY7JrSy2jUq0So7rSus79rosIfedXIVr2MQXh0YnrIqNL8wdmDH4f41OqaWUl81yFwzm+XfY4b3RQ/6Wc3E+aU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KjRgVbkA; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pd6HZnQ2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KjRgVbkA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758796549;
+	s=mimecast20190719; t=1758796643;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=g3EH6WUwwcgnGQdg2Ar9vB2aGlwaK5xQW7oTXv4mu5E=;
-	b=Pd6HZnQ2L6NJPql/qJ1XMZh5120ybOCC66s6O1OiRCz87D6tdb6/ymOhikqv+K4KCHNc6q
-	WhFpsN+3wty5eGv7Qi8mPQxKRNV4NGfhkVObRb3MGslQ1I3ApzyLCgKFEBf95vEUwxLJGc
-	nKl25xofCFWkpVfj2iVH8TNnI1LQnqc=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-470-DmNFpLHpN4Cb4P79RAp3lg-1; Thu, 25 Sep 2025 06:35:48 -0400
-X-MC-Unique: DmNFpLHpN4Cb4P79RAp3lg-1
-X-Mimecast-MFC-AGG-ID: DmNFpLHpN4Cb4P79RAp3lg_1758796548
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3ecdb10a612so710970f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 03:35:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758796547; x=1759401347;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=g3EH6WUwwcgnGQdg2Ar9vB2aGlwaK5xQW7oTXv4mu5E=;
-        b=kIJnS5Qqwf3gxVTTKk6kGq8qTpGqN2B2iYfhlNtWnoZnvUYxx+jfA3mW1u2QI/Rrql
-         kP10Xr0Sh0kdu52W/sGdnRZs3nKCgBn+hCWyULVzcuAUroPf3bG/rqRlOuCr+cjOuhc3
-         d4IUkgeNroHH4a4twixKVv9+V/nnUuLz6DqZhO2m+XfFByD1wOe+rsaeaglK7/p3L0dt
-         m6ekdgDeG3YeDBAwQ+E/zaTsGlfkIOMWG1XqPob9+86bNH/2aZP+viUJniQqq+PZ0Wv0
-         ZZWjejtzIBK2Mj7nggzkDzKk9QjcTmVsU3Xa3/CYUSejUe7JB78mTk64K/xCnWo1tgNA
-         8nDg==
-X-Forwarded-Encrypted: i=1; AJvYcCUM0n4n5Vp40+4gRahuqNzTN3rhFytbG0ot7BoUoKT+a5DuSbdPHhbA/R2N/79XN9Aq9LcwOCiJwBQvxKyFCA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzkpQWnqaZz5ask+C39W8eSIrVQCOu4fuq7K7h1wxPk6LITq6nW
-	47UqZsWkwPb5w0/1RE2gqmb+jTWyWHtT78kdy6cvAe+i1hcESLEHcvGUUa4PeodmlGXiAUrjrfx
-	fAs6p29GKVBcoJEQ0T/8R+D2cPHHcr6cyirEZ4giZmY4nKloiDqIfcN+zcoDFjRj2Kc3I
-X-Gm-Gg: ASbGncvmWLLwtNVVNuJZtgcscciv5K2RYw1LjfJbBAcESUuVdi52Fi5gaP0NNdSiaPk
-	TP/eBZ3b1GDd3dnFWeoV+yNgXSf8WewbTwoJVipN7jNJQnRNtoZ14RpB7HjvPkfOBZoFpyxuHxX
-	4ndlyo4cI1hfxo5kMqS3CQK0PehouudBBN4OHg+k3+2gDfVB/fuBT8Ha7JypPsvtjp/dOqzVhJD
-	UFJvGIgmYlWiqWQDEr2wcc8xpE2iJiPDfbeq3ljJ6JH5t1cnm77+0u3mQbJVTkNiXuYHdy1Uvaw
-	wVUdoPRUhdT3O1czgfn0kh3UjscikXo/jw==
-X-Received: by 2002:a05:6000:2203:b0:3ee:1125:fb61 with SMTP id ffacd0b85a97d-40e46514e09mr2505820f8f.7.1758796547116;
-        Thu, 25 Sep 2025 03:35:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGkWcoaeMZPfqEXToR9d4KGUCRtGAeqcReS6VWVUDQh5w1llQDfRRLhSrQOqVg0wGLgDM00VQ==
-X-Received: by 2002:a05:6000:2203:b0:3ee:1125:fb61 with SMTP id ffacd0b85a97d-40e46514e09mr2505786f8f.7.1758796546654;
-        Thu, 25 Sep 2025 03:35:46 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1538:2200:56d4:5975:4ce3:246f])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-40fac4a5e41sm2803768f8f.0.2025.09.25.03.35.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Sep 2025 03:35:46 -0700 (PDT)
-Date: Thu, 25 Sep 2025 06:35:42 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Cc: Dan Jurgens <danielj@nvidia.com>, Jason Wang <jasowang@redhat.com>,
-	netdev@vger.kernel.org, alex.williamson@redhat.com,
-	pabeni@redhat.com, virtualization@lists.linux.dev,
-	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, shameerali.kolothum.thodi@huawei.com,
-	jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org,
-	andrew+netdev@lunn.ch, edumazet@google.com,
-	Yishai Hadas <yishaih@nvidia.com>
-Subject: Re: [PATCH net-next v3 01/11] virtio-pci: Expose generic device
- capability operations
-Message-ID: <20250925062741-mutt-send-email-mst@kernel.org>
-References: <20250923141920.283862-1-danielj@nvidia.com>
- <20250923141920.283862-2-danielj@nvidia.com>
- <CACGkMEtkqhvsP1-b8zBnrFZwnK3LvEO4GBN52rxzdbOXJ3J7Qw@mail.gmail.com>
- <20250924021637-mutt-send-email-mst@kernel.org>
- <16019785-ca9e-4d63-8a0f-c2f3fdcd32b8@nvidia.com>
- <20250925021351-mutt-send-email-mst@kernel.org>
- <4fa7bf85-e935-45aa-bb2f-f37926397c31@nvidia.com>
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=pXTK8H73rTFtCvf5wagp3rWhk7oI2YrssL3FPDtIawI=;
+	b=KjRgVbkAifw/HLFlpYNfid3QiDMmbdu8srEZpn3DIZu/tQ0Mq5uSyL4S8otbM4atpoLol3
+	F/NSsK4iB+YQ9Hzdf61zAQ3Se/i4tyNIqaSEmZPSlaGWKxqHjDzkUwAuYwYDbgq7ckVvNE
+	VVqHMA0D3be/APpoDA7aluXlzLxBogI=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-608-ojmW6dMuNeyxk2PVDldh3A-1; Thu,
+ 25 Sep 2025 06:37:19 -0400
+X-MC-Unique: ojmW6dMuNeyxk2PVDldh3A-1
+X-Mimecast-MFC-AGG-ID: ojmW6dMuNeyxk2PVDldh3A_1758796638
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 878D1180057F;
+	Thu, 25 Sep 2025 10:37:18 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.112.10])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0449119560A2;
+	Thu, 25 Sep 2025 10:37:14 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH V7 00/19] virtio_ring in order support
+Date: Thu, 25 Sep 2025 18:36:49 +0800
+Message-ID: <20250925103708.44589-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <4fa7bf85-e935-45aa-bb2f-f37926397c31@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eRaCjTyeHbFQxsEbA5EwAgomGBoSqtcgto19ReUGpe4_1758796548
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Thu, Sep 25, 2025 at 03:21:38PM +0530, Parav Pandit wrote:
-> Function pointers are there for multiple transports to implement their own
-> implementation.
+Hello all:
 
-My understanding is that you want to use flow control admin commands 
-in virtio net, without making it depend on virtio pci.
-This why the callbacks are here. Is that right?
+This sereis tries to implement the VIRTIO_F_IN_ORDER to
+virtio_ring. This is done by introducing virtqueue ops so we can
+implement separate helpers for different virtqueue layout/features
+then the in-order were implemented on top.
 
-That is fair enough, but it looks like every new command then
-needs a lot of boilerplate code with a callback a wrapper and
-a transport implementation.
+Tests shows 2%-19% imporvment with packed virtqueue PPS with KVM guest
+vhost-net/testpmd on the host.
 
+Changes since V6:
 
-Why not just put all this code in virtio core? It looks like the
-transport just needs to expose an API to find the admin vq.
+- Rebase on vhost.git linux-next branch
+- Fix poking packed virtqueue in more_used_split_in_order()
+- Fix calling detach_buf_packed_in_order() unconditonally in
+  virtqueue_detach_unused_buf_packed()
+- Typo and indentation fixes
+- Fix wrong changelog of patch 7
+
+Changes since V5:
+
+- rebase on vhost.git linux-next branch
+- reorder the total_len to reduce memory comsuming
+
+Changes since V4:
+
+- Fix build error when DEBUG is enabled
+- Fix function duplications
+- Remove unnecessary new lines
+
+Changes since V3:
+
+- Re-benchmark with the recent vhost-net in order support
+- Rename the batched used id and length
+- Other minor tweaks
+
+Changes since V2:
+
+- Fix build warning when DEBUG is enabled
+
+Changes since V1:
+
+- use const global array of function pointers to avoid indirect
+  branches to eliminate retpoline when mitigation is enabled
+- fix used length calculation when processing used ids in a batch
+- fix sparse warnings
+
+Jason Wang (19):
+  virtio_ring: rename virtqueue_reinit_xxx to virtqueue_reset_xxx()
+  virtio_ring: switch to use vring_virtqueue in virtqueue_poll variants
+  virtio_ring: unify logic of virtqueue_poll() and more_used()
+  virtio_ring: switch to use vring_virtqueue for virtqueue resize
+    variants
+  virtio_ring: switch to use vring_virtqueue for virtqueue_kick_prepare
+    variants
+  virtio_ring: switch to use vring_virtqueue for virtqueue_add variants
+  virtio: switch to use vring_virtqueue for virtqueue_get variants
+  virtio_ring: switch to use vring_virtqueue for enable_cb_prepare
+    variants
+  virtio_ring: use vring_virtqueue for enable_cb_delayed variants
+  virtio_ring: switch to use vring_virtqueue for disable_cb variants
+  virtio_ring: switch to use vring_virtqueue for detach_unused_buf
+    variants
+  virtio_ring: use u16 for last_used_idx in virtqueue_poll_split()
+  virtio_ring: introduce virtqueue ops
+  virtio_ring: determine descriptor flags at one time
+  virtio_ring: factor out core logic of buffer detaching
+  virtio_ring: factor out core logic for updating last_used_idx
+  virtio_ring: factor out split indirect detaching logic
+  virtio_ring: factor out split detaching logic
+  virtio_ring: add in order support
+
+ drivers/virtio/virtio_ring.c | 892 ++++++++++++++++++++++++++---------
+ 1 file changed, 681 insertions(+), 211 deletions(-)
 
 -- 
-MST
+2.31.1
 
