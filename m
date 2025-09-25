@@ -1,191 +1,196 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658D7274659
-	for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 16:56:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83F2B21B192
+	for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 20:10:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758819370; cv=none; b=k5Q8zj+DDlpBg9rxS+JoWiEO+hIfy1jkOBXyFR/ky2QDfM28kIUQNkcuwn9tK1PFhpQzpLZpbqTRBYOJ3joZl0V0t8ElzAoIzs8UT0YAGFizYgmRsA3YbMWyzsAKAjmGZTDJd9FroKztPNOuYuaFhFeAwk6o7GDCvv6xdlIlqC8=
+	t=1758831010; cv=none; b=QrjaL8lvQGTIpyf1cesTngGnJimDsor+MLLFos2KHMxQAGnNEIPUqki3tsSkez9GBYE6UTrBBqZZ/A7lkpLsmtg8Gt/cawndy3cH5XEmYDwW+nN5y+njxH8fC7kEt4j9/U1ep5HU+Gnn0RIa3FPkchZh23/EXdEJ1vZi+ItOKMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758819370; c=relaxed/simple;
-	bh=suu5B7JT+nltyxVLocDs4lzGj2tyeaQ92aGBTUkPsc0=;
+	s=arc-20240116; t=1758831010; c=relaxed/simple;
+	bh=5q9JIo3KLieaE5pI8ZxnPCMucm30a6FLRGi7TL7iPgM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=MMKYKu8cxQ4yIJM5XA7lkJwVKpjA4h3j/zclRnObc4CpcGmV5CDP2TrQG/2Kj/Q8dIF43cSvCWN1+gzUtXNHTGadFlRbFNTdILHqucouCRu5ZrXAjdN2PEzVupxLnbYYj51SskOL10FIMhPHpedvrEk//u3DGyphFgGGPLf0Cfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AL0FUbIP; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=dx1bH9oUIZqF8T1Dlpr62xqE1h3ctdqdj+2ZjiGFNb8YNWxV160rr6xU3tSb7scw4v87Si5NuZeJ28LRLvw5pw5fhz1MKYXMmc1QtrFgYT40bKC0FnLY13486eQgHasKUj2acvL+J9RYOEVR1NTSxFYq8/ULtSacf15hfQg9eTA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QX7bw5oZ; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AL0FUbIP"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QX7bw5oZ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758819367;
+	s=mimecast20190719; t=1758831007;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ExJlMZbEeqHx17txFFfBUFBbqoWdfhaK/jRKu008q3E=;
-	b=AL0FUbIPMRcHvgUAv7XkqQJzMCZ0LgeEgVAzD69Gfo+d0ciDy8cVyZgHQd7QRfYBZDjLsb
-	MKmKuCMGkckRAsmb5SjX10PjUb9D4ShehzMD84AMsB8WUtmWsRZTu+p5pKDDbrtsN0x+og
-	55Zy9ZDf62s4qtEX7IgH5JyWbDYl5JE=
+	bh=ZKUzh+6/MIhf5DygkxBAiYjFTYmRYgnUbT3TytAjqVI=;
+	b=QX7bw5oZqrmxRfoYIB5foerOPWYt35qvFXrjB4VBxkPDtJPXruZz5C2lOr56zIS1yoSNVx
+	UpNErSOoOxF2KY3ADXSBRkuIGmajCPuVMO9LdRbTJb6ysdiBPg7AwUmiOc0K8cBTGOUcjM
+	iDJoZOIlO7QhJ9aWgespLn8bnw0aSGY=
 Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
  [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-326-BgK8m26xMUiHoQ-seZnSYQ-1; Thu, 25 Sep 2025 12:56:06 -0400
-X-MC-Unique: BgK8m26xMUiHoQ-seZnSYQ-1
-X-Mimecast-MFC-AGG-ID: BgK8m26xMUiHoQ-seZnSYQ_1758819365
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-46e25f5ed85so7706975e9.3
-        for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 09:56:05 -0700 (PDT)
+ us-mta-127-NA6POlUyOKy9v4mCASiC5g-1; Thu, 25 Sep 2025 16:10:06 -0400
+X-MC-Unique: NA6POlUyOKy9v4mCASiC5g-1
+X-Mimecast-MFC-AGG-ID: NA6POlUyOKy9v4mCASiC5g_1758831005
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-45b990eb77cso8687805e9.0
+        for <virtualization@lists.linux.dev>; Thu, 25 Sep 2025 13:10:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758819365; x=1759424165;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ExJlMZbEeqHx17txFFfBUFBbqoWdfhaK/jRKu008q3E=;
-        b=b2TiX5w2fs5aMYWeHDfcDndc1SxGsi0+klEsIqXrm8z/DJEehNZ/lo8sE89y23t7pe
-         aVtWrZS5iHMO/wU5ZTdFEoV+3HQ96qQI7C/7aRRiyUHfp19KMFHd14QV/qBEL6cxpwZq
-         fO6nyGt3T98/7XxQ7cSfIce3nbuThNdk89D8prkyfqbTrG9RjC3qJLTibkfLez+xT3mv
-         kTDux+0Zpm5lHPEOHrry40eQX94HWiPOvoDnRy6ePX52sJRaYooXFzcyec9brZ6mkNll
-         ODO2ahIxvMJcXcy/8HmM7O/SyW9S0F+vtQVOPf1vuKf2oEPpbPWGQG5XpuVS7qGT8D+Y
-         sQgQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXoqWLO6gfB6pmgBUmeWDaDWOy/tQkRFS+pu3BXnvCyl8xZE8utjqG5wKW089f4oJRUeOeRAZcLU1l1G6Z4Hg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YySPJAQYx0yGu6sWaGP2niLdPxdyEr/xZvfG2456YEnJZO/e2ku
-	6+8fL6RwAfs0dhWisrlQlD0i+jTSHniSMXnHlUyf8CY2m2dCPSsCKPWCpTbu18bwKXbYp82BrQf
-	kD0NTgABix5B6b6SfbiY4NzH8lHAeiZ9NLVwYefHkplOT/25IgdWWxG+cQWwojY2SuGHI
-X-Gm-Gg: ASbGncsN/BMUHtiHloSPh+5miGVaElv29YgI3R+QbxcwrcvhQFRX89qANwA+BFHrviy
-	fqvXtgfPwkJ5PNdtRq9VgB1TY50cOSRpFcMh6kjPQoxkEi9jwMPh26PmdXEZaJ0SGPLjTIwIfG7
-	mVT8KK7G9wzDy5sX01HDFFa+ufCZbn/thXf4UvL5V2860RMMJxbI1Oogj9y7Il6qFIkJsVYftYN
-	Ex/uAR7yGaFQPjBJ62gifSLXYDCoIPOD4wCcStwZy8rTFjd1+yLv3KffvHngGdxcriXBRz5iF5M
-	zHf+XDUBmdAqWeD6FblcKSOFKMw0OG8rFQ==
-X-Received: by 2002:a05:600c:4512:b0:46d:996b:828c with SMTP id 5b1f17b1804b1-46e329e3f76mr51430055e9.10.1758819364337;
-        Thu, 25 Sep 2025 09:56:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEeAb6b4av0W9CmbCIL5oQM/OPUBcpXLL9D5kvrebwEqAmOtmw5A6IkqGOvrgEx/Y5psyxduw==
-X-Received: by 2002:a05:600c:4512:b0:46d:996b:828c with SMTP id 5b1f17b1804b1-46e329e3f76mr51427825e9.10.1758819363315;
-        Thu, 25 Sep 2025 09:56:03 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1758831005; x=1759435805;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZKUzh+6/MIhf5DygkxBAiYjFTYmRYgnUbT3TytAjqVI=;
+        b=nu6e5Y7YXPCq6yANXgN0zorxxA++5wo3CQbR2jbEbJFFDy2MtTHtyHwmHuUBrlbxvj
+         0hhmR0ksLDLpJahxdwohQCpsaLaKmotroe//5PcRjSg+ekT+kDBSVZXoT/3N55s3i9pg
+         7Qb8el293VIqVB4eSE0DOClu1xmtcVMAvEXZ9Sstca0wFDlPOIKY1BUbqvsvdbMcfzjd
+         NUEMxwezHnW6vkFxd4898CxRWo0Hc53pLf1iGalp8OnjRcxPXhtBE8DgmyLguAYpBBea
+         4fAsbr0jU55FWx2e2ffZwBEcQ/JzUw0Zd8lQFRERZuRp8r4JUu2iWmwpmC5qvs9jIPw1
+         4IWA==
+X-Forwarded-Encrypted: i=1; AJvYcCWVxCsCDtq8y8UhFeho2UjHwPPqkkrVHvYjEEtAoqgtiFtbm6W6NBOmebUvSm7Lfc+F8Oij4YFodcIsNztXUQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxFmk90uR3FqhU6oWqnc16tlgIPPKOUg07KX65ggVZX7cSNiGA8
+	4J45jfXyT0ooLLytSjskQzeC9T9nhMEOH2fyJbCiG5IynNgTstlvUAsR6xNtaABFXRClKWmg995
+	oNOZR30Hw9PgW1A6v6LdiagtMfaPvagDBa3Gew67g6UMJP79RolazqYeDP1i+InRt2cFR
+X-Gm-Gg: ASbGnctK2FrGBzeUXqtL2DPfoRsxuEXIttwvfz4Lm1tlz24fiOFW1RIQWKJS3jjYs+H
+	U3OluIZlNme+hh2WwtmkecHRHFXluMSRT0EOLhnFq+gHIqIIQtusDIGBOq+EgXO4M/6fzM7jRUM
+	fp510XBdoaT2573Sp629K1NCl/L5QszZ4pYTTuaZPmlAhJT+WlV3c5BBul9vyTzhTHpSmEzofRv
+	iB4bs+byDMscotGPXUHeSs7YCTz4kNyIDo6SMR2ETq6Hdpfwyb/bQPgR4EAu5B6ezmXVcsY3wCx
+	Q56+WgWvUMkIRiD4NN94EEQx7WH+2owPiQ==
+X-Received: by 2002:a05:600c:4ecc:b0:46e:33ed:bca4 with SMTP id 5b1f17b1804b1-46e33edbe6fmr36885845e9.15.1758831004764;
+        Thu, 25 Sep 2025 13:10:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGb0foLyn8BdOVO+XT9dVRVlV1ZV+l+zWtvaf06kGYu+7b1V0Ug6vXebnLP2usKOZV99mkksA==
+X-Received: by 2002:a05:600c:4ecc:b0:46e:33ed:bca4 with SMTP id 5b1f17b1804b1-46e33edbe6fmr36885485e9.15.1758831004257;
+        Thu, 25 Sep 2025 13:10:04 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:1538:2200:56d4:5975:4ce3:246f])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-40fb871c811sm3677653f8f.15.2025.09.25.09.56.01
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-40fb72fb21esm4243920f8f.7.2025.09.25.13.10.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Sep 2025 09:56:02 -0700 (PDT)
-Date: Thu, 25 Sep 2025 12:55:59 -0400
+        Thu, 25 Sep 2025 13:10:03 -0700 (PDT)
+Date: Thu, 25 Sep 2025 16:10:00 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Dan Jurgens <danielj@nvidia.com>
-Cc: Parav Pandit <parav@nvidia.com>, Jason Wang <jasowang@redhat.com>,
-	netdev@vger.kernel.org, alex.williamson@redhat.com,
-	pabeni@redhat.com, virtualization@lists.linux.dev,
-	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev,
+	parav@nvidia.com, shshitrit@nvidia.com, yohadt@nvidia.com,
 	eperezma@redhat.com, shameerali.kolothum.thodi@huawei.com,
 	jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org,
-	andrew+netdev@lunn.ch, edumazet@google.com,
-	Yishai Hadas <yishaih@nvidia.com>
-Subject: Re: [PATCH net-next v3 01/11] virtio-pci: Expose generic device
- capability operations
-Message-ID: <20250925125528-mutt-send-email-mst@kernel.org>
-References: <20250924021637-mutt-send-email-mst@kernel.org>
- <16019785-ca9e-4d63-8a0f-c2f3fdcd32b8@nvidia.com>
- <20250925021351-mutt-send-email-mst@kernel.org>
- <4fa7bf85-e935-45aa-bb2f-f37926397c31@nvidia.com>
- <20250925062741-mutt-send-email-mst@kernel.org>
- <92ca5ed1-629d-4dc3-85fc-f1c6299a42ba@nvidia.com>
- <20250925074814-mutt-send-email-mst@kernel.org>
- <b3a7715a-5826-4395-9cc3-73bac8c26a63@nvidia.com>
- <20250925085537-mutt-send-email-mst@kernel.org>
- <bc70cd99-31a5-44d4-9648-20dcd80e9f8f@nvidia.com>
+	andrew+netdev@lunn.ch, edumazet@google.com, netdev@vger.kernel.org,
+	jasowang@redhat.com, alex.williamson@redhat.com, pabeni@redhat.com
+Subject: Re: [PATCH net-next v3 03/11] virtio_net: Create virtio_net directory
+Message-ID: <20250925160542-mutt-send-email-mst@kernel.org>
+References: <20250923141920.283862-1-danielj@nvidia.com>
+ <20250923141920.283862-4-danielj@nvidia.com>
+ <1758772569.13948-1-xuanzhuo@linux.alibaba.com>
+ <20250925020502-mutt-send-email-mst@kernel.org>
+ <5caddf7a-b67c-432e-8c32-9b9a134f8b00@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <bc70cd99-31a5-44d4-9648-20dcd80e9f8f@nvidia.com>
+In-Reply-To: <5caddf7a-b67c-432e-8c32-9b9a134f8b00@nvidia.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: uoGm1K6E01uq6uGtNwKLvzn_rTo05AVIpmT7BKgyV_Q_1758819365
+X-Mimecast-MFC-PROC-ID: mCm-BHSh8xaLUs5d1HtBeO1TMB5GwKgbO-5QCIPzG2o_1758831005
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 25, 2025 at 11:53:50AM -0500, Dan Jurgens wrote:
-> On 9/25/25 8:08 AM, Michael S. Tsirkin wrote:
-> > On Thu, Sep 25, 2025 at 05:39:54PM +0530, Parav Pandit wrote:
-> >>
-> >> On 25-09-2025 05:19 pm, Michael S. Tsirkin wrote:
-> >>> On Thu, Sep 25, 2025 at 04:15:19PM +0530, Parav Pandit wrote:
-> >>>> On 25-09-2025 04:05 pm, Michael S. Tsirkin wrote:
-> >>>>> On Thu, Sep 25, 2025 at 03:21:38PM +0530, Parav Pandit wrote:
-> >>>>>> Function pointers are there for multiple transports to implement their own
-> >>>>>> implementation.
-> >>>>> My understanding is that you want to use flow control admin commands
-> >>>>> in virtio net, without making it depend on virtio pci.
-> >>>> No flow control in vnet.
-> >>>>> This why the callbacks are here. Is that right?
-> >>>> No. callbacks are there so that transport agnostic layer can invoke it,
-> >>>> which is drivers/virtio/virtio.c.
-> >>>>
-> >>>> And transport specific code stays in transport layer, which is presently
-> >>>> following config_ops design.
-> >>>>
-> >>>>> That is fair enough, but it looks like every new command then
-> >>>>> needs a lot of boilerplate code with a callback a wrapper and
-> >>>>> a transport implementation.
-> >>>> Not really. I dont see any callbacks or wrapper in current proposed patches.
-> >>>>
-> >>>> All it has is transport specific implementation of admin commands.
-> >>>>
-> >>>>>
-> >>>>> Why not just put all this code in virtio core? It looks like the
-> >>>>> transport just needs to expose an API to find the admin vq.
-> >>>> Can you please be specific of which line in the current code can be moved to
-> >>>> virtio core?
-> >>>>
-> >>>> When the spec was drafted, _one_ was thinking of admin command transport
-> >>>> over non admin vq also.
-> >>>>
-> >>>> So current implementation of letting transport decide on how to transport a
-> >>>> command seems right to me.
-> >>>>
-> >>>> But sure, if you can pin point the lines of code that can be shifted to
-> >>>> generic layer, that would be good.
-> >>> I imagine a get_admin_vq operation in config_ops. The rest of the
-> >>> code seems to be transport independent and could be part of
-> >>> the core. WDYT?
+On Thu, Sep 25, 2025 at 10:48:24AM -0500, Dan Jurgens wrote:
+> On 9/25/25 1:13 AM, Michael S. Tsirkin wrote:
+> > On Thu, Sep 25, 2025 at 11:56:09AM +0800, Xuan Zhuo wrote:
+> >> On Tue, 23 Sep 2025 09:19:12 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
+> >>> The flow filter implementaion requires minimal changes to the
+> >>> existing virtio_net implementation. It's cleaner to separate it into
+> >>> another file. In order to do so, move virtio_net.c into the new
+> >>> virtio_net directory, and create a makefile for it. Note the name is
+> >>> changed to virtio_net_main.c, so the module can retain the name
+> >>> virtio_net.
 > >>>
-> >> IMHV, the code before vp_modern_admin_cmd_exec() can be part of
-> >> drivers/virtio/virtio_admin_cmds.c and admin_cmd_exec() can be part of the
-> >> config ops.
+> >>> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> >>> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> >>> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
 > >>
-> >> However such refactor can be differed when it actually becomes boiler plate
-> >> code where there is more than one transport and/or more than one way to send
-> >> admin cmds.
-> > 
-> > Well administration virtqueue section is currently not a part of a
-> > transport section in the spec.  But if you think it will change and so
-> > find it cleaner for transports to expose, instead of a VQ, a generic
-> > interfaces to send an admin command, that's fine too. That is still a
-> > far cry from adding all the object management in the transport. 
-> > 
-> > 
-> > Well we have all the new code you are writing, and hacking around
-> > the fact it's in the wrong module with a level of indirection
-> > seems wrong.
-> > If you need help moving this code let me know, it's not hard.
-> > 
-> >> Even if its done, it probably will require vfio-virtio-pci to interact with
-> >> generic virtio layer. Not sure added value of that complication to be part
-> >> of this series.
+> >> To help this work move forward smoothly, I don't recommend splitting the
+> >> directory structure within this patchset. Directory reorganization can be a
+> >> separate effortâ€”I've previously experimented with this myself. I'd really
+> >> like to see this work progress smoothly.
 > >>
-> >>
-> >> Dan,
-> >>
-> >> WDYT?
+> >> Thanks.
 > > 
-> > 
-> > virtio pci pulls in the core already, and VFIO only uses the SRIOV
-> > group, so it can keep using the existing pci device based interfaces,
-> > if you prefer.
-> > 
+> > Indeed.
 > 
-> I can make changes here. I'd appreciate if you review the rest of the
-> series while I do so. Patches 3+ are isolated from this, so it won't be
-> a waste of your time.
+> It's not a hill I'm willing to die on, but breaking this up into files
+> makes sense. virtio_main.c is already huge, and this would make it 15%
+> bigger.
 
-OK - will review 3+, thanks!
 
--- 
-MST
+Oh I agee - I think it's the largest single file driver now -
+but let's do this on top pls.
+
+And when we do it I'd like to see us split it up to some
+logical chunks with as small interaction between them
+as possible, and I want to see how they look.
+
+And I think "ethtool support" would be a reasonable chunk,
+for example, and this might be better as a part of it.
+
+
+> > 
+> >>
+> >>> ---
+> >>>  MAINTAINERS                                               | 2 +-
+> >>>  drivers/net/Makefile                                      | 2 +-
+> >>>  drivers/net/virtio_net/Makefile                           | 8 ++++++++
+> >>>  .../net/{virtio_net.c => virtio_net/virtio_net_main.c}    | 0
+> >>>  4 files changed, 10 insertions(+), 2 deletions(-)
+> >>>  create mode 100644 drivers/net/virtio_net/Makefile
+> >>>  rename drivers/net/{virtio_net.c => virtio_net/virtio_net_main.c} (100%)
+> >>>
+> >>> diff --git a/MAINTAINERS b/MAINTAINERS
+> >>> index a8a770714101..09d26c4225a9 100644
+> >>> --- a/MAINTAINERS
+> >>> +++ b/MAINTAINERS
+> >>> @@ -26685,7 +26685,7 @@ F:	Documentation/devicetree/bindings/virtio/
+> >>>  F:	Documentation/driver-api/virtio/
+> >>>  F:	drivers/block/virtio_blk.c
+> >>>  F:	drivers/crypto/virtio/
+> >>> -F:	drivers/net/virtio_net.c
+> >>> +F:	drivers/net/virtio_net/
+> >>>  F:	drivers/vdpa/
+> >>>  F:	drivers/virtio/
+> >>>  F:	include/linux/vdpa.h
+> >>> diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+> >>> index 73bc63ecd65f..cf28992658a6 100644
+> >>> --- a/drivers/net/Makefile
+> >>> +++ b/drivers/net/Makefile
+> >>> @@ -33,7 +33,7 @@ obj-$(CONFIG_NET_TEAM) += team/
+> >>>  obj-$(CONFIG_TUN) += tun.o
+> >>>  obj-$(CONFIG_TAP) += tap.o
+> >>>  obj-$(CONFIG_VETH) += veth.o
+> >>> -obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
+> >>> +obj-$(CONFIG_VIRTIO_NET) += virtio_net/
+> >>>  obj-$(CONFIG_VXLAN) += vxlan/
+> >>>  obj-$(CONFIG_GENEVE) += geneve.o
+> >>>  obj-$(CONFIG_BAREUDP) += bareudp.o
+> >>> diff --git a/drivers/net/virtio_net/Makefile b/drivers/net/virtio_net/Makefile
+> >>> new file mode 100644
+> >>> index 000000000000..c0a4725ddd69
+> >>> --- /dev/null
+> >>> +++ b/drivers/net/virtio_net/Makefile
+> >>> @@ -0,0 +1,8 @@
+> >>> +# SPDX-License-Identifier: GPL-2.0-only
+> >>> +#
+> >>> +# Makefile for the VirtIO Net driver
+> >>> +#
+> >>> +
+> >>> +obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
+> >>> +
+> >>> +virtio_net-objs := virtio_net_main.o
+> >>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net/virtio_net_main.c
+> >>> similarity index 100%
+> >>> rename from drivers/net/virtio_net.c
+> >>> rename to drivers/net/virtio_net/virtio_net_main.c
+> >>> --
+> >>> 2.45.0
+> >>>
+> > 
 
