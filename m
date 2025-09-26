@@ -1,107 +1,135 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26D062DFA46
-	for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 10:15:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0A9538DDB;
+	Fri, 26 Sep 2025 13:47:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758881710; cv=none; b=M8VJqTs74k9RTgdiBKibWNsXTNV/yvOqX5oVcwj+mctCzTEKmJf1oPfqnAf/SSogJPZ6JRN0dC447V+g8VQzBo8UgzSb6VeSjL9OAzTdGNWSkMwaF2cUAOLt9ydk/M+zxMhNdwE7i+t9jgT6hMzzv0Wz9oN3kqVVEacjooL/7cE=
+	t=1758894469; cv=none; b=dCxBZ9WyDZTdeK8IHBHM6JuPNhATvTlPkv7eJxFcsi+Owlced15Uiujfg2NoofRqSfEkVW8SdL9MHIwOjClUS/TqvMar7WU8UVetn39xSvc+jpPCHjulbOLbdton1YH3yw8gUwx4PUdWhW3lnsygwtci0qwLR924ssu5vTRcxBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758881710; c=relaxed/simple;
-	bh=TgabKru2NZ2THuko/HMl/zGbuptOnpVacP0GoqGhWH8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=AkUpHja3lGI1IPejGBL+Rv6iTbfF+C7GG3c7sAaQDt3lfnL0bQ5quL31a9RZR3fXKlNNZ1Yq5Jber1PjTLSWz31wXDitoypDvY6GC4Ul3GLR7P8xMPX9b84nNX0A8kQCVHkZUghCuEB0iMxOpMDgolRopacXZr9/PSs+ZF6sDlM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H2SZXiho; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1758894469; c=relaxed/simple;
+	bh=F5sJdFJrZExOT4Y38tlg7pfSvmXRgWle6iLVax55eVY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Hc5m140d0IuC6OBIWzy+fSpbhxhTbMVA0sgZetEKN8lI7Z1LTws8exBCT3sTk8O3/qhfY8qekVWv35pEwVwi94Foyj5b20jMNmVrSolj7WqMRIcNPxnXIqhvntLi8powZNbg3S/u0XijzPspsV8L3L/RwxNB7KPqZDLQqAk/KMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bweNgKor; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H2SZXiho"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758881708;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AQu5rvKno3CIEFHa+u79BfQxrhq8if3HgGYXYb9FXfk=;
-	b=H2SZXihoxw+YB6KpMcQZVm0lRsj5HIbykv3k/5t0L/czgHfQ9qu9FWD5VCJgABeCsw8dXO
-	Sdj4/2NtUaV0dsbJkJDGVlZn2s0ZyqWlVH7hys//IiXM8S2oaaQGdkPXR/cgqKBQBIo02S
-	PTC1fZOfMpLvVy3D9GBnf/96AfJsjmM=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-685-XEb0xz6uOpS6bMHJzw3wew-1; Fri,
- 26 Sep 2025 06:15:06 -0400
-X-MC-Unique: XEb0xz6uOpS6bMHJzw3wew-1
-X-Mimecast-MFC-AGG-ID: XEb0xz6uOpS6bMHJzw3wew_1758881705
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7127B19560A2;
-	Fri, 26 Sep 2025 10:15:05 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.32.141])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B7E11195419F;
-	Fri, 26 Sep 2025 10:15:01 +0000 (UTC)
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-To: "Michael S . Tsirkin " <mst@redhat.com>
-Cc: Yongji Xie <xieyongji@bytedance.com>,
-	linux-kernel@vger.kernel.org,
-	Maxime Coquelin <mcoqueli@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Cindy Lu <lulu@redhat.com>,
-	virtualization@lists.linux.dev,
-	Laurent Vivier <lvivier@redhat.com>,
-	jasowang@redhat.com
-Subject: [PATCH v5 6/6] vduse: bump version number
-Date: Fri, 26 Sep 2025 12:14:32 +0200
-Message-ID: <20250926101432.2251301-7-eperezma@redhat.com>
-In-Reply-To: <20250926101432.2251301-1-eperezma@redhat.com>
-References: <20250926101432.2251301-1-eperezma@redhat.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bweNgKor"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1758894468; x=1790430468;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=F5sJdFJrZExOT4Y38tlg7pfSvmXRgWle6iLVax55eVY=;
+  b=bweNgKorNS37gRD2btmYo3tPBCd3f0BnvIsuA5ay6WtoiN5aWChE9UIW
+   ofhAKMysNVpc2RcaVyIBqWsIwkHWjbm8J2GP+tmJNbrNNBjO2lEb/oB3n
+   OcvW+ob5dERrjfky78lh8it7b8N9Ws1ZMFV5UU8zDDtkXqpf3nS8noXiq
+   N53+qp3fnjmjuAIP+ka9iFeG5oQ18jd4R6x3MAdP7Y45ZgVHZrNk+Jfos
+   FThZu+vuWGutnsY0BK8CEYU4KcN5WWuehsyPci3F/dxrcAVzdaDwPX8jv
+   5y6JAkeZJsjIgQD5VqWDw9hEKLd13NZ4zF13ShvspWDXGKlO4rn9iPJKw
+   g==;
+X-CSE-ConnectionGUID: lZWrQr5VQaqVhs22IuTWBQ==
+X-CSE-MsgGUID: 2mVc0a/6T/Wv+di7okSpZQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11565"; a="71475616"
+X-IronPort-AV: E=Sophos;i="6.18,295,1751266800"; 
+   d="scan'208";a="71475616"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Sep 2025 06:47:47 -0700
+X-CSE-ConnectionGUID: Eiyiwf9tRtaaHrguhNPjFQ==
+X-CSE-MsgGUID: 1uGnwmjMRMiFXVFa9yQ7JQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.18,295,1751266800"; 
+   d="scan'208";a="181919291"
+Received: from lkp-server02.sh.intel.com (HELO 84c55410ccf6) ([10.239.97.151])
+  by orviesa004.jf.intel.com with ESMTP; 26 Sep 2025 06:47:43 -0700
+Received: from kbuild by 84c55410ccf6 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1v28nU-0006Gz-2h;
+	Fri, 26 Sep 2025 13:47:40 +0000
+Date: Fri, 26 Sep 2025 21:47:32 +0800
+From: kernel test robot <lkp@intel.com>
+To: Simon Schippers <simon.schippers@tu-dortmund.de>,
+	willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+	mst@redhat.com, eperezma@redhat.com, stephen@networkplumber.org,
+	leiyang@redhat.com, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Simon Schippers <simon.schippers@tu-dortmund.de>,
+	Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Subject: Re: [PATCH net-next v5 8/8] vhost_net: Replace rx_ring with calls of
+ TUN/TAP wrappers
+Message-ID: <202509262102.4AmV1Mms-lkp@intel.com>
+References: <20250922221553.47802-9-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250922221553.47802-9-simon.schippers@tu-dortmund.de>
 
-Finalize the series by advertising VDUSE API v1 support to userspace.
+Hi Simon,
 
-Now that all required infrastructure for v1 (ASIDs, VQ groups,
-update_iotlb_v2) is in place, VDUSE devices can opt in to the new
-features.
+kernel test robot noticed the following build errors:
 
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
----
- drivers/vdpa/vdpa_user/vduse_dev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+[auto build test ERROR on net-next/main]
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 731de08bb692..7f24a1af6cca 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -2165,7 +2165,7 @@ static long vduse_ioctl(struct file *file, unsigned int cmd,
- 			break;
- 
- 		ret = -EINVAL;
--		if (api_version > VDUSE_API_VERSION)
-+		if (api_version > VDUSE_API_VERSION_1)
- 			break;
- 
- 		ret = 0;
-@@ -2232,7 +2232,7 @@ static int vduse_open(struct inode *inode, struct file *file)
- 	if (!control)
- 		return -ENOMEM;
- 
--	control->api_version = VDUSE_API_VERSION;
-+	control->api_version = VDUSE_API_VERSION_1;
- 	file->private_data = control;
- 
- 	return 0;
+url:    https://github.com/intel-lab-lkp/linux/commits/Simon-Schippers/__ptr_ring_full_next-Returns-if-ring-will-be-full-after-next-insertion/20250924-180633
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20250922221553.47802-9-simon.schippers%40tu-dortmund.de
+patch subject: [PATCH net-next v5 8/8] vhost_net: Replace rx_ring with calls of TUN/TAP wrappers
+config: x86_64-kexec (https://download.01.org/0day-ci/archive/20250926/202509262102.4AmV1Mms-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250926/202509262102.4AmV1Mms-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202509262102.4AmV1Mms-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> drivers/vhost/net.c:197:3: error: expected expression
+     197 |                 WARN_ON_ONCE();
+         |                 ^
+   include/asm-generic/bug.h:111:34: note: expanded from macro 'WARN_ON_ONCE'
+     111 |         int __ret_warn_on = !!(condition);                      \
+         |                                         ^
+   1 error generated.
+
+
+vim +197 drivers/vhost/net.c
+
+   178	
+   179	static int vhost_net_buf_produce(struct vhost_net_virtqueue *nvq,
+   180			struct sock *sk)
+   181	{
+   182		struct file *file = sk->sk_socket->file;
+   183		struct vhost_net_buf *rxq = &nvq->rxq;
+   184	
+   185		rxq->head = 0;
+   186	
+   187		switch (nvq->type) {
+   188		case TUN:
+   189			rxq->tail = tun_ring_consume_batched(file,
+   190					rxq->queue, VHOST_NET_BATCH);
+   191			break;
+   192		case TAP:
+   193			rxq->tail = tap_ring_consume_batched(file,
+   194					rxq->queue, VHOST_NET_BATCH);
+   195			break;
+   196		case IF_NONE:
+ > 197			WARN_ON_ONCE();
+   198		}
+   199	
+   200		return rxq->tail;
+   201	}
+   202	
+
 -- 
-2.51.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
