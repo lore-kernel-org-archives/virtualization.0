@@ -1,333 +1,423 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4B4F1DF261
-	for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 14:59:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FD071F4192
+	for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 15:02:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758898799; cv=none; b=SGWYYRfcZkCqktcXys3CMFIBkeJ3nACm/vkIMORUabhhQVGWWWjkFfEaFgFJM+WHJsq8562QDVCjz+yFAbmAalJO4Ajhcj2KTW170boYMCeWHxYRYQgPVszj/Uytqkm+eiDJo22B0v8Sy9j84Mt1SMIb/tcu2uT69GDrQln9MDU=
+	t=1758898941; cv=none; b=DleiXRyD0DvTdYKRoHC1Ey0NnevV7Y4dGMubI20R9Scyz1sQqCrb0iHhbVeFHXy+75tuhIj/I69sfMULrDjGadQwdhfRZEalxjTYVfq4f41VAwMrNpBluv4vx26XzWB4VINmtF90UyAGEuxBAiIz1AKR1fj1B3VA3YpVXN8oS9c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758898799; c=relaxed/simple;
-	bh=KI7kp6WM2WzZ9+hspxmsiOeR2W34s6buSt0JdUpZ46g=;
+	s=arc-20240116; t=1758898941; c=relaxed/simple;
+	bh=Cs/84XxAXxX6tTTqn+kLkflAcjIdDxlMGi6PGFWdU8w=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=EwiBveMOFW4NPAZIFTwB4EBmSzEsALHSdGMndMoS/DekE8383R+nZgs2OdYylFXJQltrd8Vt8lQrsW20f6lPRUbxdE4X7I9tCjHyJcqwMaFX0fzfQO8uKCrDs//Ws3y61KNQpQhLr7HEiPzvracPL9Q0R+lMaapI7NlotfVWvy4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CgWC0AMz; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZYVDt4RBCLdR5Lsne7EEzsb++5g33R3xCQH8oDSabs5vSK/dQuPhTG0e+haXxBv/uK5tagBL6Jp0kB5e6h/RXqCVKzg+HTg2Ux0KqEQET3YlFgLrqGr1hOQG+K8x9h+Pj8tLCw5YBs776vBE0rxWFV7SKx9VFuQtv0gJy0h/fu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EtHzVyAD; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CgWC0AMz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EtHzVyAD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758898794;
+	s=mimecast20190719; t=1758898938;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6I7dZDs73n8U+ResplTjCjySoUe7cbKd7TavFeUOHrU=;
-	b=CgWC0AMzb/DNa/YvP2r6Mr36SsAyujoMYukq81E+NbIPswiUGH80h1072h76bSJPGutQdG
-	V4ccge+tGqITrxggInasC96B38sppnBFkDbd7B6pi/YCk7w2NVlAejAL/l7+fUwS2HT/Gb
-	jZONHwt53j7suNDnPkncSSRzxFhKISs=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=noZOuOVCvuhaRciLh0umvqzDccdwZKtJ1ZnIqPU5vcI=;
+	b=EtHzVyADuHQ0bGu4vfGcbm7cxgBK6vDj5L5ZL1CEYvbC4oh4fffGtv9hNQKt6xZ0ZoB9qB
+	19J5XFYmzQX+vuN4jRFZg3tTKuRFdGI1406jd7SVS6GKC0JzOk16mmc42gdqjYe5CgpKsX
+	6NrQJEZ+4iLtDNgjnA3J9QRw3/nS5Xk=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-183-MgTJUtAmMgCGNf8yQhJtdA-1; Fri, 26 Sep 2025 10:59:53 -0400
-X-MC-Unique: MgTJUtAmMgCGNf8yQhJtdA-1
-X-Mimecast-MFC-AGG-ID: MgTJUtAmMgCGNf8yQhJtdA_1758898792
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3ee13e43dd9so1129071f8f.1
-        for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 07:59:52 -0700 (PDT)
+ us-mta-528-d7kOP4dbOd2S0HP2XKxiEg-1; Fri, 26 Sep 2025 11:02:17 -0400
+X-MC-Unique: d7kOP4dbOd2S0HP2XKxiEg-1
+X-Mimecast-MFC-AGG-ID: d7kOP4dbOd2S0HP2XKxiEg_1758898936
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3f93db57449so1117727f8f.2
+        for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 08:02:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758898792; x=1759503592;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6I7dZDs73n8U+ResplTjCjySoUe7cbKd7TavFeUOHrU=;
-        b=ejO1Uc8YhW2hWUYFJFxe2emRKM/R0pCb8oaCwvlsn8as/RQ2fA89svdFT7fBpcZxps
-         R2DCLGCYM5Bdqs5ysthdUO4vF5tnjIw3I7wnj6baO45G/EdvlIE0ueZQaszUnTUd8yTm
-         f4rW2DBl2bvVgCR2GQcj5Ycg0Jquige+dn1O+4AOiHAvD3S+wzypH6S9LgEQqRUhsrIE
-         PAimjNzlRgPa0P+C649bPYUdzWkK9mqrKpZo0H5OJcmBrVL1Ib9UTlpdnpJ9/S5LhQWp
-         TezTg5HUZalTgcvwnJZV0FbnoK198/YxhvUkYw6F0cga1OBE1v2qmteHSNAWM1AGHH95
-         iGug==
-X-Forwarded-Encrypted: i=1; AJvYcCXGyNlh9O8b9EfFxKFNmV8QgX+vu2QyKX6rBjzQifE3xpk4UUFfEyDIN/9qZNmcz11bDON1yvWoGIaLVsPLwA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzYr+XayYPCxQynH131x/YVJDTjxiUIRg0tr/OfHxEKIimg8x0g
-	AVbii6SYKx2jb21kujXJPR4s3KgrnyoN4YfeZO6to7xCWlA9g+ChZZwu/68Q+vdKAvM/0IMts/y
-	uX2KF5A8uXN3+h5qFgKGtHoUxnhd8NzcUrY1QD7NBt8svo2D5C9h9j+2i7FXSWwkzGlQv
-X-Gm-Gg: ASbGncsc3QHNfgCE0HoRUrNy1RX60k68viChip/ocy6rK8y0fIYALtidJ/vvrkldL2Q
-	Baw0ejGSX20riEgTzu7ZInrrdS6Xtp5POzEnQLY6ygXDMOQy11cyP3TJ6BQqRxHl07o5tpn4KMp
-	dqH+cXmUDjdfrdgz2W0jkdWjgbmruaOwNN2WGuq6ye/gmmEpyUHyu+NtZFxX7hVQkF2i13La50V
-	TRHtFYb7YuQcbIFM1vP6OycRTLIKKHAm0CYH+asxsgWbYjdMf/KhR63CMq53KLnc7uKEMOQC97V
-	D54In49fCN84muia+yh0NzL5mXhuoRKMv30=
-X-Received: by 2002:a05:6000:25c3:b0:3ec:6259:5096 with SMTP id ffacd0b85a97d-40e45b8770fmr6452394f8f.21.1758898791563;
-        Fri, 26 Sep 2025 07:59:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGKbeikSLSfJK1LRxBBJjYur1fJkipbe+xVUW/caJ5fRdhGYcv5hRM+HYX2542boZmkN/QnQA==
-X-Received: by 2002:a05:6000:25c3:b0:3ec:6259:5096 with SMTP id ffacd0b85a97d-40e45b8770fmr6452358f8f.21.1758898790914;
-        Fri, 26 Sep 2025 07:59:50 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-410f2007372sm6491991f8f.16.2025.09.26.07.59.49
+        d=1e100.net; s=20230601; t=1758898936; x=1759503736;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=noZOuOVCvuhaRciLh0umvqzDccdwZKtJ1ZnIqPU5vcI=;
+        b=MEGwlpto0lJsAwtrGR/T2RyEsrumoFyg7P8/Wvd5rYayfvM/saWfgYkJ6xKJQTQzqI
+         vqS1wk1a8ILI7+Mxwlgyw3wUwroe+xS62YH9MBoCoDypNp1zmpnrAVnvs0MUGuN/H+Wj
+         JMQlW3OXUJD2hZuUpy31xojsXzcd5ntpFhS2buHnRIgAo4uYYeSefhQxVeVxS07oo7EH
+         3CEVZVcDXXA0EQBrqfsxx4oNruRL3Xk/H6kwlbGGXH/o2rxZAFM/LqHSv/J6blSnw7b8
+         n5wL2rZ42cfQaIo1CU0fDADRy4WZ76qb3GsBILVJAlGg11EGtvDyyu7daeWCRcGBf1ZB
+         3sxg==
+X-Forwarded-Encrypted: i=1; AJvYcCW96RrNtRe9h4YFafKyyfN8wSL2rK1fWsQLc1wAXsONDxNb0s8gJ0NF7bhSQY3mX1zqK7W4y1jShLKXhGHvXg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz5LjMlCU9+TbTNodl/4piChyXKioUu173wq8VNqTuZ0Lck/1Ej
+	+eeHnaTrrwEUHaiLppWkuBh9LIU3RDtLv6s67i9GQJRt3E1QDQXIlTaDYgsdGuqNXMAUoZ9FgCg
+	NCCayv5e4dalSgAXQy4qf2pd8Bl0uMn7njMD6REuhxz9ME8cIDBdG88yMrHJSGEPK9y/Y
+X-Gm-Gg: ASbGncvYNsP57E8YWcBXcZFWzInMhH4n3E0o/nkN1n8LYIg9YwohYji9KC6Xo7PX1Ky
+	ixsayvWWRRl4sQTpHaYZupGy+uLLFO9AxkBPo3ewz0pyN1yYs3ri4P9b2IamMnENwIdoNe0xE9f
+	s0vTJHMKKlLL1MgKIlF4mautUepdCEoHqdN5FI96beW9dY+D6GiSFc+ibtAydR6QRV4D2PycJqV
+	RmLYymqkeP768X+JKJrPkDfufihA6PS2+OLM+V1yz37j7f60c3f8XpuXRiDpFSi+iIbN/+gfZHE
+	BKSHSNoh3BNPi7Nq4anwSKcbJoNvOM6HmQdNg8o4
+X-Received: by 2002:a05:6000:2907:b0:401:41a9:524f with SMTP id ffacd0b85a97d-40e4adce99dmr6567980f8f.29.1758898935237;
+        Fri, 26 Sep 2025 08:02:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFp9n5wQpwde1tH3nQF00RbxIpJ1olb46GcoU3IRR/xtuLALGNwhpPij5ohfy6r8k5VTCZivQ==
+X-Received: by 2002:a05:6000:2907:b0:401:41a9:524f with SMTP id ffacd0b85a97d-40e4adce99dmr6567911f8f.29.1758898934453;
+        Fri, 26 Sep 2025 08:02:14 -0700 (PDT)
+Received: from sgarzare-redhat ([5.77.94.69])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-40fc7d3780asm7290179f8f.52.2025.09.26.08.02.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Sep 2025 07:59:50 -0700 (PDT)
-Date: Fri, 26 Sep 2025 10:59:47 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc: Yongji Xie <xieyongji@bytedance.com>, linux-kernel@vger.kernel.org,
-	Maxime Coquelin <mcoqueli@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Cindy Lu <lulu@redhat.com>,
-	virtualization@lists.linux.dev, Laurent Vivier <lvivier@redhat.com>,
-	jasowang@redhat.com
-Subject: Re: [PATCH v5 3/6] vduse: add vq group support
-Message-ID: <20250926105938-mutt-send-email-mst@kernel.org>
-References: <20250926101432.2251301-1-eperezma@redhat.com>
- <20250926101432.2251301-4-eperezma@redhat.com>
+        Fri, 26 Sep 2025 08:02:12 -0700 (PDT)
+Date: Fri, 26 Sep 2025 17:01:56 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, berrange@redhat.com, Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH net-next v6 4/9] vsock/loopback: add netns support
+Message-ID: <evrzjpefb2e7m5idtr4sk3s4zdsnp6iecycpq4qglxode3kbor@vszhzmngupy2>
+References: <20250916-vsock-vmtest-v6-0-064d2eb0c89d@meta.com>
+ <20250916-vsock-vmtest-v6-4-064d2eb0c89d@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20250926101432.2251301-4-eperezma@redhat.com>
+In-Reply-To: <20250916-vsock-vmtest-v6-4-064d2eb0c89d@meta.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: fLiZsFvscO3I_L_7e991uJXq7U172IoveWdQjlx3yvw_1758898792
+X-Mimecast-MFC-PROC-ID: 8uvEtJ5M7UpitFaDtQ-n9xYkhUeWBp99Kl-uFMsSPm0_1758898936
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 26, 2025 at 12:14:29PM +0200, Eugenio Pérez wrote:
-> This allows sepparate the different virtqueues in groups that shares the
+On Tue, Sep 16, 2025 at 04:43:48PM -0700, Bobby Eshleman wrote:
+>From: Bobby Eshleman <bobbyeshleman@meta.com>
+>
+>Add NS support to vsock loopback. Sockets in a global mode netns
+>communicate with each other, regardless of namespace. Sockets in a local
+>mode netns may only communicate with other sockets within the same
+>namespace.
+>
+>Use pernet_ops to install a vsock_loopback for every namespace that is
+>created (to be used if local mode is enabled).
+>
+>Retroactively call init/exit on every namespace when the vsock_loopback
+>module is loaded in order to initialize the per-ns device.
+>
+>Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+>
+>---
+>Changes in v6:
+>- init pernet ops for vsock_loopback module
+>- vsock_loopback: add space in struct to clarify lock protection
+>- do proper cleanup/unregister on vsock_loopback_exit()
+>- vsock_loopback: use virtio_vsock_skb_net()
+>
+>Changes in v5:
+>- add callbacks code to avoid reverse dependency
+>- add logic for handling vsock_loopback setup for already existing
+>  namespaces
+>---
+> include/net/af_vsock.h         |  1 +
+> include/net/netns/vsock.h      |  6 +++
+> net/vmw_vsock/vsock_loopback.c | 98 ++++++++++++++++++++++++++++++++++++++----
+> 3 files changed, 97 insertions(+), 8 deletions(-)
 
-separate
+Just tried to boot a Fedora 42 VM with these patches applied on top of
+master, commit 4ff71af020ae ("Merge tag 'net-6.17-rc8' of 
+git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net")
 
-> same address space.  Asking the VDUSE device for the groups of the vq at
-> the beginning as they're needed for the DMA API.
-> 
-> Allocating 3 vq groups as net is the device that need the most groups:
-> * Dataplane (guest passthrough)
-> * CVQ
-> * Shadowed vrings.
-> 
-> Future versions of the series can include dynamic allocation of the
-> groups array so VDUSE can declare more groups.
-> 
-> Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
-> ---
-> v5:
-> * Revert core vdpa changes (Jason).
-> * Fix group == ngroup case in checking VQ_SETUP argument (Jason).
-> 
-> v4:
-> * Revert the "invalid vq group" concept and assume 0 if not set (Jason).
-> * Make config->ngroups == 0 invalid (Jason).
-> 
-> v3:
-> * Make the default group an invalid group as long as VDUSE device does
->   not set it to some valid u32 value.  Modify the vdpa core to take that
->   into account (Jason).
-> * Create the VDUSE_DEV_MAX_GROUPS instead of using a magic number
-> 
-> v2:
-> * Now the vq group is in vduse_vq_config struct instead of issuing one
->   VDUSE message per vq.
-> 
-> v1:
-> * Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
-> 
-> RFC v3:
-> * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason).  It was set to a lower
->   value to reduce memory consumption, but vqs are already limited to
->   that value and userspace VDUSE is able to allocate that many vqs.
-> * Remove the descs vq group capability as it will not be used and we can
->   add it on top.
-> * Do not ask for vq groups in number of vq groups < 2.
-> * Move the valid vq groups range check to vduse_validate_config.
-> 
-> RFC v2:
-> * Cache group information in kernel, as we need to provide the vq map
->   tokens properly.
-> * Add descs vq group to optimize SVQ forwarding and support indirect
->   descriptors out of the box.
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 46 ++++++++++++++++++++++++++----
->  include/uapi/linux/vduse.h         | 12 ++++++--
->  2 files changed, 50 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> index 2b6a8958ffe0..99e37def7a83 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -40,6 +40,7 @@
->  #define DRV_LICENSE  "GPL v2"
->  
->  #define VDUSE_DEV_MAX (1U << MINORBITS)
-> +#define VDUSE_DEV_MAX_GROUPS 0xffff
->  #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
->  #define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
->  #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
-> @@ -59,6 +60,7 @@ struct vduse_virtqueue {
->  	struct vdpa_vq_state state;
->  	bool ready;
->  	bool kicked;
-> +	u32 vq_group;
->  	spinlock_t kick_lock;
->  	spinlock_t irq_lock;
->  	struct eventfd_ctx *kickfd;
-> @@ -115,6 +117,7 @@ struct vduse_dev {
->  	u8 status;
->  	u32 vq_num;
->  	u32 vq_align;
-> +	u32 ngroups;
->  	struct vduse_umem *umem;
->  	struct mutex mem_lock;
->  	unsigned int bounce_size;
-> @@ -456,6 +459,7 @@ static void vduse_dev_reset(struct vduse_dev *dev)
->  		vq->driver_addr = 0;
->  		vq->device_addr = 0;
->  		vq->num = 0;
-> +		vq->vq_group = 0;
->  		memset(&vq->state, 0, sizeof(vq->state));
->  
->  		spin_lock(&vq->kick_lock);
-> @@ -593,6 +597,16 @@ static int vduse_vdpa_set_vq_state(struct vdpa_device *vdpa, u16 idx,
->  	return 0;
->  }
->  
-> +static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 idx)
-> +{
-> +	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
-> +
-> +	if (dev->api_version < VDUSE_API_VERSION_1)
-> +		return 0;
-> +
-> +	return dev->vqs[idx]->vq_group;
-> +}
-> +
->  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx,
->  				struct vdpa_vq_state *state)
->  {
-> @@ -790,6 +804,7 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
->  	.set_vq_cb		= vduse_vdpa_set_vq_cb,
->  	.set_vq_num             = vduse_vdpa_set_vq_num,
->  	.get_vq_size		= vduse_vdpa_get_vq_size,
-> +	.get_vq_group		= vduse_get_vq_group,
->  	.set_vq_ready		= vduse_vdpa_set_vq_ready,
->  	.get_vq_ready		= vduse_vdpa_get_vq_ready,
->  	.set_vq_state		= vduse_vdpa_set_vq_state,
-> @@ -1253,12 +1268,24 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
->  		if (config.index >= dev->vq_num)
->  			break;
->  
-> -		if (!is_mem_zero((const char *)config.reserved,
-> -				 sizeof(config.reserved)))
-> +		if (dev->api_version < VDUSE_API_VERSION_1 && config.group)
-> +			break;
-> +
-> +		if (dev->api_version >= VDUSE_API_VERSION_1) {
-> +			if (config.group >= dev->ngroups)
-> +				break;
-> +			if (dev->status & VIRTIO_CONFIG_S_DRIVER_OK)
-> +				break;
-> +		}
-> +
-> +		if (config.reserved1 ||
-> +		    !is_mem_zero((const char *)config.reserved2,
-> +				 sizeof(config.reserved2)))
->  			break;
->  
->  		index = array_index_nospec(config.index, dev->vq_num);
->  		dev->vqs[index]->num_max = config.max_size;
-> +		dev->vqs[index]->vq_group = config.group;
->  		ret = 0;
->  		break;
->  	}
-> @@ -1738,12 +1765,20 @@ static bool features_is_valid(struct vduse_dev_config *config)
->  	return true;
->  }
->  
-> -static bool vduse_validate_config(struct vduse_dev_config *config)
-> +static bool vduse_validate_config(struct vduse_dev_config *config,
-> +				  u64 api_version)
->  {
->  	if (!is_mem_zero((const char *)config->reserved,
->  			 sizeof(config->reserved)))
->  		return false;
->  
-> +	if (api_version < VDUSE_API_VERSION_1 && config->ngroups)
-> +		return false;
-> +
-> +	if (api_version >= VDUSE_API_VERSION_1 &&
-> +	    (!config->ngroups || config->ngroups > VDUSE_DEV_MAX_GROUPS))
-> +		return false;
-> +
->  	if (config->vq_align > PAGE_SIZE)
->  		return false;
->  
-> @@ -1859,6 +1894,7 @@ static int vduse_create_dev(struct vduse_dev_config *config,
->  	dev->device_features = config->features;
->  	dev->device_id = config->device_id;
->  	dev->vendor_id = config->vendor_id;
-> +	dev->ngroups = (dev->api_version < 1) ? 1 : config->ngroups;
->  	dev->name = kstrdup(config->name, GFP_KERNEL);
->  	if (!dev->name)
->  		goto err_str;
-> @@ -1937,7 +1973,7 @@ static long vduse_ioctl(struct file *file, unsigned int cmd,
->  			break;
->  
->  		ret = -EINVAL;
-> -		if (vduse_validate_config(&config) == false)
-> +		if (!vduse_validate_config(&config, control->api_version))
->  			break;
->  
->  		buf = vmemdup_user(argp + size, config.config_size);
-> @@ -2018,7 +2054,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
->  
->  	vdev = vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
->  				 &vduse_vdpa_config_ops, &vduse_map_ops,
-> -				 1, 1, name, true);
-> +				 dev->ngroups, 1, name, true);
->  	if (IS_ERR(vdev))
->  		return PTR_ERR(vdev);
->  
-> diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
-> index ccb92a1efce0..a3d51cf6df3a 100644
-> --- a/include/uapi/linux/vduse.h
-> +++ b/include/uapi/linux/vduse.h
-> @@ -31,6 +31,7 @@
->   * @features: virtio features
->   * @vq_num: the number of virtqueues
->   * @vq_align: the allocation alignment of virtqueue's metadata
-> + * @ngroups: number of vq groups that VDUSE device declares
->   * @reserved: for future use, needs to be initialized to zero
->   * @config_size: the size of the configuration space
->   * @config: the buffer of the configuration space
-> @@ -45,7 +46,8 @@ struct vduse_dev_config {
->  	__u64 features;
->  	__u32 vq_num;
->  	__u32 vq_align;
-> -	__u32 reserved[13];
-> +	__u32 ngroups; /* if VDUSE_API_VERSION >= 1 */
-> +	__u32 reserved[12];
->  	__u32 config_size;
->  	__u8 config[];
->  };
-> @@ -122,14 +124,18 @@ struct vduse_config_data {
->   * struct vduse_vq_config - basic configuration of a virtqueue
->   * @index: virtqueue index
->   * @max_size: the max size of virtqueue
-> - * @reserved: for future use, needs to be initialized to zero
-> + * @reserved1: for future use, needs to be initialized to zero
-> + * @group: virtqueue group
-> + * @reserved2: for future use, needs to be initialized to zero
->   *
->   * Structure used by VDUSE_VQ_SETUP ioctl to setup a virtqueue.
->   */
->  struct vduse_vq_config {
->  	__u32 index;
->  	__u16 max_size;
-> -	__u16 reserved[13];
-> +	__u16 reserved1;
-> +	__u32 group;
-> +	__u16 reserved2[10];
->  };
->  
->  /*
-> -- 
-> 2.51.0
+And during the boot I have this:
+
+[    5.117627] systemd[1]: Detected virtualization kvm.
+[    5.117650] systemd[1]: Detected architecture x86-64.
+[    5.141282] systemd[1]: bpf-restrict-fs: BPF LSM hook not enabled in the kernel, BPF LSM not supported.
+[    5.317525] NET: Registered PF_VSOCK protocol family
+[    5.320496] Guest personality initialized and is inactive
+[    5.320960] VMCI host device registered (name=vmci, major=10, minor=259)
+[    5.320965] Initialized host personality
+[    5.465051] ------------[ cut here ]------------
+[    5.465068] WARNING: CPU: 1 PID: 297 at net/vmw_vsock/vsock_loopback.c:164 vsock_loopback_init_net+0x4a/0x60 [vsock_loopback]
+[    5.465081] Modules linked in: vsock_loopback(+) vmw_vsock_virtio_transport_common vmw_vsock_vmci_transport vmw_vmci vsock virtio_rng rng_core
+[    5.465115] CPU: 1 UID: 0 PID: 297 Comm: modprobe Not tainted 6.17.0-rc7-ste-00128-gcb48f49ce0ac #40 PREEMPT(none)
+[    5.465123] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.17.0-5.fc42 04/01/2014
+[    5.465127] RIP: 0010:vsock_loopback_init_net+0x4a/0x60 [vsock_loopback]
+[    5.465134] Code: 48 8b 3d b9 43 22 c2 e8 e4 e9 53 c1 48 89 83 e8 0e 
+00 00 48 85 c0 74 1b 48 89 c7 e8 f0 fe ff ff 48 8b 5d f8 c9 c3 cc cc cc 
+cc <0f> 0b 31 c0 c3 cc cc cc cc b8 f4 ff ff ff eb e6 66 0f 1f 44 00 00
+[    5.465140] RSP: 0018:ffffc900002afb48 EFLAGS: 00010286
+[    5.465147] RAX: ffffffff836c8798 RBX: 0000000000000000 RCX: ffffffffc0015056
+[    5.465151] RDX: 0000000000000000 RSI: 0000000000000100 RDI: ffffffff836c8700
+[    5.465155] RBP: ffffc900002afb60 R08: ffff88800c0bd378 R09: 00000000f4197968
+[    5.465159] R10: 0000000000000200 R11: 0000000003ad91eb R12: ffffffff836c8700
+[    5.465163] R13: ffffffffc023f240 R14: ffffffffc0015010 R15: 0000000000000000
+[    5.465172] FS:  00007f2f6c3e1b80(0000) GS:ffff8880fb4d2000(0000) 
+knlGS:0000000000000000
+[    5.465192] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    5.465196] CR2: 00007f27ae2e7000 CR3: 000000000b436001 CR4: 0000000000770ef0
+[    5.465200] PKRU: 55555554
+[    5.465203] Call Trace:
+[    5.465206]  <TASK>
+[    5.465210]  ? vsock_loopback_init+0x6c/0xff0 [vsock_loopback]
+[    5.465217]  do_one_initcall+0x73/0x2d0
+[    5.465233]  do_init_module+0x65/0x210
+[    5.465243]  load_module+0x1a6e/0x1cf0
+[    5.465256]  init_module_from_file+0x92/0xd0
+[    5.465260]  ? init_module_from_file+0x92/0xd0
+[    5.465269]  idempotent_init_module+0x12d/0x340
+[    5.465278]  __x64_sys_finit_module+0x60/0xb0
+[    5.465284]  x64_sys_call+0x18a0/0x1d80
+[    5.465291]  do_syscall_64+0x73/0x320
+[    5.465302]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+[    5.465307] RIP: 0033:0x7f2f6c4d60cd
+[    5.465312] Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 03 4d 0f 00 f7 d8 64 89 01 48
+[    5.465317] RSP: 002b:00007ffe7166e7a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    5.465323] RAX: ffffffffffffffda RBX: 000055d75bab9e40 RCX: 00007f2f6c4d60cd
+[    5.465326] RDX: 0000000000000000 RSI: 000055d75bab15ee RDI: 0000000000000005
+[    5.465330] RBP: 00007ffe7166e860 R08: 0000000000000000 R09: 000055d75baba520
+[    5.465333] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000040000
+[    5.465336] R13: 000055d75baba940 R14: 000055d75bab15ee R15: 0000000000000000
+[    5.465391]  </TASK>
+[    5.465395] irq event stamp: 15179
+[    5.465399] hardirqs last  enabled at (15185): [<ffffffff81350e9e>] __up_console_sem+0x5e/0x80
+[    5.465407] hardirqs last disabled at (15190): [<ffffffff81350e83>] __up_console_sem+0x43/0x80
+[    5.465411] softirqs last  enabled at (15172): [<ffffffff812d2e21>] 
+irq_exit_rcu+0x61/0xb0
+[    5.465419] softirqs last disabled at (15165): [<ffffffff812d2e21>] irq_exit_rcu+0x61/0xb0
+[    5.465425] ---[ end trace 0000000000000000 ]---
+
+And could be related to a potential issue I see in vsock_loopback_init() 
+(see comment later).
+
+>
+>diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+>index 628e35ae9d00..5180b7dbb6d6 100644
+>--- a/include/net/af_vsock.h
+>+++ b/include/net/af_vsock.h
+>@@ -320,4 +320,5 @@ static inline bool vsock_net_check_mode(struct vsock_sock *vsk, struct net *net,
+>
+> 	return orig_net_mode == VSOCK_NET_MODE_GLOBAL && vsk->orig_net_mode == VSOCK_NET_MODE_GLOBAL;
+> }
+>+
+> #endif /* __AF_VSOCK_H__ */
+>diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
+>index d4593c0b8dc4..a32d546793a2 100644
+>--- a/include/net/netns/vsock.h
+>+++ b/include/net/netns/vsock.h
+>@@ -9,6 +9,8 @@ enum vsock_net_mode {
+> 	VSOCK_NET_MODE_LOCAL,
+> };
+>
+>+struct vsock_loopback;
+>+
+> struct netns_vsock {
+> 	struct ctl_table_header *vsock_hdr;
+> 	spinlock_t lock;
+>@@ -16,5 +18,9 @@ struct netns_vsock {
+> 	/* protected by lock */
+> 	enum vsock_net_mode mode;
+> 	bool written;
+>+
+>+#if IS_ENABLED(CONFIG_VSOCKETS_LOOPBACK)
+>+	struct vsock_loopback *loopback;
+>+#endif
+
+Honestly, I don't really like having something specific to a transport 
+here. Could we have something more generic to allow a generic transport 
+to register private data?
+
+(It's not a strong opinion; we can resolve it in the future when we will 
+have support for more transports if it's complicated)
+
+> };
+> #endif /* __NET_NET_NAMESPACE_VSOCK_H */
+>diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
+>index 1b2fab73e0d0..134e0619de07 100644
+>--- a/net/vmw_vsock/vsock_loopback.c
+>+++ b/net/vmw_vsock/vsock_loopback.c
+>@@ -28,8 +28,16 @@ static u32 vsock_loopback_get_local_cid(void)
+>
+> static int vsock_loopback_send_pkt(struct sk_buff *skb)
+> {
+>-	struct vsock_loopback *vsock = &the_vsock_loopback;
+>+	struct vsock_loopback *vsock;
+> 	int len = skb->len;
+>+	struct net *net;
+>+
+>+	net = virtio_vsock_skb_net(skb);
+>+
+>+	if (net && net->vsock.mode == VSOCK_NET_MODE_LOCAL)
+
+Can `net` be NULL ?
+If not, I'd print a warning or return an error.
+
+>+		vsock = net->vsock.loopback;
+>+	else
+>+		vsock = &the_vsock_loopback;
+>
+> 	virtio_vsock_skb_queue_tail(&vsock->pkt_queue, skb);
+> 	queue_work(vsock->workqueue, &vsock->pkt_work);
+>@@ -134,27 +142,99 @@ static void vsock_loopback_work(struct work_struct *work)
+> 	}
+> }
+>
+>-static int __init vsock_loopback_init(void)
+>+static int vsock_loopback_init_vsock(struct vsock_loopback *vsock)
+> {
+>-	struct vsock_loopback *vsock = &the_vsock_loopback;
+>-	int ret;
+>-
+> 	vsock->workqueue = alloc_workqueue("vsock-loopback", 0, 0);
+> 	if (!vsock->workqueue)
+> 		return -ENOMEM;
+>
+> 	skb_queue_head_init(&vsock->pkt_queue);
+> 	INIT_WORK(&vsock->pkt_work, vsock_loopback_work);
+
+nit: leave a blank line here.
+
+>+	return 0;
+>+}
+>+
+>+static void vsock_loopback_deinit_vsock(struct vsock_loopback *vsock)
+>+{
+>+	if (vsock->workqueue)
+>+		destroy_workqueue(vsock->workqueue);
+>+}
+>+
+>+static int vsock_loopback_init_net(struct net *net)
+>+{
+>+	if (WARN_ON_ONCE(net->vsock.loopback))
+>+		return 0;
+>+
+>+	net->vsock.loopback = kmalloc(sizeof(*net->vsock.loopback), GFP_KERNEL);
+>+	if (!net->vsock.loopback)
+>+		return -ENOMEM;
+>+
+>+	return vsock_loopback_init_vsock(net->vsock.loopback);
+>+}
+>+
+>+static void vsock_loopback_exit_net(struct net *net)
+>+{
+>+	if (net->vsock.loopback) {
+>+		vsock_loopback_deinit_vsock(net->vsock.loopback);
+>+		kfree(net->vsock.loopback);
+>+		net->vsock.loopback = NULL;
+>+	}
+>+}
+>+
+>+static void vsock_loopback_deinit_all(void)
+>+{
+>+	struct net *net;
+>+
+>+	down_read(&net_rwsem);
+>+	for_each_net(net)
+>+		vsock_loopback_exit_net(net);
+>+	up_read(&net_rwsem);
+>+}
+>+
+>+static struct pernet_operations vsock_loopback_net_ops = {
+>+	.init = vsock_loopback_init_net,
+>+	.exit = vsock_loopback_exit_net,
+>+};
+>+
+>+static int __init vsock_loopback_init(void)
+>+{
+>+	struct vsock_loopback *vsock = &the_vsock_loopback;
+>+	struct net *net;
+>+	int ret;
+>+
+>+	ret = vsock_loopback_init_vsock(vsock);
+>+	if (ret < 0)
+>+		return ret;
+>+
+>+	ret = register_pernet_subsys(&vsock_loopback_net_ops);
+>+	if (ret < 0)
+>+		goto out_deinit_vsock;
+>+
+>+	/* call callbacks on any net previously created */
+>+	down_read(&net_rwsem);
+
+This could be related to the trace I posted on top.
+
+Should we move the register_pernet_subsys() in the section protected by 
+`net_rwsem`?
+
+Because if a net is created just after this code returns from 
+`register_pernet_subsys()`, we are going to call 
+vsock_loopback_init_net() again here in this loop, no?
+
+
+>+	for_each_net(net) {
+>+		ret = vsock_loopback_init_net(net);
+>+		if (ret < 0)
+>+			break;
+>+	}
+>+	up_read(&net_rwsem);
+>+
+>+	/* undo any initializations that succeeded */
+
+useless comment.
+
+>+	if (ret < 0)
+>+		goto out_deinit_pernet_vsock;
+
+I'd move in the for block calling `up_read` before the goto, but not a 
+strong opinion.
+
+>
+> 	ret = vsock_core_register(&loopback_transport.transport,
+> 				  VSOCK_TRANSPORT_F_LOCAL);
+> 	if (ret)
+>-		goto out_wq;
+>+		goto out_deinit_pernet_vsock;
+>+
+>
+> 	return 0;
+>
+>-out_wq:
+>-	destroy_workqueue(vsock->workqueue);
+>+out_deinit_pernet_vsock:
+>+	vsock_loopback_deinit_all();
+>+	unregister_pernet_subsys(&vsock_loopback_net_ops);
+
+What happen if a net is created after vsock_loopback_deinit_all()?
+Should we do the opposite?
+Or the unregister_pernet_subsys() should be called in the `net_rwsem` 
+section?
+
+>+out_deinit_vsock:
+>+	vsock_loopback_deinit_vsock(vsock);
+> 	return ret;
+> }
+>
+>@@ -164,6 +244,8 @@ static void __exit vsock_loopback_exit(void)
+>
+> 	vsock_core_unregister(&loopback_transport.transport);
+>
+>+	vsock_loopback_deinit_all();
+>+
+
+Should we call also `unregister_pernet_subsys()` ?
+Or in some way is automatically called since we are exiting?
+
+Thanks,
+Stefano
+
+> 	flush_work(&vsock->pkt_work);
+>
+> 	virtio_vsock_skb_queue_purge(&vsock->pkt_queue);
+>
+	destroy_workqueue(vsock->workqueue);
+
+What about replacing this with `vsock_loopback_deinit_vsock()` ?
+
+Just to follow what we do in `vsock_loopback_init`.
+
+Thanks,
+Stefano
 
