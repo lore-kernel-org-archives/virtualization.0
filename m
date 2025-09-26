@@ -1,126 +1,71 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 351E92749D5
-	for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 08:37:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63E8A265623;
+	Fri, 26 Sep 2025 09:52:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758875879; cv=none; b=BcRZtllCJi9Pkp6miuzkkacq2s7stgl0Q6VNYDzRCkx+vkRMteWFPes8B6mQewHd730dnCpbfGWXrBhk6Pp7WY59xLyUJqEvZAVNWmMM1MxE0F2fhowykV2zZkoxjixUfwfHs1Eve1L5vNX3+6NPGpUDrzeIICeXnukQaM2mAjk=
+	t=1758880323; cv=none; b=fKHtZg9LSYzZNmSvphSz3Xdk1z85pylr7dwU5JiqcRCiBj+wlTDw3sgv6mHL1Qo4fXWHmoLBQG6+dT/wqyfpoSmcBrrSrNwie97Ra0nGKvv8GHgg3YyabccSr+2MEq/0wgZiXMyjKfDPCCb6JLokBfEN/IRtIIfTGvoohhF9TOQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758875879; c=relaxed/simple;
-	bh=l7ccryhsdYTnF0StFj5adAoUTTZjM7CJm2tdkS/IsoM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P/WRLy82+vaUskTQjnyCShQWk0OL+cGo8fRZGb0iTJaHbLraYs1M6i5pnrya3ACpZjdTYP4rDgGPzP80J5NOSSFDEGWp6G2IsB9C6RVLGCiips+dUDcx9BfvUd3F0j7Oj3BRskXwvSc4b2S4wXTZA5/bR81ApsMx5kntt/7m0xE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VXb70RI3; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1758880323; c=relaxed/simple;
+	bh=K2PsWb515+NIbc7/1vFNik1ObXIyBBGTGxrD0zJQBz8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Wba2Ar0u3V6OxPQe+lTpX5u+aIqlrufSDMiq4XY/yfz1Py22pHWxlnE5N93fXpBVBDrLZOjv6Ioy5eWICehtOItSmRg6H5rLMUEyTTFT0DWjk1wfrwp90FXeKAAgnSUG1M4T8iBGNx7QlbWVIJ7j0BpBUznEog5IHKnFQXl8gm8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JGnMyA+m; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VXb70RI3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758875876;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EWIS+M2+D+NxPOxD8BZpU+DFrxLryhzIK4I38vFOSLM=;
-	b=VXb70RI36PXOLeg1jtM1fOYkOrPVttBOweR+HxRAxQb/DTNmXka2XObvYzuVBmhy6C6T2d
-	ZdWizKVx2GmkTQP7VnDYb71B51m25CjoyK26TeOzNgnesdx6rVNSIFJT5ri7pDjUre4IWr
-	I/bwg2fFsG1WLqJXIk1tDyIRGWYVHkE=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-150-Edq1UVCLPVmsnlFBFR6y2g-1; Fri, 26 Sep 2025 04:37:54 -0400
-X-MC-Unique: Edq1UVCLPVmsnlFBFR6y2g-1
-X-Mimecast-MFC-AGG-ID: Edq1UVCLPVmsnlFBFR6y2g_1758875874
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-329dca88b5aso3102237a91.1
-        for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 01:37:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758875874; x=1759480674;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=EWIS+M2+D+NxPOxD8BZpU+DFrxLryhzIK4I38vFOSLM=;
-        b=tcf2LzN7i/dBLMyYSfdWF7sRtUy6i1r47LS8sD8xLX98kbX6rrMXgmc0x4Yu5a0w2T
-         Zy5FFS4Hs5pG0sj3oeJXR99nFozsevBguELUeBT+8xOVg8oVJn/Um1yDbN/NLDXMN/u8
-         lPhZ4kWvfVqd3nl0Fr1KutUE3bXryYjTKyWAA8jO/nAto0TiaDy+5XdcUfWQAdCGnPc1
-         JFXbIBtk3GwBxUKDktm6snxqecspBgZu52S3krGrK9vMvW5Tx3JeYfdflzMQBZ4y5FzT
-         jeJghmjCLEo9lX5VmgVbbgEMsY6Kd00z1BQoyVGVz2lsFWL1asbqp//4BZ6+QfEkkGL4
-         cNbg==
-X-Forwarded-Encrypted: i=1; AJvYcCUICp0GmFA+ZmwF9ab/DVy0bQTwm2TqkV8y49sWNuxCmXm/2fn2l5ifh6pU0Wt6C0xRQ2RYP/QQKni8k7SmCA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxH1YOfGkCFexc0bjhmH4K4F9kc1W2GkWPEiD2/QBb1mF8rEi7P
-	htQ4t2FaHvjMbEPvZwvixmzLWZbA9FLIgouOw7cF8wG0X4G+L/T9QghrH1ir1wCsNYC3w1ArUvK
-	GO75g/3UKyPOKSJSKO1FA8pFZcElB2+HT0hGwLc3g/b0JdAVyHgkL50Pi1BRdMJsSdtvTsVdV8e
-	VXyRp3QKDJ178JDulCLinX9Q6T7w1RID8YNWpmSazFjy0=
-X-Gm-Gg: ASbGncsYVqF4L8gAoWGPD0zixj8x8qW++CQYupJWPUUCOp2htJaqRldGi1eK25VUrzJ
-	S2RqHrn/+av9k8fOIZIngPF6hWxCgrUCYr/W7y8BsCik69H5FeFxs9Bi4RyJ4/J25/Mxkxkpo5F
-	EtYiyJgtud8+RF2VKS6g==
-X-Received: by 2002:a17:90b:1d12:b0:32d:e309:8d76 with SMTP id 98e67ed59e1d1-33455ee3d23mr5868326a91.10.1758875873465;
-        Fri, 26 Sep 2025 01:37:53 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGNdP3jcqkB/SoDVWTNElXZF3uJPrDyZBO4hpIYz3HUA2RYGm5n9SzDuM3YCq9dzEN8BUadAUt14kF1KaNWMbQ=
-X-Received: by 2002:a17:90b:1d12:b0:32d:e309:8d76 with SMTP id
- 98e67ed59e1d1-33455ee3d23mr5868294a91.10.1758875873078; Fri, 26 Sep 2025
- 01:37:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JGnMyA+m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FD66C4CEF4;
+	Fri, 26 Sep 2025 09:51:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758880321;
+	bh=K2PsWb515+NIbc7/1vFNik1ObXIyBBGTGxrD0zJQBz8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=JGnMyA+mZ2gBq2hXlzZkqhpIoBi7mNVsU/jCWYLYdgxKe3OQ17Wc7TOeQcv8/vhhF
+	 aLmgSx1LsF/jH3Ab8rQGsWc9Pk5sPHJN6s2Ae3QYdqT4Eihr1xPTBtQJvcqzyvJejd
+	 5x9/75FW0cs6uGJKZUoNh48QsRiWqey/D5Popk7viAUGvLMGsDVqCPszSxecNKLd5U
+	 AC4mF7dpHC6bJRY+TrdFw8lj9nXNcdvLYUnxdc3eSsUyp10IIpdhCRt3jCP5ceiXQb
+	 fsDgsAJ3D85R0cQ651jqaPi+6M0ddotzTVUP5LFiCeWcOK77aaMVeoKD36pdP1roXy
+	 EWGA00EXWvSPg==
+Date: Fri, 26 Sep 2025 10:51:57 +0100
+From: Simon Horman <horms@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	zhang jiao <zhangjiao2@cmss.chinamobile.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH net] vhost: vringh: Fix copy_to_iter return value check
+Message-ID: <aNZiPbINQWoJA_-w@horms.kernel.org>
+References: <cd637504a6e3967954a9e80fc1b75e8c0978087b.1758723310.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250925091335.1964283-1-eperezma@redhat.com> <20250925091335.1964283-6-eperezma@redhat.com>
- <CACGkMEvYw4=TPqQ=R51vYdgE786MWyPP0UcApiDhiCKWMQXR7Q@mail.gmail.com> <CAJaqyWcZGE0SD6Eed2WhiskYaSR0pSm3dMYf2j4TyfbZe3Qmrg@mail.gmail.com>
-In-Reply-To: <CAJaqyWcZGE0SD6Eed2WhiskYaSR0pSm3dMYf2j4TyfbZe3Qmrg@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 26 Sep 2025 16:37:40 +0800
-X-Gm-Features: AS18NWDaBIUtxrPONpil5WxsdzbxQccrHy2wvcmJyDtgutPrSWuat8Z7z0Ymi_4
-Message-ID: <CACGkMEu6BcPfzuPFJ8REO6WGKmH+8n6S7c0Gjjzi+CP-q5kHQQ@mail.gmail.com>
-Subject: Re: [PATCH v4 5/6] vduse: add vq group asid support
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, Cindy Lu <lulu@redhat.com>, 
-	linux-kernel@vger.kernel.org, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Laurent Vivier <lvivier@redhat.com>, 
-	virtualization@lists.linux.dev, Stefano Garzarella <sgarzare@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: W6XyIZilvNQefPe3tP9Bvb7Aic8IcKQDlTQBe2X9UIA_1758875874
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cd637504a6e3967954a9e80fc1b75e8c0978087b.1758723310.git.mst@redhat.com>
 
-On Fri, Sep 26, 2025 at 4:17=E2=80=AFPM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Fri, Sep 26, 2025 at 9:58=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
-wrote:
-> >
-> > On Thu, Sep 25, 2025 at 5:14=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@re=
-dhat.com> wrote:
-> > >
-> > > Add support for assigning Address Space Identifiers (ASIDs) to each V=
-Q
-> > > group.  This enables mapping each group into a distinct memory space.
-> > >
-> > > Now that the driver can change ASID in the middle of operation, the
-> > > domain that each vq address point is also protected by domain_lock.
-> > >
-> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > ---
-> > > v4:
+On Thu, Sep 25, 2025 at 02:04:08AM -0400, Michael S. Tsirkin wrote:
+> The return value of copy_to_iter can't be negative, check whether the
+> copied length is equal to the requested length instead of checking for
+> negative values.
+> 
+> Cc: zhang jiao <zhangjiao2@cmss.chinamobile.com>
+> Link: https://lore.kernel.org/all/20250910091739.2999-1-zhangjiao2@cmss.chinamobile.com
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-[...]
+Hi Michael,
 
-> > >   * Structure used by read(2) on /dev/vduse/$NAME.
-> > > @@ -334,6 +376,9 @@ struct vduse_dev_request {
-> > >                 struct vduse_vq_state vq_state;
-> > >                 struct vduse_dev_status s;
-> > >                 struct vduse_iova_range iova;
-> > > +               /* Following members only if vduse api version >=3D 1=
- */;
-> >
-> > This comment is confusing since padding exists before.
-> >
->
-> Ok that's totally right. Should it say "following members but padding"?
+As a patch for net, I think it would be nice to include a fixes tag.
+Perhaps:
 
-That's fine.
+Fixes: 309bba39c945 ("vringh: iterate on iotlb_translate to handle large translations")
 
-Thanks
+And nicer still to include some description of the failure scenario.
 
+In any case, the code change looks good to me.
+
+Reviewed-by: Simon Horman <horms@kernel.org>
