@@ -1,70 +1,71 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 895CE1FF1BF
-	for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 15:23:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F91E158545
+	for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 15:25:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758900187; cv=none; b=Iv/8h4EW902lfNsPmwit+GFWC3R2jprBNDgHukMaG62i14Y58LWQZDh2+bJ/uU6LTLo9eoZRbtJ4Pa7D0S0RR4O9fjsKMhrbi7GqaHzxA1szXsIUq5MI3Pd3nnbvLyKDZIxjQdidviKNSffd/Y/BCS8mBHgpMv8BEYAhPkqBRH8=
+	t=1758900329; cv=none; b=hGDx6uH9rRU9A73KOM1Im1Gi3A7FmMElw/VnthgEuSJNeryhQpy438oDZb62fv+pjrT5VXVgB3El9jd6pUwNE2H05RGutnbQENWE0aVwakzQBriVFfVEQ2XOkWsDKAJg1/S21ecIA0YsQ92Xo9z8PA7/e16fVrmV6MgdSzQrRxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758900187; c=relaxed/simple;
-	bh=FrJybyG88EIztPF8s2uRrTfc85nQ9oIuj0fUPyrfY8o=;
+	s=arc-20240116; t=1758900329; c=relaxed/simple;
+	bh=vwq2kB7ZSJ+7IH/lYjKPJUtUPlf/BcjFXmuTEHrBiic=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=MwxTRfynLddq/09RylpzuCoDCFZcW7PENjZd88/yxK2Z+OBiSng92vqLs3Ed0Whn3AvVJQcRirINoaG5r6Bh7huI2xQGxfWP0fU0Eep+twrvSP3qpcQFgkL/gURAvt3bz0zrQTa9DQzfIS3oqPBqlvyXweirvFE0shJXStQpZ14=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EtUsSlBc; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=qKIC+yNiHYzQgFC9TBuObC50ZNvgwuO0OC0oFimaA0R1uSm/sIo/ywkgk4TE4+L/9pi2LKyircYUrvxzhpxGNfVkFz8Wd7RB5RZ3gPAq4aT+ylgRO/nmlfnuYqubD4LK6LKtLn0lKPLG/k7FSqVYjYWMjuyhUpDQ65YhrY2UpAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YDJOSXBl; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EtUsSlBc"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YDJOSXBl"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758900183;
+	s=mimecast20190719; t=1758900325;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=eAxlRG2RffgV/m6MH3Qg7z+nz8lqZVpnmuYfNVecLAw=;
-	b=EtUsSlBc+mjJW8w+JFnuOKqUpyx36brX5yaz7I/WjOLhscuk0qdnBJ2FAHJ0FLoEZXsr6q
-	ibqjApL2Vho5AADPU20pGCnGVUtGK5VL9CO3Y7xQ0d0u8Oxzsma3ZlozcTQ3WnvI6rSJRz
-	kz543slhee+nZY/zflzgeWBgJktlFes=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=QuRr9iXRJx/mSZCQqSBqXVnSnojtp0S9MzTPMtIju9o=;
+	b=YDJOSXBlHBZfUJyWfSvM6SmiWWTnUMr3grOhtukt5i6qYvYLQo7yduXApL5E7CakZIay2U
+	QdaGwMfC0kGb+U8lrz85eQ3vX1FNUhbrKC+GNLFh/3QqKWKAhe+xR75NwBq/DwsbJ0RyVm
+	RbM7gmQ1v7WlghwCPAG2YC+eVTGMnQk=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-250-IDvUZJ6ZM5y0Ok71jAY4TQ-1; Fri, 26 Sep 2025 11:23:00 -0400
-X-MC-Unique: IDvUZJ6ZM5y0Ok71jAY4TQ-1
-X-Mimecast-MFC-AGG-ID: IDvUZJ6ZM5y0Ok71jAY4TQ_1758900179
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-46e375dab7dso9006615e9.3
-        for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 08:23:00 -0700 (PDT)
+ us-mta-244-ElWoyFRvPi646yTg3IG3yA-1; Fri, 26 Sep 2025 11:25:24 -0400
+X-MC-Unique: ElWoyFRvPi646yTg3IG3yA-1
+X-Mimecast-MFC-AGG-ID: ElWoyFRvPi646yTg3IG3yA_1758900323
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45b986a7b8aso13894125e9.0
+        for <virtualization@lists.linux.dev>; Fri, 26 Sep 2025 08:25:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758900179; x=1759504979;
+        d=1e100.net; s=20230601; t=1758900322; x=1759505122;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=eAxlRG2RffgV/m6MH3Qg7z+nz8lqZVpnmuYfNVecLAw=;
-        b=RcGc60ya5Hd47XQcA/0cHUrajjcAq4EDgeS4bjhBGFGBaXgxZx2FLofvLpyez87HDP
-         V6hGD1DRNkYf4zf0E0laZbvYM/g4pUn1/IwuXWDE9LoH9xIY6zm4aUEeRrAutLwvhXWL
-         YQ66HX5os248qTiwwLtQhvQy/gbQf4hkT83OrL0ejDnzvqEs3au8tATo7atj1uu9EolV
-         jZGmS2tKRD330t+IfCjyaE+PMPEljoZH99hpc3mUQMEP+Hi/4S4fDJPMA0+sok9/38Ju
-         9BZoWMSY7QDxCnjlHKfcH0t3sYbUZ66s1W16bS2VlJhq+oH8UENjO10uRV/s92Dp/Q0z
-         RApA==
-X-Forwarded-Encrypted: i=1; AJvYcCUMJlI00IkbSmpl/IzvdT3ES2924ucWCM3E8JP5Rrgn2LmhLy5T3drJ6mORyirpkSU/0U2cwubFkexwCYzjGw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyqiw1Ml1mKfnbLCkAjbasJrYGXPCOLzq1ifaf4FSMp9CSM+OBU
-	EtGMHbk0D1t21muZVMQPfIfJcy/qMSC0+eiUDeygCjQ/jMudm6wOGfEwJDFq5W7GyH5WNmvq8o5
-	E/nphaxboaEjoi7o2GikoF6yd5p8fxLcZlU5sjzoUzfbVw0DPnUB8jzKzc7PpMTv5wSLD
-X-Gm-Gg: ASbGncvzVVUTNMLR1PptNgRF7s28ocCAghUxfjfox62XbHkPBaSFl8CVwoPWftpw9h8
-	j9LXdvpMj4hZlSJui88EFoJOsConyUer5vM3DQi4bnoI6NPmUSaCCRN+ht+vRJ/3crrw9k6Ttj4
-	WpnVGFP/uG3a565Zbud8+JcXgI5Cwa2ERK8d6CAPIkjDNgZNiha9AhkAUMBNh+3XTKduyc+aW2K
-	XEcDZ2h63k85WaOKiQlstFBpMoSqj0rG6O7vwVCVi04PeLYfAt8pEMGQQip4CQFP4nZnm/+pBaS
-	SVWY9kPx7f2ueJ8aQy5Nf95QvTijeW2zNFo=
-X-Received: by 2002:a05:600c:1695:b0:45b:7e86:7378 with SMTP id 5b1f17b1804b1-46e32a1987cmr47477595e9.34.1758900178730;
-        Fri, 26 Sep 2025 08:22:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGMxSmC6L6UVQCHQQFw85iXOCoSbT9v6boAxURBRBBgYIjrjJoTlAOps1u/xzi8CapcJZAN9Q==
-X-Received: by 2002:a05:600c:1695:b0:45b:7e86:7378 with SMTP id 5b1f17b1804b1-46e32a1987cmr47477205e9.34.1758900177908;
-        Fri, 26 Sep 2025 08:22:57 -0700 (PDT)
+        bh=QuRr9iXRJx/mSZCQqSBqXVnSnojtp0S9MzTPMtIju9o=;
+        b=CNR/phR3A0SHjERXqSTY/6pRDoN1ENERCP4RCAMxRxqlJ4mpijvuGzFgFH97AqRaNv
+         waLQopkLJCy2xpKJ6rUZqoq6VWw/52yDe+qMGqnY0vpLR9JVYnpMVuyX9uV/0Yv9f2Hk
+         zqd9A7i8qIGLqQXgi80kFC68SBEYT01CEMu3RYJC6rTdDAhId5/51xXmoUO+J/mHG417
+         xANmRoTFJPIUdwW0vJWkcL3zp9GAHJl+kLYy13mu34TGHuXlG9so9tkDlsaCEqI41yKG
+         6h8Wrnn2YFArm2lwwXFAHZy8iSactgnVITicGcMzFpNrQwaTvL6IsDbFJWeRsH8xfezv
+         NOzA==
+X-Forwarded-Encrypted: i=1; AJvYcCVDOO7uMHv36fT0io2Nn03FItg21B11QNXqaBEtmT2U3FRwjou6UQpKHvXKDViT+Bh3G61kVrswr+XoGDV2iw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxgcJUN/lK6SsSiRD5ftpYjnouvmlqBqTbeVnrNXa60vmnVoi/V
+	H/h1X/Drzxw82C9FTiFGPCNdaC7klAllOZkD/zSnArkCa6UJYZm+1T8dM3UWdYxXw8YOYahJy7K
+	MyzAnD7wHnJsxcFolLkdt7t0vkMnfqYkDKkCEC0DcUHbThANlsnpdeRpqV3CnE2J26rxKWP2XEe
+	N4
+X-Gm-Gg: ASbGncvseoToyN/cINxSSX6kfA0BsohFk/f2xTq3w7V8h2n7wv9eyCXs2iDVxwKp606
+	9ZMuypcnOPbgbw9tAmD+875XZTATh3c1ESm7KxhHeCQleqOplvqvT1lGoeIAaMqlY1qWVzmf2MX
+	13BsC+oS9Su2VPR7k9lR1Iq1U9G7EhCxLM3S+g35narqTp+5RM8Q2LrvSjxptEPrlnUWzL3xfsR
+	LeCfpDVIUJIr2Brrtk1LrIxpgATj3gUmWKmzBQLI0PIc1LKsjE4svSPV+5r6KGbbwj/V8YO3/kW
+	jc8qPX5dHPAkioEVxzXmnL1x6Iv4IoRdeN8=
+X-Received: by 2002:a05:600c:1f16:b0:45f:2cf9:c229 with SMTP id 5b1f17b1804b1-46e3292ea63mr71947825e9.0.1758900321965;
+        Fri, 26 Sep 2025 08:25:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEMarPUqJd7OXtq4im/YungD3qS4PcLxBOwLmLgrRNu6H4DmaEDdZLhHC9IV35WUI0YAW1rQg==
+X-Received: by 2002:a05:600c:1f16:b0:45f:2cf9:c229 with SMTP id 5b1f17b1804b1-46e3292ea63mr71947435e9.0.1758900321295;
+        Fri, 26 Sep 2025 08:25:21 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-40fc6921f4esm7431516f8f.44.2025.09.26.08.22.56
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46e330d1d2fsm39996915e9.3.2025.09.26.08.25.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Sep 2025 08:22:57 -0700 (PDT)
-Date: Fri, 26 Sep 2025 11:22:54 -0400
+        Fri, 26 Sep 2025 08:25:20 -0700 (PDT)
+Date: Fri, 26 Sep 2025 11:25:17 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
 Cc: Yongji Xie <xieyongji@bytedance.com>, linux-kernel@vger.kernel.org,
@@ -74,7 +75,7 @@ Cc: Yongji Xie <xieyongji@bytedance.com>, linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev, Laurent Vivier <lvivier@redhat.com>,
 	jasowang@redhat.com
 Subject: Re: [PATCH v5 5/6] vduse: add vq group asid support
-Message-ID: <20250926111912-mutt-send-email-mst@kernel.org>
+Message-ID: <20250926112445-mutt-send-email-mst@kernel.org>
 References: <20250926101432.2251301-1-eperezma@redhat.com>
  <20250926101432.2251301-6-eperezma@redhat.com>
 Precedence: bulk
@@ -85,7 +86,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20250926101432.2251301-6-eperezma@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: algJ76_RQ8_M4LOw6k_eU8wXWlG1QirAk_5dAqXc2iM_1758900179
+X-Mimecast-MFC-PROC-ID: YAWFbQKNCcXEG-MVdaNX2zgm8U3IWbjAv7rEsDw_mm4_1758900323
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
@@ -793,6 +794,10 @@ On Fri, Sep 26, 2025 at 12:14:31PM +0200, Eugenio Pérez wrote:
 >  		dev->groups[i].dev = dev;
 >  
 > +	dev->nas = (dev->api_version < 1) ? 1 : config->nas;
+
+Is this "< 1" here same as VDUSE_API_VERSION_1 ? Maybe use that then.
+
+
 > +	dev->as = kcalloc(dev->nas, sizeof(dev->as[0]), GFP_KERNEL);
 > +	if (!dev->as)
 > +		goto err_as;
@@ -845,23 +850,6 @@ On Fri, Sep 26, 2025 at 12:14:31PM +0200, Eugenio Pérez wrote:
 > +			ret = -ENOMEM;
 > +			for (int j = 0; j < i; ++j)
 > +				vduse_domain_destroy(dev->as[j].domain);
-
-
-I don't get this kind of error handling.
-
-So on error, you destroy all domains 0 to i? Then proceed to
-create another domain? But that one will not be destroyed,
-will it? Will that leak resources?
-
-
-This is hard to understand even if correct.
-I suggest you switch to use the standard goto error; error handling
-idiom insead of integrating error handling and good path in this funky
-way.
-
-
-
-
 > +		}
 > +	}
 > +
