@@ -1,127 +1,107 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 994642D5437
-	for <virtualization@lists.linux.dev>; Sat, 27 Sep 2025 09:02:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CAFE2BEC30
+	for <virtualization@lists.linux.dev>; Sat, 27 Sep 2025 12:25:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758963745; cv=none; b=Wdd4eRxf33sw4DkAgicAZJA4uZQO/jnZz3RnPiAXBYvthWfQpHnKoPxIuuFKo9/s+bLfrAhpmdURdNRi3qoUZ+IaYB2kc/TNAt25gBt/bFbuGiQcdPRrMf1l5RSd+p8z3ME0Q3Dxuq6jx5YJzvuZL0gJE7e354WuuihcfjeiPck=
+	t=1758975941; cv=none; b=lD8juf7Op5jdQNnS7Y4wds9TohNShHRXKsUHD7cLyzuITyGG/ERzZSrN7TbcQwSwcRtrluKHxKz6eurxmLvNSA36K+rVufwYskxnnN5HHGeSGCtwNx40hlU8vEt8Otrm6819uHw1K5DMslnXD2AUtj1Sqiy/WXlB5hCsKI96RMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758963745; c=relaxed/simple;
-	bh=0cVnGuREPBEousW3ICfS8xU9h5IzQoRJffkth/1/cRA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jecHBqMzkOB8lbVZR9m1v8fzehYlQC462g20JHJMgWB6j4A03yLGF2U5U/qTHQf3W697qDKyoTxEI5MOU3XrX6Q5aZ0nAyyOJWHODtiXPJx21LV7G6+6UPLa5L42wKzjh+VvLYHyddCQpv/antMIaVGA266yX2cT8WeRmuCRJL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dR6c4Dau; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1758975941; c=relaxed/simple;
+	bh=Cz0upPHZk9fGBVcjG//ILHjl/qglp8+Tm6tLew6P7q4=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=E/52Q82GN5sNmhSOXl/gMBWFwijbkD9ewZzBFwllZMaaPJMzN8xPo6jt83vwTvJM5cbjvdX6F3NFAvXgC7Drn2kjKBan398amrBJrsuXSilgfUUewq71+ojnTN3KjE8lyckBvljCUDoQYEml4IpXBIE0Yu/qHCrIyV9kMNXha3M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=ddu8mclA; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dR6c4Dau"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758963742;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0Q29ePBvNLNX3RyQTzBYKbm0zTToczl37eoxUDzMUR8=;
-	b=dR6c4DauYCoUh3p6SKzVoYaGHLnp/dZBcb1kyI1u0QklTxVc919V3YIyRcldceEnvdA+6b
-	qhLiy9BSOPAPCuqgVY4VgTfa9JlYmOtgCRNlQydC5O3IZHf12oA66yxWmnFKOdJKfO7Zor
-	ShVC/Bl3z1VByPlCokxyN2ourFqNcDk=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-386-BLEHdfvMPXi55rfLzon84A-1; Sat, 27 Sep 2025 05:02:20 -0400
-X-MC-Unique: BLEHdfvMPXi55rfLzon84A-1
-X-Mimecast-MFC-AGG-ID: BLEHdfvMPXi55rfLzon84A_1758963739
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3ed9557f976so1976147f8f.3
-        for <virtualization@lists.linux.dev>; Sat, 27 Sep 2025 02:02:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ddu8mclA"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-46e30ef74b0so21687515e9.0
+        for <virtualization@lists.linux.dev>; Sat, 27 Sep 2025 05:25:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1758975938; x=1759580738; darn=lists.linux.dev;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=LVhumFC8qskWIHg2JamV1kuMQedk4HSzKMYaXz2FDxs=;
+        b=ddu8mclAsHvM7qkR/qxCDcbCnVXYkpPBIU8irSA8yDOkGFVtWWNCOsf1wAQyYxsc+w
+         Pc70Z1m6tDewhN9m60+bC/a5iAcj3XbcWeVCQ98tiFiW/38rJ29daeh4KKBmCvebHk6t
+         OEUmTqF6FULjpWK9lsRMWJu8AxNcV24ZfOmXTsDkWefSPfpcjBSIUWYhqmr0UOgBrpNN
+         80BzvNx/1k0LmFYwAs1oMcugg/cW94oloMNwfWW+PaTCmuePbWLA9HVhZfwUM+bIjZ+T
+         kT+Oi8/k5NthbIphxoUA8DJpJmp4862TNS/Sv2rRi/QKrHefcltAiZSpDQBzAUyMj1tB
+         J6mQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758963739; x=1759568539;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0Q29ePBvNLNX3RyQTzBYKbm0zTToczl37eoxUDzMUR8=;
-        b=vEpFKs7yS8as1NNBmqlDASKmx/Qi6R1yYpWVXeHSfRcZLZMa5oR6bE8BaXURiH/fRD
-         B+Ypt5K6AZ5Th9su0bqLQrX07FgabbJ3rLW8nrN1sHTidaYBa955It4bvwS4VPt2Zq/F
-         XEUyWSaURMkat5RrlQdipK9vqcZUQBFGSbNCfJ3r/bpsvYcQDeItK1od70dp0ESAufU6
-         sBI1zIM3EKCi+i3B+JB8MPe/iwMoTNScjG8scXaaETald4TvvabobEW8oTYgcgwNS/IR
-         4GCEjCaSuFRt/PxrFKoCRMgdOmWgvq+lsSvb72vJC1rxqv3JwIbWgZ2kqVlICYTWJNJc
-         1Qsw==
-X-Forwarded-Encrypted: i=1; AJvYcCUQJ4g0l8xNIWElEj/pfEeslUNI09K7ZzxOLKRICjIXntStPs1RnVQdboGHKHkXv9ykgiAOsZOCNfHJih6dYw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx8GRI0TNeHc/X7Kbht1ozk4D8HyGCJvNaINv7BvPo4KJ/KHwwP
-	5dcHQ+nBmhXtP/1UxZwVXswC59ThKVB2EmtRkhGAWZba9KenO4REfq9kn0nSwQHG8/tzahELGwJ
-	6AWjWiXg/qKIsuzw+lOUS1sz3V7FbPvF6IoWjCmss5FhhroeZpxVNm6C4L8Dvj9cavepe
-X-Gm-Gg: ASbGnctgOKDB3SO7pOrcLU4NsblmdtdEYM3IlFY7p0Sg/UGdKooLZ9DoSYp7VQnQRZb
-	VdXGGeYgY2Oj8Tc6WtGRwUecI4QtPrCctm+LZvSK4OmGH/RJFjkqTzT4tBnkPjNjxTkiNbkzWEE
-	5XMsLTyeGNC2IMj+vxGwvZLILA6aI4CRnDX5OuuT6blDfj+eRwWfY7c+hEslDyHQfch2yCN2eB1
-	+SsoJVIbVp0sYAimlh/+3FyT/XiHbEXauovv66qv+A0aRg2+yLEQZG9qzQO1Dd09sRrlbWFmrwW
-	21p7idVHkB++PZ7DqGRloX0zo/7rxuSXkVs=
-X-Received: by 2002:a05:6000:25c3:b0:3e0:e23f:c6d9 with SMTP id ffacd0b85a97d-40e43b08a91mr8457936f8f.17.1758963739140;
-        Sat, 27 Sep 2025 02:02:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHzfwp51UeRct/ixNCdhk7ku6um/ThtAGSfqA38FUWoj7+zrfA6BL0jhAYPeE5wtPhNAuqm9w==
-X-Received: by 2002:a05:6000:25c3:b0:3e0:e23f:c6d9 with SMTP id ffacd0b85a97d-40e43b08a91mr8457901f8f.17.1758963738703;
-        Sat, 27 Sep 2025 02:02:18 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73ea:f900:52ee:df2b:4811:77e0])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46e42eee0b6sm36103265e9.10.2025.09.27.02.02.16
+        d=1e100.net; s=20230601; t=1758975938; x=1759580738;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=LVhumFC8qskWIHg2JamV1kuMQedk4HSzKMYaXz2FDxs=;
+        b=DurbjDZFBbAVy+Va2BoM4Q8hY1ezzaf/QyorOIVXgxmELOvcWGPKDGdyrKE6PW/T/k
+         ESDT+HMz7Xu7nPTtsTNZX0ySQX8W8ks+E3cmrpNvmTMjJNK75GdJa0bT4qviehi2UDnT
+         rhP/P4RG54oskMFMYFnPACpxIcZgU2zPhZAgchwp/h1SwnttT0NhbIq/fPwFxaS5MfqB
+         q+bSfeSc9Te4Wx+dYxGo53QFRlxVXsA7r401U+p18P/ZwjAcLbFhVmfvU87si+sjjzDw
+         0XSwFTd6DIbP621YTc0zSpWwWppoKb9yPQGqim3lUUJMLFNsjfMu4NOtVmqUb4gpzH+d
+         zBcw==
+X-Forwarded-Encrypted: i=1; AJvYcCXtW8ReOat41cDUHYnYF60WmLOqeDWDxvs9fACLGAm7v7yqXAI+OIGtBh3fy6GNoPKMIBV20P83JdCtvMOM1g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwKqwZT9OaR8GEBa8Byoyuv8GrjU1fjb3X32zsEzhYRQKuSD/ri
+	fuoTDJOiRyXV2zpOVxiQKVLtNelQfWQKo9hp7QoHpgmeztenqZGNRgySKG3NoU6tTtY=
+X-Gm-Gg: ASbGnctqjBS4F5Oqnjf2aOps0rOWFMF2/Nv9Ldtxaq4z5uH9Ujxj8tP19ZfKI2O5cS/
+	qHHH6UJTry38tpCT9OJ/VJDyupCUeLGwzfNAyzmx5jKu4Wa4jfgSiBaDQmhuOjphUvsbJZ5WEWG
+	4f5qmG3tg2YdtVvszQ5Zb/hPbvc6XfnleD/cK3Qlbsax/w4UpLB0Fz6sNBr1hHinV1nKV62cQW3
+	4Tvo1H0NwMimuxPqn4IVWnBx1tbjHPIidmsbhExl2Dxt0chgx2KAZBFyhHh+yPW8GDi4nNSCHfK
+	WAqZ5xq10vUyx2SXuf4vhroUm9dnRgVwMFwGam3vZmmttooEUx3yFg1iBV8r64BRo+22DE+8VtI
+	Cv90fWf+OLozVtse1qI1FRHQetP+7QgeZOAmAXbo=
+X-Google-Smtp-Source: AGHT+IH/fs4tI3yUr2ZaBw2ReWMi5Di+AwUxDHPsiDLmiEELtqX2JAh0B0XFiB/cSRsTRtqy4tVX2A==
+X-Received: by 2002:a05:600c:4694:b0:45d:e5ff:e38c with SMTP id 5b1f17b1804b1-46e32a1393cmr95976155e9.32.1758975937784;
+        Sat, 27 Sep 2025 05:25:37 -0700 (PDT)
+Received: from localhost ([196.207.164.177])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-40fb72fb017sm10713558f8f.3.2025.09.27.05.25.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 27 Sep 2025 02:02:18 -0700 (PDT)
-Date: Sat, 27 Sep 2025 05:02:15 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dan Jurgens <danielj@nvidia.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, alex.williamson@redhat.com,
-	pabeni@redhat.com, virtualization@lists.linux.dev, parav@nvidia.com,
-	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, shameerali.kolothum.thodi@huawei.com,
-	jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org,
-	andrew+netdev@lunn.ch, edumazet@google.com
-Subject: Re: [PATCH net-next v3 04/11] virtio_net: Query and set flow filter
- caps
-Message-ID: <20250927050033-mutt-send-email-mst@kernel.org>
-References: <20250923141920.283862-1-danielj@nvidia.com>
- <20250923141920.283862-5-danielj@nvidia.com>
- <20250925170004-mutt-send-email-mst@kernel.org>
- <3097d7ee-b2e7-4232-9a80-fd7f33bb9fe2@nvidia.com>
+        Sat, 27 Sep 2025 05:25:37 -0700 (PDT)
+Date: Sat, 27 Sep 2025 15:25:34 +0300
+From: Dan Carpenter <dan.carpenter@linaro.org>
+To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	kernel-janitors@vger.kernel.org
+Subject: [PATCH] vhost-vdpa: Set s.num in GET_VRING_GROUP
+Message-ID: <aNfXvrK5EWIL3avR@stanley.mountain>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <3097d7ee-b2e7-4232-9a80-fd7f33bb9fe2@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 9fVkFknK8dLk3mwYX6Kt0GtowYsOPbqDk8HeXiCFqas_1758963739
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+X-Mailer: git-send-email haha only kidding
 
-On Thu, Sep 25, 2025 at 09:12:48PM -0500, Dan Jurgens wrote:
-> On 9/25/25 4:01 PM, Michael S. Tsirkin wrote:
-> > On Tue, Sep 23, 2025 at 09:19:13AM -0500, Daniel Jurgens wrote:
-> >> When probing a virtnet device, attempt to read the flow filter
-> >> capabilities. In order to use the feature the caps must also
-> >> be set. For now setting what was read is sufficient.
-> >>
-> >> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> >> Reviewed-by: Parav Pandit <parav@nvidia.com>
-> >> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
-> 
-> >> +	ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data);
-> >> +	sel = &ff->ff_mask->selectors[0];
-> >> +
-> >> +	for (int i = 0; i < ff->ff_mask->count; i++) {
-> > 
-> > 
-> > I do not think kernel style allows this int inside loop.
-> > I think you need to declare it at the beginning of the block.
-> > 
-> 
-> checkpatch didn't mind and there are many other instances where it's done.
+The group is supposed to be copied to the user, but it wasn't assigned
+until after the copy_to_user().  Move the "s.num = group;" earlier.
 
-That's because checkpatch is kernel-wide. But netdev has some special rules:
+Fixes: ffc3634b6696 ("vduse: add vq group support")
+Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
+---
+This goes through the kvm tree I think.
 
-https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#using-device-managed-and-cleanup-h-constructs
+ drivers/vhost/vdpa.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-says:
-
-"... is discouraged. Similar guidance applies to declaring variables mid-function."
-
-
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 6305382eacbb..25ab4d06e559 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -667,9 +667,9 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 		group = ops->get_vq_group(vdpa, idx);
+ 		if (group >= vdpa->ngroups || group > U32_MAX || group < 0)
+ 			return -EIO;
+-		else if (copy_to_user(argp, &s, sizeof(s)))
+-			return -EFAULT;
+ 		s.num = group;
++		if (copy_to_user(argp, &s, sizeof(s)))
++			return -EFAULT;
+ 		return 0;
+ 	}
+ 	case VHOST_VDPA_GET_VRING_DESC_GROUP:
+-- 
+2.51.0
 
