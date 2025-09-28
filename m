@@ -1,45 +1,45 @@
 Received: from mailrelay-egress4.pub.mailoutpod2-cph3.one.com (mailrelay-egress4.pub.mailoutpod2-cph3.one.com [46.30.211.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B013227707
-	for <virtualization@lists.linux.dev>; Sun, 28 Sep 2025 15:17:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B76111A3164
+	for <virtualization@lists.linux.dev>; Sun, 28 Sep 2025 15:20:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.30.211.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759072663; cv=none; b=vF/7o13bX6pZ9Fi9CQZemVTQCcft5rbpAdzYnw5Miq/nc88eYPyBm26P5i/IDeYDxNn9tsxwtTgOunnntvyTMXJgE1rjNunSDbieB5I1pA6tsmgPy7maacH4IISaR4DwsYL+uxfAByy0qlynWtou5FBVN2CSGhneukEfrQSuZqU=
+	t=1759072839; cv=none; b=BAeZrB/PySSj69MHDBR1614+eoLz+NX2JNfL8uo/H3KYZxL/1CkOhWV0r8c0o4VXPV/wx/S+yrdVg6I3m6M2d48NJNWXsVXe+WKGjq9mkcARaK7iNQHWJH01vxKCrabMKOZL5882tBgyVd1/vnQ3gAXv2Bku5U4NMRXdgpdrq8A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759072663; c=relaxed/simple;
-	bh=CcS6U7ffgxdTFuL3QHyJuLxKgMPZ2giKEOrKRmvUm88=;
+	s=arc-20240116; t=1759072839; c=relaxed/simple;
+	bh=nlgAinLCqYMESm7W18m91+Ld53eoJMfCRrOPc4ga7/M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=djwp9vSZEtDuxDXlzpAE1cZD73LTPuMRRlWTXrDSKCjpVSOab5PEE2Wt0clhJ1D+1mWdeh4TMCLMQ3wN4tYJxeu/BraqR9AE+ZPt704LVysekJXbShGWNR39d+EYaI/y4OPC6CbrVS2a1CmWyJAZ0qktUtDb4tQ5gkDIG+/uWtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ravnborg.org; spf=none smtp.mailfrom=ravnborg.org; dkim=pass (2048-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b=XDrJz48O; dkim=permerror (0-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b=2W7jKc5o; arc=none smtp.client-ip=46.30.211.179
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZPFKlACNQnS7Of+tNZSQ04AyzSR6DyN68PokHioDIyI5tu0r9uKPAlQp6XWn953X0noBrapLiML/aefMRWobq2Tfw2QT81Fv8ixj85hAMqXo9KxvuJcgTz58y/8J3EOveuZZOIlrIzBsVAZTUFeGwViDAE0q1N/cTf9pu3W2B4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ravnborg.org; spf=none smtp.mailfrom=ravnborg.org; dkim=pass (2048-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b=CtT4iU2T; dkim=permerror (0-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b=J0+KaShs; arc=none smtp.client-ip=46.30.211.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ravnborg.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ravnborg.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b="XDrJz48O";
-	dkim=permerror (0-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b="2W7jKc5o"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1759072648; x=1759677448;
+	dkim=pass (2048-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b="CtT4iU2T";
+	dkim=permerror (0-bit key) header.d=ravnborg.org header.i=@ravnborg.org header.b="J0+KaShs"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1759072832; x=1759677632;
 	d=ravnborg.org; s=rsa1;
 	h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
 	 from:date:from;
-	bh=/Q5hJNgUVt5SsKvfCGB08N5MVmcUGqA0PZ6u8vFRIRA=;
-	b=XDrJz48OIBYo3Q7svVdb5rADtr4uzPeBqjzvjdBidN0feLc/fG5FyC6+FiXnHOkn55ys5B7oUM9TU
-	 wNSnamick0obcSvJhF96XXEZuoST1AXGIm/ETF3M+aEeXyHZD/Uy94xCWNukoXKrPvaVVSyuR/mSdp
-	 KB96525b2afYqAiKmysXETY5dzfEWAwGX0eJNU7vM+m4GXoo64rXvhOnauh357csMR2l9engULsyz3
-	 5PXk1+lrLbhu0QL4HC7CtjxC4UA5AqK0Qya1KK4CYFDrDKU3YZgpLD4h/rFGJ9D+9noDpVHH5zdKCH
-	 rr1+z6bhES67FvuiiyDFZXKzWF0+L1g==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1759072648; x=1759677448;
+	bh=Ghyryt2xK5vvnvf4Q2js9Uw55oy6LtaOfQDvQKr1uy0=;
+	b=CtT4iU2T9YA3xTrD4cIA+BE+C15rUkNnZplc587YI58g+wt9Z/k8mKxjom62woRw7fEUsvfTw8Ego
+	 OORUvh9fiJQumZdtSymONvY5MMtJ3KJXP3zsnj3KxJxk4Oiw+38jzutzIsRmg9a15NqXsODmCWj0BM
+	 /EaEWRy/uNU7FXsutNnhv+ixhqzFL2HZhBJwBMscK6dVEUiiXxvphkGrAHhj1qC784KABlOh0D02mA
+	 4cLaxB8a5GgAT75FDK3kfCkRHDAAi479jPbM5IFPQLlR8lLKW/rv/Z+yeGIJUaeXNjpvPYpXFP9UyV
+	 lTS7L9y3fNmnKV3eKZ72pOl8CYKOBDg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1759072832; x=1759677632;
 	d=ravnborg.org; s=ed1;
 	h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
 	 from:date:from;
-	bh=/Q5hJNgUVt5SsKvfCGB08N5MVmcUGqA0PZ6u8vFRIRA=;
-	b=2W7jKc5o1qHQ2HRmyzqFqhAdPo7FUm8FqIPGGW/HvkJ0QqhXxxc9Hji379Sr1nafpwrNl2oS4qsP7
-	 wU9ELx/Ag==
-X-HalOne-ID: 3c50089e-9c7e-11f0-840e-494313b7f784
+	bh=Ghyryt2xK5vvnvf4Q2js9Uw55oy6LtaOfQDvQKr1uy0=;
+	b=J0+KaShsfwnmVbs3PB0EalU1KScQKZ0oCMj0q/S47VSr8rYDdT1FCDrtDwmZlUzToU5sipbu8KD09
+	 RgZbdwtBQ==
+X-HalOne-ID: ab2e7cf9-9c7e-11f0-845a-494313b7f784
 Received: from ravnborg.org (2-105-16-150-cable.dk.customer.tdc.net [2.105.16.150])
 	by mailrelay6.pub.mailoutpod2-cph3.one.com (Halon) with ESMTPSA
-	id 3c50089e-9c7e-11f0-840e-494313b7f784;
-	Sun, 28 Sep 2025 15:17:27 +0000 (UTC)
-Date: Sun, 28 Sep 2025 17:17:25 +0200
+	id ab2e7cf9-9c7e-11f0-845a-494313b7f784;
+	Sun, 28 Sep 2025 15:20:31 +0000 (UTC)
+Date: Sun, 28 Sep 2025 17:20:30 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: Leon Romanovsky <leon@kernel.org>
 Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
@@ -68,9 +68,10 @@ Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
 	virtualization@lists.linux.dev, x86@kernel.org,
 	xen-devel@lists.xenproject.org, Magnus Lindholm <linmag7@gmail.com>
 Subject: Re: [PATCH v1 9/9] dma-mapping: remove unused map_page callback
-Message-ID: <20250928151725.GA135708@ravnborg.org>
+Message-ID: <20250928152030.GA136019@ravnborg.org>
 References: <cover.1759071169.git.leon@kernel.org>
  <27727b8ef9b3ad55a3a28f9622a62561c9988335.1759071169.git.leon@kernel.org>
+ <20250928151725.GA135708@ravnborg.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,45 +80,32 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <27727b8ef9b3ad55a3a28f9622a62561c9988335.1759071169.git.leon@kernel.org>
+In-Reply-To: <20250928151725.GA135708@ravnborg.org>
 
 Hi Leon.
 
-On Sun, Sep 28, 2025 at 06:02:29PM +0300, Leon Romanovsky wrote:
-> From: Leon Romanovsky <leonro@nvidia.com>
+On Sun, Sep 28, 2025 at 05:17:25PM +0200, Sam Ravnborg wrote:
+> Hi Leon.
 > 
-> After conversion of arch code to use physical address mapping,
-> there are no users of .map_page() and .unmap_page() callbacks,
-> so let's remove them.
+> On Sun, Sep 28, 2025 at 06:02:29PM +0300, Leon Romanovsky wrote:
+> > From: Leon Romanovsky <leonro@nvidia.com>
+> > 
+> > After conversion of arch code to use physical address mapping,
+> > there are no users of .map_page() and .unmap_page() callbacks,
+> > so let's remove them.
+> > 
+> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > ---
+> >  include/linux/dma-map-ops.h |  7 -------
+> >  kernel/dma/mapping.c        | 12 ------------
+> >  kernel/dma/ops_helpers.c    |  8 +-------
+> >  3 files changed, 1 insertion(+), 26 deletions(-)
 > 
-> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> ---
->  include/linux/dma-map-ops.h |  7 -------
->  kernel/dma/mapping.c        | 12 ------------
->  kernel/dma/ops_helpers.c    |  8 +-------
->  3 files changed, 1 insertion(+), 26 deletions(-)
+> It looks like you missed a few sparc32 bits:
 
-It looks like you missed a few sparc32 bits:
-mm/iommu.c:
-static const struct dma_map_ops sbus_iommu_dma_gflush_ops = {
-#ifdef CONFIG_SBUS
-        .alloc                  = sbus_iommu_alloc,
-        .free                   = sbus_iommu_free,
-#endif
-        .map_page               = sbus_iommu_map_page_gflush,
-        .unmap_page             = sbus_iommu_unmap_page,
-        .map_sg                 = sbus_iommu_map_sg_gflush,
+They were included, but the patch is named sparc64,
+which is why I missed it.
 
-mm/io-unit.c:
-static const struct dma_map_ops iounit_dma_ops = {
-#ifdef CONFIG_SBUS
-        .alloc                  = iounit_alloc,
-        .free                   = iounit_free,
-#endif
-        .map_page               = iounit_map_page,
-        .unmap_page             = iounit_unmap_page,
-        .map_sg                 = iounit_map_sg,
-
-I did not compile test, but from a quick look they need to be updated.
+If you could rename the patch that would be nice.
 
 	Sam
