@@ -1,144 +1,318 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F2F32C15BF
-	for <virtualization@lists.linux.dev>; Mon, 29 Sep 2025 09:32:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0DB9280327;
+	Mon, 29 Sep 2025 09:43:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759138344; cv=none; b=nBf0r39Rz2AzaXXeShV8bWciZfJTA3B4Ln/CFLnQghcTe+WoMHJEo/GW8TcKovii0QSS2xVXYAZAsIKKP5cixGOyC0kCfY8bSkSa59N3Bh3Nsb6IbQdEYJz3K3/sCxwt9pB/qfJOqW8vv7j4469iArP3E9gaFmpDaGerBF0yyog=
+	t=1759138995; cv=none; b=WY0SK94QCzpvGbaYF9DzJLf4nMoPm4lhxsMkQZFccNgVPjfuGLfOMay8yL4zZsAf1HBqSvWOAzyHIBmwfGO4Dar382PxyK1H3S3c0jKSs+5SdL1XkuyBwXtmAAHRJNYaXcOuKw7mwH3UGfQav9b5DnGCXBRepQ1iC/urRFu3t6s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759138344; c=relaxed/simple;
-	bh=tRlCeKapaHivi1z9mpOZ4dZsC2e2BvGEiyL1Q6ztdYA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UGfGZUlzhxmSU5k8aP+vejxqjBAh+4dO3ku5nbK4o+CwlKZtt6VCzcBQzeMAJCbYRogPTtf+v9x9rpNSyKTxO4pjuwQxrjX0BQ2x/foWUZhVRS+Qv3eolVqSh6FbRwVw2vFbIqH9AoVKIYZLAoG4BELokzqh8TR6LUR34FZtJmI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KZ4MsD4p; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1759138995; c=relaxed/simple;
+	bh=VHdSF+k2IQuXT/OqwWk/ZK/SLm5PN12Ve2Tu74AI+SM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DJrOxsiVXNDgV2Nm1Fpdt/nD2JsnbbIOL1OMPfbX5Eendy7QyyyKSwpZmjLZt5baKRjpgZUeJc0bcP+irBir0ja7gmEe53O44czsHCQnQsvXUlBAdccmSrdq4dbxNIk8MBeXetu1zQrnwG2/BHYvpv8kA257Vvp8ZOafX/9DuGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=fsOPTMby; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KZ4MsD4p"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759138341;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LlMsLwy3WLm54JkcIfPWsIORtQrkYyQjfvD/TAnZkcU=;
-	b=KZ4MsD4ppMd7URyJUhq4JZzARNkIddjf4RrDOQ+tj2FzT0ARdv7EUQswRaz6xuyEoRBhcC
-	ZxNIzEyiEEn/Jf1jY/9vhLO4XmWGAVZQUIebuLt87/k55OH4QIIrst8139S172DaK9tQm5
-	Y5SrJDsXo+k+lrUg2En4VGpkYcU1V+o=
-Received: from mail-yx1-f70.google.com (mail-yx1-f70.google.com
- [74.125.224.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-500-6tS_tVxePWKm0mOFj4iX5w-1; Mon, 29 Sep 2025 05:32:19 -0400
-X-MC-Unique: 6tS_tVxePWKm0mOFj4iX5w-1
-X-Mimecast-MFC-AGG-ID: 6tS_tVxePWKm0mOFj4iX5w_1759138339
-Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-63b557d26a4so151354d50.2
-        for <virtualization@lists.linux.dev>; Mon, 29 Sep 2025 02:32:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759138339; x=1759743139;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LlMsLwy3WLm54JkcIfPWsIORtQrkYyQjfvD/TAnZkcU=;
-        b=M3QuBX3GUQHtYPnL+JD5Sc4aDGE9bj62mRXh7MRxyBq48N9vqEg7bbPS6piI+0ocd5
-         B7u2XBnOyxGXcN63asToGlWcMZnz8D5rTezM0gFiTHJ/c5m8ox4H7I14FNwK6DK3F04j
-         ZEhJVx/rk6X6M0GnmefAIY6zJIe9Rg5uSFKg4DFEb94WYysMTCnTtLkuM1+a1E944Vbm
-         bPkL/x8maT4uDRNVRQU5HY80BqWSDIEX0lU7b4/i23eUQ7VQMbrqrQWLo6ykttL+3MUE
-         ctw9ix714dhIuBrUrDVp2P9wmIyBTsPSxVtqGvbBScEGZ01SfT/xWuyaFCGYVM/x32//
-         hivA==
-X-Forwarded-Encrypted: i=1; AJvYcCWOMK/08h6Qk1xSPNMJB2YPhWCNvaTvGoOV8YxeDMF9MmAlXetcUHKpqzdnNaCiHVpcWzvStGAozzSdEtDGDA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YykG8F82reUhiuOmZW0duIFxC94gSa9mNJbh0q+dzLYq7/Kndpl
-	21lRctVyRNgBmxc2ZARpwn6tNphb6KFabrU4WK9pt2TPH34UYOZi8jTuvudJPeg2PkYxMuQDhc7
-	eR0AQGuMpLHHgBbe8nG7WCa4jvMgN0jC+wj3ftUZV1hprzB1zGV5WKT/Hl8BDtMPFFajKpGaLIv
-	d/BGFBYdToTejpPdJA+k0voHEO6NkOaGBvcCGDUoa/imA=
-X-Gm-Gg: ASbGnctc5WC+sKxnDmB62m/s4Uc1ANylYKhc6qolU5KRCHH0sAZUEQQiTecjbBCS1yV
-	2pZH8RmPLqfYFuEnTjuFhtG4tcbqC5c7U25Lkv51Z1BmblBmNLox0nLVsgohwFCfXJqbQLiXNjn
-	zuOK/Ptg6vwkHYctxPG0bAVXRU2TDObt/F8WCIOUo+f/lJuKpFFT8HfXBfAvMM0e8mwW1n064IX
-	xLgqzhG
-X-Received: by 2002:a53:b101:0:b0:635:4ece:240e with SMTP id 956f58d0204a3-6361a8942a4mr11353299d50.46.1759138339075;
-        Mon, 29 Sep 2025 02:32:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEHy+bULXPDOs/qHcu9LtFCBeRBbU69BmiLaVMmQBKXPClmvubqUFg0/zFKG+EzGjCEwcb3k78I723etJseX9U=
-X-Received: by 2002:a53:b101:0:b0:635:4ece:240e with SMTP id
- 956f58d0204a3-6361a8942a4mr11353287d50.46.1759138338745; Mon, 29 Sep 2025
- 02:32:18 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="fsOPTMby"
+Received: from [129.217.186.228] ([129.217.186.228])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.1.10/8.18.1.10) with ESMTPSA id 58T9h6qn024511
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 29 Sep 2025 11:43:07 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1759138987;
+	bh=VHdSF+k2IQuXT/OqwWk/ZK/SLm5PN12Ve2Tu74AI+SM=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=fsOPTMbyXWy1PdNbeMijlaOcsNQ8jXuCn13gm8LDtgR296yZVE72VDCbQyjE1y2pE
+	 JLW0Vgzb3ZKhUyrGmSQrQibtUvSK1rmKxtQhIvFlHN4tXqyInE8BIxmEVkFpQHEYV9
+	 aD2Btn1/1CmUidjj7ZoVFgJ6evNbvmilNyS86sts=
+Message-ID: <b901efef-2dc8-4de3-8f87-22f8c9c1cbc6@tu-dortmund.de>
+Date: Mon, 29 Sep 2025 11:43:06 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250926101432.2251301-1-eperezma@redhat.com> <20250926101432.2251301-4-eperezma@redhat.com>
- <20250926112622-mutt-send-email-mst@kernel.org> <CAJaqyWdeA5xcozCsaYD3_bQ6riN1pdDGHLpMGjU7ejZmNZ4qig@mail.gmail.com>
- <20250929035510-mutt-send-email-mst@kernel.org> <CAJaqyWdQkJgUKqne0_ivLTpQ3rD9tfzcEZL26o5ZdcQsjrJL_g@mail.gmail.com>
- <20250929052852-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20250929052852-mutt-send-email-mst@kernel.org>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Mon, 29 Sep 2025 11:31:42 +0200
-X-Gm-Features: AS18NWDuOBT2bwV9nzqyFm9hfDzUHxeT7TYwcpE2HUEQRG_j9iM5gtnBrZ_KOY4
-Message-ID: <CAJaqyWeAHcrMmsM2u+LqRhbFBBgoTuQFc1m+=XHWHC3UqDUfxg@mail.gmail.com>
-Subject: Re: [PATCH v5 3/6] vduse: add vq group support
+User-Agent: Mozilla Thunderbird
+Subject: [PATCH net-next v5 4/8] TUN & TAP: Wake netdev queue after consuming
+ an entry
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Yongji Xie <xieyongji@bytedance.com>, linux-kernel@vger.kernel.org, 
-	Maxime Coquelin <mcoqueli@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Cindy Lu <lulu@redhat.com>, 
-	virtualization@lists.linux.dev, Laurent Vivier <lvivier@redhat.com>, jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Ai3k1XyGA0F5Pr1ehNGS1smBXVK1Izl7R-BSgZnyLVQ_1759138339
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com, eperezma@redhat.com,
+        stephen@networkplumber.org, leiyang@redhat.com, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+        kvm@vger.kernel.org, Tim Gebauer <tim.gebauer@tu-dortmund.de>
+References: <20250922221553.47802-1-simon.schippers@tu-dortmund.de>
+ <20250922221553.47802-5-simon.schippers@tu-dortmund.de>
+ <20250923123101-mutt-send-email-mst@kernel.org>
+ <4dde6d41-2a26-47b8-aef1-4967f7fc94ab@tu-dortmund.de>
+ <20250928182445-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <20250928182445-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Sep 29, 2025 at 11:29=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
-> wrote:
->
-> On Mon, Sep 29, 2025 at 10:52:45AM +0200, Eugenio Perez Martin wrote:
-> > On Mon, Sep 29, 2025 at 9:55=E2=80=AFAM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Mon, Sep 29, 2025 at 07:55:59AM +0200, Eugenio Perez Martin wrote:
-> > > > On Fri, Sep 26, 2025 at 5:27=E2=80=AFPM Michael S. Tsirkin <mst@red=
-hat.com> wrote:
-> > > > >
-> > > > > On Fri, Sep 26, 2025 at 12:14:29PM +0200, Eugenio P=C3=A9rez wrot=
-e:
-> > > > > > @@ -1859,6 +1894,7 @@ static int vduse_create_dev(struct vduse_=
-dev_config *config,
-> > > > > >       dev->device_features =3D config->features;
-> > > > > >       dev->device_id =3D config->device_id;
-> > > > > >       dev->vendor_id =3D config->vendor_id;
-> > > > > > +     dev->ngroups =3D (dev->api_version < 1) ? 1 : config->ngr=
-oups;
-> > > > >
-> > > > > Is this < 1 same as VDUSE_API_VERSION_1? If so, maybe use that?
-> > > > >
-> > > >
-> > > > The macro for v0 is called VDUSE_API_VERSION, so I think it is less
-> > > > intuitive to put:
-> > > > dev->api_version =3D=3D VDUSE_API_VERSION
-> > > >
-> > > > But I'm ok with the change if you want.
-> > >
-> > > Confused. You mean "more intuitive"?
-> > >
-> >
-> > Ok think I misread your comment,
-> >
-> > I find
-> >
-> > (dev->api_version < 1) ? ...
-> >
-> > more intuitive than
-> >
-> > (dev->api_version =3D=3D VDUSE_API_VERSION) ? ...
-> >
-> > But now I think you meant
-> >
-> > (dev->api_version < VDUSE_API_VERSION_1) ? ...
-> >
-> > Is that right?
->
-> That's right.
->
+On 29.09.25 00:33, Michael S. Tsirkin wrote:
+> On Sun, Sep 28, 2025 at 11:27:25PM +0200, Simon Schippers wrote:
+>> On 23.09.25 18:36, Michael S. Tsirkin wrote:
+>>> On Tue, Sep 23, 2025 at 12:15:49AM +0200, Simon Schippers wrote:
+>>>> The new wrappers tun_ring_consume/tap_ring_consume deal with consuming an
+>>>> entry of the ptr_ring and then waking the netdev queue when entries got
+>>>> invalidated to be used again by the producer.
+>>>> To avoid waking the netdev queue when the ptr_ring is full, it is checked
+>>>> if the netdev queue is stopped before invalidating entries. Like that the
+>>>> netdev queue can be safely woken after invalidating entries.
+>>>>
+>>>> The READ_ONCE in __ptr_ring_peek, paired with the smp_wmb() in
+>>>> __ptr_ring_produce within tun_net_xmit guarantees that the information
+>>>> about the netdev queue being stopped is visible after __ptr_ring_peek is
+>>>> called.
+>>>>
+>>>> The netdev queue is also woken after resizing the ptr_ring.
+>>>>
+>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+>>>> ---
+>>>>  drivers/net/tap.c | 44 +++++++++++++++++++++++++++++++++++++++++++-
+>>>>  drivers/net/tun.c | 47 +++++++++++++++++++++++++++++++++++++++++++++--
+>>>>  2 files changed, 88 insertions(+), 3 deletions(-)
+>>>>
+>>>> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+>>>> index 1197f245e873..f8292721a9d6 100644
+>>>> --- a/drivers/net/tap.c
+>>>> +++ b/drivers/net/tap.c
+>>>> @@ -753,6 +753,46 @@ static ssize_t tap_put_user(struct tap_queue *q,
+>>>>  	return ret ? ret : total;
+>>>>  }
+>>>>  
+>>>> +static struct sk_buff *tap_ring_consume(struct tap_queue *q)
+>>>> +{
+>>>> +	struct netdev_queue *txq;
+>>>> +	struct net_device *dev;
+>>>> +	bool will_invalidate;
+>>>> +	bool stopped;
+>>>> +	void *ptr;
+>>>> +
+>>>> +	spin_lock(&q->ring.consumer_lock);
+>>>> +	ptr = __ptr_ring_peek(&q->ring);
+>>>> +	if (!ptr) {
+>>>> +		spin_unlock(&q->ring.consumer_lock);
+>>>> +		return ptr;
+>>>> +	}
+>>>> +
+>>>> +	/* Check if the queue stopped before zeroing out, so no ptr get
+>>>> +	 * produced in the meantime, because this could result in waking
+>>>> +	 * even though the ptr_ring is full.
+>>>
+>>> So what? Maybe it would be a bit suboptimal? But with your design, I do
+>>> not get what prevents this:
+>>>
+>>>
+>>> 	stopped? -> No
+>>> 		ring is stopped
+>>> 	discard
+>>>
+>>> and queue stays stopped forever
+>>>
+>>
+>> I think I found a solution to this problem, see below:
+>>
+>>>
+>>>> The order of the operations
+>>>> +	 * is ensured by barrier().
+>>>> +	 */
+>>>> +	will_invalidate = __ptr_ring_will_invalidate(&q->ring);
+>>>> +	if (unlikely(will_invalidate)) {
+>>>> +		rcu_read_lock();
+>>>> +		dev = rcu_dereference(q->tap)->dev;
+>>>> +		txq = netdev_get_tx_queue(dev, q->queue_index);
+>>>> +		stopped = netif_tx_queue_stopped(txq);
+>>>> +	}
+>>>> +	barrier();
+>>>> +	__ptr_ring_discard_one(&q->ring, will_invalidate);
+>>>> +
+>>>> +	if (unlikely(will_invalidate)) {
+>>
+>> Here I just check for
+>>
+>> 	if (will_invalidate || __ptr_ring_empty(&q->ring)) {
+>>
+>> instead because, if the ptr_ring is empty and the netdev queue stopped,
+>> the race must have occurred. Then it is safe to wake the netdev queue,
+>> because it is known that space in the ptr_ring was freed when the race
+>> occurred. Also, it is guaranteed that tap_ring_consume is called at least
+>> once after the race, because a new entry is generated by the producer at
+>> the race.
+>> In my adjusted implementation, it tests fine with pktgen without any lost
+>> packets.
+> 
+> 
+> what if it is not empty and ring is stopped?
+> 
 
-Ok, take it for granted in v6!
+Then it can not be assumed that there is free space in the ptr_ring,
+because __ptr_ring_discard_one may only create space after one of the
+upcoming entries that it will consume. Only if the ptr_ring is empty
+(which will obviously happen after some time) it is guaranteed that there
+is free space in the ptr_ring, either because the race occurred
+previously or __ptr_ring_discard_one freed entries right before.
 
+>>
+>> Generally now I think that the whole implementation can be fine without
+>> using spinlocks at all. I am currently adjusting the implementation
+>> regarding SMP memory barrier pairings, and I have a question:
+>> In the v4 you mentioned "the stop -> wake bounce involves enough barriers
+>> already". Does it, for instance, mean that netif_tx_wake_queue already
+>> ensures memory ordering, and I do not have to use an smp_wmb() in front of
+>> netif_tx_wake_queue() and smp_rmb() in front of the ptr_ring operations
+>> in tun_net_xmit?
+>> I dug through net/core/netdevice.h and dev.c but could not really
+>> answer this question by myself...
+>> Thanks :)
+> 
+> Only if it wakes up something, I think.
+> 
+> Read:
+> 
+> SLEEP AND WAKE-UP FUNCTIONS
+> 
+> 
+> in Documentation/memory-barriers.txt
+> 
+> 
+> IIUC this is the same.
+> 
+> 
+
+Thanks, I will look into it! :)
+
+>>
+>>>> +		if (stopped)
+>>>> +			netif_tx_wake_queue(txq);
+>>>> +		rcu_read_unlock();
+>>>> +	}
+>>>
+>>>
+>>> After an entry is consumed, you can detect this by checking
+>>>
+>>> 	                r->consumer_head >= r->consumer_tail
+>>>
+>>>
+>>> so it seems you could keep calling regular ptr_ring_consume
+>>> and check afterwards?
+>>>
+>>>
+>>>
+>>>
+>>>> +	spin_unlock(&q->ring.consumer_lock);
+>>>> +
+>>>> +	return ptr;
+>>>> +}
+>>>> +
+>>>>  static ssize_t tap_do_read(struct tap_queue *q,
+>>>>  			   struct iov_iter *to,
+>>>>  			   int noblock, struct sk_buff *skb)
+>>>> @@ -774,7 +814,7 @@ static ssize_t tap_do_read(struct tap_queue *q,
+>>>>  					TASK_INTERRUPTIBLE);
+>>>>  
+>>>>  		/* Read frames from the queue */
+>>>> -		skb = ptr_ring_consume(&q->ring);
+>>>> +		skb = tap_ring_consume(q);
+>>>>  		if (skb)
+>>>>  			break;
+>>>>  		if (noblock) {
+>>>> @@ -1207,6 +1247,8 @@ int tap_queue_resize(struct tap_dev *tap)
+>>>>  	ret = ptr_ring_resize_multiple_bh(rings, n,
+>>>>  					  dev->tx_queue_len, GFP_KERNEL,
+>>>>  					  __skb_array_destroy_skb);
+>>>> +	if (netif_running(dev))
+>>>> +		netif_tx_wake_all_queues(dev);
+>>>>  
+>>>>  	kfree(rings);
+>>>>  	return ret;
+>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+>>>> index c6b22af9bae8..682df8157b55 100644
+>>>> --- a/drivers/net/tun.c
+>>>> +++ b/drivers/net/tun.c
+>>>> @@ -2114,13 +2114,53 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+>>>>  	return total;
+>>>>  }
+>>>>  
+>>>> +static void *tun_ring_consume(struct tun_file *tfile)
+>>>> +{
+>>>> +	struct netdev_queue *txq;
+>>>> +	struct net_device *dev;
+>>>> +	bool will_invalidate;
+>>>> +	bool stopped;
+>>>> +	void *ptr;
+>>>> +
+>>>> +	spin_lock(&tfile->tx_ring.consumer_lock);
+>>>> +	ptr = __ptr_ring_peek(&tfile->tx_ring);
+>>>> +	if (!ptr) {
+>>>> +		spin_unlock(&tfile->tx_ring.consumer_lock);
+>>>> +		return ptr;
+>>>> +	}
+>>>> +
+>>>> +	/* Check if the queue stopped before zeroing out, so no ptr get
+>>>> +	 * produced in the meantime, because this could result in waking
+>>>> +	 * even though the ptr_ring is full. The order of the operations
+>>>> +	 * is ensured by barrier().
+>>>> +	 */
+>>>> +	will_invalidate = __ptr_ring_will_invalidate(&tfile->tx_ring);
+>>>> +	if (unlikely(will_invalidate)) {
+>>>> +		rcu_read_lock();
+>>>> +		dev = rcu_dereference(tfile->tun)->dev;
+>>>> +		txq = netdev_get_tx_queue(dev, tfile->queue_index);
+>>>> +		stopped = netif_tx_queue_stopped(txq);
+>>>> +	}
+>>>> +	barrier();
+>>>> +	__ptr_ring_discard_one(&tfile->tx_ring, will_invalidate);
+>>>> +
+>>>> +	if (unlikely(will_invalidate)) {
+>>>> +		if (stopped)
+>>>> +			netif_tx_wake_queue(txq);
+>>>> +		rcu_read_unlock();
+>>>> +	}
+>>>> +	spin_unlock(&tfile->tx_ring.consumer_lock);
+>>>> +
+>>>> +	return ptr;
+>>>> +}
+>>>> +
+>>>>  static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+>>>>  {
+>>>>  	DECLARE_WAITQUEUE(wait, current);
+>>>>  	void *ptr = NULL;
+>>>>  	int error = 0;
+>>>>  
+>>>> -	ptr = ptr_ring_consume(&tfile->tx_ring);
+>>>> +	ptr = tun_ring_consume(tfile);
+>>>>  	if (ptr)
+>>>>  		goto out;
+>>>>  	if (noblock) {
+>>>> @@ -2132,7 +2172,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+>>>>  
+>>>>  	while (1) {
+>>>>  		set_current_state(TASK_INTERRUPTIBLE);
+>>>> -		ptr = ptr_ring_consume(&tfile->tx_ring);
+>>>> +		ptr = tun_ring_consume(tfile);
+>>>>  		if (ptr)
+>>>>  			break;
+>>>>  		if (signal_pending(current)) {
+>>>> @@ -3621,6 +3661,9 @@ static int tun_queue_resize(struct tun_struct *tun)
+>>>>  					  dev->tx_queue_len, GFP_KERNEL,
+>>>>  					  tun_ptr_free);
+>>>>  
+>>>> +	if (netif_running(dev))
+>>>> +		netif_tx_wake_all_queues(dev);
+>>>> +
+>>>>  	kfree(rings);
+>>>>  	return ret;
+>>>>  }
+>>>> -- 
+>>>> 2.43.0
+>>>
+> 
