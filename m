@@ -1,35 +1,58 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0DB9280327;
-	Mon, 29 Sep 2025 09:43:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29D1C2EF671
+	for <virtualization@lists.linux.dev>; Mon, 29 Sep 2025 11:07:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759138995; cv=none; b=WY0SK94QCzpvGbaYF9DzJLf4nMoPm4lhxsMkQZFccNgVPjfuGLfOMay8yL4zZsAf1HBqSvWOAzyHIBmwfGO4Dar382PxyK1H3S3c0jKSs+5SdL1XkuyBwXtmAAHRJNYaXcOuKw7mwH3UGfQav9b5DnGCXBRepQ1iC/urRFu3t6s=
+	t=1759144067; cv=none; b=TNj1PjWUZedvIEIFXy8XgO94ysAx+8MJNaMCV/SQ+masHhR8/ylohTxOpAAZEmt5FX8Q81dd2j3+4jQIrBmZgRXqhMUscqP2ktXYs+2fto2oIyzrsBPQB046K9cZnMDmt6lOXh+rQuu+ZA04FHQjIiiR62i2r9g9AFj2ZBf/duY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759138995; c=relaxed/simple;
-	bh=VHdSF+k2IQuXT/OqwWk/ZK/SLm5PN12Ve2Tu74AI+SM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DJrOxsiVXNDgV2Nm1Fpdt/nD2JsnbbIOL1OMPfbX5Eendy7QyyyKSwpZmjLZt5baKRjpgZUeJc0bcP+irBir0ja7gmEe53O44czsHCQnQsvXUlBAdccmSrdq4dbxNIk8MBeXetu1zQrnwG2/BHYvpv8kA257Vvp8ZOafX/9DuGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=fsOPTMby; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	s=arc-20240116; t=1759144067; c=relaxed/simple;
+	bh=iikqELbpseuYA4fvEYgaaCxqgP1sKetcKtWyVLM4CE4=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=b+z3uq3rJTnaugOfnt8Rn5jMc1luixbB8/bLv1SCEOoEHQiQZEkQfBrRlSZRFfjAs9AAdkTgnb0OKET2yKVGWqsThEdlFm+4LVylXCxxdIzdY1nWCnKxQTzL9u5xlm6QTdnVjMCb4ml19qig9GoPyEDWEPtpwPPYr45yyh7jNhQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=g1Lb1gOQ; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=g1Lb1gOQ; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="fsOPTMby"
-Received: from [129.217.186.228] ([129.217.186.228])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.1.10/8.18.1.10) with ESMTPSA id 58T9h6qn024511
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 29 Sep 2025 11:43:07 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1759138987;
-	bh=VHdSF+k2IQuXT/OqwWk/ZK/SLm5PN12Ve2Tu74AI+SM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=fsOPTMbyXWy1PdNbeMijlaOcsNQ8jXuCn13gm8LDtgR296yZVE72VDCbQyjE1y2pE
-	 JLW0Vgzb3ZKhUyrGmSQrQibtUvSK1rmKxtQhIvFlHN4tXqyInE8BIxmEVkFpQHEYV9
-	 aD2Btn1/1CmUidjj7ZoVFgJ6evNbvmilNyS86sts=
-Message-ID: <b901efef-2dc8-4de3-8f87-22f8c9c1cbc6@tu-dortmund.de>
-Date: Mon, 29 Sep 2025 11:43:06 +0200
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="g1Lb1gOQ";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="g1Lb1gOQ"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id CE36B3153D;
+	Mon, 29 Sep 2025 11:07:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1759144062; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=iikqELbpseuYA4fvEYgaaCxqgP1sKetcKtWyVLM4CE4=;
+	b=g1Lb1gOQpnwXF+gQVOsXgoeXajCdMoD4C2qYG9jyaRDiyzvbZU37xXXt8XVMc/iZmH9edk
+	xMOkw1Jwi2Mp1y50HXuumukZFbh+SBFfuKOroMFu/hzncHTPY6feaomcp5gDGxE+ZGUOj5
+	TAovISf9S258+C+GuCU5VF/o184QgWI=
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.com header.s=susede1 header.b=g1Lb1gOQ
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1759144062; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=iikqELbpseuYA4fvEYgaaCxqgP1sKetcKtWyVLM4CE4=;
+	b=g1Lb1gOQpnwXF+gQVOsXgoeXajCdMoD4C2qYG9jyaRDiyzvbZU37xXXt8XVMc/iZmH9edk
+	xMOkw1Jwi2Mp1y50HXuumukZFbh+SBFfuKOroMFu/hzncHTPY6feaomcp5gDGxE+ZGUOj5
+	TAovISf9S258+C+GuCU5VF/o184QgWI=
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 62D0513782;
+	Mon, 29 Sep 2025 11:07:42 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 2duuFn5o2mjxaAAAD6G6ig
+	(envelope-from <jgross@suse.com>); Mon, 29 Sep 2025 11:07:42 +0000
+Message-ID: <5f6871b5-243c-457f-82f7-47246b6ef6ea@suse.com>
+Date: Mon, 29 Sep 2025 13:07:41 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,282 +60,237 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: [PATCH net-next v5 4/8] TUN & TAP: Wake netdev queue after consuming
- an entry
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com, eperezma@redhat.com,
-        stephen@networkplumber.org, leiyang@redhat.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-        kvm@vger.kernel.org, Tim Gebauer <tim.gebauer@tu-dortmund.de>
-References: <20250922221553.47802-1-simon.schippers@tu-dortmund.de>
- <20250922221553.47802-5-simon.schippers@tu-dortmund.de>
- <20250923123101-mutt-send-email-mst@kernel.org>
- <4dde6d41-2a26-47b8-aef1-4967f7fc94ab@tu-dortmund.de>
- <20250928182445-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 5/6] x86/paravirt: Switch MSR access pv_ops functions to
+ instruction interfaces
+From: Juergen Gross <jgross@suse.com>
+To: Xin Li <xin@zytor.com>, linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev
+Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner
+ <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Andrew Cooper <andrew.cooper3@citrix.com>
+References: <20250506092015.1849-1-jgross@suse.com>
+ <20250506092015.1849-6-jgross@suse.com>
+ <722f5b30-20e9-4540-98e4-d211d7c44cbe@zytor.com>
+ <9f4e33d5-9cb3-4079-b764-87a15265fd52@suse.com>
+ <2365af70-d36f-4663-b819-59d886936ef5@zytor.com>
+ <8a82946a-6c3e-41d1-b3bd-be164dc6eeba@suse.com>
+ <7047440a-0419-4982-961b-46f9b90a86e9@zytor.com>
+ <6eb60b62-bd3a-4a64-9665-fc911cc7d869@suse.com>
 Content-Language: en-US
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-In-Reply-To: <20250928182445-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <6eb60b62-bd3a-4a64-9665-fc911cc7d869@suse.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------PXMgO3JbmBo5moltJRZPfnkF"
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: CE36B3153D
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-6.41 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SIGNED_PGP(-2.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MIME_GOOD(-0.20)[multipart/signed,multipart/mixed,text/plain];
+	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_UNKNOWN(0.10)[application/pgp-keys];
+	MIME_BASE64_TEXT(0.10)[];
+	MX_GOOD(-0.01)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	ARC_NA(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	MIME_TRACE(0.00)[0:+,1:+,2:+,3:+,4:~,5:~];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.com:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	HAS_ATTACHMENT(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:dkim,suse.com:mid,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -6.41
 
-On 29.09.25 00:33, Michael S. Tsirkin wrote:
-> On Sun, Sep 28, 2025 at 11:27:25PM +0200, Simon Schippers wrote:
->> On 23.09.25 18:36, Michael S. Tsirkin wrote:
->>> On Tue, Sep 23, 2025 at 12:15:49AM +0200, Simon Schippers wrote:
->>>> The new wrappers tun_ring_consume/tap_ring_consume deal with consuming an
->>>> entry of the ptr_ring and then waking the netdev queue when entries got
->>>> invalidated to be used again by the producer.
->>>> To avoid waking the netdev queue when the ptr_ring is full, it is checked
->>>> if the netdev queue is stopped before invalidating entries. Like that the
->>>> netdev queue can be safely woken after invalidating entries.
->>>>
->>>> The READ_ONCE in __ptr_ring_peek, paired with the smp_wmb() in
->>>> __ptr_ring_produce within tun_net_xmit guarantees that the information
->>>> about the netdev queue being stopped is visible after __ptr_ring_peek is
->>>> called.
->>>>
->>>> The netdev queue is also woken after resizing the ptr_ring.
->>>>
->>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
->>>> ---
->>>>  drivers/net/tap.c | 44 +++++++++++++++++++++++++++++++++++++++++++-
->>>>  drivers/net/tun.c | 47 +++++++++++++++++++++++++++++++++++++++++++++--
->>>>  2 files changed, 88 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
->>>> index 1197f245e873..f8292721a9d6 100644
->>>> --- a/drivers/net/tap.c
->>>> +++ b/drivers/net/tap.c
->>>> @@ -753,6 +753,46 @@ static ssize_t tap_put_user(struct tap_queue *q,
->>>>  	return ret ? ret : total;
->>>>  }
->>>>  
->>>> +static struct sk_buff *tap_ring_consume(struct tap_queue *q)
->>>> +{
->>>> +	struct netdev_queue *txq;
->>>> +	struct net_device *dev;
->>>> +	bool will_invalidate;
->>>> +	bool stopped;
->>>> +	void *ptr;
->>>> +
->>>> +	spin_lock(&q->ring.consumer_lock);
->>>> +	ptr = __ptr_ring_peek(&q->ring);
->>>> +	if (!ptr) {
->>>> +		spin_unlock(&q->ring.consumer_lock);
->>>> +		return ptr;
->>>> +	}
->>>> +
->>>> +	/* Check if the queue stopped before zeroing out, so no ptr get
->>>> +	 * produced in the meantime, because this could result in waking
->>>> +	 * even though the ptr_ring is full.
->>>
->>> So what? Maybe it would be a bit suboptimal? But with your design, I do
->>> not get what prevents this:
->>>
->>>
->>> 	stopped? -> No
->>> 		ring is stopped
->>> 	discard
->>>
->>> and queue stays stopped forever
->>>
->>
->> I think I found a solution to this problem, see below:
->>
->>>
->>>> The order of the operations
->>>> +	 * is ensured by barrier().
->>>> +	 */
->>>> +	will_invalidate = __ptr_ring_will_invalidate(&q->ring);
->>>> +	if (unlikely(will_invalidate)) {
->>>> +		rcu_read_lock();
->>>> +		dev = rcu_dereference(q->tap)->dev;
->>>> +		txq = netdev_get_tx_queue(dev, q->queue_index);
->>>> +		stopped = netif_tx_queue_stopped(txq);
->>>> +	}
->>>> +	barrier();
->>>> +	__ptr_ring_discard_one(&q->ring, will_invalidate);
->>>> +
->>>> +	if (unlikely(will_invalidate)) {
->>
->> Here I just check for
->>
->> 	if (will_invalidate || __ptr_ring_empty(&q->ring)) {
->>
->> instead because, if the ptr_ring is empty and the netdev queue stopped,
->> the race must have occurred. Then it is safe to wake the netdev queue,
->> because it is known that space in the ptr_ring was freed when the race
->> occurred. Also, it is guaranteed that tap_ring_consume is called at least
->> once after the race, because a new entry is generated by the producer at
->> the race.
->> In my adjusted implementation, it tests fine with pktgen without any lost
->> packets.
-> 
-> 
-> what if it is not empty and ring is stopped?
-> 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------PXMgO3JbmBo5moltJRZPfnkF
+Content-Type: multipart/mixed; boundary="------------SFV1VnAbY3HH96F5ZtO1vdQI";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Xin Li <xin@zytor.com>, linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev
+Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner
+ <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Andrew Cooper <andrew.cooper3@citrix.com>
+Message-ID: <5f6871b5-243c-457f-82f7-47246b6ef6ea@suse.com>
+Subject: Re: [PATCH 5/6] x86/paravirt: Switch MSR access pv_ops functions to
+ instruction interfaces
+References: <20250506092015.1849-1-jgross@suse.com>
+ <20250506092015.1849-6-jgross@suse.com>
+ <722f5b30-20e9-4540-98e4-d211d7c44cbe@zytor.com>
+ <9f4e33d5-9cb3-4079-b764-87a15265fd52@suse.com>
+ <2365af70-d36f-4663-b819-59d886936ef5@zytor.com>
+ <8a82946a-6c3e-41d1-b3bd-be164dc6eeba@suse.com>
+ <7047440a-0419-4982-961b-46f9b90a86e9@zytor.com>
+ <6eb60b62-bd3a-4a64-9665-fc911cc7d869@suse.com>
+In-Reply-To: <6eb60b62-bd3a-4a64-9665-fc911cc7d869@suse.com>
 
-Then it can not be assumed that there is free space in the ptr_ring,
-because __ptr_ring_discard_one may only create space after one of the
-upcoming entries that it will consume. Only if the ptr_ring is empty
-(which will obviously happen after some time) it is guaranteed that there
-is free space in the ptr_ring, either because the race occurred
-previously or __ptr_ring_discard_one freed entries right before.
+--------------SFV1VnAbY3HH96F5ZtO1vdQI
+Content-Type: multipart/mixed; boundary="------------ct5bAGbTyiqKBNoXLfZDlBc3"
 
->>
->> Generally now I think that the whole implementation can be fine without
->> using spinlocks at all. I am currently adjusting the implementation
->> regarding SMP memory barrier pairings, and I have a question:
->> In the v4 you mentioned "the stop -> wake bounce involves enough barriers
->> already". Does it, for instance, mean that netif_tx_wake_queue already
->> ensures memory ordering, and I do not have to use an smp_wmb() in front of
->> netif_tx_wake_queue() and smp_rmb() in front of the ptr_ring operations
->> in tun_net_xmit?
->> I dug through net/core/netdevice.h and dev.c but could not really
->> answer this question by myself...
->> Thanks :)
-> 
-> Only if it wakes up something, I think.
-> 
-> Read:
-> 
-> SLEEP AND WAKE-UP FUNCTIONS
-> 
-> 
-> in Documentation/memory-barriers.txt
-> 
-> 
-> IIUC this is the same.
-> 
-> 
+--------------ct5bAGbTyiqKBNoXLfZDlBc3
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Thanks, I will look into it! :)
+T24gMjYuMDguMjUgMTI6MzksIErDvHJnZW4gR3Jvw58gd3JvdGU6DQo+IE9uIDI1LjA4LjI1
+IDAzOjU0LCBYaW4gTGkgd3JvdGU6DQo+PiBPbiA2LzExLzIwMjUgNTo1OCBBTSwgSnVlcmdl
+biBHcm9zcyB3cm90ZToNCj4+PiBJJ20ganVzdCBkb2luZyBhIFYyIG9mIG15IHNlcmllcywg
+YnV0IHRoaXMgdGltZSBpbmNsdWRpbmcgdGhlIGFkZGl0aW9uYWwNCj4+PiBzdXBwb3J0IG9m
+IHRoZSBub24tc2VyaWFsaXppbmcgYW5kIGltbWVkaWF0ZSBmb3Jtcy4gTGV0cyBzZWUgaG93
+IHRoaXMgd2lsbA0KPj4+IGxvb2sgbGlrZS4gSSB3aWxsIGRyb3AgdXNpbmcgdGhlIEVBWF9F
+RFhfKiBtYWNyb3MsIGJ1dCBkdWUgdG8gdGhlIHJlYXNvbg0KPj4+IG1lbnRpb25lZCBhYm92
+ZSBJIHdvbid0IHN3aXRjaCB0byB5b3VyIHZhcmlhbnQgY29tcGxldGVseS4NCj4+DQo+PiBI
+aSBKdWVyZ2VuLA0KPj4NCj4+IERvIHlvdSBoYXZlIGFueSB1cGRhdGUgb24gdGhpcz8NCj4g
+DQo+IEkndmUgYmVlbiB2ZXJ5IGJ1c3kgd2l0aCBvdGhlciBzdHVmZiAoZG93bnN0cmVhbSwg
+c2VjdXJpdHksIC4uLikuDQo+IA0KPiBJbiBiZXR3ZWVuIEkndmUgYmVlbiB3b3JraW5nIG9u
+IHRoZSBzZXJpZXMuIEkgaG9wZSB0byBwb3N0IGl0IHNvbWUgdGltZSBpbg0KPiBTZXB0ZW1i
+ZXIuDQoNCkkgaGF2ZSBiZWVuIHdvcmtpbmcgb24gdGhpcyB0aGUgbGFzdCB3ZWVrLg0KDQpU
+dXJucyBvdXQgdGhpbmdzIGFyZSBhIGxpdHRsZSBiaXQgY29tcGxpY2F0ZWQgZm9yIGFkZGlu
+ZyB0aGVtIGludG8gdGhlDQpwYXJhdmlydCBmcmFtZXdvcmssIGVzcGVjaWFsbHkgcmVnYXJk
+aW5nIHRoZSBleGNlcHRpb24gZml4dXBzLg0KDQpJIGZpcnN0IHRob3VnaHQgdGhhdCBQZXRl
+cidzIHBhdGNoICJ4ODYvZXh0YWJsZTogSW1wbGVtZW50IEVYX1RZUEVfRlVOQ19SRVdJTkQi
+DQp3b3VsZCBoZWxwLCBidXQgSSdtIHNlZWluZyBwcm9ibGVtcyB3aXRoIGhpcyBhcHByb2Fj
+aCBpbiBjYXNlIG9mIHNoYWRvdyBzdGFjaw0KYmVpbmcgZW5hYmxlZC4gVGhpcyBjYXNlIHdv
+dWxkIGF0IGxlYXN0IG5lZWRlZCB0byBiZSBoYW5kbGVkIGluIGhpcyBwYXRjaCwgYXMNCm90
+aGVyd2lzZSBzaGFkb3cgc3RhY2sgYW5kIG5vcm1hbCBzdGFjayBjb3VsZCBnZXQgb3V0IG9m
+IHN5bmMuDQoNCkZvciB0aGlzIHJlYXNvbiB5b3VyIHBhdGNoIHNlcmllcyB3b24ndCB3b3Jr
+IGVhc2lseSwgdG9vLg0KDQpPVE9IIHVzaW5nIHlvdXIgYmFzaWMgaWRlYSBpdCBzZWVtcyB0
+byBiZSBwb3NzaWJsZSB0byBzb2x2ZSB0aGUgZml4dXAgcHJvYmxlbQ0Kd2l0aG91dCBuZWVk
+aW5nIFBldGVyJ3MgcGF0Y2guIEknbSB3b3JraW5nIG9uIHRoYXQgYXBwcm9hY2ggbm93Lg0K
+DQoNCkp1ZXJnZW4NCg==
+--------------ct5bAGbTyiqKBNoXLfZDlBc3
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
->>
->>>> +		if (stopped)
->>>> +			netif_tx_wake_queue(txq);
->>>> +		rcu_read_unlock();
->>>> +	}
->>>
->>>
->>> After an entry is consumed, you can detect this by checking
->>>
->>> 	                r->consumer_head >= r->consumer_tail
->>>
->>>
->>> so it seems you could keep calling regular ptr_ring_consume
->>> and check afterwards?
->>>
->>>
->>>
->>>
->>>> +	spin_unlock(&q->ring.consumer_lock);
->>>> +
->>>> +	return ptr;
->>>> +}
->>>> +
->>>>  static ssize_t tap_do_read(struct tap_queue *q,
->>>>  			   struct iov_iter *to,
->>>>  			   int noblock, struct sk_buff *skb)
->>>> @@ -774,7 +814,7 @@ static ssize_t tap_do_read(struct tap_queue *q,
->>>>  					TASK_INTERRUPTIBLE);
->>>>  
->>>>  		/* Read frames from the queue */
->>>> -		skb = ptr_ring_consume(&q->ring);
->>>> +		skb = tap_ring_consume(q);
->>>>  		if (skb)
->>>>  			break;
->>>>  		if (noblock) {
->>>> @@ -1207,6 +1247,8 @@ int tap_queue_resize(struct tap_dev *tap)
->>>>  	ret = ptr_ring_resize_multiple_bh(rings, n,
->>>>  					  dev->tx_queue_len, GFP_KERNEL,
->>>>  					  __skb_array_destroy_skb);
->>>> +	if (netif_running(dev))
->>>> +		netif_tx_wake_all_queues(dev);
->>>>  
->>>>  	kfree(rings);
->>>>  	return ret;
->>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
->>>> index c6b22af9bae8..682df8157b55 100644
->>>> --- a/drivers/net/tun.c
->>>> +++ b/drivers/net/tun.c
->>>> @@ -2114,13 +2114,53 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->>>>  	return total;
->>>>  }
->>>>  
->>>> +static void *tun_ring_consume(struct tun_file *tfile)
->>>> +{
->>>> +	struct netdev_queue *txq;
->>>> +	struct net_device *dev;
->>>> +	bool will_invalidate;
->>>> +	bool stopped;
->>>> +	void *ptr;
->>>> +
->>>> +	spin_lock(&tfile->tx_ring.consumer_lock);
->>>> +	ptr = __ptr_ring_peek(&tfile->tx_ring);
->>>> +	if (!ptr) {
->>>> +		spin_unlock(&tfile->tx_ring.consumer_lock);
->>>> +		return ptr;
->>>> +	}
->>>> +
->>>> +	/* Check if the queue stopped before zeroing out, so no ptr get
->>>> +	 * produced in the meantime, because this could result in waking
->>>> +	 * even though the ptr_ring is full. The order of the operations
->>>> +	 * is ensured by barrier().
->>>> +	 */
->>>> +	will_invalidate = __ptr_ring_will_invalidate(&tfile->tx_ring);
->>>> +	if (unlikely(will_invalidate)) {
->>>> +		rcu_read_lock();
->>>> +		dev = rcu_dereference(tfile->tun)->dev;
->>>> +		txq = netdev_get_tx_queue(dev, tfile->queue_index);
->>>> +		stopped = netif_tx_queue_stopped(txq);
->>>> +	}
->>>> +	barrier();
->>>> +	__ptr_ring_discard_one(&tfile->tx_ring, will_invalidate);
->>>> +
->>>> +	if (unlikely(will_invalidate)) {
->>>> +		if (stopped)
->>>> +			netif_tx_wake_queue(txq);
->>>> +		rcu_read_unlock();
->>>> +	}
->>>> +	spin_unlock(&tfile->tx_ring.consumer_lock);
->>>> +
->>>> +	return ptr;
->>>> +}
->>>> +
->>>>  static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
->>>>  {
->>>>  	DECLARE_WAITQUEUE(wait, current);
->>>>  	void *ptr = NULL;
->>>>  	int error = 0;
->>>>  
->>>> -	ptr = ptr_ring_consume(&tfile->tx_ring);
->>>> +	ptr = tun_ring_consume(tfile);
->>>>  	if (ptr)
->>>>  		goto out;
->>>>  	if (noblock) {
->>>> @@ -2132,7 +2172,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
->>>>  
->>>>  	while (1) {
->>>>  		set_current_state(TASK_INTERRUPTIBLE);
->>>> -		ptr = ptr_ring_consume(&tfile->tx_ring);
->>>> +		ptr = tun_ring_consume(tfile);
->>>>  		if (ptr)
->>>>  			break;
->>>>  		if (signal_pending(current)) {
->>>> @@ -3621,6 +3661,9 @@ static int tun_queue_resize(struct tun_struct *tun)
->>>>  					  dev->tx_queue_len, GFP_KERNEL,
->>>>  					  tun_ptr_free);
->>>>  
->>>> +	if (netif_running(dev))
->>>> +		netif_tx_wake_all_queues(dev);
->>>> +
->>>>  	kfree(rings);
->>>>  	return ret;
->>>>  }
->>>> -- 
->>>> 2.43.0
->>>
-> 
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjri
+oyspZKOBycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2
+kaV2KL9650I1SJvedYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i
+1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/B
+BLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xqG7/377qptDmrk42GlSK
+N4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR3Jvc3Mg
+PGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsE
+FgIDAQIeAQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4F
+UGNQH2lvWAUy+dnyThpwdtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3Tye
+vpB0CA3dbBQp0OW0fgCetToGIQrg0MbD1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u
++6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbvoPHZ8SlM4KWm8rG+lIkGurq
+qu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v5QL+qHI3EIP
+tyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVy
+Z2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJ
+CAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4
+RF7HoZhPVPogNVbC4YA6lW7DrWf0teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz7
+8X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC/nuAFVGy+67q2DH8As3KPu0344T
+BDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0LhITTd9jLzdDad1pQ
+SToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLmXBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkM
+nQfvUewRz80hSnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMB
+AgAjBQJTjHDXAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/
+Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJnFOXgMLdBQgBlVPO3/D9R8LtF9DBAFPN
+hlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1jnDkfJZr6jrbjgyoZHi
+w/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0N51N5Jf
+VRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwP
+OoE+lotufe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK
+/1xMI3/+8jbO0tsn1tqSEUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1
+c2UuZGU+wsB5BBMBAgAjBQJTjHDrAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
+F4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3g3OZUEBmDHVVbqMtzwlmNC4
+k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5dM7wRqzgJpJ
+wK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu
+5D+jLRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzB
+TNh30FVKK1EvmV2xAKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37Io
+N1EblHI//x/e2AaIHpzK5h88NEawQsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6
+AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpWnHIs98ndPUDpnoxWQugJ6MpMncr
+0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZRwgnBC5mVM6JjQ5x
+Dk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNVbVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mm
+we0icXKLkpEdIXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0I
+v3OOImwTEe4co3c1mwARAQABwsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMv
+Q/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEwTbe8YFsw2V/Buv6Z4Mysln3nQK5ZadD
+534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1vJzQ1fOU8lYFpZXTXIH
+b+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8VGiwXvT
+yJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqc
+suylWsviuGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5B
+jR/i1DG86lem3iBDXzXsZDn8R3/CwO0EGAEIACAWIQSFEmdy6PYElKXQl/ew3p3W
+KL8TLwUCWt3w0AIbAgCBCRCw3p3WKL8TL3YgBBkWCAAdFiEEUy2wekH2OPMeOLge
+gFxhu0/YY74FAlrd8NAACgkQgFxhu0/YY75NiwD/fQf/RXpyv9ZX4n8UJrKDq422
+bcwkujisT6jix2mOOwYBAKiip9+mAD6W5NPXdhk1XraECcIspcf2ff5kCAlG0DIN
+aTUH/RIwNWzXDG58yQoLdD/UPcFgi8GWtNUp0Fhc/GeBxGipXYnvuWxwS+Qs1Qay
+7/Nbal/v4/eZZaWs8wl2VtrHTS96/IF6q2o0qMey0dq2AxnZbQIULiEndgR625EF
+RFg+IbO4ldSkB3trsF2ypYLij4ZObm2casLIP7iB8NKmQ5PndL8Y07TtiQ+Sb/wn
+g4GgV+BJoKdDWLPCAlCMilwbZ88Ijb+HF/aipc9hsqvW/hnXC2GajJSAY3Qs9Mib
+4Hm91jzbAjmp7243pQ4bJMfYHemFFBRaoLC7ayqQjcsttN2ufINlqLFPZPR/i3IX
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------ct5bAGbTyiqKBNoXLfZDlBc3--
+
+--------------SFV1VnAbY3HH96F5ZtO1vdQI--
+
+--------------PXMgO3JbmBo5moltJRZPfnkF
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmjaaH0FAwAAAAAACgkQsN6d1ii/Ey8t
+3gf+K2bpqm9A2Bf+03hK9ezhDmN2XLWIGetjUIte/abiUhznYGBPv1YpcZXn6M4upfVEqKkTu5YL
+bzpPdahyj23m3tIEjObgeclxs27XyWuugXs1bC3qYmo+ukRdh9FejTCbKmkEXU0jZZNAdbaC6Zc0
+AAYppXjQR0yuMoBCHWhnsCUZCeK9N3DBzNlqdxFEZibJyFfFn5891zS4SFTlUzusAhX2sQKKW9Hy
+TUGIYYosZCpz2aZIWVfNTi7/cIqU8kHSga8FsGC2srogDAYTWbHM1fipHwOj2tJkXkrGv5HLzJV1
+WZ7KY04cFr8c0oK1Vzzy25tZliSs5YsA8Omog9ksWA==
+=BL2H
+-----END PGP SIGNATURE-----
+
+--------------PXMgO3JbmBo5moltJRZPfnkF--
