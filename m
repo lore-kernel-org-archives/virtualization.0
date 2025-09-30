@@ -1,408 +1,313 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 032412C0260
-	for <virtualization@lists.linux.dev>; Tue, 30 Sep 2025 07:05:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 320172F39D7
+	for <virtualization@lists.linux.dev>; Tue, 30 Sep 2025 08:27:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759215910; cv=none; b=PMgbSJlAs2cKeNnGcAlNLSWsr5wEHzRXuq30FcKlkh2w2VD1/9fp7+N5ZqQmMOY96CmYEQH3uemTlDOGsgJEAWPDUalBc6FEPVu0J83dzKmgadoj5PLmPJ3NtP6P7atD0fuzCw47iWy64XCz6TrPSEwmspyKGHUBQxXDpe5XM5U=
+	t=1759220846; cv=none; b=Jqm5EJu3s4WqlLexi/DzKchNvrwZT7wlej9ij5QSzKVD7GLpw8okCPMHClHIBqsg2crN4EJXDX7bQP+R585zFFQ9S2ufrKd7vDB27JhKuPIi0RIVLZD42HxnHhe7EfseQT1NAvqBZBIymFjMV8S4MTAMDh6ZzTF9E28zPJpgr1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759215910; c=relaxed/simple;
-	bh=cEkd3wyeroQ13WWGdeZUxUw+1khr1Oc9ygV2w3M3BuQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bxMk4CTUqFGY3UR0LWgNNZNMACSglJ4U2BcHnMJ/K0ytx+V9g02iM9rPj7hMiJbaS9znvyg8889N1zSMcDwF3KYcKJOBe1FDDKtkkahyb/KK0MoJwYFwmYMulJnDpn0hYT9yWvmu5+RAKk33rMj2wZtgnGpX7giBVIVMJzT6IL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=J4PQvC04; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=BlbtgpeX; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1759220846; c=relaxed/simple;
+	bh=OByUwkUqD2B2/nwZYmEaHE1jBaKbSJmFUJdyN/riHtw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=T6llFRZ8J2VUHVOChODnWM5AMYCPMu6Ch1+vCxLYFiWCaODwaZBMPzCfryg++g4j4ZJnwzyw2NI6d1uzahz0FTWz2rxembg46XmHsyZn2V7JCfdoA4UiUBKs5i2Ml+CI8Dz5f9OG7NnCcTL56bX3z0MpuMC5TtfKJh1Aj3lK/Zc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gGPcod77; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="J4PQvC04";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="BlbtgpeX"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id D78EA1F898;
-	Tue, 30 Sep 2025 07:05:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1759215905; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gGPcod77"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1759220844;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=k/gRu11gXgbmlZdLI3CmLMHqbiCSOdJDjKieoXm17Zs=;
-	b=J4PQvC04B+PSPU5Qn0kbYDejEXysFawQCmfnFZpkuz+0XUVkV1HqUqBG3Il0Wo6kN6BnOg
-	sajF6F2Ud8w6aYGOQkXNNJKhdJO1QQAPMKxREUCCe+yVhUdjy4ehAUGNrj9auqwNXf2E5c
-	6TfBk+rIMkHcYuJlw6RXmLfymsIsER8=
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.com header.s=susede1 header.b=BlbtgpeX
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1759215904; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=k/gRu11gXgbmlZdLI3CmLMHqbiCSOdJDjKieoXm17Zs=;
-	b=BlbtgpeXbLF5152uqQWV0JAAKoFLaMKHAq6+2yypXHAlf+7CTkYb7c8skwiJxhzxfURFNY
-	Mn+g8IuOXIJ+0XuhbydgFKILHbP8IRRGpTJsPFn/fTxM8Qdr4d+NYbJP6tntvKOL2tHQAT
-	KCDiguuQTp2eUWCmNph/s5SLlhCYHVQ=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 59B8813A3F;
-	Tue, 30 Sep 2025 07:05:04 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 1I8fFCCB22jcRwAAD6G6ig
-	(envelope-from <jgross@suse.com>); Tue, 30 Sep 2025 07:05:04 +0000
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	virtualization@lists.linux.dev
-Cc: xin@zytor.com,
-	Juergen Gross <jgross@suse.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	xen-devel@lists.xenproject.org
-Subject: [PATCH v2 11/12] x86/paravirt: Don't use pv_ops vector for MSR access functions
-Date: Tue, 30 Sep 2025 09:03:55 +0200
-Message-ID: <20250930070356.30695-12-jgross@suse.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20250930070356.30695-1-jgross@suse.com>
-References: <20250930070356.30695-1-jgross@suse.com>
+	bh=0k53564HVWSnWT4QeushBTs4QSP6pO7lgGYw2Y1kNtA=;
+	b=gGPcod774jtph18gWmo7svrXstSD1eDyT9gv3qxCZJq4iOCPjyG60c6SlVvOIsqMIo5zCx
+	5WJgsHohUu2F37tGforka3Mml+fl7KUkpX1E/0YoJKAokAXBNtKP8w1OOaPlmzw0eAPw/W
+	5796lBafNpu3Ggn+qJR9tRcMexT2r8M=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-689-Ry2uSgsoNT61b_meXrwMbg-1; Tue, 30 Sep 2025 04:27:08 -0400
+X-MC-Unique: Ry2uSgsoNT61b_meXrwMbg-1
+X-Mimecast-MFC-AGG-ID: Ry2uSgsoNT61b_meXrwMbg_1759220827
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-46e39567579so27583715e9.0
+        for <virtualization@lists.linux.dev>; Tue, 30 Sep 2025 01:27:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1759220827; x=1759825627;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0k53564HVWSnWT4QeushBTs4QSP6pO7lgGYw2Y1kNtA=;
+        b=WXMLeLE3FDX1fZi02M5RE4UnlYGGJTCYafCEAST9iCk2c+X8LX0e37ks3LwdVd9PuF
+         qnSAbqgM7I4D+XAwSXltiJTcSznhtU6I6pE69gw9SYqDBgkcG3s3N8KzoC6Pj2Rxz9Kp
+         /jdjoJlEr/k+0YrpBAV8vF99iYsR/EY/OQ5REw5gk458MkPsnK50r9XuLCEqFdMHnoZC
+         arQ4j5GI5A5oS5TnBvuK1y9XwCN8frli5NdUwMnqx7o/OKoB4gxFY/EXHMlNgMnGDtGI
+         WLCulM5hcJdP5U1yLA/8F7ObQdqQMB9v1nBnvDxsYeLodAXwXg73T/8YpS7e+1Ledtht
+         3dZg==
+X-Forwarded-Encrypted: i=1; AJvYcCUQChv4FyvHZ8TtmAakf5HngJXZbtQx6+B7x2GvszleHTHe9GX+lV/aNGAU4uvHp6Lwuo320c8I2mQHJsDGsQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyg1qQQfOxeKPxC/8JO2WKKpwhIYL8VsRQ8NgmbhMHGY6jMq/6H
+	t3aMvhlw5T70cxv06tE+YD/PoaYegDNs54BxJ9UNr6cgO2QSbNFDgOs623x36VCuMcNHWdWNz7R
+	qsm2iAlIO3Kp9yjqEnAiPv3JjKMElAtXlWm0KWuLMmzngs3aA6jOn8LL+ZxfB2v3xSNpQ
+X-Gm-Gg: ASbGncvcdMKLgjHPtCeq3ETWdrVRECoKr9PHRVAkW71MiOzDWifZkBZGR5DulTIKyai
+	ekkAHIT+bzLRIZ1f2EzAu2CIqpGSDk+R+sG4g9qyBzx7EulJG2wHUpPh076Wg9RNz5Le2MKCStx
+	v03ttPzaHpUCYM2pg5rpfi/5qEIIqMSs4BBTemeXf65oZ0FxOTLsUmv6kJv5RsN4M96HNpLQOrD
+	5uWFkDC45cQEC3oPieMpIruxZT1mvv4cDHwJqaRwCn4a+C2iKXy4bmEXtzQXg2FIocuX/OALiCy
+	/BUggulUCFpB5NG1okQT1hNtwTJJ7oQhL/z2QTMMjn8zVCGjh07Y9jNHUYzwh/rfDw6EeMYVtE1
+	U/bV4WgHJQQ5cj0tmnC8Pnw==
+X-Received: by 2002:a05:6000:610:b0:3ee:109a:3a83 with SMTP id ffacd0b85a97d-40e4ece5726mr16763800f8f.29.1759220826783;
+        Tue, 30 Sep 2025 01:27:06 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IErkmBK2pEHIR11t9h0fOhWc98uNL2Ww5V4K1p5cxBvz0HlJrGFndWMq/zucbPlLC+5Qu2udA==
+X-Received: by 2002:a05:6000:610:b0:3ee:109a:3a83 with SMTP id ffacd0b85a97d-40e4ece5726mr16763764f8f.29.1759220826311;
+        Tue, 30 Sep 2025 01:27:06 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-153.retail.telecomitalia.it. [79.46.200.153])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-40fc5603381sm23147503f8f.31.2025.09.30.01.27.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Sep 2025 01:27:05 -0700 (PDT)
+Date: Tue, 30 Sep 2025 10:26:55 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, berrange@redhat.com, Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH net-next v6 7/9] selftests/vsock: improve logging in
+ vmtest.sh
+Message-ID: <f7oeyneht4vxtfolrgv36b5tu4zreffcwztimc6s5jixszjt75@yjkhcuhuwbpi>
+References: <20250916-vsock-vmtest-v6-0-064d2eb0c89d@meta.com>
+ <20250916-vsock-vmtest-v6-7-064d2eb0c89d@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: D78EA1F898
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[15];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	FROM_EQ_ENVFROM(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLkdkdrsxe9hqhhs5ask8616i6)];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.com:+];
-	TO_DN_SOME(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.com:dkim,suse.com:mid,suse.com:email]
-X-Spam-Score: -3.01
+In-Reply-To: <20250916-vsock-vmtest-v6-7-064d2eb0c89d@meta.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: TkM5R8TD9TLqbygjbeJyKAW7qR7AV78AIKaoN8Qew00_1759220827
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Instead of using the pv_ops vector for RDMSR/WRMSR related functions,
-use a more explicit approach allowing to inline the RDMSR/WRMSR
-instructions directly when not running as a Xen PV guest.
+On Tue, Sep 16, 2025 at 04:43:51PM -0700, Bobby Eshleman wrote:
+>From: Bobby Eshleman <bobbyeshleman@meta.com>
+>
+>Improve logging by adding configurable log levels. Additionally, improve
+>usability of logging functions. Remove the test name prefix from logging
+>functions so that logging calls can be made deeper into the call stack
+>without passing down the test name or setting some global. Teach log
+>function to accept a LOG_PREFIX variable to avoid unnecessary argument
+>shifting.
+>
+>Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+>---
+> tools/testing/selftests/vsock/vmtest.sh | 75 ++++++++++++++++-----------------
+> 1 file changed, 37 insertions(+), 38 deletions(-)
+>
+>diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+>index edacebfc1632..183647a86c8a 100755
+>--- a/tools/testing/selftests/vsock/vmtest.sh
+>+++ b/tools/testing/selftests/vsock/vmtest.sh
+>@@ -51,7 +51,12 @@ readonly TEST_DESCS=(
+> 	"Run vsock_test using the loopback transport in the VM."
+> )
+>
+>-VERBOSE=0
+>+readonly LOG_LEVEL_DEBUG=0
+>+readonly LOG_LEVEL_INFO=1
+>+readonly LOG_LEVEL_WARN=2
+>+readonly LOG_LEVEL_ERROR=3
+>+
+>+VERBOSE="${LOG_LEVEL_WARN}"
 
-By using cpu_feature_enabled(X86_FEATURE_XENPV) for the Xen PV case
-the related calls to Xen specific code will be statically disabled via
-runtime patching.
+If the default is 2, how the user can set 3 (error) ?
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V2:
-- new patch
----
- arch/x86/include/asm/msr.h            | 57 ++++++++++++++++++++++-----
- arch/x86/include/asm/paravirt.h       | 45 ---------------------
- arch/x86/include/asm/paravirt_types.h | 13 ------
- arch/x86/kernel/paravirt.c            |  5 ---
- arch/x86/xen/enlighten_pv.c           | 20 ++++------
- arch/x86/xen/pmu.c                    |  1 +
- 6 files changed, 57 insertions(+), 84 deletions(-)
+BTW I find a bit strange the reverse order.
+Is this something specific to selftest?
 
-diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index cc592611e333..d42cd2c19818 100644
---- a/arch/x86/include/asm/msr.h
-+++ b/arch/x86/include/asm/msr.h
-@@ -290,24 +290,22 @@ static __always_inline void native_wrmsr(u32 msr, u32 low, u32 high)
- 	native_wrmsrq(msr, (u64)high << 32 | low);
- }
- 
--static inline u64 native_read_msr(u32 msr)
-+static __always_inline u64 native_read_msr(u32 msr)
- {
- 	return native_rdmsrq(msr);
- }
- 
--static inline int native_read_msr_safe(u32 msr, u64 *val)
-+static __always_inline int native_read_msr_safe(u32 msr, u64 *val)
- {
- 	return __rdmsr(msr, val, EX_TYPE_RDMSR_SAFE) ? -EIO : 0;
- }
- 
--/* Can be uninlined because referenced by paravirt */
--static inline void notrace native_write_msr(u32 msr, u64 val)
-+static __always_inline void native_write_msr(u32 msr, u64 val)
- {
- 	native_wrmsrq(msr, val);
- }
- 
--/* Can be uninlined because referenced by paravirt */
--static inline int notrace native_write_msr_safe(u32 msr, u64 val)
-+static __always_inline int native_write_msr_safe(u32 msr, u64 val)
- {
- 	return __wrmsrq(msr, val, EX_TYPE_WRMSR_SAFE) ? -EIO : 0;
- }
-@@ -325,8 +323,49 @@ static inline u64 native_read_pmc(int counter)
- 	return EAX_EDX_VAL(val, low, high);
- }
- 
--#ifdef CONFIG_PARAVIRT_XXL
--#include <asm/paravirt.h>
-+#ifdef CONFIG_XEN_PV
-+#include <asm/xen/msr.h>
-+
-+static __always_inline u64 read_msr(u32 msr)
-+{
-+	if (cpu_feature_enabled(X86_FEATURE_XENPV))
-+		return xen_read_msr(msr);
-+
-+	return native_rdmsrq(msr);
-+}
-+
-+static __always_inline int read_msr_safe(u32 msr, u64 *p)
-+{
-+	if (cpu_feature_enabled(X86_FEATURE_XENPV))
-+		return xen_read_msr_safe(msr, p);
-+
-+	return native_read_msr_safe(msr, p);
-+}
-+
-+static __always_inline void write_msr(u32 msr, u64 val)
-+{
-+	if (cpu_feature_enabled(X86_FEATURE_XENPV))
-+		xen_write_msr(msr, val);
-+	else
-+		native_wrmsrq(msr, val);
-+}
-+
-+static __always_inline int write_msr_safe(u32 msr, u64 val)
-+{
-+	if (cpu_feature_enabled(X86_FEATURE_XENPV))
-+		return xen_write_msr_safe(msr, val);
-+
-+	return native_write_msr_safe(msr, val);
-+}
-+
-+static __always_inline u64 rdpmc(int counter)
-+{
-+	if (cpu_feature_enabled(X86_FEATURE_XENPV))
-+		return xen_read_pmc(counter);
-+
-+	return native_read_pmc(counter);
-+}
-+
- #else
- static __always_inline u64 read_msr(u32 msr)
- {
-@@ -353,7 +392,7 @@ static __always_inline u64 rdpmc(int counter)
- 	return native_read_pmc(counter);
- }
- 
--#endif	/* !CONFIG_PARAVIRT_XXL */
-+#endif	/* !CONFIG_XEN_PV */
- 
- /*
-  * Access to machine-specific registers (available on 586 and better only)
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index dc297f62b935..45f47b7d9f56 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -175,51 +175,6 @@ static inline void __write_cr4(unsigned long x)
- 	PVOP_VCALL1(cpu.write_cr4, x);
- }
- 
--static inline u64 paravirt_read_msr(u32 msr)
--{
--	return PVOP_CALL1(u64, cpu.read_msr, msr);
--}
--
--static inline void paravirt_write_msr(u32 msr, u64 val)
--{
--	PVOP_VCALL2(cpu.write_msr, msr, val);
--}
--
--static inline int paravirt_read_msr_safe(u32 msr, u64 *val)
--{
--	return PVOP_CALL2(int, cpu.read_msr_safe, msr, val);
--}
--
--static inline int paravirt_write_msr_safe(u32 msr, u64 val)
--{
--	return PVOP_CALL2(int, cpu.write_msr_safe, msr, val);
--}
--
--static __always_inline u64 read_msr(u32 msr)
--{
--	return paravirt_read_msr(msr);
--}
--
--static __always_inline int read_msr_safe(u32 msr, u64 *p)
--{
--	return paravirt_read_msr_safe(msr, p);
--}
--
--static __always_inline void write_msr(u32 msr, u64 val)
--{
--	paravirt_write_msr(msr, val);
--}
--
--static __always_inline int write_msr_safe(u32 msr, u64 val)
--{
--	return paravirt_write_msr_safe(msr, val);
--}
--
--static __always_inline u64 rdpmc(int counter)
--{
--	return PVOP_CALL1(u64, cpu.read_pmc, counter);
--}
--
- static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
- {
- 	PVOP_VCALL2(cpu.alloc_ldt, ldt, entries);
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 37a8627d8277..0d03e658ea8f 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -90,19 +90,6 @@ struct pv_cpu_ops {
- 	void (*cpuid)(unsigned int *eax, unsigned int *ebx,
- 		      unsigned int *ecx, unsigned int *edx);
- 
--	/* Unsafe MSR operations.  These will warn or panic on failure. */
--	u64 (*read_msr)(u32 msr);
--	void (*write_msr)(u32 msr, u64 val);
--
--	/*
--	 * Safe MSR operations.
--	 * Returns 0 or -EIO.
--	 */
--	int (*read_msr_safe)(u32 msr, u64 *val);
--	int (*write_msr_safe)(u32 msr, u64 val);
--
--	u64 (*read_pmc)(int counter);
--
- 	void (*start_context_switch)(struct task_struct *prev);
- 	void (*end_context_switch)(struct task_struct *next);
- #endif
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index ab3e172dcc69..240eeb1beab5 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -129,11 +129,6 @@ struct paravirt_patch_template pv_ops = {
- 	.cpu.read_cr0		= native_read_cr0,
- 	.cpu.write_cr0		= native_write_cr0,
- 	.cpu.write_cr4		= native_write_cr4,
--	.cpu.read_msr		= native_read_msr,
--	.cpu.write_msr		= native_write_msr,
--	.cpu.read_msr_safe	= native_read_msr_safe,
--	.cpu.write_msr_safe	= native_write_msr_safe,
--	.cpu.read_pmc		= native_read_pmc,
- 	.cpu.load_tr_desc	= native_load_tr_desc,
- 	.cpu.set_ldt		= native_set_ldt,
- 	.cpu.load_gdt		= native_load_gdt,
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 26bbaf4b7330..df653099c567 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1160,15 +1160,16 @@ static void xen_do_write_msr(u32 msr, u64 val, int *err)
- 	}
- }
- 
--static int xen_read_msr_safe(u32 msr, u64 *val)
-+int xen_read_msr_safe(u32 msr, u64 *val)
- {
- 	int err = 0;
- 
- 	*val = xen_do_read_msr(msr, &err);
- 	return err;
- }
-+EXPORT_SYMBOL(xen_read_msr_safe);
- 
--static int xen_write_msr_safe(u32 msr, u64 val)
-+int xen_write_msr_safe(u32 msr, u64 val)
- {
- 	int err = 0;
- 
-@@ -1176,20 +1177,23 @@ static int xen_write_msr_safe(u32 msr, u64 val)
- 
- 	return err;
- }
-+EXPORT_SYMBOL(xen_write_msr_safe);
- 
--static u64 xen_read_msr(u32 msr)
-+u64 xen_read_msr(u32 msr)
- {
- 	int err = 0;
- 
- 	return xen_do_read_msr(msr, xen_msr_safe ? &err : NULL);
- }
-+EXPORT_SYMBOL(xen_read_msr);
- 
--static void xen_write_msr(u32 msr, u64 val)
-+void xen_write_msr(u32 msr, u64 val)
- {
- 	int err;
- 
- 	xen_do_write_msr(msr, val, xen_msr_safe ? &err : NULL);
- }
-+EXPORT_SYMBOL(xen_write_msr);
- 
- /* This is called once we have the cpu_possible_mask */
- void __init xen_setup_vcpu_info_placement(void)
-@@ -1225,14 +1229,6 @@ static const typeof(pv_ops) xen_cpu_ops __initconst = {
- 
- 		.write_cr4 = xen_write_cr4,
- 
--		.read_msr = xen_read_msr,
--		.write_msr = xen_write_msr,
--
--		.read_msr_safe = xen_read_msr_safe,
--		.write_msr_safe = xen_write_msr_safe,
--
--		.read_pmc = xen_read_pmc,
--
- 		.load_tr_desc = paravirt_nop,
- 		.set_ldt = xen_set_ldt,
- 		.load_gdt = xen_load_gdt,
-diff --git a/arch/x86/xen/pmu.c b/arch/x86/xen/pmu.c
-index d49a3bdc448b..d0dea950cd4f 100644
---- a/arch/x86/xen/pmu.c
-+++ b/arch/x86/xen/pmu.c
-@@ -370,6 +370,7 @@ u64 xen_read_pmc(int counter)
- 	else
- 		return xen_intel_read_pmc(counter);
- }
-+EXPORT_SYMBOL(xen_read_pmc);
- 
- int pmu_apic_update(uint32_t val)
- {
--- 
-2.51.0
+The rest LGTM.
+
+Thanks,
+Stefano
+
+>
+> usage() {
+> 	local name
+>@@ -196,7 +201,7 @@ vm_start() {
+>
+> 	qemu=$(command -v "${QEMU}")
+>
+>-	if [[ "${VERBOSE}" -eq 1 ]]; then
+>+	if [[ ${VERBOSE} -le ${LOG_LEVEL_DEBUG} ]]; then
+> 		verbose_opt="--verbose"
+> 		logfile=/dev/stdout
+> 	fi
+>@@ -271,60 +276,56 @@ EOF
+>
+> host_wait_for_listener() {
+> 	wait_for_listener "${TEST_HOST_PORT_LISTENER}" "${WAIT_PERIOD}" "${WAIT_PERIOD_MAX}"
+>-}
+>-
+>-__log_stdin() {
+>-	cat | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }'
+>-}
+>
+>-__log_args() {
+>-	echo "$*" | awk '{ printf "%s:\t%s\n","'"${prefix}"'", $0 }'
+> }
+>
+> log() {
+>-	local prefix="$1"
+>+	local redirect
+>+	local prefix
+>
+>-	shift
+>-	local redirect=
+>-	if [[ ${VERBOSE} -eq 0 ]]; then
+>+	if [[ ${VERBOSE} -gt ${LOG_LEVEL_INFO} ]]; then
+> 		redirect=/dev/null
+> 	else
+> 		redirect=/dev/stdout
+> 	fi
+>
+>+	prefix="${LOG_PREFIX:-}"
+>+
+> 	if [[ "$#" -eq 0 ]]; then
+>-		__log_stdin | tee -a "${LOG}" > ${redirect}
+>+		if [[ -n "${prefix}" ]]; then
+>+			cat | awk -v prefix="${prefix}" '{printf "%s: %s\n", prefix, $0}'
+>+		else
+>+			cat
+>+		fi
+> 	else
+>-		__log_args "$@" | tee -a "${LOG}" > ${redirect}
+>-	fi
+>+		if [[ -n "${prefix}" ]]; then
+>+			echo "${prefix}: " "$@"
+>+		else
+>+			echo "$@"
+>+		fi
+>+	fi | tee -a "${LOG}" > ${redirect}
+> }
+>
+>-log_setup() {
+>-	log "setup" "$@"
+>+log_host() {
+>+	LOG_PREFIX=host log $@
+> }
+>
+>-log_host() {
+>-	local testname=$1
+>+log_guest() {
+>+	LOG_PREFIX=guest log $@
+>+}
+>
+>-	shift
+>-	log "test:${testname}:host" "$@"
+> }
+>
+>-log_guest() {
+>-	local testname=$1
+>
+>-	shift
+>-	log "test:${testname}:guest" "$@"
+> }
+>
+> test_vm_server_host_client() {
+>-	local testname="${FUNCNAME[0]#test_}"
+>
+> 	vm_ssh -- "${VSOCK_TEST}" \
+> 		--mode=server \
+> 		--control-port="${TEST_GUEST_PORT}" \
+> 		--peer-cid=2 \
+>-		2>&1 | log_guest "${testname}" &
+>+		2>&1 | log_guest &
+>
+> 	vm_wait_for_listener "${TEST_GUEST_PORT}"
+>
+>@@ -332,18 +333,17 @@ test_vm_server_host_client() {
+> 		--mode=client \
+> 		--control-host=127.0.0.1 \
+> 		--peer-cid="${VSOCK_CID}" \
+>-		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host "${testname}"
+>+		--control-port="${TEST_HOST_PORT}" 2>&1 | log_host
+>
+> 	return $?
+> }
+>
+> test_vm_client_host_server() {
+>-	local testname="${FUNCNAME[0]#test_}"
+>
+> 	${VSOCK_TEST} \
+> 		--mode "server" \
+> 		--control-port "${TEST_HOST_PORT_LISTENER}" \
+>-		--peer-cid "${VSOCK_CID}" 2>&1 | log_host "${testname}" &
+>+		--peer-cid "${VSOCK_CID}" 2>&1 | log_host &
+>
+> 	host_wait_for_listener
+>
+>@@ -351,19 +351,18 @@ test_vm_client_host_server() {
+> 		--mode=client \
+> 		--control-host=10.0.2.2 \
+> 		--peer-cid=2 \
+>-		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest "${testname}"
+>+		--control-port="${TEST_HOST_PORT_LISTENER}" 2>&1 | log_guest
+>
+> 	return $?
+> }
+>
+> test_vm_loopback() {
+>-	local testname="${FUNCNAME[0]#test_}"
+> 	local port=60000 # non-forwarded local port
+>
+> 	vm_ssh -- "${VSOCK_TEST}" \
+> 		--mode=server \
+> 		--control-port="${port}" \
+>-		--peer-cid=1 2>&1 | log_guest "${testname}" &
+>+		--peer-cid=1 2>&1 | log_guest &
+>
+> 	vm_wait_for_listener "${port}"
+>
+>@@ -371,7 +370,7 @@ test_vm_loopback() {
+> 		--mode=client \
+> 		--control-host="127.0.0.1" \
+> 		--control-port="${port}" \
+>-		--peer-cid=1 2>&1 | log_guest "${testname}"
+>+		--peer-cid=1 2>&1 | log_guest
+>
+> 	return $?
+> }
+>@@ -429,7 +428,7 @@ QEMU="qemu-system-$(uname -m)"
+> while getopts :hvsq:b o
+> do
+> 	case $o in
+>-	v) VERBOSE=1;;
+>+	v) VERBOSE=$(( VERBOSE - 1 ));;
+> 	b) BUILD=1;;
+> 	q) QEMU=$OPTARG;;
+> 	h|*) usage;;
+>@@ -452,10 +451,10 @@ handle_build
+>
+> echo "1..${#ARGS[@]}"
+>
+>-log_setup "Booting up VM"
+>+log_host "Booting up VM"
+> vm_start
+> vm_wait_for_ssh
+>-log_setup "VM booted up"
+>+log_host "VM booted up"
+>
+> cnt_pass=0
+> cnt_fail=0
+>
+>-- 
+>2.47.3
+>
 
