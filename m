@@ -1,39 +1,39 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D101F35949;
-	Tue, 30 Sep 2025 19:20:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87079145B16
+	for <virtualization@lists.linux.dev>; Tue, 30 Sep 2025 19:49:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759260043; cv=none; b=kUhWBzVghMK0oHn09pk6U653wW2fFAsgXecUUzcPz8odRCoP4r53BC1aZBqStha3mewqH37eLT0NlRY/+T+PZosYYkZ2Hq+59bVdgkI1bmE/K5nivqfFdHLnz/r7CUEUPbYd1gZ0hqBSVKihPhpDo4UX6stWhZf25mto0MRz3+U=
+	t=1759261796; cv=none; b=g6wIxhJBW6o+tKBXwmAC5g/yp3BxsudDTMRIqFWN+jlAcYz+8RZ8sGPRd5wdt8FNErHPehwivtTpQP5vsbmjUcKtZnDgRFCyjEmnq1amErfaECYS9DQccC9Loo1LWRO1kWKdyxQ6OwqbFvXe0k33vSnmmL/qIAG0JbvTnHNRzsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759260043; c=relaxed/simple;
-	bh=SvJ8S7Nw/fPta0kTc9ASSeJSDJulLZWtqNWEtdEqeps=;
+	s=arc-20240116; t=1759261796; c=relaxed/simple;
+	bh=0iia0nU5x4rf/WRQNytlMZVqDa6lvfFSyPcVsFZYvhA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FZ30aCDXXm71T0+PMo9D/UnTUf4QJwKoZD/fwYcc5Pd1D4mn+poA12C1C+H9dKFilqgh1Jl4imccpZlnJmfpib9Gmnz/eF5aGZXpGmznNdH2DxHfu+6im9Mu0mXRqBRepJjQd3+yC9m0UlYRMm7qMQ1v05UL4ok5W+RMkGuwGns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=KmHeNLZj; arc=none smtp.client-ip=198.137.202.136
+	 In-Reply-To:Content-Type; b=TByVmbxkruHvulQR9PkNLEFixozCpjwQqe37k0Pzuih4kxSnQTY40wdDCbyzNUQM9HDbNGS9ehE0ql3ORy1Ubwpq55G966oBzzmk9xLArTmcdUt8Sn3gvE4MXLG/6l/WF3XObHE6AF1icOuiWwVCkqE/T/0qKwTB7o0zI8R+sYE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=WiyLGMbm; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="KmHeNLZj"
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="WiyLGMbm"
 Received: from [IPV6:2601:646:8081:9484:3373:e8bd:aaa4:7c23] ([IPv6:2601:646:8081:9484:3373:e8bd:aaa4:7c23])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 58UJJc0q376069
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 58UJnQA9386545
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Tue, 30 Sep 2025 12:19:38 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 58UJJc0q376069
+	Tue, 30 Sep 2025 12:49:26 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 58UJnQA9386545
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025092201; t=1759259981;
-	bh=5jKsWr8QEv1dE0BHGjK4jG5jy4dVCkN+HP+b8pZLYWY=;
+	s=2025092201; t=1759261768;
+	bh=dNL6gt2iTdh66H47BLI0CoB/8tRPotODaDlCai0q5ho=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=KmHeNLZj/n0P3Bx95LFzhVuxLXrHMsWLMMJ2Gm4H8FNamSlw/ykdibwr0KiTsB1Hx
-	 kimmmjaE4PQNu82809DGZ+bXQB5PtFK+1BIkP2kit+wX/G9oZjCTGQQ4NBn3eyeroN
-	 igAJ5wylIhFE9616RLBxQ4fa1M/81mz3016d0y5QrZzka0FJXVai2ABAi7s6qurIZU
-	 UCt7L6g9U8v2bHT5kR3usV/nGI4JUG2MRe34f5yvbCfc1Wc8a+J7TpEqXyLIfbRGUg
-	 AzbRtlbso5/anwJIMETPoxFJcMs4aRnGHHmG/oIvBJHSwcgPCKq+EsfPpQlRB7rZB1
-	 WCrrEfyQwfYwQ==
-Message-ID: <1412c7a5-8961-4949-b09e-7b9d080ce9bf@zytor.com>
-Date: Tue, 30 Sep 2025 12:19:33 -0700
+	b=WiyLGMbm41DpWdoeFYmeIGVkzQksa98mG1NxGVlgSKXuYKU94ud4wLZ7uWpxfPuEy
+	 agrf020XSbTAABlOgFng9j8R0aUTAlhh8N4AbNkK7OtFKM4XBL5T+bw8rH0Ior1O36
+	 d8xSMWC+DmFRLEoRqjd1FCcA+EXGAfQpkXVgBdxyyHwULfVwwtSo44n43XvsC2wxxq
+	 oOahoknddZ6uUCoCZm5exOA58kIYDTgqNEKDhxGWaVkGHkjjb/cIU7HqkYJstxgGZA
+	 kj7y8CQwndjMAtLhfHU/20MMHxiiTw5jxddwRlYgxkm3lHpT9lSXQZ+ZCErnA5CJh3
+	 20RtYF/Dy2WRA==
+Message-ID: <d2c68cbe-2e92-4801-b1a3-af4645e9ba78@zytor.com>
+Date: Tue, 30 Sep 2025 12:49:21 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -41,74 +41,100 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/12] x86/msr: Inline rdmsr/wrmsr instructions
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
-        x86@kernel.org, linux-coco@lists.linux.dev, kvm@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-        llvm@lists.linux.dev
-Cc: xin@zytor.com, "Kirill A. Shutemov" <kas@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+Subject: Re: [PATCH v2 11/12] x86/paravirt: Don't use pv_ops vector for MSR
+ access functions
+To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+        virtualization@lists.linux.dev, xin@zytor.com,
         Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
         Borislav Petkov <bp@alien8.de>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        xen-devel@lists.xenproject.org, Ajay Kaher <ajay.kaher@broadcom.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Ajay Kaher <ajay.kaher@broadcom.com>,
         Alexey Makhalov <alexey.makhalov@broadcom.com>,
         Broadcom internal kernel review list
  <bcm-kernel-feedback-list@broadcom.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Nathan Chancellor
- <nathan@kernel.org>,
-        Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-        Bill Wendling <morbo@google.com>,
-        Justin Stitt <justinstitt@google.com>
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        xen-devel@lists.xenproject.org
 References: <20250930070356.30695-1-jgross@suse.com>
+ <20250930070356.30695-12-jgross@suse.com>
+ <20250930083827.GI3245006@noisy.programming.kicks-ass.net>
+ <1541b670-8b29-42a5-a58d-34d85197751d@suse.com>
+ <20250930100404.GK4067720@noisy.programming.kicks-ass.net>
+ <fefbd1ee-ab8c-465e-89bf-39cd2601fc60@suse.com>
 Content-Language: en-US, sv-SE
 From: "H. Peter Anvin" <hpa@zytor.com>
-In-Reply-To: <20250930070356.30695-1-jgross@suse.com>
+In-Reply-To: <fefbd1ee-ab8c-465e-89bf-39cd2601fc60@suse.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 2025-09-30 00:03, Juergen Gross wrote:
-> When building a kernel with CONFIG_PARAVIRT_XXL the paravirt
-> infrastructure will always use functions for reading or writing MSRs,
-> even when running on bare metal.
+On 2025-09-30 03:43, Jürgen Groß wrote:
+>>
+>>> In Xin's series there was a patch written initially by you to solve such
+>>> a problem by adding the _ASM_EXTABLE_FUNC_REWIND() exception table method.
+>>> I think this is a dead end, as it will break when using a shadow stack.
+>>
+>> No memories, let me go search. I found this:
+>>
+>>    https://patchwork.ozlabs.org/project/linux-ide/
+>> patch/20250331082251.3171276-12-xin@zytor.com/
+>>
+>> That's the other Peter :-)
 > 
-> Switch to inline RDMSR/WRMSR instructions in this case, reducing the
-> paravirt overhead.
-> 
-> In order to make this less intrusive, some further reorganization of
-> the MSR access helpers is done in the first 5 patches.
-> 
-> The next 5 patches are converting the non-paravirt case to use direct
-> inlining of the MSR access instructions, including the WRMSRNS
-> instruction and the immediate variants of RDMSR and WRMSR if possible.
-> 
-> Patch 11 removes the PV hooks for MSR accesses and implements the
-> Xen PV cases via calls depending on X86_FEATURE_XENPV, which results
-> in runtime patching those calls away for the non-XenPV case.
-> 
-> Patch 12 is a final little cleanup patch.
-> 
-> This series has been tested to work with Xen PV and on bare metal.
-> 
-> This series is inspired by Xin Li, who used a similar approach, but
-> (in my opinion) with some flaws. Originally I thought it should be
-> possible to use the paravirt infrastructure, but this turned out to be
-> rather complicated, especially for the Xen PV case in the *_safe()
-> variants of the MSR access functions.
-> 
+> Oh, my bad, sorry. :-)
 
-Looks good to me.
+Yes, you would have to patch both the stack and the shadow stack.
 
-(I'm not at all surprised that paravirt_ops didn't do the job. Both I and Xin
-had come to the same conclusion.)
+BUT: in the end it really doesn't really buy much. The only thing that
+benefits is Xen, but it is fairly easy for Xen (my original POC did this) to
+filter out the quite few MSRs that they do special dispatch for (plus the
+variable case), and then they can just use the native code including the
+benefit of using WRMSRNS and immediates.
 
+The other approach that I also came up with looks like this:
 
-Reviewed-by: H. Peter Anvin (Intel) <hpa@zytor.com>
+/* Native code (non-immediate): trap point at +7 */
+
+   0:   48 89 c2                mov    %rax,%rdx
+   3:   48 c1 ea 20             shr    $0x20,%rdx
+   7:   0f 01 c6                wrmsrns
+   a:
+
+/* Native code (immediate): trap point at +0 */
+
+   0:   36 c4 e7 7a f6 c0 xx    ds wrmsrns %rax,$XX
+        xx xx xx
+   a:
+
+/* Xen code, stub sets CF = 1 on failure */
+
+   0:   e8 xx xx xx xx          call   asm_xen_pv_wrmsr
+   5:   73 03                   jnc    0xa
+   7:   0f 0b                   ud2
+   9:   90                      nop
+   a:
+
+The trap point even ends up in the same place! UD2 can be any 1-, 2-, or
+3-byte trapping instruction.
+
+> 
+>>> Additionally I found a rather ugly hack only to avoid re-iterating most of
+>>> the bare metal ALTERNATIVE() for the paravirt case. It is possible, but the
+>>> bare metal case is gaining one additional ALTERNATIVE level, resulting in
+>>> patching the original instruction with an identical copy first.
+>>
+>> OTOH the above generates atrocious crap code :/
+> 
+> Yes.
+
+Please don't generate crap code -- that's exactly The Wrong Thing. I didn't
+actually look at the output code; I honestly didn't think that that would even
+be an issue.
+
+If it is REALLY evil, then do something like shell script to generate the code
+instead...
+
+(One big problem here is that cpp doesn't understand colons as separators...)
+
+	-hpa
+
