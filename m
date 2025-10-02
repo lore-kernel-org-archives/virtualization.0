@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 456473002CB
-	for <virtualization@lists.linux.dev>; Thu,  2 Oct 2025 10:35:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4250030ACEE
+	for <virtualization@lists.linux.dev>; Thu,  2 Oct 2025 10:36:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759401361; cv=none; b=PynOPugDbPL7dh7RUZnKcl3jUqUwAJVG2vCLLxZynIS0DdukwpO4nIHkmJ+eNH/aUPcNRal1u+thz6StLCwhehw5sJu278ZYOevuE6og0TsR1oyAIj/g6KWsBXb7AiPyigihjZ67PTfVoKGPWM/0YXg2/wiyBtBKhkQvmk6chlw=
+	t=1759401366; cv=none; b=d4NKv0cKSOHmwoqu38tIGrW8A691kWHBKuXQn+TtTTKq+dp6yV9lfUdopbUXvXUS3JyhDE1c0PK9DO5waSGd+tFlu9RlfrUQvOpUB8vPd/cZ7bmzJXZKsJa4YKW/77oe4OMutUX8lyxBBBzkxIQASe3vaVhLpOMZBDV3F0/Ylt0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759401361; c=relaxed/simple;
-	bh=7+ztxRKxAfTPyADGja6l4vqIG/Vh6uhOBdwDSsoFRzk=;
+	s=arc-20240116; t=1759401366; c=relaxed/simple;
+	bh=goKcmOzmH9ogjIeR/aDjNdtZqVeWTMkhnZhMQaR/02w=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SziIvNdXjGxcTcohFsnIWYipLlr1g7kx68DpskeoyYksPZPKVMQjCsKTvr7VZmImAigps1IOVLpRlT0NfrU9c27QEty0ivIzWfg6rZvY7TqCHWVmXZJe4HyE8b8MF5yUeAl+5zofyFgkJeRVoltW5wirJ/ZKW0GUn8wkfYLYlxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ABXx8kVL; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=elggOfRCR+p0iYFloLYWjNpKgtfGLGeUZFMRNB9yyOS3/s7uahRr9jwlOFagO/UJ/K2BTOtT49XZgvJcyetkAOXHKCe+HORpBYUMfKGlXrD8JHPH2xRmh3l4rTxpm0vI+Q5f6zn3LFVSibcWGHD0s26jVjyPFY6rk+e3fy90rO0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DwBerCSw; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ABXx8kVL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DwBerCSw"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759401357;
+	s=mimecast20190719; t=1759401364;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=d9AeJgoJorYjJ5/QVKVbM47WJUmzhAen8815b/MXP28=;
-	b=ABXx8kVLujuJWuqkCzChe2xFvO/ysIyYD9rOescqx4dUYqA7T6m/tDiLJVKgP6RPKoYdKg
-	0Yd/j9Jy8hwT1s+SF5JciewLQ6sDf+BzlY20RcNhLmzg9JJyhCL/v7bWOURyajWvQbdv0G
-	KdVl5kohDMB5em6597NzSb4M3ayLJh0=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=iM0cA7tzuiWV6s6TW2GZ8k3Gv110oDPxpMncChVaQDg=;
+	b=DwBerCSw4YzC+of08MhnoEDk42DXuAyvEKIm8D/FjeM1+4FDVM03ugqHz7tiPiwN8u5ZS4
+	8MlZEtuxcfI61ZW1snmqUqwTGRqyQZ3/He+PfuDvLdA6swGmZUbLCXGiso8X1oYlbaaZNX
+	855Jvck5KaEhVqygcXXt4enFTaRbkFc=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-2-kpqWOQIlPgurbQBmK7d8GQ-1; Thu,
- 02 Oct 2025 06:35:54 -0400
-X-MC-Unique: kpqWOQIlPgurbQBmK7d8GQ-1
-X-Mimecast-MFC-AGG-ID: kpqWOQIlPgurbQBmK7d8GQ_1759401352
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-369-BOo6szoQOACQRpbdzOvqrQ-1; Thu,
+ 02 Oct 2025 06:36:00 -0400
+X-MC-Unique: BOo6szoQOACQRpbdzOvqrQ-1
+X-Mimecast-MFC-AGG-ID: BOo6szoQOACQRpbdzOvqrQ_1759401358
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 79FE319560AE;
-	Thu,  2 Oct 2025 10:35:52 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0B4F01800578;
+	Thu,  2 Oct 2025 10:35:58 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.44.32.208])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 1B87E30001B5;
-	Thu,  2 Oct 2025 10:35:46 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 1299A300018D;
+	Thu,  2 Oct 2025 10:35:52 +0000 (UTC)
 From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
 To: mst@redhat.com
 Cc: Laurent Vivier <lvivier@redhat.com>,
@@ -58,9 +58,9 @@ Cc: Laurent Vivier <lvivier@redhat.com>,
 	Si-Wei Liu <si-wei.liu@oracle.com>,
 	virtualization@lists.linux.dev,
 	=?UTF-8?q?Be=C3=B1at=20Gartzia=20Arruabarrena?= <bgartzia@redhat.com>
-Subject: [RFC 1/2] vduse: support feature provisioning
-Date: Thu,  2 Oct 2025 12:35:36 +0200
-Message-ID: <20251002103537.308717-2-eperezma@redhat.com>
+Subject: [RFC 2/2] vduse: allow to specify device-specific features if it's multiclass
+Date: Thu,  2 Oct 2025 12:35:37 +0200
+Message-ID: <20251002103537.308717-3-eperezma@redhat.com>
 In-Reply-To: <20251002103537.308717-1-eperezma@redhat.com>
 References: <20251002103537.308717-1-eperezma@redhat.com>
 Precedence: bulk
@@ -73,82 +73,38 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-This patch implements features provisioning for vduse devices.  This
-allows the device provisioner to clear the features exposed by the
-userland device, so the driver never see them.  The intended use case is
-to provision more than one different device with the same feature set,
-allowing live migration between them.
+Even if the device supports more than one class, there are ways to solve
+the ambiguity of which device are we creating.  In the VDUSE case it is
+the name, for example.
 
-The device addition validates the provisioned features to be a subset of
-the parent features, as the rest of the backends.
+RFC: I fon't understand 100% the motivation of this limitation, as the
+backend should be the one filtering out the invalid features if any.
 
 Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/vdpa/vdpa.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 6c74282d5721..ef8fc795cfeb 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -121,6 +121,7 @@ struct vduse_dev {
- 	bool connected;
- 	u64 api_version;
- 	u64 device_features;
-+	u64 supported_features;
- 	u64 driver_features;
- 	u32 device_id;
- 	u32 vendor_id;
-@@ -698,7 +699,7 @@ static u64 vduse_vdpa_get_device_features(struct vdpa_device *vdpa)
- {
- 	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
- 
--	return dev->device_features;
-+	return dev->supported_features;
- }
- 
- static int vduse_vdpa_set_driver_features(struct vdpa_device *vdpa, u64 features)
-@@ -2256,13 +2257,22 @@ struct vduse_mgmt_dev {
- 
- static struct vduse_mgmt_dev *vduse_mgmt;
- 
--static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
-+static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name,
-+			       const struct vdpa_dev_set_config *config)
- {
- 	struct vduse_vdpa *vdev;
- 
- 	if (dev->vdev)
- 		return -EEXIST;
- 
-+	if (config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
-+		if (config->device_features & ~dev->device_features)
-+			return -EINVAL;
-+		dev->supported_features = config->device_features;
-+	} else {
-+		dev->supported_features = dev->device_features;
-+	}
-+
- 	vdev = vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
- 				 &vduse_vdpa_config_ops, &vduse_map_ops,
- 				 dev->ngroups, dev->nas, name, true);
-@@ -2289,7 +2299,7 @@ static int vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
- 		mutex_unlock(&vduse_lock);
- 		return -EINVAL;
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index 34874beb0152..0fc32f3bd66f 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -688,15 +688,6 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *i
+ 		err = -EINVAL;
+ 		goto err;
  	}
--	ret = vduse_dev_init_vdpa(dev, name);
-+	ret = vduse_dev_init_vdpa(dev, name, config);
- 	mutex_unlock(&vduse_lock);
- 	if (ret)
- 		return ret;
-@@ -2376,6 +2386,7 @@ static int vduse_mgmtdev_init(void)
- 	vduse_mgmt->mgmt_dev.id_table = id_table;
- 	vduse_mgmt->mgmt_dev.ops = &vdpa_dev_mgmtdev_ops;
- 	vduse_mgmt->mgmt_dev.device = &vduse_mgmt->dev;
-+	vduse_mgmt->mgmt_dev.config_attr_mask = BIT_ULL(VDPA_ATTR_DEV_FEATURES);
- 	ret = vdpa_mgmtdev_register(&vduse_mgmt->mgmt_dev);
- 	if (ret)
- 		device_unregister(&vduse_mgmt->dev);
--- 
+-	if (!(config.mask & VDPA_DEV_NET_ATTRS_MASK) &&
+-	    config.mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES) &&
+-	    classes & BIT_ULL(VIRTIO_ID_NET) && ncls > 1 &&
+-	    config.device_features & VIRTIO_DEVICE_F_MASK) {
+-		NL_SET_ERR_MSG_MOD(info->extack,
+-				   "Management device supports multi-class while device features specified are ambiguous");
+-		err = -EINVAL;
+-		goto err;
+-	}
+
+ 	err = mdev->ops->dev_add(mdev, name, &config);
+ err:
+--
 2.51.0
 
