@@ -1,113 +1,112 @@
-Received: from lamorak.hansenpartnership.com (lamorak.hansenpartnership.com [198.37.111.173])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B84A2224FA;
-	Sun,  5 Oct 2025 14:29:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.37.111.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 155BF26ACB
+	for <virtualization@lists.linux.dev>; Sun,  5 Oct 2025 18:12:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.177.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759674563; cv=none; b=uiZrEJNcwglyG1LWq4StQgEdYYXqM/Mx+N1gDrG+CCRCxXbvI94Mgm7k9NVcVLi212ZtOUtzPpvsgr/4GjCyMm4XaoFxSG00esK6oJKqfnbbb2Z2JmWzmKOG+VGKx5AJDhndhO+DKTNKYtmfF6sBTfVFuu23ZYVtZaSj4RVJpMI=
+	t=1759687970; cv=none; b=r3bTKrb6cEsf+5sxNgy09P7bpl0d4LgG2MZPj0qB7pkrcFXDnVfBXee9GycMlN5a5H3mq6wbY5EstnI3i2yC4blFlgN8wmGFZv58tmCXpNghVupoHkMVe6RIUszf64y6P45JXFWhsHTLF82Dfx3L9G2N3wnGjdcqXlYuGwG4848=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759674563; c=relaxed/simple;
-	bh=hrsv2YDzWLNG7Ngtd7/6UjmmDS9vVj1AT8usgE7qgQI=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=MyOFYMGbedAHDbo4fPt4/g8yt0APtU7Yp269uT8dA+q3c1gJrAVMOFUqjVEB02Jt7dlOMXVLQXPz2BZUhQshv90Qii02SrjOgDCAbvdLUz2KktnmAH+9dRKhDfF329PVkO1pw//m3sF52TS6Y0EKNYZDpY3d8n8hfZkTX7OahRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=HansenPartnership.com; spf=pass smtp.mailfrom=HansenPartnership.com; dkim=pass (1024-bit key) header.d=hansenpartnership.com header.i=@hansenpartnership.com header.b=Xjfl0yNW; arc=none smtp.client-ip=198.37.111.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=HansenPartnership.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=HansenPartnership.com
+	s=arc-20240116; t=1759687970; c=relaxed/simple;
+	bh=N3KEX9yMfDskK1jzwp3R8XS991ozbyb1KWcGozNRcQw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iEACQ5qOm2wZfgTGVaamQLajTNZXqdEQktju7RGx2hOj/BUwqktdYFfeU9e9+oUQzlKj7/zJVkp2rUhEtP5sMMv6BROUUl+gMmCXSG3jK1MJUfHhVrvp1HQhSd6elVLaHXRYk9v8JyJJMMIWFyEemrWY48JDC0LauSe4KM/ABa8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=coy51G+6; arc=none smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=hansenpartnership.com header.i=@hansenpartnership.com header.b="Xjfl0yNW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-	d=hansenpartnership.com; s=20151216; t=1759674560;
-	bh=hrsv2YDzWLNG7Ngtd7/6UjmmDS9vVj1AT8usgE7qgQI=;
-	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:From;
-	b=Xjfl0yNWvNlgfTU8/EAtoWEJVM/U3ViTlMzofQd5PTmLzm6zW9WheCJfZQBWMf/Sx
-	 PS4SvfONhUji+BpjFDo64XZP9T6ZIhKXhywCfLN/UQS3ZvwBWm/hIyqdey/rZSYGFE
-	 L93/5IM0KbGEcCMPzv6xPzkYlBejcfGaIgzTmGwQ=
-Received: from lingrow.int.hansenpartnership.com (unknown [IPv6:2601:5c4:4302:c21::a774])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
-	(No client certificate requested)
-	by lamorak.hansenpartnership.com (Postfix) with ESMTPSA id A7B691C0096;
-	Sun, 05 Oct 2025 10:29:19 -0400 (EDT)
-Message-ID: <ce05d6629571eba0a2f0a104fb5584021806addc.camel@HansenPartnership.com>
-Subject: Re: [PATCH v1 3/9] parisc: Convert DMA map_page to map_phys
- interface
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-To: John David Anglin <dave.anglin@bell.net>, Jason Gunthorpe
- <jgg@nvidia.com>,  Leon Romanovsky <leon@kernel.org>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Leon Romanovsky
- <leonro@nvidia.com>, Andreas Larsson <andreas@gaisler.com>, Borislav Petkov
- <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "David S.
- Miller" <davem@davemloft.net>, Geoff Levand <geoff@infradead.org>, Helge
- Deller <deller@gmx.de>, Ingo Molnar <mingo@redhat.com>,
- iommu@lists.linux.dev, Jason Wang <jasowang@redhat.com>, Juergen Gross
- <jgross@suse.com>, linux-alpha@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, 
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Madhavan
- Srinivasan <maddy@linux.ibm.com>, Matt Turner <mattst88@gmail.com>, Michael
- Ellerman <mpe@ellerman.id.au>, "Michael S. Tsirkin" <mst@redhat.com>,
- Richard Henderson <richard.henderson@linaro.org>,
- sparclinux@vger.kernel.org, Stefano Stabellini <sstabellini@kernel.org>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,  Thomas Gleixner
- <tglx@linutronix.de>, virtualization@lists.linux.dev, x86@kernel.org, 
- xen-devel@lists.xenproject.org, Magnus Lindholm <linmag7@gmail.com>
-Date: Sun, 05 Oct 2025 10:29:19 -0400
-In-Reply-To: <610b10bc-1aa2-4fad-a40b-be5fcfa04430@bell.net>
-References: <cover.1759071169.git.leon@kernel.org>
-	 <333ec4dabec16d3d913a93780bc6e7ddb5240fcf.1759071169.git.leon@kernel.org>
-	 <20251003150144.GC3360665@nvidia.com>
-	 <610b10bc-1aa2-4fad-a40b-be5fcfa04430@bell.net>
-Autocrypt: addr=James.Bottomley@HansenPartnership.com;
- prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.3 
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="coy51G+6"
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 595HOS9O029328;
+	Sun, 5 Oct 2025 18:12:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=corp-2025-04-25; bh=VAryTyAJu9KZaSYEcp5AUrvC36hG8
+	7ym/EbK85YtUck=; b=coy51G+6/D0iGPmOLkETZQIXnTLU0iu3Qk+qXOvWQ7wZt
+	5m4sWwU6p1DnBvl2ONzI67O+oK+I5TjGY9nbKQxLapj2ZYDuUt49crY+G41PDxGU
+	9U1GQ3LdpCwn+g0zo8H7QpKZbzVlm7TNdr5L2ba4BIbUi5TuCW+ra4l7y682MYSY
+	HhYPMPk3m765Em+htWqp6VJg2g3CVzQB7KI98SleyrCdEifi9JzP3Is2AlpcZ85+
+	duHlIXE2+zdw5/+nx8THgWo0E6jDvIrA9dIUOrLXITDYjuS4a4WrWNJEI/WzFQdc
+	D8NPTXkoBMohddeBYXZBotHb3imHpUyTUEnpq8dDA==
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 49kvtwr0tu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 05 Oct 2025 18:12:37 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 595H01JI035081;
+	Sun, 5 Oct 2025 18:12:36 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 49kdp2q6f3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 05 Oct 2025 18:12:36 +0000
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 595ICZ3W020065;
+	Sun, 5 Oct 2025 18:12:35 GMT
+Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.129.136.47])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 49kdp2q6ex-1;
+	Sun, 05 Oct 2025 18:12:35 +0000
+From: Alok Tiwari <alok.a.tiwari@oracle.com>
+To: eperezma@redhat.com, mst@redhat.com, jasowang@redhat.com,
+        xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev
+Cc: alok.a.tiwari@oracle.com, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] virtio_vdpa: fix misleading return in void function
+Date: Sun,  5 Oct 2025 11:12:29 -0700
+Message-ID: <20251005181232.3320977-1-alok.a.tiwari@oracle.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-05_06,2025-10-02_03,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=999
+ adultscore=0 mlxscore=0 spamscore=0 phishscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2509150000 definitions=main-2510050156
+X-Proofpoint-ORIG-GUID: OkDpaI_kCMkJMe5z2KVg-QCHDlRmuvUi
+X-Authority-Analysis: v=2.4 cv=dprWylg4 c=1 sm=1 tr=0 ts=68e2b515 b=1 cx=c_pps
+ a=qoll8+KPOyaMroiJ2sR5sw==:117 a=qoll8+KPOyaMroiJ2sR5sw==:17
+ a=x6icFKpwvdMA:10 a=yPCof4ZbAAAA:8 a=Cu5L_QzEE98FA8FmBg8A:9 cc=ntf
+ awl=host:12092
+X-Proofpoint-GUID: OkDpaI_kCMkJMe5z2KVg-QCHDlRmuvUi
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA1MDE0NyBTYWx0ZWRfX5+r1vcXv7fiB
+ LYr7Uq2Eu1sqyDFJURQoL8d25SGwts4laqJ6sBibKD684vmYpATfo5S0KxEAZYkY6KzyedzCuKp
+ IKAAMIBHugs7073BSH5kL9Im1CE4d+0D14NHgnvuXKbxoZfWrd9Ce425EFOuuAy12Naa9RwX96q
+ TAJc+ze2VGRKt4n9PSV+r6vUmCvMjCMX0YOglgrhQcJWBFGMmompEu4SzxSJqrZq59iyFR8d9i6
+ En0ZlFdXwP6n/H7m5JyoaR4nrX6/4Oc8LczcjlrA7j0CLmclBfAjZyrro1rPMmj2uCYGSysyVRN
+ 6tEdrJm4w01lbJnK/UFtSEzbHiB2iPw5EIfNnshXegpN52HWZtMTU8Sg4Gvo+OFdnFGYG/OGmhA
+ jbFAfP1OnwfKREQOJTfvQXShfUjIsJMedGTVisgEh/FScD+UP6I=
 
-On Fri, 2025-10-03 at 13:18 -0400, John David Anglin wrote:
-> On 2025-10-03 11:01 a.m., Jason Gunthorpe wrote:
-> > This doesn't actually use the virt at all:
-> >=20
-> > 	offset =3D ((unsigned long) addr) & ~IOVP_MASK;
-> > 	if((size % L1_CACHE_BYTES) || ((unsigned long)addr %
-> > L1_CACHE_BYTES))
-> > 		ccio_io_pdir_entry(pdir_start, KERNEL_SPACE,
-> > (unsigned long)addr, hint);
-> >=20
-> > And ccio_io_pdir_entry():
-> > 	pa =3D lpa(vba);
-> >=20
-> > Is a special instruction that uses virt but AI tells me that
-> > special LPA instruction is returning phys. Not sure if that is a
-> > different value than virt_to_phys()..
->=20
-> ccio_io_pdir_entry currently only supports KERNEL_SPACE.
+virtio_vdpa_set_status() is declared as returning void, but it used
+"return vdpa_set_status()" Since vdpa_set_status() also returns
+void, the return statement is unnecessary and misleading.
+Remove it.
 
-Actually there's a bit more nuance to it than that.  Obviously DMA has
-to support user pages otherwise I/O wouldn't work.  The way it does  is
-that all physical pages are mapped in the kernel and we try to make
-sure all user mappings are on cache stride (4MB) boundaries so the
-coherence index of the kernel virtual address and the user virtual
-address are the same, so we can solely use the kernel virtual address
-to calculate the coherence index for the IOMMU.  If that's not true, we
-flush the user virtual address range in gup and the kernel virtual
-address range before sending the I/O completion.
+Fixes: c043b4a8cf3b ("virtio: introduce a vDPA based transport")
+Signed-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>
+---
+v1 -> v2
+added fixes tag
+---
+ drivers/virtio/virtio_vdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Regards,
-
-James
-
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index 657b07a60788..1abecaf76465 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -80,7 +80,7 @@ static void virtio_vdpa_set_status(struct virtio_device *vdev, u8 status)
+ {
+ 	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
+ 
+-	return vdpa_set_status(vdpa, status);
++	vdpa_set_status(vdpa, status);
+ }
+ 
+ static void virtio_vdpa_reset(struct virtio_device *vdev)
+-- 
+2.50.1
 
