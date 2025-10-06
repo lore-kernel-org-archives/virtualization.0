@@ -1,58 +1,58 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0774A261B60
-	for <virtualization@lists.linux.dev>; Mon,  6 Oct 2025 07:47:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C21A26B955
+	for <virtualization@lists.linux.dev>; Mon,  6 Oct 2025 07:48:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759736859; cv=none; b=QsB6q7B2c81SKYiXhHoDdJ5SQQY9u/p3ciwa73DFDXJF9vYVOewh/qm6ydf5DHkHkgkgVDnE34UWaUfXxWNVFP+7fmN+I8RpB63jAnXYTvFrPFBh4i50NzCBJ+OfprKeVXEiNLHbs8abNeQLHmaaKpCWdvz1LcjrbryZM1kkbb0=
+	t=1759736887; cv=none; b=NZQGKEuxAMmsHe8+L4r5T3yMSQOaoQrCJazLAU37eBamz03Cm2Kw6ynKhVXDQk1Gqj079864PfK3YfR6N8XQ8OdWSp1i+QCGJYzmvGlERpKbtQHb9nEMkwqBLZy9lEDqA2+9TEWA9686+Jm+BOZ69YgJFQhYKUT8Iw9k3MPH/xo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759736859; c=relaxed/simple;
-	bh=KS8fe3tcaEWBMDARocb/nL7jL4ZSZt3fJ4pVwL98WBA=;
+	s=arc-20240116; t=1759736887; c=relaxed/simple;
+	bh=KhS2hR8yS4ddPWKetGb5Mg/+66yHTxjFfkIrs4V1taA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BzG9kG/lmkLwIg+m8HxPl4ov8p2nlqDcnOSaz9+RD2xsoCKY7+K9mlmmzW6aTtJJpbPGBuVgkuaBIvYv/ta6ISAFsi638Y/s+OrGli40rcFM9TyVCb/41Wp+A3n8ptKnu1Asr+vINhHcinvFRBSB+f55StjRmhFFviHpKwnZJFE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=mBuw3HsX; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=mBuw3HsX; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=eZl1WaUePXSX0DCwLiqcC/t2kVpmvXoXpaYBEOuX3HuBsSEeHLHaeb/Ew58mwNHeH41J1wZHhXrwjZkM5xemybST7NljMtrHJB/Orv66J55rsRNFkPRrYwVB9jkJ85oc4ZWNKdb1ybXMYMBpyBAgY07pC8JU+d2AcjzxUG5JCD4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=YtyShZrL; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=YtyShZrL; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="mBuw3HsX";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="mBuw3HsX"
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="YtyShZrL";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="YtyShZrL"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 4FC5C336EF;
-	Mon,  6 Oct 2025 07:47:35 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 82DB01F452;
+	Mon,  6 Oct 2025 07:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1759736855; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1759736884; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NfZM0KCyCe4PB+tPnZRIqKjxT1C+uq5P0n+UToNC19A=;
-	b=mBuw3HsXR2tDBs2SDlGbBQXo+hvvyqj7HECT9+y1BRmpF6pROJLBsEgISa99aZLHllAg6F
-	wjkpd00wqrqzzngg1RrwQsR1J1QQH36OKO59fQ8reeMMVZiRkaUIrvejs4sEHtQx8YLsiz
-	VEyG7LMRKR+UOODQsyqaWSGY1qeBE1E=
-Authentication-Results: smtp-out1.suse.de;
+	bh=88n5mUbHShWHoW/2+l8tGp7eL9ycecbkhiJbnud3hQM=;
+	b=YtyShZrLIID74Da5EDkfRRxc4MBHA1LH1gfj9PimwkuNZpfJP7C2b5N3996VmcPouk2jXz
+	d8NdNOn91gF5unD9XAAXch9EeqBxXtS4htCJmVDD07upRrKBf3ZANTgPif26vNJlvWadKm
+	MIWqUmZyPOquZWLwSL6oUppD/Py+Ggo=
+Authentication-Results: smtp-out2.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1759736855; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1759736884; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NfZM0KCyCe4PB+tPnZRIqKjxT1C+uq5P0n+UToNC19A=;
-	b=mBuw3HsXR2tDBs2SDlGbBQXo+hvvyqj7HECT9+y1BRmpF6pROJLBsEgISa99aZLHllAg6F
-	wjkpd00wqrqzzngg1RrwQsR1J1QQH36OKO59fQ8reeMMVZiRkaUIrvejs4sEHtQx8YLsiz
-	VEyG7LMRKR+UOODQsyqaWSGY1qeBE1E=
+	bh=88n5mUbHShWHoW/2+l8tGp7eL9ycecbkhiJbnud3hQM=;
+	b=YtyShZrLIID74Da5EDkfRRxc4MBHA1LH1gfj9PimwkuNZpfJP7C2b5N3996VmcPouk2jXz
+	d8NdNOn91gF5unD9XAAXch9EeqBxXtS4htCJmVDD07upRrKBf3ZANTgPif26vNJlvWadKm
+	MIWqUmZyPOquZWLwSL6oUppD/Py+Ggo=
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E27E713A7E;
-	Mon,  6 Oct 2025 07:47:34 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0C74313A7E;
+	Mon,  6 Oct 2025 07:48:04 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id F57INRZ042iWHgAAD6G6ig
-	(envelope-from <jgross@suse.com>); Mon, 06 Oct 2025 07:47:34 +0000
+	id +rsVATR042jHHgAAD6G6ig
+	(envelope-from <jgross@suse.com>); Mon, 06 Oct 2025 07:48:04 +0000
 From: Juergen Gross <jgross@suse.com>
 To: linux-kernel@vger.kernel.org,
 	x86@kernel.org,
@@ -66,9 +66,9 @@ Cc: Juergen Gross <jgross@suse.com>,
 	Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
 	"H. Peter Anvin" <hpa@zytor.com>
-Subject: [PATCH v3 14/21] x86/paravirt: Move pv_native_*() prototypes to paravirt.c
-Date: Mon,  6 Oct 2025 09:45:59 +0200
-Message-ID: <20251006074606.1266-15-jgross@suse.com>
+Subject: [PATCH v3 19/21] x86/paravirt: Allow pv-calls outside paravirt.h
+Date: Mon,  6 Oct 2025 09:46:04 +0200
+Message-ID: <20251006074606.1266-20-jgross@suse.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251006074606.1266-1-jgross@suse.com>
 References: <20251006074606.1266-1-jgross@suse.com>
@@ -79,6 +79,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
 X-Spamd-Result: default: False [-2.80 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
@@ -92,68 +93,53 @@ X-Spamd-Result: default: False [-2.80 / 50.00];
 	MIME_TRACE(0.00)[0:+];
 	TO_DN_SOME(0.00)[];
 	RCPT_COUNT_TWELVE(0.00)[12];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:mid,suse.com:email];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:email,suse.com:mid];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
 	FROM_EQ_ENVFROM(0.00)[];
 	RCVD_COUNT_TWO(0.00)[2];
 	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	URIBL_BLOCKED(0.00)[suse.com:email,suse.com:mid,imap1.dmz-prg2.suse.org:helo];
 	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
 	RCVD_TLS_ALL(0.00)[]
 X-Spam-Flag: NO
-X-Spam-Level: 
 X-Spam-Score: -2.80
 
-The only reason the pv_native_*() prototypes are needed is the complete
-definition of those functions via an asm() statement, which makes it
-impossible to have those functions as static ones.
-
-Move the prototypes from paravirt_types.h into paravirt.c, which is the
-only source referencing the functions.
+In order to prepare for defining paravirt functions outside of
+paravirt.h, don't #undef the paravirt call macros.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
-V2:
-- new patch
----
- arch/x86/include/asm/paravirt_types.h | 7 -------
- arch/x86/kernel/paravirt.c            | 5 +++++
- 2 files changed, 5 insertions(+), 7 deletions(-)
+ arch/x86/include/asm/paravirt.h | 16 ----------------
+ 1 file changed, 16 deletions(-)
 
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 148d157e2a4a..1e50f13e6543 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -480,13 +480,6 @@ extern struct paravirt_patch_template pv_ops;
- 	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2),	\
- 		     PVOP_CALL_ARG3(arg3), PVOP_CALL_ARG4(arg4))
- 
--#ifdef CONFIG_PARAVIRT_XXL
--unsigned long pv_native_save_fl(void);
--void pv_native_irq_disable(void);
--void pv_native_irq_enable(void);
--unsigned long pv_native_read_cr2(void);
--#endif
--
- #endif	/* __ASSEMBLER__ */
- 
- #define ALT_NOT_XEN	ALT_NOT(X86_FEATURE_XENPV)
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 4e37db8073f9..5dfbd3f55792 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -45,6 +45,11 @@ void __init default_banner(void)
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 62399f5d037d..ba6b14b6f36a 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -588,22 +588,6 @@ static __always_inline unsigned long arch_local_irq_save(void)
  }
+ #endif
  
- #ifdef CONFIG_PARAVIRT_XXL
-+unsigned long pv_native_save_fl(void);
-+void pv_native_irq_disable(void);
-+void pv_native_irq_enable(void);
-+unsigned long pv_native_read_cr2(void);
-+
- DEFINE_ASM_FUNC(_paravirt_ident_64, "mov %rdi, %rax", .text);
- DEFINE_ASM_FUNC(pv_native_save_fl, "pushf; pop %rax", .noinstr.text);
- DEFINE_ASM_FUNC(pv_native_irq_disable, "cli", .noinstr.text);
+-
+-/* Make sure as little as possible of this mess escapes. */
+-#undef PARAVIRT_CALL
+-#undef __PVOP_CALL
+-#undef __PVOP_VCALL
+-#undef PVOP_VCALL0
+-#undef PVOP_CALL0
+-#undef PVOP_VCALL1
+-#undef PVOP_CALL1
+-#undef PVOP_VCALL2
+-#undef PVOP_CALL2
+-#undef PVOP_VCALL3
+-#undef PVOP_CALL3
+-#undef PVOP_VCALL4
+-#undef PVOP_CALL4
+-
+ void native_pv_lock_init(void) __init;
+ 
+ #else  /* __ASSEMBLER__ */
 -- 
 2.51.0
 
