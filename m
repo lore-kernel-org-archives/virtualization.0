@@ -1,131 +1,146 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E652C1A23B1
-	for <virtualization@lists.linux.dev>; Mon,  6 Oct 2025 14:15:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC1EE2C325D
+	for <virtualization@lists.linux.dev>; Mon,  6 Oct 2025 14:57:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759760115; cv=none; b=HIaddF1JGKp6XeNhW5QJCJ4K/zS0jgdmbOM7pQZiORzP2abjcdNWhhUuXFjhhJo/1qEM7IMAQP1kIkE+8VM2MQnksjSGIZIZAw0KyTvdhXSoQXdXKaOyahYeFYnCgSbSvvVZsAUBUq9EHd79Uj+yeT0I+Wp0gO5C/T9aQdaVLJo=
+	t=1759762638; cv=none; b=GhXk/0LfJIp3SLtpvZUYIEk0RCKM/jH1fYaUtYj05lHxOg4lsnYQ4/EcpfgJ6T7YbuYIN9TpjTmbCMyJ20lDLzdE7Vk+Fv3D4yXk8zxYuMjV1fin4ArGR0O2UEI8I+kNwRkV5hwXtj4zIhuxrKK916EXsNJAEKEx/6Y3k1o5vwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759760115; c=relaxed/simple;
-	bh=dpC1E3ty+TFIwvkaEmernFgK/zs4Oj/TxnNsvw9c65s=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Mg3MA6u+I3XHsodG3ltbtBhjMOwfImMiwHplVHImL2W1n1Wrtwp4o+lsWx2f9aASAS/QLhb4sMSnVRESTM30Euy6PYmTuDn6asd6mywL+W/WUGqjhb1PPW1mdlvSwexG+tUaZhhA4pfIPBBbrozvuq6wInPlqzQSw/ToGpKbn8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hny3TGOH; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1759762638; c=relaxed/simple;
+	bh=jhanX6T0C/CgFwpJufY1Z11zs77Vwb4iEfdm4wPkXWY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=jacN9VWVE1xO+x8d7pXQmuHfqTGu/vxXPPRmFSPruRU2zunS2lTYnjs/DoP0rPWjoWQ3VKCRdHX0RK1481B2iSvSvTHFiTIkablGUZu0TEPdsDscirFKcM3/X8mOiTkET5dvgsumMqfYtsZPQWn6GlPga5vNTARHLoc0CJ5xnWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DMz6WpbJ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hny3TGOH"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-46e3cdc1a6aso37281435e9.1
-        for <virtualization@lists.linux.dev>; Mon, 06 Oct 2025 07:15:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759760112; x=1760364912; darn=lists.linux.dev;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=dpC1E3ty+TFIwvkaEmernFgK/zs4Oj/TxnNsvw9c65s=;
-        b=hny3TGOHM900WtxWybCRisf9LpsxKUMYTMmqHM5JR19Tar7uoFr3MyvB6QX2sdCetz
-         ITc08LWIm5ZOQ95QaAHYwBSI+Y2j3ewrlMWKmqhFEGV8CtLjXYehsDA1OOONXqKlTv5q
-         v87vwfBtfc7IY6mGn/0k1iPvaoSNwzIh4y/6opMyOqYINVjzXwQ3XXozxrvCFJg+KYXc
-         eQHaugJi9KRkZFWMH+k1TUdXach1GL22vAmPHZrV6XJzXyuKpbsh5li+RfAdKKWVyihS
-         VxbjcYeRdLaDXY0m2VJ2zEbExDTEFG/H/O1FLKDTsAEgpu06sSm2a3Vs8JPbzA50qb/d
-         /1Gw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DMz6WpbJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1759762635;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Sp5ApOjH4RCi6YxBNf6Q9TZoHxlt3LqlFYkBMPytEDg=;
+	b=DMz6WpbJf4MNkqU4FJ1POT8iYq8mDjNxH/ZRaJC+gmCxsAWXd6KstxJVtVk/REiceSp1Jf
+	pCbgfesgtgJcusksk/8vmKSsoGpp7ldFmeAcK5/P2irBMyzJ51lzzxUar+iQ9weYnpgv28
+	up3rjQ56fLb+OD0L85cL/jWD1SVBmdA=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-203-4yFAtWOSOsiHj4JXwKtbzg-1; Mon, 06 Oct 2025 10:57:14 -0400
+X-MC-Unique: 4yFAtWOSOsiHj4JXwKtbzg-1
+X-Mimecast-MFC-AGG-ID: 4yFAtWOSOsiHj4JXwKtbzg_1759762633
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3ed9557f976so3336292f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 06 Oct 2025 07:57:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759760112; x=1760364912;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=dpC1E3ty+TFIwvkaEmernFgK/zs4Oj/TxnNsvw9c65s=;
-        b=qtXHRxZahLFdAbiwLggcHJbJCJFFxfFN+HCGFUzv+u9uSIgNmTduCUfefP7Ol2OyGS
-         vU4taNdORLdoHTZJgVLlx6DlJRZb0WaX160SPjMDeC4A9VnL6qNvOybopNG1xlW+JRzP
-         HN35qlKZDrOrBFA5kxiLlTi7ApWsrKoEQ5USsuAfMC5JoRtKh25RIJFQoDyBbvI8l+qr
-         pJiOG4dBRqAM1AKfLdqLRrsAjqsUFWbc6m+NS39zG6ZecAwEPZ5UWHu0wtJNZuq+0KVE
-         IFH8OiyxP4mJ9GdaHD/Z3aVl2BcLrcMrRTeAWj8EDhetTqdFm/YDh700LVIkdOFPT7T8
-         aGoQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXYZxeo4eeC05BAJkyyv+nO7h/ZTU+1nnkKjEREytDN4rxwr8hRCc5QiZpFDMA+uWprcLN4lKWfLzKTf2VltA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yweud1bJhw9N+5UVJyAoXsqmmDb+x9lAtyWTGH3eTFS0Pz6utxM
-	ediNfs6xipWDCy9YhF5HJutVLGEnVPJTzpQzFOfkODh9/3a3AtScJ9eM
-X-Gm-Gg: ASbGncv8fiEca8urkAPXezqBuO3+2g0ldOzmbemTfYA5ENfmLOm7Q2c50YscbknrKhV
-	qPWLuriimMRwXz9wJgdnHgPhhrvUm6/AwVaClh//9J3QiZJZStU2zZBBQAhvE0n7H/CB+jjH0de
-	ourOFVq2gT7f+gmiNaofyHy6ncGKO/lmeKxdcFOSobHtmIk23ql6XPdZsoVcv0l6SLxIrmt9bHx
-	HAkSgxkCv8tU4jNXFr/S4dR5ZsUPNXL4CvJJuh9ORI59WTEHc93HmGUY+VQjB3++92PIv2cjA+u
-	4ye8i1rzbkV3xdDQ9ibBD2+DKMsVxJasTyLH9Nu7UKzfJ7lTCUG7sj7NpAxygc885wROzD1Q83D
-	E8LjP/jzJKVSJxtzoyZvh96HFfP1M+3k8csEGwY3SFEive6Z0ViDxORAPZXenqrK9JSKPav/aMs
-	6nAP7xZQ==
-X-Google-Smtp-Source: AGHT+IFvFV4OWJrtZLVyN6HOHxV1pZ8u+HpcMb9x2itMg3VtsVtai86lf60GZYy3ywG2hvyKpuqDFw==
-X-Received: by 2002:a05:600c:530e:b0:45f:29eb:2148 with SMTP id 5b1f17b1804b1-46e70c5ca50mr85971895e9.7.1759760111974;
-        Mon, 06 Oct 2025 07:15:11 -0700 (PDT)
-Received: from [10.33.80.40] (mem-185.47.220.165.jmnet.cz. [185.47.220.165])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46e72359e2bsm161672755e9.13.2025.10.06.07.15.10
+        d=1e100.net; s=20230601; t=1759762633; x=1760367433;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Sp5ApOjH4RCi6YxBNf6Q9TZoHxlt3LqlFYkBMPytEDg=;
+        b=dcq8LC0Ko0R0wHFGl5uPV2xW31TCg/40ZWwXoGYBH75xM7RkiZ/cmxNkXtuom5Wm9t
+         lbSmnY/gPZdWXy7HehYmXYngopaYGOUGiZVMvx9jDJshSTGAIQAlVWW19y+syf3uSSYU
+         eNgBM64CK6BwfV1PME2yDt9QWpYdyEqwW47f+qw1giOgDKa7ehuHVf6GYOfE798lxX6H
+         DJmAmRZYGOXHDVvxatVCUsLEMzBD9HJRVOEpmeGqObfHUp3ZV8FgaQXFWqg+BrdNod/2
+         utTbma/uMZBuUqlK8vX0JeEdPQd465U6sRwnlTPuIYi6zqmFSp7s29Joq79u4pPyQ95x
+         fTCg==
+X-Forwarded-Encrypted: i=1; AJvYcCWUuqAq5QdAtOXBgPn31moRBQ4dolWlZdCaBoJ+hldqJU0z6T7/eUrQwNMEp9pyZTF7C5bB5xUkPNZlI3B4Sg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy8ntY6iuvLbNj2MxcuccvAKkU3DnGeGCORmvt6SagXEAhB5dwA
+	Irz0VX/3W2Qo7AAIIo5J8fJws9aCCl58O7vISVd1ElWBK7wlhwAE9r8avFSEYR4x1LZ0yndwWmU
+	y5XHSLJZr0KV91Gk6IqmYiOZXvH/hztcmgRTBuujYVtI2WfrXAlKnZJoKv7oXhKUUcdDC
+X-Gm-Gg: ASbGncuND4UcqZFBXrvHskWDpY19tqb/5P7eC3QciB/6AVj2SEuYN6hZyreTYUPK2EZ
+	LoXhSCk4ROQlxNqxQG4JBhBjIFlyr5cbNaLrjSFFbqtWBkPhcrg2KneuaGWe1+i0eeYJ9PYDNP9
+	2xGClbkvNCREspJ8IRsGSqsrfsDEDmF29IQDnhxaMgxZW/YS4R4rffIzRzwBJhRaoM1ze+FT7nE
+	Jc/j01l5mwLvqt4i7/gfy9GGZ3arpSYDfawtxRydE0wU1ibjNZZQ+okH393rnTwfRhpFM9OpLRO
+	YpR5OwdpZ4MG8AKERfFsjrPRIKqj3PXVaA0atKM=
+X-Received: by 2002:a05:6000:2c0b:b0:3ea:c893:95c6 with SMTP id ffacd0b85a97d-4256714d54cmr7467171f8f.18.1759762632892;
+        Mon, 06 Oct 2025 07:57:12 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGhCh+WQlE03GS/5i0teFXU29iwxX265IzFV+HGIBnzz3VE2lFdRIe6xVdZDphPiu/L9OdYuA==
+X-Received: by 2002:a05:6000:2c0b:b0:3ea:c893:95c6 with SMTP id ffacd0b85a97d-4256714d54cmr7467149f8f.18.1759762632376;
+        Mon, 06 Oct 2025 07:57:12 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1518:6900:b69a:73e1:9698:9cd3])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8f02a8sm21594716f8f.39.2025.10.06.07.57.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Oct 2025 07:15:11 -0700 (PDT)
-Message-ID: <a4e912547211eed865bdf769647936c1e3034e4e.camel@gmail.com>
+        Mon, 06 Oct 2025 07:57:11 -0700 (PDT)
+Date: Mon, 6 Oct 2025 10:57:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Filip Hejsek <filip.hejsek@gmail.com>
+Cc: stable@vger.kernel.org,
+	Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>,
+	Daniel Verkamp <dverkamp@chromium.org>, Amit Shah <amit@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	virtualization@lists.linux.dev
 Subject: Re: Backport request for commit 5326ab737a47 ("virtio_console: fix
  order of fields cols and rows")
-From: Filip Hejsek <filip.hejsek@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: stable@vger.kernel.org, Maximilian Immanuel Brandtner
- <maxbr@linux.ibm.com>,  Daniel Verkamp <dverkamp@chromium.org>, Amit Shah
- <amit@kernel.org>, Greg Kroah-Hartman	 <gregkh@linuxfoundation.org>,
- virtualization@lists.linux.dev
-Date: Mon, 06 Oct 2025 16:15:10 +0200
-In-Reply-To: <20251006062851-mutt-send-email-mst@kernel.org>
+Message-ID: <20251006105608-mutt-send-email-mst@kernel.org>
 References: <f839e710b4ede119aa9ad1f2a8e8bcc7fcc00233.camel@gmail.com>
-	 <20251006062851-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.0 
+ <20251006062851-mutt-send-email-mst@kernel.org>
+ <a4e912547211eed865bdf769647936c1e3034e4e.camel@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <a4e912547211eed865bdf769647936c1e3034e4e.camel@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: CaUyHcK6Ojr24vLQyW4Xmz_rcf_c8uIv1_YX4s6jigY_1759762633
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, 2025-10-06 at 06:29 -0400, Michael S. Tsirkin wrote:
-> On Thu, Sep 18, 2025 at 01:13:24AM +0200, Filip Hejsek wrote:
-> > Hi,
-> >=20
-> > I would like to request backporting 5326ab737a47 ("virtio_console: fix
-> > order of fields cols and rows") to all LTS kernels.
-> >=20
-> > I'm working on QEMU patches that add virtio console size support.
-> > Without the fix, rows and columns will be swapped.
-> >=20
-> > As far as I know, there are no device implementations that use the
-> > wrong order and would by broken by the fix.
-> >=20
-> > Note: A previous version [1] of the patch contained "Cc: stable" and
-> > "Fixes:" tags, but they seem to have been accidentally left out from
-> > the final version.
-> >=20
-> > [1]: https://lore.kernel.org/all/20250320172654.624657-1-maxbr@linux.ib=
-m.com/
-> >=20
-> > Thanks,
-> > Filip Hejsek
->=20
-> But I thought we are reverting it?
+On Mon, Oct 06, 2025 at 04:15:10PM +0200, Filip Hejsek wrote:
+> On Mon, 2025-10-06 at 06:29 -0400, Michael S. Tsirkin wrote:
+> > On Thu, Sep 18, 2025 at 01:13:24AM +0200, Filip Hejsek wrote:
+> > > Hi,
+> > > 
+> > > I would like to request backporting 5326ab737a47 ("virtio_console: fix
+> > > order of fields cols and rows") to all LTS kernels.
+> > > 
+> > > I'm working on QEMU patches that add virtio console size support.
+> > > Without the fix, rows and columns will be swapped.
+> > > 
+> > > As far as I know, there are no device implementations that use the
+> > > wrong order and would by broken by the fix.
+> > > 
+> > > Note: A previous version [1] of the patch contained "Cc: stable" and
+> > > "Fixes:" tags, but they seem to have been accidentally left out from
+> > > the final version.
+> > > 
+> > > [1]: https://lore.kernel.org/all/20250320172654.624657-1-maxbr@linux.ibm.com/
+> > > 
+> > > Thanks,
+> > > Filip Hejsek
+> > 
+> > But I thought we are reverting it?
+> 
+> I'm kinda confused by this question, because I thought you already
+> understood the situation.
 
-I'm kinda confused by this question, because I thought you already
-understood the situation.
+Yes - I just noticed this backport request stood unanswered and
+I thought it's a good idea to make stable maintainers know it's
+not yet the time to do the backport.
 
-I sent this backport request after a discussion with Max in the revert
-thread, from which I got the impression that the virtio spec
-maintainers were unwilling to change the spec to match the Linux
-implementation. That impression might have been wrong though.
+Sorry if I did it in a confusing way.
 
-When you sent Linus a pull request containing the revert, I realized
-that there was no consensus about which side should be fixed (spec or
-Linux) and told you that I think it should be reverted only if the spec
-is also changed. You then sent a spec change patch [1] to the virtio
-mailing list.
 
-I'm not familiar with how decisions about the virtio spec are made, so
-I don't know if that change is going to be accepted or not.
+> I sent this backport request after a discussion with Max in the revert
+> thread, from which I got the impression that the virtio spec
+> maintainers were unwilling to change the spec to match the Linux
+> implementation. That impression might have been wrong though.
+> 
+> When you sent Linus a pull request containing the revert, I realized
+> that there was no consensus about which side should be fixed (spec or
+> Linux) and told you that I think it should be reverted only if the spec
+> is also changed. You then sent a spec change patch [1] to the virtio
+> mailing list.
+> 
+> I'm not familiar with how decisions about the virtio spec are made, so
+> I don't know if that change is going to be accepted or not.
+> 
+> [1]: https://lore.kernel.org/virtio-comment/7b939d85ec0b532bae4c16bb927edddcf663bb48.1758212319.git.mst@redhat.com/t/
+> 
+> Best regards,
+> Filip Hejsek
 
-[1]: https://lore.kernel.org/virtio-comment/7b939d85ec0b532bae4c16bb927eddd=
-cf663bb48.1758212319.git.mst@redhat.com/t/
-
-Best regards,
-Filip Hejsek
