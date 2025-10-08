@@ -1,164 +1,177 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013035.outbound.protection.outlook.com [40.93.196.35])
+Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 945EE2F656A
-	for <virtualization@lists.linux.dev>; Wed,  8 Oct 2025 11:26:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.35
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759922786; cv=fail; b=oNLGBHrLwPkhU3lHv+PtwI7zahk2GZNqO7BhrtqFhek6ISsCNbXVFiVo2Uhr0TI7BenDNeiVC6WwUMvbx/XXaXerFArSmyxNGMibshVl6c2MbaC6omqaVCXdYrzojDOrdoUBiqtUuh8tZGrS80qtUe1ZKYm7RurCwC5qH9/PMKk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759922786; c=relaxed/simple;
-	bh=6nc6CoNrqIHm0wRE0d0VssL/eeRya6fi2NWQsNO3mKE=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=aI9HUdIyC2LiKGtsR3d71oaYg312SMF9QaNARYbWKjhHDDMEfzdI9A5g4mBPkjk8gOXFnBRyiKFqN2ykn7bIhCdLlKpnOZPhjyJXFqzcf7hi9SSG/rvAfxVgRJij+9HAzpTUistBMPNuGDKNh6CPrigwKMtS20zABuSXn8+rx0o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=R2oT6Y34; arc=fail smtp.client-ip=40.93.196.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7557219D082
+	for <virtualization@lists.linux.dev>; Wed,  8 Oct 2025 11:36:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1759923375; cv=none; b=DDbFdXOclq4j/i72sxxDGowa0Mi97XQ/188gExQgc8BSkjtu1013r1zmMhk7JsV6lmAH6K88fkvlYUu7ep5V5Z6NYMc2QitPuAph0fm8EluR7LnI22p1hdupq11Ttxung5ELnBfD/SMfnrk5T6l7cIWHlg/OrKwz0x4PwLUCm5k=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1759923375; c=relaxed/simple;
+	bh=IceakvOaggMPUYsKLAdHdeVuyQMjc5l28+Stg3yh6XI=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=e0p/g/DQTNgFoqtfhhHT2Z29MPYJbi7uGjmeLsFMCd45VDHkvZ4CWsngAzdu6ZXPc7S1m/XwXZ+99swJRDNsv46g250Uq3dwc7pI9SOZU1FFdsAmbEoJYZt+vmo07J+87qQq6lJfAMwTs+48L/iPUi/PXxG5Mu5AvxQlBFPRGkI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=YV2HEwIx; arc=none smtp.client-ip=67.231.148.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="R2oT6Y34"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=P+dLXyFuExeJMFbq3Vl3uKwasNOiIuWawrsCQ/TXZKLr9HwP6OVz7jHkHoVViftYh+sPrLGcIeGbUyghOV9s/gjOzJhsQlDPKGu2f/LmXPw+Fliop1YME0y2tUP5pLAitz/tKlwvevqVbQNzCG4VXMuzSpl7aHJq7kBC/3jmNI9Yku29UbQfeGNbTFLc4sZvVgK3J/wotOHsvpOgy4DsVuZBV02zgo5AIok3Z9zgo9ujCCE20TyIL5TjFIaCBZjTMAdZLzvJpWXpd4c4F39U+s1RQVHXDgr9sBQB1Lyjf3pMkh4Of8kE97sVpvUY8Yuvm0Lf1rXU0DN2YPcHdlgSzQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=6nc6CoNrqIHm0wRE0d0VssL/eeRya6fi2NWQsNO3mKE=;
- b=n/jUYbj0Awg6E2sQr052VTeFOMRGkiAEtmJXMnJ0LDkhB1cF9agi8S3KuEwugHGo/NnmbwEw+JoIsMi6QqpkWliF0CarFI5XOHGklUxIQ3Fv+kAQKNkmwgMzleyaL8Htz8vQ/9iZYmV1enkIcPMY4HL6ECgjr1fUR92TeyIYWs3p5bzXICs85x17jevylQIMAA7c34fZvmSFRibCrZUJnJJ2J0DYlj0Vc/USksfKPH3l9aOA2T7sKtAeEUU5UnmiVt2/W6eZi17lFJHbySuLVXpqG7m1h7mD56CliK4/8NysbVWn4O2vWkk9jHSuVh5IicCeAH8XYKI2MW/5ntUU4w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6nc6CoNrqIHm0wRE0d0VssL/eeRya6fi2NWQsNO3mKE=;
- b=R2oT6Y34Tw6GJyFe/ayv2eZazgXIp3HlgiUYg6X/y7+Jupm1PZygVwBQhe8gxqwLXFr2saFZCRiZT6CDft8jbrzwm0EmuRDfpxnidL3+zqHhZJQSZNDyn+m9RBIf02DCyLiZ8spgwvJEz44+2r1y7IMoaoozOFAH8ybuj4ViSbyz0n5luVICQsmGUAtIyp6x45TWkOkpp/F/k6PQSFvIafUXeD3DQvBBPeynjXetTzFN+XW5fJoLfksZ/0y6WtmjsXANtD5jYlM1JqeaRB0LdSLHthMmtekOqVz/Q9PZtTxiXU0PAHJSIcxlADYcALSzD8RyJh6l59/d4seFGNqyFg==
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
- by PH7PR12MB9255.namprd12.prod.outlook.com (2603:10b6:510:30c::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9182.20; Wed, 8 Oct
- 2025 11:26:17 +0000
-Received: from CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::e571:5f76:2b46:e0f8]) by CY8PR12MB7195.namprd12.prod.outlook.com
- ([fe80::e571:5f76:2b46:e0f8%5]) with mapi id 15.20.9182.017; Wed, 8 Oct 2025
- 11:26:17 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: Kommula Shiva Shankar <kshankar@marvell.com>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>, "pabeni@redhat.com"
-	<pabeni@redhat.com>, "xuanzhuo@linux.alibaba.com"
-	<xuanzhuo@linux.alibaba.com>
-CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"jerinj@marvell.com" <jerinj@marvell.com>, "ndabilpuram@marvell.com"
-	<ndabilpuram@marvell.com>, "sburla@marvell.com" <sburla@marvell.com>,
-	"schalla@marvell.com" <schalla@marvell.com>
-Subject: RE: [PATCH v2 net-next  0/3]  virtio_net: Implement
- VIRTIO_NET_F_OUT_NET_HEADER from virtio spec 1.4
-Thread-Topic: [PATCH v2 net-next  0/3]  virtio_net: Implement
- VIRTIO_NET_F_OUT_NET_HEADER from virtio spec 1.4
-Thread-Index: AQHcOELAoUKqZadrIkuzzEQnAVSDLLS4G9xQ
-Date: Wed, 8 Oct 2025 11:26:17 +0000
-Message-ID:
- <CY8PR12MB71952DFF0D99EF78B8C69886DCE1A@CY8PR12MB7195.namprd12.prod.outlook.com>
-References: <20251008110004.2933101-1-kshankar@marvell.com>
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="YV2HEwIx"
+Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
+	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5985vuet031860;
+	Wed, 8 Oct 2025 04:00:19 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=l
+	8+MIe6TP86YLoOoNB1Vg1heguvOxIanTKUSmx1Po/w=; b=YV2HEwIxb+N7LtYmY
+	cljyC3cpS6EamwaLzY4mYU0CY+osVJt2lzJuoyI9FmbZRy6N8Je799L8UGRhBwPS
+	oc+S/3sWuFvSl/m07AVI/0dbNgnhOqOIA7BCPiJ3k8ULpQV/jPRur76PIvQxAm8a
+	jfnJxEFCjms+l8Pzh2uFj6TBozv/V6faYAeRpopEFoghMEA/caUkMr52RgIQG9Z+
+	xmgj3BgJ4qdXUXDo8yeXAS+nXl8J7ITSDtWFUinoC+xZRCf/9sF8x16S6xfmeF4H
+	/+2z2R88GCqUS+AH5TQpYIDrmKAHUHcd/YyZSfdV0a2nw9Zk65KzAroXJsG2Kirz
+	zPL+g==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 49nj8t0fwk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 08 Oct 2025 04:00:19 -0700 (PDT)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Wed, 8 Oct 2025 04:00:17 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
+ Transport; Wed, 8 Oct 2025 04:00:17 -0700
+Received: from 5810.caveonetworks.com (unknown [10.29.45.105])
+	by maili.marvell.com (Postfix) with ESMTP id 329125B693F;
+	Wed,  8 Oct 2025 04:00:13 -0700 (PDT)
+From: Kommula Shiva Shankar <kshankar@marvell.com>
+To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
+        <pabeni@redhat.com>, <xuanzhuo@linux.alibaba.com>
+CC: <virtualization@lists.linux.dev>, <parav@nvidia.com>, <jerinj@marvell.com>,
+        <ndabilpuram@marvell.com>, <sburla@marvell.com>, <schalla@marvell.com>
+Subject: [PATCH v2 net-next  2/3] virtio_net: enable outer nw header offset support
+Date: Wed, 8 Oct 2025 16:30:03 +0530
+Message-ID: <20251008110004.2933101-3-kshankar@marvell.com>
+X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20251008110004.2933101-1-kshankar@marvell.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|PH7PR12MB9255:EE_
-x-ms-office365-filtering-correlation-id: 6970e1fe-7cbc-429a-fc01-08de065d7f9a
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|10070799003|1800799024|366016|7416014|376014|38070700021;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?XEwVKMhZORGLWfYPnuYl3FE02aChxe7IqKC3x/Sw4hFZ2zoI4WAa6rEvFYPL?=
- =?us-ascii?Q?ayxnjbQwIvhyWnxQWq08bMIr5fBtsDk2sgecG3qI4D179DaRepakl8oS/A+1?=
- =?us-ascii?Q?ORAtKv7njFxpdG9g2xhac+/7PDhSx5p1B8bsSpH9gfPud5eT2ekQtCsthpC9?=
- =?us-ascii?Q?BvWKeJ1umHHaqOC7XyznEzH526weiYSa4Vd5ZmprHN8E+QLX/AO3JATdwI3c?=
- =?us-ascii?Q?pMAW9QUW0d3B5ylJkK3sfTTGXAtGXYu73H9A6jztoaLBLwL4TX8+ZkTXHPTE?=
- =?us-ascii?Q?n9EdHtx8re2fb3CcMnExqQK20b42mYS8zqvHkSNxsZv0Vbb9ujVmycw7Nkz6?=
- =?us-ascii?Q?lNwGoO8brw17yJFSeZ2oSHFKy3Ae4jv0VQbRMvO7UUNPqKSBSZ6Uhlk5VKq8?=
- =?us-ascii?Q?OYVyqJlCZCuGkP3brp31/YTEAuIARmtSFGETLyavKUvxF+2dAhoDwV3K4Jja?=
- =?us-ascii?Q?a00SZKpeOIHuX4lgn2/R1WYKylRPHUriNRto4GYh1XQcdpOOEGVWO35Za+CQ?=
- =?us-ascii?Q?IfzYZEXAzsR/iRvwtRfX72lirjv5tM6UUgC4RlP6WDZ3KHKtFdvCHmE2CUYZ?=
- =?us-ascii?Q?CSXd/yIjhZvcN5+vNd7UEQS82CNttlk3ECeLFXY33WrTqR+bfRfTPk1mqSzD?=
- =?us-ascii?Q?zsBHZIuFITiiuqWvqxidOualIV/92I5EAlrHOQjvUvRxXsnZfxkbhBnVlBtL?=
- =?us-ascii?Q?rETFazcLuFUtk9kpSvzdQz2aZiGphCBGRFpLD4e6GH8ffkDiopC9TsIA26zN?=
- =?us-ascii?Q?+g+GYZNMg143z1xD9lAkKo3WMuJxmH2qUpkn3YIxgKMBNl+Zyv7BbNj+e4gn?=
- =?us-ascii?Q?ydWwDOvVAgIFst8GTf1xstc/+siBhOIoVtjScnzz96MUz1jcVc/CZzt9LMhx?=
- =?us-ascii?Q?HIpd9DfBD+QISWrRQR7fO1rUiB9lH7zyV52k4g16PEllMhoT6iA7ITGyho99?=
- =?us-ascii?Q?9sDoIsvhLZGhCvKnetysLA5iOs3mO5jVpXIPso+8ZygireTcpuF4XFFo6Mk8?=
- =?us-ascii?Q?zFCQMKmvNixXL3JJy64AHzCYCT+l9VL1/HBClI7VCpJ7QxuSLCtzZVIl+HFB?=
- =?us-ascii?Q?T10O3kR/A9/HPooo8Wq6bBXyhYvsgsvv06pqpmURL9KSvBaVI5rD8nxzynbF?=
- =?us-ascii?Q?fLc8CdSXiNvqREoKgz62k/2+Iqw6bznsGDahUa0guJ7a1EVXPg4sd2squIL4?=
- =?us-ascii?Q?vQA8GAKUlnHYQ28/Cpp/6JBnXBFjvSqbHEcp2ckCvsQVfyzELX620DNWvYJu?=
- =?us-ascii?Q?j/pc/qol/23HOAVaAddhx0XE+IvoEOqw4LWHwvoovBh69iAobDX0iQtMAyCx?=
- =?us-ascii?Q?xAuSp0iZILsGAeojbm+IrrguQND+Hgi16Jmwv9fSmEkW6t4m+D4XOd+1Bn6v?=
- =?us-ascii?Q?IjQF/S4+9LiEWmC6n3LgbaNcW3MNUJBad/5MNLbEULy0RmGijhKpDyQj0DEk?=
- =?us-ascii?Q?C/MqBUBl0AOBq40ivjK0tSBuiFUcUSrN4Cxt6fgvQnl53ApQyvyopV/Z+DdS?=
- =?us-ascii?Q?3S8UwJ8wnWpDhYZQOmh0F846G1W1sm2g7cjZ?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(10070799003)(1800799024)(366016)(7416014)(376014)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?BF8jEjIL2U+2t9cXhdwoL4uftj9OVDHtFCAg1VMxliZwMvQZOxpOdG4l4xmI?=
- =?us-ascii?Q?JYF4TTFOCOxrc7mKOJbdQYO6hhAMxL0DSAdTp/Uj2/5+q4MdTdWyQYrBSx8y?=
- =?us-ascii?Q?6i6EmtvZR7xqg+Cup/61orLDdPa+b+YzDaxDOSWh7zRUYjsoKkwb7WaixT1/?=
- =?us-ascii?Q?JfSwfm9OZ37utCLYsDf5zzPXEeYcJXhajCOfQBkQtJEpYxb3ZSyWqBlZ/Hed?=
- =?us-ascii?Q?sGDJRvkLapUZZYUarnhMpFTdCu7wjqKmyqqBfgiVP0koPN/s8LUO6KEQgrh1?=
- =?us-ascii?Q?SScYvqSfoL/XnsEI5f6tRki5x0Hh72Rfpg1yuLVNfGQ9PS2g7jW01uDusFf2?=
- =?us-ascii?Q?bpFA8M0RrJ8u5Uy8uuFktn0OYKNTrbuzEHWabR5kah1S6fN2yqybbWY+YznR?=
- =?us-ascii?Q?SSGq95mxbxOboX+qEK3Y3dmb0s1gkcMS6k36iLW4e2LjDgdU1PWcokSIKWbZ?=
- =?us-ascii?Q?Rs7/25zpB4EcenFVGigNb9MPwPqUAZJFCWhluLTKbRFvSdRiFoAxR1+SDNbu?=
- =?us-ascii?Q?SrwFtr/KzdFv2j4o/K55tuGZKZxQ3yJIXZ1gOdN1B3Q6IoRyRi+jnuv3f7yM?=
- =?us-ascii?Q?AMDHkruJHF8n7mp8FCpOU20gvY1SW4iPAPMzb4TwztD6P+w6xXEuXYdy50aw?=
- =?us-ascii?Q?JLz2oIw+uUHa8YCSPPbbR4k1NaLtbocee9/AtBZGta1OCqCF+FWpUD7c/gpk?=
- =?us-ascii?Q?7hx9FAwptjD7ETC/6aVQcDLQrlFuxe8TMOeF80uG8dGzDQGhoWDyy7Ogt9Ab?=
- =?us-ascii?Q?Z25tPFwCNyJOO3K4WNRRJ1AQqpvP7/8TYA5NPv7JAY+0Mdz+OZfgi6cc50WJ?=
- =?us-ascii?Q?XZDJLTA3xWWOXGa71DMM8/JFywrcsI5dDEGZmRcZoMf1Y/G7W7+UyEBu9c7o?=
- =?us-ascii?Q?T3/4qvkEhiVrBdVRWoipRWktHij9aOI+m3RZJjCpbV3+bq2Duxp4Izg4OeUr?=
- =?us-ascii?Q?IJXLQU/8qofMs1luP18v+1siGq52n6Dr1A2mM6lg30J337BjklPogNEFrEbX?=
- =?us-ascii?Q?AhQ70LNlEUQAq1qjuuFbFvqAEYahEH64bHd6MxFTCUOYW1YVOtdv4/qtn/Qp?=
- =?us-ascii?Q?vILPO1LmQbNnSAi1/76f4gx8Wjs0dHPEVDySxrfyT/nnTesS4kzQMi3UPA5t?=
- =?us-ascii?Q?7SMvDdH1XjWP1Yh0F8Sz1u6v9APy8Eb/CedUXqlmcIys31iZ+K5pWyQolcW4?=
- =?us-ascii?Q?H60VJaCGdLSbZaHeTJovyDh6BjQBwZjpWOgCP8E/JBnS5dPKB2cRGME0fWKk?=
- =?us-ascii?Q?AwrPb3ulX3tA+dglvalA3UNahzPdRVKDqADRdCj5nPbnfrSLhCqGeHvyhY3e?=
- =?us-ascii?Q?cw3OxOs4bysMB8FO1eBP4HD7nbqCrFK2WuYsL2Knv1kuhq+Ts7N8PN7Eqy54?=
- =?us-ascii?Q?oq482e05K1/KJJI7ykjm6Ze6sgpnMBiGvWdk/yl2kqy8F/DPqypj3af14uLL?=
- =?us-ascii?Q?QJZNXlv0LrfCxHhqHBsdBLhq2wwiDScEi+t1vuee6lIBYt+W0KjlzRwa9IjC?=
- =?us-ascii?Q?h/eZfn0PJxebxWlXmSSaj5Iw3r4sOqxPY4Qq4J67dwoDqXGGA0OrDCKw/BnR?=
- =?us-ascii?Q?OEpGmCK3jnreioIzfxNXBXtd8rRJ3XyJrs2i+LpBoOtFBF7l521arOAnJ4Rh?=
- =?us-ascii?Q?lcongfDjkP2HfG8NnUwv4Glzrq3xznmFAVRelfTvoHr6?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+References: <20251008110004.2933101-1-kshankar@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6970e1fe-7cbc-429a-fc01-08de065d7f9a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Oct 2025 11:26:17.4666
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 0Ko2rJSwfOKkw0hXykwYwoj++EQmBQnxw4EUn7P8JUpMP439QeJJnzHcqj0MaKE7XFM4wxGpvKM3LffTOXk2Uw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB9255
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA4MDAzNyBTYWx0ZWRfX0SctKSmaRgzS
+ gmzMQ/AoVIOwVc4MWdIIo+x/OXxkaA5PkyHgjX5tZwteHdDONEMFC9fadaPn3Mc1LGCT/6qKP2s
+ R6J0s+DlnsAUwvvNBQItGx5IbQBhloarYUgpMA0fHjZGlpQr+MCziBMA/L308IhjKX8PUCsLSDn
+ XV6GjrJCcXwPihwMJMMSLtE/borRldzhrfsM8G4MO1Q8NLl8yKEmqr6QCBgA4FMOCWl0ELsnOIH
+ MrZ50v8rr5ljELahz+giD4l0Y+JoO53ZdnTAhpl+BZcprEeOkQ4csJqbEhGodxwTdFTQD6/Lics
+ nhWhPw1O/FyHFawxvhTppELe5vXhZTqK11rL5k0La5baGTIUCcoqofE1KOOeeC6cKS3j1iATtSR
+ RDdMJMfIjT9ebhgrtjahVjnPkhwagg==
+X-Proofpoint-ORIG-GUID: 20P-PkoamAkIB2rX1GfKoXMq0WtzG-Oq
+X-Proofpoint-GUID: 20P-PkoamAkIB2rX1GfKoXMq0WtzG-Oq
+X-Authority-Analysis: v=2.4 cv=fuHRpV4f c=1 sm=1 tr=0 ts=68e64443 cx=c_pps
+ a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
+ a=x6icFKpwvdMA:10 a=M5GUcnROAAAA:8 a=jGR1pZPCcwd-RLdNFkEA:9
+ a=OBjm3rFKGHvpk9ecZwUJ:22 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-08_03,2025-10-06_01,2025-03-28_01
 
+If outer network header feature is set, update header offset
+in ingress and egress path.
 
+If feature is not set, reset header offset to zero.
 
-> From: Kommula Shiva Shankar <kshankar@marvell.com>
-> Sent: 08 October 2025 04:30 PM
-> To: netdev@vger.kernel.org; mst@redhat.com;=20
+Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
+---
+ drivers/net/virtio_net.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-Net-next is closed for submissions.
-Expected to open on 13th Oct as listed at [1].
-Please repost the net-next patches after that.
-https://patchwork.hopto.org/net-next.html
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7da5a37917e9..0b60cbbb3d33 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -451,6 +451,9 @@ struct virtnet_info {
+ 
+ 	bool rx_tnl_csum;
+ 
++	/* Outer network header support */
++	bool out_net_hdr_negotiated;
++
+ 	/* Is delayed refill enabled? */
+ 	bool refill_enabled;
+ 
+@@ -511,6 +514,7 @@ struct virtio_net_common_hdr {
+ 		struct virtio_net_hdr_mrg_rxbuf	mrg_hdr;
+ 		struct virtio_net_hdr_v1_hash hash_v1_hdr;
+ 		struct virtio_net_hdr_v1_hash_tunnel tnl_hdr;
++		struct virtio_net_hdr_v1_hash_tunnel_out_net_hdr out_net_hdr;
+ 	};
+ };
+ 
+@@ -2576,8 +2580,8 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
+ 	hdr->hdr.flags = flags;
+ 	if (virtio_net_handle_csum_offload(skb, &hdr->hdr, vi->rx_tnl_csum)) {
+ 		net_warn_ratelimited("%s: bad csum: flags: %x, gso_type: %x rx_tnl_csum %d\n",
+-				     dev->name, hdr->hdr.flags,
+-				     hdr->hdr.gso_type, vi->rx_tnl_csum);
++				dev->name, hdr->hdr.flags,
++				hdr->hdr.gso_type, vi->rx_tnl_csum);
+ 		goto frame_err;
+ 	}
+ 
+@@ -2591,6 +2595,8 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
+ 		goto frame_err;
+ 	}
+ 
++	virtio_net_out_net_header_to_skb(skb, &hdr->out_net_hdr, vi->out_net_hdr_negotiated,
++					 virtio_is_little_endian(vi->vdev));
+ 	skb_record_rx_queue(skb, vq2rxq(rq->vq));
+ 	skb->protocol = eth_type_trans(skb, dev);
+ 	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
+@@ -3317,6 +3323,9 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+ 	else
+ 		hdr = &skb_vnet_common_hdr(skb)->tnl_hdr;
+ 
++	virtio_net_out_net_header_from_skb(skb, &skb_vnet_common_hdr(skb)->out_net_hdr,
++					   vi->out_net_hdr_negotiated,
++					   virtio_is_little_endian(vi->vdev));
+ 	if (virtio_net_hdr_tnl_from_skb(skb, hdr, vi->tx_tnl,
+ 					virtio_is_little_endian(vi->vdev), 0))
+ 		return -EPROTO;
+@@ -6915,8 +6924,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
+ 	}
+ 
+-	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) ||
+-	    virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_OUT_NET_HEADER))
++		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel_out_net_hdr);
++	else if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) ||
++		 virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
+ 		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel);
+ 	else if (vi->has_rss_hash_report)
+ 		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
+@@ -6933,6 +6944,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
+ 		vi->tx_tnl = true;
+ 
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_OUT_NET_HEADER))
++		vi->out_net_hdr_negotiated = true;
++
+ 	if (virtio_has_feature(vdev, VIRTIO_F_ANY_LAYOUT) ||
+ 	    virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+ 		vi->any_header_sg = true;
+@@ -7247,6 +7261,7 @@ static unsigned int features[] = {
+ 	VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO_CSUM,
+ 	VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO,
+ 	VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO_CSUM,
++	VIRTIO_NET_F_OUT_NET_HEADER,
+ };
+ 
+ static unsigned int features_legacy[] = {
+-- 
+2.48.1
+
