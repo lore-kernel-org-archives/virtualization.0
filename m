@@ -1,94 +1,193 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBBC92E0935
-	for <virtualization@lists.linux.dev>; Tue,  7 Oct 2025 13:06:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 189CB23BD13
+	for <virtualization@lists.linux.dev>; Wed,  8 Oct 2025 09:42:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759842403; cv=none; b=u4CuM3UDRn4VLDhvDlb0qeBOr+9fe0KJjedtoAwcpnsszEvqLjM+nr6MZUpW7jW86/HYAQZOh9VZ3HXoJa9xhncEMlnMN9kYOdfrD1b6thGWD2QV3JIqTUAxn8mhFzbeBJQ7ZUXFzY4a9+2mj5vSewtPq64IL4BEOY/WXBcggH8=
+	t=1759916551; cv=none; b=Z+nMSi39L9C814akYP9cAwIZf7aBkeFawX6nvBHgIhu3ZLtcGtCOnIYCrVq03PL5N53FQgBj/P3cm6b2RCkLFRYkvw9TO2AU2NphS2Fe4H+LAgorKfYENKgCutp3zZdZqw+KB6rj2YcOTZIqd1c/YCDiM4cLBCAbYnuaU9lfIG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759842403; c=relaxed/simple;
-	bh=jH8USJFHz+TatYvQZyvEvjcRufE0ISgWbue5iU4IKbU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=tKa6XTELhTPqLb54whhANJAwDR3XKS9TUaNlACjrsG4o56JwPVF/QGlZ4OJM2InepeZCysmO/9yrGr50FWLYk0Zv1XlzHIxe0tuMTA8DdtEKm5MwwQsGBx2rj97UAqlq+izfSfR+BJMe80HH8WlEg4gupU0QNn15nhLObYXgeig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B2CGQdy6; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1759916551; c=relaxed/simple;
+	bh=oyxFMFlM4vMbHssAWBDvLO8wVBBME2qKooM7lsA7myw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=g2iwesiboIsseMvANXP13UKaWYeHxXeGvdHLr7uMaq3hOhiX9bV1wwwexgLBxKNI4yzp+olXVyRUTcdaKtjwRwA50LbpLDJfYKFieJq1tc75PMDDZIT2tN3QrrGyqeLV3irNJ0C5HGpkaKoET/0haUcY7PuBu4q4Hfgeq0M6gdE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YTN5PDGo; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=KxG9KnjA; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YTN5PDGo; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=KxG9KnjA; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B2CGQdy6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759842400;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=aT4NoVByCHa+UoA8fJzK7MRZDygxEBVSeNmApVyKU04=;
-	b=B2CGQdy6szIISuFtevP6bAKjlbGYubqUOv9Al731o7hv8yXLogYqs0oesyO9f5syavIsi1
-	8iwak/JLAhPPbUn7777NYJb2frcCTcncr5XQxM853edY/zaHys1VP9pC2RqtGxdGTzFzNH
-	HCMvIM9RHIyJiAEXgSn63DPE5gJ+woM=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-281-13BoF1p0OoK1U4tSRjAaQA-1; Tue,
- 07 Oct 2025 09:06:38 -0400
-X-MC-Unique: 13BoF1p0OoK1U4tSRjAaQA-1
-X-Mimecast-MFC-AGG-ID: 13BoF1p0OoK1U4tSRjAaQA_1759842397
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YTN5PDGo";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="KxG9KnjA";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YTN5PDGo";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="KxG9KnjA"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9FE811956095;
-	Tue,  7 Oct 2025 13:06:36 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.225.223])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2FA321800446;
-	Tue,  7 Oct 2025 13:06:32 +0000 (UTC)
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-To: mst@redhat.com
-Cc: Yongji Xie <xieyongji@bytedance.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Maxime Coquelin <mcoqueli@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Dragos Tatulea DE <dtatulea@nvidia.com>,
-	jasowang@redhat.com
-Subject: [RFC 2/2] vduse: lift restriction about net devices with CVQ
-Date: Tue,  7 Oct 2025 15:06:22 +0200
-Message-ID: <20251007130622.144762-3-eperezma@redhat.com>
-In-Reply-To: <20251007130622.144762-1-eperezma@redhat.com>
-References: <20251007130622.144762-1-eperezma@redhat.com>
+	by smtp-out2.suse.de (Postfix) with ESMTPS id A67BD1F395;
+	Wed,  8 Oct 2025 09:42:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1759916541; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Wl/svooCdz0i4ez+EPnV8gGjvQ2i3nZZi5joqOKCaWU=;
+	b=YTN5PDGoQB9vrAC50EVIzDIl89lZyEKCA7/ahTSZ3EW/k/nMjyXSZrIELjAR1tL17iLWh+
+	Lu5RSaw8U3CtHrb9ofk/lLA+BDJrV5fGaaAQLX0EcUU7pHYaT4VlMxv5kDjRCZ3StC2TMW
+	kkTEUB5rBGQCAsM5POOkLAIFMV6EURQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1759916541;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Wl/svooCdz0i4ez+EPnV8gGjvQ2i3nZZi5joqOKCaWU=;
+	b=KxG9KnjA+ot6mUHQNcN/Hj/Emur8CHqYqMAPC/itueoTzrKPdigCl7ucp9k4pMVtNM38YL
+	VvKbCh+VCCctjJAA==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1759916541; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Wl/svooCdz0i4ez+EPnV8gGjvQ2i3nZZi5joqOKCaWU=;
+	b=YTN5PDGoQB9vrAC50EVIzDIl89lZyEKCA7/ahTSZ3EW/k/nMjyXSZrIELjAR1tL17iLWh+
+	Lu5RSaw8U3CtHrb9ofk/lLA+BDJrV5fGaaAQLX0EcUU7pHYaT4VlMxv5kDjRCZ3StC2TMW
+	kkTEUB5rBGQCAsM5POOkLAIFMV6EURQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1759916541;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Wl/svooCdz0i4ez+EPnV8gGjvQ2i3nZZi5joqOKCaWU=;
+	b=KxG9KnjA+ot6mUHQNcN/Hj/Emur8CHqYqMAPC/itueoTzrKPdigCl7ucp9k4pMVtNM38YL
+	VvKbCh+VCCctjJAA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6D47713A3D;
+	Wed,  8 Oct 2025 09:42:21 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 3O59Gf0x5mgYBQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 08 Oct 2025 09:42:21 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	airlied@gmail.com,
+	simona@ffwll.ch
+Cc: virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH] drm/bochs: Use vblank timer
+Date: Wed,  8 Oct 2025 11:36:55 +0200
+Message-ID: <20251008093931.19138-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FROM_HAS_DN(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[8];
+	RCVD_COUNT_TWO(0.00)[2];
+	FREEMAIL_TO(0.00)[redhat.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
+	RCVD_TLS_ALL(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Flag: NO
+X-Spam-Score: -2.80
 
-Now that the virtio_net driver is able to recover from a stall
-virtqueue, let's lift the restriction.
+Use a vblank timer to simulate the vblank interrupt. The DRM vblank
+helpers provide an implementation on top of Linux' hrtimer. Bochs
+enables and disables the timer as part of the CRTC. The atomic_flush
+callback sets up the event. Like vblank interrupts, the vblank timer
+fires at the rate of the display refresh.
 
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+Most userspace limits its page flip rate according to the DRM vblank
+event. Bochs' virtual hardware does not provide vblank interrupts, so
+DRM sends each event ASAP. With the fast access time of virtual display
+memory, the event rate is much higher than the display mode's refresh
+rate; creating the next page flip almost immediately. This leads to
+excessive CPU overhead from even small display updates, such as moving
+the mouse pointer.
+
+This problem affects bochs and all other virtual displays. See [1] for
+a discussion in the context of hypervdrm.
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/dri-devel/SN6PR02MB415702B00D6D52B0EE962C98D46CA@SN6PR02MB4157.namprd02.prod.outlook.com/ # [1]
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/gpu/drm/tiny/bochs.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index e7bced0b5542..95d2b898171d 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1726,9 +1726,6 @@ static bool features_is_valid(struct vduse_dev_config *config)
- 	if ((config->device_id == VIRTIO_ID_BLOCK) &&
- 			(config->features & BIT_ULL(VIRTIO_BLK_F_CONFIG_WCE)))
- 		return false;
--	else if ((config->device_id == VIRTIO_ID_NET) &&
--			(config->features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
--		return false;
+diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+index d2d5e9f1269f..71e874c19610 100644
+--- a/drivers/gpu/drm/tiny/bochs.c
++++ b/drivers/gpu/drm/tiny/bochs.c
+@@ -22,6 +22,8 @@
+ #include <drm/drm_panic.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/drm_vblank.h>
++#include <drm/drm_vblank_helper.h>
  
- 	if ((config->device_id == VIRTIO_ID_NET) &&
- 			!(config->features & BIT_ULL(VIRTIO_F_VERSION_1)))
+ #include <video/vga.h>
+ 
+@@ -526,6 +528,7 @@ static void bochs_crtc_helper_atomic_enable(struct drm_crtc *crtc,
+ 	struct bochs_device *bochs = to_bochs_device(crtc->dev);
+ 
+ 	bochs_hw_blank(bochs, false);
++	drm_crtc_vblank_on(crtc);
+ }
+ 
+ static void bochs_crtc_helper_atomic_disable(struct drm_crtc *crtc,
+@@ -533,12 +536,14 @@ static void bochs_crtc_helper_atomic_disable(struct drm_crtc *crtc,
+ {
+ 	struct bochs_device *bochs = to_bochs_device(crtc->dev);
+ 
++	drm_crtc_vblank_off(crtc);
+ 	bochs_hw_blank(bochs, true);
+ }
+ 
+ static const struct drm_crtc_helper_funcs bochs_crtc_helper_funcs = {
+ 	.mode_set_nofb = bochs_crtc_helper_mode_set_nofb,
+ 	.atomic_check = bochs_crtc_helper_atomic_check,
++	.atomic_flush = drm_crtc_vblank_atomic_flush,
+ 	.atomic_enable = bochs_crtc_helper_atomic_enable,
+ 	.atomic_disable = bochs_crtc_helper_atomic_disable,
+ };
+@@ -550,6 +555,7 @@ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+ 	.page_flip = drm_atomic_helper_page_flip,
+ 	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
+ 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
++	DRM_CRTC_VBLANK_TIMER_FUNCS,
+ };
+ 
+ static const struct drm_encoder_funcs bochs_encoder_funcs = {
+@@ -670,6 +676,10 @@ static int bochs_kms_init(struct bochs_device *bochs)
+ 	drm_connector_attach_edid_property(connector);
+ 	drm_connector_attach_encoder(connector, encoder);
+ 
++	ret = drm_vblank_init(dev, 1);
++	if (ret)
++		return ret;
++
+ 	drm_mode_config_reset(dev);
+ 
+ 	return 0;
 -- 
 2.51.0
 
