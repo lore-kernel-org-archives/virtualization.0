@@ -1,59 +1,84 @@
-Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7557219D082
-	for <virtualization@lists.linux.dev>; Wed,  8 Oct 2025 11:36:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEB1321B9C0
+	for <virtualization@lists.linux.dev>; Wed,  8 Oct 2025 12:17:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759923375; cv=none; b=DDbFdXOclq4j/i72sxxDGowa0Mi97XQ/188gExQgc8BSkjtu1013r1zmMhk7JsV6lmAH6K88fkvlYUu7ep5V5Z6NYMc2QitPuAph0fm8EluR7LnI22p1hdupq11Ttxung5ELnBfD/SMfnrk5T6l7cIWHlg/OrKwz0x4PwLUCm5k=
+	t=1759925864; cv=none; b=VGRi6P4QQ1S28HLCgj3pZ4nVGBCLFwXnyMv2wGKA5U5aXive11bKPyszUKLaoWvDbzNuy7rSlqcWM29v37Haq3tUhdITVUpnS5bpaJFvgeHwWn6b55C+Acnq7l/TU8RndE9TVL4F6NjaLs6UNZGKUht8jN37zW/Af5/7oBrJ+pI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759923375; c=relaxed/simple;
-	bh=IceakvOaggMPUYsKLAdHdeVuyQMjc5l28+Stg3yh6XI=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=e0p/g/DQTNgFoqtfhhHT2Z29MPYJbi7uGjmeLsFMCd45VDHkvZ4CWsngAzdu6ZXPc7S1m/XwXZ+99swJRDNsv46g250Uq3dwc7pI9SOZU1FFdsAmbEoJYZt+vmo07J+87qQq6lJfAMwTs+48L/iPUi/PXxG5Mu5AvxQlBFPRGkI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=YV2HEwIx; arc=none smtp.client-ip=67.231.148.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1759925864; c=relaxed/simple;
+	bh=EzncALwEe2a+QshpNOni8NWDjShAJzEJ7z8PNQnp0Ms=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gQtOSRrpOp/njfKrSc3zwOQR6VMUOezIZZUIjLuISzI6bilgpzEy0QwuP0F7CNuLwNJoWwDCnWO51uPqqQVTxFgJKN2K2SgYfOaE8sqZYT6i/k41DRDpX2qbcV6LnMqtaBuKirjpOF+Kqq3njm3ktMZGIb+AuNOtr44vPtJRaB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Icgycpf4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=l6Lx18U6; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=TxIVBXk3; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=wvFTqYft; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="YV2HEwIx"
-Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
-	by mx0a-0016f401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5985vuet031860;
-	Wed, 8 Oct 2025 04:00:19 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=l
-	8+MIe6TP86YLoOoNB1Vg1heguvOxIanTKUSmx1Po/w=; b=YV2HEwIxb+N7LtYmY
-	cljyC3cpS6EamwaLzY4mYU0CY+osVJt2lzJuoyI9FmbZRy6N8Je799L8UGRhBwPS
-	oc+S/3sWuFvSl/m07AVI/0dbNgnhOqOIA7BCPiJ3k8ULpQV/jPRur76PIvQxAm8a
-	jfnJxEFCjms+l8Pzh2uFj6TBozv/V6faYAeRpopEFoghMEA/caUkMr52RgIQG9Z+
-	xmgj3BgJ4qdXUXDo8yeXAS+nXl8J7ITSDtWFUinoC+xZRCf/9sF8x16S6xfmeF4H
-	/+2z2R88GCqUS+AH5TQpYIDrmKAHUHcd/YyZSfdV0a2nw9Zk65KzAroXJsG2Kirz
-	zPL+g==
-Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
-	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 49nj8t0fwk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Oct 2025 04:00:19 -0700 (PDT)
-Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
- DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Wed, 8 Oct 2025 04:00:17 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
- (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
- Transport; Wed, 8 Oct 2025 04:00:17 -0700
-Received: from 5810.caveonetworks.com (unknown [10.29.45.105])
-	by maili.marvell.com (Postfix) with ESMTP id 329125B693F;
-	Wed,  8 Oct 2025 04:00:13 -0700 (PDT)
-From: Kommula Shiva Shankar <kshankar@marvell.com>
-To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
-        <pabeni@redhat.com>, <xuanzhuo@linux.alibaba.com>
-CC: <virtualization@lists.linux.dev>, <parav@nvidia.com>, <jerinj@marvell.com>,
-        <ndabilpuram@marvell.com>, <sburla@marvell.com>, <schalla@marvell.com>
-Subject: [PATCH v2 net-next  2/3] virtio_net: enable outer nw header offset support
-Date: Wed, 8 Oct 2025 16:30:03 +0530
-Message-ID: <20251008110004.2933101-3-kshankar@marvell.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20251008110004.2933101-1-kshankar@marvell.com>
-References: <20251008110004.2933101-1-kshankar@marvell.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Icgycpf4";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="l6Lx18U6";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="TxIVBXk3";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="wvFTqYft"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id E92121F79F;
+	Wed,  8 Oct 2025 12:17:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1759925861; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=5wObbyiJlGh5lzZbXgep/HCNowXb5U4wB4EHGf4feMs=;
+	b=Icgycpf4a2Sdm0+4fMOwVsSgiG7wbeO4mW4+YtGIXzFw9r0Mr/pRQeC3hRp/tXusPSw7wX
+	0h1sHH8m/H0pglqSn7hzCcG7unNe3vHvKGEMUjAP8GRLlo+KPX1H/Yjz0N/9TuEQ/VTysz
+	6a0TF+DOnIGvdeQ8Tb1N/pCmeFZnbkM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1759925861;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=5wObbyiJlGh5lzZbXgep/HCNowXb5U4wB4EHGf4feMs=;
+	b=l6Lx18U6rmfbJqHOLgte8dOMEPXTlPvyTJx6aK4aTysglXa4cn7rD4X3HpholOJHlta8fm
+	lbfQpdUEn1hmv5Cg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=TxIVBXk3;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=wvFTqYft
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1759925860; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=5wObbyiJlGh5lzZbXgep/HCNowXb5U4wB4EHGf4feMs=;
+	b=TxIVBXk3Jcsd9aHVpmoVe0cl/6JOerRrdJ+j2kOSZDLxKBfK/IgmmeIaDlqSFo+6zKVZL1
+	NoPuBomA2R0XCcdoYUD7lJh48b0yPIy0+GpR87Mmtg5dnoDtPajSbjevtgYlGdtBVxXAqY
+	QCvmSn3uE+8jPR5rJoCRwHczaT2jX3I=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1759925860;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=5wObbyiJlGh5lzZbXgep/HCNowXb5U4wB4EHGf4feMs=;
+	b=wvFTqYftMbj9mOHigH58NQO8avnq0iNhCu84ll8hj78Wdoyu/5BzGzhPNIefhHex4rnCob
+	wSsPpvveJqsATdAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A5E8713A3D;
+	Wed,  8 Oct 2025 12:17:40 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id UpZQJ2RW5mhKOQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 08 Oct 2025 12:17:40 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	airlied@gmail.com,
+	simona@ffwll.ch
+Cc: virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH] drm/cirrus-qemu: Use vblank timer
+Date: Wed,  8 Oct 2025 14:14:36 +0200
+Message-ID: <20251008121450.227997-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -61,117 +86,111 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA4MDAzNyBTYWx0ZWRfX0SctKSmaRgzS
- gmzMQ/AoVIOwVc4MWdIIo+x/OXxkaA5PkyHgjX5tZwteHdDONEMFC9fadaPn3Mc1LGCT/6qKP2s
- R6J0s+DlnsAUwvvNBQItGx5IbQBhloarYUgpMA0fHjZGlpQr+MCziBMA/L308IhjKX8PUCsLSDn
- XV6GjrJCcXwPihwMJMMSLtE/borRldzhrfsM8G4MO1Q8NLl8yKEmqr6QCBgA4FMOCWl0ELsnOIH
- MrZ50v8rr5ljELahz+giD4l0Y+JoO53ZdnTAhpl+BZcprEeOkQ4csJqbEhGodxwTdFTQD6/Lics
- nhWhPw1O/FyHFawxvhTppELe5vXhZTqK11rL5k0La5baGTIUCcoqofE1KOOeeC6cKS3j1iATtSR
- RDdMJMfIjT9ebhgrtjahVjnPkhwagg==
-X-Proofpoint-ORIG-GUID: 20P-PkoamAkIB2rX1GfKoXMq0WtzG-Oq
-X-Proofpoint-GUID: 20P-PkoamAkIB2rX1GfKoXMq0WtzG-Oq
-X-Authority-Analysis: v=2.4 cv=fuHRpV4f c=1 sm=1 tr=0 ts=68e64443 cx=c_pps
- a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
- a=x6icFKpwvdMA:10 a=M5GUcnROAAAA:8 a=jGR1pZPCcwd-RLdNFkEA:9
- a=OBjm3rFKGHvpk9ecZwUJ:22 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-08_03,2025-10-06_01,2025-03-28_01
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: E92121F79F
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	MIME_TRACE(0.00)[0:+];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FREEMAIL_TO(0.00)[redhat.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCPT_COUNT_SEVEN(0.00)[9];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Score: -3.01
 
-If outer network header feature is set, update header offset
-in ingress and egress path.
+Use a vblank timer to simulate the vblank interrupt. The DRM vblank
+helpers provide an implementation on top of Linux' hrtimer. Cirrus-qemu
+enables and disables the timer as part of the CRTC. The atomic_flush
+callback sets up the event. Like vblank interrupts, the vblank timer
+fires at the rate of the display refresh.
 
-If feature is not set, reset header offset to zero.
+Most userspace limits its page flip rate according to the DRM vblank
+event. Cirrus-qemu' virtual hardware does not provide vblank interrupts,
+so DRM sends each event ASAP. With the fast access times of virtual display
+memory, the event rate is much higher than the display mode's refresh
+rate; creating the next page flip almost immediately. This leads to
+excessive CPU overhead from even small display updates, such as moving
+the mouse pointer.
 
-Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
+This problem affects cirrus-qemu and all other virtual displays. See [1]
+for a discussion in the context of hypervdrm.
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/dri-devel/SN6PR02MB415702B00D6D52B0EE962C98D46CA@SN6PR02MB4157.namprd02.prod.outlook.com/ # [1]
 ---
- drivers/net/virtio_net.c | 23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/tiny/cirrus-qemu.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 7da5a37917e9..0b60cbbb3d33 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -451,6 +451,9 @@ struct virtnet_info {
+diff --git a/drivers/gpu/drm/tiny/cirrus-qemu.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
+index 97a93adc5669..f728fa48ac88 100644
+--- a/drivers/gpu/drm/tiny/cirrus-qemu.c
++++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
+@@ -45,6 +45,8 @@
+ #include <drm/drm_modeset_helper_vtables.h>
+ #include <drm/drm_module.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/drm_vblank.h>
++#include <drm/drm_vblank_helper.h>
  
- 	bool rx_tnl_csum;
+ #define DRIVER_NAME "cirrus-qemu"
+ #define DRIVER_DESC "qemu cirrus vga"
+@@ -404,11 +406,15 @@ static void cirrus_crtc_helper_atomic_enable(struct drm_crtc *crtc,
+ #endif
  
-+	/* Outer network header support */
-+	bool out_net_hdr_negotiated;
+ 	drm_dev_exit(idx);
 +
- 	/* Is delayed refill enabled? */
- 	bool refill_enabled;
++	drm_crtc_vblank_on(crtc);
+ }
  
-@@ -511,6 +514,7 @@ struct virtio_net_common_hdr {
- 		struct virtio_net_hdr_mrg_rxbuf	mrg_hdr;
- 		struct virtio_net_hdr_v1_hash hash_v1_hdr;
- 		struct virtio_net_hdr_v1_hash_tunnel tnl_hdr;
-+		struct virtio_net_hdr_v1_hash_tunnel_out_net_hdr out_net_hdr;
- 	};
+ static const struct drm_crtc_helper_funcs cirrus_crtc_helper_funcs = {
+ 	.atomic_check = cirrus_crtc_helper_atomic_check,
++	.atomic_flush = drm_crtc_vblank_atomic_flush,
+ 	.atomic_enable = cirrus_crtc_helper_atomic_enable,
++	.atomic_disable = drm_crtc_vblank_atomic_disable,
  };
  
-@@ -2576,8 +2580,8 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
- 	hdr->hdr.flags = flags;
- 	if (virtio_net_handle_csum_offload(skb, &hdr->hdr, vi->rx_tnl_csum)) {
- 		net_warn_ratelimited("%s: bad csum: flags: %x, gso_type: %x rx_tnl_csum %d\n",
--				     dev->name, hdr->hdr.flags,
--				     hdr->hdr.gso_type, vi->rx_tnl_csum);
-+				dev->name, hdr->hdr.flags,
-+				hdr->hdr.gso_type, vi->rx_tnl_csum);
- 		goto frame_err;
- 	}
- 
-@@ -2591,6 +2595,8 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
- 		goto frame_err;
- 	}
- 
-+	virtio_net_out_net_header_to_skb(skb, &hdr->out_net_hdr, vi->out_net_hdr_negotiated,
-+					 virtio_is_little_endian(vi->vdev));
- 	skb_record_rx_queue(skb, vq2rxq(rq->vq));
- 	skb->protocol = eth_type_trans(skb, dev);
- 	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
-@@ -3317,6 +3323,9 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
- 	else
- 		hdr = &skb_vnet_common_hdr(skb)->tnl_hdr;
- 
-+	virtio_net_out_net_header_from_skb(skb, &skb_vnet_common_hdr(skb)->out_net_hdr,
-+					   vi->out_net_hdr_negotiated,
-+					   virtio_is_little_endian(vi->vdev));
- 	if (virtio_net_hdr_tnl_from_skb(skb, hdr, vi->tx_tnl,
- 					virtio_is_little_endian(vi->vdev), 0))
- 		return -EPROTO;
-@@ -6915,8 +6924,10 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
- 	}
- 
--	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) ||
--	    virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_OUT_NET_HEADER))
-+		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel_out_net_hdr);
-+	else if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) ||
-+		 virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
- 		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel);
- 	else if (vi->has_rss_hash_report)
- 		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
-@@ -6933,6 +6944,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
- 		vi->tx_tnl = true;
- 
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_OUT_NET_HEADER))
-+		vi->out_net_hdr_negotiated = true;
-+
- 	if (virtio_has_feature(vdev, VIRTIO_F_ANY_LAYOUT) ||
- 	    virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
- 		vi->any_header_sg = true;
-@@ -7247,6 +7261,7 @@ static unsigned int features[] = {
- 	VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO_CSUM,
- 	VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO,
- 	VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO_CSUM,
-+	VIRTIO_NET_F_OUT_NET_HEADER,
+ static const struct drm_crtc_funcs cirrus_crtc_funcs = {
+@@ -418,6 +424,7 @@ static const struct drm_crtc_funcs cirrus_crtc_funcs = {
+ 	.page_flip = drm_atomic_helper_page_flip,
+ 	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
+ 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
++	DRM_CRTC_VBLANK_TIMER_FUNCS,
  };
  
- static unsigned int features_legacy[] = {
+ static const struct drm_encoder_funcs cirrus_encoder_funcs = {
+@@ -493,6 +500,10 @@ static int cirrus_pipe_init(struct cirrus_device *cirrus)
+ 	if (ret)
+ 		return ret;
+ 
++	ret = drm_vblank_init(dev, 1);
++	if (ret)
++		return ret;
++
+ 	return 0;
+ }
+ 
 -- 
-2.48.1
+2.51.0
 
