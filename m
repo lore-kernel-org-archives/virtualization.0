@@ -1,73 +1,43 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80726293C44
-	for <virtualization@lists.linux.dev>; Thu,  9 Oct 2025 06:12:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759990356; cv=none; b=f0K3DUkVzgSXY5fLE+hU0D3FKf7vMSERyQu1UBcjilGt/939SO0RGIsNq36RWB+mtbD61CnRVFi+HlSY18mkQ0zgpoH7yN6avBmc7YCPPwvlcaz3ZIzsGLg98wrEahygM26ShKMELUk5UCNg6Po0AL+lwJBp/+7eLr2XT9gz6nM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759990356; c=relaxed/simple;
-	bh=MI6RSF4NOK4MepNK6VnhBlb5+fKB4cfghytxEFoX7MI=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48FC1824BD
+	for <virtualization@lists.linux.dev>; Thu,  9 Oct 2025 06:14:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1759990448; cv=pass; b=WzBrn/bwhZPVtzRSnjXUE7pAF1km4CdI6h7khMmAlS+y1F7P/QSR9HOptF3ZwShP6DHylMQRcm7R3HbngFT91flp75m8h7y5VvcYos7SJRHRCIMfaUKmMlkPSub5G7zl0bdyXwXQwd3Po8P2naEERo+Pn93aefOp34MGZSZZgGo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1759990448; c=relaxed/simple;
+	bh=7iM4GwJ67QtxgU9WG98OBgTN9CAaTGVGAWWLaJv3mCU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=f5yjtsBloHT5FWR21KTgIIEpauNjxA48iO+DWOu/KuXJQNJ2Hoyiu+RjBlek9KLcGQ3pGZMqBHCN7ZTwdED03D9jggrqMj/AZnlT5ZMq6Oacm+EPGiSsMmL9Gbylq2CqErXb3T/x8jddi51Hf4/SQstf3VHvwLCMT+1z0ARftgU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CbmIGXve; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=opVSCgurg5uyCyKMyXLyTTfrjTPt/35FJ3tjVY36c7v29xgg16i75/1uwjboU3YER0Xg2xd/6rW53moW3HAm0JH+zmr+7yU0LdRgeV8VMYOZQmi9pLtZWupwvpcFP/K+CU5BhGzU4SMtkYCgWRNxLI4DF8rRxEpfMp85900Sh+U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=kYhhe1Qa; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CbmIGXve"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759990353;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=NRkB3HnbXEauvObRKfhLALPNCnH0LKvnQC+gj83VPV0=;
-	b=CbmIGXveOYXOiWVVlrxSyxO9zuzsvFL/YGV+fcnhtGkIYDWz45EdfHyNE+2f59fs0MfFEs
-	uGufdqqmjO+iOUb0CXNuY1qhsJT2Fb8bByc9LNnAAZtsx2vskdZFgzjgM+HzA2B4KaDWas
-	FHlHbUa++EVi5SUILim9yiOeljsoU5c=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-647-NgPe604XMGKZmLlwnIKydQ-1; Thu, 09 Oct 2025 02:12:31 -0400
-X-MC-Unique: NgPe604XMGKZmLlwnIKydQ-1
-X-Mimecast-MFC-AGG-ID: NgPe604XMGKZmLlwnIKydQ_1759990350
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-46e502a37cdso3885645e9.0
-        for <virtualization@lists.linux.dev>; Wed, 08 Oct 2025 23:12:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759990350; x=1760595150;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=NRkB3HnbXEauvObRKfhLALPNCnH0LKvnQC+gj83VPV0=;
-        b=NNEqRAUU7qe0VMjBxEHgdqSE2TohTJvt9EffJnu61Qp7ASVPtomTeefju7owJVvzs7
-         yG5u9OdmsToAWZWFeYEH77umKywUt+u+CBso7+RQF9Io/udicIyegl9jg1CKHNIKuVRY
-         KOyGHx80IUWkVDyDLe3zWumhC81VTwh5MF0tJiy3wfg1yKKeqgFv/+eEss57z1gXmRbQ
-         EcgDlmU3DEg3uUX4C+VdqbzH7tZBfK+DzTyMNs2aleHAMxW4V2VWdEyaXqfBO45TgszL
-         ILf3oxplhZf4rLmP+rCw4aT9M23fjUybJt2Hn7ppQ40uYzCWT0UNW4gmm4CvnfjEblA/
-         B2wg==
-X-Forwarded-Encrypted: i=1; AJvYcCW+cj1FINzEA4RX/if94FXiKWsR9Hf6q9JPaCO00dYSwAD689Bg+OZwvTl8+7kKQmrcIVpJd4Q6rS2n3hN9nQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyZ5s4PdCNOYsmaDhmKoOGgTPqjS8f00ktDQFkGSmBRsIcIH5Sm
-	3DczPAuRuoRXJsBM/kzTNf1z/W8LVQ0Yau3Hfib32YbOfgHu/mSVsagfvQ4ND5Mr7Vm2d1fqqmP
-	M5gq0Vk7uZZqU1PgSoGDvNp+c3bXqY9XK3VHwlSk4/SbfWo5mH/iSoRY85TSY8MBVBiu0
-X-Gm-Gg: ASbGncvBdPT8j4Mw3oXRY83uODCxSYIyTq85ed2Gmic4O5qskJr2yYd+PNbNlWwtQib
-	4MYvu8wvEyvQguO3n8n9GOTgplKXEgrR259U/IqHuHqrIM1r4dkQn6Okda3wRCHzP/eJqX7d3qu
-	RXkL/VlPKlC0PM7Ays8IEifsjelO/GlMHtnNiWjINx2jzzBKoTvuFVum2P0Y4b87gdS+xcGLtij
-	qH/Cr4jvYh+5pdjh89WZmcG+cfrwG5A6qbyAZhlyDkSuk9SZLXQ2rWOPxuhkx0PdB+5UYOEuzYZ
-	oSwNsFZHBzbwjbvs3TflILhkoPx4KJid8pE13rPJbgn61vjy/eoc+pM8RCQrQumZ5njoMN6K1Bq
-	kyt/F7+Js
-X-Received: by 2002:a05:600c:34cc:b0:46e:59dd:1b4d with SMTP id 5b1f17b1804b1-46fa9aa2076mr63277675e9.16.1759990350187;
-        Wed, 08 Oct 2025 23:12:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGgr3EwtW4kZSC4wN79xTrMonutG/ORyGxtzc7Y7j2Fbu8/LN9oI7c3abBPFzy3SYjFVQbwOQ==
-X-Received: by 2002:a05:600c:34cc:b0:46e:59dd:1b4d with SMTP id 5b1f17b1804b1-46fa9aa2076mr63277065e9.16.1759990349745;
-        Wed, 08 Oct 2025 23:12:29 -0700 (PDT)
-Received: from [192.168.3.141] (tmo-083-189.customers.d1-online.com. [80.187.83.189])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d869d50sm33971611f8f.0.2025.10.08.23.12.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Oct 2025 23:12:29 -0700 (PDT)
-Message-ID: <5a5013ca-e976-4622-b881-290eb0d78b44@redhat.com>
-Date: Thu, 9 Oct 2025 08:12:25 +0200
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="kYhhe1Qa"
+ARC-Seal: i=1; a=rsa-sha256; t=1759990437; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=XgdDZCDNU+Fx7g1vU8sIbmbLxZ/0EWNmQsYB/+hx1PJ9ZBoS1KY0pmAk4kxftw8PD7BRNHHxCGuN3VFYnQEX/7XTUT1tkV+JPZyCqrPfHdBjU697x9XIkiX6XTjb54DJZPRd11Lrd1WTbEudKlWWXkhyS1bNJuMiw5KP/Dq29vs=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1759990437; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=J+cBXdB1ZMMli8mKVf2kyUjE3bvvgHzHmHesP6oSy7Q=; 
+	b=hbiWQcVMogq2jcrCpjKzc46NrB0NUAKqvfyxnqEtM0konzAlzkIZr1+n+LLvgMl5k9so6nRoXKDiq2L0tIncy26hjAw/OyFjL2JBrXSxxtsX7ibPw4Xz2ozfPMX6udaNzbHJI/1xmniVhmBNFCXC+1my2rbVIsHK5FqafS2A7+0=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1759990437;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=J+cBXdB1ZMMli8mKVf2kyUjE3bvvgHzHmHesP6oSy7Q=;
+	b=kYhhe1QarZLzVWosy/RcuaYIs4Mg+JZtJ8//R9ecik/DL0Y1y2MkAZwBGJHWtJ+h
+	8XBuA8Qc1bbRzKSwyvpYe2ukSGIGlcIcjjozLkMSVvm6H4Ifx68FTK5jKnHXkTncSMl
+	S/pNAsT3xPLT53NkdYlq032/3vYjBbq1GA/QTibs=
+Received: by mx.zohomail.com with SMTPS id 1759990435197633.6159650403903;
+	Wed, 8 Oct 2025 23:13:55 -0700 (PDT)
+Message-ID: <9aa83493-e036-4a89-825c-3ed95ab5ae30@collabora.com>
+Date: Thu, 9 Oct 2025 09:13:48 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,172 +45,68 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 06/35] mm/page_alloc: reject unreasonable
- folio/compound page sizes in alloc_contig_range_noprof()
-To: Balbir Singh <balbirs@nvidia.com>, linux-kernel@vger.kernel.org
-Cc: Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
- Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
- Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
- Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
- Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
- Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org,
- Zi Yan <ziy@nvidia.com>
-References: <20250821200701.1329277-1-david@redhat.com>
- <20250821200701.1329277-7-david@redhat.com>
- <fa2e262c-d732-48e3-9c59-6ed7c684572c@nvidia.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <fa2e262c-d732-48e3-9c59-6ed7c684572c@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: bw5ixL15sM6lH5paNH6-RDAOQBgNCC_n3cC3aVBt0GU_1759990350
-X-Mimecast-Originator: redhat.com
+Subject: Re: [PATCH] drm/virtgpu: Use vblank timer
+To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ "airlied@redhat.com" <airlied@redhat.com>,
+ "kraxel@redhat.com" <kraxel@redhat.com>,
+ "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
+ "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
+ "mripard@kernel.org" <mripard@kernel.org>,
+ "airlied@gmail.com" <airlied@gmail.com>, "simona@ffwll.ch" <simona@ffwll.ch>
+Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
+References: <20251008130701.246988-1-tzimmermann@suse.de>
+ <IA0PR11MB7185D91EB0CD01FD63D21AA7F8EEA@IA0PR11MB7185.namprd11.prod.outlook.com>
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <IA0PR11MB7185D91EB0CD01FD63D21AA7F8EEA@IA0PR11MB7185.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On 09.10.25 06:21, Balbir Singh wrote:
-> On 8/22/25 06:06, David Hildenbrand wrote:
->> Let's reject them early, which in turn makes folio_alloc_gigantic() reject
->> them properly.
+On 10/9/25 06:23, Kasireddy, Vivek wrote:
+> Hi Thomas,
+> 
+>> Subject: [PATCH] drm/virtgpu: Use vblank timer
 >>
->> To avoid converting from order to nr_pages, let's just add MAX_FOLIO_ORDER
->> and calculate MAX_FOLIO_NR_PAGES based on that.
+>> Use a vblank timer to simulate the vblank interrupt. The DRM vblank
+>> helpers provide an implementation on top of Linux' hrtimer. Virtgpu
+>> enables and disables the timer as part of the CRTC. The atomic_flush
+>> callback sets up the event. Like vblank interrupts, the vblank timer
+>> fires at the rate of the display refresh.
 >>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>   include/linux/mm.h | 6 ++++--
->>   mm/page_alloc.c    | 5 ++++-
->>   2 files changed, 8 insertions(+), 3 deletions(-)
+>> Most userspace limits its page flip rate according to the DRM vblank
+>> event. Virtgpu's virtual hardware does not provide vblank interrupts, so
+>> DRM sends each event ASAP. With the fast access times of virtual display
+>> memory, the event rate is much higher than the display mode's refresh
+>> rate; creating the next page flip almost immediately. This leads to
+>> excessive CPU overhead from even small display updates, such as moving
+>> the mouse pointer.
 >>
->> diff --git a/include/linux/mm.h b/include/linux/mm.h
->> index 00c8a54127d37..77737cbf2216a 100644
->> --- a/include/linux/mm.h
->> +++ b/include/linux/mm.h
->> @@ -2055,11 +2055,13 @@ static inline long folio_nr_pages(const struct folio *folio)
->>   
->>   /* Only hugetlbfs can allocate folios larger than MAX_ORDER */
->>   #ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
->> -#define MAX_FOLIO_NR_PAGES	(1UL << PUD_ORDER)
->> +#define MAX_FOLIO_ORDER		PUD_ORDER
+>> This problem affects virtgpu and all other virtual displays. See [1] for
+>> a discussion in the context of hypervdrm.
+> When running Virtio-gpu with some of the UIs (gtk, spice, etc) in Qemu, the
+> Guest display updates are synchronized with a timer (or repaint callback in
+> the case of Gtk) the UI layer provides particularly when blob=true. In other
+> words, the Guest's atomic commit does not complete until the Host signals
+> (via a fence) that the update (or flush) is done.
 > 
-> Do we need to check for CONTIG_ALLOC as well with CONFIG_ARCH_HAS_GIGANTIC_PAGE?
+> This is because when blob=true, the Guest's FB is accessed by the Host without
+> making any copies. So, to avoid tearing, the Guest needs to be prevented from
+> accessing its FB until the Host is done. Therefore, I think for virtio-gpu, the virtual
+> vblank timer can only be helpful when blob=false as this is the only case where
+> Guest's display updates are unbounded (and Host makes a copy of the Guest's FB).
 > 
+> I am not sure how this would affect virgl use-cases but Dmitry can help explain if
+> the vblank timer would be useful there or not.
 
-I don't think so, can you elaborate?
+The vblank timer should only limit framerate of virtio-gpu, I don't
+expect it will cause new problems. Do you see tearing using this patch?
 
->>   #else
->> -#define MAX_FOLIO_NR_PAGES	MAX_ORDER_NR_PAGES
->> +#define MAX_FOLIO_ORDER		MAX_PAGE_ORDER
->>   #endif
->>   
->> +#define MAX_FOLIO_NR_PAGES	(1UL << MAX_FOLIO_ORDER)
->> +
->>   /*
->>    * compound_nr() returns the number of pages in this potentially compound
->>    * page.  compound_nr() can be called on a tail page, and is defined to
->> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
->> index ca9e6b9633f79..1e6ae4c395b30 100644
->> --- a/mm/page_alloc.c
->> +++ b/mm/page_alloc.c
->> @@ -6833,6 +6833,7 @@ static int __alloc_contig_verify_gfp_mask(gfp_t gfp_mask, gfp_t *gfp_cc_mask)
->>   int alloc_contig_range_noprof(unsigned long start, unsigned long end,
->>   			      acr_flags_t alloc_flags, gfp_t gfp_mask)
->>   {
->> +	const unsigned int order = ilog2(end - start);
-> 
-> Do we need a VM_WARN_ON(end < start)?
-
-I don't think so.
-
-> 
->>   	unsigned long outer_start, outer_end;
->>   	int ret = 0;
->>   
->> @@ -6850,6 +6851,9 @@ int alloc_contig_range_noprof(unsigned long start, unsigned long end,
->>   					    PB_ISOLATE_MODE_CMA_ALLOC :
->>   					    PB_ISOLATE_MODE_OTHER;
->>   
->> +	if (WARN_ON_ONCE((gfp_mask & __GFP_COMP) && order > MAX_FOLIO_ORDER))
->> +		return -EINVAL;
->> +
->>   	gfp_mask = current_gfp_context(gfp_mask);
->>   	if (__alloc_contig_verify_gfp_mask(gfp_mask, (gfp_t *)&cc.gfp_mask))
->>   		return -EINVAL;
->> @@ -6947,7 +6951,6 @@ int alloc_contig_range_noprof(unsigned long start, unsigned long end,
->>   			free_contig_range(end, outer_end - end);
->>   	} else if (start == outer_start && end == outer_end && is_power_of_2(end - start)) {
->>   		struct page *head = pfn_to_page(start);
->> -		int order = ilog2(end - start);
->>   
->>   		check_new_pages(head, order);
->>   		prep_new_page(head, order, gfp_mask, 0);
-> 
-> Acked-by: Balbir Singh <balbirs@nvidia.com>
-
-Thanks for the review, but note that this is already upstream.
+Vblank timer makes a big performance improvement for virtio-gpu KMS,
+especially for a native context on QEMU. No tearing spotted with it.
 
 -- 
-Cheers
-
-David / dhildenb
-
+Best regards,
+Dmitry
