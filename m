@@ -1,169 +1,186 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f79.google.com (mail-io1-f79.google.com [209.85.166.79])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41CA02E8E09
-	for <virtualization@lists.linux.dev>; Thu,  9 Oct 2025 13:37:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A0C522A4F1
+	for <virtualization@lists.linux.dev>; Thu,  9 Oct 2025 16:46:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.79
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760017050; cv=none; b=Q7/eLdXbrRCFBAw5tqKQcXCurK++MhmLjssFlPSEeFE5I7IiV1Uk3sRf1qtde56S1NATmWjLYR/4BP4NEbIsZcPrd0Kc9EcC+h/E66KCZWRuoazMgQzpDzgyMyRweXfEhHo7SC+OG3Y0bCuml4eSMah3h/WpOUwM/k9wUn5uoFg=
+	t=1760028390; cv=none; b=SXm8KinubY4bOh/SX4ha4J/BwMcv4SgUB4sofBwDMTPiJSe0YFhQliD8IMENK1UAFbyRPS9XRNbF8VI6pzJTP17cDPGqlKwqFv3To0Slz4wvHcR1JmqFnwB9im76HyoWylanBfN7XAjmF8Ls0I70v3hO/4ZQg562ZjcVqV/P9M8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760017050; c=relaxed/simple;
-	bh=7NdTvvUFK/WVGSYlLXsbwdrwKPNZwb8MV31/iuYNMko=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=P/uLtIFVufWQExsOAp1jwk/rTm/gNslqIXvw7kgSgxA5L8aPCzcuVPyVe36tSd14efiUNvsppUxMofYLgZ9iu+QwejGPP84KIS72NHIv4+0tpDiez53FfHaDi6pkTFndPccK0LdH4en4I4L331+kIt2J8bzUse5OZ90VEhtQW4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QXmhDU9I; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QXmhDU9I"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760017048;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QSnlK9qf9+QtrbFfXzTXGo8du1cPFojIdvhyIWDFaG4=;
-	b=QXmhDU9Iet5vhAhr2qWm8ezr/UGEp076xcPaTJK3wRz9iGiO0tWUJuTZzA3rnr+Ci2TiEN
-	3BECBE4Z26fGVVO8d0TtGQRwztXDCPp7dCWtsLjtlbCkDAJDXrD3BO/HnSBs08Cx2xd2Ak
-	IQLUgEWGpwmOhkHUPnNXTbYdWcdkEP8=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-516-xU_VV1h-MfOvs3a4brouRQ-1; Thu, 09 Oct 2025 09:37:27 -0400
-X-MC-Unique: xU_VV1h-MfOvs3a4brouRQ-1
-X-Mimecast-MFC-AGG-ID: xU_VV1h-MfOvs3a4brouRQ_1760017046
-Received: by mail-qt1-f198.google.com with SMTP id d75a77b69052e-4e1f265b8b5so33446381cf.0
-        for <virtualization@lists.linux.dev>; Thu, 09 Oct 2025 06:37:27 -0700 (PDT)
+	s=arc-20240116; t=1760028390; c=relaxed/simple;
+	bh=zYS8gMhAS6+lp0wyfl9hgdEA0oN7PtJsGdynyO8/4q4=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=TsHtCzxf9DLssxmpnoq84xDMO7xyaKblK2ux159A9wmKfSCRuSnRT/GGY51OSQ3MPyN3QCyZaQThi5qC6F6tdVi3Fmn2oxBLTaW2zGHnt/ZOy6UxbEAaIDUQUPd86gDUz/GSH5zAQlxJ0w9rqMOU3rBEwBYDMTNHBD5DvPz9KA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.79
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f79.google.com with SMTP id ca18e2360f4ac-8877131dec5so255476839f.2
+        for <virtualization@lists.linux.dev>; Thu, 09 Oct 2025 09:46:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760017046; x=1760621846;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QSnlK9qf9+QtrbFfXzTXGo8du1cPFojIdvhyIWDFaG4=;
-        b=d/1ABa/TlbUrBDqCnIvaHpMuon8gWQ1DtvDpBPZ73RY77W6wiwr9crj72w1OCKtGfR
-         Nw27lpd79ev7uls6wmm9kw890KX5v3lVVX+x2OF2yFdi4m30MPZVfzmA4a0vt8X/70ZJ
-         X9Ztg+M5q4A+RDXHcgDsXkWwsboM8hfoKOmdg6I0MH1qbmgAYcFW6BTyXSBMBJSWB1T2
-         VUtLiOLHVMOHNzEL/oCdKoxtUWNnRdSb3NQgJ1Pyj06BmAuUZwVLg+jFwDXLaPk8kzvA
-         VL9a8DEmIg6b9OYXeuWYFD/ZxBmWWiApRFiTgzvjWIfadE3Gj8vwxS0/UQl+L1aotYGW
-         2JbQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW0WWRil3aClfO9Ch13sIBI1xT4wVv4hxJwrwrRCG3jjAZgHudClxcSmhn9i7XKNfrK/h+u7bxwF/casY7gQw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzQz7d4AvZCpQjgPdOFqsdDsg3XgY6dZrF9CI/u+hjelCYEjooz
-	iySwJLmDSXdG7D5RqwEbSjkQ1Py3OXaBbcCSD1kJfultB4uLooJ32m6X//hHr0qJnRnIRBK91VY
-	p9nhPWskduIzw6QY0QLlc5zaS1UB0d+ATC5GM6Q5ZOuzi47MkgOR6PHrzih8lmEKfEnW8
-X-Gm-Gg: ASbGncuJ3WRGhFhj9Uzfu0hPO/qVMrP7lgFVYcDbOpfsrry2jiT/woeu7JCJ2T/ojKE
-	x+pq+GPjUSxoeA9Z/gw4OxVKq6uXAXjqOcH+c3euMGKesaG8dAl79bakohobF5mpPfy3NIoFQdm
-	HAKuHgxurHJsrbOOUONpvHFNMVT3MV5PkT/v/9gRLgha0yeEg1LigDr4xBUR4FjLgEJxUxBjnES
-	89hz3rABHUdPrFnldJ29aaVaCHQF/iaPcvTSrFx6/i2DGlSMNBo8kISPirIY2UGtEtlRHHlxNef
-	+BgAP+3w57ECbi2f/QScmQKswS7hI137lHA=
-X-Received: by 2002:a05:622a:552:b0:4d3:1b4f:dda1 with SMTP id d75a77b69052e-4e6ead5b74fmr99238191cf.61.1760017046389;
-        Thu, 09 Oct 2025 06:37:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGkkkln0wvJVfA+/SQdl7KyNaqeghASgRMRgQSZA/6yVrMeWhD/2djQvFf88sK4uQV3LAnLRw==
-X-Received: by 2002:a05:622a:552:b0:4d3:1b4f:dda1 with SMTP id d75a77b69052e-4e6ead5b74fmr99237541cf.61.1760017045789;
-        Thu, 09 Oct 2025 06:37:25 -0700 (PDT)
-Received: from redhat.com ([138.199.52.81])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-884a2369b3fsm191330185a.51.2025.10.09.06.37.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Oct 2025 06:37:25 -0700 (PDT)
-Date: Thu, 9 Oct 2025 09:37:20 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-doc@vger.kernel.org
-Subject: Re: [PATCH 1/3] virtio: dwords->qwords
-Message-ID: <20251009093127-mutt-send-email-mst@kernel.org>
-References: <cover.1760008797.git.mst@redhat.com>
- <350d0abfaa2dcdb44678098f9119ba41166f375f.1760008798.git.mst@redhat.com>
- <26d7d26e-dd45-47bb-885b-45c6d44900bb@lunn.ch>
+        d=1e100.net; s=20230601; t=1760028387; x=1760633187;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=IjQF2lqdhml5U4l6DnX76KvRk63yjk/2YqYks0Pn77w=;
+        b=PXwYpEXU92ldn+9/3QXnmDeiZEn468EJyY/sOzECQiIqp4JQbv4hHXvy/qz9r+QzYc
+         nEPFxP5PaGblHOLi5TT/Lbm2I7uLTrNyJ4N4kpjV3h0LKIiizxQFtDdADGWds16m5Oby
+         w85s5iE9PuOF4fQLCfgrhxhkQxCpQ9yYm06W71SAnr0vooErApkYqVc2+YwmBHvs78mR
+         hW1EVLAdWvqwfkq+ju0qblvX5xCcHSOsCrlYwmEP3GvgcdP2XSYAIkVVbomUPlWJ9+u6
+         HgW4PM2RVafnexjC5eFhuaBnBrkot11fbiXWVm/83YbMCU8FK+cFFbr2GHMghPU09NZC
+         FoeQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVD2b07nUxV3ZYshv+CKSWNBLiA1ayRqHuYAXpNIJ9sitrpgWb0wJuwffhzIcyft6XcSnY5rnULfix0imKGFQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywx8X6y7UQltV15aWz3fl4lW2uNZylqvhcYBZVuL7Hma95mSPaK
+	bYCBVZdP7vWK644flTQ7c320CbZkI/USx9X8tawiLtyd/+pKhZ5+kNawM6d+/KswIKs7Bp1QNJB
+	uujdm5qDoRJv0zOteC8p1jthHTxIQTqfCbEGeoFVk8ReXPgOERTXYMBqy3/s=
+X-Google-Smtp-Source: AGHT+IG632oO81iGcd/AGF++bfEMLZrcU0QXUA7DiaoXuktuQn/xho9ExeCMVyKNm33OVSX09A4XQ3MFgbL/ilFtY46KazqqC41+
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <26d7d26e-dd45-47bb-885b-45c6d44900bb@lunn.ch>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ksHA3-Y600fzu9vfGuaOySH1jmJAziUDpNgRAN1JHPM_1760017046
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Received: by 2002:a05:6602:29d3:b0:917:f4a5:1068 with SMTP id
+ ca18e2360f4ac-93bd188e14emr919487339f.11.1760028387394; Thu, 09 Oct 2025
+ 09:46:27 -0700 (PDT)
+Date: Thu, 09 Oct 2025 09:46:27 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <68e7e6e3.050a0220.1186a4.0001.GAE@google.com>
+Subject: [syzbot] [net?] [virt?] BUG: sleeping function called from invalid
+ context in __set_page_owner
+From: syzbot <syzbot+665739f456b28f32b23d@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, horms@kernel.org, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sgarzare@redhat.com, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Oct 09, 2025 at 02:31:04PM +0200, Andrew Lunn wrote:
-> On Thu, Oct 09, 2025 at 07:24:08AM -0400, Michael S. Tsirkin wrote:
-> > A "word" is 16 bit. 64 bit integers like virtio uses are not dwords,
-> > they are actually qwords.
-> 
-> I'm having trouble with this....
-> 
-> This bit makes sense. 4x 16bits = 64 bits.
-> 
-> > -static const u64 vhost_net_features[VIRTIO_FEATURES_DWORDS] = {
-> > +static const u64 vhost_net_features[VIRTIO_FEATURES_QWORDS] = {
-> 
-> If this was u16, and VIRTIO_FEATURES_QWORDS was 4, which the Q would
-> imply, than i would agree with what you are saying. But this is a u64
-> type.  It is already a QWORD, and this is an array of two of them.
+Hello,
 
-I don't get what you are saying here.
-It's an array of qwords and VIRTIO_FEATURES_QWORDS tells you
-how many QWORDS are needed to fit all of them.
+syzbot found the following issue on:
 
-This is how C arrays are declared.
+HEAD commit:    ec714e371f22 Merge tag 'perf-tools-for-v6.18-1-2025-10-08'..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=174a4b34580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=db9c80a8900dca57
+dashboard link: https://syzkaller.appspot.com/bug?extid=665739f456b28f32b23d
+compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=140e0dcd980000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1581452f980000
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/6d5cce2bcf5d/disk-ec714e37.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/60dff1e3a58f/vmlinux-ec714e37.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/6a1823720b55/bzImage-ec714e37.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+665739f456b28f32b23d@syzkaller.appspotmail.com
+
+BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:48
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 6069, name: syz.0.17
+preempt_count: 1, expected: 0
+RCU nest depth: 2, expected: 2
+5 locks held by syz.0.17/6069:
+ #0: ffff888035808350 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1679 [inline]
+ #0: ffff888035808350 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_connect+0x152/0xe20 net/vmw_vsock/af_vsock.c:1546
+ #1: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:331 [inline]
+ #1: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:867 [inline]
+ #1: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: __bpf_trace_run kernel/trace/bpf_trace.c:2074 [inline]
+ #1: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: bpf_trace_run9+0x1ec/0x500 kernel/trace/bpf_trace.c:2123
+ #2: ffff8880b8832c88 ((stream_local_lock)){+.+.}-{3:3}, at: bpf_stream_page_local_lock kernel/bpf/stream.c:46 [inline]
+ #2: ffff8880b8832c88 ((stream_local_lock)){+.+.}-{3:3}, at: bpf_stream_elem_alloc kernel/bpf/stream.c:175 [inline]
+ #2: ffff8880b8832c88 ((stream_local_lock)){+.+.}-{3:3}, at: __bpf_stream_push_str+0x211/0xbe0 kernel/bpf/stream.c:190
+ #3: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:331 [inline]
+ #3: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:867 [inline]
+ #3: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: __rt_spin_trylock kernel/locking/spinlock_rt.c:110 [inline]
+ #3: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rt_spin_trylock+0x10d/0x2b0 kernel/locking/spinlock_rt.c:118
+ #4: ffff8880b883f6e8 (&s->lock_key#5){+.+.}-{3:3}, at: spin_lock include/linux/spinlock_rt.h:44 [inline]
+ #4: ffff8880b883f6e8 (&s->lock_key#5){+.+.}-{3:3}, at: ___slab_alloc+0x12f/0x1470 mm/slub.c:4492
+Preemption disabled at:
+[<0000000000000000>] 0x0
+CPU: 0 UID: 0 PID: 6069 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/02/2025
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x189/0x250 lib/dump_stack.c:120
+ __might_resched+0x44b/0x5d0 kernel/sched/core.c:8925
+ __rt_spin_lock kernel/locking/spinlock_rt.c:48 [inline]
+ rt_spin_lock+0xc7/0x3e0 kernel/locking/spinlock_rt.c:57
+ spin_lock include/linux/spinlock_rt.h:44 [inline]
+ ___slab_alloc+0x12f/0x1470 mm/slub.c:4492
+ __slab_alloc+0xc6/0x1f0 mm/slub.c:4746
+ __slab_alloc_node mm/slub.c:4822 [inline]
+ slab_alloc_node mm/slub.c:5233 [inline]
+ __kmalloc_cache_noprof+0xec/0x6c0 mm/slub.c:5719
+ kmalloc_noprof include/linux/slab.h:957 [inline]
+ add_stack_record_to_list mm/page_owner.c:172 [inline]
+ inc_stack_record_count mm/page_owner.c:214 [inline]
+ __set_page_owner+0x25c/0x490 mm/page_owner.c:333
+ set_page_owner include/linux/page_owner.h:32 [inline]
+ post_alloc_hook+0x240/0x2a0 mm/page_alloc.c:1850
+ prep_new_page mm/page_alloc.c:1858 [inline]
+ get_page_from_freelist+0x28c0/0x2960 mm/page_alloc.c:3884
+ alloc_frozen_pages_nolock_noprof+0xbc/0x150 mm/page_alloc.c:7595
+ alloc_pages_nolock_noprof+0xa/0x30 mm/page_alloc.c:7628
+ bpf_stream_page_replace+0x19/0x1e0 kernel/bpf/stream.c:86
+ bpf_stream_page_reserve_elem kernel/bpf/stream.c:142 [inline]
+ bpf_stream_elem_alloc kernel/bpf/stream.c:177 [inline]
+ __bpf_stream_push_str+0x35c/0xbe0 kernel/bpf/stream.c:190
+ bpf_stream_stage_printk+0x14e/0x1c0 kernel/bpf/stream.c:448
+ bpf_prog_report_may_goto_violation+0xc4/0x190 kernel/bpf/core.c:3181
+ bpf_check_timed_may_goto+0xaa/0xb0 kernel/bpf/core.c:3199
+ arch_bpf_timed_may_goto+0x21/0x40 arch/x86/net/bpf_timed_may_goto.S:40
+ bpf_prog_6fd842a53d323cc5+0x53/0x5f
+ bpf_dispatcher_nop_func include/linux/bpf.h:1350 [inline]
+ __bpf_prog_run include/linux/filter.h:721 [inline]
+ bpf_prog_run include/linux/filter.h:728 [inline]
+ __bpf_trace_run kernel/trace/bpf_trace.c:2075 [inline]
+ bpf_trace_run9+0x2db/0x500 kernel/trace/bpf_trace.c:2123
+ __bpf_trace_virtio_transport_alloc_pkt+0x2d7/0x340 include/trace/events/vsock_virtio_transport_common.h:39
+ __do_trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
+ trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
+ virtio_transport_alloc_skb+0x10cc/0x1130 net/vmw_vsock/virtio_transport_common.c:311
+ virtio_transport_send_pkt_info+0x6be/0x1100 net/vmw_vsock/virtio_transport_common.c:390
+ virtio_transport_connect+0xa7/0x100 net/vmw_vsock/virtio_transport_common.c:1072
+ vsock_connect+0xb8b/0xe20 net/vmw_vsock/af_vsock.c:1611
+ __sys_connect_file net/socket.c:2102 [inline]
+ __sys_connect+0x323/0x450 net/socket.c:2121
+ __do_sys_connect net/socket.c:2127 [inline]
+ __se_sys_connect net/socket.c:2124 [inline]
+ __x64_sys_connect+0x7a/0x90 net/socket.c:2124
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f770871eec9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffd178f3108 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007f7708975fa0 RCX: 00007f770871eec9
+RDX: 0000000000000010 RSI: 0000200000000100 RDI: 0000000000000005
+RBP: 00007f77087a1f91 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f7708975fa0 R14: 00007f7708975fa0 R15: 0000000000000003
+ </TASK>
 
 
-> I think the real issue here is not D vs Q, but WORD. We have a default
-> meaning of a u16 for a word, especially in C. But that is not the
-> actual definition of a word a computer scientist would use. Wikipedia
-> has:
-> 
->   In computing, a word is any processor design's natural unit of
->   data. A word is a fixed-sized datum handled as a unit by the
->   instruction set or the hardware of the processor.
-> 
-> A word can be any size. In this context, virtio is not referring to
-> the instruction set, but a protocol. Are all fields in this protocol
-> u64? Hence word is u64? And this is an array of two words? That would
-> make DWORD correct, it is two words.
-> 
-> If you want to change anything here, i would actually change WORD to
-> something else, maybe FIELD?
-> 
-> And i could be wrong here, i've not looked at the actual protocol, so
-> i've no idea if all fields in the protocol are u64. There are
-> protocols like this, IPv6 uses u32, not octets, and the length field
-> in the headers refer to the number of u32s in the header.
-> 
-> 	Andrew
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
-Virtio uses "dword" to mean "32 bits" in several places:
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
 
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
 
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
 
-device-types/i2c/description.tex:The \field{padding} is used to pad to full dword.
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
 
-pads to 32 bit
-
-
-transport-pci.tex:        u8 padding[2];  /* Pad to full dword. */
-
-same
-
-
-
-
-Under pci, the meaning is also generally as I use it here.
-E.g.:
-
-Documentation/PCI/pci.rst:You can use `pci_(read|write)_config_(byte|word|dword)` to access the config
-
-
-
-
-
-
--- 
-MST
-
+If you want to undo deduplication, reply with:
+#syz undup
