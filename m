@@ -1,92 +1,332 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5121B1BCA1C
-	for <virtualization@lists.linux.dev>; Thu,  9 Oct 2025 03:12:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB606230D0F
+	for <virtualization@lists.linux.dev>; Thu,  9 Oct 2025 03:24:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.12
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759979550; cv=pass; b=JAWC4FfJUQM36BvfnaXQw6dD6nUwd47wQCjuD9jHSHEkFpwCvF0Amnr67IuuZAfU/4QQZAGFrRuA7p/uk3Epl2xZ3cdd/qZ0d/WbaIyGJASTo7fW7jIl3knYunmtEZl0LDR/9ZjKuhe4l4P9sA3UhW9ttfviS4irSfwgDyQ993M=
+	t=1759980246; cv=fail; b=Qoq9ke4HW8oTR5quXBvTCEMsq3cgF7O/G4EUYwx/XTHlZe7TINO5XCw1lTiwmI4Oez2BsKS5urB1W7Vi2776kSY3mqEh8rOZaAWrVngfRecb9dMjbonVdDYTuvkKewTbf7nm4mXmvhmFZatkisIhoXoCdgd9J5Ov2zjSh3fzAA0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759979550; c=relaxed/simple;
-	bh=SzKY8ajULXnQMkJwro6gWfjAnMCXuGprl977+wTeQNA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OZ3y81VFu15+d+YPDMXdGgpKB6q2v+zbhPgr8OZGf5bdtvg/5NlWSWgx/Rs53oVpyZFvUrxGshrEzWwHwXusXsi6nQhM92oNJZXttj9821gol5DA7b3Tr2V3YrpVBepYdQrS7bDXj6LdU3ycb2ekqPT7fW0e3XtS4bqBxtI7B+Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=CyBs1SK5; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1759980246; c=relaxed/simple;
+	bh=Nh/jeiOFHVqglsIJvqhSRI/vca8RQQYHyaa2Yj0XE34=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=ROvnn4xFMjq5xXc1EglgQFGBStG1roqG3Nvbmgg1iyklxczuVi4Ic04x3ngfiN3aLkD+TH6kAzQ4ZItxd6HROzOEjYshKTfQE+7rthU2jzBekfxPf16Go4Xyekvkgu7wzZkVBlMZZbJmI1Ae1B+h7dcM3KgDApFud171kYk7zUk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WQL7eNKq; arc=fail smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="CyBs1SK5"
-ARC-Seal: i=1; a=rsa-sha256; t=1759979538; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=XwRbKGxXyD1jo0M0N4VIzR6ojXZmxwhgPGBwUyWRggJXwJC/pePX+9XCKOD/we8EfK1gm5HIxZr2s47G2mKSbl7I+P4UKp+qaAxYy9j/1VeuuIBqLaIMY4l6S9OTcrbD07EEsJn3jR9qfjlp6HL8jm0t8Dt84Yw4Gwi1A9nu+ro=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1759979538; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=KRi9Dp8IwKCGBEjvVN1ZhH9rJI8hir+DEKoyo8v/Rl4=; 
-	b=iaBPfWs9bTF+/ri6fJS4+ldc8+EG9U53k4pdktMMMJ/1jxzVYupA+qWhn4oKtcYXsHBgMoG4mD/AhgdqnrBKI/gx/tiiFkbNe+srJqwQYOALTKHSs5Rx1N0sqWpRfKX5r6XhXS+GncEmIStCS89w4S2bONZSixilop9Gq30fWN4=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1759979538;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=KRi9Dp8IwKCGBEjvVN1ZhH9rJI8hir+DEKoyo8v/Rl4=;
-	b=CyBs1SK5MhxCXB9nCJeUNXpQjCIKsqO5sV3k5odoHlJVA/QEp62go6W41GBac047
-	f4VCkG2JSMP47zAzU4WQUxR8QCjAgVmA5VEJoJVWQm6hu30zP7Q7GyPhoYBbZ2psRvt
-	cUksUlH55NQ7bWF06GehTuxYEjkJrp9EmiNzAkAI=
-Received: by mx.zohomail.com with SMTPS id 1759979536109504.4796089477394;
-	Wed, 8 Oct 2025 20:12:16 -0700 (PDT)
-Message-ID: <d3cfbc5a-11f0-4482-bf6b-ef890d182fc7@collabora.com>
-Date: Thu, 9 Oct 2025 06:12:08 +0300
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WQL7eNKq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1759980245; x=1791516245;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=Nh/jeiOFHVqglsIJvqhSRI/vca8RQQYHyaa2Yj0XE34=;
+  b=WQL7eNKq5bOLI8cfyQ4IE/pEmyYa2IbeituE/s3kaEo8vlTxjoVrJSOG
+   hMUSk3lUQlOpSPoYaCZnIQx+qCrk5+zdvWssyn5Zpk+tnKg9PgGUPe/Dy
+   Vi+h8D4+KQq6RPFvTkVV8HasFAppnJ74vTCTzYTHRU7lQZQm80K605cdr
+   Lu76OrMnSzejkqkSWI6zn6Q9zMBXf8xn2ShRcU0hB9wMmv4WvrxytlZKM
+   DUsWOwFJbmJOhMVvsoAWhvaBZbxudhgLWDrbbMRb3fLcnTWy3BWgKalSo
+   NT/23u5b8ZwvvACgXL33vily0m2Icr4Ew14XaypdY8qEsz7cJJ7QsVHu8
+   A==;
+X-CSE-ConnectionGUID: Jbm89sd6RQqrwPN+mJ+Qzw==
+X-CSE-MsgGUID: TEYe8FSbSkegbj2jmRZgAg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11576"; a="73610832"
+X-IronPort-AV: E=Sophos;i="6.19,215,1754982000"; 
+   d="scan'208";a="73610832"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Oct 2025 20:24:03 -0700
+X-CSE-ConnectionGUID: 4De1y/N8RYWaMLqbbfj21g==
+X-CSE-MsgGUID: qz/Xs9YNR6+QLLenkPS2CQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,215,1754982000"; 
+   d="scan'208";a="180532999"
+Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
+  by fmviesa006.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Oct 2025 20:24:02 -0700
+Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27; Wed, 8 Oct 2025 20:24:01 -0700
+Received: from ORSEDG902.ED.cps.intel.com (10.7.248.12) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27 via Frontend Transport; Wed, 8 Oct 2025 20:24:01 -0700
+Received: from SN4PR2101CU001.outbound.protection.outlook.com (40.93.195.5) by
+ edgegateway.intel.com (134.134.137.112) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27; Wed, 8 Oct 2025 20:24:01 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=nFznMbcMeu1spM5XyaRWlJb41g1o+nClYGQoVsUsHd93rF4tijnAGX7kb3adwuUpNVZ5Y8nAwgHgtHU3h+TDqhNsAasJNciQU/K61ZJ5FaVTos3XCUvI72aV0D6JdjlGP8DHJvUqONTDLU64yOWwNblNdFkiynB2ejP0WTigQXXtQJUtySaY2zYCMukqLIc8pjylcl3tdmZuXRtYGgkIzXfxr9lpc8AXlr+RDRUMinwIpdj8/UJiFdzJkknsCECTRK4lG0kXmA+XFhg/k+ceiwSW9jLgULpD3rYpUNctJqDkGsIYhg4xd4ZSBKyXOwc0oYSq0PL37FR4Qdioc2ToYQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QJecF/9+n83n/fcyHZ2sLMybs0WL95JKSCTfeg5cbcw=;
+ b=OoPs55zXUWDfmLlVHc20Vz+7Y7lgLxrD7fwGwjHf3AhxFn+JTfLxDez9YUDsa3YS5rr3kLRYyUohswjeRz7/z2E01E0Q9F/BEIlYD9N/6jChwivQ5nVzMIOkg6kk2SyTTtjcylt9FRo8RQ/5pjnnnMmQPWuCRrsI09mmEO9FH+VLRvIX+WRHE2BF/CBMcJsbberTauXD9dpzYFgeKnWlnTBRqgAZErG7j4GI9tj3xQZQrHYt9cBKsVwgTQ9r/NmHx1vRMBakqUSKY052snr6E7X9rgFDgcZtwbF33SGecRMzDrmUH3xq90VN6It2nYpAekGiXr3hpVwfanGqv+0ZwQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from IA0PR11MB7185.namprd11.prod.outlook.com (2603:10b6:208:432::20)
+ by DS0PR11MB6350.namprd11.prod.outlook.com (2603:10b6:8:cd::8) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9182.20; Thu, 9 Oct 2025 03:23:55 +0000
+Received: from IA0PR11MB7185.namprd11.prod.outlook.com
+ ([fe80::dd3b:ce77:841a:722b]) by IA0PR11MB7185.namprd11.prod.outlook.com
+ ([fe80::dd3b:ce77:841a:722b%4]) with mapi id 15.20.9203.007; Thu, 9 Oct 2025
+ 03:23:55 +0000
+From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>, "airlied@redhat.com"
+	<airlied@redhat.com>, "kraxel@redhat.com" <kraxel@redhat.com>,
+	"dmitry.osipenko@collabora.com" <dmitry.osipenko@collabora.com>,
+	"gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
+	"maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
+	"mripard@kernel.org" <mripard@kernel.org>, "airlied@gmail.com"
+	<airlied@gmail.com>, "simona@ffwll.ch" <simona@ffwll.ch>
+CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
+Subject: RE: [PATCH] drm/virtgpu: Use vblank timer
+Thread-Topic: [PATCH] drm/virtgpu: Use vblank timer
+Thread-Index: AQHcOFTh4O7Et3uiykydidDxo4mQL7S4trEQ
+Date: Thu, 9 Oct 2025 03:23:55 +0000
+Message-ID: <IA0PR11MB7185D91EB0CD01FD63D21AA7F8EEA@IA0PR11MB7185.namprd11.prod.outlook.com>
+References: <20251008130701.246988-1-tzimmermann@suse.de>
+In-Reply-To: <20251008130701.246988-1-tzimmermann@suse.de>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: IA0PR11MB7185:EE_|DS0PR11MB6350:EE_
+x-ms-office365-filtering-correlation-id: a3f8f88c-9d10-4e7d-99f4-08de06e346f8
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024|38070700021;
+x-microsoft-antispam-message-info: =?us-ascii?Q?o5UldtN/H3iHJtfXYm7BkBLqDWEGw2Dptkezs4OTrYeXty/xHHUQ7lZU8kRT?=
+ =?us-ascii?Q?C3oTnCbYflr9Qy0fYKlRByKZlNoIPsWG3D5mO+4Pbqk5H5zOI5RLiQ7Ds+5i?=
+ =?us-ascii?Q?wzvmBcp9WVdN4SHbyoL3I/L4VPe7uj52nX8HR4CzxGJSQaSIY2KSdv4FFgl0?=
+ =?us-ascii?Q?wyjiUYTggLbvpBKLW+I8RsaxWojpjlZ3szV65xGO9TeIeXZ22MxMffvuSdhe?=
+ =?us-ascii?Q?eY/0IWUXhcj9iCd6tCL3sQ+AwVXBSH8ErCMGKSUqjv1kDkkclq69Zqb/7EnM?=
+ =?us-ascii?Q?2pJ93yWLx4hKVZ60h99yErxM/vZvn9MmkdZzZnJ5cHY/EyFRYwuar9A2LH9i?=
+ =?us-ascii?Q?kSj6nyMwKT6qCAVQ1CaAaNtMAQtUin1IZLOqUvktPkub5MbJA2iNirrVsM2Y?=
+ =?us-ascii?Q?WXgXsuesZ1t+uE0TaNmQ4aAA1csr0f7jg7Q8XN3MJsUaCV2TMdmAgintnIht?=
+ =?us-ascii?Q?iiAYcS37XGr4mj+2gdXJTwkNWQhRp6MX5bjot+sd6/FEO7sBjLTUPdzQZy0/?=
+ =?us-ascii?Q?neiJqxQhnvVahBli/S7gNtMPAVFr4Gsm/aO6fB7/W/iV2o4LtZtNQ7nRGpW+?=
+ =?us-ascii?Q?Q2U9w0Cbji3sYsFu7l8FB2Ejy9oLsHBjDXJhZ7miicH8hDJRctHNRhOuS4yI?=
+ =?us-ascii?Q?XFGzeS5LgqHercI8ucEvZMd4NPc8xneHHRIVzWwHNSBXbSLR16bBdaPYUNhG?=
+ =?us-ascii?Q?kFoUoVxm0SYMoQCrTuNX4SD8LVHp/QQijQO0qYq4wnEka055bvqRG8eD1bLR?=
+ =?us-ascii?Q?GObm7JdPN0PorjdzYLCoeAEiV8Hg12b1DAO9F30M1KMULXDFiOUIFfYeJ+LD?=
+ =?us-ascii?Q?A8nxIPp2zughe6LpiWvYrVpaa9/Pg/u5aEoeaJWYM5H/z3qZvTiLF/AKQDZJ?=
+ =?us-ascii?Q?GFfW4bujU/w4tGlUUAe/FUA7H1ysdlRi4oX91m4YBh2211cZehuBBXpAhVRi?=
+ =?us-ascii?Q?Jc8gv7PS/lCpt/IsN3bQk6nLL/hr7E2kOsBNevdOpUGYwreulMJq9IdD9EwE?=
+ =?us-ascii?Q?3w577kipF8V3XBOTJX1HVjMbw8UIpGfFiKCZoFBig27tZ7N/3HDymbjikvpQ?=
+ =?us-ascii?Q?Zm0rEgIkrTFCNCccQH5L7I6VInFBjKSUkNZXXSDt1uRLzKryrS+M3OIgSBu1?=
+ =?us-ascii?Q?U5kTqxsKDhBbt2oiMTLj33b4yGlsH6/QzOwKgqKxvs2W9TzHK7NLP6jkqsO4?=
+ =?us-ascii?Q?XrqQ0FQfOW9XJ0l1d6lQva5JutO/ogRRKbUKZG3myTYNHVNx1ouoW056QgEk?=
+ =?us-ascii?Q?A2U8dPAlqQ//2H4yw0fRsnEXZhmYIVZYTmXG8YFVLq8Lg8wYhLJO7LBy+DWh?=
+ =?us-ascii?Q?H1zTkf7JbbkTV3AG8HpcxWv0q0s8+8uMC9z6LZKdGx0ZrY6rFYL9nyHZw8JC?=
+ =?us-ascii?Q?8RdA9LHNkJBhClL7Nk5VJZOdyPnISTI12oxl/XrhULusfsSFeR1hIEb6Sikh?=
+ =?us-ascii?Q?cwImTNIPpFNgUzXZK/umLrMoUZywJ4V7rogyU01R9iu542TuqpIH4w=3D=3D?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR11MB7185.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(38070700021);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?jXER8E1rzGhdgjr5k0WE9O/PRuxdKmfkSXJ0aOTBrhs97ZfA0QivLcbimfSQ?=
+ =?us-ascii?Q?w/kQsFOrzjQcS9Q4i3+WUss6QMgwgh2vHd1tSbCis8r9RC5JcoeCZuYPZ9ji?=
+ =?us-ascii?Q?MhWiZ02Dlm1vk+6ODNUkY8/QrgZOIDwayXu2ZJ3SU0pnJ9Ep9WKiRuwmdGC3?=
+ =?us-ascii?Q?bQfOF1Uy8sRKw7CVtoDxIdqZIfu5bNTkVyIquqfIBOpK2kWpuXXVDS4ErN3H?=
+ =?us-ascii?Q?gW19n+I5j7bwgquVKs5QAz3GgCNMKkykmAh8a0d7bJjGZpii+E0Nlfn7tric?=
+ =?us-ascii?Q?MMGzYN/FTKvMZ1oTKRER4nn4Fgj/cCgW+BRGHOdB7D0rYCaaSgDMonlPTV0S?=
+ =?us-ascii?Q?1em+o5/0vprMHr5i6Sp/shMzLQkzGtHcFHw0qpEfElVZoAgE0oLBU19QQINr?=
+ =?us-ascii?Q?0F5x2wsyedQMuCEQVyYv5d4/ixA/OFdL8a0XmjqEGOW0Cz9IaDsjyZy9rP0x?=
+ =?us-ascii?Q?Cn0EqHh9shz7WyKCzh9Xbr7G0aDRTJJyfgPrnedadur1Ydl1AHQNQ0lLO/gX?=
+ =?us-ascii?Q?0ggPii6xHIj+Pq9K9c1wIhdeuHFIjOrYtL397n/Hji/Vtx4RV0lr+zto85Ns?=
+ =?us-ascii?Q?EqG0/0YpzaataTcMVXkwh4KK5ytm6IIJIKpRQzUcO0jjwRKvqlYLd2K5wAXY?=
+ =?us-ascii?Q?pfp8ma7hMmKLFL/4Opnk53WKScH5+oRzMJj3haC+9wSEIkTyaTwu/Kpe7vhZ?=
+ =?us-ascii?Q?4IVdbcH8EbPPbAbEy17VLI6l7h+4lMUqpLMMFW7b3EHNCtZjIeuRO6zKFfl1?=
+ =?us-ascii?Q?wKOqWTogKvDur9nvZ751x8HpViyIlHzU7JX5O+SXho2gOmpPVirVf9LBYVhJ?=
+ =?us-ascii?Q?ozf2+J/6AB4mwWUzxeu1kolAPfe6gxZGooU2AyyenGyDYCgpO3VKsxls+RKp?=
+ =?us-ascii?Q?wraA2i/5MSU1ZvrjV0AvFDYJ38dwv44brAFQZuGuZoKY5QD02D4MNwx0UYFg?=
+ =?us-ascii?Q?mTLujQNEpoYmNony5hIz/gx9OhDSm0I/oQeJOOgpNYLxHWoVKC8GQEsdS3Ey?=
+ =?us-ascii?Q?FDD4tPrQ5RRyLG5SWp7ZkiY5S3nPkKrp8aV56+YNoGoe/2kQ32QFppdPqUDW?=
+ =?us-ascii?Q?nQPKx64xxwui2LM4naPJ392qJSxgIPrCiBdg7wJ0feZMjG08vKEiL4GhQrDg?=
+ =?us-ascii?Q?jvtgD7mShwk27va2cEJ3JCkLX5ivxrkpMvMuY2GXD/vXxElyAHZVlbdmUDxo?=
+ =?us-ascii?Q?T5HQVNC1Hy1GGO2pWpw7pA6Idjf7PpAcITdRaLZwaxpIlpWCZbQ/l+TpdL+C?=
+ =?us-ascii?Q?jjadLG8pGNKdURSlDEAZSAvanEGoGM4lNltDw943XTAAj/Vb71SpXd/kEHXg?=
+ =?us-ascii?Q?sycRutnZmkjC6XnoP9g0VugCw9Q5CeXOkkymgbRo76N0T91OyssjrPiv0GBP?=
+ =?us-ascii?Q?EGBDSYn3KIFGAv3UzzP9bE+jZRzcajI3GzuTO23EhiGabvag20nJduHRtPGR?=
+ =?us-ascii?Q?E8cJRhuFgn3nSBtf8dH31vUoEqGexrcegE0faHKVrksKUDUQkV3puMDP0tsr?=
+ =?us-ascii?Q?R+0MlvyTiHBGCW95cIU6amH5z3yfpprr5MEg1IuJnHN/3jsJAGLeFugDoPtg?=
+ =?us-ascii?Q?CGTQExh9K9CQzTSLE2E1X7GG9s4ZXKkQyQhO57it?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5.10] gpu/drm/virtio: fix error return in
- vgdev_output_init()
-To: Alexandr Sapozhnkiov <alsp705@gmail.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev
-Cc: lvc-project@linuxtesting.org
-References: <20250922144418.41-1-alsp705@gmail.com>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20250922144418.41-1-alsp705@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: IA0PR11MB7185.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a3f8f88c-9d10-4e7d-99f4-08de06e346f8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Oct 2025 03:23:55.1105
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: HZqDgEqxrY4viOtwVPDdG1RRL7/eWxEBj2ZU1NKjqVbPo7zr0dvYHbqO3Xgu2F2pm9LqRN+3+Y2NybrAlEdD/xJ2X0BRF2WBIJWccooJwtM=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB6350
+X-OriginatorOrg: intel.com
 
-On 9/22/25 17:44, Alexandr Sapozhnkiov wrote:
-> From: Alexandr Sapozhnikov <alsp705@gmail.com>
-> 
-> Return value of function drm_crtc_init_with_planes(), 
-> called at virtgpu_display.c:276, is not checked, 
-> but it is usually checked for this function
-> 
-> Found by Linux Verification Center (linuxtesting.org) with SVACE.
-> Signed-off-by: Alexandr Sapozhnikov <alsp705@gmail.com>
+Hi Thomas,
+
+> Subject: [PATCH] drm/virtgpu: Use vblank timer
+>=20
+> Use a vblank timer to simulate the vblank interrupt. The DRM vblank
+> helpers provide an implementation on top of Linux' hrtimer. Virtgpu
+> enables and disables the timer as part of the CRTC. The atomic_flush
+> callback sets up the event. Like vblank interrupts, the vblank timer
+> fires at the rate of the display refresh.
+>=20
+> Most userspace limits its page flip rate according to the DRM vblank
+> event. Virtgpu's virtual hardware does not provide vblank interrupts, so
+> DRM sends each event ASAP. With the fast access times of virtual display
+> memory, the event rate is much higher than the display mode's refresh
+> rate; creating the next page flip almost immediately. This leads to
+> excessive CPU overhead from even small display updates, such as moving
+> the mouse pointer.
+>=20
+> This problem affects virtgpu and all other virtual displays. See [1] for
+> a discussion in the context of hypervdrm.
+When running Virtio-gpu with some of the UIs (gtk, spice, etc) in Qemu, the
+Guest display updates are synchronized with a timer (or repaint callback in
+the case of Gtk) the UI layer provides particularly when blob=3Dtrue. In ot=
+her
+words, the Guest's atomic commit does not complete until the Host signals
+(via a fence) that the update (or flush) is done.
+
+This is because when blob=3Dtrue, the Guest's FB is accessed by the Host wi=
+thout
+making any copies. So, to avoid tearing, the Guest needs to be prevented fr=
+om
+accessing its FB until the Host is done. Therefore, I think for virtio-gpu,=
+ the virtual
+vblank timer can only be helpful when blob=3Dfalse as this is the only case=
+ where
+Guest's display updates are unbounded (and Host makes a copy of the Guest's=
+ FB).
+
+I am not sure how this would affect virgl use-cases but Dmitry can help exp=
+lain if
+the vblank timer would be useful there or not.
+
+Thanks,
+Vivek
+
+>=20
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Link: https://lore.kernel.org/dri-
+> devel/SN6PR02MB415702B00D6D52B0EE962C98D46CA@SN6PR02MB4157.n
+> amprd02.prod.outlook.com/ # [1]
 > ---
->  drivers/gpu/drm/virtio/virtgpu_display.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-> index ad924a8502e9..59b652e8a630 100644
+>  drivers/gpu/drm/virtio/virtgpu_display.c | 29 ++++++++++++++++++++++--
+>  1 file changed, 27 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c
+> b/drivers/gpu/drm/virtio/virtgpu_display.c
+> index c3315935d8bc..ee134e46eeba 100644
 > --- a/drivers/gpu/drm/virtio/virtgpu_display.c
 > +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-> @@ -253,6 +253,7 @@ static const struct drm_connector_funcs virtio_gpu_connector_funcs = {
-
-
-Applied to misc-next with corrected coding style and edited commit
-message, thanks.
-
--- 
-Best regards,
-Dmitry
+> @@ -32,6 +32,8 @@
+>  #include <drm/drm_gem_framebuffer_helper.h>
+>  #include <drm/drm_probe_helper.h>
+>  #include <drm/drm_simple_kms_helper.h>
+> +#include <drm/drm_vblank.h>
+> +#include <drm/drm_vblank_helper.h>
+>=20
+>  #include "virtgpu_drv.h"
+>=20
+> @@ -55,6 +57,7 @@ static const struct drm_crtc_funcs virtio_gpu_crtc_func=
+s
+> =3D {
+>  	.reset                  =3D drm_atomic_helper_crtc_reset,
+>  	.atomic_duplicate_state =3D drm_atomic_helper_crtc_duplicate_state,
+>  	.atomic_destroy_state   =3D drm_atomic_helper_crtc_destroy_state,
+> +	DRM_CRTC_VBLANK_TIMER_FUNCS,
+>  };
+>=20
+>  static const struct drm_framebuffer_funcs virtio_gpu_fb_funcs =3D {
+> @@ -99,6 +102,7 @@ static void virtio_gpu_crtc_mode_set_nofb(struct
+> drm_crtc *crtc)
+>  static void virtio_gpu_crtc_atomic_enable(struct drm_crtc *crtc,
+>  					  struct drm_atomic_state *state)
+>  {
+> +	drm_crtc_vblank_on(crtc);
+>  }
+>=20
+>  static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
+> @@ -108,6 +112,8 @@ static void virtio_gpu_crtc_atomic_disable(struct
+> drm_crtc *crtc,
+>  	struct virtio_gpu_device *vgdev =3D dev->dev_private;
+>  	struct virtio_gpu_output *output =3D
+> drm_crtc_to_virtio_gpu_output(crtc);
+>=20
+> +	drm_crtc_vblank_off(crtc);
+> +
+>  	virtio_gpu_cmd_set_scanout(vgdev, output->index, 0, 0, 0, 0, 0);
+>  	virtio_gpu_notify(vgdev);
+>  }
+> @@ -121,9 +127,10 @@ static int virtio_gpu_crtc_atomic_check(struct
+> drm_crtc *crtc,
+>  static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
+>  					 struct drm_atomic_state *state)
+>  {
+> -	struct drm_crtc_state *crtc_state =3D
+> drm_atomic_get_new_crtc_state(state,
+> -									  crtc);
+> +	struct drm_device *dev =3D crtc->dev;
+> +	struct drm_crtc_state *crtc_state =3D
+> drm_atomic_get_new_crtc_state(state, crtc);
+>  	struct virtio_gpu_output *output =3D
+> drm_crtc_to_virtio_gpu_output(crtc);
+> +	struct drm_pending_vblank_event *event;
+>=20
+>  	/*
+>  	 * virtio-gpu can't do modeset and plane update operations
+> @@ -133,6 +140,20 @@ static void virtio_gpu_crtc_atomic_flush(struct
+> drm_crtc *crtc,
+>  	 */
+>  	if (drm_atomic_crtc_needs_modeset(crtc_state))
+>  		output->needs_modeset =3D true;
+> +
+> +	spin_lock_irq(&dev->event_lock);
+> +
+> +	event =3D crtc_state->event;
+> +	crtc_state->event =3D NULL;
+> +
+> +	if (event) {
+> +		if (drm_crtc_vblank_get(crtc) =3D=3D 0)
+> +			drm_crtc_arm_vblank_event(crtc, event);
+> +		else
+> +			drm_crtc_send_vblank_event(crtc, event);
+> +	}
+> +
+> +	spin_unlock_irq(&dev->event_lock);
+>  }
+>=20
+>  static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs =
+=3D {
+> @@ -356,6 +377,10 @@ int virtio_gpu_modeset_init(struct virtio_gpu_device
+> *vgdev)
+>  	for (i =3D 0 ; i < vgdev->num_scanouts; ++i)
+>  		vgdev_output_init(vgdev, i);
+>=20
+> +	ret =3D drm_vblank_init(vgdev->ddev, vgdev->num_scanouts);
+> +	if (ret)
+> +		return ret;
+> +
+>  	drm_mode_config_reset(vgdev->ddev);
+>  	return 0;
+>  }
+> --
+> 2.51.0
+>=20
 
