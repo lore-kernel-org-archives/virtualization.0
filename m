@@ -1,43 +1,39 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48FC1824BD
-	for <virtualization@lists.linux.dev>; Thu,  9 Oct 2025 06:14:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759990448; cv=pass; b=WzBrn/bwhZPVtzRSnjXUE7pAF1km4CdI6h7khMmAlS+y1F7P/QSR9HOptF3ZwShP6DHylMQRcm7R3HbngFT91flp75m8h7y5VvcYos7SJRHRCIMfaUKmMlkPSub5G7zl0bdyXwXQwd3Po8P2naEERo+Pn93aefOp34MGZSZZgGo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759990448; c=relaxed/simple;
-	bh=7iM4GwJ67QtxgU9WG98OBgTN9CAaTGVGAWWLaJv3mCU=;
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0C537222586;
+	Thu,  9 Oct 2025 07:20:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1759994436; cv=none; b=ozYhkuaNZZIOikcvqrcgDeoXTxpRYWCZzu7bQ6kLZ51SCZbkblTXwsHczAoo5VM4utDOoeyY9ajZVVa4WwQYOcSIUpam/hcsP5uCp+DC5TePIj6xIIAeCP7A+uwi03JhZTRO0ZKDf87KyTK+/edBI2cWj+8wVDtjtGamU/g+uII=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1759994436; c=relaxed/simple;
+	bh=qiRw4QuoIHdxgOMBw5rOBwaXySx4YLDEZtVJzzfIsuA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=opVSCgurg5uyCyKMyXLyTTfrjTPt/35FJ3tjVY36c7v29xgg16i75/1uwjboU3YER0Xg2xd/6rW53moW3HAm0JH+zmr+7yU0LdRgeV8VMYOZQmi9pLtZWupwvpcFP/K+CU5BhGzU4SMtkYCgWRNxLI4DF8rRxEpfMp85900Sh+U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=kYhhe1Qa; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="kYhhe1Qa"
-ARC-Seal: i=1; a=rsa-sha256; t=1759990437; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=XgdDZCDNU+Fx7g1vU8sIbmbLxZ/0EWNmQsYB/+hx1PJ9ZBoS1KY0pmAk4kxftw8PD7BRNHHxCGuN3VFYnQEX/7XTUT1tkV+JPZyCqrPfHdBjU697x9XIkiX6XTjb54DJZPRd11Lrd1WTbEudKlWWXkhyS1bNJuMiw5KP/Dq29vs=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1759990437; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=J+cBXdB1ZMMli8mKVf2kyUjE3bvvgHzHmHesP6oSy7Q=; 
-	b=hbiWQcVMogq2jcrCpjKzc46NrB0NUAKqvfyxnqEtM0konzAlzkIZr1+n+LLvgMl5k9so6nRoXKDiq2L0tIncy26hjAw/OyFjL2JBrXSxxtsX7ibPw4Xz2ozfPMX6udaNzbHJI/1xmniVhmBNFCXC+1my2rbVIsHK5FqafS2A7+0=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1759990437;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=J+cBXdB1ZMMli8mKVf2kyUjE3bvvgHzHmHesP6oSy7Q=;
-	b=kYhhe1QarZLzVWosy/RcuaYIs4Mg+JZtJ8//R9ecik/DL0Y1y2MkAZwBGJHWtJ+h
-	8XBuA8Qc1bbRzKSwyvpYe2ukSGIGlcIcjjozLkMSVvm6H4Ifx68FTK5jKnHXkTncSMl
-	S/pNAsT3xPLT53NkdYlq032/3vYjBbq1GA/QTibs=
-Received: by mx.zohomail.com with SMTPS id 1759990435197633.6159650403903;
-	Wed, 8 Oct 2025 23:13:55 -0700 (PDT)
-Message-ID: <9aa83493-e036-4a89-825c-3ed95ab5ae30@collabora.com>
-Date: Thu, 9 Oct 2025 09:13:48 +0300
+	 In-Reply-To:Content-Type; b=Z1iMZdIQ2LfY98Zq9sJDWmqOVQg3nEREc9g5XGqwJ+oyo6Bf/a4s+ziwP2nXVp5lKb2iAnO3cryLV/X91lomZF6sezxjUTlw9LgXwYdcPUeFcDySq2Bh2WY4wtA8Lu1gw0Y+GajJdjDO4RBUxunfgRyWOERuZ0+qZ359hv9oPVA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
+Received: from localhost (mailhub4.si.c-s.fr [172.26.127.67])
+	by localhost (Postfix) with ESMTP id 4cj1Mm20R5z9sSd;
+	Thu,  9 Oct 2025 09:14:28 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IrXIuvb4y-IU; Thu,  9 Oct 2025 09:14:28 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+	by pegase2.c-s.fr (Postfix) with ESMTP id 4cj1Mm0p1dz9sSb;
+	Thu,  9 Oct 2025 09:14:28 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id F24048B76C;
+	Thu,  9 Oct 2025 09:14:27 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+	with ESMTP id wHEaqnf6dd0R; Thu,  9 Oct 2025 09:14:27 +0200 (CEST)
+Received: from [192.168.235.99] (unknown [192.168.235.99])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id D85288B768;
+	Thu,  9 Oct 2025 09:14:25 +0200 (CEST)
+Message-ID: <3e043453-3f27-48ad-b987-cc39f523060a@csgroup.eu>
+Date: Thu, 9 Oct 2025 09:14:24 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,68 +41,188 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtgpu: Use vblank timer
-To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- "airlied@redhat.com" <airlied@redhat.com>,
- "kraxel@redhat.com" <kraxel@redhat.com>,
- "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
- "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
- "mripard@kernel.org" <mripard@kernel.org>,
- "airlied@gmail.com" <airlied@gmail.com>, "simona@ffwll.ch" <simona@ffwll.ch>
-Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-References: <20251008130701.246988-1-tzimmermann@suse.de>
- <IA0PR11MB7185D91EB0CD01FD63D21AA7F8EEA@IA0PR11MB7185.namprd11.prod.outlook.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <IA0PR11MB7185D91EB0CD01FD63D21AA7F8EEA@IA0PR11MB7185.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+Subject: Re: (bisected) [PATCH v2 08/37] mm/hugetlb: check for unreasonable
+ folio sizes when registering hstate
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Zi Yan <ziy@nvidia.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Alexander Potapenko <glider@google.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
+ Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ iommu@lists.linux.dev, io-uring@vger.kernel.org,
+ Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
+ Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
+ kasan-dev@googlegroups.com, kvm@vger.kernel.org,
+ Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
+ linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+ linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Marco Elver <elver@google.com>,
+ Marek Szyprowski <m.szyprowski@samsung.com>, Michal Hocko <mhocko@suse.com>,
+ Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>,
+ netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
+ Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
+ Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
+ virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
+ wireguard@lists.zx2c4.com, x86@kernel.org,
+ "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+References: <20250901150359.867252-1-david@redhat.com>
+ <20250901150359.867252-9-david@redhat.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Content-Language: fr-FR
+In-Reply-To: <20250901150359.867252-9-david@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 10/9/25 06:23, Kasireddy, Vivek wrote:
-> Hi Thomas,
+Hi David,
+
+Le 01/09/2025 à 17:03, David Hildenbrand a écrit :
+> Let's check that no hstate that corresponds to an unreasonable folio size
+> is registered by an architecture. If we were to succeed registering, we
+> could later try allocating an unsupported gigantic folio size.
 > 
->> Subject: [PATCH] drm/virtgpu: Use vblank timer
->>
->> Use a vblank timer to simulate the vblank interrupt. The DRM vblank
->> helpers provide an implementation on top of Linux' hrtimer. Virtgpu
->> enables and disables the timer as part of the CRTC. The atomic_flush
->> callback sets up the event. Like vblank interrupts, the vblank timer
->> fires at the rate of the display refresh.
->>
->> Most userspace limits its page flip rate according to the DRM vblank
->> event. Virtgpu's virtual hardware does not provide vblank interrupts, so
->> DRM sends each event ASAP. With the fast access times of virtual display
->> memory, the event rate is much higher than the display mode's refresh
->> rate; creating the next page flip almost immediately. This leads to
->> excessive CPU overhead from even small display updates, such as moving
->> the mouse pointer.
->>
->> This problem affects virtgpu and all other virtual displays. See [1] for
->> a discussion in the context of hypervdrm.
-> When running Virtio-gpu with some of the UIs (gtk, spice, etc) in Qemu, the
-> Guest display updates are synchronized with a timer (or repaint callback in
-> the case of Gtk) the UI layer provides particularly when blob=true. In other
-> words, the Guest's atomic commit does not complete until the Host signals
-> (via a fence) that the update (or flush) is done.
+> Further, let's add a BUILD_BUG_ON() for checking that HUGETLB_PAGE_ORDER
+> is sane at build time. As HUGETLB_PAGE_ORDER is dynamic on powerpc, we have
+> to use a BUILD_BUG_ON_INVALID() to make it compile.
 > 
-> This is because when blob=true, the Guest's FB is accessed by the Host without
-> making any copies. So, to avoid tearing, the Guest needs to be prevented from
-> accessing its FB until the Host is done. Therefore, I think for virtio-gpu, the virtual
-> vblank timer can only be helpful when blob=false as this is the only case where
-> Guest's display updates are unbounded (and Host makes a copy of the Guest's FB).
+> No existing kernel configuration should be able to trigger this check:
+> either SPARSEMEM without SPARSEMEM_VMEMMAP cannot be configured or
+> gigantic folios will not exceed a memory section (the case on sparse).
 > 
-> I am not sure how this would affect virgl use-cases but Dmitry can help explain if
-> the vblank timer would be useful there or not.
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
+> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+> Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 
-The vblank timer should only limit framerate of virtio-gpu, I don't
-expect it will cause new problems. Do you see tearing using this patch?
+I get following warning on powerpc with linus tree, bisected to commit 
+7b4f21f5e038 ("mm/hugetlb: check for unreasonable folio sizes when 
+registering hstate")
 
-Vblank timer makes a big performance improvement for virtio-gpu KMS,
-especially for a native context on QEMU. No tearing spotted with it.
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at mm/hugetlb.c:4744 hugetlb_add_hstate+0xc0/0x180
+Modules linked in:
+CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 
+6.17.0-rc4-00275-g7b4f21f5e038 #1683 NONE
+Hardware name: QEMU ppce500 e5500 0x80240020 QEMU e500
+NIP:  c000000001357408 LR: c000000001357c90 CTR: 0000000000000003
+REGS: c00000000152bad0 TRAP: 0700   Not tainted 
+(6.17.0-rc4-00275-g7b4f21f5e038)
+MSR:  0000000080021002 <CE,ME>  CR: 44000448  XER: 20000000
+IRQMASK: 1
+GPR00: c000000001357c90 c00000000152bd70 c000000001339000 0000000000000012
+GPR04: 000000000000000a 0000000000001000 000000000000001e 0000000000000000
+GPR08: 0000000000000000 0000000000000000 0000000000000001 000000000000000a
+GPR12: c000000001357b68 c000000001590000 0000000000000000 0000000000000000
+GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR24: c0000000011adb40 c00000000156b528 0000000000000000 c00000000156b4b0
+GPR28: c00000000156b528 0000000000000012 0000000040000000 0000000000000000
+NIP [c000000001357408] hugetlb_add_hstate+0xc0/0x180
+LR [c000000001357c90] hugepagesz_setup+0x128/0x150
+Call Trace:
+[c00000000152bd70] [c00000000152bda0] init_stack+0x3da0/0x4000 (unreliable)
+[c00000000152be10] [c000000001357c90] hugepagesz_setup+0x128/0x150
+[c00000000152be80] [c00000000135841c] hugetlb_bootmem_alloc+0x84/0x104
+[c00000000152bec0] [c00000000135143c] mm_core_init+0x30/0x174
+[c00000000152bf30] [c000000001332ed4] start_kernel+0x540/0x880
+[c00000000152bfe0] [c000000000000a50] start_here_common+0x1c/0x20
+Code: 2c09000f 39000001 38e00000 39400001 7d00401e 0b080000 281d0001 
+7d00505e 79080020 0b080000 281d000c 7d4a385e <0b0a0000> 1f5a00b8 
+38bf0020 3c82ffe8
+---[ end trace 0000000000000000 ]---
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at mm/hugetlb.c:4744 hugetlb_add_hstate+0xc0/0x180
+Modules linked in:
+CPU: 0 UID: 0 PID: 0 Comm: swapper Tainted: G        W 
+6.17.0-rc4-00275-g7b4f21f5e038 #1683 NONE
+Tainted: [W]=WARN
+Hardware name: QEMU ppce500 e5500 0x80240020 QEMU e500
+NIP:  c000000001357408 LR: c000000001357c90 CTR: 0000000000000005
+REGS: c00000000152bad0 TRAP: 0700   Tainted: G        W 
+(6.17.0-rc4-00275-g7b4f21f5e038)
+MSR:  0000000080021002 <CE,ME>  CR: 48000448  XER: 20000000
+IRQMASK: 1
+GPR00: c000000001357c90 c00000000152bd70 c000000001339000 000000000000000e
+GPR04: 000000000000000a 0000000000001000 0000000040000000 0000000000000000
+GPR08: 0000000000000000 0000000000000001 0000000000000001 0000000000000280
+GPR12: c000000001357b68 c000000001590000 0000000000000000 0000000000000000
+GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR24: c0000000011adb40 c00000000156b5e0 0000000000000001 c00000000156b4b0
+GPR28: c00000000156b528 000000000000000e 0000000004000000 00000000000000b8
+NIP [c000000001357408] hugetlb_add_hstate+0xc0/0x180
+LR [c000000001357c90] hugepagesz_setup+0x128/0x150
+Call Trace:
+[c00000000152bd70] [c000000000f27048] __func__.0+0x0/0x18 (unreliable)
+[c00000000152be10] [c000000001357c90] hugepagesz_setup+0x128/0x150
+[c00000000152be80] [c00000000135841c] hugetlb_bootmem_alloc+0x84/0x104
+[c00000000152bec0] [c00000000135143c] mm_core_init+0x30/0x174
+[c00000000152bf30] [c000000001332ed4] start_kernel+0x540/0x880
+[c00000000152bfe0] [c000000000000a50] start_here_common+0x1c/0x20
+Code: 2c09000f 39000001 38e00000 39400001 7d00401e 0b080000 281d0001 
+7d00505e 79080020 0b080000 281d000c 7d4a385e <0b0a0000> 1f5a00b8 
+38bf0020 3c82ffe8
+---[ end trace 0000000000000000 ]---
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at mm/hugetlb.c:4744 hugetlb_add_hstate+0xc0/0x180
+Modules linked in:
+CPU: 0 UID: 0 PID: 0 Comm: swapper Tainted: G        W 
+6.17.0-rc4-00275-g7b4f21f5e038 #1683 NONE
+Tainted: [W]=WARN
+Hardware name: QEMU ppce500 e5500 0x80240020 QEMU e500
+NIP:  c000000001357408 LR: c000000001357c90 CTR: 0000000000000004
+REGS: c00000000152bad0 TRAP: 0700   Tainted: G        W 
+(6.17.0-rc4-00275-g7b4f21f5e038)
+MSR:  0000000080021002 <CE,ME>  CR: 48000448  XER: 20000000
+IRQMASK: 1
+GPR00: c000000001357c90 c00000000152bd70 c000000001339000 0000000000000010
+GPR04: 000000000000000a 0000000000001000 0000000004000000 0000000000000000
+GPR08: 0000000000000000 0000000000000002 0000000000000001 0000000000000a00
+GPR12: c000000001357b68 c000000001590000 0000000000000000 0000000000000000
+GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR24: c0000000011adb40 c00000000156b698 0000000000000002 c00000000156b4b0
+GPR28: c00000000156b528 0000000000000010 0000000010000000 0000000000000170
+NIP [c000000001357408] hugetlb_add_hstate+0xc0/0x180
+LR [c000000001357c90] hugepagesz_setup+0x128/0x150
+Call Trace:
+[c00000000152bd70] [c000000000f27048] __func__.0+0x0/0x18 (unreliable)
+[c00000000152be10] [c000000001357c90] hugepagesz_setup+0x128/0x150
+[c00000000152be80] [c00000000135841c] hugetlb_bootmem_alloc+0x84/0x104
+[c00000000152bec0] [c00000000135143c] mm_core_init+0x30/0x174
+[c00000000152bf30] [c000000001332ed4] start_kernel+0x540/0x880
+[c00000000152bfe0] [c000000000000a50] start_here_common+0x1c/0x20
+Code: 2c09000f 39000001 38e00000 39400001 7d00401e 0b080000 281d0001 
+7d00505e 79080020 0b080000 281d000c 7d4a385e <0b0a0000> 1f5a00b8 
+38bf0020 3c82ffe8
+---[ end trace 0000000000000000 ]---
 
--- 
-Best regards,
-Dmitry
+
+> ---
+>   mm/hugetlb.c | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> index 1e777cc51ad04..d3542e92a712e 100644
+> --- a/mm/hugetlb.c
+> +++ b/mm/hugetlb.c
+> @@ -4657,6 +4657,7 @@ static int __init hugetlb_init(void)
+>   
+>   	BUILD_BUG_ON(sizeof_field(struct page, private) * BITS_PER_BYTE <
+>   			__NR_HPAGEFLAGS);
+> +	BUILD_BUG_ON_INVALID(HUGETLB_PAGE_ORDER > MAX_FOLIO_ORDER);
+>   
+>   	if (!hugepages_supported()) {
+>   		if (hugetlb_max_hstate || default_hstate_max_huge_pages)
+> @@ -4740,6 +4741,7 @@ void __init hugetlb_add_hstate(unsigned int order)
+>   	}
+>   	BUG_ON(hugetlb_max_hstate >= HUGE_MAX_HSTATE);
+>   	BUG_ON(order < order_base_2(__NR_USED_SUBPAGE));
+> +	WARN_ON(order > MAX_FOLIO_ORDER);
+>   	h = &hstates[hugetlb_max_hstate++];
+>   	__mutex_init(&h->resize_lock, "resize mutex", &h->resize_key);
+>   	h->order = order;
+
