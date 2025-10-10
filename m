@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D18F326658A
-	for <virtualization@lists.linux.dev>; Fri, 10 Oct 2025 08:58:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30844269D06
+	for <virtualization@lists.linux.dev>; Fri, 10 Oct 2025 08:58:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760086735; cv=none; b=jqlx9yO8KxgK5lV5dQ1KjhUh589h3UNsbtzSklmFpnN420STGR/jWPkNXKroM3SxBOwlnRWSkODUvLgW7jItujqMivKHvOw2wAmHd6McGNvAMoG1J/HbdJGxPjrgGKTuHuimQwpktHmTRJ5S6QOiR3td2m8E9G6zgwdVhKhbODo=
+	t=1760086739; cv=none; b=ABUsgslAljw0s33f47eR0F/cpl+6uYXfM0L9I9iUJcTmrSzR3A+foByp5PcfWChm0gYqq+DXV/x1lDpHtLGvBvfd4bcbtT5KBcCiP792nUL6NSzjaZ8TJwaehLFszNMlQLCU4KYqBZt/Qn5JcsWDfKz0f8NowZYDNOu9oObEgWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760086735; c=relaxed/simple;
-	bh=4qO5KMDCFJyJ5+6WWFAM5SIlB7Gs1H8go0iOLBjfcGk=;
+	s=arc-20240116; t=1760086739; c=relaxed/simple;
+	bh=PxdT9mOiWoLezntKsuWbnCJiNK5Qbz64yT2WYYv1pA8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=J2JjXL+FK9wTJF8ScFo7w4nzeG6iI8ofbcYIoJhW9xGMbO4Wf5RkKIeFP7yDGXOv6sC4kNabeIgZdjruo8vOJpJPBpjXc7ZQCW0VWrHYyCY3kgLEmfB8bFTOc7Rt7LsTDAavs+8UHElPYN0eDV73MTn4yjtBskMVMCVYEx6CwM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ENlDfcSF; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=invnRaSkTxCv+oHFpRSA41Vcximl3Tuxf5Kqr82q0ofDbJrEJuvuVicu5TuEOpFzcgOP2y47cM0Pp7mVpAb3bQlzxRgR5UlHo9hwW53fUAc87aMgZuKox0ysiRRpxHTKAxgGXAVQ4qIIoO0OvTZqKz/MYrmeoHX/spiWmTYZiUM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RDO88wmu; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ENlDfcSF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RDO88wmu"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760086732;
+	s=mimecast20190719; t=1760086737;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=aT59ewUqlKv+ipNkQWqwpQxi8PDsjGb7Zar3bEQIkJc=;
-	b=ENlDfcSFb1HMz1wvQgbrgrZBq655XeHgqzzZoAy91Qqz4ks0i2AmFDiKKwA9l+UNEVykYi
-	TlDLbA2vsL1hu2Do0mJGWFKC1CzZ2u9tHdndy2OnoAXxorSnnVvCDgGf6rjO+RKGtR67EY
-	Cg3kBNxlLzOpHU2FxQLqy8GEJtSNtsU=
+	bh=sj427ixTpqRLD8/GtDqqeAt23TOLlAKYOwaReQemato=;
+	b=RDO88wmuTEhGjaDlStFTDR9MY9RL89J4rN0jel2j8+4cda4bz+5Wl9afQd4fMNAvkdtIUy
+	6P2IYrFLDyFSqeKMVgHDBh21t2w6Sozm3h2p00JvuC5v+rzH2kLcK9g5H94mCE5WSGzeRB
+	Nesit72ECw4abh/slFuSi0KZ9SXBbCk=
 Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-592-uZrRCpy8NS-LA3i7cqS-lA-1; Fri,
- 10 Oct 2025 04:58:49 -0400
-X-MC-Unique: uZrRCpy8NS-LA3i7cqS-lA-1
-X-Mimecast-MFC-AGG-ID: uZrRCpy8NS-LA3i7cqS-lA_1760086728
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-357-0_ez7BJJOHGBWwXJiBfrLw-1; Fri,
+ 10 Oct 2025 04:58:54 -0400
+X-MC-Unique: 0_ez7BJJOHGBWwXJiBfrLw-1
+X-Mimecast-MFC-AGG-ID: 0_ez7BJJOHGBWwXJiBfrLw_1760086733
 Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 30B5A1800452;
-	Fri, 10 Oct 2025 08:58:48 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 01A901800451;
+	Fri, 10 Oct 2025 08:58:53 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.45.226.113])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 4C0221800447;
-	Fri, 10 Oct 2025 08:58:44 +0000 (UTC)
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F22A41800447;
+	Fri, 10 Oct 2025 08:58:48 +0000 (UTC)
 From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
 To: "Michael S . Tsirkin " <mst@redhat.com>
 Cc: Yongji Xie <xieyongji@bytedance.com>,
@@ -54,9 +54,9 @@ Cc: Yongji Xie <xieyongji@bytedance.com>,
 	Laurent Vivier <lvivier@redhat.com>,
 	Cindy Lu <lulu@redhat.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Subject: [PATCH v7 3/7] vduse: add vq group support
-Date: Fri, 10 Oct 2025 10:58:23 +0200
-Message-ID: <20251010085827.116958-4-eperezma@redhat.com>
+Subject: [PATCH v7 4/7] vduse: return internal vq group struct as map token
+Date: Fri, 10 Oct 2025 10:58:24 +0200
+Message-ID: <20251010085827.116958-5-eperezma@redhat.com>
 In-Reply-To: <20251010085827.116958-1-eperezma@redhat.com>
 References: <20251010085827.116958-1-eperezma@redhat.com>
 Precedence: bulk
@@ -69,245 +69,281 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-This allows separate the different virtqueues in groups that shares the
-same address space.  Asking the VDUSE device for the groups of the vq at
-the beginning as they're needed for the DMA API.
+Return the internal struct that represents the vq group as virtqueue map
+token, instead of the device.  This allows the map functions to access
+the information per group.
 
-Allocating 3 vq groups as net is the device that need the most groups:
-* Dataplane (guest passthrough)
-* CVQ
-* Shadowed vrings.
-
-Future versions of the series can include dynamic allocation of the
-groups array so VDUSE can declare more groups.
+At this moment all the virtqueues share the same vq group, that only
+can point to ASID 0.  This change prepares the infrastructure for actual
+per-group address space handling
 
 Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
 ---
-v6:
-* s/sepparate/separate (MST).
-* s/dev->api_version < 1/dev->api_version < VDUSE_API_VERSION_1
-
-v5:
-* Revert core vdpa changes (Jason).
-* Fix group == ngroup case in checking VQ_SETUP argument (Jason).
-
 v4:
-* Revert the "invalid vq group" concept and assume 0 if not set (Jason).
-* Make config->ngroups == 0 invalid (Jason).
+* Revert the "invalid vq group" concept, and assume 0 by default.
+* Revert unnecesary blank line addition (Jason)
 
 v3:
-* Make the default group an invalid group as long as VDUSE device does
-  not set it to some valid u32 value.  Modify the vdpa core to take that
-  into account (Jason).
-* Create the VDUSE_DEV_MAX_GROUPS instead of using a magic number
-
-v2:
-* Now the vq group is in vduse_vq_config struct instead of issuing one
-  VDUSE message per vq.
-
-v1:
-* Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+* Adapt all virtio_map_ops callbacks to handle empty tokens in case of
+  invalid groups.
+* Make setting status DRIVER_OK fail if vq group is not valid.
+* Remove the _int name suffix from struct vduse_vq_group.
 
 RFC v3:
-* Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason).  It was set to a lower
-  value to reduce memory consumption, but vqs are already limited to
-  that value and userspace VDUSE is able to allocate that many vqs.
-* Remove the descs vq group capability as it will not be used and we can
-  add it on top.
-* Do not ask for vq groups in number of vq groups < 2.
-* Move the valid vq groups range check to vduse_validate_config.
-
-RFC v2:
-* Cache group information in kernel, as we need to provide the vq map
-  tokens properly.
-* Add descs vq group to optimize SVQ forwarding and support indirect
-  descriptors out of the box.
+* Make the vq groups a dynamic array to support an arbitrary number of
+  them.
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 48 ++++++++++++++++++++++++++----
- include/uapi/linux/vduse.h         | 12 ++++++--
- 2 files changed, 52 insertions(+), 8 deletions(-)
+ drivers/vdpa/vdpa_user/vduse_dev.c | 100 ++++++++++++++++++++++++++---
+ include/linux/virtio.h             |   6 +-
+ 2 files changed, 94 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 321092bfb2a6..e8defc4419e4 100644
+index e8defc4419e4..923330da9bef 100644
 --- a/drivers/vdpa/vdpa_user/vduse_dev.c
 +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -40,6 +40,7 @@
- #define DRV_LICENSE  "GPL v2"
+@@ -23,6 +23,7 @@
+ #include <linux/uio.h>
+ #include <linux/vdpa.h>
+ #include <linux/nospec.h>
++#include <linux/virtio.h>
+ #include <linux/vmalloc.h>
+ #include <linux/sched/mm.h>
+ #include <uapi/linux/vduse.h>
+@@ -86,6 +87,10 @@ struct vduse_umem {
+ 	struct mm_struct *mm;
+ };
  
- #define VDUSE_DEV_MAX (1U << MINORBITS)
-+#define VDUSE_DEV_MAX_GROUPS 0xffff
- #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
- #define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
- #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
-@@ -59,6 +60,7 @@ struct vduse_virtqueue {
- 	struct vdpa_vq_state state;
- 	bool ready;
- 	bool kicked;
-+	u32 vq_group;
- 	spinlock_t kick_lock;
- 	spinlock_t irq_lock;
- 	struct eventfd_ctx *kickfd;
-@@ -115,6 +117,7 @@ struct vduse_dev {
- 	u8 status;
- 	u32 vq_num;
++struct vduse_vq_group {
++	struct vduse_dev *dev;
++};
++
+ struct vduse_dev {
+ 	struct vduse_vdpa *vdev;
+ 	struct device *dev;
+@@ -119,6 +124,7 @@ struct vduse_dev {
  	u32 vq_align;
-+	u32 ngroups;
+ 	u32 ngroups;
  	struct vduse_umem *umem;
++	struct vduse_vq_group *groups;
  	struct mutex mem_lock;
  	unsigned int bounce_size;
-@@ -456,6 +459,7 @@ static void vduse_dev_reset(struct vduse_dev *dev)
- 		vq->driver_addr = 0;
- 		vq->device_addr = 0;
- 		vq->num = 0;
-+		vq->vq_group = 0;
- 		memset(&vq->state, 0, sizeof(vq->state));
- 
- 		spin_lock(&vq->kick_lock);
-@@ -593,6 +597,16 @@ static int vduse_vdpa_set_vq_state(struct vdpa_device *vdpa, u16 idx,
- 	return 0;
+ 	rwlock_t domain_lock;
+@@ -607,6 +613,17 @@ static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 idx)
+ 	return dev->vqs[idx]->vq_group;
  }
  
-+static u32 vduse_get_vq_group(struct vdpa_device *vdpa, u16 idx)
++static union virtio_map vduse_get_vq_map(struct vdpa_device *vdpa, u16 idx)
 +{
 +	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
++	u32 vq_group = vduse_get_vq_group(vdpa, idx);
++	union virtio_map ret = {
++		.group = &dev->groups[vq_group],
++	};
 +
-+	if (dev->api_version < VDUSE_API_VERSION_1)
-+		return 0;
-+
-+	return dev->vqs[idx]->vq_group;
++	return ret;
 +}
 +
  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx,
  				struct vdpa_vq_state *state)
  {
-@@ -790,6 +804,7 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
- 	.set_vq_cb		= vduse_vdpa_set_vq_cb,
- 	.set_vq_num             = vduse_vdpa_set_vq_num,
- 	.get_vq_size		= vduse_vdpa_get_vq_size,
-+	.get_vq_group		= vduse_get_vq_group,
- 	.set_vq_ready		= vduse_vdpa_set_vq_ready,
- 	.get_vq_ready		= vduse_vdpa_get_vq_ready,
- 	.set_vq_state		= vduse_vdpa_set_vq_state,
-@@ -1253,12 +1268,24 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
- 		if (config.index >= dev->vq_num)
- 			break;
+@@ -827,6 +844,7 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
+ 	.get_vq_affinity	= vduse_vdpa_get_vq_affinity,
+ 	.reset			= vduse_vdpa_reset,
+ 	.set_map		= vduse_vdpa_set_map,
++	.get_vq_map		= vduse_get_vq_map,
+ 	.free			= vduse_vdpa_free,
+ };
  
--		if (!is_mem_zero((const char *)config.reserved,
--				 sizeof(config.reserved)))
-+		if (dev->api_version < VDUSE_API_VERSION_1 && config.group)
-+			break;
+@@ -834,7 +852,14 @@ static void vduse_dev_sync_single_for_device(union virtio_map token,
+ 					     dma_addr_t dma_addr, size_t size,
+ 					     enum dma_data_direction dir)
+ {
+-	struct vduse_iova_domain *domain = token.iova_domain;
++	struct vduse_dev *vdev;
++	struct vduse_iova_domain *domain;
 +
-+		if (dev->api_version >= VDUSE_API_VERSION_1) {
-+			if (config.group >= dev->ngroups)
-+				break;
-+			if (dev->status & VIRTIO_CONFIG_S_DRIVER_OK)
-+				break;
-+		}
++	if (!token.group)
++		return;
 +
-+		if (config.reserved1 ||
-+		    !is_mem_zero((const char *)config.reserved2,
-+				 sizeof(config.reserved2)))
- 			break;
++	vdev = token.group->dev;
++	domain = vdev->domain;
  
- 		index = array_index_nospec(config.index, dev->vq_num);
- 		dev->vqs[index]->num_max = config.max_size;
-+		dev->vqs[index]->vq_group = config.group;
- 		ret = 0;
- 		break;
- 	}
-@@ -1738,12 +1765,20 @@ static bool features_is_valid(struct vduse_dev_config *config)
- 	return true;
+ 	vduse_domain_sync_single_for_device(domain, dma_addr, size, dir);
+ }
+@@ -843,7 +868,14 @@ static void vduse_dev_sync_single_for_cpu(union virtio_map token,
+ 					     dma_addr_t dma_addr, size_t size,
+ 					     enum dma_data_direction dir)
+ {
+-	struct vduse_iova_domain *domain = token.iova_domain;
++	struct vduse_dev *vdev;
++	struct vduse_iova_domain *domain;
++
++	if (!token.group)
++		return;
++
++	vdev = token.group->dev;
++	domain = vdev->domain;
+ 
+ 	vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir);
+ }
+@@ -853,7 +885,14 @@ static dma_addr_t vduse_dev_map_page(union virtio_map token, struct page *page,
+ 				     enum dma_data_direction dir,
+ 				     unsigned long attrs)
+ {
+-	struct vduse_iova_domain *domain = token.iova_domain;
++	struct vduse_dev *vdev;
++	struct vduse_iova_domain *domain;
++
++	if (!token.group)
++		return DMA_MAPPING_ERROR;
++
++	vdev = token.group->dev;
++	domain = vdev->domain;
+ 
+ 	return vduse_domain_map_page(domain, page, offset, size, dir, attrs);
+ }
+@@ -862,7 +901,14 @@ static void vduse_dev_unmap_page(union virtio_map token, dma_addr_t dma_addr,
+ 				 size_t size, enum dma_data_direction dir,
+ 				 unsigned long attrs)
+ {
+-	struct vduse_iova_domain *domain = token.iova_domain;
++	struct vduse_dev *vdev;
++	struct vduse_iova_domain *domain;
++
++	if (!token.group)
++		return;
++
++	vdev = token.group->dev;
++	domain = vdev->domain;
+ 
+ 	return vduse_domain_unmap_page(domain, dma_addr, size, dir, attrs);
+ }
+@@ -870,11 +916,17 @@ static void vduse_dev_unmap_page(union virtio_map token, dma_addr_t dma_addr,
+ static void *vduse_dev_alloc_coherent(union virtio_map token, size_t size,
+ 				      dma_addr_t *dma_addr, gfp_t flag)
+ {
+-	struct vduse_iova_domain *domain = token.iova_domain;
++	struct vduse_dev *vdev;
++	struct vduse_iova_domain *domain;
+ 	unsigned long iova;
+ 	void *addr;
+ 
+ 	*dma_addr = DMA_MAPPING_ERROR;
++	if (!token.group)
++		return NULL;
++
++	vdev = token.group->dev;
++	domain = vdev->domain;
+ 	addr = vduse_domain_alloc_coherent(domain, size,
+ 					   (dma_addr_t *)&iova, flag);
+ 	if (!addr)
+@@ -889,14 +941,28 @@ static void vduse_dev_free_coherent(union virtio_map token, size_t size,
+ 				    void *vaddr, dma_addr_t dma_addr,
+ 				    unsigned long attrs)
+ {
+-	struct vduse_iova_domain *domain = token.iova_domain;
++	struct vduse_dev *vdev;
++	struct vduse_iova_domain *domain;
++
++	if (!token.group)
++		return;
++
++	vdev = token.group->dev;
++	domain = vdev->domain;
+ 
+ 	vduse_domain_free_coherent(domain, size, vaddr, dma_addr, attrs);
  }
  
--static bool vduse_validate_config(struct vduse_dev_config *config)
-+static bool vduse_validate_config(struct vduse_dev_config *config,
-+				  u64 api_version)
+ static bool vduse_dev_need_sync(union virtio_map token, dma_addr_t dma_addr)
  {
- 	if (!is_mem_zero((const char *)config->reserved,
- 			 sizeof(config->reserved)))
- 		return false;
- 
-+	if (api_version < VDUSE_API_VERSION_1 && config->ngroups)
+-	struct vduse_iova_domain *domain = token.iova_domain;
++	struct vduse_dev *vdev;
++	struct vduse_iova_domain *domain;
++
++	if (!token.group)
 +		return false;
 +
-+	if (api_version >= VDUSE_API_VERSION_1 &&
-+	    (!config->ngroups || config->ngroups > VDUSE_DEV_MAX_GROUPS))
-+		return false;
-+
- 	if (config->vq_align > PAGE_SIZE)
- 		return false;
++	vdev = token.group->dev;
++	domain = vdev->domain;
  
-@@ -1859,6 +1894,9 @@ static int vduse_create_dev(struct vduse_dev_config *config,
- 	dev->device_features = config->features;
- 	dev->device_id = config->device_id;
- 	dev->vendor_id = config->vendor_id;
-+	dev->ngroups = (dev->api_version < VDUSE_API_VERSION_1)
-+		       ? 1
-+		       : config->ngroups;
+ 	return dma_addr < domain->bounce_size;
+ }
+@@ -910,7 +976,14 @@ static int vduse_dev_mapping_error(union virtio_map token, dma_addr_t dma_addr)
+ 
+ static size_t vduse_dev_max_mapping_size(union virtio_map token)
+ {
+-	struct vduse_iova_domain *domain = token.iova_domain;
++	struct vduse_dev *vdev;
++	struct vduse_iova_domain *domain;
++
++	if (!token.group)
++		return 0;
++
++	vdev = token.group->dev;
++	domain = vdev->domain;
+ 
+ 	return domain->bounce_size;
+ }
+@@ -1728,6 +1801,7 @@ static int vduse_destroy_dev(char *name)
+ 	if (dev->domain)
+ 		vduse_domain_destroy(dev->domain);
+ 	kfree(dev->name);
++	kfree(dev->groups);
+ 	vduse_dev_destroy(dev);
+ 	module_put(THIS_MODULE);
+ 
+@@ -1897,6 +1971,13 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+ 	dev->ngroups = (dev->api_version < VDUSE_API_VERSION_1)
+ 		       ? 1
+ 		       : config->ngroups;
++	dev->groups = kcalloc(dev->ngroups, sizeof(dev->groups[0]),
++			      GFP_KERNEL);
++	if (!dev->groups)
++		goto err_vq_groups;
++	for (u32 i = 0; i < dev->ngroups; ++i)
++		dev->groups[i].dev = dev;
++
  	dev->name = kstrdup(config->name, GFP_KERNEL);
  	if (!dev->name)
  		goto err_str;
-@@ -1937,7 +1975,7 @@ static long vduse_ioctl(struct file *file, unsigned int cmd,
- 			break;
+@@ -1933,6 +2014,8 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+ err_idr:
+ 	kfree(dev->name);
+ err_str:
++	kfree(dev->groups);
++err_vq_groups:
+ 	vduse_dev_destroy(dev);
+ err:
+ 	return ret;
+@@ -2094,7 +2177,6 @@ static int vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 		return -ENOMEM;
+ 	}
  
- 		ret = -EINVAL;
--		if (vduse_validate_config(&config) == false)
-+		if (!vduse_validate_config(&config, control->api_version))
- 			break;
- 
- 		buf = vmemdup_user(argp + size, config.config_size);
-@@ -2018,7 +2056,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- 
- 	vdev = vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
- 				 &vduse_vdpa_config_ops, &vduse_map_ops,
--				 1, 1, name, true);
-+				 dev->ngroups, 1, name, true);
- 	if (IS_ERR(vdev))
- 		return PTR_ERR(vdev);
- 
-diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
-index ccb92a1efce0..a3d51cf6df3a 100644
---- a/include/uapi/linux/vduse.h
-+++ b/include/uapi/linux/vduse.h
-@@ -31,6 +31,7 @@
-  * @features: virtio features
-  * @vq_num: the number of virtqueues
-  * @vq_align: the allocation alignment of virtqueue's metadata
-+ * @ngroups: number of vq groups that VDUSE device declares
-  * @reserved: for future use, needs to be initialized to zero
-  * @config_size: the size of the configuration space
-  * @config: the buffer of the configuration space
-@@ -45,7 +46,8 @@ struct vduse_dev_config {
- 	__u64 features;
- 	__u32 vq_num;
- 	__u32 vq_align;
--	__u32 reserved[13];
-+	__u32 ngroups; /* if VDUSE_API_VERSION >= 1 */
-+	__u32 reserved[12];
- 	__u32 config_size;
- 	__u8 config[];
- };
-@@ -122,14 +124,18 @@ struct vduse_config_data {
-  * struct vduse_vq_config - basic configuration of a virtqueue
-  * @index: virtqueue index
-  * @max_size: the max size of virtqueue
-- * @reserved: for future use, needs to be initialized to zero
-+ * @reserved1: for future use, needs to be initialized to zero
-+ * @group: virtqueue group
-+ * @reserved2: for future use, needs to be initialized to zero
-  *
-  * Structure used by VDUSE_VQ_SETUP ioctl to setup a virtqueue.
-  */
- struct vduse_vq_config {
- 	__u32 index;
- 	__u16 max_size;
--	__u16 reserved[13];
-+	__u16 reserved1;
-+	__u32 group;
-+	__u16 reserved2[10];
+-	dev->vdev->vdpa.vmap.iova_domain = dev->domain;
+ 	ret = _vdpa_register_device(&dev->vdev->vdpa, dev->vq_num);
+ 	if (ret) {
+ 		put_device(&dev->vdev->vdpa.dev);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 96c66126c074..302109029700 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -41,13 +41,13 @@ struct virtqueue {
+ 	void *priv;
  };
  
- /*
+-struct vduse_iova_domain;
++struct vduse_vq_group;
+ 
+ union virtio_map {
+ 	/* Device that performs DMA */
+ 	struct device *dma_dev;
+-	/* VDUSE specific mapping data */
+-	struct vduse_iova_domain *iova_domain;
++	/* VDUSE specific virtqueue group for doing map */
++	struct vduse_vq_group *group;
+ };
+ 
+ int virtqueue_add_outbuf(struct virtqueue *vq,
 -- 
 2.51.0
 
