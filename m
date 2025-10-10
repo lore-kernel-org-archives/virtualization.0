@@ -1,160 +1,200 @@
-Received: from r3-20.sinamail.sina.com.cn (r3-20.sinamail.sina.com.cn [202.108.3.20])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40A8518872A
-	for <virtualization@lists.linux.dev>; Thu,  9 Oct 2025 22:45:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.108.3.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20A2A1F4289
+	for <virtualization@lists.linux.dev>; Fri, 10 Oct 2025 00:36:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760049910; cv=none; b=dIO0O6b6EiQYi3kvopkzwoZ5UUthCgprTbAgsXGDCRF1tinHUXZS0akgztDuuBB8lL069ci08cfykdj3CX+cVmDr3wcEOuNxretwqoZBAhIVG15Oxoo7EBIfwgrVr+87Kd828ctRRX/R3pQY+jti6f4qZhP29JCrvbjAzvoYjb0=
+	t=1760056613; cv=none; b=puol+N5AJjtaKL5PD2jMCBf0lc2dSJ5ca8XZJWimVVaUt24jURPL8y5voYyNszsFyFASIkRF3+ghwsnK+YsxFo8ktKt7xpah5QcW8fiFXctLU1DYKA7/EpW4ZzS3cGqiTJxLNCQuP8UiN5B4hWxDvi+pwGMmOiC4fBDLC33X05U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760049910; c=relaxed/simple;
-	bh=Aq2Xs7YGwBGgcKF/ErcY2LtIolVR5udULocRBat5XrM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HJSaTtxhC7j8PqsHKovAAFCNWMoTT9dgqWuhf5Imz62oEA9LOfc1y2fx5qrRSAl8FT/Ub3JvrZ7C0iT6B2nw1SbeSdDNebxQMTLAxEmdFAYpI9waPLAKzBBJw9UlV1Pgl/QW5t2hBf4prbe4p+N/NGir36zzMQHKa6jnoJ6KLmY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b=P2JfNg1O; arc=none smtp.client-ip=202.108.3.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
+	s=arc-20240116; t=1760056613; c=relaxed/simple;
+	bh=mquOhkT2CfnmNOef1BxykItMFTKI6V/1qexnndUEsRM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IDljLna56ne7TiLsbI7FCFJ6xTWV84G5LnYM+//Ww8IJ6OdpIpJqrCwRvniUyU/+QMZTmSF5E0cRzh4AZCNjYEv6/auuABRmTUTwMWrCoIqdvSkFokcfTh9rD4vJKwFyBccExLfGDkSDqGvu5+qxp4fMgWqfnnWisNeOSPWwgY4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CZmrZ4+V; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b="P2JfNg1O"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1760049906;
-	bh=Mk2YX9Ld0xv4v2koq/Tok6dKf+NvpZKL+/k0QCxNny8=;
-	h=From:Subject:Date:Message-ID;
-	b=P2JfNg1OmYsYdbX2wlQCpSAw4iSGyd4OPhqPh86BORZFlmaKn4F8Z4akRBOxeCyyk
-	 gzF1gmPrArjNoE1aeCszsy+uEsS4dlX7quPq7ylqTfBoXTl41k5/LVyp82+L/SsmQo
-	 87cKcR2RXJOpi/OSk9dNjVXc/Ux7caK+fH8wfWtY=
-X-SMAIL-HELO: localhost.localdomain
-Received: from unknown (HELO localhost.localdomain)([114.249.58.236])
-	by sina.com (10.54.253.32) with ESMTP
-	id 68E83AE700000E31; Thu, 10 Oct 2025 06:44:57 +0800 (CST)
-X-Sender: hdanton@sina.com
-X-Auth-ID: hdanton@sina.com
-Authentication-Results: sina.com;
-	 spf=none smtp.mailfrom=hdanton@sina.com;
-	 dkim=none header.i=none;
-	 dmarc=none action=none header.from=hdanton@sina.com
-X-SMAIL-MID: 2389004456659
-X-SMAIL-UIID: 314E8BD2736C4394B68195D848352F2C-20251010-064457-1
-From: Hillf Danton <hdanton@sina.com>
-To: syzbot <syzbot+665739f456b28f32b23d@syzkaller.appspotmail.com>
-Cc: Alexei Starovoitov <ast@kernel.org>,
-	linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com,
-	virtualization@lists.linux.dev
-Subject: Re: [syzbot] [net?] [virt?] BUG: sleeping function called from invalid context in __set_page_owner
-Date: Fri, 10 Oct 2025 06:44:46 +0800
-Message-ID: <20251009224447.8479-1-hdanton@sina.com>
-In-Reply-To: <68e7e6e3.050a0220.1186a4.0001.GAE@google.com>
-References: 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CZmrZ4+V"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1760056610;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Kz1dV5dl2eLpvICKmSYU7u5EoVk0dbKJcfh5LF+pC6s=;
+	b=CZmrZ4+VxOYr6IlVJy/a14tEqIvM6Lz2N5anNvToz90ClsGzaWlsxpso6CtehRUONPYKWb
+	dDDl90aI/40R1/Cvzp1s6Prz6VghCprPKsKGyqX4vv1tMMwRQD5feR6tn4Z+12KrpG42Jb
+	Gz0ZGcMpjf75myJhptpPzgiMwLXh+WU=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-133-5EmrsVT8NKSgQgT7xR8CNA-1; Thu, 09 Oct 2025 20:36:47 -0400
+X-MC-Unique: 5EmrsVT8NKSgQgT7xR8CNA-1
+X-Mimecast-MFC-AGG-ID: 5EmrsVT8NKSgQgT7xR8CNA_1760056606
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-334b0876195so3838070a91.1
+        for <virtualization@lists.linux.dev>; Thu, 09 Oct 2025 17:36:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760056606; x=1760661406;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Kz1dV5dl2eLpvICKmSYU7u5EoVk0dbKJcfh5LF+pC6s=;
+        b=FIyDQujAQ7wrLq+2fnbtfeAxDiyhwmhcxFqcIu+qa3M/xnTEkQHBoCtpcs+7c+c25y
+         YvaJalnZpNSoRG25RSOMu14numHANRwsFyuUfx155VtAYgEIof/PmrtoP2vmBWMtVLKA
+         wZrKR3I2fzQMVFUZpqwkl08meTC2awTONPPY4rT4lC6Uvof41bwLbfw6Ub6A4gDZ5cSF
+         +++RwVfwUjBvD4hKT/Xn06X/gMrHT0HquQvTuR6aqTB/QVoIbUfwS1odt9gwSSBQIPfV
+         CcOF6URf8mlMoh5QqbE3FCbu343y+WllJIem6Z3//GUQOroqRxmB5cDL6UBnOeIK/MB4
+         75wg==
+X-Forwarded-Encrypted: i=1; AJvYcCUnQ2FwReCaQf0vBO/oSrqUyk5jRooEmhmQXHWrMp35z1rSDKxx0NPAlEm04iwaiVMRArfxtg9IiUEqxa8SxA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxrxStnZb0Vldt4toBmHBwDgsIIFPYryy4yLW0yqTuBM6Af6KX+
+	ohTKfwjonyUdUgm+9rrNtQng2QCXmHPz7gWjAAGLFgBId3ozTUG8FCvu/fIWevPVdF5m/xNw9u1
+	K6yQfrqXlxih9Bhag46hhnRz1y/cFcmmmhtUEM3BMdgWisdCe5sjH+mH8P2hZuDq8ebZXVS9ddq
+	kh2TCGFiysj3RGeVMZ2ggxKjQ4h6anebs78uOhi3LhG/U=
+X-Gm-Gg: ASbGncvzXaNAeFTfM0y+45cOrQn+NdIqDoSJv+N9tzEJpXjrR9j4nl2Us6DPJsErFCN
+	XuHgQMyqMEDDeBP8K+QsIRqu2AbHxiJtHS41dAbFxLO9/sPDPVpfQfao9gIVoBOW+jkT5C4DYae
+	6tNTvR8X3naOPy7XLHNQ==
+X-Received: by 2002:a17:90b:4a45:b0:329:cb75:fef2 with SMTP id 98e67ed59e1d1-33b5111731amr12392896a91.3.1760056605869;
+        Thu, 09 Oct 2025 17:36:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHQhXUYwK3GbRej1U2f24HeIucxQ+cXP/hWDuKOjy8hVQBFUR/n4+32ZNLmo6zlNXL1VfPIJ/3ifyvYGMwXAOc=
+X-Received: by 2002:a17:90b:4a45:b0:329:cb75:fef2 with SMTP id
+ 98e67ed59e1d1-33b5111731amr12392868a91.3.1760056605242; Thu, 09 Oct 2025
+ 17:36:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250925022537.91774-1-xuanzhuo@linux.alibaba.com>
+ <20250925022537.91774-3-xuanzhuo@linux.alibaba.com> <CACGkMEvhABOtHTCVW9sX7p0wo1QCMXMvOAD+u4pzBueoU=MCpg@mail.gmail.com>
+ <1760008083.6644826-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1760008083.6644826-2-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 10 Oct 2025 08:36:33 +0800
+X-Gm-Features: AS18NWDzP344ThhtzISVDUM3jQH0MsG8FSH6w2nI936vgrRw3xVrYKPvtz35OMY
+Message-ID: <CACGkMEuYTgK2CVGPTJrAdcJ=GxuhFTSfAc0KGU9=yRHX-7f8-Q@mail.gmail.com>
+Subject: Re: [PATCH net 2/2] virtio-net: correct hdr_len handling for VIRTIO_NET_F_GUEST_HDRLEN
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Willem de Bruijn <willemb@google.com>, Jiri Pirko <jiri@resnulli.us>, 
+	Alvaro Karsz <alvaro.karsz@solid-run.com>, Heng Qi <hengqi@linux.alibaba.com>, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: lxAjAVpbkQiBScEOlI86F_-B-E3XmMEqaqYoh__3OG4_1760056606
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> Date: Thu, 09 Oct 2025 09:46:27 -0700	[thread overview]
-> Hello,
-> 
-> syzbot found the following issue on:
-> 
-> HEAD commit:    ec714e371f22 Merge tag 'perf-tools-for-v6.18-1-2025-10-08'..
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=174a4b34580000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=db9c80a8900dca57
-> dashboard link: https://syzkaller.appspot.com/bug?extid=665739f456b28f32b23d
-> compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=140e0dcd980000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1581452f980000
-> 
-> Downloadable assets:
-> disk image: https://storage.googleapis.com/syzbot-assets/6d5cce2bcf5d/disk-ec714e37.raw.xz
-> vmlinux: https://storage.googleapis.com/syzbot-assets/60dff1e3a58f/vmlinux-ec714e37.xz
-> kernel image: https://storage.googleapis.com/syzbot-assets/6a1823720b55/bzImage-ec714e37.xz
-> 
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+665739f456b28f32b23d@syzkaller.appspotmail.com
-> 
-> BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:48
-> in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 6069, name: syz.0.17
-> preempt_count: 1, expected: 0
-> RCU nest depth: 2, expected: 2
-> 5 locks held by syz.0.17/6069:
->  #0: ffff888035808350 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1679 [inline]
->  #0: ffff888035808350 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_connect+0x152/0xe20 net/vmw_vsock/af_vsock.c:1546
->  #1: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:331 [inline]
->  #1: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:867 [inline]
->  #1: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: __bpf_trace_run kernel/trace/bpf_trace.c:2074 [inline]
->  #1: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: bpf_trace_run9+0x1ec/0x500 kernel/trace/bpf_trace.c:2123
->  #2: ffff8880b8832c88 ((stream_local_lock)){+.+.}-{3:3}, at: bpf_stream_page_local_lock kernel/bpf/stream.c:46 [inline]
->  #2: ffff8880b8832c88 ((stream_local_lock)){+.+.}-{3:3}, at: bpf_stream_elem_alloc kernel/bpf/stream.c:175 [inline]
->  #2: ffff8880b8832c88 ((stream_local_lock)){+.+.}-{3:3}, at: __bpf_stream_push_str+0x211/0xbe0 kernel/bpf/stream.c:190
->  #3: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:331 [inline]
->  #3: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:867 [inline]
->  #3: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: __rt_spin_trylock kernel/locking/spinlock_rt.c:110 [inline]
->  #3: ffffffff8d7aa500 (rcu_read_lock){....}-{1:3}, at: rt_spin_trylock+0x10d/0x2b0 kernel/locking/spinlock_rt.c:118
->  #4: ffff8880b883f6e8 (&s->lock_key#5){+.+.}-{3:3}, at: spin_lock include/linux/spinlock_rt.h:44 [inline]
->  #4: ffff8880b883f6e8 (&s->lock_key#5){+.+.}-{3:3}, at: ___slab_alloc+0x12f/0x1470 mm/slub.c:4492
-> Preemption disabled at:
-> [<0000000000000000>] 0x0
-> CPU: 0 UID: 0 PID: 6069 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/02/2025
-> Call Trace:
->  <TASK>
->  dump_stack_lvl+0x189/0x250 lib/dump_stack.c:120
->  __might_resched+0x44b/0x5d0 kernel/sched/core.c:8925
->  __rt_spin_lock kernel/locking/spinlock_rt.c:48 [inline]
->  rt_spin_lock+0xc7/0x3e0 kernel/locking/spinlock_rt.c:57
->  spin_lock include/linux/spinlock_rt.h:44 [inline]
+On Thu, Oct 9, 2025 at 7:10=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
+m> wrote:
+>
+> On Fri, 26 Sep 2025 12:52:53 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Thu, Sep 25, 2025 at 10:25=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alib=
+aba.com> wrote:
+> > >
+> > > The commit be50da3e9d4a ("net: virtio_net: implement exact header len=
+gth
+> > > guest feature") introduces support for the VIRTIO_NET_F_GUEST_HDRLEN
+> > > feature in virtio-net.
+> > >
+> > > This feature requires virtio-net to set hdr_len to the actual header
+> > > length of the packet when transmitting, the number of
+> > > bytes from the start of the packet to the beginning of the
+> > > transport-layer payload.
+> > >
+> > > However, in practice, hdr_len was being set using skb_headlen(skb),
+> > > which is clearly incorrect. This commit fixes that issue.
+> > >
+> > > Fixes: be50da3e9d4a ("net: virtio_net: implement exact header length =
+guest feature")
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  include/linux/virtio_net.h | 19 ++++++++++++-------
+> > >  1 file changed, 12 insertions(+), 7 deletions(-)
+> > >
+> > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > > index 20e0584db1dd..4273420a9ff9 100644
+> > > --- a/include/linux/virtio_net.h
+> > > +++ b/include/linux/virtio_net.h
+> > > @@ -217,20 +217,25 @@ static inline int virtio_net_hdr_from_skb(const=
+ struct sk_buff *skb,
+> > >
+> > >         if (skb_is_gso(skb)) {
+> > >                 struct skb_shared_info *sinfo =3D skb_shinfo(skb);
+> > > +               u16 hdr_len;
+> > >
+> > > -               /* This is a hint as to how much should be linear. */
+> > > -               hdr->hdr_len =3D __cpu_to_virtio16(little_endian,
+> > > -                                                skb_headlen(skb));
+> > > +               hdr_len =3D skb_transport_offset(skb);
+> > >                 hdr->gso_size =3D __cpu_to_virtio16(little_endian,
+> > >                                                   sinfo->gso_size);
+> > > -               if (sinfo->gso_type & SKB_GSO_TCPV4)
+> > > +               if (sinfo->gso_type & SKB_GSO_TCPV4) {
+> > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV4;
+> > > -               else if (sinfo->gso_type & SKB_GSO_TCPV6)
+> > > +                       hdr_len +=3D tcp_hdrlen(skb);
+> > > +               } else if (sinfo->gso_type & SKB_GSO_TCPV6) {
+> > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV6;
+> > > -               else if (sinfo->gso_type & SKB_GSO_UDP_L4)
+> > > +                       hdr_len +=3D tcp_hdrlen(skb);
+> > > +               } else if (sinfo->gso_type & SKB_GSO_UDP_L4) {
+> > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_UDP_L4;
+> > > -               else
+> >
+> > I think we need to deal with the GSO tunnel as well?
+> >
+> > """
+> >     If the \field{gso_type} has the VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 =
+bit or
+> >     VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6 bit set, \field{hdr_len} account=
+s for
+> >     all the headers up to and including the inner transport.
+> > """
+>
+> I checked the new code, VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6
+> and VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 are not supported, so the next ver=
+sion
+> will not include these feature.
+>
+> Thanks.
 
-Given atomic context enforced by bpf [1], this is another case that bpf makes
-trouble.
+I may miss something but we had:
 
-[1] cant_sleep() in __bpf_trace_run()
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/kernel/trace/bpf_trace.c#n2065
+        if (skb->protocol =3D=3D htons(ETH_P_IPV6))
+                hdr->gso_type |=3D VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6;
+        else
+                hdr->gso_type |=3D VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4;
 
->  ___slab_alloc+0x12f/0x1470 mm/slub.c:4492
->  __slab_alloc+0xc6/0x1f0 mm/slub.c:4746
->  __slab_alloc_node mm/slub.c:4822 [inline]
->  slab_alloc_node mm/slub.c:5233 [inline]
->  __kmalloc_cache_noprof+0xec/0x6c0 mm/slub.c:5719
->  kmalloc_noprof include/linux/slab.h:957 [inline]
->  add_stack_record_to_list mm/page_owner.c:172 [inline]
->  inc_stack_record_count mm/page_owner.c:214 [inline]
->  __set_page_owner+0x25c/0x490 mm/page_owner.c:333
->  set_page_owner include/linux/page_owner.h:32 [inline]
->  post_alloc_hook+0x240/0x2a0 mm/page_alloc.c:1850
->  prep_new_page mm/page_alloc.c:1858 [inline]
->  get_page_from_freelist+0x28c0/0x2960 mm/page_alloc.c:3884
->  alloc_frozen_pages_nolock_noprof+0xbc/0x150 mm/page_alloc.c:7595
->  alloc_pages_nolock_noprof+0xa/0x30 mm/page_alloc.c:7628
->  bpf_stream_page_replace+0x19/0x1e0 kernel/bpf/stream.c:86
->  bpf_stream_page_reserve_elem kernel/bpf/stream.c:142 [inline]
->  bpf_stream_elem_alloc kernel/bpf/stream.c:177 [inline]
->  __bpf_stream_push_str+0x35c/0xbe0 kernel/bpf/stream.c:190
->  bpf_stream_stage_printk+0x14e/0x1c0 kernel/bpf/stream.c:448
->  bpf_prog_report_may_goto_violation+0xc4/0x190 kernel/bpf/core.c:3181
->  bpf_check_timed_may_goto+0xaa/0xb0 kernel/bpf/core.c:3199
->  arch_bpf_timed_may_goto+0x21/0x40 arch/x86/net/bpf_timed_may_goto.S:40
->  bpf_prog_6fd842a53d323cc5+0x53/0x5f
->  bpf_dispatcher_nop_func include/linux/bpf.h:1350 [inline]
->  __bpf_prog_run include/linux/filter.h:721 [inline]
->  bpf_prog_run include/linux/filter.h:728 [inline]
->  __bpf_trace_run kernel/trace/bpf_trace.c:2075 [inline]
->  bpf_trace_run9+0x2db/0x500 kernel/trace/bpf_trace.c:2123
->  __bpf_trace_virtio_transport_alloc_pkt+0x2d7/0x340 include/trace/events/vsock_virtio_transport_common.h:39
->  __do_trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
->  trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
->  virtio_transport_alloc_skb+0x10cc/0x1130 net/vmw_vsock/virtio_transport_common.c:311
->  virtio_transport_send_pkt_info+0x6be/0x1100 net/vmw_vsock/virtio_transport_common.c:390
->  virtio_transport_connect+0xa7/0x100 net/vmw_vsock/virtio_transport_common.c:1072
->  vsock_connect+0xb8b/0xe20 net/vmw_vsock/af_vsock.c:1611
->  __sys_connect_file net/socket.c:2102 [inline]
->  __sys_connect+0x323/0x450 net/socket.c:2121
->  __do_sys_connect net/socket.c:2127 [inline]
->  __se_sys_connect net/socket.c:2124 [inline]
->  __x64_sys_connect+0x7a/0x90 net/socket.c:2124
->  do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
->  do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
->  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+in virtio_net_hdr_tnl_from_skb() now.
+
+Thanks
+
+>
+>
+> >
+> > > +                       hdr_len +=3D sizeof(struct udphdr);
+> > > +               } else {
+> > >                         return -EINVAL;
+> > > +               }
+> > > +
+> > > +               hdr->hdr_len =3D __cpu_to_virtio16(little_endian, hdr=
+_len);
+> >
+> > Should we at least check against the feature of VIRTIO_NET_F_GUEST_HDRL=
+EN?
+> >
+> > >                 if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+> > >                         hdr->gso_type |=3D VIRTIO_NET_HDR_GSO_ECN;
+> > >         } else
+> > > --
+> > > 2.32.0.3.g01195cf9f
+> > >
+> >
+>
+
