@@ -1,122 +1,104 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A784347B4
-	for <virtualization@lists.linux.dev>; Sat, 11 Oct 2025 03:30:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EF9185626
+	for <virtualization@lists.linux.dev>; Sat, 11 Oct 2025 05:21:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760153437; cv=none; b=r8t0y823VwAKPMKr+YlbpaLKlTv69bxFtjR0+ExUBn50f1vvW4t8Wc5rIic9QWU4Ro3z1/OiPjKBFTpNKiKgitdo3hQVdYt0YMz6hZQ6k9fVqXsvYsDTc8awjWTYDdLyrjDYTHVWjxgw9VSa/7DfbbF1T7/qBh+MTv3UJ/fuCc4=
+	t=1760160111; cv=none; b=RV6citFsk21ty5XbuuXUiFOPPOUK4QD7/8J2DDc7eLT//qABkn689H/1UJtJcjyeggx9RUMI2tkQNwRVqQgRlOixlPBx2+1fagxYbXtE4lOF5cMjXoTWr/v60lXSwJOQxUYSJgjFdD+1VyLNlnjVNfshSEFtEbjbjagRY++JTeE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760153437; c=relaxed/simple;
-	bh=Z80sDuh2r2K1uwZc7/gJ2dh8n1n4WacbpmU5bYMlaSY=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HFZoZlD+joSlafTY+FCvXRt7PW6zolIUOoz5dIZy8MDovvCU79H519QnURzRrREwmH9+Is+SUj1ovFOUVrZnjCnK/RQk3q3E75lNPi0CqeOUnxiNaUPxBjXMN0CMoz5k9ghDSkJ/fg4HZMupGfixuFMheJremoiJ/Cxd4pSKh6M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LTW0JxrO; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1760160111; c=relaxed/simple;
+	bh=TJeg9Z4aALDqJap1+G0oltNt+C3Bn87a4wIzshptlQQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=R3C7LMm6rALd918Hncne4Yzm5x6NoJ+gk7A56pEUx0dO6rz0s/pUc3hglP6Px0hM5L0p9xxRS9hIzPk23dhrouz5MOr+ZTh6vEwFrOChF6gFheBtjRC8PudcmDoKgMuOeXoets/iyNduAfkWVS6E6BT0aeaAY6VuGw6kKb5rUDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Zmz5La7i; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LTW0JxrO"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-33292adb180so2585815a91.3
-        for <virtualization@lists.linux.dev>; Fri, 10 Oct 2025 20:30:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760153435; x=1760758235; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=0sYbk5VmU4v1pNPH+Fa3K2iS1n3qdqJuuATj2vp0zUU=;
-        b=LTW0JxrOzGQxSPzEmfqE6fNoqI6XrXdbrEV6Z7dvAIvro17LpHeUxxN8aP5J3v66Eq
-         ama9CvJYy81PmkGywooeGKGGQdpFNsqvd9uzbq67qFfKKmYdLzHmowlaWP4i5M1LcXJv
-         AJ1BB82QGdeSR9fAokudxBUf9Z8HT1BY+5YubBsTenE7+4d9zFDiMk7rcjb+XzbclK4F
-         YsuUdHqobNqhdQol3jGw+do1M53oVNs5u4OsiM2hd4dkTqkQ9E0LBAk1fmyHG+bgsJXD
-         8NPC+RUPICDVtTi2Anaf9vi2sHkm7kRqPtbD7mAB37pbkAZGuF2FAiXZIxZMfp5tGvCi
-         n2jg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Zmz5La7i"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1760160107;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3yUOPtsTsKEv6cjl5rLeXUFskesAE1DpbF/midGppfE=;
+	b=Zmz5La7iZ6U1EJAgYZ8IDYNTZRh0NGJgfTXBnMbge+5JsGllU2kXFD8fXbHK3K9dAgF6bm
+	gzqGNmVuRNxnvMymybyOYIpdKkBHWu5hJ20Jqk3VdvyKvbAOlIqnKCpuPqVZwQrIbqbAhp
+	EnDx1RVgHCJoVwmxz9DA8VKfRjxXDvo=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-308-viTRNVWPPYO-CEWavoxQFQ-1; Sat, 11 Oct 2025 01:21:46 -0400
+X-MC-Unique: viTRNVWPPYO-CEWavoxQFQ-1
+X-Mimecast-MFC-AGG-ID: viTRNVWPPYO-CEWavoxQFQ_1760160106
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-76e2e60221fso9415180b3a.0
+        for <virtualization@lists.linux.dev>; Fri, 10 Oct 2025 22:21:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760153435; x=1760758235;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0sYbk5VmU4v1pNPH+Fa3K2iS1n3qdqJuuATj2vp0zUU=;
-        b=ezCS53xBiC1+GiRw1JdyNIp9PHUzpD6OHm6zRkXMmSeF4YvQI1+3AwYQoDf3MtbLDn
-         zHF+2CfuC2Ax8cU3AqnfKEyqG1IW7SiWKLD0h+oDNmhb91EVcAuOaGNFz1eZKaY9HWTG
-         m4KmiaAqegK9gXQHh9mflCJk1Oq1M11CSKUxMJQW2XAtmT7CQW15cO4ec3C8vwT4abSe
-         AQuWeJ2sca3DG24bVKSYaKVZJlrH3B0NEC+u9bCOn/JmR1csOiehlFxmHuOLrKecuLEU
-         57eBaOCFJdb1oUrD1CZt5Q860n7hEV7s+yYlI0S1dE78hfs9OGNi8GrNDyeFCZiCnY1O
-         od/A==
-X-Gm-Message-State: AOJu0Yyp9aOhCf3xze/P1t6UREmhjVrG0N4cRElA67zU9hbFn7MojvnC
-	O+aqCza1rS9hifvtzISoMfRAU73HpC2ql8sdoJg9uds5mXEH4AIbrk9Q
-X-Gm-Gg: ASbGncvqCXwaYtA3KT88GuDcqbL06lOCVdl1e0P8er/taTQpm91gzKgLiNb4HTZ9pMz
-	hjwLdexVlJfGVzyM7ob/WXCVY1j+YIgT+f2VFcfpRp523IUdRX2kSnFpzFwMbcZbfzlUkAf9xux
-	2p2BksXa1wi+f3K54yhlr5GsbKuAfv3JTgoxmkvuqEfr4qB0fEiasFvO8plF3MwwLqTggH5cnEx
-	wEiOaA7DHY/EMnysGZr8C8gAr4kznj4ORef64JdhDV63g4LWSEdvfnHXAXkbGhBHPy1+LqJuso1
-	ics106Hkpg3Ro+cSS+bWIORxR0GQdxUv+102WvCLJiD9ryZTyNBZNSx4vj010XB6js0RMX6mUq8
-	oTdtaGRhrz4eWCZgnF2JbDik/R0F17NxeVXET3hCXnrH2GEpSyJOeHrzUxJbZsJbC
-X-Google-Smtp-Source: AGHT+IEVIfe6WZXTqBnz7nHlm3cwkJC0ZhBYUyRpN3slh0vrMoKKnT/vtaUEkQVAZyedNiVv/bJUOA==
-X-Received: by 2002:a17:90b:1e0c:b0:32e:749d:fcb6 with SMTP id 98e67ed59e1d1-33b51118ef7mr22146055a91.12.1760153435086;
-        Fri, 10 Oct 2025 20:30:35 -0700 (PDT)
-Received: from localhost.localdomain ([104.193.89.9])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33b529f51b5sm4215540a91.7.2025.10.10.20.30.30
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 10 Oct 2025 20:30:34 -0700 (PDT)
-From: Wei Gong <gongwei833x@gmail.com>
-To: vgoyal@redhat.com,
-	stefanha@redhat.com,
-	miklos@szeredi.hu
-Cc: virtualization@lists.linux.dev,
-	linux-fsdevel@vger.kernel.org,
-	Wei Gong <gongwei09@baidu.com>
-Subject: [PATCH] virtiofs: remove max_pages_limit in indirect descriptor mode
-Date: Sat, 11 Oct 2025 11:30:18 +0800
-Message-Id: <20251011033018.75985-1-gongwei833x@gmail.com>
-X-Mailer: git-send-email 2.32.1 (Apple Git-133)
+        d=1e100.net; s=20230601; t=1760160105; x=1760764905;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3yUOPtsTsKEv6cjl5rLeXUFskesAE1DpbF/midGppfE=;
+        b=poeYdLF1QZYumVNsyH50tQrxs0kPqjsUC3UFCp3csNJKuyyxywz3GGqg+MufxiPdci
+         b4geRCC67bVtfC8/4vcMRZZZBbxUKo0QA7w4cQlXhkRebpAVI1wWUzDsnXMoycNrXyn/
+         X2Os+DrFckAXUYq3hXkmAMEeqhhSEBUVVoef6uK1ZYzGJShcmlgFkB96eVHzQq/wHZwf
+         v+WxM63ZE0FskR9H/xBa0EamVE67x7fRQI1DF0lFMGumh79goXtgpA+WeXFyfXahtKbO
+         P/AHXOPAim7cF+vgYUl/CrXtcXPVszHuTVVrhzaW+H+pEqCP3RafaBgePAggDI5VnGoX
+         sIuw==
+X-Forwarded-Encrypted: i=1; AJvYcCWZqvwk2GzQ0tup70BY0YAr+g+7XeantECdj5Dsk6/R9+APQKnCFsblo61+baZUuRHsvqC4xG4dhjBfs22H1Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwGK2BycRD4Eh0iFEdtv/EjEpGBzyaBRiRIR44VtR6iG21JojEH
+	H1XrYZqNspXN9+vM9tf8HbUpYqa/ny/6gGRU/V3GIRXusyyYlyC5GUkekwHxBFvDC8uHJHl8mGt
+	XJIjQTUYqB9RfZJePZS8WK1O7jRo05kBosXchY6oAPZ1mNEN9VLIQD7W8aEu4gRXoeqkVtV97zT
+	DWLbAC2zHHn+LdnD5GsqZqkj5GnupcStId6npspUku9jc=
+X-Gm-Gg: ASbGncvfrB6846OgKAN03FUS5JysOSpfsLyCYsXBIIVezXlooy1D0tOFTOx6glJWBxz
+	BWBlpe7aGV2JVaFXnkAIbt2Syqmihq2kBMAZRkH0yDP5DMl5PSehf6h4vZfNmWqpYEBfgmXUWzT
+	+XEBNvS/RRDRQ3hEJeIg==
+X-Received: by 2002:a05:6a20:c87:b0:32d:b97a:fe41 with SMTP id adf61e73a8af0-32db97aff63mr12231304637.32.1760160105688;
+        Fri, 10 Oct 2025 22:21:45 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IESLbYaTQ/nRv54ze+Jvy0H6UYM9Iny3wDuAFsnzcLXByiZsI2i3VTIAPf0kNgN9LhzXrDvYt6DHG3MIt4RYtw=
+X-Received: by 2002:a05:6a20:c87:b0:32d:b97a:fe41 with SMTP id
+ adf61e73a8af0-32db97aff63mr12231290637.32.1760160105327; Fri, 10 Oct 2025
+ 22:21:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20251010085827.116958-1-eperezma@redhat.com> <20251010085827.116958-3-eperezma@redhat.com>
+In-Reply-To: <20251010085827.116958-3-eperezma@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Sat, 11 Oct 2025 13:21:32 +0800
+X-Gm-Features: AS18NWDgOW4hAvaDJkPQBqz-cewMh-HRIF3tVFTzvhwvYoFoiUZL-6c_AX1jgSc
+Message-ID: <CACGkMEujn923PtF1gUWk6MC0=fA6+yXPTFoyZbqiqRCHJfr4Ag@mail.gmail.com>
+Subject: Re: [PATCH v7 2/7] vduse: add v1 API definition
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Laurent Vivier <lvivier@redhat.com>, Cindy Lu <lulu@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: HwJZzJZy5n7kiz_MXLrriTOomdMystef0g7BO9ltyJk_1760160106
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Wei Gong <gongwei09@baidu.com>
+On Fri, Oct 10, 2025 at 4:58=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redhat=
+.com> wrote:
+>
+> This allows the kernel to detect whether the userspace VDUSE device
+> supports the VQ group and ASID features.  VDUSE devices that don't set
+> the V1 API will not receive the new messages, and vdpa device will be
+> created with only one vq group and asid.
+>
+> The next patches implement the new feature incrementally, only enabling
+> the VDUSE device to set the V1 API version by the end of the series.
+>
+> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> ---
 
-Currently, indirect descriptor mode unnecessarily restricts the maximum
-IO size based on virtqueue vringsize. However, the indirect descriptor
-mechanism inherently supports larger IO operations by chaining descriptors.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-This patch removes the artificial constraint, allowing indirect descriptor
-mode to utilize its full potential without being limited by vringsize.
-The maximum supported descriptors per IO is now determined by the indirect
-descriptor capability rather than the virtqueue size.
-
-Signed-off-by: Wei Gong <gongwei09@baidu.com>
----
- fs/fuse/virtio_fs.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 76c8fd0bfc75..c0d5db7d7504 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -12,6 +12,7 @@
- #include <linux/memremap.h>
- #include <linux/module.h>
- #include <linux/virtio.h>
-+#include <linux/virtio_ring.h>
- #include <linux/virtio_fs.h>
- #include <linux/delay.h>
- #include <linux/fs_context.h>
-@@ -1701,9 +1702,11 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
- 	fc->sync_fs = true;
- 	fc->use_pages_for_kvec_io = true;
- 
--	/* Tell FUSE to split requests that exceed the virtqueue's size */
--	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
--				    virtqueue_size - FUSE_HEADER_OVERHEAD);
-+	if (!virtio_has_feature(fs->vqs[VQ_REQUEST].vq->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
-+		/* Tell FUSE to split requests that exceed the virtqueue's size */
-+		fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
-+						virtqueue_size - FUSE_HEADER_OVERHEAD);
-+	}
- 
- 	fsc->s_fs_info = fm;
- 	sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
--- 
-2.32.0
+Thanks
 
