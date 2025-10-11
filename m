@@ -1,193 +1,122 @@
-Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A612267B90
-	for <virtualization@lists.linux.dev>; Fri, 10 Oct 2025 21:20:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.1
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760131258; cv=pass; b=RjnJkymKwAPOuuRQt/RwIJ+o4mX7oo23QiO6hTw+MfvXCYBOCBPtkQbDckrAdUS/CGDE8vIMEnwM8ioFl7r+NjzVDnSLSeb9Y903llX8NNPBJl+vrZWpAMCHlnlgTWhsN2qwxEdONow98E9D2OMxemMZzA1a7W1EbIcSIwD+cyM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760131258; c=relaxed/simple;
-	bh=fPlDHZlSJRA5PDvHco57sjg3ozHSO1I20UpOSkNVqQI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=geApORapRB7H2fe5iG026GJTnqq94hww6SbIvmmmG6MX8IA2sgkRyh7lcAG/vmtSbV9EdQY+/bGjbRWzztXXgXOgour3fkdJeqvsjsYVtwfkygoLfq7YZc53vzQdkvUvwCDJHqz74HF1c1byQ2IZxlmYN9vV9MXiYFT0sg/rSmk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=tMXSKbUg; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=a4soGJk2; arc=pass smtp.client-ip=185.56.87.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A784347B4
+	for <virtualization@lists.linux.dev>; Sat, 11 Oct 2025 03:30:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760153437; cv=none; b=r8t0y823VwAKPMKr+YlbpaLKlTv69bxFtjR0+ExUBn50f1vvW4t8Wc5rIic9QWU4Ro3z1/OiPjKBFTpNKiKgitdo3hQVdYt0YMz6hZQ6k9fVqXsvYsDTc8awjWTYDdLyrjDYTHVWjxgw9VSa/7DfbbF1T7/qBh+MTv3UJ/fuCc4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760153437; c=relaxed/simple;
+	bh=Z80sDuh2r2K1uwZc7/gJ2dh8n1n4WacbpmU5bYMlaSY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HFZoZlD+joSlafTY+FCvXRt7PW6zolIUOoz5dIZy8MDovvCU79H519QnURzRrREwmH9+Is+SUj1ovFOUVrZnjCnK/RQk3q3E75lNPi0CqeOUnxiNaUPxBjXMN0CMoz5k9ghDSkJ/fg4HZMupGfixuFMheJremoiJ/Cxd4pSKh6M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LTW0JxrO; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="tMXSKbUg";
-	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="a4soGJk2"
-ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-x65p.prod.antispam.mailspamprotection.com; s=arckey; t=1760131256;
-	 b=eHAX1tCe0JOj+Qqsk3aT9RUqQz+TRJasaES1aM0apH77CnDvQp8p9ol2QzOz2XSl31wIuUBrqZ
-	  XUBrThmGI/eDOCipnTIxF15fVru5eaXkVaBd4zNZWivSwUs8o9MaLglQNGrdu0EMQtdquWk0/V
-	  mfJf+ITIiGwfTzOcVNY1FFzqzhTE2NKVFqzFY++LJm1V5Fs54sX1IWfd51NJELa9weqI2DbgtG
-	  zlTWWDolqarhw0Bv4wO0GJWWKHN80+IcnpLuNW51QlyL3ATcGSoRhAwZtaho8mNpPAzdEk0Tl3
-	  4sVgkmjWEAXvqmLw+CLv7/Xnk4I0VqdZKjRWYVbeR+4L9Q==;
-ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-x65p.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-x65p.prod.antispam.mailspamprotection.com; s=arckey; t=1760131256;
-	bh=fPlDHZlSJRA5PDvHco57sjg3ozHSO1I20UpOSkNVqQI=;
-	h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-	  Message-ID:Date:Subject:Cc:To:From:DKIM-Signature:DKIM-Signature;
-	b=llKin1NBYm0pT1ECTlcE3tkuheE9eOqremetiFDjEIzjJeXWE84Rkv+BImQ2dluTKMkylF5xGk
-	  UV3hgJiy546yFjt1MyKJCt8/McD74y9cLjtarPq3Dn0Ey8pxDlJUnUU9RoS9jhHuXFOsk8JCss
-	  qXwC0TvWebajt2OKJPNolrPUVvqMu5/H9H7m63wKpY4jrlVxuwIHMMnY6fQ4izwkf8R2pNcfZw
-	  bK/AZSyo37Ll06YpEUzVIekDFetVrzkR/emyg+tY31uaf3EunLGvDgY9pvdDahKaGeYb5v4DhO
-	  LQ62+rf27fIp5MZ38Ql5KThid8ydgSZbEnEAnfPKNjF6nw==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
-	:Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:
-	Cc:To:From:Reply-To:List-Unsubscribe;
-	bh=Pa3D+kH4AJps3m5pvh+XsXvkn2PadB4zax/ER5QUhaU=; b=tMXSKbUglyzqsc292vWySzV3wK
-	PHHtopZOb+/bWc4OGtcbNNNmEjFfnpdQKOOM12ODwo+nd6A+OJkMgQ/54Xm2ywv+YGhuAZIcm3E1Z
-	nwtmgnqKQ4q9RE8bUlYDhShLA/1vW5uAcCXOY6n0VIs665jgHaf5BQOHgjFE1McxkJuo=;
-Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
-	by instance-europe-west4-x65p.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1v7KXd-00000008iCo-2pk5
-	for virtualization@lists.linux.dev;
-	Fri, 10 Oct 2025 21:20:48 +0000
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
-	s=default; h=Date:Subject:Cc:To:From:list-help:list-unsubscribe:
-	list-subscribe:list-post:list-owner:list-archive;
-	bh=Pa3D+kH4AJps3m5pvh+XsXvkn2PadB4zax/ER5QUhaU=; b=a4soGJk2euqlfaLc6adf+mUjUX
-	2jNarlk/C/D5cX3Ig9UyytaSOhwu83PqdoS/XtcmZ4plVMKykP/nlbqJCnRsR0sqxCf0H3736eJxa
-	PCNBpc7B4jQABd+kVG7cZmQl5wmPuW962CXROBvVoBdNwYRQJ3tdOjQPdRRbNGWAR1PI=;
-Received: from [87.16.13.60] (port=59834 helo=fedora.fritz.box)
-	by esm19.siteground.biz with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1v7KXH-00000000PLJ-0N73;
-	Fri, 10 Oct 2025 21:20:23 +0000
-From: Francesco Valla <francesco@valla.it>
-To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Paolo Abeni <pabeni@redhat.com>,
- Harald Mommer <harald.mommer@opensynergy.com>,
- Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
- Wolfgang Grandegger <wg@grandegger.com>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>,
- linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
- netdev@vger.kernel.org, virtualization@lists.linux.dev,
- development@redaril.me
-Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
-Date: Fri, 10 Oct 2025 23:20:22 +0200
-Message-ID: <2318164.vFx2qVVIhK@fedora.fritz.box>
-In-Reply-To: <aOkqUWxiRDlm0Jzi@fedora>
-References:
- <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
- <2243144.yiUUSuA9gR@fedora.fritz.box> <aOkqUWxiRDlm0Jzi@fedora>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LTW0JxrO"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-33292adb180so2585815a91.3
+        for <virtualization@lists.linux.dev>; Fri, 10 Oct 2025 20:30:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1760153435; x=1760758235; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0sYbk5VmU4v1pNPH+Fa3K2iS1n3qdqJuuATj2vp0zUU=;
+        b=LTW0JxrOzGQxSPzEmfqE6fNoqI6XrXdbrEV6Z7dvAIvro17LpHeUxxN8aP5J3v66Eq
+         ama9CvJYy81PmkGywooeGKGGQdpFNsqvd9uzbq67qFfKKmYdLzHmowlaWP4i5M1LcXJv
+         AJ1BB82QGdeSR9fAokudxBUf9Z8HT1BY+5YubBsTenE7+4d9zFDiMk7rcjb+XzbclK4F
+         YsuUdHqobNqhdQol3jGw+do1M53oVNs5u4OsiM2hd4dkTqkQ9E0LBAk1fmyHG+bgsJXD
+         8NPC+RUPICDVtTi2Anaf9vi2sHkm7kRqPtbD7mAB37pbkAZGuF2FAiXZIxZMfp5tGvCi
+         n2jg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760153435; x=1760758235;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0sYbk5VmU4v1pNPH+Fa3K2iS1n3qdqJuuATj2vp0zUU=;
+        b=ezCS53xBiC1+GiRw1JdyNIp9PHUzpD6OHm6zRkXMmSeF4YvQI1+3AwYQoDf3MtbLDn
+         zHF+2CfuC2Ax8cU3AqnfKEyqG1IW7SiWKLD0h+oDNmhb91EVcAuOaGNFz1eZKaY9HWTG
+         m4KmiaAqegK9gXQHh9mflCJk1Oq1M11CSKUxMJQW2XAtmT7CQW15cO4ec3C8vwT4abSe
+         AQuWeJ2sca3DG24bVKSYaKVZJlrH3B0NEC+u9bCOn/JmR1csOiehlFxmHuOLrKecuLEU
+         57eBaOCFJdb1oUrD1CZt5Q860n7hEV7s+yYlI0S1dE78hfs9OGNi8GrNDyeFCZiCnY1O
+         od/A==
+X-Gm-Message-State: AOJu0Yyp9aOhCf3xze/P1t6UREmhjVrG0N4cRElA67zU9hbFn7MojvnC
+	O+aqCza1rS9hifvtzISoMfRAU73HpC2ql8sdoJg9uds5mXEH4AIbrk9Q
+X-Gm-Gg: ASbGncvqCXwaYtA3KT88GuDcqbL06lOCVdl1e0P8er/taTQpm91gzKgLiNb4HTZ9pMz
+	hjwLdexVlJfGVzyM7ob/WXCVY1j+YIgT+f2VFcfpRp523IUdRX2kSnFpzFwMbcZbfzlUkAf9xux
+	2p2BksXa1wi+f3K54yhlr5GsbKuAfv3JTgoxmkvuqEfr4qB0fEiasFvO8plF3MwwLqTggH5cnEx
+	wEiOaA7DHY/EMnysGZr8C8gAr4kznj4ORef64JdhDV63g4LWSEdvfnHXAXkbGhBHPy1+LqJuso1
+	ics106Hkpg3Ro+cSS+bWIORxR0GQdxUv+102WvCLJiD9ryZTyNBZNSx4vj010XB6js0RMX6mUq8
+	oTdtaGRhrz4eWCZgnF2JbDik/R0F17NxeVXET3hCXnrH2GEpSyJOeHrzUxJbZsJbC
+X-Google-Smtp-Source: AGHT+IEVIfe6WZXTqBnz7nHlm3cwkJC0ZhBYUyRpN3slh0vrMoKKnT/vtaUEkQVAZyedNiVv/bJUOA==
+X-Received: by 2002:a17:90b:1e0c:b0:32e:749d:fcb6 with SMTP id 98e67ed59e1d1-33b51118ef7mr22146055a91.12.1760153435086;
+        Fri, 10 Oct 2025 20:30:35 -0700 (PDT)
+Received: from localhost.localdomain ([104.193.89.9])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33b529f51b5sm4215540a91.7.2025.10.10.20.30.30
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 10 Oct 2025 20:30:34 -0700 (PDT)
+From: Wei Gong <gongwei833x@gmail.com>
+To: vgoyal@redhat.com,
+	stefanha@redhat.com,
+	miklos@szeredi.hu
+Cc: virtualization@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	Wei Gong <gongwei09@baidu.com>
+Subject: [PATCH] virtiofs: remove max_pages_limit in indirect descriptor mode
+Date: Sat, 11 Oct 2025 11:30:18 +0800
+Message-Id: <20251011033018.75985-1-gongwei833x@gmail.com>
+X-Mailer: git-send-email 2.32.1 (Apple Git-133)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - esm19.siteground.biz
-X-AntiAbuse: Original Domain - lists.linux.dev
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - valla.it
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-SGantispam-id: c9a8f76ed2c6e40a816d5222f03a6910
-AntiSpam-DLS: false
-AntiSpam-DLSP: 
-AntiSpam-DLSRS: 
-AntiSpam-TS: 1.0
-CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
-CFBL-Feedback-ID: 1v7KXd-00000008iCo-2pk5-feedback@antispam.mailspamprotection.com
-Authentication-Results: outgoing.instance-europe-west4-x65p.prod.antispam.mailspamprotection.com;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
+Content-Transfer-Encoding: 8bit
 
-On Friday, 10 October 2025 at 17:46:25 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
-> On Thu, Sep 11, 2025 at 10:59:40PM +0200, Francesco Valla wrote:
-> > Hello Mikhail, Harald,
-> > 
-> > hoping there will be a v6 of this patch soon, a few comments:
-> > 
-> 
-> I am working on the v6 by addressing the comments in this thread.
-> 
-> > On Monday, 8 January 2024 at 14:10:35 Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com> wrote:
-> > 
-> > [...]
-> > 
-> > > +
-> > > +/* virtio_can private data structure */
-> > > +struct virtio_can_priv {
-> > > +	struct can_priv can;	/* must be the first member */
-> > > +	/* NAPI for RX messages */
-> > > +	struct napi_struct napi;
-> > > +	/* NAPI for TX messages */
-> > > +	struct napi_struct napi_tx;
-> > > +	/* The network device we're associated with */
-> > > +	struct net_device *dev;
-> > > +	/* The virtio device we're associated with */
-> > > +	struct virtio_device *vdev;
-> > > +	/* The virtqueues */
-> > > +	struct virtqueue *vqs[VIRTIO_CAN_QUEUE_COUNT];
-> > > +	/* I/O callback function pointers for the virtqueues */
-> > > +	vq_callback_t *io_callbacks[VIRTIO_CAN_QUEUE_COUNT];
-> > > +	/* Lock for TX operations */
-> > > +	spinlock_t tx_lock;
-> > > +	/* Control queue lock. Defensive programming, may be not needed */
-> > > +	struct mutex ctrl_lock;
-> > > +	/* Wait for control queue processing without polling */
-> > > +	struct completion ctrl_done;
-> > > +	/* List of virtio CAN TX message */
-> > > +	struct list_head tx_list;
-> > > +	/* Array of receive queue messages */
-> > > +	struct virtio_can_rx rpkt[128];
-> > 
-> > This array should probably be allocated dynamically at probe - maybe
-> > using a module parameter instead of a hardcoded value as length? 
-> > 
-> 
-> If I allocate this array in probe(), I would not know sdu[] in advance
-> if I defined it as a flexible array. That made me wonder: can sdu[] be
-> defined as flexible array for rx? 
-> 
-> Thanks.
-> 
+From: Wei Gong <gongwei09@baidu.com>
 
-One thing that can be done is to define struct virtio_can_rx as:
+Currently, indirect descriptor mode unnecessarily restricts the maximum
+IO size based on virtqueue vringsize. However, the indirect descriptor
+mechanism inherently supports larger IO operations by chaining descriptors.
 
-struct virtio_can_rx {
-#define VIRTIO_CAN_RX                   0x0101
-	__le16 msg_type;
-	__le16 length; /* 0..8 CC, 0..64 CAN-FD, 0..2048 CAN-XL, 12 bits */
-	__u8 reserved_classic_dlc; /* If CAN classic length = 8 then DLC can be 8..15 */
-	__u8 padding;
-	__le16 reserved_xl_priority; /* May be needed for CAN XL priority */
-	__le32 flags;
-	__le32 can_id;
-	__u8 sdu[] __counted_by(length);
-};
+This patch removes the artificial constraint, allowing indirect descriptor
+mode to utilize its full potential without being limited by vringsize.
+The maximum supported descriptors per IO is now determined by the indirect
+descriptor capability rather than the virtqueue size.
 
-and then allocate the rpkt[] array using the maximum length for SDU:
+Signed-off-by: Wei Gong <gongwei09@baidu.com>
+---
+ fs/fuse/virtio_fs.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-priv->rpkt = kcalloc(num_rx_buffers,
-		sizeof(struct virtio_can_rx) + VIRTIO_CAN_MAX_DLEN,
-		GFP_KERNEL);
-
-In this way, the size of each member of rpkt[] is known and is thus
-suitable for virtio_can_populate_vqs().
-
-
-Regards,
-
-Francesco
-
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 76c8fd0bfc75..c0d5db7d7504 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -12,6 +12,7 @@
+ #include <linux/memremap.h>
+ #include <linux/module.h>
+ #include <linux/virtio.h>
++#include <linux/virtio_ring.h>
+ #include <linux/virtio_fs.h>
+ #include <linux/delay.h>
+ #include <linux/fs_context.h>
+@@ -1701,9 +1702,11 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
+ 	fc->sync_fs = true;
+ 	fc->use_pages_for_kvec_io = true;
+ 
+-	/* Tell FUSE to split requests that exceed the virtqueue's size */
+-	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
+-				    virtqueue_size - FUSE_HEADER_OVERHEAD);
++	if (!virtio_has_feature(fs->vqs[VQ_REQUEST].vq->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
++		/* Tell FUSE to split requests that exceed the virtqueue's size */
++		fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
++						virtqueue_size - FUSE_HEADER_OVERHEAD);
++	}
+ 
+ 	fsc->s_fs_info = fm;
+ 	sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
+-- 
+2.32.0
 
