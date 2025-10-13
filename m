@@ -1,134 +1,172 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 495322EBDE0
-	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 08:08:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F46B2EBDF9
+	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 08:11:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760342931; cv=none; b=kNjjBYFVE0KEBBdR5AxmMRDKlvXi8wPAkjl5zJhjRG1wT0bA9iTpNTZtzZKricxdhriBKJy6SqG3w5wM7ZGN80HZwEfQwzDm5Mfa9yxItCzhwJFIW1D9s3bFzaMOuni3qPVaPcL6x+u3sru9R8SHtVe3WrvKH/xV09p9sh8DpiA=
+	t=1760343103; cv=none; b=daiZ9jsd5yrJop4PsOgO/p1xVEoQ0F15lkdIVnIo6ullzI2seH0uecZvg9an5DLuC0hhuJQC/UIyxxbhLDdZAPltEziguBO6awdV6peCBXlTY2eyVuk7KqDBt7n6P5lGy4XnN85dzcJue9/2YemB92MEUeH0SB2Vg1Dn0fORl4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760342931; c=relaxed/simple;
-	bh=vVOvsg1+Ti0HxFSL4nhVXqF1CMG723QAbuq/zowP2JI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ozfdPAkMwl7oGQvjWv7RrlGj8ARXIF+4OTS7QTbW5C3EdbTbkp796/vPUg1Tk9kwmKQ6mqaW0gM7jmQ1GUpOP5rb/LG8HmSrmh+BQKP9DAtmWjaQxRAnGOYyQUk/TO4oKzsRgmi3CQj2kFd3IxCNP37eRetreaIBq51j8LsEt9o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZeR1TYR+; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1760343103; c=relaxed/simple;
+	bh=9yCeUnVOh4PkNtq971jR4OvxcgQqKArslTOCky9HAQg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sOWF6KMGI1Mh1PgsU8hc0flrjPlzNDxha6ilbGc7rTuwQ5zlF8K5LqHxAQcJXskIf57M9lfD+w3lxjjxpzDdqAn1yVtx4AdhE3SUSlpIMBdqxDkXuRCtf5vL9mZplAIlQ8FIAhfXbifP97kBiLS/hvxad0ezrc+pJpnVoCAxHm8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LrMDkz1g; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZeR1TYR+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LrMDkz1g"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760342929;
+	s=mimecast20190719; t=1760343101;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=7eWL4DN3XThSL1fpZ1rH690hipW9N7vRijRVW6Y3Oig=;
-	b=ZeR1TYR+DKfFzCmCOYMFwA1EodLN3uviyxHKRFN2kIcZ4r4Fn72a/4X4oSM0ry+gwF24fA
-	1jSfrAvDug2lav0ohBaIufMqz/YOJ2tY3KetYCR6tJLh20NzVS9XxBmnlVs/zE6bxKCxrk
-	wAPR8Ix4oaF8bfZ7iwc9WZxAnPgefWc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=f1tPp8YEljYMfDXm3ZuBVdpyd9eaR3nb2fIv3sUlkgA=;
+	b=LrMDkz1g41hoUfjBS7RIXFSScTQiGibBNcRz/e+Sa5FB+AnKuWGG2ciN9UuasDwMyxrISZ
+	F4EQBQMHpHyNQM0YilxPMadcKdGQtgime0bufBXQWs0XNLvs8a35HcNvUUbltTwszRNrRY
+	f1dbRE2rJI4eKICGto18oNI18lZqA90=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-692-H-upFOs8PH6l1AyCo4zUgg-1; Mon, 13 Oct 2025 04:08:45 -0400
-X-MC-Unique: H-upFOs8PH6l1AyCo4zUgg-1
-X-Mimecast-MFC-AGG-ID: H-upFOs8PH6l1AyCo4zUgg_1760342925
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-41066f050a4so2567250f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 01:08:45 -0700 (PDT)
+ us-mta-564-bWx31BkpMJqSajpspKKc8A-1; Mon, 13 Oct 2025 04:11:40 -0400
+X-MC-Unique: bWx31BkpMJqSajpspKKc8A-1
+X-Mimecast-MFC-AGG-ID: bWx31BkpMJqSajpspKKc8A_1760343099
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3ee1317b132so2386449f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 01:11:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760342925; x=1760947725;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
+        d=1e100.net; s=20230601; t=1760343099; x=1760947899;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7eWL4DN3XThSL1fpZ1rH690hipW9N7vRijRVW6Y3Oig=;
-        b=dlC1d8ziSJEa0J5n93WBuNirPpmPtSTlMZ0PDP/J1e23KUnkfdjfvxhEAgzrPWSgwt
-         HECHfNWrbAJJlstQ0G2U51CwEHcpZu7Pk0I/x6P4tUTC89Ae0WoaXmohCOlE5lFWDRzs
-         qTpENAnbGMia9aBG0Vs+S5SW19PvfvVirCRdJJS90az8tLXVNk96RTeBxtwn/myd5uW5
-         o2mCx72lnTcMTdis/f5XhzxmilSNJdYNIxSOVBbOVuNuBs1fir+L4rct8a3WqhSvPzXZ
-         qy6mZXXNaozxFLmM0Ta0l13MiijiOjYUj53Wdv/+A5tq1X8gDWVXXViIHcrnwH0zQmrQ
-         v06w==
-X-Forwarded-Encrypted: i=1; AJvYcCWBJbErV9JzYdC94isMly8thF4nCSb/SyieFXmCD+RIgqGwMScN9EaoJBio3qlpS9LbyWQ9frFgBRsKBb1Rjw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyzx/v6zyeeMyF09X9nK9lho45RTQFSmGl0wrwQbjKlVZHjcTS6
-	EzFUmIFtdUmQGEVIZLiUzo/3SqGgbmTrYjHAkfJGp3kPrExA2JDhsRxRNBXa8moyRuLGZ3BIIdM
-	EQdQtsV8QFCd9zIOKrJ6Qb+aGD8Er0cBFWXzk63kV/clqOM8iJvGPJfod9QRvb12l6xgj
-X-Gm-Gg: ASbGnctrb6LWAh6KzlDVUxQ52XIA3EuoG+tp6iXgc9OuBluCFRzqf+EXh29IKhSp1qi
-	X7fMseq4c2kLvL4qyTgfGgOaqTmeUcGb2OuGnQXw8x/RaBOFnFw8utWO7k2txYHICIBWfEBL8ue
-	Ruou07i0L5Z2EOKrooCb9utBjiZ0NAdS2oz3kgzuv423o7zlknOYpRDmD+h/q7ZMT/8mAsu96JG
-	+FsmiKoqqiF5FS+1AsjehBll5YS40v44SO0xnXHnZmdC/OOw0UMNTYPuehBLybLF5w4ojoTYb5s
-	pxMWdd348nbYMqQvdmwhJRtbxDnexA==
-X-Received: by 2002:a5d:5f86:0:b0:426:d5de:e454 with SMTP id ffacd0b85a97d-426d5dee4d1mr4608120f8f.31.1760342924565;
-        Mon, 13 Oct 2025 01:08:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEtNpEAunbxp8ulrBXh0wStzwV4F/kXgVIxSO9DL5r5BrnXcg7l1GKUUVmPOZKzozmdGRj6yA==
-X-Received: by 2002:a5d:5f86:0:b0:426:d5de:e454 with SMTP id ffacd0b85a97d-426d5dee4d1mr4608094f8f.31.1760342924147;
-        Mon, 13 Oct 2025 01:08:44 -0700 (PDT)
-Received: from redhat.com ([31.187.78.130])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce57cce5sm17291452f8f.1.2025.10.13.01.08.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Oct 2025 01:08:43 -0700 (PDT)
-Date: Mon, 13 Oct 2025 04:08:41 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	syzbot <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com>,
-	eperezma@redhat.com, linux-kernel@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [syzbot] [virt?] upstream test error: KMSAN: use-after-free in
- vring_map_one_sg
-Message-ID: <20251013040810-mutt-send-email-mst@kernel.org>
-References: <68e96ebf.050a0220.91a22.0177.GAE@google.com>
- <CACGkMEtnrayDWKFdJ1P22QyCrZuDK0C2LihhOtvhUyTOKSp_HQ@mail.gmail.com>
- <CACGkMEt0aJh1yAj+q1UNnXToLa_yGc9fT_HfeNptHsOQ7vXG+w@mail.gmail.com>
- <CACGkMEsh_j9wCAv-LwOVxLjvUzEuKuu+7ZGMGcdJr7ettdBYTQ@mail.gmail.com>
- <0f20cd6a-d9aa-4837-a120-1e2e7dbdc954@redhat.com>
+        bh=f1tPp8YEljYMfDXm3ZuBVdpyd9eaR3nb2fIv3sUlkgA=;
+        b=t435QQqkQqx6eE60i3J7nqG2IN0S8YGMfzXHnOh8gycINrLzFSfIdvhYnFAGJI9un5
+         gKAyk0VF6caS7bB25kiZ8IrZiWXciYArMIY88LRddkgzVtMECzXTXThzOh+s/gFMLkAW
+         /nhkZZGFq5f30l0W2dcA02lmMA2XpaBphyzXUUjo5kDSrUxgjOiGwNKagwP2mDo1E+TJ
+         13OAUPQdnzwWazsbJBYq0hcetZsvB2QxzdApK06XG21pEvhsV8fn49oA7M2yGjUGjacK
+         MgnItZSWBFCPisENNqsh2lveuqLb5HGG9BLi4eyJIb9dLoItlGu3IyFCDFwTlTu7/2fz
+         EpDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW3BVHdB9GdjV/9FqGQ/GDLtNJIo9r6Qzejg0NC491ZnZbfHrKWQDHN8Pt3qPyM/6SXe8gph4LsaCBRhZLqlA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzvNIg4o9p4QYq/J7gU/Rp+E5LufgWjbyAK5d0UZmbN9c1OGftw
+	WWPx1AcekhigY30Hsgbea5OYaSt78xpiN2CKzH4NfZRL7QwWBDByQtRdyDOYEMMN/2Sv5Rl39B7
+	phTUbCkpuejW3fO1OXLjKNLDzzIFhFEDMNZxGP+P1EhqFLjUae4cdxL65jlrr8H/ptViI
+X-Gm-Gg: ASbGncu7Prj2PNzwZG6cvifX4Nx/vDSb/+hDkI+OHxDwZ3W/ERPeMuY5z6ZIOh2mt9z
+	DGINz7asLqA3pJwORZIeOJy1tFx+S0mbBKboLcte3oCN7XPU39Q4ovQGPy2It5yI3re3MkQbj1+
+	d1TYr26bRTDx/QlZW9U767OYQ0sI0RUN2itHpToxmZCkI8WRBVtMHLBqZXQVcFp7BmdCycD67MU
+	km0aNPq5iOZ0SeuGierCXoDcnQJDqqNC0zZsuseCxjDHov9Y1MwYXreVt2vPVV5+szI4JlmL5vp
+	sLZ44oqJOKNAC+eqKo5epc6mc1RJuXArYUItUT/bQ7uJ
+X-Received: by 2002:a05:6000:603:b0:407:77f9:949e with SMTP id ffacd0b85a97d-42666ac7026mr12224003f8f.21.1760343098696;
+        Mon, 13 Oct 2025 01:11:38 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF7JlCWnkPct1cz9l8P3e2Ai1ZjwIQPTyoLeL4/jqXzDz+4utC6DGYywfrc0J3b6VB+SnU/BQ==
+X-Received: by 2002:a05:6000:603:b0:407:77f9:949e with SMTP id ffacd0b85a97d-42666ac7026mr12223975f8f.21.1760343098309;
+        Mon, 13 Oct 2025 01:11:38 -0700 (PDT)
+Received: from [192.168.0.115] ([212.105.153.201])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce57cc03sm17518704f8f.4.2025.10.13.01.11.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 13 Oct 2025 01:11:37 -0700 (PDT)
+Message-ID: <27931e85-451f-4711-9681-38db2563efc2@redhat.com>
+Date: Mon, 13 Oct 2025 10:11:31 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <0f20cd6a-d9aa-4837-a120-1e2e7dbdc954@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2 3/3] virtio-net: correct hdr_len handling for
+ tunnel gso
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Willem de Bruijn <willemb@google.com>,
+ Jiri Pirko <jiri@resnulli.us>, Alvaro Karsz <alvaro.karsz@solid-run.com>,
+ Heng Qi <hengqi@linux.alibaba.com>, virtualization@lists.linux.dev
+References: <20251013020629.73902-1-xuanzhuo@linux.alibaba.com>
+ <20251013020629.73902-4-xuanzhuo@linux.alibaba.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20251013020629.73902-4-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: mjrPEBOt7QeCLmc__Db0f-XhJlGgnb6pr7y3bxZk2VM_1760342925
+X-Mimecast-MFC-PROC-ID: 66nKYVS5ZbK3acUjqeMHmYWnz0lOMy6SdkX6roQN57k_1760343099
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Oct 13, 2025 at 09:37:29AM +0200, Paolo Abeni wrote:
-> On 10/13/25 9:20 AM, Jason Wang wrote:
-> > On Mon, Oct 13, 2025 at 1:29 PM Jason Wang <jasowang@redhat.com> wrote:
-> >> On Sat, Oct 11, 2025 at 3:40 PM Jason Wang <jasowang@redhat.com> wrote:
-> >>>
-> >>> #syz test
-> >>>
-> >>> On Sat, Oct 11, 2025 at 4:38 AM syzbot
-> >>> <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com> wrote:
-> >>
-> >> Paolo, it looks like the GSO tunnel features will leave uninitialized
-> >> vnet header field which trigger KMSAN warning.
-> >>
-> >> Please have a look at the patch (which has been tested by syzbot) or
-> >> propose another one.
-> > 
-> > Forget the attachment.
+On 10/13/25 4:06 AM, Xuan Zhuo wrote:
+> The commit a2fb4bc4e2a6a03 ("net: implement virtio helpers to handle UDP
+> GSO tunneling.") introduces support for the UDP GSO tunnel feature in
+> virtio-net.
 > 
-> I have a few questions. The report mentions both UaF and uninit; the
-> patch addresses "just" the uninit access. It's not clear to me if and
-> how the UaF is addressed, and why/if it's related to the uninit access.
+> The virtio spec says:
+> 
+>     If the \field{gso_type} has the VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 bit or
+>     VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6 bit set, \field{hdr_len} accounts for
+>     all the headers up to and including the inner transport.
+> 
+> The commit did not update the hdr_len to include the inner transport.
+> 
+> Fixes: a2fb4bc4e2a6a03 ("net: implement virtio helpers to handle UDP GSO tunneling.")
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
+Side note: qemu support for UDP GSO tunneling is available in qemu since
+commit a5289563ad.
 
-I'd like to understand that, too.
+> ---
+>  include/linux/virtio_net.h | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+> 
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index e059e9c57937..765fd5f471a4 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -403,6 +403,7 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+>  	struct virtio_net_hdr *hdr = (struct virtio_net_hdr *)vhdr;
+>  	unsigned int inner_nh, outer_th;
+>  	int tnl_gso_type;
+> +	u16 hdr_len;
+>  	int ret;
+>  
+>  	tnl_gso_type = skb_shinfo(skb)->gso_type & (SKB_GSO_UDP_TUNNEL |
+> @@ -434,6 +435,23 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+>  	outer_th = skb->transport_header - skb_headroom(skb);
+>  	vhdr->inner_nh_offset = cpu_to_le16(inner_nh);
+>  	vhdr->outer_th_offset = cpu_to_le16(outer_th);
+> +
+> +	switch (skb->inner_ipproto) {
+> +	case IPPROTO_TCP:
+> +		hdr_len = inner_tcp_hdrlen(skb);
+> +		break;
+> +
+> +	case IPPROTO_UDP:
+> +		hdr_len = sizeof(struct udphdr);
+> +		break;
+> +
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +
+> +	hdr_len += skb_inner_transport_offset(skb);
+> +	hdr->hdr_len = __cpu_to_virtio16(little_endian, hdr_len);
 
-> Do you know better?
-> 
-> It looks like the uninit root cause is on "the other side"? i.e. the
-> device not initializing properly the header. Would unconditionally
-> clearing the hash info implicitly disable such feature?
-> 
-> The syzbot dashboard mentions a (no more available) reproducer. Do you
-> have it cached somewhere?
-> 
-> Thanks,
-> 
-> Paolo
+I'm not sure this is the correct fix.
+
+virtio_net_hdr_tnl_from_skb() just called virtio_net_hdr_from_skb() on
+the inner header. The virtio spec also specifies:
+
+"""
+ If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated,
+ \field{hdr_len} indicates the header length that needs to be replicated
+ for each packet. It's the number of bytes from the beginning of the packet
+ to the beginning of the transport payload.
+"""
+
+If `hdr_len` is currently wrong for UDP GSO packets, it's also wrong for
+ plain GSO packets (without UDP tunnel) and the its value should be
+possibly fixed in virtio_net_hdr_from_skb().
+
+Thanks,
+
+Paolo
 
