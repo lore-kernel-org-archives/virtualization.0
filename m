@@ -1,122 +1,185 @@
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C16225A65A;
-	Mon, 13 Oct 2025 08:52:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7971D241103
+	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 09:52:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760345525; cv=none; b=C4XYXhCWRoOMpNcfWHYFol6PnFRFuho+2sEsUDQCsOM7OBwfbGuUcy6NN+Q0BhCb00VLS7ixht/g3tmOqx6pZJgX/iGCm+Jog44GsYzC0hJlFH5nqgys3yVPPa8CyL4zvLzBOscseYY09miELxoHK4/3bpJEWnz3kT97CpJZYzw=
+	t=1760349179; cv=none; b=pi9TYgoJRWs92dytza20LG+zGXVl8emZvjhSaCD6tzMnsxCVn1FyZzuboAZmVJtPr+XWQGrKU47UPLbknWgCUi9Q721SlbarVfVGSCerv+WNIp10XdJV6Ex9Mvf778D/4YJk5scGXPTsurH4FoQQtOJ9DiA0Chva2KXTjdOgaOc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760345525; c=relaxed/simple;
-	bh=D0Pm5gDAEf/J/fLMJeYhII2rupxN55IU1PVARShdLz8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=rfM1wRomOUfd+XYcPqYCWIB0APG5z7CRIlW/9u7tcd7H8jNFwzjOVf7fe/0Zdj+ns6UPjn7Btwpr7naShEeTX34O6XSxdvMhNLevwN1GIOT198EOBVDObxX4cWtBuaSeLbEsRoqKNrZgbXrdYDEmnSEiz2aJmTdeBenK9R8hT4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=BQoGMpil; arc=none smtp.client-ip=210.118.77.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1760349179; c=relaxed/simple;
+	bh=Cv2pxU9WsCUo3pBsuAkVnFh3X1Cxe7DJidXgAYF03Ds=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ggd0igCHlUtu730WFnPMZh1cZw8uBn6HOizAyDSRvBu2HjHNZ7+P9kFpH/aBRAZtD3JjvKs7+mOUG07I3Rk4UlcKm3ELipYDo+pcIFb0LMto9KqfTYKylERpC0l+0AbzZy79+W+N7yOlMVD/uqmnps2DT6QEQQ9WKrB0xF9OazQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WFjwGDCb; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="BQoGMpil"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20251013085200euoutp0266e34edf90c863a4c01eb72fc5c48eb3~uAOyYTX0q1874618746euoutp02G;
-	Mon, 13 Oct 2025 08:52:00 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20251013085200euoutp0266e34edf90c863a4c01eb72fc5c48eb3~uAOyYTX0q1874618746euoutp02G
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1760345520;
-	bh=JyDd/uFH2Am1LZ5SPDN+k8UExukF9D/xq2Z7HY8ZnFU=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=BQoGMpilRJCUe8Y44BcqjJWkeRiS+JPfur3kcgk/2YoTAS+ViVlUzaRYX89zuEjDq
-	 wkZ//2bWyV40qfk9fRhKG5W52cbl/HFo0RcqE6+fae76UZ4N7VyDdV6dd9ILg/D8OP
-	 faJI0JVLj/Gc3HQk8b0emDKXb80ilcDcD66u6PCM=
-Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20251013085200eucas1p2f4ded79121c5a222f59ecf4ddda0816c~uAOx-fHcX0880708807eucas1p26;
-	Mon, 13 Oct 2025 08:52:00 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20251013085157eusmtip27fccd916a2ad4442a7f4d1fa1f91c70b~uAOvsyZiW2933229332eusmtip2d;
-	Mon, 13 Oct 2025 08:51:57 +0000 (GMT)
-Message-ID: <e1d3661d-26ba-49ae-a124-dc5233c9107d@samsung.com>
-Date: Mon, 13 Oct 2025 10:51:57 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WFjwGDCb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1760349176;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C6mqEeRrvidObhzNRzchLNQqA+ReDntMNjcs0lPjGX4=;
+	b=WFjwGDCb0qTrQj7Yt9MvpDyxRI36YsHKxpXrDLI4A1oVYnOCzWmIRFkBl05pSjZdt/fbcY
+	Wm1VYo1NRYPbTIKfhKotf42QyuZG4lOEKo+hAa0Ym1SvSrd9GsoRdbHvIW7yrxJ923zuXF
+	LfPf6l83J/JLP2g/tF3RrjYJN9HTvZY=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-47-yUf40WqaPqKid2-0nGm_Tw-1; Mon, 13 Oct 2025 05:52:53 -0400
+X-MC-Unique: yUf40WqaPqKid2-0nGm_Tw-1
+X-Mimecast-MFC-AGG-ID: yUf40WqaPqKid2-0nGm_Tw_1760349172
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3ee13baf21dso3218928f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 02:52:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760349172; x=1760953972;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=C6mqEeRrvidObhzNRzchLNQqA+ReDntMNjcs0lPjGX4=;
+        b=rBt0TjNU1ux5HQE2sOeQKUmTrwIcJSEiv0h62AZud19W4zR/YpnhhyzDCbKPvvIhF9
+         qZCyTRQYISZBHtb0s+iUJN9fLoAxxvtSbSXSm5wtF4UrLtucLv/KYEq5oo2iYzJUbSMj
+         0WGgeSoBTC8hm//jaa5C0C1foVye0V1uIjJtsAtaub6NVXX7XSAJ2HqEwHTNpHIWdAl2
+         jgmGZYDtf9cGKeA96XbM5YR8J2GSY+NPUbQ9dbLU2bSCSZed01D6OJhvO0juoH6lRS5S
+         bRHKfHM+F9Sqd8WRPDz52K8l/KGKUlYWCCspUNhjj8IAKAhJf8F/k6ckSlQYPsiYhlR+
+         hBtg==
+X-Forwarded-Encrypted: i=1; AJvYcCVfykyMIQLQknarW8HM/tbpDGcVGNcNUdg2YNNmD+0CGzwy+sI3JwGV2ln46JL2Q9A0WJloPrtq/UucuBukEQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzQK82G2mOsKroQY/zhR1+cO7cgXxYC+U7LYn4TYVyqdvHvP24d
+	BK1deM6+q4ITh+YZ7mMxysIwUQlS/asVl9uRRQQRHZlDso1GcehlddfsblfV7le4I2Ibu3C8FwS
+	nw1e3gJBuOFChA/aYTyT200kzE8vgqPb5QcQouHkASnTcFN4sprIEEeBkXeDo3Dmi6v9u
+X-Gm-Gg: ASbGncuZ2CyuG44BsrfOI/LriLBAGUM7UNo+iYy+ZQTNxTbpwYgqNBF+UBm3MQZsX3y
+	TjdpBbkMUJNaumPorwR3/VwuHxWrYgrBJeV+4nL5MQ98rw1Pwyfu340oe/iZCrVSbYZxExsSwsG
+	hbcf+N20iguDXnlhomF1xPChMKivD9AbHTCGPCReGYTZZnveHj6fLAST1O31ZlYMG0jnfLiH1C4
+	QC1iV9LYOooOf0ON6yPmtFfptFVhpaAiwgRF7JmJDRwe+6HaL9INW1hoJ6WH7TuBJIC+bs3GPdQ
+	k9DXwR1l0i88PSsH9raFBhvlgS2MRJAvLg==
+X-Received: by 2002:a05:6000:41c9:b0:426:d54e:7f78 with SMTP id ffacd0b85a97d-426d54e802amr4973498f8f.18.1760349171973;
+        Mon, 13 Oct 2025 02:52:51 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFToPVmudWTFsq6bFqEIEPs/FQujXTZ0U+mV3FlG97R8DNDTM+O9fu/M5ZF2UtsJ7uQAo9BZQ==
+X-Received: by 2002:a05:6000:41c9:b0:426:d54e:7f78 with SMTP id ffacd0b85a97d-426d54e802amr4973477f8f.18.1760349171548;
+        Mon, 13 Oct 2025 02:52:51 -0700 (PDT)
+Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce5cf790sm16929272f8f.28.2025.10.13.02.52.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Oct 2025 02:52:51 -0700 (PDT)
+Date: Mon, 13 Oct 2025 11:52:49 +0200
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+To: Francesco Valla <francesco@valla.it>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Paolo Abeni <pabeni@redhat.com>,
+	Harald Mommer <harald.mommer@opensynergy.com>,
+	Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
+	Wolfgang Grandegger <wg@grandegger.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>,
+	linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	development@redaril.me
+Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
+Message-ID: <aOzL8f4C27z361P2@fedora>
+References: <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
+ <2243144.yiUUSuA9gR@fedora.fritz.box>
+ <aOkqUWxiRDlm0Jzi@fedora>
+ <2318164.vFx2qVVIhK@fedora.fritz.box>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Betterbird (Windows)
-Subject: Re: [PATCH v1 3/6] iommu/exynos-iommu: Set release_domain to
- exynos_identity_domain
-To: Nicolin Chen <nicolinc@nvidia.com>, joro@8bytes.org, jgg@nvidia.com,
-	kevin.tian@intel.com
-Cc: suravee.suthikulpanit@amd.com, will@kernel.org, robin.murphy@arm.com,
-	sven@kernel.org, j@jannau.net, robin.clark@oss.qualcomm.com,
-	krzk@kernel.org, dwmw2@infradead.org, baolu.lu@linux.intel.com,
-	yong.wu@mediatek.com, matthias.bgg@gmail.com,
-	angelogioacchino.delregno@collabora.com, tjeznach@rivosinc.com,
-	pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, heiko@sntech.de,
-	schnelle@linux.ibm.com, mjrosato@linux.ibm.com, orsonzhai@gmail.com,
-	baolin.wang@linux.alibaba.com, wens@csie.org, jernej.skrabec@gmail.com,
-	samuel@sholland.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
-	jean-philippe@linaro.org, iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
-	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
-	patches@lists.linux.dev
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <56175bec385d24af9eb2a38632e1d6ce889025e3.1760312540.git.nicolinc@nvidia.com>
-Content-Transfer-Encoding: 7bit
-X-CMS-MailID: 20251013085200eucas1p2f4ded79121c5a222f59ecf4ddda0816c
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20251012235812eucas1p1209a75bffb5a4784955781d437746731
-X-EPHeader: CA
-X-CMS-RootMailID: 20251012235812eucas1p1209a75bffb5a4784955781d437746731
-References: <cover.1760312540.git.nicolinc@nvidia.com>
-	<CGME20251012235812eucas1p1209a75bffb5a4784955781d437746731@eucas1p1.samsung.com>
-	<56175bec385d24af9eb2a38632e1d6ce889025e3.1760312540.git.nicolinc@nvidia.com>
+In-Reply-To: <2318164.vFx2qVVIhK@fedora.fritz.box>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: nkGchx7U9N3AJ3Z-xClJ5sfEqmKKx83MjyPGZSZJXWA_1760349172
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 13.10.2025 01:57, Nicolin Chen wrote:
-> Following a coming core change to pass in the old domain pointer into the
-> attach_dev op and its callbacks, exynos_iommu_identity_attach() will need
-> this new argument too, which the release_device op doesn't provide.
->
-> Instead, the core provides a release_domain to attach to the device prior
-> to invoking the release_device callback. Thus, simply use that.
->
-> Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> ---
->   drivers/iommu/exynos-iommu.c | 3 +--
->   1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-> index b6edd178fe25e..0857519ca7188 100644
-> --- a/drivers/iommu/exynos-iommu.c
-> +++ b/drivers/iommu/exynos-iommu.c
-> @@ -1429,8 +1429,6 @@ static void exynos_iommu_release_device(struct device *dev)
->   	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
->   	struct sysmmu_drvdata *data;
->   
-> -	WARN_ON(exynos_iommu_identity_attach(&exynos_identity_domain, dev));
-> -
->   	list_for_each_entry(data, &owner->controllers, owner_node)
->   		device_link_del(data->link);
->   }
-> @@ -1476,6 +1474,7 @@ static int exynos_iommu_of_xlate(struct device *dev,
->   
->   static const struct iommu_ops exynos_iommu_ops = {
->   	.identity_domain = &exynos_identity_domain,
-> +	.release_domain = &exynos_identity_domain,
->   	.domain_alloc_paging = exynos_iommu_domain_alloc_paging,
->   	.device_group = generic_device_group,
->   	.probe_device = exynos_iommu_probe_device,
+On Fri, Oct 10, 2025 at 11:20:22PM +0200, Francesco Valla wrote:
+> On Friday, 10 October 2025 at 17:46:25 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
+> > On Thu, Sep 11, 2025 at 10:59:40PM +0200, Francesco Valla wrote:
+> > > Hello Mikhail, Harald,
+> > > 
+> > > hoping there will be a v6 of this patch soon, a few comments:
+> > > 
+> > 
+> > I am working on the v6 by addressing the comments in this thread.
+> > 
+> > > On Monday, 8 January 2024 at 14:10:35 Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com> wrote:
+> > > 
+> > > [...]
+> > > 
+> > > > +
+> > > > +/* virtio_can private data structure */
+> > > > +struct virtio_can_priv {
+> > > > +	struct can_priv can;	/* must be the first member */
+> > > > +	/* NAPI for RX messages */
+> > > > +	struct napi_struct napi;
+> > > > +	/* NAPI for TX messages */
+> > > > +	struct napi_struct napi_tx;
+> > > > +	/* The network device we're associated with */
+> > > > +	struct net_device *dev;
+> > > > +	/* The virtio device we're associated with */
+> > > > +	struct virtio_device *vdev;
+> > > > +	/* The virtqueues */
+> > > > +	struct virtqueue *vqs[VIRTIO_CAN_QUEUE_COUNT];
+> > > > +	/* I/O callback function pointers for the virtqueues */
+> > > > +	vq_callback_t *io_callbacks[VIRTIO_CAN_QUEUE_COUNT];
+> > > > +	/* Lock for TX operations */
+> > > > +	spinlock_t tx_lock;
+> > > > +	/* Control queue lock. Defensive programming, may be not needed */
+> > > > +	struct mutex ctrl_lock;
+> > > > +	/* Wait for control queue processing without polling */
+> > > > +	struct completion ctrl_done;
+> > > > +	/* List of virtio CAN TX message */
+> > > > +	struct list_head tx_list;
+> > > > +	/* Array of receive queue messages */
+> > > > +	struct virtio_can_rx rpkt[128];
+> > > 
+> > > This array should probably be allocated dynamically at probe - maybe
+> > > using a module parameter instead of a hardcoded value as length? 
+> > > 
+> > 
+> > If I allocate this array in probe(), I would not know sdu[] in advance
+> > if I defined it as a flexible array. That made me wonder: can sdu[] be
+> > defined as flexible array for rx? 
+> > 
+> > Thanks.
+> > 
+> 
+> One thing that can be done is to define struct virtio_can_rx as:
+> 
+> struct virtio_can_rx {
+> #define VIRTIO_CAN_RX                   0x0101
+> 	__le16 msg_type;
+> 	__le16 length; /* 0..8 CC, 0..64 CAN-FD, 0..2048 CAN-XL, 12 bits */
+> 	__u8 reserved_classic_dlc; /* If CAN classic length = 8 then DLC can be 8..15 */
+> 	__u8 padding;
+> 	__le16 reserved_xl_priority; /* May be needed for CAN XL priority */
+> 	__le32 flags;
+> 	__le32 can_id;
+> 	__u8 sdu[] __counted_by(length);
+> };
+> 
+> and then allocate the rpkt[] array using the maximum length for SDU:
+> 
+> priv->rpkt = kcalloc(num_rx_buffers,
+> 		sizeof(struct virtio_can_rx) + VIRTIO_CAN_MAX_DLEN,
+> 		GFP_KERNEL);
+> 
+> In this way, the size of each member of rpkt[] is known and is thus
+> suitable for virtio_can_populate_vqs().
+> 
+> 
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Thanks for your answer. What is the value of VIRTIO_CAN_MAX_DLEN? I
+can't find it nor in the code or in the spec. I guess is 64 bytes? Also,
+IIUC, using __counted_by() would not end up saving space but adding an
+extra check for the compiler. Am I right? In that case, can't I just use
+a fixed array of VIRTIO_CAN_MAX_DLEN bytes?
+
+Thanks, Matias.
 
