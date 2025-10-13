@@ -1,582 +1,268 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5C4A22257E
-	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 16:35:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760373361; cv=none; b=dXeAlKMo9AexBMGpXVxJGrjyznjOEJ1el91jxc0y8hD29Mpawn9/8y4+Mj3iLstfgnEGlca0ZJqqEeuzqmzFdDVJJG4qqiCR2gv2t11hPKfpMybZNtx48nLBfb87YpB18p4E/dK8vDmpPVkrbWLJ0InBbQpmY2ktaIO15C9nyao=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760373361; c=relaxed/simple;
-	bh=t4snBFv6/f8xuqDr60c2V9YLwvWNFyg6KeL7n4iar88=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=l6q7YXvExLL7qjyUtTkYNbur/xnVHJ01+rMWL2vVIuuqtGXBe6ipmOi2QAlha8iRxCuGtHj4x8j4TdEEAD/zSl+G9bbzbHGy/qbe8ykdbuS9x3msrGhW4jeyNgSj8smg9nHPqErghomtuHaF4xpFH7AEcHt8W7/24XIiYAehQMA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RKH/yzu7; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10366271A71
+	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 16:38:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760373513; cv=fail; b=CTHR0oH/o0ra/H0hd2rCorDfw1wfqBYGJfFiYmlRtmnxtd9/DDupQutqyqlHU2XruV9mJ1v1zLVxhD0Fl9b5pFBU19wq/50wRvmM6pm/cFiwyzSE3uWgXCPnGsL0bnrPqzFDMvEdGBSOENR7mEjr2ULkTwErRh9HEsRP3GGQE18=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760373513; c=relaxed/simple;
+	bh=cOUxmgSY1FUMiY7VeUAaesVr4xctpACHB59aIwKIsJo=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=jDVGrfW4o2Lx8DKh1YV/JoQpTLufF0C32agUdGlaXWFPsqEcDouF/kab126lHDPxxhQYnUBJ4OkgOa9sKQ24BkzwjO6NEU6m4IxVX+xXMS46Q3tMKh/onssa6S8vNXeZWlQk2kacvulMHnznTUWWAzoGSe9xdQ81lq9ThOZJrtA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=K0hgfPoV; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=cAjsYdcy; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RKH/yzu7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760373357;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=b82kb9WgtbFwPMxTCeh//i0PzfwIAXLQOPCf/rSoPfg=;
-	b=RKH/yzu76g2IIfrJeZnyj2pVIDUNlKEc9M52WnDzq9TqAA8a28E42V68jLWC8Z+BFw/Vad
-	WL3mobwe7fpQzulw3WV3nua5z8LaGtRU/abQxm1TwLSlQ2UclzNM2Z9n+PIQMyaoNmUywE
-	scJg8M56VuBvtg6niOUn6vHTg3t4SRc=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-68-lrQHr3B7PSOtfXlw-kZ-ew-1; Mon, 13 Oct 2025 12:35:56 -0400
-X-MC-Unique: lrQHr3B7PSOtfXlw-kZ-ew-1
-X-Mimecast-MFC-AGG-ID: lrQHr3B7PSOtfXlw-kZ-ew_1760373355
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-46e4cc8ed76so23242285e9.1
-        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 09:35:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760373355; x=1760978155;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=b82kb9WgtbFwPMxTCeh//i0PzfwIAXLQOPCf/rSoPfg=;
-        b=sOaPOa0+UwR0qh16mQQA5dHP5eYkt4S+1oznVpZ/0iRtLjw1HUWYdZ8YnPy6VtUJuB
-         dHhnHlQbwvEUnCCZs3oC5gnVPpyUoRd9VrUqfLYiSWMlG3U6bd4Ev5lYKkYxRsXqHN/V
-         xFTO42UhI1QT6VLAfan1ioSMuGFrA1EnQ52VA9IBJLwyqum9QYDgDRi+KLXFenfq6MPN
-         b1Ij/DyjCDTVk5twu8POkveKPkWtXMDQB2TvqlldVbrvp45IIT0kRLwfm3ZRRcTdG0mW
-         mo3G6B4rR9puFGho0ALePm9XDJNHToTu3f0c8TTdiGuD0pGEUu1AktfjLlVmHF3Wvxr6
-         HIOA==
-X-Forwarded-Encrypted: i=1; AJvYcCXRd81RBGZh5SFkTAHWrQrRnarvn5nI6WCB8Y+22oH2D/XU1tCiNM/0VBRqH9p/OSggXu2rPgHhEwzbt33Vyw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy+W6pgycYnObRcDdepHtg4nJXTuuw2T8Zt6QpaGJgXdiITnM1S
-	p4R7FEQb1ckObnuLJU+jGfrQYUjLJdewTTb8GKJvfAMyt/yT4DPlM639tTxSofAdZI/JLLOV+kD
-	GpyNaRkLE1oL8Lz4+2OX0EWY2DvLtVWJ2bMtU52/Fok9g21aGLWlLHBPu9OqpL4eJEaDP
-X-Gm-Gg: ASbGncvcmRypa6D+PXu1g9bNDsLbPzTJfuxFlCZhwZ07cw40haAWrXaREklu14yiqrF
-	WkKBk6sa/rCXT6GrzJO9b8s6whTZ+RrrSsAJnL9rH16SPpJq3Iw1aKfe1FbHYgB8pyrtj/brJMd
-	QjkM++6hdGsIVXgPzV/oXVxEVfwOVllsJXFOjEgXFi9MbeeT/qyzNk2qwxrCxV+idS3cmEjBRq9
-	po6dTW6oQILCHmlGe7ZApkTII4SiIbeohRKt5tgmj+60unG5/eD0OA01Gu9HvjCh7060r1lQcgX
-	aVvvm+Znv9CEUxvKa5wI2UxSXqWNxSz4cw==
-X-Received: by 2002:a05:600c:6304:b0:46f:b42e:e39a with SMTP id 5b1f17b1804b1-46fb42ee4e8mr86780545e9.39.1760373355006;
-        Mon, 13 Oct 2025 09:35:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEnJWouQyQk7RTQ0enimBKNw/h79R7fc7jMJppzAuFVEJg4uDkVeOcuMLdgX925KVyQfezK7A==
-X-Received: by 2002:a05:600c:6304:b0:46f:b42e:e39a with SMTP id 5b1f17b1804b1-46fb42ee4e8mr86780295e9.39.1760373354411;
-        Mon, 13 Oct 2025 09:35:54 -0700 (PDT)
-Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46fb489197dsm199918775e9.10.2025.10.13.09.35.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Oct 2025 09:35:53 -0700 (PDT)
-Date: Mon, 13 Oct 2025 18:35:51 +0200
-From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-To: Francesco Valla <francesco@valla.it>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Paolo Abeni <pabeni@redhat.com>,
-	Harald Mommer <harald.mommer@opensynergy.com>,
-	Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
-	Wolfgang Grandegger <wg@grandegger.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>,
-	linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	development@redaril.me
-Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
-Message-ID: <aO0qZ4kKcgpRmlIl@fedora>
-References: <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
- <2243144.yiUUSuA9gR@fedora.fritz.box>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="K0hgfPoV";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="cAjsYdcy"
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59DFu4fZ002311;
+	Mon, 13 Oct 2025 16:38:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	corp-2025-04-25; bh=A9uHDlH/X51pTNwQvMqu7i55jog5KM5nM6tXp6tA5Hk=; b=
+	K0hgfPoVygDhidWqaiScUECY7392lwTgfR/kpjBtCXPR+8HcUmMt2FE+YSN9ZChL
+	sP9qy/Kq+SNzYflXwEBjDWMH9mmC8BvU4hEk+IfC3EhA+3pHb5wZs5xq/kuDEvjv
+	cUHr7mot1goPegl/QlqlmqpgytvHjJRlKQpefrFcMXzpWvjF1PsjYXFspXekd25l
+	fJ66r9/NNxDKlppYtDKMZSCaatokLyY23Ue1uezXgpRHgkGE2bHturp33zggwBpn
+	BCQLNxr4uOjRAB+aYEF2wFKSikEOBNBDE0cJNJY/9yKSyho9O6h/PdQxTwbKv8oD
+	nKHs7UKJRUWxngfnkB9QlQ==
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 49ra1q9rjp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 13 Oct 2025 16:38:18 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 59DF5daV017189;
+	Mon, 13 Oct 2025 16:38:17 GMT
+Received: from bl2pr02cu003.outbound.protection.outlook.com (mail-eastusazon11011021.outbound.protection.outlook.com [52.101.52.21])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 49qdp7s1mw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 13 Oct 2025 16:38:17 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=MsoqQkvcvGHTNBvqr4fqVyriBr+JQzX4vroespC7ug0CtkvtL1xmeyNxjp7qSpmVHBKWbIQ1wr+3saGJZeJqwMFfs0fxlt8BAP3l0PwAx1vDziOoq0oFUf+kWXyBASm1UH/rJuhJSm4kC91b5TX+BmVxqZ9i14Qi8TakZ0obpNXqfVn5Ii3k2hXe+77yibtYpwVqMECSJGvr83NIVqEFrIaqWI+gcGCaH507sQbdoIR7figNg/9sh9JG1BHDs09wY+iNue2YbVE0rxy3UygkFhsjhYI9s2VS81rRFVOyhkM375Q0fIohTk2i/vGEmUJgQZEe537fet+jqcFCgHntaw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=A9uHDlH/X51pTNwQvMqu7i55jog5KM5nM6tXp6tA5Hk=;
+ b=uJY4QxjeLPu0ZAXcYsn1O5zIpUzr/mZnk0mWekaob9EgYYNcRBAjufr5N1ypJA1Qtm8WMXd17gXmgD0z9QxwDAwHxtIJHpIlIlCnEB2CL10OQLRR74iEOsy+pMGtgg0xkgMp3ixbeYIk4d9BpcCzsU0sw14Ph9QY38pEDUJHjcgcaVZNQxUDaIRJcnHf/35YZaVrNDPkH3b02NM3IAh42xXWp6/AvsXlvKY2dvW5NbF0veXy6gOs2vZP+0npLfBCgalnGshT9HYR/mdLOj1c1AG+F0Cvi7j85sZD7tX9JMXVRoIzYB+mud4c0fxbuccWtmFT01pH4eLcb6Jce9gq9g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=A9uHDlH/X51pTNwQvMqu7i55jog5KM5nM6tXp6tA5Hk=;
+ b=cAjsYdcyvAFvJOAN4iRuhN9c5sYA24crkqa9wXWVhXwJEDbC2KtoxnBl6/ROXZe7BoJzqgMkfcLGcl8BKbw01P2S4H8JM3ZrTrowXtU/yIbhhK1JkkxhDbFGj9Ov8cY2iyBqQAMWYqMvMPsd8/F3ZTKWSQZ/mZqjfKUPuAONA2s=
+Received: from DS7PR10MB5328.namprd10.prod.outlook.com (2603:10b6:5:3a6::12)
+ by PH7PR10MB5831.namprd10.prod.outlook.com (2603:10b6:510:132::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9203.12; Mon, 13 Oct
+ 2025 16:38:12 +0000
+Received: from DS7PR10MB5328.namprd10.prod.outlook.com
+ ([fe80::ea13:c6c1:9956:b29c]) by DS7PR10MB5328.namprd10.prod.outlook.com
+ ([fe80::ea13:c6c1:9956:b29c%6]) with mapi id 15.20.9203.009; Mon, 13 Oct 2025
+ 16:38:11 +0000
+Message-ID: <d1720c75-3d56-4040-b7ac-97c399302257@oracle.com>
+Date: Mon, 13 Oct 2025 22:08:02 +0530
+User-Agent: Mozilla Thunderbird
+Subject: Re: [External] : [PATCH net-next v4 01/12] virtio_pci: Remove
+ supported_cap size build assert
+To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org,
+        mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com,
+        pabeni@redhat.com
+Cc: virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+        yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, jgg@ziepe.ca,
+        kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
+        edumazet@google.com
+References: <20251013152742.619423-1-danielj@nvidia.com>
+ <20251013152742.619423-2-danielj@nvidia.com>
+Content-Language: en-US
+From: ALOK TIWARI <alok.a.tiwari@oracle.com>
+In-Reply-To: <20251013152742.619423-2-danielj@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: LO4P123CA0349.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:18d::12) To DS7PR10MB5328.namprd10.prod.outlook.com
+ (2603:10b6:5:3a6::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2243144.yiUUSuA9gR@fedora.fritz.box>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: knpuyLqvqkaFUHNGtBX3Ny9CEtJ2gIZnjzLhw57Icxc_1760373355
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS7PR10MB5328:EE_|PH7PR10MB5831:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7c796651-557f-4b32-34e8-08de0a76e625
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|376014|7416014|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?TStpbzdhcmZpTlp2VkhySllad1J2STFSNXYwTkZTSFlwY2NtOFR1RUhWYjRq?=
+ =?utf-8?B?SytGZXQ5R2NwMXF4emVST1FKc3drdk5IejYzM01BcW1DeG5MOElpYmtNYU1v?=
+ =?utf-8?B?NFFhSVBXaXVseExlZVlLVUJkTFlpOThwS0UwdlJmMFUyTGZVYjFjdSs1dGhB?=
+ =?utf-8?B?U1FVa1hZbVhtRkVhVTRDTTBzZlp1N05wYnp4YlBtK2o4TUwvOW9qbFBaQUtt?=
+ =?utf-8?B?R1RxSlJaTEptcmtGQyt6Y2lBMVo4U3R4d0NWTW5FZlozM3FmVzVPdWxGdVdq?=
+ =?utf-8?B?QzVIT3AxN0U0QUZGK1dSbWFOSHd5RFhrbGsraDRNR0t4NVk5R2J1cTEvSmkx?=
+ =?utf-8?B?L0RyT2xIQkJYOGR0blpXNStMQnR6RW5pTFFqZXBUZGlGQlp5bnhXUmNsUjJJ?=
+ =?utf-8?B?N0hDNUMzRmtGQzhZV2RGSHpZNjhteHNoNUs4VUZlNTF4SVUvcEVjMVZ6V2NZ?=
+ =?utf-8?B?TEplSkRSQnFNNGlSN2p4bm80Sk52TldFTVM4Y2ZRRnhXY2RBZlZ4NkNRQmN1?=
+ =?utf-8?B?eTV5Ujk1ZGM3MklmMnJ1Y0s4d1RqRXdJT1B4T2hWV1FhYVVmTUs0SHh4ZDVV?=
+ =?utf-8?B?QmhnNXlqT3gzZWdPL0tLcmxRVEtwd0NGcVd1NkVFdFJVbzlkMWpNWDNQL2Rn?=
+ =?utf-8?B?bEdxekEwSGQ5ckloVzF3S242V2l2ZzJHLzEvWHNHNlppRFJpRlFsSHFNckRG?=
+ =?utf-8?B?ZzlRNjhMRDFVUi9Dc3Z0dmN4OEtFRm1Td3loNG5CVVJ4ZG94RHRUSU1CKzI3?=
+ =?utf-8?B?QVNyT2pMc0duUkZlcEJydE9hbzRoSmVWRDgyTjJyN29WL3UwZTg5cmVES1BX?=
+ =?utf-8?B?bmxaQkxiUjVrQTlkRmlBeXpPMTVCR2Q4cXl3Nmx1LzQ5VjdyU2FJTjJsWUJF?=
+ =?utf-8?B?bUNLU3dhN0ttWnR0VEJIOFh5ZlpYTzFsZFp6eDIzYkpKT0Q1SUNMMmlpcUJY?=
+ =?utf-8?B?UWxWTDdMZm9LcWM2TklZVHU1aGg3SWhGRE5FRWpJam9ZMUlrZVROOXRJem84?=
+ =?utf-8?B?a1BjbzNoODFCMWM3MFBKNjd6U2dueUQ5dk1UdEdBUm5adENDRnJvcVpsWXZh?=
+ =?utf-8?B?WjBEcXRISFJZdDBERzJVMFo3NnN6ZnVIMkQ1U20wYVBDL0Zvc01HdnQ2QlFk?=
+ =?utf-8?B?dWtRS3dRQnRrZTUrU05lYlN2VExac0NHUDdiNG1qQkpWelM1VlBiRklvQXZO?=
+ =?utf-8?B?K2hiVmQ2T2xyTmM5L1NBRUtRd2o4WDVoOG5iNEVMUzhUK2RWSlkvSFg4KzJu?=
+ =?utf-8?B?dDhDa0Y1b1h0eERNdVdFWUEvVm1oQTZuL2lyYjlHbEZrWGMxSEZGd2tjbTh3?=
+ =?utf-8?B?UjB0akhHT3FwcjNpaE5HWDJMd0ZBaHBma2VWNzQwWUwrbkkzVCsrdCtRWGFE?=
+ =?utf-8?B?NEhYcGhaajIzSFFocHBCc1d1c1d6YmhOZ0hwRWJZR3UrdHdvclhMVFNCNGZO?=
+ =?utf-8?B?cjA2QTdIcGJJcnM4N0ZYNlZNVHJKaS9BMjUvVit3ckF1enR5SDlDZVRoRHFu?=
+ =?utf-8?B?YXZsZnkvRDI3THNnOGVCcW8zeU9UaXdYdkxJdWxxcFcvMEFFT2NLSnVhMkw5?=
+ =?utf-8?B?dUgxRlZpL3VWTm9wM2xGOUVLOUZTckNScDRuN0tiSzZTd2hPdmM0TDc0WW5m?=
+ =?utf-8?B?KzV5QTR5NEt2Mk1qUVBjUXFlVlZkM01jVU9qUkdwSkNGL1c3eTFPa3NsWXpI?=
+ =?utf-8?B?Rk4zWllPelNVd1hGMXRDR3NkZmVyWGs1eTVnSE5IZExiYmc0T0l0UURhcTdF?=
+ =?utf-8?B?UTN4V0hsU0p4ZngyTUVPUEtSOWo0dC9hQm9nd2JsVEhrQlFnZVRGeWRvdEk2?=
+ =?utf-8?B?NlNIMGx0aTBGSUVlS1lSVkRjRzJlanRMRjlnRDE1MjVHT1MzQzBZMXNFMzRB?=
+ =?utf-8?B?T0NBaDEzSmFWV3kxLzY2cVN0enlSVHRTSUhkR3dseXBLOUYrVm4wUVdtVnd6?=
+ =?utf-8?Q?0WCZS+sKC4YCOB0ym46h2RTAMgmJAKlY?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR10MB5328.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?YnhGM0tTSTRqM29BUU5CdWE3SEVzRmN0Y1pIdCs2OEFvQlNDdHpwMDg3a0d1?=
+ =?utf-8?B?eTZnZE5tOXErVGFCcHZHc0s0T0pXWitTb2xFSjVLd3pjOVFMR0RsWU1PUWY0?=
+ =?utf-8?B?aVVDTnI0aDloUGZQYXkzeCtuS0prcUc3amZwc0NpU05pZ3VLVHhhU3AzY0h6?=
+ =?utf-8?B?UGdReHlrZVlIN05qY3NyNU96TjBNWnNpUVVWQWlvUmlBL1VKZ1dlZXZ1RFlv?=
+ =?utf-8?B?Ymw0WWl3L3FxVXBYZ215aEkyNkFoSmNNOU8zSEhyWDNreDNXUDlyVE5VY205?=
+ =?utf-8?B?MXNSZW9oRWZuc0J4YmRrQWpwUjJBeGRqM2pWUXpmVC9DbFRWUTRiYzdLK2tN?=
+ =?utf-8?B?OXltVUV6cTV1Tmo5T1BHZTVya095ekYxWXlXRWxqR2lwOWh5M1VnNEJGNzMz?=
+ =?utf-8?B?THAxWE9hZ0pZdHN5NXpORGJDbGNiK2tWaDl5anNhc2cvUitUemFTbklSVlgr?=
+ =?utf-8?B?TEE1VmFsakE1NG4yUVBrZTlDKzYyQkJIMDhaOWljeTRFRlhkMTNkcUEzd3M4?=
+ =?utf-8?B?UDBpV1J5bTF4ZmF4U3ErTGdpY1dxbVUvdjd0clFyRGZhSGx1OFZqZ2c1UkJu?=
+ =?utf-8?B?NUhzSzFxSzhRV2xYb1NWN3VxVlJ1ZVdmcXdMZ0d6Nkg3YVBiYVZEdVFORE5F?=
+ =?utf-8?B?MzBCOVIwam9vbEhDTGxqcFlMRlNlMzlDWDI2c0dPbDRMNDE3QUlGZnhSTExZ?=
+ =?utf-8?B?UVpaQWxjeFA0TS9sc1d0RFErQkRBUVZ1ZGlmck1SNGN5anVybk8xZnY5Zmxn?=
+ =?utf-8?B?LzRZVXpvR1pMWmtYckNRRStTV1Z1KysrWldKaEJpOWQrbFhFbVhHTkdlcEZt?=
+ =?utf-8?B?YXVycDczSlRtS3NQMnB0VlFjbGtUMU8vSktpN0o4NHlUajhtSEV1UWFMOGlF?=
+ =?utf-8?B?ZW9nVVJxNTdiQXBGYmV1S3NpYWxTMUQwUEIweG8vSkZUL2RDcjJZWHl0aEdC?=
+ =?utf-8?B?N1Y4ZTBuS01idEhJQ3U0cmVtTXNjeEhHSjE5aHFIWkRzTkJVMmUyQW8zN3kv?=
+ =?utf-8?B?ZVZLYmg5SHVBc2EvczdJNS9zeURneno1cXZRdzZKdGlOam81dC8rVndzTlB6?=
+ =?utf-8?B?djArbnBhZVlKeFYzaUw0RzUramlPd0xkM0dNL2hsZU9mVjRwM2c2SHpabjVz?=
+ =?utf-8?B?MHJsblFBWkpaOTV0NjVhMjU0K1RoYUpJMkxZSWpNN0h4NTV2WFZ0c0QwczZG?=
+ =?utf-8?B?RW5FaCtuM0ZSai9nL3BwZlZ3NW9qUlQ3SzByOGd0aVdpNWJDU2hQZzZYSG00?=
+ =?utf-8?B?UVU2aW5teVJnTVFLZU1yRGx5UzIrQzFudENaeU5tb2xFcmViakdHZmNONHda?=
+ =?utf-8?B?VEM1Z2tZK3ltWCtBZ1I2M3Z2QVF1N0x6QXpLczYyVnFKU3Y5OUpOUVVzS0hP?=
+ =?utf-8?B?LzRsSnIzWnpXb0FEOHhQMVNEd0s0MzhkWEpHbHNQbzNzTEovR2w0MG9LSy85?=
+ =?utf-8?B?UFpValB5SlFUQ0IyS1MwWVQxbE0xTU91d1N2UGtLUkMvWVdJZkIwSldlQ1JL?=
+ =?utf-8?B?WWRaVDhJR3NtMFpQWnNDa0pFbHF1eURxS05DZDhuZjlMK3BvZk5VOFVxUUUr?=
+ =?utf-8?B?aXhGeWs0V29ZY1ZMTjRFbkdjaXlqZ0VhTEFZZ1J6djJkR1o4NTdQb1pDMmF0?=
+ =?utf-8?B?Ym1RV0JXNjdVWVkzSkdSL1lkenpsVFQvTThUVmVKR1VYZ0Y2bGN5Yll5Zk5j?=
+ =?utf-8?B?Q05qYk5pVjIxUlUrSmJvRGhFRURpVjZZeERzWWhCcm1jWWdKVkNSRk42Risr?=
+ =?utf-8?B?MHNSaG1yYTgyZjBFMkVzMHAxS2pTcUFSajdaQVRVNEY1K1VocDQ3dFBVQ0pn?=
+ =?utf-8?B?aEF2by9FeTlZUllya3dZTFFweDJRN2h0NnFMZTREbVVZRitwZHNuM1FWaWFr?=
+ =?utf-8?B?Y1VKWEU0QTI0WlFMTnZZeFZnZmZzMnNIdFczaHRhTVphK1labVhtenZSSFRs?=
+ =?utf-8?B?amVKTXN0UG5LK2VNV044U0daWnpVVmFpbExTa1ZIZWlxa1NWdVZuelc2OFcw?=
+ =?utf-8?B?TTJodkRIMVNyTkFVRnZ6T3hCeVh1OExhOHo2VzArMGxoRVNKY1RndTZ0TmQw?=
+ =?utf-8?B?eFNVMkFPOFRYeUp4Q0xmeStHdzNnQ09CZmxUNVhBa09yUXZ2WlNZbENMeEhC?=
+ =?utf-8?B?R0RWSlJpYVdaT0ZheEp3QTMzcFhyMmpUZ0dFOHFQQlpYU1BibnFKMGpxK3FG?=
+ =?utf-8?B?d2c9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	E8nhtcC4gDDyzlJY95+udiovSH9Efg46/lvF4tKUTahQfT8gN+kMloqO8EgQInIvwcawSkE9wT3ONUjvoVGUKMq9XPVjauPFAXVPX1CgBHRqihyXytPCT3jWhWNI4shYqXCbrUd7ErTuFYsgaNVxpqWwhNI117XtL3Z3xwbaCdi3WjrsiNBDpP/lHNmh+BBNAhFluB8MB6NQnotw8vKRQSIg145gumW0IZonjz+Xf5O1r7L/HH3Jwesuik5ZSQCPsvAR35NxQguOJKtBrLTsnLDBKU7x1ZVwrMI6AVu3jqUekI9qxHiqwBoX/W86H8nmVqVY1RzP47FQmVhykxnS2E/jIIehxvnDX7g+GxWNkKkdk2SQ1hIn9WQ5lW/qfB4YGfhLiYGREfaZQxbG3Tt/2TmcMpcMUMsj5ervAptZYjVpehQzkhQdu4sG11E7FeQrsLkS0/zMIQDO/Whq9roU9RQLPkYrYZ5JZ3bx/bYdAzLsQXs5UoTf+cLbrw0L96gINuGbPdEsaFFt+jTkI63ce1YdSL6GG829eNMK0olJBmYcY64byFtH0MQeJd4E0L1U2I/GTzYPOStjSUvmf0ZJZveos6lFKingQVUuSR5/B/I=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7c796651-557f-4b32-34e8-08de0a76e625
+X-MS-Exchange-CrossTenant-AuthSource: DS7PR10MB5328.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Oct 2025 16:38:11.9024
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: /Roysb6ajOow5R9u5himTXfAp5ZSvIXxnd16T2gkhZ3IyY6vDYxf8/oSIzA6QU7NiprRTuGwjomL2BY7lzbutxCmXgE7n70CMrg8xJBk0rM=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR10MB5831
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-13_06,2025-10-06_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 phishscore=0 mlxscore=0
+ suspectscore=0 spamscore=0 mlxlogscore=999 malwarescore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2510020000
+ definitions=main-2510130076
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDEyMDA1MSBTYWx0ZWRfX+yXVRagP7HXk
+ Dm9aJ7mNKemyBZkm2qHxM0/M5s5O1azDMx4zrOYnr8LYDBBMDWttMy21Noj20c18WlYfTu+GtHq
+ sAKQtgkW755gjfa8gR/1AjmB2MNsVcNW5wyVOSz+M04HKlRhkLc9MDfOC1kLYUxELh7LnQubmBv
+ E//SWizRpMaqW13IxGZRDfM7dJboDB6FPGwkamx4jVqEcYOJl00o014VvcUXDF6gBysb6gPMybY
+ NCXa0i6bo5ALK/mbu27vW1PQ6L4nJnYT1OvhrjAEgHT8d5HRJHYRut/Q+23gN6BTVNldWU6SSdl
+ ajfZ9vsyJ4R/bmVIN3cN3HPYrVlt+NesrdefxTFIFig5qkeahmCVo4w8J2zcmr3ZcquaDu93GSm
+ GSBR/mhX+XcJIJ2ns/Q8iAaL/hlPZQ==
+X-Proofpoint-GUID: QWyb2LVnMOxNKzFb-GMnQFNUP9MHWem2
+X-Proofpoint-ORIG-GUID: QWyb2LVnMOxNKzFb-GMnQFNUP9MHWem2
+X-Authority-Analysis: v=2.4 cv=GL0F0+NK c=1 sm=1 tr=0 ts=68ed2afa b=1 cx=c_pps
+ a=WeWmnZmh0fydH62SvGsd2A==:117 a=WeWmnZmh0fydH62SvGsd2A==:17
+ a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
+ a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
+ a=x6icFKpwvdMA:10 a=GoEa3M9JfhUA:10 a=Ikd4Dj_1AAAA:8 a=HKRX-FWKZhdXDGs6rGkA:9
+ a=QEXdDO2ut3YA:10
 
-On Thu, Sep 11, 2025 at 10:59:40PM +0200, Francesco Valla wrote:
-> Hello Mikhail, Harald,
-> 
-> hoping there will be a v6 of this patch soon, a few comments:
-> 
-> On Monday, 8 January 2024 at 14:10:35 Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com> wrote:
-> 
-> [...]
-> 
-> > +
-> > +/* virtio_can private data structure */
-> > +struct virtio_can_priv {
-> > +	struct can_priv can;	/* must be the first member */
-> > +	/* NAPI for RX messages */
-> > +	struct napi_struct napi;
-> > +	/* NAPI for TX messages */
-> > +	struct napi_struct napi_tx;
-> > +	/* The network device we're associated with */
-> > +	struct net_device *dev;
-> > +	/* The virtio device we're associated with */
-> > +	struct virtio_device *vdev;
-> > +	/* The virtqueues */
-> > +	struct virtqueue *vqs[VIRTIO_CAN_QUEUE_COUNT];
-> > +	/* I/O callback function pointers for the virtqueues */
-> > +	vq_callback_t *io_callbacks[VIRTIO_CAN_QUEUE_COUNT];
-> > +	/* Lock for TX operations */
-> > +	spinlock_t tx_lock;
-> > +	/* Control queue lock. Defensive programming, may be not needed */
-> > +	struct mutex ctrl_lock;
-> > +	/* Wait for control queue processing without polling */
-> > +	struct completion ctrl_done;
-> > +	/* List of virtio CAN TX message */
-> > +	struct list_head tx_list;
-> > +	/* Array of receive queue messages */
-> > +	struct virtio_can_rx rpkt[128];
-> 
-> This array should probably be allocated dynamically at probe - maybe
-> using a module parameter instead of a hardcoded value as length? 
-> 
-> > +	/* Those control queue messages cannot live on the stack! */
-> > +	struct virtio_can_control_out cpkt_out;
-> > +	struct virtio_can_control_in cpkt_in;
-> 
-> Consider using a container struct as you did for the tx message, e.g.:
-> 
-> struct virtio_can_control {
-> 	struct virtio_can_control_out ctrl_out;
-> 	struct virtio_can_control_in ctrl_in;
-> };
-> 
-> > +	/* Data to get and maintain the putidx for local TX echo */
-> > +	struct ida tx_putidx_ida;
-> > +	/* In flight TX messages */
-> > +	atomic_t tx_inflight;
-> > +	/* BusOff pending. Reset after successful indication to upper layer */
-> > +	bool busoff_pending;
-> > +};
-> > +
-> 
-> [...]
-> 
-> > +
-> > +/* Send a control message with message type either
-> > + *
-> > + * - VIRTIO_CAN_SET_CTRL_MODE_START or
-> > + * - VIRTIO_CAN_SET_CTRL_MODE_STOP.
-> > + *
-> > + * Unlike AUTOSAR CAN Driver Can_SetControllerMode() there is no requirement
-> > + * for this Linux driver to have an asynchronous implementation of the mode
-> > + * setting function so in order to keep things simple the function is
-> > + * implemented as synchronous function. Design pattern is
-> > + * virtio_console.c/__send_control_msg() & virtio_net.c/virtnet_send_command().
-> > + */
-> > +static u8 virtio_can_send_ctrl_msg(struct net_device *ndev, u16 msg_type)
-> > +{
-> > +	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
-> > +	struct virtio_can_priv *priv = netdev_priv(ndev);
-> > +	struct device *dev = &priv->vdev->dev;
-> > +	struct virtqueue *vq;
-> > +	unsigned int len;
-> > +	int err;
-> > +
-> > +	vq = priv->vqs[VIRTIO_CAN_QUEUE_CONTROL];
-> > +
-> > +	/* The function may be serialized by rtnl lock. Not sure.
-> > +	 * Better safe than sorry.
-> > +	 */
-> > +	mutex_lock(&priv->ctrl_lock);
-> > +
-> > +	priv->cpkt_out.msg_type = cpu_to_le16(msg_type);
-> > +	sg_init_one(&sg_out, &priv->cpkt_out, sizeof(priv->cpkt_out));
-> > +	sg_init_one(&sg_in, &priv->cpkt_in, sizeof(priv->cpkt_in));
-> > +
-> > +	err = virtqueue_add_sgs(vq, sgs, 1u, 1u, priv, GFP_ATOMIC);
-> > +	if (err != 0) {
-> > +		/* Not expected to happen */
-> > +		dev_err(dev, "%s(): virtqueue_add_sgs() failed\n", __func__);
-> > +	}
-> 
-> Here it should return VIRTIO_CAN_RESULT_NOT_OK after unlocking the
-> mutex, or it might wait for completion indefinitley below.
-> 
-> > +
-> > +	if (!virtqueue_kick(vq)) {
-> > +		/* Not expected to happen */
-> > +		dev_err(dev, "%s(): Kick failed\n", __func__);
-> > +	}
-> 
-> And here too.
-> 
-> > +
-> > +	while (!virtqueue_get_buf(vq, &len) && !virtqueue_is_broken(vq))
-> > +		wait_for_completion(&priv->ctrl_done);
-> > +
-> > +	mutex_unlock(&priv->ctrl_lock);
-> > +
-> > +	return priv->cpkt_in.result;
-> > +}
-> > +
-> 
-> [...]
-> 
-> > +static netdev_tx_t virtio_can_start_xmit(struct sk_buff *skb,
-> > +					 struct net_device *dev)
-> > +{
-> > +	const unsigned int hdr_size = offsetof(struct virtio_can_tx_out, sdu);
-> > +	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
-> > +	struct canfd_frame *cf = (struct canfd_frame *)skb->data;
-> > +	struct virtio_can_priv *priv = netdev_priv(dev);
-> > +	netdev_tx_t xmit_ret = NETDEV_TX_OK;
-> > +	struct virtio_can_tx *can_tx_msg;
-> > +	struct virtqueue *vq;
-> > +	unsigned long flags;
-> > +	u32 can_flags;
-> > +	int putidx;
-> > +	int err;
-> > +
-> > +	vq = priv->vqs[VIRTIO_CAN_QUEUE_TX];
-> > +
-> > +	if (can_dev_dropped_skb(dev, skb))
-> > +		goto kick; /* No way to return NET_XMIT_DROP here */
-> > +
-> > +	/* No local check for CAN_RTR_FLAG or FD frame against negotiated
-> > +	 * features. The device will reject those anyway if not supported.
-> > +	 */
-> > +
-> > +	can_tx_msg = kzalloc(sizeof(*can_tx_msg), GFP_ATOMIC);
-> > +	if (!can_tx_msg) {
-> > +		dev->stats.tx_dropped++;
-> > +		goto kick; /* No way to return NET_XMIT_DROP here */
-> > +	}
-> > +
-> 
-> Since we are allocating tx messages dynamically, the sdu[64] array inside
-> struct virtio_can_tx_out can be converted to a flexible array and here
-> the allocation can become:
-> 
-> 	can_tx_msg = kzalloc(sizeof(*can_tx_msg) + cf->len, GFP_ATOMIC);
-> 
-> This would save memory in particular on CAN-CC interfaces, where 56 bytes
-> per message would otherwise be lost (not to mention the case if/when
-> CAN-XL will be supported).
-> 
-> > +	can_tx_msg->tx_out.msg_type = cpu_to_le16(VIRTIO_CAN_TX);
-> > +	can_flags = 0;
-> > +
-> > +	if (cf->can_id & CAN_EFF_FLAG) {
-> > +		can_flags |= VIRTIO_CAN_FLAGS_EXTENDED;
-> > +		can_tx_msg->tx_out.can_id = cpu_to_le32(cf->can_id & CAN_EFF_MASK);
-> > +	} else {
-> > +		can_tx_msg->tx_out.can_id = cpu_to_le32(cf->can_id & CAN_SFF_MASK);
-> > +	}
-> > +	if (cf->can_id & CAN_RTR_FLAG)
-> > +		can_flags |= VIRTIO_CAN_FLAGS_RTR;
-> > +	else
-> > +		memcpy(can_tx_msg->tx_out.sdu, cf->data, cf->len);
-> > +	if (can_is_canfd_skb(skb))
-> > +		can_flags |= VIRTIO_CAN_FLAGS_FD;
-> > +
-> > +	can_tx_msg->tx_out.flags = cpu_to_le32(can_flags);
-> > +	can_tx_msg->tx_out.length = cpu_to_le16(cf->len);
-> > +
-> > +	/* Prepare sending of virtio message */
-> > +	sg_init_one(&sg_out, &can_tx_msg->tx_out, hdr_size + cf->len);
-> > +	sg_init_one(&sg_in, &can_tx_msg->tx_in, sizeof(can_tx_msg->tx_in));
-> > +
-> > +	putidx = virtio_can_alloc_tx_idx(priv);
-> > +
-> > +	if (unlikely(putidx < 0)) {
-> > +		/* -ENOMEM or -ENOSPC here. -ENOSPC should not be possible as
-> > +		 * tx_inflight >= can.echo_skb_max is checked in flow control
-> > +		 */
-> > +		WARN_ON_ONCE(putidx == -ENOSPC);
-> > +		kfree(can_tx_msg);
-> > +		dev->stats.tx_dropped++;
-> > +		goto kick; /* No way to return NET_XMIT_DROP here */
-> > +	}
-> > +
-> > +	can_tx_msg->putidx = (unsigned int)putidx;
-> > +
-> > +	/* Protect list operation */
-> > +	spin_lock_irqsave(&priv->tx_lock, flags);
-> > +	list_add_tail(&can_tx_msg->list, &priv->tx_list);
-> > +	spin_unlock_irqrestore(&priv->tx_lock, flags);
-> > +
-> > +	/* Push loopback echo. Will be looped back on TX interrupt/TX NAPI */
-> > +	can_put_echo_skb(skb, dev, can_tx_msg->putidx, 0);
-> > +
-> > +	/* Protect queue and list operations */
-> > +	spin_lock_irqsave(&priv->tx_lock, flags);
-> > +	err = virtqueue_add_sgs(vq, sgs, 1u, 1u, can_tx_msg, GFP_ATOMIC);
-> > +	if (unlikely(err)) { /* checking vq->num_free in flow control */
-> > +		list_del(&can_tx_msg->list);
-> > +		can_free_echo_skb(dev, can_tx_msg->putidx, NULL);
-> > +		virtio_can_free_tx_idx(priv, can_tx_msg->putidx);
-> > +		spin_unlock_irqrestore(&priv->tx_lock, flags);
-> > +		netif_stop_queue(dev);
-> > +		kfree(can_tx_msg);
-> > +		/* Expected never to be seen */
-> > +		netdev_warn(dev, "TX: Stop queue, err = %d\n", err);
-> > +		xmit_ret = NETDEV_TX_BUSY;
-> > +		goto kick;
-> > +	}
-> > +
-> > +	/* Normal flow control: stop queue when no transmission slots left */
-> > +	if (atomic_read(&priv->tx_inflight) >= priv->can.echo_skb_max ||
-> > +	    vq->num_free == 0 || (vq->num_free < ARRAY_SIZE(sgs) &&
-> > +	    !virtio_has_feature(vq->vdev, VIRTIO_RING_F_INDIRECT_DESC))) {
-> > +		netif_stop_queue(dev);
-> > +		netdev_dbg(dev, "TX: Normal stop queue\n");
-> > +	}
-> > +
-> > +	spin_unlock_irqrestore(&priv->tx_lock, flags);
-> > +
-> > +kick:
-> > +	if (netif_queue_stopped(dev) || !netdev_xmit_more()) {
-> > +		if (!virtqueue_kick(vq))
-> > +			netdev_err(dev, "%s(): Kick failed\n", __func__);
-> > +	}
-> > +
-> > +	return xmit_ret;
-> > +}
-> > +
-> > +static const struct net_device_ops virtio_can_netdev_ops = {
-> > +	.ndo_open = virtio_can_open,
-> > +	.ndo_stop = virtio_can_close,
-> > +	.ndo_start_xmit = virtio_can_start_xmit,
-> > +	.ndo_change_mtu = can_change_mtu,
-> > +};
-> > +
-> > +static int register_virtio_can_dev(struct net_device *dev)
-> > +{
-> > +	dev->flags |= IFF_ECHO;	/* we support local echo */
-> > +	dev->netdev_ops = &virtio_can_netdev_ops;
-> > +
-> > +	return register_candev(dev);
-> > +}
-> > +
-> > +/* Compare with m_can.c/m_can_echo_tx_event() */
-> > +static int virtio_can_read_tx_queue(struct virtqueue *vq)
-> > +{
-> > +	struct virtio_can_priv *can_priv = vq->vdev->priv;
-> > +	struct net_device *dev = can_priv->dev;
-> > +	struct virtio_can_tx *can_tx_msg;
-> > +	struct net_device_stats *stats;
-> > +	unsigned long flags;
-> > +	unsigned int len;
-> > +	u8 result;
-> > +
-> > +	stats = &dev->stats;
-> > +
-> > +	/* Protect list and virtio queue operations */
-> > +	spin_lock_irqsave(&can_priv->tx_lock, flags);
-> > +
-> > +	can_tx_msg = virtqueue_get_buf(vq, &len);
-> > +	if (!can_tx_msg) {
-> > +		spin_unlock_irqrestore(&can_priv->tx_lock, flags);
-> > +		return 0; /* No more data */
-> > +	}
-> > +
-> > +	if (unlikely(len < sizeof(struct virtio_can_tx_in))) {
-> > +		netdev_err(dev, "TX ACK: Device sent no result code\n");
-> > +		result = VIRTIO_CAN_RESULT_NOT_OK; /* Keep things going */
-> > +	} else {
-> > +		result = can_tx_msg->tx_in.result;
-> > +	}
-> > +
-> > +	if (can_priv->can.state < CAN_STATE_BUS_OFF) {
-> > +		/* Here also frames with result != VIRTIO_CAN_RESULT_OK are
-> > +		 * echoed. Intentional to bring a waiting process in an upper
-> > +		 * layer to an end.
-> > +		 * TODO: Any better means to indicate a problem here?
-> > +		 */
-> > +		if (result != VIRTIO_CAN_RESULT_OK)
-> > +			netdev_warn(dev, "TX ACK: Result = %u\n", result);
-> 
-> Maybe an error frame reporting CAN_ERR_CRTL_UNSPEC would be better?
-> 
-> For sure, counting the known errors as valid tx_packets and tx_bytes
-> is misleading.
-> 
-> > +
-> > +		stats->tx_bytes += can_get_echo_skb(dev, can_tx_msg->putidx,
-> > +						    NULL);
-> > +		stats->tx_packets++;
-> > +	} else {
-> > +		netdev_dbg(dev, "TX ACK: Controller inactive, drop echo\n");
-> > +		can_free_echo_skb(dev, can_tx_msg->putidx, NULL);
-> > +	}
-> > +
-> > +	list_del(&can_tx_msg->list);
-> > +	virtio_can_free_tx_idx(can_priv, can_tx_msg->putidx);
-> > +
-> > +	/* Flow control */
-> > +	if (netif_queue_stopped(dev)) {
-> > +		netdev_dbg(dev, "TX ACK: Wake up stopped queue\n");
-> > +		netif_wake_queue(dev);
-> > +	}
-> > +
-> > +	spin_unlock_irqrestore(&can_priv->tx_lock, flags);
-> > +
-> > +	kfree(can_tx_msg);
-> > +
-> > +	return 1; /* Queue was not empty so there may be more data */
-> > +}
-> > +
-> 
-> [...]
-> 
-> > +
-> > +static int virtio_can_find_vqs(struct virtio_can_priv *priv)
-> > +{
-> > +	/* The order of RX and TX is exactly the opposite as in console and
-> > +	 * network. Does not play any role but is a bad trap.
-> > +	 */
-> > +	static const char * const io_names[VIRTIO_CAN_QUEUE_COUNT] = {
-> > +		"can-tx",
-> > +		"can-rx",
-> > +		"can-state-ctrl"
-> > +	};
-> > +
-> > +	priv->io_callbacks[VIRTIO_CAN_QUEUE_TX] = virtio_can_tx_intr;
-> > +	priv->io_callbacks[VIRTIO_CAN_QUEUE_RX] = virtio_can_rx_intr;
-> > +	priv->io_callbacks[VIRTIO_CAN_QUEUE_CONTROL] = virtio_can_control_intr;
-> > +
-> > +	/* Find the queues. */
-> > +	return virtio_find_vqs(priv->vdev, VIRTIO_CAN_QUEUE_COUNT, priv->vqs,
-> > +			       priv->io_callbacks, io_names, NULL);
-> > +}
-> 
-> Syntax of virtio_find_vqs changed a bit, here should now be:
-> 
-> 	struct virtqueue_info vqs_info[] = {
-> 		{ "can-tx", virtio_can_tx_intr },
-> 		{ "can-rx", virtio_can_rx_intr },
-> 		{ "can-state-ctrl", virtio_can_control_intr },
-> 	};
-> 
-> 	return virtio_find_vqs(priv->vdev, VIRTIO_CAN_QUEUE_COUNT, priv->vqs,
-> 			  vqs_info, NULL);
-> 
-> > +
-> > +/* Function must not be called before virtio_can_find_vqs() has been run */
-> > +static void virtio_can_del_vq(struct virtio_device *vdev)
-> > +{
-> > +	struct virtio_can_priv *priv = vdev->priv;
-> > +	struct list_head *cursor, *next;
-> > +	struct virtqueue *vq;
-> > +
-> > +	/* Reset the device */
-> > +	if (vdev->config->reset)
-> > +		vdev->config->reset(vdev);
-> > +
-> > +	/* From here we have dead silence from the device side so no locks
-> > +	 * are needed to protect against device side events.
-> > +	 */
-> > +
-> > +	vq = priv->vqs[VIRTIO_CAN_QUEUE_CONTROL];
-> > +	while (virtqueue_detach_unused_buf(vq))
-> > +		; /* Do nothing, content allocated statically */
-> > +
-> > +	vq = priv->vqs[VIRTIO_CAN_QUEUE_RX];
-> > +	while (virtqueue_detach_unused_buf(vq))
-> > +		; /* Do nothing, content allocated statically */
-> > +
-> > +	vq = priv->vqs[VIRTIO_CAN_QUEUE_TX];
-> > +	while (virtqueue_detach_unused_buf(vq))
-> > +		; /* Do nothing, content to be de-allocated separately */
-> > +
-> > +	/* Is keeping track of allocated elements by an own linked list
-> > +	 * really necessary or may this be optimized using only
-> > +	 * virtqueue_detach_unused_buf()?
-> > +	 */
-> > +	list_for_each_safe(cursor, next, &priv->tx_list) {
-> > +		struct virtio_can_tx *can_tx;
-> > +
-> > +		can_tx = list_entry(cursor, struct virtio_can_tx, list);
-> > +		list_del(cursor);
-> > +		kfree(can_tx);
-> > +	}
-> 
-> I'd drop the tx_list entirely and rely on virtqueue_detach_unused_buf();
-> this would allow to remove at least one spinlock save/restore pair at
-> each transmission. 
-> 
-> > +
-> > +	if (vdev->config->del_vqs)
-> > +		vdev->config->del_vqs(vdev);
-> > +}
-> > +
-> 
-> [...]
-> 
-> > diff --git a/include/uapi/linux/virtio_can.h b/include/uapi/linux/virtio_can.h
-> > new file mode 100644
-> > index 000000000000..7cf613bb3f1a
-> > --- /dev/null
-> > +++ b/include/uapi/linux/virtio_can.h
-> > @@ -0,0 +1,75 @@
-> > +/* SPDX-License-Identifier: BSD-3-Clause */
-> > +/*
-> > + * Copyright (C) 2021-2023 OpenSynergy GmbH
-> > + */
-> > +#ifndef _LINUX_VIRTIO_VIRTIO_CAN_H
-> > +#define _LINUX_VIRTIO_VIRTIO_CAN_H
-> > +
-> > +#include <linux/types.h>
-> > +#include <linux/virtio_types.h>
-> > +#include <linux/virtio_ids.h>
-> > +#include <linux/virtio_config.h>
-> > +
-> > +/* Feature bit numbers */
-> > +#define VIRTIO_CAN_F_CAN_CLASSIC        0
-> > +#define VIRTIO_CAN_F_CAN_FD             1
-> > +#define VIRTIO_CAN_F_LATE_TX_ACK        2
-> > +#define VIRTIO_CAN_F_RTR_FRAMES         3
-> > +
-> 
-> The values for VIRTIO_CAN_F_LATE_TX_ACK and VIRTIO_CAN_F_RTR_FRAMES are
-> inverted w.r.t. the merged virto-can spec [1].
-> 
-> Note that this is the only deviation from the spec I found.
-> 
-> > +/* CAN Result Types */
-> > +#define VIRTIO_CAN_RESULT_OK            0
-> > +#define VIRTIO_CAN_RESULT_NOT_OK        1
-> > +
-> > +/* CAN flags to determine type of CAN Id */
-> > +#define VIRTIO_CAN_FLAGS_EXTENDED       0x8000
-> > +#define VIRTIO_CAN_FLAGS_FD             0x4000
-> > +#define VIRTIO_CAN_FLAGS_RTR            0x2000
-> > +
-> > +struct virtio_can_config {
-> > +#define VIRTIO_CAN_S_CTRL_BUSOFF (1u << 0) /* Controller BusOff */
-> > +	/* CAN controller status */
-> > +	__le16 status;
-> > +};
-> > +
-> > +/* TX queue message types */
-> > +struct virtio_can_tx_out {
-> > +#define VIRTIO_CAN_TX                   0x0001
-> > +	__le16 msg_type;
-> > +	__le16 length; /* 0..8 CC, 0..64 CAN-FD, 0..2048 CAN-XL, 12 bits */
-> > +	__u8 reserved_classic_dlc; /* If CAN classic length = 8 then DLC can be 8..15 */
-> > +	__u8 padding;
-> > +	__le16 reserved_xl_priority; /* May be needed for CAN XL priority */
-> > +	__le32 flags;
-> > +	__le32 can_id;
-> > +	__u8 sdu[64];
-> > +};
-> > +
-> 
-> sdu[] here might be a flexible array, if the driver allocates
-> virtio_can_tx_out structs dyncamically (see above). This would be
-> beneficial in case of CAN-XL frames (if/when they will be supported).
-> 
 
-If we use a flexible array for sdu[] here, then we will have a problem
-when defining the virtio_can_tx struct since it is not in the end of the
-structure. I think it is a good idea to define it as a flexible array
-but I do not know how. 
 
-Matias
+On 10/13/2025 8:57 PM, Daniel Jurgens wrote:
+> The cap ID list can be more than 64 bits. Remove the build assert. Also
+> remove caching of the supported caps, it wasn't used.
+> 
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> 
+> ---
+> v4: New patch for V4
+> ---
+>   drivers/virtio/virtio_pci_common.h | 1 -
+>   drivers/virtio/virtio_pci_modern.c | 7 +------
+>   2 files changed, 1 insertion(+), 7 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+> index 8cd01de27baf..fc26e035e7a6 100644
+> --- a/drivers/virtio/virtio_pci_common.h
+> +++ b/drivers/virtio/virtio_pci_common.h
+> @@ -48,7 +48,6 @@ struct virtio_pci_admin_vq {
+>   	/* Protects virtqueue access. */
+>   	spinlock_t lock;
+>   	u64 supported_cmds;
+> -	u64 supported_caps;
+>   	u8 max_dev_parts_objects;
+>   	struct ida dev_parts_ida;
+>   	/* Name of the admin queue: avq.$vq_index. */
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index dd0e65f71d41..810f9f636b5e 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -323,12 +323,7 @@ static void virtio_pci_admin_cmd_cap_init(struct virtio_device *virtio_dev)
+>   	if (ret)
+>   		goto end;
+>   
+> -	/* Max number of caps fits into a single u64 */
+> -	BUILD_BUG_ON(sizeof(data->supported_caps) > sizeof(u64));
+> -
+> -	vp_dev->admin_vq.supported_caps = le64_to_cpu(data->supported_caps[0]);
+> -
+> -	if (!(vp_dev->admin_vq.supported_caps & (1 << VIRTIO_DEV_PARTS_CAP)))
+> +	if (!(le64_to_cpu(data->support_caps[0]) & (1 << VIRTIO_DEV_PARTS_CAP)))
+
+typo support_caps -> supported_caps ?
+
+>   		goto end;
+>   
+>   	virtio_pci_admin_cmd_dev_parts_objects_enable(virtio_dev);
+
+Thanks,
+Alok
 
