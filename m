@@ -1,71 +1,81 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C4562F1FD6
-	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 08:17:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F2AC2F7459
+	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 08:43:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760343437; cv=none; b=lx6359ZJqtNoaOWsK4q0ARunOljvHrxNWbZYF4FfcC67iG5TzoFgDTpfkAng017V6MmTFrVu0GIRuvViWNDDwajfgmBdo2kDdbzTVWqnd44z10TIXgCJM0xj2FZ8ET3Mr+ae9byW/+hWq9qIdfwduxjOtM90YKBtceZ4GZ7OgGk=
+	t=1760345001; cv=none; b=OLrifFxGUY3ZokK+ucxp2V6xqSNDuoYn8wfO6CaUtHQqft6aXLe4ly83shJj6ngG5yjl9U9yNRLSzS8RM/0b+HLMF9zyrZPg4MXPaU9Ktf9ZbwbAD8deSUwhhI9g4j8SD00OF41CEVZBGS+JXGUkPR+KsV7begb4xCvJawNsRwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760343437; c=relaxed/simple;
-	bh=bbT9yOnrUpGxMOJQdhtTIrV7PDDNbFu+OWYMIHMr4KM=;
+	s=arc-20240116; t=1760345001; c=relaxed/simple;
+	bh=06Rm+AlFXXXCAphTs74cdxlu0DoJpC3bVRTLGxTebdc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Njrw63Vz1+yJ0UEUHX7ymLVX2ZplafB87C6UE/5uYZn5EfUx/JmcXQtzK7HHTLgYQRSqO+4KaYo6kaDmBMjEw2QBgGdO9/UW+aSijz5/1/3ErH7VlipxXWTub0qeOIX1mn+vltThHFufliQjFGAKixTThE4aBQthHhAQ41tBSKM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BwXwHyIP; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=o8GYv/93MoK6ArCxJD4SM+FI/0Nh8DeTbgrRIGhJ+1923jY4jC1XJFeuAartUzirAPKNpLCAtb3FcwvspyZFhaStozHhb6yA4b1x1pGkbFmUEgJ/S9LWfJ1CcD6PDQV6dVUeySuAbbmapwdH/dHPAG64Rljt/51b5L/d8InPTcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=vA7V/8Ot; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VSq0A46X; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=vA7V/8Ot; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VSq0A46X; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BwXwHyIP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760343434;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="vA7V/8Ot";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VSq0A46X";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="vA7V/8Ot";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VSq0A46X"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 5188521A1F;
+	Mon, 13 Oct 2025 08:43:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1760344997; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Iqj5d00jcHO4W9mBttRtSq9Cpy6KvXlw2OhtfpPjxks=;
-	b=BwXwHyIP2br3slqp5CZzPrLIlcQLDgejfA1rHpL1gsLU0aAbWs7luSXgQXD09a7hjbn4Ce
-	FazbZLvVxjiCR8KXMNdjtoRtZYXI29F04+2XABZ/Zp4QoAUZopM9JvX6BYEMBl2LdLXkyx
-	OvFx/JiZgc41i/zHDU27SwSIeV718R4=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-470-Il1Llf35Ml-A_TZ3RBX4HQ-1; Mon, 13 Oct 2025 04:17:11 -0400
-X-MC-Unique: Il1Llf35Ml-A_TZ3RBX4HQ-1
-X-Mimecast-MFC-AGG-ID: Il1Llf35Ml-A_TZ3RBX4HQ_1760343430
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3f030846a41so2783070f8f.2
-        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 01:17:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760343430; x=1760948230;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Iqj5d00jcHO4W9mBttRtSq9Cpy6KvXlw2OhtfpPjxks=;
-        b=H5c2hd6mJn5FNuQkPn/4kWh0JDBwrSw4nzMDbS/OnF3dmMgZbWdCS7GombI+g+EdYu
-         0XniAkpiVkKvHnMcmAJW4270ZDdgK2gmwCVLZyMKysObAQOQKnkmZR1OmKmV/HO1/DI5
-         PoHCZAtTJtFug7VuthBT9HSW8LrH78U8JNLI+ew/WDgEHE4LjHjJyyJZ0hzwRIXVrqwo
-         fzEdCuO6DXhzd1GAUKOP3LR3H9yIc/k+o7NSIrpANtrfOXTiGAfp+m9vWyhkX6v0DitZ
-         DE6CApGjS8tnItfYVcm2pS9g86glYhgSRMz8Zm9NXNNyOU2O/wT4SY/qV+0sdU7WYfte
-         wNYg==
-X-Forwarded-Encrypted: i=1; AJvYcCV/KX2X5jyYvqvBI8d1wrlcufQ/pYKmYDWUzGjzmpR0yTdFfeqhij10ypdbHD/wD6gVQglqHkdDB4ThWcbAdw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxUD3LSSBxkFkl95E9Pmzpd2bLQiQ4IdeJZ/TVaLW2mVht6lgDV
-	WFjU0iiFpBwm/EBzByQ+QLXDIzyb+yqz6uUht4TMo6FiaPFIXKdshA6bfEowDg6pL9MNeMgsyR2
-	yyDUE9w0BBH8FGLW73RsY0EG8ENPfMWBj+hngfakZPng7jMnOqXBy3FwZ5E0qyIgNtnXU
-X-Gm-Gg: ASbGncul29DkOJvbCJG/orRS58fHQyb+/SHtlnw859oA6CK2pn/Q/m7mcjA+03R1p1j
-	sI8bourNUwig+nk8Q+/OfS5Z81Y8UaBgIPeskrEqRJ6QpqADk9BL+6wdrpzEOHM9qjHZ9jvMnI0
-	Uw4Sj3281L12NPxqmy4s1why1ui7nbDbX8CooxGoelyxWFNsDkODU1B/I7Wu5kInflK+aQZ8Ftd
-	fFXHqjFfUdMPHTSopSDeCCMgKVnZvCeU14YNmnPzdqoWhJu+dtCQrRMDByIJXJeRzAx0hTGlJ9e
-	dZfj1NSEpSUo9QVNpo5/WeRAlQ18KHXt7Z9tpOHG47CA
-X-Received: by 2002:a05:6000:4382:b0:3e8:94d3:765e with SMTP id ffacd0b85a97d-4266e8e6f33mr12096952f8f.61.1760343430205;
-        Mon, 13 Oct 2025 01:17:10 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEHNOu3j942TJx+SPp1N0vqDmsORYCRvGGBs28WUJxp2fKqfO/+R3TDIqKAKYVdaJfte8zuJQ==
-X-Received: by 2002:a05:6000:4382:b0:3e8:94d3:765e with SMTP id ffacd0b85a97d-4266e8e6f33mr12096930f8f.61.1760343429832;
-        Mon, 13 Oct 2025 01:17:09 -0700 (PDT)
-Received: from [192.168.0.115] ([212.105.153.201])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce5cfe69sm17326350f8f.32.2025.10.13.01.17.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Oct 2025 01:17:09 -0700 (PDT)
-Message-ID: <3480dcc9-a41a-4ae6-960d-4a13eed359e2@redhat.com>
-Date: Mon, 13 Oct 2025 10:17:05 +0200
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/hhxKPXPPy6qwB3GY9vvoug8ew8n09QYjYo2MzvPVE8=;
+	b=vA7V/8OtDhsLWLlv8377T5i3SB7FZ5onClNOjc9VpYFAJt5vIlnhisSnV9QVnVWt7A7eOT
+	lA+hLMQAlLDM1iBMttr/Wq/bpvgDQAW1Q1yje46I7vUn3fXNHZgOmii4e0W/P3mf3dJDMB
+	1JIJlzNA6NsbXnc64/evDr95xcTVaJk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1760344997;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/hhxKPXPPy6qwB3GY9vvoug8ew8n09QYjYo2MzvPVE8=;
+	b=VSq0A46XH363XbnOgX8YrapzYRCkd9yl9iteZMtfMVDfCjHioO7/LC9X1FCK+D4sfv9e/E
+	7ZlDcWZDb+zkhNAw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="vA7V/8Ot";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=VSq0A46X
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1760344997; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/hhxKPXPPy6qwB3GY9vvoug8ew8n09QYjYo2MzvPVE8=;
+	b=vA7V/8OtDhsLWLlv8377T5i3SB7FZ5onClNOjc9VpYFAJt5vIlnhisSnV9QVnVWt7A7eOT
+	lA+hLMQAlLDM1iBMttr/Wq/bpvgDQAW1Q1yje46I7vUn3fXNHZgOmii4e0W/P3mf3dJDMB
+	1JIJlzNA6NsbXnc64/evDr95xcTVaJk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1760344997;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/hhxKPXPPy6qwB3GY9vvoug8ew8n09QYjYo2MzvPVE8=;
+	b=VSq0A46XH363XbnOgX8YrapzYRCkd9yl9iteZMtfMVDfCjHioO7/LC9X1FCK+D4sfv9e/E
+	7ZlDcWZDb+zkhNAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id F02D613874;
+	Mon, 13 Oct 2025 08:43:16 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id ukEzOaS77Gj1PQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 13 Oct 2025 08:43:16 +0000
+Message-ID: <8fa40ad3-b848-4cf1-8515-7dbe05bb3136@suse.de>
+Date: Mon, 13 Oct 2025 10:43:16 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -73,65 +83,380 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [syzbot] [virt?] upstream test error: KMSAN: use-after-free in
- vring_map_one_sg
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
- syzbot <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com>,
- eperezma@redhat.com, linux-kernel@vger.kernel.org,
- syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
- xuanzhuo@linux.alibaba.com
-References: <68e96ebf.050a0220.91a22.0177.GAE@google.com>
- <CACGkMEtnrayDWKFdJ1P22QyCrZuDK0C2LihhOtvhUyTOKSp_HQ@mail.gmail.com>
- <CACGkMEt0aJh1yAj+q1UNnXToLa_yGc9fT_HfeNptHsOQ7vXG+w@mail.gmail.com>
- <CACGkMEsh_j9wCAv-LwOVxLjvUzEuKuu+7ZGMGcdJr7ettdBYTQ@mail.gmail.com>
- <0f20cd6a-d9aa-4837-a120-1e2e7dbdc954@redhat.com>
- <20251013040810-mutt-send-email-mst@kernel.org>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20251013040810-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Apm_K238Ttxykoo9oDLRqQoq0DX721QCdAJnWT7CjVs_1760343430
-X-Mimecast-Originator: redhat.com
+Subject: Re: [PATCH] drm/virtgpu: Use vblank timer
+To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
+ "airlied@redhat.com" <airlied@redhat.com>,
+ "kraxel@redhat.com" <kraxel@redhat.com>,
+ "dmitry.osipenko@collabora.com" <dmitry.osipenko@collabora.com>,
+ "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
+ "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
+ "mripard@kernel.org" <mripard@kernel.org>,
+ "airlied@gmail.com" <airlied@gmail.com>, "simona@ffwll.ch" <simona@ffwll.ch>
+Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
+References: <20251008130701.246988-1-tzimmermann@suse.de>
+ <IA0PR11MB7185D91EB0CD01FD63D21AA7F8EEA@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <dd80279d-5469-42db-bfa0-7b9ee3323bc9@suse.de>
+ <IA0PR11MB71850152C033B443032AA519F8EFA@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <76e2a961-1d3a-411f-9cb3-625be048f4da@suse.de>
+ <CH3PR11MB7177EED8239AEBF875AA3389F8EAA@CH3PR11MB7177.namprd11.prod.outlook.com>
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <CH3PR11MB7177EED8239AEBF875AA3389F8EAA@CH3PR11MB7177.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: 5188521A1F
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_TO(0.00)[intel.com,redhat.com,collabora.com,chromium.org,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_DN_EQ_ADDR_SOME(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[11];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[outlook.com:url,suse.de:dkim,suse.de:mid,suse.de:email]
+X-Spam-Score: -4.51
 
-On 10/13/25 10:08 AM, Michael S. Tsirkin wrote:
-> On Mon, Oct 13, 2025 at 09:37:29AM +0200, Paolo Abeni wrote:
->> On 10/13/25 9:20 AM, Jason Wang wrote:
->>> On Mon, Oct 13, 2025 at 1:29 PM Jason Wang <jasowang@redhat.com> wrote:
->>>> On Sat, Oct 11, 2025 at 3:40 PM Jason Wang <jasowang@redhat.com> wrote:
->>>>>
->>>>> #syz test
->>>>>
->>>>> On Sat, Oct 11, 2025 at 4:38 AM syzbot
->>>>> <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com> wrote:
->>>>
->>>> Paolo, it looks like the GSO tunnel features will leave uninitialized
->>>> vnet header field which trigger KMSAN warning.
->>>>
->>>> Please have a look at the patch (which has been tested by syzbot) or
->>>> propose another one.
->>>
->>> Forget the attachment.
+Hi
+
+Am 13.10.25 um 09:14 schrieb Kasireddy, Vivek:
+> Hi Thomas,
+>
+>> Subject: Re: [PATCH] drm/virtgpu: Use vblank timer
 >>
->> I have a few questions. The report mentions both UaF and uninit; the
->> patch addresses "just" the uninit access. It's not clear to me if and
->> how the UaF is addressed, and why/if it's related to the uninit access.
-> 
-> I'd like to understand that, too.
+>> Hi
+>>
+>> Am 10.10.25 um 06:25 schrieb Kasireddy, Vivek:
+>> [...]
+>>>> Because virtgpu did not initialize vblanking, DRM always sent out a
+>>>> vblank event after the completed commit. [5] It's not synchronized to
+>>>> the display output. This means that virtgpu has always been subject to
+>>>> tearing and the guest always required to hold buffers until the host
+>>>> completed its display update. IOW adding vblank timers into the mix
+>>>> should not change the behavior of virtgpu. It just limits the output
+>>> As I mentioned, the output or display update frequency is already limited
+>>> when blob=true, so adding a vblank timer would be redundant in this case.
+>> To summarize my understanding: virtgpu currently generates vblank events
+>> as soon as if finished updating the display. Which can be too fast for
+>> blob=false. For blob=true, the display update is (reasonably assumed to
+>> be) synchronized with the host update and thereby rate limited by the
+>> host's display output.
+> Yeah, that is mostly correct.
+>
+>> Adding the vblank timer: For blob=true, if a vblank timeout happens
+>> during an ongoing display update, it does not send an event. If the
+>> display update finishes before the vblank times out, it arms the vblank
+>> event and the next vblank timeout will send it out. The vblank timer
+>> thereby makes events appear at regular intervals instead of ASAP.
+>>
+>> So why add the complexity of handling blob=true separately when it
+>> should integrate well with the existing vblank framework?
+> There are a few reasons for this:
+> - When blob=true, the most important goal is to prevent tearing (i.e, to
+> ensure that Guest VM and Host are not accessing the Guest's FB
+> simultaneously). As explained previously, just ensuring that this goal
+> is met will automatically result in rate limited updates that are in
+> sync with the Host compositor's repaint cycle (if using Gtk UI).
+> So, given this, adding a vblank timer would not help in this case and
+> instead would lead to updates that are no longer in sync with the
+> Host compositor's repaint cycle.
 
-Somewhat related: the syzbot dashboard reports that the issue is no more
-reproducible on plain Linus' tree:
+No that's not the case. With the vblank timer, the output on the host is 
+still synced to the host's repaint cycle. The guest's compositor still 
+waits for it to finish before updating its own output.
 
-https://syzkaller.appspot.com/bug?extid=ac856b8b866cca41352c
+>
+> - Qemu (and Qemu UI) also works with virtio-gpu driver that is part of
+> Windows VMs where a vblank timer may or may not be available. So,
+> it is easier to support this case by having a UI timer/repaint cb and
+> making the Guest VM just wait until the update (or resource flush) is
+> completed to ensure synchronization and rate limited updates.
 
-"""
-* repros no longer work on HEAD.
-"""
+Nothing in this patch affects the Windows driver. We're not going to 
+remove or modify the host's repaint code.
 
-Possibly there was some external problem?
+>
+> - Even if a vblank timer is available for a Guest VM (Windows or Linux)
+> its frequency may not match the UI update frequency, so there might
+> either be wasteful updates or too few updates. For example, if the
+> Host's rate is 30 FPS, but the Guest VM's vblank timer is running at
+> 60 FPS, then roughly 30 frames would not be displayed each cycle IIUC.
 
-/P
+If the host currently updates with only 30 Hz, it already does not show 
+those additional 30 frames.
+
+The userspace compositor only sends the next frame when the current 
+frame has been completed; as signalled by the vblank event. That vblank 
+event only happens after the previous display update completed. (It 
+should have rather been called page-flip event instead.) If the host 
+only updates at 30 Hz, there are currently at most 30 such events per 
+second.  If we add a vblank timer, it'll fire at the guest display 
+refresh rate (say 60 Hz), but only send these events when the previous 
+update has been completed; which is 30 Hz.
+
+>
+>> Please also note that it's not just about compositors. DRM's fbcon
+>> synchronizes its output to the vblank period. If no vblank is supported,
+>> it'll happily fire out display updates ASAP even for blob=true.
+> IIUC, the fbcon updates would still be rate limited in the blob=true
+> case as the vblank event would only be sent out after the atomic/plane
+> update is finished right?
+
+That's not the case. The DRM fbcon/fbdev code waits for a vblank 
+timeout/interrust to occur [1]  but does NOT wait for the vblank event. 
+To do so, it enables vblanks interrupts, waits for one to occur and then 
+continues. [2] If the driver does not support vblank interrupts, it 
+continues right away without waiting. [3]  The fbcon/fbdev support only 
+uses a single buffer object for a its output. Hence this is where you 
+actually get tearing even with blob=true. None of this can be changed 
+much because of the way fbdev works.
+
+
+[1] 
+https://gitlab.freedesktop.org/drm/misc/kernel/-/blob/drm-misc-next-2025-10-02/drivers/gpu/drm/drm_fb_helper.c?ref_type=tags#L372
+[2] 
+https://gitlab.freedesktop.org/drm/misc/kernel/-/blob/drm-misc-next-2025-10-02/drivers/gpu/drm/drm_client_modeset.c?ref_type=tags#L1322
+[3] 
+https://gitlab.freedesktop.org/drm/misc/kernel/-/blob/drm-misc-next-2025-10-02/drivers/gpu/drm/drm_vblank.c?ref_type=tags#L1215
+
+Best regards
+Thomas
+
+>
+> Thanks,
+> Vivek
+>
+>> Best regards
+>> Thomas
+>>
+>>> Note that blob=true is a performance optimization where we create a
+>>> dmabuf (on the Host) backed by Guest FB's memory that is shared with the
+>>> UI layer. And, AFAIK, the only case where virtio-gpu updates are not limited
+>>> is when blob=false. Even in this case, there would be no tearing issues seen
+>>> because the Guest is made to wait until the Host makes a copy of its FB.
+>>>
+>>>> frequency. If GNOME's pageflip is synchronized to the vblank, it should
+>>>> immediately benefit.
+>>>>
+>>>> The GTK repaint callback is an interface for applications. How does it
+>>>> affect, or is affected by, any of this?
+>>> So, virtio-gpu is almost always coupled with a UI (on the Host) in order
+>>> to display the Guest's desktop content (fbcon and compositor's FB data)
+>>> on the Host locally (Gtk, SDL, etc) or streamed to a remote system (Spice,
+>>> Vnc, etc). And, the rate at which the UI updates are submitted (to the
+>>> Host compositor for local UIs) is controlled by the UI timer.
+>>>
+>>> However, in the case of Qemu Gtk UI, the UI timer is used as a backup
+>>> as we mostly rely on the repaint callback to figure out when to submit
+>>> updates. This is because the repaint callback is a more reliable mechanism
+>>> to determine when it is appropriate to submit an update to the Host
+>>> compositor.
+>>>
+>>> And, until the UI's update is not submitted (and executed by the Host
+>>> GPU and signaled via an EGL fence), the Guest's update fence is not
+>>> signaled. We can reliably achieve 60 FPS this way (assuming the Host's
+>>> refresh rate is 60) for Guest's display updates.
+>>>
+>>> Thanks,
+>>> Vivek
+>>>
+>>>> [5]
+>>>>
+>> https://elixir.bootlin.com/linux/v6.17.1/source/drivers/gpu/drm/drm_atomi
+>>>> c_helper.c#L2606
+>>>>
+>>>> Best regards
+>>>> Thomas
+>>>>
+>>>>> I am not sure how this would affect virgl use-cases but Dmitry can help
+>>>> explain if
+>>>>> the vblank timer would be useful there or not.
+>>>>>
+>>>>> Thanks,
+>>>>> Vivek
+>>>>>
+>>>>>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>>>>>> Link: https://lore.kernel.org/dri-
+>>>>>>
+>> devel/SN6PR02MB415702B00D6D52B0EE962C98D46CA@SN6PR02MB4157.n
+>>>>>> amprd02.prod.outlook.com/ # [1]
+>>>>>> ---
+>>>>>>     drivers/gpu/drm/virtio/virtgpu_display.c | 29
+>>>> ++++++++++++++++++++++--
+>>>>>>     1 file changed, 27 insertions(+), 2 deletions(-)
+>>>>>>
+>>>>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c
+>>>>>> b/drivers/gpu/drm/virtio/virtgpu_display.c
+>>>>>> index c3315935d8bc..ee134e46eeba 100644
+>>>>>> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+>>>>>> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+>>>>>> @@ -32,6 +32,8 @@
+>>>>>>     #include <drm/drm_gem_framebuffer_helper.h>
+>>>>>>     #include <drm/drm_probe_helper.h>
+>>>>>>     #include <drm/drm_simple_kms_helper.h>
+>>>>>> +#include <drm/drm_vblank.h>
+>>>>>> +#include <drm/drm_vblank_helper.h>
+>>>>>>
+>>>>>>     #include "virtgpu_drv.h"
+>>>>>>
+>>>>>> @@ -55,6 +57,7 @@ static const struct drm_crtc_funcs
+>>>> virtio_gpu_crtc_funcs
+>>>>>> = {
+>>>>>>     	.reset                  = drm_atomic_helper_crtc_reset,
+>>>>>>     	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
+>>>>>>     	.atomic_destroy_state   = drm_atomic_helper_crtc_destroy_state,
+>>>>>> +	DRM_CRTC_VBLANK_TIMER_FUNCS,
+>>>>>>     };
+>>>>>>
+>>>>>>     static const struct drm_framebuffer_funcs virtio_gpu_fb_funcs = {
+>>>>>> @@ -99,6 +102,7 @@ static void virtio_gpu_crtc_mode_set_nofb(struct
+>>>>>> drm_crtc *crtc)
+>>>>>>     static void virtio_gpu_crtc_atomic_enable(struct drm_crtc *crtc,
+>>>>>>     					  struct drm_atomic_state *state)
+>>>>>>     {
+>>>>>> +	drm_crtc_vblank_on(crtc);
+>>>>>>     }
+>>>>>>
+>>>>>>     static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
+>>>>>> @@ -108,6 +112,8 @@ static void virtio_gpu_crtc_atomic_disable(struct
+>>>>>> drm_crtc *crtc,
+>>>>>>     	struct virtio_gpu_device *vgdev = dev->dev_private;
+>>>>>>     	struct virtio_gpu_output *output =
+>>>>>> drm_crtc_to_virtio_gpu_output(crtc);
+>>>>>>
+>>>>>> +	drm_crtc_vblank_off(crtc);
+>>>>>> +
+>>>>>>     	virtio_gpu_cmd_set_scanout(vgdev, output->index, 0, 0, 0, 0, 0);
+>>>>>>     	virtio_gpu_notify(vgdev);
+>>>>>>     }
+>>>>>> @@ -121,9 +127,10 @@ static int virtio_gpu_crtc_atomic_check(struct
+>>>>>> drm_crtc *crtc,
+>>>>>>     static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
+>>>>>>     					 struct drm_atomic_state *state)
+>>>>>>     {
+>>>>>> -	struct drm_crtc_state *crtc_state =
+>>>>>> drm_atomic_get_new_crtc_state(state,
+>>>>>> -									  crtc);
+>>>>>> +	struct drm_device *dev = crtc->dev;
+>>>>>> +	struct drm_crtc_state *crtc_state =
+>>>>>> drm_atomic_get_new_crtc_state(state, crtc);
+>>>>>>     	struct virtio_gpu_output *output =
+>>>>>> drm_crtc_to_virtio_gpu_output(crtc);
+>>>>>> +	struct drm_pending_vblank_event *event;
+>>>>>>
+>>>>>>     	/*
+>>>>>>     	 * virtio-gpu can't do modeset and plane update operations
+>>>>>> @@ -133,6 +140,20 @@ static void virtio_gpu_crtc_atomic_flush(struct
+>>>>>> drm_crtc *crtc,
+>>>>>>     	 */
+>>>>>>     	if (drm_atomic_crtc_needs_modeset(crtc_state))
+>>>>>>     		output->needs_modeset = true;
+>>>>>> +
+>>>>>> +	spin_lock_irq(&dev->event_lock);
+>>>>>> +
+>>>>>> +	event = crtc_state->event;
+>>>>>> +	crtc_state->event = NULL;
+>>>>>> +
+>>>>>> +	if (event) {
+>>>>>> +		if (drm_crtc_vblank_get(crtc) == 0)
+>>>>>> +			drm_crtc_arm_vblank_event(crtc, event);
+>>>>>> +		else
+>>>>>> +			drm_crtc_send_vblank_event(crtc, event);
+>>>>>> +	}
+>>>>>> +
+>>>>>> +	spin_unlock_irq(&dev->event_lock);
+>>>>>>     }
+>>>>>>
+>>>>>>     static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs
+>>>> = {
+>>>>>> @@ -356,6 +377,10 @@ int virtio_gpu_modeset_init(struct
+>>>> virtio_gpu_device
+>>>>>> *vgdev)
+>>>>>>     	for (i = 0 ; i < vgdev->num_scanouts; ++i)
+>>>>>>     		vgdev_output_init(vgdev, i);
+>>>>>>
+>>>>>> +	ret = drm_vblank_init(vgdev->ddev, vgdev->num_scanouts);
+>>>>>> +	if (ret)
+>>>>>> +		return ret;
+>>>>>> +
+>>>>>>     	drm_mode_config_reset(vgdev->ddev);
+>>>>>>     	return 0;
+>>>>>>     }
+>>>>>> --
+>>>>>> 2.51.0
+>>>>>>
+>>>> --
+>>>> --
+>>>> Thomas Zimmermann
+>>>> Graphics Driver Developer
+>>>> SUSE Software Solutions Germany GmbH
+>>>> Frankenstrasse 146, 90461 Nuernberg, Germany
+>>>> GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+>>>> HRB 36809 (AG Nuernberg)
+>>>>
+>> --
+>> --
+>> Thomas Zimmermann
+>> Graphics Driver Developer
+>> SUSE Software Solutions Germany GmbH
+>> Frankenstrasse 146, 90461 Nuernberg, Germany
+>> GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+>> HRB 36809 (AG Nuernberg)
+>>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
 
 
