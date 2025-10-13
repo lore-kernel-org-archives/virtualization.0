@@ -1,462 +1,122 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F2AC2F7459
-	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 08:43:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C16225A65A;
+	Mon, 13 Oct 2025 08:52:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760345001; cv=none; b=OLrifFxGUY3ZokK+ucxp2V6xqSNDuoYn8wfO6CaUtHQqft6aXLe4ly83shJj6ngG5yjl9U9yNRLSzS8RM/0b+HLMF9zyrZPg4MXPaU9Ktf9ZbwbAD8deSUwhhI9g4j8SD00OF41CEVZBGS+JXGUkPR+KsV7begb4xCvJawNsRwQ=
+	t=1760345525; cv=none; b=C4XYXhCWRoOMpNcfWHYFol6PnFRFuho+2sEsUDQCsOM7OBwfbGuUcy6NN+Q0BhCb00VLS7ixht/g3tmOqx6pZJgX/iGCm+Jog44GsYzC0hJlFH5nqgys3yVPPa8CyL4zvLzBOscseYY09miELxoHK4/3bpJEWnz3kT97CpJZYzw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760345001; c=relaxed/simple;
-	bh=06Rm+AlFXXXCAphTs74cdxlu0DoJpC3bVRTLGxTebdc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=o8GYv/93MoK6ArCxJD4SM+FI/0Nh8DeTbgrRIGhJ+1923jY4jC1XJFeuAartUzirAPKNpLCAtb3FcwvspyZFhaStozHhb6yA4b1x1pGkbFmUEgJ/S9LWfJ1CcD6PDQV6dVUeySuAbbmapwdH/dHPAG64Rljt/51b5L/d8InPTcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=vA7V/8Ot; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VSq0A46X; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=vA7V/8Ot; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VSq0A46X; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1760345525; c=relaxed/simple;
+	bh=D0Pm5gDAEf/J/fLMJeYhII2rupxN55IU1PVARShdLz8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=rfM1wRomOUfd+XYcPqYCWIB0APG5z7CRIlW/9u7tcd7H8jNFwzjOVf7fe/0Zdj+ns6UPjn7Btwpr7naShEeTX34O6XSxdvMhNLevwN1GIOT198EOBVDObxX4cWtBuaSeLbEsRoqKNrZgbXrdYDEmnSEiz2aJmTdeBenK9R8hT4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=BQoGMpil; arc=none smtp.client-ip=210.118.77.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="vA7V/8Ot";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VSq0A46X";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="vA7V/8Ot";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VSq0A46X"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 5188521A1F;
-	Mon, 13 Oct 2025 08:43:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1760344997; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=/hhxKPXPPy6qwB3GY9vvoug8ew8n09QYjYo2MzvPVE8=;
-	b=vA7V/8OtDhsLWLlv8377T5i3SB7FZ5onClNOjc9VpYFAJt5vIlnhisSnV9QVnVWt7A7eOT
-	lA+hLMQAlLDM1iBMttr/Wq/bpvgDQAW1Q1yje46I7vUn3fXNHZgOmii4e0W/P3mf3dJDMB
-	1JIJlzNA6NsbXnc64/evDr95xcTVaJk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1760344997;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=/hhxKPXPPy6qwB3GY9vvoug8ew8n09QYjYo2MzvPVE8=;
-	b=VSq0A46XH363XbnOgX8YrapzYRCkd9yl9iteZMtfMVDfCjHioO7/LC9X1FCK+D4sfv9e/E
-	7ZlDcWZDb+zkhNAw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="vA7V/8Ot";
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=VSq0A46X
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1760344997; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=/hhxKPXPPy6qwB3GY9vvoug8ew8n09QYjYo2MzvPVE8=;
-	b=vA7V/8OtDhsLWLlv8377T5i3SB7FZ5onClNOjc9VpYFAJt5vIlnhisSnV9QVnVWt7A7eOT
-	lA+hLMQAlLDM1iBMttr/Wq/bpvgDQAW1Q1yje46I7vUn3fXNHZgOmii4e0W/P3mf3dJDMB
-	1JIJlzNA6NsbXnc64/evDr95xcTVaJk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1760344997;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=/hhxKPXPPy6qwB3GY9vvoug8ew8n09QYjYo2MzvPVE8=;
-	b=VSq0A46XH363XbnOgX8YrapzYRCkd9yl9iteZMtfMVDfCjHioO7/LC9X1FCK+D4sfv9e/E
-	7ZlDcWZDb+zkhNAw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id F02D613874;
-	Mon, 13 Oct 2025 08:43:16 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id ukEzOaS77Gj1PQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 13 Oct 2025 08:43:16 +0000
-Message-ID: <8fa40ad3-b848-4cf1-8515-7dbe05bb3136@suse.de>
-Date: Mon, 13 Oct 2025 10:43:16 +0200
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="BQoGMpil"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20251013085200euoutp0266e34edf90c863a4c01eb72fc5c48eb3~uAOyYTX0q1874618746euoutp02G;
+	Mon, 13 Oct 2025 08:52:00 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20251013085200euoutp0266e34edf90c863a4c01eb72fc5c48eb3~uAOyYTX0q1874618746euoutp02G
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1760345520;
+	bh=JyDd/uFH2Am1LZ5SPDN+k8UExukF9D/xq2Z7HY8ZnFU=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=BQoGMpilRJCUe8Y44BcqjJWkeRiS+JPfur3kcgk/2YoTAS+ViVlUzaRYX89zuEjDq
+	 wkZ//2bWyV40qfk9fRhKG5W52cbl/HFo0RcqE6+fae76UZ4N7VyDdV6dd9ILg/D8OP
+	 faJI0JVLj/Gc3HQk8b0emDKXb80ilcDcD66u6PCM=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20251013085200eucas1p2f4ded79121c5a222f59ecf4ddda0816c~uAOx-fHcX0880708807eucas1p26;
+	Mon, 13 Oct 2025 08:52:00 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20251013085157eusmtip27fccd916a2ad4442a7f4d1fa1f91c70b~uAOvsyZiW2933229332eusmtip2d;
+	Mon, 13 Oct 2025 08:51:57 +0000 (GMT)
+Message-ID: <e1d3661d-26ba-49ae-a124-dc5233c9107d@samsung.com>
+Date: Mon, 13 Oct 2025 10:51:57 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtgpu: Use vblank timer
-To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
- "airlied@redhat.com" <airlied@redhat.com>,
- "kraxel@redhat.com" <kraxel@redhat.com>,
- "dmitry.osipenko@collabora.com" <dmitry.osipenko@collabora.com>,
- "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
- "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
- "mripard@kernel.org" <mripard@kernel.org>,
- "airlied@gmail.com" <airlied@gmail.com>, "simona@ffwll.ch" <simona@ffwll.ch>
-Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-References: <20251008130701.246988-1-tzimmermann@suse.de>
- <IA0PR11MB7185D91EB0CD01FD63D21AA7F8EEA@IA0PR11MB7185.namprd11.prod.outlook.com>
- <dd80279d-5469-42db-bfa0-7b9ee3323bc9@suse.de>
- <IA0PR11MB71850152C033B443032AA519F8EFA@IA0PR11MB7185.namprd11.prod.outlook.com>
- <76e2a961-1d3a-411f-9cb3-625be048f4da@suse.de>
- <CH3PR11MB7177EED8239AEBF875AA3389F8EAA@CH3PR11MB7177.namprd11.prod.outlook.com>
+User-Agent: Betterbird (Windows)
+Subject: Re: [PATCH v1 3/6] iommu/exynos-iommu: Set release_domain to
+ exynos_identity_domain
+To: Nicolin Chen <nicolinc@nvidia.com>, joro@8bytes.org, jgg@nvidia.com,
+	kevin.tian@intel.com
+Cc: suravee.suthikulpanit@amd.com, will@kernel.org, robin.murphy@arm.com,
+	sven@kernel.org, j@jannau.net, robin.clark@oss.qualcomm.com,
+	krzk@kernel.org, dwmw2@infradead.org, baolu.lu@linux.intel.com,
+	yong.wu@mediatek.com, matthias.bgg@gmail.com,
+	angelogioacchino.delregno@collabora.com, tjeznach@rivosinc.com,
+	pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, heiko@sntech.de,
+	schnelle@linux.ibm.com, mjrosato@linux.ibm.com, orsonzhai@gmail.com,
+	baolin.wang@linux.alibaba.com, wens@csie.org, jernej.skrabec@gmail.com,
+	samuel@sholland.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
+	jean-philippe@linaro.org, iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
+	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
+	patches@lists.linux.dev
 Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <CH3PR11MB7177EED8239AEBF875AA3389F8EAA@CH3PR11MB7177.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: 5188521A1F
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_TO(0.00)[intel.com,redhat.com,collabora.com,chromium.org,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_DN_EQ_ADDR_SOME(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[11];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[outlook.com:url,suse.de:dkim,suse.de:mid,suse.de:email]
-X-Spam-Score: -4.51
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <56175bec385d24af9eb2a38632e1d6ce889025e3.1760312540.git.nicolinc@nvidia.com>
+Content-Transfer-Encoding: 7bit
+X-CMS-MailID: 20251013085200eucas1p2f4ded79121c5a222f59ecf4ddda0816c
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20251012235812eucas1p1209a75bffb5a4784955781d437746731
+X-EPHeader: CA
+X-CMS-RootMailID: 20251012235812eucas1p1209a75bffb5a4784955781d437746731
+References: <cover.1760312540.git.nicolinc@nvidia.com>
+	<CGME20251012235812eucas1p1209a75bffb5a4784955781d437746731@eucas1p1.samsung.com>
+	<56175bec385d24af9eb2a38632e1d6ce889025e3.1760312540.git.nicolinc@nvidia.com>
 
-Hi
-
-Am 13.10.25 um 09:14 schrieb Kasireddy, Vivek:
-> Hi Thomas,
+On 13.10.2025 01:57, Nicolin Chen wrote:
+> Following a coming core change to pass in the old domain pointer into the
+> attach_dev op and its callbacks, exynos_iommu_identity_attach() will need
+> this new argument too, which the release_device op doesn't provide.
 >
->> Subject: Re: [PATCH] drm/virtgpu: Use vblank timer
->>
->> Hi
->>
->> Am 10.10.25 um 06:25 schrieb Kasireddy, Vivek:
->> [...]
->>>> Because virtgpu did not initialize vblanking, DRM always sent out a
->>>> vblank event after the completed commit. [5] It's not synchronized to
->>>> the display output. This means that virtgpu has always been subject to
->>>> tearing and the guest always required to hold buffers until the host
->>>> completed its display update. IOW adding vblank timers into the mix
->>>> should not change the behavior of virtgpu. It just limits the output
->>> As I mentioned, the output or display update frequency is already limited
->>> when blob=true, so adding a vblank timer would be redundant in this case.
->> To summarize my understanding: virtgpu currently generates vblank events
->> as soon as if finished updating the display. Which can be too fast for
->> blob=false. For blob=true, the display update is (reasonably assumed to
->> be) synchronized with the host update and thereby rate limited by the
->> host's display output.
-> Yeah, that is mostly correct.
+> Instead, the core provides a release_domain to attach to the device prior
+> to invoking the release_device callback. Thus, simply use that.
 >
->> Adding the vblank timer: For blob=true, if a vblank timeout happens
->> during an ongoing display update, it does not send an event. If the
->> display update finishes before the vblank times out, it arms the vblank
->> event and the next vblank timeout will send it out. The vblank timer
->> thereby makes events appear at regular intervals instead of ASAP.
->>
->> So why add the complexity of handling blob=true separately when it
->> should integrate well with the existing vblank framework?
-> There are a few reasons for this:
-> - When blob=true, the most important goal is to prevent tearing (i.e, to
-> ensure that Guest VM and Host are not accessing the Guest's FB
-> simultaneously). As explained previously, just ensuring that this goal
-> is met will automatically result in rate limited updates that are in
-> sync with the Host compositor's repaint cycle (if using Gtk UI).
-> So, given this, adding a vblank timer would not help in this case and
-> instead would lead to updates that are no longer in sync with the
-> Host compositor's repaint cycle.
-
-No that's not the case. With the vblank timer, the output on the host is 
-still synced to the host's repaint cycle. The guest's compositor still 
-waits for it to finish before updating its own output.
-
+> Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> ---
+>   drivers/iommu/exynos-iommu.c | 3 +--
+>   1 file changed, 1 insertion(+), 2 deletions(-)
 >
-> - Qemu (and Qemu UI) also works with virtio-gpu driver that is part of
-> Windows VMs where a vblank timer may or may not be available. So,
-> it is easier to support this case by having a UI timer/repaint cb and
-> making the Guest VM just wait until the update (or resource flush) is
-> completed to ensure synchronization and rate limited updates.
-
-Nothing in this patch affects the Windows driver. We're not going to 
-remove or modify the host's repaint code.
-
->
-> - Even if a vblank timer is available for a Guest VM (Windows or Linux)
-> its frequency may not match the UI update frequency, so there might
-> either be wasteful updates or too few updates. For example, if the
-> Host's rate is 30 FPS, but the Guest VM's vblank timer is running at
-> 60 FPS, then roughly 30 frames would not be displayed each cycle IIUC.
-
-If the host currently updates with only 30 Hz, it already does not show 
-those additional 30 frames.
-
-The userspace compositor only sends the next frame when the current 
-frame has been completed; as signalled by the vblank event. That vblank 
-event only happens after the previous display update completed. (It 
-should have rather been called page-flip event instead.) If the host 
-only updates at 30 Hz, there are currently at most 30 such events per 
-second.  If we add a vblank timer, it'll fire at the guest display 
-refresh rate (say 60 Hz), but only send these events when the previous 
-update has been completed; which is 30 Hz.
-
->
->> Please also note that it's not just about compositors. DRM's fbcon
->> synchronizes its output to the vblank period. If no vblank is supported,
->> it'll happily fire out display updates ASAP even for blob=true.
-> IIUC, the fbcon updates would still be rate limited in the blob=true
-> case as the vblank event would only be sent out after the atomic/plane
-> update is finished right?
-
-That's not the case. The DRM fbcon/fbdev code waits for a vblank 
-timeout/interrust to occur [1]  but does NOT wait for the vblank event. 
-To do so, it enables vblanks interrupts, waits for one to occur and then 
-continues. [2] If the driver does not support vblank interrupts, it 
-continues right away without waiting. [3]  The fbcon/fbdev support only 
-uses a single buffer object for a its output. Hence this is where you 
-actually get tearing even with blob=true. None of this can be changed 
-much because of the way fbdev works.
-
-
-[1] 
-https://gitlab.freedesktop.org/drm/misc/kernel/-/blob/drm-misc-next-2025-10-02/drivers/gpu/drm/drm_fb_helper.c?ref_type=tags#L372
-[2] 
-https://gitlab.freedesktop.org/drm/misc/kernel/-/blob/drm-misc-next-2025-10-02/drivers/gpu/drm/drm_client_modeset.c?ref_type=tags#L1322
-[3] 
-https://gitlab.freedesktop.org/drm/misc/kernel/-/blob/drm-misc-next-2025-10-02/drivers/gpu/drm/drm_vblank.c?ref_type=tags#L1215
+> diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+> index b6edd178fe25e..0857519ca7188 100644
+> --- a/drivers/iommu/exynos-iommu.c
+> +++ b/drivers/iommu/exynos-iommu.c
+> @@ -1429,8 +1429,6 @@ static void exynos_iommu_release_device(struct device *dev)
+>   	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
+>   	struct sysmmu_drvdata *data;
+>   
+> -	WARN_ON(exynos_iommu_identity_attach(&exynos_identity_domain, dev));
+> -
+>   	list_for_each_entry(data, &owner->controllers, owner_node)
+>   		device_link_del(data->link);
+>   }
+> @@ -1476,6 +1474,7 @@ static int exynos_iommu_of_xlate(struct device *dev,
+>   
+>   static const struct iommu_ops exynos_iommu_ops = {
+>   	.identity_domain = &exynos_identity_domain,
+> +	.release_domain = &exynos_identity_domain,
+>   	.domain_alloc_paging = exynos_iommu_domain_alloc_paging,
+>   	.device_group = generic_device_group,
+>   	.probe_device = exynos_iommu_probe_device,
 
 Best regards
-Thomas
-
->
-> Thanks,
-> Vivek
->
->> Best regards
->> Thomas
->>
->>> Note that blob=true is a performance optimization where we create a
->>> dmabuf (on the Host) backed by Guest FB's memory that is shared with the
->>> UI layer. And, AFAIK, the only case where virtio-gpu updates are not limited
->>> is when blob=false. Even in this case, there would be no tearing issues seen
->>> because the Guest is made to wait until the Host makes a copy of its FB.
->>>
->>>> frequency. If GNOME's pageflip is synchronized to the vblank, it should
->>>> immediately benefit.
->>>>
->>>> The GTK repaint callback is an interface for applications. How does it
->>>> affect, or is affected by, any of this?
->>> So, virtio-gpu is almost always coupled with a UI (on the Host) in order
->>> to display the Guest's desktop content (fbcon and compositor's FB data)
->>> on the Host locally (Gtk, SDL, etc) or streamed to a remote system (Spice,
->>> Vnc, etc). And, the rate at which the UI updates are submitted (to the
->>> Host compositor for local UIs) is controlled by the UI timer.
->>>
->>> However, in the case of Qemu Gtk UI, the UI timer is used as a backup
->>> as we mostly rely on the repaint callback to figure out when to submit
->>> updates. This is because the repaint callback is a more reliable mechanism
->>> to determine when it is appropriate to submit an update to the Host
->>> compositor.
->>>
->>> And, until the UI's update is not submitted (and executed by the Host
->>> GPU and signaled via an EGL fence), the Guest's update fence is not
->>> signaled. We can reliably achieve 60 FPS this way (assuming the Host's
->>> refresh rate is 60) for Guest's display updates.
->>>
->>> Thanks,
->>> Vivek
->>>
->>>> [5]
->>>>
->> https://elixir.bootlin.com/linux/v6.17.1/source/drivers/gpu/drm/drm_atomi
->>>> c_helper.c#L2606
->>>>
->>>> Best regards
->>>> Thomas
->>>>
->>>>> I am not sure how this would affect virgl use-cases but Dmitry can help
->>>> explain if
->>>>> the vblank timer would be useful there or not.
->>>>>
->>>>> Thanks,
->>>>> Vivek
->>>>>
->>>>>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->>>>>> Link: https://lore.kernel.org/dri-
->>>>>>
->> devel/SN6PR02MB415702B00D6D52B0EE962C98D46CA@SN6PR02MB4157.n
->>>>>> amprd02.prod.outlook.com/ # [1]
->>>>>> ---
->>>>>>     drivers/gpu/drm/virtio/virtgpu_display.c | 29
->>>> ++++++++++++++++++++++--
->>>>>>     1 file changed, 27 insertions(+), 2 deletions(-)
->>>>>>
->>>>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c
->>>>>> b/drivers/gpu/drm/virtio/virtgpu_display.c
->>>>>> index c3315935d8bc..ee134e46eeba 100644
->>>>>> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
->>>>>> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
->>>>>> @@ -32,6 +32,8 @@
->>>>>>     #include <drm/drm_gem_framebuffer_helper.h>
->>>>>>     #include <drm/drm_probe_helper.h>
->>>>>>     #include <drm/drm_simple_kms_helper.h>
->>>>>> +#include <drm/drm_vblank.h>
->>>>>> +#include <drm/drm_vblank_helper.h>
->>>>>>
->>>>>>     #include "virtgpu_drv.h"
->>>>>>
->>>>>> @@ -55,6 +57,7 @@ static const struct drm_crtc_funcs
->>>> virtio_gpu_crtc_funcs
->>>>>> = {
->>>>>>     	.reset                  = drm_atomic_helper_crtc_reset,
->>>>>>     	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
->>>>>>     	.atomic_destroy_state   = drm_atomic_helper_crtc_destroy_state,
->>>>>> +	DRM_CRTC_VBLANK_TIMER_FUNCS,
->>>>>>     };
->>>>>>
->>>>>>     static const struct drm_framebuffer_funcs virtio_gpu_fb_funcs = {
->>>>>> @@ -99,6 +102,7 @@ static void virtio_gpu_crtc_mode_set_nofb(struct
->>>>>> drm_crtc *crtc)
->>>>>>     static void virtio_gpu_crtc_atomic_enable(struct drm_crtc *crtc,
->>>>>>     					  struct drm_atomic_state *state)
->>>>>>     {
->>>>>> +	drm_crtc_vblank_on(crtc);
->>>>>>     }
->>>>>>
->>>>>>     static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
->>>>>> @@ -108,6 +112,8 @@ static void virtio_gpu_crtc_atomic_disable(struct
->>>>>> drm_crtc *crtc,
->>>>>>     	struct virtio_gpu_device *vgdev = dev->dev_private;
->>>>>>     	struct virtio_gpu_output *output =
->>>>>> drm_crtc_to_virtio_gpu_output(crtc);
->>>>>>
->>>>>> +	drm_crtc_vblank_off(crtc);
->>>>>> +
->>>>>>     	virtio_gpu_cmd_set_scanout(vgdev, output->index, 0, 0, 0, 0, 0);
->>>>>>     	virtio_gpu_notify(vgdev);
->>>>>>     }
->>>>>> @@ -121,9 +127,10 @@ static int virtio_gpu_crtc_atomic_check(struct
->>>>>> drm_crtc *crtc,
->>>>>>     static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
->>>>>>     					 struct drm_atomic_state *state)
->>>>>>     {
->>>>>> -	struct drm_crtc_state *crtc_state =
->>>>>> drm_atomic_get_new_crtc_state(state,
->>>>>> -									  crtc);
->>>>>> +	struct drm_device *dev = crtc->dev;
->>>>>> +	struct drm_crtc_state *crtc_state =
->>>>>> drm_atomic_get_new_crtc_state(state, crtc);
->>>>>>     	struct virtio_gpu_output *output =
->>>>>> drm_crtc_to_virtio_gpu_output(crtc);
->>>>>> +	struct drm_pending_vblank_event *event;
->>>>>>
->>>>>>     	/*
->>>>>>     	 * virtio-gpu can't do modeset and plane update operations
->>>>>> @@ -133,6 +140,20 @@ static void virtio_gpu_crtc_atomic_flush(struct
->>>>>> drm_crtc *crtc,
->>>>>>     	 */
->>>>>>     	if (drm_atomic_crtc_needs_modeset(crtc_state))
->>>>>>     		output->needs_modeset = true;
->>>>>> +
->>>>>> +	spin_lock_irq(&dev->event_lock);
->>>>>> +
->>>>>> +	event = crtc_state->event;
->>>>>> +	crtc_state->event = NULL;
->>>>>> +
->>>>>> +	if (event) {
->>>>>> +		if (drm_crtc_vblank_get(crtc) == 0)
->>>>>> +			drm_crtc_arm_vblank_event(crtc, event);
->>>>>> +		else
->>>>>> +			drm_crtc_send_vblank_event(crtc, event);
->>>>>> +	}
->>>>>> +
->>>>>> +	spin_unlock_irq(&dev->event_lock);
->>>>>>     }
->>>>>>
->>>>>>     static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs
->>>> = {
->>>>>> @@ -356,6 +377,10 @@ int virtio_gpu_modeset_init(struct
->>>> virtio_gpu_device
->>>>>> *vgdev)
->>>>>>     	for (i = 0 ; i < vgdev->num_scanouts; ++i)
->>>>>>     		vgdev_output_init(vgdev, i);
->>>>>>
->>>>>> +	ret = drm_vblank_init(vgdev->ddev, vgdev->num_scanouts);
->>>>>> +	if (ret)
->>>>>> +		return ret;
->>>>>> +
->>>>>>     	drm_mode_config_reset(vgdev->ddev);
->>>>>>     	return 0;
->>>>>>     }
->>>>>> --
->>>>>> 2.51.0
->>>>>>
->>>> --
->>>> --
->>>> Thomas Zimmermann
->>>> Graphics Driver Developer
->>>> SUSE Software Solutions Germany GmbH
->>>> Frankenstrasse 146, 90461 Nuernberg, Germany
->>>> GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
->>>> HRB 36809 (AG Nuernberg)
->>>>
->> --
->> --
->> Thomas Zimmermann
->> Graphics Driver Developer
->> SUSE Software Solutions Germany GmbH
->> Frankenstrasse 146, 90461 Nuernberg, Germany
->> GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
->> HRB 36809 (AG Nuernberg)
->>
-
 -- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
-
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
