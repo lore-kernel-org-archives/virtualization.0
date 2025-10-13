@@ -1,244 +1,125 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF2B42C234E
-	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 05:29:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40E302DEA6E
+	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 05:57:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760333383; cv=none; b=qlLQg4MVvFS/jAIF1gUxu0pDPYlh84/WJmCDDUN9pRVv7r3a3ugKt5DRNRz2XhvNf4tXl4kbIdSQDiHGsAPCJbxWh19mZQWU0CyjamaVg1i6oZ7Oty84veH2OEmsaS/Hl+nHVTB30cvA2Gx+bn9l3AivvpIDwBY5AElZRi8iRTs=
+	t=1760335036; cv=none; b=W5+zH4amiudJlTs4+9TjlQljbcngW22/7PUGp92ifzSppZ8xAULZUdzJF38UASdPstL/2yLpcBjWcPc50DuotgXzwnGqOB/JzFsxxVarKIFGgNysCVhWmEEJAyJbQMjw1rWeCKTr3rbLBbSufSBpe1q1peRwUpGXzHJ7hrwo1Zs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760333383; c=relaxed/simple;
-	bh=/SrM4iWBiCeTl/ERjU6eviZ9JjOQ6nLsu8UTiq9ILR4=;
+	s=arc-20240116; t=1760335036; c=relaxed/simple;
+	bh=GNr9HIVCO7ET2qTQE2UUyDNtrbTlpLvWSYXgJNwgEz8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tHjNdeebCImNXXYzg5MBover89+w2CUy/NR8WnmIjnejHqdQSjNS4V5IbcQSmLDjI1a9nWi0qQqrqXf+WqpKfFg0Jl+NIx+LbTH9OA0vmilUP5wlBrgiE5z0Zqp4yhvghXPnJykNHmNtMN1iz28YmDavhUG+lOlA4dZduHo8vYE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UMCD5NK8; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=ZcaUJkTjL1ecYdRGCT4D6/5NY8PfK54Qzg7XpXfvxVtxMLtpS3BTGf1MZuF+dQIpnXP7eLPguXXqv1pyulD7aXFJAcK4LYE5F4Y2qS5gejU11IziQKhawzwEe2NEVIMBzmmb0ikgB+Xh7ESbuoXkLK9Qz84yvDuaq4RuwXz0cpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SBx0NxsD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UMCD5NK8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SBx0NxsD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760333380;
+	s=mimecast20190719; t=1760335033;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Kqo2ykAZEDr50CemvTt+UXIbTlPmHW0pXfnI+jeELFQ=;
-	b=UMCD5NK8SaqaCa/hQuBE0s1WL5IPS2vJv1Ap72DD3adX5C+Ak+r3ejvLl5efQyBsBLTdMJ
-	AhwvtTmvpMX18QHsSsY12breY/UhfbfF1H/1xy91lnTWS4bue8/RV7xZyVx39bDDEbmj6S
-	rafsumI7V2HXWj9wfjrJh3i5uv4o1Ts=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=rTBbY4ERQzfsiR/UCEXfoNcgIIzJ1jIibSchJTMZ+g0=;
+	b=SBx0NxsD7GTa7x3T9zHXsOLho8lL3DQxEQFpuGu0V+nC5Cwm4fGj1c0NQGTrOtXNbRMl/x
+	oMYMZuxq6H06yYNGXmi4F32dkLQgu3t1HKZJ6Jc2AjHSKOZxCnnKgZudiMFC7GL+KnxVrT
+	xY+CZijVXjGp1YGIjbb+wnR4BRgkdOg=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-209-Nk4jvbKGNby-cQjSkFv1pQ-1; Mon, 13 Oct 2025 01:29:39 -0400
-X-MC-Unique: Nk4jvbKGNby-cQjSkFv1pQ-1
-X-Mimecast-MFC-AGG-ID: Nk4jvbKGNby-cQjSkFv1pQ_1760333378
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-33428befc5bso9870052a91.0
-        for <virtualization@lists.linux.dev>; Sun, 12 Oct 2025 22:29:39 -0700 (PDT)
+ us-mta-685-dz9RlivtMFuRAwg7CKngxg-1; Mon, 13 Oct 2025 01:57:11 -0400
+X-MC-Unique: dz9RlivtMFuRAwg7CKngxg-1
+X-Mimecast-MFC-AGG-ID: dz9RlivtMFuRAwg7CKngxg_1760335031
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-3307af9b595so7722679a91.0
+        for <virtualization@lists.linux.dev>; Sun, 12 Oct 2025 22:57:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760333378; x=1760938178;
+        d=1e100.net; s=20230601; t=1760335030; x=1760939830;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Kqo2ykAZEDr50CemvTt+UXIbTlPmHW0pXfnI+jeELFQ=;
-        b=d94trAEX8kps1VEEtcI0LYWGfZThACVIl82A/Sxx3IpKu3/SffkU2x6OLUo/kcqXfN
-         fcktKMzwjxC1mFof4yHPdNRwFo2rpeiYGRtg2CAYBV0fDUlOVU492x0ByT3WZR9iqUT0
-         50K/jPp0B4hCqXCQs8o0IO9KH+/l89/759qhobfGUmtslOQmUDbHuBzxaNA8ig2qYYL2
-         Yrsc3Lqi1LpE7CWJSZ7xdK9fiy7NYdPqhX+Lgjvb95lv4Bh2Ci+u5ChwK+bOHzo/0paN
-         uspiyEWUMCtO+CbApWFBZi1zm5vxUqNkVPyLVbrKVySyvceoMHrq3TQdBSZIKgPAkm8a
-         AHOg==
-X-Forwarded-Encrypted: i=1; AJvYcCWJ4PB2pu+IXSx9abE8mdh7y3wtfzAXqJEeAD4KgkAfWFMYXDWX2kWyv/0XU7zPHNwAcZTE6rJCB/ttqTMldw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwF3Wb5AbkxESKP8xye7eOj7DBv2a/4e9EqHnxNp1tYQUjJWJQY
-	t/FG/lI9EdW5mrQYrlklbKot4J1hJ2cdbPdanFTS7BQgG8MD+PMxiGd6IwhhxVIpJ+2P0PpNhv3
-	PMHguLeJxaLDRa/cWR0qfwhmH04GfyJAKd5xsirRAWj7NP/EE8huw14BtWU1k+Zqm2m6ha7Tlld
-	x9G34xZkFjoSg+BRj3pvq6+DDes081KRVLQYsCeL0RhiM=
-X-Gm-Gg: ASbGncurKZKbMl0TlqPef8O01wtsglSKsXtMgJ8YXPFRs6NjS46p6a65a1rVPx+EiVH
-	T2WWhOO69d0gBUmm/Z3JjKn3qC+Rwink2oXsE+FktMRnCpbFucNctaTOQTWtTk7iMbl9THKuK8W
-	DZqN1LAdLZfIqgsZYeNQ==
-X-Received: by 2002:a17:90b:4d8c:b0:32e:9da9:3e60 with SMTP id 98e67ed59e1d1-33b513b4be4mr23985255a91.36.1760333378131;
-        Sun, 12 Oct 2025 22:29:38 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHehWnrGn7DuvJ/xSojls8MCxOSJWhG/ZI0Kv22UDdxDhSF5mF0LLfkXAAkQBSq7nVOxKn9BGX7Xu+k2Kj6giY=
-X-Received: by 2002:a17:90b:4d8c:b0:32e:9da9:3e60 with SMTP id
- 98e67ed59e1d1-33b513b4be4mr23985245a91.36.1760333377653; Sun, 12 Oct 2025
- 22:29:37 -0700 (PDT)
+        bh=rTBbY4ERQzfsiR/UCEXfoNcgIIzJ1jIibSchJTMZ+g0=;
+        b=mENzI71dH/BPkm52e9VlBhOoelPpKtFuNp9Q5LLyQ34989TfoB/r7HVbHNaP82fMAA
+         yAw855xpqRPgGKjKcQgWOM4uoabPSnXw7jOcsnupMT1JemOkLjPxNWLELU8rlj/Dy3Ve
+         Qb2e2KvjdmD1G8TnwJY37mhxNxTY8SFq9ZT+e0iNGZAed12mCbljzJpp0C73dwaN2ti8
+         hT0qO+BZ3LZ0K6XJCVSng+y69nk/ks9tUF+vzW5f4aOO7LUmRxXI5CLmnIWoGqyrCqfe
+         5oUviaJ+IIGwC/YKZpWtTciMkHW3Sren90qjmCW5ylIDsDmk0ZFqAJfOWsO92uqUwwT/
+         kvHg==
+X-Forwarded-Encrypted: i=1; AJvYcCXFY2c0qnyp4i+ZyN7HorfwIOksaGeOjX7if7E/q0COjC1RHw8CLB1u5oy+FrmfPlT1O6c7t+iETTCmUeut8A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxlbHdiTo1mon+OoMehTBQ6BJ20gcNZ/CZo+mjPKZ3r8zd8/Kt9
+	ZYc3bGzz/4te7mRN4KWTDsWmu1Iyt2I5SpOG9lregPx6t/n3KKiveG1Xmhcah3SS3sZebmr/zCO
+	fjtwGaXRXIRhDou9jVd1FnMyIVD3ZIEPh063hrpaPK4lDb0h00djfj54zfiSGm2yBqc15LwiQyT
+	DWGIqP9BSYvqEmDTA5+husRM49NKv4kuYCXps1CWkSdEw=
+X-Gm-Gg: ASbGncsHYwg59MzASyVn568wRxJZS5FHU5K/Scj4s2NlLSaqd02jX7rY2VeVpNHJBZh
+	vigRcQtJGA4wMePTUgITG9Cq+rWlJ7e/f++c2UvqPr8MDMHnRpfcrmeIU7Jc+I/ndria+j21wAo
+	vvcjXq4PTL6m7zsuT8UQ==
+X-Received: by 2002:a17:90b:33ce:b0:32e:ca03:3ba with SMTP id 98e67ed59e1d1-33b513b233cmr25472476a91.22.1760335030541;
+        Sun, 12 Oct 2025 22:57:10 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF+1ASVfPg+lv3jSt18c0CP35x0+AGwhiwZAYn/wCujwDEfGVeBA93XTgv9bz62fD/SkCCE1X0vWwbHFagz8RU=
+X-Received: by 2002:a17:90b:33ce:b0:32e:ca03:3ba with SMTP id
+ 98e67ed59e1d1-33b513b233cmr25472454a91.22.1760335030144; Sun, 12 Oct 2025
+ 22:57:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <68e96ebf.050a0220.91a22.0177.GAE@google.com> <CACGkMEtnrayDWKFdJ1P22QyCrZuDK0C2LihhOtvhUyTOKSp_HQ@mail.gmail.com>
-In-Reply-To: <CACGkMEtnrayDWKFdJ1P22QyCrZuDK0C2LihhOtvhUyTOKSp_HQ@mail.gmail.com>
+References: <20251013020629.73902-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20251013020629.73902-1-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 13 Oct 2025 13:29:26 +0800
-X-Gm-Features: AS18NWDjkXzbfbcL9GnZvyYpjpGC9qt1RXSQFGkoxNNnNhgsMQJYKM2vjPwpQUQ
-Message-ID: <CACGkMEt0aJh1yAj+q1UNnXToLa_yGc9fT_HfeNptHsOQ7vXG+w@mail.gmail.com>
-Subject: Re: [syzbot] [virt?] upstream test error: KMSAN: use-after-free in vring_map_one_sg
-To: syzbot <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com>, 
-	Paolo Abeni <pabeni@redhat.com>
-Cc: eperezma@redhat.com, linux-kernel@vger.kernel.org, mst@redhat.com, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
-X-Mimecast-Spam-Score: 1
-X-Mimecast-MFC-PROC-ID: pdBL4PomMRmBntAH6RgAzRjhgPf9hcLiUl0tlWr9rqw_1760333378
+Date: Mon, 13 Oct 2025 13:56:58 +0800
+X-Gm-Features: AS18NWBMAKf3DfwXNPEeWec1id0-xVBudV2t5aLXFJknu5e8GZOXPWDvpzof4kY
+Message-ID: <CACGkMEugrT0K3LcJsPaN6FDncvBgXRLkG6By8scm8PyABF2BUA@mail.gmail.com>
+Subject: Re: [PATCH net v2 0/3] fixes two virtio-net related bugs.
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Willem de Bruijn <willemb@google.com>, Jiri Pirko <jiri@resnulli.us>, 
+	Alvaro Karsz <alvaro.karsz@solid-run.com>, Heng Qi <hengqi@linux.alibaba.com>, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: c5S2dpMov-7rVhUqSyxQ3NaqGxRjk5uGZu5E2vKz56o_1760335031
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Adding Paolo.
-
-On Sat, Oct 11, 2025 at 3:40=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
-ote:
+On Mon, Oct 13, 2025 at 10:06=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
 >
-> #syz test
+> As discussed in http://lore.kernel.org/all/20250919013450.111424-1-xuanzh=
+uo@linux.alibaba.com
+> Commit #1 Move the flags into the existing if condition; the issue is tha=
+t it introduces a
+> small amount of code duplication.
 >
-> On Sat, Oct 11, 2025 at 4:38=E2=80=AFAM syzbot
-> <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com> wrote:
+> Commit #3 is new to fix the hdr len in tunnel gso feature.
+>
+> Hi @Paolo Abenchi,
+> Could you please test commit #3? I don't have a suitable test environment=
+, as
+> QEMU doesn't currently support the tunnel GSO feature.
 
-Paolo, it looks like the GSO tunnel features will leave uninitialized
-vnet header field which trigger KMSAN warning.
-
-Please have a look at the patch (which has been tested by syzbot) or
-propose another one.
+It has been there.
 
 Thanks
 
-> >
-> > Hello,
-> >
-> > syzbot found the following issue on:
-> >
-> > HEAD commit:    ba9dac987319 Merge tag 'libnvdimm-for-6.18' of git://gi=
-t.k..
-> > git tree:       upstream
-> > console output: https://syzkaller.appspot.com/x/log.txt?x=3D138581e2580=
-000
-> > kernel config:  https://syzkaller.appspot.com/x/.config?x=3Dad506767107=
-aacda
-> > dashboard link: https://syzkaller.appspot.com/bug?extid=3Dac856b8b866cc=
-a41352c
-> > compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7=
-976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-> >
-> > Downloadable assets:
-> > disk image: https://storage.googleapis.com/syzbot-assets/ce6a737acd38/d=
-isk-ba9dac98.raw.xz
-> > vmlinux: https://storage.googleapis.com/syzbot-assets/d7053b626642/vmli=
-nux-ba9dac98.xz
-> > kernel image: https://storage.googleapis.com/syzbot-assets/13f2d7e62179=
-/bzImage-ba9dac98.xz
-> >
-> > IMPORTANT: if you fix the issue, please add the following tag to the co=
-mmit:
-> > Reported-by: syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com
-> >
-> > 8021q: adding VLAN 0 to HW filter on device bond0
-> > eql: remember to turn off Van-Jacobson compression on your slave device=
-s
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-> > BUG: KMSAN: use-after-free in vring_map_one_sg+0x290/0x7b0 drivers/virt=
-io/virtio_ring.c:401
-> >  vring_map_one_sg+0x290/0x7b0 drivers/virtio/virtio_ring.c:401
-> >  virtqueue_add_split drivers/virtio/virtio_ring.c:608 [inline]
-> >  virtqueue_add+0x32aa/0x6320 drivers/virtio/virtio_ring.c:2281
-> >  virtqueue_add_outbuf+0x89/0xa0 drivers/virtio/virtio_ring.c:2342
-> >  virtnet_add_outbuf drivers/net/virtio_net.c:574 [inline]
-> >  xmit_skb drivers/net/virtio_net.c:3343 [inline]
-> >  start_xmit+0x274d/0x4860 drivers/net/virtio_net.c:3367
-> >  __netdev_start_xmit include/linux/netdevice.h:5248 [inline]
-> >  netdev_start_xmit include/linux/netdevice.h:5257 [inline]
-> >  xmit_one net/core/dev.c:3845 [inline]
-> >  dev_hard_start_xmit+0x22c/0xa30 net/core/dev.c:3861
-> >  sch_direct_xmit+0x3b2/0xcf0 net/sched/sch_generic.c:344
-> >  __dev_xmit_skb net/core/dev.c:4152 [inline]
-> >  __dev_queue_xmit+0x3588/0x5e60 net/core/dev.c:4729
-> >  dev_queue_xmit include/linux/netdevice.h:3365 [inline]
-> >  lapbeth_data_transmit+0x352/0x480 drivers/net/wan/lapbether.c:260
-> >  lapb_data_transmit+0x90/0xf0 net/lapb/lapb_iface.c:447
-> >  lapb_transmit_buffer+0x260/0x330 net/lapb/lapb_out.c:149
-> >  lapb_send_control+0x458/0x5b0 net/lapb/lapb_subr.c:251
-> >  lapb_establish_data_link+0xa6/0xd0 net/lapb/lapb_out.c:-1
-> >  lapb_device_event+0xb2a/0xbc0 net/lapb/lapb_iface.c:-1
-> >  notifier_call_chain kernel/notifier.c:85 [inline]
-> >  raw_notifier_call_chain+0xe0/0x410 kernel/notifier.c:453
-> >  call_netdevice_notifiers_info+0x1ac/0x2b0 net/core/dev.c:2229
-> >  call_netdevice_notifiers_extack net/core/dev.c:2267 [inline]
-> >  call_netdevice_notifiers net/core/dev.c:2281 [inline]
-> >  __dev_notify_flags+0x20d/0x3c0 net/core/dev.c:-1
-> >  netif_change_flags+0x162/0x1e0 net/core/dev.c:9705
-> >  dev_change_flags+0x18c/0x320 net/core/dev_api.c:68
-> >  devinet_ioctl+0x1186/0x2500 net/ipv4/devinet.c:1199
-> >  inet_ioctl+0x4c0/0x6f0 net/ipv4/af_inet.c:1003
-> >  sock_do_ioctl+0x9c/0x480 net/socket.c:1254
-> >  sock_ioctl+0x70b/0xd60 net/socket.c:1375
-> >  vfs_ioctl fs/ioctl.c:51 [inline]
-> >  __do_sys_ioctl fs/ioctl.c:597 [inline]
-> >  __se_sys_ioctl+0x239/0x400 fs/ioctl.c:583
-> >  __x64_sys_ioctl+0x97/0xe0 fs/ioctl.c:583
-> >  x64_sys_call+0x1cbc/0x3e30 arch/x86/include/generated/asm/syscalls_64.=
-h:17
-> >  do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-> >  do_syscall_64+0xd9/0x210 arch/x86/entry/syscall_64.c:94
-> >  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> >
-> > Uninit was created at:
-> >  slab_free_hook mm/slub.c:2440 [inline]
-> >  slab_free mm/slub.c:6566 [inline]
-> >  kmem_cache_free+0x2b0/0x1490 mm/slub.c:6676
-> >  skb_kfree_head net/core/skbuff.c:1046 [inline]
-> >  skb_free_head+0x13c/0x3a0 net/core/skbuff.c:1060
-> >  skb_release_data+0x9f7/0xac0 net/core/skbuff.c:1087
-> >  skb_release_all net/core/skbuff.c:1152 [inline]
-> >  __kfree_skb+0x6b/0x260 net/core/skbuff.c:1166
-> >  consume_skb+0x83/0x230 net/core/skbuff.c:1398
-> >  skb_free_datagram+0x1e/0x30 net/core/datagram.c:324
-> >  netlink_recvmsg+0xad1/0xfe0 net/netlink/af_netlink.c:1974
-> >  sock_recvmsg_nosec net/socket.c:1078 [inline]
-> >  sock_recvmsg+0x2dc/0x390 net/socket.c:1100
-> >  ____sys_recvmsg+0x193/0x610 net/socket.c:2850
-> >  ___sys_recvmsg+0x20b/0x850 net/socket.c:2892
-> >  __sys_recvmsg net/socket.c:2925 [inline]
-> >  __do_sys_recvmsg net/socket.c:2931 [inline]
-> >  __se_sys_recvmsg net/socket.c:2928 [inline]
-> >  __x64_sys_recvmsg+0x20e/0x3d0 net/socket.c:2928
-> >  x64_sys_call+0x35f0/0x3e30 arch/x86/include/generated/asm/syscalls_64.=
-h:48
-> >  do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-> >  do_syscall_64+0xd9/0x210 arch/x86/entry/syscall_64.c:94
-> >  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> >
-> > Bytes 0-17 of 18 are uninitialized
-> > Memory access of size 18 starts at ffff88811a0f1000
-> >
-> > CPU: 1 UID: 0 PID: 5441 Comm: dhcpcd Not tainted syzkaller #0 PREEMPT(n=
-one)
-> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS=
- Google 08/18/2025
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-> >
-> >
-> > ---
-> > This report is generated by a bot. It may contain errors.
-> > See https://goo.gl/tpsmEJ for more information about syzbot.
-> > syzbot engineers can be reached at syzkaller@googlegroups.com.
-> >
-> > syzbot will keep track of this issue. See:
-> > https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-> >
-> > If the report is already addressed, let syzbot know by replying with:
-> > #syz fix: exact-commit-title
-> >
-> > If you want to overwrite report's subsystems, reply with:
-> > #syz set subsystems: new-subsystem
-> > (See the list of subsystem names on the web dashboard)
-> >
-> > If the report is a duplicate of another one, reply with:
-> > #syz dup: exact-subject-of-another-report
-> >
-> > If you want to undo deduplication, reply with:
-> > #syz undup
-> >
+>
+> Thanks.
+>
+> Xuan Zhuo (3):
+>   virtio-net: fix incorrect flags recording in big mode
+>   virtio-net: correct hdr_len handling for VIRTIO_NET_F_GUEST_HDRLEN
+>   virtio-net: correct hdr_len handling for tunnel gso
+>
+>  drivers/net/virtio_net.c   | 16 ++++++++-----
+>  include/linux/virtio_net.h | 46 ++++++++++++++++++++++++++++++++------
+>  2 files changed, 50 insertions(+), 12 deletions(-)
+>
+> --
+> 2.32.0.3.g01195cf9f
+>
 
