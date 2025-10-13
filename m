@@ -1,127 +1,134 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A69092E6CC0
-	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 07:56:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 495322EBDE0
+	for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 08:08:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760342205; cv=none; b=mKuCOcl8Bf5qC8xLbXAwNE4JiIvI5RIZMXA9jShDHWbIEn43XgjzaO73kSqvKIADWBt+OQeqi/a3Z60NZQ8+TPMJgaWAk+oWHzmOfj/LHyjuKPoo5IcYi98hl1i3trlOuJoQvrR7yBzUyGH64/mFb47CngsIr/8IJTaVFzWiju4=
+	t=1760342931; cv=none; b=kNjjBYFVE0KEBBdR5AxmMRDKlvXi8wPAkjl5zJhjRG1wT0bA9iTpNTZtzZKricxdhriBKJy6SqG3w5wM7ZGN80HZwEfQwzDm5Mfa9yxItCzhwJFIW1D9s3bFzaMOuni3qPVaPcL6x+u3sru9R8SHtVe3WrvKH/xV09p9sh8DpiA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760342205; c=relaxed/simple;
-	bh=NpLaP+rsLewThnjQB4w1PUgdf62FT8lHd6eNEqewl1o=;
+	s=arc-20240116; t=1760342931; c=relaxed/simple;
+	bh=vVOvsg1+Ti0HxFSL4nhVXqF1CMG723QAbuq/zowP2JI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=NrtFFL7bpw5VuTE8WB1zmGYBC1dJBiZA4gHIGpEcSIQOWr9io5gD/BtbfTC8kT7CurA75bF2UH5KAj3xkOPGp6rCIZTiULufptS1CdzduB6SwVOtFBejB0ZKipo+0n5qEC1QfkxQqr7fiw6o7lUVlzFygFD2+T28zKB28q0jrYk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LmlpaA4q; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=ozfdPAkMwl7oGQvjWv7RrlGj8ARXIF+4OTS7QTbW5C3EdbTbkp796/vPUg1Tk9kwmKQ6mqaW0gM7jmQ1GUpOP5rb/LG8HmSrmh+BQKP9DAtmWjaQxRAnGOYyQUk/TO4oKzsRgmi3CQj2kFd3IxCNP37eRetreaIBq51j8LsEt9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZeR1TYR+; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LmlpaA4q"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZeR1TYR+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760342202;
+	s=mimecast20190719; t=1760342929;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=COB7VRuwmjnty8tx1CERez8NmWoPvxynkLju3lUiCLM=;
-	b=LmlpaA4q+HRnThexAKfYY06mZh4I1I75uR+mpb2QiqJhds4niS6U3z0KD/q1B1D7i+B01m
-	QOsT+wCzFWq/P9tYGaBuqo7M9nO4v7ioWIMCNTbfVJNh8RsRKDohLMbWTJtWCw1ASvB8aX
-	kGHapUa+9youvmBBOHyKFWH1RVaplkA=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=7eWL4DN3XThSL1fpZ1rH690hipW9N7vRijRVW6Y3Oig=;
+	b=ZeR1TYR+DKfFzCmCOYMFwA1EodLN3uviyxHKRFN2kIcZ4r4Fn72a/4X4oSM0ry+gwF24fA
+	1jSfrAvDug2lav0ohBaIufMqz/YOJ2tY3KetYCR6tJLh20NzVS9XxBmnlVs/zE6bxKCxrk
+	wAPR8Ix4oaF8bfZ7iwc9WZxAnPgefWc=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-186-DfHAA26KNImghT7CzNYu7Q-1; Mon, 13 Oct 2025 03:56:41 -0400
-X-MC-Unique: DfHAA26KNImghT7CzNYu7Q-1
-X-Mimecast-MFC-AGG-ID: DfHAA26KNImghT7CzNYu7Q_1760342200
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-46e3a049abaso29735955e9.0
-        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 00:56:41 -0700 (PDT)
+ us-mta-692-H-upFOs8PH6l1AyCo4zUgg-1; Mon, 13 Oct 2025 04:08:45 -0400
+X-MC-Unique: H-upFOs8PH6l1AyCo4zUgg-1
+X-Mimecast-MFC-AGG-ID: H-upFOs8PH6l1AyCo4zUgg_1760342925
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-41066f050a4so2567250f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 01:08:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760342199; x=1760946999;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=COB7VRuwmjnty8tx1CERez8NmWoPvxynkLju3lUiCLM=;
-        b=ctysbaCzRYdsPPo6iBy2glbTrSIaJqYbXg1VYRtQgIaz0940lkoQ8Q6243D8NOGpKx
-         zGx+0j7g2MZS1/K5mQLVS21qsd/cRvfMa/+tU9wwfPf1X+7BoRCh6Z0N4qsjcO58nR3N
-         MT5jc62AE9lmJ5AcBLnlsKETlDPvyFb0xQ+JDA+gZWsxPwtq7r4ojTj8odWVPkLKeADx
-         S0Vx3wgcobhPI1VarkZ1KzXaWV/8J00KsjmpFmtpju/QWQSq5wpGV0Tkvr0/Dh4EHnTR
-         bEy1nzkC1dIKVJ96Ovygl210vHuOlQFWTkfCxqbR58pMFegwcJ2OmG0Qqj7C2J6OfnfF
-         A9Jg==
-X-Forwarded-Encrypted: i=1; AJvYcCUX/+RBvXRFHVTJPx/1laVP10teIiuZkSUQRZJEd/U/igB+5fajV1qiCfYCFh+9o1APQoLz+nX7PRiZhGLrqw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxUmJ8eAKfKjAC9C9zX5ZPEGjVQ4jcbIYYCI4ssGPj18U5wg/gq
-	aCUnc4eNXvJcPm1MFqu2aP2B7i9rpmfRW86W7jgSCvNkI651FsVjFxjt+fGhUZOisaPWYrc/gOg
-	Duh6fhzGuHqY0uVZuR4Ur+aX7O6Xu67PBKv/80myJkUuL5k3Ol7NjtrzrEHNBRitZElq8
-X-Gm-Gg: ASbGnctY8+PblNRkdlxNHLtyaZHoOPaYqZ+0BogEr3Tyo5wVtuafNJ6NZyZYP2GaAla
-	CRl2U5XxtZfBTfHUsvrKrLvnh9DO/evC8cHIiOg8MiRszJzsOXjejiThEEtAcMcKOQZeeex1t+E
-	F5OeOufD1uhZrzoYh8PLkdI3kUlTSZdx3EbbJJURhzohoiPKKaDywh0GDAyS6BBzcS7gi7A8csq
-	z2XpNjlKTrgBhzxt+u3N/VBBWGDPKCQXC9mewSB0WkZHF79JBzxRThbdPp4s4pT7qZD0Mtrj2I2
-	qX891OWy6D0H4wKXtIjZfWDag4Km+Q==
-X-Received: by 2002:a05:600c:4586:b0:46e:45d3:82fd with SMTP id 5b1f17b1804b1-46fa9b086e1mr152062315e9.31.1760342199387;
-        Mon, 13 Oct 2025 00:56:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF7mWHcHxbSz7cXD/T4m4MEkNzKAin9UCeRsZR4UXAfwmea+Xa32Gmelt4UQkO7u0wdOAsgNA==
-X-Received: by 2002:a05:600c:4586:b0:46e:45d3:82fd with SMTP id 5b1f17b1804b1-46fa9b086e1mr152062125e9.31.1760342198918;
-        Mon, 13 Oct 2025 00:56:38 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1760342925; x=1760947725;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=7eWL4DN3XThSL1fpZ1rH690hipW9N7vRijRVW6Y3Oig=;
+        b=dlC1d8ziSJEa0J5n93WBuNirPpmPtSTlMZ0PDP/J1e23KUnkfdjfvxhEAgzrPWSgwt
+         HECHfNWrbAJJlstQ0G2U51CwEHcpZu7Pk0I/x6P4tUTC89Ae0WoaXmohCOlE5lFWDRzs
+         qTpENAnbGMia9aBG0Vs+S5SW19PvfvVirCRdJJS90az8tLXVNk96RTeBxtwn/myd5uW5
+         o2mCx72lnTcMTdis/f5XhzxmilSNJdYNIxSOVBbOVuNuBs1fir+L4rct8a3WqhSvPzXZ
+         qy6mZXXNaozxFLmM0Ta0l13MiijiOjYUj53Wdv/+A5tq1X8gDWVXXViIHcrnwH0zQmrQ
+         v06w==
+X-Forwarded-Encrypted: i=1; AJvYcCWBJbErV9JzYdC94isMly8thF4nCSb/SyieFXmCD+RIgqGwMScN9EaoJBio3qlpS9LbyWQ9frFgBRsKBb1Rjw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyzx/v6zyeeMyF09X9nK9lho45RTQFSmGl0wrwQbjKlVZHjcTS6
+	EzFUmIFtdUmQGEVIZLiUzo/3SqGgbmTrYjHAkfJGp3kPrExA2JDhsRxRNBXa8moyRuLGZ3BIIdM
+	EQdQtsV8QFCd9zIOKrJ6Qb+aGD8Er0cBFWXzk63kV/clqOM8iJvGPJfod9QRvb12l6xgj
+X-Gm-Gg: ASbGnctrb6LWAh6KzlDVUxQ52XIA3EuoG+tp6iXgc9OuBluCFRzqf+EXh29IKhSp1qi
+	X7fMseq4c2kLvL4qyTgfGgOaqTmeUcGb2OuGnQXw8x/RaBOFnFw8utWO7k2txYHICIBWfEBL8ue
+	Ruou07i0L5Z2EOKrooCb9utBjiZ0NAdS2oz3kgzuv423o7zlknOYpRDmD+h/q7ZMT/8mAsu96JG
+	+FsmiKoqqiF5FS+1AsjehBll5YS40v44SO0xnXHnZmdC/OOw0UMNTYPuehBLybLF5w4ojoTYb5s
+	pxMWdd348nbYMqQvdmwhJRtbxDnexA==
+X-Received: by 2002:a5d:5f86:0:b0:426:d5de:e454 with SMTP id ffacd0b85a97d-426d5dee4d1mr4608120f8f.31.1760342924565;
+        Mon, 13 Oct 2025 01:08:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEtNpEAunbxp8ulrBXh0wStzwV4F/kXgVIxSO9DL5r5BrnXcg7l1GKUUVmPOZKzozmdGRj6yA==
+X-Received: by 2002:a5d:5f86:0:b0:426:d5de:e454 with SMTP id ffacd0b85a97d-426d5dee4d1mr4608094f8f.31.1760342924147;
+        Mon, 13 Oct 2025 01:08:44 -0700 (PDT)
 Received: from redhat.com ([31.187.78.130])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46fb4982b25sm172918555e9.7.2025.10.13.00.56.36
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce57cce5sm17291452f8f.1.2025.10.13.01.08.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Oct 2025 00:56:38 -0700 (PDT)
-Date: Mon, 13 Oct 2025 03:56:35 -0400
+        Mon, 13 Oct 2025 01:08:43 -0700 (PDT)
+Date: Mon, 13 Oct 2025 04:08:41 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Willem de Bruijn <willemb@google.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	Heng Qi <hengqi@linux.alibaba.com>, virtualization@lists.linux.dev
-Subject: Re: [PATCH net v2 0/3] fixes two virtio-net related bugs.
-Message-ID: <20251013035059-mutt-send-email-mst@kernel.org>
-References: <20251013020629.73902-1-xuanzhuo@linux.alibaba.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	syzbot <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com>,
+	eperezma@redhat.com, linux-kernel@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [syzbot] [virt?] upstream test error: KMSAN: use-after-free in
+ vring_map_one_sg
+Message-ID: <20251013040810-mutt-send-email-mst@kernel.org>
+References: <68e96ebf.050a0220.91a22.0177.GAE@google.com>
+ <CACGkMEtnrayDWKFdJ1P22QyCrZuDK0C2LihhOtvhUyTOKSp_HQ@mail.gmail.com>
+ <CACGkMEt0aJh1yAj+q1UNnXToLa_yGc9fT_HfeNptHsOQ7vXG+w@mail.gmail.com>
+ <CACGkMEsh_j9wCAv-LwOVxLjvUzEuKuu+7ZGMGcdJr7ettdBYTQ@mail.gmail.com>
+ <0f20cd6a-d9aa-4837-a120-1e2e7dbdc954@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251013020629.73902-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <0f20cd6a-d9aa-4837-a120-1e2e7dbdc954@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: he-apmR3eKm957DQQcJx3pfTG11oQw2dQ32AFUHNf7A_1760342200
+X-Mimecast-MFC-PROC-ID: mjrPEBOt7QeCLmc__Db0f-XhJlGgnb6pr7y3bxZk2VM_1760342925
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Mon, Oct 13, 2025 at 10:06:26AM +0800, Xuan Zhuo wrote:
-> As discussed in http://lore.kernel.org/all/20250919013450.111424-1-xuanzhuo@linux.alibaba.com
-> Commit #1 Move the flags into the existing if condition; the issue is that it introduces a
-> small amount of code duplication.
-
-
-How were commits 1 and 2 tested?
-
-
-> Commit #3 is new to fix the hdr len in tunnel gso feature.
+On Mon, Oct 13, 2025 at 09:37:29AM +0200, Paolo Abeni wrote:
+> On 10/13/25 9:20 AM, Jason Wang wrote:
+> > On Mon, Oct 13, 2025 at 1:29 PM Jason Wang <jasowang@redhat.com> wrote:
+> >> On Sat, Oct 11, 2025 at 3:40 PM Jason Wang <jasowang@redhat.com> wrote:
+> >>>
+> >>> #syz test
+> >>>
+> >>> On Sat, Oct 11, 2025 at 4:38 AM syzbot
+> >>> <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com> wrote:
+> >>
+> >> Paolo, it looks like the GSO tunnel features will leave uninitialized
+> >> vnet header field which trigger KMSAN warning.
+> >>
+> >> Please have a look at the patch (which has been tested by syzbot) or
+> >> propose another one.
+> > 
+> > Forget the attachment.
 > 
-> Hi @Paolo Abenchi,
-> Could you please test commit #3? I don't have a suitable test environment, as
-> QEMU doesn't currently support the tunnel GSO feature.
+> I have a few questions. The report mentions both UaF and uninit; the
+> patch addresses "just" the uninit access. It's not clear to me if and
+> how the UaF is addressed, and why/if it's related to the uninit access.
+
+
+I'd like to understand that, too.
+
+> Do you know better?
 > 
-> Thanks.
-
-
-AFAIK host_tunnel and guest_tunnel flags enable exactly that.
-
-
-> Xuan Zhuo (3):
->   virtio-net: fix incorrect flags recording in big mode
->   virtio-net: correct hdr_len handling for VIRTIO_NET_F_GUEST_HDRLEN
->   virtio-net: correct hdr_len handling for tunnel gso
+> It looks like the uninit root cause is on "the other side"? i.e. the
+> device not initializing properly the header. Would unconditionally
+> clearing the hash info implicitly disable such feature?
 > 
->  drivers/net/virtio_net.c   | 16 ++++++++-----
->  include/linux/virtio_net.h | 46 ++++++++++++++++++++++++++++++++------
->  2 files changed, 50 insertions(+), 12 deletions(-)
+> The syzbot dashboard mentions a (no more available) reproducer. Do you
+> have it cached somewhere?
 > 
-> --
-> 2.32.0.3.g01195cf9f
+> Thanks,
+> 
+> Paolo
 
