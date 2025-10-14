@@ -1,140 +1,150 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 583C41DF256
-	for <virtualization@lists.linux.dev>; Tue, 14 Oct 2025 00:43:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760402618; cv=pass; b=npuFJXBVdPsbxoaEPLOmdax3hQFfOlqy8J+idgvoRxRJj3swX11aKTY7olIEEHr0yG2nCpz139RLzpgA8/e2oI83AXpX95g/UhTos5nd09uFrHawq/zA5nV9lBpzx8TTdySULYzA2D11UQF5g94tswfxsxTKaHg3NI1JGVSQclI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760402618; c=relaxed/simple;
-	bh=Qq2HTZ++dYpSEPUT7vYKOMq8mR51XMcpFp12eoe4OZ8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AdN/tCJKimCgPFBmt9jkMKOW2luxvl55lBzWg5rTXNqPmyMGkyce3QjrzM3lhc1o5ZBkMf3mt0Q387rwfRBgEm1uQ1DIGxzQx93Nm2XbURsMr/stzfltPbzRSNikZbVQ4+0zNX4oJl3qqsYcfVbzunPqNtA4f3uuHy8AVQAh0sM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=GXxFU5zQ; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A75FA2C0286
+	for <virtualization@lists.linux.dev>; Tue, 14 Oct 2025 02:38:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760409525; cv=none; b=KRNCKCjbdf8dduYkGve5gUDM4KfpcCMcaq0XEvoNBIgcrh09fbusfKcMQTi68mpRt9wKq6dE4UwQJPTUIa5BIcNMrNTo3v6kgpcGJD+OD3HKFfdU9DD9kwf9ryJJQ++sM+FdU6A6uyGviP+c3NKjTjC5igsMOmqXC0xTxE9li7k=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760409525; c=relaxed/simple;
+	bh=F9WzBVDyVycmq7vPxd/pkL66x9p6CV5hQB/KCgNH4Gc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=BzGhWf1dLil2VSFFAr+vuKYkr2RVH99YY0Z17+EoVCosIf1b2cZoLCwixRcXGQALS4QflfYaIUUkDFUFjrNebMg/kSEKfya0j7/WFUUmA9TNmg/lv+WbmruiMVeKw9cAEvhcRNz2O58vyuT1PxvPhirI0jmbLpFqu7eg5iCNuCM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RCNw1VaP; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="GXxFU5zQ"
-ARC-Seal: i=1; a=rsa-sha256; t=1760402608; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=WjHjZlvhZkaITqEV70+HSpwEG1Q91bhyL5SillaPb2Q13G08wYMhs0YN4MaYuazKRGOIRGbOXaxlWBsYPjKG3Uz6szMU9sYZaDlsZhMalojy/LlIM+tJmyddhNuoKcEWSzQG4Q5Q5bGAbXGQwZja5ebK4f+S0AaGX6r96/ADUCY=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1760402608; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=ISAPvcSlXdRjd+F19DIRyiYy/UHGa8vU8b6zDAQOYZI=; 
-	b=SvXULzrzpVbKh1sQAmNTMEHNTuw+grVYEl+LodP5yJeTPzslJyEHM5/ZwVaNoH6vNIwXIWnd8k8BlxaE0k89QdbHrNxbVMoWQpPSlUrhx/cnR8GXDT8BbY0xQQjxS2J2ApUbiL460Dx3xuj2LlFGv8RoHN4cvhc+y4WJVTDvaNE=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1760402608;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=ISAPvcSlXdRjd+F19DIRyiYy/UHGa8vU8b6zDAQOYZI=;
-	b=GXxFU5zQ+u6BVu42A1aVJv7mbUxjbHb9utcwKL1SbgZnXMcnOynd2AQ8UefrBeMu
-	N46qPrhf6WEB6Tjgiu6lypLqpWz2budwYIWUYvNd8YxJjy3rn7c/D1jHTy9faVyzNq+
-	W0zcoobHgUgcR3QcJgmMhz6a5TvQLdAEdavLQa34=
-Received: by mx.zohomail.com with SMTPS id 1760402605792634.3402182021023;
-	Mon, 13 Oct 2025 17:43:25 -0700 (PDT)
-Message-ID: <504fdb16-1157-42f8-bcee-ad2c45f1e71a@collabora.com>
-Date: Tue, 14 Oct 2025 03:43:15 +0300
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RCNw1VaP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1760409521;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=F9WzBVDyVycmq7vPxd/pkL66x9p6CV5hQB/KCgNH4Gc=;
+	b=RCNw1VaPSg3+pNq56QGXqas4Kf3XqN/Fsnse4H4O9MFD0DYIBYEHecRoruaL712rNDS9yZ
+	PV5N0RGjLSXogSc4S6cO6ZdrUvyXvo3OwItR0cfT/qgCTiBHN/qzYAv3g8Rn3BUaCP1NKV
+	Y2XadLS4vCqZRNnKZLqguWr+bVjgMbs=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-461-Ax1q6x_xPJut7lCPI9kUtw-1; Mon, 13 Oct 2025 22:38:39 -0400
+X-MC-Unique: Ax1q6x_xPJut7lCPI9kUtw-1
+X-Mimecast-MFC-AGG-ID: Ax1q6x_xPJut7lCPI9kUtw_1760409518
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-336b646768eso11373606a91.1
+        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 19:38:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760409518; x=1761014318;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=F9WzBVDyVycmq7vPxd/pkL66x9p6CV5hQB/KCgNH4Gc=;
+        b=GBVgISt7tks7MplFqfi5aa97j0JIig5501fzic+y4UWaeBw2S6FxtMTPKBoOrCG9zA
+         +jALwKTV7QMtvevqS5TTT0OLEiMr6CP2ktekyXaHQdU3TD+iKZomeiB0LmcT1QZu3CwP
+         Qmu/NmJgnq7AdShoXOpTNxnOpHhZxrpq+FeVPkNtLHAYFywZ5g80V8ay5brkchHK9Klr
+         +QJJTR6hkcB5sXxLbEkjzjXPMoYIwMJMJJvNLrTfRq5s2cFHcX3x1WJFpjaB8Z0GgQ3d
+         2S8aMDaklyqtPT4oFDMBKEIm6j3+NXpzqo8eGL9f1AlvbuZGwL27UKbBS1RMAqvfXDW7
+         KeuA==
+X-Forwarded-Encrypted: i=1; AJvYcCXLU8TIpx6KzcFlFDWm81GsNqMb0j/pZC570R0s+ZR4iGkzu3maQsJ3k9uD7dYKfW2YY1kPCmYGH4djeJ6RnA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx9wx7xk6fYHaC6tKFsMMBHVp0BXmkT/NfrO8DtAtksVq0IXLt1
+	D9FEsdxgqXhZITncEfHBme6po1roH0NgsxF+YKrPZ09Y61Ma/YxMAp9glJMbazSqaywPQ9TxDTC
+	jiLo3m4ciEZo+WSsQSXmOTwW2B9NfE8QXoyVYqvlVYZnzpTWiu+k1Lyc4Ie1xafHR5sLtASCikG
+	gQVlghgL02YnABixrte3WtPllyXm4Rrr/1l/Af/moDQko=
+X-Gm-Gg: ASbGncta6zhQcaLQ9xs3xB+RI09Rdr5thxm2CW8//Gs/FT3XjS7hCjxOA8QZEXMNa5Y
+	JvPPI0EBGzszNnJM1cJQHqyK6kErBb61C4FctDbiVJ4GKq+SCwFvYlV+OuCPF11g+sMC2CYDQhI
+	7Y06hRIuvKtBnUJmZwdw==
+X-Received: by 2002:a17:90b:3a8a:b0:32e:ddbc:9bd6 with SMTP id 98e67ed59e1d1-33b5138408emr32261209a91.27.1760409518573;
+        Mon, 13 Oct 2025 19:38:38 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHWo2mJ/OJVRxxXfZ0wTtK20NpMnbcmMczKNA7M+EwFeHZP2mOQW/Q28ZNj2mhuSiTGeul/i4cDsb6qp4PF9tM=
+X-Received: by 2002:a17:90b:3a8a:b0:32e:ddbc:9bd6 with SMTP id
+ 98e67ed59e1d1-33b5138408emr32261181a91.27.1760409518079; Mon, 13 Oct 2025
+ 19:38:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtgpu: Use vblank timer
-To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- "airlied@redhat.com" <airlied@redhat.com>,
- "kraxel@redhat.com" <kraxel@redhat.com>,
- "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
- "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
- "mripard@kernel.org" <mripard@kernel.org>,
- "airlied@gmail.com" <airlied@gmail.com>, "simona@ffwll.ch" <simona@ffwll.ch>
-Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-References: <20251008130701.246988-1-tzimmermann@suse.de>
- <IA0PR11MB7185D91EB0CD01FD63D21AA7F8EEA@IA0PR11MB7185.namprd11.prod.outlook.com>
- <9aa83493-e036-4a89-825c-3ed95ab5ae30@collabora.com>
- <IA0PR11MB71857FBEBAD5404D13752092F8EFA@IA0PR11MB7185.namprd11.prod.outlook.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <IA0PR11MB71857FBEBAD5404D13752092F8EFA@IA0PR11MB7185.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+References: <68e96ebf.050a0220.91a22.0177.GAE@google.com> <CACGkMEtnrayDWKFdJ1P22QyCrZuDK0C2LihhOtvhUyTOKSp_HQ@mail.gmail.com>
+ <CACGkMEt0aJh1yAj+q1UNnXToLa_yGc9fT_HfeNptHsOQ7vXG+w@mail.gmail.com>
+ <CACGkMEsh_j9wCAv-LwOVxLjvUzEuKuu+7ZGMGcdJr7ettdBYTQ@mail.gmail.com>
+ <0f20cd6a-d9aa-4837-a120-1e2e7dbdc954@redhat.com> <20251013040810-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251013040810-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 14 Oct 2025 10:38:25 +0800
+X-Gm-Features: AS18NWDKDcpLfi6N1AuOSwJdJOcHa0VoPUyyf3FrzZSA7dT2cKqu6klh5288pTo
+Message-ID: <CACGkMEs3iV8kpEmZJzch3jUxZqV5Ff4k51SR+LGKW9sg2WAZhQ@mail.gmail.com>
+Subject: Re: [syzbot] [virt?] upstream test error: KMSAN: use-after-free in vring_map_one_sg
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, 
+	syzbot <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com>, eperezma@redhat.com, 
+	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: yvLDxIACrq_eEayIuabj5Wgc8KNMth1XYAU7Nco54l4_1760409518
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 10/10/25 07:07, Kasireddy, Vivek wrote:
-> Hi Dmitry,
-> 
->> Subject: Re: [PATCH] drm/virtgpu: Use vblank timer
->>
->> On 10/9/25 06:23, Kasireddy, Vivek wrote:
->>> Hi Thomas,
->>>
->>>> Subject: [PATCH] drm/virtgpu: Use vblank timer
->>>>
->>>> Use a vblank timer to simulate the vblank interrupt. The DRM vblank
->>>> helpers provide an implementation on top of Linux' hrtimer. Virtgpu
->>>> enables and disables the timer as part of the CRTC. The atomic_flush
->>>> callback sets up the event. Like vblank interrupts, the vblank timer
->>>> fires at the rate of the display refresh.
->>>>
->>>> Most userspace limits its page flip rate according to the DRM vblank
->>>> event. Virtgpu's virtual hardware does not provide vblank interrupts, so
->>>> DRM sends each event ASAP. With the fast access times of virtual display
->>>> memory, the event rate is much higher than the display mode's refresh
->>>> rate; creating the next page flip almost immediately. This leads to
->>>> excessive CPU overhead from even small display updates, such as moving
->>>> the mouse pointer.
->>>>
->>>> This problem affects virtgpu and all other virtual displays. See [1] for
->>>> a discussion in the context of hypervdrm.
->>> When running Virtio-gpu with some of the UIs (gtk, spice, etc) in Qemu,
->> the
->>> Guest display updates are synchronized with a timer (or repaint callback
->> in
->>> the case of Gtk) the UI layer provides particularly when blob=true. In other
->>> words, the Guest's atomic commit does not complete until the Host
->> signals
->>> (via a fence) that the update (or flush) is done.
->>>
->>> This is because when blob=true, the Guest's FB is accessed by the Host
->> without
->>> making any copies. So, to avoid tearing, the Guest needs to be prevented
->> from
->>> accessing its FB until the Host is done. Therefore, I think for virtio-gpu, the
->> virtual
->>> vblank timer can only be helpful when blob=false as this is the only case
->> where
->>> Guest's display updates are unbounded (and Host makes a copy of the
->> Guest's FB).
->>>
->>> I am not sure how this would affect virgl use-cases but Dmitry can help
->> explain if
->>> the vblank timer would be useful there or not.
->>
->> The vblank timer should only limit framerate of virtio-gpu, I don't
->> expect it will cause new problems. Do you see tearing using this patch?
-> AFAICS, having a vblank timer when blob=true would be redundant and
-> will interfere with the synchronization mechanism because the Guest
-> compositor would start a new repaint cycle without knowing if it OK to
-> reuse the FB it had submitted previously. I have not yet tested this patch
-> but I strongly believe it will cause tearing issues particularly when blob=true. 
-> 
->>
->> Vblank timer makes a big performance improvement for virtio-gpu KMS,
->> especially for a native context on QEMU. No tearing spotted with it.
-> This means that the only remaining case to be tested is blob=true and
-> virgl=false. I'll try to test it soon and let you know.
+On Mon, Oct 13, 2025 at 4:08=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Mon, Oct 13, 2025 at 09:37:29AM +0200, Paolo Abeni wrote:
+> > On 10/13/25 9:20 AM, Jason Wang wrote:
+> > > On Mon, Oct 13, 2025 at 1:29=E2=80=AFPM Jason Wang <jasowang@redhat.c=
+om> wrote:
+> > >> On Sat, Oct 11, 2025 at 3:40=E2=80=AFPM Jason Wang <jasowang@redhat.=
+com> wrote:
+> > >>>
+> > >>> #syz test
+> > >>>
+> > >>> On Sat, Oct 11, 2025 at 4:38=E2=80=AFAM syzbot
+> > >>> <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com> wrote:
+> > >>
+> > >> Paolo, it looks like the GSO tunnel features will leave uninitialize=
+d
+> > >> vnet header field which trigger KMSAN warning.
+> > >>
+> > >> Please have a look at the patch (which has been tested by syzbot) or
+> > >> propose another one.
+> > >
+> > > Forget the attachment.
+> >
+> > I have a few questions. The report mentions both UaF and uninit; the
+> > patch addresses "just" the uninit access. It's not clear to me if and
+> > how the UaF is addressed, and why/if it's related to the uninit access.
+>
+>
+> I'd like to understand that, too.
+>
+> > Do you know better?
 
-Thanks, likely won't be a problem to disable the timer based on a
-use-case with additional driver params if it will cause problems. Please
-post your testing results here.
+Unfortunately, I didn't spot any UAF.
 
--- 
-Best regards,
-Dmitry
+> >
+> > It looks like the uninit root cause is on "the other side"? i.e. the
+> > device not initializing properly the header.
+
+The trace is in the TX path, so it's not the device side.
+
+> > Would unconditionally
+> > clearing the hash info implicitly disable such feature?
+
+The feature is not used on the TX side in virtio-net. On the RX side
+(e.g TUN) it has not been implemented yet.
+
+> >
+> > The syzbot dashboard mentions a (no more available) reproducer. Do you
+> > have it cached somewhere?
+
+I don't.
+
+Thanks
+
+> >
+> > Thanks,
+> >
+> > Paolo
+>
+
