@@ -1,151 +1,121 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1689B30F808
-	for <virtualization@lists.linux.dev>; Tue, 14 Oct 2025 08:29:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4789B1E990E
+	for <virtualization@lists.linux.dev>; Tue, 14 Oct 2025 08:31:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760430576; cv=none; b=bPNZ88cISILteNEHxZdUFgr8PI9FcHfSDWNZK+g8wp1y7tuYu7YLpKbLUesQVz+5NSbK6DFRiUu9guUQu1xqXj9Q5SXAMcuGwShLYWFajD7LLCfl9b9kCXJoWwC5Jt4PL2Yw8sFS6f/VrDaXxgeXXBv2WRKz7IRjH5495fxbRRo=
+	t=1760430683; cv=none; b=plvbcxqp90UAzx0n6htz8MpLsDvMhLAJ08yFVihCyBrM80fh4C1z/7VeAPpY1eAYZx4GCskeQOLEoXwvYuizLQtIdTIGAYSCEQCCPNfNCvQGeDneiV8jxi1IIe/qLaterZmw4bYwVpksX5a+KlKCkfaG6oH6gZ0c65NjJxS3XtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760430576; c=relaxed/simple;
-	bh=/HuGM/47bIodPOEN9kcu3pwg2q/33WidymgDi6AyiKM=;
+	s=arc-20240116; t=1760430683; c=relaxed/simple;
+	bh=dl7eQ+b13oFLr80NeiLiqkJZOxJwGG1XmIoZO6RrQ3A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=LYTKi6ia6QPbAU2/KTe7oEGgu1qNxYfEqV5/1uIKfBWoollZwTmcKtY38yKCBgqUd5ZziJ6uhabNblivu0K7g5oBskOd6UcHjL57NHDQwWU/gA58b+zDHKmgWArcihMN7wm8Ficpx1J8/IUqvHyn/M7FX97x48qgs0fTHaTUO0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CbZ6JExw; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=jtMBRpN7XtSkg3rAFpfxwMggraOyWTdLbUJuUEHhfCLlMkVjfeN8fyH1XsNv3KSnmeOoSiZpG42wZhoJuq3eiMN5hVlVCBweA4HGkUz36rqFTLNkXdkNFFjjlwcmA+NWqTIKI2IeW1CN8SBtg3Z9Ynz6DRQIzfddHlX6Q1a/Rlg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Quk/iTqZ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CbZ6JExw"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Quk/iTqZ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760430573;
+	s=mimecast20190719; t=1760430680;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zsUz6hmX3VwPCSslBpSvxo71U4IXbfFNHhR64HdKblQ=;
-	b=CbZ6JExwGalHh/W77AyfW8+m6WbjqAy0fuOFdKlshku83+xUo1o5XnMq/jzsgeiy1DaddE
-	o9dZl/6bflFhtXfpM0CYbqr/1aY2A8ScG6/G5IKRJlpnf8j38isCBB8pbOe1hcxrA29dOi
-	MBa/QecjXiLPaZ8GtriqBHzLBgGDc/c=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=0qnbsdsNEBiaoT6uBRZDY8lZKyqNtV82DBTRjkp/dSU=;
+	b=Quk/iTqZ9WjYZXH2j/L4a9hUuRh6Eq+hpkh5jGPEDdSjL/FJy9/OGJPLRRDAFQHxNEGSI9
+	KJZ+jIYQAAxHw7DAEYL4IB8PapcwIG1n4PDzR0kw0K1T8qEvNftZw4pCXfjFuPXdueCaRt
+	lkxnvyNwgXvNk3rgXtDOnPyy/mMZpfI=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-378-jDvUNCvKMZeskt0cZwDNLg-1; Tue, 14 Oct 2025 04:29:31 -0400
-X-MC-Unique: jDvUNCvKMZeskt0cZwDNLg-1
-X-Mimecast-MFC-AGG-ID: jDvUNCvKMZeskt0cZwDNLg_1760430570
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3ece14b9231so4374043f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 14 Oct 2025 01:29:31 -0700 (PDT)
+ us-mta-182-5SwSPO4DNOCxiRnyXWkRMQ-1; Tue, 14 Oct 2025 04:31:18 -0400
+X-MC-Unique: 5SwSPO4DNOCxiRnyXWkRMQ-1
+X-Mimecast-MFC-AGG-ID: 5SwSPO4DNOCxiRnyXWkRMQ_1760430678
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-426d314d0deso2086892f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 14 Oct 2025 01:31:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760430570; x=1761035370;
+        d=1e100.net; s=20230601; t=1760430677; x=1761035477;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zsUz6hmX3VwPCSslBpSvxo71U4IXbfFNHhR64HdKblQ=;
-        b=PfpR6AE88LrUtl5ktDi5SGqXVwupuJoApzEZfpqFM5XoBByxSMmxrxhnUYqEpn9Koq
-         bN0eqzQUhpE5PS9LuGG6n1Gzi4OMtWkiFA0UTNzUYcaVQOFnB3Oo26+OiZG2YR9dWhJB
-         2WUMucBgmdfT54Sg4A3nyKF6EurgiIYo00fUxxx0Fu7xXsDOTaxdbaTw7IJ0WgNK0az+
-         FLmql3L8EbdKuaR+hOueN1NcKoRMMGf55Zz+OwG8lUUh2Wy54fD8iBItDUItgsdnHi8y
-         d/YEDl4k3l80ojBF7jYuBQ/nfhZZlQFHJj6RTsOeQDs+7UOoyKDQGNW6JJPA/yTxW9a8
-         XkpQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWbQr98nWW4s5RA/qCG+4U4UWGq0/vYxVHHy/TENMD5P2HLbp8HmaGTkvq9WCY04wuBAsYeiNm6Epf5YhuYdg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz2HSkqZL18/Pvneh3mBrF4B8XvXqMOuMhOjjUcJzooBgauC7fK
-	FruwqcRhn6oRi0qIEwHQd3ZbxIxJR6KRBovBLaZJM4rl/EAcqQqizThX40N5HMN4h4ToJ+81Yrn
-	2+zyIU1TZLAGAw9PfiFq+xeNlmQIUyFo+IGYDQYPlRm0BZ3gxj5bmr+t0xdZ9KskSzWTR
-X-Gm-Gg: ASbGnctnSicKJjcjNnw1hqoD9Pvn0pDfvj20aO8wMdvL7OaKeBaRZjmEPysMYPH/DH8
-	VWxnff+PmC3lupzH0pKMaDTgBQzlNmZy3h/9vtnt2MCcXfvis9EHsPzvM308nAwuDq6P46OnvWu
-	HxanlO7TZ4u+8ESEsY3ZHxYA0Vaddfm2U4td3GsK5n+ltj2KZ0c3AerqQb8LbbRECgFSarNgLCz
-	rJZeAWzBDgGT5+QS97iL3rzfJd44IHjatzY/BDut6IBsCK887v4dQVm2+EPQEJfEuyem9CtsHfL
-	BUxS/ltKFhg/t6TOc38QzVvKgSRfIWrybw==
-X-Received: by 2002:a5d:588b:0:b0:3ee:1368:a8e9 with SMTP id ffacd0b85a97d-4266e7befe4mr15816885f8f.17.1760430570336;
-        Tue, 14 Oct 2025 01:29:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGnpTZe8/dTR/rZB5cDRVDATWu3FS9RUOdcRXVHaoWWz3AZV0WhnIxngSzIEhkjXnqWmVvhFw==
-X-Received: by 2002:a5d:588b:0:b0:3ee:1368:a8e9 with SMTP id ffacd0b85a97d-4266e7befe4mr15816855f8f.17.1760430569735;
-        Tue, 14 Oct 2025 01:29:29 -0700 (PDT)
+        bh=0qnbsdsNEBiaoT6uBRZDY8lZKyqNtV82DBTRjkp/dSU=;
+        b=mwvM3qDMv55wuziz95zZmSWxxmNohJBQnMToxq1/Ovv6r5V73SCeVIf+BfhnQSmvcW
+         fNXdO+QnvD5b16xkIUmMODx6z0cGlra4aTJKa1pycqNbqboO3Q9Fz83DXx02+wJUT2Cn
+         X08ZOs8kYbEx/VIOoe2UAVBLG1dXeSU1cqzVjmSHlQj+zk4QnLIcSCAYk0Eb0SNzRs68
+         AA3lTL7ikhqBNUJBl6JwxCq7lQnVpyv0HlTNYK25vgLza+Lj+t5hFeJuEkdBwMbNJOz1
+         0U8s2MPxidAoZ3IsFDuakDw0finE9iVPQYP4oSS2tiPUjj1LgCghjPmFMzzlDdKE13Tp
+         pBxQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXDLwrpI9YJ8B4+Llq0WeSjTcZoP2TNVKXVYHja18fbYaCYnMlxQ13nMgwImAlnYbJ6SX8x8U3R495y4Fz9gA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxFAmpcZCudrHO4s+5wmUHvaWMWFmb7uM8pDHjbS5tcxlr3OrzA
+	qDNdHujaC2ISccd7zO1haxAR+rm7oJnekTqXuuBfJpuQEe3dV4GS/52X5VwdioJzBZQNFFH7dW6
+	XrcJ4gX0bQx1HYaNL+T7Ko6QddAd3XSjbg4JjohOWbfz8rf0I3qROGZlPwrohpOp5xisj
+X-Gm-Gg: ASbGncsnqn+lNZfBN0t8SisMx191rN4xn6XlF4msB4wY2BwSAPZscgDXPPLLS0chuT5
+	rGQ4AS9nhKE5zKQvynNP1TBJTAKCFxUph38xGsiRnlljm+O9+abLrSaKkNzX0YI09mSJIgO0xIA
+	L6yPV0djCXFfnIivftMvxgS+iHzfIWfdVPTTwFFR9f9SjlopY8d/2clb5kOSjWs4UVWSIeTXsAu
+	gOvclfCqaOomCTMBd53ZHtkQSuTFpNJ4u1h7mSjOU0NW2W34XQVK/ICb7z19hj+HLZT9G2PeRjU
+	ci4nbhI9/ynU1c4CIgzHVCSYOul/4HlrcQ==
+X-Received: by 2002:a05:6000:310b:b0:425:7f10:d477 with SMTP id ffacd0b85a97d-42666ac2dcamr12583054f8f.2.1760430677537;
+        Tue, 14 Oct 2025 01:31:17 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG5rtWAPwA3LVdjHzFgAx87oQUT/zkUwZOwVAGCG1V+BPu6h5CRzzoQhKXDFi76mKqYg16BxQ==
+X-Received: by 2002:a05:6000:310b:b0:425:7f10:d477 with SMTP id ffacd0b85a97d-42666ac2dcamr12583039f8f.2.1760430677130;
+        Tue, 14 Oct 2025 01:31:17 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:152d:b200:2a90:8f13:7c1e:f479])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce5e10e8sm22344542f8f.39.2025.10.14.01.29.28
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce5e8207sm22040471f8f.47.2025.10.14.01.31.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Oct 2025 01:29:29 -0700 (PDT)
-Date: Tue, 14 Oct 2025 04:29:26 -0400
+        Tue, 14 Oct 2025 01:31:16 -0700 (PDT)
+Date: Tue, 14 Oct 2025 04:31:13 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
 Cc: Yongji Xie <xieyongji@bytedance.com>, virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org, Maxime Coquelin <mcoqueli@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Dragos Tatulea DE <dtatulea@nvidia.com>, jasowang@redhat.com
-Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
-Message-ID: <20251014042459-mutt-send-email-mst@kernel.org>
+Subject: Re: [RFC 2/2] vduse: lift restriction about net devices with CVQ
+Message-ID: <20251014043004-mutt-send-email-mst@kernel.org>
 References: <20251007130622.144762-1-eperezma@redhat.com>
- <20251007130622.144762-2-eperezma@redhat.com>
+ <20251007130622.144762-3-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251007130622.144762-2-eperezma@redhat.com>
+In-Reply-To: <20251007130622.144762-3-eperezma@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: hQDw2DX8VOT2MXu-kYE2d_WPFRD0OmJe-dau_uZE_Ts_1760430570
+X-Mimecast-MFC-PROC-ID: rCoCuSqeKQ7jbm-X16aOYhqZsc0u4Bm-0APfG_Xtg9Y_1760430678
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 07, 2025 at 03:06:21PM +0200, Eugenio Pérez wrote:
-> An userland device implemented through VDUSE could take rtnl forever if
-> the virtio-net driver is running on top of virtio_vdpa.  Let's break the
-> device if it does not return the buffer in a longer-than-assumible
-> timeout.
+On Tue, Oct 07, 2025 at 03:06:22PM +0200, Eugenio Pérez wrote:
+> Now that the virtio_net driver is able to recover from a stall
+> virtqueue,
 
-So now I can't debug qemu with gdb because guest dies :(
-Let's not break valid use-cases please.
+it's not able to recover, is it?
 
-
-Instead, solve it in vduse, probably by handling cvq within
-kernel.
-
-
-> A less agressive path can be taken to recover the device, like only
-> resetting the control virtqueue.  However, the state of the device after
-> this action is taken races, as the vq could be reset after the device
-> writes the OK.  Leaving TODO anyway.
+> let's lift the restriction.
 > 
 > Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
 > ---
->  drivers/net/virtio_net.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 3 ---
+>  1 file changed, 3 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 31bd32bdecaf..ed68ad69a019 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3576,6 +3576,7 @@ static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 class, u8 cmd
->  {
->  	struct scatterlist *sgs[5], hdr, stat;
->  	u32 out_num = 0, tmp, in_num = 0;
-> +	unsigned long end_time;
->  	bool ok;
->  	int ret;
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index e7bced0b5542..95d2b898171d 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -1726,9 +1726,6 @@ static bool features_is_valid(struct vduse_dev_config *config)
+>  	if ((config->device_id == VIRTIO_ID_BLOCK) &&
+>  			(config->features & BIT_ULL(VIRTIO_BLK_F_CONFIG_WCE)))
+>  		return false;
+> -	else if ((config->device_id == VIRTIO_ID_NET) &&
+> -			(config->features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
+> -		return false;
 >  
-> @@ -3614,11 +3615,20 @@ static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 class, u8 cmd
->  
->  	/* Spin for a response, the kick causes an ioport write, trapping
->  	 * into the hypervisor, so the request should be handled immediately.
-> +	 *
-> +	 * Long timeout so a malicious device is not able to lock rtnl forever.
->  	 */
-> +	end_time = jiffies + 30 * HZ;
->  	while (!virtqueue_get_buf(vi->cvq, &tmp) &&
->  	       !virtqueue_is_broken(vi->cvq)) {
->  		cond_resched();
->  		cpu_relax();
-> +
-> +		if (time_after(end_time, jiffies)) {
-> +			/* TODO Reset vq if possible? */
-> +			virtio_break_device(vi->vdev);
-> +			break;
-> +		}
->  	}
->  
->  unlock:
+>  	if ((config->device_id == VIRTIO_ID_NET) &&
+>  			!(config->features & BIT_ULL(VIRTIO_F_VERSION_1)))
 > -- 
 > 2.51.0
 
