@@ -1,167 +1,161 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6039327280E
-	for <virtualization@lists.linux.dev>; Tue, 14 Oct 2025 06:47:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760424477; cv=none; b=HRScPshSue9laRhpsk32j9JLGakdEy2HcveQJnkwcFDMtA11nB/sVbTdX2p9c2ycHIcCoGSP/TOhzxTNdieUuLJvVxaHxIbUcaftpU5OTz5YVECJT9i5AHcaBVF86ptPymSPjsM0+TT+DdoO3MajWA2HAr0TA8XMwUP4+5cH3Xk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760424477; c=relaxed/simple;
-	bh=T0wMiqSGwmsqLWJtb2GwPRS4IxEUHW2oFQEZ+rO9EU0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aPNiQw3lnmv4wXEXVNa+6g9ysUwGNZEJHc+Hu6ocggXnd9H4UJ2yi1ckW/0xQfz48sB9SJCdYh74r5VzSilzCr1wSzwojWTVxiQoe0F8qfrepLPz3pS/Wcls9TbBL3w5rWhCf0nQWmAGIxPs7TiNn9fygO8zcohj+MKXD6Amo18=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aCRvgqMe; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D3E9289811
+	for <virtualization@lists.linux.dev>; Tue, 14 Oct 2025 06:54:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.9
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760424899; cv=pass; b=XPQo0gngbESZ75Juu4tkv9rqPAunAUoFB1/Qheywixvwx6vL4SIiHi9C4pCaxHXXNjP7lYVU5QxshTRWDN4HPWDb2BMrLt4eJ8pvtd02qZOC0c6VYOIJe7mUhJtGhiPNQvljBQM65WIulDUSKfZQ/qyYf2o4OkVNbxCW4ZLVJVw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760424899; c=relaxed/simple;
+	bh=+KOCzTUQxF7tBG8tIQArtu0WukAm1yPCMNY0jgO/01A=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=HlVSAR87V9zZKNgiS8iY/ZpazlXZwFCGvO1XM3fu4ixHdo/zW5vWhwMXqo54DoYNR+3TBAeMvOHyJx6Z/LMwh9K5bviX9EizADb8FgLQpBSrfjpktwf2tpwM2Lb/Jqtuw7yJxD6fxC7K6xN7SRsu/GR1JZ7E53oXVkML5gwz9LU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=R3wFz3bX; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=cxNKIHTN; arc=pass smtp.client-ip=185.56.87.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aCRvgqMe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760424475;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HrRglR29VgZ69mKZr7Dx3Gx+zA5R/Z6gBu9e7njrIMA=;
-	b=aCRvgqMezeprUYEyrrwhxniYL3N36C8gVg6r90oImwY0Ym+FMgn4gcXQEmQMasVEwtzAgx
-	Ky3qXSz7X/R1erZP6OWz0F8t3GErXj+dacrJ20/s4BjkfUFyqNB1Ar6eZD2KYUOSJNQXRT
-	L8Tw0jbauQ9mPS+uPuYTLRHB5z/6i5U=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-152-W1ZbE2-eOWiDUV_1rh_XQQ-1; Tue, 14 Oct 2025 02:47:53 -0400
-X-MC-Unique: W1ZbE2-eOWiDUV_1rh_XQQ-1
-X-Mimecast-MFC-AGG-ID: W1ZbE2-eOWiDUV_1rh_XQQ_1760424473
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3ece14b9231so4301502f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 23:47:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760424472; x=1761029272;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=HrRglR29VgZ69mKZr7Dx3Gx+zA5R/Z6gBu9e7njrIMA=;
-        b=ZQcqrDt3sz7kL2ccCYt/k/PrFgymt2FsXgLIqZjMkgXKxFVy5b2ppxSOl620cTRKxZ
-         G/B46omH2ZtBlDaQoO/61GqiID6871ZxkA/Jva+6JccvZr68Y8vVuJ7NA8ME5xsPSsW4
-         OXulyAx+28AXzF3rur1bfLSmBWqL/o1oIcTP0MtvI/87F1r9XCyUv7rj8a9iZU5T+Ouf
-         LZ48IJ6dtMFOtHEdKLgg1jVZP3/ci14FLqgYGzSsfJ5F0IZvNqA2GUzBpm3mhO5hhM6I
-         Z+tDzC45yU9IGBl/g2VshM1nkCTu5LVMfHtzgnGJJhb4217MAX9xHz0wIx8dHsMMt+u+
-         OssQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVtMBq/eOza2j3CLV47JuS0ICdTg11mZRLujn6qMwUNg0dE+I3R9tkFe9+33O5J4JsAqRrmnk03U3Rbm3O/kQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzlP0e2jxPQIW8hIDgDQqt2qggl5w6+5gGhN0sP7huQZCHN6o6d
-	ONxtd6RB6lpcO8MzYTeg814wAKhMT6/yY10iAZn5TQGNyCZ+tjF7JyLr3tqLskPvmMeLeZybgwT
-	0sqHEAWM7e1uc1+TZrrPp7u5YFhEouoZ/Vwqkzb0HXbhCx3oWxDq7GqQcZ6OEMtzOrwp4
-X-Gm-Gg: ASbGnct/nfMVzgo4Cm547efv5x9S/8UIfTt1qt7IDbX1TxeSFvkxDOsFrIVJC8HOJ2V
-	OjUj0BqeK0YumegYN3qibrRBHz/X9p0rpKjR0OGpTipJNueQzccJBE051ROxyGRSfQ/vYoKP4kO
-	JLGbQWd13ZCtAZiQQ/oiz+NeWpWkSft95F7JlpVh7x+F/8QP/zzw4QKhzx36uUf1uUwD2VLwXiI
-	q99ih6yWs+9OB5stQhdoLpV4FHamsn2lO0PjvflX26PGaa+Q/7BQnJ5Hz3UZQky9CHjlgU8psb9
-	q4x5WG3rQbZgjqfQTlhZDgrv3NydVs6KczOgbrNhTqILRKmTwr0DyYXwfcGlbFC7znxwNEPsySu
-	jwF83eY616LiQ
-X-Received: by 2002:a05:6000:2601:b0:3ec:b899:bc39 with SMTP id ffacd0b85a97d-4266e8e9004mr15793131f8f.58.1760424472539;
-        Mon, 13 Oct 2025 23:47:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE5JBS5UabB7QBXlAcwMrnWLbumJrspsJwc1HLfqZTziEYqtV5mFLLmgXxo6U+XgcAZ2uXW5A==
-X-Received: by 2002:a05:6000:2601:b0:3ec:b899:bc39 with SMTP id ffacd0b85a97d-4266e8e9004mr15793115f8f.58.1760424472129;
-        Mon, 13 Oct 2025 23:47:52 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:2712:7e10:4d59:d956:544f:d65c? ([2a0d:3344:2712:7e10:4d59:d956:544f:d65c])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce5e81d2sm22202178f8f.49.2025.10.13.23.47.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Oct 2025 23:47:51 -0700 (PDT)
-Message-ID: <376fd3de-eb27-48ce-bdd5-86b0bca85ba7@redhat.com>
-Date: Tue, 14 Oct 2025 08:47:50 +0200
+	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="R3wFz3bX";
+	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="cxNKIHTN"
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-688d.prod.antispam.mailspamprotection.com; s=arckey; t=1760424896;
+	 b=TlJtXO1vVByqkbe3qoB9uYZD0UUXQzgKOKqUDUKqOR68yJNIqpNLXOnJ6T8G5fZxVdDY1ysKo3
+	  IDaed3R2/GIbPAtigj+gjb+b8t+WrXtPaJSChErz2g2zN78isX8XoePYCD+ZN7XxXJ05ZRACI1
+	  y8m+xfVNJxtoG53KRq8Opfw7rWfk/sdsrP1lyKPaatKbgooa4jcJRwXvJzYBoy9U3gj4hVJKe7
+	  t91DyNY5m3kVtRa35rk7LBg35wT33o+6WdGncSrwUPZ5MZsl6KBn/VlZswgpU27BbU8e9lGPga
+	  4SYcLlLGV28CB5rLkMeDaF518EnUr7XO6QTuOAZL+ssPBg==;
+ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-688d.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-688d.prod.antispam.mailspamprotection.com; s=arckey; t=1760424896;
+	bh=+KOCzTUQxF7tBG8tIQArtu0WukAm1yPCMNY0jgO/01A=;
+	h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+	  Message-ID:Date:Subject:Cc:To:From:DKIM-Signature:DKIM-Signature;
+	b=KkgjRs8lVEXUNgKqXQd8Y7bX1ZKbvSKEyicYqrJgGVPnLSNrBhylhEzcPUqCjLNuSHcNca7/AQ
+	  SJoxSmGYpFe34dD84MFkkW41MD++HGX2ej0VYH0msBO0aMY1PzJDVeGbbjzT/2zIpPA4CIzu4A
+	  7iOUKLRAtxz/jwQ3H+Vi/0FbyvLEppm7GZSd6BU2sQFnr+NtjriA9/k5ChGxJsvAvCXv9wn9rh
+	  gYXr2LQgJW8+F1Az7UGCkSru/mwY4bKK++BfQSTcNK5Azojl2lQK5p8EWDSeXPVvpakOaPwSmO
+	  JTaqQT67hAMjaYPXp1nnH7TfL998qatUgv5vP3C3Ci0rSg==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
+	:Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:
+	Cc:To:From:Reply-To:List-Unsubscribe;
+	bh=+RRcVYG+JUhl3wwxa7uQJx37j5Sku3cHAniytdo2VwQ=; b=R3wFz3bXbVA1kylgYK45hXforn
+	7h+ROpL4t16k8cJMVaY3KF7U2U4Th21wIs9LlY/WHosLyCLEAp4o3qXfjPrMmi3zQ8/0DbDJCFNkE
+	HPnf1aQ7OYb5L2HqW1qw+vMMS2rfye+ukNpQ6b1y+p8Q6ZMy1wZIdVOqcbTLnsxxnoM8=;
+Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
+	by instance-europe-west4-688d.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <francesco@valla.it>)
+	id 1v8Yvl-00000000EAk-38Vm
+	for virtualization@lists.linux.dev;
+	Tue, 14 Oct 2025 06:54:48 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
+	s=default; h=Date:Subject:Cc:To:From:list-help:list-unsubscribe:
+	list-subscribe:list-post:list-owner:list-archive;
+	bh=+RRcVYG+JUhl3wwxa7uQJx37j5Sku3cHAniytdo2VwQ=; b=cxNKIHTNYmuzDNfeOKfMSXI46U
+	HXOanL9R91tN80jMXt+g62vZhFF46VPRinAMUPxr1ZCeUnrqsYsyLtmQPuLt/vJPwGCGUsGLbGvFu
+	1tKEk4BT3+rasp2VKC1WjtVb0M9JQDmAuFt1Vp1/6BE7axLKcgmUCvGCczdUGS7ikmQ0=;
+Received: from [87.16.13.60] (port=63318 helo=fedora.fritz.box)
+	by esm19.siteground.biz with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <francesco@valla.it>)
+	id 1v8YvQ-000000003P6-0BXm;
+	Tue, 14 Oct 2025 06:54:24 +0000
+From: Francesco Valla <francesco@valla.it>
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Paolo Abeni <pabeni@redhat.com>,
+ Harald Mommer <harald.mommer@opensynergy.com>,
+ Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
+ Wolfgang Grandegger <wg@grandegger.com>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>,
+ linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
+ netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ development@redaril.me
+Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
+Date: Tue, 14 Oct 2025 08:54:23 +0200
+Message-ID: <2332595.vFx2qVVIhK@fedora.fritz.box>
+In-Reply-To: <aO0qZ4kKcgpRmlIl@fedora>
+References:
+ <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
+ <2243144.yiUUSuA9gR@fedora.fritz.box> <aO0qZ4kKcgpRmlIl@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [syzbot] [virt?] upstream test error: KMSAN: use-after-free in
- vring_map_one_sg
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- syzbot <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com>,
- eperezma@redhat.com, linux-kernel@vger.kernel.org,
- syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
- xuanzhuo@linux.alibaba.com
-References: <68e96ebf.050a0220.91a22.0177.GAE@google.com>
- <CACGkMEtnrayDWKFdJ1P22QyCrZuDK0C2LihhOtvhUyTOKSp_HQ@mail.gmail.com>
- <CACGkMEt0aJh1yAj+q1UNnXToLa_yGc9fT_HfeNptHsOQ7vXG+w@mail.gmail.com>
- <CACGkMEsh_j9wCAv-LwOVxLjvUzEuKuu+7ZGMGcdJr7ettdBYTQ@mail.gmail.com>
- <0f20cd6a-d9aa-4837-a120-1e2e7dbdc954@redhat.com>
- <20251013040810-mutt-send-email-mst@kernel.org>
- <3480dcc9-a41a-4ae6-960d-4a13eed359e2@redhat.com>
- <CACGkMEucE6c=50egk=Hryie2fxZaEjFt22mLX20+T=68rFLNnw@mail.gmail.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <CACGkMEucE6c=50egk=Hryie2fxZaEjFt22mLX20+T=68rFLNnw@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: g211NEe9q6aSw0I9PWCuQT2g8upTBZpBsRfqq5BTT7c_1760424473
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - esm19.siteground.biz
+X-AntiAbuse: Original Domain - lists.linux.dev
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - valla.it
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-SGantispam-id: 4c4818ce1f291eb43fbe4b373690c6de
+AntiSpam-DLS: false
+AntiSpam-DLSP: 
+AntiSpam-DLSRS: 
+AntiSpam-TS: 1.0
+CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
+CFBL-Feedback-ID: 1v8Yvl-00000000EAk-38Vm-feedback@antispam.mailspamprotection.com
+Authentication-Results: outgoing.instance-europe-west4-688d.prod.antispam.mailspamprotection.com;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
 
-On 10/14/25 4:41 AM, Jason Wang wrote:
-> On Mon, Oct 13, 2025 at 4:17 PM Paolo Abeni <pabeni@redhat.com> wrote:
->> On 10/13/25 10:08 AM, Michael S. Tsirkin wrote:
->>> On Mon, Oct 13, 2025 at 09:37:29AM +0200, Paolo Abeni wrote:
->>>> On 10/13/25 9:20 AM, Jason Wang wrote:
->>>>> On Mon, Oct 13, 2025 at 1:29 PM Jason Wang <jasowang@redhat.com> wrote:
->>>>>> On Sat, Oct 11, 2025 at 3:40 PM Jason Wang <jasowang@redhat.com> wrote:
->>>>>>>
->>>>>>> #syz test
->>>>>>>
->>>>>>> On Sat, Oct 11, 2025 at 4:38 AM syzbot
->>>>>>> <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com> wrote:
->>>>>>
->>>>>> Paolo, it looks like the GSO tunnel features will leave uninitialized
->>>>>> vnet header field which trigger KMSAN warning.
->>>>>>
->>>>>> Please have a look at the patch (which has been tested by syzbot) or
->>>>>> propose another one.
->>>>>
->>>>> Forget the attachment.
->>>>
->>>> I have a few questions. The report mentions both UaF and uninit; the
->>>> patch addresses "just" the uninit access. It's not clear to me if and
->>>> how the UaF is addressed, and why/if it's related to the uninit access.
->>>
->>> I'd like to understand that, too.
->>
->> Somewhat related: the syzbot dashboard reports that the issue is no more
->> reproducible on plain Linus' tree:
->>
->> https://syzkaller.appspot.com/bug?extid=ac856b8b866cca41352c
+On Monday, 13 October 2025 at 18:35:51 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
+> On Thu, Sep 11, 2025 at 10:59:40PM +0200, Francesco Valla wrote:
+> > [...]
+> > 
+> > > +
+> > > +/* TX queue message types */
+> > > +struct virtio_can_tx_out {
+> > > +#define VIRTIO_CAN_TX                   0x0001
+> > > +	__le16 msg_type;
+> > > +	__le16 length; /* 0..8 CC, 0..64 CAN-FD, 0..2048 CAN-XL, 12 bits */
+> > > +	__u8 reserved_classic_dlc; /* If CAN classic length = 8 then DLC can be 8..15 */
+> > > +	__u8 padding;
+> > > +	__le16 reserved_xl_priority; /* May be needed for CAN XL priority */
+> > > +	__le32 flags;
+> > > +	__le32 can_id;
+> > > +	__u8 sdu[64];
+> > > +};
+> > > +
+> > 
+> > sdu[] here might be a flexible array, if the driver allocates
+> > virtio_can_tx_out structs dyncamically (see above). This would be
+> > beneficial in case of CAN-XL frames (if/when they will be supported).
+> > 
 > 
-> Interesting.
-> 
->>
->> """
->> * repros no longer work on HEAD.
->> """
->>
->> Possibly there was some external problem?
-> 
-> I think at least we need to make sure no information as we did in
-> virtio_net_hdr_from_skb():
-> 
-> static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
->                                           struct virtio_net_hdr *hdr,
->                                           bool little_endian,
->                                           bool has_data_valid,
->                                           int vlan_hlen)
-> {
->         memset(hdr, 0, sizeof(*hdr));   /* no info leak */
+> If we use a flexible array for sdu[] here, then we will have a problem
+> when defining the virtio_can_tx struct since it is not in the end of the
+> structure. I think it is a good idea to define it as a flexible array
+> but I do not know how. 
 
-I agree it makes sense to fully initialize the
-virtio_net_hdr_v1_hash_tunnel struct. I would prefer to individually
-zero the related fields (as in your initial patch). Hopefully the
-compiler is smart enough to generate a single 64bit store instruction.
+In this case, I'd move struct virtio_can_tx_out at the end of the
+virtio_can_tx struct - in this way, sdu[] would be at the end:
 
-Still the backtrace reported by syzbot makes little sense to me: "uninit
-created" at skb free time?!? UaF ?!? I suggest avoiding explicitly
-marking the syzbot report closed with the formal patch.
+struct virtio_can_tx {
+	struct list_head list;
+	unsigned int putidx;
+	struct virtio_can_tx_in tx_in;
+	struct virtio_can_tx_out tx_out;
+};
 
-Thanks,
+Maybe an additional comment declaring why it is done this way would
+be a good idea? Also considering that the two structures are defined
+in different files.
 
-Paolo
+Francesco
+
+
 
 
