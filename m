@@ -1,227 +1,167 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D9FA10942;
-	Tue, 14 Oct 2025 06:33:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6039327280E
+	for <virtualization@lists.linux.dev>; Tue, 14 Oct 2025 06:47:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760423615; cv=none; b=T1AgPsWSqL2LzJZHbi9Y8GWQBPg+JFXTmglcqiBmYdk3LtA+Jny4ZbP1PssjZ8Bb6CCeSw799Fiw/6CXf+qG9PfDYhROXQrK8VpgiXjdlI+yysTX7+kilh/qwvV0jx8Z0I1E1QtromEF4GhAs8c1CW0uNborrw1ItFH8bAwEm1M=
+	t=1760424477; cv=none; b=HRScPshSue9laRhpsk32j9JLGakdEy2HcveQJnkwcFDMtA11nB/sVbTdX2p9c2ycHIcCoGSP/TOhzxTNdieUuLJvVxaHxIbUcaftpU5OTz5YVECJT9i5AHcaBVF86ptPymSPjsM0+TT+DdoO3MajWA2HAr0TA8XMwUP4+5cH3Xk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760423615; c=relaxed/simple;
-	bh=bItmwAuM1kJCIqmjLQgrg55Hiv1GTpbgngNNX+tPC80=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qnPsfC8HwCXshL5/yb2n7iCDooCOiqpDfSqD+cnLvUKIvpzpf8nHWt2ZSpMo6gNEsFELlitaKnjfRsESFZWPtispeNpfMAgwnTwtUYHgWg7WE5s6FQz4NxTffiTrwbgvFd8HsoZ6nkbr0J2PjsHvbWz0QRw3Pvva/qLTVu0iAz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mqBjH/Kn; arc=none smtp.client-ip=198.175.65.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1760424477; c=relaxed/simple;
+	bh=T0wMiqSGwmsqLWJtb2GwPRS4IxEUHW2oFQEZ+rO9EU0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=aPNiQw3lnmv4wXEXVNa+6g9ysUwGNZEJHc+Hu6ocggXnd9H4UJ2yi1ckW/0xQfz48sB9SJCdYh74r5VzSilzCr1wSzwojWTVxiQoe0F8qfrepLPz3pS/Wcls9TbBL3w5rWhCf0nQWmAGIxPs7TiNn9fygO8zcohj+MKXD6Amo18=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aCRvgqMe; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mqBjH/Kn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1760423614; x=1791959614;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=bItmwAuM1kJCIqmjLQgrg55Hiv1GTpbgngNNX+tPC80=;
-  b=mqBjH/KniBNUu0+duBXV06HQ/DeS+5vVTGp9VnL2Jxqj0nO6IqcQD8wC
-   Lx6HsS15najqsY76VtvbPPDLjTfH5nW018PObxKGINxL8lUaTyeY+x3zv
-   RVgoeOwyc/pGESfMFOiZDDou6idj7nVMlXqyxXfckqwMxk2HDNQENXY1N
-   JGs2c5WUq7miu7PYQrYDpOR9i0j9T3uml3+qZDfz4pwNr75+a3oVmJ4Dj
-   /6zcEWGTjCgQZYOO8iXwa4e3p59r8VfNf7JwbgcvQjLTPe2iCzOMOxdxI
-   dSMuC1+VreWaXTp+Hut/SUm8QHPuYFUXj/u7vozpt0Q4W6fO6jltGrXhT
-   A==;
-X-CSE-ConnectionGUID: TbOA4bbCR/q/o/iXOHR5sA==
-X-CSE-MsgGUID: DKviQ7urT3ySyPysU711vQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11581"; a="73678257"
-X-IronPort-AV: E=Sophos;i="6.19,227,1754982000"; 
-   d="scan'208";a="73678257"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Oct 2025 23:33:33 -0700
-X-CSE-ConnectionGUID: 6EuriOAgTJuvDYz/dmx8Pw==
-X-CSE-MsgGUID: cVO5Mr4bTZKkNcO4avyV8w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,227,1754982000"; 
-   d="scan'208";a="181756438"
-Received: from lkp-server02.sh.intel.com (HELO 66d7546c76b2) ([10.239.97.151])
-  by fmviesa006.fm.intel.com with ESMTP; 13 Oct 2025 23:33:26 -0700
-Received: from kbuild by 66d7546c76b2 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1v8Yb0-0002Tb-1V;
-	Tue, 14 Oct 2025 06:33:19 +0000
-Date: Tue, 14 Oct 2025 14:32:52 +0800
-From: kernel test robot <lkp@intel.com>
-To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org,
-	mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com,
-	pabeni@redhat.com
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	virtualization@lists.linux.dev, parav@nvidia.com,
-	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, shameerali.kolothum.thodi@huawei.com,
-	jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org,
-	andrew+netdev@lunn.ch, edumazet@google.com,
-	Daniel Jurgens <danielj@nvidia.com>
-Subject: Re: [PATCH net-next v4 05/12] virtio_net: Query and set flow filter
- caps
-Message-ID: <202510141423.IeIhJgQG-lkp@intel.com>
-References: <20251013152742.619423-6-danielj@nvidia.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aCRvgqMe"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1760424475;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HrRglR29VgZ69mKZr7Dx3Gx+zA5R/Z6gBu9e7njrIMA=;
+	b=aCRvgqMezeprUYEyrrwhxniYL3N36C8gVg6r90oImwY0Ym+FMgn4gcXQEmQMasVEwtzAgx
+	Ky3qXSz7X/R1erZP6OWz0F8t3GErXj+dacrJ20/s4BjkfUFyqNB1Ar6eZD2KYUOSJNQXRT
+	L8Tw0jbauQ9mPS+uPuYTLRHB5z/6i5U=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-152-W1ZbE2-eOWiDUV_1rh_XQQ-1; Tue, 14 Oct 2025 02:47:53 -0400
+X-MC-Unique: W1ZbE2-eOWiDUV_1rh_XQQ-1
+X-Mimecast-MFC-AGG-ID: W1ZbE2-eOWiDUV_1rh_XQQ_1760424473
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3ece14b9231so4301502f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 13 Oct 2025 23:47:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760424472; x=1761029272;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=HrRglR29VgZ69mKZr7Dx3Gx+zA5R/Z6gBu9e7njrIMA=;
+        b=ZQcqrDt3sz7kL2ccCYt/k/PrFgymt2FsXgLIqZjMkgXKxFVy5b2ppxSOl620cTRKxZ
+         G/B46omH2ZtBlDaQoO/61GqiID6871ZxkA/Jva+6JccvZr68Y8vVuJ7NA8ME5xsPSsW4
+         OXulyAx+28AXzF3rur1bfLSmBWqL/o1oIcTP0MtvI/87F1r9XCyUv7rj8a9iZU5T+Ouf
+         LZ48IJ6dtMFOtHEdKLgg1jVZP3/ci14FLqgYGzSsfJ5F0IZvNqA2GUzBpm3mhO5hhM6I
+         Z+tDzC45yU9IGBl/g2VshM1nkCTu5LVMfHtzgnGJJhb4217MAX9xHz0wIx8dHsMMt+u+
+         OssQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVtMBq/eOza2j3CLV47JuS0ICdTg11mZRLujn6qMwUNg0dE+I3R9tkFe9+33O5J4JsAqRrmnk03U3Rbm3O/kQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzlP0e2jxPQIW8hIDgDQqt2qggl5w6+5gGhN0sP7huQZCHN6o6d
+	ONxtd6RB6lpcO8MzYTeg814wAKhMT6/yY10iAZn5TQGNyCZ+tjF7JyLr3tqLskPvmMeLeZybgwT
+	0sqHEAWM7e1uc1+TZrrPp7u5YFhEouoZ/Vwqkzb0HXbhCx3oWxDq7GqQcZ6OEMtzOrwp4
+X-Gm-Gg: ASbGnct/nfMVzgo4Cm547efv5x9S/8UIfTt1qt7IDbX1TxeSFvkxDOsFrIVJC8HOJ2V
+	OjUj0BqeK0YumegYN3qibrRBHz/X9p0rpKjR0OGpTipJNueQzccJBE051ROxyGRSfQ/vYoKP4kO
+	JLGbQWd13ZCtAZiQQ/oiz+NeWpWkSft95F7JlpVh7x+F/8QP/zzw4QKhzx36uUf1uUwD2VLwXiI
+	q99ih6yWs+9OB5stQhdoLpV4FHamsn2lO0PjvflX26PGaa+Q/7BQnJ5Hz3UZQky9CHjlgU8psb9
+	q4x5WG3rQbZgjqfQTlhZDgrv3NydVs6KczOgbrNhTqILRKmTwr0DyYXwfcGlbFC7znxwNEPsySu
+	jwF83eY616LiQ
+X-Received: by 2002:a05:6000:2601:b0:3ec:b899:bc39 with SMTP id ffacd0b85a97d-4266e8e9004mr15793131f8f.58.1760424472539;
+        Mon, 13 Oct 2025 23:47:52 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE5JBS5UabB7QBXlAcwMrnWLbumJrspsJwc1HLfqZTziEYqtV5mFLLmgXxo6U+XgcAZ2uXW5A==
+X-Received: by 2002:a05:6000:2601:b0:3ec:b899:bc39 with SMTP id ffacd0b85a97d-4266e8e9004mr15793115f8f.58.1760424472129;
+        Mon, 13 Oct 2025 23:47:52 -0700 (PDT)
+Received: from ?IPV6:2a0d:3344:2712:7e10:4d59:d956:544f:d65c? ([2a0d:3344:2712:7e10:4d59:d956:544f:d65c])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce5e81d2sm22202178f8f.49.2025.10.13.23.47.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 13 Oct 2025 23:47:51 -0700 (PDT)
+Message-ID: <376fd3de-eb27-48ce-bdd5-86b0bca85ba7@redhat.com>
+Date: Tue, 14 Oct 2025 08:47:50 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251013152742.619423-6-danielj@nvidia.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [syzbot] [virt?] upstream test error: KMSAN: use-after-free in
+ vring_map_one_sg
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ syzbot <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com>,
+ eperezma@redhat.com, linux-kernel@vger.kernel.org,
+ syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
+ xuanzhuo@linux.alibaba.com
+References: <68e96ebf.050a0220.91a22.0177.GAE@google.com>
+ <CACGkMEtnrayDWKFdJ1P22QyCrZuDK0C2LihhOtvhUyTOKSp_HQ@mail.gmail.com>
+ <CACGkMEt0aJh1yAj+q1UNnXToLa_yGc9fT_HfeNptHsOQ7vXG+w@mail.gmail.com>
+ <CACGkMEsh_j9wCAv-LwOVxLjvUzEuKuu+7ZGMGcdJr7ettdBYTQ@mail.gmail.com>
+ <0f20cd6a-d9aa-4837-a120-1e2e7dbdc954@redhat.com>
+ <20251013040810-mutt-send-email-mst@kernel.org>
+ <3480dcc9-a41a-4ae6-960d-4a13eed359e2@redhat.com>
+ <CACGkMEucE6c=50egk=Hryie2fxZaEjFt22mLX20+T=68rFLNnw@mail.gmail.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <CACGkMEucE6c=50egk=Hryie2fxZaEjFt22mLX20+T=68rFLNnw@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: g211NEe9q6aSw0I9PWCuQT2g8upTBZpBsRfqq5BTT7c_1760424473
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi Daniel,
+On 10/14/25 4:41 AM, Jason Wang wrote:
+> On Mon, Oct 13, 2025 at 4:17 PM Paolo Abeni <pabeni@redhat.com> wrote:
+>> On 10/13/25 10:08 AM, Michael S. Tsirkin wrote:
+>>> On Mon, Oct 13, 2025 at 09:37:29AM +0200, Paolo Abeni wrote:
+>>>> On 10/13/25 9:20 AM, Jason Wang wrote:
+>>>>> On Mon, Oct 13, 2025 at 1:29 PM Jason Wang <jasowang@redhat.com> wrote:
+>>>>>> On Sat, Oct 11, 2025 at 3:40 PM Jason Wang <jasowang@redhat.com> wrote:
+>>>>>>>
+>>>>>>> #syz test
+>>>>>>>
+>>>>>>> On Sat, Oct 11, 2025 at 4:38 AM syzbot
+>>>>>>> <syzbot+ac856b8b866cca41352c@syzkaller.appspotmail.com> wrote:
+>>>>>>
+>>>>>> Paolo, it looks like the GSO tunnel features will leave uninitialized
+>>>>>> vnet header field which trigger KMSAN warning.
+>>>>>>
+>>>>>> Please have a look at the patch (which has been tested by syzbot) or
+>>>>>> propose another one.
+>>>>>
+>>>>> Forget the attachment.
+>>>>
+>>>> I have a few questions. The report mentions both UaF and uninit; the
+>>>> patch addresses "just" the uninit access. It's not clear to me if and
+>>>> how the UaF is addressed, and why/if it's related to the uninit access.
+>>>
+>>> I'd like to understand that, too.
+>>
+>> Somewhat related: the syzbot dashboard reports that the issue is no more
+>> reproducible on plain Linus' tree:
+>>
+>> https://syzkaller.appspot.com/bug?extid=ac856b8b866cca41352c
+> 
+> Interesting.
+> 
+>>
+>> """
+>> * repros no longer work on HEAD.
+>> """
+>>
+>> Possibly there was some external problem?
+> 
+> I think at least we need to make sure no information as we did in
+> virtio_net_hdr_from_skb():
+> 
+> static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>                                           struct virtio_net_hdr *hdr,
+>                                           bool little_endian,
+>                                           bool has_data_valid,
+>                                           int vlan_hlen)
+> {
+>         memset(hdr, 0, sizeof(*hdr));   /* no info leak */
 
-kernel test robot noticed the following build errors:
+I agree it makes sense to fully initialize the
+virtio_net_hdr_v1_hash_tunnel struct. I would prefer to individually
+zero the related fields (as in your initial patch). Hopefully the
+compiler is smart enough to generate a single 64bit store instruction.
 
-[auto build test ERROR on net-next/main]
+Still the backtrace reported by syzbot makes little sense to me: "uninit
+created" at skb free time?!? UaF ?!? I suggest avoiding explicitly
+marking the syzbot report closed with the formal patch.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Jurgens/virtio_pci-Remove-supported_cap-size-build-assert/20251014-004146
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20251013152742.619423-6-danielj%40nvidia.com
-patch subject: [PATCH net-next v4 05/12] virtio_net: Query and set flow filter caps
-config: i386-buildonly-randconfig-003-20251014 (https://download.01.org/0day-ci/archive/20251014/202510141423.IeIhJgQG-lkp@intel.com/config)
-compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251014/202510141423.IeIhJgQG-lkp@intel.com/reproduce)
+Thanks,
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202510141423.IeIhJgQG-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
->> drivers/net/virtio_net.c:6868:32: error: called object type 'unsigned int' is not a function or function pointer
-    6868 |                 if (sel->length > MAX_SEL_LEN()) {
-         |                                   ~~~~~~~~~~~^
-   1 error generated.
+Paolo
 
 
-vim +6868 drivers/net/virtio_net.c
-
-  6788	
-  6789	static void virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
-  6790	{
-  6791		size_t ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data) +
-  6792				      sizeof(struct virtio_net_ff_selector) *
-  6793				      VIRTIO_NET_FF_MASK_TYPE_MAX;
-  6794		struct virtio_admin_cmd_query_cap_id_result *cap_id_list;
-  6795		struct virtio_net_ff_selector *sel;
-  6796		int err;
-  6797		int i;
-  6798	
-  6799		cap_id_list = kzalloc(sizeof(*cap_id_list), GFP_KERNEL);
-  6800		if (!cap_id_list)
-  6801			return;
-  6802	
-  6803		err = virtio_admin_cap_id_list_query(vdev, cap_id_list);
-  6804		if (err)
-  6805			goto err_cap_list;
-  6806	
-  6807		if (!(VIRTIO_CAP_IN_LIST(cap_id_list,
-  6808					 VIRTIO_NET_FF_RESOURCE_CAP) &&
-  6809		      VIRTIO_CAP_IN_LIST(cap_id_list,
-  6810					 VIRTIO_NET_FF_SELECTOR_CAP) &&
-  6811		      VIRTIO_CAP_IN_LIST(cap_id_list,
-  6812					 VIRTIO_NET_FF_ACTION_CAP)))
-  6813			goto err_cap_list;
-  6814	
-  6815		ff->ff_caps = kzalloc(sizeof(*ff->ff_caps), GFP_KERNEL);
-  6816		if (!ff->ff_caps)
-  6817			goto err_cap_list;
-  6818	
-  6819		err = virtio_admin_cap_get(vdev,
-  6820					   VIRTIO_NET_FF_RESOURCE_CAP,
-  6821					   ff->ff_caps,
-  6822					   sizeof(*ff->ff_caps));
-  6823	
-  6824		if (err)
-  6825			goto err_ff;
-  6826	
-  6827		/* VIRTIO_NET_FF_MASK_TYPE start at 1 */
-  6828		for (i = 1; i <= VIRTIO_NET_FF_MASK_TYPE_MAX; i++)
-  6829			ff_mask_size += get_mask_size(i);
-  6830	
-  6831		ff->ff_mask = kzalloc(ff_mask_size, GFP_KERNEL);
-  6832		if (!ff->ff_mask)
-  6833			goto err_ff;
-  6834	
-  6835		err = virtio_admin_cap_get(vdev,
-  6836					   VIRTIO_NET_FF_SELECTOR_CAP,
-  6837					   ff->ff_mask,
-  6838					   ff_mask_size);
-  6839	
-  6840		if (err)
-  6841			goto err_ff_mask;
-  6842	
-  6843		ff->ff_actions = kzalloc(sizeof(*ff->ff_actions) +
-  6844						VIRTIO_NET_FF_ACTION_MAX,
-  6845						GFP_KERNEL);
-  6846		if (!ff->ff_actions)
-  6847			goto err_ff_mask;
-  6848	
-  6849		err = virtio_admin_cap_get(vdev,
-  6850					   VIRTIO_NET_FF_ACTION_CAP,
-  6851					   ff->ff_actions,
-  6852					   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
-  6853	
-  6854		if (err)
-  6855			goto err_ff_action;
-  6856	
-  6857		err = virtio_admin_cap_set(vdev,
-  6858					   VIRTIO_NET_FF_RESOURCE_CAP,
-  6859					   ff->ff_caps,
-  6860					   sizeof(*ff->ff_caps));
-  6861		if (err)
-  6862			goto err_ff_action;
-  6863	
-  6864		ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data);
-  6865		sel = &ff->ff_mask->selectors[0];
-  6866	
-  6867		for (i = 0; i < ff->ff_mask->count; i++) {
-> 6868			if (sel->length > MAX_SEL_LEN()) {
-  6869				err = -EINVAL;
-  6870				goto err_ff_action;
-  6871			}
-  6872			ff_mask_size += sizeof(struct virtio_net_ff_selector) + sel->length;
-  6873			sel = (void *)sel + sizeof(*sel) + sel->length;
-  6874		}
-  6875	
-  6876		err = virtio_admin_cap_set(vdev,
-  6877					   VIRTIO_NET_FF_SELECTOR_CAP,
-  6878					   ff->ff_mask,
-  6879					   ff_mask_size);
-  6880		if (err)
-  6881			goto err_ff_action;
-  6882	
-  6883		err = virtio_admin_cap_set(vdev,
-  6884					   VIRTIO_NET_FF_ACTION_CAP,
-  6885					   ff->ff_actions,
-  6886					   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
-  6887		if (err)
-  6888			goto err_ff_action;
-  6889	
-  6890		ff->vdev = vdev;
-  6891		ff->ff_supported = true;
-  6892	
-  6893		kfree(cap_id_list);
-  6894	
-  6895		return;
-  6896	
-  6897	err_ff_action:
-  6898		kfree(ff->ff_actions);
-  6899	err_ff_mask:
-  6900		kfree(ff->ff_mask);
-  6901	err_ff:
-  6902		kfree(ff->ff_caps);
-  6903	err_cap_list:
-  6904		kfree(cap_id_list);
-  6905	}
-  6906	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
