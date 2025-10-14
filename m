@@ -1,101 +1,164 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A8D1326D4B
-	for <virtualization@lists.linux.dev>; Wed, 15 Oct 2025 12:04:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDEAD2848A7
+	for <virtualization@lists.linux.dev>; Wed, 15 Oct 2025 14:44:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760529873; cv=none; b=NgKwyL6q+O6i+mk9XARFDq5AgaeE8HzHBCr076TVbVjeiX2vNvKJgfavCZxG0iElWYyqAVzSL4Q1/1nWpp9WLTcSbxTjBnr3gJd7p7u0UqKug3xo0apdtsC3BPGI0IrYDc2OnL7TpntrNW9zQlxCVYathUCpjVYyLSF4u3LogqU=
+	t=1760539474; cv=none; b=jZmhx5ttsU8fMzNL0d23tQvkRl8zn3LAWZSq0AHIo49RaBQiFsD7iC2YuXGTPL+rv4y/hElBMJAcbylVBv3a4sEfVoh/RKf/Gr5RpjVtGCaN/P4uapOkM2WZU+CoFAOLCErhYVeeoj9WN+2l6bTOuY7tfkNTsBXAOtMXJvwK5kU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760529873; c=relaxed/simple;
-	bh=yIkDzOp9lOkC64phyHj+bKX1qlxxtXvg/X9w367rNpc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fzaWZLPZ5QoQm4nE/PF8tQkCdtjvxpa691+WF0krrMXAQj/JeQhC1aywCMJdKa1y7LR+04DCHiBEMa0O4dEigDoLavY7qcuOf6zOdRmmj/ZyG9FlJlnsIe5c83WkbwsdGUm7Bs3QqQFsMTrkz4+Eu4PKzPsAurXyOmpr4d/txhs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fooishbar.org; spf=pass smtp.mailfrom=fooishbar.org; dkim=pass (2048-bit key) header.d=fooishbar.org header.i=@fooishbar.org header.b=gb/8Gc4L; arc=none smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fooishbar.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fooishbar.org
+	s=arc-20240116; t=1760539474; c=relaxed/simple;
+	bh=vc0kxp4/cNB2+oGfFzBH/L9N46crZ9/uEdD4mitLxKU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JR5IoCfEIgzjkfmqEDxdVCCVd7is8A/1QU2K+Do+2+/7eol/56nPdH6cyzeGueKvw541uNhwaRLIb34nBYjV8NDoFCECt07AwaIVsO23ocTgsyDOFrqOvugMzc1WiDcUJ23tWzycRpHul9vfWjYfaClTWLf3ZjgGQ7Bt++o+u7Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W2YFXYCO; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fooishbar.org header.i=@fooishbar.org header.b="gb/8Gc4L"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-87808473c3bso1176155785a.1
-        for <virtualization@lists.linux.dev>; Wed, 15 Oct 2025 05:04:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fooishbar.org; s=google; t=1760529871; x=1761134671; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yIkDzOp9lOkC64phyHj+bKX1qlxxtXvg/X9w367rNpc=;
-        b=gb/8Gc4LgxTo1ejjPFvBXi/f46Fvoja6LzDik8YtOp1mUBqvJ3twj/uM21NWw1M9da
-         BRZyueTIMznGjyrcvEpXARC8neHkMdzaqyw6bZE2NbWoFNBWz3QCiO6MPx1pnsVbOR6h
-         bKhZEzGCSomqK3V/RgjLS2NWiJuQeG4I9UKRWa6JEJzhEGU0pg8I71HKpd+JRWf99nMI
-         ojtYmWJ9aLGqZq3IRNflvP0PS85MMHflmSMX9jIXcxOpLKelHu3i71wsxjta6ffWSZLb
-         ZEox8ZYukGXM/10jVTtp+ffyJBfHKjrX+5gRqIoWQyMSm6s5E7UhswMsPG8zTNLphdwv
-         +/tg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760529871; x=1761134671;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yIkDzOp9lOkC64phyHj+bKX1qlxxtXvg/X9w367rNpc=;
-        b=OLuk7+4NsNOn3ih/WL8DojiWiAnckhaa6MHzxgT/siF2YSpOp31LImLXJ6lsrFMGH2
-         Hj182QMxvm5T4fRH5lGK3niOultD5zN4dGHtLg2TBMjuYoeSxVyp9RXdKz5udw/sA2+W
-         YyrCgbHzTuC4QKSxyxw9TdXIuFrlVvq/J2XYKgeTOy/knv+ghiKXLJuAps0eP1idyc2D
-         Vebqc6v+UYvxh02IwyWgmAoc1My5eM72b9x1NOKZYnp6adYArj2mdxg1WIAuxM1GNlnh
-         iwQTpbhUbv5nU7j0sLyi9yrjFjjXQvapR4Dfm0rLqAYtiZ+7Zet0xQXWlU4jO2aSyWp3
-         LbzQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV671fqW2eYmb4sefHjPPdDKoOCDDJKs4x4Hmq8wk9ZLAun36McuRh+brMnjebBQzcZYRbPMcLb3vCFbt96Xw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzBas4cgsOmXEwuRCUr4x84p0ZzN0cEq2KA2kTKlYKTn1DIEsAU
-	f+TKkcICmiEpw+hPVrjOB8GDrLjM18Ue8CfKlhzW1y+mUtw0NZKkO63EyHTKbct2bU2onge3vH1
-	OPPVrxomo/aFDRsPa4H+umcDeSwdxiyDqCVprXfHHNQ==
-X-Gm-Gg: ASbGnctPK5KRykzjw7H/TFLAyKdgTwNnGPe4OfInJOxLxNYtPUPrcGWUK2iE9VsCmxZ
-	PE9uJlBWKVGAKycjCPjCYCLSnsSUPlqDqLovqUP4wI/K6KkdGVaWhUe6seDNArUzhRYHPf6JezR
-	Jv0VR0kwuZy7gVzp8S+FRjUoxirG+NuUTjrVFZ1zkQdAAnv0f0N2A+P7PN+CAXH4CaV5xicuUeU
-	eDH8M95SSPT8zUkl676+sUgK/oDseXQqg==
-X-Google-Smtp-Source: AGHT+IGsy4ghNUujV8ICs5xCd3l4JFRIFi1WBGAyKhaZaEA9CMFYjjgZCN0vS1WL/9stf48sqTR9sa0kj6mJ0PU2Rkg=
-X-Received: by 2002:a05:620a:800b:b0:85b:5fdf:69ef with SMTP id
- af79cd13be357-883524cb7c1mr3776426285a.30.1760529870781; Wed, 15 Oct 2025
- 05:04:30 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W2YFXYCO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1760539471;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lY06pAnHCQQGigMV6SOpreP4ZC54DrBtH2Fqo3eA8fs=;
+	b=W2YFXYCOILYyJuM40Cib++Oe5szvpLC0T7080FhmZF14fPBq/FGSqe48mz5sOYodlUZ6uW
+	8wDULZ3dWbXNMFSt1SzVYRNz8ZbmIp8heXLJlmHlvNqE3OVH9h8VluS/ttgwM5ycm0k7pC
+	fBTpCnLSt7s7pnHQW80qUViWVOasY+o=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-606-wOZbOjvnMJWrdpUuQQnq7A-1; Wed,
+ 15 Oct 2025 10:44:28 -0400
+X-MC-Unique: wOZbOjvnMJWrdpUuQQnq7A-1
+X-Mimecast-MFC-AGG-ID: wOZbOjvnMJWrdpUuQQnq7A_1760539467
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CED1B1802D02;
+	Wed, 15 Oct 2025 14:44:22 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.91])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5E6AB19560AD;
+	Wed, 15 Oct 2025 14:44:21 +0000 (UTC)
+Date: Tue, 14 Oct 2025 14:53:56 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Wei Gong <gongwei833x@gmail.com>
+Cc: vgoyal@redhat.com, miklos@szeredi.hu, virtualization@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org, Wei Gong <gongwei09@baidu.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtiofs: remove max_pages_limit in indirect descriptor
+ mode
+Message-ID: <20251014185356.GB18850@fedora>
+References: <20251011033018.75985-1-gongwei833x@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251013060212.14583-1-vignesh.raman@collabora.com>
-In-Reply-To: <20251013060212.14583-1-vignesh.raman@collabora.com>
-From: Daniel Stone <daniel@fooishbar.org>
-Date: Wed, 15 Oct 2025 13:04:18 +0100
-X-Gm-Features: AS18NWBrg_BqO2tS4RN_x8d2btqMDE8us2R2sNEBkP2IYKjicDOGCIjh3Jp7IkM
-Message-ID: <CAPj87rPDppYBRuQ99mh=VqrsSErGKcw-ZRY+zPuGrDj77G5k6Q@mail.gmail.com>
-Subject: Re: [PATCH v1] drm/ci: disable broken MR check in sanity job
-To: Vignesh Raman <vignesh.raman@collabora.com>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com, 
-	helen.fornazier@gmail.com, airlied@gmail.com, simona.vetter@ffwll.ch, 
-	robdclark@gmail.com, guilherme.gallo@collabora.com, 
-	sergi.blanch.torne@collabora.com, valentine.burley@collabora.com, 
-	lumag@kernel.org, linux-mediatek@lists.infradead.org, 
-	linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org, 
-	amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, 
-	intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="KLkkf4S3uuImuLNm"
+Content-Disposition: inline
+In-Reply-To: <20251011033018.75985-1-gongwei833x@gmail.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+
+
+--KLkkf4S3uuImuLNm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Vignesh,
+On Sat, Oct 11, 2025 at 11:30:18AM +0800, Wei Gong wrote:
+> From: Wei Gong <gongwei09@baidu.com>
+>=20
+> Currently, indirect descriptor mode unnecessarily restricts the maximum
+> IO size based on virtqueue vringsize. However, the indirect descriptor
+> mechanism inherently supports larger IO operations by chaining descriptor=
+s.
+>=20
+> This patch removes the artificial constraint, allowing indirect descriptor
+> mode to utilize its full potential without being limited by vringsize.
+> The maximum supported descriptors per IO is now determined by the indirect
+> descriptor capability rather than the virtqueue size.
+>=20
+> Signed-off-by: Wei Gong <gongwei09@baidu.com>
+> ---
+>  fs/fuse/virtio_fs.c | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 76c8fd0bfc75..c0d5db7d7504 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -12,6 +12,7 @@
+>  #include <linux/memremap.h>
+>  #include <linux/module.h>
+>  #include <linux/virtio.h>
+> +#include <linux/virtio_ring.h>
+>  #include <linux/virtio_fs.h>
+>  #include <linux/delay.h>
+>  #include <linux/fs_context.h>
+> @@ -1701,9 +1702,11 @@ static int virtio_fs_get_tree(struct fs_context *f=
+sc)
+>  	fc->sync_fs =3D true;
+>  	fc->use_pages_for_kvec_io =3D true;
+> =20
+> -	/* Tell FUSE to split requests that exceed the virtqueue's size */
+> -	fc->max_pages_limit =3D min_t(unsigned int, fc->max_pages_limit,
+> -				    virtqueue_size - FUSE_HEADER_OVERHEAD);
+> +	if (!virtio_has_feature(fs->vqs[VQ_REQUEST].vq->vdev, VIRTIO_RING_F_IND=
+IRECT_DESC)) {
+> +		/* Tell FUSE to split requests that exceed the virtqueue's size */
+> +		fc->max_pages_limit =3D min_t(unsigned int, fc->max_pages_limit,
+> +						virtqueue_size - FUSE_HEADER_OVERHEAD);
+> +	}
 
-On Mon, 13 Oct 2025 at 07:02, Vignesh Raman <vignesh.raman@collabora.com> w=
-rote:
-> GitLab recently changed the required permissions for the
-> are-developers-allowed-to-push-to-my-MR check:
-> https://gitlab.freedesktop.org/freedesktop/ci-templates/-/issues/81
->
-> Until that=E2=80=99s resolved, disable the check - it=E2=80=99s mostly ob=
-solete anyway.
->
-> Based on https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/37782
+The VIRTIO 1.3 specification defines the maximum descriptor chain length
+as follows
+(https://docs.oasis-open.org/virtio/virtio/v1.3/csd01/virtio-v1.3-csd01.htm=
+l#x1-9200019):
 
-Thanks for fixing this.
+  The number of descriptors in the table is defined by the queue size for t=
+his virtqueue: this is the maximum possible descriptor chain length.
 
-Reviewed-by: Daniel Stone <daniels@collabora.com>
+The driver requirements for indirect descriptors say
+(https://docs.oasis-open.org/virtio/virtio/v1.3/csd01/virtio-v1.3-csd01.htm=
+l#x1-9200019):
 
-Cheers,
-Daniel
+  A driver MUST NOT create a descriptor chain longer than allowed by the de=
+vice.
+
+My interpretation is that this patch violates the specification because
+it allows descriptor chains that exceed the maximum possible descriptor
+chain length.
+
+Device implementations are not required to enforce this limit, so you
+may not see issues when testing. Nevertheless, this patch has the
+potential to break other device implementations though that work fine
+today, so it doesn't seem safe to merge this patch in its current form.
+
+I have CCed Michael Tsirkin in case he has thoughts. It would be nice to
+boost performance by allowing longer I/O requests, but the driver must
+comply with the VIRTIO specification.
+
+Thanks,
+Stefan
+
+--KLkkf4S3uuImuLNm
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmjunEQACgkQnKSrs4Gr
+c8gY4AgAwYxD8aWhcoZfM+pzPo0gCmNWuRts/Zo+DIFcpLzmcxAshn0nfg//UbVy
+tvoYZpLl1lZHClyTJnIjP4S/IC7BVbKmsSz8i6GqqwV5LEPi8YvWhymRCrJystCd
+g3PqCjbLWMNCraPqbCQd6rJVYUcMN2EFGVRuCzxjiCxb1oTZ9XlS8Py/zFBFIotB
+MfH5twFvkiytRn7spAhSaimouS5vHtVXfFAIR9TNP6YHJBLKros2TiT/h1jFBu1i
+tGr7yVwSuVpj/bcGD6aBCODRRD0CZXeBZrOxFWJVHGxLeWuzr5xffyNfHWTJMWRa
+brUn11uX+2DzCyhtu1nDf5wISCZWyw==
+=wtH5
+-----END PGP SIGNATURE-----
+
+--KLkkf4S3uuImuLNm--
+
