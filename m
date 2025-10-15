@@ -1,168 +1,168 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765B42D6E74
-	for <virtualization@lists.linux.dev>; Wed, 15 Oct 2025 15:00:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C333186E40;
+	Wed, 15 Oct 2025 16:04:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760540446; cv=none; b=eAKBcZcSNJjQy+dkFx5W686OHPvs26GKAor87i6I+3QvxeULQ4H7qC9vwBaG8yylGj3mlfASa7nPpQd0LfmTYwdvrBfWYO7xbfylMAgwBFIaDybTJ4d7gEatSws6wKVu4QjIaoPbjpdwYnJKVsW+tpZa/L+Lj1oTdR9ZXYl1qTk=
+	t=1760544290; cv=none; b=TEYDZt6nus7r6eZt/sGUj1ds/X5h98rZKcs8dmTpSGW6avGRAmEajnDdIHsG6MMf0iK1KDpER/9GUwSg4gUb+VQURFKa/YzizB6BXaQx09nrg09Ttk5v6i9GcKEHzZPlS9hbFG5CTDCrGuU64SWRQpNF93SFJgBK0R9tsPubnoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760540446; c=relaxed/simple;
-	bh=tSSuv9qd+EGYUQL8vOXHRSPgInZY98O3jOMvDKpPSXM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=EqgIRMV/6nGjwbv1ZdMsREA/v/EX50pm2uJER0JldnDKcxnp/uaKxRLZWAVPVIVQI0uQMSe0S04jK/Sjq76TLiM1+/WPMq53y0+oBrcwKi3pPZXK9oAgEkCcXpAhV16ItFjJX8KySyXheLKuKhPy8Cd74emjo7VmStaGjzvSuPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J8Qx8npr; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1760544290; c=relaxed/simple;
+	bh=16eBxg7txFfBsqUuajXpRFF59e1zCPC6RLyurv+78h8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CWHUg23HlJfvwihQ8tWcyidwXHUiMniAhEqtS2L/KLdqS5azMHdD/+R3QlPEs3Tnt6m9sf9wjyGgQyCNBJrI9ikkTeydX26ssTJekEA1LAgGe3kuEqQuOk67/jXI5iYtEh5AG4dW128E+ZVfOhJmF7aKyAxxmcHNebpkd1W3vjM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DTMYRDGb; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J8Qx8npr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760540443;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=MElpqlEaZ/QL8rOGgLuRvu7r4AErxu8O/kca7UOA8yU=;
-	b=J8Qx8nprCsAkEP4MoGxK1oTv6skSUofipysVrI4rXBt1ObQ+7sxFq/6z44xT4nKUevO/LG
-	8bXsPHrHCB3XlJfvvEYykqjrAbjZ4yzjHh0lueIbzy4ysOFtN6PE42WnB0MY62mN+Z9ads
-	ttYIS+9lmUmNcl89AELQqJgqV5Z+oU4=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-403-tJPoiAZeNcOfDmxYHi-tHw-1; Wed, 15 Oct 2025 11:00:42 -0400
-X-MC-Unique: tJPoiAZeNcOfDmxYHi-tHw-1
-X-Mimecast-MFC-AGG-ID: tJPoiAZeNcOfDmxYHi-tHw_1760540440
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-46e4cc8ed76so36710435e9.1
-        for <virtualization@lists.linux.dev>; Wed, 15 Oct 2025 08:00:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760540440; x=1761145240;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MElpqlEaZ/QL8rOGgLuRvu7r4AErxu8O/kca7UOA8yU=;
-        b=nWwMtUuXVveT71ERkDYYxvzqiflFsbEItVF9UMMQIM1FZt2nTaZAm1yMq0yhi4WTcS
-         B9VaN5lmGeoTpzz/bn1bvpFW8auDVOg7jdspM2MnM14L6F6oaDE2pqwWosi3/brAezYY
-         29zUy1+Fze3YKVGP//KLZ+EOs2+X0/pIT40rUmfb2ulL1Q7xDfNiY/0BPJZFZ+7aSEJR
-         CA23FVimT5itYjCmxEao4nkEhTjwxJNACc4tDH3wn6Hw4jOa6xY1lfF0hewKQ3bM5FDy
-         VnWjghBtb4Vk057WlXB6CaAQAS7YIsLvcpX8nPtSKCxRtZyNzUCId7JhDBU6WZCeQoAl
-         1iLg==
-X-Forwarded-Encrypted: i=1; AJvYcCXTb1bI5wPzEzEZZjV8djvxB4JSxE6TMMyyUTKDwemi6f5qOAle4dIFgUyV4ck8d3KYZbrVC957FH8K4nfSpg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YynVpdJGKuq5cL5gRJvqYANMfPleqEyRLT/7WncXlY3GscHFAFl
-	fA4ZByibExv3OKvBSBu2KeNPzmr4uyM3/qwAT/trCJq/RXGhWuT8Ejpnwm80rRHqutqyNlBg/wV
-	layPbGHRvHULhxacx64O7qewl/xtSNSa6l9WbkAu5fdcVDj0JMmH2syGiXa53WCrZXhtb
-X-Gm-Gg: ASbGncvKhApXksMFb/IEDPMKTCQKlSjjoXoqi2dEBc+cCWcBdDbtWz2O32DWv6KIc4F
-	W8hb63uXKh/NBsrmzTaBA05EkM7qZ9NWNL3e6PPQ2zlDz5fSBvXBQ2hIWXJ/C9Rc5J19fp55Hat
-	i99fIuzabBowWkHowkdZrHefXqCyEVf2Y7mG1KGzZU7WP9o9+8EtLBZfxo5FQ8HnqSyEk3jQulf
-	rMXLQV3ny7wxI0MDW1/mif32idOzS1QHMdie0/bQKWVuJGAtTwpwUDwMKr3vabRqo3m0P6HtVcu
-	bDG3dk2bqOhpaqDGhrS7fOjhhTVEtgirPw==
-X-Received: by 2002:a05:600c:609b:b0:456:13b6:4b18 with SMTP id 5b1f17b1804b1-46fa9b106cbmr224296925e9.31.1760540439771;
-        Wed, 15 Oct 2025 08:00:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG83tZOYf92UjJrUkzfuJBKvYnViUzT9/EFd7GjBiFY3LwsTllALB98FeXxGE98+Djg54Lo+Q==
-X-Received: by 2002:a05:600c:609b:b0:456:13b6:4b18 with SMTP id 5b1f17b1804b1-46fa9b106cbmr224296395e9.31.1760540439138;
-        Wed, 15 Oct 2025 08:00:39 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:152d:b200:2a90:8f13:7c1e:f479])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46fab5250ddsm175452285e9.6.2025.10.15.08.00.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Oct 2025 08:00:37 -0700 (PDT)
-Date: Wed, 15 Oct 2025 11:00:34 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Wei Gong <gongwei833x@gmail.com>, vgoyal@redhat.com, miklos@szeredi.hu,
-	virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
-	Wei Gong <gongwei09@baidu.com>
-Subject: Re: [PATCH] virtiofs: remove max_pages_limit in indirect descriptor
- mode
-Message-ID: <20251015105830-mutt-send-email-mst@kernel.org>
-References: <20251011033018.75985-1-gongwei833x@gmail.com>
- <20251014185356.GB18850@fedora>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DTMYRDGb"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59FDhs4b001980;
+	Wed, 15 Oct 2025 16:02:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=5opmQQ
+	rcs+iQAYIWBtfey0J/RoSdwtl4mYe2y0r2Ztg=; b=DTMYRDGbbruCsK1hiGXePi
+	NbuXJV52I8gbDdNY9W5EKuZLmSAQBDEHUcH2r6peMBVF2Oh/kCdqsMc6mxNJQeGk
+	Aw/B6GpRKQu9tbPPJPJ5RcRbuXlQxkNIz3azQRk3KPsJdXHGfHlzxPt5XjgVOFvx
+	BQ0/nhlzIIbQQbXnf7MtSdlfo00TmjjfcvDlThYf6U71fY5o3fDsIjTJh+vcOdIU
+	dYavP4hNgCW5L+atWQrgXhGeac0cJhNwANNxfuvecdQnBk3x2YFd+dKpK2iMiVYX
+	HZrFxNrwGZjChtL00YRH1UN34CxwbVQLSiBfOUaLpbw6E+d0LxTAOcF+Z6tH/v8Q
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49rfp80e96-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Oct 2025 16:02:30 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 59FFxv93008767;
+	Wed, 15 Oct 2025 16:02:29 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49rfp80e90-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Oct 2025 16:02:29 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59FDu6dv003626;
+	Wed, 15 Oct 2025 16:02:27 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49r1xy1a38-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Oct 2025 16:02:27 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59FG2Pc631261170
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 15 Oct 2025 16:02:25 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3D48E200E6;
+	Wed, 15 Oct 2025 16:02:25 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 34465200DB;
+	Wed, 15 Oct 2025 16:02:11 +0000 (GMT)
+Received: from [9.124.218.242] (unknown [9.124.218.242])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 15 Oct 2025 16:02:10 +0000 (GMT)
+Message-ID: <9901f2e8-653e-42f4-9344-03b2f70846bb@linux.ibm.com>
+Date: Wed, 15 Oct 2025 21:32:10 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251014185356.GB18850@fedora>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: gWdskQgDXlP53j5MqQLqaQhJ50txvTLrM2nCPFvpZrc_1760540440
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Oct 14, 2025 at 02:53:56PM -0400, Stefan Hajnoczi wrote:
-> On Sat, Oct 11, 2025 at 11:30:18AM +0800, Wei Gong wrote:
-> > From: Wei Gong <gongwei09@baidu.com>
-> > 
-> > Currently, indirect descriptor mode unnecessarily restricts the maximum
-> > IO size based on virtqueue vringsize. However, the indirect descriptor
-> > mechanism inherently supports larger IO operations by chaining descriptors.
-> > 
-> > This patch removes the artificial constraint, allowing indirect descriptor
-> > mode to utilize its full potential without being limited by vringsize.
-> > The maximum supported descriptors per IO is now determined by the indirect
-> > descriptor capability rather than the virtqueue size.
-> > 
-> > Signed-off-by: Wei Gong <gongwei09@baidu.com>
-> > ---
-> >  fs/fuse/virtio_fs.c | 9 ++++++---
-> >  1 file changed, 6 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> > index 76c8fd0bfc75..c0d5db7d7504 100644
-> > --- a/fs/fuse/virtio_fs.c
-> > +++ b/fs/fuse/virtio_fs.c
-> > @@ -12,6 +12,7 @@
-> >  #include <linux/memremap.h>
-> >  #include <linux/module.h>
-> >  #include <linux/virtio.h>
-> > +#include <linux/virtio_ring.h>
-> >  #include <linux/virtio_fs.h>
-> >  #include <linux/delay.h>
-> >  #include <linux/fs_context.h>
-> > @@ -1701,9 +1702,11 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
-> >  	fc->sync_fs = true;
-> >  	fc->use_pages_for_kvec_io = true;
-> >  
-> > -	/* Tell FUSE to split requests that exceed the virtqueue's size */
-> > -	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
-> > -				    virtqueue_size - FUSE_HEADER_OVERHEAD);
-> > +	if (!virtio_has_feature(fs->vqs[VQ_REQUEST].vq->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
-> > +		/* Tell FUSE to split requests that exceed the virtqueue's size */
-> > +		fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
-> > +						virtqueue_size - FUSE_HEADER_OVERHEAD);
-> > +	}
-> 
-> The VIRTIO 1.3 specification defines the maximum descriptor chain length
-> as follows
-> (https://docs.oasis-open.org/virtio/virtio/v1.3/csd01/virtio-v1.3-csd01.html#x1-9200019):
-> 
->   The number of descriptors in the table is defined by the queue size for this virtqueue: this is the maximum possible descriptor chain length.
-> 
-> The driver requirements for indirect descriptors say
-> (https://docs.oasis-open.org/virtio/virtio/v1.3/csd01/virtio-v1.3-csd01.html#x1-9200019):
-> 
->   A driver MUST NOT create a descriptor chain longer than allowed by the device.
-> 
-> My interpretation is that this patch violates the specification because
-> it allows descriptor chains that exceed the maximum possible descriptor
-> chain length.
-> 
-> Device implementations are not required to enforce this limit, so you
-> may not see issues when testing. Nevertheless, this patch has the
-> potential to break other device implementations though that work fine
-> today, so it doesn't seem safe to merge this patch in its current form.
-> 
-> I have CCed Michael Tsirkin in case he has thoughts. It would be nice to
-> boost performance by allowing longer I/O requests, but the driver must
-> comply with the VIRTIO specification.
-> 
-> Thanks,
-> Stefan
-
-This request is not uncommon. We wanted a field for max s/g supported as
-separate from the VQ depth for a while now, and for various device
-types. No one yet bothered implementing this or even adding the
-description to the spec yet.
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 05/21] paravirt: Remove asm/paravirt_api_clock.h
+To: Juergen Gross <jgross@suse.com>
+Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
+        Alexey Makhalov <alexey.makhalov@broadcom.com>,
+        Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+        Russell King
+ <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        x86@kernel.org, virtualization@lists.linux.dev,
+        loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org
+References: <20251006074606.1266-1-jgross@suse.com>
+ <20251006074606.1266-6-jgross@suse.com>
+Content-Language: en-US
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <20251006074606.1266-6-jgross@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 9ZUK4UeNEA3M63-5xIUdjnNRJmI9KQSO
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDEyMDA4NCBTYWx0ZWRfX90a/KFqHOFA4
+ 3LTXuANmdsGxWyQx7Ukevm3RyFSkQJ9pXc2oVr8K5uv/q7SJflj3vhk6rgQPg5a2e4JMHRcokhT
+ E+w6CfzUtDgCzNqO7x7Qz0iPi2Udyp1mB5qOlV79KYdYo8wEkzexJTGI0NvxBMb9zp2anqktjy6
+ x7dXmTESXxwuIWmKuQwlY9VJQdv5AweqVNhod++KR+c5UndqULhfyI4H+V7In+JTOm9GWN4E92e
+ bZgooNZopePk7kVmv+pt2VQaWzIRRgwHx3+Ivefade+IPstSVao1M49g8pQuFBZku8ozOWBjVco
+ XGxbdE4m67DWVP6wWkyIRV4aUp8gC4N6DdEGT4oMISQu4RWJ20yslN8ham/g8aBzCSTrxBcUSHp
+ 17smtvjqfZzcfkxRb2PzijiKsYbetw==
+X-Proofpoint-GUID: dV8tQT4HDH7j4wsc4MFx6qXJyZuneU1L
+X-Authority-Analysis: v=2.4 cv=af5sXBot c=1 sm=1 tr=0 ts=68efc596 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=iox4zFpeAAAA:8 a=JfrnYn6hAAAA:8 a=VnNF1IyMAAAA:8 a=RR7mTWzPQ-4l2d7n_HwA:9
+ a=QEXdDO2ut3YA:10 a=WzC6qhA0u3u7Ye7llzcV:22 a=1CNFftbPRP8L7MoqJWF3:22
+ a=DXsff8QfwkrTrK3sU8N1:22 a=Z5ABNNGmrOfJ6cZ5bIyy:22 a=bWyr8ysk75zN3GCy5bjg:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-15_06,2025-10-13_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 priorityscore=1501 spamscore=0 adultscore=0 suspectscore=0
+ bulkscore=0 phishscore=0 lowpriorityscore=0 malwarescore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510120084
 
 
--- 
-MST
 
+On 10/6/25 1:15 PM, Juergen Gross wrote:
+> All architectures supporting CONFIG_PARAVIRT share the same contents
+> of asm/paravirt_api_clock.h:
+> 
+>    #include <asm/paravirt.h>
+> 
+> So remove all incarnations of asm/paravirt_api_clock.h and remove the
+> only place where it is included, as there asm/paravirt.h is included
+> anyway.
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>   arch/arm/include/asm/paravirt_api_clock.h       | 1 -
+>   arch/arm64/include/asm/paravirt_api_clock.h     | 1 -
+>   arch/loongarch/include/asm/paravirt_api_clock.h | 1 -
+>   arch/powerpc/include/asm/paravirt_api_clock.h   | 2 --
+>   arch/riscv/include/asm/paravirt_api_clock.h     | 1 -
+>   arch/x86/include/asm/paravirt_api_clock.h       | 1 -
+>   kernel/sched/sched.h                            | 1 -
+>   7 files changed, 8 deletions(-)
+>   delete mode 100644 arch/arm/include/asm/paravirt_api_clock.h
+>   delete mode 100644 arch/arm64/include/asm/paravirt_api_clock.h
+>   delete mode 100644 arch/loongarch/include/asm/paravirt_api_clock.h
+>   delete mode 100644 arch/powerpc/include/asm/paravirt_api_clock.h
+>   delete mode 100644 arch/riscv/include/asm/paravirt_api_clock.h
+>   delete mode 100644 arch/x86/include/asm/paravirt_api_clock.h
+> 
+
+For powerpc, scheduler bits
+
+Reviewed-by: Shrikanth Hegde <sshegde@linux.ibm.com>
