@@ -1,192 +1,325 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C81C2D3A86
-	for <virtualization@lists.linux.dev>; Thu, 16 Oct 2025 06:26:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 139B2343D91
+	for <virtualization@lists.linux.dev>; Thu, 16 Oct 2025 14:52:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760595973; cv=none; b=VjSs4NlxmPznt898XNUQlnx30474VDXhmtwa4AEO2w0UrWFt+wUpX36BH5eHGFygdeTKTy4hjuz78+lLAzrWOqrdcz8ieCJw2bdKcACSBgAM69gQjS9r7PsnpaOXVLRBr1q9mK1PlXOtRP3UU+HgRta/+oOYRusESqr0pf3tdTQ=
+	t=1760626358; cv=none; b=eDrE04ohbMdJJpZ3yBTqHPCaxpC5p5HAkdyCBIn3EWHVIa0v0UfdQrMk5K8tui/it2PIWavYCB6oB9KYBNUCZdLO3TmrJ9uP3OCyCK4fOV0JN/A3xZkzkVCrmwnhP40/66qkEIibEbB75g3g+adn0heuE8IJztebv8+3bCLJKpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760595973; c=relaxed/simple;
-	bh=tBqeuunpv84uc8GThElbM0HDnAKxIfwceg7sAyWNTkg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hcjCgmbizDV2eeQph67ZSdCSUkvnFmuZDCVEhBSlsMxC5KE4kNnCKB+GPPt04r+DJtN7rpwv470Cf9730/a3BUdasOyUMf9nE8gKKdJan5VjNdHIFS9ezD0369QEA6LAyOxr0p7m1zBticpKwr0szB1E9WbgIcE3FQnKgq/Q8Fw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=St6SA3Nz; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1760626358; c=relaxed/simple;
+	bh=llmkX27PLGe+EZwWx2GXbUT7pIEa0Srxh1LuQU1dP40=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OfF67R6u1Nymw9khnJXp+6Ocghk3pMgFi4PJv7mue+bFYUFmsjUa5wfc4Js7cAz+7YOk/7DPh0UVHx1MmiU8Vj5VreXrsu4Y6iD+F6tMuNS2cAEktva4T/DAM8nXMJx1SBa00bBTfWLRpqb0+ZwBS7VVvU/r4v0p2VfocoQhWwA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=G9rb/QvQ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=9QhVvHPe; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=G9rb/QvQ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=9QhVvHPe; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="St6SA3Nz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760595970;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rVdo2zgwDSl/oM36KlT5XNFPETliwAnYnfpD1yjprKs=;
-	b=St6SA3NzVuN8FU3uuxmMzGFJLZKcJjDtgufIHFGTUpetmTysGBtuup4gSQfjzNZud/Zic2
-	SIeaU4/oUD/vAmyQQSFGMXwJCpR1C9wjfw8wiKWrhfY2s8329HSu59Zsyk7RMGbhZR6tma
-	xbE1trsOmVhB3YAln/eSnoAlb1dvZ4U=
-Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
- [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-684-oPnHcIiyOfOGCtQaT9QkiA-1; Thu, 16 Oct 2025 02:26:09 -0400
-X-MC-Unique: oPnHcIiyOfOGCtQaT9QkiA-1
-X-Mimecast-MFC-AGG-ID: oPnHcIiyOfOGCtQaT9QkiA_1760595968
-Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-6352a642093so375417d50.3
-        for <virtualization@lists.linux.dev>; Wed, 15 Oct 2025 23:26:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760595968; x=1761200768;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=rVdo2zgwDSl/oM36KlT5XNFPETliwAnYnfpD1yjprKs=;
-        b=ngEfwxYS4zNh3u5N5KT7+2BHywfYHh0jdGq20+VEEKh6wSUQL/zegM35u8fQSQmKu/
-         7yXenRjsuCo71P8oLL5GeVBUDqpEPh6Tar3gx/1BxBG9jaWoZvUSfjprNoB4oFVWbLfv
-         THNpIVGTLQYWiWt1KT1GF6Hvy/fVukHwQY2ZcN2rqkqiZpEpVrIDD73CKPTQdZ0Eep/Y
-         UuPPJub4quskg9Ma5Mu0ndLaMaM1mW0Iy5wMARzc5fMj7+OLOJc65x6V+55+hk+tAC9T
-         BY070A/4HTWqirDkYASPyU96/9Mn7NXtl5Iu8sIZ5EMi71VHB0jxAsw/EUlgK3W6vsY5
-         i++w==
-X-Forwarded-Encrypted: i=1; AJvYcCVmkHaXQLs3FQdYXW3TXlHfyTbxeneoPYqL9baobxBHy+bW3GvglPrzCbbvLbwskZrPrXx1wo8xHnFcilrQGQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwUb0ORojjsU7+A/HO9afsOd+j6f0X85BnyDWpmE3isboAQw16M
-	ibKfN5LrYZ2dyQQLsktXcPxJxE/BKWw0NEsHGyhNYeiZ9ULBSh50VtzjT/t1amNQDXAvESJKreV
-	W1bSqn0uGXSRe7yyHuy8JVdt9ftDdVf5IoTtTodxJ6Qa8/gk9XqQo2bQ9aHT8KEUwbSqJ/nBv79
-	ei90cufH79Lx9nhdXyHzKBPAZ5m/Kf/MnVy4jJ0uMMK8A=
-X-Gm-Gg: ASbGncug4msdgVZ13GHvzZDoiqFC5d9X27VPlKYXkkbWgGVohxuHxBfgXu6RbfiGxUO
-	y31SvECI8sSpB+23jAcseLv6ifEf+FC+8Km+m5GMbyeSROsM8Ckw43T+4qPBbQoTFHPOQ3BBE2c
-	KUD5hHp1zyqkmLbHoAxwvOQX1BaXTI91MPuFRClsCOPJ2tux5gsVMgxWX9dtzfgMQ/DmwzXcghd
-	THnEXglac4+AbyuDjUV4Vjvcp9gCAZG4jOoeLv8DSs=
-X-Received: by 2002:a05:690c:6c01:b0:737:523a:f7fe with SMTP id 00721157ae682-780e16d5df4mr512147757b3.39.1760595968371;
-        Wed, 15 Oct 2025 23:26:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IER2Eg9LZlod/14LY7qz9zEQBt8M239Y70sk1hqZh80LpdNcsYsRxbbCv2GZVkAJvkmUqEJkzVY8fAYBXKrjck=
-X-Received: by 2002:a05:690c:6c01:b0:737:523a:f7fe with SMTP id
- 00721157ae682-780e16d5df4mr512147467b3.39.1760595968039; Wed, 15 Oct 2025
- 23:26:08 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="G9rb/QvQ";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="9QhVvHPe";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="G9rb/QvQ";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="9QhVvHPe"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 1DA601F8AA;
+	Thu, 16 Oct 2025 14:52:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1760626354; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=leLfPfyhj2vgyhlchDjgg+pci9qdA8IThxOXI8+lpDc=;
+	b=G9rb/QvQNgMzI1IsGeyBeGciTPWoxug/LAov4nf4wtgpP6SYeZRXiyLToOi/Du0L1FcHoE
+	aYaKL6N+KUeJa1URN5i+ID1KcOYS56nEoYwaOdlLjO2UOrYxLhEcaOeWbJEBP3KNg9IDYS
+	pTUgskVEYgNp6PwxlGSz2UgPgCLvmNM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1760626354;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=leLfPfyhj2vgyhlchDjgg+pci9qdA8IThxOXI8+lpDc=;
+	b=9QhVvHPekdNjbnr+Vjbf3e8vBkn+qR5Gxol1Dc7r18kcZQaAe+g9u99p9nxNleBka3Enp+
+	rkLz0dkMajQanjDA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="G9rb/QvQ";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=9QhVvHPe
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1760626354; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=leLfPfyhj2vgyhlchDjgg+pci9qdA8IThxOXI8+lpDc=;
+	b=G9rb/QvQNgMzI1IsGeyBeGciTPWoxug/LAov4nf4wtgpP6SYeZRXiyLToOi/Du0L1FcHoE
+	aYaKL6N+KUeJa1URN5i+ID1KcOYS56nEoYwaOdlLjO2UOrYxLhEcaOeWbJEBP3KNg9IDYS
+	pTUgskVEYgNp6PwxlGSz2UgPgCLvmNM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1760626354;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=leLfPfyhj2vgyhlchDjgg+pci9qdA8IThxOXI8+lpDc=;
+	b=9QhVvHPekdNjbnr+Vjbf3e8vBkn+qR5Gxol1Dc7r18kcZQaAe+g9u99p9nxNleBka3Enp+
+	rkLz0dkMajQanjDA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id D26BA1376E;
+	Thu, 16 Oct 2025 14:52:33 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id aGnjMbEG8WhIGQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 16 Oct 2025 14:52:33 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: dmitry.osipenko@collabora.com,
+	gurchetansingh@chromium.org,
+	kraxel@redhat.com,
+	airlied@redhat.com,
+	vivek.kasireddy@intel.com
+Cc: dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [RFC][PATCH] drm/virtgpu: Make vblank event dependent on the host resource
+Date: Thu, 16 Oct 2025 16:48:33 +0200
+Message-ID: <20251016145230.79270-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251015023020-mutt-send-email-mst@kernel.org>
- <CAJaqyWeiX1Tc77NcYoBbeVfKTeuKHK6hw=n_9Mk4y52k7Djr-g@mail.gmail.com>
- <20251015030313-mutt-send-email-mst@kernel.org> <CAJaqyWfRmhXM8eV+=wMVKgrc8SJ98OTtBCtNDJj8ZRUM5Y9Nmg@mail.gmail.com>
- <CAO55csx2rbjxEZk5K3aKcZ501KY3Zfs8ThEQHFqQ1ZB9RSXECA@mail.gmail.com>
- <20251015040722-mutt-send-email-mst@kernel.org> <CAJaqyWcf3tz17q6G=123Xb+warf8Ckg=PLaPkzLU9hYHiUy9Zg@mail.gmail.com>
- <CACGkMEuPPFLH1YqTx03fV9N=Rx3aYXK0HMUDpZu-CvO1NYRRQA@mail.gmail.com>
- <20251016014328-mutt-send-email-mst@kernel.org> <CACGkMEtXWLicmszjkzOhX8Ta=LdGgsDahRUKDEVzBVG8am5vgg@mail.gmail.com>
- <20251016022131-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20251016022131-mutt-send-email-mst@kernel.org>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 16 Oct 2025 08:25:31 +0200
-X-Gm-Features: AS18NWDpoxxEeX_RbTSotXQqwNmYlmaB24Mg7SGk1YWLyaDDf6vzF8g0cVP2pFk
-Message-ID: <CAJaqyWe--Hho9EdweqkC-h9=t5vhY0cbAN9uAw=hATpkSMbsEg@mail.gmail.com>
-Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Yongji Xie <xieyongji@bytedance.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Dragos Tatulea DE <dtatulea@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 9XG2u1r7DvD76Dis-7-rqmm-VEJ8--bOoJ1QHw0fG6k_1760595968
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 1DA601F8AA
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	MIME_TRACE(0.00)[0:+];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_SEVEN(0.00)[8];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received,2a07:de40:b281:104:10:150:64:97:from];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,suse.de:dkim];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
 
-On Thu, Oct 16, 2025 at 8:22=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Thu, Oct 16, 2025 at 02:03:57PM +0800, Jason Wang wrote:
-> > On Thu, Oct 16, 2025 at 1:45=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Thu, Oct 16, 2025 at 01:39:58PM +0800, Jason Wang wrote:
-> > > > > >
-> > > > > > Not exactly bufferize, record.  E.g. we do not need to send
-> > > > > > 100 messages to enable/disable promisc mode - together they
-> > > > > > have no effect.
-> > > >
-> > > > Note that there's a case that multiple commands need to be sent, e.=
-g
-> > > > set rx mode. And assuming not all the commands are the best effort,
-> > > > kernel VDUSE still needs to wait for the usersapce at least for a
-> > > > while.
-> > >
-> > > Not wait, record. Generate 1st command, after userspace consumed it -
-> > > generate and send second command and so on.
-> >
-> > Right, that's what I asked in another thread, we still need a timeout
-> > here.
->
-> we do not need a timeout.
->
-> > Then I think it would not be too much difference whether it is
-> > VDUSE or CVQ that will fail or break the device. Conceptually, VDUSE
-> > can only advertise NEEDS_RESET since it's a device implementation.
-> > VDUSE can not simply break the device as it requires synchronization
-> > which is not easy.
-> >
-> > > But for each bit of data, at most one command has to be sent,
-> > > we do not care if guest tweaked rx mode 3 times, we only care about
-> > > the latest state.
-> >
-> > Yes, but I want to know what's best when VDUSE meets userspace timeout.
-> >
-> > Thanks
->
->
-> userspace should manage its own timeouts.
->
+For each plane, store the buffer object's host backing in the state
+of the plane's respective CRTC. The host synchronizes output of buffer
+objects with a host resource to its own refresh cycle; thus avoiding
+tearing. During the CRTC's atomic flush, ignore the vblank timer if
+any of the CRTC's plane's buffer object has a host resource. Instead
+send the vblank event immdiatelly. Avoids corner cases where a vblank
+event happens too late for the next frame to be page flipped in time.
 
-Can we just apply the patch 2/2 of this RFC directly and apply the
-VDUSE CVQ on top then? What are we missing to do it?
+The host synchronizes a plane's output to the host repaint cycle if
+the plane's buffer object has an associated host resource. An atomic
+commit blocks until the host cycle completes and then arms the vblank
+event. The guest compositor is thereby synchronized to the host's
+output rate.
 
-On Thu, Oct 16, 2025 at 8:22=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Thu, Oct 16, 2025 at 02:03:57PM +0800, Jason Wang wrote:
-> > On Thu, Oct 16, 2025 at 1:45=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Thu, Oct 16, 2025 at 01:39:58PM +0800, Jason Wang wrote:
-> > > > > >
-> > > > > > Not exactly bufferize, record.  E.g. we do not need to send
-> > > > > > 100 messages to enable/disable promisc mode - together they
-> > > > > > have no effect.
-> > > >
-> > > > Note that there's a case that multiple commands need to be sent, e.=
-g
-> > > > set rx mode. And assuming not all the commands are the best effort,
-> > > > kernel VDUSE still needs to wait for the usersapce at least for a
-> > > > while.
-> > >
-> > > Not wait, record. Generate 1st command, after userspace consumed it -
-> > > generate and send second command and so on.
-> >
-> > Right, that's what I asked in another thread, we still need a timeout
-> > here.
->
-> we do not need a timeout.
->
-> > Then I think it would not be too much difference whether it is
-> > VDUSE or CVQ that will fail or break the device. Conceptually, VDUSE
-> > can only advertise NEEDS_RESET since it's a device implementation.
-> > VDUSE can not simply break the device as it requires synchronization
-> > which is not easy.
-> >
-> > > But for each bit of data, at most one command has to be sent,
-> > > we do not care if guest tweaked rx mode 3 times, we only care about
-> > > the latest state.
-> >
-> > Yes, but I want to know what's best when VDUSE meets userspace timeout.
-> >
-> > Thanks
->
->
-> userspace should manage its own timeouts.
->
-> > >
-> > > --
-> > > MST
-> > >
->
+To avoid delays, send out the vblank event immediately instead of
+just arming it. Otherwise the event might be too late to page flip
+the compositor's next frame.
+
+The vblank timer is still active and fires in regular intervals
+according to the guest display refresh. This rate limits clients
+that only wait for the next vblank to occur, such as fbcon. These
+clients would otherwise produce a very high number of frames per
+second.
+
+For commits without host resource, the vblank timer rate-limits the
+guest output by generating vblank events at the guest display refresh
+rate as before.
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+There was a discussion about interference between vblank timers and
+the host repaint cycle at [1]. This patch address a possible corner
+case were the timing gets bad.
+
+[1] https://lore.kernel.org/dri-devel/IA0PR11MB7185D91EB0CD01FD63D21AA7F8EEA@IA0PR11MB7185.namprd11.prod.outlook.com/
+---
+ drivers/gpu/drm/virtio/virtgpu_display.c | 72 ++++++++++++++++++++++--
+ drivers/gpu/drm/virtio/virtgpu_drv.h     | 15 +++++
+ drivers/gpu/drm/virtio/virtgpu_plane.c   | 16 +++++-
+ 3 files changed, 98 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index e972d9b015a9..43df1fa7d629 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -49,14 +49,76 @@
+ #define drm_connector_to_virtio_gpu_output(x) \
+ 	container_of(x, struct virtio_gpu_output, conn)
+ 
++static void virtio_gpu_crtc_state_destroy(struct virtio_gpu_crtc_state *vgcrtc_state)
++{
++	__drm_atomic_helper_crtc_destroy_state(&vgcrtc_state->base);
++
++	kfree(vgcrtc_state);
++}
++
++static bool virtio_gpu_crtc_state_send_event_on_flush(struct virtio_gpu_crtc_state *vgcrtc_state)
++{
++	struct drm_crtc_state *crtc_state = &vgcrtc_state->base;
++
++	/*
++	 * The CRTC's output is vsync'ed if at least one plane's output is
++	 * sync'ed to the host refresh.
++	 */
++	return vgcrtc_state->send_event_on_flush & crtc_state->plane_mask;
++}
++
++static void virtio_gpu_crtc_reset(struct drm_crtc *crtc)
++{
++	struct virtio_gpu_crtc_state *vgcrtc_state;
++
++	if (crtc->state)
++		virtio_gpu_crtc_state_destroy(to_virtio_gpu_crtc_state(crtc->state));
++
++	vgcrtc_state = kzalloc(sizeof(*vgcrtc_state), GFP_KERNEL);
++	if (vgcrtc_state) {
++		vgcrtc_state->send_event_on_flush = 0ul;
++		__drm_atomic_helper_crtc_reset(crtc, &vgcrtc_state->base);
++	} else {
++		__drm_atomic_helper_crtc_reset(crtc, NULL);
++	}
++}
++
++static struct drm_crtc_state *virtio_gpu_crtc_atomic_duplicate_state(struct drm_crtc *crtc)
++{
++	struct drm_device *dev = crtc->dev;
++	struct drm_crtc_state *crtc_state = crtc->state;
++	struct virtio_gpu_crtc_state *new_vgcrtc_state;
++	struct virtio_gpu_crtc_state *vgcrtc_state;
++
++	if (drm_WARN_ON(dev, !crtc_state))
++		return NULL;
++
++	new_vgcrtc_state = kzalloc(sizeof(*new_vgcrtc_state), GFP_KERNEL);
++	if (!new_vgcrtc_state)
++		return NULL;
++
++	vgcrtc_state = to_virtio_gpu_crtc_state(crtc_state);
++
++	__drm_atomic_helper_crtc_duplicate_state(crtc, &new_vgcrtc_state->base);
++	vgcrtc_state->send_event_on_flush = vgcrtc_state->send_event_on_flush;
++
++	return &new_vgcrtc_state->base;
++}
++
++static void virtio_gpu_crtc_atomic_destroy_state(struct drm_crtc *crtc,
++						 struct drm_crtc_state *crtc_state)
++{
++	virtio_gpu_crtc_state_destroy(to_virtio_gpu_crtc_state(crtc_state));
++}
++
+ static const struct drm_crtc_funcs virtio_gpu_crtc_funcs = {
+ 	.set_config             = drm_atomic_helper_set_config,
+ 	.destroy                = drm_crtc_cleanup,
+ 
+ 	.page_flip              = drm_atomic_helper_page_flip,
+-	.reset                  = drm_atomic_helper_crtc_reset,
+-	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
+-	.atomic_destroy_state   = drm_atomic_helper_crtc_destroy_state,
++	.reset                  = virtio_gpu_crtc_reset,
++	.atomic_duplicate_state = virtio_gpu_crtc_atomic_duplicate_state,
++	.atomic_destroy_state   = virtio_gpu_crtc_atomic_destroy_state,
+ 	DRM_CRTC_VBLANK_TIMER_FUNCS,
+ };
+ 
+@@ -129,7 +191,9 @@ static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
+ {
+ 	struct drm_device *dev = crtc->dev;
+ 	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state, crtc);
++	struct virtio_gpu_crtc_state *vgcrtc_state = to_virtio_gpu_crtc_state(crtc_state);
+ 	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
++	bool send_event_on_flush = virtio_gpu_crtc_state_send_event_on_flush(vgcrtc_state);
+ 	struct drm_pending_vblank_event *event;
+ 
+ 	/*
+@@ -147,7 +211,7 @@ static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
+ 	crtc_state->event = NULL;
+ 
+ 	if (event) {
+-		if (drm_crtc_vblank_get(crtc) == 0)
++		if (!send_event_on_flush && drm_crtc_vblank_get(crtc) == 0)
+ 			drm_crtc_arm_vblank_event(crtc, event);
+ 		else
+ 			drm_crtc_send_vblank_event(crtc, event);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index f17660a71a3e..671fc3b61bc6 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -195,6 +195,21 @@ struct virtio_gpu_framebuffer {
+ #define to_virtio_gpu_framebuffer(x) \
+ 	container_of(x, struct virtio_gpu_framebuffer, base)
+ 
++struct virtio_gpu_crtc_state {
++	struct drm_crtc_state base;
++
++	/*
++	 * Send vblank event immediately from atomic_flush. Set from each
++	 * plane's atomic check and depends on the buffer object. Buffers
++	 * with host backing are vsync'd already and should send immediately;
++	 * others should wait for the VBLANK timer.
++	 */
++	u32 send_event_on_flush;
++};
++
++#define to_virtio_gpu_crtc_state(x) \
++	container_of(x, struct virtio_gpu_crtc_state, base)
++
+ struct virtio_gpu_plane_state {
+ 	struct drm_plane_state base;
+ 	struct virtio_gpu_fence *fence;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 29e4b458ae57..d04721c5d505 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -104,7 +104,8 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+ 										 plane);
+ 	bool is_cursor = plane->type == DRM_PLANE_TYPE_CURSOR;
+ 	struct drm_crtc_state *crtc_state;
+-	int ret;
++	struct virtio_gpu_crtc_state *vgcrtc_state;
++	int ret, i;
+ 
+ 	if (!new_plane_state->fb || WARN_ON(!new_plane_state->crtc))
+ 		return 0;
+@@ -126,6 +127,19 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+ 						  DRM_PLANE_NO_SCALING,
+ 						  DRM_PLANE_NO_SCALING,
+ 						  is_cursor, true);
++
++	vgcrtc_state = to_virtio_gpu_crtc_state(crtc_state);
++	vgcrtc_state->send_event_on_flush &= ~drm_plane_mask(plane);
++
++	for (i = 0; i < new_plane_state->fb->format->num_planes; ++i) {
++		struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(new_plane_state->fb->obj[i]);
++
++		if (bo->host3d_blob || bo->guest_blob) {
++			vgcrtc_state->send_event_on_flush |= drm_plane_mask(plane);
++			break; /* only need to find one */
++		}
++	}
++
+ 	return ret;
+ }
+ 
+-- 
+2.51.0
 
