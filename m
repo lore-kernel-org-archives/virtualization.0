@@ -1,113 +1,83 @@
-Received: from rn-mx03.apple.com (rn-mx03.apple.com [17.132.108.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ABA627A444
-	for <virtualization@lists.linux.dev>; Thu, 16 Oct 2025 23:33:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=17.132.108.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47B1B433BC
+	for <virtualization@lists.linux.dev>; Fri, 17 Oct 2025 00:58:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760657600; cv=none; b=hd4hKpCRcLHx903zNUporVBnF5/V2S2J/ISAgun02H003WJBivp887jZP3OgCCtQgmgK25V4W9l1ow4NzbEzwnYcZai3AOroHe53ZWnFs7tHd22+L8BdCd9XpxBZEqnPFCnFCEMCOj6e4Q9+H1A8NIz5nk88dQvvdu7C9yMBpto=
+	t=1760662685; cv=none; b=Cyk5JKP/6muYalr9nk89x8n6v/fKl1rng8dMT+4qAG3zgkN9HkOWzvCpFhQGPqNdWroGl0KHTreKf5SFQjuPnfaq0ZLXuWtU2j55r4x+30HIQwKkOjMZLWFD86SNipGk8XaVCa6rmsDlgQbsgmPK5qgeZlMyrHHyNF5W1VYvtG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760657600; c=relaxed/simple;
-	bh=DCzEcb0EbjY1g8s20TbAhSfGBhmj/YWS4n3dfbHCgmE=;
-	h=From:To:Cc:Subject:Date:Message-id:MIME-version; b=daGOOtoYzerIblVpQ0xWoiXxKCAhQv4/C1Kss1RyR0+5pxmxBl/cdVCgVrFcR9iYjVVp6GjX0wlijnlR9DgUfj92Y48/+gUVXcWLYj/5ZMOrwH0YVvRJWFEQX7Yacc8xmTS754MHzv5XjSf9z7b+ny+1SQWpTgUgYzstiJPokug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=apple.com; spf=pass smtp.mailfrom=apple.com; dkim=pass (2048-bit key) header.d=apple.com header.i=@apple.com header.b=d6RNMENY; arc=none smtp.client-ip=17.132.108.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=apple.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=apple.com
+	s=arc-20240116; t=1760662685; c=relaxed/simple;
+	bh=cikAfzhjErC0zNYhTw+YhZa1pZhEIUvvHOKlGbvjKac=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=JToPvgiDH8ihQK/Nb1UkjrmjxT84HZsTao5LFp3iVx7UwXGknfsRh8TZiytlodRmgFN5x4SV3MrS5e1g1C0B6Z95qAGuMUTIxd/dMgMZKaNEoJV5DoV7ct466mUwVEbP/NaKURRFoWVTPcdy9g4Biw2Kwi5WbxFeyx6Wy2joWiY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RFTiJfSa; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=apple.com header.i=@apple.com header.b="d6RNMENY"
-Received: from mr55p01nt-mtap02.apple.com
- (mr55p01nt-mtap02.ise.apple.com [10.170.185.211]) by mr55p01nt-mxp03.apple.com
- (Oracle Communications Messaging Server 8.1.0.28.20250821 64bit (built Aug 21
- 2025)) with ESMTPS id <0T48248J8XBCNB10@mr55p01nt-mxp03.apple.com> for
- virtualization@lists.linux.dev; Thu, 16 Oct 2025 22:33:13 +0000 (GMT)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-16_04,2025-10-13_01,2025-03-28_01
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=apple.com; h=cc :
- content-transfer-encoding : date : from : message-id : mime-version : subject
- : to; s=20180706; bh=5oAD5oOer419JlgdycYn7yg2e5s40AR7Miv8f7yrRho=;
- b=d6RNMENY7L83Q2Plfmelzg4NhOhrh30kekbCHM0MouRx5VhJpB3uf1E3ArixgdhhF0xf
- rd3VPf4UYG5YgKosYtEBRBDxLGxJgGRd/CNnRD0mLV0n+pqjz5rKl2Bi4MfPpX9112uS
- Lr1QmPY67s+/TUhWIOfw3vOf4PlJ+NDu6RMxqzpmivdIViTnk9TBzzzieCZ994UjR4Bx
- COVyEGoow2S2CuAPAfLUIfONn2H1+shWNUtQ3oVPZpODEwNlzyAg0COeuL/5v3cNiiG4
- XWkkgqGxWDAG0hHVM0V9ISZHT/4SEiIJi4eUwJpPf2ob/asZ0C/Q3ZmK/zxXPY7Im+Yb nQ==
-Received: from mr55p01nt-mmpp03.apple.com
- (mr55p01nt-mmpp03.ise.apple.com [10.170.185.208])
- by mr55p01nt-mtap02.apple.com
- (Oracle Communications Messaging Server 8.1.0.28.20250821 64bit (built Aug 21
- 2025)) with ESMTPS id <0T481TPFDXBCVHV0@mr55p01nt-mtap02.apple.com>; Thu,
- 16 Oct 2025 22:33:12 +0000 (GMT)
-Received: from process_milters-daemon.mr55p01nt-mmpp03.apple.com by
- mr55p01nt-mmpp03.apple.com
- (Oracle Communications Messaging Server 8.1.0.28.20250821 64bit (built Aug 21
- 2025)) id <0T4824Z00X7ATV00@mr55p01nt-mmpp03.apple.com>; Thu,
- 16 Oct 2025 22:33:12 +0000 (GMT)
-X-Va-A:
-X-Va-T-CD: 5c1d590bbb3e9640019563b4ec412a7e
-X-Va-E-CD: 7634ee1c9f2a9e46db68005ed32c5d68
-X-Va-R-CD: 9cc962ae69cb668f1f695ab9a070da32
-X-Va-ID: f093272d-667f-4240-92aa-f411f2c52dbd
-X-Va-CD: 0
-X-V-A:
-X-V-T-CD: 5c1d590bbb3e9640019563b4ec412a7e
-X-V-E-CD: 7634ee1c9f2a9e46db68005ed32c5d68
-X-V-R-CD: 9cc962ae69cb668f1f695ab9a070da32
-X-V-ID: 69d21ee1-e5fc-4eca-8136-b7659b4d75c9
-X-V-CD: 0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-16_04,2025-10-13_01,2025-03-28_01
-Received: from M4Max.scv.apple.com (unknown [17.192.171.196])
- by mr55p01nt-mmpp03.apple.com
- (Oracle Communications Messaging Server 8.1.0.28.20250821 64bit (built Aug 21
- 2025)) with ESMTPSA id <0T4824Z2EXB5MK00@mr55p01nt-mmpp03.apple.com>; Thu,
- 16 Oct 2025 22:33:12 +0000 (GMT)
-From: Wen Xin <w_xin@apple.com>
-To: netdev@vger.kernel.org
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, virtualization@lists.linux.dev, Wen Xin <w_xin@apple.com>
-Subject: [PATCH net] virtio_net: fix header access in big_packets mode
-Date: Thu, 16 Oct 2025 15:33:05 -0700
-Message-id: <20251016223305.51435-1-w_xin@apple.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RFTiJfSa"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1760662679; h=Message-ID:Subject:Date:From:To;
+	bh=bIANy4Ycj+HBtemaCXpipLOBIsrD9gM6qo8E04r1ozY=;
+	b=RFTiJfSaB2GogOY1bXunslwOnjhAS+htXjXQCvNLUrrvl94gJZ/P0opbQLkry2BL38HES3L55chVxRtZ0dL8Tv+8XkecGUmaS9GfHpFHhdsCU5Cocg2n/siDA9iSESSEJtqU4W3DIhOXavh5C6rz0qmCqc4jTfkgCp5qhHh0bH4=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WqMOOPm_1760662678 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 17 Oct 2025 08:57:59 +0800
+Message-ID: <1760662656.1338146-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net] virtio_net: fix header access in big_packets mode
+Date: Fri, 17 Oct 2025 08:57:36 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Wen Xin <w_xin@apple.com>
+Cc: mst@redhat.com,
+ jasowang@redhat.com,
+ eperezma@redhat.com,
+ virtualization@lists.linux.dev,
+ Wen Xin <w_xin@apple.com>,
+ netdev@vger.kernel.org
+References: <20251016223305.51435-1-w_xin@apple.com>
+In-Reply-To: <20251016223305.51435-1-w_xin@apple.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-version: 1.0
-Content-transfer-encoding: 8bit
 
-In Linux virtio-net driver's (drivers/net/virtio_net.c) big packets mode (vi->big_packets && vi->mergeable_rx_bufs), the buf
-pointer passed to receive_buf() is a struct page pointer, not a buffer
-pointer. The current code incorrectly casts this page pointer directly as
-a virtio_net_common_hdr, causing it to read flags from the page struct
-memory instead of the actual packet data.
+http://lore.kernel.org/all/20251013020629.73902-1-xuanzhuo@linux.alibaba.com
 
-Signed-off-by: Wen Xin <w_xin@apple.com>
----
- drivers/net/virtio_net.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+do the same thing.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 7646ddd9bef7..c10f5585bc88 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2566,7 +2566,13 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 	 * virtnet_xdp_set()), so packets marked as
- 	 * VIRTIO_NET_HDR_F_NEEDS_CSUM get dropped during XDP processing.
- 	 */
--	flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
-+	if (vi->big_packets && !vi->mergeable_rx_bufs) {
-+		struct virtio_net_common_hdr *hdr = page_address((struct page *)buf);
-+
-+		flags = hdr->hdr.flags;
-+	} else {
-+		flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
-+	}
- 
- 	if (vi->mergeable_rx_bufs)
- 		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
--- 
-2.39.5 (Apple Git-154)
 
+On Thu, 16 Oct 2025 15:33:05 -0700, Wen Xin <w_xin@apple.com> wrote:
+> In Linux virtio-net driver's (drivers/net/virtio_net.c) big packets mode (vi->big_packets && vi->mergeable_rx_bufs), the buf
+> pointer passed to receive_buf() is a struct page pointer, not a buffer
+> pointer. The current code incorrectly casts this page pointer directly as
+> a virtio_net_common_hdr, causing it to read flags from the page struct
+> memory instead of the actual packet data.
+>
+> Signed-off-by: Wen Xin <w_xin@apple.com>
+> ---
+>  drivers/net/virtio_net.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7646ddd9bef7..c10f5585bc88 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2566,7 +2566,13 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>  	 * virtnet_xdp_set()), so packets marked as
+>  	 * VIRTIO_NET_HDR_F_NEEDS_CSUM get dropped during XDP processing.
+>  	 */
+> -	flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
+> +	if (vi->big_packets && !vi->mergeable_rx_bufs) {
+> +		struct virtio_net_common_hdr *hdr = page_address((struct page *)buf);
+> +
+> +		flags = hdr->hdr.flags;
+> +	} else {
+> +		flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
+> +	}
+>
+>  	if (vi->mergeable_rx_bufs)
+>  		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
+> --
+> 2.39.5 (Apple Git-154)
+>
