@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64BA12E92B0
-	for <virtualization@lists.linux.dev>; Mon, 20 Oct 2025 07:11:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5260E2DF719
+	for <virtualization@lists.linux.dev>; Mon, 20 Oct 2025 07:11:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760944284; cv=none; b=UcPINOxbxA4PobKaEZC+wRBADTHpRkuOQPG2P5CLdtcekC7jlc3lE9/7LHVUyyLyCzusP8R6gAWVEigzzsJK3TFnksdJbyy1XPseteVzsFPoAUCt0Ak00Gi+zzYtSB4F1GIzvYFUOw9N5cecniFLyDxuUMewpR5ggS+iEg8OYyM=
+	t=1760944288; cv=none; b=Rm8U6AMvTY30F99go2Z1Vsjjj6HkCnU26tmT3sGqQtmYOSPuHt9hP/6uvf8bq2U/1qEoDgixjik+Wtp/Dl+Izpit28HoheXemGRSwAIOkNHWGmbiLbmnYmxlEWiSyrsyntiGS1i/99UDyZ9AGy1fo8zcV987BntI8gGE9BC6oOw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760944284; c=relaxed/simple;
-	bh=If4snOkMfLQbL1VYmq7vhi5uBH6a4l2Xi0s8Njt9BtI=;
+	s=arc-20240116; t=1760944288; c=relaxed/simple;
+	bh=rHrGNT24xmrdhC5F+YR1TnjDpsX+U6XDSXhyVRYmpsU=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=eVwXMPtorA+e48d5mTSv25b6UWGumhaQFBmiQfKs6cFpVPm4De1jzZlGMQZ6vtAhOSzxJMQDA1o3RL0QJFsP98wPlKcHwtpsYG/dLK7dzk+bM4M84hrlVlD5oWXHZiu6vG0prT9o/GSNE4II6ZIS4mrTCBhxRNbgUpraLDE5iBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=du+m84YV; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:Content-Type; b=lywLWE4vRKz0OypuBc9ZE8fkfwlk4zqEnRXe1+qTIoRuio4biib90PWf164+t5SmGhwIOfLt5AQ8tI6bT/3VYtNfYjLqZkHlTrrxakm7/VvDpViyYI0LQeN2HYukUaTL0Q+UKcBtm405IeYBsCWIb26k1CSquk67lqp1cXxKN4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JB+hAc2f; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="du+m84YV"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JB+hAc2f"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760944281;
+	s=mimecast20190719; t=1760944286;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=dkwIkfBggUdJGM3dCT6Zmq2fReJpmpq7neySAXJ1oi4=;
-	b=du+m84YVYMnLFENtbrzAP5FSz83HNKLKG1IxHcHeu6UfbfHsISJLnw4bSPoItgMd74QIM5
-	2lnaQwio5lvNY62p9w+ig+TBqdwJhn9gzA5E7QaZXPShTaElrcj0XqUV760T2UrVg6LObL
-	38qbe6TUxdEtaTzmjImrJv3R3ewFdRc=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=gDhYYb5/vqjcZ2X9K8PW960PeOO9CL79kbWB0k4US8U=;
+	b=JB+hAc2fT5b6HvRx5hy6Bj7m2NFYlBb/DcBd/nhbIRFk26iU1hqpnCvCFHebVDIRpyL/Yx
+	sTzKEVait4c6SjsYIn0jxZ9+LbXCA7NmQ/5AkCn3dnrNJvX6o4CH357Wl34ErHZVlzIoUQ
+	VE8vZGmWkYipHRgwXWMAfv6XPKKmulU=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-423-OxWlUojMO6m9CBb6Bb7gZA-1; Mon,
- 20 Oct 2025 03:11:17 -0400
-X-MC-Unique: OxWlUojMO6m9CBb6Bb7gZA-1
-X-Mimecast-MFC-AGG-ID: OxWlUojMO6m9CBb6Bb7gZA_1760944276
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-422-OS_9lLAhPsCBZ0L2HPOwrA-1; Mon,
+ 20 Oct 2025 03:11:21 -0400
+X-MC-Unique: OS_9lLAhPsCBZ0L2HPOwrA-1
+X-Mimecast-MFC-AGG-ID: OS_9lLAhPsCBZ0L2HPOwrA_1760944280
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 73D5418002F9;
-	Mon, 20 Oct 2025 07:11:16 +0000 (UTC)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5AD9E1954213;
+	Mon, 20 Oct 2025 07:11:20 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.113.29])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 87936300019F;
-	Mon, 20 Oct 2025 07:11:13 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 4277B300019F;
+	Mon, 20 Oct 2025 07:11:16 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com,
@@ -49,9 +49,9 @@ To: mst@redhat.com,
 	eperezma@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH V8 17/19] virtio_ring: factor out split indirect detaching logic
-Date: Mon, 20 Oct 2025 15:10:01 +0800
-Message-ID: <20251020071003.28834-18-jasowang@redhat.com>
+Subject: [PATCH V8 18/19] virtio_ring: factor out split detaching logic
+Date: Mon, 20 Oct 2025 15:10:02 +0800
+Message-ID: <20251020071003.28834-19-jasowang@redhat.com>
 In-Reply-To: <20251020071003.28834-1-jasowang@redhat.com>
 References: <20251020071003.28834-1-jasowang@redhat.com>
 Precedence: bulk
@@ -64,99 +64,56 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Factor out the split indirect descriptor detaching logic in order to
-allow it to be reused by the in order support.
+This patch factors out the split core detaching logic that could be
+reused by in order feature into a dedicated function.
 
 Acked-by: Eugenio Pérez <eperezma@redhat.com>
 Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 63 ++++++++++++++++++++----------------
- 1 file changed, 35 insertions(+), 28 deletions(-)
+ drivers/virtio/virtio_ring.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index c59e27e2ad68..0f07a6637acb 100644
+index 0f07a6637acb..96d7f165ec88 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -771,11 +771,42 @@ static bool virtqueue_kick_prepare_split(struct vring_virtqueue *vq)
- 	return needs_kick;
+@@ -802,8 +802,9 @@ static void detach_indirect_split(struct vring_virtqueue *vq,
+ 	vq->split.desc_state[head].indir_desc = NULL;
  }
  
-+static void detach_indirect_split(struct vring_virtqueue *vq,
-+				  unsigned int head)
-+{
-+	struct vring_desc_extra *extra = vq->split.desc_extra;
-+	struct vring_desc *indir_desc =
-+	       vq->split.desc_state[head].indir_desc;
-+	unsigned int j;
-+	u32 len, num;
-+
-+	/* Free the indirect table, if any, now that it's unmapped. */
-+	if (!indir_desc)
-+		return;
-+	len = vq->split.desc_extra[head].len;
-+
-+	BUG_ON(!(vq->split.desc_extra[head].flags &
-+			VRING_DESC_F_INDIRECT));
-+	BUG_ON(len == 0 || len % sizeof(struct vring_desc));
-+
-+	num = len / sizeof(struct vring_desc);
-+
-+	extra = (struct vring_desc_extra *)&indir_desc[num];
-+
-+	if (vq->use_map_api) {
-+		for (j = 0; j < num; j++)
-+			vring_unmap_one_split(vq, &extra[j]);
-+	}
-+
-+	kfree(indir_desc);
-+	vq->split.desc_state[head].indir_desc = NULL;
-+}
-+
- static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
- 			     void **ctx)
+-static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+-			     void **ctx)
++static unsigned detach_buf_split_in_order(struct vring_virtqueue *vq,
++					  unsigned int head,
++					  void **ctx)
  {
  	struct vring_desc_extra *extra;
--	unsigned int i, j;
-+	unsigned int i;
- 	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+ 	unsigned int i;
+@@ -824,8 +825,6 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 	}
  
- 	/* Clear data ptr. */
-@@ -799,34 +830,10 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 	vring_unmap_one_split(vq, &extra[i]);
+-	vq->split.desc_extra[i].next = vq->free_head;
+-	vq->free_head = head;
+ 
  	/* Plus final descriptor */
  	vq->vq.num_free++;
- 
--	if (vq->indirect) {
--		struct vring_desc *indir_desc =
--				vq->split.desc_state[head].indir_desc;
--		u32 len, num;
--
--		/* Free the indirect table, if any, now that it's unmapped. */
--		if (!indir_desc)
--			return;
--		len = vq->split.desc_extra[head].len;
--
--		BUG_ON(!(vq->split.desc_extra[head].flags &
--				VRING_DESC_F_INDIRECT));
--		BUG_ON(len == 0 || len % sizeof(struct vring_desc));
--
--		num = len / sizeof(struct vring_desc);
--
--		extra = (struct vring_desc_extra *)&indir_desc[num];
--
--		if (vq->use_map_api) {
--			for (j = 0; j < num; j++)
--				vring_unmap_one_split(vq, &extra[j]);
--		}
--
--		kfree(indir_desc);
--		vq->split.desc_state[head].indir_desc = NULL;
--	} else if (ctx) {
-+	if (vq->indirect)
-+		detach_indirect_split(vq, head);
-+	else if (ctx)
+@@ -834,6 +833,17 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 		detach_indirect_split(vq, head);
+ 	else if (ctx)
  		*ctx = vq->split.desc_state[head].indir_desc;
--	}
++
++	return i;
++}
++
++static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
++			     void **ctx)
++{
++	unsigned int i = detach_buf_split_in_order(vq, head, ctx);
++
++	vq->split.desc_extra[i].next = vq->free_head;
++	vq->free_head = head;
  }
  
  static bool virtqueue_poll_split(const struct vring_virtqueue *vq,
