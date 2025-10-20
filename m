@@ -1,218 +1,156 @@
-Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3599F3346A3
-	for <virtualization@lists.linux.dev>; Mon, 20 Oct 2025 21:24:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.1
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760995494; cv=pass; b=LzXJjW399nzOHjGpWbDO9JL1NSdh24cA2kMX2OQ7ZN7CGQ/TBD38+pUfwvAxfCUnFAZ0RA36VCleAurFPnmkyd1rOKYQ9pjAURLlLnW5jKgmH9mwCtQ26stnW9zSIq+vptxpNpsvKOog4Y5MfkpyaJdJLI9OC+8lxgjlSjoIQZ0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760995494; c=relaxed/simple;
-	bh=2ouFT+alOTtWn5rhfE5oAisrrN6mYTQD5/35TSdIxvc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hMb2c5cvhaSDgusYrJKJq4mP90A/4hI9qkquGPzXWOZfr/zZX60Hnn2xTF+/oxwDqqnPwarD9Vc7iBhgZJB95MfGsL2q83esj1y9jI6m09eGfDEdWktumlxJhBqLr41u+XJthwUTtn03/7t5oQlgDp8XZCWwlz1xywvA7dtjGPw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=epxF7aLx; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=m0JvxP3Y; arc=pass smtp.client-ip=185.56.87.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C49B918FC86
+	for <virtualization@lists.linux.dev>; Mon, 20 Oct 2025 23:06:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761001616; cv=none; b=erOV0JF9IP9fQ55pEuyPSnOQL0gloHAp17/wGQ4CPoBfDkunsiaGcCDvffo7S6CzWRnnCZ3b4iCca0iei8XdoCDTTvEt8KjEu76n6Z2xaj3+BVY5nD7rjIkVKQOcoRAkpXVEYvZrHNUgErHPpRM+GWobbnLP9xeUX5TpbS7DJRY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761001616; c=relaxed/simple;
+	bh=WOamq/8NTrRJ6lJQJ2kGQKI3k7GTITbOcQoS4hwx+3s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=BZsfwWPbhzlGY1b7ysHSyp4sCSlFC7Km9m/VMe55p9F+AAPX6R3ADu0s01VaJGF7iu35fAs6X70j1KZnUfvr7H3q6lzNJC5sFtk/sCRwzzY4JHMuRs0BIWJQ+2uzhy3BGMKTxNdAPpsjV/1tkvBkQHd9K2HFlinReDNlI28xJxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ftp7fjzS; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="epxF7aLx";
-	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="m0JvxP3Y"
-ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-20pg.prod.antispam.mailspamprotection.com; s=arckey; t=1760995492;
-	 b=Bb+/DGNBVvr+aCVRBOvD3E55Tc0tGjrmDVvUe8m3TzLgsfU3UsNc7Fst+q0hQbTMOItXmlsO3y
-	  R9mnDM9jE2ub1DMM1ZGQAY7vvozDCa0SxFQ/0aHP5Dq9Psqck/PVBSdBeobipfDeaxF8I0AYad
-	  IqWJQUVYjsd2TUO6u7hktVsMvcgU9337i9X73q5TR+EkXOPhR3f8rdH713ApspYO5aRZM8dets
-	  yUI9XmWd8e/dlZajeFHt1kPiOE048wtvI9g7LlwfWTXuFWRQfdxx3ym7FioGA1xHgyIqoXkuQr
-	  opg567mUPehlm4mSAlILnenyyEMQHPTJvIzVJru/w5jUrw==;
-ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-20pg.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-20pg.prod.antispam.mailspamprotection.com; s=arckey; t=1760995492;
-	bh=2ouFT+alOTtWn5rhfE5oAisrrN6mYTQD5/35TSdIxvc=;
-	h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-	  Message-ID:Date:Subject:Cc:To:From:DKIM-Signature:DKIM-Signature;
-	b=ZhoL6Ruc4cxJ/pK11jNgJfQuW5AvJCt9TpkZNoaptcQZ/WdMzmac5u2QzQuKYsis8jar1besIs
-	  7RZnPIq2BSv1Rgn2MNhdYOEaL5ZXOelAMTkeIlCYBSgsIOlX33RasnkIlVaGgQDgz5qBhPkUuA
-	  fyUjgm8A+uykaY+9AG/DNWIsNJU2NVpnT4Me1h7kN89ch5yAMVhcv4u7wQwmLoTmoZahgenxMQ
-	  LVLqwxnDrbfUBj1XAiBYVy7ZaZipfpC9G7/MC/ZNhiehdc11AoC0d+ou2ZcXydLx9/yTA2vQhm
-	  XUMrp5pU2NJ1VqUIG+myZFbJuPRScHl2eUfNP3R+ZEqlvQ==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
-	:Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:
-	Cc:To:From:Reply-To:List-Unsubscribe;
-	bh=SnX1nQdEuaGWMQh+pLSXIZd/hCY6zPBWbspwRBykrrs=; b=epxF7aLxQynHk051S8/lutn+Mk
-	v5A4kyv1UGTZcTUP+3LaNzGBPMVSR/bp+U+U0s4/CrgA5+cpHnI2ewYJA1T90e4bRlYOZjyOxNrG+
-	SN8oMSwLTYUSocfppcC8yh2RJxCTpgp7PB7JZfnjdKdzu4PHKOeicoUatTTIcX77yKIA=;
-Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
-	by instance-europe-west4-20pg.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1vAxMv-00000002cBJ-4BBV
-	for virtualization@lists.linux.dev;
-	Mon, 20 Oct 2025 21:24:44 +0000
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
-	s=default; h=Date:Subject:Cc:To:From:list-help:list-unsubscribe:
-	list-subscribe:list-post:list-owner:list-archive;
-	bh=SnX1nQdEuaGWMQh+pLSXIZd/hCY6zPBWbspwRBykrrs=; b=m0JvxP3YhlvEKT+SYapQA6y1pK
-	eudCWGk+b4z4DhlFO1FxlCzqd/gZaM/JRU625IW4OLptCIRO1GYpgeK/uUo502GJD+P+nDJKL0IEy
-	QvKyUxlpoY3EpzPsNxIJ5yc/koZL4MqoObUZXsMP5F9z1jKIqmUG766341xbyDv+T6xM=;
-Received: from [87.16.13.60] (port=60132 helo=fedora.fritz.box)
-	by esm19.siteground.biz with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1vAxMX-00000000AIj-08n4;
-	Mon, 20 Oct 2025 21:24:17 +0000
-From: Francesco Valla <francesco@valla.it>
-To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Paolo Abeni <pabeni@redhat.com>,
- Harald Mommer <harald.mommer@opensynergy.com>,
- Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
- Wolfgang Grandegger <wg@grandegger.com>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>,
- linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
- netdev@vger.kernel.org, virtualization@lists.linux.dev,
- development@redaril.me
-Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
-Date: Mon, 20 Oct 2025 23:24:15 +0200
-Message-ID: <27327622.1r3eYUQgxm@fedora.fritz.box>
-In-Reply-To: <aPZNiD1SN16K7hmT@fedora>
-References:
- <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
- <1997333.7Z3S40VBb9@fedora.fritz.box> <aPZNiD1SN16K7hmT@fedora>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ftp7fjzS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1761001612;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=yadhvA4ZuoYMPNwq6F4mNtP+XLX9TmfXDYE8mlqAeoM=;
+	b=ftp7fjzSm1mE5k2KxfYt7moomGkLHpxJIR95cGHSw6/nko4jhopDtoXzKOQ/W0BryQCivZ
+	kRWcz0DjyDhOSWfclonOq94rZpTg4t+Ts4likTg0fSZtUoxuYp0h34i/8LL+aW441YuGrh
+	aiztxQHFXANCyS3YZUEnodCmjiXUwRE=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-281-fnhSgK7BMNOvOLBJgQy7zw-1; Mon, 20 Oct 2025 19:06:51 -0400
+X-MC-Unique: fnhSgK7BMNOvOLBJgQy7zw-1
+X-Mimecast-MFC-AGG-ID: fnhSgK7BMNOvOLBJgQy7zw_1761001610
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-47113dcc1e0so40437055e9.3
+        for <virtualization@lists.linux.dev>; Mon, 20 Oct 2025 16:06:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761001610; x=1761606410;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=yadhvA4ZuoYMPNwq6F4mNtP+XLX9TmfXDYE8mlqAeoM=;
+        b=DmDxgmy+74cI0nOwQV4OIRr8+OxcRnzrHggPlhaXkXQyfW+RGqx5ezjQeqLY55WlSk
+         31CdfBuSEZceXRtOcA12shCco7AtA9puiAMVRSPEWYqOpsmvG1MFE8mny8KScHq/xuUV
+         4ltwy6+GHj/x4MhQRh0U/Cobpfd2TQ8IVAST2fTjXd9C7BMmP55kl3wS5itgrZ8I3+Gt
+         WFftEnlxnXC3AGYDEdI6f6snzvkSx14noTcGp+AnaByyTKKwVlepB6YRWuoHdbl69BBa
+         P+/e8fwtvzxRLRemAeNt4WzwgWFe2K9byeGAqoCbLQy2NohkSx7YvRAMM9EnZkF7+exF
+         kmfw==
+X-Forwarded-Encrypted: i=1; AJvYcCVPPG24/pjjsRB7UdG87kOznEUshI5AizisNDAq/wWnE2ASbmw0tT1v86m1gq9gaN4QHwNKYfcrZc0bYJbV9A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yydd6jLMaNDs4xJU9SxEN+9tPlBHpOtHWqpFqUCgmPBGHp4ssa0
+	cjXcNswAIgTyoHnYhgqz5V3lQtThahOqV7s0MOT04mSH2q7wYdJJVJOfe2/xPIbn130aL/+n8nR
+	eWC+DAi/GEoGS0igg9mVWpoqNueSLiVD+RUutVZAYPhzyZLhOVoUe02kFmPPJPAdkycf0
+X-Gm-Gg: ASbGnctcZ0Fpm3ABehqbLkpyCsspeiEifPQwpQOcCZ835hBYFEcIHFRND3dfynevgZd
+	RGMYeJvMS3QbbHNzCRYwc0yDQiPwLg8uy/Nanqc4v7sDOgLobDjd9+ZH0qHqNTcQzsVuPidXDAq
+	Cx9hRxHmg/ub/8qCF33TVJ5P8uNAJmHLCEZMJI4Hh4+Wyg/8pTs9mTqZp+Tqj5owPHNZRuGZu85
+	itFokDIX98gQVTWykZfcO/n4A5ec5+zt5ud9bvVxvs3C3mVkqe4VHT24BZIiPGDNSiFlkqi4IwL
+	iOYUkSDq7lQkOkzf+YC5TR2WnzqIbXfBoPEp7qlauNtKsQicTGbygCR7zIOnPsM8bibO
+X-Received: by 2002:a05:600c:8b03:b0:46e:41b0:f0cb with SMTP id 5b1f17b1804b1-4711790c57amr116010335e9.25.1761001610030;
+        Mon, 20 Oct 2025 16:06:50 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGF22YnS0c4s1OTo1hseU2hGEMN8vRo6HAvsbGEUP5hVKEl3u1SlCcU+fRoWFkUMK+1iwOOIw==
+X-Received: by 2002:a05:600c:8b03:b0:46e:41b0:f0cb with SMTP id 5b1f17b1804b1-4711790c57amr116010165e9.25.1761001609538;
+        Mon, 20 Oct 2025 16:06:49 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:152d:b200:2a90:8f13:7c1e:f479])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4711442d3ddsm246071025e9.5.2025.10.20.16.06.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Oct 2025 16:06:48 -0700 (PDT)
+Date: Mon, 20 Oct 2025 19:06:46 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH V7 15/19] virtio_ring: factor out core logic of buffer
+ detaching
+Message-ID: <20251020190537-mutt-send-email-mst@kernel.org>
+References: <20250925103708.44589-1-jasowang@redhat.com>
+ <20250925103708.44589-16-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - esm19.siteground.biz
-X-AntiAbuse: Original Domain - lists.linux.dev
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - valla.it
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-SGantispam-id: cf0ffe42679580eb43cde25a659e616e
-AntiSpam-DLS: false
-AntiSpam-DLSP: 
-AntiSpam-DLSRS: 
-AntiSpam-TS: 1.0
-CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
-CFBL-Feedback-ID: 1vAxMv-00000002cBJ-4BBV-feedback@antispam.mailspamprotection.com
-Authentication-Results: outgoing.instance-europe-west4-20pg.prod.antispam.mailspamprotection.com;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
+In-Reply-To: <20250925103708.44589-16-jasowang@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: PaQykyKqCtlzGdcp3IfuRGb88Z5jm56GbYDXmXISbEM_1761001610
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Monday, 20 October 2025 at 16:56:08 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
-> On Tue, Oct 14, 2025 at 06:01:07PM +0200, Francesco Valla wrote:
-> > On Tuesday, 14 October 2025 at 12:15:12 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
-> > > On Thu, Sep 11, 2025 at 10:59:40PM +0200, Francesco Valla wrote:
-> > > > Hello Mikhail, Harald,
-> > > > 
-> > > > hoping there will be a v6 of this patch soon, a few comments:
-> > > > 
-> > > > On Monday, 8 January 2024 at 14:10:35 Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com> wrote:
-> > > > 
-> > > > [...]
-> > > > > +
-> > > > > +/* Compare with m_can.c/m_can_echo_tx_event() */
-> > > > > +static int virtio_can_read_tx_queue(struct virtqueue *vq)
-> > > > > +{
-> > > > > +	struct virtio_can_priv *can_priv = vq->vdev->priv;
-> > > > > +	struct net_device *dev = can_priv->dev;
-> > > > > +	struct virtio_can_tx *can_tx_msg;
-> > > > > +	struct net_device_stats *stats;
-> > > > > +	unsigned long flags;
-> > > > > +	unsigned int len;
-> > > > > +	u8 result;
-> > > > > +
-> > > > > +	stats = &dev->stats;
-> > > > > +
-> > > > > +	/* Protect list and virtio queue operations */
-> > > > > +	spin_lock_irqsave(&can_priv->tx_lock, flags);
-> > > > > +
-> > > > > +	can_tx_msg = virtqueue_get_buf(vq, &len);
-> > > > > +	if (!can_tx_msg) {
-> > > > > +		spin_unlock_irqrestore(&can_priv->tx_lock, flags);
-> > > > > +		return 0; /* No more data */
-> > > > > +	}
-> > > > > +
-> > > > > +	if (unlikely(len < sizeof(struct virtio_can_tx_in))) {
-> > > > > +		netdev_err(dev, "TX ACK: Device sent no result code\n");
-> > > > > +		result = VIRTIO_CAN_RESULT_NOT_OK; /* Keep things going */
-> > > > > +	} else {
-> > > > > +		result = can_tx_msg->tx_in.result;
-> > > > > +	}
-> > > > > +
-> > > > > +	if (can_priv->can.state < CAN_STATE_BUS_OFF) {
-> > > > > +		/* Here also frames with result != VIRTIO_CAN_RESULT_OK are
-> > > > > +		 * echoed. Intentional to bring a waiting process in an upper
-> > > > > +		 * layer to an end.
-> > > > > +		 * TODO: Any better means to indicate a problem here?
-> > > > > +		 */
-> > > > > +		if (result != VIRTIO_CAN_RESULT_OK)
-> > > > > +			netdev_warn(dev, "TX ACK: Result = %u\n", result);
-> > > > 
-> > > > Maybe an error frame reporting CAN_ERR_CRTL_UNSPEC would be better?
-> > > > 
-> > > I am not sure. In xilinx_can.c, CAN_ERR_CRTL_UNSPEC is indicated during
-> > > a problem in the rx path and this is the tx path. I think the comment
-> > > refers to improving the way the driver informs this error to the user
-> > > but I may be wrong.
-> > > 
-> > 
-> > Since we have no detail of what went wrong here, I suggested
-> > CAN_ERR_CRTL_UNSPEC as it is "unspecified error", to be coupled with a
-> > controller error with id CAN_ERR_CRTL; however, a different error might be
-> > more appropriate.
-> > 
-> > For sure, at least in my experience, having a warn printed to kmsg is *not*
-> > enough, as the application sending the message(s) would not be able to detect
-> > the error.
-> > 
-> > 
-> > > > For sure, counting the known errors as valid tx_packets and tx_bytes
-> > > > is misleading.
-> > > > 
-> > > 
-> > > I'll remove the counters below.
-> > > 
-> > 
-> > We don't really know what's wrong here - the packet might have been sent and
-> > and then not ACK'ed, as well as any other error condition (as it happens in the
-> > reference implementation from the original authors [1]). Echoing the packet
-> > only "to bring a waiting process in an upper layer to an end" and incrementing
-> > counters feels wrong, but maybe someone more expert than me can advise better
-> > here.
-> > 
-> > 
+On Thu, Sep 25, 2025 at 06:37:04PM +0800, Jason Wang wrote:
+> Factor out core logic of buffer detaching and leave the id population
+
+
+"id population" here really means "free list management".
+
+
+> to the caller so in order can just call the core logic.
+
+
+in order -> in_order
+
+
 > 
-> I agree. IIUC, in case there has been a problem during transmission, I
-> should 1) indicate this by injecting a CAN_ERR_CRTL_UNSPEC package with
-> netif_rx() and 2) use can_free_echo_skb() and increment the tx_error
-> stats. Is this correct?
+> Acked-by: Eugenio Pérez <eperezma@redhat.com>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/virtio/virtio_ring.c | 17 +++++++++++++----
+>  1 file changed, 13 insertions(+), 4 deletions(-)
 > 
-> Matias
-> 
-> 
-
-That's my understanding too! stats->tx_dropped should be the right value to
-increment (see for example [1]).
-
-[1] https://elixir.bootlin.com/linux/v6.17.3/source/drivers/net/can/ctucanfd/ctucanfd_base.c#L1035
-
-Regards,
-Francesco
-
-
-
-
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index fc04cdb99706..4b01c26f83b9 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -1661,8 +1661,8 @@ static bool virtqueue_kick_prepare_packed(struct vring_virtqueue *vq)
+>  	return needs_kick;
+>  }
+>  
+> -static void detach_buf_packed(struct vring_virtqueue *vq,
+> -			      unsigned int id, void **ctx)
+> +static void detach_buf_packed_in_order(struct vring_virtqueue *vq,
+> +				       unsigned int id, void **ctx)
+>  {
+>  	struct vring_desc_state_packed *state = NULL;
+>  	struct vring_packed_desc *desc;
+> @@ -1673,8 +1673,6 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+>  	/* Clear data ptr. */
+>  	state->data = NULL;
+>  
+> -	vq->packed.desc_extra[state->last].next = vq->free_head;
+> -	vq->free_head = id;
+>  	vq->vq.num_free += state->num;
+>  
+>  	if (unlikely(vq->use_map_api)) {
+> @@ -1711,6 +1709,17 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+>  	}
+>  }
+>  
+> +static void detach_buf_packed(struct vring_virtqueue *vq,
+> +			      unsigned int id, void **ctx)
+> +{
+> +	struct vring_desc_state_packed *state = &vq->packed.desc_state[id];
+> +
+> +	vq->packed.desc_extra[state->last].next = vq->free_head;
+> +	vq->free_head = id;
+> +
+> +	detach_buf_packed_in_order(vq, id, ctx);
+> +}
+> +
+>  static inline bool is_used_desc_packed(const struct vring_virtqueue *vq,
+>  				       u16 idx, bool used_wrap_counter)
+>  {
+> -- 
+> 2.31.1
 
