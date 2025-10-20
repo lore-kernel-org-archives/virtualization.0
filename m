@@ -1,213 +1,218 @@
-Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11011028.outbound.protection.outlook.com [52.101.57.28])
+Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5DCE2D0617;
-	Mon, 20 Oct 2025 20:08:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.57.28
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3599F3346A3
+	for <virtualization@lists.linux.dev>; Mon, 20 Oct 2025 21:24:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.1
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760990921; cv=fail; b=To04503gN6I1b2ySHug7TAnI/3WrFmQ4HDLv4+ALWf83gOZ6ZEL/3R7FbS7kjrPvO7nVzr2tQGKRcUkcBQveatgPGmnQPs+HmWjVVenkaICJ9iyJcrMrf9k47whbmjTd3wMdFOGL5kdYVswXrVAWQZHzMq/vsOkEA6Xn0LdAYSk=
+	t=1760995494; cv=pass; b=LzXJjW399nzOHjGpWbDO9JL1NSdh24cA2kMX2OQ7ZN7CGQ/TBD38+pUfwvAxfCUnFAZ0RA36VCleAurFPnmkyd1rOKYQ9pjAURLlLnW5jKgmH9mwCtQ26stnW9zSIq+vptxpNpsvKOog4Y5MfkpyaJdJLI9OC+8lxgjlSjoIQZ0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760990921; c=relaxed/simple;
-	bh=6nbxM7PGrI0xTdoh6ri1TWuYYjvTspQ/CZ1rmisWugY=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JRzJ4hc8edR7RVPveka7TEEj9IsEQIjMmNhAm6Wo8rhI8kgeXvNovdPOUYko3zY5B3Bw7/qdlISWl7Gx1KDneFIn0QzyfsZguF4yvueEmVzp0idoNvkeBMh1iLD8KajSaOxNo35WJ15YZoCnBx9g6FD3nTgLGOPIQGVkIbOhiKg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=GS8VtLn7; arc=fail smtp.client-ip=52.101.57.28
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	s=arc-20240116; t=1760995494; c=relaxed/simple;
+	bh=2ouFT+alOTtWn5rhfE5oAisrrN6mYTQD5/35TSdIxvc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=hMb2c5cvhaSDgusYrJKJq4mP90A/4hI9qkquGPzXWOZfr/zZX60Hnn2xTF+/oxwDqqnPwarD9Vc7iBhgZJB95MfGsL2q83esj1y9jI6m09eGfDEdWktumlxJhBqLr41u+XJthwUTtn03/7t5oQlgDp8XZCWwlz1xywvA7dtjGPw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=epxF7aLx; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=m0JvxP3Y; arc=pass smtp.client-ip=185.56.87.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="GS8VtLn7"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=NpSVWL4Bt4KXJapkoKbrlcZo09uiK4RWOl/9L7ryEw96Edq87/Xhwm+xfAMJAMdSBq8TzYPnIGZCu1h9nHreQiRNZCNU41JdyDXJ45JZ3itFSV8OzQRwsqUecM5H7Hs+TNJE8JyTJUQv6RHeRXrKVaTjABey8IdCZXhtAJO4AbPzRDDv3oSfTujU0VGbOBZ0EI2KkIe1uv8+MhFl0Yvb4vD30zZESeZbnT/MqW6sfkc1mqXG7/0ORrHI4HkAtbUZKXHhKruhoaLUH+RjFYMR9DEGhLKqIGw/KQmPTf/xjj5oiQ1IktVfmRJm45bFUe8L+ljOxu8q2wJTSvUbFGn3Zw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=I+HcKg5I0iYSOa1cv7EeGcGCX9FLTiflIci0SQNbuDY=;
- b=w0h7/Nr6spa5wBxG499qj5EXLFSe/Adpq/4Wsp2POZuSRUUNQ1IAjH5ovTgYVqxPejN/1SMF63X/7dREwIuUMxI8nTzbrZ90ceFLMUdmRbhNqlZRE9GdQkNSV5b9va13cfkwcMRcSGQSFPt7yHXovTPHmsBJp0TL/KuIJxMGoprs5AnSDsGBiReL8Cx+E/a7BZq27G0l+D7P84y+n07QtebNTqrgt5caiXnr5ue71cQKXU5Gk2XIZAP7kOaoSeOAzjmYO4hEbwadpmACkl5nQqSr+KxnFKASNyrN+e7eNIO1WMEakd+Mh4qCD7bL57LDlL8SYprkrCtZotNC1R5Y5g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=csie.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=I+HcKg5I0iYSOa1cv7EeGcGCX9FLTiflIci0SQNbuDY=;
- b=GS8VtLn7kcdkLkQu+tgHMtDvdeKIZwvbkfufMIru24+xOX/HUxl97EUPEzfC32yJ6RHGx5IMfpOSvFWT1Cq+I6LzIohHPu2vSsGo9a4ATJC/8KLtQVDHSTD9WZRGlZ7cAHh7z4zDPohfbSHMgtPgg6rgnp34GaaLzWKINHWhq09ubZmh3MA1w1J3yZ+xczxmXZcZjBkoSsjT4OgLNSMCYs4AVa9gxGJlKf2GpJEmd1Btdlkuew9vOo4N0xy66TjB5RF0seDIhmszKsYiM23+jXOQOgFnWZGsO3od2ipi4+jo7Furf+2/tCNkxUV98S7UULHndERu2uj2o8z66Qg8cA==
-Received: from CH0PR08CA0001.namprd08.prod.outlook.com (2603:10b6:610:33::6)
- by DS4PR12MB9609.namprd12.prod.outlook.com (2603:10b6:8:278::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9228.16; Mon, 20 Oct
- 2025 20:08:36 +0000
-Received: from DS3PEPF000099DF.namprd04.prod.outlook.com
- (2603:10b6:610:33:cafe::a9) by CH0PR08CA0001.outlook.office365.com
- (2603:10b6:610:33::6) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9228.16 via Frontend Transport; Mon,
- 20 Oct 2025 20:08:36 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- DS3PEPF000099DF.mail.protection.outlook.com (10.167.17.202) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9253.7 via Frontend Transport; Mon, 20 Oct 2025 20:08:36 +0000
-Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Mon, 20 Oct
- 2025 13:08:20 -0700
-Received: from drhqmail203.nvidia.com (10.126.190.182) by
- drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.20; Mon, 20 Oct 2025 13:08:19 -0700
-Received: from Asurada-Nvidia (10.127.8.9) by mail.nvidia.com (10.126.190.182)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
- Transport; Mon, 20 Oct 2025 13:08:17 -0700
-Date: Mon, 20 Oct 2025 13:08:16 -0700
-From: Nicolin Chen <nicolinc@nvidia.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-CC: <joro@8bytes.org>, <kevin.tian@intel.com>,
-	<suravee.suthikulpanit@amd.com>, <will@kernel.org>, <robin.murphy@arm.com>,
-	<sven@kernel.org>, <j@jannau.net>, <jean-philippe@linaro.org>,
-	<robin.clark@oss.qualcomm.com>, <dwmw2@infradead.org>,
-	<baolu.lu@linux.intel.com>, <yong.wu@mediatek.com>, <matthias.bgg@gmail.com>,
-	<angelogioacchino.delregno@collabora.com>, <tjeznach@rivosinc.com>,
-	<pjw@kernel.org>, <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>,
-	<heiko@sntech.de>, <schnelle@linux.ibm.com>, <mjrosato@linux.ibm.com>,
-	<wens@csie.org>, <jernej.skrabec@gmail.com>, <samuel@sholland.org>,
-	<thierry.reding@gmail.com>, <jonathanh@nvidia.com>, <iommu@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <asahi@lists.linux.dev>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-arm-msm@vger.kernel.org>,
-	<linux-mediatek@lists.infradead.org>, <linux-riscv@lists.infradead.org>,
-	<linux-rockchip@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-	<linux-sunxi@lists.linux.dev>, <linux-tegra@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <patches@lists.linux.dev>
-Subject: Re: [PATCH v1 03/20] iommu/arm-smmu-v3: Implement
- arm_smmu_domain_test_dev
-Message-ID: <aPaWsEg1Y3XqsA3E@Asurada-Nvidia>
-References: <cover.1760312725.git.nicolinc@nvidia.com>
- <f52e8079148a673641d2858700c49fa0c81022aa.1760312725.git.nicolinc@nvidia.com>
- <20251020163231.GX316284@nvidia.com>
+	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="epxF7aLx";
+	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="m0JvxP3Y"
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-20pg.prod.antispam.mailspamprotection.com; s=arckey; t=1760995492;
+	 b=Bb+/DGNBVvr+aCVRBOvD3E55Tc0tGjrmDVvUe8m3TzLgsfU3UsNc7Fst+q0hQbTMOItXmlsO3y
+	  R9mnDM9jE2ub1DMM1ZGQAY7vvozDCa0SxFQ/0aHP5Dq9Psqck/PVBSdBeobipfDeaxF8I0AYad
+	  IqWJQUVYjsd2TUO6u7hktVsMvcgU9337i9X73q5TR+EkXOPhR3f8rdH713ApspYO5aRZM8dets
+	  yUI9XmWd8e/dlZajeFHt1kPiOE048wtvI9g7LlwfWTXuFWRQfdxx3ym7FioGA1xHgyIqoXkuQr
+	  opg567mUPehlm4mSAlILnenyyEMQHPTJvIzVJru/w5jUrw==;
+ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-20pg.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-20pg.prod.antispam.mailspamprotection.com; s=arckey; t=1760995492;
+	bh=2ouFT+alOTtWn5rhfE5oAisrrN6mYTQD5/35TSdIxvc=;
+	h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+	  Message-ID:Date:Subject:Cc:To:From:DKIM-Signature:DKIM-Signature;
+	b=ZhoL6Ruc4cxJ/pK11jNgJfQuW5AvJCt9TpkZNoaptcQZ/WdMzmac5u2QzQuKYsis8jar1besIs
+	  7RZnPIq2BSv1Rgn2MNhdYOEaL5ZXOelAMTkeIlCYBSgsIOlX33RasnkIlVaGgQDgz5qBhPkUuA
+	  fyUjgm8A+uykaY+9AG/DNWIsNJU2NVpnT4Me1h7kN89ch5yAMVhcv4u7wQwmLoTmoZahgenxMQ
+	  LVLqwxnDrbfUBj1XAiBYVy7ZaZipfpC9G7/MC/ZNhiehdc11AoC0d+ou2ZcXydLx9/yTA2vQhm
+	  XUMrp5pU2NJ1VqUIG+myZFbJuPRScHl2eUfNP3R+ZEqlvQ==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
+	:Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:
+	Cc:To:From:Reply-To:List-Unsubscribe;
+	bh=SnX1nQdEuaGWMQh+pLSXIZd/hCY6zPBWbspwRBykrrs=; b=epxF7aLxQynHk051S8/lutn+Mk
+	v5A4kyv1UGTZcTUP+3LaNzGBPMVSR/bp+U+U0s4/CrgA5+cpHnI2ewYJA1T90e4bRlYOZjyOxNrG+
+	SN8oMSwLTYUSocfppcC8yh2RJxCTpgp7PB7JZfnjdKdzu4PHKOeicoUatTTIcX77yKIA=;
+Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
+	by instance-europe-west4-20pg.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <francesco@valla.it>)
+	id 1vAxMv-00000002cBJ-4BBV
+	for virtualization@lists.linux.dev;
+	Mon, 20 Oct 2025 21:24:44 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
+	s=default; h=Date:Subject:Cc:To:From:list-help:list-unsubscribe:
+	list-subscribe:list-post:list-owner:list-archive;
+	bh=SnX1nQdEuaGWMQh+pLSXIZd/hCY6zPBWbspwRBykrrs=; b=m0JvxP3YhlvEKT+SYapQA6y1pK
+	eudCWGk+b4z4DhlFO1FxlCzqd/gZaM/JRU625IW4OLptCIRO1GYpgeK/uUo502GJD+P+nDJKL0IEy
+	QvKyUxlpoY3EpzPsNxIJ5yc/koZL4MqoObUZXsMP5F9z1jKIqmUG766341xbyDv+T6xM=;
+Received: from [87.16.13.60] (port=60132 helo=fedora.fritz.box)
+	by esm19.siteground.biz with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <francesco@valla.it>)
+	id 1vAxMX-00000000AIj-08n4;
+	Mon, 20 Oct 2025 21:24:17 +0000
+From: Francesco Valla <francesco@valla.it>
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Paolo Abeni <pabeni@redhat.com>,
+ Harald Mommer <harald.mommer@opensynergy.com>,
+ Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
+ Wolfgang Grandegger <wg@grandegger.com>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>,
+ linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
+ netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ development@redaril.me
+Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
+Date: Mon, 20 Oct 2025 23:24:15 +0200
+Message-ID: <27327622.1r3eYUQgxm@fedora.fritz.box>
+In-Reply-To: <aPZNiD1SN16K7hmT@fedora>
+References:
+ <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
+ <1997333.7Z3S40VBb9@fedora.fritz.box> <aPZNiD1SN16K7hmT@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20251020163231.GX316284@nvidia.com>
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS3PEPF000099DF:EE_|DS4PR12MB9609:EE_
-X-MS-Office365-Filtering-Correlation-Id: b913b544-cf62-471b-b882-08de101473c8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|1800799024|376014|7416014|82310400026;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?F3eAErrdRFBP8Xc5NHf5q6RpFXZy1wb9kVOirYNRpE7PMh7br7u24qD1hl3h?=
- =?us-ascii?Q?/mUBsSCHBxSCffcpLmh0DCLpRRd6rW8HEyKp0u/Q99CJ7ggK8jL1V2oUdkyI?=
- =?us-ascii?Q?YNWmNgRlF70yR24cTL1tEJWXPYawD6orOCB4NdCTqfQ6YC/fwCIK8UORffKp?=
- =?us-ascii?Q?q75+PGsHG52OmM1jGMVkaZ6RR9fgl83IBRXCoOtoqEtXCiw9Le/CBNfnOfQ1?=
- =?us-ascii?Q?kVlMVssrGF6wMUGDbxHi4iuEdFnUhXwdgVXeALDGayQuwzFSOfG6tGe7IHoz?=
- =?us-ascii?Q?RARz4PjAWoimxGcYqYJuq4vxYRzTtL0XNCqqSoMPvSYntmbR7KzXzwSCg0RI?=
- =?us-ascii?Q?7BHgl/P8BX8LZD3YdFzLvWOiXMy8QtL4XqkHKjQ+wtV/2/HDWWyvfVdThCEF?=
- =?us-ascii?Q?mEYs24HKqtUgrYFAeVmkoQa1Y6jThw/+TeCikZQbjGeOrgKYcj6f2/F4F93P?=
- =?us-ascii?Q?lDH3pd1+LAsHgCyLEUJkT+0gmieMd121YZJOy5Bd/j7dPomgbnOyg8XFf2Mk?=
- =?us-ascii?Q?KtgYGaTcuCBB4k6NdtLD3B9Z/yljpc5ipbQcO8E+SDRTUqQTuad20XXrGbnC?=
- =?us-ascii?Q?cDSeZfdcaZWl1B+Sqbud/b0w9A1/bLSgYc3QpAhcEMqMyfQTbroppE+1maQg?=
- =?us-ascii?Q?W+VVkLsXm8xUQOZrSJju4INOMt7QyV/Jwm/s/P+jaPVbsR5vAwuoT7UTNAg1?=
- =?us-ascii?Q?pQHpReA279OCbXsDZ8Rnw83JwizocsKRllV5hb24bioum4GnMI59K0JSguXT?=
- =?us-ascii?Q?6IZjRKeBc94KaUcoOvRgpFR3xbqPeaaeZg0WMuMOS7Su8G+eoFH33oXqynsf?=
- =?us-ascii?Q?LAYqRXPS6F1mxG0SqOELxss7r/ci79ei0Sjh3mc4CCkF4Q6kZuU0gzLlnpln?=
- =?us-ascii?Q?gqh4ve8bikLKfvVChvHqbUCMKECugsMcozft3wn1Z2U4J81qqn1WcM1a1HKL?=
- =?us-ascii?Q?6YV2pW+nd8tsTkYk5f5lY5hexcNY255JsnZmDz7eCFSubMRjHFKOKmBzwRcI?=
- =?us-ascii?Q?cGsFbeWuMGKEc4YE9Ee5ijAxky24LmLSWwSYcwTgvuEv6cNnZuLZvOmLSBU1?=
- =?us-ascii?Q?O8u+AUaNWTqJ+hjZOSo3xm6K++mzMKxEe2zeB/su0v0xA7hetrQKlOhCfR5p?=
- =?us-ascii?Q?B49sEgGqf+qHYQjwPNmS88+67rveT7p63hgJjuvLvbI9+/mPQhIz8cOaaTFe?=
- =?us-ascii?Q?Nq95xU/Eu7Qub9nfR3wpNgkQREEK19dvCtJ+zdp5+HkimCmPsIbJsUztE2tK?=
- =?us-ascii?Q?IkNCh6Yi8ohUR3u+qfZ3GQiTrpC2qeEouuPkb02WOQ+h6m6KHFrR0lEMI+C+?=
- =?us-ascii?Q?GDl/y8vVulIodb6asSM+UzfC88BeuSpomTFvHPRWsm6IO6L8ZLem4vBNhZvz?=
- =?us-ascii?Q?hjTjGP1qIXUYwiD3MfwfSs2UHO/otuA/6d1BAw9AoAri/SRIUJ781QyonG3n?=
- =?us-ascii?Q?zER3wwgf0MfeCnQms11bQ0GLm0o6WquqNicGV7tFc6ekcyGnc6LVNG0IPu/r?=
- =?us-ascii?Q?8q4dmbNFJIegn9bixbz4SqEjODCEJk8gFtOvNf5RopgPfKCZcSCiyVxBnwfU?=
- =?us-ascii?Q?p5oUWUY/3z639WmwyI0=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(1800799024)(376014)(7416014)(82310400026);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Oct 2025 20:08:36.0020
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: b913b544-cf62-471b-b882-08de101473c8
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DS3PEPF000099DF.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS4PR12MB9609
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - esm19.siteground.biz
+X-AntiAbuse: Original Domain - lists.linux.dev
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - valla.it
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-SGantispam-id: cf0ffe42679580eb43cde25a659e616e
+AntiSpam-DLS: false
+AntiSpam-DLSP: 
+AntiSpam-DLSRS: 
+AntiSpam-TS: 1.0
+CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
+CFBL-Feedback-ID: 1vAxMv-00000002cBJ-4BBV-feedback@antispam.mailspamprotection.com
+Authentication-Results: outgoing.instance-europe-west4-20pg.prod.antispam.mailspamprotection.com;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
 
-On Mon, Oct 20, 2025 at 01:32:31PM -0300, Jason Gunthorpe wrote:
-> On Sun, Oct 12, 2025 at 05:05:00PM -0700, Nicolin Chen wrote:
-> > diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> > index a33fbd12a0dd9..3448e55bbcdbb 100644
-> > --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> > +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> > @@ -2765,9 +2765,6 @@ static int arm_smmu_enable_iopf(struct arm_smmu_master *master,
-> >  
-> >  	iommu_group_mutex_assert(master->dev);
-> >  
-> > -	if (!IS_ENABLED(CONFIG_ARM_SMMU_V3_SVA))
-> > -		return -EOPNOTSUPP;
+On Monday, 20 October 2025 at 16:56:08 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
+> On Tue, Oct 14, 2025 at 06:01:07PM +0200, Francesco Valla wrote:
+> > On Tuesday, 14 October 2025 at 12:15:12 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
+> > > On Thu, Sep 11, 2025 at 10:59:40PM +0200, Francesco Valla wrote:
+> > > > Hello Mikhail, Harald,
+> > > > 
+> > > > hoping there will be a v6 of this patch soon, a few comments:
+> > > > 
+> > > > On Monday, 8 January 2024 at 14:10:35 Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com> wrote:
+> > > > 
+> > > > [...]
+> > > > > +
+> > > > > +/* Compare with m_can.c/m_can_echo_tx_event() */
+> > > > > +static int virtio_can_read_tx_queue(struct virtqueue *vq)
+> > > > > +{
+> > > > > +	struct virtio_can_priv *can_priv = vq->vdev->priv;
+> > > > > +	struct net_device *dev = can_priv->dev;
+> > > > > +	struct virtio_can_tx *can_tx_msg;
+> > > > > +	struct net_device_stats *stats;
+> > > > > +	unsigned long flags;
+> > > > > +	unsigned int len;
+> > > > > +	u8 result;
+> > > > > +
+> > > > > +	stats = &dev->stats;
+> > > > > +
+> > > > > +	/* Protect list and virtio queue operations */
+> > > > > +	spin_lock_irqsave(&can_priv->tx_lock, flags);
+> > > > > +
+> > > > > +	can_tx_msg = virtqueue_get_buf(vq, &len);
+> > > > > +	if (!can_tx_msg) {
+> > > > > +		spin_unlock_irqrestore(&can_priv->tx_lock, flags);
+> > > > > +		return 0; /* No more data */
+> > > > > +	}
+> > > > > +
+> > > > > +	if (unlikely(len < sizeof(struct virtio_can_tx_in))) {
+> > > > > +		netdev_err(dev, "TX ACK: Device sent no result code\n");
+> > > > > +		result = VIRTIO_CAN_RESULT_NOT_OK; /* Keep things going */
+> > > > > +	} else {
+> > > > > +		result = can_tx_msg->tx_in.result;
+> > > > > +	}
+> > > > > +
+> > > > > +	if (can_priv->can.state < CAN_STATE_BUS_OFF) {
+> > > > > +		/* Here also frames with result != VIRTIO_CAN_RESULT_OK are
+> > > > > +		 * echoed. Intentional to bring a waiting process in an upper
+> > > > > +		 * layer to an end.
+> > > > > +		 * TODO: Any better means to indicate a problem here?
+> > > > > +		 */
+> > > > > +		if (result != VIRTIO_CAN_RESULT_OK)
+> > > > > +			netdev_warn(dev, "TX ACK: Result = %u\n", result);
+> > > > 
+> > > > Maybe an error frame reporting CAN_ERR_CRTL_UNSPEC would be better?
+> > > > 
+> > > I am not sure. In xilinx_can.c, CAN_ERR_CRTL_UNSPEC is indicated during
+> > > a problem in the rx path and this is the tx path. I think the comment
+> > > refers to improving the way the driver informs this error to the user
+> > > but I may be wrong.
+> > > 
+> > 
+> > Since we have no detail of what went wrong here, I suggested
+> > CAN_ERR_CRTL_UNSPEC as it is "unspecified error", to be coupled with a
+> > controller error with id CAN_ERR_CRTL; however, a different error might be
+> > more appropriate.
+> > 
+> > For sure, at least in my experience, having a warn printed to kmsg is *not*
+> > enough, as the application sending the message(s) would not be able to detect
+> > the error.
+> > 
+> > 
+> > > > For sure, counting the known errors as valid tx_packets and tx_bytes
+> > > > is misleading.
+> > > > 
+> > > 
+> > > I'll remove the counters below.
+> > > 
+> > 
+> > We don't really know what's wrong here - the packet might have been sent and
+> > and then not ACK'ed, as well as any other error condition (as it happens in the
+> > reference implementation from the original authors [1]). Echoing the packet
+> > only "to bring a waiting process in an upper layer to an end" and incrementing
+> > counters feels wrong, but maybe someone more expert than me can advise better
+> > here.
+> > 
+> > 
 > 
-> Stuff like this is also optimizing the codegen, it shouldn't be
-> removed.
-
-Okay. I assume we should just copy it to test_dev() then.
-
-> > +int arm_smmu_domain_test_dev(struct iommu_domain *domain, struct device *dev,
-> > +			     ioasid_t pasid, struct iommu_domain *old_domain)
-> > +{
-> > +	struct arm_smmu_domain *device_domain = to_smmu_domain_devices(domain);
-> > +	struct arm_smmu_master *master = dev_iommu_priv_get(dev);
-> > +
-> > +	if (!dev_iommu_fwspec_get(dev))
-> > +		return -ENOENT;
-> > +
-> > +	switch (domain->type) {
-> > +	case IOMMU_DOMAIN_NESTED: {
-> > +		struct arm_smmu_nested_domain *nested_domain =
-> > +			to_smmu_nested_domain(domain);
-> > +
-> > +		if (WARN_ON(pasid != IOMMU_NO_PASID))
-> > +			return -EOPNOTSUPP;
-> > +		if (nested_domain->vsmmu->smmu != master->smmu)
-> > +			return -EINVAL;
-> > +		if (arm_smmu_ssids_in_use(&master->cd_table))
-> > +			return -EBUSY;
+> I agree. IIUC, in case there has been a problem during transmission, I
+> should 1) indicate this by injecting a CAN_ERR_CRTL_UNSPEC package with
+> netif_rx() and 2) use can_free_echo_skb() and increment the tx_error
+> stats. Is this correct?
 > 
-> This gives me alot of pause.. Here we are detecting if a S1 PASID is
-> installed for a S2 attach, but to your purpose this can be made
-> inconsistent by userspace during a FLR..
+> Matias
+> 
+> 
 
-Ah right, the used_ssids could mismatch with the group->domain!
+That's my understanding too! stats->tx_dropped should be the right value to
+increment (see for example [1]).
 
-> I don't see any reasonable way to mitigate this??
+[1] https://elixir.bootlin.com/linux/v6.17.3/source/drivers/net/can/ctucanfd/ctucanfd_base.c#L1035
 
-Right. It can't simply go through a regular attach_dev call since
-driver wouldn't expect any inconsistency in the core.
+Regards,
+Francesco
 
-Driver would have to be aware of the reset state, and make a copy
-of the old domain's CD/STE to use for a test_dev() during a reset.
 
-> Which makes me wonder if we should just try to solve the simple
-> obvious things like direct, permanent incompatability and still have
-> some kind of recovery code to leave things in blocking if they fail to
-> attach
 
-I don't quite get this. Mind elaborating?
 
-Thanks
-Nicolin
+
