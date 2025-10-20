@@ -1,47 +1,47 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 757012DC354
-	for <virtualization@lists.linux.dev>; Mon, 20 Oct 2025 07:10:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6050C2E0938
+	for <virtualization@lists.linux.dev>; Mon, 20 Oct 2025 07:10:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760944241; cv=none; b=Squbjp76bVW+/nsWpowCtHcgbggSV4mahdmCptlVCJ4PkaN4PCgLgyoswiHJiFdw/4EMr0nYQYhGk/6BgLt9n8wFjS4hHrtdlKNV0mV912ry9ORIeU4VRI5LtoqJNa8Vxz5rbdbI+XKah/eS1pjzONoxFn77X1iAU3d/ktUs2f8=
+	t=1760944247; cv=none; b=eIsqjPFgNGix5vIl7hi73tOBWYFX7NfdZ1CC19n3YfSPKcph++rVLWe//kzsaRcBH8Blb7E3LLGWqIboJIJGeohr7EawEc+PjrQ7n0/XHma5pTKPyNClDQ3fpBTEkLPbO1Jq01HJ9iRreBi7t4rtJuAuYBC/jznoIId5xyIzicg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760944241; c=relaxed/simple;
-	bh=2AF9JULOtNLoExoVfNQOkRMExvLAyJLGg/Da80HqSKA=;
+	s=arc-20240116; t=1760944247; c=relaxed/simple;
+	bh=7qDg5goKB2eLhHZ+Ed9qX3fTW71RZzlughkjBIvkQ7E=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=I+uxZZf5nJoBKhPKZGgTVnCUIr/WJyZ2HD2zoELaPtvt4kvTwdlqDw8vWPX0C3F1RkERWFded2kAYKx7x0FLfkugHv9Dy2+haFPT1xtkUL6tYrroWG6G5kFyp9u1lQzrCvVaXCAjZxY5isISFKOGGgujUfjBhgurcUToz9CSv3E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E5Pre10E; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=TLgM5bJc1jvtjvtbj6iZtg90e3a5A8Vy6smuEAba7jPMIanDwso2xLVwMOwjJIQs8zX5o0CwlGRrgglIjtlY9wCUsl7QDXpDQVa4GOBSLoEtM38w7Y0wBb9oBx82R9fj0BEyxp1NlLEH7lgpSDGamB0LaCdMwxr4Ap4NTfCg7jw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aGUExiQL; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E5Pre10E"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aGUExiQL"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760944238;
+	s=mimecast20190719; t=1760944244;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=TaiPNv+1QjEcx0X1VKNsOwZsuKWVqyQbYrUVmXFh3Qo=;
-	b=E5Pre10EsWCkBKyK1XNK2pjqcnli33ezuSVD7gmJNs7EXtwGYz54cQtck6A6tePmDK+kgV
-	R7S3DNo/KWy3oPEAqKP5bbAjI/Pcal6+BRHuWQ1/Zt4W8oTzuDG3mfwW8JZk5JZmej2XZY
-	iPpH8xHsqvXl1QXfAjHGnhTATvJTxcc=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+	bh=CTDGrU9uhGdFfnzChF1KM1YGBCuNVqCio2exfzbo6VA=;
+	b=aGUExiQL9A2sZJie598lxQUivJ7uFluCHYN9sLlns0zkDaF6D7u2Ns7YuYtGHSjoUK72nM
+	0Boe//Y96ycbIr/P4hgBZiqbeKA2sruEHdylkVoNwb1RoTKVFj1AcWggT+Y0R2+hpcOCma
+	HUjcJe3TJ3ksfM4JOKx2OV8X5n2Z9fY=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-636-K0LxA86PPm-q9Ef9NQs94A-1; Mon,
- 20 Oct 2025 03:10:36 -0400
-X-MC-Unique: K0LxA86PPm-q9Ef9NQs94A-1
-X-Mimecast-MFC-AGG-ID: K0LxA86PPm-q9Ef9NQs94A_1760944236
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-644-xPsBO8hFPSitKtx5bHhSRQ-1; Mon,
+ 20 Oct 2025 03:10:40 -0400
+X-MC-Unique: xPsBO8hFPSitKtx5bHhSRQ-1
+X-Mimecast-MFC-AGG-ID: xPsBO8hFPSitKtx5bHhSRQ_1760944239
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id EA9901800669;
-	Mon, 20 Oct 2025 07:10:35 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 888E618002C1;
+	Mon, 20 Oct 2025 07:10:39 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.113.29])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F363C30001A2;
-	Mon, 20 Oct 2025 07:10:32 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A5CA3300019F;
+	Mon, 20 Oct 2025 07:10:36 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com,
@@ -49,9 +49,9 @@ To: mst@redhat.com,
 	eperezma@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH V8 06/19] virtio_ring: switch to use vring_virtqueue for virtqueue_add variants
-Date: Mon, 20 Oct 2025 15:09:50 +0800
-Message-ID: <20251020071003.28834-7-jasowang@redhat.com>
+Subject: [PATCH V8 07/19] virtio: switch to use vring_virtqueue for virtqueue_get variants
+Date: Mon, 20 Oct 2025 15:09:51 +0800
+Message-ID: <20251020071003.28834-8-jasowang@redhat.com>
 In-Reply-To: <20251020071003.28834-1-jasowang@redhat.com>
 References: <20251020071003.28834-1-jasowang@redhat.com>
 Precedence: bulk
@@ -72,167 +72,70 @@ Acked-by: Eugenio Pérez <eperezma@redhat.com>
 Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 39 ++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 20 deletions(-)
+ drivers/virtio/virtio_ring.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index aadeab66e57c..2c0c677cb6fc 100644
+index 2c0c677cb6fc..9d084ee9f4d6 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -476,7 +476,7 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
- 	return extra->next;
+@@ -817,11 +817,10 @@ static bool more_used_split(const struct vring_virtqueue *vq)
+ 	return virtqueue_poll_split(vq, vq->last_used_idx);
  }
  
--static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
-+static struct vring_desc *alloc_indirect_split(struct vring_virtqueue *vq,
- 					       unsigned int total_sg,
- 					       gfp_t gfp)
- {
-@@ -505,7 +505,7 @@ static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
- 	return desc;
- }
- 
--static inline unsigned int virtqueue_add_desc_split(struct virtqueue *vq,
-+static inline unsigned int virtqueue_add_desc_split(struct vring_virtqueue *vq,
- 						    struct vring_desc *desc,
- 						    struct vring_desc_extra *extra,
- 						    unsigned int i,
-@@ -513,11 +513,12 @@ static inline unsigned int virtqueue_add_desc_split(struct virtqueue *vq,
- 						    unsigned int len,
- 						    u16 flags, bool premapped)
- {
-+	struct virtio_device *vdev = vq->vq.vdev;
- 	u16 next;
- 
--	desc[i].flags = cpu_to_virtio16(vq->vdev, flags);
--	desc[i].addr = cpu_to_virtio64(vq->vdev, addr);
--	desc[i].len = cpu_to_virtio32(vq->vdev, len);
-+	desc[i].flags = cpu_to_virtio16(vdev, flags);
-+	desc[i].addr = cpu_to_virtio64(vdev, addr);
-+	desc[i].len = cpu_to_virtio32(vdev, len);
- 
- 	extra[i].addr = premapped ? DMA_MAPPING_ERROR : addr;
- 	extra[i].len = len;
-@@ -525,12 +526,12 @@ static inline unsigned int virtqueue_add_desc_split(struct virtqueue *vq,
- 
- 	next = extra[i].next;
- 
--	desc[i].next = cpu_to_virtio16(vq->vdev, next);
-+	desc[i].next = cpu_to_virtio16(vdev, next);
- 
- 	return next;
- }
- 
--static inline int virtqueue_add_split(struct virtqueue *_vq,
-+static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 				      struct scatterlist *sgs[],
- 				      unsigned int total_sg,
- 				      unsigned int out_sgs,
-@@ -540,7 +541,6 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 				      bool premapped,
- 				      gfp_t gfp)
+-static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
++static void *virtqueue_get_buf_ctx_split(struct vring_virtqueue *vq,
+ 					 unsigned int *len,
+ 					 void **ctx)
  {
 -	struct vring_virtqueue *vq = to_vvq(_vq);
- 	struct vring_desc_extra *extra;
- 	struct scatterlist *sg;
- 	struct vring_desc *desc;
-@@ -565,7 +565,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 	head = vq->free_head;
+ 	void *ret;
+ 	unsigned int i;
+ 	u16 last_used;
+@@ -843,9 +842,9 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+ 	virtio_rmb(vq->weak_barriers);
  
- 	if (virtqueue_use_indirect(vq, total_sg))
--		desc = alloc_indirect_split(_vq, total_sg, gfp);
-+		desc = alloc_indirect_split(vq, total_sg, gfp);
- 	else {
- 		desc = NULL;
- 		WARN_ON_ONCE(total_sg > vq->split.vring.num && !vq->indirect);
-@@ -612,7 +612,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 			/* Note that we trust indirect descriptor
- 			 * table since it use stream DMA mapping.
- 			 */
--			i = virtqueue_add_desc_split(_vq, desc, extra, i, addr, len,
-+			i = virtqueue_add_desc_split(vq, desc, extra, i, addr, len,
- 						     VRING_DESC_F_NEXT,
- 						     premapped);
- 		}
-@@ -629,14 +629,14 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 			/* Note that we trust indirect descriptor
- 			 * table since it use stream DMA mapping.
- 			 */
--			i = virtqueue_add_desc_split(_vq, desc, extra, i, addr, len,
-+			i = virtqueue_add_desc_split(vq, desc, extra, i, addr, len,
- 						     VRING_DESC_F_NEXT |
- 						     VRING_DESC_F_WRITE,
- 						     premapped);
- 		}
- 	}
- 	/* Last one doesn't continue. */
--	desc[prev].flags &= cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NEXT);
-+	desc[prev].flags &= cpu_to_virtio16(vq->vq.vdev, ~VRING_DESC_F_NEXT);
- 	if (!indirect && vring_need_unmap_buffer(vq, &extra[prev]))
- 		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags &=
- 			~VRING_DESC_F_NEXT;
-@@ -649,7 +649,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 		if (vring_mapping_error(vq, addr))
- 			goto unmap_release;
+ 	last_used = (vq->last_used_idx & (vq->split.vring.num - 1));
+-	i = virtio32_to_cpu(_vq->vdev,
++	i = virtio32_to_cpu(vq->vq.vdev,
+ 			vq->split.vring.used->ring[last_used].id);
+-	*len = virtio32_to_cpu(_vq->vdev,
++	*len = virtio32_to_cpu(vq->vq.vdev,
+ 			vq->split.vring.used->ring[last_used].len);
  
--		virtqueue_add_desc_split(_vq, vq->split.vring.desc,
-+		virtqueue_add_desc_split(vq, vq->split.vring.desc,
- 					 vq->split.desc_extra,
- 					 head, addr,
- 					 total_sg * sizeof(struct vring_desc),
-@@ -675,13 +675,13 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 	/* Put entry in available array (but don't update avail->idx until they
- 	 * do sync). */
- 	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
--	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
-+	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(vq->vq.vdev, head);
+ 	if (unlikely(i >= vq->split.vring.num)) {
+@@ -867,7 +866,7 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+ 	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
+ 		virtio_store_mb(vq->weak_barriers,
+ 				&vring_used_event(&vq->split.vring),
+-				cpu_to_virtio16(_vq->vdev, vq->last_used_idx));
++				cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx));
  
- 	/* Descriptors and available array need to be set before we expose the
- 	 * new available array entries. */
- 	virtio_wmb(vq->weak_barriers);
- 	vq->split.avail_idx_shadow++;
--	vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
-+	vq->split.vring.avail->idx = cpu_to_virtio16(vq->vq.vdev,
- 						vq->split.avail_idx_shadow);
- 	vq->num_added++;
+ 	LAST_ADD_TIME_INVALID(vq);
  
-@@ -691,7 +691,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 	/* This is very unlikely, but theoretically possible.  Kick
- 	 * just in case. */
- 	if (unlikely(vq->num_added == (1 << 16) - 1))
--		virtqueue_kick(_vq);
-+		virtqueue_kick(&vq->vq);
- 
- 	return 0;
- 
-@@ -1440,7 +1440,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 	return -ENOMEM;
+@@ -1721,11 +1720,10 @@ static bool more_used_packed(const struct vring_virtqueue *vq)
+ 	return virtqueue_poll_packed(vq, READ_ONCE(vq->last_used_idx));
  }
  
--static inline int virtqueue_add_packed(struct virtqueue *_vq,
-+static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
- 				       struct scatterlist *sgs[],
- 				       unsigned int total_sg,
- 				       unsigned int out_sgs,
-@@ -1450,7 +1450,6 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 				       bool premapped,
- 				       gfp_t gfp)
+-static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
++static void *virtqueue_get_buf_ctx_packed(struct vring_virtqueue *vq,
+ 					  unsigned int *len,
+ 					  void **ctx)
  {
 -	struct vring_virtqueue *vq = to_vvq(_vq);
- 	struct vring_packed_desc *desc;
- 	struct scatterlist *sg;
- 	unsigned int i, n, c, descs_used, err_idx, len;
-@@ -2262,9 +2261,9 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	u16 last_used, id, last_used_idx;
+ 	bool used_wrap_counter;
+ 	void *ret;
+@@ -2525,8 +2523,8 @@ void *virtqueue_get_buf_ctx(struct virtqueue *_vq, unsigned int *len,
  {
  	struct vring_virtqueue *vq = to_vvq(_vq);
  
--	return vq->packed_ring ? virtqueue_add_packed(_vq, sgs, total_sg,
-+	return vq->packed_ring ? virtqueue_add_packed(vq, sgs, total_sg,
- 					out_sgs, in_sgs, data, ctx, premapped, gfp) :
--				 virtqueue_add_split(_vq, sgs, total_sg,
-+				 virtqueue_add_split(vq, sgs, total_sg,
- 					out_sgs, in_sgs, data, ctx, premapped, gfp);
+-	return vq->packed_ring ? virtqueue_get_buf_ctx_packed(_vq, len, ctx) :
+-				 virtqueue_get_buf_ctx_split(_vq, len, ctx);
++	return vq->packed_ring ? virtqueue_get_buf_ctx_packed(vq, len, ctx) :
++				 virtqueue_get_buf_ctx_split(vq, len, ctx);
  }
+ EXPORT_SYMBOL_GPL(virtqueue_get_buf_ctx);
  
 -- 
 2.31.1
