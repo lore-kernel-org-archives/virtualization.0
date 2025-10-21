@@ -1,229 +1,214 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A171D33C503
-	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 13:00:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37895143C61
+	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 13:15:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761051621; cv=none; b=rHen+DRtIvPYZlWvvkAky66iRY3++Kq6mNqp1zL2F23xXLvsDRDYj8H8a12zEX8dCP8O1epHDrR0FXR3qqUHH2AipBfiO6DX7m/9ro5+QwiSgLfm0L4UA6y8ri4bQ/lr/J9eJgDsOZJg1ATsyWpg6w3fW/WdLIXudyqK4XJxiwA=
+	t=1761052533; cv=none; b=ujLHhiSLdHyjfTpxtU1OJc4vp1DDL0BYKGi2TvI9gb9ItZ4e8qnh+XZ3zcrR8Jahzv44dYoFXvG2cmUcneCK67fMEI/zOoGQG+CtxBwtZMspDfC9C/Uoo4b0AcExzUz6TF2BbhWsaMDVkp7+LQcEh0doYMOe+qpyfrohfNFlAlY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761051621; c=relaxed/simple;
-	bh=+Psx8bKEdpkhNgbqNOO4RXL6S6LqLj+1jmmuZEFx8qU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=KXIDKSPESDt/Gq+2qQQ+mybQFWWVR43i+4w6faObuqvBu415hTVmOyPMUqAAwhKr8XmMMUcVR7Hn04OT9XI44jhodNWnt9kSPJJpy53Im0Y+s+N+8O7AgsNM0wFkOYOhScsSVkyvwr1FROwKLv/KXCxuTmEVQtWdN/T41tD0bFQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DHLneQ0F; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1761052533; c=relaxed/simple;
+	bh=4lLcQvMnunkz+GAunoPU58cpUiOPw7liFAGLkEBA6QU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=uPNXdUgkrvwh+gyYKZZiPar8cfXZc7kkL7EIuLKg+bhtgOS4ZqopUm/TK+32k4qjbwr5+lJDkjoXAP8P+HjE11ISOrqBKdTa8QR8r0kMSPpzCJ93gbXuRwxAW9Z6DtSgB3o4xp8Qml4NDHz6Rpz7nzomexxdYTF6DyIq7TFWx2M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QE8wYcCP; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DHLneQ0F"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QE8wYcCP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761051618;
+	s=mimecast20190719; t=1761052531;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=O+OTVNr68Ud6e3V7gLc8dmSyyby2S+Q4hsUbFdDpNzM=;
-	b=DHLneQ0FofCvURi6Oe1IAr3/K8Syj/Cm9IPfXNINEyd5aaa4LJpVQ2Vyu95ls3Zgaa3IoD
-	af6bfLwIH9wJlkmcxwIViCjCuPoch4NBpW5+KTywe/09u2efRShmpW59nRGfVwaz6pRonj
-	I9EyPCYETfUWSViao4niUKawCkiRD3w=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=paa6y0Umm0pxhPmdABIWbZ6KYckQ88Ey6Dsg8Oz34GA=;
+	b=QE8wYcCPeB+kyaSrRTbqgojlmvxYRFod6sEzZ/SpTDuPj8on9A2LXiKNIV/zdRXRwE0XF5
+	meSArvKyq6uAdfuerdmvnqG9qcdROeJsubNNnzDAQlmXwNEobA6HBe92BuxoRwClb4zEpo
+	FkQK4wyzrJfXENOXrHNwKW5BOHodj9c=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-329-OtBOzfCsNLGEjWf_sMnydg-1; Tue, 21 Oct 2025 09:00:16 -0400
-X-MC-Unique: OtBOzfCsNLGEjWf_sMnydg-1
-X-Mimecast-MFC-AGG-ID: OtBOzfCsNLGEjWf_sMnydg_1761051615
-Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-63c41bc2d58so4468870a12.2
-        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 06:00:16 -0700 (PDT)
+ us-mta-625-KIrc7q9wNSOB8MpNaMKnCg-1; Tue, 21 Oct 2025 09:15:29 -0400
+X-MC-Unique: KIrc7q9wNSOB8MpNaMKnCg-1
+X-Mimecast-MFC-AGG-ID: KIrc7q9wNSOB8MpNaMKnCg_1761052529
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4284525aecbso2425149f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 06:15:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761051615; x=1761656415;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=O+OTVNr68Ud6e3V7gLc8dmSyyby2S+Q4hsUbFdDpNzM=;
-        b=EXXKoR8Q0xlgTKFI61FA0CBVD7Tqm1oNCZycfH3jcG7rNjElQa4cnWwZgnjZku2Qoc
-         qhzVyMfzk3Q01F0ToAfquvks1gw50pUTu7MtcgPQf8taxQ/kwOpGZpF193yM+1bgm3hv
-         TUUaFrSd+jhrot3hxSAzK3Ila7WhmJS8JiC9R/o8WUcRFdqsn1/oXROoSEYuDQrZYEaE
-         uOOsQgtPBKIlgWMTT9C5LJqmo6CYMqLQMhxZinYFGtOM62wZjSc/ICjtF1A8QjKoHJ7/
-         bpeitWJZEd59AN4iQjgNEzHt7/VY2WzmlKaJvim3ZZ0eNKJWcABF2ELvdvviD8jB1IaW
-         IbjQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUWnb/hOx2GB9A2AUN/LFRFo0X6vovZ4SyEeN0S3OlPEiKDPrDrUSxFRTEk7ZhzhPX1LtSPHPVEvc/Mx9/rcg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy8ELZVIBA6oHGVjspx/x+KMaKKqJZ9pdsdA/5sFmFZeZI91LBl
-	WQI61NWGNwBp+lM9yRlaBoIux2CbElMtV+T41BH1euM6LsZpok94Kh2clszXhgPEeSknwz5DyHS
-	iIxbZ3jBkOLihsNOwujdFkyOC1of2mY6nqXaeevuZZ85p3MyOQ1tOkm8FASdKZ1hKq7ZC
-X-Gm-Gg: ASbGncvqEOw/W2yPERpcdQweubLvx+oWjTJ3L62ZaMPG/cpSMt7meK03b13fTSVeqk3
-	aNeN9QGi+6gh97e8L27axGLg0X/L2Up3+2GLUDXYNLC5xQSnA1xwfrL83MugStlNldfDc/unKjw
-	6Cl5GtI2cpY489HlhLk6fU8CtDpX2mO2p1pWSIUOy+zvvCiJYBe7FZFbYTXwL6jYNzcLZi3gShr
-	EJ20w1GpBmXU6KgBE9pJ6zMAayYWOPIZ0OlLQ9cBnIZ9VixJ5gU3qOny/FRGPKC2vfEqSLC3/t9
-	b0GMoRKDz1iEPQiZ6O+Rd2rNK0MlU0+60djTMU+6Ht/twsZnV9ff5K55V9lnb0ve87xaH2m6oic
-	YzyljhMCkdSKF6tSEyUn4ybnAUTC38bVMAFdM1JH2RCRPmCpXg80T29zYtd4o
-X-Received: by 2002:a05:600c:3b8d:b0:46d:27b7:e7e5 with SMTP id 5b1f17b1804b1-47117917572mr150179195e9.32.1761051604331;
-        Tue, 21 Oct 2025 06:00:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGZFp/NfFGh9nzvdan/GtiYx6zHPVXBd5PXGxqlBj7uT7XLqj1hdDZYgamMo86fNe5GicJaNA==
-X-Received: by 2002:a05:600c:3b8d:b0:46d:27b7:e7e5 with SMTP id 5b1f17b1804b1-47117917572mr150178725e9.32.1761051603807;
-        Tue, 21 Oct 2025 06:00:03 -0700 (PDT)
-Received: from localhost (p200300d82f4e3200c99da38b3f3ad4b3.dip0.t-ipconnect.de. [2003:d8:2f4e:3200:c99d:a38b:3f3a:d4b3])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-47114423862sm283718595e9.1.2025.10.21.06.00.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 21 Oct 2025 06:00:03 -0700 (PDT)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org,
-	linuxppc-dev@lists.ozlabs.org,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	linux-doc@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	David Hildenbrand <david@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Oscar Salvador <osalvador@suse.de>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+        d=1e100.net; s=20230601; t=1761052529; x=1761657329;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=paa6y0Umm0pxhPmdABIWbZ6KYckQ88Ey6Dsg8Oz34GA=;
+        b=TW4+wQat/HZnK9I0ARj9aSolpKnvXlEetZ5l+pxzvNWf2VJug/6CtNbHHihaXkI5jS
+         +XKU8/nQz8ROebg/hJB69GqSR4s4akdUq07VaPCG+A1uFRsQ36MNi3oFSbkM+05l46Cd
+         Hay1egPYMesEwZeJO/NL4BVwsVXI8WzVbV+D0HC7iR9EjEMzSp4Yx7Gnek2CviKcW0gZ
+         wcYChdIKK6HR4ZnXU6PKiipxh1H8GlWTjhyLAlKDrd7B+gkLA5kSaMxN0z01HWb5gPG7
+         MJqFSBO9ZM1cpv9ljfZnbAToOZptCXZqwI7u2z5jc2LEqVP4FBfw5kxago21OwKgBHvw
+         nrjQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWL38ji9n4eDAWiv796HwcBc2K6SCkn6Nmvlr+8kdXw6C5Ax4YTUdHaTftS/Dsn+LP85FFs/p0XihKINh31dw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx8voTWGU4aKBZVWwFkylzhOMMqGJ1ZI8cLAo9VBrv3Epy+qGoI
+	7BM23JUHvAwhqJI3lgEzko1jPmzuNLOMHzGBZoo39UnpFYs0WuVJA/oQxMfXXJZrg8QJ6gm1tm9
+	gRl9GPI775ZycQT5kM70EIWFL5LaNldkFfDdY+wgFk1pBi7SIV1EqVYn6vypMrvlKKDwN
+X-Gm-Gg: ASbGnctT1HfOQU8MjoIOkHUh73TByijht9K0vjtx9w9T5wdSlDnItA35ncrPpvuOddY
+	GbN7LYTvAzzsN6tFpN4+TpW0gguQWu4zI9K3Ny1/61E8ud3hj3xgeBK97YuWwgk8OQUAEs7mpql
+	fXOIjAvNvmAkKpBGxZ/1ATPfoBl/cYn/xvDLKO7eaePz6dc5HxK/uD02lIdm3czITXOrCm79xit
+	6C/A9lhIDwRAyv2Zx9XverIMsUrlScDcPsuhglk1zoC52jhtLRxcCal9cHGvrCBgA+awfHbhhBU
+	9sH3l+D98aAYPShJM75C1hUWdX/dMrk6lenqY12L9+TkqGRgyY2P0+z/julXKtu+OpKx
+X-Received: by 2002:a05:6000:4013:b0:3d1:61f0:d26c with SMTP id ffacd0b85a97d-42704dce7bdmr12202110f8f.54.1761052528638;
+        Tue, 21 Oct 2025 06:15:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHtT4dHlzzmepxbEEmjHJkJHD2FwCKCqSVsiJy1urptxBGYwBKtZyQJidvDZgwFYhtUThLA/A==
+X-Received: by 2002:a05:6000:4013:b0:3d1:61f0:d26c with SMTP id ffacd0b85a97d-42704dce7bdmr12202091f8f.54.1761052528186;
+        Tue, 21 Oct 2025 06:15:28 -0700 (PDT)
+Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4731c95efb9sm164559345e9.8.2025.10.21.06.15.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Oct 2025 06:15:27 -0700 (PDT)
+Date: Tue, 21 Oct 2025 15:15:24 +0200
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+To: Francesco Valla <francesco@valla.it>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Paolo Abeni <pabeni@redhat.com>,
+	Harald Mommer <harald.mommer@opensynergy.com>,
+	Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
+	Wolfgang Grandegger <wg@grandegger.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v1 14/23] mm/balloon_compaction: move internal helpers to memory_compaction.c
-Date: Tue, 21 Oct 2025 14:59:19 +0200
-Message-ID: <20251021125929.377194-15-david@redhat.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251021125929.377194-1-david@redhat.com>
-References: <20251021125929.377194-1-david@redhat.com>
+	Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>,
+	linux-kernel@vger.kernel.org, linux-can@vger.kernel.org,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	development@redaril.me
+Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
+Message-ID: <aPeHbKES6yHkh5Rj@fedora>
+References: <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
+ <27327622.1r3eYUQgxm@fedora.fritz.box>
+ <aPdU93e2RQy5MHQr@fedora>
+ <28156189.1r3eYUQgxm@fedora.fritz.box>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <28156189.1r3eYUQgxm@fedora.fritz.box>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: hd5iB0h-NHHYFLT4LLFg-fO3e75iJryRn-C4QzjF1Lc_1761051615
+X-Mimecast-MFC-PROC-ID: QjTCqzWS5mB3I96TbaBQXWAo2Gol4l7HHUfZ-X5GCBA_1761052529
 X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Let's move the helpers that are not required by drivers anymore.
+On Tue, Oct 21, 2025 at 02:08:35PM +0200, Francesco Valla wrote:
+> On Tuesday, 21 October 2025 at 11:40:07 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
+> > On Mon, Oct 20, 2025 at 11:24:15PM +0200, Francesco Valla wrote:
+> > > On Monday, 20 October 2025 at 16:56:08 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
+> > > > On Tue, Oct 14, 2025 at 06:01:07PM +0200, Francesco Valla wrote:
+> > > > > On Tuesday, 14 October 2025 at 12:15:12 Matias Ezequiel Vara Larsen <mvaralar@redhat.com> wrote:
+> > > > > > On Thu, Sep 11, 2025 at 10:59:40PM +0200, Francesco Valla wrote:
+> > > > > > > Hello Mikhail, Harald,
+> > > > > > > 
+> > > > > > > hoping there will be a v6 of this patch soon, a few comments:
+> > > > > > > 
+> > > > > > > On Monday, 8 January 2024 at 14:10:35 Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com> wrote:
+> > > > > > > 
+> > > > > > > [...]
+> > > > > > > > +
+> > > > > > > > +/* Compare with m_can.c/m_can_echo_tx_event() */
+> > > > > > > > +static int virtio_can_read_tx_queue(struct virtqueue *vq)
+> > > > > > > > +{
+> > > > > > > > +	struct virtio_can_priv *can_priv = vq->vdev->priv;
+> > > > > > > > +	struct net_device *dev = can_priv->dev;
+> > > > > > > > +	struct virtio_can_tx *can_tx_msg;
+> > > > > > > > +	struct net_device_stats *stats;
+> > > > > > > > +	unsigned long flags;
+> > > > > > > > +	unsigned int len;
+> > > > > > > > +	u8 result;
+> > > > > > > > +
+> > > > > > > > +	stats = &dev->stats;
+> > > > > > > > +
+> > > > > > > > +	/* Protect list and virtio queue operations */
+> > > > > > > > +	spin_lock_irqsave(&can_priv->tx_lock, flags);
+> > > > > > > > +
+> > > > > > > > +	can_tx_msg = virtqueue_get_buf(vq, &len);
+> > > > > > > > +	if (!can_tx_msg) {
+> > > > > > > > +		spin_unlock_irqrestore(&can_priv->tx_lock, flags);
+> > > > > > > > +		return 0; /* No more data */
+> > > > > > > > +	}
+> > > > > > > > +
+> > > > > > > > +	if (unlikely(len < sizeof(struct virtio_can_tx_in))) {
+> > > > > > > > +		netdev_err(dev, "TX ACK: Device sent no result code\n");
+> > > > > > > > +		result = VIRTIO_CAN_RESULT_NOT_OK; /* Keep things going */
+> > > > > > > > +	} else {
+> > > > > > > > +		result = can_tx_msg->tx_in.result;
+> > > > > > > > +	}
+> > > > > > > > +
+> > > > > > > > +	if (can_priv->can.state < CAN_STATE_BUS_OFF) {
+> > > > > > > > +		/* Here also frames with result != VIRTIO_CAN_RESULT_OK are
+> > > > > > > > +		 * echoed. Intentional to bring a waiting process in an upper
+> > > > > > > > +		 * layer to an end.
+> > > > > > > > +		 * TODO: Any better means to indicate a problem here?
+> > > > > > > > +		 */
+> > > > > > > > +		if (result != VIRTIO_CAN_RESULT_OK)
+> > > > > > > > +			netdev_warn(dev, "TX ACK: Result = %u\n", result);
+> > > > > > > 
+> > > > > > > Maybe an error frame reporting CAN_ERR_CRTL_UNSPEC would be better?
+> > > > > > > 
+> > > > > > I am not sure. In xilinx_can.c, CAN_ERR_CRTL_UNSPEC is indicated during
+> > > > > > a problem in the rx path and this is the tx path. I think the comment
+> > > > > > refers to improving the way the driver informs this error to the user
+> > > > > > but I may be wrong.
+> > > > > > 
+> > > > > 
+> > > > > Since we have no detail of what went wrong here, I suggested
+> > > > > CAN_ERR_CRTL_UNSPEC as it is "unspecified error", to be coupled with a
+> > > > > controller error with id CAN_ERR_CRTL; however, a different error might be
+> > > > > more appropriate.
+> > > > > 
+> > > > > For sure, at least in my experience, having a warn printed to kmsg is *not*
+> > > > > enough, as the application sending the message(s) would not be able to detect
+> > > > > the error.
+> > > > > 
+> > > > > 
+> > > > > > > For sure, counting the known errors as valid tx_packets and tx_bytes
+> > > > > > > is misleading.
+> > > > > > > 
+> > > > > > 
+> > > > > > I'll remove the counters below.
+> > > > > > 
+> > > > > 
+> > > > > We don't really know what's wrong here - the packet might have been sent and
+> > > > > and then not ACK'ed, as well as any other error condition (as it happens in the
+> > > > > reference implementation from the original authors [1]). Echoing the packet
+> > > > > only "to bring a waiting process in an upper layer to an end" and incrementing
+> > > > > counters feels wrong, but maybe someone more expert than me can advise better
+> > > > > here.
+> > > > > 
+> > > > > 
+> > > > 
+> > > > I agree. IIUC, in case there has been a problem during transmission, I
+> > > > should 1) indicate this by injecting a CAN_ERR_CRTL_UNSPEC package with
+> > > > netif_rx() and 2) use can_free_echo_skb() and increment the tx_error
+> > > > stats. Is this correct?
+> > > > 
+> > > > Matias
+> > > > 
+> > > > 
+> > > 
+> > > That's my understanding too! stats->tx_dropped should be the right value to
+> > > increment (see for example [1]).
+> > > 
+> > > [1] https://elixir.bootlin.com/linux/v6.17.3/source/drivers/net/can/ctucanfd/ctucanfd_base.c#L1035
+> > > 
+> > 
+> > I think the counter to increment would be stats->tx_errors in this case ...
+> > 
+> 
+> I don't fully agree. tx_errors is for CAN frames that got transmitted but then
+> lead to an error (e.g.: no ACK), while here we might be dealing with frames
+> that didn't even manage to reach the transmission queue [1].
+> 
+Let's use tx_dropped then, I honestly do not have an strong opinion
+about it. We can change that later if we are not happy.
 
-While at it, drop the doc of balloon_page_device() as it is trivial.
-
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- include/linux/balloon_compaction.h | 44 ------------------------------
- mm/balloon_compaction.c            | 38 ++++++++++++++++++++++++++
- 2 files changed, 38 insertions(+), 44 deletions(-)
-
-diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-index d1d4739398978..eec8994056a44 100644
---- a/include/linux/balloon_compaction.h
-+++ b/include/linux/balloon_compaction.h
-@@ -75,48 +75,4 @@ static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
- 	balloon->migratepage = NULL;
- 	balloon->adjust_managed_page_count = false;
- }
--
--#ifdef CONFIG_BALLOON_COMPACTION
--/*
-- * balloon_page_device - get the b_dev_info descriptor for the balloon device
-- *			 that enqueues the given page.
-- */
--static inline struct balloon_dev_info *balloon_page_device(struct page *page)
--{
--	return (struct balloon_dev_info *)page_private(page);
--}
--#endif /* CONFIG_BALLOON_COMPACTION */
--
--/*
-- * balloon_page_insert - insert a page into the balloon's page list and make
-- *			 the page->private assignment accordingly.
-- * @balloon : pointer to balloon device
-- * @page    : page to be assigned as a 'balloon page'
-- *
-- * Caller must ensure the balloon_pages_lock is held.
-- */
--static inline void balloon_page_insert(struct balloon_dev_info *balloon,
--				       struct page *page)
--{
--	__SetPageOffline(page);
--	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION)) {
--		SetPageMovableOps(page);
--		set_page_private(page, (unsigned long)balloon);
--	}
--	list_add(&page->lru, &balloon->pages);
--}
--
--/*
-- * balloon_page_finalize - prepare a balloon page that was removed from the
-- *			   balloon list for release to the page allocator
-- * @page: page to be released to the page allocator
-- *
-- * Caller must ensure the balloon_pages_lock is held.
-- */
--static inline void balloon_page_finalize(struct page *page)
--{
--	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
--		set_page_private(page, 0);
--	/* PageOffline is sticky until the page is freed to the buddy. */
--}
- #endif /* _LINUX_BALLOON_COMPACTION_H */
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index 709c57c00b481..717bc43732d09 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -17,6 +17,44 @@
-  */
- static DEFINE_SPINLOCK(balloon_pages_lock);
- 
-+static inline struct balloon_dev_info *balloon_page_device(struct page *page)
-+{
-+	return (struct balloon_dev_info *)page_private(page);
-+}
-+
-+/*
-+ * balloon_page_insert - insert a page into the balloon's page list and make
-+ *			 the page->private assignment accordingly.
-+ * @balloon : pointer to balloon device
-+ * @page    : page to be assigned as a 'balloon page'
-+ *
-+ * Caller must ensure the balloon_pages_lock is held.
-+ */
-+static inline void balloon_page_insert(struct balloon_dev_info *balloon,
-+				       struct page *page)
-+{
-+	__SetPageOffline(page);
-+	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION)) {
-+		SetPageMovableOps(page);
-+		set_page_private(page, (unsigned long)balloon);
-+	}
-+	list_add(&page->lru, &balloon->pages);
-+}
-+
-+/*
-+ * balloon_page_finalize - prepare a balloon page that was removed from the
-+ *			   balloon list for release to the page allocator
-+ * @page: page to be released to the page allocator
-+ *
-+ * Caller must ensure the balloon_pages_lock is held.
-+ */
-+static inline void balloon_page_finalize(struct page *page)
-+{
-+	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
-+		set_page_private(page, 0);
-+	/* PageOffline is sticky until the page is freed to the buddy. */
-+}
-+
- static void balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
- 				     struct page *page)
- {
--- 
-2.51.0
+Matias
 
