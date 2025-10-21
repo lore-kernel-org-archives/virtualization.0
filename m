@@ -1,65 +1,66 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B9B9242D60
-	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 23:47:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B44D146585
+	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 23:47:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761090423; cv=none; b=HoatVDglPbpdGqTF0Je0AZFNtOBCbTSIIIAE44MVNZ+D18J9N/KtmGTXmor0g0xIj4DkDEvy4h/Y22cK5kN+APuMckT5tUK4zIIBx0mhe+XanBM2GgUzm3rho2AgbtgCZ9pKR+PdqeMngfer1S5RMjDBg8oU11+vYdl4kP+DtD8=
+	t=1761090424; cv=none; b=lzc5ZdnFuyFdzWJVaSHHlbLk+YcMmn8IsRPfTkpp5umXdgNLh2gsT8/sDQR98+gyIxvKGf30EUbjO5Ti691ObbTQi2BS2YDS8KZPq1y2BLU56aIgWN9zJhb1co221xlLVSJMt3o1agbCrSUPRfWmYbOQHqFU2SATj7kK61X694A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761090423; c=relaxed/simple;
-	bh=i/0blcvw30L2XmsZDP8JwezkIYQz0CtWUOjE1zydzXY=;
+	s=arc-20240116; t=1761090424; c=relaxed/simple;
+	bh=5lT5a275Jig/x0y4MU1RBKKAqav6WdTww5TZeVBwOjY=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=u54hqmiVXwaalFjQXdwoEo2mck0lSKltPp1CcGDXznDBlSNcQgVZ2wWyY/g7WCWZOdEjJGbU0Lr/0I57i66f7y3iT6ItNzkvivPKFss24kuEkfLhVaYNhAAbCt4B9T4GWYvUGgh6jVQwCZZPz8qKPktGeFhWz2Z6j0SksN3qz3c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NY8aZxWV; arc=none smtp.client-ip=209.85.214.169
+	 In-Reply-To:To:Cc; b=C3StSxRXbavI6072VElWwGb/hGUlARxMeWZt17OzrcN2ed6Ic1LBXTltV/psq55/9cD7OwlDrPNgJV3V3Vr3LKqj/WnFArQ9ByglHh47tNsn2s7EZhAAof3FPs+75bj+5TNpgwRUQWA6FLjW5FNCptTre3HGSVRajLjvEL0+EsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M3i5oAQt; arc=none smtp.client-ip=209.85.216.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NY8aZxWV"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-290ab379d48so56861495ad.2
-        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 16:47:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M3i5oAQt"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-339d53f4960so6369996a91.3
+        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 16:47:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761090420; x=1761695220; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1761090421; x=1761695221; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Ux00ENqxNtzazJRP0kNIFZEFFfqT/sB9ciqM1XMIy8Y=;
-        b=NY8aZxWV0DUc/y1sC/E71EvNXOt0SxU1DHfwwjt8f9/euXjcfdzLwakH3myn9dCKu2
-         fBElePsb5w8bM1in+SCcgiFq5teGloCsXbigQa2lD5A5GNFBed+7xi5BBNEdGQuy9ftR
-         zWgDnnXcGOX86P1HyAGTT8YtkXQmi2zSAqLAaf2YLKOE7gB5C47KzInVq/tUcB/6Cq5H
-         3/NFKY6aNKE4/QTPiHB16t+1cw0azTMLYVLzMYe2T2FS9yDGGYEIp8ZwDGPd8QvLewwu
-         dToXRa4jQVgx/tDwU3mbnOfR407QweqGW3vgIislKd3RRtkC27I7uB57K4f6XzrKLLF5
-         /WdQ==
+        bh=z8QAc03+caTvAAzxQiYsQ8xN61QvIP62Vy0HUa32Vyw=;
+        b=M3i5oAQtYXDF+WyMkc+6mePZr8VNkERAzk/qLlcKbI04K/pUK1UkhJdkF0JXA1BErn
+         wV23iQgJjO+23vB8YX9ifLOPnNShDUZbZLQWACzDMJpCVmfUs9daVXtc2zhzD/yd3pR4
+         LGHPQlonHFXkzYKHc/OtwgTll4G7Vo2vfewCJrFGbHY7IvD21HDsUfZ9nDZWYLce6gRs
+         AmSdSO03XlQtltuN6/UqGf1JE5LJzob7UFuD4qMIp7y0cbgCquY5HHKNeM2xUy4BxEIz
+         5rsGgqNTpkPnS5wGGQr6wTFwbdprt8OsC+uT+gwjY8gVKwDWm6vCCCd9Z5A6wKcnm/7G
+         ov8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761090420; x=1761695220;
+        d=1e100.net; s=20230601; t=1761090421; x=1761695221;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Ux00ENqxNtzazJRP0kNIFZEFFfqT/sB9ciqM1XMIy8Y=;
-        b=PPPS/halKO/XpdCE+g1A6tDwELjDXgJ1GXKrWKkKcKJDwVsUP2q09wtNGiA8gorenE
-         FZZKgFcsfzI2+oWP0budhOlR3W33cD9e+3h4FnOXA0sRl7Uy8znzoe55oWSsaizUkjLw
-         p0k5jBmAfOx6sdU6QnyalJQYf7tHxme4IO3gNlz+OY5D2mwhZNg9ThwbTgE+MpVmBTom
-         BMUWP3CIk0VUfgRs7gsCuGsqecirisS2FFP18gXYIoM0p+XKSxOlNgqqfggYq92jJEDv
-         pscE6KAth6bih/xg2MsP8qI4+1YiLPQWk3nErQPUF45BnpBg2VyGdxUD9GvGNBB9B+w0
-         3Iuw==
-X-Gm-Message-State: AOJu0Yxt+NL9AcbVKSI7fGorojnqc+JN2KNtvZLSE34x0aBimkdPUzj7
-	H2GAqDbvzTQ2MQOYhDsm37WOE39VLcCa/wJPiN39MTLEgA/oqknZStG3
-X-Gm-Gg: ASbGnculRYAWiVNJ2wcubzuWq6zN+NZmxO81t+hqFDETelHUC7PcCvdx1id8zyoihix
-	Dxx5g6Ah6tOLVYeytawXYdyXf03Fh946/2p4ZH6CXN6MZc0KlUZ6PFBqoP6q+s0kgKk449azV3x
-	Hc/NjoLC1MJg0+G7a/E5yPf+G0aIr7Jik3LuCl3Wr0tgmSm1YMkc/V1uXtZpp2V/yiS4JrEtM4V
-	uHjAg2kO9IlPV8N7QmQKEd7G9bzVyKQGwDHUmdZEAP4gkyiIUVXlLHxdiG0Ut3pWQFRvhGx7fVu
-	tf/pqmxBlVcLPjwJdpXz9qbSlDls24gLB/lumlRh0mAQTow6Oez3rlwB/8rvM5yLHX+2tboP1Rx
-	q+YvHFAeYRaigj76f5PiCvSEjId4Li+VPY/b5ald8sPT3xhX72QewSgKC2bLyketgH+fud73S
-X-Google-Smtp-Source: AGHT+IHeGId/ywDSD1+B3HjeV1Dv8DYhirb7ZJAGBaWWTqw55VcAYUuGBf/b9fQl2uNxLFwxdMYmNQ==
-X-Received: by 2002:a17:903:2445:b0:25c:25f1:542d with SMTP id d9443c01a7336-290ca1219e1mr253823315ad.36.1761090419637;
-        Tue, 21 Oct 2025 16:46:59 -0700 (PDT)
+        bh=z8QAc03+caTvAAzxQiYsQ8xN61QvIP62Vy0HUa32Vyw=;
+        b=RXzKMfh94Ckn1LT5xKulQWCILouERkZ9GNMkWw6A/e9gy2cHWGebaDhG8avaO/6Y91
+         6a+085q41jqRaZoh2emRHUbTjLujvfMZy7MwFfpWtwxBH1AukaCB5cO2wqVaB4JujvEf
+         hrel4WJQ+0g1RckiXUpGwSOKSnyRmxdAkbeYT9/ZJRRjhoWU4dy/WBcaVojh0a+AMIhU
+         bgebf2WKR0q+s9vgGhmo5VdEfsgXWQPRcuawfr7sTkYkU14fO9LVoLtmNlIN2QglYpcz
+         Xdbm3ytkgJXlGnx6Tty1dJsyE/+Hr2cWjiDMx40mTAnilTT8ZbWs2po0oJ9JNpwdjVCD
+         en2Q==
+X-Gm-Message-State: AOJu0YxKsNCYobzJX8cL7qSUIceF2Nmd8E3UzwSdx+lsmdXOTtcSWFjN
+	2rIq7S3cu3aPbhSRCYdN24Iq+sI+2gPZkJd92iTlwdMMYRJcxSn3MLh/
+X-Gm-Gg: ASbGncsLOcWOoI/aDhcQtkMflBB0LOwH/s3M43l2yfsJ/s179FPRFQqBCUTdZYOhdBH
+	5hkuWOeb/1qDCx+ujuUjbMXkiS24wdQmE5ECX9zKnDIHwKedq/WBTxphM7gqMeKEK733jWphGgU
+	2RZbgNavrpyNONQYGC2nU+80/kU847j9pgNxMR/2OtX8YpsdMtMvl7G37qY6DGmXYSJw2ETEHAE
+	sOm32RKBnzjD75AibL5ALP4/b0vyGxdSZ5sPAz27OytKJxlj3FlHkhm6RryCb2ONj2B1BIrao+Y
+	EVbNTjrfr47qnVDrCNB76nEx6bGWkIvsT5spuZu7nSyLUNXTf4hEBtUE0uciX9MyoUpYMZG3Gtv
+	WW24CLIejhrF8zcwDYyu2ZIPuR4EgorCJW90cTvUDZEp+wb+dJUggmkYLJNLZJ+0ruFw9n6zOM9
+	3RHqRcJFQ=
+X-Google-Smtp-Source: AGHT+IFnLd8MEBHJWDP/6T0bT9CF6tUU40IwqT7WMWTgte724ObVfh7g7Y965ujhPSVyLp4smF4h2g==
+X-Received: by 2002:a17:90b:3942:b0:336:bfce:3b48 with SMTP id 98e67ed59e1d1-33bcf87f431mr27158450a91.9.1761090421527;
+        Tue, 21 Oct 2025 16:47:01 -0700 (PDT)
 Received: from localhost ([2a03:2880:2ff:9::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-292471fd9e8sm120714105ad.85.2025.10.21.16.46.59
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33e22428b1esm708138a91.22.2025.10.21.16.47.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Oct 2025 16:46:59 -0700 (PDT)
+        Tue, 21 Oct 2025 16:47:01 -0700 (PDT)
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Tue, 21 Oct 2025 16:46:44 -0700
-Subject: [PATCH net-next v7 01/26] vsock: a per-net vsock NS mode state
+Date: Tue, 21 Oct 2025 16:46:46 -0700
+Subject: [PATCH net-next v7 03/26] vsock: add netns to vsock skb cb
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,7 +69,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251021-vsock-vmtest-v7-1-0661b7b6f081@meta.com>
+Message-Id: <20251021-vsock-vmtest-v7-3-0661b7b6f081@meta.com>
 References: <20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com>
 In-Reply-To: <20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
@@ -92,198 +93,81 @@ X-Mailer: b4 0.13.0
 
 From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Add the per-net vsock NS mode state. This only adds the structure for
-holding the mode and some of the functions for setting/getting and
-checking the mode, but does not integrate the functionality yet.
+Add a net pointer and net_mode to the vsock skb and helpers for
+getting/setting them. When skbs are received the transport needs a way
+to tell the vsock layer and/or virtio common layer which namespace and
+what namespace mode the packet belongs to. This will be used by those
+upper layers for finding the correct socket object. This patch stashes
+these fields in the skb control buffer.
 
-A "net_mode" field is added to vsock_sock to store the mode of the
-namespace when the vsock_sock was created. In order to evaluate
-namespace mode rules we need to know both a) which namespace the
-endpoints are in, and b) what mode that namespace had when the endpoints
-were created. This allows us to handle the changing of modes from global
-to local *after* a socket has been created by remembering that the mode
-was global when the socket was created. If we were to use the current
-net's mode instead, then the lookup would fail and the socket would
-break.
+This extends virtio_vsock_skb_cb to 24 bytes:
+
+struct virtio_vsock_skb_cb {
+	struct net *               net;                  /*     0     8 */
+	enum vsock_net_mode        net_mode;        /*     8     4 */
+	u32                        offset;               /*    12     4 */
+	bool                       reply;                /*    16     1 */
+	bool                       tap_delivered;        /*    17     1 */
+
+	/* size: 24, cachelines: 1, members: 5 */
+	/* padding: 6 */
+	/* last cacheline: 24 bytes */
+};
 
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+
 ---
 Changes in v7:
-- clarify vsock_net_check_mode() comments
-- change to `orig_net_mode == VSOCK_NET_MODE_GLOBAL && orig_net_mode == vsk->orig_net_mode`
-- remove extraneous explanation of `orig_net_mode`
-- rename `written` to `mode_locked`
-- rename `vsock_hdr` to `sysctl_hdr`
-- change `orig_net_mode` to `net_mode`
-- make vsock_net_check_mode() more generic by taking just net pointers
-  and modes, instead of a vsock_sock ptr, for reuse by transports
-  (e.g., vhost_vsock)
-
-Changes in v6:
-- add orig_net_mode to store mode at creation time which will be used to
-  avoid breakage when namespace changes mode during socket/VM lifespan
+- rename `orig_net_mode` to `net_mode`
+- update commit message with a more complete explanation of changes
 
 Changes in v5:
-- use /proc/sys/net/vsock/ns_mode instead of /proc/net/vsock_ns_mode
-- change from net->vsock.ns_mode to net->vsock.mode
-- change vsock_net_set_mode() to vsock_net_write_mode()
-- vsock_net_write_mode() returns bool for write success to avoid
-  need to use vsock_net_mode_can_set()
-- remove vsock_net_mode_can_set()
+- some diff context change due to rebase to current net-next
 ---
- MAINTAINERS                 |  1 +
- include/net/af_vsock.h      | 64 +++++++++++++++++++++++++++++++++++++++++++++
- include/net/net_namespace.h |  4 +++
- include/net/netns/vsock.h   | 20 ++++++++++++++
- 4 files changed, 89 insertions(+)
+ include/linux/virtio_vsock.h | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 4faa7719bf86..c58f9e38898a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -27062,6 +27062,7 @@ L:	netdev@vger.kernel.org
- S:	Maintained
- F:	drivers/vhost/vsock.c
- F:	include/linux/virtio_vsock.h
-+F:	include/net/netns/vsock.h
- F:	include/uapi/linux/virtio_vsock.h
- F:	net/vmw_vsock/virtio_transport.c
- F:	net/vmw_vsock/virtio_transport_common.c
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index d40e978126e3..a1053d3668cf 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -10,6 +10,7 @@
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index 87cf4dcac78a..7f334a32133c 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -10,6 +10,8 @@
+ #define VIRTIO_VSOCK_SKB_HEADROOM (sizeof(struct virtio_vsock_hdr))
  
- #include <linux/kernel.h>
- #include <linux/workqueue.h>
-+#include <net/netns/vsock.h>
- #include <net/sock.h>
- #include <uapi/linux/vm_sockets.h>
- 
-@@ -65,6 +66,7 @@ struct vsock_sock {
- 	u32 peer_shutdown;
- 	bool sent_request;
- 	bool ignore_connecting_rst;
+ struct virtio_vsock_skb_cb {
++	struct net *net;
 +	enum vsock_net_mode net_mode;
- 
- 	/* Protected by lock_sock(sk) */
- 	u64 buffer_size;
-@@ -256,4 +258,66 @@ static inline bool vsock_msgzerocopy_allow(const struct vsock_transport *t)
- {
- 	return t->msgzerocopy_allow && t->msgzerocopy_allow();
+ 	u32 offset;
+ 	bool reply;
+ 	bool tap_delivered;
+@@ -130,6 +132,27 @@ static inline size_t virtio_vsock_skb_len(struct sk_buff *skb)
+ 	return (size_t)(skb_end_pointer(skb) - skb->head);
  }
-+
-+static inline enum vsock_net_mode vsock_net_mode(struct net *net)
-+{
-+	enum vsock_net_mode ret;
-+
-+	spin_lock_bh(&net->vsock.lock);
-+	ret = net->vsock.mode;
-+	spin_unlock_bh(&net->vsock.lock);
-+	return ret;
-+}
-+
-+static inline bool vsock_net_write_mode(struct net *net, u8 mode)
-+{
-+	bool ret;
-+
-+	spin_lock_bh(&net->vsock.lock);
-+
-+	if (net->vsock.mode_locked) {
-+		ret = false;
-+		goto skip;
-+	}
-+
-+	net->vsock.mode = mode;
-+	net->vsock.mode_locked = true;
-+	ret = true;
-+
-+skip:
-+	spin_unlock_bh(&net->vsock.lock);
-+	return ret;
-+}
-+
-+/* Return true if two namespaces and modes pass the mode rules. Otherwise,
-+ * return false.
-+ *
-+ * ns0 and ns1 are the namespaces being checked.
-+ * mode0 and mode1 are the vsock namespace modes of ns0 and ns1.
-+ *
-+ * Read more about modes in the comment header of net/vmw_vsock/af_vsock.c.
-+ */
-+static inline bool vsock_net_check_mode(struct net *ns0, enum vsock_net_mode mode0,
-+					struct net *ns1, enum vsock_net_mode mode1)
-+{
-+	/* Any vsocks within the same network namespace are always reachable,
-+	 * regardless of the mode.
-+	 */
-+	if (net_eq(ns0, ns1))
-+		return true;
-+
-+	/*
-+	 * If the network namespaces differ, vsocks are only reachable if both
-+	 * were created in VSOCK_NET_MODE_GLOBAL mode.
-+	 *
-+	 * The vsock namespace mode is write-once, and the default is
-+	 * VSOCK_NET_MODE_GLOBAL. Once set to VSOCK_NET_MODE_LOCAL, it cannot
-+	 * revert to GLOBAL. It is not possible to have a case where a socket
-+	 * was created in LOCAL mode, and then the mode switched to GLOBAL.
-+	 *
-+	 * As a result, we only need to check if the modes were global at
-+	 * creation time.
-+	 */
-+	return mode0 == VSOCK_NET_MODE_GLOBAL && mode0 == mode1;
-+}
- #endif /* __AF_VSOCK_H__ */
-diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
-index cb664f6e3558..66d3de1d935f 100644
---- a/include/net/net_namespace.h
-+++ b/include/net/net_namespace.h
-@@ -37,6 +37,7 @@
- #include <net/netns/smc.h>
- #include <net/netns/bpf.h>
- #include <net/netns/mctp.h>
-+#include <net/netns/vsock.h>
- #include <net/net_trackers.h>
- #include <linux/ns_common.h>
- #include <linux/idr.h>
-@@ -196,6 +197,9 @@ struct net {
- 	/* Move to a better place when the config guard is removed. */
- 	struct mutex		rtnl_mutex;
- #endif
-+#if IS_ENABLED(CONFIG_VSOCKETS)
-+	struct netns_vsock	vsock;
-+#endif
- } __randomize_layout;
  
- #include <linux/seq_file_net.h>
-diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
-new file mode 100644
-index 000000000000..c9a438ad52f2
---- /dev/null
-+++ b/include/net/netns/vsock.h
-@@ -0,0 +1,20 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __NET_NET_NAMESPACE_VSOCK_H
-+#define __NET_NET_NAMESPACE_VSOCK_H
++static inline struct net *virtio_vsock_skb_net(struct sk_buff *skb)
++{
++	return VIRTIO_VSOCK_SKB_CB(skb)->net;
++}
 +
-+#include <linux/types.h>
++static inline void virtio_vsock_skb_set_net(struct sk_buff *skb, struct net *net)
++{
++	VIRTIO_VSOCK_SKB_CB(skb)->net = net;
++}
 +
-+enum vsock_net_mode {
-+	VSOCK_NET_MODE_GLOBAL,
-+	VSOCK_NET_MODE_LOCAL,
-+};
++static inline enum vsock_net_mode virtio_vsock_skb_net_mode(struct sk_buff *skb)
++{
++	return VIRTIO_VSOCK_SKB_CB(skb)->net_mode;
++}
 +
-+struct netns_vsock {
-+	struct ctl_table_header *sysctl_hdr;
-+	spinlock_t lock;
++static inline void virtio_vsock_skb_set_net_mode(struct sk_buff *skb,
++						      enum vsock_net_mode net_mode)
++{
++	VIRTIO_VSOCK_SKB_CB(skb)->net_mode = net_mode;
++}
 +
-+	/* protected by lock */
-+	enum vsock_net_mode mode;
-+	bool mode_locked;
-+};
-+#endif /* __NET_NET_NAMESPACE_VSOCK_H */
+ /* Dimension the RX SKB so that the entire thing fits exactly into
+  * a single 4KiB page. This avoids wasting memory due to alloc_skb()
+  * rounding up to the next page order and also means that we
 
 -- 
 2.47.3
