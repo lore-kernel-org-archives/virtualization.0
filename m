@@ -1,70 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2588336EFB
-	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 12:59:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E26DB33375D
+	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 12:59:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761051588; cv=none; b=PLSRJV1hwSe23AKgwq5ipygNSWy0eT04c4dr1xgSmNqsUR4V/npOzsVo6Q+QmknmdcGvn1ucK2T4uh1u8F3EshmvBPYFF87aOMeHDrYGVmU84klXN/gotG1YmsP5kpVZ4ukUFZQwiT8YLphJ918b2UafFkaTt3nqH5O4T1tFGic=
+	t=1761051590; cv=none; b=iqMyEphkYjx9Kxa7TpLS2rWiLHeMqi0n2qKkZAA2yKFThaLvDk1DSPIJOX/bVgy2fa/O2LW6+8K+4+xenFXgIm/2hAXUaApMccIOhkNxuBIcyrSVbF8v/X2ETVNAMlvglu3u+znIH1ryqisFUscRORC3apdjv5IK9AFpUrEsmSw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761051588; c=relaxed/simple;
-	bh=97cB6P/al8lN3e4yxP/MWCa5SAPX4AFlrOtpe6WV0P0=;
+	s=arc-20240116; t=1761051590; c=relaxed/simple;
+	bh=+G948wZk/sZ2ZS5JlV+CYOIOv8Wk7p2Ix55iud5nl50=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=YhqH4k6+Fi/dkkV9OEGOkW7cHf3ggMpBvAxTg1e6JxHEjOoI6KmuobTAmXHzLvBtLZwQ9rwN4ZnecuAI0R24+81+WPKqHUbOXGwiNnotPEEoYO0pVPLqfGMsuBPGR4TwiJEkQ1f7BWrKiiF0tjroDCaG5RdZVkgtGd6wFzrtpA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QG+RyGqZ; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:content-type; b=mQdxLIqdcG5xQdDYmFuSq3r/GYMD2AdnywXbag6hIBxVqyU3wOX+7pGOmQfmFjMSPgKlaAyZcv9hKgipG0E6eIg5TLyMpNAU4/D3Y2F7lR9WVwXWT/MsMTv/3hRoY5wj0WlK0mUcWxheFIVLJVZrXJNk4ZF/ar//+YMNf4Sw0TI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RpowTfyH; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QG+RyGqZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RpowTfyH"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761051586;
+	s=mimecast20190719; t=1761051588;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=sUyqikpnRIZJJ7+CBYLr21ot5Ik6tImIDaS0WggNCzg=;
-	b=QG+RyGqZ0Zdwl7CvRSdI+4LbL8zQMhvA4l1QBwERDhiU82Mq6SaU5U46mgWu5CGI3G3d5V
-	SW5Ycd1QyA2W+d3ZXSvmNo5T4tQXFb8i5/3N2gJ3QmH9Li69epF/x6h566UEYiD0s6KVnX
-	C0fpQw7PAW8BmFdUFB/fEfgAQDQ6flY=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=P14fEtg6A4OumBhlVUt/bQLfxRXlwvUBKmtTUWPdWKk=;
+	b=RpowTfyHT/mYEV1l03jwcHURaLPAuo6Gx7UXr1aofwFkiszrqT7+izfOk2RdHIoZl2mosb
+	6ISaVQ+M3mVCabjj3USYnWkX+JAJVfN4tDudsm6MUZ6uz/HJMJyy7aA6cz11fTYkPnTiwy
+	9lb/YPUW79M7CGh0JpwPxMB2zZkExrE=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-378-YB-bEkJ3NJ-lBsUfEQVBHA-1; Tue, 21 Oct 2025 08:59:44 -0400
-X-MC-Unique: YB-bEkJ3NJ-lBsUfEQVBHA-1
-X-Mimecast-MFC-AGG-ID: YB-bEkJ3NJ-lBsUfEQVBHA_1761051584
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3ee888281c3so9987039f8f.3
-        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 05:59:44 -0700 (PDT)
+ us-mta-539-s4avdXuYPk67atag4BvVWg-1; Tue, 21 Oct 2025 08:59:46 -0400
+X-MC-Unique: s4avdXuYPk67atag4BvVWg-1
+X-Mimecast-MFC-AGG-ID: s4avdXuYPk67atag4BvVWg_1761051586
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-47108163eeaso26923935e9.3
+        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 05:59:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761051583; x=1761656383;
+        d=1e100.net; s=20230601; t=1761051581; x=1761656381;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=sUyqikpnRIZJJ7+CBYLr21ot5Ik6tImIDaS0WggNCzg=;
-        b=SfC11agpIMYYeINS3L/LRPBZhh/JqeRrAE41K11MGcM0Bl4WSUZUNI4movQHbwFvwp
-         Ha5QwLRyQZZQMJtE/k/YpjDczva9h/QGoPmIqbk6U5ss8oOqz9O0KSFbOEYEMd7F6suu
-         hZW6lcA2BIzxp+sfITB0343kFsvXrAsuIKZZ+ZLKMcR0QAcGCnvJLT7oZiEMwCwM0DZz
-         VZkf8HOHcUIiF+qhKrHqrosmB6LT+ubcgjgyLe8Bus4SODhEvS2UvlYEbKo+x2QmH2qJ
-         hkLFkl/2dPGZjHkTCBnOHs2yP/vpLoW0CPaOMflqlTYsJ9Y797QHEidnETrLGppfZn2G
-         tnBg==
-X-Forwarded-Encrypted: i=1; AJvYcCXBmNTJ/NYzr3gePasCCyHScvfCj5gFVJz2hQySSKPqzTymvUoPdoSZoCRhmTCvLAXduYh45qyYaLV4bWCCFg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz98IMty1lyAUUD9C5JbZza0+AEZXIM9Vsw+cAzi5d+TQAFPZoQ
-	GuovznKu+j7txeI9TqmaHM9LVCZIUEqgOUIxQBsok8ytdFkGBsGHm3gr2Zp3AHKjpGNcAfbOB+5
-	GQGOQtLDjfEyMbz/1P6PbMTc6kzKyAbskwegY1khI37iV8S+uXS4LGf1zPoQNajdXTpsh
-X-Gm-Gg: ASbGncvW3H+ZSnz51HzXSkEUVAoyEoQr6fCoYyPXbrFNy5/Q3fr5hORAHd4PtjuPymP
-	VglR2Y+JNTA3jjdLltfKnDgk45F8dbiNeuBSed/WY2fOD0DoniN6gbEaFbpi9xqo7iIjqHQUcqz
-	0O7xXNif0EstXwu5cEOTpOTWT4tc9cJ9jTWdQ8Igc9HOe9fziUykhK/wJXJ5Azj7e7ji0o9bNNn
-	6mHWDZbZ3jOZ3UDojvvQHwCvCOpxnh5PHn74u6XAmHHN9hd1lNRaB4VVq98Vkc2wS1mXk6FYpbg
-	WkoWUrZHTFCFh+ZqdTz/rIK5XzY/0WHTWDkOG10XhrnRhPIJywMn5YsfnOOFvXJ+mEBFW6jmA7g
-	MakS4ZzQuWfrwbJZbcIgelpcrif0NUlRVQfDTbbe3xgYKqIAFADimvvRQArba
-X-Received: by 2002:a05:6000:26d1:b0:3ec:db0a:464c with SMTP id ffacd0b85a97d-42704dc94a0mr12883697f8f.44.1761051583506;
-        Tue, 21 Oct 2025 05:59:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGQe5sfmvBNGfARqbQvLIETNCNFniX0I3Wgmf7ZO8nqCKClSavcBGyNI7STnbkUGhrMC20EJA==
-X-Received: by 2002:a05:6000:26d1:b0:3ec:db0a:464c with SMTP id ffacd0b85a97d-42704dc94a0mr12883652f8f.44.1761051583045;
-        Tue, 21 Oct 2025 05:59:43 -0700 (PDT)
+        bh=P14fEtg6A4OumBhlVUt/bQLfxRXlwvUBKmtTUWPdWKk=;
+        b=SQvB2OLqD+iIY7vMSfOLdQQumpfSjGbDg1QfCYkIVnSKW8L1vVlkQySFFRyZi3Jy9U
+         Y88BOT/Uo4GS4arrXI1B1M+wcWwo+6t/vPOwhF4BTiQIZm293CBxZOI7ldGFLQKWPZzt
+         BqREAqg8DCAZkoZzEaDvsqUULFnqrwzVffztXgI+KyK4AhQguTfIWK7q5NuyZk7bObrS
+         Y4UqIcM9HDAUutvVa19lOQyYH+6sTqxEzZwuO45NbauJXR+N1d9+siKouNrzXzOAvtct
+         JsCrjQgvBrIyTzrACO25wyN6xaic8MFy4yggh422E4a+f0sCeBTuO05IdY8u/bekbgjt
+         4sWw==
+X-Forwarded-Encrypted: i=1; AJvYcCX4UPtq8bUkX3VT576eXHyVyUMKSMTPwmWA6FR6mBGtF0f2QV0w+T7OVPfl0zsnIb2rATkVwfuzMwcRap2E9Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxNWqppW22G06gwZyh23rRjEHqYYF/vsNMWWfOmhKVMf0Ax7itg
+	SJ7F7AEc3/mK/HhcdhPX59FvWHHQlcsm9FlMrOQk7G0BISaNzx0N6bSJKVbBnT/qLvTm8JfSqWQ
+	+CQOuPPnWe1rCw8ZICbT/3QCCUaICXkLAtxUFUf/VZOyVgTeSfONAmoZs+4RYwl7ISrrU
+X-Gm-Gg: ASbGncvwP4ClbYweOGrlyS3fEjJ9xzX+QGy15n509Wbl31R5pglUIpNlT+AnWwtabMH
+	AlY0lTRv1qTrAHhdMO+tlUUignhkO2pcA5tADyuBovD6Am2HATsVudZmnzO1AaRyM/0T5sJr3zn
+	KBt9FJFSB5mULu52VfoDGi3INqLujUVEnTWN3+gwmeXj9AEBK/K5AVrKiPt2GdHzGI9aSrJb5FY
+	GIdc4uF/7DQAZfn3IMH30PIrE/l0lnStiZSGEqXKiosNd2ns2rvPhySHUSMO/RsLOrJmCG5B3rL
+	1F+yhOQylIYFcAUz1johGerrf4eegK5HFRzXBoVOhiTxjDvDBk6UCSolmNPMsCaq6iiTIDD/juC
+	tO6m7Suzv/ec+oIq+bC3crGev32zEv+g29oXOUfCJxUvFxN2wdTkN1uy4vflY
+X-Received: by 2002:a05:600c:1988:b0:471:1387:376a with SMTP id 5b1f17b1804b1-4711791c661mr133821715e9.28.1761051581236;
+        Tue, 21 Oct 2025 05:59:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHcapACDzzVAi+UFv8YmL677aUf6eV6ZNfonjpRp41+s2WgUXfVDbrd4RA2JmDz7jP4+SdmlQ==
+X-Received: by 2002:a05:600c:1988:b0:471:1387:376a with SMTP id 5b1f17b1804b1-4711791c661mr133821385e9.28.1761051580770;
+        Tue, 21 Oct 2025 05:59:40 -0700 (PDT)
 Received: from localhost (p200300d82f4e3200c99da38b3f3ad4b3.dip0.t-ipconnect.de. [2003:d8:2f4e:3200:c99d:a38b:3f3a:d4b3])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-427ea5b3acfsm20082945f8f.14.2025.10.21.05.59.41
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4715520d747sm220307515e9.14.2025.10.21.05.59.39
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 21 Oct 2025 05:59:42 -0700 (PDT)
+        Tue, 21 Oct 2025 05:59:40 -0700 (PDT)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -94,9 +94,9 @@ Cc: linux-mm@kvack.org,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v1 05/23] mm/balloon_compaction: centralize adjust_managed_page_count() handling
-Date: Tue, 21 Oct 2025 14:59:10 +0200
-Message-ID: <20251021125929.377194-6-david@redhat.com>
+Subject: [PATCH v1 04/23] mm/balloon_compaction: centralize basic page migration handling
+Date: Tue, 21 Oct 2025 14:59:09 +0200
+Message-ID: <20251021125929.377194-5-david@redhat.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251021125929.377194-1-david@redhat.com>
 References: <20251021125929.377194-1-david@redhat.com>
@@ -107,192 +107,270 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _gG1b1QFZLQRFS3dIDB6bSSE1OsWL3tJgrF5mFHjhWA_1761051584
+X-Mimecast-MFC-PROC-ID: u6-CAdUs9aGW8rsLA2HXmQbHZ2MIjoPItV0RzvDONK4_1761051586
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Let's centralize it, by allowing for the driver to enable this handling
-through a new flag (bool for now) in the balloon device info.
+Let's update the balloon page references, the balloon page list, the
+BALLOON_MIGRATE counter and the isolated-pages counter in
+balloon_page_migrate(), after letting the balloon->migratepage()
+callback deal with the actual inflation+deflation.
 
-Note that we now adjust the counter when adding/removing a page into the
-balloon list: when removing a page to deflate it, it will now happen
-before the driver communicated with hypervisor, not afterwards.
+Note that we now perform the balloon list modifications outside of any
+implementation-specific locks: which is fine, there is nothing special
+about these page actions that the lock would be protecting.
 
-This shouldn't make a difference in practice.
+The old page is already no longer in the list (isolated) and the new page
+is not yet in the list.
+
+Let's use -ENOENT to communicate the special "inflation of new page
+failed after already deflating the old page" to balloon_page_migrate() so
+it can handle it accordingly.
+
+While at it, rename balloon->b_dev_info to make it mach the other
+functions. Also, drop the comment above balloon_page_migrate(), which
+seems unnecessary.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/powerpc/platforms/pseries/cmm.c | 13 +------------
- drivers/virtio/virtio_balloon.c      | 19 ++-----------------
- include/linux/balloon_compaction.h   |  2 ++
- mm/balloon_compaction.c              | 17 +++++++++++++++++
- 4 files changed, 22 insertions(+), 29 deletions(-)
+ arch/powerpc/platforms/pseries/cmm.c | 16 ---------
+ drivers/misc/vmw_balloon.c           | 49 +++++-----------------------
+ drivers/virtio/virtio_balloon.c      | 12 -------
+ mm/balloon_compaction.c              | 37 ++++++++++++++++++---
+ 4 files changed, 41 insertions(+), 73 deletions(-)
 
 diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
-index 07b21d2bc8a78..9ed71683ae402 100644
+index 67c7309c36147..07b21d2bc8a78 100644
 --- a/arch/powerpc/platforms/pseries/cmm.c
 +++ b/arch/powerpc/platforms/pseries/cmm.c
-@@ -165,7 +165,6 @@ static long cmm_alloc_pages(long nr)
- 
- 		balloon_page_enqueue(&b_dev_info, page);
- 		atomic_long_inc(&loaned_pages);
--		adjust_managed_page_count(page, -1);
- 		nr--;
- 	}
- 
-@@ -190,7 +189,6 @@ static long cmm_free_pages(long nr)
- 		if (!page)
- 			break;
- 		plpar_page_set_active(page);
--		adjust_managed_page_count(page, 1);
- 		__free_page(page);
- 		atomic_long_dec(&loaned_pages);
- 		nr--;
-@@ -515,16 +513,6 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+@@ -501,8 +501,6 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+ 			   struct page *newpage, struct page *page,
+ 			   enum migrate_mode mode)
+ {
+-	unsigned long flags;
+-
+ 	/*
+ 	 * loan/"inflate" the newpage first.
+ 	 *
+@@ -517,9 +515,6 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
  		return -EBUSY;
  	}
  
--	/*
--	 * When we migrate a page to a different zone, we have to fixup the
--	 * count of both involved zones as we adjusted the managed page count
--	 * when inflating.
--	 */
--	if (page_zone(page) != page_zone(newpage)) {
--		adjust_managed_page_count(page, 1);
--		adjust_managed_page_count(newpage, -1);
--	}
+-	/* balloon page list reference */
+-	get_page(newpage);
+-
+ 	/*
+ 	 * When we migrate a page to a different zone, we have to fixup the
+ 	 * count of both involved zones as we adjusted the managed page count
+@@ -530,22 +525,11 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+ 		adjust_managed_page_count(newpage, -1);
+ 	}
+ 
+-	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+-	balloon_page_insert(b_dev_info, newpage);
+-	__count_vm_event(BALLOON_MIGRATE);
+-	b_dev_info->isolated_pages--;
+-	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
 -
  	/*
  	 * activate/"deflate" the old page. We ignore any errors just like the
  	 * other callers.
-@@ -551,6 +539,7 @@ static int cmm_init(void)
- 		return -EOPNOTSUPP;
+ 	 */
+ 	plpar_page_set_active(page);
+-
+-	balloon_page_finalize(page);
+-	/* balloon page list reference */
+-	put_page(page);
+-
+ 	return 0;
+ }
+ #else /* CONFIG_BALLOON_COMPACTION */
+diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+index 07e60a4b846aa..52b8c0f1eead7 100644
+--- a/drivers/misc/vmw_balloon.c
++++ b/drivers/misc/vmw_balloon.c
+@@ -1724,18 +1724,17 @@ static inline void vmballoon_debugfs_exit(struct vmballoon *b)
+  * @page: a ballooned page that should be migrated.
+  * @mode: migration mode, ignored.
+  *
+- * This function is really open-coded, but that is according to the interface
+- * that balloon_compaction provides.
+- *
+  * Return: zero on success, -EAGAIN when migration cannot be performed
+- *	   momentarily, and -EBUSY if migration failed and should be retried
+- *	   with that specific page.
++ *	   momentarily, -EBUSY if migration failed and should be retried
++ *	   with that specific page, and -ENOENT when deflating @page
++ *	   succeeded but inflating @newpage failed, effectively deflating
++ *	   the balloon.
+  */
+ static int vmballoon_migratepage(struct balloon_dev_info *b_dev_info,
+ 				 struct page *newpage, struct page *page,
+ 				 enum migrate_mode mode)
+ {
+-	unsigned long status, flags;
++	unsigned long status;
+ 	struct vmballoon *b;
+ 	int ret = 0;
  
- 	balloon_devinfo_init(&b_dev_info);
-+	b_dev_info.adjust_managed_page_count = true;
- 	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
- 		b_dev_info.migratepage = cmm_migratepage;
+@@ -1773,14 +1772,6 @@ static int vmballoon_migratepage(struct balloon_dev_info *b_dev_info,
+ 		goto out_unlock;
+ 	}
  
+-	/*
+-	 * The page is isolated, so it is safe to delete it without holding
+-	 * @pages_lock . We keep holding @comm_lock since we will need it in a
+-	 * second.
+-	 */
+-	balloon_page_finalize(page);
+-	put_page(page);
+-
+ 	/* Inflate */
+ 	vmballoon_add_page(b, 0, newpage);
+ 	status = vmballoon_lock_op(b, 1, VMW_BALLOON_4K_PAGE,
+@@ -1799,36 +1790,12 @@ static int vmballoon_migratepage(struct balloon_dev_info *b_dev_info,
+ 		 * change.
+ 		 */
+ 		atomic64_dec(&b->size);
+-	} else {
+ 		/*
+-		 * Success. Take a reference for the page, and we will add it to
+-		 * the list after acquiring the lock.
++		 * Tell the core that we're deflating the old page and don't
++		 * need the new page.
+ 		 */
+-		get_page(newpage);
+-	}
+-
+-	/* Update the balloon list under the @pages_lock */
+-	spin_lock_irqsave(&b->b_dev_info.pages_lock, flags);
+-
+-	/*
+-	 * On inflation success, we already took a reference for the @newpage.
+-	 * If we succeed just insert it to the list and update the statistics
+-	 * under the lock.
+-	 */
+-	if (status == VMW_BALLOON_SUCCESS) {
+-		balloon_page_insert(&b->b_dev_info, newpage);
+-		__count_vm_event(BALLOON_MIGRATE);
+-	} else {
+-		__count_vm_event(BALLOON_DEFLATE);
++		ret = -ENOENT;
+ 	}
+-
+-	/*
+-	 * We deflated successfully, so regardless to the inflation success, we
+-	 * need to reduce the number of isolated_pages.
+-	 */
+-	b->b_dev_info.isolated_pages--;
+-	spin_unlock_irqrestore(&b->b_dev_info.pages_lock, flags);
+-
+ out_unlock:
+ 	up_read(&b->conf_sem);
+ 	return ret;
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 8969271581bca..f7d6a4a6e54f5 100644
+index 1b93d8c643612..8969271581bca 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -274,9 +274,6 @@ static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num)
+@@ -827,7 +827,6 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ {
+ 	struct virtio_balloon *vb = container_of(vb_dev_info,
+ 			struct virtio_balloon, vb_dev_info);
+-	unsigned long flags;
  
- 		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
- 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
--		if (!virtio_has_feature(vb->vdev,
--					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
--			adjust_managed_page_count(page, -1);
- 		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
- 	}
- 
-@@ -295,9 +292,6 @@ static void release_pages_balloon(struct virtio_balloon *vb,
- 	struct page *page, *next;
- 
- 	list_for_each_entry_safe(page, next, pages, lru) {
--		if (!virtio_has_feature(vb->vdev,
--					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
--			adjust_managed_page_count(page, 1);
- 		list_del(&page->lru);
- 		put_page(page); /* balloon reference */
- 	}
-@@ -839,17 +833,6 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ 	/*
+ 	 * In order to avoid lock contention while migrating pages concurrently
+@@ -840,8 +839,6 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
  	if (!mutex_trylock(&vb->balloon_lock))
  		return -EAGAIN;
  
--	/*
--	  * When we migrate a page to a different zone and adjusted the
--	  * managed page count when inflating, we have to fixup the count of
--	  * both involved zones.
--	  */
--	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM) &&
--	    page_zone(page) != page_zone(newpage)) {
--		adjust_managed_page_count(page, 1);
--		adjust_managed_page_count(newpage, -1);
--	}
+-	get_page(newpage); /* balloon reference */
 -
+ 	/*
+ 	  * When we migrate a page to a different zone and adjusted the
+ 	  * managed page count when inflating, we have to fixup the count of
+@@ -854,11 +851,6 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ 	}
+ 
  	/* balloon's page migration 1st step  -- inflate "newpage" */
+-	spin_lock_irqsave(&vb_dev_info->pages_lock, flags);
+-	balloon_page_insert(vb_dev_info, newpage);
+-	vb_dev_info->isolated_pages--;
+-	__count_vm_event(BALLOON_MIGRATE);
+-	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
  	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
  	set_page_pfns(vb, vb->pfns, newpage);
-@@ -958,6 +941,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto out_free_vb;
+ 	tell_host(vb, vb->inflate_vq);
+@@ -869,10 +861,6 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ 	tell_host(vb, vb->deflate_vq);
  
-+	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-+		vb->vb_dev_info.adjust_managed_page_count = true;
- #ifdef CONFIG_BALLOON_COMPACTION
- 	vb->vb_dev_info.migratepage = virtballoon_migratepage;
- #endif
-diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-index 7cfe48769239e..3109d3c43d306 100644
---- a/include/linux/balloon_compaction.h
-+++ b/include/linux/balloon_compaction.h
-@@ -56,6 +56,7 @@ struct balloon_dev_info {
- 	struct list_head pages;		/* Pages enqueued & handled to Host */
- 	int (*migratepage)(struct balloon_dev_info *, struct page *newpage,
- 			struct page *page, enum migrate_mode mode);
-+	bool adjust_managed_page_count;
- };
- 
- extern struct page *balloon_page_alloc(void);
-@@ -73,6 +74,7 @@ static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
- 	spin_lock_init(&balloon->pages_lock);
- 	INIT_LIST_HEAD(&balloon->pages);
- 	balloon->migratepage = NULL;
-+	balloon->adjust_managed_page_count = false;
+ 	mutex_unlock(&vb->balloon_lock);
+-
+-	balloon_page_finalize(page);
+-	put_page(page); /* balloon reference */
+-
+ 	return 0;
  }
- 
- #ifdef CONFIG_BALLOON_COMPACTION
+ #endif /* CONFIG_BALLOON_COMPACTION */
 diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index 5444c61bb9e76..fd9ec47cf4670 100644
+index 03c5dbabb1565..5444c61bb9e76 100644
 --- a/mm/balloon_compaction.c
 +++ b/mm/balloon_compaction.c
-@@ -23,6 +23,8 @@ static void balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
- 	BUG_ON(!trylock_page(page));
- 	balloon_page_insert(b_dev_info, page);
- 	unlock_page(page);
-+	if (b_dev_info->adjust_managed_page_count)
-+		adjust_managed_page_count(page, -1);
- 	__count_vm_event(BALLOON_INFLATE);
- 	inc_node_page_state(page, NR_BALLOON_PAGES);
+@@ -232,20 +232,49 @@ static void balloon_page_putback(struct page *page)
+ 	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
  }
-@@ -95,6 +97,8 @@ size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
- 			continue;
  
- 		list_del(&page->lru);
-+		if (b_dev_info->adjust_managed_page_count)
-+			adjust_managed_page_count(page, 1);
- 		balloon_page_finalize(page);
- 		__count_vm_event(BALLOON_DEFLATE);
- 		list_add(&page->lru, pages);
-@@ -256,12 +260,25 @@ static int balloon_page_migrate(struct page *newpage, struct page *page,
+-/* move_to_new_page() counterpart for a ballooned page */
+ static int balloon_page_migrate(struct page *newpage, struct page *page,
+ 		enum migrate_mode mode)
+ {
+-	struct balloon_dev_info *balloon = balloon_page_device(page);
++	struct balloon_dev_info *b_dev_info = balloon_page_device(page);
++	unsigned long flags;
++	int rc;
  
- 		balloon_page_insert(b_dev_info, newpage);
- 		__count_vm_event(BALLOON_MIGRATE);
+ 	VM_BUG_ON_PAGE(!PageLocked(page), page);
+ 	VM_BUG_ON_PAGE(!PageLocked(newpage), newpage);
+ 
+ 	/* Isolated balloon pages cannot get deflated. */
+-	if (WARN_ON_ONCE(!balloon))
++	if (WARN_ON_ONCE(!b_dev_info))
+ 		return -EAGAIN;
+ 
+-	return balloon->migratepage(balloon, newpage, page, mode);
++	rc = b_dev_info->migratepage(b_dev_info, newpage, page, mode);
++	switch (rc) {
++	case 0:
++		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
 +
-+		if (b_dev_info->adjust_managed_page_count &&
-+		    page_zone(page) != page_zone(newpage)) {
-+			/*
-+			 * When we migrate a page to a different zone we
-+			 * have to fixup the count of both involved zones.
-+			 */
-+			adjust_managed_page_count(page, 1);
-+			adjust_managed_page_count(newpage, -1);
-+		}
- 		break;
- 	case -ENOENT:
- 		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
- 
- 		/* Old page was deflated but new page not inflated. */
- 		__count_vm_event(BALLOON_DEFLATE);
++		/* Insert the new page into the balloon list. */
++		get_page(newpage);
 +
-+		if (b_dev_info->adjust_managed_page_count)
-+			adjust_managed_page_count(page, 1);
- 		break;
- 	default:
- 		return rc;
++		balloon_page_insert(b_dev_info, newpage);
++		__count_vm_event(BALLOON_MIGRATE);
++		break;
++	case -ENOENT:
++		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
++
++		/* Old page was deflated but new page not inflated. */
++		__count_vm_event(BALLOON_DEFLATE);
++		break;
++	default:
++		return rc;
++	}
++
++	b_dev_info->isolated_pages--;
++	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
++
++	/* Free the now-deflated page we isolated in balloon_page_isolate(). */
++	balloon_page_finalize(page);
++	put_page(page);
++
++	return 0;
+ }
+ 
+ const struct movable_operations balloon_mops = {
 -- 
 2.51.0
 
