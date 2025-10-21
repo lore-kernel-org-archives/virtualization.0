@@ -1,118 +1,181 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77A83303A21
-	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 10:28:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761042535; cv=pass; b=ek9jjoV8OjP2I/FBpXPsMyHI+F3ZsgPUL0ZjBD5WiISJkbaJTV76KeoN7K85R/pL5QIujdk2e4glpFY1l6UIyxml0kc5n6Hh4m4tPR+SsaH7VrsqVi8sz0GpeTw3MXtxJ2WptrRh2eM+P1OESJmzEQeU+8NHaq+ThCO2i5uwqhE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761042535; c=relaxed/simple;
-	bh=wPvC7g+TCT/eXOGvEXrIqkKBA5mH2xASKhfwxL/kBX0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=heF39MjvvEsEvAy2dWidApoM5EOXcI1l2b/sy+ZKoARy1burRm86Fo7WtAyijHFBpCe1VqSPEaLgQrEk241dGsJ4Ljm14KrFyaYWn8VBtaSmVbgR/NQIWFAaIZk/+7jsSt+bZgVpCkymZjMsAwBwhC/eOwTMD3FUTTtWTxtU60I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=PIFfvJg3; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="PIFfvJg3"
-ARC-Seal: i=1; a=rsa-sha256; t=1761042525; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=QzZZ3fYxaXWfsDAwg+8OTiQQpo0/puoqLHfVuq82iqsSaIoU4MSteisnWKfxnfGXmh9J/fEqnjNYP69PZHQYHnP5OX7eKMBMPIKzQw37/6WXrraK/4uGi1sMlaQz2zrvBKdHuka+8CqVcvtiSr1C6YmImbITT/Rnk4kXfcpF4YY=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1761042525; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=jZuSP7CIv2Yik6596VgKC2i8oP2tWtzljTZtGY/y+NQ=; 
-	b=ESAJloMG6mT0kLhUzANTjmi6k4EBH1kDjG8hSgPBwJcWpy78J+j/yDtuXpWXcaOAqiGrGxuql5fCIHNZMVGejEcWccuwK+sPq8wIjgt7zo7r3xotdagGgVXiiYNpmVyQz0unksesnbJ5CNrM5EyeEbIby5I/KIOojoCOup/TY7c=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1761042525;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=jZuSP7CIv2Yik6596VgKC2i8oP2tWtzljTZtGY/y+NQ=;
-	b=PIFfvJg3aDLnwCdt2+4NuVt+4wRtNfCagrlr2wrE7s6cYlQQSbbl4abOieTo0NG3
-	RYGeGpDjPLXVblnYRxqntgo5OVfamV9bPm92Gij4+k7CysJMCzHMt1N3rmjgJJzXlTt
-	D5jC5HZW74iptngrFjksUGV8D8ahI+x1Z0iOs9ag=
-Received: by mx.zohomail.com with SMTPS id 1761042523809409.2792412131598;
-	Tue, 21 Oct 2025 03:28:43 -0700 (PDT)
-Message-ID: <ee77b9c9-1a28-45b8-9e96-d8c1afb0ac53@collabora.com>
-Date: Tue, 21 Oct 2025 13:28:39 +0300
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CD9332BF4C
+	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 10:30:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.69
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761042604; cv=none; b=HBFFHDC+WKSoUtZPOQpuO1FY944S3RkPFSEGULu3NWL9ChloB9e5VxfQ4rwKWrrpHzksvOar1RIV6APrSg7Y4mJg5uu9hbqu/583uyyjAtMO+Yug4F+3NeqNYxbYLQswTWriR5/tYpRnY4c7fIixhMZ6Rs45I19xh0ItXRY0BOg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761042604; c=relaxed/simple;
+	bh=ba92ZCaLSrFbTakAqUS+7a9wqQ6yNp8OihEI0CLwPVk=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=PWTeUn92r1L0N2KZpG8Aykz70X0U3daVjcJkmQShKKCtT00h7hrU7MhND34lDp02zl5YsCsIdGjNQnkNCewPxsxpAUf9sCSDq4t5PjPVLb1dyyprSDzf3xaX7ITJ3KJrk3EErO6jMPmXU712U9u+yJngl6IE/4OlKoSpMrnIBkc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-940123e842bso730281439f.1
+        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 03:30:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761042602; x=1761647402;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rXSxkzjbwtGmJhGcySsnjpN4sygoTHK1MyL+PLfqk9s=;
+        b=icq4pagMh1R3VrQs97JKjrhwfqcI1fljaRrOWn39OXnfY5RFP5wl9rPjYqaRsFNELe
+         qVECtTSPi4n6dhdQi6qUjKkbwrtP7pawRfyFBoAgWzLQJi1liCoy+jZ6YVPdipP4rfFe
+         sdl+sVqtHaxLpkp6jWKCb2c7rBYkDSyXCAU/a3HSA1skuIJjk6lJ+KMtGSJw81mvkeX1
+         6XBDE4LmNCWJa390B3moHV5NSRr6ScTCrGMO+mscG8RzmxpfgNeS5zBNWBJKtx4kovDN
+         Y3Ff+ZRQsX+REsBNWqaG/ayQ9PfNvAUKhDj8CrNvbnwvQGVyPkJuQRLvqM3s0XbNS9p9
+         Z5WQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWa7zKbqDoFqQytQ3lOtsRKUIDnCCwwC4/6zf2V/BHjFAm+6iuXdLwqHDu6zdz1dZDrUeX4i6gVEcndz6mwFA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxbgQSiY18bpuo1oDSFjG0GoPatP7CiwIwLS8nI3h2QftjEZrRY
+	M5J2ZTQxk8WvgGam+L6wW5HbJ8GuNDqTu69X8JlvKhkS3hWLEs5IWP1c/PRazOtp35pFyah8x2R
+	3yr2ZLGErIkKpihBbk55RTQyTraDCRK2hM9feP7tZ+CVVN16PqSAkZt54BWE=
+X-Google-Smtp-Source: AGHT+IG06J3L1XW+DZ5LbGn7uIFP7KU+5mmoBslNxd/mYtvcjn7tb7bHBFtCd6Q7iYtLJtff3ds5pJwk+L2+RZmZcUkSq3Vot/jX
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC][PATCH] drm/virtgpu: Make vblank event dependent on the host
- resource
-To: Thomas Zimmermann <tzimmermann@suse.de>,
- "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
- "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
- "kraxel@redhat.com" <kraxel@redhat.com>,
- "airlied@redhat.com" <airlied@redhat.com>
-Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-References: <20251016145230.79270-1-tzimmermann@suse.de>
- <IA0PR11MB7185A7BA7B8CEAC46CBC0922F8F6A@IA0PR11MB7185.namprd11.prod.outlook.com>
- <21851b98-06ee-4e2c-8570-70e8a4fe5d86@suse.de>
- <afc6ba14-cd95-49b9-89f5-e90fd19c8927@collabora.com>
- <a2afbc13-0be6-46ef-a6da-9461fd30376b@collabora.com>
- <126a0b10-a550-430c-a1b3-7e144461a0ff@suse.de>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <126a0b10-a550-430c-a1b3-7e144461a0ff@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+X-Received: by 2002:a05:6602:2c05:b0:940:f0a7:30d7 with SMTP id
+ ca18e2360f4ac-940f0a7354emr90628639f.15.1761042602505; Tue, 21 Oct 2025
+ 03:30:02 -0700 (PDT)
+Date: Tue, 21 Oct 2025 03:30:02 -0700
+In-Reply-To: <u6mwe4gtor7cgqece6ctyabmlxcaxn7t2yk7k3xivifwxreu65@z5tjmfkoami7>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <68f760aa.050a0220.346f24.000d.GAE@google.com>
+Subject: Re: [syzbot] [virt?] [net?] possible deadlock in vsock_linger
+From: syzbot <syzbot+10e35716f8e4929681fa@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, horms@kernel.org, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sgarzare@redhat.com, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On 10/21/25 09:39, Thomas Zimmermann wrote:
-> Hi
-> 
-> Am 19.10.25 um 19:10 schrieb Dmitry Osipenko:
->> On 10/17/25 16:58, Dmitry Osipenko wrote:
->>> Hi,
->>>
->>> On 10/17/25 10:38, Thomas Zimmermann wrote:
->>> ...
->>>> There's little difference between the current event handling and the
->>>> one
->>>> where no vblanks have been set up. I suspect that the vblank timer
->>>> callback interferes with the locking in atomic_flush. That would also
->>>> explain why the fps drop at no clear pattern.
->>>>
->>>> Could you please test the attached patch? It enables/disables the
->>>> vblank
->>>> timer depending on the buffer resources; as you suggested before.  Does
->>>> this make a difference?
->>> The attached patch doesn't work, please see the trace below.
->>>
->>> @Vivek Please clarify whether you only see frames drop with your
->>> multi-gpu guest-blob setup or with a usual virgl too. I haven't noticed
->>> problem with frames pacing for virgl and nctx modes yesterday, will
->>> check again.
->> On a second look, I now see that this RFC (not the attached) patch
->> doesn't work properly with host blobs.
->>
->> I'm getting 100-150fps with this patch applied instead of expected
->> 60fps. Without this RFC patch I'm getting constant 60fps with native
->> context displaying host blobs.
->>
->> Not sure why guest blob would behave differently from the host blob.
->> Suspect something if off with the prime sharing that Vivek uses in the
->> vfio testing setup. I'd suggest to disable vblank timer only for guest
->> blobs if no quick solution will be found.
-> 
-> After reading your reply and Vivek's new results, I'm confused now. Does
-> it work or is there another patch needed?
+Hello,
 
-Didn't work for me, apparently worked for Vivek. Got a black screen,
-flashing sometimes, and that error splat.
+syzbot has tested the proposed patch but the reproducer is still triggering an issue:
+possible deadlock in vsock_linger
 
-Now realized that I only tested with enabled virgl 3d context, while in
-Vivek's case 3d is disabled. Will test further.
+======================================================
+WARNING: possible circular locking dependency detected
+syzkaller #0 Not tainted
+------------------------------------------------------
+syz.0.17/6384 is trying to acquire lock:
+ffff888055028b18 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1679 [inline]
+ffff888055028b18 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_linger+0x25e/0x4d0 net/vmw_vsock/af_vsock.c:1080
 
--- 
-Best regards,
-Dmitry
+but task is already holding lock:
+ffffffff906260a8 (vsock_register_mutex){+.+.}-{4:4}, at: vsock_assign_transport+0xf2/0x900 net/vmw_vsock/af_vsock.c:469
+
+which lock already depends on the new lock.
+
+
+the existing dependency chain (in reverse order) is:
+
+-> #1 (vsock_register_mutex){+.+.}-{4:4}:
+       __mutex_lock_common kernel/locking/mutex.c:598 [inline]
+       __mutex_lock+0x193/0x1060 kernel/locking/mutex.c:760
+       vsock_assign_transport+0xf2/0x900 net/vmw_vsock/af_vsock.c:469
+       vsock_connect+0x201/0xee0 net/vmw_vsock/af_vsock.c:1592
+       __sys_connect_file+0x141/0x1a0 net/socket.c:2102
+       __sys_connect+0x13b/0x160 net/socket.c:2121
+       __do_sys_connect net/socket.c:2127 [inline]
+       __se_sys_connect net/socket.c:2124 [inline]
+       __x64_sys_connect+0x72/0xb0 net/socket.c:2124
+       do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+       do_syscall_64+0xcd/0xfa0 arch/x86/entry/syscall_64.c:94
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+-> #0 (sk_lock-AF_VSOCK){+.+.}-{0:0}:
+       check_prev_add kernel/locking/lockdep.c:3165 [inline]
+       check_prevs_add kernel/locking/lockdep.c:3284 [inline]
+       validate_chain kernel/locking/lockdep.c:3908 [inline]
+       __lock_acquire+0x126f/0x1c90 kernel/locking/lockdep.c:5237
+       lock_acquire kernel/locking/lockdep.c:5868 [inline]
+       lock_acquire+0x179/0x350 kernel/locking/lockdep.c:5825
+       lock_sock_nested+0x41/0xf0 net/core/sock.c:3720
+       lock_sock include/net/sock.h:1679 [inline]
+       vsock_linger+0x25e/0x4d0 net/vmw_vsock/af_vsock.c:1080
+       virtio_transport_close net/vmw_vsock/virtio_transport_common.c:1271 [inline]
+       virtio_transport_release+0x52a/0x640 net/vmw_vsock/virtio_transport_common.c:1291
+       vsock_assign_transport+0x320/0x900 net/vmw_vsock/af_vsock.c:502
+       vsock_connect+0x201/0xee0 net/vmw_vsock/af_vsock.c:1592
+       __sys_connect_file+0x141/0x1a0 net/socket.c:2102
+       __sys_connect+0x13b/0x160 net/socket.c:2121
+       __do_sys_connect net/socket.c:2127 [inline]
+       __se_sys_connect net/socket.c:2124 [inline]
+       __x64_sys_connect+0x72/0xb0 net/socket.c:2124
+       do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+       do_syscall_64+0xcd/0xfa0 arch/x86/entry/syscall_64.c:94
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+other info that might help us debug this:
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(vsock_register_mutex);
+                               lock(sk_lock-AF_VSOCK);
+                               lock(vsock_register_mutex);
+  lock(sk_lock-AF_VSOCK);
+
+ *** DEADLOCK ***
+
+1 lock held by syz.0.17/6384:
+ #0: ffffffff906260a8 (vsock_register_mutex){+.+.}-{4:4}, at: vsock_assign_transport+0xf2/0x900 net/vmw_vsock/af_vsock.c:469
+
+stack backtrace:
+CPU: 1 UID: 0 PID: 6384 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2~bpo12+1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
+ print_circular_bug+0x275/0x350 kernel/locking/lockdep.c:2043
+ check_noncircular+0x14c/0x170 kernel/locking/lockdep.c:2175
+ check_prev_add kernel/locking/lockdep.c:3165 [inline]
+ check_prevs_add kernel/locking/lockdep.c:3284 [inline]
+ validate_chain kernel/locking/lockdep.c:3908 [inline]
+ __lock_acquire+0x126f/0x1c90 kernel/locking/lockdep.c:5237
+ lock_acquire kernel/locking/lockdep.c:5868 [inline]
+ lock_acquire+0x179/0x350 kernel/locking/lockdep.c:5825
+ lock_sock_nested+0x41/0xf0 net/core/sock.c:3720
+ lock_sock include/net/sock.h:1679 [inline]
+ vsock_linger+0x25e/0x4d0 net/vmw_vsock/af_vsock.c:1080
+ virtio_transport_close net/vmw_vsock/virtio_transport_common.c:1271 [inline]
+ virtio_transport_release+0x52a/0x640 net/vmw_vsock/virtio_transport_common.c:1291
+ vsock_assign_transport+0x320/0x900 net/vmw_vsock/af_vsock.c:502
+ vsock_connect+0x201/0xee0 net/vmw_vsock/af_vsock.c:1592
+ __sys_connect_file+0x141/0x1a0 net/socket.c:2102
+ __sys_connect+0x13b/0x160 net/socket.c:2121
+ __do_sys_connect net/socket.c:2127 [inline]
+ __se_sys_connect net/socket.c:2124 [inline]
+ __x64_sys_connect+0x72/0xb0 net/socket.c:2124
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xcd/0xfa0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f300598efc9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f3006912038 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007f3005be5fa0 RCX: 00007f300598efc9
+RDX: 0000000000000010 RSI: 0000200000000000 RDI: 0000000000000004
+RBP: 00007f3005a11f91 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f3005be6038 R14: 00007f3005be5fa0 R15: 00007ffdba0a0048
+ </TASK>
+
+
+Tested on:
+
+commit:         6548d364 Merge tag 'cgroup-for-6.18-rc2-fixes' of git:..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=162a5492580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=f3e7b5a3627a90dd
+dashboard link: https://syzkaller.appspot.com/bug?extid=10e35716f8e4929681fa
+compiler:       gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+patch:          https://syzkaller.appspot.com/x/patch.diff?x=17a04e7c580000
+
