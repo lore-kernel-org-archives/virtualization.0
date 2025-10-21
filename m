@@ -1,69 +1,69 @@
-Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011009.outbound.protection.outlook.com [40.107.208.9])
+Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010003.outbound.protection.outlook.com [52.101.193.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97DC93370E7
-	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 13:26:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 043063370EB
+	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 13:38:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.3
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761053201; cv=fail; b=se0migzkxzfWKHTMZiiZy1RdjeWUOqbe40UdTYdDLBoJmth6dbYm36l0e9f3kpRJfssiiIWPQktXkY9evm+zTDgRPbpRHcOZ2t5It8KHO2SfQgUnK8HSjHb5DqOPLlCGNXPcq5ArFG1a9z5aFgIR0G8q+wZmtO3P8ZEFr3NFWXg=
+	t=1761053937; cv=fail; b=pxj56lSKb16rMT1ZR0tdLbp96PXwgF4bD3YmGv1rwoZLSgonAYRk19/25nHvihP0O7Vh/3G3T5fmxRPVStWFLWZ3Nn8wNK2KmlLP6yitL9fcMA1VY8UBHoW9zE0wNrpiMcDJMlGsctrFbg6d1ATnOiU+dTiVQ4HW1X9Bycq1qrw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761053201; c=relaxed/simple;
-	bh=S5Q0qz1puO0h8eXOcl4aph20dJSKhTlav1iGo4G8Dmw=;
+	s=arc-20240116; t=1761053937; c=relaxed/simple;
+	bh=wHVxl8CI1M/MdypO23Ofd308lznnv0S4BllVoJOeWNs=;
 	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ZwKNKq6pVwFqbMKiPnY/pdyZEwpXC+lNmBnM3YSeDqUCMiAF7b6Ea2S63cqXmnjFw5aVBGZYZhUkSe0c6Z9fIFbf7f72JbS57bNxY5GqGep/8O6B1L7AUofM+aRMzLdhsS8f+cRnFSN3saMtgDTpbBwXt7DfWMFCJtmLHDIZF9g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=egMXftf8; arc=fail smtp.client-ip=40.107.208.9
+	 Content-Type:MIME-Version; b=MhRuR/+GaJhkssY3TwyzGGOmQwucvCsLMk4JIVhYnYEaS8PdTQYDhAYZKSvcy94Sjnylq80XNfRqzRJmtsxkTZKooLsIY86Kv2J0OFVpXKZy7oy+0yPmqdXaEjy2RCb45VeElqUC/0AXzlswiKL5M4eFGIs67fzKTOa//lJBDik=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=rh8MgFI3; arc=fail smtp.client-ip=52.101.193.3
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="egMXftf8"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="rh8MgFI3"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Q8E/oGtD5NuhdYF8Iivhz+s0Kvy4uBK1IGy6n2T+Hegr930MUccaGpkjPHMplNh2jSSRwR+igVY/cEJdwXw6ce2Mpmj2Omo+Y+qBjHdGlL108JIc/jr1RWZtFy8Y9hZCNYR8CCLxnZy/ciSs2q76tf2pm3+W1RWzYr4wWS+v9pytOkWAOfJ8ptY0rRHhJOKN7zMLLoE/Wg1AByeTtaRW6oPESO0DMYME4QMGU6VAKysziKulpThIW6/Cf0xxAYPTJ4+OlZisGHblD5CqNSB20I2I5puoAIL6cuP5sYj1ppIR3AdZzTIE3lOJLT3mlRg2/s2Zvoy9iBKGq6EekgmRLA==
+ b=kGVIo9mp7D35HwBNTflY5R+JwkiDMPp3BEQvXoC2q1wuo9C1n7QoAHKLIjU1QywzLkVehifp7mGoDZu0Fs4yW7/OV/nKyWsYKJJcA/GxvJQ6UioXuVlQtTtoWXkzzZLr7qm6WrI/Rw6cxrp//amrNtRKFSWWD9tM/EnNpn5DxlBjWDySIO3rYJMddGdgRXTMSAQUH1AaPYHUG2cS3z838HZ5H6+KOuQwbmp6yV2WU99qM3TqDt2fWu+4Aj5A94MIJl57l0U1ssN9sy6t7pq4ALNdV6PRx32YYqUw9kUdABU/1wMsUlwvFn2IQn9qy7dylMO9j9Xk89B4RTKN05cq7Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=G1s32lSfkpBxpcW72wH9zGGgb21RJKHH01s21fIfCYs=;
- b=bNpkAAfF9CjDmxrQw/UOHuvRQTbJ8H5hWyiW3FevHwCWGYvNt/6BUeNFnmVyzuuV73a9mYEauw4ay6P4hGuUMEx7u4sI+wyWlkl5I/WaJWIeDE8XR6eiCYivSs1b4C7iP9FC/qwi/YeLBtmtlbPWzeBgf+9KVy/FqSVC3ExRoBiNeGQITTAjtOr+pmlxQhV7HkGPYCdd4NOPZLhYq7qf0fLBL1XxE9OfkvJAhMp/HNmLHjl7vmmdKbjAWpWDh0dyt1Ep0/Zf3CmCP0VXdVZhcNr+pSkOYxQLZCm147pCdJu261hDXZCF+x6iOlXcO9S137njMvbUinBLeDQINM+E5A==
+ bh=U75906ZFgaGNBHDq/umxR3wxDu8n5YD/DZ4fdmApIAw=;
+ b=ijSb+53DneWqPhgFreJfN/rNrEypcxp3eaFEpDCUEGJif9e31/QhTcUvGwrNiodazdJXIT929xhw5wpOoGEX5cS7/2JUtUhlKJZVbs2zSRI8MvR3hhsuCnqxf2OUjCva5e5GJtXNxmHFz+wBZK0qlMeIExe1xAXjjIHoA0Z5UYw6CjqD5uXS77ZO4VkkQc04n3793GXL3/akpx2baCbb5lFWBqgpXI6DPtpMrNAFjIRqF6qyUxu62tXk/JlWv7aaQi+ka2vyDShYIb/9pAgAkbu9yhUKrocsVkafIS1WQ+PGlxpmYmywT0FKNQhJhlsNzPLOkMrhpMAs9Ky66C44zg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=G1s32lSfkpBxpcW72wH9zGGgb21RJKHH01s21fIfCYs=;
- b=egMXftf8nHSp1YWS5UNgg6VuKDRBUS35lyu4TiXNozD/OB6uBTGxQl2NhA/62bgqNeT1M2yXh+wa2tkgx+fgHc3hvEP2n7iura+V1OFmOl5G/Z+O8zGaaIJfpbkaDnYPLbiaDMSgOjtYgcqhDXcJo5LyYjHorCBHxxg0mz7pZuYfLoPTIO7w/Na2xuv0WB9GP2lvSzFSAf+cQaMKvLE+G6VUIrrs5ounH9FUYXoSqxEjDwL7w2iavG/cjSq3MTQkRjOEA8YIbe7K3XMJWWJWpWbf4ExWUOJgX8BNWHqKc9VhzgMl27LwxEo428QrEBvIUbjCrTyVVoj4tQDEQqmLfQ==
+ bh=U75906ZFgaGNBHDq/umxR3wxDu8n5YD/DZ4fdmApIAw=;
+ b=rh8MgFI3feaazxjBMkVURHEovhzLN8bKohb/OpWqNj3BoB3/RrlqlzjAwK+2skf9uDJByzlcyCxilZH/LLD914bnfPsL+xrzgBrkQ0Qn6rdy1SiLA4fVC33BF6tjfbLS/t1k/CEjgNatPxrkjFd1FamTEd45FNmrTQL6k8FWgDhAYdd4Ww5nVh6no6YtDgAkyPXAYr5o0/ojsnyKZA7ZsPdefF//k5L/UYuxaUxmE9FGwTsNSioZqtoL1dr7u7wDVCNj1q/rnMDjadbRBRuwYypWKtXJ4NisdKt/hGxcoiOWBsIqMWXjFkNf8GAg3MC5tKlOUHdoR1fp4xCgA/dcjg==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by PH0PR12MB7888.namprd12.prod.outlook.com (2603:10b6:510:28b::20) with
+ by SJ1PR12MB6147.namprd12.prod.outlook.com (2603:10b6:a03:45a::22) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.12; Tue, 21 Oct
- 2025 13:26:36 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9228.16; Tue, 21 Oct
+ 2025 13:38:50 +0000
 Received: from MW4PR12MB7309.namprd12.prod.outlook.com
  ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
  ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9228.016; Tue, 21 Oct 2025
- 13:26:36 +0000
-Message-ID: <6cb58417-3c5c-4f74-9a04-2bdbc266254b@nvidia.com>
-Date: Tue, 21 Oct 2025 08:26:32 -0500
+ 13:38:50 +0000
+Message-ID: <b37d8e3e-ce0d-4778-8b1a-022cbd854cbd@nvidia.com>
+Date: Tue, 21 Oct 2025 08:38:47 -0500
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net-next v5 05/12] virtio_net: Query and set flow filter
  caps
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- alex.williamson@redhat.com, pabeni@redhat.com,
- virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- shameerali.kolothum.thodi@huawei.com, jgg@ziepe.ca, kevin.tian@intel.com,
- andrew+netdev@lunn.ch, edumazet@google.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, alex.williamson@redhat.com,
+ pabeni@redhat.com, virtualization@lists.linux.dev, parav@nvidia.com,
+ shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com, shameerali.kolothum.thodi@huawei.com, jgg@ziepe.ca,
+ kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
+ edumazet@google.com
 References: <20251016050055.2301-1-danielj@nvidia.com>
  <20251016050055.2301-6-danielj@nvidia.com>
- <20251020165957.62a127eb@kernel.org>
+ <20251021091259-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20251020165957.62a127eb@kernel.org>
+In-Reply-To: <20251021091259-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SJ0PR13CA0119.namprd13.prod.outlook.com
- (2603:10b6:a03:2c5::34) To MW4PR12MB7309.namprd12.prod.outlook.com
+X-ClientProxiedBy: BYAPR06CA0050.namprd06.prod.outlook.com
+ (2603:10b6:a03:14b::27) To MW4PR12MB7309.namprd12.prod.outlook.com
  (2603:10b6:303:22f::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -72,99 +72,271 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|PH0PR12MB7888:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0751008c-3e7d-46b4-7521-08de10a5750e
+X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|SJ1PR12MB6147:EE_
+X-MS-Office365-Filtering-Correlation-Id: 737a642d-5f8c-4fde-f063-08de10a72b07
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014|7416014;
 X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?UnpVSWtqWVN3TWZYc2wxaEJ4VVhrZGhtMDAyVmw1RUJnOHVqMW80RVRDZnI2?=
- =?utf-8?B?eHlaWU5kdzViR2Y5eHJMZGI3dklkQ05YdWt5dG5EcDJwSW83RXVRbFNxcXBt?=
- =?utf-8?B?Z01kTVQyUWZSSE1pTHNXZzVTYzJNNEF2Q2ZPU0k3TGZrZWl5cVdGeDlQYkdu?=
- =?utf-8?B?eGdTWHZjL3NaMnpLcG1YR0lKamhLdWhFZzJXNldaZVpsdlkyRW5ibzA3czNT?=
- =?utf-8?B?cXFORmhaY1VTVGJhbXJTUVZRdFplVnc4QVJZY3pKaThreWtTT2lkMzV0Q2dU?=
- =?utf-8?B?bzBOS0Y2MUxINXpuVkU5MFRsekhHblBjUjFJQ21IenBxcnFqM25Wbm83UGNJ?=
- =?utf-8?B?VGs2UjdRTFVEdCtGZ05nUDhmeVBCUEhaYzZMUkk4dCtibEhwdzEyL3U0dXov?=
- =?utf-8?B?aHdjODE0V050UlFvZTFObXlCMVF2bTIxZm1yYXcxS3VrS2d1V0hDL2JzSkRM?=
- =?utf-8?B?ZWd5TUJJUFE1SXZ2aTVlcktEbUNRaVl5WXpYWmxndjA5amxrMlUra1NXYy9z?=
- =?utf-8?B?TXV3UnB1SUczdVhlcXR1ZGQ2VTExd0dIckV1N1dCZ0FNc3p2ZW5YOFgrbEpY?=
- =?utf-8?B?UjNDYkVwOVh5QWpUVnU3Y0kweWU2WXBxQnRYNGpmV3I2Ri9aaTY2eWwwVnFi?=
- =?utf-8?B?bCtDQXEzV0tHVmhaU1NZdkdkRkFRdXAyTmFnemRzOFVjcW1oeFhGTUV5Tmha?=
- =?utf-8?B?NHlhRXZSbGtWLzEwMzlZY202M1NoYWRWOFBaSGJxaTM2aUNBR0g3QjI5aWpx?=
- =?utf-8?B?TGVzTmoxUnZhY2paWWwyV0p2S0tCaC9FQUxvdGVjYUZ4aUxhUmhNUU5GQm9a?=
- =?utf-8?B?dUhsTm94OU1sZGZUM2d6Qmd4VFdBdCtXeHdnMlZpaHUzblNQMDR0S0NUdmRO?=
- =?utf-8?B?MzV3UmZCTnVuSjc3MmQ3MzFhZ0wwSEQ0d2ZnMUVaSW03K2E0WUZIU2k4MXhr?=
- =?utf-8?B?SE9GZUp4Q3REelNzdWtDa2xEK3JPeDBHV1NxKzRoYk5xRFo0ZkRpbTdZR2dN?=
- =?utf-8?B?ZXlOUU9tV0VNbDBPQ0RlQ1B5dGJGcUl1TW1Ga0p1NTBtaEtvMlNyZjFRSjNR?=
- =?utf-8?B?ek5xeTd4RjV6dWRCU1kwWEpFU0lVNCtNSFdkYWxNeW1ISkVIbmN4eXlLVXZE?=
- =?utf-8?B?MGNXZ2ZIbU9Oak5wM2FRa3FVUmFOaDJpSGpGVk1ub3B4MEVpYTljMFpNTUhu?=
- =?utf-8?B?OVJ2WnlMTjQ4N1RFRnY1SjliVi9VYzBZNDU4VFBzeTRtOU1ZanpYSlBPY2pR?=
- =?utf-8?B?aUJlZVJQTGFmRlVONWN6Vk5Gc3d2eDZmS3NYdmJZeGVwUjBsblpvVE95VHhD?=
- =?utf-8?B?N3BwdmJUV3kzdXdHY1FpbGZVem5HSEsreStMREFEWU05Nmg5bHlnK05LajJG?=
- =?utf-8?B?RGg5aXF1WmNiQnFTN0hpbzNKOEJjcGJuOFhqOFVuVmh6NFRhNVBCd01OMzdV?=
- =?utf-8?B?akljbUc1ZzY2NWJGd2JLR3RQbitxM3V0eGdCM1lqS2pXMG1sLzVKY0c1L09I?=
- =?utf-8?B?RlJzL3h1UnJpWi9PRDJZaVhLTFVrZXFJLzJuUU1QN0wyTEE2aUxsMjF6dC8r?=
- =?utf-8?B?V0R3eE40Zm1oN0FtNVJVMTExSFZMNkJ0cDkrdzIyL1BGYVJEQkhPcEc2aG9o?=
- =?utf-8?B?US9JTjB6WVhrVW5LZ1JaT2VWbmxvL1JaSjdpc2I0cUphK1hLbTRGeFpNWDh2?=
- =?utf-8?B?eXpCUmEyL00xTjY0ZUxKK1htUCtWMjlVblI3ZTBTVCtqSm12SWVmQ2VveGxS?=
- =?utf-8?B?TTgxY2VBY3hKRXFGaWxweGFrRlJBek9wNVlab2c2Qk82VC85Vk83eEdPbVFw?=
- =?utf-8?B?UkVXUlAwZzV4Ry9jdnp3eFFyMHJNa09oTjRvUXIyeGpzMng0UU1QdkxXSW5H?=
- =?utf-8?B?NWx6UytKVjYydkR5OFhMSlpUclUxdjBoSmEzWU8zaEp4anhRTGRWV2VJejFl?=
- =?utf-8?Q?cg8jhuXw/i47OO1ubnIK82F07na3+9GV?=
+	=?utf-8?B?WC9RZzlMTzZNR0UxK0ZvVHlncDc1aHEzZ2RoUVUzd2tBbjRkMUYxUzYvOVM4?=
+ =?utf-8?B?bGR4NW13WUhwSGtnZlBxK2NLU0JWSzlSYmZyY0JwaFFUZTBkWWlybHZjdlpO?=
+ =?utf-8?B?c1EvMWpzd1RHRlpBWmVEcy9nNk44NitFeFA0a3hPSU1Nc3ZHTFU4bXpVY3NO?=
+ =?utf-8?B?VGxYbythbUhNKzZreEwrSUR6SW5tU2tLak5mRjJiOWJqSHJSdmF3OWNQZEhB?=
+ =?utf-8?B?Nm9RUG9QNGpFNzM3aDZ0dUtpSmlEYUlSVFdRUVBKbjl2N0Y1QjJLaWZ1MWtH?=
+ =?utf-8?B?S1FIKzZ3YXB0dzRqN0IwREtBbFBqem5VcytCNUVCVDFmWUJlbHc0Q0tEZFdB?=
+ =?utf-8?B?UzJTL1dncmFtQmU2c0NlZ01WWmtlVzQ1ekNYMzEwaGhaZGRPdVovMUVvY3A5?=
+ =?utf-8?B?VWpMSC9ET0pZUVgwRmdSY1Rra1kySUFiOS93NjVtQ1hNL2hNbU1VUUQvTnli?=
+ =?utf-8?B?SytoQmhwTHo5blhKOUxWbjlpeExyeGZ5KzdIQStQQnluME9FSHhoaVI3ZHVy?=
+ =?utf-8?B?anFNRGtaU2NCQThHbERPQW1ZbnI2cEJ6bzgxdHNQc0wva0lzZ3EvL0MvN1NE?=
+ =?utf-8?B?a1dpdnlwNWlEZ0ZqQTdFSU9VUHFuTDBOQzN1a05NSlJRMEx5czRkT016Wnhr?=
+ =?utf-8?B?VzFXTG9CM0FVT3FHZnhYTWtTMms5TWoxQzRWY2NmSDZEWDZJTXpMdGkxNHl3?=
+ =?utf-8?B?LzhDdS9JUitwbkV2ZXNKSE03YzJqY1ZITkxkUkkxTUdIMU8zbVlWODNsL1Qr?=
+ =?utf-8?B?djVRN3p0ZXpPUnVIQmw0SmhSOTZYeC9EbnhIZ1ZHY29uZ3pTdXpWckEva1dx?=
+ =?utf-8?B?ZXRHVk5wL3pSOTF3R0FzOUpjaS9xUFVJQWRnYTYyUGVmSm5TWHl5QlordHlV?=
+ =?utf-8?B?YUlJSVZQaDNjU1REUXlnTytxVitlOVFTU3NZcGpMb1pDWklXdVFLb0xpMDN2?=
+ =?utf-8?B?ZUk1VWJTbThCQ1M5RDQ4NEdBVDdBeWsrMEVSemRSZTZhbWtPS1h3cTVRVGlY?=
+ =?utf-8?B?K2gwZnhIaVU1UEp3WEg3WmRuM0FEbWdGRFZLKzlXM3Q3UGdUOVBsTlNsVEZr?=
+ =?utf-8?B?UzVOSUd5NkdxcGtXZGo2R0t1OW5xTEJlZ0JudjBraFc1ZlBjRmtySVNSN0lS?=
+ =?utf-8?B?WmlJOGdJNHFEQkpZSnJxUXN5RmRveENCQUI2djJGOVFEVzJVNEtxbGQzREhI?=
+ =?utf-8?B?Z2pCbHJTejhhbFhWaDFZOCtMRFVYQXpJekhoVXE5TFQzNWZVVWVtU3dndENM?=
+ =?utf-8?B?Zy9pbzd2b0dmMnR1NWsrVGpzZlk1TTJNTFVGekxuQXY3ejJWUTBaMXYyc3RE?=
+ =?utf-8?B?bmYyN0VUa3Z2ZFBWT0dUcm9qa3VLSzhyOUxMUWV3YzZkVlAvVDFlUXdodjhF?=
+ =?utf-8?B?T2dyeGxpVTRnYklJOTR6U29NdVk4aGE2cTlHWEdJcWNZaHd1MnR6VWkxVXAv?=
+ =?utf-8?B?WW5QR3hwZlRIajRLM1lEZzNaUkg3MDlBek9ZRjg4TXBTeUtJemFwWUdOUzds?=
+ =?utf-8?B?K0YvRlJmSEdJcVQzWU5QZXFqY3hFYTJwZThDbXQyVi84YnBRR3ozVDZCUC90?=
+ =?utf-8?B?TFIyRDh1cDU3RGtGNEwxRHV3T1loQjMwd20wdURPY08vTEw0NGM3S2paMXlq?=
+ =?utf-8?B?RGY1RDFMK1ZhR0VRK0VKbjNkOTQxR3ZyL3lEZUxxN1JwdktOcXZmL3lXM2NQ?=
+ =?utf-8?B?UHBOU3BvMTFMY25iWDFhMmVuZklwL0JGR1NKd2t2RmRDRWZMbHRqUXFzc0xU?=
+ =?utf-8?B?VE5DRUFEUjRwY0Yrand6Vzl4RTlRZ0pJcmZtWXFCWlJ4cWx4Q1l0SHl3clRP?=
+ =?utf-8?B?RUlxeEM0cS9DcFloeWdDcmVHNlBCY0Rhd3JBd21oWGJBSDcwVXAwbndjYTRB?=
+ =?utf-8?B?NTI0TDgzKy80bjFRMTcvZitMQXBUWnQwWnU4R1NlYWJaTGlVenZZdXdFa2N6?=
+ =?utf-8?Q?iWeHgN+96UZCLt8jhkvokk4ftF823usT?=
 X-Forefront-Antispam-Report:
 	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?WTNTZ245QkJoNGN5bDdjOFlNa1dmaWkxUXBwVUJ4NmZjT0xBdnVXNFRwU2RM?=
- =?utf-8?B?M2EvL0lvb2pEdzdNaU9VeU8veU9tUUNON0krWGVySS80dEsrSDgvMW0wRnJ1?=
- =?utf-8?B?MWhoRk0vbmVGRnY4NldrN3owMDNBR0FGME1WZE82dU1zNmprMlhkZXJRSTJX?=
- =?utf-8?B?OVBFUnRKaFVHTEl2dzF6UUw1T3ZkcXc2QmlXRzRGYmJlSFFvSDlyYzVSUWYv?=
- =?utf-8?B?Ykkrd1UyWEs2azVxbzhxcXFWN25KbmtyTnVtZnBaZjlkY1NFeEZqamEzM1hD?=
- =?utf-8?B?aWg2UzJKK0tibnBBSEV2K1RiTmFQNG15SEFrOUdaZTRwVi9DRHY2eWpoS2ll?=
- =?utf-8?B?MnIrbm8rZUtwWGEraDhjRTBzMW5sbU1OL3BqWSt5dVczREFqK1NKZ2NrVlpO?=
- =?utf-8?B?akV1ZkhadTFtd0FlMXpWQm1BMGV3b0pGWG80WGY2T0cwcTYwdkdYdHdybW95?=
- =?utf-8?B?VURsWUFocDNwRUNYZVFrV2hqdkxaMkphVXhXelNxWGJvM2tycDkyRS9PQ0NU?=
- =?utf-8?B?cGxQZ25xbVhkMGNnU292V05NSG1CWEp6NnJhcms3bUJjVjNCdTEyamNKQjM2?=
- =?utf-8?B?bDg4QnJ1amtkT3ZXQjVJN054U04reTZjbUxFQW1VODJGYm1EdG5qTUVKTlBB?=
- =?utf-8?B?UGlDREkrSFBnYjN1dGxreHNtV0NMaGEvQkllQVF5ZkdORUdQQXA4MjBVbm9k?=
- =?utf-8?B?TUxRUzJyQmVGQnh4eDkrdFNEV1FMZ0JhVTlrWFBjWUY5NndxWFhaeW9Db0lh?=
- =?utf-8?B?V2JUNkRBMko3WUxOTUtCeWkzbGpkMDBjdkEyTnY0ZTVIeGMvR0JSSlV6cVFK?=
- =?utf-8?B?WkluOE9BWEdiMDlCTmVUVE1VaThEU3Z1N012UUczMW5oZ0xUaVlEZmFaKzZl?=
- =?utf-8?B?NDRuM2Q5Z2k1aE5KTzMxUmcyRTJ1R21rRG03bEJ2YXNvVHZPbFMwc1Y4dHlR?=
- =?utf-8?B?SDJjZHZmR1c1WTJEZy82N04vb1ZKY1d2ZWVES1dieitvSEtsZjZJK2V5QXhH?=
- =?utf-8?B?YUx6NUNoWFV0KzRHOGNXdnlXZndsRlR2NmUvaGE4bHR5ejU3QmVQL2dGZHFS?=
- =?utf-8?B?K1NscTlVdkd1bmxYTUNjMldHclZpVFFhb2N1dm9NM0cyMS9mT2FDTE1EbFNX?=
- =?utf-8?B?bml3T3VzQW90R3ZMUDViN0NiR3hZTjVzWFNOc3ZHbm9ybmFzMU5NemN1cEFW?=
- =?utf-8?B?and3dXFZRlN0M09TaFlWZkRvcTBGK29DeTRjdjFVOHVNd05pemxKamc1dWp3?=
- =?utf-8?B?NmZwSG1FMWZPR0ZqZ25Ic1pOZHpNY3c4RVJQNkFub0FDUUpMdWlLbjRTMVE2?=
- =?utf-8?B?L1paUytVbVN3VjlJRVZ2ejVpai9hcENYZXF4T3RNZWVqQ252MTFEZ092SEIx?=
- =?utf-8?B?cjZ6eklmT3g0RzNBL0RxTjIxTTc5MVQ4aThkdFYzVkNFVUc0bXlVY29Ib0Rl?=
- =?utf-8?B?ODBWbk82eWVDL2NNM2FPc2R0eDFLa0tSeFdyaGVPZVRkb1puT2hENERkb2tp?=
- =?utf-8?B?cWV4TFpiUGZ4NWdvV3dtTk80dHlTZ0VSQnFMTlN4VnVEbmxaZ3FaK1FWK1Bi?=
- =?utf-8?B?MW5WdFIrRXd0ZEQ5cEk3aFo5OVdNbFZxRmdoRTYxZm9BZC9JNm03MzhGM3Mx?=
- =?utf-8?B?QldYc2VLMmlFV1RubEs3VXhZTUZVakdMS1F1WTB4ZlRTdTZYOFFPbnhlNGRR?=
- =?utf-8?B?bGl1SmdENkJSdlAwNnZHNzBQVnQ3MytQSGIrZ3pNaFVqWTJkRWVEYmtldDRP?=
- =?utf-8?B?Y2M4ZlFkWkpKNUdweEMvVy9WbFgyN1dQSkpqVWN6NjBVMGh3eUwrRDBsenpQ?=
- =?utf-8?B?VUk2MFIweXlRTjVlTWNlQmhRVFBqZjZZYzhMQ2k1NzdxT0hvNFBrU2pHRENt?=
- =?utf-8?B?MUZwWmZEd25EL1R3OFlNTUc4TjB1RlZ5ZUNtK0xBb0FnUTh4N2J6cURTUk9T?=
- =?utf-8?B?cjF4cSsxR0EvZERkbGJSeit5b0k1VTl1TS9vQUdCeWV3emtTc0piMXBhSEEy?=
- =?utf-8?B?VVQzeHRmRXlzelp1ZC9YY0VnS3JMckdLYnNoa2RkWnRmbzJtOUFOWklpbHF6?=
- =?utf-8?B?WGtEbzVaUWcyazdpWEpQRVRpNFRBRTNrK2FhVVE1aHFtQ285dkg2a0JGRmtP?=
- =?utf-8?Q?PvGus0kHflE25BegZUMW4qErG?=
+	=?utf-8?B?cGRlTk4xcWFBQlZmUGdyZjBPSi8zdkJBdXhhdXhhRmpNYlFaOFdSZllMRGRs?=
+ =?utf-8?B?N2lYZHBzSDVENkU3NElmU2dKUDhjNWg3UENiQkxyL0lnd2xRQlVlUlBudFdo?=
+ =?utf-8?B?MVhRKzZTWWFXL1EyREI1OVFTeEdwVEVSZ3JHeTRjUGdyanZnWXl2SFNyZWRX?=
+ =?utf-8?B?N21IRkszUVVzeXEwbHVpVGZGV1c0MVNkNzRHNlpQaHdiTGhuMitwRTRaVXFR?=
+ =?utf-8?B?UWpZM1BWRDBVK1lLcEN6RHEwMXpmcGZFZ3ZCVSt6S1krMGR4QXE5bDRMYnBR?=
+ =?utf-8?B?SkJlbnJtRWpHUjErV2lyMy9zMmVBZnVjNzZuY0pYTXliNU85SDFEWXlmS2xv?=
+ =?utf-8?B?SXFyOHIrNGE4WS9xaTIrb3F5UEExemwycEoydWxJNmZ5MFFCaEg5Ykw5Y1pJ?=
+ =?utf-8?B?STFJT3JUeVpCRWp6aVJ4TlNJcVZXV29SMk50VmJ5N1A4UnM0eFUvZVNoNFlo?=
+ =?utf-8?B?dWxoTHlTRFRlVHhxQUtUOXZkd202a0Y2V3UxWFE4TTZPWDFORTNYYjJmMWtq?=
+ =?utf-8?B?TE0rbkx4OGkyK3VzT3pQZjlUZ0xINGFNa0dhelBJOG5ZanFxYkF0TUVCYzJr?=
+ =?utf-8?B?Y2VDWmZoanlySi9kOUhRaHFlOGNyUmozOWNrS1NBQ2lIYzlZaE5mR3Q4MTJC?=
+ =?utf-8?B?K2k5VDllc0prcUdzaGNQUEQ2dVdtbTFxL1RLY0JIMUpwT0Q0aVBLcm9nbXcx?=
+ =?utf-8?B?UjlVdytnWXRtWXRTWENpQ3UwbFM5Rjg4WU5zMm5RVlJlNExQbThadGh4cE41?=
+ =?utf-8?B?eTlmT1BnaGdtNnZ4VkRHZGQ4U1hMN0tuTXdIVzRhclZ2b21nejlNTkxtTVV6?=
+ =?utf-8?B?ZTJrbkNLOElYNGlNcmVCSEZPRnBNV05MamlEdFhsQ0NLWTczM2hCS1graXBs?=
+ =?utf-8?B?UnZJQlUwcXUvM3FpVVJ1OFlXajh2dmhNS2VwaXVXTG9FMFRtOUxDZDQrUkpF?=
+ =?utf-8?B?R3Y3aTJGbDcxY01MQWdZVDRoYk1pTnhOczBxWnh4amFDbUxuWS9GU1QwRTRm?=
+ =?utf-8?B?U3VmL2cvb3FQU3NhcHlHTkdZL2c2WmYwNWhVWVVyNzVjVHovdHl1RnAyTFYr?=
+ =?utf-8?B?MjRCRkh1b3k0L29KMzRTUDdsamYvbDlqR1lkM2FVV01DWFBYSTdqVzlEOElD?=
+ =?utf-8?B?bVQzdTlwQU5ocjJUU2lxL2cvbDYwakZyWGhhcFNHNjFVTGZPU2ptZUphME1G?=
+ =?utf-8?B?ekxycXlQZmhKWHVCNDdXL3l0bHZzZDdWQjR3SERJcXZyUFZkN1A4UlgyODgx?=
+ =?utf-8?B?UjFHeHF0VVNieTJncGxYWkE3Z3JEUW0wM0NIWkZSY296citJSVlyTXI4MndO?=
+ =?utf-8?B?akVSR3dEdXA1STdiNVJ5V1dOVE9nTFpQUFZaZWx1NEFMcEU0MU5maXlUeWxL?=
+ =?utf-8?B?aWZZNmw4SVcyQzNRUHp0dFhDZ0IzS3FHdDl1L1RpQlVEZzlzdm95NFJ4ZzRB?=
+ =?utf-8?B?Y2Q2bjZoZzhMQzVKU21aTGIrZ281SWltNUsrYTRobGlJZHpPV3ZIM003V052?=
+ =?utf-8?B?aFBXOHNBOGhWL0NlQTkydHh0WHN0NnBXRjN2MUlpYUxFUmtNWWcrQ3FiR0RK?=
+ =?utf-8?B?b0RpZXJwTUFmYUhIOHd2Slcrd3E3L2ZILzgzR0VheWpsMXg5Z1FkbitEbUtN?=
+ =?utf-8?B?d3pvT0g4T3ZwNlNtR21jSFgrZUptSW9EYnlheGZhRENaRkdBcnJlUDRqaWFU?=
+ =?utf-8?B?Wmo1MUJCRnRpcnFCUWsvc1ppMXQwKzNFWlQ3d2c0R0RzWFJVOVZ1aTZBL1dv?=
+ =?utf-8?B?bVdYR1JRZjhvK0hVSitKa2VGUm9TK25UeUJobC9jQTh0U2tia3IyOEhjMFhV?=
+ =?utf-8?B?dlI4Vm9XZnhNMDFyREpTUlY4ek9aVU1LVDA2T0U2WXJuTkwrOCt6bnpOVU5C?=
+ =?utf-8?B?NHp2ZVJNR3M5Q05jSXdEMnVjWkg5bCswOXBBVktKQ0ZoYkt3dUxVbGNnWmkz?=
+ =?utf-8?B?Sm1ZSERLTnU4bTBwWGJWOTArNW5TNVN1eXcvUE9XV0F0YVhIaFd5eFJyOGtB?=
+ =?utf-8?B?MTRjSnJJNDBPdElWdmVrbHdPM1NMT3NpMFIwaEpYV0RUeUpDOWJLbDRJemtO?=
+ =?utf-8?B?cUYrejNtNmpQelU4b0JadE0xcnBNQmQyeGNHTitkWXoyMWtqa2dEeXZHbWlH?=
+ =?utf-8?Q?AwIYFsFF8eeS08FV58aALkogB?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0751008c-3e7d-46b4-7521-08de10a5750e
+X-MS-Exchange-CrossTenant-Network-Message-Id: 737a642d-5f8c-4fde-f063-08de10a72b07
 X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Oct 2025 13:26:35.8690
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Oct 2025 13:38:50.3093
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: n8Q14YP99X3HMnvXd91QFQ+3Vf9jfNtx2JFOTOA00NpwaYAb83QERL89USXrfbetJlTPuzd9VcDsIVZi8OY8tg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7888
+X-MS-Exchange-CrossTenant-UserPrincipalName: GZHITQl/L8hOp2SF6YYmkkbRHFPgpgAPv2T679fxnQeNzuycT7CAZTDp6tcQmvZZDkMo7msjTeOUz5bfWM4j3A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6147
 
-On 10/20/25 6:59 PM, Jakub Kicinski wrote:
-> On Thu, 16 Oct 2025 00:00:48 -0500 Daniel Jurgens wrote:
+On 10/21/25 8:18 AM, Michael S. Tsirkin wrote:
+> On Thu, Oct 16, 2025 at 12:00:48AM -0500, Daniel Jurgens wrote:
+>> +	/* VIRTIO_NET_FF_MASK_TYPE start at 1 */
+>> +	for (i = 1; i <= VIRTIO_NET_FF_MASK_TYPE_MAX; i++)
+>> +		ff_mask_size += get_mask_size(i);
+>> +
+>> +
+>> +	err = virtio_admin_cap_set(vdev,
+>> +				   VIRTIO_NET_FF_RESOURCE_CAP,
+>> +				   ff->ff_caps,
+>> +				   sizeof(*ff->ff_caps));
+>> +	if (err)
+>> +		goto err_ff_action;
+>> +
+>> +	ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data);
+> 
+> overriding ff_mask_size seems unncessarily funky.
+> use a variable reflecting what this is?
+> 
+
+I can use another variable, and check that it matches the original.
+
+The code below is just validating the mask data is sane.
+
+> 
+>> +	sel = &ff->ff_mask->selectors[0];
+>> +
+>> +	for (i = 0; i < ff->ff_mask->count; i++) {
+>> +		if (sel->length > MAX_SEL_LEN) {
+>> +			err = -EINVAL;
+>> +			goto err_ff_action;
+>> +		}
+> 
+> You also need to validate this is all within allocated size.
+> 
+>> +		ff_mask_size += sizeof(struct virtio_net_ff_selector) + sel->length;
+>> +		sel = (void *)sel + sizeof(*sel) + sel->length;
+> 
+>> +	}
+>> +
+>> +	err = virtio_admin_cap_set(vdev,
+>> +				   VIRTIO_NET_FF_SELECTOR_CAP,
+>> +				   ff->ff_mask,
+>> +				   ff_mask_size);
+>> +	if (err)
+>> +		goto err_ff_action;
+>> +
+>> +	err = virtio_admin_cap_set(vdev,
+>> +				   VIRTIO_NET_FF_ACTION_CAP,
+>> +				   ff->ff_actions,
+>> +				   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
+>> +	if (err)
+>> +		goto err_ff_action;
+>> +
+>> +	ff->vdev = vdev;
+>> +	ff->ff_supported = true;
+>> +
+>> +	kfree(cap_id_list);
+>> +
+>> +	return;
+>> +
+>> +err_ff_action:
+>> +	kfree(ff->ff_actions);
+>> +err_ff_mask:
+>> +	kfree(ff->ff_mask);
+>> +err_ff:
+>> +	kfree(ff->ff_caps);
+>> +err_cap_list:
+>> +	kfree(cap_id_list);
+>> +}
+>> +
+>> +static void virtnet_ff_cleanup(struct virtnet_ff *ff)
+>> +{
+>> +	if (!ff->ff_supported)
+>> +		return;
+>> +
+>> +	kfree(ff->ff_actions);
+>> +	kfree(ff->ff_mask);
+>> +	kfree(ff->ff_caps);
+>> +}
+>> +
+>>  static int virtnet_probe(struct virtio_device *vdev)
+>>  {
+>>  	int i, err = -ENOMEM;
+>> @@ -7116,6 +7277,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+>>  	}
+>>  	vi->guest_offloads_capable = vi->guest_offloads;
+>>  
+>> +	virtnet_ff_init(&vi->ff, vi->vdev);
+>> +
+>>  	rtnl_unlock();
+>>  
+>>  	err = virtnet_cpu_notif_add(vi);
+>> @@ -7131,6 +7294,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>>  
+>>  free_unregister_netdev:
+>>  	unregister_netdev(dev);
+>> +	virtnet_ff_cleanup(&vi->ff);
+>>  free_failover:
+>>  	net_failover_destroy(vi->failover);
+>>  free_vqs:
+>> @@ -7180,6 +7344,7 @@ static void virtnet_remove(struct virtio_device *vdev)
+>>  	virtnet_free_irq_moder(vi);
+>>  
+>>  	unregister_netdev(vi->dev);
+>> +	virtnet_ff_cleanup(&vi->ff);
+>>  
+>>  	net_failover_destroy(vi->failover);
+>>  
+>> diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
+>> index 039b996f73ec..db0f42346ca9 100644
+>> --- a/include/linux/virtio_admin.h
+>> +++ b/include/linux/virtio_admin.h
+>> @@ -3,6 +3,7 @@
+>>   * Header file for virtio admin operations
+>>   */
+>>  #include <uapi/linux/virtio_pci.h>
+>> +#include <uapi/linux/virtio_net_ff.h>
+>>  
+>>  #ifndef _LINUX_VIRTIO_ADMIN_H
+>>  #define _LINUX_VIRTIO_ADMIN_H
+>> diff --git a/include/uapi/linux/virtio_net_ff.h b/include/uapi/linux/virtio_net_ff.h
+>> new file mode 100644
+>> index 000000000000..1a4738889403
+>> --- /dev/null
+>> +++ b/include/uapi/linux/virtio_net_ff.h
+>> @@ -0,0 +1,91 @@
+>> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
+>> + *
+>> + * Header file for virtio_net flow filters
+>> + */
+>> +#ifndef _LINUX_VIRTIO_NET_FF_H
+>> +#define _LINUX_VIRTIO_NET_FF_H
+>> +
+>> +#include <linux/types.h>
+>> +#include <linux/kernel.h>
+>> +
+>> +#define VIRTIO_NET_FF_RESOURCE_CAP 0x800
+>> +#define VIRTIO_NET_FF_SELECTOR_CAP 0x801
+>> +#define VIRTIO_NET_FF_ACTION_CAP 0x802
+>> +
+>> +/**
+>> + * struct virtio_net_ff_cap_data - Flow filter resource capability limits
+>> + * @groups_limit: maximum number of flow filter groups supported by the device
+>> + * @classifiers_limit: maximum number of classifiers supported by the device
+>> + * @rules_limit: maximum number of rules supported device-wide across all groups
+>> + * @rules_per_group_limit: maximum number of rules allowed in a single group
+>> + * @last_rule_priority: priority value associated with the lowest-priority rule
+>> + * @selectors_per_classifier_limit: maximum selectors allowed in one classifier
+>> + *
+>> + * The limits are reported by the device and describe resource capacities for
+>> + * flow filters. Multi-byte fields are little-endian.
+>> + */
+>> +struct virtio_net_ff_cap_data {
+>> +	__le32 groups_limit;
+>> +	__le32 classifiers_limit;
+>> +	__le32 rules_limit;
+>> +	__le32 rules_per_group_limit;
+>> +	__u8 last_rule_priority;
+>> +	__u8 selectors_per_classifier_limit;
+>> +};
+>> +
+>> +/**
+>> + * struct virtio_net_ff_selector - Selector mask descriptor
+>> + * @type: selector type, one of VIRTIO_NET_FF_MASK_TYPE_* constants
+>> + * @flags: selector flags, see VIRTIO_NET_FF_MASK_F_* constants
+>> + * @reserved: must be set to 0 by the driver and ignored by the device
+>> + * @length: size in bytes of @mask
+>> + * @reserved1: must be set to 0 by the driver and ignored by the device
+>> + * @mask: variable-length mask payload for @type, length given by @length
+>> + *
+>> + * A selector describes a header mask that a classifier can apply. The format
+>> + * of @mask depends on @type.
+>> + */
 >> +struct virtio_net_ff_selector {
 >> +	__u8 type;
 >> +	__u8 flags;
@@ -173,7 +345,14 @@ On 10/20/25 6:59 PM, Jakub Kicinski wrote:
 >> +	__u8 reserved1[3];
 >> +	__u8 mask[];
 >> +};
-> 
+>> +
+>> +#define VIRTIO_NET_FF_MASK_TYPE_ETH  1
+>> +#define VIRTIO_NET_FF_MASK_TYPE_IPV4 2
+>> +#define VIRTIO_NET_FF_MASK_TYPE_IPV6 3
+>> +#define VIRTIO_NET_FF_MASK_TYPE_TCP  4
+>> +#define VIRTIO_NET_FF_MASK_TYPE_UDP  5
+>> +#define VIRTIO_NET_FF_MASK_TYPE_MAX  VIRTIO_NET_FF_MASK_TYPE_UDP
+>> +
 >> +/**
 >> + * struct virtio_net_ff_cap_mask_data - Supported selector mask formats
 >> + * @count: number of entries in @selectors
@@ -185,16 +364,24 @@ On 10/20/25 6:59 PM, Jakub Kicinski wrote:
 >> +	__u8 reserved[7];
 >> +	struct virtio_net_ff_selector selectors[];
 >> +};
+>> +#define VIRTIO_NET_FF_MASK_F_PARTIAL_MASK (1 << 0)
+>> +
+>> +#define VIRTIO_NET_FF_ACTION_DROP 1
+>> +#define VIRTIO_NET_FF_ACTION_RX_VQ 2
+>> +#define VIRTIO_NET_FF_ACTION_MAX  VIRTIO_NET_FF_ACTION_RX_VQ
+>> +/**
+>> + * struct virtio_net_ff_actions - Supported flow actions
+>> + * @count: number of supported actions in @actions
+>> + * @reserved: must be set to 0 by the driver and ignored by the device
+>> + * @actions: array of action identifiers (VIRTIO_NET_FF_ACTION_*)
+>> + */
+>> +struct virtio_net_ff_actions {
+>> +	__u8 count;
+>> +	__u8 reserved[7];
+>> +	__u8 actions[];
+>> +};
+>> +#endif
+>> -- 
+>> 2.50.1
 > 
-> sparse complains:
-> 
->   include/uapi/linux/virtio_net_ff.h:73:48: warning: array of flexible structures
-> 
-> which seems legit. Since only element 0 can reasonably be accessed
-> perhaps make selectors
-> 
-> 	__u8 selectors[]; /* struct virtio_net_ff_selector */
-> 
-> ?
 
-Yes, it's being used as if it were a u8 * anyway. I'll do that.
