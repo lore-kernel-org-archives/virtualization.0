@@ -1,67 +1,67 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BC122F3C23
-	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 23:47:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CD112F260B
+	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 23:47:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761090446; cv=none; b=PhOZ0P2iKlUatRf+5+GZNWWypDz4AQ+U1ZJ7LtQ5MTkoeM6xAzqKmsB85qkgewtZh272QysAryjAPM4zTDh22Uw2TpFWhQuuBoG1XzuAXBhdsppQB1Lhsm1Y4codp3X/0engpGEcXFcPoBeG8fsg9LFj8rxWQsz6x286VVZDIZ0=
+	t=1761090450; cv=none; b=T5vnSt5Qp67Nv5P6Gyih5XSbcO6SZoLoWEu3oZqUuR9fnJwxnSsykplB88UlrXJ/VCaJpcn3ZVa5/eJMbjLlsKbycqwHI1eqNrI838SifWKd3B/kiJrKD2SNhX5UpIQy/xHWqxn9gUvYTzURu0U5nsl8SdZsXycAQBg3HRyGdt0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761090446; c=relaxed/simple;
-	bh=5WTKWKiUk8Dj2RvkxdNnCT58i8QpYZiL92GnKNlZW6Y=;
+	s=arc-20240116; t=1761090450; c=relaxed/simple;
+	bh=BMoDKOrhS66bBpIGFuMcrxO7gUW03URrQ8nNkpSPZhs=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=SXRgONyr0gWLUWOSEvfmM0NxP+Wzm/qlTb7QHBWRexf2RL5sN1uF2SO3DToCP12H1fgmv2L2oY0TP62dGhmSVLjfy1C7APq4aOpmXCvUAY76JG2XzgeA0+XusO6LyUzpnPwUtPF8RPquiehYVMPOJZK/h74kSyrDHgHHZxGSMSc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jm6KpV4S; arc=none smtp.client-ip=209.85.214.172
+	 In-Reply-To:To:Cc; b=T7I4k51wOLouCf4PQFaJRDauDzeOK27/Q6nQkWnD4b/UBoUSJMVrhiyeMsBbV9E2apQIFyEtWVHheC/2OKW0eUJ0YVAmyY80I1vkVLGGU6dNbIrAU4c/vuAuPfBHOP31lnNnNHgU4eDFWMMTUDPb8ytym3Pj/BjWSABwT/HquIw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ijz19+ho; arc=none smtp.client-ip=209.85.215.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jm6KpV4S"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2897522a1dfso62366595ad.1
-        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 16:47:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ijz19+ho"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-b55517e74e3so6325402a12.2
+        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 16:47:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761090440; x=1761695240; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1761090443; x=1761695243; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=TV8626iy6qZJteqWMHB3Fb4Ctz0bR6NM9tHbIBJXOjs=;
-        b=Jm6KpV4SXeNrpK55R7jVvpJxjSxizZ4/pZQiYolCIj4tmtMlHDpexzs2bhPQYnATIb
-         GVoGrbCV9C1cppOYAe1MBL1AqP8aOq+GgVQnBgsSWcjAzgaWQ8IRP9XLTpeDWfIMpzIM
-         q5H0756z8GU1zv7HAKjIJ1PNwKDb6vuM97HBX2/e/6Qc3q+YtCWCDSsjzXeInCjTjGNn
-         YsVbAK0ettQesih6GPbkPOa+mrNbET4bUw0e01qqeHVJ1yyFInZG09tJPPSrlrWX1+Y8
-         ydcPiUYszJdd+rlGFsQujFRmktMlg02lHdPBJ0rGtxoOwNNQ2WNW/xtzwVD+Sb74/4sJ
-         6htw==
+        bh=KCa9hiumthv+bRPHMdag7ntkQWTFgKpIIbTw+AdtIpU=;
+        b=Ijz19+howyAwFoOQmZG3b3gHQ+0QVqkNKFAt3y2WZUTZmkd070U5IGFaeka/vY1aJh
+         fdSRJ9gGg0FOBZKvLaulv0cITGupFEWTKdbGgShKo7zyUeM7skicpYTfCev1dk7NoYi7
+         kxHN9UTU+o43DDzm6wfFSCz8hn6McgNK0Ir3tD06T7U0N4vKvsdIRcW55DATP0FOt3+N
+         KdXcwIyTwPiN8MifnVWLKkuGEjK1k51U2d7K7EM3Ui3b1r4eiWcKf8vEHFQWc/I6k3bf
+         tjl8DpqVtVT1OqbKV4zhW0sNo6v2zp6X2YvNJvNiyspUsS5Rqz+akqyxhyHPKqox8oUL
+         Zy4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761090440; x=1761695240;
+        d=1e100.net; s=20230601; t=1761090443; x=1761695243;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=TV8626iy6qZJteqWMHB3Fb4Ctz0bR6NM9tHbIBJXOjs=;
-        b=gvIBioynPRCRTxMDX1fUcIjUWHyiaLfsaesHNXM3snjfVHxWhhg2nYzIuzS4kXOveR
-         yGpAJ1G3AMtAU0H5g+0Wvpd4aV0HNrFaYwYElycg2ba1pZse9/75HOqwxjHGGAJohDAI
-         Kr0r4Ff0Ljc2EmdPxcVCZHdFCeqFU9gGW3F5Eww6Q5MmN3fNvMloToaO15eNgrGNBNXH
-         Ow6crue4RLUa3AYO/5cUdNOBto5bdRb461ZembQV0HGmx8YbftO7y/qP+exTvRH2N/Kn
-         r9LrkshBK898bwyx4Qez+GTm/AyNSLScAuvfTKlhBB1APd7haP3N/14PnUCeFW8r3ftK
-         ZxRA==
-X-Gm-Message-State: AOJu0YxGgeTOY9uABbVu8NRhaxPliUQpijmTsyVOD8173b0916UIbe0y
-	fqk1oy1wXjPGekElEswmqRLcIL80iZEmGEJSua6ipg1mgge8ws6Gb/zs
-X-Gm-Gg: ASbGncvGkFfo5Xk+8o9gLA1MfKa/YlBTKga+86KXvz2oe/MbQofLt5lPhNZGmDgMK/z
-	wK0DPCNybGeARq29kKKGYzXSUr8uCVEgpDUeBjnWq2B7v5zh8ZNHLxiTsYRrcGzfAc3hCX8OPcn
-	aW4ku83BpIdI6i4rsWF2BtXoG5A5lGrgT6LDfHmJQdzDKmGP749En54qa+wqfN9gRYd5z6TwDvV
-	CuKkhotT5gmS5e2ZZRMi16eEXttf14V8pXogR4L9kiU7O16qg2pihZwEcdmWOrd4MqEEaD/UtVv
-	NrRd/h4CTYXiOFU1Fm4JFczskyqrnrnK60OSIlM6cdrTUAzABFaCsJs+77gbTvKJGe14Xyo86bQ
-	vstUjv2U4wg81kIjiK6b0RPr7nztMMFl0jzyrJdnkmYaB3hGZby+HAefX2t6sn82FtKCeS2GzLS
-	ccToFg
-X-Google-Smtp-Source: AGHT+IF3YtiPWvZebVNqksLPddW34hdGMs6SWVpzynIffF/Cg3VXxCHnVj5pafWbxKnLw/A6JvakJA==
-X-Received: by 2002:a17:903:11cd:b0:290:9a31:26d6 with SMTP id d9443c01a7336-290cba4ec04mr234640025ad.57.1761090439594;
-        Tue, 21 Oct 2025 16:47:19 -0700 (PDT)
-Received: from localhost ([2a03:2880:2ff::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29247223a3csm120532795ad.112.2025.10.21.16.47.19
+        bh=KCa9hiumthv+bRPHMdag7ntkQWTFgKpIIbTw+AdtIpU=;
+        b=MpNyxCL+xBOcSejdzzpxO24KTol7RZTjmD67i+6WvfUz1z+cJz2VHD0o7i9XdtqSla
+         a0gVTKLlMF9MCAMZ7+EIM5d0Br514YLX0aTrlU5bb1e186JpQmvsz+y7QpiP37doSsxF
+         kHnNfte9isDKHZi/5FAXXcYBnU5zDEkWir0bgCA3m8Ao7BLElGEgdRfYXP0T+HpqPBk3
+         Cs1Ys1gGN7u5ulv+cGOJG+FrOLFEV+exx+nU+bgSxC5NlQw0q7zVrVu8MNS9oNzezg0C
+         uDsHzns/UokkWnj5mag6X79F+zVOQKzPrfpdTEhwuNMb1PErpWTAXeXUpc1JJVCP54Om
+         9ZdA==
+X-Gm-Message-State: AOJu0Yz9rgyjGhu45Rk/RDWIPv6KFoU+2qxBhwZJGaM8hK7MHmtJ0+hW
+	SUh18U4iV0+rd5F/FTk604n6jbcKS1Wbkoe3UZOZVw/8AaqtDsDuCRRi
+X-Gm-Gg: ASbGncvQR9HLC9vhFxym3kcXuXkJ6yXoaCf0XnOHQagu9PHh2LSbt2kjImSojJorNSB
+	dYf70DQZls6wisOqN59Cc4SO2rmJzSb5t9ey/EMfSnqhBVg96M7ksGf2S4UqsJoovfaCjC4BO0i
+	i8/AZ9CRCdBv0iGqqWjAtiTTA2DPj0l6w0pm78N0bqJ6sJtjzvGjrMLLalsVwrXyfISZq3luyC/
+	9mPZ5LiDsQ4SH/FnsHAsUE9rUPwFHXG0Z1tdopRcj1YBHwg7LM8U+c4KtY8u1iS1ABcWdEKwemp
+	FpWcH6h+lPaYgxVU2VRWiUXIWxVxrjuQXBcUq3p/VkWCYtIihiQftNnFdCeLST1XB49rnXxzMpZ
+	/hCxBXTXYIjltTwBF6H9II9fikgPU8fGNyzbmReVeMybflMFqjxM4HrVuEVDCVQFJeuriZnFu1f
+	YEBduECIcO
+X-Google-Smtp-Source: AGHT+IGaqRNpMxUjoe2TEEOGYZ81AJdjcRS3PZQjYosVwq9rn7Rp/cmS0OGVE01pd5g/Wml0FTdNXQ==
+X-Received: by 2002:a17:903:22c3:b0:293:57e:c8a7 with SMTP id d9443c01a7336-293057eca74mr3060095ad.23.1761090443407;
+        Tue, 21 Oct 2025 16:47:23 -0700 (PDT)
+Received: from localhost ([2a03:2880:2ff:70::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-292471d598asm120489125ad.63.2025.10.21.16.47.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Oct 2025 16:47:19 -0700 (PDT)
+        Tue, 21 Oct 2025 16:47:23 -0700 (PDT)
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Tue, 21 Oct 2025 16:47:05 -0700
-Subject: [PATCH net-next v7 22/26] selftests/vsock: add namespace tests for
- CID collisions
+Date: Tue, 21 Oct 2025 16:47:09 -0700
+Subject: [PATCH net-next v7 26/26] selftests/vsock: add 1.37 to tested
+ virtme-ng versions
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,7 +70,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251021-vsock-vmtest-v7-22-0661b7b6f081@meta.com>
+Message-Id: <20251021-vsock-vmtest-v7-26-0661b7b6f081@meta.com>
 References: <20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com>
 In-Reply-To: <20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
@@ -94,115 +94,63 @@ X-Mailer: b4 0.13.0
 
 From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Add new namespace tests that validate the CID collision namespace rules.
-There are tests to ensure that global namespaces collide on the same
-CID, while local+local and local+global namespace combinations do not
-collide.
+Testing with 1.37 shows all tests passing:
+
+warning: vng version 'virtme-ng 1.37' has not been tested and may not function properly.
+	The following versions have been tested: 1.33 1.36
+1..30
+ok 1 vm_server_host_client
+ok 2 vm_client_host_server
+ok 3 vm_loopback
+ok 4 ns_host_vsock_ns_mode_ok
+ok 5 ns_host_vsock_ns_mode_write_once_ok
+ok 6 ns_global_same_cid_fails
+ok 7 ns_local_same_cid_ok
+ok 8 ns_global_local_same_cid_ok
+ok 9 ns_local_global_same_cid_ok
+ok 10 ns_diff_global_host_connect_to_global_vm_ok
+ok 11 ns_diff_global_host_connect_to_local_vm_fails
+ok 12 ns_diff_global_vm_connect_to_global_host_ok
+ok 13 ns_diff_global_vm_connect_to_local_host_fails
+ok 14 ns_diff_local_host_connect_to_local_vm_fails
+ok 15 ns_diff_local_vm_connect_to_local_host_fails
+ok 16 ns_diff_global_to_local_loopback_local_fails
+ok 17 ns_diff_local_to_global_loopback_fails
+ok 18 ns_diff_local_to_local_loopback_fails
+ok 19 ns_diff_global_to_global_loopback_ok
+ok 20 ns_same_local_loopback_ok
+ok 21 ns_same_local_host_connect_to_local_vm_ok
+ok 22 ns_same_local_vm_connect_to_local_host_ok
+ok 23 ns_mode_change_connection_continue_vm_ok
+ok 24 ns_mode_change_connection_continue_host_ok
+ok 25 ns_mode_change_connection_continue_both_ok
+ok 26 ns_delete_vm_ok
+ok 27 ns_delete_host_ok
+ok 28 ns_delete_both_ok
+ok 29 ns_loopback_global_global_late_module_load_ok
+ok 30 ns_loopback_local_local_late_module_load_fails
+
+This patch adds 1.37 to the virtme-ng versions to get rid of the above
+warning.
 
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 ---
- tools/testing/selftests/vsock/vmtest.sh | 74 +++++++++++++++++++++++++++++++++
- 1 file changed, 74 insertions(+)
+ tools/testing/selftests/vsock/vmtest.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index 4defadad5701..69ec6ec82b0c 100755
+index 648ae71bf45a..d73fdea886fb 100755
 --- a/tools/testing/selftests/vsock/vmtest.sh
 +++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -44,6 +44,10 @@ readonly TEST_NAMES=(
- 	vm_loopback
- 	ns_host_vsock_ns_mode_ok
- 	ns_host_vsock_ns_mode_write_once_ok
-+	ns_global_same_cid_fails
-+	ns_local_same_cid_ok
-+	ns_global_local_same_cid_ok
-+	ns_local_global_same_cid_ok
- )
- readonly TEST_DESCS=(
- 	# vm_server_host_client
-@@ -60,6 +64,18 @@ readonly TEST_DESCS=(
+@@ -338,7 +338,7 @@ check_vng() {
+ 	local version
+ 	local ok
  
- 	# ns_host_vsock_ns_mode_write_once_ok
- 	"Check /proc/sys/net/vsock/ns_mode is write-once on the host."
-+
-+	# ns_global_same_cid_fails
-+	"Check QEMU fails to start two VMs with same CID in two different global namespaces."
-+
-+	# ns_local_same_cid_ok
-+	"Check QEMU successfully starts two VMs with same CID in two different local namespaces."
-+
-+	# ns_global_local_same_cid_ok
-+	"Check QEMU successfully starts one VM in a global ns and then another VM in a local ns with the same CID."
-+
-+	# ns_local_global_same_cid_ok
-+	"Check QEMU successfully starts one VM in a local ns and then another VM in a global ns with the same CID."
- )
+-	tested_versions=("1.33" "1.36")
++	tested_versions=("1.33" "1.36" "1.37")
+ 	version="$(vng --version)"
  
- readonly USE_SHARED_VM=(vm_server_host_client vm_client_host_server vm_loopback)
-@@ -546,6 +562,64 @@ test_ns_host_vsock_ns_mode_ok() {
- 	return "${KSFT_PASS}"
- }
- 
-+namespaces_can_boot_same_cid() {
-+	local ns0=$1
-+	local ns1=$2
-+	local pidfile1 pidfile2
-+	local rc
-+
-+	pidfile1=$(mktemp $PIDFILE_TEMPLATE)
-+	vm_start "${pidfile1}" "${ns0}"
-+
-+	pidfile2=$(mktemp $PIDFILE_TEMPLATE)
-+	vm_start "${pidfile2}" "${ns1}"
-+
-+	rc=$?
-+	terminate_pidfiles "${pidfile1}" "${pidfile2}"
-+
-+	return $rc
-+}
-+
-+test_ns_global_same_cid_fails() {
-+	init_namespaces
-+
-+	if namespaces_can_boot_same_cid "global0" "global1"; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_local_global_same_cid_ok() {
-+	init_namespaces
-+
-+	if namespaces_can_boot_same_cid "local0" "global0"; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+test_ns_global_local_same_cid_ok() {
-+	init_namespaces
-+
-+	if namespaces_can_boot_same_cid "global0" "local0"; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+test_ns_local_same_cid_ok() {
-+	init_namespaces
-+
-+	if namespaces_can_boot_same_cid "local0" "local0"; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
- test_ns_host_vsock_ns_mode_write_once_ok() {
- 	add_namespaces
- 
+ 	ok=0
 
 -- 
 2.47.3
