@@ -1,156 +1,128 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2F213446AA
-	for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 15:45:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19C1234B186;
+	Tue, 21 Oct 2025 17:13:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761061547; cv=none; b=bUr2f3fnO/hq73sAQUIL95ZpDv8UF0Afda+SqfE/Gr7L/XideJNlqwkfRUS3bzwbrj4Nbg1FnGPZ94+fxipuzYK+d5coQ1NAXZA9/u8a+4tl84Xr1F9QAoWLUay0qB2cz46SMhMuYwHdhvq3U6kmFqj5VEaqApRvMmeD/D4JqzM=
+	t=1761066818; cv=none; b=Us3oP8AKZJF3LvfcAYWZwMSPsJuKnBQQcvkVZQqOz8ieQrBkQL6Poy9hMdhT+LTihZMW62U0JHmlQdl7QFz4s939pVL6Ik06VE1i93soFqRAtSLDQSFPsas+wzbk03TVisjJd8sg/l0qPKts3PhBWvq/Y8XKD+WKmJo9eXKMDk0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761061547; c=relaxed/simple;
-	bh=NFWo4ioEJIhQFUj4F2K8PNPc2iMgiaom38xGap6Tnro=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YePk8Lnhe0q55yFtUy2tvyL1SQB0+6bssdPeuDHApJ3OU/hiF/sjIy0+2sSYbStWeRxJjxBs5ZvElTo2AujZkS/ZGYRact7Us+wE9mgQRNz/oQOm33vEOCYJ0JfRll2OMAA4+UGNZMqC1zQGb62m00aMA7fsLhaLnAM5OhmY2e4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=egAv0OOV; arc=none smtp.client-ip=209.85.214.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1761066818; c=relaxed/simple;
+	bh=R5R2k63XM16jqmqIYLNZB7V1352UBMlgCSWQ7dgTCYk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WGkBN+rRFXcrdHZH24SsALAFY90UBY4ywbLmX40YpUTepVI5Iopa4SrLAP8wTOpC+T+Y7aOC+DoweO3lpZfYRuMQNwLS5rT4jONUff2QKjGk3orjBJ/CXGcxOPsyUjWCL/sQECoFHjhF+5/P8D/DExPGgF+i/T68GDptrqz8NUU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=2Q1SsXK2; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="egAv0OOV"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2909448641eso88175ad.1
-        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 08:45:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761061545; x=1761666345; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=kbUGtNpnVaPGTyOD2V45HVuJEH267XSQtThwcECfQ7k=;
-        b=egAv0OOVwLmF2zoj/vfXlkR2YDYVVbeZGY1uGJqlgA9sjBzoqQePe1yWw8X7yKGpIH
-         UnPPSvZzEf/DFb9tQjRpwz52fZJPT8hyrqosybwZGGHiFQ4Bcn753jdZpffReoWVXtCw
-         YMo4QYTz1YnehZxqT8ybXth1v/Usdvvf03q4g79H09H9dA1IEOy0Qf9EXLZWu9jTzpAD
-         ZLp7H5ZQPWWBmCmrFJUSJNXeM6wEIP9tGh5MDqOmJ59oXxeDIY9txecO9gfWhWPo3669
-         5sBrL5J9cdQ313dugYdsMT5yAGiy2POzOZYKXtNWIDnxxbFe2c+Yfwx0BQqKZddafd2p
-         0Gdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761061545; x=1761666345;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kbUGtNpnVaPGTyOD2V45HVuJEH267XSQtThwcECfQ7k=;
-        b=IDra6MdU6rtHO4OnOuLreNrzb6Z1zdq2rYJxv6P3ZkqAQUVfmXmewUoRQtltsji5DM
-         bCc4+xwPzaOlBwB3/+0yVf+GAJ9CCQdrwACqLg/mIVwIohtLOfthV7niJQauxWTTJMur
-         ONGmEpDwQ82b4ECqbm6GlOWG2XoUFZcQ36jn9d0Gxp5lziPxqOWdNGyYAl3eDsUpMwwp
-         6wi9oFZDA9IKeV0lGCVyyh8KqtAe5MXeT42rZ0nlcO7MdkDKnB4aCkhp1CjEBYzQWF/n
-         iqhG2p+puVL/aXNHBFXTuUNVnLpVKh1GKg/QXTK3EFYVNPKZTl4H4sKoDtjjyJ+4Qd5Z
-         uBUg==
-X-Forwarded-Encrypted: i=1; AJvYcCVUXq3WZ9Q1/kw8SIN7eT7QRpbRUuGEJKzQSd1HHS9rf63+PwfKuN3Ag0sxzHSVsOsuo+msi13AjrGUCkyNcQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXuvSg3cdkVS4HPNk5QMKlcWLvrzMkLpHANv3pL2ZsUzhnHkuR
-	3/K8zzh7noNnbo9fjzu4IokuO9uY83E1UMnhPY4fgZrqeFlDgtyGWy5J
-X-Gm-Gg: ASbGncv8zuYFAaBuIwa8aex55f4EQXwcGzh4jP2w4DXRTQnZuZvROLJt1s5+rTRQpPK
-	jYWm1HMiv4/Fgq0Q13fSAMrj8OjrHwsx5T9stPxe0xVlq82NbcvDOwAqLPE0wPMmyUPB+WqPHJQ
-	5HWwvrzlavp7xK8JgZuDMLMGCbWqXIjOE3+O6m5Ri7EuYmCwxgJjHGwmY1UMZbUxkwUxsrMM1aT
-	bvC0F9xh5QKjixTbJ8yaaduc/L1pZL2lXjEntxllz70qWSYTed1WBoYZv8uw5OlxFMoR5nFayyU
-	prI9wlW74uMF1dqyaiJHBQgfpBZdM9mzNrjVtStsd/asXcC/fZMhoW6B4IIBKpZja14+uPVlU4R
-	kih3fRof9Gy9Yd9I0ptpHBGc1friBFFe6pgDI3xs+ant1pqsDprRN+HATwG/V3+uC5mnmYAL9/Q
-	MVttwptQGQJ0Q1CnoQvNI8JmaW
-X-Google-Smtp-Source: AGHT+IF3AjXGyHtxPeuaeB1B33R8h4DcIFMmv/CIu77BJd2s9WOMRipvHjQ1kYHQ7V9Zi5jD2ZfB7w==
-X-Received: by 2002:a17:902:fc4b:b0:269:7840:de24 with SMTP id d9443c01a7336-292ff8e10damr1991205ad.21.1761061544808;
-        Tue, 21 Oct 2025 08:45:44 -0700 (PDT)
-Received: from minh.192.168.1.1 ([2001:ee0:4f4c:210:87f4:6771:a0ef:9e8e])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-292471d5938sm112628365ad.58.2025.10.21.08.45.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Oct 2025 08:45:44 -0700 (PDT)
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Gavin Li <gavinl@nvidia.com>,
-	Gavi Teitz <gavi@nvidia.com>,
-	Parav Pandit <parav@nvidia.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Bui Quang Minh <minhquangbui99@gmail.com>
-Subject: [PATCH net v3] virtio-net: fix received length check in big packets
-Date: Tue, 21 Oct 2025 22:45:34 +0700
-Message-ID: <20251021154534.53045-1-minhquangbui99@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="2Q1SsXK2"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=T7OF7YinQtdM6zEwx9mf3VJteIbSNxF5xxDOzyp6kaY=; b=2Q1SsXK2pXUN8mCnQvRcx+QhQn
+	VHutmMR5Rm8NehoV2QJEip/SnFEKMiY64LR/hUPPumhePnybaugYxUzHfGHyOTx0cLGbotoYVCFO+
+	9lyaG/SBzt/6AdyC0IaqifMG/VBu1VMxQL4cnSdmGLEv5ebIL4NZuRX+insIu9cdUJH+b1dnBTRaV
+	g/ngxAKGwaWSaDIqSP52BljzzeAD3aihVqBuTjHlzHYldIZjI+8FkMKoKbeVVwYEWZ5Mboqi23dON
+	0PhF/1OuVgk3SXof8lmqPChWNgxxrLnkYAEP0sqPbIgJb3IRxOhYKRc9Dv4GF2LUgqx3m6edVBpYg
+	uGdt9VGQ==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vBFvS-00000000CZQ-0p2N;
+	Tue, 21 Oct 2025 17:13:34 +0000
+Message-ID: <3ba11b0c-818f-41d5-8885-038c7e0133f5@infradead.org>
+Date: Tue, 21 Oct 2025 10:13:33 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 20/23] mm/kconfig: make BALLOON_COMPACTION depend on
+ MIGRATION
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, linux-doc@vger.kernel.org,
+ virtualization@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
+ Oscar Salvador <osalvador@suse.de>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>,
+ Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>, Arnd Bergmann
+ <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
+References: <20251021125929.377194-1-david@redhat.com>
+ <20251021150040.498160-1-david@redhat.com>
+ <20251021150040.498160-4-david@redhat.com>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20251021150040.498160-4-david@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
-for big packets"), the allocated size for big packets is not
-MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on negotiated MTU. The
-number of allocated frags for big packets is stored in
-vi->big_packets_num_skbfrags. This commit fixes the received length
-check corresponding to that change. The current incorrect check can lead
-to NULL page pointer dereference in the below while loop when erroneous
-length is received.
 
-Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
----
-Changes in v3:
-- Convert BUG_ON to WARN_ON_ONCE
-Changes in v2:
-- Remove incorrect give_pages call
----
- drivers/net/virtio_net.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a757cbcab87f..e7b33e40ea99 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -852,7 +852,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- {
- 	struct sk_buff *skb;
- 	struct virtio_net_common_hdr *hdr;
--	unsigned int copy, hdr_len, hdr_padded_len;
-+	unsigned int copy, hdr_len, hdr_padded_len, max_remaining_len;
- 	struct page *page_to_free = NULL;
- 	int tailroom, shinfo_size;
- 	char *p, *hdr_p, *buf;
-@@ -916,12 +916,16 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	 * tries to receive more than is possible. This is usually
- 	 * the case of a broken device.
- 	 */
--	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
-+	if (WARN_ON_ONCE(offset >= PAGE_SIZE))
-+		goto err;
-+
-+	max_remaining_len = (unsigned int)PAGE_SIZE - offset;
-+	max_remaining_len += vi->big_packets_num_skbfrags * PAGE_SIZE;
-+	if (unlikely(len > max_remaining_len)) {
- 		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
--		dev_kfree_skb(skb);
--		return NULL;
-+		goto err;
- 	}
--	BUG_ON(offset >= PAGE_SIZE);
-+
- 	while (len) {
- 		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
- 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset,
-@@ -941,6 +945,10 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 		put_page(page_to_free);
- 
- 	return skb;
-+
-+err:
-+	dev_kfree_skb(skb);
-+	return NULL;
- }
- 
- static void virtnet_rq_unmap(struct receive_queue *rq, void *buf, u32 len)
+On 10/21/25 8:00 AM, David Hildenbrand wrote:
+> Migration support for balloon memory depends on MIGRATION not
+> COMPACTION. Compaction is simply another user of page migration.
+> 
+> The last dependency on compaction.c was effectively removed with
+> commit 3d388584d599 ("mm: convert "movable" flag in page->mapping to a
+> page flag"). Ever since, everything for handling movable_ops page
+> migration resides in core migration code.
+> 
+> So let's change the dependency and adjust the description +
+> help text.
+> 
+> We'll rename BALLOON_COMPACTION separately next.
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  mm/Kconfig | 17 +++++++----------
+>  1 file changed, 7 insertions(+), 10 deletions(-)
+> 
+> diff --git a/mm/Kconfig b/mm/Kconfig
+> index e47321051d765..3aff4d05a2d8c 100644
+> --- a/mm/Kconfig
+> +++ b/mm/Kconfig
+> @@ -599,17 +599,14 @@ config MEMORY_BALLOON
+>  #
+>  # support for memory balloon compaction
+>  config BALLOON_COMPACTION
+> -	bool "Allow for balloon memory compaction/migration"
+> +	bool "Allow for balloon memory migration"
+>  	default y
+> -	depends on COMPACTION && MEMORY_BALLOON
+> -	help
+> -	  Memory fragmentation introduced by ballooning might reduce
+> -	  significantly the number of 2MB contiguous memory blocks that can be
+> -	  used within a guest, thus imposing performance penalties associated
+> -	  with the reduced number of transparent huge pages that could be used
+> -	  by the guest workload. Allowing the compaction & migration for memory
+> -	  pages enlisted as being part of memory balloon devices avoids the
+> -	  scenario aforementioned and helps improving memory defragmentation.
+> +	depends on MIGRATION && MEMORY_BALLOON
+> +	help
+> +	  Allow for migration of pages inflated in a memory balloon such that
+> +	  they can be allocated from memory areas only available for movable
+> +	  allocations (e.g., ZONE_MOVABLE, CMA) and such that they can get
+
+nit:
+s/get/be/
+
+> +	  migrated for memory defragmentation purposes by memory compaction.
+>  
+>  #
+>  # support for memory compaction
+
 -- 
-2.43.0
+~Randy
 
