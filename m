@@ -1,193 +1,168 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92206350A21
-	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 04:14:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1039927FD49
+	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 04:19:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761106467; cv=none; b=KuDODChaYAL6YG4GD4TC25syka63g8Av3db5qdwnZuU2rZM7NCzYKi21KWuDqJvFAqWBR8Qk3ufpP/AOhYkLaU8CvJmVjP2xUS6vFlTethV6DmwVw9CJdoF2pGT3JMNGlZUybfob4DXqR5OcdABZkjOKN87kWXdo0ohGBt2fSwQ=
+	t=1761106780; cv=none; b=s91rb2P/2ntwquz7koIb8wZdi09/uBM9iIxIQT+QGVENLW1d/SXIjcaJcJCjad7fztTUIrEVOLem1UMVRRGmEIEszQuBTyqx6z1c1FhW/HP+dGmD+rz1+ihi1TeuRY82SMtyvIOZa/OdLDy3RwxPY9366erkhbJNWQPqFytQ7Jc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761106467; c=relaxed/simple;
-	bh=/YK74OFvNm+U/NK9V91Agty4VqiOzSvqpl6lzRexgiA=;
+	s=arc-20240116; t=1761106780; c=relaxed/simple;
+	bh=EgU8rnXynIPhs/BZsA64otPdBcSY9W7JNRXfkBA9twA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qKz9NBXId8ONzwPyFGh+uasp/JrWUAY+rpiVLU4BLjqSE04MwwLGmpyb/11cIYJ5swdK7E+efwRbDcH8psogpnH36NMLKgjte8QEbAUEZF7OenAclsthUHvCcTffp/sMpsEVH+1feIS8H0ZwNEzj69v2I5HsLL600Xqbatd27/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MRuQqab1; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=R3JsddlF1lQ/JYZTkSQ7IClghksRKf85iUZRFGs8LC4A0s+H9hDtyV8/Qdnbs4z4Z7anFmm66mCkawJsVDlMXPr/g5Yg85lasUYodKYO9HqhqBeL5MmFb6YwTjK8Pqhu4TGnqf60euCu5J0yZarGnTn90Azdpw+uyvbCFaRKm78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iY8n3skv; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MRuQqab1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iY8n3skv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761106464;
+	s=mimecast20190719; t=1761106777;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=hUAdbHJJDms7ZY1czykoAQHdXjKj1mkwQUBG6ypiQMA=;
-	b=MRuQqab14JvJYpdLEP8MCBb3P1RZlUpApRQjl9kiywTrQe+eL5KllCZJs6qOkllsAk4kbw
-	Q4NH+QS5zPDMCooSNz+JpLC/f4hyIkncg07XuhLy/m0NZjFyiDNEYuuuhthb8CGlsDKHV0
-	JAL0J/feU7MQSHCDrE2n6cjI00u/8D0=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=cEB1GkxvFRSrK09fb4q7fCqBnMrGabs898MxIlOczVU=;
+	b=iY8n3skv/RNBDE4iAgTokUOV7KJB2UbjcrBNvDVcJ1nYkJY6R+pi5uv2D/QbF7sKxXigsN
+	RclHcA2PhUgjSycGvQbbNwVskoPu5fqdu31CCvkpb234aVJ+9c2jO6GlRbDlMJoGwFIMXc
+	py4OhjvPenlJOG9VAqalRHUVO7xbh4U=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-520-JvWJq9RdNFWhLOtDeSGofA-1; Wed, 22 Oct 2025 00:14:23 -0400
-X-MC-Unique: JvWJq9RdNFWhLOtDeSGofA-1
-X-Mimecast-MFC-AGG-ID: JvWJq9RdNFWhLOtDeSGofA_1761106462
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-33be4db19cfso10202973a91.0
-        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 21:14:22 -0700 (PDT)
+ us-mta-590-zOf24GzSMv64mSkNldrCjw-1; Wed, 22 Oct 2025 00:19:34 -0400
+X-MC-Unique: zOf24GzSMv64mSkNldrCjw-1
+X-Mimecast-MFC-AGG-ID: zOf24GzSMv64mSkNldrCjw_1761106773
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-33dadf7c5beso2755598a91.0
+        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 21:19:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761106462; x=1761711262;
+        d=1e100.net; s=20230601; t=1761106773; x=1761711573;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=hUAdbHJJDms7ZY1czykoAQHdXjKj1mkwQUBG6ypiQMA=;
-        b=Jl8BpE9rrcR9VBWLhzlP6lgpO7/1aZGsQaSFBChxnj+T2nLiBDygIoSpgzwYBuehBR
-         YLBFSeU0lE6m6LoxmhCPpZkYo2pxWH1Uvc8kwzZeVnnrjvgH4QBU8ij01xmvfqPLr6EC
-         xPWsKp5mftQogPl4XjFvQFlYXf3CiigIRCePHTYZXbBJfU7oerfK1ZtVUbMJx9Fzc+Dt
-         HzajTF98d7DtQKn1O0BjF7yVyOBPlLlZyPbYYv2fHSg254NgCPQ0LjFmufl8Ie5aLYtF
-         u9YOjHMk168tS8UUyyuLTKROVjg7VTqTDiv+lO3U/T9apSxAzU0DFaW6nMnAQCRaFJ+R
-         +1Gw==
-X-Forwarded-Encrypted: i=1; AJvYcCWqdeSlnRIo9fujZVXHMDEpPZqbBVmH05IDYDHSg50kPEHUDdZkZyFYrt9KES9D5Ji2NRwtGSlEM76eF9ordQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxyKC8fcHbH9x5zoRWoBiO1Su2L02dxEzkA44Oc7RYApGSC9i5q
-	9EYERMZ6JBIoeN4gFFHYSlwOxTq1YsswkcRQDVdi9rvZ9zb4ryB5mQ1m9LthMncWXBr9aGEaByH
-	51e7OIzmYvE86NKosdqMpS8era/pi5NNtkKmOE8rDrP4i14UAoi045LG1wSpFqr9TdliRmXPenF
-	8gzM22GbEGKXBbWIXwO0HJDlR0cUM8NTNpsdZY2RTLjGc=
-X-Gm-Gg: ASbGnctq1QyBJ4fI+VcmPC0A3dKDvFIaVlJ0EckcJgQ5jb1MyZJntp6lmbQVAu7ig/U
-	ucPz5we5erjr1NHrKX4bggUMsEUH0bK9fkT1bGwE93cwLYjs69JtoW1Bsis5juhqcmjRzDqFyXK
-	cQx9SwoPceNtsQ8Wt+a/DRYRRpkRUuyQR6+S/5LUVD7ibcCzxGh6k3r6Tv
-X-Received: by 2002:a17:90b:2690:b0:33b:b453:c900 with SMTP id 98e67ed59e1d1-33bcf8e3d67mr26649547a91.19.1761106462033;
-        Tue, 21 Oct 2025 21:14:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHIUMZaIUzpc8Rxr02WJzVEzisclYzz9qmbLvGprq+pA2MZKonKoejJwxaXte8l4j7HaaizvKvkxrnAFJnFsCw=
-X-Received: by 2002:a17:90b:2690:b0:33b:b453:c900 with SMTP id
- 98e67ed59e1d1-33bcf8e3d67mr26649518a91.19.1761106461631; Tue, 21 Oct 2025
- 21:14:21 -0700 (PDT)
+        bh=cEB1GkxvFRSrK09fb4q7fCqBnMrGabs898MxIlOczVU=;
+        b=Ova0XMTRX2hAND2mxhlAvCYMhouECIzPHF0PdLXPvh5CI96/LkWCXimS45zNG1s+1q
+         OSREHRCk9YXfrL2DRRZC/BzJ0zsDkI5onlxYJJkyT4hjJnAJY5Q5JvdZBkDCXNJcPjPn
+         MG4mvYnbSLnz/upz2QNNrKVBv6m1YBmDr22y9eDpNDJW4wHeeDX5jwbA5e5b1q7pazvH
+         rm8pWaRJ2zOnxwZ4gSCNtFKxNYp24lkKhsCYuXbun3w45hTbF9DXH1sUJkN1UIOMWITv
+         se3Xn6yDwdeXWoNqiGca1iyJYja9QZ2+d8DubgrZX5/JdC4gAM4uH9CaRaG/21TwVCQa
+         XiGw==
+X-Forwarded-Encrypted: i=1; AJvYcCWWMzrC+hOePq6VDI8XcO8N9jt9UeFWaGyzySCDUWRY+rAZlNA84YXZjhEUA++CBaxXqKl4v1Y4Eva2wIwlrA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxm4rYWfm8cU1crcmsng3MDuKZOQsjUQzzzWRxbxzseF8vVjDSL
+	qbxJb12GFqGQ7PGnt2RNZPRgN1qel2A61Fh1KCxpYz4jYvYFrj49ZISZaKDc/LW0DN9DTOKzIcc
+	YOLDbjeA4WlxvJ4urXqqM0KCzGwyPKymh/UnPob7WcnmtH5q/pH9h4VvS4+Dt/11kESyNdj6ag0
+	t4iEs5xwLqdG5+Nzdr9sQ7+SvK9bHv54IE26ZBGDEprrs=
+X-Gm-Gg: ASbGnctkYic/bDkHZWev1Vb93uiZ7CeuMMcTDOvPlZsgolAZiICRzVsYiob32shCHeV
+	VmTCO3EFAms/ZQOmzSnnv5P0dayR56dbwssTh5A1fY0nWEzseHi+g0Adt7L1t16Z7qmZpNLJCy6
+	lnGTmIZFbsTluwr+S00k1ghUpM6V6yHHqcU0XrKAE5LFHUEg2azrI8V0qz
+X-Received: by 2002:a17:90b:3f10:b0:32e:c6b6:956b with SMTP id 98e67ed59e1d1-33bcf85aba8mr27207012a91.4.1761106773506;
+        Tue, 21 Oct 2025 21:19:33 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHxpm190zeS/O7QhosnTZCJ+sJ0OOtUfB8EF+I18t2uJyG2ctlTvkqQPBgMA4jG+/iqib9IAmxZwYBAa++FoXg=
+X-Received: by 2002:a17:90b:3f10:b0:32e:c6b6:956b with SMTP id
+ 98e67ed59e1d1-33bcf85aba8mr27206962a91.4.1761106772999; Tue, 21 Oct 2025
+ 21:19:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251021154534.53045-1-minhquangbui99@gmail.com>
-In-Reply-To: <20251021154534.53045-1-minhquangbui99@gmail.com>
+References: <20251021-virtio_double_free-v1-1-4dd0cfd258f1@oss.qualcomm.com> <20251021085030-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251021085030-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 22 Oct 2025 12:14:07 +0800
-X-Gm-Features: AS18NWCsdhMJwpFLoRlCEFP860iPuuqUM526GSI4cDr6maYOOoS-jKv9Ni-IaOc
-Message-ID: <CACGkMEv3KzWjxtBuyga5NDcvBUQzsytu00g-2CwMrQGf0vrqAQ@mail.gmail.com>
-Subject: Re: [PATCH net v3] virtio-net: fix received length check in big packets
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Gavin Li <gavinl@nvidia.com>, Gavi Teitz <gavi@nvidia.com>, Parav Pandit <parav@nvidia.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Date: Wed, 22 Oct 2025 12:19:19 +0800
+X-Gm-Features: AS18NWCKmXJHmGDH1OnrtnkNAc2Gt2Hyx92v8bPZ5LqsjBJ7559XCA-Y6f0OWpQ
+Message-ID: <CACGkMEsU3+OWv=6mvQgP2iGL3Pe09=8PkTVA=2d9DPQ_SbTNSA@mail.gmail.com>
+Subject: Re: [PATCH] virtio_blk: NULL out vqs to avoid double free on failed resume
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Cong Zhang <cong.zhang@oss.qualcomm.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>, 
+	linux-arm-msm@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	pavan.kondeti@oss.qualcomm.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Gf0sm6BAm0t8nje1QJMTLZZxIRFuXtYHKf4_3T5wJuQ_1761106462
+X-Mimecast-MFC-PROC-ID: 103K4oDSqhfhst1j_rtvY5dtJFAgiFetVz2cMbV0VI4_1761106773
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 21, 2025 at 11:45=E2=80=AFPM Bui Quang Minh
-<minhquangbui99@gmail.com> wrote:
+On Tue, Oct 21, 2025 at 8:58=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
 >
-> Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
-> for big packets"), the allocated size for big packets is not
-> MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on negotiated MTU
-
-And guest gso features.
-
->. The
-> number of allocated frags for big packets is stored in
-> vi->big_packets_num_skbfrags. This commit fixes the received length
-> check corresponding to that change. The current incorrect check can lead
-> to NULL page pointer dereference in the below while loop when erroneous
-> length is received.
-
-It might also be helpful to describe how you can reproduce this issue.
-
+> On Tue, Oct 21, 2025 at 07:07:56PM +0800, Cong Zhang wrote:
+> > The vblk->vqs releases during freeze. If resume fails before vblk->vqs
+> > is allocated, later freeze/remove may attempt to free vqs again.
+> > Set vblk->vqs to NULL after freeing to avoid double free.
+> >
+> > Signed-off-by: Cong Zhang <cong.zhang@oss.qualcomm.com>
+> > ---
+> > The patch fixes a double free issue that occurs in virtio_blk during
+> > freeze/resume.
+> > The issue is caused by:
+> > 1. During the first freeze, vblk->vqs is freed but pointer is not set t=
+o
+> >    NULL.
+> > 2. Virtio block device fails before vblk->vqs is allocated during resum=
+e.
+> > 3. During the next freeze, vblk->vqs gets freed again, causing the
+> >    double free crash.
 >
-> Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big p=
-ackets")
+> this part I don't get. if restore fails, how can freeze be called
+> again?
 
-Cc: stable@vger.kernel.org
-
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
-> Changes in v3:
-> - Convert BUG_ON to WARN_ON_ONCE
-> Changes in v2:
-> - Remove incorrect give_pages call
-> ---
->  drivers/net/virtio_net.c | 18 +++++++++++++-----
->  1 file changed, 13 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index a757cbcab87f..e7b33e40ea99 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -852,7 +852,7 @@ static struct sk_buff *page_to_skb(struct virtnet_inf=
-o *vi,
->  {
->         struct sk_buff *skb;
->         struct virtio_net_common_hdr *hdr;
-> -       unsigned int copy, hdr_len, hdr_padded_len;
-> +       unsigned int copy, hdr_len, hdr_padded_len, max_remaining_len;
->         struct page *page_to_free =3D NULL;
->         int tailroom, shinfo_size;
->         char *p, *hdr_p, *buf;
-> @@ -916,12 +916,16 @@ static struct sk_buff *page_to_skb(struct virtnet_i=
-nfo *vi,
->          * tries to receive more than is possible. This is usually
->          * the case of a broken device.
->          */
-> -       if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
-> +       if (WARN_ON_ONCE(offset >=3D PAGE_SIZE))
-> +               goto err;
-
-I'd stick to BUG_ON or at least it needs an independent patch.
-
-> +
-> +       max_remaining_len =3D (unsigned int)PAGE_SIZE - offset;
-> +       max_remaining_len +=3D vi->big_packets_num_skbfrags * PAGE_SIZE;
-
-Let's add a comment to explain the algorithm here or at least mention
-to refer add_recvbuf_big().
-
-> +       if (unlikely(len > max_remaining_len)) {
->                 net_dbg_ratelimited("%s: too much data\n", skb->dev->name=
-);
-> -               dev_kfree_skb(skb);
-> -               return NULL;
-> +               goto err;
-
-It looks like this change is not needed?
-
->         }
-> -       BUG_ON(offset >=3D PAGE_SIZE);
-> +
-
-Unnecessary changes.
-
->         while (len) {
->                 unsigned int frag_size =3D min((unsigned)PAGE_SIZE - offs=
-et, len);
->                 skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, off=
-set,
-> @@ -941,6 +945,10 @@ static struct sk_buff *page_to_skb(struct virtnet_in=
-fo *vi,
->                 put_page(page_to_free);
->
->         return skb;
-> +
-> +err:
-> +       dev_kfree_skb(skb);
-> +       return NULL;
->  }
->
->  static void virtnet_rq_unmap(struct receive_queue *rq, void *buf, u32 le=
-n)
-> --
-> 2.43.0
->
+For example, could it be triggered by the user?
 
 Thanks
+
+>
+> > ---
+> >  drivers/block/virtio_blk.c | 13 ++++++++++++-
+> >  1 file changed, 12 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > index f061420dfb10c40b21765b173fab7046aa447506..746795066d7f56a01c9a9c0=
+344d24f9fa06841eb 100644
+> > --- a/drivers/block/virtio_blk.c
+> > +++ b/drivers/block/virtio_blk.c
+> > @@ -1026,8 +1026,13 @@ static int init_vq(struct virtio_blk *vblk)
+> >  out:
+> >       kfree(vqs);
+> >       kfree(vqs_info);
+> > -     if (err)
+> > +     if (err) {
+> >               kfree(vblk->vqs);
+> > +             /*
+> > +              * Set to NULL to prevent freeing vqs again during freezi=
+ng.
+> > +              */
+> > +             vblk->vqs =3D NULL;
+> > +     }
+> >       return err;
+> >  }
+> >
+>
+> > @@ -1598,6 +1603,12 @@ static int virtblk_freeze_priv(struct virtio_dev=
+ice *vdev)
+> >
+> >       vdev->config->del_vqs(vdev);
+> >       kfree(vblk->vqs);
+> > +     /*
+> > +      * Set to NULL to prevent freeing vqs again after a failed vqs
+> > +      * allocation during resume. Note that kfree() already handles NU=
+LL
+> > +      * pointers safely.
+> > +      */
+> > +     vblk->vqs =3D NULL;
+> >
+> >       return 0;
+> >  }
+> >
+> > ---
+> > base-commit: 8e2755d7779a95dd61d8997ebce33ff8b1efd3fb
+> > change-id: 20250926-virtio_double_free-7ab880d82a17
+> >
+> > Best regards,
+> > --
+> > Cong Zhang <cong.zhang@oss.qualcomm.com>
+>
 
