@@ -1,73 +1,78 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05F352FF65B
-	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 08:02:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 158681DDDD
+	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 08:33:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761120133; cv=none; b=KsWnA3UN2kN9vnDw7cVAGNM9mw7XQ51PAy7xBtqtgh/hNdM38qGrErpHTduSP88be0xs+7ZhbOPk9eKwTWmBNqTMOqqp4y5BYxCji+Ij0CThxO0egN/x3NyDyGwVS20w0xi++2REuuJ6iP32TZ96j6D3LqWjwUboxoUfbFox2Ic=
+	t=1761122007; cv=none; b=qJmKFl6pNuwjlVYaIMmGG/RHN9+WsS7X5rF3tlTdzHu4fEm/LJRu0HoJ7BfkEvjuiN8Qvat3q+1YpS+KBBXrNNcQJzTK4Ch2py41KdWFpd5QUG+onGfKQoNAPpNNCefBqIq94GDhx5nBMspNUDJG81uxPQS7F+FNAVidms9tnFA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761120133; c=relaxed/simple;
-	bh=RSN3cKeL/wrLTfUe/iXDZXDZWNlHU8sIpfbOMxyuaEA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eAVB8+Hi3RDMf8N03v/0KeauUBDFdJOPZ3gU/AKe9SDQQglSlPUlVMq0FUzndHjKbD8zj9u9a+UT+9oSdzH6AAkX15GKFW5IriPqV8FyN2l7/tG5ni27nY+04sVQdy9XWzi3OsRyYFa12rlzgQ0zgUeZgMBdDhui/vKNR+SaO2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=a933Yhqn; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1761122007; c=relaxed/simple;
+	bh=3Lzbgcf9TiEgoF81vvsYDrGZZLKwfPJ5J3FsDfHFNus=;
+	h=Content-Type:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To; b=r1sB+ESFBNh4ZpC7idZzFbKqd7hlOCLBU3cdzgG2AOLVEL6ASoBUkG14yMrT+Hp/TMhzK1e2MTCtkHJ4O1Te4zOuhhjPIOVgBV0U4euFr8FTjvsppnFhj9wbWgVGdsNo+5ZumdAwSPimGmPNc2+1O5UkLSRlWPIPHRdfEMVHEJ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=KZptGFF6; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=bvWp0e0o; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tutbzA4d; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=T3BquWdg; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="a933Yhqn"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59M33qbC026906
-	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 08:02:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	PrWXaHujYM83EP0v/kYGdvqS+OMzRONuhcXEsIZpib8=; b=a933Yhqncla2BaC7
-	L9lRvvEr6BQynRuJh5NPCYWspxlHRnkPfv53Zp+fyH7Uk+RmYn7Zanrkftl7tfSr
-	s39XL88omoVCmp0u9RqvUtg2Ki2O/AljEUN9lclP2n6uSvC5FDfZ/7fyGv10ohy4
-	zalcxXIhxDPIUxg/DsbriYDyBWbU2JMae+d8p3tkVTDQXy1AZisu0HvLAdBEt5rF
-	LwvKoa+8q1SMqGRot58so87dH7d+QCDBjh9ywt4+bdBg+b1+0NMfpwchkij8xZwm
-	oXvjuCaW2adBDl18ch6g4F/nZFrMc+3sX9cW5JsfFQyA1NMX1jAdqYfP0opOw0+s
-	uDJCHw==
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com [209.85.214.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 49v08pm1fn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 08:02:08 +0000 (GMT)
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-26983c4d708so52522915ad.3
-        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 01:02:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761120128; x=1761724928;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PrWXaHujYM83EP0v/kYGdvqS+OMzRONuhcXEsIZpib8=;
-        b=fxe/YsPNALrVOVT8vEZ3eXJhFstS0K32YyqZ9zLr1j6ODaZvITypRtgLWqfcuI8jrx
-         Xtrra0CbDaDXLuvmgqGqH8IDG1WEkoh9jt9P9Oxdu5ZOONOqdMeqVAoQp7jT78lDYqeJ
-         91jzJe0rfr94WmebCgoW8Xx+EpfRim9J9qQ4JWesEMM/7XHh3WySv+tIFOum5A2ZkqsQ
-         ss7wHD2dGy1BVvSiPyGVYn+hBQ6wTVZNoHY+6rQ8WJEyQz/S6GsZHxKz+EbSmTfnhFK8
-         5hy9Y99+pZZ2UuL8OibvL9e/OZ+3Hk/iO8S49+l4odTOVK2prBDyyA2ysPLncX1F8dnq
-         5WBQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVq4pTor43ZlDFWRt+Nmjn6sQDZCkrJE58AerFmkIljYQwq0oOjDmNUr0V9hMCPwTfX+E+Eit40udebIMwlAQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzBvQGdqQM+gY9a2bF8myyIHIg2J/thheaS21Zr0zYXTpogBdan
-	I0ThTO9E2p8ne01yg1AvoBT/1f7jzRFUkgKaaELnyV9J3iT+Ixf0tegbGz7DBWl6qQ6COxmot6f
-	i0ED9EUra/a71f8BaQ/dWItEclf85Oxh6xmNDHQCthHZ80T9G03Oe35yS+Qz28pwqq4/cPQ==
-X-Gm-Gg: ASbGncvMuBXese8j4WH16y6ObftMgRBLmjgK95UrqPPxp/oDZrSKrApIKIu5ZVVoPgj
-	LDHEzf6ijPWDSp4M/NcduS7L+lIN1VK/TtZKdixGNxa/3GGfm1ZxoU04YXjKseB7BfXJnTlgGd/
-	0R7zqWGqc+R8wjQe8iWbHpytA5GiCYPci65DDTCzAmr/UPCqGk99hhZn6uNG4mJJUOf0qSBEPxl
-	TsOgVFnZfasR1OSDWDOZTNfPXhXRarJ4r/XX4VJdiy0kI0pYeRBXIQp/OF1RB1gidgO8j8YjrJA
-	HS2CheK/QFU+Nj4SK4BNCAyiU8XAuNklM7ZiYSMQ7NERQFQ5qOJle5sV2UBMMM5mjMAt1JZtu9U
-	UtBKXdOhTdu5cKR2/tuRNKfi0QaJWOo20caAgVhC1gjvXSC3EVA==
-X-Received: by 2002:a17:902:e5cf:b0:269:b2e5:ee48 with SMTP id d9443c01a7336-290cb6619aemr257341495ad.52.1761120127724;
-        Wed, 22 Oct 2025 01:02:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGcRm1cmQAZ79KpbmBiXAz/1hTG8MAAUjPR7k1568+fHx4n3Z3tvlMw2nwNPvdqpf8/BIpXNw==
-X-Received: by 2002:a17:902:e5cf:b0:269:b2e5:ee48 with SMTP id d9443c01a7336-290cb6619aemr257341145ad.52.1761120127228;
-        Wed, 22 Oct 2025 01:02:07 -0700 (PDT)
-Received: from [10.53.169.133] (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29246ebcce8sm131876805ad.18.2025.10.22.01.02.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Oct 2025 01:02:06 -0700 (PDT)
-Message-ID: <f7401703-e912-4d61-b206-f9f1de930092@oss.qualcomm.com>
-Date: Wed, 22 Oct 2025 16:02:05 +0800
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="KZptGFF6";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="bvWp0e0o";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tutbzA4d";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="T3BquWdg"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id DE7A821172;
+	Wed, 22 Oct 2025 08:33:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1761121999; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=SMQjjMr/KzUzfuQ8alIXImdFpC7+hiPIngqCCEJPxBs=;
+	b=KZptGFF68XkjfC/KVxekoJdZEwwXCb8u0g58IBR8ANkf6p0xWczsfpvAeeE2/U/uwhUZfI
+	ZK41s9NMl3UJoSF7JC8tniKH6+z3i0Tmpp76A5zjl8J/dy4xbYH2XOHFblT/BjThVM1Fmx
+	oEHxtpPs2qC66u6csNd+xVJL3C2Fw60=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1761121999;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=SMQjjMr/KzUzfuQ8alIXImdFpC7+hiPIngqCCEJPxBs=;
+	b=bvWp0e0olLDQWYbMlm8ITtBB7+0GEG5GHddjd6QDvAeolWFNL0f6zkqaWFVCVObOXP7B3z
+	jyRQdRHp3dkfxTCA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=tutbzA4d;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=T3BquWdg
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1761121994; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=SMQjjMr/KzUzfuQ8alIXImdFpC7+hiPIngqCCEJPxBs=;
+	b=tutbzA4dPbXuMD4LTPP8cYBc+RU1lGhyE+j8a1KbFZRkWxTDTqPgMfI2rWuad0al6wVH+j
+	h+LUz9N0j9fsyorGIpPFNwNR2x6SnCoLvTA0M7A2h8hhV2wjxwguVhqgmZikWy2ZY6JixE
+	6yxRz5ycfDeKjVgnhM7iXzq+DG1pQyw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1761121994;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=SMQjjMr/KzUzfuQ8alIXImdFpC7+hiPIngqCCEJPxBs=;
+	b=T3BquWdgqebqrUXIzz830Rb+AHJ5Nuhtk0cDQacSMDl1RaMAQgYvjrDQkuOfvSKKnaEyxZ
+	B1kC7DbbQLH4YYCA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A38E913A29;
+	Wed, 22 Oct 2025 08:33:14 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id lWh7JsqW+Gj2TwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 22 Oct 2025 08:33:14 +0000
+Content-Type: multipart/mixed; boundary="------------lqR1kLKkoMG2JIq9MZ0qfWUG"
+Message-ID: <84de3c82-638a-412c-8e25-9ff507d59400@suse.de>
+Date: Wed, 22 Oct 2025 10:33:14 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,140 +80,368 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_blk: NULL out vqs to avoid double free on failed
- resume
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        linux-arm-msm@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        pavan.kondeti@oss.qualcomm.com
-References: <20251021-virtio_double_free-v1-1-4dd0cfd258f1@oss.qualcomm.com>
- <20251021085030-mutt-send-email-mst@kernel.org>
- <CACGkMEsU3+OWv=6mvQgP2iGL3Pe09=8PkTVA=2d9DPQ_SbTNSA@mail.gmail.com>
- <20251022014453-mutt-send-email-mst@kernel.org>
- <20251022030050-mutt-send-email-mst@kernel.org>
+Subject: Re: [RFC][PATCH] drm/virtgpu: Make vblank event dependent on the host
+ resource
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
+ "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
+ "kraxel@redhat.com" <kraxel@redhat.com>,
+ "airlied@redhat.com" <airlied@redhat.com>
+Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+References: <20251016145230.79270-1-tzimmermann@suse.de>
+ <IA0PR11MB7185A7BA7B8CEAC46CBC0922F8F6A@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <21851b98-06ee-4e2c-8570-70e8a4fe5d86@suse.de>
+ <afc6ba14-cd95-49b9-89f5-e90fd19c8927@collabora.com>
+ <a2afbc13-0be6-46ef-a6da-9461fd30376b@collabora.com>
+ <126a0b10-a550-430c-a1b3-7e144461a0ff@suse.de>
+ <IA0PR11MB71850CA585D6E42C1E7217DDF8F3A@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <c6b44524-4e44-46e8-89b4-8f90e074431b@collabora.com>
 Content-Language: en-US
-From: Cong Zhang <cong.zhang@oss.qualcomm.com>
-In-Reply-To: <20251022030050-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <c6b44524-4e44-46e8-89b4-8f90e074431b@collabora.com>
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Queue-Id: DE7A821172
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.41 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MIME_BASE64_TEXT_BOGUS(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_BASE64_TEXT(0.10)[];
+	MIME_GOOD(-0.10)[multipart/mixed,text/plain,text/x-patch];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_EQ_ADDR_SOME(0.00)[];
+	ARC_NA(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MIME_TRACE(0.00)[0:+,1:+,2:+];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_SEVEN(0.00)[7];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	HAS_ATTACHMENT(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -3.41
+
+This is a multi-part message in MIME format.
+--------------lqR1kLKkoMG2JIq9MZ0qfWUG
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE4MDAwMCBTYWx0ZWRfX/xZcRJHwWnTL
- ebiEPLwo3ouC//U9pTiyV1Lzdn3+fKYRkTqjkrmZmCbC47aq4HnhZk30ZdFBCwjx/1KjsPLvDD6
- vHxA/FEajBIx5vWGrvA07f/vCOcFcL0RU3DAq0YwSo0jaVkRn5MLImISG0OpFyE6XOOdaoPmPRj
- V4yyoL6/0dCzQYWYCZLBx37Y7rYO0V4U/AH3QaUopx9b3vyxjMYpYboLsu4rwU+3E2cHvDI2Sfu
- yXSZNkdJaop+1FMiqsPdbQ0V9+ZD26Np1lda7hTX0kC7k3BjT8HKgrRETzpIWiZEJjaNXXlqsc3
- rkXvQNTnonfWjtk8ZyN9dM16/BMuGFZQyBg6+EEOepv9YMc8xd80GkW1NIjKoTufGw3pQ0Yihz4
- C4bsBExXgDs4fbQF3ZxG0x8ne/WLWQ==
-X-Proofpoint-GUID: XtVC__dqGxk0uUM8CqjSFy2kgAgSU8jA
-X-Authority-Analysis: v=2.4 cv=Up1u9uwB c=1 sm=1 tr=0 ts=68f88f81 cx=c_pps
- a=cmESyDAEBpBGqyK7t0alAg==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
- a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=20KFwNOVAAAA:8 a=EUspDBNiAAAA:8 a=EF7p3n4rWrlDlfIrDsgA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10 a=1OuFwYUASf3TG4hYMiVC:22
-X-Proofpoint-ORIG-GUID: XtVC__dqGxk0uUM8CqjSFy2kgAgSU8jA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-22_03,2025-10-13_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 adultscore=0 suspectscore=0 malwarescore=0 clxscore=1015
- impostorscore=0 bulkscore=0 priorityscore=1501 spamscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510180000
 
+Hi
 
-
-On 10/22/2025 3:01 PM, Michael S. Tsirkin wrote:
-> On Wed, Oct 22, 2025 at 01:45:38AM -0400, Michael S. Tsirkin wrote:
->> On Wed, Oct 22, 2025 at 12:19:19PM +0800, Jason Wang wrote:
->>> On Tue, Oct 21, 2025 at 8:58 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->>>>
->>>> On Tue, Oct 21, 2025 at 07:07:56PM +0800, Cong Zhang wrote:
->>>>> The vblk->vqs releases during freeze. If resume fails before vblk->vqs
->>>>> is allocated, later freeze/remove may attempt to free vqs again.
->>>>> Set vblk->vqs to NULL after freeing to avoid double free.
->>>>>
->>>>> Signed-off-by: Cong Zhang <cong.zhang@oss.qualcomm.com>
->>>>> ---
->>>>> The patch fixes a double free issue that occurs in virtio_blk during
->>>>> freeze/resume.
->>>>> The issue is caused by:
->>>>> 1. During the first freeze, vblk->vqs is freed but pointer is not set to
->>>>>    NULL.
->>>>> 2. Virtio block device fails before vblk->vqs is allocated during resume.
->>>>> 3. During the next freeze, vblk->vqs gets freed again, causing the
->>>>>    double free crash.
->>>>
->>>> this part I don't get. if restore fails, how can freeze be called
->>>> again?
->>>
->>> For example, could it be triggered by the user?
->>>
->>> Thanks
+Am 22.10.25 um 07:37 schrieb Dmitry Osipenko:
+> On 10/22/25 08:02, Kasireddy, Vivek wrote:
+>> Hi Thomas,
 >>
->> I don't know - were you able to trigger it? how?
-> 
-> Sorry I mean the submitter of course.
-> 
-
-Let me add more details:
-Autosleep is enabled in this case. When the system wakes up from
-suspend, it will call virtio_device_restore. The failure happens in the
-virtio_device_restore function before vblk->vqs has been allocated. The
-system still gets woken up after the failure happens. Since autosleep is
-enabled and there is no wakelock being held, the system will try to
-suspend again. Then virtio_device_freeze will be called and causes the
-issue.
-
+>>> Subject: Re: [RFC][PATCH] drm/virtgpu: Make vblank event dependent on
+>>> the host resource
+>>>
+>>>>> On 10/17/25 10:38, Thomas Zimmermann wrote:
+>>>>> ...
+>>>>>> There's little difference between the current event handling and the
+>>> one
+>>>>>> where no vblanks have been set up. I suspect that the vblank timer
+>>>>>> callback interferes with the locking in atomic_flush. That would also
+>>>>>> explain why the fps drop at no clear pattern.
+>>>>>>
+>>>>>> Could you please test the attached patch? It enables/disables the
+>>> vblank
+>>>>>> timer depending on the buffer resources; as you suggested
+>>> before.  Does
+>>>>>> this make a difference?
+>>>>> The attached patch doesn't work, please see the trace below.
+>>>>>
+>>>>> @Vivek Please clarify whether you only see frames drop with your
+>>>>> multi-gpu guest-blob setup or with a usual virgl too. I haven't noticed
+>>>>> problem with frames pacing for virgl and nctx modes yesterday, will
+>>>>> check again.
+>>>> On a second look, I now see that this RFC (not the attached) patch
+>>>> doesn't work properly with host blobs.
+>>>>
+>>>> I'm getting 100-150fps with this patch applied instead of expected
+>>>> 60fps. Without this RFC patch I'm getting constant 60fps with native
+>>>> context displaying host blobs.
+>>>>
+>>>> Not sure why guest blob would behave differently from the host blob.
+>>>> Suspect something if off with the prime sharing that Vivek uses in the
+>>>> vfio testing setup. I'd suggest to disable vblank timer only for guest
+>>>> blobs if no quick solution will be found.
+>>> After reading your reply and Vivek's new results, I'm confused now. Does
+>>> it work or is there another patch needed?
+>> Considering my use-case and Dmitry's virgl/venus/native context use-cases
+>> and the benefits offered by vblank timer in these different scenarios, I think
+>> the following patch should be sufficient for now:
 >>
->>>>
->>>>> ---
->>>>>  drivers/block/virtio_blk.c | 13 ++++++++++++-
->>>>>  1 file changed, 12 insertions(+), 1 deletion(-)
->>>>>
->>>>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->>>>> index f061420dfb10c40b21765b173fab7046aa447506..746795066d7f56a01c9a9c0344d24f9fa06841eb 100644
->>>>> --- a/drivers/block/virtio_blk.c
->>>>> +++ b/drivers/block/virtio_blk.c
->>>>> @@ -1026,8 +1026,13 @@ static int init_vq(struct virtio_blk *vblk)
->>>>>  out:
->>>>>       kfree(vqs);
->>>>>       kfree(vqs_info);
->>>>> -     if (err)
->>>>> +     if (err) {
->>>>>               kfree(vblk->vqs);
->>>>> +             /*
->>>>> +              * Set to NULL to prevent freeing vqs again during freezing.
->>>>> +              */
->>>>> +             vblk->vqs = NULL;
->>>>> +     }
->>>>>       return err;
->>>>>  }
->>>>>
->>>>
->>>>> @@ -1598,6 +1603,12 @@ static int virtblk_freeze_priv(struct virtio_device *vdev)
->>>>>
->>>>>       vdev->config->del_vqs(vdev);
->>>>>       kfree(vblk->vqs);
->>>>> +     /*
->>>>> +      * Set to NULL to prevent freeing vqs again after a failed vqs
->>>>> +      * allocation during resume. Note that kfree() already handles NULL
->>>>> +      * pointers safely.
->>>>> +      */
->>>>> +     vblk->vqs = NULL;
->>>>>
->>>>>       return 0;
->>>>>  }
->>>>>
->>>>> ---
->>>>> base-commit: 8e2755d7779a95dd61d8997ebce33ff8b1efd3fb
->>>>> change-id: 20250926-virtio_double_free-7ab880d82a17
->>>>>
->>>>> Best regards,
->>>>> --
->>>>> Cong Zhang <cong.zhang@oss.qualcomm.com>
->>>>
-> 
+>> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+>> index e972d9b015a9..c1a8f88f0a20 100644
+>> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+>> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+>> @@ -102,7 +102,11 @@ static void virtio_gpu_crtc_mode_set_nofb(struct drm_crtc *crtc)
+>>   static void virtio_gpu_crtc_atomic_enable(struct drm_crtc *crtc,
+>>                                            struct drm_atomic_state *state)
+>>   {
+>> -       drm_crtc_vblank_on(crtc);
+>> +       struct drm_device *dev = crtc->dev;
+>> +       struct virtio_gpu_device *vgdev = dev->dev_private;
+>> +
+>> +       if (!vgdev->has_resource_blob || vgdev->has_virgl_3d)
+>> +               drm_crtc_vblank_on(crtc);
+>>   }
+>>   
+>>   static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
+>> @@ -112,7 +116,8 @@ static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
+>>          struct virtio_gpu_device *vgdev = dev->dev_private;
+>>          struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
+>>   
+>> -       drm_crtc_vblank_off(crtc);
+>> +       if (!vgdev->has_resource_blob || vgdev->has_virgl_3d)
+>> +               drm_crtc_vblank_off(crtc);
+> I'm fine with this change. Will need a clarifying comment in the code.
+>
+> On the other hand, I tried with "-device virtio-vga,blob=true" and still
+> don't see problem with the incorrect frame rate.
+>
+> Vivek, could you please clarify whether you only seeing problem when
+> using prime sharing? I.e. whether you can reproduce the wrong fps by
+> running qemu casually without using vfio.
+>
+> Might test the vfio setup myself sometime later. It's a bit cumbersome
+> to set it up, will need to re-plug GPUs and etc, currently busy with
+> other stuff.
 
+Here's another variant of the patch for you to test. This should resolve 
+the warning.
+
+Best regards
+Thomas
+
+
+>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
+
+
+--------------lqR1kLKkoMG2JIq9MZ0qfWUG
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-drm-virtgpu-Make-vblank-event-dependent-on-the-host-.patch"
+Content-Disposition: attachment;
+ filename*0="0001-drm-virtgpu-Make-vblank-event-dependent-on-the-host-.pa";
+ filename*1="tch"
+Content-Transfer-Encoding: base64
+
+RnJvbSA5Y2EwZWNkM2YwODE1NDc0YTNlY2I3OThhZGEzYmUzYWYzN2JiOGNkIE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBUaG9tYXMgWmltbWVybWFubiA8dHppbW1lcm1hbm5A
+c3VzZS5kZT4KRGF0ZTogVGh1LCAxNiBPY3QgMjAyNSAxNTowMToyMyArMDIwMApTdWJqZWN0
+OiBbUEFUQ0hdIGRybS92aXJ0Z3B1OiBNYWtlIHZibGFuayBldmVudCBkZXBlbmRlbnQgb24g
+dGhlIGhvc3QgcmVzb3VyY2UKCkZvciBlYWNoIHBsYW5lLCBzdG9yZSB0aGUgYnVmZmVyIG9i
+amVjdCdzIGhvc3QgYmFja2luZyBpbiB0aGUgc3RhdGUKb2YgdGhlIHBsYW5lJ3MgcmVzcGVj
+dGl2ZSBDUlRDLiBUaGUgaG9zdCBzeW5jaHJvbml6ZXMgb3V0cHV0IG9mIGJ1ZmZlcgpvYmpl
+Y3RzIHdpdGggYSBob3N0IHJlc291cmNlIHRvIGl0cyBvd24gcmVmcmVzaCBjeWNsZTsgdGh1
+cyBhdm9pZGluZwp0ZWFyaW5nLiBEdXJpbmcgdGhlIENSVEMncyBhdG9taWMgZmx1c2gsIGln
+bm9yZSB0aGUgdmJsYW5rIHRpbWVyIGlmCmFueSBvZiB0aGUgQ1JUQydzIHBsYW5lJ3MgYnVm
+ZmVyIG9iamVjdCBoYXMgYSBob3N0IHJlc291cmNlLiBJbnN0ZWFkCnNlbmQgdGhlIHZibGFu
+ayBldmVudCBpbW1kaWF0ZWxseS4gQXZvaWRzIGNvcm5lciBjYXNlcyB3aGVyZSBhIHZibGFu
+awpldmVudCBoYXBwZW5zIHRvbyBsYXRlIGZvciB0aGUgbmV4dCBmcmFtZSB0byBiZSBwYWdl
+IGZsaXBwZWQgaW4gdGltZS4KClRoZSBob3N0IHN5bmNocm9uaXplcyBhIHBsYW5lJ3Mgb3V0
+cHV0IHRvIHRoZSBob3N0IHJlcGFpbnQgY3ljbGUgaWYKdGhlIHBsYW5lJ3MgYnVmZmVyIG9i
+amVjdCBoYXMgYW4gYXNzb2NpYXRlZCBob3N0IHJlc291cmNlLiBBbiBhdG9taWMKY29tbWl0
+IGJsb2NrcyB1bnRpbCB0aGUgaG9zdCBjeWNsZSBjb21wbGV0ZXMgYW5kIHRoZW4gYXJtcyB0
+aGUgdmJsYW5rCmV2ZW50LiBUaGUgZ3Vlc3QgY29tcG9zaXRvciBpcyB0aGVyZWJ5IHN5bmNo
+cm9uaXplZCB0byB0aGUgaG9zdCdzCm91dHB1dCByYXRlLgoKVG8gYXZvaWQgZGVsYXlzLCBz
+ZW5kIG91dCB0aGUgdmJsYW5rIGV2ZW50IGltbWVkaWF0ZWx5IGluc3RlYWQgb2YKanVzdCBh
+cm1pbmcgaXQuIE90aGVyd2lzZSB0aGUgZXZlbnQgbWlnaHQgYmUgdG9vIGxhdGUgdG8gcGFn
+ZSBmbGlwCnRoZSBjb21wb3NpdG9yJ3MgbmV4dCBmcmFtZS4KClRoZSB2YmxhbmsgdGltZXIg
+aXMgc3RpbGwgYWN0aXZlIGFuZCBmaXJlcyBpbiByZWd1bGFyIGludGVydmFscwphY2NvcmRp
+bmcgdG8gdGhlIGd1ZXN0IGRpc3BsYXkgcmVmcmVzaC4gVGhpcyByYXRlIGxpbWl0cyBjbGll
+bnRzCnRoYXQgb25seSB3YWl0IGZvciB0aGUgbmV4dCB2YmxhbmsgdG8gb2NjdXIsIHN1Y2gg
+YXMgZmJjb24uIFRoZXNlCmNsaWVudHMgd291bGQgb3RoZXJ3aXNlIHByb2R1Y2UgYSB2ZXJ5
+IGhpZ2ggbnVtYmVyIG9mIGZyYW1lcyBwZXIKc2Vjb25kLgoKRm9yIGNvbW1pdHMgd2l0aG91
+dCBob3N0IHJlc291cmNlLCB0aGUgdmJsYW5rIHRpbWVyIHJhdGUtbGltaXRzIHRoZQpndWVz
+dCBvdXRwdXQgYnkgZ2VuZXJhdGluZyB2YmxhbmsgZXZlbnRzIGF0IHRoZSBndWVzdCBkaXNw
+bGF5IHJlZnJlc2gKcmF0ZSBhcyBiZWZvcmUuCgp2MzoKLSBkaXNhYmxlIHZibGFuayB1bmNv
+bmRpdGlvbmFsbHkKLSBjb21wdXRlIHN0YXR1cyBvbiBlYWNoIGNvbW1pdAp2MjoKLSBlbmFi
+bGUvZGlzYWJsZSB2YmxhbmsgdGltZXIgYWNjb3JkaW5nIHRvIGJ1ZmZlciBzZXR1cAoKU2ln
+bmVkLW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+Ci0t
+LQogZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rpc3BsYXkuYyB8IDg4ICsrKysr
+KysrKysrKysrKysrKysrKystLQogZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Ry
+di5oICAgICB8IDE0ICsrKysKIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wbGFu
+ZS5jICAgfCAyMiArKysrKy0KIDMgZmlsZXMgY2hhbmdlZCwgMTE3IGluc2VydGlvbnMoKyks
+IDcgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92
+aXJ0Z3B1X2Rpc3BsYXkuYyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kaXNw
+bGF5LmMKaW5kZXggZTk3MmQ5YjAxNWE5Li5jMzgxYTIwY2EzYzggMTAwNjQ0Ci0tLSBhL2Ry
+aXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kaXNwbGF5LmMKKysrIGIvZHJpdmVycy9n
+cHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rpc3BsYXkuYwpAQCAtNDksMTQgKzQ5LDc0IEBACiAj
+ZGVmaW5lIGRybV9jb25uZWN0b3JfdG9fdmlydGlvX2dwdV9vdXRwdXQoeCkgXAogCWNvbnRh
+aW5lcl9vZih4LCBzdHJ1Y3QgdmlydGlvX2dwdV9vdXRwdXQsIGNvbm4pCiAKK3N0YXRpYyB2
+b2lkIHZpcnRpb19ncHVfY3J0Y19zdGF0ZV9kZXN0cm95KHN0cnVjdCB2aXJ0aW9fZ3B1X2Ny
+dGNfc3RhdGUgKnZnY3J0Y19zdGF0ZSkKK3sKKwlfX2RybV9hdG9taWNfaGVscGVyX2NydGNf
+ZGVzdHJveV9zdGF0ZSgmdmdjcnRjX3N0YXRlLT5iYXNlKTsKKworCWtmcmVlKHZnY3J0Y19z
+dGF0ZSk7Cit9CisKK3N0YXRpYyBib29sIHZpcnRpb19ncHVfY3J0Y19zdGF0ZV9zZW5kX2V2
+ZW50X29uX2ZsdXNoKHN0cnVjdCB2aXJ0aW9fZ3B1X2NydGNfc3RhdGUgKnZnY3J0Y19zdGF0
+ZSkKK3sKKwlzdHJ1Y3QgZHJtX2NydGNfc3RhdGUgKmNydGNfc3RhdGUgPSAmdmdjcnRjX3N0
+YXRlLT5iYXNlOworCisJLyoKKwkgKiBUaGUgQ1JUQydzIG91dHB1dCBpcyB2c3luYydlZCBp
+ZiBhdCBsZWFzdCBvbmUgcGxhbmUncyBvdXRwdXQgaXMKKwkgKiBzeW5jJ2VkIHRvIHRoZSBo
+b3N0IHJlZnJlc2guCisJICovCisJcmV0dXJuIHZnY3J0Y19zdGF0ZS0+cGxhbmVfc3luY2Vk
+X3RvX2hvc3QgJiBjcnRjX3N0YXRlLT5wbGFuZV9tYXNrOworfQorCitzdGF0aWMgdm9pZCB2
+aXJ0aW9fZ3B1X2NydGNfcmVzZXQoc3RydWN0IGRybV9jcnRjICpjcnRjKQoreworCXN0cnVj
+dCB2aXJ0aW9fZ3B1X2NydGNfc3RhdGUgKnZnY3J0Y19zdGF0ZTsKKworCWlmIChjcnRjLT5z
+dGF0ZSkKKwkJdmlydGlvX2dwdV9jcnRjX3N0YXRlX2Rlc3Ryb3kodG9fdmlydGlvX2dwdV9j
+cnRjX3N0YXRlKGNydGMtPnN0YXRlKSk7CisKKwl2Z2NydGNfc3RhdGUgPSBremFsbG9jKHNp
+emVvZigqdmdjcnRjX3N0YXRlKSwgR0ZQX0tFUk5FTCk7CisJaWYgKHZnY3J0Y19zdGF0ZSkg
+eworCQlfX2RybV9hdG9taWNfaGVscGVyX2NydGNfcmVzZXQoY3J0YywgJnZnY3J0Y19zdGF0
+ZS0+YmFzZSk7CisJfSBlbHNlIHsKKwkJX19kcm1fYXRvbWljX2hlbHBlcl9jcnRjX3Jlc2V0
+KGNydGMsIE5VTEwpOworCX0KK30KKworc3RhdGljIHN0cnVjdCBkcm1fY3J0Y19zdGF0ZSAq
+dmlydGlvX2dwdV9jcnRjX2F0b21pY19kdXBsaWNhdGVfc3RhdGUoc3RydWN0IGRybV9jcnRj
+ICpjcnRjKQoreworCXN0cnVjdCBkcm1fZGV2aWNlICpkZXYgPSBjcnRjLT5kZXY7CisJc3Ry
+dWN0IGRybV9jcnRjX3N0YXRlICpjcnRjX3N0YXRlID0gY3J0Yy0+c3RhdGU7CisJc3RydWN0
+IHZpcnRpb19ncHVfY3J0Y19zdGF0ZSAqbmV3X3ZnY3J0Y19zdGF0ZTsKKwlzdHJ1Y3Qgdmly
+dGlvX2dwdV9jcnRjX3N0YXRlICp2Z2NydGNfc3RhdGU7CisKKwlpZiAoZHJtX1dBUk5fT04o
+ZGV2LCAhY3J0Y19zdGF0ZSkpCisJCXJldHVybiBOVUxMOworCisJbmV3X3ZnY3J0Y19zdGF0
+ZSA9IGt6YWxsb2Moc2l6ZW9mKCpuZXdfdmdjcnRjX3N0YXRlKSwgR0ZQX0tFUk5FTCk7CisJ
+aWYgKCFuZXdfdmdjcnRjX3N0YXRlKQorCQlyZXR1cm4gTlVMTDsKKworCXZnY3J0Y19zdGF0
+ZSA9IHRvX3ZpcnRpb19ncHVfY3J0Y19zdGF0ZShjcnRjX3N0YXRlKTsKKworCV9fZHJtX2F0
+b21pY19oZWxwZXJfY3J0Y19kdXBsaWNhdGVfc3RhdGUoY3J0YywgJm5ld192Z2NydGNfc3Rh
+dGUtPmJhc2UpOworCisJcmV0dXJuICZuZXdfdmdjcnRjX3N0YXRlLT5iYXNlOworfQorCitz
+dGF0aWMgdm9pZCB2aXJ0aW9fZ3B1X2NydGNfYXRvbWljX2Rlc3Ryb3lfc3RhdGUoc3RydWN0
+IGRybV9jcnRjICpjcnRjLAorCQkJCQkJIHN0cnVjdCBkcm1fY3J0Y19zdGF0ZSAqY3J0Y19z
+dGF0ZSkKK3sKKwl2aXJ0aW9fZ3B1X2NydGNfc3RhdGVfZGVzdHJveSh0b192aXJ0aW9fZ3B1
+X2NydGNfc3RhdGUoY3J0Y19zdGF0ZSkpOworfQorCiBzdGF0aWMgY29uc3Qgc3RydWN0IGRy
+bV9jcnRjX2Z1bmNzIHZpcnRpb19ncHVfY3J0Y19mdW5jcyA9IHsKIAkuc2V0X2NvbmZpZyAg
+ICAgICAgICAgICA9IGRybV9hdG9taWNfaGVscGVyX3NldF9jb25maWcsCiAJLmRlc3Ryb3kg
+ICAgICAgICAgICAgICAgPSBkcm1fY3J0Y19jbGVhbnVwLAogCiAJLnBhZ2VfZmxpcCAgICAg
+ICAgICAgICAgPSBkcm1fYXRvbWljX2hlbHBlcl9wYWdlX2ZsaXAsCi0JLnJlc2V0ICAgICAg
+ICAgICAgICAgICAgPSBkcm1fYXRvbWljX2hlbHBlcl9jcnRjX3Jlc2V0LAotCS5hdG9taWNf
+ZHVwbGljYXRlX3N0YXRlID0gZHJtX2F0b21pY19oZWxwZXJfY3J0Y19kdXBsaWNhdGVfc3Rh
+dGUsCi0JLmF0b21pY19kZXN0cm95X3N0YXRlICAgPSBkcm1fYXRvbWljX2hlbHBlcl9jcnRj
+X2Rlc3Ryb3lfc3RhdGUsCisJLnJlc2V0ICAgICAgICAgICAgICAgICAgPSB2aXJ0aW9fZ3B1
+X2NydGNfcmVzZXQsCisJLmF0b21pY19kdXBsaWNhdGVfc3RhdGUgPSB2aXJ0aW9fZ3B1X2Ny
+dGNfYXRvbWljX2R1cGxpY2F0ZV9zdGF0ZSwKKwkuYXRvbWljX2Rlc3Ryb3lfc3RhdGUgICA9
+IHZpcnRpb19ncHVfY3J0Y19hdG9taWNfZGVzdHJveV9zdGF0ZSwKIAlEUk1fQ1JUQ19WQkxB
+TktfVElNRVJfRlVOQ1MsCiB9OwogCkBAIC0xMDIsNyArMTYyLDEwIEBAIHN0YXRpYyB2b2lk
+IHZpcnRpb19ncHVfY3J0Y19tb2RlX3NldF9ub2ZiKHN0cnVjdCBkcm1fY3J0YyAqY3J0YykK
+IHN0YXRpYyB2b2lkIHZpcnRpb19ncHVfY3J0Y19hdG9taWNfZW5hYmxlKHN0cnVjdCBkcm1f
+Y3J0YyAqY3J0YywKIAkJCQkJICBzdHJ1Y3QgZHJtX2F0b21pY19zdGF0ZSAqc3RhdGUpCiB7
+Ci0JZHJtX2NydGNfdmJsYW5rX29uKGNydGMpOworCXN0cnVjdCB2aXJ0aW9fZ3B1X2NydGNf
+c3RhdGUgKnZnY3J0Y19zdGF0ZSA9IHRvX3ZpcnRpb19ncHVfY3J0Y19zdGF0ZShjcnRjLT5z
+dGF0ZSk7CisKKwlpZiAoIXZpcnRpb19ncHVfY3J0Y19zdGF0ZV9zZW5kX2V2ZW50X29uX2Zs
+dXNoKHZnY3J0Y19zdGF0ZSkpCisJCWRybV9jcnRjX3ZibGFua19vbihjcnRjKTsKIH0KIAog
+c3RhdGljIHZvaWQgdmlydGlvX2dwdV9jcnRjX2F0b21pY19kaXNhYmxlKHN0cnVjdCBkcm1f
+Y3J0YyAqY3J0YywKQEAgLTEyMSw2ICsxODQsMTkgQEAgc3RhdGljIHZvaWQgdmlydGlvX2dw
+dV9jcnRjX2F0b21pY19kaXNhYmxlKHN0cnVjdCBkcm1fY3J0YyAqY3J0YywKIHN0YXRpYyBp
+bnQgdmlydGlvX2dwdV9jcnRjX2F0b21pY19jaGVjayhzdHJ1Y3QgZHJtX2NydGMgKmNydGMs
+CiAJCQkJCXN0cnVjdCBkcm1fYXRvbWljX3N0YXRlICpzdGF0ZSkKIHsKKwlzdHJ1Y3QgZHJt
+X2NydGNfc3RhdGUgKm5ld19jcnRjX3N0YXRlID0gZHJtX2F0b21pY19nZXRfbmV3X2NydGNf
+c3RhdGUoc3RhdGUsIGNydGMpOworCXN0cnVjdCB2aXJ0aW9fZ3B1X2NydGNfc3RhdGUgKm5l
+d192Z2NydGNfc3RhdGUgPSB0b192aXJ0aW9fZ3B1X2NydGNfc3RhdGUobmV3X2NydGNfc3Rh
+dGUpOworCXN0cnVjdCBkcm1fY3J0Y19zdGF0ZSAqb2xkX2NydGNfc3RhdGUgPSBkcm1fYXRv
+bWljX2dldF9vbGRfY3J0Y19zdGF0ZShzdGF0ZSwgY3J0Yyk7CisJc3RydWN0IHZpcnRpb19n
+cHVfY3J0Y19zdGF0ZSAqb2xkX3ZnY3J0Y19zdGF0ZSA9IHRvX3ZpcnRpb19ncHVfY3J0Y19z
+dGF0ZShvbGRfY3J0Y19zdGF0ZSk7CisKKwkvKgorCSAqIEhhbmRsaW5nIG9mIHZibGFuayBl
+dmVudHMgY2hhbmdlcyBhY3Jvc3MgdXBkYXRlcy4gRG8gYSBmdWxsIG1vZGVzZXQKKwkgKiB0
+byBlbmFibGUvZGlzYWJsZSB0aGUgdmJsYW5rIHRpbWVyLgorCSAqLworCWlmICh2aXJ0aW9f
+Z3B1X2NydGNfc3RhdGVfc2VuZF9ldmVudF9vbl9mbHVzaChuZXdfdmdjcnRjX3N0YXRlKSAh
+PQorCSAgICB2aXJ0aW9fZ3B1X2NydGNfc3RhdGVfc2VuZF9ldmVudF9vbl9mbHVzaChvbGRf
+dmdjcnRjX3N0YXRlKSkKKwkJbmV3X2NydGNfc3RhdGUtPm1vZGVfY2hhbmdlZCA9IHRydWU7
+CisKIAlyZXR1cm4gMDsKIH0KIApAQCAtMTI5LDcgKzIwNSw5IEBAIHN0YXRpYyB2b2lkIHZp
+cnRpb19ncHVfY3J0Y19hdG9taWNfZmx1c2goc3RydWN0IGRybV9jcnRjICpjcnRjLAogewog
+CXN0cnVjdCBkcm1fZGV2aWNlICpkZXYgPSBjcnRjLT5kZXY7CiAJc3RydWN0IGRybV9jcnRj
+X3N0YXRlICpjcnRjX3N0YXRlID0gZHJtX2F0b21pY19nZXRfbmV3X2NydGNfc3RhdGUoc3Rh
+dGUsIGNydGMpOworCXN0cnVjdCB2aXJ0aW9fZ3B1X2NydGNfc3RhdGUgKnZnY3J0Y19zdGF0
+ZSA9IHRvX3ZpcnRpb19ncHVfY3J0Y19zdGF0ZShjcnRjX3N0YXRlKTsKIAlzdHJ1Y3Qgdmly
+dGlvX2dwdV9vdXRwdXQgKm91dHB1dCA9IGRybV9jcnRjX3RvX3ZpcnRpb19ncHVfb3V0cHV0
+KGNydGMpOworCWJvb2wgc2VuZF9ldmVudF9vbl9mbHVzaCA9IHZpcnRpb19ncHVfY3J0Y19z
+dGF0ZV9zZW5kX2V2ZW50X29uX2ZsdXNoKHZnY3J0Y19zdGF0ZSk7CiAJc3RydWN0IGRybV9w
+ZW5kaW5nX3ZibGFua19ldmVudCAqZXZlbnQ7CiAKIAkvKgpAQCAtMTQ3LDcgKzIyNSw3IEBA
+IHN0YXRpYyB2b2lkIHZpcnRpb19ncHVfY3J0Y19hdG9taWNfZmx1c2goc3RydWN0IGRybV9j
+cnRjICpjcnRjLAogCWNydGNfc3RhdGUtPmV2ZW50ID0gTlVMTDsKIAogCWlmIChldmVudCkg
+ewotCQlpZiAoZHJtX2NydGNfdmJsYW5rX2dldChjcnRjKSA9PSAwKQorCQlpZiAoIXNlbmRf
+ZXZlbnRfb25fZmx1c2ggJiYgZHJtX2NydGNfdmJsYW5rX2dldChjcnRjKSA9PSAwKQogCQkJ
+ZHJtX2NydGNfYXJtX3ZibGFua19ldmVudChjcnRjLCBldmVudCk7CiAJCWVsc2UKIAkJCWRy
+bV9jcnRjX3NlbmRfdmJsYW5rX2V2ZW50KGNydGMsIGV2ZW50KTsKZGlmZiAtLWdpdCBhL2Ry
+aXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kcnYuaCBiL2RyaXZlcnMvZ3B1L2RybS92
+aXJ0aW8vdmlydGdwdV9kcnYuaAppbmRleCBmMTc2NjBhNzFhM2UuLmJhMWMxNTBiNmExMSAx
+MDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rydi5oCisrKyBi
+L2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kcnYuaApAQCAtMTk1LDYgKzE5NSwy
+MCBAQCBzdHJ1Y3QgdmlydGlvX2dwdV9mcmFtZWJ1ZmZlciB7CiAjZGVmaW5lIHRvX3ZpcnRp
+b19ncHVfZnJhbWVidWZmZXIoeCkgXAogCWNvbnRhaW5lcl9vZih4LCBzdHJ1Y3QgdmlydGlv
+X2dwdV9mcmFtZWJ1ZmZlciwgYmFzZSkKIAorc3RydWN0IHZpcnRpb19ncHVfY3J0Y19zdGF0
+ZSB7CisJc3RydWN0IGRybV9jcnRjX3N0YXRlIGJhc2U7CisKKwkvKgorCSAqIFNldCBmcm9t
+IGVhY2ggcGxhbmUncyBhdG9taWMgY2hlY2sgYW5kIGRlcGVuZHMgb24gdGhlIHBsYW5lJ3Mg
+YnVmZmVyCisJICogb2JqZWN0cy4gQnVmZmVycyB3aXRoIGhvc3QgcmVzb3VyY2VzIGFyZSB2
+c3luYydkIGFscmVhZHkuIFVzZWQgYnkgdGhlCisJICogQ1JUQyBmb3IgdmJsYW5rIGhhbmRs
+aW5nLiBPbmx5IHZhbGlkIGR1cmluZyBtb2RlIHNldHRpbmcuCisJICovCisJdTMyIHBsYW5l
+X3N5bmNlZF90b19ob3N0OworfTsKKworI2RlZmluZSB0b192aXJ0aW9fZ3B1X2NydGNfc3Rh
+dGUoeCkgXAorCWNvbnRhaW5lcl9vZih4LCBzdHJ1Y3QgdmlydGlvX2dwdV9jcnRjX3N0YXRl
+LCBiYXNlKQorCiBzdHJ1Y3QgdmlydGlvX2dwdV9wbGFuZV9zdGF0ZSB7CiAJc3RydWN0IGRy
+bV9wbGFuZV9zdGF0ZSBiYXNlOwogCXN0cnVjdCB2aXJ0aW9fZ3B1X2ZlbmNlICpmZW5jZTsK
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wbGFuZS5jIGIv
+ZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMKaW5kZXggMjllNGI0NThh
+ZTU3Li4zMWY2NTQ4ZWYwZmUgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8v
+dmlydGdwdV9wbGFuZS5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9w
+bGFuZS5jCkBAIC0xMDQsNyArMTA0LDggQEAgc3RhdGljIGludCB2aXJ0aW9fZ3B1X3BsYW5l
+X2F0b21pY19jaGVjayhzdHJ1Y3QgZHJtX3BsYW5lICpwbGFuZSwKIAkJCQkJCQkJCQkgcGxh
+bmUpOwogCWJvb2wgaXNfY3Vyc29yID0gcGxhbmUtPnR5cGUgPT0gRFJNX1BMQU5FX1RZUEVf
+Q1VSU09SOwogCXN0cnVjdCBkcm1fY3J0Y19zdGF0ZSAqY3J0Y19zdGF0ZTsKLQlpbnQgcmV0
+OworCXN0cnVjdCB2aXJ0aW9fZ3B1X2NydGNfc3RhdGUgKnZnY3J0Y19zdGF0ZTsKKwlpbnQg
+cmV0LCBpOwogCiAJaWYgKCFuZXdfcGxhbmVfc3RhdGUtPmZiIHx8IFdBUk5fT04oIW5ld19w
+bGFuZV9zdGF0ZS0+Y3J0YykpCiAJCXJldHVybiAwOwpAQCAtMTI2LDcgKzEyNywyNCBAQCBz
+dGF0aWMgaW50IHZpcnRpb19ncHVfcGxhbmVfYXRvbWljX2NoZWNrKHN0cnVjdCBkcm1fcGxh
+bmUgKnBsYW5lLAogCQkJCQkJICBEUk1fUExBTkVfTk9fU0NBTElORywKIAkJCQkJCSAgRFJN
+X1BMQU5FX05PX1NDQUxJTkcsCiAJCQkJCQkgIGlzX2N1cnNvciwgdHJ1ZSk7Ci0JcmV0dXJu
+IHJldDsKKwlpZiAocmV0KQorCQlyZXR1cm4gcmV0OworCWVsc2UgaWYgKG5ld19wbGFuZV9z
+dGF0ZS0+dmlzaWJsZSkKKwkJcmV0dXJuIDA7CisKKwl2Z2NydGNfc3RhdGUgPSB0b192aXJ0
+aW9fZ3B1X2NydGNfc3RhdGUoY3J0Y19zdGF0ZSk7CisJdmdjcnRjX3N0YXRlLT5wbGFuZV9z
+eW5jZWRfdG9faG9zdCAmPSB+ZHJtX3BsYW5lX21hc2socGxhbmUpOworCisJZm9yIChpID0g
+MDsgaSA8IG5ld19wbGFuZV9zdGF0ZS0+ZmItPmZvcm1hdC0+bnVtX3BsYW5lczsgKytpKSB7
+CisJCXN0cnVjdCB2aXJ0aW9fZ3B1X29iamVjdCAqYm8gPSBnZW1fdG9fdmlydGlvX2dwdV9v
+YmoobmV3X3BsYW5lX3N0YXRlLT5mYi0+b2JqW2ldKTsKKworCQlpZiAoYm8tPmhvc3QzZF9i
+bG9iIHx8IGJvLT5ndWVzdF9ibG9iKSB7CisJCQl2Z2NydGNfc3RhdGUtPnBsYW5lX3N5bmNl
+ZF90b19ob3N0IHw9IGRybV9wbGFuZV9tYXNrKHBsYW5lKTsKKwkJCWJyZWFrOyAvKiBvbmx5
+IG5lZWQgdG8gZmluZCBvbmUgKi8KKwkJfQorCX0KKworCXJldHVybiAwOwogfQogCiAvKiBG
+b3IgZHJtIHBhbmljICovCi0tIAoyLjUxLjAKCg==
+
+--------------lqR1kLKkoMG2JIq9MZ0qfWUG--
