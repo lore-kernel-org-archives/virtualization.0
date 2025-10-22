@@ -1,62 +1,62 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A343E25783F
-	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 15:57:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD91C291864
+	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 16:08:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761148665; cv=none; b=cP2Fjzc6se98EKZxIONoesngnB52f/Oe/xN0ChyOxBCHmD1DsDV9FIPyvQnrnKVH2k9waPDi59EDCQNvZxNPikMYBD8KEdlnnpKWbr42EKrbsL9R4k5nVO3fgCCWRUxnqvGjnY3qPGoYfJUqUgMgyAkyMbCrHm5aoc2xTDq2M8I=
+	t=1761149287; cv=none; b=p2y3QoMDB/fSbSaMqnnYklk7q0gb9mPmlMmSs1lYtootjXlHuoPo0NY/i//8ruNc0PNHGL4CY3wMN8wCFZsktLo7cMsJEREG5lgQePZbksxjgBu/2pFjIAoNLX6sr8vKufQW4yHLCDhrfMc5rZQKbeVoSiuiW6ifO0xVDRNI4gs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761148665; c=relaxed/simple;
-	bh=dbCAjiJaJQiN/J2VVY9g9g6U74sYQAol3HyEtlrFnUU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SGZ3kaRdIX/qmRzRPkiub78IOCPBSQqi1Fmv9MG2MxMrRFcLdHwBRbHMBq8LyaHK28mjFR4tdOwkLURaxY23SS9JSPZ9Fxj/lSHhJrB06gmq7vuTvCFUi9BQSxysBLtNdG9bACMminA/b5Lcvfjc5nOR+3TWytvjnGPjwQRpcDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VZOSmz2W; arc=none smtp.client-ip=209.85.214.175
+	s=arc-20240116; t=1761149287; c=relaxed/simple;
+	bh=auzHCSUbL/L9ko4QwDjdjbZQ98SIJfRrjs+q/xktilk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WGzyot5pLhruFPxXRxTxJxyrCvubLxtioLyQHzBlxS3nq3+X8vMjrX5WzQDWDFeTrGi6Ta+SlpZWzhgvrE1ZK7G9Rdh+Ism0QAgA+uSupHOt5L2W/281YhPf112VG7/QFzJJqCFf7xhzI0R6KRJp+WzGQ3euctxQR6F37/cGAcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gry/AqZM; arc=none smtp.client-ip=209.85.216.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VZOSmz2W"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-292fd52d527so16155385ad.2
-        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 08:57:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gry/AqZM"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-33b5a3e8ae2so1111743a91.1
+        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 09:08:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761148662; x=1761753462; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1761149285; x=1761754085; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=naY20CMWDzYHs1ZYgUoMtzuy7r6fuKt6p40K/aayGos=;
-        b=VZOSmz2WWCH9pzb384yjNEyZFBWHKvIBRMg2nt+kMzTh6syCRzlr7kkZ2lifhjFUv/
-         Gn+7pheXIEhCmU8UHzeieogOBnIkWuUcvEmr4zLHH3C22YfWCs+qwA0tfiT4DLxg1NAu
-         iXT3lBN4lXJUWwW/F7J9t2CjzVR2KxQn6vhQo7MTtPq5XTebWGAQS6TaTSDOVvJmRJZH
-         U1mgTT4OIz1Tsu9nBZ8J28cC49Jt9jwCKso4F/aW3Sc0AJ0lKGl6XXGuKbhwkfejP29F
-         FmmCOBMj2J3aOWG5Jnz+k8QRYwfuTIgSs9HK92hSNNeVgZh3N9H7/DFWZVsUoFh/y2Dv
-         X+sA==
+        bh=n9ABbt3qgyLh4i74MVszWBEA6Z+Ea2lJZRM4Xy5gRb4=;
+        b=gry/AqZMsxrYJ7srJC/VeoYruIPWGtYjfk2y/RKT3kGh9/JB1DZTJua+99P7IFMDUe
+         gh5hYVk9I1+va0A09JOU5nNtoETHZ+/9OEanlUiyo+rSJnyReSZSYEGgpWrZK2jpuT5W
+         7F22XFFBzKdN01LuG3BJIz4tQyRNt0WnNcqfP9opDFNH9mU/lWqU/pNOldDRRwx8OSZv
+         ZG368b+FivYp6QtBQaEKtWwMOZAZn0orFwHVZO9bBeIjGVAD9AxlCtwcOn2UJOIp77pX
+         jaByxzxKZUEZeRDavBZ630pSI00rdwlmJO7Hrxm7mJKm3IkvcSu9so4fMPnDkGbxAiPF
+         nO6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761148662; x=1761753462;
+        d=1e100.net; s=20230601; t=1761149285; x=1761754085;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=naY20CMWDzYHs1ZYgUoMtzuy7r6fuKt6p40K/aayGos=;
-        b=DNKN6PMcrCwLjRs4NEms7ylPjr7xQ/9pRQBS+xCyEWRZ8ijXAdwE/1LulUPi0cgNsH
-         97KbcaaiEkVbDAMptk1I3a5q3NMrsLlWQjZYcMbBZ+95GO0jprw6hZvGZq+e8rnZOfGk
-         LJ9R7qxUPSiuOgCvNDYLAN5ESaQs8DA0Sf5BByqVfMyPqM7IYYpHM06Oqv0D7liQ1PdA
-         7Xi7sSG6T6H2/1s2WJJXDis4hC5QrqRE17rtua44/Ky73OIhfT2bosARWMK+jKZIype0
-         gV3lc6FHZIEUfXvuEsP98OAyCSJcd4pzMTrXQK7pJmDMfb9AwMYW7aC58IL/5JzhCIa+
-         lakQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWTmy6Quilry7qPkTQ6PdQMSEaHBSe8hVgh+BmerUrqnK8jWlyFO9ILQ4ahnaO/yWayCmPk88JvnpxkQfMqHQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzVIa5N9vQlnn+mSHsLxXW8LoT4p2zDbLq0YxwqCXR3mftculs9
-	k3nj+jF+tL5Gm/n3EsVGW2vF1vm+vDCh4T50t9mW/5jYObG7bSCDSfaG
-X-Gm-Gg: ASbGnctLnHLA7WN5BbK/rUQ8VupQ5Ej2xjGq5dFSa396s3JWdoRJ5w2zkbQCy7PcQ4k
-	pucNSKsjchu/NWFudsA1n1PGNXkjSZ9l3sbr29Tb3oMHiyQiZSt8NLqmaBpg1J/GE8izwOgPKDG
-	tYdsACaigS8V7xRXBkpGENdNWTk2XD8LHeoc9gGAVtDriYV37HG3ekedx1gaYWHyCZIXi25ybfg
-	SBKH2I+CwNE6PJTJM+07fan8AYbXOGS5kluYDJsNLxZJluBV7A1rzpUcgFLJJeuAJy0izjryaHb
-	vJ9T7+v4/xjBN3ySL8Y0fwwfsrmK4FguIEA9QHh89+j/JfXOYT8Ifr/H6xkYncpS5F1S7Nrxx1q
-	/J5xfet7ea0dbDMTlNcClowv7OvDiBfu9717IqrDuwjrGEfuqm0hOHchGeQDww4rb2PF76AHkmo
-	0hyXLumXKogQ==
-X-Google-Smtp-Source: AGHT+IGff1qulcywTryt+y1hQgxYYHQojnwIuJuCP1ttfYIhTSd/04VrdxcFUc0K86XacXDYxdgD8Q==
-X-Received: by 2002:a17:902:e88e:b0:24b:25f:5f81 with SMTP id d9443c01a7336-290c9ca72bcmr272142045ad.17.1761148661728;
-        Wed, 22 Oct 2025 08:57:41 -0700 (PDT)
+        bh=n9ABbt3qgyLh4i74MVszWBEA6Z+Ea2lJZRM4Xy5gRb4=;
+        b=bZkE3h/Pq8OA1s4jTCtneic7FloIbaJv5dZnwJHcoevnxiAe1E8kxLGTxrbftQdQXc
+         Ojv0DE/wEpwwdFt3sX3aMRsPeFNDQUgMo1sSLAaNdWY/oxzNTl9z910nKU/GCSo7yJ9Q
+         Bxv4xPYZT9LfWJGKXgdL7zq9AOxVzSE50G9vJBLjL5OF9iY3FLMPuf4Jo74hdKwgD6Tk
+         0q0fnzgxSakkBm9U658fG2vzON2qUw+cVZudvKyAOpBL2WJVyL7cJAF4jWRZuMJjhpG3
+         wZLTCAFokRI8Yq8u+WxJ7H/0EZOh5YBbllljO6zkDfMnd4+0lq1AOKlpUg7Gn5Hm8HMV
+         J7kQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVpffNAanYEBLSkWECdKFl9c4+83bhDH0M9exoW1WKQqag5PjnRrIT7d2YVPNscmdyl3jgAONWsGYpFnFqCfg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyWg7vRE+ASZ7dEQ8skblS7E/HklB6OyBkllXrYyYDNOMI/HFbJ
+	fw16b3jGINWTyHK67tZ8QevWjlwLzXX3Tkj/LBTzBM04AfWeLsPSRVCn
+X-Gm-Gg: ASbGncu+78no25MkOzLRYag5eKfSOUmjlTaVfYQyAlPOvqfDdqI063xBG/2iVaqB6kB
+	i9DFLLymmHGMiiG/SZRPcKGC6dcUC4wtoBZD/oaob+HYlPMl1GcDT+zMUcxflLtqIF/KOrIu+X1
+	vw+AZzValDXlLv+r4e06KsYpycWfpJFD1NBPNp8TWpsKt5B2bn9MVTJRGTXp3YNRVqU3XDw4Wds
+	SQRJ/W+boolFht3oP2N6h5QVh6FLXiyF3De8zmiRaehOv5Orb3LSsdf2BazgMnv15SsUltWzV06
+	sP1tjsdWlbBM3x98VvsvPMz9iNenck70PR2O0//7cuAszA0wtomnx4WCeQ3hhmThRjbNiMNGvMW
+	Sy1V/6Xk+f3siE7hMgQ077dqfBVVnwhxQtKr5Bsf7vrdd5pUHigxmANNLQ5n+giZRv8nnS9Qi7R
+	TZ0WJkIdmqDiwWEDIFfycQ
+X-Google-Smtp-Source: AGHT+IFKQtMp6Ai1uuAm7SgpDta9tGj5AFau6iGF+3bo3T12AjcV7wXz2cyGdxVGwafExfKv/O8axA==
+X-Received: by 2002:a17:90b:3c09:b0:32b:d8a9:8725 with SMTP id 98e67ed59e1d1-33e91ba3198mr2672703a91.18.1761149284702;
+        Wed, 22 Oct 2025 09:08:04 -0700 (PDT)
 Received: from minh.192.168.1.1 ([2001:ee0:4f4c:210:1e3:b1:dcbf:ab83])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-2930975631dsm21990425ad.20.2025.10.22.08.57.34
+        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-33e2090eff6sm1771750a91.2.2025.10.22.09.07.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Oct 2025 08:57:41 -0700 (PDT)
+        Wed, 22 Oct 2025 09:08:04 -0700 (PDT)
 From: Bui Quang Minh <minhquangbui99@gmail.com>
 To: netdev@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -68,19 +68,16 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
+	Gavin Li <gavinl@nvidia.com>,
+	Gavi Teitz <gavi@nvidia.com>,
+	Parav Pandit <parav@nvidia.com>,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org,
 	Bui Quang Minh <minhquangbui99@gmail.com>,
 	stable@vger.kernel.org
-Subject: [PATCH net v2] virtio-net: drop the multi-buffer XDP packet in zerocopy
-Date: Wed, 22 Oct 2025 22:56:30 +0700
-Message-ID: <20251022155630.49272-1-minhquangbui99@gmail.com>
+Subject: [PATCH net v4] virtio-net: fix received length check in big packets
+Date: Wed, 22 Oct 2025 23:06:23 +0700
+Message-ID: <20251022160623.51191-1-minhquangbui99@gmail.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -90,51 +87,75 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In virtio-net, we have not yet supported multi-buffer XDP packet in
-zerocopy mode when there is a binding XDP program. However, in that
-case, when receiving multi-buffer XDP packet, we skip the XDP program
-and return XDP_PASS. As a result, the packet is passed to normal network
-stack which is an incorrect behavior (e.g. a XDP program for packet
-count is installed, multi-buffer XDP packet arrives and does go through
-XDP program. As a result, the packet count does not increase but the
-packet is still received from network stack).This commit instead returns
-XDP_ABORTED in that case.
+Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
+for big packets"), when guest gso is off, the allocated size for big
+packets is not MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on
+negotiated MTU. The number of allocated frags for big packets is stored
+in vi->big_packets_num_skbfrags.
 
-Fixes: 99c861b44eb1 ("virtio_net: xsk: rx: support recv merge mode")
+Because the host announced buffer length can be malicious (e.g. the host
+vhost_net driver's get_rx_bufs is modified to announce incorrect
+length), we need a check in virtio_net receive path. Currently, the
+check is not adapted to the new change which can lead to NULL page
+pointer dereference in the below while loop when receiving length that
+is larger than the allocated one.
+
+This commit fixes the received length check corresponding to the new
+change.
+
+Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
 Cc: stable@vger.kernel.org
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 ---
+Changes in v4:
+- Remove unrelated changes, add more comments
+Changes in v3:
+- Convert BUG_ON to WARN_ON_ONCE
 Changes in v2:
-- Return XDP_ABORTED instead of XDP_DROP, make clearer explanation in
-commit message
+- Remove incorrect give_pages call
 ---
- drivers/net/virtio_net.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/net/virtio_net.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a757cbcab87f..8e8a179aaa49 100644
+index a757cbcab87f..0ffe78b3fd8d 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -1379,9 +1379,14 @@ static struct sk_buff *virtnet_receive_xsk_merge(struct net_device *dev, struct
- 	ret = XDP_PASS;
- 	rcu_read_lock();
- 	prog = rcu_dereference(rq->xdp_prog);
--	/* TODO: support multi buffer. */
--	if (prog && num_buf == 1)
--		ret = virtnet_xdp_handler(prog, xdp, dev, xdp_xmit, stats);
-+	if (prog) {
-+		/* TODO: support multi buffer. */
-+		if (num_buf == 1)
-+			ret = virtnet_xdp_handler(prog, xdp, dev, xdp_xmit,
-+						  stats);
-+		else
-+			ret = XDP_ABORTED;
-+	}
- 	rcu_read_unlock();
- 
- 	switch (ret) {
+@@ -852,7 +852,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ {
+ 	struct sk_buff *skb;
+ 	struct virtio_net_common_hdr *hdr;
+-	unsigned int copy, hdr_len, hdr_padded_len;
++	unsigned int copy, hdr_len, hdr_padded_len, max_remaining_len;
+ 	struct page *page_to_free = NULL;
+ 	int tailroom, shinfo_size;
+ 	char *p, *hdr_p, *buf;
+@@ -915,13 +915,23 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ 	 * This is here to handle cases when the device erroneously
+ 	 * tries to receive more than is possible. This is usually
+ 	 * the case of a broken device.
++	 *
++	 * The number of allocated pages for big packet is
++	 * vi->big_packets_num_skbfrags + 1, the start of first page is
++	 * for virtio header, the remaining is for data. We need to ensure
++	 * the remaining len does not go out of the allocated pages.
++	 * Please refer to add_recvbuf_big for more details on big packet
++	 * buffer allocation.
+ 	 */
+-	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
++	BUG_ON(offset >= PAGE_SIZE);
++	max_remaining_len = (unsigned int)PAGE_SIZE - offset;
++	max_remaining_len += vi->big_packets_num_skbfrags * PAGE_SIZE;
++	if (unlikely(len > max_remaining_len)) {
+ 		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
+ 		dev_kfree_skb(skb);
+ 		return NULL;
+ 	}
+-	BUG_ON(offset >= PAGE_SIZE);
++
+ 	while (len) {
+ 		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
+ 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset,
 -- 
 2.43.0
 
