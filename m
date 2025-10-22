@@ -1,157 +1,145 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CE1931282A
-	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 09:46:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3914FD2FB
+	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 10:07:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761126412; cv=none; b=YRoSRQfofIbPkNEHzXLELsfLs6+Fo/oRYdLo6JB0XJrpDpdPzpkuroq7CkYY4oE14dtzrX2S+pvpM34zjjw3gOg2BfPHt5fjnwum+N4KgCGDzEyXRJxKa0soep9cm9TGVsvBfmSk22p5Al9SSYuC8rdNzNhdoGxI2ELaHqsK48M=
+	t=1761127624; cv=none; b=g1NhiOSZaVrViN6omTGczBznevvpfiCy9Qs+k6Qmvz35NFYJs0Bc1gXNMEFUNHO8h4GG87Li61sHUg37wD7HizW6UZrIjGMg6lSldw7RIs++PWbnkrKdtk9ktpIWTwed5sr8/xRXO3/tFhBVyOQwG679DGqdW9Qi5LBIh0hkhXc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761126412; c=relaxed/simple;
-	bh=88E2EGzq2n20YrkFy9dxISpv1QvuEY8V4SnO7qKbctg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U04qKX7AJqagfekr34sz4CV5sv+Uf3BQ+MtpHMIqfIwC+9GUFPY2ISL41dF5LXNw+erc18+LCNzoji5NauS2OlCtqtAv+g3m2CnU7K82hQi3mkrT0TzKTrYv5/SdqtQDsw1yPns9kj6K/BDlXg8hOmB24lNhP2oivEtxPHRtYY8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bVGtk68J; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1761127624; c=relaxed/simple;
+	bh=KXby+KBos3mBCHbCtKceC1SeknYNBjI8ybIfHn2TN5E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=fE+XEBuszR+pBnYJa/i3y6l47qcIRBT2N45yVfTxVddONis1PzK3wtCRIramgpm8M4Y2ADyxsm/C0rUyxMeCDa0GUZMr/2eh36k6xzhXMt3fzxvfchK1KloF+j0Onsax/eHvlllzEGjf5tsfc8IiBn1p1/cIP7NXyeQyBBOt5R4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Op9QeDMa; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bVGtk68J"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Op9QeDMa"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761126408;
+	s=mimecast20190719; t=1761127622;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ipyfXFOy/lX9dgJ8MKg8vYqWY4/Yh7BKK6Ctsb29TBQ=;
-	b=bVGtk68JDHU2xmA/Yj5vZGm3Hlud/qd3E/t2+Glm4BxWznolLMD17PIsv0yUJ1N6Yysqsn
-	P3qeGVRKAiJ1G+LaACvcuNvhMH5Ui7+nh19Z8bmOanaj51J+OPHrtkAdejJBNBkjPRQNMe
-	aulXJ6AsV1FbDNr1WGJAmx4sVzYoHX8=
-Received: from mail-yx1-f70.google.com (mail-yx1-f70.google.com
- [74.125.224.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/e+F1wjH70YTwPDjaw/7Mb8vtwGL0zVerrZ8/E0h6d0=;
+	b=Op9QeDMaYLRZxt+/KQIkcl5c2YM7McJKGM+Aeoz1mMU8FLnPcSfemp3gj+4CF4n3jEm/Jm
+	OBFEO1lsmEtk4hXiwnFNnNswfbqSADJw300WfGHMrKbpMHva5kv8t1uZCOc6u2La2gITDx
+	AE6I1pdBvJnt1Oq/K7zKHeY+ThBdix8=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-664-NAUVDEiPOw2NUEwWP3WNNQ-1; Wed, 22 Oct 2025 05:46:47 -0400
-X-MC-Unique: NAUVDEiPOw2NUEwWP3WNNQ-1
-X-Mimecast-MFC-AGG-ID: NAUVDEiPOw2NUEwWP3WNNQ_1761126407
-Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-636d73ba36bso8511662d50.3
-        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 02:46:47 -0700 (PDT)
+ us-mta-645-KaiA8FUcOxqXHrFgc0JGJA-1; Wed, 22 Oct 2025 06:07:00 -0400
+X-MC-Unique: KaiA8FUcOxqXHrFgc0JGJA-1
+X-Mimecast-MFC-AGG-ID: KaiA8FUcOxqXHrFgc0JGJA_1761127619
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-b48635cf06fso683059166b.1
+        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 03:06:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761126407; x=1761731207;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ipyfXFOy/lX9dgJ8MKg8vYqWY4/Yh7BKK6Ctsb29TBQ=;
-        b=vjCkiowxP6aLE8z3iTdpKzTPXiO64SwhqvjON16tVBadGhhYqfGU5gv/6DX9fKrTpm
-         3SUgCMxDyFC2jWUMYrKKaUU4dEG9KWdGJix/iGfqEFk2/5z5zgvh0fQebZILTjLPosp2
-         4FQ6m1sBqnlCinyhRthgT+OxO7IPkA1Py7p2OeiSloK9MFLXGjveHhTD7rc6Q0uDCpVm
-         Od5yADqlmRaEuh9nOGmeYywcsqH2meQCzc9eezNkoDcSxbvv6tFMxxPJqTIoEGPGDIzk
-         ZuexpQgGeNKfZNAOHEOK9rKsLpS39eekDBPSx2uxEYC1VNWkWyRUdgDSvfxPjCJkwAud
-         NcMg==
-X-Forwarded-Encrypted: i=1; AJvYcCUtpfSjPs0tEWBM/Xw0IS30K/C+KzQwOA+sjNKJjyO8ME0yZxfiQtfqVsqimWAK1Rapt8iwqr+6IbD062zLFQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyfpRfG/i+yiswW2PnvEd6EXU9p/Af1aeJIYl3f1IHNQWxf4XV6
-	+eV2sNpN20YGhEYB4ieWoAWN+6ZBRxPfWcyQz7KJfsao/YRSC8cDyIqesFaNvbk0TtP/Qv3OKCP
-	T3oWiCYVcTIKymJ8K6zh7tI1YVJx38WjIJfVD6oiLH1flORgc45FAZ+BtH6lH8fBPDVADWpqe+W
-	INfBW7P77Tmo8bd7o4BUYJLWBhAOmjsjkh6cQFgkuZJA8=
-X-Gm-Gg: ASbGncvZr9Q4Y5Ni8cn2ZqpNEnPCw4+6PA1Bi9L9ZPPt4Izr35kMO/s7Wq8KZW38ykv
-	FJvq/WN/NvBJlCRdolRYhM/u34ClLhq71Aor1cxiJNEVvcI+6lmZRvg7neUkYurzdVk2Ahrb9KE
-	pWlaDmqouh1ygkNNZzeWR4lIFISeIbUAhF3EwKBoSzJ09ahDaBZXep2N0d9KbBZ6tz3NqTonVP9
-	P5m+TCQkQlJORcva290LbFUITeF0E0Cut3WCknF+EIf5Tf/M/LynZ65EOfeaF74gxdeNJEvji2K
-	Rk0=
-X-Received: by 2002:a53:b10a:0:b0:63f:2db0:997c with SMTP id 956f58d0204a3-63f2db09c49mr743765d50.68.1761126407110;
-        Wed, 22 Oct 2025 02:46:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHvur6oK5c8R3K/TCjDX5FSuFjRyp8F3CzZFjcaXGe/kEmJx7VQHl4dG08fr+fgIFPtV66OaqY0dHi5diadPNA=
-X-Received: by 2002:a53:b10a:0:b0:63f:2db0:997c with SMTP id
- 956f58d0204a3-63f2db09c49mr743754d50.68.1761126406818; Wed, 22 Oct 2025
- 02:46:46 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1761127619; x=1761732419;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=/e+F1wjH70YTwPDjaw/7Mb8vtwGL0zVerrZ8/E0h6d0=;
+        b=O372lsOKmejYh0Eu+UneTYChYTWUx1oc+SHx4QqK8JUt+GAMz+ndGZJkoaYuBm04Vq
+         qNIuAPr1NkJMConhMifeJtZAlH1Sp87eToxU/Q72EyGRlAt0vCVuUN/WnxRjlXv8/UXF
+         VBPTZ3tIB8oEIWus1K61izVeB7iQPsfacOh8ahLvibOkk0nwXamG3tSwMjNpUGB1WtxG
+         H5fzqPjCB5+Sl1M+e0YFh0HITzQVXFmyG8SHNVrfZVv1I4J04jE/Qhp99Oija3cM2zbP
+         nzAzoMxnH2LpHDA1bIoDpw33/kvcgSnWDM3pKpj72eHnDWhS7moH+cwM3H5wMUBdE3b3
+         3wcw==
+X-Forwarded-Encrypted: i=1; AJvYcCXy6XJ1vPVJsrInRMU/IUm1vv7kY7xupB1NExEw5dBPc6vQRpipveYcBxbJ86ZS+/fFnaoDb5OxTAWZcSP/UQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyy7EB3Z6lID1AdTAW9dvBVTXzN6JUBMwGrYBVPY9kVRBBilGck
+	lG9HO/seQS5dvhsvzEeDP55yRTXc8pu1xPgc8wQLpsj/sKc9DCEHDR1LFl9n+lV0rOC2cxSLJ16
+	jMuTKERM2NcgaPa1aw7ofL+mSyUVvT48wCLVYCXF9+LkZVhzwoMzXBl5b4wjZe11j2PlI
+X-Gm-Gg: ASbGncvBCNouuGJIrYKjGVWfv7QxrKNE7rnrrX2ZdhwblqMZWGJW2tJ0XlaQzbdVg4I
+	xro2PERwKKDaLWD9JDOAi+MjTgfkVzxlUr2Eh6AUeTBkb9Qz7aWp00LolXQI8KjPGnmIOPve6Tx
+	qDk6kpQHnWQL+sxmU5VIJ3AYAIiG1SmMUS1pd9uCk8jbjnR/hOsBmH6dsJJIl+JcsLZl9TAcL0L
+	Pq7vLrv0Q/VoHwzDsnvuD2iuQUMNqt9tRfO5ufu83fhQc/kCxOptCh2vEj++ful+5T6QEulN/qU
+	yM1YuBxtnCvKT4ku+5l9NS1HU6sP0XtSF3fqYTpoUnKuYNN84LMsQdfY+Y/zzjqW
+X-Received: by 2002:a17:907:980f:b0:b3c:3c8e:189d with SMTP id a640c23a62f3a-b6474b37113mr2591860866b.32.1761127618654;
+        Wed, 22 Oct 2025 03:06:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFdi4vCu0HcpcB9RZjtPHlWXKhaiLhZv2KMQBy/nOXAmeOE3Rh1TYravOf+t544Sn9yyv5kZQ==
+X-Received: by 2002:a17:907:980f:b0:b3c:3c8e:189d with SMTP id a640c23a62f3a-b6474b37113mr2591856866b.32.1761127618149;
+        Wed, 22 Oct 2025 03:06:58 -0700 (PDT)
+Received: from redhat.com ([31.187.78.209])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b65ebf434f0sm1301190766b.82.2025.10.22.03.06.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Oct 2025 03:06:57 -0700 (PDT)
+Date: Wed, 22 Oct 2025 06:06:54 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>,
+	Yongji Xie <xieyongji@bytedance.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Dragos Tatulea DE <dtatulea@nvidia.com>
+Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
+Message-ID: <20251022060506-mutt-send-email-mst@kernel.org>
+References: <20251015040722-mutt-send-email-mst@kernel.org>
+ <CAJaqyWcf3tz17q6G=123Xb+warf8Ckg=PLaPkzLU9hYHiUy9Zg@mail.gmail.com>
+ <CACGkMEuPPFLH1YqTx03fV9N=Rx3aYXK0HMUDpZu-CvO1NYRRQA@mail.gmail.com>
+ <20251016014328-mutt-send-email-mst@kernel.org>
+ <CACGkMEtXWLicmszjkzOhX8Ta=LdGgsDahRUKDEVzBVG8am5vgg@mail.gmail.com>
+ <20251016022131-mutt-send-email-mst@kernel.org>
+ <CAJaqyWe--Hho9EdweqkC-h9=t5vhY0cbAN9uAw=hATpkSMbsEg@mail.gmail.com>
+ <CAJaqyWdEY6KaVbBn5LJhkz7h6kytFg8-b8iXnc9N54L+q_Yrbw@mail.gmail.com>
+ <20251017023902-mutt-send-email-mst@kernel.org>
+ <CAJaqyWcyJU_ghJpQrnEyTf19o_NzE6FXkxgBRZx=1RYqQkN4gA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CAJaqyWfRmhXM8eV+=wMVKgrc8SJ98OTtBCtNDJj8ZRUM5Y9Nmg@mail.gmail.com>
- <CAO55csx2rbjxEZk5K3aKcZ501KY3Zfs8ThEQHFqQ1ZB9RSXECA@mail.gmail.com>
- <20251015040722-mutt-send-email-mst@kernel.org> <CAJaqyWcf3tz17q6G=123Xb+warf8Ckg=PLaPkzLU9hYHiUy9Zg@mail.gmail.com>
- <CACGkMEuPPFLH1YqTx03fV9N=Rx3aYXK0HMUDpZu-CvO1NYRRQA@mail.gmail.com>
- <20251016014328-mutt-send-email-mst@kernel.org> <CACGkMEtXWLicmszjkzOhX8Ta=LdGgsDahRUKDEVzBVG8am5vgg@mail.gmail.com>
- <20251016022131-mutt-send-email-mst@kernel.org> <CAJaqyWe--Hho9EdweqkC-h9=t5vhY0cbAN9uAw=hATpkSMbsEg@mail.gmail.com>
- <CAJaqyWdEY6KaVbBn5LJhkz7h6kytFg8-b8iXnc9N54L+q_Yrbw@mail.gmail.com>
- <20251017023902-mutt-send-email-mst@kernel.org> <CAJaqyWcyJU_ghJpQrnEyTf19o_NzE6FXkxgBRZx=1RYqQkN4gA@mail.gmail.com>
 In-Reply-To: <CAJaqyWcyJU_ghJpQrnEyTf19o_NzE6FXkxgBRZx=1RYqQkN4gA@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 22 Oct 2025 11:46:10 +0200
-X-Gm-Features: AS18NWDw4vr0GcTnGRr8VlHsu1oogGDTd7bG2v29nWusnnH3ymm68p-CAB7l3Fo
-Message-ID: <CAJaqyWcGbqRP+KfhtOMLtYA_dNB0d0SvTKLrsH7zYU4CrZb+3g@mail.gmail.com>
-Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Yongji Xie <xieyongji@bytedance.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Dragos Tatulea DE <dtatulea@nvidia.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XzIWYpaesRs_Ny6dQu0VJLcr0O2hbuqcxVzjYidqtWo_1761126407
+X-Mimecast-MFC-PROC-ID: mkHa48ffmw5xwits8LvGc7KUDdn9fA5RI-LZ5zGnc_Y_1761127619
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Fri, Oct 17, 2025 at 9:21=E2=80=AFAM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Fri, Oct 17, 2025 at 8:39=E2=80=AFAM Michael S. Tsirkin <mst@redhat.co=
-m> wrote:
+On Fri, Oct 17, 2025 at 09:21:17AM +0200, Eugenio Perez Martin wrote:
+> On Fri, Oct 17, 2025 at 8:39 AM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
 > > On Fri, Oct 17, 2025 at 08:36:41AM +0200, Eugenio Perez Martin wrote:
-> > > On Thu, Oct 16, 2025 at 8:25=E2=80=AFAM Eugenio Perez Martin
+> > > On Thu, Oct 16, 2025 at 8:25 AM Eugenio Perez Martin
 > > > <eperezma@redhat.com> wrote:
 > > > >
-> > > > On Thu, Oct 16, 2025 at 8:22=E2=80=AFAM Michael S. Tsirkin <mst@red=
-hat.com> wrote:
+> > > > On Thu, Oct 16, 2025 at 8:22 AM Michael S. Tsirkin <mst@redhat.com> wrote:
 > > > > >
 > > > > > On Thu, Oct 16, 2025 at 02:03:57PM +0800, Jason Wang wrote:
-> > > > > > On Thu, Oct 16, 2025 at 1:45=E2=80=AFPM Michael S. Tsirkin <mst=
-@redhat.com> wrote:
+> > > > > > On Thu, Oct 16, 2025 at 1:45 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > > > > > > >
 > > > > > > > On Thu, Oct 16, 2025 at 01:39:58PM +0800, Jason Wang wrote:
 > > > > > > > > > >
-> > > > > > > > > > Not exactly bufferize, record.  E.g. we do not need to =
-send
-> > > > > > > > > > 100 messages to enable/disable promisc mode - together =
-they
+> > > > > > > > > > Not exactly bufferize, record.  E.g. we do not need to send
+> > > > > > > > > > 100 messages to enable/disable promisc mode - together they
 > > > > > > > > > > have no effect.
 > > > > > > > >
-> > > > > > > > Note that there's a case that multiple commands need to be =
-sent, e.g
-> > > > > > > > set rx mode. And assuming not all the commands are the best=
- effort,
-> > > > > > > > kernel VDUSE still needs to wait for the usersapce at least=
- for a
+> > > > > > > > Note that there's a case that multiple commands need to be sent, e.g
+> > > > > > > > set rx mode. And assuming not all the commands are the best effort,
+> > > > > > > > kernel VDUSE still needs to wait for the usersapce at least for a
 > > > > > > > > while.
 > > > > > > >
-> > > > > > > Not wait, record. Generate 1st command, after userspace consu=
-med it -
+> > > > > > > Not wait, record. Generate 1st command, after userspace consumed it -
 > > > > > > > generate and send second command and so on.
 > > > > > >
-> > > > > > Right, that's what I asked in another thread, we still need a t=
-imeout
+> > > > > > Right, that's what I asked in another thread, we still need a timeout
 > > > > > > here.
 > > > > >
 > > > > > we do not need a timeout.
 > > > > >
 > > > > > > Then I think it would not be too much difference whether it is
-> > > > > > VDUSE or CVQ that will fail or break the device. Conceptually, =
-VDUSE
-> > > > > > can only advertise NEEDS_RESET since it's a device implementati=
-on.
-> > > > > > VDUSE can not simply break the device as it requires synchroniz=
-ation
+> > > > > > VDUSE or CVQ that will fail or break the device. Conceptually, VDUSE
+> > > > > > can only advertise NEEDS_RESET since it's a device implementation.
+> > > > > > VDUSE can not simply break the device as it requires synchronization
 > > > > > > which is not easy.
 > > > > > >
 > > > > > > > But for each bit of data, at most one command has to be sent,
-> > > > > > > we do not care if guest tweaked rx mode 3 times, we only care=
- about
+> > > > > > > we do not care if guest tweaked rx mode 3 times, we only care about
 > > > > > > > the latest state.
 > > > > > >
-> > > > > > Yes, but I want to know what's best when VDUSE meets userspace =
-timeout.
+> > > > > > Yes, but I want to know what's best when VDUSE meets userspace timeout.
 > > > > > >
 > > > > > > Thanks
 > > > > >
@@ -169,21 +157,36 @@ timeout.
 > > No because both would let userspace hang kernels merely by
 > > not consuming buffers.
 > >
->
+> 
 > My understanding was that you want to be able to debug qemu with gdb
 > from that hang [1].
->
+> 
 > Could you put an example of the whole chain of events you expect? From
 > the moment the driver sends a VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET command,
 > the VDUSE CVQ Forwards the command to the VDUSE device in the
 > userspace, and then the vduse userland device does not reply.
->
+
+this is not the idea.
+
+the idea is that kernel handles VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET.
+
+separately it notifies userspace that some configuration
+changed and userspace gets the new value.
+Or not, if it is stuck.
+
+
+
+
 > How does the VDUSE CVQ detect that the VDUSE device implemented in
 > userland does not reply? What are the next steps from that point of
 > the kernel VDUSE module?
->
+> 
 > Thanks!
->
+> 
+> [1] https://lore.kernel.org/lkml/20251014042459-mutt-send-email-mst@kernel.org/
 
-Friendly ping!
+
+
+
+
 
