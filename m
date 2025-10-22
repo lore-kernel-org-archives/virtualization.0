@@ -1,74 +1,74 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A117B30B505
-	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 08:42:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9BCD30DEB4
+	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 08:43:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761122547; cv=none; b=Mv1eMPLdbSr75TeP4z5tcNUzdrEAeBElFtv3IEj8RXxGgkfYw+UlNbZmS067TqvWbfsg+a2gd3MZsQfz5ZxtfYMC4ux0uT4UEQv5OEpTkDmgA0RETOvLccP3cZtl2RAqmaE0NkNHSmpCj4q5Jl7G95psMWYHqZPeKbwkR1aBfzE=
+	t=1761122633; cv=none; b=Wp547B/j9WtUdq8rFUNrAlx1y1U9AajJed6cJIBDB22A0a2e5AVkrDbM2rn/bob9T7A4hz7cf6HoFJZPD7MiXxLpDmbwjQ2jTWXF2X4Xd9POcMHgVF6nGoahveiU9/h3OGHrCzQZmmnYnauqZHHIBIs8c+eepgdHAKi6RNEC13k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761122547; c=relaxed/simple;
-	bh=i405juTC47mjP/L3x0j2N8/piwVkCo4vW1GsuT9SCQM=;
+	s=arc-20240116; t=1761122633; c=relaxed/simple;
+	bh=MQFGP/GdT+B0HEH10HMoHyNYcc8pQAd8Ff5+/hU6YTY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qlv5a5E7N7KU/0l5D2Ob3fFbVAi+baJK+ALP+aMHDAQP+5r6L2Trw5nKdydUfRa0z0CJf/FYTi+a4gUDUYzPv1ldpxsGr8B4/QV422OrG8zkleeVG5kFF32R+NuRIKUTDREbpCBABQb2WQDZwAau28t41/C0tc6flRZnwb3N8Zw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LGa65hOx; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=rWU1EcXOqoqcgrA6Rpy+HUHIg3Wp52Dl1//5FdXQMzX/sn5IoUMTu+D/3Fj7ZMQ/jtN15sWeFEkXJeXBLj45CfdRh725BvAJFX2vSUN1TSUuFlQi8aXGql4hrM9v9C2yyksM63IZry8jwKkG7H7haz5XaD0e7YeMjI5r3CVjNNs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H/niiM1Z; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LGa65hOx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H/niiM1Z"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761122544;
+	s=mimecast20190719; t=1761122630;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=X+Qc4y5CsxpArpC14yIHodoUnQoI1Il2pOClkv+r5DE=;
-	b=LGa65hOxrBsHdYXYQF5VwH8CGbmqMG+zUkGJqn84tu7kH4J7Yzv7HpbuPGHneLeGwcBBmd
-	Qa46nmrPgXzzOa54sQnuX8y8/rv00rQAyWa4xewvUvNJuwNSYdwLC5SXiniag602vwEKzt
-	CBUfU1+r/3wmySt+deMgulFS4zGByyk=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=jkHMky5mCobEjmAGe9TQAKstGmetuf8oWgBGBX4vP2s=;
+	b=H/niiM1ZYtr2S+9WmRrcF46HDQfkHsy8/yrHnRJv/2TKhLJ0X8uI3YID9tQbee74pY+9wN
+	URlvDypR2oHnCN1PLorZ25wzjXtDGftplHM1p1A9LhxIxQC96hCbsxSE1yEIFGoPn0Ip+T
+	1Pf23WJgjsNffshc7ARHgghWNcHJCmU=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-443-KuL9ewF-Mu6PGspWib3k-w-1; Wed, 22 Oct 2025 04:42:21 -0400
-X-MC-Unique: KuL9ewF-Mu6PGspWib3k-w-1
-X-Mimecast-MFC-AGG-ID: KuL9ewF-Mu6PGspWib3k-w_1761122540
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-42814749a6fso2252866f8f.2
-        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 01:42:21 -0700 (PDT)
+ us-mta-351-22YJ4NfVN0WDNj38xpRG5Q-1; Wed, 22 Oct 2025 04:43:49 -0400
+X-MC-Unique: 22YJ4NfVN0WDNj38xpRG5Q-1
+X-Mimecast-MFC-AGG-ID: 22YJ4NfVN0WDNj38xpRG5Q_1761122628
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-427015f63faso3297047f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 01:43:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761122540; x=1761727340;
+        d=1e100.net; s=20230601; t=1761122628; x=1761727428;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=X+Qc4y5CsxpArpC14yIHodoUnQoI1Il2pOClkv+r5DE=;
-        b=nj+ceQLh0L6t/0jhdJh5hY12M45EnR3C6uWLCmP0BCkew6Mu9ncqWezfrH7+3liCku
-         DScnBownuPfJKcHi8p2giRQN0Opdx6OckvvZJ24cWpVmIKgsDof0vsdWHLSOgAitatJd
-         XGz2nGfCE5vY8ow3urLHhJhQiyfnDWQ6Ku7WwZKzgPYjP162zUOwGwsjCc13Bn6B2orj
-         JNPCJilepaaXPKxBYhJyGE/oEV7KJNleMjxGS9cQ+3+/F7E/dMuaMVY9k6J/CySaQ8TW
-         qGmHDHD2jqjRroEd9xbaFBL0JFrHD0vNJKWMeD5bL1hoYZr3/R4xDR7Io1uJBOC1Me+v
-         spmg==
-X-Forwarded-Encrypted: i=1; AJvYcCVuEd37HyyfHflLmgAve3E56WGmFH7Pf3L+SeoZW8bfI4EGuqsAar+Awp0UQmLRZH4X8OgqcmfP7XWnYmY8QQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzRAzj+aMjwLWoDOiPrOE+gkb5kjfByxQLKeiVgy8o44zTUQ09/
-	rEHDjtZWZeW34CJ/+jvRtsmtXQ2rVC9VO9MzSNmyfmZE6f8BuuyJwJ06x4U0O6L4IgdZ/e5I3jh
-	4H/4UsUi02iiQNLpInU6+zUI1Q+xTaBcG3vEenjjyfpf7rEalg3UhsCJdw7f8yosJnBQU
-X-Gm-Gg: ASbGncvCpAbl5ADEeExzY2vituDCDGc04cXUfr3lYgdsuvgrvfuMNM1kUv0MkFKPR6Z
-	9v/FsPJAalPT9/exmqCYLUZwEB+zZ1D2eOHvAoqoOdlKokWKt7/Hr/c4zxxaxISjIWYP+O5stmv
-	8iviiFErMkv89K0UUQI7YI6SLKlLl+tW+ylyTYBsnGiVDNBcAV7/pfPP2VnAIO/kkaJkYgCNhcI
-	RFWOSu9a6ySTxBDO/KKvT1HiWO6OPjVAksR5Ct1L+QUM4BMVf+ayetMVMTEyQtSaFJ1npE7tybR
-	aIW8zBvQ357suEEOwsOzC2cQee8/5ASPatI2h6zZIIK/KY8RHelL0maczBALjo+bBgdDC8q2P47
-	YFsRKZ8DIZO0r4dtSOTeOZ6mkJwM7y/D+k4XZdKGmj5scckuwEIoqpO+hHNyxmCZPN+ynRVoMrQ
-	qeCkwlEfytVC/H/OR6kyEEJ+JbmW4=
-X-Received: by 2002:a05:6000:4287:b0:425:7c32:d969 with SMTP id ffacd0b85a97d-42704d145admr13984350f8f.5.1761122540025;
-        Wed, 22 Oct 2025 01:42:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGMg9OoxIiF4uh2VUtESc9U54hkw2hijV7jLg75IGaXBj5fTyoFRtMVmXdqz1BIz6FYs6UDtw==
-X-Received: by 2002:a05:6000:4287:b0:425:7c32:d969 with SMTP id ffacd0b85a97d-42704d145admr13984317f8f.5.1761122539618;
-        Wed, 22 Oct 2025 01:42:19 -0700 (PDT)
+        bh=jkHMky5mCobEjmAGe9TQAKstGmetuf8oWgBGBX4vP2s=;
+        b=GHmXW/LZLlhEIWlBvu8tZ39BB+jf29JXrPt4MhBrFtCTTU3mQ/ul1kaL5P0wKh6vOg
+         4lddastaHXEHjIP6qJgthErMytn8qS1b2kLy9sSFTLtssh8GX0YBeUYCpUUF5ohZjEfU
+         0fHg9Wjd9hVhvK8bl0Eruh/gEiIBgDoQqR0dUqmQWKPnQkpnYw3TqhI1Z2z/rv+PXsKa
+         8a+x7YwPRsm+RtV/hLD6NHeiwpNa4M5uFF99eVWBdhep9Txe8bmFWPxUGi5NCFOqadoU
+         DwoPQjcig7L0CXCgRbvAiF0KQxsxnbsWPfO5rMBse6GZW6dTDf0OQm6gA2TeGLjkY2ft
+         euCA==
+X-Forwarded-Encrypted: i=1; AJvYcCW/2gE0kxZ+q2Dctmlf4YdKLAWz4ljN6KDO6p3QBlKhiK8+GDprBrmMKu3w+6bprmyKJBYgIP1x7Dj1kxCLxw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyATqTRsCM2tlJKxQsAcFtLfSTXp/V8jcoe6N38MTBUEIZV/bMD
+	kpuO6+MroBNTNk0rOYkA7BuH1QxTVQWL8xrDfCdChnFj1LbbVIAcpIjxMyZ+6Sk3+ygtWOexkkB
+	u9WOc2svNAsRnhNZ+lqmrCnLwWpBsXKecyxfI3tosg0tBXGSIR96pYvNagNnypG3wGleR
+X-Gm-Gg: ASbGncvr72zYJpsBbcgbsvBUyER8l3ieEIxo/caieoojY0cb373tcfpRIK4+cY0SRCA
+	qUg7bvmadfA+F2Ruuhz9iE4NCOGSok/K9zOcwgnZ4YOzo3Z+VUV4sGx1ctRrrUFxMDYRlP/NUf/
+	PGPp646ea6Mk6gkFfN+PPLVTKVvJGXuNdzfyzNvAQmGnbesn5/scL6V3Mn8OPSGCIB1irxp239x
+	oe0/nOCooU7CZVKrsShVJnzupFOcLxig+nwahkAbCIlhwCzgTXSZdWAAwW1wLJqUZCjtYP2hqVE
+	m/5aAVVjoBaMgb2mgL61WnCq+SbsMHU/Bds4LLqlDbc2ntk6KJkin2Z3MGF4ep/J205qdzlMsu2
+	TP9bQ+1CVMSpIhG4qLxbBn9jBLuRXKgALp2RtM7IeUBgEqtfTTOiwgsXXQVVdnI8sGyXL4Yi2sl
+	Ly/o5ANtkXPGV7AAS24F7bdepmnzA=
+X-Received: by 2002:a05:6000:25c5:b0:428:55c3:ced7 with SMTP id ffacd0b85a97d-42855c3d35amr870746f8f.28.1761122628104;
+        Wed, 22 Oct 2025 01:43:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGwoT3C4h+2nYRtAEAp4gukXLbzQesuywB6jEq9IZ/b7/4k/4nUiirxc9OucZncsYgrM1Y8ag==
+X-Received: by 2002:a05:6000:25c5:b0:428:55c3:ced7 with SMTP id ffacd0b85a97d-42855c3d35amr870716f8f.28.1761122627657;
+        Wed, 22 Oct 2025 01:43:47 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f4e:3200:c99d:a38b:3f3a:d4b3? (p200300d82f4e3200c99da38b3f3ad4b3.dip0.t-ipconnect.de. [2003:d8:2f4e:3200:c99d:a38b:3f3a:d4b3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-427ea5a0f19sm24212592f8f.9.2025.10.22.01.42.18
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-428566a7906sm1313560f8f.38.2025.10.22.01.43.45
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Oct 2025 01:42:19 -0700 (PDT)
-Message-ID: <ce26f59c-8938-4896-aaf9-ed94723466eb@redhat.com>
-Date: Wed, 22 Oct 2025 10:42:17 +0200
+        Wed, 22 Oct 2025 01:43:47 -0700 (PDT)
+Message-ID: <4b280f08-7ed3-416e-8f8a-d30cf0b34c01@redhat.com>
+Date: Wed, 22 Oct 2025 10:43:45 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -76,8 +76,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 07/23] mm/balloon_compaction: use a device-independent
- balloon (list) lock
+Subject: Re: [PATCH v1 11/23] drivers/virtio/virtio_balloon: stop using
+ balloon_page_push/pop()
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linuxppc-dev@lists.ozlabs.org,
@@ -97,8 +97,8 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
  =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
 References: <20251021125929.377194-1-david@redhat.com>
- <20251021125929.377194-8-david@redhat.com>
- <20251021165040-mutt-send-email-mst@kernel.org>
+ <20251021125929.377194-12-david@redhat.com>
+ <20251021165854-mutt-send-email-mst@kernel.org>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -144,57 +144,21 @@ Autocrypt: addr=david@redhat.com; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20251021165040-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251021165854-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 05Nq-6rp-oVNyaudsok-yNvxTLxc88UgBAbRGqMvutU_1761122540
+X-Mimecast-MFC-PROC-ID: N2ircy7NmUqH0OyBveSOTprjBPALlmebbV-WUBBjgP0_1761122628
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 21.10.25 22:52, Michael S. Tsirkin wrote:
-> On Tue, Oct 21, 2025 at 02:59:12PM +0200, David Hildenbrand wrote:
->> In order to remove the dependency on the page lock for balloon
->> pages, we need a lock that is independent of the page.
->>
->> It's crucial that we can handle the scenario where balloon deflation
->> (clearing page->private) can race with page isolation (using
->> page->private to obtain the balloon_dev_info where the lock currently
->> resides).
->>
->> The current lock in balloon_dev_info is therefore not suitable.
->>
->> Fortunately, we never really have more than a single balloon device
->> per VM, so we can just keep it simple and use a static lock to protect
->> all balloon devices.
->>
->> Based on this change we will remove the dependency on the page lock
->> next.
->>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>   include/linux/balloon_compaction.h |  6 ++---
->>   mm/balloon_compaction.c            | 36 +++++++++++++++++-------------
->>   2 files changed, 23 insertions(+), 19 deletions(-)
->>
->> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
->> index 3109d3c43d306..e2d9eb40e1fbb 100644
->> --- a/include/linux/balloon_compaction.h
->> +++ b/include/linux/balloon_compaction.h
->> @@ -21,10 +21,10 @@
->>    *   i. Setting the PG_movable_ops flag and page->private with the following
->>    *	lock order
->>    *	    +-page_lock(page);
->> - *	      +--spin_lock_irq(&b_dev_info->pages_lock);
->> + *	      +--spin_lock_irq(&balloon_pages_lock);
->>    *
->>    *  ii. isolation or dequeueing procedure must remove the page from balloon
->> - *      device page list under b_dev_info->pages_lock.
->> + *      device page list under &balloon_pages_lock
+On 21.10.25 22:59, Michael S. Tsirkin wrote:
+> On Tue, Oct 21, 2025 at 02:59:16PM +0200, David Hildenbrand wrote:
+>> Let's stop using these function
 > 
-> Using &balloon_pages_lock with an & is kinda weird here.
+> these functions
 
-Indeed, fixed, thanks!
+Fixed, thanks!
 
 -- 
 Cheers
