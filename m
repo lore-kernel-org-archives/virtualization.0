@@ -1,175 +1,256 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C62352F12B1
-	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 05:46:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DB33257848
+	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 06:32:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761111963; cv=none; b=Y2+7ckLOviBalXKKQm23MJETo4xXmv4z5X6FutbhzdyjpCAqTJTLzJMiEmyXY0d71GJ7iza7ieLDnVBMrypg3tSy3qf3efTsTNFq9fv3+MAnmk22o7paIiX/dcqXRqZqndjmNvtIhBtsdpVBIwENW0SjsyMOJPKOECgzj95k4Eo=
+	t=1761114733; cv=none; b=Ovn0LGNHepQG3slZ3LBV4qUGlLxrhFi/liD4ZQtp+tdEHJmkKuXNFITW5Q8XkGDjWuZ3ecTu89gsuXUNjzw0P6bXm9mqmqnuuB51nVnQCl84OEgtWTv/3ck/aVtIhNXwdgx74Y1q8qqQEWW8bkM1xsDv2i+mzRYkOHZXo/MBpaI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761111963; c=relaxed/simple;
-	bh=OOEDwYf/WoldymVHE1bARmPBao5IcHvki7sxdMEqYj8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=f49S0HBaB+N2SrPcl5LDJF0gYl6y07SouveILBm1rYvM1dd0QKf7YzTyIQI4UFJEwFzInCEnr41tBynybF2G81Tis/g+0sA1lo5hNlTFo/LiN5Nu8rD30UtUp1YMj7RhPgHMQ+DQsPjIrmdoavodn6+4rE4vdR6McyqclzQ9FGk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OHmrtw+x; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761114733; c=relaxed/simple;
+	bh=HZ9MxcrGcr/2MLpUDsA0lKPD9Mv5DFY1US6+Un4qKmY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=K/rqqD53vz0GNULWaAzeKt5mYSi+xnEum/s+uQl521rOFSONVoRBWNTUNCPrw9mOEwDxosXL7GRu5OKG6yaKtvFzlpf+zKT0Me93BQzjUHPNrxKVYeq+xCZbipF8BOmci3npS2n41i76+HyKkL/Rm4/MOQAO+hZJf4G8jpdwOI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=gvhzxu2E; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=nwLCUWk+; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=CUeUacNR; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mw9otv+D; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OHmrtw+x"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761111959;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="gvhzxu2E";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="nwLCUWk+";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="CUeUacNR";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mw9otv+D"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 098112118C;
+	Wed, 22 Oct 2025 06:32:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1761114725; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+gdOCtyqfpPDKTOSjwLO+fIICNulbuVoEvWA7TNWh1Q=;
-	b=OHmrtw+x3WbkQ2MF1zz8n9dJhRqKtBNKhxQWG7L35fLALCIJ/cpZRD8NOvX8k5ACrSPMJJ
-	KikFPPFZslbVN4sudxYiJqhCYD6zYU8IgQ2wOakQcNoN0TL1tBa9Z8wipeejpLmvQc3oX1
-	yS+WJ5m2IBp4z/uOnoRaVov/2jaNEy4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-610-39aAY__qP1uNkAIolUIZ4Q-1; Wed, 22 Oct 2025 01:45:40 -0400
-X-MC-Unique: 39aAY__qP1uNkAIolUIZ4Q-1
-X-Mimecast-MFC-AGG-ID: 39aAY__qP1uNkAIolUIZ4Q_1761111939
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-47111dc7c5dso2806645e9.0
-        for <virtualization@lists.linux.dev>; Tue, 21 Oct 2025 22:45:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761111939; x=1761716739;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+gdOCtyqfpPDKTOSjwLO+fIICNulbuVoEvWA7TNWh1Q=;
-        b=L+nJVgm1H1yYmhD0Zty6cQXk88/P7tjDYsJldvH54MSEMNINbDeqkelAvBZY8QCQU4
-         t/Yqkeu3pAlxiq8VFDku2itfUKThPfcClwRAl6WBYg0azmmL2n5KCfOMlhhXrxYBZvKS
-         gPwFSaX71K4W08Sv31yVx5KzCdcNHOK8IeOrRn3PcxO+5E+UlPpjapiDCygOwEDMjJXX
-         7Dt6kO2uTBdpRg198GMFuz7CexWKJOQqX/prdrVNDmcnqsK2G+WUCTSqus9cF7F/dGLl
-         1+icF5rMSlXmpMNbwURQkXM9HZyUO5LH+G9+s6Lx2Bw1W5msqQyH+fNtgX6A53Hy07HP
-         Yq2A==
-X-Forwarded-Encrypted: i=1; AJvYcCWQ0GosP3NqQV9/SL0kTn8Hvc8EzzGufRTyvtE4PKAq2lNMti/3gyJ3SP/2q0w1pTbAKhM1zcddGXLysB4vTA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyZ3xERAkaSwu+oD/SZixl6Vg0XM9UK8MA5EPdM1kGYFkgMHNgP
-	lJZzb/tGXOkvnf5KR/KKZDom+4lxCX9wv6zJYN82TAmXZgBIC4TFxtjZ8DQjvOTZyEHNbd0jymd
-	v9OjX0bQL2BBIlGmG9wJ4BXYkCiXg3rF8w4GPBru/RiX5IhnQ+M3uqwFTqFw8xBbpxffUBbiIrY
-	GW
-X-Gm-Gg: ASbGncusJvkpFN8srPJMMXVt1AALHDAFBh2EPHcyIXFdfL+kHsuqdNfc2yIN/rPtpx9
-	Pxc4OGPQ1oUgWYQUp+RFnC0D+Iwhs1JgJ/Wa1rSlvxQQjEehS+GBdgzgRPjn7DjvJLXWLZ3LGBp
-	u2QAwxf9DtTCi6qJKfshKWnoO0OeM8O9RestrkMLSpap7dHD8m5R03n8TDDWLMmKLpVlhMOmJ4Y
-	Ni/OjbwH3Ph/YxlS6x7IChX7JKEa8+vXp1mEwReYEqVie09htfbdBbnIVbWlbQJSzvOSFq8exdc
-	NjQOv94rfxFBtFHJAt8DMRlGPhDR82YptWPEu+fZzJr8jvFLSoI2Fot0oDs2hIsz32CQ
-X-Received: by 2002:a05:600c:6992:b0:471:5c0:94fc with SMTP id 5b1f17b1804b1-475c3fa355cmr13586765e9.6.1761111939128;
-        Tue, 21 Oct 2025 22:45:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IElHGkXoX3hCkc0GRrDbDcYpbH4YLBEG6cIW8mw2RcnC42OK12DSE/fMXDY2iXzD02ahYxuXQ==
-X-Received: by 2002:a05:600c:6992:b0:471:5c0:94fc with SMTP id 5b1f17b1804b1-475c3fa355cmr13586695e9.6.1761111938746;
-        Tue, 21 Oct 2025 22:45:38 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:152d:b200:2a90:8f13:7c1e:f479])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47494ab11bbsm30712795e9.1.2025.10.21.22.45.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Oct 2025 22:45:38 -0700 (PDT)
-Date: Wed, 22 Oct 2025 01:45:35 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Cong Zhang <cong.zhang@oss.qualcomm.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-	linux-arm-msm@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-	pavan.kondeti@oss.qualcomm.com
-Subject: Re: [PATCH] virtio_blk: NULL out vqs to avoid double free on failed
- resume
-Message-ID: <20251022014453-mutt-send-email-mst@kernel.org>
-References: <20251021-virtio_double_free-v1-1-4dd0cfd258f1@oss.qualcomm.com>
- <20251021085030-mutt-send-email-mst@kernel.org>
- <CACGkMEsU3+OWv=6mvQgP2iGL3Pe09=8PkTVA=2d9DPQ_SbTNSA@mail.gmail.com>
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=I4haBXcI59SAqclsFlKndkWFxtlb/fC3csAEbKP235w=;
+	b=gvhzxu2EkmhVF19mxvCt1LQQbF9t4ERmC+Igw7pNmPc3IRUcJHKnVUEeUPLCM9nElxwxBg
+	4ZkQHdJa5u1ssX1XqXOMoWJpTWE6g+H+zLHKrQHVkCbapePsQrAuMGP7MYRqchxbPadowt
+	0cxUR31HU0+OLOwPjOd+qwBUOK6DNkY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1761114725;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=I4haBXcI59SAqclsFlKndkWFxtlb/fC3csAEbKP235w=;
+	b=nwLCUWk+uPFx5PrZy5tu37AfLyQ7pGFvedDUKUe7qO9teuOghO+ioHC3n4S7Tp3rC50lcW
+	QjSDIggVUSeQY7CQ==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1761114721; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=I4haBXcI59SAqclsFlKndkWFxtlb/fC3csAEbKP235w=;
+	b=CUeUacNRdOEKYKljuYscvyqQZSb+OCf3drIpIoYtzs8fB1gGjt7VWZTwS95xG3RjYe6UBc
+	n0SQCAfq/g1EcxfwisuntMl82Dz/DCy+3Rv8euJYt31i9WnbqEaJSn+QwN723zFc/TLd0e
+	2CdeHvxAq5FZSogPrnyRiwwgI1FIS9Y=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1761114721;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=I4haBXcI59SAqclsFlKndkWFxtlb/fC3csAEbKP235w=;
+	b=mw9otv+Dp/g7c2K7qJceZZ4ZE/DKjz3yxBKL8mRojPo3JP7X/8FviGxprBBUgqAfnXBB0+
+	6jJQsG9b/cqVhMDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C79D613A29;
+	Wed, 22 Oct 2025 06:32:00 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id /JFLL2B6+GjfXgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 22 Oct 2025 06:32:00 +0000
+Message-ID: <085bfefc-a0ab-4e28-be9d-23e92570376d@suse.de>
+Date: Wed, 22 Oct 2025 08:32:00 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEsU3+OWv=6mvQgP2iGL3Pe09=8PkTVA=2d9DPQ_SbTNSA@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VP9Q8pDK1vJGMpKGhxeaY5Ft9E3F8P6WGSUoYyUYiWU_1761111939
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC][PATCH] drm/virtgpu: Make vblank event dependent on the host
+ resource
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
+ "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
+ "kraxel@redhat.com" <kraxel@redhat.com>,
+ "airlied@redhat.com" <airlied@redhat.com>
+Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+References: <20251016145230.79270-1-tzimmermann@suse.de>
+ <IA0PR11MB7185A7BA7B8CEAC46CBC0922F8F6A@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <21851b98-06ee-4e2c-8570-70e8a4fe5d86@suse.de>
+ <afc6ba14-cd95-49b9-89f5-e90fd19c8927@collabora.com>
+ <a2afbc13-0be6-46ef-a6da-9461fd30376b@collabora.com>
+ <126a0b10-a550-430c-a1b3-7e144461a0ff@suse.de>
+ <IA0PR11MB71850CA585D6E42C1E7217DDF8F3A@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <c6b44524-4e44-46e8-89b4-8f90e074431b@collabora.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <c6b44524-4e44-46e8-89b4-8f90e074431b@collabora.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TO_DN_EQ_ADDR_SOME(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_SEVEN(0.00)[7];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Flag: NO
+X-Spam-Score: -4.30
 
-On Wed, Oct 22, 2025 at 12:19:19PM +0800, Jason Wang wrote:
-> On Tue, Oct 21, 2025 at 8:58 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Tue, Oct 21, 2025 at 07:07:56PM +0800, Cong Zhang wrote:
-> > > The vblk->vqs releases during freeze. If resume fails before vblk->vqs
-> > > is allocated, later freeze/remove may attempt to free vqs again.
-> > > Set vblk->vqs to NULL after freeing to avoid double free.
-> > >
-> > > Signed-off-by: Cong Zhang <cong.zhang@oss.qualcomm.com>
-> > > ---
-> > > The patch fixes a double free issue that occurs in virtio_blk during
-> > > freeze/resume.
-> > > The issue is caused by:
-> > > 1. During the first freeze, vblk->vqs is freed but pointer is not set to
-> > >    NULL.
-> > > 2. Virtio block device fails before vblk->vqs is allocated during resume.
-> > > 3. During the next freeze, vblk->vqs gets freed again, causing the
-> > >    double free crash.
-> >
-> > this part I don't get. if restore fails, how can freeze be called
-> > again?
-> 
-> For example, could it be triggered by the user?
-> 
-> Thanks
+Hi
 
-I don't know - were you able to trigger it? how?
+Am 22.10.25 um 07:37 schrieb Dmitry Osipenko:
+> On 10/22/25 08:02, Kasireddy, Vivek wrote:
+>> Hi Thomas,
+>>
+>>> Subject: Re: [RFC][PATCH] drm/virtgpu: Make vblank event dependent on
+>>> the host resource
+>>>
+>>>>> On 10/17/25 10:38, Thomas Zimmermann wrote:
+>>>>> ...
+>>>>>> There's little difference between the current event handling and the
+>>> one
+>>>>>> where no vblanks have been set up. I suspect that the vblank timer
+>>>>>> callback interferes with the locking in atomic_flush. That would also
+>>>>>> explain why the fps drop at no clear pattern.
+>>>>>>
+>>>>>> Could you please test the attached patch? It enables/disables the
+>>> vblank
+>>>>>> timer depending on the buffer resources; as you suggested
+>>> before.  Does
+>>>>>> this make a difference?
+>>>>> The attached patch doesn't work, please see the trace below.
+>>>>>
+>>>>> @Vivek Please clarify whether you only see frames drop with your
+>>>>> multi-gpu guest-blob setup or with a usual virgl too. I haven't noticed
+>>>>> problem with frames pacing for virgl and nctx modes yesterday, will
+>>>>> check again.
+>>>> On a second look, I now see that this RFC (not the attached) patch
+>>>> doesn't work properly with host blobs.
+>>>>
+>>>> I'm getting 100-150fps with this patch applied instead of expected
+>>>> 60fps. Without this RFC patch I'm getting constant 60fps with native
+>>>> context displaying host blobs.
+>>>>
+>>>> Not sure why guest blob would behave differently from the host blob.
+>>>> Suspect something if off with the prime sharing that Vivek uses in the
+>>>> vfio testing setup. I'd suggest to disable vblank timer only for guest
+>>>> blobs if no quick solution will be found.
+>>> After reading your reply and Vivek's new results, I'm confused now. Does
+>>> it work or is there another patch needed?
+>> Considering my use-case and Dmitry's virgl/venus/native context use-cases
+>> and the benefits offered by vblank timer in these different scenarios, I think
+>> the following patch should be sufficient for now:
+>>
+>> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+>> index e972d9b015a9..c1a8f88f0a20 100644
+>> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+>> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+>> @@ -102,7 +102,11 @@ static void virtio_gpu_crtc_mode_set_nofb(struct drm_crtc *crtc)
+>>   static void virtio_gpu_crtc_atomic_enable(struct drm_crtc *crtc,
+>>                                            struct drm_atomic_state *state)
+>>   {
+>> -       drm_crtc_vblank_on(crtc);
+>> +       struct drm_device *dev = crtc->dev;
+>> +       struct virtio_gpu_device *vgdev = dev->dev_private;
+>> +
+>> +       if (!vgdev->has_resource_blob || vgdev->has_virgl_3d)
+>> +               drm_crtc_vblank_on(crtc);
+>>   }
+>>   
+>>   static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
+>> @@ -112,7 +116,8 @@ static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
+>>          struct virtio_gpu_device *vgdev = dev->dev_private;
+>>          struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
+>>   
+>> -       drm_crtc_vblank_off(crtc);
+>> +       if (!vgdev->has_resource_blob || vgdev->has_virgl_3d)
+>> +               drm_crtc_vblank_off(crtc);
 
+That's what my latest patch did, but it tracks the GEM object directly. 
+Sending also requires the code in atomic_flush. Or no event will be send 
+if vblanks are off.
 
-> >
-> > > ---
-> > >  drivers/block/virtio_blk.c | 13 ++++++++++++-
-> > >  1 file changed, 12 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > > index f061420dfb10c40b21765b173fab7046aa447506..746795066d7f56a01c9a9c0344d24f9fa06841eb 100644
-> > > --- a/drivers/block/virtio_blk.c
-> > > +++ b/drivers/block/virtio_blk.c
-> > > @@ -1026,8 +1026,13 @@ static int init_vq(struct virtio_blk *vblk)
-> > >  out:
-> > >       kfree(vqs);
-> > >       kfree(vqs_info);
-> > > -     if (err)
-> > > +     if (err) {
-> > >               kfree(vblk->vqs);
-> > > +             /*
-> > > +              * Set to NULL to prevent freeing vqs again during freezing.
-> > > +              */
-> > > +             vblk->vqs = NULL;
-> > > +     }
-> > >       return err;
-> > >  }
-> > >
-> >
-> > > @@ -1598,6 +1603,12 @@ static int virtblk_freeze_priv(struct virtio_device *vdev)
-> > >
-> > >       vdev->config->del_vqs(vdev);
-> > >       kfree(vblk->vqs);
-> > > +     /*
-> > > +      * Set to NULL to prevent freeing vqs again after a failed vqs
-> > > +      * allocation during resume. Note that kfree() already handles NULL
-> > > +      * pointers safely.
-> > > +      */
-> > > +     vblk->vqs = NULL;
-> > >
-> > >       return 0;
-> > >  }
-> > >
-> > > ---
-> > > base-commit: 8e2755d7779a95dd61d8997ebce33ff8b1efd3fb
-> > > change-id: 20250926-virtio_double_free-7ab880d82a17
-> > >
-> > > Best regards,
-> > > --
-> > > Cong Zhang <cong.zhang@oss.qualcomm.com>
-> >
+Let me send another patch for testing.
+
+Best regards
+Thomas
+
+> I'm fine with this change. Will need a clarifying comment in the code.
+>
+> On the other hand, I tried with "-device virtio-vga,blob=true" and still
+> don't see problem with the incorrect frame rate.
+>
+> Vivek, could you please clarify whether you only seeing problem when
+> using prime sharing? I.e. whether you can reproduce the wrong fps by
+> running qemu casually without using vfio.
+>
+> Might test the vfio setup myself sometime later. It's a bit cumbersome
+> to set it up, will need to re-plug GPUs and etc, currently busy with
+> other stuff.
+>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
+
 
