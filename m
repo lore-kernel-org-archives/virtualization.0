@@ -1,111 +1,125 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02B241A3165
-	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 02:34:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1FEF15E5BB
+	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 02:37:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761186874; cv=none; b=OuPiRu4YJ0ixTDRapwdQxSe46strpTdCw+1NgL8lV/NpkcVqGb9vFsr2gmobwX1ZNmz2zAeB2xkDBmggSgRicThlmTJaq924/7fcJjI+5rFB5kssGrBkgC8TeUKqSvtcZdGvy9rMt18cEegxRvkOxh5S6eI90pAOx5/vopFSaN4=
+	t=1761187033; cv=none; b=n2ztFqRZl8HCht+dtxzc2KSQ55NiR7D2mqXih6sEN/p5xuu5r7KX6XUX0uJ/UnGfbT0PSMsFqS6v1dRfl7iiS8TbOIHvlF1j+Xpdhd2hahp475jqPLJS7ULebvr8OS7F86L+uhpSI5+Z+tXX2fBKqGCabLRQ1pFRV/xM+muUHTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761186874; c=relaxed/simple;
-	bh=UPgMT5fUwOmL4sgXDbAdAVMYFSfqHSRIuxPtgMjpYXM=;
+	s=arc-20240116; t=1761187033; c=relaxed/simple;
+	bh=tLELmYBjrIVt2tIe7/6pOjA4rz1yWYE0gX8fXO7gYBQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XALw50ZUzpfOxTTyLWt9NDaiqEOaeTEgsVMClfF8J811cnhjCl/YgNi16u6Yn/sQLrKyNJterp+F7A/RKKhBjInYJJnUpClX0PQppgpqCgHH5i6fxKYYuad8+dVqMOuXl4o4ezKFDXPyYwt8aLGdn1RZbvG+lieMI99IUVRhZxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=bpHgWN0z; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	 To:Cc:Content-Type; b=nqrhzMsVhWsGhSgIK+9ilJm2TJn2q590cUHd9FMBlh+x+5dYrzES0Aj/9HkKhaUGUZoJq+/f7fzlKu7pZzfYetmxa1qwnYumtl0Nt+Rhqr1l9zSaxU6GlIgtQypr8X2ErcXqQ0QIi31sR/2IGWtuoe4wpZy0SImxP+gRsaMl/VE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T0VjIQzI; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="bpHgWN0z"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-292322d10feso2503915ad.0
-        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 19:34:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1761186872; x=1761791672; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UPgMT5fUwOmL4sgXDbAdAVMYFSfqHSRIuxPtgMjpYXM=;
-        b=bpHgWN0zw/NhTOHnyujBz+TgOSWI6X6yBVEZsK1TDbQnHTqCKGdum/9HsbkumnLLEI
-         sxyga/ShqU/L1NbkI9AMpX5rupdE8KvaRXicGzbBvEJZaUFJMXXDDmz/IEUamaBBOM/4
-         jBX+P4gEH9dlLHQQMXrEBb3jGoynjxKv3DUrAujlYQOiNkOeKgBMt7rzfGV9v7+Gjnnj
-         SuNoDd0J1BzNpDo4d9Wg/cMXL5p/d8GeCxSXvmEnRTJj8YL8EvOkls9QkfofCWATj0Pl
-         XV4fFkta4UAX5ggV+d4wp8ZqrcsmumZjBYmupgu1f+m3nZOPtoaQtF+acyp33ZFiMI3j
-         q3Dg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T0VjIQzI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1761187029;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tLELmYBjrIVt2tIe7/6pOjA4rz1yWYE0gX8fXO7gYBQ=;
+	b=T0VjIQzIEVygxqlCxCUPXhfCvghQFPj959XuD8cGcOUPUgHvjwkBOIjCHPYKwFyKEPLeFo
+	7wgfTSemkz8B1iv4rfmipZQQ7v8WgLpw4agYuApVUzl2HDS/mJej3k46DnibXXxKfhtvoW
+	c6bdfLO3R6m7+Ht54qW2588rwb09c3c=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-75-18itDtNgMsupgZsl7Z65qw-1; Wed, 22 Oct 2025 22:37:06 -0400
+X-MC-Unique: 18itDtNgMsupgZsl7Z65qw-1
+X-Mimecast-MFC-AGG-ID: 18itDtNgMsupgZsl7Z65qw_1761187025
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-33be01bcda8so329432a91.2
+        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 19:37:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761186872; x=1761791672;
+        d=1e100.net; s=20230601; t=1761187025; x=1761791825;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UPgMT5fUwOmL4sgXDbAdAVMYFSfqHSRIuxPtgMjpYXM=;
-        b=abiAadJWxMflzJ+qtSxzrXqrbmvgZr81d/3DjJdln0UYyOLKGPo4dL5ySIFqZPtFE6
-         SHYMtkioPNpwC3VdOogg1rCFhnWnrqYLmf9KU/5fqP8HE/ytfnIuQA54b/edWNZrfDQC
-         vK+GU/WWLyoIZVPpNsxlk30+hcfXg4z3zi4i5qs3oV+P6ZBnGru4y6l6NytRlWQG2RsO
-         GuyBEAgLhIiUhm1TcRTp84q13hxoCN+MRI4eZL/I5Y04yNd4qPm1Z5BsyAWRaEkyOi4/
-         l2lq7iAVKJ4ZKnXUDEf/q9GMOYYpffDzwMUxT5MtQqQak9wKGJ2rdpYL9JM7Lo4KyDs7
-         Yp4w==
-X-Forwarded-Encrypted: i=1; AJvYcCWnPF0sp1UgeeObV2TEbEavKoILhn3o+jov5+ETo0YS2NuWmbYweE1piD5CuEy7XnsaPoKc01A2h2wkObWg5A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxpos4V8Ubugq2FI8/BbToLIZZ9jgLabaaPNEKOa831pBk11JvQ
-	OREi8yg7QLuH6DBsF1+SbRc7P0Dlt0bjVuiG3XEXvBWuQV/UwpsMUeqFZV16j+WdcKdT75h/pv1
-	EGeNFE14W2yz7EsrLHH2g0w3Up40E2kAeROBAPGoIQA==
-X-Gm-Gg: ASbGnctMb26/Ffs1vcTRviI6RDimiVh3QiqFogUGsi3DzEGmZkuckozHqIn8MBzr5ha
-	8bb13MPuGaj2AHMK+QghKE0jbJz6kddE95TaUdzIrJLhKLCBFfAs/GSJ1aplAnWdrMflNe7u5XU
-	xGiMXQJHp8rqvZQgvf2Cson82nu8gustpQyBd4Jt6XQRBeTPxFM5JKSiLLQI95hetz4OHffNzB/
-	+I3RPQscOuAy6aaXzw56F8OOqVoReIXtq4nFWjS8TueWiH2QgqsCA9wbFKwtXKLH9ED+5as5x88
-	2w==
-X-Google-Smtp-Source: AGHT+IHGpQifOUabQY8FejQjy8n/4nAg/aduFF+Sh7nUDVl0gOlgObgBO6vnO+raGR+BtZBHJIFRQGpSM43TyEU8Zk8=
-X-Received: by 2002:a17:902:e78c:b0:265:f460:ab26 with SMTP id
- d9443c01a7336-2935dff6505mr45358265ad.3.1761186872055; Wed, 22 Oct 2025
- 19:34:32 -0700 (PDT)
+        bh=tLELmYBjrIVt2tIe7/6pOjA4rz1yWYE0gX8fXO7gYBQ=;
+        b=SNXRoxVZODpVmJmDhalIaV16MRI5GBKYgMmVkFVM2AtXxqtk71HadjP0nRDbYS8cyH
+         M7qtC7Xj9iyRWWiC43fUrVASvZbDSSPzr/T+FHbHe8ZNK1KXfzpcGYdzvB6D15L9b7hK
+         VxFc9G+bh5wGHa6/GYSsP4THEpufUovsUOuMtcBlbZCKzbEEFf+W0fADllgnBXCNXLuJ
+         +99ub7U/1D2lL3jCdfG5dGCbpss2xTjNjw4i81Q0xbK91D8H26cSpvlSz+IvvJY/ZXlK
+         oJ/etMP240MT6OzZLbOgLZrFamd7Xc7p6Xh2cc869sM8AruKNGWh1SCivMxTjzyufKHg
+         02jQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV1JGAKsQG6/iDWRONKq9+nMGZx4hLJNCrw8XzjzrRY8FAks6d0u1u5G0GaSgKJ0IYkSbHg1GjhA4+iNRaM+g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzxfk/UPlhLYscvYPs84+PCfvD60DVi4vLFXZWWEmgvCMKYv5vj
+	6W0ytpGf+HN4mHjb9lvZcWjYSueWeSTNO2NBoG3GI4xqqggvNbeHznCjuNuqOZLehxJzVkqXjT0
+	5ghISKKof3vQ+9Ax6Com2NWV2IWkCZjzF13Et+ATMi2fGIifW+HfG511Rn4VVGEZepk9Z3UjLQe
+	OwMVTSYN2SX7pKtVtjN3smB2uT6nIHTE1snNfJjyKIIaw=
+X-Gm-Gg: ASbGncuaaNB0YFqonlO8AkrpNxamAbAZfs0XgUtQzrLpKuyGJi+Lx9DKcNVL3ldtMo7
+	iGSB7XNU0kWXkqcsb0Oix7AYFlS1GHAgw+q/GTTKrhJ9kbCSkyk/JN6QcKybPp2PJK7Tqw6qee1
+	180fc4fn1SCThqUKKNi5aH78RM2hy63hnKOu5tALjUs51kLfQcxYvU
+X-Received: by 2002:a17:90b:39cd:b0:332:3515:3049 with SMTP id 98e67ed59e1d1-33bcf85acb9mr34016676a91.4.1761187025436;
+        Wed, 22 Oct 2025 19:37:05 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHe/QyyERiH1ne1uh++OITBKUZJwW+GZJEUDxDewU6cwuEnbMhLwGR91ccFPAr3mIMgDlrYfBjy0UH2GlIRXE0=
+X-Received: by 2002:a17:90b:39cd:b0:332:3515:3049 with SMTP id
+ 98e67ed59e1d1-33bcf85acb9mr34016661a91.4.1761187025008; Wed, 22 Oct 2025
+ 19:37:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CAP4dvsfZEo+1+O8tpLFFh=s-fEFaMRu2+mQ3F=LJmjoEHyZXMw@mail.gmail.com>
- <20251022073015-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20251022073015-mutt-send-email-mst@kernel.org>
-From: Zhang Tianci <zhangtianci.1997@bytedance.com>
-Date: Thu, 23 Oct 2025 10:34:20 +0800
-X-Gm-Features: AS18NWB6WD4OS8XXZ-GHq97r6as6tdIAmOiC0-ZTqAO2YoRLqkcTHye0-K0I5dw
-Message-ID: <CAP4dvsfXs7Do=9d_05tzU5FUuqfLnsFSpodSMDhv=FR2KYWh=w@mail.gmail.com>
-Subject: Re: [External] Re: virtio_pci: Question about virtio_pci kernel
- module refcnt
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, xieyongji@bytedance.com
+References: <20251022160623.51191-1-minhquangbui99@gmail.com>
+In-Reply-To: <20251022160623.51191-1-minhquangbui99@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 23 Oct 2025 10:36:53 +0800
+X-Gm-Features: AS18NWAKWzREjF0AApyvOANK-aDy0vhZRfRMkPBOWaAVhrOoGWAFI9xvVg3gyH4
+Message-ID: <CACGkMEtrdXOCsRQiw659Ygze7AXAHw4-uK_Z+zdi3r9V5XDLZQ@mail.gmail.com>
+Subject: Re: [PATCH net v4] virtio-net: fix received length check in big packets
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Gavin Li <gavinl@nvidia.com>, Gavi Teitz <gavi@nvidia.com>, Parav Pandit <parav@nvidia.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: KysbbsPU6N6xBVLRbSYQ5ydnuKpeu5FSl6thC7lVtf4_1761187025
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi, thank you for your reply, but I still have a few questions:
-
-On Wed, Oct 22, 2025 at 7:31=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
+On Thu, Oct 23, 2025 at 12:08=E2=80=AFAM Bui Quang Minh
+<minhquangbui99@gmail.com> wrote:
 >
-> On Wed, Oct 22, 2025 at 07:21:45PM +0800, Zhang Tianci wrote:
-> > Hi,
-> > I noticed that the reference count of the virtio_pci kernel module
-> > in the VM is always 0, even though there are at least two
-> > virtio block devices and one virtiofs device in the VM.
-> >
-> > Using rmmod virtio_pci can unload the virtio_pci module,
-> > but this renders the virtio block devices unusable.
+> Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
+> for big packets"), when guest gso is off, the allocated size for big
+> packets is not MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on
+> negotiated MTU. The number of allocated frags for big packets is stored
+> in vi->big_packets_num_skbfrags.
 >
-> it removes them. you can put it back in and you will
-> get devices again.
-
-But I can't do it anymore because the rootfs is no longer available,
-or rather, the OS is no longer available.
-
+> Because the host announced buffer length can be malicious (e.g. the host
+> vhost_net driver's get_rx_bufs is modified to announce incorrect
+> length), we need a check in virtio_net receive path. Currently, the
+> check is not adapted to the new change which can lead to NULL page
+> pointer dereference in the below while loop when receiving length that
+> is larger than the allocated one.
 >
-> > I wonder if this result is expected? Why don't the virtio block devices
-> > and virtiofs device hold a reference count to the virtio_pci kernel mod=
-ule?
+> This commit fixes the received length check corresponding to the new
+> change.
 >
-> because they don't have to.
+> Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big p=
+ackets")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> ---
+> Changes in v4:
+> - Remove unrelated changes, add more comments
+> Changes in v3:
+> - Convert BUG_ON to WARN_ON_ONCE
+> Changes in v2:
+> - Remove incorrect give_pages call
+> ---
 
-Is it due to design reasons or implementation reasons?
-Is it because the semantics of kernel module refcnt does not include such
-logical dependency?
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-Thanks,
-Tianci
+Thanks
+
