@@ -1,170 +1,86 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F0762FC866
-	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 08:59:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 453A03112A1
+	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 12:15:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761209982; cv=none; b=oeckozEqnCIgFnGqw23ZbqiCwxDdXhvn4Xj+0nvTfBDHm3oWqtyGFrldZb6hDr4gvP+gjNEBPsTGq2V3MioFw1TjMau4F1k5mxUj6g6FI+7eNFa7TSTz63MeAu1fibgNpP3NpN0/RTKCpf3WsILlTvyGG4FAd7aR1O/EoCh/zmo=
+	t=1761221727; cv=none; b=OpAPSlUfYKpzXkUaGRpKlp6AMV6uUgaiNz0o1bDVaZ+vOMNOQUNl9pJteyV53KOyormpyfVsrMLtiBFrOX8MyXe2b0s45VXHjQZoG4KsmoThUDRbMY+GtJwUUTJCo1yo1/MM7KkLby9LWMw8Rs220Xj9JxSd6VG3tROFSC/otCE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761209982; c=relaxed/simple;
-	bh=1yh7dz9RMEY07pnAV8bIXHBaBIdaX34BtyPuiHNKE4Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dCW1nfMo3yYCrPYP64jT8fvwwu6PZc7HWL+Zj4cUSzsiyvlLy+muzHeTbODBEZBDX5azU4YicISTlSuAtaXMCpZlYZFVh1OJuqzo8LKo4WsNdutebuaav/4Rehmnokn6nL38K04qkortHOzOQXf+PdsK9gOpuxPNTs9ig7XSX84=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eWd75QX0; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761221727; c=relaxed/simple;
+	bh=/Aa9/p5ixgjp5gWgZv1LUcGcEIoUWo0x8Z1c+T8nOPw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Oq90KR6CyQG377HcW5vqLrvZKrvTWLQXewuAPcH5P/ROQZ98XKfnEkkrDPx9V3i8CNfJHurQCcdGwgZuSxFb4BM5MXo6W8G9V0B3F27J3+kz5WZLEsndy3t7Kx3tcESrtQUCGSOYVM7jqryMRcH5dYsf8EBBwaxPhnXvEhTRjNU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=eGkwRJvx; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eWd75QX0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761209979;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sSotLUDJ8zQ7Y8qeJ4UDmz0iyr64rlT9tToeWdRyEWE=;
-	b=eWd75QX0V61fUhQpT0I8RndcWHaWhU/iBSD3y7iclwtnalUovd7PWOyvs0sj2XxK4kbcZR
-	h39oFoY8v4JgKLu24CowZYPIQ6CU3qFyOdUpyBvt66P9HvjM9HSxQBOH3mqKq9t2/W5Tqx
-	7dUGStjFRIM7zgCPTL4yfUHH/OUjTsg=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-664-z4wpgTjbNPCH1OPIivdVfg-1; Thu, 23 Oct 2025 04:59:38 -0400
-X-MC-Unique: z4wpgTjbNPCH1OPIivdVfg-1
-X-Mimecast-MFC-AGG-ID: z4wpgTjbNPCH1OPIivdVfg_1761209978
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-7849f67aa1cso6680157b3.1
-        for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 01:59:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761209978; x=1761814778;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sSotLUDJ8zQ7Y8qeJ4UDmz0iyr64rlT9tToeWdRyEWE=;
-        b=qTz0ARGKc6H3ZgZYuQ+ESB2nhRZ7o55t+8iNqI9Wx5iI7Obml5kuOofUHfN4ncmvnC
-         vhGAMm00Xa029uieQEjGkD3kxruUgxVqRxddRBbce0ERWjRBzE17vXJuHPOsUQhCaepH
-         kF3JZ3ZV/LlLAbv8wZDC5HrPmw5n0RhKv/x25mb4nTRAc8MJPzHOvNpB2gOQGVxcgI6D
-         9a1asNvY4Ext6rf8hFkGV5Bnt8+2EDm/rhqyDy1Hu25rC55T+zUiVqNHYtHPYCjxke27
-         J3Kmmf04wvxuF2nmTIoNLOZRY9gt8JRbJwtwXVkkZJ6AaOT8sJeu2LBoOJfZiTM6JRxZ
-         6iHg==
-X-Forwarded-Encrypted: i=1; AJvYcCWzA/plMnS0NcPjWCAEtUui3SUzRTc0XG3nwE0MnVba/OOQwhE9TX7hTslT/RSXvhlgsLLL1tSNZmfa4FeH7w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx0bIJENpqYLhF+3KZpUePoc1LR4sXY2zIEnWEZFpd72gj1X0oV
-	1g1y2crfHAhcg2C9S03BhbXyKqbshSV/bRavdMOQt3eSGhTFntnp5LxWoZxvmixAwu2vRI7NK4U
-	AUuP6VWrzeOg5x9QsyjUijmMKepYmCOJ8zDU8atiRnL8kHRVo6WoMqO4dkk2s+THKHA9/tEIb5o
-	Uw0Afmn5faf6Q0rNP9od//+9F55qnaFeijLsWHfgOEKvI=
-X-Gm-Gg: ASbGncvVn/e1BIGdVIpwkjL6KLklqV4YFJlvAqREqv6z0VcxQq0gOU/GoPX9KfwZoAS
-	Ljvd25TMKbu34Pwzngu5i0FN9qHBWhUXxS5RsjEJ7PnlI4hAOreBSTnudnNj/zW8gcuTdJAas8l
-	zusgd7T1K+bHv2PR9q+Ng0YceEh4GshjN/ytQpc1nE/9Bi6V5+MOAvmWVsbktVRBHZfwAoDh+3H
-	qFko8DEhMnLBvnnrUut1Ji/kN1FKI3l/FXGQnvmXh4=
-X-Received: by 2002:a53:e03a:0:b0:63c:f0a0:d2b3 with SMTP id 956f58d0204a3-63e16191c9bmr14720514d50.32.1761209977677;
-        Thu, 23 Oct 2025 01:59:37 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG0wNsY0SpvLnxlePtE50ekByNXXN+BJMJDYzluYqiIyg9NsgvCz9tfdqcONap/vZPf8NLrMzM1lW1oyL54W3A=
-X-Received: by 2002:a53:e03a:0:b0:63c:f0a0:d2b3 with SMTP id
- 956f58d0204a3-63e16191c9bmr14720497d50.32.1761209977337; Thu, 23 Oct 2025
- 01:59:37 -0700 (PDT)
+	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="eGkwRJvx"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id AE4BA40E00DE;
+	Thu, 23 Oct 2025 12:15:16 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
+	header.d=alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id PEGJEf8Oi9kU; Thu, 23 Oct 2025 12:15:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1761221713; bh=jNnUSZNer5DkpYV3DRAZLxkJtVPD6JU88mvtvzlUzrA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=eGkwRJvxA6ZWwjgoz+h6Ny6iNgdo8S9sWJs5wzlLkqFRbZkmwKaQDv9LJrkPF2vmC
+	 p7aIUkdFVsrNKwpq1KnO1nMdelg6z1Hr2mn3eAbEmVFOVVTP8o1AOHVSxlZ1XKSl7U
+	 H4Ifbjyu9DBkP0K8MlklOffniFDhhEISfC7qZcKpQ8oSX6SuNV2DY8Jc0msWAIU0ed
+	 k1Cv0weEk9/Go/SjHPEWp3KN9PTTTm/AI3Q6/JkxDJgcTifwSxzeVdvl0jqs6sTZ9v
+	 OJJfhpyO0nkAIBfV+sLMZuyGTKI3jhzSgTx2JPQj2702qb87gM8dPcjGe7mT+i5W+P
+	 CnSOK4HBuj6cHMQc5uJVH8uHirtcFPEyTw++sYGhpAglZSYkt8tzuQyb4vfbIDqgCM
+	 fNpgqQsosfznobp8apjq3Q/e3wr0isccF8pLFZzZAEABRX36xljT5ujUplSZlE75XJ
+	 vfnSxRkKiIvyXu9ouD0uTbyIoVVt6fy0Mvx6rue/voSFuoNvZzuLdVCLSlYZVHwlxO
+	 JML4IhfvK3/ZHOeCvZg4zUp007UrUTefyOD7weNrJmTZatgKGiIt+U/yuDFne4gJRp
+	 bEmNtO2XKtju40bf01PcG+hxWCRdsiB/zqjShYq5TdqA3RKdqA1Rko0HxE1XLYCIpd
+	 E7cCFHHEbzgDRLp3fUrLWXQU=
+Received: from zn.tnic (pd9530da1.dip0.t-ipconnect.de [217.83.13.161])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with UTF8SMTPSA id CBB0F40E021B;
+	Thu, 23 Oct 2025 12:15:00 +0000 (UTC)
+Date: Thu, 23 Oct 2025 14:14:54 +0200
+From: Borislav Petkov <bp@alien8.de>
+To: Juergen Gross <jgross@suse.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+	virtualization@lists.linux.dev,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	"Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: Re: [PATCH v3 02/21] x86/paravirt: Remove some unneeded struct
+ declarations
+Message-ID: <20251023121454.GQaPocPvNMDYuOBod2@fat_crate.local>
+References: <20251006074606.1266-1-jgross@suse.com>
+ <20251006074606.1266-3-jgross@suse.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251010085827.116958-1-eperezma@redhat.com> <20251010085827.116958-2-eperezma@redhat.com>
- <20251010081923-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20251010081923-mutt-send-email-mst@kernel.org>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 23 Oct 2025 10:59:01 +0200
-X-Gm-Features: AS18NWDXz0Atkh7F9Php1dpfKRFwMMy-_YZuCG3P0gsh7Sj928Na5Lf7nD8kKCs
-Message-ID: <CAJaqyWeeJVM6VeYp4HUEe0ZZAi26Jgqw8WaEg6POoGcUOkk6Qw@mail.gmail.com>
-Subject: Re: [PATCH v7 1/7] vduse: make domain_lock an rwlock
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Yongji Xie <xieyongji@bytedance.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, jasowang@redhat.com, 
-	Maxime Coquelin <mcoqueli@redhat.com>, Laurent Vivier <lvivier@redhat.com>, Cindy Lu <lulu@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: bVfO9WEwzBmehjWJbk_neDrjUL4fTYTEWhAfGblNlc8_1761209978
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20251006074606.1266-3-jgross@suse.com>
 
-On Fri, Oct 10, 2025 at 2:34=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
+On Mon, Oct 06, 2025 at 09:45:47AM +0200, Juergen Gross wrote:
+> In paravirt_types.h iand paravirt.h there are some struct declarations
+		      ^^^^^
 
-...
+Spellchecker pls.
 
->
->
-> > @@ -2045,11 +2046,11 @@ static int vdpa_dev_add(struct vdpa_mgmt_dev *m=
-dev, const char *name,
-> >       if (ret)
-> >               return ret;
-> >
-> > -     mutex_lock(&dev->domain_lock);
-> > +     write_lock(&dev->domain_lock);
-> >       if (!dev->domain)
-> >               dev->domain =3D vduse_domain_create(VDUSE_IOVA_SIZE - 1,
-> >                                                 dev->bounce_size);
-> > -     mutex_unlock(&dev->domain_lock);
-> > +     write_unlock(&dev->domain_lock);
-> >       if (!dev->domain) {
-> >               put_device(&dev->vdev->vdpa.dev);
-> >               return -ENOMEM;
->
->
-> Let's look at this example:
->
-> So now you are invoking this under an rw lock:
->
->
->
->
-> struct vduse_iova_domain *
-> vduse_domain_create(unsigned long iova_limit, size_t bounce_size)
-> {
->         struct vduse_iova_domain *domain;
->         struct file *file;
->         struct vduse_bounce_map *map;
->         unsigned long pfn, bounce_pfns;
->         int ret;
->
->         bounce_pfns =3D PAGE_ALIGN(bounce_size) >> BOUNCE_MAP_SHIFT;
->         if (iova_limit <=3D bounce_size)
->                 return NULL;
->
->         domain =3D kzalloc(sizeof(*domain), GFP_KERNEL);
->         if (!domain)
->                 return NULL;
->
->
-> ...
->
->
->
-> Which unless I am mistaken will produce a lockdep splat and deadlock.
->
+-- 
+Regards/Gruss,
+    Boris.
 
-Can you expand on this? All that code works with and without lockdep.
-
->
-> So it looks like the previous version did not compile
-> and this one looks DOA.  What's up?
->
-
-In case it is useful, I forgot to enable some vendor vdpa drivers of
-HW I don't have, and that was the reason why it didn't compile. But I
-didn't send it without testing it of course.
-
-> At this stage please include information about configs you
-> tested, and how.
->
-> And any locking changes should also be tested with lockdep enabled
-> please.
->
-
-This is the text I'm planning to include in the next series, please
-let me know if you want me to expand:
-
-Tested by creating a VDUSE device OVS with and without MQ, and live
-migrating between two hosts back and forth while maintaining ping
-alive in all the stages. All tested with and without lockdep.
-
+https://people.kernel.org/tglx/notes-about-netiquette
