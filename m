@@ -1,161 +1,130 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD91C291864
-	for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 16:08:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C47819994F
+	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 01:00:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761149287; cv=none; b=p2y3QoMDB/fSbSaMqnnYklk7q0gb9mPmlMmSs1lYtootjXlHuoPo0NY/i//8ruNc0PNHGL4CY3wMN8wCFZsktLo7cMsJEREG5lgQePZbksxjgBu/2pFjIAoNLX6sr8vKufQW4yHLCDhrfMc5rZQKbeVoSiuiW6ifO0xVDRNI4gs=
+	t=1761181227; cv=none; b=nqEmzzb1jAMVDG5ExoIW7yuxl4fuiBn1c3+7xmBNAk3tfq87gvFblYBw+zvjDNG14cQy439XGjhZlBSKWWPF5Vw7c1X4EcWs5pj4vLkxz1pcBLaepxmUAWsx06yCXbTDGRCuzRUf4Y23pu9GWXgGDEPuily2p5cJSdeEUFGnQzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761149287; c=relaxed/simple;
-	bh=auzHCSUbL/L9ko4QwDjdjbZQ98SIJfRrjs+q/xktilk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WGzyot5pLhruFPxXRxTxJxyrCvubLxtioLyQHzBlxS3nq3+X8vMjrX5WzQDWDFeTrGi6Ta+SlpZWzhgvrE1ZK7G9Rdh+Ism0QAgA+uSupHOt5L2W/281YhPf112VG7/QFzJJqCFf7xhzI0R6KRJp+WzGQ3euctxQR6F37/cGAcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gry/AqZM; arc=none smtp.client-ip=209.85.216.47
+	s=arc-20240116; t=1761181227; c=relaxed/simple;
+	bh=OrsxdswB6rrhAmFOBRD5OXXftqbef7SMzTrZcBtK8PE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=HDCZ9kIQBu0HebaAMJwmsh/gaK8IP5cz4YcFF6UA1Ex+U8Lg1zG18BSHK4i2zV+7Dx/n+fvqlzxYd40vce3si3eGrkOEmEX2tpT71E+AEjGsIwwB30uZkwKrJBLV6YuWro0zW8eLj3o1peL17irFC63shR3BpWz5nKX27KaJoPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Uc3ro7bp; arc=none smtp.client-ip=209.85.216.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gry/AqZM"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-33b5a3e8ae2so1111743a91.1
-        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 09:08:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Uc3ro7bp"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-33082c95fd0so245752a91.1
+        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 18:00:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761149285; x=1761754085; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=n9ABbt3qgyLh4i74MVszWBEA6Z+Ea2lJZRM4Xy5gRb4=;
-        b=gry/AqZMsxrYJ7srJC/VeoYruIPWGtYjfk2y/RKT3kGh9/JB1DZTJua+99P7IFMDUe
-         gh5hYVk9I1+va0A09JOU5nNtoETHZ+/9OEanlUiyo+rSJnyReSZSYEGgpWrZK2jpuT5W
-         7F22XFFBzKdN01LuG3BJIz4tQyRNt0WnNcqfP9opDFNH9mU/lWqU/pNOldDRRwx8OSZv
-         ZG368b+FivYp6QtBQaEKtWwMOZAZn0orFwHVZO9bBeIjGVAD9AxlCtwcOn2UJOIp77pX
-         jaByxzxKZUEZeRDavBZ630pSI00rdwlmJO7Hrxm7mJKm3IkvcSu9so4fMPnDkGbxAiPF
-         nO6A==
+        d=gmail.com; s=20230601; t=1761181224; x=1761786024; darn=lists.linux.dev;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=QcrG5SS8hn1JmYCm2wGF/gyiT6cJxpEJmuxnsfJHsCI=;
+        b=Uc3ro7bpVrFHZrmHJvgPExYoRSC8yiEhHlfRv5YombZMExHYN/3Av1qdwbJ89WPbn7
+         WENhj5MgKd6eHfP+pbrjRsaq3gTt4NiTG0f3xYfw2EGa3TJfAKslDdROzQ2FB2WAsDkA
+         PILunWbWHjBWN0ivENCVJJHhPFxxFgspp2wPk8Y/sSzgs+P0qrikDsj+5zE4Wb1IQ1DR
+         TFYZth7R+c3qOXUwbxiY8rKz3K2QC2TJjnKsJsDGTFRC5kAj5xrhqwTs519gnlaPEOZy
+         S0yQTqwmD7A92Ipvl8ZQFE7oS51VW0hph7yeA3DR6l/GVVfybENWc/lr8LAy7vnftYF/
+         kbYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761149285; x=1761754085;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20230601; t=1761181224; x=1761786024;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=n9ABbt3qgyLh4i74MVszWBEA6Z+Ea2lJZRM4Xy5gRb4=;
-        b=bZkE3h/Pq8OA1s4jTCtneic7FloIbaJv5dZnwJHcoevnxiAe1E8kxLGTxrbftQdQXc
-         Ojv0DE/wEpwwdFt3sX3aMRsPeFNDQUgMo1sSLAaNdWY/oxzNTl9z910nKU/GCSo7yJ9Q
-         Bxv4xPYZT9LfWJGKXgdL7zq9AOxVzSE50G9vJBLjL5OF9iY3FLMPuf4Jo74hdKwgD6Tk
-         0q0fnzgxSakkBm9U658fG2vzON2qUw+cVZudvKyAOpBL2WJVyL7cJAF4jWRZuMJjhpG3
-         wZLTCAFokRI8Yq8u+WxJ7H/0EZOh5YBbllljO6zkDfMnd4+0lq1AOKlpUg7Gn5Hm8HMV
-         J7kQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVpffNAanYEBLSkWECdKFl9c4+83bhDH0M9exoW1WKQqag5PjnRrIT7d2YVPNscmdyl3jgAONWsGYpFnFqCfg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyWg7vRE+ASZ7dEQ8skblS7E/HklB6OyBkllXrYyYDNOMI/HFbJ
-	fw16b3jGINWTyHK67tZ8QevWjlwLzXX3Tkj/LBTzBM04AfWeLsPSRVCn
-X-Gm-Gg: ASbGncu+78no25MkOzLRYag5eKfSOUmjlTaVfYQyAlPOvqfDdqI063xBG/2iVaqB6kB
-	i9DFLLymmHGMiiG/SZRPcKGC6dcUC4wtoBZD/oaob+HYlPMl1GcDT+zMUcxflLtqIF/KOrIu+X1
-	vw+AZzValDXlLv+r4e06KsYpycWfpJFD1NBPNp8TWpsKt5B2bn9MVTJRGTXp3YNRVqU3XDw4Wds
-	SQRJ/W+boolFht3oP2N6h5QVh6FLXiyF3De8zmiRaehOv5Orb3LSsdf2BazgMnv15SsUltWzV06
-	sP1tjsdWlbBM3x98VvsvPMz9iNenck70PR2O0//7cuAszA0wtomnx4WCeQ3hhmThRjbNiMNGvMW
-	Sy1V/6Xk+f3siE7hMgQ077dqfBVVnwhxQtKr5Bsf7vrdd5pUHigxmANNLQ5n+giZRv8nnS9Qi7R
-	TZ0WJkIdmqDiwWEDIFfycQ
-X-Google-Smtp-Source: AGHT+IFKQtMp6Ai1uuAm7SgpDta9tGj5AFau6iGF+3bo3T12AjcV7wXz2cyGdxVGwafExfKv/O8axA==
-X-Received: by 2002:a17:90b:3c09:b0:32b:d8a9:8725 with SMTP id 98e67ed59e1d1-33e91ba3198mr2672703a91.18.1761149284702;
-        Wed, 22 Oct 2025 09:08:04 -0700 (PDT)
-Received: from minh.192.168.1.1 ([2001:ee0:4f4c:210:1e3:b1:dcbf:ab83])
-        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-33e2090eff6sm1771750a91.2.2025.10.22.09.07.59
+        bh=QcrG5SS8hn1JmYCm2wGF/gyiT6cJxpEJmuxnsfJHsCI=;
+        b=OYtT4ZoRGysuBYT2+1sb8gMEss3ageOR0NnvQTPvd6NFHWcS1XzLYDTInN6GlCXRzo
+         ZG8fTPgj5hiUnbsoopdNaTJuCj/xRmIuDwU5hHBoxRQMyMiX831RTXxpBB0ibynuffZF
+         i7Qv1UCJB32TReVxRUnHllfHvApSjZmyvv9G8ZxC2aZKxmqee0GYaHCN8wSW21MS/uCM
+         rsH+PCPTgZ06s6QezWr/tqXMPJCQdzrkaXSeJW/pywnX4sgGJse/BxBTlw4HPw8BZT9p
+         +uAYyN8olz7xHB7NXJIMOYp3ryJUiea7yPvxi+XybpuOZqPNRGPv55lk8/F1NDrHjs9l
+         Mfiw==
+X-Gm-Message-State: AOJu0YwHdeRnAXB9iJoNNgaLyR5cQOeYCbj9IGaxN7mf7XDCTwuMea2B
+	7xlMlAfcOekhFkDi5Gkzf5fExmqCqeVh/D5xLzQlMkrO5EMVEc6gff685iTaaShC
+X-Gm-Gg: ASbGncv2FS4X5Bn0EU0KKIMYn3datbj+d/LPbPNKP21v4m4GUFIgvd+X/QmqGgpvmEA
+	N2wEyZKXlSpW3iLGX90gzclBOdtECcEulEiI/w5jhdzHoJRd2IifZQjf1Gs3WVRHpI4ZDwncmOT
+	bBgpuTvL8rSmpRh8ib1lX0hwpjPE6Bni9l4NHCR3ti5dlLTbyGpUmaibAiaZKN5SL34agmwXlvP
+	0hIbE8H2l9Zy0z+s3nbBa+eO5qd3+rBnF4iQiCbcDPPJ5qY2It/j2OfRrwcOwD5PxtWpKH0DWsb
+	mlVJngGFis3t5NJRai1SOydtEy2+wmISmlIg/uKr+LoBud+1BBsTt8S1hV/W+tHzT0nKGoaQ1Ky
+	qhdeHxU2FUyxAnGPsPv8GXhy7U/apDvWwVnY+KjZNyt4nuYMV5uT+UkKVgtrhWXVLRJQAg72xrH
+	FDo6YjZ3g=
+X-Google-Smtp-Source: AGHT+IGnOv9l1GPF2QRjAQJj6nCOHdYFB+j/jBqimM5n8rIVXUeoQADXI3xEZDsAaop4mPz3EecSjg==
+X-Received: by 2002:a17:90b:4c4c:b0:329:e4d1:c20f with SMTP id 98e67ed59e1d1-33bcf873e1bmr28314920a91.9.1761181224284;
+        Wed, 22 Oct 2025 18:00:24 -0700 (PDT)
+Received: from localhost ([2a03:2880:2ff:8::])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33e223e2a48sm3855388a91.6.2025.10.22.18.00.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Oct 2025 09:08:04 -0700 (PDT)
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Gavin Li <gavinl@nvidia.com>,
-	Gavi Teitz <gavi@nvidia.com>,
-	Parav Pandit <parav@nvidia.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Bui Quang Minh <minhquangbui99@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH net v4] virtio-net: fix received length check in big packets
-Date: Wed, 22 Oct 2025 23:06:23 +0700
-Message-ID: <20251022160623.51191-1-minhquangbui99@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        Wed, 22 Oct 2025 18:00:23 -0700 (PDT)
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+Subject: [PATCH net-next 00/12] selftests/vsock: refactor and improve
+ vmtest infrastructure
+Date: Wed, 22 Oct 2025 18:00:04 -0700
+Message-Id: <20251022-vsock-selftests-fixes-and-improvements-v1-0-edeb179d6463@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIABR++WgC/42OQQrCMBREr1L+2i9JbCm68h7SRZr+2KBJSn4Il
+ dK7G4oHcDnzhpnZgCk5Yrg1GyQqjl0MVchTA2bW4UnopqpBCdVJoSQWjuaFTG+biTOjdSsx6jC
+ h80uKhTyFaouub1th7aishlq2JDqStesBgTIGWjMMlcyOc0yf40GRB/+NqX/HikSBLV37i52Uo
+ VHePWV9NtHDsO/7F6ESUlXlAAAA
+To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+ Bobby Eshleman <bobbyeshleman@gmail.com>, Jakub Kicinski <kuba@kernel.org>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Bobby Eshleman <bobbyeshleman@meta.com>
+X-Mailer: b4 0.13.0
 
-Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
-for big packets"), when guest gso is off, the allocated size for big
-packets is not MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on
-negotiated MTU. The number of allocated frags for big packets is stored
-in vi->big_packets_num_skbfrags.
+Hey all,
 
-Because the host announced buffer length can be malicious (e.g. the host
-vhost_net driver's get_rx_bufs is modified to announce incorrect
-length), we need a check in virtio_net receive path. Currently, the
-check is not adapted to the new change which can lead to NULL page
-pointer dereference in the below while loop when receiving length that
-is larger than the allocated one.
+This patch series refactors the vsock selftest VM infrastructure to
+improve test run times, reduce false-positives, improve logging
+generally, and fix several bugs.
 
-This commit fixes the received length check corresponding to the new
-change.
+It also prepares for future tests which make heavy usage of these
+refactored functions and have new requirements such as simultaneous QEMU
+processes.
 
-Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+These patches were broken off from this prior series:
+https://lore.kernel.org/all/20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com/
+
+To: Stefano Garzarella <sgarzare@redhat.com>
+To: Shuah Khan <shuah@kernel.org>
+To: Jakub Kicinski <kuba@kernel.org>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: virtualization@lists.linux.dev
+Cc: netdev@vger.kernel.org
+Cc: linux-kselftest@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+
 ---
-Changes in v4:
-- Remove unrelated changes, add more comments
-Changes in v3:
-- Convert BUG_ON to WARN_ON_ONCE
-Changes in v2:
-- Remove incorrect give_pages call
----
- drivers/net/virtio_net.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+Bobby Eshleman (12):
+      selftests/vsock: improve logging in vmtest.sh
+      selftests/vsock: make wait_for_listener() work even if pipefail is on
+      selftests/vsock: reuse logic for vsock_test through wrapper functions
+      selftests/vsock: avoid multi-VM pidfile collisions with QEMU
+      selftests/vsock: do not unconditionally die if qemu fails
+      selftests/vsock: speed up tests by reducing the QEMU pidfile timeout
+      selftests/vsock: add check_result() for pass/fail counting
+      selftests/vsock: identify and execute tests that can re-use VM
+      selftests/vsock: add BUILD=0 definition
+      selftests/vsock: avoid false-positives when checking dmesg
+      selftests/vsock: add 1.37 to tested virtme-ng versions
+      selftests/vsock: add vsock_loopback module loading
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a757cbcab87f..0ffe78b3fd8d 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -852,7 +852,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- {
- 	struct sk_buff *skb;
- 	struct virtio_net_common_hdr *hdr;
--	unsigned int copy, hdr_len, hdr_padded_len;
-+	unsigned int copy, hdr_len, hdr_padded_len, max_remaining_len;
- 	struct page *page_to_free = NULL;
- 	int tailroom, shinfo_size;
- 	char *p, *hdr_p, *buf;
-@@ -915,13 +915,23 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	 * This is here to handle cases when the device erroneously
- 	 * tries to receive more than is possible. This is usually
- 	 * the case of a broken device.
-+	 *
-+	 * The number of allocated pages for big packet is
-+	 * vi->big_packets_num_skbfrags + 1, the start of first page is
-+	 * for virtio header, the remaining is for data. We need to ensure
-+	 * the remaining len does not go out of the allocated pages.
-+	 * Please refer to add_recvbuf_big for more details on big packet
-+	 * buffer allocation.
- 	 */
--	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
-+	BUG_ON(offset >= PAGE_SIZE);
-+	max_remaining_len = (unsigned int)PAGE_SIZE - offset;
-+	max_remaining_len += vi->big_packets_num_skbfrags * PAGE_SIZE;
-+	if (unlikely(len > max_remaining_len)) {
- 		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
- 		dev_kfree_skb(skb);
- 		return NULL;
- 	}
--	BUG_ON(offset >= PAGE_SIZE);
-+
- 	while (len) {
- 		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
- 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset,
+ tools/testing/selftests/vsock/vmtest.sh | 345 +++++++++++++++++++++-----------
+ 1 file changed, 227 insertions(+), 118 deletions(-)
+---
+base-commit: 962ac5ca99a5c3e7469215bf47572440402dfd59
+change-id: 20251021-vsock-selftests-fixes-and-improvements-057440ffb2fa
+
+Best regards,
 -- 
-2.43.0
+Bobby Eshleman <bobbyeshleman@meta.com>
 
