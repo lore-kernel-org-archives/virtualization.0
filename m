@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 357342C08D4;
-	Thu, 23 Oct 2025 14:10:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C861832D43E;
+	Thu, 23 Oct 2025 14:30:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761228660; cv=none; b=MGNaRc1HXotYGx8wJH1jxUk7BOcBxPjmxDmmnlpIEebwJfR2uY2gWaGS83MPJQ1xEafI+exLGL/46ALzYFv7Bj2ws+o8AyM1XoJezfIqlsQqeZ0KwhxRDRl92Bqt53XTGM4cz/yb715HYeWtwViEK+45NNY0Z+z+39/yZGwtfFk=
+	t=1761229836; cv=none; b=bh3t3Bm91CC4SDjbBKWbIA9aBKxeMMf8L+m7qBwd+GFUp+x8Yg9Q0fgZCkrBRGzB8VWf84+1TMrMg6NDkysi+n3KVUWO49HcFdeKti/yZ+03FVGd7T4Y2qkZLntCkvOttmhHldyjaIbQ+jOC6Mx40pLr+R7S8qm95EDAJTwlJAg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761228660; c=relaxed/simple;
-	bh=eSprNQlHjgFzkbUuWVP7nIc8dN/p5jGa3oWGpzxaiY4=;
+	s=arc-20240116; t=1761229836; c=relaxed/simple;
+	bh=AtBLuOu30wZ5DYW+wY+eKPBg8t1AvODpuADEttnpp0k=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=rYYys97xLvzav1lCmdNH9M9TR5lBGU8oPTq7KyJfXj6Ye7DZ2GOv1pT6wxI1WD6NVZczzVYiJYdveHThImEF49yi2IQxTYF2ge2pXtT8AGO8uNpY9W//0R6ToJ1YgiaojkXW05kx2b9/CMhWFFM7CwJg69YCt8XIJsghnbGxhBk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Pm9Nidj9; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=uIaddGI9WO7PuvtEV4lKfEaYQLvBrccvB+zy9CbNWX1azHeqIu8x93H2YRfcLXBD4t4mEU1+fYscDFjHHjebyTv2yVi0ij1iRMAG9UkTY3W/2rzbWO1mNX/fQXszOyPcEP9Bnz6vA+bS5N6y6nT700/38WWmZDtXksv/juBNp3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RZRs9nyB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Pm9Nidj9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9D3EC4CEE7;
-	Thu, 23 Oct 2025 14:10:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RZRs9nyB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45402C4CEE7;
+	Thu, 23 Oct 2025 14:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761228659;
-	bh=eSprNQlHjgFzkbUuWVP7nIc8dN/p5jGa3oWGpzxaiY4=;
+	s=k20201202; t=1761229836;
+	bh=AtBLuOu30wZ5DYW+wY+eKPBg8t1AvODpuADEttnpp0k=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=Pm9Nidj91Fi+yfXRmJwj8wVZHIZgbjGDV/dfkC/8TMB7zQjnQsK/QBLjuLywtWCO6
-	 CHgKqi1WU5SoGj8YT5OUK8PMHTVk+CLGMJZHxAOdBvZQtvbBpGmkLzHrT/a1ZANL0i
-	 0/UaNjiQpxtjmWyDtN1WEmQIJHkl3oS1U9mK+ZcdKYyqKd+fxfBaklYcd4e1uF3TEN
-	 mcSHv6NrgBmCCG1z6eJ3Le9cy0UCrLwNn1jjzRlAhT6fm8bbsJzP7f8mgK0/uMSgjC
-	 p7BbZ664nbOkRTBkYuhZJwas3r0XzOJTTISoY6JqypseQ0WybHEvs9KP1NrCZOMyY9
-	 ualZ8llezL7Fg==
+	b=RZRs9nyB4Mm8qPSdRmapwMQhcEGAnbIKs1FQHvXMqKipGanH43pui0FEd+bncs3Vb
+	 Mjrgdm1+qS8SSkovcZgzwaWrxjrqOoQAcYzCUM5FS9Gs9fzKCBW0rFHtifGlzFDjj/
+	 fgJhDiDw20y3Vbv6HqnIj2nJSy4nRWuhS9WC8/HbZvWB9pa6lyNO8FEuXAxoqZIEqh
+	 ddb/dfpnpyju+Bas4o20bhOBatNv5gtRulaGTb+dclfmhpNroofIqGhxKuVQIUZfiY
+	 cH5yXgevIgeyEO7dag94VfkzjGCUAgHbTNvbFBQ6Ms0fhInfRwOqLpDq0JLXi5ADoc
+	 4ZBpo1Ec/1kTw==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70FA73809A96;
-	Thu, 23 Oct 2025 14:10:41 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EB2413809A97;
+	Thu, 23 Oct 2025 14:30:17 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -37,45 +37,39 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] vsock: fix lock inversion in vsock_assign_transport()
+Subject: Re: [PATCH net V2] virtio-net: zero unused hash fields
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <176122864026.3096909.17516600367441031200.git-patchwork-notify@kernel.org>
-Date: Thu, 23 Oct 2025 14:10:40 +0000
-References: <20251021121718.137668-1-sgarzare@redhat.com>
-In-Reply-To: <20251021121718.137668-1-sgarzare@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, horms@kernel.org, pabeni@redhat.com,
- linux-kernel@vger.kernel.org, kuba@kernel.org,
- virtualization@lists.linux.dev, mhal@rbox.co, edumazet@google.com,
- davem@davemloft.net, syzbot+10e35716f8e4929681fa@syzkaller.appspotmail.com,
- stable@vger.kernel.org
+ <176122981674.3105055.12862313802330532402.git-patchwork-notify@kernel.org>
+Date: Thu, 23 Oct 2025 14:30:16 +0000
+References: <20251022034421.70244-1-jasowang@redhat.com>
+In-Reply-To: <20251022034421.70244-1-jasowang@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ pabeni@redhat.com, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, stable@vger.kernel.org
 
 Hello:
 
 This patch was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
+by Jakub Kicinski <kuba@kernel.org>:
 
-On Tue, 21 Oct 2025 14:17:18 +0200 you wrote:
-> From: Stefano Garzarella <sgarzare@redhat.com>
+On Wed, 22 Oct 2025 11:44:21 +0800 you wrote:
+> When GSO tunnel is negotiated virtio_net_hdr_tnl_from_skb() tries to
+> initialize the tunnel metadata but forget to zero unused rxhash
+> fields. This may leak information to another side. Fixing this by
+> zeroing the unused hash fields.
 > 
-> Syzbot reported a potential lock inversion deadlock between
-> vsock_register_mutex and sk_lock-AF_VSOCK when vsock_linger() is called.
-> 
-> The issue was introduced by commit 687aa0c5581b ("vsock: Fix
-> transport_* TOCTOU") which added vsock_register_mutex locking in
-> vsock_assign_transport() around the transport->release() call, that can
-> call vsock_linger(). vsock_assign_transport() can be called with sk_lock
-> held. vsock_linger() calls sk_wait_event() that temporarily releases and
-> re-acquires sk_lock. During this window, if another thread hold
-> vsock_register_mutex while trying to acquire sk_lock, a circular
-> dependency is created.
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> Fixes: a2fb4bc4e2a6a ("net: implement virtio helpers to handle UDP GSO tunneling")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 > 
 > [...]
 
 Here is the summary with links:
-  - [net] vsock: fix lock inversion in vsock_assign_transport()
-    https://git.kernel.org/netdev/net/c/f7c877e75352
+  - [net,V2] virtio-net: zero unused hash fields
+    https://git.kernel.org/netdev/net/c/b2284768c6b3
 
 You are awesome, thank you!
 -- 
