@@ -1,125 +1,111 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1FEF15E5BB
-	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 02:37:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EE582A1BF;
+	Thu, 23 Oct 2025 04:47:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761187033; cv=none; b=n2ztFqRZl8HCht+dtxzc2KSQ55NiR7D2mqXih6sEN/p5xuu5r7KX6XUX0uJ/UnGfbT0PSMsFqS6v1dRfl7iiS8TbOIHvlF1j+Xpdhd2hahp475jqPLJS7ULebvr8OS7F86L+uhpSI5+Z+tXX2fBKqGCabLRQ1pFRV/xM+muUHTQ=
+	t=1761194828; cv=none; b=SlI7/lbu7yfnRMATPkj34GnmlFGDvwP2pynGJQKmtd23V+QovlWbE9Y928+WNA3WTNvimKePbSX208CSQ1FW/QfH4dajIWhp6wmkpOxOXqlm2Ckt75lMlpkRnATrEYAWpikdrkQDUzKHQlXnZGLtspjSF59kdCZ2ktgE6r9dmRw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761187033; c=relaxed/simple;
-	bh=tLELmYBjrIVt2tIe7/6pOjA4rz1yWYE0gX8fXO7gYBQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nqrhzMsVhWsGhSgIK+9ilJm2TJn2q590cUHd9FMBlh+x+5dYrzES0Aj/9HkKhaUGUZoJq+/f7fzlKu7pZzfYetmxa1qwnYumtl0Nt+Rhqr1l9zSaxU6GlIgtQypr8X2ErcXqQ0QIi31sR/2IGWtuoe4wpZy0SImxP+gRsaMl/VE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T0VjIQzI; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761194828; c=relaxed/simple;
+	bh=toggoyR65FRMD2salpJRgrdbeLvnI/1Ai4wkilIe08M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=T/HdyxnDSmt9qqpLRNcey3ldOwl4C/x7tVPC++5iflu51+/vCF5earBY2QDO7StkH73zLx4nk6AUFlWPxethpW462gtBL2/C7IjYwuzoiR6tutpCuA8XOjy0bdDXOVqI4Jd3fro+te+tUC926cQNxzKyW2xVfR2HGcxhSbOhVjs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KCvoaAU+; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T0VjIQzI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761187029;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tLELmYBjrIVt2tIe7/6pOjA4rz1yWYE0gX8fXO7gYBQ=;
-	b=T0VjIQzIEVygxqlCxCUPXhfCvghQFPj959XuD8cGcOUPUgHvjwkBOIjCHPYKwFyKEPLeFo
-	7wgfTSemkz8B1iv4rfmipZQQ7v8WgLpw4agYuApVUzl2HDS/mJej3k46DnibXXxKfhtvoW
-	c6bdfLO3R6m7+Ht54qW2588rwb09c3c=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-75-18itDtNgMsupgZsl7Z65qw-1; Wed, 22 Oct 2025 22:37:06 -0400
-X-MC-Unique: 18itDtNgMsupgZsl7Z65qw-1
-X-Mimecast-MFC-AGG-ID: 18itDtNgMsupgZsl7Z65qw_1761187025
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-33be01bcda8so329432a91.2
-        for <virtualization@lists.linux.dev>; Wed, 22 Oct 2025 19:37:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761187025; x=1761791825;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tLELmYBjrIVt2tIe7/6pOjA4rz1yWYE0gX8fXO7gYBQ=;
-        b=SNXRoxVZODpVmJmDhalIaV16MRI5GBKYgMmVkFVM2AtXxqtk71HadjP0nRDbYS8cyH
-         M7qtC7Xj9iyRWWiC43fUrVASvZbDSSPzr/T+FHbHe8ZNK1KXfzpcGYdzvB6D15L9b7hK
-         VxFc9G+bh5wGHa6/GYSsP4THEpufUovsUOuMtcBlbZCKzbEEFf+W0fADllgnBXCNXLuJ
-         +99ub7U/1D2lL3jCdfG5dGCbpss2xTjNjw4i81Q0xbK91D8H26cSpvlSz+IvvJY/ZXlK
-         oJ/etMP240MT6OzZLbOgLZrFamd7Xc7p6Xh2cc869sM8AruKNGWh1SCivMxTjzyufKHg
-         02jQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV1JGAKsQG6/iDWRONKq9+nMGZx4hLJNCrw8XzjzrRY8FAks6d0u1u5G0GaSgKJ0IYkSbHg1GjhA4+iNRaM+g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzxfk/UPlhLYscvYPs84+PCfvD60DVi4vLFXZWWEmgvCMKYv5vj
-	6W0ytpGf+HN4mHjb9lvZcWjYSueWeSTNO2NBoG3GI4xqqggvNbeHznCjuNuqOZLehxJzVkqXjT0
-	5ghISKKof3vQ+9Ax6Com2NWV2IWkCZjzF13Et+ATMi2fGIifW+HfG511Rn4VVGEZepk9Z3UjLQe
-	OwMVTSYN2SX7pKtVtjN3smB2uT6nIHTE1snNfJjyKIIaw=
-X-Gm-Gg: ASbGncuaaNB0YFqonlO8AkrpNxamAbAZfs0XgUtQzrLpKuyGJi+Lx9DKcNVL3ldtMo7
-	iGSB7XNU0kWXkqcsb0Oix7AYFlS1GHAgw+q/GTTKrhJ9kbCSkyk/JN6QcKybPp2PJK7Tqw6qee1
-	180fc4fn1SCThqUKKNi5aH78RM2hy63hnKOu5tALjUs51kLfQcxYvU
-X-Received: by 2002:a17:90b:39cd:b0:332:3515:3049 with SMTP id 98e67ed59e1d1-33bcf85acb9mr34016676a91.4.1761187025436;
-        Wed, 22 Oct 2025 19:37:05 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHe/QyyERiH1ne1uh++OITBKUZJwW+GZJEUDxDewU6cwuEnbMhLwGR91ccFPAr3mIMgDlrYfBjy0UH2GlIRXE0=
-X-Received: by 2002:a17:90b:39cd:b0:332:3515:3049 with SMTP id
- 98e67ed59e1d1-33bcf85acb9mr34016661a91.4.1761187025008; Wed, 22 Oct 2025
- 19:37:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KCvoaAU+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1761194827; x=1792730827;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=toggoyR65FRMD2salpJRgrdbeLvnI/1Ai4wkilIe08M=;
+  b=KCvoaAU+SMb3mSAA/+AxYCMrz2PZnRF4oyaXxLhzMkjVvuzOaUsM3Pe4
+   +S6XpJ1xTMue91kKwZjDdEMoYOsm9gPkrtuZahyo/BU2a2Pz96LPCGgro
+   EeLhHlswv6nj3bky5RVV4tZSlTfiNrmN+F8isGfruPtUODQLgNB34fzNm
+   6aMJNEK2hOhJnYg6eJ7++U5Rt0DDeu0zfacoNg+JuPCbJQ+qb1hxTQHW6
+   FZ5+I8AY6/v2RgOzB7WxDV4iqNFDQ63NUossfKqt6Z+7gpLaEgdlnOBgk
+   gjnJNP5ssys3wPYRjkdZ3IjE2LQvcstQ0A70/QFYao0Vj3Ddj+/eEYhNG
+   A==;
+X-CSE-ConnectionGUID: OgN9dEfGTpqq9TskHt3Ejg==
+X-CSE-MsgGUID: AM7PUpS5RDWbcUl/S2nK/Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="63257253"
+X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
+   d="scan'208";a="63257253"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 21:47:05 -0700
+X-CSE-ConnectionGUID: KCuFwfgeQhOOzq78NUB0nQ==
+X-CSE-MsgGUID: +WIDlni6TjybQawi0SaEdg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,248,1754982000"; 
+   d="scan'208";a="214984355"
+Received: from allen-sbox.sh.intel.com (HELO [10.239.159.30]) ([10.239.159.30])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2025 21:46:56 -0700
+Message-ID: <99d27f65-4797-401f-a374-b3fccd67cdac@linux.intel.com>
+Date: Thu, 23 Oct 2025 12:43:02 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251022160623.51191-1-minhquangbui99@gmail.com>
-In-Reply-To: <20251022160623.51191-1-minhquangbui99@gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 23 Oct 2025 10:36:53 +0800
-X-Gm-Features: AS18NWAKWzREjF0AApyvOANK-aDy0vhZRfRMkPBOWaAVhrOoGWAFI9xvVg3gyH4
-Message-ID: <CACGkMEtrdXOCsRQiw659Ygze7AXAHw4-uK_Z+zdi3r9V5XDLZQ@mail.gmail.com>
-Subject: Re: [PATCH net v4] virtio-net: fix received length check in big packets
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Gavin Li <gavinl@nvidia.com>, Gavi Teitz <gavi@nvidia.com>, Parav Pandit <parav@nvidia.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: KysbbsPU6N6xBVLRbSYQ5ydnuKpeu5FSl6thC7lVtf4_1761187025
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/6] iommu: Generic support for RMRs during device
+ release
+To: Nicolin Chen <nicolinc@nvidia.com>, joro@8bytes.org, jgg@nvidia.com,
+ kevin.tian@intel.com
+Cc: suravee.suthikulpanit@amd.com, will@kernel.org, robin.murphy@arm.com,
+ sven@kernel.org, j@jannau.net, robin.clark@oss.qualcomm.com,
+ m.szyprowski@samsung.com, krzk@kernel.org, dwmw2@infradead.org,
+ yong.wu@mediatek.com, matthias.bgg@gmail.com,
+ angelogioacchino.delregno@collabora.com, tjeznach@rivosinc.com,
+ pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, heiko@sntech.de,
+ schnelle@linux.ibm.com, mjrosato@linux.ibm.com, orsonzhai@gmail.com,
+ baolin.wang@linux.alibaba.com, wens@csie.org, jernej.skrabec@gmail.com,
+ samuel@sholland.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
+ jean-philippe@linaro.org, iommu@lists.linux.dev,
+ linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+ linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
+ linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev,
+ linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
+ patches@lists.linux.dev
+References: <cover.1761017765.git.nicolinc@nvidia.com>
+ <80bbe9125d90b001f3ce08429704aa4168b0a00b.1761017765.git.nicolinc@nvidia.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <80bbe9125d90b001f3ce08429704aa4168b0a00b.1761017765.git.nicolinc@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Oct 23, 2025 at 12:08=E2=80=AFAM Bui Quang Minh
-<minhquangbui99@gmail.com> wrote:
->
-> Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
-> for big packets"), when guest gso is off, the allocated size for big
-> packets is not MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on
-> negotiated MTU. The number of allocated frags for big packets is stored
-> in vi->big_packets_num_skbfrags.
->
-> Because the host announced buffer length can be malicious (e.g. the host
-> vhost_net driver's get_rx_bufs is modified to announce incorrect
-> length), we need a check in virtio_net receive path. Currently, the
-> check is not adapted to the new change which can lead to NULL page
-> pointer dereference in the below while loop when receiving length that
-> is larger than the allocated one.
->
-> This commit fixes the received length check corresponding to the new
-> change.
->
-> Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big p=
-ackets")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+On 10/23/25 10:21, Nicolin Chen wrote:
+> From: Jason Gunthorpe<jgg@nvidia.com>
+> 
+> Generally an IOMMU driver should leave the translation as BLOCKED until the
+> translation entry is probed onto a struct device. When the struct device is
+> removed, the translation should be put back to BLOCKED.
+> 
+> Drivers that are able to work like this can set their release_domain to the
+> blocking domain, and the core code handles this work.
+> 
+> The exception is when the device has an IOMMU_RESV_DIRECT region, in which
+> case the OS should continuously allow translations for the given range. And
+> the core code generally prevents using a BLOCKED domain with this device.
+> 
+> Continue this logic for the device release and hoist some open coding from
+> drivers. If the device has dev->iommu->require_direct and the driver uses a
+> BLOCKED release_domain, override it to IDENTITY to preserve the semantics.
+> 
+> The only remaining required driver code for IOMMU_RESV_DIRECT should preset
+> an IDENTITY translation during early IOMMU startup for those devices.
+> 
+> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
+> Signed-off-by: Nicolin Chen<nicolinc@nvidia.com>
 > ---
-> Changes in v4:
-> - Remove unrelated changes, add more comments
-> Changes in v3:
-> - Convert BUG_ON to WARN_ON_ONCE
-> Changes in v2:
-> - Remove incorrect give_pages call
-> ---
+>   drivers/iommu/iommu.c | 16 ++++++++++++++--
+>   1 file changed, 14 insertions(+), 2 deletions(-)
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks
-
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
