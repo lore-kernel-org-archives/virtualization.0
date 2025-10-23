@@ -1,80 +1,80 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 873F5298987
-	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 07:08:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B59152DC77B
+	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 07:53:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761203316; cv=none; b=GzzRQEDrdcy/udwDh0B+6dGkiDMd1c0D2nKaKFGOB1NnSAf3QjzYc1xjBgKLkri+HipRND6jho93m9cVEvHf4MdoOFd7zH/Ergt88nu85x1uwK2/RXcNxFlXXUYMW7alqY70ZOQiZDwToDHhTQ0qoxQsgA+y+RNsS7rraAYpHlI=
+	t=1761206039; cv=none; b=t+EQBNRJ2KzMFIC5p0tKBC2hDx8fRbHr+5EU7JvncvvwOFOQF/FnAIUz721aU+uTOSrDCdn686TsB7H2M40r2BEuxqqIkbYlFJuuNPT+dAHX0zgvRxRVVuEJEA/YhMRe9skqxiwpHXyBngFQRYyPNimTeJ6NFKvoFisfAGpVYq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761203316; c=relaxed/simple;
-	bh=/WQoYocYgh0nDHz8DhtEHPC4R2FZPy8mQc4gNlkOUys=;
+	s=arc-20240116; t=1761206039; c=relaxed/simple;
+	bh=CmUJnmDN5lrR0urFzrhJD3MHidheDBMN7LCKKraUoq0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CuQAj59uJiytcXjKPEioklhEMXq/m+UZwzcD82k1EQOppUwg37MfqHnTlayYW/A+oktSnkG1P4Mnm883bLuIb0BgVz1fu8ZK54Apqks5P+FvLq7kdme+FepzbYaBULWZl2BdVmuB19ewrOfXkfqLYxSm1Qgqq6z269e9vp/pZO0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fA3o/MqG; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=PDJMeb/U; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=BR/fI9rb; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=tDq32bb+; arc=none smtp.client-ip=195.135.223.130
+	 In-Reply-To:Content-Type; b=L1XK7HylAcnCDqlHBxSKHaZTQ4cx53Y+OjybxJTDZlbTf1PNowZdUOeeyrdhQK36KvPOyDhca+E5gvYzlnoZQxlvlEe6ZtP0Pu1b65Clyte+ar3XqvJSNtzk1ChUK9wnJ+mW1i2B1SPz6VW7wBg/0mJhDjtxbKeh2HNYbjolD9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=zI7HOAxb; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dd+EfS0N; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1FsqPMaJ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=KYi9vLUX; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fA3o/MqG";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="PDJMeb/U";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="BR/fI9rb";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="tDq32bb+"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="zI7HOAxb";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dd+EfS0N";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1FsqPMaJ";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="KYi9vLUX"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id AAE16211A1;
-	Thu, 23 Oct 2025 07:08:18 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 7E1921F770;
+	Thu, 23 Oct 2025 07:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1761203302; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1761206030; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=9+FovMWClQ0VeI7tdBm6vV3iQ2AJi2CTocr8MORBDYQ=;
-	b=fA3o/MqGQ0kBqLiyS9nbWkJSFUivXTNeswfXvHrmCutnpDFacar2NcWzBwlUHw1+orZVlb
-	8Zk6nb3PUZ4serEpb8xI88pethkKMDXdwEjIw70/izlnrJXjFhUpMDq6yA+/86le4sX+Ov
-	qm/98u76Ofwau3rQURDiYQEHW3d1mKI=
+	bh=BlLHjAIU8aeeRy23Cw2AHcLGg/QAn/jnt8vlILcYmCI=;
+	b=zI7HOAxbZK+w5V+1XPg8Wpub1jVgR9K7Zf7VxLTjsyMoJDfyA8LQqADG/J3RyWTH1zlH6C
+	YLJuezowSEBmXorB64rINo2SOd017wc3YJEv2pS/dnQ4cwYqbIBAnom4GDL2jRgckjpn65
+	BE2yFm3SEiUk9PbfnVwdacfZmrlxkfA=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1761203302;
+	s=susede2_ed25519; t=1761206030;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=9+FovMWClQ0VeI7tdBm6vV3iQ2AJi2CTocr8MORBDYQ=;
-	b=PDJMeb/UEuwC0yCv0EIn1L08doivz+UJl3k2mEKdxm2/JZjxT+dCoQGteIOWQKOWc8t9wT
-	NJbADzh6Tyqa6MAQ==
-Authentication-Results: smtp-out1.suse.de;
+	bh=BlLHjAIU8aeeRy23Cw2AHcLGg/QAn/jnt8vlILcYmCI=;
+	b=dd+EfS0NmqKjf8tVJhg4mTYL7jA9Um9AoaqJdd/PXX4a2Z0Nm9f1YfgfJ/SjvGG6WUpOBJ
+	crrm0ZI3Np7BgXDg==
+Authentication-Results: smtp-out2.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1761203298; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1761206026; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=9+FovMWClQ0VeI7tdBm6vV3iQ2AJi2CTocr8MORBDYQ=;
-	b=BR/fI9rbVNdFZu7M8CP/7twMqOkalv47zpR0IKGtRjNCeoD512qdVUkcjrdzE73SzIvAoM
-	O6tZVDcXBtC78o7ib/18wflRLLm0KWzCb8TSRxQjKuwKlQauYn52P3078Jm5CGPdDvmVzm
-	l/s0BBE57LsjtcxZrL03+FbicY2goJU=
+	bh=BlLHjAIU8aeeRy23Cw2AHcLGg/QAn/jnt8vlILcYmCI=;
+	b=1FsqPMaJGQaPhtW5DODXGDyasYKBOBE35Eps578lutJApsTQ9OGsgaE4CcfAiRP7ao8AK7
+	FHGqVdTdXM2FfZotFa+psxIKt+Rlp5xk8C7jBSH+FF/M0ihVsudyqnIFIzcJVHqTldGs0B
+	CzsWo51yIEJD8t9FZ/17krNQlarPM3k=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1761203298;
+	s=susede2_ed25519; t=1761206026;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=9+FovMWClQ0VeI7tdBm6vV3iQ2AJi2CTocr8MORBDYQ=;
-	b=tDq32bb+5iFG6qWsT4wI1k8bF/JLII+qhrTrx+KvfVa3Yx9cQHmgokdu8dOHRc+DgYuFoB
-	ez1S9S3mH9i7zCAQ==
+	bh=BlLHjAIU8aeeRy23Cw2AHcLGg/QAn/jnt8vlILcYmCI=;
+	b=KYi9vLUXZeHjO3xHktnzbz13c56IToo0OX4p0Pk/Pd2AIMUAJ6Iy4D08qCfb6sk/BvtVCH
+	/IFhDpGYjzb1pjBg==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 71407136CF;
-	Thu, 23 Oct 2025 07:08:18 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2644213285;
+	Thu, 23 Oct 2025 07:53:46 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id buGIGWLU+WiqOQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Thu, 23 Oct 2025 07:08:18 +0000
-Message-ID: <8baac939-2a5f-4664-8d8e-06f0ad66602c@suse.de>
-Date: Thu, 23 Oct 2025 09:08:18 +0200
+	id +oRTBwrf+Wj8YwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 23 Oct 2025 07:53:46 +0000
+Message-ID: <6c9eb081-45ad-4fbd-90df-ac87f0b6223a@suse.de>
+Date: Thu, 23 Oct 2025 09:53:45 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,25 +82,12 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC][PATCH] drm/virtgpu: Make vblank event dependent on the host
- resource
-To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
- "kraxel@redhat.com" <kraxel@redhat.com>,
- "airlied@redhat.com" <airlied@redhat.com>
-Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-References: <20251016145230.79270-1-tzimmermann@suse.de>
- <IA0PR11MB7185A7BA7B8CEAC46CBC0922F8F6A@IA0PR11MB7185.namprd11.prod.outlook.com>
- <21851b98-06ee-4e2c-8570-70e8a4fe5d86@suse.de>
- <afc6ba14-cd95-49b9-89f5-e90fd19c8927@collabora.com>
- <a2afbc13-0be6-46ef-a6da-9461fd30376b@collabora.com>
- <126a0b10-a550-430c-a1b3-7e144461a0ff@suse.de>
- <IA0PR11MB71850CA585D6E42C1E7217DDF8F3A@IA0PR11MB7185.namprd11.prod.outlook.com>
- <c6b44524-4e44-46e8-89b4-8f90e074431b@collabora.com>
- <84de3c82-638a-412c-8e25-9ff507d59400@suse.de>
- <IA0PR11MB7185DCAF9132F2CD92E42620F8F0A@IA0PR11MB7185.namprd11.prod.outlook.com>
+Subject: Re: [linux-next:master] [drm/qxl] e485883c81:
+ WARNING:at_drivers/gpu/drm/drm_vblank.c:#drm_wait_one_vblank
+To: kernel test robot <oliver.sang@intel.com>
+Cc: oe-lkp@lists.linux.dev, lkp@intel.com, Gerd Hoffmann <kraxel@redhat.com>,
+ virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org
+References: <202510221555.8c60c069-lkp@intel.com>
 Content-Language: en-US
 From: Thomas Zimmermann <tzimmermann@suse.de>
 Autocrypt: addr=tzimmermann@suse.de; keydata=
@@ -127,93 +114,174 @@ Autocrypt: addr=tzimmermann@suse.de; keydata=
  SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
  Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
  4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <IA0PR11MB7185DCAF9132F2CD92E42620F8F0A@IA0PR11MB7185.namprd11.prod.outlook.com>
+In-Reply-To: <202510221555.8c60c069-lkp@intel.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
 X-Spamd-Result: default: False [-4.30 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
 	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
 	ARC_NA(0.00)[];
-	TO_DN_EQ_ADDR_SOME(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[7];
+	TO_DN_SOME(0.00)[];
 	MID_RHS_MATCH_FROM(0.00)[];
 	RCVD_TLS_ALL(0.00)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	FROM_HAS_DN(0.00)[];
-	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_FIVE(0.00)[6];
 	FROM_EQ_ENVFROM(0.00)[];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
 	RCVD_COUNT_TWO(0.00)[2];
-	TO_DN_SOME(0.00)[]
+	DBL_BLOCKED_OPENRESOLVER(0.00)[intel.com:email,01.org:url,imap1.dmz-prg2.suse.org:helo,suse.de:mid]
 X-Spam-Flag: NO
 X-Spam-Score: -4.30
-X-Spam-Level: 
 
-Hi
+Hi,
 
-Am 23.10.25 um 08:22 schrieb Kasireddy, Vivek:
-[...]
->> Here's another variant of the patch for you to test. This should resolve
->> the warning.
-> This new patch does not work (meaning FPS is low/inconsistent) while testing
-> my use-case. However, it does work if I invert the visibility check:
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> index 31f6548ef0fe..1ee8924b12c8 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> @@ -129,7 +129,7 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
->                                                    is_cursor, true);
->          if (ret)
->                  return ret;
-> -       else if (new_plane_state->visible)
-> +       if (!new_plane_state->visible)
->                  return 0
-
-Oops, that's a bug in the patch. Thanks for the fix.
-
->
-> Also, I think you might want to limit the plane sync to host mechanism to just guest
-> blobs only because based on what Dmitry said the vblank timer helps in virgl/venus/
-> native context use-cases. That is,
-> @@ -138,7 +140,7 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
->          for (i = 0; i < new_plane_state->fb->format->num_planes; ++i) {
->                  struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(new_plane_state->fb->obj[i]);
->
-> -               if (bo->host3d_blob || bo->guest_blob) {
-> +               if (bo->guest_blob && !vgdev->has_virgl_3d) {
-
-I've been looking at [1] for the test. In this case, I expected the 
-output to be in sync already. I've also found that test in several other 
-places. But OK, no problem.
+see  [1] for a workaround. Most likely, the vblank timeout is simply 
+handled too late.
 
 [1] 
-https://elixir.bootlin.com/linux/v6.17.4/source/drivers/gpu/drm/virtio/virtgpu_plane.c#L282
+https://lore.kernel.org/dri-devel/20251003032303.16518-1-chintanlike@gmail.com/
 
 Best regards
 Thomas
 
->                          vgcrtc_state->plane_synced_to_host |= drm_plane_mask(plane);
->                          break; /* only need to find one */
->                  }
+
+Am 23.10.25 um 04:29 schrieb kernel test robot:
 >
-> Thanks,
-> Vivek
+> Hello,
 >
->> Best regards
->> Thomas
->>
->>
->> --
->> --
->> Thomas Zimmermann
->> Graphics Driver Developer
->> SUSE Software Solutions Germany GmbH
->> Frankenstrasse 146, 90461 Nuernberg, Germany
->> GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
->> HRB 36809 (AG Nuernberg)
+> kernel test robot noticed "WARNING:at_drivers/gpu/drm/drm_vblank.c:#drm_wait_one_vblank" on:
+>
+> commit: e485883c815ee908de82547806d6edd65664b77b ("drm/qxl: Use vblank timer")
+> https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git master
+>
+> in testcase: trinity
+> version:
+> with following parameters:
+>
+> 	runtime: 300s
+> 	group: group-01
+> 	nr_groups: 5
+>
+>
+>
+> config: x86_64-dcg_x86_64_defconfig-tdx
+> compiler: gcc-14
+> test machine: qemu-system-x86_64 -enable-kvm -cpu SandyBridge -smp 2 -m 16G
+>
+> (please refer to attached dmesg/kmsg for entire log/backtrace)
+>
+> we noticed the issue happens randomly. 6 times out of 50 runs as below.
+> but the parent keeps clean.
+>
+> =========================================================================================
+> tbox_group/testcase/rootfs/kconfig/compiler/runtime/group/nr_groups:
+>    vm-snb/trinity/yocto-x86_64-minimal-20190520.cgz/x86_64-dcg_x86_64_defconfig-tdx/gcc-14/300s/group-01/5
+>
+> 42dd66d377ccf786 e485883c815ee908de82547806d
+> ---------------- ---------------------------
+>         fail:runs  %reproduction    fail:runs
+>             |             |             |
+>             :50          12%           6:50    dmesg.RIP:drm_wait_one_vblank
+>             :50          12%           6:50    dmesg.WARNING:at_drivers/gpu/drm/drm_vblank.c:#drm_wait_one_vblank
+>
+>
+>
+> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <oliver.sang@intel.com>
+> | Closes: https://lore.kernel.org/oe-lkp/202510221555.8c60c069-lkp@intel.com
+>
+>
+> [  256.077310][  T135] ------------[ cut here ]------------
+> [  256.078847][  T135] bochs-drm 0000:00:02.0: [drm] vblank wait timed out on crtc 0
+> [  256.080802][  T135] WARNING: CPU: 0 PID: 135 at drivers/gpu/drm/drm_vblank.c:1320 drm_wait_one_vblank (drivers/gpu/drm/drm_vblank.c:1320 (discriminator 5))
+> [  256.083260][  T135] Modules linked in: 8021q bridge stp llc nfc pppoe pppox ppp_generic slhc crypto_user ib_core nfnetlink scsi_transport_iscsi xfrm_user sctp ip6_udp_tunnel udp_tunnel uvesafb sr_mod cdrom intel_rapl_msr joydev ppdev ata_generic pata_acpi intel_rapl_common psmouse i2c_piix4 serio_raw bochs drm_shmem_helper ata_piix i2c_smbus parport_pc parport
+> [  256.094913][  T135] CPU: 0 UID: 0 PID: 135 Comm: kworker/0:4 Not tainted 6.18.0-rc1-00240-ge485883c815e #1 PREEMPT(none)
+> [  256.097761][  T135] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+> [  256.100575][  T135] Workqueue: events drm_fb_helper_damage_work
+> [  256.102578][  T135] RIP: 0010:drm_wait_one_vblank (drivers/gpu/drm/drm_vblank.c:1320 (discriminator 5))
+> [  256.104543][  T135] Code: 00 4d 8b 75 50 4d 85 f6 0f 84 5e 01 00 00 4c 89 ef e8 8d eb 74 00 89 e9 4c 89 f2 48 c7 c7 60 0b c6 a2 48 89 c6 e8 e9 d1 e2 fd <0f> 0b e9 9a fe ff ff 48 85 db 74 23 48 b8 00 00 00 00 00 fc ff df
+> All code
+> ========
+>     0:	00 4d 8b             	add    %cl,-0x75(%rbp)
+>     3:	75 50                	jne    0x55
+>     5:	4d 85 f6             	test   %r14,%r14
+>     8:	0f 84 5e 01 00 00    	je     0x16c
+>     e:	4c 89 ef             	mov    %r13,%rdi
+>    11:	e8 8d eb 74 00       	call   0x74eba3
+>    16:	89 e9                	mov    %ebp,%ecx
+>    18:	4c 89 f2             	mov    %r14,%rdx
+>    1b:	48 c7 c7 60 0b c6 a2 	mov    $0xffffffffa2c60b60,%rdi
+>    22:	48 89 c6             	mov    %rax,%rsi
+>    25:	e8 e9 d1 e2 fd       	call   0xfffffffffde2d213
+>    2a:*	0f 0b                	ud2		<-- trapping instruction
+>    2c:	e9 9a fe ff ff       	jmp    0xfffffffffffffecb
+>    31:	48 85 db             	test   %rbx,%rbx
+>    34:	74 23                	je     0x59
+>    36:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
+>    3d:	fc ff df
+>
+> Code starting with the faulting instruction
+> ===========================================
+>     0:	0f 0b                	ud2
+>     2:	e9 9a fe ff ff       	jmp    0xfffffffffffffea1
+>     7:	48 85 db             	test   %rbx,%rbx
+>     a:	74 23                	je     0x2f
+>     c:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
+>    13:	fc ff df
+> [  256.109982][  T135] RSP: 0018:ffffc9000079fb78 EFLAGS: 00010282
+> [  256.112311][  T135] RAX: 0000000000000000 RBX: ffff88815e2c0000 RCX: 0000000000000000
+> [  256.114875][  T135] RDX: 0000000000000000 RSI: 0000000000000004 RDI: 0000000000000001
+> [  256.117530][  T135] RBP: 0000000000000000 R08: 0000000000000000 R09: fffffbfff476a008
+> [  256.120090][  T135] R10: 0000000000000003 R11: 0000000000000001 R12: 1ffff920000f3f70
+> [  256.122749][  T135] R13: ffff88810fe460c8 R14: ffff88810be64d00 R15: ffff88815cfb2830
+> [  256.125298][  T135] FS:  0000000000000000(0000) GS:ffff888408834000(0000) knlGS:0000000000000000
+> [  256.131615][  T135] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [  256.135805][  T135] CR2: 000000000109a850 CR3: 000000016d2a0000 CR4: 00000000000406f0
+> [  256.137327][  T135] Call Trace:
+> [  256.145896][  T135]  <TASK>
+> [  256.147603][  T135]  ? __pfx_drm_wait_one_vblank (drivers/gpu/drm/drm_vblank.c:1301)
+> [  256.149778][  T135]  ? __pfx_autoremove_wake_function (kernel/sched/wait.c:402)
+> [  256.153665][  T135]  ? do_raw_spin_unlock (arch/x86/include/asm/atomic.h:23 include/linux/atomic/atomic-arch-fallback.h:457 include/linux/atomic/atomic-instrumented.h:33 include/asm-generic/qspinlock.h:57 kernel/locking/spinlock_debug.c:101 kernel/locking/spinlock_debug.c:141)
+> [  256.157616][  T135]  ? _raw_spin_unlock_irqrestore (include/linux/spinlock_api_smp.h:152 (discriminator 3) kernel/locking/spinlock.c:194 (discriminator 3))
+> [  256.165734][  T135]  drm_client_modeset_wait_for_vblank (drivers/gpu/drm/drm_client_modeset.c:1331)
+> [  256.172077][  T135]  drm_fb_helper_fb_dirty (drivers/gpu/drm/drm_fb_helper.c:373)
+> [  256.177086][  T135]  ? do_raw_spin_lock (arch/x86/include/asm/atomic.h:107 include/linux/atomic/atomic-arch-fallback.h:2170 include/linux/atomic/atomic-instrumented.h:1302 include/asm-generic/qspinlock.h:111 kernel/locking/spinlock_debug.c:116)
+> [  256.181829][  T135]  ? __pfx_drm_fb_helper_fb_dirty (drivers/gpu/drm/drm_fb_helper.c:364)
+> [  256.187127][  T135]  ? __pfx_do_raw_spin_lock (kernel/locking/spinlock_debug.c:114)
+> [  256.192329][  T135]  process_one_work (arch/x86/include/asm/atomic.h:23 include/linux/atomic/atomic-arch-fallback.h:457 include/linux/jump_label.h:262 include/trace/events/workqueue.h:110 kernel/workqueue.c:3268)
+> [  256.197045][  T135]  worker_thread (kernel/workqueue.c:3340 (discriminator 2) kernel/workqueue.c:3427 (discriminator 2))
+> [  256.201991][  T135]  ? __kthread_parkme (arch/x86/include/asm/bitops.h:202 (discriminator 1) arch/x86/include/asm/bitops.h:232 (discriminator 1) include/asm-generic/bitops/instrumented-non-atomic.h:142 (discriminator 1) kernel/kthread.c:290 (discriminator 1))
+> [  256.206956][  T135]  ? __pfx_worker_thread (kernel/workqueue.c:3373)
+> [  256.216519][  T135]  ? __pfx_worker_thread (kernel/workqueue.c:3373)
+> [  256.220825][  T135]  kthread (kernel/kthread.c:463)
+> [  256.224107][  T135]  ? __pfx_kthread (kernel/kthread.c:412)
+> [  256.229092][  T135]  ? __pfx_kthread (kernel/kthread.c:412)
+> [  256.233881][  T135]  ? __pfx_kthread (kernel/kthread.c:412)
+> [  256.239125][  T135]  ret_from_fork (arch/x86/kernel/process.c:164)
+> [  256.244094][  T135]  ? __pfx_kthread (kernel/kthread.c:412)
+> [  256.248707][  T135]  ret_from_fork_asm (arch/x86/entry/entry_64.S:255)
+> [  256.254397][  T135]  </TASK>
+> [  256.260599][  T135] ---[ end trace 0000000000000000 ]---
+> [  349.555954][  T346] sh: can't kill pid 3589: No such process
+> LKP: ttyS0: 304: LKP: rebooting forcely
+> [  359.020039][  T304] sysrq: Emergency Sync
+> [  359.022624][    T9] Emergency Sync complete
+> [  359.032291][  T304] sysrq: Resetting
+>
+>
+>
+> The kernel config and materials to reproduce are available at:
+> https://download.01.org/0day-ci/archive/20251022/202510221555.8c60c069-lkp@intel.com
+>
+>
+>
 
 -- 
 --
