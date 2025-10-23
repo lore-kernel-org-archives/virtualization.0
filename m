@@ -1,66 +1,66 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCA6134C990
-	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 18:28:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7981F34C142
+	for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 18:28:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761244095; cv=none; b=Dy+jv86wVqQZEcLClOog0GgTdWrkSx3jV7GB8BcGNGB54KmfnI5MraZOA/MOPQqB05PmtAZ2H7kZCkwLfwlbzvFXdLiy1hLpQrpSHi9eVAas4pJpNAYtUtHUwHySTL1x34qo3uzJuzTBWzR+Py4KaxLmz13SwocS700pO16kit8=
+	t=1761244099; cv=none; b=QlR8s06UGPraBJBLnfzHowkgr396y9KvgeCvpSG1CPKstUykH+vQeYlFnm0dq4z1kn6Dbt5hOG4WWJKeR5impJHPXi03PEWCFNGeH1ghcWJMmSYOeVS8BGBzWnYzlOXDmeObjnjD5snhx8Zmd34/XobG50JU6OO/A1uXGa6aDRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761244095; c=relaxed/simple;
-	bh=2vOt3aqHsLlIKGuCeQI+QOWfaN9kYAWHryQIZjKv6ek=;
+	s=arc-20240116; t=1761244099; c=relaxed/simple;
+	bh=LTNf3zO088KcCuJY5DwlnqiVNrOCKFiVyhJKNJE5MP4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=KhV6/PPd6mTIp4zfAKN9XGAKXD7cMwJOYbGE1Ki2CXo2xJ9Dk6fwbmz6r/lYBKqGyS5K4LDvAvLipWYYB7X7UNUsnVodwkGZ35Zlz9IOf59iOAR5BNKZb8ZTr9ZCXrSR1Wi/Yn6vRBkyJeenjuwbNMDVOg8d6ioi/VqxdvaOG0o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cfdRm4GN; arc=none smtp.client-ip=209.85.210.173
+	 In-Reply-To:To:Cc; b=Xo3qQNDicR4u1nd2wyhYVKCkQS4y+w61lSVetr4cx2hn/yGLYHc8KIWITVBwlrDA0t4E2obHtSrXGfw87IAOLkwg1i+PipalseX/6RjA3ySHZGGuSV6BNDk1SOf5uqwim7o+wMQMerb7uCPgMStozChEk78RuD2qYLlfXNXfFJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BA5rb9MB; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cfdRm4GN"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-791c287c10dso870797b3a.1
-        for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 11:28:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BA5rb9MB"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-290d4d421f6so11127015ad.2
+        for <virtualization@lists.linux.dev>; Thu, 23 Oct 2025 11:28:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761244089; x=1761848889; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1761244091; x=1761848891; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=rOnGwOJEogF4rPu54JUeb1SIxyq0svOAnIcOq7OsOBA=;
-        b=cfdRm4GNsQ6uv1k2SWeS3fNhl6D50566beBZ86k4wCxLZ9QAkrrikK+jwQzmIp8rvC
-         5Iz0VNmzrZKHv6kqx+O6GqoVFmmAtMXyyKkEsG7DGYuPaMbdIZIXO6wDNjHePBVBZBZ/
-         mZm+NhMs6Jzi/IKe0H+NpmwaK3WbTPw8w9VPaS+/Swd7OezY+1wqiE7QQadXXN3K6E8O
-         MWQmAS5Kx1pcMmb0CDphPT33G40FzBmX2tgDyajQr9Rp62hzkXx44A68ihjwpYj5HkIR
-         kmwRYTfgtAdSbU3mGM31i2preRiPZy5NHev+Tlmp0EARzTf7QUOhoCfiyUpY97YL+vJL
-         9JMA==
+        bh=oi6EltuDjrHL40/sPKeBo5GOQD3+wZV32ZLMdcfyakU=;
+        b=BA5rb9MBj/QR9Cueu5bDJb2qMiwWg7/tuH7nj4RZyApjm/nFGBsNIjJQR2vp4iWWF2
+         +nnDGnCO5i0vtQZPh59kAidx2FWBgxyMEjXAesYKeXlatd/ctdn5eAj4EdpgQ8HtH1f+
+         Q+3ueyOmZJ8XTqwouUJkEuw0gYv5Q+ELI55eszP8CJ59JP6HlSc16DA/mIiXk+AjwOnh
+         m+tZCALDnscKzbFJXUlvLHzuGXn0WMO8Z09EY6EGnPWxWZdGYToDWQyl6luvazNSQ2+O
+         JV2a+6klNe8PT/A6egiUnph+1mjX8CM4cEjomS+cDVK8/nQqYS+pRav1RERW/ZQuop96
+         Lolg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761244089; x=1761848889;
+        d=1e100.net; s=20230601; t=1761244091; x=1761848891;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rOnGwOJEogF4rPu54JUeb1SIxyq0svOAnIcOq7OsOBA=;
-        b=TQGtxQre2MDuU0nEgHOIHvL6sZOEJSVSRG18/3/i8EvkhO3burUoxcT0SO4GrPhqQi
-         sVFueq7xEHsoxb/YiRoYyb3cqufhhNBzQYJnTKl1/sLNmLoLqyKXwikWGWUVOQoir4fn
-         brYym3IDkJEfhVANtnAtsF5bWCWxp/Z1bVPqm+81Xx7FBdOAnJmRRrbgUv+5TtNUXCc+
-         U/lnmbEcobMKFKULESi0d8hPWYLFS/D3asBZGszLQU/QiSmZ9qZEKR90jsfNpUoNzB8r
-         841/Rd0jpUr+R3pavu+mwoOEvP8LCRKodgaMXqEM+EP+jPxOricF6JmfqZoGoIkxRfb5
-         +nFA==
-X-Gm-Message-State: AOJu0Yzc8jIRTh35IgT9Ki5W/s9YOg/3gAatddm/L45Yv4T4iNG20QVC
-	Cjx3l+zGbYVLU1T3lAqnEE/N+hTkqS9HdzvPuxQ3ESO310+mH3mKthkz
-X-Gm-Gg: ASbGnct/tLF0l/T/fMhCD5AKzT8HLspSPl+jdopm04zMseQbKEEOd645+XO1fiokchb
-	3tPn/zkUGg+IVqoR9i7XKuj1GrxHeyQ10wKUA838WnqsvzCXFlvBIULnq2Sbd7MeVw4bVX3GpkL
-	AG0B99hQbrKHeo/9jGlq8pLjjSyUXmwZHq4ORADMTQcTqVmKICHV4dHo0Rk/wx629z6QkRS2eTs
-	XeEsgOZt2/bsJ9gY+Z4FA9/BbLsuQhr2ibjapTAjZSbPkotSF3z1NyIgE944erViSYmBnffzoYl
-	0bVrL6dL8r6FvUCbVvdnrNNEZkR4YZAp53mBM1h1Gm4vu718GhCBRX+laJupnd3NJrj6VUDHk3s
-	MmXDqhVCkgROPsb2xQPo3CcJut2ZA1w6Qu9mvAhBe38Lcl9roSKd23pwPuKjRZLIzafPArSSiBI
-	a4aW6jeUqS
-X-Google-Smtp-Source: AGHT+IFYpBBCCR720vuYSBRzPxT9Qu4/uM6zyCgPCDeVP26zw3QtdfGDA/4zRrKoUcEuv8sd3K898A==
-X-Received: by 2002:a17:902:dad0:b0:24c:d0b3:3b20 with SMTP id d9443c01a7336-290ca12180emr327840225ad.37.1761244088774;
-        Thu, 23 Oct 2025 11:28:08 -0700 (PDT)
-Received: from localhost ([2a03:2880:2ff:74::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2946ddec426sm30419245ad.34.2025.10.23.11.28.08
+        bh=oi6EltuDjrHL40/sPKeBo5GOQD3+wZV32ZLMdcfyakU=;
+        b=t7TSIhgCgelJcVKH/dNzioXd1TTx82grFienKLrQ26/FtH/D6UEYUpYJptlbhTIXjy
+         0qHk6vjoRlXx67CRnVXvX55uYMZJxvzcEqbtIHmkZkltqhT75KiAIiAhc0ZmwMRxMqaN
+         OV8mQ0yIeSp9b9TltPlXTMwJbdsuTR9sOpV7KfiHOE+PGvK+2nVY1QfN/LmqiZWuF5x1
+         cPD0WZTDcMdu1ndjvVFqOiMGPQKxku7FEf7DY8QHcDYjsVixG51CbQdi/ErAxwLFnrk3
+         fLFlrYanjU4D3MpTE7sGh7+14JRNrsdj/aZtheWRa+6pVa2jxfLIY0YxXYhKuEDWmgqD
+         88gA==
+X-Gm-Message-State: AOJu0YwymlmjaCj1UrCE2EVT1FxE2ecbVE4FuZu+y5b2d7Q3UhJorgKY
+	yKjFk69OA8LxbBwoJaleSO62NqnkuJ6azaA7GKUylXzq1p4e/j4KvW25
+X-Gm-Gg: ASbGncsWMQANJJEiKwi8A1F518IdPFRbQXkdNCNfrPCOfkigPkB9U2ZjUjo50WMjTW4
+	rm4uIRPNQmiXbMUxL42eMN+7r1xSS+lqbNbw5mxjlB8ELoAYwUs3yzYZl3tcofgvrW+oawbYnY0
+	BsdfAse3mBGeMocDsLewPwi2ibtzGtAhHk/mnx8qbaRPqGfUOF/PG9/JTILgvDt3/pjGtr8GxnJ
+	0gAJQuGAR4uiqsIzq5VPAAmZMECCmTUWL8U5/Swu5C6Mmvqg+nLtEVvCGIWTJiCdaK4dPAaNozp
+	lcE8zs+PmV1htISgZLu9Wl08DnNL6SZG/XGP/RJHvEqFc4LxTWON1Sx4+UBgCKrh0oGbXqE7cym
+	OFYC8kKrZ8ltFKVaFkPP+/odLvpNXc1VeSL4enhA3mbT8aj7iVFnmg+F1DU2QZG4iXHL91nIR5H
+	gA+JL8sK6ck1MM9z9FsQ==
+X-Google-Smtp-Source: AGHT+IEELjFHyyABUDK0LWZlqB6sz5BNRvODMd0egUzV54kNQXVCm7c3MiRl9+V7BDlFPN8LAFPFTg==
+X-Received: by 2002:a17:902:e88e:b0:25c:76f1:b024 with SMTP id d9443c01a7336-290c9ceeadcmr331021865ad.25.1761244090770;
+        Thu, 23 Oct 2025 11:28:10 -0700 (PDT)
+Received: from localhost ([2a03:2880:2ff:4::])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33e223e3154sm6489960a91.9.2025.10.23.11.28.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Oct 2025 11:28:08 -0700 (PDT)
+        Thu, 23 Oct 2025 11:28:10 -0700 (PDT)
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Thu, 23 Oct 2025 11:27:44 -0700
-Subject: [PATCH net-next v8 05/14] vsock/loopback: add netns support
+Date: Thu, 23 Oct 2025 11:27:46 -0700
+Subject: [PATCH net-next v8 07/14] vhost/vsock: add netns support
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -69,7 +69,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251023-vsock-vmtest-v8-5-dea984d02bb0@meta.com>
+Message-Id: <20251023-vsock-vmtest-v8-7-dea984d02bb0@meta.com>
 References: <20251023-vsock-vmtest-v8-0-dea984d02bb0@meta.com>
 In-Reply-To: <20251023-vsock-vmtest-v8-0-dea984d02bb0@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
@@ -93,186 +93,187 @@ X-Mailer: b4 0.14.3
 
 From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Add NS support to vsock loopback. Sockets in a global mode netns
-communicate with each other, regardless of namespace. Sockets in a local
-mode netns may only communicate with other sockets within the same
-namespace.
+Add the ability to isolate vhost-vsock flows using namespaces.
 
-Use pernet_ops to install a vsock_loopback for every namespace that is
-created (to be used if local mode is enabled).
+The VM, via the vhost_vsock struct, inherits its namespace from the
+process that opens the vhost-vsock device. vhost_vsock lookup functions
+are modified to take into account the mode (e.g., if CIDs are matching
+but modes don't align, then return NULL).
 
-Retroactively call init/exit on every namespace when the vsock_loopback
-module is loaded in order to initialize the per-ns device.
+vhost_vsock now acquires a reference to the namespace.
 
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 ---
 Changes in v7:
-- drop for_each_net() init/exit, drop net_rwsem, the pernet registration
-  handles this automatically and race-free
-- flush workqueue before destruction, purge pkt list
-- remember net_mode instead of current net mode
-- keep space after INIT_WORK()
-- change vsock_loopback in netns_vsock to ->priv void ptr
-- rename `orig_net_mode` to `net_mode`
-- remove useless comment
-- protect `register_pernet_subsys()` with `net_rwsem`
-- do cleanup before releasing `net_rwsem` when failure happens
-- call `unregister_pernet_subsys()` in `vsock_loopback_exit()`
-- call `vsock_loopback_deinit_vsock()` in `vsock_loopback_exit()`
-
-Changes in v6:
-- init pernet ops for vsock_loopback module
-- vsock_loopback: add space in struct to clarify lock protection
-- do proper cleanup/unregister on vsock_loopback_exit()
-- vsock_loopback: use virtio_vsock_skb_net()
-
+- remove the check_global flag of vhost_vsock_get(), that logic was both
+  wrong and not necessary, reuse vsock_net_check_mode() instead
+- remove 'delete me' comment
 Changes in v5:
-- add callbacks code to avoid reverse dependency
-- add logic for handling vsock_loopback setup for already existing
-  namespaces
+- respect pid namespaces when assigning namespace to vhost_vsock
 ---
- include/net/netns/vsock.h      |  2 +
- net/vmw_vsock/vsock_loopback.c | 85 ++++++++++++++++++++++++++++++++++++------
- 2 files changed, 75 insertions(+), 12 deletions(-)
+ drivers/vhost/vsock.c | 44 ++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 34 insertions(+), 10 deletions(-)
 
-diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
-index c9a438ad52f2..9d0d8e2fbc37 100644
---- a/include/net/netns/vsock.h
-+++ b/include/net/netns/vsock.h
-@@ -16,5 +16,7 @@ struct netns_vsock {
- 	/* protected by lock */
- 	enum vsock_net_mode mode;
- 	bool mode_locked;
-+
-+	void *priv;
- };
- #endif /* __NET_NET_NAMESPACE_VSOCK_H */
-diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
-index a8f218f0c5a3..474083d4cfcb 100644
---- a/net/vmw_vsock/vsock_loopback.c
-+++ b/net/vmw_vsock/vsock_loopback.c
-@@ -28,8 +28,16 @@ static u32 vsock_loopback_get_local_cid(void)
- 
- static int vsock_loopback_send_pkt(struct sk_buff *skb)
- {
--	struct vsock_loopback *vsock = &the_vsock_loopback;
-+	struct vsock_loopback *vsock;
- 	int len = skb->len;
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 34adf0cf9124..df6136633cd8 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -46,6 +46,11 @@ static DEFINE_READ_MOSTLY_HASHTABLE(vhost_vsock_hash, 8);
+ struct vhost_vsock {
+ 	struct vhost_dev dev;
+ 	struct vhost_virtqueue vqs[2];
 +	struct net *net;
++	netns_tracker ns_tracker;
 +
-+	net = virtio_vsock_skb_net(skb);
-+
-+	if (virtio_vsock_skb_net_mode(skb) == VSOCK_NET_MODE_LOCAL)
-+		vsock = (struct vsock_loopback *)net->vsock.priv;
-+	else
-+		vsock = &the_vsock_loopback;
++	/* The ns mode at the time vhost_vsock was created */
++	enum vsock_net_mode net_mode;
  
- 	virtio_vsock_skb_queue_tail(&vsock->pkt_queue, skb);
- 	queue_work(vsock->workqueue, &vsock->pkt_work);
-@@ -134,11 +142,8 @@ static void vsock_loopback_work(struct work_struct *work)
- 	}
- }
- 
--static int __init vsock_loopback_init(void)
-+static int vsock_loopback_init_vsock(struct vsock_loopback *vsock)
+ 	/* Link to global vhost_vsock_hash, writes use vhost_vsock_mutex */
+ 	struct hlist_node hash;
+@@ -67,7 +72,8 @@ static u32 vhost_transport_get_local_cid(void)
+ /* Callers that dereference the return value must hold vhost_vsock_mutex or the
+  * RCU read lock.
+  */
+-static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
++static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net,
++					   enum vsock_net_mode mode)
  {
--	struct vsock_loopback *vsock = &the_vsock_loopback;
--	int ret;
+ 	struct vhost_vsock *vsock;
+ 
+@@ -78,9 +84,9 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
+ 		if (other_cid == 0)
+ 			continue;
+ 
+-		if (other_cid == guest_cid)
++		if (other_cid == guest_cid &&
++		    vsock_net_check_mode(net, mode, vsock->net, vsock->net_mode))
+ 			return vsock;
 -
- 	vsock->workqueue = alloc_workqueue("vsock-loopback", WQ_PERCPU, 0);
- 	if (!vsock->workqueue)
- 		return -ENOMEM;
-@@ -146,15 +151,73 @@ static int __init vsock_loopback_init(void)
- 	skb_queue_head_init(&vsock->pkt_queue);
- 	INIT_WORK(&vsock->pkt_work, vsock_loopback_work);
+ 	}
  
-+	return 0;
-+}
-+
-+static void vsock_loopback_deinit_vsock(struct vsock_loopback *vsock)
-+{
-+	if (vsock->workqueue) {
-+		flush_work(&vsock->pkt_work);
-+		virtio_vsock_skb_queue_purge(&vsock->pkt_queue);
-+		destroy_workqueue(vsock->workqueue);
-+		vsock->workqueue = NULL;
-+	}
-+}
-+
-+static int vsock_loopback_init_net(struct net *net)
-+{
-+	int ret;
-+
-+	net->vsock.priv = kzalloc(sizeof(struct vsock_loopback), GFP_KERNEL);
-+	if (!net->vsock.priv)
-+		return -ENOMEM;
-+
-+	ret = vsock_loopback_init_vsock((struct vsock_loopback *)net->vsock.priv);
-+	if (ret < 0) {
-+		kfree(net->vsock.priv);
-+		net->vsock.priv = NULL;
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static void vsock_loopback_exit_net(struct net *net)
-+{
-+	vsock_loopback_deinit_vsock(net->vsock.priv);
-+	kfree(net->vsock.priv);
-+	net->vsock.priv = NULL;
-+}
-+
-+static struct pernet_operations vsock_loopback_net_ops = {
-+	.init = vsock_loopback_init_net,
-+	.exit = vsock_loopback_exit_net,
-+};
-+
-+static int __init vsock_loopback_init(void)
-+{
-+	struct vsock_loopback *vsock = &the_vsock_loopback;
-+	int ret;
-+
-+	ret = vsock_loopback_init_vsock(vsock);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = register_pernet_subsys(&vsock_loopback_net_ops);
-+	if (ret < 0)
-+		goto out_deinit_vsock;
-+
- 	ret = vsock_core_register(&loopback_transport.transport,
- 				  VSOCK_TRANSPORT_F_LOCAL);
- 	if (ret)
--		goto out_wq;
-+		goto out_unregister_pernet_subsys;
+ 	return NULL;
+@@ -271,14 +277,16 @@ static void vhost_transport_send_pkt_work(struct vhost_work *work)
+ static int
+ vhost_transport_send_pkt(struct sk_buff *skb)
+ {
++	enum vsock_net_mode mode = virtio_vsock_skb_net_mode(skb);
+ 	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
++	struct net *net = virtio_vsock_skb_net(skb);
+ 	struct vhost_vsock *vsock;
+ 	int len = skb->len;
  
+ 	rcu_read_lock();
+ 
+ 	/* Find the vhost_vsock according to guest context id  */
+-	vsock = vhost_vsock_get(le64_to_cpu(hdr->dst_cid));
++	vsock = vhost_vsock_get(le64_to_cpu(hdr->dst_cid), net, mode);
+ 	if (!vsock) {
+ 		rcu_read_unlock();
+ 		kfree_skb(skb);
+@@ -305,7 +313,8 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
+ 	rcu_read_lock();
+ 
+ 	/* Find the vhost_vsock according to guest context id  */
+-	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
++	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid,
++				sock_net(sk_vsock(vsk)), vsk->net_mode);
+ 	if (!vsock)
+ 		goto out;
+ 
+@@ -327,7 +336,7 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
+ }
+ 
+ static struct sk_buff *
+-vhost_vsock_alloc_skb(struct vhost_virtqueue *vq,
++vhost_vsock_alloc_skb(struct vhost_vsock *vsock, struct vhost_virtqueue *vq,
+ 		      unsigned int out, unsigned int in)
+ {
+ 	struct virtio_vsock_hdr *hdr;
+@@ -353,6 +362,9 @@ vhost_vsock_alloc_skb(struct vhost_virtqueue *vq,
+ 	if (!skb)
+ 		return NULL;
+ 
++	virtio_vsock_skb_set_net(skb, vsock->net);
++	virtio_vsock_skb_set_net_mode(skb, vsock->net_mode);
++
+ 	iov_iter_init(&iov_iter, ITER_SOURCE, vq->iov, out, len);
+ 
+ 	hdr = virtio_vsock_hdr(skb);
+@@ -462,11 +474,12 @@ static struct virtio_transport vhost_transport = {
+ 
+ static bool vhost_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
+ {
++	struct net *net = sock_net(sk_vsock(vsk));
+ 	struct vhost_vsock *vsock;
+ 	bool seqpacket_allow = false;
+ 
+ 	rcu_read_lock();
+-	vsock = vhost_vsock_get(remote_cid);
++	vsock = vhost_vsock_get(remote_cid, net, vsk->net_mode);
+ 
+ 	if (vsock)
+ 		seqpacket_allow = vsock->seqpacket_allow;
+@@ -520,7 +533,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+ 			break;
+ 		}
+ 
+-		skb = vhost_vsock_alloc_skb(vq, out, in);
++		skb = vhost_vsock_alloc_skb(vsock, vq, out, in);
+ 		if (!skb) {
+ 			vq_err(vq, "Faulted on pkt\n");
+ 			continue;
+@@ -652,8 +665,10 @@ static void vhost_vsock_free(struct vhost_vsock *vsock)
+ 
+ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ {
++
+ 	struct vhost_virtqueue **vqs;
+ 	struct vhost_vsock *vsock;
++	struct net *net;
+ 	int ret;
+ 
+ 	/* This struct is large and allocation could fail, fall back to vmalloc
+@@ -669,6 +684,14 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ 		goto out;
+ 	}
+ 
++	net = current->nsproxy->net_ns;
++	vsock->net = get_net_track(net, &vsock->ns_tracker, GFP_KERNEL);
++
++	/* Cache the mode of the namespace so that if that netns mode changes,
++	 * the vhost_vsock will continue to function as expected.
++	 */
++	vsock->net_mode = vsock_net_mode(net);
++
+ 	vsock->guest_cid = 0; /* no CID assigned yet */
+ 	vsock->seqpacket_allow = false;
+ 
+@@ -708,7 +731,7 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
+ 	 */
+ 
+ 	/* If the peer is still valid, no need to reset connection */
+-	if (vhost_vsock_get(vsk->remote_addr.svm_cid))
++	if (vhost_vsock_get(vsk->remote_addr.svm_cid, sock_net(sk), vsk->net_mode))
+ 		return;
+ 
+ 	/* If the close timeout is pending, let it expire.  This avoids races
+@@ -753,6 +776,7 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
+ 	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
+ 
+ 	vhost_dev_cleanup(&vsock->dev);
++	put_net_track(vsock->net, &vsock->ns_tracker);
+ 	kfree(vsock->dev.vqs);
+ 	vhost_vsock_free(vsock);
  	return 0;
+@@ -779,7 +803,7 @@ static int vhost_vsock_set_cid(struct vhost_vsock *vsock, u64 guest_cid)
  
--out_wq:
--	destroy_workqueue(vsock->workqueue);
-+out_unregister_pernet_subsys:
-+	unregister_pernet_subsys(&vsock_loopback_net_ops);
-+out_deinit_vsock:
-+	vsock_loopback_deinit_vsock(vsock);
- 	return ret;
- }
- 
-@@ -164,11 +227,9 @@ static void __exit vsock_loopback_exit(void)
- 
- 	vsock_core_unregister(&loopback_transport.transport);
- 
--	flush_work(&vsock->pkt_work);
--
--	virtio_vsock_skb_queue_purge(&vsock->pkt_queue);
-+	unregister_pernet_subsys(&vsock_loopback_net_ops);
- 
--	destroy_workqueue(vsock->workqueue);
-+	vsock_loopback_deinit_vsock(vsock);
- }
- 
- module_init(vsock_loopback_init);
+ 	/* Refuse if CID is already in use */
+ 	mutex_lock(&vhost_vsock_mutex);
+-	other = vhost_vsock_get(guest_cid);
++	other = vhost_vsock_get(guest_cid, vsock->net, vsock->net_mode);
+ 	if (other && other != vsock) {
+ 		mutex_unlock(&vhost_vsock_mutex);
+ 		return -EADDRINUSE;
 
 -- 
 2.47.3
