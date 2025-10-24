@@ -1,429 +1,155 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1139A35B14E;
-	Fri, 24 Oct 2025 10:12:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B3AE2BE644
+	for <virtualization@lists.linux.dev>; Fri, 24 Oct 2025 13:17:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761300764; cv=none; b=nCHkuBV7tC4iQqONvDZLKckg+TgWrU00i0rpQGudAyhHOYZN7EAZHrhEGONDBo/WE7m7vfiExG9Dgd7X7gmME/tDMQAdKOO/ak4OUwBrATdcpWkPKZZvSb3AkluEZyjzWWB9U2SnbyxFmcJ4H5qA7QWaCZLoLjxWow+cUKcVYCk=
+	t=1761311827; cv=none; b=Ae/zZ6caUITSY7RgWyMhNF3CDVjlp0XQBWF1cMgqo7hMx9IMrze7tVULbApbdLKc/hxIJ0s1rG6ErCNOpb7FisSbBXjrL9b/YKjS9GiRkB8GcS/DGBvXxeO49hfmvJNPiw5WwI5yPbAFnzEIxFEJJRQP/6fRwpQgJ9LrWSz/FhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761300764; c=relaxed/simple;
-	bh=xlFYDG2bQlVTloS05eCO9qDMzMthfcITU9mwgsQzjDk=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=u7lGLfNdduDGi/gSmQUmuM8vf1JX9HEjp1XKkl5UCnm9uyhIdHJt/dcDA5TglonY+x1Tj/INY6l3T+STOvUDcOHlKV7iaak/qhwNDa2EQbZWh90FSfUbyso1v2mL/68jdLrpPwBV3Vav/fEckzoubHr3T4WWxtfmV16x+uryQrk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eNGIJm7A; arc=none smtp.client-ip=198.175.65.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1761311827; c=relaxed/simple;
+	bh=sDhn+dfEREtgN8xa7ihXq8cPV4C90ui+W6JU93cgYig=;
+	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QGNMt6yvJuZRl0IBS90WVZgM+g726uvK7LCjgvrRMXVprlaEpZzBxr32pfvv5ciglbD39K4TJ2v+Br+34ezVqE0xiMMCHEVmROXejNSKy51SDUiXPCp0AShFRSXOHN6nklDB/eyMe6KzMDsLascZaIIK9NJoHKhtb0ytzMkTvi4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P109evmv; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eNGIJm7A"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1761300762; x=1792836762;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version;
-  bh=xlFYDG2bQlVTloS05eCO9qDMzMthfcITU9mwgsQzjDk=;
-  b=eNGIJm7AN7UlVokllgHjFBz5m43Sw5zshgu0bzexnF2+eb9ZPouuSB3P
-   gQHR+xKYE2s2Gy5b2Q99Ie0rydQPkBqlmwdhpankG0U+9tlfT1HKx6k0e
-   0L6adnMa1FDRbTjmSg+RttFe45XdmRjH3GUUVF5oaUHSuLZlWYAvoycH0
-   i1xk93TCuRWDZPNeBQaO/u46zya7AmOWQE0OZ0SHu3eTQbBaCszUxDuB+
-   2v6uJR5pPWcDgG0VS3wu+E1+XEHaiG0tjEfmM1n2vFlUxBeI664154MbC
-   aA/09nvNP+rMrubt265fzlxV+q+eOgv3habUFACQGw1FdfNUcbDVNu2vR
-   Q==;
-X-CSE-ConnectionGUID: CD7LTXV7Qtqkh9x3U6xdWw==
-X-CSE-MsgGUID: e3SoJdDlRAa01pYtjhIHew==
-X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="63184888"
-X-IronPort-AV: E=Sophos;i="6.19,252,1754982000"; 
-   d="scan'208";a="63184888"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Oct 2025 03:12:41 -0700
-X-CSE-ConnectionGUID: A7yLYNKyQ0Ws/5qhPckICQ==
-X-CSE-MsgGUID: aVukQjuxQOaWBvcBdIAMQA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,252,1754982000"; 
-   d="scan'208";a="184109635"
-Received: from dhhellew-desk2.ger.corp.intel.com (HELO localhost) ([10.245.246.230])
-  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Oct 2025 03:12:31 -0700
-From: Jani Nikula <jani.nikula@linux.intel.com>
-To: Jason Gunthorpe <jgg@nvidia.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, David Airlie <airlied@gmail.com>, Alex
- Williamson <alex.williamson@redhat.com>, Ankit Agrawal
- <ankita@nvidia.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Brett Creeley <brett.creeley@amd.com>, dri-devel@lists.freedesktop.org,
- Eric Auger <eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>,
- Giovanni Cabiddu <giovanni.cabiddu@intel.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- intel-gfx@lists.freedesktop.org, Joonas Lahtinen
- <joonas.lahtinen@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
- kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
- linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>, Matthew
- Rosato <mjrosato@linux.ibm.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>,
- Nipun Gupta <nipun.gupta@amd.com>, Peter Oberparleiter
- <oberpar@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Pranjal
- Shrivastava <praan@google.com>, qat-linux@intel.com, Rodrigo Vivi
- <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>, Shameer
- Kolothum <skolothumtho@nvidia.com>, Mostafa Saleh <smostafa@google.com>,
- Sven Schnelle <svens@linux.ibm.com>, Tvrtko Ursulin
- <tursulin@ursulin.net>, virtualization@lists.linux.dev, Vineeth Vijayan
- <vneethv@linux.ibm.com>, Yishai Hadas <yishaih@nvidia.com>, Zhenyu Wang
- <zhenyuw.linux@gmail.com>, Zhi Wang <zhi.wang.linux@gmail.com>
-Cc: patches@lists.linux.dev
-Subject: Re: [PATCH 13/22] vfio/gvt: Provide a get_region_info op
-In-Reply-To: <13-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <13-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
-Date: Fri, 24 Oct 2025 13:12:28 +0300
-Message-ID: <c30b38456cc11ced5b74d9d38900cf8544a1978e@intel.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P109evmv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1761311824;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ge4wmUcXTfZNuOeMfkfVL7HYbqF4GOnhAVQLb4Z8TRQ=;
+	b=P109evmvxdI/Uxf8yeObR92ZAM7nRCr8/Jzp1Rm4Hm/jlrg/UZpPqC9sm7Hul24ZKsPnHH
+	rLE8lVL9EkkdHjYArRUYhcVSZJ2mG7DI8OIefJvdCNdJFF+J/zzScI/R15Tap4wRMxZ0EG
+	6BtCzAOl9FdJH/asq83Oo1bBgWR898k=
+Received: from mail-yx1-f69.google.com (mail-yx1-f69.google.com
+ [74.125.224.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-279-knqWZW7POGSeot-Y7uEoRQ-1; Fri, 24 Oct 2025 09:17:03 -0400
+X-MC-Unique: knqWZW7POGSeot-Y7uEoRQ-1
+X-Mimecast-MFC-AGG-ID: knqWZW7POGSeot-Y7uEoRQ_1761311823
+Received: by mail-yx1-f69.google.com with SMTP id 956f58d0204a3-63e13b766dbso2510088d50.0
+        for <virtualization@lists.linux.dev>; Fri, 24 Oct 2025 06:17:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761311823; x=1761916623;
+        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ge4wmUcXTfZNuOeMfkfVL7HYbqF4GOnhAVQLb4Z8TRQ=;
+        b=ZtdNtyF+8R+YA+fEW3cpe1MtldZG0mJQxo8rTsTuSlh9B6+gUg78v3sMTShCoT/RNO
+         YK1JxfkRc4DogtiVDsk/oNFOvDbPLPnuRCAA04FlJs4JjlThFESCE9BmnwXaHBkIY1nW
+         EpbXhkZARf5hDKFAVafEZqJhACVDpXIDiDUt35l9THrU22DKBN6aosqWKquV4OPOJh/u
+         wl44vRpiyN52U9Eq1eJzw09/stWCGzenwtgVmLbUDiKFiZYOIIef6b0p9m6A2xT///xh
+         VO2GGAMyUMAEzuMDHkh/CUxRReMxlkjuQBYavgiuNDt9ptk3hqZolD6tWhc+oS+ZmY2T
+         KxOw==
+X-Forwarded-Encrypted: i=1; AJvYcCXnu4tN156FEROjzvxhVBzfkf0lFTQHnCIJQaQAui7EysXEmS5EtiDtlCeH3MOgZMnHxCxooivsH9EJV5+ycA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxduOfO/9RLaEMaoan/ey/SdSj5/+NrYcClNmnzSAu4a995so91
+	rtmz/7gVvAG5HGdi12twMuaJc9AbMWeIGUqAoswMpNPtBOl0rPeK9PE05PmDe8OC11A2/L7OdUa
+	AbgATGnNuKCGrCLdhx7NAngQ1D177z/C2nP0kfSQ58GjAwJwZa+HqK9GDTbnu1Z1ynSgLsT1cpu
+	Y4n9wG/BoAwyEu9CufdlyAhmzwzvLBc+BC8yM9sLOx7hk=
+X-Gm-Gg: ASbGncsMPBXExzhgJxrPet+FOTSo24gCPzBAGCRU8kcSnGJpnKXmTd8se1GZp1Ac1GJ
+	KIAePEbcb9mLQi8uwHPe0yfYDA2rL9tvZeawPw5n1eLWHeZbatIOjcCOLipyj8kn1ndgw2w5NB1
+	7Nt1ibOf2iNfQgLeJmip0mSb9W2AWRoTafs7SzbXtcElsCjXdcWk4Klg==
+X-Received: by 2002:a05:690c:d84:b0:785:cbf4:72cd with SMTP id 00721157ae682-785e006d977mr19286947b3.3.1761311821269;
+        Fri, 24 Oct 2025 06:17:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFw2pHpFwqrLR0jLivutX2xPOBZG6CgaJ2Z66kijd60YMdU40Jwv9xsb6JC8+9xUIZbekki8LE+Qe/CRsRCIP4=
+X-Received: by 2002:a05:690c:d84:b0:785:cbf4:72cd with SMTP id
+ 00721157ae682-785e006d977mr19286637b3.3.1761311820805; Fri, 24 Oct 2025
+ 06:17:00 -0700 (PDT)
+Received: from 753933720722 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 24 Oct 2025 06:16:59 -0700
+Received: from 753933720722 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 24 Oct 2025 06:16:59 -0700
+From: Sergio Lopez Pascual <slp@redhat.com>
+In-Reply-To: <9aa46e0e-5a10-47d5-815f-8e97d42fff94@collabora.com>
+References: <20250402-virtio-gpu-host-page-size-v2-0-0afdc8c16cb9@redhat.com> <9aa46e0e-5a10-47d5-815f-8e97d42fff94@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+Date: Fri, 24 Oct 2025 06:16:59 -0700
+X-Gm-Features: AS18NWCQd2MYruc2pY3CEbkCOWeEH2LhMemjFsj6NKnUIFE35JvS0VbBWCc5og8
+Message-ID: <CAAiTLFWCjKYSU1YaQHj1D5Xaj2e+P2OqUVt1NZQNkrHG+ypcXw@mail.gmail.com>
+Subject: Re: [PATCH v2 0/2] drm/virtio: introduce the HOST_PAGE_SIZE feature
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, David Airlie <airlied@redhat.com>, 
+	Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
+	Chia-I Wu <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Simona Vetter <simona@ffwll.ch>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Rob Clark <robdclark@gmail.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: c3xDB7WaJBBsWAeOEAen-30e9U1VdTlbrATcjsaGerY_1761311823
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, 23 Oct 2025, Jason Gunthorpe <jgg@nvidia.com> wrote:
-> Move it out of intel_vgpu_ioctl() and re-indent it.
+Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
 
-Not a huge deal, but this will conflict with 69b4d367fff6
-("drm/i915/gvt: Simplify case switch in intel_vgpu_ioctl") in
-drm-intel-next.
-
-BR,
-Jani.
-
-
+> On 4/2/25 20:45, Sergio Lopez wrote:
+>> There's an incresing number of machines supporting multiple page sizes
+>> and on these machines the host and a guest can be running, each one,
+>> with a different page size.
+>>
+>> For what pertains to virtio-gpu, this is not a problem if the page size
+>> of the guest happens to be bigger or equal than the host, but will
+>> potentially lead to failures in memory allocations and/or mappings
+>> otherwise.
+>>
+>> To improve this situation, we introduce here the HOST_PAGE_SIZE feature.
+>> This feature indicates that the host has an extended virtio_gpu_config
+>> structure that include it's own page size a new field.
+>>
+>> On the second commit, we also add a new param that can be read with
+>> VIRTGPU_GETPARAM by userspace applications running in the guest to
+>> obtain the host's page size and find out the right alignment to be used
+>> in shared memory allocations.
+>>
+>> There has been a discussion in virtio-comments about whether the
+>> information about alignment restrictions must be shared in a generic or
+>> in a device-specific way, favoring the latter:
+>>
+>> https://lore.kernel.org/virtio-comment/CY8PR12MB7195B5E575099CD9CA1F2F39DCAF2@CY8PR12MB7195.namprd12.prod.outlook.com/T/#t
+>>
+>> v2:
+>>  - Rebase on top of current upstream.
+>>  - Make a reference in the cover to the discussion about how device
+>>    page alignment restrictions should be shared with the driver.
+>>
+>> Signed-off-by: Sergio Lopez <slp@redhat.com>
+>> ---
+>> Sergio Lopez (2):
+>>       drm/virtio: introduce the HOST_PAGE_SIZE feature
+>>       drm/virtio: add VIRTGPU_PARAM_HOST_PAGE_SIZE to params
+>>
+>>  drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 +
+>>  drivers/gpu/drm/virtio/virtgpu_drv.h   |  2 ++
+>>  drivers/gpu/drm/virtio/virtgpu_ioctl.c |  5 +++++
+>>  drivers/gpu/drm/virtio/virtgpu_kms.c   | 13 ++++++++++---
+>>  include/uapi/drm/virtgpu_drm.h         |  1 +
+>>  include/uapi/linux/virtio_gpu.h        |  5 +++++
+>>  6 files changed, 24 insertions(+), 3 deletions(-)
+>> ---
+>> base-commit: acc4d5ff0b61eb1715c498b6536c38c1feb7f3c1
+>> change-id: 20250402-virtio-gpu-host-page-size-282c99dfe44c
+>>
+>> Best regards,
 >
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/gpu/drm/i915/gvt/kvmgt.c | 301 +++++++++++++++----------------
->  1 file changed, 150 insertions(+), 151 deletions(-)
+> Hi Sergio,
 >
-> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> index 69830a5c49d3fd..6b47e33078eb52 100644
-> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> @@ -1140,6 +1140,155 @@ static int intel_vgpu_set_irqs(struct intel_vgpu *vgpu, u32 flags,
->  	return func(vgpu, index, start, count, flags, data);
->  }
->  
-> +static int intel_vgpu_get_region_info(struct vfio_device *vfio_dev,
-> +				      struct vfio_region_info __user *arg)
-> +{
-> +	struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
-> +	struct vfio_region_info_cap_sparse_mmap *sparse = NULL;
-> +	struct intel_vgpu *vgpu = vfio_dev_to_vgpu(vfio_dev);
-> +	struct vfio_region_info info;
-> +	unsigned long minsz;
-> +	int nr_areas = 1;
-> +	int cap_type_id;
-> +	unsigned int i;
-> +	int ret;
-> +
-> +	minsz = offsetofend(struct vfio_region_info, offset);
-> +
-> +	if (copy_from_user(&info, arg, minsz))
-> +		return -EFAULT;
-> +
-> +	if (info.argsz < minsz)
-> +		return -EINVAL;
-> +
-> +	switch (info.index) {
-> +	case VFIO_PCI_CONFIG_REGION_INDEX:
-> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> +		info.size = vgpu->gvt->device_info.cfg_space_size;
-> +		info.flags = VFIO_REGION_INFO_FLAG_READ |
-> +			     VFIO_REGION_INFO_FLAG_WRITE;
-> +		break;
-> +	case VFIO_PCI_BAR0_REGION_INDEX:
-> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> +		info.size = vgpu->cfg_space.bar[info.index].size;
-> +		if (!info.size) {
-> +			info.flags = 0;
-> +			break;
-> +		}
-> +
-> +		info.flags = VFIO_REGION_INFO_FLAG_READ |
-> +			     VFIO_REGION_INFO_FLAG_WRITE;
-> +		break;
-> +	case VFIO_PCI_BAR1_REGION_INDEX:
-> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> +		info.size = 0;
-> +		info.flags = 0;
-> +		break;
-> +	case VFIO_PCI_BAR2_REGION_INDEX:
-> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> +		info.flags = VFIO_REGION_INFO_FLAG_CAPS |
-> +			     VFIO_REGION_INFO_FLAG_MMAP |
-> +			     VFIO_REGION_INFO_FLAG_READ |
-> +			     VFIO_REGION_INFO_FLAG_WRITE;
-> +		info.size = gvt_aperture_sz(vgpu->gvt);
-> +
-> +		sparse = kzalloc(struct_size(sparse, areas, nr_areas),
-> +				 GFP_KERNEL);
-> +		if (!sparse)
-> +			return -ENOMEM;
-> +
-> +		sparse->header.id = VFIO_REGION_INFO_CAP_SPARSE_MMAP;
-> +		sparse->header.version = 1;
-> +		sparse->nr_areas = nr_areas;
-> +		cap_type_id = VFIO_REGION_INFO_CAP_SPARSE_MMAP;
-> +		sparse->areas[0].offset =
-> +			PAGE_ALIGN(vgpu_aperture_offset(vgpu));
-> +		sparse->areas[0].size = vgpu_aperture_sz(vgpu);
-> +		break;
-> +
-> +	case VFIO_PCI_BAR3_REGION_INDEX ... VFIO_PCI_BAR5_REGION_INDEX:
-> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> +		info.size = 0;
-> +		info.flags = 0;
-> +
-> +		gvt_dbg_core("get region info bar:%d\n", info.index);
-> +		break;
-> +
-> +	case VFIO_PCI_ROM_REGION_INDEX:
-> +	case VFIO_PCI_VGA_REGION_INDEX:
-> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> +		info.size = 0;
-> +		info.flags = 0;
-> +
-> +		gvt_dbg_core("get region info index:%d\n", info.index);
-> +		break;
-> +	default: {
-> +		struct vfio_region_info_cap_type cap_type = {
-> +			.header.id = VFIO_REGION_INFO_CAP_TYPE,
-> +			.header.version = 1
-> +		};
-> +
-> +		if (info.index >= VFIO_PCI_NUM_REGIONS + vgpu->num_regions)
-> +			return -EINVAL;
-> +		info.index = array_index_nospec(
-> +			info.index, VFIO_PCI_NUM_REGIONS + vgpu->num_regions);
-> +
-> +		i = info.index - VFIO_PCI_NUM_REGIONS;
-> +
-> +		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> +		info.size = vgpu->region[i].size;
-> +		info.flags = vgpu->region[i].flags;
-> +
-> +		cap_type.type = vgpu->region[i].type;
-> +		cap_type.subtype = vgpu->region[i].subtype;
-> +
-> +		ret = vfio_info_add_capability(&caps, &cap_type.header,
-> +					       sizeof(cap_type));
-> +		if (ret)
-> +			return ret;
-> +	}
-> +	}
-> +
-> +	if ((info.flags & VFIO_REGION_INFO_FLAG_CAPS) && sparse) {
-> +		switch (cap_type_id) {
-> +		case VFIO_REGION_INFO_CAP_SPARSE_MMAP:
-> +			ret = vfio_info_add_capability(
-> +				&caps, &sparse->header,
-> +				struct_size(sparse, areas, sparse->nr_areas));
-> +			if (ret) {
-> +				kfree(sparse);
-> +				return ret;
-> +			}
-> +			break;
-> +		default:
-> +			kfree(sparse);
-> +			return -EINVAL;
-> +		}
-> +	}
-> +
-> +	if (caps.size) {
-> +		info.flags |= VFIO_REGION_INFO_FLAG_CAPS;
-> +		if (info.argsz < sizeof(info) + caps.size) {
-> +			info.argsz = sizeof(info) + caps.size;
-> +			info.cap_offset = 0;
-> +		} else {
-> +			vfio_info_cap_shift(&caps, sizeof(info));
-> +			if (copy_to_user((void __user *)arg + sizeof(info),
-> +					 caps.buf, caps.size)) {
-> +				kfree(caps.buf);
-> +				kfree(sparse);
-> +				return -EFAULT;
-> +			}
-> +			info.cap_offset = sizeof(info);
-> +		}
-> +
-> +		kfree(caps.buf);
-> +	}
-> +
-> +	kfree(sparse);
-> +	return copy_to_user(arg, &info, minsz) ? -EFAULT : 0;
-> +}
-> +
->  static long intel_vgpu_ioctl(struct vfio_device *vfio_dev, unsigned int cmd,
->  			     unsigned long arg)
->  {
-> @@ -1168,157 +1317,6 @@ static long intel_vgpu_ioctl(struct vfio_device *vfio_dev, unsigned int cmd,
->  		return copy_to_user((void __user *)arg, &info, minsz) ?
->  			-EFAULT : 0;
->  
-> -	} else if (cmd == VFIO_DEVICE_GET_REGION_INFO) {
-> -		struct vfio_region_info info;
-> -		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
-> -		unsigned int i;
-> -		int ret;
-> -		struct vfio_region_info_cap_sparse_mmap *sparse = NULL;
-> -		int nr_areas = 1;
-> -		int cap_type_id;
-> -
-> -		minsz = offsetofend(struct vfio_region_info, offset);
-> -
-> -		if (copy_from_user(&info, (void __user *)arg, minsz))
-> -			return -EFAULT;
-> -
-> -		if (info.argsz < minsz)
-> -			return -EINVAL;
-> -
-> -		switch (info.index) {
-> -		case VFIO_PCI_CONFIG_REGION_INDEX:
-> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> -			info.size = vgpu->gvt->device_info.cfg_space_size;
-> -			info.flags = VFIO_REGION_INFO_FLAG_READ |
-> -				     VFIO_REGION_INFO_FLAG_WRITE;
-> -			break;
-> -		case VFIO_PCI_BAR0_REGION_INDEX:
-> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> -			info.size = vgpu->cfg_space.bar[info.index].size;
-> -			if (!info.size) {
-> -				info.flags = 0;
-> -				break;
-> -			}
-> -
-> -			info.flags = VFIO_REGION_INFO_FLAG_READ |
-> -				     VFIO_REGION_INFO_FLAG_WRITE;
-> -			break;
-> -		case VFIO_PCI_BAR1_REGION_INDEX:
-> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> -			info.size = 0;
-> -			info.flags = 0;
-> -			break;
-> -		case VFIO_PCI_BAR2_REGION_INDEX:
-> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> -			info.flags = VFIO_REGION_INFO_FLAG_CAPS |
-> -					VFIO_REGION_INFO_FLAG_MMAP |
-> -					VFIO_REGION_INFO_FLAG_READ |
-> -					VFIO_REGION_INFO_FLAG_WRITE;
-> -			info.size = gvt_aperture_sz(vgpu->gvt);
-> -
-> -			sparse = kzalloc(struct_size(sparse, areas, nr_areas),
-> -					 GFP_KERNEL);
-> -			if (!sparse)
-> -				return -ENOMEM;
-> -
-> -			sparse->header.id = VFIO_REGION_INFO_CAP_SPARSE_MMAP;
-> -			sparse->header.version = 1;
-> -			sparse->nr_areas = nr_areas;
-> -			cap_type_id = VFIO_REGION_INFO_CAP_SPARSE_MMAP;
-> -			sparse->areas[0].offset =
-> -					PAGE_ALIGN(vgpu_aperture_offset(vgpu));
-> -			sparse->areas[0].size = vgpu_aperture_sz(vgpu);
-> -			break;
-> -
-> -		case VFIO_PCI_BAR3_REGION_INDEX ... VFIO_PCI_BAR5_REGION_INDEX:
-> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> -			info.size = 0;
-> -			info.flags = 0;
-> -
-> -			gvt_dbg_core("get region info bar:%d\n", info.index);
-> -			break;
-> -
-> -		case VFIO_PCI_ROM_REGION_INDEX:
-> -		case VFIO_PCI_VGA_REGION_INDEX:
-> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> -			info.size = 0;
-> -			info.flags = 0;
-> -
-> -			gvt_dbg_core("get region info index:%d\n", info.index);
-> -			break;
-> -		default:
-> -			{
-> -				struct vfio_region_info_cap_type cap_type = {
-> -					.header.id = VFIO_REGION_INFO_CAP_TYPE,
-> -					.header.version = 1 };
-> -
-> -				if (info.index >= VFIO_PCI_NUM_REGIONS +
-> -						vgpu->num_regions)
-> -					return -EINVAL;
-> -				info.index =
-> -					array_index_nospec(info.index,
-> -							VFIO_PCI_NUM_REGIONS +
-> -							vgpu->num_regions);
-> -
-> -				i = info.index - VFIO_PCI_NUM_REGIONS;
-> -
-> -				info.offset =
-> -					VFIO_PCI_INDEX_TO_OFFSET(info.index);
-> -				info.size = vgpu->region[i].size;
-> -				info.flags = vgpu->region[i].flags;
-> -
-> -				cap_type.type = vgpu->region[i].type;
-> -				cap_type.subtype = vgpu->region[i].subtype;
-> -
-> -				ret = vfio_info_add_capability(&caps,
-> -							&cap_type.header,
-> -							sizeof(cap_type));
-> -				if (ret)
-> -					return ret;
-> -			}
-> -		}
-> -
-> -		if ((info.flags & VFIO_REGION_INFO_FLAG_CAPS) && sparse) {
-> -			switch (cap_type_id) {
-> -			case VFIO_REGION_INFO_CAP_SPARSE_MMAP:
-> -				ret = vfio_info_add_capability(&caps,
-> -					&sparse->header,
-> -					struct_size(sparse, areas,
-> -						    sparse->nr_areas));
-> -				if (ret) {
-> -					kfree(sparse);
-> -					return ret;
-> -				}
-> -				break;
-> -			default:
-> -				kfree(sparse);
-> -				return -EINVAL;
-> -			}
-> -		}
-> -
-> -		if (caps.size) {
-> -			info.flags |= VFIO_REGION_INFO_FLAG_CAPS;
-> -			if (info.argsz < sizeof(info) + caps.size) {
-> -				info.argsz = sizeof(info) + caps.size;
-> -				info.cap_offset = 0;
-> -			} else {
-> -				vfio_info_cap_shift(&caps, sizeof(info));
-> -				if (copy_to_user((void __user *)arg +
-> -						  sizeof(info), caps.buf,
-> -						  caps.size)) {
-> -					kfree(caps.buf);
-> -					kfree(sparse);
-> -					return -EFAULT;
-> -				}
-> -				info.cap_offset = sizeof(info);
-> -			}
-> -
-> -			kfree(caps.buf);
-> -		}
-> -
-> -		kfree(sparse);
-> -		return copy_to_user((void __user *)arg, &info, minsz) ?
-> -			-EFAULT : 0;
->  	} else if (cmd == VFIO_DEVICE_GET_IRQ_INFO) {
->  		struct vfio_irq_info info;
->  
-> @@ -1475,6 +1473,7 @@ static const struct vfio_device_ops intel_vgpu_dev_ops = {
->  	.write		= intel_vgpu_write,
->  	.mmap		= intel_vgpu_mmap,
->  	.ioctl		= intel_vgpu_ioctl,
-> +	.get_region_info = intel_vgpu_get_region_info,
->  	.dma_unmap	= intel_vgpu_dma_unmap,
->  	.bind_iommufd	= vfio_iommufd_emulated_bind,
->  	.unbind_iommufd = vfio_iommufd_emulated_unbind,
+> Curious if this feature still wanted. The protocol was updated many
+> months ago with the VIRTIO_GPU_F_BLOB_ALIGNMENT addition.
 
--- 
-Jani Nikula, Intel
+Yes, we still need it to avoid having to carry downstream patches in
+Mesa with a hack to hardcoded the alignment.
+
+I'll prepare a new patch series (referencing this one) next week.
+
+Thanks,
+Sergio.
+
