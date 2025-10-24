@@ -1,155 +1,172 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B3AE2BE644
-	for <virtualization@lists.linux.dev>; Fri, 24 Oct 2025 13:17:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E455E30E0EE
+	for <virtualization@lists.linux.dev>; Fri, 24 Oct 2025 15:08:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761311827; cv=none; b=Ae/zZ6caUITSY7RgWyMhNF3CDVjlp0XQBWF1cMgqo7hMx9IMrze7tVULbApbdLKc/hxIJ0s1rG6ErCNOpb7FisSbBXjrL9b/YKjS9GiRkB8GcS/DGBvXxeO49hfmvJNPiw5WwI5yPbAFnzEIxFEJJRQP/6fRwpQgJ9LrWSz/FhU=
+	t=1761318499; cv=none; b=sfWlNsMrrq2t7lYiYMH2grGzcMz6ZmHbQXPhd3j5QGGC1u2PUIaRKzZVAeeZC97M8lgWMwtRbU9itIXZwMtCYRxw05zhv9Osw8nNrvDlQ6LadjFkRD0jxDaaX1c7gvCEyVHn1MoW+/LvtJpgDfWU6xCW+TyYony1h/dUkNt/0I8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761311827; c=relaxed/simple;
-	bh=sDhn+dfEREtgN8xa7ihXq8cPV4C90ui+W6JU93cgYig=;
-	h=From:In-Reply-To:References:MIME-Version:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QGNMt6yvJuZRl0IBS90WVZgM+g726uvK7LCjgvrRMXVprlaEpZzBxr32pfvv5ciglbD39K4TJ2v+Br+34ezVqE0xiMMCHEVmROXejNSKy51SDUiXPCp0AShFRSXOHN6nklDB/eyMe6KzMDsLascZaIIK9NJoHKhtb0ytzMkTvi4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P109evmv; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761318499; c=relaxed/simple;
+	bh=Gg1nmF2BIwqahLlAKHrDdQElBJulqFj/VnBEXgD8/+M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YytsLMcPeKkYyTNe/ZCBSSNTjT9M+kf/I5ClGRz2T4lXBhgyRulfvAvaIAoKewDp1Qul5Fh81RbUU+fk598OEPw6ia6mcTyHPDY7qcExta/kvrIG+N2A7jlt2qqcuqcJHVBG4i0a4nab9Dq+HaAklqOYSthOKbXt1Fw50aoFovQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CpumywP9; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P109evmv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761311824;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ge4wmUcXTfZNuOeMfkfVL7HYbqF4GOnhAVQLb4Z8TRQ=;
-	b=P109evmvxdI/Uxf8yeObR92ZAM7nRCr8/Jzp1Rm4Hm/jlrg/UZpPqC9sm7Hul24ZKsPnHH
-	rLE8lVL9EkkdHjYArRUYhcVSZJ2mG7DI8OIefJvdCNdJFF+J/zzScI/R15Tap4wRMxZ0EG
-	6BtCzAOl9FdJH/asq83Oo1bBgWR898k=
-Received: from mail-yx1-f69.google.com (mail-yx1-f69.google.com
- [74.125.224.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-279-knqWZW7POGSeot-Y7uEoRQ-1; Fri, 24 Oct 2025 09:17:03 -0400
-X-MC-Unique: knqWZW7POGSeot-Y7uEoRQ-1
-X-Mimecast-MFC-AGG-ID: knqWZW7POGSeot-Y7uEoRQ_1761311823
-Received: by mail-yx1-f69.google.com with SMTP id 956f58d0204a3-63e13b766dbso2510088d50.0
-        for <virtualization@lists.linux.dev>; Fri, 24 Oct 2025 06:17:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CpumywP9"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3307de086d8so2173477a91.2
+        for <virtualization@lists.linux.dev>; Fri, 24 Oct 2025 08:08:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1761318497; x=1761923297; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=k5kuodqL1XE4BwxT+c9wdfrA/FtLyiL1+q+ub9Uk7uI=;
+        b=CpumywP9whWuKsr/5g2wmJ7WpzEI8Y29WgmE3YPZGn+rifiQ7rnyvyDKEEktW6dp9z
+         3nskYls7ItYOMqbWkEm7nIX4GERoxVWqW7yTwsFuSE68TzeeoLYepYUqTrb/7eQomScR
+         OSX8Zxjc4l0oYL5RXJwke0VycmFT3pn7x1YUdB2y2iOhULGGioEua4mgGbha1IRiPZy9
+         17wghX4YpzDKLnyh/4dxwzO8lApAlnrNGrgRR7LiEJlj0Vd1fnTbMts2YDTjMr8AQawo
+         xZ983SDFfi+ns+6kiP0ze60rW9+q9WahAfasr7eKdXEmhI+i2q2pnp9bAqRxdUV370/n
+         LFKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761311823; x=1761916623;
-        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ge4wmUcXTfZNuOeMfkfVL7HYbqF4GOnhAVQLb4Z8TRQ=;
-        b=ZtdNtyF+8R+YA+fEW3cpe1MtldZG0mJQxo8rTsTuSlh9B6+gUg78v3sMTShCoT/RNO
-         YK1JxfkRc4DogtiVDsk/oNFOvDbPLPnuRCAA04FlJs4JjlThFESCE9BmnwXaHBkIY1nW
-         EpbXhkZARf5hDKFAVafEZqJhACVDpXIDiDUt35l9THrU22DKBN6aosqWKquV4OPOJh/u
-         wl44vRpiyN52U9Eq1eJzw09/stWCGzenwtgVmLbUDiKFiZYOIIef6b0p9m6A2xT///xh
-         VO2GGAMyUMAEzuMDHkh/CUxRReMxlkjuQBYavgiuNDt9ptk3hqZolD6tWhc+oS+ZmY2T
-         KxOw==
-X-Forwarded-Encrypted: i=1; AJvYcCXnu4tN156FEROjzvxhVBzfkf0lFTQHnCIJQaQAui7EysXEmS5EtiDtlCeH3MOgZMnHxCxooivsH9EJV5+ycA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxduOfO/9RLaEMaoan/ey/SdSj5/+NrYcClNmnzSAu4a995so91
-	rtmz/7gVvAG5HGdi12twMuaJc9AbMWeIGUqAoswMpNPtBOl0rPeK9PE05PmDe8OC11A2/L7OdUa
-	AbgATGnNuKCGrCLdhx7NAngQ1D177z/C2nP0kfSQ58GjAwJwZa+HqK9GDTbnu1Z1ynSgLsT1cpu
-	Y4n9wG/BoAwyEu9CufdlyAhmzwzvLBc+BC8yM9sLOx7hk=
-X-Gm-Gg: ASbGncsMPBXExzhgJxrPet+FOTSo24gCPzBAGCRU8kcSnGJpnKXmTd8se1GZp1Ac1GJ
-	KIAePEbcb9mLQi8uwHPe0yfYDA2rL9tvZeawPw5n1eLWHeZbatIOjcCOLipyj8kn1ndgw2w5NB1
-	7Nt1ibOf2iNfQgLeJmip0mSb9W2AWRoTafs7SzbXtcElsCjXdcWk4Klg==
-X-Received: by 2002:a05:690c:d84:b0:785:cbf4:72cd with SMTP id 00721157ae682-785e006d977mr19286947b3.3.1761311821269;
-        Fri, 24 Oct 2025 06:17:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFw2pHpFwqrLR0jLivutX2xPOBZG6CgaJ2Z66kijd60YMdU40Jwv9xsb6JC8+9xUIZbekki8LE+Qe/CRsRCIP4=
-X-Received: by 2002:a05:690c:d84:b0:785:cbf4:72cd with SMTP id
- 00721157ae682-785e006d977mr19286637b3.3.1761311820805; Fri, 24 Oct 2025
- 06:17:00 -0700 (PDT)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Fri, 24 Oct 2025 06:16:59 -0700
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Fri, 24 Oct 2025 06:16:59 -0700
-From: Sergio Lopez Pascual <slp@redhat.com>
-In-Reply-To: <9aa46e0e-5a10-47d5-815f-8e97d42fff94@collabora.com>
-References: <20250402-virtio-gpu-host-page-size-v2-0-0afdc8c16cb9@redhat.com> <9aa46e0e-5a10-47d5-815f-8e97d42fff94@collabora.com>
+        d=1e100.net; s=20230601; t=1761318497; x=1761923297;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=k5kuodqL1XE4BwxT+c9wdfrA/FtLyiL1+q+ub9Uk7uI=;
+        b=GnTYGvA372HGINxdEp6+CYz1XMkhoQZRXBRjc7wlB+qrTeBRJS9vPiwma/p/i2e5Jb
+         UANh/osK7E0KYhTuAXgEiM7yTmMdk65GdWBqCvqNat8M76lsX4yPnkScT0vtZDdLxysj
+         4QE0XHYZO8LPz3XVA8/m3JywKFBF72EEvYqZoPJGFPXGh/fqKwSw0Mg2y/FVKfZd0Gur
+         EMrUURC8/sZsyht1vuRocQJC1ONA6WmNglc/M6T4/FLc3ddYQeVTA7ySYVDg/d9dVMQm
+         fZ4hiu9zp9Yjh8u6QDZS2TitSuUO1FCUiBWVnPIUBgLS0UtbCujjsVau4sZ2XzCKfzSQ
+         IOcA==
+X-Forwarded-Encrypted: i=1; AJvYcCXRYcnuvm6kqCHDTQ2Nm0+MAZWKp0zUttOXLYO6eDCzePtZ8VRvQZjk+hsnzNcWu4B4Tk8bn7GV0SNLaUWkFg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyXGKcQZK/RlHt+QgBy1EJpl9EAjbp3qz0F/NPSgm8mqkJdimUj
+	QnltMn6M7ymQWEMydhpDCjNDDP1zsmq0bgJet/aMU00FrDS42ZZ7GNyK
+X-Gm-Gg: ASbGncsMdJ9cYC5e5JYIpPLMXvyh4ivS7lVT2ScfRvIgv8TzJfRylker4WGgeneg1jO
+	E/AVFIzarU0TRoAXkB6qQhHr0u1C7Yo0ht3qxvRGctNeSAFo48LBmXNBcJapEMs87JtLGInS7Lu
+	LhmRTNpyi86NfzdWlxkqbKo5OlimavH0xkiJXFSMccHktVai6+DcmA9Rnyw6ZDuea3uQADnANR0
+	XYpO1J0XXYPuylbPdNU4K9rLDghF63147f1JgXCCD66tpWZcvr7SjzWb6OC89viyfL4G9Ny2I2C
+	bp9CYVpWimTa4T/YA1o2KLMby2lgBCLCMycaSORsb84wOWJifq52qFJr0jdaiDbiDW4Vots5QBl
+	Aqggn1x7FPB/eUsZM6GV7aneceUKaGVsr+roe15haXN7LVg7AC0R9mF9kxdWq5CL2VedfNAkKWy
+	rW8RbeV11wcZ7cvx8b1CNeb+8e
+X-Google-Smtp-Source: AGHT+IEIvsCPeZId5sB7KWJU1zEUO/VQOzw5rKKQ7D/ehXSXh4dGRIiEaa8KnJaPfgpC64pTh/Lipg==
+X-Received: by 2002:a17:90b:4f:b0:33b:bf8d:6172 with SMTP id 98e67ed59e1d1-33bcf92aae9mr35463946a91.34.1761318496553;
+        Fri, 24 Oct 2025 08:08:16 -0700 (PDT)
+Received: from minh.192.168.1.1 ([2001:ee0:4f4c:210:4deb:2cfc:5afd:7727])
+        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-33dfb1db6aasm5934227a91.0.2025.10.24.08.08.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Oct 2025 08:08:16 -0700 (PDT)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Gavin Li <gavinl@nvidia.com>,
+	Gavi Teitz <gavi@nvidia.com>,
+	Parav Pandit <parav@nvidia.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH net v5] virtio-net: fix received length check in big packets
+Date: Fri, 24 Oct 2025 22:06:49 +0700
+Message-ID: <20251024150649.22906-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Fri, 24 Oct 2025 06:16:59 -0700
-X-Gm-Features: AS18NWCQd2MYruc2pY3CEbkCOWeEH2LhMemjFsj6NKnUIFE35JvS0VbBWCc5og8
-Message-ID: <CAAiTLFWCjKYSU1YaQHj1D5Xaj2e+P2OqUVt1NZQNkrHG+ypcXw@mail.gmail.com>
-Subject: Re: [PATCH v2 0/2] drm/virtio: introduce the HOST_PAGE_SIZE feature
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, David Airlie <airlied@redhat.com>, 
-	Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
-	Chia-I Wu <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Simona Vetter <simona@ffwll.ch>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Rob Clark <robdclark@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: c3xDB7WaJBBsWAeOEAen-30e9U1VdTlbrATcjsaGerY_1761311823
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
+Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
+for big packets"), when guest gso is off, the allocated size for big
+packets is not MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on
+negotiated MTU. The number of allocated frags for big packets is stored
+in vi->big_packets_num_skbfrags.
 
-> On 4/2/25 20:45, Sergio Lopez wrote:
->> There's an incresing number of machines supporting multiple page sizes
->> and on these machines the host and a guest can be running, each one,
->> with a different page size.
->>
->> For what pertains to virtio-gpu, this is not a problem if the page size
->> of the guest happens to be bigger or equal than the host, but will
->> potentially lead to failures in memory allocations and/or mappings
->> otherwise.
->>
->> To improve this situation, we introduce here the HOST_PAGE_SIZE feature.
->> This feature indicates that the host has an extended virtio_gpu_config
->> structure that include it's own page size a new field.
->>
->> On the second commit, we also add a new param that can be read with
->> VIRTGPU_GETPARAM by userspace applications running in the guest to
->> obtain the host's page size and find out the right alignment to be used
->> in shared memory allocations.
->>
->> There has been a discussion in virtio-comments about whether the
->> information about alignment restrictions must be shared in a generic or
->> in a device-specific way, favoring the latter:
->>
->> https://lore.kernel.org/virtio-comment/CY8PR12MB7195B5E575099CD9CA1F2F39DCAF2@CY8PR12MB7195.namprd12.prod.outlook.com/T/#t
->>
->> v2:
->>  - Rebase on top of current upstream.
->>  - Make a reference in the cover to the discussion about how device
->>    page alignment restrictions should be shared with the driver.
->>
->> Signed-off-by: Sergio Lopez <slp@redhat.com>
->> ---
->> Sergio Lopez (2):
->>       drm/virtio: introduce the HOST_PAGE_SIZE feature
->>       drm/virtio: add VIRTGPU_PARAM_HOST_PAGE_SIZE to params
->>
->>  drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 +
->>  drivers/gpu/drm/virtio/virtgpu_drv.h   |  2 ++
->>  drivers/gpu/drm/virtio/virtgpu_ioctl.c |  5 +++++
->>  drivers/gpu/drm/virtio/virtgpu_kms.c   | 13 ++++++++++---
->>  include/uapi/drm/virtgpu_drm.h         |  1 +
->>  include/uapi/linux/virtio_gpu.h        |  5 +++++
->>  6 files changed, 24 insertions(+), 3 deletions(-)
->> ---
->> base-commit: acc4d5ff0b61eb1715c498b6536c38c1feb7f3c1
->> change-id: 20250402-virtio-gpu-host-page-size-282c99dfe44c
->>
->> Best regards,
->
-> Hi Sergio,
->
-> Curious if this feature still wanted. The protocol was updated many
-> months ago with the VIRTIO_GPU_F_BLOB_ALIGNMENT addition.
+Because the host announced buffer length can be malicious (e.g. the host
+vhost_net driver's get_rx_bufs is modified to announce incorrect
+length), we need a check in virtio_net receive path. Currently, the
+check is not adapted to the new change which can lead to NULL page
+pointer dereference in the below while loop when receiving length that
+is larger than the allocated one.
 
-Yes, we still need it to avoid having to carry downstream patches in
-Mesa with a hack to hardcoded the alignment.
+This commit fixes the received length check corresponding to the new
+change.
 
-I'll prepare a new patch series (referencing this one) next week.
+Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+---
+Changes in v5:
+- Move the length check to receive_big
+- Link to v4: https://lore.kernel.org/netdev/20251022160623.51191-1-minhquangbui99@gmail.com/
+Changes in v4:
+- Remove unrelated changes, add more comments
+- Link to v3: https://lore.kernel.org/netdev/20251021154534.53045-1-minhquangbui99@gmail.com/
+Changes in v3:
+- Convert BUG_ON to WARN_ON_ONCE
+- Link to v2: https://lore.kernel.org/netdev/20250708144206.95091-1-minhquangbui99@gmail.com/
+Changes in v2:
+- Remove incorrect give_pages call
+- Link to v1: https://lore.kernel.org/netdev/20250706141150.25344-1-minhquangbui99@gmail.com/
+---
+ drivers/net/virtio_net.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
-Thanks,
-Sergio.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index a757cbcab87f..2c3f544add5e 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -910,17 +910,6 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ 		goto ok;
+ 	}
+ 
+-	/*
+-	 * Verify that we can indeed put this data into a skb.
+-	 * This is here to handle cases when the device erroneously
+-	 * tries to receive more than is possible. This is usually
+-	 * the case of a broken device.
+-	 */
+-	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
+-		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
+-		dev_kfree_skb(skb);
+-		return NULL;
+-	}
+ 	BUG_ON(offset >= PAGE_SIZE);
+ 	while (len) {
+ 		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
+@@ -2107,9 +2096,19 @@ static struct sk_buff *receive_big(struct net_device *dev,
+ 				   struct virtnet_rq_stats *stats)
+ {
+ 	struct page *page = buf;
+-	struct sk_buff *skb =
+-		page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
++	struct sk_buff *skb;
++
++	/* Make sure that len does not exceed the allocated size in
++	 * add_recvbuf_big.
++	 */
++	if (unlikely(len > vi->big_packets_num_skbfrags * PAGE_SIZE)) {
++		pr_debug("%s: rx error: len %u exceeds allocate size %lu\n",
++			 dev->name, len,
++			 vi->big_packets_num_skbfrags * PAGE_SIZE);
++		goto err;
++	}
+ 
++	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
+ 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
+ 	if (unlikely(!skb))
+ 		goto err;
+-- 
+2.43.0
 
