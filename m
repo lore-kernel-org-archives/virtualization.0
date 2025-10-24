@@ -1,209 +1,83 @@
-Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azon11012064.outbound.protection.outlook.com [40.107.209.64])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 065E42E2280;
-	Thu, 23 Oct 2025 23:33:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.209.64
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761262430; cv=fail; b=RCxOePDBY2YqLWU4hlb00KgnmOMUbXPEyPBDq8IBq76e8467gIg5yOH+Q0o0ES+K/g3ETYJ34Gz2N6GMq5QEvqrwSEkfQszzJyu8wORkHJDM5h8+WeZlSGIztT7Md6+EQcFsmMTORLG4bavzRZvAAKDEZVDPFleWKq3qjMDG/W4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761262430; c=relaxed/simple;
-	bh=Aq2WOngmhXiFF6YwVipEy449R7JktaUAS7RpX8bh7QE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=SY+nABolorDygIxiBzfd0aHcqER1VWGDgSdLUtL+xTdA4vM8rdX4palcmbIzeUWmknItyuxE4cS3DSrrKpVif/jaoZR2feBriJ8lGHBv0yIrjdrgrkf4D2oLyKJYAiYI3xIJHZwwIWKdBl/3vD+9/L7i8N1w7n0MlhdnIUb8iKY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=rNZJQ5XJ; arc=fail smtp.client-ip=40.107.209.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D51A1C3F36;
+	Fri, 24 Oct 2025 01:20:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761268829; cv=none; b=pXMcOniz3A+LGObMzv1pei+WR+ct/37okOQTGpPfEWsH4GiZMBDFJ1ZH1zUOn7UiPUrBMOdhPyiI6QoQqCTHHsJOZ5C58DXIC+sdWcXxqiZGtZAhSB7INPbNa399ObmnAqaFVmTK96Xwkd3NOv6EEIVks4wPzjuBaJ5JAhqTgOo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761268829; c=relaxed/simple;
+	bh=aARtou9nCbXC3uTPpXL2tm/ef62gFzMMXNs0ouEQbCE=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=LTeocaNZEtVDUF6HcA2acdMu578CtT+aU2DFEPeSVRpHd/a+gkmDFE+zzDhNGZZNm9ftVuTqRQjnXnMA5KNwf5o/C4g2aW+74UXJid4KPu1GAqWWAQgu2VnmNuuggsI0lYTOcXuSft/zPEapn9E8DqXqj3hbmSR9zz5YLf+Q23Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ugsVxT2k; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="rNZJQ5XJ"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ccSpS7xlc+Kih3DBjPGMstqElyWWiZv7OULg3TAlYNE6N5eXHW3yw87ZePISNCY1inLBD/p+yOZ42bDMvNWoJM6Bjbujf3z5Z0fIC1d1H5Yff0eMkO8uZeHy9vIm6Y6TjG7ndi2OHFFITKL+B0dZAi4QA35y9UcafiffF8rE/TU7UMmWx4UAzAhmRMeA8NHQVH52DJjZUWpGTuAkZLsuB8Vw6shyee/L+S0MCOfxhOX6ILOdKODhAft7Wi1n0yJaKj8/iu75jYgw792F+BT6+jClUFNupKtwj4k6hInxFhbM7DP/kH6EUrLj9SZq5FLM/weDUdcVCnywnJw7Hah9lA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jwhrai6bA6jsyYRx7jplFlB7RKXp0qg8dCum5uU1kIo=;
- b=ZwsF+O8dp0PwrtY7FfHkUfYx/20EWhnBhQmJIJCFe5OYukXtPwBMMTgTll7zyo6WPwXIkie4TCJfwD/dfsfnweSePwtd7vFQbRq643bz+E+eKnwnsXXoqKFTzGYUSSaI4B6py8fttOjyEd5eY97sncu2FLFpi1cZdG+7EuqdkwW16uabEBtQ77neA+VkrQEOrew5sfBOBeiUdDgqwn+sfbO4SwQxVpIsRojKLW3/Zalua0T3TO3vEHPP06OcGofZ896zuZWkIhiHTRMsQaYBmW/a7CYK47ZJXApRvw63uQK0HkoebwDR9ZzGzHE2WHDTDbrdCJ6g0aa/4dzEZrOl9w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jwhrai6bA6jsyYRx7jplFlB7RKXp0qg8dCum5uU1kIo=;
- b=rNZJQ5XJgSw+J51aMaZYACb4gQWEkhUbuxTy+vtkeJaHP7OCfH5A8SDh5ySUwHUnp5earRraslxkimwis7SRfBeyP3tegLG2A0ppolySYnQeOoYabyqsVcRUR4czTXIjnWYgcTnJj/3b+WbtCaSi4wZAWj6g61wsYv1RxuFpe77UlM39uZNZ4MDEcW4sVVOxJJE6drcsqoER0wQqKhhXPdKMyoOXLuvxBkTkUPkT+7srYrfklQHPlL25yOjI8QPnV9YR/IsNw0DHlNxiEsnNrXhp2fLuDebM7/GwwzoRGZmYMfmXz/T7Vi3lB65tgl2eeljlXK+xIlJ4J2ljSy69qg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB3613.namprd12.prod.outlook.com (2603:10b6:208:c1::17)
- by LV2PR12MB5943.namprd12.prod.outlook.com (2603:10b6:408:170::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.13; Thu, 23 Oct
- 2025 23:33:44 +0000
-Received: from MN2PR12MB3613.namprd12.prod.outlook.com
- ([fe80::1b3b:64f5:9211:608b]) by MN2PR12MB3613.namprd12.prod.outlook.com
- ([fe80::1b3b:64f5:9211:608b%4]) with mapi id 15.20.9253.011; Thu, 23 Oct 2025
- 23:33:44 +0000
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-	David Airlie <airlied@gmail.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Brett Creeley <brett.creeley@amd.com>,
-	dri-devel@lists.freedesktop.org,
-	Eric Auger <eric.auger@redhat.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	intel-gfx@lists.freedesktop.org,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Kevin Tian <kevin.tian@intel.com>,
-	kvm@vger.kernel.org,
-	Kirti Wankhede <kwankhede@nvidia.com>,
-	linux-s390@vger.kernel.org,
-	Longfang Liu <liulongfang@huawei.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Pranjal Shrivastava <praan@google.com>,
-	qat-linux@intel.com,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Shameer Kolothum <skolothumtho@nvidia.com>,
-	Mostafa Saleh <smostafa@google.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	virtualization@lists.linux.dev,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Yishai Hadas <yishaih@nvidia.com>,
-	Zhenyu Wang <zhenyuw.linux@gmail.com>,
-	Zhi Wang <zhi.wang.linux@gmail.com>
-Cc: patches@lists.linux.dev
-Subject: [PATCH 14/22] vfio: Require drivers to implement get_region_info
-Date: Thu, 23 Oct 2025 20:09:28 -0300
-Message-ID: <14-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
-In-Reply-To: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
-References:
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BY5PR16CA0007.namprd16.prod.outlook.com
- (2603:10b6:a03:1a0::20) To MN2PR12MB3613.namprd12.prod.outlook.com
- (2603:10b6:208:c1::17)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ugsVxT2k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E22EC4CEFF;
+	Fri, 24 Oct 2025 01:20:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1761268829;
+	bh=aARtou9nCbXC3uTPpXL2tm/ef62gFzMMXNs0ouEQbCE=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=ugsVxT2kXj1753qRfcMkCY+0nXjbm560Z7NaAnyAX80OJtA471rlfPdPClo8IZgK7
+	 d/YRt+MrCbMwTAJ7vKhwOsj2sxoE5k4JD9zm78kfxSh+XQpA++KJSY2uIsLASVZVjS
+	 hrEODT98yXvclbh6Csme44+Jb2Fums/NU8Ub12YSg9i+fnWC3gVCaCKMncgBWBz4Fi
+	 v0oAcw4Ts8dkKcEeiDW9jNsKuYm/IYu+3C5ihdmtRuhEL0a5mkuoz1FqXXXnVIqm2v
+	 IoH311DNVA4eeKtNvDeM9xskFsp+Ks9eEWfn5McXklvlOezGMG5g/CMMhsa/jMHvKt
+	 6UEf62F23U+og==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 89DB63809A38;
+	Fri, 24 Oct 2025 01:20:10 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB3613:EE_|LV2PR12MB5943:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9f7f9a96-e354-4ec7-1725-08de128c9b29
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|7416014|376014|366016|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?9NtfcPyWuxLcFjWYrVmFSuqQ9AAYfEhd8mcdIfQW5xHWcM4NsKW4jlSPR4Fo?=
- =?us-ascii?Q?16GXwmm/3mCV4gFyXqsPiPzC/i0fq1fUsECFYpo6GJG6uwcPxB0s/G/+8O4/?=
- =?us-ascii?Q?r7mPIXUg8mTUGt+FXJ2S2XasxLuJBuenDceqQCeFhXmnBSNPIiQEoZQ2vAZu?=
- =?us-ascii?Q?S4w5AiFJIZIFCETxFY1Tn0zYvpX0czftnxu158fIS7Pi4Uf72XaMxK7FtUf0?=
- =?us-ascii?Q?3UlmLEFmS7lwyjj6zjkdYap/exBNzuRB3VoFvnSrCI2JfNt+R3S+wgLUUmww?=
- =?us-ascii?Q?AB2zCzy72HktjK3Cy57yRctDRcza+SMx3ZD5Ozmoh7SuLaJqaQbTpgodLsP9?=
- =?us-ascii?Q?p3ydViZy2l/Yxbt2xigNWDOs5FME+dRW/4BaW5cd99HK4hkW+TWWuJeXMmxl?=
- =?us-ascii?Q?4ucG66VxEW83zuhJ8cS9sez2WFUwn3Hkb6DQXx49IdPlqdGnqWIA1SQZLrjy?=
- =?us-ascii?Q?UlSpb2NPGtT0mKJ/8HTRie4LMADVPBfuGtHzcd4JpnpMOtTzLPY7Owzmk8Cf?=
- =?us-ascii?Q?aXofrXJzXjc0ss1qyM31jKpsgkGdbNW3ddUYacYmOK6iKfJx2Rd5dtR0+JNQ?=
- =?us-ascii?Q?y2NmX1+CZaiMae4XAAaJA5CxVcqVH+XcV480PRoZQGUyXSr0bORooAefpwhc?=
- =?us-ascii?Q?D/zXQTyvuNIbFNZbTx2CXgR/gb0hgm+181zxEnc6EohbSW97o++g04qqesmq?=
- =?us-ascii?Q?SdOFsonAp0Q3TxkHOyNZa7rN3yifOr63rxGwYmEfktWVadZ+Dqn9r4JQ715l?=
- =?us-ascii?Q?g1zdP5SUe8mHjFHdjpxMu+PxP2jgCgc8Ei1eJhSv3f3+3bwePk9UeTXhSezt?=
- =?us-ascii?Q?nToHL+aUzgDztm5jRHQA83Q+xqwjSXoTh0gCkU/b9BaZ0Ah+wtQAvPgMUUtg?=
- =?us-ascii?Q?O0uNNHgBdRynKjHI2HlQceuo0iPWkTOMN7KlVe1jfaemU4Uv5Z7PfOfkyQkF?=
- =?us-ascii?Q?L71Jd0T37qS5FBirrHzUMExlvstWQ26PQMVL3Xy1Yqv+OsQMN+20snURsJV9?=
- =?us-ascii?Q?y/xcbGl1hYjiLIUfytsoTUj0KXTQtpNyyfObvbXvtHqo+nY6VtKd9HhJfCjG?=
- =?us-ascii?Q?93vaK+PUjuly5X8Tj9hSLogtrcODYzPEIxr/gDyHeXu2C71o2irFDR6xrw+i?=
- =?us-ascii?Q?HMwwdatJ5crx7mAzlGBkKKSROVgyIR7ERhf642Qn9VhLeh+H+5qxc4bjAlif?=
- =?us-ascii?Q?zHRaXMt0UZsLJ4d0/23v3Or5ZG5ide2GzXm4cgzayFQ1t0PCqQgN/zZ3vVpz?=
- =?us-ascii?Q?Pyunfvhg2zrOiyO038KxpV8UVY8whm51Snwy2WZqONrOPhiNxJ5NufgDlPeV?=
- =?us-ascii?Q?OkZNGlL8jSEGq56BVgDnZHb9i9nI1FegIBUXc7j5BpsYZ64daOe4IENtmVMk?=
- =?us-ascii?Q?TvMnGl96R8mPpnm0ovuvkJjnlXkRXcKdj47BQo4pf3PwTj/8Ul5TFZrCNfiy?=
- =?us-ascii?Q?tnvN+6Y60yN2afd5kuRZ7diwPCU5L8oKYzvBeC8odSu2XaN00EBmdZNu/95A?=
- =?us-ascii?Q?gDpm/Th3gs20v9k=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB3613.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?xI7JJ+nmh9ysoi30eE4oTNNMmysQOqwtfvfkm5wwcVo+lKq8jlCeLTuCeDCF?=
- =?us-ascii?Q?UPkGOzHZORER3nfJnxhVpaSOayCixoV4cMQr7yAoyO6GQepD5lzU7iX01reo?=
- =?us-ascii?Q?VL30mdfE5zYMxEhiUYJ0b+Svlo3iQKJDiGMFsEYY82zF3QkZ5ixCXa69R5DE?=
- =?us-ascii?Q?4dxlYxwl5bRZuC9QwW6QCamneJIyJimSiUMeudj0Zh6tqvHI/RzVP9S6kvnC?=
- =?us-ascii?Q?jX+jEGyUnMl7TeW5rUR+p9m4eJup+59iR53IRjpEyV8nQX77Y0JwWfeFFY5t?=
- =?us-ascii?Q?P93JdUumOk1+HwcKME/Tt4SQHQAN1VggcuARXt2xoh8kKJICksjrrU6uuw6g?=
- =?us-ascii?Q?xIAyjDP/xBElbSgOVOeIusNErWyezQeNqHyu2EnkvLJVTq99pxCFCd8NraCP?=
- =?us-ascii?Q?YF02xQ9SolesSxFphkGcy1HUQP3VhDPnxOHM6z+7zYDi+Im08Xh26/encPqi?=
- =?us-ascii?Q?CRG3N10MnB/UXNLKeV5R31YjQuV1NKiSgQHdr/xb69eCptjgzAn4kCzN6SIf?=
- =?us-ascii?Q?HdvSPbqNcdormWQJSesKHbrXwJ94QEHrIcwvYcrMLKwAYtvRwvSmVUZxoO6X?=
- =?us-ascii?Q?41tFjstt4i0dpW6TzZjkapE4v/zLGSTsxjWLkDLK/59s/DjpxapiUym7GlKp?=
- =?us-ascii?Q?Dc+4FTIHG0Od2meCuH+7uON8MdzJUP00RawgKTK9EtSnHbTbCNMPIJtldf/o?=
- =?us-ascii?Q?XkNycIqYUK/0IUbUDdJLzuG6XWrqWHwOq0WQ0kiLQKu7t20c3UB/am5sFOGb?=
- =?us-ascii?Q?zFmL7yqL+nReeIXaRTuoTAZftlpB/KavX1UmDKZifU+DS1ZZfbDYZZ2rj46G?=
- =?us-ascii?Q?1Y1pr7XVViNXnYeIoXQfY4MdxjwlPdo2TflBFN45bB14qyaMsDpkISPBjZrm?=
- =?us-ascii?Q?Wh1F0/j/eaFOQokFFxwqnHY2Fu5nDiB2rXDl+GhOu+Ybp+g9lpMwf93igYo3?=
- =?us-ascii?Q?ia8o4AcRF6zgWVFQUzw9eqfqVUdiwNUUlyle0jT1h+lGV5g45RygsOAmICH1?=
- =?us-ascii?Q?hV+jstRPE9EkArFDtQylntZIxgdf+7jE654rVITc2Ji35jpbvpsab8PEiWAJ?=
- =?us-ascii?Q?+bWZ9aJJoUxAL/umVcca6VFgt4quuZ0xIkdx6K8Vr4vq7w86BwC0c5cSLrrK?=
- =?us-ascii?Q?4KrFPU+lFigAi1i9JJ1pqbAAL4uy09b+Mq73fBn3gCe78dpepvFn/J2WpklA?=
- =?us-ascii?Q?VomJK4EUqP/sDWxQO3F3z007f93LCxYzZaEH4EVtiQK4SumaVg2NI1+SyW8b?=
- =?us-ascii?Q?HIX/wDedMPdNQfs9F7XOfHLPx8rn/5sMYZtwBoFP2mZES9AA7aYZqe/AF2zu?=
- =?us-ascii?Q?4ZdQofvXH9ACiRuXlDEYcqgXpreT6G/G5meMb5R6OLETMPwGia4Wul91+X+R?=
- =?us-ascii?Q?O0bjPp+GZr2XLBOogpbkRibU7x2dzxiEfO+rKq866f0J5H38nb1EezT+Voq4?=
- =?us-ascii?Q?oefMsKKNbsnnjXT1FYoM0mL9T8lK1hef3HjT4OFyIeQU9ixJOAImngnZExKW?=
- =?us-ascii?Q?5Sclu7vXraxTjzdY3zREfZPJuBNHudIwSle9tH21xwBDNWDj+td0KargXKGp?=
- =?us-ascii?Q?zKeJjUVzlp13kSdWGNsGRV0tIEzjVWFMvwBxzGU2?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9f7f9a96-e354-4ec7-1725-08de128c9b29
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3613.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Oct 2025 23:33:44.5998
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: DGrv1IYmsi6K5vZRhPtNe7v8rDGd272T98zOFylbTMvYYhTMXNlb+E6fDR9nGrOa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5943
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2] virtio-net: drop the multi-buffer XDP packet in
+ zerocopy
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <176126880925.3310205.7564806694016358052.git-patchwork-notify@kernel.org>
+Date: Fri, 24 Oct 2025 01:20:09 +0000
+References: <20251022155630.49272-1-minhquangbui99@gmail.com>
+In-Reply-To: <20251022155630.49272-1-minhquangbui99@gmail.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, eperezma@redhat.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+ john.fastabend@gmail.com, sdf@fomichev.me, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
 
-Remove the fallback through the ioctl callback, no drivers use this now.
+Hello:
 
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/vfio/vfio_main.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index a390163ce706c4..f056e82ba35075 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -1297,13 +1297,13 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
- 		break;
- 
- 	case VFIO_DEVICE_GET_REGION_INFO:
--		if (!device->ops->get_region_info)
--			goto ioctl_fallback;
--		ret = device->ops->get_region_info(device, uptr);
-+		if (unlikely(!device->ops->get_region_info))
-+			ret = -EINVAL;
-+		else
-+			ret = device->ops->get_region_info(device, uptr);
- 		break;
- 
- 	default:
--ioctl_fallback:
- 		if (unlikely(!device->ops->ioctl))
- 			ret = -EINVAL;
- 		else
+On Wed, 22 Oct 2025 22:56:30 +0700 you wrote:
+> In virtio-net, we have not yet supported multi-buffer XDP packet in
+> zerocopy mode when there is a binding XDP program. However, in that
+> case, when receiving multi-buffer XDP packet, we skip the XDP program
+> and return XDP_PASS. As a result, the packet is passed to normal network
+> stack which is an incorrect behavior (e.g. a XDP program for packet
+> count is installed, multi-buffer XDP packet arrives and does go through
+> XDP program. As a result, the packet count does not increase but the
+> packet is still received from network stack).This commit instead returns
+> XDP_ABORTED in that case.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net,v2] virtio-net: drop the multi-buffer XDP packet in zerocopy
+    https://git.kernel.org/netdev/net/c/1ab665817448
+
+You are awesome, thank you!
 -- 
-2.43.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
