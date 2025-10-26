@@ -1,181 +1,188 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f207.google.com (mail-il1-f207.google.com [209.85.166.207])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A61272F5A2D;
-	Sat, 25 Oct 2025 16:19:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8DE11F8723
+	for <virtualization@lists.linux.dev>; Sun, 26 Oct 2025 01:24:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.207
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761409173; cv=none; b=N9RSm4FRBbVx5wtiujo9fOSCW/DjomuyMCoMQZM5q0NibKalYFro/S4xhCrnXB52V6F+sLp+4U7kfaI+8gkYbl4rGirc0frdzGtbJBAyCeclrG7irz/FW++fgecr9oS7b4dQrPgpxMxbXzZ0/Du8AvJnjZw0oa1/YFWNSRN2LKA=
+	t=1761441870; cv=none; b=samfoSRLd5NTo4L4M2FzQqkr5+QI0r/YogeHANjvY/otB1K0SPLIuMJ96H8UMvSZqCoIv7BrohFKsuZfXMPe/yySK43FuOE6/E0MUVhL4ISe1Lngrs/XDk8JVTEjJVuXR4I73m5quVdcV43M+8XY2Xu1Df60eftbjbPiXqATDHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761409173; c=relaxed/simple;
-	bh=9HkRSYhRyPFwC+Ebch60U0eOkF+niXbkC6onf51bdM4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=sHZE2rG0UUVZnLhtrbPqQyEgC8nc1kueuas8flsAdO8V72dwIhNEpaQuhrc3+o4+2RsG5UGjelm3KyaFSAjbTsynvo4bzyotpjyU7XIoZrU31znZ1tdQKmQz+HJTxwkdAQUN+Ew7qRTVgHuUgqxinRLkN05HsiXs624We8962Ik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gKl1YArx; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gKl1YArx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57969C4CEFB;
-	Sat, 25 Oct 2025 16:19:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761409173;
-	bh=9HkRSYhRyPFwC+Ebch60U0eOkF+niXbkC6onf51bdM4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=gKl1YArxQnIvCurA5cukZnrwpGSRwJ6hqDT/lT40+Okk8pS/RvkQ4Gu8CrGRVNiKr
-	 qgTSo4DU1MaNj2i6/V/ANQXHAZ8x7vLXQJCVpbLAFPRbnOQRQ2oia5h6cn84DZynSI
-	 uU54CXAn2JIOHxx4njL8mUwfuNhmS1Sr0cyyFIhItr1zbwF5PO7n00ClH22nD3+QJY
-	 8E17Oj816ia6ivtstsKd0IUO3CK+oNDyyLwNJApUPoAGrGf13ubI3gb59jM+OGLgD0
-	 pTBe4S6lhITezZdtZxjI9LBk8RqrKOsjkVv4+27Xitc4XpzPrCc5yiFqg9RQ6zOIhZ
-	 Z5O0jeOYVT5Zw==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Li RongQing <lirongqing@baidu.com>,
-	Fushuai Wang <wangfushuai@baidu.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Miklos Szeredi <mszeredi@redhat.com>,
-	Sasha Levin <sashal@kernel.org>,
-	miklos@szeredi.hu,
-	vgoyal@redhat.com,
-	linux-fsdevel@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.17] virtio_fs: fix the hash table using in virtio_fs_enqueue_req()
-Date: Sat, 25 Oct 2025 11:57:41 -0400
-Message-ID: <20251025160905.3857885-230-sashal@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251025160905.3857885-1-sashal@kernel.org>
-References: <20251025160905.3857885-1-sashal@kernel.org>
+	s=arc-20240116; t=1761441870; c=relaxed/simple;
+	bh=l0JdNPqHtNnrtLkYZB+eo4oUa2joCj3aDCuMLOthpJY=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=r9Jv9p+sG9jDXc8mwxGSd2TLmUM180LuyLe7xO/GCLst5GtQ4Wd0K9aH6z/tR9rY6SXLVU7QsJbOA2I14T7unmomGUbvFQVuj2vEBA80t+j59/BvvQdmrvjlwUZ8xdPeMrtjCSlEWqAQXIdsD+GV6p60T84O7HU3u0A8zpdXLAU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f207.google.com with SMTP id e9e14a558f8ab-430c477fe44so41059345ab.1
+        for <virtualization@lists.linux.dev>; Sat, 25 Oct 2025 18:24:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761441868; x=1762046668;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=qTX9+EdpFpLtSXhB4ZvAE4+fL3brlhMvQ74K6KoDcKA=;
+        b=WJFuRaYUZf83sOr6EXKjj2HNk6etb60rXMdydGhlqprmlJTdnPAguimQX5v/xvqYsq
+         NqbST1oFL6GXjvnf/15bAY+rFx+ZwN3WS4wA357tLzyx0csNRa5zKNJ4Tt0eihkJEjQT
+         ccdL4p2QJGOSkE4ikfhtPRiqjd+HhK0yRZLzam6vDSTDMGvQCZyqs+fSwoqAEeJA/Sp2
+         +EM7i9H8nCF+s6KzxCy0zE+A98xHuQd96M+wrXWB1my6yTksU2VDAEfRzX0C4rtH0LWl
+         hPEB/f8INzfo0OF0tD6EoS5w6naxgSPxQkWrEqk2LXeTsViFH7wixn9RYuiMjAVZCntp
+         tqBw==
+X-Forwarded-Encrypted: i=1; AJvYcCWDpIKMiGqxqWYNUs5SowyJxJR+Fo2PPgd7HMSQCB5HhgNKqtcLJi46xu79db5grOsBa63rowd8wWudeLOu/g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxkEzl2ZCA834Tb+wb+F2F/HR5c7hxQAz/GMiC8Z3BPSDZniNa9
+	jfHMRf1/b9cvu81iH0ljmtwYkjpsrjLkobi+7HYOfrIYE2hmvyQn427qDZ1xBXSACyj6C+EQ32s
+	83mJxQGuA8LLG1kgGvGmXojPPbYHPfht9wDLPKRWNfU4wHiGcdQiVnjM7egY=
+X-Google-Smtp-Source: AGHT+IEBLmQFMFbIp1naKVdNeG0tFdWjhLvNShExU/ttbEbiFSP9c3PU+NBMnRr/rltF6wF0EuwzCvMOInhHK2zsxqIcR75Gx0y5
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.17.5
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6e02:3e04:b0:425:8744:de7d with SMTP id
+ e9e14a558f8ab-430c5292336mr442014515ab.30.1761441867931; Sat, 25 Oct 2025
+ 18:24:27 -0700 (PDT)
+Date: Sat, 25 Oct 2025 18:24:27 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <68fd784b.a70a0220.5b2ed.0002.GAE@google.com>
+Subject: [syzbot] [net?] [virt?] BUG: sleeping function called from invalid
+ context in get_random_u8
+From: syzbot <syzbot+705049704a8f04f9ed46@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, horms@kernel.org, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sgarzare@redhat.com, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-From: Li RongQing <lirongqing@baidu.com>
+Hello,
 
-[ Upstream commit 7dbe6442487743ad492d9143f1f404c1f4a05e0e ]
+syzbot found the following issue on:
 
-The original commit be2ff42c5d6e ("fuse: Use hash table to link
-processing request") converted fuse_pqueue->processing to a hash table,
-but virtio_fs_enqueue_req() was not updated to use it correctly.
-So use fuse_pqueue->processing as a hash table, this make the code
-more coherent
+HEAD commit:    6548d364a3e8 Merge tag 'cgroup-for-6.18-rc2-fixes' of git:..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=15ded734580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=216353986aa62c5d
+dashboard link: https://syzkaller.appspot.com/bug?extid=705049704a8f04f9ed46
+compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
 
-Co-developed-by: Fushuai Wang <wangfushuai@baidu.com>
-Signed-off-by: Fushuai Wang <wangfushuai@baidu.com>
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unfortunately, I don't have any reproducer for this issue yet.
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/d8f9e408d44f/disk-6548d364.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/70787a187f91/vmlinux-6548d364.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/d0a3a98dfaf8/bzImage-6548d364.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+705049704a8f04f9ed46@syzkaller.appspotmail.com
+
+BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:48
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 17941, name: syz.4.4549
+preempt_count: 1, expected: 0
+RCU nest depth: 2, expected: 2
+5 locks held by syz.4.4549/17941:
+ #0: ffff88803ca7a398 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1679 [inline]
+ #0: ffff88803ca7a398 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_connectible_sendmsg+0x189/0x1040 net/vmw_vsock/af_vsock.c:2032
+ #1: ffffffff8d7aa4c0 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:331 [inline]
+ #1: ffffffff8d7aa4c0 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:867 [inline]
+ #1: ffffffff8d7aa4c0 (rcu_read_lock){....}-{1:3}, at: __bpf_trace_run kernel/trace/bpf_trace.c:2074 [inline]
+ #1: ffffffff8d7aa4c0 (rcu_read_lock){....}-{1:3}, at: bpf_trace_run9+0x1ec/0x500 kernel/trace/bpf_trace.c:2123
+ #2: ffff8880b8932c88 ((stream_local_lock)){+.+.}-{3:3}, at: bpf_stream_page_local_lock kernel/bpf/stream.c:46 [inline]
+ #2: ffff8880b8932c88 ((stream_local_lock)){+.+.}-{3:3}, at: bpf_stream_elem_alloc kernel/bpf/stream.c:175 [inline]
+ #2: ffff8880b8932c88 ((stream_local_lock)){+.+.}-{3:3}, at: __bpf_stream_push_str+0x211/0xbe0 kernel/bpf/stream.c:190
+ #3: ffffffff8d7aa4c0 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:331 [inline]
+ #3: ffffffff8d7aa4c0 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:867 [inline]
+ #3: ffffffff8d7aa4c0 (rcu_read_lock){....}-{1:3}, at: __rt_spin_trylock kernel/locking/spinlock_rt.c:110 [inline]
+ #3: ffffffff8d7aa4c0 (rcu_read_lock){....}-{1:3}, at: rt_spin_trylock+0x10d/0x2b0 kernel/locking/spinlock_rt.c:118
+ #4: ffff8880b8936348 ((batched_entropy_u8.lock)){+.+.}-{3:3}, at: spin_lock include/linux/spinlock_rt.h:44 [inline]
+ #4: ffff8880b8936348 ((batched_entropy_u8.lock)){+.+.}-{3:3}, at: get_random_u8+0x1ce/0x870 drivers/char/random.c:552
+Preemption disabled at:
+[<0000000000000000>] 0x0
+CPU: 1 UID: 0 PID: 17941 Comm: syz.4.4549 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/02/2025
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x189/0x250 lib/dump_stack.c:120
+ __might_resched+0x44b/0x5d0 kernel/sched/core.c:8927
+ __rt_spin_lock kernel/locking/spinlock_rt.c:48 [inline]
+ rt_spin_lock+0xc7/0x3e0 kernel/locking/spinlock_rt.c:57
+ spin_lock include/linux/spinlock_rt.h:44 [inline]
+ get_random_u8+0x1ce/0x870 drivers/char/random.c:552
+ get_random_u32_below include/linux/random.h:78 [inline]
+ kfence_guarded_alloc+0x9d/0xc70 mm/kfence/core.c:422
+ __kfence_alloc+0x385/0x3b0 mm/kfence/core.c:1140
+ kfence_alloc include/linux/kfence.h:129 [inline]
+ slab_alloc_node mm/slub.c:5252 [inline]
+ __kmalloc_cache_noprof+0x576/0x6c0 mm/slub.c:5750
+ kmalloc_noprof include/linux/slab.h:957 [inline]
+ add_stack_record_to_list mm/page_owner.c:172 [inline]
+ inc_stack_record_count mm/page_owner.c:214 [inline]
+ __set_page_owner+0x25c/0x490 mm/page_owner.c:333
+ set_page_owner include/linux/page_owner.h:32 [inline]
+ post_alloc_hook+0x240/0x2a0 mm/page_alloc.c:1850
+ prep_new_page mm/page_alloc.c:1858 [inline]
+ get_page_from_freelist+0x28c0/0x2960 mm/page_alloc.c:3884
+ alloc_frozen_pages_nolock_noprof+0xbc/0x150 mm/page_alloc.c:7595
+ alloc_pages_nolock_noprof+0xa/0x30 mm/page_alloc.c:7628
+ bpf_stream_page_replace+0x19/0x1e0 kernel/bpf/stream.c:86
+ bpf_stream_page_reserve_elem kernel/bpf/stream.c:142 [inline]
+ bpf_stream_elem_alloc kernel/bpf/stream.c:177 [inline]
+ __bpf_stream_push_str+0x35c/0xbe0 kernel/bpf/stream.c:190
+ bpf_stream_stage_printk+0x14e/0x1c0 kernel/bpf/stream.c:448
+ bpf_prog_report_may_goto_violation+0xc4/0x190 kernel/bpf/core.c:3181
+ bpf_check_timed_may_goto+0xaa/0xb0 kernel/bpf/core.c:3199
+ arch_bpf_timed_may_goto+0x21/0x40 arch/x86/net/bpf_timed_may_goto.S:40
+ bpf_prog_262a74d054ad2993+0x53/0x5f
+ bpf_dispatcher_nop_func include/linux/bpf.h:1350 [inline]
+ __bpf_prog_run include/linux/filter.h:721 [inline]
+ bpf_prog_run include/linux/filter.h:728 [inline]
+ __bpf_trace_run kernel/trace/bpf_trace.c:2075 [inline]
+ bpf_trace_run9+0x2de/0x500 kernel/trace/bpf_trace.c:2123
+ __bpf_trace_virtio_transport_alloc_pkt+0x2d7/0x340 include/trace/events/vsock_virtio_transport_common.h:39
+ __do_trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
+ trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
+ virtio_transport_alloc_skb+0x10cc/0x1130 net/vmw_vsock/virtio_transport_common.c:311
+ virtio_transport_send_pkt_info+0x6be/0x1100 net/vmw_vsock/virtio_transport_common.c:390
+ virtio_transport_stream_enqueue net/vmw_vsock/virtio_transport_common.c:1113 [inline]
+ virtio_transport_seqpacket_enqueue+0x166/0x1f0 net/vmw_vsock/virtio_transport_common.c:841
+ vsock_connectible_sendmsg+0xabf/0x1040 net/vmw_vsock/af_vsock.c:2136
+ sock_sendmsg_nosec net/socket.c:727 [inline]
+ __sock_sendmsg+0x21c/0x270 net/socket.c:742
+ ____sys_sendmsg+0x534/0x820 net/socket.c:2630
+ ___sys_sendmsg+0x21f/0x2a0 net/socket.c:2684
+ __sys_sendmmsg+0x22d/0x430 net/socket.c:2773
+ __do_sys_sendmmsg net/socket.c:2800 [inline]
+ __se_sys_sendmmsg net/socket.c:2797 [inline]
+ __x64_sys_sendmmsg+0xa0/0xc0 net/socket.c:2797
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f5c3d7fefc9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f5c3ba66038 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
+RAX: ffffffffffffffda RBX: 00007f5c3da55fa0 RCX: 00007f5c3d7fefc9
+RDX: 0000000000000001 RSI: 0000200000000b40 RDI: 0000000000000004
+RBP: 00007f5c3d881f91 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f5c3da56038 R14: 00007f5c3da55fa0 R15: 00007ffe123190c8
+ </TASK>
+
+
 ---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-LLM Generated explanations, may be completely bogus:
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
-YES
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
 
-**Why This Is A Bugfix**
-- The earlier change “fuse: Use hash table to link processing request”
-  (be2ff42c5d6e) converted `fuse_pqueue->processing` from a single list
-  to a hash table. You can see the hash table parameters and the data
-  structure:
-  - `FUSE_PQ_HASH_BITS` and `FUSE_PQ_HASH_SIZE`: fs/fuse/fuse_i.h:546
-  - `struct fuse_pqueue { struct list_head *processing; }`:
-    fs/fuse/fuse_i.h:556
-  - Allocation as an array of `list_head` buckets: fs/fuse/inode.c:1622
-- Responses are looked up by hashing the request ID and searching only
-  that bucket:
-  - `fuse_request_find()` iterates `&fpq->processing[hash]`:
-    fs/fuse/dev.c:2131
-- Before this fix, `virtio_fs_enqueue_req()` added every request to the
-  list head pointer (effectively bucket 0) instead of the hashed bucket.
-  That makes replies unfindable for non-zero buckets, leading to -ENOENT
-  on reply processing and stuck/hung requests.
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
 
-**What The Patch Changes**
-- Export the hash function so virtio-fs can use it:
-  - `fuse_req_hash()` now exported: fs/fuse/dev.c:321
-- Ensure virtio-fs adds requests to the correct bucket:
-  - Include FUSE device internals: fs/fuse/virtio_fs.c:23
-  - Compute the bucket: `hash = fuse_req_hash(req->in.h.unique);`:
-    fs/fuse/virtio_fs.c:1445
-  - Enqueue into the correct bucket: `list_add_tail(&req->list,
-    &fpq->processing[hash]);`: fs/fuse/virtio_fs.c:1447
-  - Function definition location for context: fs/fuse/virtio_fs.c:1370
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
 
-**Impact and Risk**
-- User-visible bugfix: Without this, replies cannot be matched to
-  requests (except those hashing to bucket 0), causing request
-  completion failures and potential hangs in virtio-fs workloads.
-- Small and contained: Two files touched; logic change is limited to
-  correctly hashing and inserting into the right bucket, plus exporting
-  a helper symbol.
-- No architectural changes: Keeps the existing hash-table design; simply
-  uses it correctly.
-- Stable-friendly: Minimal risk of regression, no new features, fixes
-  incorrect behavior.
-
-**Backport Conditions**
-- This should be backported to any stable series that already includes
-  the conversion of `processing` to a hash table (be2ff42c5d6e). If a
-  stable series predates that change (i.e., `processing` is still a
-  single list), this patch is not applicable.
-- The export `EXPORT_SYMBOL_GPL(fuse_req_hash)` (fs/fuse/dev.c:321) is
-  required so `virtio_fs` can link against it. This is an internal, GPL-
-  only symbol used by in-tree code and is appropriate for stable.
-
- fs/fuse/dev.c       | 1 +
- fs/fuse/virtio_fs.c | 6 ++++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index dbf53c7bc8535..612d4da6d7d91 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -322,6 +322,7 @@ unsigned int fuse_req_hash(u64 unique)
- {
- 	return hash_long(unique & ~FUSE_INT_REQ_BIT, FUSE_PQ_HASH_BITS);
- }
-+EXPORT_SYMBOL_GPL(fuse_req_hash);
- 
- /*
-  * A new request is available, wake fiq->waitq
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 76c8fd0bfc75d..1751cd6e3d42b 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -20,6 +20,7 @@
- #include <linux/cleanup.h>
- #include <linux/uio.h>
- #include "fuse_i.h"
-+#include "fuse_dev_i.h"
- 
- /* Used to help calculate the FUSE connection's max_pages limit for a request's
-  * size. Parts of the struct fuse_req are sliced into scattergather lists in
-@@ -1384,7 +1385,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	unsigned int out_sgs = 0;
- 	unsigned int in_sgs = 0;
- 	unsigned int total_sgs;
--	unsigned int i;
-+	unsigned int i, hash;
- 	int ret;
- 	bool notify;
- 	struct fuse_pqueue *fpq;
-@@ -1444,8 +1445,9 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 
- 	/* Request successfully sent. */
- 	fpq = &fsvq->fud->pq;
-+	hash = fuse_req_hash(req->in.h.unique);
- 	spin_lock(&fpq->lock);
--	list_add_tail(&req->list, fpq->processing);
-+	list_add_tail(&req->list, &fpq->processing[hash]);
- 	spin_unlock(&fpq->lock);
- 	set_bit(FR_SENT, &req->flags);
- 	/* matches barrier in request_wait_answer() */
--- 
-2.51.0
-
+If you want to undo deduplication, reply with:
+#syz undup
