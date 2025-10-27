@@ -1,203 +1,209 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from DM5PR21CU001.outbound.protection.outlook.com (mail-centralusazon11011061.outbound.protection.outlook.com [52.101.62.61])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C6022D24A3
-	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 14:49:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761576564; cv=none; b=cdiWNwytnIUdvSWu8lpuFy8Z6SvkTKmbapRlEgENyXktU5PwXAPK+4LthCcOnBSQfz8Yem+wiSA/wo+sla3PkSfoRLWPMuuCjxDrkv3zHvjhs5j2FEMEfD3CagQHIBGzSbK6/hcqFsmvvIIBh9ZkmCOm0fAMayILUH+NTuaDmgA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761576564; c=relaxed/simple;
-	bh=CjrEwSgjiwD336OKAJb8KSdBV5+gSPyH1P76ISzvG+c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JpyLioU9JGk0xUvr6fgBir4M5474aQ9tu7u1x3h5Qk8PeOd10sURlMmDmQec5F9IF8B7cliluz3Yr2LJWEQCTBli7SAqk097xsBa9dh4xj1HoP2mrOglpma+YXADZ6wIaZXz3q+LWIUGwM+vd7JVClXJk+CSDfHxqmgfU0/cIa0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UcQEDKUi; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 661412B9B7
+	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 14:55:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.62.61
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761576941; cv=fail; b=bRpRFe8Ok7ceBs8yFb3OmG7iViVBa0rUFraM1layaWB7CZgS7Qk4iISWIGY7sgNm/bOsLxc989IO24RKsSTKkR3+8Q8M8coon9R9pA7GDcZvkTM6QDvQBmaGtJVpmoFhHWAO5FONcbqmG2ZP99ZXRdJRCi1hwKkSa3H21ruEGIk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761576941; c=relaxed/simple;
+	bh=JdUlRol5lPRTKTakFfZbMAB4g4+umjSJEjy4UbMGfoc=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=FXuPnDRxzSrDl+dunOXVTqpRG2Fi7YoBpeagjbfs46LxzT2syiByvmQ9b7csk3/Fx3PM+4pcC8LFdvbfHO8Dflt5BDpjMuYsJ8yI04sVb5Vln502FWSkmShj3LEnwH5pXqq+MCJdQE57AM4MVW/F4ZqC7pjY5lpaCxGl3h6ey5A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=lgMbyAtx; arc=fail smtp.client-ip=52.101.62.61
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UcQEDKUi"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-7811a02316bso3402806b3a.3
-        for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 07:49:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761576560; x=1762181360; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ANPsngXgMHjdKcxNVoXIy4m28dyqI6/YbqpsmZo++8U=;
-        b=UcQEDKUiqvf4JvjiONtQebzSRAe2HGB66pCo2jlmiBn1YXRAG46v2yPIm3VHQcy55+
-         ry8gNAdfi/PFM07j9RENi3GiSNfkvnOcbz2SCYhHAYbhzaBNhRAJj+PPJkjMVduqIGaP
-         zblDdKgXXN2MWOeAeU5F6vcAc528/3u/BxBTMB1Bgi5j9XhPvaInoqQHV9+4rBCzpmM5
-         HlT/8Ke9wenevXOs2N+VnRKqOSBG0cCoySGv3wDaqlliDCgpE32os30PvkX8icJFNPcm
-         sy7BulVZEJQAQLKbYP+zLgTPz8UM2LbypFxAyXpFESKXsvCPLTTi72pnX5n6hB1U4fRI
-         s3Ag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761576560; x=1762181360;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ANPsngXgMHjdKcxNVoXIy4m28dyqI6/YbqpsmZo++8U=;
-        b=wIaNZLE+VYlS833oyObe+9Zw5JVX9y0hv9jA0qJNNUeyj+wkrcajBf3h7xb5q/Cl42
-         Sskarm5yYcGgeNB6RzoFaFu29YvXzwOo0SsFk5NqBfxrJB+lho6xhguDoNoMICcL+5Dr
-         zP+TDc4dsFbLqZ/nXG+KVr4laVUUJMydQqBGHFIiPkNHaTa7WG8IxigJtQCdmtNOEzMu
-         7ZgT9L0yz66eoJTbf+2QdNI7uFTZc6tRN20NExQ9YQlqTSmkUGsfPZ25AZwKUEqckOzE
-         FR5jftj8tpNOD18PSYFMBUMaB1kIg1eW8RUt0KQvxgD9RSeLjzKTnLjyV34wqCAqi1yb
-         DWfA==
-X-Forwarded-Encrypted: i=1; AJvYcCWOts6r2ELBYZvrci/s6UWlzi91pa+PacxKMsGSEhcMfyx/clNdsES6xa024JYxH90iGU5MSKYwfY/UZTCwCQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzs8ubNKH4VuNrcytDkNsphnATYGWB+QlmEz7XZYP5Xxt2EDk3L
-	D+Ar81oHex5Txc7yI+9m8OUoWLyR3z8SnPdPj+U6aMYrplD9iUkLcI77
-X-Gm-Gg: ASbGncss+twccgJWeIZZOtAhAPA69MMcrr6+A713o6KL+jZlJDR3ITzmbegvUxbU+0m
-	6MoZb26l23oU5JXyaB0bAFg2yaJmts/a6HBg6C6rTRAMEOFU0KU4Y2QVtE27Rb/v9IPo355gvV1
-	qB0Ud+FK9FrJXud+SbAPszXV1mOKqrVggpRSN4QGtL9btJl3bLwJUijSWweNBia51Yh+6U/WlFc
-	p5GTyU7Qt48H++ChLu6iEyCKpupSQO/F5n2whkqyP5BROxiGQydUTW8DDf9V1gX/IFGox/LzG/y
-	zCQbzRGEjbYTIa6ncpyxyDdM//wcEddrzR0nlm27ea/cx7AO1d5JhLkaNN7z77qab/rm4QJsyYw
-	MRykaURsT9T08Yfu568kXNmJiQNc4cYiVNG+nuKzz85JaJ6be4qsx4ywDY9iKG8jSC8Imwu36PI
-	rBMFK0Ir6hUCRrTM3PGXAAcwmCa1sCSxfeQqzHl/JwC4phT/JdCoyZo8XnOfWkKQ==
-X-Google-Smtp-Source: AGHT+IEok/bzITDTCab03QqNwX8lBfkK7cWFMLgw94U0uFNw9rZow3hQZEVr+kA8L+xnK5EFRYIn1Q==
-X-Received: by 2002:a05:6a00:188b:b0:7a2:8343:1b1 with SMTP id d2e1a72fcca58-7a441c2edefmr272995b3a.17.1761576560215;
-        Mon, 27 Oct 2025 07:49:20 -0700 (PDT)
-Received: from ?IPV6:2001:ee0:4f4c:210:d7dc:fc1f:94d0:3318? ([2001:ee0:4f4c:210:d7dc:fc1f:94d0:3318])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7a41404987esm8217502b3a.36.2025.10.27.07.49.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Oct 2025 07:49:19 -0700 (PDT)
-Message-ID: <8e2b6a66-787b-4a03-aa74-a00430b85236@gmail.com>
-Date: Mon, 27 Oct 2025 21:49:12 +0700
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="lgMbyAtx"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=gV6XGMoVTc0NkaiS/hAtjnV3DIAV5cebv/2n8YnUDCtu5X/zBWHighE70PR6rw15BHEuzQe5uMi3NjHe6W1lEq/YJgvnNWcbFlaFWxrzvJI0Bs91DEE1IrSc2cZ0uI9xlxu0hM2ftT76qjBoiXjIHRm4YbExldWCfvl17XW5OpGNHaU3qwZoLsEy9sHs7Hj3wmGj3HMpcuqZaSz8FzJlzAHMXF1jtFLX8JQLrQcp58Rt5y7uMGBKn76KbJe6svyxcgItZObM30JTCyh9L2c8etxLX71PRmVHelTF7rLRhp4YNL2MFLxoLfJt3uHggg2QA59Yv5ElrSkCmuCndW3/Pg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=JdUlRol5lPRTKTakFfZbMAB4g4+umjSJEjy4UbMGfoc=;
+ b=oUhyJ3WPJSGMQF4SkAPUuJn8/RB4W9ICzxkb/jtGsvvIZAL6p5/OTR06JhOW1ysZmxSXdd1P86m/YjMAVrayBDH5At7KWgXymvGnSX90rXA6WJFdbqihJgPIjTDqZNoObiRPByJguDKMIQs+397Tw23LppwrClbZf0lkFgFfULX4OqmgfxmKuOBr33Pic9tm8Px2GqCOAKcZFVI2sMXhv0os2HeqoVzccfBPO3NjiZuybcoQGkdOOpEXORO75HU3gQQV+8VQHAy2JiUz8EK9Ws1mmx38nCMiH7TEaVqRs2yvKEZz/eV+XkkigtfE6GsgijFH/Cj0S4emxJBK6bE8gA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=JdUlRol5lPRTKTakFfZbMAB4g4+umjSJEjy4UbMGfoc=;
+ b=lgMbyAtxsrwaZyYv9lPsXchc5UnF/FuKPUL8Pftjs23szZZTBIukKRIrM4PSWkI4Xo4TQWDUhCV3RolbjeJpYPvzp+PyecAE3Eu9q7HslenejVIMaMdoh40XLyxrUniQsSUvbPbDLonk0GKt5doalLEjMHQsZP6WfoiTICuyN7oCOF6SgMq38RKp+aFOK3ru+uc25+o6nRbEq80sMVsH054H6ZKvJsYca2UcTCdc2t2eO5lA/T64fKpSYL4hgH1q5LFuPRmXOdFdYOpHXNORYogr3F31NzRDutVJysSb/FFRQD/qpSCAVSIl8LUF+7zJ2wG/mguofuqCGG5siuDnbA==
+Received: from CY8PR12MB7195.namprd12.prod.outlook.com (2603:10b6:930:59::11)
+ by SJ0PR12MB5611.namprd12.prod.outlook.com (2603:10b6:a03:426::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.18; Mon, 27 Oct
+ 2025 14:55:35 +0000
+Received: from CY8PR12MB7195.namprd12.prod.outlook.com
+ ([fe80::e571:5f76:2b46:e0f8]) by CY8PR12MB7195.namprd12.prod.outlook.com
+ ([fe80::e571:5f76:2b46:e0f8%5]) with mapi id 15.20.9253.017; Mon, 27 Oct 2025
+ 14:55:35 +0000
+From: Parav Pandit <parav@nvidia.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>
+CC: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?utf-8?B?RXVnZW5pbyBQw6lyZXo=?=
+	<eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "Minggang(Gavin) Li"
+	<gavinl@nvidia.com>, Gavi Teitz <gavi@nvidia.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH net v5] virtio-net: fix received length check in big
+ packets
+Thread-Topic: [PATCH net v5] virtio-net: fix received length check in big
+ packets
+Thread-Index: AQHcRPgJwKk3Q45MeUGTanh0wr8u4LTSclGggAOldQCAAAGUoA==
+Date: Mon, 27 Oct 2025 14:55:35 +0000
+Message-ID:
+ <CY8PR12MB7195F589628BD6617A77F81CDCFCA@CY8PR12MB7195.namprd12.prod.outlook.com>
+References: <20251024150649.22906-1-minhquangbui99@gmail.com>
+ <CY8PR12MB71951A2ADD74508A9FC60956DCFEA@CY8PR12MB7195.namprd12.prod.outlook.com>
+ <8e2b6a66-787b-4a03-aa74-a00430b85236@gmail.com>
+In-Reply-To: <8e2b6a66-787b-4a03-aa74-a00430b85236@gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CY8PR12MB7195:EE_|SJ0PR12MB5611:EE_
+x-ms-office365-filtering-correlation-id: 00035c15-5c4d-4bbb-81e1-08de1568e249
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|376014|7416014|1800799024|366016|38070700021;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?TFM5RHJ4WkRtK2RjSS8ybkxOYUtibEl3N0NLaTZIYXFUWklGKzBhV1FLZ2gz?=
+ =?utf-8?B?ODgxZ0FrZ2x3Q0hnSnd4OXduZnlsQ3JEdXJraGk1L3A3d25UQSt5dDZjR09a?=
+ =?utf-8?B?d2FabjErSjRiSkdUVDF6Zm0yOVU3a3FYR0svSURmU090RjJydGpObTB5bmhX?=
+ =?utf-8?B?dUFSRTFpS2NhaVJWSDE1THhUR0JNdy9HUjRYQ1FzZ1ZCVko3M0VJc2NwRmds?=
+ =?utf-8?B?UmtSeDRTUDQ0dzhXMEw1bXZlaThhRUdKUjhQSlRvUkJLU3o0K09YZTZZS0Ix?=
+ =?utf-8?B?a0hqVHJPdW5wK3E2SlZyU0t1MGhuNXJoVUdTaklXYUlpNGhWVjM5VkVKVUlE?=
+ =?utf-8?B?bXA4dTJucTMvelQ0a1ZiNGZvb29VODJjZjZ1ZEEyZlgrYjd5S0pBQjZDMmlC?=
+ =?utf-8?B?akZxVExpT3RWdnRpTTF1ODdCdVl5WHYvL21WbmdwcERmWXZmS0t0eHM3Sm1B?=
+ =?utf-8?B?Y3dXMEhxcmxDRFdyRmg2ckt4R3puRkE3QUduM25ZbjdORWhuMy9EaisvZ1Mw?=
+ =?utf-8?B?QTdqVWFpWWl5R3dhSWwzT3JrVTJxR2FhUW9lYlF2R3U1UTA4d3JPN2RSU21n?=
+ =?utf-8?B?T3lOZnhrTEJMK1FqTUttWGhjNllSRFVmTTE1SEcrSTFDdGtmU2ZXQVl1bEdt?=
+ =?utf-8?B?Y0NDcUwvcXE4NERqQlZUZnd1cm5ZWEszMkYzNnNHM281M3NrczlqdHYvZStI?=
+ =?utf-8?B?Wm45b242cWZpTjROaXovQ0RsSmRkNUo2R2R0YnR0OWpmQ01TcXdpQVpDcXJW?=
+ =?utf-8?B?NTUrUXRNd0lCR0RrTElNaU9JZGVkNHUvSXJKazhjZUd2UkwvT21VNXpxS1o2?=
+ =?utf-8?B?WWJqL0QwNTFIb29ieUZUbzFHTmg5VFVYMUliVXZlWmt2NmpWNE1ZNWt4V1dE?=
+ =?utf-8?B?UVlYT0ZnTE5IRm1lVmRrbzdLRjk3MUpkc2x2TXVKZzNEd0RmU1Nkd2VoWVhD?=
+ =?utf-8?B?REU2Y1Y5V3VKK0hSNU9JSkZHVWlXQUp3V3JQY1NuRnRyRVlYMjZhdm02NnFs?=
+ =?utf-8?B?Qlo5VVgyU3ZuekZYeFBXUEJRa3NZV0xEMnFvWmhXcnVlNXZueTN1Q1RjQnhm?=
+ =?utf-8?B?T3lHQW1XVEtuNnIrK1FrbE5uMHpwME1nNVZDM0FmSm9pT1VQNkJLZFhoZGJ6?=
+ =?utf-8?B?MXpzbVU3d1BVN25oNWZyMWtScjRRZDJYSGxtWUhrZ09IYzk1cXhHbnNDQXRs?=
+ =?utf-8?B?SEtTaUtxM3lLR0dWZlh4VEdKOHJLWEVnNWZNTlRzM0U0a0hYRHpWNzBIU09T?=
+ =?utf-8?B?RkowOW5maDY5dUZoT2lKSW1lbFJpK1ZxNFZ5bjd0a2xna2tPdzFBdWphNVNj?=
+ =?utf-8?B?dEFIWC9xdXlnK1JTNVBIejNhaFlYNDFLcXJuSXczNXQ4dmNNQnUvTmNBekxV?=
+ =?utf-8?B?SUpub2EvUUFSdjk0cXRhc0N1aGY1RU1YZzB3YmxjNFo3K2NBaVJUR3h2cXho?=
+ =?utf-8?B?TTQyRkdqbUQyeU84Nkp2RVRqUlhSOGl5L2tMRDFFMmNzOEIwOUt1dTRYWGdD?=
+ =?utf-8?B?cTh0d2hQbDgzODE3ZC8zMUxWNVFkN2U3VXlBUlRHT0Nkbkowd3h6ZERnTjB6?=
+ =?utf-8?B?czVWNWtsblMwNkc0aWhXQURRdVh1SVkvL1JkVFZ4QnNOQzViZ2N3Z2JqcStN?=
+ =?utf-8?B?VHJOd1hHZ0thSk40dzNDdXlKN3cyQk1pOElNQ2pCVWsyRnBySDUrL0oyS0dJ?=
+ =?utf-8?B?TEE3NkltdDRycjcrbnJSbE1rVlAvN2lyRTZDV2U1Rkl4UGl2MWhFejJ2dHBj?=
+ =?utf-8?B?cHZObWtIUk5OMk9NMjdXREI4VUl3T1FiZDBob0tieW4yM0ZnRmI1alptdUZF?=
+ =?utf-8?B?dTY0MGxKbW43VERuM0E1a1hsMk81NGtzTkhVcXRQVUljaUpXbDUyWVE5b1hy?=
+ =?utf-8?B?d2dCUTJKU1JnR0lRREgwOHIwK04yRFlTQkt6MkNlbDBpcHJQUzh4UmREcktX?=
+ =?utf-8?B?cmpndUVxeDdOTWdPbVFkSFVUOGRvODk4bkJnaDFkZTZvNmpyaldoaGJLaHJL?=
+ =?utf-8?B?ZThEdE1OR0JwbTVGK3lrd0xrcVFncTVQWjE0UDlrSHU0UUJGM3kxejM1dlha?=
+ =?utf-8?Q?ZfEh8G?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7195.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(38070700021);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?UlFLaERqUnBTRlNHaDhRbXdhMGEzNFdWYkJlYkNjOWM4U1VQMGR5UGMyUmZP?=
+ =?utf-8?B?RlJxSUN0THJzRjkyalJjbVQ4bUpMMFJwQngybXNlUm5RMmZhMENaOXBLTlhM?=
+ =?utf-8?B?bCt5eUMvYWZJT2VKTnpIOEZEb1ljVHVwRzc4Qy80MWp6endTZ0ViaFFlbEJt?=
+ =?utf-8?B?REV3L1lDVFMrUHp1UXE1b3lmdXNyaEQrT29lVTBBVjhYcnVKT21YZWtDd1hZ?=
+ =?utf-8?B?TmlPTFZ4UUx6QXRkc2dudGRaNkVLVXFyeGFGRm1NbXJsNlNEZ09VSnpCRUVa?=
+ =?utf-8?B?UEVhaURwSmlBZlAzY21panhPRFF0cVEwNnZvYXpQMkdIaGtMbFVoVGpCYkNt?=
+ =?utf-8?B?cEU5U3l0RDZtUFBsMml6Tmc0cVVXSGlDcm5uYWJWajdkREQvV3lIcHJXZUFR?=
+ =?utf-8?B?aTgxd1VvWjlrdkZOMDFhMlZ3MFFmaG04RFU0YTFuZ2VtVHJLZ1hTUk5SZHBD?=
+ =?utf-8?B?SEtudWgranFVdnB5Si9uckpZNmd0azdwV1J4cjI4c1RCOEx5ZDFYeEhjSUFJ?=
+ =?utf-8?B?M0E5NkVpMTRGTTRzaDE1b3J0VkZ2K3UvM09rTjdvbitzcGk3QzVVYTdUb1pa?=
+ =?utf-8?B?c3dwQ2hDeElHeWMxR2FCMTlDc3JMSW11cDlzS04wT3NDaUI0anY2bnAxUTBv?=
+ =?utf-8?B?MFVLTThJUHZkMTlvUUNzT1dUT2kyY0F3RU10U0QzQnRnNmZXUDlJSEVjSERu?=
+ =?utf-8?B?bC9KVDBaemNLczZxTEQ1OHdtQzRoRnlEZ1VXSFFycktlSndVeTdoVVl1K3BF?=
+ =?utf-8?B?YWFWYjFrUHozS3BlWmVQZG5TYThpc0hqMHVESys4UWxISVJNaVV0RHMrZUwv?=
+ =?utf-8?B?UGROVHZqQ1R6ckMrZE1rV2t5dzRKRTFKTklhTHpVU3loS0F2MXZ6c3ltbXdW?=
+ =?utf-8?B?QUM0NHovU1NJa0NRZ09YcTBRMDhKMUk0akFIS2xJanIzd2dNR1NsNDE0dEUw?=
+ =?utf-8?B?ajVqVDcyM1FoOVAvSWk2SkFMWVdtZkEveUFnTUxCV2RQUGlCL21TZUFYVFNq?=
+ =?utf-8?B?Ynd3QXkyWkFaY256cDhBS3pTbUhlay9POWlzaWx4MCtyUllKNDZsRTFHOFA0?=
+ =?utf-8?B?dHlnZnFEWUMzcXU2WldMTEk1NGIyeXVhWFQxQUpOcnZpalNCdFVqUk96SjZo?=
+ =?utf-8?B?MWtUeTdNbk5xWmRmaWNldWZKNlVxOSthcGhybUx2Y1l1cVRJWFZCMVFvSTFm?=
+ =?utf-8?B?MVZjSUg5MTczL0tEQkFTNjRuUmQ1alovUUlYRUlzSElHRStJeS9WZUJPUXo3?=
+ =?utf-8?B?N0NLbHZzWmIzM3ZMMEU3eDYzSUhpNklONUxHYlFscnFNMzBOOWUwSWJMOVp2?=
+ =?utf-8?B?Q2owZnc0M210bzh0WlhVTklRQ1VmSFQxTDZqZHJPMHZlRXR4MGI5eVBJUm4y?=
+ =?utf-8?B?MEFmaUlEQXY2OFVaM2pkeXk2NGZxcHpLSVE5dUhadHdPOC90SnJBNWdqU3Bt?=
+ =?utf-8?B?TVdYQVNyVGdKOXpBaDRnd3VPd2w0NEdPdmZWRjIrMU9PR1lmd1d3WXp1Z0Ex?=
+ =?utf-8?B?dWdsU3RmYk1ZZFVVTUs2QUc4Q0FkZ2pvVlpSZTF2Zit6NTM3SnVPZ3dNNEZp?=
+ =?utf-8?B?cEZ6a1l6ZnVlekZKMmtBZmhBNnhFNFhJd0lnbUdlS2RtUFJ4TCtvcnp2RjIv?=
+ =?utf-8?B?cUlycGY0UGFrMGRiWTFIeCtqQzNZU000SFN0aml2RjJnQmxWSTlGZWVrOTFn?=
+ =?utf-8?B?Z2plZHZ5ZHZsdWRVUVpYWDJqRlRxSDczMm5ZdE5BQXhRMDdpTVVaajNUYWd2?=
+ =?utf-8?B?WHVNVlI1bWpQRHdPb1dDMmczVDR3Z1dld2p2OVdyYk8xbUh1Y0VXb2d1ZXpM?=
+ =?utf-8?B?YzRVY1FRdFhzYUZ0cVpDVnptbFY5aGlLMHowRkUvL29mYWoycytQQU11Ti9X?=
+ =?utf-8?B?M3kzQlI5WS96UzVvVnNkZWFLNXFNS0NHa21iZllVWGh2SDc2RjhvRnBuZk1x?=
+ =?utf-8?B?bFAxVTIvOW1GMUR1YngyWGlYdmN2TUwzaDZZNmdUVTZGYm05UDNsTWIrNzJt?=
+ =?utf-8?B?WkI3UURHUWVTRWs0ZmxkazdKbnlCdTgzNmh6UTFNV1haYW45K0xuZG9yU25N?=
+ =?utf-8?B?VmlQMVBkRnBpczlaTDJlRXJTRGE0bVR5WG5meEYyREM4dVJOTDhLTXZHZUx2?=
+ =?utf-8?Q?8OJo=3D?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v5] virtio-net: fix received length check in big
- packets
-To: Parav Pandit <parav@nvidia.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "Minggang(Gavin) Li" <gavinl@nvidia.com>, Gavi Teitz <gavi@nvidia.com>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20251024150649.22906-1-minhquangbui99@gmail.com>
- <CY8PR12MB71951A2ADD74508A9FC60956DCFEA@CY8PR12MB7195.namprd12.prod.outlook.com>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <CY8PR12MB71951A2ADD74508A9FC60956DCFEA@CY8PR12MB7195.namprd12.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7195.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 00035c15-5c4d-4bbb-81e1-08de1568e249
+X-MS-Exchange-CrossTenant-originalarrivaltime: 27 Oct 2025 14:55:35.0313
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: MkrkW0nRobCR9epfzt/D9DL4jhJlra4MsxRj9ZpRXIdZBR2IazKavJlGdw2D+CEzQbFfPAeKqxzA1VXnKs4T+A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB5611
 
-On 10/25/25 14:11, Parav Pandit wrote:
->> From: Bui Quang Minh <minhquangbui99@gmail.com>
->> Sent: 24 October 2025 08:37 PM
->>
->> Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big
->> packets"), when guest gso is off, the allocated size for big packets is not
->> MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on negotiated MTU. The
->> number of allocated frags for big packets is stored in vi-
->>> big_packets_num_skbfrags.
->> Because the host announced buffer length can be malicious (e.g. the host
->> vhost_net driver's get_rx_bufs is modified to announce incorrect length), we
->> need a check in virtio_net receive path. Currently, the check is not adapted to
->> the new change which can lead to NULL page pointer dereference in the below
->> while loop when receiving length that is larger than the allocated one.
->>
-> This looks wrong.
-> A device DMAed N bytes, and it reports N + M bytes in the completion?
-> Such devices should be fixed.
->
-> If driver allocated X bytes, and device copied X + Y bytes on receive packet, it will crash the driver host anyway.
->
-> The fixes tag in this patch is incorrect because this is not a driver bug.
-> It is just adding resiliency in driver for broken device. So driver cannot have fixes tag here.
-
-Yes, I agree that the check is a protection against broken device.
-
-The check is already there before this commit, but it is not correct 
-since the changes in commit 4959aebba8c0 ("virtio-net: use mtu size as 
-buffer length for big packets"). So this patch fixes the check 
-corresponding to the new change. I think this is a valid use of Fixes tag.
-
-Thanks,
-Quang Minh.
-
->
->> This commit fixes the received length check corresponding to the new change.
->>
->> Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big
->> packets")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
->> ---
->> Changes in v5:
->> - Move the length check to receive_big
->> - Link to v4: https://lore.kernel.org/netdev/20251022160623.51191-1-
->> minhquangbui99@gmail.com/
->> Changes in v4:
->> - Remove unrelated changes, add more comments
->> - Link to v3: https://lore.kernel.org/netdev/20251021154534.53045-1-
->> minhquangbui99@gmail.com/
->> Changes in v3:
->> - Convert BUG_ON to WARN_ON_ONCE
->> - Link to v2: https://lore.kernel.org/netdev/20250708144206.95091-1-
->> minhquangbui99@gmail.com/
->> Changes in v2:
->> - Remove incorrect give_pages call
->> - Link to v1: https://lore.kernel.org/netdev/20250706141150.25344-1-
->> minhquangbui99@gmail.com/
->> ---
->>   drivers/net/virtio_net.c | 25 ++++++++++++-------------
->>   1 file changed, 12 insertions(+), 13 deletions(-)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index
->> a757cbcab87f..2c3f544add5e 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -910,17 +910,6 @@ static struct sk_buff *page_to_skb(struct
->> virtnet_info *vi,
->>   		goto ok;
->>   	}
->>
->> -	/*
->> -	 * Verify that we can indeed put this data into a skb.
->> -	 * This is here to handle cases when the device erroneously
->> -	 * tries to receive more than is possible. This is usually
->> -	 * the case of a broken device.
->> -	 */
->> -	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
->> -		net_dbg_ratelimited("%s: too much data\n", skb->dev-
->>> name);
->> -		dev_kfree_skb(skb);
->> -		return NULL;
->> -	}
->>   	BUG_ON(offset >= PAGE_SIZE);
->>   	while (len) {
->>   		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset,
->> len); @@ -2107,9 +2096,19 @@ static struct sk_buff *receive_big(struct
->> net_device *dev,
->>   				   struct virtnet_rq_stats *stats)
->>   {
->>   	struct page *page = buf;
->> -	struct sk_buff *skb =
->> -		page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
->> +	struct sk_buff *skb;
->> +
->> +	/* Make sure that len does not exceed the allocated size in
->> +	 * add_recvbuf_big.
->> +	 */
->> +	if (unlikely(len > vi->big_packets_num_skbfrags * PAGE_SIZE)) {
->> +		pr_debug("%s: rx error: len %u exceeds allocate size %lu\n",
->> +			 dev->name, len,
->> +			 vi->big_packets_num_skbfrags * PAGE_SIZE);
->> +		goto err;
->> +	}
->>
->> +	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
->>   	u64_stats_add(&stats->bytes, len - vi->hdr_len);
->>   	if (unlikely(!skb))
->>   		goto err;
->> --
->> 2.43.0
-
+DQo+IEZyb206IEJ1aSBRdWFuZyBNaW5oIDxtaW5ocXVhbmdidWk5OUBnbWFpbC5jb20+DQo+IFNl
+bnQ6IDI3IE9jdG9iZXIgMjAyNSAwODoxOSBQTQ0KPiANCj4gT24gMTAvMjUvMjUgMTQ6MTEsIFBh
+cmF2IFBhbmRpdCB3cm90ZToNCj4gPj4gRnJvbTogQnVpIFF1YW5nIE1pbmggPG1pbmhxdWFuZ2J1
+aTk5QGdtYWlsLmNvbT4NCj4gPj4gU2VudDogMjQgT2N0b2JlciAyMDI1IDA4OjM3IFBNDQo+ID4+
+DQo+ID4+IFNpbmNlIGNvbW1pdCA0OTU5YWViYmE4YzAgKCJ2aXJ0aW8tbmV0OiB1c2UgbXR1IHNp
+emUgYXMgYnVmZmVyIGxlbmd0aA0KPiA+PiBmb3IgYmlnIHBhY2tldHMiKSwgd2hlbiBndWVzdCBn
+c28gaXMgb2ZmLCB0aGUgYWxsb2NhdGVkIHNpemUgZm9yIGJpZw0KPiA+PiBwYWNrZXRzIGlzIG5v
+dCBNQVhfU0tCX0ZSQUdTICogUEFHRV9TSVpFIGFueW1vcmUgYnV0IGRlcGVuZHMgb24NCj4gPj4g
+bmVnb3RpYXRlZCBNVFUuIFRoZSBudW1iZXIgb2YgYWxsb2NhdGVkIGZyYWdzIGZvciBiaWcgcGFj
+a2V0cyBpcw0KPiA+PiBzdG9yZWQgaW4gdmktDQo+ID4+PiBiaWdfcGFja2V0c19udW1fc2tiZnJh
+Z3MuDQo+ID4+IEJlY2F1c2UgdGhlIGhvc3QgYW5ub3VuY2VkIGJ1ZmZlciBsZW5ndGggY2FuIGJl
+IG1hbGljaW91cyAoZS5nLiB0aGUNCj4gPj4gaG9zdCB2aG9zdF9uZXQgZHJpdmVyJ3MgZ2V0X3J4
+X2J1ZnMgaXMgbW9kaWZpZWQgdG8gYW5ub3VuY2UgaW5jb3JyZWN0DQo+ID4+IGxlbmd0aCksIHdl
+IG5lZWQgYSBjaGVjayBpbiB2aXJ0aW9fbmV0IHJlY2VpdmUgcGF0aC4gQ3VycmVudGx5LCB0aGUN
+Cj4gPj4gY2hlY2sgaXMgbm90IGFkYXB0ZWQgdG8gdGhlIG5ldyBjaGFuZ2Ugd2hpY2ggY2FuIGxl
+YWQgdG8gTlVMTCBwYWdlDQo+ID4+IHBvaW50ZXIgZGVyZWZlcmVuY2UgaW4gdGhlIGJlbG93IHdo
+aWxlIGxvb3Agd2hlbiByZWNlaXZpbmcgbGVuZ3RoIHRoYXQgaXMNCj4gbGFyZ2VyIHRoYW4gdGhl
+IGFsbG9jYXRlZCBvbmUuDQo+ID4+DQo+ID4gVGhpcyBsb29rcyB3cm9uZy4NCj4gPiBBIGRldmlj
+ZSBETUFlZCBOIGJ5dGVzLCBhbmQgaXQgcmVwb3J0cyBOICsgTSBieXRlcyBpbiB0aGUgY29tcGxl
+dGlvbj8NCj4gPiBTdWNoIGRldmljZXMgc2hvdWxkIGJlIGZpeGVkLg0KPiA+DQo+ID4gSWYgZHJp
+dmVyIGFsbG9jYXRlZCBYIGJ5dGVzLCBhbmQgZGV2aWNlIGNvcGllZCBYICsgWSBieXRlcyBvbiBy
+ZWNlaXZlIHBhY2tldCwgaXQNCj4gd2lsbCBjcmFzaCB0aGUgZHJpdmVyIGhvc3QgYW55d2F5Lg0K
+PiA+DQo+ID4gVGhlIGZpeGVzIHRhZyBpbiB0aGlzIHBhdGNoIGlzIGluY29ycmVjdCBiZWNhdXNl
+IHRoaXMgaXMgbm90IGEgZHJpdmVyIGJ1Zy4NCj4gPiBJdCBpcyBqdXN0IGFkZGluZyByZXNpbGll
+bmN5IGluIGRyaXZlciBmb3IgYnJva2VuIGRldmljZS4gU28gZHJpdmVyIGNhbm5vdCBoYXZlDQo+
+IGZpeGVzIHRhZyBoZXJlLg0KPiANCj4gWWVzLCBJIGFncmVlIHRoYXQgdGhlIGNoZWNrIGlzIGEg
+cHJvdGVjdGlvbiBhZ2FpbnN0IGJyb2tlbiBkZXZpY2UuDQo+IA0KPiBUaGUgY2hlY2sgaXMgYWxy
+ZWFkeSB0aGVyZSBiZWZvcmUgdGhpcyBjb21taXQsIGJ1dCBpdCBpcyBub3QgY29ycmVjdCBzaW5j
+ZSB0aGUNCj4gY2hhbmdlcyBpbiBjb21taXQgNDk1OWFlYmJhOGMwICgidmlydGlvLW5ldDogdXNl
+IG10dSBzaXplIGFzIGJ1ZmZlciBsZW5ndGgNCj4gZm9yIGJpZyBwYWNrZXRzIikuIFNvIHRoaXMg
+cGF0Y2ggZml4ZXMgdGhlIGNoZWNrIGNvcnJlc3BvbmRpbmcgdG8gdGhlIG5ldw0KPiBjaGFuZ2Uu
+IEkgdGhpbmsgdGhpcyBpcyBhIHZhbGlkIHVzZSBvZiBGaXhlcyB0YWcuDQoNCkkgYW0gbWlzc2lu
+ZyBzb21ldGhpbmcuDQpJZiB5b3UgZG9u4oCZdCBoYXZlIHRoZSBicm9rZW4gZGV2aWNlLCB3aGF0
+IHBhcnQgaWYgd3JvbmcgaW4gdGhlIHBhdGNoIHdoaWNoIG5lZWRzIGZpeGVzIHRhZz8NCg==
