@@ -1,205 +1,210 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-00190b01.pphosted.com (mx0a-00190b01.pphosted.com [67.231.149.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD7D62F6592
-	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 09:56:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B404C2F6910
+	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 10:27:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761559016; cv=none; b=W8NIrqlne1bHvSjLsM0dPZ8Cde99tn5BPGuqu+GN2ot71qNgaRSelqlkqYNyzumby8bnWnZZ8md0r7mjs/loSniPrbcZaN7cUS30MkKvky+31uhrmeIoUqv08UjwInjzsVfTA5/l+UyMmmGk28y9fm34Q6TErD8JXelvejy0LE8=
+	t=1761560840; cv=none; b=htih1CuAb7ean3+R1hrRP2JDMX2kViQreusVbcSPGF60WBg39a4OuyzKtD/ONvs5Y9Expny9Yjapub8i/bz9qZnEZs4TLf0n5qLy7MnKLoY9NvQPzDiBxcOkdtkUo+ygOxaL9r2sBhHJoVDfvN9Bnv82n0YebNCtHmJnJ523zBg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761559016; c=relaxed/simple;
-	bh=Jv4wtk4a+YRPzNKLVeKEPNDtjfvW03UsnKGeSY5sHD0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JC3dNB1hoG5gTfr/YtZXvBTHXIePGMPwg8PV84gcV7CC9GC26nBuXOVP7hH8bP2y9x/94xJJhghDaBcZh/r0y34vdyyIB5Tx3yug/lesJx/swQ9bpgz0qYVRqXdKBEfmjYEpdP+oj7Kuax8/9XC9VqaNhY0xFLD++H8Hh1vXHzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ow+s/aox; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mFCX9Ei1; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ow+s/aox; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mFCX9Ei1; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1761560840; c=relaxed/simple;
+	bh=jXAAj67VByP6AXYtptL0mITMT/dGFN5VXSakFK1aluQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ndYRhE4e+GpGPX2RgcvrNT2P8ggEEf9KZmi0A8k0IyfL/uq4MdHBSlqQ+A49Phj+X/oVurYeZwGChZzyT7hmyNXbbpPaz40SiCsdH+iFL/MAje0nmdIYe7dBUAObKeGuIFVvX0SreHO6eqzWFNgBaUJ/PXtEZlXTYmXdNhoNRCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=akamai.com; spf=pass smtp.mailfrom=akamai.com; dkim=pass (2048-bit key) header.d=akamai.com header.i=@akamai.com header.b=Fon/lqKC; arc=none smtp.client-ip=67.231.149.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=akamai.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=akamai.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ow+s/aox";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mFCX9Ei1";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ow+s/aox";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mFCX9Ei1"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id DB9981F387;
-	Mon, 27 Oct 2025 09:56:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1761559011; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=r83Cy/mc02fZQTFlWzTU5lHgFwf03ZbG2vGkqc8Dqe0=;
-	b=ow+s/aoxLOjRuwrYB6zLW43RewS2YlHDe+e4+YKiu+gQfb2CuJNXGvxdz+0Da6TROtQYnY
-	VClDpLGFEUETyvEYahucGgKquYVRZ8OOJMHrNcPgKTeowvlEvdN8m6+CYIZhPCYScDuT48
-	pzqZQbgwbAZNtVf/I+8XLOQgY+wNxeM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1761559011;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=r83Cy/mc02fZQTFlWzTU5lHgFwf03ZbG2vGkqc8Dqe0=;
-	b=mFCX9Ei1Wemeb1PNr4c9R28kZ6hcjKgvnDSMYSLdT5iG2PybTv3JcoeuzjJB7IZQls26Bi
-	LIr3blxS6ahfl0Cg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="ow+s/aox";
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=mFCX9Ei1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1761559011; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=r83Cy/mc02fZQTFlWzTU5lHgFwf03ZbG2vGkqc8Dqe0=;
-	b=ow+s/aoxLOjRuwrYB6zLW43RewS2YlHDe+e4+YKiu+gQfb2CuJNXGvxdz+0Da6TROtQYnY
-	VClDpLGFEUETyvEYahucGgKquYVRZ8OOJMHrNcPgKTeowvlEvdN8m6+CYIZhPCYScDuT48
-	pzqZQbgwbAZNtVf/I+8XLOQgY+wNxeM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1761559011;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=r83Cy/mc02fZQTFlWzTU5lHgFwf03ZbG2vGkqc8Dqe0=;
-	b=mFCX9Ei1Wemeb1PNr4c9R28kZ6hcjKgvnDSMYSLdT5iG2PybTv3JcoeuzjJB7IZQls26Bi
-	LIr3blxS6ahfl0Cg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AD876136CF;
-	Mon, 27 Oct 2025 09:56:51 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 1UPsKONB/2hreQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 27 Oct 2025 09:56:51 +0000
-Message-ID: <5daeda5a-c4d9-4a10-a5d3-c0808a23c144@suse.de>
-Date: Mon, 27 Oct 2025 10:56:51 +0100
+	dkim=pass (2048-bit key) header.d=akamai.com header.i=@akamai.com header.b="Fon/lqKC"
+Received: from pps.filterd (m0122333.ppops.net [127.0.0.1])
+	by mx0a-00190b01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 59RA1oEW3083451;
+	Mon, 27 Oct 2025 10:27:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=jan2016.eng; bh=vjpGgOHUOzQBJjbmi3ZzYe0ig6bvhvg6P
+	zLW4ciotmE=; b=Fon/lqKCUNmllPTKFr/WJwBjjFND8w0JqGTOH6vAchohzKkQf
+	ZfICq86h8skzCX4V6dO5fu2Io86e5TslrImL9bqHV5c3RMOm6a2WHI95zRDpV10d
+	UD/EvSl0N7fkZBJJELJyHQAyeZMA5B5qXaN86LmdzKpU8EGXrFQZj8QvCLxFW7n2
+	IGAxwKt46/a4Zrb0xne/SHkrl+h4pUY6SnDwXn+Ox7EKVTNA86AMQc7LA1cAG83q
+	i7MX6QfjGzqKmm7UbE6Db/UtY5pheXAntDNBp1NK9RnXMmvNTl0I36jNGi6HqvUz
+	DviL8vhPHxIrkXW3YalcPaLCuknuFi0ImKXIg==
+Received: from prod-mail-ppoint5 (prod-mail-ppoint5.akamai.com [184.51.33.60])
+	by mx0a-00190b01.pphosted.com (PPS) with ESMTPS id 4a0nt8sqmn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Oct 2025 10:27:11 +0000 (GMT)
+Received: from pps.filterd (prod-mail-ppoint5.akamai.com [127.0.0.1])
+	by prod-mail-ppoint5.akamai.com (8.18.1.2/8.18.1.2) with ESMTP id 59R73c2B025840;
+	Mon, 27 Oct 2025 03:27:10 -0700
+Received: from prod-mail-relay02.akamai.com ([172.27.118.35])
+	by prod-mail-ppoint5.akamai.com (PPS) with ESMTP id 4a0vh86pyc-1;
+	Mon, 27 Oct 2025 03:27:09 -0700
+Received: from muc-lhvdhd.munich.corp.akamai.com (muc-lhvdhd.munich.corp.akamai.com [172.29.2.201])
+	by prod-mail-relay02.akamai.com (Postfix) with ESMTP id 9162C83;
+	Mon, 27 Oct 2025 10:27:08 +0000 (UTC)
+From: Nick Hudson <nhudson@akamai.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: Nick Hudson <nhudson@akamai.com>, Max Tottenham <mtottenh@akamai.com>,
+        kvm@vger.kernel.org, virtualization@lists.linux.dev,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] vhost: add a new ioctl VHOST_GET_VRING_WORKER_INFO and use in net.c
+Date: Mon, 27 Oct 2025 10:26:44 +0000
+Message-Id: <20251027102644.622305-1-nhudson@akamai.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC][PATCH] drm/virtgpu: Make vblank event dependent on the host
- resource
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
- "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
- "kraxel@redhat.com" <kraxel@redhat.com>,
- "airlied@redhat.com" <airlied@redhat.com>
-Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-References: <20251016145230.79270-1-tzimmermann@suse.de>
- <IA0PR11MB7185A7BA7B8CEAC46CBC0922F8F6A@IA0PR11MB7185.namprd11.prod.outlook.com>
- <21851b98-06ee-4e2c-8570-70e8a4fe5d86@suse.de>
- <afc6ba14-cd95-49b9-89f5-e90fd19c8927@collabora.com>
- <a2afbc13-0be6-46ef-a6da-9461fd30376b@collabora.com>
- <126a0b10-a550-430c-a1b3-7e144461a0ff@suse.de>
- <IA0PR11MB71850CA585D6E42C1E7217DDF8F3A@IA0PR11MB7185.namprd11.prod.outlook.com>
- <c6b44524-4e44-46e8-89b4-8f90e074431b@collabora.com>
- <84de3c82-638a-412c-8e25-9ff507d59400@suse.de>
- <IA0PR11MB7185DCAF9132F2CD92E42620F8F0A@IA0PR11MB7185.namprd11.prod.outlook.com>
- <8ac5053a-5f76-4145-a2f6-6bdd8316163e@collabora.com>
- <c5aa4544-9ff6-4669-b8d2-f8548c4c4eda@collabora.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <c5aa4544-9ff6-4669-b8d2-f8548c4c4eda@collabora.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: DB9981F387
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[7];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_EQ_ADDR_SOME(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim];
-	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Rspamd-Action: no action
-X-Spam-Flag: NO
-X-Spam-Score: -4.51
-X-Spam-Level: 
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-27_04,2025-10-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxscore=0 spamscore=0
+ phishscore=0 malwarescore=0 adultscore=0 suspectscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2510020000
+ definitions=main-2510270096
+X-Authority-Analysis: v=2.4 cv=QaRrf8bv c=1 sm=1 tr=0 ts=68ff48ff cx=c_pps
+ a=NpDlK6FjLPvvy7XAFEyJFw==:117 a=NpDlK6FjLPvvy7XAFEyJFw==:17
+ a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=X7Ea-ya5AAAA:8
+ a=s2F8ZfxWFg2Xnt8VUUoA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-GUID: 3_hAfG8Jii9R6Ttd3oyXC2qDXGaXWTnw
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI3MDA5NyBTYWx0ZWRfX0JYiNUNqObp8
+ JSHsznxaXuUnKUXZEPfIh5l+6VdbhfQgEhhbg6uy1bZKkvJsbnTSBGTAKSJNmZLA4Jc+0Y8mEFr
+ s3BN1ElBHHIfugkuIJ1VNg2f8XYlWrP1XHSqBD0oEhtv7M64eQR1A+POuA00bIEFhNqZ9MWbpfe
+ Sz+KiyUl7g89Bl41ET/JhLkW7E/j+rs8tmsm7sX2rk7WNPgS1RhOHYsm2DuoIxA0hHd35rGgzf6
+ iZDfadQ+U8y3tA3ItJ2tELK4tmQkAZaCfWzpilp5+kBhiKEmBAIWXBIP5Xk7Pk0lnKC2qmNj1jT
+ tgZgMwgzqyiBerScIUmoG8dyHggPVCj0703xnXza84fpeRpNRmmFe4Muz9jhT45Vc+F2Kok75R+
+ b3Iavehd92S2qd/MSPMCfJBbX+kHOg==
+X-Proofpoint-ORIG-GUID: 3_hAfG8Jii9R6Ttd3oyXC2qDXGaXWTnw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-27_04,2025-10-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 impostorscore=0
+ priorityscore=1501 suspectscore=0 bulkscore=0 clxscore=1011 phishscore=0
+ adultscore=0 spamscore=0 lowpriorityscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2510210000 definitions=main-2510270097
 
-Hi
+The vhost_net (and vhost_sock) drivers create worker tasks to handle
+the virtual queues. Provide a new ioctl VHOST_GET_VRING_WORKER_INFO that
+can be used to determine the PID of these tasks so that, for example,
+they can be pinned to specific CPU(s).
 
-Am 24.10.25 um 04:57 schrieb Dmitry Osipenko:
-> On 10/24/25 05:55, Dmitry Osipenko wrote:
->> On 10/23/25 09:22, Kasireddy, Vivek wrote:
->>> Also, I think you might want to limit the plane sync to host mechanism to just guest
->>> blobs only because based on what Dmitry said the vblank timer helps in virgl/venus/
->>> native context use-cases. That is,
->>> @@ -138,7 +140,7 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
->>>          for (i = 0; i < new_plane_state->fb->format->num_planes; ++i) {
->>>                  struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(new_plane_state->fb->obj[i]);
->>>
->>> -               if (bo->host3d_blob || bo->guest_blob) {
->>> +               if (bo->guest_blob && !vgdev->has_virgl_3d) {
->> Checking for obj->import_attach should be enough if it's only prime
->> sharing that doesn't work properly with vblank timer.
->>
->> Please verify that only prime needs the workaround and send the updated
->> patch.
-> Don't forget to add clarifying comment to the code explaining the
-> workaround.
+Signed-off-by: Nick Hudson <nhudson@akamai.com>
+Reviewed-by: Max Tottenham <mtottenh@akamai.com>
+---
+ drivers/vhost/net.c              |  5 +++++
+ drivers/vhost/vhost.c            | 16 ++++++++++++++++
+ include/uapi/linux/vhost.h       |  3 +++
+ include/uapi/linux/vhost_types.h | 13 +++++++++++++
+ kernel/vhost_task.c              | 12 ++++++++++++
+ 5 files changed, 49 insertions(+)
 
-Sent out as "drm/virtgpu: Make vblank event dependent on the external sync".
-
-Best regards
-Thomas
-
->
-
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 35ded4330431..e86bd5d7d202 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1804,6 +1804,11 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
+ 		return vhost_net_reset_owner(n);
+ 	case VHOST_SET_OWNER:
+ 		return vhost_net_set_owner(n);
++	case VHOST_GET_VRING_WORKER_INFO:
++		mutex_lock(&n->dev.mutex);
++		r = vhost_worker_ioctl(&n->dev, ioctl, argp);
++		mutex_unlock(&n->dev.mutex);
++		return r;
+ 	default:
+ 		mutex_lock(&n->dev.mutex);
+ 		r = vhost_dev_ioctl(&n->dev, ioctl, argp);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 8570fdf2e14a..8b52fd5723c3 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2399,6 +2399,22 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
+ 		if (ctx)
+ 			eventfd_ctx_put(ctx);
+ 		break;
++	case VHOST_GET_VRING_WORKER_INFO:
++		worker = rcu_dereference_check(vq->worker,
++					       lockdep_is_held(&dev->mutex));
++		if (!worker) {
++			ret = -EINVAL;
++			break;
++		}
++
++		memset(&ring_worker_info, 0, sizeof(ring_worker_info));
++		ring_worker_info.index = idx;
++		ring_worker_info.worker_id = worker->id;
++		ring_worker_info.worker_pid = task_pid_vnr(vhost_get_task(worker->vtsk));
++
++		if (copy_to_user(argp, &ring_worker_info, sizeof(ring_worker_info)))
++			ret = -EFAULT;
++		break;
+ 	default:
+ 		r = -ENOIOCTLCMD;
+ 		break;
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index c57674a6aa0d..c32aa8c71952 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -101,6 +101,9 @@
+ /* Return the vring worker's ID */
+ #define VHOST_GET_VRING_WORKER _IOWR(VHOST_VIRTIO, 0x16,		\
+ 				     struct vhost_vring_worker)
++/* Return the vring worker's ID and PID */
++#define VHOST_GET_VRING_WORKER_INFO _IOWR(VHOST_VIRTIO, 0x17,	\
++				     struct vhost_vring_worker_info)
+ 
+ /* The following ioctls use eventfd file descriptors to signal and poll
+  * for events. */
+diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
+index 1c39cc5f5a31..28e00f8ade85 100644
+--- a/include/uapi/linux/vhost_types.h
++++ b/include/uapi/linux/vhost_types.h
+@@ -63,6 +63,19 @@ struct vhost_vring_worker {
+ 	unsigned int worker_id;
+ };
+ 
++/* Per-virtqueue worker mapping entry */
++struct vhost_vring_worker_info {
++	/* vring index */
++	unsigned int index;
++	/*
++	 * The id of the vhost_worker returned from VHOST_NEW_WORKER or
++	 * allocated as part of vhost_dev_set_owner.
++	 */
++	unsigned int worker_id;
++
++	__kernel_pid_t worker_pid;  /* PID/TID of worker thread, -1 if none */
++};
++
+ /* no alignment requirement */
+ struct vhost_iotlb_msg {
+ 	__u64 iova;
+diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+index 27107dcc1cbf..aa87a7f0c98a 100644
+--- a/kernel/vhost_task.c
++++ b/kernel/vhost_task.c
+@@ -67,6 +67,18 @@ static int vhost_task_fn(void *data)
+ 	do_exit(0);
+ }
+ 
++/**
++ * vhost_get_task - get a pointer to the vhost_task's task_struct
++ * @vtsk: vhost_task to return the task for
++ *
++ * return the vhost_task's task.
++ */
++struct task_struct *vhost_get_task(struct vhost_task *vtsk)
++{
++	return vtsk->task;
++}
++EXPORT_SYMBOL_GPL(vhost_get_task);
++
+ /**
+  * vhost_task_wake - wakeup the vhost_task
+  * @vtsk: vhost_task to wake
 -- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
-
+2.34.1
 
