@@ -1,82 +1,83 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 577961C701F
-	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 06:07:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E1632D46B1
+	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 09:55:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761545277; cv=none; b=UQRcL5LTor0XSF3/j4BC1DNlrY/nwQZX2cZzgreK9q16Em3vu4NIvdwMcNgCqZ6EbB1SkyPnNwXSzZpAckmGECPf99EQmRX6RDf9V81QmasTNeALY6A5UuYwuXmOGi1aOv4kwJklb/rbpFm5k3OI/JqROaqh4aD738ter5wH9Ds=
+	t=1761558958; cv=none; b=WxznK9Yx/xPghwSu032QzjLJG5PE6Mkby/bk9hytei7rKLpyPYUipX4p8I/3e7Lmshhm+sQQd2M0VLa2OLb0v1aiblOCQgIRUP/S7UFFCfzmsixNVZ5I8hhqWrAVG7pCCevpwfrlLsiKNV2YaOf3Ek1Isw6js8WJ60s5rKmm2fY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761545277; c=relaxed/simple;
-	bh=2r27UqdYRY/th9NT3KvLaQBAFAv+vHzCvNeRmfAsipQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Dy6gcxlwWY6/ZfIslGatQ0dthj5LOvpWINCMa39OWR+BQqWwLmORDFo2yRL8jQzqH/Ia6OPXgRAoLdP14okpmx2eH/PPvXCWhSe1bf9MR9AHj+wIH0iwiKbR9mDMKJyMsSDzZ0BRbFJxt85cPoukgahgDEFr/AGhJqQY7jgPxB0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Xrq2uj3k; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1761558958; c=relaxed/simple;
+	bh=DlIr/2KOdob5wx6I+VumVuTd0TLpcfLvxtmx4T2KKJk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EnEa2mJ3AhlemjXKYnZ8seUSCy9iAQv87n633ikY9Pz+XN312Oiet9bGIQMx6i3OZsKz7ags802tw9Em3c/CL6eSE/MvCkKuumk2GsWP2QDaaKPP0flBjh55c81XIR0TSuaQ7g82VsSHj8nEiqxBhOMzjYvXtziDnuaSRcVM7D0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=e3XAZrkc; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7utOYG02; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=e3XAZrkc; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7utOYG02; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xrq2uj3k"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-26d0fbe238bso30265875ad.3
-        for <virtualization@lists.linux.dev>; Sun, 26 Oct 2025 23:07:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761545276; x=1762150076; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=4FyP7h5NR2Q1a8ZGF1Za3mDWy2+W/UZG/poMuoDyAsA=;
-        b=Xrq2uj3kyAKylzv9EtxAhwEAde5rpNCZJZ6ezc+DWxxnM/guVQvbHeDVwgDanClrE8
-         WWoYSc+ZS139f4ATgntifj/bWW8W+dVqg1RItl28CsmrXVaFcM9sjkLBEjWP1n85P3NV
-         e/LcXvHaWHKNRe9KKqD/QYG+zcjzFQwT2F2qU5K176JMWU7IschB89uEta8rpeWReMgh
-         uyZqLjiUOMnX2UGbLc8+zS0XTw9pr7JtPfWkC4s5mry0GlgJz3N3jNpOQ2ZLr7EPDrd3
-         hVNBNLqr3cYkVKB56QnO4WHiM+o6kqSX/JEJEvdalILei9KoiM6SJMldL0KGnuMFpTFK
-         dtTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761545276; x=1762150076;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=4FyP7h5NR2Q1a8ZGF1Za3mDWy2+W/UZG/poMuoDyAsA=;
-        b=f8zYl81+8HCW+DIC9dVeydc7VbTH9DNFqoFgH58kHlXyfNc0wYvlRdwNwY2AU3Njr/
-         IvS2QJ7r24xQUC4ElBB38m3AU2ForJeIc2MDVajY6FSJYlk2BbdzufDn8nFyKM7xQsvD
-         2H9wjfVSjifqisEwtwFlhVPHLwDuauh1KdNk1AOzENMkNzL9Fp77G2xU/lAj8lm6urcY
-         61cX73OSZoO3QEW9dz5xr/QpwhAC0h2LlPkmOj5ve1rupJ3ALyOkTFIUBIW3RAO2noic
-         tiO8jf891+KmfHBp+N/Pc9aHQ+pfaOMGZC3qk/33R9e+o+xG2DgRVUQxNpg6RvtldWd2
-         woCQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVyKesLyKM9T3KQ/GAp83bYnSu4+lqGMzjKtUYoDx9K8lK2pU2yWjMZ9C2K4HBo0eCAzmb9qilMIexOmJhG3w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx4H391E2pbNbYPf0lZLtUzV3DXQ6g6WC3XFI/oJMW1tVpyK9AP
-	EyWF+pm/6dNKJU333nBNJEMOn/U2L5jPhmN9NHjY6c1QvGknDIo5unOK
-X-Gm-Gg: ASbGncua27WqQ0cgtNr57Lr2lDjrHWK6okMJwfZo5JCGuV+wyc2kUE5367ZU4/oPM5f
-	4DiuJZoxtTAx05xX9W+MqSysm2otizO0TuQuNe2UA+OZwx6kv94xoagnMiJnrz8iDqVI0Vn1iqU
-	0nYkuJjMDTjEViCQm0Yw3OsMjeRdyKzf4pJgDkuxPgBfE+s/FlSMPxviF3wP70mYu32vto+zygr
-	1xH6B/W4d9fM/Dgxngb+5vxKSVnbMz/+hXwrNoTWyWLnzYHh91d0jDBs/AewBLquRUgrqlXjGxA
-	xuTCaiin7d3rrg9aNuE9Tm5i2/pF18d7OwZsfgh8znf1Fx0rFFA8ImZGxsTZv14kCAOhR6cm16I
-	k1IQ2jeVxN5rrDlqTzCBMSDjl923Jh2bqP1CIenq5aW0GlCv5ySZzWYK91lsqjfejAzfi18aR9I
-	ltvi4D3M/OYXgT/utPJuUUeA==
-X-Google-Smtp-Source: AGHT+IHkRBw9AN+xBRZdDNVj+3VWLhXLMgjUZyYBAk3neP09j59Fxp6vlIptXFrwVCD5MHrWoavEVA==
-X-Received: by 2002:a17:902:dad1:b0:26c:87f9:9ea7 with SMTP id d9443c01a7336-2948ba78fd1mr155483155ad.59.1761545275616;
-        Sun, 26 Oct 2025 23:07:55 -0700 (PDT)
-Received: from localhost.localdomain ([124.77.218.104])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-29498d40a73sm69674695ad.74.2025.10.26.23.07.50
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 26 Oct 2025 23:07:55 -0700 (PDT)
-From: Miaoqian Lin <linmq006@gmail.com>
-To: schalla@marvell.com,
-	vattunuru@marvell.com,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Dan Carpenter <dan.carpenter@linaro.org>,
-	Shijith Thotton <sthotton@marvell.com>,
-	Satha Rao <skoteshwar@marvell.com>,
-	Philipp Stanner <phasta@kernel.org>,
-	Nithin Dabilpuram <ndabilpuram@marvell.com>,
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="e3XAZrkc";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7utOYG02";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="e3XAZrkc";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7utOYG02"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 3102921A06;
+	Mon, 27 Oct 2025 09:55:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1761558954; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=o/X2axDzX+ivr1meW29W28xsNkDBcfjbOaZzwberrxE=;
+	b=e3XAZrkcEcR5BgvSEz/h82Yika0pKnJoMpNX4dFNxbMTLc8Ar0TtPQ8Sbu5agYEH/+wH/E
+	ex3f/C7rxBqIXUCqf0BI2nUNSg1qPPyh7yvrFgmkqmrX/8RojlPdPkSXvQNScuFTGIjx91
+	XaT0E3M2yUm9mU4Uxv0TjnfdH8Tux34=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1761558954;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=o/X2axDzX+ivr1meW29W28xsNkDBcfjbOaZzwberrxE=;
+	b=7utOYG026erpDq+H+bOruApeFx+MGDPpgsZAk/kTQXgdRB0IJL/6Df016EobF7d7TLgtJA
+	B0fL9Iwk10/RUfCw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=e3XAZrkc;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=7utOYG02
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1761558954; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=o/X2axDzX+ivr1meW29W28xsNkDBcfjbOaZzwberrxE=;
+	b=e3XAZrkcEcR5BgvSEz/h82Yika0pKnJoMpNX4dFNxbMTLc8Ar0TtPQ8Sbu5agYEH/+wH/E
+	ex3f/C7rxBqIXUCqf0BI2nUNSg1qPPyh7yvrFgmkqmrX/8RojlPdPkSXvQNScuFTGIjx91
+	XaT0E3M2yUm9mU4Uxv0TjnfdH8Tux34=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1761558954;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=o/X2axDzX+ivr1meW29W28xsNkDBcfjbOaZzwberrxE=;
+	b=7utOYG026erpDq+H+bOruApeFx+MGDPpgsZAk/kTQXgdRB0IJL/6Df016EobF7d7TLgtJA
+	B0fL9Iwk10/RUfCw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E220C13A9A;
+	Mon, 27 Oct 2025 09:55:53 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id q79CNalB/2iQeAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 27 Oct 2025 09:55:53 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: dmitry.osipenko@collabora.com,
+	vivek.kasireddy@intel.com,
+	gurchetansingh@chromium.org,
+	kraxel@redhat.com,
+	airlied@redhat.com
+Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Cc: linmq006@gmail.com,
-	stable@vger.kernel.org
-Subject: [PATCH] virtio: vdpa: Fix reference count leak in octep_sriov_enable()
-Date: Mon, 27 Oct 2025 14:07:35 +0800
-Message-Id: <20251027060737.33815-1-linmq006@gmail.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v4] drm/virtgpu: Make vblank event dependent on the external sync
+Date: Mon, 27 Oct 2025 10:52:01 +0100
+Message-ID: <20251027095550.110562-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.51.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -84,36 +85,255 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 3102921A06
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FROM_HAS_DN(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[8];
+	RCVD_TLS_ALL(0.00)[];
+	URIBL_BLOCKED(0.00)[suse.de:email,suse.de:mid,suse.de:dkim];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_DN_SOME(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
 
-pci_get_device() will increase the reference count for the returned
-pci_dev, and also decrease the reference count for the input parameter
-from if it is not NULL.
+For each plane, store the buffer object's sync status in the state
+of the plane's respective CRTC. During the CRTC's atomic flush,
+ignore the vblank timer if any of the CRTC's plane's buffer object
+is synchronized to an external source. Instead send the vblank event
+immediately. Avoids corner cases where a vblank event happens too
+late for the next frame to be page flipped in time.
 
-If we break the loop in  with 'vf_pdev' not NULL. We
-need to call pci_dev_put() to decrease the reference count.
+Exporters of GEM objects sometimes interfere with the vblank timer;
+resulting in framerate drops. Hence detect this case and handle it
+as outlined above.
 
-Found via static anlaysis and this is similar to commit c508eb042d97
-("perf/x86/intel/uncore: Fix reference count leak in sad_cfg_iio_topology()")
+The vblank timer is still active and fires in regular intervals
+according to the guest display refresh. This rate limits clients
+that only wait for the next vblank to occur, such as fbcon. These
+clients would otherwise produce a very high number of frames per
+second.
 
-Fixes: 8b6c724cdab8 ("virtio: vdpa: vDPA driver for Marvell OCTEON DPU devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+v4:
+- only handle imported GEM buffer objects (Dmitri, Vivek)
+- fix test for plane visibility (Vivek)
+- always enable vblank timer to make waiting clients happy
+v3:
+- disable vblank unconditionally
+- compute status on each commit
+v2:
+- enable/disable vblank timer according to buffer setup
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/vdpa/octeon_ep/octep_vdpa_main.c | 1 +
- 1 file changed, 1 insertion(+)
+This patch was previously called "drm/virtgpu: Make vblank event
+dependent on the host resource". Earlier versions where meant for
+testing, rather than being merged. See [1] for a discussion of when
+the fixed problem happens.
 
-diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-index 9e8d07078606..31a02e7fd7f2 100644
---- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-+++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-@@ -736,6 +736,7 @@ static int octep_sriov_enable(struct pci_dev *pdev, int num_vfs)
- 		octep_vdpa_assign_barspace(vf_pdev, pdev, index);
- 		if (++index == num_vfs) {
- 			done = true;
-+			pci_dev_put(vf_pdev);
- 			break;
- 		}
- 	}
+[1] https://lore.kernel.org/dri-devel/20251016145230.79270-1-tzimmermann@suse.de/
+---
+ drivers/gpu/drm/virtio/virtgpu_display.c | 67 ++++++++++++++++++++++--
+ drivers/gpu/drm/virtio/virtgpu_drv.h     | 15 ++++++
+ drivers/gpu/drm/virtio/virtgpu_plane.c   | 28 +++++++++-
+ 3 files changed, 104 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index e972d9b015a9..a4fa948023da 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -49,14 +49,71 @@
+ #define drm_connector_to_virtio_gpu_output(x) \
+ 	container_of(x, struct virtio_gpu_output, conn)
+ 
++static void virtio_gpu_crtc_state_destroy(struct virtio_gpu_crtc_state *vgcrtc_state)
++{
++	__drm_atomic_helper_crtc_destroy_state(&vgcrtc_state->base);
++
++	kfree(vgcrtc_state);
++}
++
++static bool virtio_gpu_crtc_state_send_event_on_flush(struct virtio_gpu_crtc_state *vgcrtc_state)
++{
++	struct drm_crtc_state *crtc_state = &vgcrtc_state->base;
++
++	/*
++	 * The CRTC's output is sync'ed if at least one plane's output
++	 * is sync'ed to an external source. Send out vlbank event in
++	 * atomic_flush instead of vblank timeout.
++	 */
++	return vgcrtc_state->plane_synced_to_ext & crtc_state->plane_mask;
++}
++
++static void virtio_gpu_crtc_reset(struct drm_crtc *crtc)
++{
++	struct virtio_gpu_crtc_state *vgcrtc_state;
++
++	if (crtc->state)
++		virtio_gpu_crtc_state_destroy(to_virtio_gpu_crtc_state(crtc->state));
++
++	vgcrtc_state = kzalloc(sizeof(*vgcrtc_state), GFP_KERNEL);
++	if (vgcrtc_state)
++		__drm_atomic_helper_crtc_reset(crtc, &vgcrtc_state->base);
++	else
++		__drm_atomic_helper_crtc_reset(crtc, NULL);
++}
++
++static struct drm_crtc_state *virtio_gpu_crtc_atomic_duplicate_state(struct drm_crtc *crtc)
++{
++	struct drm_device *dev = crtc->dev;
++	struct drm_crtc_state *crtc_state = crtc->state;
++	struct virtio_gpu_crtc_state *new_vgcrtc_state;
++
++	if (drm_WARN_ON(dev, !crtc_state))
++		return NULL;
++
++	new_vgcrtc_state = kzalloc(sizeof(*new_vgcrtc_state), GFP_KERNEL);
++	if (!new_vgcrtc_state)
++		return NULL;
++
++	__drm_atomic_helper_crtc_duplicate_state(crtc, &new_vgcrtc_state->base);
++
++	return &new_vgcrtc_state->base;
++}
++
++static void virtio_gpu_crtc_atomic_destroy_state(struct drm_crtc *crtc,
++						 struct drm_crtc_state *crtc_state)
++{
++	virtio_gpu_crtc_state_destroy(to_virtio_gpu_crtc_state(crtc_state));
++}
++
+ static const struct drm_crtc_funcs virtio_gpu_crtc_funcs = {
+ 	.set_config             = drm_atomic_helper_set_config,
+ 	.destroy                = drm_crtc_cleanup,
+ 
+ 	.page_flip              = drm_atomic_helper_page_flip,
+-	.reset                  = drm_atomic_helper_crtc_reset,
+-	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
+-	.atomic_destroy_state   = drm_atomic_helper_crtc_destroy_state,
++	.reset                  = virtio_gpu_crtc_reset,
++	.atomic_duplicate_state = virtio_gpu_crtc_atomic_duplicate_state,
++	.atomic_destroy_state   = virtio_gpu_crtc_atomic_destroy_state,
+ 	DRM_CRTC_VBLANK_TIMER_FUNCS,
+ };
+ 
+@@ -129,7 +186,9 @@ static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
+ {
+ 	struct drm_device *dev = crtc->dev;
+ 	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state, crtc);
++	struct virtio_gpu_crtc_state *vgcrtc_state = to_virtio_gpu_crtc_state(crtc_state);
+ 	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
++	bool send_event_on_flush = virtio_gpu_crtc_state_send_event_on_flush(vgcrtc_state);
+ 	struct drm_pending_vblank_event *event;
+ 
+ 	/*
+@@ -147,7 +206,7 @@ static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
+ 	crtc_state->event = NULL;
+ 
+ 	if (event) {
+-		if (drm_crtc_vblank_get(crtc) == 0)
++		if (!send_event_on_flush && drm_crtc_vblank_get(crtc) == 0)
+ 			drm_crtc_arm_vblank_event(crtc, event);
+ 		else
+ 			drm_crtc_send_vblank_event(crtc, event);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index f17660a71a3e..acf0a62d1d73 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -195,6 +195,21 @@ struct virtio_gpu_framebuffer {
+ #define to_virtio_gpu_framebuffer(x) \
+ 	container_of(x, struct virtio_gpu_framebuffer, base)
+ 
++struct virtio_gpu_crtc_state {
++	struct drm_crtc_state base;
++
++	/*
++	 * Set from each plane's atomic check and depends on the plane's GEM
++	 * buffer objects. The bit shows is the corresponding plane is already
++	 * synchronized to an external source. Used by the CRTC for vblank
++	 * handling. Only valid during mode setting.
++	 */
++	u32 plane_synced_to_ext;
++};
++
++#define to_virtio_gpu_crtc_state(x) \
++	container_of(x, struct virtio_gpu_crtc_state, base)
++
+ struct virtio_gpu_plane_state {
+ 	struct drm_plane_state base;
+ 	struct virtio_gpu_fence *fence;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 29e4b458ae57..634e1a930783 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -27,6 +27,7 @@
+ #include <drm/drm_damage_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_gem_atomic_helper.h>
++#include <drm/drm_gem_framebuffer_helper.h>
+ #include <linux/virtio_dma_buf.h>
+ #include <drm/drm_managed.h>
+ #include <drm/drm_panic.h>
+@@ -104,7 +105,8 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+ 										 plane);
+ 	bool is_cursor = plane->type == DRM_PLANE_TYPE_CURSOR;
+ 	struct drm_crtc_state *crtc_state;
+-	int ret;
++	struct virtio_gpu_crtc_state *vgcrtc_state;
++	int ret, i;
+ 
+ 	if (!new_plane_state->fb || WARN_ON(!new_plane_state->crtc))
+ 		return 0;
+@@ -126,7 +128,29 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+ 						  DRM_PLANE_NO_SCALING,
+ 						  DRM_PLANE_NO_SCALING,
+ 						  is_cursor, true);
+-	return ret;
++	if (ret)
++		return ret;
++	else if (!new_plane_state->visible)
++		return 0;
++
++	vgcrtc_state = to_virtio_gpu_crtc_state(crtc_state);
++	vgcrtc_state->plane_synced_to_ext &= ~drm_plane_mask(plane);
++
++	for (i = 0; i < new_plane_state->fb->format->num_planes; ++i) {
++		struct drm_gem_object *obj = drm_gem_fb_get_obj(new_plane_state->fb, i);
++
++		/*
++		 * Exporters of GEM buffer objects sometimes interfere with the
++		 * vblank timer. Mark the plane as externally synchronized if we
++		 * find an imported GEM buffer object.
++		 */
++		if (drm_gem_is_imported(obj)) {
++			vgcrtc_state->plane_synced_to_ext |= drm_plane_mask(plane);
++			break; /* only need to find one */
++		}
++	}
++
++	return 0;
+ }
+ 
+ /* For drm panic */
 -- 
-2.39.5 (Apple Git-154)
+2.51.1
 
